@@ -33,6 +33,7 @@
     "reviewNote": "AI może popełniać błędy. Sprawdź tekst, zanim go zachowasz.",
     "stopped": "Zatrzymano. Nadal możesz zachować to, co zostało dotąd napisane.",
     "applyFailed": "Nie udało się dodać sugestii do strony.",
+    "asSuggestions": "Dodaj jako sugerowane zmiany",
     "selectionChanged": "Zaznaczony tekst w międzyczasie się zmienił, więc sugestię dodano pod nim."
   },
   "errors": {
@@ -136,6 +137,8 @@
     "ownersOnly": "Tylko właściciele mogą to zmienić.",
     "memory": "Pamięć AI",
     "memoryHint": "Gdy włączona, czat AI zachowuje krótkie notatki o osobach, które coś o sobie mówią, i wysyła je razem z ich kolejnymi pytaniami. Każdy może ją wyłączyć dla siebie. Gdy wyłączona, widok Pamięć jest ukryty, a niczyje pytania nie zawierają notatek; notatki są zachowywane, a nie usuwane. Uruchomienia agentów również nie zawierają wtedy notatek ani ich nie proponują.",
+    "webSearch": "Wyszukiwanie w sieci w czacie AI",
+    "webSearchHint": "Po włączeniu czat AI może szukać w sieci usługą wyszukiwania serwera i czytać strony internetowe, tylko czytając: po przeczytaniu czegoś z sieci pyta o każdą zmianę, którą chce wprowadzić. Tryb badania też szuka w sieci. Pytania i tekst, którymi szuka, opuszczają obszar roboczy i trafiają do usługi wyszukiwania.",
     "provider": "Dostawca",
     "providerValue": "{provider}, model {model}",
     "notConfigured": "Na tym serwerze nie skonfigurowano dostawcy AI ani modelu embeddingów, więc funkcje AI są wyłączone. Administrator może je skonfigurować za pomocą zmiennych środowiskowych AI_PROVIDER i AI_MODEL (oraz AI_EMBEDDINGS_MODEL) (zobacz README).",
@@ -208,6 +211,10 @@
       "query": "Odpytano",
       "rows": "{count, plural, =0 {brak pasujących wierszy} one {# wiersz} few {# wiersze} many {# wierszy} other {# wiersza}}",
       "queryGone": "Odpytano bazę danych, której nie możesz już otworzyć",
+      "plan": "Zaplanowano badanie:",
+      "webSearched": "Wyszukano w sieci „{query}” · {count, plural, =0 {nic nie znaleziono} one {# wynik} few {# wyniki} many {# wyników} other {# wyniku}}",
+      "webRead": "Przeczytano",
+      "webReadFailed": "Nie udało się przeczytać",
       "write": {
         "done": {
           "createRow": "Dodano wiersz:",
@@ -323,7 +330,14 @@
       "auto": "Automatycznie",
       "autoHint": "Dodaje i zmienia bez pytania",
       "read": "Tylko odczyt",
-      "readHint": "Niczego nie zmienia"
+      "readHint": "Niczego nie zmienia",
+      "asSuggestions": "Zmiany stron jako sugestie",
+      "asSuggestionsHint": "To, co czat pisze na stronie, pojawia się jako sugerowane zmiany do przyjęcia lub odrzucenia"
+    },
+    "model": {
+      "label": "Model",
+      "hint": "Model, który odpowiada w tej rozmowie",
+      "images": "Czyta obrazy"
     },
     "actions": {
       "edit": "Edytuj",
@@ -333,17 +347,33 @@
     "actionsFor": "Działania dla {name}",
     "greeting": "Czego chcesz się dowiedzieć?",
     "files": {
-      "attach": "Załącz plik CSV",
-      "attachHint": "Załącz plik CSV (do 1000 wierszy i 1 MB), aby zadać o nim pytanie lub utworzyć z niego bazę danych",
-      "drop": "Upuść plik CSV, aby go załączyć",
+      "attach": "Załącz pliki",
+      "attachHint": "Załącz obrazy lub pliki PDF, Word, Excel, CSV albo tekstowe, aby zadać o nie pytanie",
+      "drop": "Upuść pliki, aby je załączyć",
       "remove": "Usuń {name}",
       "size": "{rows, plural, one {# wiersz} few {# wiersze} many {# wierszy} other {# wiersza}} × {columns, plural, one {# kolumna} few {# kolumny} many {# kolumn} other {# kolumny}}",
-      "notCsv": "Można załączać tylko pliki CSV. Najpierw zapisz arkusz jako CSV.",
-      "tooLarge": "Plik jest większy niż {size}. Załącz mniejszy plik CSV.",
+      "uploading": "Przesyłanie…",
+      "notSupported": "Czat odczytuje obrazy, dokumenty PDF, Word i Excel oraz pliki CSV, Markdown i tekstowe.",
+      "tooLarge": "Plik jest większy niż {size}. Załącz mniejszy plik.",
       "tooManyRows": "Plik ma więcej niż {rows} wierszy. Załącz krótszy plik CSV albo zaimportuj go jako bazę danych.",
       "tooManyColumns": "Plik ma więcej niż {columns} kolumn.",
       "empty": "Plik jest pusty.",
-      "tooMany": "Pytanie może mieć najwyżej {count} pliki."
+      "tooMany": "Pytanie może mieć najwyżej {count} pliki.",
+      "noImages": "Wybrany model nie przyjmuje obrazów. Wybierz inny model albo usuń obraz.",
+      "quota": "Plik nie został załączony: w tym obszarze roboczym skończyło się miejsce na pliki.",
+      "failed": "Nie udało się załączyć {name}."
+    },
+    "research": {
+      "sourcesHeading": "Źródła",
+      "untitled": "Raport z badania",
+      "toggle": "Badanie",
+      "toggleHint": "Tryb badania: planuje pytania szczegółowe, przeszukuje i czyta obszar roboczy (oraz sieć, jeśli włączona), a potem pisze obszerny raport ze źródłami. Niczego nie zmienia.",
+      "placeholder": "Co zbadać?",
+      "asked": "Badanie",
+      "readOnly": "Badanie tylko czyta: niczego nie zmienia",
+      "save": "Zapisz jako stronę",
+      "openPage": "Otwórz stronę",
+      "saveFailed": "Nie udało się zapisać raportu jako strony."
     }
   },
   "memory": {

@@ -75,6 +75,7 @@ import { AccessError, ConnectedAppReadOnlyError, requirePageAccess } from "@/ser
 import {
   DASHBOARD_BLOCK,
   DASHBOARD_COLUMNS,
+  DASHBOARD_LAYOUTS,
   defaultSpan,
   MAX_WIDGET_TITLE,
   MAX_WIDGETS,
@@ -209,7 +210,7 @@ function withContentNote(result: CallToolResult): CallToolResult {
 }
 
 const EMBED_NOTE =
-  "Databases shown inside a page body appear in its Markdown as their own lines, `<!-- leafdesk:database <id> -->` (an inline database) or `<!-- leafdesk:linked-view <id> -->` (a linked view of a database); get_page lists them under embedded_databases. A dashboard (see add_dashboard) is the line `<!-- leafdesk:dashboard <id> -->`; get_page lists dashboards and their widgets under dashboards. A chat with an agent, where readers of the page talk to it in the app, is the line `<!-- leafdesk:agent-chat <agent_id> <chat_id> -->` (keep the chat_id: it holds the readers' conversations; a new line may leave it out).";
+  "Databases shown inside a page body appear in its Markdown as their own lines, `<!-- leafdesk:database <id> -->` (an inline database) or `<!-- leafdesk:linked-view <id> -->` (a linked view of a database); get_page lists them under embedded_databases. A dashboard (see add_dashboard) is the line `<!-- leafdesk:dashboard <id> -->`; get_page lists dashboards and their widgets under dashboards. A chat with an agent, where readers of the page talk to it in the app, is the line `<!-- leafdesk:agent-chat <agent_id> <chat_id> -->` (keep the chat_id: it holds the readers' conversations; a new line may leave it out). A button is the line `<!-- leafdesk:button <id> \"Label\" -->`: keep it to keep the button.";
 
 /** How formulas are written, for tool descriptions. */
 const FORMULA_HELP =
@@ -566,7 +567,7 @@ const viewWidgetsInput = z
   .array(
     z.object({
       id: z.string().min(1).optional().describe("A widget the view has (get_database lists them): keeps its settings you leave out."),
-      type: WIDGET_TYPE.optional().describe('"chart" (a number with chart_type "number"), "list", "table", "board", "calendar", "gallery", "timeline" or "map". New widgets are charts.'),
+      type: WIDGET_TYPE.optional().describe('"chart" (a number with chart_type "number"), "list", "feed", "table", "board", "calendar", "gallery", "timeline" or "map". New widgets are charts.'),
       ...widgetInputs,
       title: z.string().max(MAX_WIDGET_TITLE).optional().describe("Shown above the widget; empty to name it after what it shows."),
     }),
@@ -1130,7 +1131,11 @@ export function createMcpServer(principal: McpPrincipal) {
                 n.kind === "assignment"
                   ? `${who} assigned the user to "${n.propertyName ?? ""}" on "${title}" in ${pageLabel(n.databaseTitle)}`
                   : n.kind === "comment"
-                    ? `${who} commented on "${title}" in a thread the user is in (see list_comments)`
+                    ? n.suggestion === "suggested"
+                      ? `${who} suggested edits to "${title}"; each is a comment thread (see list_comments)`
+                      : n.suggestion
+                        ? `${who} ${n.suggestion} the user's suggested edit on "${title}"`
+                        : `${who} commented on "${title}" in a thread the user is in (see list_comments)`
                     : n.kind === "mention"
                       ? `${who} mentioned the user on "${title}"`
                       : n.kind === "reminder"
@@ -1143,12 +1148,16 @@ export function createMcpServer(principal: McpPrincipal) {
                             ? `${who} changed "${title}" in ${pageLabel(n.databaseTitle)}, a row the user follows`
                           : n.kind === "page_updated"
                             ? `${who} edited "${title}", a page the user watches (get_page shows it now; list_page_history what changed)`
+                          : n.kind === "verification"
+                            ? `The user's verification of "${title}" ${n.reminderDate && n.createdAt >= new Date(n.reminderDate) ? "expired" : "ends"} on ${n.reminderDate ?? "a date"} (update_page with verified renews it)`
                           : n.kind === "follow_up"
                             ? `The follow-up "${n.followUp?.sequence ?? ""}" on "${title}" in ${pageLabel(n.databaseTitle)} is paused: its next email didn't pass the check (list_enrollments shows what it found; fix the row or the sequence, then resume it in the app)`
                           : n.kind === "row_email"
                             ? `Email from ${n.rowEmail?.from ?? "someone"} came in on "${title}" in ${pageLabel(n.databaseTitle)}`
                           : n.kind === "reaction"
                             ? `${n.reaction?.people.map((p) => p.name).join(", ") || who} reacted ${n.reaction?.emojis.join(" ") ?? ""} to the user's comment on "${title}" (see list_comments)`
+                          : n.kind === "automation" && n.automationName === null
+                            ? `${who} clicked a button on "${title}" that tells the user${n.automationMessage ? `: ${n.automationMessage}` : ""}`
                           : n.kind === "automation"
                             ? n.automationMessage
                               ? `Automation "${n.automationName ?? ""}" about "${title}": ${n.automationMessage}`
@@ -2899,7 +2908,7 @@ export function createMcpServer(principal: McpPrincipal) {
     {
       title: "Create a database view",
       description:
-        'Add a saved view to a database: a "table" (optionally grouped into collapsible sections with group_by), a "board" (cards in columns by group_by), a "calendar" (rows placed on the days of a date property, across every day of a range and at their times in the week mode; see calendar_mode), a "gallery" (cards with a cover: the first image in each row\'s body, or in a files property with cover), a "list" (one compact line per row), a "timeline" (bars from a start date to an optional end date, optionally in swimlanes by group_by), a "map" (pins at a place property; group_by a select colors them), a "chart" (see chart_type), a "dashboard" (a grid of widgets over the database: numbers, charts, lists and other views, each with its own settings; see widgets. Without widgets it starts with the row count, the sum of the first number property, a chart by the first select or status property and the rows edited last) or a "form" (questions people answer to add a row; see questions, defaults and public). Views group by a select, status (per option, or per todo / in_progress / done with group_status_by "group"), multi_select, person, created_by, last_edited_by, checkbox (unchecked / checked), date, created_time or last_edited_time (per day, week from Monday, month or year with group_date_by, month by default) or relation (one group per linked row); a row with several tags, people or links shows in each of their groups. Filters (with groups and filter_combinator) and sorts use the same form as query_database; a person filter on "me" shows everyone who opens the view their own rows, and is_within date filters count from the day the view is opened.',
+        'Add a saved view to a database: a "table" (optionally grouped into collapsible sections with group_by), a "board" (cards in columns by group_by), a "calendar" (rows placed on the days of a date property, across every day of a range and at their times in the week mode; see calendar_mode), a "gallery" (cards with a cover: the first image in each row\'s body, or in a files property with cover), a "list" (one compact line per row), a "feed" (posts: each row with its body, reactions and comments, newest first unless sorted), a "timeline" (bars from a start date to an optional end date, optionally in swimlanes by group_by), a "map" (pins at a place property; group_by a select colors them), a "chart" (see chart_type), a "dashboard" (a grid of widgets over the database: numbers, charts, lists and other views, each with its own settings; see widgets. Without widgets it starts with the row count, the sum of the first number property, a chart by the first select or status property and the rows edited last) or a "form" (questions people answer to add a row; see questions, defaults and public). Views group by a select, status (per option, or per todo / in_progress / done with group_status_by "group"), multi_select, person, created_by, last_edited_by, checkbox (unchecked / checked), date, created_time or last_edited_time (per day, week from Monday, month or year with group_date_by, month by default) or relation (one group per linked row); a row with several tags, people or links shows in each of their groups. Filters (with groups and filter_combinator) and sorts use the same form as query_database; a person filter on "me" shows everyone who opens the view their own rows, and is_within date filters count from the day the view is opened.',
       inputSchema: z.object({
         database_id: id("database"),
         name: z.string().min(1).max(100).describe("View name."),
@@ -3112,23 +3121,26 @@ export function createMcpServer(principal: McpPrincipal) {
           .min(1)
           .max(MAX_WIDGETS)
           .describe("The widgets, in reading order (left to right, then down)."),
+        layout: z.enum(DASHBOARD_LAYOUTS).optional().describe('"tabs": one widget at a time, each named on its tab. "grid" by default.'),
       }),
       annotations: { readOnlyHint: false, destructiveHint: false, idempotentHint: false, openWorldHint: false },
       scopeChallenge: requireWrite,
     },
-    ({ page_id, widgets }) =>
+    ({ page_id, widgets, layout = "grid" }) =>
       runTool(async () => {
         assertWrite();
         const page = await dashboardPage(page_id);
         const built: DashboardWidget[] = [];
         for (const input of widgets) built.push(await widgetFrom(input, built));
         const blockId = crypto.randomUUID();
-        await getCollab().appendBlocks(page_id, [{ id: blockId, type: DASHBOARD_BLOCK, props: { widgets: serializeDashboard(built) } }], actor, true);
-        // The grid needs the room, as when a dashboard is added in the editor.
-        await getCollab().setPageStyle(page_id, { fullWidth: true }, actor);
+        const props = { widgets: serializeDashboard(built), ...(layout === "tabs" ? { layout } : {}) };
+        await getCollab().appendBlocks(page_id, [{ id: blockId, type: DASHBOARD_BLOCK, props }], actor, true);
+        // The grid needs the room, as when a dashboard is added in the editor; tabs show one view at a time.
+        if (layout === "grid") await getCollab().setPageStyle(page_id, { fullWidth: true }, actor);
         return {
           dashboard_id: blockId,
           page_id,
+          layout,
           widgets: await describeWidgets(userId, built),
           url: pageUrl(page.workspaceId, page.id),
           snapshot: "Saved the previous version to page history before adding the dashboard.",
@@ -3149,7 +3161,7 @@ export function createMcpServer(principal: McpPrincipal) {
         before_widget_id: z.string().min(1).optional().describe("Put the widget right before this one."),
         after_widget_id: z.string().min(1).optional().describe("Put the widget right after this one."),
         database_id: id("database").optional().describe("The database the widget shows: needed for a new widget."),
-        type: WIDGET_TYPE.optional().describe('The widget\'s layout: "chart" (a number with chart_type "number"), "list", "table", "board", "calendar", "gallery", "timeline" or "map". New widgets are charts.'),
+        type: WIDGET_TYPE.optional().describe('The widget\'s layout: "chart" (a number with chart_type "number"), "list", "feed", "table", "board", "calendar", "gallery", "timeline" or "map". New widgets are charts.'),
         ...widgetInputs,
       }),
       annotations: { readOnlyHint: false, destructiveHint: true, idempotentHint: false, openWorldHint: false },
@@ -3559,7 +3571,7 @@ export function createMcpServer(principal: McpPrincipal) {
     {
       title: "List comments on a page",
       description:
-        "List a page's comment threads, oldest first: the text each thread is about (quote; null when that text was deleted, or for a thread about the whole page, marked about_page), whether it's resolved, marked: true when the user marked it to come back to later, and its comments with author, time and text. Resolved threads are left out unless include_resolved is true.",
+        "List a page's comment threads, oldest first: the text each thread is about (quote; null when that text was deleted, or for a thread about the whole page, marked about_page, or on a row property's value, named in property), whether it's resolved, marked: true when the user marked it to come back to later, and its comments with author, time and text. Resolved threads are left out unless include_resolved is true.",
       inputSchema: ops.inputs.listComments,
       annotations: READ,
     },

@@ -33,6 +33,7 @@
     "reviewNote": "Yapay zekâ hata yapabilir. Metni tutmadan önce kontrol et.",
     "stopped": "Durduruldu. Şimdiye kadar yazılanı yine de tutabilirsin.",
     "applyFailed": "Öneri sayfaya eklenemedi.",
+    "asSuggestions": "Önerilen değişiklik olarak ekle",
     "selectionChanged": "Seçili metin bu arada değişti, bu yüzden öneri altına eklendi."
   },
   "errors": {
@@ -136,6 +137,8 @@
     "ownersOnly": "Bunu yalnızca sahipler değiştirebilir.",
     "memory": "Yapay zekâ hafızası",
     "memoryHint": "Açıkken yapay zekâ sohbeti kendinden bahseden kişiler hakkında kısa notlar tutar ve sonraki sorularıyla birlikte gönderir. Herkes kendisi için kapatabilir. Kapalıyken Hafıza görünümü gizlenir ve hiçbir soru not taşımaz; notlar silinmez, saklanır. Ajan çalışmaları da o zaman not taşımaz ve not önermez.",
+    "webSearch": "AI sohbetinde web araması",
+    "webSearchHint": "Açıkken AI sohbeti sunucunun arama hizmetiyle web’de arayabilir ve web sayfalarını okuyabilir, yalnızca okuyarak: web’den okuduktan sonra yapmak istediği her değişiklik sorulur. Araştırma modu da web’de arar. Aramada kullandığı sorular ve metinler çalışma alanından arama hizmetine gider.",
     "provider": "Sağlayıcı",
     "providerValue": "{provider}, model {model}",
     "notConfigured": "Bu sunucuda bir yapay zekâ sağlayıcısı ya da embedding modeli ayarlanmamış, bu yüzden yapay zekâ özellikleri kapalı. Bir yönetici AI_PROVIDER ve AI_MODEL (ve AI_EMBEDDINGS_MODEL) ortam değişkenleriyle ayarlayabilir (README'ye bak).",
@@ -208,6 +211,10 @@
       "query": "Sorgulandı",
       "rows": "{count, plural, =0 {eşleşen satır yok} other {# satır}}",
       "queryGone": "Artık açamadığın bir veritabanı sorgulandı",
+      "plan": "Araştırma planlandı:",
+      "webSearched": "Web’de “{query}” arandı · {count, plural, =0 {sonuç yok} other {# sonuç}}",
+      "webRead": "Okundu",
+      "webReadFailed": "Okunamadı:",
       "write": {
         "done": {
           "createRow": "Satır eklendi:",
@@ -323,7 +330,14 @@
       "auto": "Otomatik",
       "autoHint": "Sormadan ekler ve değiştirir",
       "read": "Sadece oku",
-      "readHint": "Hiçbir şeyi değiştirmez"
+      "readHint": "Hiçbir şeyi değiştirmez",
+      "asSuggestions": "Sayfa değişiklikleri öneri olarak",
+      "asSuggestionsHint": "Sohbetin sayfaya yazdıkları, kabul edip reddedebileceğiniz önerilen değişiklikler olarak görünür"
+    },
+    "model": {
+      "label": "Model",
+      "hint": "Bu sohbette yanıt veren model",
+      "images": "Görselleri okur"
     },
     "actions": {
       "edit": "Düzenle",
@@ -333,17 +347,33 @@
     "actionsFor": "{name} için işlemler",
     "greeting": "Ne öğrenmek istersin?",
     "files": {
-      "attach": "CSV dosyası ekle",
-      "attachHint": "Hakkında soru sormak ya da ondan veritabanı oluşturmak için bir CSV dosyası ekle (en çok 1.000 satır ve 1 MB)",
-      "drop": "Eklemek için CSV dosyasını bırak",
+      "attach": "Dosya ekle",
+      "attachHint": "Hakkında soru sormak için görsel ya da PDF, Word, Excel, CSV veya metin dosyası ekle",
+      "drop": "Eklemek için dosyaları bırak",
       "remove": "{name} dosyasını kaldır",
       "size": "{rows, plural, one {# satır} other {# satır}} × {columns, plural, one {# sütun} other {# sütun}}",
-      "notCsv": "Yalnızca CSV dosyaları eklenebilir. Tabloyu önce CSV olarak kaydet.",
-      "tooLarge": "Bu dosya {size} sınırından büyük. Daha küçük bir CSV dosyası ekle.",
+      "uploading": "Yükleniyor…",
+      "notSupported": "Sohbet görselleri, PDF, Word ve Excel belgelerini, CSV, Markdown ve metin dosyalarını okur.",
+      "tooLarge": "Bu dosya {size} sınırından büyük. Daha küçük bir dosya ekle.",
       "tooManyRows": "Bu dosyada {rows} satırdan fazlası var. Daha kısa bir CSV dosyası ekle ya da dosyayı veritabanı olarak içe aktar.",
       "tooManyColumns": "Bu dosyada {columns} sütundan fazlası var.",
       "empty": "Bu dosya boş.",
-      "tooMany": "Bir soruya en çok {count} dosya eklenebilir."
+      "tooMany": "Bir soruya en çok {count} dosya eklenebilir.",
+      "noImages": "Seçilen model görsel almıyor. Başka bir model seç ya da görseli kaldır.",
+      "quota": "Dosya eklenmedi: bu çalışma alanının dosya depolaması doldu.",
+      "failed": "{name} eklenemedi."
+    },
+    "research": {
+      "sourcesHeading": "Kaynaklar",
+      "untitled": "Araştırma raporu",
+      "toggle": "Araştırma",
+      "toggleHint": "Araştırma modu: alt soruları planlar, çalışma alanında (açıksa web’de de) arar ve okur, sonra kaynaklı uzun bir rapor yazar. Hiçbir şeyi değiştirmez.",
+      "placeholder": "Neyi araştırsın?",
+      "asked": "Araştırma",
+      "readOnly": "Araştırma yalnızca okur: hiçbir şeyi değiştirmez",
+      "save": "Sayfa olarak kaydet",
+      "openPage": "Sayfayı aç",
+      "saveFailed": "Rapor sayfa olarak kaydedilemedi."
     }
   },
   "memory": {

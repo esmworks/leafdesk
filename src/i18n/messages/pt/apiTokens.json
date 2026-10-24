@@ -110,6 +110,10 @@
       "agents": {
         "name": "Agentes",
         "hint": "Configurações, execuções, agendamentos e compartilhamento dos agentes."
+      },
+      "webhooks": {
+        "name": "Webhooks",
+        "hint": "Webhooks de página e suas entregas; escrever os adiciona, altera e testa (só proprietários)."
       }
     },
     "summary": {

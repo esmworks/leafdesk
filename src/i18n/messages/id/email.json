@@ -57,6 +57,11 @@
     "action": "Buka halaman",
     "optOut": "Anda menerima ini karena Anda ikut dalam utas komentar ini. Anda dapat mematikannya di Akun saya > Preferensi."
   },
+  "suggestion": {
+    "subject": "{actor} menyarankan edit pada “{page}”",
+    "heading": "{actor} menyarankan edit pada “{page}”",
+    "body": "Saran ini ada di “{page}” di {workspace}. Terima atau tolak dari halaman, atau balas di utasnya."
+  },
   "mention": {
     "subject": "{actor} menyebut Anda di “{page}”",
     "heading": "{actor} menyebut Anda di “{page}”",
@@ -71,6 +76,16 @@
     "body": "Anda meminta untuk diingatkan tentang {date} di “{page}” di {workspace}.",
     "action": "Buka halaman",
     "optOut": "Anda menerima ini karena Anda mengatur pengingat. Anda dapat mematikannya di Akun saya > Preferensi."
+  },
+  "pageVerification": {
+    "endsSubject": "Verifikasi Anda atas “{page}” berakhir pada {date}",
+    "endsHeading": "Verifikasi segera berakhir",
+    "endsBody": "Anda memverifikasi “{page}” di {workspace} hingga {date}. Jika isinya masih benar, verifikasi lagi dari menu ⋯ halaman agar tetap terverifikasi.",
+    "endedSubject": "Verifikasi Anda atas “{page}” telah kedaluwarsa",
+    "endedHeading": "Verifikasi kedaluwarsa",
+    "endedBody": "Verifikasi Anda atas “{page}” di {workspace} berakhir pada {date}. Halaman ini menampilkan “Verifikasi kedaluwarsa” sampai seseorang memverifikasinya lagi.",
+    "action": "Buka halaman",
+    "optOut": "Anda menerima ini karena Anda memverifikasi halaman tersebut. Anda dapat mematikannya di Akun saya > Preferensi."
   },
   "dateReminder": {
     "subject": "Pengingat: “{page}” pada {date}",
@@ -220,11 +235,15 @@
     "assignment": "{actor} menugaskan Anda pada “{property}”",
     "pageShared": "{actor} membagikan halaman ini kepada Anda",
     "comment": "{actor} berkomentar di utas yang Anda ikuti",
+    "suggested": "{actor} menyarankan edit pada halaman ini",
+    "suggestionAccepted": "{actor} menerima saran edit Anda",
+    "suggestionRejected": "{actor} menolak saran edit Anda",
     "mention": "{actor} menyebut Anda",
     "reminder": "Pengingat: {date}",
     "accessRequest": "{actor} meminta akses ke halaman ini",
     "automation": "Otomatisasi “{name}”: {actor} menambahkan atau mengubah baris ini",
     "automationDatePassed": "Otomatisasi “{name}”: tanggal baris ini telah tiba",
+    "button": "{actor} mengirimkan halaman ini kepada Anda dengan tombol",
     "rowUpdate": "{actor} mengubah {fields}",
     "rowUpdateSome": "{actor} mengubah baris ini",
     "rowUpdateTitle": "judul",
@@ -234,6 +253,8 @@
     "followUp": "Tindak lanjut “{sequence}” dijeda: email berikutnya perlu diperiksa",
     "reaction": "{actor} memberi reaksi {emoji} pada komentar Anda",
     "people": "{others, plural, =0 {{name}} other {{name} dan # lainnya}}",
+    "verificationEnds": "Verifikasi Anda atas halaman ini berakhir pada {date}",
+    "verificationEnded": "Verifikasi Anda atas halaman ini kedaluwarsa pada {date}",
     "someone": "Seseorang",
     "joinRequestTitle": "Permintaan bergabung",
     "joinRequest": "{actor} meminta untuk bergabung",

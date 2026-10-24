@@ -12,6 +12,7 @@
     "groups": "Nhóm",
     "agents": "Tác tử",
     "connections": "Kết nối",
+    "webhooks": "Webhook",
     "storage": "Lưu trữ",
     "analytics": "Phân tích",
     "aiUsage": "Mức sử dụng AI",
@@ -21,6 +22,67 @@
     "site": "Trang web",
     "snippets": "Đoạn mẫu",
     "pdf": "Mẫu PDF"
+  },
+  "search": {
+    "label": "Tìm trong cài đặt",
+    "placeholder": "Tìm trong cài đặt",
+    "noResults": "Không có cài đặt nào khớp.",
+    "labels": {
+      "aiUsagePeople": "Mức sử dụng theo người"
+    },
+    "keywords": {
+      "profile": "tên ảnh ảnh đại diện hình",
+      "email": "địa chỉ thay đổi xác minh email",
+      "deleteAccount": "xóa đóng tài khoản",
+      "password": "đổi đặt lại đăng nhập mật khẩu",
+      "twoFactor": "2fa mfa ứng dụng xác thực mã",
+      "passkeys": "webauthn khóa bảo mật vân tay khuôn mặt",
+      "sessions": "thiết bị đã đăng nhập đăng xuất phiên",
+      "language": "ngôn ngữ bản dịch khu vực",
+      "theme": "chế độ tối chế độ sáng màu giao diện",
+      "contrast": "trợ năng độ tương phản cao",
+      "notifications": "đẩy email cảnh báo thông báo",
+      "watchedPages": "theo dõi đăng ký quan sát",
+      "offlineDevice": "ngoại tuyến tải xuống bộ nhớ đệm dung lượng",
+      "offlinePages": "ngoại tuyến tải xuống không có internet",
+      "mailboxes": "email hộp thư đến imap smtp",
+      "calendars": "ical nguồn cấp đăng ký lịch",
+      "storageAccounts": "drive s3 tệp đám mây",
+      "connectedApps": "oauth ứng dụng khách quyền truy cập thu hồi",
+      "aiAccounts": "khóa api khóa riêng nhà cung cấp",
+      "telegram": "bot trò chuyện tin nhắn",
+      "mcp": "trợ lý model context protocol máy chủ",
+      "apiTokens": "rest api token khóa nhà phát triển",
+      "about": "phiên bản giấy phép cập nhật",
+      "workspaceName": "tên đổi tên biểu tượng",
+      "ai": "trí tuệ nhân tạo trò chuyện mô hình nhà cung cấp bộ nhớ",
+      "workspaceMail": "email hàng thư gửi",
+      "export": "sao lưu tải xuống zip markdown xuất",
+      "members": "người mời người dùng vai trò xóa thành viên",
+      "agents": "ai trợ lý tự động hóa bot tác tử",
+      "snippets": "văn bản viết tắt đoạn trích",
+      "letterheads": "pdf tiêu đề thư đầu trang chân trang logo in",
+      "connections": "tích hợp mcp dịch vụ công cụ kết nối",
+      "webhooks": "webhook http post sự kiện tích hợp thông báo gửi",
+      "site": "trang web xuất bản tên miền",
+      "requireTwoFactor": "2fa mfa bắt buộc chính sách",
+      "loginMethod": "sso mật khẩu đăng nhập chính sách",
+      "allowedNetworks": "ip danh sách cho phép địa chỉ văn phòng vpn mạng",
+      "membership": "mời tham gia yêu cầu tên miền",
+      "sso": "saml oidc nhà cung cấp danh tính",
+      "scim": "cấp phát thư mục đồng bộ người dùng",
+      "exportPolicy": "tải xuống in pdf xuất",
+      "connectedAppsPolicy": "mcp rest api token quyền truy cập",
+      "publishing": "xuất bản web chia sẻ liên kết công khai",
+      "retention": "thùng rác lịch sử xóa giữ ngày",
+      "legalHolds": "kiện tụng bảo toàn ediscovery giữ",
+      "storage": "tệp s3 drive bucket lưu trữ",
+      "analyticsPeople": "hoạt động chỉnh sửa thống kê",
+      "aiUsageLimit": "ngân sách chi phí chi tiêu giới hạn",
+      "aiUsagePeople": "theo người thành viên chi phí token",
+      "health": "liên kết hỏng mồ côi trùng lặp trang trống",
+      "audit": "nhật ký lịch sử sự kiện ai đã thay đổi"
+    }
   },
   "workspace": {
     "heading": "Không gian làm việc",
@@ -957,6 +1019,8 @@
     "moveToTrash": "Chuyển vào thùng rác",
     "confirmTrash": "Chuyển “{title}” vào thùng rác?",
     "lastEdited": "Chỉnh sửa gần nhất {when}",
+    "verificationEndedBy": "Được {name} xác minh, đã kết thúc {when}",
+    "verificationEnded": "Xác minh đã kết thúc {when}",
     "alike": "giống nhau {similarity, number, percent}",
     "inProperty": "{property} trong {database}",
     "removeFromRelation": "Xóa",
@@ -980,6 +1044,11 @@
       "title": "Các trang không được chạm đến",
       "description": "Các trang không ai chỉnh sửa trong {months} tháng qua, trang để lâu nhất xếp trước. Chúng có thể đã lỗi thời.",
       "none": "Mọi trang đều được chỉnh sửa gần đây."
+    },
+    "expiredVerifications": {
+      "title": "Xác minh đã hết hạn",
+      "description": "Các trang được ai đó xác minh đến một ngày đã qua. Hãy kiểm tra và xác minh lại, hoặc gỡ xác minh.",
+      "none": "Không có xác minh nào hết hạn."
     },
     "duplicates": {
       "title": "Có thể trùng lặp",
@@ -1387,6 +1456,50 @@
       "memberView": "{count, plural, =0 {Tắt: không gian làm việc mở được từ mọi mạng.} other {Bật: không gian làm việc chỉ mở được từ # mạng được phê duyệt.}}"
     }
   },
+  "legalHolds": {
+    "title": "Lưu giữ pháp lý",
+    "description": "Khi lệnh lưu giữ còn hiệu lực, không thứ gì mà những người trong lệnh đã tạo hoặc chỉnh sửa trong không gian làm việc này có thể bị xóa vĩnh viễn. Trang và hàng của họ vẫn có thể chuyển vào thùng rác, nhưng sẽ ở lại đó cùng lịch sử, bình luận và tệp; không thể xóa không gian làm việc và tài khoản của họ.",
+    "holds": "Lệnh lưu giữ",
+    "holdsDescription": "Việc đặt và gỡ bỏ lệnh lưu giữ được ghi trong nhật ký kiểm tra.",
+    "empty": "Không có lệnh lưu giữ nào.",
+    "new": "Lệnh lưu giữ mới",
+    "setBy": "Do {name} đặt ngày {date, date, medium}",
+    "setOn": "Đặt ngày {date, date, medium}",
+    "people": "{count, plural, other {# người}}",
+    "left": "đã rời đi",
+    "guest": "khách",
+    "release": "Gỡ bỏ",
+    "confirmRelease": "Gỡ bỏ {name}",
+    "form": {
+      "title": "Lệnh lưu giữ pháp lý mới",
+      "description": "Chọn những người mà lệnh bao gồm: thành viên, khách, hoặc những người đã rời đi nhưng từng tạo hoặc chỉnh sửa nội dung ở đây.",
+      "name": "Tên",
+      "namePlaceholder": "Vụ việc hoặc hồ sơ",
+      "reason": "Lý do",
+      "reasonPlaceholder": "Không bắt buộc: lý do và ai yêu cầu",
+      "people": "Người ({count})",
+      "search": "Tìm người",
+      "loading": "Đang tải…",
+      "nobody": "Không ai khớp.",
+      "submit": "Đặt lệnh lưu giữ"
+    },
+    "errors": {
+      "pageHeld": "Một lệnh lưu giữ pháp lý đang giữ trang này, hoặc một trang bên dưới nó: không thể xóa vĩnh viễn khi lệnh còn hiệu lực, và trang sẽ ở lại trong thùng rác.",
+      "templateHeld": "Một lệnh lưu giữ pháp lý đang giữ mẫu này: không thể xóa khi lệnh còn hiệu lực.",
+      "propertyHeld": "Một lệnh lưu giữ pháp lý đang giữ các giá trị của thuộc tính này: không thể xóa vĩnh viễn khi lệnh còn hiệu lực.",
+      "commentHeld": "Một lệnh lưu giữ pháp lý đang giữ bình luận này: không thể xóa khi lệnh còn hiệu lực.",
+      "letterheadHeld": "Một lệnh lưu giữ pháp lý đang giữ tiêu đề thư này: không thể xóa khi lệnh còn hiệu lực.",
+      "workspaceHeld": "Không gian làm việc này có lệnh lưu giữ pháp lý. Hãy gỡ bỏ lệnh (Cài đặt > Bảo mật) trước khi xóa không gian làm việc.",
+      "nameRequired": "Hãy đặt tên cho lệnh lưu giữ.",
+      "nameTooLong": "Tên dài tối đa 200 ký tự.",
+      "reasonTooLong": "Lý do dài tối đa 2.000 ký tự.",
+      "noPeople": "Hãy chọn người chịu lệnh lưu giữ.",
+      "tooManyPeople": "Một lệnh lưu giữ bao gồm tối đa 200 người.",
+      "unknownPerson": "Một người bạn chọn không còn ở trong không gian làm việc này.",
+      "notFound": "Lệnh lưu giữ đó đã được gỡ bỏ.",
+      "ownersOnly": "Chỉ chủ sở hữu mới quản lý được lệnh lưu giữ pháp lý."
+    }
+  },
   "audit": {
     "description": "Bản ghi ai đã thay đổi gì trong không gian làm việc này: thành viên và vai trò, lời mời, chia sẻ, không gian nhóm và nhóm, cài đặt, bảo mật, trang được tạo, chuyển, đưa vào thùng rác và xóa, xuất bản, ứng dụng đã kết nối và các lần xuất. Chỉ chủ sở hữu mới xem được.",
     "filters": "Lọc nhật ký kiểm tra",
@@ -1501,6 +1614,7 @@
       "loginMethod": "Cách thành viên đăng nhập",
       "ai": "Tính năng AI",
       "aiMemory": "Bộ nhớ AI",
+      "aiWebSearch": "Tìm kiếm web của trò chuyện AI",
       "aiMonthlyLimitUsd": "Giới hạn chi phí AI hằng tháng",
       "trashRetentionDays": "Xóa các trang trong thùng rác sau",
       "export": "Cho phép xuất",
@@ -1568,6 +1682,8 @@
         "permission_removed": "Đã xóa {subject} khỏi việc chia sẻ {target}",
         "row_access_changed": "Đã thay đổi những ai được các hàng của {target} cấp quyền truy cập",
         "deleted": "Đã xóa vĩnh viễn {target}",
+        "verified": "Đã xác minh {target}",
+        "unverified": "Đã gỡ xác minh của {target}",
         "published": "Đã xuất bản {target} lên web",
         "unpublished": "Đã hủy xuất bản {target}",
         "publication_revoked": "Đã gỡ {target} khỏi web (do {subject} xuất bản)",
@@ -1622,6 +1738,10 @@
         "token_created": "Đã tạo token SCIM {target}",
         "token_revoked": "Đã thu hồi token SCIM {target}"
       },
+      "legal_hold": {
+        "set": "Đã đặt lệnh lưu giữ pháp lý {target} cho {names}",
+        "released": "Đã gỡ bỏ lệnh lưu giữ pháp lý {target} của {names}"
+      },
       "site": {
         "saved": "Đã lưu trang web tại {slug}",
         "removed": "Đã gỡ trang web tại {slug}"
@@ -1639,6 +1759,11 @@
         "created": "Đã tạo tự động hóa “{name}” trong {target}",
         "updated": "{change, select, on {Đã bật tự động hóa “{name}” trong {target}} off {Đã tắt tự động hóa “{name}” trong {target}} other {Đã thay đổi tự động hóa “{name}” trong {target}}}",
         "deleted": "Đã xóa tự động hóa “{name}” trong {target}"
+      },
+      "webhook": {
+        "created": "Đã thêm webhook “{target}”",
+        "updated": "{change, select, on {Đã bật webhook “{target}”} off {Đã tắt webhook “{target}”} other {Đã thay đổi webhook “{target}”}}",
+        "deleted": "Đã xóa webhook “{target}”"
       },
       "export": {
         "workspace": "Đã xuất không gian làm việc ({count, plural, other {# trang}})",
@@ -1771,7 +1896,10 @@
     "followUpChannel": "Chuỗi theo dõi: {channel}",
     "reactionTitle": "Cảm xúc",
     "reactionDescription": "Có người bày tỏ cảm xúc với một bình luận bạn đã viết. Các cảm xúc với cùng một bình luận được gộp lại cho đến khi bạn mở chúng.",
-    "reactionChannel": "Cảm xúc: {channel}"
+    "reactionChannel": "Cảm xúc: {channel}",
+    "verificationTitle": "Các trang bạn đã xác minh",
+    "verificationDescription": "Một trang bạn đã xác minh sắp hết trạng thái đã xác minh: vài ngày trước đó, và khi nó hết hạn.",
+    "verificationChannel": "Các trang bạn đã xác minh: {channel}"
   },
   "site": {
     "description": "Cho các trang đã xuất bản của không gian làm việc này một địa chỉ dễ đọc, một trang chủ và điều hướng giữa chúng.",
@@ -2009,6 +2137,102 @@
       "redo": "Trả lại kèm ghi chú…",
       "notWhole": "Lệnh gọi này dài hơn phần hiển thị ở đây, hoặc chứa các giá trị bị che ở đây. Hãy mở lần chạy của nó để xem toàn bộ những gì sẽ được gửi trước khi chấp thuận.",
       "openRun": "Mở lần chạy để chấp thuận"
+    }
+  },
+  "webhooks": {
+    "description": "Gửi những gì xảy ra với các trang của không gian làm việc này đến một dịch vụ khác ngay khi nó xảy ra: các yêu cầu POST có chữ ký đến một địa chỉ https, cho cả không gian làm việc, một không gian nhóm, hoặc một trang và các trang bên dưới nó. Mỗi yêu cầu được gửi dưới danh nghĩa người lưu webhook gần nhất, trong phạm vi những gì người đó được mở; hàng cơ sở dữ liệu và mẫu không được gửi.",
+    "exportOff": "Tính năng xuất đang tắt trong Cài đặt › Bảo mật, nên webhook không gửi gì cho đến khi tính năng này được bật lại.",
+    "count": "{count, plural, =0 {Chưa có webhook nào.} other {# webhook}}",
+    "add": "Thêm webhook",
+    "empty": "Thêm một webhook để gửi sự kiện của trang đến dịch vụ của riêng bạn.",
+    "allEvents": "Mọi sự kiện",
+    "scopeLabel": {
+      "workspace": "Mọi trang của không gian làm việc",
+      "teamspace": "Các trang của {name}",
+      "page": "{title} và các trang bên dưới"
+    },
+    "events": {
+      "pageCreated": "Trang được tạo",
+      "pageUpdated": "Trang được chỉnh sửa",
+      "pageMoved": "Trang được di chuyển",
+      "pageTrashed": "Trang được chuyển vào thùng rác",
+      "pageRestored": "Trang được khôi phục từ thùng rác",
+      "pageDeleted": "Trang bị xóa vĩnh viễn",
+      "commentCreated": "Bình luận được thêm",
+      "ping": "Thử nghiệm"
+    },
+    "sendsAs": "Gửi dưới danh nghĩa {name}, trong phạm vi những gì người đó được mở.",
+    "paused": "Đã tạm dừng: {name} không còn là chủ sở hữu. Hãy lưu để gửi dưới danh nghĩa của bạn.",
+    "pausedBadge": "Đã tạm dừng",
+    "offBadge": "Tắt",
+    "toggle": "Gửi {name}",
+    "test": "Gửi thử",
+    "testDelivered": "Lần thử đã đến được địa chỉ (phản hồi {status}).",
+    "testFailed": "Lần thử không thành công: {reason}.",
+    "edit": "Chỉnh sửa",
+    "delete": "Xóa",
+    "deleteNote": "Webhook dừng ngay lập tức, và nhật ký gửi của nó cũng bị xóa theo.",
+    "working": "Đang xử lý…",
+    "secret": {
+      "show": "Khóa bí mật để ký",
+      "rotate": "Khóa bí mật mới",
+      "rotateNote": "Khóa bí mật hiện tại ngừng ký ngay lập tức: hãy cập nhật dịch vụ kiểm tra nó.",
+      "title": "Khóa bí mật để ký của “{name}”",
+      "label": "Khóa bí mật để ký",
+      "note": "Dùng nó để kiểm tra tiêu đề X-Leafdesk-Signature của mỗi yêu cầu: t=TIME,v1=HMAC, trong đó HMAC là HMAC-SHA256 dạng hex của TIME, một dấu chấm và phần thân yêu cầu. Hãy giữ bí mật."
+    },
+    "log": {
+      "title": "{count, plural, =0 {Lần gửi gần đây} other {Lần gửi gần đây (#)}}",
+      "empty": "Không có gì được gửi trong 30 ngày qua.",
+      "attempts": "{count, plural, other {# lần thử}}",
+      "next": "lần thử tiếp theo lúc {when}"
+    },
+    "status": {
+      "pending": "Đang chờ",
+      "delivered": "Đã gửi",
+      "failed": "Thất bại",
+      "skipped": "Không gửi"
+    },
+    "codes": {
+      "noAccess": "người đứng tên gửi không mở được trang",
+      "notOwner": "người đứng tên gửi không còn là chủ sở hữu",
+      "exportOff": "tính năng xuất đang tắt",
+      "disabled": "webhook đang tắt",
+      "invalidUrl": "địa chỉ không hợp lệ",
+      "blocked": "địa chỉ nằm trong một mạng riêng",
+      "unreachable": "không thể kết nối đến địa chỉ",
+      "timeout": "không có phản hồi trong vòng 10 giây",
+      "redirect": "địa chỉ phản hồi bằng một chuyển hướng",
+      "http": "địa chỉ phản hồi {status}"
+    },
+    "form": {
+      "title": "Thêm một webhook",
+      "editTitle": "Thay đổi webhook",
+      "name": "Tên",
+      "url": "Địa chỉ",
+      "urlHint": "Một địa chỉ https. Các yêu cầu được ký; chuyển hướng không được theo.",
+      "events": "Sự kiện",
+      "scope": "Trang",
+      "scopes": {
+        "workspace": "Cả không gian làm việc",
+        "teamspace": "Một không gian nhóm",
+        "page": "Một trang và các trang bên dưới"
+      },
+      "teamspace": "Chọn một không gian nhóm",
+      "pickPage": "Tìm một trang",
+      "noPages": "Không có trang nào để chọn.",
+      "otherPage": "Thay đổi",
+      "save": "Lưu",
+      "create": "Thêm webhook"
+    },
+    "errors": {
+      "invalidName": "Hãy đặt cho webhook một tên dài tối đa 100 ký tự.",
+      "invalidUrl": "Hãy nhập một địa chỉ https hợp lệ, không kèm tên người dùng hay mật khẩu.",
+      "httpsOnly": "Webhook chỉ gửi đến địa chỉ https.",
+      "noEvents": "Hãy chọn ít nhất một sự kiện.",
+      "invalidScope": "Hãy chọn một không gian nhóm hoặc một trang của không gian làm việc này.",
+      "tooMany": "Một không gian làm việc có tối đa 25 webhook.",
+      "ownersOnly": "Chỉ chủ sở hữu của không gian làm việc mới quản lý webhook."
     }
   },
   "email": {

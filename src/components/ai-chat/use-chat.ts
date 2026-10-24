@@ -9,25 +9,27 @@
  * one cancels the answer too, and keeps the conversation's queued questions for when it's opened
  * again. The mode (what the chat may change) is remembered in the browser; in mode `ask` a change
  * the model wants to make waits, as `pending`, for the person's decision. A long paste shows in the
- * box as a label (lib/chat-paste.ts) and is sent in its place. CSV files attached to a question
- * (lib/chat-attachments.ts) are read here, shown as chips, and sent with it.
+ * box as a label (lib/chat-paste.ts) and is sent in its place. Files attached to a question
+ * (lib/chat-attachments.ts) are uploaded as they are attached (/api/ai/chat/files), shown as chips,
+ * and sent with it by their ids. Where the workspace's AI offers several models, the question goes
+ * to the one picked (the conversation's, or for a new one the person's latest); research mode asks
+ * for a long cited report instead of an answer, and only reads.
  */
 import { useTranslations } from "next-intl";
 import { useCallback, useEffect, useRef, useState, useSyncExternalStore } from "react";
-import { decideChangeAction, deleteConversationAction, getConversationAction } from "@/app/actions/ai";
+import { decideChangeAction, deleteConversationAction, getConversationAction, saveReportAsPageAction } from "@/app/actions/ai";
 import { isAiErrorCode } from "@/lib/ai";
-import { CHAT_MODES, changedThings, thoughtText, type ChatActionView, type ChatEvent, type ChatMessageView, type ChatMode } from "@/lib/ai-chat";
+import { aiAsSuggestions, setAiAsSuggestions } from "@/lib/ai-suggestions";
+import { CHAT_MODES, changedThings, thoughtText, type ChatActionView, type ChatEvent, type ChatMessageView, type ChatMode, type ChatOptions } from "@/lib/ai-chat";
 import {
-  CHAT_CSV_MAX_CHARS,
   CHAT_CSV_MAX_COLUMNS,
   CHAT_CSV_MAX_ROWS,
-  CHAT_MAX_ATTACHMENTS,
-  cleanAttachmentName,
-  isCsvFile,
-  uniqueAttachmentName,
+  CHAT_FILE_LIMITS,
+  chatFileKind,
   type AttachmentProblem,
   type ChatAttachmentView,
 } from "@/lib/chat-attachments";
+import { formatBytes } from "@/lib/files";
 import { EMPTY_DRAFT, expandDraft, insertPaste, pasteLineCount, syncDraft, uniqueLabel, type ChatDraft } from "@/lib/chat-paste";
 import { browserTimeZone } from "@/lib/time-zone";
 import { holdAnswering } from "./answering";
@@ -44,11 +46,32 @@ export type PendingChange = { id: string; action: ChatActionView };
 /** A skill picked for the next question: its instructions guide the answer (server/skills). */
 export type ChatSkillPick = { id: string; title: string };
 
-/** A CSV file attached to the question being typed: as shown, and its text (sent with the question). */
-export type ChatFile = ChatAttachmentView & { text: string };
+/** A file attached to the question being typed: uploaded, or on its way (`uploading`, a stand-in id). */
+export type ChatFile = ChatAttachmentView & { uploading?: boolean };
+
+/** Uploads a file for a chat question; the file as shown, or why it wasn't taken. */
+async function uploadFile(workspaceId: string, file: File): Promise<{ ok: true; file: ChatAttachmentView } | { ok: false; code?: string; problem?: AttachmentProblem; limit?: number }> {
+  try {
+    const response = await fetch(`/api/ai/chat/files?workspaceId=${encodeURIComponent(workspaceId)}`, {
+      method: "POST",
+      headers: { "Content-Type": file.type || "application/octet-stream", "X-File-Name": encodeURIComponent(file.name) },
+      body: file,
+    });
+    const body = (await response.json().catch(() => null)) as (ChatAttachmentView & { code?: string; problem?: AttachmentProblem; limit?: number }) | null;
+    if (response.ok && body?.id) return { ok: true, file: body };
+    return { ok: false, code: body?.code, problem: body?.problem, limit: body?.limit };
+  } catch {
+    return { ok: false };
+  }
+}
+
+let uploads = 0;
 
 /** A question asked while an answer was on its way, waiting to be asked. */
-export type QueuedQuestion = { question: string; skill: ChatSkillPick | null; scopePageId: string | null; files: ChatFile[] };
+export type QueuedQuestion = { question: string; skill: ChatSkillPick | null; scopePageId: string | null; files: ChatFile[]; research: boolean };
+
+/** Without options from the server (the full page outside the provider): one model, no picker. */
+const NO_OPTIONS: ChatOptions = { models: [], defaultModel: null, webSearch: false };
 
 /**
  * The model's thinking on its current turn, as it comes (not kept): held apart from the messages so
@@ -108,9 +131,12 @@ function savedMode(): ChatMode {
 export function useChat(
   workspaceId: string,
   {
+    options = NO_OPTIONS,
     onConversation,
     onAnswered,
   }: {
+    /** What the box offers: the models, the one a new conversation starts with (chatOptionsFor). */
+    options?: ChatOptions;
     /** A conversation was started (by the first question) or opened. */
     onConversation?: (id: string | null) => void;
     /** An answer finished or failed: the conversation list may have changed. */
@@ -126,9 +152,25 @@ export function useChat(
   const [status, setStatus] = useState<ChatStatus | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [mode, setModeState] = useState<ChatMode>("ask");
+  // What it writes in page bodies goes in as suggested edits: the person's choice (lib/ai-suggestions).
+  const [asSuggestions, setAsSuggestionsState] = useState(false);
+  useEffect(() => setAsSuggestionsState(aiAsSuggestions()), []);
+  const asSuggestionsRef = useRef(asSuggestions);
+  asSuggestionsRef.current = asSuggestions;
+  const setAsSuggestions = useCallback((on: boolean) => {
+    setAsSuggestionsState(on);
+    setAiAsSuggestions(on);
+  }, []);
   const [pending, setPending] = useState<PendingChange | null>(null);
   const [skill, setSkill] = useState<ChatSkillPick | null>(null);
   const [files, setFiles] = useState<ChatFile[]>([]);
+  // The model questions go to (null: the workspace's main one), and research mode.
+  const [model, setModel] = useState<string | null>(options.defaultModel);
+  const [research, setResearch] = useState(false);
+  const modelNow = useRef(model);
+  modelNow.current = model;
+  /** Whether the model picked (or the only one) takes images. */
+  const takesImages = (id: string | null) => (options.models.find((m) => m.id === id) ?? options.models[0])?.images ?? false;
   const filesNow = useRef(files);
   filesNow.current = files;
   const [queued, setQueued] = useState<QueuedQuestion[]>([]);
@@ -158,53 +200,72 @@ export function useChat(
     return Math.min(start, end) + label.length;
   };
   /**
-   * Attaches CSV files to the question being typed, read here with the limits the server keeps;
+   * Attaches files to the question being typed, each uploaded at once (a chip shows it meanwhile);
    * one that can't be attached says why (the others still are).
    */
   const attachFiles = async (list: readonly File[]) => {
-    const problem = (p: AttachmentProblem) =>
+    const problem = (p: AttachmentProblem, limit?: number) =>
       p === "tooManyRows"
         ? t("files.tooManyRows", { rows: CHAT_CSV_MAX_ROWS })
         : p === "tooManyColumns"
           ? t("files.tooManyColumns", { columns: CHAT_CSV_MAX_COLUMNS })
           : p === "tooLarge"
-            ? t("files.tooLarge", { size: "1 MB" })
-            : p === "tooMany"
-              ? t("files.tooMany", { count: CHAT_MAX_ATTACHMENTS })
-              : t(`files.${p}`);
-    let next = filesNow.current;
+            ? t("files.tooLarge", { size: formatBytes(limit ?? CHAT_FILE_LIMITS.bytes) })
+            : t("files.empty");
     let failed: string | null = null;
+    const taken: File[] = [];
     for (const file of list) {
-      if (next.length >= CHAT_MAX_ATTACHMENTS) {
-        failed = problem("tooMany");
+      if (filesNow.current.length + taken.length >= CHAT_FILE_LIMITS.perQuestion) {
+        failed = t("files.tooMany", { count: CHAT_FILE_LIMITS.perQuestion });
         break;
       }
-      if (!isCsvFile(file)) {
-        failed = problem("notCsv");
+      const kind = chatFileKind(file.type, file.name);
+      if (!kind) {
+        failed = t("files.notSupported");
         continue;
       }
-      // Bytes first: a file far too large isn't read at all.
-      if (file.size > CHAT_CSV_MAX_CHARS * 4) {
-        failed = problem("tooLarge");
+      if (kind === "image" && !takesImages(modelNow.current)) {
+        failed = t("files.noImages");
         continue;
       }
-      // The parser is loaded with the first file, not with the chat.
-      const { decodeText, readCsvAttachment } = await import("@/lib/chat-attachment-table");
-      const text = decodeText(new Uint8Array(await file.arrayBuffer()));
-      const read = readCsvAttachment(text);
-      if (!read.ok) {
-        failed = problem(read.problem);
+      // Sizes first: a file far too large isn't sent at all.
+      const limit = kind === "image" ? CHAT_FILE_LIMITS.imageBytes : CHAT_FILE_LIMITS.bytes;
+      if (file.size > limit) {
+        failed = problem("tooLarge", limit);
         continue;
       }
-      const name = uniqueAttachmentName(next.map((f) => f.name), cleanAttachmentName(file.name));
-      next = [...next, { name, text, rows: read.table.rows.length, columns: read.table.headers.length }];
+      taken.push(file);
     }
-    filesNow.current = next;
-    setFiles(next);
     setError(failed);
+    await Promise.all(
+      taken.map(async (file) => {
+        const id = `uploading-${++uploads}`;
+        const shown: ChatFile = { id, name: file.name, contentType: file.type, size: file.size, url: "", uploading: true };
+        setFilesNow([...filesNow.current, shown]);
+        const result = await uploadFile(workspaceId, file);
+        // Taken off while it was on its way: it stays off (the upload goes with the day-old ones).
+        if (!filesNow.current.some((f) => f.id === id)) return;
+        if (result.ok) {
+          setFilesNow(filesNow.current.map((f) => (f.id === id ? result.file : f)));
+          return;
+        }
+        setFilesNow(filesNow.current.filter((f) => f.id !== id));
+        setError(
+          result.problem
+            ? problem(result.problem, result.limit)
+            : result.code === "tooLarge"
+              ? problem("tooLarge", result.limit)
+              : result.code === "quotaExceeded"
+                ? t("files.quota")
+                : result.code === "badRequest"
+                  ? t("files.notSupported")
+                  : t("files.failed", { name: file.name }),
+        );
+      }),
+    );
   };
-  const removeFile = (name: string) => {
-    filesNow.current = filesNow.current.filter((f) => f.name !== name);
+  const removeFile = (id: string) => {
+    filesNow.current = filesNow.current.filter((f) => f.id !== id);
     setFiles(filesNow.current);
   };
   const setFilesNow = (next: ChatFile[]) => {
@@ -268,6 +329,7 @@ export function useChat(
     setInput(toBox.question);
     setSkill((current) => current ?? toBox.skill);
     setFilesNow(toBox.files);
+    setResearch(toBox.research);
   };
 
   /** Stops the answer and leaves the conversation, its queued questions parked for its return. */
@@ -287,9 +349,16 @@ export function useChat(
     const question = (again?.question ?? expandDraft(draft)).trim();
     const attached = again ? [] : filesNow.current;
     if (!question && !attached.length) return;
+    // A file still on its way: the question waits for it (the box says so).
+    if (attached.some((f) => f.uploading)) return;
+    // The model was changed after an image was attached.
+    if (attached.some((f) => f.contentType.startsWith("image/")) && !takesImages(modelNow.current)) {
+      setError(t("files.noImages"));
+      return;
+    }
     if (running) {
       if (again) return;
-      setQueue([...queue.current, { question, skill, scopePageId, files: attached }]);
+      setQueue([...queue.current, { question, skill, scopePageId, files: attached, research }]);
       setInput("");
       setSkill(null);
       setFilesNow([]);
@@ -300,17 +369,17 @@ export function useChat(
       setSkill(null);
       setFilesNow([]);
     }
-    await ask(question, again ? (again.skill ?? null) : skill, scopePageId, Boolean(again), attached);
+    await ask(question, again ? (again.skill ?? null) : skill, scopePageId, Boolean(again), attached, again ? Boolean(messages[messages.length - 2]?.research) : research);
   }
 
-  async function ask(question: string, used: ChatSkillPick | null, scopePageId: string | null, again: boolean, attached: ChatFile[] = []) {
+  async function ask(question: string, used: ChatSkillPick | null, scopePageId: string | null, again: boolean, attached: ChatFile[] = [], researching = false) {
     setError(null);
     const controller = new AbortController();
     abort.current = controller;
     const startedAt = Date.now();
     const before = messages;
     // Asked again, a question keeps the files it had (the server keeps them too).
-    const shownFiles = again ? messages[messages.length - 2]?.attachments : attached.map(({ name, rows, columns }) => ({ name, rows, columns }));
+    const shownFiles = again ? messages[messages.length - 2]?.attachments : attached;
     const asked: ChatMessage[] = [
       {
         key: nextKey(),
@@ -318,9 +387,10 @@ export function useChat(
         content: question,
         ...(used ? { skill: used } : {}),
         ...(shownFiles?.length ? { attachments: shownFiles } : {}),
+        ...(researching ? { research: true } : {}),
         at: new Date(startedAt).toISOString(),
       },
-      { key: nextKey(), role: "assistant", content: "", steps: [], startedAt },
+      { key: nextKey(), role: "assistant", content: "", steps: [], startedAt, ...(researching ? { research: true } : {}) },
     ];
     setMessages((list) => [...(again ? list.slice(0, -2) : list), ...asked]);
     setStatus("thinking");
@@ -345,7 +415,11 @@ export function useChat(
           ...(again ? { replaceLast: true } : {}),
           ...(used ? { skillId: used.id } : {}),
           timeZone: browserTimeZone(),
-          ...(attached.length ? { attachments: attached.map(({ name, text }) => ({ name, text })) } : {}),
+          ...(asSuggestionsRef.current ? { asSuggestions: true } : {}),
+          ...(attached.length ? { attachments: attached.map((f) => f.id) } : {}),
+          // Only where there is a choice: otherwise the workspace's model answers.
+          ...(options.models.length > 1 && modelNow.current ? { model: modelNow.current } : {}),
+          ...(researching ? { research: true } : {}),
         }),
         signal: controller.signal,
       });
@@ -437,10 +511,10 @@ export function useChat(
       // things), or ended without an answer by the server: they are given back. Stopped here, Stop or
       // leaving the conversation took care of them.
       const next = queue.current[0];
-      if (failed) giveBack(!changed && !again ? [{ question, skill: used, scopePageId, files: attached }] : []);
+      if (failed) giveBack(!changed && !again ? [{ question, skill: used, scopePageId, files: attached, research: researching }] : []);
       else if (finished && next) {
         setQueue(queue.current.slice(1));
-        void ask(next.question, next.skill, next.scopePageId, false, next.files);
+        void ask(next.question, next.skill, next.scopePageId, false, next.files, next.research);
       } else if (!finished && !controller.signal.aborted) giveBack();
     }
   }
@@ -491,6 +565,8 @@ export function useChat(
     setError(null);
     setConversationId(result.data.id);
     setMessages(result.data.messages.map((m) => ({ ...m, key: nextKey() })));
+    // The conversation goes on with its model, when it is still offered.
+    if (result.data.model && options.models.some((m) => m.id === result.data.model)) setModel(result.data.model);
     // Questions left waiting here come back.
     const left = parked.get(result.data.id);
     if (left) {
@@ -498,6 +574,17 @@ export function useChat(
       giveBack(left);
     }
     return true;
+  }
+
+  /** Saves the research report at `index` of the open conversation as a private page; its id, or null (the error is shown). */
+  async function saveReport(index: number): Promise<string | null> {
+    if (!conversationId) return null;
+    const result = await saveReportAsPageAction(workspaceId, conversationId, index);
+    if (!result.ok) {
+      setError(t("research.saveFailed"));
+      return null;
+    }
+    return result.data.pageId;
   }
 
   /** Deletes a conversation (or all of them); the open one is replaced by a new chat. True when done. */
@@ -530,12 +617,20 @@ export function useChat(
     files,
     attachFiles,
     removeFile,
+    options,
+    model,
+    setModel,
+    research,
+    setResearch,
+    saveReport,
     status,
     error,
     running,
     inputRef,
     mode,
     setMode,
+    asSuggestions,
+    setAsSuggestions,
     pending,
     decide,
     send,

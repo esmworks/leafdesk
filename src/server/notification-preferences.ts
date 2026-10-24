@@ -29,6 +29,7 @@ const COLUMNS = {
   review: { inbox: "reviewInbox", email: "reviewEmails", push: "reviewPush", telegram: "reviewTelegram" },
   follow_up: { inbox: "followUpInbox", email: "followUpEmails", push: "followUpPush", telegram: "followUpTelegram" },
   reaction: { inbox: "reactionInbox", email: "reactionEmails", push: "reactionPush", telegram: "reactionTelegram" },
+  verification: { inbox: "verificationInbox", email: "verificationEmails", push: "verificationPush", telegram: "verificationTelegram" },
 } as const satisfies Record<PreferenceKind, Record<NotificationChannel, keyof typeof userPreference.$inferSelect>>;
 
 const KINDS = Object.keys(COLUMNS) as PreferenceKind[];

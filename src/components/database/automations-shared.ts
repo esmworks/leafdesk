@@ -565,7 +565,8 @@ function typedValue(properties: Property[] | undefined, propertyId: string, valu
   return text && Number.isFinite(n) && percentOf(properties, propertyId) ? fromPercentPoints(n) : text;
 }
 
-const valuesOf = (entries: SetEntry[], props: Property[] | undefined) =>
+/** Values of a step as the server takes them, by property id. */
+export const valuesOf = (entries: SetEntry[], props: Property[] | undefined) =>
   Object.fromEntries(entries.map((e) => [e.propertyId, typedValue(props, e.propertyId, e.value)]));
 
 /** A draft's trigger as the server takes it. */

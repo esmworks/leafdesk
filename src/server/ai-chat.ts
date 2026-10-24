@@ -23,15 +23,25 @@
  *    owners allowed the chat (server/connections): they run with the connection's credentials,
  *    their answers reach the model framed as outside data, and one that changes something there
  *    waits for the person's approval each time, in every mode (and isn't offered in `read`);
- * 7. carries the CSV files attached to its questions (at most 1,000 rows and 1 MB each, kept with
- *    the conversation in the question's record): every later question sends them again, cut to
- *    fit, with `read_attachment` to read further and `create_database_from_csv` to import one;
- * 8. streams the answer; citations ([n]) link to the pages (and the block a passage starts at).
+ * 7. where the workspace's owners turned web search on, may make it search the web and read web
+ *    pages (ai-chat-web.ts), read-only; once it read from the web, every change and note is asked
+ *    about for the rest of the answer, also in `auto`;
+ * 8. carries the files attached to its questions (ai-chat-files.ts) with the conversation: every
+ *    later question sends their text again (a CSV file as a table), cut to fit, with
+ *    `read_attachment` to read further and `create_database_from_csv` to import a CSV file; images
+ *    go to models that take them, with their own question only;
+ * 9. streams the answer; citations ([n]) link to the pages (and the block a passage starts at), or
+ *    to the web pages read.
+ *
+ * A question may pick the model that answers it (one of those the workspace's AI offers the chat,
+ * kept with the conversation; a new one starts with the person's latest), and may be only files. In
+ * research mode it plans sub-questions, searches and reads (the web too, where on) and writes a
+ * long cited report, with read-only tools, more turns and a token budget of its own.
  *
  * Conversations are kept per person (ai_conversation) and only ever shown to them; cited pages are
  * looked up again with their current access whenever a conversation is shown.
  */
-import { and, desc, eq, inArray, notInArray, sql } from "drizzle-orm";
+import { and, desc, eq, inArray, isNotNull, notInArray, sql } from "drizzle-orm";
 import { db } from "@/db";
 import {
   aiConversation,
@@ -47,6 +57,8 @@ import {
   citedNumbers,
   conversationTitle,
   MAX_CONVERSATIONS,
+  reportMarkdown,
+  type ChatOptions,
   type ChatActionView,
   type ChatConnectionRecord,
   type ChatEvent,
@@ -59,21 +71,38 @@ import {
   type ConversationSummary,
   thoughtText,
 } from "@/lib/ai-chat";
-import { attachmentCsv, readCsvAttachment } from "@/lib/chat-attachment-table";
-import { CHAT_MAX_ATTACHMENTS, cleanAttachmentName, uniqueAttachmentName } from "@/lib/chat-attachments";
+import { attachmentCsv } from "@/lib/chat-attachment-table";
+import { CHAT_FILE_LIMITS, chatFileKind, chatFileUrl, type ChatAttachmentView } from "@/lib/chat-attachments";
 import { pageLabel } from "@/lib/labels";
+import { createPage } from "@/server/pages";
 import { AccessError, connectedAppHold, isGuest, requireMembership, requirePageAccess, WorkspacePolicyError } from "@/server/access";
 import { asWrite } from "@/server/connected-app";
-import { AiError, isAiError, promptRoomFor, stream, takeRateLimit, takeWorkspaceCapacity, type AiMessage, type AiResult } from "@/server/ai";
+import {
+  AiError,
+  chatModelsFor,
+  IMAGE_CHARS,
+  isAiError,
+  promptRoomFor,
+  stream,
+  takeRateLimit,
+  takeWorkspaceCapacity,
+  type AiMessage,
+  type AiResult,
+  type ChatModelOption,
+} from "@/server/ai";
 import { dropOldToolResults } from "@/server/ai/compact";
 import { browserTimeZone, isTimeZone } from "@/lib/time-zone";
-import { attachmentBlock, chatHistory, chatQuestionPrompt, chatSystemPrompt } from "@/server/ai/prompts";
+import { attachmentBlock, chatHistory, chatQuestionPrompt, chatSystemPrompt, researchSystemPrompt } from "@/server/ai/prompts";
+import { attachmentRecords, deleteConversationFiles, keepQuestionFiles, questionFiles, readConversationFiles, type ChatFileContent } from "@/server/ai-chat-files";
+import { chatWebOn, chatWebToolset, isChatWebTool, PLAN_TOOL, runChatWebTool, runPlan } from "@/server/ai-chat-web";
+import type { FileRow } from "@/server/files";
 import { getSkillContent, SkillError } from "@/server/skills";
 import { aiAvailable } from "@/server/ai-writing";
 import { applyMemory, memoryForPrompt, memoryOn, MEMORY_TOOL_NAMES, MEMORY_TOOLS, prepareMemory } from "@/server/ai-memory";
 import { awaitDecision, type ChatDecision } from "@/server/ai-chat-approvals";
 import { chatToolNow, chatToolset, inputSummary, runConnectionTool, type ConnectionToolEntry } from "@/server/connections/tools";
 import * as ops from "@/server/operations";
+import { activeVerifications } from "@/server/verification";
 import {
   applyWrite,
   ATTACHMENT_TOOLS,
@@ -93,6 +122,13 @@ import {
 
 /** Model turns per question: searches, reads and queries, then the answer. */
 export const MAX_ROUNDS = 6;
+/**
+ * A research answer's turns, and the tokens its turns may use in all (the input each turn sends
+ * again included): past them it writes its report with what it has. Each turn also counts against
+ * the workspace's rate and cost limits like any other.
+ */
+export const RESEARCH_ROUNDS = 14;
+export const RESEARCH_TOKENS = 400_000;
 /** The most of what the model says before a search or read that is kept as a step. */
 const THOUGHT_CHARS = 300;
 /** Share of the prompt that earlier questions and answers may take, and what the chat remembers. */
@@ -122,8 +158,20 @@ export type ChatInput = {
   skillId?: string | null;
   /** The person's IANA time zone, for what today is (the server's when missing or unknown). */
   timeZone?: string | null;
-  /** CSV files attached to the question: each file's name and text (lib/chat-attachments.ts). */
-  attachments?: { name: string; text: string }[] | null;
+  /**
+   * The model to answer with, one of chatModelsFor's: else the conversation's, else (a new one) the
+   * person's latest conversation's, else the workspace's main model.
+   */
+  model?: string | null;
+  /**
+   * Files the person attached (uploadChatFile), in order: not sent before, or sent in this
+   * conversation. A question may be only files. Asked again without files, a question keeps those it had.
+   */
+  attachments?: string[] | null;
+  /** Research mode: a plan, searches and reads, then a long cited report; nothing is changed. */
+  research?: boolean;
+  /** The person's choice: what the chat writes in page bodies goes in as the AI's suggested edits. */
+  asSuggestions?: boolean;
 };
 
 /** Refusals before anything is sent: access problems look like missing things. */
@@ -175,21 +223,25 @@ const sizeOf = (messages: AiMessage[]) => messages.reduce((n, m) => n + m.conten
  */
 export async function startChat(userId: string, input: ChatInput, signal?: AbortSignal): Promise<AsyncIterable<ChatEvent>> {
   const message = input.message.trim();
-  const files = input.attachments ?? [];
-  if (!message && !files.length) refuse("invalid", "Ask a question");
-  if (files.length > CHAT_MAX_ATTACHMENTS) refuse("tooLarge", `A question may have at most ${CHAT_MAX_ATTACHMENTS} files`);
+  const attached = input.attachments ?? [];
+  if (!message && !attached.length) refuse("invalid", "Ask a question");
+  if (attached.length > CHAT_FILE_LIMITS.perQuestion) refuse("invalid", `A question can attach at most ${CHAT_FILE_LIMITS.perQuestion} files`);
   const membership = await requireMembership(userId, input.workspaceId).catch((error) => {
     if (error instanceof AccessError && !(error instanceof WorkspacePolicyError)) refuse("noAccess", "Workspace not found");
     throw error;
   });
   if (!(await aiAvailable(input.workspaceId))) refuse("disabled", "AI is off for this workspace");
+  const existing = input.conversationId ? await ownConversation(userId, input.workspaceId, input.conversationId) : null;
+  const model = await pickModel(userId, input.workspaceId, input.model ?? existing?.model ?? (existing ? null : await latestModel(userId, input.workspaceId)));
+  const feature = input.research ? "chat.research" : "chat";
   // A question is as long as the model's context window takes; nothing else bounds it.
-  if (message.length > (await promptRoomFor(input.workspaceId))) refuse("tooLarge", "The question is longer than the model takes");
+  if (message.length > (await promptRoomFor(input.workspaceId, feature, model?.id))) refuse("tooLarge", "The question is longer than the model takes");
   const scope = await scopePage(userId, input.workspaceId, input.scope);
   const skill = input.skillId ? await chatSkill(userId, input.workspaceId, input.skillId) : null;
-  const existing = input.conversationId ? await ownConversation(userId, input.workspaceId, input.conversationId) : null;
   const replaced = input.replaceLast ? lastTurn(existing) : 0;
-  const attachments = attachedFiles(existing, files, replaced);
+  const files = await askedFiles(userId, input.workspaceId, existing, attached, replaced);
+  // The chat box says so before sending; an image the model can't see is never sent.
+  if (files.records.some((f) => chatFileKind(f.contentType, f.name) === "image") && !model?.images) refuse("invalid", "This model doesn't take images");
   takeRateLimit({ userId, workspaceId: input.workspaceId });
   // Asked through a connected app (the Telegram bot) where the workspace lets apps only read:
   // nothing is changed, notes about the person included.
@@ -198,49 +250,101 @@ export async function startChat(userId: string, input: ChatInput, signal?: Abort
     scope: scope ? { id: scope.id, title: scope.title } : null,
     skill,
     existing,
-    mode: appReadOnly ? "read" : (input.mode ?? "ask"),
+    // Research only reads.
+    mode: appReadOnly || input.research ? "read" : (input.mode ?? "ask"),
     replaced,
     connections: !isGuest(membership.role),
     memoryChanges: !appReadOnly,
     timeZone: isTimeZone(input.timeZone) ? input.timeZone : browserTimeZone(),
-    attachments,
+    model: model?.id ?? null,
+    files,
+    research: input.research === true,
+    web: await chatWebOn(input.workspaceId),
+    asSuggestions: input.asSuggestions === true,
   } as const;
   return runChat(userId, input.workspaceId, message, chat, signal);
 }
 
-/**
- * The question's files, read again as the box read them (lib/chat-attachments.ts) and named apart
- * from the conversation's other files. Asked again without files, a question keeps those it had.
- */
-function attachedFiles(existing: typeof aiConversation.$inferSelect | null, files: { name: string; text: string }[], replaced: number): ChatAttachmentRecord[] {
-  const kept = existing?.messages ?? [];
-  if (replaced && !files.length) return kept.at(-replaced)?.attachments ?? [];
-  const taken = kept.slice(0, kept.length - replaced).flatMap((m) => (m.attachments ?? []).map((a) => a.name));
-  return files.map((file) => {
-    const read = readCsvAttachment(file.text);
-    if (!read.ok) refuse(read.problem === "empty" ? "invalid" : "tooLarge", `The file ${cleanAttachmentName(file.name)} can't be attached (${read.problem})`);
-    const name = uniqueAttachmentName(taken, cleanAttachmentName(file.name));
-    taken.push(name);
-    return { kind: "csv", name, ...read.table };
-  });
+/** The model a question asks for, when the workspace's AI offers it; else its main model (null without AI). */
+async function pickModel(userId: string, workspaceId: string, wanted: string | null): Promise<ChatModelOption | null> {
+  const offered = await chatModelsFor(workspaceId);
+  return offered.find((m) => m.id === wanted) ?? offered[0] ?? null;
+}
+
+/** The model of the person's latest conversation in the workspace that names one. */
+async function latestModel(userId: string, workspaceId: string): Promise<string | null> {
+  const [row] = await db
+    .select({ model: aiConversation.model })
+    .from(aiConversation)
+    .where(and(eq(aiConversation.userId, userId), eq(aiConversation.workspaceId, workspaceId), isNotNull(aiConversation.model)))
+    .orderBy(desc(aiConversation.updatedAt))
+    .limit(1);
+  return row?.model ?? null;
 }
 
 /**
- * The conversation's files for the model, newest first while there is room: each with its header
- * and as many rows as fit its share, saying when some are left out (read_attachment reads them).
+ * What the chat box offers the person in the workspace (see ChatOptions): the models, the one a new
+ * conversation starts with, and whether the chat searches the web there.
  */
-function filesPrompt(files: ChatAttachmentRecord[], room: number): string {
+export async function chatOptionsFor(userId: string, workspaceId: string): Promise<ChatOptions> {
+  const [models, latest, webSearch] = await Promise.all([chatModelsFor(workspaceId), latestModel(userId, workspaceId), chatWebOn(workspaceId)]);
+  return { models, defaultModel: models.find((m) => m.id === latest)?.id ?? models[0]?.id ?? null, webSearch };
+}
+
+/**
+ * The question's files: the person's own, not sent yet or sent before in this conversation, named
+ * apart from the conversation's other files. Asked again without files, a question keeps those it
+ * had (those still there).
+ */
+async function askedFiles(
+  userId: string,
+  workspaceId: string,
+  existing: typeof aiConversation.$inferSelect | null,
+  ids: string[],
+  replaced: number,
+): Promise<{ records: ChatAttachmentRecord[]; rows: FileRow[] }> {
+  const kept = existing?.messages ?? [];
+  if (replaced && !ids.length) {
+    const records = kept.at(-replaced)?.attachments ?? [];
+    const rows = (await questionFiles(userId, workspaceId, existing?.id ?? null, records.map((r) => r.id), { all: false })) ?? [];
+    const there = new Set(rows.map((r) => r.id));
+    return { records: records.filter((r) => there.has(r.id)), rows };
+  }
+  const rows = await questionFiles(userId, workspaceId, existing?.id ?? null, ids);
+  if (!rows) refuse("noAccess", "File not found");
+  const taken = kept.slice(0, kept.length - replaced).flatMap((m) => (m.attachments ?? []).map((a) => a.name));
+  const records = await attachmentRecords(rows, taken);
+  if (!records) refuse("invalid", "An attached file can't be read");
+  return { records, rows };
+}
+
+/**
+ * The conversation's files for the model, newest first while there is room: each CSV file with its
+ * header and as many rows as fit its share, each document with as much of its text, saying when
+ * some is left out (read_attachment reads on); then the question's images and what couldn't be read.
+ */
+function filesPrompt(files: { contents: ChatFileContent[]; imageNames: string[]; unread: string[] }, room: number): string {
   const blocks: string[] = [];
   let left = room;
-  for (const [i, file] of [...files].reverse().entries()) {
-    const share = Math.floor(left / (files.length - i));
+  for (const [i, file] of [...files.contents].reverse().entries()) {
+    const share = Math.floor(left / (files.contents.length - i));
     if (share < 300) break;
-    const { text, shown } = attachmentCsv(file, { maxChars: share - 200 });
-    const note = shown < file.rows.length ? `only the first ${shown} of its ${file.rows.length} rows are here: read_attachment reads the others` : undefined;
-    const block = attachmentBlock(file, text, note);
+    let block: string;
+    if (file.kind === "csv") {
+      const { text, shown } = attachmentCsv(file, { maxChars: share - 200 });
+      const note = shown < file.rows.length ? `only the first ${shown} of its ${file.rows.length} rows are here: read_attachment reads the others` : undefined;
+      block = attachmentBlock(file, text, note);
+    } else {
+      const cut = file.text.length > share - 200;
+      const text = cut ? file.text.slice(0, share - 200) : file.text;
+      const note = cut ? `only its first ${text.length} characters are here: read_attachment reads on` : file.partial ? "only the start of a long document was read" : undefined;
+      block = attachmentBlock(file, text, note);
+    }
     blocks.unshift(block);
     left -= block.length;
   }
+  if (files.imageNames.length) blocks.push(`The images attached to the question (${files.imageNames.map((n) => `"${n.replace(/["\n]/g, " ")}"`).join(", ")}) come with it.`);
+  if (files.unread.length) blocks.push(`These attached files have nothing that could be read (a scan, a damaged or locked file): ${files.unread.map((n) => `"${n.replace(/["\n]/g, " ")}"`).join(", ")}.`);
   return blocks.join("\n");
 }
 
@@ -268,7 +372,11 @@ async function* runChat(
     connections,
     memoryChanges,
     timeZone,
-    attachments,
+    model,
+    files,
+    research,
+    web,
+    asSuggestions,
   }: {
     scope: { id: string; title: string } | null;
     skill: ChatSkill | null;
@@ -282,41 +390,60 @@ async function* runChat(
     memoryChanges: boolean;
     /** The person's time zone, for what today is. */
     timeZone: string;
-    /** The question's own files (read and named). */
-    attachments: ChatAttachmentRecord[];
+    /** The model picked (null: the workspace's main one). */
+    model: string | null;
+    /** The question's own files: their records (named apart from the conversation's others) and rows. */
+    files: { records: ChatAttachmentRecord[]; rows: FileRow[] };
+    research: boolean;
+    /** The chat may search the web and read web pages. */
+    web: boolean;
+    /** Body writes go in as the AI's suggested edits (collab/suggestion-doc writeBlocksAsSuggestions). */
+    asSuggestions: boolean;
   },
   signal?: AbortSignal,
 ): AsyncGenerator<ChatEvent> {
-  const ctx: ops.OperationContext = { userId, actor: { userId } };
+  const ctx: ops.OperationContext = { userId, actor: { userId, ...(asSuggestions ? { asSuggestions } : {}) } };
   // "Don't ask again" makes the rest of this answer `auto`.
   let mode = initialMode;
   // Keeping notes about the person changes nothing in the workspace: it's offered in every mode,
   // and asked about unless the mode is `auto` (a read-only chat asks too), while both the person and
   // the workspace have the memory on.
-  const remembers = memoryChanges && (await memoryOn(userId, workspaceId));
+  // Research only reads: no changes, notes or other services.
+  const remembers = !research && memoryChanges && (await memoryOn(userId, workspaceId));
   // Tools of connections that change something are left out of a read-only chat.
-  const external = connections ? await chatToolset(workspaceId, { writes: mode !== "read" }) : null;
+  const external = connections && !research ? await chatToolset(workspaceId, { writes: mode !== "read" }) : null;
   const services = [...new Set([...(external?.byName.values() ?? [])].map((e) => e.connection.name))];
   // The files of the whole conversation: questions asked later still see what was attached before.
   const earlierFiles = (existing?.messages.slice(0, existing.messages.length - replaced) ?? []).flatMap((m) => m.attachments ?? []);
-  const files = [...earlierFiles, ...attachments];
-  const extra = { attachments: files, timeZone };
-  const fileTools = files.length ? [...ATTACHMENT_TOOLS, ...(mode === "read" ? [] : ATTACHMENT_WRITE_TOOLS)] : [];
-  const tools = [...CHAT_TOOLS, ...(mode === "read" ? [] : WRITE_TOOLS), ...fileTools, ...(remembers ? MEMORY_TOOLS : []), ...(external?.tools ?? [])];
+  const read = await readConversationFiles(userId, workspaceId, existing?.id ?? null, earlierFiles, files);
+  const extra = { attachments: read.contents, timeZone };
+  const hasFiles = earlierFiles.length + files.records.length > 0;
+  // Reading files is offered wherever there are some; a database of a CSV file only where changes are.
+  const fileTools = read.contents.length ? [...ATTACHMENT_TOOLS, ...(mode === "read" || research || !read.contents.some((c) => c.kind === "csv") ? [] : ATTACHMENT_WRITE_TOOLS)] : [];
   const writeTools = new Set([...WRITE_TOOL_NAMES, ...ATTACHMENT_WRITE_TOOL_NAMES]);
-  const system = chatSystemPrompt(scope ? pageLabel(scope.title) : null, mode !== "read", skill ? pageLabel(skill.title) : null, remembers, services, files.length > 0);
+  const webTools = web ? chatWebToolset() : [];
+  const tools = research
+    ? [PLAN_TOOL, ...CHAT_TOOLS, ...fileTools, ...webTools]
+    : [...CHAT_TOOLS, ...(mode === "read" ? [] : WRITE_TOOLS), ...fileTools, ...(remembers ? MEMORY_TOOLS : []), ...webTools, ...(external?.tools ?? [])];
+  const scopeTitle = scope ? pageLabel(scope.title) : null;
+  const skillTitle = skill ? pageLabel(skill.title) : null;
+  const system = research
+    ? researchSystemPrompt(scopeTitle, webTools.length > 0, skillTitle, hasFiles)
+    : chatSystemPrompt(scopeTitle, mode !== "read", skillTitle, remembers, services, webTools.length > 0, hasFiles);
   const toolsSize = tools.reduce((n, t) => n + t.description.length + JSON.stringify(t.parameters).length, 0);
+  const feature = research ? "chat.research" : "chat";
   // What the model takes, less what every turn sends: the history, the map, memory and tool results
   // share the rest.
-  const budget = await promptRoomFor(workspaceId);
+  const budget = await promptRoomFor(workspaceId, feature, model);
   const room = () => Math.max(0, budget - system.length - toolsSize - 200);
+  const maxRounds = research ? RESEARCH_ROUNDS : MAX_ROUNDS;
 
   const conversation =
     existing ??
     (
       await db
         .insert(aiConversation)
-        .values({ userId, workspaceId, title: conversationTitle(message || attachments.map((a) => a.name).join(", ")), messages: [] })
+        .values({ userId, workspaceId, title: conversationTitle(message || files.records.map((a) => a.name).join(", ")), model, messages: [] })
         .returning()
     )[0];
   yield { type: "conversation", id: conversation.id, title: conversation.title };
@@ -383,18 +510,28 @@ async function* runChat(
   let answer = "";
   let stopReason: "stop" | "length" = "stop";
   let failure: AiErrorCode | null = null;
+  // The model that answered, and the tokens a research answer's turns used.
+  let answeredBy: string | null = null;
+  let spent = 0;
+  // Something from the web is in the conversation: from then on every change and note is asked about.
+  let fromWeb = false;
   try {
     // ---------------------------------------------------------------------------- the question
     // Nothing is searched for the model: it gets the map of what there is and decides itself.
     const earlier = existing?.messages.slice(0, existing.messages.length - replaced) ?? [];
     const history: AiMessage[] = chatHistory(earlier, Math.floor(room() * HISTORY_SHARE));
     const memory = remembers ? await memoryForPrompt(userId, workspaceId, Math.floor(room() * MEMORY_SHARE)) : { text: "", count: 0 };
-    const filesText = files.length ? filesPrompt(files, Math.floor(room() * FILES_SHARE)) : "";
-    const mapRoom = Math.min(MAP_CHARS, room() - sizeOf(history) - message.length - (skill?.body.length ?? 0) - memory.text.length - filesText.length - 2_000);
+    const filesText = hasFiles ? filesPrompt(read, Math.floor((room() - sizeOf(history) - message.length - memory.text.length) * FILES_SHARE)) : "";
+    const imagesSize = read.images.length * IMAGE_CHARS;
+    const mapRoom = Math.min(MAP_CHARS, room() - sizeOf(history) - message.length - (skill?.body.length ?? 0) - memory.text.length - filesText.length - imagesSize - 2_000);
     const map = mapRoom >= 500 ? await workspaceMap(ctx, workspaceId, scope?.id ?? null, mapRoom) : "";
-    // A question that is only a file asks about the file.
-    const asked = message || "(The person attached the file without a question: say briefly what it holds and what you could do with it.)";
-    const question: AiMessage = { role: "user", content: chatQuestionPrompt(asked, map, skill?.body, memory.text, { now: new Date(), timeZone }, filesText) };
+    // A question that is only files asks about the files.
+    const asked = message || "(The person attached the files without a question: say briefly what they hold and what you could do with them.)";
+    const question: AiMessage = {
+      role: "user",
+      content: chatQuestionPrompt(asked, map, skill?.body, memory.text, { now: new Date(), timeZone }, filesText),
+      ...(read.images.length ? { images: read.images } : {}),
+    };
     const messages: AiMessage[] = [...history, question];
     // When the model finds it all too long: old tool results go first (it can call the tool again),
     // then the earlier conversation. False when there's nothing left to drop.
@@ -405,20 +542,23 @@ async function* runChat(
       return earlier > 0;
     };
     let roomMade = 0;
+    // The turn that must answer: the last one, or the one after research used its tokens.
+    let finalRound = maxRounds - 1;
 
     // ------------------------------------------------------------------------------ model turns
-    for (let round = 0; round < MAX_ROUNDS; round++) {
+    for (let round = 0; round <= finalRound; round++) {
       if (round > 0) {
         const wait = takeWorkspaceCapacity(workspaceId);
         if (wait > 0) throw new AiError("rateLimited", "The workspace's AI allowance is used up for now", wait);
       }
-      const last = round === MAX_ROUNDS - 1;
+      const last = round === finalRound;
       yield { type: "thinking" };
       let streamed = "";
       let result: AiResult;
       try {
         const turn = stream({
-          feature: "chat",
+          feature,
+          model,
           userId,
           workspaceId,
           skipRateLimit: true,
@@ -451,23 +591,34 @@ async function* runChat(
         }
         throw error;
       }
+      answeredBy = result.model;
+      spent += result.usage.totalTokens;
       if (!result.toolCalls.length || last) {
         answer = result.text;
         stopReason = result.stopReason === "length" ? "length" : "stop";
         break;
       }
+      // Research that used its tokens writes its report on the next turn.
+      if (research && spent >= RESEARCH_TOKENS) finalRound = Math.min(finalRound, round + 1);
       // Text before a tool call is the model thinking aloud, not the answer: it's kept as a step.
       if (streamed) yield { type: "reset" };
       const thought = thoughtText(streamed);
       if (thought) yield await step({ kind: "thought", text: thought.length > THOUGHT_CHARS ? `${thought.slice(0, THOUGHT_CHARS - 1).trimEnd()}…` : thought });
       answer = "";
       messages.push(result.message);
-      const answerNext = round === MAX_ROUNDS - 2;
+      const answerNext = round === finalRound - 1;
       for (const call of result.toolCalls) {
         const left = room() - sizeOf(messages) - 300;
         let out: ToolOutcome;
         const entry = external?.byName.get(call.name);
         if (entry) out = yield* callConnection(entry, call.arguments, left);
+        else if (research && call.name === PLAN_TOOL.name) out = runPlan(call);
+        else if (webTools.length && isChatWebTool(call.name)) {
+          out = await runChatWebTool(call, registry, left);
+          // Web text could pass itself off as the person's wish: what follows is asked about.
+          fromWeb = true;
+          if (mode === "auto") mode = "ask";
+        }
         // With the memory off, remember and forget aren't offered: called anyway, they're unknown.
         else if (remembers && MEMORY_TOOL_NAMES.has(call.name)) {
           // Text the model read could pass itself off as a lasting note: the person approves each.
@@ -482,7 +633,7 @@ async function* runChat(
           let decision: ChatDecision | "timeout" = "approve";
           if ("action" in prepared && mode === "ask") {
             decision = yield* decide(prepared.action);
-            if (decision === "always") mode = "auto";
+            if (decision === "always" && !fromWeb) mode = "auto";
           }
           out = "action" in prepared ? await applyWrite(prepared, decision, registry) : prepared;
         }
@@ -504,10 +655,13 @@ async function* runChat(
   const stopped = failure === "aborted" && (answer.trim().length > 0 || changed);
   if (!failure || stopped || changed) {
     const cited = new Set(citedNumbers(answer));
-    const refs: ChatSourceRef[] = registry.sources.filter((s) => cited.has(s.n)).map((s) => ({ n: s.n, pageId: s.pageId, blockId: s.blockId }));
+    const refs: ChatSourceRef[] = registry.sources
+      .filter((s) => cited.has(s.n))
+      .map((s) => (s.url ? { n: s.n, url: s.url, title: s.title } : { n: s.n, pageId: s.pageId, blockId: s.blockId }));
     const now = new Date().toISOString();
     const note = stopped ? "stopped" : failure ? undefined : stopReason === "length" ? "cutOff" : undefined;
     const ms = Date.now() - started;
+    const kept = files.records;
     await saveTurn(
       conversation.id,
       [
@@ -515,13 +669,27 @@ async function* runChat(
           role: "user",
           content: message,
           ...(skill ? { skill: { id: skill.id, title: skill.title } } : {}),
-          ...(attachments.length ? { attachments } : {}),
+          ...(kept.length ? { attachments: kept } : {}),
+          ...(research ? { research: true } : {}),
           at: now,
         },
-        { role: "assistant", content: answer, sources: refs, ...(note ? { note } : {}), steps: [...carried, ...steps], ms, at: now },
+        {
+          role: "assistant",
+          content: answer,
+          sources: refs,
+          ...(note ? { note } : {}),
+          steps: [...carried, ...steps],
+          ms,
+          ...(research ? { research: true } : {}),
+          ...(answeredBy ? { model: answeredBy } : {}),
+          at: now,
+        },
       ],
       replaced,
+      model,
     );
+    // Kept with the question: they now go with the conversation.
+    await keepQuestionFiles(conversation.id, kept.map((f) => f.id));
     await pruneConversations(userId, workspaceId);
     yield { type: "sources", sources: await viewSources(userId, refs) };
     if (!failure) yield { type: "done", stopReason, ms };
@@ -535,15 +703,15 @@ async function* runChat(
 
 // ---------------------------------------------------------------------------- conversations
 
-/** Adds a question and its answer to a conversation, in place of its last `replace` records. */
-async function saveTurn(conversationId: string, records: ChatMessageRecord[], replace = 0) {
+/** Adds a question and its answer to a conversation, in place of its last `replace` records; `model`: the one it now answers with. */
+async function saveTurn(conversationId: string, records: ChatMessageRecord[], replace: number, model: string | null) {
   // Keeps the records before the replaced ones (a jsonb array's elements, in order).
   const kept = replace
     ? sql`coalesce((select jsonb_agg(e order by i) from jsonb_array_elements(${aiConversation.messages}) with ordinality as t(e, i) where i <= jsonb_array_length(${aiConversation.messages}) - ${replace}), '[]'::jsonb)`
     : sql`${aiConversation.messages}`;
   await db
     .update(aiConversation)
-    .set({ messages: sql`${kept} || ${JSON.stringify(records)}::jsonb`, updatedAt: new Date() })
+    .set({ messages: sql`${kept} || ${JSON.stringify(records)}::jsonb`, model, updatedAt: new Date() })
     .where(eq(aiConversation.id, conversationId));
 }
 
@@ -556,16 +724,18 @@ async function pruneConversations(userId: string, workspaceId: string) {
     .orderBy(desc(aiConversation.updatedAt))
     .limit(MAX_CONVERSATIONS);
   if (keep.length < MAX_CONVERSATIONS) return;
-  await db.delete(aiConversation).where(
-    and(
-      eq(aiConversation.userId, userId),
-      eq(aiConversation.workspaceId, workspaceId),
-      notInArray(
-        aiConversation.id,
-        keep.map((k) => k.id),
-      ),
+  const old = and(
+    eq(aiConversation.userId, userId),
+    eq(aiConversation.workspaceId, workspaceId),
+    notInArray(
+      aiConversation.id,
+      keep.map((k) => k.id),
     ),
   );
+  const gone = await db.select({ id: aiConversation.id }).from(aiConversation).where(old);
+  if (!gone.length) return;
+  await deleteConversationFiles(gone.map((c) => c.id));
+  await db.delete(aiConversation).where(inArray(aiConversation.id, gone.map((c) => c.id)));
 }
 
 /** A step as the person may see it now: a page read that they can't open has no title. */
@@ -596,11 +766,14 @@ export async function viewStep(userId: string, record: ChatStepRecord, pages?: A
 
 /** Cited pages as the person may see them now: pages they can't open lose id and title. */
 export async function viewSources(userId: string, refs: ChatSourceRef[]): Promise<ChatSourceView[]> {
-  const visible = await visiblePages(userId, refs.map((r) => r.pageId));
+  const visible = await visiblePages(userId, refs.flatMap((r) => (r.pageId ? [r.pageId] : [])));
+  // Verified as of now, not when the answer was written.
+  const verified = await activeVerifications([...visible.keys()]);
   return refs.map((r) => {
+    if (r.url !== undefined) return { n: r.n, pageId: null, workspaceId: null, title: r.title, icon: null, kind: null, blockId: null, url: r.url };
     const seen = visible.get(r.pageId);
     return seen
-      ? { n: r.n, pageId: r.pageId, workspaceId: seen.workspaceId, title: seen.title, icon: seen.icon, kind: seen.kind, blockId: r.blockId }
+      ? { n: r.n, pageId: r.pageId, workspaceId: seen.workspaceId, title: seen.title, icon: seen.icon, kind: seen.kind, blockId: r.blockId, verified: verified.has(r.pageId) }
       : { n: r.n, pageId: null, workspaceId: null, title: null, icon: null, kind: null, blockId: null };
   });
 }
@@ -641,7 +814,9 @@ export async function getConversation(userId: string, workspaceId: string, conve
         role: m.role,
         content: m.content,
         ...(m.skill ? { skill: m.skill } : {}),
-        ...(m.attachments?.length ? { attachments: m.attachments.map((a) => ({ name: a.name, rows: a.rows.length, columns: a.headers.length })) } : {}),
+        ...(m.attachments ? { attachments: m.attachments.map(attachmentView) } : {}),
+        ...(m.research ? { research: true } : {}),
+        ...(m.model ? { model: m.model } : {}),
         ...(sources ? { sources } : {}),
         ...(m.note ? { note: m.note } : {}),
         ...(steps ? { steps } : {}),
@@ -650,19 +825,46 @@ export async function getConversation(userId: string, workspaceId: string, conve
       };
     }),
   );
-  return { id: found.id, title: found.title, messages };
+  return { id: found.id, title: found.title, model: found.model, messages };
+}
+
+const attachmentView = (a: ChatAttachmentRecord): ChatAttachmentView => ({ ...a, url: chatFileUrl(a.id) });
+
+/**
+ * Saves a research answer of the person's conversation (the message at `index`) as a new private
+ * page at the top of the workspace, its citations links to the sources under `labels.sources`
+ * (`labels.untitled`: the title without a question); returns the page's id.
+ */
+export async function saveReportAsPage(
+  userId: string,
+  workspaceId: string,
+  conversationId: string,
+  index: number,
+  labels: { sources: string; untitled: string },
+): Promise<{ pageId: string }> {
+  await requireMembership(userId, workspaceId);
+  const found = await ownConversation(userId, workspaceId, conversationId).catch(() => {
+    throw new AccessError();
+  });
+  const message = found.messages[index];
+  if (!message || message.role !== "assistant" || !message.research || !message.content.trim()) refuse("invalid", "There is no report to save");
+  const markdown = reportMarkdown(message.content, await viewSources(userId, message.sources ?? []), labels.sources);
+  const question = found.messages[index - 1];
+  const title = conversationTitle(question?.role === "user" ? question.content : found.title) || labels.untitled;
+  const made = await createPage({ userId }, { workspaceId, teamspaceId: null, title, markdown });
+  return { pageId: made.id };
 }
 
 /** Deletes conversations of the person (only theirs). */
 export async function deleteConversations(userId: string, workspaceId: string, conversationIds: string[] | "all") {
   await requireMembership(userId, workspaceId);
-  await db
-    .delete(aiConversation)
-    .where(
-      and(
-        eq(aiConversation.userId, userId),
-        eq(aiConversation.workspaceId, workspaceId),
-        conversationIds === "all" ? undefined : inArray(aiConversation.id, conversationIds.length ? conversationIds : [""]),
-      ),
-    );
+  const theirs = and(
+    eq(aiConversation.userId, userId),
+    eq(aiConversation.workspaceId, workspaceId),
+    conversationIds === "all" ? undefined : inArray(aiConversation.id, conversationIds.length ? conversationIds : [""]),
+  );
+  // Their files go with them, from storage too.
+  const gone = await db.select({ id: aiConversation.id }).from(aiConversation).where(theirs);
+  await deleteConversationFiles(gone.map((c) => c.id));
+  await db.delete(aiConversation).where(theirs);
 }

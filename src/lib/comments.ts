@@ -1,8 +1,10 @@
 /**
  * Comments on pages: threads of comments anchored to text, stored in the page's Yjs document in
- * BlockNote's format (a `threads` map) so they sync live like the text. Only the server writes
- * them (see server/comments.ts), so who wrote what can be trusted. A comment's body is a small
- * BlockNote document: paragraphs of styled text and links.
+ * BlockNote's format (a `threads` map) so they sync live like the text. Threads on a database row's
+ * property values are kept apart, on the server only (server/property-comments.ts), since not
+ * everyone who opens the row may see every value. Only the server writes them (see
+ * server/comments.ts), so who wrote what can be trusted. A comment's body is a small BlockNote
+ * document: paragraphs of styled text and links.
  */
 
 /** The map in the page's document holding its threads, as BlockNote's thread stores expect. */
@@ -18,6 +20,14 @@ const COMMENT_HASH = /^#comment-([\w-]{1,100})$/;
 /** The thread a link's fragment (`location.hash`) names, if it names one. */
 export const threadOfHash = (hash: string): string | undefined => COMMENT_HASH.exec(hash)?.[1];
 
+/** Longest reaction, in UTF-16 units: an emoji with its modifiers. */
+const MAX_EMOJI = 32;
+
+/** Whether `value` is one emoji (with its modifiers): what a reaction, to a comment or a page, is. */
+export function isReactionEmoji(value: unknown): value is string {
+  return typeof value === "string" && !!value && value.length <= MAX_EMOJI && !/\s/.test(value) && /\p{Extended_Pictographic}/u.test(value);
+}
+
 /** Longest comment, in characters of text. */
 export const MAX_COMMENT_LENGTH = 10_000;
 const MAX_PARAGRAPHS = 100;
@@ -30,7 +40,8 @@ const MAX_PARAGRAPHS = 100;
 export type CommentAnchor = { quote: string; blockId?: string; offset?: number };
 
 export type CommentOp =
-  | { type: "createThread"; body: unknown; anchor?: CommentAnchor }
+  /** `propertyId`: a thread on that property's value in the row (no anchor then). */
+  | { type: "createThread"; body: unknown; anchor?: CommentAnchor; propertyId?: string }
   | { type: "addComment"; threadId: string; body: unknown }
   | { type: "updateComment"; threadId: string; commentId: string; body: unknown }
   | { type: "deleteComment"; threadId: string; commentId: string }
@@ -63,6 +74,10 @@ export type PlainThread = {
   quote?: string | null;
   /** The thread is about the whole page and quotes nothing (agents write these). Only set by the server. */
   page?: true;
+  /** The thread is about this property's value in the row. Only set by the server. */
+  property?: { id: string; name: string };
+  /** The thread is about this suggested edit (lib/suggestions), opened by the server. Only set by the server. */
+  suggestion?: string;
 };
 
 type Styles = Partial<Record<(typeof STYLES)[number], true>>;
@@ -275,6 +290,24 @@ export const PAGE_THREAD_METADATA = { page: true } as const;
 /** Whether a thread's metadata says it is about the whole page. */
 export const isPageThread = (metadata: unknown) =>
   typeof metadata === "object" && metadata !== null && (metadata as { page?: unknown }).page === true;
+
+/** What a thread on a row's property value carries as metadata (server/property-comments.ts). */
+export const propertyThreadMetadata = (propertyId: string) => ({ property: propertyId });
+
+/** The property a thread's metadata says it is about, if it is about one. */
+export const propertyOf = (metadata: unknown): string | null => {
+  const property = typeof metadata === "object" && metadata !== null ? (metadata as { property?: unknown }).property : undefined;
+  return typeof property === "string" ? property : null;
+};
+
+/**
+ * The suggested edit (lib/suggestions) a thread is about, if it is one's: the server opens one for
+ * each, in its author's name, and resolves it once the suggestion is answered or withdrawn.
+ */
+export const suggestionOfThread = (metadata: unknown): string | null => {
+  const id = typeof metadata === "object" && metadata !== null ? (metadata as { suggestion?: unknown }).suggestion : undefined;
+  return typeof id === "string" ? id : null;
+};
 
 /** The title of the row a thread came from when that row was merged into this one, if it did. */
 export const mergedFromOf = (metadata: unknown): string | null => {

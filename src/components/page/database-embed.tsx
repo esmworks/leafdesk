@@ -132,6 +132,7 @@ export function DatabaseEmbed({
         workspaceId={info.workspaceId}
         databaseId={databaseId}
         canEdit={hasLevel(info.level, "edit")}
+        canComment={hasLevel(info.level, "comment")}
         guest={info.guest}
         exportable={info.exportable}
         embed={embed}
@@ -197,7 +198,7 @@ function startingConfig(type: ViewType, config: ViewConfig, properties: Property
   return next;
 }
 
-/** A linked view picks its own layout: table, board, calendar, gallery, list, timeline, map or chart. */
+/** A linked view picks its own layout: table, board, calendar, gallery, list, feed, timeline, map or chart. */
 function LayoutMenu({
   view,
   properties,

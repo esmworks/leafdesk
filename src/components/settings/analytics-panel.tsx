@@ -64,6 +64,7 @@ export async function AnalyticsPanel({ workspaceId, report, now }: { workspaceId
         </div>
 
         <SettingsGroup
+          anchor="analyticsPeople"
           title={t("peopleHeading")}
           description={t("peopleDescription")}
           action={<CsvLink href={csv("members")} label={t("exportPeople")} />}
@@ -104,6 +105,7 @@ export async function AnalyticsPanel({ workspaceId, report, now }: { workspaceId
         </SettingsGroup>
 
         <SettingsGroup
+          anchor="analyticsPages"
           title={t("pagesHeading")}
           description={t("pagesDescription")}
           action={report.pages.length > 0 && <CsvLink href={csv("pages")} label={t("exportPages")} />}

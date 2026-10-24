@@ -30,8 +30,10 @@ const config = (phase: string): NextConfig => ({
     images: { unoptimized: true },
     typescript: { ignoreBuildErrors: true },
   }),
-  // Loaded by the custom server too; keep one copy of each in the process.
-  serverExternalPackages: ["postgres", "@blocknote/server-util", "jsdom", "yjs", "nodemailer", "@earendil-works/pi-ai", "unpdf", "pdfmake", "web-push", "imapflow", "mailparser"],
+  // Loaded by the custom server too; keep one copy of each in the process. prosemirror-model
+  // too: the server editor's schema comes from the external @blocknote/server-util, and a bundled
+  // second copy doesn't take its nodes (synced-body's suggested-edits view).
+  serverExternalPackages: ["postgres", "@blocknote/server-util", "prosemirror-model", "jsdom", "yjs", "nodemailer", "@earendil-works/pi-ai", "unpdf", "pdfmake", "web-push", "imapflow", "mailparser"],
   experimental: {
     // Dev only: with the debug channel React waits for debug data sent over the HMR websocket
     // before it hydrates or applies a navigation. The custom server restarts on every server

@@ -51,6 +51,18 @@ describe("AI settings", () => {
     expect(readAiConfig({ AI_PROVIDER: "anthropic", AI_FAST_MODEL: "claude-haiku-5-5", AI_API_KEY: "k" }).chat).toBeNull();
   });
 
+  it("reads more models for the chat to pick from, and whether unknown models take images", () => {
+    const base = { AI_PROVIDER: "openai-compatible", AI_MODEL: "main", AI_FAST_MODEL: "fast", AI_BASE_URL: "http://gpu:8000/v1" };
+    const config = readAiConfig({ ...base, AI_CHAT_MODELS: " big , main, fast, big,,small ", AI_IMAGE_INPUT: "TRUE" });
+    // AI_MODEL and AI_FAST_MODEL are offered anyway: only the others are kept, each once.
+    expect(config.chat).toMatchObject({ chatModels: ["big", "small"], imageInput: true });
+    expect(describeAiConfig(config)).toContain("chat models: big, small");
+    const plain = readAiConfig({ ...base, AI_CHAT_MODELS: "main", AI_IMAGE_INPUT: "no" }).chat;
+    expect(plain).not.toHaveProperty("chatModels");
+    expect(plain).not.toHaveProperty("imageInput");
+    expect(readAiConfig({ AI_CHAT_MODELS: "big" }).problems).toEqual(["AI_CHAT_MODELS is set but AI_PROVIDER is not"]);
+  });
+
   it("reuses the chat key for embeddings only on the same endpoint", () => {
     const same = readAiConfig({ AI_PROVIDER: "openai", AI_MODEL: "gpt-4.1-mini", AI_API_KEY: "k", AI_EMBEDDINGS_MODEL: "text-embedding-3-small" });
     expect(same.embeddings).toEqual({ model: "text-embedding-3-small", baseUrl: "https://api.openai.com/v1", apiKey: "k", dimensions: null, minSimilarity: 0.3 });

@@ -261,6 +261,9 @@ describe("conditions", () => {
     expect(conditionHolds({ op: "contains", values: ["a"] }, "multi_select", ["b", "a"])).toBe(true);
     expect(conditionHolds({ op: "notContains", values: ["a"] }, "multi_select", ["b"])).toBe(true);
     expect(conditionHolds({ op: "contains", values: ["web"] }, "text", " My WEBsite ")).toBe(true);
+    expect(conditionHolds({ op: "contains", values: ["ist"] }, "text", "İstanbul")).toBe(true);
+    expect(conditionHolds({ op: "contains", values: ["ışık"] }, "text", "IŞIK")).toBe(true);
+    expect(conditionHolds({ op: "notContains", values: ["ILIK"] }, "text", "ılık")).toBe(false);
     expect(conditionHolds({ op: "unchecked" }, "checkbox", undefined)).toBe(true);
     expect(conditionHolds({ op: "empty" }, "text", "   ")).toBe(true);
     expect(conditionHolds({ op: "notEmpty" }, "files", [])).toBe(false);

@@ -119,6 +119,9 @@ export function openedFile(event: MouseEvent, root: Element, { links = true }: {
     const url = uploadedPath(button.getAttribute("data-file-view"));
     return url ? { url, name: button.getAttribute("data-file-name") ?? "" } : null;
   }
-  const shown = event.target.closest(links ? "img[src], a[href]" : "img[src]");
+  const found = event.target.closest(links ? "img[src], a[href]" : "img[src]");
+  // An image in a link (lib/image-links) follows the link, unless that link is to a file too.
+  const link = found?.tagName === "IMG" ? found.closest("a[href]") : null;
+  const shown = link && root.contains(link) ? link : found;
   return shown && root.contains(shown) ? fileOf(shown) : null;
 }

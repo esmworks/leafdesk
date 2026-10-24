@@ -16,6 +16,14 @@
     "createdBy": "Created by {name}",
     "someone": "Someone",
     "comments": "Comments",
+    "suggesting": {
+      "editing": "Editing",
+      "suggesting": "Suggesting",
+      "label": "Mode: {mode}",
+      "editingHint": "Change the page directly",
+      "suggestingHint": "Your changes show as suggestions that others can accept or reject",
+      "forcedHint": "You may comment on this page, so your changes are suggestions its editors can accept or reject"
+    },
     "share": "Share",
     "accessRequests": "{count, plural, one {# access request} other {# access requests}}",
     "addFavorite": "Add to favorites",
@@ -51,6 +59,9 @@
     "exportPdf": "Export as PDF",
     "printView": "Print",
     "exportPreparing": "Preparing export…",
+    "acceptAllSuggestions": "Accept all suggestions",
+    "rejectAllSuggestions": "Reject all suggestions",
+    "rejectAllConfirm": "Reject every suggested edit on this page?",
     "versionHistory": "Version history",
     "lastEdited": "Last edited by {name}",
     "wordCount": "{words, plural, one {# word} other {# words}}, {characters, plural, one {# character} other {# characters}}",
@@ -72,6 +83,7 @@
   },
   "comments": {
     "aboutPage": "About this page",
+    "aboutProperty": "On “{name}”",
     "title": "Comments",
     "close": "Close comments",
     "filters": {
@@ -94,6 +106,20 @@
     "muted": "Replies muted",
     "mutedHint": "You don't hear about replies in this thread until you reply here or someone mentions you here.",
     "mergedFrom": "From “{title}”",
+    "suggestion": {
+      "label": "Suggested edit",
+      "byAi": "Suggested edit by AI",
+      "accept": "Accept",
+      "reject": "Reject",
+      "withdraw": "Withdraw",
+      "errors": {
+        "notAllowed": "You can't answer this suggestion.",
+        "notFound": "This suggestion was already answered or withdrawn.",
+        "pageLocked": "The page is locked.",
+        "pageInTrash": "The page is in the trash.",
+        "failed": "The suggestion couldn't be answered. Try again."
+      }
+    },
     "sort": {
       "label": "Sort threads",
       "recent": "Newest activity first",
@@ -105,7 +131,11 @@
     "mark": "Come back later",
     "unmark": "Remove “Come back later”",
     "markHint": "Keep this thread under Marked until you take the mark off. Only you see it.",
-    "unmarkHint": "Take this thread off your Marked list."
+    "unmarkHint": "Take this thread off your Marked list.",
+    "onProperty": "Comment on “{name}”",
+    "propertyPlaceholder": "What about this value?",
+    "post": "Comment",
+    "propertyGone": "This value can't be commented on any more."
   },
   "archived": {
     "banner": "This page is in the trash.",
@@ -119,6 +149,39 @@
     "above": "Archived along with a page above this one.",
     "unarchive": "Unarchive",
     "hint": "Archived pages stay out of the sidebar, search and pickers, but can still be read and edited."
+  },
+  "verification": {
+    "byUntil": "Verified by {name} until {date}",
+    "by": "Verified by {name}",
+    "until": "Verified until {date}",
+    "plain": "Verified",
+    "expiredOn": "Verification expired {date}",
+    "hint": "Someone with full access checked this page and marked it as right. Editing it keeps it verified.",
+    "change": "Change or remove the verification",
+    "menu": "Verify page…",
+    "menuVerified": "Verification…",
+    "menuHint": "Mark the page as checked and right: search ranks it higher and the AI chat prefers it",
+    "title": "Verify page",
+    "description": "Mark this page as checked and right, for a while or with no end. Search ranks verified pages higher, marks them and finds them with is:verified, and the AI chat prefers them. Editing the page keeps it verified; you hear a few days before it ends.",
+    "durationLabel": "Verified for",
+    "durations": {
+      "week": "1 week",
+      "month": "1 month",
+      "quarter": "3 months",
+      "year": "1 year",
+      "until": "Until a day",
+      "forever": "With no end"
+    },
+    "dateLabel": "Verified until",
+    "verify": "Verify",
+    "verifyAgain": "Verify again",
+    "remove": "Remove verification",
+    "searchBadge": "Verified",
+    "errors": {
+      "template": "Templates and the pages in them aren’t verified.",
+      "inTrash": "Restore the page from the trash first.",
+      "invalidEnd": "Choose a day after today, within five years."
+    }
   },
   "icon": {
     "add": "Add icon",
@@ -334,6 +397,11 @@
         "title": "Dashboard",
         "subtext": "Numbers, charts and lists from your databases",
         "aliases": "dashboard widgets kpi metrics charts numbers"
+      },
+      "databaseTabs": {
+        "title": "Database tabs",
+        "subtext": "Several databases or views, one tab each",
+        "aliases": "tabs tabbed database views switch"
       }
     }
   },
@@ -587,6 +655,17 @@
     "addTitle": "Add title",
     "removeTitle": "Remove title"
   },
+  "imageLink": {
+    "menuItem": "Link…",
+    "editMenuItem": "Edit link…",
+    "title": "Link the image",
+    "urlLabel": "Web address",
+    "toPage": "Links to the page “{title}”",
+    "invalid": "Enter a web address starting with http:// or https://, or choose a page.",
+    "pickPage": "Link to a page…",
+    "remove": "Remove link",
+    "open": "Open link"
+  },
   "pdf": {
     "untitled": "PDF",
     "openInNewTab": "Open in a new tab",
@@ -676,6 +755,19 @@
     "filters": "{count, plural, one {# filter} other {# filters}}",
     "updatedNow": "updated just now",
     "updated": "updated {time}"
+  },
+  "databaseTabs": {
+    "title": "Database tabs",
+    "empty": "These tabs show no databases yet.",
+    "emptyEditable": "Show several databases, or views of one, as tabs. Each tab is a view of its own.",
+    "add": "Add tab",
+    "full": "Tabs hold up to {max} views.",
+    "menu": "Tab options",
+    "rename": "Rename",
+    "remove": "Remove tab",
+    "nameLabel": "Tab name",
+    "namePlaceholder": "The database's name",
+    "noAccess": "No access"
   },
   "voiceNote": {
     "record": "Record a voice note",
@@ -948,5 +1040,80 @@
       "copyLink": "Copy link"
     },
     "awaitingOwner": "Waiting for a workspace owner to approve a call…"
+  },
+  "button": {
+    "untitled": "Button",
+    "placeholder": "Button label",
+    "done": "Done",
+    "confirm": "Run “{label}”?",
+    "blockLabel": "Button “{label}”",
+    "slash": {
+      "title": "Button",
+      "subtext": "Does a few things in order when clicked",
+      "aliases": "button action click run"
+    },
+    "settings": {
+      "open": "Button settings",
+      "icon": "Emoji",
+      "label": "Label",
+      "confirm": "Ask before running",
+      "confirmHelp": "Whoever clicks confirms first.",
+      "steps": "When clicked",
+      "stepsHelp": "Steps run in order, as whoever clicks and with their access. A step they can’t do stops the button there.",
+      "addStep": "Add a step",
+      "moveUp": "Move up",
+      "moveDown": "Move down",
+      "insertAt": "Where",
+      "at": {
+        "below": "Below the button",
+        "top": "At the top of the page",
+        "bottom": "At the end of the page"
+      },
+      "markdown": "Blocks in Markdown",
+      "people": "People",
+      "message": "Message",
+      "notifyHelp": "Only people who can open this page are notified.",
+      "url": "Address",
+      "secret": "Signing secret",
+      "copySecret": "Copy the secret",
+      "webhookHelp": "Sends this page as JSON, signed with the secret, if the workspace lets content leave it.",
+      "target": "Web address or page",
+      "pickPage": "Choose a page",
+      "toPage": "Opens “{title}”",
+      "rowTitle": "Title",
+      "values": "Values",
+      "updateHelp": "Changes at most {max} rows that match the filters and that whoever clicks can see."
+    },
+    "variables": {
+      "group": "Button",
+      "today": "Today",
+      "now": "Now",
+      "me": "Who clicked"
+    },
+    "steps": {
+      "insert": "Insert blocks",
+      "add_row": "Add a row",
+      "update_rows": "Change rows",
+      "notify": "Notify people",
+      "webhook": "Send a webhook",
+      "open": "Open a link or page"
+    },
+    "failed": {
+      "notFound": "This button is no longer on the page.",
+      "noSteps": "This button doesn’t do anything yet.",
+      "inTrash": "Buttons on pages in the trash don’t run.",
+      "rateLimited": "This button was clicked too often. Wait a moment and try again.",
+      "noAccess": "You don’t have access to do this.",
+      "locked": "The page is locked.",
+      "notConfigured": "This step isn’t set up.",
+      "databaseGone": "The database is gone or in the trash.",
+      "invalidValue": "A value doesn’t fit its property.",
+      "exportOff": "This workspace doesn’t let content leave it.",
+      "webhookFailed": "The address didn’t accept the webhook.",
+      "invalidTarget": "The link to open isn’t valid.",
+      "buttonGone": "The button was removed from the page.",
+      "error": "Something went wrong.",
+      "step": "Step {step} ({type}) didn’t run: {reason}"
+    }
   }
 }

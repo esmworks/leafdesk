@@ -30,6 +30,7 @@ import {
   type DeadTarget,
   type DuplicateSection,
   type Orphan,
+  type ExpiredVerification,
   type StalePage,
   type WorkspaceCheck,
 } from "@/lib/workspace-check";
@@ -39,6 +40,7 @@ import { updateRowProperties } from "@/server/databases";
 import { loadProperties } from "@/server/derived";
 import { listUnlinkedMentions, resolvePageRefs } from "@/server/mentions";
 import { propertyAccessFor } from "@/server/property-access";
+import { expiredVerifications } from "@/server/verification";
 import { workspaceSettings } from "@/server/workspaces";
 
 const asIds = (v: unknown): string[] => (Array.isArray(v) ? v.filter((x): x is string => typeof x === "string") : []);
@@ -90,7 +92,7 @@ export async function checkWorkspace(
 
   const cutoff = staleCutoff(now, staleMonths);
   const orphans = checked.filter(isOrphan);
-  const [brokenLinks, linkFrom, duplicates, brokenRelations] = await Promise.all([
+  const [brokenLinks, linkFrom, duplicates, brokenRelations, ended] = await Promise.all([
     findBrokenLinks(
       userId,
       checked.filter((p) => p.hasRefs),
@@ -99,6 +101,7 @@ export async function checkWorkspace(
     suggestLinks(userId, orphans.slice(0, MAX_LINK_SUGGESTIONS)),
     findDuplicates(workspaceId, checked, asCheckPage, minSimilarity),
     findBrokenRelations(userId, checked, byId, editable, asCheckPage),
+    expiredVerifications(userId, workspaceId, MAX_CHECKED_PAGES),
   ]);
 
   return {
@@ -115,6 +118,13 @@ export async function checkWorkspace(
         .filter((p) => isStale(p, cutoff))
         .sort((a, b) => a.updatedAt.getTime() - b.updatedAt.getTime())
         .map((p): StalePage => ({ ...asCheckPage(p), updatedAt: p.updatedAt.toISOString() })),
+    ),
+    // Of the pages looked at: the ones whose verification ended longest ago first.
+    expiredVerifications: section(
+      ended.flatMap((v): ExpiredVerification[] => {
+        const p = byId.get(v.id);
+        return p ? [{ ...asCheckPage(p), by: v.by, until: v.until }] : [];
+      }),
     ),
     duplicates,
     brokenRelations: section(brokenRelations),

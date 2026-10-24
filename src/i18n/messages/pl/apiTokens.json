@@ -110,6 +110,10 @@
       "agents": {
         "name": "Agenci",
         "hint": "Ustawienia, uruchomienia, harmonogramy i udostępnianie agentów."
+      },
+      "webhooks": {
+        "name": "Webhooki",
+        "hint": "Webhooki stron i ich wysyłki; zapis dodaje, zmienia i testuje je (tylko właściciele)."
       }
     },
     "summary": {

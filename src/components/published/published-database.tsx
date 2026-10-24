@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useTranslations } from "next-intl";
+import { useFormatter, useTranslations } from "next-intl";
 import { useState } from "react";
 import { GroupLabel } from "@/components/database/group-label";
 import { isEmptyValue, PropertyDisplay } from "@/components/database/property-cell";
@@ -38,7 +38,7 @@ type Props = {
 
 type Href = ((id: string) => string) | null;
 
-/** A published database drawn like its view: a table, board, list or gallery, read-only. */
+/** A published database drawn like its view: a table, board, list, gallery or feed, read-only. */
 export function PublishedDatabaseView({ table, links, viewPath, className, print = false, compact = false }: Props) {
   const titles = new Map(table.rows.map((r) => [r.id, r.title]));
   const href: Href = links ? (id: string) => publishedHref(links, id, titles.get(id) ?? "") : null;
@@ -105,6 +105,14 @@ function Layout({ table, href, print, compact }: { table: PublishedDatabase; hre
         >
           {table.rows.map((row) => (
             <Card key={row.id} row={row} table={table} href={href} cover={row.cover !== undefined} />
+          ))}
+        </div>
+      );
+    case "feed":
+      return (
+        <div className="mx-auto flex w-full max-w-2xl flex-col gap-4">
+          {table.rows.map((row) => (
+            <FeedPost key={row.id} row={row} table={table} href={href} />
           ))}
         </div>
       );
@@ -217,6 +225,36 @@ function ListRow({ row, table, href }: { row: PublishedRow; table: PublishedData
         </span>
       )}
     </div>
+  );
+}
+
+/** A feed's post, read-only: when it was written, its title and values, the first part of its body. */
+function FeedPost({ row, table, href }: { row: PublishedRow; table: PublishedDatabase; href: Href }) {
+  const format = useFormatter();
+  const shown = table.properties.filter((p) => !isEmptyValue(p, row.properties[p.id]));
+  const createdAt = new Date(row.createdAt);
+  return (
+    <article className="rounded-lg border border-border px-4 py-3 break-inside-avoid sm:px-5 sm:py-4">
+      <time dateTime={createdAt.toISOString()} className="text-xs text-fg-faint">
+        {format.dateTime(createdAt, { dateStyle: "medium" })}
+      </time>
+      <h3 className="mt-1">
+        <RowLink row={row} href={href} className={cn("inline-flex max-w-full items-start gap-1.5 text-lg leading-snug font-semibold", href && "hover:underline")}>
+          {row.icon && <PageIcon icon={row.icon} className="shrink-0" />}
+          <Title row={row} />
+        </RowLink>
+      </h3>
+      {shown.length > 0 && (
+        <div className="mt-2 flex flex-wrap items-center gap-x-3 gap-y-1.5 text-xs text-fg-muted">
+          {shown.map((p) => (
+            <span key={p.id} className="flex max-w-full min-w-0 items-center" title={p.name}>
+              <PropertyDisplay prop={p} value={row.properties[p.id]} style={row.styles?.[p.id]} />
+            </span>
+          ))}
+        </div>
+      )}
+      {row.excerpt && <p className="mt-3 text-[15px] leading-relaxed break-words whitespace-pre-line">{row.excerpt}</p>}
+    </article>
   );
 }
 

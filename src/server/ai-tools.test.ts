@@ -1,4 +1,5 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
+import type { ChatFileContent } from "./ai-chat-files";
 
 /**
  * search_pages in the AI chat: a page the text search found without a passage gets the indexed
@@ -117,7 +118,7 @@ describe("attached files and new databases", () => {
     rows: Array.from({ length: 30 }, (_, i) => [`Customer ${i + 1}`, String((i + 1) * 10), `2026-11-${String(i + 1).padStart(2, "0")}`, i % 2 ? "yes" : "no", ""]),
   };
   const older = { kind: "csv" as const, name: "old.csv", headers: ["A"], rows: [["1"]] };
-  const read = (args: Record<string, unknown>, attachments = [older, file]) =>
+  const read = (args: Record<string, unknown>, attachments: ChatFileContent[] = [older, file]) =>
     runTool({ userId: "u" } as never, "w", undefined, { name: "read_attachment", arguments: args }, { sources: [], byKey: new Map() }, 50_000, { attachments });
 
   it("reads the latest file, or the one named, from a row on", async () => {
@@ -127,9 +128,19 @@ describe("attached files and new databases", () => {
     expect((await read({ name: "OLD.csv" })).content).toContain("Rows 1-1 of 1 of \"old.csv\"");
   });
 
+  it("reads on in a document's text from a character", async () => {
+    const doc = { kind: "text" as const, name: "brief.pdf", text: "abcdefghij", partial: true };
+    const out = await read({ name: "brief.pdf", from_char: 4 }, [doc, file]);
+    expect(out.content).toBe('Characters 4-10 of 10 of "brief.pdf". The rest of this long document wasn\'t read.\n<attachment name="brief.pdf">\ndefghij\n</attachment>');
+    expect((await read({ name: "brief.pdf", from_char: 11 }, [doc])).isError).toBe(true);
+    // A database is made of CSV files only.
+    const prepared = await prepareWrite({ userId: "u", actor: { userId: "u" } } as never, "w", null, { name: "create_database_from_csv", arguments: { attachment: "brief.pdf" } }, { attachments: [doc, file] });
+    expect(prepared).toMatchObject({ isError: true, content: expect.stringContaining('The files: "orders.csv"') });
+  });
+
   it("says which files there are when the one named isn't, and when there are none", async () => {
     expect(await read({ name: "nope.csv" })).toEqual({ content: 'No attached file has that name. The files: "old.csv", "orders.csv".', isError: true });
-    expect(await read({}, [])).toEqual({ content: "No CSV file is attached to this conversation.", isError: true });
+    expect(await read({}, [])).toEqual({ content: "No file is attached to this conversation.", isError: true });
     expect((await read({ from_row: 31 })).content).toBe('"orders.csv" has 30 rows.');
   });
 

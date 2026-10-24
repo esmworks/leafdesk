@@ -9,7 +9,7 @@ import {
   type PartialBlock,
 } from "@blocknote/core";
 import { createReactBlockSpec, type DefaultReactSuggestionItem } from "@blocknote/react";
-import { Database, LayoutDashboard, Sparkles, SquareArrowOutUpRight } from "lucide-react";
+import { Database, LayoutDashboard, PanelsTopLeft, Sparkles, SquareArrowOutUpRight } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { useMemo } from "react";
 import { createInlineDatabaseAction } from "@/app/actions/embeds";
@@ -30,11 +30,13 @@ import { DashboardBlock } from "./dashboard-block";
 import { SyncedPageBlock } from "./synced-page";
 import { SyncedBlockSpec } from "./synced-block";
 import { AgentChatBlock } from "./agent-chat-block";
+import { ButtonBlock } from "./button-block";
 import { MeetingBlock } from "./meeting-block";
 import { DatabaseEmbed, useEmbedHost } from "./database-embed";
 import { FileBlock } from "./file-block";
 import { webBlockSpecs } from "./web-blocks";
 import { textScriptStyleSpecs } from "@/lib/text-scripts";
+import { linkedImageSpec } from "@/lib/image-links";
 
 export { DatabasePicker } from "./database-picker";
 
@@ -84,6 +86,8 @@ const LinkedViewBlock = createReactBlockSpec(linkedViewBlockConfig, {
 export const pageEditorSchema = BlockNoteSchema.create({
   blockSpecs: {
     ...defaultBlockSpecs,
+    // Images may link to a web address or a page (lib/image-links; editor-files.tsx opens it).
+    image: linkedImageSpec(),
     // A language menu and colored code (see code-block.tsx).
     codeBlock: CodeBlock(),
     database: DatabaseBlock(),
@@ -99,6 +103,8 @@ export const pageEditorSchema = BlockNoteSchema.create({
     syncedBlock: SyncedBlockSpec(),
     // A chat with one of the workspace's agents (see agent-chat-block.tsx).
     agentChat: AgentChatBlock(),
+    // A button that does a few things when clicked (see button-block.tsx).
+    button: ButtonBlock(),
     // A meeting recorded, transcribed and written up (see meeting-block.tsx).
     meeting: MeetingBlock(),
     // Uploaded PDFs show in place (see file-block.tsx).
@@ -220,6 +226,15 @@ export function useEmbedSlashItems(
           placeEmbedBlock(editor, editor.getTextCursorPosition().block.id, { type: DASHBOARD_BLOCK, props: { widgets: "" } });
           onDashboard?.();
         },
+      },
+      {
+        title: t("slash.databaseTabs.title"),
+        subtext: t("slash.databaseTabs.subtext"),
+        aliases: t("slash.databaseTabs.aliases").split(" "),
+        group,
+        icon: <PanelsTopLeft size={18} />,
+        // A dashboard shown as tabs (lib/dashboard): its "Add tab" button picks the first database.
+        onItemClick: () => placeEmbedBlock(editor, editor.getTextCursorPosition().block.id, { type: DASHBOARD_BLOCK, props: { widgets: "", layout: "tabs" } }),
       },
     ];
   }, [editor, host, t, tBuild, onCreateError, onPickDatabase, onDashboard, onBuild]);

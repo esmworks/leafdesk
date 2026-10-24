@@ -12,6 +12,7 @@
     "groups": "Groups",
     "agents": "Agents",
     "connections": "Connections",
+    "webhooks": "Webhooks",
     "storage": "Storage",
     "analytics": "Analytics",
     "aiUsage": "AI usage",
@@ -21,6 +22,67 @@
     "site": "Site",
     "snippets": "Snippets",
     "pdf": "PDF templates"
+  },
+  "search": {
+    "label": "Search settings",
+    "placeholder": "Search settings",
+    "noResults": "No settings match.",
+    "labels": {
+      "aiUsagePeople": "Usage by person"
+    },
+    "keywords": {
+      "profile": "name photo avatar picture",
+      "email": "address change verify",
+      "deleteAccount": "remove close account",
+      "password": "change reset sign in",
+      "twoFactor": "2fa mfa authenticator code",
+      "passkeys": "webauthn security key fingerprint face",
+      "sessions": "devices signed in sign out",
+      "language": "locale translation",
+      "theme": "dark mode light mode colors",
+      "contrast": "accessibility high contrast",
+      "notifications": "push email alerts",
+      "watchedPages": "follow subscribe watch",
+      "offlineDevice": "offline download cache space",
+      "offlinePages": "offline download without internet",
+      "mailboxes": "email inbox imap smtp",
+      "calendars": "ical feed subscribe calendar",
+      "storageAccounts": "drive s3 files cloud",
+      "connectedApps": "oauth clients access revoke",
+      "aiAccounts": "api key own key provider",
+      "telegram": "bot chat messages",
+      "mcp": "assistant model context protocol server",
+      "apiTokens": "rest api token key developer",
+      "about": "version license update",
+      "workspaceName": "name rename icon",
+      "ai": "artificial intelligence chat model provider memory",
+      "workspaceMail": "email rows mail send",
+      "export": "backup download zip markdown",
+      "members": "people invite users roles remove",
+      "agents": "ai assistant automation bot",
+      "snippets": "text expansion shortcuts",
+      "letterheads": "pdf header footer logo print",
+      "connections": "integrations mcp services tools",
+      "webhooks": "webhook http post events integration notify send",
+      "site": "website publish domain web",
+      "requireTwoFactor": "2fa mfa enforce policy",
+      "loginMethod": "sso password sign in policy",
+      "allowedNetworks": "ip allowlist address office vpn",
+      "membership": "invite join requests domains",
+      "sso": "saml oidc identity provider",
+      "scim": "provisioning directory sync users",
+      "exportPolicy": "download print pdf",
+      "connectedAppsPolicy": "mcp rest api tokens access",
+      "publishing": "publish web share public link",
+      "retention": "trash history delete keep days",
+      "legalHolds": "litigation preserve ediscovery keep",
+      "storage": "files s3 drive bucket",
+      "analyticsPeople": "activity edits statistics",
+      "aiUsageLimit": "budget cost spending cap",
+      "aiUsagePeople": "per person member cost tokens",
+      "health": "broken links orphans duplicates empty pages",
+      "audit": "log history events who changed"
+    }
   },
   "workspace": {
     "heading": "Workspace",
@@ -957,6 +1019,8 @@
     "moveToTrash": "Move to trash",
     "confirmTrash": "Move “{title}” to the trash?",
     "lastEdited": "Last edited {when}",
+    "verificationEndedBy": "Verified by {name}, ended {when}",
+    "verificationEnded": "Verification ended {when}",
     "alike": "{similarity, number, percent} alike",
     "inProperty": "{property} in {database}",
     "removeFromRelation": "Remove",
@@ -980,6 +1044,11 @@
       "title": "Untouched pages",
       "description": "Pages nobody edited in the last {months} months, longest untouched first. They may be out of date.",
       "none": "Every page was edited recently."
+    },
+    "expiredVerifications": {
+      "title": "Expired verifications",
+      "description": "Pages someone verified until a day that has passed. Check them and verify them again, or remove the verification.",
+      "none": "No verification has expired."
     },
     "duplicates": {
       "title": "Possible duplicates",
@@ -1387,6 +1456,50 @@
       "memberView": "{count, plural, =0 {Off: the workspace opens from any network.} one {On: the workspace opens only from # approved network.} other {On: the workspace opens only from # approved networks.}}"
     }
   },
+  "legalHolds": {
+    "title": "Legal holds",
+    "description": "While a hold stands, nothing the people on it created or edited in this workspace can be deleted for good. Their pages and rows can still go to the trash, but stay there with their history, comments and files; the workspace and their accounts can't be deleted.",
+    "holds": "Holds",
+    "holdsDescription": "Setting and releasing a hold is recorded in the audit log.",
+    "empty": "No holds.",
+    "new": "New hold",
+    "setBy": "Set by {name} on {date, date, medium}",
+    "setOn": "Set on {date, date, medium}",
+    "people": "{count, plural, one {# person} other {# people}}",
+    "left": "left",
+    "guest": "guest",
+    "release": "Release",
+    "confirmRelease": "Release {name}",
+    "form": {
+      "title": "New legal hold",
+      "description": "Choose the people it covers: members, guests, or people who have left but created or edited something here.",
+      "name": "Name",
+      "namePlaceholder": "Matter or case",
+      "reason": "Reason",
+      "reasonPlaceholder": "Optional: why, and who asked for it",
+      "people": "People ({count})",
+      "search": "Search people",
+      "loading": "Loading…",
+      "nobody": "Nobody matches.",
+      "submit": "Put on hold"
+    },
+    "errors": {
+      "pageHeld": "A legal hold keeps this page, or a page under it: it can't be deleted for good while the hold stands, and stays in the trash.",
+      "templateHeld": "A legal hold keeps this template: it can't be deleted while the hold stands.",
+      "propertyHeld": "A legal hold keeps this property's values: it can't be deleted for good while the hold stands.",
+      "commentHeld": "A legal hold keeps this comment: it can't be deleted while the hold stands.",
+      "letterheadHeld": "A legal hold keeps this letterhead: it can't be deleted while the hold stands.",
+      "workspaceHeld": "This workspace has a legal hold. Release it (Settings > Security) before deleting the workspace.",
+      "nameRequired": "Give the hold a name.",
+      "nameTooLong": "Use at most 200 characters for the name.",
+      "reasonTooLong": "Use at most 2,000 characters for the reason.",
+      "noPeople": "Choose who the hold is on.",
+      "tooManyPeople": "One hold covers at most 200 people.",
+      "unknownPerson": "Someone you chose isn't in this workspace any more.",
+      "notFound": "That hold was released already.",
+      "ownersOnly": "Only owners manage legal holds."
+    }
+  },
   "audit": {
     "description": "A record of who changed what in this workspace: members and roles, invitations, sharing, teamspaces and groups, settings, security, pages created, moved, trashed and deleted, publishing, connected apps and exports. Only owners can see it.",
     "filters": "Filter the audit log",
@@ -1501,6 +1614,7 @@
       "loginMethod": "How members sign in",
       "ai": "AI features",
       "aiMemory": "AI memory",
+      "aiWebSearch": "AI chat web search",
       "aiMonthlyLimitUsd": "Monthly AI cost limit",
       "trashRetentionDays": "Delete pages in the trash after",
       "export": "Allow export",
@@ -1568,6 +1682,8 @@
         "permission_removed": "Removed {subject} from the sharing of {target}",
         "row_access_changed": "Changed who the rows of {target} give access to",
         "deleted": "Deleted {target} for good",
+        "verified": "Verified {target}",
+        "unverified": "Removed the verification of {target}",
         "published": "Published {target} to the web",
         "unpublished": "Unpublished {target}",
         "publication_revoked": "Took {target} off the web (published by {subject})",
@@ -1622,6 +1738,10 @@
         "token_created": "Created the SCIM token {target}",
         "token_revoked": "Revoked the SCIM token {target}"
       },
+      "legal_hold": {
+        "set": "Put the legal hold {target} on {names}",
+        "released": "Released the legal hold {target} on {names}"
+      },
       "site": {
         "saved": "Saved the site at {slug}",
         "removed": "Took down the site at {slug}"
@@ -1639,6 +1759,11 @@
         "created": "Created the automation “{name}” in {target}",
         "updated": "{change, select, on {Turned on the automation “{name}” in {target}} off {Turned off the automation “{name}” in {target}} other {Changed the automation “{name}” in {target}}}",
         "deleted": "Deleted the automation “{name}” in {target}"
+      },
+      "webhook": {
+        "created": "Added the webhook “{target}”",
+        "updated": "{change, select, on {Turned on the webhook “{target}”} off {Turned off the webhook “{target}”} other {Changed the webhook “{target}”}}",
+        "deleted": "Removed the webhook “{target}”"
       },
       "export": {
         "workspace": "Exported the workspace ({count, plural, one {# page} other {# pages}})",
@@ -1771,7 +1896,10 @@
     "followUpChannel": "Follow-ups: {channel}",
     "reactionTitle": "Reactions",
     "reactionDescription": "Someone reacts to a comment you wrote. Reactions to the same comment come together until you open them.",
-    "reactionChannel": "Reactions: {channel}"
+    "reactionChannel": "Reactions: {channel}",
+    "verificationTitle": "Pages you verified",
+    "verificationDescription": "A page you verified is about to stop being verified, a few days before, and when it does.",
+    "verificationChannel": "Pages you verified: {channel}"
   },
   "site": {
     "description": "Give this workspace's published pages one readable address, a home page and navigation between them.",
@@ -2009,6 +2137,102 @@
       "redo": "Send back with a note…",
       "notWhole": "This call is longer than shown here, or holds values masked here. Open its run to see all of what would be sent before approving it.",
       "openRun": "Open the run to approve"
+    }
+  },
+  "webhooks": {
+    "description": "Send what happens to this workspace's pages to another service as it happens: signed POST requests to an https address, for the whole workspace, one teamspace, or a page and the pages under it. Each one goes out as whoever saved the webhook last, with what they may open; database rows and templates aren't sent.",
+    "exportOff": "Export is off in Settings › Security, so webhooks send nothing until it is on again.",
+    "count": "{count, plural, =0 {No webhooks yet.} one {# webhook} other {# webhooks}}",
+    "add": "Add webhook",
+    "empty": "Add a webhook to send page events to a service of your own.",
+    "allEvents": "Every event",
+    "scopeLabel": {
+      "workspace": "Every page of the workspace",
+      "teamspace": "Pages of {name}",
+      "page": "{title} and the pages under it"
+    },
+    "events": {
+      "pageCreated": "Page created",
+      "pageUpdated": "Page edited",
+      "pageMoved": "Page moved",
+      "pageTrashed": "Page moved to the trash",
+      "pageRestored": "Page restored from the trash",
+      "pageDeleted": "Page deleted for good",
+      "commentCreated": "Comment added",
+      "ping": "Test"
+    },
+    "sendsAs": "Sends as {name}, with what they may open.",
+    "paused": "Paused: {name} is no longer an owner. Save it to send as you.",
+    "pausedBadge": "Paused",
+    "offBadge": "Off",
+    "toggle": "Send {name}",
+    "test": "Send test",
+    "testDelivered": "The test reached the address (it answered {status}).",
+    "testFailed": "The test didn't go through: {reason}.",
+    "edit": "Edit",
+    "delete": "Remove",
+    "deleteNote": "It stops at once, and its delivery log goes with it.",
+    "working": "Working…",
+    "secret": {
+      "show": "Signing secret",
+      "rotate": "New secret",
+      "rotateNote": "The current secret stops signing at once: update the service that checks it.",
+      "title": "Signing secret of “{name}”",
+      "label": "Signing secret",
+      "note": "Check the X-Leafdesk-Signature header of each request with it: t=TIME,v1=HMAC, where HMAC is the hex HMAC-SHA256 of TIME, a dot and the body. Keep it secret."
+    },
+    "log": {
+      "title": "{count, plural, =0 {Recent deliveries} other {Recent deliveries (#)}}",
+      "empty": "Nothing sent in the last 30 days.",
+      "attempts": "{count, plural, one {# try} other {# tries}}",
+      "next": "next try at {when}"
+    },
+    "status": {
+      "pending": "Waiting",
+      "delivered": "Delivered",
+      "failed": "Failed",
+      "skipped": "Not sent"
+    },
+    "codes": {
+      "noAccess": "the person it sends as can't open the page",
+      "notOwner": "the person it sends as is no longer an owner",
+      "exportOff": "export is off",
+      "disabled": "the webhook is off",
+      "invalidUrl": "the address isn't valid",
+      "blocked": "the address is on a private network",
+      "unreachable": "the address couldn't be reached",
+      "timeout": "no answer within 10 seconds",
+      "redirect": "the address answered with a redirect",
+      "http": "the address answered {status}"
+    },
+    "form": {
+      "title": "Add a webhook",
+      "editTitle": "Change the webhook",
+      "name": "Name",
+      "url": "Address",
+      "urlHint": "An https address. Requests are signed; redirects aren't followed.",
+      "events": "Events",
+      "scope": "Pages",
+      "scopes": {
+        "workspace": "The whole workspace",
+        "teamspace": "One teamspace",
+        "page": "A page and the pages under it"
+      },
+      "teamspace": "Choose a teamspace",
+      "pickPage": "Find a page",
+      "noPages": "No pages to choose from.",
+      "otherPage": "Change",
+      "save": "Save",
+      "create": "Add webhook"
+    },
+    "errors": {
+      "invalidName": "Give the webhook a name of up to 100 characters.",
+      "invalidUrl": "Enter a valid https address without a user name or password.",
+      "httpsOnly": "Webhooks go to https addresses.",
+      "noEvents": "Choose at least one event.",
+      "invalidScope": "Choose a teamspace or a page of this workspace.",
+      "tooMany": "A workspace has up to 25 webhooks.",
+      "ownersOnly": "Only the workspace's owners manage webhooks."
     }
   },
   "email": {

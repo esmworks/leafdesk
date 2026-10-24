@@ -16,6 +16,14 @@
     "createdBy": "Erstellt von {name}",
     "someone": "Jemand",
     "comments": "Kommentare",
+    "suggesting": {
+      "editing": "Bearbeiten",
+      "suggesting": "Vorschlagen",
+      "label": "Modus: {mode}",
+      "editingHint": "Die Seite direkt ändern",
+      "suggestingHint": "Deine Änderungen erscheinen als Vorschläge, die andere annehmen oder ablehnen können",
+      "forcedHint": "Du darfst diese Seite kommentieren, deshalb sind deine Änderungen Vorschläge, die ihre Bearbeiter annehmen oder ablehnen können"
+    },
     "share": "Teilen",
     "accessRequests": "{count, plural, one {# Zugriffsanfrage} other {# Zugriffsanfragen}}",
     "addFavorite": "Zu Favoriten hinzufügen",
@@ -51,6 +59,9 @@
     "exportPdf": "Als PDF exportieren",
     "printView": "Drucken",
     "exportPreparing": "Export wird vorbereitet…",
+    "acceptAllSuggestions": "Alle Vorschläge annehmen",
+    "rejectAllSuggestions": "Alle Vorschläge ablehnen",
+    "rejectAllConfirm": "Alle Änderungsvorschläge auf dieser Seite ablehnen?",
     "versionHistory": "Versionsverlauf",
     "lastEdited": "Zuletzt bearbeitet von {name}",
     "wordCount": "{words, plural, one {# Wort} other {# Wörter}}, {characters, plural, one {# Zeichen} other {# Zeichen}}",
@@ -72,6 +83,7 @@
   },
   "comments": {
     "aboutPage": "Zu dieser Seite",
+    "aboutProperty": "Zu „{name}“",
     "title": "Kommentare",
     "close": "Kommentare schließen",
     "filters": {
@@ -94,6 +106,20 @@
     "muted": "Antworten stummgeschaltet",
     "mutedHint": "Du wirst nicht über Antworten in diesem Thread benachrichtigt, bis du hier antwortest oder dich hier jemand erwähnt.",
     "mergedFrom": "Aus „{title}“",
+    "suggestion": {
+      "label": "Änderungsvorschlag",
+      "byAi": "Änderungsvorschlag der KI",
+      "accept": "Annehmen",
+      "reject": "Ablehnen",
+      "withdraw": "Zurückziehen",
+      "errors": {
+        "notAllowed": "Du kannst diesen Vorschlag nicht beantworten.",
+        "notFound": "Dieser Vorschlag wurde schon beantwortet oder zurückgezogen.",
+        "pageLocked": "Die Seite ist gesperrt.",
+        "pageInTrash": "Die Seite liegt im Papierkorb.",
+        "failed": "Der Vorschlag konnte nicht beantwortet werden. Versuche es noch einmal."
+      }
+    },
     "sort": {
       "label": "Threads sortieren",
       "recent": "Neueste Aktivität zuerst",
@@ -105,7 +131,11 @@
     "mark": "Später ansehen",
     "unmark": "„Später ansehen“ entfernen",
     "markHint": "Der Thread bleibt unter Markiert, bis du die Markierung entfernst. Nur du siehst sie.",
-    "unmarkHint": "Diesen Thread aus deiner Liste Markiert nehmen."
+    "unmarkHint": "Diesen Thread aus deiner Liste Markiert nehmen.",
+    "onProperty": "Kommentar zu „{name}“",
+    "propertyPlaceholder": "Was ist mit diesem Wert?",
+    "post": "Kommentieren",
+    "propertyGone": "Dieser Wert kann nicht mehr kommentiert werden."
   },
   "archived": {
     "banner": "Diese Seite liegt im Papierkorb.",
@@ -119,6 +149,39 @@
     "above": "Archiviert zusammen mit einer übergeordneten Seite.",
     "unarchive": "Archivierung aufheben",
     "hint": "Archivierte Seiten erscheinen nicht in Seitenleiste, Suche und Auswahllisten, lassen sich aber weiter lesen und bearbeiten."
+  },
+  "verification": {
+    "byUntil": "Verifiziert von {name} bis {date}",
+    "by": "Verifiziert von {name}",
+    "until": "Verifiziert bis {date}",
+    "plain": "Verifiziert",
+    "expiredOn": "Verifizierung abgelaufen am {date}",
+    "hint": "Jemand mit Vollzugriff hat diese Seite geprüft und als richtig markiert. Bearbeiten hebt die Verifizierung nicht auf.",
+    "change": "Verifizierung ändern oder entfernen",
+    "menu": "Seite verifizieren…",
+    "menuVerified": "Verifizierung…",
+    "menuHint": "Die Seite als geprüft und richtig markieren: Die Suche stuft sie höher ein und der KI-Chat bevorzugt sie",
+    "title": "Seite verifizieren",
+    "description": "Markiere diese Seite als geprüft und richtig, für eine Weile oder ohne Ende. Die Suche stuft verifizierte Seiten höher ein, kennzeichnet sie und findet sie mit is:verified, und der KI-Chat bevorzugt sie. Bearbeiten hebt die Verifizierung nicht auf; ein paar Tage vor dem Ende sagen wir dir Bescheid.",
+    "durationLabel": "Verifiziert für",
+    "durations": {
+      "week": "1 Woche",
+      "month": "1 Monat",
+      "quarter": "3 Monate",
+      "year": "1 Jahr",
+      "until": "Bis zu einem Tag",
+      "forever": "Ohne Ende"
+    },
+    "dateLabel": "Verifiziert bis",
+    "verify": "Verifizieren",
+    "verifyAgain": "Erneut verifizieren",
+    "remove": "Verifizierung entfernen",
+    "searchBadge": "Verifiziert",
+    "errors": {
+      "template": "Vorlagen und die Seiten darin werden nicht verifiziert.",
+      "inTrash": "Stelle die Seite zuerst aus dem Papierkorb wieder her.",
+      "invalidEnd": "Wähle einen Tag nach heute, höchstens fünf Jahre im Voraus."
+    }
   },
   "icon": {
     "add": "Symbol hinzufügen",
@@ -334,6 +397,11 @@
         "title": "Dashboard",
         "subtext": "Zahlen, Diagramme und Listen aus Ihren Datenbanken",
         "aliases": "dashboard widgets kpi metrics charts kennzahlen diagramme zahlen"
+      },
+      "databaseTabs": {
+        "title": "Datenbank-Tabs",
+        "subtext": "Mehrere Datenbanken oder Ansichten, je ein Tab",
+        "aliases": "tabs reiter datenbank ansichten wechseln"
       }
     }
   },
@@ -587,6 +655,17 @@
     "addTitle": "Titel hinzufügen",
     "removeTitle": "Titel entfernen"
   },
+  "imageLink": {
+    "menuItem": "Link…",
+    "editMenuItem": "Link bearbeiten…",
+    "title": "Bild verlinken",
+    "urlLabel": "Webadresse",
+    "toPage": "Verlinkt auf die Seite „{title}“",
+    "invalid": "Gib eine Webadresse ein, die mit http:// oder https:// beginnt, oder wähle eine Seite.",
+    "pickPage": "Auf eine Seite verlinken…",
+    "remove": "Link entfernen",
+    "open": "Link öffnen"
+  },
   "pdf": {
     "untitled": "PDF",
     "openInNewTab": "In neuem Tab öffnen",
@@ -676,6 +755,19 @@
     "filters": "{count, plural, one {# Filter} other {# Filter}}",
     "updatedNow": "gerade aktualisiert",
     "updated": "aktualisiert {time}"
+  },
+  "databaseTabs": {
+    "title": "Datenbank-Tabs",
+    "empty": "Diese Tabs zeigen noch keine Datenbanken.",
+    "emptyEditable": "Zeige mehrere Datenbanken oder Ansichten einer Datenbank als Tabs. Jeder Tab ist eine eigene Ansicht.",
+    "add": "Tab hinzufügen",
+    "full": "Tabs fassen bis zu {max} Ansichten.",
+    "menu": "Tab-Optionen",
+    "rename": "Umbenennen",
+    "remove": "Tab entfernen",
+    "nameLabel": "Tab-Name",
+    "namePlaceholder": "Der Name der Datenbank",
+    "noAccess": "Kein Zugriff"
   },
   "voiceNote": {
     "record": "Sprachnotiz aufnehmen",
@@ -948,5 +1040,80 @@
       "copyLink": "Link kopieren"
     },
     "awaitingOwner": "Wartet darauf, dass ein Workspace-Inhaber einen Aufruf freigibt…"
+  },
+  "button": {
+    "untitled": "Schaltfläche",
+    "placeholder": "Beschriftung",
+    "done": "Erledigt",
+    "confirm": "„{label}“ ausführen?",
+    "blockLabel": "Schaltfläche „{label}“",
+    "slash": {
+      "title": "Schaltfläche",
+      "subtext": "Erledigt beim Klicken ein paar Schritte nacheinander",
+      "aliases": "button action click run schaltfläche knopf aktion"
+    },
+    "settings": {
+      "open": "Einstellungen der Schaltfläche",
+      "icon": "Emoji",
+      "label": "Beschriftung",
+      "confirm": "Vor dem Ausführen nachfragen",
+      "confirmHelp": "Wer klickt, bestätigt zuerst.",
+      "steps": "Beim Klicken",
+      "stepsHelp": "Die Schritte laufen nacheinander, als die Person, die klickt, und mit ihrem Zugriff. Ein Schritt, den sie nicht ausführen darf, hält die Schaltfläche dort an.",
+      "addStep": "Schritt hinzufügen",
+      "moveUp": "Nach oben",
+      "moveDown": "Nach unten",
+      "insertAt": "Wo",
+      "at": {
+        "below": "Unter der Schaltfläche",
+        "top": "Am Anfang der Seite",
+        "bottom": "Am Ende der Seite"
+      },
+      "markdown": "Blöcke in Markdown",
+      "people": "Personen",
+      "message": "Nachricht",
+      "notifyHelp": "Benachrichtigt werden nur Personen, die diese Seite öffnen können.",
+      "url": "Adresse",
+      "secret": "Signaturgeheimnis",
+      "copySecret": "Geheimnis kopieren",
+      "webhookHelp": "Sendet diese Seite als JSON, mit dem Geheimnis signiert, wenn der Arbeitsbereich Inhalte nach außen lässt.",
+      "target": "Webadresse oder Seite",
+      "pickPage": "Seite auswählen",
+      "toPage": "Öffnet „{title}“",
+      "rowTitle": "Titel",
+      "values": "Werte",
+      "updateHelp": "Ändert höchstens {max} Zeilen, die zu den Filtern passen und die die klickende Person sehen kann."
+    },
+    "variables": {
+      "group": "Schaltfläche",
+      "today": "Heute",
+      "now": "Jetzt",
+      "me": "Wer geklickt hat"
+    },
+    "steps": {
+      "insert": "Blöcke einfügen",
+      "add_row": "Zeile hinzufügen",
+      "update_rows": "Zeilen ändern",
+      "notify": "Personen benachrichtigen",
+      "webhook": "Webhook senden",
+      "open": "Link oder Seite öffnen"
+    },
+    "failed": {
+      "notFound": "Diese Schaltfläche ist nicht mehr auf der Seite.",
+      "noSteps": "Diese Schaltfläche tut noch nichts.",
+      "inTrash": "Schaltflächen auf Seiten im Papierkorb werden nicht ausgeführt.",
+      "rateLimited": "Diese Schaltfläche wurde zu oft geklickt. Warte kurz und versuche es noch einmal.",
+      "noAccess": "Dafür hast du keinen Zugriff.",
+      "locked": "Die Seite ist gesperrt.",
+      "notConfigured": "Dieser Schritt ist nicht eingerichtet.",
+      "databaseGone": "Die Datenbank gibt es nicht mehr oder sie liegt im Papierkorb.",
+      "invalidValue": "Ein Wert passt nicht zu seiner Eigenschaft.",
+      "exportOff": "Dieser Arbeitsbereich lässt keine Inhalte nach außen.",
+      "webhookFailed": "Die Adresse hat den Webhook nicht angenommen.",
+      "invalidTarget": "Der zu öffnende Link ist ungültig.",
+      "buttonGone": "Die Schaltfläche wurde von der Seite entfernt.",
+      "error": "Etwas ist schiefgelaufen.",
+      "step": "Schritt {step} ({type}) wurde nicht ausgeführt: {reason}"
+    }
   }
 }

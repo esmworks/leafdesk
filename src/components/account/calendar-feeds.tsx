@@ -14,7 +14,7 @@ export async function CalendarFeeds({ userId }: { userId: string }) {
   const [feeds, t, tc, format] = await Promise.all([listCalendarFeeds(userId), getTranslations("account.mail"), getTranslations("common"), getFormatter()]);
   const now = new Date();
   return (
-    <SettingsGroup title={t("calendarsHeading")} description={t("calendarsDescription")}>
+    <SettingsGroup anchor="calendars" title={t("calendarsHeading")} description={t("calendarsDescription")}>
       {feeds.length === 0 ? (
         <p className="px-5 py-8 text-center text-sm text-fg-muted">{t("calendarsEmpty")}</p>
       ) : (

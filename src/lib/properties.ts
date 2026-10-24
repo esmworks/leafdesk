@@ -28,6 +28,7 @@ import { checkDateInput, dateDays, dateSortKey, isDay, type DaySpan } from "./da
 import { dayNumber, timestampDay } from "./time-zone";
 import { asFiles, cleanFileName, fileIdOf, fileUrl, MAX_FILES_PER_VALUE, type FileValue } from "./files";
 import { derivedType, isErrorValue, rollupFormat } from "./derived";
+import { searchFold } from "./search-fold";
 import {
   holdsOptions,
   holdsPeople,
@@ -97,6 +98,7 @@ export const DATABASE_ERROR_CODES = [
   "invalidNumberFormat",
   "invalidDateOptions",
   "invalidPageVisibility",
+  "tooManyPinned",
   "calendarFeedNotCalendar",
   "calendarFeedExportOff",
   "webhookExportOff",
@@ -344,8 +346,8 @@ function normalizePlace(prop: PropertyDef, value: unknown): PlaceValue {
 
 function findOption(options: SelectOption[] | undefined, input: unknown): SelectOption | undefined {
   if (typeof input !== "string") return undefined;
-  const needle = input.trim().toLowerCase();
-  return options?.find((o) => o.id === input || o.name.toLowerCase() === needle);
+  const needle = searchFold(input.trim());
+  return options?.find((o) => o.id === input || searchFold(o.name) === needle);
 }
 
 /**
@@ -599,11 +601,14 @@ function matchesDays(days: DaySpan | null, rule: FilterRule, now: Date, timeZone
 
 const DATE_OPS = new Set<FilterOp>(["is_within", "equals", "not_equals", "lt", "lte", "gt", "gte"]);
 
-/** "Contains" on text: case-insensitive; lists (multi-select names, rollup values) match an item exactly. */
+/**
+ * "Contains" on text: case-insensitive, with the dotted and dotless i alike (searchFold), so "ist"
+ * finds "İstanbul"; lists (multi-select names, rollup values) match an item exactly.
+ */
 function containsText(v: unknown, value: unknown) {
-  const needle = String(value ?? "").toLowerCase();
-  if (Array.isArray(v)) return v.some((x) => String(x).toLowerCase() === needle);
-  return String(v ?? "").toLowerCase().includes(needle);
+  const needle = searchFold(String(value ?? ""));
+  if (Array.isArray(v)) return v.some((x) => searchFold(String(x)) === needle);
+  return searchFold(String(v ?? "")).includes(needle);
 }
 
 /**
@@ -1128,10 +1133,12 @@ export function groupRows<T extends { properties: Record<string, unknown> }>(
  * Board, gallery and map cards stay short: long text and numbers start hidden there until the user
  * shows them. List rows and timeline bars are one line, so every property starts hidden there;
  * so it does in charts, which show properties only in the rows behind a bar and when published.
- * Other views show every property unless hidden.
+ * A feed post names who wrote it and when above its text, and long text stays out of its way, so
+ * it starts without those. Other views show every property unless hidden.
  */
 export function hiddenByDefault(viewType: ViewType, propType: PropertyType): boolean {
   if (viewType === "list" || viewType === "timeline" || viewType === "chart") return true;
+  if (viewType === "feed") return propType === "text" || propType === "created_by" || propType === "created_time";
   // Map cards too; and the place a map card stands for goes without saying there.
   if (viewType === "map" && propType === "place") return true;
   return (viewType === "board" || viewType === "gallery" || viewType === "map") && (propType === "text" || propType === "number");

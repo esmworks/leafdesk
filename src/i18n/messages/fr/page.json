@@ -16,6 +16,14 @@
     "createdBy": "Créée par {name}",
     "someone": "Quelqu’un",
     "comments": "Commentaires",
+    "suggesting": {
+      "editing": "Modification",
+      "suggesting": "Suggestion",
+      "label": "Mode : {mode}",
+      "editingHint": "Modifier la page directement",
+      "suggestingHint": "Vos changements apparaissent comme des suggestions que d’autres peuvent accepter ou refuser",
+      "forcedHint": "Vous pouvez commenter cette page : vos changements sont donc des suggestions que ses éditeurs peuvent accepter ou refuser"
+    },
     "share": "Partager",
     "accessRequests": "{count, plural, one {# demande d’accès} other {# demandes d’accès}}",
     "addFavorite": "Ajouter aux favoris",
@@ -51,6 +59,9 @@
     "exportPdf": "Exporter en PDF",
     "printView": "Imprimer",
     "exportPreparing": "Préparation de l’exportation…",
+    "acceptAllSuggestions": "Accepter toutes les suggestions",
+    "rejectAllSuggestions": "Refuser toutes les suggestions",
+    "rejectAllConfirm": "Refuser toutes les modifications suggérées sur cette page ?",
     "versionHistory": "Historique des versions",
     "lastEdited": "Dernière modification par {name}",
     "wordCount": "{words, plural, one {# mot} other {# mots}}, {characters, plural, one {# caractère} other {# caractères}}",
@@ -72,6 +83,7 @@
   },
   "comments": {
     "aboutPage": "À propos de cette page",
+    "aboutProperty": "Sur « {name} »",
     "title": "Commentaires",
     "close": "Fermer les commentaires",
     "filters": {
@@ -94,6 +106,20 @@
     "muted": "Réponses masquées",
     "mutedHint": "Vous n’êtes pas averti des réponses dans ce fil tant que vous n’y répondez pas ou que personne ne vous y mentionne.",
     "mergedFrom": "De « {title} »",
+    "suggestion": {
+      "label": "Modification suggérée",
+      "byAi": "Modification suggérée par l’IA",
+      "accept": "Accepter",
+      "reject": "Refuser",
+      "withdraw": "Retirer",
+      "errors": {
+        "notAllowed": "Vous ne pouvez pas répondre à cette suggestion.",
+        "notFound": "Cette suggestion a déjà reçu une réponse ou a été retirée.",
+        "pageLocked": "La page est verrouillée.",
+        "pageInTrash": "La page est dans la corbeille.",
+        "failed": "Impossible de répondre à la suggestion. Réessayez."
+      }
+    },
     "sort": {
       "label": "Trier les fils",
       "recent": "Activité la plus récente d’abord",
@@ -105,7 +131,11 @@
     "mark": "Revenir plus tard",
     "unmark": "Retirer « Revenir plus tard »",
     "markHint": "Le fil reste dans Marqués jusqu’à ce que vous retiriez la marque. Vous seul la voyez.",
-    "unmarkHint": "Retirer ce fil de votre liste Marqués."
+    "unmarkHint": "Retirer ce fil de votre liste Marqués.",
+    "onProperty": "Commenter « {name} »",
+    "propertyPlaceholder": "Qu’en est-il de cette valeur ?",
+    "post": "Commenter",
+    "propertyGone": "Cette valeur ne peut plus être commentée."
   },
   "archived": {
     "banner": "Cette page est dans la corbeille.",
@@ -119,6 +149,39 @@
     "above": "Archivée avec une page parente.",
     "unarchive": "Désarchiver",
     "hint": "Les pages archivées n’apparaissent plus dans la barre latérale, la recherche ni les sélecteurs, mais restent lisibles et modifiables."
+  },
+  "verification": {
+    "byUntil": "Vérifiée par {name} jusqu’au {date}",
+    "by": "Vérifiée par {name}",
+    "until": "Vérifiée jusqu’au {date}",
+    "plain": "Vérifiée",
+    "expiredOn": "Vérification expirée le {date}",
+    "hint": "Une personne disposant d’un accès complet a contrôlé cette page et l’a marquée comme juste. La modifier ne lui retire pas sa vérification.",
+    "change": "Modifier ou retirer la vérification",
+    "menu": "Vérifier la page…",
+    "menuVerified": "Vérification…",
+    "menuHint": "Marquer la page comme contrôlée et juste : la recherche la classe plus haut et le chat IA la privilégie",
+    "title": "Vérifier la page",
+    "description": "Marquez cette page comme contrôlée et juste, pour un temps ou sans fin. La recherche classe les pages vérifiées plus haut, les signale et les trouve avec is:verified, et le chat IA les privilégie. Modifier la page ne lui retire pas sa vérification ; vous êtes prévenu quelques jours avant la fin.",
+    "durationLabel": "Vérifiée pendant",
+    "durations": {
+      "week": "1 semaine",
+      "month": "1 mois",
+      "quarter": "3 mois",
+      "year": "1 an",
+      "until": "Jusqu’à un jour donné",
+      "forever": "Sans fin"
+    },
+    "dateLabel": "Vérifiée jusqu’au",
+    "verify": "Vérifier",
+    "verifyAgain": "Vérifier à nouveau",
+    "remove": "Retirer la vérification",
+    "searchBadge": "Vérifiée",
+    "errors": {
+      "template": "Les modèles et les pages qu’ils contiennent ne sont pas vérifiés.",
+      "inTrash": "Restaurez d’abord la page depuis la corbeille.",
+      "invalidEnd": "Choisissez un jour après aujourd’hui, dans les cinq ans à venir."
+    }
   },
   "icon": {
     "add": "Ajouter une icône",
@@ -334,6 +397,11 @@
         "title": "Tableau de bord",
         "subtext": "Des chiffres, graphiques et listes tirés de vos bases de données",
         "aliases": "dashboard widgets kpi metrics charts tableau de bord graphiques indicateurs"
+      },
+      "databaseTabs": {
+        "title": "Onglets de bases de données",
+        "subtext": "Plusieurs bases ou vues, un onglet chacune",
+        "aliases": "onglets base de données vues changer tabs"
       }
     }
   },
@@ -587,6 +655,17 @@
     "addTitle": "Ajouter un titre",
     "removeTitle": "Retirer le titre"
   },
+  "imageLink": {
+    "menuItem": "Lien…",
+    "editMenuItem": "Modifier le lien…",
+    "title": "Lier l’image",
+    "urlLabel": "Adresse web",
+    "toPage": "Mène à la page « {title} »",
+    "invalid": "Saisissez une adresse web commençant par http:// ou https://, ou choisissez une page.",
+    "pickPage": "Lier à une page…",
+    "remove": "Retirer le lien",
+    "open": "Ouvrir le lien"
+  },
   "pdf": {
     "untitled": "PDF",
     "openInNewTab": "Ouvrir dans un nouvel onglet",
@@ -676,6 +755,19 @@
     "filters": "{count, plural, one {# filtre} other {# filtres}}",
     "updatedNow": "mis à jour à l'instant",
     "updated": "mis à jour {time}"
+  },
+  "databaseTabs": {
+    "title": "Onglets de bases de données",
+    "empty": "Ces onglets n'affichent encore aucune base de données.",
+    "emptyEditable": "Affichez plusieurs bases de données, ou des vues d'une même base, sous forme d'onglets. Chaque onglet est une vue à part.",
+    "add": "Ajouter un onglet",
+    "full": "Les onglets contiennent jusqu'à {max} vues.",
+    "menu": "Options de l'onglet",
+    "rename": "Renommer",
+    "remove": "Retirer l'onglet",
+    "nameLabel": "Nom de l'onglet",
+    "namePlaceholder": "Le nom de la base de données",
+    "noAccess": "Pas d'accès"
   },
   "voiceNote": {
     "record": "Enregistrer une note vocale",
@@ -948,5 +1040,80 @@
       "copyLink": "Copier le lien"
     },
     "awaitingOwner": "En attente de l’approbation d’un appel par un propriétaire de l’espace de travail…"
+  },
+  "button": {
+    "untitled": "Bouton",
+    "placeholder": "Libellé du bouton",
+    "done": "Terminé",
+    "confirm": "Exécuter « {label} » ?",
+    "blockLabel": "Bouton « {label} »",
+    "slash": {
+      "title": "Bouton",
+      "subtext": "Fait quelques actions dans l’ordre au clic",
+      "aliases": "button action click run bouton action exécuter"
+    },
+    "settings": {
+      "open": "Paramètres du bouton",
+      "icon": "Emoji",
+      "label": "Libellé",
+      "confirm": "Demander avant d’exécuter",
+      "confirmHelp": "La personne qui clique confirme d’abord.",
+      "steps": "Au clic",
+      "stepsHelp": "Les étapes s’exécutent dans l’ordre, au nom de la personne qui clique et avec ses accès. Une étape qu’elle ne peut pas faire arrête le bouton à cet endroit.",
+      "addStep": "Ajouter une étape",
+      "moveUp": "Monter",
+      "moveDown": "Descendre",
+      "insertAt": "Où",
+      "at": {
+        "below": "Sous le bouton",
+        "top": "En haut de la page",
+        "bottom": "À la fin de la page"
+      },
+      "markdown": "Blocs en Markdown",
+      "people": "Personnes",
+      "message": "Message",
+      "notifyHelp": "Seules les personnes qui peuvent ouvrir cette page sont notifiées.",
+      "url": "Adresse",
+      "secret": "Secret de signature",
+      "copySecret": "Copier le secret",
+      "webhookHelp": "Envoie cette page en JSON, signée avec le secret, si l’espace de travail laisse sortir son contenu.",
+      "target": "Adresse web ou page",
+      "pickPage": "Choisir une page",
+      "toPage": "Ouvre « {title} »",
+      "rowTitle": "Titre",
+      "values": "Valeurs",
+      "updateHelp": "Modifie au plus {max} lignes qui correspondent aux filtres et que la personne qui clique peut voir."
+    },
+    "variables": {
+      "group": "Bouton",
+      "today": "Aujourd’hui",
+      "now": "Maintenant",
+      "me": "Qui a cliqué"
+    },
+    "steps": {
+      "insert": "Insérer des blocs",
+      "add_row": "Ajouter une ligne",
+      "update_rows": "Modifier des lignes",
+      "notify": "Notifier des personnes",
+      "webhook": "Envoyer un webhook",
+      "open": "Ouvrir un lien ou une page"
+    },
+    "failed": {
+      "notFound": "Ce bouton n’est plus sur la page.",
+      "noSteps": "Ce bouton ne fait encore rien.",
+      "inTrash": "Les boutons des pages dans la corbeille ne s’exécutent pas.",
+      "rateLimited": "Ce bouton a été cliqué trop souvent. Patientez un instant et réessayez.",
+      "noAccess": "Vous n’avez pas l’accès nécessaire pour cela.",
+      "locked": "La page est verrouillée.",
+      "notConfigured": "Cette étape n’est pas configurée.",
+      "databaseGone": "La base de données n’existe plus ou est dans la corbeille.",
+      "invalidValue": "Une valeur ne convient pas à sa propriété.",
+      "exportOff": "Cet espace de travail ne laisse pas sortir son contenu.",
+      "webhookFailed": "L’adresse n’a pas accepté le webhook.",
+      "invalidTarget": "Le lien à ouvrir n’est pas valide.",
+      "buttonGone": "Le bouton a été retiré de la page.",
+      "error": "Un problème est survenu.",
+      "step": "L’étape {step} ({type}) ne s’est pas exécutée : {reason}"
+    }
   }
 }

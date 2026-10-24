@@ -57,6 +57,11 @@
     "action": "Apri la pagina",
     "optOut": "Ricevi queste email perché hai partecipato a questa discussione. Puoi disattivarle in Il mio account > Preferenze."
   },
+  "suggestion": {
+    "subject": "{actor} ha suggerito modifiche a “{page}”",
+    "heading": "{actor} ha suggerito modifiche a “{page}”",
+    "body": "Il suggerimento è su “{page}” in {workspace}. Accettalo o rifiutalo dalla pagina, oppure rispondi nella sua discussione."
+  },
   "mention": {
     "subject": "{actor} ti ha menzionato in “{page}”",
     "heading": "{actor} ti ha menzionato in “{page}”",
@@ -71,6 +76,16 @@
     "body": "Hai chiesto un promemoria per {date} in “{page}” in {workspace}.",
     "action": "Apri la pagina",
     "optOut": "Ricevi queste email perché hai impostato un promemoria. Puoi disattivarle in Il mio account > Preferenze."
+  },
+  "pageVerification": {
+    "endsSubject": "La tua verifica di “{page}” scade il {date}",
+    "endsHeading": "La verifica scade a breve",
+    "endsBody": "Hai verificato “{page}” in {workspace} fino al {date}. Se è ancora corretta, verificala di nuovo dal menu ⋯ della pagina per mantenerla verificata.",
+    "endedSubject": "La tua verifica di “{page}” è scaduta",
+    "endedHeading": "Verifica scaduta",
+    "endedBody": "La tua verifica di “{page}” in {workspace} è scaduta il {date}. La pagina mostra “Verifica scaduta” finché qualcuno non la verifica di nuovo.",
+    "action": "Apri la pagina",
+    "optOut": "Ricevi queste email perché hai verificato la pagina. Puoi disattivarle in Il mio account > Preferenze."
   },
   "dateReminder": {
     "subject": "Promemoria: “{page}” il {date}",
@@ -220,11 +235,15 @@
     "assignment": "{actor} ti ha assegnato a “{property}”",
     "pageShared": "{actor} ha condiviso questa pagina con te",
     "comment": "{actor} ha commentato in una discussione a cui partecipi",
+    "suggested": "{actor} ha suggerito modifiche a questa pagina",
+    "suggestionAccepted": "{actor} ha accettato la tua modifica suggerita",
+    "suggestionRejected": "{actor} ha rifiutato la tua modifica suggerita",
     "mention": "{actor} ti ha menzionato",
     "reminder": "Promemoria: {date}",
     "accessRequest": "{actor} ha chiesto l’accesso a questa pagina",
     "automation": "Automazione “{name}”: {actor} ha aggiunto o modificato questa riga",
     "automationDatePassed": "Automazione “{name}”: è arrivata la data di questa riga",
+    "button": "{actor} ti ha inviato questa pagina con un pulsante",
     "rowUpdate": "{actor} ha modificato: {fields}",
     "rowUpdateSome": "{actor} ha modificato questa riga",
     "rowUpdateTitle": "il titolo",
@@ -234,6 +253,8 @@
     "followUp": "Follow-up “{sequence}” in pausa: la prossima email va controllata",
     "reaction": "{actor} ha reagito con {emoji} al tuo commento",
     "people": "{others, plural, =0 {{name}} one {{name} e # altra persona} other {{name} e altre # persone}}",
+    "verificationEnds": "La tua verifica di questa pagina scade il {date}",
+    "verificationEnded": "La tua verifica di questa pagina è scaduta il {date}",
     "someone": "Qualcuno",
     "joinRequestTitle": "Richiesta di adesione",
     "joinRequest": "{actor} ha chiesto di unirsi",

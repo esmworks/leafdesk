@@ -1,30 +1,40 @@
 // Fails when the JavaScript a browser downloads grows past the budgets below. Run after `pnpm build`:
 //   pnpm tsx scripts/bundle-budget.ts
 // A route's first load is the chunks its client reference manifest lists for its layouts, page and
-// error boundaries, plus the runtime every page loads (build-manifest.json's rootMainFiles). Sizes
-// are gzipped, as served. Raise a budget on purpose, in the same commit as the change that needs it.
+// error boundaries, plus the runtime every page loads (build-manifest.json's rootMainFiles). Every
+// other chunk loads on demand (a lazy component, a dynamic import). Sizes are gzipped, as served.
+// Raise a budget on purpose, in the same commit as the change that needs it.
 import { readdirSync, readFileSync, statSync } from "node:fs";
 import { join, relative } from "node:path";
 import { runInNewContext } from "node:vm";
 import { gzipSync } from "node:zlib";
 
 /**
- * Gzipped kB. The largest first load of any route, and every client chunk of the build together.
- * The code block grammars (lib/code-highlighter.ts) are about 500 kB of the second, each loaded
- * only when a block in its language is shown, the Markdown source editor (CodeMirror, about
- * 190 kB) loads only when a page is edited as Markdown, and map views (Leaflet, about 45 kB) load
- * only when one is shown. A database page evaluates its views' color rules on load
- * (lib/color-rules.ts, about 3 kB with the views' marks); a page carries the AI chat panel, whose
- * CSV files and approval cards for new databases and forms add about 2 kB (the CSV parser itself
- * loads only with a file), the meeting block's editor spec and Markdown support (the editor
- * needs them; its recorder loads only when recording), and the "Available offline" switch and its
- * state (the downloader loads on demand, but Turbopack keeps a copy of it per route group). The
- * import dialog (with the Asana and Monday.com readers, about 45 kB) and the Build with AI dialog
- * load the first time they open. The editor loads only the dictionary of the language in use, after
- * itself: ours (Turkish, Indonesian, Thai) about 3 kB each, BlockNote's (one module) about 30 kB
- * together, English none.
+ * Gzipped kB, for what a person waits for rather than what the build holds:
+ *
+ * - `routeFirstLoad`: the largest first load of any route, what opening that page downloads: a
+ *   page or database (about 735 kB, the editor and the table view among it), then Settings (about
+ *   470 kB) and the workspace's other routes (about 365 kB).
+ * - `firstLoadShared`: every chunk any route loads first, together (about 1100 kB); it grows when
+ *   code moves into first loads, even into a route the largest doesn't show. Of that, about 80 kB
+ *   are what pages and databases do on their own: views' color rules, the "Available offline"
+ *   switch, the meeting block's editor spec, reactions and the discussions panel, form
+ *   conditions, place values and new chat cards, then suggested edits' pending count, the
+ *   verified badge, pinned properties and properties beside the body, comments on property
+ *   values, the feed's reactions, the chat's model picker and research steps, and the inbox's
+ *   swipes; their dialogs (row access, color rules, Build with AI, import, verifying a page, page
+ *   webhooks, button settings) and the feed view load when opened.
+ * - `onDemandChunk`: the largest chunk loaded on demand. Lazy code is free until it is used, so
+ *   there is no sum of it, but one chunk is still downloaded whole when it is: the Mermaid diagram
+ *   layouts (elkjs) are the largest, about 430 kB, fetched only for a diagram that uses them.
+ *
+ * What keeps first loads small: the workspace layout loads no editor (the row panel's page view is
+ * lazy), database views other than table, gallery and list load when shown, and dialogs used now
+ * and then (automations, import, PDF export, QR codes) load when opened. The editor loads only the
+ * dictionary of the language in use, after itself: ours (Turkish, Indonesian, Thai) about 3 kB
+ * each, BlockNote's (one module) about 30 kB together, English none.
  */
-const BUDGET = { routeFirstLoad: 810, allClientJs: 4200 };
+const BUDGET = { routeFirstLoad: 760, firstLoadShared: 1110, onDemandChunk: 450 };
 
 const NEXT = ".next";
 const kB = (bytes: number) => bytes / 1024;
@@ -55,6 +65,7 @@ try {
   process.exit(1);
 }
 
+const firstLoad = new Set(buildManifest.rootMainFiles);
 const routes: { route: string; size: number }[] = [];
 for (const path of manifests(join(NEXT, "server", "app"))) {
   const sandbox: { globalThis?: unknown; __RSC_MANIFEST?: Record<string, { entryJSFiles?: Record<string, string[]> }> } = {};
@@ -63,6 +74,7 @@ for (const path of manifests(join(NEXT, "server", "app"))) {
   for (const [route, manifest] of Object.entries(sandbox.__RSC_MANIFEST ?? {})) {
     const files = new Set(buildManifest.rootMainFiles);
     for (const chunks of Object.values(manifest.entryJSFiles ?? {})) chunks.forEach((chunk) => files.add(chunk));
+    files.forEach((file) => firstLoad.add(file));
     routes.push({ route, size: [...files].reduce((sum, file) => sum + gzipSize(file), 0) });
   }
 }
@@ -75,24 +87,42 @@ const chunkDir = join(NEXT, "static", "chunks");
 const allChunks = readdirSync(chunkDir, { recursive: true, encoding: "utf8" })
   .filter((name) => name.endsWith(".js"))
   .map((name) => relative(NEXT, join(chunkDir, name)));
-const allClientJs = allChunks.reduce((sum, file) => sum + gzipSize(file), 0);
+const missing = [...firstLoad].filter((file) => !allChunks.includes(file));
+if (missing.length > 0) {
+  console.error(`First-load chunks missing from ${chunkDir}: ${missing.slice(0, 3).join(", ")}; the build output format may have changed.`);
+  process.exit(1);
+}
+const shared = [...firstLoad].reduce((sum, file) => sum + gzipSize(file), 0);
+const onDemand = allChunks.filter((file) => !firstLoad.has(file)).map((file) => ({ file, size: gzipSize(file) }));
+onDemand.sort((a, b) => b.size - a.size);
+const onDemandTotal = onDemand.reduce((sum, chunk) => sum + chunk.size, 0);
 
 routes.sort((a, b) => b.size - a.size);
+const row = (size: number, name: string) => `  ${kB(size).toFixed(0).padStart(6)} kB  ${name}`;
 console.log("Largest first loads (gzipped):");
-for (const { route, size } of routes.slice(0, 8)) console.log(`  ${kB(size).toFixed(0).padStart(6)} kB  ${route}`);
-console.log(`All client JavaScript: ${kB(allClientJs).toFixed(0)} kB in ${allChunks.length} chunks`);
+for (const { route, size } of routes.slice(0, 8)) console.log(row(size, route));
+console.log(`First-load chunks of all routes: ${kB(shared).toFixed(0)} kB in ${firstLoad.size} chunks`);
+console.log("Largest chunks loaded on demand:");
+for (const { file, size } of onDemand.slice(0, 5)) console.log(row(size, file));
+console.log(`On demand in all: ${kB(onDemandTotal).toFixed(0)} kB in ${onDemand.length} chunks (no budget: each loads only when used)`);
 
 const failures: string[] = [];
 const largest = routes[0];
 if (kB(largest.size) > BUDGET.routeFirstLoad) {
   failures.push(`${largest.route} loads ${kB(largest.size).toFixed(0)} kB, over the ${BUDGET.routeFirstLoad} kB budget`);
 }
-if (kB(allClientJs) > BUDGET.allClientJs) {
-  failures.push(`all client JavaScript is ${kB(allClientJs).toFixed(0)} kB, over the ${BUDGET.allClientJs} kB budget`);
+if (kB(shared) > BUDGET.firstLoadShared) {
+  failures.push(`the first-load chunks of all routes are ${kB(shared).toFixed(0)} kB, over the ${BUDGET.firstLoadShared} kB budget`);
+}
+const biggest = onDemand[0];
+if (biggest && kB(biggest.size) > BUDGET.onDemandChunk) {
+  failures.push(`${biggest.file}, loaded on demand, is ${kB(biggest.size).toFixed(0)} kB, over the ${BUDGET.onDemandChunk} kB budget for one chunk`);
 }
 if (failures.length > 0) {
   for (const failure of failures) console.error(`Over budget: ${failure}.`);
-  console.error("Load the new code lazily, or raise the budget in scripts/bundle-budget.ts if the growth is intended.");
+  console.error("Load the new code lazily (or split it), or raise the budget in scripts/bundle-budget.ts if the growth is intended.");
   process.exit(1);
 }
-console.log(`Within budget (first load ${BUDGET.routeFirstLoad} kB, all ${BUDGET.allClientJs} kB).`);
+console.log(
+  `Within budget (first load ${BUDGET.routeFirstLoad} kB, all first loads ${BUDGET.firstLoadShared} kB, one on-demand chunk ${BUDGET.onDemandChunk} kB).`,
+);

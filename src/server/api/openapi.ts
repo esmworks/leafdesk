@@ -17,6 +17,7 @@ const TAGS = [
   { name: "Agents", description: "A workspace's agents: their settings, who they are shared with, runs asked for now, schedules, run history and monthly usage." },
   { name: "Review", description: "Changes agents proposed instead of making them: rows to add or change and email drafts, each approved (optionally edited) or dismissed by a person." },
   { name: "Follow-ups", description: "Follow-up sequences of mail databases, and the rows they go on: emails sent one after another from a member's mailbox until the contact replies." },
+  { name: "Webhooks", description: "Page webhooks: signed POSTs to an address of the workspace owners' choosing when pages are created, edited, moved, trashed, restored or deleted, or commented on." },
 ];
 
 /** Field descriptions are shared with the MCP server and sometimes name its tools. */
@@ -211,6 +212,16 @@ const SCHEMAS: Record<string, JsonSchema> = {
     ["id", "title", "kind", "url"],
   ),
   PageList: loose({ pages: { type: "array", items: ref("PageSummary") }, ...cursorFields }, ["pages", "next_cursor", "has_more"]),
+  Verification: {
+    type: ["object", "null"],
+    description: "Someone with full access marked the page as checked and right, until `until` (null: no end). Null when nobody verified it.",
+    properties: {
+      by: { type: ["string", "null"], description: "Who verified it; null when their account is gone." },
+      at: { type: "string", format: "date-time" },
+      until: { type: ["string", "null"], format: "date-time" },
+      expired: { type: "boolean", description: "`until` has passed: the page needs checking again." },
+    },
+  },
   SearchResults: loose(
     {
       results: {
@@ -230,6 +241,7 @@ const SCHEMAS: Record<string, JsonSchema> = {
             properties: { id, name: { type: "string" } },
           },
           archived: { type: "boolean", description: "Archived (out of date but kept; not the trash), itself or through a page above it. Only with include_archived." },
+          verified: { ...ref("Verification"), description: "Verified right now (ranked above otherwise equal matches); null otherwise." },
           updated_at: { type: "string", format: "date-time" },
           url,
         }),
@@ -269,6 +281,7 @@ const SCHEMAS: Record<string, JsonSchema> = {
         description:
           "Nobody can change the page's title, icon, background or body (for a database: its properties and views) until someone unlocks it in the app.",
       },
+      verified: ref("Verification"),
       favorite: { type: "boolean", description: "The user starred the page (Favorites in the sidebar)." },
       watching: {
         type: "boolean",
@@ -831,6 +844,47 @@ const SCHEMAS: Record<string, JsonSchema> = {
     },
     ["id", "name", "database_id", "steps", "send_window"],
   ),
+  Webhook: loose(
+    {
+      id,
+      workspace_id: id,
+      name: { type: "string" },
+      url: { type: "string" },
+      events: { type: "array", items: { type: "string" } },
+      scope: { type: "string", enum: ["workspace", "teamspace", "page"] },
+      teamspace: { type: ["object", "null"], properties: { id, name: { type: "string" } } },
+      page: { type: ["object", "null"], properties: { id, title: { type: "string" }, url } },
+      enabled: { type: "boolean" },
+      paused: { type: ["string", "null"], enum: ["not_owner", null], description: "not_owner: the person it sent as is no longer an owner; it sends nothing until an owner saves it." },
+      sends_as: { type: ["object", "null"], properties: { id, name: { type: "string" } } },
+      created_at: { type: "string", format: "date-time" },
+      updated_at: { type: "string", format: "date-time" },
+    },
+    ["id", "workspace_id", "name", "url", "events", "scope", "enabled"],
+  ),
+  WebhookList: loose({ workspace_id: id, webhooks: { type: "array", items: ref("Webhook") } }, ["workspace_id", "webhooks"]),
+  WebhookCreated: {
+    allOf: [ref("Webhook"), loose({ secret: { type: "string", description: "The signing secret (whsec_…). It can be read again in Settings." } }, ["secret"])],
+  },
+  WebhookSecret: loose({ id, secret: { type: "string" } }, ["id", "secret"]),
+  WebhookDeleted: loose({ deleted: { type: "string", description: "The removed webhook's id." } }, ["deleted"]),
+  WebhookDelivery: loose(
+    {
+      id,
+      event: { type: "string" },
+      page_id: { type: ["string", "null"] },
+      status: { type: "string", enum: ["pending", "delivered", "failed", "skipped"] },
+      attempts: { type: "integer" },
+      http_status: { type: ["integer", "null"] },
+      reason: { type: ["string", "null"] },
+      error: { type: ["string", "null"] },
+      next_attempt_at: { type: ["string", "null"], format: "date-time" },
+      created_at: { type: "string", format: "date-time" },
+      finished_at: { type: ["string", "null"], format: "date-time" },
+    },
+    ["id", "event", "status", "attempts", "created_at"],
+  ),
+  WebhookDeliveryList: loose({ webhook_id: id, deliveries: { type: "array", items: ref("WebhookDelivery") } }, ["webhook_id", "deliveries"]),
   SequenceList: loose({ database_id: id, sequences: { type: "array", items: ref("Sequence") } }, ["database_id", "sequences"]),
   Enrollment: loose(
     {

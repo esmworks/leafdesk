@@ -86,7 +86,7 @@ import { applyWrite, CHAT_TOOLS, prepareWrite, runTool, workspaceMap, WRITE_TOOL
 import { proposeChange } from "@/server/pending-changes";
 import { databaseOfRow, DRAFT_EMAIL, draftEmailTool, draftRowEmail, draftSender } from "./email-drafts";
 import { asAutomation } from "@/server/automations/queue";
-import { getCollab } from "@/server/collab/bridge";
+import { threadsVisibleTo } from "@/server/property-comments";
 import { changeComments } from "@/server/comments";
 import { notifyApprovers, withdrawApproval } from "@/server/connections/approvals";
 import { agentToolset, inputSummary, runConnectionTool, type ConnectionToolset } from "@/server/connections/tools";
@@ -685,7 +685,7 @@ async function converse(
     messages = [{ role: "user", content: agentSchedulePrompt({ task: run.prompt, event: await eventText(run), database: read?.content ?? null, map, memory: memory.text }) }];
   } else if (mention) {
     // The comment and the thread before it, as they are now: a run on a comment since deleted ends here.
-    const thread = (await getCollab().readThreads(mention.pageId)).find((t) => t.id === mention.threadId);
+    const thread = (await threadsVisibleTo(agent.userId, mention.pageId)).find((t) => t.id === mention.threadId);
     const comment = thread?.comments.find((c) => c.id === mention.commentId);
     if (!thread || !comment || comment.deletedAt) return { status: "failed", code: "commentGone", steps, usage };
     // The page, read as the agent (within the member's access), as source 1.

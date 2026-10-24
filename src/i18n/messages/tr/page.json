@@ -16,6 +16,14 @@
     "createdBy": "{name} oluşturdu",
     "someone": "Biri",
     "comments": "Yorumlar",
+    "suggesting": {
+      "editing": "Düzenleme",
+      "suggesting": "Öneri",
+      "label": "Mod: {mode}",
+      "editingHint": "Sayfayı doğrudan değiştirin",
+      "suggestingHint": "Değişiklikleriniz, başkalarının kabul edip reddedebileceği öneriler olarak görünür",
+      "forcedHint": "Bu sayfaya yorum yapabilirsiniz; bu yüzden değişiklikleriniz, düzenleyicilerinin kabul edip reddedebileceği önerilerdir"
+    },
     "share": "Paylaş",
     "accessRequests": "{count, plural, one {# erişim isteği} other {# erişim isteği}}",
     "addFavorite": "Favorilere ekle",
@@ -51,6 +59,9 @@
     "exportPdf": "PDF olarak dışa aktar",
     "printView": "Yazdır",
     "exportPreparing": "Dışa aktarma hazırlanıyor…",
+    "acceptAllSuggestions": "Tüm önerileri kabul et",
+    "rejectAllSuggestions": "Tüm önerileri reddet",
+    "rejectAllConfirm": "Bu sayfadaki tüm önerilen değişiklikler reddedilsin mi?",
     "versionHistory": "Sürüm geçmişi",
     "lastEdited": "Son düzenleyen: {name}",
     "wordCount": "{words} kelime, {characters} karakter",
@@ -72,6 +83,7 @@
   },
   "comments": {
     "aboutPage": "Bu sayfa hakkında",
+    "aboutProperty": "“{name}” hakkında",
     "title": "Yorumlar",
     "close": "Yorumları kapat",
     "filters": {
@@ -94,6 +106,20 @@
     "muted": "Yanıtlar sessizde",
     "mutedHint": "Burada yanıt yazana ya da biri sizi burada anana kadar bu konudaki yanıtlardan haberdar olmazsınız.",
     "mergedFrom": "“{title}” satırından",
+    "suggestion": {
+      "label": "Önerilen değişiklik",
+      "byAi": "Yapay zekânın önerdiği değişiklik",
+      "accept": "Kabul et",
+      "reject": "Reddet",
+      "withdraw": "Geri çek",
+      "errors": {
+        "notAllowed": "Bu öneriyi yanıtlayamazsınız.",
+        "notFound": "Bu öneri zaten yanıtlandı ya da geri çekildi.",
+        "pageLocked": "Sayfa kilitli.",
+        "pageInTrash": "Sayfa çöp kutusunda.",
+        "failed": "Öneri yanıtlanamadı. Yeniden deneyin."
+      }
+    },
     "sort": {
       "label": "Konuşmaları sırala",
       "recent": "En son hareket önce",
@@ -105,7 +131,11 @@
     "mark": "Sonra dön",
     "unmark": "“Sonra dön” işaretini kaldır",
     "markHint": "İşareti kaldırana kadar bu konuşma İşaretli altında kalır. Yalnızca siz görürsünüz.",
-    "unmarkHint": "Bu konuşmayı İşaretli listenizden çıkarın."
+    "unmarkHint": "Bu konuşmayı İşaretli listenizden çıkarın.",
+    "onProperty": "“{name}” hakkında yorum",
+    "propertyPlaceholder": "Bu değerle ilgili ne düşünüyorsunuz?",
+    "post": "Yorum yap",
+    "propertyGone": "Bu değere artık yorum yapılamaz."
   },
   "archived": {
     "banner": "Bu sayfa çöp kutusunda.",
@@ -119,6 +149,39 @@
     "above": "Üstündeki bir sayfayla birlikte arşivlendi.",
     "unarchive": "Arşivden çıkar",
     "hint": "Arşivlenen sayfalar kenar çubuğunda, aramada ve seçicilerde görünmez; yine de okunup düzenlenebilir."
+  },
+  "verification": {
+    "byUntil": "{name} tarafından {date} tarihine kadar doğrulandı",
+    "by": "{name} tarafından doğrulandı",
+    "until": "{date} tarihine kadar doğrulandı",
+    "plain": "Doğrulandı",
+    "expiredOn": "Doğrulamanın süresi {date} tarihinde doldu",
+    "hint": "Tam erişimi olan biri bu sayfayı kontrol edip doğru olarak işaretledi. Sayfayı düzenlemek doğrulamayı kaldırmaz.",
+    "change": "Doğrulamayı değiştir ya da kaldır",
+    "menu": "Sayfayı doğrula…",
+    "menuVerified": "Doğrulama…",
+    "menuHint": "Sayfayı kontrol edilmiş ve doğru olarak işaretleyin: arama onu üst sıralara taşır, yapay zekâ sohbeti onu tercih eder",
+    "title": "Sayfayı doğrula",
+    "description": "Bu sayfayı bir süreliğine ya da süresiz olarak kontrol edilmiş ve doğru diye işaretleyin. Arama doğrulanmış sayfaları üst sıralara taşır, işaretler ve is:verified ile bulur; yapay zekâ sohbeti de onları tercih eder. Sayfayı düzenlemek doğrulamayı kaldırmaz; sona ermeden birkaç gün önce haber alırsınız.",
+    "durationLabel": "Doğrulama süresi",
+    "durations": {
+      "week": "1 hafta",
+      "month": "1 ay",
+      "quarter": "3 ay",
+      "year": "1 yıl",
+      "until": "Belirli bir güne kadar",
+      "forever": "Süresiz"
+    },
+    "dateLabel": "Doğrulamanın bitiş tarihi",
+    "verify": "Doğrula",
+    "verifyAgain": "Yeniden doğrula",
+    "remove": "Doğrulamayı kaldır",
+    "searchBadge": "Doğrulanmış",
+    "errors": {
+      "template": "Şablonlar ve içlerindeki sayfalar doğrulanmaz.",
+      "inTrash": "Önce sayfayı çöp kutusundan geri yükleyin.",
+      "invalidEnd": "Bugünden sonra ve en fazla beş yıl içinde bir gün seçin."
+    }
   },
   "icon": {
     "add": "Simge ekle",
@@ -334,6 +397,11 @@
         "title": "Gösterge paneli",
         "subtext": "Veritabanlarınızdan sayılar, grafikler ve listeler",
         "aliases": "dashboard widgets kpi metrics charts gösterge paneli gosterge panel grafik sayı sayi metrik"
+      },
+      "databaseTabs": {
+        "title": "Veritabanı sekmeleri",
+        "subtext": "Birden çok veritabanı ya da görünüm, her biri bir sekmede",
+        "aliases": "sekme sekmeler veritabanı görünüm geçiş tabs"
       }
     }
   },
@@ -587,6 +655,17 @@
     "addTitle": "Başlık ekle",
     "removeTitle": "Başlığı kaldır"
   },
+  "imageLink": {
+    "menuItem": "Bağlantı…",
+    "editMenuItem": "Bağlantıyı düzenle…",
+    "title": "Görsele bağlantı ver",
+    "urlLabel": "Web adresi",
+    "toPage": "“{title}” sayfasına bağlanıyor",
+    "invalid": "http:// veya https:// ile başlayan bir web adresi girin ya da bir sayfa seçin.",
+    "pickPage": "Bir sayfaya bağla…",
+    "remove": "Bağlantıyı kaldır",
+    "open": "Bağlantıyı aç"
+  },
   "pdf": {
     "untitled": "PDF",
     "openInNewTab": "Yeni sekmede aç",
@@ -676,6 +755,19 @@
     "filters": "{count, plural, one {# süzgeç} other {# süzgeç}}",
     "updatedNow": "az önce güncellendi",
     "updated": "{time} güncellendi"
+  },
+  "databaseTabs": {
+    "title": "Veritabanı sekmeleri",
+    "empty": "Bu sekmeler henüz hiçbir veritabanı göstermiyor.",
+    "emptyEditable": "Birden çok veritabanını ya da bir veritabanının görünümlerini sekmeler hâlinde gösterin. Her sekme kendi görünümüdür.",
+    "add": "Sekme ekle",
+    "full": "Sekmeler en fazla {max} görünüm alır.",
+    "menu": "Sekme seçenekleri",
+    "rename": "Yeniden adlandır",
+    "remove": "Sekmeyi kaldır",
+    "nameLabel": "Sekme adı",
+    "namePlaceholder": "Veritabanının adı",
+    "noAccess": "Erişim yok"
   },
   "voiceNote": {
     "record": "Sesli not kaydet",
@@ -948,5 +1040,80 @@
       "copyLink": "Bağlantıyı kopyala"
     },
     "awaitingOwner": "Bir çalışma alanı sahibinin çağrıyı onaylaması bekleniyor…"
+  },
+  "button": {
+    "untitled": "Düğme",
+    "placeholder": "Düğme etiketi",
+    "done": "Tamamlandı",
+    "confirm": "“{label}” çalıştırılsın mı?",
+    "blockLabel": "“{label}” düğmesi",
+    "slash": {
+      "title": "Düğme",
+      "subtext": "Tıklanınca birkaç işi sırayla yapar",
+      "aliases": "button action click run düğme buton eylem çalıştır"
+    },
+    "settings": {
+      "open": "Düğme ayarları",
+      "icon": "Emoji",
+      "label": "Etiket",
+      "confirm": "Çalıştırmadan önce sor",
+      "confirmHelp": "Tıklayan kişi önce onaylar.",
+      "steps": "Tıklanınca",
+      "stepsHelp": "Adımlar, tıklayan kişi olarak ve onun erişimiyle sırayla çalışır. Yapamadığı bir adım düğmeyi orada durdurur.",
+      "addStep": "Adım ekle",
+      "moveUp": "Yukarı taşı",
+      "moveDown": "Aşağı taşı",
+      "insertAt": "Nereye",
+      "at": {
+        "below": "Düğmenin altına",
+        "top": "Sayfanın başına",
+        "bottom": "Sayfanın sonuna"
+      },
+      "markdown": "Markdown olarak bloklar",
+      "people": "Kişiler",
+      "message": "Mesaj",
+      "notifyHelp": "Yalnızca bu sayfayı açabilen kişilere bildirilir.",
+      "url": "Adres",
+      "secret": "İmza anahtarı",
+      "copySecret": "Anahtarı kopyala",
+      "webhookHelp": "Çalışma alanı içeriğin dışarı çıkmasına izin veriyorsa bu sayfayı anahtarla imzalanmış JSON olarak gönderir.",
+      "target": "Web adresi veya sayfa",
+      "pickPage": "Sayfa seç",
+      "toPage": "“{title}” açılır",
+      "rowTitle": "Başlık",
+      "values": "Değerler",
+      "updateHelp": "Filtrelere uyan ve tıklayan kişinin görebildiği en fazla {max} satırı değiştirir."
+    },
+    "variables": {
+      "group": "Düğme",
+      "today": "Bugün",
+      "now": "Şimdi",
+      "me": "Tıklayan kişi"
+    },
+    "steps": {
+      "insert": "Blok ekle",
+      "add_row": "Satır ekle",
+      "update_rows": "Satırları değiştir",
+      "notify": "Kişilere bildir",
+      "webhook": "Webhook gönder",
+      "open": "Bağlantı veya sayfa aç"
+    },
+    "failed": {
+      "notFound": "Bu düğme artık sayfada değil.",
+      "noSteps": "Bu düğme henüz bir şey yapmıyor.",
+      "inTrash": "Çöp kutusundaki sayfalardaki düğmeler çalışmaz.",
+      "rateLimited": "Bu düğmeye çok sık tıklandı. Biraz bekleyip yeniden deneyin.",
+      "noAccess": "Bunu yapmak için erişiminiz yok.",
+      "locked": "Sayfa kilitli.",
+      "notConfigured": "Bu adım ayarlanmamış.",
+      "databaseGone": "Veritabanı artık yok ya da çöp kutusunda.",
+      "invalidValue": "Bir değer özelliğine uymuyor.",
+      "exportOff": "Bu çalışma alanı içeriğin dışarı çıkmasına izin vermiyor.",
+      "webhookFailed": "Adres webhook’u kabul etmedi.",
+      "invalidTarget": "Açılacak bağlantı geçerli değil.",
+      "buttonGone": "Düğme sayfadan kaldırıldı.",
+      "error": "Bir sorun oluştu.",
+      "step": "{step}. adım ({type}) çalışmadı: {reason}"
+    }
   }
 }

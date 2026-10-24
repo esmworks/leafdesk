@@ -126,24 +126,40 @@ export const fileText = pgTable(
   (t) => [index("file_text_content_hash_idx").on(t.contentHash), index("file_text_search_vector_idx").using("gin", t.searchVector)],
 );
 
-/** A source an answer of the AI chat cites: a page (and the block the passage starts at). */
-export type ChatSourceRef = { n: number; pageId: string; blockId: string | null };
+/**
+ * A source an answer of the AI chat cites: a page (and the block the passage starts at), or a web
+ * page it read (its address and title then).
+ */
+export type ChatSourceRef =
+  | { n: number; pageId: string; blockId: string | null; url?: undefined }
+  | { n: number; url: string; title: string; pageId?: undefined; blockId?: undefined };
 
 /**
  * A step the AI chat took on the way to an answer: a search (`query` null for the one with the
  * question itself) and how many pages it found, a page it read, a database it queried (with the
  * filters and how many rows matched), a change it made or was refused (see ChatWriteRecord), a
  * note it kept or dropped about the person (ChatMemoryRecord), a call to a connection's tool
- * (ChatConnectionRecord), or what the model said before searching or reading.
+ * (ChatConnectionRecord), what the model said before searching or reading, the sub-questions a
+ * research answer set out to answer (`plan`), and a web search or web page read (ChatWebRecord).
  */
 export type ChatStepRecord =
   | { kind: "search"; query: string | null; results: number }
   | { kind: "read"; pageId: string }
+  | { kind: "plan"; questions: string[] }
+  | ChatWebRecord
   | { kind: "query"; databaseId: string; conditions: ChatQueryCondition[]; any?: boolean; results: number }
   | ChatWriteRecord
   | ChatMemoryRecord
   | ChatConnectionRecord
   | { kind: "thought"; text: string };
+
+/**
+ * The AI chat on the web (where owners turned it on, server/agents/web.ts): a search (`query`, how
+ * many results), or a page read (`url`, its title; `failed` when it couldn't be read, `url` as asked).
+ */
+export type ChatWebRecord =
+  | { kind: "web"; action: "search"; query: string; results: number }
+  | { kind: "web"; action: "read"; url: string; title: string; outcome: "done" | "failed" };
 
 /**
  * A call the AI chat made to a connection's tool (server/connections), with the connection's name
@@ -207,10 +223,12 @@ export type ChatWriteRecord = {
 export type ChatQueryCondition = { property: string; op: string; value: string | null };
 
 /**
- * A CSV file attached to a question (lib/chat-attachments.ts), as read then: its name (unique in
- * the conversation), header and rows. It stays with the conversation, so later questions see it too.
+ * A file attached to a question of the AI chat (ai_chat_file), with its name, type and size then:
+ * its name is unique in the conversation, so the chat's tools can name it. A CSV file also keeps
+ * how many rows and columns it has. The file stays with the conversation, so later questions see it
+ * too.
  */
-export type ChatAttachmentRecord = { kind: "csv"; name: string; headers: string[]; rows: string[][] };
+export type ChatAttachmentRecord = { id: string; name: string; contentType: string; size: number; rows?: number; columns?: number };
 
 /** One message of an AI chat conversation, as stored. */
 export type ChatMessageRecord = {
@@ -218,8 +236,12 @@ export type ChatMessageRecord = {
   content: string;
   /** Questions: the skill the answer followed, with its title then. */
   skill?: { id: string; title: string };
-  /** Questions: the CSV files attached to them. */
+  /** Questions: the files attached to it. */
   attachments?: ChatAttachmentRecord[];
+  /** Questions asked in research mode, and their answers (a report). */
+  research?: boolean;
+  /** Answers: the model that wrote it. */
+  model?: string;
   /** Assistant answers: the sources the answer cites as [n]. */
   sources?: ChatSourceRef[];
   /** Answers that didn't finish: stopped by the person, or cut off at the length limit. */
@@ -249,11 +271,44 @@ export const aiConversation = pgTable(
       .notNull()
       .references(() => workspace.id, { onDelete: "cascade" }),
     title: text("title").notNull().default(""),
+    /**
+     * The model the person picked for it, one of those the workspace's AI offers the chat (see
+     * server/ai chatModelsFor); null: the workspace's main model. A new conversation starts with the
+     * model of the person's latest one.
+     */
+    model: text("model"),
     messages: jsonb("messages").$type<ChatMessageRecord[]>().notNull().default([]),
     createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
     updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
   },
   (t) => [index("ai_conversation_user_idx").on(t.userId, t.workspaceId, t.updatedAt)],
+);
+
+/**
+ * A file someone attached to a question of the AI chat (server/ai-chat-files.ts): an uploaded
+ * `file` of the workspace that no page holds (`file.page_id` null), readable by the person who
+ * attached it alone, never through a page (files.ts fileForViewer doesn't know it) or a backup.
+ * `conversationId` is set once the question it went with is kept; until then (uploaded, not sent)
+ * the upload cleanup removes it after a day. Deleting the conversation deletes its files; when the
+ * conversation goes another way (the person leaves the workspace, deletes their account), this row
+ * goes with it and the file is removed as an orphan.
+ */
+export const aiChatFile = pgTable(
+  "ai_chat_file",
+  {
+    fileId: text("file_id")
+      .primaryKey()
+      .references(() => file.id, { onDelete: "cascade" }),
+    userId: text("user_id")
+      .notNull()
+      .references(() => user.id, { onDelete: "cascade" }),
+    workspaceId: text("workspace_id")
+      .notNull()
+      .references(() => workspace.id, { onDelete: "cascade" }),
+    conversationId: text("conversation_id").references(() => aiConversation.id, { onDelete: "cascade" }),
+    createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+  },
+  (t) => [index("ai_chat_file_user_idx").on(t.userId, t.workspaceId), index("ai_chat_file_conversation_idx").on(t.conversationId)],
 );
 
 /**

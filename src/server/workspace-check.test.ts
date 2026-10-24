@@ -88,6 +88,8 @@ const propertyAccess = vi.hoisted(() => ({ propertyAccessFor: vi.fn() }));
 vi.mock("@/server/property-access", () => propertyAccess);
 const databases = vi.hoisted(() => ({ updateRowProperties: vi.fn() }));
 vi.mock("@/server/databases", () => databases);
+const verification = vi.hoisted(() => ({ expiredVerifications: vi.fn(async (): Promise<{ id: string; by: string | null; until: string }[]> => []) }));
+vi.mock("@/server/verification", () => verification);
 
 const { checkWorkspace, removeRelationTarget } = await import("./workspace-check");
 
@@ -215,6 +217,16 @@ describe("checkWorkspace", () => {
     expect(check.staleMonths).toBe(12);
     const recent = await checkWorkspace("u", "ws", { now: new Date("2025-03-01T00:00:00Z"), staleMonths: 3 });
     expect(recent.stale.total).toBe(0);
+  });
+
+  it("lists pages whose verification ended, of the pages it looked at", async () => {
+    verification.expiredVerifications.mockResolvedValue([
+      { id: "old", by: "Ada", until: "2026-09-01T00:00:00.000Z" },
+      // One the check didn't look at (a template, the trash, past its cap) stays out.
+      { id: "elsewhere", by: null, until: "2026-09-02T00:00:00.000Z" },
+    ]);
+    const { expiredVerifications } = await checkWorkspace("u", "ws", { now: NOW });
+    expect(expiredVerifications).toEqual({ items: [expect.objectContaining({ id: "old", kind: "page", by: "Ada", until: "2026-09-01T00:00:00.000Z" })], total: 1 });
   });
 
   it("pairs pages whose meaning is nearly the same", async () => {

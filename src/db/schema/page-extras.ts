@@ -1,3 +1,4 @@
+import { sql } from "drizzle-orm";
 import { boolean, index, integer, jsonb, pgTable, primaryKey, text, timestamp } from "drizzle-orm/pg-core";
 import type { Attendee } from "@/lib/meetings";
 import { databaseView, page, workspace } from "./app";
@@ -42,6 +43,54 @@ export const pageFavorite = pgTable(
     createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
   },
   (t) => [primaryKey({ columns: [t.userId, t.pageId] }), index("page_favorite_page_idx").on(t.pageId)],
+);
+
+/**
+ * A page someone with full access marked as verified (server/verification.ts): checked and right,
+ * until `expiresAt` (null: with no end). Editing the page leaves it; verifying again replaces it.
+ * Once `expiresAt` passes the page shows "Verification expired" and counts as unverified. The
+ * reminder sweep sets `remindedAt` when it told the verifier the end is near and `expiredAt` when
+ * it told them it came, so each goes out once.
+ */
+export const pageVerification = pgTable(
+  "page_verification",
+  {
+    pageId: text("page_id")
+      .primaryKey()
+      .references(() => page.id, { onDelete: "cascade" }),
+    workspaceId: text("workspace_id")
+      .notNull()
+      .references(() => workspace.id, { onDelete: "cascade" }),
+    verifiedBy: text("verified_by").references(() => user.id, { onDelete: "set null" }),
+    verifiedAt: timestamp("verified_at", { withTimezone: true }).notNull().defaultNow(),
+    expiresAt: timestamp("expires_at", { withTimezone: true }),
+    remindedAt: timestamp("reminded_at", { withTimezone: true }),
+    expiredAt: timestamp("expired_at", { withTimezone: true }),
+  },
+  (t) => [
+    index("page_verification_workspace_idx").on(t.workspaceId),
+    index("page_verification_expires_idx").on(t.expiresAt).where(sql`${t.expiresAt} is not null`),
+  ],
+);
+
+/**
+ * Emoji reactions to a page itself, as a feed view shows them under each database row (see
+ * server/reactions.ts): one row per person and emoji. Reactions to comments live with the comments,
+ * in the page's document.
+ */
+export const pageReaction = pgTable(
+  "page_reaction",
+  {
+    pageId: text("page_id")
+      .notNull()
+      .references(() => page.id, { onDelete: "cascade" }),
+    userId: text("user_id")
+      .notNull()
+      .references(() => user.id, { onDelete: "cascade" }),
+    emoji: text("emoji").notNull(),
+    createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+  },
+  (t) => [primaryKey({ columns: [t.pageId, t.userId, t.emoji] }), index("page_reaction_user_idx").on(t.userId)],
 );
 
 /**

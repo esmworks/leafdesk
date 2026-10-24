@@ -12,6 +12,7 @@
     "groups": "Gruplar",
     "agents": "Ajanlar",
     "connections": "Bağlantılar",
+    "webhooks": "Webhook’lar",
     "storage": "Depolama",
     "analytics": "Analitik",
     "aiUsage": "Yapay zekâ kullanımı",
@@ -21,6 +22,67 @@
     "site": "Site",
     "snippets": "Parçacıklar",
     "pdf": "PDF şablonları"
+  },
+  "search": {
+    "label": "Ayarlarda ara",
+    "placeholder": "Ayarlarda ara",
+    "noResults": "Eşleşen ayar yok.",
+    "labels": {
+      "aiUsagePeople": "Kişiye göre kullanım"
+    },
+    "keywords": {
+      "profile": "ad fotoğraf profil resmi avatar",
+      "email": "adres değiştir doğrula e-posta",
+      "deleteAccount": "hesabı kaldır kapat sil",
+      "password": "değiştir sıfırla şifre giriş",
+      "twoFactor": "2fa mfa doğrulayıcı kod iki adımlı",
+      "passkeys": "webauthn güvenlik anahtarı parmak izi yüz",
+      "sessions": "cihazlar oturum çıkış yap",
+      "language": "dil çeviri yerel",
+      "theme": "koyu mod açık mod renkler tema",
+      "contrast": "erişilebilirlik yüksek kontrast",
+      "notifications": "anlık e-posta uyarı bildirim",
+      "watchedPages": "takip abone izle",
+      "offlineDevice": "çevrimdışı indir önbellek alan",
+      "offlinePages": "çevrimdışı indir internetsiz",
+      "mailboxes": "e-posta gelen kutusu imap smtp",
+      "calendars": "ical akış abone takvim",
+      "storageAccounts": "drive s3 dosyalar bulut",
+      "connectedApps": "oauth istemciler erişim iptal",
+      "aiAccounts": "api anahtarı kendi anahtar sağlayıcı",
+      "telegram": "bot sohbet mesajlar",
+      "mcp": "asistan model bağlam protokolü sunucu",
+      "apiTokens": "rest api belirteç anahtar geliştirici",
+      "about": "sürüm lisans güncelleme",
+      "workspaceName": "ad yeniden adlandır simge",
+      "ai": "yapay zekâ sohbet model sağlayıcı bellek",
+      "workspaceMail": "e-posta satırlar posta gönder",
+      "export": "yedek indir zip markdown dışa aktar",
+      "members": "kişiler davet kullanıcılar roller çıkar",
+      "agents": "yapay zekâ asistan otomasyon bot",
+      "snippets": "metin kısayollar parçacık",
+      "letterheads": "pdf üst bilgi alt bilgi logo yazdır",
+      "connections": "entegrasyonlar mcp servisler araçlar",
+      "webhooks": "webhook http post olay entegrasyon bildirim gönder",
+      "site": "web sitesi yayınla alan adı",
+      "requireTwoFactor": "2fa mfa zorunlu politika",
+      "loginMethod": "sso şifre giriş politika",
+      "allowedNetworks": "ip izin listesi adres ofis vpn",
+      "membership": "davet katılma istekleri alan adları",
+      "sso": "saml oidc kimlik sağlayıcı",
+      "scim": "hazırlama dizin eşitleme kullanıcılar",
+      "exportPolicy": "indir yazdır pdf",
+      "connectedAppsPolicy": "mcp rest api belirteçler erişim",
+      "publishing": "yayınla web paylaş herkese açık bağlantı",
+      "retention": "çöp kutusu geçmiş sil sakla gün",
+      "legalHolds": "dava koru e-keşif sakla yasal",
+      "storage": "dosyalar s3 drive kova",
+      "analyticsPeople": "etkinlik düzenlemeler istatistik",
+      "aiUsageLimit": "bütçe maliyet harcama sınır",
+      "aiUsagePeople": "kişi başı üye maliyet token",
+      "health": "kırık bağlantılar sahipsiz yinelenen boş sayfalar",
+      "audit": "kayıt geçmiş olaylar kim değiştirdi"
+    }
   },
   "workspace": {
     "heading": "Çalışma alanı",
@@ -957,6 +1019,8 @@
     "moveToTrash": "Çöpe taşı",
     "confirmTrash": "“{title}” çöpe taşınsın mı?",
     "lastEdited": "Son düzenleme {when}",
+    "verificationEndedBy": "{name} doğrulamıştı, süresi {when} doldu",
+    "verificationEnded": "Doğrulamanın süresi {when} doldu",
     "alike": "{similarity, number, percent} benzer",
     "inProperty": "{database} içinde {property}",
     "removeFromRelation": "Kaldır",
@@ -980,6 +1044,11 @@
       "title": "Dokunulmamış sayfalar",
       "description": "Son {months} ayda kimsenin düzenlemediği sayfalar, en uzun süredir dokunulmayan önce. Güncelliğini yitirmiş olabilirler.",
       "none": "Her sayfa yakın zamanda düzenlenmiş."
+    },
+    "expiredVerifications": {
+      "title": "Süresi dolan doğrulamalar",
+      "description": "Birinin, günü geçmiş bir tarihe kadar doğruladığı sayfalar. Kontrol edip yeniden doğrulayın ya da doğrulamayı kaldırın.",
+      "none": "Süresi dolan doğrulama yok."
     },
     "duplicates": {
       "title": "Olası kopyalar",
@@ -1387,6 +1456,50 @@
       "memberView": "{count, plural, =0 {Kapalı: çalışma alanı her ağdan açılabilir.} one {Açık: çalışma alanı yalnızca # onaylı ağdan açılabilir.} other {Açık: çalışma alanı yalnızca # onaylı ağdan açılabilir.}}"
     }
   },
+  "legalHolds": {
+    "title": "Yasal saklama",
+    "description": "Saklama sürdükçe, kapsadığı kişilerin bu çalışma alanında oluşturduğu veya düzenlediği hiçbir şey kalıcı olarak silinemez. Sayfaları ve satırları yine çöp kutusuna taşınabilir, ama geçmişleri, yorumları ve dosyalarıyla orada kalır; çalışma alanı ve bu kişilerin hesapları silinemez.",
+    "holds": "Saklamalar",
+    "holdsDescription": "Saklama koymak ve kaldırmak denetim günlüğüne kaydedilir.",
+    "empty": "Saklama yok.",
+    "new": "Yeni saklama",
+    "setBy": "{name} koydu, {date, date, medium}",
+    "setOn": "{date, date, medium} tarihinde konuldu",
+    "people": "{count, plural, one {# kişi} other {# kişi}}",
+    "left": "ayrıldı",
+    "guest": "misafir",
+    "release": "Kaldır",
+    "confirmRelease": "{name} saklamasını kaldır",
+    "form": {
+      "title": "Yeni yasal saklama",
+      "description": "Kapsayacağı kişileri seçin: üyeler, misafirler veya ayrılmış ama burada bir şey oluşturmuş ya da düzenlemiş kişiler.",
+      "name": "Ad",
+      "namePlaceholder": "Dosya veya dava",
+      "reason": "Gerekçe",
+      "reasonPlaceholder": "İsteğe bağlı: neden ve kimin isteğiyle",
+      "people": "Kişiler ({count})",
+      "search": "Kişi ara",
+      "loading": "Yükleniyor…",
+      "nobody": "Eşleşen kimse yok.",
+      "submit": "Saklamaya al"
+    },
+    "errors": {
+      "pageHeld": "Bu sayfayı veya altındaki bir sayfayı yasal saklama koruyor: saklama sürdükçe kalıcı olarak silinemez ve çöp kutusunda kalır.",
+      "templateHeld": "Bu şablonu yasal saklama koruyor: saklama sürdükçe silinemez.",
+      "propertyHeld": "Bu özelliğin değerlerini yasal saklama koruyor: saklama sürdükçe kalıcı olarak silinemez.",
+      "commentHeld": "Bu yorumu yasal saklama koruyor: saklama sürdükçe silinemez.",
+      "letterheadHeld": "Bu antetli kâğıdı yasal saklama koruyor: saklama sürdükçe silinemez.",
+      "workspaceHeld": "Bu çalışma alanında yasal saklama var. Çalışma alanını silmeden önce saklamayı kaldırın (Ayarlar > Güvenlik).",
+      "nameRequired": "Saklamaya bir ad verin.",
+      "nameTooLong": "Ad en fazla 200 karakter olabilir.",
+      "reasonTooLong": "Gerekçe en fazla 2.000 karakter olabilir.",
+      "noPeople": "Saklamanın kimi kapsayacağını seçin.",
+      "tooManyPeople": "Bir saklama en fazla 200 kişiyi kapsar.",
+      "unknownPerson": "Seçtiğiniz biri artık bu çalışma alanında değil.",
+      "notFound": "Bu saklama zaten kaldırılmış.",
+      "ownersOnly": "Yasal saklamaları yalnızca sahipler yönetir."
+    }
+  },
   "audit": {
     "description": "Bu çalışma alanında kimin neyi değiştirdiğinin kaydı: üyeler ve roller, davetler, paylaşım, ekip alanları ve gruplar, ayarlar, güvenlik, sayfa oluşturma, taşıma, çöpe atma ve silme, yayınlama, bağlı uygulamalar ve dışa aktarmalar. Yalnızca sahipler görebilir.",
     "filters": "Denetim kaydını filtrele",
@@ -1501,6 +1614,7 @@
       "loginMethod": "Üyeler nasıl giriş yapar",
       "ai": "Yapay zekâ özellikleri",
       "aiMemory": "Yapay zekâ hafızası",
+      "aiWebSearch": "AI sohbeti web araması",
       "aiMonthlyLimitUsd": "Aylık yapay zekâ harcama sınırı",
       "trashRetentionDays": "Çöp kutusundaki sayfaların silinme süresi",
       "export": "Dışa aktarmaya izin ver",
@@ -1568,6 +1682,8 @@
         "permission_removed": "Paylaşımdan çıkarıldı: {subject}, {target} sayfasından",
         "row_access_changed": "{target} için satır erişimi değiştirildi",
         "deleted": "Kalıcı olarak silindi: {target}",
+        "verified": "Doğrulandı: {target}",
+        "unverified": "Doğrulama kaldırıldı: {target}",
         "published": "Web’de yayınlandı: {target}",
         "unpublished": "Yayından kaldırıldı: {target}",
         "publication_revoked": "Web’den kaldırıldı: {target} (yayınlayan: {subject})",
@@ -1622,6 +1738,10 @@
         "token_created": "SCIM anahtarı oluşturuldu: {target}",
         "token_revoked": "SCIM anahtarı iptal edildi: {target}"
       },
+      "legal_hold": {
+        "set": "{names} için {target} yasal saklamasını koydu",
+        "released": "{names} için {target} yasal saklamasını kaldırdı"
+      },
       "site": {
         "saved": "Site kaydedildi: {slug}",
         "removed": "Site kaldırıldı: {slug}"
@@ -1639,6 +1759,11 @@
         "created": "{target} içinde “{name}” otomasyonu oluşturuldu",
         "updated": "{change, select, on {{target} içindeki “{name}” otomasyonu açıldı} off {{target} içindeki “{name}” otomasyonu kapatıldı} other {{target} içindeki “{name}” otomasyonu değiştirildi}}",
         "deleted": "{target} içindeki “{name}” otomasyonu silindi"
+      },
+      "webhook": {
+        "created": "“{target}” webhook’unu ekledi",
+        "updated": "{change, select, on {“{target}” webhook’unu açtı} off {“{target}” webhook’unu kapattı} other {“{target}” webhook’unu değiştirdi}}",
+        "deleted": "“{target}” webhook’unu kaldırdı"
       },
       "export": {
         "workspace": "Çalışma alanı dışa aktarıldı ({count, plural, other {# sayfa}})",
@@ -1771,7 +1896,10 @@
     "followUpChannel": "Takipler: {channel}",
     "reactionTitle": "Tepkiler",
     "reactionDescription": "Biri yazdığınız bir yoruma tepki verir. Aynı yoruma gelen tepkiler siz açana kadar bir arada durur.",
-    "reactionChannel": "Tepkiler: {channel}"
+    "reactionChannel": "Tepkiler: {channel}",
+    "verificationTitle": "Doğruladığınız sayfalar",
+    "verificationDescription": "Doğruladığınız bir sayfanın doğrulaması sona ermek üzere: birkaç gün önce ve sona erdiğinde.",
+    "verificationChannel": "Doğruladığınız sayfalar: {channel}"
   },
   "site": {
     "description": "Bu çalışma alanının yayındaki sayfalarına okunabilir tek bir adres, bir ana sayfa ve aralarında gezinme menüsü verin.",
@@ -2009,6 +2137,102 @@
       "redo": "Notla geri gönder…",
       "notWhole": "Bu çağrı burada gösterilenden uzun ya da burada gizlenen değerler içeriyor. Onaylamadan önce gönderilecek her şeyi görmek için çalışmasını açın.",
       "openRun": "Onaylamak için çalışmayı aç"
+    }
+  },
+  "webhooks": {
+    "description": "Bu çalışma alanının sayfalarında olanları, oldukları anda başka bir servise gönderin: bir https adresine imzalı POST istekleri olarak; tüm çalışma alanı, bir ekip alanı ya da bir sayfa ve altındaki sayfalar için. Her istek, webhook’u en son kaydeden kişi adına ve onun açabildikleriyle gider; veritabanı satırları ve şablonlar gönderilmez.",
+    "exportOff": "Ayarlar › Güvenlik bölümünde dışa aktarma kapalı; yeniden açılana kadar webhook’lar hiçbir şey göndermez.",
+    "count": "{count, plural, =0 {Henüz webhook yok.} one {# webhook} other {# webhook}}",
+    "add": "Webhook ekle",
+    "empty": "Sayfa olaylarını kendi servisinize göndermek için bir webhook ekleyin.",
+    "allEvents": "Tüm olaylar",
+    "scopeLabel": {
+      "workspace": "Çalışma alanının tüm sayfaları",
+      "teamspace": "{name} ekip alanının sayfaları",
+      "page": "{title} ve altındaki sayfalar"
+    },
+    "events": {
+      "pageCreated": "Sayfa oluşturuldu",
+      "pageUpdated": "Sayfa düzenlendi",
+      "pageMoved": "Sayfa taşındı",
+      "pageTrashed": "Sayfa çöp kutusuna taşındı",
+      "pageRestored": "Sayfa çöp kutusundan geri yüklendi",
+      "pageDeleted": "Sayfa kalıcı olarak silindi",
+      "commentCreated": "Yorum eklendi",
+      "ping": "Test"
+    },
+    "sendsAs": "{name} adına, onun açabildikleriyle gönderir.",
+    "paused": "Duraklatıldı: {name} artık sahip değil. Sizin adınıza göndermesi için kaydedin.",
+    "pausedBadge": "Duraklatıldı",
+    "offBadge": "Kapalı",
+    "toggle": "{name} için gönderim",
+    "test": "Test gönder",
+    "testDelivered": "Test adrese ulaştı (yanıt: {status}).",
+    "testFailed": "Test ulaşmadı: {reason}.",
+    "edit": "Düzenle",
+    "delete": "Kaldır",
+    "deleteNote": "Hemen durur ve gönderim kaydı da onunla birlikte silinir.",
+    "working": "İşleniyor…",
+    "secret": {
+      "show": "İmzalama anahtarı",
+      "rotate": "Yeni anahtar",
+      "rotateNote": "Mevcut anahtar hemen imzalamayı bırakır: onu denetleyen servisi güncelleyin.",
+      "title": "“{name}” webhook’unun imzalama anahtarı",
+      "label": "İmzalama anahtarı",
+      "note": "Her isteğin X-Leafdesk-Signature başlığını bununla doğrulayın: t=TIME,v1=HMAC; burada HMAC, TIME, bir nokta ve gövdenin hex HMAC-SHA256 değeridir. Anahtarı gizli tutun."
+    },
+    "log": {
+      "title": "{count, plural, =0 {Son gönderimler} other {Son gönderimler (#)}}",
+      "empty": "Son 30 günde hiçbir şey gönderilmedi.",
+      "attempts": "{count, plural, one {# deneme} other {# deneme}}",
+      "next": "sonraki deneme: {when}"
+    },
+    "status": {
+      "pending": "Bekliyor",
+      "delivered": "Ulaştı",
+      "failed": "Başarısız",
+      "skipped": "Gönderilmedi"
+    },
+    "codes": {
+      "noAccess": "adına gönderilen kişi sayfayı açamıyor",
+      "notOwner": "adına gönderilen kişi artık sahip değil",
+      "exportOff": "dışa aktarma kapalı",
+      "disabled": "webhook kapalı",
+      "invalidUrl": "adres geçerli değil",
+      "blocked": "adres özel bir ağda",
+      "unreachable": "adrese ulaşılamadı",
+      "timeout": "10 saniye içinde yanıt gelmedi",
+      "redirect": "adres bir yönlendirmeyle yanıt verdi",
+      "http": "adres {status} yanıtını verdi"
+    },
+    "form": {
+      "title": "Webhook ekle",
+      "editTitle": "Webhook’u değiştir",
+      "name": "Ad",
+      "url": "Adres",
+      "urlHint": "Bir https adresi. İstekler imzalanır; yönlendirmeler izlenmez.",
+      "events": "Olaylar",
+      "scope": "Sayfalar",
+      "scopes": {
+        "workspace": "Tüm çalışma alanı",
+        "teamspace": "Bir ekip alanı",
+        "page": "Bir sayfa ve altındaki sayfalar"
+      },
+      "teamspace": "Ekip alanı seçin",
+      "pickPage": "Sayfa ara",
+      "noPages": "Seçilebilecek sayfa yok.",
+      "otherPage": "Değiştir",
+      "save": "Kaydet",
+      "create": "Webhook ekle"
+    },
+    "errors": {
+      "invalidName": "Webhook’a en fazla 100 karakterlik bir ad verin.",
+      "invalidUrl": "Kullanıcı adı ya da parola içermeyen geçerli bir https adresi girin.",
+      "httpsOnly": "Webhook’lar yalnızca https adreslerine gider.",
+      "noEvents": "En az bir olay seçin.",
+      "invalidScope": "Bu çalışma alanından bir ekip alanı ya da sayfa seçin.",
+      "tooMany": "Bir çalışma alanında en fazla 25 webhook olabilir.",
+      "ownersOnly": "Webhook’ları yalnızca çalışma alanının sahipleri yönetir."
     }
   },
   "email": {

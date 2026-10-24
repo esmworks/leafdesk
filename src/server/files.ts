@@ -7,11 +7,12 @@ import { Readable, Transform } from "node:stream";
 import { pipeline } from "node:stream/promises";
 import { and, asc, eq, inArray, isNull, lte, sql } from "drizzle-orm";
 import { db } from "@/db";
-import { file, fileReference, page, propertyPermission, storageDeletion, workspaceStorage } from "@/db/schema";
+import { aiChatFile, file, fileReference, page, propertyPermission, storageDeletion, workspaceStorage } from "@/db/schema";
 import { cleanFileName, contentTypeFor, fileIdsIn, fileIdsInProperties, fileUrl, formatBytes, isFileId } from "@/lib/files";
 import { sameLocation } from "@/lib/workspace-storage";
 import { AccessError, accessRank, requireMembership, requirePageAccess, sessionHeldBack } from "@/server/access";
 import { queueDocument } from "@/server/file-text";
+import { uploadUnderHold } from "@/server/legal-hold";
 import { propertyAccessFor } from "@/server/property-access";
 import { anyPagePublished } from "@/server/publication";
 import { fetchRemoteFile, RemoteFetchError, type RemoteFetchOptions } from "@/server/remote-fetch";
@@ -133,16 +134,24 @@ export async function uploadFile(userId: string, pageId: string, input: UploadIn
 /**
  * Stores a file on `pageId` of `workspaceId` within the upload limits. No access check: callers
  * decide who may put files where (uploadFile for pages and rows, forms.uploadFormFile for form
- * answers). `uploadedBy` is null for anonymous form answers.
+ * answers). `uploadedBy` is null for anonymous form answers. A file on no page (`pageId` null)
+ * is held by what `record` writes in the same transaction as its row (ai-chat-files.ts), or the
+ * cleanup takes it.
  */
-export async function storeFile(
-  { workspaceId, pageId, uploadedBy }: { workspaceId: string; pageId: string; uploadedBy: string | null },
+export async function storeFile<P extends string | null = string>(
+  {
+    workspaceId,
+    pageId,
+    uploadedBy,
+    record,
+  }: { workspaceId: string; pageId: P; uploadedBy: string | null; record?: (tx: Tx, fileId: string) => Promise<void> },
   input: UploadInput,
-): Promise<StoredFile> {
+  limits: { maxBytes?: number } = {},
+): Promise<Omit<StoredFile, "pageId"> & { pageId: P }> {
   const name = cleanFileName(input.name);
   const contentType = contentTypeFor(input.contentType, name);
 
-  const { maxFileBytes } = uploadLimits();
+  const maxFileBytes = Math.min(uploadLimits().maxFileBytes, limits.maxBytes ?? Infinity);
   const target = await storageFor(workspaceId);
   const workspaceQuotaBytes = target.quotaBytes;
   const quota = workspaceQuotaBytes !== Infinity;
@@ -174,6 +183,7 @@ export async function storeFile(
         if ((await workspaceUsage(workspaceId, tx)) + spooled.size > workspaceQuotaBytes) throw overQuota();
       }
       await tx.insert(file).values({ id, workspaceId, pageId, storageKey, storageId, name, contentType, size: spooled.size, uploadedBy });
+      await record?.(tx, id);
     });
     let storageObjectId: string | null = null;
     try {
@@ -600,7 +610,9 @@ export async function drainStorageDeletions(): Promise<{ deleted: number; failed
 /**
  * Removes files whose page was deleted for good and that no page shows anymore (in `workspaceId`,
  * or everywhere). A page showing the file without authorization doesn't count: nobody can read the
- * file through it. Returns how many went.
+ * file through it. Uploads of people under a legal hold stay (server/legal-hold.ts). Files
+ * attached to an AI chat have no page; they go with their conversation (ai-chat-files.ts), or as
+ * uploads nothing used (purgeUnusedUploads). Returns how many went.
  */
 export async function purgeOrphanFiles(workspaceId?: string): Promise<number> {
   const keys = await db.transaction(async (tx) => {
@@ -610,6 +622,8 @@ export async function purgeOrphanFiles(workspaceId?: string): Promise<number> {
         and(
           isNull(file.pageId),
           sql`not exists (select 1 from ${fileReference} r where r.file_id = ${file.id} and r.authorized)`,
+          sql`not ${uploadUnderHold()}`,
+          sql`not exists (select 1 from ${aiChatFile} c where c.file_id = ${file.id})`,
           workspaceId ? eq(file.workspaceId, workspaceId) : undefined,
         ),
       )
@@ -624,7 +638,8 @@ export async function purgeOrphanFiles(workspaceId?: string): Promise<number> {
 
 /**
  * Removes uploads no page ever showed, `olderThanMs` (a day by default) after they were uploaded
- * (in `workspaceId`, or everywhere).
+ * (in `workspaceId`, or everywhere), but for those of people under a legal hold: files attached
+ * to an AI chat's question that was never sent too, but not those of a question kept in a conversation.
  */
 export async function purgeUnusedUploads({ olderThanMs = 24 * 60 * 60 * 1000, workspaceId }: { olderThanMs?: number; workspaceId?: string } = {}): Promise<number> {
   const keys = await db.transaction(async (tx) => {
@@ -636,6 +651,8 @@ export async function purgeUnusedUploads({ olderThanMs = 24 * 60 * 60 * 1000, wo
           isNull(file.referencedAt),
           sql`${file.createdAt} < now() - make_interval(secs => ${olderThanMs / 1000})`,
           sql`not exists (select 1 from ${fileReference} r where r.file_id = ${file.id})`,
+          sql`not ${uploadUnderHold()}`,
+          sql`not exists (select 1 from ${aiChatFile} c where c.file_id = ${file.id} and c.conversation_id is not null)`,
         ),
       )
       .returning(fileObjectColumns);

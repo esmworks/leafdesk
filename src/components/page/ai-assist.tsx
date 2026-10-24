@@ -35,10 +35,12 @@ import type { RelativePosition } from "yjs";
 import { snapshotBeforeAiEditAction } from "@/app/actions/ai";
 import { cn } from "@/components/ui";
 import { AI_LANGUAGES, isAiErrorCode, type EditorAction } from "@/lib/ai";
+import { aiAsSuggestions, setAiAsSuggestions } from "@/lib/ai-suggestions";
 import { CALLOUT_BLOCK } from "@/lib/content-blocks";
 import { editorBlocksToMarkdown, editorMarkdownToBlocks } from "@/lib/editor-markdown";
 import type { PageEditor } from "./embed-blocks";
 import { knownPageTitle } from "./mentions";
+import { suggestAsAi } from "./suggesting";
 import { isRtl } from "@/components/direction";
 
 type AnyBlock = PageEditor["document"][number];
@@ -87,6 +89,13 @@ export function useAiAssist(editor: PageEditor, pageId: string, enabled: boolean
   const [result, setResult] = useState("");
   const [instruction, setInstruction] = useState("");
   const [notice, setNotice] = useState<string | null>(null);
+  // Whether the answer goes in as suggested edits, the AI's (components/page/suggesting.ts); this
+  // person's choice, the AI chat's too (lib/ai-suggestions).
+  const [asSuggestions, setAsSuggestions] = useState(aiAsSuggestions);
+  const chooseSuggestions = useCallback((on: boolean) => {
+    setAsSuggestions(on);
+    setAiAsSuggestions(on);
+  }, []);
   const abort = useRef<AbortController | null>(null);
   const panelRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
@@ -248,16 +257,20 @@ export function useAiAssist(editor: PageEditor, pageId: string, enabled: boolean
       try {
         const blocks = (await editorMarkdownToBlocks(editor, markdown, { appUrl: window.location.origin })) as AnyBlock[];
         let placed = how;
-        if (how === "replace") {
-          const range = currentRange(editor, target);
-          if (range) {
-            const { state, view } = { state: editor.prosemirrorState, view: editor.prosemirrorView };
-            view?.dispatch(state.tr.setSelection(TextSelection.create(state.doc, range.from, range.to)));
-            // The editor's own HTML, which keeps footnotes and equations (pasted Markdown wouldn't).
-            if (blocks.length) editor.pasteHTML(editor.blocksToFullHTML(blocks as never), true);
-          } else placed = "below";
-        }
-        if (placed === "below") insertBelow(editor, target.blockId, blocks, phase.action === "summarize");
+        const place = () => {
+          if (how === "replace") {
+            const range = currentRange(editor, target);
+            if (range) {
+              const { state, view } = { state: editor.prosemirrorState, view: editor.prosemirrorView };
+              view?.dispatch(state.tr.setSelection(TextSelection.create(state.doc, range.from, range.to)));
+              // The editor's own HTML, which keeps footnotes and equations (pasted Markdown wouldn't).
+              if (blocks.length) editor.pasteHTML(editor.blocksToFullHTML(blocks as never), true);
+            } else placed = "below";
+          }
+          if (placed === "below") insertBelow(editor, target.blockId, blocks, phase.action === "summarize");
+        };
+        if (asSuggestions) suggestAsAi(editor, place);
+        else place();
         if (placed !== how) {
           setPhase({ step: "notice", message: t("assistant.selectionChanged") });
           showSelection(false);
@@ -269,7 +282,7 @@ export function useAiAssist(editor: PageEditor, pageId: string, enabled: boolean
         setNotice(t("assistant.applyFailed"));
       }
     },
-    [target, phase, result, pageId, editor, close, showSelection, t],
+    [target, phase, result, pageId, editor, close, showSelection, t, asSuggestions],
   );
 
   const languages = useMemo(() => {
@@ -412,6 +425,12 @@ export function useAiAssist(editor: PageEditor, pageId: string, enabled: boolean
               <p className="px-3 pb-1 text-xs text-fg-faint">{t(phase.note === "cutOff" ? "assistant.cutOff" : phase.note === "stopped" ? "assistant.stopped" : "assistant.reviewNote")}</p>
             )}
             {notice && <p className="px-3 pb-1 text-xs text-danger">{notice}</p>}
+            {phase.step === "done" && (
+              <label className="flex items-center gap-2 px-3 pb-1 text-xs text-fg-muted">
+                <input type="checkbox" checked={asSuggestions} onChange={(e) => chooseSuggestions(e.target.checked)} />
+                {t("assistant.asSuggestions")}
+              </label>
+            )}
             <div className="flex flex-wrap items-center justify-end gap-1 border-t border-border p-1.5">
               {phase.step === "running" ? (
                 <PanelButton onClick={() => abort.current?.abort()}>

@@ -103,6 +103,9 @@ describe("normalizeValue", () => {
     expect(() => normalizeValue(status, "Blocked")).toThrow(PropertyValueError);
     expect(normalizeValue(tags, ["Bug", "t2"])).toEqual(["t1", "t2"]);
     expect(normalizeValue(tags, "ui")).toEqual(["t2"]);
+    const places = prop("select", { options: [{ id: "c1", name: "İstanbul", color: "gray" }, { id: "c2", name: "Işıklar", color: "gray" }] });
+    expect(normalizeValue(places, "istanbul")).toBe("c1");
+    expect(normalizeValue(places, "IŞIKLAR")).toBe("c2");
   });
 });
 
@@ -135,6 +138,23 @@ describe("applyView", () => {
   it("filters by title contains, case-insensitively", () => {
     const out = applyView(rows, { filters: [{ propertyId: "title", op: "contains", value: "A" }] });
     expect(out.map((r) => r.id)).toEqual(["a", "b", "c"]);
+  });
+
+  it("matches Turkish dotted and dotless i in text filters", () => {
+    const cities = [
+      row("a", "İstanbul", { p_text: "IŞIK", p_list: ["İş", "Ev"] }),
+      row("b", "Izmir", { p_text: "ılık" }),
+      row("c", "Ankara", { p_text: "soğuk" }),
+    ];
+    const ids = (filters: FilterRule[]) => applyView(cities, { filters }, [prop("text")]).map((r) => r.id);
+    expect(ids([{ propertyId: "title", op: "contains", value: "ist" }])).toEqual(["a"]);
+    expect(ids([{ propertyId: "title", op: "contains", value: "İST" }])).toEqual(["a"]);
+    expect(ids([{ propertyId: "title", op: "contains", value: "ızm" }])).toEqual(["b"]);
+    expect(ids([{ propertyId: "p_text", op: "contains", value: "ışık" }])).toEqual(["a"]);
+    expect(ids([{ propertyId: "p_text", op: "contains", value: "ılık" }])).toEqual(["b"]);
+    expect(ids([{ propertyId: "p_text", op: "contains", value: "ILIK" }])).toEqual(["b"]);
+    expect(ids([{ propertyId: "p_text", op: "does_not_contain", value: "IŞik" }])).toEqual(["b", "c"]);
+    expect(ids([{ propertyId: "p_list", op: "contains", value: "iş" }])).toEqual(["a"]);
   });
 
   it("filters numbers with gt/lt", () => {

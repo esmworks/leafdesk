@@ -461,6 +461,8 @@ async function fitThisServer(manifest: BackupManifest, rows: Rows) {
     automation.secret_salt = newSecretSalt();
     automation.hook_salt = newHookSalt();
   }
+  // So does a page webhook.
+  for (const webhook of rows.get("page_webhook")!) webhook.secret_salt = newSecretSalt();
   const connections = rows.get("connection")!;
   for (const connection of connections) {
     connection.secrets = null;

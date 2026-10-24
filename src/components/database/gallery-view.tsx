@@ -10,7 +10,7 @@ import { pageLabel } from "@/lib/labels";
 import { isHiddenInView } from "@/lib/properties";
 import { firstImageFile } from "@/lib/files";
 import { coverProperty, galleryCover } from "@/lib/views";
-import { CardTitleInput } from "./board-view";
+import { CardTitleInput } from "./card-title-input";
 import { Floating, useFloating } from "./floating";
 import { OpenRowItems } from "./open-row-items";
 import { RowValue, shownValues } from "./property-cell";

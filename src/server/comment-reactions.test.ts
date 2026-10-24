@@ -58,6 +58,15 @@ vi.mock("@/server/agents/users", () => ({ agentMarks: vi.fn(), markOf: vi.fn() }
 vi.mock("@/server/agents/mentions", () => ({ startMentionRuns: vi.fn() }));
 vi.mock("@/server/thread-mute", () => ({ threadMuters: async () => [], unmuteThread: vi.fn(), forgetThreadMutes: vi.fn() }));
 vi.mock("@/server/thread-state", () => ({ forgetThreadStates: vi.fn() }));
+vi.mock("@/server/property-comments", () => ({
+  propertyThreadOf: async () => null,
+  seersOf: vi.fn(),
+  propertyCommentOp: vi.fn(),
+  threadsVisibleTo: vi.fn(),
+  storedPropertyThreads: vi.fn(),
+}));
+// No legal holds here: deleting comments goes ahead.
+vi.mock("@/server/legal-hold", () => ({ refuseHeldComments: async () => {} }));
 
 const { changeComments } = await import("./comments");
 

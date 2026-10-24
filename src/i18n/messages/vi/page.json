@@ -16,6 +16,14 @@
     "createdBy": "Tạo bởi {name}",
     "someone": "Ai đó",
     "comments": "Bình luận",
+    "suggesting": {
+      "editing": "Chỉnh sửa",
+      "suggesting": "Đề xuất",
+      "label": "Chế độ: {mode}",
+      "editingHint": "Thay đổi trang trực tiếp",
+      "suggestingHint": "Thay đổi của bạn hiển thị dưới dạng đề xuất mà người khác có thể chấp nhận hoặc từ chối",
+      "forcedHint": "Bạn có thể bình luận trên trang này, nên thay đổi của bạn là đề xuất mà người chỉnh sửa trang có thể chấp nhận hoặc từ chối"
+    },
     "share": "Chia sẻ",
     "accessRequests": "{count, plural, other {# yêu cầu truy cập}}",
     "addFavorite": "Thêm vào yêu thích",
@@ -51,6 +59,9 @@
     "exportPdf": "Xuất dưới dạng PDF",
     "printView": "In",
     "exportPreparing": "Đang chuẩn bị xuất…",
+    "acceptAllSuggestions": "Chấp nhận tất cả đề xuất",
+    "rejectAllSuggestions": "Từ chối tất cả đề xuất",
+    "rejectAllConfirm": "Từ chối mọi đề xuất chỉnh sửa trên trang này?",
     "versionHistory": "Lịch sử phiên bản",
     "lastEdited": "Chỉnh sửa lần cuối bởi {name}",
     "wordCount": "{words, plural, other {# từ}}, {characters, plural, other {# ký tự}}",
@@ -94,6 +105,20 @@
     "muted": "Đã tắt thông báo trả lời",
     "mutedHint": "Bạn không nhận thông báo về các trả lời trong chuỗi này cho đến khi bạn trả lời ở đây hoặc có người nhắc đến bạn ở đây.",
     "mergedFrom": "Từ “{title}”",
+    "suggestion": {
+      "label": "Đề xuất chỉnh sửa",
+      "byAi": "Đề xuất chỉnh sửa của AI",
+      "accept": "Chấp nhận",
+      "reject": "Từ chối",
+      "withdraw": "Rút lại",
+      "errors": {
+        "notAllowed": "Bạn không thể phản hồi đề xuất này.",
+        "notFound": "Đề xuất này đã được phản hồi hoặc đã bị rút lại.",
+        "pageLocked": "Trang đang bị khóa.",
+        "pageInTrash": "Trang đang ở trong thùng rác.",
+        "failed": "Không thể phản hồi đề xuất. Hãy thử lại."
+      }
+    },
     "sort": {
       "label": "Sắp xếp các chuỗi",
       "recent": "Hoạt động mới nhất trước",
@@ -105,7 +130,12 @@
     "mark": "Quay lại sau",
     "unmark": "Bỏ “Quay lại sau”",
     "markHint": "Giữ chuỗi này trong mục Đã đánh dấu cho đến khi bạn bỏ dấu. Chỉ mình bạn thấy.",
-    "unmarkHint": "Đưa chuỗi này ra khỏi danh sách Đã đánh dấu của bạn."
+    "unmarkHint": "Đưa chuỗi này ra khỏi danh sách Đã đánh dấu của bạn.",
+    "aboutProperty": "Về “{name}”",
+    "onProperty": "Bình luận về “{name}”",
+    "propertyPlaceholder": "Giá trị này thì sao?",
+    "post": "Bình luận",
+    "propertyGone": "Không thể bình luận về giá trị này nữa."
   },
   "archived": {
     "banner": "Trang này đang ở trong thùng rác.",
@@ -119,6 +149,39 @@
     "above": "Được lưu trữ cùng với một trang phía trên trang này.",
     "unarchive": "Bỏ lưu trữ",
     "hint": "Các trang đã lưu trữ nằm ngoài thanh bên, tìm kiếm và bộ chọn, nhưng vẫn có thể đọc và chỉnh sửa."
+  },
+  "verification": {
+    "byUntil": "Được {name} xác minh đến {date}",
+    "by": "Được {name} xác minh",
+    "until": "Đã xác minh đến {date}",
+    "plain": "Đã xác minh",
+    "expiredOn": "Xác minh đã hết hạn vào {date}",
+    "hint": "Một người có toàn quyền đã kiểm tra trang này và đánh dấu là chính xác. Chỉnh sửa trang vẫn giữ trạng thái đã xác minh.",
+    "change": "Thay đổi hoặc gỡ xác minh",
+    "menu": "Xác minh trang…",
+    "menuVerified": "Xác minh…",
+    "menuHint": "Đánh dấu trang là đã kiểm tra và chính xác: tìm kiếm xếp nó cao hơn và trò chuyện AI ưu tiên nó",
+    "title": "Xác minh trang",
+    "description": "Đánh dấu trang này là đã kiểm tra và chính xác, trong một thời gian hoặc không có hạn. Tìm kiếm xếp các trang đã xác minh cao hơn, đánh dấu chúng và tìm chúng bằng is:verified, còn trò chuyện AI ưu tiên chúng. Chỉnh sửa trang vẫn giữ trạng thái đã xác minh; bạn sẽ được báo vài ngày trước khi xác minh hết hạn.",
+    "durationLabel": "Xác minh trong",
+    "durations": {
+      "week": "1 tuần",
+      "month": "1 tháng",
+      "quarter": "3 tháng",
+      "year": "1 năm",
+      "until": "Đến một ngày cụ thể",
+      "forever": "Không có hạn"
+    },
+    "dateLabel": "Xác minh đến",
+    "verify": "Xác minh",
+    "verifyAgain": "Xác minh lại",
+    "remove": "Gỡ xác minh",
+    "searchBadge": "Đã xác minh",
+    "errors": {
+      "template": "Không thể xác minh mẫu và các trang trong mẫu.",
+      "inTrash": "Hãy khôi phục trang từ thùng rác trước.",
+      "invalidEnd": "Hãy chọn một ngày sau hôm nay, trong vòng năm năm."
+    }
   },
   "icon": {
     "add": "Thêm biểu tượng",
@@ -334,6 +397,11 @@
         "title": "Bảng điều khiển",
         "subtext": "Số liệu, biểu đồ và danh sách từ các cơ sở dữ liệu của bạn",
         "aliases": "bảng điều khiển tiện ích chỉ số biểu đồ số liệu dashboard widgets kpi metrics charts numbers"
+      },
+      "databaseTabs": {
+        "title": "Tab cơ sở dữ liệu",
+        "subtext": "Nhiều cơ sở dữ liệu hoặc chế độ xem, mỗi cái một tab",
+        "aliases": "tab cơ sở dữ liệu chế độ xem chuyển tabs"
       }
     }
   },
@@ -587,6 +655,17 @@
     "addTitle": "Thêm tiêu đề",
     "removeTitle": "Xóa tiêu đề"
   },
+  "imageLink": {
+    "menuItem": "Liên kết…",
+    "editMenuItem": "Sửa liên kết…",
+    "title": "Liên kết hình ảnh",
+    "urlLabel": "Địa chỉ web",
+    "toPage": "Liên kết tới trang “{title}”",
+    "invalid": "Nhập địa chỉ web bắt đầu bằng http:// hoặc https://, hoặc chọn một trang.",
+    "pickPage": "Liên kết tới trang…",
+    "remove": "Xóa liên kết",
+    "open": "Mở liên kết"
+  },
   "pdf": {
     "untitled": "PDF",
     "openInNewTab": "Mở trong thẻ mới",
@@ -676,6 +755,19 @@
     "filters": "{count, plural, other {# bộ lọc}}",
     "updatedNow": "vừa cập nhật",
     "updated": "cập nhật {time}"
+  },
+  "databaseTabs": {
+    "title": "Tab cơ sở dữ liệu",
+    "empty": "Các tab này chưa hiển thị cơ sở dữ liệu nào.",
+    "emptyEditable": "Hiển thị nhiều cơ sở dữ liệu, hoặc nhiều chế độ xem của một cơ sở dữ liệu, dưới dạng tab. Mỗi tab là một chế độ xem riêng.",
+    "add": "Thêm tab",
+    "full": "Các tab chứa tối đa {max} chế độ xem.",
+    "menu": "Tùy chọn tab",
+    "rename": "Đổi tên",
+    "remove": "Xóa tab",
+    "nameLabel": "Tên tab",
+    "namePlaceholder": "Tên cơ sở dữ liệu",
+    "noAccess": "Không có quyền truy cập"
   },
   "voiceNote": {
     "record": "Ghi một ghi chú giọng nói",
@@ -948,5 +1040,80 @@
       "copyLink": "Sao chép liên kết"
     },
     "awaitingOwner": "Đang chờ chủ sở hữu không gian làm việc phê duyệt một lệnh gọi…"
+  },
+  "button": {
+    "untitled": "Nút",
+    "placeholder": "Nhãn nút",
+    "done": "Đã xong",
+    "confirm": "Chạy “{label}”?",
+    "blockLabel": "Nút “{label}”",
+    "slash": {
+      "title": "Nút",
+      "subtext": "Thực hiện vài bước theo thứ tự khi được nhấp",
+      "aliases": "button action click run nút hành động chạy"
+    },
+    "settings": {
+      "open": "Cài đặt nút",
+      "icon": "Biểu tượng cảm xúc",
+      "label": "Nhãn",
+      "confirm": "Hỏi trước khi chạy",
+      "confirmHelp": "Người nhấp sẽ xác nhận trước.",
+      "steps": "Khi nhấp",
+      "stepsHelp": "Các bước chạy theo thứ tự, dưới danh nghĩa người nhấp và với quyền của họ. Bước nào họ không làm được sẽ dừng nút tại đó.",
+      "addStep": "Thêm bước",
+      "moveUp": "Di chuyển lên",
+      "moveDown": "Di chuyển xuống",
+      "insertAt": "Vị trí",
+      "at": {
+        "below": "Bên dưới nút",
+        "top": "Ở đầu trang",
+        "bottom": "Ở cuối trang"
+      },
+      "markdown": "Khối bằng Markdown",
+      "people": "Mọi người",
+      "message": "Tin nhắn",
+      "notifyHelp": "Chỉ những người có thể mở trang này mới nhận được thông báo.",
+      "url": "Địa chỉ",
+      "secret": "Khóa bí mật ký",
+      "copySecret": "Sao chép khóa bí mật",
+      "webhookHelp": "Gửi trang này dưới dạng JSON, được ký bằng khóa bí mật, nếu không gian làm việc cho phép nội dung ra ngoài.",
+      "target": "Địa chỉ web hoặc trang",
+      "pickPage": "Chọn trang",
+      "toPage": "Mở “{title}”",
+      "rowTitle": "Tiêu đề",
+      "values": "Giá trị",
+      "updateHelp": "Thay đổi tối đa {max} hàng khớp với bộ lọc và người nhấp có thể xem."
+    },
+    "variables": {
+      "group": "Nút",
+      "today": "Hôm nay",
+      "now": "Bây giờ",
+      "me": "Người đã nhấp"
+    },
+    "steps": {
+      "insert": "Chèn khối",
+      "add_row": "Thêm hàng",
+      "update_rows": "Thay đổi hàng",
+      "notify": "Thông báo cho mọi người",
+      "webhook": "Gửi webhook",
+      "open": "Mở liên kết hoặc trang"
+    },
+    "failed": {
+      "notFound": "Nút này không còn trên trang.",
+      "noSteps": "Nút này chưa làm gì cả.",
+      "inTrash": "Nút trên các trang trong thùng rác không chạy.",
+      "rateLimited": "Nút này được nhấp quá nhiều lần. Hãy đợi một chút rồi thử lại.",
+      "noAccess": "Bạn không có quyền làm việc này.",
+      "locked": "Trang đã bị khóa.",
+      "notConfigured": "Bước này chưa được thiết lập.",
+      "databaseGone": "Cơ sở dữ liệu không còn hoặc đang ở trong thùng rác.",
+      "invalidValue": "Một giá trị không phù hợp với thuộc tính của nó.",
+      "exportOff": "Không gian làm việc này không cho phép nội dung ra ngoài.",
+      "webhookFailed": "Địa chỉ không nhận webhook.",
+      "invalidTarget": "Liên kết cần mở không hợp lệ.",
+      "buttonGone": "Nút đã bị xóa khỏi trang.",
+      "error": "Đã xảy ra lỗi.",
+      "step": "Bước {step} ({type}) không chạy: {reason}"
+    }
   }
 }

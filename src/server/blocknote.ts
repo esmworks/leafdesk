@@ -35,10 +35,13 @@ import {
 import { databaseBlockConfig, linkedViewBlockConfig, referenceLine, isEmbedBlockType } from "@/lib/embed-blocks";
 import { dashboardBlockConfig } from "@/lib/dashboard";
 import { agentChatBlockConfig } from "@/lib/agent-chat";
+import { buttonBlockConfig, cleanButtonLabel } from "@/lib/buttons";
 import { meetingBlockConfig, meetingProps, parseAttendees, parseTakeaways } from "@/lib/meetings";
 import { markdownToPageBlocks } from "@/lib/page-markdown";
 import { textScriptStyleSpecs } from "@/lib/text-scripts";
 import { syncedBlockConfig } from "@/lib/synced-blocks";
+import { linkedImageSpec } from "@/lib/image-links";
+import { suggestionMarks } from "@/lib/suggestion-marks";
 import { webBlockServerSpecs } from "./web-blocks";
 
 /**
@@ -129,6 +132,18 @@ const contentBlockSpecs = {
   subpages: createBlockSpec(subpagesBlockConfig, marker("subpages"))(),
 };
 
+/** A button on the server (published pages, the print view, HTML exports): its label, disabled. */
+function buttonElement(props: { label?: unknown; icon?: unknown }) {
+  const dom = document.createElement("p");
+  dom.setAttribute("data-leafdesk-button", "");
+  const button = document.createElement("button");
+  button.setAttribute("type", "button");
+  button.setAttribute("disabled", "");
+  button.textContent = [typeof props.icon === "string" ? props.icon : "", cleanButtonLabel(props.label)].filter(Boolean).join(" ");
+  dom.appendChild(button);
+  return { dom };
+}
+
 /**
  * A meeting on the server: its title, who came, and its takeaways as plain HTML, which published
  * pages, the print view and HTML exports show. The transcript stays in the app (and in the page's
@@ -207,6 +222,8 @@ const mention = createInlineContentSpec(mentionConfig, {
 export const pageSchema = BlockNoteSchema.create({
   blockSpecs: {
     ...defaultBlockSpecs,
+    // Images may link to a web address or a page (lib/image-links).
+    image: linkedImageSpec(),
     database: createBlockSpec(databaseBlockConfig, marker("database"))(),
     linkedView: createBlockSpec(linkedViewBlockConfig, marker("linkedView"))(),
     dashboard: createBlockSpec(dashboardBlockConfig, marker("dashboard"))(),
@@ -219,6 +236,8 @@ export const pageSchema = BlockNoteSchema.create({
     syncedBlock: createBlockSpec(syncedBlockConfig, marker("syncedBlock"))(),
     // Only the agent's and the chat's ids: what is said in it is each reader's own.
     agentChat: createBlockSpec(agentChatBlockConfig, marker("agentChat"))(),
+    // Its label as a button that does nothing: what it does runs only in the app (server/buttons.ts).
+    button: createBlockSpec(buttonBlockConfig, { render: (block) => buttonElement(block.props) })(),
     // Everything in its props (lib/meetings); its Markdown is its region, transcript included.
     meeting: createBlockSpec(meetingBlockConfig, { render: (block) => meetingElement(block.props) })(),
     ...columnBlockSpecs(),
@@ -233,7 +252,8 @@ export const pageSchema = BlockNoteSchema.create({
  */
 const commentMarks = createExtension({ key: "commentMarks", tiptapExtensions: [CommentMark] });
 
-export const serverEditor = ServerBlockNoteEditor.create({ schema: pageSchema, extensions: [commentMarks] });
+// Suggested edits (lib/suggestions) too, for the same reason.
+export const serverEditor = ServerBlockNoteEditor.create({ schema: pageSchema, extensions: [commentMarks, suggestionMarks] });
 
 export type PageBlock = ReturnType<typeof serverEditor.yXmlFragmentToBlocks>[number];
 type PartialPageBlock = PartialBlock<typeof pageSchema.blockSchema, typeof pageSchema.inlineContentSchema, typeof pageSchema.styleSchema>;

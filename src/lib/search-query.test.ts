@@ -3,7 +3,7 @@ import { hasSearchFilters, parseSearchQuery } from "./search-query";
 
 describe("parseSearchQuery", () => {
   it("leaves plain text as it is", () => {
-    expect(parseSearchQuery("  launch   plan ")).toEqual({ text: "launch plan", within: [], kinds: [] });
+    expect(parseSearchQuery("  launch   plan ")).toEqual({ text: "launch plan", within: [], kinds: [], verified: false });
   });
 
   it("takes in: filters, quoted or not, anywhere in the query", () => {
@@ -11,6 +11,7 @@ describe("parseSearchQuery", () => {
       text: "budget q3",
       within: ["Projects", "Launch plan"],
       kinds: [],
+      verified: false,
     });
     expect(parseSearchQuery("in:projects IN:Projects").within).toEqual(["projects"]);
   });
@@ -20,7 +21,7 @@ describe("parseSearchQuery", () => {
   });
 
   it("takes type:journal (and daily) for daily notes", () => {
-    expect(parseSearchQuery("standup type:journal type:Daily")).toEqual({ text: "standup", within: [], kinds: ["journal"] });
+    expect(parseSearchQuery("standup type:journal type:Daily")).toEqual({ text: "standup", within: [], kinds: ["journal"], verified: false });
   });
 
   it("searches unknown filters, empty values and phrases as text", () => {
@@ -28,7 +29,13 @@ describe("parseSearchQuery", () => {
       text: "foo:bar type:folder in: a phrase two words",
       within: [],
       kinds: [],
+      verified: false,
     });
+  });
+
+  it("takes is:verified, and searches other is: values as text", () => {
+    expect(parseSearchQuery("onboarding IS:Verified")).toEqual({ text: "onboarding", within: [], kinds: [], verified: true });
+    expect(parseSearchQuery("is:done").text).toBe("is:done");
   });
 
   it("lets a quote run to the end", () => {
@@ -47,5 +54,6 @@ describe("parseSearchQuery", () => {
   it("tells whether a query has filters", () => {
     expect(hasSearchFilters(parseSearchQuery("text"))).toBe(false);
     expect(hasSearchFilters(parseSearchQuery("type:row"))).toBe(true);
+    expect(hasSearchFilters(parseSearchQuery("is:verified"))).toBe(true);
   });
 });

@@ -22,7 +22,9 @@ const ofAgents: Scope = (ws) => sql`agent_id in (select id from workspace_agent 
 const ofConnections: Scope = (ws) => sql`connection_id in (select id from connection where workspace_id = ${ws})`;
 /** Agents' notes: what the AI remembers about a person is theirs alone, like their chats. */
 const agentsNotes: Scope = (ws) => sql`workspace_id = ${ws} and user_id in (select user_id from workspace_agent where workspace_id = ${ws})`;
-const ofFiles: Scope = (ws) => sql`file_id in (select id from file where workspace_id = ${ws})`;
+/** The workspace's files but those attached to AI chats, which are private to their people like the chats. */
+const files = (ws: string) => sql`(select id from file where workspace_id = ${ws} and id not in (select file_id from ai_chat_file))`;
+const ofFiles: Scope = (ws) => sql`file_id in ${files(ws)}`;
 
 /** The tables a backup holds, by SQL name, with the rows of the workspace in each. */
 export const BACKED_UP: Record<string, Scope> = {
@@ -39,13 +41,16 @@ export const BACKED_UP: Record<string, Scope> = {
   database_view: ofPages("database_id"),
   page_snapshot: ofPages("page_id"),
   row_activity: own,
+  property_comment: own,
   page_permission: own,
   database_row_access: own,
   page_group_permission: ofPages("page_id"),
   property_permission: own,
   page_favorite: ofPages("page_id"),
+  page_reaction: ofPages("page_id"),
   meeting_note: ofPages("page_id"),
   page_watch: ofPages("page_id"),
+  page_verification: ofPages("page_id"),
   thread_mute: ofPages("page_id"),
   thread_state: ofPages("page_id"),
   row_follower: ofPages("row_id"),
@@ -54,7 +59,7 @@ export const BACKED_UP: Record<string, Scope> = {
   form_publication: (ws) => sql`view_id in (select id from database_view where database_id in ${pages(ws)})`,
   form_submission: ofPages("row_id"),
   workspace_site: own,
-  file: own,
+  file: (ws) => sql`id in ${files(ws)}`,
   file_reference: ofFiles,
   file_text: ofFiles,
   page_link: ofPages("source_id"),
@@ -74,6 +79,7 @@ export const BACKED_UP: Record<string, Scope> = {
   agent_helper: ofAgents,
   agent_share: own,
   database_automation: own,
+  page_webhook: own,
   automation_fire: (ws) => sql`automation_id in (select id from database_automation where workspace_id = ${ws})`,
   automation_version: (ws) => sql`automation_id in (select id from database_automation where workspace_id = ${ws})`,
   schedule: own,
@@ -89,6 +95,9 @@ export const BACKED_UP: Record<string, Scope> = {
   // The workspace's own snippets; people's personal ones have no workspace and stay out.
   snippet: own,
   pdf_letterhead: own,
+  // Legal holds come back with the workspace: a restore mustn't be a way out of one.
+  legal_hold: own,
+  legal_hold_person: (ws) => sql`hold_id in (select id from legal_hold where workspace_id = ${ws})`,
 };
 
 /** Tables older backups held and later ones leave out: a restore passes over them. */
@@ -143,10 +152,13 @@ export const LEFT_OUT: Record<string, string> = {
   connection_event: "events received from connected services",
   connection_oauth: "connection sign-ins in progress",
   storage_deletion: "the old server's queue of files to delete",
+  ai_chat_file: "files attached to AI chats, private to their people like the chats (their files are left out too)",
   assignment_email: "emails waiting to go out",
   row_update_pending: "emails waiting to go out",
   page_update_pending: "emails waiting to go out",
   page_update_email: "emails waiting to go out",
+  page_webhook_pending: "page edits waiting to go to webhooks",
+  page_webhook_delivery: "the old server's webhook deliveries; pending ones would be sent again",
   mailbox: "members' mailboxes and their passwords, connected again on the new server",
   sequence_enrollment: "follow-ups under way, which would send from mailboxes the new server hasn't connected",
   sequence_send: "the steps follow-ups sent, kept with their enrollments",

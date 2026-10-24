@@ -8,6 +8,12 @@ describe("settings tabs", () => {
     expect(new Set(grouped).size).toBe(grouped.length);
   });
 
+  it("offers page webhooks to owners only", () => {
+    expect(visibleSettingsTabs({ guest: false, managesGuests: false, owner: true })).toContain("webhooks");
+    expect(visibleSettingsTabs({ guest: false, managesGuests: true, owner: false })).not.toContain("webhooks");
+    expect(visibleSettingsTabs({ guest: true, managesGuests: false })).not.toContain("webhooks");
+  });
+
   it("keeps the person's own tabs apart from the workspace's", () => {
     for (const tab of ACCOUNT_SETTINGS_TABS) expect(SETTINGS_TABS as readonly string[]).not.toContain(tab);
   });

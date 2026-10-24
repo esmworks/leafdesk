@@ -20,6 +20,7 @@ export const API_SCOPE_RESOURCES = [
   { resource: "rows", write: true },
   { resource: "comments", write: true },
   { resource: "agents", write: true },
+  { resource: "webhooks", write: true },
 ] as const;
 
 export type ApiScopeResource = (typeof API_SCOPE_RESOURCES)[number]["resource"];
@@ -36,6 +37,8 @@ export const API_TOKEN_SCOPES = [
   "comments:write",
   "agents:read",
   "agents:write",
+  "webhooks:read",
+  "webhooks:write",
 ] as const;
 
 export type ApiTokenScope = (typeof API_TOKEN_SCOPES)[number];
@@ -53,6 +56,8 @@ export const API_SCOPE_DESCRIPTIONS: Record<ApiTokenScope, string> = {
   "comments:write": "Start comment threads and reply in them.",
   "agents:read": "Read agents, their runs, usage, schedules and sharing.",
   "agents:write": "Change agents, ask them for runs, set their schedules and share them.",
+  "webhooks:read": "Read a workspace's page webhooks and their deliveries (workspace owners).",
+  "webhooks:write": "Add, change, test and remove page webhooks and replace their secrets (workspace owners).",
 };
 
 export const READ_SCOPES: readonly ApiTokenScope[] = API_TOKEN_SCOPES.filter((s) => s.endsWith(":read"));

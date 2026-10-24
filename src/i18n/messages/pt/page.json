@@ -16,6 +16,14 @@
     "createdBy": "Criado por {name}",
     "someone": "Alguém",
     "comments": "Comentários",
+    "suggesting": {
+      "editing": "Edição",
+      "suggesting": "Sugestão",
+      "label": "Modo: {mode}",
+      "editingHint": "Alterar a página diretamente",
+      "suggestingHint": "Suas alterações aparecem como sugestões que outras pessoas podem aceitar ou rejeitar",
+      "forcedHint": "Você pode comentar nesta página, então suas alterações são sugestões que os editores dela podem aceitar ou rejeitar"
+    },
     "share": "Compartilhar",
     "accessRequests": "{count, plural, one {# solicitação de acesso} other {# solicitações de acesso}}",
     "addFavorite": "Adicionar aos favoritos",
@@ -51,6 +59,9 @@
     "exportPdf": "Exportar como PDF",
     "printView": "Imprimir",
     "exportPreparing": "Preparando a exportação…",
+    "acceptAllSuggestions": "Aceitar todas as sugestões",
+    "rejectAllSuggestions": "Rejeitar todas as sugestões",
+    "rejectAllConfirm": "Rejeitar todas as alterações sugeridas nesta página?",
     "versionHistory": "Histórico de versões",
     "lastEdited": "Última edição por {name}",
     "wordCount": "{words, plural, one {# palavra} other {# palavras}}, {characters, plural, one {# caractere} other {# caracteres}}",
@@ -72,6 +83,7 @@
   },
   "comments": {
     "aboutPage": "Sobre esta página",
+    "aboutProperty": "Sobre “{name}”",
     "title": "Comentários",
     "close": "Fechar comentários",
     "filters": {
@@ -94,6 +106,20 @@
     "muted": "Respostas silenciadas",
     "mutedHint": "Você não é avisado sobre respostas nesta conversa até responder aqui ou alguém mencionar você aqui.",
     "mergedFrom": "De “{title}”",
+    "suggestion": {
+      "label": "Alteração sugerida",
+      "byAi": "Alteração sugerida pela IA",
+      "accept": "Aceitar",
+      "reject": "Rejeitar",
+      "withdraw": "Retirar",
+      "errors": {
+        "notAllowed": "Você não pode responder a esta sugestão.",
+        "notFound": "Esta sugestão já foi respondida ou retirada.",
+        "pageLocked": "A página está bloqueada.",
+        "pageInTrash": "A página está na lixeira.",
+        "failed": "Não foi possível responder à sugestão. Tente de novo."
+      }
+    },
     "sort": {
       "label": "Ordenar conversas",
       "recent": "Atividade mais recente primeiro",
@@ -105,7 +131,11 @@
     "mark": "Voltar depois",
     "unmark": "Remover “Voltar depois”",
     "markHint": "A conversa fica em Marcados até você tirar a marca. Só você a vê.",
-    "unmarkHint": "Tirar esta conversa da sua lista de Marcados."
+    "unmarkHint": "Tirar esta conversa da sua lista de Marcados.",
+    "onProperty": "Comentar sobre “{name}”",
+    "propertyPlaceholder": "E quanto a este valor?",
+    "post": "Comentar",
+    "propertyGone": "Este valor não pode mais ser comentado."
   },
   "archived": {
     "banner": "Esta página está na lixeira.",
@@ -119,6 +149,39 @@
     "above": "Arquivada junto com uma página acima desta.",
     "unarchive": "Desarquivar",
     "hint": "Páginas arquivadas ficam fora da barra lateral, da pesquisa e dos seletores, mas ainda podem ser lidas e editadas."
+  },
+  "verification": {
+    "byUntil": "Verificada por {name} até {date}",
+    "by": "Verificada por {name}",
+    "until": "Verificada até {date}",
+    "plain": "Verificada",
+    "expiredOn": "Verificação expirada em {date}",
+    "hint": "Alguém com acesso total conferiu esta página e a marcou como correta. Editá-la a mantém verificada.",
+    "change": "Alterar ou remover a verificação",
+    "menu": "Verificar página…",
+    "menuVerified": "Verificação…",
+    "menuHint": "Marcar a página como conferida e correta: a pesquisa a coloca mais acima e o chat de IA a prefere",
+    "title": "Verificar página",
+    "description": "Marque esta página como conferida e correta, por um tempo ou sem prazo. A pesquisa coloca as páginas verificadas mais acima, as destaca e as encontra com is:verified, e o chat de IA as prefere. Editar a página a mantém verificada; você recebe um aviso alguns dias antes do fim.",
+    "durationLabel": "Verificada durante",
+    "durations": {
+      "week": "1 semana",
+      "month": "1 mês",
+      "quarter": "3 meses",
+      "year": "1 ano",
+      "until": "Até um dia",
+      "forever": "Sem prazo"
+    },
+    "dateLabel": "Verificada até",
+    "verify": "Verificar",
+    "verifyAgain": "Verificar de novo",
+    "remove": "Remover verificação",
+    "searchBadge": "Verificada",
+    "errors": {
+      "template": "Modelos e as páginas dentro deles não são verificados.",
+      "inTrash": "Primeiro restaure a página da lixeira.",
+      "invalidEnd": "Escolha um dia depois de hoje, dentro de cinco anos."
+    }
   },
   "icon": {
     "add": "Adicionar ícone",
@@ -334,6 +397,11 @@
         "title": "Painel",
         "subtext": "Números, gráficos e listas dos seus bancos de dados",
         "aliases": "dashboard widgets kpi metrics charts numbers painel gráficos números métricas indicadores"
+      },
+      "databaseTabs": {
+        "title": "Abas de bancos de dados",
+        "subtext": "Vários bancos de dados ou visualizações, uma aba cada",
+        "aliases": "abas guias banco de dados visualizações alternar tabs"
       }
     }
   },
@@ -587,6 +655,17 @@
     "addTitle": "Adicionar título",
     "removeTitle": "Remover título"
   },
+  "imageLink": {
+    "menuItem": "Link…",
+    "editMenuItem": "Editar link…",
+    "title": "Vincular a imagem",
+    "urlLabel": "Endereço web",
+    "toPage": "Leva à página “{title}”",
+    "invalid": "Digite um endereço web que comece com http:// ou https://, ou escolha uma página.",
+    "pickPage": "Vincular a uma página…",
+    "remove": "Remover link",
+    "open": "Abrir link"
+  },
   "pdf": {
     "untitled": "PDF",
     "openInNewTab": "Abrir em uma nova aba",
@@ -676,6 +755,19 @@
     "filters": "{count, plural, one {# filtro} other {# filtros}}",
     "updatedNow": "atualizado agora mesmo",
     "updated": "atualizado {time}"
+  },
+  "databaseTabs": {
+    "title": "Abas de bancos de dados",
+    "empty": "Estas abas ainda não mostram nenhum banco de dados.",
+    "emptyEditable": "Mostre vários bancos de dados, ou visualizações de um, como abas. Cada aba é uma visualização própria.",
+    "add": "Adicionar aba",
+    "full": "As abas comportam até {max} visualizações.",
+    "menu": "Opções da aba",
+    "rename": "Renomear",
+    "remove": "Remover aba",
+    "nameLabel": "Nome da aba",
+    "namePlaceholder": "O nome do banco de dados",
+    "noAccess": "Sem acesso"
   },
   "voiceNote": {
     "record": "Gravar uma nota de voz",
@@ -948,5 +1040,80 @@
       "copyLink": "Copiar link"
     },
     "awaitingOwner": "Aguardando um proprietário do espaço de trabalho aprovar uma chamada…"
+  },
+  "button": {
+    "untitled": "Botão",
+    "placeholder": "Rótulo do botão",
+    "done": "Concluído",
+    "confirm": "Executar “{label}”?",
+    "blockLabel": "Botão “{label}”",
+    "slash": {
+      "title": "Botão",
+      "subtext": "Faz algumas coisas em ordem ao ser clicado",
+      "aliases": "button action click run botão ação executar"
+    },
+    "settings": {
+      "open": "Configurações do botão",
+      "icon": "Emoji",
+      "label": "Rótulo",
+      "confirm": "Perguntar antes de executar",
+      "confirmHelp": "Quem clicar confirma primeiro.",
+      "steps": "Ao clicar",
+      "stepsHelp": "Os passos são executados em ordem, como quem clica e com o acesso dessa pessoa. Um passo que ela não possa fazer para o botão ali.",
+      "addStep": "Adicionar um passo",
+      "moveUp": "Mover para cima",
+      "moveDown": "Mover para baixo",
+      "insertAt": "Onde",
+      "at": {
+        "below": "Abaixo do botão",
+        "top": "No início da página",
+        "bottom": "No fim da página"
+      },
+      "markdown": "Blocos em Markdown",
+      "people": "Pessoas",
+      "message": "Mensagem",
+      "notifyHelp": "Só são notificadas as pessoas que podem abrir esta página.",
+      "url": "Endereço",
+      "secret": "Segredo de assinatura",
+      "copySecret": "Copiar o segredo",
+      "webhookHelp": "Envia esta página como JSON, assinada com o segredo, se o espaço de trabalho permitir que o conteúdo saia dele.",
+      "target": "Endereço web ou página",
+      "pickPage": "Escolher uma página",
+      "toPage": "Abre “{title}”",
+      "rowTitle": "Título",
+      "values": "Valores",
+      "updateHelp": "Altera no máximo {max} linhas que correspondam aos filtros e que quem clica possa ver."
+    },
+    "variables": {
+      "group": "Botão",
+      "today": "Hoje",
+      "now": "Agora",
+      "me": "Quem clicou"
+    },
+    "steps": {
+      "insert": "Inserir blocos",
+      "add_row": "Adicionar uma linha",
+      "update_rows": "Alterar linhas",
+      "notify": "Notificar pessoas",
+      "webhook": "Enviar um webhook",
+      "open": "Abrir um link ou página"
+    },
+    "failed": {
+      "notFound": "Este botão já não está na página.",
+      "noSteps": "Este botão ainda não faz nada.",
+      "inTrash": "Botões em páginas na lixeira não são executados.",
+      "rateLimited": "Este botão foi clicado vezes demais. Aguarde um momento e tente de novo.",
+      "noAccess": "Você não tem acesso para fazer isso.",
+      "locked": "A página está bloqueada.",
+      "notConfigured": "Este passo não está configurado.",
+      "databaseGone": "A base de dados não existe mais ou está na lixeira.",
+      "invalidValue": "Um valor não serve para sua propriedade.",
+      "exportOff": "Este espaço de trabalho não permite que o conteúdo saia dele.",
+      "webhookFailed": "O endereço não aceitou o webhook.",
+      "invalidTarget": "O link a abrir não é válido.",
+      "buttonGone": "O botão foi removido da página.",
+      "error": "Algo deu errado.",
+      "step": "O passo {step} ({type}) não foi executado: {reason}"
+    }
   }
 }

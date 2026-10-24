@@ -80,6 +80,10 @@ export const userPreference = pgTable("user_preference", {
    */
   followUpInbox: boolean("follow_up_inbox").notNull().default(true),
   followUpEmails: boolean("follow_up_emails").notNull().default(false),
+  /** Show reminders that a page I verified is about to stop being verified, or did, in my inbox. */
+  verificationInbox: boolean("verification_inbox").notNull().default(true),
+  /** Email me those reminders. */
+  verificationEmails: boolean("verification_emails").notNull().default(true),
   /**
    * Reactions to my comments: show them in my inbox. No email goes out about them (`reactionEmails`
    * is kept for the shape every kind has, and unused); push and Telegram are off until turned on.
@@ -105,6 +109,7 @@ export const userPreference = pgTable("user_preference", {
   reviewPush: boolean("review_push").notNull().default(true),
   followUpPush: boolean("follow_up_push").notNull().default(true),
   reactionPush: boolean("reaction_push").notNull().default(false),
+  verificationPush: boolean("verification_push").notNull().default(true),
   /**
    * Telegram messages per kind, to the Telegram account the person linked (see telegram_link,
    * server/telegram/notify.ts). They follow the inbox as push does.
@@ -123,6 +128,7 @@ export const userPreference = pgTable("user_preference", {
   reviewTelegram: boolean("review_telegram").notNull().default(true),
   followUpTelegram: boolean("follow_up_telegram").notNull().default(true),
   reactionTelegram: boolean("reaction_telegram").notNull().default(false),
+  verificationTelegram: boolean("verification_telegram").notNull().default(true),
   updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
 });
 
@@ -355,6 +361,7 @@ export const NOTIFICATION_KINDS = [
   "review",
   "follow_up",
   "reaction",
+  "verification",
   "agent_approval",
   "agent_memory",
   "agent_report",
@@ -399,6 +406,8 @@ export type PreferenceKind = Exclude<NotificationKind, OwnerKind>;
  * to the user's comment `commentId` in thread `threadId` of page `pageId`; `reactions` says who
  * with what, `actorId` is the latest of them and `message` a few words of the comment. One unread
  * one per comment, which more reactions add to and taking a reaction back takes from.
+ * "verification": the user's verification of page `pageId` ends at `date` (an ISO time) in a few days, or ended then (created
+ * at or after it); see server/verification.ts.
  * "ai_account_detached": the workspace's AI no longer runs on `actorId`'s own AI account (they left
  * the workspace, deleted the account or their whole account); it has no page. Unread ones are dropped when the change is
  * undone (or the request decided). Rows are recorded

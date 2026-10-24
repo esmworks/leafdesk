@@ -1,5 +1,6 @@
 import { FOOTNOTE } from "./content-blocks";
 import { MEETING_BLOCK, meetingPlainText } from "./meetings";
+import { BUTTON_BLOCK, buttonPlainText } from "./buttons";
 import { MENTION, mentionPlainText } from "./mentions";
 
 /** Minimal structural view of BlockNote blocks; enough to extract searchable text. */
@@ -41,6 +42,8 @@ export function blockText(block: BlockLike, pageText?: PageMentionText): string 
   }
   // A meeting's text is in its props: title, attendees, takeaways and transcript (lib/meetings).
   if (block.type === MEETING_BLOCK) return meetingPlainText(block.props);
+  // A button reads as its label.
+  if (block.type === BUTTON_BLOCK) return buttonPlainText(block.props);
   // A callout's title is a line of its own above its text.
   if (block.type === "callout" && typeof block.props?.title === "string" && block.props.title.trim()) {
     return [block.props.title.trim(), blockText({ ...block, props: { ...block.props, title: "" } }, pageText)].filter(Boolean).join("\n");

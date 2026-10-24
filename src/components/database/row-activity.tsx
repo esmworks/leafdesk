@@ -150,7 +150,7 @@ function Entry({ entry }: { entry: RowActivityEntry }) {
   const actor = (
     <>
       <bdi className="font-medium text-fg">{name}</bdi>
-      {(kind === "agent" || kind === "automation") && (
+      {(kind === "agent" || kind === "automation" || kind === "button") && (
         <span className="ms-1 rounded bg-bg-active px-1 py-px align-[1px] text-[11px] leading-none text-fg-muted">{t(kind)}</span>
       )}
       {/* An AI value names who it was worked out for: whoever asked, or whose change set it off. */}

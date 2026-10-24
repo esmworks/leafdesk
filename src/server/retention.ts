@@ -5,6 +5,7 @@ import { auditCutoff, HISTORY_RETENTION, historyCutoffs } from "@/lib/retention"
 import { ENROLLMENT_HISTORY_DAYS } from "@/lib/sequences";
 import { pruneIdempotencyKeys } from "@/server/api/idempotency";
 import { purgeDeletedProperties, purgeDeletedViews } from "@/server/databases";
+import { heldPageIds, touchedUnderHold } from "@/server/legal-hold";
 import { deleteTrashedPages } from "@/server/pages";
 import { expirePendingChanges } from "@/server/pending-changes";
 import { pruneEnrollments } from "@/server/sequences/manage";
@@ -13,9 +14,11 @@ import { pruneConnectedAppUse } from "@/server/workspace-apps";
 /**
  * Data retention, applied once a day by the app server (startRetention, from server.ts):
  *  - pages that have been in the trash longer than their workspace's `trashRetentionDays` are
- *    deleted for good, the way "Delete permanently" does it (files included);
+ *    deleted for good, the way "Delete permanently" does it (files included), but for those a
+ *    legal hold keeps (server/legal-hold.ts), which stay in the trash;
  *  - so are database properties and views deleted longer ago than that (purgeExpiredSchema);
- *  - page history is pruned by the rules in lib/retention.ts (HISTORY_RETENTION);
+ *  - page history is pruned by the rules in lib/retention.ts (HISTORY_RETENTION), but for pages a
+ *    legal hold keeps;
  *  - audit log events older than AUDIT_RETENTION_DAYS are deleted;
  *  - when connected apps were last used is forgotten for apps and tokens that are gone and for
  *    people no longer in the workspace (pruneConnectedAppUse);
@@ -40,6 +43,8 @@ export type RetentionResult = {
   trashedPages: number;
   /** Workspaces those entries came from. */
   workspaces: number;
+  /** Trash entries that were due but a legal hold keeps. */
+  heldPages: number;
   /** Deleted database properties and views deleted for good (the other sides of relations included). */
   deletedProperties: number;
   deletedViews: number;
@@ -65,7 +70,7 @@ const DELETE_BATCH = 200;
  * entries of their own and fall due on their own date; the ones trashed with it go with it.
  */
 export async function purgeExpiredTrash({ now = new Date(), workspaceIds }: RetentionOptions = {}) {
-  if (workspaceIds?.length === 0) return { trashedPages: 0, workspaces: 0 };
+  if (workspaceIds?.length === 0) return { trashedPages: 0, workspaces: 0, heldPages: 0 };
   const days = sql`coalesce((w.settings ->> 'trashRetentionDays')::int, ${DEFAULT_WORKSPACE_SETTINGS.trashRetentionDays})`;
   const due = await db.execute<{ id: string; workspace_id: string }>(sql`
     select p.id, p.workspace_id
@@ -87,13 +92,18 @@ export async function purgeExpiredTrash({ now = new Date(), workspaceIds }: Rete
     byWorkspace.set(row.workspace_id, list);
   }
   let trashedPages = 0;
+  let heldPages = 0;
   for (const [workspaceId, ids] of byWorkspace) {
     for (let i = 0; i < ids.length; i += DELETE_BATCH) {
+      const batch = ids.slice(i, i + DELETE_BATCH);
+      // Counted here; deleteTrashedPages leaves them alone by itself.
+      const held = await heldPageIds(workspaceId, batch);
+      heldPages += held.size;
       // No actor: the audit log records these deletes as the server's own.
-      trashedPages += (await deleteTrashedPages(workspaceId, ids.slice(i, i + DELETE_BATCH), null)).length;
+      trashedPages += (await deleteTrashedPages(workspaceId, batch.filter((id) => !held.has(id)), null)).length;
     }
   }
-  return { trashedPages, workspaces: byWorkspace.size };
+  return { trashedPages, workspaces: byWorkspace.size, heldPages };
 }
 
 /**
@@ -135,7 +145,7 @@ export async function purgeExpiredSchema({ now = new Date(), workspaceIds }: Ret
 /**
  * Deletes the page versions that HISTORY_RETENTION no longer keeps at `now`. Versions of the kinds
  * kept longer are ranked apart from the rest, so they don't push ordinary ones past the limit or
- * the other way round. Returns how many went.
+ * the other way round. Pages a legal hold keeps keep all theirs. Returns how many went.
  */
 export async function pruneSnapshots({ now = new Date(), workspaceIds }: RetentionOptions = {}) {
   if (workspaceIds?.length === 0) return 0;
@@ -154,6 +164,7 @@ export async function pruneSnapshots({ now = new Date(), workspaceIds }: Retenti
     using ranked r
     where target.id = r.id
       and r.newest > 1
+      and not ${touchedUnderHold(sql`target.page_id`)}
       and case
         when r.kept then r.created_at < ${cutoff.kept.toISOString()}::timestamptz
         else r.created_at < ${cutoff.regular.toISOString()}::timestamptz or r.rank_in_kind > ${HISTORY_RETENTION.maxPerPage}
@@ -229,7 +240,8 @@ export function startRetention() {
         return;
       }
       console.log(
-        `[retention] deleted ${result.trashedPages} pages from the trash of ${result.workspaces} workspaces, ` +
+        `[retention] deleted ${result.trashedPages} pages from the trash of ${result.workspaces} workspaces ` +
+          `(${result.heldPages} kept under legal hold), ` +
           `${result.deletedProperties} deleted properties, ${result.deletedViews} deleted views, ` +
           `${result.snapshots} old page versions, ${result.auditEvents} old audit log events, ${result.appUses} uses of apps that are gone ` +
           `and ${result.idempotencyKeys} expired API idempotency keys; ` +
