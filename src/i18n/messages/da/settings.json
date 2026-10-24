@@ -41,6 +41,7 @@
       "language": "sprog oversættelse landestandard",
       "theme": "mørk tilstand lys tilstand farver tema",
       "contrast": "tilgængelighed høj kontrast",
+      "desktopLinks": "electron windows mac faner åbn links skrivebordsapp",
       "notifications": "push e-mail beskeder notifikationer",
       "watchedPages": "følg abonnér hold øje",
       "offlineDevice": "offline download cache plads",
@@ -1119,6 +1120,20 @@
       "note": "Høj kontrast gør sekundær tekst, linjer og fokusrammer kraftigere i begge temaer. Denne indstilling gælder kun for denne browser. Med systemindstillingen følger den din enheds indstilling for øget kontrast."
     }
   },
+  "desktopLinks": {
+    "heading": "Skrivebordsapp",
+    "label": "Åbn links i skrivebordsappen",
+    "note": "Når du åbner en Leafdesk-side i en browser på en computer med skrivebordsappen, kan den fortsætte i appen, i sin egen fane. Inde i appen ændres intet.",
+    "off": "Fra",
+    "ask": "Tilbyd at åbne dem",
+    "always": "Åbn dem altid",
+    "banner": {
+      "text": "Vil du åbne denne side i skrivebordsappen?",
+      "open": "Åbn i appen",
+      "always": "Altid",
+      "dismiss": "Luk"
+    }
+  },
   "language": {
     "heading": "Sprog",
     "label": "Grænsefladesprog",
@@ -1863,6 +1878,11 @@
       "sensitive_content": {
         "found": "Fandt {kind} ({excerpt}) på {target}",
         "dismissed": "Afviste {kind} ({excerpt}) fundet på {target}"
+      },
+      "github_sync": {
+        "created": "Satte pull requests fra GitHub op i {target}",
+        "updated": "Ændrede GitHub-opsætningen for {target}",
+        "deleted": "Fjernede GitHub-opsætningen for {target}"
       }
     },
     "decisions": {

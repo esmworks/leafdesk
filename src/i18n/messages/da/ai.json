@@ -34,7 +34,27 @@
     "stopped": "Stoppet. Du kan stadig beholde det, der er skrevet indtil nu.",
     "applyFailed": "Forslaget kunne ikke føjes til siden.",
     "asSuggestions": "Tilføj som foreslåede ændringer",
-    "selectionChanged": "Den markerede tekst er ændret i mellemtiden, så forslaget blev tilføjet under den."
+    "selectionChanged": "Den markerede tekst er ændret i mellemtiden, så forslaget blev tilføjet under den.",
+    "saved": {
+      "title": "Gemte prompts",
+      "empty": "Gem en instruktion, du bruger tit, med bogmærket ved siden af Send. Instruktioner til hele teamet er <skills>færdigheder</skills>.",
+      "saveInstruction": "Gem prompt",
+      "name": "Navn",
+      "namePlaceholder": "Giv denne prompt et navn",
+      "save": "Gem",
+      "cancel": "Annuller",
+      "rename": "Nyt navn",
+      "renameNamed": "Omdøb {name}",
+      "deleteNamed": "Slet {name}",
+      "errors": {
+        "emptyName": "Giv prompten et navn.",
+        "emptyPrompt": "Der er ingen instruktion at gemme.",
+        "nameTooLong": "Navne kan højst være på {max} tegn.",
+        "promptTooLong": "Prompts kan højst være på {max} tegn.",
+        "full": "Du kan højst have {max} gemte prompts. Slet en for at gemme en ny.",
+        "notFound": "Denne gemte prompt findes ikke længere."
+      }
+    }
   },
   "errors": {
     "disabled": "AI er ikke tilgængelig i dette arbejdsområde.",

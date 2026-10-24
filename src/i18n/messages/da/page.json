@@ -1178,7 +1178,8 @@
       "invalidTarget": "Linket, der skal åbnes, er ikke gyldigt.",
       "buttonGone": "Knappen blev fjernet fra siden.",
       "error": "Noget gik galt.",
-      "step": "Trin {step} ({type}) kørte ikke: {reason}"
+      "step": "Trin {step} ({type}) kørte ikke: {reason}",
+      "templateGone": "Rækkeskabelonen findes ikke længere."
     }
   },
   "imageCrop": {

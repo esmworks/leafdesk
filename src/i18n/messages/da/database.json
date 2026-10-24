@@ -550,7 +550,9 @@
     "parentOptionToggle": "Tilbyd “{option}”, når “{parent}” er “{value}”",
     "sortOptionsAsc": "Sortér A → Å",
     "sortOptionsDesc": "Sortér Å → A",
-    "dragOption": "Træk for at flytte {name}"
+    "dragOption": "Træk for at flytte {name}",
+    "urlPreview": "Vis som linkforhåndsvisning",
+    "urlPreviewHint": "Rækkesider viser den linkede sides ikon, titel og billede under linket."
   },
   "rowProperties": {
     "noProperties": "Ingen egenskaber",
@@ -971,7 +973,8 @@
     "sprintsDatabase": "Denne database indeholder sprints for en anden database: slå sprints til eller fra dér.",
     "noCurrentSprint": "Ingen sprint er aktuel. Markér først én sprint som aktuel.",
     "invalidSprints": "Sprints kan ikke sættes op sådan: tjek sprintlængden, den første dag og sprintdatabasen.",
-    "sprintStateOption": "Denne mulighed markerer en sprints tilstand. Omdøb den, hvis du vil, eller slå sprints fra, før du sletter den."
+    "sprintStateOption": "Denne mulighed markerer en sprints tilstand. Omdøb den, hvis du vil, eller slå sprints fra, før du sletter den.",
+    "invalidSlackUrl": "Ikke en adresse til en indgående Slack-webhook (https://hooks.slack.com/services/…)."
   },
   "formula": {
     "title": "Formel",
@@ -1272,7 +1275,8 @@
         "log": "Skriv i kørselshistorikken",
         "celebrate": "Fejr med konfetti",
         "approval": "Bed om godkendelse",
-        "start_sequence": "Start en opfølgning"
+        "start_sequence": "Start en opfølgning",
+        "slack": "Send til Slack"
       },
       "trashHelp": "Flytter rækken til papirkurven, hvorfra den kan gendannes, indtil papirkurven tømmes. Intet kan køre efter denne handling.",
       "addAction": "Tilføj handling",
@@ -1332,7 +1336,8 @@
         "badExample": "Eksempelindholdet er ikke gyldig JSON.",
         "exampleTooLong": "Eksempelindholdet er for langt.",
         "needApprovers": "Vælg, hvem der skal spørges.",
-        "needTimeout": "Angiv et helt antal dage fra 1 til 30."
+        "needTimeout": "Angiv et helt antal dage fra 1 til 30.",
+        "needSlackUrl": "Angiv adressen på den indgående Slack-webhook."
       },
       "agent": "Agent",
       "chooseAgent": "Vælg en agent…",
@@ -1464,7 +1469,8 @@
         "noAddress": "Rækken har ingen e-mailadresse",
         "emailOff": "E-mail på rækker er slået fra",
         "noPerson": "Sprunget over: ingen persons ændring startede denne kørsel",
-        "tooLate": "Sprunget over: for længe efter ændringen til at fejre den"
+        "tooLate": "Sprunget over: for længe efter ændringen til at fejre den",
+        "templateGone": "Rækkeskabelonen findes ikke længere"
       },
       "waitingApproval": "Venter på godkendelse",
       "approval": {
@@ -1566,7 +1572,19 @@
       "logPlaceholder": "For eksempel: Importerede {template}",
       "logHelp": "Skrives i kørselshistorikken med variablerne udfyldt.",
       "celebrateHelp": "Konfetti i appen for den, der foretog ændringen, som startede kørslen, i de vinduer, vedkommende har åbne. Kørsler, som ingen startede (tidsplaner, passerede datoer, indgående webhooks, anonyme formularsvar), springer det over, og det samme gør kørsler, der når hertil mere end to minutter efter ændringen.",
-      "celebrateTry": "Prøv det"
+      "celebrateTry": "Prøv det",
+      "slackUrl": "Indgående Slack-webhook",
+      "slackReplace": "Indsæt en ny adresse for at erstatte den gemte",
+      "slackSaved": "Gemt adresse:",
+      "slackMessage": "Besked",
+      "slackPlaceholder": "For eksempel: Klar til gennemgang: {template}",
+      "slackHelp": "Sender beskeden til den indgående webhooks Slack-kanal med et link til rækken. Slack-formatering (*fed*, _kursiv_) virker. Adressen holdes hemmelig og vises kun forkortet.",
+      "rowTemplate": "Rækkeskabelon",
+      "rowTemplateNone": "Ingen (en tom række)",
+      "rowTemplateDefault": "Databasens standardskabelon",
+      "rowTemplateDefaultNamed": "Standardskabelonen ({name})",
+      "rowTemplateGone": "En skabelon, der ikke længere findes",
+      "rowTemplateHelp": "Rækken starter som en kopi af skabelonen. Værdier, der sættes her, går forud for skabelonens; en tom titel beholder skabelonens."
     },
     "variables": {
       "button": "Indsæt en variabel",
@@ -1851,5 +1869,122 @@
       "allView": "Alle sprints",
       "boardView": "Efter tilstand"
     }
+  },
+  "github": {
+    "menuItem": "Pull requests fra GitHub",
+    "menuHint": "Tilføj links til pull requests, der nævner en række ved dens ID, og flyt rækkens status",
+    "title": "Pull requests fra GitHub",
+    "intro": "En pull request, der nævner en række ved dens ID, som {example}, i sin titel, beskrivelse eller branch, tilføjer sit link til rækken og kan flytte rækkens status.",
+    "needUniqueId": "Tilføj først en ID-egenskab til denne database: pull requests nævner rækker ved deres ID.",
+    "needPrefix": "Giv først ID-egenskaben “{property}” et præfiks, som OPG: pull requests nævner rækker ved det.",
+    "linkProperty": "Tilføj links til pull requests i",
+    "noLinks": "Tilføj ikke links",
+    "newProperty": "Ny tekstegenskab…",
+    "newPropertyName": "Pull requests",
+    "newPropertyLabel": "Navn på den nye egenskab",
+    "linkHelp": "En tekstegenskab beholder alle pull requests, én pr. linje; en URL-egenskab beholder den seneste.",
+    "statusProperty": "Flyt status i",
+    "noStatus": "Ændr ikke status",
+    "noStatusProperty": "Denne database har ingen statusegenskab, så der tilføjes kun links.",
+    "statusOff": "Status forbliver, som den er.",
+    "statusHelp": "Pull requests, der stadig er kladder, tilføjer deres link, men flytter intet, før de er klar til gennemgang. En række, der allerede har en status i gruppen Fuldført, flyttes kun, når en pull request merges.",
+    "move": {
+      "opened": "Åbnet eller klar til gennemgang",
+      "merged": "Merget",
+      "closed": "Lukket uden merge"
+    },
+    "leave": "Lad den være, som den er",
+    "setUp": "Sæt op",
+    "save": "Gem",
+    "change": "Skift",
+    "whatItDoes": "Hvad den gør",
+    "linksTo": "Tilføjer links til pull requests i “{property}”.",
+    "noLinksSaved": "Tilføjer ingen links.",
+    "movesIn": "Flytter “{property}”: {moves}.",
+    "moves": {
+      "opened": "åbnet til {option}",
+      "merged": "merget til {option}",
+      "closed": "lukket uden merge til {option}"
+    },
+    "noMoves": "Lader status være, som den er.",
+    "inGithub": "I GitHub",
+    "steps": "Åbn Webhooks under repositoriets Settings, vælg Add webhook, udfyld felterne nedenfor, vælg “Let me select individual events”, og markér kun Pull requests.",
+    "payloadUrl": "Payload URL",
+    "secret": "Hemmelighed",
+    "showSecret": "Vis hemmeligheden",
+    "hideSecret": "Skjul hemmeligheden",
+    "secretUnreadable": "Hemmeligheden kan ikke længere læses på denne server. Lav en ny, og giv den til GitHub.",
+    "rotate": "Lav en ny hemmelighed",
+    "rotateConfirm": "Vil du lave en ny hemmelighed? Leveringer, der er signeret med den gamle, afvises, indtil du giver GitHub den nye.",
+    "contentType": "Content type",
+    "events": "Hændelser",
+    "eventsValue": "Pull requests",
+    "deliveries": "Seneste leveringer",
+    "refresh": "Opdatér",
+    "noDeliveries": "Intet er kommet endnu. Når du tilføjer webhooken, sender GitHub et ping, der vises her.",
+    "ping": "Ping fra GitHub",
+    "pingOk": "Webhooken er forbundet.",
+    "otherEvent": "Hændelse {event}",
+    "handling": "Behandles…",
+    "ignored": "Intet at gøre for “{action}”.",
+    "noIds": "Nævner ingen række i denne database.",
+    "outcome": {
+      "updated": "opdateret",
+      "unchanged": "allerede opdateret",
+      "notFound": "ikke fundet",
+      "noAccess": "ingen redigeringsadgang",
+      "failed": "mislykkedes"
+    },
+    "deliveryErrors": {
+      "noUniqueId": "Databasen har ikke længere en ID-egenskab med præfiks.",
+      "runAsGone": "Den person, den kører som, findes ikke længere. Gem opsætningen igen.",
+      "accessLost": "Den person, den kører som, kan ikke længere redigere denne database. Gem opsætningen igen.",
+      "inTrash": "Databasen ligger i papirkurven.",
+      "failed": "Noget gik galt under behandlingen."
+    },
+    "runsAs": "Ændringer foretages som {name}, der gemte den sidst.",
+    "runsAsGone": "Den person, den kørte som, findes ikke længere: gem den igen for at køre som dig.",
+    "remove": "Fjern",
+    "removeConfirm": "Vil du fjerne GitHub-opsætningen? Leveringer fra GitHub afvises derefter; links, der allerede er tilføjet, forbliver.",
+    "errors": {
+      "noUniqueId": "Tilføj først en ID-egenskab med præfiks til denne database.",
+      "invalidProperty": "Vælg en tekst- eller URL-egenskab til linkene, en statusegenskab og dens muligheder.",
+      "notSetUp": "Denne database har ingen GitHub-opsætning."
+    }
+  },
+  "slack": {
+    "menuItem": "Slack-notifikationer",
+    "menuHint": "Send til en Slack-kanal, når en række tilføjes, eller en egenskab ændres",
+    "title": "Slack-notifikationer",
+    "intro": "Sender til en Slack-kanal, når en række tilføjes, eller en egenskab ændres. Det gemmes som en automatisering, du kan ændre senere.",
+    "url": "Indgående Slack-webhook",
+    "urlHelp": "Tilføj appen Incoming WebHooks til kanalen i Slack, og kopiér dens webhook-URL. Den holdes hemmelig og vises kun forkortet.",
+    "when": "Når",
+    "rowAdded": "En række tilføjes",
+    "propertyChanges": "{property} ændres",
+    "to": "Til",
+    "anyValue": "En hvilken som helst værdi",
+    "checked": "Markeret",
+    "unchecked": "Ikke markeret",
+    "message": "Besked",
+    "messageHelp": "Variabler i dobbelte krøllede parenteser udfyldes fra rækken. Et link til rækken tilføjes til sidst.",
+    "defaultAdded": "{actor} tilføjede en række til {database}",
+    "defaultChanged": "{actor} ændrede {property} til {value}",
+    "nameAdded": "Slack: nye rækker",
+    "nameChanged": "Slack: {property} ændret",
+    "nameChangedTo": "Slack: {property} er {value}",
+    "create": "Opret",
+    "created": "Automatiseringen “{name}” blev oprettet.",
+    "existing": "Automatiseringer, der sender til Slack",
+    "existingHelp": "Skift dem, eller slå dem fra, i databasens automatiseringer.",
+    "off": "fra"
+  },
+  "templateValues": {
+    "me": "Mig",
+    "today": "I dag",
+    "now": "Nu",
+    "hint": "Udfyldes, når en række tilføjes fra denne skabelon",
+    "dateWhen": "Sættes, når en række tilføjes",
+    "meOption": "Den, der tilføjer rækken"
   }
 }
