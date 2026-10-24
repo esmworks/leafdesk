@@ -62,10 +62,10 @@ describe("translations", () => {
 
   it("negotiates the language from Accept-Language", () => {
     expect(negotiateLocale("tr-TR,tr;q=0.9,en;q=0.8")).toBe("tr");
-    expect(negotiateLocale("nl-NL,de;q=0.9,tr;q=0.5")).toBe("de");
+    expect(negotiateLocale("is-IS,de;q=0.9,tr;q=0.5")).toBe("de");
     expect(negotiateLocale("fr-CA")).toBe("fr");
     expect(negotiateLocale("es-419,es;q=0.9")).toBe("es");
-    expect(negotiateLocale("nl-NL")).toBe("en");
+    expect(negotiateLocale("is-IS")).toBe("en");
     expect(negotiateLocale("pt-BR")).toBe("pt");
     expect(negotiateLocale("zh-CN,zh;q=0.9")).toBe("zh");
     expect(negotiateLocale(null)).toBe("en");

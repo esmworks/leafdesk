@@ -30,7 +30,7 @@ after you approve them over OAuth.
 - **Ready for a team**: teamspaces, page permissions, guests, single sign-on (OIDC, SAML), SCIM,
   two-step verification, passkeys and an audit log.
 - **Yours to run**: one `docker compose up` on your own server, data in your PostgreSQL,
-  AGPL-3.0 licensed, in 19 languages.
+  AGPL-3.0 licensed, in 24 languages.
 - **Or on your computer**: the desktop app for macOS, Windows and Linux runs Leafdesk on its own,
   with no server to set up, and backs your workspace up every day; it connects to a server too.
 
@@ -830,7 +830,7 @@ for Windows, `.AppImage` for Linux) and choose *On this computer*. See [Desktop 
   kept as pages or database rows and marked *Use as skill*; picked with `/` in the AI chat, offered
   to MCP clients as prompts and tools, listed in the workspace's skills library and exported as
   `SKILL.md` (see [Skills](#skills)).
-- **19 interface languages**: English, Turkish, German, Spanish, French, Italian, Portuguese, Polish, Russian, Ukrainian, Arabic, Hebrew, Persian, Japanese, Korean, Chinese, Indonesian, Thai and Vietnamese, chosen in My account or taken from the
+- **24 interface languages**: English, Turkish, German, Spanish, French, Italian, Portuguese, Polish, Russian, Ukrainian, Arabic, Hebrew, Persian, Japanese, Korean, Chinese, Indonesian, Thai, Vietnamese, Danish, Dutch, Norwegian, Finnish and Swedish, chosen in My account or taken from the
   browser; Arabic, Hebrew and Persian lay the app out right to left (see [Languages](#languages)).
 - **Light and dark themes**: following the system, or chosen for the browser in Preferences, each
   with a high contrast option (stronger secondary text, lines and focus) that also follows the
@@ -4002,8 +4002,9 @@ workspace storage checks, which need an S3 server) are run by hand.
 The interface is available in English, Turkish (Türkçe), German (Deutsch), Spanish (Español),
 French (Français), Italian (Italiano), Brazilian Portuguese (Português), Polish (Polski), Russian
 (Русский), Ukrainian (Українська), Arabic (العربية), Hebrew (עברית), Persian (فارسی), Japanese
-(日本語), Korean (한국어), Simplified Chinese (简体中文), Indonesian (Bahasa Indonesia), Thai (ไทย)
-and Vietnamese (Tiếng Việt). Arabic, Hebrew and Persian run right to
+(日本語), Korean (한국어), Simplified Chinese (简体中文), Indonesian (Bahasa Indonesia), Thai (ไทย),
+Vietnamese (Tiếng Việt), Danish (Dansk), Dutch (Nederlands), Norwegian Bokmål (Norsk bokmål), Finnish
+(Suomi) and Swedish (Svenska); a browser asking for Norwegian or Nynorsk gets Bokmål. Arabic, Hebrew and Persian run right to
 left: the sidebar, menus and panels mirror, and emails follow. In every language each paragraph of
 a page follows the direction of its own text, and its alignment runs with it: a right-to-left
 paragraph starts on the right without being aligned, and the align buttons put it on the side they
@@ -4016,7 +4017,8 @@ and numbers are formatted for the language. Emails go out in the recipient's lan
 last picked in My account → Language, else their browser's when they first signed in, stored with
 their account (signing in on another device doesn't trade a picked language for that browser's). Until they have signed in once since, and for invitations to addresses without
 an account, emails use the language of whoever caused them. The editor's own menus use [BlockNote](https://www.blocknotejs.org)'s dictionaries, except
-Turkish, Indonesian and Thai, which are ours (`src/i18n/blocknote/tr.ts`, `id.ts`, `th.ts`), and Hebrew, where `src/i18n/blocknote/locales/he.ts`
+Turkish, Indonesian, Thai, Danish, Finnish and Swedish, which are ours (`src/i18n/blocknote/tr.ts`, `id.ts`, `th.ts`, `da.ts`,
+`fi.ts`, `sv.ts`), and Hebrew, where `src/i18n/blocknote/locales/he.ts`
 corrects the wording for resolving a comment thread. The editor downloads only the dictionary of the
 language in use.
 
