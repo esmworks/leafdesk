@@ -4,7 +4,8 @@
 /**
  * Question words and fillers that would match almost any page, in the interface's languages (words
  * shorter than three letters are left out anyway). Words that mean something in another of them
- * are kept out: Spanish and Portuguese "para" is Turkish for money, Indonesian "ada" its island.
+ * are kept out: Spanish and Portuguese "para" is Turkish for money, Indonesian "ada" its island,
+ * Danish "kan" its blood, Dutch "van" a city.
  */
 const STOPWORDS = new Set(
   (
@@ -31,6 +32,12 @@ const STOPWORDS = new Set(
     // index: a Thai question is searched as one word)
     "apa apakah bagaimana berapa bisa dengan dimana yang ini itu tidak siapa mengapa kenapa dalam pada kami kita anda adalah sudah juga atau untuk " +
     "những được không nào đâu của này các cho với trong thế sao bao nhiêu khi tôi bạn chúng " +
+    // Danish, Norwegian, Swedish, Dutch, Finnish
+    "hvad hvem hvor hvordan hvorfor hvilken hvilke hvilket hvornår også eller ikke med fra har det skal vil " +
+    "hva når " +
+    "vad vem hur varför vilken vilka vilket när också inte från för ska vill " +
+    "wat wie waar hoe waarom welke welk wanneer ook het een met voor niet zijn heeft hebben dat deze dit naar bij " +
+    "mikä mitä missä miten miksi milloin kuka ketkä mihin onko ovat oli että tämä nämä myös sekä kanssa " +
     // Korean, as cut by koreanStem: 어디에 → 어디, 있어요 → 있어.
     "어디 무엇 언제 누가 누구 어떻 어떤 어느 무슨 있어 있나 있는 있습 없어 없나 입니 합니 해요 하는 그리 이거 그거 저거"
   ).split(" "),

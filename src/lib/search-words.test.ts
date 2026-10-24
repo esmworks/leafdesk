@@ -22,6 +22,10 @@ describe("any-word search terms", () => {
     expect(anyWordTerms("para transferi")).toEqual(["para", "trans"]);
     expect(anyWordTerms("Di mana tagihan untuk bulan Oktober?")).toEqual(["mana", "tagih", "bulan", "Oktob"]);
     expect(anyWordTerms("Hóa đơn tháng mười ở đâu?")).toEqual(["Hóa", "đơn", "tháng", "mười"]);
+    expect(anyWordTerms("Hvor er fakturaen for oktober?")).toEqual(["faktu", "oktob"]);
+    expect(anyWordTerms("Var är fakturan för oktober?")).toEqual(["faktu", "oktob"]);
+    expect(anyWordTerms("Waar is de factuur voor oktober?")).toEqual(["factu", "oktob"]);
+    expect(anyWordTerms("Missä on lokakuun lasku?")).toEqual(["lokak", "lasku"]);
   });
 
   it("lets nothing but letters and digits through, each word once", () => {

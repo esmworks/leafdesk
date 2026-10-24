@@ -149,6 +149,35 @@ describe("parseQuickAdd: other languages", () => {
     expect(vi("Báo cáo tuần sau").date).toBe("2026-10-12");
   });
 
+  it("reads Danish, Norwegian, Swedish, Dutch and Finnish", () => {
+    const da = (text: string) => parse(text, { locale: "da" });
+    expect(da("Rapport på fredag")).toMatchObject({ title: "Rapport", date: "2026-10-16" });
+    expect(da("Rapport i morgen").date).toBe("2026-10-11");
+    expect(da("Rapport om 3 dage").date).toBe("2026-10-13");
+    expect(da("Rapport næste uge").date).toBe("2026-10-12");
+    expect(da("Skat 15. oktober").date).toBe("2026-10-15");
+    const nb = (text: string) => parse(text, { locale: "nb" });
+    expect(nb("Rapport fredag")).toMatchObject({ title: "Rapport", date: "2026-10-16" });
+    expect(nb("Rapport om 2 uker").date).toBe("2026-10-24");
+    expect(nb("Rapport neste måned").date).toBe("2026-11-01");
+    const sv = (text: string) => parse(text, { locale: "sv" });
+    expect(sv("Rapport på fredag")).toMatchObject({ title: "Rapport", date: "2026-10-16" });
+    expect(sv("Rapport imorgon").date).toBe("2026-10-11");
+    expect(sv("Rapport om 3 dagar").date).toBe("2026-10-13");
+    expect(sv("Rapport nästa vecka").date).toBe("2026-10-12");
+    const nl = (text: string) => parse(text, { locale: "nl" });
+    expect(nl("Rapport vrijdag")).toMatchObject({ title: "Rapport", date: "2026-10-16" });
+    expect(nl("Rapport over 2 weken").date).toBe("2026-10-24");
+    expect(nl("Rapport volgende week").date).toBe("2026-10-12");
+    expect(nl("Belasting 15 oktober").date).toBe("2026-10-15");
+    const fi = (text: string) => parse(text, { locale: "fi" });
+    expect(fi("Raportti perjantaina")).toMatchObject({ title: "Raportti", date: "2026-10-16" });
+    expect(fi("Raportti huomenna").date).toBe("2026-10-11");
+    expect(fi("Raportti 3 päivän päästä").date).toBe("2026-10-13");
+    expect(fi("Raportti ensi viikolla").date).toBe("2026-10-12");
+    expect(fi("Verot 15. lokakuuta").date).toBe("2026-10-15");
+  });
+
   it("reads Arabic, Hebrew and Persian, with their digits and spellings", () => {
     const ar = (text: string) => parse(text, { locale: "ar" });
     expect(ar("تقرير يوم الجمعة")).toMatchObject({ title: "تقرير", date: "2026-10-16" });
