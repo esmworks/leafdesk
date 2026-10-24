@@ -7,7 +7,8 @@ import { AccessError, requirePageAccess } from "@/server/access";
 import { fetchLinkPreview, LinkPreviewError } from "@/server/link-preview";
 import { requireUserId } from "@/server/session";
 
-export type LinkPreviewResult = { ok: true; data: BookmarkProps } | { ok: false; error: string };
+/** A bookmark's details; the card keeps the width it has. */
+export type LinkPreviewResult = { ok: true; data: Omit<BookmarkProps, "width"> } | { ok: false; error: string };
 
 /**
  * Fetches are made by this server on a user's behalf, so each user gets a budget: enough for

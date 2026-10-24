@@ -2,7 +2,7 @@ import { and, asc, countDistinct, desc, eq, inArray, isNull, lte, ne, notInArray
 import { db } from "@/db";
 import { page, pageLink, pageMention, pagePublication, pageReminder, user, type PageKind } from "@/db/schema";
 import { findTitle, excerpt, linkContexts, linkPlaces, linkTitle, MIN_MENTION_TITLE, type Excerpt, type LinkPlace } from "@/lib/link-context";
-import { bodyReferences, fencedLines, MARKDOWN_PAGE_LINK, markdownPageIds } from "@/lib/mentions";
+import { bodyReferences, fencedLines, MARKDOWN_PAGE_LINK, markdownPageIds, type MentionPerson } from "@/lib/mentions";
 import { searchFold } from "@/lib/search-fold";
 import { searchQueryParts } from "@/lib/search-words";
 import { titleKey } from "@/lib/wikilinks";
@@ -25,6 +25,8 @@ import { searchFoldSql } from "@/server/search-fold-sql";
 import { pageRecipients, recordMentions, recordReminder, withdrawMentions } from "@/server/notifications";
 import { followOnTakingPart } from "@/server/row-follow";
 import { workspacePeople } from "@/server/workspaces";
+import { groupMembersOf, groupNames, mentionableGroups, type GroupCandidate } from "@/server/groups";
+import { groupMentionTargets } from "@/lib/group-mentions";
 import { mentionableAgents, type AgentCandidate } from "@/server/agents/mentions";
 import { avatarSrc } from "@/lib/avatar";
 import { startSweep } from "@/server/sweep";
@@ -59,7 +61,7 @@ export async function syncPageReferences(
   try {
     const refs = bodyReferences(blocks);
     await syncLinks(pageId, refs.pageIds, blocks);
-    await syncMentions(pageId, workspaceId, refs.people, actorId, locale);
+    await syncMentions(pageId, workspaceId, refs.people, refs.groups, actorId, locale);
     await syncReminders(pageId, refs.reminders, actorId);
     await syncSyncedReferences(pageId, blocks);
   } catch (error) {
@@ -146,7 +148,8 @@ export function startLinkPlacesBackfill() {
 async function syncMentions(
   pageId: string,
   workspaceId: string,
-  people: { key: string; userId: string }[],
+  persons: { key: string; userId: string }[],
+  groups: { key: string; groupId: string }[],
   actorId: string | null,
   locale: string | null,
 ) {
@@ -155,6 +158,9 @@ async function syncMentions(
     .from(pageMention)
     .where(eq(pageMention.pageId, pageId));
   const seenIds = new Set(seen.map((r) => r.mentionId));
+  // Each member a group mention reaches counts as a mention of them (server/groups groupMembersOf).
+  const members = groups.length ? await groupMembersOf(workspaceId, groups.map((g) => g.groupId)) : new Map<string, string[]>();
+  const people: { key: string; userId: string; group?: true }[] = [...persons, ...groupMentionTargets(groups, members, [...seenIds])];
   const current = new Set(people.map((p) => p.key));
 
   // A mention taken out before the person read about it takes its notification with it, and is
@@ -180,8 +186,9 @@ async function syncMentions(
     .values(added.map((p) => ({ pageId, mentionId: p.key, userId: p.userId })))
     .onConflictDoNothing()
     .returning({ mentionId: pageMention.mentionId, userId: pageMention.userId });
-  // Being mentioned on a database row follows it (server/row-follow).
-  await followOnTakingPart(pageId, inserted.map((m) => m.userId));
+  // Being mentioned on a database row follows it (server/row-follow); being in a mentioned group doesn't.
+  const byGroup = new Set(added.filter((p) => p.group).map((p) => p.key));
+  await followOnTakingPart(pageId, inserted.filter((m) => !byGroup.has(m.mentionId)).map((m) => m.userId));
   // Mentioning oneself notifies no one; recordMentions also checks each person can view the page.
   const notify = inserted.filter((m) => m.userId !== actorId);
   if (notify.length) await recordMentions(actorId, workspaceId, pageId, notify, locale);
@@ -588,12 +595,13 @@ async function peopleMatching(userId: string, workspaceId: string, q: string) {
     .map((p) => ({ id: p.id, name: p.name, image: avatarSrc(p.image) }));
 }
 
-/** What the @ menu in a comment offers: people, and agents apart from them. */
-export type CommentMentionCandidates = { people: MentionCandidates["people"]; agents: AgentCandidate[] };
+/** What the @ menu in a comment offers: people, groups, and agents apart from them. */
+export type CommentMentionCandidates = { people: MentionCandidates["people"]; groups: GroupCandidate[]; agents: AgentCandidate[] };
 
 /**
  * What the @ menu in a comment offers: the people mentionCandidates would, but only those who can
- * open the page (the ones a mention reaches, see server/comments), and not the user; and the
+ * open the page (the ones a mention reaches, see server/comments), and not the user; the
+ * workspace's groups (a mention reaches those of their members who can open the page); and the
  * agents shared with the user that may comment on the page, which answer when mentioned (server/agents/mentions). For
  * anyone who may comment on the page; guests get neither, as they don't get the people of the
  * workspace (and their mentions start no runs).
@@ -601,31 +609,38 @@ export type CommentMentionCandidates = { people: MentionCandidates["people"]; ag
 export async function commentMentionCandidates(userId: string, pageId: string, query: string): Promise<CommentMentionCandidates> {
   const target = await requirePageAccess(userId, pageId, "comment");
   const membership = await getMembership(userId, target.workspaceId);
-  if (!membership || isGuest(membership.role)) return { people: [], agents: [] };
+  if (!membership || isGuest(membership.role)) return { people: [], groups: [], agents: [] };
   const q = typeof query === "string" ? searchFold(query.trim().slice(0, 100)) : "";
   // The first matches are enough for the menu; typing narrows them, so the access check stays small.
   const people = (await peopleMatching(userId, target.workspaceId, q)).filter((p) => p.id !== userId).slice(0, 30);
-  const [reach, agents] = await Promise.all([pageRecipients(people.map((p) => p.id), pageId), mentionableAgents(userId, target.workspaceId, pageId, q)]);
+  const [reach, groups, agents] = await Promise.all([
+    pageRecipients(people.map((p) => p.id), pageId),
+    mentionableGroups(target.workspaceId, q),
+    mentionableAgents(userId, target.workspaceId, pageId, q),
+  ]);
   const reached = new Set(reach);
-  return { people: people.filter((p) => reached.has(p.id)).slice(0, 6), agents: agents.slice(0, 4) };
+  return { people: people.filter((p) => reached.has(p.id)).slice(0, 6), groups, agents: agents.slice(0, 4) };
 }
 
 export type PageCandidate = { id: string; title: string; icon: string | null; kind: PageKind };
 
 export type MentionCandidates = {
   people: { id: string; name: string; image: string | null }[];
+  groups: GroupCandidate[];
   pages: PageCandidate[];
 };
 
 /**
- * What the editor's @ and [[ menus offer on a page: people of the workspace (members only: guests
- * don't get to see who is in it) and pages the user can view, matching `query` as lib/search-fold
+ * What the editor's @ and [[ menus offer on a page: people and groups of the workspace (members
+ * only: guests don't get to see who is in it) and pages the user can view, matching `query` as lib/search-fold
  * does (so "ı" and "I" find each other). Archived pages aren't offered (server/page-outdated.ts).
  */
 export async function mentionCandidates(userId: string, pageId: string, query: string): Promise<MentionCandidates> {
   const target = await requirePageAccess(userId, pageId, "edit");
   const q = typeof query === "string" ? searchFold(query.trim().slice(0, 100)) : "";
   const people = (await peopleMatching(userId, target.workspaceId, q)).slice(0, 6);
+  const membership = await getMembership(userId, target.workspaceId);
+  const groups = membership && !isGuest(membership.role) ? await mentionableGroups(target.workspaceId, q) : [];
   const like = `%${q.replace(/[\\%_]/g, (c) => `\\${c}`)}%`;
   const title = searchFoldSql(page.title);
   const pages = await db
@@ -642,7 +657,7 @@ export async function mentionCandidates(userId: string, pageId: string, query: s
     )
     .orderBy(q ? sql`position(${q} in ${title})` : desc(page.updatedAt), desc(page.updatedAt))
     .limit(q ? 8 : 5);
-  return { people, pages };
+  return { people, groups, pages };
 }
 
 /**
@@ -678,11 +693,12 @@ export async function pagesNamed(userId: string, pageId: string, titles: string[
   return found;
 }
 
-/** People Markdown written into a page may mention by name: everyone in its workspace. */
-export async function mentionablePeople(pageId: string) {
+/** Who Markdown written into a page may mention by name: everyone in its workspace, and its groups. */
+export async function mentionablePeople(pageId: string): Promise<MentionPerson[]> {
   const [row] = await db.select({ workspaceId: page.workspaceId }).from(page).where(eq(page.id, pageId)).limit(1);
   if (!row) return [];
-  return (await workspacePeople(row.workspaceId)).map((p) => ({ id: p.id, name: p.name }));
+  const [people, groups] = await Promise.all([workspacePeople(row.workspaceId), groupNames(row.workspaceId)]);
+  return [...people.map((p) => ({ id: p.id, name: p.name })), ...groups.map((g) => ({ id: g.id, name: g.name, group: true }))];
 }
 
 // ---------------------------------------------------------------------------------------------

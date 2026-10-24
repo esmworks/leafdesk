@@ -127,7 +127,7 @@ function cleanInline(node: unknown): Inline[] {
     const href = safeHref(node.href);
     return href ? [{ type: "link", href, content }] : content;
   }
-  // A person mentioned keeps their name as text (see commentMentions).
+  // A person (or group) mentioned keeps their name as text (see commentMentions).
   if (isRecord(node) && node.type === "mention" && isRecord(node.props) && typeof node.props.name === "string" && node.props.name) {
     return [{ type: "text", text: `@${node.props.name}`, styles: {} }];
   }
@@ -186,14 +186,14 @@ export function threadParticipants(thread: Pick<PlainThread, "comments">, author
 /**
  * A comment body as the comment box sends it, with page and date mentions turned into the text they
  * show: the page's title (`pageTitle`, nothing when unknown) or the date. Comments keep only people
- * mentioned (cleanCommentBody), and a mention pasted from a page would otherwise leave nothing.
+ * and groups mentioned (cleanCommentBody), and a mention pasted from a page would otherwise leave nothing.
  */
 export function mentionsAsText(body: unknown, pageTitle: (pageId: string) => string | null): unknown {
   if (!Array.isArray(body)) return body;
   return body.map((block) => {
     if (!isRecord(block) || !Array.isArray(block.content)) return block;
     const content = block.content.flatMap((node: unknown) => {
-      if (!isRecord(node) || node.type !== "mention" || !isRecord(node.props) || node.props.kind === "user") return [node];
+      if (!isRecord(node) || node.type !== "mention" || !isRecord(node.props) || node.props.kind === "user" || node.props.kind === "group") return [node];
       const { kind, pageId, date } = node.props;
       if (kind === "link") {
         // A link mention is a link with its title (lib/link-mentions linkMentionTitle).
@@ -213,14 +213,26 @@ export function mentionsAsText(body: unknown, pageTitle: (pageId: string) => str
  * cleaned: the stored body keeps only their names as text.
  */
 export function commentMentions(body: unknown): string[] {
+  return mentionedIds(body, "user", "userId");
+}
+
+/**
+ * The groups a comment's body mentions (kind "group"), before it is cleaned. The server tells their
+ * members who can open the page, as if each were mentioned (server/comments).
+ */
+export function commentGroupMentions(body: unknown): string[] {
+  return mentionedIds(body, "group", "groupId");
+}
+
+function mentionedIds(body: unknown, kind: "user" | "group", key: "userId" | "groupId"): string[] {
   const found = new Set<string>();
   if (!Array.isArray(body)) return [];
   for (const block of body) {
     if (!isRecord(block) || !Array.isArray(block.content)) continue;
     for (const node of block.content) {
-      if (!isRecord(node) || node.type !== "mention" || !isRecord(node.props)) continue;
-      const { kind, userId } = node.props;
-      if (kind === "user" && typeof userId === "string" && userId && userId.length <= 100) found.add(userId);
+      if (!isRecord(node) || node.type !== "mention" || !isRecord(node.props) || node.props.kind !== kind) continue;
+      const id = node.props[key];
+      if (typeof id === "string" && id && id.length <= 100) found.add(id);
     }
   }
   return [...found];

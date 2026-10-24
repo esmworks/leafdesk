@@ -475,7 +475,10 @@
     },
     "code": {
       "language": "Linguagem",
-      "plainText": "Texto simples"
+      "plainText": "Texto simples",
+      "format": "Formatar código",
+      "formatSyntaxError": "O código não foi formatado: há um erro de sintaxe na linha {line}.",
+      "formatFailed": "Não foi possível formatar o código."
     },
     "math": {
       "title": "Equação",
@@ -585,6 +588,7 @@
       "submit": "Criar marcador",
       "loading": "Buscando a página…",
       "refresh": "Atualizar prévia",
+      "resize": "Arraste para mudar a largura do cartão",
       "label": "Marcador"
     },
     "embed": {
@@ -625,6 +629,8 @@
   "mention": {
     "people": "Pessoas",
     "agents": "Agentes",
+    "groups": "Grupos",
+    "groupMembers": "{count, plural, =0 {Sem membros} one {# membro} other {# membros}}",
     "pages": "Páginas",
     "dates": "Datas",
     "newPage": "Nova página: {title}",
@@ -649,6 +655,12 @@
     "reminderHint": "Você vai recebê-lo na caixa de entrada e por e-mail.",
     "reminderPast": "Esse horário já passou; escolha uma data ou um lembrete mais tarde.",
     "done": "Concluído"
+  },
+  "preview": {
+    "editedBy": "Editado por {name} {when}",
+    "edited": "Editado {when}",
+    "members": "{count, plural, =0 {Ainda não há ninguém neste grupo} one {# membro} other {# membros}}",
+    "moreMembers": "e mais {count}"
   },
   "pageLinkPicker": {
     "title": "Link para página",

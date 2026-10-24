@@ -475,7 +475,10 @@
     },
     "code": {
       "language": "언어",
-      "plainText": "일반 텍스트"
+      "plainText": "일반 텍스트",
+      "format": "코드 서식 정리",
+      "formatSyntaxError": "코드 서식을 정리하지 못했습니다: {line}번째 줄에 구문 오류가 있습니다.",
+      "formatFailed": "코드 서식을 정리할 수 없습니다."
     },
     "math": {
       "title": "수식",
@@ -585,6 +588,7 @@
       "submit": "북마크",
       "loading": "페이지를 가져오는 중…",
       "refresh": "미리보기 새로고침",
+      "resize": "드래그하여 카드 너비 변경",
       "label": "북마크"
     },
     "embed": {
@@ -625,6 +629,8 @@
   "mention": {
     "people": "사람",
     "agents": "에이전트",
+    "groups": "그룹",
+    "groupMembers": "{count, plural, =0 {구성원 없음} other {구성원 #명}}",
     "pages": "페이지",
     "dates": "날짜",
     "newPage": "새 페이지: {title}",
@@ -649,6 +655,12 @@
     "reminderHint": "수신함과 이메일로 받게 됩니다.",
     "reminderPast": "이미 지난 시간입니다. 더 늦은 날짜나 리마인더를 선택하세요.",
     "done": "완료"
+  },
+  "preview": {
+    "editedBy": "{name}님이 {when} 편집함",
+    "edited": "{when} 편집됨",
+    "members": "{count, plural, =0 {아직 이 그룹에 아무도 없습니다} other {구성원 #명}}",
+    "moreMembers": "외 {count}명"
   },
   "pageLinkPicker": {
     "title": "페이지 링크",

@@ -18,11 +18,11 @@ import { useTranslations } from "next-intl";
 import { createContext, forwardRef, useCallback, useContext, useMemo, useRef, type ReactNode } from "react";
 import { commentMentionCandidatesAction } from "@/app/actions/mentions";
 import { searchFold } from "@/lib/search-fold";
-import { agentItem, mentionInlineSpecs, personItem } from "./mentions";
+import { agentItem, groupItem, mentionInlineSpecs, personItem } from "./mentions";
 
 // Comments keep the default comment editor's blocks and styles (no colors), and add mentions of
-// people and agents: the server notifies the people, starts the agents (server/comments) and
-// stores their names as text.
+// people, groups and agents: the server notifies the people (and the groups' members), starts the
+// agents (server/comments) and stores their names as text.
 const { textColor: _textColor, backgroundColor: _backgroundColor, ...commentStyleSpecs } = defaultStyleSpecs;
 
 export const commentEditorSchema = BlockNoteSchema.create({
@@ -83,12 +83,12 @@ function CommentFormattingToolbar() {
   return <FormattingToolbar blockTypeSelectItems={[]}>{items}</FormattingToolbar>;
 }
 
-/** `@` in a comment: the people who can open the page, then the agents that may answer there. */
+/** `@` in a comment: the people who can open the page, the workspace's groups, then the agents that may answer there. */
 function CommentMentionMenu({ pageId }: { pageId: string }) {
   const editor = useBlockNoteEditor<typeof commentEditorSchema.blockSchema, typeof commentEditorSchema.inlineContentSchema>();
   const t = useTranslations("page.mention");
   // The last answer, so typing doesn't flash an empty menu while the next one loads.
-  const last = useRef<Awaited<ReturnType<typeof commentMentionCandidatesAction>>>({ people: [], agents: [] });
+  const last = useRef<Awaited<ReturnType<typeof commentMentionCandidatesAction>>>({ people: [], groups: [], agents: [] });
   const getItems = useCallback(
     async (query: string): Promise<DefaultReactSuggestionItem[]> => {
       let found = last.current;
@@ -98,9 +98,17 @@ function CommentMentionMenu({ pageId }: { pageId: string }) {
         // Keep the last answer, but only the people and agents who still match.
         const q = searchFold(query.trim());
         const matches = (name: string) => !q || searchFold(name).includes(q);
-        found = { people: found.people.filter((p) => matches(p.name)), agents: found.agents.filter((a) => matches(a.name)) };
+        found = {
+          people: found.people.filter((p) => matches(p.name)),
+          groups: found.groups.filter((g) => matches(g.name)),
+          agents: found.agents.filter((a) => matches(a.name)),
+        };
       }
-      return [...found.people.map((p) => personItem(editor, p, t("people"))), ...found.agents.map((a) => agentItem(editor, a, t("agents")))];
+      return [
+        ...found.people.map((p) => personItem(editor, p, t("people"))),
+        ...found.groups.map((g) => groupItem(editor, g, t("groups"), (count) => t("groupMembers", { count }))),
+        ...found.agents.map((a) => agentItem(editor, a, t("agents"))),
+      ];
     },
     [editor, pageId, t],
   );

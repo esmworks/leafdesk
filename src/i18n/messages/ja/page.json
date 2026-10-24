@@ -475,7 +475,10 @@
     },
     "code": {
       "language": "言語",
-      "plainText": "プレーンテキスト"
+      "plainText": "プレーンテキスト",
+      "format": "コードを整形",
+      "formatSyntaxError": "コードを整形できませんでした: {line} 行目に構文エラーがあります。",
+      "formatFailed": "コードを整形できませんでした。"
     },
     "math": {
       "title": "数式ブロック",
@@ -585,6 +588,7 @@
       "submit": "ブックマーク",
       "loading": "ページを取得中…",
       "refresh": "プレビューを更新",
+      "resize": "ドラッグしてカードの幅を変更",
       "label": "ブックマーク"
     },
     "embed": {
@@ -625,6 +629,8 @@
   "mention": {
     "people": "ユーザー",
     "agents": "エージェント",
+    "groups": "グループ",
+    "groupMembers": "{count, plural, =0 {メンバーなし} other {#人のメンバー}}",
     "pages": "ページ",
     "dates": "日付",
     "newPage": "新しいページ：{title}",
@@ -649,6 +655,12 @@
     "reminderHint": "受信トレイとメールに届きます。",
     "reminderPast": "その時刻は過ぎています。後の日付またはリマインダーを選択してください。",
     "done": "完了"
+  },
+  "preview": {
+    "editedBy": "{name} が{when}に編集",
+    "edited": "{when}に編集",
+    "members": "{count, plural, =0 {このグループにはまだ誰もいません} other {#人のメンバー}}",
+    "moreMembers": "ほか{count}人"
   },
   "pageLinkPicker": {
     "title": "ページへのリンク",

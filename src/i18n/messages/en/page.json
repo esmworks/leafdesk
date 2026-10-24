@@ -475,7 +475,10 @@
     },
     "code": {
       "language": "Language",
-      "plainText": "Plain text"
+      "plainText": "Plain text",
+      "format": "Format code",
+      "formatSyntaxError": "The code wasn't formatted: there's a syntax error on line {line}.",
+      "formatFailed": "The code couldn't be formatted."
     },
     "math": {
       "title": "Equation",
@@ -585,6 +588,7 @@
       "submit": "Bookmark",
       "loading": "Fetching the page…",
       "refresh": "Refresh preview",
+      "resize": "Drag to change the card's width",
       "label": "Bookmark"
     },
     "embed": {
@@ -625,6 +629,8 @@
   "mention": {
     "people": "People",
     "agents": "Agents",
+    "groups": "Groups",
+    "groupMembers": "{count, plural, =0 {No members} one {# member} other {# members}}",
     "pages": "Pages",
     "dates": "Dates",
     "newPage": "New page: {title}",
@@ -649,6 +655,12 @@
     "reminderHint": "You'll get it in your inbox and by email.",
     "reminderPast": "That time has passed; pick a later date or reminder.",
     "done": "Done"
+  },
+  "preview": {
+    "editedBy": "Edited by {name} {when}",
+    "edited": "Edited {when}",
+    "members": "{count, plural, =0 {No one is in this group yet} one {# member} other {# members}}",
+    "moreMembers": "and {count} more"
   },
   "pageLinkPicker": {
     "title": "Link to page",

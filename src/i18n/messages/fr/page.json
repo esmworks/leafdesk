@@ -475,7 +475,10 @@
     },
     "code": {
       "language": "Langage",
-      "plainText": "Texte brut"
+      "plainText": "Texte brut",
+      "format": "Formater le code",
+      "formatSyntaxError": "Le code n’a pas été formaté : erreur de syntaxe à la ligne {line}.",
+      "formatFailed": "Impossible de formater le code."
     },
     "math": {
       "title": "Équation",
@@ -585,6 +588,7 @@
       "submit": "Créer le signet",
       "loading": "Récupération de la page…",
       "refresh": "Actualiser l’aperçu",
+      "resize": "Faites glisser pour changer la largeur de la carte",
       "label": "Signet"
     },
     "embed": {
@@ -625,6 +629,8 @@
   "mention": {
     "people": "Personnes",
     "agents": "Agents",
+    "groups": "Groupes",
+    "groupMembers": "{count, plural, =0 {Aucun membre} one {# membre} other {# membres}}",
     "pages": "Pages",
     "dates": "Dates",
     "newPage": "Nouvelle page : {title}",
@@ -649,6 +655,12 @@
     "reminderHint": "Vous le recevrez dans votre boîte de réception et par e-mail.",
     "reminderPast": "Cette heure est passée ; choisissez une date ou un rappel plus tardif.",
     "done": "Terminé"
+  },
+  "preview": {
+    "editedBy": "Modifié par {name} {when}",
+    "edited": "Modifié {when}",
+    "members": "{count, plural, =0 {Personne dans ce groupe pour l’instant} one {# membre} other {# membres}}",
+    "moreMembers": "et {count} de plus"
   },
   "pageLinkPicker": {
     "title": "Lien vers une page",

@@ -12,8 +12,8 @@ import type { PropertyAccess } from "./property-access-rows";
  * document along: a stored document keeps edit history, comments and ids that belong to the source
  * workspace. Pure: the server loads the blocks and writes the result.
  *
- * - People mentions become their text (`@Name`, as the published page shows them): the person
- *   isn't in the new workspace, and their id stays behind.
+ * - People and group mentions become their text (`@Name`, as the published page shows them): the
+ *   person or group isn't in the new workspace, and their id stays behind.
  * - Date mentions keep their date without a reminder.
  * - Page mentions, "Link to page" blocks and synced pages follow the copied pages; other pages read
  *   as the published page showed them (`outside`: a link to their public address, or plain text).
@@ -59,7 +59,7 @@ function copyInline(items: Json[], refs: CopyRefs): Json[] {
     const node = item as Node;
     if (node.type === MENTION) {
       const props = mentionProps(node.props);
-      if (props.kind === "user") return [textNode(mentionText(props))];
+      if (props.kind === "user" || props.kind === "group") return [textNode(mentionText(props))];
       if (props.kind === "date") return [{ ...node, props: { ...props, remindAt: "" } }];
       if (props.kind === "link") return [node];
       const copy = refs.pageIds.get(props.pageId);

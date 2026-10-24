@@ -475,7 +475,10 @@
     },
     "code": {
       "language": "Dil",
-      "plainText": "Düz metin"
+      "plainText": "Düz metin",
+      "format": "Kodu biçimlendir",
+      "formatSyntaxError": "Kod biçimlendirilmedi: {line}. satırda bir söz dizimi hatası var.",
+      "formatFailed": "Kod biçimlendirilemedi."
     },
     "math": {
       "title": "Denklem",
@@ -585,6 +588,7 @@
       "submit": "Yer imi ekle",
       "loading": "Sayfa getiriliyor…",
       "refresh": "Önizlemeyi yenile",
+      "resize": "Kartın genişliğini değiştirmek için sürükleyin",
       "label": "Yer imi"
     },
     "embed": {
@@ -625,6 +629,8 @@
   "mention": {
     "people": "Kişiler",
     "agents": "Ajanlar",
+    "groups": "Gruplar",
+    "groupMembers": "{count, plural, =0 {Üye yok} other {# üye}}",
     "pages": "Sayfalar",
     "dates": "Tarihler",
     "newPage": "Yeni sayfa: {title}",
@@ -649,6 +655,12 @@
     "reminderHint": "Gelen kutunuza ve e-postanıza gelir.",
     "reminderPast": "Bu zaman geçti; daha ileri bir tarih ya da hatırlatma seçin.",
     "done": "Tamam"
+  },
+  "preview": {
+    "editedBy": "{name} düzenledi, {when}",
+    "edited": "Düzenlendi: {when}",
+    "members": "{count, plural, =0 {Bu grupta henüz kimse yok} other {# üye}}",
+    "moreMembers": "ve {count} kişi daha"
   },
   "pageLinkPicker": {
     "title": "Sayfa bağlantısı",

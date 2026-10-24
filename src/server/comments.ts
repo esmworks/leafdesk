@@ -4,6 +4,7 @@ import { user } from "@/db/schema";
 import {
   cleanCommentBody,
   CommentError,
+  commentGroupMentions,
   commentMentions,
   commentText,
   isReactionEmoji,
@@ -23,6 +24,7 @@ import { recordComment, recordReaction, withdrawComments, withdrawReaction, with
 import { newThreadAudience } from "@/server/page-watch";
 import { followOnTakingPart } from "@/server/row-follow";
 import { forgetThreadMutes, threadMuters, unmuteThread } from "@/server/thread-mute";
+import { groupMembersOf } from "@/server/groups";
 import { forgetThreadStates } from "@/server/thread-state";
 import { workspacePeople } from "@/server/workspaces";
 import { agentMarks, markOf } from "@/server/agents/users";
@@ -121,7 +123,13 @@ export async function changeComments(userId: string, pageId: string, op: Comment
   if (target.archivedAt) throw new CommentError("Pages in the trash can't be commented on", "notAllowed");
   // Mentions are read before cleaning, which keeps only their names. A stored comment holds no
   // mention nodes, so those in an edit are the people it newly mentions.
-  const mentioned = op?.type === "addComment" || op?.type === "createThread" || op?.type === "updateComment" ? commentMentions(op.body) : [];
+  const writes = op?.type === "addComment" || op?.type === "createThread" || op?.type === "updateComment";
+  const people = writes ? commentMentions(op.body) : [];
+  // A group mentioned reaches its members as if each were (only those who can open the page hear
+  // about it, see recordComment); agents answer only when mentioned themselves.
+  const groups = writes ? commentGroupMentions(op.body) : [];
+  const groupMembers = groups.length ? [...(await groupMembersOf(target.workspaceId, groups)).values()].flat() : [];
+  const mentioned = [...new Set([...people, ...groupMembers])];
   const clean = cleanOp(op);
   const role = hasLevel(level, "full") ? "editor" : "comment";
   // A thread on a property value: a new one names its property, others are looked up by id.
@@ -174,7 +182,7 @@ export async function changeComments(userId: string, pageId: string, op: Comment
       pageId,
       threadId: result.thread.id,
       commentId: result.comment.id,
-      mentioned: await hearing(mentioned),
+      mentioned: await hearing(people),
       text: commentText(clean.body),
     }).catch((error) => console.error("[comments] could not start the runs of agents a comment mentions", redactError(error)));
   } else if (clean.type === "updateComment" && mentioned.length) {
