@@ -2,7 +2,8 @@
  * End-to-end check of gallery, list and timeline views against the database: the settings new
  * views start with, config validation, gallery covers in the database snapshot (read from row
  * bodies, only while a gallery shows them, and only for rows the viewer can see), timeline edits
- * writing start and end together, and creating and updating these views over MCP.
+ * writing start and end together, creating and updating these views over MCP, calendars without
+ * weekends and views without page icons (published ones too).
  * Creates its own users and workspace and deletes them afterwards.
  *
  *   pnpm tsx scripts/views-e2e.ts
@@ -155,6 +156,8 @@ try {
     ["show table", { showTable: "yes" }],
     ["end date", { endDateBy: 42 }],
     ["open rows", { openRows: "tab" }],
+    ["show weekends", { showWeekends: 1 }],
+    ["show icons", { showIcons: "no" }],
   ];
   for (const [label, config] of bad) {
     check(
@@ -300,6 +303,28 @@ try {
   check(roadmap?.type === "timeline" && roadmap.show_table === false, "get_database describes timeline settings", roadmap);
   const galleryDescribed = described.data.views.find((v: { id: string }) => v.id === cards.data.id);
   check(galleryDescribed?.open_rows === "page" && !("open_rows" in roadmap), "get_database tells which views open rows as pages", galleryDescribed);
+  const workweek = await callTool(ids.owner, "create_database_view", {
+    database_id: tasks.id,
+    name: "Work week",
+    type: "calendar",
+    show_weekends: false,
+    show_icons: false,
+  });
+  check(
+    !workweek.isError && workweek.data.show_weekends === false && workweek.data.show_icons === false,
+    "MCP creates a calendar without weekends and page icons",
+    workweek.text,
+  );
+  const storedWeek = (await getDatabaseSnapshot(ids.owner, tasks.id)).views.find((v) => v.id === workweek.data.id)!.config;
+  check(storedWeek.showWeekends === false && storedWeek.showIcons === false, "…stored as the view's settings", storedWeek);
+  const weekendsOnGallery = await callTool(ids.owner, "update_database_view", { database_id: tasks.id, view_id: cards.data.id, show_weekends: false });
+  check(weekendsOnGallery.isError && /only applies to calendar/.test(weekendsOnGallery.text), "MCP refuses weekends on a gallery", weekendsOnGallery.text);
+  const iconsBack = await callTool(ids.owner, "update_database_view", { database_id: tasks.id, view_id: workweek.data.id, show_icons: true, show_weekends: true });
+  check(
+    !iconsBack.isError && !("show_icons" in iconsBack.data) && !("show_weekends" in iconsBack.data),
+    "MCP shows weekends and icons again, back to the defaults",
+    iconsBack.text,
+  );
 
   // A published database shows the columns its first view shows, whatever the view's type
   const published = await createPage(actor, { workspaceId, kind: "database", title: "Public list" });
@@ -316,6 +341,20 @@ try {
     "a published list shows only the properties the list shows",
     publicColumns,
   );
+
+  // A published view without page icons sends none
+  const withIcon = await createPage(actor, { workspaceId, parentId: published.id, title: "Starred" });
+  await db.update(page).set({ icon: "⭐" }).where(eq(page.id, withIcon.id));
+  const iconOf = async () => (await getPublishedPage(token))?.database;
+  check((await iconOf())?.rows.find((r) => r.id === withIcon.id)?.icon === "⭐", "a published view shows its rows' icons");
+  await updateView(ids.owner, compact.id, { config: { shown: [when.id], showIcons: false } });
+  const iconless = await iconOf();
+  check(
+    iconless?.noIcons === true && iconless.rows.find((r) => r.id === withIcon.id)?.icon === null,
+    "a published view without page icons leaves them out",
+    iconless?.rows,
+  );
+  await updateView(ids.owner, compact.id, { config: { shown: [when.id] } });
 
   // Moving view tabs
   const tabs = async (id: string) => (await getDatabaseSnapshot(ids.owner, id)).views.map((v) => v.name);

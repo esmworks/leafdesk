@@ -700,6 +700,8 @@
     "addOnDay": "Aggiungi una riga il {date}",
     "noDate": "{count, plural, one {# riga} other {# righe}} senza {property}",
     "noDateTitle": "Righe senza {property}",
+    "weekendRows": "{count, plural, one {# riga} other {# righe}} nel fine settimana",
+    "weekendRowsTitle": "Righe di sabato e domenica",
     "dayRows": "{date}: {count, plural, =0 {nessuna riga} one {# riga} other {# righe}}",
     "emptyDay": "Nessuna riga in questo giorno.",
     "month": "Mese",
@@ -749,6 +751,8 @@
     "groupBy": "Raggruppa per",
     "noGrouping": "Nessuno",
     "showTable": "Mostra tabella",
+    "showWeekends": "Mostra i fine settimana",
+    "showIcons": "Mostra le icone delle pagine",
     "openRows": "Apri le righe in",
     "openRowsIn": {
       "panel": "Pannello laterale",

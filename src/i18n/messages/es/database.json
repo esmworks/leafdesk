@@ -700,6 +700,8 @@
     "addOnDay": "Añadir una fila el {date}",
     "noDate": "{count, plural, one {# fila} other {# filas}} sin {property}",
     "noDateTitle": "Filas sin {property}",
+    "weekendRows": "{count, plural, one {# fila} other {# filas}} en fin de semana",
+    "weekendRowsTitle": "Filas en sábados y domingos",
     "dayRows": "{date}: {count, plural, =0 {sin filas} one {# fila} other {# filas}}",
     "emptyDay": "No hay filas en este día.",
     "month": "Mes",
@@ -749,6 +751,8 @@
     "groupBy": "Agrupar por",
     "noGrouping": "Ninguno",
     "showTable": "Mostrar tabla",
+    "showWeekends": "Mostrar fines de semana",
+    "showIcons": "Mostrar iconos de página",
     "openRows": "Abrir filas en",
     "openRowsIn": {
       "panel": "Panel lateral",

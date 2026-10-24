@@ -369,6 +369,8 @@ export type PublishedDatabase = {
   groups: { property: PublishedProperty; list: { key: string; value: GroupValue; rowIds: string[] }[] } | null;
   /** Galleries. */
   cardSize: CardSize;
+  /** The view shows no page icons: rows come without theirs, and lists leave out the default one. */
+  noIcons?: true;
   /** Charts (layout "chart"). */
   chart?: PublishedChart;
 };
@@ -1105,14 +1107,22 @@ export async function publishedDatabase(
     (prop) => !isHiddenInView(chosen, prop) && !(layout === "board" && prop.id === groups?.property.id),
   );
   const excerpts = layout === "feed" ? await feedExcerpts(viewed.slice(0, PUBLISHED_FEED_EXCERPTS).map((r) => r.id)) : null;
+  // A view showing no page icons publishes none.
+  const icons = chosen.config.showIcons !== false;
   return {
     properties: shown.map(publishedProperty),
     view: { id: chosen.id, name: chosen.name, type: chosen.type },
     views: tabs,
     layout,
-    rows: viewed.map((row) => ({ ...onlyValuesOf(row, shown), ...coverOf(row), ...(excerpts ? { excerpt: excerpts.get(row.id) ?? "" } : {}) })),
+    rows: viewed.map((row) => ({
+      ...onlyValuesOf(row, shown),
+      ...(icons ? {} : { icon: null }),
+      ...coverOf(row),
+      ...(excerpts ? { excerpt: excerpts.get(row.id) ?? "" } : {}),
+    })),
     groups: layout === "board" || layout === "table" ? groups : null,
     cardSize: chosen.config.cardSize ?? "medium",
+    ...(icons ? {} : { noIcons: true as const }),
   };
 }
 

@@ -1051,6 +1051,27 @@ describe("relations and calendars", () => {
     expect(r.data).toMatchObject({ calendar_mode: "week" });
   });
 
+  it("hides weekends on calendars only, and page icons on views with rows", async () => {
+    const views = [
+      { id: "view-c", name: "Agenda", type: "calendar", config: { dateBy: "prop-due" } },
+      { id: "view-g", name: "Cards", type: "gallery", config: { showIcons: false } },
+      { id: "view-f", name: "Ask", type: "form", config: {} },
+    ];
+    databases.getDatabase.mockResolvedValue({ ...database, views });
+    const onGallery = await callTool(writer, "update_database_view", { database_id: "db-1", view_id: "view-g", show_weekends: false });
+    expect(onGallery.text).toMatch(/show_weekends only applies to calendar/);
+    const onForm = await callTool(writer, "update_database_view", { database_id: "db-1", view_id: "view-f", show_icons: false });
+    expect(onForm.text).toMatch(/show_icons only applies to/);
+    const r = await callTool(writer, "update_database_view", { database_id: "db-1", view_id: "view-c", show_weekends: false, show_icons: false });
+    expect(databases.updateView).toHaveBeenLastCalledWith("user-1", "view-c", {
+      config: { dateBy: "prop-due", showWeekends: false, showIcons: false },
+    });
+    expect(r.data).toMatchObject({ show_weekends: false, show_icons: false });
+    // Shown again: the setting goes back to its default rather than being stored.
+    await callTool(writer, "update_database_view", { database_id: "db-1", view_id: "view-g", show_icons: true });
+    expect(databases.updateView).toHaveBeenLastCalledWith("user-1", "view-g", { config: { showIcons: undefined } });
+  });
+
   it("sets where a view opens its rows, for views with rows only", async () => {
     const views = [
       { id: "view-b", name: "Board", type: "board", config: { groupBy: "prop-status" } },

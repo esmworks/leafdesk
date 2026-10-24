@@ -178,6 +178,10 @@ for Windows, `.AppImage` for Linux) and choose *On this computer*. See [Desktop 
     before, after, on or before and on or after a day, and selects, statuses, tags, relations and
     people on any of several values or none of them in one rule. A "Me" filter (also inside such a
     list) shows each viewer their own rows.
+  - Each view with rows can leave out the rows' page icons (Layout → *Show page icons*; published
+    views too), and a calendar can leave out Saturdays and Sundays (*Show weekends*, month and
+    week alike): its weekdays then share the width, and rows only on a weekend are listed under it
+    with their day, to open or drag onto a weekday.
   - Table views calculate column totals, averages, counts and more over the filtered rows.
   - Board columns show how many cards they hold next to their name, and can show one calculation
     over a property for their cards on the line under it, the same in every column: the sum of the
@@ -3453,7 +3457,7 @@ The tools cover:
   convert and what would be cleared without changing anything), `delete_database_property`,
   `create_database_view` and `update_database_view` (table, board, calendar, gallery, list, feed,
   timeline, map (with `place_by`), chart, dashboard or form, including a form's public link and a dashboard's `widgets`; a chart over a date takes `accumulate`
-  for running totals or a burndown, a calendar `calendar_mode` (month or week), a board `aggregate` and `aggregate_property` for what its column headers show, and table, list and timeline views take `sub_items`;
+  for running totals or a burndown, a calendar `calendar_mode` (month or week) and `show_weekends`, views with rows `show_icons`, a board `aggregate` and `aggregate_property` for what its column headers show, and table, list and timeline views take `sub_items`;
   `update_database_view` also moves a
   view's tab with `before_view_id` or `after_view_id`), and `set_property_access` (who may
   see and change a property). `query_database` returns `next_cursor` and `has_more`: passing the

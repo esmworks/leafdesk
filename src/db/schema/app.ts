@@ -867,10 +867,17 @@ export type ViewConfig = {
   zoom?: TimelineZoom;
   /** Calendars: "month" when missing. */
   calendarMode?: CalendarMode;
+  /**
+   * Calendars: whether Saturdays and Sundays have their own columns; shown when missing. Hidden,
+   * rows only on those days are listed under the calendar (see lib/calendar weekBars).
+   */
+  showWeekends?: boolean;
   /** Map views: the place property that puts rows on the map; the first place property when missing. */
   placeBy?: string;
   /** Views with rows (all but forms and charts): "panel" when missing. */
   openRows?: OpenRows;
+  /** Views with rows: each row's page icon by its title, published views too; shown when missing. */
+  showIcons?: boolean;
   /** Timelines: whether the table of row titles shows left of the bars; shown when missing. */
   showTable?: boolean;
   /** Galleries: "medium" when missing. */

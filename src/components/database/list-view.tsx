@@ -65,6 +65,7 @@ export function ListView({
               key={line.row.id}
               workspaceId={workspaceId}
               line={line}
+              showIcon={view.config.showIcons !== false}
               nested={subItems.nested}
               onToggle={() => subItems.toggle(line.row.id)}
               onAddSubItem={canAddSubItem ? () => void addSubItem(line.row) : undefined}
@@ -100,6 +101,7 @@ export function ListView({
 function ListRow({
   workspaceId,
   line,
+  showIcon,
   nested,
   onToggle,
   onAddSubItem,
@@ -113,6 +115,8 @@ function ListRow({
 }: {
   workspaceId: string;
   line: SubItemLine<Row>;
+  /** The view shows rows' page icons (see ViewConfig showIcons). */
+  showIcon: boolean;
   /** Sub-items show under their parent: rows get an open/close arrow and are indented. */
   nested: boolean;
   onToggle: () => void;
@@ -154,7 +158,7 @@ function ListRow({
         }}
         className="flex min-w-0 flex-1 cursor-pointer items-center gap-2 self-stretch rounded-sm"
       >
-        <PageIcon icon={row.icon} className="shrink-0" />
+        {showIcon && <PageIcon icon={row.icon} className="shrink-0" />}
         {editTitle ? (
           <CardTitleInput initial={typed || row.title} onDone={onTitle} />
         ) : (

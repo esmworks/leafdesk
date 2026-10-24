@@ -4,6 +4,15 @@
 
 ### Added
 
+- **Calendars without weekends, and views without page icons.** A calendar's Layout menu has
+  *Show weekends* (on by default): turned off, the month and the week show Monday to Friday across
+  the whole width, bars are cut where a weekend interrupts them, and rows dated only on a Saturday
+  or Sunday are listed under the calendar with their day (and time), where they open and can be
+  dragged onto a weekday, instead of being drawn on a day they aren't on. Every view with rows has
+  *Show page icons* (on by default) to leave the rows' icons out of the table, board, gallery,
+  list, feed, timeline, calendar and map; published views leave them out too. MCP's
+  `create_database_view` and `update_database_view` take `show_weekends` and `show_icons`, and
+  `get_database` reports them.
 - **Formulas take the median and the mean of numbers.** `median(numbers)` gives the middle
   number (the mean of the two middle ones for an even count) and `mean(numbers)` is another name
   for `average`; both take numbers or a list of them and leave empty values out. The editor's

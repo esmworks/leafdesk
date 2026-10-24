@@ -700,6 +700,8 @@
     "addOnDay": "הוספת שורה ב־{date}",
     "noDate": "{count, plural, one {שורה אחת} two {שתי שורות} other {# שורות}} ללא {property}",
     "noDateTitle": "שורות ללא {property}",
+    "weekendRows": "{count, plural, one {שורה אחת} other {# שורות}} בסופי שבוע",
+    "weekendRowsTitle": "שורות בימי שבת וראשון",
     "dayRows": "{date}: {count, plural, =0 {אין שורות} one {שורה אחת} two {שתי שורות} other {# שורות}}",
     "emptyDay": "אין שורות ביום הזה.",
     "month": "חודש",
@@ -749,6 +751,8 @@
     "groupBy": "קיבוץ לפי",
     "noGrouping": "ללא",
     "showTable": "הצגת טבלה",
+    "showWeekends": "הצגת סופי שבוע",
+    "showIcons": "הצגת סמלי דפים",
     "openRows": "פתיחת שורות ב־",
     "openRowsIn": {
       "panel": "חלונית צד",

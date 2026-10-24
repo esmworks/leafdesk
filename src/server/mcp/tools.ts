@@ -462,6 +462,12 @@ const viewLayoutInputs = {
     ),
 };
 
+/** Display settings offered on views themselves, not on dashboard widgets (each widget's list stays short). */
+const viewDisplayInputs = {
+  show_weekends: z.boolean().optional().describe("Calendar only: show Saturdays and Sundays (true by default)."),
+  show_icons: z.boolean().optional().describe("Views with rows: show page icons by row titles (true by default)."),
+};
+
 /** A view's color rules (update_database_view: a new view gets them right after it is made). */
 const colorRulesInput = z
   .array(
@@ -499,6 +505,8 @@ type ViewInput = {
   zoom?: TimelineZoom;
   calendar_mode?: CalendarMode;
   show_table?: boolean;
+  show_weekends?: boolean;
+  show_icons?: boolean;
   card_size?: CardSize;
   place_by?: string;
   /** "first_image", "none" or a files property's name. */
@@ -666,6 +674,14 @@ function viewConfigPatch(
   if (input.show_table !== undefined) {
     only("show_table", "timeline");
     patch.showTable = input.show_table;
+  }
+  if (input.show_weekends !== undefined) {
+    only("show_weekends", "calendar");
+    patch.showWeekends = input.show_weekends ? undefined : false;
+  }
+  if (input.show_icons !== undefined) {
+    only("show_icons", ...ROW_VIEW_TYPES);
+    patch.showIcons = input.show_icons ? undefined : false;
   }
   if (input.place_by !== undefined) {
     only("place_by", "map");
@@ -2927,6 +2943,7 @@ export function createMcpServer(principal: McpPrincipal) {
             "Calendar: the date property that places rows on days. Timeline: the date (or created_time / last_edited_time) property where bars start. Defaults to the first date property.",
           ),
         ...viewLayoutInputs,
+        ...viewDisplayInputs,
         ...formInputs,
         filters: filtersInput.optional(),
         filter_combinator: filterCombinatorInput,
@@ -2993,6 +3010,7 @@ export function createMcpServer(principal: McpPrincipal) {
           .optional()
           .describe("Calendar: the date property that places rows on days. Timeline: the property where bars start."),
         ...viewLayoutInputs,
+        ...viewDisplayInputs,
         ...formInputs,
         filters: filtersInput.optional(),
         filter_combinator: filterCombinatorInput,

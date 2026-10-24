@@ -188,6 +188,7 @@ export function TableView({
   // Phones keep the narrow Name column so the next one peeks in.
   const nameWidth = phone ? NAME_WIDTH.phone : widthOf(TITLE, NAME_WIDTH.wide);
   const hidden = new Set(view.config.hidden ?? []);
+  const showIcons = view.config.showIcons !== false;
   const visible = properties.filter((p) => !hidden.has(p.id));
   const titleProp = titleProperty(databaseId, t("nameColumn"));
   const sortOf = (id: string) => view.config.sorts?.find((s) => s.propertyId === id)?.direction;
@@ -442,7 +443,7 @@ export function TableView({
           <CellMark active={grid.isActive(at, 0)} selected={grid.spans && grid.isSelected(at, 0)} />
           <div className="flex font-medium" style={subItems.nested ? { paddingInlineStart: line.depth * SUB_ITEM_INDENT + 4 } : undefined}>
             {subItems.nested && <SubItemToggle line={line} title={label} onToggle={() => subItems.toggle(row.id)} className="h-[33px]" />}
-            {row.icon && <span className="flex h-[33px] shrink-0 items-center ps-2 leading-none">{row.icon}</span>}
+            {showIcons && row.icon && <span className="flex h-[33px] shrink-0 items-center ps-2 leading-none">{row.icon}</span>}
             <div className="min-w-0 flex-1">
               <QuickAddContext value={editTitleOf === row.id ? quick : null}>
                 <PropertyCell

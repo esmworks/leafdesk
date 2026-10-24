@@ -700,6 +700,8 @@
     "addOnDay": "{date}에 행 추가",
     "noDate": "{property} 없는 행 {count}개",
     "noDateTitle": "{property} 없는 행",
+    "weekendRows": "주말의 행 {count, plural, other {#개}}",
+    "weekendRowsTitle": "토요일과 일요일의 행",
     "dayRows": "{date}: {count, plural, =0 {행 없음} other {행 #개}}",
     "emptyDay": "이날에는 행이 없습니다.",
     "month": "월",
@@ -749,6 +751,8 @@
     "groupBy": "그룹화 기준",
     "noGrouping": "없음",
     "showTable": "표 표시",
+    "showWeekends": "주말 표시",
+    "showIcons": "페이지 아이콘 표시",
     "openRows": "행 열기 위치",
     "openRowsIn": {
       "panel": "사이드 패널",

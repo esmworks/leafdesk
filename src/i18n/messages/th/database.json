@@ -700,6 +700,8 @@
     "addOnDay": "เพิ่มแถวในวันที่ {date}",
     "noDate": "{count, plural, other {# แถว}}ที่ไม่มี{property}",
     "noDateTitle": "แถวที่ไม่มี{property}",
+    "weekendRows": "{count, plural, other {# แถว}} ในวันหยุดสุดสัปดาห์",
+    "weekendRowsTitle": "แถวในวันเสาร์และวันอาทิตย์",
     "dayRows": "{date}: {count, plural, =0 {ไม่มีแถว} other {# แถว}}",
     "emptyDay": "ไม่มีแถวในวันนี้",
     "month": "เดือน",
@@ -749,6 +751,8 @@
     "groupBy": "จัดกลุ่มตาม",
     "noGrouping": "ไม่มี",
     "showTable": "แสดงตาราง",
+    "showWeekends": "แสดงวันหยุดสุดสัปดาห์",
+    "showIcons": "แสดงไอคอนของหน้า",
     "openRows": "เปิดแถวใน",
     "openRowsIn": {
       "panel": "แผงด้านข้าง",

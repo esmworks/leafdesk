@@ -114,6 +114,7 @@ export default function FeedView({
             key={row.id}
             workspaceId={workspaceId}
             row={row}
+            showIcon={view.config.showIcons !== false}
             post={posts[row.id]}
             color={colors?.get(row.id)}
             people={people}
@@ -206,6 +207,7 @@ const MemoFeedPost = memo(FeedPostView);
 function FeedPostView({
   workspaceId,
   row,
+  showIcon,
   post,
   color,
   people,
@@ -216,6 +218,8 @@ function FeedPostView({
 }: {
   workspaceId: string;
   row: Row;
+  /** The view shows rows' page icons (see ViewConfig showIcons). */
+  showIcon: boolean;
   color?: RowColors;
   /** Still loading while missing. */
   post: FeedPost | undefined;
@@ -277,7 +281,7 @@ function FeedPostView({
           }}
           className="inline-flex max-w-full items-start gap-1.5 rounded-sm text-lg leading-snug font-semibold hover:underline"
         >
-          {row.icon && <PageIcon icon={row.icon} className="shrink-0" />}
+          {showIcon && row.icon && <PageIcon icon={row.icon} className="shrink-0" />}
           <span className={cn("min-w-0 break-words", !row.title && "text-fg-faint", cellMarkClass(color, "title"))}>{label}</span>
         </a>
       </h3>

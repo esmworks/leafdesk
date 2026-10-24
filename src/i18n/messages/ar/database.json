@@ -700,6 +700,8 @@
     "addOnDay": "إضافة صف في {date}",
     "noDate": "{count, plural, one {صف واحد} two {صفّان} few {# صفوف} many {# صفًا} other {# صف}} بلا {property}",
     "noDateTitle": "صفوف بلا {property}",
+    "weekendRows": "{count, plural, one {صف واحد} two {صفّان} few {# صفوف} many {# صفًا} other {# صف}} في عطلات نهاية الأسبوع",
+    "weekendRowsTitle": "الصفوف في أيام السبت والأحد",
     "dayRows": "{date}: {count, plural, =0 {لا صفوف} one {صف واحد} two {صفّان} few {# صفوف} many {# صفًا} other {# صف}}",
     "emptyDay": "لا صفوف في هذا اليوم.",
     "month": "شهر",
@@ -749,6 +751,8 @@
     "groupBy": "تجميع حسب",
     "noGrouping": "بلا",
     "showTable": "إظهار الجدول",
+    "showWeekends": "إظهار عطلات نهاية الأسبوع",
+    "showIcons": "إظهار أيقونات الصفحات",
     "openRows": "فتح الصفوف في",
     "openRowsIn": {
       "panel": "لوحة جانبية",

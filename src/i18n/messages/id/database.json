@@ -700,6 +700,8 @@
     "addOnDay": "Tambahkan baris pada {date}",
     "noDate": "{count, plural, other {# baris}} tanpa {property}",
     "noDateTitle": "Baris tanpa {property}",
+    "weekendRows": "{count, plural, other {# baris}} pada akhir pekan",
+    "weekendRowsTitle": "Baris pada hari Sabtu dan Minggu",
     "dayRows": "{date}: {count, plural, =0 {tidak ada baris} other {# baris}}",
     "emptyDay": "Tidak ada baris pada hari ini.",
     "month": "Bulan",
@@ -749,6 +751,8 @@
     "groupBy": "Kelompokkan menurut",
     "noGrouping": "Tidak ada",
     "showTable": "Tampilkan tabel",
+    "showWeekends": "Tampilkan akhir pekan",
+    "showIcons": "Tampilkan ikon halaman",
     "openRows": "Buka baris di",
     "openRowsIn": {
       "panel": "Panel samping",

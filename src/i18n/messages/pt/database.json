@@ -700,6 +700,8 @@
     "addOnDay": "Adicionar uma linha em {date}",
     "noDate": "{count, plural, one {# linha} other {# linhas}} sem {property}",
     "noDateTitle": "Linhas sem {property}",
+    "weekendRows": "{count, plural, one {# linha} other {# linhas}} no fim de semana",
+    "weekendRowsTitle": "Linhas aos sábados e domingos",
     "dayRows": "{date}: {count, plural, =0 {nenhuma linha} one {# linha} other {# linhas}}",
     "emptyDay": "Nenhuma linha neste dia.",
     "month": "Mês",
@@ -749,6 +751,8 @@
     "groupBy": "Agrupar por",
     "noGrouping": "Nenhum",
     "showTable": "Mostrar tabela",
+    "showWeekends": "Mostrar fins de semana",
+    "showIcons": "Mostrar ícones de página",
     "openRows": "Abrir linhas em",
     "openRowsIn": {
       "panel": "Painel lateral",
