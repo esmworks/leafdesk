@@ -99,7 +99,10 @@ BlockNote on Yjs; Tailwind v4; next-intl. Node 24, pnpm 11. A separate Electron 
   writes; `asAutomation` keeps an automation's writes from firing more automations) and
   `src/server/schedules.ts` (`registerScheduleHandler`).
 - **Other areas:** meeting notes `meetings.ts` (the block's props, `src/lib/meetings.ts`; its list
-  table synced in `persistPage` by `meeting-notes.ts`), Telegram bot `src/server/telegram/`, Jira syncs `jira-sync/` (own
+  table synced in `persistPage` by `meeting-notes.ts`), sprints `sprints.ts` (no table: the setup is the `sprints` config on the task database's relation
+  with role `sprint`; the current sprint's views filter on a hidden rollup of the sprint state, so
+  they follow a completion without changing; rollups show option names, so `updateProperty`
+  rewrites such rollup filters when options are renamed), Telegram bot `src/server/telegram/`, Jira syncs `jira-sync/` (own
   `database_sync` table and a one-minute sweep; pure mapping in `src/lib/jira-sync.ts`), mail to and from rows `row-mail/`, follow-up
   sequences on rows `sequences/` (sent by a 30-second `startSequences` job; `runSequences(now)` runs
   a round as of any moment, which `scripts/follow-ups-e2e.ts` uses), page webhooks
@@ -224,7 +227,7 @@ plus the `scripts/*-e2e.ts` of the area you touched (`pnpm tsx scripts/<name>-e2
   agents, agent-api, agent-approvers, agent-chat, agent-handoff, agent-memory, agent-mention,
   agent-schedule, agent-sharing, agent-skills, automation, button, timed-automation, schedule,
   row-activity, row-follow, row-mail, discussions, follow-ups (starts its own GreenMail container
-  unless given ports), page-watch, page-webhooks, verify, wins-log, jira-sync. `connector-e2e` starts its own `next dev` against
+  unless given ports), page-watch, page-webhooks, verify, wins-log, jira-sync, sprints. `connector-e2e` starts its own `next dev` against
   `<database>_peer`, which must exist; no other dev server may run in the same checkout.
 - Each script's header says what it needs. `.github/workflows/ci.yml` shows the env each step gets;
   not every e2e script is in CI.

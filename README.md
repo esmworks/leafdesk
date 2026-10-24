@@ -278,6 +278,14 @@ for Windows, `.AppImage` for Linux) and choose *On this computer*. See [Desktop 
     dot at the end of a bar onto another row links them. When a row's dates move, the rows waiting
     for it follow: only when they would overlap, by as much to keep the gap, or not at all, and
     optionally never starting on a weekend. A row can't wait for itself or a row waiting for it.
+  - Sprints: turned on from a view's settings with a sprint length (one to four weeks) and the first
+    sprint's day, a task database gets a Sprints database beside it (each sprint with its dates and
+    a state: current, next, future or completed), a "Sprint" property on its tasks and three views:
+    the current sprint's board by status, sprint planning and the backlog. *Complete sprint* marks
+    the current sprint completed, makes the next one current, plans a new next one of the same
+    length and moves the tasks not done to the new current sprint, all at once; the current sprint's
+    board follows on its own. Turning sprints off keeps the sprints database and every task's
+    sprint, and turning them on again picks them up. The REST API completes a sprint too.
   - Charts over a date can show a running total, or what remains (a burndown): grouped by the day
     work was finished, each period takes its rows away from the whole, and rows without that date
     stay open. An automation that sets the date to today when a status changes to done fills it in.

@@ -736,6 +736,22 @@ export const API_ROUTES: ApiRoute[] = [
     },
   }),
   defineRoute({
+    method: "POST",
+    path: "/databases/{database_id}/sprints/complete",
+    operationId: "completeSprint",
+    tag: "Databases",
+    summary: "Complete the current sprint",
+    description:
+      "For a task database with sprints turned on (in the app), or its sprints database: the current sprint is marked completed, the next one becomes current (else the first future one, else a new one), a new next sprint of the same length is added when none waits, and the tasks of the completed sprint whose status isn't done move to the new current sprint. Needs edit access to both databases; tasks the user may not change stay and are counted in skipped_tasks. dry_run reports what would change without changing it.",
+    scope: "rows:write",
+    body: ops.inputs.completeSprint.omit({ database_id: true }),
+    response: "SprintCompleted",
+    handler: async ({ principal, ctx, params, body }) => {
+      await requirePageInWorkspace(principal, params.database_id);
+      return ops.completeSprint(ctx, { ...body, database_id: params.database_id });
+    },
+  }),
+  defineRoute({
     method: "GET",
     path: "/rows/{row_id}",
     operationId: "getRow",

@@ -125,6 +125,11 @@ export const DATABASE_ERROR_CODES = [
   "invalidUniqueIdPrefix",
   "uniqueIdPrefixTaken",
   "oneUniqueId",
+  "sprintsOff",
+  "sprintsDatabase",
+  "noCurrentSprint",
+  "invalidSprints",
+  "sprintStateOption",
 ] as const;
 export type DatabaseErrorCode = (typeof DATABASE_ERROR_CODES)[number];
 export type DatabaseErrorParams = Record<string, string>;

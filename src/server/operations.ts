@@ -52,6 +52,7 @@ import * as pages from "@/server/pages";
 import * as propertyAccess from "@/server/property-access";
 import * as rowActivityFeed from "@/server/row-activity-feed";
 import { mergeRows as mergeRowsOp } from "@/server/merge-rows";
+import { completeSprint as completeSprintOp } from "@/server/sprints";
 import { COMBINE, MAX_MERGE_ROWS, MERGE_TITLE, MIN_MERGE_ROWS, type MergeChoices } from "@/lib/merge-rows";
 import * as skills from "@/server/skills";
 import * as snippets from "@/server/snippets";
@@ -389,6 +390,10 @@ export const inputs = {
       ),
     title: z.string().min(1).optional().describe("The row id of the merge whose title the kept row takes (default: the kept row's, or the first one that has one)."),
     dry_run: z.boolean().default(false).describe("true checks the merge and reports what it would do, without writing anything."),
+  }),
+  completeSprint: z.object({
+    database_id: id("database").describe("A task database with sprints turned on, or its sprints database."),
+    dry_run: z.boolean().default(false).describe("true says what completing the sprint would change, without changing anything."),
   }),
   listRowActivity: z.object({
     row_id: id("row"),
@@ -1657,6 +1662,30 @@ export async function mergeRows(
     relinked_rows: result.relinkedRows,
     moved: { comment_threads: result.threads, bodies: result.bodies, activity: result.activity, files: result.files, emails: result.emails },
     url: pageUrl(result.workspaceId, result.keptRowId),
+  };
+}
+
+/**
+ * Completes the current sprint (see server/sprints completeSprint): it is marked completed, the
+ * next sprint becomes current, a new next one is planned when none waits, and unfinished tasks
+ * move to the new current sprint.
+ */
+export async function completeSprint(ctx: OperationContext, { database_id, dry_run = false }: Args<"completeSprint">) {
+  const { workspaceId } = await databases.requireDatabase(ctx.userId, database_id, "view");
+  const result = await completeSprintOp(ctx.userId, database_id, { dryRun: dry_run });
+  const sprint = (s: { id: string; title: string; created?: boolean }) => ({
+    id: s.id,
+    title: pageLabel(s.title),
+    ...(s.created !== undefined ? { created: s.created } : {}),
+    url: pageUrl(workspaceId, s.id),
+  });
+  return {
+    ...(dry_run ? { dry_run: true } : {}),
+    completed: sprint(result.completed),
+    current: sprint(result.current),
+    next: sprint(result.next),
+    moved_tasks: result.moved,
+    skipped_tasks: result.skipped,
   };
 }
 

@@ -4,6 +4,21 @@
 
 ### Added
 
+- **Task databases can be planned in sprints.** A view's settings have *Sprints*: asked only for
+  the sprint length (one to four weeks) and the first sprint's day, it adds a Sprints database
+  beside the task database (dates and a state of current, next, future or completed; the first
+  sprint current, the second next), a two-way "Sprint" property on the tasks, a status if the
+  database had none, and the views *Current sprint* (a board by status), *Sprint planning* and
+  *Backlog*, all at once or not at all. *Complete sprint*, on the current sprint's board and on the
+  sprints database, says what will change and then, in one step, marks the current sprint
+  completed, makes the next one current, plans a new next one of the same length and moves the
+  tasks whose status isn't done to the new current sprint (tasks the person can't edit stay and are
+  counted). The current sprint's board follows the current sprint without its filter changing, and
+  new cards on it go into the current sprint. The states can be renamed: filters on a rollup that
+  lists a select's options (as these views' do) follow a rename of those options, in every
+  database; the four state options can't be deleted while sprints are on. Turning sprints off keeps the sprints database and
+  every task's sprint; turning them on again picks them up. REST API: `POST
+  /databases/{database_id}/sprints/complete` (with `dry_run`). No migration.
 - **Page views and page analytics.** Opening a page, database or row in the app now records a
   view, once the page has been open two seconds and at most once per person and page every five
   minutes, kept as one count per page, person and UTC day and deleted after a year. Only owners
