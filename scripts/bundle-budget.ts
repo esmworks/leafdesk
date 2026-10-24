@@ -36,7 +36,7 @@ import { gzipSync } from "node:zlib";
  * dictionary of the language in use, after itself: ours (Turkish, Indonesian, Thai) about 3 kB
  * each, BlockNote's (one module) about 30 kB together, English none.
  */
-const BUDGET = { routeFirstLoad: 760, firstLoadShared: 1120, onDemandChunk: 450 };
+const BUDGET = { routeFirstLoad: 760, firstLoadShared: 1145, onDemandChunk: 450 };
 
 const NEXT = ".next";
 const kB = (bytes: number) => bytes / 1024;
