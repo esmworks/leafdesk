@@ -138,6 +138,7 @@
     "mention": "{actor} 提及了你",
     "reminder": "提醒：{date}",
     "accessRequest": "{actor} 申请访问此页面",
+    "accessRequestMore": "{actor} 申请{level, select, comment {评论} other {编辑}}此页面",
     "automation": "自动化“{name}”：{actor} 添加或更改了这一行",
     "automationDatePassed": "自动化“{name}”：这一行的日期已到",
     "button": "{actor} 通过按钮向你发送了此页面",

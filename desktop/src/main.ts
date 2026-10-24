@@ -31,6 +31,7 @@ import { pathToFileURL } from "node:url";
 import { CertificateTrust, isCertificateError, type CertificateProblem } from "./certificates.ts";
 import { showContextMenu } from "./context-menu.ts";
 import { activeShortcut, aiChatPath, defaultShortcut, SHORTCUT_OFF, shortcutChoices, workspaceIn } from "./global-shortcut.ts";
+import { pageToRemember, startPath } from "./last-page.ts";
 import { hasSession, signIn, startLocalServer, type BackupResult, type LocalServer } from "./local-server.ts";
 import { buildMenu, WEBSITE } from "./menu.ts";
 import { APP_SCHEME, decideNavigation, decideNewWindow, isServerPage, signInReturn } from "./navigation.ts";
@@ -352,11 +353,24 @@ function createWindow(bounds?: Partial<Rectangle>) {
   return window;
 }
 
-/** `page`: the server's page to open, its home unless asked otherwise. */
-function openMainWindow(page = "/") {
+/** Which server the remembered page belongs to: the connected one's origin, or "local" (last-page.ts). */
+const serverKey = () => (isLocal() ? "local" : settings.server);
+
+/** `page`: the server's page to open; unless asked otherwise, the page last open there, else its home. */
+function openMainWindow(page = startPath(settings.lastPage, serverKey())) {
   const window = createWindow(restoredBounds());
   mainWindow = window;
   if (settings.window?.maximized) window.maximize();
+  // The page it shows, kept for the next start; saved with the window's place below.
+  const remember = (url: string) => {
+    const shown = pageToRemember(url, currentOrigin(), serverKey());
+    if (shown) settings.lastPage = shown;
+  };
+  window.webContents.on("did-navigate", (_event, url) => remember(url));
+  // Leafdesk moves between pages without loading them.
+  window.webContents.on("did-navigate-in-page", (_event, url, isMainFrame) => {
+    if (isMainFrame) remember(url);
+  });
   window.on("close", () => {
     settings.window = { ...window.getNormalBounds(), maximized: window.isMaximized() };
     save();

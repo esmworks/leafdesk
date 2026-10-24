@@ -58,6 +58,8 @@
     "exportZip": "Ekspor beserta subhalaman",
     "exportZipDatabase": "Ekspor beserta halaman baris",
     "exportPdf": "Ekspor sebagai PDF",
+    "exportComments": "Sertakan komentar",
+    "exportCommentsHint": "Menambahkan utas komentar yang bisa Anda lihat ke ekspor Markdown, ZIP, dan PDF, setelah setiap halaman",
     "printView": "Cetak",
     "exportPreparing": "Menyiapkan ekspor…",
     "acceptAllSuggestions": "Terima semua saran",
@@ -96,7 +98,14 @@
       "open": "Tidak ada komentar terbuka. Pilih teks di halaman dan pilih Komentar untuk memulai satu.",
       "resolved": "Tidak ada komentar yang terselesaikan.",
       "marked": "Tidak ada utas yang ditandai untuk dikunjungi lagi. Pilih “Kembali nanti” di menu utas.",
-      "all": "Belum ada komentar. Pilih teks di halaman dan pilih Komentar untuk memulai satu."
+      "all": "Belum ada komentar. Pilih teks di halaman dan pilih Komentar untuk memulai satu.",
+      "person": "Tidak ada utas di sini yang berisi komentar dari orang ini."
+    },
+    "person": {
+      "label": "Tampilkan utas menurut orang",
+      "active": "Utas tempat {name} menulis",
+      "everyone": "Semua orang",
+      "you": "{name} (Anda)"
     },
     "threadMenu": "Opsi utas",
     "mute": "Bisukan balasan",
@@ -136,7 +145,12 @@
     "onProperty": "Komentari “{name}”",
     "propertyPlaceholder": "Bagaimana dengan nilai ini?",
     "post": "Komentari",
-    "propertyGone": "Nilai ini tidak dapat dikomentari lagi."
+    "propertyGone": "Nilai ini tidak dapat dikomentari lagi.",
+    "export": {
+      "quote": "“{quote}”",
+      "removed": "Tentang teks yang sudah dihapus",
+      "unknown": "Seseorang"
+    }
   },
   "archived": {
     "banner": "Halaman ini ada di sampah.",
@@ -328,7 +342,19 @@
       "approve": "Bagikan",
       "decline": "Tolak",
       "outsider": "Tidak ada di ruang kerja: berbagi menambahkan mereka sebagai tamu.",
-      "cantInvite": "Tidak ada di ruang kerja, dan ruang kerja ini tidak mengizinkan Anda berbagi dengan orang di luarnya."
+      "cantInvite": "Tidak ada di ruang kerja, dan ruang kerja ini tidak mengizinkan Anda berbagi dengan orang di luarnya.",
+      "asksMore": "Meminta “{level}”, saat ini “{current}”"
+    },
+    "askMore": {
+      "title": "Minta akses lebih",
+      "description": "Anda memiliki “{level}”. Orang dengan akses penuh ke halaman ini yang memutuskan.",
+      "level": "Akses yang diminta",
+      "messagePlaceholder": "Pesan (opsional)",
+      "send": "Minta",
+      "sending": "Meminta…",
+      "pending": "Anda meminta “{level}”. Orang dengan akses penuh ke halaman ini akan menjawab.",
+      "rateLimited": "Anda terlalu sering meminta. Coba lagi nanti.",
+      "unavailable": "Anda tidak dapat meminta akses lebih ke halaman ini saat ini."
     },
     "levels": {
       "full": "Akses penuh",
@@ -680,6 +706,7 @@
     "defaultMark": "{name} (bawaan)",
     "noLetterheads": "Pemilik dapat menambahkan kop surat dengan logo dan rincian perusahaan di Pengaturan → Templat PDF.",
     "properties": "Sertakan nilai baris",
+    "comments": "Sertakan komentar",
     "hint": "Diagram dan persamaan dicetak sebagai teks; gunakan Cetak untuk halaman persis seperti tampilannya.",
     "download": "Unduh",
     "preparing": "Menyiapkan…"

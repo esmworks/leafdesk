@@ -1192,7 +1192,7 @@
     "sharingHeading": "Partage",
     "accessRequests": {
       "title": "Demandes d’accès",
-      "description": "Les personnes qui ouvrent le lien d’une page qu’elles ne peuvent pas voir peuvent demander l’accès, avec un message. La demande va aux personnes qui ont un accès complet à la page. Désactivé : elles voient seulement qu’elles n’y ont pas accès."
+      "description": "Les personnes qui ouvrent le lien d’une page qu’elles ne peuvent pas voir peuvent demander l’accès avec un message, et celles qui peuvent consulter ou commenter une page peuvent demander à la commenter ou la modifier depuis son menu Partager. La demande parvient aux personnes disposant d’un accès complet à la page. Désactivé : personne ne peut en faire."
     },
     "guestInvites": {
       "title": "Qui peut ajouter des invités",

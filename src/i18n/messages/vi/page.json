@@ -58,6 +58,8 @@
     "exportZip": "Xuất kèm các trang con",
     "exportZipDatabase": "Xuất kèm các trang hàng",
     "exportPdf": "Xuất dưới dạng PDF",
+    "exportComments": "Kèm bình luận",
+    "exportCommentsHint": "Thêm các chuỗi bình luận bạn xem được vào bản xuất Markdown, ZIP và PDF, sau mỗi trang",
     "printView": "In",
     "exportPreparing": "Đang chuẩn bị xuất…",
     "acceptAllSuggestions": "Chấp nhận tất cả đề xuất",
@@ -96,7 +98,14 @@
       "open": "Không có bình luận nào đang mở. Hãy chọn văn bản trong trang và chọn Bình luận để bắt đầu một bình luận.",
       "resolved": "Không có bình luận nào đã giải quyết.",
       "marked": "Không có chuỗi nào được đánh dấu để quay lại. Hãy chọn “Quay lại sau” trong menu của một chuỗi.",
-      "all": "Chưa có bình luận nào. Hãy chọn văn bản trong trang và chọn Bình luận để bắt đầu một bình luận."
+      "all": "Chưa có bình luận nào. Hãy chọn văn bản trong trang và chọn Bình luận để bắt đầu một bình luận.",
+      "person": "Không có chuỗi nào ở đây có bình luận của người này."
+    },
+    "person": {
+      "label": "Hiện chuỗi theo người",
+      "active": "Các chuỗi {name} đã viết",
+      "everyone": "Mọi người",
+      "you": "{name} (bạn)"
     },
     "threadMenu": "Tùy chọn chuỗi",
     "mute": "Tắt thông báo trả lời",
@@ -136,7 +145,12 @@
     "onProperty": "Bình luận về “{name}”",
     "propertyPlaceholder": "Giá trị này thì sao?",
     "post": "Bình luận",
-    "propertyGone": "Không thể bình luận về giá trị này nữa."
+    "propertyGone": "Không thể bình luận về giá trị này nữa.",
+    "export": {
+      "quote": "“{quote}”",
+      "removed": "Về đoạn văn bản đã bị xóa",
+      "unknown": "Một người nào đó"
+    }
   },
   "archived": {
     "banner": "Trang này đang ở trong thùng rác.",
@@ -328,7 +342,19 @@
       "approve": "Chia sẻ",
       "decline": "Từ chối",
       "outsider": "Không ở trong không gian làm việc: chia sẻ sẽ thêm họ với tư cách khách.",
-      "cantInvite": "Không ở trong không gian làm việc, và không gian làm việc này không cho phép bạn chia sẻ với người bên ngoài."
+      "cantInvite": "Không ở trong không gian làm việc, và không gian làm việc này không cho phép bạn chia sẻ với người bên ngoài.",
+      "asksMore": "Xin “{level}”, hiện có “{current}”"
+    },
+    "askMore": {
+      "title": "Xin thêm quyền truy cập",
+      "description": "Bạn đang có “{level}”. Những người có toàn quyền với trang sẽ quyết định.",
+      "level": "Quyền muốn xin",
+      "messagePlaceholder": "Lời nhắn (không bắt buộc)",
+      "send": "Xin",
+      "sending": "Đang xin…",
+      "pending": "Bạn đã xin “{level}”. Những người có toàn quyền với trang sẽ trả lời.",
+      "rateLimited": "Bạn đã xin quá nhiều lần. Hãy thử lại sau một lúc.",
+      "unavailable": "Hiện bạn không thể xin thêm quyền truy cập trang này."
     },
     "levels": {
       "full": "Toàn quyền",
@@ -680,6 +706,7 @@
     "defaultMark": "{name} (mặc định)",
     "noLetterheads": "Chủ sở hữu có thể thêm tiêu đề thư kèm logo và thông tin công ty trong Cài đặt → Mẫu PDF.",
     "properties": "Bao gồm các giá trị của hàng",
+    "comments": "Kèm bình luận",
     "hint": "Sơ đồ và phương trình được in dưới dạng văn bản; hãy dùng In để có trang đúng như hiển thị.",
     "download": "Tải xuống",
     "preparing": "Đang chuẩn bị…"

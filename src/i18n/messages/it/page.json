@@ -58,6 +58,8 @@
     "exportZip": "Esporta con le sottopagine",
     "exportZipDatabase": "Esporta con le pagine delle righe",
     "exportPdf": "Esporta come PDF",
+    "exportComments": "Includi i commenti",
+    "exportCommentsHint": "Aggiunge i thread di commenti che puoi vedere alle esportazioni Markdown, ZIP e PDF, dopo ogni pagina",
     "printView": "Stampa",
     "exportPreparing": "Preparazione dell’esportazione…",
     "acceptAllSuggestions": "Accetta tutti i suggerimenti",
@@ -97,7 +99,14 @@
       "open": "Nessun commento aperto. Seleziona del testo nella pagina e scegli Commenta per iniziarne uno.",
       "resolved": "Nessun commento risolto.",
       "marked": "Nessuna discussione segnata da riprendere. Scegli “Riprendi più tardi” nel menu di una discussione.",
-      "all": "Ancora nessun commento. Seleziona del testo nella pagina e scegli Commenta per iniziarne uno."
+      "all": "Ancora nessun commento. Seleziona del testo nella pagina e scegli Commenta per iniziarne uno.",
+      "person": "Nessuno di questi thread ha un commento di questa persona."
+    },
+    "person": {
+      "label": "Mostra i thread per persona",
+      "active": "Thread in cui ha scritto {name}",
+      "everyone": "Tutti",
+      "you": "{name} (tu)"
     },
     "threadMenu": "Opzioni della discussione",
     "mute": "Silenzia risposte",
@@ -136,7 +145,12 @@
     "onProperty": "Commenta «{name}»",
     "propertyPlaceholder": "Che ne dici di questo valore?",
     "post": "Commenta",
-    "propertyGone": "Questo valore non si può più commentare."
+    "propertyGone": "Questo valore non si può più commentare.",
+    "export": {
+      "quote": "«{quote}»",
+      "removed": "Su un testo che è stato rimosso",
+      "unknown": "Qualcuno"
+    }
   },
   "archived": {
     "banner": "Questa pagina è nel cestino.",
@@ -328,7 +342,19 @@
       "approve": "Condividi",
       "decline": "Rifiuta",
       "outsider": "Non è nello spazio di lavoro: condividendo lo aggiungi come ospite.",
-      "cantInvite": "Non è nello spazio di lavoro, e questo spazio di lavoro non consente di condividere con persone esterne."
+      "cantInvite": "Non è nello spazio di lavoro, e questo spazio di lavoro non consente di condividere con persone esterne.",
+      "asksMore": "Chiede “{level}”, ora ha “{current}”"
+    },
+    "askMore": {
+      "title": "Chiedi più accesso",
+      "description": "Hai “{level}”. Decidono le persone con accesso completo alla pagina.",
+      "level": "Accesso da chiedere",
+      "messagePlaceholder": "Messaggio (facoltativo)",
+      "send": "Chiedi",
+      "sending": "Invio…",
+      "pending": "Hai chiesto “{level}”. Ti risponderanno le persone con accesso completo alla pagina.",
+      "rateLimited": "Hai fatto troppe richieste. Riprova più tardi.",
+      "unavailable": "Al momento non puoi chiedere più accesso a questa pagina."
     },
     "levels": {
       "full": "Accesso completo",
@@ -680,6 +706,7 @@
     "defaultMark": "{name} (predefinita)",
     "noLetterheads": "I proprietari possono aggiungere carte intestate con logo e dati aziendali in Impostazioni → Modelli PDF.",
     "properties": "Includi i valori della riga",
+    "comments": "Includi i commenti",
     "hint": "Diagrammi ed equazioni vengono stampati come testo; usa Stampa per avere la pagina esattamente com’è.",
     "download": "Scarica",
     "preparing": "Preparazione…"

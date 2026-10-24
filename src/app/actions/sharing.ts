@@ -3,7 +3,8 @@
 import { revalidatePath } from "next/cache";
 import type { PageLevel } from "@/db/schema";
 import { AccessError, resolvePageAccess } from "@/server/access";
-import { listAccessRequests } from "@/server/access-requests";
+import { levelsToAsk } from "@/lib/access-requests";
+import { accessRequestsOffered, listAccessRequests, pendingRequestOf } from "@/server/access-requests";
 import { listAgents } from "@/server/agents/manage";
 import { getCollab } from "@/server/collab/bridge";
 import { listGroups } from "@/server/groups";
@@ -43,7 +44,8 @@ export async function getSharingAction(pageId: string) {
     if (error instanceof AccessError) return [];
     throw error;
   };
-  const [permissions, canInvite, members, groups, agents, requests] = await Promise.all([
+  const askable = levelsToAsk(level);
+  const [permissions, canInvite, members, groups, agents, requests, offered, myRequest] = await Promise.all([
     listPagePermissions(userId, pageId),
     canInviteGuests(userId, target.workspaceId),
     // Guests can't see who is in the workspace, so they get no one to pick from.
@@ -52,6 +54,8 @@ export async function getSharingAction(pageId: string) {
     // The workspace's agents, which anyone who may share the page can share it with too.
     listAgents(userId, target.workspaceId).catch(noneForGuests),
     level === "full" ? listAccessRequests(userId, pageId) : [],
+    askable.length ? accessRequestsOffered(target.workspaceId) : false,
+    askable.length ? pendingRequestOf(userId, pageId) : null,
   ]);
   return {
     ...permissions,
@@ -61,6 +65,10 @@ export async function getSharingAction(pageId: string) {
     groupOptions: groups.map((g) => ({ groupId: g.id, name: g.name, memberCount: g.memberCount })),
     agentOptions: agents.map((a) => ({ userId: a.userId, name: a.name, icon: a.icon, enabled: a.enabled })),
     requests,
+    /** What the user may ask the people with full access for on top of their access (Share menu). */
+    askable: offered ? askable : [],
+    /** The level they asked for while that request waits. */
+    myRequest,
   };
 }
 

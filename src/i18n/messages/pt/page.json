@@ -58,6 +58,8 @@
     "exportZip": "Exportar com subpáginas",
     "exportZipDatabase": "Exportar com as páginas das linhas",
     "exportPdf": "Exportar como PDF",
+    "exportComments": "Incluir comentários",
+    "exportCommentsHint": "Adiciona as conversas de comentários que você pode ver às exportações em Markdown, ZIP e PDF, depois de cada página",
     "printView": "Imprimir",
     "exportPreparing": "Preparando a exportação…",
     "acceptAllSuggestions": "Aceitar todas as sugestões",
@@ -97,7 +99,14 @@
       "open": "Nenhum comentário aberto. Selecione um texto na página e escolha Comentar para começar.",
       "resolved": "Nenhum comentário resolvido.",
       "marked": "Nenhuma conversa marcada para voltar depois. Escolha “Voltar depois” no menu de uma conversa.",
-      "all": "Nenhum comentário ainda. Selecione um texto na página e escolha Comentar para começar."
+      "all": "Nenhum comentário ainda. Selecione um texto na página e escolha Comentar para começar.",
+      "person": "Nenhum destes tópicos tem um comentário desta pessoa."
+    },
+    "person": {
+      "label": "Mostrar tópicos por pessoa",
+      "active": "Tópicos em que {name} escreveu",
+      "everyone": "Todos",
+      "you": "{name} (você)"
     },
     "threadMenu": "Opções da conversa",
     "mute": "Silenciar respostas",
@@ -136,7 +145,12 @@
     "onProperty": "Comentar sobre “{name}”",
     "propertyPlaceholder": "E quanto a este valor?",
     "post": "Comentar",
-    "propertyGone": "Este valor não pode mais ser comentado."
+    "propertyGone": "Este valor não pode mais ser comentado.",
+    "export": {
+      "quote": "“{quote}”",
+      "removed": "Sobre um texto que foi removido",
+      "unknown": "Alguém"
+    }
   },
   "archived": {
     "banner": "Esta página está na lixeira.",
@@ -328,7 +342,19 @@
       "approve": "Compartilhar",
       "decline": "Recusar",
       "outsider": "Não está no espaço de trabalho: compartilhar adiciona a pessoa como convidado.",
-      "cantInvite": "Não está no espaço de trabalho, e este espaço de trabalho não permite compartilhar com pessoas de fora."
+      "cantInvite": "Não está no espaço de trabalho, e este espaço de trabalho não permite compartilhar com pessoas de fora.",
+      "asksMore": "Pede “{level}”, agora tem “{current}”"
+    },
+    "askMore": {
+      "title": "Pedir mais acesso",
+      "description": "Você tem “{level}”. Quem decide são as pessoas com acesso total à página.",
+      "level": "Acesso a pedir",
+      "messagePlaceholder": "Mensagem (opcional)",
+      "send": "Pedir",
+      "sending": "Pedindo…",
+      "pending": "Você pediu “{level}”. As pessoas com acesso total à página vão responder.",
+      "rateLimited": "Você pediu vezes demais. Tente novamente daqui a pouco.",
+      "unavailable": "No momento você não pode pedir mais acesso a esta página."
     },
     "levels": {
       "full": "Acesso total",
@@ -680,6 +706,7 @@
     "defaultMark": "{name} (padrão)",
     "noLetterheads": "Os proprietários podem adicionar papéis timbrados com logotipo e dados da empresa em Configurações → Modelos de PDF.",
     "properties": "Incluir os valores da linha",
+    "comments": "Incluir comentários",
     "hint": "Diagramas e equações são impressos como texto; use Imprimir para ter a página exatamente como ela aparece.",
     "download": "Baixar",
     "preparing": "Preparando…"

@@ -12,7 +12,7 @@ import { Button, cn, Dialog, IconButton, PageIcon, pageLabel } from "@/component
 import { UserAvatar } from "@/components/user-avatar";
 import { InboxSwipe } from "./inbox-swipe";
 import { groupCounts, groupInbox, type InboxEntry } from "@/lib/inbox-groups";
-import { APPROVAL_LEVELS, type ApprovalLevel } from "@/lib/access-requests";
+import { approvalLevelsFor, initialApprovalLevel, type ApprovalLevel } from "@/lib/access-requests";
 import { pushLink, SUGGESTION_LINES } from "@/lib/push";
 import { formatIsoDate } from "@/lib/mentions";
 import { relativeTime } from "@/lib/relative-time";
@@ -230,7 +230,9 @@ export function InboxDialog({
                 : item.kind === "ai_account_detached"
                 ? t("aiAccountDetached", { actor: item.actorName || t("someone") })
                 : item.kind === "access_request"
-                ? t("accessRequest", { actor: item.actorName || item.accessRequest?.requesterEmail || t("someone") })
+                ? item.accessRequest && item.accessRequest.level !== "view"
+                  ? t("accessRequestMore", { actor: item.actorName || item.accessRequest.requesterEmail || t("someone"), level: item.accessRequest.level })
+                  : t("accessRequest", { actor: item.actorName || item.accessRequest?.requesterEmail || t("someone") })
                 : item.kind === "join_request"
                 ? item.requestKind === "invite"
                   ? t("inviteRequest", { actor: item.actorName || t("someone"), email: item.requestEmail ?? "" })
@@ -498,7 +500,7 @@ export function InboxDialog({
 /** Share (at a level) or decline an access request from the inbox; the notification goes away once answered. */
 function AccessRequestActions({ request, onAnswered }: { request: InboxAccessRequest; onAnswered: () => void }) {
   const ts = useTranslations("page.share");
-  const [level, setLevel] = useState<ApprovalLevel>("edit");
+  const [level, setLevel] = useState<ApprovalLevel>(() => initialApprovalLevel(request, "edit"));
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -532,7 +534,7 @@ function AccessRequestActions({ request, onAnswered }: { request: InboxAccessReq
           onChange={(e) => setLevel(e.target.value as ApprovalLevel)}
           className="h-7 rounded-md bg-transparent px-1.5 text-sm text-fg-muted hover:bg-bg-hover focus:outline-none"
         >
-          {APPROVAL_LEVELS.map((l) => (
+          {approvalLevelsFor(request.current).map((l) => (
             <option key={l} value={l}>
               {ts(`levels.${l}`)}
             </option>

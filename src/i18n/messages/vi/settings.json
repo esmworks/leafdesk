@@ -1192,7 +1192,7 @@
     "sharingHeading": "Chia sẻ",
     "accessRequests": {
       "title": "Yêu cầu quyền truy cập",
-      "description": "Những người mở liên kết đến một trang mà họ không thấy được có thể xin quyền truy cập, kèm lời nhắn. Những người có toàn quyền với trang sẽ nhận yêu cầu. Tắt: họ chỉ thấy rằng mình không có quyền truy cập."
+      "description": "Người mở liên kết tới một trang họ không thể xem có thể xin quyền truy cập kèm lời nhắn, và người có thể xem hoặc bình luận trên một trang có thể xin quyền bình luận hoặc chỉnh sửa từ menu Chia sẻ của trang đó. Yêu cầu được gửi tới những người có toàn quyền với trang. Tắt: không ai có thể xin."
     },
     "guestInvites": {
       "title": "Ai có thể mời khách",

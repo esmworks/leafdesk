@@ -145,6 +145,10 @@
     "body": "{requester} ({email}), {workspace} içindeki “{page}” sayfasını açmak istiyor.",
     "bodyWithoutEmail": "{requester}, {workspace} içindeki “{page}” sayfasını açmak istiyor.",
     "message": "Mesajı: “{message}”",
+    "moreSubject": "{requester} “{page}” sayfasında {level, select, comment {yorum yapmak} other {düzenleme yapmak}} istiyor",
+    "moreHeading": "{requester} “{page}” sayfasında daha fazla erişim istedi",
+    "moreBody": "{requester} ({email}), {workspace} içindeki “{page}” sayfasını açabiliyor ve sayfada {level, select, comment {yorum yapmak} other {düzenleme yapmak}} istiyor.",
+    "moreBodyWithoutEmail": "{requester}, {workspace} içindeki “{page}” sayfasını açabiliyor ve sayfada {level, select, comment {yorum yapmak} other {düzenleme yapmak}} istiyor.",
     "answer": "Ne yapabileceğini seçerek sayfayı onunla paylaşın ya da isteği reddedin. Gelen kutunuzdan veya sayfadaki Paylaş menüsünden yanıtlayabilirsiniz.",
     "action": "Sayfayı aç",
     "optOut": "Sayfaya tam erişiminiz olduğu için bu e-postaları alıyorsunuz. Hesabım > Tercihler'den kapatabilirsiniz."
@@ -159,7 +163,8 @@
     "subject": "Erişim isteğiniz reddedildi",
     "heading": "İsteğiniz reddedildi",
     "body": "Bu sayfaya erişim isteğiniz reddedildi: {link}",
-    "hint": "Hâlâ ihtiyacınız varsa bağlantıyı size gönderen kişiye sorun."
+    "hint": "Hâlâ ihtiyacınız varsa bağlantıyı size gönderen kişiye sorun.",
+    "moreBody": "“{page}” sayfasında {level, select, comment {yorum yapma} other {düzenleme}} isteğiniz reddedildi. Sayfayı eskisi gibi açabilirsiniz: {link}"
   },
   "emailChange": {
     "subject": "Yeni e-posta adresinizi onaylayın",
@@ -241,6 +246,7 @@
     "mention": "{actor} sizden bahsetti",
     "reminder": "Hatırlatma: {date}",
     "accessRequest": "{actor} bu sayfaya erişim istedi",
+    "accessRequestMore": "{actor} bu sayfada {level, select, comment {yorum yapmak} other {düzenleme yapmak}} istiyor",
     "automation": "“{name}” otomasyonu: {actor} bu satırı ekledi ya da değiştirdi",
     "automationDatePassed": "“{name}” otomasyonu: bu satırın tarihi geldi",
     "button": "{actor} bu sayfayı size bir düğmeyle gönderdi",
@@ -268,6 +274,7 @@
     "reportFailed": "Zamanlanmış çalışması başarısız oldu",
     "untitled": "Adsız",
     "snooze": "1 saat ertele",
+    "read": "Okundu işaretle",
     "aiAccountTitle": "Yapay zekâ hesabı kaldırıldı",
     "aiAccountDetached": "Çalışma alanının yapay zekâsı artık {actor} kişisinin anahtarıyla çalışmıyor.",
     "reviewTitle": "İncelenecekler",

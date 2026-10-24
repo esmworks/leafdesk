@@ -138,6 +138,7 @@
     "mention": "{actor}があなたをメンションしました",
     "reminder": "リマインダー：{date}",
     "accessRequest": "{actor}がこのページへのアクセスをリクエストしました",
+    "accessRequestMore": "{actor}がこのページの{level, select, comment {コメント} other {編集}}権限をリクエストしました",
     "automation": "オートメーション「{name}」：{actor}がこの行を追加または変更しました",
     "automationDatePassed": "オートメーション「{name}」：この行の日付になりました",
     "button": "{actor} さんがボタンでこのページを送信しました",

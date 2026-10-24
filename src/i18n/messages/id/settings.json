@@ -1192,7 +1192,7 @@
     "sharingHeading": "Berbagi",
     "accessRequests": {
       "title": "Permintaan akses",
-      "description": "Orang yang membuka tautan ke halaman yang tidak dapat mereka lihat dapat meminta akses, dengan pesan. Orang dengan akses penuh ke halaman menerima permintaannya. Mati: mereka hanya melihat bahwa mereka tidak memiliki akses."
+      "description": "Orang yang membuka tautan ke halaman yang tidak dapat mereka lihat dapat meminta akses dengan pesan, dan orang yang dapat melihat atau mengomentari halaman dapat meminta untuk berkomentar atau mengedit dari menu Bagikan halaman itu. Permintaan dikirim ke orang dengan akses penuh ke halaman. Mati: tidak ada yang dapat meminta."
     },
     "guestInvites": {
       "title": "Siapa yang dapat mengundang tamu",

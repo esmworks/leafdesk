@@ -138,6 +138,7 @@
     "mention": "{actor} به شما اشاره کرد",
     "reminder": "یادآوری: {date}",
     "accessRequest": "{actor} درخواست دسترسی به این صفحه را داد",
+    "accessRequestMore": "{actor} درخواست {level, select, comment {دیدگاه‌گذاشتن روی} other {ویرایش}} این صفحه را داد",
     "automation": "خودکارسازی «{name}»: {actor} این ردیف را اضافه یا تغییر داد",
     "automationDatePassed": "خودکارسازی «{name}»: تاریخ این ردیف فرا رسیده است",
     "button": "{actor} این صفحه را با یک دکمه برایتان فرستاد",

@@ -2,8 +2,8 @@
  * End-to-end check of ZIP exports: a page with its subpages and a whole workspace as Markdown,
  * database CSVs and the uploaded files they show; the folder layout; links rewritten into the
  * archive; only what the exporting user can view (hidden subpages, pages shared on their own,
- * guests, owners-only workspace export); the trash and templates; limits, one export at a time,
- * and streaming. With EXPORT_E2E_URL pointing at a running server, also the export routes over HTTP.
+ * guests, owners-only workspace export); the trash and templates; comments when asked for (only
+ * those the exporter can see); limits, one export at a time, and streaming. With EXPORT_E2E_URL pointing at a running server, also the export routes over HTTP.
  * Creates its own users, workspace and files, and deletes all of it afterwards.
  *
  *   pnpm tsx scripts/export-e2e.ts
@@ -34,6 +34,8 @@ const { createCollab } = await import("@/server/collab/service");
 const { archivePage, createPage } = await import("@/server/pages");
 const { addProperty, updateRowProperties } = await import("@/server/databases");
 const { setPagePermission } = await import("@/server/permissions");
+const { changeComments } = await import("@/server/comments");
+const { setPropertyAccess } = await import("@/server/property-access");
 const { createRowTemplate } = await import("@/server/templates");
 const { AccessError } = await import("@/server/access");
 const files = await import("@/server/files");
@@ -88,10 +90,12 @@ async function unpack(stream: ReadableStream<Uint8Array>) {
   return { entries, names: Object.keys(entries).sort(), text, size: data.length };
 }
 
-async function exportOf(userId: string, scope: Parameters<typeof exporter.planExport>[1]) {
+async function exportOf(userId: string, scope: Parameters<typeof exporter.planExport>[1], { comments = false } = {}) {
   const plan = await exporter.planExport(userId, scope);
-  return { plan, ...(await unpack(exporter.exportArchive(userId, plan))) };
+  return { plan, ...(await unpack(exporter.exportArchive(userId, plan, { comments }))) };
 }
+
+const commentBody = (...paragraphs: string[]) => paragraphs.map((text) => ({ type: "paragraph", content: [{ type: "text", text, styles: {} }] }));
 
 const ids = {
   owner: `${RUN}-owner`,
@@ -255,6 +259,51 @@ try {
   check(JSON.stringify(trashed.names) === JSON.stringify(["Old stuff.md", "Old stuff/Old child.md"]), "a page in the trash exports with what went to the trash with it", trashed.names);
   void oldChild;
 
+  // Comments, when asked for
+  const opened = await changeComments(ids.owner, project.id, { type: "createThread", body: commentBody("Is the plan final?"), anchor: { quote: "See" } });
+  const threadId = opened.thread!.id;
+  check(opened.anchored === true, "set up: a thread on the project's text");
+  await changeComments(ids.member, project.id, { type: "addComment", threadId, body: commentBody("Almost:", "one more pass") });
+  const removed = await changeComments(ids.owner, project.id, { type: "addComment", threadId, body: commentBody("WITHDRAWN-REMARK") });
+  await changeComments(ids.owner, project.id, { type: "deleteComment", threadId, commentId: removed.comment!.id });
+  const settled = await changeComments(ids.owner, project.id, { type: "createThread", body: commentBody("Old question"), anchor: { quote: "and" } });
+  await changeComments(ids.owner, project.id, { type: "resolveThread", threadId: settled.thread!.id });
+  const budget = await addProperty(ids.owner, tasks.id, { name: "Budget", type: "text" });
+  await updateRowProperties(ids.owner, docsRow.id, { [budget.id]: "12k" });
+  await changeComments(ids.owner, docsRow.id, { type: "createThread", body: commentBody("BUDGET-APPROVED"), propertyId: budget.id });
+  await changeComments(ids.owner, docsRow.id, { type: "createThread", body: commentBody("Row-level note") });
+
+  const plain = await exporter.pageMarkdown(ids.owner, project.id);
+  check(!plain.body.includes("## Comments") && !plain.body.includes("Is the plan final?"), "without asking, an export carries no comments", plain.body);
+  const withComments = (await exporter.pageMarkdown(ids.owner, project.id, exporter.ENGLISH_EXPORT_LABELS, { comments: true })).body;
+  const section = withComments.slice(withComments.indexOf("---\n\n## Comments"));
+  check(withComments.indexOf("---\n\n## Comments") > withComments.indexOf("See"), "asked for, the comments follow the body under their own heading", withComments);
+  check(
+    section.includes(`### “See”\n\n**${ids.owner}** · `) && section.includes("> Is the plan final?") && section.includes(`**${ids.member}** · `) && section.includes("> Almost:\n>\n> one more pass"),
+    "each thread names the text it is on, then its comments under their author and date, quoted",
+    section,
+  );
+  check(/\*\* · \d{4}-\d{2}-\d{2} \d{2}:\d{2} UTC\n/.test(section), "dates are written in UTC", section);
+  check(section.indexOf("Is the plan final?") < section.indexOf("one more pass"), "replies come after the comment they answer");
+  check(section.includes("### “and”\n\n*Resolved*\n\n") && section.includes("> Old question"), "resolved threads are kept, marked Resolved", section);
+  check(!section.includes("WITHDRAWN-REMARK"), "deleted comments stay out");
+
+  await setPropertyAccess(ids.owner, budget.id, { everyone: "none", exceptions: [] });
+  const ownZip = await exportOf(ids.owner, { pageId: project.id }, { comments: true });
+  const ownRow = ownZip.text("Project/Tasks/Write docs.md")!;
+  check(ownZip.text("Project.md")!.includes("> Almost:"), "ZIP: page files carry their comments", ownZip.text("Project.md"));
+  check(
+    ownRow.includes("### On “Budget”") && ownRow.includes("> BUDGET-APPROVED") && ownRow.includes("### About this page") && ownRow.includes("> Row-level note"),
+    "ZIP: a row's file carries comments on the row and on its values",
+    ownRow,
+  );
+  // Full access sees every value: a guest who views the database doesn't see this one.
+  await setPagePermission(ids.owner, tasks.id, ids.guest, "view");
+  const guestZip = await exportOf(ids.guest, { pageId: tasks.id }, { comments: true });
+  const guestRow = guestZip.text("Tasks/Write docs.md")!;
+  check(guestRow.includes("> Row-level note") && !guestRow.includes("BUDGET-APPROVED") && !guestRow.includes("Budget"), "ZIP: comments on a value the exporter can't see stay out", guestRow);
+  check(!own.text("Project.md")!.includes("## Comments"), "ZIP: archives made without asking carry none");
+
   // The whole workspace
   const all = await exportOf(ids.owner, { workspaceId });
   check(all.plan.title === "Acme: Docs", "the workspace export is named after the workspace", all.plan.title);
@@ -311,6 +360,7 @@ try {
     };
     const ownerCookie = await cookieFor(ids.owner);
     const memberCookie = await cookieFor(ids.member);
+    const guestCookie = await cookieFor(ids.guest);
     const outsiderCookie = await cookieFor(ids.outsider);
     const get = (path: string, cookie?: string) => fetch(`${base}${path}`, { headers: cookie ? { cookie } : {} });
     const pageExport = `/w/${workspaceId}/p/${project.id}/export`;
@@ -337,6 +387,23 @@ try {
     });
     const csvText = await csvRes.text();
     check(csvRes.headers.get("content-type")?.startsWith("text/csv") && csvText.includes("Ship") && !csvText.includes("Write docs"), "HTTP: selected rows still export as CSV", csvText);
+    const commented = await (await get(`${pageExport}?comments=1`, ownerCookie)).text();
+    check(commented.includes("## Comments") && commented.includes("> Almost:"), "HTTP: comments=1 adds the comments to the Markdown", commented);
+    const zipped = await unpack((await get(`/w/${workspaceId}/p/${tasks.id}/export?subpages=1&comments=1`, guestCookie)).body!);
+    const zippedRow = zipped.text("Tasks/Write docs.md") ?? "";
+    check(zippedRow.includes("Row-level note") && !zippedRow.includes("BUDGET-APPROVED"), "HTTP: …and to the ZIP, as the exporter may see them", zippedRow);
+    // A page without images: the made-up photo.png isn't one pdfmake can draw.
+    const pdf = await get(`/w/${workspaceId}/p/${docsRow.id}/export?format=pdf&comments=1`, ownerCookie);
+    const { extractText, getDocumentProxy } = await import("unpdf");
+    const pdfText = (await extractText(await getDocumentProxy(new Uint8Array(await pdf.arrayBuffer())), { mergePages: true })).text;
+    check(
+      pdf.headers.get("content-type") === "application/pdf" && pdfText.includes("Comments") && pdfText.includes("Row-level note") && pdfText.includes("BUDGET-APPROVED"),
+      "HTTP: …and to the PDF",
+      pdfText,
+    );
+    const bare = await get(`/w/${workspaceId}/p/${docsRow.id}/export?format=pdf`, ownerCookie);
+    const bareText = (await extractText(await getDocumentProxy(new Uint8Array(await bare.arrayBuffer())), { mergePages: true })).text;
+    check(bare.status === 200 && !bareText.includes("Row-level note"), "HTTP: a PDF made without asking has none", bareText);
 
     const wsExport = `/w/${workspaceId}/settings/export.zip`;
     check((await get(wsExport, memberCookie)).status === 404, "HTTP: the workspace export is 404 for members");

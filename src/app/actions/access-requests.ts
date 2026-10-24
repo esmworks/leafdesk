@@ -3,13 +3,16 @@
 import { revalidatePath } from "next/cache";
 import { after } from "next/server";
 import type { SharingErrorCode, SharingResult } from "@/app/actions/sharing";
-import { isApprovalLevel } from "@/lib/access-requests";
+import { isApprovalLevel, isMoreAccessLevel } from "@/lib/access-requests";
 import { AccessError } from "@/server/access";
 import {
+  AccessRequestError,
   approveAccessRequest,
   declineAccessRequest,
+  requestMoreAccess,
   requestPageAccess,
   type AccessRequestOutcome,
+  type MoreAccessOutcome,
 } from "@/server/access-requests";
 import { getCollab } from "@/server/collab/bridge";
 import { PermissionError } from "@/server/permissions";
@@ -28,6 +31,21 @@ export async function requestAccessAction(pageId: string, message: string): Prom
   );
 }
 
+/**
+ * From the Share menu of a page the user can open: asks for comment or edit access. "denied" when
+ * they can't open it (any more).
+ */
+export async function requestMoreAccessAction(pageId: string, level: string, message: string): Promise<MoreAccessOutcome | "denied"> {
+  const userId = await requireUserId();
+  if (typeof pageId !== "string" || !pageId || !isMoreAccessLevel(level)) return "unavailable";
+  try {
+    return await requestMoreAccess(userId, pageId, level, message);
+  } catch (error) {
+    if (error instanceof AccessError) return "denied";
+    throw error;
+  }
+}
+
 async function answer(run: (userId: string) => Promise<{ workspaceId: string }>): Promise<SharingResult> {
   const userId = await requireUserId();
   let workspaceId: string;
@@ -36,6 +54,8 @@ async function answer(run: (userId: string) => Promise<{ workspaceId: string }>)
   } catch (error) {
     if (error instanceof PermissionError) return { ok: false, code: error.code satisfies SharingErrorCode };
     if (error instanceof AccessError) return { ok: false, code: "accessDenied" };
+    // A level they already have: the panel is behind, it reloads.
+    if (error instanceof AccessRequestError) return { ok: false, code: "generic" };
     console.error("[access request action]", error);
     return { ok: false, code: "generic" };
   }

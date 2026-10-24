@@ -1,4 +1,4 @@
-import { and, eq, ne, sql, type AnyColumn, type SQL } from "drizzle-orm";
+import { and, Column, eq, getTableName, is, ne, sql, type AnyColumn, type SQL } from "drizzle-orm";
 import { db } from "@/db";
 import {
   page,
@@ -334,6 +334,9 @@ export const FULL_RANK = rank("full");
 /** The rank `page_access_level` returns for edit access. */
 export const EDIT_RANK = rank("edit");
 
+/** A stored level (a column or value holding "view" … "full") as the rank `page_access_level` returns. */
+export const rankOf = (level: SQL | AnyColumn) => sql<number>`coalesce(array_position(array['view', 'comment', 'edit', 'full'], ${level}::text), 0)`;
+
 /** The level `page_access_level` returns (0–4) as a name; anything unexpected is `none`. */
 export const levelFromRank = (value: unknown): AccessLevel => PAGE_LEVELS[Number(value)] ?? "none";
 
@@ -486,9 +489,14 @@ export async function peopleWithFullAccess(workspaceId: string, pageId: string, 
 /**
  * SQL: someone's role in a workspace, or null when they aren't in it; for lists that say whether
  * a person is in the workspace (an access request's requester, say). Both are SQL expressions.
+ * Columns are named with their table: a query on one table writes them bare, and inside this
+ * subquery a bare `workspace_id` would be the member row's own.
  */
 export const workspaceRoleOf = (userId: SQL | AnyColumn, workspaceId: SQL | AnyColumn) =>
-  sql<WorkspaceRole | null>`(select wm.role from ${workspaceMember} wm where wm.workspace_id = ${workspaceId} and wm.user_id = ${userId})`;
+  sql<WorkspaceRole | null>`(select wm.role from ${workspaceMember} wm where wm.workspace_id = ${withTable(workspaceId)} and wm.user_id = ${withTable(userId)})`;
+
+const withTable = (value: SQL | AnyColumn) =>
+  is(value, Column) ? sql`${sql.identifier(getTableName(value.table))}.${sql.identifier(value.name)}` : value;
 
 /**
  * SQL condition: the user can at least view the page. Pass the alias when the page table is

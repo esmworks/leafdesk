@@ -138,6 +138,7 @@
     "mention": "{actor} กล่าวถึงคุณ",
     "reminder": "การเตือน: {date}",
     "accessRequest": "{actor} ขอสิทธิ์เข้าถึงหน้านี้",
+    "accessRequestMore": "{actor} ขอสิทธิ์{level, select, comment {แสดงความคิดเห็นใน} other {แก้ไข}}หน้านี้",
     "automation": "ระบบอัตโนมัติ “{name}”: {actor} เพิ่มหรือเปลี่ยนแถวนี้",
     "automationDatePassed": "ระบบอัตโนมัติ “{name}”: ถึงวันที่ของแถวนี้แล้ว",
     "button": "{actor} ส่งหน้านี้ถึงคุณด้วยปุ่ม",

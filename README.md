@@ -346,7 +346,8 @@ for Windows, `.AppImage` for Linux) and choose *On this computer*. See [Desktop 
   value takes threads of its own: the comment button beside a value (with how many open threads it
   has) starts one, and the comments panel lists them under the property's name. Only people who
   see that value read, write and hear about them (a row's access counts too), and a deleted
-  property's threads come back when it is restored.
+  property's threads come back when it is restored. The comments panel lists open, resolved,
+  marked or all threads, and with its person picker only those someone started or replied in.
 - **Suggested edits**: switch the page header from *Editing* to *Suggesting* and changes show as
   suggestions instead: inserted text underlined, deleted text struck through but kept, new
   formatting marked, live for everyone. Each is a thread in the comments panel, in its author's
@@ -458,8 +459,10 @@ for Windows, `.AppImage` for Linux) and choose *On this computer*. See [Desktop 
   reaches it. Share a page with someone outside the workspace by email and they join
   as a guest who sees only the pages shared with them (an account whose address was never
   verified is invited by email, like someone without one). Someone who opens a link to a page they
-  can't see can request access; the people with full access approve it at a level or decline it
-  from their inbox or the Share panel (owners can turn requests off in Settings → Security).
+  can't see can request access, and someone who can view or comment on a page can ask to comment
+  or edit from its Share panel; the people with full access see what was asked, approve it at that
+  level or another one above what the person has, or decline it, from their inbox or the Share
+  panel (owners can turn requests off in Settings → Security).
   The Share panel shows everyone who can view the page who has it; access inherited from a page
   above names that page only to those who can open it, and guests see people's names but not
   their email addresses, and that a group has access but not which one.
@@ -1035,6 +1038,15 @@ the app. An export holds only what the person exporting can see: pages they can'
 out and links to them say "No access". Pages in the trash are left out; exporting a page from the
 trash brings the subpages trashed with it.
 
+"Include comments", above the exports in the page menu, adds the comment threads to the Markdown
+file, to every page and row file of the ZIP and (a switch in its dialog) to the PDF. They follow
+the page under a rule and a `## Comments` heading, oldest thread first: each under a `###` heading
+saying what it is about (the text it quotes, "About this page", a property's value such as
+`On “Status”`, or text since removed), marked *Resolved* when it is, then its comments as quotes
+under their author and the time they were written in UTC (`**Ada Demir** · 2026-10-24 09:12 UTC`).
+Deleted comments and reactions stay out, and so do threads the exporter can't see: those on a
+property value they may not see. The CSV and Excel exports of a database don't carry comments.
+
 A page in the trash can be read but not changed: its content, title, icon, cover and properties
 stay as they are until it is restored, and nothing can be moved or added under it.
 
@@ -1264,7 +1276,8 @@ windows the pages open stay in the app only when they are on your server. Menus 
 language chosen in My account, or the system's. The server's pages may use notifications, the clipboard,
 full screen and the microphone (voice notes); nothing else, and no other site. Single sign-on and
 connecting apps happen inside the app, so the sign-in it leads to stays with it. The window
-remembers its size and place. Cmd+Shift+J on macOS (Ctrl+Shift+J on Windows and Linux), pressed in
+remembers its size and place, and opens on the page it last showed (only a page of the same
+server, or of Leafdesk on this computer; otherwise the home page). Cmd+Shift+J on macOS (Ctrl+Shift+J on Windows and Linux), pressed in
 any app, brings Leafdesk forward and opens AI chat in the workspace its window shows, or a quick
 note where AI is off there; *Go → Ask AI Shortcut* picks other keys or turns it off, and says
 when another app already has the keys. Offline editing works as in the installed web app, which needs HTTPS
@@ -1349,9 +1362,10 @@ New inbox items can also come as system notifications on people's devices, while
 closed too. Each person turns them on per device in My account → Preferences ("Push notifications
 on this device"), and picks there, per kind of notification, whether it comes as a push next to
 the inbox and email. Push follows the inbox: a kind kept out of the inbox isn't pushed. Opening a
-notification brings an open Leafdesk tab to the page, or opens one; its "Snooze 1 hour" button
-puts it off as the inbox's snooze does (not on agents' requests to go ahead, which wait only so
-long). People who linked Telegram get the same notifications there too (see
+notification brings an open Leafdesk tab to the page, or opens one; its "Mark as read" button
+marks the inbox item read (its email, if still to come, then doesn't go) and its "Snooze 1 hour"
+button puts it off as the inbox's snooze does (not on agents' requests to go ahead, which wait
+only so long). People who linked Telegram get the same notifications there too (see
 [AI chat from Telegram](#ai-chat-from-telegram)), with a Telegram column of their own.
 
 Push is off until the server has a VAPID key pair. Make one and add the printed lines to `.env`:

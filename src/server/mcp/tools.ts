@@ -1159,7 +1159,9 @@ export function createMcpServer(principal: McpPrincipal) {
                           ? `Reminder: "${title}" in ${pageLabel(n.databaseTitle)} has "${n.propertyName}" on ${n.reminderDate ?? "a date"}`
                           : `Reminder the user set for ${n.reminderDate ?? "a date"} on "${title}"`
                         : n.kind === "access_request"
-                          ? `${who} asked for access to "${title}", which the user can share (answer from the page's Share menu)`
+                          ? n.accessRequest && n.accessRequest.level !== "view"
+                            ? `${who} can open "${title}" and asked for ${n.accessRequest.level} access, which the user can give (answer from the page's Share menu)`
+                            : `${who} asked for access to "${title}", which the user can share (answer from the page's Share menu)`
                           : n.kind === "row_update"
                             ? `${who} changed "${title}" in ${pageLabel(n.databaseTitle)}, a row the user follows`
                           : n.kind === "page_updated"

@@ -1,11 +1,18 @@
 import { and, asc, eq, sql } from "drizzle-orm";
 import { db } from "@/db";
 import { accessRequest, user, workspace } from "@/db/schema";
-import { ACCESS_REQUEST_LIMIT, cleanRequestMessage, type ApprovalLevel } from "@/lib/access-requests";
+import {
+  ACCESS_REQUEST_LIMIT,
+  cleanRequestMessage,
+  isAbove,
+  type ApprovalLevel,
+  type MoreAccessLevel,
+  type RequestedLevel,
+} from "@/lib/access-requests";
 import { env } from "@/lib/env";
 import { pageLabel } from "@/lib/labels";
 import { sharedLimiter, takeAll } from "@/lib/rate-limit";
-import { AccessError, findMembership, pageAccessOf, requirePageAccess, workspaceRoleOf } from "@/server/access";
+import { AccessError, findMembership, levelFromRank, pageAccessOf, rankOf, requirePageAccess, workspaceRoleOf, type AccessLevel } from "@/server/access";
 import { recordAudit } from "@/server/audit";
 import { accessApprovedEmail, accessDeclinedEmail } from "@/server/mail";
 import { recipientLocale, requestLocale } from "@/server/mail/locale";
@@ -26,9 +33,22 @@ import { refuseInLocalMode } from "@/server/local-mode";
  * the page hears about it (inbox and email) and can approve it, picking a level, or decline it.
  * People outside the workspace can ask too; approving brings them in as guests through
  * `sharePageByEmail`, so the workspace's guest invite policy decides whether that is allowed.
+ *
+ * Someone who can already open a page may ask for more from its Share menu (`requestMoreAccess`):
+ * comment or edit access, whatever they have less of. That page is known to them, so the answer
+ * says what happened. Approvers give the level asked for or another one above what the requester
+ * has. A person has one request per page: asking for more than the pending one asks again.
  */
 
 export type AccessRequestOutcome = "sent" | "rateLimited";
+
+/** An answer to a request that can't be given (a level the requester already has). */
+export class AccessRequestError extends Error {
+  constructor(message: string) {
+    super(message);
+    this.name = "AccessRequestError";
+  }
+}
 
 const limiter = () => sharedLimiter("access-request", ACCESS_REQUEST_LIMIT.count, ACCESS_REQUEST_LIMIT.windowMs);
 
@@ -68,22 +88,79 @@ export async function requestPageAccess(
   if (takeAll([[limiter(), userId]]) > 0) return "rateLimited";
   // Read while the request is still there: deferred work runs without it.
   const locale = await requestLocale();
-  await defer(() => storeAccessRequest(userId, pageId, cleanRequestMessage(message), locale));
+  await defer(async () => void (await storeAccessRequest(userId, pageId, cleanRequestMessage(message), locale, "view")));
   return "sent";
 }
 
-/** Stores the request and tells the people who can answer it, when there is anything to ask for. */
-async function storeAccessRequest(userId: string, pageId: string, message: string | null, locale: string) {
+/**
+ * The SQL condition under which a stored request still waits: the requester has less than they
+ * asked for (requests of people who got in some other way since are left out everywhere).
+ */
+export const stillWanted = sql`page_access_level(${accessRequest.requesterId}, ${accessRequest.pageId}) < ${rankOf(accessRequest.level)}`;
+
+/**
+ * Stores the request for `wanted` and tells the people who can answer it, when there is anything
+ * to ask for: "view" (any access) only without access, more only with less than that. A request
+ * still pending for as much or more stays as it was ("pending"); one for less, or one already
+ * answered some other way, gives way to the new one.
+ */
+async function storeAccessRequest(
+  userId: string,
+  pageId: string,
+  message: string | null,
+  locale: string,
+  wanted: RequestedLevel,
+): Promise<"stored" | "pending" | "nothing"> {
   // Without the sign-in policies: a policy holding back their session doesn't give them access.
   const { page: target, level } = await pageAccessOf(userId, pageId);
-  if (!target || target.archivedAt || level !== "none") return;
-  if (!(await workspaceSettings(target.workspaceId)).accessRequests) return;
-  const [created] = await db
-    .insert(accessRequest)
-    .values({ pageId, workspaceId: target.workspaceId, requesterId: userId, message, locale })
-    .onConflictDoNothing()
-    .returning({ id: accessRequest.id });
-  if (created) await recordAccessRequest(target.workspaceId, pageId, created.id, userId, locale);
+  if (!target || target.archivedAt || !isAbove(wanted, level)) return "nothing";
+  if (wanted !== "view" && level === "none") return "nothing";
+  if (!(await workspaceSettings(target.workspaceId)).accessRequests) return "nothing";
+  const created = await db.transaction(async (tx) => {
+    const [pending] = await tx
+      .select({ id: accessRequest.id, level: accessRequest.level, wanted: sql<boolean>`${stillWanted}` })
+      .from(accessRequest)
+      .where(and(eq(accessRequest.pageId, pageId), eq(accessRequest.requesterId, userId)))
+      .for("update");
+    if (pending?.wanted && !isAbove(wanted, pending.level)) return null;
+    // Its notifications go with it (foreign key).
+    if (pending) await tx.delete(accessRequest).where(eq(accessRequest.id, pending.id));
+    const [row] = await tx
+      .insert(accessRequest)
+      .values({ pageId, workspaceId: target.workspaceId, requesterId: userId, level: wanted, message, locale })
+      .onConflictDoNothing()
+      .returning({ id: accessRequest.id });
+    return row ?? null;
+  });
+  if (!created) return "pending";
+  await recordAccessRequest(target.workspaceId, pageId, created.id, userId, locale);
+  return "stored";
+}
+
+export type MoreAccessOutcome = "sent" | "rateLimited" | "unavailable";
+
+/**
+ * From the Share menu of a page `userId` can open: asks the people with full access to it for
+ * `level`. "unavailable" when the workspace takes no requests or they already have that much.
+ * Asking again while a request for as much is pending keeps that one ("sent"). AccessError
+ * without access to the page.
+ */
+export async function requestMoreAccess(userId: string, pageId: string, level: MoreAccessLevel, message?: unknown): Promise<MoreAccessOutcome> {
+  refuseInLocalMode();
+  const target = await requirePageAccess(userId, pageId, "view");
+  if (!(await accessRequestsOffered(target.workspaceId))) return "unavailable";
+  if (takeAll([[limiter(), userId]]) > 0) return "rateLimited";
+  const stored = await storeAccessRequest(userId, pageId, cleanRequestMessage(message), await requestLocale(), level);
+  return stored === "nothing" ? "unavailable" : "sent";
+}
+
+/** The level `userId` asked for on the page while that request waits; null without one. */
+export async function pendingRequestOf(userId: string, pageId: string): Promise<RequestedLevel | null> {
+  const [row] = await db
+    .select({ level: accessRequest.level })
+    .from(accessRequest)
+    .where(and(eq(accessRequest.pageId, pageId), eq(accessRequest.requesterId, userId), stillWanted));
+  return row?.level ?? null;
 }
 
 export type PendingAccessRequest = {
@@ -94,6 +171,10 @@ export type PendingAccessRequest = {
   email: string | null;
   image: string | null;
   message: string | null;
+  /** What they asked for: "view" is any access (from the no-access screen). */
+  level: RequestedLevel;
+  /** What they have now: none, or less than `level` for those asking for more. */
+  current: AccessLevel;
   createdAt: Date;
   /** They are in the workspace (member or guest); otherwise approving adds them as a guest. */
   inWorkspace: boolean;
@@ -115,19 +196,22 @@ export async function listAccessRequests(actorId: string, pageId: string): Promi
       email: user.email,
       image: user.image,
       message: accessRequest.message,
+      level: accessRequest.level,
+      current: sql<number>`page_access_level(${accessRequest.requesterId}, ${accessRequest.pageId})`,
       createdAt: accessRequest.createdAt,
       role: workspaceRoleOf(accessRequest.requesterId, accessRequest.workspaceId),
     })
     .from(accessRequest)
     .innerJoin(user, eq(user.id, accessRequest.requesterId))
-    .where(and(eq(accessRequest.pageId, pageId), sql`page_access_level(${accessRequest.requesterId}, ${accessRequest.pageId}) = 0`))
+    .where(and(eq(accessRequest.pageId, pageId), stillWanted))
     .orderBy(asc(accessRequest.createdAt));
   const mayInvite = rows.some((r) => r.role === null) && (await canInviteGuests(actorId, target.workspaceId));
   // A guest with full access sees who asked, but not the address of anyone in the workspace (as in
   // listPagePermissions). Someone outside it gave theirs by asking.
   const asGuest = (await findMembership(actorId, target.workspaceId))?.role === "guest";
-  return rows.map(({ role, ...r }) => ({
+  return rows.map(({ role, current, ...r }) => ({
     ...r,
+    current: levelFromRank(current),
     email: asGuest && role !== null && r.requesterId !== actorId ? null : r.email,
     inWorkspace: role !== null,
     approvable: role !== null || mayInvite,
@@ -139,7 +223,7 @@ export async function countAccessRequests(pageId: string) {
   const [row] = await db
     .select({ n: sql<number>`count(*)::int` })
     .from(accessRequest)
-    .where(and(eq(accessRequest.pageId, pageId), sql`page_access_level(${accessRequest.requesterId}, ${accessRequest.pageId}) = 0`));
+    .where(and(eq(accessRequest.pageId, pageId), stillWanted));
   return row?.n ?? 0;
 }
 
@@ -154,6 +238,7 @@ async function answerable(actorId: string, requestId: string) {
       pageId: accessRequest.pageId,
       workspaceId: accessRequest.workspaceId,
       requesterId: accessRequest.requesterId,
+      level: accessRequest.level,
       locale: accessRequest.locale,
       email: user.email,
     })
@@ -177,11 +262,14 @@ const pageLink = (workspaceId: string, pageId: string) => `${env.appUrl}/w/${wor
 /**
  * Gives the requester `level` on the page: their own entry when they are in the workspace, else
  * they join as a guest (refused with PermissionError "invitesRestricted" when `actorId` may not
- * invite guests; the request then stays). Emails them the answer, in their own language, instead
- * of the usual share email.
+ * invite guests; the request then stays). `level` may differ from the one asked for, but must be
+ * more than they have (AccessRequestError otherwise: sharing less would take access away). Emails
+ * them the answer, in their own language, instead of the usual share email.
  */
 export async function approveAccessRequest(actorId: string, requestId: string, level: ApprovalLevel) {
   const { request, target, locale } = await answerable(actorId, requestId);
+  const { level: current } = await pageAccessOf(request.requesterId, request.pageId);
+  if (!isAbove(level, current)) throw new AccessRequestError("They already have that much access");
   if (await findMembership(request.requesterId, request.workspaceId)) {
     await setPagePermission(actorId, request.pageId, request.requesterId, level);
   } else {
@@ -195,7 +283,7 @@ export async function approveAccessRequest(actorId: string, requestId: string, l
     action: "access_request.approved",
     target: { type: "page", id: request.pageId },
     subject: { type: "user", id: request.requesterId },
-    details: { level },
+    details: { level, requested: request.level },
   });
   await skipShareEmail(request.requesterId, request.pageId);
   const [[actor], [space]] = await Promise.all([
@@ -213,9 +301,12 @@ export async function approveAccessRequest(actorId: string, requestId: string, l
   return { workspaceId: request.workspaceId, pageId: request.pageId };
 }
 
-/** Drops the request and tells the requester, without naming the page, its workspace or who declined. */
+/**
+ * Drops the request and tells the requester, without naming the page, its workspace or who
+ * declined; only someone who can open the page (they asked for more) hears its title.
+ */
 export async function declineAccessRequest(actorId: string, requestId: string) {
-  const { request, locale } = await answerable(actorId, requestId);
+  const { request, target, locale } = await answerable(actorId, requestId);
   await forget(request.workspaceId, request.id);
   await recordAudit({
     workspaceId: request.workspaceId,
@@ -223,8 +314,15 @@ export async function declineAccessRequest(actorId: string, requestId: string) {
     action: "access_request.declined",
     target: { type: "page", id: request.pageId },
     subject: { type: "user", id: request.requesterId },
+    details: { requested: request.level },
   });
 
-  mailNow({ to: request.email, ...accessDeclinedEmail(locale, { link: pageLink(request.workspaceId, request.pageId) }) });
+  const link = pageLink(request.workspaceId, request.pageId);
+  // Someone asking for more can open the page: they may learn its title.
+  const more =
+    request.level !== "view" && (await pageAccessOf(request.requesterId, request.pageId)).level !== "none"
+      ? { level: request.level, pageTitle: pageLabel(target.title, emailTranslator(locale)("share.untitled")) }
+      : undefined;
+  mailNow({ to: request.email, ...accessDeclinedEmail(locale, { link, more }) });
   return { workspaceId: request.workspaceId, pageId: request.pageId };
 }

@@ -58,6 +58,8 @@
     "exportZip": "Mit Unterseiten exportieren",
     "exportZipDatabase": "Mit Zeilenseiten exportieren",
     "exportPdf": "Als PDF exportieren",
+    "exportComments": "Kommentare einschließen",
+    "exportCommentsHint": "Fügt die Kommentar-Threads, die du sehen kannst, nach jeder Seite in Markdown-, ZIP- und PDF-Exporte ein",
     "printView": "Drucken",
     "exportPreparing": "Export wird vorbereitet…",
     "acceptAllSuggestions": "Alle Vorschläge annehmen",
@@ -97,7 +99,14 @@
       "open": "Keine offenen Kommentare. Markiere Text auf der Seite und wähle „Kommentieren“, um einen zu beginnen.",
       "resolved": "Keine erledigten Kommentare.",
       "marked": "Keine Threads zum Wiederaufgreifen markiert. Wähle im Menü eines Threads „Später ansehen“.",
-      "all": "Noch keine Kommentare. Markiere Text auf der Seite und wähle „Kommentieren“, um einen zu beginnen."
+      "all": "Noch keine Kommentare. Markiere Text auf der Seite und wähle „Kommentieren“, um einen zu beginnen.",
+      "person": "Keiner dieser Threads enthält einen Kommentar dieser Person."
+    },
+    "person": {
+      "label": "Threads nach Person anzeigen",
+      "active": "Threads, in denen {name} geschrieben hat",
+      "everyone": "Alle",
+      "you": "{name} (du)"
     },
     "threadMenu": "Optionen für den Thread",
     "mute": "Antworten stummschalten",
@@ -136,7 +145,12 @@
     "onProperty": "Kommentar zu „{name}“",
     "propertyPlaceholder": "Was ist mit diesem Wert?",
     "post": "Kommentieren",
-    "propertyGone": "Dieser Wert kann nicht mehr kommentiert werden."
+    "propertyGone": "Dieser Wert kann nicht mehr kommentiert werden.",
+    "export": {
+      "quote": "„{quote}“",
+      "removed": "Zu Text, der entfernt wurde",
+      "unknown": "Jemand"
+    }
   },
   "archived": {
     "banner": "Diese Seite liegt im Papierkorb.",
@@ -328,7 +342,19 @@
       "approve": "Teilen",
       "decline": "Ablehnen",
       "outsider": "Nicht im Workspace: Beim Teilen kommt die Person als Gast dazu.",
-      "cantInvite": "Nicht im Workspace, und dieser Workspace erlaubt dir nicht, mit Personen außerhalb zu teilen."
+      "cantInvite": "Nicht im Workspace, und dieser Workspace erlaubt dir nicht, mit Personen außerhalb zu teilen.",
+      "asksMore": "Möchte „{level}“, hat jetzt „{current}“"
+    },
+    "askMore": {
+      "title": "Mehr Zugriff anfragen",
+      "description": "Du hast „{level}“. Darüber entscheiden die Personen mit Vollzugriff auf die Seite.",
+      "level": "Gewünschter Zugriff",
+      "messagePlaceholder": "Nachricht (optional)",
+      "send": "Anfragen",
+      "sending": "Wird angefragt…",
+      "pending": "Du hast „{level}“ angefragt. Die Personen mit Vollzugriff auf die Seite antworten dir.",
+      "rateLimited": "Du hast zu oft angefragt. Versuch es später noch einmal.",
+      "unavailable": "Du kannst gerade keinen weiteren Zugriff auf diese Seite anfragen."
     },
     "levels": {
       "full": "Vollzugriff",
@@ -680,6 +706,7 @@
     "defaultMark": "{name} (Standard)",
     "noLetterheads": "Eigentümer können unter Einstellungen → PDF-Vorlagen Briefköpfe mit Logo und Firmenangaben anlegen.",
     "properties": "Werte der Zeile einschließen",
+    "comments": "Kommentare einschließen",
     "hint": "Diagramme und Formeln werden als Text gedruckt; mit Drucken erhalten Sie die Seite genau so, wie sie aussieht.",
     "download": "Herunterladen",
     "preparing": "Wird vorbereitet…"

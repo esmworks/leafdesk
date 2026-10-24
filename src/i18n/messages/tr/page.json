@@ -58,6 +58,8 @@
     "exportZip": "Alt sayfalarla dışa aktar",
     "exportZipDatabase": "Satırlarla dışa aktar",
     "exportPdf": "PDF olarak dışa aktar",
+    "exportComments": "Yorumları ekle",
+    "exportCommentsHint": "Görebildiğin yorum dizilerini Markdown, ZIP ve PDF dışa aktarımlarında her sayfanın sonuna ekler",
     "printView": "Yazdır",
     "exportPreparing": "Dışa aktarma hazırlanıyor…",
     "acceptAllSuggestions": "Tüm önerileri kabul et",
@@ -97,7 +99,14 @@
       "open": "Açık yorum yok. Yorum başlatmak için sayfada bir metin seçip Yorum'u seçin.",
       "resolved": "Çözülen yorum yok.",
       "marked": "Daha sonra dönmek için işaretlediğiniz konuşma yok. Bir konuşmanın menüsünden “Sonra dön”ü seçin.",
-      "all": "Henüz yorum yok. Yorum başlatmak için sayfada bir metin seçip Yorum'u seçin."
+      "all": "Henüz yorum yok. Yorum başlatmak için sayfada bir metin seçip Yorum'u seçin.",
+      "person": "Bu konuşmaların hiçbirinde bu kişinin yorumu yok."
+    },
+    "person": {
+      "label": "Konuşmaları kişiye göre göster",
+      "active": "{name} kişisinin yazdığı konuşmalar",
+      "everyone": "Herkes",
+      "you": "{name} (siz)"
     },
     "threadMenu": "Yorum konusu seçenekleri",
     "mute": "Yanıtları sessize al",
@@ -136,7 +145,12 @@
     "onProperty": "“{name}” hakkında yorum",
     "propertyPlaceholder": "Bu değerle ilgili ne düşünüyorsunuz?",
     "post": "Yorum yap",
-    "propertyGone": "Bu değere artık yorum yapılamaz."
+    "propertyGone": "Bu değere artık yorum yapılamaz.",
+    "export": {
+      "quote": "“{quote}”",
+      "removed": "Kaldırılan bir metin hakkında",
+      "unknown": "Biri"
+    }
   },
   "archived": {
     "banner": "Bu sayfa çöp kutusunda.",
@@ -328,7 +342,19 @@
       "approve": "Paylaş",
       "decline": "Reddet",
       "outsider": "Çalışma alanında değil: paylaşınca misafir olarak eklenir.",
-      "cantInvite": "Çalışma alanında değil ve bu çalışma alanı dışarıdan kişilerle paylaşmanıza izin vermiyor."
+      "cantInvite": "Çalışma alanında değil ve bu çalışma alanı dışarıdan kişilerle paylaşmanıza izin vermiyor.",
+      "asksMore": "“{level}” istiyor, şu an “{current}”"
+    },
+    "askMore": {
+      "title": "Daha fazla erişim iste",
+      "description": "Şu an “{level}” erişiminiz var. Karar, sayfaya tam erişimi olanlarındır.",
+      "level": "İstenen erişim",
+      "messagePlaceholder": "Mesaj (isteğe bağlı)",
+      "send": "İste",
+      "sending": "İsteniyor…",
+      "pending": "“{level}” erişimi istediniz. Sayfaya tam erişimi olanlar yanıtlayacak.",
+      "rateLimited": "Çok fazla istek gönderdiniz. Biraz sonra yeniden deneyin.",
+      "unavailable": "Şu an bu sayfa için daha fazla erişim isteyemezsiniz."
     },
     "levels": {
       "full": "Tam erişim",
@@ -680,6 +706,7 @@
     "defaultMark": "{name} (varsayılan)",
     "noLetterheads": "Sahipler Ayarlar → PDF şablonları'ndan logolu ve şirket bilgili antet ekleyebilir.",
     "properties": "Satırın alanlarını ekle",
+    "comments": "Yorumları ekle",
     "hint": "Diyagramlar ve denklemler metin olarak basılır; sayfayı göründüğü gibi almak için Yazdır'ı kullanın.",
     "download": "İndir",
     "preparing": "Hazırlanıyor…"

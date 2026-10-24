@@ -57,6 +57,7 @@ each platform.
 | `src/local-db.ts` | Local mode's PostgreSQL: made, started on a free port, stopped, recovered |
 | `src/local-server.ts` | Local mode's server: setup, start, signing in to the computer's account, stop |
 | `src/navigation.ts` | Which links stay in the window, open in the browser or go nowhere |
+| `src/last-page.ts` | The page the window opens on at start: the last one shown, on the same server only |
 | `src/certificates.ts` | Certificates the system doesn't trust: fingerprint, trusting one per host |
 | `src/server-address.ts` | Turning what was typed into addresses to try |
 | `src/strings.ts` | The app's own texts in the web app's 19 languages |

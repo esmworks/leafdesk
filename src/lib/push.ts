@@ -76,9 +76,9 @@ export function isAllowedPushHost(url: URL, allowedHosts: readonly string[]) {
 
 /**
  * What a push message carries: the notification's two lines in the inbox, where it leads, and the
- * label of its snooze button (empty for what can't be snoozed).
+ * labels of its buttons: Mark as read, and Snooze (empty for what can't be snoozed).
  */
-export type PushPayload = { title: string; body: string; url: string; tag: string; snooze: string };
+export type PushPayload = { title: string; body: string; url: string; tag: string; read: string; snooze: string };
 
 /**
  * Most bytes of a payload. Push services take about 4 KB after encryption; staying well under
@@ -118,7 +118,7 @@ export type PushItem = {
   reminderDate: string | null;
   reminderTimeZone: string | null;
   automationName: string | null;
-  accessRequest: { requesterEmail: string } | null;
+  accessRequest: { requesterEmail: string; level: "view" | "comment" | "edit" } | null;
   requestKind: string | null;
   requestEmail: string | null;
   approval: { agentId: string; runId: string; agentName: string; tool: string; connectionName: string } | null;
@@ -210,7 +210,11 @@ export function pushPayload(
     title = item.pageTitle?.trim() || t("untitled");
     switch (item.kind) {
       case "access_request":
-        line = t("accessRequest", { actor: item.actorName || item.accessRequest?.requesterEmail || t("someone") });
+        {
+          const asker = item.actorName || item.accessRequest?.requesterEmail || t("someone");
+          const level = item.accessRequest?.level ?? "view";
+          line = level === "view" ? t("accessRequest", { actor: asker }) : t("accessRequestMore", { actor: asker, level });
+        }
         break;
       case "page_shared":
         line = t("pageShared", { actor });
@@ -270,5 +274,5 @@ export function pushPayload(
     if (item.databaseTitle !== null) line += ` · ${item.databaseTitle.trim() || t("untitled")}`;
   }
   // An agent's call waits only so long: snoozing it would let it run out unseen.
-  return { title, body: line, url: pushLink(item), tag: item.id, snooze: canSnooze(item.kind) ? t("snooze") : "" };
+  return { title, body: line, url: pushLink(item), tag: item.id, read: t("read"), snooze: canSnooze(item.kind) ? t("snooze") : "" };
 }

@@ -138,6 +138,7 @@
     "mention": "أشار إليك {actor}",
     "reminder": "تذكير: {date}",
     "accessRequest": "طلب {actor} الوصول إلى هذه الصفحة",
+    "accessRequestMore": "طلب {actor} {level, select, comment {التعليق على} other {تحرير}} هذه الصفحة",
     "automation": "الأتمتة «{name}»: أضاف {actor} هذا الصف أو غيّره",
     "automationDatePassed": "الأتمتة «{name}»: حان موعد تاريخ هذا الصف",
     "button": "أرسل إليك {actor} هذه الصفحة عبر زر",

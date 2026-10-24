@@ -58,6 +58,8 @@
     "exportZip": "连同子页面导出",
     "exportZipDatabase": "连同行页面导出",
     "exportPdf": "导出为 PDF",
+    "exportComments": "包含评论",
+    "exportCommentsHint": "将你能看到的评论串添加到 Markdown、ZIP 和 PDF 导出中，放在每个页面之后",
     "printView": "打印",
     "exportPreparing": "正在准备导出…",
     "acceptAllSuggestions": "接受所有建议",
@@ -97,7 +99,14 @@
       "open": "没有未解决的评论。在页面中选中文本并选择“评论”即可发起评论。",
       "resolved": "没有已解决的评论。",
       "marked": "没有标记为稍后查看的讨论。在讨论的菜单中选择“稍后查看”。",
-      "all": "还没有评论。在页面中选中文本并选择“评论”即可发起评论。"
+      "all": "还没有评论。在页面中选中文本并选择“评论”即可发起评论。",
+      "person": "这些讨论中没有此人的评论。"
+    },
+    "person": {
+      "label": "按人查看讨论",
+      "active": "{name} 参与的讨论",
+      "everyone": "所有人",
+      "you": "{name}（你）"
     },
     "threadMenu": "讨论串选项",
     "mute": "将回复设为免打扰",
@@ -136,7 +145,12 @@
     "onProperty": "评论“{name}”",
     "propertyPlaceholder": "这个值有什么问题吗?",
     "post": "评论",
-    "propertyGone": "这个值已无法再评论。"
+    "propertyGone": "这个值已无法再评论。",
+    "export": {
+      "quote": "“{quote}”",
+      "removed": "关于已删除的文本",
+      "unknown": "某人"
+    }
   },
   "archived": {
     "banner": "此页面在回收站中。",
@@ -328,7 +342,19 @@
       "approve": "分享",
       "decline": "拒绝",
       "outsider": "不在工作区中：分享后对方将以访客身份加入。",
-      "cantInvite": "不在工作区中，且此工作区不允许你与工作区之外的人分享。"
+      "cantInvite": "不在工作区中，且此工作区不允许你与工作区之外的人分享。",
+      "asksMore": "申请“{level}”，当前为“{current}”"
+    },
+    "askMore": {
+      "title": "申请更多访问权限",
+      "description": "你当前为“{level}”。由拥有此页面完全访问权限的人决定。",
+      "level": "申请的权限",
+      "messagePlaceholder": "留言（可选）",
+      "send": "申请",
+      "sending": "正在申请…",
+      "pending": "你已申请“{level}”。拥有此页面完全访问权限的人会回复你。",
+      "rateLimited": "你申请的次数过多。请稍后再试。",
+      "unavailable": "你目前无法申请此页面的更多访问权限。"
     },
     "levels": {
       "full": "完全访问",
@@ -680,6 +706,7 @@
     "defaultMark": "{name}（默认）",
     "noLetterheads": "所有者可以在 设置 → PDF 模板 中添加带徽标和公司信息的信笺。",
     "properties": "包含该行的值",
+    "comments": "包含评论",
     "hint": "图表和公式会以文字形式打印；如需与页面完全一致，请使用“打印”。",
     "download": "下载",
     "preparing": "正在准备…"

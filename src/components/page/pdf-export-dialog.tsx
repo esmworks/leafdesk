@@ -21,11 +21,24 @@ function fileNameOf(disposition: string | null, fallback: string): string {
 /**
  * The page menu's "Export as PDF": the page as a PDF file made on the server (the export route's
  * `format=pdf`), in one of the workspace's letterheads (its default picked first) and, for a row,
- * with its values if asked. The file is fetched rather than linked, so a refusal (another export
+ * with its values and with the comments if asked (the page menu's "Include comments" picks the
+ * latter first). The file is fetched rather than linked, so a refusal (another export
  * running, export turned off) shows here instead of downloading as a file. Loaded with the menu's
  * first use, not with every page.
  */
-export default function PdfExportDialog({ workspaceId, pageId, isRow, onClose }: { workspaceId: string; pageId: string; isRow: boolean; onClose: () => void }) {
+export default function PdfExportDialog({
+  workspaceId,
+  pageId,
+  isRow,
+  comments: commentsFirst = false,
+  onClose,
+}: {
+  workspaceId: string;
+  pageId: string;
+  isRow: boolean;
+  comments?: boolean;
+  onClose: () => void;
+}) {
   const t = useTranslations("page.pdfExport");
   const tExport = useTranslations("common.export");
   const tc = useTranslations("common");
@@ -33,6 +46,7 @@ export default function PdfExportDialog({ workspaceId, pageId, isRow, onClose }:
   const [letterheads, setLetterheads] = useState<Letterhead[] | null>(null);
   const [choice, setChoice] = useState("none");
   const [properties, setProperties] = useState(false);
+  const [comments, setComments] = useState(commentsFirst);
   const [pending, setPending] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -55,7 +69,7 @@ export default function PdfExportDialog({ workspaceId, pageId, isRow, onClose }:
     setPending(true);
     setError(null);
     try {
-      const query = new URLSearchParams({ format: "pdf", letterhead: choice, ...(isRow && properties ? { properties: "1" } : {}) });
+      const query = new URLSearchParams({ format: "pdf", letterhead: choice, ...(isRow && properties ? { properties: "1" } : {}), ...(comments ? { comments: "1" } : {}) });
       const res = await fetch(`/w/${workspaceId}/p/${pageId}/export?${query}`, { cache: "no-store" });
       if (!res.ok) {
         const body = (await res.json().catch(() => null)) as { error?: string } | null;
@@ -108,6 +122,10 @@ export default function PdfExportDialog({ workspaceId, pageId, isRow, onClose }:
             <Switch checked={properties} onChange={setProperties} label={t("properties")} disabled={pending} />
           </div>
         )}
+        <div className="flex items-center justify-between gap-3 text-sm">
+          <span>{t("comments")}</span>
+          <Switch checked={comments} onChange={setComments} label={t("comments")} disabled={pending} />
+        </div>
         <p className="text-xs text-fg-muted">{t("hint")}</p>
         <div className="flex items-center justify-end gap-2">
           {error && <span className="flex-1 text-sm text-danger">{error}</span>}

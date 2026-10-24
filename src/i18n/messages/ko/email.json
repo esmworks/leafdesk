@@ -145,6 +145,10 @@
     "body": "{requester}({email})님이 {workspace}의 “{page}” 페이지를 열고 싶어 합니다.",
     "bodyWithoutEmail": "{requester}님이 {workspace}의 “{page}” 페이지를 열고 싶어 합니다.",
     "message": "요청 메시지: “{message}”",
+    "moreSubject": "{requester}님이 “{page}”에 대한 {level, select, comment {댓글} other {편집}} 권한을 요청했습니다",
+    "moreHeading": "{requester}님이 “{page}”에 대한 더 많은 액세스를 요청했습니다",
+    "moreBody": "{requester}님({email})은 {workspace}의 “{page}”를 열 수 있으며, {level, select, comment {댓글을 달} other {편집할}} 수 있기를 원합니다.",
+    "moreBodyWithoutEmail": "{requester}님은 {workspace}의 “{page}”를 열 수 있으며, {level, select, comment {댓글을 달} other {편집할}} 수 있기를 원합니다.",
     "answer": "할 수 있는 작업을 선택해 페이지를 공유하거나 요청을 거절하세요. 수신함이나 페이지의 공유 메뉴에서 응답할 수 있습니다.",
     "action": "페이지 열기",
     "optOut": "이 페이지에 대한 전체 액세스 권한이 있기 때문에 이 이메일을 받습니다. 내 계정 > 환경설정에서 끌 수 있습니다."
@@ -159,7 +163,8 @@
     "subject": "액세스 요청이 거절되었습니다",
     "heading": "요청이 거절되었습니다",
     "body": "이 페이지에 대한 액세스 요청이 거절되었습니다: {link}",
-    "hint": "여전히 액세스가 필요하다면 링크를 보낸 사람에게 문의하세요."
+    "hint": "여전히 액세스가 필요하다면 링크를 보낸 사람에게 문의하세요.",
+    "moreBody": "“{page}”에 대한 {level, select, comment {댓글} other {편집}} 권한 요청이 거절되었습니다. 이전처럼 계속 열 수 있습니다: {link}"
   },
   "emailChange": {
     "subject": "새 이메일 주소를 확인하세요",
@@ -241,6 +246,7 @@
     "mention": "{actor}님이 회원님을 멘션했습니다",
     "reminder": "리마인더: {date}",
     "accessRequest": "{actor}님이 이 페이지에 대한 액세스를 요청했습니다",
+    "accessRequestMore": "{actor}님이 이 페이지의 {level, select, comment {댓글} other {편집}} 권한을 요청했습니다",
     "automation": "자동화 “{name}”: {actor}님이 이 행을 추가하거나 변경했습니다",
     "automationDatePassed": "자동화 “{name}”: 이 행의 날짜가 되었습니다",
     "button": "{actor} 님이 버튼으로 이 페이지를 보냈습니다",
@@ -268,6 +274,7 @@
     "reportFailed": "예약된 실행이 실패했습니다",
     "untitled": "제목 없음",
     "snooze": "1시간 후 다시 알림",
+    "read": "읽음으로 표시",
     "aiAccountTitle": "AI 계정 삭제됨",
     "aiAccountDetached": "워크스페이스의 AI가 더 이상 {actor}님의 키로 실행되지 않습니다.",
     "reviewTitle": "검토 대기",

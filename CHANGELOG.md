@@ -42,6 +42,30 @@
   number (the mean of the two middle ones for an even count) and `mean(numbers)` is another name
   for `average`; both take numbers or a list of them and leave empty values out. The editor's
   function list, the reference AI formula writing reads and the MCP description list them.
+- **Exports can include the comments.** "Include comments" in the page menu adds the comment
+  threads you can see after each page in Markdown and ZIP exports, and a switch in "Export as PDF"
+  adds them to the PDF: each thread under the text it quotes (or the page, or a property's value),
+  marked when resolved, its comments under their author and time. Comments on property values you
+  may not see stay out. The format is in the README's Export section.
+
+- **Ask for more access to a page you can open.** Someone who can view or comment on a page can
+  ask to comment on it or edit it from its Share menu, with an optional message, and sees that
+  the request waits until it is answered. The people with full access hear about it in their
+  inbox, by email and by push notification, which say what was asked; they share at that level or
+  another one above what the person has, or decline, from the inbox or the Share panel. A person
+  has one request per page (asking for more replaces it), a request answered some other way goes
+  away by itself, and the audit log records what was asked along with what was given. Requests
+  from the "You don't have access" screen work as before; the workspace's *Access requests*
+  setting covers both. Migration 0129 adds the requested level to `access_request`.
+- **List the comment threads someone wrote in.** The comments panel has a person picker next to
+  its sort: everyone who wrote a comment still there, you first, and choosing one lists only the
+  threads they started or replied in, alongside the Open, Resolved, Marked and All filters.
+- **The desktop app opens on the page you left.** At start, the window goes back to the last
+  page it showed instead of the home page, when that page is on the server it is connected to
+  (or on Leafdesk on this computer); the app keeps only the page's path, never another address.
+- **Mark a push notification read from the notification.** Next to *Snooze 1 hour*, push
+  notifications have a *Mark as read* button that marks the inbox item read without opening
+  Leafdesk; an email still to come about it then doesn't go.
 - **Keep a database of Jira issues in sync.** Import has a Jira tab: connect a Jira Cloud site
   with an email address and API token, pick a project or write a JQL query, and get a database
   whose rows are the issues (key, summary, status, assignee, priority, type, labels, due date and a
@@ -920,6 +944,10 @@
   medium. Agents keep the model's default. The README's AI section has the table.
 
 ### Fixed
+
+- **Access request emails reach the people who can answer them when the requester is in several
+  workspaces.** The email's check of the requester's role read their memberships everywhere and
+  failed, so no email went out; the inbox and the Share menu were not affected.
 
 - **Text filters match the Turkish dotted and dotless i.** A "contains ist" filter now finds
   "İstanbul", and "ışık" finds "IŞIK": database view filters, form question conditions and option

@@ -88,6 +88,11 @@ export const accessRequest = pgTable(
     requesterId: text("requester_id")
       .notNull()
       .references(() => user.id, { onDelete: "cascade" }),
+    /**
+     * The access they ask for: "view" from the "You don't have access" screen (any access, the
+     * approver picks), "comment" or "edit" from someone who can already view or comment on it.
+     */
+    level: text("level").$type<"view" | "comment" | "edit">().notNull().default("view"),
     /** What they wrote along with the request, if anything. */
     message: text("message"),
     /** The requester's interface language, for the email that tells them the answer. */
@@ -96,6 +101,7 @@ export const accessRequest = pgTable(
   },
   (t) => [
     unique("access_request_requester_key").on(t.pageId, t.requesterId),
+    check("access_request_level_check", sql`${t.level} in ('view', 'comment', 'edit')`),
     index("access_request_workspace_idx").on(t.workspaceId),
     index("access_request_requester_idx").on(t.requesterId),
   ],

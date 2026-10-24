@@ -1,13 +1,14 @@
 import { and, eq, inArray, or, sql } from "drizzle-orm";
 import { Zip, ZipDeflate, ZipPassThrough } from "fflate";
 import { db } from "@/db";
-import { file, fileReference, page, propertyPermission, type PageKind, workspace } from "@/db/schema";
+import { file, fileReference, page, propertyPermission, user, type PageKind, workspace } from "@/db/schema";
 import { toCsv } from "@/lib/csv";
 import { valueType } from "@/lib/derived";
 import { mapReferenceLines, markdownReferences } from "@/lib/embed-blocks";
 import { mapAgentChatLines } from "@/lib/agent-chat";
 import { mapButtonLines } from "@/lib/buttons";
 import { env } from "@/lib/env";
+import { commentsMarkdown, ENGLISH_COMMENT_LABELS, exportedThreads, type CommentExportLabels, type ExportedThread } from "@/lib/export-comments";
 import { layoutExport, relativeLink, rewriteLinks, type ExportLayout } from "@/lib/export-layout";
 import { fileIdOf, fileIdsIn, fileIdsInProperties, formatBytes } from "@/lib/files";
 import { pageLabel } from "@/lib/labels";
@@ -22,6 +23,7 @@ import { resolveEmbeds } from "@/server/embeds";
 import { labelPageLinks } from "@/server/mentions";
 import { ENGLISH_SYNCED_LABELS, expandSyncedMarkdown, type SyncedLabels } from "@/server/synced-blocks";
 import { propertyAccessFor, type PropertyAccess } from "@/server/property-access";
+import { threadsVisibleTo } from "@/server/property-comments";
 import { refOf, storageResolver } from "@/server/storage/workspace";
 import { exportAllowed } from "@/server/workspaces";
 
@@ -39,6 +41,9 @@ import { exportAllowed } from "@/server/workspaces";
  * exported from the trash brings the subpages that went to the trash with it). Templates are kept
  * apart in `Templates/` folders.
  *
+ * With comments asked for, a page's file ends with the comment threads the exporter can see on it
+ * (lib/export-comments): those on property values only when they may see the value.
+ *
  * The archive is streamed as it is built, one entry at a time and only as fast as the client
  * reads it; limits on pages and file bytes are checked before the first byte is sent.
  */
@@ -53,6 +58,7 @@ export type ExportLabels = {
   agentChat: (name: string) => string;
   /** A button's line, naming its label (or "" without one): what it does stays in the app. */
   button: (label: string) => string;
+  comments: CommentExportLabels;
 };
 
 export const ENGLISH_EXPORT_LABELS: ExportLabels = {
@@ -63,6 +69,7 @@ export const ENGLISH_EXPORT_LABELS: ExportLabels = {
   synced: ENGLISH_SYNCED_LABELS,
   agentChat: (name) => (name ? `Agent chat: ${name}` : "Agent chat"),
   button: (label) => `Button “${label || "Button"}”`,
+  comments: ENGLISH_COMMENT_LABELS,
 };
 
 // ---------------------------------------------------------------------------------------------
@@ -72,14 +79,34 @@ export const ENGLISH_EXPORT_LABELS: ExportLabels = {
  * A page's body as Markdown for `userId`: mentions and page links under the titles they may see,
  * database blocks as links to databases they may see, synced blocks from other pages as their
  * blocks when they may see those (server/synced-blocks). Links stay app paths (`/w/…/p/…`).
+ * `comments`: the threads they may see on the page follow the body (see `pageThreads`).
  */
-export async function pageMarkdown(userId: string, pageId: string, labels: ExportLabels = ENGLISH_EXPORT_LABELS) {
+export async function pageMarkdown(
+  userId: string,
+  pageId: string,
+  labels: ExportLabels = ENGLISH_EXPORT_LABELS,
+  { comments = false }: { comments?: boolean } = {},
+) {
   const content = await getCollab().readPage(pageId);
   // Synced blocks shown from other pages first, so their links and databases are labelled too.
   const expanded = await expandSyncedMarkdown(userId, pageId, content.markdown.trim(), labels.synced);
   const labelled = await labelPageLinks(userId, expanded, labels);
-  const body = await nameAgentChats(pageId, await linkEmbeds(userId, labelled, labels), labels);
-  return { title: content.title, body: mapButtonLines(body, ({ label }) => `*${labels.button(label).replace(/[*_[\]]/g, "\\$&")}*`) };
+  const named = await nameAgentChats(pageId, await linkEmbeds(userId, labelled, labels), labels);
+  const body = mapButtonLines(named, ({ label }) => `*${labels.button(label).replace(/[*_[\]]/g, "\\$&")}*`);
+  const section = comments ? commentsMarkdown(await pageThreads(userId, pageId, labels.comments), labels.comments) : "";
+  return { title: content.title, body: section ? `${body}\n\n${section}`.trimStart() : body };
+}
+
+/**
+ * The page's comment threads `userId` may see, as an export shows them (lib/export-comments). No
+ * check of the page itself: callers have checked that `userId` can view it.
+ */
+export async function pageThreads(userId: string, pageId: string, labels: CommentExportLabels): Promise<ExportedThread[]> {
+  const threads = await threadsVisibleTo(userId, pageId);
+  const ids = [...new Set(threads.flatMap((t) => t.comments.filter((c) => !c.deletedAt).map((c) => c.userId)))];
+  const rows = ids.length ? await db.select({ id: user.id, name: user.name }).from(user).where(inArray(user.id, ids)) : [];
+  const names = new Map(rows.map((r) => [r.id, r.name]));
+  return exportedThreads(threads, (id) => names.get(id), labels);
 }
 
 /**
@@ -197,6 +224,8 @@ export type ExportRecord = {
   /** The page exported; null for the whole workspace. */
   page: { id: string; title: string } | null;
   format: "zip" | "csv" | "xlsx" | "markdown" | "pdf" | "skill";
+  /** The pages' comments went in too. */
+  comments?: boolean;
   /** How many pages (or rows, or files) it holds, when known. */
   pages?: number;
   rows?: number;
@@ -207,13 +236,13 @@ export type ExportRecord = {
  * Records an export in the audit log, once it is about to be handed over: the whole workspace
  * (a ZIP from Settings), or one page as Markdown, CSV, ZIP (with its subpages) or the print view.
  */
-export async function recordExport(userId: string, { workspaceId, page: exported, format, ...counts }: ExportRecord) {
+export async function recordExport(userId: string, { workspaceId, page: exported, format, comments, ...counts }: ExportRecord) {
   await recordAudit({
     workspaceId,
     actorId: userId,
     action: exported ? "export.page" : "export.workspace",
     target: exported ? { type: "page", id: exported.id, label: exported.title } : { type: "workspace", id: workspaceId },
-    details: { format, ...counts },
+    details: { format, ...(comments ? { comments: true } : {}), ...counts },
   });
 }
 
@@ -508,13 +537,13 @@ function zipTime(date: Date) {
 const oneLine = (value: string | number | null) => (value === null ? "" : String(value).replace(/\s*\n\s*/g, ", "));
 
 /**
- * The archive for `plan`, as a stream the response can send. `onDone` runs once it has been sent,
- * failed, or been cancelled by the client.
+ * The archive for `plan`, as a stream the response can send; with `comments`, each page's file
+ * ends with its comments. `onDone` runs once it has been sent, failed, or been cancelled by the client.
  */
 export function exportArchive(
   userId: string,
   plan: ExportPlan,
-  { labels = ENGLISH_EXPORT_LABELS, onDone }: { labels?: ExportLabels; onDone?: () => void } = {},
+  { labels = ENGLISH_EXPORT_LABELS, comments = false, onDone }: { labels?: ExportLabels; comments?: boolean; onDone?: () => void } = {},
 ): ReadableStream<Uint8Array> {
   const queue: Uint8Array[] = [];
   let zipError: Error | null = null;
@@ -602,7 +631,7 @@ export function exportArchive(
     for (const p of plan.pages) {
       if (p.kind === "database") continue;
       const path = plan.layout.paths.get(p.id)!;
-      const { title, body } = await pageMarkdown(userId, p.id, labels);
+      const { title, body } = await pageMarkdown(userId, p.id, labels, { comments });
       const markdown = markdownFile(pageLabel(title || p.title, labels.untitled), body, rowProperties.get(p.id));
       add(path, rewriteLinks(markdown, path, targets), p.updatedAt);
       yield;
@@ -664,16 +693,23 @@ export function exportErrorResponse(error: ExportError) {
  * The response streaming the archive for `plan`, holding the export slot until it is sent. The
  * export is recorded in the audit log first.
  */
-export async function archiveResponse(userId: string, plan: ExportPlan, labels: ExportLabels, release: () => void) {
+export async function archiveResponse(
+  userId: string,
+  plan: ExportPlan,
+  labels: ExportLabels,
+  release: () => void,
+  { comments = false }: { comments?: boolean } = {},
+) {
   const root = plan.rootId ? plan.pages.find((p) => p.id === plan.rootId) : null;
   await recordExport(userId, {
     workspaceId: plan.workspaceId,
     page: plan.rootId ? { id: plan.rootId, title: root?.title ?? plan.title } : null,
     format: "zip",
+    comments,
     pages: plan.pages.length,
     files: plan.files.length,
   });
-  const stream = exportArchive(userId, plan, { labels, onDone: release });
+  const stream = exportArchive(userId, plan, { labels, comments, onDone: release });
   return new Response(stream, {
     headers: {
       "Content-Type": "application/zip",

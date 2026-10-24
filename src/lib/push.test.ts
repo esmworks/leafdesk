@@ -56,6 +56,8 @@ const texts: Record<string, string> = {
   mention: "{actor} mentioned you",
   reminder: "Reminder: {date}",
   accessRequest: "{actor} asked for access to this page",
+  // The real text picks its words by level (an ICU select), which this stand-in doesn't do.
+  accessRequestMore: "{actor} asked for {level} access",
   automation: "Automation “{name}”: {actor} added or changed this row",
   someone: "Someone",
   joinRequestTitle: "Join request",
@@ -74,6 +76,7 @@ const texts: Record<string, string> = {
   rowUpdateBody: "the text",
   untitled: "Untitled",
   snooze: "Snooze 1 hour",
+  read: "Mark as read",
   reaction: "{actor} reacted {emoji} to your comment",
   people: "{name} (+{others})",
 };
@@ -109,6 +112,7 @@ describe("pushPayload", () => {
       body: "Ayşe mentioned you",
       url: "/w/ws1/p/p1",
       tag: "n1",
+      read: "Mark as read",
       snooze: "Snooze 1 hour",
     });
     expect(pushPayload(item({ kind: "comment", pageTitle: "  " }), t, date)).toMatchObject({ title: "Untitled", body: "Ayşe commented in a thread you're in" });
@@ -138,8 +142,15 @@ describe("pushPayload", () => {
   });
 
   it("names a requester without a name by their email", () => {
-    const request = item({ kind: "access_request", actorName: null, accessRequest: { requesterEmail: "vera@example.com" } });
+    const request = item({ kind: "access_request", actorName: null, accessRequest: { requesterEmail: "vera@example.com", level: "view" } });
     expect(pushPayload(request, t, date)?.body).toBe("vera@example.com asked for access to this page");
+  });
+
+  it("says what someone who can open the page asks for on top", () => {
+    const edit = item({ kind: "access_request", accessRequest: { requesterEmail: "vera@example.com", level: "edit" } });
+    expect(pushPayload(edit, t, date)?.body).toBe("Ayşe asked for edit access");
+    const comment = item({ kind: "access_request", accessRequest: { requesterEmail: "vera@example.com", level: "comment" } });
+    expect(pushPayload(comment, t, date)?.body).toBe("Ayşe asked for comment access");
   });
 
   it("leads join requests to the members' requests, and agents' calls to the run", () => {
@@ -149,6 +160,7 @@ describe("pushPayload", () => {
       body: "Ayşe asked to invite new@example.com",
       url: "/w/ws1/settings?tab=members&view=requests",
       tag: "n1",
+      read: "Mark as read",
       snooze: "Snooze 1 hour",
     });
     const approval = { agentId: "a1", runId: "r1", agentName: "Helper", tool: "send_mail", connectionName: "Mail" };
@@ -158,7 +170,8 @@ describe("pushPayload", () => {
       body: "Wants to call “send_mail” on Mail",
       url: "/w/ws1/settings?tab=agents&agent=a1&run=r1",
       tag: "n1",
-      // It waits only so long: no snoozing.
+      // It waits only so long: no snoozing, though it can be marked read.
+      read: "Mark as read",
       snooze: "",
     });
     // Answered (or ran out of time) before the push went out: nothing to say.
@@ -172,6 +185,7 @@ describe("pushPayload", () => {
       body: "Proposes 2 notes for its memory",
       url: "/w/ws1/settings?tab=agents&agent=a1&agentTab=memory",
       tag: "n1",
+      read: "Mark as read",
       snooze: "Snooze 1 hour",
     });
     // Kept or dismissed before the push went out.
@@ -185,6 +199,7 @@ describe("pushPayload", () => {
       body: "Finished its scheduled run",
       url: "/w/ws1/settings?tab=agents&agent=a1&run=r1",
       tag: "n1",
+      read: "Mark as read",
       snooze: "Snooze 1 hour",
     });
     expect(pushPayload(item({ kind: "agent_report", pageId: null, report: { ...report, status: "failed" } }), t, date)?.body).toBe("Its scheduled run didn't finish");
@@ -198,6 +213,7 @@ describe("pushPayload", () => {
       body: "Ayşe changed Status, the title, the text · Tasks",
       url: "/w/ws1/p/p1",
       tag: "n1",
+      read: "Mark as read",
       snooze: "Snooze 1 hour",
     });
     expect(pushPayload(item({ kind: "row_update", rowUpdate: null }), t, date)?.body).toBe("Ayşe changed this row");
@@ -217,7 +233,7 @@ describe("pushPayload", () => {
 });
 
 describe("encodePushPayload", () => {
-  const payload = { title: "Roadmap", body: "Ayşe mentioned you", url: "https://leafdesk.example.com/w/ws1/p/p1", tag: "n1", snooze: "Snooze 1 hour" };
+  const payload = { title: "Roadmap", body: "Ayşe mentioned you", url: "https://leafdesk.example.com/w/ws1/p/p1", tag: "n1", read: "Mark as read", snooze: "Snooze 1 hour" };
 
   it("is the payload as JSON", () => {
     expect(JSON.parse(encodePushPayload(payload))).toEqual(payload);

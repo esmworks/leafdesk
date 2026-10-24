@@ -5,7 +5,9 @@
  * limited, whatever they ask for; approving shares the page with a member, or brings someone from
  * outside in as a guest when the guest invite policy lets the approver; declining drops the request
  * and tells the requester without naming the page; emails go out in the recipient's stored
- * language rather than the actor's; the workspace setting turns requests off.
+ * language rather than the actor's; someone who can view a page asks for comment or edit access from
+ * its Share menu, keeps one request per page, and is answered at a level above what they have
+ * (a request answered some other way leaves every list); the workspace setting turns requests off.
  * Creates its own users and workspace and deletes them afterwards.
  *
  *   pnpm tsx scripts/access-requests-e2e.ts
@@ -24,7 +26,7 @@ const { createElement } = await import("react");
 const { renderToStaticMarkup } = await import("react-dom/server");
 const { NextIntlClientProvider } = await import("next-intl");
 const { db } = await import("@/db");
-const { accessRequest, notification, page, user, userPreference, workspace, workspaceMember } = await import("@/db/schema");
+const { accessRequest, auditEvent, notification, page, user, userPreference, workspace, workspaceMember } = await import("@/db/schema");
 const { default: pageMessages } = await import("@/i18n/messages/en/page.json");
 const { default: commonMessages } = await import("@/i18n/messages/en/common.json");
 const { ACCESS_REQUEST_LIMIT } = await import("@/lib/access-requests");
@@ -32,10 +34,14 @@ const { NoAccess } = await import("@/components/page/no-access");
 const { registerCollab } = await import("@/server/collab/bridge");
 const { AccessError, findMembership, resolvePageAccess } = await import("@/server/access");
 const {
+  AccessRequestError,
   accessRequestsOffered,
   approveAccessRequest,
+  countAccessRequests,
   declineAccessRequest,
   listAccessRequests,
+  pendingRequestOf,
+  requestMoreAccess,
   requestPageAccess,
   resetAccessRequestLimits,
 } = await import("@/server/access-requests");
@@ -398,6 +404,92 @@ try {
   );
   check(guestMails.some((m) => m.text.includes(emailOf(stranger))), "…which does show the outsider's address");
 
+  // Asking for more access, from the Share menu of a page one can open
+  await db.insert(page).values([P("more")]);
+  const more = `${RUN}-more`;
+  // In a second workspace too: the email reads their role in this one only.
+  await db.insert(workspace).values({ id: `${workspaceId}-2`, name: `${workspaceName} 2` });
+  await db.insert(workspaceMember).values({ workspaceId: `${workspaceId}-2`, userId: bob, role: "owner" });
+  await setPagePermission(owner, more, owner, "full");
+  await setPagePermission(owner, more, alice, "full");
+  await setPagePermission(owner, more, null, "view");
+  resetAccessRequestLimits();
+  await flushShareEmails();
+  sent.length = 0;
+  check((await requestPageAccess(bob, more)) === "sent" && (await requestsFor(more)).length === 0, "the no-access screen's ask still stores nothing for someone who can open the page");
+  await rejects(() => requestMoreAccess(stranger, more, "edit"), isAccessError, "someone who can't open the page can't ask for more");
+  check((await requestMoreAccess(alice, more, "edit")) === "unavailable", "someone who already has that much is told so");
+  check((await requestsFor(more)).length === 0, "…and nothing is stored");
+  check((await requestMoreAccess(bob, more, "comment", "to leave notes")) === "sent", "a member who can view asks to comment");
+  const [commentAsk] = await requestsFor(more);
+  check(commentAsk?.level === "comment" && commentAsk.message === "to leave notes", "the request keeps the level asked for and the message", commentAsk);
+  check((await pendingRequestOf(bob, more)) === "comment", "their Share menu shows what they asked for");
+  check((await requestMoreAccess(bob, more, "comment", "again")) === "sent", "asking for the same again answers \"sent\"");
+  check((await requestsFor(more))[0]?.id === commentAsk.id && (await requestsFor(more))[0]?.message === "to leave notes", "…and keeps the pending request");
+  check((await requestMoreAccess(bob, more, "edit", "and to edit")) === "sent", "asking for more than the pending one goes through");
+  const moreRequests = await requestsFor(more);
+  const editAsk = moreRequests[0];
+  check(moreRequests.length === 1 && editAsk.level === "edit" && editAsk.message === "and to edit", "…one request per person and page, now for edit", moreRequests);
+  const moreNotes = await requestNotifications(more);
+  check(moreNotes.every((n) => n.accessRequestId === editAsk.id), "the replaced request's notifications went with it", moreNotes);
+  check(JSON.stringify(moreNotes.map((n) => n.userId).sort()) === JSON.stringify([alice, owner].sort()), "only the people with full access are told", moreNotes);
+  const moreItem = (await listInbox(owner, workspaceId)).find((i) => i.kind === "access_request" && i.pageId === more);
+  check(moreItem?.accessRequest?.level === "edit" && moreItem.accessRequest.current === "view", "the inbox says what they asked for and what they have", moreItem?.accessRequest);
+  check((await listInbox(bob, workspaceId)).every((i) => i.kind !== "access_request" || i.pageId !== more), "the requester isn't told about their own request");
+  check((await getPageHeaderInfo(owner, more)).accessRequests === 1, "the page header counts it for those who can answer");
+  const moreListed = await listAccessRequests(owner, more);
+  check(moreListed.length === 1 && moreListed[0].level === "edit" && moreListed[0].current === "view", "the share panel lists it with both levels", moreListed);
+  await flushShareEmails();
+  const moreMails = mailTo(emailOf(alice)).filter((m) => m.subject.includes("more title"));
+  check(
+    moreMails.length === 1 && moreMails[0].subject.startsWith("Name bob asked to edit") && moreMails[0].text.includes("would like to edit it"),
+    "the email says which access they ask for",
+    moreMails.map((m) => m.subject),
+  );
+  await rejects(() => approveAccessRequest(owner, editAsk.id, "view"), (e) => e instanceof AccessRequestError, "approving at a level they already have is refused");
+  check((await requestsFor(more)).length === 1, "…and leaves the request");
+  sent.length = 0;
+  await approveAccessRequest(owner, editAsk.id, "comment");
+  check((await resolvePageAccess(bob, more)).level === "comment", "the approver may give another level than asked, above what they had");
+  check((await requestsFor(more)).length === 0 && (await requestNotifications(more)).length === 0, "the request and its notifications are gone");
+  const [approvedAudit] = await db
+    .select({ details: auditEvent.details })
+    .from(auditEvent)
+    .where(and(eq(auditEvent.workspaceId, workspaceId), eq(auditEvent.action, "access_request.approved"), eq(auditEvent.targetId, more)));
+  check(approvedAudit?.details.level === "comment" && approvedAudit.details.requested === "edit", "the audit log records what was given and what was asked", approvedAudit);
+  await flushShareEmails();
+  check(mailTo(emailOf(bob)).some((m) => m.text.includes("You can now view and comment on")), "the requester hears what they can do now");
+
+  // Answered some other way: it leaves every list and its email isn't sent
+  sent.length = 0;
+  check((await requestMoreAccess(bob, more, "edit")) === "sent", "a commenter asks to edit");
+  const [staleAsk] = await requestsFor(more);
+  await setPagePermission(owner, more, null, "edit");
+  check((await resolvePageAccess(bob, more)).level === "edit", "setup: everyone can edit now");
+  check((await listAccessRequests(owner, more)).length === 0 && (await countAccessRequests(more)) === 0, "the request leaves the share panel and the header count");
+  check((await listInbox(owner, workspaceId)).every((i) => i.kind !== "access_request" || i.pageId !== more), "…and the inbox");
+  check((await pendingRequestOf(bob, more)) === null, "…and the requester's Share menu");
+  await flushShareEmails();
+  check(sent.every((m) => !m.subject.includes("more title")), "…and its email doesn't go out", sent.map((m) => m.subject));
+  await setPagePermission(owner, more, null, "view");
+
+  // Declining more access
+  sent.length = 0;
+  await declineAccessRequest(owner, staleAsk.id);
+  check((await resolvePageAccess(bob, more)).level === "comment", "declining keeps the access they had");
+  await flushShareEmails();
+  const declinedMore = mailTo(emailOf(bob));
+  check(
+    declinedMore.length === 1 && declinedMore[0].text.includes(`Your request to edit “more title ${RUN}” was declined`),
+    "the requester, who can open the page, hears its title",
+    declinedMore.map((m) => m.text),
+  );
+  const [declinedAudit] = await db
+    .select({ details: auditEvent.details })
+    .from(auditEvent)
+    .where(and(eq(auditEvent.workspaceId, workspaceId), eq(auditEvent.action, "access_request.declined"), eq(auditEvent.targetId, more)));
+  check(declinedAudit?.details.requested === "edit", "the audit log records what was declined", declinedAudit);
+
   // The workspace setting
   await rejects(() => updateWorkspaceSettings(alice, workspaceId, { accessRequests: false }), isAccessError, "only owners turn requests off");
   await updateWorkspaceSettings(owner, workspaceId, { accessRequests: false });
@@ -409,6 +501,8 @@ try {
   check((await requestPageAccess(stranger, secret)) === "sent", "asking anyway answers \"sent\"");
   check((await requestsFor(secret)).every((r) => r.requesterId !== stranger), "…and stores nothing");
   check((await requestNotifications(secret)).length === before.length, "…and notifies nobody");
+  check((await requestMoreAccess(bob, more, "edit")) === "unavailable", "asking for more is unavailable too");
+  check((await requestsFor(more)).length === 0, "…and stores nothing");
   await updateWorkspaceSettings(owner, workspaceId, { accessRequests: true });
   check((await accessRequestsOffered(workspaceId)) === true, "turned back on, the button is back");
 
@@ -417,7 +511,7 @@ try {
   failed = true;
   console.error(error);
 } finally {
-  await db.delete(workspace).where(inArray(workspace.id, [workspaceId]));
+  await db.delete(workspace).where(inArray(workspace.id, [workspaceId, `${workspaceId}-2`]));
   await db.delete(user).where(inArray(user.id, userIds));
   await (globalThis as unknown as { __leafdeskSql?: { end(): Promise<void> } }).__leafdeskSql?.end();
   // The database client is kept on globalThis under the app's name; exiting also closes it here.

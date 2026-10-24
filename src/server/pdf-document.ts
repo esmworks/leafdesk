@@ -2,7 +2,9 @@ import type { Alignment, Column, Content, ContentImage, ContentTable, ContentTex
 import { CALLOUT_BLOCK, MATH_BLOCK, MERMAID_BLOCK, BREADCRUMB_BLOCK, FOOTNOTE, INLINE_MATH, SUBPAGES_BLOCK, TOC_BLOCK } from "@/lib/content-blocks";
 import { plainText, type MdBlock } from "@/lib/content-markdown";
 import { COLUMN_BLOCK, COLUMN_LIST_BLOCK, columnWidth } from "@/lib/columns";
+import { commentText } from "@/lib/comments";
 import { isEmbedBlockType } from "@/lib/embed-blocks";
+import type { ExportedThread } from "@/lib/export-comments";
 import { SUBSCRIPT, SUPERSCRIPT } from "@/lib/text-scripts";
 import { BOOKMARK_BLOCK, WEB_EMBED_BLOCK } from "@/lib/web-blocks";
 import { tint, type LogoPlace } from "@/lib/letterheads";
@@ -34,6 +36,8 @@ export type PdfSection = {
   /** Titles from the top of the workspace down to the page (breadcrumb blocks), and of its subpages (subpage blocks). */
   crumbs: string[];
   children: string[];
+  /** The comment threads to print after the body (lib/export-comments), when asked for. */
+  comments?: { heading: string; resolved: string; threads: ExportedThread[] } | null;
 };
 
 /** A letterhead as the layout draws it: the logo already read, as a data URL. */
@@ -486,7 +490,61 @@ function sectionContent(section: PdfSection, index: number, input: PdfInput): Co
       margin: [0, 12, 0, 0],
     });
   }
+  if (section.comments?.threads.length) out.push(commentsContent(section.comments));
   return out;
+}
+
+/**
+ * The comment threads after the body, under a rule and a heading: each thread's subject (with
+ * "Resolved" beside it when it is), then its comments, author and date over the text, set in from
+ * the left with a thin line, as the comments panel shows them.
+ */
+function commentsContent({ heading, resolved, threads }: NonNullable<PdfSection["comments"]>): Content {
+  const thread = (t: ExportedThread): Content => ({
+    stack: [
+      {
+        text: [{ text: t.about, bold: true }, ...(t.resolved ? [{ text: `  ${resolved}`, color: MUTED, fontSize: 9 }] : [])],
+        margin: [0, 0, 0, 4],
+      },
+      ...t.comments.map(
+        (c): Content => ({
+          table: {
+            widths: ["*"],
+            body: [
+              [
+                {
+                  stack: [
+                    { text: [{ text: c.author, bold: true }, ...(c.date ? [{ text: `  ${c.date}`, color: FAINT }] : [])], fontSize: 9 },
+                    { text: commentText(c.body), margin: [0, 1, 0, 0] },
+                  ],
+                },
+              ],
+            ],
+          },
+          layout: {
+            hLineWidth: () => 0,
+            vLineWidth: (i: number) => (i === 0 ? 1.2 : 0),
+            vLineColor: () => BORDER,
+            paddingLeft: () => 8,
+            paddingRight: () => 0,
+            paddingTop: () => 1,
+            paddingBottom: () => 1,
+          },
+          margin: [0, 0, 0, 6],
+        }),
+      ),
+    ],
+    margin: [0, 0, 0, 8],
+    unbreakable: t.comments.length <= 3,
+  });
+  return {
+    stack: [
+      { canvas: [{ type: "line", x1: 0, y1: 0, x2: CONTENT_WIDTH, y2: 0, lineWidth: 0.6, lineColor: BORDER }], margin: [0, 0, 0, 10] },
+      { text: heading, fontSize: HEADING_SIZES[2], bold: true, margin: [0, 0, 0, 8], headlineLevel: 2 },
+      ...threads.map(thread),
+    ],
+    margin: [0, 16, 0, 0],
+  };
 }
 
 const linesOf = (text: string) => (text ? text.split("\n") : []);

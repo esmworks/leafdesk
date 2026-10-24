@@ -58,6 +58,8 @@
     "exportZip": "Exportar con subpáginas",
     "exportZipDatabase": "Exportar con las páginas de las filas",
     "exportPdf": "Exportar como PDF",
+    "exportComments": "Incluir comentarios",
+    "exportCommentsHint": "Añade los hilos de comentarios que puedes ver a las exportaciones en Markdown, ZIP y PDF, después de cada página",
     "printView": "Imprimir",
     "exportPreparing": "Preparando la exportación…",
     "acceptAllSuggestions": "Aceptar todas las sugerencias",
@@ -97,7 +99,14 @@
       "open": "No hay comentarios abiertos. Selecciona texto en la página y elige Comentar para empezar uno.",
       "resolved": "No hay comentarios resueltos.",
       "marked": "No hay hilos marcados para volver a ellos. Elige «Volver más tarde» en el menú de un hilo.",
-      "all": "Todavía no hay comentarios. Selecciona texto en la página y elige Comentar para empezar uno."
+      "all": "Todavía no hay comentarios. Selecciona texto en la página y elige Comentar para empezar uno.",
+      "person": "Ninguno de estos hilos tiene un comentario de esta persona."
+    },
+    "person": {
+      "label": "Ver hilos por persona",
+      "active": "Hilos en los que escribió {name}",
+      "everyone": "Todos",
+      "you": "{name} (tú)"
     },
     "threadMenu": "Opciones del hilo",
     "mute": "Silenciar respuestas",
@@ -136,7 +145,12 @@
     "onProperty": "Comentar sobre «{name}»",
     "propertyPlaceholder": "¿Qué pasa con este valor?",
     "post": "Comentar",
-    "propertyGone": "Este valor ya no se puede comentar."
+    "propertyGone": "Este valor ya no se puede comentar.",
+    "export": {
+      "quote": "«{quote}»",
+      "removed": "Sobre un texto que se eliminó",
+      "unknown": "Alguien"
+    }
   },
   "archived": {
     "banner": "Esta página está en la papelera.",
@@ -328,7 +342,19 @@
       "approve": "Compartir",
       "decline": "Rechazar",
       "outsider": "No está en el espacio de trabajo: al compartir se une como invitado.",
-      "cantInvite": "No está en el espacio de trabajo y este espacio no te permite compartir con personas de fuera."
+      "cantInvite": "No está en el espacio de trabajo y este espacio no te permite compartir con personas de fuera.",
+      "asksMore": "Pide “{level}”, ahora tiene “{current}”"
+    },
+    "askMore": {
+      "title": "Pedir más acceso",
+      "description": "Tienes “{level}”. Deciden las personas con acceso completo a la página.",
+      "level": "Acceso que pides",
+      "messagePlaceholder": "Mensaje (opcional)",
+      "send": "Pedir",
+      "sending": "Pidiendo…",
+      "pending": "Pediste “{level}”. Las personas con acceso completo a la página te responderán.",
+      "rateLimited": "Has pedido demasiadas veces. Vuelve a intentarlo más tarde.",
+      "unavailable": "Ahora no puedes pedir más acceso a esta página."
     },
     "levels": {
       "full": "Acceso completo",
@@ -680,6 +706,7 @@
     "defaultMark": "{name} (predeterminado)",
     "noLetterheads": "Los propietarios pueden añadir membretes con logotipo y datos de la empresa en Ajustes → Plantillas PDF.",
     "properties": "Incluir los valores de la fila",
+    "comments": "Incluir comentarios",
     "hint": "Los diagramas y las ecuaciones se imprimen como texto; usa Imprimir para obtener la página tal como se ve.",
     "download": "Descargar",
     "preparing": "Preparando…"

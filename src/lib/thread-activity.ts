@@ -38,3 +38,25 @@ export function newThreadIds(threads: readonly ActivityThread[], viewerId: strin
   }
   return fresh;
 }
+
+/** Whether `userId` wrote a comment in the thread that is still there (started it or replied). */
+export function hasCommentBy(thread: ActivityThread, userId: string): boolean {
+  return thread.comments.some((c) => c.userId === userId && !c.deletedAt);
+}
+
+/**
+ * The people who wrote the threads' comments that are still there, each once, the one who wrote
+ * last first: whom the comments panel can list threads by.
+ */
+export function threadPeople(threads: readonly ActivityThread[]): string[] {
+  const latest = new Map<string, number>();
+  for (const thread of threads) {
+    for (const c of thread.comments) {
+      if (c.deletedAt) continue;
+      const at = ms(c.createdAt);
+      const known = latest.get(c.userId);
+      if (known === undefined || at > known) latest.set(c.userId, Number.isNaN(at) ? (known ?? 0) : at);
+    }
+  }
+  return [...latest].sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0])).map(([id]) => id);
+}

@@ -1192,7 +1192,7 @@
     "sharingHeading": "Sharing",
     "accessRequests": {
       "title": "Access requests",
-      "description": "People who open a link to a page they can't see can ask for access, with a message. The people with full access to the page get the request. Off: they only see that they don't have access."
+      "description": "People who open a link to a page they can't see can ask for access, with a message, and people who can view or comment on a page can ask to comment or edit from its Share menu. The people with full access to the page get the request. Off: no one can ask."
     },
     "guestInvites": {
       "title": "Who can invite guests",

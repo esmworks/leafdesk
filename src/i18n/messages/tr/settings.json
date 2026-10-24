@@ -1192,7 +1192,7 @@
     "sharingHeading": "Paylaşım",
     "accessRequests": {
       "title": "Erişim istekleri",
-      "description": "Göremedikleri bir sayfanın bağlantısını açan kişiler mesajla birlikte erişim isteyebilir. İstek, sayfaya tam erişimi olan kişilere gider. Kapalıyken yalnızca erişimleri olmadığını görürler."
+      "description": "Göremedikleri bir sayfanın bağlantısını açan kişiler mesajla birlikte erişim isteyebilir; bir sayfayı görüntüleyebilen veya yorum yapabilen kişiler de Paylaş menüsünden yorum yapma ya da düzenleme izni isteyebilir. İstek, sayfaya tam erişimi olan kişilere gider. Kapalıyken kimse istekte bulunamaz."
     },
     "guestInvites": {
       "title": "Kimler misafir davet edebilir",

@@ -1192,7 +1192,7 @@
     "sharingHeading": "Compartir",
     "accessRequests": {
       "title": "Solicitudes de acceso",
-      "description": "Quien abre el enlace de una página que no puede ver puede pedir acceso, con un mensaje. La solicitud llega a las personas con acceso total a la página. Desactivado: solo ven que no tienen acceso."
+      "description": "Quienes abren un enlace a una página que no pueden ver pueden pedir acceso con un mensaje, y quienes pueden ver o comentar una página pueden pedir comentarla o editarla desde su menú Compartir. La solicitud llega a las personas con acceso completo a la página. Desactivado: nadie puede pedirlo."
     },
     "guestInvites": {
       "title": "Quién puede añadir invitados",

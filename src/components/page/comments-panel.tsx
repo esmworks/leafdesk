@@ -2,9 +2,9 @@
 
 import { CommentsExtension, type ThreadData } from "@blocknote/core/comments";
 import { Thread, useBlockNoteEditor, useExtension, useExtensionState, useThreads } from "@blocknote/react";
-import { ArrowDownUp, Bell, BellOff, Bookmark, BookmarkX, Check, MoreHorizontal, Undo2, X } from "lucide-react";
+import { ArrowDownUp, Bell, BellOff, Bookmark, BookmarkX, Check, ChevronDown, MoreHorizontal, Undo2, UserRound, X } from "lucide-react";
 import { useTranslations } from "next-intl";
-import { memo, useCallback, useEffect, useMemo, useRef, useState, type CSSProperties, type FocusEvent } from "react";
+import { memo, useCallback, useEffect, useMemo, useRef, useState, useSyncExternalStore, type CSSProperties, type FocusEvent } from "react";
 import {
   answerSuggestionsAction,
   markThreadAction,
@@ -14,10 +14,11 @@ import {
   threadStatesAction,
 } from "@/app/actions/comments";
 import { Button, cn, IconButton, MenuItem, Popover, textareaClass } from "@/components/ui";
+import { UserAvatar } from "@/components/user-avatar";
 import { isPageThread, mergedFromOf, propertyOf, suggestionOfThread, threadOfHash } from "@/lib/comments";
 import { PROPERTY_COMMENT_EVENT, takePropertyCommentRequest, type PropertyCommentRequest } from "@/lib/comments-request";
 import { isAiSuggestion, suggestionAuthor, type Decision } from "@/lib/suggestions";
-import { lastActivity, newThreadIds } from "@/lib/thread-activity";
+import { hasCommentBy, lastActivity, newThreadIds, threadPeople } from "@/lib/thread-activity";
 import { CommentChangeError, propertyNameOf, type ServerThreadStore } from "./comment-store";
 
 const FILTERS = ["open", "resolved", "marked", "all"] as const;
@@ -35,14 +36,19 @@ export type SuggestionAnswers = { userId: string; canAnswer: boolean; offline: b
  * All of the page's discussions beside the editor: its comment threads on text and about the whole
  * page, newest activity first (or in the order of the text they're about), each marked when others
  * wrote in it since the viewer last saw it. Each person can mark threads to come back to later and
- * list just those. A database row's threads on its property values show too, named after their
- * property; a property's comment button opens the panel to start one. Rendered inside
- * BlockNoteView, whose editor the threads belong to.
+ * list just those, or list the threads someone wrote in (alongside either list). A database row's
+ * threads on its property values show too, named after their property; a property's comment
+ * button opens the panel to start one. Rendered inside BlockNoteView, whose editor the threads
+ * belong to.
  */
 export function CommentsPanel({ pageId, store, onClose, answers }: { pageId: string; store: ServerThreadStore; onClose: () => void; answers: SuggestionAnswers }) {
   const t = useTranslations("page.comments");
   const [filter, setFilter] = useState<Filter>("open");
   const [sort, setSort] = useState<Sort>("recent");
+  // The person whose threads are listed, for this page only.
+  const [personOf, setPersonOf] = useState<{ pageId: string; userId: string } | null>(null);
+  const person = personOf?.pageId === pageId ? personOf.userId : null;
+  const setPerson = useCallback((userId: string | null) => setPersonOf(userId ? { pageId, userId } : null), [pageId]);
   // The property a new thread is being written on (a row's property asked for it).
   const [composing, setComposing] = useState<PropertyCommentRequest | null>(null);
   useEffect(() => {
@@ -69,6 +75,7 @@ export function CommentsPanel({ pageId, store, onClose, answers }: { pageId: str
     >
       <div className="flex h-11 shrink-0 items-center gap-1 px-3">
         <h2 className="flex-1 text-sm font-semibold">{t("title")}</h2>
+        <PersonFilter viewerId={answers.userId} person={person} onPerson={setPerson} />
         <Popover
           align="end"
           className="w-52"
@@ -126,10 +133,94 @@ export function CommentsPanel({ pageId, store, onClose, answers }: { pageId: str
             }}
           />
         )}
-        <Threads pageId={pageId} filter={filter} sort={sort} onFilter={setFilter} answers={answers} />
-        <p className="comments-empty px-1 py-6 text-center text-sm text-fg-faint">{t(`empty.${filter}`)}</p>
+        <Threads pageId={pageId} filter={filter} sort={sort} onFilter={setFilter} person={person} onPerson={setPerson} answers={answers} />
+        <p className="comments-empty px-1 py-6 text-center text-sm text-fg-faint">{person ? t("empty.person") : t(`empty.${filter}`)}</p>
       </div>
     </aside>
+  );
+}
+
+/**
+ * Lists only the threads someone wrote in: everyone who wrote a comment still there, the viewer
+ * first, then by name. Names come from the editor's store of comment authors (which asks the
+ * server for those it doesn't know). Hidden while fewer than two people wrote.
+ */
+function PersonFilter({ viewerId, person, onPerson }: { viewerId: string; person: string | null; onPerson: (userId: string | null) => void }) {
+  const t = useTranslations("page.comments.person");
+  const comments = useExtension(CommentsExtension);
+  const threads = useThreads();
+  const ids = useMemo(() => threadPeople([...threads.values()]), [threads]);
+  const store = comments.userStore;
+  useEffect(() => {
+    const wanted = person && !ids.includes(person) ? [...ids, person] : ids;
+    if (wanted.length) void store.loadUsers(wanted);
+  }, [store, ids, person]);
+  const users = useSyncExternalStore(
+    store.store.subscribe,
+    () => store.store.state,
+    () => store.store.state,
+  );
+  const nameOf = useCallback((id: string) => users.get(id)?.username || "…", [users]);
+  const people = useMemo(
+    () => [...ids].sort((a, b) => Number(b === viewerId) - Number(a === viewerId) || nameOf(a).localeCompare(nameOf(b))),
+    [ids, viewerId, nameOf],
+  );
+  if (people.length < 2 && !person) return null;
+  const label = (id: string) => (id === viewerId ? t("you", { name: nameOf(id) }) : nameOf(id));
+  return (
+    <Popover
+      align="end"
+      className="max-h-80 w-60 overflow-y-auto"
+      trigger={({ toggle }) =>
+        person ? (
+          <button
+            type="button"
+            onClick={toggle}
+            aria-pressed
+            aria-label={t("active", { name: nameOf(person) })}
+            title={t("active", { name: nameOf(person) })}
+            className="inline-flex h-7 max-w-36 items-center gap-1.5 rounded-md bg-bg-hover px-1.5 text-sm text-fg"
+          >
+            <UserAvatar name={nameOf(person)} image={users.get(person)?.avatarUrl} size="xs" />
+            <span className="truncate">{nameOf(person)}</span>
+            <ChevronDown className="h-3.5 w-3.5 shrink-0 text-fg-muted" />
+          </button>
+        ) : (
+          <IconButton label={t("label")} title={t("label")} className="h-7 w-7 text-fg-muted" onClick={toggle}>
+            <UserRound className="h-4 w-4" />
+          </IconButton>
+        )
+      }
+    >
+      {(close) => (
+        <>
+          <MenuItem
+            pressed={person === null}
+            trailing={person === null ? <Check className="h-4 w-4" /> : undefined}
+            onClick={() => {
+              close();
+              onPerson(null);
+            }}
+          >
+            {t("everyone")}
+          </MenuItem>
+          {people.map((id) => (
+            <MenuItem
+              key={id}
+              icon={<UserAvatar name={nameOf(id)} image={users.get(id)?.avatarUrl} size="xs" />}
+              pressed={person === id}
+              trailing={person === id ? <Check className="h-4 w-4" /> : undefined}
+              onClick={() => {
+                close();
+                onPerson(id);
+              }}
+            >
+              {label(id)}
+            </MenuItem>
+          ))}
+        </>
+      )}
+    </Popover>
   );
 }
 
@@ -144,12 +235,17 @@ function Threads({
   filter,
   sort,
   onFilter,
+  person,
+  onPerson,
   answers,
 }: {
   pageId: string;
   filter: Filter;
   sort: Sort;
   onFilter: (filter: Filter) => void;
+  /** Only the threads this person wrote in; null for everyone's. */
+  person: string | null;
+  onPerson: (userId: string | null) => void;
   answers: SuggestionAnswers;
 }) {
   const t = useTranslations("page.comments");
@@ -272,11 +368,12 @@ function Threads({
     if (!linked || !thread || !(positions.has(linked) || isPageThread(thread.metadata) || propertyOf(thread.metadata) || waited)) return;
     setLinked(undefined);
     if ((thread.resolved && filter === "open") || (!thread.resolved && filter === "resolved") || (filter === "marked" && !marked.has(linked))) onFilter("all");
+    if (person && !hasCommentBy(thread, person)) onPerson(null);
     comments.selectThread(linked);
     requestAnimationFrame(() =>
       document.querySelector(".comments-panel .bn-thread.selected")?.scrollIntoView({ block: "nearest" }),
     );
-  }, [linked, threads, positions, waited, filter, onFilter, comments, marked]);
+  }, [linked, threads, positions, waited, filter, onFilter, person, onPerson, comments, marked]);
 
   const shown = useMemo(() => {
     // Threads about the whole page first, then those on the row's property values, then the text's.
@@ -286,6 +383,7 @@ function Threads({
       .filter((thread) =>
         filter === "marked" ? marked.has(thread.id) : thread.resolved ? filter !== "open" : filter !== "resolved",
       )
+      .filter((thread) => !person || hasCommentBy(thread, person))
       .sort(sort === "page" ? (a, b) => at(a) - at(b) : (a, b) => lastActivity(b) - lastActivity(a))
       .map((thread) => {
         const position = positions.get(thread.id);
@@ -302,7 +400,7 @@ function Threads({
         }
         return { thread, referenceText, orphaned: !position && !isPageThread(thread.metadata) && property === null };
       });
-  }, [threads, positions, filter, sort, marked, editor, deleted, t]);
+  }, [threads, positions, filter, sort, marked, person, editor, deleted, t]);
 
   return (
     <div className="bn-threads-sidebar">
