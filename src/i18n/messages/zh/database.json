@@ -550,7 +550,9 @@
     "parentOptionToggle": "当“{parent}”为“{value}”时提供“{option}”",
     "sortOptionsAsc": "按 A → Z 排序",
     "sortOptionsDesc": "按 Z → A 排序",
-    "dragOption": "拖动以移动{name}"
+    "dragOption": "拖动以移动{name}",
+    "urlPreview": "显示为链接预览",
+    "urlPreviewHint": "行页面会在链接下方显示所链接页面的图标、标题和图片。"
   },
   "rowProperties": {
     "noProperties": "没有属性",
@@ -1467,7 +1469,8 @@
         "noAddress": "该行没有邮箱地址",
         "emailOff": "行中的邮件已关闭",
         "noPerson": "已跳过：此次运行不是由某人的更改触发的",
-        "tooLate": "已跳过：距更改时间过久，不再庆祝"
+        "tooLate": "已跳过：距更改时间过久，不再庆祝",
+        "templateGone": "行模板已不存在"
       },
       "waitingApproval": "等待审批",
       "approval": {
@@ -1575,7 +1578,13 @@
       "slackSaved": "已保存的地址：",
       "slackMessage": "消息",
       "slackPlaceholder": "例如：待评审：{template}",
-      "slackHelp": "将消息连同行链接发布到传入 Webhook 所属的 Slack 频道。可以使用 Slack 格式（*粗体*、_斜体_）。地址会保密，只显示缩写。"
+      "slackHelp": "将消息连同行链接发布到传入 Webhook 所属的 Slack 频道。可以使用 Slack 格式（*粗体*、_斜体_）。地址会保密，只显示缩写。",
+      "rowTemplate": "行模板",
+      "rowTemplateNone": "无（空白行）",
+      "rowTemplateDefault": "数据库的默认模板",
+      "rowTemplateDefaultNamed": "默认模板（{name}）",
+      "rowTemplateGone": "已不存在的模板",
+      "rowTemplateHelp": "该行以模板副本开始。此处设置的值会覆盖模板中的值；标题留空则沿用模板标题。"
     },
     "variables": {
       "button": "插入变量",
@@ -1969,5 +1978,13 @@
     "existing": "发布到 Slack 的自动化",
     "existingHelp": "可在数据库的自动化中修改或关闭它们。",
     "off": "已关闭"
+  },
+  "templateValues": {
+    "me": "我",
+    "today": "今天",
+    "now": "现在",
+    "hint": "从此模板添加行时填入",
+    "dateWhen": "添加行时设定",
+    "meOption": "添加该行的人"
   }
 }

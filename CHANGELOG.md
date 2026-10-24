@@ -22,6 +22,28 @@
   `leafdesk://open?url=…` only for the server it is connected to (same scheme, host and port) and
   opens the page in a new tab. Not shown in Leafdesk on this computer. Migration
   `drizzle/0133_desktop_links.sql` adds the person's choice to `user_preference`.
+- **Row templates can say "Me", "Today" and "Now".** In a row template, a person property's picker
+  has *Me – whoever adds the row* and a date's has *Today* and *Now*; the template shows them as
+  chips. A row added from the template gets the person who adds it and the day (in their time
+  zone) or moment it is added, whether by hand, a button, an automation, a repeating template (as
+  the person who set the repeat, in the repeat's time zone), the AI chat, the REST API or MCP (in
+  UTC). An agent adding a row leaves "Me" empty. No migration.
+- **Buttons and automations can add rows from a row template.** A button's *Add a row* step and an
+  automation's *Create a row* step have a *Row template*: none, the database's default, or one of
+  its templates (MCP: `template_id` on the step, `"default"` for the default one). The row gets the
+  template's values and content, with the values the step sets on top. A step whose template was
+  deleted stops and says the row template is gone. No migration.
+- **Saved prompts in the AI writing assistant.** An instruction typed into *Ask AI* can be saved,
+  with a name, from the bookmark next to *Send*; the menu lists your saved prompts under its
+  actions to run, rename or delete. They are yours alone, up to 50 per workspace, and left out of
+  workspace backups like AI chats; while there are none the menu points to skills for instructions
+  the whole team shares. Migration `0135_ai_saved_prompts`.
+- **Link previews for URL properties.** A URL property's menu has *Show as link preview* (off by
+  default): row pages then show the linked page's icon, title and image under the link. The server
+  fetches the address stored in the row, never one the browser sends, behind the same guard as
+  bookmarks, keeps each preview a day (an hour after a failure) and counts only actual fetches
+  towards a person's limit. No migration.
+
 - **Task databases can be planned in sprints.** A view's settings have *Sprints*: asked only for
   the sprint length (one to four weeks) and the first sprint's day, it adds a Sprints database
   beside the task database (dates and a state of current, next, future or completed; the first

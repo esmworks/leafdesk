@@ -50,6 +50,7 @@ import { readPlaceInput } from "@/lib/place";
 import { GeocoderError, geocodeAddress } from "./geocoder";
 import { configsOf, DEFAULT_VIEW_NAMES, galleryCover, isViewType, layoutConfigError } from "@/lib/views";
 import { holdsOptions, holdsPeople, isComputed, isDerived, isNumbered, isReadOnlyType, PERSON_ME, type StatusGroup } from "@/lib/property-types";
+import { dateMarker } from "@/lib/template-values";
 import { checkedPrefix, claimPrefix, refuseSecondUniqueId } from "@/server/unique-ids";
 import { formatUniqueId, uniqueIdPrefix } from "@/lib/unique-id";
 import { canRestrict, namesPeople } from "@/lib/property-access";
@@ -485,6 +486,11 @@ export async function normalizeRowProperties(
      * so dependent selects (lib/dependent-options) are left to the writes that know the row.
      */
     dependencies?: boolean;
+    /**
+     * The values are a row template's: "me" in a person property and "today" or "now" in a date
+     * stay as they are, worked out when a row is made from it (lib/template-values).
+     */
+    template?: boolean;
   } = {},
 ) {
   const [all, access] = await Promise.all([getProperties(databaseId), propertyAccessFor(userId, databaseId)]);
@@ -502,6 +508,11 @@ export async function normalizeRowProperties(
         { property: key },
       );
     }
+    const marker = options.template && prop.type === "date" ? dateMarker(value) : null;
+    if (marker) {
+      out[prop.id] = marker;
+      continue;
+    }
     const normalized = normalizeValue(prop, prop.type === "place" ? await resolvePlaceInput(userId, prop, value) : value);
     if (prop.type === "relation" && normalized) {
       const ids = await resolveRelationValue(userId, prop, normalized as string[], asIds(existing[prop.id]));
@@ -510,7 +521,7 @@ export async function normalizeRowProperties(
     } else if (prop.type === "person" && normalized) {
       people ??= workspacePeopleOf(databaseId);
       asAgent ??= isAgentUser(userId);
-      out[prop.id] = resolvePersonValue(userId, prop, normalized as string[], asIds(existing[prop.id]), await people, await asAgent);
+      out[prop.id] = resolvePersonValue(userId, prop, normalized as string[], asIds(existing[prop.id]), await people, await asAgent, options.template);
     } else if (prop.type === "files" && normalized) {
       workspace ??= workspaceOf(databaseId);
       out[prop.id] = await resolveFilesValue(userId, prop, normalized as FileValue[], asFiles(existing[prop.id]), await workspace);
@@ -628,7 +639,8 @@ async function workspacePeopleOf(databaseId: string): Promise<WorkspacePerson[]>
  * holds are kept after their person left the workspace, so a former assignee never blocks
  * editing the rest of the cell. Guests can't see who is in the workspace, so they can't look
  * people up by email or name either. Agents (`asAgent`, guests of their workspace that work for
- * it) look people up by name, never by email; they aren't people, so "me" names no one.
+ * it) look people up by name, never by email; they aren't people, so "me" names no one. In a row
+ * template (`template`), "me" stays "me": whoever adds a row from it (lib/template-values).
  */
 function resolvePersonValue(
   userId: string,
@@ -637,6 +649,7 @@ function resolvePersonValue(
   existing: string[],
   people: WorkspacePerson[],
   asAgent = false,
+  template = false,
 ) {
   const actor = people.find((p) => p.id === userId);
   const byEmailToo = Boolean(actor && actor.role !== "guest");
@@ -644,7 +657,8 @@ function resolvePersonValue(
   const out: string[] = [];
   for (const value of input) {
     let id: string | undefined;
-    if (value.toLowerCase() === PERSON_ME && actor) id = userId;
+    if (template && value.toLowerCase() === PERSON_ME) id = PERSON_ME;
+    else if (value.toLowerCase() === PERSON_ME && actor) id = userId;
     else if (people.some((p) => p.id === value) || existing.includes(value)) id = value;
     else if (lookup) {
       const needle = value.trim().toLowerCase();
@@ -914,7 +928,7 @@ export async function updateRowProperties(userId: string, rowId: string, patch: 
   if (!row.parentId) throw withCode(new Error("Page is not a database row"), "notADatabaseRow");
   assertNotInTrash(row);
   await requireDatabase(userId, row.parentId, "view");
-  const normalized = await normalizeRowProperties(userId, row.parentId, patch, row.properties, { createdBy: row.createdBy });
+  const normalized = await normalizeRowProperties(userId, row.parentId, patch, row.properties, { createdBy: row.createdBy, template: row.isTemplate });
   await checkLoops(row.parentId, [{ rowId, values: normalized }]);
   const { set, cleared } = splitPatch(normalized);
   const next = { ...row.properties, ...set };
@@ -1983,9 +1997,16 @@ export async function updateProperty(
     dependsOn?: string | null;
     /** Unique IDs: the prefix they show with; null for none. Only how IDs show changes, not their numbers. */
     prefix?: string | null;
+    /** URLs: whether row pages show a preview of the linked page (server/url-preview.ts). */
+    urlPreview?: boolean;
   },
 ) {
   const prop = await requireProperty(userId, propertyId);
+  if (patch.urlPreview !== undefined && prop.type !== "url") {
+    throw new PropertyValueError(`"${prop.name}" is a ${prop.type} property; only URLs show link previews`, "unsupportedType", {
+      type: prop.type,
+    });
+  }
   const description = patch.description !== undefined ? checkedDescription(patch.description) : undefined;
   if (patch.prefix !== undefined && prop.type !== "unique_id") {
     throw new PropertyValueError(`"${prop.name}" is a ${prop.type} property; only unique IDs have a prefix`, "unsupportedType", {
@@ -2072,6 +2093,7 @@ export async function updateProperty(
   if (description !== undefined) change((o) => (description ? { ...o, description } : without(o, "description")));
   if (dependsOn !== undefined) change((o) => (dependsOn ? { ...o, dependsOn } : without(o, "dependsOn")));
   if (prefix !== undefined) change((o) => (prefix ? { ...o, uniqueId: { prefix } } : without(o, "uniqueId")));
+  if (patch.urlPreview !== undefined) change((o) => (patch.urlPreview === true ? { ...o, url: { preview: true } } : without(o, "url")));
   // Options of this property others depend on that go away leave their lists (lib/dependent-options).
   const dependents = removed.length ? dependentsOf(prop.id, siblings) : [];
   const workspaceId = prefix ? await workspaceOf(prop.databaseId) : null;
@@ -3551,6 +3573,8 @@ export async function getRow(userId: string, rowId: string) {
       hidden: withDerived.hidden,
       readOnly: withDerived.readOnly,
       styles: withDerived.styles,
+      /** A row template of the database: its values may say "me", "today" or "now" (lib/template-values). */
+      template: row.isTemplate,
     },
     properties,
     /** The viewer's level on each restricted property; missing when none is. */

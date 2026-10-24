@@ -550,7 +550,9 @@
     "parentOptionToggle": "Oferuj „{option}”, gdy „{parent}” to „{value}”",
     "sortOptionsAsc": "Sortuj A → Z",
     "sortOptionsDesc": "Sortuj Z → A",
-    "dragOption": "Przeciągnij, aby przenieść {name}"
+    "dragOption": "Przeciągnij, aby przenieść {name}",
+    "urlPreview": "Pokaż jako podgląd linku",
+    "urlPreviewHint": "Strony wierszy pokazują pod linkiem ikonę, tytuł i obraz podlinkowanej strony."
   },
   "rowProperties": {
     "noProperties": "Brak właściwości",
@@ -1467,7 +1469,8 @@
         "noAddress": "Wiersz nie ma adresu e-mail",
         "emailOff": "E-maile w wierszach są wyłączone",
         "noPerson": "Pominięto: tego przebiegu nie uruchomiła zmiana żadnej osoby",
-        "tooLate": "Pominięto: od zmiany minęło zbyt dużo czasu, by ją świętować"
+        "tooLate": "Pominięto: od zmiany minęło zbyt dużo czasu, by ją świętować",
+        "templateGone": "Szablon wiersza już nie istnieje"
       },
       "waitingApproval": "Czeka na zatwierdzenie",
       "approval": {
@@ -1575,7 +1578,13 @@
       "slackSaved": "Zapisany adres:",
       "slackMessage": "Wiadomość",
       "slackPlaceholder": "Na przykład: Gotowe do przeglądu: {template}",
-      "slackHelp": "Publikuje wiadomość na kanale Slacka przychodzącego webhooka, z linkiem do wiersza. Formatowanie Slacka (*pogrubienie*, _kursywa_) działa. Adres jest tajny i pokazywany tylko w skrócie."
+      "slackHelp": "Publikuje wiadomość na kanale Slacka przychodzącego webhooka, z linkiem do wiersza. Formatowanie Slacka (*pogrubienie*, _kursywa_) działa. Adres jest tajny i pokazywany tylko w skrócie.",
+      "rowTemplate": "Szablon wiersza",
+      "rowTemplateNone": "Brak (pusty wiersz)",
+      "rowTemplateDefault": "Domyślny szablon bazy danych",
+      "rowTemplateDefaultNamed": "Szablon domyślny ({name})",
+      "rowTemplateGone": "Szablon, który już nie istnieje",
+      "rowTemplateHelp": "Wiersz powstaje jako kopia szablonu. Wartości ustawione tutaj zastępują wartości szablonu; pusty tytuł zachowuje tytuł szablonu."
     },
     "variables": {
       "button": "Wstaw zmienną",
@@ -1969,5 +1978,13 @@
     "existing": "Automatyzacje publikujące na Slacku",
     "existingHelp": "Zmieniaj je lub wyłączaj w automatyzacjach bazy danych.",
     "off": "wyłączona"
+  },
+  "templateValues": {
+    "me": "Ja",
+    "today": "Dziś",
+    "now": "Teraz",
+    "hint": "Uzupełniane, gdy wiersz zostanie dodany z tego szablonu",
+    "dateWhen": "Ustawiane przy dodaniu wiersza",
+    "meOption": "Osoba dodająca wiersz"
   }
 }

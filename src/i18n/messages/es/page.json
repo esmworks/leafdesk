@@ -1178,7 +1178,8 @@
       "invalidTarget": "El enlace que se debe abrir no es válido.",
       "buttonGone": "El botón se quitó de la página.",
       "error": "Algo salió mal.",
-      "step": "El paso {step} ({type}) no se ejecutó: {reason}"
+      "step": "El paso {step} ({type}) no se ejecutó: {reason}",
+      "templateGone": "La plantilla de fila ya no existe."
     }
   },
   "imageCrop": {

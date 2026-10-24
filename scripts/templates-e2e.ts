@@ -19,7 +19,9 @@ try {
 const { and, eq, inArray, sql } = await import("drizzle-orm");
 const Y = await import("yjs");
 const { db } = await import("@/db");
-const { notification, page, user, workspace, workspaceMember } = await import("@/db/schema");
+const { notification, page, schedule, user, workspace, workspaceMember } = await import("@/db/schema");
+const { today: dayIn } = await import("@/lib/journal");
+const schedules = await import("@/server/schedules");
 const { COLLAB_FRAGMENT } = await import("@/lib/collab-constants");
 const { THREADS_MAP } = await import("@/lib/comments");
 const { getCollab, registerCollab } = await import("@/server/collab/bridge");
@@ -360,6 +362,65 @@ try {
   await templates.deleteTemplate(ids.owner, savedRow.id);
   await templates.deleteTemplate(ids.owner, bug.id);
   check((await row(tasks.id)).defaultTemplateId === null, "deleting the default template clears the default");
+
+  // "Me", "today" and "now": kept in the template, worked out for each row made from it
+  const assignee = (await databases.getProperties(tasks.id)).find((p) => p.name === "Assignee")!;
+  const due = await databases.addProperty(ids.owner, tasks.id, { name: "Due", type: "date" });
+  const logged = await databases.addProperty(ids.owner, tasks.id, { name: "Logged", type: "date" });
+  const standup = await templates.createRowTemplate(owner, tasks.id, { title: "Standup", properties: { Assignee: ["me"], Due: "Today" } });
+  const kept = (await row(standup.id)).properties;
+  check(JSON.stringify(kept[assignee.id]) === '["me"]' && kept[due.id] === "today", "a row template keeps \"me\" and \"today\" as they are", kept);
+  await databases.updateRowProperties(ids.member, standup.id, { Logged: "now", Assignee: ["me", ids.owner] });
+  const edited = (await row(standup.id)).properties;
+  check(JSON.stringify(edited[assignee.id]) === JSON.stringify(["me", ids.owner]) && edited[logged.id] === "now", "…also when edited on its page", edited);
+  check((await failure(() => databases.updateRowProperties(ids.owner, blank.id, { Due: "today" }))) === "invalidDate", "an ordinary row's date can't say \"today\"");
+  await databases.updateRowProperties(ids.owner, blank.id, { Assignee: ["me"] });
+  check(JSON.stringify((await row(blank.id)).properties[assignee.id]) === JSON.stringify([ids.owner]), "…and \"me\" in an ordinary row is whoever writes it");
+
+  const startedAt = Date.now();
+  const inAuckland = await templates.createRow(member, tasks.id, { templateId: standup.id, timeZone: "Pacific/Auckland" });
+  const madeAuckland = (await row(inAuckland.id)).properties;
+  const loggedAt = Date.parse(String(madeAuckland[logged.id]));
+  check(
+    JSON.stringify(madeAuckland[assignee.id]) === JSON.stringify([ids.member, ids.owner]) &&
+      madeAuckland[due.id] === dayIn("Pacific/Auckland") &&
+      loggedAt >= startedAt - 1000 &&
+      loggedAt <= Date.now() &&
+      String(madeAuckland[logged.id]).endsWith("Z"),
+    "a row from it names whoever added it, today on their clock and the moment it was added",
+    madeAuckland,
+  );
+  const inLosAngeles = await templates.createRow(owner, tasks.id, { templateId: standup.id, timeZone: "America/Los_Angeles", properties: { Logged: "2026-01-02" } });
+  const madeLosAngeles = (await row(inLosAngeles.id)).properties;
+  check(
+    JSON.stringify(madeLosAngeles[assignee.id]) === JSON.stringify([ids.owner]) && madeLosAngeles[due.id] === dayIn("America/Los_Angeles") && madeLosAngeles[logged.id] === "2026-01-02",
+    "…once each, in each maker's time zone, with values given going over them",
+    madeLosAngeles,
+  );
+  check(JSON.stringify((await row(standup.id)).properties) === JSON.stringify(edited), "the template keeps its markers");
+  const mcpStandup = await callTool(ids.member, "create_database_row", { database_id: tasks.id, title: "Standup by MCP", template_id: standup.id });
+  check(
+    mcpStandup.data && JSON.stringify(mcpStandup.data.properties.Assignee) !== JSON.stringify(["me"]) && mcpStandup.data.properties.Due === dayIn("UTC"),
+    "MCP rows from it count today in UTC",
+    mcpStandup.text,
+  );
+
+  // Repeating, "me" is whoever set the repeat and "today" the day in the repeat's time zone.
+  await schedules.setTemplateRepeat(ids.member, standup.id, {
+    rule: { frequency: "daily", interval: 1, weekdays: [], time: "09:00", start: dayIn("Asia/Tokyo") },
+    timeZone: "Asia/Tokyo",
+  });
+  await db.update(schedule).set({ nextRunAt: new Date(Date.now() - 1000) }).where(eq(schedule.templateId, standup.id));
+  check((await schedules.runDueSchedules(new Date())) === 1, "a repeating template with markers runs");
+  const repeated = (await childrenOf(tasks.id)).filter((r) => !r.isTemplate && r.title === "Standup" && r.id !== inAuckland.id && r.id !== inLosAngeles.id);
+  check(
+    repeated.length === 1 &&
+      JSON.stringify(repeated[0].properties[assignee.id]) === JSON.stringify([ids.member, ids.owner]) &&
+      repeated[0].properties[due.id] === dayIn("Asia/Tokyo"),
+    "…naming whoever set it, on the day in its time zone",
+    repeated,
+  );
+  await schedules.removeTemplateRepeat(ids.member, standup.id);
 
   // Database templates show their own rows when opened
   const dbTemplate = await templates.saveAsTemplate(owner, copy.id);

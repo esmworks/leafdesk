@@ -9,6 +9,7 @@ import { DatabasesProvider, useAutomationWorkspace, useDatabaseInfo, useDatabase
 import { newKey, valuesOf, type Person, type SetEntry } from "@/components/database/automations-shared";
 import { PeoplePicker, selectClass, ValuesEditor } from "@/components/database/automations-values";
 import { TemplateField, VariablesProvider, type VariableGroup } from "@/components/database/automations-variables";
+import { RowTemplateSelect } from "@/components/database/row-template-select";
 import { PeopleProvider } from "@/components/database/person-cell";
 import { RelationProvider } from "@/components/database/relation-context";
 import { columnsOf, FilterEditor } from "@/components/database/view-bar";
@@ -46,7 +47,7 @@ import type { PageEditor } from "./embed-blocks";
 
 type DraftStep = { key: string } & (
   | { type: "insert"; at: InsertPlace; markdown: string }
-  | { type: "add_row"; databaseId: string; title: string; entries: SetEntry[] }
+  | { type: "add_row"; databaseId: string; title: string; entries: SetEntry[]; template: string }
   | { type: "update_rows"; databaseId: string; filters: FilterEntry[]; filterCombinator: FilterCombinator; entries: SetEntry[] }
   | { type: "notify"; userIds: string[]; message: string }
   | { type: "webhook"; url: string }
@@ -60,7 +61,7 @@ function toDraft(step: ButtonStep): DraftStep {
   const key = newKey();
   switch (step.type) {
     case "add_row":
-      return { key, type: "add_row", databaseId: step.databaseId, title: step.title, entries: entriesOf(step.values) };
+      return { key, type: "add_row", databaseId: step.databaseId, title: step.title, entries: entriesOf(step.values), template: step.template ?? "" };
     case "update_rows":
       return { key, type: "update_rows", databaseId: step.databaseId, filters: step.filters, filterCombinator: step.filterCombinator, entries: entriesOf(step.values) };
     default:
@@ -74,7 +75,7 @@ function newStep(type: ButtonStepType): DraftStep {
     case "insert":
       return { key, type, at: "below", markdown: "" };
     case "add_row":
-      return { key, type, databaseId: "", title: "", entries: [] };
+      return { key, type, databaseId: "", title: "", entries: [], template: "" };
     case "update_rows":
       return { key, type, databaseId: "", filters: [], filterCombinator: "and", entries: [] };
     case "notify":
@@ -91,7 +92,13 @@ type SchemaOf = (databaseId: string) => Parameters<typeof valuesOf>[1];
 function toStep(step: DraftStep, schemaOf: SchemaOf): ButtonStep {
   switch (step.type) {
     case "add_row":
-      return { type: "add_row", databaseId: step.databaseId, title: step.title, values: valuesOf(step.entries, schemaOf(step.databaseId)) };
+      return {
+        type: "add_row",
+        databaseId: step.databaseId,
+        title: step.title,
+        values: valuesOf(step.entries, schemaOf(step.databaseId)),
+        ...(step.template ? { template: step.template } : {}),
+      };
     case "update_rows":
       return {
         type: "update_rows",
@@ -502,7 +509,11 @@ function RowStepEditor({
           disabled={!list}
           // Values and filters name the database's own properties.
           onChange={(e) =>
-            onChange(step.type === "add_row" ? { ...step, databaseId: e.target.value, entries: [] } : { ...step, databaseId: e.target.value, entries: [], filters: [] })
+            onChange(
+              step.type === "add_row"
+                ? { ...step, databaseId: e.target.value, entries: [], template: "" }
+                : { ...step, databaseId: e.target.value, entries: [], filters: [] },
+            )
           }
           className={selectClass}
         >
@@ -518,9 +529,15 @@ function RowStepEditor({
       </Field>
       {info === null && <p className="text-xs text-danger">{ts("databaseUnavailable")}</p>}
       {info && step.type === "add_row" && (
-        <Field label={t("rowTitle")}>
-          <TemplateField value={step.title} maxLength={MAX_STEP_MESSAGE} aria-label={t("rowTitle")} onChange={(title) => onChange({ ...step, title })} />
-        </Field>
+        <>
+          <Field label={ts("rowTemplate")}>
+            <RowTemplateSelect info={info} value={step.template} onChange={(template) => onChange({ ...step, template })} />
+          </Field>
+          <Field label={t("rowTitle")}>
+            <TemplateField value={step.title} maxLength={MAX_STEP_MESSAGE} aria-label={t("rowTitle")} onChange={(title) => onChange({ ...step, title })} />
+          </Field>
+          {step.template && <p className="text-xs text-fg-faint">{ts("rowTemplateHelp")}</p>}
+        </>
       )}
       {info && step.type === "update_rows" && relationContext && (
         <RelationProvider value={relationContext}>

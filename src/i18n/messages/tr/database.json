@@ -550,7 +550,9 @@
     "parentOptionToggle": "“{parent}” “{value}” olduğunda “{option}” sunulsun",
     "sortOptionsAsc": "A → Z sırala",
     "sortOptionsDesc": "Z → A sırala",
-    "dragOption": "{name} seçeneğini taşımak için sürükleyin"
+    "dragOption": "{name} seçeneğini taşımak için sürükleyin",
+    "urlPreview": "Bağlantı önizlemesi olarak göster",
+    "urlPreviewHint": "Satır sayfaları bağlantının altında bağlanan sayfanın simgesini, başlığını ve görselini gösterir."
   },
   "rowProperties": {
     "noProperties": "Özellik yok",
@@ -1467,7 +1469,8 @@
         "noAddress": "Satırın e-posta adresi yok",
         "emailOff": "Satırlarda e-posta kapalı",
         "noPerson": "Atlandı: bu çalışmayı bir kişinin değişikliği başlatmadı",
-        "tooLate": "Atlandı: kutlamak için değişikliğin üzerinden çok zaman geçti"
+        "tooLate": "Atlandı: kutlamak için değişikliğin üzerinden çok zaman geçti",
+        "templateGone": "Satır şablonu artık yok"
       },
       "waitingApproval": "Onay bekliyor",
       "approval": {
@@ -1575,7 +1578,13 @@
       "slackSaved": "Kayıtlı adres:",
       "slackMessage": "Mesaj",
       "slackPlaceholder": "Örneğin: İncelemeye hazır: {template}",
-      "slackHelp": "Mesajı, satırın bağlantısıyla birlikte gelen webhook’un Slack kanalına gönderir. Slack biçimlendirmesi (*kalın*, _italik_) çalışır. Adres gizli tutulur ve yalnızca kısaltılmış gösterilir."
+      "slackHelp": "Mesajı, satırın bağlantısıyla birlikte gelen webhook’un Slack kanalına gönderir. Slack biçimlendirmesi (*kalın*, _italik_) çalışır. Adres gizli tutulur ve yalnızca kısaltılmış gösterilir.",
+      "rowTemplate": "Satır şablonu",
+      "rowTemplateNone": "Yok (boş satır)",
+      "rowTemplateDefault": "Veritabanının varsayılan şablonu",
+      "rowTemplateDefaultNamed": "Varsayılan şablon ({name})",
+      "rowTemplateGone": "Artık var olmayan bir şablon",
+      "rowTemplateHelp": "Satır şablonun bir kopyası olarak başlar. Burada belirlenen değerler şablonunkilerin yerine geçer; boş başlık şablonun başlığını korur."
     },
     "variables": {
       "button": "Değişken ekle",
@@ -1969,5 +1978,13 @@
     "existing": "Slack’e yazan otomasyonlar",
     "existingHelp": "Bunları veritabanının otomasyonlarından değiştirin ya da kapatın.",
     "off": "kapalı"
+  },
+  "templateValues": {
+    "me": "Ben",
+    "today": "Bugün",
+    "now": "Şimdi",
+    "hint": "Bu şablondan satır eklendiğinde doldurulur",
+    "dateWhen": "Satır eklendiğinde ayarlanır",
+    "meOption": "Satırı ekleyen kişi"
   }
 }

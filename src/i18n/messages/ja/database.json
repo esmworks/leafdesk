@@ -550,7 +550,9 @@
     "parentOptionToggle": "「{parent}」が「{value}」のとき「{option}」を表示",
     "sortOptionsAsc": "昇順に並べ替え (A → Z)",
     "sortOptionsDesc": "降順に並べ替え (Z → A)",
-    "dragOption": "ドラッグして{name}を移動"
+    "dragOption": "ドラッグして{name}を移動",
+    "urlPreview": "リンクプレビューとして表示",
+    "urlPreviewHint": "行ページのリンクの下に、リンク先ページのアイコン、タイトル、画像を表示します。"
   },
   "rowProperties": {
     "noProperties": "プロパティなし",
@@ -1467,7 +1469,8 @@
         "noAddress": "行にメールアドレスがありません",
         "emailOff": "行のメールがオフです",
         "noPerson": "スキップ: この実行は人による変更で始まっていません",
-        "tooLate": "スキップ: 変更から時間がたちすぎています"
+        "tooLate": "スキップ: 変更から時間がたちすぎています",
+        "templateGone": "行テンプレートはもう存在しません"
       },
       "waitingApproval": "承認待ち",
       "approval": {
@@ -1575,7 +1578,13 @@
       "slackSaved": "保存済みのアドレス:",
       "slackMessage": "メッセージ",
       "slackPlaceholder": "例: レビュー待ち: {template}",
-      "slackHelp": "Incoming Webhook の Slack チャンネルに、行へのリンク付きでメッセージを投稿します。Slack の書式（*太字*、_斜体_）が使えます。アドレスは秘密として保管され、短縮表示のみされます。"
+      "slackHelp": "Incoming Webhook の Slack チャンネルに、行へのリンク付きでメッセージを投稿します。Slack の書式（*太字*、_斜体_）が使えます。アドレスは秘密として保管され、短縮表示のみされます。",
+      "rowTemplate": "行テンプレート",
+      "rowTemplateNone": "なし（空の行）",
+      "rowTemplateDefault": "データベースの既定のテンプレート",
+      "rowTemplateDefaultNamed": "既定のテンプレート（{name}）",
+      "rowTemplateGone": "存在しないテンプレート",
+      "rowTemplateHelp": "行はテンプレートのコピーとして作成されます。ここで設定した値はテンプレートの値より優先され、タイトルが空ならテンプレートのタイトルになります。"
     },
     "variables": {
       "button": "変数を挿入",
@@ -1969,5 +1978,13 @@
     "existing": "Slack に投稿するオートメーション",
     "existingHelp": "データベースのオートメーションで変更またはオフにできます。",
     "off": "オフ"
+  },
+  "templateValues": {
+    "me": "自分",
+    "today": "今日",
+    "now": "現在",
+    "hint": "このテンプレートから行を追加したときに入力されます",
+    "dateWhen": "行の追加時に設定",
+    "meOption": "行を追加した人"
   }
 }

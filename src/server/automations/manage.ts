@@ -9,6 +9,7 @@ import { badTemplates, hasTemplate, TEMPLATE_ROOTS, templateRoots } from "@/lib/
 import {
   agentTargets,
   APPROVAL_TIMEOUTS,
+  cleanRowTemplate,
   FOR_EACH_TYPES,
   hasRow,
   HTTP_METHODS,
@@ -57,6 +58,7 @@ import { releaseDatabaseFromAgents, shareDatabaseWithAgents } from "@/server/age
 import { agentLevel } from "@/server/agents/sharing";
 import { getProperties, normalizeRowProperties, requireDatabase } from "@/server/databases";
 import { seal } from "@/server/secret-box";
+import { rowTemplateInput } from "@/server/templates";
 import { exportAllowed, workspacePeople } from "@/server/workspaces";
 import { checkHeader, HttpStepError, parseRequestUrl } from "./http";
 import { hookUrl, newHookSalt } from "./incoming";
@@ -95,7 +97,8 @@ export type AutomationActionInput = (
   | { type: "http_request"; method?: string; url: string; headers?: { name: string; value: string }[] | Record<string, string>; body?: unknown }
   /** `database` by id or title; filters and sorts as a view stores them (property ids). */
   | { type: "find_rows"; database: string; filters?: FilterEntry[]; filterCombinator?: FilterCombinator; sorts?: SortRule[]; limit?: number }
-  | { type: "create_row"; database: string; title?: string | null; values?: ValuesInput }
+  /** `template`: a row template of the database by id, or "default" for its default one (lib/automations). */
+  | { type: "create_row"; database: string; title?: string | null; values?: ValuesInput; template?: string | null }
   /** `match.property`: "title" or a property of the database, by name or id. */
   | { type: "upsert_row"; database: string; match: { property: string; value: string }; title?: string | null; values?: ValuesInput }
   | { type: "wait"; minutes: number }
@@ -595,7 +598,11 @@ async function checkActions(
       const database = await checkDatabase(userId, workspaceId, action.database, "edit");
       const values = await checkValues(userId, database.id, database.props, action.values, false);
       const title = checkText(action.title, "A row's title", MAX_STEP_MESSAGE).trim();
-      if (action.type === "create_row") step = { type: "create_row", databaseId: database.id, ...(title ? { title } : {}), values };
+      if (action.type === "create_row") {
+        const template = action.template ? cleanRowTemplate(action.template) : undefined;
+        if (action.template && (!template || !(await rowTemplateInput(database.id, template)))) throw invalid(`${label}: no row template "${action.template}" in that database`);
+        step = { type: "create_row", databaseId: database.id, ...(title ? { title } : {}), values, ...(template ? { template } : {}) };
+      }
       else {
         const ref = String(action.match?.property ?? "").trim();
         if (!ref) throw invalid(`${label}: name the property a row is matched on ("title" for its title)`);
@@ -755,7 +762,7 @@ function asInput(action: AutomationAction): AutomationActionInput {
   if (action.type === "find_rows") {
     return { id: action.id, type: "find_rows", database: action.databaseId, filters: action.filters, filterCombinator: action.filterCombinator, sorts: action.sorts, limit: action.limit };
   }
-  if (action.type === "create_row") return { id: action.id, type: "create_row", database: action.databaseId, title: action.title, values: action.values };
+  if (action.type === "create_row") return { id: action.id, type: "create_row", database: action.databaseId, title: action.title, values: action.values, template: action.template };
   if (action.type === "upsert_row") {
     return { id: action.id, type: "upsert_row", database: action.databaseId, match: { property: action.matchPropertyId, value: action.matchValue }, title: action.title, values: action.values };
   }

@@ -43,6 +43,7 @@ const { agentRun, automationRun, automationVersion, databaseAutomation, page, us
 const { registerCollab } = await import("@/server/collab/bridge");
 const { addProperty, createRows, updateRowProperties } = await import("@/server/databases");
 const { createPage } = await import("@/server/pages");
+const { createRowTemplate } = await import("@/server/templates");
 const manage = await import("@/server/automations/manage");
 const { flushAutomations } = await import("@/server/automations/run");
 const { runScheduledAutomations } = await import("@/server/automations/scheduled");
@@ -286,6 +287,31 @@ try {
   people = await rowsOf(customers.id);
   check(people.length === 1 && people[0].title === "Ada L." && people[0].properties[plan.id] === "team", "…and updates the row that matches", { people, steps: run.steps });
   check((run.steps[0].output as { created: boolean }).created === false, "…and says it updated it");
+
+  // Adding a row from one of that database's row templates, the step's values over the template's.
+  check(
+    await refused(
+      manage.createAutomation(ids.owner, customers.id, { name: "x", trigger: { type: "incoming_webhook" }, actions: [{ type: "create_row", database: "Tasks", template: "nope" }] }),
+    ),
+    "a step's row template must be one of that database's",
+  );
+  const onboarding = await createRowTemplate({ userId: ids.owner }, tasks.id, { title: "Onboarding", properties: { Note: "Call within a day", Stage: "Todo" } });
+  const kit = await manage.createAutomation(ids.owner, customers.id, {
+    name: "Kit",
+    trigger: { type: "incoming_webhook" },
+    actions: [{ type: "create_row", database: "Tasks", template: onboarding.id, values: { Note: "Call {{trigger.name}}" } }],
+  });
+  check((await hook(kit.hookUrl!, JSON.stringify({ name: "Grace" }))).status === 202, "…and a run of it is queued");
+  await flushAutomations();
+  run = await lastRun(kit.id);
+  const kitRowId = (run.steps[0]?.output as { id?: string } | undefined)?.id;
+  const [kitRow] = await db.select({ title: page.title, properties: page.properties }).from(page).where(eq(page.id, kitRowId ?? ""));
+  check(
+    run.status === "done" && kitRow?.title === "Onboarding" && kitRow.properties[note.id] === "Call Grace" && kitRow.properties[stage.id] === optionId("Todo"),
+    "add a row starts from the template, with the step's values over its own",
+    { steps: run.steps, kitRow },
+  );
+  await manage.deleteAutomation(ids.owner, kit.id);
   const rotated = await manage.rotateAutomationHook(ids.owner, intake.id);
   check(rotated.hookUrl !== url && (await hook(url, "{}")).status === 404, "a new address replaces the old one at once");
   const fresh = rotated.hookUrl!;

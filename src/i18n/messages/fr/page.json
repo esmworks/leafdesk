@@ -1178,7 +1178,8 @@
       "invalidTarget": "Le lien à ouvrir n’est pas valide.",
       "buttonGone": "Le bouton a été retiré de la page.",
       "error": "Un problème est survenu.",
-      "step": "L’étape {step} ({type}) ne s’est pas exécutée : {reason}"
+      "step": "L’étape {step} ({type}) ne s’est pas exécutée : {reason}",
+      "templateGone": "Le modèle de ligne n’existe plus."
     }
   },
   "imageCrop": {

@@ -1178,7 +1178,8 @@
       "invalidTarget": "Tautan yang akan dibuka tidak valid.",
       "buttonGone": "Tombol telah dihapus dari halaman.",
       "error": "Terjadi kesalahan.",
-      "step": "Langkah {step} ({type}) tidak berjalan: {reason}"
+      "step": "Langkah {step} ({type}) tidak berjalan: {reason}",
+      "templateGone": "Templat baris sudah tidak ada."
     }
   },
   "imageCrop": {

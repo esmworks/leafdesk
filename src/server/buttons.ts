@@ -26,6 +26,7 @@ import { sendWebhook, WebhookError, webhookSecret } from "@/server/automations/w
 import { runAsButton } from "@/server/button-press";
 import { getCollab } from "@/server/collab/bridge";
 import { createRows, getProperties, requireDatabase, updateRowProperties, viewedRows } from "@/server/databases";
+import { createRow, rowTemplateInput } from "@/server/templates";
 import { signalInbox } from "@/server/notifications";
 import { pushNotifications } from "@/server/push";
 import { exportAllowed, listMembers } from "@/server/workspaces";
@@ -70,6 +71,7 @@ export const BUTTON_STEP_FAILURES = [
   "webhookFailed",
   "invalidTarget",
   "buttonGone",
+  "templateGone",
   "error",
 ] as const;
 export type ButtonStepFailure = (typeof BUTTON_STEP_FAILURES)[number];
@@ -229,7 +231,14 @@ async function addRow(press: Press, step: Extract<ButtonStep, { type: "add_row" 
   await writableDatabase(press, step.databaseId);
   const properties = await rowValues(press, step.databaseId, step.values);
   const title = resolveText(step.title, press.scope).value.trim();
-  await createRows(press.userId, step.databaseId, [{ title, properties }]);
+  if (!step.template) {
+    await createRows(press.userId, step.databaseId, [{ title, properties }]);
+    return;
+  }
+  // From a row template: the step's values go over the template's, its "today" is the clicker's.
+  const template = await rowTemplateInput(step.databaseId, step.template);
+  if (!template) throw new StepFailure("templateGone", "The row template is gone");
+  await createRow({ userId: press.userId }, step.databaseId, { title, properties, ...template, timeZone: press.timeZone });
 }
 
 async function updateRows(press: Press, step: Extract<ButtonStep, { type: "update_rows" }>) {

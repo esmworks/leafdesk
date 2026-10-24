@@ -1178,7 +1178,8 @@
       "invalidTarget": "열 링크가 올바르지 않습니다.",
       "buttonGone": "버튼이 페이지에서 제거되었습니다.",
       "error": "문제가 발생했습니다.",
-      "step": "{step}단계({type})가 실행되지 않았습니다: {reason}"
+      "step": "{step}단계({type})가 실행되지 않았습니다: {reason}",
+      "templateGone": "행 템플릿이 더 이상 없습니다."
     }
   },
   "imageCrop": {

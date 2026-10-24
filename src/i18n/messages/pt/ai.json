@@ -34,7 +34,27 @@
     "stopped": "Parado. Você ainda pode manter o que foi escrito até agora.",
     "applyFailed": "Não foi possível adicionar a sugestão à página.",
     "asSuggestions": "Adicionar como alterações sugeridas",
-    "selectionChanged": "O texto selecionado mudou nesse meio-tempo, então a sugestão foi adicionada abaixo dele."
+    "selectionChanged": "O texto selecionado mudou nesse meio-tempo, então a sugestão foi adicionada abaixo dele.",
+    "saved": {
+      "title": "Prompts salvos",
+      "empty": "Salve uma instrução que usa com frequência com o marcador ao lado de Enviar. Instruções para toda a equipe são <skills>habilidades</skills>.",
+      "saveInstruction": "Salvar prompt",
+      "name": "Nome",
+      "namePlaceholder": "Dê um nome a este prompt",
+      "save": "Salvar",
+      "cancel": "Cancelar",
+      "rename": "Novo nome",
+      "renameNamed": "Renomear {name}",
+      "deleteNamed": "Excluir {name}",
+      "errors": {
+        "emptyName": "Dê um nome ao prompt.",
+        "emptyPrompt": "Não há instrução para salvar.",
+        "nameTooLong": "Os nomes podem ter no máximo {max} caracteres.",
+        "promptTooLong": "Os prompts podem ter no máximo {max} caracteres.",
+        "full": "Você pode manter no máximo {max} prompts salvos. Exclua um para salvar outro.",
+        "notFound": "Este prompt salvo já não existe."
+      }
+    }
   },
   "errors": {
     "disabled": "A IA não está disponível neste espaço de trabalho.",

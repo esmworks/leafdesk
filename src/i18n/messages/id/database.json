@@ -550,7 +550,9 @@
     "parentOptionToggle": "Tawarkan “{option}” saat “{parent}” adalah “{value}”",
     "sortOptionsAsc": "Urutkan A → Z",
     "sortOptionsDesc": "Urutkan Z → A",
-    "dragOption": "Seret untuk memindahkan {name}"
+    "dragOption": "Seret untuk memindahkan {name}",
+    "urlPreview": "Tampilkan sebagai pratinjau tautan",
+    "urlPreviewHint": "Halaman baris menampilkan ikon, judul, dan gambar halaman tertaut di bawah tautan."
   },
   "rowProperties": {
     "noProperties": "Tidak ada properti",
@@ -1467,7 +1469,8 @@
         "noAddress": "Baris tidak memiliki alamat email",
         "emailOff": "Email di baris dinonaktifkan",
         "noPerson": "Dilewati: tidak ada perubahan dari seseorang yang memulai eksekusi ini",
-        "tooLate": "Dilewati: terlalu lama setelah perubahan untuk dirayakan"
+        "tooLate": "Dilewati: terlalu lama setelah perubahan untuk dirayakan",
+        "templateGone": "Templat baris sudah tidak ada"
       },
       "waitingApproval": "Menunggu persetujuan",
       "approval": {
@@ -1575,7 +1578,13 @@
       "slackSaved": "Alamat tersimpan:",
       "slackMessage": "Pesan",
       "slackPlaceholder": "Misalnya: Siap ditinjau: {template}",
-      "slackHelp": "Memposting pesan ke kanal Slack milik webhook masuk, dengan tautan ke baris. Format Slack (*tebal*, _miring_) berfungsi. Alamatnya dirahasiakan dan hanya ditampilkan disingkat."
+      "slackHelp": "Memposting pesan ke kanal Slack milik webhook masuk, dengan tautan ke baris. Format Slack (*tebal*, _miring_) berfungsi. Alamatnya dirahasiakan dan hanya ditampilkan disingkat.",
+      "rowTemplate": "Templat baris",
+      "rowTemplateNone": "Tidak ada (baris kosong)",
+      "rowTemplateDefault": "Templat bawaan database",
+      "rowTemplateDefaultNamed": "Templat bawaan ({name})",
+      "rowTemplateGone": "Templat yang sudah tidak ada",
+      "rowTemplateHelp": "Baris dimulai sebagai salinan templat. Nilai yang diatur di sini menggantikan nilai templat; judul kosong mempertahankan judul templat."
     },
     "variables": {
       "button": "Sisipkan variabel",
@@ -1969,5 +1978,13 @@
     "existing": "Otomatisasi yang memposting ke Slack",
     "existingHelp": "Ubah atau matikan di otomatisasi database.",
     "off": "mati"
+  },
+  "templateValues": {
+    "me": "Saya",
+    "today": "Hari ini",
+    "now": "Sekarang",
+    "hint": "Diisi saat baris ditambahkan dari templat ini",
+    "dateWhen": "Diatur saat baris ditambahkan",
+    "meOption": "Siapa pun yang menambahkan baris"
   }
 }

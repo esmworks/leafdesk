@@ -105,7 +105,8 @@ export type DraftAction = { key: string; id: string } & (
       sorts: SortRule[];
       limit: string;
     }
-  | { type: "create_row"; databaseId: string; title: string; entries: SetEntry[] }
+  /** `template`: "" for a blank row, else lib/automations DEFAULT_ROW_TEMPLATE or a template's id. */
+  | { type: "create_row"; databaseId: string; title: string; entries: SetEntry[]; template: string }
   /** `matchProperty`: "title" or a property id of the database. */
   | { type: "upsert_row"; databaseId: string; matchProperty: string; matchValue: string; title: string; entries: SetEntry[] }
   | { type: "wait"; amount: string; unit: WaitUnit }
@@ -300,7 +301,14 @@ export function toDraft(automation: Automation, properties: Property[]): Draft {
           limit: String(action.limit),
         };
       case "create_row":
-        return { ...base, type: "create_row", databaseId: action.databaseId, title: action.title ?? "", entries: entriesOf(action.values, () => true) };
+        return {
+          ...base,
+          type: "create_row",
+          databaseId: action.databaseId,
+          title: action.title ?? "",
+          entries: entriesOf(action.values, () => true),
+          template: action.template ?? "",
+        };
       case "upsert_row":
         return {
           ...base,
@@ -358,7 +366,7 @@ export function newAction(type: AutomationActionType, actions: DraftAction[], tr
     case "find_rows":
       return { ...base, type, databaseId, filters: [], filterCombinator: "and", sorts: [], limit: "20" };
     case "create_row":
-      return { ...base, type, databaseId, title: "", entries: [] };
+      return { ...base, type, databaseId, title: "", entries: [], template: "" };
     case "upsert_row":
       return { ...base, type, databaseId, matchProperty: "title", matchValue: "", title: "", entries: [] };
     case "wait":
@@ -647,7 +655,14 @@ export function actionsInput(draft: Draft, properties: Property[], schemaOf: (da
           limit: wholeNumber(action.limit, 1, MAX_FOUND_ROWS) ?? 20,
         };
       case "create_row":
-        return { id, type: "create_row" as const, database: action.databaseId, title: action.title.trim(), values: valuesOf(action.entries, schemaOf(action.databaseId)) };
+        return {
+          id,
+          type: "create_row" as const,
+          database: action.databaseId,
+          title: action.title.trim(),
+          values: valuesOf(action.entries, schemaOf(action.databaseId)),
+          ...(action.template ? { template: action.template } : {}),
+        };
       case "upsert_row":
         return {
           id,

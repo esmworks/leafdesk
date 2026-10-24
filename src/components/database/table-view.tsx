@@ -773,6 +773,7 @@ export function TableView({
                         fixed || !takesNumberFormat(p.type, p.options.formula?.type) ? undefined : (format) => api.setNumberFormat(p, format),
                       setDateOptions: fixed || p.type !== "date" ? undefined : (input) => api.setDateOptions(p, input),
                       setUniqueIdPrefix: fixed || p.type !== "unique_id" ? undefined : (prefix) => api.setUniqueIdPrefix(p, prefix),
+                      setUrlPreview: fixed || p.type !== "url" ? undefined : (on) => api.setUrlPreview(p, on),
                       setNumberDisplay: fixed || p.type !== "number" ? undefined : (display) => api.setNumberDisplay(p, display),
                       setPageVisibility: fixed ? undefined : (visibility) => api.setPageVisibility(p, visibility),
                       setAutofill: fixed || !ai.enabled || !isAutofillType(p.type) ? undefined : (config) => api.setAutofill(p, config),

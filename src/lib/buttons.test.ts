@@ -47,6 +47,16 @@ describe("button settings", () => {
     expect(parseButtonConfig(serializeButtonConfig(many as never)).steps).toHaveLength(MAX_BUTTON_STEPS);
   });
 
+  it("keep an add-row step's row template: an id, the database's default one, or none", () => {
+    const steps = (template: unknown) =>
+      parseButtonConfig({ confirm: false, steps: [{ type: "add_row", databaseId: "db1", title: "", values: {}, template }] }).steps;
+    expect(steps("tpl-1")).toEqual([{ type: "add_row", databaseId: "db1", title: "", values: {}, template: "tpl-1" }]);
+    expect(steps("default")).toEqual([{ type: "add_row", databaseId: "db1", title: "", values: {}, template: "default" }]);
+    for (const bad of [undefined, "", 42, "../x", "x".repeat(101), { id: "tpl-1" }]) {
+      expect(steps(bad)).toEqual([{ type: "add_row", databaseId: "db1", title: "", values: {} }]);
+    }
+  });
+
   it("keep a label to one short line", () => {
     expect(cleanButtonLabel("  Start\n the   week ")).toBe("Start the week");
     expect(cleanButtonLabel(42)).toBe("");

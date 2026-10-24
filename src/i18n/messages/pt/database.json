@@ -550,7 +550,9 @@
     "parentOptionToggle": "Oferecer “{option}” quando “{parent}” for “{value}”",
     "sortOptionsAsc": "Ordenar A → Z",
     "sortOptionsDesc": "Ordenar Z → A",
-    "dragOption": "Arraste para mover {name}"
+    "dragOption": "Arraste para mover {name}",
+    "urlPreview": "Mostrar como pré-visualização do link",
+    "urlPreviewHint": "As páginas de linha mostram o ícone, o título e a imagem da página vinculada abaixo do link."
   },
   "rowProperties": {
     "noProperties": "Nenhuma propriedade",
@@ -1467,7 +1469,8 @@
         "noAddress": "A linha não tem endereço de e-mail",
         "emailOff": "O e-mail nas linhas está desativado",
         "noPerson": "Ignorado: nenhuma alteração de uma pessoa iniciou esta execução",
-        "tooLate": "Ignorado: passou tempo demais desde a alteração para celebrá-la"
+        "tooLate": "Ignorado: passou tempo demais desde a alteração para celebrá-la",
+        "templateGone": "O modelo de linha já não existe"
       },
       "waitingApproval": "Aguardando aprovação",
       "approval": {
@@ -1575,7 +1578,13 @@
       "slackSaved": "Endereço salvo:",
       "slackMessage": "Mensagem",
       "slackPlaceholder": "Por exemplo: Pronto para revisão: {template}",
-      "slackHelp": "Publica a mensagem no canal do Slack do webhook de entrada, com um link para a linha. A formatação do Slack (*negrito*, _itálico_) funciona. O endereço fica em segredo e só aparece abreviado."
+      "slackHelp": "Publica a mensagem no canal do Slack do webhook de entrada, com um link para a linha. A formatação do Slack (*negrito*, _itálico_) funciona. O endereço fica em segredo e só aparece abreviado.",
+      "rowTemplate": "Modelo de linha",
+      "rowTemplateNone": "Nenhum (linha em branco)",
+      "rowTemplateDefault": "Modelo padrão do banco de dados",
+      "rowTemplateDefaultNamed": "O modelo padrão ({name})",
+      "rowTemplateGone": "Um modelo que já não existe",
+      "rowTemplateHelp": "A linha começa como uma cópia do modelo. Os valores definidos aqui substituem os do modelo; um título vazio mantém o do modelo."
     },
     "variables": {
       "button": "Inserir uma variável",
@@ -1969,5 +1978,13 @@
     "existing": "Automações que publicam no Slack",
     "existingHelp": "Altere-as ou desative-as nas automações do banco de dados.",
     "off": "desativada"
+  },
+  "templateValues": {
+    "me": "Eu",
+    "today": "Hoje",
+    "now": "Agora",
+    "hint": "Preenchido quando uma linha é adicionada a partir deste modelo",
+    "dateWhen": "Definido ao adicionar uma linha",
+    "meOption": "Quem adicionar a linha"
   }
 }

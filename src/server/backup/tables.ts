@@ -174,6 +174,7 @@ export const LEFT_OUT: Record<string, string> = {
   storage_oauth: "storage sign-ins in progress",
   storage_move: "moves of files between storages on the old server",
   ai_conversation: "people's AI chats, which only each of them may read",
+  ai_saved_prompt: "the prompts each person saved for the AI assistant, theirs alone like their chats",
   agent_conversation: "people's chats with agents, which only each of them may read (their answers are agent runs, not backed up either)",
   ai_account: "people's own AI provider keys; the workspace uses the new server's AI until an owner attaches one again",
   ai_usage_person: "AI usage by person, which names people of the old server; the workspace's own totals (ai_usage) are backed up",

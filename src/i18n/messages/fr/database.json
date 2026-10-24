@@ -550,7 +550,9 @@
     "parentOptionToggle": "Proposer « {option} » quand « {parent} » vaut « {value} »",
     "sortOptionsAsc": "Trier de A à Z",
     "sortOptionsDesc": "Trier de Z à A",
-    "dragOption": "Faire glisser pour déplacer {name}"
+    "dragOption": "Faire glisser pour déplacer {name}",
+    "urlPreview": "Afficher en aperçu du lien",
+    "urlPreviewHint": "Les pages de ligne affichent l’icône, le titre et l’image de la page liée sous le lien."
   },
   "rowProperties": {
     "noProperties": "Aucune propriété",
@@ -1467,7 +1469,8 @@
         "noAddress": "La ligne n’a pas d’adresse e-mail",
         "emailOff": "Les e-mails sur les lignes sont désactivés",
         "noPerson": "Ignoré : aucune modification d’une personne n’a lancé cette exécution",
-        "tooLate": "Ignoré : trop longtemps après la modification pour la fêter"
+        "tooLate": "Ignoré : trop longtemps après la modification pour la fêter",
+        "templateGone": "Le modèle de ligne n’existe plus"
       },
       "waitingApproval": "En attente d’approbation",
       "approval": {
@@ -1575,7 +1578,13 @@
       "slackSaved": "Adresse enregistrée :",
       "slackMessage": "Message",
       "slackPlaceholder": "Par exemple : Prêt pour relecture : {template}",
-      "slackHelp": "Publie le message dans le canal Slack du webhook entrant, avec un lien vers la ligne. La mise en forme Slack (*gras*, _italique_) fonctionne. L’adresse reste secrète et n’est affichée qu’abrégée."
+      "slackHelp": "Publie le message dans le canal Slack du webhook entrant, avec un lien vers la ligne. La mise en forme Slack (*gras*, _italique_) fonctionne. L’adresse reste secrète et n’est affichée qu’abrégée.",
+      "rowTemplate": "Modèle de ligne",
+      "rowTemplateNone": "Aucun (ligne vide)",
+      "rowTemplateDefault": "Modèle par défaut de la base",
+      "rowTemplateDefaultNamed": "Le modèle par défaut ({name})",
+      "rowTemplateGone": "Un modèle qui n’existe plus",
+      "rowTemplateHelp": "La ligne commence comme une copie du modèle. Les valeurs définies ici remplacent celles du modèle ; un titre vide garde celui du modèle."
     },
     "variables": {
       "button": "Insérer une variable",
@@ -1969,5 +1978,13 @@
     "existing": "Automatisations qui publient dans Slack",
     "existingHelp": "Modifiez-les ou désactivez-les dans les automatisations de la base de données.",
     "off": "désactivée"
+  },
+  "templateValues": {
+    "me": "Moi",
+    "today": "Aujourd’hui",
+    "now": "Maintenant",
+    "hint": "Rempli lorsqu’une ligne est ajoutée depuis ce modèle",
+    "dateWhen": "Défini à l’ajout d’une ligne",
+    "meOption": "La personne qui ajoute la ligne"
   }
 }

@@ -550,7 +550,9 @@
     "parentOptionToggle": "Offer “{option}” when “{parent}” is “{value}”",
     "sortOptionsAsc": "Sort A → Z",
     "sortOptionsDesc": "Sort Z → A",
-    "dragOption": "Drag to move {name}"
+    "dragOption": "Drag to move {name}",
+    "urlPreview": "Show as link preview",
+    "urlPreviewHint": "Row pages show the linked page's icon, title and image under the link."
   },
   "rowProperties": {
     "noProperties": "No properties",
@@ -1467,7 +1469,8 @@
         "noAddress": "The row has no email address",
         "emailOff": "Email on rows is off",
         "noPerson": "Skipped: no person's change started this run",
-        "tooLate": "Skipped: too long after the change to celebrate it"
+        "tooLate": "Skipped: too long after the change to celebrate it",
+        "templateGone": "The row template no longer exists"
       },
       "waitingApproval": "Waiting for approval",
       "approval": {
@@ -1575,7 +1578,13 @@
       "slackSaved": "Saved address:",
       "slackMessage": "Message",
       "slackPlaceholder": "For example: Ready for review: {template}",
-      "slackHelp": "Posts the message to the Slack channel of the incoming webhook, with a link to the row. Slack formatting (*bold*, _italic_) works. The address is kept secret and shown only shortened."
+      "slackHelp": "Posts the message to the Slack channel of the incoming webhook, with a link to the row. Slack formatting (*bold*, _italic_) works. The address is kept secret and shown only shortened.",
+      "rowTemplate": "Row template",
+      "rowTemplateNone": "None (a blank row)",
+      "rowTemplateDefault": "The database’s default template",
+      "rowTemplateDefaultNamed": "The default template ({name})",
+      "rowTemplateGone": "A template that no longer exists",
+      "rowTemplateHelp": "The row starts as a copy of the template. Values set here go over the template’s; an empty title keeps the template’s."
     },
     "variables": {
       "button": "Insert a variable",
@@ -1969,5 +1978,13 @@
     "existing": "Automations that post to Slack",
     "existingHelp": "Change or turn them off in the database’s automations.",
     "off": "off"
+  },
+  "templateValues": {
+    "me": "Me",
+    "today": "Today",
+    "now": "Now",
+    "hint": "Filled in when a row is added from this template",
+    "dateWhen": "Set when a row is added",
+    "meOption": "Whoever adds the row"
   }
 }

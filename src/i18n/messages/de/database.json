@@ -550,7 +550,9 @@
     "parentOptionToggle": "„{option}“ anbieten, wenn „{parent}“ „{value}“ ist",
     "sortOptionsAsc": "Sortieren A → Z",
     "sortOptionsDesc": "Sortieren Z → A",
-    "dragOption": "Ziehen, um {name} zu verschieben"
+    "dragOption": "Ziehen, um {name} zu verschieben",
+    "urlPreview": "Als Linkvorschau anzeigen",
+    "urlPreviewHint": "Zeilenseiten zeigen Symbol, Titel und Bild der verlinkten Seite unter dem Link."
   },
   "rowProperties": {
     "noProperties": "Keine Eigenschaften",
@@ -1467,7 +1469,8 @@
         "noAddress": "Die Zeile hat keine E-Mail-Adresse",
         "emailOff": "E-Mails in Zeilen sind ausgeschaltet",
         "noPerson": "Übersprungen: Diesen Lauf hat keine Änderung einer Person gestartet",
-        "tooLate": "Übersprungen: zu lange nach der Änderung, um sie zu feiern"
+        "tooLate": "Übersprungen: zu lange nach der Änderung, um sie zu feiern",
+        "templateGone": "Die Zeilenvorlage gibt es nicht mehr"
       },
       "waitingApproval": "Wartet auf Freigabe",
       "approval": {
@@ -1575,7 +1578,13 @@
       "slackSaved": "Gespeicherte Adresse:",
       "slackMessage": "Nachricht",
       "slackPlaceholder": "Zum Beispiel: Bereit zur Prüfung: {template}",
-      "slackHelp": "Sendet die Nachricht mit einem Link zur Zeile in den Slack-Kanal des eingehenden Webhooks. Slack-Formatierung (*fett*, _kursiv_) funktioniert. Die Adresse bleibt geheim und wird nur gekürzt angezeigt."
+      "slackHelp": "Sendet die Nachricht mit einem Link zur Zeile in den Slack-Kanal des eingehenden Webhooks. Slack-Formatierung (*fett*, _kursiv_) funktioniert. Die Adresse bleibt geheim und wird nur gekürzt angezeigt.",
+      "rowTemplate": "Zeilenvorlage",
+      "rowTemplateNone": "Keine (leere Zeile)",
+      "rowTemplateDefault": "Standardvorlage der Datenbank",
+      "rowTemplateDefaultNamed": "Die Standardvorlage ({name})",
+      "rowTemplateGone": "Eine Vorlage, die es nicht mehr gibt",
+      "rowTemplateHelp": "Die Zeile beginnt als Kopie der Vorlage. Hier gesetzte Werte ersetzen die der Vorlage; ein leerer Titel behält den der Vorlage."
     },
     "variables": {
       "button": "Variable einfügen",
@@ -1969,5 +1978,13 @@
     "existing": "Automatisierungen, die an Slack posten",
     "existingHelp": "Ändere oder deaktiviere sie in den Automatisierungen der Datenbank.",
     "off": "aus"
+  },
+  "templateValues": {
+    "me": "Ich",
+    "today": "Heute",
+    "now": "Jetzt",
+    "hint": "Wird ausgefüllt, wenn eine Zeile aus dieser Vorlage hinzugefügt wird",
+    "dateWhen": "Beim Hinzufügen einer Zeile setzen",
+    "meOption": "Wer die Zeile hinzufügt"
   }
 }

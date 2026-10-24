@@ -1,6 +1,7 @@
 "use client";
 
 import { ChevronDown, ChevronRight, MessageSquare, PanelRight, PanelTop, Plus } from "lucide-react";
+import dynamic from "next/dynamic";
 import { useTranslations } from "next-intl";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { createPortal } from "react-dom";
@@ -41,10 +42,14 @@ import { RowActivity } from "./row-activity";
 import { RowReviewBanner } from "@/components/review/row-review-banner";
 import { RowEmails } from "./row-emails";
 import { SchemaProvider } from "./schema-context";
+import { RowCellProvider } from "./row-cell-context";
 import { rowSnapshotOf, type RowSnapshot as Loaded } from "./row-snapshot";
 import type { DerivedInput, Property, RelationInput } from "./types";
 import { usePropertyThreadCount } from "@/components/page/property-threads";
 import { requestPropertyComment } from "@/lib/comments-request";
+
+// Only URL properties set to show previews need it: kept out of the row panel's first load.
+const UrlPreview = dynamic(() => import("./url-preview"), { ssr: false });
 
 /**
  * Editable property list of a database row's page: the properties its database pins in a strip under
@@ -235,6 +240,24 @@ export function RowProperties({
     await refetch();
   };
 
+  // Whether a URL property's links show a preview of the page, the database's too: shown here at once, then saved.
+  const setUrlPreview = async (propertyId: string, on: boolean) => {
+    setData(
+      (d) =>
+        d && {
+          ...d,
+          properties: d.properties.map((p) => {
+            if (p.id !== propertyId) return p;
+            const { url: _old, ...rest } = p.options;
+            return { ...p, options: on ? { ...rest, url: { preview: true as const } } : rest };
+          }),
+        },
+    );
+    const res = await safe(updatePropertyAction(propertyId, { urlPreview: on }));
+    if (!res.ok) setError(res.error);
+    await refetch();
+  };
+
   // Row page layout, the database's for everyone (lib/row-layout): shown here at once, then saved.
   const setPinned = async (propertyId: string, pinned: boolean) => {
     setData(
@@ -304,6 +327,8 @@ export function RowProperties({
     () => ({ viewerId: data?.viewerId ?? null, people: data?.people ?? [] }),
     [data?.viewerId, data?.people],
   );
+  const template = data?.template === true;
+  const rowCell = useMemo(() => ({ rowId, template }), [rowId, template]);
   const aiEnabled = Boolean(data?.ai?.enabled) && !offline;
   const aiContext = useMemo<AiAutofillContextValue>(
     () => ({
@@ -369,6 +394,7 @@ export function RowProperties({
       onCreateOption={createOption}
       onPageVisibility={canSetVisibility ? (visibility) => void setPageVisibility(p.id, visibility) : undefined}
       onDescription={canSetVisibility ? (description) => void setDescription(p.id, description) : undefined}
+      onUrlPreview={canSetVisibility && p.type === "url" ? (on) => void setUrlPreview(p.id, on) : undefined}
       onPinned={canSetLayout ? (on) => void setPinned(p.id, on) : undefined}
       pinFull={!canPin(data.properties, p.id)}
       values={values}
@@ -418,22 +444,24 @@ export function RowProperties({
   );
 
   return (
-    <RelationProvider value={relationContext}>
-      <PeopleProvider value={peopleContext}>
-        <SchemaProvider value={data.properties}>
-          <PropertyAccessProvider value={accessContext}>
-            <AiAutofillProvider value={aiContext}>
-              {pinned.length > 0 && (
-                <div role="group" aria-label={t("pinned")} className="mb-4 flex flex-wrap gap-x-6 gap-y-2">
-                  {pinned.map((p) => propertyRow(p, "pinned"))}
-                </div>
-              )}
-              {besideHere ? createPortal(list, besideHere) : list}
-            </AiAutofillProvider>
-          </PropertyAccessProvider>
-        </SchemaProvider>
-      </PeopleProvider>
-    </RelationProvider>
+    <RowCellProvider value={rowCell}>
+      <RelationProvider value={relationContext}>
+        <PeopleProvider value={peopleContext}>
+          <SchemaProvider value={data.properties}>
+            <PropertyAccessProvider value={accessContext}>
+              <AiAutofillProvider value={aiContext}>
+                {pinned.length > 0 && (
+                  <div role="group" aria-label={t("pinned")} className="mb-4 flex flex-wrap gap-x-6 gap-y-2">
+                    {pinned.map((p) => propertyRow(p, "pinned"))}
+                  </div>
+                )}
+                {besideHere ? createPortal(list, besideHere) : list}
+              </AiAutofillProvider>
+            </PropertyAccessProvider>
+          </SchemaProvider>
+        </PeopleProvider>
+      </RelationProvider>
+    </RowCellProvider>
   );
 }
 
@@ -449,6 +477,7 @@ function PropertyRow({
   onCreateOption,
   onPageVisibility,
   onDescription,
+  onUrlPreview,
   onPinned,
   pinFull,
   values,
@@ -469,6 +498,8 @@ function PropertyRow({
   onPageVisibility?: (visibility: PageVisibility) => void;
   /** The same people: what the property holds and how to fill it (null for nothing). */
   onDescription?: (description: string | null) => void;
+  /** The same people, for URL properties: whether row pages show a preview of the linked page. */
+  onUrlPreview?: (on: boolean) => void;
   /** Full access: pins the property under the title, or unpins it; `pinFull` while no more fit. */
   onPinned?: (pinned: boolean) => void;
   pinFull: boolean;
@@ -525,7 +556,7 @@ function PropertyRow({
             <Floating open={menu.open} anchor={menu.el} onClose={menu.close}>
               <PropertyMenu
                 prop={p}
-                actions={{ setPageVisibility: onPageVisibility, setDescription: onDescription, setPinned: onPinned, pinFull }}
+                actions={{ setPageVisibility: onPageVisibility, setDescription: onDescription, setUrlPreview: onUrlPreview, setPinned: onPinned, pinFull }}
                 onDone={menu.close}
               />
             </Floating>
@@ -555,6 +586,9 @@ function PropertyRow({
               upload={p.type === "files" ? uploadToPage(rowId) : undefined}
             />
           </AiCell>
+        )}
+        {p.type === "url" && p.options.url?.preview && variant !== "pinned" && valueAccess !== "hidden" && typeof value === "string" && /^https?:\/\//i.test(value) && (
+          <UrlPreview rowId={rowId} propertyId={p.id} url={value} />
         )}
       </div>
       {commentable && variant === "row" && valueAccess !== "hidden" && <PropertyComments rowId={rowId} prop={p} />}

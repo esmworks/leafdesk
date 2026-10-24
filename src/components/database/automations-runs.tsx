@@ -61,6 +61,7 @@ const STEP_CODES = [
   "timedOut",
   "noPerson",
   "tooLate",
+  "templateGone",
 ] as const;
 
 /** A run waits for a wait step: the time it goes on. */

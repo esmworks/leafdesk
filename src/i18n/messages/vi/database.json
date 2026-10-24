@@ -550,7 +550,9 @@
     "parentOptionToggle": "Đưa ra “{option}” khi “{parent}” là “{value}”",
     "sortOptionsAsc": "Sắp xếp A → Z",
     "sortOptionsDesc": "Sắp xếp Z → A",
-    "dragOption": "Kéo để di chuyển {name}"
+    "dragOption": "Kéo để di chuyển {name}",
+    "urlPreview": "Hiển thị dưới dạng xem trước liên kết",
+    "urlPreviewHint": "Trang hàng hiển thị biểu tượng, tiêu đề và hình ảnh của trang được liên kết bên dưới liên kết."
   },
   "rowProperties": {
     "noProperties": "Không có thuộc tính",
@@ -1467,7 +1469,8 @@
         "noAddress": "Hàng không có địa chỉ email",
         "emailOff": "Email trên hàng đã bị tắt",
         "noPerson": "Đã bỏ qua: không có thay đổi của ai đã bắt đầu lần chạy này",
-        "tooLate": "Đã bỏ qua: quá lâu sau thay đổi để ăn mừng"
+        "tooLate": "Đã bỏ qua: quá lâu sau thay đổi để ăn mừng",
+        "templateGone": "Mẫu hàng không còn tồn tại"
       },
       "waitingApproval": "Đang chờ phê duyệt",
       "approval": {
@@ -1575,7 +1578,13 @@
       "slackSaved": "Địa chỉ đã lưu:",
       "slackMessage": "Tin nhắn",
       "slackPlaceholder": "Ví dụ: Sẵn sàng để duyệt: {template}",
-      "slackHelp": "Đăng tin nhắn vào kênh Slack của webhook đến, kèm liên kết tới hàng. Định dạng Slack (*đậm*, _nghiêng_) dùng được. Địa chỉ được giữ bí mật và chỉ hiện dạng rút gọn."
+      "slackHelp": "Đăng tin nhắn vào kênh Slack của webhook đến, kèm liên kết tới hàng. Định dạng Slack (*đậm*, _nghiêng_) dùng được. Địa chỉ được giữ bí mật và chỉ hiện dạng rút gọn.",
+      "rowTemplate": "Mẫu hàng",
+      "rowTemplateNone": "Không (hàng trống)",
+      "rowTemplateDefault": "Mẫu mặc định của cơ sở dữ liệu",
+      "rowTemplateDefaultNamed": "Mẫu mặc định ({name})",
+      "rowTemplateGone": "Mẫu không còn tồn tại",
+      "rowTemplateHelp": "Hàng bắt đầu là bản sao của mẫu. Giá trị đặt ở đây thay cho giá trị của mẫu; tiêu đề trống sẽ giữ tiêu đề của mẫu."
     },
     "variables": {
       "button": "Chèn một biến",
@@ -1969,5 +1978,13 @@
     "existing": "Tự động hóa đăng lên Slack",
     "existingHelp": "Thay đổi hoặc tắt chúng trong tự động hóa của cơ sở dữ liệu.",
     "off": "tắt"
+  },
+  "templateValues": {
+    "me": "Tôi",
+    "today": "Hôm nay",
+    "now": "Bây giờ",
+    "hint": "Được điền khi thêm hàng từ mẫu này",
+    "dateWhen": "Đặt khi thêm hàng",
+    "meOption": "Người thêm hàng"
   }
 }

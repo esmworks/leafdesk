@@ -1178,7 +1178,8 @@
       "invalidTarget": "Der zu öffnende Link ist ungültig.",
       "buttonGone": "Die Schaltfläche wurde von der Seite entfernt.",
       "error": "Etwas ist schiefgelaufen.",
-      "step": "Schritt {step} ({type}) wurde nicht ausgeführt: {reason}"
+      "step": "Schritt {step} ({type}) wurde nicht ausgeführt: {reason}",
+      "templateGone": "Die Zeilenvorlage gibt es nicht mehr."
     }
   },
   "imageCrop": {

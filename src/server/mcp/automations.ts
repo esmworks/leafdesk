@@ -217,14 +217,14 @@ const actionInput = z.discriminatedUnion("type", [
       .string()
       .min(1)
       .max(MAX_WEBHOOK_URL)
-      .describe('The https address, which may hold templates ("https://api.example.com/orders/{{trigger.Order id}}"). Plain http, private networks and local names only for hosts the server\'s administrator allows.'),
+      .describe('The https address, which may hold templates ("https://api.example.com/orders/{{trigger.Order id}}"). Plain http, private networks and local names only for hosts the administrator allows.'),
     headers: z
       .union([
         z.array(z.object({ name: z.string().min(1), value: z.string() })).max(MAX_HTTP_HEADERS),
         z.record(z.string(), z.string()),
       ])
       .optional()
-      .describe(`Request headers, at most ${MAX_HTTP_HEADERS}: {"Authorization": "Bearer …"} or [{name, value}]; values may hold templates. The run history masks credentials.`),
+      .describe(`Request headers, at most ${MAX_HTTP_HEADERS}: {"Authorization": "Bearer …"} or [{name, value}]; values may hold templates. Run history masks credentials.`),
     body: z
       .unknown()
       .optional()
@@ -247,8 +247,9 @@ const actionInput = z.discriminatedUnion("type", [
     type: z.literal("create_row"),
     id: stepId,
     database_id: databaseInput("to add the row to"),
-    title: z.string().max(MAX_STEP_MESSAGE).optional().describe("The new row's title; may hold templates."),
+    title: z.string().max(MAX_STEP_MESSAGE).optional().describe("Its title; may hold templates."),
     values: stepValues("the new row (that database's property names)").optional(),
+    template_id: z.string().optional().describe('Row template id, or "default".'),
   }),
   z.object({
     type: z.literal("upsert_row"),
@@ -266,7 +267,7 @@ const actionInput = z.discriminatedUnion("type", [
   z.object({
     type: z.literal("wait"),
     id: stepId,
-    minutes: z.number().int().min(1).max(MAX_WAIT_MINUTES).describe(`How long to wait before the next step, in minutes (1-${MAX_WAIT_MINUTES}, seven days).`),
+    minutes: z.number().int().min(1).max(MAX_WAIT_MINUTES).describe(`Minutes to wait before the next step (1-${MAX_WAIT_MINUTES}, seven days).`),
   }),
   z.object({
     type: z.literal("log"),
@@ -308,7 +309,7 @@ const actionInput = z.discriminatedUnion("type", [
       .max(MAX_APPROVAL_DAYS)
       .optional()
       .describe(`How many days the run waits for an answer (1-${MAX_APPROVAL_DAYS}, default ${MAX_APPROVAL_DAYS}).`),
-    on_timeout: z.enum(["stop", "continue"]).optional().describe("stop (default): unanswered in time, the run stops; continue: it goes on as if approved, with approved_by null."),
+    on_timeout: z.enum(["stop", "continue"]).optional().describe("stop (default) ends a run unanswered in time; continue goes on as if approved, with approved_by null."),
   }),
   z.object({
     type: z.literal("slack"),
@@ -326,7 +327,7 @@ const actionsInput = z
   .min(1)
   .max(MAX_AUTOMATION_ACTIONS)
   .describe(
-    `What the automation does, in order (at most ${MAX_AUTOMATION_ACTIONS} steps; each works or fails on its own): set_properties, notify (inbox, and email as each person chooses, to people who can open the row), webhook, run_agent (queues a run of an agent on the row), move_to_trash (the last step; not with run_agent), http_request (2xx within 15 s, no redirects; network errors, timeouts and 502-504 retried up to 5 times), find_rows, create_row, upsert_row, wait, log, celebrate (confetti for whoever made the change), approval (asks the people named and in the row's person properties, in "For review"; the run waits: rejected stops it, see on_timeout; noApprovers if nobody is found; not for_each; a test run skips it), start_sequence (a follow-up of the database on the row, from the mailbox of the person it runs as; rows in it already: alreadyEnrolled) or slack (posts the message, Slack mrkdwn, and the row's link to a Slack incoming webhook; list_automations shows a hint of its url). A schedule or incoming_webhook automation has no row: set_properties, run_agent and notify with properties need for_each over an earlier find_rows step ({{item}}: that row by name, id, title, url); webhook and move_to_trash are impossible. Saving a run_agent step gives the agent edit access to the database (taken back when no automation runs it); only workspace owners and agent editors add or change one. A step's optional id names its output in later templates ({{find.rows}}): a-z, 0-9 and _, starting with a letter, at most 32, not "trigger" or "item"; by default its type (find, find_2 …). ${TEMPLATE_NOTE}`,
+    `What the automation does, in order (at most ${MAX_AUTOMATION_ACTIONS} steps; each works or fails on its own): set_properties, notify (inbox, and email as each person chooses, to people who can open the row), webhook, run_agent (queues a run of an agent on the row), move_to_trash (the last step; not with run_agent), http_request (2xx within 15 s, no redirects; network errors, timeouts and 502-504 retried up to 5 times), find_rows, create_row, upsert_row, wait, log, celebrate (confetti for whoever made the change), approval (asks the people named and in the row's person properties, in "For review"; the run waits: rejected stops it, see on_timeout; noApprovers if nobody is found; not for_each; a test run skips it), start_sequence (a follow-up of the database on the row, from the runner's mailbox; rows in it already: alreadyEnrolled) or slack (posts the message, Slack mrkdwn, and the row's link to a Slack incoming webhook; list_automations shows a hint of its url). A schedule or incoming_webhook automation has no row: set_properties, run_agent and notify with properties need for_each over an earlier find_rows step ({{item}}: that row by name, id, title, url); webhook and move_to_trash are impossible. A run_agent step gives the agent edit access to the database while an automation runs it; only workspace owners and agent editors add or change one. A step's optional id names its output in later templates ({{find.rows}}): a-z, 0-9, _, a letter first, at most 32, not "trigger" or "item"; default its type (find, find_2 …). ${TEMPLATE_NOTE}`,
   );
 
 const nameInput = z.string().min(1).max(MAX_AUTOMATION_NAME);
@@ -515,7 +516,7 @@ async function toActions(userId: string, actions: ActionsArg): Promise<Automatio
         break;
       }
       case "create_row":
-        step = { type: "create_row", database: a.database_id, ...(a.title !== undefined ? { title: a.title } : {}), ...(a.values ? { values: a.values } : {}) };
+        step = { type: "create_row", database: a.database_id, ...(a.title !== undefined ? { title: a.title } : {}), ...(a.values ? { values: a.values } : {}), ...(a.template_id ? { template: a.template_id } : {}) };
         break;
       case "upsert_row":
         step = {
@@ -846,6 +847,7 @@ function describeAction(ctx: AutomationContext, action: AutomationAction, all: A
         type: "create_row",
         database,
         ...(action.title ? { title: action.title } : {}),
+        ...(action.template ? { template: action.template } : {}),
         values: describeValues(ctx.databases.get(action.databaseId), action.values),
         summary: `Add a row to ${databaseLabel(database)}`,
       };

@@ -9,6 +9,8 @@ import { AccessError } from "@/server/access";
 import { isAiError } from "@/server/ai";
 import { deleteConversations, getConversation, listConversations, saveReportAsPage } from "@/server/ai-chat";
 import { addMemory, deleteMemories, listMemories, MemoryError, memoryUse, setMemoryUse, updateMemory } from "@/server/ai-memory";
+import { deleteSavedPrompt, listSavedPrompts, renameSavedPrompt, savePrompt, SavedPromptError } from "@/server/ai-saved-prompts";
+import { MAX_PROMPT_NAME, MAX_PROMPT_TEXT, MAX_SAVED_PROMPTS } from "@/lib/ai-saved-prompts";
 import { decideChange, type ChatDecision } from "@/server/ai-chat-approvals";
 import { AutofillError, requestAutofill, setAutofill } from "@/server/ai-properties";
 import { snapshotBeforeAiEdit } from "@/server/ai-writing";
@@ -43,6 +45,10 @@ async function run<T>(fn: (userId: string) => Promise<T>): Promise<ActionResult<
     if (error instanceof AutofillError) {
       return { ok: false, error: t(`ai.autofill.errors.${error.code}`, error.params), code: error.code };
     }
+    if (error instanceof SavedPromptError) {
+      const max = error.code === "full" ? MAX_SAVED_PROMPTS : error.code === "nameTooLong" ? MAX_PROMPT_NAME : MAX_PROMPT_TEXT;
+      return { ok: false, error: t(`ai.assistant.saved.errors.${error.code}`, { max }), code: error.code };
+    }
     const { code, params } = error as { code?: unknown; params?: Record<string, string> };
     if ((error instanceof PropertyValueError || error instanceof Error) && isDatabaseErrorCode(code)) {
       return { ok: false, error: t(`database.errors.${code}`, params ?? {}) };
@@ -51,6 +57,24 @@ async function run<T>(fn: (userId: string) => Promise<T>): Promise<ActionResult<
     console.error("[ai action]", error);
     return { ok: false, error: t("common.genericError") };
   }
+}
+
+/** The person's saved prompts for the AI assistant in this workspace. */
+export async function listSavedPromptsAction(workspaceId: string) {
+  return run((userId) => listSavedPrompts(userId, String(workspaceId)));
+}
+
+/** Saves a prompt to reuse in the AI assistant. */
+export async function savePromptAction(workspaceId: string, input: { name: string; prompt: string }) {
+  return run((userId) => savePrompt(userId, String(workspaceId), { name: input?.name, prompt: input?.prompt }));
+}
+
+export async function renameSavedPromptAction(id: string, name: string) {
+  return run((userId) => renameSavedPrompt(userId, String(id), { name }));
+}
+
+export async function deleteSavedPromptAction(id: string) {
+  return run((userId) => deleteSavedPrompt(userId, String(id)));
 }
 
 /** Saves the page to its history right before the person applies an AI suggestion. */

@@ -34,7 +34,27 @@
     "stopped": "停止しました。ここまでに書かれた内容は採用できます。",
     "applyFailed": "提案をページに追加できませんでした。",
     "asSuggestions": "編集の提案として追加",
-    "selectionChanged": "その間に選択したテキストが変更されたため、提案はその下に追加されました。"
+    "selectionChanged": "その間に選択したテキストが変更されたため、提案はその下に追加されました。",
+    "saved": {
+      "title": "保存したプロンプト",
+      "empty": "よく使う指示は「送信」の横のブックマークで保存できます。チーム全体の指示は<skills>スキル</skills>です。",
+      "saveInstruction": "プロンプトを保存",
+      "name": "名前",
+      "namePlaceholder": "プロンプトの名前",
+      "save": "保存",
+      "cancel": "キャンセル",
+      "rename": "新しい名前",
+      "renameNamed": "{name} の名前を変更",
+      "deleteNamed": "{name} を削除",
+      "errors": {
+        "emptyName": "プロンプトに名前を付けてください。",
+        "emptyPrompt": "保存する指示がありません。",
+        "nameTooLong": "名前は {max} 文字までです。",
+        "promptTooLong": "プロンプトは {max} 文字までです。",
+        "full": "保存できるプロンプトは {max} 件までです。別のものを保存するには1つ削除してください。",
+        "notFound": "この保存したプロンプトはもう存在しません。"
+      }
+    }
   },
   "errors": {
     "disabled": "このワークスペースではAIを利用できません。",

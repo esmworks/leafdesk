@@ -1178,7 +1178,8 @@
       "invalidTarget": "پیوندی که باید باز شود معتبر نیست.",
       "buttonGone": "دکمه از صفحه حذف شد.",
       "error": "مشکلی پیش آمد.",
-      "step": "مرحلهٔ {step} ({type}) اجرا نشد: {reason}"
+      "step": "مرحلهٔ {step} ({type}) اجرا نشد: {reason}",
+      "templateGone": "الگوی ردیف دیگر وجود ندارد."
     }
   },
   "imageCrop": {

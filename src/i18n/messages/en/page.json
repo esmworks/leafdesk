@@ -1178,7 +1178,8 @@
       "invalidTarget": "The link to open isn’t valid.",
       "buttonGone": "The button was removed from the page.",
       "error": "Something went wrong.",
-      "step": "Step {step} ({type}) didn’t run: {reason}"
+      "step": "Step {step} ({type}) didn’t run: {reason}",
+      "templateGone": "The row template is gone."
     }
   },
   "imageCrop": {

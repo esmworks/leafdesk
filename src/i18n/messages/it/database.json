@@ -550,7 +550,9 @@
     "parentOptionToggle": "Offri “{option}” quando “{parent}” è “{value}”",
     "sortOptionsAsc": "Ordina A → Z",
     "sortOptionsDesc": "Ordina Z → A",
-    "dragOption": "Trascina per spostare {name}"
+    "dragOption": "Trascina per spostare {name}",
+    "urlPreview": "Mostra come anteprima del link",
+    "urlPreviewHint": "Le pagine delle righe mostrano icona, titolo e immagine della pagina collegata sotto il link."
   },
   "rowProperties": {
     "noProperties": "Nessuna proprietà",
@@ -1467,7 +1469,8 @@
         "noAddress": "La riga non ha un indirizzo email",
         "emailOff": "Le email sulle righe sono disattivate",
         "noPerson": "Saltato: nessuna modifica di una persona ha avviato questa esecuzione",
-        "tooLate": "Saltato: è passato troppo tempo dalla modifica per festeggiarla"
+        "tooLate": "Saltato: è passato troppo tempo dalla modifica per festeggiarla",
+        "templateGone": "Il modello di riga non esiste più"
       },
       "waitingApproval": "In attesa di approvazione",
       "approval": {
@@ -1575,7 +1578,13 @@
       "slackSaved": "Indirizzo salvato:",
       "slackMessage": "Messaggio",
       "slackPlaceholder": "Per esempio: Pronto per la revisione: {template}",
-      "slackHelp": "Pubblica il messaggio nel canale Slack del webhook in entrata, con un link alla riga. La formattazione di Slack (*grassetto*, _corsivo_) funziona. L’indirizzo resta segreto ed è mostrato solo abbreviato."
+      "slackHelp": "Pubblica il messaggio nel canale Slack del webhook in entrata, con un link alla riga. La formattazione di Slack (*grassetto*, _corsivo_) funziona. L’indirizzo resta segreto ed è mostrato solo abbreviato.",
+      "rowTemplate": "Modello di riga",
+      "rowTemplateNone": "Nessuno (riga vuota)",
+      "rowTemplateDefault": "Modello predefinito del database",
+      "rowTemplateDefaultNamed": "Il modello predefinito ({name})",
+      "rowTemplateGone": "Un modello che non esiste più",
+      "rowTemplateHelp": "La riga parte come copia del modello. I valori impostati qui sostituiscono quelli del modello; un titolo vuoto mantiene quello del modello."
     },
     "variables": {
       "button": "Inserisci una variabile",
@@ -1969,5 +1978,13 @@
     "existing": "Automazioni che pubblicano su Slack",
     "existingHelp": "Modificale o disattivale nelle automazioni del database.",
     "off": "disattivata"
+  },
+  "templateValues": {
+    "me": "Io",
+    "today": "Oggi",
+    "now": "Adesso",
+    "hint": "Compilato quando si aggiunge una riga da questo modello",
+    "dateWhen": "Impostato quando si aggiunge una riga",
+    "meOption": "Chi aggiunge la riga"
   }
 }

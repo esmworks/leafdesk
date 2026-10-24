@@ -1178,7 +1178,8 @@
       "invalidTarget": "Link do otwarcia jest nieprawidłowy.",
       "buttonGone": "Przycisk został usunięty ze strony.",
       "error": "Coś poszło nie tak.",
-      "step": "Krok {step} ({type}) nie został wykonany: {reason}"
+      "step": "Krok {step} ({type}) nie został wykonany: {reason}",
+      "templateGone": "Szablon wiersza już nie istnieje."
     }
   },
   "imageCrop": {
