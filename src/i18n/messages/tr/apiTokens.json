@@ -110,6 +110,10 @@
       "agents": {
         "name": "Ajanlar",
         "hint": "Ajanların ayarları, çalışmaları, zamanlamaları ve paylaşımı."
+      },
+      "webhooks": {
+        "name": "Webhook’lar",
+        "hint": "Sayfa webhook’ları ve gönderimleri; yazma bunları ekler, değiştirir ve test eder (yalnızca sahipler)."
       }
     },
     "summary": {

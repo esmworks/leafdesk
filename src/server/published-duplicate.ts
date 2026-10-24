@@ -26,6 +26,7 @@ import { publishedPageRefs, syncPageReferences } from "@/server/mentions";
 import { makePagePrivate } from "@/server/permissions";
 import { chainTo, readableViews, readerAccess, webViews } from "@/server/publication";
 import { servedPublication } from "@/server/site";
+import { fragmentBlocks } from "@/server/synced-body";
 import { refOf, storageFor, storageResolver } from "@/server/storage/workspace";
 import { topLevelAccess } from "@/server/workspaces";
 
@@ -196,7 +197,8 @@ export async function duplicatePublishedPage(
     const doc = new Y.Doc();
     try {
       Y.applyUpdate(doc, ydoc instanceof Uint8Array ? ydoc : new Uint8Array(ydoc));
-      blocksOf.set(p.id, serverEditor.yXmlFragmentToBlocks(doc.getXmlFragment(COLLAB_FRAGMENT)));
+      // As published: without the suggested edits that wait for an answer.
+      blocksOf.set(p.id, fragmentBlocks(doc.getXmlFragment(COLLAB_FRAGMENT)));
     } finally {
       doc.destroy();
     }

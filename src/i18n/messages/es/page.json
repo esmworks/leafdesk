@@ -16,6 +16,14 @@
     "createdBy": "Creado por {name}",
     "someone": "Alguien",
     "comments": "Comentarios",
+    "suggesting": {
+      "editing": "Edición",
+      "suggesting": "Sugerencias",
+      "label": "Modo: {mode}",
+      "editingHint": "Cambiar la página directamente",
+      "suggestingHint": "Tus cambios aparecen como sugerencias que otros pueden aceptar o rechazar",
+      "forcedHint": "Puedes comentar en esta página, así que tus cambios son sugerencias que sus editores pueden aceptar o rechazar"
+    },
     "share": "Compartir",
     "accessRequests": "{count, plural, one {# solicitud de acceso} other {# solicitudes de acceso}}",
     "addFavorite": "Añadir a favoritos",
@@ -51,6 +59,9 @@
     "exportPdf": "Exportar como PDF",
     "printView": "Imprimir",
     "exportPreparing": "Preparando la exportación…",
+    "acceptAllSuggestions": "Aceptar todas las sugerencias",
+    "rejectAllSuggestions": "Rechazar todas las sugerencias",
+    "rejectAllConfirm": "¿Rechazar todos los cambios sugeridos de esta página?",
     "versionHistory": "Historial de versiones",
     "lastEdited": "Editado por última vez por {name}",
     "wordCount": "{words, plural, one {# palabra} other {# palabras}}, {characters, plural, one {# carácter} other {# caracteres}}",
@@ -95,6 +106,20 @@
     "muted": "Respuestas silenciadas",
     "mutedHint": "No recibes avisos de respuestas en este hilo hasta que respondas aquí o alguien te mencione aquí.",
     "mergedFrom": "De «{title}»",
+    "suggestion": {
+      "label": "Cambio sugerido",
+      "byAi": "Cambio sugerido por la IA",
+      "accept": "Aceptar",
+      "reject": "Rechazar",
+      "withdraw": "Retirar",
+      "errors": {
+        "notAllowed": "No puedes responder a esta sugerencia.",
+        "notFound": "Esta sugerencia ya se respondió o se retiró.",
+        "pageLocked": "La página está bloqueada.",
+        "pageInTrash": "La página está en la papelera.",
+        "failed": "No se pudo responder a la sugerencia. Inténtalo de nuevo."
+      }
+    },
     "sort": {
       "label": "Ordenar hilos",
       "recent": "Actividad más reciente primero",
@@ -124,6 +149,39 @@
     "above": "Archivada junto con una página superior.",
     "unarchive": "Desarchivar",
     "hint": "Las páginas archivadas no aparecen en la barra lateral, la búsqueda ni los selectores, pero se pueden seguir leyendo y editando."
+  },
+  "verification": {
+    "byUntil": "Verificada por {name} hasta el {date}",
+    "by": "Verificada por {name}",
+    "until": "Verificada hasta el {date}",
+    "plain": "Verificada",
+    "expiredOn": "Verificación caducada el {date}",
+    "hint": "Alguien con acceso completo revisó esta página y la marcó como correcta. Editarla no quita la verificación.",
+    "change": "Cambiar o quitar la verificación",
+    "menu": "Verificar página…",
+    "menuVerified": "Verificación…",
+    "menuHint": "Marca la página como revisada y correcta: la búsqueda la sitúa más arriba y el chat de IA la prefiere",
+    "title": "Verificar página",
+    "description": "Marca esta página como revisada y correcta, por un tiempo o sin fecha de fin. La búsqueda sitúa más arriba las páginas verificadas, las señala y las encuentra con is:verified, y el chat de IA las prefiere. Editar la página no quita la verificación; te avisamos unos días antes de que termine.",
+    "durationLabel": "Verificada durante",
+    "durations": {
+      "week": "1 semana",
+      "month": "1 mes",
+      "quarter": "3 meses",
+      "year": "1 año",
+      "until": "Hasta un día",
+      "forever": "Sin fecha de fin"
+    },
+    "dateLabel": "Verificada hasta",
+    "verify": "Verificar",
+    "verifyAgain": "Volver a verificar",
+    "remove": "Quitar la verificación",
+    "searchBadge": "Verificada",
+    "errors": {
+      "template": "Las plantillas y las páginas que contienen no se verifican.",
+      "inTrash": "Primero restaura la página desde la papelera.",
+      "invalidEnd": "Elige un día posterior a hoy y dentro de los próximos cinco años."
+    }
   },
   "icon": {
     "add": "Añadir icono",
@@ -339,6 +397,11 @@
         "title": "Panel",
         "subtext": "Números, gráficos y listas de tus bases de datos",
         "aliases": "dashboard widgets kpi metrics charts panel tablero gráficos graficos métricas metricas"
+      },
+      "databaseTabs": {
+        "title": "Pestañas de bases de datos",
+        "subtext": "Varias bases de datos o vistas, una pestaña cada una",
+        "aliases": "pestañas base de datos vistas cambiar tabs"
       }
     }
   },
@@ -692,6 +755,19 @@
     "filters": "{count, plural, one {# filtro} other {# filtros}}",
     "updatedNow": "actualizado ahora mismo",
     "updated": "actualizado {time}"
+  },
+  "databaseTabs": {
+    "title": "Pestañas de bases de datos",
+    "empty": "Estas pestañas aún no muestran ninguna base de datos.",
+    "emptyEditable": "Muestra varias bases de datos, o vistas de una, como pestañas. Cada pestaña es una vista propia.",
+    "add": "Añadir pestaña",
+    "full": "Caben hasta {max} vistas en pestañas.",
+    "menu": "Opciones de la pestaña",
+    "rename": "Cambiar nombre",
+    "remove": "Quitar pestaña",
+    "nameLabel": "Nombre de la pestaña",
+    "namePlaceholder": "El nombre de la base de datos",
+    "noAccess": "Sin acceso"
   },
   "voiceNote": {
     "record": "Grabar una nota de voz",

@@ -8,6 +8,8 @@ import { aiAvailable } from "@/server/ai-writing";
 import { voiceNoteLimits } from "@/server/voice-notes";
 import { AccessError, isGuest, pageVisibleTo, requireMembership, resolvePageAccess, type AccessLevel } from "@/server/access";
 import { isOutdated, outdatedState, type OutdatedState } from "@/server/page-outdated";
+import { verificationOf } from "@/server/verification";
+import type { VerificationView } from "@/lib/verification";
 import { isWatching } from "@/server/page-watch";
 import { isFollowing } from "@/server/row-follow";
 import { skillDescriptionProperty } from "@/server/skills";
@@ -55,6 +57,8 @@ export type PageHeaderInfo = {
   watching: boolean | null;
   /** Set when the page is archived, itself or through a page above it: by whom, when (server/page-outdated). */
   outdated: OutdatedState | null;
+  /** Set when someone verified the page, expired or not: by whom, until when (server/verification). */
+  verified: VerificationView | null;
 };
 
 export async function getPageHeaderInfo(userId: string, pageId: string): Promise<PageHeaderInfo> {
@@ -63,7 +67,7 @@ export async function getPageHeaderInfo(userId: string, pageId: string): Promise
   const creator = alias(user, "creator");
   const editor = alias(user, "editor");
   const isSkill = found.isSkill && !found.inTemplate;
-  const [[names], [star], membership, topLevel, ai, voice, exportable, accessRequests, following, watching, outdated, skillProperty] = await Promise.all([
+  const [[names], [star], membership, topLevel, ai, voice, exportable, accessRequests, following, watching, outdated, skillProperty, verified] = await Promise.all([
     db
       .select({
         createdBy: creator.name,
@@ -89,6 +93,7 @@ export async function getPageHeaderInfo(userId: string, pageId: string): Promise
     isWatching(userId, pageId),
     outdatedState(userId, pageId),
     isSkill && found.parentId ? skillDescriptionProperty(found.parentId) : null,
+    verificationOf(pageId),
   ]);
   return {
     level,
@@ -112,6 +117,7 @@ export async function getPageHeaderInfo(userId: string, pageId: string): Promise
     following,
     watching,
     outdated,
+    verified,
   };
 }
 

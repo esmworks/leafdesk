@@ -1,6 +1,7 @@
-// The table of a CSV file attached to the AI chat (chat-attachments.ts): read with the chat's limits,
-// and written back as CSV for the model. Apart from chat-attachments.ts so the box loads the
-// parser only when a file is attached.
+// The table of a CSV file attached to the AI chat (chat-attachments.ts): read with the chat's limits
+// when it is uploaded and when a question sends it (server/ai-chat-files.ts), and written back as
+// CSV for the model. Apart from chat-attachments.ts, which the chat box loads, so the box doesn't
+// carry the parser.
 import { CHAT_CSV_MAX_CHARS, CHAT_CSV_MAX_COLUMNS, CHAT_CSV_MAX_ROWS, type AttachmentProblem } from "./chat-attachments";
 import { csvTable, type CsvTable } from "./import/csv-parse";
 

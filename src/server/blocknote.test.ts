@@ -123,7 +123,7 @@ describe("database blocks in page bodies", () => {
     expect(kept[0].props).toEqual({ widgets });
     const doc = new Y.Doc();
     doc.transact(() => serverEditor.blocksToYXmlFragment(kept, doc.getXmlFragment(COLLAB_FRAGMENT)));
-    expect(read(doc)[0].props).toEqual({ widgets });
+    expect(read(doc)[0].props).toEqual({ widgets, layout: "grid" });
 
     const dropped = await markdownToBlocks("New", existing);
     expect(dropped.map((b) => b.type)).toEqual(["paragraph"]);

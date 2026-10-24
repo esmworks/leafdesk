@@ -16,6 +16,14 @@
     "createdBy": "{name} oluşturdu",
     "someone": "Biri",
     "comments": "Yorumlar",
+    "suggesting": {
+      "editing": "Düzenleme",
+      "suggesting": "Öneri",
+      "label": "Mod: {mode}",
+      "editingHint": "Sayfayı doğrudan değiştirin",
+      "suggestingHint": "Değişiklikleriniz, başkalarının kabul edip reddedebileceği öneriler olarak görünür",
+      "forcedHint": "Bu sayfaya yorum yapabilirsiniz; bu yüzden değişiklikleriniz, düzenleyicilerinin kabul edip reddedebileceği önerilerdir"
+    },
     "share": "Paylaş",
     "accessRequests": "{count, plural, one {# erişim isteği} other {# erişim isteği}}",
     "addFavorite": "Favorilere ekle",
@@ -51,6 +59,9 @@
     "exportPdf": "PDF olarak dışa aktar",
     "printView": "Yazdır",
     "exportPreparing": "Dışa aktarma hazırlanıyor…",
+    "acceptAllSuggestions": "Tüm önerileri kabul et",
+    "rejectAllSuggestions": "Tüm önerileri reddet",
+    "rejectAllConfirm": "Bu sayfadaki tüm önerilen değişiklikler reddedilsin mi?",
     "versionHistory": "Sürüm geçmişi",
     "lastEdited": "Son düzenleyen: {name}",
     "wordCount": "{words} kelime, {characters} karakter",
@@ -95,6 +106,20 @@
     "muted": "Yanıtlar sessizde",
     "mutedHint": "Burada yanıt yazana ya da biri sizi burada anana kadar bu konudaki yanıtlardan haberdar olmazsınız.",
     "mergedFrom": "“{title}” satırından",
+    "suggestion": {
+      "label": "Önerilen değişiklik",
+      "byAi": "Yapay zekânın önerdiği değişiklik",
+      "accept": "Kabul et",
+      "reject": "Reddet",
+      "withdraw": "Geri çek",
+      "errors": {
+        "notAllowed": "Bu öneriyi yanıtlayamazsınız.",
+        "notFound": "Bu öneri zaten yanıtlandı ya da geri çekildi.",
+        "pageLocked": "Sayfa kilitli.",
+        "pageInTrash": "Sayfa çöp kutusunda.",
+        "failed": "Öneri yanıtlanamadı. Yeniden deneyin."
+      }
+    },
     "sort": {
       "label": "Konuşmaları sırala",
       "recent": "En son hareket önce",
@@ -124,6 +149,39 @@
     "above": "Üstündeki bir sayfayla birlikte arşivlendi.",
     "unarchive": "Arşivden çıkar",
     "hint": "Arşivlenen sayfalar kenar çubuğunda, aramada ve seçicilerde görünmez; yine de okunup düzenlenebilir."
+  },
+  "verification": {
+    "byUntil": "{name} tarafından {date} tarihine kadar doğrulandı",
+    "by": "{name} tarafından doğrulandı",
+    "until": "{date} tarihine kadar doğrulandı",
+    "plain": "Doğrulandı",
+    "expiredOn": "Doğrulamanın süresi {date} tarihinde doldu",
+    "hint": "Tam erişimi olan biri bu sayfayı kontrol edip doğru olarak işaretledi. Sayfayı düzenlemek doğrulamayı kaldırmaz.",
+    "change": "Doğrulamayı değiştir ya da kaldır",
+    "menu": "Sayfayı doğrula…",
+    "menuVerified": "Doğrulama…",
+    "menuHint": "Sayfayı kontrol edilmiş ve doğru olarak işaretleyin: arama onu üst sıralara taşır, yapay zekâ sohbeti onu tercih eder",
+    "title": "Sayfayı doğrula",
+    "description": "Bu sayfayı bir süreliğine ya da süresiz olarak kontrol edilmiş ve doğru diye işaretleyin. Arama doğrulanmış sayfaları üst sıralara taşır, işaretler ve is:verified ile bulur; yapay zekâ sohbeti de onları tercih eder. Sayfayı düzenlemek doğrulamayı kaldırmaz; sona ermeden birkaç gün önce haber alırsınız.",
+    "durationLabel": "Doğrulama süresi",
+    "durations": {
+      "week": "1 hafta",
+      "month": "1 ay",
+      "quarter": "3 ay",
+      "year": "1 yıl",
+      "until": "Belirli bir güne kadar",
+      "forever": "Süresiz"
+    },
+    "dateLabel": "Doğrulamanın bitiş tarihi",
+    "verify": "Doğrula",
+    "verifyAgain": "Yeniden doğrula",
+    "remove": "Doğrulamayı kaldır",
+    "searchBadge": "Doğrulanmış",
+    "errors": {
+      "template": "Şablonlar ve içlerindeki sayfalar doğrulanmaz.",
+      "inTrash": "Önce sayfayı çöp kutusundan geri yükleyin.",
+      "invalidEnd": "Bugünden sonra ve en fazla beş yıl içinde bir gün seçin."
+    }
   },
   "icon": {
     "add": "Simge ekle",
@@ -339,6 +397,11 @@
         "title": "Gösterge paneli",
         "subtext": "Veritabanlarınızdan sayılar, grafikler ve listeler",
         "aliases": "dashboard widgets kpi metrics charts gösterge paneli gosterge panel grafik sayı sayi metrik"
+      },
+      "databaseTabs": {
+        "title": "Veritabanı sekmeleri",
+        "subtext": "Birden çok veritabanı ya da görünüm, her biri bir sekmede",
+        "aliases": "sekme sekmeler veritabanı görünüm geçiş tabs"
       }
     }
   },
@@ -692,6 +755,19 @@
     "filters": "{count, plural, one {# süzgeç} other {# süzgeç}}",
     "updatedNow": "az önce güncellendi",
     "updated": "{time} güncellendi"
+  },
+  "databaseTabs": {
+    "title": "Veritabanı sekmeleri",
+    "empty": "Bu sekmeler henüz hiçbir veritabanı göstermiyor.",
+    "emptyEditable": "Birden çok veritabanını ya da bir veritabanının görünümlerini sekmeler hâlinde gösterin. Her sekme kendi görünümüdür.",
+    "add": "Sekme ekle",
+    "full": "Sekmeler en fazla {max} görünüm alır.",
+    "menu": "Sekme seçenekleri",
+    "rename": "Yeniden adlandır",
+    "remove": "Sekmeyi kaldır",
+    "nameLabel": "Sekme adı",
+    "namePlaceholder": "Veritabanının adı",
+    "noAccess": "Erişim yok"
   },
   "voiceNote": {
     "record": "Sesli not kaydet",

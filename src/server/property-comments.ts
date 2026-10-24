@@ -107,6 +107,11 @@ export async function threadsVisibleTo(userId: string, pageId: string): Promise<
   return [...inDocument, ...onProperties].sort((a, b) => a.createdAt.localeCompare(b.createdAt));
 }
 
+/** Every one of the row's threads on property values, whoever sees them (legal holds read who wrote what). */
+export async function storedPropertyThreads(pageId: string): Promise<PlainThread[]> {
+  return (await loadStored(pageId)).map((s) => s.thread);
+}
+
 /** The property a thread of the row is about, when it is one of the row's property threads. */
 export async function propertyThreadOf(pageId: string, threadId: string): Promise<string | null> {
   return (await loadStored(pageId)).find((s) => s.thread.id === threadId)?.propertyId ?? null;

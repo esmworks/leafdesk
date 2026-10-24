@@ -57,6 +57,11 @@
     "action": "Mở trang",
     "optOut": "Bạn nhận email này vì bạn đã tham gia chuỗi bình luận này. Bạn có thể tắt chúng trong Tài khoản của tôi > Tùy chọn."
   },
+  "suggestion": {
+    "subject": "{actor} đã đề xuất chỉnh sửa “{page}”",
+    "heading": "{actor} đã đề xuất chỉnh sửa “{page}”",
+    "body": "Đề xuất nằm trên “{page}” trong {workspace}. Hãy chấp nhận hoặc từ chối nó từ trang, hoặc trả lời trong chuỗi của nó."
+  },
   "mention": {
     "subject": "{actor} đã nhắc đến bạn trên “{page}”",
     "heading": "{actor} đã nhắc đến bạn trên “{page}”",
@@ -71,6 +76,16 @@
     "body": "Bạn đã yêu cầu được nhắc về {date} trên “{page}” trong {workspace}.",
     "action": "Mở trang",
     "optOut": "Bạn nhận email này vì bạn đã đặt một lời nhắc. Bạn có thể tắt chúng trong Tài khoản của tôi > Tùy chọn."
+  },
+  "pageVerification": {
+    "endsSubject": "Xác minh của bạn cho “{page}” sẽ hết hạn vào {date}",
+    "endsHeading": "Xác minh sắp hết hạn",
+    "endsBody": "Bạn đã xác minh “{page}” trong {workspace} đến {date}. Nếu trang vẫn chính xác, hãy xác minh lại từ menu ⋯ của trang để giữ trạng thái đã xác minh.",
+    "endedSubject": "Xác minh của bạn cho “{page}” đã hết hạn",
+    "endedHeading": "Xác minh đã hết hạn",
+    "endedBody": "Xác minh của bạn cho “{page}” trong {workspace} đã kết thúc vào {date}. Trang hiển thị “Xác minh đã hết hạn” cho đến khi có người xác minh lại.",
+    "action": "Mở trang",
+    "optOut": "Bạn nhận email này vì bạn đã xác minh trang. Bạn có thể tắt chúng trong Tài khoản của tôi > Tùy chọn."
   },
   "dateReminder": {
     "subject": "Nhắc nhở: “{page}” vào {date}",
@@ -220,6 +235,9 @@
     "assignment": "{actor} đã giao bạn vào “{property}”",
     "pageShared": "{actor} đã chia sẻ trang này với bạn",
     "comment": "{actor} đã bình luận trong một chuỗi bạn tham gia",
+    "suggested": "{actor} đã đề xuất chỉnh sửa trang này",
+    "suggestionAccepted": "{actor} đã chấp nhận đề xuất chỉnh sửa của bạn",
+    "suggestionRejected": "{actor} đã từ chối đề xuất chỉnh sửa của bạn",
     "mention": "{actor} đã nhắc đến bạn",
     "reminder": "Nhắc nhở: {date}",
     "accessRequest": "{actor} đã xin quyền truy cập trang này",
@@ -235,6 +253,8 @@
     "followUp": "Chuỗi theo dõi “{sequence}” đã tạm dừng: email tiếp theo cần được xem xét",
     "reaction": "{actor} đã bày tỏ cảm xúc {emoji} với bình luận của bạn",
     "people": "{others, plural, =0 {{name}} other {{name} và # người khác}}",
+    "verificationEnds": "Xác minh của bạn cho trang này sẽ hết hạn vào {date}",
+    "verificationEnded": "Xác minh của bạn cho trang này đã hết hạn vào {date}",
     "someone": "Ai đó",
     "joinRequestTitle": "Yêu cầu tham gia",
     "joinRequest": "{actor} đã xin tham gia",

@@ -98,6 +98,7 @@ export const DATABASE_ERROR_CODES = [
   "invalidNumberFormat",
   "invalidDateOptions",
   "invalidPageVisibility",
+  "tooManyPinned",
   "calendarFeedNotCalendar",
   "calendarFeedExportOff",
   "webhookExportOff",
@@ -1132,10 +1133,12 @@ export function groupRows<T extends { properties: Record<string, unknown> }>(
  * Board, gallery and map cards stay short: long text and numbers start hidden there until the user
  * shows them. List rows and timeline bars are one line, so every property starts hidden there;
  * so it does in charts, which show properties only in the rows behind a bar and when published.
- * Other views show every property unless hidden.
+ * A feed post names who wrote it and when above its text, and long text stays out of its way, so
+ * it starts without those. Other views show every property unless hidden.
  */
 export function hiddenByDefault(viewType: ViewType, propType: PropertyType): boolean {
   if (viewType === "list" || viewType === "timeline" || viewType === "chart") return true;
+  if (viewType === "feed") return propType === "text" || propType === "created_by" || propType === "created_time";
   // Map cards too; and the place a map card stands for goes without saying there.
   if (viewType === "map" && propType === "place") return true;
   return (viewType === "board" || viewType === "gallery" || viewType === "map") && (propType === "text" || propType === "number");

@@ -12,6 +12,7 @@
     "groups": "Grupos",
     "agents": "Agentes",
     "connections": "Conexiones",
+    "webhooks": "Webhooks",
     "storage": "Almacenamiento",
     "analytics": "Analíticas",
     "aiUsage": "Uso de IA",
@@ -21,6 +22,66 @@
     "site": "Sitio",
     "snippets": "Fragmentos",
     "pdf": "Plantillas PDF"
+  },
+  "search": {
+    "label": "Buscar en la configuración",
+    "placeholder": "Buscar en la configuración",
+    "noResults": "Ningún ajuste coincide.",
+    "labels": {
+      "aiUsagePeople": "Uso por persona"
+    },
+    "keywords": {
+      "profile": "nombre foto avatar imagen",
+      "email": "dirección cambiar verificar correo",
+      "deleteAccount": "eliminar cerrar cuenta",
+      "password": "cambiar restablecer iniciar sesión contraseña",
+      "twoFactor": "2fa mfa autenticador código",
+      "passkeys": "webauthn llave de seguridad huella rostro",
+      "sessions": "dispositivos sesión iniciada cerrar sesión",
+      "language": "idioma traducción región",
+      "theme": "modo oscuro modo claro colores",
+      "contrast": "accesibilidad alto contraste",
+      "notifications": "push correo avisos notificación",
+      "watchedPages": "seguir suscribirse vigilar",
+      "offlineDevice": "sin conexión descargar caché espacio",
+      "offlinePages": "sin conexión descargar sin internet",
+      "mailboxes": "correo bandeja de entrada imap smtp",
+      "calendars": "ical feed suscribirse calendario",
+      "storageAccounts": "drive s3 archivos nube",
+      "connectedApps": "oauth clientes acceso revocar",
+      "aiAccounts": "clave api clave propia proveedor",
+      "telegram": "bot chat mensajes",
+      "mcp": "asistente model context protocol servidor",
+      "apiTokens": "rest api token clave desarrollador",
+      "about": "versión licencia actualización",
+      "workspaceName": "nombre renombrar icono",
+      "ai": "inteligencia artificial chat modelo proveedor memoria",
+      "workspaceMail": "correo filas enviar email",
+      "export": "copia de seguridad descargar zip markdown",
+      "members": "personas invitar usuarios roles quitar",
+      "agents": "ia asistente automatización bot",
+      "snippets": "texto atajos fragmentos",
+      "letterheads": "pdf encabezado pie logo imprimir",
+      "connections": "integraciones mcp servicios herramientas",
+      "site": "sitio web publicar dominio",
+      "requireTwoFactor": "2fa mfa obligatorio política",
+      "loginMethod": "sso contraseña inicio de sesión política",
+      "allowedNetworks": "ip lista permitida dirección oficina vpn",
+      "membership": "invitar unirse solicitudes dominios",
+      "sso": "saml oidc proveedor de identidad",
+      "scim": "aprovisionamiento directorio sincronizar usuarios",
+      "exportPolicy": "descargar imprimir pdf",
+      "connectedAppsPolicy": "mcp rest api tokens acceso",
+      "publishing": "publicar web compartir enlace público",
+      "retention": "papelera historial eliminar conservar días",
+      "legalHolds": "litigio preservar ediscovery conservar",
+      "storage": "archivos s3 drive bucket",
+      "analyticsPeople": "actividad ediciones estadísticas",
+      "aiUsageLimit": "presupuesto coste gasto límite",
+      "aiUsagePeople": "por persona miembro coste tokens",
+      "health": "enlaces rotos huérfanas duplicadas páginas vacías",
+      "audit": "registro historial eventos quién cambió"
+    }
   },
   "workspace": {
     "heading": "Espacio de trabajo",
@@ -957,6 +1018,8 @@
     "moveToTrash": "Mover a la papelera",
     "confirmTrash": "¿Mover “{title}” a la papelera?",
     "lastEdited": "Editada por última vez {when}",
+    "verificationEndedBy": "Verificada por {name}, caducó {when}",
+    "verificationEnded": "La verificación caducó {when}",
     "alike": "{similarity, number, percent} parecidas",
     "inProperty": "{property} en {database}",
     "removeFromRelation": "Quitar",
@@ -980,6 +1043,11 @@
       "title": "Páginas sin tocar",
       "description": "Páginas que nadie editó en los últimos {months} meses, primero las que llevan más tiempo sin tocar. Pueden estar desactualizadas.",
       "none": "Cada página se editó hace poco."
+    },
+    "expiredVerifications": {
+      "title": "Verificaciones caducadas",
+      "description": "Páginas que alguien verificó hasta un día que ya pasó. Revísalas y vuelve a verificarlas, o quita la verificación.",
+      "none": "Ninguna verificación ha caducado."
     },
     "duplicates": {
       "title": "Posibles duplicados",
@@ -1387,6 +1455,50 @@
       "memberView": "{count, plural, =0 {Desactivado: el espacio de trabajo se abre desde cualquier red.} one {Activado: el espacio de trabajo solo se abre desde # red aprobada.} other {Activado: el espacio de trabajo solo se abre desde # redes aprobadas.}}"
     }
   },
+  "legalHolds": {
+    "title": "Retenciones legales",
+    "description": "Mientras dure una retención, nada de lo que las personas incluidas crearon o editaron en este espacio de trabajo puede eliminarse para siempre. Sus páginas y filas pueden seguir yendo a la papelera, pero se quedan allí con su historial, comentarios y archivos; el espacio de trabajo y sus cuentas no pueden eliminarse.",
+    "holds": "Retenciones",
+    "holdsDescription": "Aplicar y levantar una retención queda registrado en el registro de auditoría.",
+    "empty": "No hay retenciones.",
+    "new": "Nueva retención",
+    "setBy": "Aplicada por {name} el {date, date, medium}",
+    "setOn": "Aplicada el {date, date, medium}",
+    "people": "{count, plural, one {# persona} other {# personas}}",
+    "left": "se fue",
+    "guest": "invitado",
+    "release": "Levantar",
+    "confirmRelease": "Levantar {name}",
+    "form": {
+      "title": "Nueva retención legal",
+      "description": "Elige a las personas que abarca: miembros, invitados o personas que se fueron pero crearon o editaron algo aquí.",
+      "name": "Nombre",
+      "namePlaceholder": "Asunto o caso",
+      "reason": "Motivo",
+      "reasonPlaceholder": "Opcional: por qué y quién la pidió",
+      "people": "Personas ({count})",
+      "search": "Buscar personas",
+      "loading": "Cargando…",
+      "nobody": "Nadie coincide.",
+      "submit": "Aplicar retención"
+    },
+    "errors": {
+      "pageHeld": "Una retención legal conserva esta página, o una página debajo de ella: no puede eliminarse para siempre mientras dure la retención y se queda en la papelera.",
+      "templateHeld": "Una retención legal conserva esta plantilla: no puede eliminarse mientras dure la retención.",
+      "propertyHeld": "Una retención legal conserva los valores de esta propiedad: no puede eliminarse para siempre mientras dure la retención.",
+      "commentHeld": "Una retención legal conserva este comentario: no puede eliminarse mientras dure la retención.",
+      "letterheadHeld": "Una retención legal conserva este membrete: no puede eliminarse mientras dure la retención.",
+      "workspaceHeld": "Este espacio de trabajo tiene una retención legal. Levántala (Configuración > Seguridad) antes de eliminar el espacio de trabajo.",
+      "nameRequired": "Ponle un nombre a la retención.",
+      "nameTooLong": "Usa como máximo 200 caracteres para el nombre.",
+      "reasonTooLong": "Usa como máximo 2000 caracteres para el motivo.",
+      "noPeople": "Elige a quién abarca la retención.",
+      "tooManyPeople": "Una retención abarca como máximo 200 personas.",
+      "unknownPerson": "Alguien que elegiste ya no está en este espacio de trabajo.",
+      "notFound": "Esa retención ya se levantó.",
+      "ownersOnly": "Solo los propietarios gestionan las retenciones legales."
+    }
+  },
   "audit": {
     "description": "Quién cambió qué en este espacio de trabajo: miembros y roles, invitaciones, uso compartido, espacios de equipo y grupos, ajustes, seguridad, páginas creadas, movidas, enviadas a la papelera y eliminadas, publicaciones, apps conectadas y exportaciones. Solo los propietarios pueden verlo.",
     "filters": "Filtrar el registro de auditoría",
@@ -1501,6 +1613,7 @@
       "loginMethod": "Cómo inician sesión los miembros",
       "ai": "Funciones de IA",
       "aiMemory": "Memoria de la IA",
+      "aiWebSearch": "Búsqueda web del chat de IA",
       "aiMonthlyLimitUsd": "Límite mensual de coste de IA",
       "trashRetentionDays": "Eliminar las páginas de la papelera tras",
       "export": "Permitir exportar",
@@ -1568,6 +1681,8 @@
         "permission_removed": "Quitó a {subject} del uso compartido de {target}",
         "row_access_changed": "Cambió a quién dan acceso las filas de {target}",
         "deleted": "Eliminó {target} definitivamente",
+        "verified": "Verificó {target}",
+        "unverified": "Quitó la verificación de {target}",
         "published": "Publicó {target} en la web",
         "unpublished": "Dejó de publicar {target}",
         "publication_revoked": "Retiró {target} de la web (publicada por {subject})",
@@ -1622,6 +1737,10 @@
         "token_created": "Creó el token SCIM {target}",
         "token_revoked": "Revocó el token SCIM {target}"
       },
+      "legal_hold": {
+        "set": "Aplicó la retención legal {target} a {names}",
+        "released": "Levantó la retención legal {target} de {names}"
+      },
       "site": {
         "saved": "Guardó el sitio en {slug}",
         "removed": "Retiró el sitio en {slug}"
@@ -1639,6 +1758,11 @@
         "created": "Creó la automatización «{name}» en {target}",
         "updated": "{change, select, on {Activó la automatización «{name}» en {target}} off {Desactivó la automatización «{name}» en {target}} other {Cambió la automatización «{name}» en {target}}}",
         "deleted": "Eliminó la automatización «{name}» en {target}"
+      },
+      "webhook": {
+        "created": "Añadió el webhook «{target}»",
+        "updated": "{change, select, on {Activó el webhook «{target}»} off {Desactivó el webhook «{target}»} other {Cambió el webhook «{target}»}}",
+        "deleted": "Eliminó el webhook «{target}»"
       },
       "export": {
         "workspace": "Exportó el espacio de trabajo ({count, plural, one {# página} other {# páginas}})",
@@ -1771,7 +1895,10 @@
     "followUpChannel": "Seguimientos: {channel}",
     "reactionTitle": "Reacciones",
     "reactionDescription": "Alguien reacciona a un comentario tuyo. Las reacciones a un mismo comentario se juntan hasta que las abres.",
-    "reactionChannel": "Reacciones: {channel}"
+    "reactionChannel": "Reacciones: {channel}",
+    "verificationTitle": "Páginas que verificaste",
+    "verificationDescription": "Una página que verificaste está a punto de dejar de estar verificada: unos días antes y cuando ocurre.",
+    "verificationChannel": "Páginas que verificaste: {channel}"
   },
   "site": {
     "description": "Dale a las páginas publicadas de este espacio de trabajo una dirección legible, una página de inicio y navegación entre ellas.",
@@ -2009,6 +2136,102 @@
       "redo": "Devolver con una nota…",
       "notWhole": "Esta llamada es más larga de lo que se muestra aquí o contiene valores ocultos aquí. Abre su ejecución para ver todo lo que se enviaría antes de aprobarla.",
       "openRun": "Abrir la ejecución para aprobar"
+    }
+  },
+  "webhooks": {
+    "description": "Envía lo que pasa en las páginas de este espacio de trabajo a otro servicio en el momento: peticiones POST firmadas a una dirección https, para todo el espacio de trabajo, un espacio de equipo o una página y las páginas que tiene debajo. Cada una sale en nombre de quien guardó el webhook por última vez, con lo que esa persona puede abrir; no se envían filas de bases de datos ni plantillas.",
+    "exportOff": "La exportación está desactivada en Ajustes › Seguridad, así que los webhooks no envían nada hasta que se vuelva a activar.",
+    "count": "{count, plural, =0 {Aún no hay webhooks.} one {# webhook} other {# webhooks}}",
+    "add": "Añadir webhook",
+    "empty": "Añade un webhook para enviar eventos de páginas a un servicio propio.",
+    "allEvents": "Todos los eventos",
+    "scopeLabel": {
+      "workspace": "Todas las páginas del espacio de trabajo",
+      "teamspace": "Páginas de {name}",
+      "page": "{title} y las páginas que tiene debajo"
+    },
+    "events": {
+      "pageCreated": "Página creada",
+      "pageUpdated": "Página editada",
+      "pageMoved": "Página movida",
+      "pageTrashed": "Página movida a la papelera",
+      "pageRestored": "Página restaurada desde la papelera",
+      "pageDeleted": "Página eliminada definitivamente",
+      "commentCreated": "Comentario añadido",
+      "ping": "Prueba"
+    },
+    "sendsAs": "Envía en nombre de {name}, con lo que esa persona puede abrir.",
+    "paused": "En pausa: {name} ya no es propietario. Guárdalo para que envíe en tu nombre.",
+    "pausedBadge": "En pausa",
+    "offBadge": "Desactivado",
+    "toggle": "Enviar {name}",
+    "test": "Enviar prueba",
+    "testDelivered": "La prueba llegó a la dirección (respondió {status}).",
+    "testFailed": "La prueba no llegó: {reason}.",
+    "edit": "Editar",
+    "delete": "Eliminar",
+    "deleteNote": "Se detiene de inmediato y su registro de entregas se elimina con él.",
+    "working": "Procesando…",
+    "secret": {
+      "show": "Secreto de firma",
+      "rotate": "Nuevo secreto",
+      "rotateNote": "El secreto actual deja de firmar de inmediato: actualiza el servicio que lo comprueba.",
+      "title": "Secreto de firma de «{name}»",
+      "label": "Secreto de firma",
+      "note": "Comprueba con él el encabezado X-Leafdesk-Signature de cada petición: t=TIME,v1=HMAC, donde HMAC es el HMAC-SHA256 en hexadecimal de TIME, un punto y el cuerpo. Mantenlo en secreto."
+    },
+    "log": {
+      "title": "{count, plural, =0 {Entregas recientes} other {Entregas recientes (#)}}",
+      "empty": "No se envió nada en los últimos 30 días.",
+      "attempts": "{count, plural, one {# intento} other {# intentos}}",
+      "next": "próximo intento a las {when}"
+    },
+    "status": {
+      "pending": "En espera",
+      "delivered": "Entregada",
+      "failed": "Fallida",
+      "skipped": "No enviada"
+    },
+    "codes": {
+      "noAccess": "la persona en cuyo nombre envía no puede abrir la página",
+      "notOwner": "la persona en cuyo nombre envía ya no es propietaria",
+      "exportOff": "la exportación está desactivada",
+      "disabled": "el webhook está desactivado",
+      "invalidUrl": "la dirección no es válida",
+      "blocked": "la dirección está en una red privada",
+      "unreachable": "no se pudo llegar a la dirección",
+      "timeout": "sin respuesta en 10 segundos",
+      "redirect": "la dirección respondió con una redirección",
+      "http": "la dirección respondió {status}"
+    },
+    "form": {
+      "title": "Añadir un webhook",
+      "editTitle": "Cambiar el webhook",
+      "name": "Nombre",
+      "url": "Dirección",
+      "urlHint": "Una dirección https. Las peticiones van firmadas; no se siguen redirecciones.",
+      "events": "Eventos",
+      "scope": "Páginas",
+      "scopes": {
+        "workspace": "Todo el espacio de trabajo",
+        "teamspace": "Un espacio de equipo",
+        "page": "Una página y las páginas que tiene debajo"
+      },
+      "teamspace": "Elige un espacio de equipo",
+      "pickPage": "Buscar una página",
+      "noPages": "No hay páginas para elegir.",
+      "otherPage": "Cambiar",
+      "save": "Guardar",
+      "create": "Añadir webhook"
+    },
+    "errors": {
+      "invalidName": "Ponle al webhook un nombre de hasta 100 caracteres.",
+      "invalidUrl": "Escribe una dirección https válida sin nombre de usuario ni contraseña.",
+      "httpsOnly": "Los webhooks solo van a direcciones https.",
+      "noEvents": "Elige al menos un evento.",
+      "invalidScope": "Elige un espacio de equipo o una página de este espacio de trabajo.",
+      "tooMany": "Un espacio de trabajo puede tener como máximo 25 webhooks.",
+      "ownersOnly": "Solo los propietarios del espacio de trabajo gestionan los webhooks."
     }
   },
   "email": {

@@ -6,6 +6,7 @@ import {
   CommentError,
   commentMentions,
   commentText,
+  isReactionEmoji,
   replyAudience,
   threadParticipants,
   type CommentAnchor,
@@ -15,6 +16,7 @@ import {
 import { AccessError, getMembership, hasLevel, isGuest, requirePageAccess, resolvePageAccess } from "@/server/access";
 import { avatarSrc } from "@/lib/avatar";
 import { getCollab } from "@/server/collab/bridge";
+import { refuseHeldComments } from "@/server/legal-hold";
 import type { CommentOpResult } from "@/server/collab/bridge";
 import { reactionTarget } from "@/lib/comment-reactions";
 import { recordComment, recordReaction, withdrawComments, withdrawReaction, withdrawReactions } from "@/server/notifications";
@@ -25,8 +27,9 @@ import { forgetThreadStates } from "@/server/thread-state";
 import { workspacePeople } from "@/server/workspaces";
 import { agentMarks, markOf } from "@/server/agents/users";
 import { startMentionRuns } from "@/server/agents/mentions";
+import { queueCommentCreated } from "@/server/page-webhooks/queue";
 import { redactError } from "@/lib/redact";
-import { propertyCommentOp, propertyThreadOf, propertyThreadsFor, seersOf, threadsVisibleTo } from "@/server/property-comments";
+import { propertyCommentOp, propertyThreadOf, propertyThreadsFor, seersOf, storedPropertyThreads, threadsVisibleTo } from "@/server/property-comments";
 
 /**
  * Comments on pages. Anyone who can view a page reads its comments; anyone who can comment on it
@@ -42,13 +45,8 @@ import { propertyCommentOp, propertyThreadOf, propertyThreadsFor, seersOf, threa
 /** Someone in a page's comments. Agents (see server/agents) are marked, with their icon. */
 export type CommentUser = { id: string; username: string; avatarUrl: string; isAgent: boolean; agentIcon: string | null };
 
-/** Longest reaction, in UTF-16 units: an emoji with its modifiers. */
-const MAX_EMOJI = 32;
-
 function cleanEmoji(emoji: unknown): string {
-  if (typeof emoji !== "string" || !emoji || emoji.length > MAX_EMOJI || /\s/.test(emoji) || !/\p{Extended_Pictographic}/u.test(emoji)) {
-    throw new CommentError("A reaction is one emoji", "invalidBody");
-  }
+  if (!isReactionEmoji(emoji)) throw new CommentError("A reaction is one emoji", "invalidBody");
   return emoji;
 }
 
@@ -58,6 +56,8 @@ const id = (value: unknown) => {
 };
 
 const MAX_QUOTE = 1000;
+/** Announced on a row's database channel after a change to the row's comments. */
+export const COMMENTS_EVENT = "comments";
 
 function cleanAnchor(anchor: unknown): CommentAnchor | undefined {
   if (anchor === undefined || anchor === null) return undefined;
@@ -126,6 +126,12 @@ export async function changeComments(userId: string, pageId: string, op: Comment
   const role = hasLevel(level, "full") ? "editor" : "comment";
   // A thread on a property value: a new one names its property, others are looked up by id.
   const propertyId = clean.type === "createThread" ? (clean.propertyId ?? null) : await propertyThreadOf(pageId, clean.threadId);
+  if (clean.type === "deleteComment" || clean.type === "deleteThread") {
+    // What someone under a legal hold wrote stays (server/legal-hold.ts), on property values too.
+    const commentId = clean.type === "deleteComment" ? clean.commentId : undefined;
+    const threads = () => (propertyId ? storedPropertyThreads(pageId) : getCollab().readThreads(pageId));
+    await refuseHeldComments(target.workspaceId, threads, clean.threadId, commentId);
+  }
   const result = propertyId
     ? await propertyCommentOp(pageId, { userId, role }, clean, propertyId)
     : await getCollab().commentOp(pageId, { userId, role }, clean);
@@ -149,6 +155,16 @@ export async function changeComments(userId: string, pageId: string, op: Comment
       recipients = audience.notify;
     }
     await recordComment(userId, target.workspaceId, pageId, result.thread.id, await hearing(recipients));
+    // Page webhooks carry comments on the page's text; those on a property value stay with the
+    // people who see that value.
+    if (!propertyId) {
+      await queueCommentCreated(pageId, userId, {
+        threadId: result.thread.id,
+        commentId: result.comment.id,
+        reply: clean.type === "addComment",
+        text: commentText(clean.body),
+      });
+    }
     // Commenting on a database row follows it (server/row-follow).
     await followOnTakingPart(pageId, [userId]);
     // Agents it mentions answer in the thread (server/agents/mentions); an edit starts none.
@@ -181,6 +197,8 @@ export async function changeComments(userId: string, pageId: string, op: Comment
     // Reactions to a deleted comment are about nothing any more.
     await withdrawReactions(target.workspaceId, pageId, clean.threadId, clean.commentId);
   }
+  // A row's comments show in its database's feed views (components/database/feed-view).
+  if (target.parentId) getCollab().broadcast(`db:${target.parentId}`, COMMENTS_EVENT);
   return result;
 }
 

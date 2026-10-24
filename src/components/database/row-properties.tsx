@@ -1,13 +1,16 @@
 "use client";
 
-import { ChevronDown, ChevronRight, MessageSquare, Plus } from "lucide-react";
+import { ChevronDown, ChevronRight, MessageSquare, PanelRight, PanelTop, Plus } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { createPortal } from "react-dom";
 import {
   addPropertyAction,
   createRowAction,
   ensureOptionAction,
   loadRowAction,
+  setPropertiesBesideAction,
+  setPropertyPinnedAction,
   updatePropertyAction,
   updateRowPropertiesAction,
 } from "@/app/actions/databases";
@@ -20,6 +23,9 @@ import type { AiAutofillConfig } from "@/lib/ai";
 import { relatedSchemasFrom, withFormulas } from "@/lib/derived";
 import type { FormulaStyle } from "@/lib/formula";
 import { rowPageSections, type PageVisibility } from "@/lib/page-visibility";
+import { canPin, pinnedSplit } from "@/lib/row-layout";
+import { useRowLayoutHost } from "@/components/page/row-layout-context";
+import { cn } from "@/components/ui";
 import type { PropertyType, SelectOption } from "@/db/schema/app";
 import { AiAutofillProvider, AiCell, type AiAutofillContextValue } from "./ai-autofill";
 import { Floating, useFloating } from "./floating";
@@ -38,10 +44,12 @@ import { SchemaProvider } from "./schema-context";
 import { rowSnapshotOf, type RowSnapshot as Loaded } from "./row-snapshot";
 import type { DerivedInput, Property, RelationInput } from "./types";
 import { usePropertyThreadCount } from "@/components/page/property-threads";
-import { cn } from "@/components/ui";
 import { requestPropertyComment } from "@/lib/comments-request";
 
-/** Editable property list shown above a database row's page body. */
+/**
+ * Editable property list of a database row's page: the properties its database pins in a strip under
+ * the title, then the others above the body or, as the database sets it, beside it (lib/row-layout).
+ */
 export function RowProperties({
   workspaceId,
   databaseId,
@@ -79,6 +87,15 @@ export function RowProperties({
   const version = useRef(0);
   // The properties the database leaves off row pages, opened by the viewer.
   const [showMore, setShowMore] = useState(false);
+  // The page around the properties draws them beside its body when the database says so.
+  const layoutHost = useRowLayoutHost();
+  const setBeside = layoutHost?.setBeside;
+  const beside = Boolean(data?.beside);
+  useEffect(() => {
+    if (!setBeside) return;
+    setBeside(beside);
+    return () => setBeside(false);
+  }, [setBeside, beside]);
 
   const refetch = useCallback(async () => {
     const mine = ++seq.current;
@@ -218,6 +235,31 @@ export function RowProperties({
     await refetch();
   };
 
+  // Row page layout, the database's for everyone (lib/row-layout): shown here at once, then saved.
+  const setPinned = async (propertyId: string, pinned: boolean) => {
+    setData(
+      (d) =>
+        d && {
+          ...d,
+          properties: d.properties.map((p) => {
+            if (p.id !== propertyId) return p;
+            const { pinned: _old, ...rest } = p.options;
+            return { ...p, options: pinned ? { ...rest, pinned: true as const } : rest };
+          }),
+        },
+    );
+    const res = await safe(setPropertyPinnedAction(propertyId, pinned));
+    if (!res.ok) setError(res.error);
+    await refetch();
+  };
+  const switchBeside = async () => {
+    const next = !data?.beside;
+    setData((d) => d && { ...d, beside: next });
+    const res = await safe(setPropertiesBesideAction(databaseId, next));
+    if (!res.ok) setError(res.error);
+    await refetch();
+  };
+
   const addAutofillProperty = async (name: string, config: AiAutofillConfig) => {
     const res = await safe(addAutofillPropertyAction(databaseId, name, config, [rowId]));
     if (!res.ok) setError(res.error);
@@ -308,11 +350,15 @@ export function RowProperties({
 
   const valueOf = (id: string) => values[id];
   // A value the viewer may not see counts as one: its lock shows like any value.
-  const { shown, more } = rowPageSections(data.properties, (p) => !data.hidden?.includes(p.id) && isEmptyValue(p, valueOf(p.id)));
+  const { pinned, rest } = pinnedSplit(data.properties);
+  const { shown, more } = rowPageSections(rest, (p) => !data.hidden?.includes(p.id) && isEmptyValue(p, valueOf(p.id)));
   const canSetVisibility = !readOnly && !data.locked;
-  const propertyRow = (p: Property) => (
+  const canSetLayout = canSetVisibility && Boolean(data.canSetLayout);
+  const besideHere = data.beside && layoutHost?.aside ? layoutHost.aside : null;
+  const propertyRow = (p: Property, variant: "row" | "pinned" | "beside" = besideHere ? "beside" : "row") => (
     <PropertyRow
       key={p.id}
+      variant={variant}
       prop={p}
       rowId={rowId}
       row={data}
@@ -323,9 +369,52 @@ export function RowProperties({
       onCreateOption={createOption}
       onPageVisibility={canSetVisibility ? (visibility) => void setPageVisibility(p.id, visibility) : undefined}
       onDescription={canSetVisibility ? (description) => void setDescription(p.id, description) : undefined}
+      onPinned={canSetLayout ? (on) => void setPinned(p.id, on) : undefined}
+      pinFull={!canPin(data.properties, p.id)}
       values={values}
       commentable={!offline}
     />
+  );
+
+  const list = (
+    <div className={cn("mb-6 border-b border-border pb-4", besideHere && "@3xl:mt-1 @3xl:mb-0 @3xl:border-b-0 @3xl:pb-0")}>
+      {offline && <OfflineNotice savedAt={offlineCopyFrom} />}
+      {!offline && <RowReviewBanner workspaceId={workspaceId} databaseId={databaseId} rowId={rowId} signal={changes} />}
+      <div className="flex flex-col gap-0.5">
+        {shown.map((p) => propertyRow(p))}
+        {showMore && more.map((p) => propertyRow(p))}
+      </div>
+      {more.length > 0 && (
+        <button
+          type="button"
+          aria-expanded={showMore}
+          onClick={() => setShowMore((v) => !v)}
+          className="mt-1 flex h-[30px] w-fit items-center gap-1.5 rounded-md px-1 text-sm text-fg-muted hover:bg-bg-hover hover:text-fg"
+        >
+          {showMore ? <ChevronDown className="h-3.5 w-3.5" /> : <ChevronRight className="h-3.5 w-3.5 rtl:-scale-x-100" />}
+          {t(showMore ? "fewerProperties" : "moreProperties", { count: more.length })}
+        </button>
+      )}
+      {!data.properties.length && readOnly && <p className="px-1 text-sm text-fg-faint">{t("noProperties")}</p>}
+      {!readOnly && !data.locked && (
+        <div className="flex flex-wrap items-center gap-x-2">
+          <AddPropertyRow onCreate={addProperty} onCreateAutofill={aiEnabled ? addAutofillProperty : undefined} />
+          {canSetLayout && (
+            <button
+              type="button"
+              onClick={() => void switchBeside()}
+              className="mt-1 inline-flex h-[30px] items-center gap-1.5 rounded-md px-1 text-sm text-fg-muted hover:bg-bg-hover hover:text-fg"
+            >
+              {data.beside ? <PanelTop className="h-3.5 w-3.5" /> : <PanelRight className="h-3.5 w-3.5 rtl:-scale-x-100" />}
+              {t(data.beside ? "showAbove" : "showBeside")}
+            </button>
+          )}
+        </div>
+      )}
+      {error && <p className="mt-2 px-1 text-xs text-danger">{error}</p>}
+      {!offline && <RowEmails rowId={rowId} />}
+      {!offline && <RowActivity rowId={rowId} signal={changes} />}
+    </div>
   );
 
   return (
@@ -334,32 +423,12 @@ export function RowProperties({
         <SchemaProvider value={data.properties}>
           <PropertyAccessProvider value={accessContext}>
             <AiAutofillProvider value={aiContext}>
-              <div className="mb-6 border-b border-border pb-4">
-                {offline && <OfflineNotice savedAt={offlineCopyFrom} />}
-                {!offline && <RowReviewBanner workspaceId={workspaceId} databaseId={databaseId} rowId={rowId} signal={changes} />}
-                <div className="flex flex-col gap-0.5">
-                  {shown.map(propertyRow)}
-                  {showMore && more.map(propertyRow)}
+              {pinned.length > 0 && (
+                <div role="group" aria-label={t("pinned")} className="mb-4 flex flex-wrap gap-x-6 gap-y-2">
+                  {pinned.map((p) => propertyRow(p, "pinned"))}
                 </div>
-                {more.length > 0 && (
-                  <button
-                    type="button"
-                    aria-expanded={showMore}
-                    onClick={() => setShowMore((v) => !v)}
-                    className="mt-1 flex h-[30px] w-fit items-center gap-1.5 rounded-md px-1 text-sm text-fg-muted hover:bg-bg-hover hover:text-fg"
-                  >
-                    {showMore ? <ChevronDown className="h-3.5 w-3.5" /> : <ChevronRight className="h-3.5 w-3.5 rtl:-scale-x-100" />}
-                    {t(showMore ? "fewerProperties" : "moreProperties", { count: more.length })}
-                  </button>
-                )}
-                {!data.properties.length && readOnly && <p className="px-1 text-sm text-fg-faint">{t("noProperties")}</p>}
-                {!readOnly && !data.locked && (
-                  <AddPropertyRow onCreate={addProperty} onCreateAutofill={aiEnabled ? addAutofillProperty : undefined} />
-                )}
-                {error && <p className="mt-2 px-1 text-xs text-danger">{error}</p>}
-                {!offline && <RowEmails rowId={rowId} />}
-                {!offline && <RowActivity rowId={rowId} signal={changes} />}
-              </div>
+              )}
+              {besideHere ? createPortal(list, besideHere) : list}
             </AiAutofillProvider>
           </PropertyAccessProvider>
         </SchemaProvider>
@@ -380,9 +449,14 @@ function PropertyRow({
   onCreateOption,
   onPageVisibility,
   onDescription,
+  onPinned,
+  pinFull,
   values,
   commentable,
+  variant,
 }: {
+  /** A line of the list ("beside": in the column beside the body, its name above its value where that is narrow), or one of the pinned values under the title. */
+  variant: "row" | "pinned" | "beside";
   prop: Property;
   rowId: string;
   row: { hidden?: string[]; readOnly?: string[] };
@@ -395,6 +469,9 @@ function PropertyRow({
   onPageVisibility?: (visibility: PageVisibility) => void;
   /** The same people: what the property holds and how to fill it (null for nothing). */
   onDescription?: (description: string | null) => void;
+  /** Full access: pins the property under the title, or unpins it; `pinFull` while no more fit. */
+  onPinned?: (pinned: boolean) => void;
+  pinFull: boolean;
   /** The row's values, which decide the options a dependent select offers (lib/dependent-options). */
   values: Record<string, unknown>;
   /** The value can be discussed in the row's comments (they need the server). */
@@ -415,9 +492,23 @@ function PropertyRow({
       </span>
     </>
   );
+  const stacked = variant === "pinned";
   return (
-    <div className="group/property flex min-h-[30px] items-start gap-2">
-      <div ref={setLabelEl} className="flex h-[30px] w-28 shrink-0 items-center gap-1.5 text-sm text-fg-muted sm:w-40">
+    <div
+      className={cn(
+        "group/property flex min-h-[30px]",
+        stacked ? "max-w-full min-w-32 flex-col" : "items-start gap-2",
+        variant === "beside" && "@3xl:flex-col @3xl:items-stretch @3xl:gap-0",
+      )}
+    >
+      <div
+        ref={setLabelEl}
+        className={cn(
+          "flex shrink-0 items-center gap-1.5 text-fg-muted",
+          stacked ? "h-6 text-xs" : "h-[30px] w-28 text-sm sm:w-40",
+          variant === "beside" && "@3xl:h-6 @3xl:w-full @3xl:text-xs",
+        )}
+      >
         {hint}
         {onPageVisibility && access.canEditSchema(p.id) ? (
           <>
@@ -432,13 +523,19 @@ function PropertyRow({
               {label}
             </button>
             <Floating open={menu.open} anchor={menu.el} onClose={menu.close}>
-              <PropertyMenu prop={p} actions={{ setPageVisibility: onPageVisibility, setDescription: onDescription }} onDone={menu.close} />
+              <PropertyMenu
+                prop={p}
+                actions={{ setPageVisibility: onPageVisibility, setDescription: onDescription, setPinned: onPinned, pinFull }}
+                onDone={menu.close}
+              />
             </Floating>
           </>
         ) : (
           <span className="flex min-w-0 items-center gap-1.5 px-1">{label}</span>
         )}
         <PropertyLock propertyId={p.id} />
+        {/* Pinned and beside the body, the value may sit under its name: the comments go with the name. */}
+        {commentable && variant !== "row" && valueAccess !== "hidden" && <PropertyComments rowId={rowId} prop={p} compact />}
       </div>
       <div className="min-w-0 flex-1">
         {valueAccess === "hidden" ? (
@@ -460,7 +557,7 @@ function PropertyRow({
           </AiCell>
         )}
       </div>
-      {commentable && valueAccess !== "hidden" && <PropertyComments rowId={rowId} prop={p} />}
+      {commentable && variant === "row" && valueAccess !== "hidden" && <PropertyComments rowId={rowId} prop={p} />}
     </div>
   );
 }
@@ -469,7 +566,7 @@ function PropertyRow({
  * The comments on a property's value: how many open threads it has, and a button (shown on hover
  * while it has none) that opens the row's comments to start one (server/property-comments.ts).
  */
-function PropertyComments({ rowId, prop }: { rowId: string; prop: Property }) {
+function PropertyComments({ rowId, prop, compact = false }: { rowId: string; prop: Property; compact?: boolean }) {
   const t = useTranslations("database.rowProperties");
   const count = usePropertyThreadCount(rowId, prop.id);
   return (
@@ -479,7 +576,8 @@ function PropertyComments({ rowId, prop }: { rowId: string; prop: Property }) {
       title={count ? t("propertyComments", { name: prop.name, count }) : t("commentOnProperty", { name: prop.name })}
       onClick={() => requestPropertyComment(rowId, { propertyId: prop.id, name: prop.name })}
       className={cn(
-        "flex h-[30px] shrink-0 items-center gap-1 rounded-md px-1.5 text-xs text-fg-muted hover:bg-bg-hover hover:text-fg",
+        "flex shrink-0 items-center gap-1 rounded-md px-1.5 text-xs text-fg-muted hover:bg-bg-hover hover:text-fg",
+        compact ? "h-6" : "h-[30px]",
         !count && "opacity-0 focus-visible:opacity-100 group-hover/property:opacity-100 pointer-coarse:opacity-100",
       )}
     >

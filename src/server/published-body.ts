@@ -7,7 +7,7 @@ import { applyCalloutStyles, findCalloutStyle, type CalloutStyle } from "@/lib/c
 import { BREADCRUMB_BLOCK, CALLOUT_BLOCK, MERMAID_BLOCK, SUBPAGES_BLOCK, TOC_BLOCK } from "@/lib/content-blocks";
 import { plainText } from "@/lib/content-markdown";
 import { AGENT_CHAT_BLOCK } from "@/lib/agent-chat";
-import { DASHBOARD_BLOCK, parseDashboard, type DashboardWidget } from "@/lib/dashboard";
+import { DASHBOARD_BLOCK, dashboardLayout, parseDashboard, type DashboardLayout, type DashboardWidget } from "@/lib/dashboard";
 import { isEmbedBlockType, parseLinkedView, type EmbedBlockType, type LinkedView } from "@/lib/embed-blocks";
 import { pdfFileId, spreadsheetFileId } from "@/lib/files";
 import { BOOKMARK_BLOCK, embedFor, isWebBlockType, parseWebUrl, type EmbedTarget } from "@/lib/web-blocks";
@@ -16,6 +16,7 @@ import { withoutSyncedBlocks } from "@/lib/synced-blocks";
 import { IMAGE_BLOCK, parseImageLink } from "@/lib/image-links";
 import { BUTTON_BLOCK } from "@/lib/buttons";
 import { serverEditor as editor, type PageBlock } from "@/server/blocknote";
+import { fragmentBlocks } from "@/server/synced-body";
 
 /**
  * Turns a stored page body (Yjs state) into HTML for the public, read-only view of a published page.
@@ -186,8 +187,8 @@ export type BodyHeading = { anchor: string; level: number; text: string };
 export type BodySegment =
   | { kind: "html"; html: string }
   | { kind: "embed"; type: EmbedBlockType; databaseId: string; view: LinkedView | null }
-  /** A dashboard's widgets, each a database seen through its own view. */
-  | { kind: "dashboard"; widgets: DashboardWidget[] }
+  /** A dashboard's widgets, each a database seen through its own view, in a grid or as tabs. */
+  | { kind: "dashboard"; widgets: DashboardWidget[]; layout: DashboardLayout }
   | { kind: "toc"; headings: BodyHeading[] }
   | { kind: "breadcrumb" }
   | { kind: "subpages" }
@@ -552,7 +553,8 @@ export async function bodySegmentsFromYdoc(state: Uint8Array | null, options: Bo
   const doc = new Y.Doc();
   try {
     Y.applyUpdate(doc, state);
-    return await bodySegmentsFromBlocks(editor.yXmlFragmentToBlocks(doc.getXmlFragment(COLLAB_FRAGMENT)), options);
+    // Suggested edits that wait for an answer aren't published (see synced-body fragmentBlocks).
+    return await bodySegmentsFromBlocks(fragmentBlocks(doc.getXmlFragment(COLLAB_FRAGMENT)), options);
   } finally {
     doc.destroy();
   }
@@ -633,10 +635,11 @@ export async function bodySegmentsFromBlocks(
         return;
       }
       if (block.type === DASHBOARD_BLOCK) {
-        const widgets = parseDashboard((block.props as { widgets?: unknown }).widgets);
+        const props = block.props as { widgets?: unknown; layout?: unknown };
+        const widgets = parseDashboard(props.widgets);
         if (!widgets.length) return;
         await flush();
-        segments.push({ kind: "dashboard", widgets });
+        segments.push({ kind: "dashboard", widgets, layout: dashboardLayout(props.layout) });
         return;
       }
       if (block.type === AGENT_CHAT_BLOCK) {

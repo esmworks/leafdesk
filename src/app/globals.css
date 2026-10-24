@@ -626,6 +626,34 @@
 }
 
 /*
+ * Suggested edits (components/page/suggesting.ts): inserted text underlined in the colors of added
+ * text, deleted text kept and struck through in those of removed text, reformatted text dotted.
+ * Their comment thread's highlight gives way to them.
+ */
+.leafdesk-editor .suggestion-insertion {
+  background: var(--added-bg);
+  color: var(--added-fg);
+  text-decoration: underline;
+  text-decoration-color: var(--added-bar);
+}
+.leafdesk-editor .suggestion-deletion {
+  background: var(--removed-bg);
+  color: var(--removed-fg);
+  text-decoration: line-through;
+  text-decoration-color: var(--removed-bar);
+}
+.leafdesk-editor .suggestion-modification {
+  text-decoration: underline dotted;
+  text-decoration-color: var(--accent);
+  text-underline-offset: 3px;
+}
+.leafdesk-editor .bn-thread-mark:has(.suggestion-insertion, .suggestion-deletion),
+.leafdesk-editor .suggestion-insertion .bn-thread-mark,
+.leafdesk-editor .suggestion-deletion .bn-thread-mark {
+  background: transparent;
+}
+
+/*
  * The comments panel (360px, fixed at the right) would cover the end of every line. A page keeps
  * its place while it clears the panel; otherwise it moves left, and narrows once it reaches the edge.
  */
@@ -1247,6 +1275,25 @@ input.leafdesk-callout-title-input {
   50% {
     background-color: color-mix(in srgb, var(--accent) 16%, transparent);
   }
+}
+
+/*
+ * A setting the settings search jumped to (components/settings/settings-search.tsx): lit for a
+ * moment, then back to its own background.
+ */
+@keyframes leafdesk-setting-focus {
+  0%,
+  45% {
+    background-color: color-mix(in srgb, var(--accent) 12%, transparent);
+    box-shadow: inset 0 0 0 2px color-mix(in srgb, var(--accent) 55%, transparent);
+  }
+}
+[data-setting-focus] {
+  border-radius: 0.75rem;
+  animation: leafdesk-setting-focus 2400ms ease-out;
+}
+[id^="setting-"] {
+  scroll-margin-block: 6rem;
 }
 
 /*

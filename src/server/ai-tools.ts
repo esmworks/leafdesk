@@ -9,13 +9,14 @@
 import { Readable } from "node:stream";
 import { and, eq, inArray, sql } from "drizzle-orm";
 import { db } from "@/db";
-import { page, type ChatAttachmentRecord, type ChatChange, type ChatQueryCondition, type ChatStepRecord, type ChatWriteRecord, type PageKind } from "@/db/schema";
+import { page, type ChatChange, type ChatQueryCondition, type ChatStepRecord, type ChatWriteRecord, type PageKind } from "@/db/schema";
 import type { ChatActionView, ChatPageView } from "@/lib/ai-chat";
 import type { RowChangeBefore, RowChangePayload } from "@/lib/pending-changes";
 import { BLOCK_EDIT_OPS, blockEditProblem, MAX_BLOCK_EDITS, type BlockEdit } from "@/lib/block-edits";
 import { FILTER_OPS, MAX_FILTER_DEPTH } from "@/lib/filters";
 import { env } from "@/lib/env";
 import { attachmentCsv } from "@/lib/chat-attachment-table";
+import type { ChatFileContent } from "@/server/ai-chat-files";
 import { cleanFileName, formatBytes } from "@/lib/files";
 import { CSV_COLUMN_TYPES, guessColumn, guessTitleColumn, type CsvColumnType } from "@/lib/import/csv";
 import { validateDatabasePlan } from "@/lib/database-plan";
@@ -31,6 +32,7 @@ import { anyWordTerms } from "@/lib/search-words";
 import { AccessError, hasLevel, pageAccessOf } from "@/server/access";
 import type { AiTool } from "@/server/ai";
 import { attachmentBlock, formatSources, truncateText, type ChatSourceText } from "@/server/ai/prompts";
+import { activeVerifications } from "@/server/verification";
 import type { ChatDecision } from "@/server/ai-chat-approvals";
 import { getCollab } from "@/server/collab/bridge";
 import { addView, getDatabase, getLookups, normalizeRowProperties, updateView } from "@/server/databases";
@@ -182,18 +184,18 @@ export const CHAT_TOOLS: AiTool[] = [
   },
 ];
 
-/** Tools for the CSV files attached to the conversation, offered when it has some. */
+/** Tools for the files attached to the conversation, offered when it has some. */
 export const ATTACHMENT_TOOLS: AiTool[] = [
   {
     name: "read_attachment",
-    description: "Reads rows of a CSV file attached to the conversation, for the rows the question doesn't show.",
+    description: "Reads on in a file attached to the conversation: rows of a CSV file, or the text of a document, for what the question doesn't show.",
     parameters: {
       type: "object",
       properties: {
         name: { type: "string", description: "The file's name (the latest file when left out)." },
-        from_row: { type: "integer", description: "The first row to read, from 1 (the row after the header)." },
+        from_row: { type: "integer", description: "A CSV file: the first row to read, from 1 (the row after the header)." },
+        from_char: { type: "integer", description: "A document or text file: the first character to read, from 1." },
       },
-      required: ["from_row"],
       additionalProperties: false,
     },
   },
@@ -430,13 +432,13 @@ export type Registry = {
   byKey: Map<string, number>;
 };
 
-export function register(registry: Registry, source: { pageId: string; blockId: string | null; title: string; text: string; note?: string }) {
-  const key = `${source.pageId}#${source.blockId ?? ""}`;
+export function register(registry: Registry, source: { pageId: string; blockId: string | null; title: string; text: string; note?: string; url?: string; verified?: boolean }) {
+  const key = source.url ? `url:${source.url}` : `${source.pageId}#${source.blockId ?? ""}`;
   const known = registry.byKey.get(key);
   if (known !== undefined) {
     // Read again (a longer text): the model sees it again under the same number.
     const entry = registry.sources[known - 1];
-    return { ...entry, text: source.text, note: source.note };
+    return { ...entry, text: source.text, note: source.note, verified: source.verified ?? entry.verified };
   }
   const n = registry.sources.length + 1;
   const entry = { n, ...source };
@@ -444,6 +446,10 @@ export function register(registry: Registry, source: { pageId: string; blockId: 
   registry.byKey.set(key, n);
   return entry;
 }
+
+/** A web page the chat found or read, as a numbered source (cited by its address). */
+export const registerWeb = (registry: Registry, page: { url: string; title: string; text: string; note?: string }) =>
+  register(registry, { pageId: "", blockId: null, url: page.url, title: page.title, text: page.text, note: page.note });
 
 // ---------------------------------------------------------------------------- workspace map
 
@@ -525,6 +531,7 @@ async function searchSources(
       blockId: best?.passage ? best.blockId : null,
       title: r.title,
       text: truncateText([head, passage].filter(Boolean).join("\n"), maxChars),
+      verified: Boolean(r.verified),
     });
   });
 }
@@ -628,7 +635,8 @@ export async function runTool(
       throw error;
     });
     if (!read) return missing;
-    const entry = register(registry, { pageId, blockId: null, title: read.title, text: read.text, note: read.note });
+    const verified = (await activeVerifications([pageId])).has(pageId);
+    const entry = register(registry, { pageId, blockId: null, title: read.title, text: read.text, note: read.note, verified });
     return { content: formatSources([entry]), step: { kind: "read", pageId } };
   }
   if (call.name === "query_database") return queryRows(ctx, workspaceId, scopeId, call.arguments, registry, room);
@@ -644,24 +652,35 @@ export async function runTool(
   return { content: `Unknown tool ${call.name}.`, isError: true };
 }
 
-/** What the tools know of the conversation beyond the workspace: its attached files, the person's time zone. */
-export type ToolExtra = { attachments?: ChatAttachmentRecord[]; timeZone?: string };
+/**
+ * What the tools know of the conversation beyond the workspace: its attached files as read
+ * (ai-chat-files.ts readConversationFiles), the person's time zone.
+ */
+export type ToolExtra = { attachments?: ChatFileContent[]; timeZone?: string };
 
-/** The most of a CSV file one read_attachment call returns. */
+/** The most of a file one read_attachment call returns. */
 const ATTACHMENT_READ_CHARS = 30_000;
 
 /** The attachment a tool names (by name, without case), or the latest one when it names none. */
-export function findAttachment(attachments: ChatAttachmentRecord[], name: unknown): ChatAttachmentRecord | null {
+export function findAttachment<F extends ChatFileContent>(attachments: F[], name: unknown): F | null {
   const wanted = typeof name === "string" ? name.trim().toLowerCase() : "";
   if (!wanted) return attachments.at(-1) ?? null;
   return attachments.findLast((a) => a.name.toLowerCase() === wanted) ?? null;
 }
 
-function readAttachment(attachments: ChatAttachmentRecord[], args: Record<string, unknown>, maxChars: number): ToolOutcome {
+function readAttachment(attachments: ChatFileContent[], args: Record<string, unknown>, maxChars: number): ToolOutcome {
   const found = findAttachment(attachments, args.name);
   if (!found) {
     const names = attachments.map((a) => `"${a.name}"`).join(", ");
-    return { content: names ? `No attached file has that name. The files: ${names}.` : "No CSV file is attached to this conversation.", isError: true };
+    return { content: names ? `No attached file has that name. The files: ${names}.` : "No file is attached to this conversation.", isError: true };
+  }
+  if (found.kind === "text") {
+    const start = Math.max(1, Math.floor(Number(args.from_char) || 1));
+    if (start > found.text.length) return { content: `"${found.name}" has ${found.text.length} characters${found.partial ? " (only the start of a long document was read)" : ""}.`, isError: true };
+    const text = found.text.slice(start - 1, start - 1 + Math.max(0, maxChars - 300));
+    const end = start + text.length - 1;
+    const more = end < found.text.length ? ` Read on with from_char ${end + 1}.` : found.partial ? " The rest of this long document wasn't read." : "";
+    return { content: `Characters ${start}-${end} of ${found.text.length} of "${found.name}".${more}\n${attachmentBlock(found, text)}` };
   }
   const from = Math.max(1, Math.floor(Number(args.from_row) || 1));
   if (from > found.rows.length) return { content: `"${found.name}" has ${found.rows.length} rows.`, isError: true };
@@ -1180,7 +1199,7 @@ async function prepareCsvDatabase(
   extra: ToolExtra,
 ): Promise<PreparedWrite | ToolOutcome> {
   const { userId } = ctx;
-  const attachments = extra.attachments ?? [];
+  const attachments = (extra.attachments ?? []).filter((a) => a.kind === "csv");
   const file = findAttachment(attachments, args.attachment);
   if (!file) {
     const names = attachments.map((a) => `"${a.name}"`).join(", ");

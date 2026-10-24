@@ -58,6 +58,11 @@ vi.mock("@/server/groups", () => groups);
 vi.mock("@/server/page-meta", () => ({ isFavorite: vi.fn(async () => false), listFavorites: vi.fn(async () => []) }));
 vi.mock("@/server/page-watch", () => ({ isWatching: vi.fn(async () => null), setWatching: vi.fn() }));
 vi.mock("@/server/page-outdated", async (importOriginal) => ({ ...(await importOriginal<object>()), outdatedState: vi.fn(async () => null) }));
+vi.mock("@/server/verification", async (importOriginal) => ({
+  ...(await importOriginal<object>()),
+  verificationOf: vi.fn(async () => null),
+  activeVerifications: vi.fn(async () => new Map()),
+}));
 vi.mock("@/server/row-follow", async (importOriginal) => ({
   ...(await importOriginal<object>()),
   isFollowing: vi.fn(async () => true),

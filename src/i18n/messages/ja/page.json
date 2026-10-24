@@ -16,6 +16,14 @@
     "createdBy": "{name}が作成",
     "someone": "誰か",
     "comments": "コメント",
+    "suggesting": {
+      "editing": "編集",
+      "suggesting": "提案",
+      "label": "モード: {mode}",
+      "editingHint": "ページを直接変更します",
+      "suggestingHint": "変更は、他のメンバーが承認または却下できる提案として表示されます",
+      "forcedHint": "このページにはコメントできるため、変更は編集者が承認または却下できる提案になります"
+    },
     "share": "共有",
     "accessRequests": "{count}件のアクセスリクエスト",
     "addFavorite": "お気に入りに追加",
@@ -51,6 +59,9 @@
     "exportPdf": "PDFとしてエクスポート",
     "printView": "印刷",
     "exportPreparing": "エクスポートを準備中…",
+    "acceptAllSuggestions": "すべての提案を承認",
+    "rejectAllSuggestions": "すべての提案を却下",
+    "rejectAllConfirm": "このページの編集の提案をすべて却下しますか？",
     "versionHistory": "バージョン履歴",
     "lastEdited": "最終編集者：{name}",
     "wordCount": "{words} 語、{characters} 文字",
@@ -95,6 +106,20 @@
     "muted": "返信をミュート中",
     "mutedHint": "ここで返信するか、誰かにここでメンションされるまで、このスレッドの返信の通知は届きません。",
     "mergedFrom": "「{title}」から",
+    "suggestion": {
+      "label": "編集の提案",
+      "byAi": "AI による編集の提案",
+      "accept": "承認",
+      "reject": "却下",
+      "withdraw": "取り下げ",
+      "errors": {
+        "notAllowed": "この提案には回答できません。",
+        "notFound": "この提案はすでに回答済みか、取り下げられています。",
+        "pageLocked": "ページはロックされています。",
+        "pageInTrash": "ページはゴミ箱にあります。",
+        "failed": "提案に回答できませんでした。もう一度お試しください。"
+      }
+    },
     "sort": {
       "label": "スレッドの並べ替え",
       "recent": "新しいアクティビティ順",
@@ -124,6 +149,39 @@
     "above": "上位のページと一緒にアーカイブされています。",
     "unarchive": "アーカイブを解除",
     "hint": "アーカイブしたページはサイドバー・検索・選択リストに表示されませんが、閲覧と編集はできます。"
+  },
+  "verification": {
+    "byUntil": "{name}が{date}まで検証済み",
+    "by": "{name}が検証済み",
+    "until": "{date}まで検証済み",
+    "plain": "検証済み",
+    "expiredOn": "検証の期限切れ：{date}",
+    "hint": "フルアクセス権を持つユーザーがこのページを確認し、正しいとマークしました。編集しても検証済みのままです。",
+    "change": "検証を変更または解除",
+    "menu": "ページを検証…",
+    "menuVerified": "検証…",
+    "menuHint": "ページを確認済みで正しいとマークします。検索で上位に表示され、AI チャットで優先されます",
+    "title": "ページを検証",
+    "description": "このページを確認済みで正しいとマークします。期間を決めることも、無期限にすることもできます。検証済みのページは検索で上位に表示されて印が付き、is:verified で見つけられ、AI チャットでも優先されます。ページを編集しても検証済みのままで、終了の数日前にお知らせします。",
+    "durationLabel": "検証期間",
+    "durations": {
+      "week": "1週間",
+      "month": "1か月",
+      "quarter": "3か月",
+      "year": "1年",
+      "until": "指定日まで",
+      "forever": "無期限"
+    },
+    "dateLabel": "検証の期限",
+    "verify": "検証",
+    "verifyAgain": "再検証",
+    "remove": "検証を解除",
+    "searchBadge": "検証済み",
+    "errors": {
+      "template": "テンプレートとその中のページは検証できません。",
+      "inTrash": "先にゴミ箱からページを復元してください。",
+      "invalidEnd": "今日より後の、5年以内の日を選んでください。"
+    }
   },
   "icon": {
     "add": "アイコンを追加",
@@ -339,6 +397,11 @@
         "title": "ダッシュボード",
         "subtext": "データベースの数値、グラフ、リスト",
         "aliases": "dashboard widgets kpi metrics charts numbers ダッシュボード ウィジェット 指標 グラフ 数値"
+      },
+      "databaseTabs": {
+        "title": "データベースのタブ",
+        "subtext": "複数のデータベースやビューを 1 つずつタブに",
+        "aliases": "タブ データベース ビュー 切り替え tabs"
       }
     }
   },
@@ -692,6 +755,19 @@
     "filters": "{count}個のフィルター",
     "updatedNow": "たった今更新",
     "updated": "{time}に更新"
+  },
+  "databaseTabs": {
+    "title": "データベースのタブ",
+    "empty": "このタブにはまだデータベースがありません。",
+    "emptyEditable": "複数のデータベースや 1 つのデータベースの複数のビューをタブで表示します。タブごとに独自のビューになります。",
+    "add": "タブを追加",
+    "full": "タブには最大 {max} 個のビューを置けます。",
+    "menu": "タブのオプション",
+    "rename": "名前を変更",
+    "remove": "タブを削除",
+    "nameLabel": "タブの名前",
+    "namePlaceholder": "データベースの名前",
+    "noAccess": "アクセス権なし"
   },
   "voiceNote": {
     "record": "ボイスメモを録音",

@@ -53,14 +53,15 @@ function DeleteDialog({ email, plan, proof, onClose }: { email: string; plan: De
   const [error, setError] = useState<string | null>(null);
   const [pending, startTransition] = useTransition();
   const stuck = plan.storageStuck ?? [];
-  const blocked = plan.blockers.length > 0 || stuck.length > 0;
+  const held = plan.legalHolds ?? [];
+  const blocked = plan.blockers.length > 0 || stuck.length > 0 || held.length > 0;
   const matches = typed.trim().toLowerCase() === email.toLowerCase();
 
   return (
     <Dialog open onClose={onClose} className="max-w-md">
       {blocked ? (
         <div className="space-y-4 p-5">
-          <h2 className="text-base font-semibold">{t("blockedTitle")}</h2>
+          <h2 className="text-base font-semibold">{t(plan.blockers.length > 0 || stuck.length > 0 ? "blockedTitle" : "legalHoldTitle")}</h2>
           {plan.blockers.length > 0 && (
             <>
               <p className="text-sm text-fg-muted">{t("blockedBody")}</p>
@@ -71,6 +72,12 @@ function DeleteDialog({ email, plan, proof, onClose }: { email: string; plan: De
             <>
               <p className="text-sm text-fg-muted">{t("storageStuckBody")}</p>
               <WorkspaceList title={t("storageStuckList")} items={stuck} />
+            </>
+          )}
+          {held.length > 0 && (
+            <>
+              <p className="text-sm text-fg-muted">{t("legalHoldBody")}</p>
+              <WorkspaceList title={t("legalHoldList")} items={held} />
             </>
           )}
           <div className="flex justify-end">

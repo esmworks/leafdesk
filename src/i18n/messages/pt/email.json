@@ -57,6 +57,11 @@
     "action": "Abrir página",
     "optOut": "Você recebe estes e-mails porque participou desta conversa de comentários. Você pode desativá-los em Minha conta > Preferências."
   },
+  "suggestion": {
+    "subject": "{actor} sugeriu alterações em “{page}”",
+    "heading": "{actor} sugeriu alterações em “{page}”",
+    "body": "A sugestão está em “{page}”, em {workspace}. Aceite ou rejeite pela página, ou responda na conversa dela."
+  },
   "mention": {
     "subject": "{actor} mencionou você em “{page}”",
     "heading": "{actor} mencionou você em “{page}”",
@@ -71,6 +76,16 @@
     "body": "Você pediu para ser lembrado de {date} em “{page}”, em {workspace}.",
     "action": "Abrir página",
     "optOut": "Você recebe estes e-mails porque definiu um lembrete. Você pode desativá-los em Minha conta > Preferências."
+  },
+  "pageVerification": {
+    "endsSubject": "Sua verificação de “{page}” termina em {date}",
+    "endsHeading": "A verificação termina em breve",
+    "endsBody": "Você verificou “{page}” em {workspace} até {date}. Se ela ainda estiver correta, verifique-a de novo pelo menu ⋯ da página para mantê-la verificada.",
+    "endedSubject": "Sua verificação de “{page}” expirou",
+    "endedHeading": "Verificação expirada",
+    "endedBody": "Sua verificação de “{page}” em {workspace} terminou em {date}. A página mostra “Verificação expirada” até que alguém a verifique de novo.",
+    "action": "Abrir página",
+    "optOut": "Você recebe estes e-mails porque verificou a página. Você pode desativá-los em Minha conta > Preferências."
   },
   "dateReminder": {
     "subject": "Lembrete: “{page}” em {date}",
@@ -220,6 +235,9 @@
     "assignment": "{actor} atribuiu você a “{property}”",
     "pageShared": "{actor} compartilhou esta página com você",
     "comment": "{actor} comentou em uma conversa da qual você participa",
+    "suggested": "{actor} sugeriu alterações nesta página",
+    "suggestionAccepted": "{actor} aceitou sua alteração sugerida",
+    "suggestionRejected": "{actor} rejeitou sua alteração sugerida",
     "mention": "{actor} mencionou você",
     "reminder": "Lembrete: {date}",
     "accessRequest": "{actor} pediu acesso a esta página",
@@ -235,6 +253,8 @@
     "followUp": "Acompanhamento “{sequence}” pausado: o próximo e-mail precisa de uma olhada",
     "reaction": "{actor} reagiu com {emoji} ao seu comentário",
     "people": "{others, plural, =0 {{name}} one {{name} e mais # pessoa} other {{name} e mais # pessoas}}",
+    "verificationEnds": "Sua verificação desta página termina em {date}",
+    "verificationEnded": "Sua verificação desta página expirou em {date}",
     "someone": "Alguém",
     "joinRequestTitle": "Solicitação para participar",
     "joinRequest": "{actor} pediu para participar",

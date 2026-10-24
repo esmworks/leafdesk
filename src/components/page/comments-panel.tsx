@@ -2,13 +2,21 @@
 
 import { CommentsExtension, type ThreadData } from "@blocknote/core/comments";
 import { Thread, useBlockNoteEditor, useExtension, useExtensionState, useThreads } from "@blocknote/react";
-import { ArrowDownUp, Bell, BellOff, Bookmark, BookmarkX, Check, MoreHorizontal, X } from "lucide-react";
+import { ArrowDownUp, Bell, BellOff, Bookmark, BookmarkX, Check, MoreHorizontal, Undo2, X } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { memo, useCallback, useEffect, useMemo, useRef, useState, type CSSProperties, type FocusEvent } from "react";
-import { markThreadAction, muteThreadAction, mutedThreadsAction, seeThreadsAction, threadStatesAction } from "@/app/actions/comments";
+import {
+  answerSuggestionsAction,
+  markThreadAction,
+  muteThreadAction,
+  mutedThreadsAction,
+  seeThreadsAction,
+  threadStatesAction,
+} from "@/app/actions/comments";
 import { Button, cn, IconButton, MenuItem, Popover, textareaClass } from "@/components/ui";
-import { isPageThread, mergedFromOf, propertyOf, threadOfHash } from "@/lib/comments";
+import { isPageThread, mergedFromOf, propertyOf, suggestionOfThread, threadOfHash } from "@/lib/comments";
 import { PROPERTY_COMMENT_EVENT, takePropertyCommentRequest, type PropertyCommentRequest } from "@/lib/comments-request";
+import { isAiSuggestion, suggestionAuthor, type Decision } from "@/lib/suggestions";
 import { lastActivity, newThreadIds } from "@/lib/thread-activity";
 import { CommentChangeError, propertyNameOf, type ServerThreadStore } from "./comment-store";
 
@@ -18,6 +26,12 @@ const SORTS = ["recent", "page"] as const;
 type Sort = (typeof SORTS)[number];
 
 /**
+ * Who answers suggested edits here: people who may edit accept or reject them, their author
+ * withdraws their own (server/suggested-edits.ts).
+ */
+export type SuggestionAnswers = { userId: string; canAnswer: boolean; offline: boolean };
+
+/**
  * All of the page's discussions beside the editor: its comment threads on text and about the whole
  * page, newest activity first (or in the order of the text they're about), each marked when others
  * wrote in it since the viewer last saw it. Each person can mark threads to come back to later and
@@ -25,7 +39,7 @@ type Sort = (typeof SORTS)[number];
  * property; a property's comment button opens the panel to start one. Rendered inside
  * BlockNoteView, whose editor the threads belong to.
  */
-export function CommentsPanel({ pageId, store, onClose }: { pageId: string; store: ServerThreadStore; onClose: () => void }) {
+export function CommentsPanel({ pageId, store, onClose, answers }: { pageId: string; store: ServerThreadStore; onClose: () => void; answers: SuggestionAnswers }) {
   const t = useTranslations("page.comments");
   const [filter, setFilter] = useState<Filter>("open");
   const [sort, setSort] = useState<Sort>("recent");
@@ -112,7 +126,7 @@ export function CommentsPanel({ pageId, store, onClose }: { pageId: string; stor
             }}
           />
         )}
-        <Threads pageId={pageId} filter={filter} sort={sort} onFilter={setFilter} />
+        <Threads pageId={pageId} filter={filter} sort={sort} onFilter={setFilter} answers={answers} />
         <p className="comments-empty px-1 py-6 text-center text-sm text-fg-faint">{t(`empty.${filter}`)}</p>
       </div>
     </aside>
@@ -125,7 +139,19 @@ export function CommentsPanel({ pageId, store, onClose }: { pageId: string; stor
  * of its text, the page, or that its text was deleted. (BlockNote's own sidebar can't tell a thread
  * about the page from one whose text is gone.)
  */
-function Threads({ pageId, filter, sort, onFilter }: { pageId: string; filter: Filter; sort: Sort; onFilter: (filter: Filter) => void }) {
+function Threads({
+  pageId,
+  filter,
+  sort,
+  onFilter,
+  answers,
+}: {
+  pageId: string;
+  filter: Filter;
+  sort: Sort;
+  onFilter: (filter: Filter) => void;
+  answers: SuggestionAnswers;
+}) {
   const t = useTranslations("page.comments");
   const editor = useBlockNoteEditor();
   const comments = useExtension(CommentsExtension);
@@ -292,6 +318,8 @@ function Threads({ pageId, filter, sort, onFilter }: { pageId: string; filter: F
           marked={marked.has(thread.id)}
           onMark={onMark}
           isNew={fresh.has(thread.id)}
+          pageId={pageId}
+          answers={answers}
         />
       ))}
     </div>
@@ -313,7 +341,11 @@ const SidebarThread = memo(function SidebarThread({
   marked,
   onMark,
   isNew,
+  pageId,
+  answers,
 }: {
+  pageId: string;
+  answers: SuggestionAnswers;
   thread: ThreadData;
   selected: boolean;
   referenceText: string;
@@ -357,6 +389,7 @@ const SidebarThread = memo(function SidebarThread({
         onBlur={onBlur}
         tabIndex={0}
       />
+      <SuggestionBar thread={thread} pageId={pageId} answers={answers} />
       <div className="absolute top-1.5 inset-e-1.5 flex items-center gap-0.5">
         {isNew && (
           <span className="flex h-6 items-center gap-1 px-1 text-xs font-medium text-accent">
@@ -481,5 +514,60 @@ function PropertyComposer({ store, property, onDone }: { store: ServerThreadStor
         </Button>
       </div>
     </form>
+  );
+}
+
+/**
+ * Under the thread of a suggested edit: that it is one (by the AI, when it is), and while it waits,
+ * Accept and Reject for people who may edit, Withdraw for its author. The page changes for everyone
+ * through its document, and the server resolves the thread.
+ */
+function SuggestionBar({ thread, pageId, answers }: { thread: ThreadData; pageId: string; answers: SuggestionAnswers }) {
+  const t = useTranslations("page.comments.suggestion");
+  const [pending, setPending] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const id = suggestionOfThread(thread.metadata);
+  if (!id) return null;
+  const own = suggestionAuthor(id) === answers.userId;
+  const answer = async (decision: Decision) => {
+    setPending(true);
+    setError(null);
+    try {
+      const result = await answerSuggestionsAction(pageId, decision, [id]);
+      if (!result.ok) setError(t(`errors.${result.code}`));
+    } catch {
+      setError(t("errors.failed"));
+    } finally {
+      setPending(false);
+    }
+  };
+  const waiting = !thread.resolved;
+  return (
+    <div className="flex flex-wrap items-center gap-1.5 px-3 pb-2 text-xs">
+      <span className="me-auto text-fg-muted">{isAiSuggestion(id) ? t("byAi") : t("label")}</span>
+      {waiting && answers.canAnswer && (
+        <>
+          <Button size="sm" variant="primary" disabled={pending || answers.offline} onClick={() => void answer("accept")}>
+            <Check className="h-3.5 w-3.5" />
+            {t("accept")}
+          </Button>
+          <Button size="sm" disabled={pending || answers.offline} onClick={() => void answer("reject")}>
+            <X className="h-3.5 w-3.5" />
+            {t("reject")}
+          </Button>
+        </>
+      )}
+      {waiting && !answers.canAnswer && own && (
+        <Button size="sm" disabled={pending || answers.offline} onClick={() => void answer("reject")}>
+          <Undo2 className="h-3.5 w-3.5" />
+          {t("withdraw")}
+        </Button>
+      )}
+      {error && (
+        <p role="alert" className="w-full text-danger">
+          {error}
+        </p>
+      )}
+    </div>
   );
 }

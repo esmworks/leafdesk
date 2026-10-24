@@ -57,6 +57,11 @@
     "action": "פתיחת הדף",
     "optOut": "האימיילים האלה נשלחים אליך כי השתתפת בשרשור התגובות הזה. אפשר להשבית אותם בהחשבון שלי > העדפות."
   },
+  "suggestion": {
+    "subject": "{actor} הציע שינויים ב“{page}”",
+    "heading": "{actor} הציע שינויים ב“{page}”",
+    "body": "ההצעה נמצאת ב“{page}” ב-{workspace}. אפשר לקבל או לדחות אותה מהדף, או להשיב בשרשור שלה."
+  },
   "mention": {
     "subject": "{actor} הזכיר אותך ב־“{page}”",
     "heading": "{actor} הזכיר אותך ב־“{page}”",
@@ -71,6 +76,16 @@
     "body": "ביקשת תזכורת לתאריך {date} ב־“{page}” ב־{workspace}.",
     "action": "פתיחת הדף",
     "optOut": "האימיילים האלה נשלחים אליך כי הגדרת תזכורת. אפשר להשבית אותם בהחשבון שלי > העדפות."
+  },
+  "pageVerification": {
+    "endsSubject": "האימות שלך ל־“{page}” מסתיים ב־{date}",
+    "endsHeading": "האימות מסתיים בקרוב",
+    "endsBody": "אימתת את “{page}” ב־{workspace} עד {date}. אם הוא עדיין נכון, אפשר לאמת אותו שוב מתפריט ⋯ של הדף כדי שיישאר מאומת.",
+    "endedSubject": "פג תוקף האימות שלך ל־“{page}”",
+    "endedHeading": "פג תוקף האימות",
+    "endedBody": "האימות שלך ל־“{page}” ב־{workspace} הסתיים ב־{date}. הדף מציג “פג תוקף האימות” עד שמישהו יאמת אותו שוב.",
+    "action": "פתיחת הדף",
+    "optOut": "האימיילים האלה נשלחים אליך כי אימתת את הדף. אפשר להשבית אותם בהחשבון שלי > העדפות."
   },
   "dateReminder": {
     "subject": "תזכורת: “{page}” ב־{date}",
@@ -220,6 +235,9 @@
     "assignment": "{actor} הקצה אותך ל־“{property}”",
     "pageShared": "{actor} שיתף איתך את הדף הזה",
     "comment": "{actor} הגיב בשרשור שהשתתפת בו",
+    "suggested": "{actor} הציע שינויים בדף הזה",
+    "suggestionAccepted": "{actor} קיבל את הצעת השינוי שלך",
+    "suggestionRejected": "{actor} דחה את הצעת השינוי שלך",
     "mention": "{actor} הזכיר אותך",
     "reminder": "תזכורת: {date}",
     "accessRequest": "{actor} ביקש גישה לדף הזה",
@@ -235,6 +253,8 @@
     "followUp": "רצף המעקב “{sequence}” הושהה: צריך לבדוק את האימייל הבא שלו",
     "reaction": "{actor} הגיב/ה {emoji} לתגובה שלך",
     "people": "{others, plural, =0 {{name}} one {{name} ועוד אדם אחד} two {{name} ועוד שניים} other {{name} ועוד #}}",
+    "verificationEnds": "האימות שלך לדף הזה מסתיים ב־{date}",
+    "verificationEnded": "פג תוקף האימות שלך לדף הזה ב־{date}",
     "someone": "מישהו",
     "joinRequestTitle": "בקשת הצטרפות",
     "joinRequest": "{actor} ביקש להצטרף",

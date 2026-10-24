@@ -86,11 +86,11 @@ export async function AiUsagePanel({ workspaceId, report, month }: { workspaceId
           <p className="text-xs text-fg-muted">{t("howCounted")}</p>
         </div>
 
-        <SettingsGroup title={t("limitHeading")}>
+        <SettingsGroup anchor="aiUsageLimit" title={t("limitHeading")}>
           <AiLimitForm workspaceId={workspaceId} limit={limit.workspace} description={limitDescription} />
         </SettingsGroup>
 
-        <SettingsGroup title={t("monthsHeading")} description={t("monthsDescription")} bare>
+        <SettingsGroup anchor="aiUsageMonths" title={t("monthsHeading")} description={t("monthsDescription")} bare>
           <div className="relative overflow-x-auto rounded-xl border border-border">
             <table className="w-full min-w-[560px] text-sm">
               <thead className="border-b border-border bg-bg-subtle text-xs text-fg-muted">
@@ -175,7 +175,7 @@ export async function AiUsagePanel({ workspaceId, report, month }: { workspaceId
         </MonthDetail>
 
         {shown.total.requests > 0 && (
-          <SettingsGroup title={t("peopleHeading", { month: monthName(shown.month) })} description={t("peopleDescription")} bare>
+          <SettingsGroup anchor="aiUsagePeople" title={t("peopleHeading", { month: monthName(shown.month) })} description={t("peopleDescription")} bare>
             <div className="relative overflow-x-auto rounded-xl border border-border">
               <table className="w-full min-w-[720px] text-sm">
                 <thead className="border-b border-border bg-bg-subtle text-xs text-fg-muted">

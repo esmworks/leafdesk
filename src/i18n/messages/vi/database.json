@@ -29,6 +29,7 @@
     "calendar": "Lịch",
     "gallery": "Thư viện",
     "list": "Danh sách",
+    "feed": "Bảng tin",
     "timeline": "Dòng thời gian",
     "chart": "Biểu đồ",
     "dashboard": "Bảng điều khiển",
@@ -512,6 +513,9 @@
       "hide": "Đã ẩn"
     },
     "pageVisibilityHint": "Với mọi người. Các thuộc tính ẩn vẫn cách một cú nhấp dưới “thuộc tính khác” trên mỗi trang hàng.",
+    "pinToTitle": "Ghim dưới tiêu đề",
+    "unpinFromTitle": "Bỏ ghim khỏi dưới tiêu đề",
+    "pinFull": "Có thể ghim tối đa {max} thuộc tính.",
     "dateDisplay": "Hiển thị dạng",
     "displayDate": "Ngày",
     "displayRelative": "Tương đối",
@@ -537,7 +541,10 @@
     "fewerProperties": "{count, plural, other {Ẩn # thuộc tính}}",
     "propertyMenu": "Tùy chọn cho {name}",
     "commentOnProperty": "Bình luận về {name}",
-    "propertyComments": "{count, plural, other {# bình luận đang mở}} về {name}"
+    "propertyComments": "{count, plural, other {# bình luận đang mở}} về {name}",
+    "pinned": "Thuộc tính đã ghim",
+    "showBeside": "Hiển thị bên cạnh trang",
+    "showAbove": "Hiển thị phía trên trang"
   },
   "rowActivity": {
     "title": "Hoạt động",
@@ -764,6 +771,30 @@
     "new": "Mới",
     "empty": "Không có hàng nào để hiển thị."
   },
+  "feed": {
+    "someone": "Ai đó",
+    "empty": "Chưa có bài đăng nào.",
+    "emptyCanPost": "Chưa có bài đăng nào. Thêm một hàng để viết bài đầu tiên.",
+    "morePosts": "{count, plural, other {Hiển thị thêm # bài đăng}}",
+    "showMore": "Hiển thị thêm",
+    "showLess": "Thu gọn",
+    "bodyCut": "Phần còn lại nằm trên trang của hàng.",
+    "addReaction": "Thêm cảm xúc",
+    "reactedBy": "{names} đã bày tỏ cảm xúc {emoji}",
+    "reactionCount": "{emoji}: {count, plural, other {# cảm xúc}}",
+    "comments": "Bình luận",
+    "allComments": "{count, plural, other {Hiển thị tất cả # bình luận}}",
+    "commentPlaceholder": "Viết bình luận…",
+    "send": "Gửi",
+    "errors": {
+      "failed": "Đã xảy ra lỗi. Hãy thử lại.",
+      "tooLong": "Bình luận đó quá dài.",
+      "notAllowed": "Bạn không thể bình luận ở đây.",
+      "invalidEmoji": "Hãy chọn một biểu tượng cảm xúc duy nhất.",
+      "tooMany": "Bạn đã bày tỏ cảm xúc trên bài đăng này nhiều nhất mà một người có thể.",
+      "inTrash": "Bài đăng trong thùng rác không thể nhận cảm xúc."
+    }
+  },
   "chart": {
     "type": "Loại biểu đồ",
     "types": {
@@ -880,6 +911,7 @@
     "invalidNumberFormat": "Không thể lưu định dạng số này.",
     "invalidDateOptions": "Không thể lưu các cài đặt ngày này.",
     "invalidPageVisibility": "Không thể lưu cài đặt trang hàng này.",
+    "tooManyPinned": "Trang của hàng ghim tối đa {max} thuộc tính.",
     "calendarFeedNotCalendar": "Chỉ có thể đăng ký các chế độ xem lịch.",
     "calendarFeedExportOff": "Chủ sở hữu của không gian làm việc đã tắt tính năng xuất, nên các đăng ký lịch cũng bị tắt.",
     "webhookExportOff": "Chủ sở hữu của không gian làm việc đã tắt tính năng xuất, nên các webhook cũng bị tắt.",

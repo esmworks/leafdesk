@@ -1,32 +1,73 @@
-// Client-safe: CSV files attached to a question of the AI chat: their limits, names and sizes. The
-// box (src/components/ai-chat) reads a file (chat-attachment-table.ts, loaded only then) to show
-// its size and refuse one too large before sending; the server (server/ai-chat.ts) reads the text
-// again with the same limits, keeps the table with the conversation and gives it to the model, cut
-// to fit (attachmentCsv).
+// Client-safe: files attached to the AI chat's questions, their kinds, limits and names. The box
+// (src/components/ai-chat) uploads each file as it is attached (/api/ai/chat/files) and sends the
+// question with their ids; the server (server/ai-chat-files.ts) checks and reads them: images go to
+// the model as images, documents as their text (file-text.ts), CSV files as tables
+// (chat-attachment-table.ts) the chat can read further and make a database of.
 
-/** The largest CSV file a question takes (its text, in characters), its most rows and columns. */
+const MB = 1024 * 1024;
+
+/**
+ * What a question may attach: how many files, and how large each may be; images less, as providers
+ * take a few megabytes per image.
+ */
+export const CHAT_FILE_LIMITS = { perQuestion: 5, bytes: 20 * MB, imageBytes: 5 * MB };
+
+/** The largest CSV file the chat takes (its text, in characters), its most rows and columns. */
 export const CHAT_CSV_MAX_CHARS = 1_000_000;
 export const CHAT_CSV_MAX_ROWS = 1_000;
 export const CHAT_CSV_MAX_COLUMNS = 100;
-/** Files one question may have, and the longest name kept. */
-export const CHAT_MAX_ATTACHMENTS = 3;
+/** The longest file name kept. */
 export const CHAT_ATTACHMENT_NAME = 200;
 
-/** An attached file as a question shows it: its name and size. */
-export type ChatAttachmentView = { name: string; rows: number; columns: number };
+/** Images the chat shows a model (those providers take). */
+export const CHAT_IMAGE_TYPES = ["image/png", "image/jpeg", "image/gif", "image/webp"] as const;
+const DOCUMENT_TYPES = [
+  "application/pdf",
+  "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+  "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+];
+const CSV_TYPES = ["text/csv", "application/csv", "text/comma-separated-values"];
+const TEXT_TYPES = ["text/plain", "text/markdown", "text/x-markdown"];
 
-/** Why a file can't be attached. */
-export type AttachmentProblem = "notCsv" | "tooLarge" | "tooManyRows" | "tooManyColumns" | "empty" | "tooMany";
+/** What the file chooser offers. */
+export const CHAT_FILE_ACCEPT = [...CHAT_IMAGE_TYPES, ".pdf", ".docx", ".xlsx", ".csv", ".md", ".markdown", ".txt"].join(",");
 
-/** Whether a file is a CSV file, by its name or type. */
-export function isCsvFile(file: { name: string; type: string }): boolean {
-  return /\.csv$/i.test(file.name) || /^(text\/csv|application\/csv|text\/comma-separated-values)$/i.test(file.type);
+export type ChatFileKind = "image" | "document" | "csv" | "text";
+
+/**
+ * How the chat reads a file: an image (shown to the model), a document (PDF, Word, Excel, read to
+ * text), a CSV file (a table), plain text (Markdown, text); null for anything else, which can't be
+ * attached.
+ */
+export function chatFileKind(contentType: string, name: string): ChatFileKind | null {
+  const type = contentType.split(";")[0].trim().toLowerCase();
+  const ext = /\.([a-z0-9]+)$/i.exec(name.trim())?.[1]?.toLowerCase();
+  if ((CHAT_IMAGE_TYPES as readonly string[]).includes(type)) return "image";
+  if (DOCUMENT_TYPES.includes(type)) return "document";
+  if (CSV_TYPES.includes(type) || (ext === "csv" && (type === "text/plain" || type === "application/vnd.ms-excel"))) return "csv";
+  if (TEXT_TYPES.includes(type)) return "text";
+  if (ext === "docx" || ext === "xlsx" || ext === "pdf") return type === "application/octet-stream" || type === "application/zip" ? "document" : null;
+  if (ext === "csv") return "csv";
+  if (ext === "md" || ext === "markdown" || ext === "txt") return "text";
+  return null;
 }
+
+/** Where the person who attached a chat file opens it (no one else can). */
+export const chatFileUrl = (id: string) => `/api/ai/chat/files/${id}`;
+
+/**
+ * A file attached to a question, as the chat shows it: its name (unique in the conversation), type
+ * and size, a CSV file's rows and columns; `url` opens it.
+ */
+export type ChatAttachmentView = { id: string; name: string; contentType: string; size: number; rows?: number; columns?: number; url: string };
+
+/** Why a CSV file can't be attached. */
+export type AttachmentProblem = "tooLarge" | "tooManyRows" | "tooManyColumns" | "empty";
 
 /** A file's name as kept: one line, at most CHAT_ATTACHMENT_NAME characters. */
 export function cleanAttachmentName(name: string): string {
   const flat = name.replace(/[\p{Cc}\s]+/gu, " ").trim();
-  return flat.slice(0, CHAT_ATTACHMENT_NAME) || "data.csv";
+  return flat.slice(0, CHAT_ATTACHMENT_NAME) || "file";
 }
 
 /** `name`, or "name (2).csv" and so on when one of `taken` has it (compared without case). */

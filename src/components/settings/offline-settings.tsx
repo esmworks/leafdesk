@@ -72,7 +72,7 @@ export function OfflineSettings({ userId }: { userId: string }) {
   if (!mounted) return null;
   return (
     <div className="space-y-10">
-      <SettingsGroup title={t("deviceHeading")}>
+      <SettingsGroup anchor="offlineDevice" title={t("deviceHeading")}>
         <SettingsRow
           title={t("favorites")}
           description={t("favoritesHint")}
@@ -104,7 +104,7 @@ export function OfflineSettings({ userId }: { userId: string }) {
         />
       </SettingsGroup>
 
-      <SettingsGroup title={t("pagesHeading")} description={t("pagesDescription")}>
+      <SettingsGroup anchor="offlinePages" title={t("pagesHeading")} description={t("pagesDescription")}>
         {summaries.length === 0 && <SettingsRow title={t("none")} />}
         {summaries.map(({ page, bytes, syncedAt, unsent: pageUnsent }) => {
           const busy = downloading.has(page.id) || page.children.some((c) => downloading.has(c.id));

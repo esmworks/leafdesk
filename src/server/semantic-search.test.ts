@@ -10,6 +10,7 @@ const accounts = vi.hoisted(() => ({ lookups: 0 }));
 
 vi.mock("@/db", () => ({ db: {} }));
 vi.mock("@/server/access", () => ({ pageVisibleTo: vi.fn(), workspacesHeldBack: vi.fn() }));
+vi.mock("@/server/verification", () => ({ activeVerification: vi.fn() }));
 vi.mock("@/server/semantic-index", () => ({ maybeSweep: vi.fn() }));
 vi.mock("@/server/workspaces", () => ({ listWorkspaces: vi.fn(), workspaceSettings: vi.fn() }));
 vi.mock("@/server/ai/account-target", () => ({

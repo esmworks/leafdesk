@@ -12,6 +12,7 @@
     "groups": "グループ",
     "agents": "エージェント",
     "connections": "接続",
+    "webhooks": "Webhook",
     "storage": "ストレージ",
     "analytics": "分析",
     "aiUsage": "AI の使用量",
@@ -21,6 +22,66 @@
     "site": "サイト",
     "snippets": "スニペット",
     "pdf": "PDF テンプレート"
+  },
+  "search": {
+    "label": "設定を検索",
+    "placeholder": "設定を検索",
+    "noResults": "一致する設定はありません。",
+    "labels": {
+      "aiUsagePeople": "ユーザー別の使用量"
+    },
+    "keywords": {
+      "profile": "名前 写真 アバター 画像",
+      "email": "アドレス 変更 確認 メール",
+      "deleteAccount": "削除 閉鎖 アカウント",
+      "password": "変更 リセット サインイン パスワード",
+      "twoFactor": "2fa mfa 認証アプリ コード",
+      "passkeys": "webauthn セキュリティキー 指紋 顔",
+      "sessions": "デバイス サインイン中 サインアウト",
+      "language": "言語 翻訳 ロケール",
+      "theme": "ダークモード ライトモード 色",
+      "contrast": "アクセシビリティ ハイコントラスト",
+      "notifications": "プッシュ メール アラート 通知",
+      "watchedPages": "フォロー 購読 ウォッチ",
+      "offlineDevice": "オフライン ダウンロード キャッシュ 容量",
+      "offlinePages": "オフライン ダウンロード インターネットなし",
+      "mailboxes": "メール 受信箱 imap smtp",
+      "calendars": "ical フィード 購読 カレンダー",
+      "storageAccounts": "drive s3 ファイル クラウド",
+      "connectedApps": "oauth クライアント アクセス 取り消し",
+      "aiAccounts": "api キー 自分のキー プロバイダー",
+      "telegram": "ボット チャット メッセージ",
+      "mcp": "アシスタント model context protocol サーバー",
+      "apiTokens": "rest api トークン キー 開発者",
+      "about": "バージョン ライセンス アップデート",
+      "workspaceName": "名前 名前変更 アイコン",
+      "ai": "人工知能 チャット モデル プロバイダー メモリ",
+      "workspaceMail": "メール 行 送信",
+      "export": "バックアップ ダウンロード zip markdown",
+      "members": "メンバー 招待 ユーザー ロール 削除",
+      "agents": "ai アシスタント 自動化 ボット",
+      "snippets": "テキスト 短縮 スニペット",
+      "letterheads": "pdf ヘッダー フッター ロゴ 印刷",
+      "connections": "連携 mcp サービス ツール",
+      "site": "ウェブサイト 公開 ドメイン",
+      "requireTwoFactor": "2fa mfa 必須 ポリシー",
+      "loginMethod": "sso パスワード サインイン ポリシー",
+      "allowedNetworks": "ip 許可リスト アドレス オフィス vpn",
+      "membership": "招待 参加 リクエスト ドメイン",
+      "sso": "saml oidc ID プロバイダー",
+      "scim": "プロビジョニング ディレクトリ 同期 ユーザー",
+      "exportPolicy": "ダウンロード 印刷 pdf",
+      "connectedAppsPolicy": "mcp rest api トークン アクセス",
+      "publishing": "公開 ウェブ 共有 公開リンク",
+      "retention": "ゴミ箱 履歴 削除 保持 日数",
+      "legalHolds": "訴訟 保全 eディスカバリー 保持",
+      "storage": "ファイル s3 drive バケット",
+      "analyticsPeople": "アクティビティ 編集 統計",
+      "aiUsageLimit": "予算 コスト 支出 上限",
+      "aiUsagePeople": "ユーザーごと メンバー コスト トークン",
+      "health": "リンク切れ 孤立 重複 空のページ",
+      "audit": "ログ 履歴 イベント 変更者"
+    }
   },
   "workspace": {
     "heading": "ワークスペース",
@@ -957,6 +1018,8 @@
     "moveToTrash": "ゴミ箱に移動",
     "confirmTrash": "「{title}」をゴミ箱に移動しますか？",
     "lastEdited": "最終編集：{when}",
+    "verificationEndedBy": "{name}が検証、{when}に終了",
+    "verificationEnded": "検証は{when}に終了",
     "alike": "類似度{similarity, number, percent}",
     "inProperty": "{database}の{property}",
     "removeFromRelation": "削除",
@@ -980,6 +1043,11 @@
       "title": "更新されていないページ",
       "description": "過去{months}か月間誰も編集していないページです。最も長く更新されていないものから表示します。内容が古くなっている可能性があります。",
       "none": "すべてのページが最近編集されています。"
+    },
+    "expiredVerifications": {
+      "title": "期限切れの検証",
+      "description": "検証の期限日が過ぎたページです。内容を確認して再検証するか、検証を解除してください。",
+      "none": "期限切れの検証はありません。"
     },
     "duplicates": {
       "title": "重複の可能性",
@@ -1387,6 +1455,50 @@
       "memberView": "{count, plural, =0 {オフ：どのネットワークからでもワークスペースを開けます。} other {オン：ワークスペースは # 件の承認済みネットワークからのみ開けます。}}"
     }
   },
+  "legalHolds": {
+    "title": "リーガルホールド",
+    "description": "ホールドが有効な間、対象者がこのワークスペースで作成・編集したものは完全には削除できません。ページや行はゴミ箱に移せますが、履歴・コメント・ファイルとともにそこに残ります。ワークスペースと対象者のアカウントも削除できません。",
+    "holds": "ホールド",
+    "holdsDescription": "ホールドの設定と解除は監査ログに記録されます。",
+    "empty": "ホールドはありません。",
+    "new": "新しいホールド",
+    "setBy": "{name} が {date, date, medium} に設定",
+    "setOn": "{date, date, medium} に設定",
+    "people": "{count, plural, other {# 人}}",
+    "left": "退出済み",
+    "guest": "ゲスト",
+    "release": "解除",
+    "confirmRelease": "{name} を解除",
+    "form": {
+      "title": "新しいリーガルホールド",
+      "description": "対象者を選んでください: メンバー、ゲスト、またはここで何かを作成・編集した退出済みの人。",
+      "name": "名前",
+      "namePlaceholder": "案件名",
+      "reason": "理由",
+      "reasonPlaceholder": "任意: 理由と依頼者",
+      "people": "対象者 ({count})",
+      "search": "人を検索",
+      "loading": "読み込み中…",
+      "nobody": "該当する人はいません。",
+      "submit": "ホールドを設定"
+    },
+    "errors": {
+      "pageHeld": "リーガルホールドがこのページ (またはその下のページ) を保持しています。ホールドが有効な間は完全に削除できず、ゴミ箱に残ります。",
+      "templateHeld": "リーガルホールドがこのテンプレートを保持しています。ホールドが有効な間は削除できません。",
+      "propertyHeld": "リーガルホールドがこのプロパティの値を保持しています。ホールドが有効な間は完全に削除できません。",
+      "commentHeld": "リーガルホールドがこのコメントを保持しています。ホールドが有効な間は削除できません。",
+      "letterheadHeld": "リーガルホールドがこのレターヘッドを保持しています。ホールドが有効な間は削除できません。",
+      "workspaceHeld": "このワークスペースにはリーガルホールドがあります。ワークスペースを削除する前に解除してください (設定 > セキュリティ)。",
+      "nameRequired": "ホールドに名前を付けてください。",
+      "nameTooLong": "名前は200文字以内にしてください。",
+      "reasonTooLong": "理由は2,000文字以内にしてください。",
+      "noPeople": "ホールドの対象者を選んでください。",
+      "tooManyPeople": "1つのホールドの対象者は200人までです。",
+      "unknownPerson": "選んだ人がもうこのワークスペースにいません。",
+      "notFound": "そのホールドはすでに解除されています。",
+      "ownersOnly": "リーガルホールドを管理できるのはオーナーだけです。"
+    }
+  },
   "audit": {
     "description": "このワークスペースで誰が何を変更したかの記録です。メンバーとロール、招待、共有、チームスペースとグループ、設定、セキュリティ、ページの作成・移動・ゴミ箱への移動・削除、公開、接続済みアプリ、エクスポートが含まれます。オーナーだけが閲覧できます。",
     "filters": "監査ログをフィルター",
@@ -1501,6 +1613,7 @@
       "loginMethod": "メンバーのログイン方法",
       "ai": "AI機能",
       "aiMemory": "AIメモリー",
+      "aiWebSearch": "AI チャットのウェブ検索",
       "aiMonthlyLimitUsd": "AI の月間コスト上限",
       "trashRetentionDays": "ゴミ箱のページを削除するまでの期間",
       "export": "エクスポートを許可",
@@ -1568,6 +1681,8 @@
         "permission_removed": "{target}の共有から{subject}を削除しました",
         "row_access_changed": "{target}の行がアクセス権を与えるユーザーを変更しました",
         "deleted": "{target}を完全に削除しました",
+        "verified": "{target}を検証しました",
+        "unverified": "{target}の検証を解除しました",
         "published": "{target}をWebに公開しました",
         "unpublished": "{target}の公開を停止しました",
         "publication_revoked": "{target}をWebから取り下げました（公開者：{subject}）",
@@ -1622,6 +1737,10 @@
         "token_created": "SCIMトークン{target}を作成しました",
         "token_revoked": "SCIMトークン{target}を無効にしました"
       },
+      "legal_hold": {
+        "set": "{names} にリーガルホールド {target} を設定しました",
+        "released": "{names} のリーガルホールド {target} を解除しました"
+      },
       "site": {
         "saved": "{slug}のサイトを保存しました",
         "removed": "{slug}のサイトを取り下げました"
@@ -1639,6 +1758,11 @@
         "created": "{target}にオートメーション「{name}」を作成しました",
         "updated": "{change, select, on {{target}のオートメーション「{name}」をオンにしました} off {{target}のオートメーション「{name}」をオフにしました} other {{target}のオートメーション「{name}」を変更しました}}",
         "deleted": "{target}のオートメーション「{name}」を削除しました"
+      },
+      "webhook": {
+        "created": "Webhook「{target}」を追加しました",
+        "updated": "{change, select, on {Webhook「{target}」をオンにしました} off {Webhook「{target}」をオフにしました} other {Webhook「{target}」を変更しました}}",
+        "deleted": "Webhook「{target}」を削除しました"
       },
       "export": {
         "workspace": "ワークスペースをエクスポートしました（{count}ページ）",
@@ -1771,7 +1895,10 @@
     "followUpChannel": "フォローアップ：{channel}",
     "reactionTitle": "リアクション",
     "reactionDescription": "あなたのコメントに誰かがリアクションしたとき。同じコメントへのリアクションは、開くまでまとめて表示されます。",
-    "reactionChannel": "リアクション: {channel}"
+    "reactionChannel": "リアクション: {channel}",
+    "verificationTitle": "検証したページ",
+    "verificationDescription": "検証したページの検証期限が近づいたとき（数日前）と、期限が切れたときにお知らせします。",
+    "verificationChannel": "検証したページ：{channel}"
   },
   "site": {
     "description": "このワークスペースの公開ページに、わかりやすい1つのアドレス、ホームページ、ページ間のナビゲーションを用意します。",
@@ -2009,6 +2136,102 @@
       "redo": "メモを付けて差し戻す…",
       "notWhole": "この呼び出しは、ここに表示されているより長いか、ここではマスクされている値を含んでいます。承認する前に、実行を開いて送信される内容をすべて確認してください。",
       "openRun": "実行を開いて承認"
+    }
+  },
+  "webhooks": {
+    "description": "このワークスペースのページで起きたことを、その都度別のサービスに送信します。署名付きの POST リクエストを https アドレスに送り、対象はワークスペース全体、1つのチームスペース、または1つのページとその配下のページから選べます。各リクエストは最後に Webhook を保存した人として、その人が開ける範囲で送信されます。データベースの行とテンプレートは送信されません。",
+    "exportOff": "「設定 › セキュリティ」でエクスポートがオフになっているため、再びオンにするまで Webhook は何も送信しません。",
+    "count": "{count, plural, =0 {Webhook はまだありません。} other {# 件の Webhook}}",
+    "add": "Webhook を追加",
+    "empty": "Webhook を追加すると、ページのイベントを自分のサービスに送信できます。",
+    "allEvents": "すべてのイベント",
+    "scopeLabel": {
+      "workspace": "ワークスペースのすべてのページ",
+      "teamspace": "{name}のページ",
+      "page": "{title}とその配下のページ"
+    },
+    "events": {
+      "pageCreated": "ページの作成",
+      "pageUpdated": "ページの編集",
+      "pageMoved": "ページの移動",
+      "pageTrashed": "ページをゴミ箱に移動",
+      "pageRestored": "ページをゴミ箱から復元",
+      "pageDeleted": "ページの完全削除",
+      "commentCreated": "コメントの追加",
+      "ping": "テスト"
+    },
+    "sendsAs": "{name}として、その人が開ける範囲で送信します。",
+    "paused": "一時停止中：{name}はオーナーではなくなりました。保存すると、あなたとして送信されます。",
+    "pausedBadge": "一時停止中",
+    "offBadge": "オフ",
+    "toggle": "{name}を送信する",
+    "test": "テストを送信",
+    "testDelivered": "テストはアドレスに届きました（応答：{status}）。",
+    "testFailed": "テストを送信できませんでした：{reason}。",
+    "edit": "編集",
+    "delete": "削除",
+    "deleteNote": "すぐに停止し、配信ログも削除されます。",
+    "working": "処理中…",
+    "secret": {
+      "show": "署名シークレット",
+      "rotate": "新しいシークレット",
+      "rotateNote": "現在のシークレットはすぐに署名に使われなくなります。シークレットで確認しているサービス側も更新してください。",
+      "title": "「{name}」の署名シークレット",
+      "label": "署名シークレット",
+      "note": "これを使って各リクエストの X-Leafdesk-Signature ヘッダーを確認してください。形式は t=TIME,v1=HMAC で、HMAC は TIME、ドット、本文をつないだものの16進数の HMAC-SHA256 です。シークレットは外部に漏らさないでください。"
+    },
+    "log": {
+      "title": "{count, plural, =0 {最近の配信} other {最近の配信（#）}}",
+      "empty": "過去30日間に送信されたものはありません。",
+      "attempts": "{count, plural, other {#回試行}}",
+      "next": "次回の試行：{when}"
+    },
+    "status": {
+      "pending": "待機中",
+      "delivered": "配信済み",
+      "failed": "失敗",
+      "skipped": "未送信"
+    },
+    "codes": {
+      "noAccess": "送信者として設定された人がページを開けません",
+      "notOwner": "送信者として設定された人がオーナーではなくなりました",
+      "exportOff": "エクスポートがオフです",
+      "disabled": "Webhook がオフです",
+      "invalidUrl": "アドレスが無効です",
+      "blocked": "アドレスがプライベートネットワーク上にあります",
+      "unreachable": "アドレスに接続できませんでした",
+      "timeout": "10秒以内に応答がありませんでした",
+      "redirect": "アドレスがリダイレクトで応答しました",
+      "http": "アドレスが {status} で応答しました"
+    },
+    "form": {
+      "title": "Webhook を追加",
+      "editTitle": "Webhook を変更",
+      "name": "名前",
+      "url": "アドレス",
+      "urlHint": "https アドレスを指定します。リクエストには署名が付き、リダイレクトはたどりません。",
+      "events": "イベント",
+      "scope": "ページ",
+      "scopes": {
+        "workspace": "ワークスペース全体",
+        "teamspace": "1つのチームスペース",
+        "page": "1つのページとその配下のページ"
+      },
+      "teamspace": "チームスペースを選択",
+      "pickPage": "ページを検索",
+      "noPages": "選択できるページがありません。",
+      "otherPage": "変更",
+      "save": "保存",
+      "create": "Webhook を追加"
+    },
+    "errors": {
+      "invalidName": "Webhook の名前を100文字以内で入力してください。",
+      "invalidUrl": "ユーザー名やパスワードを含まない有効な https アドレスを入力してください。",
+      "httpsOnly": "Webhook の送信先は https アドレスのみです。",
+      "noEvents": "イベントを1つ以上選択してください。",
+      "invalidScope": "このワークスペースのチームスペースまたはページを選択してください。",
+      "tooMany": "1つのワークスペースに設定できる Webhook は25件までです。",
+      "ownersOnly": "Webhook を管理できるのはワークスペースのオーナーだけです。"
     }
   },
   "email": {

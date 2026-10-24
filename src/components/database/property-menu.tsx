@@ -48,6 +48,7 @@ import type { DateOptionsInput } from "@/lib/date-options";
 import type { NumberDisplay } from "@/lib/number-display";
 import { takesNumberFormat, type NumberFormat } from "@/lib/number-format";
 import { PAGE_VISIBILITIES, pageVisibilityOf, type PageVisibility } from "@/lib/page-visibility";
+import { isPinned, MAX_PINNED } from "@/lib/row-layout";
 import { AutofillEditor } from "./ai-autofill";
 import { DateOptionsEditor } from "./date-options-menu";
 import { FormulaEditor } from "./formula-editor";
@@ -235,6 +236,9 @@ export type PropertyMenuActions = {
   updateAllAutofill?: () => void;
   /** Saves whether the property shows on row pages: always, only with a value, or never. */
   setPageVisibility?: (visibility: PageVisibility) => void;
+  /** Full access: pins the property under its rows' titles or unpins it (lib/row-layout); `pinFull` while no more fit. */
+  setPinned?: (pinned: boolean) => void;
+  pinFull?: boolean;
   /** Full access to the database: opens the property's access settings. */
   openAccess?: () => void;
   remove?: () => void;
@@ -610,6 +614,17 @@ export function PropertyMenu({
         onClick={() => setPage("page-visibility")}
       >
         {t("rowPage")}
+      </MenuItem>
+    ),
+    prop && actions.setPinned && (
+      <MenuItem
+        key="pin"
+        icon={icon(isPinned(prop) ? PinOff : Pin)}
+        disabled={!isPinned(prop) && actions.pinFull}
+        title={!isPinned(prop) && actions.pinFull ? t("pinFull", { max: MAX_PINNED }) : undefined}
+        onClick={run(() => actions.setPinned?.(!isPinned(prop)))}
+      >
+        {t(isPinned(prop) ? "unpinFromTitle" : "pinToTitle")}
       </MenuItem>
     ),
     prop && actions.openAccess && (

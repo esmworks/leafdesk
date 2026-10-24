@@ -2,8 +2,8 @@
  * End-to-end check of date reminders, snoozed notifications and calendar feeds against the
  * database: who a date property's reminder tells and when (assigned people, else whoever added the
  * row; not done rows, other days, people without access, or twice), snoozing an inbox item and its
- * coming back, and a calendar view's secret address (its rows as events, gone with export turned
- * off, replaced or turned off). Creates its own users and workspace and deletes them afterwards.
+ * coming back, marking it read and unread again, and a calendar view's secret address (its rows as
+ * events, gone with export turned off, replaced or turned off). Creates its own users and workspace and deletes them afterwards.
  *
  *   pnpm tsx scripts/reminders-e2e.ts
  *
@@ -26,7 +26,7 @@ const { createCollab } = await import("@/server/collab/service");
 const { addProperty, addView, updateProperty } = await import("@/server/databases");
 const { createPage } = await import("@/server/pages");
 const { deliverDateReminders, LATE_MS } = await import("@/server/date-reminders");
-const { deliverSnoozed, listInbox, snoozeNotification } = await import("@/server/notifications");
+const { deliverSnoozed, listInbox, markRead, markUnread, snoozeNotification } = await import("@/server/notifications");
 const { createCalendarFeed, deleteCalendarFeed, getCalendarFeed, readCalendarFeed } = await import("@/server/calendar-feeds");
 const { updateWorkspaceSettings } = await import("@/server/workspaces");
 
@@ -143,6 +143,15 @@ try {
   check((await inboxIds()).includes(reminder), "then comes back");
   const back = (await listInbox(ids.member, workspaceId)).find((n) => n.id === reminder);
   check(back && !back.read && new Date(back.createdAt).getTime() === hour.getTime(), "…unread, dated when it came back", back);
+
+  // Read and unread again (a swipe in the inbox on a phone).
+  const isRead = async () => (await listInbox(ids.member, workspaceId)).find((n) => n.id === reminder)?.read;
+  await markRead(ids.member, workspaceId, [reminder]);
+  check((await isRead()) === true, "the member reads it");
+  await markUnread(ids.owner, workspaceId, [reminder]);
+  check((await isRead()) === true, "someone else can't mark it unread");
+  await markUnread(ids.member, workspaceId, [reminder]);
+  check((await isRead()) === false, "the member marks it unread again");
 
   // Calendar feeds.
   const calendar = await addView(ids.owner, tasks.id, { name: "Calendar", type: "calendar" });

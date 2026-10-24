@@ -4,9 +4,10 @@
  * scripted per question: list_comments, page_history and page_version read as the person (a page
  * they can't open stays out); add_comment, create_database, create_database_from_csv and
  * create_form ask first and are made as the person once approved, refused where the person may
- * only read; a CSV file attached to a question goes to the model with the question, stays with the
- * conversation for the questions after it, is read further with read_attachment and becomes a
- * database with its rows; files too large, too long or not CSV are refused before anything is sent.
+ * only read; a CSV file attached to a question (uploaded as the chat box does, ai-chat-files.ts)
+ * goes to the model with the question, stays with the conversation for the questions after it, is
+ * read further with read_attachment and becomes a database with its rows; CSV files too long or
+ * empty are refused when uploaded, too many files before anything is sent.
  * Creates its own users and workspace and deletes them afterwards.
  *
  *   pnpm tsx scripts/ai-chat-tools-e2e.ts
@@ -22,7 +23,8 @@ try {
 // Imported after .env is loaded: the database client reads DATABASE_URL when it is created.
 const { and, eq, inArray, isNull } = await import("drizzle-orm");
 const { db } = await import("@/db");
-const { databaseProperty, databaseView, formPublication, page, teamspace, user, workspace, workspaceMember } = await import("@/db/schema");
+const { databaseProperty, databaseView, file, formPublication, page, teamspace, user, workspace, workspaceMember } = await import("@/db/schema");
+const { deleteQueued, fileObject, fileObjectColumns } = await import("@/server/files");
 const { registerCollab } = await import("@/server/collab/bridge");
 const { createCollab } = await import("@/server/collab/service");
 const { createPage } = await import("@/server/pages");
@@ -36,6 +38,8 @@ type FakeChatRequest = import("@/server/ai/fake-openai").FakeChatRequest;
 type FakeReply = import("@/server/ai/fake-openai").FakeReply;
 const { getConversation, startChat } = await import("@/server/ai-chat");
 const { decideChange } = await import("@/server/ai-chat-approvals");
+const { ChatFileError, uploadChatFile } = await import("@/server/ai-chat-files");
+const { Readable } = await import("node:stream");
 type ChatEvent = import("@/lib/ai-chat").ChatEvent;
 type ChatInput = import("@/server/ai-chat").ChatInput;
 type ChatActionView = import("@/lib/ai-chat").ChatActionView;
@@ -336,10 +340,19 @@ try {
   check(lastResults()[0]?.startsWith("The change is not valid:"), "a condition about a later question is refused", lastResults());
 
   // ── CSV files ─────────────────────────────────────────────────────────────────────────────
+  /** Uploads a file as the chat box does; its id, to send with a question. */
+  const attach = async (name: string, text: string) =>
+    (await uploadChatFile(alice, workspaceId, { name, contentType: "text/csv", body: Readable.from([Buffer.from(text)]), declaredSize: Buffer.byteLength(text) })).id;
+  /** Why an upload is refused (ChatFileError's problem). */
+  const uploadRefusal = (name: string, text: string) =>
+    attach(name, text).then(
+      () => null,
+      (error) => (error instanceof ChatFileError ? error.problem : String(error)),
+    );
   const csv = ["Customer,Amount,Due,Paid", ...Array.from({ length: 40 }, (_, i) => `Customer ${i + 1},${(i + 1) * 100},2026-11-${String((i % 28) + 1).padStart(2, "0")},${i % 2 ? "yes" : "no"}`)].join("\n");
   fake.setChat(() => ({ text: "There are 40 invoices." }));
   fake.chats.length = 0;
-  const attached = await ask(alice, { workspaceId, message: "How many invoices are there?", attachments: [{ name: "invoices.csv", text: csv }] });
+  const attached = await ask(alice, { workspaceId, message: "How many invoices are there?", attachments: [await attach("invoices.csv", csv)] });
   const firstAsk = everything(fake.chats[0]);
   check(attached.done && /<attachment name="invoices.csv" rows="40" columns="4"[^>]*>\nCustomer,Amount,Due,Paid\nCustomer 1,100,/.test(firstAsk), "a CSV file goes to the model with the question, as a tagged table", firstAsk.slice(0, 2000));
   check(toolNames(fake.chats[0]).includes("read_attachment") && toolNames(fake.chats[0]).includes("create_database_from_csv"), "…with the file tools offered", toolNames(fake.chats[0]));
@@ -382,13 +395,13 @@ try {
   check(lastResults()[0]?.includes('no attached file has that name. The files: "invoices.csv"'), "a file the conversation doesn't have is refused, naming the ones it has", lastResults());
 
   fake.setChat(() => ({ text: "Fine." }));
-  const again = await ask(alice, { workspaceId, conversationId: attached.conversationId, message: "And this one?", attachments: [{ name: "invoices.csv", text: "a,b\n1,2" }] });
+  const again = await ask(alice, { workspaceId, conversationId: attached.conversationId, message: "And this one?", attachments: [await attach("invoices.csv", "a,b\n1,2")] });
   const renamed = await getConversation(alice, workspaceId, again.conversationId!);
   check(renamed.messages.at(-2)?.attachments?.[0]?.name === "invoices (2).csv", "a second file with the same name gets its own name", renamed.messages.at(-2));
 
   fake.setChat(() => ({ text: "It lists two products." }));
   fake.chats.length = 0;
-  const fileOnly = await ask(alice, { workspaceId, message: "", attachments: [{ name: "products.csv", text: "Product,Price\nLamp,40\nDesk,250" }] });
+  const fileOnly = await ask(alice, { workspaceId, message: "", attachments: [await attach("products.csv", "Product,Price\nLamp,40\nDesk,250")] });
   const fileOnlyKept = await getConversation(alice, workspaceId, fileOnly.conversationId!);
   check(
     fileOnly.done && everything(fake.chats[0]).includes('<attachment name="products.csv"') && fileOnlyKept.messages[0].attachments?.[0]?.name === "products.csv" && fileOnlyKept.title.includes("products.csv"),
@@ -397,10 +410,10 @@ try {
   );
 
   const tooMany = ["a", ...Array.from({ length: 1_001 }, (_, i) => String(i))].join("\n");
-  check((await refusal(() => startChat(alice, { workspaceId, message: "Read it", attachments: [{ name: "big.csv", text: tooMany }] }))) === "tooLarge", "a file of more than 1,000 rows is refused before anything is sent");
-  check((await refusal(() => startChat(alice, { workspaceId, message: "Read it", attachments: [{ name: "empty.csv", text: "" }] }))) === "invalid", "…an empty one too");
-  const four = Array.from({ length: 4 }, (_, i) => ({ name: `f${i}.csv`, text: "a\n1" }));
-  check((await refusal(() => startChat(alice, { workspaceId, message: "Read them", attachments: four }))) === "tooLarge", "…and more than three files at once");
+  check((await uploadRefusal("big.csv", tooMany)) === "tooManyRows", "a file of more than 1,000 rows is refused when uploaded");
+  check((await uploadRefusal("empty.csv", "")) === "empty", "…an empty one too");
+  const six = await Promise.all(Array.from({ length: 6 }, (_, i) => attach(`f${i}.csv`, "a\n1")));
+  check((await refusal(() => startChat(alice, { workspaceId, message: "Read them", attachments: six }))) === "invalid", "…and more than five files at once before anything is sent");
 
   fake.setChat(caller([{ name: "read_attachment", arguments: {} }]));
   fake.chats.length = 0;
@@ -410,6 +423,9 @@ try {
   console.log(`\n${passed} checks passed`);
 } finally {
   resetAi();
+  // The attached files' rows go with the workspace; their stored objects are deleted here.
+  const stored = await db.delete(file).where(inArray(file.workspaceId, [workspaceId])).returning(fileObjectColumns);
+  await deleteQueued(stored.map(fileObject)).catch(() => 0);
   await db.delete(workspace).where(inArray(workspace.id, [workspaceId]));
   await db.delete(user).where(inArray(user.id, userIds));
   await fake.close();

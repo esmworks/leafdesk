@@ -16,6 +16,7 @@ export {
   mentionEmail,
   pageUpdateDigestEmail,
   pageUpdateEmail,
+  pageVerificationEmail,
   passwordChangedEmail,
   reminderEmail,
   dateReminderEmail,

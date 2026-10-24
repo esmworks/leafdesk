@@ -154,6 +154,8 @@ services:
       AI_PROVIDER: ${AI_PROVIDER:-}
       AI_MODEL: ${AI_MODEL:-}
       AI_FAST_MODEL: ${AI_FAST_MODEL:-}
+      AI_CHAT_MODELS: ${AI_CHAT_MODELS:-}
+      AI_IMAGE_INPUT: ${AI_IMAGE_INPUT:-}
       AI_API_KEY: ${AI_API_KEY:-}
       AI_BASE_URL: ${AI_BASE_URL:-}
       ANTHROPIC_API_KEY: ${ANTHROPIC_API_KEY:-}
@@ -185,6 +187,10 @@ services:
       OWN_AI_KEYS_ENABLED: ${OWN_AI_KEYS_ENABLED:-}
       AI_ONLY_OWN_KEYS: ${AI_ONLY_OWN_KEYS:-}
       AI_ALLOWED_HOSTS: ${AI_ALLOWED_HOSTS:-}
+      # Web search for agents and the AI chat: off unless WEB_SEARCH_URL or a provider's key is set (see .env.example).
+      WEB_SEARCH_PROVIDER: ${WEB_SEARCH_PROVIDER:-}
+      WEB_SEARCH_URL: ${WEB_SEARCH_URL:-}
+      WEB_SEARCH_API_KEY: ${WEB_SEARCH_API_KEY:-}
       # The AI chat from Telegram: off unless TELEGRAM_BOT_TOKEN is set (see the README).
       TELEGRAM_BOT_TOKEN: ${TELEGRAM_BOT_TOKEN:-}
       TELEGRAM_API_URL: ${TELEGRAM_API_URL:-}

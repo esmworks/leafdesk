@@ -16,6 +16,14 @@
     "createdBy": "Créée par {name}",
     "someone": "Quelqu’un",
     "comments": "Commentaires",
+    "suggesting": {
+      "editing": "Modification",
+      "suggesting": "Suggestion",
+      "label": "Mode : {mode}",
+      "editingHint": "Modifier la page directement",
+      "suggestingHint": "Vos changements apparaissent comme des suggestions que d’autres peuvent accepter ou refuser",
+      "forcedHint": "Vous pouvez commenter cette page : vos changements sont donc des suggestions que ses éditeurs peuvent accepter ou refuser"
+    },
     "share": "Partager",
     "accessRequests": "{count, plural, one {# demande d’accès} other {# demandes d’accès}}",
     "addFavorite": "Ajouter aux favoris",
@@ -51,6 +59,9 @@
     "exportPdf": "Exporter en PDF",
     "printView": "Imprimer",
     "exportPreparing": "Préparation de l’exportation…",
+    "acceptAllSuggestions": "Accepter toutes les suggestions",
+    "rejectAllSuggestions": "Refuser toutes les suggestions",
+    "rejectAllConfirm": "Refuser toutes les modifications suggérées sur cette page ?",
     "versionHistory": "Historique des versions",
     "lastEdited": "Dernière modification par {name}",
     "wordCount": "{words, plural, one {# mot} other {# mots}}, {characters, plural, one {# caractère} other {# caractères}}",
@@ -95,6 +106,20 @@
     "muted": "Réponses masquées",
     "mutedHint": "Vous n’êtes pas averti des réponses dans ce fil tant que vous n’y répondez pas ou que personne ne vous y mentionne.",
     "mergedFrom": "De « {title} »",
+    "suggestion": {
+      "label": "Modification suggérée",
+      "byAi": "Modification suggérée par l’IA",
+      "accept": "Accepter",
+      "reject": "Refuser",
+      "withdraw": "Retirer",
+      "errors": {
+        "notAllowed": "Vous ne pouvez pas répondre à cette suggestion.",
+        "notFound": "Cette suggestion a déjà reçu une réponse ou a été retirée.",
+        "pageLocked": "La page est verrouillée.",
+        "pageInTrash": "La page est dans la corbeille.",
+        "failed": "Impossible de répondre à la suggestion. Réessayez."
+      }
+    },
     "sort": {
       "label": "Trier les fils",
       "recent": "Activité la plus récente d’abord",
@@ -124,6 +149,39 @@
     "above": "Archivée avec une page parente.",
     "unarchive": "Désarchiver",
     "hint": "Les pages archivées n’apparaissent plus dans la barre latérale, la recherche ni les sélecteurs, mais restent lisibles et modifiables."
+  },
+  "verification": {
+    "byUntil": "Vérifiée par {name} jusqu’au {date}",
+    "by": "Vérifiée par {name}",
+    "until": "Vérifiée jusqu’au {date}",
+    "plain": "Vérifiée",
+    "expiredOn": "Vérification expirée le {date}",
+    "hint": "Une personne disposant d’un accès complet a contrôlé cette page et l’a marquée comme juste. La modifier ne lui retire pas sa vérification.",
+    "change": "Modifier ou retirer la vérification",
+    "menu": "Vérifier la page…",
+    "menuVerified": "Vérification…",
+    "menuHint": "Marquer la page comme contrôlée et juste : la recherche la classe plus haut et le chat IA la privilégie",
+    "title": "Vérifier la page",
+    "description": "Marquez cette page comme contrôlée et juste, pour un temps ou sans fin. La recherche classe les pages vérifiées plus haut, les signale et les trouve avec is:verified, et le chat IA les privilégie. Modifier la page ne lui retire pas sa vérification ; vous êtes prévenu quelques jours avant la fin.",
+    "durationLabel": "Vérifiée pendant",
+    "durations": {
+      "week": "1 semaine",
+      "month": "1 mois",
+      "quarter": "3 mois",
+      "year": "1 an",
+      "until": "Jusqu’à un jour donné",
+      "forever": "Sans fin"
+    },
+    "dateLabel": "Vérifiée jusqu’au",
+    "verify": "Vérifier",
+    "verifyAgain": "Vérifier à nouveau",
+    "remove": "Retirer la vérification",
+    "searchBadge": "Vérifiée",
+    "errors": {
+      "template": "Les modèles et les pages qu’ils contiennent ne sont pas vérifiés.",
+      "inTrash": "Restaurez d’abord la page depuis la corbeille.",
+      "invalidEnd": "Choisissez un jour après aujourd’hui, dans les cinq ans à venir."
+    }
   },
   "icon": {
     "add": "Ajouter une icône",
@@ -339,6 +397,11 @@
         "title": "Tableau de bord",
         "subtext": "Des chiffres, graphiques et listes tirés de vos bases de données",
         "aliases": "dashboard widgets kpi metrics charts tableau de bord graphiques indicateurs"
+      },
+      "databaseTabs": {
+        "title": "Onglets de bases de données",
+        "subtext": "Plusieurs bases ou vues, un onglet chacune",
+        "aliases": "onglets base de données vues changer tabs"
       }
     }
   },
@@ -692,6 +755,19 @@
     "filters": "{count, plural, one {# filtre} other {# filtres}}",
     "updatedNow": "mis à jour à l'instant",
     "updated": "mis à jour {time}"
+  },
+  "databaseTabs": {
+    "title": "Onglets de bases de données",
+    "empty": "Ces onglets n'affichent encore aucune base de données.",
+    "emptyEditable": "Affichez plusieurs bases de données, ou des vues d'une même base, sous forme d'onglets. Chaque onglet est une vue à part.",
+    "add": "Ajouter un onglet",
+    "full": "Les onglets contiennent jusqu'à {max} vues.",
+    "menu": "Options de l'onglet",
+    "rename": "Renommer",
+    "remove": "Retirer l'onglet",
+    "nameLabel": "Nom de l'onglet",
+    "namePlaceholder": "Le nom de la base de données",
+    "noAccess": "Pas d'accès"
   },
   "voiceNote": {
     "record": "Enregistrer une note vocale",

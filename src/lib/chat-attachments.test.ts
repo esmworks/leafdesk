@@ -5,16 +5,27 @@ import {
   CHAT_CSV_MAX_CHARS,
   CHAT_CSV_MAX_COLUMNS,
   CHAT_CSV_MAX_ROWS,
+  chatFileKind,
   cleanAttachmentName,
-  isCsvFile,
   uniqueAttachmentName,
 } from "./chat-attachments";
 
-describe("CSV files attached to the AI chat", () => {
-  it("knows a CSV file by its name or type", () => {
-    expect(isCsvFile({ name: "Orders.CSV", type: "" })).toBe(true);
-    expect(isCsvFile({ name: "export", type: "text/csv" })).toBe(true);
-    expect(isCsvFile({ name: "sheet.xlsx", type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" })).toBe(false);
+describe("files attached to the AI chat", () => {
+  it("knows how to read a file by its type, or its name where the type says little", () => {
+    expect(chatFileKind("", "Orders.CSV")).toBe("csv");
+    expect(chatFileKind("text/csv", "export")).toBe("csv");
+    // What some systems call a CSV file.
+    expect(chatFileKind("application/vnd.ms-excel", "orders.csv")).toBe("csv");
+    expect(chatFileKind("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", "sheet.xlsx")).toBe("document");
+    expect(chatFileKind("application/pdf", "a.pdf")).toBe("document");
+    expect(chatFileKind("application/octet-stream", "brief.docx")).toBe("document");
+    expect(chatFileKind("image/png; charset=binary", "shot.png")).toBe("image");
+    expect(chatFileKind("text/markdown", "notes.md")).toBe("text");
+    expect(chatFileKind("", "notes.txt")).toBe("text");
+    // Not images providers take, nor anything else.
+    expect(chatFileKind("image/svg+xml", "logo.svg")).toBeNull();
+    expect(chatFileKind("application/x-msdownload", "setup.exe")).toBeNull();
+    expect(chatFileKind("text/html", "page.pdf")).toBeNull();
   });
 
   it("reads a file's table, with the delimiter it uses", () => {
@@ -34,7 +45,7 @@ describe("CSV files attached to the AI chat", () => {
   it("keeps a name on one line, and short", () => {
     expect(cleanAttachmentName("  my\nfile\u0000.csv ")).toBe("my file .csv");
     expect(cleanAttachmentName("a\tb.csv")).toBe("a b.csv");
-    expect(cleanAttachmentName("")).toBe("data.csv");
+    expect(cleanAttachmentName("")).toBe("file");
     expect(cleanAttachmentName("x".repeat(500))).toHaveLength(CHAT_ATTACHMENT_NAME);
   });
 

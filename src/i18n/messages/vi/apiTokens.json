@@ -110,6 +110,10 @@
       "agents": {
         "name": "Tác tử",
         "hint": "Cài đặt, lần chạy, lịch chạy và việc chia sẻ của các tác tử."
+      },
+      "webhooks": {
+        "name": "Webhook",
+        "hint": "Webhook của trang và các lần gửi của chúng; quyền ghi cho phép thêm, thay đổi và thử chúng (chỉ chủ sở hữu)."
       }
     },
     "summary": {

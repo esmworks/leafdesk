@@ -43,6 +43,8 @@ import { countBacklinks, labelPageLinks, listBacklinks, MAX_BACKLINKS } from "@/
 import { expandSyncedMarkdown } from "@/server/synced-blocks";
 import * as pageMeta from "@/server/page-meta";
 import { OutdatedError, outdatedState, setPageOutdated, type OutdatedState } from "@/server/page-outdated";
+import { activeVerifications, setPageVerification, VerificationError, verificationOf } from "@/server/verification";
+import { verificationUntil, type VerificationView } from "@/lib/verification";
 import { isWatching, setWatching } from "@/server/page-watch";
 import { isFollowing, setFollowing } from "@/server/row-follow";
 import * as pages from "@/server/pages";
@@ -65,6 +67,7 @@ import { normalizeValue } from "@/lib/properties";
 import { idFromLink, pageUrl, sliceText, ToolInputError, VersionConflictError } from "./mcp/format";
 import { dashboardsOutput } from "./mcp/dashboards";
 import { markdownDashboards } from "@/lib/dashboard";
+import { withViewSorts } from "@/lib/views";
 import {
   describeAccessSettings,
   describeChartSeries,
@@ -271,6 +274,13 @@ export const inputs = {
       .optional()
       .describe(
         `What fills the page behind its title and body: a color as "color:<name>" (${BACKGROUND_COLORS.join(", ")}; light in the light theme and dark in the dark one, black in both), a faint pattern as "pattern:<name>" (${BACKGROUND_PATTERNS.join(", ")}), or both separated by a space, e.g. "color:black pattern:plus". It replaces the whole background. null removes it.`,
+      ),
+    verified: z
+      .string()
+      .max(10)
+      .optional()
+      .describe(
+        'Mark the page verified (checked and right; needs full access) for "week", "month", "quarter" or "year", until a day ("YYYY-MM-DD"), or "forever"; "none" removes it. Search ranks verified pages higher.',
       ),
   }),
   pageId: z.object({ page_id: id("page") }),
@@ -626,6 +636,7 @@ export async function search(
     anyWord,
     includeOutdated: include_archived,
   });
+  const verifications = await activeVerifications(hits.filter((h) => h.verified).map((h) => h.id));
   return {
     results: hits.map((h) => ({
       id: h.id,
@@ -639,6 +650,8 @@ export async function search(
       // Found by the words of a PDF or Word document the page shows (the snippet is from it).
       document: h.file ? { id: h.file.id, name: h.file.name } : null,
       archived: h.outdated,
+      // Verified right now: ranked above an otherwise equal page.
+      verified: verifiedField(verifications.get(h.id) ?? null),
       updated_at: h.updatedAt.toISOString(),
       url: pageUrl(h.workspaceId, h.id),
       ...(passages ? { passage: h.passage ?? null, block_id: h.blockId ?? null } : {}),
@@ -712,7 +725,7 @@ export async function getPage(
 ) {
   const { userId } = ctx;
   const { page, parent, parentDatabase } = await loadPage(ctx, page_id);
-  const [crumbs, content, workspaces, favorite, version, watching, outdated] = await Promise.all([
+  const [crumbs, content, workspaces, favorite, version, watching, outdated, verification] = await Promise.all([
     pages.getBreadcrumbs(userId, page_id),
     getCollab().readPage(page_id),
     pages.listWorkspaces(userId),
@@ -720,6 +733,7 @@ export async function getPage(
     page.kind === "database" ? null : getCollab().pageVersion(page_id),
     watchState(userId, page_id),
     outdatedState(userId, page_id),
+    verificationOf(page_id),
   ]);
   const workspace = workspaces.find((w) => w.id === page.workspaceId);
   // Mentioned pages read as their current title, as far as the user can see them.
@@ -745,6 +759,7 @@ export async function getPage(
     ...archivedFields(page.workspaceId, outdated),
     // A locked page's title, icon, background and body can't change; a locked database's properties and views.
     locked: Boolean(page.lockedAt),
+    verified: verifiedField(verification),
     favorite,
     // Templates are neither watched nor followed.
     ...(watching === null ? {} : { watching }),
@@ -832,6 +847,11 @@ function archivedFields(workspaceId: string, state: OutdatedState | null) {
       ? {}
       : { archived_with: state.title === null ? null : { id: state.pageId, title: pageLabel(state.title), url: pageUrl(workspaceId, state.pageId) } }),
   };
+}
+
+/** A page's verification as MCP and REST show it (server/verification): null when nobody verified it. */
+export function verifiedField(view: VerificationView | null) {
+  return view ? { by: view.by, at: view.at, until: view.until, expired: view.expired } : null;
 }
 
 /** Whether the user watches the page, or follows the database row; null for templates, which are neither. */
@@ -943,12 +963,17 @@ function backgroundFromInput(background: string | null) {
 /** `icon` (null clears it) is REST only: the MCP tool doesn't take it. */
 export async function updatePage(
   ctx: OperationContext,
-  { page_id, title, markdown, mode, block_id, expected_version, icon, background }: Args<"updatePage"> & { icon?: string | null },
+  { page_id, title, markdown, mode, block_id, expected_version, icon, background, verified }: Args<"updatePage"> & { icon?: string | null },
 ) {
   const { userId, actor } = ctx;
   const blockMode = mode === "replace_block" || mode === "insert_after" || mode === "delete_block";
-  if (title === undefined && markdown === undefined && icon === undefined && background === undefined && !blockMode) {
-    throw new ToolInputError("Provide title, markdown and/or background.");
+  if (title === undefined && markdown === undefined && icon === undefined && background === undefined && verified === undefined && !blockMode) {
+    throw new ToolInputError("Provide title, markdown, background and/or verified.");
+  }
+  // Checked before anything is written, like the rest of the input.
+  const verifiedUntil = verified === undefined || verified === "none" ? undefined : verificationUntil(verified);
+  if (verified !== undefined && verified !== "none" && verifiedUntil === undefined) {
+    throw new ToolInputError('verified must be "week", "month", "quarter", "year", "forever", "none" or a day after today (YYYY-MM-DD) within five years.');
   }
   if (blockMode && !block_id) throw new ToolInputError(`mode "${mode}" needs block_id: read the page with get_page with_block_ids for the ids.`);
   if (block_id !== undefined && !blockMode) throw new ToolInputError('block_id goes with mode "replace_block", "insert_after" or "delete_block".');
@@ -1014,6 +1039,13 @@ export async function updatePage(
   if (background !== undefined) {
     await pages.setPageBackground(userId, page_id, backgroundFromInput(background));
     changed.push("background");
+  }
+  if (verified !== undefined) {
+    await setPageVerification(userId, page_id, verified === "none" ? undefined : verifiedUntil).catch((error) => {
+      if (error instanceof VerificationError) throw new ToolInputError(`${error.message}.`);
+      throw error;
+    });
+    changed.push(verified === "none" ? "verification removed" : "verified");
   }
   return {
     id: page.id,
@@ -1273,7 +1305,7 @@ export async function queryDatabase(
   // about those values.
   const { rows: ordered, sorts: applied } = await databases.listRowsInOrder(userId, database_id, {
     filters: [saved, own].filter((g) => g.rules.length),
-    sorts: ownSorts ?? view?.config.sorts ?? [],
+    sorts: ownSorts ?? (view ? withViewSorts(view).sorts : undefined) ?? [],
     // Rows archived on their own (server/page-outdated.ts), as asked or as the view shows them.
     showOutdated: include_archived ?? view?.config.showOutdated,
   });

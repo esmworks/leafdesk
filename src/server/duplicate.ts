@@ -229,10 +229,10 @@ export async function copyPageTree(
     // but templates and the pages in them never are.
     const inserted = await tx.execute<{ id: string }>(sql`
       insert into ${page} (id, workspace_id, parent_id, kind, title, icon, background, position, properties,
-        ydoc, content_text, content_markdown, is_template, in_template, default_template_id, voice_note_instructions, teamspace_id,
+        ydoc, content_text, content_markdown, is_template, in_template, default_template_id, voice_note_instructions, properties_beside, teamspace_id,
         outdated_at, outdated_by, created_by, updated_by)
       select m.id, src.workspace_id, m.parent_id, src.kind, m.title, src.icon, src.background, m.position, m.properties,
-        src.ydoc, src.content_text, src.content_markdown, m.is_template, m.in_template, m.default_template_id, src.voice_note_instructions,
+        src.ydoc, src.content_text, src.content_markdown, m.is_template, m.in_template, m.default_template_id, src.voice_note_instructions, src.properties_beside,
         ${space}::text, case when m.in_template then null else src.outdated_at end, case when m.in_template then null else src.outdated_by end,
         ${userId}, ${userId}
       from jsonb_to_recordset(${JSON.stringify(rows)}::jsonb)

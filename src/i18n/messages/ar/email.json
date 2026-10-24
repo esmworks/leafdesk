@@ -57,6 +57,11 @@
     "action": "فتح الصفحة",
     "optOut": "تصلك هذه الرسائل لأنك شاركت في سلسلة التعليقات هذه. يمكنك إيقافها من حسابي > التفضيلات."
   },
+  "suggestion": {
+    "subject": "اقترح {actor} تعديلات على “{page}”",
+    "heading": "اقترح {actor} تعديلات على “{page}”",
+    "body": "الاقتراح في “{page}” ضمن {workspace}. اقبله أو ارفضه من الصفحة، أو رُدّ في محادثته."
+  },
   "mention": {
     "subject": "أشار إليك {actor} في «{page}»",
     "heading": "أشار إليك {actor} في «{page}»",
@@ -71,6 +76,16 @@
     "body": "طلبت تذكيرك بـ {date} في «{page}» ضمن {workspace}.",
     "action": "فتح الصفحة",
     "optOut": "تصلك هذه الرسائل لأنك ضبطت تذكيرًا. يمكنك إيقافها من حسابي > التفضيلات."
+  },
+  "pageVerification": {
+    "endsSubject": "ينتهي توثيقك لـ «{page}» في {date}",
+    "endsHeading": "التوثيق ينتهي قريبًا",
+    "endsBody": "وثّقت «{page}» في {workspace} حتى {date}. إذا كانت لا تزال صحيحة، فوثّقها مرة أخرى من قائمة ⋯ الخاصة بالصفحة لتبقى موثّقة.",
+    "endedSubject": "انتهت صلاحية توثيقك لـ «{page}»",
+    "endedHeading": "انتهت صلاحية التوثيق",
+    "endedBody": "انتهى توثيقك لـ «{page}» في {workspace} في {date}. تعرض الصفحة «انتهت صلاحية التوثيق» حتى يوثّقها أحد مرة أخرى.",
+    "action": "فتح الصفحة",
+    "optOut": "تصلك هذه الرسائل لأنك وثّقت الصفحة. يمكنك إيقافها من حسابي > التفضيلات."
   },
   "dateReminder": {
     "subject": "تذكير: «{page}» في {date}",
@@ -220,6 +235,9 @@
     "assignment": "أسند إليك {actor} في «{property}»",
     "pageShared": "شارك {actor} هذه الصفحة معك",
     "comment": "علّق {actor} في محادثة أنت مشارك فيها",
+    "suggested": "اقترح {actor} تعديلات على هذه الصفحة",
+    "suggestionAccepted": "قبل {actor} التعديل الذي اقترحته",
+    "suggestionRejected": "رفض {actor} التعديل الذي اقترحته",
     "mention": "أشار إليك {actor}",
     "reminder": "تذكير: {date}",
     "accessRequest": "طلب {actor} الوصول إلى هذه الصفحة",
@@ -235,6 +253,8 @@
     "followUp": "المتابعة «{sequence}» متوقفة مؤقتًا: رسالتها التالية تحتاج إلى نظرة",
     "reaction": "تفاعل {actor} بـ {emoji} مع تعليقك",
     "people": "{others, plural, =0 {{name}} one {{name} وشخص آخر} two {{name} وشخصان آخران} few {{name} و# أشخاص آخرين} many {{name} و# شخصًا آخر} other {{name} و# شخص آخر}}",
+    "verificationEnds": "ينتهي توثيقك لهذه الصفحة في {date}",
+    "verificationEnded": "انتهت صلاحية توثيقك لهذه الصفحة في {date}",
     "someone": "شخص ما",
     "joinRequestTitle": "طلب انضمام",
     "joinRequest": "طلب {actor} الانضمام",

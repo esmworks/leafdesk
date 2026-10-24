@@ -60,14 +60,14 @@ export async function ConnectedApps() {
 
   if (apps.length === 0) {
     return (
-      <SettingsGroup title={t("listHeading")}>
+      <SettingsGroup anchor="connectedApps" title={t("listHeading")}>
         <p className="px-5 py-8 text-center text-sm text-fg-muted">{t("empty")}</p>
       </SettingsGroup>
     );
   }
 
   return (
-    <SettingsGroup title={t("listHeading")}>
+    <SettingsGroup anchor="connectedApps" title={t("listHeading")}>
       {apps.map((app) => {
         const v = view(app);
         return (

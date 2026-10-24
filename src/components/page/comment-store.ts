@@ -159,7 +159,11 @@ export class ServerThreadStore extends YjsThreadStoreBase {
 
   private async change(op: CommentOp) {
     const result = await changeCommentsAction(this.pageId, op);
-    if (!result.ok) throw new CommentChangeError(result.code);
+    if (!result.ok) {
+      // A legal hold keeps the comment: the editor shows no failures of its own, so it is said here.
+      if ("message" in result && result.message) window.alert(result.message);
+      throw new CommentChangeError(result.code);
+    }
     // Others hear of it through the row's document (PROPERTY_COMMENTS_EVENT); this browser at once.
     if (result.thread?.property || (op.type !== "createThread" && this.onProperties.has(op.threadId))) await this.loadPropertyThreads();
     return result;

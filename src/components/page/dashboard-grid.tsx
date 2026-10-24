@@ -213,7 +213,8 @@ function useWidgetData(widget: DashboardWidget, shown: RefObject<Map<string, Sho
     timer.current = setTimeout(() => void load(), 300);
   }, [load]);
   useEffect(() => () => void (timer.current && clearTimeout(timer.current)), []);
-  useChannel(`db:${databaseId}`, later);
+  // Reactions and comments on rows change no number, chart or list.
+  useChannel(`db:${databaseId}`, (event) => void (event !== "reactions" && event !== "comments" && later()));
 
   const stamp = data && !failed ? widgetStamp(data.state === "ok" ? data.database : null) : null;
   useEffect(() => {

@@ -29,6 +29,7 @@
     "calendar": "Calendar",
     "gallery": "Gallery",
     "list": "List",
+    "feed": "Feed",
     "timeline": "Timeline",
     "chart": "Chart",
     "dashboard": "Dashboard",
@@ -512,6 +513,9 @@
       "hide": "Hidden"
     },
     "pageVisibilityHint": "For everyone. Hidden properties stay a click away under “more properties” on each row page.",
+    "pinToTitle": "Pin under the title",
+    "unpinFromTitle": "Unpin from the title",
+    "pinFull": "Up to {max} properties can be pinned.",
     "dateDisplay": "Show as",
     "displayDate": "Date",
     "displayRelative": "Relative",
@@ -537,7 +541,10 @@
     "fewerProperties": "{count, plural, one {Hide # property} other {Hide # properties}}",
     "propertyMenu": "Options for {name}",
     "commentOnProperty": "Comment on {name}",
-    "propertyComments": "{count, plural, one {# open comment} other {# open comments}} on {name}"
+    "propertyComments": "{count, plural, one {# open comment} other {# open comments}} on {name}",
+    "pinned": "Pinned properties",
+    "showBeside": "Show beside the page",
+    "showAbove": "Show above the page"
   },
   "rowActivity": {
     "title": "Activity",
@@ -764,6 +771,30 @@
     "new": "New",
     "empty": "No rows to show."
   },
+  "feed": {
+    "someone": "Someone",
+    "empty": "No posts yet.",
+    "emptyCanPost": "No posts yet. Add a row to write the first one.",
+    "morePosts": "{count, plural, one {Show # more post} other {Show # more posts}}",
+    "showMore": "Show more",
+    "showLess": "Show less",
+    "bodyCut": "The rest is on the row's page.",
+    "addReaction": "Add reaction",
+    "reactedBy": "{names} reacted with {emoji}",
+    "reactionCount": "{emoji}: {count, plural, one {# reaction} other {# reactions}}",
+    "comments": "Comments",
+    "allComments": "{count, plural, one {Show # comment} other {Show all # comments}}",
+    "commentPlaceholder": "Write a comment…",
+    "send": "Send",
+    "errors": {
+      "failed": "Something went wrong. Try again.",
+      "tooLong": "That comment is too long.",
+      "notAllowed": "You can't comment here.",
+      "invalidEmoji": "Pick a single emoji.",
+      "tooMany": "You've left as many reactions on this post as one person can.",
+      "inTrash": "Posts in the trash can't get reactions."
+    }
+  },
   "chart": {
     "type": "Chart type",
     "types": {
@@ -880,6 +911,7 @@
     "invalidNumberFormat": "This number format can’t be saved.",
     "invalidDateOptions": "These date settings can’t be saved.",
     "invalidPageVisibility": "This row page setting can’t be saved.",
+    "tooManyPinned": "Row pages pin up to {max} properties.",
     "calendarFeedNotCalendar": "Only calendar views can be subscribed to.",
     "calendarFeedExportOff": "The workspace’s owners turned export off, so calendar subscriptions are off too.",
     "webhookExportOff": "The workspace’s owners turned export off, so webhooks are off too.",

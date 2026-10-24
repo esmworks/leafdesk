@@ -33,6 +33,7 @@
     "reviewNote": "AI는 실수할 수 있습니다. 유지하기 전에 텍스트를 확인하세요.",
     "stopped": "중지되었습니다. 지금까지 작성된 내용은 유지할 수 있습니다.",
     "applyFailed": "제안을 페이지에 추가할 수 없습니다.",
+    "asSuggestions": "제안된 편집으로 추가",
     "selectionChanged": "그사이 선택한 텍스트가 변경되어 제안을 그 아래에 추가했습니다."
   },
   "errors": {
@@ -136,6 +137,8 @@
     "ownersOnly": "소유자만 변경할 수 있습니다.",
     "memory": "AI 메모리",
     "memoryHint": "켜면 AI 채팅이 자신에 대해 이야기한 사람에 관한 짧은 메모를 보관하고, 이후 질문과 함께 보냅니다. 각자 자신의 메모리를 끌 수 있습니다. 끄면 메모리 보기가 숨겨지고 누구의 질문에도 메모가 포함되지 않습니다. 메모는 삭제되지 않고 보관됩니다. 이 경우 에이전트 실행에도 메모가 포함되지 않으며 새 메모도 제안하지 않습니다.",
+    "webSearch": "AI 채팅의 웹 검색",
+    "webSearchHint": "켜면 AI 채팅이 서버의 검색 서비스로 웹을 검색하고 웹 페이지를 읽을 수 있습니다(읽기만). 웹에서 읽은 뒤에는 바꾸려는 모든 변경을 묻습니다. 리서치 모드도 웹을 검색합니다. 검색에 쓰는 질문과 텍스트는 워크스페이스를 떠나 검색 서비스로 전달됩니다.",
     "provider": "공급자",
     "providerValue": "{provider}, 모델 {model}",
     "notConfigured": "이 서버에 AI 공급자나 임베딩 모델이 설정되어 있지 않아 AI 기능이 꺼져 있습니다. 관리자가 AI_PROVIDER, AI_MODEL(및 AI_EMBEDDINGS_MODEL) 환경 변수로 설정할 수 있습니다(README 참조).",
@@ -208,6 +211,10 @@
       "query": "조회함",
       "rows": "{count, plural, =0 {일치하는 행 없음} other {행 #개}}",
       "queryGone": "더 이상 열 수 없는 데이터베이스를 조회함",
+      "plan": "조사를 계획했습니다:",
+      "webSearched": "웹에서 “{query}” 검색 · {count, plural, =0 {결과 없음} other {#개 결과}}",
+      "webRead": "읽음",
+      "webReadFailed": "읽지 못함:",
       "write": {
         "done": {
           "createRow": "행 추가됨:",
@@ -323,7 +330,14 @@
       "auto": "자동",
       "autoHint": "묻지 않고 추가하고 변경합니다",
       "read": "읽기 전용",
-      "readHint": "아무것도 변경하지 않습니다"
+      "readHint": "아무것도 변경하지 않습니다",
+      "asSuggestions": "페이지 편집을 제안으로",
+      "asSuggestionsHint": "채팅이 페이지에 쓰는 내용이 수락하거나 거절할 수 있는 제안된 편집으로 표시됩니다"
+    },
+    "model": {
+      "label": "모델",
+      "hint": "이 대화에서 답하는 모델",
+      "images": "이미지를 읽습니다"
     },
     "actions": {
       "edit": "편집",
@@ -333,17 +347,33 @@
     "actionsFor": "{name} 작업",
     "greeting": "무엇이 궁금하세요?",
     "files": {
-      "attach": "CSV 파일 첨부",
-      "attachHint": "CSV 파일(최대 1,000행, 1MB)을 첨부해 질문하거나 데이터베이스로 만들 수 있습니다",
-      "drop": "CSV 파일을 놓아 첨부하세요",
+      "attach": "파일 첨부",
+      "attachHint": "이미지나 PDF·Word·Excel·CSV·텍스트 파일을 첨부해 질문할 수 있습니다",
+      "drop": "파일을 놓아 첨부하세요",
       "remove": "{name} 제거",
       "size": "{rows, plural, other {#행}} × {columns, plural, other {#열}}",
-      "notCsv": "CSV 파일만 첨부할 수 있습니다. 스프레드시트를 먼저 CSV로 저장하세요.",
-      "tooLarge": "파일이 {size}보다 큽니다. 더 작은 CSV 파일을 첨부하세요.",
+      "uploading": "업로드 중…",
+      "notSupported": "채팅은 이미지, PDF·Word·Excel 문서, CSV·Markdown·텍스트 파일을 읽습니다.",
+      "tooLarge": "파일이 {size}보다 큽니다. 더 작은 파일을 첨부하세요.",
       "tooManyRows": "파일이 {rows}행을 넘습니다. 더 짧은 CSV 파일을 첨부하거나 데이터베이스로 가져오세요.",
       "tooManyColumns": "파일이 {columns}열을 넘습니다.",
       "empty": "파일이 비어 있습니다.",
-      "tooMany": "질문 하나에 파일은 최대 {count}개까지 첨부할 수 있습니다."
+      "tooMany": "질문 하나에 파일은 최대 {count}개까지 첨부할 수 있습니다.",
+      "noImages": "선택한 모델은 이미지를 받지 않습니다. 다른 모델을 고르거나 이미지를 빼세요.",
+      "quota": "파일을 첨부하지 못했습니다. 이 워크스페이스의 파일 저장 공간이 가득 찼습니다.",
+      "failed": "{name}을(를) 첨부하지 못했습니다."
+    },
+    "research": {
+      "sourcesHeading": "출처",
+      "untitled": "조사 보고서",
+      "toggle": "리서치",
+      "toggleHint": "리서치 모드: 하위 질문을 계획하고 워크스페이스(켜져 있으면 웹도)를 검색해 읽은 뒤 출처가 달린 긴 보고서를 씁니다. 아무것도 바꾸지 않습니다.",
+      "placeholder": "무엇을 조사할까요?",
+      "asked": "리서치",
+      "readOnly": "리서치는 읽기만 하며 아무것도 바꾸지 않습니다",
+      "save": "페이지로 저장",
+      "openPage": "페이지 열기",
+      "saveFailed": "보고서를 페이지로 저장하지 못했습니다."
     }
   },
   "memory": {

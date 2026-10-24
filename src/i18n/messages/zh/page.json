@@ -16,6 +16,14 @@
     "createdBy": "由 {name} 创建",
     "someone": "有人",
     "comments": "评论",
+    "suggesting": {
+      "editing": "编辑",
+      "suggesting": "建议",
+      "label": "模式：{mode}",
+      "editingHint": "直接修改页面",
+      "suggestingHint": "你的修改会显示为建议，其他人可以接受或拒绝",
+      "forcedHint": "你可以评论此页面，因此你的修改是建议，页面的编辑者可以接受或拒绝"
+    },
     "share": "分享",
     "accessRequests": "{count} 个访问申请",
     "addFavorite": "添加到收藏",
@@ -51,6 +59,9 @@
     "exportPdf": "导出为 PDF",
     "printView": "打印",
     "exportPreparing": "正在准备导出…",
+    "acceptAllSuggestions": "接受所有建议",
+    "rejectAllSuggestions": "拒绝所有建议",
+    "rejectAllConfirm": "拒绝此页面上的所有建议修改？",
     "versionHistory": "版本历史",
     "lastEdited": "最后由 {name} 编辑",
     "wordCount": "{words} 个词，{characters} 个字符",
@@ -95,6 +106,20 @@
     "muted": "回复已设为免打扰",
     "mutedHint": "在你于此回复或有人在此提及你之前，你不会收到此讨论串中回复的通知。",
     "mergedFrom": "来自“{title}”",
+    "suggestion": {
+      "label": "建议的修改",
+      "byAi": "AI 建议的修改",
+      "accept": "接受",
+      "reject": "拒绝",
+      "withdraw": "撤回",
+      "errors": {
+        "notAllowed": "你无法答复此建议。",
+        "notFound": "此建议已被答复或撤回。",
+        "pageLocked": "页面已锁定。",
+        "pageInTrash": "页面在回收站中。",
+        "failed": "无法答复此建议，请重试。"
+      }
+    },
     "sort": {
       "label": "排序讨论",
       "recent": "最新动态在前",
@@ -124,6 +149,39 @@
     "above": "随上级页面一起归档。",
     "unarchive": "取消归档",
     "hint": "已归档的页面不会出现在侧边栏、搜索和选择列表中，但仍可阅读和编辑。"
+  },
+  "verification": {
+    "byUntil": "由 {name} 验证，有效期至 {date}",
+    "by": "由 {name} 验证",
+    "until": "已验证，有效期至 {date}",
+    "plain": "已验证",
+    "expiredOn": "验证已过期：{date}",
+    "hint": "拥有完全访问权限的人检查了此页面并将其标记为正确。编辑页面不会取消验证。",
+    "change": "更改或移除验证",
+    "menu": "验证页面…",
+    "menuVerified": "验证…",
+    "menuHint": "将页面标记为已检查且正确：搜索会将其排得更靠前，AI 聊天会优先参考它",
+    "title": "验证页面",
+    "description": "将此页面标记为已检查且正确，可以设定期限，也可以不设期限。已验证的页面在搜索中排名更靠前、带有标记，可用 is:verified 找到，AI 聊天也会优先参考它们。编辑页面不会取消验证；结束前几天你会收到通知。",
+    "durationLabel": "验证期限",
+    "durations": {
+      "week": "1 周",
+      "month": "1 个月",
+      "quarter": "3 个月",
+      "year": "1 年",
+      "until": "到指定日期",
+      "forever": "永久"
+    },
+    "dateLabel": "验证有效期至",
+    "verify": "验证",
+    "verifyAgain": "重新验证",
+    "remove": "移除验证",
+    "searchBadge": "已验证",
+    "errors": {
+      "template": "模板及其中的页面无法验证。",
+      "inTrash": "请先从回收站恢复该页面。",
+      "invalidEnd": "请选择今天之后、五年以内的日期。"
+    }
   },
   "icon": {
     "add": "添加图标",
@@ -339,6 +397,11 @@
         "title": "仪表板",
         "subtext": "来自数据库的数字、图表和列表",
         "aliases": "dashboard widgets kpi metrics charts numbers 仪表板 仪表盘 组件 指标 图表 数字"
+      },
+      "databaseTabs": {
+        "title": "数据库标签页",
+        "subtext": "多个数据库或视图，每个一个标签页",
+        "aliases": "标签页 选项卡 数据库 视图 切换 tabs"
       }
     }
   },
@@ -692,6 +755,19 @@
     "filters": "{count} 个筛选条件",
     "updatedNow": "刚刚更新",
     "updated": "更新于 {time}"
+  },
+  "databaseTabs": {
+    "title": "数据库标签页",
+    "empty": "这些标签页还没有显示任何数据库。",
+    "emptyEditable": "以标签页显示多个数据库，或同一数据库的多个视图。每个标签页都是独立的视图。",
+    "add": "添加标签页",
+    "full": "标签页最多容纳 {max} 个视图。",
+    "menu": "标签页选项",
+    "rename": "重命名",
+    "remove": "移除标签页",
+    "nameLabel": "标签页名称",
+    "namePlaceholder": "数据库的名称",
+    "noAccess": "无权访问"
   },
   "voiceNote": {
     "record": "录制语音笔记",

@@ -8,6 +8,7 @@ import { commentHash } from "./comments";
 import { rowEmailHash } from "./mail";
 import { reviewPath } from "./pending-changes";
 import { canSnooze } from "./snooze";
+import type { SuggestionNotice } from "./suggestions";
 import { isTimeZone } from "./time-zone";
 
 export type VapidConfig = { publicKey: string; privateKey: string; subject: string };
@@ -133,7 +134,18 @@ export type PushItem = {
   followUp?: { sequence: string } | null;
   /** Reactions: with what, and who reacted (the latest first). */
   reaction?: { emojis: string[]; people: { name: string }[] } | null;
+  /** Comments about a suggested edit: what became of it. */
+  suggestion?: SuggestionNotice | null;
+  /** When it was recorded: a verification reminder recorded at or after its date says the verification ended. */
+  createdAt?: Date | string;
 };
+
+/** The line of a comment notification about a suggested edit, in the inbox and in push messages. */
+export const SUGGESTION_LINES = {
+  suggested: "suggested",
+  accepted: "suggestionAccepted",
+  rejected: "suggestionRejected",
+} as const satisfies Record<SuggestionNotice, string>;
 
 /** The texts of a push message (`push` in email.json), already in the recipient's language. */
 export type PushTranslator = (key: string, values?: Record<string, string | number>) => string;
@@ -204,7 +216,7 @@ export function pushPayload(
         line = t("pageShared", { actor });
         break;
       case "comment":
-        line = t("comment", { actor });
+        line = item.suggestion ? t(SUGGESTION_LINES[item.suggestion], { actor }) : t("comment", { actor });
         break;
       case "mention":
         line = t("mention", { actor });
@@ -242,6 +254,12 @@ export function pushPayload(
           emoji: item.reaction?.emojis.join(" ") ?? "",
         });
         break;
+      case "verification": {
+        // Recorded at or after the end: it ended; before it: it ends soon.
+        const ended = item.reminderDate !== null && new Date(item.createdAt ?? Date.now()) >= new Date(item.reminderDate);
+        line = t(ended ? "verificationEnded" : "verificationEnds", { date: item.reminderDate ? formatDate(item.reminderDate, reminderZone(item)) : "" });
+        break;
+      }
       case "row_email":
         // Who wrote, not the subject: a lock screen shows it to whoever holds the device.
         line = t("rowEmail", { from: item.rowEmail?.from || t("someone") });

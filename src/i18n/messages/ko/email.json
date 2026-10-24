@@ -57,6 +57,11 @@
     "action": "페이지 열기",
     "optOut": "이 댓글 스레드에 참여했기 때문에 이 이메일을 받습니다. 내 계정 > 환경설정에서 끌 수 있습니다."
   },
+  "suggestion": {
+    "subject": "{actor}님이 “{page}”의 편집을 제안했습니다",
+    "heading": "{actor}님이 “{page}”의 편집을 제안했습니다",
+    "body": "제안은 {workspace}의 “{page}”에 있습니다. 페이지에서 수락하거나 거절하거나, 제안 스레드에 답글을 남기세요."
+  },
   "mention": {
     "subject": "{actor}님이 “{page}”에서 회원님을 멘션했습니다",
     "heading": "{actor}님이 “{page}”에서 회원님을 멘션했습니다",
@@ -71,6 +76,16 @@
     "body": "{workspace}의 “{page}” 페이지에 있는 {date}에 대해 리마인더를 요청했습니다.",
     "action": "페이지 열기",
     "optOut": "리마인더를 설정했기 때문에 이 이메일을 받습니다. 내 계정 > 환경설정에서 끌 수 있습니다."
+  },
+  "pageVerification": {
+    "endsSubject": "“{page}” 검증이 {date}에 종료됩니다",
+    "endsHeading": "검증이 곧 종료됩니다",
+    "endsBody": "{workspace}의 “{page}”을(를) {date}까지 검증됨으로 표시했습니다. 내용이 여전히 정확하다면 페이지의 ⋯ 메뉴에서 다시 검증하여 검증 상태를 유지하세요.",
+    "endedSubject": "“{page}” 검증이 만료되었습니다",
+    "endedHeading": "검증 만료됨",
+    "endedBody": "{workspace}의 “{page}”에 대한 검증이 {date}에 종료되었습니다. 누군가 다시 검증할 때까지 페이지에 “검증 만료됨”이 표시됩니다.",
+    "action": "페이지 열기",
+    "optOut": "페이지를 검증했기 때문에 이 이메일을 받습니다. 내 계정 > 환경설정에서 끌 수 있습니다."
   },
   "dateReminder": {
     "subject": "리마인더: {date}의 “{page}”",
@@ -220,6 +235,9 @@
     "assignment": "{actor}님이 “{property}”에 회원님을 할당했습니다",
     "pageShared": "{actor}님이 이 페이지를 공유했습니다",
     "comment": "{actor}님이 참여 중인 스레드에 댓글을 남겼습니다",
+    "suggested": "{actor}님이 이 페이지의 편집을 제안했습니다",
+    "suggestionAccepted": "{actor}님이 내가 제안한 편집을 수락했습니다",
+    "suggestionRejected": "{actor}님이 내가 제안한 편집을 거절했습니다",
     "mention": "{actor}님이 회원님을 멘션했습니다",
     "reminder": "리마인더: {date}",
     "accessRequest": "{actor}님이 이 페이지에 대한 액세스를 요청했습니다",
@@ -235,6 +253,8 @@
     "followUp": "팔로업 “{sequence}” 일시 중지됨: 다음 이메일을 확인해야 합니다",
     "reaction": "{actor}이(가) 내 댓글에 {emoji} 반응을 남겼습니다",
     "people": "{others, plural, =0 {{name} 님} other {{name} 님 외 #명}}",
+    "verificationEnds": "이 페이지의 검증이 {date}에 종료됩니다",
+    "verificationEnded": "이 페이지의 검증이 {date}에 만료되었습니다",
     "someone": "알 수 없는 사용자",
     "joinRequestTitle": "참여 요청",
     "joinRequest": "{actor}님이 참여를 요청했습니다",

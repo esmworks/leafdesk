@@ -69,6 +69,7 @@ import { withSideAlignButtons } from "./align-buttons";
 import { pageSideMenu } from "./table-to-database";
 import { SaveAsSnippetContext, SnippetMenu, useSnippets, useSnippetSlashItems } from "./snippets";
 import { readDocTitle } from "@/lib/collab-title";
+import { suggestingExtension, type SuggestingMode } from "./suggesting";
 
 /**
  * y-prosemirror's undo plugin keeps its Y.UndoManager in plugin state but destroys it whenever the
@@ -87,6 +88,17 @@ const KeepUndoAttached = createExtension(({ editor }) => ({
   },
 }));
 
+/** The formatting toolbar's buttons whose changes can be suggested (a block's type or alignment can't). */
+const SUGGESTABLE_BUTTONS = new Set([
+  "boldStyleButton",
+  "italicStyleButton",
+  "underlineStyleButton",
+  "strikeStyleButton",
+  "colorStyleButton",
+  "createLinkButton",
+  "addCommentButton",
+]);
+
 export default function CollabEditor({
   pageDoc,
   user,
@@ -104,10 +116,20 @@ export default function CollabEditor({
   fragment = COLLAB_FRAGMENT,
   syncedBlock = false,
   row = false,
+  suggestOnly = false,
+  suggesting = false,
 }: {
   pageDoc: PageDoc;
   user: { id: string; name: string };
+  /** The person may change the body for real. */
   editable: boolean;
+  /**
+   * The person may only comment, and suggest edits (components/page/suggesting.ts): they type in
+   * suggesting mode, without the menus that add or change blocks.
+   */
+  suggestOnly?: boolean;
+  /** Suggesting mode, chosen in the page header by someone who may edit. */
+  suggesting?: boolean;
   /**
    * What the viewer may do with comments: "comment" and up write them (their editor may still be
    * read-only), full access also deletes other people's. "view" when the page is in the trash.
@@ -144,7 +166,13 @@ export default function CollabEditor({
   const tc = useTranslations("common");
   const tu = useTranslations("page.upload");
   const dictionary = useEditorDictionary();
-  const host = useMemo<EmbedHost>(() => ({ workspaceId, pageId, editable, doc: pageDoc.doc }), [workspaceId, pageId, editable, pageDoc]);
+  // While suggesting, only the text changes: what is embedded in it (synced blocks, databases) stays as it is.
+  const suggestMode = suggestOnly || suggesting;
+  const embedsEditable = editable && !suggestMode;
+  const host = useMemo<EmbedHost>(
+    () => ({ workspaceId, pageId, editable: embedsEditable, doc: pageDoc.doc }),
+    [workspaceId, pageId, embedsEditable, pageDoc],
+  );
   const trail = useMemo(() => ({ workspaceId, crumbs }), [workspaceId, crumbs]);
   // Block id where "Linked view of database" was chosen, while its database picker is open.
   const [pickAt, setPickAt] = useState<string | null>(null);
@@ -232,6 +260,15 @@ export default function CollabEditor({
     },
     [],
   );
+  // Suggesting mode, read at each change (the editor isn't re-created when it changes). Every
+  // editor has the suggestion marks, so text carrying one is always understood.
+  const currentMode: SuggestingMode = { on: suggestMode && !nested, strict: suggestOnly && !editable, authorId: user.id };
+  const mode = useRef(currentMode);
+  // After every render, on purpose: the ref always holds the latest mode.
+  useLayoutEffect(() => {
+    mode.current = currentMode;
+  });
+  const suggestions = useMemo(() => suggestingExtension(() => mode.current), []);
   // withCollaboration spreads the remaining options into the editor options, so `dictionary`
   // reaches BlockNote as-is. A language change re-creates the editor against the same Y.Doc;
   // the provider is owned by usePageDoc and is not touched.
@@ -242,7 +279,7 @@ export default function CollabEditor({
       uploadFile,
       // Selected table cells can be merged into one, and a merged cell split again.
       tables: { splitCells: true },
-      extensions: [KeepUndoAttached(), FindReplace(), codeHighlighting(), BlockDirection(), comments],
+      extensions: [KeepUndoAttached(), FindReplace(), codeHighlighting(), BlockDirection(), comments, suggestions],
       // A synced block copied with "Copy synced block" lands as a reference; none lands inside one.
       // A link to an agent of the workspace, alone in an empty paragraph, becomes a chat with it.
       pasteHandler: ({ event, editor, defaultPasteHandler }) => {
@@ -260,16 +297,18 @@ export default function CollabEditor({
         showCursorLabels: "activity",
       },
     }),
-    [pageDoc, fragment, dictionary, comments, uploadFile],
+    [pageDoc, fragment, dictionary, comments, uploadFile, suggestions],
   );
+  // Typing: someone who may edit, or suggest (a synced page's or block's editor only edits).
+  const typing = editable || (suggestOnly && !nested);
 
   // BlockNoteView re-mounts its view whenever its `editable` prop changes, and while it does, a
   // caret inside a link makes the link toolbar read a view that isn't there (moving a page to the
   // trash crashed the page). So the view gets the value it started with, and changes go here.
-  const [mountEditable] = useState(editable);
+  const [mountEditable] = useState(typing);
   useLayoutEffect(() => {
-    editor.isEditable = editable;
-  }, [editor, editable]);
+    editor.isEditable = typing;
+  }, [editor, typing]);
 
   useEffect(() => {
     threadStore.anchor = () => selectionAnchor(editor);
@@ -319,13 +358,15 @@ export default function CollabEditor({
                 pointer: the page's own. A synced page's blocks are added with "/" instead, and the
                 page's handle moves the synced page as a whole.
               */}
-              {!nested && (
+              {!nested && (editable || !typing) && (
                 <SaveAsSnippetContext.Provider value={snippets.save}>
                   <ImageLinkContext.Provider value={setLinkImageAt}>
                     <SideMenuController sideMenu={sideMenu} floatingUIOptions={sideMenuPlacement} />
                   </ImageLinkContext.Provider>
                 </SaveAsSnippetContext.Provider>
               )}
+              {/* Someone who may only suggest edits types text; blocks come with editing. */}
+              {(editable || !typing) && (
               <SlashMenu
                 editor={editor}
                 onCreateError={setEmbedError}
@@ -339,7 +380,8 @@ export default function CollabEditor({
                 voiceNote={voice && editable && !offline ? voiceNote : null}
                 snippets={snippets.menu}
               />
-              <SnippetMenu {...snippets.menu} />
+              )}
+              {(editable || !typing) && <SnippetMenu {...snippets.menu} />}
               {editable && <MentionMenu editor={editor} workspaceId={workspaceId} pageId={pageId} />}
               {editable && <PageLinkMenu editor={editor} workspaceId={workspaceId} pageId={pageId} offline={offline} />}
               <PasteLinkMenu editor={editor} />
@@ -349,7 +391,10 @@ export default function CollabEditor({
                   formattingToolbar={() => (
                     <FormattingToolbar>
                       {ai && editable && !offline && <AskAiToolbarButton key="askAi" onOpen={() => assistant.open()} />}
-                      {withSideAlignButtons(withTextScriptButtons(getFormattingToolbarItems())).filter((item) => (canComment && !offline) || item.key !== "addCommentButton")}
+                      {withSideAlignButtons(withTextScriptButtons(getFormattingToolbarItems()))
+                        .filter((item) => (canComment && !offline) || item.key !== "addCommentButton")
+                        // Someone who may only suggest changes text and its style, not blocks.
+                        .filter((item) => editable || !typing || SUGGESTABLE_BUTTONS.has(String(item.key)))}
                     </FormattingToolbar>
                   )}
                 />
@@ -358,7 +403,14 @@ export default function CollabEditor({
               <CommentComponents pageId={pageId}>
                 <FloatingComposerController />
                 <FloatingThreadController />
-                {commentsOpen && <CommentsPanel pageId={pageId} store={threadStore} onClose={onCloseComments} />}
+                {commentsOpen && (
+                  <CommentsPanel
+                    pageId={pageId}
+                    store={threadStore}
+                    onClose={onCloseComments}
+                    answers={{ userId: user.id, canAnswer: editable, offline }}
+                  />
+                )}
               </CommentComponents>
               <EditorFiles editor={editor} editable={editable} />
             </BlockNoteView>

@@ -9,7 +9,7 @@ export async function McpInstructions() {
   const url = mcpResource();
 
   return (
-    <SettingsGroup title={t("heading")} description={t("description")}>
+    <SettingsGroup anchor="mcp" title={t("heading")} description={t("description")}>
       <div className="space-y-2 px-5 py-4">
         <div className="text-sm font-medium">{t("serverUrl")}</div>
         <Snippet value={url} />

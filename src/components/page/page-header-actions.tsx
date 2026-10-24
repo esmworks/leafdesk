@@ -4,8 +4,12 @@ import {
   Archive,
   ArchiveRestore,
   ArrowRightLeft,
+  BadgeCheck,
   Bell,
   BellOff,
+  Check,
+  CheckCheck,
+  ChevronDown,
   Copy,
   CornerUpLeft,
   Download,
@@ -26,6 +30,7 @@ import {
   Mic,
   MoreHorizontal,
   MoveHorizontal,
+  PencilLine,
   Presentation,
   Printer,
   ScrollText,
@@ -34,6 +39,7 @@ import {
   Trash2,
   Type,
   Waypoints,
+  X,
 } from "lucide-react";
 import { useLocale, useTranslations } from "next-intl";
 import { useRouter, useSearchParams } from "next/navigation";
@@ -67,6 +73,7 @@ import { PAGE_FONTS, type PageStyle } from "@/lib/page-style";
 import { printPath } from "@/lib/print";
 import { relativeTime } from "@/lib/relative-time";
 import { comboText, isMac } from "@/lib/shortcuts";
+import type { Decision } from "@/lib/suggestions";
 import type { PageHeaderInfo } from "@/server/page-meta";
 import type { TreeNode } from "@/server/pages";
 import type { TeamspaceSummary } from "@/server/teamspaces";
@@ -111,6 +118,10 @@ export function PageHeaderActions({
   onLocked,
   onSkill,
   onOutdated,
+  suggesting,
+  onAnswerAll,
+  onVerified,
+  onVerify,
 }: {
   workspaceId: string;
   page: { id: string; kind: PageKind; parentId: string | null; archived: boolean; hasBody: boolean; isRow?: boolean; title?: string; icon?: string | null };
@@ -147,6 +158,17 @@ export function PageHeaderActions({
   onSkill?: (skill: PageHeaderInfo["skill"]) => void;
   /** Hears whether the page is archived, likewise. */
   onOutdated?: (outdated: PageHeaderInfo["outdated"]) => void;
+  /**
+   * Editing or suggesting (components/page/suggesting.ts); unset where the body takes neither.
+   * `forced`: the person may only comment, so they suggest.
+   */
+  suggesting?: { on: boolean; forced: boolean; onChange: (on: boolean) => void };
+  /** Accepts or rejects every suggested edit that waits; unset without any, or without edit access. */
+  onAnswerAll?: (decision: Decision) => void;
+  /** Hears whether the page is verified, likewise. */
+  onVerified?: (verified: PageHeaderInfo["verified"]) => void;
+  /** Opens the dialog that verifies the page; unset for those who can't (full access only). */
+  onVerify?: () => void;
 }) {
   const t = useTranslations("page.header");
   const tOffline = useTranslations("offline");
@@ -154,6 +176,7 @@ export function PageHeaderActions({
   useEffect(() => onLocked?.(info.locked), [info.locked, onLocked]);
   useEffect(() => onSkill?.(info.skill), [info.skill, onSkill]);
   useEffect(() => onOutdated?.(info.outdated), [info.outdated, onOutdated]);
+  useEffect(() => onVerified?.(info.verified), [info.verified, onVerified]);
   const offlineTitle = (label: string) => (offline ? tOffline("needsConnection", { action: label }) : label);
   const aiChat = useAiChat();
   const tAi = useTranslations("ai.chat");
@@ -215,6 +238,7 @@ export function PageHeaderActions({
         </span>
       )}
       <PresenceAvatars viewers={viewers} />
+      {suggesting && <SuggestingToggle {...suggesting} />}
       {!page.archived && (
         <Popover
           align="end"
@@ -295,11 +319,67 @@ export function PageHeaderActions({
         onGraph={onGraph}
         onMoveToTrash={onMoveToTrash}
         onOpenPage={onOpenPage}
+        onVerify={onVerify}
         offline={offline}
         style={style}
         onStyle={onStyle}
+        onAnswerAll={onAnswerAll}
       />
     </>
+  );
+}
+
+/**
+ * Editing or suggesting, for the page's body. People who may only comment always suggest: they see
+ * that, without a choice.
+ */
+function SuggestingToggle({ on, forced, onChange }: { on: boolean; forced: boolean; onChange: (on: boolean) => void }) {
+  const t = useTranslations("page.header.suggesting");
+  const label = on ? t("suggesting") : t("editing");
+  const Icon = on ? MessageSquare : PencilLine;
+  if (forced) {
+    return (
+      <span title={t("forcedHint")} className="inline-flex h-7 items-center gap-1 px-2 text-sm text-fg-muted">
+        <Icon className="h-3.5 w-3.5" />
+        {label}
+      </span>
+    );
+  }
+  return (
+    <Popover
+      align="end"
+      className="w-64"
+      trigger={({ toggle }) => (
+        <button
+          type="button"
+          onClick={toggle}
+          aria-label={t("label", { mode: label })}
+          className={cn("inline-flex h-7 items-center gap-1 rounded-md px-2 text-sm hover:bg-bg-hover", on ? "text-accent" : "text-fg-muted")}
+        >
+          <Icon className="h-3.5 w-3.5" />
+          <span className="max-md:sr-only">{label}</span>
+          <ChevronDown className="h-3 w-3" />
+        </button>
+      )}
+    >
+      {(close) =>
+        ([false, true] as const).map((mode) => (
+          <MenuItem
+            key={String(mode)}
+            pressed={on === mode}
+            icon={mode ? <MessageSquare className="h-4 w-4" /> : <PencilLine className="h-4 w-4" />}
+            trailing={on === mode ? <Check className="h-4 w-4" /> : undefined}
+            title={t(mode ? "suggestingHint" : "editingHint")}
+            onClick={() => {
+              close();
+              onChange(mode);
+            }}
+          >
+            {t(mode ? "suggesting" : "editing")}
+          </MenuItem>
+        ))
+      }
+    </Popover>
   );
 }
 
@@ -409,14 +489,17 @@ function PageMenu({
   onGraph,
   onMoveToTrash,
   onOpenPage,
+  onVerify,
   offline,
   style,
   onStyle,
+  onAnswerAll,
 }: {
   workspaceId: string;
   page: { id: string; kind: PageKind; parentId: string | null; archived: boolean; hasBody: boolean; isRow?: boolean; title?: string; icon?: string | null };
   info: PageHeaderInfo;
   onInfo: (info: PageHeaderInfo) => void;
+  onAnswerAll?: (decision: Decision) => void;
   onHistory: () => void;
   /** Opens the body as Markdown to edit (markdown-source.tsx); unset where it can't be. */
   onMarkdown?: () => void;
@@ -424,6 +507,7 @@ function PageMenu({
   onGraph?: () => void;
   onMoveToTrash: () => void;
   onOpenPage?: (workspaceId: string, pageId: string) => void;
+  onVerify?: () => void;
   offline: boolean;
   style?: PageStyle;
   onStyle?: (change: Partial<PageStyle>) => void;
@@ -434,6 +518,7 @@ function PageMenu({
   const tSkills = useTranslations("skills");
   const tVoice = useTranslations("page.voiceNote.instructions");
   const tMerge = useTranslations("database.merge");
+  const tVerify = useTranslations("page.verification");
   const tRowAccess = useTranslations("database.rowAccess");
   const locale = useLocale();
   const router = useRouter();
@@ -703,6 +788,18 @@ function PageMenu({
                 {info.outdated ? t("unarchive") : t("archive")}
               </MenuItem>
             )}
+            {onVerify && (
+              <MenuItem
+                icon={<BadgeCheck className="h-4 w-4" />}
+                title={tVerify("menuHint")}
+                onClick={() => {
+                  close();
+                  onVerify();
+                }}
+              >
+                {info.verified ? tVerify("menuVerified") : tVerify("menu")}
+              </MenuItem>
+            )}
             {!page.archived && canEdit && !templateRoot && (
               <MenuItem
                 icon={<Trash2 className="h-4 w-4" />}
@@ -901,6 +998,32 @@ function PageMenu({
               >
                 {t("editMarkdown")}
               </MenuItem>
+            )}
+            {/* Suggested edits that wait: all of them at once, for people who may edit. */}
+            {onAnswerAll && (
+              <>
+                <MenuItem
+                  icon={<CheckCheck className="h-4 w-4" />}
+                  disabled={offline}
+                  onClick={() => {
+                    close();
+                    onAnswerAll("accept");
+                  }}
+                >
+                  {t("acceptAllSuggestions")}
+                </MenuItem>
+                <MenuItem
+                  icon={<X className="h-4 w-4" />}
+                  disabled={offline}
+                  onClick={() => {
+                    if (!confirm(t("rejectAllConfirm"))) return;
+                    close();
+                    onAnswerAll("reject");
+                  }}
+                >
+                  {t("rejectAllSuggestions")}
+                </MenuItem>
+              </>
             )}
             {page.hasBody && (
               <MenuItem

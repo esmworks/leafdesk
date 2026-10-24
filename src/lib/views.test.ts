@@ -1,6 +1,26 @@
 import { describe, expect, it } from "vitest";
 import type { ViewConfig } from "@/db/schema/app";
-import { layoutConfigError, openRowsOf, opensRows, VIEW_TYPES, viewDateProperty } from "./views";
+import { layoutConfigError, LINKED_VIEW_TYPES, openRowsOf, opensRows, VIEW_TYPES, viewDateProperty, withViewSorts } from "./views";
+
+describe("feed views", () => {
+  it("are linked views and open rows like the other views of rows", () => {
+    expect(VIEW_TYPES).toContain("feed");
+    expect(LINKED_VIEW_TYPES).toContain("feed");
+    expect(opensRows("feed")).toBe(true);
+  });
+
+  it("list the newest post first while the view sorts by nothing", () => {
+    expect(withViewSorts({ type: "feed", config: {} as ViewConfig }).sorts).toEqual([{ propertyId: "created_at", direction: "desc" }]);
+    expect(withViewSorts({ type: "feed", config: { sorts: [] } }).sorts).toEqual([{ propertyId: "created_at", direction: "desc" }]);
+  });
+
+  it("keep the view's own sorts, and leave other views as they are", () => {
+    const sorts = [{ propertyId: "due", direction: "asc" as const }];
+    expect(withViewSorts({ type: "feed", config: { sorts } }).sorts).toBe(sorts);
+    const config: ViewConfig = {};
+    expect(withViewSorts({ type: "list", config })).toBe(config);
+  });
+});
 
 const props = [
   { id: "created", type: "created_time" },
@@ -32,7 +52,7 @@ describe("where a view opens its rows", () => {
   });
 
   it("is a setting of every view with rows to open: not forms or charts", () => {
-    expect(VIEW_TYPES.filter(opensRows)).toEqual(["table", "board", "calendar", "gallery", "list", "timeline", "map"]);
+    expect(VIEW_TYPES.filter(opensRows)).toEqual(["table", "board", "calendar", "gallery", "list", "feed", "timeline", "map"]);
   });
 
   it("refuses anything but panel or page", () => {
