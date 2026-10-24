@@ -57,6 +57,11 @@
     "action": "Mở trang",
     "optOut": "Bạn nhận email này vì bạn đã tham gia chuỗi bình luận này. Bạn có thể tắt chúng trong Tài khoản của tôi > Tùy chọn."
   },
+  "suggestion": {
+    "subject": "{actor} đã đề xuất chỉnh sửa “{page}”",
+    "heading": "{actor} đã đề xuất chỉnh sửa “{page}”",
+    "body": "Đề xuất nằm trên “{page}” trong {workspace}. Hãy chấp nhận hoặc từ chối nó từ trang, hoặc trả lời trong chuỗi của nó."
+  },
   "mention": {
     "subject": "{actor} đã nhắc đến bạn trên “{page}”",
     "heading": "{actor} đã nhắc đến bạn trên “{page}”",
@@ -220,6 +225,9 @@
     "assignment": "{actor} đã giao bạn vào “{property}”",
     "pageShared": "{actor} đã chia sẻ trang này với bạn",
     "comment": "{actor} đã bình luận trong một chuỗi bạn tham gia",
+    "suggested": "{actor} đã đề xuất chỉnh sửa trang này",
+    "suggestionAccepted": "{actor} đã chấp nhận đề xuất chỉnh sửa của bạn",
+    "suggestionRejected": "{actor} đã từ chối đề xuất chỉnh sửa của bạn",
     "mention": "{actor} đã nhắc đến bạn",
     "reminder": "Nhắc nhở: {date}",
     "accessRequest": "{actor} đã xin quyền truy cập trang này",

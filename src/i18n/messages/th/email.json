@@ -57,6 +57,11 @@
     "action": "เปิดหน้า",
     "optOut": "คุณได้รับอีเมลนี้เพราะคุณมีส่วนร่วมในเธรดความคิดเห็นนี้ คุณปิดได้ที่บัญชีของฉัน > ค่ากำหนด"
   },
+  "suggestion": {
+    "subject": "{actor} เสนอการแก้ไข “{page}”",
+    "heading": "{actor} เสนอการแก้ไข “{page}”",
+    "body": "ข้อเสนออยู่ใน “{page}” ใน {workspace} ยอมรับหรือปฏิเสธได้จากหน้านั้น หรือตอบกลับในเธรดของข้อเสนอ"
+  },
   "mention": {
     "subject": "{actor} กล่าวถึงคุณใน “{page}”",
     "heading": "{actor} กล่าวถึงคุณใน “{page}”",
@@ -220,6 +225,9 @@
     "assignment": "{actor} มอบหมายคุณให้ “{property}”",
     "pageShared": "{actor} แชร์หน้านี้ให้คุณ",
     "comment": "{actor} แสดงความคิดเห็นในเธรดที่คุณอยู่",
+    "suggested": "{actor} เสนอการแก้ไขหน้านี้",
+    "suggestionAccepted": "{actor} ยอมรับการแก้ไขที่คุณเสนอ",
+    "suggestionRejected": "{actor} ปฏิเสธการแก้ไขที่คุณเสนอ",
     "mention": "{actor} กล่าวถึงคุณ",
     "reminder": "การเตือน: {date}",
     "accessRequest": "{actor} ขอสิทธิ์เข้าถึงหน้านี้",

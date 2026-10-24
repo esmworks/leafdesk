@@ -16,6 +16,14 @@
     "createdBy": "Dibuat oleh {name}",
     "someone": "Seseorang",
     "comments": "Komentar",
+    "suggesting": {
+      "editing": "Mengedit",
+      "suggesting": "Menyarankan",
+      "label": "Mode: {mode}",
+      "editingHint": "Ubah halaman secara langsung",
+      "suggestingHint": "Perubahan Anda tampil sebagai saran yang dapat diterima atau ditolak orang lain",
+      "forcedHint": "Anda dapat berkomentar di halaman ini, jadi perubahan Anda menjadi saran yang dapat diterima atau ditolak oleh pengeditnya"
+    },
     "share": "Bagikan",
     "accessRequests": "{count, plural, other {# permintaan akses}}",
     "addFavorite": "Tambahkan ke favorit",
@@ -51,6 +59,9 @@
     "exportPdf": "Ekspor sebagai PDF",
     "printView": "Cetak",
     "exportPreparing": "Menyiapkan ekspor…",
+    "acceptAllSuggestions": "Terima semua saran",
+    "rejectAllSuggestions": "Tolak semua saran",
+    "rejectAllConfirm": "Tolak semua saran edit di halaman ini?",
     "versionHistory": "Riwayat versi",
     "lastEdited": "Terakhir diedit oleh {name}",
     "wordCount": "{words, plural, other {# kata}}, {characters, plural, other {# karakter}}",
@@ -94,6 +105,20 @@
     "muted": "Balasan dibisukan",
     "mutedHint": "Anda tidak mendapat kabar tentang balasan di utas ini sampai Anda membalas di sini atau seseorang menyebut Anda di sini.",
     "mergedFrom": "Dari “{title}”",
+    "suggestion": {
+      "label": "Saran edit",
+      "byAi": "Saran edit dari AI",
+      "accept": "Terima",
+      "reject": "Tolak",
+      "withdraw": "Tarik kembali",
+      "errors": {
+        "notAllowed": "Anda tidak dapat menanggapi saran ini.",
+        "notFound": "Saran ini sudah ditanggapi atau ditarik kembali.",
+        "pageLocked": "Halaman ini dikunci.",
+        "pageInTrash": "Halaman ini ada di sampah.",
+        "failed": "Saran tidak dapat ditanggapi. Coba lagi."
+      }
+    },
     "sort": {
       "label": "Urutkan utas",
       "recent": "Aktivitas terbaru dulu",
