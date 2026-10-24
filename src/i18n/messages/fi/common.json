@@ -1,0 +1,33 @@
+{
+  "appDescription": "Avoimen lähdekoodin työtila dokumenteille ja tietokannoille, MCP-yhteydellä tekoälyagenteille.",
+  "untitled": "Nimetön",
+  "sourceCode": "Lähdekoodi",
+  "agent": "Agentti",
+  "agentName": "{name} (agentti)",
+  "cancel": "Peruuta",
+  "save": "Tallenna",
+  "saving": "Tallennetaan…",
+  "saved": "Tallennettu.",
+  "close": "Sulje",
+  "delete": "Poista",
+  "remove": "Poista",
+  "restore": "Palauta",
+  "loading": "Ladataan…",
+  "copy": "Kopioi",
+  "copied": "Kopioitu",
+  "genericError": "Jokin meni vikaan. Yritä uudelleen.",
+  "errorPage": {
+    "title": "Jokin meni vikaan",
+    "description": "Tätä sivua ei voitu näyttää, tai viimeisin muutoksesi ei mennyt läpi.",
+    "retry": "Yritä uudelleen",
+    "home": "Siirry etusivulle"
+  },
+  "export": {
+    "failed": "Vientiä ei voitu aloittaa. Yritä uudelleen.",
+    "tooManyPages": "Tämä on liikaa vietäväksi kerralla: vientiin mahtuu enintään {limit} sivua. Vie pienempi osa työtilasta.",
+    "tooLarge": "Tämän viennin tiedostot ovat yhteensä yli {size}. Vie pienempi osa työtilasta.",
+    "busy": "Sinulla on jo vienti käynnissä. Odota, että sen lataus valmistuu.",
+    "disabled": "Vienti on poistettu käytöstä tässä työtilassa."
+  },
+  "celebrate": "Hienoa työtä!"
+}

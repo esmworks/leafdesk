@@ -1,0 +1,38 @@
+{
+  "menuItem": "Rakenna tekoälyllä",
+  "title": "Rakenna tekoälyllä",
+  "hint": "Kuvaile, mitä haluat seurata. Tekoäly luonnostelee tietokannat, ja tarkistat ne ennen kuin mitään luodaan.",
+  "reviewTitle": "Tarkista suunnitelma",
+  "reviewHint": "Nimeä uudelleen tai poista kaikki, mitä et tarvitse, ja luo sitten.",
+  "back": "Takaisin kuvaukseen",
+  "label": "Mitä tarvitset?",
+  "placeholder": "Rekrytointiputki: hakijat etenevät haastatteluvaiheiden läpi, kunkin hakijan haastattelut ja kuka haastattelee ketäkin.",
+  "draft": "Luonnostele tietokannat",
+  "drafting": "Luonnostellaan…",
+  "create": "Luo",
+  "creating": "Luodaan…",
+  "intro": "Lisää niistä kertova sivu ”{title}”, jonka sisällä tietokannat ovat",
+  "exampleRows": "{count, plural, one {Lisää esimerkkirivi} other {Lisää # esimerkkiriviä}}",
+  "databaseTitle": "Tietokannan nimi",
+  "removeDatabase": "Poista {name}",
+  "properties": "Ominaisuudet",
+  "views": "Näkymät",
+  "noProperties": "Vain kunkin rivin nimi.",
+  "removeView": "Poista näkymä {name}",
+  "rename": "Nimeä {name} uudelleen",
+  "linksTo": "Linkittää tietokantaan {database}",
+  "linksBoth": "Linkittää tietokantaan {database}, molempiin suuntiin",
+  "removeProperty": "Poista {name}",
+  "slash": {
+    "title": "Rakenna tietokantoja tekoälyllä",
+    "subtext": "Kuvaile, mitä tarvitset, niin tekoäly luonnostelee tietokannat tämän sivun sisään",
+    "aliases": "ai build database databases generate plan tekoäly rakenna tietokanta tietokannat luo suunnitelma"
+  },
+  "errors": {
+    "unusable": "Tekoäly ei pystynyt luonnostelemaan tietokantoja tästä. Kokeile kuvailla se toisin sanoin.",
+    "invalid": "Suunnitelmaa ei voi luoda sellaisenaan. Palaa takaisin ja luonnostele se uudelleen.",
+    "parent": "Tietokantoja ei voi sijoittaa tietokannan sisään.",
+    "noAccess": "Et voi lisätä sivuja tähän.",
+    "failed": "Jokin suunnitelman osa ei sopinut, joten mitään ei luotu. Poista esimerkkirivit ja yritä uudelleen."
+  }
+}

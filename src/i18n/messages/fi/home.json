@@ -1,0 +1,36 @@
+{
+  "hello": "Hei, {name}",
+  "recent": "Viimeksi muokatut",
+  "assignedEmpty": "Sinulle ei ole osoitettu mitään. Tietokantojen rivit, joihin sinut on osoitettu, näkyvät tässä.",
+  "empty": "Täällä ei ole vielä mitään. Aloita luomalla ensimmäinen sivusi.",
+  "emptyGuest": "Kanssasi ei ole vielä jaettu täällä mitään. Sivut näkyvät, kun joku jakaa ne kanssasi.",
+  "newPage": "Uusi sivu",
+  "newDatabase": "Uusi tietokanta",
+  "personalWorkspace": "Työtila: {name}",
+  "generalTeamspace": "Yleinen",
+  "fromTemplate": "Mallista",
+  "assigned": "Sinulle osoitetut",
+  "assignedGroups": {
+    "overdue": "Myöhässä",
+    "today": "Tänään",
+    "next7": "Seuraavat 7 päivää",
+    "later": "Myöhemmin",
+    "none": "Ei päivämäärää"
+  },
+  "assignedMore": "Näytetään {shown}/{total}.",
+  "assignedAll": "Näytä kaikki",
+  "myTasks": {
+    "title": "Omat tehtävät",
+    "description": "Koko työtilan tietokantojen rivit, jotka voit avata, jotka on osoitettu sinulle ja jotka eivät ole valmiita.",
+    "grouping": "Ryhmittelyperuste",
+    "byDue": "Määräpäivän mukaan",
+    "byDatabase": "Tietokannan mukaan",
+    "sharedRows": "Kanssasi jaetut rivit",
+    "shown": "Näytetään {shown} pian erääntyvää, yhteensä {total}.",
+    "markDone": "Merkitse ”{title}” valmiiksi",
+    "undoLabel": "Merkitse ”{title}” keskeneräiseksi",
+    "undo": "Kumoa",
+    "markFailed": "Riviä ei voitu merkitä valmiiksi.",
+    "undoFailed": "Rivin tilaa ei voitu palauttaa. Muuta se rivillä."
+  }
+}

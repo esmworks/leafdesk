@@ -1,0 +1,124 @@
+{
+  "copyTitle": "{title} (kopio)",
+  "errors": {
+    "triggerRequired": "Anna tekstikatkelmalle lyhenne.",
+    "triggerInvalid": "Lyhenteessä voi olla enintään {max} pientä kirjainta, numeroa, yhdysmerkkiä ja alaviivaa.",
+    "triggerTaken": "Toisella tekstikatkelmalla on jo tämä lyhenne.",
+    "titleTooLong": "Otsikossa voi olla enintään {max} merkkiä.",
+    "bodyRequired": "Kirjoita, mitä tekstikatkelma lisää.",
+    "bodyTooLong": "Tekstikatkelmassa voi olla enintään {max} merkkiä.",
+    "tooMany": "Tekstikatkelmia voi olla enintään {max}. Poista joitakin lisätäksesi uusia.",
+    "notFound": "Tätä tekstikatkelmaa ei enää ole.",
+    "ownersOnly": "Vain työtilan omistajat voivat muuttaa sen tekstikatkelmia.",
+    "accessDenied": "Sinulla ei ole pääsyä näihin tekstikatkelmiin.",
+    "importInvalid": "Tämä ei ole tekstikatkelmatiedosto. Käytä Leafdeskin vientitiedostoa tai luetteloa objekteista, joilla on id ja label.",
+    "importTooLarge": "Tiedosto on liian suuri tuotavaksi."
+  },
+  "menu": {
+    "group": "Tekstikatkelmat",
+    "personal": "Omat tekstikatkelmat",
+    "workspace": "Työtilan tekstikatkelmat",
+    "insertFailed": "Tekstikatkelman lisääminen epäonnistui. {error}"
+  },
+  "save": {
+    "menuItem": "Tallenna tekstikatkelmaksi",
+    "saved": "Tallennettu. Lisää se kirjoittamalla ;{trigger}."
+  },
+  "form": {
+    "newTitle": "Uusi tekstikatkelma",
+    "editTitle": "Muokkaa tekstikatkelmaa",
+    "title": "Otsikko",
+    "titlePlaceholder": "Kokousmuistiinpanot",
+    "trigger": "Lyhenne",
+    "triggerPlaceholder": "kokous",
+    "triggerHint": "Kirjoita sivulle ;{trigger} tai etsi se /-valikon kohdasta Tekstikatkelmat.",
+    "target": "Tallenna kohteeseen",
+    "targetPersonal": "Omat tekstikatkelmat (vain sinulle)",
+    "targetWorkspace": "{workspace} (kaikille työtilassa)",
+    "body": "Sisältö (Markdown)",
+    "bodyPlaceholder": "## Asialista\n- ",
+    "placeholders": "Täytetään lisättäessä:",
+    "placeholder": {
+      "date": "Tämän päivän päivämäärä",
+      "time": "Kellonaika nyt",
+      "datetime": "Tämän päivän päivämäärä ja kellonaika",
+      "me": "Nimesi",
+      "page": "Sivun otsikko",
+      "cursor": "Kohdistimen paikka"
+    },
+    "length": "{count}/{max} merkkiä",
+    "preview": "Esikatselu",
+    "previewPage": "Sivun otsikko",
+    "previewEmpty": "Tekstikatkelman lisäämät lohkot näkyvät tässä.",
+    "create": "Luo tekstikatkelma"
+  },
+  "settings": {
+    "personalDescription": "Sisältöä, jonka lisäät kirjoittaessasi: kirjoita millä tahansa sivulla ; ja tekstikatkelman lyhenne tai valitse se /-valikon kohdasta Tekstikatkelmat. Vain sinä näet nämä.",
+    "description": "Sisältöä, jonka lisäät kirjoittaessasi: kirjoita millä tahansa sivulla ; ja tekstikatkelman lyhenne tai valitse se /-valikon kohdasta Tekstikatkelmat.",
+    "tabsLabel": "Tekstikatkelmat",
+    "tabs": {
+      "mine": "Omat",
+      "workspace": "Työtila"
+    },
+    "mineNote": "Vain sinä näet nämä, ja voit käyttää niitä kaikissa työtiloissasi.",
+    "workspaceNote": "Kaikki työtilassa {workspace} voivat käyttää näitä. Vain omistajat lisäävät ja muuttavat niitä.",
+    "workspaceNoteOwner": "Kaikki työtilassa {workspace} voivat käyttää näitä. Omistajat lisäävät ja muuttavat niitä.",
+    "search": "Hae tekstikatkelmia",
+    "new": "Uusi tekstikatkelma",
+    "import": "Tuo",
+    "importing": "Tuodaan…",
+    "export": "Vie",
+    "count": "{count}/{max}",
+    "noMatches": "Ei vastaavia tekstikatkelmia.",
+    "empty": "Työtilassa ei ole vielä jaettuja tekstikatkelmia.",
+    "emptyOwner": "Ei vielä tekstikatkelmia. Aloita esimerkistä tai luo oma.",
+    "emptyWorkspaceOwner": "Työtilassa ei ole vielä jaettuja tekstikatkelmia. Luo sellainen, jota kaikki voivat käyttää.",
+    "examplesHeading": "Esimerkit",
+    "addExample": "Lisää",
+    "actionsFor": "Toiminnot: {title}",
+    "edit": "Muokkaa",
+    "duplicate": "Monista",
+    "delete": "Poista",
+    "deleteTitle": "Poistetaanko ”{title}”?",
+    "deleteBody": "Sivut, joille se on lisätty, säilyttävät tekstinsä.",
+    "imported": "{count, plural, =0 {Tekstikatkelmia ei lisätty.} one {# tekstikatkelma lisätty.} other {# tekstikatkelmaa lisätty.}}",
+    "skipped": "{count, plural, one {# ohitettu:} other {# ohitettu:}}",
+    "skip": {
+      "triggerRequired": "ei lyhennettä",
+      "triggerInvalid": "lyhenne ei kelpaa",
+      "titleTooLong": "otsikko liian pitkä",
+      "bodyRequired": "tyhjä",
+      "bodyTooLong": "liian pitkä",
+      "duplicate": "kahdesti tiedostossa",
+      "exists": "lyhenne on jo käytössä",
+      "tooMany": "yli rajan"
+    },
+    "untitledTrigger": "(ei lyhennettä)",
+    "importFailed": "Tuonti epäonnistui. {error}"
+  },
+  "examples": {
+    "meeting": {
+      "trigger": "kokous",
+      "title": "Kokousmuistiinpanot",
+      "attendees": "Osallistujat",
+      "agenda": "Asialista",
+      "notes": "Muistiinpanot",
+      "actions": "Toimenpiteet"
+    },
+    "log": {
+      "trigger": "loki",
+      "title": "Päivätty lokirivi"
+    },
+    "decision": {
+      "trigger": "paatos",
+      "title": "Päätöskirjaus",
+      "heading": "Päätös",
+      "date": "Päivämäärä",
+      "decidedBy": "Päättäjä",
+      "context": "Tausta",
+      "options": "Harkitut vaihtoehdot",
+      "outcome": "Mitä päätimme",
+      "consequences": "Seuraukset"
+    }
+  }
+}

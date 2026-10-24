@@ -1,0 +1,14 @@
+{
+  "metaTitle": "Henkilöt",
+  "heading": "Henkilöt",
+  "description": "Tämän työtilan omistajat ja jäsenet sekä heidän tiimitilansa, ryhmänsä ja viimeksi muokkaamansa sivut. Vieraita ei näytetä.",
+  "search": "Hae nimellä, sähköpostilla, tiimitilalla tai ryhmällä",
+  "count": "{count, plural, one {# henkilö} other {# henkilöä}}",
+  "noMatches": "Kukaan ei vastaa hakuasi.",
+  "you": "(sinä)",
+  "teamspaces": "Tiimitilat",
+  "groups": "Ryhmät",
+  "recentPages": "Viimeksi muokatut",
+  "none": "Ei mitään",
+  "noRecentPages": "Ei viimeaikaisia muokkauksia, jotka voisit avata."
+}

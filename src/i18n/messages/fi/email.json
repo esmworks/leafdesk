@@ -1,0 +1,300 @@
+{
+  "footer": "Tämän sähköpostin lähetti Leafdesk osoitteesta {appUrl}.",
+  "actionFallback": "Jos painike ei toimi, liitä tämä linkki selaimeesi:",
+  "test": {
+    "subject": "Testiviesti Leafdeskistä",
+    "heading": "Sähköpostin toimitus toimii",
+    "body": "Tämä on testiviesti Leafdesk-palvelimeltasi osoitteessa {appUrl}. Jos voit lukea tämän, sähköposti on määritetty oikein."
+  },
+  "invitation": {
+    "subject": "{inviter} kutsui sinut työtilaan ”{workspace}” Leafdeskissä",
+    "heading": "Liity työtilaan ”{workspace}”",
+    "body": "{inviter} kutsui sinut liittymään työtilaan ”{workspace}” Leafdeskissä. Roolisi: {role}.",
+    "expires": "Linkki toimii 7 päivää. Hyväksy kutsu rekisteröitymällä osoitteella {email}.",
+    "action": "Hyväksy kutsu",
+    "roles": {
+      "owner": "omistaja",
+      "member": "jäsen",
+      "guest": "vieras"
+    }
+  },
+  "passwordReset": {
+    "subject": "Nollaa Leafdesk-salasanasi",
+    "heading": "Nollaa salasanasi",
+    "body": "Hei {name}, joku pyysi Leafdesk-tilisi salasanan nollaamista. Jos se olit sinä, valitse uusi salasana alla olevalla painikkeella.",
+    "expires": "Linkki toimii {minutes} minuuttia ja vain kerran. Jos et pyytänyt tätä, voit jättää viestin huomiotta; salasanasi pysyy ennallaan.",
+    "action": "Valitse uusi salasana"
+  },
+  "assignment": {
+    "subject": "{actor} määritti sinut riviin ”{row}”",
+    "heading": "Sinut määritettiin riviin ”{row}”",
+    "body": "{actor} lisäsi sinut ominaisuuteen ”{property}” tietokannassa {database}.",
+    "bodyHidden": "{actor} lisäsi sinut ominaisuuteen ”{property}”.",
+    "action": "Avaa",
+    "untitled": "Nimetön",
+    "someone": "Joku",
+    "optOut": "Voit poistaa nämä sähköpostit käytöstä kohdassa Oma tili > Valinnat."
+  },
+  "share": {
+    "subject": "{actor} jakoi sivun ”{page}” kanssasi",
+    "heading": "{actor} jakoi sivun kanssasi",
+    "body": "Voit nyt {level} sivua ”{page}” työtilassa {workspace}.",
+    "levels": {
+      "view": "katsella",
+      "comment": "katsella ja kommentoida",
+      "edit": "muokata",
+      "full": "katsella, muokata ja jakaa"
+    },
+    "action": "Avaa sivu",
+    "untitled": "Nimetön",
+    "optOut": "Voit poistaa nämä sähköpostit käytöstä kohdassa Oma tili > Valinnat."
+  },
+  "comment": {
+    "subject": "{actor} kommentoi sivua ”{page}”",
+    "heading": "{actor} kommentoi sivua ”{page}”",
+    "quote": "”{text}”",
+    "body": "Kommentti on sivulla ”{page}” työtilassa {workspace}. Vastaa siihen tai merkitse se ratkaistuksi sivulla.",
+    "action": "Avaa sivu",
+    "optOut": "Saat näitä, koska osallistuit tähän kommenttiketjuun. Voit poistaa ne käytöstä kohdassa Oma tili > Valinnat."
+  },
+  "suggestion": {
+    "subject": "{actor} ehdotti muutoksia sivulle ”{page}”",
+    "heading": "{actor} ehdotti muutoksia sivulle ”{page}”",
+    "body": "Ehdotus on sivulla ”{page}” työtilassa {workspace}. Hyväksy tai hylkää se sivulla tai vastaa sen keskusteluun."
+  },
+  "mention": {
+    "subject": "{actor} mainitsi sinut sivulla ”{page}”",
+    "heading": "{actor} mainitsi sinut sivulla ”{page}”",
+    "body": "Maininta on sivulla ”{page}” työtilassa {workspace}.",
+    "action": "Avaa sivu",
+    "someone": "Joku",
+    "optOut": "Saat näitä, koska joku mainitsi sinut. Voit poistaa ne käytöstä kohdassa Oma tili > Valinnat."
+  },
+  "reminder": {
+    "subject": "Muistutus: {date} sivulla ”{page}”",
+    "heading": "Muistutus: {date}",
+    "body": "Pyysit muistutusta päivämäärästä {date} sivulla ”{page}” työtilassa {workspace}.",
+    "action": "Avaa sivu",
+    "optOut": "Saat näitä, koska asetit muistutuksen. Voit poistaa ne käytöstä kohdassa Oma tili > Valinnat."
+  },
+  "pageVerification": {
+    "endsSubject": "Sivun ”{page}” vahvistuksesi päättyy {date}",
+    "endsHeading": "Vahvistus päättyy pian",
+    "endsBody": "Vahvistit sivun ”{page}” työtilassa {workspace} päivään {date} asti. Jos se pitää yhä paikkansa, vahvista se uudelleen sivun ⋯-valikosta, niin se pysyy vahvistettuna.",
+    "endedSubject": "Sivun ”{page}” vahvistuksesi on vanhentunut",
+    "endedHeading": "Vahvistus vanhentunut",
+    "endedBody": "Sivun ”{page}” vahvistuksesi työtilassa {workspace} päättyi {date}. Sivulla näkyy ”Vahvistus vanhentunut”, kunnes joku vahvistaa sen uudelleen.",
+    "action": "Avaa sivu",
+    "optOut": "Saat näitä, koska vahvistit sivun. Voit poistaa ne käytöstä kohdassa Oma tili > Valinnat."
+  },
+  "dateReminder": {
+    "subject": "Muistutus: ”{page}” {date}",
+    "heading": "”{page}”: {date}",
+    "body": "Rivillä ”{page}” tietokannassa {database} ({workspace}) on {property} {date}.",
+    "bodyHidden": "Rivillä ”{page}” ({workspace}) on {property} {date}.",
+    "action": "Avaa rivi",
+    "optOut": "Saat näitä, koska {database} muistuttaa rivejensä henkilöitä. Voit poistaa muistutukset käytöstä kohdassa Oma tili > Valinnat.",
+    "optOutHidden": "Saat näitä, koska rivin tietokanta muistuttaa rivejensä henkilöitä. Voit poistaa muistutukset käytöstä kohdassa Oma tili > Valinnat."
+  },
+  "automation": {
+    "subject": "Automaatio ”{automation}”: ”{page}”",
+    "heading": "Automaatio ”{automation}” ilmoittaa sinulle rivistä ”{page}”",
+    "body": "{actor} lisäsi tai muutti rivin ”{page}” tietokannassa {database} ({workspace}).",
+    "bodyHidden": "{actor} lisäsi tai muutti rivin ”{page}” ({workspace}).",
+    "bodyDatePassed": "Rivi ”{page}” tietokannassa {database} ({workspace}) saavutti päivämäärän, jota tämä automaatio odottaa.",
+    "bodyDatePassedHidden": "Rivi ”{page}” ({workspace}) saavutti päivämäärän, jota tämä automaatio odottaa.",
+    "action": "Avaa rivi",
+    "someone": "Joku",
+    "optOut": "Saat näitä, koska tietokannan automaatio ilmoittaa sinulle. Voit poistaa ne käytöstä kohdassa Oma tili > Valinnat."
+  },
+  "rowUpdate": {
+    "subject": "{actor} muutti riviä ”{page}”",
+    "heading": "{actor} muutti riviä ”{page}”",
+    "intro": "{actor} muutti riviä ”{page}” tietokannassa {database} ({workspace}):",
+    "introHidden": "{actor} muutti riviä ”{page}” ({workspace}):",
+    "change": "{property}: {from} → {to}",
+    "title": "Otsikko",
+    "body": "Rivin tekstiä muokattiin.",
+    "empty": "tyhjä",
+    "checked": "valittu",
+    "unchecked": "ei valittu",
+    "deletedOption": "{count, plural, one {poistettu vaihtoehto} other {# poistettua vaihtoehtoa}}",
+    "unknownPerson": "{count, plural, one {tuntematon henkilö} other {# tuntematonta henkilöä}}",
+    "noAccess": "Ei pääsyä",
+    "untitled": "Nimetön",
+    "checklist": "{done}/{total} valmiina",
+    "action": "Avaa rivi",
+    "someone": "Joku",
+    "optOut": "Saat näitä, koska seuraat tätä riviä. Lopeta seuraaminen rivin sivun valikosta tai poista nämä sähköpostit käytöstä kohdassa Oma tili > Valinnat."
+  },
+  "pageUpdate": {
+    "subject": "{actor} muokkasi sivua ”{page}”",
+    "heading": "{actor} muokkasi sivua ”{page}”",
+    "body": "Sivu ”{page}” työtilassa {workspace} on muuttunut. Avaa se nähdäksesi, mikä on uutta; sen historia näyttää jokaisen muutoksen.",
+    "someone": "Joku",
+    "action": "Avaa sivu",
+    "optOut": "Saat näitä, koska seuraat tätä sivua: loit tai muokkasit sitä, valitsit sen seurattavaksi tai seuraat sen tiimitilaa. Mykistä se sivun ⋯-valikosta tai poista nämä sähköpostit käytöstä kohdassa Oma tili > Valinnat.",
+    "digestSubject": "{count, plural, one {# seuraamasi sivu muokattiin} other {# seuraamaasi sivua muokattiin}}",
+    "digestIntro": "Sait jo tämän päivän sähköpostit seuraamistasi sivuista, joten nämä muokkaukset tulevat yhdessä:",
+    "digestPage": "”{page}” työtilassa {workspace}, muokkaaja {actor}: {link}",
+    "digestAction": "Avaa Leafdesk"
+  },
+  "accessRequest": {
+    "subject": "{requester} pyysi pääsyä sivulle ”{page}”",
+    "heading": "{requester} pyysi pääsyä sivulle ”{page}”",
+    "body": "{requester} ({email}) haluaisi avata sivun ”{page}” työtilassa {workspace}.",
+    "bodyWithoutEmail": "{requester} haluaisi avata sivun ”{page}” työtilassa {workspace}.",
+    "message": "Viesti: ”{message}”",
+    "moreSubject": "{requester} pyysi oikeutta {level, select, comment {kommentoida} other {muokata}} sivua ”{page}”",
+    "moreHeading": "{requester} pyysi laajempaa pääsyä sivulle ”{page}”",
+    "moreBody": "{requester} ({email}) voi avata sivun ”{page}” työtilassa {workspace} ja haluaisi {level, select, comment {kommentoida sitä} other {muokata sitä}}.",
+    "moreBodyWithoutEmail": "{requester} voi avata sivun ”{page}” työtilassa {workspace} ja haluaisi {level, select, comment {kommentoida sitä} other {muokata sitä}}.",
+    "answer": "Jaa sivu hänen kanssaan ja valitse, mitä hän voi tehdä, tai hylkää pyyntö. Voit vastata saapuneista tai sivun Jaa-valikosta.",
+    "action": "Avaa sivu",
+    "optOut": "Saat näitä, koska sinulla on sivuun täydet oikeudet. Voit poistaa ne käytöstä kohdassa Oma tili > Valinnat."
+  },
+  "accessApproved": {
+    "subject": "Voit nyt avata sivun ”{page}”",
+    "heading": "{actor} hyväksyi pyyntösi",
+    "body": "Voit nyt {level} sivua ”{page}” työtilassa {workspace}.",
+    "action": "Avaa sivu"
+  },
+  "accessDeclined": {
+    "subject": "Käyttöoikeuspyyntösi hylättiin",
+    "heading": "Pyyntösi hylättiin",
+    "body": "Pyyntösi päästä tälle sivulle hylättiin: {link}",
+    "hint": "Jos tarvitset sitä yhä, kysy henkilöltä, joka lähetti sinulle linkin.",
+    "moreBody": "Pyyntösi {level, select, comment {kommentoida} other {muokata}} sivua ”{page}” hylättiin. Voit edelleen avata sen kuten ennenkin: {link}"
+  },
+  "emailChange": {
+    "subject": "Vahvista uusi sähköpostiosoitteesi",
+    "heading": "Vahvista uusi sähköpostiosoitteesi",
+    "body": "Hei {name}, pyysit käyttämään tätä osoitetta Leafdesk-tililläsi osoitteen {old} sijaan. Vahvista se alla olevalla painikkeella.",
+    "expires": "Linkki toimii {hours} tuntia ja vain kerran. Jos et pyytänyt tätä, voit jättää viestin huomiotta; mikään ei muutu.",
+    "action": "Vahvista sähköpostiosoite"
+  },
+  "emailChanged": {
+    "subject": "Leafdesk-tilisi sähköpostiosoite muuttui",
+    "heading": "Sähköpostiosoitteesi muuttui",
+    "body": "Hei {name}, Leafdesk-tilisi sähköpostiosoite muuttui osoitteesta {old} osoitteeseen {new}. Kirjaudu tästä lähtien sisään uudella osoitteella.",
+    "warning": "Jos et tehnyt tätä muutosta, ota heti yhteyttä työtilasi omistajaan."
+  },
+  "passwordChanged": {
+    "subject": "Leafdesk-salasanasi muuttui",
+    "heading": "Salasanasi muuttui",
+    "body": "Hei {name}, Leafdesk-tilisi salasana vaihdettiin juuri.",
+    "warning": "Jos et tehnyt tätä muutosta, nollaa salasanasi kirjautumissivulla ja ota yhteyttä työtilasi omistajaan."
+  },
+  "joinRequest": {
+    "join": {
+      "subject": "{asker} pyysi saada liittyä työtilaan ”{workspace}”",
+      "heading": "{asker} pyysi saada liittyä",
+      "body": "{asker} ({email}) pyysi saada liittyä työtilaan ”{workspace}” Leafdeskissä. Hyväksy tai hylkää pyyntö kohdassa Asetukset > Jäsenet."
+    },
+    "invite": {
+      "subject": "{asker} pyysi kutsua käyttäjän {email} työtilaan ”{workspace}”",
+      "heading": "Jäsen pyysi kutsumaan jonkun",
+      "body": "{asker} haluaisi kutsua käyttäjän {email} työtilaan ”{workspace}” Leafdeskissä. Kutsu lähtee, kun omistaja hyväksyy sen."
+    },
+    "action": "Tarkista pyynnöt",
+    "optOut": "Voit poistaa nämä sähköpostit käytöstä kohdassa Oma tili > Valinnat."
+  },
+  "joinDecision": {
+    "joinApproved": {
+      "subject": "Liityit työtilaan ”{workspace}”",
+      "heading": "Tervetuloa työtilaan ”{workspace}”",
+      "body": "Omistaja hyväksyi pyyntösi liittyä työtilaan ”{workspace}” Leafdeskissä."
+    },
+    "joinDeclined": {
+      "subject": "Pyyntösi liittyä työtilaan ”{workspace}”",
+      "heading": "Pyyntöäsi ei hyväksytty",
+      "body": "Työtilan ”{workspace}” omistaja hylkäsi liittymispyyntösi. Voit pyytää kutsua joltakulta sen omistajista."
+    },
+    "inviteApproved": {
+      "subject": "{email} kutsuttiin työtilaan ”{workspace}”",
+      "heading": "Kutsusi lähti",
+      "body": "Omistaja hyväksyi pyyntösi, ja {email} kutsuttiin työtilaan ”{workspace}” Leafdeskissä."
+    },
+    "inviteDeclined": {
+      "subject": "Pyyntösi kutsua {email}",
+      "heading": "Pyyntöäsi ei hyväksytty",
+      "body": "Työtilan ”{workspace}” omistaja hylkäsi pyyntösi kutsua käyttäjän {email}."
+    },
+    "action": "Avaa Leafdesk"
+  },
+  "verification": {
+    "subject": "Vahvista Leafdesk-sähköpostiosoitteesi",
+    "heading": "Vahvista sähköpostiosoitteesi",
+    "body": "Hei {name}, vahvista alla olevalla painikkeella, että tämä osoite on sinun.",
+    "ignore": "Jos et luonut Leafdesk-tiliä, voit jättää tämän viestin huomiotta.",
+    "action": "Vahvista sähköpostiosoite"
+  },
+  "passwordResetRequired": {
+    "subject": "Valitse uusi Leafdesk-salasana",
+    "heading": "Valitse uusi salasana",
+    "body": "Hei {name}, tämän Leafdesk-palvelimen ylläpitäjä pyysi sinua valitsemaan uuden salasanan. Vanha salasanasi ei enää kirjaa sinua sisään.",
+    "expires": "Linkki toimii {minutes} minuuttia ja vain kerran. Jos kirjaudut uudelleen vanhalla salasanallasi, saat uuden linkin.",
+    "action": "Valitse uusi salasana"
+  },
+  "push": {
+    "assignment": "{actor} määritti sinut ominaisuuteen ”{property}”",
+    "pageShared": "{actor} jakoi tämän sivun kanssasi",
+    "comment": "{actor} kommentoi keskustelussa, jossa olet mukana",
+    "suggested": "{actor} ehdotti muutoksia tälle sivulle",
+    "suggestionAccepted": "{actor} hyväksyi muokkausehdotuksesi",
+    "suggestionRejected": "{actor} hylkäsi muokkausehdotuksesi",
+    "mention": "{actor} mainitsi sinut",
+    "reminder": "Muistutus: {date}",
+    "accessRequest": "{actor} pyysi pääsyä tälle sivulle",
+    "accessRequestMore": "{actor} pyysi oikeutta {level, select, comment {kommentoida} other {muokata}} tätä sivua",
+    "automation": "Automaatio ”{name}”: {actor} lisäsi tai muutti tämän rivin",
+    "automationDatePassed": "Automaatio ”{name}”: tämän rivin päivämäärä on tullut",
+    "button": "{actor} lähetti sinulle tämän sivun painikkeella",
+    "rowUpdate": "{actor} muutti: {fields}",
+    "rowUpdateSome": "{actor} muutti tätä riviä",
+    "rowUpdateTitle": "otsikko",
+    "rowUpdateBody": "teksti",
+    "pageUpdated": "{actor} muokkasi tätä sivua",
+    "rowEmail": "Sähköposti lähettäjältä {from}",
+    "followUp": "Seurantasarja ”{sequence}” keskeytetty: sen seuraava sähköposti pitää tarkistaa",
+    "reaction": "{actor} reagoi kommenttiisi: {emoji}",
+    "people": "{others, plural, =0 {{name}} one {{name} ja # muu} other {{name} ja # muuta}}",
+    "verificationEnds": "Tämän sivun vahvistuksesi päättyy {date}",
+    "verificationEnded": "Tämän sivun vahvistuksesi vanhentui {date}",
+    "someone": "Joku",
+    "joinRequestTitle": "Liittymispyyntö",
+    "joinRequest": "{actor} pyysi saada liittyä",
+    "inviteRequest": "{actor} pyysi kutsumaan käyttäjän {email}",
+    "approvalTitle": "{agent} pyytää lupaa jatkaa",
+    "approval": "Haluaa kutsua työkalua ”{tool}” yhteydessä {connection}",
+    "memoryTitle": "{agent} haluaa muistaa",
+    "memory": "{count, plural, one {Ehdottaa muistiinsa merkintää} other {Ehdottaa muistiinsa # merkintää}}",
+    "reportTitle": "Raportti agentilta {agent}",
+    "reportDone": "Ajastettu ajo valmistui",
+    "reportFailed": "Ajastettu ajo epäonnistui",
+    "untitled": "Nimetön",
+    "snooze": "Torkku 1 tunti",
+    "read": "Merkitse luetuksi",
+    "aiAccountTitle": "Tekoälytili poistettu",
+    "aiAccountDetached": "Työtilan tekoäly ei enää käytä käyttäjän {actor} avainta.",
+    "reviewTitle": "Tarkistettavat",
+    "review": "{count, plural, one {{agent} ehdotti muutosta tarkistettavaksesi} other {# muutosta odottaa tarkistustasi, uusin agentilta {agent}}}",
+    "sensitiveContent": "Tältä sivulta löytyi {kind, select, card {maksukortin numero} iban {IBAN-tilinumero} national_id {henkilötunnus} private_key {yksityinen avain} aws_key {AWS-käyttöavain} github_token {GitHub-tunnus} slack_token {Slack-tunnus} api_key {API-avain} jwt {JSON Web Token} other {arkaluonteista sisältöä}}."
+  },
+  "agentReply": {
+    "aiOff": "En voi vastata: tekoäly on poistettu käytöstä tässä työtilassa.",
+    "agentDisabled": "En voi vastata: olen keskeytetty. Työtilan omistaja voi ottaa minut taas käyttöön asetuksista.",
+    "limitReached": "En voi vastata: olen käyttänyt tämän kuun token-rajani. Työtilan omistaja voi nostaa sitä asetuksista.",
+    "costLimit": "En voi vastata: työtila on saavuttanut kuukausittaisen tekoälykustannusrajansa.",
+    "timeout": "En ehtinyt valmiiksi ajoissa. Yritä uudelleen pienemmällä pyynnöllä.",
+    "approvalTimeout": "En saanut tätä valmiiksi: kukaan ei hyväksynyt tarvitsemaani toimintoa vuorokauden kuluessa, joten lopetin.",
+    "empty": "Tutkin asiaa, mutta minulla ei ole lisättävää.",
+    "failed": "Valitettavasti en saanut tätä valmiiksi. Työtilan omistaja näkee ajoistani asetuksista, mitä tapahtui."
+  },
+  "workspaceDeleted": {
+    "subject": "{workspace} poistettiin",
+    "heading": "{workspace} poistettiin",
+    "body": "Hei {name}, {by} poisti Leafdesk-työtilan {workspace} kaikkine sivuineen, tietokantoineen ja tiedostoineen. Et voi enää avata sitä.",
+    "note": "Poistettuja työtiloja ei voi palauttaa. Jos et odottanut tätä, keskustele käyttäjän {by} tai työtilan muun omistajan kanssa."
+  }
+}

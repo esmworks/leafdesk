@@ -1,0 +1,141 @@
+{
+  "heading": "Henkilökohtaiset käyttötunnukset",
+  "description": "Tunnuksilla skriptit ja muut ohjelmat voivat käyttää Leafdeskin REST APIa sinun nimissäsi ja sinun käyttöoikeuksillasi sivuihin. Pidä ne salassa kuten salasana.",
+  "docs": "API-dokumentaatio",
+  "empty": "Sinulla ei ole vielä tunnuksia.",
+  "create": "Uusi tunnus",
+  "form": {
+    "title": "Uusi henkilökohtainen käyttötunnus",
+    "name": "Nimi",
+    "namePlaceholder": "esim. Viikkoraporttiskripti",
+    "access": "Käyttöoikeus",
+    "workspace": "Työtila",
+    "allWorkspaces": "Kaikki työtilani",
+    "expiry": "Vanhenee",
+    "days": "{count, plural, one {# päivän kuluttua} other {# päivän kuluttua}}",
+    "never": "Ei koskaan",
+    "submit": "Luo tunnus",
+    "creating": "Luodaan…"
+  },
+  "created": {
+    "title": "Kopioi uusi tunnuksesi",
+    "body": "Tunnus näytetään vain tämän kerran. Säilytä se turvallisessa paikassa; jos kadotat sen, mitätöi se ja luo uusi.",
+    "done": "Valmis"
+  },
+  "row": {
+    "readOnly": "Vain luku",
+    "readWrite": "Luku ja kirjoitus",
+    "allWorkspaces": "Kaikki työtilat",
+    "createdAt": "Luotu {date}",
+    "lastUsed": "viimeksi käytetty {date}",
+    "neverUsed": "ei koskaan käytetty",
+    "expires": "vanhenee {date}",
+    "expired": "vanhentui {date}",
+    "noExpiry": "ei vanhene",
+    "legacy": "luotu ennen resurssikohtaisia käyttöoikeuksia"
+  },
+  "revoke": "Mitätöi",
+  "revoking": "Mitätöidään…",
+  "confirmRevoke": "Mitätöi {name}",
+  "revokeError": "Tunnuksen mitätöinti epäonnistui. Yritä uudelleen.",
+  "errors": {
+    "name": "Anna tunnukselle enintään 100 merkin nimi.",
+    "scopes": "Valitse, mitä tunnus saa tehdä.",
+    "workspace": "Et ole sen työtilan jäsen.",
+    "expiry": "Valitse, milloin tunnus vanhenee.",
+    "limit": "Sinulla on jo suurin sallittu määrä tunnuksia. Mitätöi ensin yksi.",
+    "generic": "Tunnuksen luominen epäonnistui. Yritä uudelleen.",
+    "notFound": "Tätä tunnusta ei ole enää olemassa.",
+    "ownerScope": "Vain työtilan omistajat voivat sallia tunnuksen lukea sen tarkastuslokia, ja vain tunnukselle, joka on rajattu kyseiseen työtilaan."
+  },
+  "docsPage": {
+    "metaTitle": "REST API",
+    "openapi": "OpenAPI-dokumentti (JSON)",
+    "tokensWhere": "Luo tunnus kohdassa Oma tili → Yhdistetyt sovellukset.",
+    "quickStart": "Pika-aloitus",
+    "baseUrl": "Perus-URL",
+    "errors": "Virheet",
+    "code": "Koodi",
+    "status": "Tila",
+    "endpoints": "Päätepisteet",
+    "parameters": "Parametrit",
+    "inPath": "polku",
+    "inQuery": "kysely",
+    "body": "Pyynnön runko (JSON)",
+    "formBody": "Pyynnön runko (multipart-lomakedata)",
+    "response": "Vastaus {status}",
+    "name": "Nimi",
+    "type": "Tyyppi",
+    "description": "Kuvaus",
+    "required": "pakollinen",
+    "scopes": "Käyttöalueet",
+    "scope": "Käyttöalue",
+    "access": "Käyttöoikeus",
+    "read": "Luku",
+    "write": "Kirjoitus",
+    "inHeader": "otsake"
+  },
+  "scopes": {
+    "presets": {
+      "readAll": "Lue kaikkea",
+      "all": "Lue ja kirjoita kaikkea"
+    },
+    "read": "Luku",
+    "write": "Kirjoitus",
+    "toggle": "{access}: {resource}",
+    "resources": {
+      "workspaces": {
+        "name": "Työtilat",
+        "hint": "Työtilat, niiden tiimitilat ja ryhmät."
+      },
+      "pages": {
+        "name": "Sivut",
+        "hint": "Sivut, alasivut ja päivän muistiinpanot; kirjoitus kattaa myös äänimuistiinpanot."
+      },
+      "search": {
+        "name": "Haku",
+        "hint": "Haku sivuista ja riveistä."
+      },
+      "databases": {
+        "name": "Tietokannat",
+        "hint": "Tietokannan ominaisuudet ja näkymät."
+      },
+      "rows": {
+        "name": "Rivit",
+        "hint": "Rivien kyselyt ja niiden toiminnan lukeminen; kirjoitus lisää ja muuttaa rivejä."
+      },
+      "comments": {
+        "name": "Kommentit",
+        "hint": "Kommenttiketjut; kirjoitus aloittaa ketjuja ja vastaa niihin."
+      },
+      "agents": {
+        "name": "Agentit",
+        "hint": "Agenttien asetukset, ajot, aikataulut ja jakaminen."
+      },
+      "webhooks": {
+        "name": "Webhookit",
+        "hint": "Sivujen webhookit ja niiden toimitukset; kirjoitus lisää, muuttaa ja testaa niitä (vain omistajat)."
+      },
+      "audit": {
+        "name": "Tarkastusloki",
+        "hint": "Työtilan tarkastusloki (vain omistajat, tunnukselle, joka on rajattu heidän omistamaansa työtilaan)."
+      }
+    },
+    "summary": {
+      "read": "{resource}: luku",
+      "readWrite": "{resource}: luku ja kirjoitus"
+    }
+  },
+  "edit": {
+    "button": "Muuta käyttöoikeutta",
+    "title": "Muuta, mitä {name} saa tehdä",
+    "body": "Tunnus säilyttää salaisuutensa; muutos tulee voimaan sen seuraavasta pyynnöstä.",
+    "legacy": "Tämä tunnus luotiin ennen kuin käyttöoikeudet valittiin resurssikohtaisesti, joten se voi lukea kaikkea (ja kirjoittaa kaikkea, jos se luotiin kirjoittamista varten), myös myöhemmin lisättävää. Tallentaminen antaa sille täsmälleen sen, mitä tässä valitset.",
+    "errors": {
+      "scopes": "Valitse vähintään yksi asia, jonka tunnus saa tehdä.",
+      "notFound": "Tätä tunnusta ei ole enää olemassa.",
+      "generic": "Tunnuksen muuttaminen epäonnistui. Yritä uudelleen.",
+      "ownerScope": "Vain työtilan omistajat voivat sallia tunnuksen lukea sen tarkastuslokia, ja vain tunnukselle, joka on rajattu kyseiseen työtilaan."
+    }
+  }
+}

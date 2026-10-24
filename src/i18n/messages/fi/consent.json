@@ -1,0 +1,37 @@
+{
+  "metaTitle": "Valtuuta sovellus",
+  "expired": {
+    "title": "Tämä linkki on vanhentunut",
+    "body": "Valtuutuspyyntö on virheellinen tai liian vanha. Palaa sovellukseen, jota olit yhdistämässä, ja aloita alusta."
+  },
+  "unknownClient": {
+    "title": "Tuntematon sovellus",
+    "body": "Pääsyä pyytävää sovellusta ei ole rekisteröity Leafdeskiin tai se on poistettu käytöstä. Palaa takaisin ja yritä yhdistää uudelleen."
+  },
+  "heading": "{client} haluaa käyttää Leafdesk-tiliäsi",
+  "identifiedBy": "Tämän sovelluksen tunnistaa {host}.",
+  "unverified": "Tämä sovellus rekisteröityi automaattisesti, eikä Leafdesk ole tarkistanut sitä. Jatka vain, jos aloitit tämän yhteyden itse.",
+  "notYou": "Etkö se ole sinä?",
+  "willAllow": "Tämä sallii sovelluksen {client}:",
+  "readOnlyHint": "Poista valinta, jos haluat antaa vain lukuoikeuden. Jokainen muokkaus tallennetaan ensin sivun historiaan, joten voit kumota sen.",
+  "access": {
+    "all": "Pääsy koskee kaikkia työtiloja, joihin kuulut. Voit katkaista sovelluksen yhteyden milloin tahansa asetuksista.",
+    "listed": "Pääsy koskee kaikkia työtiloja, joihin kuulut: {workspaces}. Voit katkaista sovelluksen yhteyden milloin tahansa asetuksista."
+  },
+  "deny": "Estä",
+  "denying": "Estetään…",
+  "allow": "Salli",
+  "allowing": "Sallitaan…",
+  "redirectNotice": "Sinut ohjataan takaisin osoitteeseen {host}.",
+  "error": "Pyyntöä ei voitu suorittaa loppuun. Palaa sovellukseen ja yritä uudelleen.",
+  "scopes": {
+    "openid": "Vahvistaa henkilöllisyytesi",
+    "profile": "Nähdä nimesi ja profiilikuvasi",
+    "email": "Nähdä sähköpostiosoitteesi",
+    "offlineAccess": "Pysyä yhdistettynä pyytämättä sinua kirjautumaan uudelleen",
+    "pagesRead": "Lukea työtilojesi sivuja ja tietokantoja",
+    "pagesWrite": "Luoda ja muokata sivuja ja tietokantojen rivejä sekä siirtää sivuja roskakoriin",
+    "notificationsRead": "Lukea saapuneiden ilmoituksiasi",
+    "filesWrite": "Ladata tiedostoja sivuille linkistä tai suoraan sovelluksesta"
+  }
+}

@@ -1,0 +1,97 @@
+{
+  "metaTitle": "Palvelimen ylläpito",
+  "title": "Palvelimen ylläpito",
+  "description": "Tämän palvelimen tilit, niiden istunnot ja salasanat. Näet tämän sivun, koska vahvistettu sähköpostiosoitteesi on mainittu muuttujassa ADMIN_EMAILS.",
+  "back": "Takaisin työtilaan {workspace}",
+  "backHome": "Takaisin",
+  "workspaces": {
+    "heading": "Työtilojen luominen",
+    "everyone": "Kaikki voivat luoda työtiloja",
+    "admins": "Vain ylläpitäjät voivat luoda työtiloja",
+    "description": "Asetetaan palvelimella muuttujalla WORKSPACE_CREATION (everyone tai admins). Kaikki saavat silti henkilökohtaisen työtilan rekisteröityessään."
+  },
+  "sessions": {
+    "heading": "Kaikki",
+    "description": "{count, plural, one {# kirjautunut istunto} other {# kirjautunutta istuntoa}} tällä palvelimella.",
+    "signOutEveryone": "Kirjaa kaikki ulos",
+    "signOutEveryoneDescription": "Päättää kaikki istunnot kaikilla laitteilla paitsi omasi tässä selaimessa, ja niillä avoinna olevat sivut lakkaavat synkronoitumasta. Yhdistetyt sovellukset ja API-tunnukset toimivat edelleen.",
+    "signOutEveryoneTitle": "Kirjataanko kaikki ulos?",
+    "signOutEveryoneBody": "Kaikkien tämän palvelimen käyttäjien on kirjauduttava uudelleen sisään, myös sinun muilla laitteillasi.",
+    "signOutEveryoneConfirm": "Kirjaa kaikki ulos",
+    "resetEveryone": "Vaadi uudet salasanat",
+    "resetEveryoneDescription": "Kaikki salasanalla kirjautuvat sinua lukuun ottamatta kirjataan ulos, ja heidän on valittava uusi salasana seuraavalla kirjautumiskerralla. Tämä ei koske tilejä, jotka kirjautuvat vain kertakirjautumisella, GitHubilla tai Googlella.",
+    "resetByEmail": "Kirjautuessaan he saavat sähköpostiin linkin sen valitsemista varten.",
+    "resetInApp": "Sähköpostia ei ole määritetty tälle palvelimelle, joten he valitsevat sen heti kirjauduttuaan vanhalla salasanallaan (ja kaksivaiheisen tunnistautumisen koodilla, jos he käyttävät sellaista).",
+    "resetEveryoneTitle": "Vaaditaanko kaikilta uudet salasanat?",
+    "resetEveryoneBody": "Kaikki salasanan omaavat sinua lukuun ottamatta kirjataan nyt ulos, eivätkä he voi enää kirjautua nykyisellä salasanallaan.",
+    "resetEveryoneConfirm": "Vaadi uudet salasanat"
+  },
+  "users": {
+    "heading": "Tilit",
+    "count": "{count, plural, one {# tili} other {# tiliä}}",
+    "countPartial": "Näytetään {shown}/{total} tiliä. Löydät muut hakemalla.",
+    "search": "Hae nimellä tai sähköpostilla",
+    "noMatches": "Haullasi ei löytynyt tiliä.",
+    "none": "Ei vielä tilejä.",
+    "columns": {
+      "user": "Tili",
+      "workspaces": "Työtilat",
+      "lastActive": "Viimeksi aktiivinen",
+      "twoFactor": "Kaksivaiheinen",
+      "password": "Salasana",
+      "actions": "Toiminnot"
+    },
+    "you": "(sinä)",
+    "admin": "Ylläpitäjä",
+    "unverified": "Vahvistamaton",
+    "signedOut": "Ei kirjautunut",
+    "on": "Käytössä",
+    "off": "Ei käytössä",
+    "hasPassword": "Asetettu",
+    "noPassword": "Ei ole",
+    "resetPending": "Uusi vaaditaan",
+    "actionsFor": "Toiminnot: {name}",
+    "signOut": "Kirjaa ulos kaikkialta",
+    "signOutTitle": "Kirjataanko {name} ulos kaikkialta?",
+    "signOutBody": "{count, plural, one {Hänen # istuntonsa päättyy} other {Hänen # istuntoaan päättyy}}, ja hänen avoimet sivunsa lakkaavat synkronoitumasta. Yhdistetyt sovellukset ja API-tunnukset toimivat edelleen.",
+    "signOutSelfBody": "{count, plural, one {# istuntosi päättyy} other {# istuntoasi päättyy}}, paitsi tämän selaimen istunto.",
+    "signOutConfirm": "Kirjaa ulos",
+    "requireReset": "Vaadi uusi salasana",
+    "resetTitle": "Vaaditaanko käyttäjältä {name} uusi salasana?",
+    "resetBody": "Hänet kirjataan nyt ulos, ja hänen on valittava uusi salasana, kun hän seuraavan kerran kirjautuu salasanalla.",
+    "resetByEmail": "Kirjautuessaan hän saa sähköpostiin linkin sen valitsemista varten.",
+    "resetInApp": "Sähköpostia ei ole määritetty tälle palvelimelle, joten hän valitsee sen heti kirjauduttuaan vanhalla salasanallaan (ja kaksivaiheisen tunnistautumisen koodilla, jos hän käyttää sellaista).",
+    "resetConfirm": "Vaadi uusi salasana"
+  },
+  "errors": {
+    "notFound": "Tiliä ei löytynyt.",
+    "noPassword": "Tällä tilillä ei ole salasanaa; se kirjautuu muulla tavalla.",
+    "self": "Vaihda oma salasanasi tilisivullasi.",
+    "noWorkspace": "Työtilaa ei löytynyt."
+  },
+  "descriptionFirstAccount": "Tämän palvelimen tilit, niiden istunnot ja salasanat. Näet tämän sivun, koska tilisi oli tämän palvelimen ensimmäinen.",
+  "signUp": {
+    "heading": "Rekisteröityminen",
+    "open": "Kuka tahansa voi rekisteröityä",
+    "openDescription": "Kuka tahansa, joka voi avata tämän palvelimen osoitteen, voi luoda tilin. Sulje rekisteröityminen asettamalla palvelimelle DISABLE_SIGNUP=true (Dockerilla docker-compose.yml-tiedoston vieressä olevaan .env-tiedostoon, minkä jälkeen suorita docker compose up -d). Olemassa olevat tilit voivat edelleen kirjautua, ja kutsumasi henkilöt voivat edelleen liittyä.",
+    "closed": "Rekisteröityminen on suljettu",
+    "closedDescription": "Asetetaan palvelimella muuttujalla DISABLE_SIGNUP. Olemassa olevat tilit voivat edelleen kirjautua, ja kutsumasi henkilöt voivat edelleen liittyä kutsulinkkinsä kautta."
+  },
+  "firstAdmin": {
+    "title": "Sinä ylläpidät tätä palvelinta",
+    "body": "Tilisi on täällä ensimmäinen, joten palvelimen ylläpito kuuluu sinulle. Kuka tahansa, joka pääsee tähän osoitteeseen, voi silti rekisteröityä; Palvelimen ylläpito -sivu näyttää, miten rekisteröityminen suljetaan.",
+    "open": "Palvelimen ylläpito",
+    "dismiss": "Sulje"
+  },
+  "networks": {
+    "heading": "Hyväksytyt verkot",
+    "description": "Työtilat, jotka avautuvat vain hyväksytyistä verkoista. Jos luettelo sulkee työtilan omistajat ulos, tyhjennä se täällä: työtila avautuu silloin mistä tahansa verkosta, kunnes sen omistajat asettavat luettelon uudelleen.",
+    "none": "Mikään työtila ei rajoita kirjautumista hyväksyttyihin verkkoihin",
+    "noneDescription": "Omistajat asettavat hyväksytyt verkot työtilansa kohdassa Asetukset → Tietoturva.",
+    "count": "{count, plural, one {# verkko} other {# verkkoa}}",
+    "clear": "Tyhjennä luettelo",
+    "clearTitle": "Tyhjennetäänkö työtilan {workspace} hyväksytyt verkot?",
+    "clearBody": "Kaikki työtilan jäsenet voivat taas avata sen mistä tahansa verkosta, ja sen tarkastuslokiin kirjataan, että tyhjensit luettelon. Sen omistajat voivat asettaa sen uudelleen kohdassa Asetukset → Tietoturva.",
+    "clearConfirm": "Tyhjennä luettelo"
+  }
+}
