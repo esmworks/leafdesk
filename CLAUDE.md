@@ -121,8 +121,11 @@ because they are separate module graphs.
   `src/lib/contrast.test.ts`: colors in `globals.css` keep their contrast.
 - `src/server/mcp/tools-context.test.ts`: the MCP tool list every client sends its model stays
   under 275 KB in all and 25 KB per tool. Raise a number only on purpose, in the same commit.
-- `scripts/bundle-budget.ts` (CI, after `pnpm build`): client JS budgets. Raise one only on purpose,
-  in the same commit.
+- `scripts/bundle-budget.ts` (CI, after `pnpm build`): gzipped client JS budgets for the largest
+  route's first load, all routes' first-load chunks together and the largest on-demand chunk. Lazy
+  code has no total. Anything in `src/app/w/[workspaceId]/layout.tsx`'s static imports (sidebar,
+  row panel, AI chat) is in every workspace route's first load: load editors, views and occasional
+  dialogs there with `lazy`/`dynamic`. Raise a budget only on purpose, in the same commit.
 
 ## Conventions
 

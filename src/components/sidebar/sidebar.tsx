@@ -39,7 +39,7 @@ import {
 import Link from "next/link";
 import { useTranslations } from "next-intl";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
-import { Fragment, useCallback, useEffect, useMemo, useRef, useState, useTransition } from "react";
+import { Fragment, lazy, Suspense, useCallback, useEffect, useMemo, useRef, useState, useTransition } from "react";
 import { unreadCountAction } from "@/app/actions/notifications";
 import { pendingCountAction } from "@/app/actions/review";
 import { listFavoritesAction } from "@/app/actions/page-menu";
@@ -85,7 +85,9 @@ import { SIDEBAR_WIDTH } from "@/lib/sidebar-layout";
 import { isSettingsPath, SidebarPeekEdge, useSidebar } from "./sidebar-context";
 import { TrashDialog } from "./trash-dialog";
 import { TemplatesDialog } from "@/components/workspace/templates-dialog";
-import { ImportDialog } from "@/components/workspace/import-dialog";
+
+// The importer (its readers of ZIP, CSV and other apps' exports) loads when it is first opened.
+const ImportDialog = lazy(() => import("@/components/workspace/import-dialog").then((module) => ({ default: module.ImportDialog })));
 
 type Workspace = { id: string; name: string; icon: string | null; role: string };
 
@@ -190,6 +192,9 @@ export function Sidebar({
   const [trashOpen, setTrashOpen] = useState(false);
   const [templatesOpen, setTemplatesOpen] = useState(false);
   const [importOpen, setImportOpen] = useState(false);
+  // Mounted from its first opening on, so it closes the way it opens.
+  const [importUsed, setImportUsed] = useState(false);
+  if (importOpen && !importUsed) setImportUsed(true);
   // A workbook a page shows, to import as a database under that page (see IMPORT_SPREADSHEET_EVENT).
   const [importFile, setImportFile] = useState<ImportSpreadsheetDetail | null>(null);
   // The section the templates or import dialog was opened from.
@@ -1431,20 +1436,24 @@ export function Sidebar({
         onClose={() => setTemplatesOpen(false)}
         teamspaceId={dialogTarget}
       />
-      <ImportDialog
-        workspaceId={workspaceId}
-        open={importOpen}
-        onClose={() => {
-          setImportOpen(false);
-          setImportFile(null);
-        }}
-        tree={tree}
-        topLevel={Boolean(topLevel)}
-        // From a section's menu it starts at that section's top rather than at the open page.
-        activeId={dialogTarget === undefined ? activeId : null}
-        teamspaceId={dialogTarget}
-        file={importFile}
-      />
+      {importUsed && (
+        <Suspense fallback={null}>
+          <ImportDialog
+            workspaceId={workspaceId}
+            open={importOpen}
+            onClose={() => {
+              setImportOpen(false);
+              setImportFile(null);
+            }}
+            tree={tree}
+            topLevel={Boolean(topLevel)}
+            // From a section's menu it starts at that section's top rather than at the open page.
+            activeId={dialogTarget === undefined ? activeId : null}
+            teamspaceId={dialogTarget}
+            file={importFile}
+          />
+        </Suspense>
+      )}
       <TeamspaceDialog
         workspaceId={workspaceId}
         open={teamspaceDialog !== null}

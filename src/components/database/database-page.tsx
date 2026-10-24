@@ -16,11 +16,7 @@ import { atLeast } from "@/lib/property-access";
 import { searchRows } from "@/lib/row-search";
 import { opensNewTab } from "@/lib/row-panel";
 import { galleryCover, openRowsOf, opensRows } from "@/lib/views";
-import { AutomationsButton } from "./automations-dialog";
-import { BoardView } from "./board-view";
-import { CalendarView } from "./calendar-view";
-import { ChartView } from "./chart-view";
-import { FormToolbar, FormView } from "./form-view";
+import { AutomationsButton } from "./automations-button";
 import { GalleryView } from "./gallery-view";
 import { ListView } from "./list-view";
 import { openInNewTab, RowOpenerContext, useRowPanel, type RowOpener } from "./row-panel-context";
@@ -30,7 +26,6 @@ import { RelationProvider, type RelationContextValue } from "./relation-context"
 import { PropertyAccessProvider, type PropertyAccessContextValue } from "./property-access";
 import { SchemaProvider } from "./schema-context";
 import { TableView } from "./table-view";
-import { TimelineView } from "./timeline-view";
 import type { DatabaseSnapshot, View } from "./types";
 import { useDatabase } from "./use-database";
 import { OfflineNotice } from "@/components/offline/offline-notice";
@@ -41,6 +36,21 @@ import { timelineDates, ViewLayoutMenu } from "./view-settings";
 
 // The page redraws with every change of its address, a row opening beside the view among them;
 // a view, with its hundreds of rows, only when what it's given changes.
+// The table, gallery and list views come with the page; the others load when one is first shown,
+// and in the background once a database that has one has loaded, so opening its tab doesn't wait.
+const VIEW_LOADERS: Partial<Record<ViewType, () => Promise<unknown>>> = {
+  board: () => import("./board-view"),
+  calendar: () => import("./calendar-view"),
+  chart: () => import("./chart-view"),
+  form: () => import("./form-view"),
+  timeline: () => import("./timeline-view"),
+};
+const BoardView = dynamic(() => import("./board-view").then((module) => module.BoardView), { loading: () => <ViewSkeleton /> });
+const CalendarView = dynamic(() => import("./calendar-view").then((module) => module.CalendarView), { loading: () => <ViewSkeleton /> });
+const ChartView = dynamic(() => import("./chart-view").then((module) => module.ChartView), { loading: () => <ViewSkeleton /> });
+const FormView = dynamic(() => import("./form-view").then((module) => module.FormView), { loading: () => <ViewSkeleton /> });
+const FormToolbar = dynamic(() => import("./form-view").then((module) => module.FormToolbar));
+const TimelineView = dynamic(() => import("./timeline-view").then((module) => module.TimelineView), { loading: () => <ViewSkeleton /> });
 const MemoBoardView = memo(BoardView);
 const MemoCalendarView = memo(CalendarView);
 const MemoChartView = memo(ChartView);
@@ -92,6 +102,10 @@ export function DatabasePage({
   const router = useRouter();
   const searchParams = useSearchParams();
   const viewParam = embedded ? null : searchParams.get("view");
+  const viewTypes = snapshot ? [...new Set(snapshot.views.map((v) => v.type))].sort().join() : "";
+  useEffect(() => {
+    for (const type of viewTypes.split(",")) void VIEW_LOADERS[type as ViewType]?.();
+  }, [viewTypes]);
   // A link to an automation's run (the "For review" queue's): the automations open at it, once.
   const [openRun] = useState(() => {
     const automationId = embedded ? null : searchParams.get("automation");
@@ -630,6 +644,17 @@ function DashboardSkeleton() {
   return (
     <div aria-busy="true" aria-label={t("loading")} className="page-gutter">
       <div className="h-28 animate-pulse rounded-lg bg-bg-subtle" />
+    </div>
+  );
+}
+
+function ViewSkeleton() {
+  const t = useTranslations("database.page");
+  return (
+    <div aria-busy="true" aria-label={t("loading")} className="mt-3 animate-pulse space-y-2">
+      {[0, 1, 2].map((i) => (
+        <div key={i} className="h-7 rounded-md bg-bg-subtle" />
+      ))}
     </div>
   );
 }

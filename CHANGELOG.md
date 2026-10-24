@@ -447,6 +447,14 @@
 
 ### Changed
 
+- **Pages open with less to download.** The workspace's routes no longer load the page editor
+  until a row is opened beside them, so Home, Settings, the graph, reviews, people and AI download
+  about 300 kB less (gzipped) when they open. Board, calendar, timeline, chart and form views, the
+  automations dialog, the importer and the QR codes of two-step setup load when first used (views
+  in the background once their database has loaded), so a page or database opens with about 75 kB
+  less. The client JavaScript budget now checks what opening a page downloads (the largest route,
+  and all routes' first loads together) and the largest chunk loaded on demand, instead of the sum
+  of every chunk the build holds.
 - **"Export as PDF" downloads a PDF file.** The page menu's *Export as PDF* now makes the file on
   the server, in a letterhead picked in its dialog (for a row, with its values if asked). The
   browser's print dialog moved to *Print*, which still keeps the page exactly as it looks, diagrams

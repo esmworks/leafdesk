@@ -1,9 +1,8 @@
 "use client";
 
-import { ArrowLeft, History, Pencil, Plus, Trash2, X, Zap } from "lucide-react";
+import { ArrowLeft, History, Pencil, Plus, Trash2, X } from "lucide-react";
 import { useFormatter, useTranslations } from "next-intl";
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { createPortal } from "react-dom";
 import { deleteAutomationAction, listAutomationsAction, updateAutomationAction } from "@/app/actions/automations";
 import { Button, cn, Dialog, IconButton, Switch } from "@/components/ui";
 import { galleryAutomations, type GalleryAutomation } from "@/lib/automation-gallery";
@@ -17,57 +16,13 @@ import { toDraft, triggerValueName, type AgentChoice, type Automation, type Draf
 import { usePeople } from "./person-cell";
 import { useSchema } from "./schema-context";
 
-/**
- * The database toolbar's automations button: "when a row is added, a property changes, a date
- * passes, a schedule comes round or a request arrives, do these steps". Shown to people with
- * full access to the database.
- */
-export function AutomationsButton({
-  workspaceId,
-  databaseId,
-  databaseTitle,
-  openRun = null,
-}: {
-  workspaceId: string;
-  databaseId: string;
-  databaseTitle: string;
-  /** A run to show when the page opens (a link from the "For review" queue): the dialog opens at it. */
-  openRun?: { automationId: string; runId: string } | null;
-}) {
-  const t = useTranslations("database.automations");
-  const [open, setOpen] = useState(openRun !== null);
-  return (
-    <>
-      <button
-        type="button"
-        title={t("button")}
-        aria-label={t("button")}
-        aria-haspopup="dialog"
-        onClick={() => setOpen(true)}
-        className="inline-flex h-7 min-w-7 items-center justify-center gap-1 rounded-md px-1.5 text-sm text-fg-muted hover:bg-bg-hover hover:text-fg"
-      >
-        <Zap className="h-4 w-4" />
-      </button>
-      {open &&
-        typeof document !== "undefined" &&
-        // A portal keeps the toolbar's styles out; React context (schema, people) still reaches it.
-        createPortal(
-          <AutomationsDialog
-            workspaceId={workspaceId}
-            databaseId={databaseId}
-            databaseTitle={databaseTitle}
-            openRun={openRun}
-            onClose={() => setOpen(false)}
-          />,
-          document.body,
-        )}
-    </>
-  );
-}
-
 type Mode = { kind: "list" } | { kind: "edit"; id: string | null; start?: Draft } | { kind: "runs"; id: string; focus: string | null };
 
-function AutomationsDialog({
+/**
+ * The automations of a database: its list, the editor and each one's runs. Opened from the toolbar's
+ * button (automations-button.tsx), which loads this file with the dialog's first opening.
+ */
+export default function AutomationsDialog({
   workspaceId,
   databaseId,
   databaseTitle,
