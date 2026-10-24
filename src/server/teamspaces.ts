@@ -18,6 +18,8 @@ import {
   type TeamspaceRole,
   type WorkspaceRole,
 } from "@/db/schema";
+import { invitedTeamspaces } from "@/lib/invited-teamspaces";
+import { isEmail, normalizeEmail } from "@/lib/emails";
 import { env } from "@/lib/env";
 import { parseIcon } from "@/lib/icon";
 import { TeamspaceError } from "@/lib/teamspace-error";
@@ -27,7 +29,7 @@ import { changedValues, recordAudit } from "@/server/audit";
 import { getCollab } from "@/server/collab/bridge";
 import { afterAccessChange, groupMemberIds, requireGroupIn } from "@/server/groups";
 import { refuseInLocalMode } from "@/server/local-mode";
-import { handOverOrphanedPages } from "@/server/workspaces";
+import { addMember, handOverOrphanedPages, type AddMemberResult } from "@/server/workspaces";
 
 /**
  * Teamspaces group a workspace's pages and the people working on them. Every page tree lives in
@@ -510,6 +512,80 @@ export async function addTeamspaceMembers(
     await getCollab().disconnectLostAccess(found.workspaceId, added.map((a) => a.userId));
   }
   getCollab().broadcast(`ws:${found.workspaceId}`, "tree");
+}
+
+/**
+ * Brings someone into the teamspace by email: someone already an owner or member of the workspace
+ * is added as addTeamspaceMembers adds them; anyone else gets an invitation to the workspace (as a
+ * member) that carries the teamspace and `role` there, through addMember, so who may invite, the
+ * approval of members' invitations, reserved addresses and verified accounts work exactly as when
+ * adding members in Settings. Needs to manage the teamspace.
+ */
+export async function inviteToTeamspace(
+  actorId: string,
+  teamspaceId: string,
+  email: string,
+  role: TeamspaceRole = "member",
+): Promise<AddMemberResult & { email: string }> {
+  refuseInLocalMode();
+  const { teamspace: found } = await manageableTeamspace(actorId, teamspaceId);
+  if (found.archivedAt) throw new TeamspaceError("archived", "This teamspace is archived.");
+  const clean = normalizeEmail(String(email ?? ""));
+  if (!isEmail(clean)) throw new TeamspaceError("invalidEmail", "Enter an email address.");
+  const teamspaceRole: TeamspaceRole = role === "owner" ? "owner" : "member";
+  const [person] = await db
+    .select({ userId: workspaceMember.userId, role: workspaceMember.role })
+    .from(workspaceMember)
+    .innerJoin(user, eq(user.id, workspaceMember.userId))
+    .where(and(eq(workspaceMember.workspaceId, found.workspaceId), eq(sql`lower(${user.email})`, clean)))
+    .limit(1);
+  if (person) {
+    // Already in the workspace: a guest can't be in a teamspace (addTeamspaceMembers refuses).
+    await addTeamspaceMembers(actorId, teamspaceId, [person.userId], teamspaceRole);
+    return { kind: "added", email: clean };
+  }
+  const result = await addMember(actorId, found.workspaceId, clean, "member", { teamspaces: [{ id: teamspaceId, role: teamspaceRole }] });
+  return { ...result, email: clean };
+}
+
+/**
+ * Puts someone who just joined the workspace through an invitation into the teamspaces it carried
+ * (see workspaceInvitation.teamspaces), in the transaction that adds them: those still in this
+ * workspace and not archived. Guests join none. In a default teamspace everyone is a member without
+ * a row, so it only takes those invited as its owners. People already in one keep their role.
+ */
+export async function joinInvitedTeamspaces(tx: Tx, workspaceId: string, userId: string, workspaceRole: WorkspaceRole, invited: unknown) {
+  const wanted = invitedTeamspaces(invited);
+  if (isGuest(workspaceRole) || !wanted.length) return;
+  const roleOf = new Map(wanted.map((t) => [t.id, t.role]));
+  const found = await tx
+    .select({ id: teamspace.id, name: teamspace.name, access: teamspace.access })
+    .from(teamspace)
+    .where(and(eq(teamspace.workspaceId, workspaceId), inArray(teamspace.id, [...roleOf.keys()]), isNull(teamspace.archivedAt)));
+  const rows = found
+    .filter((ts) => ts.access !== "default" || roleOf.get(ts.id) === "owner")
+    .map((ts) => ({ teamspaceId: ts.id, userId, role: roleOf.get(ts.id)! }));
+  if (!rows.length) return;
+  const added = await tx
+    .insert(teamspaceMember)
+    .values(rows)
+    .onConflictDoNothing()
+    .returning({ teamspaceId: teamspaceMember.teamspaceId, role: teamspaceMember.role });
+  const names = added.length ? await namesOf(tx, [userId]) : [];
+  for (const row of added) {
+    const ts = found.find((f) => f.id === row.teamspaceId)!;
+    await tx.update(teamspace).set({ updatedAt: new Date() }).where(eq(teamspace.id, ts.id));
+    await recordAudit(
+      {
+        workspaceId,
+        actorId: userId,
+        action: "teamspace.member_added",
+        target: { type: "teamspace", id: ts.id, label: ts.name },
+        details: { names, role: row.role, via: "invitation" },
+      },
+      tx,
+    );
+  }
 }
 
 /**

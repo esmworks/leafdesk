@@ -12,7 +12,9 @@ export type TeamspaceErrorCode =
   | "invalidIcon"
   | "inGroup"
   | "everyoneIn"
-  | "notConvertible";
+  | "notConvertible"
+  /** Inviting someone to the teamspace: the text isn't an email address. */
+  | "invalidEmail";
 
 /** An expected failure the UI translates by `code`; the English message is for logs and MCP. */
 export class TeamspaceError extends Error {

@@ -209,7 +209,12 @@
       "someone": "A member",
       "approve": "Approve",
       "decline": "Decline"
-    }
+    },
+    "removeBodyChoose": "{name} loses access to this workspace right away, including in open pages and connected apps.",
+    "heirLabel": "Hand their pages over to",
+    "heirHint": "Pages only {name} could manage, and teamspaces nobody else runs, go to the person you pick.",
+    "heirCount": "{count, plural, =0 {{name} manages no pages alone right now. Teamspaces nobody else runs go to the person you pick.} one {# page only {name} could manage goes to the person you pick, with teamspaces nobody else runs.} other {# pages only {name} could manage go to the person you pick, with teamspaces nobody else runs.}}",
+    "heirYou": "{name} (you)"
   },
   "guests": {
     "heading": "Guests",
@@ -1222,7 +1227,8 @@
     "invalidNetworkLabel": "The label of {detail} is too long: at most 100 characters.",
     "tooManyNetworks": "A workspace can have at most 100 approved networks.",
     "ipLocksYouOut": "This list leaves out your current address, {detail}, so saving it would shut you out of the workspace. Add your address, or a range that covers it, first.",
-    "ipUnknown": "The server can't tell your address, so it can't make sure this list keeps you in. Save it from a connection whose address the server sees, or clear the list."
+    "ipUnknown": "The server can't tell your address, so it can't make sure this list keeps you in. Save it from a connection whose address the server sees, or clear the list.",
+    "heirInvalid": "Pick an owner or member who stays in the workspace."
   },
   "security": {
     "description": "Decide how people sign in, who can bring people into this workspace, what guests can do, what can leave it (exports, connected apps) and who can publish pages to the web. Only owners can change these settings.",
