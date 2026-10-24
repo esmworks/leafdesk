@@ -20,7 +20,7 @@ import { useCallback, useEffect, useRef, useState, useSyncExternalStore } from "
 import { decideChangeAction, deleteConversationAction, getConversationAction, saveReportAsPageAction } from "@/app/actions/ai";
 import { isAiErrorCode } from "@/lib/ai";
 import { aiAsSuggestions, setAiAsSuggestions } from "@/lib/ai-suggestions";
-import { CHAT_MODES, changedThings, thoughtText, type ChatActionView, type ChatEvent, type ChatMessageView, type ChatMode, type ChatOptions } from "@/lib/ai-chat";
+import { CHAT_MODES, changedThings, thoughtText, type ChatActionView, type ChatEvent, type ChatMessageView, type ChatMode, type ChatOptions, type ChatScopeView } from "@/lib/ai-chat";
 import {
   CHAT_CSV_MAX_COLUMNS,
   CHAT_CSV_MAX_ROWS,
@@ -68,7 +68,7 @@ async function uploadFile(workspaceId: string, file: File): Promise<{ ok: true; 
 let uploads = 0;
 
 /** A question asked while an answer was on its way, waiting to be asked. */
-export type QueuedQuestion = { question: string; skill: ChatSkillPick | null; scopePageId: string | null; files: ChatFile[]; research: boolean };
+export type QueuedQuestion = { question: string; skill: ChatSkillPick | null; scope: ChatScopeView | null; files: ChatFile[]; research: boolean };
 
 /** Without options from the server (the full page outside the provider): one model, no picker. */
 const NO_OPTIONS: ChatOptions = { models: [], defaultModel: null, webSearch: false };
@@ -340,12 +340,12 @@ export function useChat(
   };
 
   /**
-   * Asks the typed question with the picked skill, of the whole workspace or of `scopePageId` and
-   * its subpages; with `again`, asks its question (the last one, maybe edited, with the skill it
+   * Asks the typed question with the picked skill, of the whole workspace or of `scope` (a page and
+   * its subpages, or a teamspace); with `again`, asks its question (the last one, maybe edited, with the skill it
    * used) in place of the last question and answer. While an answer is on its way, the typed
    * question is queued instead.
    */
-  async function send(scopePageId: string | null, again?: { question: string; skill?: ChatSkillPick }) {
+  async function send(scope: ChatScopeView | null, again?: { question: string; skill?: ChatSkillPick }) {
     const question = (again?.question ?? expandDraft(draft)).trim();
     const attached = again ? [] : filesNow.current;
     if (!question && !attached.length) return;
@@ -358,7 +358,7 @@ export function useChat(
     }
     if (running) {
       if (again) return;
-      setQueue([...queue.current, { question, skill, scopePageId, files: attached, research }]);
+      setQueue([...queue.current, { question, skill, scope, files: attached, research }]);
       setInput("");
       setSkill(null);
       setFilesNow([]);
@@ -369,10 +369,10 @@ export function useChat(
       setSkill(null);
       setFilesNow([]);
     }
-    await ask(question, again ? (again.skill ?? null) : skill, scopePageId, Boolean(again), attached, again ? Boolean(messages[messages.length - 2]?.research) : research);
+    await ask(question, again ? (again.skill ?? null) : skill, scope, Boolean(again), attached, again ? Boolean(messages[messages.length - 2]?.research) : research);
   }
 
-  async function ask(question: string, used: ChatSkillPick | null, scopePageId: string | null, again: boolean, attached: ChatFile[] = [], researching = false) {
+  async function ask(question: string, used: ChatSkillPick | null, scope: ChatScopeView | null, again: boolean, attached: ChatFile[] = [], researching = false) {
     setError(null);
     const controller = new AbortController();
     abort.current = controller;
@@ -386,6 +386,7 @@ export function useChat(
         role: "user",
         content: question,
         ...(used ? { skill: used } : {}),
+        ...(scope ? { scope } : {}),
         ...(shownFiles?.length ? { attachments: shownFiles } : {}),
         ...(researching ? { research: true } : {}),
         at: new Date(startedAt).toISOString(),
@@ -410,7 +411,7 @@ export function useChat(
           workspaceId,
           conversationId: conversationRef.current,
           message: question,
-          scope: scopePageId ? { pageId: scopePageId } : null,
+          scope: !scope ? null : scope.kind === "page" ? { pageId: scope.id } : { teamspaceId: scope.id },
           mode: modeRef.current,
           ...(again ? { replaceLast: true } : {}),
           ...(used ? { skillId: used.id } : {}),
@@ -447,6 +448,9 @@ export function useChat(
             conversationRef.current = event.id;
             setConversationId(event.id);
             callbacks.current.onConversation?.(event.id);
+            // The scope's title as the server read it (the panel knows the open page only by its id).
+            const asked = event.scope;
+            if (asked) setMessages((list) => list.map((m, i) => (i === list.length - 2 && m.role === "user" ? { ...m, scope: asked } : m)));
           } else if (event.type === "thinking") {
             setStatus("thinking");
             reasoning.set("");
@@ -511,10 +515,10 @@ export function useChat(
       // things), or ended without an answer by the server: they are given back. Stopped here, Stop or
       // leaving the conversation took care of them.
       const next = queue.current[0];
-      if (failed) giveBack(!changed && !again ? [{ question, skill: used, scopePageId, files: attached, research: researching }] : []);
+      if (failed) giveBack(!changed && !again ? [{ question, skill: used, scope, files: attached, research: researching }] : []);
       else if (finished && next) {
         setQueue(queue.current.slice(1));
-        void ask(next.question, next.skill, next.scopePageId, false, next.files, next.research);
+        void ask(next.question, next.skill, next.scope, false, next.files, next.research);
       } else if (!finished && !controller.signal.aborted) giveBack();
     }
   }

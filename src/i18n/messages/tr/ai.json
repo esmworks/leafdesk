@@ -198,6 +198,13 @@
     "scope": "Yanıt kaynağı",
     "scopeWorkspace": "Tüm çalışma alanı",
     "scopePage": "Bu sayfa ve alt sayfaları",
+    "scopeTeamspace": "Ekip alanı",
+    "scopeAsked": {
+      "page": "“{title}” ve alt sayfaları hakkında soruldu",
+      "pageUnknown": "Bir sayfa ve alt sayfaları hakkında soruldu",
+      "teamspace": "“{title}” ekip alanı hakkında soruldu",
+      "teamspaceUnknown": "Bir ekip alanı hakkında soruldu"
+    },
     "thinking": "Düşünüyor…",
     "steps": {
       "working": "Çalışıyor · {time}",

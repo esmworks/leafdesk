@@ -198,6 +198,13 @@
     "scope": "الإجابة من",
     "scopeWorkspace": "مساحة العمل بأكملها",
     "scopePage": "هذه الصفحة وصفحاتها الفرعية",
+    "scopeTeamspace": "مساحة الفريق",
+    "scopeAsked": {
+      "page": "سؤال عن “{title}” وصفحاتها الفرعية",
+      "pageUnknown": "سؤال عن صفحة وصفحاتها الفرعية",
+      "teamspace": "سؤال عن مساحة الفريق “{title}”",
+      "teamspaceUnknown": "سؤال عن مساحة فريق"
+    },
     "thinking": "جارٍ التفكير…",
     "steps": {
       "working": "جارٍ العمل · {time}",

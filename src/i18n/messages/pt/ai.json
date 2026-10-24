@@ -198,6 +198,13 @@
     "scope": "Responder com base em",
     "scopeWorkspace": "Todo o espaço de trabalho",
     "scopePage": "Esta página e as subpáginas dela",
+    "scopeTeamspace": "Espaço de equipe",
+    "scopeAsked": {
+      "page": "Perguntado sobre “{title}” e as subpáginas dela",
+      "pageUnknown": "Perguntado sobre uma página e as subpáginas dela",
+      "teamspace": "Perguntado sobre o espaço de equipe “{title}”",
+      "teamspaceUnknown": "Perguntado sobre um espaço de equipe"
+    },
     "thinking": "Pensando…",
     "steps": {
       "working": "Trabalhando · {time}",

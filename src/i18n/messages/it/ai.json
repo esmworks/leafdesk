@@ -198,6 +198,13 @@
     "scope": "Rispondi da",
     "scopeWorkspace": "Tutto lo spazio di lavoro",
     "scopePage": "Questa pagina e le sue sottopagine",
+    "scopeTeamspace": "Spazio del team",
+    "scopeAsked": {
+      "page": "Chiesto su «{title}» e le sue sottopagine",
+      "pageUnknown": "Chiesto su una pagina e le sue sottopagine",
+      "teamspace": "Chiesto sullo spazio del team «{title}»",
+      "teamspaceUnknown": "Chiesto su uno spazio del team"
+    },
     "thinking": "Sto pensando…",
     "steps": {
       "working": "Al lavoro · {time}",

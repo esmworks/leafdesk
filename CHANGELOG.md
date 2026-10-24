@@ -10,6 +10,11 @@
   itself is attached at the end of the page unless that's switched off. A scan without a text
   layer is refused with a note to run text recognition first, rather than making an empty page.
   The `/api/import` route takes `mode=pdf` (with `attach=1`).
+- **Ask the AI chat about one teamspace.** *Answer from* now lists your teamspaces beside the whole
+  workspace and the page you are on (with its subpages), in the panel and in the full-page chat.
+  Searching, reading, querying, the map of what there is and changes all keep to the teamspace's
+  pages on the server. Each question shows the page or teamspace it was asked of. `/api/ai/chat`
+  takes `scope: {teamspaceId}`.
 - **Keep a database of Jira issues in sync.** Import has a Jira tab: connect a Jira Cloud site
   with an email address and API token, pick a project or write a JQL query, and get a database
   whose rows are the issues (key, summary, status, assignee, priority, type, labels, due date and a

@@ -40,6 +40,7 @@ import * as journalDays from "@/lib/journal";
 import { isTimeZone } from "@/lib/time-zone";
 import { LINK_PLACEHOLDER } from "@/lib/link-context";
 import { countBacklinks, labelPageLinks, listBacklinks, MAX_BACKLINKS } from "@/server/mentions";
+import type { ChatScopeRef } from "@/server/semantic-search";
 import { expandSyncedMarkdown } from "@/server/synced-blocks";
 import * as pageMeta from "@/server/page-meta";
 import { OutdatedError, outdatedState, setPageOutdated, type OutdatedState } from "@/server/page-outdated";
@@ -619,7 +620,7 @@ export async function listGroups(ctx: OperationContext, { workspace_id }: Args<"
  * Full-text search, merged with semantic search where the server has an embeddings model (see
  * pages.searchPages). `match` says how a result was found: "semantic" when only by meaning;
  * `document`, the PDF or Word document the page shows whose words matched, when not its own text.
- * `withinPageId` keeps to a page and its subpages; `passages` adds the best matching passage of
+ * `within` keeps to a page and its subpages, or to a teamspace (AI chat); `passages` adds the best matching passage of
  * each page (as far as semantic search found one) and the block it starts at (AI chat). `anyWord`:
  * pages with any of the query's words, not all (AI chat, which searches with whole questions).
  * Archived pages (server/page-outdated.ts) only with `include_archived`.
@@ -627,12 +628,12 @@ export async function listGroups(ctx: OperationContext, { workspace_id }: Args<"
 export async function search(
   ctx: OperationContext,
   { query, workspace_id, limit, include_archived = false }: Args<"search">,
-  { withinPageId, passages = false, anyWord = false }: { withinPageId?: string; passages?: boolean; anyWord?: boolean } = {},
+  { within, passages = false, anyWord = false }: { within?: ChatScopeRef; passages?: boolean; anyWord?: boolean } = {},
 ) {
   const hits = await pages.searchPages(ctx.userId, query, {
     workspaceId: workspace_id,
     limit,
-    withinPageId,
+    ...(within?.kind === "page" ? { withinPageId: within.id } : within?.kind === "teamspace" ? { withinTeamspaceId: within.id } : {}),
     anyWord,
     includeOutdated: include_archived,
   });

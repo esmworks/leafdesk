@@ -198,6 +198,13 @@
     "scope": "ตอบจาก",
     "scopeWorkspace": "ทั้งพื้นที่ทำงาน",
     "scopePage": "หน้านี้และหน้าย่อย",
+    "scopeTeamspace": "ทีมสเปซ",
+    "scopeAsked": {
+      "page": "ถามเกี่ยวกับ “{title}” และหน้าย่อย",
+      "pageUnknown": "ถามเกี่ยวกับหน้าหนึ่งและหน้าย่อย",
+      "teamspace": "ถามเกี่ยวกับทีมสเปซ “{title}”",
+      "teamspaceUnknown": "ถามเกี่ยวกับทีมสเปซหนึ่ง"
+    },
     "thinking": "กำลังคิด…",
     "steps": {
       "working": "กำลังทำงาน · {time}",

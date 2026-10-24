@@ -198,6 +198,13 @@
     "scope": "Trả lời từ",
     "scopeWorkspace": "Toàn bộ không gian làm việc",
     "scopePage": "Trang này và các trang con của nó",
+    "scopeTeamspace": "Không gian nhóm",
+    "scopeAsked": {
+      "page": "Hỏi về “{title}” và các trang con",
+      "pageUnknown": "Hỏi về một trang và các trang con",
+      "teamspace": "Hỏi về không gian nhóm “{title}”",
+      "teamspaceUnknown": "Hỏi về một không gian nhóm"
+    },
     "thinking": "Đang suy nghĩ…",
     "steps": {
       "working": "Đang xử lý · {time}",

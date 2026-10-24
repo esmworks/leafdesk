@@ -5,7 +5,7 @@
  * calls, the streamed answer and its citations; conversations (kept, continued with their history,
  * listed, shown, deleted, only ever to their owner, gone when the person leaves the workspace);
  * stopping an answer; the round limit, input and rate limits and a failing provider; the page
- * scope; the workspace switch and a server without AI; and access, checked on every tool call: a
+ * and teamspace scopes (kept with each question); the workspace switch and a server without AI; and access, checked on every tool call: a
  * private page shared with nobody, a private teamspace, a page shared with a group, a guest, another
  * workspace, and a page whose access is taken back between two questions. Also the model picked
  * (sent, kept with the conversation, counted in usage by model and person), files attached to a
@@ -35,7 +35,7 @@ const { createPage } = await import("@/server/pages");
 const { addProperty } = await import("@/server/databases");
 const { removePagePermission, setPageGroupPermission, setPagePermission } = await import("@/server/permissions");
 const { createGroup } = await import("@/server/groups");
-const { createTeamspace } = await import("@/server/teamspaces");
+const { createTeamspace, joinTeamspace } = await import("@/server/teamspaces");
 const { removeMember, updateWorkspaceSettings } = await import("@/server/workspaces");
 const { AccessError } = await import("@/server/access");
 const { isAiError, promptRoomFor } = await import("@/server/ai");
@@ -405,6 +405,43 @@ try {
   check(scopedMap.includes("Fleet notes") && scopedMap.includes("Tyre vendors") && !scopedMap.includes("Office rules"), "…and its map lists only the pages in it", scopedMap);
   check((await refusal(() => startChat(alice, { workspaceId, message: "x?", scope: { pageId: diary.id } }))) === "noAccess", "a page the person can't open can't be the scope");
   check((await refusal(() => startChat(outsider, { workspaceId: otherWs, message: "x?", scope: { pageId: fleet.id } }))) === "noAccess", "…nor another workspace's page");
+  const scopedShown = await getConversation(alice, workspaceId, scoped.conversationId!);
+  check(
+    JSON.stringify(scopedShown.messages[0].scope) === JSON.stringify({ kind: "page", id: fleet.id, title: "Fleet notes" }) && !scopedShown.messages[1].scope,
+    "the question shows the page it was asked of",
+    scopedShown.messages[0],
+  );
+
+  // A teamspace as the scope: only its pages are searched, read and listed.
+  const workshop = await createTeamspace(owner, workspaceId, { name: `${RUN} workshop`, access: "open" });
+  await joinTeamspace(alice, workshop.id);
+  const liftLog = await createPage(actor, { workspaceId, teamspaceId: workshop.id, title: "Lift log", markdown: "The automobile lift was serviced in March." });
+  const liftParts = await createPage(actor, { workspaceId, parentId: liftLog.id, title: "Lift parts", markdown: "Spare automobile lift cables." });
+  await settle();
+  fake.setChat(researcher({ search: "automobile", readId: fleet.id }));
+  fake.chats.length = 0;
+  const inTeamspace = await ask(alice, { workspaceId, message: "What do we know about the automobile?", scope: { teamspaceId: workshop.id } });
+  const teamspaceSources = fake.chats.flatMap(sourcesIn).map((s) => s.pageId);
+  check(
+    inTeamspace.done && teamspaceSources.length > 0 && teamspaceSources.every((id) => id === liftLog.id || id === liftParts.id),
+    "a question about a teamspace searches only its pages",
+    teamspaceSources,
+  );
+  check(fake.chats.flatMap(toolResults).some((r) => r.startsWith("No page with that id")), "…and read_page refuses pages outside it");
+  check(textOf(fake.chats[0].messages[0].content).includes(`Only the pages of the teamspace "${RUN} workshop" are in scope.`), "…the model is told the scope");
+  const teamspaceMap = mapOf(fake.chats[0]);
+  check(teamspaceMap.includes("Lift log") && teamspaceMap.includes("Lift parts") && !teamspaceMap.includes("Fleet notes"), "…and its map lists only the teamspace's pages", teamspaceMap);
+  const scopeEvent = inTeamspace.events[0];
+  check(
+    scopeEvent.type === "conversation" && JSON.stringify(scopeEvent.scope) === JSON.stringify({ kind: "teamspace", id: workshop.id, title: `${RUN} workshop` }),
+    "…the panel is told the scope it answers from",
+    scopeEvent,
+  );
+  const teamspaceShown = await getConversation(alice, workspaceId, inTeamspace.conversationId!);
+  check(teamspaceShown.messages[0].scope?.title === `${RUN} workshop`, "…and the question shows it", teamspaceShown.messages[0]);
+  check((await refusal(() => startChat(alice, { workspaceId, message: "x?", scope: { teamspaceId: secretSpace.id } }))) === "noAccess", "a private teamspace the person isn't in can't be the scope");
+  check((await refusal(() => startChat(outsider, { workspaceId: otherWs, message: "x?", scope: { teamspaceId: workshop.id } }))) === "noAccess", "…nor another workspace's teamspace");
+  check((await refusal(() => startChat(guest, { workspaceId, message: "x?", scope: { teamspaceId: workshop.id } }))) === "noAccess", "…nor any teamspace for a guest");
 
   // ── Stopping, limits, failures ──────────────────────────────────────────────────────────────
   fake.setChat(() => ({ text: "This is a long answer that goes on and on for quite a while before it ends [1]." }));
@@ -818,6 +855,8 @@ try {
     ["another workspace's page", write("create_page", { parent_id: theirs.id, title: "Mine now" }), { workspaceId, message: "Add" }, "No page with that id can be changed"],
     ["a database outside the scope", write("create_row", { database_id: parts.id, title: "Mine now" }), { workspaceId, message: "Add", scope: { pageId: fleet.id } }, "No database with that id can be changed"],
     ["a top-level page in a page's scope", write("create_page", { title: "Mine now" }), { workspaceId, message: "Add", scope: { pageId: fleet.id } }, "The change is not valid"],
+    ["a database outside the teamspace in scope", write("create_row", { database_id: parts.id, title: "Mine now" }), { workspaceId, message: "Add", scope: { teamspaceId: workshop.id } }, "No database with that id can be changed"],
+    ["a page outside the teamspace in scope", write("create_page", { parent_id: fleet.id, title: "Mine now" }), { workspaceId, message: "Add", scope: { teamspaceId: workshop.id } }, "No page with that id can be changed"],
     ["a row that isn't a database row", write("update_row", { row_id: fleet.id, title: "Mine now" }), { workspaceId, message: "Rename" }, "No database row with that id can be changed"],
     ["a value the database doesn't take", write("create_row", { database_id: parts.id, title: "Mine now", properties: { Colour: "Red" } }), { workspaceId, message: "Add" }, "The change is not valid"],
   ] as const) {

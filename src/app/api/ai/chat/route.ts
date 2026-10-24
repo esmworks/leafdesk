@@ -15,7 +15,8 @@ const chatInput = z.object({
   conversationId: z.string().min(1).max(100).nullish(),
   // Checked for length by startChat, which says so with its own error code.
   message: z.string().max(MAX_BODY_MESSAGE),
-  scope: z.object({ pageId: z.string().min(1).max(100) }).nullish(),
+  // A page (and the pages under it) or a teamspace; checked by startChat.
+  scope: z.union([z.object({ pageId: z.string().min(1).max(100) }).strict(), z.object({ teamspaceId: z.string().min(1).max(100) }).strict()]).nullish(),
   mode: z.enum(CHAT_MODES).optional(),
   replaceLast: z.boolean().optional(),
   skillId: z.string().min(1).max(100).nullish(),
@@ -29,7 +30,8 @@ const chatInput = z.object({
 
 /**
  * The AI chat (#41): `POST /api/ai/chat` with `{workspaceId, conversationId?, message, scope?, mode?,
- * replaceLast?, skillId?, timeZone?, model?, attachments?, research?, asSuggestions?}` (`replaceLast`:
+ * replaceLast?, skillId?, timeZone?, model?, attachments?, research?, asSuggestions?}` (`scope`:
+ * `{pageId}` for a page and the pages under it, `{teamspaceId}` for a teamspace's pages; `replaceLast`:
  * ask again in place of the last question and answer; `skillId`: a skill whose instructions the
  * answer follows; `timeZone`: the browser's, for what today is; `model`: one the chat offers;
  * `attachments`: ids of files from /api/ai/chat/files, which may stand without a question;

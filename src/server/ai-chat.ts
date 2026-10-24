@@ -66,6 +66,7 @@ import {
   type ChatMode,
   type ChatPageView,
   type ChatScope,
+  type ChatScopeView,
   type ChatSourceView,
   type ChatStepView,
   type ConversationSummary,
@@ -97,6 +98,7 @@ import { attachmentRecords, deleteConversationFiles, keepQuestionFiles, question
 import { chatWebOn, chatWebToolset, isChatWebTool, PLAN_TOOL, runChatWebTool, runPlan } from "@/server/ai-chat-web";
 import type { FileRow } from "@/server/files";
 import { getSkillContent, SkillError } from "@/server/skills";
+import { teamspaceLabel } from "@/server/teamspaces";
 import { aiAvailable } from "@/server/ai-writing";
 import { applyMemory, memoryForPrompt, memoryOn, MEMORY_TOOL_NAMES, MEMORY_TOOLS, prepareMemory } from "@/server/ai-memory";
 import { awaitDecision, type ChatDecision } from "@/server/ai-chat-approvals";
@@ -179,15 +181,23 @@ function refuse(code: AiErrorCode, message: string): never {
   throw new AiError(code, message);
 }
 
-async function scopePage(userId: string, workspaceId: string, scope: ChatScope | undefined) {
+/** What a question keeps to, checked: a page of the workspace the person can open, or a teamspace of it they can see. */
+async function chatScope(userId: string, workspaceId: string, scope: ChatScope | undefined): Promise<ResolvedScope | null> {
   if (!scope) return null;
+  if ("teamspaceId" in scope) {
+    const found = await teamspaceLabel(userId, scope.teamspaceId);
+    if (!found || found.workspaceId !== workspaceId) refuse("noAccess", "Teamspace not found");
+    return { kind: "teamspace", id: found.id, title: found.name };
+  }
   const found = await requirePageAccess(userId, scope.pageId, "view").catch((error) => {
     if (error instanceof AccessError && !(error instanceof WorkspacePolicyError)) refuse("noAccess", "Page not found");
     throw error;
   });
   if (found.workspaceId !== workspaceId || found.archivedAt || found.inTemplate) refuse("noAccess", "Page not found");
-  return found;
+  return { kind: "page", id: found.id, title: found.title };
 }
+
+type ResolvedScope = { kind: "page" | "teamspace"; id: string; title: string };
 
 /** The skill a question uses: one of the workspace the person can open, not too long to send. */
 async function chatSkill(userId: string, workspaceId: string, skillId: string): Promise<ChatSkill> {
@@ -236,7 +246,7 @@ export async function startChat(userId: string, input: ChatInput, signal?: Abort
   const feature = input.research ? "chat.research" : "chat";
   // A question is as long as the model's context window takes; nothing else bounds it.
   if (message.length > (await promptRoomFor(input.workspaceId, feature, model?.id))) refuse("tooLarge", "The question is longer than the model takes");
-  const scope = await scopePage(userId, input.workspaceId, input.scope);
+  const scope = await chatScope(userId, input.workspaceId, input.scope);
   const skill = input.skillId ? await chatSkill(userId, input.workspaceId, input.skillId) : null;
   const replaced = input.replaceLast ? lastTurn(existing) : 0;
   const files = await askedFiles(userId, input.workspaceId, existing, attached, replaced);
@@ -247,7 +257,7 @@ export async function startChat(userId: string, input: ChatInput, signal?: Abort
   // nothing is changed, notes about the person included.
   const appReadOnly = (await asWrite(() => connectedAppHold(userId, input.workspaceId))) === "readOnly";
   const chat = {
-    scope: scope ? { id: scope.id, title: scope.title } : null,
+    scope,
     skill,
     existing,
     // Research only reads.
@@ -378,7 +388,7 @@ async function* runChat(
     web,
     asSuggestions,
   }: {
-    scope: { id: string; title: string } | null;
+    scope: ResolvedScope | null;
     skill: ChatSkill | null;
     existing: typeof aiConversation.$inferSelect | null;
     mode: ChatMode;
@@ -425,11 +435,11 @@ async function* runChat(
   const tools = research
     ? [PLAN_TOOL, ...CHAT_TOOLS, ...fileTools, ...webTools]
     : [...CHAT_TOOLS, ...(mode === "read" ? [] : WRITE_TOOLS), ...fileTools, ...(remembers ? MEMORY_TOOLS : []), ...webTools, ...(external?.tools ?? [])];
-  const scopeTitle = scope ? pageLabel(scope.title) : null;
+  const promptScope = scope ? { kind: scope.kind, title: scope.kind === "page" ? pageLabel(scope.title) : scope.title } : null;
   const skillTitle = skill ? pageLabel(skill.title) : null;
   const system = research
-    ? researchSystemPrompt(scopeTitle, webTools.length > 0, skillTitle, hasFiles)
-    : chatSystemPrompt(scopeTitle, mode !== "read", skillTitle, remembers, services, webTools.length > 0, hasFiles);
+    ? researchSystemPrompt(promptScope, webTools.length > 0, skillTitle, hasFiles)
+    : chatSystemPrompt(promptScope, mode !== "read", skillTitle, remembers, services, webTools.length > 0, hasFiles);
   const toolsSize = tools.reduce((n, t) => n + t.description.length + JSON.stringify(t.parameters).length, 0);
   const feature = research ? "chat.research" : "chat";
   // What the model takes, less what every turn sends: the history, the map, memory and tool results
@@ -446,7 +456,12 @@ async function* runChat(
         .values({ userId, workspaceId, title: conversationTitle(message || files.records.map((a) => a.name).join(", ")), model, messages: [] })
         .returning()
     )[0];
-  yield { type: "conversation", id: conversation.id, title: conversation.title };
+  yield {
+    type: "conversation",
+    id: conversation.id,
+    title: conversation.title,
+    ...(promptScope && scope ? { scope: { kind: scope.kind, id: scope.id, title: promptScope.title } } : {}),
+  };
 
   const registry: Registry = { sources: [], byKey: new Map() };
   const started = Date.now();
@@ -524,7 +539,7 @@ async function* runChat(
     const filesText = hasFiles ? filesPrompt(read, Math.floor((room() - sizeOf(history) - message.length - memory.text.length) * FILES_SHARE)) : "";
     const imagesSize = read.images.length * IMAGE_CHARS;
     const mapRoom = Math.min(MAP_CHARS, room() - sizeOf(history) - message.length - (skill?.body.length ?? 0) - memory.text.length - filesText.length - imagesSize - 2_000);
-    const map = mapRoom >= 500 ? await workspaceMap(ctx, workspaceId, scope?.id ?? null, mapRoom) : "";
+    const map = mapRoom >= 500 ? await workspaceMap(ctx, workspaceId, scope, mapRoom) : "";
     // A question that is only files asks about the files.
     const asked = message || "(The person attached the files without a question: say briefly what they hold and what you could do with them.)";
     const question: AiMessage = {
@@ -626,10 +641,10 @@ async function* runChat(
           let decision: ChatDecision | "timeout" = "approve";
           if ("action" in prepared && mode !== "auto") decision = yield* decide(prepared.action);
           out = "action" in prepared ? await applyMemory(userId, workspaceId, conversation.id, prepared, decision) : prepared;
-        } else if (!writeTools.has(call.name)) out = await runTool(ctx, workspaceId, scope?.id, call, registry, left, extra);
+        } else if (!writeTools.has(call.name)) out = await runTool(ctx, workspaceId, scope, call, registry, left, extra);
         else if (mode === "read") out = { content: "Changes are off in this chat: say what you would change instead.", isError: true };
         else {
-          const prepared = await prepareWrite(ctx, workspaceId, scope?.id ?? null, call, extra);
+          const prepared = await prepareWrite(ctx, workspaceId, scope, call, extra);
           let decision: ChatDecision | "timeout" = "approve";
           if ("action" in prepared && mode === "ask") {
             decision = yield* decide(prepared.action);
@@ -669,6 +684,7 @@ async function* runChat(
           role: "user",
           content: message,
           ...(skill ? { skill: { id: skill.id, title: skill.title } } : {}),
+          ...(scope ? { scope: { kind: scope.kind, id: scope.id } } : {}),
           ...(kept.length ? { attachments: kept } : {}),
           ...(research ? { research: true } : {}),
           at: now,
@@ -765,6 +781,22 @@ export async function viewStep(userId: string, record: ChatStepRecord, pages?: A
 }
 
 /** Cited pages as the person may see them now: pages they can't open lose id and title. */
+/**
+ * The scopes questions were asked in, by `kind:id`, titled as the person may see them now: a page
+ * they can no longer open, or a teamspace they can no longer see, has no title.
+ */
+async function viewScopes(userId: string, scopes: NonNullable<ChatMessageRecord["scope"]>[]): Promise<Map<string, ChatScopeView>> {
+  const pages = await visiblePages(userId, scopes.filter((s) => s.kind === "page").map((s) => s.id));
+  const out = new Map<string, ChatScopeView>();
+  for (const { kind, id } of scopes) {
+    const key = `${kind}:${id}`;
+    if (out.has(key)) continue;
+    const title = kind === "page" ? (pages.has(id) ? pageLabel(pages.get(id)!.title) : null) : ((await teamspaceLabel(userId, id))?.name ?? null);
+    out.set(key, { kind, id, title });
+  }
+  return out;
+}
+
 export async function viewSources(userId: string, refs: ChatSourceRef[]): Promise<ChatSourceView[]> {
   const visible = await visiblePages(userId, refs.flatMap((r) => (r.pageId ? [r.pageId] : [])));
   // Verified as of now, not when the answer was written.
@@ -805,6 +837,7 @@ export async function getConversation(userId: string, workspaceId: string, conve
       ),
     ),
   );
+  const scopes = await viewScopes(userId, found.messages.flatMap((m) => (m.scope ? [m.scope] : [])));
   let i = 0;
   const messages: ChatMessageView[] = await Promise.all(
     found.messages.map(async (m) => {
@@ -814,6 +847,7 @@ export async function getConversation(userId: string, workspaceId: string, conve
         role: m.role,
         content: m.content,
         ...(m.skill ? { skill: m.skill } : {}),
+        ...(m.scope ? { scope: scopes.get(`${m.scope.kind}:${m.scope.id}`) } : {}),
         ...(m.attachments ? { attachments: m.attachments.map(attachmentView) } : {}),
         ...(m.research ? { research: true } : {}),
         ...(m.model ? { model: m.model } : {}),

@@ -198,6 +198,13 @@
     "scope": "回答の範囲",
     "scopeWorkspace": "ワークスペース全体",
     "scopePage": "このページとサブページ",
+    "scopeTeamspace": "チームスペース",
+    "scopeAsked": {
+      "page": "「{title}」とそのサブページについての質問",
+      "pageUnknown": "あるページとそのサブページについての質問",
+      "teamspace": "チームスペース「{title}」についての質問",
+      "teamspaceUnknown": "あるチームスペースについての質問"
+    },
     "thinking": "考えています…",
     "steps": {
       "working": "作業中 · {time}",

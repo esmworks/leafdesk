@@ -198,6 +198,13 @@
     "scope": "תשובה מתוך",
     "scopeWorkspace": "כל סביבת העבודה",
     "scopePage": "הדף הזה ודפי המשנה שלו",
+    "scopeTeamspace": "מרחב צוות",
+    "scopeAsked": {
+      "page": "שאלה על “{title}” ודפי המשנה שלו",
+      "pageUnknown": "שאלה על דף ודפי המשנה שלו",
+      "teamspace": "שאלה על מרחב הצוות “{title}”",
+      "teamspaceUnknown": "שאלה על מרחב צוות"
+    },
     "thinking": "בחשיבה…",
     "steps": {
       "working": "בעבודה · {time}",

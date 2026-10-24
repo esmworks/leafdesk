@@ -47,7 +47,7 @@ import { getTree, savedSeedNames } from "@/server/pages";
 import { listLetterheads } from "@/server/letterheads";
 import { pagePdf } from "@/server/pdf";
 import { outdatedState } from "@/server/page-outdated";
-import { chunksOfPages, inSubtree } from "@/server/semantic-search";
+import { chunksOfPages, inScope, type ChatScopeRef } from "@/server/semantic-search";
 import { bestChunkForTerms, chunkPage, passageOf } from "@/server/semantic-text";
 
 /** The most of the prompt the workspace map takes, and the databases it lists properties of. */
@@ -454,12 +454,12 @@ export const registerWeb = (registry: Registry, page: { url: string; title: stri
 // ---------------------------------------------------------------------------- workspace map
 
 /**
- * What the person can open in the workspace (or under the scope page), for the model to choose
+ * What the person can open in the workspace (or in the chat's scope), for the model to choose
  * from: the databases first, with their properties, types and options (to query them without
  * reading them first), then the pages, each with its id and where it is. Rows of databases aren't
  * listed. Cut to `maxChars`, saying so.
  */
-export async function workspaceMap(ctx: ops.OperationContext, workspaceId: string, scopeId: string | null, maxChars: number) {
+export async function workspaceMap(ctx: ops.OperationContext, workspaceId: string, scope: ChatScopeRef | null | undefined, maxChars: number) {
   const nodes = await getTree(ctx.userId, workspaceId);
   const byId = new Map(nodes.map((n) => [n.id, n]));
   const chain = (id: string) => {
@@ -467,7 +467,11 @@ export async function workspaceMap(ctx: ops.OperationContext, workspaceId: strin
     for (let at = byId.get(id); at && out.length < 20; at = at.parentId ? byId.get(at.parentId) : undefined) out.unshift(at);
     return out;
   };
-  const inScope = scopeId ? nodes.filter((n) => chain(n.id).some((c) => c.id === scopeId)) : nodes;
+  const inScope = !scope
+    ? nodes
+    : scope.kind === "teamspace"
+      ? nodes.filter((n) => n.teamspaceId === scope.id)
+      : nodes.filter((n) => chain(n.id).some((c) => c.id === scope.id));
   const where = (id: string) => {
     const above = chain(id).slice(0, -1).map((c) => pageLabel(c.title));
     return above.length ? ` in ${above.join(" / ")}` : "";
@@ -506,17 +510,17 @@ export async function workspaceMap(ctx: ops.OperationContext, workspaceId: strin
 async function searchSources(
   ctx: ops.OperationContext,
   workspaceId: string,
-  scopeId: string | undefined,
+  scope: ChatScopeRef | null | undefined,
   query: string,
   registry: Registry,
   maxChars: number,
 ) {
   // Archived pages stay out (server/page-outdated.ts), unless the chat is about one: then what is under it is what it asks about.
-  const include_archived = scopeId ? (await outdatedState(ctx.userId, scopeId)) !== null : false;
+  const include_archived = scope?.kind === "page" ? (await outdatedState(ctx.userId, scope.id)) !== null : false;
   const { results } = await ops.search(
     ctx,
     { query, workspace_id: workspaceId, limit: PASSAGES, include_archived },
-    { withinPageId: scopeId, passages: true, anyWord: true },
+    { within: scope ?? undefined, passages: true, anyWord: true },
   );
   const [values, found] = await Promise.all([rowValues(ctx, results), textPassages(results, query)]);
   return results.map((r) => {
@@ -608,7 +612,7 @@ export type ToolOutcome = { content: string; isError?: boolean; step?: ChatStepR
 export async function runTool(
   ctx: ops.OperationContext,
   workspaceId: string,
-  scopeId: string | undefined,
+  scope: ChatScopeRef | null | undefined,
   call: { name: string; arguments: Record<string, unknown> },
   registry: Registry,
   room: number,
@@ -618,7 +622,7 @@ export async function runTool(
   if (call.name === "search_pages") {
     const query = typeof call.arguments.query === "string" ? call.arguments.query.trim().slice(0, 500) : "";
     if (!query) return { content: "search_pages needs a query.", isError: true };
-    const found = await searchSources(ctx, workspaceId, scopeId, query, registry, Math.min(PASSAGE_CHARS, Math.floor(room / PASSAGES)));
+    const found = await searchSources(ctx, workspaceId, scope, query, registry, Math.min(PASSAGE_CHARS, Math.floor(room / PASSAGES)));
     return {
       content: found.length ? formatSources(found) : "Nothing matched. Try other words, or answer that the workspace has nothing on it.",
       step: { kind: "search", query, results: found.length },
@@ -630,7 +634,7 @@ export async function runTool(
     if (!pageId || pageId.length > 100) return missing;
     // Checked on every call, with the access the person has now.
     const withBlockIds = call.arguments.with_block_ids === true;
-    const read = await readPage(ctx, workspaceId, scopeId, pageId, Math.min(PAGE_CHARS, room - 500), withBlockIds).catch((error) => {
+    const read = await readPage(ctx, workspaceId, scope, pageId, Math.min(PAGE_CHARS, room - 500), withBlockIds).catch((error) => {
       if (error instanceof AccessError || (error as Error)?.name === "ToolInputError") return null;
       throw error;
     });
@@ -639,10 +643,10 @@ export async function runTool(
     const entry = register(registry, { pageId, blockId: null, title: read.title, text: read.text, note: read.note, verified });
     return { content: formatSources([entry]), step: { kind: "read", pageId } };
   }
-  if (call.name === "query_database") return queryRows(ctx, workspaceId, scopeId, call.arguments, registry, room);
+  if (call.name === "query_database") return queryRows(ctx, workspaceId, scope, call.arguments, registry, room);
   if (call.name === "list_comments" || call.name === "page_history" || call.name === "page_version") {
     try {
-      return await readAround(ctx, workspaceId, scopeId, call, registry, Math.min(PAGE_CHARS, room - 500));
+      return await readAround(ctx, workspaceId, scope, call, registry, Math.min(PAGE_CHARS, room - 500));
     } catch (error) {
       if (error instanceof AccessError || error instanceof ToolInputError) return { content: "No page or version with that id can be read. Use a page_id from a source, or a version_id from page_history.", isError: true };
       throw error;
@@ -698,7 +702,7 @@ function readAttachment(attachments: ChatFileContent[], args: Record<string, unk
 async function readAround(
   ctx: ops.OperationContext,
   workspaceId: string,
-  scopeId: string | undefined,
+  scope: ChatScopeRef | null | undefined,
   call: { name: string; arguments: Record<string, unknown> },
   registry: Registry,
   maxChars: number,
@@ -710,7 +714,7 @@ async function readAround(
     const compare = call.arguments.compare === "none" || call.arguments.compare === "previous" ? call.arguments.compare : "current";
     // The version's page first: nothing of it is read unless the page is one to read here.
     const version = await ops.getPageVersion(ctx, { version_id: versionId, offset: 0 }, { maxChars });
-    const target = await readTarget(ctx.userId, workspaceId, scopeId ?? null, version.page_id);
+    const target = await readTarget(ctx.userId, workspaceId, scope, version.page_id);
     if (!target) return missing;
     const saved = `the version saved ${version.saved_at} (version_id ${versionId})`;
     let body: string;
@@ -730,7 +734,7 @@ async function readAround(
     return { content: formatSources([entry]), step: { kind: "read", pageId: target.id } };
   }
   const pageId = text(call.arguments.page_id) ?? "";
-  const target = await readTarget(ctx.userId, workspaceId, scopeId ?? null, pageId);
+  const target = await readTarget(ctx.userId, workspaceId, scope, pageId);
   if (!target) return missing;
   if (call.name === "page_history") {
     const { versions } = await ops.listPageHistory(ctx, { page_id: pageId });
@@ -751,8 +755,8 @@ async function readAround(
 }
 
 /** A page of the workspace the person may read now: in scope, not in the trash or a template. */
-async function readTarget(userId: string, workspaceId: string, scopeId: string | null, pageId: string) {
-  return (await writeTarget(userId, workspaceId, scopeId, pageId))?.page ?? null;
+async function readTarget(userId: string, workspaceId: string, scope: ChatScopeRef | null | undefined, pageId: string) {
+  return (await writeTarget(userId, workspaceId, scope, pageId))?.page ?? null;
 }
 
 /**
@@ -763,7 +767,7 @@ async function readTarget(userId: string, workspaceId: string, scopeId: string |
 async function queryRows(
   ctx: ops.OperationContext,
   workspaceId: string,
-  scopeId: string | undefined,
+  scope: ChatScopeRef | null | undefined,
   args: Record<string, unknown>,
   registry: Registry,
   room: number,
@@ -781,8 +785,8 @@ async function queryRows(
     .where(eq(page.id, input.database_id))
     .limit(1);
   if (!found || found.workspaceId !== workspaceId || found.kind !== "database" || found.archivedAt || found.inTemplate) return missing;
-  if (scopeId) {
-    const [inside] = await db.execute<{ one: number }>(sql`select 1 as one from ${page} p where p.id = ${input.database_id} and ${inSubtree(scopeId)}`);
+  if (scope) {
+    const [inside] = await db.execute<{ one: number }>(sql`select 1 as one from ${page} p where p.id = ${input.database_id} and ${inScope(scope)}`);
     if (!inside) return missing;
   }
   let result: Awaited<ReturnType<typeof ops.queryDatabase>>;
@@ -861,7 +865,7 @@ const text = (value: unknown) => (typeof value === "string" ? value.trim() : und
 export async function prepareWrite(
   ctx: ops.OperationContext,
   workspaceId: string,
-  scopeId: string | null,
+  scope: ChatScopeRef | null | undefined,
   call: { name: string; arguments: Record<string, unknown> },
   extra: ToolExtra = {},
 ): Promise<PreparedWrite | ToolOutcome> {
@@ -874,7 +878,7 @@ export async function prepareWrite(
       const parsed = ops.inputs.createDatabaseRow.safeParse({ database_id: text(args.database_id) ?? "", title: text(args.title), properties, markdown: text(args.content) || undefined });
       if (!parsed.success) return invalidChange(issuesOf(parsed.error));
       const input = parsed.data;
-      const target = await writeTarget(userId, workspaceId, scopeId, input.database_id);
+      const target = await writeTarget(userId, workspaceId, scope, input.database_id);
       if (!target || target.page.kind !== "database") return { content: "No database with that id can be changed. Use a database_id from the map or a source.", isError: true };
       if (!canEdit(target.level)) return readOnly;
       const stored = input.properties ? await normalizeRowProperties(userId, target.page.id, input.properties) : {};
@@ -900,7 +904,7 @@ export async function prepareWrite(
       if (!parsed.success) return invalidChange(issuesOf(parsed.error));
       const input = parsed.data;
       if (input.title === undefined && !Object.keys(input.properties ?? {}).length) return invalidChange("give a new title or values.");
-      const target = await writeTarget(userId, workspaceId, scopeId, input.row_id);
+      const target = await writeTarget(userId, workspaceId, scope, input.row_id);
       const parent = target?.page.parentId ? await writeTarget(userId, workspaceId, null, target.page.parentId) : null;
       if (!target || parent?.page.kind !== "database") return { content: "No database row with that id can be changed. Use the page_id of a row's source.", isError: true };
       if (!canEdit(target.level)) return readOnly;
@@ -945,7 +949,7 @@ export async function prepareWrite(
       const pageId = text(args.page_id) ?? "";
       const edits = parseEdits(args.edits);
       if (typeof edits === "string") return invalidChange(edits);
-      const target = await writeTarget(userId, workspaceId, scopeId, pageId);
+      const target = await writeTarget(userId, workspaceId, scope, pageId);
       if (!target) return { content: "No page with that id can be changed. Use a page_id from the map or a source.", isError: true };
       if (target.page.kind === "database") return invalidChange("page_id is a database, which has no text: change its rows with update_row.");
       if (!canEdit(target.level)) return readOnly;
@@ -965,22 +969,22 @@ export async function prepareWrite(
         },
       };
     }
-    if (call.name === "create_pdf") return await preparePdf(ctx, workspaceId, scopeId, args);
-    if (call.name === "add_comment") return await prepareComment(ctx, workspaceId, scopeId, args);
-    if (call.name === "create_database") return await prepareDatabase(ctx, workspaceId, scopeId, args);
-    if (call.name === "create_database_from_csv") return await prepareCsvDatabase(ctx, workspaceId, scopeId, args, extra);
-    if (call.name === "create_form") return await prepareForm(ctx, workspaceId, scopeId, args);
+    if (call.name === "create_pdf") return await preparePdf(ctx, workspaceId, scope, args);
+    if (call.name === "add_comment") return await prepareComment(ctx, workspaceId, scope, args);
+    if (call.name === "create_database") return await prepareDatabase(ctx, workspaceId, scope, args);
+    if (call.name === "create_database_from_csv") return await prepareCsvDatabase(ctx, workspaceId, scope, args, extra);
+    if (call.name === "create_form") return await prepareForm(ctx, workspaceId, scope, args);
     if (call.name === "create_page") {
       const parentId = text(args.parent_id) || undefined;
-      // In a page's scope, new pages stay in it too.
-      if (scopeId && !parentId) return invalidChange("in this chat new pages go under the page in scope or a page under it: give parent_id.");
+      // In a chat kept to a scope, new pages stay in it too.
+      if (scope && !parentId) return invalidChange(`in this chat new pages go under ${scopeWhere(scope)}: give parent_id.`);
       const parsed = ops.inputs.createPage.safeParse({ workspace_id: workspaceId, parent_id: parentId, title: text(args.title), markdown: text(args.content) || undefined });
       if (!parsed.success) return invalidChange(issuesOf(parsed.error));
       const input = parsed.data;
       if (!input.title) return invalidChange("give the page a title.");
       let target: ChatPageView | null = null;
       if (input.parent_id) {
-        const parent = await writeTarget(userId, workspaceId, scopeId, input.parent_id);
+        const parent = await writeTarget(userId, workspaceId, scope, input.parent_id);
         if (!parent) return { content: "No page with that id can be changed. Use a page_id from the map or a source.", isError: true };
         if (parent.page.kind === "database") return invalidChange("parent_id is a database: add rows to it with create_row.");
         if (!canEdit(parent.level)) return readOnly;
@@ -1014,12 +1018,12 @@ const canEdit = (level: string) => level === "edit" || level === "full";
 async function preparePdf(
   ctx: ops.OperationContext,
   workspaceId: string,
-  scopeId: string | null,
+  scope: ChatScopeRef | null | undefined,
   args: Record<string, unknown>,
 ): Promise<PreparedWrite | ToolOutcome> {
   const { userId } = ctx;
   const pageId = text(args.page_id) ?? "";
-  const target = await writeTarget(userId, workspaceId, scopeId, pageId);
+  const target = await writeTarget(userId, workspaceId, scope, pageId);
   if (!target) return { content: "No page with that id can be changed. Use a page_id from the map or a source.", isError: true };
   if (target.page.kind === "database") return invalidChange("page_id is a database: make the PDF of one of its rows or of a page.");
   if (!canEdit(target.level)) return readOnly;
@@ -1081,7 +1085,7 @@ async function preparePdf(
  * add_comment: a page the person may comment on, and the thread it replies in (which must be one
  * of the page's) or the text a new thread is about (which the page must have).
  */
-async function prepareComment(ctx: ops.OperationContext, workspaceId: string, scopeId: string | null, args: Record<string, unknown>): Promise<PreparedWrite | ToolOutcome> {
+async function prepareComment(ctx: ops.OperationContext, workspaceId: string, scope: ChatScopeRef | null | undefined, args: Record<string, unknown>): Promise<PreparedWrite | ToolOutcome> {
   const { userId } = ctx;
   const parsed = ops.inputs.addComment.safeParse({
     page_id: text(args.page_id) ?? "",
@@ -1092,7 +1096,7 @@ async function prepareComment(ctx: ops.OperationContext, workspaceId: string, sc
   if (!parsed.success) return invalidChange(issuesOf(parsed.error));
   const input = parsed.data;
   if (!input.quote === !input.thread_id) return invalidChange("give quote (to start a thread on that text) or thread_id (to reply), one of them.");
-  const target = await writeTarget(userId, workspaceId, scopeId, input.page_id);
+  const target = await writeTarget(userId, workspaceId, scope, input.page_id);
   if (!target) return { content: "No page with that id can be commented on. Use a page_id from the map or a source.", isError: true };
   if (target.page.kind === "database") return invalidChange("page_id is a database: comment on one of its rows or a page.");
   if (!hasLevel(target.level, "comment")) return { content: "The person may only read this page, not comment on it. Tell them so.", isError: true };
@@ -1118,11 +1122,11 @@ async function prepareComment(ctx: ops.OperationContext, workspaceId: string, sc
 /** Text with its spaces folded, to find a quote in a page's text. */
 const flat = (value: string) => value.replace(/\s+/g, " ").trim().toLowerCase();
 
-/** Where a new database goes: under a page the person may change, or (outside a page's scope) at the top, private to them. */
-async function newDatabaseParent(userId: string, workspaceId: string, scopeId: string | null, parentId: string | undefined): Promise<{ target: ChatPageView } | ToolOutcome> {
-  if (scopeId && !parentId) return invalidChange("in this chat new databases go under the page in scope or a page under it: give parent_id.");
+/** Where a new database goes: under a page the person may change, or (outside a scope) at the top, private to them. */
+async function newDatabaseParent(userId: string, workspaceId: string, scope: ChatScopeRef | null | undefined, parentId: string | undefined): Promise<{ target: ChatPageView } | ToolOutcome> {
+  if (scope && !parentId) return invalidChange(`in this chat new databases go under ${scopeWhere(scope)}: give parent_id.`);
   if (!parentId) return { target: null };
-  const parent = await writeTarget(userId, workspaceId, scopeId, parentId);
+  const parent = await writeTarget(userId, workspaceId, scope, parentId);
   if (!parent) return { content: "No page with that id can be changed. Use a page_id from the map or a source.", isError: true };
   if (parent.page.kind === "database") return invalidChange("parent_id is a database: a database can't go inside another one.");
   if (!canEdit(parent.level)) return readOnly;
@@ -1141,7 +1145,7 @@ async function databaseText(ctx: ops.OperationContext, databaseId: string, lead:
  * the way every plan is (server/database-plan): a property that can't be added takes the database
  * back with it.
  */
-async function prepareDatabase(ctx: ops.OperationContext, workspaceId: string, scopeId: string | null, args: Record<string, unknown>): Promise<PreparedWrite | ToolOutcome> {
+async function prepareDatabase(ctx: ops.OperationContext, workspaceId: string, scope: ChatScopeRef | null | undefined, args: Record<string, unknown>): Promise<PreparedWrite | ToolOutcome> {
   const { userId } = ctx;
   const title = (text(args.title) ?? "").slice(0, 500);
   if (!title) return invalidChange("give the database a title.");
@@ -1165,7 +1169,7 @@ async function prepareDatabase(ctx: ops.OperationContext, workspaceId: string, s
   const plan = { intro: null, databases: [{ key: "database", title, properties: props.map((p) => ({ name: p.name, type: p.type, options: p.options })) }] };
   const checked = validateDatabasePlan(plan);
   if (!checked.ok) return invalidChange(checked.problems.join(" ").replace(/Database "[^"]*"(, )?/g, ""));
-  const where = await newDatabaseParent(userId, workspaceId, scopeId, text(args.parent_id) || undefined);
+  const where = await newDatabaseParent(userId, workspaceId, scope, text(args.parent_id) || undefined);
   if (!("target" in where)) return where;
   return {
     action: {
@@ -1194,7 +1198,7 @@ async function prepareDatabase(ctx: ops.OperationContext, workspaceId: string, s
 async function prepareCsvDatabase(
   ctx: ops.OperationContext,
   workspaceId: string,
-  scopeId: string | null,
+  scope: ChatScopeRef | null | undefined,
   args: Record<string, unknown>,
   extra: ToolExtra,
 ): Promise<PreparedWrite | ToolOutcome> {
@@ -1223,7 +1227,7 @@ async function prepareCsvDatabase(
     }
   }
   const title = ((text(args.title) || file.name.replace(/\.csv$/i, "")).trim() || file.name).slice(0, 200);
-  const where = await newDatabaseParent(userId, workspaceId, scopeId, text(args.parent_id) || undefined);
+  const where = await newDatabaseParent(userId, workspaceId, scope, text(args.parent_id) || undefined);
   if (!("target" in where)) return where;
   // What the person sees: each column kept, as the title or a property of its type.
   const kept = table.headers.flatMap((name, i) => (i === titleColumn ? [{ name, type: "title" }] : types[i] ? [{ name, type: types[i] }] : []));
@@ -1275,9 +1279,9 @@ async function prepareCsvDatabase(
  * as MCP's create_database_view checks them (mcp/form-settings.ts). A public link needs full access
  * to the database, and the workspace's publishing policy when it is made.
  */
-async function prepareForm(ctx: ops.OperationContext, workspaceId: string, scopeId: string | null, args: Record<string, unknown>): Promise<PreparedWrite | ToolOutcome> {
+async function prepareForm(ctx: ops.OperationContext, workspaceId: string, scope: ChatScopeRef | null | undefined, args: Record<string, unknown>): Promise<PreparedWrite | ToolOutcome> {
   const { userId } = ctx;
-  const target = await writeTarget(userId, workspaceId, scopeId, text(args.database_id) ?? "");
+  const target = await writeTarget(userId, workspaceId, scope, text(args.database_id) ?? "");
   if (!target || target.page.kind !== "database") return { content: "No database with that id can be changed. Use a database_id from the map or a source.", isError: true };
   if (!canEdit(target.level)) return readOnly;
   const isPublic = args.public === true;
@@ -1372,13 +1376,16 @@ async function prepareForm(ctx: ops.OperationContext, workspaceId: string, scope
   };
 }
 
+/** Where new pages go in a chat kept to a scope, for the model. */
+const scopeWhere = (scope: ChatScopeRef) => (scope.kind === "page" ? "the page in scope or a page under it" : "a page of the teamspace in scope");
+
 /** A page of the workspace a change may go to, with the person's access: in scope, not in the trash or a template. */
-async function writeTarget(userId: string, workspaceId: string, scopeId: string | null, pageId: string) {
+async function writeTarget(userId: string, workspaceId: string, scope: ChatScopeRef | null | undefined, pageId: string) {
   if (!pageId || pageId.length > 100) return null;
   const { page: found, level } = await pageAccessOf(userId, pageId);
   if (!found || level === "none" || found.workspaceId !== workspaceId || found.archivedAt || found.inTemplate) return null;
-  if (scopeId) {
-    const [inside] = await db.execute<{ one: number }>(sql`select 1 as one from ${page} p where p.id = ${pageId} and ${inSubtree(scopeId)}`);
+  if (scope) {
+    const [inside] = await db.execute<{ one: number }>(sql`select 1 as one from ${page} p where p.id = ${pageId} and ${inScope(scope)}`);
     if (!inside) return null;
   }
   return { page: found, level };
@@ -1497,9 +1504,9 @@ export async function applyWrite(prepared: PreparedWrite, decision: ChatDecision
 }
 
 /** A page's text as the person may read it now, or null when it's out of reach or scope. */
-async function readPage(ctx: ops.OperationContext, workspaceId: string, scopeId: string | undefined, pageId: string, maxChars: number, withBlockIds = false) {
-  if (scopeId) {
-    const [inside] = await db.execute<{ one: number }>(sql`select 1 as one from ${page} p where p.id = ${pageId} and ${inSubtree(scopeId)}`);
+async function readPage(ctx: ops.OperationContext, workspaceId: string, scope: ChatScopeRef | null | undefined, pageId: string, maxChars: number, withBlockIds = false) {
+  if (scope) {
+    const [inside] = await db.execute<{ one: number }>(sql`select 1 as one from ${page} p where p.id = ${pageId} and ${inScope(scope)}`);
     if (!inside) return null;
   }
   const out = (await ops.getPage(ctx, { page_id: pageId, offset: 0, with_block_ids: withBlockIds }, { maxMarkdownChars: maxChars })) as Record<string, unknown>;

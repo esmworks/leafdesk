@@ -198,6 +198,13 @@
     "scope": "Quelle",
     "scopeWorkspace": "Ganzer Workspace",
     "scopePage": "Diese Seite und ihre Unterseiten",
+    "scopeTeamspace": "Teambereich",
+    "scopeAsked": {
+      "page": "Gefragt zu „{title}“ und ihren Unterseiten",
+      "pageUnknown": "Gefragt zu einer Seite und ihren Unterseiten",
+      "teamspace": "Gefragt zum Teambereich „{title}“",
+      "teamspaceUnknown": "Gefragt zu einem Teambereich"
+    },
     "thinking": "Denkt nach…",
     "steps": {
       "working": "Arbeitet · {time}",

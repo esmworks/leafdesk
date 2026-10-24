@@ -2331,7 +2331,11 @@ takes are listed above it (searches with how many pages they found, pages read, 
 queried, what the model says before them) with a running clock, then folded into how long it took; they are kept with the
 conversation. Answers cite their sources as numbered
 links to the page, and to the block the passage starts at when it is known. *Answer from* → *This
-page and its subpages* keeps questions to the page you are on. *Stop* ends an answer; what was written so far
+page and its subpages* keeps questions to the page you are on, and picking one of your teamspaces
+(in the panel and the full-page chat) keeps them to that teamspace's pages: search, semantic
+search, reading pages and comments, querying databases and the workspace map the model gets all
+keep to it on the server, with your access checked as always. Each question shows what it was
+asked of, by the page's or teamspace's name as you may see it now. *Stop* ends an answer; what was written so far
 is kept. Under an answer are *Copy*, *Answer again* (the latest) and its time; hovering a question
 shows its time, *Edit* (the latest: answered again in its place) and *Copy*. An answer that
 changed things can't be answered again or edited. Conversations are private to you and listed in the full-page chat's sidebar and under
@@ -2348,7 +2352,7 @@ text), change a row's values or title (`update_row`), add a page under a page, o
 at the top of the workspace (`create_page`), and change a page's or row's text block by block
 (`edit_page`: replace a block, insert after one, append or delete one, by the block ids it reads
 first), and make a PDF file of a page or row (`create_pdf`, see [PDF](#pdf)), as you and only where you may edit (and, with
-*Answer from* a page, only under it). What it may do is picked under the question box and
+*Answer from* a page or teamspace, only in it). What it may do is picked under the question box and
 remembered in the browser: *Ask* (the default) shows each change in the box's place before it is
 made (what, where, a new row's values and the start of a new page's text; for a change to a page's
 text the blocks it changes, adds and removes; for a changed row each property's old value next to
