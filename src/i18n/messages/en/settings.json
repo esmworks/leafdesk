@@ -12,6 +12,7 @@
     "groups": "Groups",
     "agents": "Agents",
     "connections": "Connections",
+    "webhooks": "Webhooks",
     "storage": "Storage",
     "analytics": "Analytics",
     "aiUsage": "AI usage",
@@ -2026,6 +2027,102 @@
       "redo": "Send back with a note…",
       "notWhole": "This call is longer than shown here, or holds values masked here. Open its run to see all of what would be sent before approving it.",
       "openRun": "Open the run to approve"
+    }
+  },
+  "webhooks": {
+    "description": "Send what happens to this workspace's pages to another service as it happens: signed POST requests to an https address, for the whole workspace, one teamspace, or a page and the pages under it. Each one goes out as whoever saved the webhook last, with what they may open; database rows and templates aren't sent.",
+    "exportOff": "Export is off in Settings › Security, so webhooks send nothing until it is on again.",
+    "count": "{count, plural, =0 {No webhooks yet.} one {# webhook} other {# webhooks}}",
+    "add": "Add webhook",
+    "empty": "Add a webhook to send page events to a service of your own.",
+    "allEvents": "Every event",
+    "scopeLabel": {
+      "workspace": "Every page of the workspace",
+      "teamspace": "Pages of {name}",
+      "page": "{title} and the pages under it"
+    },
+    "events": {
+      "pageCreated": "Page created",
+      "pageUpdated": "Page edited",
+      "pageMoved": "Page moved",
+      "pageTrashed": "Page moved to the trash",
+      "pageRestored": "Page restored from the trash",
+      "pageDeleted": "Page deleted for good",
+      "commentCreated": "Comment added",
+      "ping": "Test"
+    },
+    "sendsAs": "Sends as {name}, with what they may open.",
+    "paused": "Paused: {name} is no longer an owner. Save it to send as you.",
+    "pausedBadge": "Paused",
+    "offBadge": "Off",
+    "toggle": "Send {name}",
+    "test": "Send test",
+    "testDelivered": "The test reached the address (it answered {status}).",
+    "testFailed": "The test didn't go through: {reason}.",
+    "edit": "Edit",
+    "delete": "Remove",
+    "deleteNote": "It stops at once, and its delivery log goes with it.",
+    "working": "Working…",
+    "secret": {
+      "show": "Signing secret",
+      "rotate": "New secret",
+      "rotateNote": "The current secret stops signing at once: update the service that checks it.",
+      "title": "Signing secret of “{name}”",
+      "label": "Signing secret",
+      "note": "Check the X-Leafdesk-Signature header of each request with it: t=TIME,v1=HMAC, where HMAC is the hex HMAC-SHA256 of TIME, a dot and the body. Keep it secret."
+    },
+    "log": {
+      "title": "{count, plural, =0 {Recent deliveries} other {Recent deliveries (#)}}",
+      "empty": "Nothing sent in the last 30 days.",
+      "attempts": "{count, plural, one {# try} other {# tries}}",
+      "next": "next try at {when}"
+    },
+    "status": {
+      "pending": "Waiting",
+      "delivered": "Delivered",
+      "failed": "Failed",
+      "skipped": "Not sent"
+    },
+    "codes": {
+      "noAccess": "the person it sends as can't open the page",
+      "notOwner": "the person it sends as is no longer an owner",
+      "exportOff": "export is off",
+      "disabled": "the webhook is off",
+      "invalidUrl": "the address isn't valid",
+      "blocked": "the address is on a private network",
+      "unreachable": "the address couldn't be reached",
+      "timeout": "no answer within 10 seconds",
+      "redirect": "the address answered with a redirect",
+      "http": "the address answered {status}"
+    },
+    "form": {
+      "title": "Add a webhook",
+      "editTitle": "Change the webhook",
+      "name": "Name",
+      "url": "Address",
+      "urlHint": "An https address. Requests are signed; redirects aren't followed.",
+      "events": "Events",
+      "scope": "Pages",
+      "scopes": {
+        "workspace": "The whole workspace",
+        "teamspace": "One teamspace",
+        "page": "A page and the pages under it"
+      },
+      "teamspace": "Choose a teamspace",
+      "pickPage": "Find a page",
+      "noPages": "No pages to choose from.",
+      "otherPage": "Change",
+      "save": "Save",
+      "create": "Add webhook"
+    },
+    "errors": {
+      "invalidName": "Give the webhook a name of up to 100 characters.",
+      "invalidUrl": "Enter a valid https address without a user name or password.",
+      "httpsOnly": "Webhooks go to https addresses.",
+      "noEvents": "Choose at least one event.",
+      "invalidScope": "Choose a teamspace or a page of this workspace.",
+      "tooMany": "A workspace has up to 25 webhooks.",
+      "ownersOnly": "Only the workspace's owners manage webhooks."
     }
   },
   "email": {

@@ -155,7 +155,7 @@ try {
   await deliverAll(later(10_000));
   received.length = 0;
   await createPage(owner, { workspaceId, parentId: database.id, title: "A row" });
-  await createPage(owner, { workspaceId, title: "A template", template: "page" } as Parameters<typeof createPage>[1]).catch(() => null);
+  await createPage(owner, { workspaceId, title: "A template", template: true, teamspaceId: space.id });
   check((await deliverAll(later(10_000))).length === 0, "database rows and templates send nothing");
 
   // A private page of someone else: the owner's webhook can't open it.

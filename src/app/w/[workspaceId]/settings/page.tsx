@@ -16,6 +16,7 @@ import {
   TextQuote,
   Users,
   UsersRound,
+  Webhook,
   type LucideIcon,
 } from "lucide-react";
 import type { Metadata } from "next";
@@ -62,6 +63,7 @@ import {
 } from "@/components/settings/sso-settings";
 import { SitePages, SiteSettings } from "@/components/settings/site-settings";
 import { TeamspacesPanel } from "@/components/settings/teamspaces-panel";
+import { WebhooksPanel } from "@/components/settings/webhooks-panel";
 import { WorkspaceApps } from "@/components/settings/workspace-apps";
 import { WorkspaceBackup } from "@/components/settings/workspace-backup";
 import { WorkspaceExport } from "@/components/settings/workspace-export";
@@ -98,6 +100,7 @@ import { listAgents } from "@/server/agents/manage";
 import { proposedNoteCounts } from "@/server/agents/memory";
 import { webSearchUrl } from "@/server/agents/web";
 import { listConnections } from "@/server/connections/manage";
+import { listPageWebhookDeliveries, listPageWebhooks } from "@/server/page-webhooks/manage";
 import { oauthRedirectUrl } from "@/server/connections/client";
 import { env } from "@/lib/env";
 import { aiInfoFor, isEnabled as aiMayBeOn } from "@/server/ai";
@@ -150,6 +153,7 @@ const ICONS: Record<SettingsTab, LucideIcon> = {
   snippets: TextQuote,
   pdf: FileText,
   connections: Plug,
+  webhooks: Webhook,
   storage: HardDrive,
   analytics: ChartColumn,
   aiUsage: Coins,
@@ -286,6 +290,7 @@ export default async function SettingsPage({
               notice={query.signedIn === "1" ? "signedIn" : query.connectionError === "oauthFailed" ? "oauthFailed" : undefined}
             />
           )}
+          {tab === "webhooks" && <WebhooksTab workspaceId={workspaceId} userId={user.id} />}
           {tab === "storage" && <StorageTab workspaceId={workspaceId} userId={user.id} isAdmin={isAdmin} notice={storageNoticeOf(query)} />}
           {tab === "analytics" && <AnalyticsTab workspaceId={workspaceId} userId={user.id} days={query.days} />}
           {tab === "aiUsage" && <AiUsageTab workspaceId={workspaceId} userId={user.id} month={query.month} />}
@@ -741,6 +746,29 @@ async function ConnectionsTab({
       notice={notice}
       oauthSetup={{ redirectUrl: oauthRedirectUrl(), instanceClients: Object.keys(env.connectionOAuthClients) }}
     />
+  );
+}
+
+/** Settings > Webhooks, for owners (the tab isn't offered to anyone else, and the list refuses them). */
+async function WebhooksTab({ workspaceId, userId }: { workspaceId: string; userId: string }) {
+  const [t, webhooks, teamspaces, settings] = await Promise.all([
+    getTranslations("settings"),
+    listPageWebhooks(userId, workspaceId),
+    listTeamspaces(userId, workspaceId),
+    getWorkspaceSettings(userId, workspaceId),
+  ]);
+  const logs = await Promise.all(webhooks.map((w) => listPageWebhookDeliveries(userId, w.id, 20)));
+  return (
+    <>
+      <SettingsHeader title={t("nav.webhooks")} description={t("webhooks.description")} />
+      <WebhooksPanel
+        workspaceId={workspaceId}
+        webhooks={webhooks}
+        deliveries={Object.fromEntries(webhooks.map((w, i) => [w.id, logs[i]]))}
+        teamspaces={teamspaces.filter((ts) => !ts.archivedAt).map((ts) => ({ id: ts.id, name: ts.name }))}
+        exportOff={settings.export === false}
+      />
+    </>
   );
 }
 
