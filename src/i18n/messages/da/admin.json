@@ -1,0 +1,97 @@
+{
+  "metaTitle": "Serveradministration",
+  "title": "Serveradministration",
+  "description": "Kontiene på denne server, deres sessioner og deres adgangskoder. Du ser denne side, fordi din bekræftede e-mailadresse står i ADMIN_EMAILS.",
+  "back": "Tilbage til {workspace}",
+  "backHome": "Tilbage",
+  "workspaces": {
+    "heading": "Oprettelse af arbejdsområder",
+    "everyone": "Alle kan oprette arbejdsområder",
+    "admins": "Kun administratorer kan oprette arbejdsområder",
+    "description": "Angives med WORKSPACE_CREATION på serveren (everyone eller admins). Alle får stadig et personligt arbejdsområde, når de opretter en konto."
+  },
+  "sessions": {
+    "heading": "Alle",
+    "description": "{count, plural, one {# aktiv session} other {# aktive sessioner}} på denne server.",
+    "signOutEveryone": "Log alle ud",
+    "signOutEveryoneDescription": "Afslutter alle sessioner på alle enheder undtagen din i denne browser, og sider, der er åbne dér, holder op med at synkronisere. Forbundne apps og API-tokens virker fortsat.",
+    "signOutEveryoneTitle": "Vil du logge alle ud?",
+    "signOutEveryoneBody": "Alle på denne server skal logge ind igen, også dig på dine andre enheder.",
+    "signOutEveryoneConfirm": "Log alle ud",
+    "resetEveryone": "Kræv nye adgangskoder",
+    "resetEveryoneDescription": "Alle, der logger ind med en adgangskode, undtagen dig, logges ud og skal vælge en ny adgangskode ved næste login. Konti, der kun logger ind med single sign-on, GitHub eller Google, påvirkes ikke.",
+    "resetByEmail": "Når de logger ind, får de et link via e-mail til at vælge den.",
+    "resetInApp": "E-mail er ikke sat op på denne server, så de vælger den lige efter at have logget ind med deres gamle adgangskode (og en totrinskode, hvis de bruger en).",
+    "resetEveryoneTitle": "Vil du kræve nye adgangskoder af alle?",
+    "resetEveryoneBody": "Alle med en adgangskode, undtagen dig, logges ud nu og kan ikke logge ind med deres nuværende adgangskode igen.",
+    "resetEveryoneConfirm": "Kræv nye adgangskoder"
+  },
+  "users": {
+    "heading": "Konti",
+    "count": "{count, plural, one {# konto} other {# konti}}",
+    "countPartial": "Viser {shown} af {total} konti. Søg for at finde de andre.",
+    "search": "Søg efter navn eller e-mail",
+    "noMatches": "Ingen konto matcher denne søgning.",
+    "none": "Ingen konti endnu.",
+    "columns": {
+      "user": "Konto",
+      "workspaces": "Arbejdsområder",
+      "lastActive": "Sidst aktiv",
+      "twoFactor": "Totrins",
+      "password": "Adgangskode",
+      "actions": "Handlinger"
+    },
+    "you": "(dig)",
+    "admin": "Administrator",
+    "unverified": "Ikke bekræftet",
+    "signedOut": "Ikke logget ind",
+    "on": "Til",
+    "off": "Fra",
+    "hasPassword": "Angivet",
+    "noPassword": "Ingen",
+    "resetPending": "Ny påkrævet",
+    "actionsFor": "Handlinger for {name}",
+    "signOut": "Log ud overalt",
+    "signOutTitle": "Vil du logge {name} ud overalt?",
+    "signOutBody": "{count, plural, one {Personens # session afsluttes} other {Personens # sessioner afsluttes}}, og sider, personen har åbne, holder op med at synkronisere. Forbundne apps og API-tokens virker fortsat.",
+    "signOutSelfBody": "{count, plural, one {Din # session afsluttes} other {Dine # sessioner afsluttes}}, undtagen den i denne browser.",
+    "signOutConfirm": "Log ud",
+    "requireReset": "Kræv en ny adgangskode",
+    "resetTitle": "Vil du kræve en ny adgangskode af {name}?",
+    "resetBody": "Personen logges ud nu og skal vælge en ny adgangskode, næste gang vedkommende logger ind med en.",
+    "resetByEmail": "Når de logger ind, får de et link via e-mail til at vælge den.",
+    "resetInApp": "E-mail er ikke sat op på denne server, så de vælger den lige efter at have logget ind med deres gamle adgangskode (og en totrinskode, hvis de bruger en).",
+    "resetConfirm": "Kræv en ny adgangskode"
+  },
+  "errors": {
+    "notFound": "Den konto blev ikke fundet.",
+    "noPassword": "Denne konto har ingen adgangskode; den logger ind på en anden måde.",
+    "self": "Skift din egen adgangskode på din kontoside.",
+    "noWorkspace": "Det arbejdsområde blev ikke fundet."
+  },
+  "descriptionFirstAccount": "Kontiene på denne server, deres sessioner og deres adgangskoder. Du ser denne side, fordi din konto var den første på denne server.",
+  "signUp": {
+    "heading": "Oprettelse af konti",
+    "open": "Alle kan oprette en konto",
+    "openDescription": "Alle, der kan åbne denne servers adresse, kan oprette en konto. Luk for oprettelse ved at sætte DISABLE_SIGNUP=true på serveren (med Docker i .env-filen ved siden af docker-compose.yml, og kør derefter docker compose up -d). Eksisterende konti kan stadig logge ind, og personer, du inviterer, kan stadig blive medlemmer.",
+    "closed": "Oprettelse af konti er lukket",
+    "closedDescription": "Angives med DISABLE_SIGNUP på serveren. Eksisterende konti kan stadig logge ind, og personer, du inviterer, kan stadig blive medlemmer via deres invitationslink."
+  },
+  "firstAdmin": {
+    "title": "Du administrerer denne server",
+    "body": "Din konto er den første her, så Serveradministration er din. Alle, der kan nå denne adresse, kan stadig oprette en konto; Serveradministration viser, hvordan du lukker for det.",
+    "open": "Serveradministration",
+    "dismiss": "Luk"
+  },
+  "networks": {
+    "heading": "Godkendte netværk",
+    "description": "Arbejdsområder, der kun kan åbnes fra godkendte netværk. Hvis en liste lukker et arbejdsområdes ejere ude, så ryd den her: arbejdsområdet kan så åbnes fra alle netværk, indtil ejerne angiver listen igen.",
+    "none": "Intet arbejdsområde begrænser login til godkendte netværk",
+    "noneDescription": "Ejere angiver godkendte netværk under arbejdsområdets Indstillinger → Sikkerhed.",
+    "count": "{count, plural, one {# netværk} other {# netværk}}",
+    "clear": "Ryd listen",
+    "clearTitle": "Vil du rydde de godkendte netværk for {workspace}?",
+    "clearBody": "Alle i arbejdsområdet kan igen åbne det fra alle netværk, og dets revisionslog registrerer, at du har ryddet listen. Ejerne kan angive den igen under Indstillinger → Sikkerhed.",
+    "clearConfirm": "Ryd listen"
+  }
+}

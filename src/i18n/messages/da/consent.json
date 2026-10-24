@@ -1,0 +1,37 @@
+{
+  "metaTitle": "Godkend app",
+  "expired": {
+    "title": "Linket er udløbet",
+    "body": "Godkendelsesanmodningen er ugyldig eller for gammel. Gå tilbage til den app, du var ved at forbinde, og start forfra."
+  },
+  "unknownClient": {
+    "title": "Ukendt app",
+    "body": "Den app, der beder om adgang, er ikke registreret hos Leafdesk eller er blevet deaktiveret. Gå tilbage, og prøv at forbinde igen."
+  },
+  "heading": "{client} vil have adgang til din Leafdesk-konto",
+  "identifiedBy": "Denne app identificeres af {host}.",
+  "unverified": "Denne app har registreret sig selv automatisk og er ikke blevet gennemgået af Leafdesk. Fortsæt kun, hvis du selv har startet denne forbindelse.",
+  "notYou": "Ikke dig?",
+  "willAllow": "Dette giver {client} lov til at:",
+  "readOnlyHint": "Fjern fluebenet for at give skrivebeskyttet adgang. Hver redigering gemmes først i sidens historik, så du kan fortryde den.",
+  "access": {
+    "all": "Adgangen gælder alle de arbejdsområder, du er med i. Du kan til enhver tid afbryde forbindelsen til appen under Indstillinger.",
+    "listed": "Adgangen gælder alle de arbejdsområder, du er med i: {workspaces}. Du kan til enhver tid afbryde forbindelsen til appen under Indstillinger."
+  },
+  "deny": "Afvis",
+  "denying": "Afviser…",
+  "allow": "Tillad",
+  "allowing": "Tillader…",
+  "redirectNotice": "Du bliver sendt tilbage til {host}.",
+  "error": "Anmodningen kunne ikke gennemføres. Gå tilbage til appen, og prøv igen.",
+  "scopes": {
+    "openid": "Bekræfte, hvem du er",
+    "profile": "Se dit navn og profilbillede",
+    "email": "Se din e-mailadresse",
+    "offlineAccess": "Forblive forbundet uden at bede dig om at logge ind igen",
+    "pagesRead": "Læse sider og databaser i dine arbejdsområder",
+    "pagesWrite": "Oprette og redigere sider og databaserækker og flytte sider til papirkurven",
+    "notificationsRead": "Læse notifikationerne i din indbakke",
+    "filesWrite": "Uploade filer til sider fra et link eller fra selve appen"
+  }
+}

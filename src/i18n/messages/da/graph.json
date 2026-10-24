@@ -1,0 +1,55 @@
+{
+  "metaTitle": "Graf",
+  "heading": "Graf",
+  "count": "{pages, plural, one {# side} other {# sider}} · {edges, plural, one {# forbindelse} other {# forbindelser}}",
+  "reload": "Indlæs igen",
+  "find": "Find en side at fokusere på",
+  "focus": "Omkring",
+  "depth": "Trin",
+  "clearFocus": "Vis hele grafen",
+  "tree": "Undersider",
+  "rows": "Databaserækker",
+  "orphans": "Sider uden forbindelser",
+  "kinds": {
+    "page": "Side",
+    "database": "Database",
+    "row": "Række"
+  },
+  "edges": {
+    "link": "Link",
+    "relation": "Relation",
+    "child": "Underside"
+  },
+  "truncated": "Viser de {count} senest redigerede sider.",
+  "canvas": "Graf over arbejdsområdets sider",
+  "empty": "Ingen sider at vise.",
+  "focusMissing": "Den side er ikke i grafen: den ligger måske i papirkurven eller er ikke delt med dig.",
+  "local": {
+    "title": "Graf over denne side",
+    "close": "Luk grafen",
+    "openFull": "Åbn i den fulde graf",
+    "canvas": "Graf over siderne omkring denne side",
+    "empty": "Ingen sider er forbundet med denne endnu.",
+    "failed": "Grafen kunne ikke indlæses."
+  },
+  "zoomIn": "Zoom ind",
+  "zoomOut": "Zoom ud",
+  "fit": "Tilpas grafen",
+  "hint": "Klik for at vælge, dobbeltklik for at åbne",
+  "fewEdges": {
+    "title": "Endnu få links mellem sider",
+    "body": "Grafen viser de links, sider laver til hinanden, og relationerne mellem databaserækker. Skriv [[ eller @ på en side for at linke til en anden, eller tilføj en relationsegenskab til en database; så vises linkene her.",
+    "showTree": "Vis links til undersider"
+  },
+  "inspector": {
+    "open": "Åbn side",
+    "focus": "Fokusér omkring den",
+    "expandRows": "{count, plural, one {Vis # række} other {Vis # rækker}}",
+    "collapseRows": "Saml rækkerne",
+    "rows": "{count, plural, one {# række} other {# rækker}}",
+    "none": "Ikke forbundet med andre sider.",
+    "more": "og {count} mere",
+    "close": "Ryd markering",
+    "parent": "Ligger i"
+  }
+}
