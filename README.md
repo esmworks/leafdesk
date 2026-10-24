@@ -108,7 +108,12 @@ for Windows, `.AppImage` for Linux) and choose *On this computer*. See [Desktop 
   printed), and columns (2 to 5, resizable, blocks
   dragged in and out with the side menu, stacked on phones), also on published pages and in
   Markdown. Code blocks take their language from a menu (plain text and 42 languages) and color
-  their code in it, published pages and the print view included.
+  their code in it, published pages and the print view included; Enter in a code block starts the
+  new line with the indentation of the one before it.
+- **Floating outline**: a page with two headings or more shows a short line per heading at its
+  edge, the one being read darker. Hovering the lines (or tabbing to them) lists the headings, and a
+  click scrolls there, opening collapsed toggles on the way. It stays out of the way on narrow
+  screens, beside the comments panel, on full-width pages and in print.
 - **Dashboards**: the `/dashboard` block puts numbers, charts and lists from any of the
   workspace's databases on a page, up to 12 widgets in a grid of four columns (two on narrow pages,
   one on phones). Each widget is a database seen through its own view (a *Number* chart for one
@@ -124,7 +129,8 @@ for Windows, `.AppImage` for Linux) and choose *On this computer*. See [Desktop 
   views. The `/tabs` block is a dashboard laid out as tabs: one view at a time, each named on its
   tab, for several databases (or views of one) in little room; readers get only the tabs whose
   database they can open, and published pages switch tabs in place.
-- **Buttons**: the `/button` block, with a label and an emoji, does a few things in order when
+- **Buttons**: the `/button` block, with a label, an emoji and a color from the option palette
+  (light, dark and high contrast alike, on published pages and in print too), does a few things in order when
   someone clicks it: insert blocks written in Markdown below it or at the top or end of the page,
   add a row to a database, change the rows of a database that filters match (up to 100), notify
   people, send the page to a webhook (signed like automations' webhooks, when the workspace lets
@@ -139,7 +145,11 @@ for Windows, `.AppImage` for Linux) and choose *On this computer*. See [Desktop 
   (`<!-- leafdesk:button <id> "Label" -->`), so it can't be made or changed there.
 - **Web bookmarks and embeds**: link cards with the page's title, description and image (fetched
   once on the server behind an SSRF guard), and YouTube, Vimeo, Loom, Figma, Google Docs, CodePen,
-  Spotify and Google Maps embeds in sandboxed iframes.
+  Spotify and Google Maps embeds in sandboxed iframes. A pasted link can also become a link
+  mention: the site's icon, the page's title and the site's name inline in the text, fetched the
+  same way and stored with it (*Show as mention* in a link's toolbar does the same for a link
+  already there). Markdown, MCP and exports write it as `[Title](url)`, and writing a page's
+  Markdown back keeps its mentions; published pages, print and PDFs show it as a link.
 - **Realtime collaboration**: several people can edit the same page at once (Yjs over WebSocket
   via Hocuspocus), with live cursors. The page header shows who else has the page open, including
   people who can only view it.
@@ -158,7 +168,8 @@ for Windows, `.AppImage` for Linux) and choose *On this computer*. See [Desktop 
   the computer itself with its own database and daily backups (see [Desktop app](#desktop-app)). A
   system-wide shortcut (Cmd/Ctrl+Shift+J) brings it forward on AI chat.
 - **Find and replace** in a page (Cmd/Ctrl+F): highlights every match, steps through them, and
-  replaces one or all in a single undo step. Anyone who can open the page can search it.
+  replaces one or all in a single undo step, opening a collapsed toggle when the match it steps to
+  is inside it. Anyone who can open the page can search it.
 - **Databases**: every row is also a page.
   - Properties: text, number, select, multi-select, status, date, checkbox, checklist, URL,
     email, phone, files & media (uploads with image thumbnails), place (an address looked up on the
@@ -525,7 +536,11 @@ for Windows, `.AppImage` for Linux) and choose *On this computer*. See [Desktop 
   contents, and the rest offers a download. An image can link to a web address or a page of the
   workspace (*Link…* in its block menu): in the editor a small button on it follows the link,
   while read-only and published pages and the print view make the image itself the link, and
-  Markdown keeps it as `[![alt](image)](link)`.
+  Markdown keeps it as `[![alt](image)](link)`. An image can be cropped too (*Crop…* in its block
+  menu): the part to show is kept with the block and the file stays whole, so the crop can be
+  changed or removed later. The editor, published pages, the print view, HTML exports and PDFs show
+  the part; Markdown has the whole image, and writing a page's Markdown back keeps the crop of each
+  image whose file didn't change.
 - **Import**: bring in Markdown files, a folder or a ZIP as pages that keep their folder
   structure, with links between the files turned into page links and the images they show
   uploaded, into the page or teamspace you start it from. A link naming a file by its bare name
@@ -3425,7 +3440,9 @@ The tools cover:
 - **Comments:** `list_comments`, `add_comment` (start a thread on quoted text, or reply). A thread
   about the whole page, as agents write them, comes back with `about_page: true` and no quote.
 - **Mentions:** page bodies read and write mentions as Markdown: `[Title](/w/<workspace>/p/<page>)`
-  for a page, `@Name` for a person, `@YYYY-MM-DD` for a date (see `src/lib/mentions.ts`).
+  for a page, `@Name` for a person, `@YYYY-MM-DD` for a date, and a link shown as a mention as an
+  ordinary `[Title](https://…)` that comes back as the mention when the page's Markdown is written
+  back with it (see `src/lib/mentions.ts`).
 - **Footnotes and print-hidden callouts:** a footnote is `[^1]` in the text with its note on a line
   of its own (`[^1]: The note.`), the notes written at the end of the body; a callout hidden in
   print has the line `<!-- leafdesk:no-print -->` right before its alert (see

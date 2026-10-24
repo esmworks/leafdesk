@@ -4,6 +4,25 @@
 
 ### Added
 
+- **Pages show a floating outline of their headings.** A page with two headings or more gets a
+  short line per heading at its edge, the one being read darker; hovering the lines (or tabbing to
+  them) lists the headings, and a click scrolls there, opening collapsed toggles on the way. Hidden
+  on narrow screens, beside the comments panel, on full-width pages and in print, and loaded only
+  where it shows.
+- **Links can show as mentions.** A pasted link offers *Mention* next to *Bookmark* and *Embed*
+  (and within text, next to keeping the link), and a link already in the text has *Show as
+  mention* in its toolbar: the site's icon, the page's title and the site's name inline, fetched
+  once by the same guarded fetch as bookmarks and stored with the mention. Markdown, MCP and
+  exports write it as `[Title](url)`, and Markdown written back into the page brings the mention
+  back; published pages, the print view, PDFs and comments show it as a link.
+- **Images can be cropped without changing the file.** *Crop…* in an image's block menu opens a
+  frame over the image, moved and resized by dragging or with the arrow keys. The editor, read-only
+  and published pages, the print view, HTML exports and PDFs show only the part; Markdown has the
+  whole image, and a page's Markdown written back keeps the crop of each image whose file didn't
+  change. The crop can be changed or removed at any time.
+- **Buttons take a color.** The `/button` block's settings offer the option colors, as select
+  options and board columns have them, in light, dark and high contrast; published pages and the
+  print view show the color too.
 - **Keep a database of Jira issues in sync.** Import has a Jira tab: connect a Jira Cloud site
   with an email address and API token, pick a project or write a JQL query, and get a database
   whose rows are the issues (key, summary, status, assignee, priority, type, labels, due date and a
@@ -771,6 +790,9 @@
 
 ### Changed
 
+- **Enter in a code block keeps the line's indentation.** The new line starts with the spaces or
+  tabs the line before it started with. On a last line holding only indentation, Enter drops it,
+  so leaving the block works as before.
 - **Pages open with less to download.** The workspace's routes no longer load the page editor
   until a row is opened beside them, so Home, Settings, the graph, reviews, people and AI download
   about 300 kB less (gzipped) when they open. Board, calendar, timeline, chart and form views, the
@@ -883,6 +905,9 @@
 
 ### Fixed
 
+- **Find opens collapsed toggles.** Cmd/Ctrl+F found text inside a collapsed toggle (or toggle
+  heading) but stepping to it showed nothing; the toggle now opens when its match becomes the
+  current one. Opening a link to a block inside a collapsed toggle opens it too.
 - **Text filters match the Turkish dotted and dotless i.** A "contains ist" filter now finds
   "İstanbul", and "ışık" finds "IŞIK": database view filters, form question conditions and option
   names given by name (MCP, the REST API, a new tag typed into a cell) fold case with İ, I, i and ı
