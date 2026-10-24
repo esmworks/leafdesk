@@ -63,6 +63,7 @@
       "snippets": "Textbausteine Kürzel",
       "letterheads": "PDF Kopfzeile Fußzeile Logo drucken",
       "connections": "Integrationen MCP Dienste Werkzeuge",
+      "webhooks": "webhook http post ereignisse integration benachrichtigen senden",
       "site": "Website veröffentlichen Domain Web",
       "requireTwoFactor": "2FA MFA erzwingen Richtlinie",
       "loginMethod": "SSO Passwort Anmeldung Richtlinie",

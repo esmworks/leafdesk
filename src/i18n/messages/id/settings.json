@@ -63,6 +63,7 @@
       "snippets": "teks singkatan cuplikan",
       "letterheads": "pdf kop surat header footer logo cetak",
       "connections": "integrasi mcp layanan alat koneksi",
+      "webhooks": "webhook http post peristiwa integrasi notifikasi kirim",
       "site": "situs web terbitkan domain",
       "requireTwoFactor": "2fa mfa wajib kebijakan",
       "loginMethod": "sso kata sandi masuk kebijakan",

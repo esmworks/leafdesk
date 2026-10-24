@@ -63,6 +63,7 @@
       "snippets": "טקסט קיצורים קטעים",
       "letterheads": "pdf כותרת עליונה כותרת תחתונה לוגו הדפסה",
       "connections": "שילובים mcp שירותים כלים",
+      "webhooks": "וובהוק webhook http post אירועים אינטגרציה התראה שליחה",
       "site": "אתר פרסום דומיין אינטרנט",
       "requireTwoFactor": "2fa mfa חובה מדיניות",
       "loginMethod": "sso סיסמה כניסה מדיניות",

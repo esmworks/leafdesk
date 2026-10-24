@@ -63,6 +63,7 @@
       "snippets": "metin kısayollar parçacık",
       "letterheads": "pdf üst bilgi alt bilgi logo yazdır",
       "connections": "entegrasyonlar mcp servisler araçlar",
+      "webhooks": "webhook http post olay entegrasyon bildirim gönder",
       "site": "web sitesi yayınla alan adı",
       "requireTwoFactor": "2fa mfa zorunlu politika",
       "loginMethod": "sso şifre giriş politika",

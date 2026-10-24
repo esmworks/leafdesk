@@ -63,6 +63,7 @@
       "snippets": "文本 缩写 片段",
       "letterheads": "pdf 页眉 页脚 标志 打印",
       "connections": "集成 mcp 服务 工具",
+      "webhooks": "网络钩子 webhook http post 事件 集成 通知 发送",
       "site": "网站 发布 域名",
       "requireTwoFactor": "2fa mfa 强制 策略",
       "loginMethod": "sso 密码 登录 策略",

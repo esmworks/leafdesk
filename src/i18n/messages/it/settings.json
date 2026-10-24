@@ -63,6 +63,7 @@
       "snippets": "testo scorciatoie frammenti",
       "letterheads": "pdf intestazione piè di pagina logo stampa",
       "connections": "integrazioni mcp servizi strumenti",
+      "webhooks": "webhook http post eventi integrazione notificare inviare",
       "site": "sito web pubblica dominio",
       "requireTwoFactor": "2fa mfa obbligatoria criterio",
       "loginMethod": "sso password accesso criterio",

@@ -63,6 +63,7 @@
       "snippets": "texto atalhos trechos",
       "letterheads": "pdf cabeçalho rodapé logotipo imprimir",
       "connections": "integrações mcp serviços ferramentas",
+      "webhooks": "webhook http post eventos integração notificar enviar",
       "site": "site publicar domínio web",
       "requireTwoFactor": "2fa mfa obrigatória política",
       "loginMethod": "sso senha entrar política",

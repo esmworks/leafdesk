@@ -63,6 +63,7 @@
       "snippets": "텍스트 단축어 스니펫",
       "letterheads": "pdf 머리글 바닥글 로고 인쇄",
       "connections": "통합 mcp 서비스 도구",
+      "webhooks": "웹훅 webhook http post 이벤트 연동 알림 전송",
       "site": "웹사이트 게시 도메인",
       "requireTwoFactor": "2fa mfa 필수 정책",
       "loginMethod": "sso 비밀번호 로그인 정책",

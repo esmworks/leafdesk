@@ -63,6 +63,7 @@
       "snippets": "văn bản viết tắt đoạn trích",
       "letterheads": "pdf tiêu đề thư đầu trang chân trang logo in",
       "connections": "tích hợp mcp dịch vụ công cụ kết nối",
+      "webhooks": "webhook http post sự kiện tích hợp thông báo gửi",
       "site": "trang web xuất bản tên miền",
       "requireTwoFactor": "2fa mfa bắt buộc chính sách",
       "loginMethod": "sso mật khẩu đăng nhập chính sách",

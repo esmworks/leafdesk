@@ -78,6 +78,7 @@ export const SETTINGS_SEARCH_ENTRIES: readonly SettingsSearchEntry[] = [
   { id: "snippets", tab: "snippets", keywords: true },
   { id: "letterheads", tab: "pdf", label: "settings:letterheads.heading", keywords: true },
   { id: "connections", tab: "connections", keywords: true },
+  { id: "webhooks", tab: "webhooks", keywords: true },
   { id: "site", tab: "site", label: "settings:site.heading", keywords: true },
   { id: "sitePages", tab: "site", label: "settings:site.pagesHeading", when: owner },
 

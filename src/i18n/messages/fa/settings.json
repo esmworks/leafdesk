@@ -63,6 +63,7 @@
       "snippets": "متن میان‌برها تکه‌ها",
       "letterheads": "pdf سربرگ پانویس لوگو چاپ",
       "connections": "یکپارچه‌سازی mcp سرویس‌ها ابزارها",
+      "webhooks": "وب‌هوک webhook http post رویداد یکپارچه‌سازی اعلان ارسال",
       "site": "وب‌سایت انتشار دامنه",
       "requireTwoFactor": "2fa mfa اجباری سیاست",
       "loginMethod": "sso گذرواژه ورود سیاست",

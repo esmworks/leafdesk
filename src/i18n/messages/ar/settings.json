@@ -63,6 +63,7 @@
       "snippets": "نص اختصارات مقتطفات",
       "letterheads": "pdf ترويسة تذييل شعار طباعة",
       "connections": "تكاملات mcp خدمات أدوات",
+      "webhooks": "ويب هوك webhook http post أحداث تكامل إشعار إرسال",
       "site": "موقع ويب نشر نطاق",
       "requireTwoFactor": "2fa mfa إلزامي سياسة",
       "loginMethod": "sso كلمة المرور تسجيل الدخول سياسة",

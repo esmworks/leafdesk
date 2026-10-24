@@ -63,6 +63,7 @@
       "snippets": "texte raccourcis extraits",
       "letterheads": "pdf en-tête pied de page logo imprimer",
       "connections": "intégrations mcp services outils",
+      "webhooks": "webhook http post événements intégration notifier envoyer",
       "site": "site web publier domaine",
       "requireTwoFactor": "2fa mfa imposer règle",
       "loginMethod": "sso mot de passe connexion règle",
