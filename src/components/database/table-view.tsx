@@ -17,6 +17,7 @@ import { isGroupable, isSortable, moveProperty } from "@/lib/properties";
 import { isReadOnlyType } from "@/lib/property-types";
 import { opensNewTab } from "@/lib/row-panel";
 import { MAX_COLUMN_WIDTH, MIN_COLUMN_WIDTH } from "@/lib/views";
+import { contentWidths, fittedWidth } from "./fit-column";
 import { pageLabel } from "@/lib/labels";
 import { takesNumberFormat } from "@/lib/number-format";
 import type { SubItemLine } from "@/lib/sub-items";
@@ -235,6 +236,16 @@ export function TableView({
   useEffect(() => {
     latestConfig.current = view.config;
   }, [view.config]);
+  // Double-clicking a column's edge fits it to its header and the rows shown (column `col` of the grid).
+  function fitColumn(key: string, col: number) {
+    const table = box.current?.querySelector("table");
+    if (!table) return;
+    const header = table.tHead?.rows[0]?.cells[col + 1];
+    const cells = [...table.querySelectorAll<HTMLElement>("[data-cell]")].filter((el) => el.dataset.cell?.endsWith(`:${col}`));
+    const width = fittedWidth(contentWidths(header ? [header, ...cells] : cells));
+    const config = latestConfig.current;
+    if (width !== (config.columnWidths?.[key] ?? null)) void setConfig({ ...config, columnWidths: { ...config.columnWidths, [key]: width } });
+  }
   function startResize(key: string, start: number, e: React.PointerEvent<HTMLElement>) {
     if (e.button !== 0) return;
     e.preventDefault();
@@ -729,6 +740,7 @@ export function TableView({
                 frozen={frozen(0)}
                 readOnly={readOnly}
                 onResize={!arrangeable || phone ? undefined : (e) => startResize(TITLE, nameWidth, e)}
+                onFit={() => fitColumn(TITLE, 0)}
                 resizing={resizing?.key === TITLE}
                 actions={{
                   ...viewActions(TITLE, TITLE),
@@ -750,6 +762,7 @@ export function TableView({
                     readOnly={readOnly}
                     drag={arrangeable ? columnDrag.handlers(p.id) : undefined}
                     onResize={arrangeable ? (e) => startResize(p.id, colWidth(p), e) : undefined}
+                    onFit={() => fitColumn(p.id, i + 1)}
                     resizing={resizing?.key === p.id}
                     actions={{
                       ...viewActions(p.id, valueType(p)),
@@ -972,6 +985,7 @@ function HeaderCell({
   readOnly,
   drag,
   onResize,
+  onFit,
   resizing,
   actions,
 }: {
@@ -986,6 +1000,8 @@ function HeaderCell({
   drag?: ReorderDragHandlers;
   /** Starts resizing the column from the handle on its right edge. */
   onResize?: (e: React.PointerEvent<HTMLElement>) => void;
+  /** Fits the column to what it holds: a double click on the same handle. */
+  onFit?: () => void;
   /** The column is being resized: its handle stays lit. */
   resizing?: boolean;
   actions: React.ComponentProps<typeof PropertyMenu>["actions"];
@@ -1049,6 +1065,10 @@ function HeaderCell({
           onMouseDown={(e) => e.preventDefault()}
           onPointerDown={onResize}
           onClick={(e) => e.stopPropagation()}
+          onDoubleClick={(e) => {
+            e.stopPropagation();
+            onFit?.();
+          }}
           className="group/resize absolute inset-y-0 -inset-e-1 z-20 w-2 cursor-col-resize touch-none"
         >
           <span

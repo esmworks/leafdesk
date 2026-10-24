@@ -15,6 +15,8 @@
 - **Escape throws away an empty new row.** In a table, board, list, gallery, calendar or timeline,
   pressing Escape in a new row's name before anything is typed moves the row to the trash instead
   of leaving an untitled one behind. With a name typed, Escape keeps the row as before.
+- **Fit a table column to its content.** Double-clicking a column's edge in a table view sets its
+  width to fit its header and the rows shown, wider or narrower, and keeps it with the view.
 
 ### Changed
 

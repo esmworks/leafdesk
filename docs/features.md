@@ -177,6 +177,8 @@
     week alike): its weekdays then share the width, and rows only on a weekend are listed under it
     with their day, to open or drag onto a weekday. Boards and galleries can wrap long values on
     their cards onto more lines instead of cutting them off (*Wrap all properties*).
+  - Table columns are resized by dragging their edge; double-clicking the edge fits the column to
+    its header and the rows shown. The width is kept with the view.
   - Table views calculate column totals, averages, counts and more over the filtered rows.
   - Board columns show how many cards they hold next to their name, and can show one calculation
     over a property for their cards on the line under it, the same in every column: the sum of the
