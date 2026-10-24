@@ -60,6 +60,7 @@ import {
   withoutParentOptions,
 } from "@/lib/dependent-options";
 import { cleanDescription, MAX_PROPERTY_DESCRIPTION } from "@/lib/property-description";
+import { searchFold } from "@/lib/search-fold";
 import { makesLoop, parentProperty, singleParent, storedParent, subItemsProperty } from "@/lib/sub-items";
 import {
   blockedByProperty,
@@ -2028,7 +2029,7 @@ export async function ensureOption(userId: string, propertyId: string, name: str
     throw withCode(new Error("Not a select property"), "notASelectProperty");
   }
   const options = prop.options.options ?? [];
-  const existing = options.find((o) => o.name.toLowerCase() === name.trim().toLowerCase());
+  const existing = options.find((o) => searchFold(o.name) === searchFold(name.trim()));
   if (existing) return existing;
   // A status option added by name (a new board column) starts out as to do.
   const option: SelectOption =

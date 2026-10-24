@@ -735,6 +735,11 @@
 
 ### Fixed
 
+- **Text filters match the Turkish dotted and dotless i.** A "contains ist" filter now finds
+  "İstanbul", and "ışık" finds "IŞIK": database view filters, form question conditions and option
+  names given by name (MCP, the REST API, a new tag typed into a cell) fold case with İ, I, i and ı
+  treated alike, as search and pickers already did. Other letters keep their accents.
+
 - **The AI chat knows today's date.** Each question now carries the date, weekday and time in the
   asker's time zone (the browser's), so "today", "this week" and dates written into quotes come out
   right instead of the chat saying it can't tell the date.
