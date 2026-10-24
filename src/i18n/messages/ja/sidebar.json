@@ -198,7 +198,8 @@
     "aiAccountDetached": "ワークスペースのAIは、{actor}のキーでは実行されなくなりました。設定で別のAIアカウントを選択してください。",
     "reviewTitle": "確認待ち",
     "review": "{count, plural, =1 {{agent}が確認用に変更を提案しました} other {#件の変更が確認を待っています（最新は{agent}から）}}",
-    "automationRun": "オートメーション「{name}」"
+    "automationRun": "オートメーション「{name}」",
+    "sensitiveContent": "ここで{kind, select, card {支払いカード番号} iban {IBAN} national_id {国民ID番号} private_key {秘密鍵} aws_key {AWS アクセスキー} github_token {GitHub トークン} slack_token {Slack トークン} api_key {API キー} jwt {JSON Web Token} other {機密コンテンツ}}が見つかりました。「設定 > セキュリティ」で確認してください。"
   },
   "templates": {
     "title": "テンプレート",

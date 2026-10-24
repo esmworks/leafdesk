@@ -278,7 +278,8 @@
     "aiAccountTitle": "Đã gỡ tài khoản AI",
     "aiAccountDetached": "AI của không gian làm việc không còn chạy bằng khóa của {actor}.",
     "reviewTitle": "Cần xem xét",
-    "review": "{count, plural, other {# thay đổi đang chờ bạn xem xét, mới nhất từ {agent}}}"
+    "review": "{count, plural, other {# thay đổi đang chờ bạn xem xét, mới nhất từ {agent}}}",
+    "sensitiveContent": "Đã tìm thấy {kind, select, card {số thẻ thanh toán} iban {IBAN} national_id {số định danh cá nhân} private_key {khóa riêng tư} aws_key {khóa truy cập AWS} github_token {token GitHub} slack_token {token Slack} api_key {khóa API} jwt {JSON Web Token} other {nội dung nhạy cảm}} trên trang này."
   },
   "agentReply": {
     "aiOff": "Tôi không thể trả lời: AI đang tắt trong không gian làm việc này.",

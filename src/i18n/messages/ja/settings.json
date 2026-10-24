@@ -87,7 +87,11 @@
       "siteHeader": "ナビゲーション メニュー リンク 上部バー",
       "siteDescription": "seo メタ 説明 検索エンジン プレビュー open graph",
       "siteAnalytics": "google analytics ga4 gtag トラッキング 訪問者 統計",
-      "siteDomain": "独自ドメイン dns ホスト名 cname 証明書"
+      "siteDomain": "独自ドメイン dns ホスト名 cname 証明書",
+      "eventStream": "siem セキュリティ ログ ストリーム エクスポート webhook 転送 イベント",
+      "sensitiveContent": "dlp 情報漏えい 防止 クレジットカード iban シークレット トークン キー スキャン",
+      "sensitiveFindings": "dlp 検出結果 漏えい シークレット カード番号 却下",
+      "domainPeople": "ドメイン アカウント ユーザー 会社 メール シャドー 管理外"
     }
   },
   "workspace": {
@@ -1580,7 +1584,7 @@
       "teamspaces": "チームスペース",
       "groups": "グループ",
       "settings": "ワークスペースの設定",
-      "security": "シングルサインオンとSCIM",
+      "security": "セキュリティ",
       "pages": "ページ",
       "integrations": "接続済みアプリとAPIトークン",
       "exports": "エクスポート",
@@ -1655,7 +1659,8 @@
       "domainJoin": "これらのドメインの人がログインしたとき",
       "joinRequests": "参加をリクエストできる人",
       "email": "行のメール",
-      "agentCreation": "エージェントを作成できる人"
+      "agentCreation": "エージェントを作成できる人",
+      "sensitiveContent": "機密コンテンツの検出"
     },
     "values": {
       "on": "オン",
@@ -1845,6 +1850,16 @@
       "review": {
         "approved": "{kind, select, email_draft {エージェント「{agent}」が{target}で下書きしたメールを送信しました} create_row {エージェント「{agent}」が{target}に提案した行を承認しました} other {エージェント「{agent}」が{target}に提案した変更を承認しました}}{outcome, select, failed {（失敗しました）} other {}}",
         "dismissed": "{kind, select, email_draft {エージェント「{agent}」が{target}で下書きしたメールを却下しました} create_row {エージェント「{agent}」が{target}に提案した行を却下しました} other {エージェント「{agent}」が{target}に提案した変更を却下しました}}"
+      },
+      "audit_stream": {
+        "created": "{target}への監査ログのストリーミングを開始しました",
+        "updated": "{change, select, on {{target}への監査ログのストリーミングをオンにしました} off {{target}への監査ログのストリーミングをオフにしました} other {{target}への監査ログのストリーミングを変更しました}}",
+        "secret_replaced": "{target}への監査ログストリームの署名シークレットを置き換えました",
+        "removed": "{target}への監査ログのストリーミングを停止しました"
+      },
+      "sensitive_content": {
+        "found": "{target}で{kind}（{excerpt}）を検出しました",
+        "dismissed": "{target}で検出された{kind}（{excerpt}）を却下しました"
       }
     },
     "decisions": {
@@ -1860,6 +1875,17 @@
       "full": "フルアクセス",
       "edit": "編集可能",
       "interact": "閲覧・操作可能"
+    },
+    "sensitiveKinds": {
+      "card": "支払いカード番号",
+      "iban": "IBAN",
+      "national_id": "国民ID番号",
+      "private_key": "秘密鍵",
+      "aws_key": "AWS アクセスキー",
+      "github_token": "GitHub トークン",
+      "slack_token": "Slack トークン",
+      "api_key": "API キー",
+      "jwt": "JSON Web Token（JWT）"
     }
   },
   "notifications": {
@@ -2661,5 +2687,112 @@
       "logoSize": "ロゴが大きすぎます。512 KB までです。",
       "notFound": "このレターヘッドはもうありません。ページを再読み込みしてください。"
     }
+  },
+  "eventStream": {
+    "title": "セキュリティツールへのストリーミング",
+    "description": "新しい監査イベントを発生時に HTTPS アドレスへ送信します。送信先には、セキュリティ情報イベント管理（SIEM）のコレクターなどを指定できます。",
+    "url": "アドレス",
+    "start": "ストリーミングを開始",
+    "saveUrl": "アドレスを保存",
+    "how": "イベントは署名付きの JSON POST として、一度に最大100件ずつ、発生から約30秒以内に古い順で送信されます。各リクエストの X-Leafdesk-Signature ヘッダーを署名シークレットで検証してください。同じイベントが2回届くことがあるため、イベント ID ごとに最初の1件を残してください。失敗したリクエストは7日間再試行されます。",
+    "toggle": "監査ログをストリーミング",
+    "state": {
+      "on": "ストリーミング中",
+      "off": "オフ：新しいイベントは送信されません",
+      "failing": "{since}から失敗中"
+    },
+    "nextTry": "{when}に再試行",
+    "lastSuccess": "最終配信：{when}",
+    "noSuccess": "まだ配信されていません",
+    "sent": "{count, plural, =0 {送信済みのイベントなし} other {#件のイベントを送信済み}}",
+    "waiting": "{count, plural, other {#件が待機中}}",
+    "dropped": "{count, plural, other {#件のイベントが7日以上待機したため破棄されました}}（最新：{when}）",
+    "test": "テストイベントを送信",
+    "testDelivered": "アドレスがテストイベントを受け付けました（{status}）。",
+    "testFailed": "テストイベントを送信できませんでした：{reason}。",
+    "rotate": "シークレットを置き換え",
+    "rotateNote": "現在のシークレットはすぐに署名に使われなくなります。",
+    "remove": "ストリーミングを停止",
+    "removeNote": "アドレス、そのシークレット、待機中のイベントはすべて削除されます。",
+    "working": "処理中…",
+    "secret": {
+      "title": "署名シークレット",
+      "note": "今すぐコピーしてください。再表示はされません。いつでも置き換えられます。",
+      "label": "署名シークレット"
+    },
+    "codes": {
+      "invalidUrl": "アドレスが無効です",
+      "blocked": "このサーバーからアクセスできないプライベートネットワーク上のアドレスです",
+      "unreachable": "アドレスに接続できませんでした",
+      "timeout": "10秒以内に応答がありませんでした",
+      "redirect": "アドレスがリダイレクトを返しました",
+      "http": "アドレスが {status} を返しました"
+    },
+    "errors": {
+      "invalidUrl": "有効なアドレスを入力してください。",
+      "httpsOnly": "監査イベントは https アドレスにのみ送信できます。",
+      "notFound": "このワークスペースは監査ログをストリーミングしていません。",
+      "ownersOnly": "これを変更できるのはオーナーだけです。"
+    }
+  },
+  "sensitiveContent": {
+    "title": "機密コンテンツ",
+    "description": "ワークスペースのページと行から、支払いカード番号、IBAN、国民ID番号、秘密鍵やアクセストークンなどのシークレットを見つけます。",
+    "toggle": "機密コンテンツを検出する",
+    "toggleDescription": "ページと行は変更後にバックグラウンドで読み取られます。オーナーには受信トレイで通知され、各検出結果は監査ログに記録されます。値はマスクされた一部だけが保存されます。これをオフにすると検出結果は消去されます。",
+    "findingsTitle": "未対応の検出結果",
+    "none": "ワークスペースのページと行には何も見つかりませんでした。",
+    "off": "機密コンテンツの検出をオンにすると、ページと行に何が含まれているかを確認できます。",
+    "more": "{count, plural, other {ほかに#件の検出結果は表示されていません。}}",
+    "dismiss": "却下",
+    "foundAt": "{when}に検出",
+    "kinds": {
+      "card": "支払いカード番号",
+      "iban": "IBAN",
+      "national_id": "国民ID番号",
+      "private_key": "秘密鍵",
+      "aws_key": "AWS アクセスキー",
+      "github_token": "GitHub トークン",
+      "slack_token": "Slack トークン",
+      "api_key": "API キー",
+      "jwt": "JSON Web Token（JWT）"
+    },
+    "errors": {
+      "gone": "この検出結果はすでに却下または解決されています。"
+    }
+  },
+  "domainPeople": {
+    "title": "自社ドメインのユーザー",
+    "description": "ワークスペースの確認済みドメインのメールアドレスを持つ、このサーバー上のアカウントです。ワークスペースに参加しているかどうかは問いません。",
+    "summary": "{domains}のアカウントは{count, plural, other {#件}}で、うち{inside}件がこのワークスペースに参加しています。",
+    "more": "最初の500件のみ表示しています。",
+    "search": "ユーザーを検索",
+    "filter": "表示",
+    "filters": {
+      "all": "全員",
+      "in": "このワークスペースに参加",
+      "out": "このワークスペースに未参加"
+    },
+    "columns": {
+      "person": "ユーザー",
+      "workspace": "このワークスペース",
+      "lastActive": "最終アクティブ",
+      "signIn": "サインイン方法",
+      "actions": "操作"
+    },
+    "outside": "ワークスペース外",
+    "unverified": "アドレス未確認",
+    "never": "なし",
+    "noSignIn": "サインイン方法なし",
+    "methods": {
+      "password": "パスワード",
+      "sso": "シングルサインオン",
+      "passkey": "パスキー"
+    },
+    "add": "メンバーとして追加",
+    "remove": "削除",
+    "removing": "削除中…",
+    "noMatches": "一致するユーザーはいません。",
+    "empty": "このサーバーには、これらのドメインを使うアカウントはまだありません。"
   }
 }

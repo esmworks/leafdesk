@@ -87,7 +87,11 @@
       "siteHeader": "navigation menu liens barre du haut",
       "siteDescription": "seo meta description moteurs de recherche aperçu open graph",
       "siteAnalytics": "google analytics ga4 gtag suivi visiteurs statistiques",
-      "siteDomain": "domaine personnalisé dns nom d’hôte cname certificat"
+      "siteDomain": "domaine personnalisé dns nom d’hôte cname certificat",
+      "eventStream": "siem sécurité journal flux export webhook transférer événements",
+      "sensitiveContent": "dlp prévention perte de données carte bancaire carte de crédit iban secrets jetons clés analyse données sensibles",
+      "sensitiveFindings": "dlp résultats fuite secrets divulgués numéros de carte écarter",
+      "domainPeople": "domaine comptes utilisateurs entreprise e-mail shadow it non gérés"
     }
   },
   "workspace": {
@@ -1580,7 +1584,7 @@
       "teamspaces": "Espaces d’équipe",
       "groups": "Groupes",
       "settings": "Paramètres de l’espace de travail",
-      "security": "Authentification unique et SCIM",
+      "security": "Sécurité",
       "pages": "Pages",
       "integrations": "Applications connectées et jetons d’API",
       "exports": "Exportations",
@@ -1655,7 +1659,8 @@
       "domainJoin": "Quand quelqu’un de ces domaines se connecte",
       "joinRequests": "Qui peut demander à rejoindre",
       "email": "E-mails sur les lignes",
-      "agentCreation": "Qui peut créer des agents"
+      "agentCreation": "Qui peut créer des agents",
+      "sensitiveContent": "Détecter les contenus sensibles"
     },
     "values": {
       "on": "Activé",
@@ -1845,6 +1850,16 @@
       "review": {
         "approved": "{kind, select, email_draft {A envoyé l’e-mail que l’agent « {agent} » a rédigé sur {target}} create_row {A approuvé la ligne que l’agent « {agent} » a proposée dans {target}} other {A approuvé la modification que l’agent « {agent} » a proposée pour {target}}}{outcome, select, failed { (échec)} other {}}",
         "dismissed": "{kind, select, email_draft {A écarté l’e-mail que l’agent « {agent} » a rédigé sur {target}} create_row {A écarté la ligne que l’agent « {agent} » a proposée dans {target}} other {A écarté la modification que l’agent « {agent} » a proposée pour {target}}}"
+      },
+      "audit_stream": {
+        "created": "A lancé l’envoi en continu du journal d’audit vers {target}",
+        "updated": "{change, select, on {A activé l’envoi en continu du journal d’audit vers {target}} off {A désactivé l’envoi en continu du journal d’audit vers {target}} other {A modifié l’envoi en continu du journal d’audit vers {target}}}",
+        "secret_replaced": "A remplacé le secret de signature de l’envoi en continu du journal d’audit vers {target}",
+        "removed": "A arrêté l’envoi en continu du journal d’audit vers {target}"
+      },
+      "sensitive_content": {
+        "found": "A trouvé {kind} ({excerpt}) dans {target}",
+        "dismissed": "A écarté un résultat dans {target} : {kind} ({excerpt})"
       }
     },
     "decisions": {
@@ -1860,6 +1875,17 @@
       "full": "Accès complet",
       "edit": "Peut modifier",
       "interact": "Peut consulter et interagir"
+    },
+    "sensitiveKinds": {
+      "card": "un numéro de carte de paiement",
+      "iban": "un IBAN",
+      "national_id": "un numéro d’identité national",
+      "private_key": "une clé privée",
+      "aws_key": "une clé d’accès AWS",
+      "github_token": "un jeton GitHub",
+      "slack_token": "un jeton Slack",
+      "api_key": "une clé d’API",
+      "jwt": "un jeton JSON Web Token (JWT)"
     }
   },
   "notifications": {
@@ -2661,5 +2687,112 @@
       "logoSize": "Le logo est trop lourd : 512 Ko au maximum.",
       "notFound": "Cet en-tête n’existe plus. Rechargez la page."
     }
+  },
+  "eventStream": {
+    "title": "Envoi vers vos outils de sécurité",
+    "description": "Envoyez les nouveaux événements d’audit dès qu’ils se produisent à une adresse HTTPS, par exemple au collecteur de votre outil de gestion des informations et des événements de sécurité (SIEM).",
+    "url": "Adresse",
+    "start": "Lancer l’envoi",
+    "saveUrl": "Enregistrer l’adresse",
+    "how": "Les événements partent sous forme de requêtes POST JSON signées, jusqu’à 100 à la fois et environ 30 secondes après s’être produits, les plus anciens d’abord. Vérifiez l’en-tête X-Leafdesk-Signature de chaque requête avec le secret de signature ; un événement peut arriver deux fois, gardez donc le premier de chaque identifiant d’événement. Les requêtes en échec sont retentées pendant 7 jours.",
+    "toggle": "Envoyer le journal d’audit en continu",
+    "state": {
+      "on": "Envoi en cours",
+      "off": "Désactivé : les nouveaux événements ne sont pas envoyés",
+      "failing": "En échec depuis {since}"
+    },
+    "nextTry": "nouvel essai {when}",
+    "lastSuccess": "Dernier envoi réussi {when}",
+    "noSuccess": "Rien n’a encore été livré",
+    "sent": "{count, plural, =0 {aucun événement envoyé} one {# événement envoyé} other {# événements envoyés}}",
+    "waiting": "{count, plural, one {# en attente} other {# en attente}}",
+    "dropped": "{count, plural, one {# événement a attendu plus de 7 jours et a été abandonné} other {# événements ont attendu plus de 7 jours et ont été abandonnés}}, la dernière fois {when}",
+    "test": "Envoyer un événement de test",
+    "testDelivered": "L’adresse a accepté l’événement de test ({status}).",
+    "testFailed": "L’événement de test n’a pas abouti : {reason}.",
+    "rotate": "Remplacer le secret",
+    "rotateNote": "Le secret actuel cesse immédiatement de signer.",
+    "remove": "Arrêter l’envoi",
+    "removeNote": "L’adresse, son secret et les événements encore en attente sont supprimés.",
+    "working": "En cours…",
+    "secret": {
+      "title": "Secret de signature",
+      "note": "Copiez-le maintenant : il ne sera plus affiché. Vous pouvez le remplacer à tout moment.",
+      "label": "Secret de signature"
+    },
+    "codes": {
+      "invalidUrl": "l’adresse n’est pas valide",
+      "blocked": "l’adresse est sur un réseau privé que ce serveur n’a pas le droit de joindre",
+      "unreachable": "l’adresse est injoignable",
+      "timeout": "pas de réponse en 10 secondes",
+      "redirect": "l’adresse a répondu par une redirection",
+      "http": "l’adresse a répondu {status}"
+    },
+    "errors": {
+      "invalidUrl": "Saisissez une adresse valide.",
+      "httpsOnly": "Les événements d’audit ne peuvent être envoyés qu’à des adresses https.",
+      "notFound": "L’espace de travail n’envoie pas son journal d’audit en continu.",
+      "ownersOnly": "Seuls les propriétaires peuvent modifier ce réglage."
+    }
+  },
+  "sensitiveContent": {
+    "title": "Contenus sensibles",
+    "description": "Repérez les numéros de carte de paiement, IBAN, numéros d’identité nationaux et secrets comme les clés privées et les jetons d’accès dans les pages et les lignes de l’espace de travail.",
+    "toggle": "Rechercher les contenus sensibles",
+    "toggleDescription": "Les pages et les lignes sont lues en arrière-plan après chaque modification. Les propriétaires sont prévenus dans leur boîte de réception et chaque résultat est consigné dans le journal d’audit ; seule une partie masquée de la valeur est conservée. Désactiver cette option efface les résultats.",
+    "findingsTitle": "Résultats ouverts",
+    "none": "Rien n’a été trouvé dans les pages et les lignes de l’espace de travail.",
+    "off": "Activez la recherche de contenus sensibles pour voir ce que contiennent les pages et les lignes.",
+    "more": "{count, plural, one {# autre résultat n’est pas affiché.} other {# autres résultats ne sont pas affichés.}}",
+    "dismiss": "Écarter",
+    "foundAt": "trouvé {when}",
+    "kinds": {
+      "card": "Numéro de carte de paiement",
+      "iban": "IBAN",
+      "national_id": "Numéro d’identité national",
+      "private_key": "Clé privée",
+      "aws_key": "Clé d’accès AWS",
+      "github_token": "Jeton GitHub",
+      "slack_token": "Jeton Slack",
+      "api_key": "Clé d’API",
+      "jwt": "Jeton JSON Web Token (JWT)"
+    },
+    "errors": {
+      "gone": "Ce résultat a déjà été écarté ou résolu."
+    }
+  },
+  "domainPeople": {
+    "title": "Personnes de vos domaines",
+    "description": "Comptes de ce serveur dont l’adresse e-mail appartient aux domaines vérifiés de l’espace de travail, qu’ils soient dans l’espace de travail ou non.",
+    "summary": "{count, plural, one {# compte} other {# comptes}} dans {domains}, dont {inside} dans cet espace de travail.",
+    "more": "Seuls les 500 premiers sont listés.",
+    "search": "Rechercher des personnes",
+    "filter": "Afficher",
+    "filters": {
+      "all": "Tout le monde",
+      "in": "Dans cet espace de travail",
+      "out": "Hors de cet espace de travail"
+    },
+    "columns": {
+      "person": "Personne",
+      "workspace": "Dans cet espace de travail",
+      "lastActive": "Dernière activité",
+      "signIn": "Se connecte avec",
+      "actions": "Actions"
+    },
+    "outside": "Hors de l’espace de travail",
+    "unverified": "adresse non vérifiée",
+    "never": "Jamais",
+    "noSignIn": "Aucune méthode de connexion",
+    "methods": {
+      "password": "Mot de passe",
+      "sso": "Authentification unique",
+      "passkey": "Clé d’accès"
+    },
+    "add": "Ajouter comme membre",
+    "remove": "Retirer",
+    "removing": "Retrait…",
+    "noMatches": "Personne ne correspond.",
+    "empty": "Aucun compte de ce serveur n’utilise encore ces domaines."
   }
 }

@@ -45,7 +45,8 @@
     "expiry": "Wybierz, kiedy token wygaśnie.",
     "limit": "Masz już maksymalną liczbę tokenów. Najpierw unieważnij jeden z nich.",
     "generic": "Nie udało się utworzyć tokenu. Spróbuj ponownie.",
-    "notFound": "Ten token już nie istnieje."
+    "notFound": "Ten token już nie istnieje.",
+    "ownerScope": "Tylko właściciele obszaru roboczego mogą pozwolić tokenowi czytać jego dziennik inspekcji, i to tylko tokenowi ograniczonemu do tego obszaru roboczego."
   },
   "docsPage": {
     "metaTitle": "REST API",
@@ -114,6 +115,10 @@
       "webhooks": {
         "name": "Webhooki",
         "hint": "Webhooki stron i ich wysyłki; zapis dodaje, zmienia i testuje je (tylko właściciele)."
+      },
+      "audit": {
+        "name": "Dziennik inspekcji",
+        "hint": "Dziennik inspekcji obszaru roboczego (tylko właściciele, dla tokenu ograniczonego do obszaru roboczego, którego są właścicielami)."
       }
     },
     "summary": {
@@ -129,7 +134,8 @@
     "errors": {
       "scopes": "Wybierz co najmniej jedną rzecz, którą token może robić.",
       "notFound": "Ten token już nie istnieje.",
-      "generic": "Nie udało się zmienić tokenu. Spróbuj ponownie."
+      "generic": "Nie udało się zmienić tokenu. Spróbuj ponownie.",
+      "ownerScope": "Tylko właściciele obszaru roboczego mogą pozwolić tokenowi czytać jego dziennik inspekcji, i to tylko tokenowi ograniczonemu do tego obszaru roboczego."
     }
   }
 }

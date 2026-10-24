@@ -1,5 +1,5 @@
 import { describe, expect, it, vi } from "vitest";
-import { API_TOKEN_SCOPES } from "@/lib/api-scopes";
+import { ALL_API_SCOPES } from "@/lib/api-scopes";
 import { buildOpenApiDocument } from "./openapi";
 import { decodeCursor, encodeCursor, nextCursor, paginate } from "./pagination";
 import { API_ROUTES } from "./routes";
@@ -49,7 +49,7 @@ describe("OpenAPI document", () => {
       expect(op.tags.every((t: string) => tags.has(t)), op.operationId).toBe(true);
       expect(op.summary, op.operationId).toBeTruthy();
       const scopes = op.security.flatMap((s: Json) => s.bearerAuth);
-      expect(scopes.every((s: string) => (API_TOKEN_SCOPES as readonly string[]).includes(s)), op.operationId).toBe(true);
+      expect(scopes.every((s: string) => (ALL_API_SCOPES as readonly string[]).includes(s)), op.operationId).toBe(true);
       // One scope each, said in the description too; only GET /me takes any token.
       expect(scopes.length, op.operationId).toBe(op.operationId === "getMe" ? 0 : 1);
       expect(op.description, op.operationId).toContain(scopes.length ? `Scope: \`${scopes[0]}\`` : "Any token");
@@ -89,7 +89,7 @@ describe("OpenAPI document", () => {
 
   it("uses every scope, with routes of each resource", () => {
     const used = new Set(operations.flatMap(({ op }) => op.security.flatMap((s: Json) => s.bearerAuth)));
-    expect([...used].sort()).toEqual([...API_TOKEN_SCOPES].sort());
+    expect([...used].sort()).toEqual([...ALL_API_SCOPES].sort());
     expect(doc.paths["/databases/{database_id}/query"].post["x-scope"]).toBe("rows:read");
     expect(doc.paths["/pages/{page_id}/comments"].post["x-scope"]).toBe("comments:write");
     expect(doc.paths["/workspaces"].get["x-scope"]).toBe("workspaces:read");

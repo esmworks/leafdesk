@@ -45,7 +45,8 @@
     "expiry": "Pilih kapan token kedaluwarsa.",
     "limit": "Anda sudah memiliki jumlah token maksimum. Cabut satu terlebih dahulu.",
     "generic": "Tidak dapat membuat token. Coba lagi.",
-    "notFound": "Token ini sudah tidak ada."
+    "notFound": "Token ini sudah tidak ada.",
+    "ownerScope": "Hanya pemilik ruang kerja yang dapat mengizinkan token membaca log auditnya, dan hanya untuk token yang dibatasi pada ruang kerja itu."
   },
   "docsPage": {
     "metaTitle": "REST API",
@@ -114,6 +115,10 @@
       "webhooks": {
         "name": "Webhook",
         "hint": "Webhook halaman dan pengirimannya; akses tulis menambah, mengubah, dan mengujinya (khusus pemilik)."
+      },
+      "audit": {
+        "name": "Log audit",
+        "hint": "Log audit ruang kerja (khusus pemilik, untuk token yang dibatasi pada ruang kerja yang mereka miliki)."
       }
     },
     "summary": {
@@ -129,7 +134,8 @@
     "errors": {
       "scopes": "Pilih setidaknya satu hal yang boleh dilakukan token.",
       "notFound": "Token ini sudah tidak ada.",
-      "generic": "Tidak dapat mengubah token. Coba lagi."
+      "generic": "Tidak dapat mengubah token. Coba lagi.",
+      "ownerScope": "Hanya pemilik ruang kerja yang dapat mengizinkan token membaca log auditnya, dan hanya untuk token yang dibatasi pada ruang kerja itu."
     }
   }
 }

@@ -198,7 +198,8 @@
     "aiAccountDetached": "Çalışma alanının yapay zekâsı artık {actor} kişisinin anahtarıyla çalışmıyor. Ayarlar'dan başka bir yapay zekâ hesabı seçin.",
     "reviewTitle": "İncelenecekler",
     "review": "{count, plural, one {{agent} incelemeniz için bir değişiklik önerdi} other {# değişiklik incelemenizi bekliyor, sonuncusu: {agent}}}",
-    "automationRun": "“{name}” otomasyonu"
+    "automationRun": "“{name}” otomasyonu",
+    "sensitiveContent": "Burada {kind, select, card {bir ödeme kartı numarası} iban {bir IBAN} national_id {bir T.C. kimlik numarası} private_key {bir özel anahtar} aws_key {bir AWS erişim anahtarı} github_token {bir GitHub belirteci} slack_token {bir Slack belirteci} api_key {bir API anahtarı} jwt {bir JSON Web Token} other {hassas içerik}} bulundu. Ayarlar › Güvenlik bölümünden inceleyin."
   },
   "templates": {
     "title": "Şablonlar",

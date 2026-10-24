@@ -1,5 +1,5 @@
 import { AsyncLocalStorage } from "node:async_hooks";
-import { and, desc, eq, gte, inArray, lt, sql, type SQL } from "drizzle-orm";
+import { and, asc, desc, eq, gte, inArray, lt, sql, type SQL } from "drizzle-orm";
 import { db } from "@/db";
 import { apiToken, auditEvent, memberGroup, oauthClient, page, scimToken, teamspace, user, workspace, workspaceAgent } from "@/db/schema";
 import {
@@ -9,6 +9,7 @@ import {
   auditDateRange,
   type AuditAction,
   type AuditActorKind,
+  type AuditCategory,
   type AuditEvent,
   type AuditFilters,
   type AuditTargetType,
@@ -377,4 +378,54 @@ export async function auditActors(actorId: string, workspaceId: string): Promise
   return rows
     .flatMap((r) => (r.userId ? [{ userId: r.userId, name: r.name, email: r.email, isAgent: r.kind === "agent" }] : []))
     .sort((a, b) => (a.name || a.email || "").localeCompare(b.name || b.email || ""));
+}
+
+// ------------------------------------------------------------------------------- the REST API
+
+export type AuditReadOptions = {
+  since?: Date | null;
+  until?: Date | null;
+  actorId?: string | null;
+  actorKind?: AuditActorKind | null;
+  /** One action, or (`category`) every action of a category. */
+  action?: string | null;
+  category?: AuditCategory | null;
+  order: "asc" | "desc";
+  /** Where the previous page ended: its last event's time (as Postgres writes it, to the microsecond) and id. */
+  after?: { at: string; id: string } | null;
+  limit: number;
+};
+
+/**
+ * A page of the log for the REST API, oldest or newest first, read from where the previous page
+ * ended (a keyset, so pages don't shift as events are added). Each event comes with `cursorAt`,
+ * its time to the microsecond, for the next page's `after`. Owners only.
+ */
+export async function readAuditEvents(actorId: string, workspaceId: string, options: AuditReadOptions) {
+  await requireMembership(actorId, workspaceId, "owner");
+  const { order, after } = options;
+  const conditions: (SQL | undefined)[] = [
+    eq(auditEvent.workspaceId, workspaceId),
+    options.since ? gte(auditEvent.createdAt, options.since) : undefined,
+    options.until ? lt(auditEvent.createdAt, options.until) : undefined,
+    options.actorId ? eq(auditEvent.actorUserId, options.actorId) : undefined,
+    options.actorKind ? eq(auditEvent.actorKind, options.actorKind) : undefined,
+    options.action ? eq(auditEvent.action, options.action) : undefined,
+    options.category ? inArray(auditEvent.action, [...AUDIT_CATEGORIES[options.category]]) : undefined,
+    after
+      ? order === "asc"
+        ? sql`(${auditEvent.createdAt}, ${auditEvent.id}) > (${after.at}::timestamptz, ${after.id})`
+        : sql`(${auditEvent.createdAt}, ${auditEvent.id}) < (${after.at}::timestamptz, ${after.id})`
+      : undefined,
+  ];
+  const direction = order === "asc" ? asc : desc;
+  const rows = await db
+    .select({ ...eventColumns, cursorAt: sql<string>`${auditEvent.createdAt}::text` })
+    .from(auditEvent)
+    .where(and(...conditions.filter((c): c is SQL => c !== undefined)))
+    .orderBy(direction(auditEvent.createdAt), direction(auditEvent.id))
+    .limit(options.limit + 1);
+  const page = rows.slice(0, options.limit);
+  const titled = await withPageTitles(workspaceId, page);
+  return { events: titled.map((event, i) => ({ ...event, cursorAt: page[i].cursorAt })), hasMore: rows.length > options.limit };
 }

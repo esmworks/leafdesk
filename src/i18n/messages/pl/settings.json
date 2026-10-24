@@ -87,7 +87,11 @@
       "siteHeader": "nawigacja menu linki górny pasek",
       "siteDescription": "seo meta opis wyszukiwarki podgląd open graph",
       "siteAnalytics": "google analytics ga4 gtag śledzenie odwiedzający statystyki",
-      "siteDomain": "własna domena dns nazwa hosta cname certyfikat"
+      "siteDomain": "własna domena dns nazwa hosta cname certyfikat",
+      "eventStream": "siem bezpieczeństwo dziennik log strumień eksport webhook przekazywanie zdarzenia",
+      "sensitiveContent": "dlp zapobieganie wyciekom danych karta kredytowa iban sekrety tokeny klucze skanowanie",
+      "sensitiveFindings": "dlp wykrycia wyciek sekretów numery kart odrzuć",
+      "domainPeople": "domena konta użytkownicy firma e-mail shadow niezarządzane"
     }
   },
   "workspace": {
@@ -1580,7 +1584,7 @@
       "teamspaces": "Przestrzenie zespołów",
       "groups": "Grupy",
       "settings": "Ustawienia obszaru roboczego",
-      "security": "Logowanie jednokrotne i SCIM",
+      "security": "Bezpieczeństwo",
       "pages": "Strony",
       "integrations": "Połączone aplikacje i tokeny API",
       "exports": "Eksporty",
@@ -1655,7 +1659,8 @@
       "domainJoin": "Gdy ktoś z tych domen się zaloguje",
       "joinRequests": "Kto może prosić o dołączenie",
       "email": "E-maile w wierszach",
-      "agentCreation": "Kto może tworzyć agentów"
+      "agentCreation": "Kto może tworzyć agentów",
+      "sensitiveContent": "Wykrywaj poufne treści"
     },
     "values": {
       "on": "Włączone",
@@ -1845,6 +1850,16 @@
       "review": {
         "approved": "{kind, select, email_draft {Wysłano e-mail przygotowany przez agenta „{agent}” w {target}} create_row {Zatwierdzono wiersz zaproponowany przez agenta „{agent}” w {target}} other {Zatwierdzono zmianę zaproponowaną przez agenta „{agent}” w {target}}}{outcome, select, failed { (nie powiodło się)} other {}}",
         "dismissed": "{kind, select, email_draft {Odrzucono e-mail przygotowany przez agenta „{agent}” w {target}} create_row {Odrzucono wiersz zaproponowany przez agenta „{agent}” w {target}} other {Odrzucono zmianę zaproponowaną przez agenta „{agent}” w {target}}}"
+      },
+      "audit_stream": {
+        "created": "Rozpoczęto przesyłanie dziennika inspekcji do {target}",
+        "updated": "{change, select, on {Włączono przesyłanie dziennika inspekcji do {target}} off {Wyłączono przesyłanie dziennika inspekcji do {target}} other {Zmieniono przesyłanie dziennika inspekcji do {target}}}",
+        "secret_replaced": "Zastąpiono sekret podpisu przesyłania dziennika inspekcji do {target}",
+        "removed": "Zatrzymano przesyłanie dziennika inspekcji do {target}"
+      },
+      "sensitive_content": {
+        "found": "Znaleziono {kind} ({excerpt}) w {target}",
+        "dismissed": "Odrzucono {kind} ({excerpt}) znaleziony w {target}"
       }
     },
     "decisions": {
@@ -1860,6 +1875,17 @@
       "full": "Pełny dostęp",
       "edit": "Może edytować",
       "interact": "Może wyświetlać i używać"
+    },
+    "sensitiveKinds": {
+      "card": "numer karty płatniczej",
+      "iban": "numer IBAN",
+      "national_id": "krajowy numer identyfikacyjny",
+      "private_key": "klucz prywatny",
+      "aws_key": "klucz dostępu AWS",
+      "github_token": "token GitHub",
+      "slack_token": "token Slack",
+      "api_key": "klucz API",
+      "jwt": "token JWT (JSON Web Token)"
     }
   },
   "notifications": {
@@ -2661,5 +2687,112 @@
       "logoSize": "Logo jest za duże: najwyżej 512 KB.",
       "notFound": "Tego papieru firmowego już nie ma. Odśwież stronę."
     }
+  },
+  "eventStream": {
+    "title": "Przesyłanie do narzędzi bezpieczeństwa",
+    "description": "Wysyłaj nowe zdarzenia z dziennika inspekcji na bieżąco na adres HTTPS, np. do kolektora systemu zarządzania informacjami i zdarzeniami bezpieczeństwa (SIEM).",
+    "url": "Adres",
+    "start": "Rozpocznij przesyłanie",
+    "saveUrl": "Zapisz adres",
+    "how": "Zdarzenia są wysyłane jako podpisane żądania POST z treścią JSON, do 100 naraz i w ciągu około 30 sekund od wystąpienia, od najstarszych. Sprawdzaj nagłówek X-Leafdesk-Signature każdego żądania za pomocą sekretu podpisu; zdarzenie może dotrzeć dwa razy, więc zachowuj pierwsze dla każdego id zdarzenia. Nieudane żądania są ponawiane przez 7 dni.",
+    "toggle": "Przesyłaj dziennik inspekcji",
+    "state": {
+      "on": "Przesyłanie włączone",
+      "off": "Wyłączone: nowe zdarzenia nie są wysyłane",
+      "failing": "Błędy od {since}"
+    },
+    "nextTry": "ponowna próba {when}",
+    "lastSuccess": "Ostatnio dostarczono {when}",
+    "noSuccess": "Jeszcze nic nie dostarczono",
+    "sent": "{count, plural, =0 {nie wysłano żadnych zdarzeń} one {wysłano # zdarzenie} few {wysłano # zdarzenia} many {wysłano # zdarzeń} other {wysłano # zdarzenia}}",
+    "waiting": "{count, plural, one {# oczekuje} few {# oczekują} many {# oczekuje} other {# oczekuje}}",
+    "dropped": "{count, plural, one {# zdarzenie czekało ponad 7 dni i zostało porzucone} few {# zdarzenia czekały ponad 7 dni i zostały porzucone} many {# zdarzeń czekało ponad 7 dni i zostało porzuconych} other {# zdarzenia czekało ponad 7 dni i zostało porzuconych}}, ostatnio {when}",
+    "test": "Wyślij zdarzenie testowe",
+    "testDelivered": "Adres przyjął zdarzenie testowe ({status}).",
+    "testFailed": "Nie udało się dostarczyć zdarzenia testowego: {reason}.",
+    "rotate": "Zastąp sekret",
+    "rotateNote": "Obecny sekret od razu przestaje podpisywać.",
+    "remove": "Zatrzymaj przesyłanie",
+    "removeNote": "Adres, jego sekret i wszystkie oczekujące zdarzenia zostaną usunięte.",
+    "working": "Trwa…",
+    "secret": {
+      "title": "Sekret podpisu",
+      "note": "Skopiuj go teraz: nie zostanie pokazany ponownie. Możesz go zastąpić w dowolnej chwili.",
+      "label": "Sekret podpisu"
+    },
+    "codes": {
+      "invalidUrl": "adres jest nieprawidłowy",
+      "blocked": "adres jest w sieci prywatnej, z którą ten serwer nie może się łączyć",
+      "unreachable": "nie udało się połączyć z adresem",
+      "timeout": "brak odpowiedzi w ciągu 10 sekund",
+      "redirect": "adres odpowiedział przekierowaniem",
+      "http": "adres odpowiedział kodem {status}"
+    },
+    "errors": {
+      "invalidUrl": "Wpisz prawidłowy adres.",
+      "httpsOnly": "Zdarzenia inspekcji można wysyłać tylko na adresy https.",
+      "notFound": "Ten obszar roboczy nie przesyła swojego dziennika inspekcji.",
+      "ownersOnly": "Tylko właściciele mogą to zmienić."
+    }
+  },
+  "sensitiveContent": {
+    "title": "Poufne treści",
+    "description": "Wyszukuj numery kart płatniczych, numery IBAN, krajowe numery identyfikacyjne oraz sekrety, takie jak klucze prywatne i tokeny dostępu, na stronach i w wierszach obszaru roboczego.",
+    "toggle": "Szukaj poufnych treści",
+    "toggleDescription": "Strony i wiersze są odczytywane w tle po każdej zmianie. Właściciele dostają powiadomienie w skrzynce odbiorczej, a każde wykrycie jest zapisywane w dzienniku inspekcji; przechowywany jest tylko zamaskowany fragment wartości. Wyłączenie tej opcji usuwa wykrycia.",
+    "findingsTitle": "Otwarte wykrycia",
+    "none": "Na stronach i w wierszach obszaru roboczego nic nie znaleziono.",
+    "off": "Włącz szukanie poufnych treści, aby zobaczyć, co zawierają strony i wiersze.",
+    "more": "{count, plural, one {Nie pokazano # kolejnego wykrycia.} few {Nie pokazano # kolejnych wykryć.} many {Nie pokazano # kolejnych wykryć.} other {Nie pokazano # kolejnego wykrycia.}}",
+    "dismiss": "Odrzuć",
+    "foundAt": "znaleziono {when}",
+    "kinds": {
+      "card": "Numer karty płatniczej",
+      "iban": "IBAN",
+      "national_id": "Krajowy numer identyfikacyjny",
+      "private_key": "Klucz prywatny",
+      "aws_key": "Klucz dostępu AWS",
+      "github_token": "Token GitHub",
+      "slack_token": "Token Slack",
+      "api_key": "Klucz API",
+      "jwt": "Token JWT (JSON Web Token)"
+    },
+    "errors": {
+      "gone": "To wykrycie zostało już odrzucone lub rozwiązane."
+    }
+  },
+  "domainPeople": {
+    "title": "Osoby z twoich domen",
+    "description": "Konta na tym serwerze z adresem e-mail w zweryfikowanych domenach obszaru roboczego, niezależnie od tego, czy należą do obszaru roboczego.",
+    "summary": "{count, plural, one {# konto} few {# konta} many {# kont} other {# konta}} w {domains}, w tym {inside} w tym obszarze roboczym.",
+    "more": "Wyświetlono tylko pierwsze 500.",
+    "search": "Szukaj osób",
+    "filter": "Pokaż",
+    "filters": {
+      "all": "Wszyscy",
+      "in": "W tym obszarze roboczym",
+      "out": "Poza tym obszarem roboczym"
+    },
+    "columns": {
+      "person": "Osoba",
+      "workspace": "W tym obszarze roboczym",
+      "lastActive": "Ostatnia aktywność",
+      "signIn": "Logowanie przez",
+      "actions": "Działania"
+    },
+    "outside": "Poza obszarem roboczym",
+    "unverified": "adres niezweryfikowany",
+    "never": "Nigdy",
+    "noSignIn": "Brak metody logowania",
+    "methods": {
+      "password": "Hasło",
+      "sso": "Logowanie jednokrotne",
+      "passkey": "Klucz dostępu"
+    },
+    "add": "Dodaj jako członka",
+    "remove": "Usuń",
+    "removing": "Usuwanie…",
+    "noMatches": "Nikt nie pasuje.",
+    "empty": "Żadne konto na tym serwerze nie używa jeszcze tych domen."
   }
 }

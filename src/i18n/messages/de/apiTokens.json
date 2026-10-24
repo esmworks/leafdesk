@@ -45,7 +45,8 @@
     "expiry": "Wähle aus, wann das Token abläuft.",
     "limit": "Du hast die maximale Anzahl an Token erreicht. Widerrufe zuerst eines.",
     "generic": "Das Token konnte nicht erstellt werden. Versuch es noch einmal.",
-    "notFound": "Dieses Token gibt es nicht mehr."
+    "notFound": "Dieses Token gibt es nicht mehr.",
+    "ownerScope": "Nur die Inhaber eines Workspace können einem Token erlauben, dessen Audit-Log zu lesen, und nur einem Token, das auf diesen Workspace beschränkt ist."
   },
   "docsPage": {
     "metaTitle": "REST API",
@@ -114,6 +115,10 @@
       "webhooks": {
         "name": "Webhooks",
         "hint": "Seiten-Webhooks und ihre Zustellungen; Schreiben fügt sie hinzu, ändert und testet sie (nur Inhaber)."
+      },
+      "audit": {
+        "name": "Audit-Log",
+        "hint": "Das Audit-Log des Workspace (nur Inhaber, für ein Token, das auf einen Workspace beschränkt ist, dessen Inhaber sie sind)."
       }
     },
     "summary": {
@@ -129,7 +134,8 @@
     "errors": {
       "scopes": "Wählen Sie mindestens eine Sache, die das Token darf.",
       "notFound": "Dieses Token gibt es nicht mehr.",
-      "generic": "Das Token konnte nicht geändert werden. Versuchen Sie es erneut."
+      "generic": "Das Token konnte nicht geändert werden. Versuchen Sie es erneut.",
+      "ownerScope": "Nur die Inhaber eines Workspace können einem Token erlauben, dessen Audit-Log zu lesen, und nur einem Token, das auf diesen Workspace beschränkt ist."
     }
   }
 }

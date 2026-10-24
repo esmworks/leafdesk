@@ -8,10 +8,17 @@
  * (`api_token.legacy_scopes`) and keep exactly that access, whatever scopes are added later, until
  * someone changes what the token may do: then it gets the scopes chosen, like a new token.
  *
+ * Some scopes are for workspace owners only (OWNER_SCOPES: the audit log). Only an owner can give
+ * one to a token, and only to a token of a workspace they own (server/api/tokens.ts); no preset
+ * and no legacy token includes one, so it is always chosen on its own.
+ *
  * Only the REST API's tokens: the MCP server's OAuth scopes are their own (lib/auth-options.ts).
  */
 
-/** The resources, in the order settings and the docs list them, and whether they have a write scope. */
+/**
+ * The resources, in the order settings and the docs list them, whether they have a write scope,
+ * and whether only workspace owners may give a token their scopes.
+ */
 export const API_SCOPE_RESOURCES = [
   { resource: "workspaces", write: false },
   { resource: "pages", write: true },
@@ -21,10 +28,12 @@ export const API_SCOPE_RESOURCES = [
   { resource: "comments", write: true },
   { resource: "agents", write: true },
   { resource: "webhooks", write: true },
+  { resource: "audit", write: false, owners: true },
 ] as const;
 
 export type ApiScopeResource = (typeof API_SCOPE_RESOURCES)[number]["resource"];
 
+/** The scopes anyone may give a token. */
 export const API_TOKEN_SCOPES = [
   "workspaces:read",
   "pages:read",
@@ -41,7 +50,15 @@ export const API_TOKEN_SCOPES = [
   "webhooks:write",
 ] as const;
 
-export type ApiTokenScope = (typeof API_TOKEN_SCOPES)[number];
+/** The scopes only a workspace's owners may give a token, for that workspace. */
+export const OWNER_SCOPES = ["audit:read"] as const;
+
+/** Every scope, in the catalog's order. */
+export const ALL_API_SCOPES = [...API_TOKEN_SCOPES, ...OWNER_SCOPES] as const;
+
+export type ApiTokenScope = (typeof ALL_API_SCOPES)[number];
+
+export const isOwnerScope = (scope: string) => (OWNER_SCOPES as readonly string[]).includes(scope);
 
 /** What each scope lets a token do, for the OpenAPI document and the docs page. */
 export const API_SCOPE_DESCRIPTIONS: Record<ApiTokenScope, string> = {
@@ -58,12 +75,13 @@ export const API_SCOPE_DESCRIPTIONS: Record<ApiTokenScope, string> = {
   "agents:write": "Change agents, ask them for runs, set their schedules and share them.",
   "webhooks:read": "Read a workspace's page webhooks and their deliveries (workspace owners).",
   "webhooks:write": "Add, change, test and remove page webhooks and replace their secrets (workspace owners).",
+  "audit:read": "Read a workspace's audit log. Only an owner can give it, to a token of a workspace they own.",
 };
 
 export const READ_SCOPES: readonly ApiTokenScope[] = API_TOKEN_SCOPES.filter((s) => s.endsWith(":read"));
 
 export const isApiTokenScope = (value: unknown): value is ApiTokenScope =>
-  typeof value === "string" && (API_TOKEN_SCOPES as readonly string[]).includes(value);
+  typeof value === "string" && (ALL_API_SCOPES as readonly string[]).includes(value);
 
 export const isWriteScope = (scope: string) => scope.endsWith(":write");
 
@@ -83,7 +101,7 @@ export function normalizeScopes(scopes: readonly string[]): ApiTokenScope[] {
   for (const scope of [...known]) {
     if (isWriteScope(scope)) known.add(scope.replace(/:write$/, ":read") as ApiTokenScope);
   }
-  return API_TOKEN_SCOPES.filter((s) => known.has(s));
+  return ALL_API_SCOPES.filter((s) => known.has(s));
 }
 
 /**

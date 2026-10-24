@@ -45,7 +45,8 @@
     "expiry": "Anahtarın ne zaman geçersiz olacağını seçin.",
     "limit": "İzin verilen en fazla anahtara ulaştınız. Önce birini iptal edin.",
     "generic": "Anahtar oluşturulamadı. Tekrar deneyin.",
-    "notFound": "Bu anahtar artık yok."
+    "notFound": "Bu anahtar artık yok.",
+    "ownerScope": "Bir anahtarın çalışma alanının denetim kaydını okumasına yalnızca o çalışma alanının sahipleri izin verebilir; bu da yalnızca o çalışma alanıyla sınırlı bir anahtar için geçerlidir."
   },
   "docsPage": {
     "metaTitle": "REST API",
@@ -114,6 +115,10 @@
       "webhooks": {
         "name": "Webhook’lar",
         "hint": "Sayfa webhook’ları ve gönderimleri; yazma bunları ekler, değiştirir ve test eder (yalnızca sahipler)."
+      },
+      "audit": {
+        "name": "Denetim kaydı",
+        "hint": "Çalışma alanının denetim kaydı (yalnızca sahipler için; sahip olunan bir çalışma alanıyla sınırlı anahtarlarda)."
       }
     },
     "summary": {
@@ -129,7 +134,8 @@
     "errors": {
       "scopes": "Anahtarın yapabileceği en az bir şey seçin.",
       "notFound": "Bu anahtar artık yok.",
-      "generic": "Anahtar değiştirilemedi. Tekrar deneyin."
+      "generic": "Anahtar değiştirilemedi. Tekrar deneyin.",
+      "ownerScope": "Bir anahtarın çalışma alanının denetim kaydını okumasına yalnızca o çalışma alanının sahipleri izin verebilir; bu da yalnızca o çalışma alanıyla sınırlı bir anahtar için geçerlidir."
     }
   }
 }

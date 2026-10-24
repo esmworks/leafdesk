@@ -62,6 +62,12 @@ export const AUDIT_CATEGORIES = {
     "workspace.networks_cleared",
     "legal_hold.set",
     "legal_hold.released",
+    "audit_stream.created",
+    "audit_stream.updated",
+    "audit_stream.secret_replaced",
+    "audit_stream.removed",
+    "sensitive_content.found",
+    "sensitive_content.dismissed",
   ],
   pages: [
     "page.created",
@@ -181,7 +187,8 @@ export type AuditTargetType =
   | "connection"
   | "mailbox"
   | "legal_hold"
-  | "webhook";
+  | "webhook"
+  | "audit_stream";
 
 /** A stored event, as the list and the CSV show it. Names are as they were when it happened. */
 export type AuditEvent = {
@@ -472,8 +479,14 @@ export function describeAuditEvent(event: Pick<AuditEvent, "action" | "targetLab
     case "agent.shared":
       values.level = known(t, `audit.agentLevels.${text(d.level)}`, text(d.level));
       break;
+    case "sensitive_content.found":
+    case "sensitive_content.dismissed":
+      values.kind = known(t, `audit.sensitiveKinds.${text(d.kind)}`, text(d.kind));
+      values.excerpt = text(d.excerpt);
+      break;
     case "agent.updated":
     case "automation.updated":
+    case "audit_stream.updated":
     case "webhook.updated": {
       // Turning it on or off reads as such; any other change as a change.
       const previous = record(d.previous);
