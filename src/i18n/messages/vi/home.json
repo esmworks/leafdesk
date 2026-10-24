@@ -1,5 +1,6 @@
 {
   "hello": "Xin chào, {name}",
+  "jumpBackIn": "Tiếp tục công việc",
   "recent": "Chỉnh sửa gần đây",
   "assignedEmpty": "Chưa có gì được giao cho bạn. Các hàng được giao cho bạn trong cơ sở dữ liệu sẽ xuất hiện ở đây.",
   "empty": "Chưa có gì ở đây. Hãy tạo trang đầu tiên để bắt đầu.",

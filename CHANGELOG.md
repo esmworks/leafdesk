@@ -4,6 +4,21 @@
 
 ### Added
 
+- **Jump back in.** The workspace's home page starts with the pages you opened last, and the search
+  box lists them before you type, newest first and only pages you can still open. While the
+  workspace or you don't record page views (or for guests, whose views aren't recorded), the home
+  page shows only *Recently edited* and the search box the pages last edited, as before.
+- **Search filters.** Menus under the search box's query narrow a search by teamspace, by who
+  created a page, by who edited it last, and by when it was last edited or created: today, the
+  last 7 or 30 days, or days you pick, in your time zone. They work with the typed `in:`, `type:`
+  and `is:verified`, and list pages without words too. The REST API's `GET /search` takes the
+  same filters as `teamspace_id`, `created_by`, `edited_by` (`me` for yourself), `created_after`,
+  `created_before`, `edited_after` and `edited_before`, and no longer needs a query when a filter
+  is given. MCP's `search` tool doesn't take them: its schema is at the tool list's size budget.
+- **Exact phrases in search.** Text in double quotes (`"launch plan"`) finds only pages with those
+  words whole, side by side and in that order, in the search box, the REST API and MCP; Chinese
+  and Japanese phrases too. A page found only by meaning isn't listed for such a search. A quote
+  still being typed searches its words as before, and the AI chat's searches leave quotes alone.
 - **Danish, Dutch, Norwegian, Finnish and Swedish.** The app, its emails, templates, the editor's
   menus and the desktop app now speak Dansk, Nederlands, Norsk bokmål, Suomi and Svenska, chosen in
   My account → Language or taken from the browser (one asking for Norwegian or Nynorsk gets

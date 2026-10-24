@@ -32,6 +32,7 @@ import { describeDelivery, describeWebhook, toWebhookInput, toWebhookPatch, webh
 import * as webhooks from "@/server/page-webhooks/manage";
 import * as ops from "@/server/operations";
 import { MAX_ACTIVITY_PAGE } from "@/server/row-activity-feed";
+import { MAX_FILTER_VALUES } from "@/lib/search-filters";
 import { voiceAudioType } from "@/lib/voice-notes";
 import { AUDIT_ACTOR_KINDS, AUDIT_CATEGORY_NAMES } from "@/lib/audit";
 import { streamedAuditEvent } from "@/lib/audit-stream";
@@ -178,6 +179,21 @@ const limitInput = (max: number, fallback: number) =>
 
 /** Search reads matches up to this position; beyond it the query needs narrowing. */
 const MAX_SEARCH_WINDOW = 500;
+
+/** A search filter's values: comma-separated, at most MAX_FILTER_VALUES; left out when empty. */
+const idList = z
+  .string()
+  .optional()
+  .transform((value) => {
+    const list = [...new Set((value ?? "").split(",").map((v) => v.trim()).filter(Boolean))].slice(0, MAX_FILTER_VALUES);
+    return list.length ? list : undefined;
+  });
+
+/** A moment a search filter starts or ends at: a day (its start in UTC) or a time with its offset. */
+const searchTime = z
+  .union([z.iso.date(), z.iso.datetime({ offset: true })])
+  .optional()
+  .transform((value) => (value === undefined ? undefined : new Date(value)));
 
 const pageBodies = {
   updatePage: ops.inputs.updatePage.omit({ page_id: true }).extend({
@@ -327,15 +343,22 @@ export const API_ROUTES: ApiRoute[] = [
     tag: "Pages",
     summary: "Search pages",
     description:
-      "Search over page titles and bodies (database rows included), best matches first: full-text, merged with semantic search (by meaning) when the server has an embeddings model. `match` says how each result was found. Archived pages are left out unless include_archived is true.",
+      'Search over page titles and bodies (database rows included), best matches first: full-text, merged with semantic search (by meaning) when the server has an embeddings model. `match` says how each result was found. Text in double quotes ("launch plan") must appear as written, its words whole and in that order. The filters below narrow the results and, without query text, list the pages they match, last edited first. Archived pages are left out unless include_archived is true.',
     scope: "search:read",
     query: z.object({
-      query: z.string().min(1).describe("Words to look for."),
+      query: z.string().default("").describe("Words to look for. May be left out when a filter is given."),
       workspace_id: z.string().optional().describe("Only search this workspace."),
       include_archived: z
         .stringbool()
         .default(false)
         .describe("Also include archived pages (out of date but kept; not the trash), marked archived: true (true or false)."),
+      teamspace_id: idList.describe("Only pages of these teamspaces (comma-separated ids)."),
+      created_by: idList.describe('Only pages created by these people (comma-separated user ids; "me" for yourself).'),
+      edited_by: idList.describe('Only pages last edited by these people (comma-separated user ids; "me" for yourself).'),
+      created_after: searchTime.describe("Only pages created at or after this time (ISO 8601; a day alone is its start in UTC)."),
+      created_before: searchTime.describe("Only pages created before this time (ISO 8601; a day alone is its start in UTC)."),
+      edited_after: searchTime.describe("Only pages last edited at or after this time (ISO 8601; a day alone is its start in UTC)."),
+      edited_before: searchTime.describe("Only pages last edited before this time (ISO 8601; a day alone is its start in UTC)."),
       limit: limitInput(50, 10),
       cursor: cursorInput,
     }),
@@ -346,12 +369,27 @@ export const API_ROUTES: ApiRoute[] = [
       if (offset + query.limit > MAX_SEARCH_WINDOW) {
         throw new ApiError(400, "invalid_request", `Search returns the first ${MAX_SEARCH_WINDOW} matches; narrow the query.`);
       }
-      const { results } = await ops.search(ctx, {
-        query: query.query,
-        workspace_id: query.workspace_id ?? principal.workspaceId ?? undefined,
-        limit: offset + query.limit + 1,
-        include_archived: query.include_archived,
-      });
+      const people = (list: string[] | undefined) => list?.map((id) => (id === "me" ? ctx.userId : id));
+      const range = (from?: Date, to?: Date) => (from || to ? { from, to } : undefined);
+      const filters = {
+        teamspaceIds: query.teamspace_id,
+        createdBy: people(query.created_by),
+        editedBy: people(query.edited_by),
+        createdIn: range(query.created_after, query.created_before),
+        editedIn: range(query.edited_after, query.edited_before),
+      };
+      const filtered = Object.values(filters).some((value) => value !== undefined);
+      if (!query.query.trim() && !filtered) throw new ApiError(400, "validation_error", "Give a query, a filter or both.", undefined, { param: "query" });
+      const { results } = await ops.search(
+        ctx,
+        {
+          query: query.query,
+          workspace_id: query.workspace_id ?? principal.workspaceId ?? undefined,
+          limit: offset + query.limit + 1,
+          include_archived: query.include_archived,
+        },
+        { filters },
+      );
       const next = results.length > offset + query.limit ? nextCursor(offset, query.limit, results.length) : null;
       return { results: results.slice(offset, offset + query.limit), next_cursor: next, has_more: next !== null };
     },

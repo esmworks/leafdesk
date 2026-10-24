@@ -219,6 +219,17 @@ try {
   check(idsOf(await found(alice, "dog")).includes(acme.id), "a row is found by its property values (dog → hound)");
   check(idsOf(await found(alice, "puppy")).includes(office.id), "…and pages by their body (puppy → puppies)");
   check((await found(alice, "ca")).every((h) => h.match !== "semantic"), "very short queries only search text");
+  // A quoted phrase must be on the page: meaning alone doesn't find one, but passages still come.
+  const quoted = await searchPages(alice, '"automobile"', { workspaceId, phrases: ["automobile"] });
+  check(!idsOf(quoted).includes(fleet.id), "a quoted phrase doesn't find a page by meaning alone", quoted);
+  const quotedTyres = await searchPages(alice, "new tyres", { workspaceId, phrases: ["new tyres"] });
+  check(
+    idsOf(quotedTyres).includes(fleet.id) && quotedTyres.every((h) => h.match !== "semantic"),
+    "…and finds pages with it as text only, with their passages",
+    quotedTyres,
+  );
+  const filteredMeaning = await searchPages(alice, "automobile", { workspaceId, createdBy: ["nobody"] });
+  check(filteredMeaning.length === 0, "the search box's filters hold for pages found by meaning too");
   const within = await found(owner, "automobile", { withinPageId: fleet.id });
   check(idsOf(within).includes(vendors.id) && !idsOf(within).includes(diary.id), "a search can be kept to a page and its subpages", idsOf(within));
 

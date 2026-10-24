@@ -69,6 +69,7 @@
     "includeArchivedHint": "同时查找已归档的页面",
     "inDocument": "在此页面的文档 {name} 中找到",
     "recent": "最近编辑",
+    "recentViewed": "最近查看",
     "commands": "命令",
     "noCommands": "没有匹配的命令",
     "setting": "设置：{tab} → {setting}",
@@ -76,7 +77,29 @@
     "hint": {
       "in": "在页面内",
       "type": "仅数据库（或页面、行）",
-      "commands": "命令"
+      "commands": "命令",
+      "phrase": "精确短语"
+    },
+    "filters": {
+      "label": "筛选",
+      "teamspace": "团队空间",
+      "createdBy": "创建者",
+      "editedBy": "最后编辑者",
+      "date": "日期",
+      "edited": "最后编辑",
+      "created": "创建时间",
+      "today": "今天",
+      "week": "最近 7 天",
+      "month": "最近 30 天",
+      "custom": "自定义范围",
+      "from": "从",
+      "to": "至",
+      "more": "{first} +{count}",
+      "you": "{name}（你）",
+      "findPerson": "查找成员…",
+      "noPeople": "未找到任何人",
+      "remove": "移除筛选",
+      "clear": "清除筛选条件"
     }
   },
   "trash": {

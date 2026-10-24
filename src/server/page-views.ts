@@ -1,6 +1,6 @@
 import { eq, sql } from "drizzle-orm";
 import { db } from "@/db";
-import { page, pageView, user } from "@/db/schema";
+import { page, pageView, user, type PageKind } from "@/db/schema";
 import { type AnalyticsPeriod, periodStart } from "@/lib/analytics";
 import {
   dailySeries,
@@ -12,8 +12,9 @@ import {
   VIEW_REPEAT_MS,
   viewDay,
 } from "@/lib/page-views";
-import { AccessError, accessRank, EDIT_RANK, getMembership, isGuest, requireMembership } from "@/server/access";
+import { AccessError, accessRank, EDIT_RANK, getMembership, isGuest, pageVisibleTo, requireMembership } from "@/server/access";
 import { editsSince } from "@/server/analytics";
+import { listedPage } from "@/server/page-outdated";
 import { startSweep } from "@/server/sweep";
 import { pageViewRecording, setMemberPageViews, workspacePeople, workspaceSettings } from "@/server/workspaces";
 
@@ -156,4 +157,42 @@ const RETENTION_EVERY_MS = 6 * 60 * 60 * 1000;
 /** Server only: deletes old page views now and every few hours (started from server.ts). */
 export function startPageViewRetention() {
   return startSweep(RETENTION_EVERY_MS, () => deleteOldPageViews(), "Deleting old page views failed");
+}
+
+export type ViewedPage = { id: string; title: string; icon: string | null; kind: PageKind; updatedAt: Date; viewedAt: Date };
+
+/**
+ * The pages the person opened in the workspace most recently, last opened first: "Jump back in" on
+ * the home page and the search box before anything is typed. Only pages they may open now, out of
+ * the trash, templates and the archive; access is asked of the latest views only, like
+ * pages.recentPages. Null while their views aren't recorded (the workspace's or their own switch
+ * is off, or they are a guest): then callers show the pages last edited instead, since views kept
+ * from before recording was turned off no longer say what they are working on.
+ */
+export async function recentlyViewedPages(userId: string, workspaceId: string, limit = 8): Promise<ViewedPage[] | null> {
+  await requireMembership(userId, workspaceId);
+  if (!(await pageViewRecording(userId, workspaceId)).records) return null;
+  const rows = await db.execute<{ id: string; title: string; icon: string | null; kind: PageKind; updated_at: Date | string; viewed_at: Date | string }>(sql`
+    with viewed as (
+      select v.page_id, max(v.last_viewed_at) as viewed_at
+      from ${pageView} v
+      where v.user_id = ${userId}
+      group by v.page_id
+    ),
+    latest as (
+      select p.id, p.title, p.icon, p.kind, p.updated_at, viewed.viewed_at
+      from viewed
+      join ${page} p on p.id = viewed.page_id
+      where p.workspace_id = ${workspaceId} and ${listedPage(workspaceId, { alias: "p" })}
+      order by viewed.viewed_at desc
+      limit ${Math.max(100, limit * 10)}
+      -- Ranked first, then checked in that order: "offset 0" keeps the check out of the ranked set.
+      offset 0
+    )
+    select * from latest
+    where ${pageVisibleTo(userId, "latest")}
+    order by viewed_at desc
+    limit ${limit}
+  `);
+  return rows.map((r) => ({ id: r.id, title: r.title, icon: r.icon, kind: r.kind, updatedAt: new Date(r.updated_at), viewedAt: new Date(r.viewed_at) }));
 }

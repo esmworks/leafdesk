@@ -1,5 +1,6 @@
 {
   "hello": "Hei, {name}",
+  "jumpBackIn": "Jatka siitä, mihin jäit",
   "recent": "Viimeksi muokatut",
   "assignedEmpty": "Sinulle ei ole osoitettu mitään. Tietokantojen rivit, joihin sinut on osoitettu, näkyvät tässä.",
   "empty": "Täällä ei ole vielä mitään. Aloita luomalla ensimmäinen sivusi.",

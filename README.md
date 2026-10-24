@@ -68,7 +68,8 @@ for Windows, `.AppImage` for Linux) and choose *On this computer*. See [Desktop 
   spaces between words: "会議" finds "明日の会議について", a word's characters only side by side;
   Korean words by their start, so with a particle joined on: "회의" finds "회의를"; pages whose
   title has the words come first; past the first 80,000 characters of a huge page's text, words
-  aren't found), and also by meaning when the server has an embeddings model
+  aren't found; text in double quotes, `"launch plan"`, only with its words whole, side by side and
+  in that order, and then a page found by meaning alone isn't listed), and also by meaning when the server has an embeddings model
   (see [Semantic search](#semantic-search)). Full-text search also looks inside the PDFs and
   Word documents a page shows, with or without an embeddings model: a page is found when one of
   its documents has every word, after the pages that have them in their own text, and the result
@@ -77,14 +78,19 @@ for Windows, `.AppImage` for Linux) and choose *On this computer*. See [Desktop 
   and a scan without a text layer has no words to find.
 - **Home page**: quick buttons for a new page, database or template; today's daily note (or a
   button that starts it) and the few before it; the database rows assigned to you that aren't done
-  and that you can open, grouped as overdue, today, the next 7 days, later and no date; and the
-  pages edited last.
+  and that you can open, grouped as overdue, today, the next 7 days, later and no date; *Jump back
+  in*, the pages you opened last (while the workspace and you record page views, see *People directory and analytics*;
+  only pages you can still open); and the pages edited last.
 - **My tasks** (in the sidebar; hide or move it like its other sections): every database row
   assigned to you across the workspace, in any person property, that isn't done and that you can
   open, by due date or by database, with its status and first date; the first 200, the ones due
   soonest. A row opens beside the list. Tick a row with a status to set it to the first option of
   its *Done* group, and untick it to put the status back; the home page's list works the same way.
-- **Search box** (Cmd/Ctrl+K): before you type, the pages last edited. Narrow a search with
+- **Search box** (Cmd/Ctrl+K): before you type, the pages you opened last (the pages last edited
+  while your page views aren't recorded or you haven't opened any yet). The menus under the query
+  narrow it by teamspace, by who created a page or edited it last, and by when it was last edited
+  or created (today, the last 7 or 30 days, or days you pick, in your time zone); they list pages
+  without words too. Narrow a search with
   `in:Projects` or `in:"Launch plan"` (that page and everything under it; several pages of that
   title, or several `in:`, search under any of them; a title nobody can see finds nothing) and
   `type:page`, `type:database`, `type:row` (database rows) or `type:journal` (your daily notes),
@@ -2963,7 +2969,8 @@ With an embeddings model, search also finds pages by meaning ("car" finds a page
 automobiles): in the search dialog (such results are marked *Similar meaning*), the chat, MCP
 `search` and REST `GET /search` (each result says `match: "text"` or `"semantic"`). The two
 rankings are merged by reciprocal rank fusion. Without an embeddings model, or with AI off for the
-workspace, search is exactly the full-text search.
+workspace, search is exactly the full-text search. A search with text in double quotes needs that
+phrase on the page: meaning alone then finds nothing more, though passages still come from it.
 
 ```bash
 AI_EMBEDDINGS_MODEL=text-embedding-3-small   # or nomic-embed-text with Ollama, etc.
@@ -3882,7 +3889,10 @@ Filter ops: `contains`, `does_not_contain`, `equals`, `not_equals`, `is_any_of` 
   `GET /pages/{id}/children`, `POST /pages/{id}/move`, `/archive` and `/restore` (the trash), and
   `POST /pages/{id}/archived` (`archived: true` or `false`: archive an outdated page or unarchive
   it; `GET /search`, the page lists and `POST /databases/{id}/query` leave archived pages and rows
-  out unless `include_archived` is true). `GET /pages/{id}`
+  out unless `include_archived` is true). `GET /search` takes text in double quotes as a phrase and
+  the filters `teamspace_id`, `created_by` and `edited_by` (comma-separated ids, `me` for
+  yourself), `created_after`, `created_before`, `edited_after` and `edited_before` (ISO 8601; a day
+  alone is its start in UTC); with a filter the query may be left out. `GET /pages/{id}`
   gives the body's `version`, and `PATCH` takes it back as `expected_version`: when the body
   changed since, nothing is written and the answer is `409` `version_conflict` with the current
   version. Body writes report the new `version`.

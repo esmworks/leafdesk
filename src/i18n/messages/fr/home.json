@@ -1,5 +1,6 @@
 {
   "hello": "Bonjour, {name}",
+  "jumpBackIn": "Reprendre",
   "recent": "Modifiées récemment",
   "assignedEmpty": "Rien ne vous est assigné. Les lignes qui vous sont assignées dans les bases de données apparaissent ici.",
   "empty": "Rien pour l’instant. Créez votre première page pour commencer.",

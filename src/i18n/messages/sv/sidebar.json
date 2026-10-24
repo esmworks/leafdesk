@@ -69,6 +69,7 @@
     "includeArchivedHint": "Hitta även arkiverade sidor",
     "inDocument": "Hittad i dokumentet {name} på den här sidan",
     "recent": "Nyligen redigerade",
+    "recentViewed": "Nyligen visade",
     "commands": "Kommandon",
     "noCommands": "Inget matchande kommando",
     "setting": "Inställningar: {tab} → {setting}",
@@ -76,7 +77,29 @@
     "hint": {
       "in": "inuti en sida",
       "type": "bara databaser (eller page, row)",
-      "commands": "kommandon"
+      "commands": "kommandon",
+      "phrase": "exakt fras"
+    },
+    "filters": {
+      "label": "Filter",
+      "teamspace": "Teamyta",
+      "createdBy": "Skapad av",
+      "editedBy": "Senast redigerad av",
+      "date": "Datum",
+      "edited": "Senast redigerad",
+      "created": "Skapad",
+      "today": "I dag",
+      "week": "Senaste 7 dagarna",
+      "month": "Senaste 30 dagarna",
+      "custom": "Anpassat intervall",
+      "from": "Från",
+      "to": "Till",
+      "more": "{first} +{count}",
+      "you": "{name} (du)",
+      "findPerson": "Hitta en person…",
+      "noPeople": "Ingen hittades",
+      "remove": "Ta bort filter",
+      "clear": "Rensa filter"
     }
   },
   "trash": {
