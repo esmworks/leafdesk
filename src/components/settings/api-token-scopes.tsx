@@ -16,15 +16,19 @@ import { Button, cn, Switch } from "@/components/ui";
 /**
  * Chooses what a token may do: read and write toggles per resource, and the two presets. Turning
  * write on turns read on with it, as the server stores it; read can't be turned off under write.
+ * Owner-only resources (the audit log) show only for a token of a workspace the person owns, or
+ * when the token already has them, so they can be taken off.
  */
 export function ApiTokenScopePicker({
   value,
   onChange,
   disabled,
+  owner = false,
 }: {
   value: ApiTokenScope[];
   onChange: (scopes: ApiTokenScope[]) => void;
   disabled?: boolean;
+  owner?: boolean;
 }) {
   const t = useTranslations("apiTokens.scopes");
   const ids = useId();
@@ -57,7 +61,7 @@ export function ApiTokenScopePicker({
         ))}
       </div>
       <ul className="divide-y divide-border rounded-md border border-border" data-api-token-scopes>
-        {API_SCOPE_RESOURCES.map(({ resource }) => {
+        {API_SCOPE_RESOURCES.filter((r) => owner || !("owners" in r) || chosen.has(readScopeOf(r.resource))).map(({ resource }) => {
           const read = readScopeOf(resource);
           const write = writeScopeOf(resource);
           const writing = write !== null && chosen.has(write);
