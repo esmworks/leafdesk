@@ -34,7 +34,27 @@
     "stopped": "已停止。你仍可保留目前已写出的内容。",
     "applyFailed": "无法将建议添加到页面。",
     "asSuggestions": "作为建议的修改添加",
-    "selectionChanged": "所选文本在此期间发生了变化，因此建议已添加到其下方。"
+    "selectionChanged": "所选文本在此期间发生了变化，因此建议已添加到其下方。",
+    "saved": {
+      "title": "已保存的提示",
+      "empty": "用“发送”旁的书签保存常用指令。整个团队共用的指令是<skills>技能</skills>。",
+      "saveInstruction": "保存提示",
+      "name": "名称",
+      "namePlaceholder": "为此提示命名",
+      "save": "保存",
+      "cancel": "取消",
+      "rename": "新名称",
+      "renameNamed": "重命名 {name}",
+      "deleteNamed": "删除 {name}",
+      "errors": {
+        "emptyName": "请为提示命名。",
+        "emptyPrompt": "没有可保存的指令。",
+        "nameTooLong": "名称最多 {max} 个字符。",
+        "promptTooLong": "提示最多 {max} 个字符。",
+        "full": "最多可保存 {max} 个提示。请删除一个后再保存。",
+        "notFound": "此已保存的提示已不存在。"
+      }
+    }
   },
   "errors": {
     "disabled": "此工作区无法使用 AI。",

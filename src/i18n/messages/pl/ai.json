@@ -34,7 +34,27 @@
     "stopped": "Zatrzymano. Nadal możesz zachować to, co zostało dotąd napisane.",
     "applyFailed": "Nie udało się dodać sugestii do strony.",
     "asSuggestions": "Dodaj jako sugerowane zmiany",
-    "selectionChanged": "Zaznaczony tekst w międzyczasie się zmienił, więc sugestię dodano pod nim."
+    "selectionChanged": "Zaznaczony tekst w międzyczasie się zmienił, więc sugestię dodano pod nim.",
+    "saved": {
+      "title": "Zapisane polecenia",
+      "empty": "Zapisz często używane polecenie zakładką obok „Wyślij”. Polecenia dla całego zespołu to <skills>umiejętności</skills>.",
+      "saveInstruction": "Zapisz polecenie",
+      "name": "Nazwa",
+      "namePlaceholder": "Nazwij to polecenie",
+      "save": "Zapisz",
+      "cancel": "Anuluj",
+      "rename": "Nowa nazwa",
+      "renameNamed": "Zmień nazwę {name}",
+      "deleteNamed": "Usuń {name}",
+      "errors": {
+        "emptyName": "Nadaj poleceniu nazwę.",
+        "emptyPrompt": "Brak polecenia do zapisania.",
+        "nameTooLong": "Nazwa może mieć najwyżej {max} znaków.",
+        "promptTooLong": "Polecenie może mieć najwyżej {max} znaków.",
+        "full": "Możesz mieć najwyżej {max} zapisanych poleceń. Usuń jedno, aby zapisać kolejne.",
+        "notFound": "To zapisane polecenie już nie istnieje."
+      }
+    }
   },
   "errors": {
     "disabled": "AI nie jest dostępna w tym obszarze roboczym.",

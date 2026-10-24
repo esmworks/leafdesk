@@ -34,7 +34,27 @@
     "stopped": "Detenido. Aún puedes conservar lo que se ha escrito hasta ahora.",
     "applyFailed": "No se pudo añadir la sugerencia a la página.",
     "asSuggestions": "Añadir como cambios sugeridos",
-    "selectionChanged": "El texto seleccionado cambió mientras tanto, así que la sugerencia se añadió debajo."
+    "selectionChanged": "El texto seleccionado cambió mientras tanto, así que la sugerencia se añadió debajo.",
+    "saved": {
+      "title": "Indicaciones guardadas",
+      "empty": "Guarda una instrucción que uses a menudo con el marcador junto a Enviar. Las instrucciones para todo el equipo son <skills>habilidades</skills>.",
+      "saveInstruction": "Guardar indicación",
+      "name": "Nombre",
+      "namePlaceholder": "Pon nombre a esta indicación",
+      "save": "Guardar",
+      "cancel": "Cancelar",
+      "rename": "Nombre nuevo",
+      "renameNamed": "Cambiar el nombre de {name}",
+      "deleteNamed": "Eliminar {name}",
+      "errors": {
+        "emptyName": "Ponle un nombre a la indicación.",
+        "emptyPrompt": "No hay ninguna instrucción que guardar.",
+        "nameTooLong": "Los nombres pueden tener como máximo {max} caracteres.",
+        "promptTooLong": "Las indicaciones pueden tener como máximo {max} caracteres.",
+        "full": "Puedes guardar como máximo {max} indicaciones. Elimina una para guardar otra.",
+        "notFound": "Esta indicación guardada ya no existe."
+      }
+    }
   },
   "errors": {
     "disabled": "La IA no está disponible en este espacio de trabajo.",

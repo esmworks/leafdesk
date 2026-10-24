@@ -331,7 +331,7 @@ export default function CollabEditor({
   const ai = aiWanted && !nested;
   const voice = nested ? null : voiceWanted;
   const commentsOpen = commentsWanted && !nested;
-  const assistant = useAiAssist(editor, pageId, ai && editable && !offline);
+  const assistant = useAiAssist(editor, pageId, workspaceId, ai && editable && !offline);
   const voiceNote = useVoiceNote(editor, pageId, voice && editable && !offline ? voice : null);
   // Links to a passage (the AI chat's citations) scroll to its block: the page's own blocks.
   useBlockFocus(!nested);

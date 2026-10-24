@@ -34,7 +34,27 @@
     "stopped": "Arrêté. Vous pouvez tout de même conserver ce qui a déjà été écrit.",
     "applyFailed": "La suggestion n’a pas pu être ajoutée à la page.",
     "asSuggestions": "Ajouter comme modifications suggérées",
-    "selectionChanged": "Le texte sélectionné a changé entre-temps, la suggestion a donc été ajoutée en dessous."
+    "selectionChanged": "Le texte sélectionné a changé entre-temps, la suggestion a donc été ajoutée en dessous.",
+    "saved": {
+      "title": "Prompts enregistrés",
+      "empty": "Enregistrez une instruction que vous utilisez souvent avec le signet à côté d’Envoyer. Les instructions pour toute l’équipe sont des <skills>compétences</skills>.",
+      "saveInstruction": "Enregistrer le prompt",
+      "name": "Nom",
+      "namePlaceholder": "Nommez ce prompt",
+      "save": "Enregistrer",
+      "cancel": "Annuler",
+      "rename": "Nouveau nom",
+      "renameNamed": "Renommer {name}",
+      "deleteNamed": "Supprimer {name}",
+      "errors": {
+        "emptyName": "Donnez un nom au prompt.",
+        "emptyPrompt": "Il n’y a aucune instruction à enregistrer.",
+        "nameTooLong": "Les noms comptent au plus {max} caractères.",
+        "promptTooLong": "Les prompts comptent au plus {max} caractères.",
+        "full": "Vous pouvez garder au plus {max} prompts. Supprimez-en un pour en enregistrer un autre.",
+        "notFound": "Ce prompt enregistré n’existe plus."
+      }
+    }
   },
   "errors": {
     "disabled": "L’IA n’est pas disponible dans cet espace de travail.",
