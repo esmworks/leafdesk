@@ -1,0 +1,38 @@
+{
+  "menuItem": "Créer avec l’IA",
+  "title": "Créer avec l’IA",
+  "hint": "Décrivez ce que vous voulez suivre. L’IA prépare les bases de données, et vous les vérifiez avant que quoi que ce soit ne soit créé.",
+  "reviewTitle": "Vérifier le plan",
+  "reviewHint": "Renommez ou retirez ce dont vous n’avez pas besoin, puis créez-le.",
+  "back": "Revenir à la description",
+  "label": "De quoi avez-vous besoin ?",
+  "placeholder": "Un processus de recrutement : des candidats qui passent par les étapes d’entretien, les entretiens avec chacun d’eux et qui fait passer quel entretien.",
+  "draft": "Préparer les bases de données",
+  "drafting": "Préparation…",
+  "create": "Créer",
+  "creating": "Création…",
+  "intro": "Ajouter une page à leur sujet, « {title} », avec les bases de données à l’intérieur",
+  "exampleRows": "{count, plural, one {Ajouter la ligne d’exemple} other {Ajouter les # lignes d’exemple}}",
+  "databaseTitle": "Nom de la base de données",
+  "removeDatabase": "Retirer {name}",
+  "properties": "Propriétés",
+  "views": "Vues",
+  "noProperties": "Seulement le nom de chaque ligne.",
+  "removeView": "Retirer la vue {name}",
+  "rename": "Renommer {name}",
+  "linksTo": "Liée à {database}",
+  "linksBoth": "Liée à {database}, dans les deux sens",
+  "removeProperty": "Retirer {name}",
+  "slash": {
+    "title": "Créer des bases de données avec l’IA",
+    "subtext": "Décrivez ce dont vous avez besoin et l’IA prépare des bases de données dans cette page",
+    "aliases": "ia ai créer base données bases générer plan"
+  },
+  "errors": {
+    "unusable": "L’IA n’a pas pu préparer de bases de données pour cela. Essayez de le décrire autrement.",
+    "invalid": "Le plan ne peut pas être créé tel quel. Revenez en arrière et préparez-le à nouveau.",
+    "parent": "Des bases de données ne peuvent pas se trouver dans une base de données.",
+    "noAccess": "Vous ne pouvez pas ajouter de pages ici.",
+    "failed": "Un élément du plan ne convenait pas, donc rien n’a été créé. Retirez les lignes d’exemple et réessayez."
+  }
+}

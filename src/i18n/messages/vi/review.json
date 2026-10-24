@@ -1,0 +1,104 @@
+{
+  "metaTitle": "Chờ xem xét",
+  "heading": "Chờ xem xét",
+  "description": "Các thay đổi mà tác tử đề xuất thay vì thực hiện, và các tự động hóa đang chờ ai đó phê duyệt. Hãy phê duyệt một thay đổi để thực hiện nó với tư cách bạn, chỉnh sửa nó trước, hoặc bỏ qua; phê duyệt một tự động hóa để lần chạy của nó tiếp tục, hoặc từ chối để dừng lần chạy. Các đề xuất không ai trả lời sẽ hết hạn sau 30 ngày. Các email theo dõi được đặt là “hỏi tôi trước” cũng chờ ở đây.",
+  "filters": {
+    "agent": "Tác tử",
+    "database": "Cơ sở dữ liệu",
+    "status": "Hiển thị",
+    "allAgents": "Tất cả tác tử",
+    "allDatabases": "Tất cả cơ sở dữ liệu",
+    "open": "Đang chờ",
+    "decided": "Đã trả lời",
+    "allRows": "Hiện tất cả các hàng",
+    "clear": "Xóa bộ lọc"
+  },
+  "count": "{count, plural, other {# thay đổi}}",
+  "select": "Chọn thay đổi này",
+  "selectAll": "Chọn tất cả",
+  "selected": "Đã chọn {count}",
+  "approveSelected": "Phê duyệt {count}",
+  "dismissSelected": "Bỏ qua {count}",
+  "bulkSkipped": "{count, plural, other {# thay đổi không thể được trả lời: chúng đã được trả lời rồi, hàng của chúng đã thay đổi kể từ đó, hoặc bạn không thể trả lời chúng.}}",
+  "empty": {
+    "open": "Không có gì đang chờ bạn xem xét.",
+    "decided": "Không có thay đổi nào được trả lời trong 30 ngày qua.",
+    "filtered": "Không có thay đổi nào khớp với các bộ lọc này."
+  },
+  "proposes": {
+    "createRow": "<agent></agent> muốn thêm một hàng vào <database></database>",
+    "updateRow": "<agent></agent> muốn thay đổi <row></row>",
+    "emailDraft": "<agent></agent> đã soạn một email trên <row></row>",
+    "automationApproval": "<automation></automation> yêu cầu phê duyệt trên <row></row>",
+    "automationApprovalNoRow": "<automation></automation> yêu cầu phê duyệt",
+    "sequenceDraft": "Email {step} trên {steps} của chuỗi theo dõi <sequence></sequence> trên <row></row>"
+  },
+  "inDatabase": "trong <database></database>",
+  "unknownAgent": "Một tác tử đã bị xóa",
+  "someone": "Ai đó",
+  "viewRun": "Xem lần chạy",
+  "edited": "Đã chỉnh sửa",
+  "expires": "Hết hạn {time}",
+  "decided": {
+    "approved": "{name} đã phê duyệt {time}",
+    "dismissed": "{name} đã bỏ qua {time}",
+    "expired": "Hết hạn mà không có trả lời",
+    "rejected": "{name} đã từ chối {time}",
+    "timedOut": "Không ai trả lời kịp thời"
+  },
+  "title": "Tiêu đề",
+  "becomes": "thành",
+  "changedSince": "Đã thay đổi kể từ khi được đề xuất, hiện là <value></value>",
+  "conflictNotice": "Hàng này đã thay đổi kể từ khi tác tử đề xuất. Phê duyệt sẽ ghi đè những gì nó đang có.",
+  "failedNote": "Thay đổi đã được phê duyệt nhưng không thể thực hiện: {error} Hãy chỉnh sửa và phê duyệt lại, hoặc bỏ qua.",
+  "failed": {
+    "error": "đã xảy ra lỗi.",
+    "pageLocked": "hàng đang bị khóa."
+  },
+  "email": {
+    "from": "Từ",
+    "to": "Đến",
+    "cc": "Cc",
+    "subject": "Chủ đề",
+    "text": "Nội dung",
+    "reply": "Một trả lời cho email mới nhất của hàng"
+  },
+  "markdown": "Nội dung trang",
+  "notEditable": "Giữ lại hoặc bỏ ra; sau đó hãy thay đổi trên hàng.",
+  "leaveOut": "Bỏ ra",
+  "keep": "Giữ lại",
+  "approve": "Phê duyệt",
+  "approveAnyway": "Vẫn phê duyệt",
+  "send": "Gửi",
+  "edit": "Chỉnh sửa",
+  "save": "Lưu chỉnh sửa",
+  "dismiss": "Bỏ qua",
+  "cannot": {
+    "email": "Chỉ {name} mới có thể gửi bản nháp này, từ hộp thư của chính họ.",
+    "row": "Bạn có thể xem thay đổi này, nhưng để phê duyệt cần có quyền chỉnh sửa hàng và từng giá trị nó đặt.",
+    "approval": "Chỉ những người mà tự động hóa yêu cầu mới có thể phê duyệt hoặc từ chối việc này."
+  },
+  "errors": {
+    "notFound": "Thay đổi này không còn, hoặc bạn không thể xem nó.",
+    "decided": "Đã có người trả lời thay đổi này.",
+    "conflict": "Hàng đã thay đổi kể từ khi điều này được đề xuất. Hãy xem lại, rồi vẫn phê duyệt hoặc bỏ qua.",
+    "invalid": "Chỉnh sửa này không hợp lệ: {message}",
+    "accessDenied": "Bạn không thể trả lời thay đổi này."
+  },
+  "banner": {
+    "title": "Các thay đổi đang chờ xem xét",
+    "bar": "{count, plural, other {# thay đổi đang chờ xem xét}}",
+    "by": "do {names} đề xuất",
+    "open": "Xem xét"
+  },
+  "unknownAutomation": "Một tự động hóa đã bị xóa",
+  "reject": "Từ chối",
+  "approval": {
+    "next": "Nếu được phê duyệt, thì:",
+    "nothingNext": "Nếu được phê duyệt, lần chạy kết thúc: không có bước nào sau bước này.",
+    "forEach": "với mỗi hàng từ {step}",
+    "approvers": "Hỏi {names}",
+    "timeoutStop": "Nếu không ai trả lời kịp thời, lần chạy sẽ dừng.",
+    "timeoutContinue": "Nếu không ai trả lời kịp thời, lần chạy sẽ tiếp tục."
+  }
+}

@@ -1,15 +1,27 @@
 import { createHmac, randomBytes, timingSafeEqual } from "node:crypto";
 import { and, desc, eq, inArray, isNull, sql } from "drizzle-orm";
 import { db } from "@/db";
-import { databaseView, file, formPublication, page, user, type FormConfig, type NumberFormat, type SelectOption } from "@/db/schema";
+import {
+  databaseView,
+  file,
+  formPublication,
+  formSubmission,
+  page,
+  user,
+  type FormConfig,
+  type NumberFormat,
+  type SelectOption,
+} from "@/db/schema";
 import { asFiles, fileIdOf, fileUrl, type FileValue } from "@/lib/files";
 import { env } from "@/lib/env";
 import {
   checkAnswers,
   formDefaults,
   formQuestions,
+  hiddenQuestions,
   questionHelp,
   isBlankAnswer,
+  MAX_OWN_SUBMISSIONS,
   MAX_SUBMISSION_BYTES,
   type AnswerError,
   type ResolvedQuestion,
@@ -45,6 +57,10 @@ import { refuseInLocalMode } from "@/server/local-mode";
  *
  * Public answers are rate limited per IP address and per form, must arrive a moment after the
  * form was loaded (a signed ticket), and carry a honeypot field that people never see.
+ *
+ * Answers are checked here whatever the form page did (lib/forms checkAnswers): questions whose
+ * condition the answers don't meet are worked out again from the answers, aren't required and
+ * have their answers dropped, and list answers must keep to their question's choice limits.
  *
  * Property access: a form writes with someone's standing, and asks (and sets defaults for) only
  * the properties that person may set in a new row (see answerable). In the app that is the person
@@ -306,7 +322,97 @@ export async function submitForm(userId: string, viewId: string, answers: Record
   const defaults = await liveDefaults(database, properties, view.config.form);
   const [row] = await insertRows(database, userId, [{ title: checked.title, properties: { ...defaults, ...values, ...claimed } }]);
   await adoptFormFiles(database.id, row.id, claimed);
+  await recordSubmission(row.id, view.id, userId);
   return { id: row.id };
+}
+
+// ---------------------------------------------------------------------------------------------
+// Their own answers
+//
+// Every row someone signed in adds through a form is recorded with the form and the person
+// (form_submission). When the form shows people their answers (`showOwnAnswers`), that record is
+// all that lets them read the row back: they may have no access to the database at all. They get
+// the values of the form's questions only (as the form asks them now, so a question taken out of
+// the form stops showing), never other properties or other rows, and only while the row is still
+// in the form's database and not in the trash. They can't change them.
+
+async function recordSubmission(rowId: string, viewId: string, userId: string | null) {
+  if (userId) await db.insert(formSubmission).values({ rowId, viewId, userId }).onConflictDoNothing();
+}
+
+/** One of someone's own answers to a form: the values of its questions, by question id. */
+export type OwnSubmission = { createdAt: Date; values: Record<string, unknown> };
+
+/**
+ * The rows `userId` added through the form, newest first, as the answers to `questions`. On a
+ * public form (`public`), files show by name only and checklist items without their ids.
+ */
+async function ownSubmissions(
+  viewId: string,
+  databaseId: string,
+  userId: string,
+  questions: ResolvedQuestion[],
+  { public: isPublic }: { public: boolean },
+): Promise<OwnSubmission[]> {
+  const rows = await db
+    .select({ title: page.title, properties: page.properties, createdAt: formSubmission.createdAt })
+    .from(formSubmission)
+    .innerJoin(page, eq(page.id, formSubmission.rowId))
+    .where(
+      and(
+        eq(formSubmission.viewId, viewId),
+        eq(formSubmission.userId, userId),
+        eq(page.parentId, databaseId),
+        eq(page.isTemplate, false),
+        isNull(page.archivedAt),
+      ),
+    )
+    .orderBy(desc(formSubmission.createdAt), desc(formSubmission.rowId))
+    .limit(MAX_OWN_SUBMISSIONS);
+  return rows.map((row) => {
+    const values: Record<string, unknown> = {};
+    for (const q of questions) {
+      const value = q.prop ? row.properties[q.prop.id] : row.title;
+      if (isBlankAnswer(value)) continue;
+      values[q.propertyId] = isPublic ? publicAnswer(q.prop?.type, value) : value;
+    }
+    // A question the other answers leave out shows nothing, even when someone filled it in later.
+    for (const id of hiddenQuestions(questions, values)) delete values[id];
+    return { createdAt: row.createdAt, values };
+  });
+}
+
+/** A value as a public form shows it back: no file addresses, no checklist item ids. */
+function publicAnswer(type: string | undefined, value: unknown): unknown {
+  if (type === "files") return asFiles(value).map((f) => ({ name: f.name }));
+  if (type === "checklist" && Array.isArray(value)) {
+    return value.map((item: { text?: unknown; checked?: unknown }) => ({ text: String(item?.text ?? ""), checked: item?.checked === true }));
+  }
+  return value;
+}
+
+/**
+ * What the user sent through a form in the app, when the form shows people their answers (null
+ * when it doesn't): the answers to the questions it asks them now.
+ */
+export async function listOwnSubmissions(userId: string, viewId: string): Promise<OwnSubmission[] | null> {
+  const { view, database } = await requireForm(userId, viewId, "view");
+  if (view.config.form?.showOwnAnswers !== true) return null;
+  const properties = await answerable(userId, database.id, await getProperties(database.id), userId);
+  return ownSubmissions(view.id, database.id, userId, formQuestions(view.config.form, properties), { public: false });
+}
+
+/**
+ * What the signed-in user sent through a public form, when it shows people their answers and
+ * isn't anonymous (null otherwise, and for nobody signed in): the answers to its public questions.
+ */
+export async function listOwnPublicSubmissions(token: string, userId: string | null): Promise<OwnSubmission[] | null> {
+  if (!userId) return null;
+  const form = await openPublicForm(token);
+  if (!form || form.anonymous || form.config.form?.showOwnAnswers !== true) return null;
+  const properties = await answerable(form.publishedBy!, form.databaseId, await getProperties(form.databaseId), null);
+  const questions = formQuestions(form.config.form, properties, { public: true });
+  return ownSubmissions(form.viewId, form.databaseId, userId, questions, { public: true });
 }
 
 // ---------------------------------------------------------------------------------------------
@@ -486,6 +592,8 @@ export type PublicForm = {
   anonymous: boolean;
   confirmation: string;
   allowAnother: boolean;
+  /** Whether people signed in see what they sent (never on an anonymous form). */
+  showOwnAnswers: boolean;
 };
 
 /**
@@ -571,6 +679,7 @@ export async function getPublicForm(token: string): Promise<PublicForm | null> {
     anonymous: found.anonymous,
     confirmation: form?.confirmation?.trim() ?? "",
     allowAnother: form?.allowAnother !== false,
+    showOwnAnswers: !found.anonymous && form?.showOwnAnswers === true,
   };
 }
 
@@ -662,5 +771,6 @@ export async function submitPublicForm(
   // stands behind the answer: it never hands over what they couldn't.
   const [row] = await insertRows(database, creator, [{ title: checked.title, properties: { ...defaults, ...rest, ...claimed } }], { boundTo: form.publishedBy });
   await adoptFormFiles(database.id, row.id, claimed);
+  await recordSubmission(row.id, form.viewId, creator);
   return { id: row.id };
 }

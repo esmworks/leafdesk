@@ -1,4 +1,4 @@
-import type { PropertyOptions, PropertyType, SelectOption, ViewConfig } from "@/db/schema/app";
+import type { FormQuestion, PropertyOptions, PropertyType, SelectOption, ViewConfig } from "@/db/schema/app";
 import { aggregateFunctions } from "./aggregate";
 import { dateValueText, parseDateValue } from "./date-value";
 import { isErrorValue, valueType } from "./derived";
@@ -6,6 +6,7 @@ import { asFiles } from "./files";
 import { colorRuleMentions } from "./color-rules";
 import { asPlace, placeText, readPlaceInput } from "./place";
 import { mapFilterRules } from "./filters";
+import { takesChoiceLimits } from "./forms";
 import { detectDateFormat, parseChecklist, parseCheckbox, parseDate, parseNumber, splitList, type DateFormat } from "./import/csv";
 import { asChecklist, isEmailAddress, isGroupable, isPhoneNumber, isSortable, SELECT_COLORS, sortStatusOptions } from "./properties";
 import { holdsOptions, holdsPeople, holdsTimestamp, isDerived, isReadOnlyType } from "./property-types";
@@ -363,8 +364,25 @@ export function retypeViewConfig(
         : c.calculations,
     form: c.form && {
       ...c.form,
-      questions: isReadOnlyType(to.type) ? c.form.questions?.filter((q) => q.propertyId !== id) : c.form.questions,
+      questions: (isReadOnlyType(to.type) ? c.form.questions?.filter((q) => q.propertyId !== id) : c.form.questions)?.map((q) =>
+        retypeQuestion(q, id, to.type),
+      ),
       defaults: c.form.defaults && Object.fromEntries(Object.entries(c.form.defaults).filter(([k]) => k !== id)),
     },
+  };
+}
+
+/**
+ * A form question once property `id` has its new type: a condition about it (which looked at
+ * old-type answers) goes, and so do the question's choice limits when it no longer takes a list.
+ */
+function retypeQuestion(question: FormQuestion, id: string, type: PropertyType): FormQuestion {
+  const { showIf, minChoices, maxChoices, ...rest } = question;
+  const limits = question.propertyId !== id || takesChoiceLimits(type);
+  return {
+    ...rest,
+    ...(showIf && showIf.propertyId !== id ? { showIf } : {}),
+    ...(limits && minChoices !== undefined ? { minChoices } : {}),
+    ...(limits && maxChoices !== undefined ? { maxChoices } : {}),
   };
 }

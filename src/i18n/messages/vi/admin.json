@@ -1,0 +1,97 @@
+{
+  "metaTitle": "Quản trị máy chủ",
+  "title": "Quản trị máy chủ",
+  "description": "Các tài khoản trên máy chủ này, phiên đăng nhập và mật khẩu của họ. Bạn thấy trang này vì địa chỉ email đã xác minh của bạn nằm trong ADMIN_EMAILS.",
+  "back": "Quay lại {workspace}",
+  "backHome": "Quay lại",
+  "workspaces": {
+    "heading": "Tạo không gian làm việc",
+    "everyone": "Mọi người đều có thể tạo không gian làm việc",
+    "admins": "Chỉ quản trị viên mới có thể tạo không gian làm việc",
+    "description": "Đặt bằng WORKSPACE_CREATION trên máy chủ (everyone hoặc admins). Mọi người vẫn có một không gian làm việc cá nhân khi đăng ký."
+  },
+  "sessions": {
+    "heading": "Mọi người",
+    "description": "{count, plural, other {# phiên đăng nhập}} trên máy chủ này.",
+    "signOutEveryone": "Đăng xuất tất cả mọi người",
+    "signOutEveryoneDescription": "Kết thúc mọi phiên trên mọi thiết bị, trừ phiên của bạn trong trình duyệt này, và các trang đang mở ở đó ngừng đồng bộ. Các ứng dụng đã kết nối và token API vẫn hoạt động.",
+    "signOutEveryoneTitle": "Đăng xuất tất cả mọi người?",
+    "signOutEveryoneBody": "Mọi người trên máy chủ này phải đăng nhập lại, kể cả bạn trên các thiết bị khác.",
+    "signOutEveryoneConfirm": "Đăng xuất tất cả mọi người",
+    "resetEveryone": "Yêu cầu đặt mật khẩu mới",
+    "resetEveryoneDescription": "Mọi người đăng nhập bằng mật khẩu, trừ bạn, sẽ bị đăng xuất và phải chọn mật khẩu mới ở lần đăng nhập tiếp theo. Các tài khoản chỉ đăng nhập bằng đăng nhập một lần (SSO), GitHub hoặc Google không bị ảnh hưởng.",
+    "resetByEmail": "Khi đăng nhập, họ sẽ nhận được liên kết qua email để chọn mật khẩu.",
+    "resetInApp": "Máy chủ này chưa thiết lập email, nên họ sẽ chọn mật khẩu ngay sau khi đăng nhập bằng mật khẩu cũ (và mã xác minh hai bước, nếu có dùng).",
+    "resetEveryoneTitle": "Yêu cầu mọi người đặt mật khẩu mới?",
+    "resetEveryoneBody": "Mọi người có mật khẩu, trừ bạn, sẽ bị đăng xuất ngay bây giờ và không thể đăng nhập lại bằng mật khẩu hiện tại.",
+    "resetEveryoneConfirm": "Yêu cầu đặt mật khẩu mới"
+  },
+  "users": {
+    "heading": "Tài khoản",
+    "count": "{count, plural, other {# tài khoản}}",
+    "countPartial": "Đang hiển thị {shown} trong {total} tài khoản. Hãy tìm kiếm để thấy những tài khoản còn lại.",
+    "search": "Tìm theo tên hoặc email",
+    "noMatches": "Không có tài khoản nào khớp với tìm kiếm này.",
+    "none": "Chưa có tài khoản nào.",
+    "columns": {
+      "user": "Tài khoản",
+      "workspaces": "Không gian làm việc",
+      "lastActive": "Hoạt động gần nhất",
+      "twoFactor": "Hai bước",
+      "password": "Mật khẩu",
+      "actions": "Thao tác"
+    },
+    "you": "(bạn)",
+    "admin": "Quản trị viên",
+    "unverified": "Chưa xác minh",
+    "signedOut": "Chưa đăng nhập",
+    "on": "Bật",
+    "off": "Tắt",
+    "hasPassword": "Đã đặt",
+    "noPassword": "Không có",
+    "resetPending": "Cần mật khẩu mới",
+    "actionsFor": "Thao tác cho {name}",
+    "signOut": "Đăng xuất ở mọi nơi",
+    "signOutTitle": "Đăng xuất {name} ở mọi nơi?",
+    "signOutBody": "{count, plural, other {# phiên của họ sẽ kết thúc}}, và các trang họ đang mở ngừng đồng bộ. Các ứng dụng đã kết nối và token API vẫn hoạt động.",
+    "signOutSelfBody": "{count, plural, other {# phiên của bạn sẽ kết thúc}}, trừ phiên trong trình duyệt này.",
+    "signOutConfirm": "Đăng xuất",
+    "requireReset": "Yêu cầu đặt mật khẩu mới",
+    "resetTitle": "Yêu cầu {name} đặt mật khẩu mới?",
+    "resetBody": "Họ bị đăng xuất ngay bây giờ và phải chọn mật khẩu mới ở lần đăng nhập tiếp theo bằng mật khẩu.",
+    "resetByEmail": "Khi đăng nhập, họ sẽ nhận được liên kết qua email để chọn mật khẩu.",
+    "resetInApp": "Máy chủ này chưa thiết lập email, nên họ sẽ chọn mật khẩu ngay sau khi đăng nhập bằng mật khẩu cũ (và mã xác minh hai bước, nếu có dùng).",
+    "resetConfirm": "Yêu cầu đặt mật khẩu mới"
+  },
+  "errors": {
+    "notFound": "Không tìm thấy tài khoản đó.",
+    "noPassword": "Tài khoản này không có mật khẩu; nó đăng nhập bằng cách khác.",
+    "self": "Hãy đổi mật khẩu của chính bạn trên trang tài khoản.",
+    "noWorkspace": "Không tìm thấy không gian làm việc đó."
+  },
+  "descriptionFirstAccount": "Các tài khoản trên máy chủ này, phiên đăng nhập và mật khẩu của họ. Bạn thấy trang này vì tài khoản của bạn là tài khoản đầu tiên trên máy chủ này.",
+  "signUp": {
+    "heading": "Đăng ký",
+    "open": "Ai cũng có thể đăng ký",
+    "openDescription": "Bất kỳ ai mở được địa chỉ của máy chủ này đều có thể tạo tài khoản. Để đóng đăng ký, hãy đặt DISABLE_SIGNUP=true trên máy chủ (với Docker, trong tệp .env cạnh docker-compose.yml, rồi chạy docker compose up -d). Các tài khoản hiện có vẫn đăng nhập được, và những người bạn mời vẫn tham gia được.",
+    "closed": "Đăng ký đã đóng",
+    "closedDescription": "Đặt bằng DISABLE_SIGNUP trên máy chủ. Các tài khoản hiện có vẫn đăng nhập được, và những người bạn mời vẫn tham gia được qua liên kết mời."
+  },
+  "firstAdmin": {
+    "title": "Bạn quản trị máy chủ này",
+    "body": "Đây là tài khoản đầu tiên ở đây, nên Quản trị máy chủ thuộc về bạn. Bất kỳ ai truy cập được địa chỉ này vẫn có thể đăng ký; trang Quản trị máy chủ chỉ cách đóng đăng ký.",
+    "open": "Quản trị máy chủ",
+    "dismiss": "Bỏ qua"
+  },
+  "networks": {
+    "heading": "Mạng được phê duyệt",
+    "description": "Các không gian làm việc chỉ mở được từ các mạng được phê duyệt. Nếu một danh sách khóa các chủ sở hữu khỏi không gian làm việc của họ, hãy xóa danh sách ở đây: không gian làm việc sẽ mở được từ mọi mạng cho đến khi chủ sở hữu đặt lại danh sách.",
+    "none": "Không có không gian làm việc nào giới hạn đăng nhập theo mạng được phê duyệt",
+    "noneDescription": "Chủ sở hữu đặt các mạng được phê duyệt trong Cài đặt → Bảo mật của không gian làm việc.",
+    "count": "{count, plural, other {# mạng}}",
+    "clear": "Xóa danh sách",
+    "clearTitle": "Xóa các mạng được phê duyệt của {workspace}?",
+    "clearBody": "Mọi người trong không gian làm việc lại mở được nó từ mọi mạng, và nhật ký kiểm tra của nó ghi lại việc bạn đã xóa danh sách. Chủ sở hữu có thể đặt lại trong Cài đặt → Bảo mật.",
+    "clearConfirm": "Xóa danh sách"
+  }
+}

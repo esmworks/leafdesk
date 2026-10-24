@@ -1,12 +1,14 @@
 {
   "open": "가져오기",
   "title": "가져오기",
-  "description": "Markdown 파일, ZIP 내보내기, Word 문서에서 페이지를, CSV 파일이나 Excel 통합 문서에서 행을, 또는 Trello 보드를 가져옵니다.",
+  "description": "Markdown 파일, ZIP 내보내기, Word 문서에서 페이지를, CSV 파일이나 Excel 통합 문서에서 행을, 또는 Trello, Asana, Monday.com 보드를 가져옵니다.",
   "tabs": {
     "pages": "Markdown 및 ZIP",
     "docx": "Word",
     "csv": "CSV 및 Excel",
-    "trello": "Trello"
+    "trello": "Trello",
+    "asana": "Asana",
+    "monday": "Monday.com"
   },
   "destination": "넣을 위치",
   "topLevel": "워크스페이스 최상위",
@@ -67,6 +69,35 @@
       "comments": "댓글"
     }
   },
+  "asana": {
+    "help": "Asana에서 프로젝트 메뉴를 열고 내보내기 → CSV(또는 JSON)를 선택한 다음 다운로드한 파일을 고르세요. 프로젝트는 섹션별 보드 보기가 있는 데이터베이스가 되며, 완료 여부, 담당자, 날짜, 태그, 사용자 지정 필드, 메모, 하위 작업, 종속 관계도 함께 가져옵니다.",
+    "choose": "Asana 내보내기 선택(.csv 또는 .json)",
+    "summary": "{name}: 섹션 {groups}개, 작업 {items}개, 하위 작업 {subitems}개"
+  },
+  "monday": {
+    "help": "Monday.com에서 보드 메뉴를 열고 보드를 Excel로 내보내기(원하면 업데이트 포함)를 선택한 다음 다운로드한 파일을 고르세요. 보드는 그룹별 보드 보기가 있는 데이터베이스가 되며, 열, 하위 아이템, 업데이트도 함께 가져옵니다.",
+    "choose": "Monday.com 내보내기 선택(.xlsx 또는 .csv)",
+    "summary": "{name}: 그룹 {groups}개, 아이템 {items}개, 하위 아이템 {subitems}개"
+  },
+  "board": {
+    "links": "아무것도 다운로드하지 않습니다. 내보내기의 파일과 링크는 링크로 남습니다.",
+    "comments": "댓글 {count}개는 작성자와 시간과 함께 각 행의 페이지에 들어갑니다.",
+    "leftOut": "제외: {list}.",
+    "types": "각 열이 무엇이 될지 확인하세요. 내보내기에는 열의 종류가 없어서 추측했습니다.",
+    "names": {
+      "section": "섹션",
+      "group": "그룹",
+      "status": "상태",
+      "toDo": "할 일",
+      "done": "완료",
+      "assignee": "담당자",
+      "tags": "태그",
+      "dates": "날짜",
+      "others": "{column}(기타)",
+      "attachments": "첨부 파일",
+      "comments": "댓글"
+    }
+  },
   "import": "가져오기",
   "importing": "가져오는 중…",
   "done": {
@@ -86,6 +117,7 @@
   "warnings": {
     "heading": "제외되거나 변경된 항목",
     "invalidValues": "“{column}”의 값 {count}개가 속성에 맞지 않아 비워 두었습니다.",
+    "leftOutColumn": "“{column}”은(는) 가져오지 않았습니다.",
     "missingFile": "“{page}”에서 링크한 “{path}”이(가) 업로드에 없습니다.",
     "unresolvedLink": "“{page}”의 “[[{target}]]”이(가) 업로드한 노트나 파일과 일치하지 않아 텍스트로 남습니다.",
     "fileNotStored": {
@@ -120,6 +152,8 @@
     "badDocx": "“{name}”을(를) Word 문서로 읽을 수 없습니다. .docx 파일만 가져올 수 있으니, 이전 .doc 파일은 먼저 .docx로 저장하세요.",
     "docxTooComplex": "“{name}”은(는) 한 페이지로 가져오기에 너무 크거나 복잡합니다.",
     "badTrello": "이 파일은 Trello 보드 내보내기가 아닙니다. Trello의 보드 메뉴에서 JSON으로 내보내기를 선택한 후 그 파일을 고르세요.",
+    "badAsana": "이 파일은 Asana 프로젝트 내보내기가 아닙니다. Asana에서 프로젝트 메뉴의 내보내기 → CSV 또는 JSON을 선택하고 그 파일을 고르세요.",
+    "badMonday": "이 파일은 Monday.com 보드 내보내기가 아닙니다. Monday.com에서 보드 메뉴의 보드를 Excel로 내보내기를 선택하고 그 파일을 고르세요.",
     "badMapping": "적어도 한 열의 대상을 선택하고, 각 속성은 한 번만 선택하세요.",
     "noAccess": "그곳에 페이지를 추가할 수 없거나 더 이상 존재하지 않습니다.",
     "notADatabase": "행은 데이터베이스에만 추가할 수 있습니다.",

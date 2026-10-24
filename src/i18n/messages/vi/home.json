@@ -1,0 +1,21 @@
+{
+  "hello": "Xin chào, {name}",
+  "recent": "Chỉnh sửa gần đây",
+  "assignedEmpty": "Chưa có gì được giao cho bạn. Các hàng được giao cho bạn trong cơ sở dữ liệu sẽ xuất hiện ở đây.",
+  "empty": "Chưa có gì ở đây. Hãy tạo trang đầu tiên để bắt đầu.",
+  "emptyGuest": "Chưa có gì được chia sẻ với bạn ở đây. Các trang sẽ xuất hiện khi có người chia sẻ chúng với bạn.",
+  "newPage": "Trang mới",
+  "newDatabase": "Cơ sở dữ liệu mới",
+  "personalWorkspace": "Không gian làm việc của {name}",
+  "generalTeamspace": "Chung",
+  "fromTemplate": "Từ một mẫu",
+  "assigned": "Giao cho bạn",
+  "assignedGroups": {
+    "overdue": "Quá hạn",
+    "today": "Hôm nay",
+    "next7": "7 ngày tới",
+    "later": "Sau này",
+    "none": "Không có ngày"
+  },
+  "assignedMore": "Đang hiển thị {shown} trong {total}. Hãy lọc cơ sở dữ liệu theo “Tôi” để xem phần còn lại."
+}
