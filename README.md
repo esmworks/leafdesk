@@ -193,7 +193,8 @@ for Windows, `.AppImage` for Linux) and choose *On this computer*. See [Desktop 
     From 120 rows on, a table renders only the rows near the visible part of the page.
   - Formulas read the row's properties and, through a relation, the properties of the linked rows
     (`sum(map(prop("Tasks"), prop(current, "Hours")))`, with `filter`, `find`, `some`, `every`,
-    `first`, `last` and `at`), one step away and up to 200 linked rows. `style()` shows a result
+    `first`, `last` and `at`), one step away and up to 200 linked rows. `sum`, `average` (also
+    written `mean`) and `median` take numbers or a list of them. `style()` shows a result
     bold, italic, underlined, struck through, as code or in the option colors, in every view, row
     pages and published pages; sorting, filtering, grouping and exports use the plain value.
   - Number properties show as a number, percentage or amount of money, or as a colored bar or

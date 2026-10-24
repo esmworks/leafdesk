@@ -4,6 +4,10 @@
 
 ### Added
 
+- **Formulas take the median and the mean of numbers.** `median(numbers)` gives the middle
+  number (the mean of the two middle ones for an even count) and `mean(numbers)` is another name
+  for `average`; both take numbers or a list of them and leave empty values out. The editor's
+  function list, the reference AI formula writing reads and the MCP description list them.
 - **Keep a database of Jira issues in sync.** Import has a Jira tab: connect a Jira Cloud site
   with an email address and API token, pick a project or write a JQL query, and get a database
   whose rows are the issues (key, summary, status, assignee, priority, type, labels, due date and a
