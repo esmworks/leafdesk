@@ -109,7 +109,9 @@ for Windows, `.AppImage` for Linux) and choose *On this computer*. See [Desktop 
   dragged in and out with the side menu, stacked on phones), also on published pages and in
   Markdown. Code blocks take their language from a menu (plain text and 42 languages) and color
   their code in it, published pages and the print view included; Enter in a code block starts the
-  new line with the indentation of the one before it.
+  new line with the indentation of the one before it. *Format code* in the block's menu formats
+  JavaScript, TypeScript, JSX, TSX, JSON, CSS, SCSS, HTML, Vue, Markdown, YAML and GraphQL with
+  Prettier (loaded only then) as one change of the block; code with a syntax error stays as it was.
 - **Floating outline**: a page with two headings or more shows a short line per heading at its
   edge, the one being read darker. Hovering the lines (or tabbing to them) lists the headings, and a
   click scrolls there, opening collapsed toggles on the way. It stays out of the way on narrow
@@ -145,7 +147,8 @@ for Windows, `.AppImage` for Linux) and choose *On this computer*. See [Desktop 
   (`<!-- leafdesk:button <id> "Label" -->`), so it can't be made or changed there.
 - **Web bookmarks and embeds**: link cards with the page's title, description and image (fetched
   once on the server behind an SSRF guard), and YouTube, Vimeo, Loom, Figma, Google Docs, CodePen,
-  Spotify and Google Maps embeds in sandboxed iframes. A pasted link can also become a link
+  Spotify and Google Maps embeds in sandboxed iframes. A bookmark card can be made narrower by
+  dragging its edge; published pages and print keep the width. A pasted link can also become a link
   mention: the site's icon, the page's title and the site's name inline in the text, fetched the
   same way and stored with it (*Show as mention* in a link's toolbar does the same for a link
   already there). Markdown, MCP and exports write it as `[Title](url)`, and writing a page's
@@ -371,8 +374,12 @@ for Windows, `.AppImage` for Linux) and choose *On this computer*. See [Desktop 
   writes keep the suggestions of blocks they leave as they were. Watchers hear about new
   suggestions like new threads; authors hear when theirs are answered. The writing assistant can
   apply its text as suggestions, marked as the AI's.
-- **Mentions and page links**: `@` mentions people, pages (with their live title, or "No access")
-  and dates with optional reminders; `[[` links to a page, or to a new page inside this one with
+- **Mentions and page links**: `@` mentions people, groups of the workspace (each member who can
+  open the page is notified as if mentioned by name; hovering the mention lists them; Markdown
+  writes it `@Group name`), pages (with their live title, or "No access")
+  and dates with optional reminders. Resting the pointer on a page mention or a link to a page, in
+  the editor or a comment, shows a card with its place, last edit and first lines (a row's first
+  values), only to people who may open it; `[[` links to a page, or to a new page inside this one with
   the title typed, and `[[Title]]` typed, pasted or written through MCP and the API links to the
   page of that title; "Link to page"
   blocks; a "Linked from" list of backlinks on
