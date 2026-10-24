@@ -104,10 +104,12 @@ export function readDocList(json: Record<string, unknown> | null): { docs: Googl
     const id = text(file?.id, 200);
     if (!id || !ID.test(id) || (file.mimeType !== undefined && file.mimeType !== GOOGLE_DOC_MIME)) continue;
     if (docs.some((d) => d.id === id)) continue;
+    // A time the dialog can show (one that isn't would stop it formatting the list).
+    const modified = text(file.modifiedTime, 40);
     docs.push({
       id,
       title: text(file.title ?? file.name, 200)?.trim() ?? "",
-      modifiedTime: text(file.modifiedTime, 40),
+      modifiedTime: modified && !Number.isNaN(Date.parse(modified)) ? modified : null,
       owner: text(file.owner, 200),
     });
   }

@@ -145,7 +145,7 @@ const http = createServer(async (req, res) => {
   res.writeHead(response.status, Object.fromEntries(response.headers));
   res.end(Buffer.from(await response.arrayBuffer()));
 });
-await new Promise<void>((resolve) => http.listen(FAKE_PORT, "127.0.0.1", resolve));
+await new Promise<void>((resolve) => http.listen(FAKE_PORT, "::", resolve));
 
 const ids = { owner: `${RUN}-owner`, member: `${RUN}-member`, guest: `${RUN}-guest`, outsider: `${RUN}-outsider` };
 const userIds = Object.values(ids);

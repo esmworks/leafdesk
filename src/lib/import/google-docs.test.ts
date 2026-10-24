@@ -65,6 +65,7 @@ describe("tool answers", () => {
     });
     expect(list).toEqual({ docs: [{ id: ID, title: "Plan", modifiedTime: "2026-10-02T08:04:12.433Z", owner: "a@b.c" }], next: "next" });
     expect(readDocList({})).toEqual({ docs: [], next: null });
+    expect(readDocList({ files: [{ id: ID, title: "Plan", modifiedTime: "yesterday-ish" }] }).docs[0].modifiedTime).toBeNull();
   });
 
   it("reads an export's content and title", () => {

@@ -87,7 +87,7 @@ async function call(userId: string, row: ConnectionRow, tool: string, args: Reco
       actorId: userId,
       action: "connection.tool_called",
       target: { type: "connection", id: row.id, label: row.name },
-      details: { tool, kind: "read", input: inputSummary(args), approvedBy: null, outcome, via: "import", ...(error ? { error: redactText(error).slice(0, 200) } : {}) },
+      details: { tool, kind: row.tools.find((t) => t.name === tool)?.kind ?? "read", input: inputSummary(args), approvedBy: null, outcome, via: "import", ...(error ? { error: redactText(error).slice(0, 200) } : {}) },
     }).catch((e) => console.error("[google docs import] could not record a call", redactError(e)));
   let answer: ToolAnswer;
   try {
