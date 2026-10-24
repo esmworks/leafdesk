@@ -30,7 +30,7 @@
     "title": "Tittel",
     "titlePlaceholder": "Møtenotater",
     "trigger": "Utløser",
-    "triggerPlaceholder": "mote",
+    "triggerPlaceholder": "agenda",
     "triggerHint": "Skriv ;{trigger} på en side, eller finn den under Tekstbiter i /-menyen.",
     "target": "Lagre i",
     "targetPersonal": "Mine tekstbiter (bare du)",
@@ -98,7 +98,7 @@
   },
   "examples": {
     "meeting": {
-      "trigger": "mote",
+      "trigger": "agenda",
       "title": "Møtenotater",
       "attendees": "Deltakere",
       "agenda": "Agenda",

@@ -78,7 +78,7 @@
       "legalHolds": "rettssak bevar ediscovery behold rettslig bevaring",
       "storage": "filer s3 disk bøtte bucket lagring",
       "analyticsPeople": "aktivitet endringer statistikk",
-      "pageViews": "visninger seere besøk mest sett sporing personvern",
+      "pageViews": "visninger lesere seere besøk mest sett sporing personvern",
       "ownPageViews": "visninger sporing personvern reservasjon analyse",
       "aiUsageLimit": "budsjett kostnad forbruk tak grense",
       "aiUsagePeople": "per person medlem kostnad token",
@@ -939,7 +939,7 @@
     "edits": "Endringer",
     "pagesEdited": "Redigerte sider",
     "views": "Visninger",
-    "viewers": "Seere",
+    "viewers": "Lesere",
     "pagesViewed": "Viste sider",
     "howCounted": "En endring er en lagret versjon av en side (høyst én hvert 10. minutt mens noen skriver, og én før hver endring fra en app, KI eller gjenoppretting) eller en endring som sidehistorikken ikke tar vare på, for eksempel verdiene i en rad.",
     "howViewsCounted": "En visning er at en eier eller et medlem åpner en side, database eller rad i appen; å åpne den igjen innen 5 minutter teller ikke. Gjester, agenter, tilkoblede apper, publiserte sider og personer som har slått av sine egne visninger, registreres ikke. Visninger lagres i ett år.",
@@ -968,7 +968,7 @@
       "page": "Side",
       "editors": "Redigerere",
       "views": "Visninger",
-      "viewers": "Seere",
+      "viewers": "Lesere",
       "lastView": "Siste visning"
     },
     "recording": {
@@ -1852,7 +1852,7 @@
       },
       "review": {
         "approved": "{kind, select, email_draft {Sendte e-posten som agenten «{agent}» skrev utkast til på {target}} create_row {Godkjente raden som agenten «{agent}» foreslo i {target}} other {Godkjente endringen som agenten «{agent}» foreslo for {target}}}{outcome, select, failed { (det mislyktes)} other {}}",
-        "dismissed": "{kind, select, email_draft {Forkastet e-posten som agenten «{agent}» skrev utkast til på {target}} create_row {Forkastet raden som agenten «{agent}» foreslo i {target}} other {Forkastet endringen som agenten «{agent}» foreslo for {target}}}"
+        "dismissed": "{kind, select, email_draft {Avviste e-posten som agenten «{agent}» skrev utkast til på {target}} create_row {Avviste raden som agenten «{agent}» foreslo i {target}} other {Avviste endringen som agenten «{agent}» foreslo for {target}}}"
       },
       "audit_stream": {
         "created": "Begynte å strømme revisjonsloggen til {target}",
