@@ -19,6 +19,23 @@
   domain, their titles no longer end in "Leafdesk", and the favicon is the home page's emoji, drawn
   as SVG. Migration 0128 adds the columns.
 
+- **Board and gallery cards can show long values whole.** Their Layout menu has *Wrap all
+  properties*: text, tags, relations, people and links on the cards take more lines instead of
+  being cut off. MCP's `create_database_view` and `update_database_view` take `wrap_properties`.
+- **Sort a select's options by name.** The options editor of select, multi-select and status
+  properties has *Sort A → Z* and *Sort Z → A*, which put the options in that order once, compared
+  as the viewer's language reads them (accents and case aside, "Phase 2" before "Phase 10"); a
+  status's options are sorted within each group. Options can also be dragged by their grip to a new
+  place.
+- **Values edit in place in list views.** Clicking a value on a line opens the same editor as a
+  table cell; Tab and Shift+Tab move between the line's title and values (also out of a text
+  editor, saving it), and Shift+Enter on a line adds a row right below it, with the view's filter
+  values and, while sub-items nest, the same parent.
+- **Date ranges from the date picker's month.** The date editor shows the month to pick a day
+  from; Shift-clicking a second day makes the date a range from one to the other.
+- **Give selected rows an icon.** The bar for selected rows has *Set icon* and, while any of them
+  has one, *Remove icon*, for all of them at once; rows the viewer may not edit, and locked rows,
+  are left as they are and counted as skipped.
 - **People who can only view a database filter and sort it for themselves.** The view's Filter
   and Sort menus now show for them too, locked databases included: the rules apply only in their
   own window, replace the view's while set, are marked *Only for you* beside them, and are never

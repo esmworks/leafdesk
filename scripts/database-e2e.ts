@@ -1,8 +1,9 @@
 /**
  * End-to-end check of database edits against the database: deleting options clears them from rows,
  * stale relation links don't block edits, properties added later start hidden on calendars, a
- * trashed database still lists the rows trashed with it, rows dragged beside another land there
- * even when they share a position, and the page header knows guests and counts words.
+ * trashed database still lists the rows trashed with it, options sorted by name keep that order,
+ * rows dragged beside another land there even when they share a position, and the page header
+ * knows guests and counts words.
  * Creates its own users and workspace and deletes them afterwards.
  *
  *   pnpm tsx scripts/database-e2e.ts
@@ -35,6 +36,7 @@ const {
 );
 const { archivePage, createPage, deletePagePermanently } = await import("@/server/pages");
 const { getPageHeaderInfo } = await import("@/server/page-meta");
+const { sortOptionsByName } = await import("@/lib/properties");
 
 const RUN = `database-e2e-${Date.now().toString(36)}`;
 
@@ -103,6 +105,24 @@ try {
     [v1, v2],
   );
   check(a.id !== b.id && x.id !== y.id, "options had distinct ids");
+
+  // Options sorted by name keep that order, and rows keep their values
+  const plan = await createPage(actor, { workspaceId, kind: "database", title: "Plan" });
+  const phases = await addProperty(ids.owner, plan.id, { name: "Phase", type: "select", options: ["Phase 10", "beta", "Phase 2", "Alpha"] });
+  const phased = await createPage(actor, { workspaceId, parentId: plan.id, title: "phased", properties: { [phases.id]: "Phase 2" } });
+  const sorted = sortOptionsByName(phases.options.options!, "asc", "en");
+  await updateProperty(ids.owner, phases.id, { options: sorted });
+  const storedPhases = (await getProperty(phases.id)).options.options!;
+  check(storedPhases.map((o) => o.name).join() === "Alpha,beta,Phase 2,Phase 10", "options sorted A to Z are stored in that order", storedPhases);
+  check((await values(phased.id))[phases.id] === sorted[2].id, "…and rows keep the option they had");
+  const flow = (await getDatabaseSnapshot(ids.owner, plan.id)).properties.find((p) => p.name === "Status")!;
+  await updateProperty(ids.owner, flow.id, { options: sortOptionsByName(flow.options.options!, "desc", "en", true) });
+  const storedFlow = (await getProperty(flow.id)).options.options!;
+  check(
+    storedFlow.map((o) => `${o.name}:${o.group}`).join() === "Not started:todo,In progress:in_progress,Done:done",
+    "status options sorted Z to A stay in their groups",
+    storedFlow,
+  );
 
   // Stale relation links don't block edits
   const link = await addProperty(ids.owner, tasks.id, { name: "Link", type: "relation", relation: { databaseId: other.id } });

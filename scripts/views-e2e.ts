@@ -3,8 +3,8 @@
  * views start with, config validation, gallery covers in the database snapshot (read from row
  * bodies, only while a gallery shows them, and only for rows the viewer can see), timeline edits
  * writing start and end together, creating and updating these views over MCP, calendars without
- * weekends and views without page icons (published ones too), and duplicating a database without
- * its rows (in the app and over MCP).
+ * weekends and views without page icons (published ones too), cards wrapping long values, and
+ * duplicating a database without its rows (in the app and over MCP).
  * Creates its own users and workspace and deletes them afterwards.
  *
  *   pnpm tsx scripts/views-e2e.ts
@@ -159,6 +159,7 @@ try {
     ["open rows", { openRows: "tab" }],
     ["show weekends", { showWeekends: 1 }],
     ["show icons", { showIcons: "no" }],
+    ["wrap properties", { wrapProperties: "all" }],
   ];
   for (const [label, config] of bad) {
     check(
@@ -361,6 +362,16 @@ try {
     "MCP shows weekends and icons again, back to the defaults",
     iconsBack.text,
   );
+
+  // Wrapping long values on board and gallery cards
+  const wrappedCards = await callTool(ids.owner, "update_database_view", { database_id: tasks.id, view_id: cards.data.id, wrap_properties: true });
+  check(!wrappedCards.isError && wrappedCards.data.wrap_properties === true, "MCP wraps a gallery's card values", wrappedCards.text);
+  const storedCards = (await getDatabaseSnapshot(ids.owner, tasks.id)).views.find((v) => v.id === cards.data.id)!.config;
+  check(storedCards.wrapProperties === true, "…stored as the view's setting", storedCards);
+  const wrapOnCalendar = await callTool(ids.owner, "update_database_view", { database_id: tasks.id, view_id: workweek.data.id, wrap_properties: true });
+  check(wrapOnCalendar.isError && /only applies to board and gallery/.test(wrapOnCalendar.text), "MCP refuses wrapping on a calendar", wrapOnCalendar.text);
+  const unwrapped = await callTool(ids.owner, "update_database_view", { database_id: tasks.id, view_id: cards.data.id, wrap_properties: false });
+  check(!unwrapped.isError && !("wrap_properties" in unwrapped.data), "MCP cuts card values off again, back to the default", unwrapped.text);
 
   // A published database shows the columns its first view shows, whatever the view's type
   const published = await createPage(actor, { workspaceId, kind: "database", title: "Public list" });
