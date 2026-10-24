@@ -21,7 +21,8 @@
     "lastEditedTime": "Fecha de última edición",
     "formula": "Fórmula",
     "rollup": "Agregación",
-    "place": "Lugar"
+    "place": "Lugar",
+    "uniqueId": "ID"
   },
   "views": {
     "table": "Tabla",
@@ -508,6 +509,13 @@
     "decimalsAuto": "Automático",
     "percentHint": "Escribe 15 para {percent}",
     "dateOptions": "Ajustes de fecha",
+    "uniqueIdPrefix": "Prefijo de ID",
+    "uniqueIdPrefixNone": "Ninguno",
+    "uniqueIdPrefixPlaceholder": "TASK",
+    "uniqueIdPrefixHint": "Hasta {max} letras (A–Z) y dígitos. Déjalo vacío para usar solo números.",
+    "uniqueIdPreview": "Siguiente fila:",
+    "uniqueIdCreate": "Añadir ID",
+    "uniqueIdHint": "Cada fila nueva recibe el siguiente número. Los números nunca cambian ni se repiten.",
     "rowPage": "En las páginas de fila",
     "pageVisibility": {
       "show": "Mostrar siempre",
@@ -955,7 +963,10 @@
     "invalidPlace": "«{property}» admite una dirección o coordenadas (latitud, longitud).",
     "placeNotFound": "No se encontró ningún lugar para «{value}» en «{property}».",
     "geocodingOff": "La búsqueda de direcciones está desactivada en este servidor: da coordenadas (latitud, longitud) a «{property}».",
-    "geocoderBusy": "La búsqueda de direcciones está ocupada. Vuelve a intentar «{property}» en un momento."
+    "geocoderBusy": "La búsqueda de direcciones está ocupada. Vuelve a intentar «{property}» en un momento.",
+    "invalidUniqueIdPrefix": "Un prefijo de ID tiene como máximo {max} letras (A–Z) y dígitos, como TASK.",
+    "uniqueIdPrefixTaken": "Otra base de datos de este espacio de trabajo ya usa el prefijo de ID “{prefix}”.",
+    "oneUniqueId": "Esta base de datos ya numera sus filas en “{property}”."
   },
   "formula": {
     "title": "Fórmula",

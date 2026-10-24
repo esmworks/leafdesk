@@ -21,7 +21,8 @@
     "lastEditedTime": "Zuletzt bearbeitet am",
     "formula": "Formel",
     "rollup": "Rollup",
-    "place": "Ort"
+    "place": "Ort",
+    "uniqueId": "ID"
   },
   "views": {
     "table": "Tabelle",
@@ -508,6 +509,13 @@
     "decimalsAuto": "Automatisch",
     "percentHint": "Für {percent} 15 eingeben",
     "dateOptions": "Datumseinstellungen",
+    "uniqueIdPrefix": "ID-Präfix",
+    "uniqueIdPrefixNone": "Keins",
+    "uniqueIdPrefixPlaceholder": "TASK",
+    "uniqueIdPrefixHint": "Bis zu {max} Buchstaben (A–Z) und Ziffern. Leer lassen für reine Zahlen.",
+    "uniqueIdPreview": "Nächste Zeile:",
+    "uniqueIdCreate": "ID hinzufügen",
+    "uniqueIdHint": "Jede neue Zeile bekommt die nächste Nummer. Nummern ändern sich nie und werden nie doppelt vergeben.",
     "rowPage": "Auf Zeilenseiten",
     "pageVisibility": {
       "show": "Immer anzeigen",
@@ -955,7 +963,10 @@
     "invalidPlace": "„{property}“ nimmt eine Adresse oder Koordinaten (Breite, Länge) an.",
     "placeNotFound": "Für „{value}“ in „{property}“ wurde kein Ort gefunden.",
     "geocodingOff": "Die Adresssuche ist auf diesem Server aus: Gib für „{property}“ Koordinaten (Breite, Länge) an.",
-    "geocoderBusy": "Die Adresssuche ist ausgelastet. Versuche „{property}“ gleich noch einmal."
+    "geocoderBusy": "Die Adresssuche ist ausgelastet. Versuche „{property}“ gleich noch einmal.",
+    "invalidUniqueIdPrefix": "Ein ID-Präfix besteht aus höchstens {max} Buchstaben (A–Z) und Ziffern, etwa TASK.",
+    "uniqueIdPrefixTaken": "Eine andere Datenbank in diesem Arbeitsbereich verwendet das ID-Präfix „{prefix}“ bereits.",
+    "oneUniqueId": "Diese Datenbank nummeriert ihre Zeilen bereits in „{property}“."
   },
   "formula": {
     "title": "Formel",

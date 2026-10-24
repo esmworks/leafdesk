@@ -21,7 +21,8 @@
     "lastEditedTime": "Son düzenlenme zamanı",
     "formula": "Formül",
     "rollup": "Toplama",
-    "place": "Konum"
+    "place": "Konum",
+    "uniqueId": "Kimlik"
   },
   "views": {
     "table": "Tablo",
@@ -508,6 +509,13 @@
     "decimalsAuto": "Otomatik",
     "percentHint": "{percent} için 15 yazın",
     "dateOptions": "Tarih ayarları",
+    "uniqueIdPrefix": "Kimlik öneki",
+    "uniqueIdPrefixNone": "Yok",
+    "uniqueIdPrefixPlaceholder": "GOREV",
+    "uniqueIdPrefixHint": "En fazla {max} harf (A–Z) ve rakam. Yalnızca numara için boş bırakın.",
+    "uniqueIdPreview": "Sonraki satır:",
+    "uniqueIdCreate": "Kimlik ekle",
+    "uniqueIdHint": "Her yeni satır sıradaki numarayı alır. Numaralar hiç değişmez ve iki kez verilmez.",
     "rowPage": "Satır sayfalarında",
     "pageVisibility": {
       "show": "Her zaman göster",
@@ -955,7 +963,10 @@
     "invalidPlace": "“{property}” bir adres ya da koordinat (enlem, boylam) alır.",
     "placeNotFound": "“{property}” için “{value}” adına bir yer bulunamadı.",
     "geocodingOff": "Bu sunucuda adres arama kapalı: “{property}” için koordinat (enlem, boylam) girin.",
-    "geocoderBusy": "Adres arama şu an yoğun. “{property}” için biraz sonra yeniden deneyin."
+    "geocoderBusy": "Adres arama şu an yoğun. “{property}” için biraz sonra yeniden deneyin.",
+    "invalidUniqueIdPrefix": "Kimlik öneki en fazla {max} harf (A–Z) ve rakamdan oluşur, örneğin TASK.",
+    "uniqueIdPrefixTaken": "Bu çalışma alanındaki başka bir veritabanı “{prefix}” kimlik önekini zaten kullanıyor.",
+    "oneUniqueId": "Bu veritabanı satırlarını zaten “{property}” içinde numaralandırıyor."
   },
   "formula": {
     "title": "Formül",

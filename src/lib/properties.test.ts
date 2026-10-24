@@ -871,3 +871,39 @@ describe("sortOptionsByName", () => {
     expect(names(sortOptionsByName(options, "desc", "en", true))).toEqual(["Waiting", "Backlog", "Review", "Doing", "Shipped", "Dropped"]);
   });
 });
+
+describe("unique ID properties", () => {
+  const id = { id: "p_id", name: "ID", type: "unique_id" as const, options: { uniqueId: { prefix: "TASK" } } };
+  const rows = [row("a", "Alpha", { p_id: 1 }, 1), row("b", "Beta", { p_id: 2 }, 2), row("c", "Gamma", { p_id: 12 }, 3)];
+  const ids = (filters: FilterRule[]) => applyView(rows, { filters }, [id]).map((r) => r.id);
+
+  it("show their prefix and number", () => {
+    expect(displayValue(id, 12)).toBe("TASK-12");
+    expect(displayValue({ ...id, options: {} }, 12)).toBe("12");
+    expect(displayValue(id, null)).toBeNull();
+  });
+
+  it("filter by the ID as shown or by the number", () => {
+    expect(ids([{ propertyId: "p_id", op: "equals", value: "TASK-12" }])).toEqual(["c"]);
+    expect(ids([{ propertyId: "p_id", op: "equals", value: "task-12" }])).toEqual(["c"]);
+    expect(ids([{ propertyId: "p_id", op: "equals", value: 2 }])).toEqual(["b"]);
+    expect(ids([{ propertyId: "p_id", op: "equals", value: "2" }])).toEqual(["b"]);
+    expect(ids([{ propertyId: "p_id", op: "gt", value: "TASK-1" }])).toEqual(["b", "c"]);
+    expect(ids([{ propertyId: "p_id", op: "lte", value: 2 }])).toEqual(["a", "b"]);
+    expect(ids([{ propertyId: "p_id", op: "not_equals", value: "TASK-1" }])).toEqual(["b", "c"]);
+  });
+
+  it("match nothing for another prefix", () => {
+    expect(ids([{ propertyId: "p_id", op: "equals", value: "BUG-12" }])).toEqual([]);
+  });
+
+  it("filter like numbers", () => {
+    expect(filterOperators("unique_id")).toEqual(filterOperators("number"));
+  });
+
+  it("sort by number", () => {
+    const shuffled = [rows[2], rows[0], rows[1]];
+    const out = applyView(shuffled, { sorts: [{ propertyId: "p_id", direction: "desc" }] }, [id]);
+    expect(out.map((r) => r.id)).toEqual(["c", "b", "a"]);
+  });
+});

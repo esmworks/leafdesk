@@ -53,6 +53,7 @@ import { isGroupable, SELECT_COLORS, sortStatusOptions, statusColor } from "@/li
 import { MAX_COLOR_RULES, newColorRuleId } from "@/lib/color-rules";
 import { FILTER_COMBINATORS } from "@/lib/filters";
 import { holdsOptions, holdsTimestamp, STATUS_GROUPS } from "@/lib/property-types";
+import { cleanUniqueIdPrefix } from "@/lib/unique-id";
 import { MAX_PROPERTY_DESCRIPTION } from "@/lib/property-description";
 import { CALENDAR_MODES, CARD_SIZES, OPEN_ROWS, ROW_VIEW_TYPES, TIMELINE_ZOOMS, VIEW_TYPES } from "@/lib/views";
 import { getCollab, type WriteActor } from "@/server/collab/bridge";
@@ -177,7 +178,7 @@ import {
 } from "./query";
 
 const INSTRUCTIONS = `Leafdesk is a workspace of pages and databases. Each user belongs to one or more workspaces.
-Pages form a tree inside a workspace. A database is a special page whose children are rows; rows are pages with typed properties (text, number, select, multi_select, status, date, checkbox, url, email, phone, checklist, files, place, relation, person, created_by, created_time, last_edited_by, last_edited_time, formula, rollup). A relation links rows to rows of another database in the same workspace; two-way relations show the links on both databases. A person property assigns rows to people of the workspace; "me" stands for the signed-in user. A status is a select whose options belong to the groups todo, in_progress and done. A property may have a description saying what it holds and how to fill it (see get_database): follow it when writing values. A select may depend on another select ("City" on "Country"): a row may hold only the options that go with its value of that one. A checklist holds items that can be ticked off. A place holds where something is, read as {address, name?, lat, lng}; write an address to look up, coordinates ("41.04, 29.01") or {lat, lng, address?, name?}. A files property holds files uploaded to the workspace (images show as thumbnails); its values read as [{name, url}]. created_by, created_time, last_edited_by and last_edited_time show who created or last edited each row and when; they are filled in automatically and can't be written. A formula property computes its value from the row's other properties, and a rollup calculates over the rows a relation links to (see add_database_property); neither can be written. A number property's number_format (see get_database), which a formula giving a number can have too, only changes how the app shows it: a percent property holds fractions (0.15 is 15%) and filters on it compare percent points (15). A date property holds a day (YYYY-MM-DD), a time (an ISO timestamp, returned in UTC: 2026-10-12T11:30:00.000Z), or a range of either written \"start/end\" (2026-10-12/2026-10-14; start and end both days or both times, the end not before the start). Write times with Z or an offset (2026-10-12T14:30+03:00); {\"start\", \"end\"} objects are accepted too. Its date_options can show it relatively and remind the row's people before it (a range: before its start; a time: at its time of day).
+Pages form a tree inside a workspace. A database is a special page whose children are rows; rows are pages with typed properties (text, number, select, multi_select, status, date, checkbox, url, email, phone, checklist, files, place, relation, person, created_by, created_time, last_edited_by, last_edited_time, formula, rollup, unique_id). A relation links rows to rows of another database in the same workspace; two-way relations show the links on both databases. A person property assigns rows to people of the workspace; "me" stands for the signed-in user. A status is a select whose options belong to the groups todo, in_progress and done. A property may have a description saying what it holds and how to fill it (see get_database): follow it when writing values. A select may depend on another select ("City" on "Country"): a row may hold only the options that go with its value of that one. A checklist holds items that can be ticked off. A place holds where something is, read as {address, name?, lat, lng}; write an address to look up, coordinates ("41.04, 29.01") or {lat, lng, address?, name?}. A files property holds files uploaded to the workspace (images show as thumbnails); its values read as [{name, url}]. created_by, created_time, last_edited_by and last_edited_time show who created or last edited each row and when; they are filled in automatically and can't be written. A formula property computes its value from the row's other properties, and a rollup calculates over the rows a relation links to (see add_database_property); neither can be written. A unique_id numbers a database's rows 1, 2, 3… as they are created and reads as its prefix and number ("TASK-12", or "12" without a prefix); it can't be written, its filters take "TASK-12" or 12, and search finds a row by "TASK-12". A number property's number_format (see get_database), which a formula giving a number can have too, only changes how the app shows it: a percent property holds fractions (0.15 is 15%) and filters on it compare percent points (15). A date property holds a day (YYYY-MM-DD), a time (an ISO timestamp, returned in UTC: 2026-10-12T11:30:00.000Z), or a range of either written \"start/end\" (2026-10-12/2026-10-14; start and end both days or both times, the end not before the start). Write times with Z or an offset (2026-10-12T14:30+03:00); {\"start\", \"end\"} objects are accepted too. Its date_options can show it relatively and remind the row's people before it (a range: before its start; a time: at its time of day).
 Start with list_workspaces or search to find ids, then get_page / list_pages / query_database. Wherever a tool takes an id (workspace_id, page_id, database_id, row_id, parent_id, view_id…), a Leafdesk link the user pasted works too (\`https://…/w/<workspace_id>/p/<page_id>\`, a view's link has \`?view=<view_id>\`).
 Teamspaces group a workspace's pages and people (list_teamspaces). A teamspace is default (everyone is in it), open (anyone can join; others can read), closed (only its members open its pages) or private (only its members know it). Its member_access is what its members get on its pages unless a page is shared otherwise (its owners and workspace owners get full access). A top-level page belongs to a teamspace, or is private to the user who made it; pages under it follow it. create_page, create_database and move_page take a teamspace_id for top-level pages ("private" for the user's private pages); without one, new top-level pages are private. Member groups (list_groups) are named sets of owners and members that pages are shared with and teamspaces joined by; someone gets the highest access they have from anywhere (their own, a group, the teamspace).
 Page bodies are read and written as Markdown. Before every content change Leafdesk saves a history snapshot, so the user can undo your edits from the page history (list_page_history / diff_page_version / restore_page_version).
@@ -353,6 +354,7 @@ const descriptionInput = z
   .describe(
     `What the property holds and how to fill it, in plain text (at most ${MAX_PROPERTY_DESCRIPTION} characters), e.g. "New until we've called them; Quoted once a quote is sent". The app shows it by the property's name, and AI writing rows (autofill, chat, agents) follows it.`,
   );
+const prefixInput = z.string().describe('unique_id only: letters and digits before its numbers ("TASK": TASK-12).');
 const dependsOnInput = z
   .string()
   .describe(
@@ -1695,6 +1697,7 @@ export function createMcpServer(principal: McpPrincipal) {
         rollup: rollupInput.optional().describe("Rollup only: what to calculate over which relation."),
         number_format: numberFormatInput.optional().describe(`Number, or formula giving a number: how values show. ${NUMBER_FORMAT_HELP}`),
         date_options: dateOptionsInput.optional().describe(`Date only: display and reminder. ${DATE_OPTIONS_HELP}`),
+        prefix: prefixInput.optional(),
         description: descriptionInput.optional(),
         depends_on: dependsOnInput.optional(),
         option_parents: optionParentsInput.optional(),
@@ -1714,12 +1717,14 @@ export function createMcpServer(principal: McpPrincipal) {
       rollup,
       number_format,
       date_options,
+      prefix,
       description,
       depends_on,
       option_parents,
     }) =>
       runTool(async () => {
         assertWrite();
+        if (prefix !== undefined && prefix !== null && type !== "unique_id") throw new ToolInputError("prefix only applies to unique_id properties.");
         if (depends_on !== undefined && type !== "select" && type !== "multi_select") {
           throw new ToolInputError("depends_on only applies to select and multi_select properties.");
         }
@@ -1755,6 +1760,7 @@ export function createMcpServer(principal: McpPrincipal) {
           ...(type === "rollup" ? { rollup: await rollupSettings(userId, properties, rollup!) } : {}),
           ...(number_format ? { number: number_format } : {}),
           ...(date_options ? { date: dateOptionsOf(date_options) } : {}),
+          ...(type === "unique_id" ? { prefix } : {}),
           ...(description !== undefined ? { description } : {}),
         });
         let made = created;
@@ -1941,6 +1947,7 @@ export function createMcpServer(principal: McpPrincipal) {
           .optional()
           .describe("Number, or formula giving a number: how values show; null for plain numbers."),
         date_options: dateOptionsInput.optional().describe("Date only: the display and reminder to change; left-out fields stay."),
+        prefix: prefixInput.nullable().optional(),
         description: descriptionInput.nullable().optional().describe("The new description (null or \"\" for none). " + descriptionInput.description),
         depends_on: dependsOnInput.nullable().optional().describe(`${dependsOnInput.description} null: depend on nothing. Changing it forgets the options' lists.`),
         option_parents: optionParentsInput.optional(),
@@ -1960,6 +1967,7 @@ export function createMcpServer(principal: McpPrincipal) {
       rollup,
       number_format,
       date_options,
+      prefix,
       description,
       depends_on,
       option_parents,
@@ -1977,8 +1985,13 @@ export function createMcpServer(principal: McpPrincipal) {
           date?: DateOptionsInput;
           description?: string | null;
           dependsOn?: string | null;
+          prefix?: string | null;
         } = {};
         if (description !== undefined) patch.description = description;
+        if (prefix !== undefined) {
+          if (prop.type !== "unique_id") throw new ToolInputError(`"${prop.name}" is a ${prop.type} property; only unique IDs have a prefix.`);
+          patch.prefix = prefix;
+        }
         if (depends_on !== undefined) {
           if (prop.type !== "select" && prop.type !== "multi_select") {
             throw new ToolInputError(`"${prop.name}" is a ${prop.type} property; only select and multi_select can depend on another property.`);
@@ -2051,10 +2064,11 @@ export function createMcpServer(principal: McpPrincipal) {
           patch.number === undefined &&
           !patch.date &&
           patch.description === undefined &&
-          patch.dependsOn === undefined
+          patch.dependsOn === undefined &&
+          patch.prefix === undefined
         ) {
           throw new ToolInputError(
-            "Nothing to change: provide name, option changes, formula, rollup, number_format, date_options, description, depends_on or option_parents.",
+            "Nothing to change: provide name, option changes, formula, rollup, number_format, date_options, prefix, description, depends_on or option_parents.",
           );
         }
         const { date: storedDate } = await databases.updateProperty(userId, prop.id, patch);
@@ -2071,6 +2085,7 @@ export function createMcpServer(principal: McpPrincipal) {
                     ...(patch.options ? { options: patch.options } : {}),
                     ...(patch.formula ? { formula: { expression: formulaForStorage(patch.formula.expression, properties) } } : {}),
                     ...(patch.rollup ? { rollup: patch.rollup as RollupConfig } : {}),
+                    ...(patch.prefix !== undefined ? { uniqueId: patch.prefix ? { prefix: cleanUniqueIdPrefix(patch.prefix) ?? undefined } : undefined } : {}),
                   },
                 },
           ),
@@ -2093,7 +2108,7 @@ export function createMcpServer(principal: McpPrincipal) {
     "change_database_property_type",
     {
       title: "Change a database property's type",
-      description: `Change the type of a property (column) and convert its value in every row, trashed rows and row templates included. Values keep their meaning where they can: select, multi_select and status keep their options; text becomes options (one per distinct value; multi_select splits at commas), numbers, dates (one format for the whole column), checkboxes (yes/no words), links, emails, phone numbers, people (by name or email) and relation links (by exact row title); options, people and linked rows become their names as text; formulas and rollups keep what they show now. Values that can't convert are cleared, as are all values when the new type fills itself in (formula, rollup, created_by, created_time, last_edited_by, last_edited_time) and files turned into anything else. Views drop their filters on the property and what the new type can't have. Run it with dry_run first and confirm with the user when cleared is not 0. For a relation, pass related_database_id (and two_way, paired_property_name); for a formula, formula; for a rollup, rollup, as for add_database_property (whose description has the formula syntax and the rollup functions). A property with access rules can't become a relation or a type that fills itself in.`,
+      description: `Change the type of a property (column) and convert its value in every row, trashed rows and row templates included. Values keep their meaning where they can: select, multi_select and status keep their options; text becomes options (one per distinct value; multi_select splits at commas), numbers, dates (one format for the whole column), checkboxes (yes/no words), links, emails, phone numbers, people (by name or email) and relation links (by exact row title); options, people and linked rows become their names as text; formulas and rollups keep what they show now. Values that can't convert are cleared, as are all values when the new type fills itself in (formula, rollup, created_by, created_time, last_edited_by, last_edited_time) and files turned into anything else. A unique_id becomes text ("TASK-12") or numbers. Views drop their filters on the property and what the new type can't have. Run it with dry_run first and confirm with the user when cleared is not 0. For a relation, pass related_database_id (and two_way, paired_property_name); for a formula, formula; for a rollup, rollup, as for add_database_property (whose description has the formula syntax and the rollup functions). A property with access rules can't become a relation or a type that fills itself in.`,
       inputSchema: z.object({
         database_id: id("database"),
         property: z.string().min(1).describe("Current property name or id."),

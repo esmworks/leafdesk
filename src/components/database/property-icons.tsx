@@ -10,6 +10,7 @@ import {
   ClipboardList,
   Combine,
   Clock,
+  Fingerprint,
   Hash,
   History,
   Kanban,
@@ -61,6 +62,7 @@ export const PROPERTY_TYPE_META = {
   last_edited_time: { label: "lastEditedTime", icon: History },
   formula: { label: "formula", icon: Sigma },
   rollup: { label: "rollup", icon: Combine },
+  unique_id: { label: "uniqueId", icon: Fingerprint },
 } as const satisfies Record<PropertyType, { label: string; icon: LucideIcon }>;
 
 /** Translated display name of a property type. */

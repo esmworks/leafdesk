@@ -27,6 +27,7 @@ import { makePagePrivate } from "@/server/permissions";
 import { chainTo, readableViews, readerAccess, webViews } from "@/server/publication";
 import { servedPublication } from "@/server/site";
 import { fragmentBlocks } from "@/server/synced-body";
+import { freeCopiedPrefixes } from "@/server/unique-ids";
 import { refOf, storageFor, storageResolver } from "@/server/storage/workspace";
 import { topLevelAccess } from "@/server/workspaces";
 
@@ -380,8 +381,11 @@ export async function duplicatePublishedPage(
         );
       }
       if (plan.properties.length) {
+        // After the rows, which bring their IDs along (drizzle/*_unique_id.sql); a prefix the
+        // workspace's databases have stays with them.
+        const properties = await freeCopiedPrefixes(tx, target, plan.properties, () => asTemplate);
         await tx.insert(databaseProperty).values(
-          plan.properties.map(({ id, databaseId, name, type, options, position }) => ({ id, databaseId, name, type, options, position })),
+          properties.map(({ id, databaseId, name, type, options, position }) => ({ id, databaseId, name, type, options, position })),
         );
       }
       if (plan.views.length) {

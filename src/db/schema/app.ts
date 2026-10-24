@@ -8,6 +8,7 @@ import {
   doublePrecision,
   foreignKey,
   index,
+  integer,
   jsonb,
   pgTable,
   primaryKey,
@@ -662,6 +663,11 @@ export type DateOptions = {
  * reminder time had passed by then don't remind.
  */
 export type DateReminder = { daysBefore: number; timeZone: string; since: string };
+/**
+ * A unique ID property's prefix (lib/unique-id): upper-case letters and digits, one database's in
+ * the workspace (databases.addProperty checks), so "TASK-12" names one row.
+ */
+export type UniqueIdOptions = { prefix?: string };
 export type PropertyOptions = {
   /**
    * Any property: what it holds and how to fill it, in plain text ("New until we've called them").
@@ -689,6 +695,8 @@ export type PropertyOptions = {
   ai?: AiAutofillConfig;
   /** Date properties: relative display and a reminder; plain dates when missing. */
   date?: DateOptions;
+  /** Unique ID properties: the prefix IDs show with ("TASK" for TASK-12); plain numbers when missing. */
+  uniqueId?: UniqueIdOptions;
   /**
    * Row pages: "hide_empty" leaves the property out while the row has no value for it, "hide"
    * always (both under "more properties", see lib/page-visibility); shown when missing.
@@ -712,6 +720,12 @@ export const databaseProperty = pgTable(
     type: text("type").$type<PropertyType>().notNull(),
     options: jsonb("options").$type<PropertyOptions>().notNull().default({}),
     position: doublePrecision("position").notNull().default(0),
+    /**
+     * Unique ID properties: the last number a row got. Postgres counts it up as rows are made
+     * (drizzle/*_unique_id.sql), and it never goes down, so no number is given out twice. Written
+     * only there: an update through the schema would stamp updated_at, which type changes compare.
+     */
+    lastNumber: integer("last_number").notNull().default(0),
     /**
      * While set, the property is deleted: left out everywhere (views keep what they said about it,
      * rows keep their values) until someone restores it, or the daily cleanup deletes it for good

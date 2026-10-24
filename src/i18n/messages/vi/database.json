@@ -21,7 +21,8 @@
     "lastEditedTime": "Thời gian chỉnh sửa cuối",
     "formula": "Công thức",
     "rollup": "Tổng hợp",
-    "place": "Địa điểm"
+    "place": "Địa điểm",
+    "uniqueId": "ID"
   },
   "views": {
     "table": "Bảng",
@@ -508,6 +509,13 @@
     "decimalsAuto": "Tự động",
     "percentHint": "Nhập 15 cho {percent}",
     "dateOptions": "Cài đặt ngày",
+    "uniqueIdPrefix": "Tiền tố ID",
+    "uniqueIdPrefixNone": "Không có",
+    "uniqueIdPrefixPlaceholder": "TASK",
+    "uniqueIdPrefixHint": "Tối đa {max} chữ cái (A–Z) và chữ số. Để trống nếu chỉ dùng số.",
+    "uniqueIdPreview": "Hàng tiếp theo:",
+    "uniqueIdCreate": "Thêm ID",
+    "uniqueIdHint": "Mỗi hàng mới nhận số tiếp theo. Số không bao giờ thay đổi và không bao giờ được cấp hai lần.",
     "rowPage": "Trên trang hàng",
     "pageVisibility": {
       "show": "Luôn hiện",
@@ -955,7 +963,10 @@
     "invalidPlace": "“{property}” nhận một địa chỉ hoặc tọa độ (vĩ độ, kinh độ).",
     "placeNotFound": "Không tìm thấy địa điểm nào cho “{value}” trong “{property}”.",
     "geocodingOff": "Tìm kiếm địa chỉ đang tắt trên máy chủ này: hãy nhập tọa độ cho “{property}” (vĩ độ, kinh độ).",
-    "geocoderBusy": "Tìm kiếm địa chỉ đang bận. Hãy thử lại “{property}” sau giây lát."
+    "geocoderBusy": "Tìm kiếm địa chỉ đang bận. Hãy thử lại “{property}” sau giây lát.",
+    "invalidUniqueIdPrefix": "Tiền tố ID gồm tối đa {max} chữ cái (A–Z) và chữ số, ví dụ TASK.",
+    "uniqueIdPrefixTaken": "Một cơ sở dữ liệu khác trong không gian làm việc này đã dùng tiền tố ID “{prefix}”.",
+    "oneUniqueId": "Cơ sở dữ liệu này đã đánh số các hàng trong “{property}”."
   },
   "formula": {
     "title": "Công thức",

@@ -21,7 +21,8 @@
     "lastEditedTime": "وقت آخر تعديل",
     "formula": "صيغة",
     "rollup": "تلخيص",
-    "place": "مكان"
+    "place": "مكان",
+    "uniqueId": "المعرّف"
   },
   "views": {
     "table": "جدول",
@@ -508,6 +509,13 @@
     "decimalsAuto": "تلقائي",
     "percentHint": "اكتب 15 للحصول على {percent}",
     "dateOptions": "إعدادات التاريخ",
+    "uniqueIdPrefix": "بادئة المعرّف",
+    "uniqueIdPrefixNone": "بلا",
+    "uniqueIdPrefixPlaceholder": "TASK",
+    "uniqueIdPrefixHint": "حتى {max} من الأحرف (A–Z) والأرقام. اتركها فارغة لأرقام بلا بادئة.",
+    "uniqueIdPreview": "الصف التالي:",
+    "uniqueIdCreate": "إضافة المعرّف",
+    "uniqueIdHint": "يحصل كل صف جديد على الرقم التالي. لا تتغير الأرقام أبدًا ولا تُعطى مرتين.",
     "rowPage": "في صفحات الصفوف",
     "pageVisibility": {
       "show": "الإظهار دائمًا",
@@ -955,7 +963,10 @@
     "invalidPlace": "تقبل «{property}» عنوانًا أو إحداثيات (خط العرض، خط الطول).",
     "placeNotFound": "لم يُعثر على مكان لـ«{value}» في «{property}».",
     "geocodingOff": "البحث عن العناوين معطّل على هذا الخادم: أدخل في «{property}» إحداثيات (خط العرض، خط الطول).",
-    "geocoderBusy": "البحث عن العناوين مشغول. أعد المحاولة في «{property}» بعد قليل."
+    "geocoderBusy": "البحث عن العناوين مشغول. أعد المحاولة في «{property}» بعد قليل.",
+    "invalidUniqueIdPrefix": "تتكوّن بادئة المعرّف من {max} أحرف (A–Z) وأرقام كحد أقصى، مثل TASK.",
+    "uniqueIdPrefixTaken": "قاعدة بيانات أخرى في مساحة العمل هذه تستخدم بادئة المعرّف «{prefix}» بالفعل.",
+    "oneUniqueId": "قاعدة البيانات هذه ترقّم صفوفها بالفعل في «{property}»."
   },
   "formula": {
     "title": "الصيغة",

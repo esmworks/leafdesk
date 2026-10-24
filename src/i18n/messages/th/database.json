@@ -21,7 +21,8 @@
     "lastEditedTime": "เวลาที่แก้ไขล่าสุด",
     "formula": "สูตร",
     "rollup": "โรลอัป",
-    "place": "สถานที่"
+    "place": "สถานที่",
+    "uniqueId": "รหัส"
   },
   "views": {
     "table": "ตาราง",
@@ -508,6 +509,13 @@
     "decimalsAuto": "อัตโนมัติ",
     "percentHint": "พิมพ์ 15 สำหรับ {percent}",
     "dateOptions": "การตั้งค่าวันที่",
+    "uniqueIdPrefix": "คำนำหน้ารหัส",
+    "uniqueIdPrefixNone": "ไม่มี",
+    "uniqueIdPrefixPlaceholder": "TASK",
+    "uniqueIdPrefixHint": "ตัวอักษร (A–Z) และตัวเลขได้ไม่เกิน {max} ตัว เว้นว่างไว้เพื่อใช้แค่ตัวเลข",
+    "uniqueIdPreview": "แถวถัดไป:",
+    "uniqueIdCreate": "เพิ่มรหัส",
+    "uniqueIdHint": "ทุกแถวใหม่จะได้หมายเลขถัดไป หมายเลขไม่เปลี่ยนและไม่ถูกใช้ซ้ำ",
     "rowPage": "บนหน้าของแถว",
     "pageVisibility": {
       "show": "แสดงเสมอ",
@@ -955,7 +963,10 @@
     "invalidPlace": "“{property}” รับที่อยู่หรือพิกัด (ละติจูด, ลองจิจูด)",
     "placeNotFound": "ไม่พบสถานที่สำหรับ “{value}” ใน “{property}”",
     "geocodingOff": "การค้นหาที่อยู่ปิดอยู่บนเซิร์ฟเวอร์นี้: ระบุพิกัด (ละติจูด, ลองจิจูด) ให้ “{property}”",
-    "geocoderBusy": "การค้นหาที่อยู่กำลังยุ่ง ลอง “{property}” อีกครั้งในอีกสักครู่"
+    "geocoderBusy": "การค้นหาที่อยู่กำลังยุ่ง ลอง “{property}” อีกครั้งในอีกสักครู่",
+    "invalidUniqueIdPrefix": "คำนำหน้ารหัสมีตัวอักษร (A–Z) และตัวเลขได้ไม่เกิน {max} ตัว เช่น TASK",
+    "uniqueIdPrefixTaken": "ฐานข้อมูลอื่นในพื้นที่ทำงานนี้ใช้คำนำหน้ารหัส “{prefix}” อยู่แล้ว",
+    "oneUniqueId": "ฐานข้อมูลนี้ใส่หมายเลขแถวไว้ใน “{property}” อยู่แล้ว"
   },
   "formula": {
     "title": "สูตร",

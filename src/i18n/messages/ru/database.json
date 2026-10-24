@@ -21,7 +21,8 @@
     "lastEditedTime": "Время изменения",
     "formula": "Формула",
     "rollup": "Сводка",
-    "place": "Место"
+    "place": "Место",
+    "uniqueId": "ID"
   },
   "views": {
     "table": "Таблица",
@@ -508,6 +509,13 @@
     "decimalsAuto": "Автоматически",
     "percentHint": "Введите 15, чтобы получить {percent}",
     "dateOptions": "Настройки даты",
+    "uniqueIdPrefix": "Префикс ID",
+    "uniqueIdPrefixNone": "Нет",
+    "uniqueIdPrefixPlaceholder": "TASK",
+    "uniqueIdPrefixHint": "До {max} латинских букв (A–Z) и цифр. Оставьте пустым, чтобы были только номера.",
+    "uniqueIdPreview": "Следующая строка:",
+    "uniqueIdCreate": "Добавить ID",
+    "uniqueIdHint": "Каждая новая строка получает следующий номер. Номера не меняются и не выдаются повторно.",
     "rowPage": "На страницах строк",
     "pageVisibility": {
       "show": "Всегда показывать",
@@ -955,7 +963,10 @@
     "invalidPlace": "«{property}» принимает адрес или координаты (широта, долгота).",
     "placeNotFound": "Для «{value}» в «{property}» место не найдено.",
     "geocodingOff": "Поиск адресов на этом сервере выключен: укажите в «{property}» координаты (широта, долгота).",
-    "geocoderBusy": "Поиск адресов сейчас занят. Повторите «{property}» чуть позже."
+    "geocoderBusy": "Поиск адресов сейчас занят. Повторите «{property}» чуть позже.",
+    "invalidUniqueIdPrefix": "Префикс ID — не более {max} латинских букв (A–Z) и цифр, например TASK.",
+    "uniqueIdPrefixTaken": "Другая база данных в этом рабочем пространстве уже использует префикс ID «{prefix}».",
+    "oneUniqueId": "Эта база данных уже нумерует строки в свойстве «{property}»."
   },
   "formula": {
     "title": "Формула",

@@ -3,6 +3,7 @@ import { asPlace } from "./place";
 import { asFiles } from "./files";
 import { asChecklist, type RowLike } from "./properties";
 import { holdsPeople, type PropertyType } from "./property-types";
+import { formatUniqueId } from "./unique-id";
 
 /**
  * The search box of a database view: narrows the rows the view shows to those whose title or
@@ -14,7 +15,7 @@ import { holdsPeople, type PropertyType } from "./property-types";
  * left out on the server, so a search can't find a row by a value they can't see.
  */
 
-type Prop = { id: string; type: PropertyType; options: { options?: { id: string; name: string }[] } };
+type Prop = { id: string; type: PropertyType; options: { options?: { id: string; name: string }[]; uniqueId?: { prefix?: string } } };
 
 export type RowSearchContext = {
   /** People person properties can show, for their names. */
@@ -52,6 +53,10 @@ function valueTexts(prop: Prop, value: unknown, names: Map<string, string>, cont
       return;
     case "number":
       if (typeof value === "number" && Number.isFinite(value)) out.push(String(value));
+      return;
+    case "unique_id":
+      // "TASK-12", which "task-12" and "12" both find.
+      out.push(formatUniqueId(value, prop.options.uniqueId?.prefix));
       return;
     case "select":
     case "status": {

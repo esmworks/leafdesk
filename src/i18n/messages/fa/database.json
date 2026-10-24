@@ -21,7 +21,8 @@
     "lastEditedTime": "زمان آخرین ویرایش",
     "formula": "فرمول",
     "rollup": "تجمیع",
-    "place": "مکان"
+    "place": "مکان",
+    "uniqueId": "شناسه"
   },
   "views": {
     "table": "جدول",
@@ -508,6 +509,13 @@
     "decimalsAuto": "خودکار",
     "percentHint": "برای {percent}، عدد 15 را تایپ کنید",
     "dateOptions": "تنظیمات تاریخ",
+    "uniqueIdPrefix": "پیشوند شناسه",
+    "uniqueIdPrefixNone": "هیچ",
+    "uniqueIdPrefixPlaceholder": "TASK",
+    "uniqueIdPrefixHint": "حداکثر {max} حرف (A–Z) و رقم. برای عدد ساده خالی بگذارید.",
+    "uniqueIdPreview": "ردیف بعدی:",
+    "uniqueIdCreate": "افزودن شناسه",
+    "uniqueIdHint": "هر ردیف تازه شمارهٔ بعدی را می‌گیرد. شماره‌ها هرگز تغییر نمی‌کنند و دوبار داده نمی‌شوند.",
     "rowPage": "در صفحه‌های ردیف",
     "pageVisibility": {
       "show": "همیشه نمایش",
@@ -955,7 +963,10 @@
     "invalidPlace": "«{property}» یک نشانی یا مختصات (عرض جغرافیایی، طول جغرافیایی) می‌گیرد.",
     "placeNotFound": "برای «{value}» در «{property}» مکانی پیدا نشد.",
     "geocodingOff": "جست‌وجوی نشانی روی این سرور خاموش است: برای «{property}» مختصات (عرض، طول) وارد کنید.",
-    "geocoderBusy": "جست‌وجوی نشانی شلوغ است. کمی بعد «{property}» را دوباره امتحان کنید."
+    "geocoderBusy": "جست‌وجوی نشانی شلوغ است. کمی بعد «{property}» را دوباره امتحان کنید.",
+    "invalidUniqueIdPrefix": "پیشوند شناسه حداکثر {max} حرف (A–Z) و رقم است، مانند TASK.",
+    "uniqueIdPrefixTaken": "پایگاه داده دیگری در این فضای کاری از پیشوند شناسه «{prefix}» استفاده می‌کند.",
+    "oneUniqueId": "این پایگاه داده ردیف‌هایش را از قبل در «{property}» شماره‌گذاری می‌کند."
   },
   "formula": {
     "title": "فرمول",

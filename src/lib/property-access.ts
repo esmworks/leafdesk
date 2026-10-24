@@ -53,11 +53,11 @@ const minLevel = (a: PropertyLevel, b: PropertyLevel) => (propertyRank(a) <= pro
 
 /**
  * Whether a property of this type can be restricted: not relations (the other side
- * would still show the links) and not the values Leafdesk fills in (who and when). The title
- * isn't a property here, so it never can be.
+ * would still show the links) and not the values Leafdesk fills in (who and when, and row IDs, which search
+ * finds rows by). The title isn't a property here, so it never can be.
  */
 export function canRestrict(type: string) {
-  return type !== "relation" && !isComputed(type);
+  return type !== "relation" && !isComputed(type) && type !== "unique_id";
 }
 
 /** Types an exception can point at: the people a row names. */

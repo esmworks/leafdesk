@@ -327,6 +327,8 @@ async function main() {
     const person = await databases.addProperty(ids.owner, tasks.id, { name: "Owner", type: "person" });
     const attachments = await databases.addProperty(ids.owner, tasks.id, { name: "Attachments", type: "files" });
     const related = await databases.addProperty(ids.owner, tasks.id, { name: "Blocked by", type: "relation", relation: { databaseId: tasks.id } });
+    // Rows' IDs and the counter, ahead of them as after rows deleted for good, come back as they were.
+    const uniqueId = await databases.addProperty(ids.owner, tasks.id, { name: "ID", type: "unique_id", prefix: "TASK" });
     const first = await createRow(owner, tasks.id, { title: "First" });
     await createRow(owner, tasks.id, {
       title: "Second",
@@ -336,6 +338,7 @@ async function main() {
         [related.id]: [first.id],
       },
     });
+    await db.execute(sql`update database_property set last_number = last_number + 3 where id = ${uniqueId.id}`);
     await databases.addView(ids.owner, tasks.id, { name: "Board", type: "board" });
     await setFavorite(ids.alice, doc.id, true);
     await setPagePermission(ids.owner, child.id, ids.bob, "edit");

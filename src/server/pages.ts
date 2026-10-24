@@ -56,6 +56,7 @@ import {
 import { PAGE_HEADER_EVENT } from "@/lib/collab-constants";
 import { searchFold } from "@/lib/search-fold";
 import { parseSearchQuery } from "@/lib/search-query";
+import { uniqueIdQuery } from "@/lib/unique-id";
 import { pageChanged } from "@/server/page-events";
 import { heldPageIds, refuseHeldPages } from "@/server/legal-hold";
 import { beforePagesDeleted, queuePageCreated, queuePageMoved, queuePagesDeleted, queuePageTrashed } from "@/server/page-webhooks/queue";
@@ -1027,6 +1028,27 @@ export async function fullTextSearch(
           and ${listed}
           ${searchScope(scope, userId)}`
     : sql``;
+  // Rows named by their ID ("TASK-12": a unique ID property's prefix and number, lib/unique-id),
+  // above every match of words. The AI chat's questions are looked through for IDs.
+  const ids = (anyWord ? q.split(/[\s,;:!?()"']+/) : [q])
+    .map(uniqueIdQuery)
+    .filter((id) => id !== null)
+    .slice(0, 5);
+  const idHits = ids.length
+    ? sql`
+        union all
+        select p.id, 3::real as rank, null::text as file_id
+        from ${databaseProperty} dp
+        join ${page} p on p.parent_id = dp.database_id
+        where dp.type = 'unique_id' and dp.deleted_at is null
+          and (${sql.join(
+            ids.map((id) => sql`(upper(dp.options -> 'uniqueId' ->> 'prefix') = ${id.prefix} and p.properties -> dp.id = ${String(id.number)}::jsonb)`),
+            sql` or `,
+          )})
+          and p.workspace_id in (${inWorkspaces})
+          and ${listed}
+          ${searchScope(scope, userId)}`
+    : sql``;
   const rows = await db.execute<{
     id: string;
     workspace_id: string;
@@ -1051,6 +1073,7 @@ export async function fullTextSearch(
         ${searchScope(scope, userId)}
         and ${matches}
       ${documentHits}
+      ${idHits}
     ),
     scored as (
       -- A page's own match plus its best document's; the document is named only when the page's

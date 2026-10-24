@@ -34,6 +34,23 @@
   and the message names the line. New dependency: `prettier`.
 - **Narrower bookmark cards.** Dragging a bookmark card's edge sets its width as a share of the
   column; published pages and the print view keep it, and Markdown written back keeps it.
+- **Databases can number their rows with a unique ID property.** The new *ID* type gives every row
+  a number, 1, 2, 3… in the order rows are made, shown after an optional prefix of up to ten
+  letters and digits (`TASK-12`). Adding it numbers the rows already there by when they were made;
+  every row made afterwards gets the next number whatever made it (the app, imports, templates,
+  forms, automations, the API, MCP, duplicating a row), including rows made at the same moment,
+  and a number is never given out twice, not even after a row is deleted for good. The value
+  can't be edited; changing the prefix only changes how IDs show, and a prefix belongs to one
+  database of the workspace. A duplicated database keeps its rows' numbers (without the prefix,
+  which the original keeps), and backups keep the numbers and the counter. IDs show in tables,
+  boards, lists, calendars, timelines, row pages, published pages, print, PDF and exports, sort by
+  number and filter with number operators that take `TASK-12` or `12`. Search, quick find and
+  relation pickers find a row by its ID, and `prop("ID")` in a formula is the number. Turning
+  another property into an ID numbers every row; an ID turns into text (`TASK-12`) or a number.
+  MCP's `add_database_property` and `update_database_property` take a `prefix`, `get_database`
+  shows it, and rows read their IDs as shown (`"TASK-12"`) in MCP, the REST API and the AI chat,
+  which refuse to write them. Migration `drizzle/0131_unique_id.sql` adds the counter and the
+  triggers that hand out the numbers.
 
 - **A workspace site can have its own domain, theme, header links, search descriptions, favicon and
   Google Analytics.** In Settings → Site, owners set a domain like `docs.example.com`: requests for

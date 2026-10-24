@@ -605,3 +605,24 @@ describe("property guidance", () => {
     expect(describeProperty(city, undefined, [city])).not.toHaveProperty("depends_on");
   });
 });
+
+describe("unique ID properties", () => {
+  const id: PropertyDef = { id: "p_id", name: "ID", type: "unique_id", options: { uniqueId: { prefix: "TASK" } } };
+
+  it("filter by the ID or its number", () => {
+    expect(toFilterRule([id], { property: "ID", op: "equals", value: "TASK-12" })).toEqual({ propertyId: "p_id", op: "equals", value: 12 });
+    expect(toFilterRule([id], { property: "ID", op: "gte", value: 3 })).toEqual({ propertyId: "p_id", op: "gte", value: 3 });
+    expect(toFilterRule([id], { property: "ID", op: "is_empty" })).toEqual({ propertyId: "p_id", op: "is_empty" });
+  });
+
+  it("refuse other prefixes and text operators", () => {
+    expect(() => toFilterRule([id], { property: "ID", op: "equals", value: "BUG-12" })).toThrowError(/TASK-12 or 12/);
+    expect(() => toFilterRule([id], { property: "ID", op: "contains", value: "12" })).toThrowError(PropertyValueError);
+  });
+
+  it("read as shown and describe their prefix", () => {
+    expect(displayProperties([id], { p_id: 7 })).toEqual({ ID: "TASK-7" });
+    expect(describeProperty(id)).toMatchObject({ type: "unique_id", prefix: "TASK", read_only: true });
+    expect(describeProperty({ ...id, options: {} })).toMatchObject({ prefix: null });
+  });
+});

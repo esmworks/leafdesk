@@ -238,6 +238,7 @@ export async function addPropertyAction(
     formula?: { expression: string };
     rollup?: databases.RollupInput;
     number?: NumberFormat | null;
+    prefix?: string | null;
   },
 ) {
   return run(async (userId) => {
@@ -300,6 +301,7 @@ export async function updatePropertyAction(
     numberDisplay?: NumberDisplay | null;
     description?: string | null;
     dependsOn?: string | null;
+    prefix?: string | null;
   },
 ) {
   return run((userId) => databases.updateProperty(userId, propertyId, patch));

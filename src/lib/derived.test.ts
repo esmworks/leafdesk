@@ -231,3 +231,12 @@ describe("views on formula values", () => {
     expect(aggregate(rows, "ratio", "count_not_empty", { type: valueType(total) })).toEqual({ format: "number", value: 2 });
   });
 });
+
+describe("unique IDs in formulas", () => {
+  it("read as the row's number", () => {
+    const id = prop("uid", "ID", "unique_id", { uniqueId: { prefix: "TASK" } });
+    const props = [id, formula("f", "Next", 'prop("ID") + 1')];
+    expect(values(props, { uid: 12 }).f).toBe(13);
+    expect(valueType(withFormulaTypes(props)[1])).toBe("number");
+  });
+});
