@@ -104,7 +104,7 @@ describe("statedLocale", () => {
   it("reads the saved choice first, then Accept-Language", () => {
     expect(statedLocale(new Headers({ cookie: "a=1; NEXT_LOCALE=tr", "accept-language": "de" }))).toBe("tr");
     expect(statedLocale(new Headers({ "accept-language": "fr-CA,fr;q=0.9,en;q=0.5" }))).toBe("fr");
-    expect(statedLocale(new Headers({ "accept-language": "nl" }))).toBe("en");
+    expect(statedLocale(new Headers({ "accept-language": "is" }))).toBe("en");
   });
 
   it("is null for a request that states no language, so nothing is overwritten with the default", () => {
