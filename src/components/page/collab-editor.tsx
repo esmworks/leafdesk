@@ -43,7 +43,8 @@ import { CommentsPanel } from "./comments-panel";
 import { CommentAuth, ServerThreadStore } from "./comment-store";
 import { useColumnSlashItems } from "./columns";
 import { FootnoteList, PageTrailProvider, useContentSlashItems, type TrailCrumb } from "./content-blocks";
-import { LINKED_VIEW_BLOCK } from "@/lib/embed-blocks";
+import { DATABASE_BLOCK, LINKED_VIEW_BLOCK } from "@/lib/embed-blocks";
+import { BuildWithAiDialog } from "@/components/workspace/build-with-ai";
 import { writePageStyle } from "@/lib/page-style";
 import { PAGE_LINK_BLOCK, SYNCED_PAGE_BLOCK } from "@/lib/mentions";
 import { userColor } from "@/lib/presence";
@@ -170,6 +171,8 @@ export default function CollabEditor({
   const trail = useMemo(() => ({ workspaceId, crumbs }), [workspaceId, crumbs]);
   // Block id where "Linked view of database" was chosen, while its database picker is open.
   const [pickAt, setPickAt] = useState<string | null>(null);
+  // Where "Build databases with AI" was chosen in the slash menu: its databases go there.
+  const [buildAt, setBuildAt] = useState<string | null>(null);
   // A dashboard's grid needs the room: the page takes the whole width (the page menu turns it back).
   const widenForDashboard = useCallback(() => writePageStyle(pageDoc.doc, { fullWidth: true }), [pageDoc]);
   // Block id where "Link to page" or "Synced page" was chosen, while its page picker is open.
@@ -345,6 +348,7 @@ export default function CollabEditor({
                 editor={editor}
                 onCreateError={setEmbedError}
                 onPickDatabase={setPickAt}
+                onBuild={ai && editable && !offline ? setBuildAt : undefined}
                 onPickPage={pickLink}
                 onPickSynced={pickSynced}
                 onDashboard={widenForDashboard}
@@ -411,6 +415,20 @@ export default function CollabEditor({
             setPickAt(null);
           }}
         />
+        {buildAt !== null && (
+          <BuildWithAiDialog
+            workspaceId={workspaceId}
+            target={{ parentId: pageId }}
+            inPage
+            onClose={() => setBuildAt(null)}
+            onCreated={(created) => {
+              // In the plan's order, each after the one before.
+              let at = buildAt;
+              for (const database of created.databases) at = placeEmbedBlock(editor, at, { type: DATABASE_BLOCK, props: { databaseId: database.id } }).id;
+              setBuildAt(null);
+            }}
+          />
+        )}
         <PagePicker
           open={linkAt !== null}
           pageId={pageId}
@@ -446,6 +464,7 @@ function SlashMenu({
   editor,
   onCreateError,
   onPickDatabase,
+  onBuild,
   onPickPage,
   onPickSynced,
   onDashboard,
@@ -457,6 +476,8 @@ function SlashMenu({
   editor: PageEditor;
   onCreateError: (message: string) => void;
   onPickDatabase: (at: string) => void;
+  /** Build databases with AI there, when AI is available (else no entry). */
+  onBuild?: (at: string) => void;
   onPickPage: (at: string) => void;
   onPickSynced: (at: string) => void;
   /** A dashboard was added from the menu. */
@@ -470,7 +491,7 @@ function SlashMenu({
   /** Inserting snippets: their group lists every one the person can use. */
   snippets: Parameters<typeof useSnippetSlashItems>[0];
 }) {
-  const embedItems = useEmbedSlashItems(editor, { onCreateError, onPickDatabase, onDashboard });
+  const embedItems = useEmbedSlashItems(editor, { onCreateError, onPickDatabase, onDashboard, onBuild });
   const contentItems = useContentSlashItems(editor);
   const webItems = useWebSlashItems(editor);
   const pageLinkItems = usePageLinkSlashItem(editor, onPickPage);

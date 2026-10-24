@@ -1,0 +1,33 @@
+{
+  "appDescription": "Ruang kerja sumber terbuka untuk dokumen dan basis data, dengan akses MCP untuk agen AI.",
+  "untitled": "Tanpa judul",
+  "sourceCode": "Kode sumber",
+  "agent": "Agen",
+  "agentName": "{name} (agen)",
+  "cancel": "Batal",
+  "save": "Simpan",
+  "saving": "Menyimpan…",
+  "saved": "Tersimpan.",
+  "close": "Tutup",
+  "delete": "Hapus",
+  "remove": "Keluarkan",
+  "restore": "Pulihkan",
+  "loading": "Memuat…",
+  "copy": "Salin",
+  "copied": "Tersalin",
+  "genericError": "Terjadi kesalahan. Coba lagi.",
+  "errorPage": {
+    "title": "Terjadi kesalahan",
+    "description": "Halaman ini tidak dapat ditampilkan, atau perubahan terakhir Anda tidak berhasil.",
+    "retry": "Coba lagi",
+    "home": "Ke beranda"
+  },
+  "export": {
+    "failed": "Tidak dapat memulai ekspor. Coba lagi.",
+    "tooManyPages": "Terlalu banyak untuk diekspor sekaligus: satu ekspor memuat maksimal {limit} halaman. Ekspor bagian ruang kerja yang lebih kecil.",
+    "tooLarge": "Total ukuran berkas dalam ekspor ini lebih dari {size}. Ekspor bagian ruang kerja yang lebih kecil.",
+    "busy": "Anda sudah memiliki ekspor yang sedang berjalan. Tunggu hingga unduhannya selesai.",
+    "disabled": "Ekspor dinonaktifkan di ruang kerja ini."
+  },
+  "celebrate": "Kerja bagus!"
+}

@@ -10,6 +10,30 @@
     "labelPlaceholder": "質問",
     "helpPlaceholder": "ヘルプテキストを追加（任意）",
     "required": "必須",
+    "showWhen": "次の場合のみ表示",
+    "addCondition": "次の場合のみ表示…",
+    "removeCondition": "条件を削除",
+    "conditionQuestion": "条件の対象となる質問",
+    "conditionCheck": "条件",
+    "conditionOptions": "条件で探す選択肢",
+    "conditionText": "テキスト",
+    "conditionPickOption": "この条件を保存するには選択肢を1つ以上選んでください。",
+    "conditionTypeText": "この条件を保存するにはテキストを入力してください。",
+    "op": {
+      "is": "いずれかである",
+      "isNot": "いずれでもない",
+      "contains": "を含む",
+      "notContains": "を含まない",
+      "hasAny": "いずれかを含む",
+      "hasNone": "いずれも含まない",
+      "checked": "チェックあり",
+      "unchecked": "チェックなし",
+      "empty": "空である",
+      "notEmpty": "空でない"
+    },
+    "minChoices": "最小",
+    "maxChoices": "最大",
+    "anyNumber": "指定なし",
     "moveUp": "上に移動",
     "moveDown": "下に移動",
     "remove": "質問を削除",
@@ -27,7 +51,9 @@
     "afterTitle": "送信後",
     "confirmationLabel": "メッセージ",
     "confirmationPlaceholder": "ありがとうございます。回答を送信しました。",
-    "allowAnother": "別の回答の送信を許可"
+    "allowAnother": "別の回答の送信を許可",
+    "showOwnAnswers": "回答者に自分の回答を表示",
+    "showOwnAnswersDescription": "サインインして回答した人は、このフォームで送信した内容だけを確認でき、データベースのほかの内容は見えません。匿名の回答は表示されません。"
   },
   "fill": {
     "submit": "送信",
@@ -41,7 +67,18 @@
     "addItem": "項目を追加",
     "newItem": "新しい項目",
     "removeItem": "{text}を削除",
-    "honeypot": "この欄は空のままにしてください"
+    "honeypot": "この欄は空のままにしてください",
+    "choicesExactly": "{count}個選択してください。",
+    "choicesBetween": "{min}〜{max}個選択してください。",
+    "choicesAtLeast": "{min}個以上選択してください。",
+    "choicesAtMost": "{max}個まで選択してください。"
+  },
+  "own": {
+    "title": "あなたの回答",
+    "description": "このフォームで送信した内容です。この一覧はあなただけに表示されます。",
+    "none": "まだ回答を送信していません。",
+    "sentAt": "{date}に送信",
+    "empty": "表示する回答はありません。"
   },
   "share": {
     "button": "共有",
@@ -69,6 +106,7 @@
     "required": "この質問は必須です。",
     "tooLong": "回答が長すぎます（最大{max}文字）。",
     "tooMany": "{max}個まで選択してください。",
+    "tooFew": "{min}個以上選択してください。",
     "invalidText": "この回答はテキストで入力してください。",
     "invalidAnswers": "確認が必要な回答があります。",
     "closed": "このフォームは回答の受付を終了しました。",

@@ -1,0 +1,38 @@
+{
+  "menuItem": "AI로 만들기",
+  "title": "AI로 만들기",
+  "hint": "관리하고 싶은 내용을 설명하세요. AI가 데이터베이스 초안을 만들고, 만들기 전에 직접 검토합니다.",
+  "reviewTitle": "계획 검토",
+  "reviewHint": "필요 없는 것은 이름을 바꾸거나 삭제한 다음 만드세요.",
+  "back": "설명으로 돌아가기",
+  "label": "무엇이 필요한가요?",
+  "placeholder": "채용 파이프라인: 면접 단계를 거치는 지원자, 각 지원자와의 면접, 누가 누구를 면접하는지.",
+  "draft": "데이터베이스 초안 만들기",
+  "drafting": "초안 만드는 중…",
+  "create": "만들기",
+  "creating": "만드는 중…",
+  "intro": "이에 대한 페이지 “{title}”를 추가하고 그 안에 데이터베이스 넣기",
+  "exampleRows": "{count, plural, other {예시 행 #개 추가}}",
+  "databaseTitle": "데이터베이스 이름",
+  "removeDatabase": "{name} 삭제",
+  "properties": "속성",
+  "views": "보기",
+  "noProperties": "각 행의 이름만.",
+  "removeView": "{name} 보기 삭제",
+  "rename": "{name} 이름 바꾸기",
+  "linksTo": "{database}에 연결",
+  "linksBoth": "{database}에 양방향으로 연결",
+  "removeProperty": "{name} 삭제",
+  "slash": {
+    "title": "AI로 데이터베이스 만들기",
+    "subtext": "필요한 것을 설명하면 AI가 이 페이지 안에 데이터베이스 초안을 만듭니다",
+    "aliases": "ai 만들기 데이터베이스 생성 계획"
+  },
+  "errors": {
+    "unusable": "AI가 이에 맞는 데이터베이스 초안을 만들지 못했습니다. 다른 말로 설명해 보세요.",
+    "invalid": "이대로는 계획을 만들 수 없습니다. 돌아가서 초안을 다시 만드세요.",
+    "parent": "데이터베이스 안에는 데이터베이스를 넣을 수 없습니다.",
+    "noAccess": "여기에는 페이지를 추가할 수 없습니다.",
+    "failed": "계획의 일부가 맞지 않아 아무것도 만들지 않았습니다. 예시 행을 빼고 다시 시도하세요."
+  }
+}

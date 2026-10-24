@@ -850,7 +850,7 @@ async function main() {
   const groupedTable = await mcp.ok("create_database_view", { database_id: dbPage.id, name: "Grouped", group_by: "Status", hide_empty_groups: true });
   check(groupedTable.type === "table" && groupedTable.group_by === "Status" && groupedTable.hide_empty_groups === true, "tables group by a property", groupedTable);
   const calendarGroup = await mcp.call("create_database_view", { database_id: dbPage.id, name: "Bad", type: "calendar", group_by: "Tags" });
-  check(calendarGroup.isError && calendarGroup.text.includes("only applies to board, table, timeline and chart views"), "calendars refuse grouping", calendarGroup.text);
+  check(calendarGroup.isError && calendarGroup.text.includes("only applies to board, table, timeline, map and chart views"), "calendars refuse grouping", calendarGroup.text);
 
   // ---- "created by": filled in with each row's creator, filterable on "me", read-only
   await mcp.ok("add_database_property", { database_id: dbPage.id, name: "Created by", type: "created_by" });

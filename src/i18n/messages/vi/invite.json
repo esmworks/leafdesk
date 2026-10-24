@@ -1,0 +1,13 @@
+{
+  "metaTitle": "Lời mời",
+  "title": "Tham gia “{workspace}”",
+  "invalidTitle": "Không tìm thấy lời mời",
+  "invalidBody": "Liên kết mời này không hợp lệ, đã hết hạn hoặc đã bị hủy. Hãy nhờ người đã mời bạn gửi liên kết mới.",
+  "home": "Đến Leafdesk",
+  "wrongAccount": "Lời mời này dành cho {email}, nhưng bạn đang đăng nhập bằng {current}. Hãy đăng xuất rồi mở lại liên kết.",
+  "acceptBody": "Bạn được mời tham gia với vai trò {role}.",
+  "signInBody": "Đã có một tài khoản dùng {email}. Hãy đăng nhập để chấp nhận lời mời.",
+  "signIn": "Đăng nhập",
+  "join": "Tham gia không gian làm việc",
+  "joining": "Đang tham gia…"
+}

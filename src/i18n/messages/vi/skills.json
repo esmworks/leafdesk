@@ -1,0 +1,64 @@
+{
+  "metaTitle": "Kỹ năng",
+  "heading": "Kỹ năng",
+  "description": "Các hướng dẫn nhóm của bạn dùng lại, được lưu dưới dạng trang: cách hoàn thiện ghi chú cuộc họp, trả lời khách hàng hoặc phân loại một yêu cầu. Chọn một kỹ năng trong trò chuyện AI bằng /, hoặc từ một ứng dụng AI được kết nối với không gian làm việc. Mỗi kỹ năng là một trang hoặc một hàng cơ sở dữ liệu; mọi người thấy những kỹ năng họ có thể mở.",
+  "new": "Kỹ năng mới",
+  "search": "Tìm kỹ năng",
+  "count": "{count, plural, other {# kỹ năng}}",
+  "noMatches": "Không có kỹ năng nào khớp với tìm kiếm của bạn.",
+  "emptyTitle": "Chưa có kỹ năng nào",
+  "emptyHint": "Bất kỳ trang hay hàng cơ sở dữ liệu nào cũng có thể là kỹ năng: hãy mở nó và bật Dùng làm kỹ năng trong menu ⋯ của nó.",
+  "builtins": {
+    "heading": "Bắt đầu từ một kỹ năng có sẵn",
+    "hint": "Mỗi kỹ năng trở thành một hàng trong cơ sở dữ liệu kỹ năng của bạn: hãy chỉnh cho phù hợp với công việc, rồi chia sẻ với nhóm của bạn.",
+    "open": "Kỹ năng có sẵn"
+  },
+  "noDescription": "Chưa có mô tả",
+  "inDatabase": "Trong {database}",
+  "updated": "Cập nhật {time}",
+  "download": "Tải {title} xuống dưới dạng SKILL.md",
+  "downloadHint": "Một tệp ZIP chứa SKILL.md của kỹ năng, dành cho các trợ lý AI có cài đặt kỹ năng",
+  "menu": {
+    "toggle": "Dùng làm kỹ năng",
+    "hint": "Đưa trang này vào danh sách hướng dẫn tái sử dụng trong trò chuyện AI và cho các ứng dụng AI được kết nối với không gian làm việc",
+    "export": "Xuất dưới dạng SKILL.md",
+    "database": "Cơ sở dữ liệu kỹ năng",
+    "databaseHint": "Mỗi hàng của cơ sở dữ liệu này là một kỹ năng; thuộc tính Mô tả của nó cho biết mỗi kỹ năng dùng để làm gì"
+  },
+  "bar": {
+    "label": "Kỹ năng",
+    "description": "Kỹ năng này dùng để làm gì",
+    "placeholder": "Hãy nói kỹ năng này dùng để làm gì và khi nào nên dùng",
+    "none": "Chưa có mô tả",
+    "library": "Tất cả kỹ năng",
+    "inDatabase": "Mô tả của nó là thuộc tính {property}"
+  },
+  "chat": {
+    "heading": "Kỹ năng",
+    "none": "Chưa có kỹ năng nào.",
+    "library": "Mở thư viện kỹ năng",
+    "noMatches": "Không có kỹ năng nào khớp.",
+    "using": "Đang dùng kỹ năng {title}",
+    "remove": "Gỡ kỹ năng",
+    "pick": "Dùng một kỹ năng",
+    "pickHint": "Dùng một kỹ năng (hoặc gõ / trong ô trống)",
+    "used": "Đã dùng kỹ năng {title}"
+  },
+  "errors": {
+    "notAPage": "Chỉ trang và hàng cơ sở dữ liệu mới có thể là kỹ năng, cơ sở dữ liệu thì không.",
+    "notADatabase": "Chỉ cơ sở dữ liệu mới có thể là cơ sở dữ liệu kỹ năng.",
+    "template": "Các mẫu và những trang trong đó không thể là kỹ năng.",
+    "inTrash": "Hãy khôi phục trang từ thùng rác trước.",
+    "tooLong": "Mô tả của một kỹ năng có tối đa {max} ký tự.",
+    "notASkill": "Trang này không còn là kỹ năng nữa."
+  },
+  "database": {
+    "title": "Kỹ năng",
+    "description": "Mô tả",
+    "files": "Tệp",
+    "tags": "Thẻ",
+    "createdBy": "Người tạo",
+    "open": "Mở cơ sở dữ liệu kỹ năng",
+    "hint": "Mỗi kỹ năng mới là một hàng trong cơ sở dữ liệu kỹ năng của bạn, với mô tả, tệp và thẻ."
+  }
+}

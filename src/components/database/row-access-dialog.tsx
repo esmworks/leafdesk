@@ -150,7 +150,7 @@ export function RowAccessDialog({
                     </span>
                     <div className="min-w-0 flex-1">
                       <div className="truncate text-sm">{name}</div>
-                      <div className="truncate text-xs text-fg-muted">
+                      <div className="text-xs text-fg-muted">
                         {rule.kind === "creator" ? t("creatorDetail") : t("personDetail")}
                       </div>
                     </div>

@@ -10,6 +10,30 @@
     "labelPlaceholder": "שאלה",
     "helpPlaceholder": "הוספת טקסט עזרה (לא חובה)",
     "required": "חובה",
+    "showWhen": "להציג רק כאשר",
+    "addCondition": "להציג רק כאשר…",
+    "removeCondition": "הסרת התנאי",
+    "conditionQuestion": "השאלה שהתנאי מתייחס אליה",
+    "conditionCheck": "תנאי",
+    "conditionOptions": "האפשרויות שהתנאי מחפש",
+    "conditionText": "טקסט",
+    "conditionPickOption": "צריך לבחור לפחות אפשרות אחת כדי לשמור את התנאי.",
+    "conditionTypeText": "צריך להקליד טקסט כדי לשמור את התנאי.",
+    "op": {
+      "is": "אחת מ־",
+      "isNot": "אף אחת מ־",
+      "contains": "מכיל",
+      "notContains": "לא מכיל",
+      "hasAny": "כולל אחת מ־",
+      "hasNone": "לא כולל אף אחת מ־",
+      "checked": "מסומן",
+      "unchecked": "לא מסומן",
+      "empty": "ריק",
+      "notEmpty": "לא ריק"
+    },
+    "minChoices": "לפחות",
+    "maxChoices": "לכל היותר",
+    "anyNumber": "כל מספר",
     "moveUp": "הזזה למעלה",
     "moveDown": "הזזה למטה",
     "remove": "הסרת השאלה",
@@ -27,7 +51,9 @@
     "afterTitle": "אחרי השליחה",
     "confirmationLabel": "הודעה",
     "confirmationPlaceholder": "תודה! התשובה שלך נשלחה.",
-    "allowAnother": "לאפשר שליחת תשובה נוספת"
+    "allowAnother": "לאפשר שליחת תשובה נוספת",
+    "showOwnAnswers": "להציג לאנשים את התשובות שלהם",
+    "showOwnAnswersDescription": "מי שמתחברים כדי לענות רואים את מה ששלחו בטופס הזה, ושום דבר אחר ממסד הנתונים. תשובות אנונימיות אף פעם לא מוצגות."
   },
   "fill": {
     "submit": "שליחה",
@@ -41,7 +67,18 @@
     "addItem": "הוספת פריט",
     "newItem": "פריט חדש",
     "removeItem": "הסרת {text}",
-    "honeypot": "יש להשאיר את השדה הזה ריק"
+    "honeypot": "יש להשאיר את השדה הזה ריק",
+    "choicesExactly": "אפשר לבחור בדיוק {count}.",
+    "choicesBetween": "אפשר לבחור בין {min} ל־{max}.",
+    "choicesAtLeast": "צריך לבחור לפחות {min}.",
+    "choicesAtMost": "אפשר לבחור עד {max}."
+  },
+  "own": {
+    "title": "התשובות שלך",
+    "description": "מה ששלחת בטופס הזה. רק את/ה רואה את הרשימה הזו.",
+    "none": "עדיין לא שלחת תשובות.",
+    "sentAt": "נשלח {date}",
+    "empty": "אין תשובות להצגה."
   },
   "share": {
     "button": "שיתוף",
@@ -69,6 +106,7 @@
     "required": "זוהי שאלת חובה.",
     "tooLong": "התשובה ארוכה מדי (עד {max} תווים).",
     "tooMany": "אפשר לבחור עד {max}.",
+    "tooFew": "צריך לבחור לפחות {min}.",
     "invalidText": "התשובה חייבת להיות טקסט.",
     "invalidAnswers": "יש תשובות שדורשות בדיקה נוספת.",
     "closed": "הטופס הזה כבר לא מקבל תשובות.",

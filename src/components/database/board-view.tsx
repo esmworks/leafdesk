@@ -3,7 +3,7 @@
 import { cellMarkClass, colorMarkClass, type RowColors } from "@/lib/color-rules";
 import { Check, EyeOff, Ellipsis, Pencil, Plus, Trash2 } from "lucide-react";
 import { useTranslations } from "next-intl";
-import { Fragment, memo, useCallback, useContext, useEffect, useMemo, useRef, useState, type DragEvent } from "react";
+import { Fragment, memo, useCallback, useEffect, useMemo, useRef, useState, type DragEvent } from "react";
 import { Button, cn, MenuItem, MenuSeparator } from "@/components/ui";
 import { pageLabel } from "@/lib/labels";
 import { holdsPeople } from "@/lib/property-types";
@@ -28,7 +28,8 @@ import { OpenRowItems } from "./open-row-items";
 import { usePeople } from "./person-cell";
 import { usePropertyAccess } from "./property-access";
 import { RowValue, shownValues } from "./property-cell";
-import { QuickAddContext, QuickAddParts } from "./quick-add";
+import { QuickAddContext } from "./quick-add";
+import { CardTitleInput } from "./card-title-input";
 import { HIDE_SCROLLBAR, StickyScrollbar, useDragPan } from "./scroll-x";
 import { openRowProps, useIsOpenRow, useRowOpener } from "./row-panel-context";
 import { PropertyTypeIcon } from "./property-icons";
@@ -872,43 +873,3 @@ const Card = memo(function Card({
     </div>
   );
 });
-
-/**
- * A card's or a row's title editor; a new row's (inside its view's QuickAddContext) shows what quick
- * add recognises under it, or over what follows it when the row is too short for that (`compact`).
- */
-export function CardTitleInput({ initial, onDone, compact }: { initial: string; onDone: (title: string) => void; compact?: boolean }) {
-  const t = useTranslations("database.board");
-  const quick = useContext(QuickAddContext);
-  const [value, setValue] = useState(initial);
-  const input = useRef<HTMLInputElement>(null);
-  const done = useRef(false);
-  const finish = () => {
-    if (done.current) return;
-    done.current = true;
-    onDone(value.trim());
-  };
-  useEffect(() => input.current?.focus(), []);
-  const field = (
-    <input
-      ref={input}
-      value={value}
-      placeholder={t("namePlaceholder")}
-      aria-label={t("nameLabel")}
-      onClick={(e) => e.stopPropagation()}
-      onChange={(e) => setValue(e.target.value)}
-      onBlur={finish}
-      onKeyDown={(e) => {
-        if (e.key === "Enter" || e.key === "Escape") finish();
-      }}
-      className="w-full bg-transparent text-sm font-medium outline-none placeholder:text-fg-faint"
-    />
-  );
-  if (!quick) return field;
-  return (
-    <div className={cn(compact && "relative min-w-0 flex-1")}>
-      {field}
-      <QuickAddParts quick={quick} text={value} floating={compact} />
-    </div>
-  );
-}

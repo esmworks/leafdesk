@@ -40,6 +40,8 @@ const PLANS: [feature: string, plan: AiFeaturePlan][] = [
   // An agent drafted from an owner's description: instructions it will follow alone, so the main
   // model, while the owner waits for one answer.
   ["agent.draft", { thinking: "medium" }],
+  // Databases drafted from a description: a schema the person builds on, while they wait for it.
+  ["build.plan", { thinking: "medium" }],
   // Agents work alone over many steps, where a mistake is not caught by someone reading along.
   // One its owners set to the fast model does routine, well-defined work (summaries, sorting rows):
   // a little thinking keeps its steps on track without spending what the cheaper model saves.

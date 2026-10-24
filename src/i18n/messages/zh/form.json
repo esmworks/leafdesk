@@ -10,6 +10,30 @@
     "labelPlaceholder": "问题",
     "helpPlaceholder": "添加帮助文本（可选）",
     "required": "必填",
+    "showWhen": "仅在以下情况显示",
+    "addCondition": "仅在以下情况显示…",
+    "removeCondition": "移除条件",
+    "conditionQuestion": "条件所针对的问题",
+    "conditionCheck": "条件",
+    "conditionOptions": "条件查找的选项",
+    "conditionText": "文本",
+    "conditionPickOption": "至少选择一个选项以保存此条件。",
+    "conditionTypeText": "输入文本以保存此条件。",
+    "op": {
+      "is": "是其中之一",
+      "isNot": "不是其中任何一个",
+      "contains": "包含",
+      "notContains": "不包含",
+      "hasAny": "包含其中任一",
+      "hasNone": "不包含其中任何一个",
+      "checked": "已勾选",
+      "unchecked": "未勾选",
+      "empty": "为空",
+      "notEmpty": "不为空"
+    },
+    "minChoices": "至少",
+    "maxChoices": "最多",
+    "anyNumber": "不限",
     "moveUp": "上移",
     "moveDown": "下移",
     "remove": "移除问题",
@@ -27,7 +51,9 @@
     "afterTitle": "提交后",
     "confirmationLabel": "消息",
     "confirmationPlaceholder": "谢谢！你的答复已发送。",
-    "allowAnother": "允许再次提交答复"
+    "allowAnother": "允许再次提交答复",
+    "showOwnAnswers": "向答复者显示其自己的答复",
+    "showOwnAnswersDescription": "登录后答复的人可以看到自己通过此表单提交的内容，看不到数据库中的其他内容。匿名答复从不显示。"
   },
   "fill": {
     "submit": "提交",
@@ -41,7 +67,18 @@
     "addItem": "添加项目",
     "newItem": "新项目",
     "removeItem": "移除 {text}",
-    "honeypot": "请将此字段留空"
+    "honeypot": "请将此字段留空",
+    "choicesExactly": "请恰好选择 {count} 项。",
+    "choicesBetween": "请选择 {min} 到 {max} 项。",
+    "choicesAtLeast": "请至少选择 {min} 项。",
+    "choicesAtMost": "最多选择 {max} 项。"
+  },
+  "own": {
+    "title": "你的答复",
+    "description": "你通过此表单提交的内容。只有你能看到此列表。",
+    "none": "你还没有提交任何答复。",
+    "sentAt": "提交于 {date}",
+    "empty": "没有可显示的答复。"
   },
   "share": {
     "button": "分享",
@@ -69,6 +106,7 @@
     "required": "此问题为必填项。",
     "tooLong": "此答复过长（最多 {max} 个字符）。",
     "tooMany": "最多选择 {max} 项。",
+    "tooFew": "请至少选择 {min} 项。",
     "invalidText": "此答复必须是文本。",
     "invalidAnswers": "部分答复需要再检查一下。",
     "closed": "此表单已不再接收答复。",

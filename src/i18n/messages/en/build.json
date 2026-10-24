@@ -1,0 +1,38 @@
+{
+  "menuItem": "Build with AI",
+  "title": "Build with AI",
+  "hint": "Describe what you want to keep track of. AI drafts the databases, and you review them before anything is created.",
+  "reviewTitle": "Review the plan",
+  "reviewHint": "Rename or remove anything you don't need, then create it.",
+  "back": "Back to the description",
+  "label": "What do you need?",
+  "placeholder": "A hiring pipeline: candidates moving through interview stages, the interviews with each of them, and who interviews whom.",
+  "draft": "Draft the databases",
+  "drafting": "Drafting…",
+  "create": "Create",
+  "creating": "Creating…",
+  "intro": "Add a page about them, “{title}”, with the databases inside it",
+  "exampleRows": "{count, plural, one {Add the example row} other {Add the # example rows}}",
+  "databaseTitle": "Database name",
+  "removeDatabase": "Remove {name}",
+  "properties": "Properties",
+  "views": "Views",
+  "noProperties": "Only the name of each row.",
+  "removeView": "Remove the view {name}",
+  "rename": "Rename {name}",
+  "linksTo": "Links to {database}",
+  "linksBoth": "Links to {database}, both ways",
+  "removeProperty": "Remove {name}",
+  "slash": {
+    "title": "Build databases with AI",
+    "subtext": "Describe what you need and AI drafts databases inside this page",
+    "aliases": "ai build database databases generate plan"
+  },
+  "errors": {
+    "unusable": "AI couldn't draft databases for that. Try describing it in other words.",
+    "invalid": "The plan can't be created as it is. Go back and draft it again.",
+    "parent": "Databases can't go inside a database.",
+    "noAccess": "You can't add pages here.",
+    "failed": "Something in the plan didn't fit, so nothing was created. Remove the example rows and try again."
+  }
+}

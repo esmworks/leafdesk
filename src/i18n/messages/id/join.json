@@ -1,0 +1,20 @@
+{
+  "metaTitle": "Gabung ke ruang kerja",
+  "title": "Bergabung dengan “{workspace}”",
+  "invalidTitle": "Tautan tidak ditemukan",
+  "invalidBody": "Tautan gabung ini tidak valid atau telah dinonaktifkan. Minta tautan baru kepada pemilik ruang kerja.",
+  "home": "Ke Leafdesk",
+  "body": "Anda akan bergabung sebagai anggota, kecuali Anda diundang dengan peran lain.",
+  "join": "Gabung ke ruang kerja",
+  "joining": "Bergabung…",
+  "alreadyMember": "Anda sudah menjadi anggota ruang kerja ini.",
+  "open": "Buka ruang kerja",
+  "signInBody": "Masuk dengan akun Anda untuk bergabung. Server ini tidak mengizinkan akun baru.",
+  "signIn": "Masuk",
+  "requestBody": "Anggota baru ruang kerja ini disetujui oleh pemilik. Kirim permintaan, dan Anda akan mendapat kabar lewat email.",
+  "request": "Minta bergabung",
+  "requesting": "Mengirim…",
+  "requestedTitle": "Permintaan terkirim",
+  "requestedBody": "Pemilik ruang kerja akan meninjau permintaan Anda. Anda akan menerima email saat keputusan dibuat.",
+  "pendingBody": "Anda sudah meminta bergabung ke ruang kerja ini. Pemilik akan menanganinya; Anda akan menerima email saat keputusan dibuat."
+}

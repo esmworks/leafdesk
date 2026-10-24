@@ -1,0 +1,238 @@
+{
+  "meeting-notes": {
+    "title": "Ghi chú cuộc họp",
+    "description": "Chương trình họp, ghi chú, quyết định và các việc cần làm.",
+    "markdown": "**Ngày:** \n\n**Người tham dự:** \n\n## Chương trình họp\n\n1. \n\n## Ghi chú\n\n\n\n## Quyết định\n\n- \n\n## Việc cần làm\n\n- [ ] "
+  },
+  "weekly-plan": {
+    "title": "Kế hoạch tuần",
+    "description": "Mục tiêu của tuần và danh sách kiểm tra cho từng ngày.",
+    "markdown": "## Mục tiêu tuần này\n\n- [ ] \n\n### Thứ Hai\n\n- [ ] \n\n### Thứ Ba\n\n- [ ] \n\n### Thứ Tư\n\n- [ ] \n\n### Thứ Năm\n\n- [ ] \n\n### Thứ Sáu\n\n- [ ] \n\n## Ghi chú cho tuần sau\n"
+  },
+  "project-tracker": {
+    "title": "Theo dõi dự án",
+    "description": "Các công việc có trạng thái, mức ưu tiên, người phụ trách và hạn chót, trong một bảng và một bảng Kanban.",
+    "seedNames": {
+      "status": "Trạng thái",
+      "notStarted": "Chưa bắt đầu",
+      "inProgress": "Đang thực hiện",
+      "done": "Hoàn thành",
+      "tags": "Thẻ",
+      "table": "Tất cả công việc"
+    },
+    "properties": {
+      "priority": "Ưu tiên",
+      "owner": "Người phụ trách",
+      "due": "Hạn chót"
+    },
+    "options": {
+      "high": "Cao",
+      "medium": "Trung bình",
+      "low": "Thấp"
+    },
+    "board": "Bảng Kanban",
+    "rowTemplate": {
+      "title": "Công việc mới",
+      "markdown": "## Mục tiêu\n\n\n\n## Các bước\n\n- [ ] \n\n## Ghi chú\n\n"
+    },
+    "rows": {
+      "brief": "Viết bản tóm tắt dự án",
+      "milestone": "Lập kế hoạch cho cột mốc đầu tiên",
+      "team": "Mời nhóm tham gia"
+    }
+  },
+  "wins-log": {
+    "title": "Nhật ký thành tựu",
+    "description": "Thành tựu, lời khen và công việc đã hoàn thành ở một nơi, kèm biểu đồ theo tháng, loại và lĩnh vực.",
+    "markdown": "Mọi thành tựu, lời khen và công việc đã hoàn thành đều được ghi ở đây, kèm liên kết đến nơi sự việc diễn ra. Hãy thêm thủ công, hoặc để tác tử Bộ ghi thành tựu tự thêm từ các kết nối của bạn.",
+    "database": "Thành tựu",
+    "table": "Tất cả thành tựu",
+    "board": "Theo loại",
+    "properties": {
+      "type": "Loại",
+      "area": "Lĩnh vực",
+      "date": "Ngày",
+      "impact": "Tác động",
+      "source": "Nguồn",
+      "person": "Mọi người"
+    },
+    "types": {
+      "feedback": "Phản hồi",
+      "delivery": "Bàn giao",
+      "metric": "Chỉ số",
+      "event": "Sự kiện",
+      "other": "Khác"
+    },
+    "areas": {
+      "product": "Sản phẩm",
+      "customers": "Khách hàng",
+      "team": "Nhóm",
+      "operations": "Vận hành",
+      "sales": "Bán hàng"
+    },
+    "impacts": {
+      "high": "Cao",
+      "medium": "Trung bình",
+      "low": "Thấp"
+    },
+    "widgets": {
+      "total": "Thành tựu",
+      "byMonth": "Thành tựu theo tháng",
+      "byArea": "Theo lĩnh vực",
+      "byImpact": "Theo tác động"
+    },
+    "rowTemplate": {
+      "title": "Thành tựu mới",
+      "markdown": "## Điều đã xảy ra\n\n\n\n## Vì sao quan trọng\n\n\n\n## Bằng chứng\n\n- "
+    },
+    "rows": {
+      "praise": "Một khách hàng khen quy trình làm quen mới",
+      "launch": "Đã phát hành tính năng xuất hóa đơn",
+      "response": "Hỗ trợ giờ trả lời trong chưa đầy hai giờ",
+      "talk": "Đã trình bày tại buổi họp ngoại khóa của nhóm",
+      "thanks": "Bộ phận bán hàng cảm ơn vì phần chuẩn bị bản demo"
+    }
+  },
+  "small-business": {
+    "title": "Doanh nghiệp nhỏ",
+    "description": "Khách hàng, báo giá bạn gửi họ, công việc và bảng cân đối, liên kết với nhau, kèm một bảng điều khiển và kế hoạch tuần.",
+    "currency": "USD",
+    "dashboard": {
+      "title": "Bảng điều khiển",
+      "markdown": "> [!NOTE]\n> Công việc, báo giá, khách hàng và bảng cân đối trên một màn hình. Các tiện ích thay đổi theo cơ sở dữ liệu.\n\nHãy thêm khách hàng của bạn trước, rồi đến các báo giá bạn gửi họ. Khi một báo giá được chấp nhận, hãy thêm một công việc và liên kết nó với báo giá và khách hàng. Nhập bảng cân đối theo ngày bạn kiểm kê: các tiện ích hiển thị các mục nhập của tháng này.",
+      "widgets": {
+        "openJobs": "Công việc đang mở",
+        "dueJobs": "Đến hạn hoặc quá hạn",
+        "openQuotes": "Báo giá đang mở",
+        "netWorth": "Giá trị ròng tháng này",
+        "jobsByPerson": "Công việc đang mở theo người và mức ưu tiên",
+        "upcomingJobs": "Công việc đang mở theo hạn chót",
+        "quotesByStatus": "Báo giá theo trạng thái",
+        "quoteFollowUps": "Theo dõi báo giá",
+        "customersByStage": "Khách hàng theo giai đoạn",
+        "customerFollowUps": "Theo dõi khách hàng",
+        "balanceBreakdown": "Bảng cân đối tháng này",
+        "netWorthByDate": "Giá trị ròng theo ngày"
+      }
+    },
+    "customers": {
+      "title": "Khách hàng",
+      "table": "Tất cả khách hàng",
+      "board": "Theo giai đoạn",
+      "properties": {
+        "stage": "Giai đoạn",
+        "city": "Thành phố",
+        "contact": "Người liên hệ",
+        "phone": "Điện thoại",
+        "email": "Email",
+        "nextStep": "Bước tiếp theo",
+        "nextStepDate": "Ngày thực hiện bước tiếp theo",
+        "quotes": "Báo giá",
+        "jobs": "Công việc",
+        "quoted": "Tổng giá trị đã báo"
+      },
+      "stages": {
+        "lead": "Khách tiềm năng",
+        "prospect": "Khách triển vọng",
+        "customer": "Khách hàng",
+        "inactive": "Không hoạt động"
+      }
+    },
+    "quotes": {
+      "title": "Báo giá",
+      "table": "Tất cả báo giá",
+      "board": "Theo trạng thái",
+      "calendar": "Theo dõi",
+      "properties": {
+        "customer": "Khách hàng",
+        "status": "Trạng thái",
+        "amount": "Số tiền",
+        "followUp": "Ngày theo dõi",
+        "date": "Ngày",
+        "validUntil": "Có hiệu lực đến",
+        "preparedBy": "Người lập",
+        "jobs": "Công việc"
+      },
+      "statuses": {
+        "draft": "Bản nháp",
+        "sent": "Đã gửi",
+        "revision": "Yêu cầu chỉnh sửa",
+        "accepted": "Đã chấp nhận",
+        "lost": "Thất bại"
+      },
+      "rowTemplate": {
+        "title": "Báo giá mới",
+        "markdown": "## Hạng mục\n\n- \n\n## Điều khoản\n\n**Thanh toán:** \n\n**Giao hàng:** \n\n## Ghi chú\n"
+      }
+    },
+    "jobs": {
+      "title": "Công việc",
+      "table": "Tất cả công việc",
+      "board": "Bảng Kanban",
+      "byPerson": "Theo người",
+      "calendar": "Lịch",
+      "properties": {
+        "status": "Trạng thái",
+        "priority": "Ưu tiên",
+        "assignee": "Người được giao",
+        "due": "Hạn chót",
+        "customer": "Khách hàng",
+        "quote": "Báo giá",
+        "notes": "Ghi chú"
+      },
+      "statuses": {
+        "todo": "Cần làm",
+        "waiting": "Đang chờ",
+        "inProgress": "Đang thực hiện",
+        "done": "Hoàn thành"
+      },
+      "priorities": {
+        "urgent": "Khẩn cấp",
+        "high": "Cao",
+        "normal": "Bình thường",
+        "low": "Thấp"
+      },
+      "rowTemplate": {
+        "title": "Công việc mới",
+        "markdown": "## Các bước\n\n- [ ] \n"
+      }
+    },
+    "balance": {
+      "title": "Bảng cân đối",
+      "table": "Tất cả mục nhập",
+      "byDate": "Theo ngày",
+      "netWorth": "Giá trị ròng",
+      "thisMonth": "Tháng này",
+      "properties": {
+        "date": "Ngày",
+        "side": "Bên",
+        "group": "Nhóm",
+        "amount": "Số tiền",
+        "net": "Ảnh hưởng ròng",
+        "note": "Ghi chú"
+      },
+      "sides": {
+        "asset": "Tài sản",
+        "liability": "Nợ phải trả"
+      },
+      "groups": {
+        "cash": "Tiền mặt và ngân hàng",
+        "receivables": "Khoản phải thu",
+        "chequesIn": "Séc đã nhận",
+        "stock": "Hàng tồn kho",
+        "equipment": "Thiết bị",
+        "payables": "Khoản phải trả",
+        "chequesOut": "Séc đã phát hành",
+        "card": "Nợ thẻ tín dụng",
+        "loans": "Khoản vay ngân hàng",
+        "taxes": "Thuế và bảo hiểm xã hội",
+        "wages": "Lương còn nợ",
+        "other": "Khác"
+      }
+    }
+  },
+  "journal": {
+    "title": "Nhật ký",
+    "markdown": "## Trọng tâm\n\n- [ ] \n\n## Ghi chú\n\n## Đã làm hôm nay\n"
+  }
+}

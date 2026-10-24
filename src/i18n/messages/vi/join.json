@@ -1,0 +1,20 @@
+{
+  "metaTitle": "Tham gia không gian làm việc",
+  "title": "Tham gia “{workspace}”",
+  "invalidTitle": "Không tìm thấy liên kết",
+  "invalidBody": "Liên kết tham gia này không hợp lệ hoặc đã bị tắt. Hãy nhờ chủ sở hữu không gian làm việc gửi liên kết mới.",
+  "home": "Đến Leafdesk",
+  "body": "Bạn sẽ tham gia với tư cách thành viên, trừ khi bạn được mời với vai trò khác.",
+  "join": "Tham gia không gian làm việc",
+  "joining": "Đang tham gia…",
+  "alreadyMember": "Bạn đã là thành viên của không gian làm việc này.",
+  "open": "Mở không gian làm việc",
+  "signInBody": "Hãy đăng nhập bằng tài khoản của bạn để tham gia. Máy chủ này không cho phép tạo tài khoản mới.",
+  "signIn": "Đăng nhập",
+  "requestBody": "Chủ sở hữu sẽ phê duyệt thành viên mới của không gian làm việc này. Hãy gửi yêu cầu, bạn sẽ nhận được phản hồi qua email.",
+  "request": "Yêu cầu tham gia",
+  "requesting": "Đang gửi…",
+  "requestedTitle": "Đã gửi yêu cầu",
+  "requestedBody": "Chủ sở hữu không gian làm việc sẽ xem xét yêu cầu của bạn. Bạn sẽ nhận được email khi có quyết định.",
+  "pendingBody": "Bạn đã yêu cầu tham gia không gian làm việc này. Chủ sở hữu sẽ xử lý sớm; bạn sẽ nhận được email khi có quyết định."
+}
