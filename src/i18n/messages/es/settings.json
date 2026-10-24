@@ -1967,7 +1967,7 @@
     "descriptionLabel": "Descripción predeterminada",
     "descriptionHint": "Aparece en resultados de búsqueda y vistas previas de enlaces de las páginas sin descripción propia (se define en la pestaña Publicar de cada página).",
     "analyticsLabel": "Google Analytics",
-    "analyticsHint": "Un ID de medición de Google Analytics 4 (G-…). Los navegadores de los visitantes cargan entonces la etiqueta de Google en cada página del sitio y le envían lo que ven.",
+    "analyticsHint": "Un ID de medición de Google Analytics 4 (G-…). Solo se aplica en el dominio propio del sitio: allí los navegadores de los visitantes cargan la etiqueta de Google en cada página y le envían lo que ven. Las páginas en la dirección de la aplicación nunca la cargan.",
     "domainHeading": "Dominio propio",
     "domainDescription": "Sirve el sitio en la raíz de un dominio tuyo, como docs.example.com.",
     "domainLabel": "Dominio",

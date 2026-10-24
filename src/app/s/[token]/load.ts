@@ -37,7 +37,8 @@ export const loadPublished = cache(async (key: string, segment?: string, viewId?
     if (segment !== undefined && !pageId) notFound();
     const found = await getSitePage(site, pageId ?? undefined, viewId);
     if (!found) notFound();
-    const allowed = site.analyticsId && requestHeaders.get(SITE_ANALYTICS_HEADER) === site.analyticsId;
+    // Only on the site's own domain: never on the app's address, where members' session cookies live.
+    const allowed = site.onDomain && site.analyticsId && requestHeaders.get(SITE_ANALYTICS_HEADER) === site.analyticsId;
     return { key, ...found, analyticsId: allowed ? site.analyticsId : null, nonce };
   }
   const data = await getPublishedPage(key, segment, viewId);

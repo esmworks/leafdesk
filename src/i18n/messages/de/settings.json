@@ -1967,7 +1967,7 @@
     "descriptionLabel": "Standardbeschreibung",
     "descriptionHint": "Erscheint in Suchergebnissen und Linkvorschauen für Seiten ohne eigene Beschreibung (im Tab „Veröffentlichen“ einer Seite festgelegt).",
     "analyticsLabel": "Google Analytics",
-    "analyticsHint": "Eine Google-Analytics-4-Mess-ID (G-…). Die Browser der Besucher laden dann auf jeder Seite der Website das Google-Tag und senden Google, was sie ansehen.",
+    "analyticsHint": "Eine Google-Analytics-4-Mess-ID (G-…). Sie wirkt nur auf der eigenen Domain der Website: Dort laden die Browser der Besucher auf jeder Seite das Google-Tag und senden Google, was sie ansehen. Seiten unter der Adresse der App laden es nie.",
     "domainHeading": "Eigene Domain",
     "domainDescription": "Die Website im Stammverzeichnis einer eigenen Domain anbieten, etwa docs.example.com.",
     "domainLabel": "Domain",

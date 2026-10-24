@@ -1967,7 +1967,7 @@
     "descriptionLabel": "Deskripsi default",
     "descriptionHint": "Ditampilkan di hasil pencarian dan pratinjau tautan untuk halaman tanpa deskripsi sendiri (diatur di tab Terbitkan pada halaman).",
     "analyticsLabel": "Google Analytics",
-    "analyticsHint": "ID pengukuran Google Analytics 4 (G-…). Browser pengunjung lalu memuat tag Google di setiap halaman situs dan mengirim ke Google apa yang mereka lihat.",
+    "analyticsHint": "ID pengukuran Google Analytics 4 (G-…). Hanya berlaku di domain milik situs: di sana browser pengunjung memuat tag Google di setiap halaman dan mengirim ke Google apa yang mereka lihat. Halaman di alamat aplikasi tidak pernah memuatnya.",
     "domainHeading": "Domain sendiri",
     "domainDescription": "Sajikan situs di root domain milik Anda, seperti docs.example.com.",
     "domainLabel": "Domain",

@@ -1967,7 +1967,7 @@
     "descriptionLabel": "기본 설명",
     "descriptionHint": "자체 설명이 없는 페이지의 검색 결과와 링크 미리보기에 표시됩니다(설명은 각 페이지의 게시 탭에서 설정).",
     "analyticsLabel": "Google 애널리틱스",
-    "analyticsHint": "Google 애널리틱스 4 측정 ID(G-…). 설정하면 방문자의 브라우저가 사이트의 모든 페이지에서 Google 태그를 불러와 본 내용을 Google에 보냅니다.",
+    "analyticsHint": "Google 애널리틱스 4 측정 ID(G-…). 사이트 자체 도메인에서만 적용됩니다. 그곳에서는 방문자의 브라우저가 모든 페이지에서 Google 태그를 불러와 본 내용을 Google에 보냅니다. 앱 주소의 페이지는 이를 불러오지 않습니다.",
     "domainHeading": "자체 도메인",
     "domainDescription": "docs.example.com처럼 내 도메인의 루트에서 사이트를 제공합니다.",
     "domainLabel": "도메인",

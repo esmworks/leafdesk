@@ -1,14 +1,16 @@
-import { eq, isNotNull, or } from "drizzle-orm";
+import { eq, isNotNull } from "drizzle-orm";
 import { db } from "@/db";
 import { workspaceSite } from "@/db/schema";
 import { env } from "@/lib/env";
-import { isSiteTheme, requestHost, routeOnSiteHost, sitePathSlug, type SiteHostRoute, type SiteTheme } from "@/lib/site";
+import { isSiteTheme, requestHost, routeOnSiteHost, type SiteHostRoute, type SiteTheme } from "@/lib/site";
 
 /**
- * Which requests belong to a workspace site with a domain of its own or an analytics ID, for
- * server.ts, which sees every request (API routes and websocket upgrades included) before Next.
+ * Which requests belong to a workspace site on a domain of its own, for server.ts, which sees every
+ * request (API routes and websocket upgrades included) before Next. A site's analytics ID only
+ * reaches pages served on its domain, never `/s/<slug>` on the app's address, where members' session
+ * cookies live.
  *
- * The sites that have either are read all at once and kept for a short while, so a request costs a
+ * The sites with a domain are read all at once and kept for a short while, so a request costs a
  * map lookup: any host can be sent, and none of them makes a query. Saving a site forgets them
  * (forgetSiteHosts); other servers on the same database catch up within SNAPSHOT_MS. The snapshot
  * lives on globalThis because server.ts and Next's bundle each load this module.
@@ -17,7 +19,7 @@ import { isSiteTheme, requestHost, routeOnSiteHost, sitePathSlug, type SiteHostR
 const SNAPSHOT_MS = 15_000;
 
 type SiteHost = { slug: string; domain: string | null; analyticsId: string | null };
-type Snapshot = { at: number; byDomain: Map<string, SiteHost>; bySlug: Map<string, SiteHost> };
+type Snapshot = { at: number; byDomain: Map<string, SiteHost> };
 
 const store = globalThis as unknown as { __leafdeskSiteHosts?: { snapshot?: Snapshot; loading?: Promise<Snapshot>; generation: number } };
 const state = (store.__leafdeskSiteHosts ??= { generation: 0 });
@@ -27,12 +29,9 @@ async function load(): Promise<Snapshot> {
   const rows = await db
     .select({ slug: workspaceSite.slug, domain: workspaceSite.domain, analyticsId: workspaceSite.analyticsId })
     .from(workspaceSite)
-    .where(or(isNotNull(workspaceSite.domain), isNotNull(workspaceSite.analyticsId)));
-  const snapshot: Snapshot = { at: Date.now(), byDomain: new Map(), bySlug: new Map() };
-  for (const row of rows) {
-    if (row.domain) snapshot.byDomain.set(row.domain, row);
-    snapshot.bySlug.set(row.slug, row);
-  }
+    .where(isNotNull(workspaceSite.domain));
+  const snapshot: Snapshot = { at: Date.now(), byDomain: new Map() };
+  for (const row of rows) if (row.domain) snapshot.byDomain.set(row.domain, row);
   // A save while this was loading: the next request reads again.
   if (generation === state.generation) state.snapshot = snapshot;
   return snapshot;
@@ -56,9 +55,9 @@ export function forgetSiteHosts() {
 }
 
 export type SiteGate =
-  /** As before: not a site's domain. `analyticsId` when the path is a page of a site that has one. */
-  | { kind: "app"; analyticsId: string | null }
-  /** A page of the site on its own domain. */
+  /** As before: not a site's domain. */
+  | { kind: "app" }
+  /** A page of the site on its own domain, with the site's analytics ID when it has one. */
   | { kind: "site"; slug: string; analyticsId: string | null }
   | Exclude<SiteHostRoute, { kind: "site" }>;
 
@@ -67,17 +66,10 @@ const appHost = () => new URL(env.appUrl).hostname.toLowerCase();
 /** What server.ts does with a request: see SiteGate. */
 export async function siteGate(method: string, url: string, hostHeader: string | undefined): Promise<SiteGate> {
   const host = requestHost(hostHeader);
-  const pathname = url.split("?")[0];
-  const sitePath = pathname.startsWith("/s/");
   // The app's own address never serves a site at its root, whatever is stored.
-  const ownHost = host === appHost();
-  if (env.localMode || (ownHost && !sitePath)) return { kind: "app", analyticsId: null };
-  const sites = await snapshot();
-  const site = ownHost ? undefined : sites.byDomain.get(host);
-  if (!site) {
-    const slug = sitePath ? sitePathSlug(pathname) : null;
-    return { kind: "app", analyticsId: (slug && sites.bySlug.get(slug)?.analyticsId) || null };
-  }
+  if (env.localMode || host === appHost()) return { kind: "app" };
+  const site = (await snapshot()).byDomain.get(host);
+  if (!site) return { kind: "app" };
   const route = routeOnSiteHost(method, url, site.slug, env.appUrl);
   return route.kind === "site" ? { kind: "site", slug: site.slug, analyticsId: site.analyticsId } : route;
 }

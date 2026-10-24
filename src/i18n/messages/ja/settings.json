@@ -1967,7 +1967,7 @@
     "descriptionLabel": "既定の説明",
     "descriptionHint": "独自の説明がないページの検索結果やリンクのプレビューに表示されます（説明は各ページの「公開」タブで設定）。",
     "analyticsLabel": "Google アナリティクス",
-    "analyticsHint": "Google アナリティクス 4 の測定 ID（G-…）。設定すると、訪問者のブラウザはサイトの全ページで Google タグを読み込み、閲覧内容を Google に送信します。",
+    "analyticsHint": "Google アナリティクス 4 の測定 ID（G-…）。サイト独自のドメインでのみ有効です。そこでは訪問者のブラウザが全ページで Google タグを読み込み、閲覧内容を Google に送信します。アプリのアドレス上のページでは読み込まれません。",
     "domainHeading": "独自ドメイン",
     "domainDescription": "docs.example.com のような自分のドメインのルートでサイトを公開します。",
     "domainLabel": "ドメイン",

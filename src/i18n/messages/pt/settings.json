@@ -1967,7 +1967,7 @@
     "descriptionLabel": "Descrição padrão",
     "descriptionHint": "Aparece nos resultados de busca e nas prévias de links das páginas sem descrição própria (definida na aba Publicar de cada página).",
     "analyticsLabel": "Google Analytics",
-    "analyticsHint": "Um ID de métricas do Google Analytics 4 (G-…). Os navegadores dos visitantes passam a carregar a tag do Google em todas as páginas do site e a enviar ao Google o que veem.",
+    "analyticsHint": "Um ID de métricas do Google Analytics 4 (G-…). Só tem efeito no domínio próprio do site: lá os navegadores dos visitantes carregam a tag do Google em todas as páginas e enviam ao Google o que veem. As páginas no endereço do app nunca a carregam.",
     "domainHeading": "Domínio próprio",
     "domainDescription": "Sirva o site na raiz de um domínio seu, como docs.example.com.",
     "domainLabel": "Domínio",

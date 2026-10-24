@@ -1967,7 +1967,7 @@
     "descriptionLabel": "默认描述",
     "descriptionHint": "显示在没有自己描述的页面的搜索结果和链接预览中（描述在页面的“发布”标签中设置）。",
     "analyticsLabel": "Google Analytics",
-    "analyticsHint": "Google Analytics 4 衡量 ID（G-…）。设置后，访客的浏览器会在网站每个页面加载 Google 代码，并把浏览内容发送给 Google。",
+    "analyticsHint": "Google Analytics 4 衡量 ID（G-…）。仅在网站自己的域名上生效：在那里，访客的浏览器会在每个页面加载 Google 代码，并把浏览内容发送给 Google。应用地址下的页面绝不会加载它。",
     "domainHeading": "自有域名",
     "domainDescription": "在你自己的域名（如 docs.example.com）根路径提供网站。",
     "domainLabel": "域名",

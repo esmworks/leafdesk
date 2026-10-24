@@ -1967,7 +1967,7 @@
     "descriptionLabel": "תיאור ברירת מחדל",
     "descriptionHint": "מוצג בתוצאות חיפוש ובתצוגות מקדימות של קישורים לעמודים בלי תיאור משלהם (נקבע בלשונית 'פרסום' של העמוד).",
     "analyticsLabel": "Google Analytics",
-    "analyticsHint": "מזהה מדידה של Google Analytics 4 ‏(G-…). הדפדפנים של המבקרים יטענו אז את התג של Google בכל עמוד באתר וישלחו ל-Google מה הם צופים.",
+    "analyticsHint": "מזהה מדידה של Google Analytics 4 ‏(G-…). הוא חל רק בדומיין של האתר עצמו: שם הדפדפנים של המבקרים טוענים את התג של Google בכל עמוד ושולחים ל-Google מה הם צופים. עמודים בכתובת של האפליקציה אף פעם לא טוענים אותו.",
     "domainHeading": "דומיין משלך",
     "domainDescription": "הגשת האתר בשורש של דומיין משלך, כמו docs.example.com.",
     "domainLabel": "דומיין",

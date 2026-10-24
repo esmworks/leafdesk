@@ -1967,7 +1967,7 @@
     "descriptionLabel": "Mô tả mặc định",
     "descriptionHint": "Hiện trong kết quả tìm kiếm và bản xem trước liên kết của các trang không có mô tả riêng (đặt trong thẻ Xuất bản của trang).",
     "analyticsLabel": "Google Analytics",
-    "analyticsHint": "Mã đo lường Google Analytics 4 (G-…). Khi đó trình duyệt của khách tải thẻ Google trên mọi trang của trang web và gửi cho Google những gì họ xem.",
+    "analyticsHint": "Mã đo lường Google Analytics 4 (G-…). Chỉ có hiệu lực trên tên miền riêng của trang web: ở đó trình duyệt của khách tải thẻ Google trên mọi trang và gửi cho Google những gì họ xem. Các trang ở địa chỉ của ứng dụng không bao giờ tải thẻ này.",
     "domainHeading": "Tên miền riêng",
     "domainDescription": "Phục vụ trang web tại gốc của một tên miền của bạn, như docs.example.com.",
     "domainLabel": "Tên miền",

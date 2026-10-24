@@ -3,7 +3,7 @@
  * rules, owners only, home page among published pages), which publications it lists and serves
  * (never unlisted ones or pages the publisher can't see), its navigation and links, search-engine
  * settings carried over, the home page falling back, the site's own domain, theme, header links,
- * search descriptions and analytics ID, and duplicating a published page into another workspace
+ * search descriptions and analytics ID (loaded only on the site's own domain), and duplicating a published page into another workspace
  * (only when allowed, only what is published, files copied, no people or private properties, rate
  * limited). With APP_URL set, also checks the public routes over HTTP: the site on its own domain
  * (and nothing else there), its metadata, favicon and Content-Security-Policy.
@@ -374,7 +374,7 @@ try {
   // ---------------------------------------------------------------------------------------------
   // Public routes, when a server is running
   if (appUrl) {
-    const get = (path: string) => fetch(new URL(path, appUrl), { redirect: "manual" });
+    const get = (path: string, init: RequestInit = {}) => fetch(new URL(path, appUrl), { redirect: "manual", ...init });
     const port = new URL(appUrl).port || "80";
     // fetch keeps its own Host header: these go to the server with the one a browser would send.
     const onHost = (host: string, path: string, method = "GET", headers: Record<string, string> = {}) =>
@@ -417,6 +417,7 @@ try {
       root = await onHost(DOMAIN, "/");
     }
     check(root.status === 200 && root.body.includes("Acme Docs"), "the domain's root is the site's home page", root.status);
+    check(!root.headers["set-cookie"], "a site page on the domain sets no cookie", root.headers["set-cookie"]);
     const guideSegment = pageSegment(guide.id, "Guide");
     check(root.body.includes(`href="/${guideSegment}"`) && !root.body.includes(`href="/s/${SLUG}`), "its links stay on the domain");
     check(root.body.includes(`<link rel="canonical" href="https://${DOMAIN}/"`), "the canonical address is on the domain", /<link rel="canonical"[^>]*>/.exec(root.body)?.[0]);
@@ -447,6 +448,7 @@ try {
       "a page on the domain carries its own description",
     );
     check(guideOnDomain.body.includes('href="https://status.example.com"') && guideOnDomain.body.includes(">Status</a>"), "the header shows the site's links");
+    check(!guideOnDomain.headers["set-cookie"] && !favicon.headers["set-cookie"], "…nor does any other page or its favicon");
     const imageOnDomain = await onHost(DOMAIN, `/api/files/${image.id}`);
     check(imageOnDomain.status === 200, "files the pages show load on the domain", imageOnDomain.status);
     const moved = await onHost(DOMAIN, `/s/${SLUG}/${guideSegment}`);
@@ -479,7 +481,19 @@ try {
     const atApp = await get(`/s/${SLUG}`);
     const atAppBody = await atApp.text();
     check(atAppBody.includes(`<link rel="canonical" href="https://${DOMAIN}/"`), "at the app's address the canonical one is on the domain");
-    check(String(atApp.headers.get("content-security-policy")).includes("googletagmanager"), "…and the site's pages there load Google's tag too");
+    const withoutNonce = (policy: string | null | undefined) => String(policy).replace(/'nonce-[^']+'/g, "'nonce'");
+    const appPolicy = withoutNonce((await get("/sign-in")).headers.get("content-security-policy"));
+    check(
+      withoutNonce(atApp.headers.get("content-security-policy")) === appPolicy && !atAppBody.includes("googletagmanager") && !atAppBody.includes("gtag("),
+      "at the app's address the site's pages never load Google's tag, and their policy is the app's",
+      atApp.headers.get("content-security-policy"),
+    );
+    const atAppPage = await get(`/s/${SLUG}/${guideSegment}`, { headers: { "x-leafdesk-site-analytics": GA } });
+    const atAppPageBody = await atAppPage.text();
+    check(
+      atAppPage.status === 200 && withoutNonce(atAppPage.headers.get("content-security-policy")) === appPolicy && !atAppPageBody.includes("googletagmanager"),
+      "…not even when a client sends the analytics header",
+    );
     const elsewhere = await onHost(`other-${DOMAIN}`, `/s/${SLUG}`);
     check(elsewhere.status === 200 && elsewhere.body.includes(`href="/s/${SLUG}/${guideSegment}"`), "an unknown host is served as before");
     const tokenPage = await get(`/s/${linkPub.token}`);

@@ -1967,7 +1967,7 @@
     "descriptionLabel": "Domyślny opis",
     "descriptionHint": "Pokazywany w wynikach wyszukiwania i podglądach linków stron bez własnego opisu (ustawianego w karcie Opublikuj strony).",
     "analyticsLabel": "Google Analytics",
-    "analyticsHint": "Identyfikator pomiaru Google Analytics 4 (G-…). Przeglądarki odwiedzających wczytują wtedy tag Google na każdej stronie witryny i wysyłają Google, co oglądają.",
+    "analyticsHint": "Identyfikator pomiaru Google Analytics 4 (G-…). Działa tylko w domenie własnej witryny: tam przeglądarki odwiedzających wczytują tag Google na każdej stronie i wysyłają Google, co oglądają. Strony pod adresem aplikacji nigdy go nie wczytują.",
     "domainHeading": "Własna domena",
     "domainDescription": "Udostępniaj witrynę w katalogu głównym własnej domeny, np. docs.example.com.",
     "domainLabel": "Domena",

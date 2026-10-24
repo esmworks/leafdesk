@@ -16,7 +16,7 @@ const RETURNABLE = /^\/(w|print)(\/|$)|^\/(account|share)$/;
  *
  * Workspace sites: on a site's own domain (server.ts says which, see server/site-hosts.ts) its
  * pages are served at the root, from `/s/<slug>`. Requests for a site's pages carry its slug for
- * the root layout (the site's theme), and with an analytics ID the policy lets Google's tag in.
+ * the root layout (the site's theme); on its domain, with an analytics ID, the policy lets Google's tag in.
  */
 export function proxy(request: NextRequest) {
   const headers = new Headers(request.headers);
@@ -31,7 +31,8 @@ export function proxy(request: NextRequest) {
     nonce: newNonce(),
     host: request.headers.get("host") ?? "",
     dev: process.env.NODE_ENV !== "production",
-    analytics: isAnalyticsId(request.headers.get(SITE_ANALYTICS_HEADER)),
+    // server.ts sends an analytics ID only with a page on the site's own domain.
+    analytics: onSiteHost && isAnalyticsId(request.headers.get(SITE_ANALYTICS_HEADER)),
   });
   headers.set("content-security-policy", policy);
   if (!onSiteHost && RETURNABLE.test(pathname)) {

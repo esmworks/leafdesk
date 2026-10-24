@@ -1967,7 +1967,7 @@
     "descriptionLabel": "Default description",
     "descriptionHint": "Shown in search results and link previews for pages without a description of their own (set in a page's Publish tab).",
     "analyticsLabel": "Google Analytics",
-    "analyticsHint": "A Google Analytics 4 measurement ID (G-…). Visitors' browsers then load Google's tag on every page of the site and send Google what they view.",
+    "analyticsHint": "A Google Analytics 4 measurement ID (G-…). It only takes effect on the site's own domain: there visitors' browsers load Google's tag on every page and send Google what they view. Pages at the app's address never load it.",
     "domainHeading": "Own domain",
     "domainDescription": "Serve the site at the root of a domain of yours, like docs.example.com.",
     "domainLabel": "Domain",

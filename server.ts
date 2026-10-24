@@ -139,8 +139,10 @@ const server = createServer((req, res) => {
         res.writeHead(404, { "content-type": "text/plain; charset=utf-8", "cache-control": "no-store" }).end("Not Found");
         return;
       }
-      if (gate.kind === "site") req.headers[SITE_HOST_HEADER] = gate.slug;
-      if ((gate.kind === "site" || gate.kind === "app") && gate.analyticsId) req.headers[SITE_ANALYTICS_HEADER] = gate.analyticsId;
+      if (gate.kind === "site") {
+        req.headers[SITE_HOST_HEADER] = gate.slug;
+        if (gate.analyticsId) req.headers[SITE_ANALYTICS_HEADER] = gate.analyticsId;
+      }
       return handleRequest(req, res);
     })
     .catch((error) => {

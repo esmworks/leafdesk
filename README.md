@@ -516,7 +516,7 @@ for Windows, `.AppImage` for Linux) and choose *On this computer*. See [Desktop 
   system), put up to six links in its header (to listed pages or web addresses), give it a default
   search description (each published page can have its own, shown with the title as the meta
   description and in Open Graph and Twitter link previews), and may add a Google Analytics 4
-  measurement ID. The site's favicon is its home page's emoji, drawn as SVG by the server. A site
+  measurement ID, used only on the site's own domain. The site's favicon is its home page's emoji, drawn as SVG by the server. A site
   can also have a domain of its own (see [Workspace site on its own domain](#workspace-site-on-its-own-domain)).
   A publication can also **allow duplicate**: signed-in
   visitors copy the page, as published, into one of their workspaces (or its templates), files
@@ -850,10 +850,11 @@ Leafdesk doesn't verify domains or get certificates; whoever runs the server doe
    `proxy_set_header Host $host;`.
 
 When the site has a Google Analytics measurement ID, visitors' browsers load Google's tag from
-`https://www.googletagmanager.com` on each page of the site (at its own domain and at
-`/s/<slug>`) and send what they view to Google Analytics (`*.google-analytics.com`,
-`*.analytics.google.com`). Those pages' Content-Security-Policy allows exactly these hosts; no other
-page loads anything from Google.
+`https://www.googletagmanager.com` on each page of the site at its own domain and send what they
+view to Google Analytics (`*.google-analytics.com`, `*.analytics.google.com`). Those pages'
+Content-Security-Policy allows exactly these hosts. The same pages at `/s/<slug>` on the app's
+address never load it, since members' session cookies live there, and neither does any other page;
+without a domain the ID has no effect.
 
 ### Use an external PostgreSQL
 

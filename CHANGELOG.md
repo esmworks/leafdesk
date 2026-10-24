@@ -11,8 +11,9 @@
   answer 404 there and no session is used on it; the README says how to point DNS and the reverse
   proxy at the server. Owners also pick the site's theme (light, dark or the visitor's system, over
   whatever visitors chose in the app), up to six header links to listed pages or web addresses, a
-  default search description, and a Google Analytics 4 measurement ID, which only then loads
-  Google's tag on the site's pages with exactly Google's hosts added to their Content-Security-
+  default search description, and a Google Analytics 4 measurement ID, which loads Google's tag
+  only on the site's pages at its own domain (never at `/s/<slug>` on the app's address, where
+  members' session cookies live) with exactly Google's hosts added to their Content-Security-
   Policy. Each published page can have its own search description (Publish tab). Pages carry it as
   the meta description and in Open Graph and Twitter tags, site pages point search engines at the
   domain, their titles no longer end in "Leafdesk", and the favicon is the home page's emoji, drawn

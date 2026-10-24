@@ -1967,7 +1967,7 @@
     "descriptionLabel": "الوصف الافتراضي",
     "descriptionHint": "يظهر في نتائج البحث ومعاينات الروابط للصفحات التي ليس لها وصف خاص (يُضبط في تبويب النشر في الصفحة).",
     "analyticsLabel": "Google Analytics",
-    "analyticsHint": "معرّف قياس Google Analytics 4 ‏(G-…). عندها تحمّل متصفحات الزوّار وسم Google في كل صفحة من الموقع وترسل إلى Google ما يشاهدونه.",
+    "analyticsHint": "معرّف قياس Google Analytics 4 ‏(G-…). لا يسري إلا على النطاق الخاص بالموقع: هناك تحمّل متصفحات الزوّار وسم Google في كل صفحة وترسل إلى Google ما يشاهدونه. الصفحات على عنوان التطبيق لا تحمّله أبدًا.",
     "domainHeading": "نطاق خاص",
     "domainDescription": "قدّم الموقع في جذر نطاق خاص بك، مثل docs.example.com.",
     "domainLabel": "النطاق",

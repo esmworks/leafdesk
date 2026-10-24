@@ -13,7 +13,6 @@ import {
   requestHost,
   routeOnSiteHost,
   siteDomainProblem,
-  sitePathSlug,
   siteSlugProblem,
   slugify,
 } from "./site";
@@ -176,14 +175,6 @@ describe("routeOnSiteHost", () => {
     }
     expect(route("/", "POST")).toEqual({ kind: "notFound" });
     expect(route(`/road-map-${ID}`, "POST")).toEqual({ kind: "notFound" });
-  });
-
-  it("knows which paths are a site's pages", () => {
-    expect(sitePathSlug("/s/acme")).toBe("acme");
-    expect(sitePathSlug(`/s/acme/road-map-${ID}`)).toBe("acme");
-    expect(sitePathSlug("/s/acme/duplicate")).toBeNull();
-    expect(sitePathSlug("/s/k3j4h5g6f7d8s9a0q1w2e3r4t5y6u7i8o9p0lkjhgfd")).toBeNull();
-    expect(sitePathSlug("/w/acme")).toBeNull();
   });
 });
 

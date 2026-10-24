@@ -212,13 +212,6 @@ export function routeOnSiteHost(method: string, path: string, slug: string, appU
   return { kind: "notFound" };
 }
 
-/** `/s/<slug>` and `/s/<slug>/<segment>`: the site's slug, when a path is a site's page (not Duplicate). */
-export function sitePathSlug(pathname: string): string | null {
-  const match = /^\/s\/([^/]+)(?:\/([^/]+))?\/?$/.exec(pathname);
-  if (!match || !isSiteKey(match[1]) || match[2] === "duplicate") return null;
-  return match[1];
-}
-
 // ---------------------------------------------------------------------------------------------
 // Look, header, search engines and analytics
 

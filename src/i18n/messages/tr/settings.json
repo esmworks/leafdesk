@@ -1967,7 +1967,7 @@
     "descriptionLabel": "Varsayılan açıklama",
     "descriptionHint": "Kendi açıklaması olmayan sayfaların arama sonuçlarında ve bağlantı önizlemelerinde görünür (sayfanın Yayınla sekmesinden ayarlanır).",
     "analyticsLabel": "Google Analytics",
-    "analyticsHint": "Bir Google Analytics 4 ölçüm kimliği (G-…). Ziyaretçilerin tarayıcıları bu durumda sitenin her sayfasında Google etiketini yükler ve neye baktıklarını Google'a gönderir.",
+    "analyticsHint": "Bir Google Analytics 4 ölçüm kimliği (G-…). Yalnızca sitenin kendi alan adında geçerlidir: orada ziyaretçilerin tarayıcıları her sayfada Google etiketini yükler ve neye baktıklarını Google'a gönderir. Uygulamanın adresindeki sayfalar onu hiç yüklemez.",
     "domainHeading": "Kendi alan adı",
     "domainDescription": "Siteyi docs.example.com gibi size ait bir alan adının kökünde yayınlayın.",
     "domainLabel": "Alan adı",
