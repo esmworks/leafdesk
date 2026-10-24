@@ -57,6 +57,11 @@
     "action": "Sayfayı aç",
     "optOut": "Bu yorum konusuna katıldığınız için bu e-postaları alıyorsunuz. Hesabım > Tercihler'den kapatabilirsiniz."
   },
+  "suggestion": {
+    "subject": "{actor}, “{page}” sayfasında değişiklik önerdi",
+    "heading": "{actor}, “{page}” sayfasında değişiklik önerdi",
+    "body": "Öneri, {workspace} içindeki “{page}” sayfasında. Sayfadan kabul edin ya da reddedin veya önerinin konusunda yanıt verin."
+  },
   "mention": {
     "subject": "{actor}, “{page}” sayfasında sizden bahsetti",
     "heading": "{actor}, “{page}” sayfasında sizden bahsetti",
@@ -220,6 +225,9 @@
     "assignment": "{actor}, sizi “{property}” alanına atadı",
     "pageShared": "{actor} bu sayfayı sizinle paylaştı",
     "comment": "{actor}, katıldığınız bir yorum konusuna yazdı",
+    "suggested": "{actor} bu sayfada değişiklik önerdi",
+    "suggestionAccepted": "{actor} önerdiğiniz değişikliği kabul etti",
+    "suggestionRejected": "{actor} önerdiğiniz değişikliği reddetti",
     "mention": "{actor} sizden bahsetti",
     "reminder": "Hatırlatma: {date}",
     "accessRequest": "{actor} bu sayfaya erişim istedi",

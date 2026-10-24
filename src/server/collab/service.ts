@@ -18,8 +18,19 @@ import {
   PAGE_SAVE_FAILED_EVENT,
   PAGE_SAVED_EVENT,
   PAGE_WRITABLE_EVENT,
+  SUGGESTION_REFUSED_EVENT,
 } from "@/lib/collab-constants";
-import { CommentError, isPageThread, PAGE_THREAD_METADATA, plainComment, plainThread, THREADS_MAP, type CommentOp, type PlainThread } from "@/lib/comments";
+import {
+  CommentError,
+  isPageThread,
+  PAGE_THREAD_METADATA,
+  plainComment,
+  plainThread,
+  suggestionOfThread,
+  THREADS_MAP,
+  type CommentOp,
+  type PlainThread,
+} from "@/lib/comments";
 import { markdownImageHint, PG_MARKDOWN_IMAGE_PATTERN } from "@/lib/cover";
 import { migrateDocTitle, readDocTitle, writeDocTitle } from "@/lib/collab-title";
 import { assertNotInTrash, assertPageUnlocked, isPageLocked } from "@/lib/page-lock";
@@ -37,7 +48,8 @@ import { blocksToMarkdown, markdownToBlocks, serverEditor as editor } from "@/se
 import { authorizeFileReferences, referencedFileIds, unauthorizedFileIds } from "@/server/files";
 import { syncMeetingNotes } from "@/server/meeting-notes";
 import { mentionablePeople, pagesNamed, syncPageReferences } from "@/server/mentions";
-import { bodyBlocks, syncedBlocksOf } from "@/server/synced-body";
+import { announceSuggestions } from "@/server/suggested-edits";
+import { bodyBlocks, fragmentBlocks, syncedBlocksOf } from "@/server/synced-body";
 import { pageChanged } from "@/server/page-events";
 import { rowChanged } from "@/server/row-events";
 import { recordTitleChange } from "@/server/row-activity";
@@ -48,6 +60,16 @@ import { isPageSaveFailed, pageSaveFailedError, type BodyWrite, type Channel, ty
 import { anchorThread, reanchor, threadQuotes } from "./comment-marks";
 import { stampPresence } from "./presence";
 import { saveOpenDocuments } from "./shutdown";
+import { onlyOwnSuggestions } from "./suggest-guard";
+import {
+  resolveInFragment,
+  resolveSuggestionThreads,
+  suggestionsIn,
+  syncSuggestionThreads,
+  writeBlocksAsSuggestions,
+  writeBlocksKeepingSuggestions,
+  type SuggestionThreadChanges,
+} from "./suggestion-doc";
 import { touchesThreads } from "./thread-guard";
 import { verifyCollabToken } from "./token";
 
@@ -67,6 +89,11 @@ type Context = {
   ssoProviderId?: string | null;
   /** The address the websocket came from (set by server.ts on the upgrade), for approved networks. */
   ip?: string | null;
+  /**
+   * The person may comment on the page but not edit it: the connection takes their own suggested
+   * edits and nothing else (suggest-guard.ts).
+   */
+  suggestOnly?: boolean;
 };
 
 const debug = process.env.COLLAB_DEBUG ? (...args: unknown[]) => console.log("[collab]", ...args) : () => {};
@@ -86,7 +113,15 @@ function readThreadsOf(doc: Y.Doc): PlainThread[] {
   const store = new YjsThreadStore("", threads, new DefaultThreadStoreAuth("", "comment"));
   const quotes = threadQuotes(doc.getXmlFragment(COLLAB_FRAGMENT));
   return [...store.getThreads().values()]
-    .map((t) => ({ ...plainThread(t), quote: quotes.get(t.id) ?? null, ...(isPageThread(t.metadata) ? { page: true as const } : {}) }))
+    .map((t) => {
+      const suggestion = suggestionOfThread(t.metadata);
+      return {
+        ...plainThread(t),
+        quote: quotes.get(t.id) ?? null,
+        ...(isPageThread(t.metadata) ? { page: true as const } : {}),
+        ...(suggestion ? { suggestion } : {}),
+      };
+    })
     .sort((a, b) => a.createdAt.localeCompare(b.createdAt));
 }
 
@@ -295,10 +330,14 @@ export function createCollab() {
       select x.user_id, page_access_level(x.user_id, ${pageId})::int as level
       from jsonb_array_elements_text(${JSON.stringify(userIds)}::jsonb) as x(user_id)
     `);
-    // 3 is edit (page_access_level): people who may only view or comment stay read-only.
-    const editors = new Set(rows.filter((r) => Number(r.level) >= 3).map((r) => r.user_id));
+    // 3 is edit, 2 comment (page_access_level): people who may comment suggest again, viewers stay read-only.
+    const levels = new Map(rows.map((r) => [r.user_id, Number(r.level)]));
     for (const connection of waiting) {
-      if (editors.has((connection.context as Context).userId!)) reopen(connection);
+      const level = levels.get((connection.context as Context).userId!) ?? 0;
+      if (level >= 3 || (level === 2 && current.kind === "page")) {
+        (connection.context as Context).suggestOnly = level < 3;
+        reopen(connection);
+      }
     }
   };
 
@@ -343,6 +382,15 @@ export function createCollab() {
     // awaits anything), so whoever changed what this save writes is among them, and nobody whose
     // change only the next save holds.
     const wrote = takeWriters(doc, userId);
+    // Each suggested edit gets its thread in the comments, opened in its author's name (they are
+    // among the writers), and the thread of one that is gone is resolved. Before the save, so it
+    // holds them; threads and comment marks change nothing the page reads.
+    let suggestionThreads: SuggestionThreadChanges = { opened: [], closed: [] };
+    try {
+      suggestionThreads = syncSuggestionThreads(doc, wrote, { source: "local", context: {} });
+    } catch (error) {
+      console.error(`[collab] could not update the suggestion threads of page:${pageId}`, error);
+    }
     const { blocks, markdown, text } = await deriveContent(doc, row.workspaceId, pageId);
     const title = readTitle(doc) ?? row.title;
     // Comments and their marks change the document but not the page: they don't count as edits.
@@ -380,6 +428,8 @@ export function createCollab() {
     await syncPageReferences(pageId, row.workspaceId, blocks, userId ?? null, context?.locale ?? null);
     // The Meetings page's rows follow the body's meeting blocks (catches its own errors).
     await syncMeetingNotes(pageId, blocks);
+    // New suggestions reach the page's watchers like new threads do (catches its own errors).
+    if (suggestionThreads.opened.length) await announceSuggestions(row.workspaceId, pageId, suggestionThreads.opened);
     if (!edited) return;
     // Semantic search indexes the page again (debounced, in the background), and the pages under
     // it after a new title, which their chunks name.
@@ -425,7 +475,8 @@ export function createCollab() {
         if (!session) throw refusal(COLLAB_UNAUTHORIZED);
         const facts = { ...session, ip: requestHeaders.get(CLIENT_IP_HEADER) };
         // People who may only read get the live document but their edits are dropped.
-        const { readOnly } = await authorizeCollab(user.userId, target, facts);
+        // People who may only comment write nothing but their own suggestions (see beforeSync).
+        const { readOnly, suggestOnly } = await authorizeCollab(user.userId, target, facts);
         if (readOnly) connectionConfig.readOnly = true;
         return {
           userId: user.userId,
@@ -436,6 +487,7 @@ export function createCollab() {
           strong: facts.strong,
           ssoProviderId: facts.ssoProviderId,
           ip: facts.ip,
+          suggestOnly,
         } satisfies Context;
       } catch (error) {
         // Browsers drop their offline copy of a page only for "forbidden" (see components/collab/socket).
@@ -469,12 +521,16 @@ export function createCollab() {
     async beforeSync({ documentName, document, connection, type, payload }) {
       // Sync step 2 (1) and updates (2) carry changes. Comment threads are the server's to write.
       // Hocuspocus asks before it drops a read-only connection's changes: those need no check.
-      if (
-        (type === 1 || type === 2) &&
-        !connection.readOnly &&
-        parseName(documentName)?.kind === "page" &&
-        touchesThreads(document, payload)
-      ) {
+      if ((type !== 1 && type !== 2) || connection.readOnly || parseName(documentName)?.kind !== "page") return;
+      const context = connection.context as Context;
+      // Someone who may only comment changes nothing but their own suggestions (suggest-guard.ts).
+      if (context.suggestOnly) {
+        if (onlyOwnSuggestions(document, payload, context.userId!)) return;
+        console.warn(`[collab] refused a change of ${documentName} that was more than suggestions`);
+        connection.sendStateless(SUGGESTION_REFUSED_EVENT);
+        throw Object.assign(new Error("Only suggestions may be made here"), { code: 4403, reason: "Forbidden" });
+      }
+      if (touchesThreads(document, payload)) {
         console.warn(`[collab] refused a browser's change to the comments of ${documentName}`);
         throw Object.assign(new Error("Comment threads are written by the server"), { code: 4403, reason: "Forbidden" });
       }
@@ -596,7 +652,8 @@ export function createCollab() {
             return { next: null, write: { conflict: true, version: touched ? await version() : current } satisfies BodyWrite };
           }
         }
-        const existing = editor.yXmlFragmentToBlocks(fragment);
+        // The page as it reads: pending suggestions are not applied (they stay where the write leaves blocks as they were).
+        const existing = fragmentBlocks(fragment);
         const next = await build(existing, { people: await mentionablePeople(pageId), appUrl: env.appUrl, pageId });
         if (touched) return { next: null, write: { conflict: true, version: await version() } satisfies BodyWrite };
         // Only a write that changes something is saved before.
@@ -608,7 +665,9 @@ export function createCollab() {
             () =>
               keepingComments(doc, () => {
                 // Diff-based: unchanged blocks keep their Yjs identity, so open editors keep cursors.
-                editor.blocksToYXmlFragment(next, fragment);
+                // The AI chat of someone who asked for it suggests the change instead.
+                if (actor.asSuggestions) writeBlocksAsSuggestions(fragment, next, actor.userId);
+                else writeBlocksKeepingSuggestions(fragment, next);
               }),
             { source: "local", context: actor },
           );
@@ -751,7 +810,7 @@ export function createCollab() {
           const quotes = threads.size ? threadQuotes(fragment) : new Map<string, string>();
           read.push({
             ...source,
-            blocks: withoutTrailingEmpty(editor.yXmlFragmentToBlocks(fragment)),
+            blocks: withoutTrailingEmpty(fragmentBlocks(fragment)),
             // Copies, taken before the source's document goes: the thread with its comments, replies and reactions.
             threads: [...threads.entries()].flatMap(([id, thread]) =>
               thread instanceof Y.Map ? [{ id, thread: thread.clone() as Y.Map<unknown>, quote: quotes.get(id) ?? null }] : [],
@@ -831,6 +890,36 @@ export function createCollab() {
       } finally {
         doc.destroy();
       }
+    },
+
+    async readSuggestions(pageId) {
+      const live = hocuspocus.documents.get(pageDocName(pageId));
+      if (live) return suggestionsIn(live);
+      const [row] = await db.select({ ydoc: page.ydoc }).from(page).where(eq(page.id, pageId)).limit(1);
+      if (!row?.ydoc) return [];
+      const doc = new Y.Doc();
+      try {
+        Y.applyUpdate(doc, row.ydoc);
+        return suggestionsIn(doc);
+      } finally {
+        doc.destroy();
+      }
+    },
+
+    async resolveSuggestions(pageId, decision, ids, actor) {
+      await assertWritable(pageId);
+      return transactPage(pageId, actor, (doc) => {
+        const before = suggestionsIn(doc);
+        let found: string[] = [];
+        let threads: { threadId: string; suggestionId: string }[] = [];
+        doc.transact(() => {
+          found = resolveInFragment(doc.getXmlFragment(COLLAB_FRAGMENT), decision, ids);
+          if (found.length) threads = resolveSuggestionThreads(doc, found, actor.userId);
+        }, { source: "local", context: actor });
+        const answered = new Set(found);
+        const threadOf = new Map(threads.map((t) => [t.suggestionId, t.threadId]));
+        return before.filter((s) => answered.has(s.id)).map((s) => ({ ...s, threadId: threadOf.get(s.id) ?? null }));
+      });
     },
 
     async commentOp(pageId, actor, op) {
@@ -1051,7 +1140,8 @@ export function createCollab() {
       await assertWritable(snap.pageId);
       const old = new Y.Doc();
       Y.applyUpdate(old, snap.ydoc);
-      const blocks = editor.yXmlFragmentToBlocks(old.getXmlFragment(COLLAB_FRAGMENT));
+      // The version as it read: suggestions pending then are not brought back.
+      const blocks = fragmentBlocks(old.getXmlFragment(COLLAB_FRAGMENT));
       // The blocks of the page's synced blocks come back as they were too (they are the page's).
       const synced = syncedElementsIn(old)
         .filter((ref) => ref.pageId === snap.pageId)
@@ -1061,7 +1151,7 @@ export function createCollab() {
         migrateDocTitle(doc, { source: "local", context: actor });
         doc.transact(
           () => {
-            keepingComments(doc, () => editor.blocksToYXmlFragment(blocks, doc.getXmlFragment(COLLAB_FRAGMENT)));
+            keepingComments(doc, () => writeBlocksKeepingSuggestions(doc.getXmlFragment(COLLAB_FRAGMENT), blocks));
             for (const fragment of synced) if (fragment.blocks.length) editor.blocksToYXmlFragment(fragment.blocks, doc.getXmlFragment(fragment.name));
             writeDocTitle(doc, snap.title, { source: "local", context: actor });
           },
@@ -1187,17 +1277,25 @@ export function createCollab() {
           const row = found.get(`${(connection.context as Context).userId}:${target.id}`);
           if (!row) continue; // another workspace's page
           const level = Number(row.level);
-          // 1 view, 2 comment, 3 edit (page_access_level): below edit, a writable connection is out of
-          // date; a read-only one of someone who may edit now takes their edits from here on, unless
+          // 1 view, 2 comment, 3 edit (page_access_level): a writable connection of someone who may
+          // no longer edit is out of date (one that takes only suggestions stays while they may
+          // comment); a read-only or suggesting one of someone who may edit now takes their edits
+          // from here on, and a read-only one of someone who may comment their suggestions, unless
           // the page is locked or in the trash (see authorizeCollab).
-          if (level < 1 || (!connection.readOnly && level < 3)) connection.close({ code: 4403, reason: "Forbidden" });
-          else if (
-            connection.readOnly &&
-            level >= 3 &&
-            target.kind === "page" &&
-            !isPageLocked({ kind: row.kind, lockedAt: row.locked_at }) &&
-            !row.archived_at
-          ) {
+          const context = connection.context as Context;
+          const suggesting = !connection.readOnly && Boolean(context.suggestOnly);
+          if (level < 1 || (!connection.readOnly && level < (suggesting ? 2 : 3))) {
+            connection.close({ code: 4403, reason: "Forbidden" });
+            continue;
+          }
+          const writable = target.kind === "page" && !isPageLocked({ kind: row.kind, lockedAt: row.locked_at }) && !row.archived_at;
+          if (!writable) continue;
+          if (level >= 3 && (connection.readOnly || suggesting)) {
+            context.suggestOnly = false;
+            if (connection.readOnly) reopen(connection);
+            else connection.sendStateless(PAGE_WRITABLE_EVENT);
+          } else if (level === 2 && connection.readOnly && row.kind === "page") {
+            context.suggestOnly = true;
             reopen(connection);
           }
         }

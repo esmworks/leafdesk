@@ -33,6 +33,7 @@
     "reviewNote": "AI 可能会出错。保留前请检查文本。",
     "stopped": "已停止。你仍可保留目前已写出的内容。",
     "applyFailed": "无法将建议添加到页面。",
+    "asSuggestions": "作为建议的修改添加",
     "selectionChanged": "所选文本在此期间发生了变化，因此建议已添加到其下方。"
   },
   "errors": {
@@ -323,7 +324,9 @@
       "auto": "自动",
       "autoHint": "直接添加和更改，不询问",
       "read": "只读",
-      "readHint": "不做任何更改"
+      "readHint": "不做任何更改",
+      "asSuggestions": "以建议形式修改页面",
+      "asSuggestionsHint": "聊天在页面中写的内容会显示为建议的修改，由你接受或拒绝"
     },
     "actions": {
       "edit": "编辑",

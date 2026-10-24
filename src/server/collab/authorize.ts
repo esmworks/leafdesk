@@ -18,21 +18,27 @@ export function parseDocName(name: string): DocTarget | null {
  * workspace's sign-in policies apply to the session the token was issued to (`facts`, see
  * collabSessionFacts) and the address the websocket comes from (`facts.ip`). Throws AccessError otherwise (a WorkspacePolicyError for the policies).
  * Checked when the connection opens; turning a policy on closes the others (disconnectHeldBack).
+ *
+ * People who may comment on a page, but not edit it, get a connection that takes only their own
+ * suggested edits (`suggestOnly`, see suggest-guard.ts) while the page could be edited at all.
  */
 export async function authorizeCollab(
   userId: string,
   target: DocTarget,
   facts: SessionFacts = { strong: false, ssoProviderId: null, ip: null },
-): Promise<{ readOnly: boolean }> {
+): Promise<{ readOnly: boolean; suggestOnly: boolean }> {
   if (target.kind === "ws") {
     if (!(await findMembership(userId, target.id))) throw new AccessError();
     await holdBack(userId, target.id, facts);
-    return { readOnly: true };
+    return { readOnly: true, suggestOnly: false };
   }
   const { page, level } = await pageAccessOf(userId, target.id);
   if (!page || !hasLevel(level, "view")) throw new AccessError();
   await holdBack(userId, page.workspaceId, facts);
-  return { readOnly: target.kind === "db" || !hasLevel(level, "edit") || isPageLocked(page) || Boolean(page.archivedAt) };
+  const writable = target.kind === "page" && !isPageLocked(page) && !page.archivedAt;
+  if (writable && hasLevel(level, "edit")) return { readOnly: false, suggestOnly: false };
+  const suggestOnly = writable && page.kind === "page" && hasLevel(level, "comment");
+  return { readOnly: !suggestOnly, suggestOnly };
 }
 
 async function holdBack(userId: string, workspaceId: string, facts: SessionFacts) {

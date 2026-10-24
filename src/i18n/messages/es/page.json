@@ -16,6 +16,14 @@
     "createdBy": "Creado por {name}",
     "someone": "Alguien",
     "comments": "Comentarios",
+    "suggesting": {
+      "editing": "Edición",
+      "suggesting": "Sugerencias",
+      "label": "Modo: {mode}",
+      "editingHint": "Cambiar la página directamente",
+      "suggestingHint": "Tus cambios aparecen como sugerencias que otros pueden aceptar o rechazar",
+      "forcedHint": "Puedes comentar en esta página, así que tus cambios son sugerencias que sus editores pueden aceptar o rechazar"
+    },
     "share": "Compartir",
     "accessRequests": "{count, plural, one {# solicitud de acceso} other {# solicitudes de acceso}}",
     "addFavorite": "Añadir a favoritos",
@@ -51,6 +59,9 @@
     "exportPdf": "Exportar como PDF",
     "printView": "Imprimir",
     "exportPreparing": "Preparando la exportación…",
+    "acceptAllSuggestions": "Aceptar todas las sugerencias",
+    "rejectAllSuggestions": "Rechazar todas las sugerencias",
+    "rejectAllConfirm": "¿Rechazar todos los cambios sugeridos de esta página?",
     "versionHistory": "Historial de versiones",
     "lastEdited": "Editado por última vez por {name}",
     "wordCount": "{words, plural, one {# palabra} other {# palabras}}, {characters, plural, one {# carácter} other {# caracteres}}",
@@ -94,6 +105,20 @@
     "muted": "Respuestas silenciadas",
     "mutedHint": "No recibes avisos de respuestas en este hilo hasta que respondas aquí o alguien te mencione aquí.",
     "mergedFrom": "De «{title}»",
+    "suggestion": {
+      "label": "Cambio sugerido",
+      "byAi": "Cambio sugerido por la IA",
+      "accept": "Aceptar",
+      "reject": "Rechazar",
+      "withdraw": "Retirar",
+      "errors": {
+        "notAllowed": "No puedes responder a esta sugerencia.",
+        "notFound": "Esta sugerencia ya se respondió o se retiró.",
+        "pageLocked": "La página está bloqueada.",
+        "pageInTrash": "La página está en la papelera.",
+        "failed": "No se pudo responder a la sugerencia. Inténtalo de nuevo."
+      }
+    },
     "sort": {
       "label": "Ordenar hilos",
       "recent": "Actividad más reciente primero",

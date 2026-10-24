@@ -33,6 +33,7 @@
     "reviewNote": "L’IA può commettere errori. Controlla il testo prima di tenerlo.",
     "stopped": "Interrotto. Puoi comunque tenere quello che è stato scritto finora.",
     "applyFailed": "Impossibile aggiungere il suggerimento alla pagina.",
+    "asSuggestions": "Aggiungi come modifiche suggerite",
     "selectionChanged": "Nel frattempo il testo selezionato è cambiato, quindi il suggerimento è stato aggiunto sotto."
   },
   "errors": {
@@ -323,7 +324,9 @@
       "auto": "Auto",
       "autoHint": "Aggiunge e modifica senza chiedere",
       "read": "Sola lettura",
-      "readHint": "Non modifica nulla"
+      "readHint": "Non modifica nulla",
+      "asSuggestions": "Modifiche alle pagine come suggerimenti",
+      "asSuggestionsHint": "Ciò che la chat scrive in una pagina appare come modifiche suggerite da accettare o rifiutare"
     },
     "actions": {
       "edit": "Modifica",

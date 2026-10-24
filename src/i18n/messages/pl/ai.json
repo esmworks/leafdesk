@@ -33,6 +33,7 @@
     "reviewNote": "AI może popełniać błędy. Sprawdź tekst, zanim go zachowasz.",
     "stopped": "Zatrzymano. Nadal możesz zachować to, co zostało dotąd napisane.",
     "applyFailed": "Nie udało się dodać sugestii do strony.",
+    "asSuggestions": "Dodaj jako sugerowane zmiany",
     "selectionChanged": "Zaznaczony tekst w międzyczasie się zmienił, więc sugestię dodano pod nim."
   },
   "errors": {
@@ -323,7 +324,9 @@
       "auto": "Automatycznie",
       "autoHint": "Dodaje i zmienia bez pytania",
       "read": "Tylko odczyt",
-      "readHint": "Niczego nie zmienia"
+      "readHint": "Niczego nie zmienia",
+      "asSuggestions": "Zmiany stron jako sugestie",
+      "asSuggestionsHint": "To, co czat pisze na stronie, pojawia się jako sugerowane zmiany do przyjęcia lub odrzucenia"
     },
     "actions": {
       "edit": "Edytuj",

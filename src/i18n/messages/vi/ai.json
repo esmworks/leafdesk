@@ -33,6 +33,7 @@
     "reviewNote": "AI có thể mắc lỗi. Hãy kiểm tra văn bản trước khi giữ lại.",
     "stopped": "Đã dừng. Bạn vẫn có thể giữ phần đã viết cho đến lúc này.",
     "applyFailed": "Không thể thêm gợi ý vào trang.",
+    "asSuggestions": "Thêm dưới dạng đề xuất chỉnh sửa",
     "selectionChanged": "Văn bản đã chọn đã thay đổi trong lúc đó, nên gợi ý được thêm bên dưới nó."
   },
   "errors": {
@@ -323,7 +324,9 @@
       "auto": "Tự động",
       "autoHint": "Thêm và thay đổi mà không hỏi",
       "read": "Chỉ đọc",
-      "readHint": "Không thay đổi gì"
+      "readHint": "Không thay đổi gì",
+      "asSuggestions": "Chỉnh sửa trang dưới dạng đề xuất",
+      "asSuggestionsHint": "Nội dung trò chuyện viết vào trang hiển thị dưới dạng đề xuất chỉnh sửa để bạn chấp nhận hoặc từ chối"
     },
     "actions": {
       "edit": "Chỉnh sửa",

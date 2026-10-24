@@ -16,6 +16,14 @@
     "createdBy": "{name} oluşturdu",
     "someone": "Biri",
     "comments": "Yorumlar",
+    "suggesting": {
+      "editing": "Düzenleme",
+      "suggesting": "Öneri",
+      "label": "Mod: {mode}",
+      "editingHint": "Sayfayı doğrudan değiştirin",
+      "suggestingHint": "Değişiklikleriniz, başkalarının kabul edip reddedebileceği öneriler olarak görünür",
+      "forcedHint": "Bu sayfaya yorum yapabilirsiniz; bu yüzden değişiklikleriniz, düzenleyicilerinin kabul edip reddedebileceği önerilerdir"
+    },
     "share": "Paylaş",
     "accessRequests": "{count, plural, one {# erişim isteği} other {# erişim isteği}}",
     "addFavorite": "Favorilere ekle",
@@ -51,6 +59,9 @@
     "exportPdf": "PDF olarak dışa aktar",
     "printView": "Yazdır",
     "exportPreparing": "Dışa aktarma hazırlanıyor…",
+    "acceptAllSuggestions": "Tüm önerileri kabul et",
+    "rejectAllSuggestions": "Tüm önerileri reddet",
+    "rejectAllConfirm": "Bu sayfadaki tüm önerilen değişiklikler reddedilsin mi?",
     "versionHistory": "Sürüm geçmişi",
     "lastEdited": "Son düzenleyen: {name}",
     "wordCount": "{words} kelime, {characters} karakter",
@@ -94,6 +105,20 @@
     "muted": "Yanıtlar sessizde",
     "mutedHint": "Burada yanıt yazana ya da biri sizi burada anana kadar bu konudaki yanıtlardan haberdar olmazsınız.",
     "mergedFrom": "“{title}” satırından",
+    "suggestion": {
+      "label": "Önerilen değişiklik",
+      "byAi": "Yapay zekânın önerdiği değişiklik",
+      "accept": "Kabul et",
+      "reject": "Reddet",
+      "withdraw": "Geri çek",
+      "errors": {
+        "notAllowed": "Bu öneriyi yanıtlayamazsınız.",
+        "notFound": "Bu öneri zaten yanıtlandı ya da geri çekildi.",
+        "pageLocked": "Sayfa kilitli.",
+        "pageInTrash": "Sayfa çöp kutusunda.",
+        "failed": "Öneri yanıtlanamadı. Yeniden deneyin."
+      }
+    },
     "sort": {
       "label": "Konuşmaları sırala",
       "recent": "En son hareket önce",

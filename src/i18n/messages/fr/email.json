@@ -57,6 +57,11 @@
     "action": "Ouvrir la page",
     "optOut": "Vous recevez ces e-mails, car vous avez participé à ce fil de commentaires. Vous pouvez les désactiver dans Mon compte > Préférences."
   },
+  "suggestion": {
+    "subject": "{actor} a suggéré des modifications sur « {page} »",
+    "heading": "{actor} a suggéré des modifications sur « {page} »",
+    "body": "La suggestion se trouve sur « {page} » dans {workspace}. Acceptez-la ou refusez-la depuis la page, ou répondez dans son fil."
+  },
   "mention": {
     "subject": "{actor} vous a mentionné sur « {page} »",
     "heading": "{actor} vous a mentionné sur « {page} »",
@@ -220,6 +225,9 @@
     "assignment": "{actor} vous a assigné à « {property} »",
     "pageShared": "{actor} a partagé cette page avec vous",
     "comment": "{actor} a commenté un fil auquel vous participez",
+    "suggested": "{actor} a suggéré des modifications sur cette page",
+    "suggestionAccepted": "{actor} a accepté votre modification suggérée",
+    "suggestionRejected": "{actor} a refusé votre modification suggérée",
     "mention": "{actor} vous a mentionné",
     "reminder": "Rappel : {date}",
     "accessRequest": "{actor} demande l’accès à cette page",

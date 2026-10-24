@@ -33,6 +33,7 @@
     "reviewNote": "A IA pode cometer erros. Confira o texto antes de mantê-lo.",
     "stopped": "Parado. Você ainda pode manter o que foi escrito até agora.",
     "applyFailed": "Não foi possível adicionar a sugestão à página.",
+    "asSuggestions": "Adicionar como alterações sugeridas",
     "selectionChanged": "O texto selecionado mudou nesse meio-tempo, então a sugestão foi adicionada abaixo dele."
   },
   "errors": {
@@ -323,7 +324,9 @@
       "auto": "Automático",
       "autoHint": "Adiciona e altera sem perguntar",
       "read": "Somente leitura",
-      "readHint": "Não altera nada"
+      "readHint": "Não altera nada",
+      "asSuggestions": "Alterações em páginas como sugestões",
+      "asSuggestionsHint": "O que o chat escreve em uma página aparece como alterações sugeridas para você aceitar ou rejeitar"
     },
     "actions": {
       "edit": "Editar",

@@ -167,15 +167,17 @@ const COMMENT_EXCERPT = 500;
 
 export function commentEmail(
   locale: Locale,
-  comment: { actorName: string; pageTitle: string; workspaceName: string; text: string; link: string },
+  /** `suggested`: about a new suggested edit, whose thread's first comment says what it changes. */
+  comment: { actorName: string; pageTitle: string; workspaceName: string; text: string; link: string; suggested?: boolean },
 ): RenderedEmail {
   const t = emailTranslator(locale);
   const names = { actor: comment.actorName, page: comment.pageTitle, workspace: comment.workspaceName };
   const text = comment.text.length > COMMENT_EXCERPT ? `${comment.text.slice(0, COMMENT_EXCERPT).trimEnd()}…` : comment.text;
+  const kind = comment.suggested ? "suggestion" : "comment";
   return renderEmail(locale, {
-    subject: t("comment.subject", names),
-    heading: t("comment.heading", names),
-    paragraphs: [t("comment.quote", { text }), t("comment.body", names), t("comment.optOut")],
+    subject: t(`${kind}.subject`, names),
+    heading: t(`${kind}.heading`, names),
+    paragraphs: [t("comment.quote", { text }), t(`${kind}.body`, names), t("comment.optOut")],
     action: { label: t("comment.action"), url: comment.link },
   });
 }

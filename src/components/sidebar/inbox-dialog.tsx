@@ -13,7 +13,7 @@ import { UserAvatar } from "@/components/user-avatar";
 import { InboxSwipe } from "./inbox-swipe";
 import { groupCounts, groupInbox, type InboxEntry } from "@/lib/inbox-groups";
 import { APPROVAL_LEVELS, type ApprovalLevel } from "@/lib/access-requests";
-import { pushLink } from "@/lib/push";
+import { pushLink, SUGGESTION_LINES } from "@/lib/push";
 import { formatIsoDate } from "@/lib/mentions";
 import { relativeTime } from "@/lib/relative-time";
 import { canSnooze, SNOOZE_CHOICES, snoozeUntil, type SnoozeChoice } from "@/lib/snooze";
@@ -238,7 +238,9 @@ export function InboxDialog({
                 : item.kind === "page_shared"
                 ? t("pageShared", { actor: item.actorName || t("someone") })
                 : item.kind === "comment"
-                  ? t("comment", { actor: item.actorName || t("someone") })
+                  ? item.suggestion
+                    ? t(SUGGESTION_LINES[item.suggestion], { actor: item.actorName || t("someone") })
+                    : t("comment", { actor: item.actorName || t("someone") })
                   : item.kind === "reaction"
                     ? t("reaction", {
                         actor: t("people", {

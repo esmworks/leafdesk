@@ -16,6 +16,14 @@
     "createdBy": "Creata da {name}",
     "someone": "Qualcuno",
     "comments": "Commenti",
+    "suggesting": {
+      "editing": "Modifica",
+      "suggesting": "Suggerimenti",
+      "label": "Modalità: {mode}",
+      "editingHint": "Modifica direttamente la pagina",
+      "suggestingHint": "Le tue modifiche appaiono come suggerimenti che altri possono accettare o rifiutare",
+      "forcedHint": "Puoi commentare questa pagina, quindi le tue modifiche sono suggerimenti che i suoi editor possono accettare o rifiutare"
+    },
     "share": "Condividi",
     "accessRequests": "{count, plural, one {# richiesta di accesso} other {# richieste di accesso}}",
     "addFavorite": "Aggiungi ai preferiti",
@@ -51,6 +59,9 @@
     "exportPdf": "Esporta come PDF",
     "printView": "Stampa",
     "exportPreparing": "Preparazione dell’esportazione…",
+    "acceptAllSuggestions": "Accetta tutti i suggerimenti",
+    "rejectAllSuggestions": "Rifiuta tutti i suggerimenti",
+    "rejectAllConfirm": "Rifiutare tutte le modifiche suggerite in questa pagina?",
     "versionHistory": "Cronologia delle versioni",
     "lastEdited": "Ultima modifica di {name}",
     "wordCount": "{words, plural, one {# parola} other {# parole}}, {characters, plural, one {# carattere} other {# caratteri}}",
@@ -94,6 +105,20 @@
     "muted": "Risposte silenziate",
     "mutedHint": "Non ricevi avvisi sulle risposte in questa discussione finché non rispondi qui o qualcuno non ti menziona qui.",
     "mergedFrom": "Da «{title}»",
+    "suggestion": {
+      "label": "Modifica suggerita",
+      "byAi": "Modifica suggerita dall’IA",
+      "accept": "Accetta",
+      "reject": "Rifiuta",
+      "withdraw": "Ritira",
+      "errors": {
+        "notAllowed": "Non puoi rispondere a questo suggerimento.",
+        "notFound": "Questo suggerimento ha già avuto risposta o è stato ritirato.",
+        "pageLocked": "La pagina è bloccata.",
+        "pageInTrash": "La pagina è nel cestino.",
+        "failed": "Impossibile rispondere al suggerimento. Riprova."
+      }
+    },
     "sort": {
       "label": "Ordina le discussioni",
       "recent": "Attività più recente prima",

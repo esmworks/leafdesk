@@ -57,6 +57,11 @@
     "action": "Open page",
     "optOut": "You get these because you took part in this comment thread. You can turn them off in My account > Preferences."
   },
+  "suggestion": {
+    "subject": "{actor} suggested edits to “{page}”",
+    "heading": "{actor} suggested edits to “{page}”",
+    "body": "The suggestion is on “{page}” in {workspace}. Accept or reject it from the page, or reply in its thread."
+  },
   "mention": {
     "subject": "{actor} mentioned you on “{page}”",
     "heading": "{actor} mentioned you on “{page}”",
@@ -220,6 +225,9 @@
     "assignment": "{actor} assigned you to “{property}”",
     "pageShared": "{actor} shared this page with you",
     "comment": "{actor} commented in a thread you're in",
+    "suggested": "{actor} suggested edits to this page",
+    "suggestionAccepted": "{actor} accepted your suggested edit",
+    "suggestionRejected": "{actor} rejected your suggested edit",
     "mention": "{actor} mentioned you",
     "reminder": "Reminder: {date}",
     "accessRequest": "{actor} asked for access to this page",

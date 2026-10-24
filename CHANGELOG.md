@@ -64,6 +64,17 @@
   those threads until you take the mark off. MCP's `list_comments` and the REST API's comments
   say `marked: true` for threads the asking user marked. The marks and when each person saw each
   thread are kept per person (migration 0117) and go with the thread.
+- **Suggested edits.** The page header switches between *Editing* and *Suggesting*: while
+  suggesting, typed text shows underlined as an insertion, deleted text stays, struck through, and
+  new formatting is marked as a change, live for everyone on the page. Each suggestion is a thread
+  in the comments panel, opened in its author's name, with *Accept* and *Reject* for people who may
+  edit and *Withdraw* for its author; the page menu accepts or rejects them all. People who may
+  only comment always suggest, and the server takes nothing else from their connection. Until a
+  suggestion is accepted the page reads without it: its Markdown, search, published pages, PDF
+  and print, exports, history, MCP, the REST API and the AI. A page's watchers (a row's
+  followers) hear about new suggestions as about new threads, by inbox, push and email, and the
+  author hears when theirs is accepted or rejected. MCP's `list_comments` and the REST API say
+  `suggestion` for a suggestion's thread. The writing assistant can apply its text as suggestions.
 - **Views color rows by rules.** *Color rules* in a view's layout menu (tables, boards, galleries,
   lists, calendars and timelines) colors the rows that match conditions: each rule has a color
   from the option palette, colors the whole row or card or one property's value, and tests rows

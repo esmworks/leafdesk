@@ -30,3 +30,11 @@ export const PAGE_SAVED_EVENT = "saved";
  * server turned down meanwhile.
  */
 export const PAGE_WRITABLE_EVENT = "writable";
+
+/**
+ * Sent to a connection of someone who may only suggest (comment access) before the server drops
+ * it for a change that was more than their own suggestions (collab/suggest-guard). Their tab
+ * forgets its copy of the page and loads it again (components/collab/socket): the change can't be
+ * sent, and edits after it build on it.
+ */
+export const SUGGESTION_REFUSED_EVENT = "suggestion-refused";
