@@ -25,6 +25,7 @@ const ISSUES = [
       summary: "  Fix the login page  ",
       status: { name: "In Progress", statusCategory: { key: "indeterminate" } },
       assignee: { accountId: "a1", displayName: "Ada Lovelace", emailAddress: "ada@example.com" },
+      reporter: { accountId: "a2", displayName: "Grace Hopper", emailAddress: "grace@example.com" },
       priority: { name: "High" },
       labels: ["web", "urgent", "web"],
       duedate: "2026-11-02",
@@ -64,6 +65,7 @@ const MAPPING: JiraMapping = {
   status: "pStatus",
   assignee: "pAssignee",
   assigneeOthers: "pOthers",
+  reporter: "pReporter",
   priority: "pPriority",
   type: "pType",
   labels: "pLabels",
@@ -78,6 +80,7 @@ describe("issueRow", () => {
       title: "Fix the login page",
       status: { name: "In Progress", group: "in_progress" },
       assignee: { name: "Ada Lovelace", email: "ada@example.com" },
+      reporter: { name: "Grace Hopper", email: "grace@example.com" },
       priority: "High",
       type: "Bug",
       labels: ["web", "urgent"],
@@ -115,7 +118,7 @@ describe("statusGroupOf", () => {
 
 describe("rowValues", () => {
   const rows = ISSUES.map((issue) => issueRow(issue, SITE)!);
-  const people: Record<string, string> = { "ada@example.com": "user-ada" };
+  const people: Record<string, string> = { "ada@example.com": "user-ada", "grace@example.com": "user-grace" };
   const person = (a: { email: string | null }) => (a.email ? (people[a.email] ?? null) : null);
 
   it("writes every mapped property, a member as a person", () => {
@@ -124,6 +127,7 @@ describe("rowValues", () => {
       pStatus: "In Progress",
       pAssignee: ["user-ada"],
       pOthers: null,
+      pReporter: ["user-grace"],
       pPriority: "High",
       pType: "Bug",
       pLabels: ["web", "urgent"],
@@ -134,7 +138,7 @@ describe("rowValues", () => {
 
   it("writes someone the workspace doesn't have as text, and clears what the issue lacks", () => {
     expect(rowValues(rows[1], MAPPING, person)).toMatchObject({ pAssignee: null, pOthers: "Grace Hopper", pPriority: null, pLabels: null, pDue: null });
-    expect(rowValues(rows[2], MAPPING, person)).toMatchObject({ pAssignee: null, pOthers: null });
+    expect(rowValues(rows[2], MAPPING, person)).toMatchObject({ pAssignee: null, pOthers: null, pReporter: null });
   });
 
   it("writes only the properties still mapped", () => {

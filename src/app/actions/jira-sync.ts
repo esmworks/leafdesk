@@ -103,6 +103,7 @@ export async function updateJiraSyncAction(databaseId: string, patch: JiraSyncPa
       intervalMinutes: patch?.intervalMinutes,
       email: patch?.email,
       token: patch?.token,
+      reporter: patch?.reporter,
     }),
   );
 }
