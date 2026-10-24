@@ -29,7 +29,7 @@
     "everyoneIn": "Alle i arbejdsområdet er allerede med i dette teamområde.",
     "accessDenied": "Det kan du ikke gøre i dette teamområde.",
     "invalidMemberLevel": "Vælg, hvad medlemmer får på teamområdets sider.",
-    "invalidIcon": "Ikonet skal være en emoji.",
+    "invalidIcon": "Ikonet skal være en emoji eller et indbygget ikon.",
     "notConvertible": "Kun en side kan blive et teamområde: ikke en database, en række eller en skabelon."
   },
   "dialog": {

@@ -1,5 +1,6 @@
 "use client";
 
+import { IconGlyph } from "@/components/builtin-icon";
 import { cellMarkClass, colorMarkClass, type RowColors } from "@/lib/color-rules";
 import { Check, EyeOff, Ellipsis, Pencil, Plus, Trash2 } from "lucide-react";
 import { useTranslations } from "next-intl";
@@ -563,7 +564,7 @@ function ColumnFigure({
             <MenuItem
               key={p.id}
               active={measure.kind === "aggregate" && measure.prop.id === p.id}
-              icon={<PropertyTypeIcon type={p.type} />}
+              icon={<PropertyTypeIcon type={p.type} icon={p.options.icon} />}
               onClick={() => (measure.kind === "aggregate" && measure.prop.id === p.id ? menu.close() : pickProperty(p))}
             >
               {p.name}
@@ -835,7 +836,7 @@ const Card = memo(function Card({
         <CardTitleInput initial={typed || row.title} onDone={(title) => onTitle(row, title)} />
       ) : (
         <div className="flex gap-1.5 pe-6 text-sm leading-5 font-medium">
-          {showIcon && row.icon && <span className="shrink-0">{row.icon}</span>}
+          {showIcon && row.icon && <IconGlyph icon={row.icon} className="shrink-0" />}
           <span className={cn("min-w-0 break-words", !row.title && "text-fg-faint", cellMarkClass(color, "title"))}>
             {pageLabel(row.title, tc("untitled"))}
           </span>

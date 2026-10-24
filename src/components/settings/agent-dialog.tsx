@@ -1,5 +1,6 @@
 "use client";
 
+import { IconGlyph } from "@/components/builtin-icon";
 import { BookCheck, BookX, Bot, CalendarClock, ChevronRight, Globe, Mail, MailX, MessageSquare, MessageSquareOff, MessagesSquare, Play, Plug, RefreshCw, TriangleAlert, Users, X } from "lucide-react";
 import dynamic from "next/dynamic";
 import Link from "next/link";
@@ -70,7 +71,7 @@ const AgentShareTab = dynamic(() => import("./agent-share-tab").then((m) => m.Ag
 
 /** An agent's emoji, or a robot when it has none. */
 export function AgentIcon({ icon, className }: { icon: string | null; className?: string }) {
-  if (icon) return <span className={cn("leading-none", className)}>{icon}</span>;
+  if (icon) return <IconGlyph icon={icon} className={className} />;
   return <Bot className={cn("h-4 w-4 text-fg-muted", className)} aria-hidden />;
 }
 

@@ -201,7 +201,7 @@ export async function setPublicationIndexable(userId: string, pageId: string, in
   await updatePublication(userId, pageId, { indexable });
 }
 
-export type WebView = { id: string; name: string; type: ViewType; published: boolean };
+export type WebView = { id: string; name: string; type: ViewType; published: boolean; icon?: string };
 
 /**
  * The database's views that can be shown on the web (forms show no rows), with the ones published
@@ -212,7 +212,7 @@ export async function getWebViews(userId: string, databaseId: string): Promise<W
   if (p.kind !== "database") return null;
   const views = await readableViews(databaseId);
   const shown = new Set(webViews(views).map((v) => v.id));
-  return views.map((v) => ({ id: v.id, name: v.name, type: v.type, published: shown.has(v.id) }));
+  return views.map((v) => ({ id: v.id, name: v.name, type: v.type, published: shown.has(v.id), icon: v.config.icon }));
 }
 
 /** Picks the views published pages show for this database, wherever it is published. */
@@ -327,7 +327,8 @@ export type PublishedRow = {
   /** How styled formula results show (see lib/formula style()). */
   styles?: Record<string, FormulaStyle>;
 };
-export type PublishedViewTab = { id: string; name: string; type: ViewType };
+/** A published view's tab: its name, type and the icon chosen for it (its config's), if any. */
+export type PublishedViewTab = { id: string; name: string; type: ViewType; icon?: string };
 /** How a published view is drawn; calendars and timelines show as tables, charts as their numbers. */
 export type PublishedLayout = "table" | "board" | "list" | "gallery" | "feed" | "chart";
 /**
@@ -354,7 +355,7 @@ export type PublishedChart = {
  * drawing its values takes, and nothing of how it is worked out or set up.
  */
 export type PublishedProperty = Pick<DatabaseProperty, "id" | "name" | "type"> & {
-  options: Pick<PropertyOptions, "options" | "number" | "numberDisplay" | "pageVisibility" | "pinned" | "uniqueId"> & {
+  options: Pick<PropertyOptions, "options" | "number" | "numberDisplay" | "pageVisibility" | "pinned" | "uniqueId" | "icon"> & {
     formula?: Pick<FormulaConfig, "type">;
     date?: Pick<DateOptions, "display">;
   };
@@ -900,6 +901,7 @@ export function publishedProperty(prop: DatabaseProperty): PublishedProperty {
   if (prop.type === "unique_id" && stored.uniqueId?.prefix) options.uniqueId = { prefix: stored.uniqueId.prefix };
   if (stored.pageVisibility) options.pageVisibility = stored.pageVisibility;
   if (stored.pinned) options.pinned = true;
+  if (stored.icon) options.icon = stored.icon;
   return { id: prop.id, name: prop.name, type: prop.type, options };
 }
 
@@ -1070,7 +1072,7 @@ export async function publishedDatabase(
   const withCovers = chosen?.type === "gallery" && galleryCover(chosen.config) === "first_image";
   const stored = await loadRows(loads, publisher, databaseId, withCovers);
   const properties = publicProperties(allProperties);
-  const tabs = shownViews.map((v) => ({ id: v.id, name: v.name, type: v.type }));
+  const tabs = shownViews.map((v) => ({ id: v.id, name: v.name, type: v.type, ...(v.config.icon ? { icon: v.config.icon } : {}) }));
   if (!chosen) {
     const rows = await publicValues(
       stored.filter((row) => !row.outdated).map(({ createdBy, updatedBy: __, hasImage: ___, ...row }) => ({

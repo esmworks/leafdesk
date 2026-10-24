@@ -125,7 +125,8 @@
     "addViewHeading": "Aggiungi una vista",
     "rename": "Rinomina",
     "viewName": "Nome della vista",
-    "deleteView": "Elimina vista"
+    "deleteView": "Elimina vista",
+    "icon": "Icona"
   },
   "deleted": {
     "properties": "Proprietà eliminate",
@@ -552,7 +553,8 @@
     "sortOptionsDesc": "Ordina Z → A",
     "dragOption": "Trascina per spostare {name}",
     "urlPreview": "Mostra come anteprima del link",
-    "urlPreviewHint": "Le pagine delle righe mostrano icona, titolo e immagine della pagina collegata sotto il link."
+    "urlPreviewHint": "Le pagine delle righe mostrano icona, titolo e immagine della pagina collegata sotto il link.",
+    "icon": "Icona"
   },
   "rowProperties": {
     "noProperties": "Nessuna proprietà",
@@ -913,7 +915,7 @@
     "parentInTrash": "La pagina principale è nel cestino. Ripristinala prima.",
     "nestedDatabase": "Un database non può contenere un altro database.",
     "pageTooDeep": "Le pagine possono essere annidate al massimo per {max} livelli.",
-    "invalidIcon": "L’icona deve essere un’emoji.",
+    "invalidIcon": "L’icona deve essere un’emoji o un’icona integrata.",
     "invalidRelation": "“{property}” può collegarsi solo alle righe del suo database correlato.",
     "invalidRelationTarget": "Una relazione deve puntare a un database nello stesso spazio di lavoro.",
     "subItemLoop": "“{property}” non può mettere una riga sotto se stessa o sotto uno dei suoi sotto-elementi.",

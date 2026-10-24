@@ -1,3 +1,4 @@
+import { ICON_INPUT, ICON_RULE } from "@/lib/icon";
 import * as z from "zod";
 import {
   type AgentMemoryView,
@@ -51,9 +52,9 @@ const nameInput = z.string().min(1).max(MAX_AGENT_NAME);
 const iconInput = z
   .string()
   .min(1)
-  .max(32)
+  .max(64)
   .nullable()
-  .describe("An emoji shown with the agent's name; null removes it.");
+  .describe(`${ICON_INPUT} null removes it.`);
 const noteInput = z.string().min(1).max(MAX_MEMORY_CHARS);
 const memoryIdInput = z.string().min(1).max(100).describe("The note's memory_id, from get_agent's memory.");
 const descriptionInput = z.string().max(MAX_AGENT_DESCRIPTION).describe("A line on what the agent is for, shown where people pick an agent.");
@@ -313,7 +314,7 @@ export function toAgentPatch(args: Omit<z.infer<typeof agentInputs.update>, "age
 
 const INVALID: Record<string, string> = {
   name: "An agent needs a name.",
-  icon: "An agent's icon is one emoji; pass null to remove it.",
+  icon: `An agent's icon is ${ICON_RULE}; pass null to remove it.`,
   level: 'An agent can view, comment on or edit a page ("view", "comment" or "edit"), never get full access.',
   limit: `A monthly token limit is a whole number from 1 to ${MAX_AGENT_TOKEN_LIMIT}; pass null to remove it.`,
   model: 'An agent runs on the "main" or the "fast" model.',

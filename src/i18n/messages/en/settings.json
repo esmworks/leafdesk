@@ -734,7 +734,7 @@
       "accessDenied": "You don’t have permission to do this.",
       "reasons": {
         "name": "Give the agent a name.",
-        "icon": "An agent’s icon is an emoji.",
+        "icon": "An agent’s icon is an emoji or a built-in icon.",
         "level": "An agent can view, comment on or edit a page.",
         "template": "This template doesn’t exist.",
         "database": "Choose a database of this workspace.",
@@ -2655,7 +2655,7 @@
       "reservedKey": "This key is taken by a built-in kind (note, tip, important, warning, caution, info, danger, details, frame, card, panel).",
       "duplicateKey": "Another style already has this key.",
       "name": "Enter a name of up to 60 characters.",
-      "icon": "Choose one emoji, or no icon.",
+      "icon": "Choose one emoji or built-in icon, or no icon.",
       "color": "Choose a color.",
       "border": "Choose a border.",
       "title": "Keep the title to 120 characters."

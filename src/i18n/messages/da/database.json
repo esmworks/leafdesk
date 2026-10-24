@@ -125,7 +125,8 @@
     "addViewHeading": "Tilføj en visning",
     "rename": "Omdøb",
     "viewName": "Visningens navn",
-    "deleteView": "Slet visning"
+    "deleteView": "Slet visning",
+    "icon": "Ikon"
   },
   "deleted": {
     "properties": "Slettede egenskaber",
@@ -552,7 +553,8 @@
     "sortOptionsDesc": "Sortér Å → A",
     "dragOption": "Træk for at flytte {name}",
     "urlPreview": "Vis som linkforhåndsvisning",
-    "urlPreviewHint": "Rækkesider viser den linkede sides ikon, titel og billede under linket."
+    "urlPreviewHint": "Rækkesider viser den linkede sides ikon, titel og billede under linket.",
+    "icon": "Ikon"
   },
   "rowProperties": {
     "noProperties": "Ingen egenskaber",
@@ -913,7 +915,7 @@
     "parentInTrash": "Den overordnede side ligger i papirkurven. Gendan den først.",
     "nestedDatabase": "En database kan ikke indeholde en anden database.",
     "pageTooDeep": "Sider kan højst ligge {max} niveauer dybt.",
-    "invalidIcon": "Ikonet skal være en emoji.",
+    "invalidIcon": "Ikonet skal være en emoji eller et indbygget ikon.",
     "invalidRelation": "“{property}” kan kun linke til rækker i sin relaterede database.",
     "invalidRelationTarget": "En relation skal pege på en database i samme arbejdsområde.",
     "subItemLoop": "“{property}” kan ikke placere en række under sig selv eller under et af dens egne underpunkter.",

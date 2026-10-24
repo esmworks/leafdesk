@@ -29,7 +29,7 @@
     "everyoneIn": "Wszyscy w obszarze roboczym już należą do tej przestrzeni zespołu.",
     "accessDenied": "Nie możesz tego zrobić w tej przestrzeni zespołu.",
     "invalidMemberLevel": "Wybierz, jaki dostęp mają członkowie do stron przestrzeni zespołu.",
-    "invalidIcon": "Ikona musi być emoji.",
+    "invalidIcon": "Ikona musi być emoji lub wbudowaną ikoną.",
     "notConvertible": "Przestrzenią zespołu może stać się tylko strona, nie baza danych, wiersz ani szablon."
   },
   "dialog": {

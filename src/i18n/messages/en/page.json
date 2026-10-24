@@ -201,7 +201,38 @@
   },
   "icon": {
     "add": "Add icon",
-    "remove": "Remove icon"
+    "remove": "Remove icon",
+    "emojiTab": "Emoji",
+    "iconsTab": "Icons",
+    "searchEmoji": "Search emoji",
+    "searchIcons": "Search icons",
+    "random": "Random",
+    "skinTone": "Skin tone",
+    "tones": {
+      "0": "No skin tone",
+      "1": "Light skin tone",
+      "2": "Medium-light skin tone",
+      "3": "Medium skin tone",
+      "4": "Medium-dark skin tone",
+      "5": "Dark skin tone"
+    },
+    "color": "Icon color",
+    "textColor": "Text color",
+    "categoriesLabel": "Categories",
+    "categories": {
+      "smileys": "Smileys & emotion",
+      "people": "People & body",
+      "nature": "Animals & nature",
+      "food": "Food & drink",
+      "travel": "Travel & places",
+      "activities": "Activities",
+      "objects": "Objects",
+      "symbols": "Symbols",
+      "flags": "Flags"
+    },
+    "loading": "Loading…",
+    "loadFailed": "The emoji couldn’t be loaded.",
+    "noMatches": "Nothing matches."
   },
   "background": {
     "add": "Add background",
@@ -1117,7 +1148,7 @@
     },
     "settings": {
       "open": "Button settings",
-      "icon": "Emoji",
+      "icon": "Icon",
       "label": "Label",
       "color": "Color",
       "colorDefault": "Default",

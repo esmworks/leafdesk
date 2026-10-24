@@ -1,15 +1,13 @@
 "use client";
 
-import { useTranslations } from "next-intl";
+import dynamic from "next/dynamic";
 import { Popover } from "@/components/ui";
 
-/** The icons a page can be given. */
-export const EMOJIS = [
-  "📄", "📝", "📚", "📌", "📎", "🗂️", "📁", "🗃️", "📊", "📈", "🧾", "🗒️",
-  "✅", "☑️", "⭐", "🔥", "💡", "🎯", "🚀", "🧭", "🛠️", "⚙️", "🔒", "🔑",
-  "🏠", "🏢", "🌍", "🗺️", "📅", "⏰", "💬", "📣", "🤝", "👥", "🧑‍💻", "🎨",
-  "🧪", "🐛", "📦", "🧩", "💰", "🛒", "🍀", "🌱", "☀️", "🌙", "❤️", "🙂",
-];
+// The picker (emoji by category, built-in icons, search) loads when first opened.
+const IconPickerPanel = dynamic(() => import("@/components/icon-picker/panel"), {
+  ssr: false,
+  loading: () => <div className="h-[23rem] w-[21.5rem] max-w-[calc(100vw-1.5rem)]" />,
+});
 
 export function IconPicker({
   icon,
@@ -26,7 +24,7 @@ export function IconPicker({
   children: (toggle: () => void) => React.ReactNode;
 }) {
   return (
-    <Popover trigger={({ toggle }) => <>{children(disabled ? () => {} : toggle)}</>} align={align} className="w-72">
+    <Popover trigger={({ toggle }) => <>{children(disabled ? () => {} : toggle)}</>} align={align} className="p-0">
       {(close) => (
         <IconGrid
           icon={icon}
@@ -40,32 +38,10 @@ export function IconPicker({
   );
 }
 
-/** The icons to choose from, and "Remove" while there is an icon: the inside of IconPicker, for other popovers. */
+/**
+ * The inside of IconPicker, for other popovers: emoji and built-in icons to choose from, search, a
+ * random pick, and "Remove" while there is an icon.
+ */
 export function IconGrid({ icon, onChange }: { icon: string | null; onChange: (icon: string | null) => void }) {
-  const t = useTranslations("page.icon");
-  return (
-    <div className="p-1">
-      <div className="grid grid-cols-8 gap-0.5">
-        {EMOJIS.map((e) => (
-          <button
-            key={e}
-            type="button"
-            onClick={() => onChange(e)}
-            className="flex h-8 w-8 items-center justify-center rounded text-lg hover:bg-bg-hover"
-          >
-            {e}
-          </button>
-        ))}
-      </div>
-      {icon && (
-        <button
-          type="button"
-          onClick={() => onChange(null)}
-          className="mt-1 w-full rounded px-2 py-1.5 text-start text-sm text-fg-muted hover:bg-bg-hover"
-        >
-          {t("remove")}
-        </button>
-      )}
-    </div>
-  );
+  return <IconPickerPanel icon={icon} onChange={onChange} />;
 }

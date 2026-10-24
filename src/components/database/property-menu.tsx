@@ -1,5 +1,6 @@
 "use client";
 
+import { PropertyIconButton } from "./schema-icons";
 import {
   ArrowDown,
   ArrowDownAZ,
@@ -239,6 +240,8 @@ export type PropertyMenuActions = {
   setDependsOn?: (propertyId: string | null) => void;
   /** Saves what the property holds and how to fill it (null for nothing; see lib/property-description). */
   setDescription?: (description: string | null) => void;
+  /** Sets the icon shown instead of the type's (null for the type's). */
+  setIcon?: (icon: string | null) => void;
   /** Formulas: saves a new expression (with property ids, see FormulaEditor). */
   setFormula?: (expression: string) => void;
   /** Rollups: saves new settings. */
@@ -805,7 +808,8 @@ export function PropertyMenu({
     <div className="w-60">
       {prop && (
         <>
-          <div className="p-1">
+          <div className="flex items-center gap-1 p-1">
+            <PropertyIconButton prop={prop} onIcon={actions.setIcon} />
             <Input
               value={name}
               aria-label={t("name")}

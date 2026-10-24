@@ -201,7 +201,38 @@
   },
   "icon": {
     "add": "Aggiungi icona",
-    "remove": "Rimuovi icona"
+    "remove": "Rimuovi icona",
+    "emojiTab": "Emoji",
+    "iconsTab": "Icone",
+    "searchEmoji": "Cerca emoji",
+    "searchIcons": "Cerca icone",
+    "random": "Casuale",
+    "skinTone": "Tonalità della pelle",
+    "tones": {
+      "0": "Nessuna tonalità",
+      "1": "Carnagione chiara",
+      "2": "Carnagione abbastanza chiara",
+      "3": "Carnagione olivastra",
+      "4": "Carnagione abbastanza scura",
+      "5": "Carnagione scura"
+    },
+    "color": "Colore dell’icona",
+    "textColor": "Colore del testo",
+    "categoriesLabel": "Categorie",
+    "categories": {
+      "smileys": "Faccine ed emozioni",
+      "people": "Persone e corpo",
+      "nature": "Animali e natura",
+      "food": "Cibo e bevande",
+      "travel": "Viaggi e luoghi",
+      "activities": "Attività",
+      "objects": "Oggetti",
+      "symbols": "Simboli",
+      "flags": "Bandiere"
+    },
+    "loading": "Caricamento…",
+    "loadFailed": "Impossibile caricare le emoji.",
+    "noMatches": "Nessun risultato."
   },
   "background": {
     "add": "Aggiungi sfondo",
@@ -1117,7 +1148,7 @@
     },
     "settings": {
       "open": "Impostazioni del pulsante",
-      "icon": "Emoji",
+      "icon": "Icona",
       "label": "Etichetta",
       "color": "Colore",
       "colorDefault": "Predefinito",

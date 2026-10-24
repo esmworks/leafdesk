@@ -201,7 +201,38 @@
   },
   "icon": {
     "add": "Dodaj ikonę",
-    "remove": "Usuń ikonę"
+    "remove": "Usuń ikonę",
+    "emojiTab": "Emoji",
+    "iconsTab": "Ikony",
+    "searchEmoji": "Szukaj emoji",
+    "searchIcons": "Szukaj ikon",
+    "random": "Losowo",
+    "skinTone": "Odcień skóry",
+    "tones": {
+      "0": "Bez odcienia skóry",
+      "1": "Jasny odcień skóry",
+      "2": "Średnio jasny odcień skóry",
+      "3": "Średni odcień skóry",
+      "4": "Średnio ciemny odcień skóry",
+      "5": "Ciemny odcień skóry"
+    },
+    "color": "Kolor ikony",
+    "textColor": "Kolor tekstu",
+    "categoriesLabel": "Kategorie",
+    "categories": {
+      "smileys": "Buźki i emocje",
+      "people": "Ludzie i ciało",
+      "nature": "Zwierzęta i przyroda",
+      "food": "Jedzenie i picie",
+      "travel": "Podróże i miejsca",
+      "activities": "Aktywności",
+      "objects": "Przedmioty",
+      "symbols": "Symbole",
+      "flags": "Flagi"
+    },
+    "loading": "Wczytywanie…",
+    "loadFailed": "Nie udało się wczytać emoji.",
+    "noMatches": "Brak wyników."
   },
   "background": {
     "add": "Dodaj tło",
@@ -1117,7 +1148,7 @@
     },
     "settings": {
       "open": "Ustawienia przycisku",
-      "icon": "Emoji",
+      "icon": "Ikona",
       "label": "Etykieta",
       "color": "Kolor",
       "colorDefault": "Domyślny",

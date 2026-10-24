@@ -125,7 +125,8 @@
     "addViewHeading": "Ansicht hinzufügen",
     "rename": "Umbenennen",
     "viewName": "Name der Ansicht",
-    "deleteView": "Ansicht löschen"
+    "deleteView": "Ansicht löschen",
+    "icon": "Symbol"
   },
   "deleted": {
     "properties": "Gelöschte Eigenschaften",
@@ -552,7 +553,8 @@
     "sortOptionsDesc": "Sortieren Z → A",
     "dragOption": "Ziehen, um {name} zu verschieben",
     "urlPreview": "Als Linkvorschau anzeigen",
-    "urlPreviewHint": "Zeilenseiten zeigen Symbol, Titel und Bild der verlinkten Seite unter dem Link."
+    "urlPreviewHint": "Zeilenseiten zeigen Symbol, Titel und Bild der verlinkten Seite unter dem Link.",
+    "icon": "Symbol"
   },
   "rowProperties": {
     "noProperties": "Keine Eigenschaften",
@@ -913,7 +915,7 @@
     "parentInTrash": "Die übergeordnete Seite liegt im Papierkorb. Stelle sie zuerst wieder her.",
     "nestedDatabase": "Eine Datenbank kann keine andere Datenbank enthalten.",
     "pageTooDeep": "Seiten können höchstens {max} Ebenen tief verschachtelt werden.",
-    "invalidIcon": "Das Symbol muss ein Emoji sein.",
+    "invalidIcon": "Das Symbol muss ein Emoji oder ein eingebautes Symbol sein.",
     "invalidRelation": "„{property}“ kann nur mit Zeilen der verknüpften Datenbank verknüpft werden.",
     "invalidRelationTarget": "Eine Relation muss auf eine Datenbank im selben Workspace verweisen.",
     "subItemLoop": "„{property}“ kann eine Zeile nicht unter sich selbst oder unter eines ihrer eigenen Unterelemente stellen.",

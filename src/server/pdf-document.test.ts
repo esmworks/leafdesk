@@ -190,6 +190,26 @@ describe("pdfDocument", () => {
     }
   });
 
+  it("draws a built-in page or callout icon, and never prints an icon's stored text", async () => {
+    const callout = block("callout", [text("Remember")], { icon: "icon:lightbulb:yellow", backgroundColor: "gray" });
+    const content = contentOf(input([callout, block("callout", [text("Plain")], { icon: "💡" })], { icon: "icon:star:blue" }));
+    const json = JSON.stringify(content);
+    expect(json).toContain("<svg");
+    expect(json).toContain("#0b6fa7");
+    expect(json).toContain("#7f6606");
+    pdfmake.setFonts(roboto);
+    pdfmake.setUrlAccessPolicy(() => false);
+    pdfmake.setLocalAccessPolicy(() => true);
+    const bytes = await pdfmake.createPdf(pdfDocument(input([callout], { icon: "icon:star:blue" }))).getBuffer();
+    const { extractText, getDocumentProxy } = await import("unpdf");
+    const { text: read } = await extractText(await getDocumentProxy(new Uint8Array(bytes)), { mergePages: true });
+    expect(read).toContain("Offer");
+    expect(read).toContain("Remember");
+    expect(read).not.toContain("icon:");
+    // An emoji page icon draws nothing: the title stays plain text.
+    expect((contentOf(input([], { icon: "⭐" }))[0] as ContentText).text).toBe("Offer");
+  });
+
   it("renders a PDF whose text reads back, Turkish letters included", async () => {
     pdfmake.setFonts(roboto);
     pdfmake.setUrlAccessPolicy(() => false);

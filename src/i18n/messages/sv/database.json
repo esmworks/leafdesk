@@ -125,7 +125,8 @@
     "addViewHeading": "Lägg till en vy",
     "rename": "Byt namn",
     "viewName": "Vyns namn",
-    "deleteView": "Radera vyn"
+    "deleteView": "Radera vyn",
+    "icon": "Ikon"
   },
   "deleted": {
     "properties": "Raderade egenskaper",
@@ -552,7 +553,8 @@
     "sortOptionsDesc": "Sortera Ö → A",
     "dragOption": "Dra för att flytta {name}",
     "urlPreview": "Visa som länkförhandsvisning",
-    "urlPreviewHint": "Radsidor visar den länkade sidans ikon, titel och bild under länken."
+    "urlPreviewHint": "Radsidor visar den länkade sidans ikon, titel och bild under länken.",
+    "icon": "Ikon"
   },
   "rowProperties": {
     "noProperties": "Inga egenskaper",
@@ -913,7 +915,7 @@
     "parentInTrash": "Den överordnade sidan ligger i papperskorgen. Återställ den först.",
     "nestedDatabase": "En databas kan inte innehålla en annan databas.",
     "pageTooDeep": "Sidor kan kapslas högst {max} nivåer djupt.",
-    "invalidIcon": "Ikonen måste vara en emoji.",
+    "invalidIcon": "Ikonen måste vara en emoji eller en inbyggd ikon.",
     "invalidRelation": "”{property}” kan bara länka till rader i sin relaterade databas.",
     "invalidRelationTarget": "En relation måste peka på en databas i samma arbetsyta.",
     "subItemLoop": "”{property}” kan inte placera en rad under sig själv eller under ett av sina egna underobjekt.",

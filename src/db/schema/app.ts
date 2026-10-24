@@ -700,6 +700,8 @@ export type PropertyOptions = {
    * Shown as a hint by its name, and given to AI that writes values (autofill, chat, agents, MCP).
    */
   description?: string;
+  /** Any property: an icon (lib/icon) shown instead of its type's, by its name; missing for the type's. */
+  icon?: string;
   options?: SelectOption[];
   /**
    * Select and multi-select properties: the select property of the same database whose value
@@ -913,6 +915,8 @@ export type ColorRule = {
   filterCombinator?: FilterCombinator;
 };
 export type ViewConfig = {
+  /** An icon (lib/icon) shown instead of the view type's, in the view tabs; missing for the type's. */
+  icon?: string;
   /** Boards: the column property. Timelines: optional swimlanes (none when missing). Charts: the bars, points or slices. */
   groupBy?: string;
   /** Calendar views: the date property that places rows on days. Timelines: where bars start. */

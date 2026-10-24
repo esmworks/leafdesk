@@ -76,7 +76,7 @@ export type CalloutStyleProblem = "tooMany" | "key" | "reservedKey" | "duplicate
 
 /**
  * The styles an owner saves, checked: `index` is the first style with a problem (-1 for the list).
- * Names and titles are trimmed; an icon must be one emoji (or nothing).
+ * Names and titles are trimmed; an icon must be one emoji or built-in icon (or nothing).
  */
 export function parseCalloutStyles(
   value: unknown,

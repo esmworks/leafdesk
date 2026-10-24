@@ -1,5 +1,6 @@
 "use client";
 
+import { IconGlyph } from "@/components/builtin-icon";
 import { Archive, LayoutTemplate, Lock, Paintbrush, RotateCcw, SmilePlus } from "lucide-react";
 import dynamic from "next/dynamic";
 import { useLocale, useTranslations } from "next-intl";
@@ -434,7 +435,7 @@ export function PageView({
               canChangeHeader ? "hover:bg-bg-hover" : "cursor-default",
             )}
           >
-            {icon}
+            <IconGlyph icon={icon} />
           </button>
         ) : (
           <Button

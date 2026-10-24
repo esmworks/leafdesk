@@ -125,7 +125,8 @@
     "addViewHeading": "Añadir una vista",
     "rename": "Cambiar nombre",
     "viewName": "Nombre de la vista",
-    "deleteView": "Eliminar vista"
+    "deleteView": "Eliminar vista",
+    "icon": "Icono"
   },
   "deleted": {
     "properties": "Propiedades eliminadas",
@@ -552,7 +553,8 @@
     "sortOptionsDesc": "Ordenar Z → A",
     "dragOption": "Arrastra para mover {name}",
     "urlPreview": "Mostrar como vista previa del enlace",
-    "urlPreviewHint": "Las páginas de fila muestran el icono, el título y la imagen de la página enlazada bajo el enlace."
+    "urlPreviewHint": "Las páginas de fila muestran el icono, el título y la imagen de la página enlazada bajo el enlace.",
+    "icon": "Icono"
   },
   "rowProperties": {
     "noProperties": "Sin propiedades",
@@ -913,7 +915,7 @@
     "parentInTrash": "La página principal está en la papelera. Restáurala primero.",
     "nestedDatabase": "Una base de datos no puede contener otra base de datos.",
     "pageTooDeep": "Las páginas pueden anidarse como máximo {max} niveles.",
-    "invalidIcon": "El icono debe ser un emoji.",
+    "invalidIcon": "El icono debe ser un emoji o un icono integrado.",
     "invalidRelation": "“{property}” solo puede vincularse a filas de su base de datos relacionada.",
     "invalidRelationTarget": "Una relación debe apuntar a una base de datos del mismo espacio de trabajo.",
     "subItemLoop": "“{property}” no puede poner una fila debajo de sí misma ni de uno de sus propios subelementos.",

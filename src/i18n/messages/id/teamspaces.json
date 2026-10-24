@@ -29,7 +29,7 @@
     "everyoneIn": "Semua orang di ruang kerja sudah ada di ruang tim ini.",
     "accessDenied": "Anda tidak dapat melakukannya di ruang tim ini.",
     "invalidMemberLevel": "Pilih apa yang didapat anggota pada halaman ruang tim.",
-    "invalidIcon": "Ikon harus berupa emoji.",
+    "invalidIcon": "Ikon harus berupa emoji atau ikon bawaan.",
     "notConvertible": "Hanya halaman yang bisa menjadi ruang tim, bukan database, baris, atau templat."
   },
   "dialog": {

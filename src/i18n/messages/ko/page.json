@@ -201,7 +201,38 @@
   },
   "icon": {
     "add": "아이콘 추가",
-    "remove": "아이콘 제거"
+    "remove": "아이콘 제거",
+    "emojiTab": "이모지",
+    "iconsTab": "아이콘",
+    "searchEmoji": "이모지 검색",
+    "searchIcons": "아이콘 검색",
+    "random": "무작위",
+    "skinTone": "피부색",
+    "tones": {
+      "0": "피부색 없음",
+      "1": "밝은 피부색",
+      "2": "약간 밝은 피부색",
+      "3": "중간 피부색",
+      "4": "약간 어두운 피부색",
+      "5": "어두운 피부색"
+    },
+    "color": "아이콘 색상",
+    "textColor": "텍스트 색상",
+    "categoriesLabel": "카테고리",
+    "categories": {
+      "smileys": "스마일리 및 감정",
+      "people": "사람 및 신체",
+      "nature": "동물 및 자연",
+      "food": "음식 및 음료",
+      "travel": "여행 및 장소",
+      "activities": "활동",
+      "objects": "사물",
+      "symbols": "기호",
+      "flags": "깃발"
+    },
+    "loading": "불러오는 중…",
+    "loadFailed": "이모지를 불러올 수 없습니다.",
+    "noMatches": "일치하는 항목이 없습니다."
   },
   "background": {
     "add": "배경 추가",
@@ -1117,7 +1148,7 @@
     },
     "settings": {
       "open": "버튼 설정",
-      "icon": "이모지",
+      "icon": "아이콘",
       "label": "레이블",
       "color": "색상",
       "colorDefault": "기본",

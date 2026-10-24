@@ -125,7 +125,8 @@
     "addViewHeading": "Legg til en visning",
     "rename": "Gi nytt navn",
     "viewName": "Navn på visning",
-    "deleteView": "Slett visning"
+    "deleteView": "Slett visning",
+    "icon": "Ikon"
   },
   "deleted": {
     "properties": "Slettede egenskaper",
@@ -552,7 +553,8 @@
     "sortOptionsDesc": "Sorter Å → A",
     "dragOption": "Dra for å flytte {name}",
     "urlPreview": "Vis som lenkeforhåndsvisning",
-    "urlPreviewHint": "Radsider viser ikonet, tittelen og bildet til den lenkede siden under lenken."
+    "urlPreviewHint": "Radsider viser ikonet, tittelen og bildet til den lenkede siden under lenken.",
+    "icon": "Ikon"
   },
   "rowProperties": {
     "noProperties": "Ingen egenskaper",
@@ -913,7 +915,7 @@
     "parentInTrash": "Den overordnede siden ligger i papirkurven. Gjenopprett den først.",
     "nestedDatabase": "En database kan ikke inneholde en annen database.",
     "pageTooDeep": "Sider kan nestes høyst {max} nivåer dypt.",
-    "invalidIcon": "Ikonet må være en emoji.",
+    "invalidIcon": "Ikonet må være en emoji eller et innebygd ikon.",
     "invalidRelation": "«{property}» kan bare koble til rader i den relaterte databasen.",
     "invalidRelationTarget": "En relasjon må peke til en database i samme arbeidsområde.",
     "subItemLoop": "«{property}» kan ikke legge en rad under seg selv eller under et av sine egne underelementer.",

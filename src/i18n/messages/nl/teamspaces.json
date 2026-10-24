@@ -29,7 +29,7 @@
     "everyoneIn": "Iedereen in de werkruimte zit al in deze teamruimte.",
     "accessDenied": "Dat kun je in deze teamruimte niet doen.",
     "invalidMemberLevel": "Kies wat leden krijgen op de pagina’s van de teamruimte.",
-    "invalidIcon": "Het pictogram moet een emoji zijn.",
+    "invalidIcon": "Het pictogram moet een emoji of een ingebouwd pictogram zijn.",
     "notConvertible": "Alleen een pagina kan een teamruimte worden: geen database, rij of sjabloon."
   },
   "dialog": {

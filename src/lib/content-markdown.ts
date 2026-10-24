@@ -6,7 +6,7 @@ import {
   colorForAlertKind,
   FOOTNOTE,
   INLINE_MATH,
-  leadingEmoji,
+  leadingIcon,
   MATH_BLOCK,
   MERMAID_BLOCK,
   SUBPAGES_BLOCK,
@@ -53,7 +53,7 @@ import { parseSyncedBegin, SYNCED_BLOCK, SYNCED_END_LINE, syncedBeginLine, synce
  * Markdown converters understand:
  *
  *   > [!NOTE]              a callout: a GitHub alert, the kind picks the color and a
- *   > 💡 Text              leading emoji is the icon
+ *   > 💡 Text              leading emoji (or built-in icon, `icon:star:blue`) is the icon
  *
  *   > [!NOTE|blue] Title   a color the five kinds don't have goes after a "|" (blue, brown,
  *   > Text                 orange, pink); text after the marker is the callout's title
@@ -916,7 +916,7 @@ export async function finishMarkdownImport<B extends MdBlock>(
         let icon = "";
         const lead = content[0];
         if (lead?.type === "text" && typeof lead.text === "string") {
-          const emoji = leadingEmoji(lead.text);
+          const emoji = leadingIcon(lead.text);
           if (emoji) {
             icon = emoji;
             const rest = lead.text.slice(emoji.length).replace(/^[ \t]+/, "");

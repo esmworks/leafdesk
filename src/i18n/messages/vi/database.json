@@ -125,7 +125,8 @@
     "addViewHeading": "Thêm một chế độ xem",
     "rename": "Đổi tên",
     "viewName": "Tên chế độ xem",
-    "deleteView": "Xóa chế độ xem"
+    "deleteView": "Xóa chế độ xem",
+    "icon": "Biểu tượng"
   },
   "deleted": {
     "properties": "Thuộc tính đã xóa",
@@ -552,7 +553,8 @@
     "sortOptionsDesc": "Sắp xếp Z → A",
     "dragOption": "Kéo để di chuyển {name}",
     "urlPreview": "Hiển thị dưới dạng xem trước liên kết",
-    "urlPreviewHint": "Trang hàng hiển thị biểu tượng, tiêu đề và hình ảnh của trang được liên kết bên dưới liên kết."
+    "urlPreviewHint": "Trang hàng hiển thị biểu tượng, tiêu đề và hình ảnh của trang được liên kết bên dưới liên kết.",
+    "icon": "Biểu tượng"
   },
   "rowProperties": {
     "noProperties": "Không có thuộc tính",
@@ -913,7 +915,7 @@
     "parentInTrash": "Trang cha đang ở trong thùng rác. Hãy khôi phục nó trước.",
     "nestedDatabase": "Một cơ sở dữ liệu không thể chứa cơ sở dữ liệu khác.",
     "pageTooDeep": "Các trang chỉ có thể lồng nhau tối đa {max} cấp.",
-    "invalidIcon": "Biểu tượng phải là một emoji.",
+    "invalidIcon": "Biểu tượng phải là một emoji hoặc một biểu tượng có sẵn.",
     "invalidRelation": "“{property}” chỉ có thể liên kết đến các hàng của cơ sở dữ liệu liên quan của nó.",
     "invalidRelationTarget": "Một quan hệ phải trỏ đến cơ sở dữ liệu trong cùng không gian làm việc.",
     "subItemLoop": "“{property}” không thể đặt một hàng dưới chính nó hoặc dưới một trong các mục con của nó.",

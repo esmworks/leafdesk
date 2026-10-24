@@ -201,7 +201,38 @@
   },
   "icon": {
     "add": "Lisää kuvake",
-    "remove": "Poista kuvake"
+    "remove": "Poista kuvake",
+    "emojiTab": "Emoji",
+    "iconsTab": "Kuvakkeet",
+    "searchEmoji": "Hae emojeja",
+    "searchIcons": "Hae kuvakkeita",
+    "random": "Satunnainen",
+    "skinTone": "Ihonväri",
+    "tones": {
+      "0": "Ei ihonväriä",
+      "1": "Vaalea ihonväri",
+      "2": "Keskivaalea ihonväri",
+      "3": "Keskimmäinen ihonväri",
+      "4": "Keskitumma ihonväri",
+      "5": "Tumma ihonväri"
+    },
+    "color": "Kuvakkeen väri",
+    "textColor": "Tekstin väri",
+    "categoriesLabel": "Luokat",
+    "categories": {
+      "smileys": "Hymiöt ja tunteet",
+      "people": "Ihmiset ja keho",
+      "nature": "Eläimet ja luonto",
+      "food": "Ruoka ja juoma",
+      "travel": "Matkailu ja paikat",
+      "activities": "Aktiviteetit",
+      "objects": "Esineet",
+      "symbols": "Symbolit",
+      "flags": "Liput"
+    },
+    "loading": "Ladataan…",
+    "loadFailed": "Emojeja ei voitu ladata.",
+    "noMatches": "Ei osumia."
   },
   "background": {
     "add": "Lisää tausta",
@@ -1117,7 +1148,7 @@
     },
     "settings": {
       "open": "Painikkeen asetukset",
-      "icon": "Emoji",
+      "icon": "Kuvake",
       "label": "Teksti",
       "color": "Väri",
       "colorDefault": "Oletus",

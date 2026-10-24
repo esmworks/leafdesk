@@ -517,7 +517,7 @@ function PropertyRow({
   const { hint, description } = usePropertyHint(p, labelEl, menu.open);
   const label = (
     <>
-      <PropertyTypeIcon type={p.type} className="h-3.5 w-3.5 shrink-0" />
+      <PropertyTypeIcon type={p.type} icon={p.options.icon} className="h-3.5 w-3.5 shrink-0" />
       <span className="truncate" title={description ? undefined : p.name} aria-description={description || undefined}>
         {p.name}
       </span>

@@ -1,5 +1,6 @@
 "use client";
 
+import { IconGlyph } from "@/components/builtin-icon";
 import { SuggestionMenu } from "@blocknote/core/extensions";
 import {
   createReactBlockSpec,
@@ -178,7 +179,7 @@ function PageMentionChip({ pageId, blockId }: { pageId: string; blockId: string 
     >
       {ref.icon ? (
         <span className="leafdesk-mention-emoji" aria-hidden>
-          {ref.icon}
+          <IconGlyph icon={ref.icon} />
         </span>
       ) : (
         <PageIcon icon={null} kind={ref.kind} className="leafdesk-mention-icon" />
@@ -558,7 +559,7 @@ export function agentItem(editor: MentionTarget, agent: AgentCandidate, group: s
     group,
     icon: (
       <span className="flex h-[18px] w-[18px] items-center justify-center text-base leading-none" aria-hidden data-agent-mention>
-        {agent.icon || <Bot size={18} />}
+        {agent.icon ? <IconGlyph icon={agent.icon} /> : <Bot size={18} />}
       </span>
     ),
     onItemClick: () => insertMention(editor, { kind: "user", id: newMentionId(), userId: agent.id, name: agent.name }),

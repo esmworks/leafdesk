@@ -96,6 +96,7 @@ export async function pagePdf(
   const commentLabels = comments ? await commentExportLabels().catch(() => ENGLISH_COMMENT_LABELS) : null;
   const section: PdfSection = {
     title: pageLabel(title, labels.untitled),
+    icon: target.icon,
     blocks,
     properties: row
       ? row.properties.flatMap((p) => {

@@ -29,7 +29,7 @@
     "everyoneIn": "Alle im Workspace sind bereits in diesem Teamspace.",
     "accessDenied": "Das kannst du in diesem Teamspace nicht tun.",
     "invalidMemberLevel": "Wählen Sie, was Mitglieder auf den Seiten des Teambereichs erhalten.",
-    "invalidIcon": "Das Symbol muss ein Emoji sein.",
+    "invalidIcon": "Das Symbol muss ein Emoji oder ein eingebautes Symbol sein.",
     "notConvertible": "Nur eine Seite kann zum Teamspace werden, keine Datenbank, Zeile oder Vorlage."
   },
   "dialog": {

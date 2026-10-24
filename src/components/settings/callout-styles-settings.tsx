@@ -1,5 +1,6 @@
 "use client";
 
+import { IconGlyph } from "@/components/builtin-icon";
 import { Pencil, Plus, SmilePlus, Trash2, X } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
@@ -46,7 +47,7 @@ export function CalloutPreview({ style, text }: { style: CalloutStyle; text: str
   return (
     <div className="bn-container min-w-0 flex-1" data-color-scheme={scheme}>
       <div className="leafdesk-callout-preview" data-callout-color={style.color} data-callout-border={style.border}>
-        {style.icon && <span className="leafdesk-callout-icon">{style.icon}</span>}
+        {style.icon && <span className="leafdesk-callout-icon"><IconGlyph icon={style.icon} /></span>}
         <div className="min-w-0 flex-1">
           {style.title && <div className="leafdesk-callout-title truncate">{style.title}</div>}
           <div className="truncate text-sm">{text}</div>
@@ -219,7 +220,7 @@ function StyleForm({
             <IconPicker icon={style.icon || null} onChange={(icon) => set({ icon: icon ?? "" })}>
               {(toggle) => (
                 <Button onClick={toggle} aria-label={t("icon")}>
-                  {style.icon ? <span className="text-base leading-none">{style.icon}</span> : <SmilePlus className="h-4 w-4 text-fg-faint" />}
+                  {style.icon ? <IconGlyph icon={style.icon} className="text-base" /> : <SmilePlus className="h-4 w-4 text-fg-faint" />}
                   {t("chooseIcon")}
                 </Button>
               )}

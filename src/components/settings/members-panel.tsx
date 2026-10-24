@@ -1,5 +1,6 @@
 "use client";
 
+import { IconGlyph } from "@/components/builtin-icon";
 import { ArrowDown, ArrowUp, ChevronDown, Download, MoreHorizontal, Search } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useFormatter, useTranslations } from "next-intl";
@@ -592,7 +593,7 @@ function TeamspacesCell({ name, teamspaces }: { name: string; teamspaces: Member
           {teamspaces.map((ts) => (
             <li key={ts.id} className="flex items-center gap-2 rounded px-2 py-1.5 text-sm">
               <span aria-hidden className="flex h-4 w-4 shrink-0 items-center justify-center leading-none text-fg-muted">
-                {ts.icon ?? (ts.name.trim()[0] ?? "?").toLocaleUpperCase()}
+                {ts.icon ? <IconGlyph icon={ts.icon} /> : (ts.name.trim()[0] ?? "?").toLocaleUpperCase()}
               </span>
               <span className="truncate">{ts.name}</span>
             </li>

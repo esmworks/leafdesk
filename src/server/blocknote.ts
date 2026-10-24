@@ -1,3 +1,6 @@
+import { isBuiltinIcon, readBuiltinIcon } from "@/lib/icon-value";
+import { BUILTIN_ICONS } from "@/lib/builtin-icons-data";
+import { ICON_COLOR_HEX } from "@/lib/builtin-icon-svg";
 import { randomBytes } from "node:crypto";
 import {
   BlockNoteSchema,
@@ -89,10 +92,11 @@ const contentBlockSpecs = {
     render: (block) => {
       const dom = document.createElement("div");
       dom.setAttribute("data-leafdesk-callout", "");
-      if (block.props.icon) {
+      const drawn = iconElement(block.props.icon);
+      if (drawn) {
         const icon = document.createElement("span");
         icon.setAttribute("data-callout-icon", "");
-        icon.textContent = block.props.icon;
+        icon.append(drawn);
         dom.appendChild(icon);
       }
       const contentDOM = document.createElement("div");
@@ -145,9 +149,49 @@ function buttonElement(props: { label?: unknown; icon?: unknown; color?: unknown
   button.setAttribute("type", "button");
   button.setAttribute("disabled", "");
   if (color) button.setAttribute("class", `opt-${color}`);
-  button.textContent = [typeof props.icon === "string" ? props.icon : "", cleanButtonLabel(props.label)].filter(Boolean).join(" ");
+  const icon = iconElement(props.icon);
+  const label = cleanButtonLabel(props.label);
+  if (icon) button.append(icon, ...(label ? [" "] : []));
+  if (label) button.append(label);
   dom.appendChild(button);
   return { dom };
+}
+
+const SVG = "http://www.w3.org/2000/svg";
+
+/**
+ * An icon field's value in server HTML: an emoji as text, a built-in icon drawn as SVG in its color
+ * (the stylesheet's `--icon-*` where there is one, the light color otherwise); nothing else.
+ */
+function iconElement(value: unknown): Node | null {
+  if (typeof value !== "string" || !value) return null;
+  if (!isBuiltinIcon(value)) return document.createTextNode(value);
+  const icon = readBuiltinIcon(value);
+  const node = icon && BUILTIN_ICONS[icon.name];
+  if (!icon || !node) return null;
+  const svg = document.createElementNS(SVG, "svg");
+  for (const [name, attr] of Object.entries({
+    viewBox: "0 0 24 24",
+    width: "1em",
+    height: "1em",
+    fill: "none",
+    stroke: "currentColor",
+    "stroke-width": "2",
+    "stroke-linecap": "round",
+    "stroke-linejoin": "round",
+    "aria-hidden": "true",
+    "data-builtin-icon": icon.name,
+  })) {
+    svg.setAttribute(name, attr);
+  }
+  if (icon.color) svg.setAttribute("style", `color: var(--icon-${icon.color}, ${ICON_COLOR_HEX[icon.color]}); vertical-align: -0.125em`);
+  else svg.setAttribute("style", "vertical-align: -0.125em");
+  for (const [tag, attrs] of node) {
+    const child = document.createElementNS(SVG, tag);
+    for (const [name, attr] of Object.entries(attrs)) child.setAttribute(name, String(attr));
+    svg.appendChild(child);
+  }
+  return svg;
 }
 
 /**

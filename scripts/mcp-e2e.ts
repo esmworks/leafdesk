@@ -1033,7 +1033,7 @@ async function main() {
     triage,
   );
   const badIcon = await mcp.call("create_agent", { workspace_id: ws, name: "Bad", icon: "not an emoji at all" });
-  check(badIcon.isError && /one emoji/.test(badIcon.text), "create_agent refuses an icon that isn't an emoji", badIcon.text);
+  check(badIcon.isError && /an emoji, or a built-in icon/.test(badIcon.text), "create_agent refuses an icon that is neither an emoji nor a built-in icon", badIcon.text);
   const agentNoChange = await mcp.call("update_agent", { agent_id: triage.id });
   check(agentNoChange.isError && /Nothing to change/.test(agentNoChange.text), "update_agent without changes is a tool error", agentNoChange.text);
   const renamedAgent = await mcp.ok("update_agent", { agent_id: triage.id, name: `Triage bot ${RUN}`, enabled: true });

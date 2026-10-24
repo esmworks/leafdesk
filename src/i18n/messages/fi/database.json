@@ -125,7 +125,8 @@
     "addViewHeading": "Lisää näkymä",
     "rename": "Nimeä uudelleen",
     "viewName": "Näkymän nimi",
-    "deleteView": "Poista näkymä"
+    "deleteView": "Poista näkymä",
+    "icon": "Kuvake"
   },
   "deleted": {
     "properties": "Poistetut ominaisuudet",
@@ -552,7 +553,8 @@
     "sortOptionsDesc": "Lajittele Ö → A",
     "dragOption": "Siirrä vaihtoehtoa {name} vetämällä",
     "urlPreview": "Näytä linkin esikatseluna",
-    "urlPreviewHint": "Rivisivuilla linkin alla näkyvät linkitetyn sivun kuvake, otsikko ja kuva."
+    "urlPreviewHint": "Rivisivuilla linkin alla näkyvät linkitetyn sivun kuvake, otsikko ja kuva.",
+    "icon": "Kuvake"
   },
   "rowProperties": {
     "noProperties": "Ei ominaisuuksia",
@@ -913,7 +915,7 @@
     "parentInTrash": "Yläsivu on roskakorissa. Palauta se ensin.",
     "nestedDatabase": "Tietokanta ei voi sisältää toista tietokantaa.",
     "pageTooDeep": "Sivuja voi sisäkkäistää enintään {max} tasoa syvälle.",
-    "invalidIcon": "Kuvakkeen on oltava emoji.",
+    "invalidIcon": "Kuvakkeen on oltava emoji tai sisäänrakennettu kuvake.",
     "invalidRelation": "Ominaisuus ”{property}” voi linkittää vain liitetyn tietokantansa riveihin.",
     "invalidRelationTarget": "Relaation on osoitettava saman työtilan tietokantaan.",
     "subItemLoop": "Ominaisuus ”{property}” ei voi sijoittaa riviä itsensä tai oman alikohteensa alle.",

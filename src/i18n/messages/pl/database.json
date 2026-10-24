@@ -125,7 +125,8 @@
     "addViewHeading": "Dodaj widok",
     "rename": "Zmień nazwę",
     "viewName": "Nazwa widoku",
-    "deleteView": "Usuń widok"
+    "deleteView": "Usuń widok",
+    "icon": "Ikona"
   },
   "deleted": {
     "properties": "Usunięte właściwości",
@@ -552,7 +553,8 @@
     "sortOptionsDesc": "Sortuj Z → A",
     "dragOption": "Przeciągnij, aby przenieść {name}",
     "urlPreview": "Pokaż jako podgląd linku",
-    "urlPreviewHint": "Strony wierszy pokazują pod linkiem ikonę, tytuł i obraz podlinkowanej strony."
+    "urlPreviewHint": "Strony wierszy pokazują pod linkiem ikonę, tytuł i obraz podlinkowanej strony.",
+    "icon": "Ikona"
   },
   "rowProperties": {
     "noProperties": "Brak właściwości",
@@ -913,7 +915,7 @@
     "parentInTrash": "Strona nadrzędna jest w koszu. Najpierw ją przywróć.",
     "nestedDatabase": "Baza danych nie może zawierać innej bazy danych.",
     "pageTooDeep": "Strony mogą być zagnieżdżone najwyżej na {max, plural, one {# poziom} few {# poziomy} many {# poziomów} other {# poziomu}} w głąb.",
-    "invalidIcon": "Ikona musi być emoji.",
+    "invalidIcon": "Ikona musi być emoji lub wbudowaną ikoną.",
     "invalidRelation": "„{property}” może linkować tylko do wierszy powiązanej bazy danych.",
     "invalidRelationTarget": "Relacja musi wskazywać bazę danych w tym samym obszarze roboczym.",
     "subItemLoop": "„{property}” nie może umieścić wiersza pod nim samym ani pod jednym z jego podelementów.",

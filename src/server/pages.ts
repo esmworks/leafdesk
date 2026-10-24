@@ -2,7 +2,7 @@ import { and, asc, desc, eq, inArray, isNotNull, isNull, or, sql } from "drizzle
 import { alias } from "drizzle-orm/pg-core";
 import { db } from "@/db";
 import { loadMessages } from "@/i18n/messages";
-import { parseIcon } from "@/lib/icon";
+import { ICON_RULE, parseIcon } from "@/lib/icon";
 import { parsePageBackground, type PageBackground } from "@/lib/page-background";
 import { assertNotInTrash, assertPageUnlocked } from "@/lib/page-lock";
 import { makeStatusOptions } from "@/lib/properties";
@@ -94,7 +94,8 @@ export type TreeNode = {
   views?: TreeView[];
 };
 
-export type TreeView = { id: string; name: string; type: ViewType };
+/** A database's view in the sidebar: its name, type and the icon chosen for it, if any. */
+export type TreeView = { id: string; name: string; type: ViewType; icon?: string };
 
 export { listWorkspaces } from "@/server/workspaces";
 
@@ -149,13 +150,19 @@ export async function getTree(userId: string, workspaceId: string): Promise<Tree
     return where ? [{ r, ...where }] : [];
   });
   const views = await db
-    .select({ id: databaseView.id, name: databaseView.name, type: databaseView.type, databaseId: databaseView.databaseId })
+    .select({
+      id: databaseView.id,
+      name: databaseView.name,
+      type: databaseView.type,
+      databaseId: databaseView.databaseId,
+      icon: sql<string | null>`${databaseView.config} ->> 'icon'`,
+    })
     .from(databaseView)
     .innerJoin(page, eq(page.id, databaseView.databaseId))
     .where(and(eq(page.workspaceId, workspaceId), isNull(page.archivedAt), isNull(databaseView.deletedAt), pageVisibleTo(userId)))
     .orderBy(asc(databaseView.position));
   const viewsOf = new Map<string, TreeView[]>();
-  for (const { databaseId, ...v } of views) viewsOf.set(databaseId, [...(viewsOf.get(databaseId) ?? []), v]);
+  for (const { databaseId, icon, ...v } of views) viewsOf.set(databaseId, [...(viewsOf.get(databaseId) ?? []), { ...v, ...(icon ? { icon } : {}) }]);
   return nodes.map(({ r, section, parentId }) => ({
     id: r.id,
     parentId,
@@ -454,10 +461,10 @@ export async function renamePage(actor: WriteActor, pageId: string, title: strin
   await getCollab().setTitle(pageId, title.trim(), actor);
 }
 
-/** A page's icon is an emoji (lib/icon); anything else is refused with `invalidIcon`. */
+/** A page's icon is an emoji or a built-in icon (lib/icon); anything else is refused with `invalidIcon`. */
 function checkedIcon(value: unknown) {
   const icon = parseIcon(value);
-  if (!icon) throw withCode(new Error("A page's icon is an emoji"), "invalidIcon");
+  if (!icon) throw withCode(new Error(`A page's icon is ${ICON_RULE}`), "invalidIcon");
   return icon;
 }
 

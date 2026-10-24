@@ -201,7 +201,38 @@
   },
   "icon": {
     "add": "Symbol hinzufügen",
-    "remove": "Symbol entfernen"
+    "remove": "Symbol entfernen",
+    "emojiTab": "Emoji",
+    "iconsTab": "Symbole",
+    "searchEmoji": "Emoji suchen",
+    "searchIcons": "Symbole suchen",
+    "random": "Zufällig",
+    "skinTone": "Hautfarbe",
+    "tones": {
+      "0": "Keine Hautfarbe",
+      "1": "Helle Hautfarbe",
+      "2": "Mittelhelle Hautfarbe",
+      "3": "Mittlere Hautfarbe",
+      "4": "Mitteldunkle Hautfarbe",
+      "5": "Dunkle Hautfarbe"
+    },
+    "color": "Symbolfarbe",
+    "textColor": "Textfarbe",
+    "categoriesLabel": "Kategorien",
+    "categories": {
+      "smileys": "Smileys & Emotionen",
+      "people": "Menschen & Körper",
+      "nature": "Tiere & Natur",
+      "food": "Essen & Trinken",
+      "travel": "Reisen & Orte",
+      "activities": "Aktivitäten",
+      "objects": "Objekte",
+      "symbols": "Symbole",
+      "flags": "Flaggen"
+    },
+    "loading": "Wird geladen…",
+    "loadFailed": "Die Emoji konnten nicht geladen werden.",
+    "noMatches": "Keine Treffer."
   },
   "background": {
     "add": "Hintergrund hinzufügen",
@@ -1117,7 +1148,7 @@
     },
     "settings": {
       "open": "Einstellungen der Schaltfläche",
-      "icon": "Emoji",
+      "icon": "Symbol",
       "label": "Beschriftung",
       "color": "Farbe",
       "colorDefault": "Standard",

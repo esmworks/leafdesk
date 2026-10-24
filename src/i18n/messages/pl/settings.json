@@ -734,7 +734,7 @@
       "accessDenied": "Nie masz uprawnień, aby to zrobić.",
       "reasons": {
         "name": "Nadaj agentowi nazwę.",
-        "icon": "Ikona agenta to emoji.",
+        "icon": "Ikona agenta to emoji lub wbudowana ikona.",
         "level": "Agent może wyświetlać, komentować lub edytować stronę.",
         "template": "Ten szablon nie istnieje.",
         "database": "Wybierz bazę danych z tego obszaru roboczego.",
@@ -2655,7 +2655,7 @@
       "reservedKey": "Ten klucz należy do wbudowanego rodzaju (note, tip, important, warning, caution, info, danger, details, frame, card, panel).",
       "duplicateKey": "Inny styl ma już ten klucz.",
       "name": "Wpisz nazwę o długości do 60 znaków.",
-      "icon": "Wybierz jedno emoji albo brak ikony.",
+      "icon": "Wybierz jedno emoji lub wbudowaną ikonę albo brak ikony.",
       "color": "Wybierz kolor.",
       "border": "Wybierz obramowanie.",
       "title": "Tytuł może mieć najwyżej 120 znaków."

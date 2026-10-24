@@ -29,7 +29,7 @@
     "everyoneIn": "工作区中的所有人都已在此团队空间中。",
     "accessDenied": "你无法在此团队空间中执行此操作。",
     "invalidMemberLevel": "请选择成员对团队空间页面的访问权限。",
-    "invalidIcon": "图标必须是表情符号。",
+    "invalidIcon": "图标必须是表情符号或内置图标。",
     "notConvertible": "只有页面可以变成团队空间，数据库、行或模板不行。"
   },
   "dialog": {

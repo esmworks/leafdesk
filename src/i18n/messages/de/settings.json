@@ -734,7 +734,7 @@
       "accessDenied": "Dazu fehlt dir die Berechtigung.",
       "reasons": {
         "name": "Gib dem Agenten einen Namen.",
-        "icon": "Das Symbol eines Agenten ist ein Emoji.",
+        "icon": "Das Symbol eines Agenten ist ein Emoji oder ein eingebautes Symbol.",
         "level": "Ein Agent kann eine Seite ansehen, kommentieren oder bearbeiten.",
         "template": "Diese Vorlage gibt es nicht.",
         "database": "Wähle eine Datenbank dieses Workspaces.",
@@ -2655,7 +2655,7 @@
       "reservedKey": "Dieser Schlüssel gehört zu einer eingebauten Art (note, tip, important, warning, caution, info, danger, details, frame, card, panel).",
       "duplicateKey": "Ein anderer Stil hat diesen Schlüssel schon.",
       "name": "Gib einen Namen mit höchstens 60 Zeichen ein.",
-      "icon": "Wähle ein Emoji oder kein Symbol.",
+      "icon": "Wähle ein Emoji oder eingebautes Symbol oder kein Symbol.",
       "color": "Wähle eine Farbe.",
       "border": "Wähle einen Rand.",
       "title": "Der Titel darf höchstens 120 Zeichen lang sein."

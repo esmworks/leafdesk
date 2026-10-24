@@ -1,3 +1,4 @@
+import { ICON_RULE, parseIcon } from "@/lib/icon";
 import { and, asc, desc, eq, inArray, isNotNull, isNull, or, sql } from "drizzle-orm";
 import { alias } from "drizzle-orm/pg-core";
 import { db } from "@/db";
@@ -1999,9 +2000,13 @@ export async function updateProperty(
     prefix?: string | null;
     /** URLs: whether row pages show a preview of the linked page (server/url-preview.ts). */
     urlPreview?: boolean;
+    /** An icon shown instead of the type's (lib/icon); null or "" for the type's. */
+    icon?: string | null;
   },
 ) {
   const prop = await requireProperty(userId, propertyId);
+  const icon = patch.icon === undefined ? undefined : patch.icon === null || patch.icon === "" ? null : parseIcon(patch.icon);
+  if (icon === null && patch.icon) throw new PropertyValueError(`A property's icon is ${ICON_RULE}`, "invalidIcon");
   if (patch.urlPreview !== undefined && prop.type !== "url") {
     throw new PropertyValueError(`"${prop.name}" is a ${prop.type} property; only URLs show link previews`, "unsupportedType", {
       type: prop.type,
@@ -2094,6 +2099,7 @@ export async function updateProperty(
   if (dependsOn !== undefined) change((o) => (dependsOn ? { ...o, dependsOn } : without(o, "dependsOn")));
   if (prefix !== undefined) change((o) => (prefix ? { ...o, uniqueId: { prefix } } : without(o, "uniqueId")));
   if (patch.urlPreview !== undefined) change((o) => (patch.urlPreview === true ? { ...o, url: { preview: true } } : without(o, "url")));
+  if (icon !== undefined) change((o) => (icon ? { ...o, icon } : without(o, "icon")));
   // Options of this property others depend on that go away leave their lists (lib/dependent-options).
   const dependents = removed.length ? dependentsOf(prop.id, siblings) : [];
   const workspaceId = prefix ? await workspaceOf(prop.databaseId) : null;
@@ -2878,8 +2884,15 @@ export async function updateView(userId: string, viewId: string, patch: { name?:
   const layoutError = patch.config && layoutConfigError(patch.config);
   if (layoutError) throw new PropertyValueError(layoutError, "invalidViewConfig");
   const view = await requireView(userId, viewId);
-  // Filters, sorts and layout stay adjustable on a locked database; renaming doesn't.
-  if (patch.name !== undefined) assertUnlocked(view);
+  // A view's icon is an emoji or a built-in icon (lib/icon); anything else leaves it as it was.
+  if (patch.config && patch.config.icon !== view.config.icon) {
+    const icon = patch.config.icon === undefined || patch.config.icon === "" ? undefined : parseIcon(patch.config.icon);
+    if (patch.config.icon && !icon) throw new PropertyValueError(`A view's icon is ${ICON_RULE}`, "invalidIcon");
+    const { icon: _icon, ...rest } = patch.config;
+    patch = { ...patch, config: icon ? { ...rest, icon } : rest };
+  }
+  // Filters, sorts and layout stay adjustable on a locked database; renaming (and its icon) doesn't.
+  if (patch.name !== undefined || (patch.config && patch.config.icon !== view.config.icon)) assertUnlocked(view);
   const access = await propertyAccessFor(userId, view.databaseId);
   // A form's conditions and choice limits must fit the properties the editor knows of.
   if (patch.config?.form) {

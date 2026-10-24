@@ -125,7 +125,8 @@
     "addViewHeading": "Een weergave toevoegen",
     "rename": "Hernoemen",
     "viewName": "Naam van de weergave",
-    "deleteView": "Weergave verwijderen"
+    "deleteView": "Weergave verwijderen",
+    "icon": "Pictogram"
   },
   "deleted": {
     "properties": "Verwijderde eigenschappen",
@@ -552,7 +553,8 @@
     "sortOptionsDesc": "Sorteren Z → A",
     "dragOption": "Sleep om {name} te verplaatsen",
     "urlPreview": "Tonen als linkvoorbeeld",
-    "urlPreviewHint": "Rijpagina’s tonen het pictogram, de titel en de afbeelding van de gelinkte pagina onder de link."
+    "urlPreviewHint": "Rijpagina’s tonen het pictogram, de titel en de afbeelding van de gelinkte pagina onder de link.",
+    "icon": "Pictogram"
   },
   "rowProperties": {
     "noProperties": "Geen eigenschappen",
@@ -913,7 +915,7 @@
     "parentInTrash": "De bovenliggende pagina staat in de prullenbak. Zet die eerst terug.",
     "nestedDatabase": "Een database kan geen andere database bevatten.",
     "pageTooDeep": "Pagina’s kunnen maximaal {max} niveaus diep worden genest.",
-    "invalidIcon": "Het pictogram moet een emoji zijn.",
+    "invalidIcon": "Het pictogram moet een emoji of een ingebouwd pictogram zijn.",
     "invalidRelation": "“{property}” kan alleen naar rijen van de gerelateerde database linken.",
     "invalidRelationTarget": "Een relatie moet naar een database in dezelfde werkruimte wijzen.",
     "subItemLoop": "“{property}” kan een rij niet onder zichzelf plaatsen of onder een van haar eigen subitems.",

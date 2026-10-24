@@ -125,7 +125,8 @@
     "addViewHeading": "ビューを追加",
     "rename": "名前を変更",
     "viewName": "ビュー名",
-    "deleteView": "ビューを削除"
+    "deleteView": "ビューを削除",
+    "icon": "アイコン"
   },
   "deleted": {
     "properties": "削除したプロパティ",
@@ -552,7 +553,8 @@
     "sortOptionsDesc": "降順に並べ替え (Z → A)",
     "dragOption": "ドラッグして{name}を移動",
     "urlPreview": "リンクプレビューとして表示",
-    "urlPreviewHint": "行ページのリンクの下に、リンク先ページのアイコン、タイトル、画像を表示します。"
+    "urlPreviewHint": "行ページのリンクの下に、リンク先ページのアイコン、タイトル、画像を表示します。",
+    "icon": "アイコン"
   },
   "rowProperties": {
     "noProperties": "プロパティなし",
@@ -913,7 +915,7 @@
     "parentInTrash": "親ページがゴミ箱にあります。先に復元してください。",
     "nestedDatabase": "データベースの中に別のデータベースを入れることはできません。",
     "pageTooDeep": "ページの入れ子は最大{max}階層までです。",
-    "invalidIcon": "アイコンは絵文字にしてください。",
+    "invalidIcon": "アイコンは絵文字か組み込みアイコンにしてください。",
     "invalidRelation": "「{property}」は、関連付けたデータベースの行にのみリンクできます。",
     "invalidRelationTarget": "リレーションは同じワークスペースのデータベースを指す必要があります。",
     "subItemLoop": "「{property}」で、行を自分自身や自分のサブアイテムの下に置くことはできません。",

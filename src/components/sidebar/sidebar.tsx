@@ -1,5 +1,6 @@
 "use client";
 
+import { IconGlyph } from "@/components/builtin-icon";
 import dynamic from "next/dynamic";
 import {
   Bell,
@@ -1730,7 +1731,7 @@ function SectionGroup({
 }
 
 function TeamspaceIcon({ teamspace }: { teamspace: TeamspaceSummary }) {
-  if (teamspace.icon) return <span className="text-sm leading-none">{teamspace.icon}</span>;
+  if (teamspace.icon) return <IconGlyph icon={teamspace.icon} className="text-sm" />;
   return (
     <span className="flex h-4 w-4 items-center justify-center rounded bg-fg-muted text-[10px] font-semibold text-bg">
       {teamspace.name.slice(0, 1).toUpperCase()}
@@ -2321,7 +2322,7 @@ function TreeItem({
                 style={{ paddingInlineStart: 4 + (depth + 1) * 14 }}
               >
                 <span className="flex h-6 w-6 shrink-0 items-center justify-center">
-                  <ViewIcon type={v.type} className="h-3.5 w-3.5" />
+                  <ViewIcon type={v.type} icon={v.icon} className="h-3.5 w-3.5" />
                 </span>
                 <span className="truncate">{v.name}</span>
               </Link>

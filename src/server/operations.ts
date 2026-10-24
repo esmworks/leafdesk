@@ -13,7 +13,7 @@ import { blockMarker, stripBlockMarkers } from "@/lib/block-edits";
 import { markdownReferences } from "@/lib/embed-blocks";
 import { env } from "@/lib/env";
 import { asFiles, blockTypeFor } from "@/lib/files";
-import { parseIcon } from "@/lib/icon";
+import { ICON_INPUT, ICON_RULE, parseIcon } from "@/lib/icon";
 import { FILTER_COMBINATORS, MAX_FILTER_DEPTH, MAX_RELATIVE_DAYS, RELATIVE_DATE_RANGES } from "@/lib/filters";
 import { pageLabel } from "@/lib/labels";
 import { diffToText, wordsToText } from "@/lib/page-diff";
@@ -245,7 +245,7 @@ export const inputs = {
       .optional()
       .describe("Page title. Required unless template_id is given (the template's title is used then)."),
     markdown: z.string().optional().describe("Initial page body in Markdown. With template_id it replaces the template's body."),
-    icon: z.string().max(16).optional().describe("A single emoji used as the page icon."),
+    icon: z.string().max(64).optional().describe(ICON_INPUT),
     template_id: z
       .string()
       .optional()
@@ -887,7 +887,7 @@ export async function createPage(
 ) {
   const { userId, actor } = ctx;
   // Checked before anything is created: a page from a template gets its icon afterwards.
-  if (icon !== undefined && icon !== null && !parseIcon(icon)) throw new ToolInputError("icon must be a single emoji.");
+  if (icon !== undefined && icon !== null && !parseIcon(icon)) throw new ToolInputError(`icon must be ${ICON_RULE}.`);
   const location = await resolveLocation(ctx, workspace_id, parent_id, teamspace_id);
   if (location.parentKind === "database") {
     throw new ToolInputError("parent_id is a database. Use create_database_row to add rows to it.");

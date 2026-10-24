@@ -29,7 +29,7 @@
     "everyoneIn": "Todos do espaço de trabalho já estão neste espaço de equipe.",
     "accessDenied": "Você não pode fazer isso neste espaço de equipe.",
     "invalidMemberLevel": "Escolha o que os membros recebem nas páginas do espaço de equipe.",
-    "invalidIcon": "O ícone precisa ser um emoji.",
+    "invalidIcon": "O ícone precisa ser um emoji ou um ícone integrado.",
     "notConvertible": "Só uma página pode virar um espaço de equipe, não um banco de dados, uma linha ou um modelo."
   },
   "dialog": {

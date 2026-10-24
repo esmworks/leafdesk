@@ -125,7 +125,8 @@
     "addViewHeading": "Add a view",
     "rename": "Rename",
     "viewName": "View name",
-    "deleteView": "Delete view"
+    "deleteView": "Delete view",
+    "icon": "Icon"
   },
   "deleted": {
     "properties": "Deleted properties",
@@ -552,7 +553,8 @@
     "sortOptionsDesc": "Sort Z → A",
     "dragOption": "Drag to move {name}",
     "urlPreview": "Show as link preview",
-    "urlPreviewHint": "Row pages show the linked page's icon, title and image under the link."
+    "urlPreviewHint": "Row pages show the linked page's icon, title and image under the link.",
+    "icon": "Icon"
   },
   "rowProperties": {
     "noProperties": "No properties",
@@ -913,7 +915,7 @@
     "parentInTrash": "The parent page is in the trash. Restore it first.",
     "nestedDatabase": "A database can’t contain another database.",
     "pageTooDeep": "Pages can be nested at most {max} levels deep.",
-    "invalidIcon": "The icon must be an emoji.",
+    "invalidIcon": "The icon must be an emoji or a built-in icon.",
     "invalidRelation": "“{property}” can only link to rows of its related database.",
     "invalidRelationTarget": "A relation must point to a database in the same workspace.",
     "subItemLoop": "“{property}” can’t put a row under itself or under one of its own sub-items.",
