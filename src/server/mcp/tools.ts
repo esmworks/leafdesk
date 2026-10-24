@@ -441,7 +441,7 @@ const viewLayoutInputs = {
   chart_sort: z
     .enum(CHART_SORTS)
     .optional()
-    .describe('Chart only: "group" keeps the grouping\'s order (option order, dates oldest first; default), "value_desc" / "value_asc" order by value.'),
+    .describe('Chart only: "group" keeps the grouping\'s order (default), "value_desc" / "value_asc" by value.'),
   accumulate: z
     .enum(["none", ...CHART_ACCUMULATES])
     .optional()
@@ -460,15 +460,15 @@ const viewLayoutInputs = {
     .enum(OPEN_ROWS)
     .optional()
     .describe(
-      'Every view but forms and charts: "panel" opens a row beside the view (default), "page" on its own page; phones always use the page.',
+      'Every view but forms and charts: "panel" opens rows beside the view (default), "page" as pages (always on phones).',
     ),
 };
 
 /** Display settings offered on views themselves, not on dashboard widgets (each widget's list stays short). */
 const viewDisplayInputs = {
   show_weekends: z.boolean().optional().describe("Calendar only: show Saturdays and Sundays (true by default)."),
-  show_icons: z.boolean().optional().describe("Views with rows: show page icons by row titles (true by default)."),
-  wrap_properties: z.boolean().optional().describe("Board and gallery only: long values on cards wrap onto more lines (false: cut off, the default)."),
+  show_icons: z.boolean().optional().describe("Views with rows: page icons by titles (true by default)."),
+  wrap_properties: z.boolean().optional().describe("Board and gallery only: wrap long values on cards (default false)."),
 };
 
 /** A view's color rules (update_database_view: a new view gets them right after it is made). */
