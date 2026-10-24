@@ -74,7 +74,12 @@ for Windows, `.AppImage` for Linux) and choose *On this computer*. See [Desktop 
   its documents has every word, after the pages that have them in their own text, and the result
   names the document, with the text around the words. Only documents the page's readers may open
   through it count, as for semantic search; a document's first 80,000 characters are searched,
-  and a scan without a text layer has no words to find.
+  and a scan without a text layer has no words to find. The sidebar's new button asks what to make
+  (a page, a chat, a database or a page from a template). A page's `⋯` menu counts its words and
+  characters, and *Present* (⌘⌥P, Ctrl+Alt+P) shows it full screen as read-only slides: a new
+  slide at each divider, or else at each heading of level 1 or 2. Resting on a page in the
+  breadcrumb (or ↓ on it) lists the pages beside it, its parent's other subpages or a row's
+  database's other rows, to jump to.
 - **Home page**: quick buttons for a new page, database or template; today's daily note (or a
   button that starts it) and the few before it; the database rows assigned to you that aren't done
   and that you can open, grouped as overdue, today, the next 7 days, later and no date; and the
@@ -112,11 +117,13 @@ for Windows, `.AppImage` for Linux) and choose *On this computer*. See [Desktop 
   seeing those they may open; a page with one doesn't list them again at its end when published or
   printed), and columns (2 to 5, resizable, blocks
   dragged in and out with the side menu, stacked on phones), also on published pages and in
-  Markdown. Code blocks take their language from a menu (plain text and 42 languages) and color
-  their code in it, published pages and the print view included; Enter in a code block starts the
-  new line with the indentation of the one before it. *Format code* in the block's menu formats
-  JavaScript, TypeScript, JSX, TSX, JSON, CSS, SCSS, HTML, Vue, Markdown, YAML and GraphQL with
-  Prettier (loaded only then) as one change of the block; code with a syntax error stays as it was.
+  Markdown. Table cells merge across columns and rows from the formatting toolbar (Markdown writes
+  the full grid, the covered places empty). Code blocks take their language from a menu (plain text
+  and 42 languages) and color their code in it, published pages and the print view included; Enter
+  in a code block starts the new line with the indentation of the one before it. *Format code* in
+  the block's menu formats JavaScript, TypeScript, JSX, TSX, JSON, CSS, SCSS, HTML, Vue, Markdown,
+  YAML and GraphQL with Prettier (loaded only then) as one change of the block; code with a syntax
+  error stays as it was.
 - **Floating outline**: a page with two headings or more shows a short line per heading at its
   edge, the one being read darker. Hovering the lines (or tabbing to them) lists the headings, and a
   click scrolls there, opening collapsed toggles on the way. It stays out of the way on narrow
@@ -174,17 +181,25 @@ for Windows, `.AppImage` for Linux) and choose *On this computer*. See [Desktop 
   databases. Where the server can transcribe, the quick note takes voice notes too (see
   [Voice notes](#voice-notes)).
 - **Desktop app** for macOS, Windows and Linux: a window on your server, or Leafdesk running on
-  the computer itself with its own database and daily backups (see [Desktop app](#desktop-app)). A
+  the computer itself with its own database and daily backups (see [Desktop app](#desktop-app)),
+  with tabs, opening on the page you left and taking Leafdesk links from the browser. A
   system-wide shortcut (Cmd/Ctrl+Shift+J) brings it forward on AI chat.
 - **Find and replace** in a page (Cmd/Ctrl+F): highlights every match, steps through them, and
   replaces one or all in a single undo step, opening a collapsed toggle when the match it steps to
-  is inside it. Anyone who can open the page can search it.
+  is inside it. Accents don't matter ("cafe" finds "café", "isik" finds "ışık") unless *Match
+  accents* is on. Anyone who can open the page can search it.
 - **Databases**: every row is also a page.
   - Properties: text, number, select, multi-select, status, date, checkbox, checklist, URL,
     email, phone, files & media (uploads with image thumbnails), place (an address looked up on the
     server, or coordinates; see Maps and places), person, one- or two-way relations to other databases, formulas, rollups over
     relations, and the read-only "created by", "created time", "last edited time" and
     "last edited by".
+  - Each property can have a description (up to 1,000 characters, in its menu): a hint on its
+    header and on row pages, a form question's help text when it has none, and guidance for AI
+    autofill, the AI chat, agents and MCP when they write values. A select or multi-select can
+    depend on another select ("City" on "Country", *Depends on* in its menu): a row is offered,
+    and may hold, only the options that go with its value there, and changing that value clears
+    what no longer fits.
   - A URL property can *Show as link preview*: row pages then show the linked page's icon, title
     and image under the link, fetched on the server behind the same SSRF guard as bookmarks and
     kept for a day.
@@ -203,7 +218,9 @@ for Windows, `.AppImage` for Linux) and choose *On this computer*. See [Desktop 
     filtered on what it does or does not contain, numbers with =, ≠, <, ≤, > and ≥, dates on,
     before, after, on or before and on or after a day, and selects, statuses, tags, relations and
     people on any of several values or none of them in one rule. A "Me" filter (also inside such a
-    list) shows each viewer their own rows.
+    list) shows each viewer their own rows. *Color rules* in the layout menu (tables, boards,
+    galleries, lists, calendars, timelines) color the whole row or card, or one property's value,
+    for the rows that match filters of the same kind; the first matching rule wins.
   - People who can only view a database (or a view whose settings they can't change) still filter
     and sort it for themselves: their rules replace the view's for them alone, marked *Only for
     you*, are never saved, and *Reset* brings back the view's own.
@@ -225,7 +242,17 @@ for Windows, `.AppImage` for Linux) and choose *On this computer*. See [Desktop 
     lacks and, in an ungrouped table, rows past the last one. One pasted value fills the whole
     range; cells that don't fit their column or that you may not change are left out and counted.
     From 120 rows on, a table renders only the rows near the visible part of the page. Selected
-    rows can be edited, given an icon, duplicated, merged, exported or trashed together.
+    rows can be edited, given or cleared of an icon, duplicated, merged, exported or trashed
+    together (rows the viewer may not edit, and locked rows, are skipped and counted).
+  - The handle before each table row drags it among the others while no sort orders the view,
+    and clicked opens the row's menu: a search box, its icon, open it (panel, full page, new tab),
+    comments, copy link, duplicate (⌘D), move (⌘⇧P), merge, follow, trash (Del), copy ids, who
+    last edited it and its body's word and character count.
+  - Merging duplicates: select 2 to 5 rows and choose *Merge*, or *Merge with…* in a row's menu.
+    The dialog sets them side by side: pick the row to keep and, for the title and each property,
+    whose value it keeps, or *Combine all* for multi-select, relation, person, files and
+    checklist values. Links to the merged rows from anywhere point at the kept row, their
+    comments, activity, files, email and content come along, and they go to the trash.
   - List views edit the values on each line in place, with the table's editors: Tab and Shift+Tab
     move between a line's values and Shift+Enter adds a row right below the line.
   - The options of a select, multi-select or status are dragged into order or sorted A → Z or
@@ -235,7 +262,10 @@ for Windows, `.AppImage` for Linux) and choose *On this computer*. See [Desktop 
     `first`, `last` and `at`), one step away and up to 200 linked rows. `sum`, `average` (also
     written `mean`) and `median` take numbers or a list of them. `style()` shows a result
     bold, italic, underlined, struck through, as code or in the option colors, in every view, row
-    pages and published pages; sorting, filtering, grouping and exports use the plain value.
+    pages and published pages; sorting, filtering, grouping and exports use the plain value. Where
+    the workspace has AI, the editor's *Describe it* writes a formula from what it should work out
+    ("days left until the due date"), from the properties' names and types only, checks it and
+    shows what it gives on the first rows before *Use formula*.
   - Number properties show as a number, percentage or amount of money, or as a colored bar or
     ring filled by the value divided by a number of your choice.
   - Row pages show every property, or leave some out (always, or while they are empty) behind
@@ -351,11 +381,11 @@ for Windows, `.AppImage` for Linux) and choose *On this computer*. See [Desktop 
   schedule comes round or another service POSTs to the automation's secret address, do up to 20
   steps: set properties, notify people with a message, send the row to a webhook signed with
   HMAC-SHA256, post to a Slack channel, run an agent, move the row to the trash, send an HTTP
-  request, find rows, create a row or update the one that matches, wait, ask people for approval,
-  or log. *Slack notifications* in a database's ••• menu makes one that posts when a row is added
-  or a property changes (to a value) in two steps. Steps go for each row an earlier step found
-  HMAC-SHA256, run an agent, move the row to the trash, send an HTTP request, find rows, create a
-  row (optionally from one of the database's row templates) or update the one that matches, wait, ask people for approval, or log. Steps go for each row an earlier step found
+  request, find rows, create a row (optionally from one of the database's row templates) or update
+  the one that matches, wait, ask people for approval, celebrate with confetti for whoever made the
+  change (the ready-made *Celebrate finished rows* does it when a row is marked done), or log.
+  *Slack notifications* in a database's ••• menu makes one that posts when a row is added or a
+  property changes (to a value) in two steps. Steps go for each row an earlier step found
   and use the trigger's and earlier steps' values through `{{templates}}`. Changes can wait in a
   draft, be tried with a test run and be published as numbered versions, and a 30-day run history
   shows each step's input and output (see [Automations and webhooks](#automations-and-webhooks)).
@@ -364,19 +394,23 @@ for Windows, `.AppImage` for Linux) and choose *On this computer*. See [Desktop 
   have them answer in its thread. Each acts as a user of its own that sees
   only the pages shared with it (from its settings or the page's Share menu), and its changes and
   comments show its name. Agents follow the skills they're given, keep a memory whose notes an
-  owner reviews before they count, and show their monthly usage, with an optional token limit
-  (see [Agents](#agents)).
+  owner reviews before they count, and show their monthly usage, with an optional token limit;
+  their changes to rows, and the emails they draft, can wait under *For review* for a person to
+  approve (see [Agents](#agents)).
 - **Connections**: link a workspace to any remote MCP server (Slack, GitHub, a CRM, another
-  Leafdesk) so agents can use its tools: reading tools run at once, anything else waits for an
+  Leafdesk) so agents, and the AI chat for the tools owners tick *In chat*, can use its tools:
+  for agents, reading tools run at once, anything else waits for an
   owner's approval in the inbox; signed events from the service can start agents, whose every call
   waits for approval unless an owner trusts what that trigger's service sends (see
   [Connections](#connections)).
-- **Daily notes**: one page of your own for each day. *Today* in the sidebar (or on the home page)
-  opens today's note, made the first time, in your own time zone; the calendar beside it marks the
-  days that have a note and opens any day's, and a date mention's menu has *Open that day's note*.
-  Notes live under *Journal*, a private page of yours (newest day first), so nobody else sees them
-  unless you share one. New notes start with a few headings, blank, or from one of the workspace's
-  page templates, as you pick at the bottom of the calendar. A note in the trash no longer counts:
+- **Daily notes**: one page of your own for each day. The sidebar has three tabs, *Home* (your
+  pages), *Journal* and *Chat* (your AI conversations), each coming back to where you last were in
+  it. *Journal* (or the home page) opens today's note, made the first time, in your own time zone;
+  its month calendar marks the days that have a note and opens any day's, it lists the notes
+  (newest first), and a date mention's menu has *Open that day's note*. Notes are private pages
+  kept out of your page list, so nobody else sees them unless you share one. New notes start with
+  a few headings, blank, or from one of the workspace's page templates, as you pick at the bottom
+  of the calendar. A note in the trash no longer counts:
   opening its day makes a new one. Guests can keep one only where they may add private pages.
 - **Templates**: save a page or database (with its subpages) as a template and create new pages
   from it, or start from built-in templates for meeting notes, a weekly plan, a project tracker, a
@@ -395,7 +429,11 @@ for Windows, `.AppImage` for Linux) and choose *On this computer*. See [Desktop 
   has) starts one, and the comments panel lists them under the property's name. Only people who
   see that value read, write and hear about them (a row's access counts too), and a deleted
   property's threads come back when it is restored. The comments panel lists open, resolved,
-  marked or all threads, and with its person picker only those someone started or replied in.
+  marked or all threads, newest comment first (or in the page's order), with *New* on those others
+  wrote in since you looked, and with its person picker only those someone started or replied in.
+  A thread's menu has *Come back later*, a mark only you see that the *Marked* filter lists, and
+  *Mute replies*, which keeps its new comments from reaching you until you reply or are mentioned
+  there.
 - **Suggested edits**: switch the page header from *Editing* to *Suggesting* and changes show as
   suggestions instead: inserted text underlined, deleted text struck through but kept, new
   formatting marked, live for everyone. Each is a thread in the comments panel, in its author's
@@ -453,26 +491,32 @@ for Windows, `.AppImage` for Linux) and choose *On this computer*. See [Desktop 
   it for a card of everything it is joined to, double-click to open it.
 - **Inbox**: a notification when someone assigns you to a row, shares a page with you, replies in
   a comment thread you're in or mentions you, asks for access to a page you manage, when a
-  database automation notifies you, when someone else changes a row you follow, and when a reminder
-  you set is due, with an email a little later. You follow the database rows you created, are
-  assigned to through a person property, commented on or were mentioned on; *Follow* and *Stop
-  following* in a row's page menu change that for any row you can open. A row's update waits until
-  its author has left the row alone for a minute (ten minutes at most), so a burst of edits is one
-  item, and says what changed: "Status: To do → Done", a new title, edited text. You hear only about
-  the properties you may see in the row, checked again when the inbox or the email shows it, and
-  never about your own changes. Pages work the same way: you watch the pages you created or edited,
-  and anyone can *Watch* or *Mute* a page from its ⋯ menu, or watch every page of a teamspace from
-  the teamspace's menu in the sidebar; a mute wins over all of these. Watchers hear when someone else
-  edits the page (once the author has left it alone for two minutes, fifteen at most) and when a
-  new comment thread starts on it, unless they have the page open at the time. Emails about the
-  same page come at most every four hours, and after five in a day the rest wait and come together
-  in one digest. My account → Preferences lists the pages and teamspaces you watch. Owners also
-  find there an agent's call waiting for approval and the notes an agent's run proposed for its
-  memory. A comment notification opens the page with that thread selected. Snooze an item
-  for an hour, until tomorrow morning or until next Monday (9:00 your time): it leaves the inbox and comes back unread
-  then, along with its email if that hadn't gone yet. On a phone, swipe an item toward the end of
-  the line to mark it read (or unread again) and toward its start to snooze it until tomorrow
-  morning. Choose per kind whether it shows in the inbox, whether it comes by email and, on the devices where you turn them on, as a [push notification](#push-notifications).
+  database automation notifies you, when someone else changes a row you follow, when someone
+  reacts to a comment you wrote (more reactions to it gather in one item, never sent by email),
+  and when a reminder you set is due, with an email a little later. Comments and
+  reactions on one page within a few hours, or edits to one page or row, show as one entry ("5 new
+  comments, 1 new reaction") that opens to the single ones. You follow the database rows you
+  created, are assigned to through a person property, commented on or were mentioned on; *Follow*
+  and *Stop following* in a row's page menu change that for any row you can open. A row's update
+  waits until its author has left the row alone for a minute (ten minutes at most), so a burst of
+  edits is one item, and says what changed: "Status: To do → Done", a new title, edited text. You
+  hear only about the properties you may see in the row, checked again when the inbox or the email
+  shows it, and never about your own changes. Pages work the same way: you watch the pages you
+  created or edited, and anyone can *Watch* or *Mute* a page from its ⋯ menu, or watch every page of
+  a teamspace from the teamspace's menu in the sidebar; a mute wins over all of these. Watchers hear
+  when someone else edits the page (once the author has left it alone for two minutes, fifteen at
+  most) and when a new comment thread starts on it, unless they have the page open at the time.
+  Emails about the same page come at most every four hours, and after five in a day the rest wait
+  and come together in one digest. My account → Preferences lists the pages and teamspaces you
+  watch. Owners also find there an agent's call waiting for approval and the notes an agent's run
+  proposed for its memory, and the person an agent's run worked for hears of the changes it proposed
+  for review (see [Agents](#agents)). A comment notification opens the page with that thread
+  selected. Snooze an item for an hour, until tomorrow morning or until next Monday (9:00 your
+  time): it leaves the inbox and comes back unread then, along with its email if that hadn't gone
+  yet. On a phone, swipe an item toward the end of the line to mark it read (or unread again) and
+  toward its start to snooze it until tomorrow morning. Choose per kind whether it shows in the
+  inbox, whether it comes by email and, on the devices where you turn them on, as a [push
+  notification](#push-notifications).
 - **Verified pages**: someone with full access marks a page, database or row as checked and right
   from the page's `⋯` menu, for a week, a month, three months or a year, until a day they choose,
   or with no end. Under the title a badge says who verified it and until when, and once that day
@@ -524,6 +568,10 @@ for Windows, `.AppImage` for Linux) and choose *On this computer*. See [Desktop 
   The Share panel shows everyone who can view the page who has it; access inherited from a page
   above names that page only to those who can open it, and guests see people's names but not
   their email addresses, and that a group has access but not which one.
+  A database's *Row access* (its ⋯ menu, full access) lets rows give the people in a person
+  property, or their creator, view, comment, edit or full access to those rows, and can show each
+  row only to the people it names (people with full access to the database still see every row);
+  search, the sidebar, the API, MCP and the AI chat follow it.
   Someone who leaves the workspace, or is removed from it, loses what it gave them by name: their
   access to pages and properties, their calendar feeds of it and API tokens made only for it
   (pages only they could manage pass to an owner first). Coming back starts afresh.
@@ -827,9 +875,9 @@ for Windows, `.AppImage` for Linux) and choose *On this computer*. See [Desktop 
   inbox notifications come there too, to mark read or snooze from the chat (see
   [AI chat from Telegram](#ai-chat-from-telegram)).
 - **Skills**: instructions your team reuses (how to wrap up meeting notes, reply to a customer),
-  kept as pages or database rows and marked *Use as skill*; picked with `/` in the AI chat, offered
-  to MCP clients as prompts and tools, listed in the workspace's skills library and exported as
-  `SKILL.md` (see [Skills](#skills)).
+  kept as rows of a skills database or as pages marked *Use as skill*; picked with `/` in the AI
+  chat, offered to MCP clients as prompts and tools, listed in the workspace's skills library and
+  exported as `SKILL.md` (see [Skills](#skills)).
 - **24 interface languages**: English, Turkish, German, Spanish, French, Italian, Portuguese, Polish, Russian, Ukrainian, Arabic, Hebrew, Persian, Japanese, Korean, Chinese, Indonesian, Thai, Vietnamese, Danish, Dutch, Norwegian, Finnish and Swedish, chosen in My account or taken from the
   browser; Arabic, Hebrew and Persian lay the app out right to left (see [Languages](#languages)).
 - **Light and dark themes**: following the system, or chosen for the browser in Preferences, each
@@ -1319,6 +1367,14 @@ you opened stay readable offline; they are read-only until the connection is bac
 sharing, comments, favorites, search, the inbox, new pages and the other actions that need the
 server (their buttons say so).
 
+**Downloaded pages.** *Available offline* in a page's ⋯ menu, or in the menu beside it in the
+sidebar, downloads it to this device now: its content, a database's rows or a row's values, and
+the files and images it shows (up to 10 MB each, 50 MB per page); *Include sub-pages* (*Include
+rows*) brings up to 50 pages under it along. Favorites are downloaded too unless turned off.
+Downloaded pages are never pushed out by newer ones, are fetched again every 15 minutes while the
+app is online, and carry a quiet mark in the sidebar. Settings → Offline lists what this device
+keeps (size, last update, edits not yet sent) and removes one page or all.
+
 **After an update.** A tab opened before the server was updated stops syncing its pages and asks
 to be reloaded ("Leafdesk has been updated"); edits made in it are kept in the browser and sent
 after the reload. An older version of the editor would drop blocks it doesn't know yet, such as
@@ -1335,7 +1391,7 @@ shares its offline copies, as it shares its cookies; sign out on shared computer
 
 The service worker (`public/sw.js`) runs in production builds only; `pnpm dev` removes one left
 behind so hot reloading keeps working. It never caches API responses, uploads, server actions or
-the collaboration socket. Images and files in pages are not kept offline.
+the collaboration socket. Images and files are kept offline only for downloaded pages.
 
 ### Desktop app
 
@@ -1419,9 +1475,11 @@ the front window. The setting isn't shown in Leafdesk on this computer.
 windows the pages open become tabs in the app only when they are on your server (a file it shows,
 such as a PDF, opens in a plain window of its own). Menus follow the
 language chosen in My account, or the system's. The server's pages may use notifications, the clipboard,
-full screen and the microphone (voice notes); nothing else, and no other site. Single sign-on and
-connecting apps happen inside the app, so the sign-in it leads to stays with it. The window
-remembers its size and place, and opens on the page it last showed (only a page of the same
+full screen and the microphone (voice notes); nothing else, and no other site. Single sign-on
+happens inside the app, so the sign-in it leads to stays with it. Signing in to a connection's
+service, or to Google Drive or Dropbox storage, opens the system's browser instead (where you are
+likely signed in already), which hands the answer back to the app with a `leafdesk://` link. The
+window remembers its size and place, and opens on the page it last showed (only a page of the same
 server, or of Leafdesk on this computer; otherwise the home page). Cmd+Shift+J on macOS (Ctrl+Shift+J on Windows and Linux), pressed in
 any app, brings Leafdesk forward and opens AI chat in the workspace its window shows, or a quick
 note where AI is off there; *Go → Ask AI Shortcut* picks other keys or turns it off, and says
@@ -1543,7 +1601,7 @@ deleted, and one that fails 10 times in a row has it dropped.
 ## Email on rows
 
 Mail with the people in your databases can land on their rows. An owner turns it on in Settings →
-Email and picks the databases mail lands on, in order, with the email properties that hold
+General → Email and picks the databases mail lands on, in order, with the email properties that hold
 addresses (a customers database, say). Then each member connects their own mailbox under their
 account, in Settings → Email and calendar, for that workspace only: the address, the provider (Google Workspace and Gmail, Yandex, Zoho, or any
 IMAP and SMTP server) and an app password made for Leafdesk. The mailbox is tried before it is
@@ -1567,6 +1625,13 @@ and 30 minutes when the server can't be reached, and is put in the mailbox's sen
 comes in tells the mailbox's owner and the row's followers who may read it (the inbox's Email tab,
 and push); it never comes as a notification email.
 
+An agent's run on a row (or a schedule's run on a database) that works for someone with a
+mailbox may draft a message there (`draft_email`): a reply to the row's latest message, else a new
+one to the row's addresses. The draft waits under *For review* for that person alone and goes out
+from their mailbox only once they approve it, edited or not. Agents never send email themselves
+and don't read the row's mail; a draft that isn't a finished message (gaps like `{{name}}` or
+`[Your Name]`, Markdown, HTML, the app's links) goes back to the agent with what is wrong.
+
 Mail servers are reached only on public addresses over TLS (implicit or STARTTLS), checked as
 connections are. List a server on your own network in `MAIL_ALLOWED_HOSTS` (comma-separated, a
 host name or `host:port`) to let mailboxes reach it, also without TLS. Backups keep the messages on
@@ -1576,12 +1641,13 @@ restore.
 ### Follow-ups
 
 A follow-up sequence sends a row's contact a few emails one after another until they answer.
-Owners add sequences to a database mail lands on, in Settings → Email: each step says how many days
-after the one before it goes out, its text, and whether it is sent on its own or first put in the
-sender's For review queue (approving sends it and the sequence goes on, dismissing stops it). The
-first step has a subject; later ones answer in its thread. Texts use the row's values by property
-name, plus `Name`, `Title` and `Sender`, always with a fallback: `{{Company | there}}`. A sequence
-whose template lacks one isn't saved, and an empty value takes it when the email is written.
+Owners add sequences to a database mail lands on, in Settings → General → Email: each step says how
+many days after the one before it goes out, its text, and whether it is sent on its own or first put
+in the sender's For review queue (approving sends it and the sequence goes on, dismissing stops it).
+The first step has a subject; later ones answer in its thread. Texts use the row's values by
+property name, plus `Name`, `Title` and `Sender`, always with a fallback: `{{Company | there}}`. A
+sequence whose template lacks one isn't saved, and an empty value takes it when the email is
+written.
 
 Whoever may edit a row and has a mailbox starts a sequence on it from the row's Email section, on
 selected rows from a table's bulk actions, with an automation's *Start a follow-up* step (as the
@@ -2171,6 +2237,11 @@ use what it gave):
   run stops (`timedOut`) or, when set to, goes on. Only the people asked can answer, once; nobody
   can edit it, and the audit log records each answer. It can't go *for each* found row, and a test
   run asks nobody: it says whom it would have asked and goes on.
+- *Celebrate with confetti*: confetti in every window of whoever made the change that started the
+  run (a still "🎉" note where they asked for reduced motion). Runs nobody started (schedules,
+  dates passing, incoming webhooks, anonymous form answers) skip it, as do runs that reach it more
+  than two minutes after the change. *Start from a template* has *Celebrate finished rows*, which
+  does it when a row is marked done; over MCP the step is `celebrate`.
 - *Log*: writes a message into the run's history.
 
 **Templates.** Text in a step, values to set, a request's address, headers and body, and filter
@@ -2528,6 +2599,7 @@ as it can (Claude Sonnet and Opus 5.5 can't stop thinking, so "off" is low effor
 | Writing assistant: your own instruction | `AI_MODEL` | medium |
 | Chat | `AI_MODEL` (or the model picked, see `AI_CHAT_MODELS`) | medium |
 | Chat in research mode | `AI_MODEL` (or the model picked) | the model's default |
+| Writing a formula from a description (*Describe it*) | `AI_MODEL` | low |
 | Drafting an agent from a description | `AI_MODEL` | medium |
 | Building databases from a description | `AI_MODEL` | medium |
 | Agents | `AI_MODEL` | the model's default (Claude 5.5: high) |
@@ -2599,11 +2671,17 @@ view*, and keep the value they have. A property chosen there is read like a `{Pr
 prompt, so an AI property can wait for another one and updates after it; related rows, people,
 restricted properties and properties the person can't see can't be chosen and count as empty.
 
-**AI chat.** *Ask AI* in the sidebar opens the chat across the page, where the sidebar lists
-your conversations (today, yesterday, the last 7 and 30 days, older) in place of the pages until
-*Back to pages*. The ✨ button in a page's header opens the chat in a panel beside the page, which
-stays open as you move between pages and can be expanded to the full page. A source clicked in the
-full page opens its page with the conversation carried on in the panel. Questions are answered from the pages
+**AI chat.** The sidebar's *Chat* tab opens the chat across the page and lists your
+conversations (today, yesterday, the last 7 and 30 days, older) under a new chat. The chat button
+(the tab's two bubbles) in a page's header opens the chat in a panel beside the page, which stays
+open as you move between pages and can be expanded to the full page. A source clicked in the full
+page (a citation or a page it read) opens in a panel at its right, scrolled to the passage; K and J
+go through the conversation's other sources and Esc closes it (a database, or any source on a phone,
+opens as its page). Where the workspace can transcribe recordings (as for voice notes), a microphone
+in the box dictates a question into it, unsent, to fix first; the recording isn't kept. A question
+sent while an answer is being written waits in a strip above the box and is asked once the answer
+is done (*Stop* gives the waiting questions back), and while the model thinks the line saying so
+shows the newest line of its thinking. Questions are answered from the pages
 you can read. Nothing is searched for the model: each question goes to it with a map of what you
 can open (the databases with their properties, types and options, statuses by group, and the
 pages, up to 8,000 characters), and the model decides what to look at. It can search
@@ -2629,8 +2707,9 @@ keep to it on the server, with your access checked as always. Each question show
 asked of, by the page's or teamspace's name as you may see it now. *Stop* ends an answer; what was written so far
 is kept. Under an answer are *Copy*, *Answer again* (the latest) and its time; hovering a question
 shows its time, *Edit* (the latest: answered again in its place) and *Copy*. An answer that
-changed things can't be answered again or edited. Conversations are private to you and listed in the full-page chat's sidebar and under
-the panel's *Conversations*, where you can delete one or all; up to 50 per workspace are kept (the oldest go first), with
+changed things can't be answered again or edited. Conversations are private to you and listed in the sidebar's *Chat* tab and under
+the panel's *Conversations*, where you can delete one, several (tick them, shift-click for a range,
+or *Select all*) or all; up to 50 per workspace are kept (the oldest go first), with
 no limit on questions, each as long as the model's context window takes (a paste of 3 lines or more, or more than 150 characters, shows in the box as a chip like *Pasted 40 lines*, one piece that Backspace takes whole, and is sent in full). The chat sends the model as much of the
 conversation as its context window takes (see `AI_MAX_INPUT_CHARS`); when the model still finds it
 too long, older tool results and then the earlier turns are left out and the question is asked
@@ -2642,18 +2721,27 @@ chat is off while offline and when AI is off for the workspace. Every question c
 text), change a row's values or title (`update_row`), add a page under a page, or a private one
 at the top of the workspace (`create_page`), and change a page's or row's text block by block
 (`edit_page`: replace a block, insert after one, append or delete one, by the block ids it reads
-first), and make a PDF file of a page or row (`create_pdf`, see [PDF](#pdf)), as you and only where you may edit (and, with
-*Answer from* a page or teamspace, only in it). What it may do is picked under the question box and
-remembered in the browser: *Ask* (the default) shows each change in the box's place before it is
-made (what, where, a new row's values and the start of a new page's text; for a change to a page's
-text the blocks it changes, adds and removes; for a changed row each property's old value next to
-the new one, and the old title when it is renamed) with *Yes*, *Yes, and don't ask again*
-(the mode becomes *Auto*) and *No*, also as 1, 2, 3 on the keyboard (Escape says no); *Auto* makes
-changes without asking; *Read only* doesn't offer the model changes at all. A change is checked
-(the target, your edit access, the values) before you are asked; nothing is written while it
+first), make a PDF file of a page or row (`create_pdf`, see [PDF](#pdf)), and add a form view
+with its questions to a database (`create_form`, its public link when asked and allowed), as you
+and only where you may edit (and, with *Answer from* a page or teamspace, only in it). It reads a
+page's comment threads (`list_comments`) and saved versions (`page_history`, `page_version`), and
+comments or replies as you where you may comment (`add_comment`). What it may do is picked under the
+question box and remembered in the browser: *Ask* (the default) shows each change in the box's place
+before it is made (what, where, a new row's values and the start of a new page's text; for a change
+to a page's text the blocks it changes, adds and removes; for a changed row each property's old
+value next to the new one, and the old title when it is renamed) with *Yes*, *Yes, and don't ask
+again* (the mode becomes *Auto*) and *No*, also as 1, 2, 3 on the keyboard (Escape says no); *Auto*
+makes changes without asking; *Read only* doesn't offer the model changes at all. A change is
+checked (the target, your edit access, the values) before you are asked; nothing is written while it
 waits, and stopping the answer, leaving the page or 15 minutes without an answer leave it unmade.
 Changes made, declined or failed show among the answer's steps with links, are kept with the
 conversation (also when the answer itself didn't come), and later questions know them.
+
+**Connections' tools.** Tools of a [connection](#connections) an owner ticked *In chat* are
+offered to members' chats (never guests'). Reading tools run at once and show as a step; a tool
+that changes something at the service asks before every call, in *Auto* too, and isn't offered in
+*Read only*. What the service returns reaches the model as outside data, and the audit log
+records each call as the person's.
 
 **Files in the chat.** The paperclip under the question box attaches files to a question, and so
 does dropping them on the box or pasting them: images (PNG, JPEG, GIF, WebP), PDF, Word and Excel
@@ -2794,7 +2882,10 @@ counted but not priced. A request the provider failed after it started answering
 it used. Months follow UTC and are kept for twelve.
 
 Owners see it in **Settings → AI usage**: this month's cost and how much of the limit is left, the
-last twelve months, and the month they pick by feature and model. There are two monthly limits,
+last twelve months, and the month they pick by feature and model, and by person: each person and
+agent with their requests, tokens, cost, share and features used most, costliest first (requests
+nobody asked for show as background work; table `ai_usage_person`, where requests from before it
+was added show as one line of their own). There are two monthly limits,
 and a request that would go past either is refused before anything is sent, with a message saying
 the workspace reached its limit (agents' runs stop with that reason; AI property values show it in
 the cell):
@@ -2898,12 +2989,15 @@ The chat's key is reused only for the chat's own endpoint, never sent to another
 MP3, WAV, FLAC), where the browser can't record or you have one already. The note fills the title
 and text fields to check and change before *Save note*; *Save to* puts it on a private page or in
 a database row, whose select and multi-select properties AI fills in from the options they have
-(never new ones). In a page, `/` *Voice note* records in a dialog and puts the note where the slash
-menu was opened, its title as a heading; like the writing assistant, the page is saved to its
-history first and Undo takes the note back. Recording needs a secure (https) connection and the
-browser's permission to use the microphone; when either is missing, or the browser can't record,
-the app says so and offers the file instead. A recording stops by itself at the length or size
-limit.
+(never new ones). A database can say how its notes are written up (*Voice note instructions* in
+its page menu, full access, up to 2,000 characters: "company, person met, quote status, next
+step"); the AI follows them for the content and layout of every note saved there, from the quick
+note or the REST API, adding nothing that wasn't said. In a page, `/` *Voice note* records in a
+dialog and puts the note where the slash menu was opened, its title as a heading; like the writing
+assistant, the page is saved to its history first and Undo takes the note back. Recording needs a
+secure (https) connection and the browser's permission to use the microphone; when either is
+missing, or the browser can't record, the app says so and offers the file instead. A recording stops
+by itself at the length or size limit.
 
 **From other apps.** A script or app with a personal access token can send a recording to
 `POST /api/v1/voice-notes` as multipart form data and get the note saved in one call (see
@@ -3115,20 +3209,25 @@ model as their question, nothing more.
 ## Skills
 
 A skill is a page or database row whose body is instructions to reuse: a review checklist, how to
-write release notes, how to triage a bug. Whoever may edit a page turns on *Use as skill* in its
-`⋯` menu; a bar under the title then holds what the skill is for and when to use it (up to 1024
-characters), which the lists below show; without it they show the start of the body. Databases,
-templates and the pages in them can't be skills, and a copy of a skill isn't one. Skills have no
+write release notes, how to triage a bug. Every row of a skills database is one, however it was
+added (the table, MCP, the REST API, an import or a move), and its *Description* property says
+what it is for; any database becomes a skills database, or stops being one, from its ⋯ menu
+(*Skills database*, full access), which adds a *Description* property when it has none. Any other
+page or row becomes one with *Use as skill* in its `⋯` menu (whoever may edit it); a bar under the
+title then holds what the skill is for and when to use it (up to 1024 characters). The lists below
+show that description, or else the start of the body. Databases, templates and the pages in them
+can't be skills, and a copy of a skill isn't one. Skills have no
 access of their own: everyone sees the skills they can open, and a skill in the trash leaves every
 list until it is restored.
 
 - **Skills library**: the sidebar's skills button (next to the people button) opens
-  `/w/<workspace>/skills`, the workspace's skills with their descriptions, searchable. *New skill*
-  makes a private page already marked as one.
+  `/w/<workspace>/skills`, the workspace's skills with their descriptions, searchable, and links to
+  your skills database. *New skill* adds a row to it: your own, made private at the top of the
+  workspace the first time, with *Description*, *Files*, *Tags* and *Created by* properties.
 - **Ready-made skills**: six skills to start from (*Wrap up meeting notes*, *Weekly status summary*,
   *Reply to a customer*, *Proofread a text*, *Triage a request*, *Executive summary*), shown in the
-  library while it is empty and under *Ready-made skills* after. Picking one makes a private page
-  in the user's language, already a skill with its description; it is an ordinary page from then
+  library while it is empty and under *Ready-made skills* after. Picking one adds it, in the user's
+  language and with its description, as a row of their skills database, theirs to change from then
   on. They need no setup: each works on whatever page, row or text it is pointed at. The texts are
   in `src/i18n/messages/<locale>/skillTemplates.json`.
 - **AI chat**: `/` at the start of the empty question box (or the skills button under it) lists
@@ -3208,7 +3307,8 @@ you set yourself, in the agent's settings or the Share menu, stays).
 
 **What a run may do.** Search and read what is shared with the agent, query its databases, and
 change or comment on the row that started the run (its values, or its text block by block with
-`edit_page`), nothing else. When a member's change started
+`edit_page`), or propose those changes for review and draft an email there (below), nothing
+else. When a member's change started
 the run, the agent is also held to what that member may: it opens, reads and changes only the pages
 and property values both of them can, so a run never hands someone what they couldn't open
 themselves. When an answer to a public form started it and no member stands behind the answer
@@ -3222,6 +3322,18 @@ a time (`AI_CONCURRENCY`), each turn within the workspace's AI allowance
 30 days after it finishes, with what the agent did step by step, its final answer, the tokens it
 used, and why it failed (`aiOff`, `agentDisabled`, `noAccess`, `rowGone`, `commentGone`, `provider`, `timeout`,
 `tooManyAttempts`, `limitReached` or `error`).
+
+**Changes for review.** An agent's *Changes to rows* is *Write them directly* (the default) or
+*Propose them for review*: then the rows its runs would add and the values or titles they would
+change are kept, each with the agent's reason, on the *For review* page in the sidebar (filtered by
+agent, database or row), with every value as it was, is now and would become. Anyone who may edit
+the row and the values it sets approves a change (as themselves, after editing it if they like) or
+dismisses it, one at a time or several; a row changed since in a value the proposal sets needs
+*Approve anyway*. The person the run worked for hears of new proposals in their inbox, and
+unanswered ones expire after 30 days. Chats with an agent still write directly; the *Request
+answerer* template proposes. An agent's email drafts wait there too (see
+[Email on rows](#email-on-rows)). Over MCP: `list_pending_changes`, `approve_pending_change` and
+`dismiss_pending_change`; over the REST API, `/pending-changes`.
 
 **Runs people ask for.** An owner, or anyone who can edit the agent, can ask it to do a task now, over the REST API
 (`POST /api/v1/agents/{id}/runs`) or MCP (`start_agent_run`), with a task of up to 2000
@@ -3437,7 +3549,7 @@ shared; its skills and memory stay. Creating, changing and archiving agents is r
 `set_agent_access`, `set_agent_skill`, `add_agent_memory`, `update_agent_memory`,
 `keep_agent_memory`, `dismiss_agent_memory`, `delete_agent_memory`, `list_agent_runs`,
 `list_agent_versions`, `restore_agent_version` and `start_agent_run`. Over the REST API: listing, reading and changing agents (pausing, resuming, web access, the
-monthly limit), asking for a run, and reading runs and usage (see [REST API](#rest-api)).
+monthly limit, `row_changes`), asking for a run, and reading runs and usage (see [REST API](#rest-api)).
 
 **History.** Each saved change to an agent's setup keeps a version: its settings (name, icon,
 description, instructions, active or paused, monthly limit, and any setting added later), its
@@ -3482,6 +3594,9 @@ automation that runs it on every new row (the wins logger, a trigger on a connec
   sources, and sets a select or status to "answered" or "needs a person".
 - **Duplicate finder** looks for similar rows in the same database and, when it finds some, names
   them in a comment and ticks a checkbox.
+- **Company researcher** looks each new company up on the web (it gets web access) and fills the
+  properties you pick that are still empty (website, sector, address, phone…), following their
+  descriptions, never overwriting a value, and comments its sources on the row.
 - **Wins logger** reads each event a connection you pick receives (a Slack message, a GitHub pull
   request, a CRM deal or an email sent through a signed webhook) and, when it is a win or praise,
   adds a row to a wins log (the *Wins log* template makes one), filling the log's own properties as
@@ -3491,8 +3606,9 @@ automation that runs it on every new row (the wins logger, a trigger on a connec
 
 ## Connections
 
-A connection links a workspace to a service its agents may use: any remote MCP server (Slack,
-GitHub, a CRM, another Leafdesk...). It is the other way round from *Connected apps*, where outside
+A connection links a workspace to a service its agents, and the AI chat for the tools ticked *In
+chat*, may use: any remote MCP server (Slack, GitHub, a CRM, another Leafdesk...). It is the other
+way round from *Connected apps*, where outside
 AI apps use Leafdesk; here Leafdesk's agents use the outside service. Owners of the workspace manage
 connections in Settings → *Connections*; members and guests don't see them. A workspace has at most
 20.
@@ -3572,6 +3688,9 @@ For a server on the same machine or network, list its host (or `host:port`) in
 each as *read* or *write*: a tool the server marks read-only (`readOnlyHint`) is *read*, every
 other one *write*. An owner can change the class of any tool. Then, on an agent's *Connections*
 tab, an owner ticks the tools that agent may use; an agent has no tool of a connection until then.
+Ticking *In chat* next to a tool (the connection's *Tools* tab) offers it to members' AI chats,
+where a tool that isn't *read* asks the person before every call (see *Connections' tools* under
+[AI features](#ai-features)); a connection moved to a new address starts with none.
 
 - A *read* tool runs at once when the agent calls it, except where no member stands behind what
   the run reads, so there every tool waits as a *write* tool does: on a row an anonymous form
@@ -3734,7 +3853,8 @@ The tools cover:
 - **Skills:** `list_skills`, `get_skill`, `set_skill`; every skill is also a prompt of its name
   (see [Skills](#skills)).
 - **Comments:** `list_comments`, `add_comment` (start a thread on quoted text, or reply). A thread
-  about the whole page, as agents write them, comes back with `about_page: true` and no quote.
+  about the whole page, as agents write them, comes back with `about_page: true` and no quote, and
+  one the user marked *Come back later* with `marked: true`.
 - **Mentions:** page bodies read and write mentions as Markdown: `[Title](/w/<workspace>/p/<page>)`
   for a page, `@Name` for a person, `@YYYY-MM-DD` for a date, and a link shown as a mention as an
   ordinary `[Title](https://…)` that comes back as the mention when the page's Markdown is written
@@ -3765,7 +3885,7 @@ The tools cover:
   convert and what would be cleared without changing anything), `delete_database_property`,
   `create_database_view` and `update_database_view` (table, board, calendar, gallery, list, feed,
   timeline, map (with `place_by`), chart, dashboard or form, including a form's public link and a dashboard's `widgets`; a chart over a date takes `accumulate`
-  for running totals or a burndown, a calendar `calendar_mode` (month or week) and `show_weekends`, views with rows `show_icons`, a board `aggregate` and `aggregate_property` for what its column headers show, and table, list and timeline views take `sub_items`;
+  for running totals or a burndown, a calendar `calendar_mode` (month or week) and `show_weekends`, views with rows `show_icons` and `color_rules`, a board `aggregate` and `aggregate_property` for what its column headers show, and table, list and timeline views take `sub_items`;
   `update_database_view` also moves a
   view's tab with `before_view_id` or `after_view_id`), and `set_property_access` (who may
   see and change a property). `query_database` returns `next_cursor` and `has_more`: passing the
@@ -3806,8 +3926,10 @@ The tools cover:
   `add_agent_memory`, `update_agent_memory` and `delete_agent_memory` (an owner's own notes)
   and `list_agent_runs` (each run's steps summarized), `start_agent_run` (ask an agent for a task
   now, on a row or on none); `get_agent` also shows its monthly token limit and usage by month,
-  and `update_agent` sets the limit and the model its runs use (`main` or `fast`). Owners manage agents; members can list them (see
-  [Agents](#agents)).
+  and `update_agent` sets the limit, the model its runs use (`main` or `fast`) and `row_changes`
+  (`direct` or `review`). `list_pending_changes`, `approve_pending_change` (with edits, and
+  `force` for a row changed since) and `dismiss_pending_change` answer what agents proposed for
+  review. Owners manage agents; members can list them (see [Agents](#agents)).
 - **Memory:** `list_memory` (the user's notes in one workspace or all of them), `add_memory`,
   `update_memory` and `delete_memory` (by ids or all, also while the memory is off): the notes the
   AI chat keeps about the user, theirs alone and only while the memory is on, each showing the app
@@ -3844,7 +3966,7 @@ brings the read scope of its resource. Every endpoint needs one scope (the refer
 | `pages:read`, `pages:write` | pages (database rows too, as pages), their sub-pages, the page tree, daily notes; writing creates, changes, moves, trashes, restores, archives and watches pages and makes voice notes |
 | `search:read` | `GET /search` |
 | `databases:read` | `GET /databases/{id}` (properties and views) |
-| `rows:read`, `rows:write` | `POST /databases/{id}/query`, `GET /rows/{id}` and its activity; writing adds, upserts and changes rows (a voice note into a database needs it too) |
+| `rows:read`, `rows:write` | `POST /databases/{id}/query`, `GET /rows/{id}` and its activity, changes waiting for review; writing adds, upserts and changes rows (a voice note into a database needs it too) and approves or dismisses those changes |
 | `comments:read`, `comments:write` | a page's comment threads; writing starts threads and replies |
 | `agents:read`, `agents:write` | agents, their runs, usage, schedules and sharing; writing changes them, asks for runs, sets schedules and shares |
 | `audit:read` | `GET /workspaces/{id}/audit-log` (owners only, on a token limited to that workspace; never in the presets; see [Audit log streaming](#audit-log-streaming)) |
@@ -3917,6 +4039,10 @@ Filter ops: `contains`, `does_not_contain`, `equals`, `not_equals`, `is_any_of` 
   `409` when the agent can't run now (`agent_unavailable`), used its monthly limit
   (`limit_reached`) or has too many runs waiting (`too_many_runs`). An `agents:write` token may thus
   start runs that use the workspace's AI allowance.
+- **Changes for review:** `GET /workspaces/{id}/pending-changes` (`rows:read`) lists what agents
+  proposed, and `POST /pending-changes/{id}/approve` (optionally edited, or with `force`) and
+  `/dismiss` (`rows:write`) answer it; `409` `change_conflict` when the row changed since in a
+  value it sets, `change_decided` when it was already answered.
 
 Automations have no REST endpoints: they are managed in the app or over MCP.
 
