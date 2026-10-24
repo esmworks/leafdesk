@@ -110,6 +110,7 @@
       "you": "{name}(나)"
     },
     "threadMenu": "스레드 옵션",
+    "copyLink": "링크 복사",
     "mute": "답글 알림 끄기",
     "unmute": "답글 알림 켜기",
     "muteHint": "이 스레드의 새 답글 알림을 더 이상 받지 않습니다. 여기에 답글을 달거나 여기서 멘션되면 다시 켜집니다.",
@@ -620,7 +621,8 @@
       "submit": "임베드",
       "providers": "YouTube, Vimeo, Loom, Figma, 게시된 Google Docs·Sheets·Slides, CodePen, Spotify, Google Maps를 지원합니다. 다른 링크는 북마크로 표시됩니다.",
       "frameTitle": "{host}의 임베드된 콘텐츠",
-      "label": "임베드"
+      "label": "임베드",
+      "resize": "드래그하여 임베드 너비 변경"
     },
     "paste": {
       "label": "붙여넣기 형식",
@@ -710,6 +712,11 @@
   },
   "blockMenu": {
     "copyLink": "블록 링크 복사",
+    "download": "다운로드",
+    "alignLeft": "왼쪽 정렬",
+    "alignCenter": "가운데 정렬",
+    "alignRight": "오른쪽 정렬",
+    "wideColumns": "넓은 열",
     "hideInPrint": "인쇄 시 숨기기",
     "calloutStyle": "콜아웃 스타일",
     "turnIntoCallout": "콜아웃으로 전환",
@@ -955,7 +962,8 @@
     "markdownImage": "이미지: {alt}",
     "markdownImageUntitled": "이미지",
     "expand": "뷰어에서 열기",
-    "view": "{name} 보기"
+    "view": "{name} 보기",
+    "resize": "드래그하여 너비 변경"
   },
   "presentation": {
     "previous": "이전 슬라이드",
@@ -1190,5 +1198,16 @@
     "reset": "이미지 전체 보기",
     "loading": "이미지를 불러오는 중…",
     "failed": "이미지를 불러올 수 없습니다."
+  },
+  "commentRef": {
+    "pasteTitle": "댓글 링크 붙여넣기",
+    "pasteAsMention": "멘션으로 붙여넣기",
+    "pasteAsPreview": "미리보기로 붙여넣기",
+    "pasteAsLink": "링크로 붙여넣기",
+    "noAccess": "이 댓글에 접근할 수 없습니다",
+    "onPage": "{title}에서",
+    "replies": "{count, plural, =0 {답글 없음} other {답글 #개}}",
+    "openThread": "스레드 열기",
+    "resolved": "해결됨"
   }
 }

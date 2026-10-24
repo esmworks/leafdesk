@@ -63,10 +63,11 @@
   too, and hovering a number shows its note), Mermaid diagrams with a live preview, a table of contents, a breadcrumb, a list of the page's subpages (live, each reader
   seeing those they may open; a page with one doesn't list them again at its end when published or
   printed), and columns (2 to 5, resizable, blocks
-  dragged in and out with the side menu, stacked on phones), also on published pages and in
+  dragged in and out with the side menu, stacked on phones, and on pages of standard width able to
+  reach into the margins), also on published pages and in
   Markdown. Table cells merge across columns and rows from the formatting toolbar (Markdown writes
   the full grid, the covered places empty). Code blocks take their language from a menu (plain text
-  and 42 languages) and color their code in it, published pages and the print view included; Enter
+  and 51 languages) and color their code in it, published pages and the print view included; Enter
   in a code block starts the new line with the indentation of the one before it. *Copy* in a code
   block's corner, in the editor and on published pages, copies its code. *Format code* in
   the block's menu formats JavaScript, TypeScript, JSX, TSX, JSON, CSS, SCSS, HTML, Vue, Markdown,

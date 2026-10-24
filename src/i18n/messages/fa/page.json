@@ -110,6 +110,7 @@
       "you": "{name} (شما)"
     },
     "threadMenu": "گزینه‌های رشته‌ی نظر",
+    "copyLink": "کپی پیوند",
     "mute": "بی‌صدا کردن پاسخ‌ها",
     "unmute": "لغو بی‌صدا کردن پاسخ‌ها",
     "muteHint": "دیگر از پاسخ‌های تازه در این رشته باخبر نشوید. اگر اینجا پاسخ دهید یا کسی شما را اینجا نام ببرد، دوباره روشن می‌شود.",
@@ -620,7 +621,8 @@
       "submit": "جاسازی",
       "providers": "YouTube، Vimeo، Loom، Figma، Google Docs و Sheets و Slides منتشرشده، CodePen، Spotify و Google Maps. لینک‌های دیگر به نشانک تبدیل می‌شوند.",
       "frameTitle": "محتوای جاسازی‌شده از {host}",
-      "label": "جاسازی"
+      "label": "جاسازی",
+      "resize": "برای تغییر پهنای محتوای جاسازی‌شده بکشید"
     },
     "paste": {
       "label": "جای‌گذاری به‌صورت",
@@ -710,6 +712,11 @@
   },
   "blockMenu": {
     "copyLink": "کپی لینک بلوک",
+    "download": "دانلود",
+    "alignLeft": "تراز به چپ",
+    "alignCenter": "تراز وسط",
+    "alignRight": "تراز به راست",
+    "wideColumns": "ستون‌های پهن",
     "hideInPrint": "پنهان هنگام چاپ",
     "calloutStyle": "سبک کادر",
     "turnIntoCallout": "تبدیل به کادر",
@@ -955,7 +962,8 @@
     "markdownImage": "تصویر: {alt}",
     "markdownImageUntitled": "تصویر",
     "expand": "باز کردن در نمایشگر",
-    "view": "نمایش {name}"
+    "view": "نمایش {name}",
+    "resize": "برای تغییر پهنا بکشید"
   },
   "presentation": {
     "previous": "اسلاید قبلی",
@@ -1190,5 +1198,16 @@
     "reset": "نمایش کل تصویر",
     "loading": "در حال بارگیری تصویر…",
     "failed": "تصویر بارگیری نشد."
+  },
+  "commentRef": {
+    "pasteTitle": "چسباندن پیوند یک نظر",
+    "pasteAsMention": "چسباندن به‌صورت اشاره",
+    "pasteAsPreview": "چسباندن به‌صورت پیش‌نمایش",
+    "pasteAsLink": "چسباندن به‌صورت پیوند",
+    "noAccess": "به این نظر دسترسی ندارید",
+    "onPage": "در {title}",
+    "replies": "{count, plural, =0 {بدون پاسخ} other {# پاسخ}}",
+    "openThread": "باز کردن رشته",
+    "resolved": "حل‌شده"
   }
 }

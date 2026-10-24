@@ -49,6 +49,7 @@ import { useTableWindow } from "./use-table-window";
 import { useToday } from "./use-today";
 import { AddSubItemButton, SUB_ITEM_INDENT, SubItemCount, SubItemToggle, useSubItems } from "./sub-items";
 import { inlineSign } from "@/components/direction";
+import { useToggleAllGroups } from "@/components/toggle-all";
 import { TITLE, type Property, type Row, type View } from "./types";
 import type { DatabaseApi } from "./use-database";
 
@@ -151,16 +152,19 @@ export function TableView({
   const groupBy = properties.find((p) => p.id === view.config.groupBy && isGroupable(p.type));
   const groupContext = useGroupContext(groupBy);
   const groupName = useGroupName(groupBy ?? { name: "" });
-  // Viewers can't save the view, so their collapsing stays on this page.
+  // Viewers can't save the view, so their collapsing stays on this page; so does what Mod+Alt+T
+  // opens or closes (components/toggle-all.ts), for everyone, until a group is clicked.
   const [ownCollapsed, setOwnCollapsed] = useState<string[] | null>(null);
   const collapsed = useMemo(
-    () => new Set(readOnly && ownCollapsed ? ownCollapsed : (view.config.collapsedGroups ?? [])),
-    [readOnly, ownCollapsed, view.config.collapsedGroups],
+    () => new Set(ownCollapsed ?? view.config.collapsedGroups ?? []),
+    [ownCollapsed, view.config.collapsedGroups],
   );
   const grouping = useMemo(
     () => (groupBy ? arrangeGroups(groupRowsBy(rows, groupBy, view.config, groupContext), view.config) : null),
     [rows, groupBy, view.config, groupContext],
   );
+  const groupKeys = useMemo(() => grouping?.shown.map((g) => g.key) ?? null, [grouping]);
+  useToggleAllGroups(groupKeys, collapsed, setOwnCollapsed);
   // Sub-items nest under their parent within the table, or within each group.
   const subItems = useSubItems(view, properties, allRows);
   const linesOf = subItems.lines;
@@ -376,7 +380,10 @@ export function TableView({
   const toggleCollapsed = (key: string) => {
     const next = collapsed.has(key) ? [...collapsed].filter((k) => k !== key) : [...collapsed, key];
     if (readOnly) setOwnCollapsed(next);
-    else void setConfig({ ...view.config, collapsedGroups: next });
+    else {
+      setOwnCollapsed(null);
+      void setConfig({ ...view.config, collapsedGroups: next });
+    }
   };
   const setGroupHidden = (key: string, hide: boolean) => {
     const next = (view.config.hiddenGroups ?? []).filter((k) => k !== key);

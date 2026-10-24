@@ -110,6 +110,7 @@
       "you": "{name} (sinä)"
     },
     "threadMenu": "Ketjun asetukset",
+    "copyLink": "Kopioi linkki",
     "mute": "Mykistä vastaukset",
     "unmute": "Poista vastausten mykistys",
     "muteHint": "Lopeta ilmoitukset tämän ketjun uusista vastauksista. Vastaaminen tai mainituksi tuleminen täällä ottaa ne taas käyttöön.",
@@ -620,7 +621,8 @@
       "submit": "Upota",
       "providers": "YouTube, Vimeo, Loom, Figma, julkaistut Google Docs-, Sheets- ja Slides-tiedostot, CodePen, Spotify ja Google Maps. Muista linkeistä tulee kirjanmerkki.",
       "frameTitle": "Upotettu sisältö sivustolta {host}",
-      "label": "Upotus"
+      "label": "Upotus",
+      "resize": "Vedä muuttaaksesi upotuksen leveyttä"
     },
     "paste": {
       "label": "Liitä muodossa",
@@ -710,6 +712,11 @@
   },
   "blockMenu": {
     "copyLink": "Kopioi linkki lohkoon",
+    "download": "Lataa",
+    "alignLeft": "Tasaa vasemmalle",
+    "alignCenter": "Keskitä",
+    "alignRight": "Tasaa oikealle",
+    "wideColumns": "Leveät sarakkeet",
     "hideInPrint": "Piilota tulostettaessa",
     "calloutStyle": "Huomiolaatikon tyyli",
     "turnIntoCallout": "Muunna huomiolaatikoksi",
@@ -955,7 +962,8 @@
     "markdownImage": "Kuva: {alt}",
     "markdownImageUntitled": "Kuva",
     "expand": "Avaa katseluohjelmassa",
-    "view": "Näytä {name}"
+    "view": "Näytä {name}",
+    "resize": "Vedä muuttaaksesi leveyttä"
   },
   "presentation": {
     "previous": "Edellinen dia",
@@ -1190,5 +1198,16 @@
     "reset": "Näytä koko kuva",
     "loading": "Ladataan kuvaa…",
     "failed": "Kuvan lataaminen epäonnistui."
+  },
+  "commentRef": {
+    "pasteTitle": "Liitä linkki kommenttiin",
+    "pasteAsMention": "Liitä mainintana",
+    "pasteAsPreview": "Liitä esikatseluna",
+    "pasteAsLink": "Liitä linkkinä",
+    "noAccess": "Ei pääsyä tähän kommenttiin",
+    "onPage": "Sivulla {title}",
+    "replies": "{count, plural, =0 {Ei vastauksia} one {# vastaus} other {# vastausta}}",
+    "openThread": "Avaa ketju",
+    "resolved": "Ratkaistu"
   }
 }

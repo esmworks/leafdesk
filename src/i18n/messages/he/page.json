@@ -110,6 +110,7 @@
       "you": "{name} (את/ה)"
     },
     "threadMenu": "אפשרויות השרשור",
+    "copyLink": "העתקת קישור",
     "mute": "השתקת תגובות",
     "unmute": "ביטול השתקת תגובות",
     "muteHint": "להפסיק לקבל התראות על תגובות חדשות בשרשור הזה. תגובה שלך כאן, או אזכור שלך כאן, מחזירים אותן.",
@@ -620,7 +621,8 @@
       "submit": "הטמעה",
       "providers": "YouTube, Vimeo, Loom, Figma, מסמכי Google Docs, Sheets ו־Slides שפורסמו, CodePen, Spotify ו־Google Maps. קישורים אחרים הופכים לסימנייה.",
       "frameTitle": "תוכן מוטמע מ־{host}",
-      "label": "הטמעה"
+      "label": "הטמעה",
+      "resize": "גררו כדי לשנות את רוחב התוכן המוטמע"
     },
     "paste": {
       "label": "הדבקה בתור",
@@ -710,6 +712,11 @@
   },
   "blockMenu": {
     "copyLink": "העתקת קישור לבלוק",
+    "download": "הורדה",
+    "alignLeft": "יישור לשמאל",
+    "alignCenter": "מרכוז",
+    "alignRight": "יישור לימין",
+    "wideColumns": "עמודות רחבות",
     "hideInPrint": "הסתרה בהדפסה",
     "calloutStyle": "סגנון הדגשה",
     "turnIntoCallout": "המרה להדגשה",
@@ -955,7 +962,8 @@
     "markdownImage": "תמונה: {alt}",
     "markdownImageUntitled": "תמונה",
     "expand": "פתיחה במציג",
-    "view": "הצגת {name}"
+    "view": "הצגת {name}",
+    "resize": "גררו כדי לשנות את הרוחב"
   },
   "presentation": {
     "previous": "השקופית הקודמת",
@@ -1190,5 +1198,16 @@
     "reset": "הצגת התמונה כולה",
     "loading": "טוען את התמונה…",
     "failed": "לא ניתן היה לטעון את התמונה."
+  },
+  "commentRef": {
+    "pasteTitle": "הדבקת קישור לתגובה",
+    "pasteAsMention": "הדבקה כאזכור",
+    "pasteAsPreview": "הדבקה כתצוגה מקדימה",
+    "pasteAsLink": "הדבקה כקישור",
+    "noAccess": "אין גישה לתגובה זו",
+    "onPage": "ב{title}",
+    "replies": "{count, plural, =0 {אין תשובות} one {תשובה אחת} other {# תשובות}}",
+    "openThread": "פתיחת השרשור",
+    "resolved": "נפתר"
   }
 }

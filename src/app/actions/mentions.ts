@@ -1,6 +1,7 @@
 "use server";
 
 import { AccessError, requirePageAccess } from "@/server/access";
+import { resolveCommentRefs, type CommentRef, type CommentRefKey } from "@/server/comment-refs";
 import { mentionedGroup, type MentionedGroup } from "@/server/groups";
 import * as mentions from "@/server/mentions";
 import { requireUserId } from "@/server/session";
@@ -105,4 +106,10 @@ export async function linkMentionAction(sourceId: string, targetId: string): Pro
     if ((error as { code?: unknown }).code === "pageLocked") return { ok: false, locked: true };
     throw error;
   }
+}
+
+/** What the user may see of comment threads mentioned or previewed in a page ("none" where they may not). */
+export async function resolveCommentRefsAction(keys: CommentRefKey[]): Promise<CommentRef[]> {
+  const userId = await requireUserId();
+  return resolveCommentRefs(userId, Array.isArray(keys) ? keys : []);
 }
