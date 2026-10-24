@@ -232,6 +232,8 @@
     property, or the first one; `@name` fills the first person property and `#option` any select,
     multi-select or status option (a dash stands for a space). What's recognised shows under the
     name while you type, and each part can be kept in the name instead.
+  - Escape in a new row's name before anything is typed throws the row away; with a name typed it
+    keeps the row.
   - Dates can have an end and a time of day ("Oct 12 → Oct 14", "Oct 12, 14:30 → 16:00"), shown in
     each viewer's time zone; filters match a range on every day it covers. In the date picker's
     month, Shift-clicking a second day makes the date a range.

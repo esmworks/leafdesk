@@ -12,6 +12,9 @@
 - **Copy a code block's code.** A *Copy* button sits in the corner of every code block, in the
   editor and on published pages and sites (shown on hover, always on touch screens), and copies
   the code as written.
+- **Escape throws away an empty new row.** In a table, board, list, gallery, calendar or timeline,
+  pressing Escape in a new row's name before anything is typed moves the row to the trash instead
+  of leaving an untitled one behind. With a name typed, Escape keeps the row as before.
 
 ### Changed
 

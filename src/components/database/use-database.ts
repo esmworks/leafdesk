@@ -368,11 +368,13 @@ export function useDatabase(
         }
       },
 
-      async deleteRow(rowId: string) {
+      /** Moves a row to the trash; `quiet` leaves out the toast that offers to undo it. */
+      async deleteRow(rowId: string, { quiet = false }: { quiet?: boolean } = {}) {
         setRemoved((s) => new Set(s).add(rowId));
         try {
           await archivePageAction(rowId);
           await refetch();
+          if (quiet) return;
           showToast({
             message: tc("toast.rowsTrashed", { count: 1 }),
             undo: async () => {
