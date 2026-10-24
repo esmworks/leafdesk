@@ -17,7 +17,7 @@ after you approve them over OAuth.
 </picture>
 
 - **Pages and databases**: a block editor with slash commands, and databases whose rows are pages,
-  shown as table, board, calendar, gallery, list, timeline, map, chart, dashboard or form, with relations,
+  shown as table, board, calendar, gallery, list, feed, timeline, map, chart, dashboard or form, with relations,
   formulas and rollups; dashboards put numbers, charts and lists from several databases on a page.
 - **Realtime and offline**: edit together with live cursors, keep working without a connection.
 - **Built for AI assistants**: connect Claude or any other MCP client over OAuth 2.1 and approve
@@ -116,7 +116,9 @@ for Windows, `.AppImage` for Linux) and choose *On this computer*. See [Desktop 
   the same grid as a tab of the database, its widgets all views of that database, starting with
   the row count, the sum of the first number property, a chart by the first select or status
   property and the rows edited last. Dashboard views aren't published, printed or shown by linked
-  views.
+  views. The `/tabs` block is a dashboard laid out as tabs: one view at a time, each named on its
+  tab, for several databases (or views of one) in little room; readers get only the tabs whose
+  database they can open, and published pages switch tabs in place.
 - **Web bookmarks and embeds**: link cards with the page's title, description and image (fetched
   once on the server behind an SSRF guard), and YouTube, Vimeo, Loom, Figma, Google Docs, CodePen,
   Spotify and Google Maps embeds in sandboxed iframes.
@@ -148,7 +150,8 @@ for Windows, `.AppImage` for Linux) and choose *On this computer*. See [Desktop 
     changes the other row's paired property too. That takes edit access to the row you change and
     being able to see the row you link, not edit access to the other database; making a two-way
     relation takes edit access to both databases, since it adds the paired property to the other.
-  - Views: table, board, calendar, gallery, list, timeline, map (rows as pins at a place
+  - Views: table, board, calendar, gallery, list, feed (rows as posts, newest first, with the
+    start of their bodies, emoji reactions and their comments), timeline, map (rows as pins at a place
     property), chart and dashboard (widgets over the database, see Dashboards), each with its own filters,
     sorting, grouping and shown properties (one by one, or all hidden or shown at once). Filters
     combine with "and"/"or" in groups and take relative dates such as "this week". Text can be
@@ -177,7 +180,9 @@ for Windows, `.AppImage` for Linux) and choose *On this computer*. See [Desktop 
   - Number properties show as a number, percentage or amount of money, or as a colored bar or
     ring filled by the value divided by a number of your choice.
   - Row pages show every property, or leave some out (always, or while they are empty) behind
-    "N more properties"; the choice is the database's, for everyone.
+    "N more properties"; the choice is the database's, for everyone. People with full access pin up
+    to four properties into a strip under the title and show the others above the body or beside it
+    where the page is wide enough.
   - Rows open in a side panel beside the view, which stays in use: the row's properties, body
     (edited together, with who's there), comments and menu, with the next and previous rows of the
     view (J and K), "Open as full page" and a copy link. The open row is in the address, so links
@@ -3179,7 +3184,7 @@ The tools cover:
   (including one- or two-way relations), `set_sub_items`, `set_dependencies`, `update_database_property`,
   `change_database_property_type` (converts the values in every row; `dry_run` counts what would
   convert and what would be cleared without changing anything), `delete_database_property`,
-  `create_database_view` and `update_database_view` (table, board, calendar, gallery, list,
+  `create_database_view` and `update_database_view` (table, board, calendar, gallery, list, feed,
   timeline, map (with `place_by`), chart, dashboard or form, including a form's public link and a dashboard's `widgets`; a chart over a date takes `accumulate`
   for running totals or a burndown, a calendar `calendar_mode` (month or week), a board `aggregate` and `aggregate_property` for what its column headers show, and table, list and timeline views take `sub_items`;
   `update_database_view` also moves a
@@ -3199,8 +3204,9 @@ The tools cover:
   the trash.
 - **Dashboards:** `add_dashboard` adds a dashboard of widgets (each a database and the settings of
   a view, as for `create_database_view`; a number is a chart with `chart_type: "number"`) to the end
-  of a page, and `update_dashboard_widget` adds, changes, moves or removes one widget. `get_page`
-  lists a page's dashboards and their widgets; a widget on a database the user can't open names
+  of a page (`layout: "tabs"` shows one widget at a time, as tabs), and `update_dashboard_widget`
+  adds, changes, moves or removes one widget. `get_page` lists a page's dashboards, their layout and
+  their widgets; a widget on a database the user can't open names
   nothing of it.
 - **Automations:** `list_automations`, `create_automation`, `update_automation`,
   `publish_automation`, `discard_automation_draft`, `test_automation`, `delete_automation` and
@@ -3392,7 +3398,7 @@ Useful scripts:
 | `pnpm mail:test you@example.com` | Send a test email with the SMTP settings from `.env` |
 | `pnpm db:generate` | New migration from schema changes in `src/db/schema` |
 | `pnpm search:index [workspace-id…]` | Builds or catches up the semantic search index (see [Semantic search](#semantic-search)) |
-| `pnpm tsx scripts/access-e2e.ts` | End-to-end checks against the database for page permissions, guests and publishing. The other `scripts/*-e2e.ts` files do the same for their areas (teamspaces, membership policies and join requests, databases, filters, bulk actions, AI features, semantic search and AI chat (with a stand-in OpenAI-compatible server), property types, places and map views (with a stand-in address search), people, trash and its retention, views, formulas, charts, dashboards, forms, inline databases, publishing options, sites and duplicating published pages, presence, offline editing, uploads and who may read the files pages show, import, Notion import, export, full-text search, upserts and guarded bulk row edits, deleting stored files, the search box's filters, backlinks and unlinked mentions, synced pages, the graph, the workspace health check, skills (MCP prompts over an in-memory transport, the AI chat with a stand-in model), and `roundtrip-e2e.ts` for an export imported again); `mcp-e2e.ts` and `auth-e2e.ts` below need a running server. |
+| `pnpm tsx scripts/access-e2e.ts` | End-to-end checks against the database for page permissions, guests and publishing. The other `scripts/*-e2e.ts` files do the same for their areas (teamspaces, membership policies and join requests, databases, filters, bulk actions, AI features, semantic search and AI chat (with a stand-in OpenAI-compatible server), property types, places and map views (with a stand-in address search), feed views, reactions, database tabs and row page layout, people, trash and its retention, views, formulas, charts, dashboards, forms, inline databases, publishing options, sites and duplicating published pages, presence, offline editing, uploads and who may read the files pages show, import, Notion import, export, full-text search, upserts and guarded bulk row edits, deleting stored files, the search box's filters, backlinks and unlinked mentions, synced pages, the graph, the workspace health check, skills (MCP prompts over an in-memory transport, the AI chat with a stand-in model), and `roundtrip-e2e.ts` for an export imported again); `mcp-e2e.ts` and `auth-e2e.ts` below need a running server. |
 | `pnpm tsx scripts/sw-e2e.ts` | Checks the service worker (`public/sw.js`) in headless Chrome against a stand-in server: offline pages, per-user copies, the offline page (set `CHROME_PATH` outside macOS) |
 | `pnpm tsx scripts/mcp-e2e.ts` | End-to-end OAuth + MCP check against a running server (see the header of the file) |
 | `pnpm tsx scripts/api-e2e.ts` | End-to-end REST API check (tokens, every endpoint, access, rate limits, OpenAPI) against a running server |
