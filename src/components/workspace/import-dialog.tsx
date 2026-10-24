@@ -7,6 +7,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { importTargetAction, type ImportTarget } from "@/app/actions/import";
 import { importGoogleDocsAction } from "@/app/actions/google-docs-import";
 import { createJiraSyncAction } from "@/app/actions/jira-sync";
+import { saveWebPageAction } from "@/app/actions/web-clip";
 import { usePropertyTypeLabel } from "@/components/database/property-icons";
 import { Button, cn, Dialog, IconButton, Input, pageLabel } from "@/components/ui";
 import { formatBytes } from "@/lib/files";
@@ -31,30 +32,12 @@ import { isWorkbook, readWorkbook } from "@/lib/import/xlsx";
 import type { TreeNode } from "@/server/pages";
 import { GoogleDocsTab, type GoogleDocsSetup } from "./google-docs-import";
 import { JiraTab, type JiraSetup } from "./jira-import";
+import { flattenTree, WebClipTab, type WebClipSetupChoice } from "./web-clip";
 
 const selectClass = "h-8 w-full rounded-md border border-border bg-bg px-2 text-sm outline-none focus:border-accent disabled:opacity-60";
 const labelClass = "mb-1 block text-xs font-medium text-fg-muted";
 
 const canEdit = (node: TreeNode) => node.level === "edit" || node.level === "full";
-
-/** Tree nodes in sidebar order with their depth, for indented pickers. */
-function flatten(tree: TreeNode[]) {
-  const ids = new Set(tree.map((n) => n.id));
-  const kids = new Map<string | null, TreeNode[]>();
-  for (const n of tree) {
-    const key = n.parentId && ids.has(n.parentId) ? n.parentId : null;
-    kids.set(key, [...(kids.get(key) ?? []), n]);
-  }
-  const out: { node: TreeNode; depth: number }[] = [];
-  const walk = (parent: string | null, depth: number) => {
-    for (const node of (kids.get(parent) ?? []).sort((a, b) => a.position - b.position)) {
-      out.push({ node, depth });
-      walk(node.id, depth + 1);
-    }
-  };
-  walk(null, 0);
-  return out;
-}
 
 type Picked = { file: File; path: string };
 
@@ -82,8 +65,9 @@ type CsvState = { file: File; table: CsvTable; guesses: CsvColumnType[]; sheets:
  * Imports Markdown files, folders and ZIPs as pages, Word documents and PDFs as a page each, a CSV file
  * or Excel workbook (one of its sheets) as a new database or as rows of an existing one (with a
  * column → property mapping), or a Trello board's JSON export, an Asana project's export or a
- * Monday.com board's as a new database. Sends everything to /api/import and shows what was created
- * and what was left out.
+ * Monday.com board's as a new database; a web page by its address (a server action: see
+ * server/web-clip.ts), as a page or a database's row. Sends files to /api/import and shows what was
+ * created and what was left out.
  */
 export function ImportDialog({
   workspaceId,
@@ -94,6 +78,7 @@ export function ImportDialog({
   activeId,
   teamspaceId,
   file,
+  initialTab,
 }: {
   workspaceId: string;
   open: boolean;
@@ -110,6 +95,8 @@ export function ImportDialog({
    * database under that page (`pageId`), offered even when the tree doesn't list it (a row's page).
    */
   file?: { file: File; pageId: string } | null;
+  /** Opened from "Save from web": starts on the web page tab. */
+  initialTab?: "web";
 }) {
   const router = useRouter();
   const t = useTranslations("import");
@@ -117,14 +104,14 @@ export function ImportDialog({
   const typeLabel = usePropertyTypeLabel();
   const locale = useLocale();
 
-  const flat = useMemo(() => flatten(tree), [tree]);
+  const flat = useMemo(() => flattenTree(tree), [tree]);
   const destinations = flat.filter(({ node }) => node.kind === "page" && canEdit(node));
   // The page showing `file`, when the tree doesn't list it: offered too, by what it is.
   const filePage = file && !destinations.some(({ node }) => node.id === file.pageId) ? file.pageId : null;
   const databases = flat.filter(({ node }) => node.kind === "database" && canEdit(node));
   const activeNode = tree.find((n) => n.id === activeId);
 
-  const [tab, setTab] = useState<"pages" | "docx" | "googleDocs" | "pdf" | "evernote" | "csv" | "trello" | BoardSource | "jira">("pages");
+  const [tab, setTab] = useState<"pages" | "docx" | "googleDocs" | "pdf" | "evernote" | "csv" | "trello" | BoardSource | "jira" | "web">("pages");
   const [destination, setDestination] = useState("");
   const [picked, setPicked] = useState<Picked[]>([]);
   // A folder that came with an Obsidian vault's settings folder (which isn't sent).
@@ -144,6 +131,7 @@ export function ImportDialog({
   const [jira, setJira] = useState<JiraSetup | null>(null);
   // The Google Docs tab's connection and documents, once some are chosen.
   const [googleDocs, setGoogleDocs] = useState<GoogleDocsSetup | null>(null);
+  const [web, setWeb] = useState<WebClipSetupChoice | null>(null);
   const [csvMode, setCsvMode] = useState<"new" | "existing">("new");
   const [name, setName] = useState("");
   const [titleColumn, setTitleColumn] = useState<number | null>(0);
@@ -168,7 +156,7 @@ export function ImportDialog({
   useEffect(() => {
     if (!open) return;
     const activeEditable = activeNode && canEdit(activeNode);
-    setTab(activeEditable && activeNode.kind === "database" ? "csv" : "pages");
+    setTab(initialTab ?? (activeEditable && activeNode.kind === "database" ? "csv" : "pages"));
     setDestination(
       activeEditable && activeNode.kind === "page" ? activeNode.id : topLevel ? "" : (destinations[0]?.node.id ?? ""),
     );
@@ -183,6 +171,7 @@ export function ImportDialog({
     setBoard(null);
     setJira(null);
     setGoogleDocs(null);
+    setWeb(null);
     setCsvMode(activeEditable && activeNode.kind === "database" ? "existing" : "new");
     setDatabaseId(activeEditable && activeNode.kind === "database" ? activeNode.id : "");
     setError(null);
@@ -380,6 +369,7 @@ export function ImportDialog({
     setError(null);
     if (tab === "jira") return submitJira();
     if (tab === "googleDocs") return submitGoogleDocs();
+    if (tab === "web") return submitWeb();
     const form = new FormData();
     form.append("workspaceId", workspaceId);
     if (teamspaceId !== undefined) form.append("teamspaceId", teamspaceId ?? "private");
@@ -489,6 +479,21 @@ export function ImportDialog({
     }
   }
 
+  /** Saves a web page: a server action, as nothing is uploaded. */
+  async function submitWeb() {
+    if (!web) return;
+    setBusy(true);
+    try {
+      const response = await saveWebPageAction({ workspaceId, url: web.url, targetId: web.targetId });
+      if (!response.ok) setError(response.error);
+      else setResult(response.data);
+    } catch {
+      setError(tc("genericError"));
+    } finally {
+      setBusy(false);
+    }
+  }
+
   function warningText(w: ImportWarning) {
     switch (w.code) {
       case "invalidValues":
@@ -501,6 +506,8 @@ export function ImportDialog({
         return t("warnings.unresolvedLink", { target: w.target, page: w.page });
       case "encryptedText":
         return t("warnings.encryptedText", { page: w.page });
+      case "tooManyImages":
+        return t("warnings.tooManyImages", { count: w.count, limit: w.limit });
       case "fileNotStored":
         return t(`warnings.fileNotStored.${w.reason}`, { path: w.path });
       case "skipped":
@@ -516,6 +523,8 @@ export function ImportDialog({
         ? documents.length > 0 && destinationValid
         : tab === "googleDocs"
           ? googleDocs !== null && destinationValid
+        : tab === "web"
+          ? web !== null
         : tab === "pdf"
           ? pdfs.length > 0 && destinationValid
         : tab === "evernote"
@@ -562,8 +571,8 @@ export function ImportDialog({
     <Dialog open={open} onClose={busy ? () => {} : onClose} className="max-w-2xl">
       <div className="flex items-start justify-between gap-2 border-b border-border px-4 py-3">
         <div>
-          <h2 className="text-sm font-medium">{result ? t("done.title") : t("title")}</h2>
-          {!result && <p className="mt-0.5 text-xs text-fg-muted">{t("description")}</p>}
+          <h2 className="text-sm font-medium">{result ? t("done.title") : tab === "web" ? t("web.title") : t("title")}</h2>
+          {!result && <p className="mt-0.5 text-xs text-fg-muted">{tab === "web" ? t("web.description") : t("description")}</p>}
         </div>
         <IconButton label={tc("close")} onClick={onClose} disabled={busy}>
           <X className="h-3.5 w-3.5" />
@@ -594,7 +603,7 @@ export function ImportDialog({
       ) : (
         <div className="max-h-[70vh] space-y-4 overflow-y-auto p-4" aria-busy={busy}>
           <div role="tablist" aria-label={t("title")} className="inline-flex flex-wrap gap-0.5 rounded-lg bg-bg-hover p-0.5">
-            {(["pages", "docx", "googleDocs", "pdf", "evernote", "csv", "trello", "asana", "monday", "jira"] as const).map((key) => (
+            {(["pages", "docx", "googleDocs", "pdf", "evernote", "csv", "trello", "asana", "monday", "jira", "web"] as const).map((key) => (
               <button
                 key={key}
                 type="button"
@@ -922,6 +931,8 @@ export function ImportDialog({
             </>
           ) : tab === "googleDocs" ? (
             <GoogleDocsTab workspaceId={workspaceId} busy={busy} destinationPicker={destinationPicker} onSetup={setGoogleDocs} />
+          ) : tab === "web" ? (
+            <WebClipTab workspaceId={workspaceId} tree={tree} busy={busy} onSetup={setWeb} />
           ) : tab === "jira" ? (
             <JiraTab busy={busy} destinationPicker={destinationPicker} onSetup={setJira} />
           ) : tab === "asana" || tab === "monday" ? (
@@ -1133,7 +1144,17 @@ export function ImportDialog({
               {tc("cancel")}
             </Button>
             <Button variant="primary" disabled={!ready} onClick={() => void submit()}>
-              {tab === "jira" ? (busy ? t("jira.submitting") : t("jira.submit")) : busy ? t("importing") : t("import")}
+              {tab === "jira"
+                ? busy
+                  ? t("jira.submitting")
+                  : t("jira.submit")
+                : tab === "web"
+                  ? busy
+                    ? t("web.saving")
+                    : t("web.save")
+                  : busy
+                    ? t("importing")
+                    : t("import")}
             </Button>
           </div>
         </div>

@@ -54,6 +54,7 @@
     "moveFailed": "Nie udało się przenieść strony w to miejsce. Przeniesienie jej gdzie indziej wymaga pełnego dostępu do niej.",
     "fromTemplate": "Z szablonu",
     "import": "Importuj…",
+    "saveFromWeb": "Zapisz z sieci…",
     "confirmMoveSpace": "Przenieść tę stronę do: {place}? Krąg osób, które ją widzą, zmieni się odpowiednio."
   },
   "search": {

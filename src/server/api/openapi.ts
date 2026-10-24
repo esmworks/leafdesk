@@ -329,6 +329,21 @@ const SCHEMAS: Record<string, JsonSchema> = {
     },
     ["id", "title", "workspace_id", "url"],
   ),
+  WebPageSaved: loose(
+    {
+      id,
+      title: { type: "string" },
+      workspace_id: id,
+      ...teamspaceFields,
+      parent_id: { type: ["string", "null"] },
+      row: { type: "boolean", description: "Saved into a database as its row." },
+      url,
+      source_url: { type: "string", description: "The web page's address." },
+      pictures_copied: { type: "integer", description: "Pictures of the page copied into the workspace." },
+      warnings: { type: "array", items: { type: "string" }, description: "What was left out (pictures that couldn't be copied, or over the limit)." },
+    },
+    ["id", "title", "workspace_id", "url", "source_url"],
+  ),
   DailyNote: loose(
     {
       date: { type: "string", format: "date" },

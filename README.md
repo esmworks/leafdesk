@@ -171,7 +171,7 @@ for Windows, `.AppImage` for Linux) and choose *On this computer*. See [Desktop 
   the home screen on phones; it opens in its own window. The app's icon offers a quick note, and on
   phones that support it Leafdesk shows up in the share sheet: text and links shared to it open the
   quick note filled in, saved as a private page in the workspace you pick or as a row of one of its
-  databases. Where the server can transcribe, the quick note takes voice notes too (see
+  databases; a shared link can be saved as the whole page instead (see *Save a web page*). Where the server can transcribe, the quick note takes voice notes too (see
   [Voice notes](#voice-notes)).
 - **Desktop app** for macOS, Windows and Linux: a window on your server, or Leafdesk running on
   the computer itself with its own database and daily backups (see [Desktop app](#desktop-app)). A
@@ -749,6 +749,19 @@ for Windows, `.AppImage` for Linux) and choose *On this computer*. See [Desktop 
   are listed in the result. Read as the documented layout: the board's name on top, each group's
   name over its header row, subitems one column in under their item, updates on a sheet of their
   own. Tested against files built from that layout, not yet a real export.
+- **Save a web page**: *Save from web…* in the sidebar's *New* and *+* menus (or Import's *Web
+  page* tab) takes a web page's address and saves its title, a link back, its main text (without
+  the menus, ads, comments and footers around it) and its pictures, copied into the workspace (up
+  to 20 of 5 MB each). A page with a schema.org recipe starts with it: yield and times, the
+  ingredients as a checklist, the steps as a numbered list, then the rest of the page. It goes
+  under a page, into a database as a row (its first URL property gets the address) or to a
+  private page at the top; the form starts where you saved the last time. The *Save to Leafdesk*
+  bookmarklet in that dialog opens the quick note with the page you are on (address, title and the
+  text you selected, as a quote); there, as for links shared to the installed app, *Save full page*
+  saves the whole page. The server fetches only public addresses (http or https on the usual web
+  ports, every redirect checked again; `CONNECTOR_ALLOWED_HOSTS` lets hosts on your own network
+  through, as for connections), at most 5 MB of page in 15 seconds. REST:
+  `POST /api/v1/pages/from-web`.
 - **Sync Jira issues**: Import's Jira tab takes a Jira Cloud site, an email address and an
   [API token](https://id.atlassian.com/manage-profile/security/api-tokens) (kept sealed like a
   connection's secrets), then a project or a JQL query, and makes a database whose rows are the
@@ -3841,7 +3854,7 @@ brings the read scope of its resource. Every endpoint needs one scope (the refer
 | Scope | Endpoints |
 | --- | --- |
 | `workspaces:read` | `GET /workspaces`, a workspace's teamspaces and groups |
-| `pages:read`, `pages:write` | pages (database rows too, as pages), their sub-pages, the page tree, daily notes; writing creates, changes, moves, trashes, restores, archives and watches pages and makes voice notes |
+| `pages:read`, `pages:write` | pages (database rows too, as pages), their sub-pages, the page tree, daily notes; saving a web page (`POST /pages/from-web`; into a database it needs `rows:write` too); writing creates, changes, moves, trashes, restores, archives and watches pages and makes voice notes |
 | `search:read` | `GET /search` |
 | `databases:read` | `GET /databases/{id}` (properties and views) |
 | `rows:read`, `rows:write` | `POST /databases/{id}/query`, `GET /rows/{id}` and its activity; writing adds, upserts and changes rows (a voice note into a database needs it too) |

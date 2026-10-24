@@ -54,6 +54,7 @@
     "moveFailed": "페이지를 여기로 이동할 수 없습니다. 다른 곳으로 이동하려면 해당 페이지에 대한 전체 액세스 권한이 필요합니다.",
     "fromTemplate": "템플릿에서",
     "import": "가져오기…",
+    "saveFromWeb": "웹에서 저장…",
     "confirmMoveSpace": "이 페이지를 {place}(으)로 이동할까요? 볼 수 있는 사람도 그에 맞게 바뀝니다."
   },
   "search": {

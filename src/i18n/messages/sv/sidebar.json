@@ -54,6 +54,7 @@
     "moveFailed": "Sidan kunde inte flyttas hit. För att flytta den någon annanstans krävs full åtkomst till den.",
     "fromTemplate": "Från en mall",
     "import": "Importera…",
+    "saveFromWeb": "Spara från webben …",
     "confirmMoveSpace": "Flytta den här sidan till {place}? Vem som kan se den ändras därefter."
   },
   "search": {

@@ -782,7 +782,12 @@
     "shortcut": "Ghi chú nhanh mới",
     "shortcutShort": "Ghi chú nhanh",
     "destination": "Lưu vào",
-    "privatePage": "Trang riêng tư"
+    "privatePage": "Trang riêng tư",
+    "fullPage": {
+      "heading": "Lưu toàn bộ trang",
+      "help": "Lưu văn bản và hình ảnh của trang kèm liên kết quay lại, thay vì chỉ liên kết.",
+      "save": "Lưu toàn bộ trang"
+    }
   },
   "dashboard": {
     "title": "Bảng điều khiển",

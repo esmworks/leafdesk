@@ -782,7 +782,12 @@
     "shortcut": "Nieuwe snelle notitie",
     "shortcutShort": "Snelle notitie",
     "destination": "Opslaan in",
-    "privatePage": "Privépagina"
+    "privatePage": "Privépagina",
+    "fullPage": {
+      "heading": "De hele pagina opslaan",
+      "help": "Slaat de tekst en afbeeldingen van de pagina op met een link terug, in plaats van alleen de link.",
+      "save": "Hele pagina opslaan"
+    }
   },
   "dashboard": {
     "title": "Dashboard",

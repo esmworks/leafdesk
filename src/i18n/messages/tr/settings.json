@@ -1654,7 +1654,8 @@
       "skill": "Beceri (SKILL.md)",
       "notion": "Notion",
       "obsidian": "Obsidian",
-      "enex": "Evernote"
+      "enex": "Evernote",
+      "web": "Web sayfası"
     },
     "settingNames": {
       "guestInvites": "Kimler misafir davet edebilir",

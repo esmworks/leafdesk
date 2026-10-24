@@ -782,7 +782,12 @@
     "shortcut": "새 빠른 메모",
     "shortcutShort": "빠른 메모",
     "destination": "저장 위치",
-    "privatePage": "비공개 페이지"
+    "privatePage": "비공개 페이지",
+    "fullPage": {
+      "heading": "페이지 전체 저장",
+      "help": "링크만이 아니라 페이지의 본문과 이미지를 원본 링크와 함께 저장합니다.",
+      "save": "페이지 전체 저장"
+    }
   },
   "dashboard": {
     "title": "대시보드",

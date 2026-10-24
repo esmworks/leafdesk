@@ -782,7 +782,12 @@
     "shortcut": "Uusi pikamuistiinpano",
     "shortcutShort": "Pikamuistiinpano",
     "destination": "Tallenna kohteeseen",
-    "privatePage": "Yksityinen sivu"
+    "privatePage": "Yksityinen sivu",
+    "fullPage": {
+      "heading": "Tallenna koko sivu",
+      "help": "Tallentaa sivun tekstin ja kuvat linkin kanssa pelkän linkin sijaan.",
+      "save": "Tallenna koko sivu"
+    }
   },
   "dashboard": {
     "title": "Koontinäyttö",

@@ -3,7 +3,7 @@ import { isIP } from "node:net";
 import { Agent, fetch as undiciFetch, type RequestInit as UndiciRequestInit } from "undici";
 import { MAX_CONNECTION_URL } from "@/lib/connections";
 import { env } from "@/lib/env";
-import { isBlockedAddress } from "../ssrf";
+import { ALLOWED_PORTS, isBlockedAddress } from "../ssrf";
 
 /**
  * The fetch a connection's MCP client, and its sign-in to the service, go through. A connection's
@@ -13,7 +13,13 @@ import { isBlockedAddress } from "../ssrf";
  * to another origin drops the request's credentials (Authorization, Cookie).
  * Hosts in CONNECTOR_ALLOWED_HOSTS (by name, or name and port) skip these checks, http included,
  * for servers on the same machine or network.
+ *
+ * `web` is for fetching a web page someone asked to save (server/web-clip.ts): http is allowed too,
+ * on the usual web ports only (the ones link previews allow), with every other check the same.
  */
+
+/** What a fetch may reach beyond a connection's https servers. */
+export type FetchReach = { web?: boolean };
 
 export class ConnectionFetchError extends Error {
   constructor(
@@ -40,7 +46,7 @@ export function allowedConnectorHost(url: URL, allowed = env.connectorAllowedHos
  * Checks the shape of an address a connection reaches (no DNS: that is checked on connecting):
  * https, no credentials, and no private address or local name, unless the host is allowed.
  */
-export function checkConnectionUrl(value: string | URL): URL {
+export function checkConnectionUrl(value: string | URL, { web = false }: FetchReach = {}): URL {
   let url: URL;
   try {
     url = new URL(value);
@@ -51,7 +57,8 @@ export function checkConnectionUrl(value: string | URL): URL {
   if (url.username || url.password) throw new ConnectionFetchError("invalidUrl", "Credentials in the address");
   if (url.protocol !== "https:" && url.protocol !== "http:") throw new ConnectionFetchError("invalidUrl", "Only https addresses");
   if (allowedConnectorHost(url)) return url;
-  if (url.protocol !== "https:") throw new ConnectionFetchError("invalidUrl", "Only https addresses");
+  if (url.protocol !== "https:" && !web) throw new ConnectionFetchError("invalidUrl", "Only https addresses");
+  if (web && !ALLOWED_PORTS.has(url.port)) throw new ConnectionFetchError("blocked", `Port ${url.port} is not allowed`);
   const host = url.hostname.replace(/^\[|\]$/g, "");
   if (isIP(host)) {
     if (isBlockedAddress(host)) throw new ConnectionFetchError("blocked", "A private address");
@@ -91,11 +98,11 @@ function agents() {
   });
 }
 
-/** Fetch for connections (see above): same arguments as fetch. */
-export async function connectionFetch(input: string | URL | Request, init: RequestInit = {}): Promise<Response> {
+/** Fetch for connections (see above): same arguments as fetch, and what else it may reach. */
+export async function connectionFetch(input: string | URL | Request, init: RequestInit = {}, reach: FetchReach = {}): Promise<Response> {
   let request = new Request(input, init);
   for (let hop = 0; ; hop++) {
-    const url = checkConnectionUrl(request.url);
+    const url = checkConnectionUrl(request.url, reach);
     const dispatcher = allowedConnectorHost(url) ? agents().plain : agents().guarded;
     const response = (await undiciFetch(url, {
       method: request.method,

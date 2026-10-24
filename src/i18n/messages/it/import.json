@@ -12,7 +12,8 @@
     "asana": "Asana",
     "monday": "Monday.com",
     "jira": "Jira",
-    "googleDocs": "Google Docs"
+    "googleDocs": "Google Docs",
+    "web": "Pagina web"
   },
   "destination": "Inserisci in",
   "topLevel": "Livello principale dello spazio di lavoro",
@@ -218,7 +219,8 @@
       "badNote": "La nota “{path}” non può essere letta ed è stata esclusa.",
       "notEnex": "“{path}” è stato escluso: non è un’esportazione di Evernote (.enex)."
     },
-    "more": "…e {count, plural, one {# altro} other {altri #}}."
+    "more": "…e {count, plural, one {# altro} other {altri #}}.",
+    "tooManyImages": "{count, plural, one {# altra immagine è stata esclusa} other {Altre # immagini sono state escluse}}: una pagina web salvata ne conserva al massimo {limit}."
   },
   "errors": {
     "tooLarge": "Il caricamento supera {limit}.",
@@ -268,6 +270,42 @@
       "signIn": "«{name}» deve accedere di nuovo a Google: lo fa un proprietario in Impostazioni → Connessioni.",
       "notFound": "Un documento non può essere letto tramite «{name}»: controlla il link e che l'account Google della connessione possa aprirlo.",
       "notADocument": "«{id}» non è un documento Google."
+    }
+  },
+  "web": {
+    "title": "Salva dal web",
+    "description": "Salva una pagina web come pagina: testo, immagini e un link alla fonte.",
+    "help": "Incolla l’indirizzo di una pagina web. Il testo principale viene salvato senza i menu, le pubblicità e i piè di pagina intorno, e le immagini vengono copiate nell’area di lavoro. Una ricetta viene per prima, con gli ingredienti come elenco di controllo.",
+    "url": "Indirizzo web",
+    "target": "Salva in",
+    "privatePage": "Pagina privata in cima",
+    "underPage": "Sotto una pagina",
+    "intoDatabase": "Come riga di un database",
+    "save": "Salva pagina",
+    "saving": "Salvataggio della pagina…",
+    "bookmarklet": {
+      "heading": "Salva dal browser",
+      "help": "Trascina questo pulsante nella barra dei preferiti del browser. Su qualsiasi pagina web, fai clic per salvarla qui; il testo selezionato viene aggiunto come citazione.",
+      "link": "Salva in Leafdesk"
+    },
+    "errors": {
+      "invalidUrl": "Questo non è un indirizzo web. Incollane uno che inizi con http:// o https://.",
+      "blocked": "Questo indirizzo non può essere salvato: punta a una rete privata o a una porta che le pagine web non usano.",
+      "unreachable": "Impossibile raggiungere la pagina. Controlla l’indirizzo e riprova.",
+      "timeout": "La pagina ha impiegato troppo a rispondere. Riprova più tardi.",
+      "httpError": "Il sito ha risposto con un errore: la pagina potrebbe richiedere l’accesso o non esistere più.",
+      "notHtml": "Questo indirizzo non è una pagina web (forse è un file). Carica invece i file in una pagina.",
+      "noAccess": "Non puoi aggiungere pagine lì. Scegli un altro posto in cui salvare.",
+      "badTarget": "Una pagina web può essere salvata sotto una pagina o in un database di quest’area di lavoro.",
+      "tooComplex": "La pagina è troppo grande o complessa per essere salvata come un’unica pagina."
+    },
+    "recipe": {
+      "yield": "Dosi",
+      "prepTime": "Preparazione",
+      "cookTime": "Cottura",
+      "totalTime": "Totale",
+      "ingredients": "Ingredienti",
+      "steps": "Procedimento"
     }
   }
 }

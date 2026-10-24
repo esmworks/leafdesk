@@ -16,6 +16,7 @@ import {
   BookOpen,
   Database,
   FileText,
+  Globe,
   House,
   Inbox,
   Keyboard,
@@ -218,6 +219,8 @@ export function Sidebar({
   const [importFile, setImportFile] = useState<ImportSpreadsheetDetail | null>(null);
   // Mounted from the first opening on, like the inbox.
   const [importMounted, setImportMounted] = useState(false);
+  // "Save from web" opens the import dialog on its web page tab.
+  const [importTab, setImportTab] = useState<"web" | undefined>(undefined);
   if (importOpen && !importMounted) setImportMounted(true);
   // The section the templates or import dialog was opened from.
   const [dialogTarget, setDialogTarget] = useState<Target>(undefined);
@@ -694,9 +697,10 @@ export function Sidebar({
     setTemplatesOpen(true);
   }
 
-  function openImport(target: Target) {
+  function openImport(target: Target, tab?: "web") {
     setDialogTarget(target);
     setImportFile(null);
+    setImportTab(tab);
     setImportOpen(true);
   }
 
@@ -751,6 +755,15 @@ export function Sidebar({
         }}
       >
         {t("pages.import")}
+      </MenuItem>
+      <MenuItem
+        icon={<Globe className="h-4 w-4" />}
+        onClick={() => {
+          close();
+          openImport(target, "web");
+        }}
+      >
+        {t("pages.saveFromWeb")}
       </MenuItem>
     </>
   );
@@ -1237,6 +1250,15 @@ export function Sidebar({
                           </MenuItem>
                         </>
                       )}
+                      <MenuItem
+                        icon={<Globe className="h-4 w-4" />}
+                        onClick={() => {
+                          close();
+                          openImport(undefined, "web");
+                        }}
+                      >
+                        {t("pages.saveFromWeb")}
+                      </MenuItem>
                     </>
                   )}
                 </Popover>
@@ -1577,6 +1599,7 @@ export function Sidebar({
           activeId={dialogTarget === undefined ? activeId : null}
           teamspaceId={dialogTarget}
           file={importFile}
+          initialTab={importTab}
         />
       )}
       <TeamspaceDialog

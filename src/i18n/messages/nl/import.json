@@ -12,7 +12,8 @@
     "asana": "Asana",
     "monday": "Monday.com",
     "jira": "Jira",
-    "googleDocs": "Google Docs"
+    "googleDocs": "Google Docs",
+    "web": "Webpagina"
   },
   "destination": "Plaatsen onder",
   "topLevel": "Hoogste niveau van de werkruimte",
@@ -218,7 +219,8 @@
       "badNote": "De notitie “{path}” kan niet worden gelezen en is weggelaten.",
       "notEnex": "“{path}” is weggelaten: het is geen Evernote-export (.enex)."
     },
-    "more": "…en nog {count, plural, one {#} other {#}}."
+    "more": "…en nog {count, plural, one {#} other {#}}.",
+    "tooManyImages": "{count, plural, one {Nog # afbeelding is} other {Nog # afbeeldingen zijn}} weggelaten: een opgeslagen webpagina bewaart er hoogstens {limit}."
   },
   "errors": {
     "tooLarge": "De upload is groter dan {limit}.",
@@ -268,6 +270,42 @@
       "signIn": "Voor “{name}” moet opnieuw bij Google worden ingelogd: een eigenaar doet dat in Instellingen → Koppelingen.",
       "notFound": "Een document kan niet via “{name}” worden gelezen: controleer de link, en of het Google-account van de koppeling het mag openen.",
       "notADocument": "“{id}” is geen Google-document."
+    }
+  },
+  "web": {
+    "title": "Opslaan van het web",
+    "description": "Sla een webpagina op als pagina: de tekst, de afbeeldingen en een link terug.",
+    "help": "Plak het adres van een webpagina. De hoofdtekst wordt opgeslagen zonder de menu’s, advertenties en voetteksten eromheen, en de afbeeldingen worden naar de werkruimte gekopieerd. Een recept komt bovenaan, met de ingrediënten als checklist.",
+    "url": "Webadres",
+    "target": "Opslaan in",
+    "privatePage": "Privépagina bovenaan",
+    "underPage": "Onder een pagina",
+    "intoDatabase": "Als rij van een database",
+    "save": "Pagina opslaan",
+    "saving": "Pagina wordt opgeslagen…",
+    "bookmarklet": {
+      "heading": "Opslaan vanuit je browser",
+      "help": "Sleep deze knop naar de bladwijzerbalk van je browser. Klik erop op een willekeurige webpagina om die hier op te slaan; geselecteerde tekst komt mee als citaat.",
+      "link": "Opslaan in Leafdesk"
+    },
+    "errors": {
+      "invalidUrl": "Dat is geen webadres. Plak er een dat begint met http:// of https://.",
+      "blocked": "Dit adres kan niet worden opgeslagen: het wijst naar een privénetwerk of naar een poort die webpagina’s niet gebruiken.",
+      "unreachable": "De pagina was niet bereikbaar. Controleer het adres en probeer het opnieuw.",
+      "timeout": "De pagina deed er te lang over om te antwoorden. Probeer het later opnieuw.",
+      "httpError": "De site antwoordde met een fout: de pagina vraagt misschien om in te loggen, of bestaat niet meer.",
+      "notHtml": "Dit adres is geen webpagina (misschien een bestand). Upload bestanden liever naar een pagina.",
+      "noAccess": "Je kunt daar geen pagina’s toevoegen. Kies een andere plek om op te slaan.",
+      "badTarget": "Een webpagina kan onder een pagina of in een database van deze werkruimte worden opgeslagen.",
+      "tooComplex": "De pagina is te groot of te complex om als één pagina op te slaan."
+    },
+    "recipe": {
+      "yield": "Voor",
+      "prepTime": "Voorbereiding",
+      "cookTime": "Kooktijd",
+      "totalTime": "Totaal",
+      "ingredients": "Ingrediënten",
+      "steps": "Bereiding"
     }
   }
 }

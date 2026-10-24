@@ -376,6 +376,29 @@ export const API_ROUTES: ApiRoute[] = [
     },
   }),
   defineRoute({
+    method: "POST",
+    path: "/pages/from-web",
+    operationId: "saveWebPage",
+    tag: "Pages",
+    summary: "Save a web page",
+    description:
+      "Fetches the web page at `url` and saves it as a page: its title, a link back to it, its main text without the menus, ads and footers around it, and its pictures copied into the workspace (at most 20). A page with a schema.org recipe starts with it: what it makes, its times, the ingredients as a checklist and the steps as a numbered list. It goes under parent_id (a page), into parent_id as a row (a database, which needs `rows:write` as well: its first URL property gets the address), or at the top of the workspace (workspace_id; in the teamspace teamspace_id names, else private to the user). Only public addresses are fetched (http or https, on the usual web ports), every redirect checked again.",
+    scope: "pages:write",
+    body: ops.inputs.saveWebPage,
+    status: 201,
+    response: "WebPageSaved",
+    handler: async ({ principal, ctx, body }) => {
+      if (body.parent_id) {
+        await requirePageInWorkspace(principal, body.parent_id);
+        // A row of a database, as rows are written elsewhere.
+        const parent = await getPage(ctx.userId, body.parent_id);
+        if (parent.kind === "database") requireScope(principal, "rows:write");
+      } else if (body.workspace_id) requireWorkspace(principal, body.workspace_id);
+      const workspaceId = body.parent_id ? body.workspace_id : (body.workspace_id ?? principal.workspaceId ?? undefined);
+      return ops.saveWebPage(ctx, { ...body, workspace_id: workspaceId });
+    },
+  }),
+  defineRoute({
     method: "GET",
     path: "/workspaces/{workspace_id}/daily-notes",
     operationId: "listDailyNotes",

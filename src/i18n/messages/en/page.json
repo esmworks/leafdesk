@@ -782,7 +782,12 @@
     "shortcut": "New quick note",
     "shortcutShort": "Quick note",
     "destination": "Save to",
-    "privatePage": "Private page"
+    "privatePage": "Private page",
+    "fullPage": {
+      "heading": "Save the whole page",
+      "help": "Saves the page's text and pictures with a link back, instead of only the link.",
+      "save": "Save full page"
+    }
   },
   "dashboard": {
     "title": "Dashboard",

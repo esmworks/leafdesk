@@ -1654,7 +1654,8 @@
       "skill": "Навичка (SKILL.md)",
       "notion": "Notion",
       "obsidian": "Obsidian",
-      "enex": "Evernote"
+      "enex": "Evernote",
+      "web": "Вебсторінка"
     },
     "settingNames": {
       "guestInvites": "Хто може запрошувати гостей",

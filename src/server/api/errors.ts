@@ -11,6 +11,7 @@ import { PAGE_LOCKED_MESSAGE } from "@/lib/page-lock";
 import { PendingChangeError } from "@/server/pending-changes";
 import { SequenceError } from "@/server/sequences/manage";
 import { isPageSaveFailed } from "@/server/collab/bridge";
+import { WebClipError } from "@/server/web-clip-error";
 
 /** Every error code the REST API answers with, for the docs. */
 export const API_ERROR_CODES = {
@@ -80,6 +81,10 @@ export const API_ERROR_CODES = {
   rate_limited: { status: 429, description: "Too many requests for this token; wait for Retry-After seconds." },
   internal_error: { status: 500, description: "Something went wrong on the server." },
   upstream_error: { status: 502, description: "The speech to text or AI provider failed or took too long; try again later." },
+  page_unreachable: {
+    status: 502,
+    description: "The web page to save couldn't be fetched: the site didn't answer, took too long, or answered with an error (`details.status`).",
+  },
 } as const;
 
 export type ApiErrorCode = keyof typeof API_ERROR_CODES;
@@ -130,6 +135,7 @@ export function apiErrorFor(error: unknown): ApiError {
     return new ApiError(409, "version_conflict", error.message, { expected_version: error.expected, version: error.current });
   }
   if (error instanceof ToolInputError) return new ApiError(400, "invalid_request", error.message);
+  if (error instanceof WebClipError) return webClipApiError(error);
   if (error instanceof PropertyValueError) return new ApiError(400, "invalid_property_value", error.message, undefined, { param: propertyParam(error) });
   if (error instanceof TeamspaceError) return new ApiError(403, "forbidden", error.message);
   if (error instanceof GroupError) return new ApiError(400, "invalid_request", error.message);
@@ -216,4 +222,20 @@ export function errorBody(error: ApiError) {
       ...(error.details !== undefined ? { details: error.details } : {}),
     },
   };
+}
+
+/** A web page that couldn't be saved (server/web-clip.ts), as the API answers it. */
+function webClipApiError(error: WebClipError): ApiError {
+  switch (error.code) {
+    case "unreachable":
+    case "timeout":
+    case "httpError":
+      return new ApiError(502, "page_unreachable", `The web page couldn't be fetched: ${error.message}.`, error.status ? { status: error.status } : undefined);
+    case "noAccess":
+      return new ApiError(404, "not_found", "Not found or access denied");
+    case "badTarget":
+      return new ApiError(400, "invalid_request", `The web page can't be saved there: ${error.message}.`, undefined, { param: "parent_id" });
+    default:
+      return new ApiError(400, "invalid_request", `The web page can't be saved: ${error.message}.`, undefined, { param: "url" });
+  }
 }

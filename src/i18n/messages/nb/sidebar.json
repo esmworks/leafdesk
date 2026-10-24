@@ -54,6 +54,7 @@
     "moveFailed": "Kunne ikke flytte siden hit. For å flytte den et annet sted trenger du full tilgang til den.",
     "fromTemplate": "Fra en mal",
     "import": "Importer…",
+    "saveFromWeb": "Lagre fra nettet …",
     "confirmMoveSpace": "Vil du flytte denne siden til {place}? Hvem som kan se den, endres tilsvarende."
   },
   "search": {

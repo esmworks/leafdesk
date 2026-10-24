@@ -54,6 +54,7 @@
     "moveFailed": "无法将页面移到这里。将其移到其他位置需要对它拥有完全访问权限。",
     "fromTemplate": "从模板创建",
     "import": "导入…",
+    "saveFromWeb": "从网页保存…",
     "confirmMoveSpace": "要将此页面移到{place}吗？可以查看它的人会随之改变。"
   },
   "search": {

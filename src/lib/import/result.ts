@@ -79,6 +79,8 @@ export type ImportWarning =
   | { code: "fileNotStored"; path: string; reason: "tooLarge" | "quotaExceeded" | "failed" | "external" | "unsupportedType" }
   /** A note (`page`: the export and the note's title) held encrypted text, which was left out. */
   | { code: "encryptedText"; page: string }
+  /** A saved web page showed more pictures than are copied (`limit`): `count` were left out. */
+  | { code: "tooManyImages"; count: number; limit: number }
   /**
    * Files left out: a ZIP inside the ZIP, a database inside a database, a duplicate CSV (or a
    * database's own Markdown file), a Markdown file over the size limit, a file no page shows or

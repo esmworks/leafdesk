@@ -54,6 +54,7 @@
     "moveFailed": "Die Seite konnte nicht hierher verschoben werden. Um sie an einen anderen Ort zu verschieben, brauchst du Vollzugriff darauf.",
     "fromTemplate": "Aus einer Vorlage",
     "import": "Importieren…",
+    "saveFromWeb": "Aus dem Web speichern …",
     "confirmMoveSpace": "Diese Seite nach {place} verschieben? Wer sie sehen kann, ändert sich entsprechend."
   },
   "search": {

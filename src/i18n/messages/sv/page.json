@@ -782,7 +782,12 @@
     "shortcut": "Ny snabbanteckning",
     "shortcutShort": "Snabbanteckning",
     "destination": "Spara i",
-    "privatePage": "Privat sida"
+    "privatePage": "Privat sida",
+    "fullPage": {
+      "heading": "Spara hela sidan",
+      "help": "Sparar sidans text och bilder med en länk tillbaka i stället för bara länken.",
+      "save": "Spara hela sidan"
+    }
   },
   "dashboard": {
     "title": "Instrumentpanel",

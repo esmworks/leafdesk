@@ -782,7 +782,12 @@
     "shortcut": "Nytt hurtignotat",
     "shortcutShort": "Hurtignotat",
     "destination": "Lagre i",
-    "privatePage": "Privat side"
+    "privatePage": "Privat side",
+    "fullPage": {
+      "heading": "Lagre hele siden",
+      "help": "Lagrer sidens tekst og bilder med en lenke tilbake i stedet for bare lenken.",
+      "save": "Lagre hele siden"
+    }
   },
   "dashboard": {
     "title": "Dashbord",

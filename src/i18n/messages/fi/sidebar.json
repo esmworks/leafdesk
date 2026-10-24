@@ -54,6 +54,7 @@
     "moveFailed": "Sivua ei voitu siirtää tänne. Sen siirtäminen muualle vaatii siihen täydet oikeudet.",
     "fromTemplate": "Mallista",
     "import": "Tuo…",
+    "saveFromWeb": "Tallenna verkosta…",
     "confirmMoveSpace": "Siirretäänkö tämä sivu kohteeseen {place}? Näkyvyys muuttuu sen mukaisesti."
   },
   "search": {

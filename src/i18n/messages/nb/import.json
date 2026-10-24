@@ -12,7 +12,8 @@
     "asana": "Asana",
     "monday": "Monday.com",
     "jira": "Jira",
-    "googleDocs": "Google Dokumenter"
+    "googleDocs": "Google Dokumenter",
+    "web": "Nettside"
   },
   "destination": "Legg under",
   "topLevel": "Øverste nivå i arbeidsområdet",
@@ -218,7 +219,8 @@
       "badNote": "Notatet «{path}» kan ikke leses og ble utelatt.",
       "notEnex": "«{path}» ble utelatt: det er ikke en Evernote-eksport (.enex)."
     },
-    "more": "…og {count, plural, one {# til} other {# til}}."
+    "more": "…og {count, plural, one {# til} other {# til}}.",
+    "tooManyImages": "{count, plural, one {# bilde til ble} other {# bilder til ble}} utelatt: en lagret nettside beholder høyst {limit}."
   },
   "errors": {
     "tooLarge": "Opplastingen er større enn {limit}.",
@@ -268,6 +270,42 @@
       "signIn": "«{name}» må logges på Google igjen: det gjør en eier under Innstillinger → Tilkoblinger.",
       "notFound": "Et dokument kan ikke leses gjennom «{name}»: sjekk lenken, og at Google-kontoen til tilkoblingen har tilgang til å åpne det.",
       "notADocument": "«{id}» er ikke et Google-dokument."
+    }
+  },
+  "web": {
+    "title": "Lagre fra nettet",
+    "description": "Lagre en nettside som en side: teksten, bildene og en lenke tilbake.",
+    "help": "Lim inn adressen til en nettside. Hovedteksten lagres uten menyene, reklamen og bunntekstene rundt, og bildene kopieres til arbeidsområdet. En oppskrift kommer først, med ingrediensene som sjekkliste.",
+    "url": "Nettadresse",
+    "target": "Lagre i",
+    "privatePage": "Privat side øverst",
+    "underPage": "Under en side",
+    "intoDatabase": "Som rad i en database",
+    "save": "Lagre side",
+    "saving": "Lagrer siden …",
+    "bookmarklet": {
+      "heading": "Lagre fra nettleseren",
+      "help": "Dra denne knappen til bokmerkelinjen i nettleseren. Klikk på den på en hvilken som helst nettside for å lagre siden her; markert tekst blir med som sitat.",
+      "link": "Lagre i Leafdesk"
+    },
+    "errors": {
+      "invalidUrl": "Det er ikke en nettadresse. Lim inn en som begynner med http:// eller https://.",
+      "blocked": "Denne adressen kan ikke lagres: den peker inn i et privat nettverk eller til en port nettsider ikke bruker.",
+      "unreachable": "Siden kunne ikke nås. Sjekk adressen og prøv igjen.",
+      "timeout": "Siden brukte for lang tid på å svare. Prøv igjen senere.",
+      "httpError": "Nettstedet svarte med en feil: siden krever kanskje innlogging, eller den finnes ikke lenger.",
+      "notHtml": "Denne adressen er ikke en nettside (kanskje en fil). Last heller opp filer til en side.",
+      "noAccess": "Du kan ikke legge til sider der. Velg et annet sted å lagre.",
+      "badTarget": "En nettside kan lagres under en side eller i en database i dette arbeidsområdet.",
+      "tooComplex": "Siden er for stor eller kompleks til å lagres som én side."
+    },
+    "recipe": {
+      "yield": "Gir",
+      "prepTime": "Forberedelse",
+      "cookTime": "Tilberedning",
+      "totalTime": "Totalt",
+      "ingredients": "Ingredienser",
+      "steps": "Fremgangsmåte"
     }
   }
 }

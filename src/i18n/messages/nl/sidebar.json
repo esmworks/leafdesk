@@ -54,6 +54,7 @@
     "moveFailed": "De pagina kon niet hierheen worden verplaatst. Om haar ergens anders heen te verplaatsen, heb je volledige toegang nodig.",
     "fromTemplate": "Vanuit een sjabloon",
     "import": "Importeren…",
+    "saveFromWeb": "Opslaan van het web…",
     "confirmMoveSpace": "Deze pagina naar {place} verplaatsen? Wie haar kan zien, verandert mee."
   },
   "search": {

@@ -12,7 +12,8 @@
     "asana": "Asana",
     "monday": "Monday.com",
     "jira": "Jira",
-    "googleDocs": "Google Docs"
+    "googleDocs": "Google Docs",
+    "web": "Web page"
   },
   "destination": "Put under",
   "topLevel": "Top level of the workspace",
@@ -218,7 +219,8 @@
       "badNote": "The note “{path}” can't be read and was left out.",
       "notEnex": "“{path}” was left out: it isn't an Evernote export (.enex)."
     },
-    "more": "…and {count, plural, one {# more} other {# more}}."
+    "more": "…and {count, plural, one {# more} other {# more}}.",
+    "tooManyImages": "{count, plural, one {# more picture was} other {# more pictures were}} left out: a saved web page keeps at most {limit}."
   },
   "errors": {
     "tooLarge": "The upload is larger than {limit}.",
@@ -268,6 +270,42 @@
       "signIn": "“{name}” needs signing in to Google again: an owner does that in Settings → Connections.",
       "notFound": "A document can't be read through “{name}”: check the link, and that the connection's Google account may open it.",
       "notADocument": "“{id}” isn't a Google document."
+    }
+  },
+  "web": {
+    "title": "Save from web",
+    "description": "Save a web page as a page: its text, pictures and a link back to it.",
+    "help": "Paste the address of a web page. Its main text is saved without the menus, ads and footers around it, and its pictures are copied into the workspace. A recipe comes first, with its ingredients as a checklist.",
+    "url": "Web address",
+    "target": "Save to",
+    "privatePage": "Private page at the top",
+    "underPage": "Under a page",
+    "intoDatabase": "As a row of a database",
+    "save": "Save page",
+    "saving": "Saving the page…",
+    "bookmarklet": {
+      "heading": "Save from your browser",
+      "help": "Drag this button to your browser's bookmarks bar. On any web page, click it to save that page here; text you selected on it comes along as a quote.",
+      "link": "Save to Leafdesk"
+    },
+    "errors": {
+      "invalidUrl": "That isn't a web address. Paste one that starts with http:// or https://.",
+      "blocked": "This address can't be saved: it points into a private network, or to a port web pages don't use.",
+      "unreachable": "The page couldn't be reached. Check the address and try again.",
+      "timeout": "The page took too long to answer. Try again later.",
+      "httpError": "The site answered with an error: the page may need signing in, or it no longer exists.",
+      "notHtml": "This address isn't a web page (it may be a file). Upload files to a page instead.",
+      "noAccess": "You can't add pages there. Pick another place to save to.",
+      "badTarget": "A web page can be saved under a page or into a database of this workspace.",
+      "tooComplex": "The page is too large or complex to save as one page."
+    },
+    "recipe": {
+      "yield": "Makes",
+      "prepTime": "Prep",
+      "cookTime": "Cook",
+      "totalTime": "Total",
+      "ingredients": "Ingredients",
+      "steps": "Steps"
     }
   }
 }

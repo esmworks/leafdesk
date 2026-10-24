@@ -5,10 +5,16 @@ import { useTranslations } from "next-intl";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { quickNoteTargetsAction, saveVoiceNoteAction } from "@/app/actions/ai";
 import { createPageAction } from "@/app/actions/pages";
+import { saveWebPageAction, webClipTargetsAction, type WebClipSetup } from "@/app/actions/web-clip";
 import { Button, buttonClass, cn, Input, pageLabel, selectClass, textareaClass } from "@/components/ui";
 import { VoiceNoteRecorder } from "@/components/voice/voice-note-recorder";
+import { startingTarget, validTarget, WebClipTargetPicker } from "@/components/workspace/web-clip";
 import { SHARED_COOKIE, SHARED_COOKIE_PATH } from "@/lib/shared-note";
 import type { VoiceNoteDraft, VoiceNoteLimits } from "@/lib/voice-notes";
+import type { TreeNode } from "@/server/pages";
+
+/** A shared web page that can be saved whole (see server/web-clip.ts): where to, in the first workspace. */
+export type SharedWebPage = { url: string; quote: string; tree: TreeNode[]; setup: WebClipSetup };
 
 export type QuickNoteTargets = {
   limits: VoiceNoteLimits | null;
@@ -20,7 +26,9 @@ export type QuickNoteTargets = {
  * The quick note's fields (see app/share): saved as a private page, or as a row of a database the
  * person picks, then opened. Where the server can transcribe, a voice note fills the fields: the
  * AI's write-up of the recording, which the person can change before saving; its transcript is
- * saved under the note.
+ * saved under the note. A shared link can be saved as the whole page instead (`webPage`): its text
+ * and pictures, under a page, into a database or as a private page, where the person saved the
+ * last time unless they pick another place.
  */
 export function QuickNoteForm({
   workspaces,
@@ -29,6 +37,7 @@ export function QuickNoteForm({
   body: initialBody,
   targets: initialTargets,
   voice: startVoice,
+  webPage: initialWebPage = null,
 }: {
   workspaces: { id: string; name: string }[];
   workspaceId: string;
@@ -38,6 +47,8 @@ export function QuickNoteForm({
   targets: QuickNoteTargets;
   /** Opened from the "Voice note" shortcut: start recording right away. */
   voice: boolean;
+  /** What was shared has a web address: offered to save whole. */
+  webPage?: SharedWebPage | null;
 }) {
   const t = useTranslations("page.quickNote");
   const tv = useTranslations("page.voiceNote");
@@ -56,6 +67,10 @@ export function QuickNoteForm({
   const chosenWorkspace = useRef(initialWorkspace);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [webPage, setWebPage] = useState(initialWebPage);
+  /** Where the whole page goes; null until the person picks (the starting target then). */
+  const [webTarget, setWebTarget] = useState<string | null>(null);
+  const [webError, setWebError] = useState<string | null>(null);
 
   // What was shared is in the fields now: the cookie that brought it (app/api/share) goes.
   useEffect(() => {
@@ -70,9 +85,29 @@ export function QuickNoteForm({
     setDatabaseId("");
     setAutoVoice(false);
     setTargets({ limits: null, databases: [] });
-    const result = await quickNoteTargetsAction(id);
+    setWebTarget(null);
+    const [result, web] = await Promise.all([quickNoteTargetsAction(id), webPage ? webClipTargetsAction(id) : null]);
     // Another workspace was chosen while this one's answer was on its way.
-    if (result.ok && chosenWorkspace.current === id) setTargets(result.data);
+    if (chosenWorkspace.current !== id) return;
+    if (result.ok) setTargets(result.data);
+    if (web?.ok && webPage) setWebPage({ ...webPage, tree: web.data.tree, setup: web.data });
+  };
+
+  const webChosen = webPage ? (webTarget ?? startingTarget(webPage.tree, webPage.setup)) : "";
+  const webValid = webPage !== null && validTarget(webPage.tree, webPage.setup.topLevel, webChosen);
+
+  const saveWhole = async () => {
+    if (!webPage) return;
+    setBusy(true);
+    setWebError(null);
+    try {
+      const result = await saveWebPageAction({ workspaceId, url: webPage.url, targetId: webChosen || null, quote: webPage.quote });
+      if (!result.ok) throw new Error(result.error);
+      router.push(`/w/${workspaceId}/p/${result.data.page.id}`);
+    } catch (caught) {
+      setWebError(caught instanceof Error && caught.message ? caught.message : tc("genericError"));
+      setBusy(false);
+    }
   };
 
   const onDraft = useCallback(
@@ -139,6 +174,34 @@ export function QuickNoteForm({
             ))}
           </select>
         </label>
+      )}
+      {webPage && (
+        <div className="space-y-3 rounded-lg border border-border bg-bg-subtle p-3">
+          <div>
+            <p className="text-sm font-medium">{t("fullPage.heading")}</p>
+            <p className="mt-0.5 truncate text-xs text-fg-muted" title={webPage.url}>
+              {webPage.url}
+            </p>
+            <p className="mt-1 text-xs text-fg-muted">{t("fullPage.help")}</p>
+          </div>
+          <WebClipTargetPicker
+            tree={webPage.tree}
+            topLevel={webPage.setup.topLevel}
+            value={webChosen}
+            onChange={setWebTarget}
+            disabled={busy || recording}
+          />
+          {webError && (
+            <p role="alert" className="text-xs text-danger">
+              {webError}
+            </p>
+          )}
+          <div className="flex justify-end">
+            <Button type="button" variant="secondary" disabled={busy || recording || !webValid} onClick={() => void saveWhole()}>
+              {t("fullPage.save")}
+            </Button>
+          </div>
+        </div>
       )}
       {targets.databases.length > 0 && (
         <label className="block">
