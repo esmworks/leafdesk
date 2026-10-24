@@ -124,6 +124,13 @@ BlockNote on Yjs; Tailwind v4; next-intl. Node 24, pnpm 11. A separate Electron 
   `outputFileTracingIncludes`), PDF letterheads `letterheads.ts` (pure part in `src/lib/letterheads.ts`;
   the logo is document content kept in `pdf_letterhead`, not page decoration), backup `backup/`, SSO `sso.ts`, SCIM
   `scim.ts`, sealed secrets `secret-box.ts`.
+- **Icons.** A stored icon is an emoji or `icon:<name>[:<color>]` (`src/lib/icon-value.ts`, tiny and
+  safe anywhere; checked by `lib/icon.ts` `parseIcon` against `lib/builtin-icon-names.ts`). Show one
+  with `IconGlyph` (`components/builtin-icon.tsx`), never as raw text; text output strips it with
+  `iconText`. Drawings (`lib/builtin-icons-data.ts`, from `scripts/builtin-icons.ts`) load lazily;
+  server SVG for favicons and PDF is `lib/builtin-icon-svg.ts`. Emoji data and names per locale are
+  static files in `public/emoji/` written by `scripts/emoji-data.ts`, fetched by the picker and the
+  editor's ":" menu, never imported.
 - **Workspace sites** (`site.ts`, routes `src/app/s/`): a site on its own domain is routed by
   `server.ts` through `site-hosts.ts`, which sets the trusted `x-leafdesk-site-host` /
   `x-leafdesk-site-analytics` headers (dropped from every client request) that `proxy.ts` rewrites

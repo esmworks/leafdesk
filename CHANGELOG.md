@@ -4,6 +4,15 @@
 
 ### Added
 
+- **Built-in icons and the full emoji set.** The icon picker has two tabs: *Emoji*, every emoji
+  by category with search by name in the interface language (English as a fallback) and a skin
+  tone it remembers, and *Icons*, a few hundred line icons in nine colors that read well in light,
+  dark and high contrast, the last color picked remembered too. *Random* picks one. Built-in icons
+  show wherever icons do (sidebar, header, breadcrumbs, mentions, search, tabs, home, published
+  pages and sites, their favicons, print and PDF) and are stored as `icon:<name>:<color>`, which the
+  REST API, the MCP tools and Markdown export return as is and writes accept. The editor's ":" menu
+  also finds emoji by their names in the interface language. View tabs and properties can have
+  their own icon from the same picker. Migration `0136_icon_preferences`.
 - **Danish, Dutch, Norwegian, Finnish and Swedish.** The app, its emails, templates, the editor's
   menus and the desktop app now speak Dansk, Nederlands, Norsk bokmål, Suomi and Svenska, chosen in
   My account → Language or taken from the browser (one asking for Norwegian or Nynorsk gets

@@ -57,7 +57,9 @@ for Windows, `.AppImage` for Linux) and choose *On this computer*. See [Desktop 
 ## Features
 
 - **Pages**: nested pages, a block editor (BlockNote) with slash menu (block text and background
-  colors included) and markdown shortcuts, icons (beside the title), backgrounds (a color that suits the light and dark theme, or black, with an optional faint
+  colors included) and markdown shortcuts, icons (beside the title: an emoji, found by name in the interface language and
+  in the skin tone you last picked, or one of a few hundred built-in line icons in one of nine colors
+  that read well in light, dark and high contrast; *Random* picks one), backgrounds (a color that suits the light and dark theme, or black, with an optional faint
   pattern), favorites, duplicate, move, trash with restore (emptied after a time owners choose), archive (an outdated page, such
   as an old price list, leaves the sidebar, search, pickers and database views with the pages and rows under it, yet stays
   readable, editable and linked; a banner on it says who archived it and when, and search finds it with *Include archived*), export as Markdown or PDF (or, with
@@ -136,7 +138,7 @@ for Windows, `.AppImage` for Linux) and choose *On this computer*. See [Desktop 
   views. The `/tabs` block is a dashboard laid out as tabs: one view at a time, each named on its
   tab, for several databases (or views of one) in little room; readers get only the tabs whose
   database they can open, and published pages switch tabs in place.
-- **Buttons**: the `/button` block, with a label, an emoji and a color from the option palette
+- **Buttons**: the `/button` block, with a label, an emoji or built-in icon and a color from the option palette
   (light, dark and high contrast alike, on published pages and in print too), does a few things in order when
   someone clicks it: insert blocks written in Markdown below it or at the top or end of the page,
   add a row to a database (optionally from one of its row templates, or its default one; values the
@@ -207,6 +209,9 @@ for Windows, `.AppImage` for Linux) and choose *On this computer*. See [Desktop 
   - People who can only view a database (or a view whose settings they can't change) still filter
     and sort it for themselves: their rules replace the view's for them alone, marked *Only for
     you*, are never saved, and *Reset* brings back the view's own.
+  - A view tab (its menu → *Icon*) and a property (its menu, beside the name) can have their own
+    icon from the same picker, shown in the view bar, the table header, row pages, the sidebar and
+    published pages instead of the type's.
   - Each view with rows can leave out the rows' page icons (Layout → *Show page icons*; published
     views too), and a calendar can leave out Saturdays and Sundays (*Show weekends*, month and
     week alike): its weekdays then share the width, and rows only on a weekend are listed under it
@@ -598,7 +603,7 @@ for Windows, `.AppImage` for Linux) and choose *On this computer*. See [Desktop 
   system), put up to six links in its header (to listed pages or web addresses), give it a default
   search description (each published page can have its own, shown with the title as the meta
   description and in Open Graph and Twitter link previews), and may add a Google Analytics 4
-  measurement ID, used only on the site's own domain. The site's favicon is its home page's emoji, drawn as SVG by the server. A site
+  measurement ID, used only on the site's own domain. The site's favicon is its home page's emoji or built-in icon, drawn as SVG by the server. A site
   can also have a domain of its own (see [Workspace site on its own domain](#workspace-site-on-its-own-domain)).
   A publication can also **allow duplicate**: signed-in
   visitors copy the page, as published, into one of their workspaces (or its templates), files
@@ -3837,6 +3842,15 @@ for each, or one of the presets *Read everything* and *Read and write everything
 brings the read scope of its resource. Every endpoint needs one scope (the reference names it;
 `GET /me` takes any token), and a token without it gets `403 insufficient_scope` with the scope in
 `details.scope`:
+
+**Icons.** Pages, databases, rows, teamspaces, agents, callouts and buttons keep their icon as a
+string: an emoji as it is (`"📘"`), or a built-in line icon written `icon:<name>` or
+`icon:<name>:<color>` (`"icon:rocket:blue"`), where the color is one of `gray`, `brown`, `orange`,
+`yellow`, `green`, `blue`, `purple`, `pink` and `red` (without one it takes the text color). The
+REST API, the MCP tools and Markdown export return it unchanged, and writes accept either form; an
+unknown icon name or color is refused. The names are those of `src/lib/builtin-icon-names.ts`.
+In Markdown a callout's icon leads its text under the alert line (`> [!TIP]`, then
+`> icon:lightbulb:yellow Text`), and reads back the same way.
 
 | Scope | Endpoints |
 | --- | --- |
