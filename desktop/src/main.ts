@@ -33,7 +33,7 @@ import { showContextMenu } from "./context-menu.ts";
 import { activeShortcut, aiChatPath, defaultShortcut, SHORTCUT_OFF, shortcutChoices, workspaceIn } from "./global-shortcut.ts";
 import { hasSession, signIn, startLocalServer, type BackupResult, type LocalServer } from "./local-server.ts";
 import { buildMenu, WEBSITE } from "./menu.ts";
-import { APP_SCHEME, decideNavigation, decideNewWindow, isServerPage, signInReturn } from "./navigation.ts";
+import { APP_SCHEME, decideNavigation, decideNewWindow, isServerPage, showsFile, signInReturn } from "./navigation.ts";
 import { addressCandidates, hostOf, isLeafdeskManifest } from "./server-address.ts";
 import { loadSettings, saveSettings, type Settings } from "./settings.ts";
 import { direction, isLocale, pickLocale, STRINGS, type Locale } from "./strings.ts";
@@ -299,14 +299,15 @@ function reportBackup(result: BackupResult) {
   lastBackupProblem = problem;
 }
 
-function webPreferences(): WebPreferences {
+/** `inset`: the window's buttons sit over the page (titleBar), which the page is told. */
+function webPreferences(inset = INSET_WINDOW_CONTROLS): WebPreferences {
   return {
     preload: PRELOAD,
     contextIsolation: true,
     sandbox: true,
     nodeIntegration: false,
     spellcheck: true,
-    additionalArguments: INSET_WINDOW_CONTROLS ? ["--leafdesk-window-controls=inset"] : [],
+    additionalArguments: inset ? ["--leafdesk-window-controls=inset"] : [],
   };
 }
 
@@ -526,14 +527,15 @@ function guard(contents: WebContents) {
   contents.setWindowOpenHandler(({ url }) => {
     const decision = decideNewWindow(url, currentOrigin());
     if (decision === "window") {
+      const file = showsFile(url);
       return {
         action: "allow",
         overrideBrowserWindowOptions: {
           width: 1100,
           height: 800,
           backgroundColor: nativeTheme.shouldUseDarkColors ? BACKGROUND.dark : BACKGROUND.light,
-          ...titleBar(),
-          webPreferences: webPreferences(),
+          ...(file ? {} : titleBar()),
+          webPreferences: webPreferences(INSET_WINDOW_CONTROLS && !file),
         },
       };
     }

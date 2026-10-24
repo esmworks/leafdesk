@@ -59,6 +59,16 @@ export function decideNewWindow(target: string, server: string | undefined): New
   return EXTERNAL_SCHEMES.has(url.protocol) ? "external" : "deny";
 }
 
+/**
+ * Whether a new window of the server's shows one of its files (a PDF, an image, an export) rather
+ * than a Leafdesk page: everything under `/api/`. Such a window keeps the system's title bar, since
+ * the browser's own viewer neither leaves room for the window's buttons nor gives a strip to move
+ * the window by.
+ */
+export function showsFile(target: string) {
+  return parse(target)?.pathname.startsWith("/api/") ?? false;
+}
+
 /** Whether a page belongs to the connected server, for permissions it asks for. */
 export function isServerPage(url: string | undefined, server: string | undefined) {
   if (!url || !server) return false;
