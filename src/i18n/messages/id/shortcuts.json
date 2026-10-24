@@ -49,6 +49,7 @@
     "moveBar": "Geser batang linimasa satu hari",
     "saveFormula": "Simpan rumus atau prompt isi otomatis AI",
     "clearSelection": "Hapus pilihan baris",
+    "fillDown": "Isi sel tabel yang dipilih ke bawah dari sel teratas (jika sel dari satu baris dipilih: duplikat barisnya)",
     "rowDuplicate": "Duplikat baris (menunya terbuka di tabel)",
     "rowMoveTo": "Pindahkan baris ke tempat lain (menunya terbuka)",
     "rowComment": "Komentari baris (menunya terbuka)",

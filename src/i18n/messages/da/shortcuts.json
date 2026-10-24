@@ -49,6 +49,7 @@
     "moveBar": "Flyt en bjælke på tidslinjen en dag",
     "saveFormula": "Gem en formel eller en AI-autoudfyldningsprompt",
     "clearSelection": "Ryd markeringen af rækker",
+    "fillDown": "Udfyld de markerede tabelceller nedad fra de øverste (med celler fra én række markeret: duplikér den)",
     "rowDuplicate": "Duplikér rækken (med dens menu åben i en tabel)",
     "rowMoveTo": "Flyt rækken et andet sted hen (med dens menu åben)",
     "rowComment": "Kommentér rækken (med dens menu åben)",

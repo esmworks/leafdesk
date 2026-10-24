@@ -76,6 +76,10 @@
       "blank": "שורה ריקה",
       "setDefault": "שימוש עבור “חדש”",
       "isDefault": "בשימוש עבור “חדש”",
+      "isViewDefault": "בשימוש עבור “חדש” בתצוגה זו",
+      "forThisView": "לתצוגה זו",
+      "forAllViews": "לכל התצוגות",
+      "followAllViews": "שימוש כאן בברירת המחדל של כל התצוגות",
       "edit": "עריכת התבנית",
       "delete": "מחיקת התבנית",
       "confirmDelete": "למחוק את תבנית השורה הזו לצמיתות? שורות שכבר נוצרו ממנה יישארו כפי שהן.",
@@ -225,7 +229,14 @@
     "relative": {
       "today": "היום",
       "thisWeek": "השבוע",
+      "lastWeek": "השבוע שעבר",
+      "nextWeek": "השבוע הבא",
       "thisMonth": "החודש",
+      "lastMonth": "החודש שעבר",
+      "nextMonth": "החודש הבא",
+      "thisYear": "השנה",
+      "lastYear": "השנה שעברה",
+      "nextYear": "השנה הבאה",
       "pastNDays": "N הימים האחרונים",
       "nextNDays": "N הימים הבאים",
       "pastDays": "{count, plural, one {היום האחרון} two {היומיים האחרונים} other {# הימים האחרונים}}",
@@ -253,7 +264,8 @@
     "clickForMenu": "לחצו כדי לפתוח את התפריט",
     "sortedNoDrag": "אי אפשר לגרור שורות כשהתצוגה ממוינת",
     "sortedAscending": "ממוין בסדר עולה",
-    "sortedDescending": "ממוין בסדר יורד"
+    "sortedDescending": "ממוין בסדר יורד",
+    "fillHandle": "גררו למעלה או למטה כדי למלא את התאים בערך הזה"
   },
   "rowMenu": {
     "open": "פתיחה",
@@ -773,6 +785,7 @@
     "showTable": "הצגת טבלה",
     "showWeekends": "הצגת סופי שבוע",
     "showIcons": "הצגת סמלי דפים",
+    "showVerticalLines": "הצגת קווים אנכיים",
     "openRows": "פתיחת שורות ב־",
     "openRowsIn": {
       "panel": "חלונית צד",

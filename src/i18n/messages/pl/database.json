@@ -76,6 +76,10 @@
       "blank": "Pusty wiersz",
       "setDefault": "Używaj dla „Nowy”",
       "isDefault": "Używany dla „Nowy”",
+      "isViewDefault": "Używany dla „Nowy” w tym widoku",
+      "forThisView": "Dla tego widoku",
+      "forAllViews": "Dla wszystkich widoków",
+      "followAllViews": "Użyj tu domyślnego dla wszystkich widoków",
       "edit": "Edytuj szablon",
       "delete": "Usuń szablon",
       "confirmDelete": "Usunąć ten szablon wiersza na stałe? Wiersze już z niego utworzone pozostaną bez zmian.",
@@ -225,7 +229,14 @@
     "relative": {
       "today": "Dzisiaj",
       "thisWeek": "Ten tydzień",
+      "lastWeek": "Poprzedni tydzień",
+      "nextWeek": "Następny tydzień",
       "thisMonth": "Ten miesiąc",
+      "lastMonth": "Poprzedni miesiąc",
+      "nextMonth": "Następny miesiąc",
+      "thisYear": "Ten rok",
+      "lastYear": "Poprzedni rok",
+      "nextYear": "Następny rok",
       "pastNDays": "Ostatnie N dni",
       "nextNDays": "Następne N dni",
       "pastDays": "{count, plural, one {Ostatni dzień} few {Ostatnie # dni} many {Ostatnie # dni} other {Ostatnie # dnia}}",
@@ -253,7 +264,8 @@
     "clickForMenu": "Kliknij, aby otworzyć menu",
     "sortedNoDrag": "Wierszy nie można przeciągać, gdy widok jest posortowany",
     "sortedAscending": "Posortowano rosnąco",
-    "sortedDescending": "Posortowano malejąco"
+    "sortedDescending": "Posortowano malejąco",
+    "fillHandle": "Przeciągnij w górę lub w dół, aby wypełnić komórki tą wartością"
   },
   "rowMenu": {
     "open": "Otwórz",
@@ -773,6 +785,7 @@
     "showTable": "Pokaż tabelę",
     "showWeekends": "Pokazuj weekendy",
     "showIcons": "Pokazuj ikony stron",
+    "showVerticalLines": "Pokazuj linie pionowe",
     "openRows": "Otwieraj wiersze w",
     "openRowsIn": {
       "panel": "Panel boczny",

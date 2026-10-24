@@ -49,6 +49,7 @@
     "moveBar": "Zaman çizelgesindeki çubuğu bir gün kaydır",
     "saveFormula": "Formülü veya yapay zekâyla doldurma istemini kaydet",
     "clearSelection": "Satır seçimini kaldır",
+    "fillDown": "Seçili tablo hücrelerini en üsttekilerden aşağı doğru doldur (tek satırın hücreleri seçiliyse satırın kopyasını oluştur)",
     "rowDuplicate": "Satırın kopyasını oluştur (tabloda menüsü açıkken)",
     "rowMoveTo": "Satırı başka yere taşı (menüsü açıkken)",
     "rowComment": "Satıra yorum yap (menüsü açıkken)",

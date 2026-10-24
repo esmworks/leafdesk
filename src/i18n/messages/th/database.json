@@ -76,6 +76,10 @@
       "blank": "แถวว่าง",
       "setDefault": "ใช้กับ “ใหม่”",
       "isDefault": "ใช้กับ “ใหม่”",
+      "isViewDefault": "ใช้กับ “ใหม่” ในมุมมองนี้",
+      "forThisView": "สำหรับมุมมองนี้",
+      "forAllViews": "สำหรับทุกมุมมอง",
+      "followAllViews": "ใช้ค่าเริ่มต้นของทุกมุมมองที่นี่",
       "edit": "แก้ไขเทมเพลต",
       "delete": "ลบเทมเพลต",
       "confirmDelete": "ลบเทมเพลตแถวนี้ถาวรหรือไม่ แถวที่สร้างจากเทมเพลตนี้แล้วจะคงอยู่ตามเดิม",
@@ -225,7 +229,14 @@
     "relative": {
       "today": "วันนี้",
       "thisWeek": "สัปดาห์นี้",
+      "lastWeek": "สัปดาห์ที่แล้ว",
+      "nextWeek": "สัปดาห์หน้า",
       "thisMonth": "เดือนนี้",
+      "lastMonth": "เดือนที่แล้ว",
+      "nextMonth": "เดือนหน้า",
+      "thisYear": "ปีนี้",
+      "lastYear": "ปีที่แล้ว",
+      "nextYear": "ปีหน้า",
       "pastNDays": "N วันที่ผ่านมา",
       "nextNDays": "N วันข้างหน้า",
       "pastDays": "{count, plural, other {# วันที่ผ่านมา}}",
@@ -253,7 +264,8 @@
     "clickForMenu": "คลิกเพื่อเปิดเมนู",
     "sortedNoDrag": "ลากแถวไม่ได้ขณะที่มุมมองเรียงลำดับอยู่",
     "sortedAscending": "เรียงจากน้อยไปมาก",
-    "sortedDescending": "เรียงจากมากไปน้อย"
+    "sortedDescending": "เรียงจากมากไปน้อย",
+    "fillHandle": "ลากขึ้นหรือลงเพื่อเติมค่านี้ลงในเซลล์"
   },
   "rowMenu": {
     "open": "เปิด",
@@ -773,6 +785,7 @@
     "showTable": "แสดงตาราง",
     "showWeekends": "แสดงวันหยุดสุดสัปดาห์",
     "showIcons": "แสดงไอคอนของหน้า",
+    "showVerticalLines": "แสดงเส้นแนวตั้ง",
     "openRows": "เปิดแถวใน",
     "openRowsIn": {
       "panel": "แผงด้านข้าง",

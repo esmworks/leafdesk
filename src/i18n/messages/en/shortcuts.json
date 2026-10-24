@@ -49,6 +49,7 @@
     "moveBar": "Move a timeline bar by a day",
     "saveFormula": "Save a formula or an AI autofill prompt",
     "clearSelection": "Clear the row selection",
+    "fillDown": "Fill the selected table cells down from the top ones (with one row’s cells selected, duplicate it)",
     "rowDuplicate": "Duplicate the row (its menu open in a table)",
     "rowMoveTo": "Move the row elsewhere (its menu open)",
     "rowComment": "Comment on the row (its menu open)",

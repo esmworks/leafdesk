@@ -76,6 +76,10 @@
       "blank": "Empty row",
       "setDefault": "Use for “New”",
       "isDefault": "Used for “New”",
+      "isViewDefault": "Used for “New” in this view",
+      "forThisView": "For this view",
+      "forAllViews": "For all views",
+      "followAllViews": "Use the default of all views here",
       "edit": "Edit template",
       "delete": "Delete template",
       "confirmDelete": "Delete this row template for good? Rows already made from it stay as they are.",
@@ -225,7 +229,14 @@
     "relative": {
       "today": "Today",
       "thisWeek": "This week",
+      "lastWeek": "Last week",
+      "nextWeek": "Next week",
       "thisMonth": "This month",
+      "lastMonth": "Last month",
+      "nextMonth": "Next month",
+      "thisYear": "This year",
+      "lastYear": "Last year",
+      "nextYear": "Next year",
       "pastNDays": "Past N days",
       "nextNDays": "Next N days",
       "pastDays": "{count, plural, one {Past day} other {Past # days}}",
@@ -253,7 +264,8 @@
     "clickForMenu": "Click to open menu",
     "sortedNoDrag": "Rows can't be dragged while the view is sorted",
     "sortedAscending": "Sorted ascending",
-    "sortedDescending": "Sorted descending"
+    "sortedDescending": "Sorted descending",
+    "fillHandle": "Drag up or down to fill the cells with this value"
   },
   "rowMenu": {
     "open": "Open",
@@ -773,6 +785,7 @@
     "showTable": "Show table",
     "showWeekends": "Show weekends",
     "showIcons": "Show page icons",
+    "showVerticalLines": "Show vertical lines",
     "openRows": "Open rows in",
     "openRowsIn": {
       "panel": "Side panel",

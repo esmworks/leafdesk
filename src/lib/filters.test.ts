@@ -134,6 +134,51 @@ describe("relative date filters", () => {
     expect(relativeDateRange("this_month", undefined, new Date(2028, 1, 10))).toEqual({ start: "2028-02-01", end: "2028-02-29" });
   });
 
+  it("computes the weeks, months and years before and after the current one", () => {
+    // WEDNESDAY is 2026-09-30.
+    expect(relativeDateRange("last_week", undefined, WEDNESDAY)).toEqual({ start: "2026-09-21", end: "2026-09-27" });
+    expect(relativeDateRange("next_week", undefined, WEDNESDAY)).toEqual({ start: "2026-10-05", end: "2026-10-11" });
+    expect(relativeDateRange("last_month", undefined, WEDNESDAY)).toEqual({ start: "2026-08-01", end: "2026-08-31" });
+    expect(relativeDateRange("next_month", undefined, WEDNESDAY)).toEqual({ start: "2026-10-01", end: "2026-10-31" });
+    expect(relativeDateRange("this_year", undefined, WEDNESDAY)).toEqual({ start: "2026-01-01", end: "2026-12-31" });
+    expect(relativeDateRange("last_year", undefined, WEDNESDAY)).toEqual({ start: "2025-01-01", end: "2025-12-31" });
+    expect(relativeDateRange("next_year", undefined, WEDNESDAY)).toEqual({ start: "2027-01-01", end: "2027-12-31" });
+  });
+
+  it("keeps whole weeks, months and years across their edges", () => {
+    // Weeks across New Year, from a Sunday and from a Monday.
+    const sunday = new Date(2027, 0, 3, 23, 59);
+    expect(relativeDateRange("last_week", undefined, sunday)).toEqual({ start: "2026-12-21", end: "2026-12-27" });
+    expect(relativeDateRange("next_week", undefined, sunday)).toEqual({ start: "2027-01-04", end: "2027-01-10" });
+    const monday = new Date(2026, 11, 28, 0, 1);
+    expect(relativeDateRange("next_week", undefined, monday)).toEqual({ start: "2027-01-04", end: "2027-01-10" });
+    // February, in a leap year and not, and months across years.
+    expect(relativeDateRange("last_month", undefined, new Date(2028, 2, 31))).toEqual({ start: "2028-02-01", end: "2028-02-29" });
+    expect(relativeDateRange("last_month", undefined, new Date(2027, 2, 1))).toEqual({ start: "2027-02-01", end: "2027-02-28" });
+    expect(relativeDateRange("next_month", undefined, new Date(2027, 0, 31))).toEqual({ start: "2027-02-01", end: "2027-02-28" });
+    expect(relativeDateRange("last_month", undefined, new Date(2027, 0, 15))).toEqual({ start: "2026-12-01", end: "2026-12-31" });
+    expect(relativeDateRange("next_month", undefined, new Date(2026, 11, 15))).toEqual({ start: "2027-01-01", end: "2027-01-31" });
+    expect(relativeDateRange("next_year", undefined, new Date(2027, 11, 31, 23))).toEqual({ start: "2028-01-01", end: "2028-12-31" });
+    // The day is the one in the time zone: New Year's Eve 22:30 UTC is already 2027 in Istanbul.
+    const eve = new Date("2026-12-31T22:30:00Z");
+    expect(relativeDateRange("this_year", undefined, eve, "Europe/Istanbul")).toEqual({ start: "2027-01-01", end: "2027-12-31" });
+    expect(relativeDateRange("last_year", undefined, eve, "Europe/Istanbul")).toEqual({ start: "2026-01-01", end: "2026-12-31" });
+    expect(relativeDateRange("last_month", undefined, eve, "Europe/Istanbul")).toEqual({ start: "2026-12-01", end: "2026-12-31" });
+    expect(relativeDateRange("last_month", undefined, eve, "America/Los_Angeles")).toEqual({ start: "2026-11-01", end: "2026-11-30" });
+    expect(relativeDateRange("next_week", undefined, eve, "Europe/Istanbul")).toEqual({ start: "2027-01-04", end: "2027-01-10" });
+  });
+
+  it("filters rows by the weeks, months and years around today", () => {
+    const list = dated("2026-08-31", "2026-09-01", "2026-09-27", "2026-09-28", "2026-10-11", "2026-10-12", "2025-12-31", "2027-01-01");
+    expect(matching(within("last_week"), list)).toEqual(["2026-09-27"]);
+    expect(matching(within("next_week"), list)).toEqual(["2026-10-11"]);
+    expect(matching(within("last_month"), list)).toEqual(["2026-08-31"]);
+    expect(matching(within("next_month"), list)).toEqual(["2026-10-11", "2026-10-12"]);
+    expect(matching(within("last_year"), list)).toEqual(["2025-12-31"]);
+    expect(matching(within("next_year"), list)).toEqual(["2027-01-01"]);
+    expect(filterConfigError({ filters: [within("next_year")] })).toBeNull();
+  });
+
   it("rejects unknown ranges and bad day counts", () => {
     expect(relativeDateRange("yesterday", undefined, WEDNESDAY)).toBeNull();
     expect(relativeDateRange("past_n_days", undefined, WEDNESDAY)).toBeNull();

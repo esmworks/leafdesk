@@ -76,6 +76,10 @@
       "blank": "Hàng trống",
       "setDefault": "Dùng cho “Mới”",
       "isDefault": "Đang dùng cho “Mới”",
+      "isViewDefault": "Đang dùng cho “Mới” trong chế độ xem này",
+      "forThisView": "Cho chế độ xem này",
+      "forAllViews": "Cho mọi chế độ xem",
+      "followAllViews": "Dùng mặc định của mọi chế độ xem ở đây",
       "edit": "Chỉnh sửa mẫu",
       "delete": "Xóa mẫu",
       "confirmDelete": "Xóa vĩnh viễn mẫu hàng này? Các hàng đã tạo từ nó vẫn giữ nguyên.",
@@ -225,7 +229,14 @@
     "relative": {
       "today": "Hôm nay",
       "thisWeek": "Tuần này",
+      "lastWeek": "Tuần trước",
+      "nextWeek": "Tuần sau",
       "thisMonth": "Tháng này",
+      "lastMonth": "Tháng trước",
+      "nextMonth": "Tháng sau",
+      "thisYear": "Năm nay",
+      "lastYear": "Năm ngoái",
+      "nextYear": "Năm sau",
       "pastNDays": "N ngày qua",
       "nextNDays": "N ngày tới",
       "pastDays": "{count, plural, other {# ngày qua}}",
@@ -253,7 +264,8 @@
     "clickForMenu": "Nhấp để mở menu",
     "sortedNoDrag": "Không thể kéo các hàng khi chế độ xem đang được sắp xếp",
     "sortedAscending": "Đã sắp xếp tăng dần",
-    "sortedDescending": "Đã sắp xếp giảm dần"
+    "sortedDescending": "Đã sắp xếp giảm dần",
+    "fillHandle": "Kéo lên hoặc xuống để điền giá trị này vào các ô"
   },
   "rowMenu": {
     "open": "Mở",
@@ -773,6 +785,7 @@
     "showTable": "Hiện bảng",
     "showWeekends": "Hiện cuối tuần",
     "showIcons": "Hiện biểu tượng trang",
+    "showVerticalLines": "Hiện đường kẻ dọc",
     "openRows": "Mở các hàng trong",
     "openRowsIn": {
       "panel": "Bảng bên",

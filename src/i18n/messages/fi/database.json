@@ -76,6 +76,10 @@
       "blank": "Tyhjä rivi",
       "setDefault": "Käytä ”Uusi”-painikkeelle",
       "isDefault": "Käytössä ”Uusi”-painikkeella",
+      "isViewDefault": "Käytössä ”Uusi”-painikkeella tässä näkymässä",
+      "forThisView": "Tähän näkymään",
+      "forAllViews": "Kaikkiin näkymiin",
+      "followAllViews": "Käytä tässä kaikkien näkymien oletusta",
       "edit": "Muokkaa mallia",
       "delete": "Poista malli",
       "confirmDelete": "Poistetaanko tämä rivimalli pysyvästi? Siitä jo luodut rivit säilyvät ennallaan.",
@@ -225,7 +229,14 @@
     "relative": {
       "today": "Tänään",
       "thisWeek": "Tällä viikolla",
+      "lastWeek": "Viime viikolla",
+      "nextWeek": "Ensi viikolla",
       "thisMonth": "Tässä kuussa",
+      "lastMonth": "Viime kuussa",
+      "nextMonth": "Ensi kuussa",
+      "thisYear": "Tänä vuonna",
+      "lastYear": "Viime vuonna",
+      "nextYear": "Ensi vuonna",
       "pastNDays": "Viimeiset N päivää",
       "nextNDays": "Seuraavat N päivää",
       "pastDays": "{count, plural, one {Edellinen päivä} other {Viimeiset # päivää}}",
@@ -253,7 +264,8 @@
     "clickForMenu": "Avaa valikko napsauttamalla",
     "sortedNoDrag": "Rivejä ei voi vetää, kun näkymä on lajiteltu",
     "sortedAscending": "Lajiteltu nousevasti",
-    "sortedDescending": "Lajiteltu laskevasti"
+    "sortedDescending": "Lajiteltu laskevasti",
+    "fillHandle": "Täytä solut tällä arvolla vetämällä ylös tai alas"
   },
   "rowMenu": {
     "open": "Avaa",
@@ -773,6 +785,7 @@
     "showTable": "Näytä taulukko",
     "showWeekends": "Näytä viikonloput",
     "showIcons": "Näytä sivujen kuvakkeet",
+    "showVerticalLines": "Näytä pystyviivat",
     "openRows": "Avaa rivit kohteessa",
     "openRowsIn": {
       "panel": "Sivupaneeli",

@@ -76,6 +76,10 @@
       "blank": "Riga vuota",
       "setDefault": "Usa per “Nuovo”",
       "isDefault": "Usato per “Nuovo”",
+      "isViewDefault": "Usato per “Nuovo” in questa vista",
+      "forThisView": "Per questa vista",
+      "forAllViews": "Per tutte le viste",
+      "followAllViews": "Usa qui quello di tutte le viste",
       "edit": "Modifica modello",
       "delete": "Elimina modello",
       "confirmDelete": "Eliminare definitivamente questo modello di riga? Le righe già create da esso restano come sono.",
@@ -225,7 +229,14 @@
     "relative": {
       "today": "Oggi",
       "thisWeek": "Questa settimana",
+      "lastWeek": "La settimana scorsa",
+      "nextWeek": "La settimana prossima",
       "thisMonth": "Questo mese",
+      "lastMonth": "Il mese scorso",
+      "nextMonth": "Il mese prossimo",
+      "thisYear": "Quest’anno",
+      "lastYear": "L’anno scorso",
+      "nextYear": "L’anno prossimo",
       "pastNDays": "Ultimi N giorni",
       "nextNDays": "Prossimi N giorni",
       "pastDays": "{count, plural, one {Ultimo giorno} other {Ultimi # giorni}}",
@@ -253,7 +264,8 @@
     "clickForMenu": "Fai clic per aprire il menu",
     "sortedNoDrag": "Le righe non si possono trascinare mentre la vista è ordinata",
     "sortedAscending": "Ordinata in modo crescente",
-    "sortedDescending": "Ordinata in modo decrescente"
+    "sortedDescending": "Ordinata in modo decrescente",
+    "fillHandle": "Trascina in su o in giù per riempire le celle con questo valore"
   },
   "rowMenu": {
     "open": "Apri",
@@ -773,6 +785,7 @@
     "showTable": "Mostra tabella",
     "showWeekends": "Mostra i fine settimana",
     "showIcons": "Mostra le icone delle pagine",
+    "showVerticalLines": "Mostra le linee verticali",
     "openRows": "Apri le righe in",
     "openRowsIn": {
       "panel": "Pannello laterale",

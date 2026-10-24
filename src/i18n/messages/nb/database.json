@@ -76,6 +76,10 @@
       "blank": "Tom rad",
       "setDefault": "Bruk for «Ny»",
       "isDefault": "Brukes for «Ny»",
+      "isViewDefault": "Brukes for «Ny» i denne visningen",
+      "forThisView": "For denne visningen",
+      "forAllViews": "For alle visninger",
+      "followAllViews": "Bruk standarden for alle visninger her",
       "edit": "Rediger mal",
       "delete": "Slett mal",
       "confirmDelete": "Vil du slette denne radmalen permanent? Rader som allerede er laget fra den, forblir som de er.",
@@ -225,7 +229,14 @@
     "relative": {
       "today": "I dag",
       "thisWeek": "Denne uken",
+      "lastWeek": "Forrige uke",
+      "nextWeek": "Neste uke",
       "thisMonth": "Denne måneden",
+      "lastMonth": "Forrige måned",
+      "nextMonth": "Neste måned",
+      "thisYear": "I år",
+      "lastYear": "I fjor",
+      "nextYear": "Neste år",
       "pastNDays": "Siste N dager",
       "nextNDays": "Neste N dager",
       "pastDays": "{count, plural, one {Siste dag} other {Siste # dager}}",
@@ -253,7 +264,8 @@
     "clickForMenu": "Klikk for å åpne menyen",
     "sortedNoDrag": "Rader kan ikke dras mens visningen er sortert",
     "sortedAscending": "Sortert stigende",
-    "sortedDescending": "Sortert synkende"
+    "sortedDescending": "Sortert synkende",
+    "fillHandle": "Dra opp eller ned for å fylle cellene med denne verdien"
   },
   "rowMenu": {
     "open": "Åpne",
@@ -773,6 +785,7 @@
     "showTable": "Vis tabell",
     "showWeekends": "Vis helger",
     "showIcons": "Vis sideikoner",
+    "showVerticalLines": "Vis loddrette linjer",
     "openRows": "Åpne rader i",
     "openRowsIn": {
       "panel": "Sidepanel",

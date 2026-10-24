@@ -49,6 +49,7 @@
     "moveBar": "Zeitleistenbalken um einen Tag verschieben",
     "saveFormula": "Formel oder KI-Autofill-Anweisung speichern",
     "clearSelection": "Zeilenauswahl aufheben",
+    "fillDown": "Ausgewählte Tabellenzellen von den obersten aus nach unten füllen (bei Zellen einer einzigen Zeile: Zeile duplizieren)",
     "rowDuplicate": "Zeile duplizieren (ihr Menü in einer Tabelle geöffnet)",
     "rowMoveTo": "Zeile verschieben (ihr Menü geöffnet)",
     "rowComment": "Zeile kommentieren (ihr Menü geöffnet)",

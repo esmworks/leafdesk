@@ -49,6 +49,7 @@
     "moveBar": "Mover uma barra da linha do tempo em um dia",
     "saveFormula": "Salvar uma fórmula ou um prompt de preenchimento automático com IA",
     "clearSelection": "Limpar a seleção de linhas",
+    "fillDown": "Preencher para baixo as células selecionadas da tabela a partir das de cima (com células de uma só linha: duplicá-la)",
     "rowDuplicate": "Duplicar a linha (com o menu dela aberto numa tabela)",
     "rowMoveTo": "Mover a linha para outro lugar (com o menu aberto)",
     "rowComment": "Comentar a linha (com o menu aberto)",

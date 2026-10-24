@@ -14,7 +14,7 @@ import { markdownReferences } from "@/lib/embed-blocks";
 import { env } from "@/lib/env";
 import { asFiles, blockTypeFor } from "@/lib/files";
 import { parseIcon } from "@/lib/icon";
-import { FILTER_COMBINATORS, MAX_FILTER_DEPTH, MAX_RELATIVE_DAYS, RELATIVE_DATE_RANGES } from "@/lib/filters";
+import { FILTER_COMBINATORS, MAX_FILTER_DEPTH, MAX_RELATIVE_DAYS } from "@/lib/filters";
 import { pageLabel } from "@/lib/labels";
 import { diffToText, wordsToText } from "@/lib/page-diff";
 import { isPageLocked, PAGE_LOCKED_MESSAGE } from "@/lib/page-lock";
@@ -125,11 +125,11 @@ const filterRule = (described: boolean) => {
     op: z.enum(FILTER_OPS),
     value: text(
       z.union([z.string(), z.number(), z.boolean(), z.array(z.string()).min(1)]).optional(),
-      `Value to compare; omit for is_empty / is_not_empty. is_within: ${RELATIVE_DATE_RANGES.join(", ")}. is_any_of / is_none_of: option names, people or related rows.`,
+      "Value to compare; omit for is_empty / is_not_empty. is_within: today, {this,last,next}_{week,month,year}, {past,next}_n_days. is_any_of / is_none_of: option names, people or related rows.",
     ),
     days: text(
       z.number().int().min(1).max(MAX_RELATIVE_DAYS).optional(),
-      "is_within with past_n_days / next_n_days: days back or ahead of today.",
+      "is_within {past,next}_n_days: days back or ahead of today.",
     ),
   });
 };

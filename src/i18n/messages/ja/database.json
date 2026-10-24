@@ -76,6 +76,10 @@
       "blank": "空の行",
       "setDefault": "「新規」で使用",
       "isDefault": "「新規」で使用中",
+      "isViewDefault": "このビューで「新規」に使用中",
+      "forThisView": "このビュー用",
+      "forAllViews": "すべてのビュー用",
+      "followAllViews": "ここではすべてのビューの既定を使う",
       "edit": "テンプレートを編集",
       "delete": "テンプレートを削除",
       "confirmDelete": "この行テンプレートを完全に削除しますか？このテンプレートから作成済みの行はそのまま残ります。",
@@ -225,7 +229,14 @@
     "relative": {
       "today": "今日",
       "thisWeek": "今週",
+      "lastWeek": "先週",
+      "nextWeek": "来週",
       "thisMonth": "今月",
+      "lastMonth": "先月",
+      "nextMonth": "来月",
+      "thisYear": "今年",
+      "lastYear": "昨年",
+      "nextYear": "来年",
       "pastNDays": "過去N日間",
       "nextNDays": "今後N日間",
       "pastDays": "過去{count}日間",
@@ -253,7 +264,8 @@
     "clickForMenu": "クリックしてメニューを開く",
     "sortedNoDrag": "ビューが並べ替えられている間は行をドラッグできません",
     "sortedAscending": "昇順で並べ替え済み",
-    "sortedDescending": "降順で並べ替え済み"
+    "sortedDescending": "降順で並べ替え済み",
+    "fillHandle": "上下にドラッグして、この値でセルを埋める"
   },
   "rowMenu": {
     "open": "開く",
@@ -773,6 +785,7 @@
     "showTable": "テーブルを表示",
     "showWeekends": "週末を表示",
     "showIcons": "ページアイコンを表示",
+    "showVerticalLines": "縦線を表示",
     "openRows": "行を開く場所",
     "openRowsIn": {
       "panel": "サイドパネル",

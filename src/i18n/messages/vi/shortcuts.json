@@ -49,6 +49,7 @@
     "moveBar": "Dời một thanh trên dòng thời gian đi một ngày",
     "saveFormula": "Lưu một công thức hoặc lời nhắc tự điền bằng AI",
     "clearSelection": "Bỏ chọn các hàng",
+    "fillDown": "Điền xuống các ô đã chọn trong bảng từ các ô trên cùng (khi chọn các ô của một hàng: nhân đôi hàng)",
     "rowDuplicate": "Nhân đôi hàng (khi menu của hàng đang mở trong bảng)",
     "rowMoveTo": "Chuyển hàng đi nơi khác (khi menu của hàng đang mở)",
     "rowComment": "Bình luận về hàng (khi menu của hàng đang mở)",

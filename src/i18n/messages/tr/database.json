@@ -76,6 +76,10 @@
       "blank": "Boş satır",
       "setDefault": "“Yeni” için kullan",
       "isDefault": "“Yeni” için kullanılıyor",
+      "isViewDefault": "Bu görünümde “Yeni” için kullanılıyor",
+      "forThisView": "Bu görünüm için",
+      "forAllViews": "Tüm görünümler için",
+      "followAllViews": "Burada tüm görünümlerinkini kullan",
       "edit": "Şablonu düzenle",
       "delete": "Şablonu sil",
       "confirmDelete": "Bu satır şablonu kalıcı olarak silinsin mi? Ondan oluşturulmuş satırlar olduğu gibi kalır.",
@@ -225,7 +229,14 @@
     "relative": {
       "today": "Bugün",
       "thisWeek": "Bu hafta",
+      "lastWeek": "Geçen hafta",
+      "nextWeek": "Gelecek hafta",
       "thisMonth": "Bu ay",
+      "lastMonth": "Geçen ay",
+      "nextMonth": "Gelecek ay",
+      "thisYear": "Bu yıl",
+      "lastYear": "Geçen yıl",
+      "nextYear": "Gelecek yıl",
       "pastNDays": "Son N gün",
       "nextNDays": "Önümüzdeki N gün",
       "pastDays": "Son {count} gün",
@@ -253,7 +264,8 @@
     "clickForMenu": "Menüyü açmak için tıklayın",
     "sortedNoDrag": "Görünüm sıralıyken satırlar sürüklenemez",
     "sortedAscending": "Artan sıralı",
-    "sortedDescending": "Azalan sıralı"
+    "sortedDescending": "Azalan sıralı",
+    "fillHandle": "Hücreleri bu değerle doldurmak için yukarı ya da aşağı sürükleyin"
   },
   "rowMenu": {
     "open": "Aç",
@@ -773,6 +785,7 @@
     "showTable": "Tabloyu göster",
     "showWeekends": "Hafta sonlarını göster",
     "showIcons": "Sayfa simgelerini göster",
+    "showVerticalLines": "Dikey çizgileri göster",
     "openRows": "Satırları aç",
     "openRowsIn": {
       "panel": "Yan panelde",

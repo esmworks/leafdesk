@@ -76,6 +76,10 @@
       "blank": "Fila vacía",
       "setDefault": "Usar para “Nuevo”",
       "isDefault": "Se usa para “Nuevo”",
+      "isViewDefault": "Se usa para “Nuevo” en esta vista",
+      "forThisView": "Para esta vista",
+      "forAllViews": "Para todas las vistas",
+      "followAllViews": "Usar aquí el predeterminado de todas las vistas",
       "edit": "Editar plantilla",
       "delete": "Eliminar plantilla",
       "confirmDelete": "¿Eliminar esta plantilla de fila para siempre? Las filas ya creadas a partir de ella se quedan como están.",
@@ -225,7 +229,14 @@
     "relative": {
       "today": "Hoy",
       "thisWeek": "Esta semana",
+      "lastWeek": "La semana pasada",
+      "nextWeek": "La semana que viene",
       "thisMonth": "Este mes",
+      "lastMonth": "El mes pasado",
+      "nextMonth": "El mes que viene",
+      "thisYear": "Este año",
+      "lastYear": "El año pasado",
+      "nextYear": "El año que viene",
       "pastNDays": "Últimos N días",
       "nextNDays": "Próximos N días",
       "pastDays": "{count, plural, one {Último día} other {Últimos # días}}",
@@ -253,7 +264,8 @@
     "clickForMenu": "Haz clic para abrir el menú",
     "sortedNoDrag": "Las filas no se pueden arrastrar mientras la vista está ordenada",
     "sortedAscending": "Orden ascendente",
-    "sortedDescending": "Orden descendente"
+    "sortedDescending": "Orden descendente",
+    "fillHandle": "Arrastra hacia arriba o hacia abajo para llenar las celdas con este valor"
   },
   "rowMenu": {
     "open": "Abrir",
@@ -773,6 +785,7 @@
     "showTable": "Mostrar tabla",
     "showWeekends": "Mostrar fines de semana",
     "showIcons": "Mostrar iconos de página",
+    "showVerticalLines": "Mostrar líneas verticales",
     "openRows": "Abrir filas en",
     "openRowsIn": {
       "panel": "Panel lateral",

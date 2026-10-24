@@ -49,6 +49,7 @@
     "moveBar": "Een tijdlijnbalk een dag verschuiven",
     "saveFormula": "Een formule of AI-invulprompt opslaan",
     "clearSelection": "De rijselectie wissen",
+    "fillDown": "De geselecteerde tabelcellen omlaag vullen vanaf de bovenste (met cellen van één rij geselecteerd: de rij dupliceren)",
     "rowDuplicate": "De rij dupliceren (met het rijmenu open in een tabel)",
     "rowMoveTo": "De rij ergens anders heen verplaatsen (met het rijmenu open)",
     "rowComment": "Een opmerking bij de rij plaatsen (met het rijmenu open)",
