@@ -509,7 +509,8 @@
     "row": "Dette er en radmal. Nye rader som lages fra den, får egenskapene og innholdet.",
     "inside": "Denne siden er en del av en mal.",
     "use": "Bruk malen",
-    "confirmDelete": "Vil du slette denne malen for godt? Sider som allerede er laget fra den, forblir som de er."
+    "confirmDelete": "Vil du slette denne malen for godt? Sider som allerede er laget fra den, forblir som de er.",
+    "titleMarkers": "Skriv @today, @now eller @me i tittelen: hver nye rad får datoen, klokkeslettet eller navnet på den som legger den til."
   },
   "blocks": {
     "callout": {

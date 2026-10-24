@@ -34,6 +34,30 @@
   REST API, the MCP tools and Markdown export return as is and writes accept. The editor's ":" menu
   also finds emoji by their names in the interface language. View tabs and properties can have
   their own icon from the same picker. Migration `0137_icon_preferences`.
+- **Limit a relation to one page.** *Limit to one page* in a relation column's menu works like
+  *Limit to one person*: picking another row replaces the linked one, and the server refuses writes
+  (app, API, MCP, automations) linking more, with a message naming the property. Rows that already
+  link several keep them until they're changed. Each side of a two-way relation has its own limit:
+  linking to a row whose side links one moves it away from its old link. MCP's
+  `update_database_property` takes `one_row` and `get_database` says `one_row`, as it says
+  `one_person`.
+- **Linked rows show their properties.** A relation's options pick up to four properties of the
+  linked rows (status, person, date and the like, not formulas, rollups, relations or files) to
+  show beside or before their title, in table cells, cards, row pages and the row picker. The
+  values come with the rows, within the viewer's property access.
+- **Relations as a section of the row page.** *As a section* lists a relation's linked rows under
+  the row page's properties, ten at a time with *Show more*, with the properties they show editable
+  in place and links added or removed there. *Inline* stays the default.
+- **Date formats.** Date, created time and last edited time properties pick a full or short date,
+  month/day/year, day/month/year, year/month/day or relative, and a 12- or 24-hour clock, written
+  in the viewer's language in the app and on published pages. Exports, CSV, the API and MCP keep
+  ISO dates.
+- **`@today`, `@now` and `@me` in row template titles.** Each row made from the template gets the
+  day, the moment (in the maker's time zone) or the maker's name in its title; the template's page
+  says so under its title. Rows made through the API, MCP, automations or repeats get ISO dates.
+- **Jira reporters.** Jira syncs fill a *Reporter* person property from the issue's reporter,
+  matched by email like the assignee; the sync dialog picks which person property it goes to, or
+  none.
 - **Undo a move or a trip to the trash.** Moving a page with *Move to* shows a note at the bottom of
   the window with a link to where it went and *Undo*, which puts it back in its old place among its
   siblings. Moving a page to the trash (from the sidebar or the page) and moving database rows to
@@ -58,11 +82,9 @@
 - **Show a status as a checkbox.** *Show as checkbox* in a status column's menu shows a box,
   ticked while the row's status is in the done group. Ticking it picks the first done status,
   unticking it the first to-do one; filters, groups and the API still see the status itself.
-- **Make a relation two-way later, and see more of each row when linking.** A one-way relation's
-  column menu offers *Show on <database> too*, which adds the paired property there and links every
-  row back from the rows it already links to (edit access to both databases). *Show in row picker*
-  picks up to three properties of the related database to show beside each row's name in the
-  picker.
+- **Make a relation two-way later.** A one-way relation's column menu offers *Show on <database>
+  too*, which adds the paired property there and links every row back from the rows it already
+  links to (edit access to both databases).
 - **More editor shortcuts.** Alt/Option+Shift+L copies a link to the block the cursor is in (as
   "Copy link to block" does, with a "Link copied" note), Cmd/Ctrl+Shift+X strikes text through as
   well as Cmd/Ctrl+Shift+S, and Cmd/Ctrl+Alt+T opens every toggle on the page (toggle lists and
@@ -140,6 +162,9 @@
 
 ### Changed
 
+- **Bars and rings for formulas and rollups.** Formulas giving a number and rollups can show as a
+  colored bar or ring with a divisor, like number properties (*Show as* in a rollup's menu). A
+  rollup's older bar or ring setting is taken as the starting point.
 - **The documentation moved from the README into `docs/`.** README.md keeps the overview, the
   quick start, security, license and trademarks, and lists the rest: features, running a server,
   install and offline use, export, email on rows, accounts and security, automations and webhooks,

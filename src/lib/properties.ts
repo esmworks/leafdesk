@@ -79,6 +79,8 @@ export const DATABASE_ERROR_CODES = [
   "invalidIcon",
   "invalidRelation",
   "invalidRelationTarget",
+  "oneRow",
+  "invalidRelationOptions",
   "subItemLoop",
   "notSubItemsRelation",
   "dependencyLoop",

@@ -6,6 +6,7 @@ import { getLocale, getTranslations } from "next-intl/server";
 import type { NumberDisplay, NumberFormat, PropertyType, SelectOption, ViewConfig, ViewType } from "@/db/schema";
 import { avatarSrc } from "@/lib/avatar";
 import type { DateOptionsInput } from "@/lib/date-options";
+import type { RelationOptionsInput } from "@/lib/relation-options";
 import { isLocale, TIME_ZONE_COOKIE } from "@/i18n/config";
 import type { PageVisibility } from "@/lib/page-visibility";
 import type { DependencyInput } from "@/lib/dependencies";
@@ -133,6 +134,8 @@ export async function createRowAction(
         useDefault: input.useDefault,
         viewId: typeof input.viewId === "string" ? input.viewId : undefined,
         timeZone: await cookieTimeZone(),
+        // And its "@today" in the title is written in their language.
+        locale: await getLocale(),
       });
       return { id: created.id, position: created.position };
     }
@@ -343,7 +346,9 @@ export async function updatePropertyAction(
     prefix?: string | null;
     urlPreview?: boolean;
     icon?: string | null;
+    relation?: RelationOptionsInput;
     onePerson?: boolean;
+    oneRow?: boolean;
     statusDisplay?: "checkbox" | "option";
   },
 ) {
@@ -362,12 +367,6 @@ export async function setPropertiesBesideAction(databaseId: string, beside: bool
 
 export async function ensureOptionAction(propertyId: string, name: string) {
   return run((userId) => databases.ensureOption(userId, propertyId, name));
-}
-
-/** Which properties of the related database a relation's row picker shows (see databases.setRelationPickerProperties). */
-export async function setRelationPickerPropertiesAction(propertyId: string, propertyIds: string[]) {
-  const ids = Array.isArray(propertyIds) ? propertyIds.filter((id): id is string => typeof id === "string") : [];
-  return run((userId) => databases.setRelationPickerProperties(userId, String(propertyId), ids));
 }
 
 /** Makes a one-way relation two-way (see databases.makeRelationTwoWay). */

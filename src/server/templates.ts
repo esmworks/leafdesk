@@ -1,6 +1,6 @@
 import { and, asc, eq, isNull, max, sql } from "drizzle-orm";
 import { db } from "@/db";
-import { databaseView, page, type PageKind } from "@/db/schema";
+import { databaseView, page, user, type PageKind } from "@/db/schema";
 import type { FilterEntry, ViewConfig } from "@/db/schema/app";
 import {
   builtinTemplate,
@@ -18,7 +18,7 @@ import { DATABASE_BLOCK } from "@/lib/embed-blocks";
 import { DEFAULT_ROW_TEMPLATE } from "@/lib/automations";
 import { holdsOptions } from "@/lib/property-types";
 import { sprintProperty } from "@/lib/sprints";
-import { namesMe, resolveMarkers } from "@/lib/template-values";
+import { namesMe, resolveMarkers, resolveTitleMarkers, titleHasMarkers } from "@/lib/template-values";
 import { AccessError, accessRank, levelFromRank, pageVisibleTo, requireMembership, requirePageAccess, type AccessLevel } from "@/server/access";
 import { isAgentUser } from "@/server/agents/users";
 import { recordAudit } from "@/server/audit";
@@ -202,6 +202,11 @@ export type FromTemplateInput = {
    * their browser's, a button's clicker's, a schedule's or an automation's. UTC when missing.
    */
   timeZone?: string;
+  /**
+   * Their language, for a row template's "@today" and "@now" in its title (lib/template-values
+   * resolveTitleMarkers); ISO dates when missing.
+   */
+  locale?: string;
 };
 
 /**
@@ -237,7 +242,12 @@ export async function createFromTemplate(
     placement = await placeTopLevel(userId, template.workspaceId, topLevel, input.teamspaceId);
   }
 
-  const title = input.title?.trim() || template.title;
+  // A row template's "@today", "@now" and "@me" become the day, the moment and the maker's name.
+  const title =
+    input.title?.trim() ||
+    (template.isTemplate && template.parentId && !parentInTemplate && titleHasMarkers(template.title)
+      ? await titleWithMarkers(userId, template.title, input)
+      : template.title);
   const { root } = await copyPageTree(actor, template, {
     parentId,
     parentInTemplate,
@@ -296,6 +306,16 @@ export async function createFromTemplate(
   return { id: root.id, workspaceId: template.workspaceId, parentId };
 }
 
+/** A row template's title with its markers worked out for whoever makes the row (agents have no name there). */
+async function titleWithMarkers(userId: string, title: string, input: FromTemplateInput) {
+  const agent = await isAgentUser(userId);
+  const [maker] = agent ? [] : await db.select({ name: user.name }).from(user).where(eq(user.id, userId));
+  return (
+    resolveTitleMarkers(title, { userId: agent ? null : userId, name: maker?.name ?? null, now: new Date(), timeZone: input.timeZone, locale: input.locale }) ||
+    title
+  );
+}
+
 /**
  * A new row: with `useDefault`, from the default row template of the view it is made in (`viewId`,
  * see ViewConfig defaultTemplateId) or else the database's, when it has one the user can see;
@@ -312,6 +332,7 @@ export async function createRow(
     /** The view "New" was pressed in: its own default template comes before the database's. */
     viewId?: string;
     timeZone?: string;
+    locale?: string;
   },
 ): Promise<{ id: string; position: number; templateId: string | null }> {
   const database = await requireDatabase(actor.userId, databaseId, "edit");
@@ -327,7 +348,12 @@ export async function createRow(
   if (templateId) {
     const template = await requireTemplate(actor.userId, templateId, "view");
     if (template.parentId !== databaseId) throw withCode(new Error("Not a row template of this database"), "notATemplate");
-    const created = await createFromTemplate(actor, templateId, { title: input.title, properties: input.properties, timeZone: input.timeZone });
+    const created = await createFromTemplate(actor, templateId, {
+      title: input.title,
+      properties: input.properties,
+      timeZone: input.timeZone,
+      locale: input.locale,
+    });
     const [row] = await db.select({ position: page.position }).from(page).where(eq(page.id, created.id));
     return { id: created.id, position: row?.position ?? 0, templateId };
   }

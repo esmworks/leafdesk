@@ -139,7 +139,8 @@
       "type": "유형",
       "labels": "레이블",
       "due": "기한",
-      "link": "Jira 링크"
+      "link": "Jira 링크",
+      "reporter": "보고자"
     },
     "errors": {
       "unauthorized": "Jira가 이메일 주소와 API 토큰을 거부했습니다.",

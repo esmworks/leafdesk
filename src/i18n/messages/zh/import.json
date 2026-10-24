@@ -139,7 +139,8 @@
       "type": "类型",
       "labels": "标签",
       "due": "截止日期",
-      "link": "Jira 链接"
+      "link": "Jira 链接",
+      "reporter": "报告人"
     },
     "errors": {
       "unauthorized": "Jira 拒绝了该电子邮件地址和 API 令牌。",

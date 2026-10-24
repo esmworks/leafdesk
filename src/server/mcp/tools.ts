@@ -1933,7 +1933,7 @@ export function createMcpServer(principal: McpPrincipal) {
     {
       title: "Update a database property",
       description:
-        `Rename a database property, change a select / multi_select / status property's options (add, rename or remove by name; for status also move them between todo, in_progress and done), a formula's expression, a number_format (null for plain numbers) and/or a date property's date_options, its description, or which select property a select / multi_select depends on (depends_on) and which of its options each of its options goes with (option_parents). Renaming an option keeps it on every row that uses it; removing one clears it from those rows. Renaming a property keeps the formulas that use it working. A number format never changes the stored values. ${NUMBER_FORMAT_HELP} ${DATE_OPTIONS_HELP}`,
+        `Change a database property: its name, options (add, rename or remove by name; status options also move between todo, in_progress and done), formula, rollup, number_format, date_options, prefix, description, depends_on with option_parents, or one_row. Renaming an option keeps it on every row that uses it; removing one clears it from those rows. Renaming a property keeps the formulas that use it working. A number format never changes the stored values. ${NUMBER_FORMAT_HELP} ${DATE_OPTIONS_HELP}`,
       inputSchema: z.object({
         database_id: id("database"),
         property: z.string().min(1).describe("Current property name or id."),
@@ -1966,6 +1966,7 @@ export function createMcpServer(principal: McpPrincipal) {
         description: descriptionInput.nullable().optional().describe("The new description (null or \"\" for none). " + descriptionInput.description),
         depends_on: dependsOnInput.nullable().optional().describe(`${dependsOnInput.description} null: depend on nothing. Changing it forgets the options' lists.`),
         option_parents: optionParentsInput.optional(),
+        one_row: z.boolean().optional().describe("Relation: each row links one row at most (true) or any."),
       }),
       annotations: { readOnlyHint: false, destructiveHint: true, idempotentHint: false, openWorldHint: false },
       scopeChallenge: requireWrite,
@@ -1986,6 +1987,7 @@ export function createMcpServer(principal: McpPrincipal) {
       description,
       depends_on,
       option_parents,
+      one_row,
     }) =>
       runTool(async () => {
         assertWrite();
@@ -2001,7 +2003,12 @@ export function createMcpServer(principal: McpPrincipal) {
           description?: string | null;
           dependsOn?: string | null;
           prefix?: string | null;
+          oneRow?: boolean;
         } = {};
+        if (one_row !== undefined) {
+          if (prop.type !== "relation") throw new ToolInputError(`"${prop.name}" is a ${prop.type} property; only relations link one row.`);
+          patch.oneRow = one_row;
+        }
         if (description !== undefined) patch.description = description;
         if (prefix !== undefined) {
           if (prop.type !== "unique_id") throw new ToolInputError(`"${prop.name}" is a ${prop.type} property; only unique IDs have a prefix.`);
@@ -2080,10 +2087,11 @@ export function createMcpServer(principal: McpPrincipal) {
           !patch.date &&
           patch.description === undefined &&
           patch.dependsOn === undefined &&
-          patch.prefix === undefined
+          patch.prefix === undefined &&
+          patch.oneRow === undefined
         ) {
           throw new ToolInputError(
-            "Nothing to change: provide name, option changes, formula, rollup, number_format, date_options, prefix, description, depends_on or option_parents.",
+            "Nothing to change: provide name, option changes, formula, rollup, number_format, date_options, prefix, description, depends_on, option_parents or one_row.",
           );
         }
         const { date: storedDate } = await databases.updateProperty(userId, prop.id, patch);
@@ -2106,7 +2114,7 @@ export function createMcpServer(principal: McpPrincipal) {
           ),
         );
         // Descriptions and dependencies as stored (cleaned there).
-        const stored = patch.description !== undefined || patch.dependsOn !== undefined || option_parents?.length
+        const stored = patch.description !== undefined || patch.dependsOn !== undefined || option_parents?.length || patch.oneRow !== undefined
           ? (await databases.getProperties(database_id)).find((p) => p.id === prop.id)
           : undefined;
         const found = after.find((p) => p.id === prop.id)!;

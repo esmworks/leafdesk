@@ -544,9 +544,6 @@
     "pinToTitle": "Przypnij pod tytułem",
     "unpinFromTitle": "Odepnij spod tytułu",
     "pinFull": "Można przypiąć do {max} właściwości.",
-    "dateDisplay": "Wyświetlaj jako",
-    "displayDate": "Data",
-    "displayRelative": "Względnie",
     "relativeHint": "Daty w obrębie tygodnia od dzisiaj są wyświetlane jako „jutro”, „za 3 dni”, „2 dni temu”.",
     "reminder": "Przypomnienie",
     "reminderNone": "Bez przypomnienia",
@@ -566,13 +563,30 @@
     "dragOption": "Przeciągnij, aby przenieść {name}",
     "urlPreview": "Pokaż jako podgląd linku",
     "urlPreviewHint": "Strony wierszy pokazują pod linkiem ikonę, tytuł i obraz podlinkowanej strony.",
+    "relationOptions": "Ustawienia relacji",
+    "showAs": "Pokaż jako",
+    "dateFormat": "Format daty",
+    "dateFormats": {
+      "default": "Domyślny",
+      "full": "Pełna data",
+      "short": "Krótka data",
+      "mdy": "Miesiąc/Dzień/Rok",
+      "dmy": "Dzień/Miesiąc/Rok",
+      "ymd": "Rok/Miesiąc/Dzień",
+      "relative": "Względna"
+    },
+    "timeFormat": "Format godziny",
+    "timeFormats": {
+      "default": "Domyślny",
+      "12h": "12-godzinny",
+      "24h": "24-godzinny"
+    },
     "onePerson": "Ogranicz do jednej osoby",
     "onePersonHint": "Każdy wiersz wskazuje najwyżej jedną osobę. Wiersze, które wskazują więcej, zachowują je do czasu zmiany.",
+    "oneRow": "Ogranicz do jednej strony",
+    "oneRowHint": "Każdy wiersz łączy się najwyżej z jedną stroną. Wiersze, które łączą więcej, zachowują je do czasu zmiany.",
     "statusCheckbox": "Pokaż jako pole wyboru",
     "statusCheckboxHint": "Pole zaznaczone, gdy status jest ukończony. Zaznaczenie wybiera pierwszy status ukończony, odznaczenie pierwszy do zrobienia.",
-    "pickerProperties": "Pokaż w wyborze wierszy",
-    "pickerPropertiesHint": "Do trzech właściwości wyświetlanych obok nazwy każdego wiersza podczas łączenia wierszy.",
-    "pickerPropertiesNone": "Powiązana baza danych nie ma właściwości do pokazania.",
     "icon": "Ikona"
   },
   "rowProperties": {
@@ -715,7 +729,23 @@
     "noMatches": "Brak pasujących wierszy",
     "newRow": "Nowy wiersz",
     "open": "Otwórz {title}",
-    "unlink": "Usuń połączenie z {title}"
+    "unlink": "Usuń połączenie z {title}",
+    "options": "Ustawienia relacji",
+    "rowPage": "Na stronach wierszy",
+    "displayInline": "W linii",
+    "displaySection": "Jako sekcja",
+    "sectionHint": "Połączone wiersze są pod właściwościami, a ich właściwości można tam edytować.",
+    "shows": "Połączone wiersze pokazują",
+    "showsHint": "Widoczne w komórkach tabeli, kartach, na stronach wierszy i w wyborze wierszy.",
+    "titlePart": "Tytuł",
+    "addPart": "Dodaj właściwość…",
+    "moveUp": "Przenieś {name} w górę",
+    "moveDown": "Przenieś {name} w dół",
+    "hidePart": "Nie pokazuj {name}",
+    "overLimit": "Teraz łączy tylko jeden wiersz: wybierz ten, który zostaje.",
+    "addLink": "Dodaj połączenie",
+    "noLinks": "Brak połączonych wierszy",
+    "showMore": "Pokaż jeszcze {count}"
   },
   "person": {
     "search": "Szukaj osób",
@@ -997,7 +1027,9 @@
     "noCurrentSprint": "Żaden sprint nie jest bieżący. Najpierw oznacz jeden sprint jako bieżący.",
     "invalidSprints": "Nie można tak skonfigurować sprintów: sprawdź długość sprintu, pierwszy dzień i bazę danych sprintów.",
     "sprintStateOption": "Ta opcja oznacza stan sprintu. Możesz zmienić jej nazwę albo wyłączyć sprinty przed jej usunięciem.",
-    "invalidSlackUrl": "To nie jest adres przychodzącego webhooka Slacka (https://hooks.slack.com/services/…)."
+    "invalidSlackUrl": "To nie jest adres przychodzącego webhooka Slacka (https://hooks.slack.com/services/…).",
+    "oneRow": "„{property}” łączy tylko jedną stronę. Wybierz jedną.",
+    "invalidRelationOptions": "Nie można zapisać tych ustawień relacji."
   },
   "formula": {
     "title": "Formuła",
@@ -1841,7 +1873,9 @@
     "save": "Zapisz i synchronizuj",
     "stop": "Zatrzymaj synchronizację",
     "stopConfirm": "Zatrzymać synchronizację tej bazy danych? Jej wiersze zostaną bez zmian, a dane logowania zostaną zapomniane.",
-    "viewOnly": "Tylko osoby z pełnym dostępem do bazy danych mogą zmienić synchronizację."
+    "viewOnly": "Tylko osoby z pełnym dostępem do bazy danych mogą zmienić synchronizację.",
+    "reporter": "Zgłaszający",
+    "reporterNone": "Nie synchronizowane"
   },
   "sprints": {
     "menuItem": "Sprinty",

@@ -139,7 +139,8 @@
       "type": "Tyyppi",
       "labels": "Tunnisteet",
       "due": "Määräpäivä",
-      "link": "Jira-linkki"
+      "link": "Jira-linkki",
+      "reporter": "Raportoija"
     },
     "errors": {
       "unauthorized": "Jira hylkäsi sähköpostiosoitteen ja API-tunnuksen.",

@@ -544,9 +544,6 @@
     "pinToTitle": "Kiinnitä otsikon alle",
     "unpinFromTitle": "Irrota otsikosta",
     "pinFull": "Enintään {max} ominaisuutta voidaan kiinnittää.",
-    "dateDisplay": "Näytä muodossa",
-    "displayDate": "Päivämäärä",
-    "displayRelative": "Suhteellinen",
     "relativeHint": "Viikon sisällä tästä päivästä olevat päivämäärät näytetään muodossa ”huomenna”, ”3 päivän päästä”, ”2 päivää sitten”.",
     "reminder": "Muistutus",
     "reminderNone": "Ei muistutusta",
@@ -566,13 +563,30 @@
     "dragOption": "Siirrä vaihtoehtoa {name} vetämällä",
     "urlPreview": "Näytä linkin esikatseluna",
     "urlPreviewHint": "Rivisivuilla linkin alla näkyvät linkitetyn sivun kuvake, otsikko ja kuva.",
+    "relationOptions": "Relaation asetukset",
+    "showAs": "Näytä muodossa",
+    "dateFormat": "Päivämäärän muoto",
+    "dateFormats": {
+      "default": "Oletus",
+      "full": "Pitkä päivämäärä",
+      "short": "Lyhyt päivämäärä",
+      "mdy": "Kuukausi/Päivä/Vuosi",
+      "dmy": "Päivä/Kuukausi/Vuosi",
+      "ymd": "Vuosi/Kuukausi/Päivä",
+      "relative": "Suhteellinen"
+    },
+    "timeFormat": "Ajan muoto",
+    "timeFormats": {
+      "default": "Oletus",
+      "12h": "12 tuntia",
+      "24h": "24 tuntia"
+    },
     "onePerson": "Rajoita yhteen henkilöön",
     "onePersonHint": "Kukin rivi nimeää enintään yhden henkilön. Rivit, joilla on useampia, säilyttävät ne, kunnes niitä muutetaan.",
+    "oneRow": "Rajoita yhteen sivuun",
+    "oneRowHint": "Kukin rivi linkittää enintään yhden sivun. Rivit, joilla on useampia, säilyttävät ne, kunnes niitä muutetaan.",
     "statusCheckbox": "Näytä valintaruutuna",
     "statusCheckboxHint": "Ruutu on valittuna, kun tila on valmis. Valitseminen asettaa ensimmäisen valmis-tilan, valinnan poistaminen ensimmäisen tekemättä-tilan.",
-    "pickerProperties": "Näytä rivivalitsimessa",
-    "pickerPropertiesHint": "Enintään kolme ominaisuutta kunkin rivin nimen vieressä rivejä linkitettäessä.",
-    "pickerPropertiesNone": "Liittyvässä tietokannassa ei ole näytettäviä ominaisuuksia.",
     "icon": "Kuvake"
   },
   "rowProperties": {
@@ -715,7 +729,23 @@
     "noMatches": "Ei vastaavia rivejä",
     "newRow": "Uusi rivi",
     "open": "Avaa {title}",
-    "unlink": "Poista linkki kohteeseen {title}"
+    "unlink": "Poista linkki kohteeseen {title}",
+    "options": "Relaation asetukset",
+    "rowPage": "Rivisivuilla",
+    "displayInline": "Rivin sisällä",
+    "displaySection": "Omana osionaan",
+    "sectionHint": "Linkitetyt rivit näkyvät ominaisuuksien alla, ja niiden ominaisuuksia voi muokata siellä.",
+    "shows": "Linkitetyt rivit näyttävät",
+    "showsHint": "Näkyy taulukon soluissa, korteilla, rivisivuilla ja rivien valitsimessa.",
+    "titlePart": "Otsikko",
+    "addPart": "Lisää ominaisuus…",
+    "moveUp": "Siirrä {name} ylös",
+    "moveDown": "Siirrä {name} alas",
+    "hidePart": "Älä näytä: {name}",
+    "overLimit": "Linkittää nyt vain yhden rivin: valitse säilytettävä.",
+    "addLink": "Lisää linkki",
+    "noLinks": "Ei vielä linkitettyjä rivejä",
+    "showMore": "Näytä {count} lisää"
   },
   "person": {
     "search": "Hae henkilöitä",
@@ -997,7 +1027,9 @@
     "noCurrentSprint": "Mikään sprintti ei ole käynnissä. Merkitse ensin yksi sprintti nykyiseksi.",
     "invalidSprints": "Sprinttejä ei voi määrittää näin: tarkista sprintin pituus, ensimmäinen päivä ja sprinttien tietokanta.",
     "sprintStateOption": "Tämä vaihtoehto merkitsee sprintin tilaa. Voit nimetä sen uudelleen tai poistaa sprintit käytöstä ennen sen poistamista.",
-    "invalidSlackUrl": "Tämä ei ole Slackin saapuvan webhookin osoite (https://hooks.slack.com/services/…)."
+    "invalidSlackUrl": "Tämä ei ole Slackin saapuvan webhookin osoite (https://hooks.slack.com/services/…).",
+    "oneRow": "”{property}” voi linkittää vain yhden sivun. Valitse yksi.",
+    "invalidRelationOptions": "Näitä relaation asetuksia ei voi tallentaa."
   },
   "formula": {
     "title": "Kaava",
@@ -1841,7 +1873,9 @@
     "save": "Tallenna ja synkronoi",
     "stop": "Lopeta synkronointi",
     "stopConfirm": "Lopetetaanko tämän tietokannan synkronointi? Sen rivit pysyvät ennallaan, ja kirjautuminen unohdetaan.",
-    "viewOnly": "Vain henkilöt, joilla on täydet oikeudet tietokantaan, voivat muuttaa synkronointia."
+    "viewOnly": "Vain henkilöt, joilla on täydet oikeudet tietokantaan, voivat muuttaa synkronointia.",
+    "reporter": "Raportoija",
+    "reporterNone": "Ei synkronoida"
   },
   "sprints": {
     "menuItem": "Sprintit",

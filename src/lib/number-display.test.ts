@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { checkNumberDisplay, defaultDivideBy, numberShare } from "./number-display";
+import { checkNumberDisplay, defaultDivideBy, numberShare, takesNumberDisplay } from "./number-display";
 
 describe("number display", () => {
   it("stores bars and rings with their color and divisor, and nothing for plain numbers", () => {
@@ -36,5 +36,15 @@ describe("number display", () => {
     expect(defaultDivideBy({ format: "currency", currency: "EUR" })).toBe(100);
     expect(defaultDivideBy(undefined)).toBe(100);
     expect(numberShare(0.75, { display: "bar" }, { format: "percent" })).toBe(0.75);
+  });
+});
+
+describe("takesNumberDisplay", () => {
+  it("takes numbers, rollups and formulas giving a number", () => {
+    expect(takesNumberDisplay({ type: "number", options: {} })).toBe(true);
+    expect(takesNumberDisplay({ type: "rollup", options: {} })).toBe(true);
+    expect(takesNumberDisplay({ type: "formula", options: { formula: { type: "number" } } })).toBe(true);
+    expect(takesNumberDisplay({ type: "formula", options: { formula: { type: "text" } } })).toBe(false);
+    expect(takesNumberDisplay({ type: "text", options: {} })).toBe(false);
   });
 });

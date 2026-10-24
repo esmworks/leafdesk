@@ -398,7 +398,7 @@ export type PublishedChart = {
 export type PublishedProperty = Pick<DatabaseProperty, "id" | "name" | "type"> & {
   options: Pick<PropertyOptions, "options" | "number" | "numberDisplay" | "pageVisibility" | "pinned" | "uniqueId" | "icon"> & {
     formula?: Pick<FormulaConfig, "type">;
-    date?: Pick<DateOptions, "display">;
+    date?: Pick<DateOptions, "display" | "format" | "clock">;
   };
 };
 export type PublishedDatabase = {
@@ -926,7 +926,7 @@ function publicProperties(properties: DatabaseProperty[]) {
 
 /**
  * A property as visitors get it: its name, type and how its values show (options, number format
- * and display, relative dates, a formula's result type, where a row page shows it). Never a
+ * and display, date formats, a formula's result type, where a row page shows it). Never a
  * formula's expression (which may name properties the visitor can't see), an AI autofill prompt,
  * a date's reminder, nor who deleted or changed it when.
  */
@@ -936,10 +936,16 @@ export function publishedProperty(prop: DatabaseProperty): PublishedProperty {
   if (holdsOptions(prop.type) && stored.options) {
     options.options = stored.options.map(({ id, name, color, group }) => ({ id, name, color, ...(group ? { group } : {}) }));
   }
-  if (prop.type === "number" && stored.numberDisplay) options.numberDisplay = stored.numberDisplay;
+  if ((prop.type === "number" || prop.type === "formula" || prop.type === "rollup") && stored.numberDisplay) {
+    options.numberDisplay = stored.numberDisplay;
+  }
   const number = valueFormat(prop);
   if (number) options.number = number;
-  if (prop.type === "date" && stored.date?.display) options.date = { display: stored.date.display };
+  if ((prop.type === "date" || prop.type === "created_time" || prop.type === "last_edited_time") && stored.date) {
+    // How dates show, never the reminder.
+    const { display, format, clock } = stored.date;
+    if (display || format || clock) options.date = { ...(display ? { display } : {}), ...(format ? { format } : {}), ...(clock ? { clock } : {}) };
+  }
   if (prop.type === "formula") options.formula = stored.formula?.type ? { type: stored.formula.type } : {};
   if (prop.type === "unique_id" && stored.uniqueId?.prefix) options.uniqueId = { prefix: stored.uniqueId.prefix };
   if (stored.pageVisibility) options.pageVisibility = stored.pageVisibility;

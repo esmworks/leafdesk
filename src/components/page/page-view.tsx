@@ -675,6 +675,10 @@ export function PageView({
                 </div>
               )}
             </div>
+            {/* A row template's title may say @today, @now and @me (lib/template-values). */}
+            {info.template === "row" && editable && !page.archived && (
+              <p className="mt-1 text-xs text-fg-faint">{t("template.titleMarkers")}</p>
+            )}
             {verifiedNow && !page.archived && (
               <VerificationBadge verification={verifiedNow} onChange={canVerify ? () => setVerifyOpen(true) : undefined} />
             )}

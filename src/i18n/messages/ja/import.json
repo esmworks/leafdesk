@@ -139,7 +139,8 @@
       "type": "種類",
       "labels": "ラベル",
       "due": "期日",
-      "link": "Jiraリンク"
+      "link": "Jiraリンク",
+      "reporter": "報告者"
     },
     "errors": {
       "unauthorized": "JiraがメールアドレスとAPIトークンを受け付けませんでした。",

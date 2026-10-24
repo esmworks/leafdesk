@@ -509,7 +509,8 @@
     "row": "Esta es una plantilla de fila. Las filas nuevas creadas a partir de ella reciben sus propiedades y su contenido.",
     "inside": "Esta página forma parte de una plantilla.",
     "use": "Usar plantilla",
-    "confirmDelete": "¿Eliminar esta plantilla para siempre? Las páginas ya creadas a partir de ella se quedan como están."
+    "confirmDelete": "¿Eliminar esta plantilla para siempre? Las páginas ya creadas a partir de ella se quedan como están.",
+    "titleMarkers": "Escribe @today, @now o @me en el título: cada fila nueva recibe la fecha, la hora o el nombre de quien la añade."
   },
   "blocks": {
     "callout": {

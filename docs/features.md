@@ -175,8 +175,18 @@
     being able to see the row you link, not edit access to the other database; making a two-way
     relation takes edit access to both databases, since it adds the paired property to the other.
     A one-way relation can be made two-way later from its menu (*Show on … too*), which links the
-    rows back from the rows they already link to. *Show in row picker* shows up to three properties
-    of the related database beside each row's name when picking rows to link.
+    rows back from the rows they already link to.
+  - A relation can be limited to one page (*Limit to one page* in its menu), as a person property
+    can to one person: picking another row replaces the linked one, writes linking more are refused,
+    and rows linking more when it is turned on keep them until they're changed. Each side of a
+    two-way relation has its own limit, and linking to a row whose side links one moves it away
+    from its old link.
+  - A relation's *Relation options* pick up to four properties of the related database (not
+    formulas, rollups, relations or files) that linked rows show beside their title, in an order
+    you choose, in table cells, cards, row pages and the row picker; the values come with the rows
+    and keep the viewer's property access. *As a section* lists the linked rows under a row page's
+    properties instead, ten at a time, with those properties editable in place and links added or
+    removed there.
   - Views: table, board, calendar, gallery, list, feed (rows as posts, newest first, with the
     start of their bodies, emoji reactions and their comments), timeline, map (rows as pins at a place
     property), chart and dashboard (widgets over the database, see Dashboards), each with its own filters,
@@ -247,8 +257,8 @@
     the workspace has AI, the editor's *Describe it* writes a formula from what it should work out
     ("days left until the due date"), from the properties' names and types only, checks it and
     shows what it gives on the first rows before *Use formula*.
-  - Number properties show as a number, percentage or amount of money, or as a colored bar or
-    ring filled by the value divided by a number of your choice.
+  - Number properties, formulas giving a number and rollups show as a number, percentage or amount
+    of money, or as a colored bar or ring filled by the value divided by a number of your choice.
   - Row pages show every property, or leave some out (always, or while they are empty) behind
     "N more properties"; the choice is the database's, for everyone. People with full access pin up
     to four properties into a strip under the title and show the others above the body or beside it
@@ -272,8 +282,11 @@
     month, Shift-clicking a second day makes the date a range.
   - Calendar views show a month, with dates over several days as bars across them, or a week with
     its hours; a row is added on a day or at an hour, and dragging it moves its whole date.
-  - Date properties can show dates relative to today ("Tomorrow", "In 3 days", "2 days ago", up to
-    a week either way, the full date on hover), and remind people of them: on the day, or 1, 2 or
+  - Date, created time and last edited time properties show dates in the viewer's language as a
+    full or short date, month/day/year, day/month/year or year/month/day, with times on a 12- or
+    24-hour clock, in the app and on published pages (exports, CSV, the API and MCP keep ISO
+    dates). They can also show dates relative to today ("Tomorrow", "In 3 days", "2 days ago", up to
+    a week either way, the full date on hover). Date properties remind people of them: on the day, or 1, 2 or
     7 days before, at 9:00 in the time zone of whoever turned the reminder on. The reminder goes to
     the people of the row's person properties (else whoever added the row) who can see the row and
     the date, to the inbox, by email and as a push like other notifications. Rows that are done, in
@@ -350,6 +363,9 @@
     template's person can be *Me* and its date *Today* or *Now*: filled in with whoever adds the
     row and the day (in their time zone) or moment they add it, whether by hand, a button, an
     automation, a repeating template (as the person who set the repeat), the API or MCP (in UTC).
+    Its title can hold `@today`, `@now` and `@me`, which become the day, the moment (in the
+    maker's time zone, written in their language in the app and as ISO elsewhere) and the maker's
+    name in each new row's title.
   - *Duplicate without rows* (the database's page menu) copies a database's properties, views,
     row templates and its own page, as an empty database to fill anew. Relations, forms and access
     rules come along as with *Duplicate*; automations stay with the original either way.
@@ -803,8 +819,8 @@
   [API token](https://id.atlassian.com/manage-profile/security/api-tokens) (kept sealed like a
   connection's secrets), then a project or a JQL query, and makes a database whose rows are the
   issues: key, summary as the title, status (grouped to do, in progress and done by Jira's status
-  category), assignee as a person when their Jira email address is a member's (Jira usually hides
-  it; then the name goes in *Assignee (others)*), priority, type, labels, due date and a link back,
+  category), assignee and reporter as persons when their Jira email address is a member's (Jira usually hides
+  it; then the assignee's name goes in *Assignee (others)*), priority, type, labels, due date and a link back,
   opening on a board by status. It syncs every 15 minutes, hour, 6 hours, day or only on demand,
   one way: each run writes Jira's values over the synced properties and titles and adds new issues
   as rows, while properties added in Leafdesk stay, rows whose issue stops matching are left alone
@@ -813,7 +829,8 @@
   up or synced it by hand, and needs them to still be able to edit the database. Refused
   credentials, a refused query, a deleted *Key* property or more than 2,000 issues pause it until
   it is changed in the database's sync dialog (the ⟳ button on its toolbar), where people with
-  full access can also sync now, change the query or sign-in, or stop syncing (the rows stay).
+  full access can also sync now, change the query or sign-in, pick the person property the
+  reporter goes to (or none), or stop syncing (the rows stay).
   Tested against a stand-in Jira (`scripts/jira-sync-e2e.ts`), not yet a real site.
 - **GitHub pull requests update tasks**: *GitHub pull requests* in the ••• menu of a database with
   an ID property with a prefix gives a payload URL and a secret to add as a repository webhook

@@ -23,7 +23,10 @@ import {
   EyeOff,
   Fingerprint,
   GripVertical,
+  Gauge,
   Hash,
+  Link,
+  Link2,
   ListFilter,
   Lock,
   PanelTop,
@@ -46,7 +49,7 @@ import { Fragment, useEffect, useId, useRef, useState } from "react";
 import { useReorderDrag, type ReorderDragHandlers } from "@/components/use-reorder-drag";
 import { useDirection } from "@/components/direction";
 import { Button, cn, Input, MenuItem, MenuSeparator } from "@/components/ui";
-import { isComputed, isDerived, MAX_PICKER_PROPERTIES, PROPERTY_TYPES, STATUS_GROUPS, type StatusGroup } from "@/lib/property-types";
+import { isComputed, isDerived, PROPERTY_TYPES, STATUS_GROUPS, type StatusGroup } from "@/lib/property-types";
 import { pageLabel } from "@/lib/labels";
 import { canRestrict } from "@/lib/property-access";
 import { SELECT_COLORS, sortOptionsByName, sortStatusOptions, statusColor, statusGroupOf } from "@/lib/properties";
@@ -54,7 +57,8 @@ import { isAutofillType, type AiAutofillConfig } from "@/lib/ai";
 import { canBeParent, canDepend, dependencyProblem, withoutParentOptions } from "@/lib/dependent-options";
 import { MAX_PROPERTY_DESCRIPTION, propertyDescription } from "@/lib/property-description";
 import type { AggregateFn } from "@/lib/aggregate";
-import type { DateOptionsInput } from "@/lib/date-options";
+import { takesDateOptions, type DateOptionsInput } from "@/lib/date-options";
+import type { RelationOptionsInput } from "@/lib/relation-options";
 import type { NumberDisplay } from "@/lib/number-display";
 import { takesNumberFormat, type NumberFormat } from "@/lib/number-format";
 import { PAGE_VISIBILITIES, pageVisibilityOf, type PageVisibility } from "@/lib/page-visibility";
@@ -63,7 +67,8 @@ import { cleanUniqueIdPrefix, formatUniqueId, MAX_UNIQUE_ID_PREFIX, uniqueIdPref
 import { AutofillEditor } from "./ai-autofill";
 import { DateOptionsEditor } from "./date-options-menu";
 import { FormulaEditor } from "./formula-editor";
-import { NumberFormatEditor } from "./number-format-menu";
+import { NumberDisplayEditor, NumberFormatEditor } from "./number-format-menu";
+import { RelationOptionsEditor } from "./relation-options-menu";
 import { RollupEditor } from "./rollup-editor";
 import { CalculationOptions } from "./table-calculations";
 import { OptionChip } from "./property-cell";
@@ -287,6 +292,8 @@ export type PropertyMenuActions = {
   setNumberDisplay?: (display: NumberDisplay | null) => void;
   /** Dates: saves how values show and the reminder (see lib/date-options). */
   setDateOptions?: (input: DateOptionsInput) => void;
+  /** Relations: saves the limit, where row pages show it and what linked rows show (see lib/relation-options). */
+  setRelationOptions?: (input: RelationOptionsInput) => void;
   /** Unique IDs: saves the prefix they show with (null for none; see lib/unique-id). */
   setUniqueIdPrefix?: (prefix: string | null) => void;
   /** URLs: whether row pages show a preview of the linked page (server/url-preview.ts). */
@@ -295,8 +302,8 @@ export type PropertyMenuActions = {
   setOnePerson?: (on: boolean) => void;
   /** Statuses: whether they show as a checkbox ticked for done options. */
   setStatusCheckbox?: (on: boolean) => void;
-  /** Relations: the related database's properties the row picker shows beside titles. */
-  setPickerProperties?: (ids: string[]) => void;
+  /** Relations: whether a row links one row at most. */
+  setOneRow?: (on: boolean) => void;
   /** One-way relations: adds the paired property to the related database. */
   makeTwoWay?: () => void;
   /** Text properties, when AI is available: turns AI autofill on, changes it or (null) turns it off. */
@@ -341,9 +348,10 @@ export function PropertyMenu({
     | "rollup"
     | "number-format"
     | "date-options"
+    | "relation-options"
+    | "number-display"
     | "unique-id"
     | "page-visibility"
-    | "picker"
     | "autofill"
     | "calculate"
     | "insert-before"
@@ -508,8 +516,8 @@ export function PropertyMenu({
       <NumberFormatEditor
         prop={prop}
         onChange={actions.setNumberFormat}
-        // Formulas show their result as the number; only number properties show a bar or a ring.
-        onDisplayChange={prop.type === "number" ? actions.setNumberDisplay : undefined}
+        // Number properties and formulas giving a number show as a bar or a ring where it is offered.
+        onDisplayChange={actions.setNumberDisplay}
         onBack={() => setPage("main")}
       />
     );
@@ -517,6 +525,14 @@ export function PropertyMenu({
 
   if (page === "date-options" && prop && actions.setDateOptions) {
     return <DateOptionsEditor prop={prop} onChange={actions.setDateOptions} onBack={() => setPage("main")} />;
+  }
+
+  if (page === "relation-options" && prop && actions.setRelationOptions) {
+    return <RelationOptionsEditor prop={prop} onChange={actions.setRelationOptions} onBack={() => setPage("main")} />;
+  }
+
+  if (page === "number-display" && prop && actions.setNumberDisplay) {
+    return <NumberDisplayEditor prop={prop} onChange={actions.setNumberDisplay} onBack={() => setPage("main")} />;
   }
 
   if (page === "unique-id" && prop && actions.setUniqueIdPrefix) {
@@ -530,10 +546,6 @@ export function PropertyMenu({
         }}
       />
     );
-  }
-
-  if (page === "picker" && prop && actions.setPickerProperties) {
-    return <PickerPropertiesEditor prop={prop} onChange={actions.setPickerProperties} onBack={() => setPage("main")} />;
   }
 
   if (page === "page-visibility" && prop && actions.setPageVisibility) {
@@ -673,7 +685,7 @@ export function PropertyMenu({
         {t("uniqueIdPrefix")}
       </MenuItem>
     ),
-    prop?.type === "date" && actions.setDateOptions && (
+    prop && takesDateOptions(prop.type) && actions.setDateOptions && (
       <MenuItem
         key="date-options"
         // The bell says a reminder is on; the details are a click away.
@@ -682,6 +694,16 @@ export function PropertyMenu({
         onClick={() => setPage("date-options")}
       >
         {t("dateOptions")}
+      </MenuItem>
+    ),
+    prop?.type === "relation" && actions.setRelationOptions && (
+      <MenuItem key="relation-options" icon={icon(Link)} trailing={<ChevronRight className="h-3.5 w-3.5 rtl:-scale-x-100" />} onClick={() => setPage("relation-options")}>
+        {t("relationOptions")}
+      </MenuItem>
+    ),
+    prop?.type === "rollup" && actions.setNumberDisplay && (
+      <MenuItem key="number-display" icon={icon(Gauge)} trailing={<ChevronRight className="h-3.5 w-3.5 rtl:-scale-x-100" />} onClick={() => setPage("number-display")}>
+        {t("showAs")}
       </MenuItem>
     ),
     prop?.type === "url" && actions.setUrlPreview && (
@@ -711,15 +733,16 @@ export function PropertyMenu({
     prop?.type === "relation" && actions.makeTwoWay && !prop.options.relation?.pairedPropertyId && !prop.options.relation?.role && (
       <TwoWayItem key="two-way" prop={prop} onClick={run(actions.makeTwoWay)} />
     ),
-    prop?.type === "relation" && actions.setPickerProperties && (
+    prop?.type === "relation" && actions.setOneRow && prop.options.relation?.role !== "parent" && (
       <MenuItem
-        key="picker"
-        icon={icon(Rows3)}
-        trailing={<ChevronRight className="h-3.5 w-3.5 rtl:-scale-x-100" />}
-        title={t("pickerPropertiesHint")}
-        onClick={() => setPage("picker")}
+        key="one-row"
+        icon={icon(Link2)}
+        pressed={Boolean(prop.options.relation?.single)}
+        trailing={prop.options.relation?.single ? icon(Check) : undefined}
+        title={t("oneRowHint")}
+        onClick={run(() => actions.setOneRow?.(!prop.options.relation?.single))}
       >
-        {t("pickerProperties")}
+        {t("oneRow")}
       </MenuItem>
     ),
     prop?.type === "person" && actions.setOnePerson && (
@@ -1492,39 +1515,6 @@ function TwoWayItem({ prop, onClick }: { prop: Property; onClick: () => void }) 
     <MenuItem icon={<ArrowLeftRight className="h-3.5 w-3.5" />} title={t("twoWayHint")} onClick={onClick}>
       {t("twoWay", { title: pageLabel(target.database.title, tc("untitled")) })}
     </MenuItem>
-  );
-}
-
-/** Up to three properties of the related database that the row picker shows beside each title. */
-function PickerPropertiesEditor({ prop, onChange, onBack }: { prop: Property; onChange: (ids: string[]) => void; onBack: () => void }) {
-  const t = useTranslations("database.propertyMenu");
-  const target = useRelations()?.targets[prop.id];
-  const [ids, setIds] = useState<string[]>(prop.options.relation?.pickerProperties ?? []);
-  const choices = (target?.properties ?? []).filter((p) => p.type !== "relation" && !isDerived(p.type));
-  const toggle = (id: string) => {
-    const next = ids.includes(id) ? ids.filter((x) => x !== id) : [...ids, id];
-    if (next.length > MAX_PICKER_PROPERTIES) return;
-    setIds(next);
-    onChange(next);
-  };
-  return (
-    <div className="w-60">
-      <SubmenuHeader title={t("pickerProperties")} onBack={onBack} />
-      <div className="px-2 pb-1 text-xs text-fg-muted">{t("pickerPropertiesHint")}</div>
-      {choices.map((p) => (
-        <MenuItem
-          key={p.id}
-          icon={<PropertyTypeIcon type={p.type} />}
-          pressed={ids.includes(p.id)}
-          trailing={ids.includes(p.id) ? <Check className="h-3.5 w-3.5" /> : undefined}
-          disabled={!ids.includes(p.id) && ids.length >= MAX_PICKER_PROPERTIES}
-          onClick={() => toggle(p.id)}
-        >
-          {p.name}
-        </MenuItem>
-      ))}
-      {!choices.length && <div className="px-2 py-1 text-xs text-fg-faint">{t("pickerPropertiesNone")}</div>}
-    </div>
   );
 }
 

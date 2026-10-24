@@ -509,7 +509,8 @@
     "row": "Bu bir satır şablonu. Ondan oluşturulan yeni satırlar özelliklerini ve içeriğini alır.",
     "inside": "Bu sayfa bir şablonun parçası.",
     "use": "Şablonu kullan",
-    "confirmDelete": "Bu şablon kalıcı olarak silinsin mi? Ondan oluşturulmuş sayfalar olduğu gibi kalır."
+    "confirmDelete": "Bu şablon kalıcı olarak silinsin mi? Ondan oluşturulmuş sayfalar olduğu gibi kalır.",
+    "titleMarkers": "Başlığa @today, @now veya @me yazın: her yeni satır tarihi, saati ya da onu ekleyen kişinin adını alır."
   },
   "blocks": {
     "callout": {

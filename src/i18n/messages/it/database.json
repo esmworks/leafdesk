@@ -544,9 +544,6 @@
     "pinToTitle": "Fissa sotto il titolo",
     "unpinFromTitle": "Togli dal titolo",
     "pinFull": "Si possono fissare fino a {max} proprietà.",
-    "dateDisplay": "Mostra come",
-    "displayDate": "Data",
-    "displayRelative": "Relativa",
     "relativeHint": "Le date entro una settimana da oggi appaiono come “domani”, “tra 3 giorni”, “2 giorni fa”.",
     "reminder": "Promemoria",
     "reminderNone": "Nessun promemoria",
@@ -566,13 +563,30 @@
     "dragOption": "Trascina per spostare {name}",
     "urlPreview": "Mostra come anteprima del link",
     "urlPreviewHint": "Le pagine delle righe mostrano icona, titolo e immagine della pagina collegata sotto il link.",
+    "relationOptions": "Impostazioni della relazione",
+    "showAs": "Mostra come",
+    "dateFormat": "Formato data",
+    "dateFormats": {
+      "default": "Predefinito",
+      "full": "Data estesa",
+      "short": "Data breve",
+      "mdy": "Mese/Giorno/Anno",
+      "dmy": "Giorno/Mese/Anno",
+      "ymd": "Anno/Mese/Giorno",
+      "relative": "Relativa"
+    },
+    "timeFormat": "Formato ora",
+    "timeFormats": {
+      "default": "Predefinito",
+      "12h": "12 ore",
+      "24h": "24 ore"
+    },
     "onePerson": "Limita a una persona",
     "onePersonHint": "Ogni riga indica al massimo una persona. Le righe che ne indicano di più le mantengono finché non vengono modificate.",
+    "oneRow": "Limita a una pagina",
+    "oneRowHint": "Ogni riga collega al massimo una pagina. Le righe che ne collegano di più le mantengono finché non vengono modificate.",
     "statusCheckbox": "Mostra come casella",
     "statusCheckboxHint": "Una casella spuntata finché lo stato è completato. Spuntarla sceglie il primo stato completato, togliere la spunta il primo da fare.",
-    "pickerProperties": "Mostra nel selettore di righe",
-    "pickerPropertiesHint": "Fino a tre proprietà mostrate accanto al nome di ogni riga quando si collegano righe.",
-    "pickerPropertiesNone": "Il database collegato non ha proprietà da mostrare.",
     "icon": "Icona"
   },
   "rowProperties": {
@@ -715,7 +729,23 @@
     "noMatches": "Nessuna riga corrispondente",
     "newRow": "Nuova riga",
     "open": "Apri {title}",
-    "unlink": "Rimuovi collegamento a {title}"
+    "unlink": "Rimuovi collegamento a {title}",
+    "options": "Impostazioni della relazione",
+    "rowPage": "Nelle pagine delle righe",
+    "displayInline": "In linea",
+    "displaySection": "Come sezione",
+    "sectionHint": "Le righe collegate appaiono sotto le proprietà, con le loro proprietà modificabili lì.",
+    "shows": "Le righe collegate mostrano",
+    "showsHint": "Visibile in celle della tabella, schede, pagine delle righe e selettore di righe.",
+    "titlePart": "Titolo",
+    "addPart": "Aggiungi una proprietà…",
+    "moveUp": "Sposta {name} su",
+    "moveDown": "Sposta {name} giù",
+    "hidePart": "Non mostrare più {name}",
+    "overLimit": "Ora collega una sola riga: scegli quella da tenere.",
+    "addLink": "Aggiungi collegamento",
+    "noLinks": "Ancora nessuna riga collegata",
+    "showMore": "Mostra altri {count}"
   },
   "person": {
     "search": "Cerca persone",
@@ -997,7 +1027,9 @@
     "noCurrentSprint": "Nessuno sprint è in corso. Segna prima uno sprint come in corso.",
     "invalidSprints": "Gli sprint non si possono impostare così: controlla la durata dello sprint, il primo giorno e il database degli sprint.",
     "sprintStateOption": "Questa opzione indica lo stato di uno sprint. Puoi rinominarla oppure disattivare gli sprint prima di eliminarla.",
-    "invalidSlackUrl": "Non è l’indirizzo di un webhook in entrata di Slack (https://hooks.slack.com/services/…)."
+    "invalidSlackUrl": "Non è l’indirizzo di un webhook in entrata di Slack (https://hooks.slack.com/services/…).",
+    "oneRow": "“{property}” collega una sola pagina. Scegline una.",
+    "invalidRelationOptions": "Queste impostazioni della relazione non possono essere salvate."
   },
   "formula": {
     "title": "Formula",
@@ -1841,7 +1873,9 @@
     "save": "Salva e sincronizza",
     "stop": "Interrompi la sincronizzazione",
     "stopConfirm": "Interrompere la sincronizzazione di questo database? Le sue righe restano come sono e l'accesso viene dimenticato.",
-    "viewOnly": "Solo chi ha accesso completo al database può modificare la sincronizzazione."
+    "viewOnly": "Solo chi ha accesso completo al database può modificare la sincronizzazione.",
+    "reporter": "Segnalatore",
+    "reporterNone": "Non sincronizzato"
   },
   "sprints": {
     "menuItem": "Sprint",

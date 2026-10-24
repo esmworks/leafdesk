@@ -509,7 +509,8 @@
     "row": "This is a row template. New rows made from it get its properties and content.",
     "inside": "This page is part of a template.",
     "use": "Use template",
-    "confirmDelete": "Delete this template for good? Pages already made from it stay as they are."
+    "confirmDelete": "Delete this template for good? Pages already made from it stay as they are.",
+    "titleMarkers": "Write @today, @now or @me in the title: each new row gets the date, the time or the name of whoever adds it."
   },
   "blocks": {
     "callout": {

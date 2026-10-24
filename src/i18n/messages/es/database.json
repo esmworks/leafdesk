@@ -544,9 +544,6 @@
     "pinToTitle": "Fijar bajo el título",
     "unpinFromTitle": "Dejar de fijar bajo el título",
     "pinFull": "Se pueden fijar hasta {max} propiedades.",
-    "dateDisplay": "Mostrar como",
-    "displayDate": "Fecha",
-    "displayRelative": "Relativa",
     "relativeHint": "Las fechas a menos de una semana de hoy se leen «mañana», «dentro de 3 días», «hace 2 días».",
     "reminder": "Recordatorio",
     "reminderNone": "Sin recordatorio",
@@ -566,13 +563,30 @@
     "dragOption": "Arrastra para mover {name}",
     "urlPreview": "Mostrar como vista previa del enlace",
     "urlPreviewHint": "Las páginas de fila muestran el icono, el título y la imagen de la página enlazada bajo el enlace.",
+    "relationOptions": "Ajustes de la relación",
+    "showAs": "Mostrar como",
+    "dateFormat": "Formato de fecha",
+    "dateFormats": {
+      "default": "Predeterminado",
+      "full": "Fecha completa",
+      "short": "Fecha corta",
+      "mdy": "Mes/Día/Año",
+      "dmy": "Día/Mes/Año",
+      "ymd": "Año/Mes/Día",
+      "relative": "Relativa"
+    },
+    "timeFormat": "Formato de hora",
+    "timeFormats": {
+      "default": "Predeterminado",
+      "12h": "12 horas",
+      "24h": "24 horas"
+    },
     "onePerson": "Limitar a una persona",
     "onePersonHint": "Cada fila nombra como máximo a una persona. Las filas con más las conservan hasta que se cambien.",
+    "oneRow": "Limitar a una página",
+    "oneRowHint": "Cada fila enlaza como máximo una página. Las filas con más las conservan hasta que se cambien.",
     "statusCheckbox": "Mostrar como casilla",
     "statusCheckboxHint": "Una casilla marcada mientras el estado está completado. Al marcarla se elige el primer estado completado; al desmarcarla, el primero pendiente.",
-    "pickerProperties": "Mostrar en el selector de filas",
-    "pickerPropertiesHint": "Hasta tres propiedades junto al nombre de cada fila al vincular filas.",
-    "pickerPropertiesNone": "La base de datos relacionada no tiene propiedades que mostrar.",
     "icon": "Icono"
   },
   "rowProperties": {
@@ -715,7 +729,23 @@
     "noMatches": "Ninguna fila coincide",
     "newRow": "Nueva fila",
     "open": "Abrir {title}",
-    "unlink": "Quitar el vínculo con {title}"
+    "unlink": "Quitar el vínculo con {title}",
+    "options": "Ajustes de la relación",
+    "rowPage": "En las páginas de fila",
+    "displayInline": "En línea",
+    "displaySection": "Como sección",
+    "sectionHint": "Las filas enlazadas se muestran bajo las propiedades, con sus propiedades editables ahí.",
+    "shows": "Las filas enlazadas muestran",
+    "showsHint": "Se ve en celdas de tabla, tarjetas, páginas de fila y el selector de filas.",
+    "titlePart": "Título",
+    "addPart": "Añadir una propiedad…",
+    "moveUp": "Subir {name}",
+    "moveDown": "Bajar {name}",
+    "hidePart": "Dejar de mostrar {name}",
+    "overLimit": "Ahora enlaza una sola fila: elige la que quieres conservar.",
+    "addLink": "Añadir enlace",
+    "noLinks": "Aún no hay filas enlazadas",
+    "showMore": "Mostrar {count} más"
   },
   "person": {
     "search": "Buscar personas",
@@ -997,7 +1027,9 @@
     "noCurrentSprint": "Ningún sprint está en curso. Marca primero un sprint como actual.",
     "invalidSprints": "Los sprints no se pueden configurar así: revisa la duración del sprint, el primer día y la base de datos de sprints.",
     "sprintStateOption": "Esta opción marca el estado de un sprint. Puedes cambiarle el nombre o desactivar los sprints antes de eliminarla.",
-    "invalidSlackUrl": "No es la dirección de un webhook entrante de Slack (https://hooks.slack.com/services/…)."
+    "invalidSlackUrl": "No es la dirección de un webhook entrante de Slack (https://hooks.slack.com/services/…).",
+    "oneRow": "«{property}» enlaza una sola página. Elige una.",
+    "invalidRelationOptions": "No se pueden guardar estos ajustes de relación."
   },
   "formula": {
     "title": "Fórmula",
@@ -1841,7 +1873,9 @@
     "save": "Guardar y sincronizar",
     "stop": "Dejar de sincronizar",
     "stopConfirm": "¿Dejar de sincronizar esta base de datos? Sus filas se quedan como están y el inicio de sesión se olvida.",
-    "viewOnly": "Solo las personas con acceso completo a la base de datos pueden cambiar la sincronización."
+    "viewOnly": "Solo las personas con acceso completo a la base de datos pueden cambiar la sincronización.",
+    "reporter": "Informador",
+    "reporterNone": "Sin sincronizar"
   },
   "sprints": {
     "menuItem": "Sprints",

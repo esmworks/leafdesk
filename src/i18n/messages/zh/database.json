@@ -544,9 +544,6 @@
     "pinToTitle": "固定在标题下方",
     "unpinFromTitle": "取消固定在标题下方",
     "pinFull": "最多可固定 {max} 个属性。",
-    "dateDisplay": "显示为",
-    "displayDate": "日期",
-    "displayRelative": "相对时间",
     "relativeHint": "距今一周以内的日期会显示为“明天”“3 天后”“2 天前”等。",
     "reminder": "提醒",
     "reminderNone": "不提醒",
@@ -566,13 +563,30 @@
     "dragOption": "拖动以移动{name}",
     "urlPreview": "显示为链接预览",
     "urlPreviewHint": "行页面会在链接下方显示所链接页面的图标、标题和图片。",
+    "relationOptions": "关联设置",
+    "showAs": "显示为",
+    "dateFormat": "日期格式",
+    "dateFormats": {
+      "default": "默认",
+      "full": "完整日期",
+      "short": "短日期",
+      "mdy": "月/日/年",
+      "dmy": "日/月/年",
+      "ymd": "年/月/日",
+      "relative": "相对时间"
+    },
+    "timeFormat": "时间格式",
+    "timeFormats": {
+      "default": "默认",
+      "12h": "12 小时制",
+      "24h": "24 小时制"
+    },
     "onePerson": "限制为一人",
     "onePersonHint": "每行最多指定一人。已指定多人的行在修改前保持不变。",
+    "oneRow": "限制为一个页面",
+    "oneRowHint": "每行最多关联一个页面。已关联多个页面的行在修改前保持不变。",
     "statusCheckbox": "显示为复选框",
     "statusCheckboxHint": "状态为已完成时勾选。勾选会选择第一个已完成状态，取消勾选会选择第一个待办状态。",
-    "pickerProperties": "在行选择器中显示",
-    "pickerPropertiesHint": "关联行时，在每行名称旁最多显示三个属性。",
-    "pickerPropertiesNone": "关联的数据库没有可显示的属性。",
     "icon": "图标"
   },
   "rowProperties": {
@@ -715,7 +729,23 @@
     "noMatches": "没有匹配的行",
     "newRow": "新建行",
     "open": "打开 {title}",
-    "unlink": "移除指向 {title} 的链接"
+    "unlink": "移除指向 {title} 的链接",
+    "options": "关联设置",
+    "rowPage": "在行页面上",
+    "displayInline": "内嵌",
+    "displaySection": "作为单独区块",
+    "sectionHint": "关联的行显示在属性下方，可在那里直接编辑它们的属性。",
+    "shows": "关联的行显示",
+    "showsHint": "显示在表格单元格、卡片、行页面和行选择器中。",
+    "titlePart": "标题",
+    "addPart": "添加属性…",
+    "moveUp": "上移 {name}",
+    "moveDown": "下移 {name}",
+    "hidePart": "不再显示 {name}",
+    "overLimit": "现在只能关联一行：请选择要保留的那一行。",
+    "addLink": "添加关联",
+    "noLinks": "还没有关联的行",
+    "showMore": "再显示 {count} 个"
   },
   "person": {
     "search": "搜索人员",
@@ -997,7 +1027,9 @@
     "noCurrentSprint": "没有当前冲刺。请先将一个冲刺标为当前。",
     "invalidSprints": "无法这样设置冲刺：请检查冲刺长度、第一天和冲刺数据库。",
     "sprintStateOption": "此选项标记冲刺的状态。可以重命名；如要删除，请先关闭冲刺。",
-    "invalidSlackUrl": "这不是 Slack 传入 Webhook 的地址（https://hooks.slack.com/services/…）。"
+    "invalidSlackUrl": "这不是 Slack 传入 Webhook 的地址（https://hooks.slack.com/services/…）。",
+    "oneRow": "“{property}”只能关联一个页面。请选择一个。",
+    "invalidRelationOptions": "无法保存这些关联设置。"
   },
   "formula": {
     "title": "公式",
@@ -1841,7 +1873,9 @@
     "save": "保存并同步",
     "stop": "停止同步",
     "stopConfirm": "停止同步此数据库？其行保持不变，登录信息将被清除。",
-    "viewOnly": "只有对数据库拥有完全访问权限的人才能更改同步。"
+    "viewOnly": "只有对数据库拥有完全访问权限的人才能更改同步。",
+    "reporter": "报告人",
+    "reporterNone": "不同步"
   },
   "sprints": {
     "menuItem": "冲刺",

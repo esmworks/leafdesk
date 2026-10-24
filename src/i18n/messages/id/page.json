@@ -509,7 +509,8 @@
     "row": "Ini adalah templat baris. Baris baru yang dibuat darinya mendapat properti dan kontennya.",
     "inside": "Halaman ini bagian dari sebuah templat.",
     "use": "Gunakan templat",
-    "confirmDelete": "Hapus templat ini secara permanen? Halaman yang sudah dibuat darinya tidak berubah."
+    "confirmDelete": "Hapus templat ini secara permanen? Halaman yang sudah dibuat darinya tidak berubah.",
+    "titleMarkers": "Tulis @today, @now, atau @me di judul: setiap baris baru mendapat tanggal, waktu, atau nama orang yang menambahkannya."
   },
   "blocks": {
     "callout": {

@@ -66,6 +66,7 @@ const databases = vi.hoisted(() => ({
   createRows: vi.fn(),
   addProperty: vi.fn(),
   updateProperty: vi.fn().mockResolvedValue({ date: undefined }),
+  getProperties: vi.fn().mockResolvedValue([]),
   changePropertyType: vi.fn(),
   deleteProperty: vi.fn(),
   addView: vi.fn(),
@@ -904,6 +905,17 @@ describe("database properties", () => {
     expect(unknown.isError).toBe(true);
     expect(databases.addProperty).not.toHaveBeenCalled();
     expect(databases.updateProperty).not.toHaveBeenCalled();
+  });
+
+  it("limits a relation to one row, and only a relation", async () => {
+    const project = { id: "prop-project", name: "Project", type: "relation", options: { relation: { databaseId: "db-2" } } };
+    databases.getDatabase.mockResolvedValueOnce({ database: { id: "db-1", workspaceId: "ws-1" }, access: openAccess, properties: [project], views: [] });
+    const r = await callTool(writer, "update_database_property", { database_id: "db-1", property: "Project", one_row: true });
+    expect(r.isError).toBe(false);
+    expect(databases.updateProperty).toHaveBeenCalledWith("user-1", "prop-project", { oneRow: true });
+    const text = await callTool(writer, "update_database_property", { database_id: "db-1", property: "Notes", one_row: true });
+    expect(text.text).toMatch(/only relations link one row/);
+    expect(databases.updateProperty).toHaveBeenCalledTimes(1);
   });
 
   it("names the existing options when one is unknown", async () => {

@@ -544,9 +544,6 @@
     "pinToTitle": "Sematkan di bawah judul",
     "unpinFromTitle": "Lepas dari bawah judul",
     "pinFull": "Paling banyak {max} properti dapat disematkan.",
-    "dateDisplay": "Tampilkan sebagai",
-    "displayDate": "Tanggal",
-    "displayRelative": "Relatif",
     "relativeHint": "Tanggal dalam rentang seminggu dari hari ini ditulis “besok”, “dalam 3 hari”, “2 hari lalu”.",
     "reminder": "Pengingat",
     "reminderNone": "Tanpa pengingat",
@@ -566,13 +563,30 @@
     "dragOption": "Seret untuk memindahkan {name}",
     "urlPreview": "Tampilkan sebagai pratinjau tautan",
     "urlPreviewHint": "Halaman baris menampilkan ikon, judul, dan gambar halaman tertaut di bawah tautan.",
+    "relationOptions": "Pengaturan relasi",
+    "showAs": "Tampilkan sebagai",
+    "dateFormat": "Format tanggal",
+    "dateFormats": {
+      "default": "Bawaan",
+      "full": "Tanggal lengkap",
+      "short": "Tanggal singkat",
+      "mdy": "Bulan/Hari/Tahun",
+      "dmy": "Hari/Bulan/Tahun",
+      "ymd": "Tahun/Bulan/Hari",
+      "relative": "Relatif"
+    },
+    "timeFormat": "Format waktu",
+    "timeFormats": {
+      "default": "Bawaan",
+      "12h": "12 jam",
+      "24h": "24 jam"
+    },
     "onePerson": "Batasi ke satu orang",
     "onePersonHint": "Setiap baris menyebut paling banyak satu orang. Baris yang menyebut lebih tetap menyimpannya sampai diubah.",
+    "oneRow": "Batasi ke satu halaman",
+    "oneRowHint": "Setiap baris menaut paling banyak satu halaman. Baris yang menaut lebih tetap menyimpannya sampai diubah.",
     "statusCheckbox": "Tampilkan sebagai kotak centang",
     "statusCheckboxHint": "Kotak tercentang selama status selesai. Mencentangnya memilih status selesai pertama, menghapus centang memilih status belum dikerjakan pertama.",
-    "pickerProperties": "Tampilkan di pemilih baris",
-    "pickerPropertiesHint": "Hingga tiga properti ditampilkan di samping nama setiap baris saat menautkan baris.",
-    "pickerPropertiesNone": "Basis data terkait tidak memiliki properti untuk ditampilkan.",
     "icon": "Ikon"
   },
   "rowProperties": {
@@ -715,7 +729,23 @@
     "noMatches": "Tidak ada baris yang cocok",
     "newRow": "Baris baru",
     "open": "Buka {title}",
-    "unlink": "Hapus tautan ke {title}"
+    "unlink": "Hapus tautan ke {title}",
+    "options": "Pengaturan relasi",
+    "rowPage": "Di halaman baris",
+    "displayInline": "Sebaris",
+    "displaySection": "Sebagai bagian",
+    "sectionHint": "Baris tertaut tampil di bawah properti, dan propertinya bisa disunting di sana.",
+    "shows": "Baris tertaut menampilkan",
+    "showsHint": "Tampil di sel tabel, kartu, halaman baris, dan pemilih baris.",
+    "titlePart": "Judul",
+    "addPart": "Tambah properti…",
+    "moveUp": "Naikkan {name}",
+    "moveDown": "Turunkan {name}",
+    "hidePart": "Berhenti menampilkan {name}",
+    "overLimit": "Sekarang hanya menaut satu baris: pilih yang dipertahankan.",
+    "addLink": "Tambah tautan",
+    "noLinks": "Belum ada baris tertaut",
+    "showMore": "Tampilkan {count} lagi"
   },
   "person": {
     "search": "Cari orang",
@@ -997,7 +1027,9 @@
     "noCurrentSprint": "Tidak ada sprint yang sedang berjalan. Tandai satu sprint sebagai saat ini terlebih dahulu.",
     "invalidSprints": "Sprint tidak dapat disiapkan seperti ini: periksa panjang sprint, hari pertama, dan database sprint.",
     "sprintStateOption": "Opsi ini menandai status sprint. Anda boleh mengganti namanya, atau nonaktifkan sprint sebelum menghapusnya.",
-    "invalidSlackUrl": "Bukan alamat webhook masuk Slack (https://hooks.slack.com/services/…)."
+    "invalidSlackUrl": "Bukan alamat webhook masuk Slack (https://hooks.slack.com/services/…).",
+    "oneRow": "“{property}” hanya menaut satu halaman. Pilih satu.",
+    "invalidRelationOptions": "Pengaturan relasi ini tidak dapat disimpan."
   },
   "formula": {
     "title": "Rumus",
@@ -1841,7 +1873,9 @@
     "save": "Simpan dan sinkronkan",
     "stop": "Hentikan sinkronisasi",
     "stopConfirm": "Hentikan sinkronisasi basis data ini? Barisnya tetap seperti adanya, dan info masuk dilupakan.",
-    "viewOnly": "Hanya orang dengan akses penuh ke basis data yang dapat mengubah sinkronisasi."
+    "viewOnly": "Hanya orang dengan akses penuh ke basis data yang dapat mengubah sinkronisasi.",
+    "reporter": "Pelapor",
+    "reporterNone": "Tidak disinkronkan"
   },
   "sprints": {
     "menuItem": "Sprint",

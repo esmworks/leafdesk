@@ -509,7 +509,8 @@
     "row": "Ceci est un modèle de ligne. Les nouvelles lignes créées à partir de lui reprennent ses propriétés et son contenu.",
     "inside": "Cette page fait partie d’un modèle.",
     "use": "Utiliser le modèle",
-    "confirmDelete": "Supprimer définitivement ce modèle ? Les pages déjà créées à partir de lui restent inchangées."
+    "confirmDelete": "Supprimer définitivement ce modèle ? Les pages déjà créées à partir de lui restent inchangées.",
+    "titleMarkers": "Écrivez @today, @now ou @me dans le titre : chaque nouvelle ligne reçoit la date, l’heure ou le nom de la personne qui l’ajoute."
   },
   "blocks": {
     "callout": {

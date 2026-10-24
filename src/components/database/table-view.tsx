@@ -22,6 +22,8 @@ import { MAX_COLUMN_WIDTH, MIN_COLUMN_WIDTH } from "@/lib/views";
 import { contentWidths, fittedWidth } from "./fit-column";
 import { pageLabel } from "@/lib/labels";
 import { takesNumberFormat } from "@/lib/number-format";
+import { takesNumberDisplay } from "@/lib/number-display";
+import { takesDateOptions } from "@/lib/date-options";
 import type { SubItemLine } from "@/lib/sub-items";
 import { cellText, type PasteColumn, type PastePlan } from "@/lib/table-clipboard";
 import { AiCell, useAiAutofill } from "./ai-autofill";
@@ -819,14 +821,15 @@ export function TableView({
                       setRollup: fixed ? undefined : (rollup) => api.setRollup(p, rollup),
                       setNumberFormat:
                         fixed || !takesNumberFormat(p.type, p.options.formula?.type) ? undefined : (format) => api.setNumberFormat(p, format),
-                      setDateOptions: fixed || p.type !== "date" ? undefined : (input) => api.setDateOptions(p, input),
+                      setDateOptions: fixed || !takesDateOptions(p.type) ? undefined : (input) => api.setDateOptions(p, input),
                       setUniqueIdPrefix: fixed || p.type !== "unique_id" ? undefined : (prefix) => api.setUniqueIdPrefix(p, prefix),
                       setUrlPreview: fixed || p.type !== "url" ? undefined : (on) => api.setUrlPreview(p, on),
+                      setNumberDisplay: fixed || !takesNumberDisplay(p) ? undefined : (display) => api.setNumberDisplay(p, display),
+                      setRelationOptions: fixed || p.type !== "relation" ? undefined : (input) => api.setRelationOptions(p, input),
                       setOnePerson: fixed || p.type !== "person" ? undefined : (on) => api.setOnePerson(p, on),
+                      setOneRow: fixed || p.type !== "relation" ? undefined : (on) => api.setOneRow(p, on),
                       setStatusCheckbox: fixed || p.type !== "status" ? undefined : (on) => api.setStatusCheckbox(p, on),
-                      setPickerProperties: fixed || p.type !== "relation" ? undefined : (ids) => api.setPickerProperties(p, ids),
                       makeTwoWay: fixed || p.type !== "relation" ? undefined : () => api.makeTwoWay(p),
-                      setNumberDisplay: fixed || p.type !== "number" ? undefined : (display) => api.setNumberDisplay(p, display),
                       setPageVisibility: fixed ? undefined : (visibility) => api.setPageVisibility(p, visibility),
                       setAutofill: fixed || !ai.enabled || !isAutofillType(p.type) ? undefined : (config) => api.setAutofill(p, config),
                       updateAllAutofill:

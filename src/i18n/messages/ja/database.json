@@ -544,9 +544,6 @@
     "pinToTitle": "タイトルの下に固定",
     "unpinFromTitle": "タイトルの下から固定を外す",
     "pinFull": "固定できるプロパティは {max} 個までです。",
-    "dateDisplay": "表示形式",
-    "displayDate": "日付",
-    "displayRelative": "相対",
     "relativeHint": "今日から1週間以内の日付は「明日」「3日後」「2日前」のように表示されます。",
     "reminder": "リマインダー",
     "reminderNone": "リマインダーなし",
@@ -566,13 +563,30 @@
     "dragOption": "ドラッグして{name}を移動",
     "urlPreview": "リンクプレビューとして表示",
     "urlPreviewHint": "行ページのリンクの下に、リンク先ページのアイコン、タイトル、画像を表示します。",
+    "relationOptions": "リレーションの設定",
+    "showAs": "表示形式",
+    "dateFormat": "日付の形式",
+    "dateFormats": {
+      "default": "既定",
+      "full": "完全な日付",
+      "short": "短い日付",
+      "mdy": "月/日/年",
+      "dmy": "日/月/年",
+      "ymd": "年/月/日",
+      "relative": "相対"
+    },
+    "timeFormat": "時刻の形式",
+    "timeFormats": {
+      "default": "既定",
+      "12h": "12時間制",
+      "24h": "24時間制"
+    },
     "onePerson": "1人に限定",
     "onePersonHint": "各行に指定できるのは1人までです。すでに複数指定されている行は、変更されるまでそのままです。",
+    "oneRow": "1ページに限定",
+    "oneRowHint": "各行にリンクできるのは1ページまでです。すでに複数リンクしている行は、変更されるまでそのままです。",
     "statusCheckbox": "チェックボックスで表示",
     "statusCheckboxHint": "ステータスが完了のあいだチェックが入ります。チェックすると最初の完了ステータス、外すと最初の未着手ステータスになります。",
-    "pickerProperties": "行の選択画面に表示",
-    "pickerPropertiesHint": "行をリンクするとき、各行の名前の横に最大3つのプロパティを表示します。",
-    "pickerPropertiesNone": "関連データベースに表示できるプロパティがありません。",
     "icon": "アイコン"
   },
   "rowProperties": {
@@ -715,7 +729,23 @@
     "noMatches": "一致する行はありません",
     "newRow": "新しい行",
     "open": "{title}を開く",
-    "unlink": "{title}へのリンクを解除"
+    "unlink": "{title}へのリンクを解除",
+    "options": "リレーションの設定",
+    "rowPage": "行ページでの表示",
+    "displayInline": "インライン",
+    "displaySection": "セクションとして",
+    "sectionHint": "リンクした行がプロパティの下に並び、そのプロパティをその場で編集できます。",
+    "shows": "リンクした行に表示する項目",
+    "showsHint": "テーブルのセル、カード、行ページ、行の選択画面に表示されます。",
+    "titlePart": "タイトル",
+    "addPart": "プロパティを追加…",
+    "moveUp": "{name}を上へ",
+    "moveDown": "{name}を下へ",
+    "hidePart": "{name}を表示しない",
+    "overLimit": "リンクできるのは1行になりました。残す行を選んでください。",
+    "addLink": "リンクを追加",
+    "noLinks": "リンクした行はまだありません",
+    "showMore": "さらに{count}件を表示"
   },
   "person": {
     "search": "ユーザーを検索",
@@ -997,7 +1027,9 @@
     "noCurrentSprint": "現在のスプリントがありません。先にスプリントを1つ「現在」にしてください。",
     "invalidSprints": "この内容ではスプリントを設定できません。スプリントの長さ、初日、スプリントのデータベースを確認してください。",
     "sprintStateOption": "このオプションはスプリントの状態を表します。名前は変更できますが、削除するには先にスプリントをオフにしてください。",
-    "invalidSlackUrl": "Slack の Incoming Webhook のアドレスではありません（https://hooks.slack.com/services/…）。"
+    "invalidSlackUrl": "Slack の Incoming Webhook のアドレスではありません（https://hooks.slack.com/services/…）。",
+    "oneRow": "「{property}」にリンクできるのは1ページだけです。1つ選んでください。",
+    "invalidRelationOptions": "このリレーションの設定は保存できません。"
   },
   "formula": {
     "title": "数式",
@@ -1841,7 +1873,9 @@
     "save": "保存して同期",
     "stop": "同期を停止",
     "stopConfirm": "このデータベースの同期を停止しますか？行はそのまま残り、ログイン情報は破棄されます。",
-    "viewOnly": "同期を変更できるのは、データベースへのフルアクセス権を持つ人だけです。"
+    "viewOnly": "同期を変更できるのは、データベースへのフルアクセス権を持つ人だけです。",
+    "reporter": "報告者",
+    "reporterNone": "同期しない"
   },
   "sprints": {
     "menuItem": "スプリント",

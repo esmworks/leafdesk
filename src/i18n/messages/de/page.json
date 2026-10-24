@@ -509,7 +509,8 @@
     "row": "Dies ist eine Zeilenvorlage. Neue Zeilen, die daraus erstellt werden, übernehmen ihre Eigenschaften und ihren Inhalt.",
     "inside": "Diese Seite ist Teil einer Vorlage.",
     "use": "Vorlage verwenden",
-    "confirmDelete": "Diese Vorlage endgültig löschen? Bereits daraus erstellte Seiten bleiben unverändert."
+    "confirmDelete": "Diese Vorlage endgültig löschen? Bereits daraus erstellte Seiten bleiben unverändert.",
+    "titleMarkers": "Schreibe @today, @now oder @me in den Titel: Jede neue Zeile bekommt das Datum, die Uhrzeit oder den Namen der Person, die sie anlegt."
   },
   "blocks": {
     "callout": {

@@ -544,9 +544,6 @@
     "pinToTitle": "Épingler sous le titre",
     "unpinFromTitle": "Détacher du titre",
     "pinFull": "Vous pouvez épingler jusqu'à {max} propriétés.",
-    "dateDisplay": "Afficher comme",
-    "displayDate": "Date",
-    "displayRelative": "Relative",
     "relativeHint": "Les dates à moins d’une semaine d’aujourd’hui s’affichent « demain », « dans 3 jours », « il y a 2 jours ».",
     "reminder": "Rappel",
     "reminderNone": "Aucun rappel",
@@ -566,13 +563,30 @@
     "dragOption": "Faire glisser pour déplacer {name}",
     "urlPreview": "Afficher en aperçu du lien",
     "urlPreviewHint": "Les pages de ligne affichent l’icône, le titre et l’image de la page liée sous le lien.",
+    "relationOptions": "Réglages de la relation",
+    "showAs": "Afficher comme",
+    "dateFormat": "Format de date",
+    "dateFormats": {
+      "default": "Par défaut",
+      "full": "Date complète",
+      "short": "Date courte",
+      "mdy": "Mois/Jour/Année",
+      "dmy": "Jour/Mois/Année",
+      "ymd": "Année/Mois/Jour",
+      "relative": "Relative"
+    },
+    "timeFormat": "Format de l’heure",
+    "timeFormats": {
+      "default": "Par défaut",
+      "12h": "12 heures",
+      "24h": "24 heures"
+    },
     "onePerson": "Limiter à une personne",
     "onePersonHint": "Chaque ligne nomme une personne au plus. Les lignes qui en nomment davantage les gardent jusqu’à ce qu’on les modifie.",
+    "oneRow": "Limiter à une page",
+    "oneRowHint": "Chaque ligne relie une page au plus. Les lignes qui en relient davantage les gardent jusqu’à ce qu’on les modifie.",
     "statusCheckbox": "Afficher comme case à cocher",
     "statusCheckboxHint": "Une case cochée tant que le statut est terminé. La cocher choisit le premier statut terminé, la décocher le premier statut à faire.",
-    "pickerProperties": "Afficher dans le sélecteur de lignes",
-    "pickerPropertiesHint": "Jusqu’à trois propriétés affichées à côté du nom de chaque ligne lors de la liaison.",
-    "pickerPropertiesNone": "La base de données liée n’a aucune propriété à afficher.",
     "icon": "Icône"
   },
   "rowProperties": {
@@ -715,7 +729,23 @@
     "noMatches": "Aucune ligne correspondante",
     "newRow": "Nouvelle ligne",
     "open": "Ouvrir {title}",
-    "unlink": "Supprimer le lien vers {title}"
+    "unlink": "Supprimer le lien vers {title}",
+    "options": "Réglages de la relation",
+    "rowPage": "Sur les pages de ligne",
+    "displayInline": "En ligne",
+    "displaySection": "En section",
+    "sectionHint": "Les lignes liées s’affichent sous les propriétés, avec leurs propriétés modifiables.",
+    "shows": "Les lignes liées affichent",
+    "showsHint": "Visible dans les cellules, les cartes, les pages de ligne et le sélecteur de lignes.",
+    "titlePart": "Titre",
+    "addPart": "Ajouter une propriété…",
+    "moveUp": "Monter {name}",
+    "moveDown": "Descendre {name}",
+    "hidePart": "Ne plus afficher {name}",
+    "overLimit": "Relie désormais une seule ligne : choisissez celle à garder.",
+    "addLink": "Ajouter un lien",
+    "noLinks": "Aucune ligne liée pour l’instant",
+    "showMore": "Afficher {count} de plus"
   },
   "person": {
     "search": "Rechercher des personnes",
@@ -997,7 +1027,9 @@
     "noCurrentSprint": "Aucun sprint n’est en cours. Marquez d’abord un sprint comme en cours.",
     "invalidSprints": "Les sprints ne peuvent pas être configurés ainsi : vérifiez la durée du sprint, le premier jour et la base de données des sprints.",
     "sprintStateOption": "Cette option indique l’état d’un sprint. Renommez-la si vous le souhaitez, ou désactivez les sprints avant de la supprimer.",
-    "invalidSlackUrl": "Ce n’est pas l’adresse d’un webhook entrant Slack (https://hooks.slack.com/services/…)."
+    "invalidSlackUrl": "Ce n’est pas l’adresse d’un webhook entrant Slack (https://hooks.slack.com/services/…).",
+    "oneRow": "« {property} » ne relie qu’une page. Choisissez-en une.",
+    "invalidRelationOptions": "Ces réglages de relation ne peuvent pas être enregistrés."
   },
   "formula": {
     "title": "Formule",
@@ -1841,7 +1873,9 @@
     "save": "Enregistrer et synchroniser",
     "stop": "Arrêter la synchronisation",
     "stopConfirm": "Arrêter la synchronisation de cette base de données ? Ses lignes restent telles quelles, et la connexion est oubliée.",
-    "viewOnly": "Seules les personnes ayant un accès complet à la base de données peuvent modifier la synchronisation."
+    "viewOnly": "Seules les personnes ayant un accès complet à la base de données peuvent modifier la synchronisation.",
+    "reporter": "Rapporteur",
+    "reporterNone": "Non synchronisé"
   },
   "sprints": {
     "menuItem": "Sprints",

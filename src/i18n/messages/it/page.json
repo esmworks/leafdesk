@@ -509,7 +509,8 @@
     "row": "Questo è un modello di riga. Le nuove righe create da esso ne ricevono le proprietà e il contenuto.",
     "inside": "Questa pagina fa parte di un modello.",
     "use": "Usa modello",
-    "confirmDelete": "Eliminare definitivamente questo modello? Le pagine già create da esso restano come sono."
+    "confirmDelete": "Eliminare definitivamente questo modello? Le pagine già create da esso restano come sono.",
+    "titleMarkers": "Scrivi @today, @now o @me nel titolo: ogni nuova riga riceve la data, l’ora o il nome di chi la aggiunge."
   },
   "blocks": {
     "callout": {

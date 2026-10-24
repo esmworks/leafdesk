@@ -139,7 +139,8 @@
       "type": "Tipo",
       "labels": "Etiquetas",
       "due": "Fecha de vencimiento",
-      "link": "Enlace de Jira"
+      "link": "Enlace de Jira",
+      "reporter": "Informador"
     },
     "errors": {
       "unauthorized": "Jira rechazó el correo electrónico y el token de API.",

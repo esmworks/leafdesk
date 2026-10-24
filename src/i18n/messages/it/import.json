@@ -139,7 +139,8 @@
       "type": "Tipo",
       "labels": "Etichette",
       "due": "Data di scadenza",
-      "link": "Link Jira"
+      "link": "Link Jira",
+      "reporter": "Segnalatore"
     },
     "errors": {
       "unauthorized": "Jira ha rifiutato l'indirizzo email e il token API.",

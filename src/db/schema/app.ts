@@ -608,15 +608,27 @@ export type RelationConfig = {
   /** A "blocked_by" relation: how waiting rows follow when the rows they wait for move. */
   dependencies?: DependencyConfig;
   /**
-   * Properties of the related database whose values the row picker shows beside each row's
-   * title (up to three, see databases.setRelationPickerProperties); just titles when missing.
-   */
-  pickerProperties?: string[];
-  /**
    * A "sprint" relation: how the sprints database it links to is laid out. Kept when sprints are
    * turned off (only the role goes), so turning them on again picks the same sprints up.
    */
   sprints?: SprintConfig;
+  /**
+   * A row links to one row at most (updateProperty's oneRow; databases.normalizeRowProperties
+   * refuses more, as person properties' `single` does). Rows linking more keep them until the
+   * relation is next written. Any number when missing.
+   */
+  single?: true;
+  /**
+   * "section": row pages show the linked rows as a section of their own under the properties,
+   * with the `show` properties of each editable there (lib/relation-options). Inline when missing.
+   */
+  display?: "section";
+  /**
+   * What a linked row shows besides its title, in order: ids of properties of the related database
+   * and "title" for where its title goes ("status", "title", "person"), in table cells, cards, row
+   * pages and the row picker. The title alone when missing.
+   */
+  show?: string[];
 };
 export type RelationRole = "parent" | "blocked_by" | "sprint";
 /** Where a sprint stands: one is current, one next, later ones future, past ones completed. */
@@ -695,8 +707,17 @@ export type NumberDisplay = { display: "bar" | "ring"; color?: string; divideBy?
  */
 export type DateOptions = {
   display?: "relative";
+  /** How the day shows (see lib/date-format); the locale's medium date ("Oct 24, 2026") when missing. */
+  format?: DateFormatKind;
+  /** How times show: a 12- or 24-hour clock; the locale's when missing. */
+  clock?: "12h" | "24h";
   reminder?: DateReminder;
 };
+/**
+ * "full" "October 24, 2026", "short" "10/24/2026" (both in the viewer's language), and numeric
+ * dates in a fixed order: "mdy" 10/24/2026, "dmy" 24/10/2026, "ymd" 2026/10/24.
+ */
+export type DateFormatKind = "full" | "short" | "mdy" | "dmy" | "ymd";
 /**
  * A date property's reminder (see server/date-reminders): at 9:00 in `timeZone` (that of whoever
  * set it), `daysBefore` days before a row's date, the people its person properties name (or,
@@ -732,11 +753,17 @@ export type PropertyOptions = {
    * A formula giving anything else has none (see lib/number-format valueFormat).
    */
   number?: NumberFormat;
-  /** Number properties: a bar or a ring instead of the number; the number when missing. */
+  /**
+   * Number properties, formulas giving a number and rollups: a bar or a ring instead of the
+   * number; the number when missing.
+   */
   numberDisplay?: NumberDisplay;
   /** Text properties: AI autofill (see lib/ai and server/ai-properties). */
   ai?: AiAutofillConfig;
-  /** Date properties: relative display and a reminder; plain dates when missing. */
+  /**
+   * Date properties: format, clock, relative display and a reminder; created and last edited
+   * times: all but the reminder. Plain dates when missing.
+   */
   date?: DateOptions;
   /** Unique ID properties: the prefix IDs show with ("TASK" for TASK-12); plain numbers when missing. */
   uniqueId?: UniqueIdOptions;
