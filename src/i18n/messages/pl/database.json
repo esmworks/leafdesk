@@ -1851,5 +1851,13 @@
       "allView": "Wszystkie sprinty",
       "boardView": "Według stanu"
     }
+  },
+  "templateValues": {
+    "me": "Ja",
+    "today": "Dziś",
+    "now": "Teraz",
+    "hint": "Uzupełniane, gdy wiersz zostanie dodany z tego szablonu",
+    "dateWhen": "Ustawiane przy dodaniu wiersza",
+    "meOption": "Osoba dodająca wiersz"
   }
 }

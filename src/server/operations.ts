@@ -86,7 +86,11 @@ import {
 } from "./mcp/query";
 
 /** Who an operation acts for: their user id, and how their writes are attributed. */
-export type OperationContext = { userId: string; actor: WriteActor };
+/**
+ * Who an operation runs as. `timeZone`: theirs when the caller knows it (the AI chat has the
+ * browser's), for a row template's "today" (lib/template-values); UTC otherwise (MCP, the API).
+ */
+export type OperationContext = { userId: string; actor: WriteActor; timeZone?: string };
 
 export const MAX_BULK_ROWS = 100;
 
@@ -1425,6 +1429,7 @@ async function addRow(
       properties: properties ?? {},
       templateId: template_id ?? null,
       useDefault: noValues,
+      timeZone: ctx.timeZone,
     });
     if (markdown !== undefined) await getCollab().replaceContent(created.id, markdown, actor);
     const output = await rowOutput(ctx, database.id, created.id);

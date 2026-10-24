@@ -1851,5 +1851,13 @@
       "allView": "All sprints",
       "boardView": "By state"
     }
+  },
+  "templateValues": {
+    "me": "Me",
+    "today": "Today",
+    "now": "Now",
+    "hint": "Filled in when a row is added from this template",
+    "dateWhen": "Set when a row is added",
+    "meOption": "Whoever adds the row"
   }
 }

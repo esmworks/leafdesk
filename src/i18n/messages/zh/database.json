@@ -1851,5 +1851,13 @@
       "allView": "所有冲刺",
       "boardView": "按状态"
     }
+  },
+  "templateValues": {
+    "me": "我",
+    "today": "今天",
+    "now": "现在",
+    "hint": "从此模板添加行时填入",
+    "dateWhen": "添加行时设定",
+    "meOption": "添加该行的人"
   }
 }

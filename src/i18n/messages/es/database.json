@@ -1851,5 +1851,13 @@
       "allView": "Todos los sprints",
       "boardView": "Por estado"
     }
+  },
+  "templateValues": {
+    "me": "Yo",
+    "today": "Hoy",
+    "now": "Ahora",
+    "hint": "Se rellena al añadir una fila desde esta plantilla",
+    "dateWhen": "Fijar al añadir una fila",
+    "meOption": "Quien añada la fila"
   }
 }

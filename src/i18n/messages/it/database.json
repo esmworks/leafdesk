@@ -1851,5 +1851,13 @@
       "allView": "Tutti gli sprint",
       "boardView": "Per stato"
     }
+  },
+  "templateValues": {
+    "me": "Io",
+    "today": "Oggi",
+    "now": "Adesso",
+    "hint": "Compilato quando si aggiunge una riga da questo modello",
+    "dateWhen": "Impostato quando si aggiunge una riga",
+    "meOption": "Chi aggiunge la riga"
   }
 }

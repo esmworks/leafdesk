@@ -1851,5 +1851,13 @@
       "allView": "Tất cả sprint",
       "boardView": "Theo trạng thái"
     }
+  },
+  "templateValues": {
+    "me": "Tôi",
+    "today": "Hôm nay",
+    "now": "Bây giờ",
+    "hint": "Được điền khi thêm hàng từ mẫu này",
+    "dateWhen": "Đặt khi thêm hàng",
+    "meOption": "Người thêm hàng"
   }
 }

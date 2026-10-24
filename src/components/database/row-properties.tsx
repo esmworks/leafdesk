@@ -41,6 +41,7 @@ import { RowActivity } from "./row-activity";
 import { RowReviewBanner } from "@/components/review/row-review-banner";
 import { RowEmails } from "./row-emails";
 import { SchemaProvider } from "./schema-context";
+import { RowCellProvider } from "./row-cell-context";
 import { rowSnapshotOf, type RowSnapshot as Loaded } from "./row-snapshot";
 import type { DerivedInput, Property, RelationInput } from "./types";
 import { usePropertyThreadCount } from "@/components/page/property-threads";
@@ -304,6 +305,8 @@ export function RowProperties({
     () => ({ viewerId: data?.viewerId ?? null, people: data?.people ?? [] }),
     [data?.viewerId, data?.people],
   );
+  const template = data?.template === true;
+  const rowCell = useMemo(() => ({ rowId, template }), [rowId, template]);
   const aiEnabled = Boolean(data?.ai?.enabled) && !offline;
   const aiContext = useMemo<AiAutofillContextValue>(
     () => ({
@@ -418,22 +421,24 @@ export function RowProperties({
   );
 
   return (
-    <RelationProvider value={relationContext}>
-      <PeopleProvider value={peopleContext}>
-        <SchemaProvider value={data.properties}>
-          <PropertyAccessProvider value={accessContext}>
-            <AiAutofillProvider value={aiContext}>
-              {pinned.length > 0 && (
-                <div role="group" aria-label={t("pinned")} className="mb-4 flex flex-wrap gap-x-6 gap-y-2">
-                  {pinned.map((p) => propertyRow(p, "pinned"))}
-                </div>
-              )}
-              {besideHere ? createPortal(list, besideHere) : list}
-            </AiAutofillProvider>
-          </PropertyAccessProvider>
-        </SchemaProvider>
-      </PeopleProvider>
-    </RelationProvider>
+    <RowCellProvider value={rowCell}>
+      <RelationProvider value={relationContext}>
+        <PeopleProvider value={peopleContext}>
+          <SchemaProvider value={data.properties}>
+            <PropertyAccessProvider value={accessContext}>
+              <AiAutofillProvider value={aiContext}>
+                {pinned.length > 0 && (
+                  <div role="group" aria-label={t("pinned")} className="mb-4 flex flex-wrap gap-x-6 gap-y-2">
+                    {pinned.map((p) => propertyRow(p, "pinned"))}
+                  </div>
+                )}
+                {besideHere ? createPortal(list, besideHere) : list}
+              </AiAutofillProvider>
+            </PropertyAccessProvider>
+          </SchemaProvider>
+        </PeopleProvider>
+      </RelationProvider>
+    </RowCellProvider>
   );
 }
 

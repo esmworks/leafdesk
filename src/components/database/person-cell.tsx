@@ -7,6 +7,8 @@ import { cn } from "@/components/ui";
 import { UserAvatar } from "@/components/user-avatar";
 import type { PersonRef, Property } from "./types";
 import { searchFold } from "@/lib/search-fold";
+import { PERSON_ME } from "@/lib/property-types";
+import { MarkerChip, useRowCell } from "./row-cell-context";
 
 export type PeopleContextValue = {
   /** The signed-in user: "me" in person filters, "(you)" in the picker. */
@@ -78,9 +80,12 @@ function PersonChip({ person }: { person: PersonRef }) {
 export function PersonChips({ value, wrap }: { value: unknown; wrap?: boolean }) {
   const { people } = usePeople();
   const assigned = assignedPeople(people, value);
-  if (!assigned.length) return null;
+  // A row template's "me": whoever adds a row from it (lib/template-values).
+  const me = Array.isArray(value) && value.includes(PERSON_ME);
+  if (!assigned.length && !me) return null;
   return (
     <span className={cn("flex min-w-0 gap-x-2.5 gap-y-0.5", wrap ? "flex-wrap" : "overflow-hidden")}>
+      {me && <MarkerChip marker="me" />}
       {assigned.map((person) => (
         <PersonChip key={person.id} person={person} />
       ))}
@@ -99,7 +104,10 @@ export function PersonPicker({
   onChange: (value: unknown) => void;
 }) {
   const t = useTranslations("database.person");
+  const tm = useTranslations("database.templateValues");
   const { people, viewerId } = usePeople();
+  // A row template may assign whoever adds a row from it.
+  const template = useRowCell()?.template === true;
   const [query, setQuery] = useState("");
   const [active, setActive] = useState(0);
   // Local selection so quick toggles don't race the optimistic parent state.
@@ -159,6 +167,20 @@ export function PersonPicker({
           className="h-6 w-full bg-transparent text-sm outline-none placeholder:text-fg-faint"
         />
       </div>
+      {template && (
+        <div className="border-b border-border p-1">
+          <button
+            type="button"
+            onClick={() => toggle(PERSON_ME)}
+            aria-pressed={selectedIds.includes(PERSON_ME)}
+            className="flex w-full items-center gap-2 rounded px-2 py-1 text-start text-sm hover:bg-bg-hover"
+          >
+            <MarkerChip marker="me" />
+            <span className="min-w-0 flex-1 truncate text-xs text-fg-muted">{tm("meOption")}</span>
+            {selectedIds.includes(PERSON_ME) && <Check className="h-3.5 w-3.5 shrink-0 text-fg-muted" />}
+          </button>
+        </div>
+      )}
       {selected.length > 0 && (
         <div className="border-b border-border p-1">
           <div className="px-2 pt-1 pb-1 text-xs text-fg-muted">{t("assigned")}</div>

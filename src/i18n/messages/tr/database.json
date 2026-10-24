@@ -1851,5 +1851,13 @@
       "allView": "Tüm sprintler",
       "boardView": "Duruma göre"
     }
+  },
+  "templateValues": {
+    "me": "Ben",
+    "today": "Bugün",
+    "now": "Şimdi",
+    "hint": "Bu şablondan satır eklendiğinde doldurulur",
+    "dateWhen": "Satır eklendiğinde ayarlanır",
+    "meOption": "Satırı ekleyen kişi"
   }
 }

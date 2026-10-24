@@ -1851,5 +1851,13 @@
       "allView": "Tous les sprints",
       "boardView": "Par état"
     }
+  },
+  "templateValues": {
+    "me": "Moi",
+    "today": "Aujourd’hui",
+    "now": "Maintenant",
+    "hint": "Rempli lorsqu’une ligne est ajoutée depuis ce modèle",
+    "dateWhen": "Défini à l’ajout d’une ligne",
+    "meOption": "La personne qui ajoute la ligne"
   }
 }

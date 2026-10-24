@@ -1851,5 +1851,13 @@
       "allView": "Semua sprint",
       "boardView": "Menurut status"
     }
+  },
+  "templateValues": {
+    "me": "Saya",
+    "today": "Hari ini",
+    "now": "Sekarang",
+    "hint": "Diisi saat baris ditambahkan dari templat ini",
+    "dateWhen": "Diatur saat baris ditambahkan",
+    "meOption": "Siapa pun yang menambahkan baris"
   }
 }

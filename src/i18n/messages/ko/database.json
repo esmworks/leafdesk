@@ -1851,5 +1851,13 @@
       "allView": "모든 스프린트",
       "boardView": "상태별"
     }
+  },
+  "templateValues": {
+    "me": "나",
+    "today": "오늘",
+    "now": "지금",
+    "hint": "이 템플릿으로 행을 추가할 때 채워집니다",
+    "dateWhen": "행을 추가할 때 설정",
+    "meOption": "행을 추가한 사람"
   }
 }

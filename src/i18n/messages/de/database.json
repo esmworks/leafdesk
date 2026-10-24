@@ -1851,5 +1851,13 @@
       "allView": "Alle Sprints",
       "boardView": "Nach Stand"
     }
+  },
+  "templateValues": {
+    "me": "Ich",
+    "today": "Heute",
+    "now": "Jetzt",
+    "hint": "Wird ausgefüllt, wenn eine Zeile aus dieser Vorlage hinzugefügt wird",
+    "dateWhen": "Beim Hinzufügen einer Zeile setzen",
+    "meOption": "Wer die Zeile hinzufügt"
   }
 }
