@@ -1056,6 +1056,8 @@
       "open": "Impostazioni del pulsante",
       "icon": "Emoji",
       "label": "Etichetta",
+      "color": "Colore",
+      "colorDefault": "Predefinito",
       "confirm": "Chiedi prima di eseguire",
       "confirmHelp": "Chi clicca conferma prima.",
       "steps": "Al clic",

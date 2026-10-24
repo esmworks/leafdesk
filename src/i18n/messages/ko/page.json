@@ -1056,6 +1056,8 @@
       "open": "버튼 설정",
       "icon": "이모지",
       "label": "레이블",
+      "color": "색상",
+      "colorDefault": "기본",
       "confirm": "실행 전에 확인",
       "confirmHelp": "클릭한 사람이 먼저 확인합니다.",
       "steps": "클릭하면",

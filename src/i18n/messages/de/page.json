@@ -1056,6 +1056,8 @@
       "open": "Einstellungen der Schaltfläche",
       "icon": "Emoji",
       "label": "Beschriftung",
+      "color": "Farbe",
+      "colorDefault": "Standard",
       "confirm": "Vor dem Ausführen nachfragen",
       "confirmHelp": "Wer klickt, bestätigt zuerst.",
       "steps": "Beim Klicken",

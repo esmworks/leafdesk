@@ -1056,6 +1056,8 @@
       "open": "Paramètres du bouton",
       "icon": "Emoji",
       "label": "Libellé",
+      "color": "Couleur",
+      "colorDefault": "Par défaut",
       "confirm": "Demander avant d’exécuter",
       "confirmHelp": "La personne qui clique confirme d’abord.",
       "steps": "Au clic",

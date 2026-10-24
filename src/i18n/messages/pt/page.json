@@ -1056,6 +1056,8 @@
       "open": "Configurações do botão",
       "icon": "Emoji",
       "label": "Rótulo",
+      "color": "Cor",
+      "colorDefault": "Padrão",
       "confirm": "Perguntar antes de executar",
       "confirmHelp": "Quem clicar confirma primeiro.",
       "steps": "Ao clicar",

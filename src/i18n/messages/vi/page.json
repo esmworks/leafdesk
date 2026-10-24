@@ -1056,6 +1056,8 @@
       "open": "Cài đặt nút",
       "icon": "Biểu tượng cảm xúc",
       "label": "Nhãn",
+      "color": "Màu",
+      "colorDefault": "Mặc định",
       "confirm": "Hỏi trước khi chạy",
       "confirmHelp": "Người nhấp sẽ xác nhận trước.",
       "steps": "Khi nhấp",

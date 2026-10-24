@@ -1056,6 +1056,8 @@
       "open": "Button settings",
       "icon": "Emoji",
       "label": "Label",
+      "color": "Color",
+      "colorDefault": "Default",
       "confirm": "Ask before running",
       "confirmHelp": "Whoever clicks confirms first.",
       "steps": "When clicked",

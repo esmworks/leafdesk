@@ -5,7 +5,7 @@
  * and why; row changes are theirs (row activity marks them as made through a button) and start the
  * database's automations; notices go to people who can open the page; webhooks go out signed; a
  * page in the trash, a button without steps and too many clicks do nothing; the Markdown of the
- * page names the button without what it does.
+ * page names the button without what it does; a published page shows it in its color.
  * Creates its own users and workspace and deletes them afterwards.
  *
  *   pnpm tsx scripts/button-e2e.ts
@@ -49,6 +49,7 @@ const { buttonLine, buttonScope, serializeButtonConfig } = await import("@/lib/b
 const { getCollab, registerCollab } = await import("@/server/collab/bridge");
 const { createCollab } = await import("@/server/collab/service");
 const { blocksToMarkdown, serverEditor } = await import("@/server/blocknote");
+const { bodyHtmlFromYdoc } = await import("@/server/published-body");
 const { addProperty } = await import("@/server/databases");
 const { archivePage, createPage } = await import("@/server/pages");
 const { setPagePermission } = await import("@/server/permissions");
@@ -165,8 +166,8 @@ try {
   const goOnly = serializeButtonConfig({ confirm: false, steps: [{ type: "open", target: "https://example.com/docs" }] });
   await storeBody(weekly, [
     { type: "paragraph", content: "Intro" },
-    { id: "start", type: "button", props: { label: "Start the week", icon: "🚀", config: start } },
-    { id: "add", type: "button", props: { label: "Add a task", icon: "", config: addOnly } },
+    { id: "start", type: "button", props: { label: "Start the week", icon: "🚀", config: start, color: "green" } },
+    { id: "add", type: "button", props: { label: "Add a task", icon: "", config: addOnly, color: "url(evil)" } },
     { id: "finish", type: "button", props: { label: "Finish", icon: "", config: finish } },
     { id: "go", type: "button", props: { label: "Docs", icon: "", config: goOnly } },
     { id: "empty", type: "button", props: { label: "Nothing yet", icon: "", config: "" } },
@@ -177,6 +178,12 @@ try {
   const before = await getCollab().readPage(weekly);
   check(before.markdown.includes(buttonLine("start", "Start the week")), "the page's Markdown names its buttons", before.markdown);
   check(!before.markdown.includes(hook) && !before.markdown.includes(tasks), "…without what they do");
+
+  // Published, a button is its label in its color; a color outside the palette is the plain button.
+  const [stored] = await db.select({ ydoc: page.ydoc }).from(page).where(eq(page.id, weekly));
+  const html = await bodyHtmlFromYdoc(stored.ydoc ? new Uint8Array(stored.ydoc) : null);
+  check(/data-button-color="green"[^>]*><button[^>]*class="opt-green"/.test(html), "a published button keeps its color", html);
+  check(!html.includes("evil") && (html.match(/class="opt-/g) ?? []).length === 1, "…and a color outside the palette is dropped", html);
 
   // Who may click
   check((await failure(() => pressButton(ids.outsider, weekly, "start", { timeZone: zone }))) === "access", "people who can't open the page can't click its buttons");

@@ -1056,6 +1056,8 @@
       "open": "按钮设置",
       "icon": "表情符号",
       "label": "文字",
+      "color": "颜色",
+      "colorDefault": "默认",
       "confirm": "运行前询问",
       "confirmHelp": "点击的人需要先确认。",
       "steps": "点击时",

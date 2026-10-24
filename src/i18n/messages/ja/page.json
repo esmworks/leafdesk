@@ -1056,6 +1056,8 @@
       "open": "ボタンの設定",
       "icon": "絵文字",
       "label": "ラベル",
+      "color": "色",
+      "colorDefault": "デフォルト",
       "confirm": "実行前に確認する",
       "confirmHelp": "クリックした人がまず確認します。",
       "steps": "クリックしたとき",
