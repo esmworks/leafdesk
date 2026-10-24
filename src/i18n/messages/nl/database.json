@@ -550,7 +550,9 @@
     "parentOptionToggle": "“{option}” aanbieden als “{parent}” “{value}” is",
     "sortOptionsAsc": "Sorteren A → Z",
     "sortOptionsDesc": "Sorteren Z → A",
-    "dragOption": "Sleep om {name} te verplaatsen"
+    "dragOption": "Sleep om {name} te verplaatsen",
+    "urlPreview": "Tonen als linkvoorbeeld",
+    "urlPreviewHint": "Rijpagina’s tonen het pictogram, de titel en de afbeelding van de gelinkte pagina onder de link."
   },
   "rowProperties": {
     "noProperties": "Geen eigenschappen",
@@ -971,7 +973,8 @@
     "sprintsDatabase": "Deze database bevat de sprints van een andere database: zet sprints daar aan of uit.",
     "noCurrentSprint": "Er is geen huidige sprint. Markeer eerst een sprint als huidig.",
     "invalidSprints": "Sprints kunnen zo niet worden ingesteld: controleer de sprintlengte, de eerste dag en de sprintdatabase.",
-    "sprintStateOption": "Deze optie geeft de status van een sprint aan. Hernoem haar als je wilt, of zet sprints uit voordat je haar verwijdert."
+    "sprintStateOption": "Deze optie geeft de status van een sprint aan. Hernoem haar als je wilt, of zet sprints uit voordat je haar verwijdert.",
+    "invalidSlackUrl": "Geen adres van een inkomende Slack-webhook (https://hooks.slack.com/services/…)."
   },
   "formula": {
     "title": "Formule",
@@ -1272,7 +1275,8 @@
         "log": "In de uitvoeringsgeschiedenis schrijven",
         "celebrate": "Vieren met confetti",
         "approval": "Om goedkeuring vragen",
-        "start_sequence": "Een opvolgreeks starten"
+        "start_sequence": "Een opvolgreeks starten",
+        "slack": "Naar Slack versturen"
       },
       "trashHelp": "Verplaatst de rij naar de prullenbak, waaruit ze kan worden teruggezet tot de prullenbak wordt geleegd. Na deze actie kan niets meer worden uitgevoerd.",
       "addAction": "Actie toevoegen",
@@ -1332,7 +1336,8 @@
         "badExample": "De voorbeeld-body is geen geldige JSON.",
         "exampleTooLong": "De voorbeeld-body is te lang.",
         "needApprovers": "Kies wie je wilt vragen.",
-        "needTimeout": "Vul een geheel aantal dagen in van 1 tot 30."
+        "needTimeout": "Vul een geheel aantal dagen in van 1 tot 30.",
+        "needSlackUrl": "Vul het adres van de inkomende Slack-webhook in."
       },
       "agent": "Agent",
       "chooseAgent": "Kies een agent…",
@@ -1464,7 +1469,8 @@
         "noAddress": "De rij heeft geen e-mailadres",
         "emailOff": "E-mail op rijen staat uit",
         "noPerson": "Overgeslagen: deze uitvoering is niet door de wijziging van een persoon gestart",
-        "tooLate": "Overgeslagen: te lang na de wijziging om die nog te vieren"
+        "tooLate": "Overgeslagen: te lang na de wijziging om die nog te vieren",
+        "templateGone": "Het rijsjabloon bestaat niet meer"
       },
       "waitingApproval": "Wacht op goedkeuring",
       "approval": {
@@ -1566,7 +1572,19 @@
       "logPlaceholder": "Bijvoorbeeld: {template} geïmporteerd",
       "logHelp": "Wordt in de uitvoeringsgeschiedenis geschreven, met de variabelen ingevuld.",
       "celebrateHelp": "Confetti in de app voor wie de wijziging maakte die de uitvoering startte, in de vensters die die persoon open heeft. Uitvoeringen die niemand startte (planningen, verstreken datums, inkomende webhooks, anonieme formulierantwoorden) slaan dit over, net als uitvoeringen die hier meer dan twee minuten na de wijziging aankomen.",
-      "celebrateTry": "Probeer het"
+      "celebrateTry": "Probeer het",
+      "slackUrl": "Inkomende Slack-webhook",
+      "slackReplace": "Plak een nieuw adres om het opgeslagen adres te vervangen",
+      "slackSaved": "Opgeslagen adres:",
+      "slackMessage": "Bericht",
+      "slackPlaceholder": "Bijvoorbeeld: Klaar voor beoordeling: {template}",
+      "slackHelp": "Plaatst het bericht in het Slack-kanaal van de inkomende webhook, met een link naar de rij. Slack-opmaak (*vet*, _cursief_) werkt. Het adres blijft geheim en wordt alleen ingekort getoond.",
+      "rowTemplate": "Rijsjabloon",
+      "rowTemplateNone": "Geen (een lege rij)",
+      "rowTemplateDefault": "Het standaardsjabloon van de database",
+      "rowTemplateDefaultNamed": "Het standaardsjabloon ({name})",
+      "rowTemplateGone": "Een sjabloon dat niet meer bestaat",
+      "rowTemplateHelp": "De rij begint als kopie van het sjabloon. Waarden die je hier instelt, gaan voor die van het sjabloon; een lege titel behoudt die van het sjabloon."
     },
     "variables": {
       "button": "Een variabele invoegen",
@@ -1851,5 +1869,122 @@
       "allView": "Alle sprints",
       "boardView": "Per status"
     }
+  },
+  "github": {
+    "menuItem": "GitHub-pullrequests",
+    "menuHint": "Links toevoegen naar pullrequests die een rij bij haar ID noemen, en de status van de rij aanpassen",
+    "title": "GitHub-pullrequests",
+    "intro": "Een pullrequest die een rij bij haar ID noemt, zoals {example}, in de titel, de beschrijving of de branch, voegt een link naar zichzelf toe aan die rij en kan de status van de rij aanpassen.",
+    "needUniqueId": "Voeg eerst een ID-eigenschap toe aan deze database: pullrequests noemen rijen bij hun ID.",
+    "needPrefix": "Geef de ID-eigenschap “{property}” eerst een voorvoegsel, zoals TAAK: pullrequests noemen rijen daarmee.",
+    "linkProperty": "Pullrequestlinks toevoegen aan",
+    "noLinks": "Geen links toevoegen",
+    "newProperty": "Nieuwe teksteigenschap…",
+    "newPropertyName": "Pullrequests",
+    "newPropertyLabel": "Naam van de nieuwe eigenschap",
+    "linkHelp": "Een teksteigenschap bewaart elke pullrequest, één per regel; een URL-eigenschap bewaart de nieuwste.",
+    "statusProperty": "De status aanpassen in",
+    "noStatus": "De status niet wijzigen",
+    "noStatusProperty": "Deze database heeft geen statuseigenschap, dus er worden alleen links toegevoegd.",
+    "statusOff": "De status blijft zoals hij is.",
+    "statusHelp": "Conceptpullrequests voegen hun link toe, maar passen niets aan tot ze klaar zijn voor beoordeling. Een rij die al een status uit de groep Voltooid heeft, wordt alleen aangepast als een pullrequest wordt samengevoegd.",
+    "move": {
+      "opened": "Geopend of klaar voor beoordeling",
+      "merged": "Samengevoegd",
+      "closed": "Gesloten zonder samenvoegen"
+    },
+    "leave": "Ongewijzigd laten",
+    "setUp": "Instellen",
+    "save": "Opslaan",
+    "change": "Wijzigen",
+    "whatItDoes": "Wat het doet",
+    "linksTo": "Voegt pullrequestlinks toe aan “{property}”.",
+    "noLinksSaved": "Voegt geen links toe.",
+    "movesIn": "Past “{property}” aan: {moves}.",
+    "moves": {
+      "opened": "geopend naar {option}",
+      "merged": "samengevoegd naar {option}",
+      "closed": "gesloten zonder samenvoegen naar {option}"
+    },
+    "noMoves": "Laat de status zoals hij is.",
+    "inGithub": "In GitHub",
+    "steps": "Open in de Settings van de repository “Webhooks”, kies “Add webhook”, vul de velden hieronder in, kies “Let me select individual events” en vink alleen “Pull requests” aan.",
+    "payloadUrl": "Payload URL",
+    "secret": "Secret",
+    "showSecret": "Het geheim tonen",
+    "hideSecret": "Het geheim verbergen",
+    "secretUnreadable": "Het geheim kan op deze server niet meer worden gelezen. Maak een nieuw geheim en geef het aan GitHub.",
+    "rotate": "Een nieuw geheim maken",
+    "rotateConfirm": "Een nieuw geheim maken? Leveringen die met het oude zijn ondertekend, worden geweigerd tot je GitHub het nieuwe geeft.",
+    "contentType": "Content type",
+    "events": "Gebeurtenissen",
+    "eventsValue": "Pull requests",
+    "deliveries": "Recente leveringen",
+    "refresh": "Vernieuwen",
+    "noDeliveries": "Er is nog niets binnengekomen. Als je de webhook toevoegt, stuurt GitHub een ping die hier verschijnt.",
+    "ping": "Ping van GitHub",
+    "pingOk": "De webhook is verbonden.",
+    "otherEvent": "Gebeurtenis {event}",
+    "handling": "Wordt verwerkt…",
+    "ignored": "Niets te doen voor “{action}”.",
+    "noIds": "Noemt geen rij van deze database.",
+    "outcome": {
+      "updated": "bijgewerkt",
+      "unchanged": "al bijgewerkt",
+      "notFound": "niet gevonden",
+      "noAccess": "geen bewerkrechten",
+      "failed": "mislukt"
+    },
+    "deliveryErrors": {
+      "noUniqueId": "De database heeft geen ID-eigenschap met een voorvoegsel meer.",
+      "runAsGone": "De persoon als wie het wordt uitgevoerd, bestaat niet meer. Sla de instelling opnieuw op.",
+      "accessLost": "De persoon als wie het wordt uitgevoerd, kan deze database niet meer bewerken. Sla de instelling opnieuw op.",
+      "inTrash": "De database staat in de prullenbak.",
+      "failed": "Er ging iets mis bij het verwerken."
+    },
+    "runsAs": "Wijzigingen worden gemaakt als {name}, die het als laatste heeft opgeslagen.",
+    "runsAsGone": "De persoon als wie het werd uitgevoerd, bestaat niet meer: sla het opnieuw op om het als jou uit te voeren.",
+    "remove": "Verwijderen",
+    "removeConfirm": "De GitHub-instelling verwijderen? Leveringen van GitHub worden vanaf dan geweigerd; links die al zijn toegevoegd, blijven staan.",
+    "errors": {
+      "noUniqueId": "Voeg eerst een ID-eigenschap met een voorvoegsel toe aan deze database.",
+      "invalidProperty": "Kies een tekst- of URL-eigenschap voor de links, een statuseigenschap en de opties daarvan.",
+      "notSetUp": "Deze database heeft geen GitHub-instelling."
+    }
+  },
+  "slack": {
+    "menuItem": "Slack-meldingen",
+    "menuHint": "Een bericht in een Slack-kanaal plaatsen als er een rij wordt toegevoegd of een eigenschap verandert",
+    "title": "Slack-meldingen",
+    "intro": "Plaatst een bericht in een Slack-kanaal als er een rij wordt toegevoegd of een eigenschap verandert. Het wordt opgeslagen als automatisering die je later kunt wijzigen.",
+    "url": "Inkomende Slack-webhook",
+    "urlHelp": "Voeg in Slack de app Incoming WebHooks toe aan het kanaal en kopieer de webhook-URL. Die blijft geheim en wordt alleen ingekort getoond.",
+    "when": "Wanneer",
+    "rowAdded": "Er wordt een rij toegevoegd",
+    "propertyChanges": "{property} verandert",
+    "to": "Naar",
+    "anyValue": "Elke waarde",
+    "checked": "Aangevinkt",
+    "unchecked": "Niet aangevinkt",
+    "message": "Bericht",
+    "messageHelp": "Variabelen tussen dubbele accolades worden ingevuld vanuit de rij. Aan het eind wordt een link naar de rij toegevoegd.",
+    "defaultAdded": "{actor} heeft een rij toegevoegd aan {database}",
+    "defaultChanged": "{actor} heeft {property} gewijzigd in {value}",
+    "nameAdded": "Slack: nieuwe rijen",
+    "nameChanged": "Slack: {property} gewijzigd",
+    "nameChangedTo": "Slack: {property} is {value}",
+    "create": "Maken",
+    "created": "De automatisering “{name}” is gemaakt.",
+    "existing": "Automatiseringen die berichten in Slack plaatsen",
+    "existingHelp": "Wijzig ze of zet ze uit in de automatiseringen van de database.",
+    "off": "uit"
+  },
+  "templateValues": {
+    "me": "Ik",
+    "today": "Vandaag",
+    "now": "Nu",
+    "hint": "Wordt ingevuld als er een rij met dit sjabloon wordt toegevoegd",
+    "dateWhen": "Ingesteld als er een rij wordt toegevoegd",
+    "meOption": "Wie de rij toevoegt"
   }
 }

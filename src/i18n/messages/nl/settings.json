@@ -41,6 +41,7 @@
       "language": "taal locale vertaling",
       "theme": "donkere modus lichte modus kleuren thema",
       "contrast": "toegankelijkheid hoog contrast",
+      "desktopLinks": "electron windows mac tabbladen links openen desktop-app",
       "notifications": "push e-mail meldingen waarschuwingen",
       "watchedPages": "volgen abonneren gevolgde pagina’s",
       "offlineDevice": "offline downloaden cache ruimte",
@@ -1119,6 +1120,20 @@
       "note": "Hoog contrast maakt secundaire tekst, lijnen en focuskaders sterker, in beide thema’s. Deze instelling geldt alleen voor deze browser. Met de systeeminstelling volgt ze de optie van je apparaat om het contrast te verhogen."
     }
   },
+  "desktopLinks": {
+    "heading": "Desktop-app",
+    "label": "Links openen in de desktop-app",
+    "note": "Als je een Leafdesk-pagina in een browser opent op een computer met de desktop-app, kan die doorgaan naar de app, in een eigen tabblad. In de app zelf verandert er niets.",
+    "off": "Uit",
+    "ask": "Aanbieden om ze te openen",
+    "always": "Ze altijd openen",
+    "banner": {
+      "text": "Deze pagina openen in de desktop-app?",
+      "open": "Openen in de app",
+      "always": "Altijd",
+      "dismiss": "Sluiten"
+    }
+  },
   "language": {
     "heading": "Taal",
     "label": "Taal van de interface",
@@ -1863,6 +1878,11 @@
       "sensitive_content": {
         "found": "{kind} ({excerpt}) gevonden op {target}",
         "dismissed": "{kind} ({excerpt}) gevonden op {target} genegeerd"
+      },
+      "github_sync": {
+        "created": "GitHub-pullrequests ingesteld in {target}",
+        "updated": "De GitHub-instelling van {target} gewijzigd",
+        "deleted": "De GitHub-instelling van {target} verwijderd"
       }
     },
     "decisions": {

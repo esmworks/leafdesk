@@ -34,7 +34,27 @@
     "stopped": "Gestopt. Je kunt wat er tot nu toe is geschreven nog steeds houden.",
     "applyFailed": "De suggestie kon niet aan de pagina worden toegevoegd.",
     "asSuggestions": "Toevoegen als voorgestelde bewerkingen",
-    "selectionChanged": "De geselecteerde tekst is intussen gewijzigd, dus de suggestie is eronder toegevoegd."
+    "selectionChanged": "De geselecteerde tekst is intussen gewijzigd, dus de suggestie is eronder toegevoegd.",
+    "saved": {
+      "title": "Opgeslagen prompts",
+      "empty": "Sla een instructie die je vaak gebruikt op met de bladwijzer naast Versturen. Instructies voor het hele team zijn <skills>vaardigheden</skills>.",
+      "saveInstruction": "Prompt opslaan",
+      "name": "Naam",
+      "namePlaceholder": "Geef deze prompt een naam",
+      "save": "Opslaan",
+      "cancel": "Annuleren",
+      "rename": "Nieuwe naam",
+      "renameNamed": "{name} hernoemen",
+      "deleteNamed": "{name} verwijderen",
+      "errors": {
+        "emptyName": "Geef de prompt een naam.",
+        "emptyPrompt": "Er is geen instructie om op te slaan.",
+        "nameTooLong": "Namen mogen maximaal {max} tekens hebben.",
+        "promptTooLong": "Prompts mogen maximaal {max} tekens hebben.",
+        "full": "Je kunt maximaal {max} opgeslagen prompts bewaren. Verwijder er een om een andere op te slaan.",
+        "notFound": "Deze opgeslagen prompt bestaat niet meer."
+      }
+    }
   },
   "errors": {
     "disabled": "AI is niet beschikbaar in deze werkruimte.",

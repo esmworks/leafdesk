@@ -1178,7 +1178,8 @@
       "invalidTarget": "De link om te openen is niet geldig.",
       "buttonGone": "De knop is van de pagina verwijderd.",
       "error": "Er ging iets mis.",
-      "step": "Stap {step} ({type}) is niet uitgevoerd: {reason}"
+      "step": "Stap {step} ({type}) is niet uitgevoerd: {reason}",
+      "templateGone": "Het rijsjabloon bestaat niet meer."
     }
   },
   "imageCrop": {
