@@ -20,6 +20,7 @@ import {
   type LucideIcon,
 } from "lucide-react";
 import type { Metadata } from "next";
+import dynamic from "next/dynamic";
 import { notFound } from "next/navigation";
 import { getLocale, getTimeZone, getTranslations } from "next-intl/server";
 import { ACCOUNT_ICONS, AccountTabContent } from "@/components/account/account-tabs";
@@ -63,7 +64,6 @@ import {
 } from "@/components/settings/sso-settings";
 import { SitePages, SiteSettings } from "@/components/settings/site-settings";
 import { TeamspacesPanel } from "@/components/settings/teamspaces-panel";
-import { WebhooksPanel } from "@/components/settings/webhooks-panel";
 import { WorkspaceApps } from "@/components/settings/workspace-apps";
 import { WorkspaceBackup } from "@/components/settings/workspace-backup";
 import { WorkspaceExport } from "@/components/settings/workspace-export";
@@ -137,6 +137,9 @@ import {
 } from "@/server/workspaces";
 import { listWorkspaceApps } from "@/server/workspace-apps";
 import { checkWorkspace } from "@/server/workspace-check";
+
+// Only owners on the Webhooks tab need it: loaded there, not with every settings tab.
+const WebhooksPanel = dynamic(() => import("@/components/settings/webhooks-panel").then((m) => m.WebhooksPanel));
 
 export async function generateMetadata(): Promise<Metadata> {
   const t = await getTranslations("settings");

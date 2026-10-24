@@ -33,7 +33,7 @@ import { setDocTitle, useDocTitle, usePageDoc, usePageStyle, type ConnectionStat
 import { usePagePresence } from "./use-presence";
 import { useIsOffline, useOffline } from "@/components/offline/offline-context";
 import { SkillBar } from "@/components/skills/skill-bar";
-import { VerificationBadge, VerifyDialog } from "./verification";
+import { VerificationBadge } from "./verification";
 import { DarkScheme } from "@/components/theme/theme-provider";
 import { rememberPage } from "@/components/offline/offline-store";
 import { PAGE_HEADER_EVENT } from "@/lib/collab-constants";
@@ -52,6 +52,7 @@ const HistoryPanel = dynamic(() => import("./history-panel").then((m) => m.Histo
 const MarkdownSourceView = dynamic(() => import("./markdown-source").then((m) => m.MarkdownSourceView), { ssr: false });
 // Loaded when it opens, likewise.
 const Presentation = dynamic(() => import("./presentation"), { ssr: false });
+const VerifyDialog = dynamic(() => import("./verify-dialog").then((m) => m.VerifyDialog), { ssr: false });
 
 type Crumb = { id: string; title: string; icon: string | null; kind: PageKind };
 
@@ -595,7 +596,7 @@ export function PageView({
             {verifiedNow && !page.archived && (
               <VerificationBadge verification={verifiedNow} onChange={canVerify ? () => setVerifyOpen(true) : undefined} />
             )}
-            {canVerify && (
+            {canVerify && verifyOpen && (
               <VerifyDialog
                 workspaceId={workspaceId}
                 pageId={page.id}
