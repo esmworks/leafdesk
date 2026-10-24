@@ -58,7 +58,6 @@ import { cn, Dialog, IconButton, MenuItem, MenuSeparator, PageIcon, pageLabel, P
 import { useZipExport } from "@/components/use-zip-export";
 import { VoiceNoteInstructionsDialog } from "@/components/voice/voice-note-instructions-dialog";
 import { MergeWithDialog } from "@/components/database/merge-rows-dialog";
-import { RowAccessDialog } from "@/components/database/row-access-dialog";
 import type { PageKind } from "@/db/schema/app";
 import { FAVORITES_EVENT } from "@/lib/favorites-event";
 import { OfflineToggle } from "@/components/offline/offline-toggle";
@@ -442,6 +441,9 @@ function PageMenu({
   const [pdfOpen, setPdfOpen] = useState(false);
   const [voiceInstructionsOpen, setVoiceInstructionsOpen] = useState(false);
   const [rowAccessOpen, setRowAccessOpen] = useState(false);
+  // Mounted from its first opening on, so it closes the way it opens.
+  const [rowAccessUsed, setRowAccessUsed] = useState(false);
+  if (rowAccessOpen && !rowAccessUsed) setRowAccessUsed(true);
   const [mergeOpen, setMergeOpen] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [pending, startTransition] = useTransition();
@@ -961,13 +963,15 @@ function PageMenu({
           }}
         />
       )}
-      {isDatabase && (
-        <RowAccessDialog
-          workspaceId={workspaceId}
-          databaseId={page.id}
-          open={rowAccessOpen}
-          onClose={() => setRowAccessOpen(false)}
-        />
+      {isDatabase && rowAccessUsed && (
+        <Suspense fallback={null}>
+          <RowAccessDialog
+            workspaceId={workspaceId}
+            databaseId={page.id}
+            open={rowAccessOpen}
+            onClose={() => setRowAccessOpen(false)}
+          />
+        </Suspense>
       )}
       {isDatabase && (
         <VoiceNoteInstructionsDialog databaseId={page.id} open={voiceInstructionsOpen} onClose={() => setVoiceInstructionsOpen(false)} />
@@ -976,8 +980,9 @@ function PageMenu({
   );
 }
 
-// The PDF dialog comes with its first use, not with every page.
+// The PDF and row access dialogs come with their first use, not with every page.
 const PdfExportDialog = lazy(() => import("./pdf-export-dialog"));
+const RowAccessDialog = lazy(() => import("@/components/database/row-access-dialog").then((m) => ({ default: m.RowAccessDialog })));
 
 /** Pick a new parent: any page or database in the sidebar tree except this page and its subpages. */
 export function MoveDialog({
