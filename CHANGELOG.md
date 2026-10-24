@@ -36,6 +36,10 @@
 - **Archive notifications.** Each inbox item has *Archive*, and *Archive read* clears every read
   one at once. Archived items are marked read, leave the inbox and its count, and are listed under
   the inbox's *Archived* tab, where *Move to inbox* brings one back. Migration 0136.
+- **Copy links to rows, and paste lists of links as mentions.** *Copy links* in a table's selection
+  bar copies the selected rows' links, one per line. Pasting several links to pages of the
+  workspace into a page makes a mention of each, one block per line (list items when pasted into a
+  list).
 
 ### Changed
 

@@ -426,6 +426,9 @@
   highlighted, in the editor, on published pages and in the print view; pasted into a page it
   becomes a mention of that block, a backlink like any other, and Markdown over MCP and the API
   keeps it as `[Title](/w/<workspace>/p/<page>#block-<id>)`.
+  Several links to pages pasted together (one per line, or on one line) become a mention each:
+  one per line makes a block each, in a list when pasted into one. *Copy links* in a table's
+  selection bar copies the selected rows' links one per line, ready to paste that way.
 - **Synced pages**: a block that shows another page's body inside this one, live. People who may
   edit that page edit it right there, alongside everyone else on either page; people who may only
   view it read it; people who can't open it see "No access", as a mention shows them. Its text
