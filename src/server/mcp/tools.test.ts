@@ -2050,10 +2050,16 @@ describe("duplicate_page", () => {
     );
     const { isError, data } = await callTool(writer, "duplicate_page", { page_id: "page-1" });
     expect(isError).toBe(false);
-    expect(duplicate.duplicatePage).toHaveBeenCalledWith(actor, "page-1", " (copy)");
+    expect(duplicate.duplicatePage).toHaveBeenCalledWith(actor, "page-1", " (copy)", { withoutRows: false });
     expect(pages.renamePage).not.toHaveBeenCalled();
     expect(data).toMatchObject({ id: "page-copy", title: "Plan (copy)", duplicated_from: "page-1", teamspace: "Private" });
     expect(data.url).toMatch(/\/w\/ws-1\/p\/page-copy$/);
+  });
+
+  it("leaves the rows out of the databases it copies when asked", async () => {
+    duplicate.duplicatePage.mockResolvedValue({ id: "page-copy", workspaceId: "ws-1" });
+    await callTool(writer, "duplicate_page", { page_id: "page-1", without_rows: true });
+    expect(duplicate.duplicatePage).toHaveBeenCalledWith(actor, "page-1", " (copy)", { withoutRows: true });
   });
 
   it("renames the copy when a title is given", async () => {
