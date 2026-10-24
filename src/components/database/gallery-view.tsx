@@ -46,6 +46,7 @@ export function GalleryView({
   const { editTitleOf, typed, create: createNew, stopEditing, quick } = useNewRow(api, view, properties);
   const size = view.config.cardSize ?? "medium";
   const showIcons = view.config.showIcons !== false;
+  const wrapProperties = view.config.wrapProperties === true;
   // Covers come from each row's body (first_image) or from a files property's first image.
   const source = galleryCover(view.config);
   const coverProp = coverProperty(view.config, properties);
@@ -79,6 +80,7 @@ export function GalleryView({
               workspaceId={workspaceId}
               row={row}
               showIcon={showIcons}
+              wrap={wrapProperties}
               props={cardProps}
               color={colors?.get(row.id)}
               coverUrl={withCover ? coverOf(row) : null}
@@ -114,6 +116,7 @@ const GalleryCard = memo(function GalleryCard({
   workspaceId,
   row,
   showIcon,
+  wrap,
   props,
   color,
   coverUrl,
@@ -128,6 +131,8 @@ const GalleryCard = memo(function GalleryCard({
   row: Row;
   /** The view shows rows' page icons (see ViewConfig showIcons). */
   showIcon: boolean;
+  /** Long values take more lines instead of being cut off (see ViewConfig wrapProperties). */
+  wrap: boolean;
   props: Property[];
   /** What color rules color on the card: the card, its name or values. */
   color?: RowColors;
@@ -202,8 +207,12 @@ const GalleryCard = memo(function GalleryCard({
         {shown.length > 0 && (
           <div className="mt-2 flex flex-col items-start gap-1.5 text-xs">
             {shown.map((p) => (
-              <div key={p.id} className={cn("flex max-w-full min-w-0 items-center text-fg-muted", cellMarkClass(color, p.id))} title={p.name}>
-                <RowValue prop={p} row={row} />
+              <div
+                key={p.id}
+                className={cn("flex max-w-full min-w-0 text-fg-muted", wrap ? "items-start" : "items-center", cellMarkClass(color, p.id))}
+                title={p.name}
+              >
+                <RowValue prop={p} row={row} wrap={wrap} />
               </div>
             ))}
           </div>

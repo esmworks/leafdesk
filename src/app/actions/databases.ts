@@ -173,6 +173,14 @@ export async function archiveRowsAction(databaseId: string, rowIds: string[]) {
   return run((userId) => pages.archiveRows(userId, databaseId, rowIds));
 }
 
+/** "Set icon" and "Remove icon" (null) on selected rows. */
+export async function setRowsIconAction(databaseId: string, rowIds: string[], icon: string | null) {
+  return run((userId) => {
+    if (!Array.isArray(rowIds) || (icon !== null && typeof icon !== "string")) throw new Error("Invalid icon");
+    return pages.setRowsIcon(userId, String(databaseId), rowIds.map(String), icon);
+  });
+}
+
 export async function duplicateRowsAction(databaseId: string, rowIds: string[]) {
   return run(async (userId) => {
     const t = await getTranslations("page.header");

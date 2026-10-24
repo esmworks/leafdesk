@@ -317,7 +317,9 @@
     "pasteLeftOut": "{count, plural, one {תא אחד שהודבק הושמט: הוא לא מתאים לעמודה שלו או שאין לך אפשרות לשנות אותו.} two {שני תאים שהודבקו הושמטו: הם לא מתאימים לעמודות שלהם או שאין לך אפשרות לשנות אותם.} other {# תאים שהודבקו הושמטו: הם לא מתאימים לעמודות שלהם או שאין לך אפשרות לשנות אותם.}}",
     "exportDisabled": "הייצוא מושבת בסביבת העבודה הזו.",
     "merge": "מיזוג",
-    "mergeHint": "מיזוג של 2 עד 5 שורות לשורה אחת"
+    "mergeHint": "מיזוג של 2 עד 5 שורות לשורה אחת",
+    "setIcon": "הגדרת סמל",
+    "removeIcon": "הסרת הסמל"
   },
   "calculate": {
     "calculate": "חישוב",
@@ -421,7 +423,8 @@
     "endTime": "שעת סיום",
     "endDateSwitch": "תאריך סיום",
     "includeTime": "כולל שעה",
-    "hiddenByParent": "{count, plural, one {אפשרות אחת אינה מתאימה} other {# אפשרויות אינן מתאימות}} ל“{parent}” של השורה הזו."
+    "hiddenByParent": "{count, plural, one {אפשרות אחת אינה מתאימה} other {# אפשרויות אינן מתאימות}} ל“{parent}” של השורה הזו.",
+    "rangeHint": "לחיצה על יום עם Shift קובעת תאריך סיום."
   },
   "checklist": {
     "addItem": "הוספת פריט",
@@ -536,7 +539,10 @@
     "noParentOptions": "ל“{parent}” עדיין אין אפשרויות.",
     "parentOptionsLabel": "עם “{parent}”:",
     "parentOptionsAll": "תמיד",
-    "parentOptionToggle": "להציע את “{option}” כש“{parent}” הוא “{value}”"
+    "parentOptionToggle": "להציע את “{option}” כש“{parent}” הוא “{value}”",
+    "sortOptionsAsc": "מיון א ← ת",
+    "sortOptionsDesc": "מיון ת ← א",
+    "dragOption": "גררו כדי להזיז את {name}"
   },
   "rowProperties": {
     "noProperties": "אין מאפיינים",
@@ -768,7 +774,8 @@
     "newPlaceProperty": "מאפיין מקום חדש",
     "pinColor": "צבע הסיכה",
     "noPinColor": "ללא",
-    "colorRules": "כללי צבע"
+    "colorRules": "כללי צבע",
+    "wrapProperties": "גלישת שורות בכל המאפיינים"
   },
   "gallery": {
     "new": "חדש",

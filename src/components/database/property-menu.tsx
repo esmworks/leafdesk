@@ -2,6 +2,8 @@
 
 import {
   ArrowDown,
+  ArrowDownAZ,
+  ArrowDownZA,
   ArrowLeft,
   ArrowLeftToLine,
   ArrowRightToLine,
@@ -17,6 +19,7 @@ import {
   Copy,
   Eye,
   EyeOff,
+  GripVertical,
   Hash,
   ListFilter,
   Lock,
@@ -32,14 +35,15 @@ import {
   Ungroup,
   WrapText,
 } from "lucide-react";
-import { useTranslations } from "next-intl";
+import { useLocale, useTranslations } from "next-intl";
 import { Fragment, useEffect, useRef, useState } from "react";
+import { useReorderDrag, type ReorderDragHandlers } from "@/components/use-reorder-drag";
 import { useDirection } from "@/components/direction";
 import { Button, cn, Input, MenuItem, MenuSeparator } from "@/components/ui";
 import { isComputed, isDerived, PROPERTY_TYPES, STATUS_GROUPS, type StatusGroup } from "@/lib/property-types";
 import { pageLabel } from "@/lib/labels";
 import { canRestrict } from "@/lib/property-access";
-import { SELECT_COLORS, sortStatusOptions, statusColor, statusGroupOf } from "@/lib/properties";
+import { SELECT_COLORS, sortOptionsByName, sortStatusOptions, statusColor, statusGroupOf } from "@/lib/properties";
 import { isAutofillType, type AiAutofillConfig } from "@/lib/ai";
 import { canBeParent, canDepend, dependencyProblem, withoutParentOptions } from "@/lib/dependent-options";
 import { MAX_PROPERTY_DESCRIPTION, propertyDescription } from "@/lib/property-description";
@@ -896,6 +900,41 @@ function OptionsEditor({
     onChange(ordered);
   };
 
+  // Options are ordered by hand (dragged) or sorted by name once; a status option moves within its group.
+  const locale = useLocale();
+  const sortByName = (direction: "asc" | "desc") => {
+    const sorted = sortOptionsByName(options, direction, locale, status);
+    if (sorted.some((o, i) => o.id !== options[i].id)) save(sorted);
+  };
+  const drag = useReorderDrag(
+    "y",
+    (moved, target, side) => {
+      const option = options.find((o) => o.id === moved);
+      const rest = options.filter((o) => o.id !== moved);
+      const at = rest.findIndex((o) => o.id === target);
+      if (!option || at < 0) return;
+      rest.splice(side === "after" ? at + 1 : at, 0, option);
+      save(rest);
+    },
+    "text/x-leafdesk-option",
+    status ? (moved, target) => statusGroupOf(options.find((o) => o.id === moved)!) === statusGroupOf(options.find((o) => o.id === target)!) : undefined,
+  );
+  const sortActions = options.length > 1 && (
+    <>
+      <MenuSeparator />
+      <div className="flex gap-0.5 px-1">
+        <button type="button" onClick={() => sortByName("asc")} className={SORT_ACTION}>
+          <ArrowDownAZ className="h-3.5 w-3.5 shrink-0" />
+          <span className="truncate">{t("sortOptionsAsc")}</span>
+        </button>
+        <button type="button" onClick={() => sortByName("desc")} className={SORT_ACTION}>
+          <ArrowDownZA className="h-3.5 w-3.5 shrink-0" />
+          <span className="truncate">{t("sortOptionsDesc")}</span>
+        </button>
+      </div>
+    </>
+  );
+
   const add = (group?: StatusGroup) => {
     const name = newName.trim();
     if (!name) return;
@@ -911,7 +950,7 @@ function OptionsEditor({
   };
 
   const optionRow = (o: SelectOption) => (
-    <div key={o.id} className="rounded px-1 py-0.5 hover:bg-bg-subtle">
+    <DraggableOption key={o.id} drag={drag.handlers(o.id)} disabled={editing === o.id} label={t("dragOption", { name: o.name })}>
       <div className="flex items-center gap-1">
         {editing === o.id ? (
           <OptionNameInput
@@ -972,7 +1011,7 @@ function OptionsEditor({
           />
         ))}
       </div>
-    </div>
+    </DraggableOption>
   );
 
   const newOptionInput = (group?: StatusGroup) => (
@@ -1011,6 +1050,7 @@ function OptionsEditor({
           </button>
           <span className="text-sm font-medium">{t("optionsTitle", { name: prop.name })}</span>
         </div>
+        {sortActions}
         <MenuSeparator />
         <div className="max-h-96 overflow-y-auto">
           {STATUS_GROUPS.map((group) => (
@@ -1093,11 +1133,12 @@ function OptionsEditor({
           )}
         </>
       )}
+      {sortActions}
       <MenuSeparator />
       <div className="max-h-80 overflow-y-auto">
         {!options.length && <div className="px-2 py-2 text-xs text-fg-faint">{t("noOptions")}</div>}
         {options.map((o) => (
-          <div key={o.id} className="rounded px-1 py-0.5 hover:bg-bg-subtle">
+          <DraggableOption key={o.id} drag={drag.handlers(o.id)} disabled={editing === o.id} label={t("dragOption", { name: o.name })}>
             <div className="flex items-center gap-1">
               {editing === o.id ? (
                 <OptionNameInput
@@ -1170,7 +1211,7 @@ function OptionsEditor({
                 </div>
               </div>
             )}
-          </div>
+          </DraggableOption>
         ))}
       </div>
       <MenuSeparator />
@@ -1192,6 +1233,44 @@ function OptionsEditor({
           <Plus className="h-4 w-4" />
         </button>
       </div>
+    </div>
+  );
+}
+
+const SORT_ACTION =
+  "inline-flex h-7 min-w-0 flex-1 items-center gap-1.5 rounded px-1.5 text-xs text-fg-muted hover:bg-bg-hover hover:text-fg";
+
+/** One option in the options editor, dragged by its grip to a new place (not while its name is edited). */
+function DraggableOption({
+  drag,
+  disabled,
+  label,
+  children,
+}: {
+  drag: ReorderDragHandlers;
+  disabled: boolean;
+  label: string;
+  children: React.ReactNode;
+}) {
+  return (
+    <div
+      draggable={!disabled}
+      onDragStart={drag.onDragStart}
+      onDragOver={drag.onDragOver}
+      onDrop={drag.onDrop}
+      onDragEnd={drag.onDragEnd}
+      className={cn("group/option relative flex gap-0.5 rounded py-0.5 pe-1 hover:bg-bg-subtle", drag.dragging && "opacity-50")}
+    >
+      {drag.dropSide && (
+        <span
+          aria-hidden
+          className={cn("pointer-events-none absolute inset-x-1 h-0.5 bg-accent", drag.dropSide === "before" ? "-top-px" : "-bottom-px")}
+        />
+      )}
+      <span title={label} className="flex h-6 w-3.5 shrink-0 cursor-grab items-center justify-center text-fg-faint">
+        <GripVertical aria-hidden className="h-3.5 w-3.5 opacity-0 group-hover/option:opacity-100" />
+      </span>
+      <div className="min-w-0 flex-1">{children}</div>
     </div>
   );
 }

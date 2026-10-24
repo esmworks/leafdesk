@@ -1,6 +1,6 @@
 /**
  * End-to-end check of bulk row actions against the database: editing a property of many rows,
- * duplicating them and moving them to the trash. Access is checked per row: rows the user can't
+ * giving them an icon, duplicating them and moving them to the trash. Access is checked per row: rows the user can't
  * see, may only view, or that aren't rows of the database are skipped and reported, never
  * changed; a bad value changes nothing. Bulk edits keep two-way relations in sync and tell newly
  * assigned people once per row. Creates its own users and workspace and deletes them afterwards.
@@ -25,7 +25,7 @@ const { duplicateRows } = await import("@/server/duplicate");
 const { pasteRows } = await import("@/server/paste");
 const { databaseProperty } = await import("@/db/schema");
 const { listInbox } = await import("@/server/notifications");
-const { archiveRows, createPage, listTrash, restorePage } = await import("@/server/pages");
+const { archiveRows, createPage, listTrash, restorePage, setRowsIcon } = await import("@/server/pages");
 const { setPagePermission } = await import("@/server/permissions");
 const { setAssignmentMailer } = await import("@/server/assignments");
 const { AccessError } = await import("@/server/access");
@@ -241,6 +241,32 @@ try {
     await rejects(duplicateRows({ userId: ids.guest }, tasks.id, [r1.id], " (copy)"), (e) => e instanceof AccessError),
     "viewers of the database can't duplicate rows",
   );
+
+  // Give selected rows an icon, and take it away
+  const iconOf = async (rowId: string) => (await db.select({ icon: page.icon }).from(page).where(eq(page.id, rowId)))[0].icon;
+  await db.update(page).set({ lockedAt: new Date() }).where(eq(page.id, r2.id));
+  broadcasts.length = 0;
+  const iconed = await setRowsIcon(ids.member, tasks.id, [r1.id, r2.id, r3.id, r4.id, c1.id, r1.id], "🚀");
+  check(same(iconed, { done: [r1.id], skipped: [r3.id, r4.id, c1.id, r2.id] }), "setting an icon skips hidden, view-only, foreign and locked rows", iconed);
+  check(
+    (await iconOf(r1.id)) === "🚀" && !(await iconOf(r2.id)) && !(await iconOf(r3.id)) && !(await iconOf(r4.id)),
+    "…and gives only the rows it changed the icon",
+  );
+  check(
+    broadcasts.filter((b) => b === `db:${tasks.id} rows`).length === 1 && broadcasts.includes(`page:${r1.id} header`),
+    "…telling the database's views once and the changed row's page",
+    broadcasts,
+  );
+  check(
+    await rejects(setRowsIcon(ids.owner, tasks.id, [r1.id], "not an icon"), (e) => (e as { code?: string }).code === "invalidIcon"),
+    "an icon that isn't an emoji is refused",
+  );
+  check((await iconOf(r1.id)) === "🚀", "…and changes nothing");
+  await db.update(page).set({ lockedAt: null }).where(eq(page.id, r2.id));
+  const viewerIcon = await setRowsIcon(ids.guest, tasks.id, [r1.id], null);
+  check(same(viewerIcon, { done: [], skipped: [r1.id] }) && (await iconOf(r1.id)) === "🚀", "viewers can't change rows' icons");
+  const removed = await setRowsIcon(ids.owner, tasks.id, [r1.id, r3.id], null);
+  check(same(removed.done, [r1.id, r3.id]) && !(await iconOf(r1.id)), "removing takes the icon away", removed);
 
   // Move to the trash
   broadcasts.length = 0;

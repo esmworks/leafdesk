@@ -237,6 +237,19 @@ export function sortStatusOptions(options: SelectOption[]): SelectOption[] {
   );
 }
 
+/**
+ * Options in alphabetical order of their names ("asc", A to Z) or the reverse, compared as people
+ * of `locale` read them: case and accents aside, numbers by value ("Phase 2" before "Phase 10").
+ * Status options are sorted within each of their groups, which keep their order.
+ */
+export function sortOptionsByName(options: SelectOption[], direction: "asc" | "desc", locale: string, status = false): SelectOption[] {
+  const collator = new Intl.Collator(locale, { numeric: true, sensitivity: "base" });
+  const sign = direction === "asc" ? 1 : -1;
+  // Equal names keep their order: the sort is stable and ties compare as 0.
+  const sorted = [...options].sort((a, b) => sign * collator.compare(a.name, b.name));
+  return status ? sortStatusOptions(sorted) : sorted;
+}
+
 /** A checklist value as items; anything else reads as an empty list. */
 export function asChecklist(value: unknown): ChecklistItem[] {
   if (!Array.isArray(value)) return [];

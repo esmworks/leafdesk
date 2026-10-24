@@ -317,7 +317,9 @@
     "pasteLeftOut": "貼り付けたセルのうち{count}個は除外されました。列に合わないか、変更する権限がありません。",
     "exportDisabled": "このワークスペースではエクスポートがオフになっています。",
     "merge": "統合",
-    "mergeHint": "2～5行を1行に統合"
+    "mergeHint": "2～5行を1行に統合",
+    "setIcon": "アイコンを設定",
+    "removeIcon": "アイコンを削除"
   },
   "calculate": {
     "calculate": "計算",
@@ -421,7 +423,8 @@
     "endTime": "終了時刻",
     "endDateSwitch": "終了日",
     "includeTime": "時刻を含める",
-    "hiddenByParent": "{count}個のオプションはこの行の「{parent}」に合いません。"
+    "hiddenByParent": "{count}個のオプションはこの行の「{parent}」に合いません。",
+    "rangeHint": "Shift を押しながら日付をクリックすると終了日を設定できます。"
   },
   "checklist": {
     "addItem": "項目を追加",
@@ -536,7 +539,10 @@
     "noParentOptions": "「{parent}」にはまだオプションがありません。",
     "parentOptionsLabel": "「{parent}」が次のとき：",
     "parentOptionsAll": "常に",
-    "parentOptionToggle": "「{parent}」が「{value}」のとき「{option}」を表示"
+    "parentOptionToggle": "「{parent}」が「{value}」のとき「{option}」を表示",
+    "sortOptionsAsc": "昇順に並べ替え (A → Z)",
+    "sortOptionsDesc": "降順に並べ替え (Z → A)",
+    "dragOption": "ドラッグして{name}を移動"
   },
   "rowProperties": {
     "noProperties": "プロパティなし",
@@ -768,7 +774,8 @@
     "newPlaceProperty": "新しい場所プロパティ",
     "pinColor": "ピンの色",
     "noPinColor": "なし",
-    "colorRules": "色ルール"
+    "colorRules": "色ルール",
+    "wrapProperties": "すべてのプロパティを折り返す"
   },
   "gallery": {
     "new": "新規",

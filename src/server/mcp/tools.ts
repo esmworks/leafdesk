@@ -466,6 +466,7 @@ const viewLayoutInputs = {
 const viewDisplayInputs = {
   show_weekends: z.boolean().optional().describe("Calendar only: show Saturdays and Sundays (true by default)."),
   show_icons: z.boolean().optional().describe("Views with rows: show page icons by row titles (true by default)."),
+  wrap_properties: z.boolean().optional().describe("Board and gallery only: long values on cards wrap onto more lines (false: cut off, the default)."),
 };
 
 /** A view's color rules (update_database_view: a new view gets them right after it is made). */
@@ -507,6 +508,7 @@ type ViewInput = {
   show_table?: boolean;
   show_weekends?: boolean;
   show_icons?: boolean;
+  wrap_properties?: boolean;
   card_size?: CardSize;
   place_by?: string;
   /** "first_image", "none" or a files property's name. */
@@ -688,6 +690,10 @@ function viewConfigPatch(
     const prop = requireProperty(props, input.place_by);
     if (prop.type !== "place") throw new ToolInputError(`Maps place rows by a place property; "${prop.name}" is ${prop.type}.`);
     patch.placeBy = prop.id;
+  }
+  if (input.wrap_properties !== undefined) {
+    only("wrap_properties", "board", "gallery");
+    patch.wrapProperties = input.wrap_properties || undefined;
   }
   if (input.card_size !== undefined) {
     only("card_size", "gallery");

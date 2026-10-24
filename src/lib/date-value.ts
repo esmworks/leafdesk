@@ -310,6 +310,18 @@ export function draftValue(draft: DateDraft, timeZone: string): string | null {
   return `${new Date(start).toISOString()}/${new Date(end).toISOString()}`;
 }
 
+/**
+ * A draft whose range reaches `day` from its start (the date picker's shift-click): the earlier of
+ * the two days starts the range, the later one ends it. A new end gets the hour after the start,
+ * as turning on "End date" gives it; times on one day keep the end after the start.
+ */
+export function extendDraft(draft: DateDraft, day: string): DateDraft {
+  const [start, end] = day < draft.start ? [day, draft.start] : [draft.start, day];
+  let endMinutes = draft.end === null ? Math.min(draft.startMinutes + 60, 24 * 60 - 1) : draft.endMinutes;
+  if (start === end) endMinutes = Math.max(endMinutes, draft.startMinutes);
+  return { ...draft, start, end, endMinutes };
+}
+
 /** The Intl options formatDateValue asks for. */
 export type DateFormatOptions = Pick<Intl.DateTimeFormatOptions, "year" | "month" | "day" | "hour" | "minute" | "timeZone">;
 

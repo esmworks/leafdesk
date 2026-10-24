@@ -8,6 +8,7 @@ import {
   dateSortKey,
   dateStartDay,
   draftValue,
+  extendDraft,
   formatDateValueIn,
   parseDateValue,
   setDateDays,
@@ -201,5 +202,31 @@ describe("formatDateValueIn", () => {
       "12 Oct 2026, 14:30 → 16:00",
     );
     expect(formatDateValueIn("2026-10-12T11:30:00.000Z", "en-US", "UTC")).toBe("Oct 12, 2026, 11:30 AM");
+  });
+});
+
+describe("extendDraft", () => {
+  const draft = { start: "2026-10-12", end: null, time: false, startMinutes: 9 * 60, endMinutes: 10 * 60 };
+
+  it("ends the range on a later day, the start staying", () => {
+    expect(extendDraft(draft, "2026-10-15")).toEqual({ ...draft, end: "2026-10-15" });
+    expect(draftValue(extendDraft(draft, "2026-10-15"), "UTC")).toBe("2026-10-12/2026-10-15");
+  });
+
+  it("starts the range on an earlier day, ending it on the old start", () => {
+    expect(extendDraft(draft, "2026-10-09")).toMatchObject({ start: "2026-10-09", end: "2026-10-12" });
+    expect(extendDraft({ ...draft, end: "2026-10-20" }, "2026-10-09")).toMatchObject({ start: "2026-10-09", end: "2026-10-12" });
+  });
+
+  it("moves an end it already has", () => {
+    expect(extendDraft({ ...draft, end: "2026-10-20" }, "2026-10-14")).toMatchObject({ start: "2026-10-12", end: "2026-10-14" });
+  });
+
+  it("gives a new end the hour after the start and keeps an end it had", () => {
+    const timed = { ...draft, time: true, startMinutes: 14 * 60, endMinutes: 9 * 60 };
+    expect(extendDraft(timed, "2026-10-13")).toMatchObject({ end: "2026-10-13", endMinutes: 15 * 60 });
+    expect(extendDraft({ ...timed, end: "2026-10-14", endMinutes: 11 * 60 }, "2026-10-13")).toMatchObject({ endMinutes: 11 * 60 });
+    // On the start's own day the end isn't before the start.
+    expect(extendDraft({ ...timed, end: "2026-10-14", endMinutes: 11 * 60 }, "2026-10-12")).toMatchObject({ end: "2026-10-12", endMinutes: 14 * 60 });
   });
 });

@@ -317,7 +317,9 @@
     "pasteLeftOut": "{count, plural, one {# eingefügte Zelle wurde ausgelassen: Sie passt nicht in ihre Spalte oder du kannst sie nicht ändern.} other {# eingefügte Zellen wurden ausgelassen: Sie passen nicht in ihre Spalten oder du kannst sie nicht ändern.}}",
     "exportDisabled": "In diesem Workspace ist der Export ausgeschaltet.",
     "merge": "Zusammenführen",
-    "mergeHint": "2 bis 5 Zeilen zu einer zusammenführen"
+    "mergeHint": "2 bis 5 Zeilen zu einer zusammenführen",
+    "setIcon": "Symbol festlegen",
+    "removeIcon": "Symbol entfernen"
   },
   "calculate": {
     "calculate": "Berechnen",
@@ -421,7 +423,8 @@
     "endTime": "Endzeit",
     "endDateSwitch": "Enddatum",
     "includeTime": "Uhrzeit angeben",
-    "hiddenByParent": "{count, plural, one {# Option passt} other {# Optionen passen}} nicht zu „{parent}“ dieser Zeile."
+    "hiddenByParent": "{count, plural, one {# Option passt} other {# Optionen passen}} nicht zu „{parent}“ dieser Zeile.",
+    "rangeHint": "Mit Umschalt-Klick auf einen Tag das Enddatum festlegen."
   },
   "checklist": {
     "addItem": "Eintrag hinzufügen",
@@ -536,7 +539,10 @@
     "noParentOptions": "„{parent}“ hat noch keine Optionen.",
     "parentOptionsLabel": "Bei „{parent}“:",
     "parentOptionsAll": "immer",
-    "parentOptionToggle": "„{option}“ anbieten, wenn „{parent}“ „{value}“ ist"
+    "parentOptionToggle": "„{option}“ anbieten, wenn „{parent}“ „{value}“ ist",
+    "sortOptionsAsc": "Sortieren A → Z",
+    "sortOptionsDesc": "Sortieren Z → A",
+    "dragOption": "Ziehen, um {name} zu verschieben"
   },
   "rowProperties": {
     "noProperties": "Keine Eigenschaften",
@@ -768,7 +774,8 @@
     "newPlaceProperty": "Neue Ort-Eigenschaft",
     "pinColor": "Pinfarbe",
     "noPinColor": "Keine",
-    "colorRules": "Farbregeln"
+    "colorRules": "Farbregeln",
+    "wrapProperties": "Alle Eigenschaften umbrechen"
   },
   "gallery": {
     "new": "Neu",

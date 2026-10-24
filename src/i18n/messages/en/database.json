@@ -317,7 +317,9 @@
     "pasteLeftOut": "{count, plural, one {# pasted cell was left out: it doesn’t fit its column or you can’t change it.} other {# pasted cells were left out: they don’t fit their columns or you can’t change them.}}",
     "exportDisabled": "Export is turned off in this workspace.",
     "merge": "Merge",
-    "mergeHint": "Merge 2 to 5 rows into one"
+    "mergeHint": "Merge 2 to 5 rows into one",
+    "setIcon": "Set icon",
+    "removeIcon": "Remove icon"
   },
   "calculate": {
     "calculate": "Calculate",
@@ -421,7 +423,8 @@
     "endTime": "End time",
     "endDateSwitch": "End date",
     "includeTime": "Include time",
-    "hiddenByParent": "{count, plural, one {# option doesn’t} other {# options don’t}} go with this row’s “{parent}”."
+    "hiddenByParent": "{count, plural, one {# option doesn’t} other {# options don’t}} go with this row’s “{parent}”.",
+    "rangeHint": "Shift-click a day to set an end date."
   },
   "checklist": {
     "addItem": "Add an item",
@@ -536,7 +539,10 @@
     "noParentOptions": "“{parent}” has no options yet.",
     "parentOptionsLabel": "With “{parent}”:",
     "parentOptionsAll": "any",
-    "parentOptionToggle": "Offer “{option}” when “{parent}” is “{value}”"
+    "parentOptionToggle": "Offer “{option}” when “{parent}” is “{value}”",
+    "sortOptionsAsc": "Sort A → Z",
+    "sortOptionsDesc": "Sort Z → A",
+    "dragOption": "Drag to move {name}"
   },
   "rowProperties": {
     "noProperties": "No properties",
@@ -768,7 +774,8 @@
     "newPlaceProperty": "New place property",
     "pinColor": "Pin color",
     "noPinColor": "None",
-    "colorRules": "Color rules"
+    "colorRules": "Color rules",
+    "wrapProperties": "Wrap all properties"
   },
   "gallery": {
     "new": "New",

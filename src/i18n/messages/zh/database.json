@@ -317,7 +317,9 @@
     "pasteLeftOut": "有 {count} 个粘贴的单元格被省略：它们与所在列不匹配，或者你无法更改它们。",
     "exportDisabled": "此工作区已关闭导出功能。",
     "merge": "合并",
-    "mergeHint": "将 2 到 5 行合并为一行"
+    "mergeHint": "将 2 到 5 行合并为一行",
+    "setIcon": "设置图标",
+    "removeIcon": "移除图标"
   },
   "calculate": {
     "calculate": "计算",
@@ -421,7 +423,8 @@
     "endTime": "结束时间",
     "endDateSwitch": "结束日期",
     "includeTime": "包含时间",
-    "hiddenByParent": "有 {count} 个选项与此行的“{parent}”不符。"
+    "hiddenByParent": "有 {count} 个选项与此行的“{parent}”不符。",
+    "rangeHint": "按住 Shift 点击某一天即可设置结束日期。"
   },
   "checklist": {
     "addItem": "添加项目",
@@ -536,7 +539,10 @@
     "noParentOptions": "“{parent}”还没有选项。",
     "parentOptionsLabel": "当“{parent}”为：",
     "parentOptionsAll": "始终",
-    "parentOptionToggle": "当“{parent}”为“{value}”时提供“{option}”"
+    "parentOptionToggle": "当“{parent}”为“{value}”时提供“{option}”",
+    "sortOptionsAsc": "按 A → Z 排序",
+    "sortOptionsDesc": "按 Z → A 排序",
+    "dragOption": "拖动以移动{name}"
   },
   "rowProperties": {
     "noProperties": "没有属性",
@@ -768,7 +774,8 @@
     "newPlaceProperty": "新建地点属性",
     "pinColor": "图钉颜色",
     "noPinColor": "无",
-    "colorRules": "颜色规则"
+    "colorRules": "颜色规则",
+    "wrapProperties": "所有属性自动换行"
   },
   "gallery": {
     "new": "新建",

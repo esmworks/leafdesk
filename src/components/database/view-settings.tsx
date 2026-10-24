@@ -159,7 +159,11 @@ export function ViewLayoutMenu({
               >
                 {t("covers.none")}
               </Choice>
+              <MenuSeparator />
+              <WrapPropertiesToggle config={config} onSet={set} />
             </>
+          ) : view.type === "board" ? (
+            <WrapPropertiesToggle config={config} onSet={set} />
           ) : view.type === "map" ? (
             <MapSettings
               view={view}
@@ -210,7 +214,12 @@ export function ViewLayoutMenu({
           {rows && (
             <>
               {/* After the view's own settings; a table, list or board may have none. */}
-              {(view.type === "gallery" || view.type === "timeline" || view.type === "map" || view.type === "calendar" || subItems) && (
+              {(view.type === "gallery" ||
+                view.type === "board" ||
+                view.type === "timeline" ||
+                view.type === "map" ||
+                view.type === "calendar" ||
+                subItems) && (
                 <MenuSeparator />
               )}
               <Heading>{t("openRows")}</Heading>
@@ -752,6 +761,16 @@ function Toggle({ on, onChange, children }: { on: boolean; onChange: (on: boolea
         <span className={cn("absolute top-0.5 h-3 w-3 rounded-full bg-bg shadow transition-[left,right]", on ? "inset-s-3.5" : "inset-s-0.5")} />
       </span>
     </button>
+  );
+}
+
+/** Boards and galleries: long values on cards take more lines instead of being cut off. */
+function WrapPropertiesToggle({ config, onSet }: { config: ViewConfig; onSet: (patch: ViewConfig) => void }) {
+  const t = useTranslations("database.layout");
+  return (
+    <Toggle on={config.wrapProperties === true} onChange={(on) => onSet({ wrapProperties: on || undefined })}>
+      {t("wrapProperties")}
+    </Toggle>
   );
 }
 

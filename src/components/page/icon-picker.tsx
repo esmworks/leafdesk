@@ -25,40 +25,47 @@ export function IconPicker({
   align?: "start" | "end";
   children: (toggle: () => void) => React.ReactNode;
 }) {
-  const t = useTranslations("page.icon");
   return (
     <Popover trigger={({ toggle }) => <>{children(disabled ? () => {} : toggle)}</>} align={align} className="w-72">
       {(close) => (
-        <div className="p-1">
-          <div className="grid grid-cols-8 gap-0.5">
-            {EMOJIS.map((e) => (
-              <button
-                key={e}
-                type="button"
-                onClick={() => {
-                  onChange(e);
-                  close();
-                }}
-                className="flex h-8 w-8 items-center justify-center rounded text-lg hover:bg-bg-hover"
-              >
-                {e}
-              </button>
-            ))}
-          </div>
-          {icon && (
-            <button
-              type="button"
-              onClick={() => {
-                onChange(null);
-                close();
-              }}
-              className="mt-1 w-full rounded px-2 py-1.5 text-start text-sm text-fg-muted hover:bg-bg-hover"
-            >
-              {t("remove")}
-            </button>
-          )}
-        </div>
+        <IconGrid
+          icon={icon}
+          onChange={(next) => {
+            onChange(next);
+            close();
+          }}
+        />
       )}
     </Popover>
+  );
+}
+
+/** The icons to choose from, and "Remove" while there is an icon: the inside of IconPicker, for other popovers. */
+export function IconGrid({ icon, onChange }: { icon: string | null; onChange: (icon: string | null) => void }) {
+  const t = useTranslations("page.icon");
+  return (
+    <div className="p-1">
+      <div className="grid grid-cols-8 gap-0.5">
+        {EMOJIS.map((e) => (
+          <button
+            key={e}
+            type="button"
+            onClick={() => onChange(e)}
+            className="flex h-8 w-8 items-center justify-center rounded text-lg hover:bg-bg-hover"
+          >
+            {e}
+          </button>
+        ))}
+      </div>
+      {icon && (
+        <button
+          type="button"
+          onClick={() => onChange(null)}
+          className="mt-1 w-full rounded px-2 py-1.5 text-start text-sm text-fg-muted hover:bg-bg-hover"
+        >
+          {t("remove")}
+        </button>
+      )}
+    </div>
   );
 }
