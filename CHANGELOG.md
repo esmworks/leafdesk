@@ -2,6 +2,15 @@
 
 ## Unreleased
 
+### Changed
+
+- **The documentation moved from the README into `docs/`.** README.md keeps the overview, the
+  quick start, security, license and trademarks, and lists the rest: features, running a server,
+  install and offline use, export, email on rows, accounts and security, automations and webhooks,
+  AI, agents, connections and MCP, the REST API and development, one file each. Section titles are
+  unchanged, so a link to a README section other than the quick start now finds it under the same
+  anchor in its `docs/` file.
+
 ## 0.6.3 — 2026-10-24
 
 ### Upgrading from 0.6.2

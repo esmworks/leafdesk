@@ -85,7 +85,7 @@ services:
       # Server administrators beside the first account, and who may create workspaces (see .env.example).
       ADMIN_EMAILS: ${ADMIN_EMAILS:-}
       WORKSPACE_CREATION: ${WORKSPACE_CREATION:-}
-      # Single sign-on for the whole server: off unless issuer, client id and secret are set (see the README).
+      # Single sign-on for the whole server: off unless issuer, client id and secret are set (see docs/account-and-security.md).
       OIDC_ISSUER: ${OIDC_ISSUER:-}
       OIDC_CLIENT_ID: ${OIDC_CLIENT_ID:-}
       OIDC_CLIENT_SECRET: ${OIDC_CLIENT_SECRET:-}
@@ -101,7 +101,7 @@ services:
       SMTP_USER: ${SMTP_USER:-}
       SMTP_PASSWORD: ${SMTP_PASSWORD:-}
       MAIL_FROM: ${MAIL_FROM:-}
-      # Push notifications: off unless all three VAPID values are set (see the README).
+      # Push notifications: off unless all three VAPID values are set (see docs/self-hosting.md).
       VAPID_PUBLIC_KEY: ${VAPID_PUBLIC_KEY:-}
       VAPID_PRIVATE_KEY: ${VAPID_PRIVATE_KEY:-}
       VAPID_SUBJECT: ${VAPID_SUBJECT:-}
@@ -122,7 +122,7 @@ services:
       S3_SECRET_ACCESS_KEY: ${S3_SECRET_ACCESS_KEY:-}
       S3_FORCE_PATH_STYLE: ${S3_FORCE_PATH_STYLE:-}
       S3_PREFIX: ${S3_PREFIX:-}
-      # People's own storage for workspaces' uploads: off unless OWN_STORAGE_ENABLED=true (see the README).
+      # People's own storage for workspaces' uploads: off unless OWN_STORAGE_ENABLED=true (see docs/self-hosting.md).
       OWN_STORAGE_ENABLED: ${OWN_STORAGE_ENABLED:-}
       STORAGE_ALLOWED_HOSTS: ${STORAGE_ALLOWED_HOSTS:-}
       STORAGE_GDRIVE_CLIENT_ID: ${STORAGE_GDRIVE_CLIENT_ID:-}
@@ -138,19 +138,19 @@ services:
       API_CORS_ORIGINS: ${API_CORS_ORIGINS:-}
       # The server's time zone, for automations that set a date to "now" (UTC when unset).
       TZ: ${TZ:-}
-      # Hosts on a private network that automation webhooks may reach (see the README).
+      # Hosts on a private network that automation webhooks may reach (see docs/automations.md).
       AUTOMATION_WEBHOOK_ALLOWED_HOSTS: ${AUTOMATION_WEBHOOK_ALLOWED_HOSTS:-}
       # How often "a date passes" automations look for rows, in seconds (600 when unset).
       AUTOMATION_DATE_CHECK_SECONDS: ${AUTOMATION_DATE_CHECK_SECONDS:-}
-      # Connections: private hosts they may reach, and the key that seals their secrets (see the README).
+      # Connections: private hosts they may reach, and the key that seals their secrets (see docs/connections.md).
       CONNECTOR_ALLOWED_HOSTS: ${CONNECTOR_ALLOWED_HOSTS:-}
-      # Email on rows: mail servers on a private network that mailboxes may reach (see the README).
+      # Email on rows: mail servers on a private network that mailboxes may reach (see docs/email-on-rows.md).
       MAIL_ALLOWED_HOSTS: ${MAIL_ALLOWED_HOSTS:-}
       LEAFDESK_ENCRYPTION_KEY: ${LEAFDESK_ENCRYPTION_KEY:-}
       LEAFDESK_ENCRYPTION_OLD_KEYS: ${LEAFDESK_ENCRYPTION_OLD_KEYS:-}
       # The instance's own OAuth apps for services that sign in only registered apps (see .env.example).
       CONNECTION_OAUTH_CLIENTS: ${CONNECTION_OAUTH_CLIENTS:-}
-      # AI features stay off unless AI_PROVIDER and AI_MODEL are set (see the README's AI section).
+      # AI features stay off unless AI_PROVIDER and AI_MODEL are set (see docs/ai.md).
       AI_PROVIDER: ${AI_PROVIDER:-}
       AI_MODEL: ${AI_MODEL:-}
       AI_FAST_MODEL: ${AI_FAST_MODEL:-}
@@ -183,7 +183,7 @@ services:
       STT_MAX_SECONDS: ${STT_MAX_SECONDS:-}
       STT_MAX_MB: ${STT_MAX_MB:-}
       STT_TIMEOUT_SECONDS: ${STT_TIMEOUT_SECONDS:-}
-      # People's own AI keys: off unless OWN_AI_KEYS_ENABLED=true (see the README).
+      # People's own AI keys: off unless OWN_AI_KEYS_ENABLED=true (see docs/ai.md).
       OWN_AI_KEYS_ENABLED: ${OWN_AI_KEYS_ENABLED:-}
       AI_ONLY_OWN_KEYS: ${AI_ONLY_OWN_KEYS:-}
       AI_ALLOWED_HOSTS: ${AI_ALLOWED_HOSTS:-}
@@ -191,7 +191,7 @@ services:
       WEB_SEARCH_PROVIDER: ${WEB_SEARCH_PROVIDER:-}
       WEB_SEARCH_URL: ${WEB_SEARCH_URL:-}
       WEB_SEARCH_API_KEY: ${WEB_SEARCH_API_KEY:-}
-      # The AI chat from Telegram: off unless TELEGRAM_BOT_TOKEN is set (see the README).
+      # The AI chat from Telegram: off unless TELEGRAM_BOT_TOKEN is set (see docs/ai.md).
       TELEGRAM_BOT_TOKEN: ${TELEGRAM_BOT_TOKEN:-}
       TELEGRAM_API_URL: ${TELEGRAM_API_URL:-}
       # Address search and map images: OpenStreetMap's public servers unless set; empty turns them off.

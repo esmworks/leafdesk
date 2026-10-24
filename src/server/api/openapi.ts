@@ -50,7 +50,7 @@ const DESCRIPTION = `A REST API for the pages, databases, rows and comments of L
 
 **Property access.** A database property can be restricted: some people may not see it at all, see it without its values, or only read its values. The API answers as the token's user: properties they can't know of are left out everywhere (schema, rows, views, errors), values they may not see are left out of rows and named in \`hidden_properties\`, and filters and sorts never run on values kept from them. People with full access to a database see everything, with each restricted property's settings in \`access_settings\`.
 
-**Page bodies** are Markdown with a few extensions (callouts, equations, columns, mentions, embedded databases); see the MCP server's instructions in the README. Every body change saves the previous version to page history first.
+**Page bodies** are Markdown with a few extensions (callouts, equations, columns, mentions, embedded databases); see the MCP server's instructions in Leafdesk's docs/connections.md. Every body change saves the previous version to page history first.
 
 Field descriptions are shared with Leafdesk's MCP server; where they name its tools: ${TOOL_NAMES.map(([tool, rest]) => `\`${tool}\` → ${rest}`).join(", ")}.`;
 
