@@ -13,8 +13,8 @@ import { discard, store } from "./markdown";
  * Imports PDFs as pages under a page (or at the top level of a workspace): one page per PDF, made
  * of its text layer (see lib/import/pdf for how headings, paragraphs, lists and page breaks are
  * read from the layout), titled by the heading it starts with, else by its file name. With
- * `attach`, the PDF itself is uploaded to the page and shown at its top, for what text can't carry
- * (pictures, tables, the layout); one that can't be stored (too large, out of storage) is left out
+ * `attach`, the PDF itself is uploaded to the page and shown at its end (its preview is tall: the text
+ * comes first), for what text can't carry (pictures, tables, the layout); one that can't be stored (too large, out of storage) is left out
  * with a warning.
  *
  * The PDF is read by the same reader full-text search uses for uploaded PDFs (unpdf), in the
@@ -142,7 +142,7 @@ export async function importPdf(actor: WriteActor, input: PdfImportInput): Promi
       const blocks: unknown[] = [...document.blocks];
       if (input.attach) {
         const url = await store(userId, id, document.name, document.data, warnings, counts);
-        if (url) blocks.unshift({ type: "file", props: { url, name: document.name, caption: "" } });
+        if (url) blocks.push({ type: "file", props: { url, name: document.name, caption: "" } });
       }
       if (blocks.length) await getCollab().appendBlocks(id, blocks, actor);
     }

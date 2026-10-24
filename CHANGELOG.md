@@ -7,7 +7,7 @@
 - **Import a PDF as a page.** Import has a PDF tab: each PDF becomes a page made of its text, with
   headings guessed from font size, paragraphs joined across lines and page breaks, and bulleted
   and numbered lines as lists; running headers, footers and page numbers are left out. The PDF
-  itself is attached at the top of the page unless that's switched off. A scan without a text
+  itself is attached at the end of the page unless that's switched off. A scan without a text
   layer is refused with a note to run text recognition first, rather than making an empty page.
   The `/api/import` route takes `mode=pdf` (with `attach=1`).
 - **Keep a database of Jira issues in sync.** Import has a Jira tab: connect a Jira Cloud site

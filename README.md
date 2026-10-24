@@ -553,7 +553,7 @@ for Windows, `.AppImage` for Linux) and choose *On this computer*. See [Desktop 
   What recurs at the top or bottom of most pages (running headers and footers) and page numbers
   there are left out. A heading at the very top becomes the page's title, otherwise the file name
   does. With *Also attach each PDF to its page* (on by default) the PDF itself is uploaded and
-  shown at the top of the page, for its pictures, tables and layout; one over the upload limit is
+  shown at the end of the page, for its pictures, tables and layout; one over the upload limit is
   left off and listed in the result. Bullets drawn as shapes rather than characters, bold and
   italic, links, tables and columns side by side don't come through as such (columns are read
   line by line across). A scan without a text layer is refused with a note to run text

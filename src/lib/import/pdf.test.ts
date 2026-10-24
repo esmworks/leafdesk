@@ -64,6 +64,26 @@ describe("pdfHtml", () => {
     );
   });
 
+  it("keeps spaced items in one list and a wrapped item's line at the margin in its item", () => {
+    const { html } = pdfHtml([
+      page([
+        ...lines(["• The fan was replaced; its wiring was checked because the first check found a", "loose connection."], 700),
+        at("• The seals are worn.", 40, 666),
+        at("1. Order the seals.", 40, 640),
+        at("2. Book the visit.", 40, 614),
+        at("• Apples", 40, 588),
+        ...lines(["A paragraph right under the list."], 575),
+      ]),
+    ]);
+    expect(html).toBe(
+      "<ul><li><p>The fan was replaced; its wiring was checked because the first check found a loose connection.</p></li>" +
+        "<li><p>The seals are worn.</p></li></ul>" +
+        "<ol><li><p>Order the seals.</p></li><li><p>Book the visit.</p></li></ol>" +
+        "<ul><li><p>Apples</p></li></ul>" +
+        "<p>A paragraph right under the list.</p>",
+    );
+  });
+
   it("nests an item that stands further in", () => {
     const { html } = pdfHtml([page([at("• Fruit", 40, 700), at("– Apples", 60, 687), at("• Bread", 40, 674)])]);
     expect(html).toBe("<ul><li><p>Fruit</p><ul><li><p>Apples</p></li></ul></li><li><p>Bread</p></li></ul>");

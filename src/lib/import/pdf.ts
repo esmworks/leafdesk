@@ -164,6 +164,8 @@ export function pdfHtml(pages: PdfPageText[]): { html: string; chars: number } {
   const headingSizes = [...new Set(all.filter((l) => l.size >= body * HEADING_RATIO && l.size - body >= 0.5).map((l) => l.size))].sort((a, b) => b - a);
   const levelOf = (size: number) => Math.min(3, headingSizes.indexOf(size) + 1);
 
+  // Where the text of each page reaches on the right: a line that goes about as far was wrapped.
+  const pageRight = lines.map((page) => Math.max(0, ...page.map((l) => l.right)));
   const blocks: Block[] = [];
   let prev: Line | null = null;
   // The last line ends a page: what follows on the next page may still go on with it.
@@ -190,15 +192,19 @@ export function pdfHtml(pages: PdfPageText[]): { html: string; chars: number } {
       const ordered = !BULLET.test(line.text);
       const textX = line.x + (line.right - line.x) * (marker[1].length / Math.max(1, line.text.length)) + line.size * 0.3;
       const item: Item = { ordered, markerX: line.x, textX, text: marker[2], children: [] };
-      if (block?.kind === "list" && (close || carriesOn) && sameSize) placeItem(block.items, item, line.size);
+      // Items set apart by a little space (as word processors space them) are still one list.
+      const spaced = prev !== null && samePage && prev.y - line.y > 0 && prev.y - line.y <= leading(line.size) * 2.6 + 0.5;
+      if (block?.kind === "list" && (close || carriesOn || spaced) && sameSize) placeItem(block.items, item, line.size);
       else blocks.push({ kind: "list", size: line.size, items: [item] });
       prev = line;
       continue;
     }
     if (continues && block?.kind === "list") {
       const item = lastItem(block.items);
-      // As far in as the item's text: the item goes on; back at the margin: a paragraph after the list.
-      if (line.x >= item.textX - line.size * 0.6 || carriesOn) {
+      // As far in as the item's text, or back at the margin under a line that was wrapped mid-sentence:
+      // the item goes on; otherwise a paragraph after the list.
+      const wrapped = prev !== null && !SENTENCE_END.test(prev.text) && prev.right >= pageRight[prev.page] - line.size * 3;
+      if (line.x >= item.textX - line.size * 0.6 || carriesOn || wrapped) {
         item.text = joinLines(item.text, line.text);
         prev = line;
         continue;

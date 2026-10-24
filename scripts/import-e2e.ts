@@ -621,8 +621,8 @@ try {
   const [storedPdf] = await db.select().from(file).where(eq(file.pageId, memoId));
   check(
     fromPdf.created.files === 1 && storedPdf?.name === "Memo notes.pdf" && storedPdf.contentType === "application/pdf" &&
-      memoBody.includes(`/api/files/${storedPdf.id}`) && memoBody.indexOf(`/api/files/${storedPdf.id}`) < memoBody.indexOf("A short memo."),
-    "…the PDF itself uploaded to it and shown at its top",
+      memoBody.includes(`/api/files/${storedPdf.id}`) && memoBody.indexOf(`/api/files/${storedPdf.id}`) > memoBody.indexOf("A short memo."),
+    "…the PDF itself uploaded to it and shown at its end, after the text",
     { storedPdf, memoBody },
   );
   check(

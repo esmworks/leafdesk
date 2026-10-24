@@ -29,7 +29,7 @@ import { TeamspaceError } from "@/server/teamspaces";
  *                   `vault=1`: the files are an Obsidian vault whose `.obsidian` folder wasn't sent.
  *   mode=docx       Word documents (.docx), each `file` a page under `parentId` / `workspaceId`.
  *   mode=pdf        PDFs, each `file` a page of its text under `parentId` / `workspaceId`;
- *                   `attach=1`: each PDF is also uploaded to its page and shown at its top.
+ *                   `attach=1`: each PDF is also uploaded to its page and shown at its end.
  *   mode=csv-new    One CSV or Excel (.xlsx) `file` as a new database under `parentId` /
  *                   `workspaceId`, called `title`, with `titleColumn` (a column index, or empty for
  *                   none) and `types` (JSON: a property type or null per column; guessed when missing).
