@@ -32,7 +32,7 @@ import { takeNewPage } from "./new-page-focus";
 import { hasLevel, PageHeaderActions } from "./page-header-actions";
 import { setDocTitle, useDocTitle, usePageDoc, usePageStyle, type ConnectionState } from "./use-page-doc";
 import { usePagePresence } from "./use-presence";
-import { usePendingSuggestions } from "./suggesting";
+import { usePendingSuggestions } from "./pending-suggestions";
 import type { Decision } from "@/lib/suggestions";
 import { useIsOffline, useOffline } from "@/components/offline/offline-context";
 import { SkillBar } from "@/components/skills/skill-bar";
