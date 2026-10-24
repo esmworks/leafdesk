@@ -53,10 +53,12 @@ each platform.
 
 | File | What it does |
 | --- | --- |
-| `src/main.ts` | Window, connecting to a server or starting local mode, the app's pages, permissions |
+| `src/main.ts` | Windows, connecting to a server or starting local mode, the app's pages, permissions, `leafdesk://open` links |
+| `src/windows.ts` | A window and its tabs: one `WebContentsView` per tab under the tab strip, which is the window's own page |
+| `src/tabs.ts` | Tab order, closed tabs, tab keys and saved tabs, without Electron (tested) |
 | `src/local-db.ts` | Local mode's PostgreSQL: made, started on a free port, stopped, recovered |
 | `src/local-server.ts` | Local mode's server: setup, start, signing in to the computer's account, stop |
-| `src/navigation.ts` | Which links stay in the window, open in the browser or go nowhere |
+| `src/navigation.ts` | Which links stay in the window, open a tab, open in the browser or go nowhere; checking `leafdesk://open` links |
 | `src/last-page.ts` | The page the window opens on at start: the last one shown, on the same server only |
 | `src/certificates.ts` | Certificates the system doesn't trust: fingerprint, trusting one per host |
 | `src/server-address.ts` | Turning what was typed into addresses to try |
@@ -64,9 +66,14 @@ each platform.
 | `src/menu.ts`, `src/context-menu.ts` | Application and right-click menus |
 | `src/global-shortcut.ts` | The system-wide shortcut to AI chat (Go → Ask AI Shortcut): its choices, labels and the server's `/ai` address |
 | `src/updates.ts` | Updates from GitHub releases |
-| `src/preload.cts` | The bridge the connect page uses (never given to server pages); marks every page with where the window's buttons are (macOS) |
+| `src/preload.cts` | The bridges the connect page and the tab strip use (never given to server pages); marks server pages with `data-desktop-app` and passes their `data-page-icon` to the tab |
 | `src/pages/app.ts`, `pages/` | The connect, certificate, starting and problem screens |
+| `src/pages/tabs.ts`, `pages/tabs.*` | The tab strip: tabs, dragging to reorder, the new tab button |
 | `scripts/bundle-server.ts` | Builds the server packaged apps run (`pnpm server`) |
 | `scripts/after-pack.ts` | Puts that server and the platform's PostgreSQL into the packaged app |
+
+Driving the app over CDP while testing: keys sent with `Input.dispatchKeyEvent` never reach
+`before-input-event`, so tab keys need real input (CGEvent on macOS); the tab strip refuses
+navigation, so reload it with `Page.reload`, not `location.reload()`.
 
 Releases are built by `.github/workflows/desktop.yml`.

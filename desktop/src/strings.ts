@@ -1,6 +1,6 @@
 /**
- * The desktop app's own words: the connect screen, menus, the context menu and update prompts.
- * Everything inside the window comes from the server in its own language; these follow the
+ * The desktop app's own words: the connect screen, the tab strip, menus, the context menu and update
+ * prompts. Everything inside the window comes from the server in its own language; these follow the
  * language picked in Leafdesk (its NEXT_LOCALE cookie) and otherwise the system's.
  * `{host}` and `{version}` are filled in where they are used.
  */

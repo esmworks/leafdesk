@@ -4,6 +4,24 @@
 
 ### Added
 
+- **Tabs in the desktop app.** Each desktop window holds tabs in a strip that follows Leafdesk's
+  light or dark look, with the window's own buttons on macOS, Windows and Linux. Cmd/Ctrl+T opens
+  a tab on the workspace's home, Cmd/Ctrl+W closes one (the last one closes the window),
+  Cmd/Ctrl+Shift+T reopens the last closed tab, Ctrl+Tab and Ctrl+Shift+Tab move between them,
+  Cmd/Ctrl+1–9 pick one and Cmd/Ctrl+Shift+N opens a new window; all are in the File and Window
+  menus. Cmd/Ctrl+click or a middle click on a link to a page of the server opens it in a tab
+  behind the current one. Tabs show their page's title and emoji, reorder by dragging and have a
+  menu with *Close*, *Close Other Tabs*, *Duplicate Tab* and *Reopen Closed Tab*; every window
+  comes back with its tabs at the next start, and all tabs share one sign-in. Reload, zoom, back
+  and forward act on the current tab.
+- **Open Leafdesk links in the desktop app.** *My account → Preferences → Desktop app* (*Off*, *Offer to open
+  them* or *Always open them*) lets a browser hand Leafdesk pages to the desktop app: the offer is a
+  card to open the page there, with an *Always* box; *Always open them* tries the app
+  once per browser tab and stays on the web page when it isn't installed. The app accepts
+  `leafdesk://open?url=…` only for the server it is connected to (same scheme, host and port) and
+  opens the page in a new tab. Not shown in Leafdesk on this computer. Migration
+  `drizzle/0132_desktop_links.sql` adds the person's choice to `user_preference`.
+
 - **Page views and page analytics.** Opening a page, database or row in the app now records a
   view, once the page has been open two seconds and at most once per person and page every five
   minutes, kept as one count per page, person and UTC day and deleted after a year. Only owners
