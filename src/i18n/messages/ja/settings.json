@@ -63,6 +63,7 @@
       "snippets": "テキスト 短縮 スニペット",
       "letterheads": "pdf ヘッダー フッター ロゴ 印刷",
       "connections": "連携 mcp サービス ツール",
+      "webhooks": "ウェブフック webhook http post イベント 連携 通知 送信",
       "site": "ウェブサイト 公開 ドメイン",
       "requireTwoFactor": "2fa mfa 必須 ポリシー",
       "loginMethod": "sso パスワード サインイン ポリシー",

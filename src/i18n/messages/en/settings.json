@@ -63,6 +63,7 @@
       "snippets": "text expansion shortcuts",
       "letterheads": "pdf header footer logo print",
       "connections": "integrations mcp services tools",
+      "webhooks": "webhook http post events integration notify send",
       "site": "website publish domain web",
       "requireTwoFactor": "2fa mfa enforce policy",
       "loginMethod": "sso password sign in policy",

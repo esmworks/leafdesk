@@ -63,6 +63,7 @@
       "snippets": "tekst skróty fragmenty",
       "letterheads": "pdf nagłówek stopka logo drukuj",
       "connections": "integracje mcp usługi narzędzia",
+      "webhooks": "webhook http post zdarzenia integracja powiadomienie wysyłanie",
       "site": "strona www publikuj domena",
       "requireTwoFactor": "2fa mfa wymuś zasada",
       "loginMethod": "sso hasło logowanie zasada",
