@@ -952,7 +952,8 @@
     "sprintsOff": "Sprints are off for this database.",
     "sprintsDatabase": "This database holds the sprints of another database: turn sprints on or off there.",
     "noCurrentSprint": "No sprint is current. Mark one sprint as current first.",
-    "invalidSprints": "Sprints can’t be set up like this: check the sprint length, the first day and the sprints database."
+    "invalidSprints": "Sprints can’t be set up like this: check the sprint length, the first day and the sprints database.",
+    "sprintStateOption": "This option marks a sprint’s state. Rename it if you like, or turn sprints off before deleting it."
   },
   "formula": {
     "title": "Formula",

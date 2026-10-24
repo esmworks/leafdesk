@@ -952,7 +952,8 @@
     "sprintsOff": "Sprint đang tắt cho cơ sở dữ liệu này.",
     "sprintsDatabase": "Cơ sở dữ liệu này lưu sprint của một cơ sở dữ liệu khác: hãy bật hoặc tắt sprint ở đó.",
     "noCurrentSprint": "Không có sprint nào là hiện tại. Hãy đánh dấu một sprint là hiện tại trước.",
-    "invalidSprints": "Không thể thiết lập sprint như vậy: hãy kiểm tra độ dài sprint, ngày đầu tiên và cơ sở dữ liệu sprint."
+    "invalidSprints": "Không thể thiết lập sprint như vậy: hãy kiểm tra độ dài sprint, ngày đầu tiên và cơ sở dữ liệu sprint.",
+    "sprintStateOption": "Tùy chọn này đánh dấu trạng thái của sprint. Bạn có thể đổi tên, hoặc tắt sprint trước khi xóa nó."
   },
   "formula": {
     "title": "Công thức",

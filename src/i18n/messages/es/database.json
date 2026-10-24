@@ -952,7 +952,8 @@
     "sprintsOff": "Los sprints están desactivados en esta base de datos.",
     "sprintsDatabase": "Esta base de datos guarda los sprints de otra base de datos: activa o desactiva los sprints allí.",
     "noCurrentSprint": "Ningún sprint está en curso. Marca primero un sprint como actual.",
-    "invalidSprints": "Los sprints no se pueden configurar así: revisa la duración del sprint, el primer día y la base de datos de sprints."
+    "invalidSprints": "Los sprints no se pueden configurar así: revisa la duración del sprint, el primer día y la base de datos de sprints.",
+    "sprintStateOption": "Esta opción marca el estado de un sprint. Puedes cambiarle el nombre o desactivar los sprints antes de eliminarla."
   },
   "formula": {
     "title": "Fórmula",

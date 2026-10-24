@@ -952,7 +952,8 @@
     "sprintsOff": "Sprinty są wyłączone w tej bazie danych.",
     "sprintsDatabase": "Ta baza danych przechowuje sprinty innej bazy danych: włącz lub wyłącz sprinty tam.",
     "noCurrentSprint": "Żaden sprint nie jest bieżący. Najpierw oznacz jeden sprint jako bieżący.",
-    "invalidSprints": "Nie można tak skonfigurować sprintów: sprawdź długość sprintu, pierwszy dzień i bazę danych sprintów."
+    "invalidSprints": "Nie można tak skonfigurować sprintów: sprawdź długość sprintu, pierwszy dzień i bazę danych sprintów.",
+    "sprintStateOption": "Ta opcja oznacza stan sprintu. Możesz zmienić jej nazwę albo wyłączyć sprinty przed jej usunięciem."
   },
   "formula": {
     "title": "Formuła",

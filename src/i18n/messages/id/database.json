@@ -952,7 +952,8 @@
     "sprintsOff": "Sprint nonaktif untuk database ini.",
     "sprintsDatabase": "Database ini menyimpan sprint milik database lain: aktifkan atau nonaktifkan sprint di sana.",
     "noCurrentSprint": "Tidak ada sprint yang sedang berjalan. Tandai satu sprint sebagai saat ini terlebih dahulu.",
-    "invalidSprints": "Sprint tidak dapat disiapkan seperti ini: periksa panjang sprint, hari pertama, dan database sprint."
+    "invalidSprints": "Sprint tidak dapat disiapkan seperti ini: periksa panjang sprint, hari pertama, dan database sprint.",
+    "sprintStateOption": "Opsi ini menandai status sprint. Anda boleh mengganti namanya, atau nonaktifkan sprint sebelum menghapusnya."
   },
   "formula": {
     "title": "Rumus",

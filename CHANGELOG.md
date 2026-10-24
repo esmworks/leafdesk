@@ -14,7 +14,9 @@
   completed, makes the next one current, plans a new next one of the same length and moves the
   tasks whose status isn't done to the new current sprint (tasks the person can't edit stay and are
   counted). The current sprint's board follows the current sprint without its filter changing, and
-  new cards on it go into the current sprint. Turning sprints off keeps the sprints database and
+  new cards on it go into the current sprint. The states can be renamed: filters on a rollup that
+  lists a select's options (as these views' do) follow a rename of those options, in every
+  database; the four state options can't be deleted while sprints are on. Turning sprints off keeps the sprints database and
   every task's sprint; turning them on again picks them up. REST API: `POST
   /databases/{database_id}/sprints/complete` (with `dry_run`). No migration.
 - **Page views and page analytics.** Opening a page, database or row in the app now records a

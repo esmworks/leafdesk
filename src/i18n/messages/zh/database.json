@@ -952,7 +952,8 @@
     "sprintsOff": "此数据库的冲刺已关闭。",
     "sprintsDatabase": "此数据库保存的是另一个数据库的冲刺：请在那里开启或关闭冲刺。",
     "noCurrentSprint": "没有当前冲刺。请先将一个冲刺标为当前。",
-    "invalidSprints": "无法这样设置冲刺：请检查冲刺长度、第一天和冲刺数据库。"
+    "invalidSprints": "无法这样设置冲刺：请检查冲刺长度、第一天和冲刺数据库。",
+    "sprintStateOption": "此选项标记冲刺的状态。可以重命名；如要删除，请先关闭冲刺。"
   },
   "formula": {
     "title": "公式",

@@ -24,7 +24,7 @@ const { db } = await import("@/db");
 const { databaseView, page, user, workspace, workspaceMember } = await import("@/db/schema");
 const { registerCollab } = await import("@/server/collab/bridge");
 const { createCollab } = await import("@/server/collab/service");
-const { addProperty, createRows, getProperties, listRows, updateRowProperties } = await import("@/server/databases");
+const { addProperty, createRows, getProperties, listRows, updateProperty, updateRowProperties } = await import("@/server/databases");
 const { createPage } = await import("@/server/pages");
 const { setPagePermission } = await import("@/server/permissions");
 const { duplicatePage } = await import("@/server/duplicate");
@@ -199,6 +199,30 @@ try {
   );
   check(!(await titles("Sprint planning")).includes("Ship login"), "planning leaves out the completed sprint's tasks");
 
+  // Renaming the states (people rename and translate them): the views' filters follow the names
+  const stateProp = sprintProps.find((p) => p.id === config.statePropertyId)!;
+  const renamedStates = stateProp.options.options!.map((o) =>
+    o.id === config.states.current ? { ...o, name: "Active" } : o.id === config.states.completed ? { ...o, name: "Wrapped up" } : o,
+  );
+  await updateProperty(ids.owner, stateProp.id, { options: renamedStates });
+  const viewTitles = async (viewId: string) => {
+    const [v] = await db.select().from(databaseView).where(eq(databaseView.id, viewId));
+    return (await listRows(ids.owner, tasks.id, v.config)).map((r) => r.title).sort().join();
+  };
+  check(
+    (await viewTitles(config.boardViewId!)) === "Fix search,Write spec",
+    "with Current renamed, the current sprint's board still shows Sprint 2's tasks",
+    await viewTitles(config.boardViewId!),
+  );
+  check(
+    !(await viewTitles(view("Sprint planning").id)).includes("Ship login") && (await viewTitles(view("Sprint planning").id)).includes("Write spec"),
+    "with Completed renamed, planning still leaves out the completed sprint's tasks",
+  );
+  check(
+    await rejects(() => updateProperty(ids.owner, stateProp.id, { options: renamedStates.filter((o) => o.id !== config.states.future) }), "sprintStateOption"),
+    "a sprint state option can't be deleted while sprints are on",
+  );
+
   // From the sprints database, through the REST operation: Sprint 2 completed, Sprint 3 current
   await updateRowProperties(ids.owner, t3.id, { [status.id]: option("Done") });
   const rest = await ops.completeSprint({ userId: ids.owner, actor }, { database_id: sprintsId, dry_run: false });
@@ -210,6 +234,7 @@ try {
     rest,
   );
   check(JSON.stringify(await sprintOf(t1.id)) === JSON.stringify([s3!.id]), "the task left unfinished again moves on to Sprint 3");
+  check((await viewTitles(config.boardViewId!)) === "Write spec", "after the rename, completing still moves the board on to Sprint 3", await viewTitles(config.boardViewId!));
 
   // No current sprint: nothing to complete
   const stateId = config.statePropertyId;

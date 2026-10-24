@@ -14,6 +14,7 @@ import {
   type DateOptions,
   type DependencyConfig,
   type DependencyShift,
+  type FilterRule,
   type FormulaConfig,
   type NumberDisplay,
   type NumberFormat,
@@ -41,7 +42,7 @@ import { isEmptyValue, lostValues, planConversion, retypeViewConfig, type Conver
 import { dropPropertyReferences } from "@/lib/duplicate";
 import { keepDeleted, livePropertyValues, uniqueName, withoutDeleted, type DeletedProperty, type DeletedView } from "@/lib/deleted-schema";
 import { colorRuleFilters } from "@/lib/color-rules";
-import { filterConfigError, filterRules } from "@/lib/filters";
+import { filterConfigError, filterRules, mapFilterRules } from "@/lib/filters";
 import { chartGroupProperty } from "@/lib/chart";
 import { defaultDashboardWidgets } from "@/lib/dashboard";
 import { defaultFormConfig, formSchemaError } from "@/lib/forms";
@@ -1884,6 +1885,64 @@ function checkedDependsOn(prop: DatabaseProperty, ref: string | null, properties
   return parent!.id;
 }
 
+/**
+ * A rollup listing a select's options shows their names, not their ids, so a view filtering on it
+ * ("Sprint state contains Current") names the option. When options are renamed, such filters on
+ * rollups over the property follow, in every database: `renamed` maps the old name (searchFold) to
+ * the new one. Returns the databases whose views changed.
+ */
+async function followRenamedOptions(tx: Executor, propertyId: string, renamed: Map<string, string>): Promise<string[]> {
+  const rollups = await tx
+    .select({ id: databaseProperty.id, databaseId: databaseProperty.databaseId })
+    .from(databaseProperty)
+    .where(
+      and(
+        eq(databaseProperty.type, "rollup"),
+        sql`${databaseProperty.options} -> 'rollup' ->> 'targetPropertyId' = ${propertyId}::text`,
+        sql`${databaseProperty.options} -> 'rollup' ->> 'function' = 'show_original'`,
+      ),
+    );
+  if (!rollups.length) return [];
+  const rollupIds = new Set(rollups.map((r) => r.id));
+  const views = await tx
+    .select({ id: databaseView.id, databaseId: databaseView.databaseId, config: databaseView.config })
+    .from(databaseView)
+    .where(inArray(databaseView.databaseId, [...new Set(rollups.map((r) => r.databaseId))]));
+  const rename = (value: unknown) => (typeof value === "string" ? (renamed.get(searchFold(value)) ?? value) : value);
+  const changed = new Set<string>();
+  for (const view of views) {
+    let touched = false;
+    const filters = mapFilterRules(view.config.filters ?? [], (rule) => {
+      if (!rollupIds.has(rule.propertyId)) return rule;
+      const value = Array.isArray(rule.value) ? rule.value.map(rename) : rename(rule.value);
+      if (JSON.stringify(value) === JSON.stringify(rule.value)) return rule;
+      touched = true;
+      return { ...rule, value } as FilterRule;
+    });
+    if (!touched) continue;
+    // Raw SQL: the view's edit time stays, as a rename elsewhere isn't an edit of the view.
+    await tx.execute(sql`update database_view set config = ${JSON.stringify({ ...view.config, filters })}::jsonb where id = ${view.id}`);
+    changed.add(view.databaseId);
+  }
+  return [...changed];
+}
+
+/** The ids of a select's options that mark sprint states, while it is a sprints database's State (server/sprints). */
+async function sprintStateOptions(propertyId: string): Promise<string[]> {
+  const relations = await db
+    .select({ options: databaseProperty.options })
+    .from(databaseProperty)
+    .where(
+      and(
+        eq(databaseProperty.type, "relation"),
+        isNull(databaseProperty.deletedAt),
+        sql`${databaseProperty.options} -> 'relation' ->> 'role' = 'sprint'`,
+        sql`${databaseProperty.options} -> 'relation' -> 'sprints' ->> 'statePropertyId' = ${propertyId}::text`,
+      ),
+    );
+  return relations.flatMap((r) => Object.values(r.options.relation?.sprints?.states ?? {}));
+}
+
 export async function updateProperty(
   userId: string,
   propertyId: string,
@@ -1956,6 +2015,18 @@ export async function updateProperty(
   const removed = patch.options
     ? (prop.options.options ?? []).filter((o) => !patch.options!.some((n) => n.id === o.id)).map((o) => o.id)
     : [];
+  // The options that mark sprints current, next, future or completed (server/sprints) stay while
+  // sprints are on: the sprint views and Complete sprint go by them.
+  if (removed.length && prop.type === "select" && (await sprintStateOptions(prop.id)).some((id) => removed.includes(id))) {
+    throw new PropertyValueError("This option marks a sprint state: rename it, or turn sprints off first", "sprintStateOption");
+  }
+  // Options renamed, by their old name (folded) to the new one: filters naming them follow.
+  const renamed = new Map(
+    (patch.options ?? []).flatMap((n) => {
+      const before = (prop.options.options ?? []).find((o) => o.id === n.id);
+      return before && before.name !== n.name ? [[searchFold(before.name), n.name] as const] : [];
+    }),
+  );
   // The options as they'll be stored, each change made on top of the others (unchanged: undefined).
   let options: PropertyOptions | undefined;
   const change = (next: (current: PropertyOptions) => PropertyOptions) => {
@@ -1981,7 +2052,9 @@ export async function updateProperty(
   if (dependsOn !== undefined) change((o) => (dependsOn ? { ...o, dependsOn } : without(o, "dependsOn")));
   // Options of this property others depend on that go away leave their lists (lib/dependent-options).
   const dependents = removed.length ? dependentsOf(prop.id, siblings) : [];
+  let followed: string[] = [];
   await db.transaction(async (tx) => {
+    if (renamed.size) followed = await followRenamedOptions(tx, prop.id, renamed);
     for (const child of dependents) {
       const pruned = cleanParentOptions(child.options.options ?? [], { options: { options: patch.options } });
       await tx
@@ -2021,6 +2094,7 @@ export async function updateProperty(
     }
   });
   notifySchema(prop.databaseId);
+  for (const databaseId of followed) if (databaseId !== prop.databaseId) notifySchema(databaseId);
   if (removed.length) notifyRows(prop.databaseId);
   // Date options as stored (a reminder's zone and start are decided here): undefined when unchanged.
   return { date };

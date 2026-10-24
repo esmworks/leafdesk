@@ -952,7 +952,8 @@
     "sprintsOff": "Sprints sind für diese Datenbank aus.",
     "sprintsDatabase": "Diese Datenbank enthält die Sprints einer anderen Datenbank: Schalte Sprints dort ein oder aus.",
     "noCurrentSprint": "Kein Sprint ist aktuell. Markiere zuerst einen Sprint als aktuell.",
-    "invalidSprints": "So lassen sich Sprints nicht einrichten: Prüfe die Sprintlänge, den ersten Tag und die Sprint-Datenbank."
+    "invalidSprints": "So lassen sich Sprints nicht einrichten: Prüfe die Sprintlänge, den ersten Tag und die Sprint-Datenbank.",
+    "sprintStateOption": "Diese Option kennzeichnet den Stand eines Sprints. Benenne sie gern um oder schalte Sprints aus, bevor du sie löschst."
   },
   "formula": {
     "title": "Formel",

@@ -97,7 +97,8 @@ BlockNote on Yjs; Tailwind v4; next-intl. Node 24, pnpm 11. A separate Electron 
 - **Other areas:** meeting notes `meetings.ts` (the block's props, `src/lib/meetings.ts`; its list
   table synced in `persistPage` by `meeting-notes.ts`), sprints `sprints.ts` (no table: the setup is the `sprints` config on the task database's relation
   with role `sprint`; the current sprint's views filter on a hidden rollup of the sprint state, so
-  they follow a completion without changing), Telegram bot `src/server/telegram/`, Jira syncs `jira-sync/` (own
+  they follow a completion without changing; rollups show option names, so `updateProperty`
+  rewrites such rollup filters when options are renamed), Telegram bot `src/server/telegram/`, Jira syncs `jira-sync/` (own
   `database_sync` table and a one-minute sweep; pure mapping in `src/lib/jira-sync.ts`), mail to and from rows `row-mail/`, follow-up
   sequences on rows `sequences/` (sent by a 30-second `startSequences` job; `runSequences(now)` runs
   a round as of any moment, which `scripts/follow-ups-e2e.ts` uses), page webhooks

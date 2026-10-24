@@ -952,7 +952,8 @@
     "sprintsOff": "Bu veritabanında sprintler kapalı.",
     "sprintsDatabase": "Bu veritabanı başka bir veritabanının sprintlerini tutuyor: sprintleri orada açıp kapatın.",
     "noCurrentSprint": "Hiçbir sprint güncel değil. Önce bir sprinti güncel olarak işaretleyin.",
-    "invalidSprints": "Sprintler bu şekilde kurulamaz: sprint uzunluğunu, ilk günü ve sprint veritabanını kontrol edin."
+    "invalidSprints": "Sprintler bu şekilde kurulamaz: sprint uzunluğunu, ilk günü ve sprint veritabanını kontrol edin.",
+    "sprintStateOption": "Bu seçenek bir sprintin durumunu belirtir. Adını değiştirebilirsiniz; silmek için önce sprintleri kapatın."
   },
   "formula": {
     "title": "Formül",

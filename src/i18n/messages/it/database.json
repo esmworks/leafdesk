@@ -952,7 +952,8 @@
     "sprintsOff": "Gli sprint sono disattivati per questo database.",
     "sprintsDatabase": "Questo database contiene gli sprint di un altro database: attiva o disattiva gli sprint da lì.",
     "noCurrentSprint": "Nessuno sprint è in corso. Segna prima uno sprint come in corso.",
-    "invalidSprints": "Gli sprint non si possono impostare così: controlla la durata dello sprint, il primo giorno e il database degli sprint."
+    "invalidSprints": "Gli sprint non si possono impostare così: controlla la durata dello sprint, il primo giorno e il database degli sprint.",
+    "sprintStateOption": "Questa opzione indica lo stato di uno sprint. Puoi rinominarla oppure disattivare gli sprint prima di eliminarla."
   },
   "formula": {
     "title": "Formula",
