@@ -19,6 +19,7 @@ import {
   WEB_EMBED_BLOCK,
   webEmbedBlockConfig,
 } from "@/lib/web-blocks";
+import { mediaWidth } from "@/lib/media-placement";
 import { linkedPageRef } from "@/lib/mentions";
 import { useEmbedHost } from "./database-embed";
 import type { PageEditor } from "./embed-blocks";
@@ -112,11 +113,11 @@ function moveCursorAfter(editor: PageEditor, blockId: string) {
 // Bookmark
 
 /**
- * The handle on a bookmark card's end edge that makes the card narrower or wider, as images have:
- * the card follows the pointer, and letting go stores the width (a share of the column,
- * lib/web-blocks bookmarkWidth) as one change of the block.
+ * The handle on the end edge of a bookmark card, an embed or a file shown in place that makes it
+ * narrower or wider, as images have: the box follows the pointer, and letting go stores the width
+ * (a share of the column, lib/media-blocks mediaWidth) as one change of the block.
  */
-function BookmarkResizeHandle({
+export function MediaResizeHandle({
   card,
   label,
   onDrag,
@@ -133,7 +134,7 @@ function BookmarkResizeHandle({
     if (!element || !column) return null;
     const box = element.getBoundingClientRect();
     const span = isRtl(element) ? box.right - clientX : clientX - box.left;
-    return bookmarkWidth((span / column.clientWidth) * 100);
+    return mediaWidth((span / column.clientWidth) * 100);
   };
   return (
     <div
@@ -236,7 +237,7 @@ const BookmarkBlock = createReactBlockSpec(bookmarkBlockConfig, {
 
     return (
       <div contentEditable={false} className="w-full">
-        <div ref={card} className="group/bookmark relative max-w-full" style={{ width: width ? `${width}%` : "100%" }}>
+        <div ref={card} data-media-box="" className="group/bookmark relative max-w-full" style={{ width: width ? `${width}%` : "100%" }}>
           {loading && !block.props.title ? (
             <div className="flex w-full flex-col gap-1 rounded-md border border-border px-3.5 py-3 text-sm">
               <span className="text-fg-muted">{t("bookmark.loading")}</span>
@@ -246,7 +247,7 @@ const BookmarkBlock = createReactBlockSpec(bookmarkBlockConfig, {
             <BookmarkCard bookmark={{ ...block.props, width: null }} />
           )}
           {canEdit && (
-            <BookmarkResizeHandle
+            <MediaResizeHandle
               card={card}
               label={t("bookmark.resize")}
               onDrag={setDragWidth}
@@ -299,6 +300,10 @@ const WebEmbedBlock = createReactBlockSpec(webEmbedBlockConfig, {
     const canEdit = useCanEdit(anyEditor);
     const url = parseWebUrl(block.props.url)?.href ?? "";
     const embed = useMemo(() => embedFor(url), [url]);
+    // The width while the frame's edge is dragged; undefined when not dragging.
+    const [dragWidth, setDragWidth] = useState<number | null | undefined>(undefined);
+    const box = useRef<HTMLDivElement>(null);
+    const width = dragWidth === undefined ? mediaWidth(block.props.width) : dragWidth;
 
     if (!url) {
       if (!canEdit) return null;
@@ -319,11 +324,24 @@ const WebEmbedBlock = createReactBlockSpec(webEmbedBlockConfig, {
     }
     return (
       <div contentEditable={false} className="w-full">
-        {embed ? (
-          <EmbedFrame url={url} embed={embed} title={t("embed.frameTitle", { host: displayHost(url) })} />
-        ) : (
-          <BookmarkCard bookmark={{ url, title: "", description: "", image: "", favicon: "" }} />
-        )}
+        <div ref={box} data-media-box="" className="group/bookmark relative max-w-full" style={{ width: width ? `${width}%` : "100%" }}>
+          {embed ? (
+            <EmbedFrame url={url} embed={embed} title={t("embed.frameTitle", { host: displayHost(url) })} />
+          ) : (
+            <BookmarkCard bookmark={{ url, title: "", description: "", image: "", favicon: "" }} />
+          )}
+          {canEdit && (
+            <MediaResizeHandle
+              card={box}
+              label={t("embed.resize")}
+              onDrag={setDragWidth}
+              onDone={(next) => {
+                setDragWidth(undefined);
+                if (next !== mediaWidth(block.props.width)) editor.updateBlock(block.id, { props: { width: next ?? 0 } });
+              }}
+            />
+          )}
+        </div>
       </div>
     );
   },

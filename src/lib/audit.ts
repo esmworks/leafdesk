@@ -4,6 +4,7 @@
  * which records and lists events) and the settings tab alike.
  */
 
+import { parseAudience } from "./page-audience";
 import { zoneOffset } from "./time-zone";
 
 /**
@@ -11,7 +12,15 @@ import { zoneOffset } from "./time-zone";
  * string, so renaming one leaves older events behind: add new ones instead.
  */
 export const AUDIT_CATEGORIES = {
-  members: ["member.added", "member.joined", "member.removed", "member.left", "member.role_changed", "member.ownership_transferred"],
+  members: [
+    "member.added",
+    "member.joined",
+    "member.removed",
+    "member.left",
+    "member.role_changed",
+    "member.ownership_transferred",
+    "member.content_handed_over",
+  ],
   invitations: [
     "invitation.sent",
     "invitation.revoked",
@@ -84,6 +93,7 @@ export const AUDIT_CATEGORIES = {
     "page.published",
     "page.unpublished",
     "page.publication_revoked",
+    "page.publication_expiry_changed",
     "property.trashed",
     "property.restored",
     "property.deleted",
@@ -376,6 +386,12 @@ function place(t: AuditTranslator, value: unknown) {
   return text(p.label) || t("audit.untitled");
 }
 
+/** A stored ISO time as "2026-11-01 14:30 UTC" (the log reads the same for every viewer); "" when it isn't one. */
+function utcMinute(value: unknown): string {
+  const time = typeof value === "string" ? Date.parse(value) : NaN;
+  return Number.isFinite(time) ? `${new Date(time).toISOString().slice(0, 16).replace("T", " ")} UTC` : "";
+}
+
 /** A setting's value as people read it: its choice's name, on/off, a number of days, a list. */
 export function settingValue(t: AuditTranslator, key: string, value: unknown): string {
   if (value === undefined || value === null) return t("audit.values.unset");
@@ -464,6 +480,10 @@ export function describeAuditEvent(event: Pick<AuditEvent, "action" | "targetLab
       values.from = place(t, d.from);
       values.to = place(t, d.to);
       break;
+    case "page.publication_expiry_changed":
+      values.change = d.to ? "set" : "removed";
+      values.to = utcMinute(d.to);
+      break;
     case "workspace.settings_changed":
       values.settings = settingChanges(t, d.changes);
       break;
@@ -507,6 +527,25 @@ export function describeAuditEvent(event: Pick<AuditEvent, "action" | "targetLab
   return t.has(key) ? t(key, values) : event.action;
 }
 
+/**
+ * Who could reach the page the event was about at the time (see lib/page-audience.ts), in the
+ * viewer's language: "Teamspace Sales", "Published to the web". Null for events without one.
+ */
+export function auditAudience(event: Pick<AuditEvent, "details">, t: AuditTranslator): string | null {
+  const audience = parseAudience(record(event.details).audience);
+  if (!audience) return null;
+  switch (audience.kind) {
+    case "teamspace":
+      return t("audit.audience.teamspace", { name: audience.teamspace || t("audit.untitled") });
+    case "workspace":
+      return audience.teamspace ? t("audit.audience.workspaceTeamspace", { name: audience.teamspace }) : t("audit.audience.workspace");
+    case "people":
+      return t("audit.audience.people", { count: audience.people + audience.groups });
+    default:
+      return t(`audit.audience.${audience.kind}`);
+  }
+}
+
 // ------------------------------------------------------------------------------------------- CSV
 
 type Cell = string | number | Date | null;
@@ -514,7 +553,7 @@ type Cell = string | number | Date | null;
 /** The events as CSV rows, header first: descriptions in the viewer's language, the rest as stored. */
 export function auditCsvRows(events: AuditEvent[], t: AuditTranslator): Cell[][] {
   return [
-    ["time", "actor", "actor_email", "actor_type", "via", "action", "category", "description", "target", "ip", "user_agent", "details"],
+    ["time", "actor", "actor_email", "actor_type", "via", "action", "category", "description", "target", "ip", "user_agent", "details", "audience"],
     ...events.map((e) => [
       e.createdAt,
       auditActorName(e, t),
@@ -528,6 +567,8 @@ export function auditCsvRows(events: AuditEvent[], t: AuditTranslator): Cell[][]
       e.ip,
       e.userAgent,
       Object.keys(e.details).length ? JSON.stringify(e.details) : null,
+      // Last, so the columns before it stay where scripts reading the file expect them.
+      auditAudience(e, t),
     ]),
   ];
 }

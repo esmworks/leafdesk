@@ -70,6 +70,7 @@
     "includeArchivedHint": "アーカイブしたページも検索",
     "inDocument": "このページの文書「{name}」で見つかりました",
     "recent": "最近編集したページ",
+    "recentViewed": "最近表示したページ",
     "commands": "コマンド",
     "noCommands": "一致するコマンドはありません",
     "setting": "設定: {tab} → {setting}",
@@ -77,7 +78,29 @@
     "hint": {
       "in": "ページ内",
       "type": "データベースのみ（またはpage、row）",
-      "commands": "コマンド"
+      "commands": "コマンド",
+      "phrase": "完全一致するフレーズ"
+    },
+    "filters": {
+      "label": "フィルター",
+      "teamspace": "チームスペース",
+      "createdBy": "作成者",
+      "editedBy": "最終更新者",
+      "date": "日付",
+      "edited": "最終編集",
+      "created": "作成日",
+      "today": "今日",
+      "week": "過去7日間",
+      "month": "過去30日間",
+      "custom": "期間を指定",
+      "from": "開始日",
+      "to": "終了日",
+      "more": "{first} +{count}",
+      "you": "{name}（あなた）",
+      "findPerson": "ユーザーを検索…",
+      "noPeople": "見つかりませんでした",
+      "remove": "フィルターを削除",
+      "clear": "フィルターをクリア"
     }
   },
   "trash": {

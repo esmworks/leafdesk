@@ -29,5 +29,14 @@
     "busy": "이미 진행 중인 내보내기가 있습니다. 다운로드가 끝날 때까지 기다리세요.",
     "disabled": "이 워크스페이스에서는 내보내기가 꺼져 있습니다."
   },
-  "celebrate": "잘하셨어요!"
+  "celebrate": "잘하셨어요!",
+  "toast": {
+    "undo": "실행 취소",
+    "dismiss": "닫기",
+    "movedTo": "이동한 위치:",
+    "movedToPlace": "{place}(으)로 이동했습니다",
+    "trashed": "휴지통으로 이동했습니다",
+    "rowsTrashed": "{count}개 행을 휴지통으로 이동했습니다",
+    "undoFailed": "실행 취소하지 못했습니다."
+  }
 }

@@ -58,7 +58,7 @@
       "workspaceName": "nom renommer icône",
       "ai": "intelligence artificielle discussion modèle fournisseur mémoire",
       "workspaceMail": "e-mail lignes courrier envoyer",
-      "export": "sauvegarde télécharger zip markdown",
+      "export": "sauvegarde télécharger zip markdown pdf",
       "members": "personnes inviter utilisateurs rôles retirer",
       "agents": "ia assistant automatisation bot",
       "snippets": "texte raccourcis extraits",
@@ -108,7 +108,11 @@
     "description": "Téléchargez toutes les pages que vous pouvez voir dans un fichier ZIP : les pages en Markdown, les bases de données en CSV et les fichiers qu’elles affichent. Les pages de la corbeille sont exclues ; les modèles sont placés dans un dossier Modèles.",
     "button": "Exporter",
     "preparing": "Préparation…",
-    "disabled": "L’exportation est désactivée pour cet espace de travail dans Paramètres → Sécurité."
+    "disabled": "L’exportation est désactivée pour cet espace de travail dans Paramètres → Sécurité.",
+    "format": "Format d’export",
+    "formatMarkdown": "Markdown et CSV",
+    "formatPdf": "PDF",
+    "descriptionPdf": "Téléchargez toutes les pages que vous pouvez voir dans un ZIP de PDF, rangés dans des dossiers qui suivent l’arborescence : les bases de données en tableaux de leurs lignes, et les lignes qui ont leur propre texte en PDF distincts. Les pages de la corbeille et les modèles sont exclus ; {limit, number} PDF au maximum."
   },
   "members": {
     "heading": "Membres",
@@ -209,7 +213,12 @@
       "someone": "Un membre",
       "approve": "Accepter",
       "decline": "Refuser"
-    }
+    },
+    "removeBodyChoose": "{name} perd immédiatement l’accès à cet espace de travail, y compris dans les pages ouvertes et les applications connectées.",
+    "heirLabel": "Transférer ses pages à",
+    "heirHint": "Les pages que {name} était seul à pouvoir gérer, et les espaces d’équipe que personne d’autre ne gère, reviennent à la personne choisie.",
+    "heirCount": "{count, plural, =0 {{name} ne gère seul aucune page pour l’instant. Les espaces d’équipe que personne d’autre ne gère reviennent à la personne choisie.} one {# page que {name} était seul à pouvoir gérer revient à la personne choisie, avec les espaces d’équipe que personne d’autre ne gère.} other {# pages que {name} était seul à pouvoir gérer reviennent à la personne choisie, avec les espaces d’équipe que personne d’autre ne gère.}}",
+    "heirYou": "{name} (vous)"
   },
   "guests": {
     "heading": "Invités",
@@ -734,7 +743,7 @@
       "accessDenied": "Vous n’avez pas l’autorisation de faire cela.",
       "reasons": {
         "name": "Donnez un nom à l’agent.",
-        "icon": "L’icône d’un agent est un emoji.",
+        "icon": "L’icône d’un agent est un emoji ou une icône intégrée.",
         "level": "Un agent peut consulter, commenter ou modifier une page.",
         "template": "Ce modèle n’existe pas.",
         "database": "Choisissez une base de données de cet espace de travail.",
@@ -1222,7 +1231,8 @@
     "invalidNetworkLabel": "Le libellé de {detail} est trop long : 100 caractères au maximum.",
     "tooManyNetworks": "Un espace de travail peut avoir au plus 100 réseaux approuvés.",
     "ipLocksYouOut": "Cette liste ne contient pas votre adresse actuelle, {detail} : l’enregistrer vous fermerait l’accès à l’espace de travail. Ajoutez d’abord votre adresse ou une plage qui la couvre.",
-    "ipUnknown": "Le serveur ne voit pas votre adresse et ne peut donc pas vérifier que cette liste vous laisse entrer. Enregistrez-la depuis une connexion dont le serveur voit l’adresse, ou videz la liste."
+    "ipUnknown": "Le serveur ne voit pas votre adresse et ne peut donc pas vérifier que cette liste vous laisse entrer. Enregistrez-la depuis une connexion dont le serveur voit l’adresse, ou videz la liste.",
+    "heirInvalid": "Choisissez un propriétaire ou un membre qui reste dans l’espace de travail."
   },
   "security": {
     "description": "Choisissez comment les personnes se connectent, qui peut faire entrer des personnes dans cet espace de travail, ce que les invités peuvent faire, ce qui peut en sortir (exportations, applications connectées) et qui peut publier des pages sur le Web. Seuls les propriétaires peuvent modifier ces paramètres.",
@@ -1269,7 +1279,9 @@
       "unpublish": "Annuler la publication",
       "confirm": "Annuler la publication de cette page ? Le lien cessera de fonctionner pour tout le monde.",
       "indexable": "Moteurs de recherche autorisés",
-      "off": "La publication est désactivée : aucune de ces pages n’est en ligne pour le moment. Elles reviendront quand la publication sera réactivée, sauf si vous les retirez."
+      "off": "La publication est désactivée : aucune de ces pages n’est en ligne pour le moment. Elles reviendront quand la publication sera réactivée, sauf si vous les retirez.",
+      "expiresOn": "Expire le {date}",
+      "expiredOn": "Expiré le {date}"
     },
     "forms": {
       "title": "Formulaires publics",
@@ -1708,7 +1720,8 @@
         "removed": "A retiré {target} ({role})",
         "left": "A quitté l’espace de travail",
         "role_changed": "A changé le rôle de {target} de {from} à {to}",
-        "ownership_transferred": "A fait de {target} un propriétaire et est devenu membre"
+        "ownership_transferred": "A fait de {target} un propriétaire et est devenu membre",
+        "content_handed_over": "A transféré à {subject} {count, plural, one {# page} other {# pages}} que {target} était seul à pouvoir gérer"
       },
       "invitation": {
         "sent": "A invité {target} comme {role}",
@@ -1740,7 +1753,8 @@
         "published": "A publié {target} sur le Web",
         "unpublished": "A dépublié {target}",
         "publication_revoked": "A retiré {target} du Web (publiée par {subject})",
-        "rows_merged": "A fusionné {count, plural, one {# ligne} other {# lignes}} dans {target}"
+        "rows_merged": "A fusionné {count, plural, one {# ligne} other {# lignes}} dans {target}",
+        "publication_expiry_changed": "{change, select, removed {A retiré l’expiration du lien web de {target}} other {A fait expirer le lien web de {target} le {to}}}"
       },
       "property": {
         "access_changed": "A modifié l’accès à « {property} » dans {target}",
@@ -1910,6 +1924,15 @@
       "slack_token": "un jeton Slack",
       "api_key": "une clé d’API",
       "jwt": "un jeton JSON Web Token (JWT)"
+    },
+    "audienceLine": "Audience : {audience}",
+    "audience": {
+      "web": "Publiée sur le Web",
+      "workspace": "Tout l’espace de travail",
+      "workspaceTeamspace": "Tout l’espace de travail (espace d’équipe {name})",
+      "teamspace": "Espace d’équipe {name}",
+      "people": "Personnes précises ({count})",
+      "private": "Privée"
     }
   },
   "notifications": {
@@ -2656,7 +2679,7 @@
       "reservedKey": "Cette clé est réservée à un type intégré (note, tip, important, warning, caution, info, danger, details, frame, card, panel).",
       "duplicateKey": "Un autre style utilise déjà cette clé.",
       "name": "Saisissez un nom de 60 caractères au plus.",
-      "icon": "Choisissez un émoji, ou aucune icône.",
+      "icon": "Choisissez un emoji ou une icône intégrée, ou aucune icône.",
       "color": "Choisissez une couleur.",
       "border": "Choisissez une bordure.",
       "title": "Le titre ne doit pas dépasser 120 caractères."

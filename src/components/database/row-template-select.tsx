@@ -1,5 +1,6 @@
 "use client";
 
+import { iconPrefix } from "@/lib/icon-value";
 import { useTranslations } from "next-intl";
 import { DEFAULT_ROW_TEMPLATE } from "@/lib/automations";
 import { pageLabel } from "@/lib/labels";
@@ -34,7 +35,7 @@ export function RowTemplateSelect({
       </option>
       {info.templates.map((x) => (
         <option key={x.id} value={x.id}>
-          {x.icon ? `${x.icon} ` : ""}
+          {iconPrefix(x.icon)}
           {pageLabel(x.title, tc("untitled"))}
         </option>
       ))}

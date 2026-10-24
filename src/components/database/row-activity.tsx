@@ -1,5 +1,6 @@
 "use client";
 
+import { IconGlyph } from "@/components/builtin-icon";
 import { ChevronDown, ChevronRight, FileText, Sparkles } from "lucide-react";
 import { useFormatter, useLocale, useTranslations } from "next-intl";
 import { useCallback, useEffect, useRef, useState, type ReactNode } from "react";
@@ -280,7 +281,11 @@ export function Value({ value }: { value: ActivityValue | null }) {
                 <span className="text-fg-faint">{t("noAccess")}</span>
               ) : (
                 <span className={strong}>
-                  {p.icon ? `${p.icon} ` : ""}
+                  {p.icon && (
+                    <>
+                      <IconGlyph icon={p.icon} />{" "}
+                    </>
+                  )}
                   {p.title || tc("untitled")}
                 </span>
               )}

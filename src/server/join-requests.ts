@@ -13,6 +13,7 @@ import {
   type JoinRequestKind,
   type JoinRequestSource,
   type JoinRequestStatus,
+  type InvitedTeamspace,
   type WorkspaceRole,
   type WorkspaceSettings,
 } from "@/db/schema";
@@ -34,6 +35,7 @@ import {
   type Tx,
   WorkspaceError,
 } from "@/server/workspaces";
+import { joinInvitedTeamspaces } from "@/server/teamspaces";
 import { refuseInLocalMode } from "@/server/local-mode";
 
 /**
@@ -159,13 +161,20 @@ export async function requestToJoinFrom(workspaceId: string, userId: string, ema
  * A member asks to invite `email` while the workspace wants members' invitations approved. One
  * request per address and workspace: asking again (or another member asking) changes nothing.
  */
-export async function requestInvitation(actorId: string, workspaceId: string, email: string, role: WorkspaceRole) {
+export async function requestInvitation(
+  actorId: string,
+  workspaceId: string,
+  email: string,
+  role: WorkspaceRole,
+  /** Teamspaces the invitation carries once approved (see teamspaces.ts inviteToTeamspace). */
+  teamspaces: InvitedTeamspace[] = [],
+) {
   refuseInLocalMode();
   limitRequests("invite-request", INVITE_REQUEST_LIMIT, actorId);
   const locale = await requestLocale();
   const [row] = await db
     .insert(workspaceJoinRequest)
-    .values({ workspaceId, kind: "invite", email: normalizeEmail(email), role, requestedBy: actorId, source: "member", locale })
+    .values({ workspaceId, kind: "invite", email: normalizeEmail(email), role, requestedBy: actorId, source: "member", locale, teamspaces })
     .onConflictDoNothing({
       target: [workspaceJoinRequest.workspaceId, workspaceJoinRequest.email],
       where: sql`${workspaceJoinRequest.kind} = 'invite'`,
@@ -361,6 +370,7 @@ type Decided = {
   role: WorkspaceRole;
   requestedBy: string | null;
   locale: string | null;
+  teamspaces: InvitedTeamspace[];
 };
 
 /** Takes a waiting request off the list (locked, so two owners can't both decide it). */
@@ -374,6 +384,7 @@ async function takePending(tx: Tx, workspaceId: string, requestId: string): Prom
       role: workspaceJoinRequest.role,
       requestedBy: workspaceJoinRequest.requestedBy,
       locale: workspaceJoinRequest.locale,
+      teamspaces: workspaceJoinRequest.teamspaces,
     })
     .from(workspaceJoinRequest)
     .where(
@@ -421,10 +432,13 @@ export async function approveJoinRequest(actorId: string, workspaceId: string, r
       .returning({ userId: workspaceMember.userId });
     // As with the join link: invitations by email (to the workspace, or to its pages) are only
     // taken up for a verified address, so someone using another person's address gets none of them.
+    let invited: unknown = [];
     if (account?.emailVerified) {
-      await tx
+      const used = await tx
         .delete(workspaceInvitation)
-        .where(and(eq(workspaceInvitation.workspaceId, workspaceId), eq(workspaceInvitation.email, email)));
+        .where(and(eq(workspaceInvitation.workspaceId, workspaceId), eq(workspaceInvitation.email, email)))
+        .returning({ teamspaces: workspaceInvitation.teamspaces });
+      invited = used[0]?.teamspaces ?? [];
       await claimPageInvitations(tx, workspaceId, request.userId!, email);
     }
     if (added.length) {
@@ -438,6 +452,8 @@ export async function approveJoinRequest(actorId: string, workspaceId: string, r
         },
         tx,
       );
+      // The invitation they had (to some of its teamspaces too) is used up by joining.
+      await joinInvitedTeamspaces(tx, workspaceId, request.userId!, "member", invited);
     }
     return request;
   });
@@ -445,7 +461,7 @@ export async function approveJoinRequest(actorId: string, workspaceId: string, r
     // The invitation names the member who asked, while they are still in the workspace.
     const inviter = request.requestedBy && (await findMembership(request.requestedBy, workspaceId)) ? request.requestedBy : actorId;
     try {
-      result = await addMemberAs(inviter, workspaceId, request.email, request.role);
+      result = await addMemberAs(inviter, workspaceId, request.email, request.role, { teamspaces: request.teamspaces });
     } catch (error) {
       // They joined some other way meanwhile: nothing left to do.
       if (!(error instanceof WorkspaceError && error.code === "alreadyMember")) throw error;

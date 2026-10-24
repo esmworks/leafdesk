@@ -58,7 +58,7 @@
       "workspaceName": "naam hernoemen pictogram",
       "ai": "kunstmatige intelligentie chat model aanbieder geheugen",
       "workspaceMail": "e-mail rijen mail versturen",
-      "export": "back-up downloaden zip markdown exporteren",
+      "export": "back-up downloaden zip markdown exporteren pdf",
       "members": "personen uitnodigen gebruikers rollen verwijderen leden",
       "agents": "ai assistent automatisering bot",
       "snippets": "tekstuitbreiding sneltoetsen tekstfragmenten",
@@ -108,7 +108,11 @@
     "description": "Download elke pagina die je kunt zien als ZIP: pagina’s als Markdown, databases als CSV, en de bestanden die ze tonen. Pagina’s in de prullenbak worden weggelaten; sjablonen komen in een map Sjablonen.",
     "button": "Exporteren",
     "preparing": "Voorbereiden…",
-    "disabled": "Exporteren staat uit voor deze werkruimte in Instellingen → Beveiliging."
+    "disabled": "Exporteren staat uit voor deze werkruimte in Instellingen → Beveiliging.",
+    "format": "Exportformaat",
+    "formatMarkdown": "Markdown en CSV",
+    "formatPdf": "PDF",
+    "descriptionPdf": "Download elke pagina die je kunt zien als ZIP met pdf’s, in mappen die de paginaboom volgen: databases als tabellen van hun rijen, en rijen met eigen tekst als eigen pdf’s. Pagina’s in de prullenbak en sjablonen blijven buiten beschouwing; hoogstens {limit, number} pdf’s."
   },
   "members": {
     "heading": "Leden",
@@ -209,7 +213,12 @@
       "someone": "Een lid",
       "approve": "Goedkeuren",
       "decline": "Afwijzen"
-    }
+    },
+    "removeBodyChoose": "{name} verliest direct de toegang tot deze werkruimte, ook in geopende pagina’s en gekoppelde apps.",
+    "heirLabel": "Pagina’s overdragen aan",
+    "heirHint": "Pagina’s die alleen {name} kon beheren, en teamruimtes die niemand anders beheert, gaan naar de persoon die je kiest.",
+    "heirCount": "{count, plural, =0 {{name} beheert op dit moment geen pagina’s alleen. Teamruimtes die niemand anders beheert, gaan naar de persoon die je kiest.} one {# pagina die alleen {name} kon beheren, gaat naar de persoon die je kiest, samen met teamruimtes die niemand anders beheert.} other {# pagina’s die alleen {name} kon beheren, gaan naar de persoon die je kiest, samen met teamruimtes die niemand anders beheert.}}",
+    "heirYou": "{name} (jij)"
   },
   "guests": {
     "heading": "Gasten",
@@ -734,7 +743,7 @@
       "accessDenied": "Je hebt geen toestemming om dit te doen.",
       "reasons": {
         "name": "Geef de agent een naam.",
-        "icon": "Het pictogram van een agent is een emoji.",
+        "icon": "Het pictogram van een agent is een emoji of een ingebouwd pictogram.",
         "level": "Een agent kan een pagina bekijken, er opmerkingen op plaatsen of haar bewerken.",
         "template": "Dit sjabloon bestaat niet.",
         "database": "Kies een database van deze werkruimte.",
@@ -1222,7 +1231,8 @@
     "invalidNetworkLabel": "Het label van {detail} is te lang: maximaal 100 tekens.",
     "tooManyNetworks": "Een werkruimte kan maximaal 100 goedgekeurde netwerken hebben.",
     "ipLocksYouOut": "Deze lijst laat je huidige adres, {detail}, weg, dus opslaan zou je buiten de werkruimte sluiten. Voeg eerst je adres toe, of een bereik dat het omvat.",
-    "ipUnknown": "De server kan je adres niet zien, dus kan hij niet nagaan of deze lijst je binnenlaat. Sla haar op vanaf een verbinding waarvan de server het adres ziet, of maak de lijst leeg."
+    "ipUnknown": "De server kan je adres niet zien, dus kan hij niet nagaan of deze lijst je binnenlaat. Sla haar op vanaf een verbinding waarvan de server het adres ziet, of maak de lijst leeg.",
+    "heirInvalid": "Kies een eigenaar of lid dat in de werkruimte blijft."
   },
   "security": {
     "description": "Bepaal hoe mensen inloggen, wie mensen in deze werkruimte kan brengen, wat gasten kunnen doen, wat de werkruimte mag verlaten (exports, gekoppelde apps) en wie pagina’s op het web kan publiceren. Alleen eigenaren kunnen deze instellingen wijzigen.",
@@ -1269,7 +1279,9 @@
       "unpublish": "Publicatie intrekken",
       "confirm": "De publicatie van deze pagina intrekken? De link werkt voor niemand meer.",
       "indexable": "Zoekmachines toegestaan",
-      "off": "Publiceren staat uit: geen van deze pagina’s staat nu op het web. Ze komen terug als publiceren weer aan wordt gezet, tenzij je hun publicatie intrekt."
+      "off": "Publiceren staat uit: geen van deze pagina’s staat nu op het web. Ze komen terug als publiceren weer aan wordt gezet, tenzij je hun publicatie intrekt.",
+      "expiresOn": "Verloopt op {date}",
+      "expiredOn": "Verlopen op {date}"
     },
     "forms": {
       "title": "Openbare formulieren",
@@ -1708,7 +1720,8 @@
         "removed": "{target} verwijderd ({role})",
         "left": "Heeft de werkruimte verlaten",
         "role_changed": "De rol van {target} gewijzigd van {from} in {to}",
-        "ownership_transferred": "{target} eigenaar gemaakt en teruggetreden als lid"
+        "ownership_transferred": "{target} eigenaar gemaakt en teruggetreden als lid",
+        "content_handed_over": "{count, plural, one {# pagina} other {# pagina’s}} die alleen {target} kon beheren, overgedragen aan {subject}"
       },
       "invitation": {
         "sent": "{target} uitgenodigd als {role}",
@@ -1740,7 +1753,8 @@
         "published": "{target} op het web gepubliceerd",
         "unpublished": "De publicatie van {target} ingetrokken",
         "publication_revoked": "{target} van het web gehaald (gepubliceerd door {subject})",
-        "rows_merged": "{count, plural, one {# rij} other {# rijen}} samengevoegd in {target}"
+        "rows_merged": "{count, plural, one {# rij} other {# rijen}} samengevoegd in {target}",
+        "publication_expiry_changed": "{change, select, removed {Vervaldatum van de weblink van {target} verwijderd} other {Weblink van {target} laten verlopen op {to}}}"
       },
       "property": {
         "access_changed": "Gewijzigd wie toegang heeft tot “{property}” in {target}",
@@ -1910,6 +1924,15 @@
       "slack_token": "Een Slack-token",
       "api_key": "Een API-sleutel",
       "jwt": "Een JSON Web Token"
+    },
+    "audienceLine": "Publiek: {audience}",
+    "audience": {
+      "web": "Gepubliceerd op het web",
+      "workspace": "Hele werkruimte",
+      "workspaceTeamspace": "Hele werkruimte (teamruimte {name})",
+      "teamspace": "Teamruimte {name}",
+      "people": "Bepaalde personen ({count})",
+      "private": "Privé"
     }
   },
   "notifications": {
@@ -2656,7 +2679,7 @@
       "reservedKey": "Deze sleutel is bezet door een ingebouwd soort (note, tip, important, warning, caution, info, danger, details, frame, card, panel).",
       "duplicateKey": "Een andere stijl heeft deze sleutel al.",
       "name": "Vul een naam in van maximaal 60 tekens.",
-      "icon": "Kies één emoji, of geen pictogram.",
+      "icon": "Kies één emoji of ingebouwd pictogram, of geen pictogram.",
       "color": "Kies een kleur.",
       "border": "Kies een rand.",
       "title": "Houd de titel binnen 120 tekens."

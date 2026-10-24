@@ -36,7 +36,6 @@ import { PropertyAccessProvider, PropertyLock, usePropertyAccess, type PropertyA
 import { isEmptyValue, PropertyCell } from "./property-cell";
 import { PropertyTypeIcon } from "./property-icons";
 import { usePropertyHint } from "./property-hint";
-import { AddPropertyPanel, PropertyMenu } from "./property-menu";
 import { RelationProvider, type RelationContextValue } from "./relation-context";
 import { RowActivity } from "./row-activity";
 import { RowReviewBanner } from "@/components/review/row-review-banner";
@@ -50,6 +49,9 @@ import { requestPropertyComment } from "@/lib/comments-request";
 
 // Only URL properties set to show previews need it: kept out of the row panel's first load.
 const UrlPreview = dynamic(() => import("./url-preview"), { ssr: false });
+// A property's menu and the new-property panel open on a click: loaded then.
+const PropertyMenu = dynamic(() => import("./property-menu").then((m) => m.PropertyMenu), { ssr: false });
+const AddPropertyPanel = dynamic(() => import("./property-menu").then((m) => m.AddPropertyPanel), { ssr: false });
 
 /**
  * Editable property list of a database row's page: the properties its database pins in a strip under
@@ -517,7 +519,7 @@ function PropertyRow({
   const { hint, description } = usePropertyHint(p, labelEl, menu.open);
   const label = (
     <>
-      <PropertyTypeIcon type={p.type} className="h-3.5 w-3.5 shrink-0" />
+      <PropertyTypeIcon type={p.type} icon={p.options.icon} className="h-3.5 w-3.5 shrink-0" />
       <span className="truncate" title={description ? undefined : p.name} aria-description={description || undefined}>
         {p.name}
       </span>

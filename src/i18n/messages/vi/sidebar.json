@@ -70,6 +70,7 @@
     "includeArchivedHint": "Tìm cả các trang đã lưu trữ",
     "inDocument": "Tìm thấy trong tài liệu {name} của trang này",
     "recent": "Chỉnh sửa gần đây",
+    "recentViewed": "Xem gần đây",
     "commands": "Lệnh",
     "noCommands": "Không có lệnh phù hợp",
     "setting": "Cài đặt: {tab} → {setting}",
@@ -77,7 +78,29 @@
     "hint": {
       "in": "trong một trang",
       "type": "chỉ cơ sở dữ liệu (hoặc trang, hàng)",
-      "commands": "lệnh"
+      "commands": "lệnh",
+      "phrase": "cụm từ chính xác"
+    },
+    "filters": {
+      "label": "Bộ lọc",
+      "teamspace": "Không gian nhóm",
+      "createdBy": "Người tạo",
+      "editedBy": "Người chỉnh sửa cuối",
+      "date": "Ngày",
+      "edited": "Chỉnh sửa lần cuối",
+      "created": "Ngày tạo",
+      "today": "Hôm nay",
+      "week": "7 ngày qua",
+      "month": "30 ngày qua",
+      "custom": "Khoảng tùy chỉnh",
+      "from": "Từ",
+      "to": "Đến",
+      "more": "{first} +{count}",
+      "you": "{name} (bạn)",
+      "findPerson": "Tìm một người…",
+      "noPeople": "Không tìm thấy ai",
+      "remove": "Gỡ bộ lọc",
+      "clear": "Xóa bộ lọc"
     }
   },
   "trash": {

@@ -2892,7 +2892,7 @@ describe("agents", () => {
       ["notFound", {}, /list_agents/],
       ["archived", {}, /restore_agent/],
       ["tooMany", { max: "50" }, /at most 50 agents/],
-      ["invalid", { reason: "icon" }, /one emoji/],
+      ["invalid", { reason: "icon" }, /an emoji/],
     ];
     for (const [code, params, message] of cases) {
       agents.updateAgent.mockRejectedValueOnce(new agents.AgentError(code, "x", params));

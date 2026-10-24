@@ -1,3 +1,4 @@
+import { ICON_RULE, parseIcon } from "@/lib/icon";
 import { and, asc, desc, eq, inArray, isNotNull, isNull, or, sql } from "drizzle-orm";
 import { alias } from "drizzle-orm/pg-core";
 import { db } from "@/db";
@@ -49,7 +50,17 @@ import { defaultFormConfig, formSchemaError } from "@/lib/forms";
 import { readPlaceInput } from "@/lib/place";
 import { GeocoderError, geocodeAddress } from "./geocoder";
 import { configsOf, DEFAULT_VIEW_NAMES, galleryCover, isViewType, layoutConfigError } from "@/lib/views";
-import { holdsOptions, holdsPeople, isComputed, isDerived, isNumbered, isReadOnlyType, PERSON_ME, type StatusGroup } from "@/lib/property-types";
+import {
+  holdsOptions,
+  holdsPeople,
+  isComputed,
+  isDerived,
+  isNumbered,
+  isReadOnlyType,
+  MAX_PICKER_PROPERTIES,
+  PERSON_ME,
+  type StatusGroup,
+} from "@/lib/property-types";
 import { dateMarker } from "@/lib/template-values";
 import { checkedPrefix, claimPrefix, refuseSecondUniqueId } from "@/server/unique-ids";
 import { formatUniqueId, uniqueIdPrefix } from "@/lib/unique-id";
@@ -1999,9 +2010,27 @@ export async function updateProperty(
     prefix?: string | null;
     /** URLs: whether row pages show a preview of the linked page (server/url-preview.ts). */
     urlPreview?: boolean;
+    /** An icon shown instead of the type's (lib/icon); null or "" for the type's. */
+    icon?: string | null;
+    /** People: whether a row names one person at most (rows naming more keep them until changed). */
+    onePerson?: boolean;
+    /** Statuses: shown as a checkbox ticked for done options, or as the option. */
+    statusDisplay?: "checkbox" | "option";
   },
 ) {
   const prop = await requireProperty(userId, propertyId);
+  const icon = patch.icon === undefined ? undefined : patch.icon === null || patch.icon === "" ? null : parseIcon(patch.icon);
+  if (icon === null && patch.icon) throw new PropertyValueError(`A property's icon is ${ICON_RULE}`, "invalidIcon");
+  if (patch.statusDisplay !== undefined && prop.type !== "status") {
+    throw new PropertyValueError(`"${prop.name}" is a ${prop.type} property; only statuses show as a checkbox`, "unsupportedType", {
+      type: prop.type,
+    });
+  }
+  if (patch.onePerson !== undefined && prop.type !== "person") {
+    throw new PropertyValueError(`"${prop.name}" is a ${prop.type} property; only people can be limited to one`, "unsupportedType", {
+      type: prop.type,
+    });
+  }
   if (patch.urlPreview !== undefined && prop.type !== "url") {
     throw new PropertyValueError(`"${prop.name}" is a ${prop.type} property; only URLs show link previews`, "unsupportedType", {
       type: prop.type,
@@ -2094,6 +2123,11 @@ export async function updateProperty(
   if (dependsOn !== undefined) change((o) => (dependsOn ? { ...o, dependsOn } : without(o, "dependsOn")));
   if (prefix !== undefined) change((o) => (prefix ? { ...o, uniqueId: { prefix } } : without(o, "uniqueId")));
   if (patch.urlPreview !== undefined) change((o) => (patch.urlPreview === true ? { ...o, url: { preview: true } } : without(o, "url")));
+  if (patch.statusDisplay !== undefined) {
+    change((o) => (patch.statusDisplay === "checkbox" ? { ...o, statusDisplay: "checkbox" } : without(o, "statusDisplay")));
+  }
+  if (patch.onePerson !== undefined) change((o) => (patch.onePerson === true ? { ...o, person: { single: true } } : without(o, "person")));
+  if (icon !== undefined) change((o) => (icon ? { ...o, icon } : without(o, "icon")));
   // Options of this property others depend on that go away leave their lists (lib/dependent-options).
   const dependents = removed.length ? dependentsOf(prop.id, siblings) : [];
   const workspaceId = prefix ? await workspaceOf(prop.databaseId) : null;
@@ -2164,6 +2198,81 @@ export async function setPropertyPinned(userId: string, propertyId: string, pinn
     .set({ options: pinned ? { ...rest, pinned: true } : rest })
     .where(eq(databaseProperty.id, propertyId));
   notifySchema(prop.databaseId);
+}
+
+/**
+ * Which properties of the related database a relation's row picker shows beside each row's title
+ * (RelationConfig.pickerProperties). Ids that aren't among its properties the user may see, or that
+ * hold no value of their own (relations, formulas, rollups), are left out; at most three are kept.
+ */
+export async function setRelationPickerProperties(userId: string, propertyId: string, propertyIds: string[]) {
+  const prop = await requireProperty(userId, propertyId);
+  const relation = prop.type === "relation" ? prop.options.relation : undefined;
+  if (!relation) throw withCode(new Error("Not a relation property"), "unsupportedType");
+  const target = await requireDatabase(userId, relation.databaseId, "view");
+  const shown = (await propertyAccessFor(userId, target.id)).visible(await getProperties(target.id));
+  const known = new Set(shown.filter((p) => p.type !== "relation" && !isDerived(p.type)).map((p) => p.id));
+  const ids = [...new Set(propertyIds.map(String))].filter((id) => known.has(id)).slice(0, MAX_PICKER_PROPERTIES);
+  const { pickerProperties: _old, ...rest } = relation;
+  await db
+    .update(databaseProperty)
+    .set({ options: { ...prop.options, relation: ids.length ? { ...rest, pickerProperties: ids } : rest } })
+    .where(eq(databaseProperty.id, propertyId));
+  notifySchema(prop.databaseId);
+}
+
+/**
+ * Makes a one-way relation two-way: adds the paired property to the related database (named
+ * `pairedName`, or after this database) and links every row back from the rows it links to. Like
+ * making a two-way relation, it takes edit access to both databases. Relations with a role (sub-items,
+ * dependencies, sprints) are set up by their feature and are left alone.
+ */
+export async function makeRelationTwoWay(userId: string, propertyId: string, pairedName?: string) {
+  const prop = await requireProperty(userId, propertyId);
+  const relation = prop.type === "relation" ? prop.options.relation : undefined;
+  if (!relation || relation.role) throw withCode(new Error("Not a plain relation property"), "unsupportedType");
+  if (relation.pairedPropertyId) return prop;
+  const database = await requireDatabase(userId, prop.databaseId, "edit");
+  const target = await relationTarget(userId, database, { databaseId: relation.databaseId, twoWay: true });
+  const linked = await db.transaction(async (tx) => {
+    // Held until the pair is written, so making it two-way twice at once adds one paired property.
+    const [locked] = await tx.select().from(databaseProperty).where(eq(databaseProperty.id, propertyId)).for("update");
+    if (!locked || locked.deletedAt || locked.options.relation?.pairedPropertyId) return null;
+    const [paired] = await tx
+      .insert(databaseProperty)
+      .values({
+        databaseId: target.id,
+        name: await uniquePropertyName(target.id, pairedName?.trim() || database.title.trim() || "Related", tx),
+        type: "relation",
+        options: { relation: { databaseId: prop.databaseId, pairedPropertyId: propertyId } },
+        position: await nextPropertyPosition(target.id, tx),
+      })
+      .returning();
+    await hideInCalendars(tx, target.id, paired.id);
+    const [updated] = await tx
+      .update(databaseProperty)
+      .set({ options: { ...locked.options, relation: { ...locked.options.relation!, pairedPropertyId: paired.id } } })
+      .where(eq(databaseProperty.id, propertyId))
+      .returning();
+    return updated;
+  });
+  if (!linked) return (await db.select().from(databaseProperty).where(eq(databaseProperty.id, propertyId)))[0];
+  // Every row linking somewhere is linked back from there, as a new two-way relation's rows are.
+  const rows = await db
+    .select({ id: page.id, value: sql<unknown>`${page.properties} -> ${propertyId}::text` })
+    .from(page)
+    .where(and(eq(page.parentId, prop.databaseId), sql`${page.properties} ? ${propertyId}::text`));
+  await syncPairedRelationsMany(
+    prop.databaseId,
+    rows.flatMap((r) => (Array.isArray(r.value) && r.value.length ? [{ rowId: r.id, before: {}, after: { [propertyId]: r.value } }] : [])),
+  );
+  notifySchema(prop.databaseId);
+  notifyRows(prop.databaseId);
+  if (target.id !== prop.databaseId) {
+    notifySchema(target.id);
+    notifyRows(target.id);
+  }
+  return linked;
 }
 
 /** Shows a database's row properties beside the row's body on wide pages, or above it (lib/row-layout); full access. */
@@ -2878,8 +2987,15 @@ export async function updateView(userId: string, viewId: string, patch: { name?:
   const layoutError = patch.config && layoutConfigError(patch.config);
   if (layoutError) throw new PropertyValueError(layoutError, "invalidViewConfig");
   const view = await requireView(userId, viewId);
-  // Filters, sorts and layout stay adjustable on a locked database; renaming doesn't.
-  if (patch.name !== undefined) assertUnlocked(view);
+  // A view's icon is an emoji or a built-in icon (lib/icon); anything else leaves it as it was.
+  if (patch.config && patch.config.icon !== view.config.icon) {
+    const icon = patch.config.icon === undefined || patch.config.icon === "" ? undefined : parseIcon(patch.config.icon);
+    if (patch.config.icon && !icon) throw new PropertyValueError(`A view's icon is ${ICON_RULE}`, "invalidIcon");
+    const { icon: _icon, ...rest } = patch.config;
+    patch = { ...patch, config: icon ? { ...rest, icon } : rest };
+  }
+  // Filters, sorts and layout stay adjustable on a locked database; renaming (and its icon) doesn't.
+  if (patch.name !== undefined || (patch.config && patch.config.icon !== view.config.icon)) assertUnlocked(view);
   const access = await propertyAccessFor(userId, view.databaseId);
   // A form's conditions and choice limits must fit the properties the editor knows of.
   if (patch.config?.form) {
@@ -3344,7 +3460,8 @@ export async function getDatabaseSnapshot(
 }
 
 /** `uniqueId`: the row's ID as it shows ("TASK-12") when its database has a unique ID property, which pickers find it by too. */
-export type RelationTargetRow = { id: string; title: string; icon: string | null; uniqueId?: string };
+/** `values`: the row's values of the properties relation pickers show beside titles (RelationConfig.pickerProperties). */
+export type RelationTargetRow = { id: string; title: string; icon: string | null; uniqueId?: string; values?: Record<string, unknown> };
 export type RelationTarget = {
   /** Null when the related database was deleted or is in the trash. */
   database: { id: string; title: string; icon: string | null } | null;
@@ -3415,6 +3532,30 @@ export async function getRelationTargets(
       }
     }),
   );
+  // Values row pickers show beside titles: only of properties the viewer may see, and only those.
+  const valuesOf = new Map<string, Record<string, unknown>>();
+  await Promise.all(
+    databases.map(async (d) => {
+      const visible = new Set(accessByTarget.get(d.id)!.visible(targetProperties.get(d.id) ?? []).map((p) => p.id));
+      const ids = [
+        ...new Set(
+          properties.flatMap((p) => (p.options.relation?.databaseId === d.id ? (p.options.relation.pickerProperties ?? []) : [])),
+        ),
+      ].filter((id) => visible.has(id));
+      if (!ids.length) return;
+      const picked = await db
+        .select({
+          id: page.id,
+          values: sql<Record<string, unknown> | null>`(select jsonb_object_agg(e.key, e.value) from jsonb_each(${page.properties}) e where e.key = any(array[${sql.join(
+            ids.map((id) => sql`${id}`),
+            sql`, `,
+          )}]::text[]))`,
+        })
+        .from(page)
+        .where(and(eq(page.parentId, d.id), eq(page.isTemplate, false), isNull(page.archivedAt)));
+      for (const p of picked) if (p.values) valuesOf.set(p.id, p.values);
+    }),
+  );
   const out: Record<string, RelationTarget> = {};
   for (const prop of properties) {
     const targetId = prop.type === "relation" ? prop.options.relation?.databaseId : undefined;
@@ -3426,7 +3567,15 @@ export async function getRelationTargets(
       // The paired property lives on the related database: named only for those who can see it.
       pairedName: (database && pairedId && paired.find((p) => p.id === pairedId)?.name) || null,
       rows: database
-        ? rows.filter((r) => r.parentId === targetId).map(({ id, title, icon }) => ({ id, title, icon, ...(idOf.has(id) ? { uniqueId: idOf.get(id) } : {}) }))
+        ? rows
+            .filter((r) => r.parentId === targetId)
+            .map(({ id, title, icon }) => ({
+              id,
+              title,
+              icon,
+              ...(idOf.has(id) ? { uniqueId: idOf.get(id) } : {}),
+              ...(valuesOf.has(id) ? { values: valuesOf.get(id) } : {}),
+            }))
         : [],
       properties: database
         ? accessByTarget

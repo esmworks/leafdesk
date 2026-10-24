@@ -4,6 +4,139 @@
 
 ### Added
 
+- **Published links that expire.** The Publish panel sets a date and time a page's web link stops
+  working, and extends or removes it later. Once it passes, the link, its subpages, the files they
+  show, copying it and the workspace site treat the page as unpublished, checked whenever they are
+  read; the panel says *Expired on …* and Settings → Security lists links with their expiry. Setting
+  or removing one is in the audit log. Migration `drizzle/0138_admin_extras.sql` adds
+  `page_publication.expires_at`.
+- **Invite someone into a teamspace by email.** Typing an address nobody in the workspace has into
+  a teamspace's *Add members* field invites them to the workspace with that teamspace and the role
+  picked; they join both on accepting. Who can add members, owner approval, allowed domains, sign-in
+  policies and guests apply as for any invitation. The same migration adds `teamspaces` to
+  `workspace_invitation` and `workspace_join_request`.
+- **Choose who receives a removed member's pages.** Removing a member asks who takes over the pages
+  only they could manage (and the teamspaces nobody else runs), says how many there are, and
+  defaults to the owner removing them. The audit log records who received how many, also when
+  someone leaves or the identity provider removes them.
+- **Who could reach a page, in the audit log.** Page events record the page's audience at that
+  moment (private, specific people, a teamspace, the whole workspace, or the web), shown in
+  Settings → Audit log, as the CSV's last column and as `target.audience` in the audit stream.
+- **The whole workspace as PDFs.** Settings → General → Export offers PDF next to Markdown and CSV: a
+  ZIP of PDFs in folders following the page tree, databases as tables, rows with text of their own
+  as their own PDFs, at most 1,000 PDFs, streamed as they are made.
+- **Built-in icons and the full emoji set.** The icon picker has two tabs: *Emoji*, every emoji
+  by category with search by name in the interface language (English as a fallback) and a skin
+  tone it remembers, and *Icons*, a few hundred line icons in nine colors that read well in light,
+  dark and high contrast, the last color picked remembered too. *Random* picks one. Built-in icons
+  show wherever icons do (sidebar, header, breadcrumbs, mentions, search, tabs, home, published
+  pages and sites, their favicons, print and PDF) and are stored as `icon:<name>:<color>`, which the
+  REST API, the MCP tools and Markdown export return as is and writes accept. The editor's ":" menu
+  also finds emoji by their names in the interface language. View tabs and properties can have
+  their own icon from the same picker. Migration `0137_icon_preferences`.
+- **Undo a move or a trip to the trash.** Moving a page with *Move to* shows a note at the bottom of
+  the window with a link to where it went and *Undo*, which puts it back in its old place among its
+  siblings. Moving a page to the trash (from the sidebar or the page) and moving database rows to
+  the trash show a note with *Undo* too, which brings them back. The note closes after a few
+  seconds; a new one replaces it.
+- **Copy a code block's code.** A *Copy* button sits in the corner of every code block, in the
+  editor and on published pages and sites (shown on hover, always on touch screens), and copies
+  the code as written.
+- **Escape throws away an empty new row.** In a table, board, list, gallery, calendar or timeline,
+  pressing Escape in a new row's name before anything is typed moves the row to the trash instead
+  of leaving an untitled one behind. With a name typed, Escape keeps the row as before.
+- **Fit a table column to its content.** Double-clicking a column's edge in a table view sets its
+  width to fit its header and the rows shown, wider or narrower, and keeps it with the view.
+- **See text that's cut short.** Anything in a workspace that ends in an ellipsis because it doesn't
+  fit (a column's name, an option, a linked row, a page in the sidebar) shows in full as a tooltip
+  when the pointer rests on it, and a cell's list of options, people, linked rows or files that
+  doesn't all fit shows every one of them.
+- **Limit a person property to one person.** *Limit to one person* in a person column's menu makes
+  each row name one person at most: picking someone puts them in the place of whoever was there, and
+  writes naming more (API, MCP, automations, imports) are refused. Rows naming more when it is turned
+  on keep them until they're changed. MCP's `get_database` shows such a property with `one_person`.
+- **Show a status as a checkbox.** *Show as checkbox* in a status column's menu shows a box,
+  ticked while the row's status is in the done group. Ticking it picks the first done status,
+  unticking it the first to-do one; filters, groups and the API still see the status itself.
+- **Make a relation two-way later, and see more of each row when linking.** A one-way relation's
+  column menu offers *Show on <database> too*, which adds the paired property there and links every
+  row back from the rows it already links to (edit access to both databases). *Show in row picker*
+  picks up to three properties of the related database to show beside each row's name in the
+  picker.
+- **More editor shortcuts.** Alt/Option+Shift+L copies a link to the block the cursor is in (as
+  "Copy link to block" does, with a "Link copied" note), Cmd/Ctrl+Shift+X strikes text through as
+  well as Cmd/Ctrl+Shift+S, and Cmd/Ctrl+Alt+T opens every toggle on the page (toggle lists and
+  toggle headings, nested ones too, and the groups of grouped table and timeline views), or closes
+  them all when none is closed. The keyboard shortcuts dialog lists them.
+- **Toggle headings take their section.** Turning a heading into a toggle heading moves the blocks
+  under it, up to the next heading of the same or a higher level, inside it, so the section folds
+  away; turning it back into a heading lets them out again. One undo step either way.
+- **Alignment for files, audio, bookmarks and embeds.** Like images and videos, they can sit at the
+  start, in the middle or at the end (the block menu, and the formatting toolbar where it shows),
+  and embeds and PDFs shown in place can be made narrower by dragging their edge. Published pages,
+  print and PDFs keep it.
+- **Wide columns.** On a page of standard width a column list can reach past the text into the
+  page's margins, up to the page's full width: drag its outer edges, or pick "Wide columns" in the
+  block menu of a block inside it. Full-width pages, phones and published pages show it at the
+  text's width.
+- **Download from the block menu.** Images, videos, audio and files get "Download", which saves
+  uploaded files as files rather than opening them, and fetches files on other sites through the
+  server (public https addresses only, up to 100 MB, signed-in readers of the page only). The image
+  viewer now also steps through the page's images from other sites.
+- **More code languages:** Agda, Coq, Dhall, EBNF, Idris, LLVM IR, Mathematica, PureScript and
+  Racket, highlighted.
+- **Dates written out in the @ menu.** "next friday", "in 3 days", "3 days ago", "yesterday" or a
+  date like "15 Oct" become a date mention, in the interface language or English, as quick add
+  reads them.
+- **Links to comments.** A comment thread's menu has "Copy link". Pasted into a page of the same
+  workspace, such a link offers "Paste as mention" (the author and the start of the comment, inline),
+  "Paste as preview" (a block with the author, time, page and text, and a link that opens the
+  thread) or the plain link. Readers who can't open the thread's page see "No access", never the
+  comment; published pages show neither.
+- **The theme follows in every tab.** Light, dark or system picked in one tab applies at once in
+  the person's other open tabs of the app.
+- **Fill cells by dragging.** A selected cell or range in a table has a small handle at its
+  bottom-right corner: drag it up or down and the values are copied into the cells it passes over
+  (a range of several rows repeats in its order), in one write that goes through the same checks as
+  pasting. Cmd/Ctrl+D fills a range down from its top cell in each column; with a single row it
+  duplicates the row, now also without the row menu open.
+- **Edit values on board and gallery cards.** Clicking a value shown on a card opens the same
+  editor a table cell uses (a select's options, a date picker, a person list…) without opening the
+  row. Read-only viewers and properties they can't edit still show the plain value.
+- **More date ranges in filters.** "Is within" on a date now also offers last and next week, last
+  and next month, and this, last and next year, in views and in MCP, REST and AI chat filters.
+  Weeks run Monday to Sunday, as "this week" already did; a new row in a view filtered on one gets
+  the day in that range closest to today.
+- **Find a property type by typing.** The name box of the header's "+" also searches the types by
+  their names in the interface language; Enter (or the arrow keys, then Enter) creates the
+  highlighted type, and a name that is just a type's name gives the property that type's default
+  name.
+- **A default row template per view.** "Set as default" in a database's row templates menu asks
+  whether the template is the default for this view or for all views. "New" in that view then
+  starts from the view's own choice (a template or a blank row), while other views and other doors
+  (MCP, REST, forms) keep the database's default; "For all views" clears the views' own choices.
+- **Hide vertical gridlines in tables.** Layout → "Show vertical lines" turns off the lines
+  between a table's columns, for that view and where it is published.
+- **Jump back in.** The workspace's home page starts with the pages you opened last, and the search
+  box lists them before you type, newest first and only pages you can still open. While the
+  workspace or you don't record page views (or for guests, whose views aren't recorded), the home
+  page shows only *Recently edited* and the search box the pages last edited, as before.
+- **Search filters.** Menus under the search box's query narrow a search by teamspace, by who
+  created a page, by who edited it last, and by when it was last edited or created: today, the
+  last 7 or 30 days, or days you pick, in your time zone. They work with the typed `in:`, `type:`
+  and `is:verified`, and list pages without words too. The REST API's `GET /search` takes the
+  same filters as `teamspace_id`, `created_by`, `edited_by` (`me` for yourself), `created_after`,
+  `created_before`, `edited_after` and `edited_before`, and no longer needs a query when a filter
+  is given. MCP's `search` tool doesn't take them: its schema is at the tool list's size budget.
+- **Exact phrases in search.** Text in double quotes (`"launch plan"`) finds only pages with those
+  words whole, side by side and in that order, in the search box, the REST API and MCP; Chinese
+  and Japanese phrases too. A page found only by meaning isn't listed for such a search. A quote
+  still being typed searches its words as before, and the AI chat's searches leave quotes alone.
+- **Sprints and Docs templates.** *Sprints* makes a page holding a task database with two-week
+  sprints turned on: a board by status, the current sprint, sprint planning and a backlog, with
+  example tasks in the current and next sprint and the backlog. *Docs* makes a doc library with a
+  category, an owner and the last edit, a board by category and a view by last edit, and four
+  example docs, two of them verified by you for three months. Both in every language.
 - **Save a web page.** *Save from web…* in the sidebar's *New* and *+* menus (and the new *Web page*
   tab of Import) takes the address of a web page and saves it as a page: its title, a link back to
   it, and its main text without the menus, ads, comments and footers around it. Its pictures (up to
@@ -17,8 +150,44 @@
   *Save full page* saves the whole page instead of the link. The REST API saves one with
   `POST /api/v1/pages/from-web`. The server fetches only public addresses over http or https on
   the usual web ports, checks every redirect again, and stops after 15 seconds and 5 MB of page.
-  Migration `drizzle/0136_web_clip_target.sql` adds where each person last saved to
+  Migration `drizzle/0139_web_clip_target.sql` adds where each person last saved to
   (`workspace_member.web_clip_target`). No MCP tool: the tool list is at its size budget.
+
+### Changed
+
+- **The documentation moved from the README into `docs/`.** README.md keeps the overview, the
+  quick start, security, license and trademarks, and lists the rest: features, running a server,
+  install and offline use, export, email on rows, accounts and security, automations and webhooks,
+  AI, agents, connections and MCP, the REST API and development, one file each. Section titles are
+  unchanged, so a link to a README section other than the quick start now finds it under the same
+  anchor in its `docs/` file.
+
+## 0.6.3 — 2026-10-24
+
+### Upgrading from 0.6.2
+
+- **Download the new `docker-compose.yml`.** It passes the new settings on to the app:
+  `AI_FAST_MODEL`, `AI_CHAT_MODELS`, `AI_IMAGE_INPUT`, `AI_MONTHLY_LIMIT_USD`, `WEB_SEARCH_*`,
+  `TELEGRAM_*`, `GEOCODER_URL`, `MAP_TILE_URL` and `MAP_TILE_ATTRIBUTION`. An existing `.env` keeps
+  working unchanged.
+- **Migrations 0093 to 0135** run automatically when the container starts (from source, run
+  `pnpm db:migrate`). 0093 rewrites the `page` and `file_text` tables once to rebuild their search
+  vectors, which takes a while on a large instance; the others add tables and columns. 0107 marks
+  every existing API token as legacy, so it keeps the access it had; 0104 and 0110 fill the shares
+  of existing agents and the first version of existing automations.
+- **Place properties and map views use OpenStreetMap's public servers** for address search and map
+  images unless `GEOCODER_URL` and `MAP_TILE_URL` are set. Set them empty to keep the server and
+  browsers from reaching them, or point them at your own servers for more than light use.
+- **`AI_MAX_OUTPUT_TOKENS` defaults to 8192** (was 2048), and **`AI_MAX_INPUT_CHARS` is unset by
+  default** (was 48000): a request may then send what the model's context window takes. A server
+  that sets either keeps its value.
+- Off until set: web search for agents and the AI chat (`WEB_SEARCH_PROVIDER`, `WEB_SEARCH_URL`),
+  the AI chat from Telegram (`TELEGRAM_BOT_TOKEN`), a monthly AI cost limit
+  (`AI_MONTHLY_LIMIT_USD`). Streaming the audit log and finding sensitive content stay off until an
+  owner turns them on in Settings → Security.
+
+### Added
+
 - **Danish, Dutch, Norwegian, Finnish and Swedish.** The app, its emails, templates, the editor's
   menus and the desktop app now speak Dansk, Nederlands, Norsk bokmål, Suomi and Svenska, chosen in
   My account → Language or taken from the browser (one asking for Norwegian or Nynorsk gets
@@ -1199,6 +1368,12 @@
   Sonnet and Opus 5.5, which always think); writing up voice notes and the writing assistant's
   fixed actions ask for low effort; the chat and the writing assistant's own instructions for
   medium. Agents keep the model's default. The README's AI section has the table.
+- **The MCP tool list is smaller and has a budget.** The descriptions a client sends to its model
+  were tightened, filter rules inside groups and automation steps no longer repeat what the
+  top-level fields already say (290 KB to 265 KB), and `src/server/mcp/tools-context.test.ts` now fails when the
+  whole list passes 275 KB or one tool passes 25 KB, so a new tool has to fit or raise the budget on
+  purpose. The list stays the same for every grant: a read-only token still sees the write tools,
+  because a step-up challenge is how it asks for them.
 
 ### Fixed
 
@@ -1265,15 +1440,6 @@
   has the word written either way still comes first, and the snippet shows where. Migration 0093
   rewrites the `page` and `file_text` tables once to rebuild their search vectors; it runs
   automatically when the container starts (from source, run `pnpm db:migrate`).
-
-### Changed
-
-- **The MCP tool list is smaller and has a budget.** The descriptions a client sends to its model
-  were tightened, filter rules inside groups and automation steps no longer repeat what the
-  top-level fields already say (290 KB to 265 KB), and `src/server/mcp/tools-context.test.ts` now fails when the
-  whole list passes 275 KB or one tool passes 25 KB, so a new tool has to fit or raise the budget on
-  purpose. The list stays the same for every grant: a read-only token still sees the write tools,
-  because a step-up challenge is how it asks for them.
 
 ## 0.6.2 — 2026-10-20
 

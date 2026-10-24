@@ -70,6 +70,7 @@
     "includeArchivedHint": "Temukan juga halaman yang diarsipkan",
     "inDocument": "Ditemukan di dokumen {name} pada halaman ini",
     "recent": "Baru diedit",
+    "recentViewed": "Baru dilihat",
     "commands": "Perintah",
     "noCommands": "Tidak ada perintah yang cocok",
     "setting": "Pengaturan: {tab} → {setting}",
@@ -77,7 +78,29 @@
     "hint": {
       "in": "di dalam halaman",
       "type": "hanya basis data (atau halaman, baris)",
-      "commands": "perintah"
+      "commands": "perintah",
+      "phrase": "frasa persis"
+    },
+    "filters": {
+      "label": "Filter",
+      "teamspace": "Ruang tim",
+      "createdBy": "Dibuat oleh",
+      "editedBy": "Terakhir diedit oleh",
+      "date": "Tanggal",
+      "edited": "Terakhir diedit",
+      "created": "Dibuat",
+      "today": "Hari ini",
+      "week": "7 hari terakhir",
+      "month": "30 hari terakhir",
+      "custom": "Rentang khusus",
+      "from": "Dari",
+      "to": "Hingga",
+      "more": "{first} +{count}",
+      "you": "{name} (Anda)",
+      "findPerson": "Cari orang…",
+      "noPeople": "Tidak ada yang ditemukan",
+      "remove": "Hapus filter",
+      "clear": "Hapus semua filter"
     }
   },
   "trash": {

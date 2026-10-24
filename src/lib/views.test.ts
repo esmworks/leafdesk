@@ -62,6 +62,20 @@ describe("where a view opens its rows", () => {
   });
 });
 
+describe("table lines and a view's own row template", () => {
+  it("takes vertical lines on or off", () => {
+    expect(layoutConfigError({ showVerticalLines: false })).toBeNull();
+    expect(layoutConfigError({ showVerticalLines: "no" } as unknown as ViewConfig)).toBe("showVerticalLines must be true or false");
+  });
+
+  it("takes a template id, or null for blank rows", () => {
+    expect(layoutConfigError({ defaultTemplateId: "tpl-1" })).toBeNull();
+    expect(layoutConfigError({ defaultTemplateId: null })).toBeNull();
+    expect(layoutConfigError({ defaultTemplateId: "" })).toMatch(/defaultTemplateId/);
+    expect(layoutConfigError({ defaultTemplateId: 3 } as unknown as ViewConfig)).toMatch(/defaultTemplateId/);
+  });
+});
+
 describe("wrapping card values", () => {
   it("is on or off, and off when missing", () => {
     expect(layoutConfigError({ wrapProperties: true })).toBeNull();

@@ -104,6 +104,16 @@ describe("columns in Markdown", () => {
     expect((await blocksToMarkdown(blocks)).trim()).toBe(SAMPLE_MARKDOWN);
   });
 
+  it("keep how wide a list reaches, in the document and in Markdown", async () => {
+    const wide = { ...columns({ blocks: [P("a")] }, { blocks: [P("b")] }), props: { wide: 0.5 } };
+    const blocks = stored([wide]);
+    expect(blocks[0].props).toEqual({ wide: 0.5 });
+    const markdown = await blocksToMarkdown(blocks);
+    expect(markdown).toContain("<!-- leafdesk:columns wide=0.5 -->");
+    expect(stored(await markdownToBlocks(markdown))[0].props).toEqual({ wide: 0.5 });
+    expect(stored(sample)[1].props).toEqual({ wide: 0 });
+  });
+
   it("keep an empty column, and a database block inside a column", async () => {
     const markdown = [
       "<!-- leafdesk:columns -->",
@@ -147,6 +157,9 @@ describe("columns in Markdown", () => {
     expect(parseColumnMarker("text <!-- leafdesk:columns -->")).toBeNull();
     expect(columnMarkerLine({ kind: "column", width: 1 })).toBe("<!-- leafdesk:column -->");
     expect(columnMarkerLine({ kind: "column", width: 0.004 })).toBe("<!-- leafdesk:column width=0.1 -->");
+    expect(parseColumnMarker("<!-- leafdesk:columns wide=1 -->")).toEqual({ kind: "columns", wide: 1 });
+    expect(parseColumnMarker("<!-- leafdesk:columns wide=0 -->")).toEqual({ kind: "columns" });
+    expect(columnMarkerLine({ kind: "columns", wide: 3 })).toBe("<!-- leafdesk:columns wide=1 -->");
     expect(columnWidth("junk")).toBe(1);
     expect(columnWidth(99)).toBe(10);
   });

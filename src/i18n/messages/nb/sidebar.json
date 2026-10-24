@@ -70,6 +70,7 @@
     "includeArchivedHint": "Finn også arkiverte sider",
     "inDocument": "Funnet i dokumentet {name} på denne siden",
     "recent": "Nylig redigert",
+    "recentViewed": "Nylig vist",
     "commands": "Kommandoer",
     "noCommands": "Ingen kommando passer",
     "setting": "Innstillinger: {tab} → {setting}",
@@ -77,7 +78,29 @@
     "hint": {
       "in": "inne i en side",
       "type": "bare databaser (eller page, row)",
-      "commands": "kommandoer"
+      "commands": "kommandoer",
+      "phrase": "eksakt frase"
+    },
+    "filters": {
+      "label": "Filtre",
+      "teamspace": "Teamområde",
+      "createdBy": "Opprettet av",
+      "editedBy": "Sist redigert av",
+      "date": "Dato",
+      "edited": "Sist redigert",
+      "created": "Opprettet",
+      "today": "I dag",
+      "week": "Siste 7 dager",
+      "month": "Siste 30 dager",
+      "custom": "Egendefinert periode",
+      "from": "Fra",
+      "to": "Til",
+      "more": "{first} +{count}",
+      "you": "{name} (deg)",
+      "findPerson": "Finn en person…",
+      "noPeople": "Fant ingen",
+      "remove": "Fjern filter",
+      "clear": "Fjern filtre"
     }
   },
   "trash": {

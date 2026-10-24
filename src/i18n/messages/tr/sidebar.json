@@ -70,6 +70,7 @@
     "includeArchivedHint": "Arşivlenen sayfaları da bul",
     "inDocument": "Bu sayfadaki {name} belgesinde bulundu",
     "recent": "Son düzenlenenler",
+    "recentViewed": "Son görüntülenenler",
     "commands": "Komutlar",
     "noCommands": "Eşleşen komut yok",
     "setting": "Ayarlar: {tab} → {setting}",
@@ -77,7 +78,29 @@
     "hint": {
       "in": "bir sayfanın içinde",
       "type": "yalnız veritabanları (ya da page, row)",
-      "commands": "komutlar"
+      "commands": "komutlar",
+      "phrase": "tam ifade"
+    },
+    "filters": {
+      "label": "Filtreler",
+      "teamspace": "Ekip alanı",
+      "createdBy": "Oluşturan",
+      "editedBy": "Son düzenleyen",
+      "date": "Tarih",
+      "edited": "Son düzenleme",
+      "created": "Oluşturulma",
+      "today": "Bugün",
+      "week": "Son 7 gün",
+      "month": "Son 30 gün",
+      "custom": "Özel aralık",
+      "from": "Başlangıç",
+      "to": "Bitiş",
+      "more": "{first} +{count}",
+      "you": "{name} (siz)",
+      "findPerson": "Kişi bul…",
+      "noPeople": "Kimse bulunamadı",
+      "remove": "Filtreyi kaldır",
+      "clear": "Filtreleri temizle"
     }
   },
   "trash": {

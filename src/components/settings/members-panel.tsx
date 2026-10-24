@@ -1,5 +1,6 @@
 "use client";
 
+import { IconGlyph } from "@/components/builtin-icon";
 import { ArrowDown, ArrowUp, ChevronDown, Download, MoreHorizontal, Search } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useFormatter, useTranslations } from "next-intl";
@@ -16,6 +17,7 @@ import {
 } from "@/app/actions/workspaces";
 import { useLocalMode } from "@/components/local-mode";
 import { CopyButton } from "@/components/settings/copy-button";
+import { RemoveMemberHeir } from "@/components/settings/remove-member-heir";
 import { SettingsGroup, SettingsHeader, SettingsRow } from "@/components/settings/section";
 import { useAction } from "@/components/settings/workspace-settings";
 import { Floating, useFloating } from "@/components/database/floating";
@@ -185,6 +187,7 @@ export function MembersPanel({
                 currentUserId={currentUserId}
                 isOwner={isOwner}
                 members={shownMembers}
+                everyone={members}
                 teamspaces={teamspaces}
                 groups={groups}
                 sort={sort}
@@ -348,6 +351,7 @@ function MembersTable({
   currentUserId,
   isOwner,
   members,
+  everyone,
   teamspaces,
   groups,
   sort,
@@ -359,6 +363,8 @@ function MembersTable({
   currentUserId: string;
   isOwner: boolean;
   members: Member[];
+  /** Everyone in the workspace, whatever the search shows: who may take over from someone removed. */
+  everyone: Member[];
   teamspaces: Record<string, MemberTeamspace[]>;
   groups: Record<string, MemberGroup[]>;
   sort: Sort;
@@ -399,6 +405,8 @@ function MembersTable({
               groups={groups[m.userId] ?? []}
               isSelf={m.userId === currentUserId}
               isOwner={isOwner}
+              everyone={everyone}
+              currentUserId={currentUserId}
             />
           ))}
         </tbody>
@@ -418,6 +426,8 @@ function MemberRow({
   groups,
   isSelf,
   isOwner,
+  everyone,
+  currentUserId,
 }: {
   now: Date;
   workspaceId: string;
@@ -426,12 +436,16 @@ function MemberRow({
   groups: MemberGroup[];
   isSelf: boolean;
   isOwner: boolean;
+  everyone: Member[];
+  currentUserId: string;
 }) {
   const router = useRouter();
   const t = useTranslations("settings.members");
   const tc = useTranslations("common");
   const format = useFormatter();
   const [confirm, setConfirm] = useState<PendingConfirm>(null);
+  // Who takes over what only the person removed could manage: the owner removing them, unless they pick someone else.
+  const [heir, setHeir] = useState(currentUserId);
   const menu = useFloating<HTMLButtonElement>();
   const { pending, error, run } = useAction();
   const canRemove = isOwner || isSelf;
@@ -533,8 +547,19 @@ function MemberRow({
                   : t("removeTitle", { name: member.name })}
             </h2>
             <p className="text-sm text-fg-muted">
-              {confirm === "transfer" ? t("transferBody", { name: member.name }) : isSelf ? t("leaveBody") : t("removeBody", { name: member.name })}
+              {confirm === "transfer" ? t("transferBody", { name: member.name }) : isSelf ? t("leaveBody") : t("removeBodyChoose", { name: member.name })}
             </p>
+            {confirm === "remove" && !isSelf && (
+              <RemoveMemberHeir
+                workspaceId={workspaceId}
+                target={member}
+                people={everyone}
+                currentUserId={currentUserId}
+                value={heir}
+                onChange={setHeir}
+                disabled={pending}
+              />
+            )}
             {error && <p className="text-xs text-danger">{error}</p>}
             <div className="flex justify-end gap-2">
               <Button variant="ghost" onClick={() => setConfirm(null)}>
@@ -547,7 +572,7 @@ function MemberRow({
                   confirm === "transfer"
                     ? run(() => transferOwnershipAction(workspaceId, member.userId), () => setConfirm(null))
                     : run(
-                        () => removeMemberAction(workspaceId, member.userId),
+                        () => removeMemberAction(workspaceId, member.userId, isSelf || heir === currentUserId ? null : heir),
                         () => {
                           setConfirm(null);
                           if (isSelf) {
@@ -592,7 +617,7 @@ function TeamspacesCell({ name, teamspaces }: { name: string; teamspaces: Member
           {teamspaces.map((ts) => (
             <li key={ts.id} className="flex items-center gap-2 rounded px-2 py-1.5 text-sm">
               <span aria-hidden className="flex h-4 w-4 shrink-0 items-center justify-center leading-none text-fg-muted">
-                {ts.icon ?? (ts.name.trim()[0] ?? "?").toLocaleUpperCase()}
+                {ts.icon ? <IconGlyph icon={ts.icon} /> : (ts.name.trim()[0] ?? "?").toLocaleUpperCase()}
               </span>
               <span className="truncate">{ts.name}</span>
             </li>

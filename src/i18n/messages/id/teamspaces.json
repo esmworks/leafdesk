@@ -29,8 +29,10 @@
     "everyoneIn": "Semua orang di ruang kerja sudah ada di ruang tim ini.",
     "accessDenied": "Anda tidak dapat melakukannya di ruang tim ini.",
     "invalidMemberLevel": "Pilih apa yang didapat anggota pada halaman ruang tim.",
-    "invalidIcon": "Ikon harus berupa emoji.",
-    "notConvertible": "Hanya halaman yang bisa menjadi ruang tim, bukan database, baris, atau templat."
+    "invalidIcon": "Ikon harus berupa emoji atau ikon bawaan.",
+    "notConvertible": "Hanya halaman yang bisa menjadi ruang tim, bukan database, baris, atau templat.",
+    "invalidEmail": "Masukkan alamat email yang valid.",
+    "cantInvite": "Anda tidak dapat mengundang orang ke ruang kerja ini. Minta kepada pemilik."
   },
   "dialog": {
     "createTitle": "Ruang tim baru",
@@ -73,7 +75,16 @@
     "chooseGroup": "Pilih grup",
     "addGroupButton": "Tambahkan grup",
     "removeGroup": "Keluarkan {name}",
-    "groupMemberCount": "{count, plural, =0 {Tanpa anggota} other {# anggota}}"
+    "groupMemberCount": "{count, plural, =0 {Tanpa anggota} other {# anggota}}",
+    "searchOrInvite": "Cari orang atau masukkan email",
+    "inviteEmail": "Undang {email}",
+    "inviteHint": "Mereka diundang ke ruang kerja dan bergabung dengan ruang tim ini setelah menerima undangan.",
+    "inviteButton": "Undang",
+    "invitedAdded": "{email} kini ada di ruang tim ini.",
+    "invitedRequested": "Pemilik harus menyetujui undangan untuk {email}. Setelah disetujui, mereka bergabung dengan ruang tim ini saat menerima undangan.",
+    "invitedSent": "Undangan dikirim ke {email}. Mereka bergabung dengan ruang tim ini setelah menerima undangan.",
+    "invitedLink": "Undangan untuk {email} dibuat, tetapi tidak ada email yang terkirim. Bagikan tautannya kepada mereka.",
+    "copyInviteLink": "Salin tautan"
   },
   "memberLevel": {
     "full": "Akses penuh",

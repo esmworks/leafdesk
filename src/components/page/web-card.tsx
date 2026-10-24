@@ -1,7 +1,8 @@
 "use client";
 
 import { Globe } from "lucide-react";
-import { useState } from "react";
+import { useState, type ReactNode } from "react";
+import type { MediaAlignment } from "@/lib/media-placement";
 import {
   bookmarkWidth,
   displayHost,
@@ -115,6 +116,25 @@ export function EmbedFrame({ url, embed, title }: { url: string; embed: EmbedTar
       >
         {displayHost(url)}
       </a>
+    </div>
+  );
+}
+
+/**
+ * A block drawn on its own (a bookmark, an embed, a file shown in place) on a published page or in
+ * print: as wide as its block says, at its start, middle or end (lib/media-placement).
+ */
+export function MediaBox({ align, width, children }: { align: MediaAlignment; width: number | null; children: ReactNode }) {
+  return (
+    <div
+      className="max-w-full"
+      style={{
+        width: width ? `${width}%` : undefined,
+        marginInlineStart: align === "left" ? undefined : "auto",
+        marginInlineEnd: align === "center" ? "auto" : undefined,
+      }}
+    >
+      {children}
     </div>
   );
 }

@@ -1,5 +1,6 @@
 "use client";
 
+import { IconGlyph } from "@/components/builtin-icon";
 import {
   Bookmark,
   Bot,
@@ -90,7 +91,7 @@ function BlockBody({ block, text, compact }: { block: DiffBlock; text: ReactNode
     case "callout":
       return (
         <div className="flex gap-2 rounded-md bg-bg-subtle px-3 py-2">
-          {block.icon && <span className="shrink-0 select-none">{block.icon}</span>}
+          {block.icon && <IconGlyph icon={block.icon} className="shrink-0 select-none" />}
           <div className="min-w-0 flex-1 whitespace-pre-wrap">{text}</div>
         </div>
       );

@@ -1,5 +1,6 @@
 "use client";
 
+import { iconPrefix } from "@/lib/icon-value";
 import { useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { useCallback, useEffect, useRef, useState } from "react";
@@ -210,7 +211,7 @@ export function QuickNoteForm({
             <option value="">{t("privatePage")}</option>
             {targets.databases.map((d) => (
               <option key={d.id} value={d.id}>
-                {d.icon ? `${d.icon} ` : ""}
+                {iconPrefix(d.icon)}
                 {pageLabel(d.title)}
               </option>
             ))}

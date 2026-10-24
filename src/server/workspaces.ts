@@ -34,6 +34,7 @@ import {
   workspaceMember,
   workspaceSso,
   type WorkspaceRole,
+  type InvitedTeamspace,
   type WorkspaceSettings,
 } from "@/db/schema";
 import { isLocale, type Locale } from "@/i18n/config";
@@ -41,6 +42,7 @@ import { type DeletionPlan, planAccountDeletion, type WorkspaceStanding } from "
 import { isAgentEmail } from "@/lib/agents";
 import { isReservedEmail } from "@/lib/reserved-emails";
 import { isEmail, MAX_BULK_EMAILS, normalizeEmail } from "@/lib/emails";
+import { invitedTeamspaces } from "@/lib/invited-teamspaces";
 import { assignableRoles, invitationApplies, linkAccess, memberInviteMode, verifiedAllowedDomains } from "@/lib/membership-policy";
 import { TRASH_RETENTION_CHOICES } from "@/lib/retention";
 import { parseDomains } from "@/lib/sso-config";
@@ -74,7 +76,7 @@ import { StorageSettingsError } from "@/server/storage/errors";
 import { kickMoves, planMovesAway } from "@/server/storage/moves";
 import { CONNECTED_APPS_MODES } from "@/server/connected-app";
 import { dropFromGroups } from "@/server/groups";
-import { dropFromTeamspaces, setUpGeneralTeamspace } from "@/server/teamspaces";
+import { dropFromTeamspaces, joinInvitedTeamspaces, setUpGeneralTeamspace } from "@/server/teamspaces";
 import { refuseInLocalMode } from "@/server/local-mode";
 
 /** "Erhan's workspace" / "Erhan'ın çalışma alanı", in the language of the sign-up request. */
@@ -156,7 +158,9 @@ export type WorkspaceErrorCode =
   /** Approved networks: more than MAX_ALLOWED_NETWORKS. */
   | "tooManyNetworks"
   /** Approved networks: the list leaves out the saving owner's own address (the detail; empty when unknown). */
-  | "ipLocksYouOut";
+  | "ipLocksYouOut"
+  /** Removing someone: who should take over their pages isn't an owner or member staying in the workspace. */
+  | "heirInvalid";
 
 /**
  * An expected failure the user can act on. `code` is stable and translated by the UI; the
@@ -471,13 +475,16 @@ export async function addAgentMembership(
  * Adds the account that uses this email, when its address is verified. Otherwise (no account, or
  * one nobody proved the address of) creates (or renews) an invitation and emails its link when the
  * server can send email; the owner can always share the link themselves. While the workspace wants
- * members' invitations approved, a member's addition becomes a request instead.
+ * members' invitations approved, a member's addition becomes a request instead. `teamspaces`: the
+ * teamspaces they join with the workspace (see teamspaces.ts inviteToTeamspace); the request or
+ * invitation carries them until then.
  */
 export async function addMember(
   actorId: string,
   workspaceId: string,
   email: string,
   role: WorkspaceRole,
+  { teamspaces = [] }: { teamspaces?: InvitedTeamspace[] } = {},
 ): Promise<AddMemberResult> {
   const mode = await memberInviteModeFor(actorId, workspaceId, role);
   const clean = normalizeEmail(email);
@@ -490,10 +497,10 @@ export async function addMember(
       .where(and(eq(workspaceMember.workspaceId, workspaceId), eq(sql`lower(${user.email})`, clean)))
       .limit(1);
     if (existing) throw new WorkspaceError("alreadyMember", "This person is already a member.");
-    await requestInvitation(actorId, workspaceId, clean, role);
+    await requestInvitation(actorId, workspaceId, clean, role, teamspaces);
     return { kind: "requested", email: clean };
   }
-  return addMemberAs(actorId, workspaceId, clean, role);
+  return addMemberAs(actorId, workspaceId, clean, role, { teamspaces });
 }
 
 /**
@@ -510,6 +517,7 @@ export async function addMemberAs(
   workspaceId: string,
   email: string,
   role: WorkspaceRole,
+  { teamspaces = [] }: { teamspaces?: InvitedTeamspace[] } = {},
 ): Promise<Exclude<AddMemberResult, { kind: "requested" }>> {
   refuseInLocalMode();
   const clean = normalizeEmail(email);
@@ -523,17 +531,32 @@ export async function addMemberAs(
   if (!target?.emailVerified) {
     const token = newToken();
     const expiresAt = new Date(Date.now() + INVITATION_TTL_MS);
+    const carried = invitedTeamspaces(teamspaces);
     await db
       .insert(workspaceInvitation)
-      .values({ workspaceId, email: clean, role, token, invitedBy: actorId, expiresAt })
+      .values({ workspaceId, email: clean, role, token, invitedBy: actorId, expiresAt, teamspaces: carried })
       .onConflictDoUpdate({
         target: [workspaceInvitation.workspaceId, workspaceInvitation.email],
-        set: { role, token, invitedBy: actorId, expiresAt, createdAt: new Date() },
+        // Inviting again keeps the teamspaces an earlier invitation carried, and adds these.
+        set: {
+          role,
+          token,
+          invitedBy: actorId,
+          expiresAt,
+          createdAt: new Date(),
+          teamspaces: sql`${workspaceInvitation.teamspaces} || ${JSON.stringify(carried)}::jsonb`,
+        },
       });
     const link = invitationLink(token);
     const delivery = await emailInvitation(actorId, workspaceId, { email: clean, role, link });
     // After the upsert and the email: the invitation stands either way.
-    await recordAudit({ workspaceId, actorId, action: "invitation.sent", target: { type: "email", id: clean, label: clean }, details: { role } });
+    await recordAudit({
+      workspaceId,
+      actorId,
+      action: "invitation.sent",
+      target: { type: "email", id: clean, label: clean },
+      details: { role, ...(carried.length ? { teamspaces: carried.map((t) => t.id) } : {}) },
+    });
     return { kind: "invited", email: clean, link, delivery };
   }
   const inserted = await db.transaction(async (tx) => {
@@ -548,6 +571,7 @@ export async function addMemberAs(
     if (rows.length) {
       await claimPageInvitations(tx, workspaceId, target.id, clean);
       await recordAudit({ workspaceId, actorId, action: "member.added", target: { type: "user", id: target.id }, details: { role } }, tx);
+      await joinInvitedTeamspaces(tx, workspaceId, target.id, role, teamspaces);
     }
     return rows;
   });
@@ -747,6 +771,7 @@ export async function acceptInvitation(token: string, userId: string, userEmail:
         email: workspaceInvitation.email,
         role: workspaceInvitation.role,
         invitedBy: workspaceInvitation.invitedBy,
+        teamspaces: workspaceInvitation.teamspaces,
       })
       .from(workspaceInvitation)
       .where(and(eq(workspaceInvitation.token, token), gt(workspaceInvitation.expiresAt, new Date())))
@@ -771,6 +796,7 @@ export async function acceptInvitation(token: string, userId: string, userEmail:
       },
       tx,
     );
+    await joinInvitedTeamspaces(tx, invitation.workspaceId, userId, invitation.role, invitation.teamspaces);
     return invitation.workspaceId;
   });
   await settleJoinRequest(workspaceId, userId);
@@ -841,7 +867,12 @@ async function linkDecision(
 ) {
   const [[invitation], [account], record, ssoDomains] = await Promise.all([
     reader
-      .select({ role: workspaceInvitation.role, invitedBy: workspaceInvitation.invitedBy, expiresAt: workspaceInvitation.expiresAt })
+      .select({
+        role: workspaceInvitation.role,
+        invitedBy: workspaceInvitation.invitedBy,
+        expiresAt: workspaceInvitation.expiresAt,
+        teamspaces: workspaceInvitation.teamspaces,
+      })
       .from(workspaceInvitation)
       .where(and(eq(workspaceInvitation.workspaceId, ws.id), eq(workspaceInvitation.email, email))),
     reader.select({ emailVerified: user.emailVerified }).from(user).where(eq(user.id, userId)),
@@ -912,6 +943,7 @@ export async function joinWithLink(token: string, userId: string, userEmail: str
       { workspaceId: ws.id, actorId: userId, action: "member.joined", target: { type: "user", id: userId }, details: { role, via: "link" } },
       tx,
     );
+    if (live) await joinInvitedTeamspaces(tx, ws.id, userId, role, live.teamspaces);
     return { workspaceId: ws.id, access, joined: true };
   });
   const { workspaceId, access, joined } = outcome;
@@ -1048,13 +1080,46 @@ async function forgetWorkspaceGrants(tx: Tx, workspaceId: string, userId: string
   await tx.delete(apiToken).where(and(eq(apiToken.userId, userId), eq(apiToken.workspaceId, workspaceId)));
 }
 
-/** Owners can remove anyone; members can only remove themselves (leave). */
-export async function removeMember(actorId: string, workspaceId: string, targetId: string) {
+/**
+ * How many pages only `targetId` can manage in the workspace (full access nobody else in it has), so
+ * the owner removing them sees what passes to whoever they choose (see removeMember). Owners only.
+ */
+export async function pagesOnlyTheyManage(actorId: string, workspaceId: string, targetId: string): Promise<number> {
+  await requireMembership(actorId, workspaceId, "owner");
+  const [row] = await db.execute<{ count: number }>(sql`
+    select count(*)::int as count
+    from ${page} p
+    where p.workspace_id = ${workspaceId}
+      and (exists (select 1 from ${pagePermission} pp where pp.page_id = p.id)
+        or exists (select 1 from ${pageGroupPermission} gp where gp.page_id = p.id))
+      and page_access_level(${targetId}, p.id) = ${FULL_RANK}
+      and not exists (
+        select 1 from ${workspaceMember} wm
+        where wm.workspace_id = ${workspaceId} and wm.user_id <> ${targetId} and page_access_level(wm.user_id, p.id) = ${FULL_RANK}
+      )
+  `);
+  return Number(row?.count ?? 0);
+}
+
+/**
+ * Owners can remove anyone; members can only remove themselves (leave). An owner removing someone
+ * may name `heirId`, an owner or member staying in the workspace, to take over what only the person
+ * removed could manage (their pages, and teamspaces nobody else runs); by default it is the owner
+ * removing them. Someone leaving hands it to the oldest owner.
+ */
+export async function removeMember(actorId: string, workspaceId: string, targetId: string, { heirId }: { heirId?: string | null } = {}) {
   // Leaving works without meeting the two-step policy: nobody should have to set it up to get out.
   const actor = actorId === targetId ? await findMembership(actorId, workspaceId) : await requireMembership(actorId, workspaceId);
   if (!actor || (actorId !== targetId && actor.role !== "owner")) throw new AccessError();
   // Archiving an agent takes it out of the lists; its membership stays, so its edits keep its name.
   await refuseAgentUser(targetId);
+  const chosenHeir = actorId !== targetId && heirId && heirId !== actorId ? heirId : null;
+  if (chosenHeir) {
+    const heir = await findMembership(chosenHeir, workspaceId);
+    if (chosenHeir === targetId || !heir || isGuest(heir.role) || (await isAgentUser(chosenHeir))) {
+      throw new WorkspaceError("heirInvalid", "Pick an owner or member who stays in the workspace.");
+    }
+  }
   let released: AiAccountRelease | null = null;
   await db.transaction(async (tx) => {
     const [current] = await tx
@@ -1073,10 +1138,20 @@ export async function removeMember(actorId: string, workspaceId: string, targetI
       .delete(workspaceMember)
       .where(and(eq(workspaceMember.workspaceId, workspaceId), eq(workspaceMember.userId, targetId)));
     released = await releaseAiAccount(tx, workspaceId, targetId);
-    // An owner removing someone takes over what only they managed; someone leaving hands it to an owner.
-    const heir = actorId !== targetId ? actorId : await oldestOwner(tx, workspaceId);
+    // An owner removing someone takes over what only they managed (or whom they chose, still an owner
+    // or member: checked again under the lock); someone leaving hands it to an owner.
+    if (chosenHeir) {
+      const [still] = await tx
+        .select({ role: workspaceMember.role })
+        .from(workspaceMember)
+        .where(and(eq(workspaceMember.workspaceId, workspaceId), eq(workspaceMember.userId, chosenHeir)))
+        .for("update");
+      if (!still || isGuest(still.role)) throw new WorkspaceError("heirInvalid", "Pick an owner or member who stays in the workspace.");
+    }
+    const heir = actorId !== targetId ? (chosenHeir ?? actorId) : await oldestOwner(tx, workspaceId);
     await dropFromTeamspaces(tx, workspaceId, targetId, heir);
-    if (heir) await handOverOrphanedPages(tx, workspaceId, heir);
+    const handed = heir ? await handOverOrphanedPages(tx, workspaceId, heir) : 0;
+    if (heir && handed) await recordHandOver(tx, workspaceId, actorId, targetId, heir, handed);
     await forgetWorkspaceGrants(tx, workspaceId, targetId);
     // Their AI chat and agent chat conversations quote the workspace's pages, and what it
     // remembers about them is the workspace's context: they go with them.
@@ -1373,6 +1448,24 @@ export async function deleteWorkspaces(tx: Tx, workspaceIds: string[]) {
  * The workspace's longest-standing owner: heir of what nobody else can manage when no owner made
  * the change (the person left, their provider removed them), and who acts for SCIM group changes.
  */
+/**
+ * Records that `heirId` took over `count` pages only `leftId` could manage, as they left or were
+ * removed (by `actorId`: themselves when they left, null when their identity provider removed them).
+ */
+async function recordHandOver(tx: Tx, workspaceId: string, actorId: string | null, leftId: string, heirId: string, count: number) {
+  await recordAudit(
+    {
+      workspaceId,
+      actorId,
+      action: "member.content_handed_over",
+      target: { type: "user", id: leftId },
+      subject: { type: "user", id: heirId },
+      details: { count },
+    },
+    tx,
+  );
+}
+
 export async function oldestOwner(reader: Pick<typeof db, "select">, workspaceId: string) {
   const [owner] = await reader
     .select({ userId: workspaceMember.userId })
@@ -1591,7 +1684,7 @@ export async function joinAsMember(workspaceId: string, userId: string, email: s
   if (isAgentEmail(clean) || (await isAgentUser(userId))) return false;
   const joined = await db.transaction(async (tx) => {
     const [invitation] = await tx
-      .select({ role: workspaceInvitation.role, invitedBy: workspaceInvitation.invitedBy })
+      .select({ role: workspaceInvitation.role, invitedBy: workspaceInvitation.invitedBy, teamspaces: workspaceInvitation.teamspaces })
       .from(workspaceInvitation)
       .where(
         and(
@@ -1633,6 +1726,7 @@ export async function joinAsMember(workspaceId: string, userId: string, email: s
       },
       tx,
     );
+    if (invitation) await joinInvitedTeamspaces(tx, workspaceId, userId, "member", invitation.teamspaces);
     return true;
   });
   if (joined) await settleJoinRequest(workspaceId, userId);
@@ -1664,7 +1758,8 @@ export async function removeMemberByProvider(workspaceId: string, userId: string
     await tx.delete(aiMemory).where(and(eq(aiMemory.workspaceId, workspaceId), eq(aiMemory.userId, userId)));
     const heir = await oldestOwner(tx, workspaceId);
     await dropFromTeamspaces(tx, workspaceId, userId, heir);
-    if (heir) await handOverOrphanedPages(tx, workspaceId, heir);
+    const handed = heir ? await handOverOrphanedPages(tx, workspaceId, heir) : 0;
+    if (heir && handed) await recordHandOver(tx, workspaceId, null, userId, heir, handed);
     await forgetWorkspaceGrants(tx, workspaceId, userId);
     await rememberDeparture(tx, workspaceId, userId, "declined", null);
     await recordAudit(

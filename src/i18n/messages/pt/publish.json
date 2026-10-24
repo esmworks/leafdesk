@@ -70,5 +70,19 @@
   },
   "publishingOff": "A publicação na web está desativada neste espaço de trabalho. As páginas publicadas não são mostradas até que um proprietário a ative de novo.",
   "descriptionLabel": "Descrição para buscadores",
-  "descriptionHint": "Aparece nos resultados de busca e nas prévias de links. Vazia: a descrição padrão do site."
+  "descriptionHint": "Aparece nos resultados de busca e nas prévias de links. Vazia: a descrição padrão do site.",
+  "expiredTitle": "Link expirado",
+  "expiry": "Validade do link",
+  "expiryHint": "O link funciona até você despublicar a página.",
+  "expiresOn": "O link para de funcionar em {date}.",
+  "expiredOn": "Expirou em {date}: o link não funciona mais em lugar nenhum. Escolha uma data posterior ou remova a validade para trazê-lo de volta.",
+  "setExpiry": "Definir validade",
+  "extendExpiry": "Estender",
+  "expiryLabel": "O link para de funcionar em",
+  "saveExpiry": "Salvar",
+  "removeExpiry": "Remover validade",
+  "cancelExpiry": "Cancelar",
+  "expiryPast": "Escolha uma data no futuro.",
+  "expiryTooFar": "Escolha uma data dentro dos próximos dez anos.",
+  "expiredDescription": "Agora ninguém consegue abrir esta página nem as subpáginas pelo link: quem visita vê que ela não foi encontrada."
 }

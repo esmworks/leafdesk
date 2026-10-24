@@ -1,5 +1,6 @@
 {
   "hello": "Cześć, {name}",
+  "jumpBackIn": "Wróć do pracy",
   "recent": "Ostatnio edytowane",
   "assignedEmpty": "Nic nie jest do ciebie przypisane. Tutaj pojawią się wiersze baz danych, do których cię przypisano.",
   "empty": "Na razie nic tu nie ma. Utwórz pierwszą stronę, aby zacząć.",

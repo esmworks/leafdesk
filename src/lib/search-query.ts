@@ -11,7 +11,9 @@
  *   is:verified            pages verified right now (server/verification), not those whose verification expired
  *
  * A filter's key and value are case-insensitive; an unknown key (`foo:bar`) or value
- * (`type:foo`) is searched as text, and so is a quoted phrase ("a b", without its quotes).
+ * (`type:foo`) is searched as text. Text in double quotes ("launch plan") must appear as written,
+ * its words whole and next to each other in that order (`phrases`); a quote not yet closed is searched as
+ * words, so results don't vanish while the phrase is being typed.
  */
 
 export type SearchKind = "page" | "database" | "row" | "journal";
@@ -24,10 +26,12 @@ export type SearchQuery = {
   kinds: SearchKind[];
   /** `is:verified`: only pages verified right now. */
   verified: boolean;
+  /** Text in closed double quotes: each must match as a phrase. Its words are in `text` too. */
+  phrases: string[];
 };
 
 /** A piece of a query: `key:"quoted value"`, `"a phrase"` or a bare word. */
-type Token = { kind: "quoted"; key: string; value: string } | { kind: "phrase"; text: string } | { kind: "word"; text: string };
+type Token = { kind: "quoted"; key: string; value: string } | { kind: "phrase"; text: string; closed: boolean } | { kind: "word"; text: string };
 
 const SPACE = /\s/;
 /** `key:"` at the start of a word; a key has no whitespace, colon or quote. */
@@ -51,7 +55,7 @@ function tokenize(query: string): Token[] {
     }
     if (query.charAt(index) === '"') {
       const end = quoteEnd(index + 1);
-      tokens.push({ kind: "phrase", text: query.slice(index + 1, end) });
+      tokens.push({ kind: "phrase", text: query.slice(index + 1, end), closed: end < query.length });
       index = end + 1;
       continue;
     }
@@ -110,13 +114,17 @@ function applyFilter(parsed: SearchQuery, key: string, rawValue: string): boolea
 
 /** Splits a query into its free text and its filters. */
 export function parseSearchQuery(query: string): SearchQuery {
-  const parsed: SearchQuery = { text: "", within: [], kinds: [], verified: false };
+  const parsed: SearchQuery = { text: "", within: [], kinds: [], verified: false, phrases: [] };
   const words: string[] = [];
   for (const token of tokenize(query)) {
     if (token.kind === "quoted") {
       if (!applyFilter(parsed, token.key, token.value)) words.push(token.value);
-    } else if (token.kind === "phrase") words.push(token.text);
-    else {
+    } else if (token.kind === "phrase") {
+      words.push(token.text);
+      const phrase = token.text.replace(/\s+/g, " ").trim();
+      // One quoted word is a phrase too: found whole, not as the start of a longer word.
+      if (token.closed && /[\p{L}\p{N}]/u.test(phrase) && !parsed.phrases.includes(phrase)) parsed.phrases.push(phrase);
+    } else {
       const colon = token.text.indexOf(":");
       if (colon > 0 && applyFilter(parsed, token.text.slice(0, colon), token.text.slice(colon + 1))) continue;
       words.push(token.text);

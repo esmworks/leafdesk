@@ -70,5 +70,19 @@
   },
   "publishingOff": "Việc xuất bản lên web đã bị tắt trong không gian làm việc này. Các trang đã xuất bản sẽ không hiển thị cho đến khi chủ sở hữu bật lại.",
   "descriptionLabel": "Mô tả cho tìm kiếm",
-  "descriptionHint": "Hiện trong kết quả tìm kiếm và bản xem trước liên kết. Để trống: mô tả mặc định của trang web."
+  "descriptionHint": "Hiện trong kết quả tìm kiếm và bản xem trước liên kết. Để trống: mô tả mặc định của trang web.",
+  "expiredTitle": "Liên kết đã hết hạn",
+  "expiry": "Thời hạn liên kết",
+  "expiryHint": "Liên kết hoạt động cho đến khi bạn hủy xuất bản trang.",
+  "expiresOn": "Liên kết ngừng hoạt động vào {date}.",
+  "expiredOn": "Đã hết hạn vào {date}: liên kết không còn hoạt động ở bất kỳ đâu. Chọn thời điểm muộn hơn hoặc bỏ thời hạn để khôi phục.",
+  "setExpiry": "Đặt thời hạn",
+  "extendExpiry": "Gia hạn",
+  "expiryLabel": "Liên kết ngừng hoạt động vào",
+  "saveExpiry": "Lưu",
+  "removeExpiry": "Bỏ thời hạn",
+  "cancelExpiry": "Hủy",
+  "expiryPast": "Hãy chọn một thời điểm trong tương lai.",
+  "expiryTooFar": "Hãy chọn một thời điểm trong vòng mười năm tới.",
+  "expiredDescription": "Hiện không ai mở được trang này hay các trang con qua liên kết: khách truy cập sẽ thấy trang không tồn tại."
 }

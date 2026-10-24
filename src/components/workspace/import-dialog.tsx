@@ -29,6 +29,7 @@ import { isVaultSettingsPath } from "@/lib/import/obsidian";
 import { ImportError, type ImportResult, type ImportWarning } from "@/lib/import/result";
 import { parseTrelloExport, readTrelloBoard, type TrelloBoard } from "@/lib/import/trello";
 import { isWorkbook, readWorkbook } from "@/lib/import/xlsx";
+import { iconPrefix } from "@/lib/icon-value";
 import type { TreeNode } from "@/server/pages";
 import { GoogleDocsTab, type GoogleDocsSetup } from "./google-docs-import";
 import { JiraTab, type JiraSetup } from "./jira-import";
@@ -559,7 +560,7 @@ export function ImportDialog({
           {filePage && <option value={filePage}>{t("filePage")}</option>}
           {destinations.map(({ node, depth }) => (
             <option key={node.id} value={node.id}>
-              {`${"  ".repeat(depth)}${node.icon ? `${node.icon} ` : ""}${pageLabel(node.title, tc("untitled"))}`}
+              {`${"  ".repeat(depth)}${iconPrefix(node.icon)}${pageLabel(node.title, tc("untitled"))}`}
             </option>
           ))}
         </select>
@@ -1087,7 +1088,7 @@ export function ImportDialog({
                             </option>
                             {databases.map(({ node, depth }) => (
                               <option key={node.id} value={node.id}>
-                                {`${"  ".repeat(depth)}${node.icon ? `${node.icon} ` : ""}${pageLabel(node.title, tc("untitled"))}`}
+                                {`${"  ".repeat(depth)}${iconPrefix(node.icon)}${pageLabel(node.title, tc("untitled"))}`}
                               </option>
                             ))}
                           </select>

@@ -110,6 +110,7 @@
       "you": "{name} (jij)"
     },
     "threadMenu": "Opties voor discussie",
+    "copyLink": "Link kopiëren",
     "mute": "Antwoorden dempen",
     "unmute": "Antwoorden niet meer dempen",
     "muteHint": "Geen meldingen meer over nieuwe antwoorden in deze discussie. Als je hier antwoordt of hier wordt vermeld, gaat het weer aan.",
@@ -201,7 +202,38 @@
   },
   "icon": {
     "add": "Pictogram toevoegen",
-    "remove": "Pictogram verwijderen"
+    "remove": "Pictogram verwijderen",
+    "emojiTab": "Emoji",
+    "iconsTab": "Pictogrammen",
+    "searchEmoji": "Emoji zoeken",
+    "searchIcons": "Pictogrammen zoeken",
+    "random": "Willekeurig",
+    "skinTone": "Huidskleur",
+    "tones": {
+      "0": "Geen huidskleur",
+      "1": "Lichte huidskleur",
+      "2": "Lichtgetinte huidskleur",
+      "3": "Getinte huidskleur",
+      "4": "Donkergetinte huidskleur",
+      "5": "Donkere huidskleur"
+    },
+    "color": "Kleur van pictogram",
+    "textColor": "Tekstkleur",
+    "categoriesLabel": "Categorieën",
+    "categories": {
+      "smileys": "Smileys en emoties",
+      "people": "Mensen en lichaam",
+      "nature": "Dieren en natuur",
+      "food": "Eten en drinken",
+      "travel": "Reizen en plaatsen",
+      "activities": "Activiteiten",
+      "objects": "Voorwerpen",
+      "symbols": "Symbolen",
+      "flags": "Vlaggen"
+    },
+    "loading": "Laden…",
+    "loadFailed": "De emoji konden niet worden geladen.",
+    "noMatches": "Geen resultaten."
   },
   "background": {
     "add": "Achtergrond toevoegen",
@@ -620,7 +652,8 @@
       "submit": "Insluiten",
       "providers": "YouTube, Vimeo, Loom, Figma, gepubliceerde Google Docs, Sheets en Slides, CodePen, Spotify en Google Maps. Andere links worden een bladwijzer.",
       "frameTitle": "Ingesloten inhoud van {host}",
-      "label": "Insluiting"
+      "label": "Insluiting",
+      "resize": "Sleep om de breedte van de insluiting te wijzigen"
     },
     "paste": {
       "label": "Plakken als",
@@ -710,6 +743,11 @@
   },
   "blockMenu": {
     "copyLink": "Link naar blok kopiëren",
+    "download": "Downloaden",
+    "alignLeft": "Links uitlijnen",
+    "alignCenter": "Centreren",
+    "alignRight": "Rechts uitlijnen",
+    "wideColumns": "Brede kolommen",
     "hideInPrint": "Verbergen bij afdrukken",
     "calloutStyle": "Calloutstijl",
     "turnIntoCallout": "Omzetten naar callout",
@@ -960,7 +998,8 @@
     "markdownImage": "Afbeelding: {alt}",
     "markdownImageUntitled": "Afbeelding",
     "expand": "Openen in viewer",
-    "view": "{name} bekijken"
+    "view": "{name} bekijken",
+    "resize": "Sleep om de breedte te wijzigen"
   },
   "presentation": {
     "previous": "Vorige dia",
@@ -1122,7 +1161,7 @@
     },
     "settings": {
       "open": "Knopinstellingen",
-      "icon": "Emoji",
+      "icon": "Pictogram",
       "label": "Label",
       "color": "Kleur",
       "colorDefault": "Standaard",
@@ -1195,5 +1234,16 @@
     "reset": "De hele afbeelding tonen",
     "loading": "De afbeelding laden…",
     "failed": "De afbeelding kon niet worden geladen."
+  },
+  "commentRef": {
+    "pasteTitle": "Link naar een opmerking plakken",
+    "pasteAsMention": "Plakken als vermelding",
+    "pasteAsPreview": "Plakken als voorbeeld",
+    "pasteAsLink": "Plakken als link",
+    "noAccess": "Geen toegang tot deze opmerking",
+    "onPage": "Op {title}",
+    "replies": "{count, plural, =0 {Geen reacties} one {# reactie} other {# reacties}}",
+    "openThread": "Draad openen",
+    "resolved": "Opgelost"
   }
 }

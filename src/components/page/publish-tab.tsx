@@ -1,18 +1,19 @@
 "use client";
 
-import { Check, ExternalLink, Globe, Link2, TriangleAlert } from "lucide-react";
-import { useTranslations } from "next-intl";
+import { CalendarClock, Check, ExternalLink, Globe, Link2, TriangleAlert } from "lucide-react";
+import { useFormatter, useTranslations } from "next-intl";
 import { useEffect, useState } from "react";
 import {
   getPublicationAction,
   publishPageAction,
   setOutsideDatabasesAction,
+  setPublicationExpiryAction,
   setWebViewsAction,
   unpublishPageAction,
   updatePublicationAction,
 } from "@/app/actions/publication";
 import { ViewIcon } from "@/components/database/property-icons";
-import { Button, cn, PageIcon, Switch, textareaClass } from "@/components/ui";
+import { Button, cn, Input, PageIcon, Switch, textareaClass } from "@/components/ui";
 import { SEARCH_DESCRIPTION_MAX } from "@/lib/site";
 import type { ViewType } from "@/db/schema";
 
@@ -26,9 +27,13 @@ type Publication = {
   allowDuplicate: boolean;
   /** What search results and link previews say about the page. */
   description: string;
+  /** When the link stops working (ISO); null: never. */
+  expiresAt: string | null;
+  /** The expiry has passed: the link is served nowhere. */
+  expired: boolean;
 } | null;
 type Option = "indexable" | "inSite" | "allowDuplicate";
-type WebView = { id: string; name: string; type: ViewType; published: boolean };
+type WebView = { id: string; name: string; type: ViewType; published: boolean; icon?: string };
 /** A database the body shows from outside the page; `shown` when the publication shows it anyway. */
 type Outside = { id: string; title: string; icon: string | null; shown: boolean };
 
@@ -101,14 +106,14 @@ export function PublishTab({ pageId }: { pageId: string }) {
         <span
           className={cn(
             "flex h-9 w-9 shrink-0 items-center justify-center rounded-md",
-            publication ? "bg-accent/15 text-accent" : "bg-bg-hover text-fg-muted",
+            publication && !publication.expired ? "bg-accent/15 text-accent" : "bg-bg-hover text-fg-muted",
           )}
         >
           <Globe className="h-5 w-5" />
         </span>
         <div className="min-w-0 flex-1">
-          <p className="text-sm font-medium">{publication ? t("published") : t("title")}</p>
-          <p className="mt-0.5 text-xs text-fg-muted">{t("description")}</p>
+          <p className="text-sm font-medium">{publication ? (publication.expired ? t("expiredTitle") : t("published")) : t("title")}</p>
+          <p className="mt-0.5 text-xs text-fg-muted">{publication?.expired ? t("expiredDescription") : t("description")}</p>
         </div>
       </div>
 
@@ -159,6 +164,23 @@ export function PublishTab({ pageId }: { pageId: string }) {
             />
           </div>
         ))}
+
+      {publication && (
+        <PublishExpiry
+          // Starts again from what is stored once it is saved.
+          key={publication.expiresAt ?? "never"}
+          expiresAt={publication.expiresAt}
+          expired={publication.expired}
+          disabled={busy || blocker !== null}
+          onSave={(expiresAt) =>
+            void change(async () => {
+              const result = await setPublicationExpiryAction(pageId, expiresAt);
+              if (result.ok) setPublication(result.publication ?? null);
+              else setError(t(result.error === "expiryInvalid" ? "expiryPast" : result.error));
+            })
+          }
+        />
+      )}
 
       {publication && (
         <PublishDescription
@@ -243,7 +265,7 @@ export function PublishTab({ pageId }: { pageId: string }) {
                       }}
                       className="h-4 w-4 shrink-0 accent-[var(--color-accent)]"
                     />
-                    <ViewIcon type={view.type} className="h-3.5 w-3.5 shrink-0 text-fg-muted" />
+                    <ViewIcon type={view.type} icon={view.icon} className="h-3.5 w-3.5 shrink-0 text-fg-muted" />
                     <span className="min-w-0 truncate">{view.name}</span>
                     {!DRAWN.includes(view.type) && <span className="ms-auto shrink-0 text-xs text-fg-faint">{t("asTable")}</span>}
                   </label>
@@ -324,6 +346,96 @@ function PublishDescription({ stored, disabled, onSave }: { stored: string; disa
           if (value.replace(/\s+/g, " ").trim() !== stored) onSave(value);
         }}
       />
+    </div>
+  );
+}
+
+/** `datetime-local` value of a time, in the browser's time zone. */
+function localInput(time: Date): string {
+  const pad = (n: number) => String(n).padStart(2, "0");
+  return `${time.getFullYear()}-${pad(time.getMonth() + 1)}-${pad(time.getDate())}T${pad(time.getHours())}:${pad(time.getMinutes())}`;
+}
+
+/** A week from now, on the hour: what a new expiry starts from. */
+function inAWeek(): Date {
+  const time = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000);
+  time.setMinutes(0, 0, 0);
+  return time;
+}
+
+/**
+ * When the link stops working: never (until the page is unpublished), or at a time the publisher
+ * picks. Once that time has passed, the link is served nowhere until they pick a later time or
+ * remove the expiry.
+ */
+function PublishExpiry({
+  expiresAt,
+  expired,
+  disabled,
+  onSave,
+}: {
+  expiresAt: string | null;
+  expired: boolean;
+  disabled: boolean;
+  onSave: (expiresAt: string | null) => void;
+}) {
+  const t = useTranslations("publish");
+  const format = useFormatter();
+  const stored = expiresAt ? new Date(expiresAt) : null;
+  // A time being picked; null while the stored one stands (or there is none and none is being set).
+  const [value, setValue] = useState<string | null>(stored && !expired ? localInput(stored) : null);
+  const picked = value ? Date.parse(value) : NaN;
+  const changed = value !== null && (!stored || picked !== stored.getTime() || expired);
+  const when = stored ? format.dateTime(stored, { dateStyle: "medium", timeStyle: "short" }) : "";
+  return (
+    <div className="mt-3">
+      <div className="flex items-start justify-between gap-3">
+        <div className="min-w-0">
+          <p className="text-sm">{t("expiry")}</p>
+          <p className={cn("mt-0.5 text-xs", expired ? "text-danger" : "text-fg-muted")} role={expired ? "status" : undefined}>
+            {expired ? t("expiredOn", { date: when }) : stored ? t("expiresOn", { date: when }) : t("expiryHint")}
+          </p>
+        </div>
+        {value === null && (
+          <Button size="sm" disabled={disabled} onClick={() => setValue(localInput(expired || !stored ? inAWeek() : stored))}>
+            <CalendarClock className="h-3.5 w-3.5" aria-hidden />
+            {expired ? t("extendExpiry") : t("setExpiry")}
+          </Button>
+        )}
+      </div>
+      {value !== null && (
+        <div className="mt-1.5 flex items-center gap-2">
+          <Input
+            type="datetime-local"
+            aria-label={t("expiryLabel")}
+            value={value}
+            min={localInput(new Date())}
+            disabled={disabled}
+            onChange={(e) => setValue(e.target.value)}
+            className="min-w-0 flex-1"
+          />
+          {changed && (
+            <Button
+              size="sm"
+              variant="primary"
+              disabled={disabled || !Number.isFinite(picked)}
+              onClick={() => onSave(new Date(picked).toISOString())}
+            >
+              {t("saveExpiry")}
+            </Button>
+          )}
+        </div>
+      )}
+      {(stored || value !== null) && (
+        <button
+          type="button"
+          disabled={disabled}
+          onClick={() => (stored ? onSave(null) : setValue(null))}
+          className="mt-1 text-xs text-fg-muted hover:text-fg hover:underline disabled:opacity-50"
+        >
+          {stored ? t("removeExpiry") : t("cancelExpiry")}
+        </button>
+      )}
     </div>
   );
 }

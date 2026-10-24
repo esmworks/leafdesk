@@ -58,7 +58,7 @@
       "workspaceName": "nombre renombrar icono",
       "ai": "inteligencia artificial chat modelo proveedor memoria",
       "workspaceMail": "correo filas enviar email",
-      "export": "copia de seguridad descargar zip markdown",
+      "export": "copia de seguridad descargar zip markdown pdf",
       "members": "personas invitar usuarios roles quitar",
       "agents": "ia asistente automatización bot",
       "snippets": "texto atajos fragmentos",
@@ -108,7 +108,11 @@
     "description": "Descarga en un ZIP todas las páginas que puedes ver: las páginas como Markdown, las bases de datos como CSV y los archivos que muestran. Las páginas de la papelera se excluyen; las plantillas se guardan en una carpeta Plantillas.",
     "button": "Exportar",
     "preparing": "Preparando…",
-    "disabled": "La exportación está desactivada para este espacio de trabajo en Configuración → Seguridad."
+    "disabled": "La exportación está desactivada para este espacio de trabajo en Configuración → Seguridad.",
+    "format": "Formato de exportación",
+    "formatMarkdown": "Markdown y CSV",
+    "formatPdf": "PDF",
+    "descriptionPdf": "Descarga todas las páginas que puedes ver como un ZIP de PDF, en carpetas que siguen el árbol de páginas: las bases de datos como tablas de sus filas y las filas con texto propio como PDF propios. Se excluyen las páginas de la papelera y las plantillas; como máximo {limit, number} PDF."
   },
   "members": {
     "heading": "Miembros",
@@ -209,7 +213,12 @@
       "someone": "Un miembro",
       "approve": "Aprobar",
       "decline": "Rechazar"
-    }
+    },
+    "removeBodyChoose": "{name} pierde el acceso a este espacio de trabajo de inmediato, también en las páginas abiertas y las apps conectadas.",
+    "heirLabel": "Pasar sus páginas a",
+    "heirHint": "Las páginas que solo {name} podía gestionar, y los espacios de equipo que nadie más dirige, pasan a la persona que elijas.",
+    "heirCount": "{count, plural, =0 {{name} no gestiona ninguna página en solitario ahora mismo. Los espacios de equipo que nadie más dirige pasan a la persona que elijas.} one {# página que solo {name} podía gestionar pasa a la persona que elijas, junto con los espacios de equipo que nadie más dirige.} other {# páginas que solo {name} podía gestionar pasan a la persona que elijas, junto con los espacios de equipo que nadie más dirige.}}",
+    "heirYou": "{name} (tú)"
   },
   "guests": {
     "heading": "Invitados",
@@ -734,7 +743,7 @@
       "accessDenied": "No tienes permiso para hacer esto.",
       "reasons": {
         "name": "Ponle un nombre al agente.",
-        "icon": "El icono de un agente es un emoji.",
+        "icon": "El icono de un agente es un emoji o un icono integrado.",
         "level": "Un agente puede ver, comentar o editar una página.",
         "template": "Esta plantilla no existe.",
         "database": "Elige una base de datos de este espacio de trabajo.",
@@ -1222,7 +1231,8 @@
     "invalidNetworkLabel": "La etiqueta de {detail} es demasiado larga: 100 caracteres como máximo.",
     "tooManyNetworks": "Un espacio de trabajo puede tener como máximo 100 redes aprobadas.",
     "ipLocksYouOut": "Esta lista no incluye tu dirección actual, {detail}, así que guardarla te dejaría fuera del espacio de trabajo. Añade primero tu dirección o un rango que la incluya.",
-    "ipUnknown": "El servidor no ve tu dirección, así que no puede comprobar que esta lista te deja entrar. Guárdala desde una conexión cuya dirección vea el servidor, o vacía la lista."
+    "ipUnknown": "El servidor no ve tu dirección, así que no puede comprobar que esta lista te deja entrar. Guárdala desde una conexión cuya dirección vea el servidor, o vacía la lista.",
+    "heirInvalid": "Elige un propietario o miembro que siga en el espacio de trabajo."
   },
   "security": {
     "description": "Decide cómo inician sesión las personas, quién puede traer personas a este espacio de trabajo, qué pueden hacer los invitados, qué puede salir de él (exportaciones, apps conectadas) y quién puede publicar páginas en la web. Solo los propietarios pueden cambiar estos ajustes.",
@@ -1269,7 +1279,9 @@
       "unpublish": "Dejar de publicar",
       "confirm": "¿Dejar de publicar esta página? El enlace dejará de funcionar para todos.",
       "indexable": "Motores de búsqueda permitidos",
-      "off": "La publicación está desactivada: ninguna de estas páginas está en la web ahora. Volverán cuando se active de nuevo, salvo que las retires."
+      "off": "La publicación está desactivada: ninguna de estas páginas está en la web ahora. Volverán cuando se active de nuevo, salvo que las retires.",
+      "expiresOn": "Caduca el {date}",
+      "expiredOn": "Caducó el {date}"
     },
     "forms": {
       "title": "Formularios públicos",
@@ -1708,7 +1720,8 @@
         "removed": "Quitó a {target} ({role})",
         "left": "Salió del espacio de trabajo",
         "role_changed": "Cambió el rol de {target} de {from} a {to}",
-        "ownership_transferred": "Hizo propietario a {target} y pasó a ser miembro"
+        "ownership_transferred": "Hizo propietario a {target} y pasó a ser miembro",
+        "content_handed_over": "Pasó {count, plural, one {# página} other {# páginas}} que solo {target} podía gestionar a {subject}"
       },
       "invitation": {
         "sent": "Invitó a {target} como {role}",
@@ -1740,7 +1753,8 @@
         "published": "Publicó {target} en la web",
         "unpublished": "Dejó de publicar {target}",
         "publication_revoked": "Retiró {target} de la web (publicada por {subject})",
-        "rows_merged": "Combinó {count, plural, one {# fila} other {# filas}} en {target}"
+        "rows_merged": "Combinó {count, plural, one {# fila} other {# filas}} en {target}",
+        "publication_expiry_changed": "{change, select, removed {Quitó la caducidad del enlace web de {target}} other {Hizo que el enlace web de {target} deje de funcionar el {to}}}"
       },
       "property": {
         "access_changed": "Cambió el acceso a «{property}» en {target}",
@@ -1910,6 +1924,15 @@
       "slack_token": "un token de Slack",
       "api_key": "una clave de API",
       "jwt": "un JSON Web Token (JWT)"
+    },
+    "audienceLine": "Audiencia: {audience}",
+    "audience": {
+      "web": "Publicada en la web",
+      "workspace": "Todo el espacio de trabajo",
+      "workspaceTeamspace": "Todo el espacio de trabajo (espacio de equipo {name})",
+      "teamspace": "Espacio de equipo {name}",
+      "people": "Personas concretas ({count})",
+      "private": "Privada"
     }
   },
   "notifications": {
@@ -2656,7 +2679,7 @@
       "reservedKey": "Esta clave pertenece a un tipo integrado (note, tip, important, warning, caution, info, danger, details, frame, card, panel).",
       "duplicateKey": "Otro estilo ya usa esta clave.",
       "name": "Escribe un nombre de hasta 60 caracteres.",
-      "icon": "Elige un emoji o ningún icono.",
+      "icon": "Elige un emoji o un icono integrado, o ningún icono.",
       "color": "Elige un color.",
       "border": "Elige un borde.",
       "title": "El título puede tener como máximo 120 caracteres."

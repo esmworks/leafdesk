@@ -110,6 +110,7 @@
       "you": "{name} (du)"
     },
     "threadMenu": "Optionen für den Thread",
+    "copyLink": "Link kopieren",
     "mute": "Antworten stummschalten",
     "unmute": "Antworten nicht mehr stummschalten",
     "muteHint": "Keine Benachrichtigungen mehr über neue Antworten in diesem Thread. Wenn du hier antwortest oder hier erwähnt wirst, wird es wieder eingeschaltet.",
@@ -201,7 +202,38 @@
   },
   "icon": {
     "add": "Symbol hinzufügen",
-    "remove": "Symbol entfernen"
+    "remove": "Symbol entfernen",
+    "emojiTab": "Emoji",
+    "iconsTab": "Symbole",
+    "searchEmoji": "Emoji suchen",
+    "searchIcons": "Symbole suchen",
+    "random": "Zufällig",
+    "skinTone": "Hautfarbe",
+    "tones": {
+      "0": "Keine Hautfarbe",
+      "1": "Helle Hautfarbe",
+      "2": "Mittelhelle Hautfarbe",
+      "3": "Mittlere Hautfarbe",
+      "4": "Mitteldunkle Hautfarbe",
+      "5": "Dunkle Hautfarbe"
+    },
+    "color": "Symbolfarbe",
+    "textColor": "Textfarbe",
+    "categoriesLabel": "Kategorien",
+    "categories": {
+      "smileys": "Smileys & Emotionen",
+      "people": "Menschen & Körper",
+      "nature": "Tiere & Natur",
+      "food": "Essen & Trinken",
+      "travel": "Reisen & Orte",
+      "activities": "Aktivitäten",
+      "objects": "Objekte",
+      "symbols": "Symbole",
+      "flags": "Flaggen"
+    },
+    "loading": "Wird geladen…",
+    "loadFailed": "Die Emoji konnten nicht geladen werden.",
+    "noMatches": "Keine Treffer."
   },
   "background": {
     "add": "Hintergrund hinzufügen",
@@ -620,7 +652,8 @@
       "submit": "Einbetten",
       "providers": "YouTube, Vimeo, Loom, Figma, veröffentlichte Google Docs, Sheets und Slides, CodePen, Spotify und Google Maps. Andere Links werden zu einem Lesezeichen.",
       "frameTitle": "Eingebetteter Inhalt von {host}",
-      "label": "Einbettung"
+      "label": "Einbettung",
+      "resize": "Ziehen, um die Breite der Einbettung zu ändern"
     },
     "paste": {
       "label": "Einfügen als",
@@ -710,6 +743,11 @@
   },
   "blockMenu": {
     "copyLink": "Link zum Block kopieren",
+    "download": "Herunterladen",
+    "alignLeft": "Links ausrichten",
+    "alignCenter": "Zentrieren",
+    "alignRight": "Rechts ausrichten",
+    "wideColumns": "Breite Spalten",
     "hideInPrint": "Beim Drucken ausblenden",
     "calloutStyle": "Hinweisstil",
     "turnIntoCallout": "In Hinweis umwandeln",
@@ -960,7 +998,8 @@
     "markdownImage": "Bild: {alt}",
     "markdownImageUntitled": "Bild",
     "expand": "Im Viewer öffnen",
-    "view": "{name} ansehen"
+    "view": "{name} ansehen",
+    "resize": "Ziehen, um die Breite zu ändern"
   },
   "presentation": {
     "previous": "Vorherige Folie",
@@ -1122,7 +1161,7 @@
     },
     "settings": {
       "open": "Einstellungen der Schaltfläche",
-      "icon": "Emoji",
+      "icon": "Symbol",
       "label": "Beschriftung",
       "color": "Farbe",
       "colorDefault": "Standard",
@@ -1195,5 +1234,16 @@
     "reset": "Ganzes Bild zeigen",
     "loading": "Bild wird geladen…",
     "failed": "Das Bild konnte nicht geladen werden."
+  },
+  "commentRef": {
+    "pasteTitle": "Link zu einem Kommentar einfügen",
+    "pasteAsMention": "Als Erwähnung einfügen",
+    "pasteAsPreview": "Als Vorschau einfügen",
+    "pasteAsLink": "Als Link einfügen",
+    "noAccess": "Kein Zugriff auf diesen Kommentar",
+    "onPage": "Auf {title}",
+    "replies": "{count, plural, =0 {Keine Antworten} one {# Antwort} other {# Antworten}}",
+    "openThread": "Thread öffnen",
+    "resolved": "Erledigt"
   }
 }

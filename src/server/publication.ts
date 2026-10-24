@@ -19,6 +19,7 @@ import {
   type ChartMeasure,
 } from "@/lib/chart";
 import { timestampDay } from "@/lib/time-zone";
+import { parseExpiry } from "@/lib/publication-expiry";
 import { PG_MARKDOWN_IMAGE_PATTERN } from "@/lib/cover";
 import type { FormulaStyle } from "@/lib/formula";
 import { LIST_WIDGET_ROWS, type DashboardLayout, type DashboardWidget, type WidgetColor, type WidgetSpan } from "@/lib/dashboard";
@@ -44,9 +45,11 @@ import { computeDerived, withAllFormulaTypes } from "@/server/derived";
 import { publishedPageRefs } from "@/server/mentions";
 import { expandSyncedBlocks, syncedSources } from "@/server/synced-blocks";
 import { propertyAccessFor } from "@/server/property-access";
+import { livePublication } from "@/server/publication-live";
 import { canPublish, publishingOn } from "@/server/workspaces";
 import { calloutStylesOfPage } from "@/server/callout-styles";
-import type { BodyFootnote, BodyHeading, BodySegment, PublishedBookmark, PublishedColumn } from "@/server/published-body";
+import type { BodyFootnote, BodyHeading, BodySegment, MediaPlacement, PublishedBookmark, PublishedColumn } from "@/server/published-body";
+import type { MediaAlignment } from "@/lib/media-placement";
 import type { EmbedTarget } from "@/lib/web-blocks";
 import { refuseInLocalMode } from "@/server/local-mode";
 import { env } from "@/lib/env";
@@ -72,7 +75,7 @@ const MAX_DEPTH = 32;
 export class PublishError extends Error {
   constructor(
     message: string,
-    readonly code?: "notAllowed" | "publishingOff",
+    readonly code?: "notAllowed" | "publishingOff" | "expiryPast" | "expiryTooFar",
   ) {
     super(message);
     this.name = "PublishError";
@@ -88,6 +91,7 @@ export async function getPublication(userId: string, pageId: string) {
       inSite: pagePublication.inSite,
       allowDuplicate: pagePublication.allowDuplicate,
       description: pagePublication.description,
+      expiresAt: pagePublication.expiresAt,
       createdAt: pagePublication.createdAt,
     })
     .from(pagePublication)
@@ -170,14 +174,23 @@ async function requirePublishRights(userId: string, pageId: string) {
  * - `indexable`: search engines may index the page and its subpages (off by default);
  * - `inSite`: the workspace's site lists it (see server/site.ts; off by default);
  * - `allowDuplicate`: signed-in visitors may copy it into a workspace of theirs (off by default);
- * - `description`: what search results and link previews say about the page (empty: the site's).
+ * - `description`: what search results and link previews say about the page (empty: the site's);
+ * - `expiresAt`: when the link stops working, as an ISO time in the future, or null for never.
  */
-export type PublicationOptions = { indexable: boolean; inSite: boolean; allowDuplicate: boolean; description: string };
+export type PublicationOptions = { indexable: boolean; inSite: boolean; allowDuplicate: boolean; description: string; expiresAt: string | null };
+
+/** A link's new expiry (see parseExpiry): null or a time ahead; PublishError otherwise. */
+function checkedExpiry(value: unknown): Date | null {
+  const parsed = parseExpiry(value);
+  if ("at" in parsed) return parsed.at;
+  if (parsed.problem === "expiryInvalid") throw new PublishError("expiresAt must be a time or null");
+  throw new PublishError(parsed.problem === "expiryPast" ? "The expiry must be in the future" : "The expiry is too far ahead", parsed.problem);
+}
 
 /** Changes some options of a page's publication; needs what publishing needs. */
 export async function updatePublication(userId: string, pageId: string, patch: Partial<PublicationOptions>): Promise<void> {
-  await requirePublishRights(userId, pageId);
-  const clean: Partial<PublicationOptions> = {};
+  const target = await requirePublishRights(userId, pageId);
+  const clean: Partial<Omit<PublicationOptions, "expiresAt">> & { expiresAt?: Date | null } = {};
   for (const key of ["indexable", "inSite", "allowDuplicate"] as const) {
     if (patch[key] === undefined) continue;
     if (typeof patch[key] !== "boolean") throw new PublishError(`${key} must be true or false`);
@@ -187,13 +200,33 @@ export async function updatePublication(userId: string, pageId: string, patch: P
     if (typeof patch.description !== "string") throw new PublishError("description must be text");
     clean.description = cleanDescription(patch.description);
   }
+  if (patch.expiresAt !== undefined) clean.expiresAt = checkedExpiry(patch.expiresAt);
   if (!Object.keys(clean).length) return;
-  const updated = await db
-    .update(pagePublication)
-    .set(clean)
-    .where(eq(pagePublication.pageId, pageId))
-    .returning({ pageId: pagePublication.pageId });
-  if (!updated.length) throw new PublishError("The page isn't published");
+  const updated = await db.transaction(async (tx) => {
+    const [before] = await tx
+      .select({ expiresAt: pagePublication.expiresAt })
+      .from(pagePublication)
+      .where(eq(pagePublication.pageId, pageId))
+      .for("update");
+    if (!before) return false;
+    await tx.update(pagePublication).set(clean).where(eq(pagePublication.pageId, pageId));
+    const from = before.expiresAt?.toISOString() ?? null;
+    const to = clean.expiresAt === undefined ? from : (clean.expiresAt?.toISOString() ?? null);
+    if (from !== to) {
+      await recordAudit(
+        {
+          workspaceId: target.workspaceId,
+          actorId: userId,
+          action: "page.publication_expiry_changed",
+          target: { type: "page", id: pageId, label: target.title },
+          details: { from, to },
+        },
+        tx,
+      );
+    }
+    return true;
+  });
+  if (!updated) throw new PublishError("The page isn't published");
 }
 
 /** Lets search engines index a published page and its subpages, or keeps them out (the default). */
@@ -201,7 +234,7 @@ export async function setPublicationIndexable(userId: string, pageId: string, in
   await updatePublication(userId, pageId, { indexable });
 }
 
-export type WebView = { id: string; name: string; type: ViewType; published: boolean };
+export type WebView = { id: string; name: string; type: ViewType; published: boolean; icon?: string };
 
 /**
  * The database's views that can be shown on the web (forms show no rows), with the ones published
@@ -212,7 +245,7 @@ export async function getWebViews(userId: string, databaseId: string): Promise<W
   if (p.kind !== "database") return null;
   const views = await readableViews(databaseId);
   const shown = new Set(webViews(views).map((v) => v.id));
-  return views.map((v) => ({ id: v.id, name: v.name, type: v.type, published: shown.has(v.id) }));
+  return views.map((v) => ({ id: v.id, name: v.name, type: v.type, published: shown.has(v.id), icon: v.config.icon }));
 }
 
 /** Picks the views published pages show for this database, wherever it is published. */
@@ -248,6 +281,10 @@ export type WorkspacePublication = {
   inSite: boolean;
   /** Visitors may duplicate it. */
   allowDuplicate: boolean;
+  /** When its link stops (or stopped) working; null: never. */
+  expiresAt: Date | null;
+  /** The expiry has passed: it is served nowhere until extended or cleared. */
+  expired: boolean;
   publishedBy: string | null;
   createdAt: Date;
 };
@@ -266,6 +303,8 @@ export async function listWorkspacePublications(userId: string, workspaceId: str
       indexable: pagePublication.indexable,
       inSite: pagePublication.inSite,
       allowDuplicate: pagePublication.allowDuplicate,
+      expiresAt: pagePublication.expiresAt,
+      live: sql<boolean>`${livePublication()}`,
       publishedBy: user.name,
       createdAt: pagePublication.createdAt,
       visible: sql<boolean>`${accessRank(userId, sql`${page.id}`)} > 0`,
@@ -279,11 +318,13 @@ export async function listWorkspacePublications(userId: string, workspaceId: str
     pageId: r.pageId,
     title: r.visible ? r.title : null,
     icon: r.visible ? r.icon : null,
-    url: r.visible && !r.archivedAt && served ? `/s/${r.token}` : null,
+    url: r.visible && !r.archivedAt && served && r.live ? `/s/${r.token}` : null,
     inTrash: r.archivedAt !== null,
     indexable: r.indexable,
     inSite: r.inSite,
     allowDuplicate: r.allowDuplicate,
+    expiresAt: r.expiresAt,
+    expired: !r.live,
     publishedBy: r.publishedBy,
     createdAt: r.createdAt,
   }));
@@ -327,7 +368,8 @@ export type PublishedRow = {
   /** How styled formula results show (see lib/formula style()). */
   styles?: Record<string, FormulaStyle>;
 };
-export type PublishedViewTab = { id: string; name: string; type: ViewType };
+/** A published view's tab: its name, type and the icon chosen for it (its config's), if any. */
+export type PublishedViewTab = { id: string; name: string; type: ViewType; icon?: string };
 /** How a published view is drawn; calendars and timelines show as tables, charts as their numbers. */
 export type PublishedLayout = "table" | "board" | "list" | "gallery" | "feed" | "chart";
 /**
@@ -354,7 +396,7 @@ export type PublishedChart = {
  * drawing its values takes, and nothing of how it is worked out or set up.
  */
 export type PublishedProperty = Pick<DatabaseProperty, "id" | "name" | "type"> & {
-  options: Pick<PropertyOptions, "options" | "number" | "numberDisplay" | "pageVisibility" | "pinned" | "uniqueId"> & {
+  options: Pick<PropertyOptions, "options" | "number" | "numberDisplay" | "pageVisibility" | "pinned" | "uniqueId" | "icon"> & {
     formula?: Pick<FormulaConfig, "type">;
     date?: Pick<DateOptions, "display">;
   };
@@ -379,6 +421,8 @@ export type PublishedDatabase = {
   noIcons?: true;
   /** Board and gallery cards: long values take more lines instead of being cut off. */
   wrap?: true;
+  /** Tables: no lines between columns, only between rows. */
+  noVerticalLines?: true;
   /** Charts (layout "chart"). */
   chart?: PublishedChart;
 };
@@ -394,10 +438,10 @@ export type PublishedBlock =
   | { kind: "subpages" }
   | { kind: "mermaid"; source: string }
   | { kind: "agentChat" }
-  | { kind: "bookmark"; bookmark: PublishedBookmark }
-  | { kind: "webEmbed"; url: string; embed: EmbedTarget }
-  | { kind: "pdf"; fileId: string; name: string; caption: string }
-  | { kind: "spreadsheet"; fileId: string; name: string; caption: string }
+  | { kind: "bookmark"; bookmark: PublishedBookmark; align: MediaAlignment }
+  | ({ kind: "webEmbed"; url: string; embed: EmbedTarget } & MediaPlacement)
+  | ({ kind: "pdf"; fileId: string; name: string; caption: string } & MediaPlacement)
+  | ({ kind: "spreadsheet"; fileId: string; name: string; caption: string } & MediaPlacement)
   | { kind: "columns"; columns: PublishedColumn<PublishedBlock>[] }
   | { kind: "dashboard"; widgets: PublishedWidget[]; layout: DashboardLayout }
   | { kind: "footnotes"; notes: BodyFootnote[] }
@@ -494,7 +538,7 @@ export async function getPublishedPage(
     })
     .from(pagePublication)
     .innerJoin(page, eq(page.id, pagePublication.pageId))
-    .where(and(eq(pagePublication.token, token), isNull(page.archivedAt)))
+    .where(and(eq(pagePublication.token, token), isNull(page.archivedAt), livePublication()))
     .limit(1);
   if (!root?.publishedBy) return null;
   const publisher = root.publishedBy;
@@ -667,7 +711,7 @@ export async function anyPagePublished(pageIds: string[]): Promise<boolean> {
       where up.depth < ${MAX_DEPTH}
     )
     select up.start, pub.page_id as root, pub.published_by
-    from up join ${pagePublication} pub on pub.page_id = up.id
+    from up join ${pagePublication} pub on pub.page_id = up.id and ${livePublication("pub")}
   `);
   for (const row of rows) {
     if (row.published_by && (await chainTo(row.published_by, row.start, row.root))) return true;
@@ -684,7 +728,7 @@ export async function anyPagePublished(pageIds: string[]): Promise<boolean> {
       where up.depth < ${MAX_DEPTH}
     )
     select up.start, up.id as database_id, pub.page_id as root, pub.published_by
-    from up join ${pagePublication} pub on up.id = any(pub.outside_database_ids)
+    from up join ${pagePublication} pub on up.id = any(pub.outside_database_ids) and ${livePublication("pub")}
   `);
   for (const row of outside) {
     const publisher = row.published_by;
@@ -900,6 +944,7 @@ export function publishedProperty(prop: DatabaseProperty): PublishedProperty {
   if (prop.type === "unique_id" && stored.uniqueId?.prefix) options.uniqueId = { prefix: stored.uniqueId.prefix };
   if (stored.pageVisibility) options.pageVisibility = stored.pageVisibility;
   if (stored.pinned) options.pinned = true;
+  if (stored.icon) options.icon = stored.icon;
   return { id: prop.id, name: prop.name, type: prop.type, options };
 }
 
@@ -1070,7 +1115,7 @@ export async function publishedDatabase(
   const withCovers = chosen?.type === "gallery" && galleryCover(chosen.config) === "first_image";
   const stored = await loadRows(loads, publisher, databaseId, withCovers);
   const properties = publicProperties(allProperties);
-  const tabs = shownViews.map((v) => ({ id: v.id, name: v.name, type: v.type }));
+  const tabs = shownViews.map((v) => ({ id: v.id, name: v.name, type: v.type, ...(v.config.icon ? { icon: v.config.icon } : {}) }));
   if (!chosen) {
     const rows = await publicValues(
       stored.filter((row) => !row.outdated).map(({ createdBy, updatedBy: __, hasImage: ___, ...row }) => ({
@@ -1138,6 +1183,8 @@ export async function publishedDatabase(
     ...(icons ? {} : { noIcons: true as const }),
     // Board and gallery cards wrapping long values (see ViewConfig wrapProperties).
     ...((layout === "board" || layout === "gallery") && chosen.config.wrapProperties ? { wrap: true as const } : {}),
+    // Tables without lines between their columns (see ViewConfig showVerticalLines).
+    ...(layout === "table" && chosen.config.showVerticalLines === false ? { noVerticalLines: true as const } : {}),
   };
 }
 

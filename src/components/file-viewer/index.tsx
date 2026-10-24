@@ -15,11 +15,21 @@ import { FILE_ROUTE, fileIdOf, fileUrl } from "@/lib/files";
  */
 
 /**
- * A file the viewer shows: its URL (`/api/files/<id>`), name, stored type when known, and what the
+ * A file the viewer shows: its URL (`/api/files/<id>`, or an image's on another site), name, stored type when known, and what the
  * place it opens from shows it as (an image block, a PDF viewer), when that is one of the kinds the
  * viewer can show before asking the file route (see lib/file-viewer knownFormat).
  */
-export type ViewerFile = { url: string; name: string; type?: string; shows?: UrlKind };
+export type ViewerFile = {
+  url: string;
+  name: string;
+  type?: string;
+  shows?: UrlKind;
+  /**
+   * Where to download it from, when not from `url` itself: an image on another site, which the
+   * viewer shows from there and downloads through the server (lib/downloads).
+   */
+  download?: string;
+};
 
 const FileViewer = lazy(() => import("./file-viewer"));
 

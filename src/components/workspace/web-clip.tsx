@@ -5,6 +5,7 @@ import { useTranslations } from "next-intl";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { webClipSetupAction, type WebClipSetup } from "@/app/actions/web-clip";
 import { cn, Input, pageLabel, selectClass } from "@/components/ui";
+import { iconPrefix } from "@/lib/icon-value";
 import type { TreeNode } from "@/server/pages";
 
 const labelClass = "mb-1 block text-xs font-medium text-fg-muted";
@@ -71,7 +72,7 @@ export function WebClipTargetPicker({
   const tc = useTranslations("common");
   const { pages, databases } = useMemo(() => webClipTargets(tree), [tree]);
   const label = ({ node, depth }: { node: TreeNode; depth: number }) =>
-    `${"  ".repeat(depth)}${node.icon ? `${node.icon} ` : ""}${pageLabel(node.title, tc("untitled"))}`;
+    `${"  ".repeat(depth)}${iconPrefix(node.icon)}${pageLabel(node.title, tc("untitled"))}`;
   return (
     <label className="block">
       <span className={labelClass}>{t("target")}</span>

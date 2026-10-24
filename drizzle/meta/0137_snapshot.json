@@ -1,5 +1,5 @@
 {
-  "id": "4f6d72c2-72c0-4279-b4f1-e8ffe7a298b0",
+  "id": "42a0dfbf-c2b1-4c20-8ae1-656cf0e05688",
   "prevId": "6178d523-ef9c-4389-a7e0-0a95682d99be",
   "version": "7",
   "dialect": "postgresql",
@@ -3947,12 +3947,6 @@
           "notNull": true,
           "default": true
         },
-        "web_clip_target": {
-          "name": "web_clip_target",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false
-        },
         "created_at": {
           "name": "created_at",
           "type": "timestamp with time zone",
@@ -7469,6 +7463,18 @@
           "primaryKey": false,
           "notNull": true,
           "default": "'off'"
+        },
+        "emoji_skin_tone": {
+          "name": "emoji_skin_tone",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "icon_color": {
+          "name": "icon_color",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
         },
         "updated_at": {
           "name": "updated_at",

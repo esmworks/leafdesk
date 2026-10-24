@@ -110,7 +110,7 @@ export function FilesDisplay({ value, wrap }: { value: unknown; wrap?: boolean }
   const viewer = useFileViewer();
   if (!files.length) return null;
   return (
-    <span className={cn("flex min-w-0 items-center gap-1", wrap ? "flex-wrap py-0.5" : "overflow-hidden")}>
+    <span data-cut-list="" className={cn("flex min-w-0 items-center gap-1", wrap ? "flex-wrap py-0.5" : "overflow-hidden")}>
       {files.map((file, i) => {
         const image = isImageFile(file.type);
         return (

@@ -30,7 +30,7 @@ registerCollab(service);
 try {
   console.log(describeAiSetup());
   if (!embeddingsEnabled()) {
-    console.error("No embeddings model: set AI_EMBEDDINGS_MODEL, or OWN_AI_KEYS_ENABLED for accounts that name one (see the README's AI section).");
+    console.error("No embeddings model: set AI_EMBEDDINGS_MODEL, or OWN_AI_KEYS_ENABLED for accounts that name one (see docs/ai.md).");
     process.exitCode = 1;
   } else {
     const named = process.argv.slice(2);

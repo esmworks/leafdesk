@@ -110,6 +110,7 @@
       "you": "{name} (أنت)"
     },
     "threadMenu": "خيارات سلسلة التعليقات",
+    "copyLink": "نسخ الرابط",
     "mute": "كتم الردود",
     "unmute": "إلغاء كتم الردود",
     "muteHint": "توقّف عن تلقّي إشعارات بالردود الجديدة في هذه السلسلة. تعود الإشعارات عندما ترد هنا أو يذكرك أحد هنا.",
@@ -201,7 +202,38 @@
   },
   "icon": {
     "add": "إضافة أيقونة",
-    "remove": "إزالة الأيقونة"
+    "remove": "إزالة الأيقونة",
+    "emojiTab": "الرموز التعبيرية",
+    "iconsTab": "الأيقونات",
+    "searchEmoji": "البحث في الرموز التعبيرية",
+    "searchIcons": "البحث في الأيقونات",
+    "random": "عشوائي",
+    "skinTone": "لون البشرة",
+    "tones": {
+      "0": "بلا لون بشرة",
+      "1": "لون بشرة فاتح",
+      "2": "لون بشرة فاتح متوسط",
+      "3": "لون بشرة متوسط",
+      "4": "لون بشرة داكن متوسط",
+      "5": "لون بشرة داكن"
+    },
+    "color": "لون الأيقونة",
+    "textColor": "لون النص",
+    "categoriesLabel": "الفئات",
+    "categories": {
+      "smileys": "الوجوه والمشاعر",
+      "people": "الأشخاص والجسم",
+      "nature": "الحيوانات والطبيعة",
+      "food": "الطعام والشراب",
+      "travel": "السفر والأماكن",
+      "activities": "الأنشطة",
+      "objects": "الأشياء",
+      "symbols": "الرموز",
+      "flags": "الأعلام"
+    },
+    "loading": "جارٍ التحميل…",
+    "loadFailed": "تعذّر تحميل الرموز التعبيرية.",
+    "noMatches": "لا توجد نتائج مطابقة."
   },
   "background": {
     "add": "إضافة خلفية",
@@ -620,7 +652,8 @@
       "submit": "تضمين",
       "providers": "YouTube وVimeo وLoom وFigma ومستندات Google Docs وSheets وSlides المنشورة وCodePen وSpotify وGoogle Maps. تصبح الروابط الأخرى إشارة مرجعية.",
       "frameTitle": "محتوى مضمّن من {host}",
-      "label": "تضمين"
+      "label": "تضمين",
+      "resize": "اسحب لتغيير عرض المحتوى المضمّن"
     },
     "paste": {
       "label": "اللصق كـ",
@@ -710,6 +743,11 @@
   },
   "blockMenu": {
     "copyLink": "نسخ رابط الكتلة",
+    "download": "تنزيل",
+    "alignLeft": "محاذاة لليسار",
+    "alignCenter": "توسيط",
+    "alignRight": "محاذاة لليمين",
+    "wideColumns": "أعمدة عريضة",
     "hideInPrint": "إخفاء عند الطباعة",
     "calloutStyle": "نمط التنبيه",
     "turnIntoCallout": "تحويل إلى تنبيه",
@@ -960,7 +998,8 @@
     "markdownImage": "صورة: {alt}",
     "markdownImageUntitled": "صورة",
     "expand": "فتح في العارض",
-    "view": "عرض {name}"
+    "view": "عرض {name}",
+    "resize": "اسحب لتغيير العرض"
   },
   "presentation": {
     "previous": "الشريحة السابقة",
@@ -1122,7 +1161,7 @@
     },
     "settings": {
       "open": "إعدادات الزر",
-      "icon": "رمز تعبيري",
+      "icon": "الأيقونة",
       "label": "التسمية",
       "color": "اللون",
       "colorDefault": "افتراضي",
@@ -1195,5 +1234,16 @@
     "reset": "إظهار الصورة كاملة",
     "loading": "جارٍ تحميل الصورة…",
     "failed": "تعذّر تحميل الصورة."
+  },
+  "commentRef": {
+    "pasteTitle": "لصق رابط تعليق",
+    "pasteAsMention": "لصق كإشارة",
+    "pasteAsPreview": "لصق كمعاينة",
+    "pasteAsLink": "لصق كرابط",
+    "noAccess": "لا يمكنك الوصول إلى هذا التعليق",
+    "onPage": "في {title}",
+    "replies": "{count, plural, =0 {لا ردود} one {رد واحد} two {ردّان} few {# ردود} many {# ردًا} other {# رد}}",
+    "openThread": "فتح المناقشة",
+    "resolved": "تمّ الحل"
   }
 }

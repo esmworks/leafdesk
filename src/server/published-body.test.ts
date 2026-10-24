@@ -161,6 +161,25 @@ describe("published page body", () => {
     ]);
   });
 
+  it("keeps how files, audio, PDFs and embeds are aligned", async () => {
+    const id = "AbCdEfGhIjKlMnOpQrStUv_-";
+    const doc = new Y.Doc();
+    // With the app's own blocks (embeds), which the default editor here doesn't know.
+    const blocks = [
+      { type: "file", props: { url: "https://example.com/a.zip", name: "a.zip", textAlignment: "center" } },
+      { type: "audio", props: { url: "https://example.com/a.mp3", textAlignment: "right" } },
+      { type: "file", props: { url: `/api/files/${id}`, name: "Report.pdf", textAlignment: "right", width: 50 } },
+      { type: "webEmbed", props: { url: "https://www.youtube.com/watch?v=dQw4w9WgXcQ", textAlignment: "center", width: 70 } },
+    ];
+    doc.transact(() => serverEditor.blocksToYXmlFragment(blocks as never, doc.getXmlFragment(COLLAB_FRAGMENT)));
+    const segments = await bodySegmentsFromYdoc(Y.encodeStateAsUpdate(doc));
+    const html = segments[0].kind === "html" ? segments[0].html : "";
+    expect(html).toMatch(/data-text-alignment="center"[^>]*>[\s\S]*a\.zip/);
+    expect(html).toContain('data-text-alignment="right"');
+    expect(segments[1]).toMatchObject({ kind: "pdf", align: "right", width: 50 });
+    expect(segments[2]).toMatchObject({ kind: "webEmbed", align: "center", width: 70 });
+  });
+
   it("shows uploaded PDFs and workbooks in place and keeps other files as links", async () => {
     const id = "AbCdEfGhIjKlMnOpQrStUv_-";
     const state = await ydocFrom([
@@ -172,8 +191,9 @@ describe("published page body", () => {
     ]);
     const segments = await bodySegmentsFromYdoc(state);
     expect(segments.map((s) => s.kind)).toEqual(["html", "pdf", "spreadsheet", "html"]);
-    expect(segments[1]).toEqual({ kind: "pdf", fileId: id, name: "Report.pdf", caption: "Q3" });
-    expect(segments[2]).toEqual({ kind: "spreadsheet", fileId: id, name: "Teklif.xlsx", caption: "" });
+    // Where they sit: at the start, as wide as the column, unless aligned or narrowed (lib/media-blocks).
+    expect(segments[1]).toEqual({ kind: "pdf", fileId: id, name: "Report.pdf", caption: "Q3", align: "left", width: null });
+    expect(segments[2]).toEqual({ kind: "spreadsheet", fileId: id, name: "Teklif.xlsx", caption: "", align: "left", width: null });
     const rest = segments[3].kind === "html" ? segments[3].html : "";
     expect(rest).toContain("data.csv");
     expect(rest).toContain("other.pdf");

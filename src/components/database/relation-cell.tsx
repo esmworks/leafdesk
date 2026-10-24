@@ -7,6 +7,7 @@ import { useEffect, useRef, useState } from "react";
 import { listDatabasesAction } from "@/app/actions/databases";
 import { Button, cn, Input, PageIcon } from "@/components/ui";
 import { pageLabel } from "@/lib/labels";
+import { PropertyDisplay } from "./property-cell";
 import { linkedRows, useRelations } from "./relation-context";
 import type { Property, RelationInput, RelationTargetRow } from "./types";
 import { searchFold } from "@/lib/search-fold";
@@ -17,7 +18,7 @@ export function RelationChips({ prop, value, wrap }: { prop: Pick<Property, "id"
   const rows = linkedRows(ctx?.targets[prop.id], value);
   if (!rows.length) return null;
   return (
-    <span className={cn("flex min-w-0 gap-x-2 gap-y-0.5", wrap ? "flex-wrap" : "overflow-hidden")}>
+    <span data-cut-list="" className={cn("flex min-w-0 gap-x-2 gap-y-0.5", wrap ? "flex-wrap" : "overflow-hidden")}>
       {rows.map((row) => (
         <RelationChip key={row.id} row={row} />
       ))}
@@ -105,8 +106,11 @@ export function RelationPicker({
     else toggle(item.row.id);
   };
 
+  // Properties of the related database shown beside each title (RelationConfig.pickerProperties).
+  const shown = (prop.options.relation?.pickerProperties ?? []).flatMap((id) => target.properties.filter((p) => p.id === id));
+
   return (
-    <div className="w-80">
+    <div className={shown.length ? "w-[28rem] max-w-[calc(100vw-1rem)]" : "w-80"}>
       <div className="flex items-center gap-1.5 border-b border-border bg-bg-subtle px-2 py-1.5">
         <PageIcon icon={database.icon} kind="database" className="h-3.5 w-3.5 shrink-0 text-xs" />
         <input
@@ -198,6 +202,15 @@ export function RelationPicker({
             >
               <PageIcon icon={item.row.icon} className="h-3.5 w-3.5 shrink-0 text-xs" />
               <span className="flex-1 truncate">{pageLabel(item.row.title, tc("untitled"))}</span>
+              {shown.length > 0 && (
+                <span className="flex max-w-[55%] min-w-0 shrink-0 items-center gap-2 overflow-hidden text-xs text-fg-muted">
+                  {shown.map((p) => (
+                    <span key={p.id} className="flex min-w-0 max-w-32 items-center">
+                      <PropertyDisplay prop={p} value={item.row.values?.[p.id]} />
+                    </span>
+                  ))}
+                </span>
+              )}
               {item.row.uniqueId && <span className="shrink-0 text-xs text-fg-faint tabular-nums">{item.row.uniqueId}</span>}
               {selectedIds.includes(item.row.id) && <Check className="h-3.5 w-3.5 shrink-0 text-fg-muted" />}
             </button>

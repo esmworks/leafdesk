@@ -76,6 +76,10 @@
       "blank": "Fila vacía",
       "setDefault": "Usar para “Nuevo”",
       "isDefault": "Se usa para “Nuevo”",
+      "isViewDefault": "Se usa para “Nuevo” en esta vista",
+      "forThisView": "Para esta vista",
+      "forAllViews": "Para todas las vistas",
+      "followAllViews": "Usar aquí el predeterminado de todas las vistas",
       "edit": "Editar plantilla",
       "delete": "Eliminar plantilla",
       "confirmDelete": "¿Eliminar esta plantilla de fila para siempre? Las filas ya creadas a partir de ella se quedan como están.",
@@ -125,7 +129,8 @@
     "addViewHeading": "Añadir una vista",
     "rename": "Cambiar nombre",
     "viewName": "Nombre de la vista",
-    "deleteView": "Eliminar vista"
+    "deleteView": "Eliminar vista",
+    "icon": "Icono"
   },
   "deleted": {
     "properties": "Propiedades eliminadas",
@@ -225,7 +230,14 @@
     "relative": {
       "today": "Hoy",
       "thisWeek": "Esta semana",
+      "lastWeek": "La semana pasada",
+      "nextWeek": "La semana que viene",
       "thisMonth": "Este mes",
+      "lastMonth": "El mes pasado",
+      "nextMonth": "El mes que viene",
+      "thisYear": "Este año",
+      "lastYear": "El año pasado",
+      "nextYear": "El año que viene",
       "pastNDays": "Últimos N días",
       "nextNDays": "Próximos N días",
       "pastDays": "{count, plural, one {Último día} other {Últimos # días}}",
@@ -253,7 +265,8 @@
     "clickForMenu": "Haz clic para abrir el menú",
     "sortedNoDrag": "Las filas no se pueden arrastrar mientras la vista está ordenada",
     "sortedAscending": "Orden ascendente",
-    "sortedDescending": "Orden descendente"
+    "sortedDescending": "Orden descendente",
+    "fillHandle": "Arrastra hacia arriba o hacia abajo para llenar las celdas con este valor"
   },
   "rowMenu": {
     "open": "Abrir",
@@ -552,7 +565,15 @@
     "sortOptionsDesc": "Ordenar Z → A",
     "dragOption": "Arrastra para mover {name}",
     "urlPreview": "Mostrar como vista previa del enlace",
-    "urlPreviewHint": "Las páginas de fila muestran el icono, el título y la imagen de la página enlazada bajo el enlace."
+    "urlPreviewHint": "Las páginas de fila muestran el icono, el título y la imagen de la página enlazada bajo el enlace.",
+    "onePerson": "Limitar a una persona",
+    "onePersonHint": "Cada fila nombra como máximo a una persona. Las filas con más las conservan hasta que se cambien.",
+    "statusCheckbox": "Mostrar como casilla",
+    "statusCheckboxHint": "Una casilla marcada mientras el estado está completado. Al marcarla se elige el primer estado completado; al desmarcarla, el primero pendiente.",
+    "pickerProperties": "Mostrar en el selector de filas",
+    "pickerPropertiesHint": "Hasta tres propiedades junto al nombre de cada fila al vincular filas.",
+    "pickerPropertiesNone": "La base de datos relacionada no tiene propiedades que mostrar.",
+    "icon": "Icono"
   },
   "rowProperties": {
     "noProperties": "Sin propiedades",
@@ -773,6 +794,7 @@
     "showTable": "Mostrar tabla",
     "showWeekends": "Mostrar fines de semana",
     "showIcons": "Mostrar iconos de página",
+    "showVerticalLines": "Mostrar líneas verticales",
     "openRows": "Abrir filas en",
     "openRowsIn": {
       "panel": "Panel lateral",
@@ -913,7 +935,7 @@
     "parentInTrash": "La página principal está en la papelera. Restáurala primero.",
     "nestedDatabase": "Una base de datos no puede contener otra base de datos.",
     "pageTooDeep": "Las páginas pueden anidarse como máximo {max} niveles.",
-    "invalidIcon": "El icono debe ser un emoji.",
+    "invalidIcon": "El icono debe ser un emoji o un icono integrado.",
     "invalidRelation": "“{property}” solo puede vincularse a filas de su base de datos relacionada.",
     "invalidRelationTarget": "Una relación debe apuntar a una base de datos del mismo espacio de trabajo.",
     "subItemLoop": "“{property}” no puede poner una fila debajo de sí misma ni de uno de sus propios subelementos.",
@@ -926,6 +948,7 @@
     "pageLocked": "Esta página está bloqueada. Desbloquéala desde su menú para cambiar su título, icono, fondo o texto.",
     "pageInTrash": "Esta página está en la papelera. Restáurala para cambiarla.",
     "invalidPerson": "“{property}” solo puede contener personas de este espacio de trabajo.",
+    "onePerson": "«{property}» admite una sola persona.",
     "readOnlyProperty": "“{property}” se rellena automáticamente y no se puede cambiar.",
     "invalidFilter": "Este filtro no se puede guardar. Recarga la página y vuelve a intentarlo.",
     "tooManyRows": "Puedes cambiar como máximo {max} filas a la vez.",

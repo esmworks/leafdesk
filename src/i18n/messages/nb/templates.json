@@ -231,6 +231,79 @@
       }
     }
   },
+  "sprints": {
+    "title": "Sprinter",
+    "description": "Oppgaver planlagt i sprinter på to uker: gjeldende sprint på en tavle, sprintplanlegging og en backlogg.",
+    "page": "Teamets sprinter",
+    "markdown": "Planlegg teamets arbeid i sprinter på to uker. **Gjeldende sprint** viser oppgavene i denne sprinten etter tilstand, **Sprintplanlegging** oppgavene i hver kommende sprint, og **Backlogg** oppgavene som ennå ikke er i noen sprint. Når en sprint er over, åpner du **Sprinter** i databasemenyen og velger **Fullfør sprint**: neste sprint starter, og uferdige oppgaver flyttes dit.",
+    "database": "Oppgaver",
+    "table": "Alle oppgaver",
+    "board": "Tavle",
+    "properties": {
+      "assignee": "Ansvarlig",
+      "priority": "Prioritet",
+      "points": "Poeng"
+    },
+    "options": {
+      "high": "Høy",
+      "medium": "Middels",
+      "low": "Lav"
+    },
+    "rowTemplate": {
+      "title": "Ny oppgave",
+      "markdown": "## Hva\n\n\n\n## Ferdig når\n\n- [ ] \n\n## Notater\n\n"
+    },
+    "rows": {
+      "goal": "Bli enige om sprintmålet",
+      "signup": "Lag det nye registreringsskjemaet",
+      "emails": "Skriv velkomst-e-postene",
+      "tests": "Test registreringen på mobil",
+      "pricing": "Oppdater prissiden",
+      "feedback": "Sorter forrige måneds tilbakemeldinger fra kunder"
+    }
+  },
+  "docs": {
+    "title": "Dokumenter",
+    "description": "Veiledninger, oppslagsverk og retningslinjer på ett sted, med kategori, ansvarlig og når hvert dokument sist ble redigert.",
+    "markdown": "Hvert dokument er en side i biblioteket nedenfor, med kategori og ansvarlig. Når du har sjekket at et dokument stemmer, velger du **Verifiser siden** i menyen til dokumentet: søket viser verifiserte dokumenter først og merker dem, `is:verified` finner bare dem, og AI-chatten foretrekker dem.",
+    "database": "Dokumentbibliotek",
+    "table": "Alle dokumenter",
+    "board": "Etter kategori",
+    "recent": "Nylig redigert",
+    "properties": {
+      "category": "Kategori",
+      "owner": "Ansvarlig",
+      "edited": "Sist redigert"
+    },
+    "categories": {
+      "guide": "Veiledning",
+      "reference": "Oppslag",
+      "policy": "Retningslinje",
+      "onboarding": "Opplæring"
+    },
+    "rowTemplate": {
+      "title": "Nytt dokument",
+      "markdown": "## Sammendrag\n\n\n\n## Detaljer\n\n\n\n## Relatert\n\n- "
+    },
+    "rows": {
+      "writing": {
+        "title": "Slik skriver vi dokumenter",
+        "markdown": "## Sammendrag\n\nÉtt dokument per emne, skrevet for noen som er ny på det.\n\n## Detaljer\n\n- Begynn med det leseren må gjøre.\n- Hold trinnene korte og i rekkefølge.\n- Angi en ansvarlig, og verifiser dokumentet når du har sjekket det."
+      },
+      "onboarding": {
+        "title": "Sjekkliste for første uke",
+        "markdown": "## Sammendrag\n\nHva en ny kollega gjør den første uken.\n\n## Detaljer\n\n- [ ] Sett opp kontoene dine\n- [ ] Møt teamet ditt\n- [ ] Les dokumentene for ditt område"
+      },
+      "release": {
+        "title": "Utgivelsesprosess",
+        "markdown": "## Sammendrag\n\nHvordan en endring går fra gjennomgang til kundene.\n\n## Detaljer\n\n1. Gå gjennom og flett endringen.\n2. Test den på testserveren.\n3. Gi den ut og si fra til teamet."
+      },
+      "expenses": {
+        "title": "Retningslinjer for utlegg",
+        "markdown": "## Sammendrag\n\nHva firmaet betaler for, og hvordan du får refusjon.\n\n## Detaljer\n\n- Ta vare på kvitteringen.\n- Send refusjonskravet innen 30 dager.\n- Spør lederen din før du bruker mer enn vanlig."
+      }
+    }
+  },
   "journal": {
     "title": "Dagbok",
     "markdown": "## Fokus\n\n- [ ] \n\n## Notater\n\n## Ferdig i dag\n"

@@ -70,6 +70,7 @@
     "includeArchivedHint": "Encontrar também páginas arquivadas",
     "inDocument": "Encontrado no documento {name} desta página",
     "recent": "Editados recentemente",
+    "recentViewed": "Vistos recentemente",
     "commands": "Comandos",
     "noCommands": "Nenhum comando correspondente",
     "setting": "Configurações: {tab} → {setting}",
@@ -77,7 +78,29 @@
     "hint": {
       "in": "dentro de uma página",
       "type": "só bancos de dados (ou página, linha)",
-      "commands": "comandos"
+      "commands": "comandos",
+      "phrase": "frase exata"
+    },
+    "filters": {
+      "label": "Filtros",
+      "teamspace": "Espaço de equipe",
+      "createdBy": "Criado por",
+      "editedBy": "Última edição por",
+      "date": "Data",
+      "edited": "Última edição",
+      "created": "Criação",
+      "today": "Hoje",
+      "week": "Últimos 7 dias",
+      "month": "Últimos 30 dias",
+      "custom": "Período personalizado",
+      "from": "De",
+      "to": "Até",
+      "more": "{first} +{count}",
+      "you": "{name} (você)",
+      "findPerson": "Encontrar uma pessoa…",
+      "noPeople": "Ninguém encontrado",
+      "remove": "Remover filtro",
+      "clear": "Limpar filtros"
     }
   },
   "trash": {
