@@ -241,12 +241,30 @@
     "noSearchMatches": "검색과 일치하는 행이 없습니다.",
     "addProperty": "속성 추가",
     "rowActions": "행 작업",
+    "dragToMove": "드래그하여 이동",
+    "clickForMenu": "클릭하여 메뉴 열기",
+    "sortedNoDrag": "보기가 정렬된 동안에는 행을 끌 수 없습니다",
     "sortedAscending": "오름차순 정렬됨",
     "sortedDescending": "내림차순 정렬됨"
   },
   "rowMenu": {
     "open": "열기",
-    "openPage": "전체 페이지로 열기"
+    "openPage": "전체 페이지로 열기",
+    "copyLink": "링크 복사",
+    "duplicate": "복제",
+    "search": "작업 검색…",
+    "page": "페이지",
+    "editIcon": "아이콘 편집",
+    "editProperty": "속성 편집",
+    "openIn": "열기 위치",
+    "sidePanel": "사이드 패널",
+    "fullPage": "전체 페이지",
+    "newTab": "새 탭",
+    "comment": "댓글",
+    "developer": "개발자",
+    "copyDatabaseId": "데이터베이스 ID 복사",
+    "noMatches": "일치하는 작업이 없습니다.",
+    "lastEdited": "마지막 편집"
   },
   "rowPanel": {
     "label": "행: {title}",

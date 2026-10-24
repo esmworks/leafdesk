@@ -53,6 +53,7 @@
     "exportPreparing": "בהכנת הייצוא…",
     "versionHistory": "היסטוריית גרסאות",
     "lastEdited": "נערך לאחרונה על ידי {name}",
+    "wordCount": "{words, plural, one {מילה אחת} other {# מילים}}, {characters, plural, one {תו אחד} other {# תווים}}",
     "actionFailed": "לא ניתן היה להשלים את הפעולה.",
     "viewers": "{count, plural, one {אדם נוסף צופה בדף הזה} two {שני אנשים נוספים צופים בדף הזה} other {# אנשים נוספים צופים בדף הזה}}",
     "viewersTitle": "צופים בדף הזה",

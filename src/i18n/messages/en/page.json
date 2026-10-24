@@ -53,6 +53,7 @@
     "exportPreparing": "Preparing export…",
     "versionHistory": "Version history",
     "lastEdited": "Last edited by {name}",
+    "wordCount": "{words, plural, one {# word} other {# words}}, {characters, plural, one {# character} other {# characters}}",
     "actionFailed": "Couldn't finish that.",
     "viewers": "{count, plural, one {# other person is viewing this page} other {# other people are viewing this page}}",
     "viewersTitle": "Viewing this page",

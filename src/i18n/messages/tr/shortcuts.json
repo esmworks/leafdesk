@@ -48,6 +48,10 @@
     "nextRow": "Sonraki satır (görünümün yanında bir satır açıkken)",
     "moveBar": "Zaman çizelgesindeki çubuğu bir gün kaydır",
     "saveFormula": "Formülü veya yapay zekâyla doldurma istemini kaydet",
-    "clearSelection": "Satır seçimini kaldır"
+    "clearSelection": "Satır seçimini kaldır",
+    "rowDuplicate": "Satırın kopyasını oluştur (tabloda menüsü açıkken)",
+    "rowMoveTo": "Satırı başka yere taşı (menüsü açıkken)",
+    "rowComment": "Satıra yorum yap (menüsü açıkken)",
+    "rowTrash": "Satırı çöp kutusuna taşı (menüsü açıkken)"
   }
 }

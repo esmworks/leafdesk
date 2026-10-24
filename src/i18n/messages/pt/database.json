@@ -241,12 +241,30 @@
     "noSearchMatches": "Nenhuma linha corresponde à pesquisa.",
     "addProperty": "Adicionar propriedade",
     "rowActions": "Ações da linha",
+    "dragToMove": "Arraste para mover",
+    "clickForMenu": "Clique para abrir o menu",
+    "sortedNoDrag": "As linhas não podem ser arrastadas enquanto a vista está ordenada",
     "sortedAscending": "Em ordem crescente",
     "sortedDescending": "Em ordem decrescente"
   },
   "rowMenu": {
     "open": "Abrir",
-    "openPage": "Abrir como página inteira"
+    "openPage": "Abrir como página inteira",
+    "copyLink": "Copiar link",
+    "duplicate": "Duplicar",
+    "search": "Pesquisar ações…",
+    "page": "Página",
+    "editIcon": "Editar ícone",
+    "editProperty": "Editar propriedade",
+    "openIn": "Abrir em",
+    "sidePanel": "Painel lateral",
+    "fullPage": "Página inteira",
+    "newTab": "Nova aba",
+    "comment": "Comentar",
+    "developer": "Desenvolvedor",
+    "copyDatabaseId": "Copiar ID do banco de dados",
+    "noMatches": "Nenhuma ação corresponde.",
+    "lastEdited": "Última edição"
   },
   "rowPanel": {
     "label": "Linha: {title}",

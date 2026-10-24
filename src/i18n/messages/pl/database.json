@@ -241,12 +241,30 @@
     "noSearchMatches": "Żaden wiersz nie pasuje do wyszukiwania.",
     "addProperty": "Dodaj właściwość",
     "rowActions": "Działania na wierszu",
+    "dragToMove": "Przeciągnij, aby przenieść",
+    "clickForMenu": "Kliknij, aby otworzyć menu",
+    "sortedNoDrag": "Wierszy nie można przeciągać, gdy widok jest posortowany",
     "sortedAscending": "Posortowano rosnąco",
     "sortedDescending": "Posortowano malejąco"
   },
   "rowMenu": {
     "open": "Otwórz",
-    "openPage": "Otwórz jako pełną stronę"
+    "openPage": "Otwórz jako pełną stronę",
+    "copyLink": "Kopiuj link",
+    "duplicate": "Duplikuj",
+    "search": "Szukaj działań…",
+    "page": "Strona",
+    "editIcon": "Edytuj ikonę",
+    "editProperty": "Edytuj właściwość",
+    "openIn": "Otwórz w",
+    "sidePanel": "Panel boczny",
+    "fullPage": "Pełna strona",
+    "newTab": "Nowa karta",
+    "comment": "Skomentuj",
+    "developer": "Deweloper",
+    "copyDatabaseId": "Kopiuj ID bazy danych",
+    "noMatches": "Brak pasujących działań.",
+    "lastEdited": "Ostatnia edycja"
   },
   "rowPanel": {
     "label": "Wiersz: {title}",

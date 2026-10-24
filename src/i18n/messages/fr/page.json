@@ -53,6 +53,7 @@
     "exportPreparing": "Préparation de l’exportation…",
     "versionHistory": "Historique des versions",
     "lastEdited": "Dernière modification par {name}",
+    "wordCount": "{words, plural, one {# mot} other {# mots}}, {characters, plural, one {# caractère} other {# caractères}}",
     "actionFailed": "Impossible d’effectuer cette action.",
     "viewers": "{count, plural, one {# autre personne consulte cette page} other {# autres personnes consultent cette page}}",
     "viewersTitle": "Personnes sur cette page",

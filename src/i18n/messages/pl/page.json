@@ -53,6 +53,7 @@
     "exportPreparing": "Przygotowywanie eksportu…",
     "versionHistory": "Historia wersji",
     "lastEdited": "Ostatnio edytowane przez: {name}",
+    "wordCount": "{words, plural, one {# słowo} few {# słowa} many {# słów} other {# słowa}}, {characters, plural, one {# znak} few {# znaki} many {# znaków} other {# znaku}}",
     "actionFailed": "Nie udało się tego dokończyć.",
     "viewers": "{count, plural, one {Tę stronę ogląda # inna osoba} few {Tę stronę oglądają # inne osoby} many {Tę stronę ogląda # innych osób} other {Tę stronę ogląda # innej osoby}}",
     "viewersTitle": "Oglądają tę stronę",
