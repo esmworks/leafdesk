@@ -236,7 +236,7 @@ export async function requireDatabase(userId: string, databaseId: string, needed
  * A locked database keeps its properties and views: they can't be added, renamed or removed until
  * someone with full access unlocks it. Rows, cell values and view filters stay editable.
  */
-function assertUnlocked(database: { lockedAt: Date | null }) {
+export function assertUnlocked(database: { lockedAt: Date | null }) {
   if (database.lockedAt) throw withCode(new Error("The database is locked"), "databaseLocked");
 }
 
@@ -253,11 +253,11 @@ export async function setDatabaseLocked(userId: string, databaseId: string, lock
 export function notifyRows(databaseId: string) {
   getCollab().broadcast(`db:${databaseId}`, "rows");
 }
-function notifySchema(databaseId: string) {
+export function notifySchema(databaseId: string) {
   getCollab().broadcast(`db:${databaseId}`, "schema");
 }
 /** The sidebar lists database views, so adding, renaming or removing one refreshes the tree. */
-function notifyTree(workspaceId: string) {
+export function notifyTree(workspaceId: string) {
   getCollab().broadcast(`ws:${workspaceId}`, "tree");
 }
 
@@ -2232,7 +2232,7 @@ export async function restoreProperty(userId: string, propertyId: string) {
           )
           .limit(1);
         if (taken) {
-          const { role: _role, dependencies: _dependencies, ...relation } = options.relation!;
+          const { role: _role, dependencies: _dependencies, sprints: _sprints, ...relation } = options.relation!;
           options = { ...options, relation };
         }
       }

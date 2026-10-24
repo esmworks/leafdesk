@@ -121,6 +121,10 @@ export const DATABASE_ERROR_CODES = [
   "mergeRowsReadOnly",
   "mergeLinksBlocked",
   "mergeChoiceInvalid",
+  "sprintsOff",
+  "sprintsDatabase",
+  "noCurrentSprint",
+  "invalidSprints",
 ] as const;
 export type DatabaseErrorCode = (typeof DATABASE_ERROR_CODES)[number];
 export type DatabaseErrorParams = Record<string, string>;

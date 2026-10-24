@@ -30,6 +30,7 @@ import { mergeCandidates, mergeRows, previewMerge } from "@/server/merge-rows";
 import * as pages from "@/server/pages";
 import * as templates from "@/server/templates";
 import { requireUserId } from "@/server/session";
+import { completeSprint, getSprints, setSprints } from "@/server/sprints";
 
 export type ActionResult<T> = { ok: true; data: T } | { ok: false; error: string };
 
@@ -272,6 +273,27 @@ export async function setDependenciesAction(
       names: { blockedBy: t("blockedByName"), blocking: t("blockingName") },
     });
   });
+}
+
+/** Sprints of a task database, or which task database a sprints database belongs to (server/sprints). */
+export async function getSprintsAction(databaseId: string) {
+  return run((userId) => getSprints(userId, databaseId));
+}
+
+/** Turns sprints on (first sprint starting on `start`, a day) or off, or changes how long new sprints are. */
+export async function setSprintsAction(databaseId: string, input: { on: boolean; weeks?: number; start?: string }) {
+  return run(async (userId) => {
+    if (!input.on) return setSprints({ userId }, databaseId, { on: false });
+    if (typeof input.weeks !== "number" || (input.start !== undefined && typeof input.start !== "string")) {
+      throw new PropertyValueError("A sprint is 1 to 4 weeks long", "invalidSprints");
+    }
+    return setSprints({ userId }, databaseId, { on: true, weeks: input.weeks, start: input.start });
+  });
+}
+
+/** Completes the current sprint of a task or sprints database; `dryRun` only says what would change. */
+export async function completeSprintAction(databaseId: string, dryRun = false) {
+  return run((userId) => completeSprint(userId, databaseId, { dryRun: dryRun === true }));
 }
 
 export async function listDatabasesAction(workspaceId: string) {

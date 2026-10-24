@@ -556,6 +556,20 @@ const SCHEMAS: Record<string, JsonSchema> = {
     },
     ["kept_row_id", "title", "relinked_rows", "moved"],
   ),
+  SprintCompleted: loose(
+    {
+      dry_run: { type: "boolean" },
+      completed: loose({ id, title: { type: "string" }, url }, ["id", "title"]),
+      current: loose(
+        { id, title: { type: "string" }, created: { type: "boolean", description: "A new sprint, added by this call." }, url },
+        ["id", "title", "created"],
+      ),
+      next: loose({ id, title: { type: "string" }, created: { type: "boolean" }, url }, ["id", "title", "created"]),
+      moved_tasks: { type: "integer", description: "Unfinished tasks moved to the new current sprint." },
+      skipped_tasks: { type: "integer", description: "Unfinished tasks left in the completed sprint: the user may not change them." },
+    },
+    ["completed", "current", "next", "moved_tasks", "skipped_tasks"],
+  ),
   CommentThreads: loose(
     {
       page_id: id,
