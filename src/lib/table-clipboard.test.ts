@@ -1,6 +1,18 @@
 import { describe, expect, it } from "vitest";
 import type { PropertyOptions, PropertyType } from "@/db/schema/app";
-import { cellText, clampRange, moveRange, pastedGrid, planPaste, rangeBounds, toTsv, type PasteColumn, type PasteInput } from "./table-clipboard";
+import {
+  cellText,
+  clampRange,
+  fillGrid,
+  fillTarget,
+  moveRange,
+  pastedGrid,
+  planPaste,
+  rangeBounds,
+  toTsv,
+  type PasteColumn,
+  type PasteInput,
+} from "./table-clipboard";
 
 const size = { rows: 5, cols: 4 };
 
@@ -213,5 +225,58 @@ describe("planPaste", () => {
     const plan = planPaste({ ...base, grid: [["3/4/2026"], ["25/4/2026"]], target: { top: 0, left: 3, bottom: 0, right: 3 } });
     // A day over 12 makes the column day first, so 3/4 is 3 April.
     expect(plan.updates.map((u) => u.values.when)).toEqual(["2026-04-03", "2026-04-25"]);
+  });
+});
+
+describe("filling", () => {
+  const from = { top: 2, bottom: 3, left: 1, right: 2 };
+
+  it("fills the rows the handle passes below or above the range, in its columns", () => {
+    expect(fillTarget(from, 6)).toEqual({ top: 4, bottom: 6, left: 1, right: 2 });
+    expect(fillTarget(from, 0)).toEqual({ top: 0, bottom: 1, left: 1, right: 2 });
+    expect(fillTarget(from, 2)).toBeNull();
+    expect(fillTarget(from, 3)).toBeNull();
+  });
+
+  it("repeats the range's rows in their rhythm, down and up", () => {
+    const source = [
+      ["a", 1],
+      ["b", null],
+    ];
+    expect(fillGrid(source, from, { top: 4, bottom: 6, left: 1, right: 2 })).toEqual([
+      ["a", "1"],
+      ["b", ""],
+      ["a", "1"],
+    ]);
+    expect(fillGrid(source, from, { top: 0, bottom: 1, left: 1, right: 2 })).toEqual([
+      ["a", "1"],
+      ["b", ""],
+    ]);
+    expect(fillGrid(source, from, { top: 1, bottom: 1, left: 1, right: 2 })).toEqual([["b", ""]]);
+  });
+
+  it("writes through the same plan as a paste: every row the value, read-only cells left alone", () => {
+    const columns: PasteColumn[] = [
+      { key: "title", type: "title" },
+      { key: "status", type: "select" },
+      { key: "f", type: "formula" },
+    ];
+    const one = { top: 0, bottom: 0, left: 1, right: 2 };
+    const target = fillTarget(one, 3)!;
+    const plan = planPaste({
+      grid: fillGrid([["Done", 4]], one, target),
+      target,
+      rowIds: ["r0", "r1", "r2", "r3"],
+      columns,
+      canEdit: (rowId) => rowId !== "r2",
+      canAddRows: false,
+      timeZone: "UTC",
+    });
+    expect(plan.updates).toEqual([
+      { rowId: "r1", values: { status: "Done" } },
+      { rowId: "r3", values: { status: "Done" } },
+    ]);
+    expect(plan.newRows).toEqual([]);
+    expect(plan.skipped).toBe(4);
   });
 });

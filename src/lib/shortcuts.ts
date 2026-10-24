@@ -23,6 +23,12 @@ export const ROW_MENU_COMBOS = {
   trash: ["Del"],
 } as const satisfies Record<string, Combo>;
 
+/**
+ * In a table's selected cells: fills each column down from the range's top cell, or with the
+ * cells of one row selected duplicates that row (see cellGridShortcut).
+ */
+export const FILL_DOWN_COMBO = ["Mod", "D"] as const satisfies Combo;
+
 export const SHORTCUT_GROUPS: readonly ShortcutGroup[] = [
   {
     id: "general",
@@ -100,6 +106,8 @@ export const SHORTCUT_GROUPS: readonly ShortcutGroup[] = [
       { id: "saveFormula", combos: [["Mod", "Enter"]] },
       // components/database/bulk-actions.tsx.
       { id: "clearSelection", combos: [["Esc"]] },
+      // The selected cells of a table (components/database/use-cell-grid.ts).
+      { id: "fillDown", combos: [FILL_DOWN_COMBO] },
       // A table row's menu, while it is open (components/database/row-menu.tsx).
       { id: "rowDuplicate", combos: [ROW_MENU_COMBOS.duplicate] },
       { id: "rowMoveTo", combos: [ROW_MENU_COMBOS.moveTo] },
@@ -174,4 +182,15 @@ export function rowMenuShortcut(e: KeyEventLike, mac: boolean): keyof typeof ROW
   if (e.code === "KeyP" && e.shiftKey) return "moveTo";
   if (e.code === "KeyM" && e.shiftKey) return "comment";
   return null;
+}
+
+/**
+ * Which of the table grid's actions a key press asks for: "fillDown" for Mod+D (FILL_DOWN_COMBO),
+ * matched by the key's place like rowMenuShortcut. What it does depends on the selection: see
+ * components/database/use-cell-grid.ts.
+ */
+export function cellGridShortcut(e: KeyEventLike, mac: boolean): "fillDown" | null {
+  if (e.defaultPrevented || e.isComposing || e.altKey || e.shiftKey) return null;
+  if (!(mac ? e.metaKey && !e.ctrlKey : e.ctrlKey && !e.metaKey)) return null;
+  return e.code === "KeyD" ? "fillDown" : null;
 }
