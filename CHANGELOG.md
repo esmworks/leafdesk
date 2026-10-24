@@ -4,6 +4,23 @@
 
 ### Added
 
+- **GitHub pull requests update tasks.** A database with an ID property with a prefix has *GitHub
+  pull requests* in its ••• menu: a payload URL and a secret to add as a repository webhook. A pull
+  request that names rows by their ID (`TASK-12`, in its title, description or branch) adds its
+  link to a text or URL property (a new *Pull requests* property if wanted) and can move a status
+  property when it is opened or ready for review, merged, or closed without merging. Drafts only
+  link, and a row already done moves only for a merge. Deliveries are checked against the secret
+  and taken once, the writes are made as whoever saved the setup with their access when the
+  delivery comes (rows they can't edit are skipped), the dialog lists the latest deliveries, and
+  setting it up, changing and removing it are in the audit log. Migration
+  `drizzle/0132_github_sync.sql` adds the `github_sync` and `github_delivery` tables. No new
+  settings.
+- **Send to Slack.** Automations have a *Send to Slack* step that posts a message, with variables
+  and Slack formatting, to a Slack incoming webhook with a link to the row. The address is stored
+  sealed and shown again only as a hint, in the app, MCP and the run history. *Slack
+  notifications* in a database's ••• menu makes such an automation for a row added or a property
+  changing (to a value). Addresses other than `https://hooks.slack.com/services/…` are refused,
+  except on hosts in `AUTOMATION_WEBHOOK_ALLOWED_HOSTS`.
 - **Page views and page analytics.** Opening a page, database or row in the app now records a
   view, once the page has been open two seconds and at most once per person and page every five
   minutes, kept as one count per page, person and UTC day and deleted after a year. Only owners
