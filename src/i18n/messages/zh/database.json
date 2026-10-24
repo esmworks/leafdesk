@@ -554,7 +554,9 @@
     "urlPreview": "显示为链接预览",
     "urlPreviewHint": "行页面会在链接下方显示所链接页面的图标、标题和图片。",
     "onePerson": "限制为一人",
-    "onePersonHint": "每行最多指定一人。已指定多人的行在修改前保持不变。"
+    "onePersonHint": "每行最多指定一人。已指定多人的行在修改前保持不变。",
+    "statusCheckbox": "显示为复选框",
+    "statusCheckboxHint": "状态为已完成时勾选。勾选会选择第一个已完成状态，取消勾选会选择第一个待办状态。"
   },
   "rowProperties": {
     "noProperties": "没有属性",

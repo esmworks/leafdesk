@@ -10,9 +10,12 @@ import {
   asChecklist,
   checklistProgress,
   isEmailAddress,
+  isDoneStatus,
   isPhoneNumber,
+  optionOf,
   phoneHref,
   sortStatusOptions,
+  statusFromCheckbox,
   statusGroupOf,
 } from "@/lib/properties";
 import { derivedType, isErrorValue, rollupFormat } from "@/lib/derived";
@@ -209,6 +212,7 @@ export function isEmptyValue(prop: ShownProperty, value: unknown) {
 export function PropertyDisplay({ prop, value, wrap, style }: { prop: ShownProperty; value: unknown; wrap?: boolean; style?: FormulaStyle }) {
   const formatDateTime = useFormatDateTime();
   const formatNumber = useFormatNumber();
+  if (prop.type === "status" && prop.options.statusDisplay === "checkbox") return <CheckboxBox checked={isDoneStatus(prop, value)} />;
   if (value === null || value === undefined || value === "") return null;
   switch (prop.type) {
     case "text":
@@ -579,6 +583,31 @@ export function PropertyCell({
     return (
       <div className={base}>
         <HiddenValue />
+      </div>
+    );
+  }
+
+  // A status shown as a checkbox ticks the first done option, or unticks to the first to-do one.
+  if (prop.type === "status" && prop.options.statusDisplay === "checkbox") {
+    const done = isDoneStatus(prop, value);
+    return (
+      <div className={cn(base, "cursor-default")}>
+        <button
+          type="button"
+          role="checkbox"
+          aria-checked={done}
+          aria-label={prop.name}
+          title={optionOf(prop, value)?.name}
+          disabled={readOnly}
+          data-cell-edit={readOnly ? undefined : ""}
+          className="inline-flex disabled:cursor-default"
+          onClick={() => {
+            const next = statusFromCheckbox(prop, !done);
+            if (next !== undefined) onChange(next);
+          }}
+        >
+          <CheckboxBox checked={done} />
+        </button>
       </div>
     );
   }

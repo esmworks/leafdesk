@@ -554,7 +554,9 @@
     "urlPreview": "Hiển thị dưới dạng xem trước liên kết",
     "urlPreviewHint": "Trang hàng hiển thị biểu tượng, tiêu đề và hình ảnh của trang được liên kết bên dưới liên kết.",
     "onePerson": "Giới hạn một người",
-    "onePersonHint": "Mỗi hàng chỉ ghi tối đa một người. Các hàng đang ghi nhiều người sẽ giữ nguyên cho đến khi được thay đổi."
+    "onePersonHint": "Mỗi hàng chỉ ghi tối đa một người. Các hàng đang ghi nhiều người sẽ giữ nguyên cho đến khi được thay đổi.",
+    "statusCheckbox": "Hiển thị dạng ô đánh dấu",
+    "statusCheckboxHint": "Ô được đánh dấu khi trạng thái đã xong. Đánh dấu sẽ chọn trạng thái xong đầu tiên, bỏ đánh dấu sẽ chọn trạng thái cần làm đầu tiên."
   },
   "rowProperties": {
     "noProperties": "Không có thuộc tính",

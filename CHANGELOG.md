@@ -25,6 +25,9 @@
   each row name one person at most: picking someone puts them in the place of whoever was there, and
   writes naming more (API, MCP, automations, imports) are refused. Rows naming more when it is turned
   on keep them until they're changed. MCP's `get_database` shows such a property with `one_person`.
+- **Show a status as a checkbox.** *Show as checkbox* in a status column's menu shows a box,
+  ticked while the row's status is in the done group. Ticking it picks the first done status,
+  unticking it the first to-do one; filters, groups and the API still see the status itself.
 
 ### Changed
 

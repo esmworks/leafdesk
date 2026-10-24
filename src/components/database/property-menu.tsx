@@ -33,6 +33,7 @@ import {
   Rows3,
   Settings2,
   Sigma,
+  SquareCheck,
   Trash2,
   Ungroup,
   UserRound,
@@ -256,6 +257,8 @@ export type PropertyMenuActions = {
   setUrlPreview?: (on: boolean) => void;
   /** People: whether a row names one person at most. */
   setOnePerson?: (on: boolean) => void;
+  /** Statuses: whether they show as a checkbox ticked for done options. */
+  setStatusCheckbox?: (on: boolean) => void;
   /** Text properties, when AI is available: turns AI autofill on, changes it or (null) turns it off. */
   setAutofill?: (config: AiAutofillConfig | null) => void;
   /** Autofill properties: works the values of the view's rows out again. */
@@ -646,6 +649,18 @@ export function PropertyMenu({
         onClick={run(() => actions.setUrlPreview?.(!prop.options.url?.preview))}
       >
         {t("urlPreview")}
+      </MenuItem>
+    ),
+    prop?.type === "status" && actions.setStatusCheckbox && (
+      <MenuItem
+        key="status-checkbox"
+        icon={icon(SquareCheck)}
+        pressed={prop.options.statusDisplay === "checkbox"}
+        trailing={prop.options.statusDisplay === "checkbox" ? icon(Check) : undefined}
+        title={t("statusCheckboxHint")}
+        onClick={run(() => actions.setStatusCheckbox?.(prop.options.statusDisplay !== "checkbox"))}
+      >
+        {t("statusCheckbox")}
       </MenuItem>
     ),
     prop?.type === "person" && actions.setOnePerson && (

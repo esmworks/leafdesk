@@ -341,6 +341,7 @@ export async function updatePropertyAction(
     prefix?: string | null;
     urlPreview?: boolean;
     onePerson?: boolean;
+    statusDisplay?: "checkbox" | "option";
   },
 ) {
   return run((userId) => databases.updateProperty(userId, propertyId, patch));

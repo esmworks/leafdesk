@@ -554,7 +554,9 @@
     "urlPreview": "Als Linkvorschau anzeigen",
     "urlPreviewHint": "Zeilenseiten zeigen Symbol, Titel und Bild der verlinkten Seite unter dem Link.",
     "onePerson": "Auf eine Person beschränken",
-    "onePersonHint": "Jede Zeile nennt höchstens eine Person. Zeilen mit mehreren behalten sie, bis sie geändert werden."
+    "onePersonHint": "Jede Zeile nennt höchstens eine Person. Zeilen mit mehreren behalten sie, bis sie geändert werden.",
+    "statusCheckbox": "Als Kontrollkästchen anzeigen",
+    "statusCheckboxHint": "Ein Kästchen, das angehakt ist, solange der Status erledigt ist. Anhaken wählt den ersten Erledigt-Status, Abhaken den ersten Zu-erledigen-Status."
   },
   "rowProperties": {
     "noProperties": "Keine Eigenschaften",

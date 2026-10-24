@@ -554,7 +554,9 @@
     "urlPreview": "Tampilkan sebagai pratinjau tautan",
     "urlPreviewHint": "Halaman baris menampilkan ikon, judul, dan gambar halaman tertaut di bawah tautan.",
     "onePerson": "Batasi ke satu orang",
-    "onePersonHint": "Setiap baris menyebut paling banyak satu orang. Baris yang menyebut lebih tetap menyimpannya sampai diubah."
+    "onePersonHint": "Setiap baris menyebut paling banyak satu orang. Baris yang menyebut lebih tetap menyimpannya sampai diubah.",
+    "statusCheckbox": "Tampilkan sebagai kotak centang",
+    "statusCheckboxHint": "Kotak tercentang selama status selesai. Mencentangnya memilih status selesai pertama, menghapus centang memilih status belum dikerjakan pertama."
   },
   "rowProperties": {
     "noProperties": "Tidak ada properti",

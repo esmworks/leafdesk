@@ -554,7 +554,9 @@
     "urlPreview": "Näytä linkin esikatseluna",
     "urlPreviewHint": "Rivisivuilla linkin alla näkyvät linkitetyn sivun kuvake, otsikko ja kuva.",
     "onePerson": "Rajoita yhteen henkilöön",
-    "onePersonHint": "Kukin rivi nimeää enintään yhden henkilön. Rivit, joilla on useampia, säilyttävät ne, kunnes niitä muutetaan."
+    "onePersonHint": "Kukin rivi nimeää enintään yhden henkilön. Rivit, joilla on useampia, säilyttävät ne, kunnes niitä muutetaan.",
+    "statusCheckbox": "Näytä valintaruutuna",
+    "statusCheckboxHint": "Ruutu on valittuna, kun tila on valmis. Valitseminen asettaa ensimmäisen valmis-tilan, valinnan poistaminen ensimmäisen tekemättä-tilan."
   },
   "rowProperties": {
     "noProperties": "Ei ominaisuuksia",

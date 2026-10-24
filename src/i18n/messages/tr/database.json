@@ -554,7 +554,9 @@
     "urlPreview": "Bağlantı önizlemesi olarak göster",
     "urlPreviewHint": "Satır sayfaları bağlantının altında bağlanan sayfanın simgesini, başlığını ve görselini gösterir.",
     "onePerson": "Tek kişiyle sınırla",
-    "onePersonHint": "Her satır en fazla bir kişiyi gösterir. Daha fazla kişi içeren satırlar değiştirilene kadar onları korur."
+    "onePersonHint": "Her satır en fazla bir kişiyi gösterir. Daha fazla kişi içeren satırlar değiştirilene kadar onları korur.",
+    "statusCheckbox": "Onay kutusu olarak göster",
+    "statusCheckboxHint": "Durum tamamlandıyken işaretli bir kutu. İşaretlemek ilk tamamlandı durumunu, işareti kaldırmak ilk yapılacak durumunu seçer."
   },
   "rowProperties": {
     "noProperties": "Özellik yok",

@@ -554,7 +554,9 @@
     "urlPreview": "Mostra come anteprima del link",
     "urlPreviewHint": "Le pagine delle righe mostrano icona, titolo e immagine della pagina collegata sotto il link.",
     "onePerson": "Limita a una persona",
-    "onePersonHint": "Ogni riga indica al massimo una persona. Le righe che ne indicano di più le mantengono finché non vengono modificate."
+    "onePersonHint": "Ogni riga indica al massimo una persona. Le righe che ne indicano di più le mantengono finché non vengono modificate.",
+    "statusCheckbox": "Mostra come casella",
+    "statusCheckboxHint": "Una casella spuntata finché lo stato è completato. Spuntarla sceglie il primo stato completato, togliere la spunta il primo da fare."
   },
   "rowProperties": {
     "noProperties": "Nessuna proprietà",

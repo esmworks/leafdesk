@@ -554,7 +554,9 @@
     "urlPreview": "Pokaż jako podgląd linku",
     "urlPreviewHint": "Strony wierszy pokazują pod linkiem ikonę, tytuł i obraz podlinkowanej strony.",
     "onePerson": "Ogranicz do jednej osoby",
-    "onePersonHint": "Każdy wiersz wskazuje najwyżej jedną osobę. Wiersze, które wskazują więcej, zachowują je do czasu zmiany."
+    "onePersonHint": "Każdy wiersz wskazuje najwyżej jedną osobę. Wiersze, które wskazują więcej, zachowują je do czasu zmiany.",
+    "statusCheckbox": "Pokaż jako pole wyboru",
+    "statusCheckboxHint": "Pole zaznaczone, gdy status jest ukończony. Zaznaczenie wybiera pierwszy status ukończony, odznaczenie pierwszy do zrobienia."
   },
   "rowProperties": {
     "noProperties": "Brak właściwości",

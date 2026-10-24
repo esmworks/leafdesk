@@ -592,6 +592,14 @@ export function useDatabase(
         );
       },
 
+      /** Shows a status property as a checkbox ticked for its done options, or as the option. */
+      setStatusCheckbox(prop: Property, on: boolean) {
+        const { statusDisplay: _old, ...rest } = prop.options;
+        return mutateSchema(patchProperty(prop.id, { options: on ? { ...rest, statusDisplay: "checkbox" } : rest }), () =>
+          updatePropertyAction(prop.id, { statusDisplay: on ? "checkbox" : "option" }),
+        );
+      },
+
       /** Limits a person property to one person a row, or lifts the limit. */
       setOnePerson(prop: Property, on: boolean) {
         const { person: _old, ...rest } = prop.options;

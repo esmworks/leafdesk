@@ -10,6 +10,7 @@ import {
   isGroupable,
   localDay,
   makeStatusOptions,
+  statusFromCheckbox,
   phoneHref,
   sortOptionsByName,
   sortStatusOptions,
@@ -913,5 +914,25 @@ describe("unique ID properties", () => {
     const shuffled = [rows[2], rows[0], rows[1]];
     const out = applyView(shuffled, { sorts: [{ propertyId: "p_id", direction: "desc" }] }, [id]);
     expect(out.map((r) => r.id)).toEqual(["c", "b", "a"]);
+  });
+});
+
+describe("statusFromCheckbox", () => {
+  const options = [
+    { id: "s1", name: "Not started", color: "gray", group: "todo" as const },
+    { id: "s2", name: "Doing", color: "blue", group: "in_progress" as const },
+    { id: "s3", name: "Done", color: "green", group: "done" as const },
+    { id: "s4", name: "Shipped", color: "green", group: "done" as const },
+  ];
+  const status = prop("status", { options, statusDisplay: "checkbox" });
+
+  it("ticks to the first done option and unticks to the first to-do one", () => {
+    expect(statusFromCheckbox(status, true)).toBe("s3");
+    expect(statusFromCheckbox(status, false)).toBe("s1");
+  });
+
+  it("changes nothing without a done option, and empties without a to-do one", () => {
+    expect(statusFromCheckbox(prop("status", { options: options.slice(0, 2) }), true)).toBeUndefined();
+    expect(statusFromCheckbox(prop("status", { options: options.slice(1) }), false)).toBeNull();
   });
 });

@@ -554,7 +554,9 @@
     "urlPreview": "Vis som linkforhåndsvisning",
     "urlPreviewHint": "Rækkesider viser den linkede sides ikon, titel og billede under linket.",
     "onePerson": "Begræns til én person",
-    "onePersonHint": "Hver række nævner højst én person. Rækker med flere beholder dem, indtil de ændres."
+    "onePersonHint": "Hver række nævner højst én person. Rækker med flere beholder dem, indtil de ændres.",
+    "statusCheckbox": "Vis som afkrydsningsfelt",
+    "statusCheckboxHint": "Et felt, der er afkrydset, mens status er færdig. Afkrydsning vælger den første færdige status, fjernelse den første at gøre-status."
   },
   "rowProperties": {
     "noProperties": "Ingen egenskaber",

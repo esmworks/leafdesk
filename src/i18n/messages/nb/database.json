@@ -554,7 +554,9 @@
     "urlPreview": "Vis som lenkeforhåndsvisning",
     "urlPreviewHint": "Radsider viser ikonet, tittelen og bildet til den lenkede siden under lenken.",
     "onePerson": "Begrens til én person",
-    "onePersonHint": "Hver rad nevner høyst én person. Rader med flere beholder dem til de endres."
+    "onePersonHint": "Hver rad nevner høyst én person. Rader med flere beholder dem til de endres.",
+    "statusCheckbox": "Vis som avkrysningsboks",
+    "statusCheckboxHint": "En boks som er krysset av mens statusen er ferdig. Avkrysning velger den første ferdig-statusen, fjerning den første å gjøre-statusen."
   },
   "rowProperties": {
     "noProperties": "Ingen egenskaper",

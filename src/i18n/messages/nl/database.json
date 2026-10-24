@@ -554,7 +554,9 @@
     "urlPreview": "Tonen als linkvoorbeeld",
     "urlPreviewHint": "Rijpagina’s tonen het pictogram, de titel en de afbeelding van de gelinkte pagina onder de link.",
     "onePerson": "Beperken tot één persoon",
-    "onePersonHint": "Elke rij noemt hoogstens één persoon. Rijen met meer houden die tot ze worden gewijzigd."
+    "onePersonHint": "Elke rij noemt hoogstens één persoon. Rijen met meer houden die tot ze worden gewijzigd.",
+    "statusCheckbox": "Tonen als selectievakje",
+    "statusCheckboxHint": "Een vakje dat is aangevinkt zolang de status klaar is. Aanvinken kiest de eerste klaar-status, uitvinken de eerste te-doen-status."
   },
   "rowProperties": {
     "noProperties": "Geen eigenschappen",

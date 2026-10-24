@@ -554,7 +554,9 @@
     "urlPreview": "Mostrar como vista previa del enlace",
     "urlPreviewHint": "Las páginas de fila muestran el icono, el título y la imagen de la página enlazada bajo el enlace.",
     "onePerson": "Limitar a una persona",
-    "onePersonHint": "Cada fila nombra como máximo a una persona. Las filas con más las conservan hasta que se cambien."
+    "onePersonHint": "Cada fila nombra como máximo a una persona. Las filas con más las conservan hasta que se cambien.",
+    "statusCheckbox": "Mostrar como casilla",
+    "statusCheckboxHint": "Una casilla marcada mientras el estado está completado. Al marcarla se elige el primer estado completado; al desmarcarla, el primero pendiente."
   },
   "rowProperties": {
     "noProperties": "Sin propiedades",

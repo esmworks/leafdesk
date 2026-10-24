@@ -554,7 +554,9 @@
     "urlPreview": "Visa som länkförhandsvisning",
     "urlPreviewHint": "Radsidor visar den länkade sidans ikon, titel och bild under länken.",
     "onePerson": "Begränsa till en person",
-    "onePersonHint": "Varje rad anger högst en person. Rader som anger fler behåller dem tills de ändras."
+    "onePersonHint": "Varje rad anger högst en person. Rader som anger fler behåller dem tills de ändras.",
+    "statusCheckbox": "Visa som kryssruta",
+    "statusCheckboxHint": "En ruta som är ikryssad medan statusen är klar. Att kryssa i väljer den första klar-statusen, att kryssa ur den första att göra-statusen."
   },
   "rowProperties": {
     "noProperties": "Inga egenskaper",

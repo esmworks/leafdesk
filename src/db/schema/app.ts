@@ -734,6 +734,12 @@ export type PropertyOptions = {
    */
   person?: { single: true };
   /**
+   * Status properties: "checkbox" shows a box, ticked while the option is in the done group;
+   * ticking it picks the first done option, unticking the first to-do one (lib/properties
+   * statusFromCheckbox). The option shows when missing. Values stay options either way.
+   */
+  statusDisplay?: "checkbox";
+  /**
    * Row pages: "hide_empty" leaves the property out while the row has no value for it, "hide"
    * always (both under "more properties", see lib/page-visibility); shown when missing.
    */

@@ -223,19 +223,33 @@ export function statusGroupOf(option: Pick<SelectOption, "group">): StatusGroup 
 }
 
 /** The option `value` (a row's value of the status or select property `property`) picks, if any. */
-export function optionOf(property: { options: PropertyOptions }, value: unknown): SelectOption | undefined {
+export function optionOf(property: { options: Pick<PropertyOptions, "options"> }, value: unknown): SelectOption | undefined {
   return (property.options.options ?? []).find((o) => o.id === value);
 }
 
 /** Whether `value`, a row's value of the status property `property`, is in the "done" group. */
-export function isDoneStatus(property: { options: PropertyOptions }, value: unknown) {
+export function isDoneStatus(property: { options: Pick<PropertyOptions, "options"> }, value: unknown) {
   const option = optionOf(property, value);
   return option !== undefined && statusGroupOf(option) === "done";
 }
 
 /** The first option of the status property's "done" group: what marking a row done picks. */
-export function firstDoneOption(property: { options: PropertyOptions }): SelectOption | undefined {
+export function firstDoneOption(property: { options: Pick<PropertyOptions, "options"> }): SelectOption | undefined {
   return (property.options.options ?? []).find((o) => statusGroupOf(o) === "done");
+}
+
+/** The first option of the status property's "to do" group: what unmarking a row done picks. */
+export function firstTodoOption(property: { options: Pick<PropertyOptions, "options"> }): SelectOption | undefined {
+  return (property.options.options ?? []).find((o) => statusGroupOf(o) === "todo");
+}
+
+/**
+ * A status shown as a checkbox (options.statusDisplay): the value ticking (`done`) or unticking it
+ * gives, or undefined when the property has no option for that (nothing changes then).
+ */
+export function statusFromCheckbox(property: { options: Pick<PropertyOptions, "options"> }, done: boolean): string | null | undefined {
+  if (done) return firstDoneOption(property)?.id;
+  return firstTodoOption(property)?.id ?? null;
 }
 
 /** Default color for a status option added to `group`. */

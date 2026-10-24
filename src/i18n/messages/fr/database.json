@@ -554,7 +554,9 @@
     "urlPreview": "Afficher en aperçu du lien",
     "urlPreviewHint": "Les pages de ligne affichent l’icône, le titre et l’image de la page liée sous le lien.",
     "onePerson": "Limiter à une personne",
-    "onePersonHint": "Chaque ligne nomme une personne au plus. Les lignes qui en nomment davantage les gardent jusqu’à ce qu’on les modifie."
+    "onePersonHint": "Chaque ligne nomme une personne au plus. Les lignes qui en nomment davantage les gardent jusqu’à ce qu’on les modifie.",
+    "statusCheckbox": "Afficher comme case à cocher",
+    "statusCheckboxHint": "Une case cochée tant que le statut est terminé. La cocher choisit le premier statut terminé, la décocher le premier statut à faire."
   },
   "rowProperties": {
     "noProperties": "Aucune propriété",

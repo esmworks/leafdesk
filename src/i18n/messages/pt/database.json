@@ -554,7 +554,9 @@
     "urlPreview": "Mostrar como pré-visualização do link",
     "urlPreviewHint": "As páginas de linha mostram o ícone, o título e a imagem da página vinculada abaixo do link.",
     "onePerson": "Limitar a uma pessoa",
-    "onePersonHint": "Cada linha indica no máximo uma pessoa. Linhas que indicam mais as mantêm até serem alteradas."
+    "onePersonHint": "Cada linha indica no máximo uma pessoa. Linhas que indicam mais as mantêm até serem alteradas.",
+    "statusCheckbox": "Mostrar como caixa de seleção",
+    "statusCheckboxHint": "Uma caixa marcada enquanto o status estiver concluído. Marcá-la escolhe o primeiro status concluído; desmarcá-la, o primeiro a fazer."
   },
   "rowProperties": {
     "noProperties": "Nenhuma propriedade",
