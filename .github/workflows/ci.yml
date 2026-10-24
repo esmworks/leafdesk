@@ -18,7 +18,8 @@ jobs:
   check:
     name: Typecheck, tests, build and e2e
     runs-on: ubuntu-24.04
-    timeout-minutes: 30
+    # About 32 minutes with every e2e script; the limit only catches a hung step.
+    timeout-minutes: 45
     services:
       postgres:
         image: postgres:18-alpine

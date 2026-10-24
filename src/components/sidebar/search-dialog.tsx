@@ -1,6 +1,7 @@
 "use client";
 
 import { Archive, BadgeCheck, ChevronRight, Paperclip, Search } from "lucide-react";
+import dynamic from "next/dynamic";
 import { useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { useEffect, useMemo, useRef, useState, type ReactNode } from "react";
@@ -11,8 +12,15 @@ import type { PageKind } from "@/db/schema";
 import { pageOrBlockPath } from "@/lib/mentions";
 import { searchFold } from "@/lib/search-fold";
 import { highlightParts } from "@/lib/search-highlight";
+import { hasFilterValues, NO_SEARCH_FILTERS, type SearchFilters } from "@/lib/search-filter-state";
 import { parseSearchQuery } from "@/lib/search-query";
 import type { SearchHit } from "@/server/pages";
+
+// Loaded with the box, not with the sidebar: the sidebar is in every page's first load.
+const SearchFilterBar = dynamic(() => import("./search-filter-bar").then((m) => m.SearchFilterBar), {
+  ssr: false,
+  loading: () => <div className="h-[45px] border-b border-border" />,
+});
 
 /**
  * Something the search box can do instead of opening a page: typed after `>`. `keywords`: other
@@ -46,8 +54,11 @@ const fold = (value: string) => searchFold(value.normalize("NFC").trim());
 
 /**
  * The search box (Cmd/Ctrl+K): pages by their title and content, narrowed with `in:` and `type:`
- * and `is:verified` (see lib/search-query); the pages last edited before anything is typed; and, after `>`, the
- * commands the sidebar hands it. Archived pages are found only with "Include archived" on, and say so.
+ * and `is:verified` (see lib/search-query) and with the filter menus under the query (teamspace,
+ * people, date: lib/search-filters), text in "quotes" found as written; before anything is typed
+ * or chosen, the pages the person opened last (the pages last edited while their views aren't
+ * recorded); and, after `>`, the commands the sidebar hands it. Archived pages are found only with
+ * "Include archived" on, and say so.
  */
 export function SearchDialog({
   workspaceId,
@@ -66,7 +77,8 @@ export function SearchDialog({
   const tj = useTranslations("journal");
   const [query, setQuery] = useState("");
   const [hits, setHits] = useState<SearchHit[]>([]);
-  const [recent, setRecent] = useState<PageItem[]>([]);
+  const [recent, setRecent] = useState<{ source: "viewed" | "edited"; pages: PageItem[] }>({ source: "edited", pages: [] });
+  const [filters, setFilters] = useState<SearchFilters>(NO_SEARCH_FILTERS);
   const [active, setActive] = useState(0);
   const [loading, setLoading] = useState(false);
   const [includeOutdated, setIncludeOutdated] = useState(false);
@@ -76,20 +88,26 @@ export function SearchDialog({
 
   const trimmed = query.trim();
   const commandMode = trimmed.startsWith(">");
-  // The words typed, marked in the results' snippets (filters aside).
-  const words = useMemo(() => (commandMode ? [] : parseSearchQuery(trimmed).text.split(/\s+/)), [trimmed, commandMode]);
+  const filtered = hasFilterValues(filters);
+  // The words typed and the quoted phrases, marked in the results' snippets (filters aside).
+  const words = useMemo(() => {
+    if (commandMode) return [];
+    const parsed = parseSearchQuery(trimmed);
+    return [...parsed.phrases, ...parsed.text.split(/\s+/)];
+  }, [trimmed, commandMode]);
 
   useEffect(() => {
     if (!open) {
       setQuery("");
       setHits([]);
       setActive(0);
+      setFilters(NO_SEARCH_FILTERS);
       return;
     }
     let live = true;
     recentSearchAction(workspaceId).then(
-      (pages) => live && setRecent(pages),
-      () => live && setRecent([]),
+      (found) => live && setRecent(found),
+      () => live && setRecent({ source: "edited", pages: [] }),
     );
     return () => {
       live = false;
@@ -100,21 +118,21 @@ export function SearchDialog({
     // Bumped even when cleared, so a request still in flight can't fill the empty box.
     const id = ++requestId.current;
     setActive(0);
-    if (!trimmed || commandMode) {
+    if (commandMode || (!trimmed && !filtered)) {
       setHits([]);
       setLoading(false);
       return;
     }
     setLoading(true);
     const timer = setTimeout(async () => {
-      const result = await searchAction(workspaceId, trimmed, includeOutdated).catch(() => []);
+      const result = await searchAction(workspaceId, trimmed, includeOutdated, filtered ? filters : undefined).catch(() => []);
       if (id !== requestId.current) return; // a newer query is in flight
       setHits(result);
       setActive(0);
       setLoading(false);
     }, 150);
     return () => clearTimeout(timer);
-  }, [trimmed, commandMode, workspaceId, includeOutdated]);
+  }, [trimmed, commandMode, workspaceId, includeOutdated, filters, filtered]);
 
   const items = useMemo<Item[]>(() => {
     if (commandMode) {
@@ -123,9 +141,9 @@ export function SearchDialog({
         .filter((c) => (words.length > 0 || !c.whenTyped) && words.every((word) => fold(`${c.label} ${c.keywords ?? ""}`).includes(word)))
         .map((command) => ({ type: "command", command }));
     }
-    const pages: PageItem[] = trimmed ? hits : recent;
+    const pages: PageItem[] = trimmed || filtered ? hits : recent.pages;
     return pages.map((page) => ({ type: "page", page }));
-  }, [commandMode, trimmed, commands, hits, recent]);
+  }, [commandMode, trimmed, filtered, commands, hits, recent]);
 
   useEffect(() => {
     list.current?.querySelector(`[data-index="${active}"]`)?.scrollIntoView({ block: "nearest" });
@@ -144,11 +162,13 @@ export function SearchDialog({
     input.current?.focus();
   }
 
-  const heading = commandMode ? t("commands") : trimmed ? null : recent.length ? t("recent") : null;
-  const empty = (commandMode || (trimmed && !loading)) && items.length === 0;
+  const heading =
+    commandMode ? t("commands") : trimmed || filtered ? null : recent.pages.length ? t(recent.source === "viewed" ? "recentViewed" : "recent") : null;
+  const empty = (commandMode || ((trimmed || filtered) && !loading)) && items.length === 0;
 
   return (
-    <Dialog open={open} onClose={onClose}>
+    // Not clipped: the filter menus may reach past the box while it lists little.
+    <Dialog open={open} onClose={onClose} className="overflow-visible">
       <div className="flex items-center gap-2 border-b border-border px-4">
         {commandMode ? <ChevronRight className="h-4 w-4 text-fg-muted" /> : <Search className="h-4 w-4 text-fg-muted" />}
         <input
@@ -177,6 +197,7 @@ export function SearchDialog({
           className="h-12 flex-1 bg-transparent text-base outline-none placeholder:text-fg-faint sm:text-sm"
         />
       </div>
+      {!commandMode && <SearchFilterBar workspaceId={workspaceId} filters={filters} onChange={setFilters} />}
       <ul ref={list} id="search-results" role="listbox" aria-label={t("label")} className="max-h-[50vh] overflow-y-auto p-1">
         {heading && (
           <li role="presentation" className="px-3 pt-2 pb-1 text-xs font-medium text-fg-muted">
@@ -255,6 +276,7 @@ export function SearchDialog({
         <HintButton onClick={() => insert('in:"')} token='in:"…"' label={t("hint.in")} />
         <HintButton onClick={() => insert("type:database")} token="type:database" label={t("hint.type")} />
         <HintButton onClick={() => insert("type:journal")} token="type:journal" label={tj("searchHint")} />
+        <HintButton onClick={() => insert('"')} token='"…"' label={t("hint.phrase")} />
         {commands.length > 0 && <HintButton onClick={() => insert(">")} token=">" label={t("hint.commands")} />}
         <span className="ms-auto flex items-center gap-2" title={t("includeArchivedHint")}>
           <span aria-hidden>{t("includeArchived")}</span>

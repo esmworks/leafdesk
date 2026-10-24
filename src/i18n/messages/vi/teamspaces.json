@@ -29,7 +29,7 @@
     "everyoneIn": "Mọi người trong không gian làm việc đã ở trong không gian nhóm này rồi.",
     "accessDenied": "Bạn không thể làm điều đó trong không gian nhóm này.",
     "invalidMemberLevel": "Hãy chọn quyền mà các thành viên có trên các trang của không gian nhóm.",
-    "invalidIcon": "Biểu tượng phải là một emoji.",
+    "invalidIcon": "Biểu tượng phải là một emoji hoặc một biểu tượng có sẵn.",
     "notConvertible": "Chỉ một trang mới có thể thành không gian nhóm, không phải cơ sở dữ liệu, hàng hay mẫu.",
     "invalidEmail": "Hãy nhập địa chỉ email hợp lệ.",
     "cantInvite": "Bạn không thể mời người khác vào không gian làm việc này. Hãy nhờ chủ sở hữu."

@@ -743,7 +743,7 @@
       "accessDenied": "Je hebt geen toestemming om dit te doen.",
       "reasons": {
         "name": "Geef de agent een naam.",
-        "icon": "Het pictogram van een agent is een emoji.",
+        "icon": "Het pictogram van een agent is een emoji of een ingebouwd pictogram.",
         "level": "Een agent kan een pagina bekijken, er opmerkingen op plaatsen of haar bewerken.",
         "template": "Dit sjabloon bestaat niet.",
         "database": "Kies een database van deze werkruimte.",
@@ -2678,7 +2678,7 @@
       "reservedKey": "Deze sleutel is bezet door een ingebouwd soort (note, tip, important, warning, caution, info, danger, details, frame, card, panel).",
       "duplicateKey": "Een andere stijl heeft deze sleutel al.",
       "name": "Vul een naam in van maximaal 60 tekens.",
-      "icon": "Kies één emoji, of geen pictogram.",
+      "icon": "Kies één emoji of ingebouwd pictogram, of geen pictogram.",
       "color": "Kies een kleur.",
       "border": "Kies een rand.",
       "title": "Houd de titel binnen 120 tekens."

@@ -8,13 +8,15 @@ import { useCallback, useEffect, useLayoutEffect, useState, type ReactNode } fro
 import { createPortal } from "react-dom";
 import { plainClick, uploadedPath, useFileViewer, type ViewerFile } from "@/components/file-viewer";
 import type { UrlKind } from "@/lib/file-viewer";
+import { downloadUrl } from "@/lib/downloads";
 import { pdfFileId } from "@/lib/files";
 import { parseImageLink, type ImageLink } from "@/lib/image-links";
 import type { PageEditor } from "./embed-blocks";
 
 /**
  * The file viewer in the editor (components/file-viewer): it opens at a file of the page and goes
- * through all of them (images, video, audio and file blocks, in the page's order, columns included).
+ * through all of them (images, video, audio and file blocks, in the page's order, columns included;
+ * images on other sites too, downloaded through the server, see lib/downloads).
  *
  * A file block's name and the PDF and workbook viewers' expand buttons open it (they carry
  * `data-file-view`). An image opens with a click where the page can't be edited; where it can, a
@@ -35,18 +37,32 @@ function shownAs(block: Block, name: string): UrlKind | undefined {
   return pdfFileId(block.props.url, name) ? "pdf" : undefined;
 }
 
-/** The uploaded files the editor's blocks show, in document order, each with the block showing it. */
-function editorFiles(blocks: Block[]): (ViewerFile & { blockId: string })[] {
+/** An image block's address on another site (http or https), or null. */
+function externalImage(block: Block): string | null {
+  if (block.type !== "image" || typeof block.props.url !== "string") return null;
+  const url = block.props.url.trim();
+  return /^https?:\/\//i.test(url) && !uploadedPath(url) ? url : null;
+}
+
+/**
+ * The uploaded files the editor's blocks show and the images it shows from other sites, in
+ * document order, each with the block showing it.
+ */
+function editorFiles(blocks: Block[], pageId: string): (ViewerFile & { blockId: string })[] {
   const found: (ViewerFile & { blockId: string })[] = [];
   const seen = new Set<string>();
   const walk = (list: Block[]) => {
     for (const block of list) {
       if (FILE_BLOCKS.has(block.type)) {
         const url = typeof block.props.url === "string" && block.props.url.trim().startsWith("/") ? uploadedPath(block.props.url) : null;
+        const name = typeof block.props.name === "string" ? block.props.name : "";
+        const external = url ? null : externalImage(block);
         if (url && !seen.has(url)) {
           seen.add(url);
-          const name = typeof block.props.name === "string" ? block.props.name : "";
           found.push({ url, name, shows: shownAs(block, name), blockId: block.id });
+        } else if (external && !seen.has(external)) {
+          seen.add(external);
+          found.push({ url: external, name, shows: "image", download: downloadUrl(external, { pageId, name }) ?? undefined, blockId: block.id });
         }
       }
       if (block.children?.length) walk(block.children);
@@ -70,7 +86,7 @@ const imageOf = (element: Element | null) => {
   return image && element && (element === image || image.parentElement?.contains(element)) ? image : null;
 };
 
-export function EditorFiles({ editor, editable }: { editor: PageEditor; editable: boolean }) {
+export function EditorFiles({ editor, editable, pageId }: { editor: PageEditor; editable: boolean; pageId: string }) {
   const t = useTranslations("page.viewer");
   const tl = useTranslations("page.imageLink");
   const router = useRouter();
@@ -82,12 +98,12 @@ export function EditorFiles({ editor, editable }: { editor: PageEditor; editable
   /** Opens the viewer at the file `url` (or a block's), with every file of the page. */
   const openAt = useCallback(
     (url: string | null, blockId?: string) => {
-      const files = editorFiles(editor.document as Block[]);
+      const files = editorFiles(editor.document as Block[], pageId);
       const index = files.findIndex((f) => (blockId ? f.blockId === blockId : f.url === url));
       if (index >= 0) viewer.open(files, index);
       else if (url) viewer.open([{ url, name: "" }], 0);
     },
-    [editor, viewer],
+    [editor, viewer, pageId],
   );
 
   /** Follows an image's link: a page of the app here, a web address in a new tab. */
@@ -163,7 +179,8 @@ export function EditorFiles({ editor, editable }: { editor: PageEditor; editable
   }, editor);
 
   const target = hovered ?? selected;
-  const expandable = target && editable && uploadedPath(target.getAttribute("src")) ? target : null;
+  const shown = target?.getAttribute("src") ?? "";
+  const expandable = target && editable && (uploadedPath(shown) || /^https?:\/\//i.test(shown)) ? target : null;
   const link = target ? linkOfImage(editor, target) : null;
   const expand = (image: HTMLImageElement) => {
     // The button goes when the pointer leaves it: focus comes back to the editor on close instead.

@@ -29,7 +29,7 @@
     "everyoneIn": "Çalışma alanındaki herkes zaten bu ekip alanında.",
     "accessDenied": "Bu ekip alanında bunu yapamazsınız.",
     "invalidMemberLevel": "Üyelerin ekip alanı sayfalarında ne alacağını seçin.",
-    "invalidIcon": "Simge bir emoji olmalı.",
+    "invalidIcon": "Simge bir emoji ya da yerleşik bir simge olmalı.",
     "notConvertible": "Yalnızca bir sayfa ekip alanına dönüşebilir: veritabanı, satır ya da şablon dönüşemez.",
     "invalidEmail": "Geçerli bir e-posta adresi girin.",
     "cantInvite": "Bu çalışma alanına kişi davet edemezsiniz. Bir sahibe sorun."

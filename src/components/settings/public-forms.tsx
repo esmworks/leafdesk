@@ -1,5 +1,6 @@
 "use client";
 
+import { IconGlyph } from "@/components/builtin-icon";
 import { ClipboardList, ExternalLink, Lock } from "lucide-react";
 import Link from "next/link";
 import { useFormatter, useTranslations } from "next-intl";
@@ -34,7 +35,7 @@ function PublicFormRow({ workspaceId, form: f }: { workspaceId: string; form: Wo
         href={`/w/${workspaceId}/p/${f.databaseId}?view=${f.viewId}`}
         className="inline-flex min-w-0 items-center gap-1.5 hover:underline"
       >
-        {f.icon ? <span>{f.icon}</span> : <ClipboardList className="h-3.5 w-3.5 shrink-0 text-fg-muted" />}
+        {f.icon ? <IconGlyph icon={f.icon} /> : <ClipboardList className="h-3.5 w-3.5 shrink-0 text-fg-muted" />}
         <span className="truncate">{t("name", { view: f.viewName ?? "", database: f.title || tc("untitled") })}</span>
       </Link>
     );

@@ -110,6 +110,7 @@
       "you": "{name}（你）"
     },
     "threadMenu": "讨论串选项",
+    "copyLink": "复制链接",
     "mute": "将回复设为免打扰",
     "unmute": "取消回复免打扰",
     "muteHint": "不再接收此讨论串中新回复的通知。你在这里回复或在这里被提及时会恢复。",
@@ -201,7 +202,38 @@
   },
   "icon": {
     "add": "添加图标",
-    "remove": "移除图标"
+    "remove": "移除图标",
+    "emojiTab": "表情符号",
+    "iconsTab": "图标",
+    "searchEmoji": "搜索表情符号",
+    "searchIcons": "搜索图标",
+    "random": "随机",
+    "skinTone": "肤色",
+    "tones": {
+      "0": "无肤色",
+      "1": "较浅肤色",
+      "2": "中等偏浅肤色",
+      "3": "中等肤色",
+      "4": "中等偏深肤色",
+      "5": "较深肤色"
+    },
+    "color": "图标颜色",
+    "textColor": "文字颜色",
+    "categoriesLabel": "类别",
+    "categories": {
+      "smileys": "笑脸和情感",
+      "people": "人物和身体",
+      "nature": "动物和自然",
+      "food": "食物和饮料",
+      "travel": "旅行和地点",
+      "activities": "活动",
+      "objects": "物品",
+      "symbols": "符号",
+      "flags": "旗帜"
+    },
+    "loading": "正在加载…",
+    "loadFailed": "无法加载表情符号。",
+    "noMatches": "没有匹配项。"
   },
   "background": {
     "add": "添加背景",
@@ -620,7 +652,8 @@
       "submit": "嵌入",
       "providers": "YouTube、Vimeo、Loom、Figma、已发布的 Google Docs、Sheets 和 Slides、CodePen、Spotify 和 Google Maps。其他链接会显示为书签。",
       "frameTitle": "来自 {host} 的嵌入内容",
-      "label": "嵌入"
+      "label": "嵌入",
+      "resize": "拖动以更改嵌入内容的宽度"
     },
     "paste": {
       "label": "粘贴为",
@@ -710,6 +743,11 @@
   },
   "blockMenu": {
     "copyLink": "复制块链接",
+    "download": "下载",
+    "alignLeft": "左对齐",
+    "alignCenter": "居中对齐",
+    "alignRight": "右对齐",
+    "wideColumns": "宽栏",
     "hideInPrint": "打印时隐藏",
     "calloutStyle": "标注样式",
     "turnIntoCallout": "转换为标注",
@@ -955,7 +993,8 @@
     "markdownImage": "图片：{alt}",
     "markdownImageUntitled": "图片",
     "expand": "在查看器中打开",
-    "view": "查看 {name}"
+    "view": "查看 {name}",
+    "resize": "拖动以更改宽度"
   },
   "presentation": {
     "previous": "上一张幻灯片",
@@ -1117,7 +1156,7 @@
     },
     "settings": {
       "open": "按钮设置",
-      "icon": "表情符号",
+      "icon": "图标",
       "label": "文字",
       "color": "颜色",
       "colorDefault": "默认",
@@ -1190,5 +1229,16 @@
     "reset": "显示完整图片",
     "loading": "正在加载图片…",
     "failed": "无法加载图片。"
+  },
+  "commentRef": {
+    "pasteTitle": "粘贴评论链接",
+    "pasteAsMention": "粘贴为提及",
+    "pasteAsPreview": "粘贴为预览",
+    "pasteAsLink": "粘贴为链接",
+    "noAccess": "无权查看此评论",
+    "onPage": "位于 {title}",
+    "replies": "{count, plural, =0 {暂无回复} other {# 条回复}}",
+    "openThread": "打开讨论",
+    "resolved": "已解决"
   }
 }

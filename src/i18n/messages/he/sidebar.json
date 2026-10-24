@@ -69,6 +69,7 @@
     "includeArchivedHint": "למצוא גם דפים בארכיון",
     "inDocument": "נמצא במסמך {name} שבדף הזה",
     "recent": "נערכו לאחרונה",
+    "recentViewed": "נצפו לאחרונה",
     "commands": "פקודות",
     "noCommands": "אין פקודה תואמת",
     "setting": "הגדרות: {tab} ← {setting}",
@@ -76,7 +77,29 @@
     "hint": {
       "in": "בתוך דף",
       "type": "רק מסדי נתונים (או דף, שורה)",
-      "commands": "פקודות"
+      "commands": "פקודות",
+      "phrase": "ביטוי מדויק"
+    },
+    "filters": {
+      "label": "מסננים",
+      "teamspace": "מרחב צוות",
+      "createdBy": "נוצר על ידי",
+      "editedBy": "נערך לאחרונה על ידי",
+      "date": "תאריך",
+      "edited": "עריכה אחרונה",
+      "created": "יצירה",
+      "today": "היום",
+      "week": "7 הימים האחרונים",
+      "month": "30 הימים האחרונים",
+      "custom": "טווח מותאם אישית",
+      "from": "מתאריך",
+      "to": "עד תאריך",
+      "more": "{first} +{count}",
+      "you": "{name} (אני)",
+      "findPerson": "חיפוש אדם…",
+      "noPeople": "לא נמצא אף אחד",
+      "remove": "הסרת המסנן",
+      "clear": "ניקוי המסננים"
     }
   },
   "trash": {

@@ -743,7 +743,7 @@
       "accessDenied": "Bunu yapma iznin yok.",
       "reasons": {
         "name": "Ajana bir ad verin.",
-        "icon": "Ajanın simgesi bir emoji olmalı.",
+        "icon": "Bir ajanın simgesi bir emoji ya da yerleşik bir simgedir.",
         "level": "Bir ajan sayfayı görüntüleyebilir, yorum yapabilir ya da düzenleyebilir.",
         "template": "Bu şablon yok.",
         "database": "Bu çalışma alanından bir veritabanı seçin.",
@@ -2678,7 +2678,7 @@
       "reservedKey": "Bu anahtar yerleşik bir türe ait (note, tip, important, warning, caution, info, danger, details, frame, card, panel).",
       "duplicateKey": "Bu anahtarı başka bir stil kullanıyor.",
       "name": "En fazla 60 karakterlik bir ad girin.",
-      "icon": "Bir emoji seçin ya da simgesiz bırakın.",
+      "icon": "Bir emoji ya da yerleşik simge seçin veya simgesiz bırakın.",
       "color": "Bir renk seçin.",
       "border": "Bir kenarlık seçin.",
       "title": "Başlık en fazla 120 karakter olabilir."

@@ -29,7 +29,7 @@
     "everyoneIn": "Alle i arbeidsområdet er allerede med i dette teamområdet.",
     "accessDenied": "Du kan ikke gjøre det i dette teamområdet.",
     "invalidMemberLevel": "Velg hva medlemmer får på sidene i teamområdet.",
-    "invalidIcon": "Ikonet må være en emoji.",
+    "invalidIcon": "Ikonet må være en emoji eller et innebygd ikon.",
     "notConvertible": "Bare en side kan bli et teamområde: ikke en database, en rad eller en mal.",
     "invalidEmail": "Skriv inn en gyldig e-postadresse.",
     "cantInvite": "Du kan ikke invitere personer til dette arbeidsområdet. Spør en eier."

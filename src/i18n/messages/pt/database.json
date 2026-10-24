@@ -76,6 +76,10 @@
       "blank": "Linha vazia",
       "setDefault": "Usar em “Novo”",
       "isDefault": "Usado em “Novo”",
+      "isViewDefault": "Usado em “Novo” nesta visualização",
+      "forThisView": "Para esta visualização",
+      "forAllViews": "Para todas as visualizações",
+      "followAllViews": "Usar aqui o padrão de todas as visualizações",
       "edit": "Editar modelo",
       "delete": "Excluir modelo",
       "confirmDelete": "Excluir este modelo de linha de vez? As linhas já criadas a partir dele continuam como estão.",
@@ -125,7 +129,8 @@
     "addViewHeading": "Adicionar uma visualização",
     "rename": "Renomear",
     "viewName": "Nome da visualização",
-    "deleteView": "Excluir visualização"
+    "deleteView": "Excluir visualização",
+    "icon": "Ícone"
   },
   "deleted": {
     "properties": "Propriedades excluídas",
@@ -225,7 +230,14 @@
     "relative": {
       "today": "Hoje",
       "thisWeek": "Esta semana",
+      "lastWeek": "Semana passada",
+      "nextWeek": "Próxima semana",
       "thisMonth": "Este mês",
+      "lastMonth": "Mês passado",
+      "nextMonth": "Próximo mês",
+      "thisYear": "Este ano",
+      "lastYear": "Ano passado",
+      "nextYear": "Próximo ano",
       "pastNDays": "Últimos N dias",
       "nextNDays": "Próximos N dias",
       "pastDays": "{count, plural, one {Último dia} other {Últimos # dias}}",
@@ -253,7 +265,8 @@
     "clickForMenu": "Clique para abrir o menu",
     "sortedNoDrag": "As linhas não podem ser arrastadas enquanto a vista está ordenada",
     "sortedAscending": "Em ordem crescente",
-    "sortedDescending": "Em ordem decrescente"
+    "sortedDescending": "Em ordem decrescente",
+    "fillHandle": "Arraste para cima ou para baixo para preencher as células com este valor"
   },
   "rowMenu": {
     "open": "Abrir",
@@ -552,7 +565,15 @@
     "sortOptionsDesc": "Ordenar Z → A",
     "dragOption": "Arraste para mover {name}",
     "urlPreview": "Mostrar como pré-visualização do link",
-    "urlPreviewHint": "As páginas de linha mostram o ícone, o título e a imagem da página vinculada abaixo do link."
+    "urlPreviewHint": "As páginas de linha mostram o ícone, o título e a imagem da página vinculada abaixo do link.",
+    "onePerson": "Limitar a uma pessoa",
+    "onePersonHint": "Cada linha indica no máximo uma pessoa. Linhas que indicam mais as mantêm até serem alteradas.",
+    "statusCheckbox": "Mostrar como caixa de seleção",
+    "statusCheckboxHint": "Uma caixa marcada enquanto o status estiver concluído. Marcá-la escolhe o primeiro status concluído; desmarcá-la, o primeiro a fazer.",
+    "pickerProperties": "Mostrar no seletor de linhas",
+    "pickerPropertiesHint": "Até três propriedades exibidas ao lado do nome de cada linha ao vincular linhas.",
+    "pickerPropertiesNone": "O banco de dados relacionado não tem propriedades para mostrar.",
+    "icon": "Ícone"
   },
   "rowProperties": {
     "noProperties": "Nenhuma propriedade",
@@ -773,6 +794,7 @@
     "showTable": "Mostrar tabela",
     "showWeekends": "Mostrar fins de semana",
     "showIcons": "Mostrar ícones de página",
+    "showVerticalLines": "Mostrar linhas verticais",
     "openRows": "Abrir linhas em",
     "openRowsIn": {
       "panel": "Painel lateral",
@@ -913,7 +935,7 @@
     "parentInTrash": "A página principal está na lixeira. Restaure-a primeiro.",
     "nestedDatabase": "Um banco de dados não pode conter outro banco de dados.",
     "pageTooDeep": "As páginas podem ser aninhadas em no máximo {max} níveis.",
-    "invalidIcon": "O ícone deve ser um emoji.",
+    "invalidIcon": "O ícone precisa ser um emoji ou um ícone integrado.",
     "invalidRelation": "“{property}” só pode vincular linhas do banco de dados relacionado a ela.",
     "invalidRelationTarget": "Uma relação deve apontar para um banco de dados no mesmo espaço de trabalho.",
     "subItemLoop": "“{property}” não pode colocar uma linha sob ela mesma ou sob um dos seus próprios subitens.",
@@ -926,6 +948,7 @@
     "pageLocked": "Esta página está bloqueada. Desbloqueie-a pelo menu dela para alterar o título, o ícone, o fundo ou o texto.",
     "pageInTrash": "Esta página está na lixeira. Restaure-a para alterá-la.",
     "invalidPerson": "“{property}” só pode conter pessoas deste espaço de trabalho.",
+    "onePerson": "“{property}” comporta apenas uma pessoa.",
     "readOnlyProperty": "“{property}” é preenchida automaticamente e não pode ser alterada.",
     "invalidFilter": "Não é possível salvar este filtro. Recarregue a página e tente novamente.",
     "tooManyRows": "Você pode alterar no máximo {max} linhas de uma vez.",

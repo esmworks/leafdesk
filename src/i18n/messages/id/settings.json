@@ -743,7 +743,7 @@
       "accessDenied": "Anda tidak memiliki izin untuk melakukan ini.",
       "reasons": {
         "name": "Beri nama agen.",
-        "icon": "Ikon agen berupa emoji.",
+        "icon": "Ikon agen berupa emoji atau ikon bawaan.",
         "level": "Agen dapat melihat, berkomentar pada, atau mengedit halaman.",
         "template": "Templat ini tidak ada.",
         "database": "Pilih basis data dari ruang kerja ini.",
@@ -2678,7 +2678,7 @@
       "reservedKey": "Kunci ini dipakai oleh jenis bawaan (note, tip, important, warning, caution, info, danger, details, frame, card, panel).",
       "duplicateKey": "Gaya lain sudah memiliki kunci ini.",
       "name": "Masukkan nama hingga 60 karakter.",
-      "icon": "Pilih satu emoji, atau tanpa ikon.",
+      "icon": "Pilih satu emoji atau ikon bawaan, atau tanpa ikon.",
       "color": "Pilih warna.",
       "border": "Pilih garis tepi.",
       "title": "Batasi judul hingga 120 karakter."

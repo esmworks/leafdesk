@@ -1,5 +1,7 @@
 "use client";
 
+import { iconPrefix } from "@/lib/icon-value";
+import { IconGlyph } from "@/components/builtin-icon";
 import {
   SourceBlockWithPreviewExtension,
   SourceInlineContentWithPreviewExtension,
@@ -374,7 +376,9 @@ const CalloutBlock = createReactBlockSpec(calloutBlockConfig, {
         {styled ? (
           icon && (
             <div contentEditable={false} className="leafdesk-callout-icon">
-              <span className="flex h-7 w-7 items-center justify-center">{icon}</span>
+              <span className="flex h-7 w-7 items-center justify-center">
+                <IconGlyph icon={icon} />
+              </span>
             </div>
           )
         ) : (icon || editor.isEditable) && (
@@ -392,7 +396,7 @@ const CalloutBlock = createReactBlockSpec(calloutBlockConfig, {
                       : "flex h-7 w-7 cursor-default items-center justify-center"
                   }
                 >
-                  {icon || <SmilePlus className="h-4 w-4 text-fg-faint" />}
+                  {icon ? <IconGlyph icon={icon} /> : <SmilePlus className="h-4 w-4 text-fg-faint" />}
                 </button>
               )}
             </IconPicker>
@@ -420,7 +424,7 @@ const CalloutBlock = createReactBlockSpec(calloutBlockConfig, {
         </p>
       )}
       <p>
-        {block.props.icon ? `${block.props.icon} ` : null}
+        {iconPrefix(block.props.icon) || null}
         <span ref={contentRef} />
       </p>
     </blockquote>
@@ -619,7 +623,7 @@ export function useContentSlashItems(editor: PageEditor): DefaultReactSuggestion
           group: t("callout.group"),
           icon: (
             <span className="leafdesk-callout-swatch flex h-[18px] w-[18px] items-center justify-center rounded text-xs" data-callout-color={style.color} data-callout-border={style.border}>
-              {style.icon || <SquareDashed size={12} />}
+              {style.icon ? <IconGlyph icon={style.icon} /> : <SquareDashed size={12} />}
             </span>
           ),
           onItemClick: () => {

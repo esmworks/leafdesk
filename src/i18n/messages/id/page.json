@@ -109,6 +109,7 @@
       "you": "{name} (Anda)"
     },
     "threadMenu": "Opsi utas",
+    "copyLink": "Salin tautan",
     "mute": "Bisukan balasan",
     "unmute": "Bunyikan balasan",
     "muteHint": "Berhenti mendapat kabar tentang balasan baru di utas ini. Membalas di sini, atau disebut di sini, mengaktifkannya kembali.",
@@ -201,7 +202,38 @@
   },
   "icon": {
     "add": "Tambahkan ikon",
-    "remove": "Hapus ikon"
+    "remove": "Hapus ikon",
+    "emojiTab": "Emoji",
+    "iconsTab": "Ikon",
+    "searchEmoji": "Cari emoji",
+    "searchIcons": "Cari ikon",
+    "random": "Acak",
+    "skinTone": "Warna kulit",
+    "tones": {
+      "0": "Tanpa warna kulit",
+      "1": "Warna kulit terang",
+      "2": "Warna kulit cukup terang",
+      "3": "Warna kulit sedang",
+      "4": "Warna kulit cukup gelap",
+      "5": "Warna kulit gelap"
+    },
+    "color": "Warna ikon",
+    "textColor": "Warna teks",
+    "categoriesLabel": "Kategori",
+    "categories": {
+      "smileys": "Smiley & emosi",
+      "people": "Orang & tubuh",
+      "nature": "Hewan & alam",
+      "food": "Makanan & minuman",
+      "travel": "Perjalanan & tempat",
+      "activities": "Aktivitas",
+      "objects": "Objek",
+      "symbols": "Simbol",
+      "flags": "Bendera"
+    },
+    "loading": "Memuat…",
+    "loadFailed": "Emoji tidak dapat dimuat.",
+    "noMatches": "Tidak ada yang cocok."
   },
   "background": {
     "add": "Tambahkan latar belakang",
@@ -620,7 +652,8 @@
       "submit": "Sematkan",
       "providers": "YouTube, Vimeo, Loom, Figma, Google Docs, Sheets, dan Slides yang diterbitkan, CodePen, Spotify, dan Google Maps. Tautan lain menjadi markah.",
       "frameTitle": "Konten tersemat dari {host}",
-      "label": "Sematan"
+      "label": "Sematan",
+      "resize": "Seret untuk mengubah lebar sematan"
     },
     "paste": {
       "label": "Tempel sebagai",
@@ -710,6 +743,11 @@
   },
   "blockMenu": {
     "copyLink": "Salin tautan ke blok",
+    "download": "Unduh",
+    "alignLeft": "Rata kiri",
+    "alignCenter": "Rata tengah",
+    "alignRight": "Rata kanan",
+    "wideColumns": "Kolom lebar",
     "hideInPrint": "Sembunyikan saat mencetak",
     "calloutStyle": "Gaya callout",
     "turnIntoCallout": "Ubah menjadi callout",
@@ -955,7 +993,8 @@
     "markdownImage": "Gambar: {alt}",
     "markdownImageUntitled": "Gambar",
     "expand": "Buka di penampil",
-    "view": "Lihat {name}"
+    "view": "Lihat {name}",
+    "resize": "Seret untuk mengubah lebar"
   },
   "presentation": {
     "previous": "Slide sebelumnya",
@@ -1117,7 +1156,7 @@
     },
     "settings": {
       "open": "Pengaturan tombol",
-      "icon": "Emoji",
+      "icon": "Ikon",
       "label": "Label",
       "color": "Warna",
       "colorDefault": "Bawaan",
@@ -1190,5 +1229,16 @@
     "reset": "Tampilkan seluruh gambar",
     "loading": "Memuat gambar…",
     "failed": "Gambar tidak dapat dimuat."
+  },
+  "commentRef": {
+    "pasteTitle": "Tempel tautan ke komentar",
+    "pasteAsMention": "Tempel sebagai sebutan",
+    "pasteAsPreview": "Tempel sebagai pratinjau",
+    "pasteAsLink": "Tempel sebagai tautan",
+    "noAccess": "Tidak ada akses ke komentar ini",
+    "onPage": "Di {title}",
+    "replies": "{count, plural, =0 {Belum ada balasan} other {# balasan}}",
+    "openThread": "Buka utas",
+    "resolved": "Selesai"
   }
 }

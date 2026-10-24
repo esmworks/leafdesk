@@ -1,5 +1,6 @@
 "use server";
 
+import { getIconPreferences, isIconColor, isSkinTone, setIconPreferences, type IconPreferences } from "@/server/icon-preferences";
 import { isOwnerKind, NOTIFICATION_KINDS, type PreferenceKind } from "@/db/schema";
 import { isDesktopLinks } from "@/lib/desktop-links";
 import { setDesktopLinks } from "@/server/desktop-links";
@@ -20,4 +21,23 @@ export async function setDesktopLinksAction(value: string | null) {
   const userId = await requireUserId();
   if (!isDesktopLinks(value)) throw new Error("Unknown desktop links preference");
   await setDesktopLinks(userId, value);
+}
+
+/** The icon picker's remembered skin tone and icon color (server/icon-preferences.ts). */
+export async function getIconPreferencesAction(): Promise<IconPreferences> {
+  const userId = await requireUserId();
+  return getIconPreferences(userId);
+}
+
+/** Remembers the icon picker's skin tone or icon color (null forgets it); what is left out stays. */
+export async function setIconPreferencesAction(patch: { skinTone?: number | null; iconColor?: string | null }) {
+  const userId = await requireUserId();
+  if (!patch || typeof patch !== "object") throw new Error("Unknown icon preference");
+  const { skinTone, iconColor } = patch;
+  if (skinTone !== undefined && skinTone !== null && !isSkinTone(skinTone)) throw new Error("Unknown skin tone");
+  if (iconColor !== undefined && iconColor !== null && !isIconColor(iconColor)) throw new Error("Unknown icon color");
+  await setIconPreferences(userId, {
+    ...(skinTone !== undefined ? { skinTone } : {}),
+    ...(iconColor !== undefined ? { iconColor: iconColor as IconPreferences["iconColor"] } : {}),
+  });
 }

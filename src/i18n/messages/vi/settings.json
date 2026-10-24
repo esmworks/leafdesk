@@ -743,7 +743,7 @@
       "accessDenied": "Bạn không có quyền thực hiện việc này.",
       "reasons": {
         "name": "Hãy đặt tên cho tác tử.",
-        "icon": "Biểu tượng của tác tử là một emoji.",
+        "icon": "Biểu tượng của tác tử là một emoji hoặc một biểu tượng có sẵn.",
         "level": "Một tác tử có thể xem, bình luận hoặc chỉnh sửa một trang.",
         "template": "Mẫu này không tồn tại.",
         "database": "Hãy chọn một cơ sở dữ liệu của không gian làm việc này.",
@@ -2678,7 +2678,7 @@
       "reservedKey": "Khóa này đã được một loại có sẵn dùng (note, tip, important, warning, caution, info, danger, details, frame, card, panel).",
       "duplicateKey": "Một kiểu khác đã có khóa này.",
       "name": "Hãy nhập một tên tối đa 60 ký tự.",
-      "icon": "Hãy chọn một emoji, hoặc không dùng biểu tượng.",
+      "icon": "Chọn một emoji hoặc biểu tượng có sẵn, hoặc không dùng biểu tượng.",
       "color": "Hãy chọn một màu.",
       "border": "Hãy chọn một kiểu viền.",
       "title": "Giữ tiêu đề trong 120 ký tự."

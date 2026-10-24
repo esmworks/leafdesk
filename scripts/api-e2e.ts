@@ -215,7 +215,20 @@ try {
   check(search.status === 200 && search.body.results.length === 2 && search.body.has_more, "GET /search finds pages and pages through them", search.body);
   const search2 = await api("GET", `/search?query=${encodeURIComponent(`${RUN} Child`)}&limit=2&cursor=${search.body.next_cursor}`, R);
   check(search2.body.results.length === 1 && !search2.body.has_more, "…the cursor gives the remaining match");
-  check(errorCode(await api("GET", "/search", R)) === "validation_error", "search needs a query");
+  check(errorCode(await api("GET", "/search", R)) === "validation_error", "search needs a query or a filter");
+  const mine = await api("GET", `/search?created_by=me&edited_after=${new Date(Date.now() - 3_600_000).toISOString()}&limit=50`, R);
+  check(
+    mine.status === 200 && mine.body.results.some((r: any) => r.title.includes(`${RUN} Child`)),
+    "GET /search lists the pages a filter matches without a query (created by me, edited in the last hour)",
+    mine.body,
+  );
+  const nobody = await api("GET", `/search?query=${encodeURIComponent(`${RUN} Child`)}&created_by=nobody`, R);
+  check(nobody.status === 200 && nobody.body.results.length === 0, "…and narrows a query (created by someone who made none)");
+  const later = await api("GET", `/search?query=${encodeURIComponent(`${RUN} Child`)}&created_after=2999-01-01`, R);
+  check(later.status === 200 && later.body.results.length === 0, "…a day alone counts from its start");
+  check(errorCode(await api("GET", "/search?edited_after=yesterday", R)) === "validation_error", "…and a time it can't read is a 400");
+  const phrase = await api("GET", `/search?query=${encodeURIComponent(`"Child ${RUN}"`)}`, R);
+  check(phrase.status === 200 && phrase.body.results.length === 0, "a quoted phrase needs its words in that order", phrase.body);
 
   // Move, archive, restore
   const moved = await api("POST", `/pages/${pageId}/move`, W, { parent_id: parent });

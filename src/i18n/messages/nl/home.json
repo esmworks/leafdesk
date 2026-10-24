@@ -1,5 +1,6 @@
 {
   "hello": "Hallo, {name}",
+  "jumpBackIn": "Verder waar je was",
   "recent": "Onlangs bewerkt",
   "assignedEmpty": "Er is niets aan je toegewezen. Rijen in databases die aan jou zijn toegewezen, verschijnen hier.",
   "empty": "Hier staat nog niets. Maak je eerste pagina om te beginnen.",

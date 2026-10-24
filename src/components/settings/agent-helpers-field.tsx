@@ -1,5 +1,6 @@
 "use client";
 
+import { IconGlyph } from "@/components/builtin-icon";
 import { Bot } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { useEffect, useState } from "react";
@@ -82,7 +83,7 @@ export function AgentHelpersField({
                   onChange={(e) => toggle(a.id, e.target.checked)}
                 />
                 <label htmlFor={id} className={cn("flex min-w-0 flex-1 items-center gap-1.5 text-sm", disabled && "opacity-60")}>
-                  {a.icon ? <span className="shrink-0 leading-none">{a.icon}</span> : <Bot className="h-4 w-4 shrink-0 text-fg-muted" aria-hidden />}
+                  {a.icon ? <IconGlyph icon={a.icon} className="shrink-0" /> : <Bot className="h-4 w-4 shrink-0 text-fg-muted" aria-hidden />}
                   <span className="truncate">{a.name}</span>
                   {!a.enabled && <span className="shrink-0 text-xs text-fg-muted">{t("helperPaused")}</span>}
                 </label>

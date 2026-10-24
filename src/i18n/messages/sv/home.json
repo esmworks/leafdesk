@@ -1,5 +1,6 @@
 {
   "hello": "Hej, {name}",
+  "jumpBackIn": "Fortsätt där du slutade",
   "recent": "Nyligen redigerade",
   "assignedEmpty": "Inget är tilldelat dig. Rader i databaser som tilldelas dig visas här.",
   "empty": "Här finns inget än. Skapa din första sida för att komma igång.",

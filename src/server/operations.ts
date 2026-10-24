@@ -13,8 +13,8 @@ import { blockMarker, stripBlockMarkers } from "@/lib/block-edits";
 import { markdownReferences } from "@/lib/embed-blocks";
 import { env } from "@/lib/env";
 import { asFiles, blockTypeFor } from "@/lib/files";
-import { parseIcon } from "@/lib/icon";
-import { FILTER_COMBINATORS, MAX_FILTER_DEPTH, MAX_RELATIVE_DAYS, RELATIVE_DATE_RANGES } from "@/lib/filters";
+import { ICON_INPUT, ICON_RULE, parseIcon } from "@/lib/icon";
+import { FILTER_COMBINATORS, MAX_FILTER_DEPTH, MAX_RELATIVE_DAYS } from "@/lib/filters";
 import { pageLabel } from "@/lib/labels";
 import { diffToText, wordsToText } from "@/lib/page-diff";
 import { isPageLocked, PAGE_LOCKED_MESSAGE } from "@/lib/page-lock";
@@ -56,6 +56,7 @@ import { completeSprint as completeSprintOp } from "@/server/sprints";
 import { COMBINE, MAX_MERGE_ROWS, MERGE_TITLE, MIN_MERGE_ROWS, type MergeChoices } from "@/lib/merge-rows";
 import * as skills from "@/server/skills";
 import * as snippets from "@/server/snippets";
+import { parseSearchQuery } from "@/lib/search-query";
 import { skillSlug } from "@/lib/skills";
 import { MAX_ACTIVITY_PAGE } from "@/server/row-activity-feed";
 import { valueText } from "@/lib/row-activity";
@@ -125,11 +126,11 @@ const filterRule = (described: boolean) => {
     op: z.enum(FILTER_OPS),
     value: text(
       z.union([z.string(), z.number(), z.boolean(), z.array(z.string()).min(1)]).optional(),
-      `Value to compare; omit for is_empty / is_not_empty. is_within: ${RELATIVE_DATE_RANGES.join(", ")}. is_any_of / is_none_of: option names, people or related rows.`,
+      "Value to compare; omit for is_empty / is_not_empty. is_within: today, {this,last,next}_{week,month,year}, {past,next}_n_days. is_any_of / is_none_of: option names, people or related rows.",
     ),
     days: text(
       z.number().int().min(1).max(MAX_RELATIVE_DAYS).optional(),
-      "is_within with past_n_days / next_n_days: days back or ahead of today.",
+      "is_within {past,next}_n_days: days back or ahead of today.",
     ),
   });
 };
@@ -245,7 +246,7 @@ export const inputs = {
       .optional()
       .describe("Page title. Required unless template_id is given (the template's title is used then)."),
     markdown: z.string().optional().describe("Initial page body in Markdown. With template_id it replaces the template's body."),
-    icon: z.string().max(16).optional().describe("A single emoji used as the page icon."),
+    icon: z.string().max(64).optional().describe(ICON_INPUT),
     template_id: z
       .string()
       .optional()
@@ -632,12 +633,24 @@ export async function listGroups(ctx: OperationContext, { workspace_id }: Args<"
  * `within` keeps to a page and its subpages, or to a teamspace (AI chat); `passages` adds the best matching passage of
  * each page (as far as semantic search found one) and the block it starts at (AI chat). `anyWord`:
  * pages with any of the query's words, not all (AI chat, which searches with whole questions).
- * Archived pages (server/page-outdated.ts) only with `include_archived`.
+ * Archived pages (server/page-outdated.ts) only with `include_archived`. Text in double quotes must
+ * appear as written (lib/search-query), except with `anyWord`. `filters`: teamspaces, people who
+ * created or last edited a page, and when (the REST API's search parameters).
  */
 export async function search(
   ctx: OperationContext,
   { query, workspace_id, limit, include_archived = false }: Args<"search">,
-  { within, passages = false, anyWord = false }: { within?: ChatScopeRef; passages?: boolean; anyWord?: boolean } = {},
+  {
+    within,
+    passages = false,
+    anyWord = false,
+    filters = {},
+  }: {
+    within?: ChatScopeRef;
+    passages?: boolean;
+    anyWord?: boolean;
+    filters?: Pick<pages.SearchOptions, "teamspaceIds" | "createdBy" | "editedBy" | "createdIn" | "editedIn">;
+  } = {},
 ) {
   const hits = await pages.searchPages(ctx.userId, query, {
     workspaceId: workspace_id,
@@ -645,6 +658,8 @@ export async function search(
     ...(within?.kind === "page" ? { withinPageId: within.id } : within?.kind === "teamspace" ? { withinTeamspaceId: within.id } : {}),
     anyWord,
     includeOutdated: include_archived,
+    ...(anyWord ? {} : { phrases: parseSearchQuery(query).phrases }),
+    ...filters,
   });
   const verifications = await activeVerifications(hits.filter((h) => h.verified).map((h) => h.id));
   return {
@@ -887,7 +902,7 @@ export async function createPage(
 ) {
   const { userId, actor } = ctx;
   // Checked before anything is created: a page from a template gets its icon afterwards.
-  if (icon !== undefined && icon !== null && !parseIcon(icon)) throw new ToolInputError("icon must be a single emoji.");
+  if (icon !== undefined && icon !== null && !parseIcon(icon)) throw new ToolInputError(`icon must be ${ICON_RULE}.`);
   const location = await resolveLocation(ctx, workspace_id, parent_id, teamspace_id);
   if (location.parentKind === "database") {
     throw new ToolInputError("parent_id is a database. Use create_database_row to add rows to it.");

@@ -743,7 +743,7 @@
       "accessDenied": "Du har inte behörighet att göra detta.",
       "reasons": {
         "name": "Ge agenten ett namn.",
-        "icon": "En agents ikon är en emoji.",
+        "icon": "En agents ikon är en emoji eller en inbyggd ikon.",
         "level": "En agent kan visa, kommentera eller redigera en sida.",
         "template": "Den här mallen finns inte.",
         "database": "Välj en databas i den här arbetsytan.",
@@ -2678,7 +2678,7 @@
       "reservedKey": "Den här nyckeln används av en inbyggd typ (note, tip, important, warning, caution, info, danger, details, frame, card, panel).",
       "duplicateKey": "En annan stil har redan den här nyckeln.",
       "name": "Ange ett namn på upp till 60 tecken.",
-      "icon": "Välj en emoji, eller ingen ikon.",
+      "icon": "Välj en emoji eller inbyggd ikon, eller ingen ikon.",
       "color": "Välj en färg.",
       "border": "Välj en kant.",
       "title": "Håll titeln inom 120 tecken."

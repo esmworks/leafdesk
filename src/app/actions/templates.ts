@@ -93,8 +93,8 @@ export async function createRowTemplateAction(databaseId: string) {
   return run("new row template", (userId) => templates.createRowTemplate({ userId }, databaseId));
 }
 
-export async function setDefaultRowTemplateAction(databaseId: string, templateId: string | null) {
-  return run("default row template", (userId) => templates.setDefaultRowTemplate(userId, databaseId, templateId));
+export async function setDefaultRowTemplateAction(databaseId: string, templateId: string | null, allViews = false) {
+  return run("default row template", (userId) => templates.setDefaultRowTemplate(userId, databaseId, templateId, { allViews: allViews === true }));
 }
 
 /** How a row template repeats, or null when it doesn't. */

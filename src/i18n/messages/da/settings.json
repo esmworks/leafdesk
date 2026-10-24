@@ -743,7 +743,7 @@
       "accessDenied": "Du har ikke tilladelse til at gøre dette.",
       "reasons": {
         "name": "Giv agenten et navn.",
-        "icon": "En agents ikon er en emoji.",
+        "icon": "En agents ikon er en emoji eller et indbygget ikon.",
         "level": "En agent kan se, kommentere eller redigere en side.",
         "template": "Denne skabelon findes ikke.",
         "database": "Vælg en database i dette arbejdsområde.",
@@ -2678,7 +2678,7 @@
       "reservedKey": "Denne nøgle bruges af en indbygget type (note, tip, important, warning, caution, info, danger, details, frame, card, panel).",
       "duplicateKey": "En anden stil har allerede denne nøgle.",
       "name": "Angiv et navn på op til 60 tegn.",
-      "icon": "Vælg én emoji eller intet ikon.",
+      "icon": "Vælg én emoji eller ét indbygget ikon, eller intet ikon.",
       "color": "Vælg en farve.",
       "border": "Vælg en kant.",
       "title": "Hold titlen på højst 120 tegn."

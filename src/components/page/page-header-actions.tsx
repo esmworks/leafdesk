@@ -1,5 +1,6 @@
 "use client";
 
+import { IconGlyph } from "@/components/builtin-icon";
 import {
   Archive,
   ArchiveRestore,
@@ -65,6 +66,7 @@ import { getSidebarAction, movePageAction } from "@/app/actions/pages";
 import { setSkillAction, setSkillDatabaseAction } from "@/app/actions/skills";
 import { deleteTemplateAction, saveAsTemplateAction } from "@/app/actions/templates";
 import { useAiChat } from "@/components/ai-chat/chat-panel";
+import { showToast } from "@/components/toast";
 import { cn, Dialog, IconButton, MenuItem, MenuSeparator, PageIcon, pageLabel, Popover, Switch } from "@/components/ui";
 import { useZipExport } from "@/components/use-zip-export";
 import { VoiceNoteInstructionsDialog } from "@/components/voice/voice-note-instructions-dialog";
@@ -1306,14 +1308,28 @@ export function MoveDialog({
         .filter((r) => !q || searchFold(r.label).includes(q));
   const spaceName = new Map(teamspaces.map((ts) => [ts.id, ts.name]));
 
-  const move = (parentId: string | null, teamspaceId?: string | null) =>
+  /** `place`: what the move dialog called where it went, for the note after it (with Undo). */
+  const move = (place: string, parentId: string | null, teamspaceId?: string | null) =>
     startTransition(async () => {
       setError(null);
       try {
-        await movePageAction(pageId, parentId, undefined, parentId ? undefined : teamspaceId);
+        const before = await movePageAction(pageId, parentId, undefined, parentId ? undefined : teamspaceId);
         onClose();
         onMoved?.();
         router.refresh();
+        showToast({
+          message: parentId ? tc("toast.movedTo") : tc("toast.movedToPlace", { place }),
+          ...(parentId && { link: { label: place, href: `/w/${workspaceId}/p/${parentId}` } }),
+          undo: async () => {
+            try {
+              await movePageAction(pageId, before.parentId, before.position, before.parentId ? undefined : before.teamspaceId);
+            } catch {
+              showToast({ message: tc("toast.undoFailed") });
+            }
+            onMoved?.();
+            router.refresh();
+          },
+        });
       } catch {
         setError(t("failed"));
       }
@@ -1337,11 +1353,11 @@ export function MoveDialog({
           <button
             key={r.key}
             type="button"
-            onClick={() => move(null, r.teamspaceId)}
+            onClick={() => move(r.label, null, r.teamspaceId)}
             className="flex w-full items-center gap-2 rounded px-2 py-1.5 text-start hover:bg-bg-hover"
           >
             {r.icon ? (
-              <span className="flex h-4 w-4 items-center justify-center text-sm">{r.icon}</span>
+              <IconGlyph icon={r.icon} className="flex h-4 w-4 items-center justify-center text-sm" />
             ) : (
               <ArrowRightLeft className="h-4 w-4 text-fg-muted" />
             )}
@@ -1356,7 +1372,7 @@ export function MoveDialog({
           <button
             key={n.id}
             type="button"
-            onClick={() => move(n.id)}
+            onClick={() => move(pageLabel(n.title, tc("untitled")), n.id)}
             className="flex w-full items-center gap-2 rounded px-2 py-1.5 text-start text-sm hover:bg-bg-hover"
           >
             <PageIcon icon={n.icon} kind={n.kind} className="text-sm" />

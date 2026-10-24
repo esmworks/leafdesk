@@ -1,5 +1,6 @@
 "use client";
 
+import { IconGlyph } from "@/components/builtin-icon";
 import { Archive, ArrowDown, ArrowUp, Check, ChevronDown, KeyRound, MoreHorizontal, Search, UserRound, X } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useFormatter, useTranslations } from "next-intl";
@@ -313,7 +314,7 @@ function TeamspaceBadge({ teamspace, size = "md" }: { teamspace: Pick<TeamspaceS
         size === "sm" ? "h-5 w-5 text-xs" : "h-7 w-7 text-sm",
       )}
     >
-      {teamspace.icon ?? (teamspace.name.trim()[0] ?? "?").toLocaleUpperCase()}
+      {teamspace.icon ? <IconGlyph icon={teamspace.icon} /> : (teamspace.name.trim()[0] ?? "?").toLocaleUpperCase()}
     </span>
   );
 }

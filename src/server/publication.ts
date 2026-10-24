@@ -48,7 +48,8 @@ import { propertyAccessFor } from "@/server/property-access";
 import { livePublication } from "@/server/publication-live";
 import { canPublish, publishingOn } from "@/server/workspaces";
 import { calloutStylesOfPage } from "@/server/callout-styles";
-import type { BodyFootnote, BodyHeading, BodySegment, PublishedBookmark, PublishedColumn } from "@/server/published-body";
+import type { BodyFootnote, BodyHeading, BodySegment, MediaPlacement, PublishedBookmark, PublishedColumn } from "@/server/published-body";
+import type { MediaAlignment } from "@/lib/media-placement";
 import type { EmbedTarget } from "@/lib/web-blocks";
 import { refuseInLocalMode } from "@/server/local-mode";
 import { env } from "@/lib/env";
@@ -233,7 +234,7 @@ export async function setPublicationIndexable(userId: string, pageId: string, in
   await updatePublication(userId, pageId, { indexable });
 }
 
-export type WebView = { id: string; name: string; type: ViewType; published: boolean };
+export type WebView = { id: string; name: string; type: ViewType; published: boolean; icon?: string };
 
 /**
  * The database's views that can be shown on the web (forms show no rows), with the ones published
@@ -244,7 +245,7 @@ export async function getWebViews(userId: string, databaseId: string): Promise<W
   if (p.kind !== "database") return null;
   const views = await readableViews(databaseId);
   const shown = new Set(webViews(views).map((v) => v.id));
-  return views.map((v) => ({ id: v.id, name: v.name, type: v.type, published: shown.has(v.id) }));
+  return views.map((v) => ({ id: v.id, name: v.name, type: v.type, published: shown.has(v.id), icon: v.config.icon }));
 }
 
 /** Picks the views published pages show for this database, wherever it is published. */
@@ -367,7 +368,8 @@ export type PublishedRow = {
   /** How styled formula results show (see lib/formula style()). */
   styles?: Record<string, FormulaStyle>;
 };
-export type PublishedViewTab = { id: string; name: string; type: ViewType };
+/** A published view's tab: its name, type and the icon chosen for it (its config's), if any. */
+export type PublishedViewTab = { id: string; name: string; type: ViewType; icon?: string };
 /** How a published view is drawn; calendars and timelines show as tables, charts as their numbers. */
 export type PublishedLayout = "table" | "board" | "list" | "gallery" | "feed" | "chart";
 /**
@@ -394,7 +396,7 @@ export type PublishedChart = {
  * drawing its values takes, and nothing of how it is worked out or set up.
  */
 export type PublishedProperty = Pick<DatabaseProperty, "id" | "name" | "type"> & {
-  options: Pick<PropertyOptions, "options" | "number" | "numberDisplay" | "pageVisibility" | "pinned" | "uniqueId"> & {
+  options: Pick<PropertyOptions, "options" | "number" | "numberDisplay" | "pageVisibility" | "pinned" | "uniqueId" | "icon"> & {
     formula?: Pick<FormulaConfig, "type">;
     date?: Pick<DateOptions, "display">;
   };
@@ -419,6 +421,8 @@ export type PublishedDatabase = {
   noIcons?: true;
   /** Board and gallery cards: long values take more lines instead of being cut off. */
   wrap?: true;
+  /** Tables: no lines between columns, only between rows. */
+  noVerticalLines?: true;
   /** Charts (layout "chart"). */
   chart?: PublishedChart;
 };
@@ -434,10 +438,10 @@ export type PublishedBlock =
   | { kind: "subpages" }
   | { kind: "mermaid"; source: string }
   | { kind: "agentChat" }
-  | { kind: "bookmark"; bookmark: PublishedBookmark }
-  | { kind: "webEmbed"; url: string; embed: EmbedTarget }
-  | { kind: "pdf"; fileId: string; name: string; caption: string }
-  | { kind: "spreadsheet"; fileId: string; name: string; caption: string }
+  | { kind: "bookmark"; bookmark: PublishedBookmark; align: MediaAlignment }
+  | ({ kind: "webEmbed"; url: string; embed: EmbedTarget } & MediaPlacement)
+  | ({ kind: "pdf"; fileId: string; name: string; caption: string } & MediaPlacement)
+  | ({ kind: "spreadsheet"; fileId: string; name: string; caption: string } & MediaPlacement)
   | { kind: "columns"; columns: PublishedColumn<PublishedBlock>[] }
   | { kind: "dashboard"; widgets: PublishedWidget[]; layout: DashboardLayout }
   | { kind: "footnotes"; notes: BodyFootnote[] }
@@ -940,6 +944,7 @@ export function publishedProperty(prop: DatabaseProperty): PublishedProperty {
   if (prop.type === "unique_id" && stored.uniqueId?.prefix) options.uniqueId = { prefix: stored.uniqueId.prefix };
   if (stored.pageVisibility) options.pageVisibility = stored.pageVisibility;
   if (stored.pinned) options.pinned = true;
+  if (stored.icon) options.icon = stored.icon;
   return { id: prop.id, name: prop.name, type: prop.type, options };
 }
 
@@ -1110,7 +1115,7 @@ export async function publishedDatabase(
   const withCovers = chosen?.type === "gallery" && galleryCover(chosen.config) === "first_image";
   const stored = await loadRows(loads, publisher, databaseId, withCovers);
   const properties = publicProperties(allProperties);
-  const tabs = shownViews.map((v) => ({ id: v.id, name: v.name, type: v.type }));
+  const tabs = shownViews.map((v) => ({ id: v.id, name: v.name, type: v.type, ...(v.config.icon ? { icon: v.config.icon } : {}) }));
   if (!chosen) {
     const rows = await publicValues(
       stored.filter((row) => !row.outdated).map(({ createdBy, updatedBy: __, hasImage: ___, ...row }) => ({
@@ -1178,6 +1183,8 @@ export async function publishedDatabase(
     ...(icons ? {} : { noIcons: true as const }),
     // Board and gallery cards wrapping long values (see ViewConfig wrapProperties).
     ...((layout === "board" || layout === "gallery") && chosen.config.wrapProperties ? { wrap: true as const } : {}),
+    // Tables without lines between their columns (see ViewConfig showVerticalLines).
+    ...(layout === "table" && chosen.config.showVerticalLines === false ? { noVerticalLines: true as const } : {}),
   };
 }
 

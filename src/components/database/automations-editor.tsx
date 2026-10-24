@@ -1,5 +1,6 @@
 "use client";
 
+import { iconPrefix } from "@/lib/icon-value";
 import { ArrowDown, ArrowUp, Check, Copy, Play, RefreshCw, Send, Trash2 } from "lucide-react";
 import Link from "next/link";
 import { useFormatter, useTranslations } from "next-intl";
@@ -768,7 +769,7 @@ function RunAgentEditor({
         <option value="">{t("chooseAgent")}</option>
         {choices.map((a) => (
           <option key={a.id} value={a.id}>
-            {a.icon ? `${a.icon} ` : ""}
+            {iconPrefix(a.icon)}
             {a.enabled ? a.name : t("pausedAgent", { name: a.name })}
           </option>
         ))}

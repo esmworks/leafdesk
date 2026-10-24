@@ -1,3 +1,4 @@
+import { IconGlyph } from "@/components/builtin-icon";
 import "katex/dist/katex.min.css";
 import { Copy, Menu } from "lucide-react";
 import Link from "next/link";
@@ -16,6 +17,7 @@ import { SiteAnalytics } from "./site-analytics";
 import { SiteHeaderLinks } from "./site-header-links";
 import { SiteNav } from "./site-nav";
 import { SourceFooter } from "./source-footer";
+import { PublishedCodeCopy } from "@/components/page/code-copy";
 
 // `cn` from components/ui is a client export; server components join classes themselves.
 const cn = (...classes: (string | false | null | undefined)[]) => classes.filter(Boolean).join(" ");
@@ -148,7 +150,7 @@ export async function PublishedView({ loaded }: { loaded: LoadedPage }) {
             >
               <div className={wide ? "page-gutter" : "px-4 sm:px-[54px]"}>
                 <div className="flex items-start gap-3">
-                  {data.icon && <div className={cn("shrink-0 leading-tight", wide ? "text-3xl" : "text-4xl")}>{data.icon}</div>}
+                  {data.icon && <div className={cn("shrink-0 leading-tight", wide ? "text-3xl" : "text-4xl")}><IconGlyph icon={data.icon} /></div>}
                   <h1 className={cn("min-w-0 font-bold leading-tight break-words", wide ? "text-3xl" : "text-4xl")}>{title}</h1>
                 </div>
                 <p className="mt-2 text-xs text-fg-faint">
@@ -167,6 +169,8 @@ export async function PublishedView({ loaded }: { loaded: LoadedPage }) {
                   unavailable={t("embedUnavailable")}
                 />
               )}
+              {/* Copy buttons on the body's code blocks, once in the browser. */}
+              {data.body.length > 0 && <PublishedCodeCopy />}
 
               {data.database && (
                 <PublishedDatabaseView table={data.database} links={data.links} viewPath={href(data.id, data.title)} className="page-gutter mt-6" />

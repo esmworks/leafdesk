@@ -1,5 +1,5 @@
 {
-  "id": "dc650a50-a3b7-487d-a5c0-6aaaa25d11c0",
+  "id": "42a0dfbf-c2b1-4c20-8ae1-656cf0e05688",
   "prevId": "6178d523-ef9c-4389-a7e0-0a95682d99be",
   "version": "7",
   "dialect": "postgresql",
@@ -3592,13 +3592,6 @@
           "primaryKey": false,
           "notNull": false
         },
-        "teamspaces": {
-          "name": "teamspaces",
-          "type": "jsonb",
-          "primaryKey": false,
-          "notNull": true,
-          "default": "'[]'::jsonb"
-        },
         "created_at": {
           "name": "created_at",
           "type": "timestamp with time zone",
@@ -3743,13 +3736,6 @@
           "type": "text",
           "primaryKey": false,
           "notNull": false
-        },
-        "teamspaces": {
-          "name": "teamspaces",
-          "type": "jsonb",
-          "primaryKey": false,
-          "notNull": true,
-          "default": "'[]'::jsonb"
         },
         "decided_by": {
           "name": "decided_by",
@@ -5015,12 +5001,6 @@
           "primaryKey": false,
           "notNull": true,
           "default": "'{}'"
-        },
-        "expires_at": {
-          "name": "expires_at",
-          "type": "timestamp with time zone",
-          "primaryKey": false,
-          "notNull": false
         },
         "created_at": {
           "name": "created_at",
@@ -7483,6 +7463,18 @@
           "primaryKey": false,
           "notNull": true,
           "default": "'off'"
+        },
+        "emoji_skin_tone": {
+          "name": "emoji_skin_tone",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "icon_color": {
+          "name": "icon_color",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
         },
         "updated_at": {
           "name": "updated_at",

@@ -33,7 +33,7 @@ type Publication = {
   expired: boolean;
 } | null;
 type Option = "indexable" | "inSite" | "allowDuplicate";
-type WebView = { id: string; name: string; type: ViewType; published: boolean };
+type WebView = { id: string; name: string; type: ViewType; published: boolean; icon?: string };
 /** A database the body shows from outside the page; `shown` when the publication shows it anyway. */
 type Outside = { id: string; title: string; icon: string | null; shown: boolean };
 
@@ -265,7 +265,7 @@ export function PublishTab({ pageId }: { pageId: string }) {
                       }}
                       className="h-4 w-4 shrink-0 accent-[var(--color-accent)]"
                     />
-                    <ViewIcon type={view.type} className="h-3.5 w-3.5 shrink-0 text-fg-muted" />
+                    <ViewIcon type={view.type} icon={view.icon} className="h-3.5 w-3.5 shrink-0 text-fg-muted" />
                     <span className="min-w-0 truncate">{view.name}</span>
                     {!DRAWN.includes(view.type) && <span className="ms-auto shrink-0 text-xs text-fg-faint">{t("asTable")}</span>}
                   </label>

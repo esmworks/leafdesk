@@ -29,7 +29,7 @@
     "everyoneIn": "Tutti nello spazio di lavoro fanno già parte di questo spazio del team.",
     "accessDenied": "Non puoi farlo in questo spazio del team.",
     "invalidMemberLevel": "Scegli che accesso hanno i membri alle pagine dello spazio del team.",
-    "invalidIcon": "L’icona deve essere un’emoji.",
+    "invalidIcon": "L’icona deve essere un’emoji o un’icona integrata.",
     "notConvertible": "Solo una pagina può diventare uno spazio del team, non un database, una riga o un modello.",
     "invalidEmail": "Inserisci un indirizzo email valido.",
     "cantInvite": "Non puoi invitare persone in questo spazio di lavoro. Chiedi a un proprietario."

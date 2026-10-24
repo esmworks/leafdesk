@@ -29,5 +29,14 @@
     "busy": "Você já tem uma exportação em andamento. Aguarde o download terminar.",
     "disabled": "A exportação está desativada neste espaço de trabalho."
   },
-  "celebrate": "Bom trabalho!"
+  "celebrate": "Bom trabalho!",
+  "toast": {
+    "undo": "Desfazer",
+    "dismiss": "Fechar",
+    "movedTo": "Movida para",
+    "movedToPlace": "Movida para {place}",
+    "trashed": "Movida para a lixeira",
+    "rowsTrashed": "{count, plural, one {Linha movida para a lixeira} other {# linhas movidas para a lixeira}}",
+    "undoFailed": "Não foi possível desfazer."
+  }
 }

@@ -1,5 +1,6 @@
 "use client";
 
+import { IconGlyph } from "@/components/builtin-icon";
 import dynamic from "next/dynamic";
 import {
   Bell,
@@ -48,7 +49,8 @@ import { Fragment, useCallback, useEffect, useMemo, useRef, useState, useTransit
 import { unreadCountAction } from "@/app/actions/notifications";
 import { pendingCountAction } from "@/app/actions/review";
 import { listFavoritesAction } from "@/app/actions/page-menu";
-import { archivePageAction, createPageAction, getSidebarAction, movePageAction, renamePageAction } from "@/app/actions/pages";
+import { archivePageAction, createPageAction, getSidebarAction, movePageAction, renamePageAction, restorePageAction } from "@/app/actions/pages";
+import { showToast } from "@/components/toast";
 import { leaveTeamspaceAction, setTeamspaceWatchingAction } from "@/app/actions/teamspaces";
 import { setSidebarLayoutAction } from "@/app/actions/workspaces";
 import { settingsSearchAction } from "@/app/actions/settings-search";
@@ -604,6 +606,18 @@ export function Sidebar({
       try {
         await archivePageAction(id);
         if (activeId === id) router.refresh();
+        showToast({
+          message: tc("toast.trashed"),
+          undo: async () => {
+            try {
+              await restorePageAction(id);
+            } catch {
+              showToast({ message: tc("toast.undoFailed") });
+            }
+            refresh();
+            if (activeId === id) router.refresh();
+          },
+        });
       } catch {
         setActionError(tc("genericError"));
       } finally {
@@ -1730,7 +1744,7 @@ function SectionGroup({
 }
 
 function TeamspaceIcon({ teamspace }: { teamspace: TeamspaceSummary }) {
-  if (teamspace.icon) return <span className="text-sm leading-none">{teamspace.icon}</span>;
+  if (teamspace.icon) return <IconGlyph icon={teamspace.icon} className="text-sm" />;
   return (
     <span className="flex h-4 w-4 items-center justify-center rounded bg-fg-muted text-[10px] font-semibold text-bg">
       {teamspace.name.slice(0, 1).toUpperCase()}
@@ -2321,7 +2335,7 @@ function TreeItem({
                 style={{ paddingInlineStart: 4 + (depth + 1) * 14 }}
               >
                 <span className="flex h-6 w-6 shrink-0 items-center justify-center">
-                  <ViewIcon type={v.type} className="h-3.5 w-3.5" />
+                  <ViewIcon type={v.type} icon={v.icon} className="h-3.5 w-3.5" />
                 </span>
                 <span className="truncate">{v.name}</span>
               </Link>

@@ -29,7 +29,7 @@
     "everyoneIn": "Alla i arbetsytan ingår redan i den här teamytan.",
     "accessDenied": "Du kan inte göra det i den här teamytan.",
     "invalidMemberLevel": "Välj vad medlemmar får på teamytans sidor.",
-    "invalidIcon": "Ikonen måste vara en emoji.",
+    "invalidIcon": "Ikonen måste vara en emoji eller en inbyggd ikon.",
     "notConvertible": "Bara en sida kan bli en teamyta: inte en databas, en rad eller en mall.",
     "invalidEmail": "Ange en giltig e-postadress.",
     "cantInvite": "Du kan inte bjuda in personer till den här arbetsytan. Fråga en ägare."
