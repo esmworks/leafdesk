@@ -93,7 +93,10 @@ BlockNote on Yjs; Tailwind v4; next-intl. Node 24, pnpm 11. A separate Electron 
 - **Other areas:** meeting notes `meetings.ts` (the block's props, `src/lib/meetings.ts`; its list
   table synced in `persistPage` by `meeting-notes.ts`), Telegram bot `src/server/telegram/`, mail to and from rows `row-mail/`, follow-up
   sequences on rows `sequences/` (sent by a 30-second `startSequences` job; `runSequences(now)` runs
-  a round as of any moment, which `scripts/follow-ups-e2e.ts` uses), SMTP
+  a round as of any moment, which `scripts/follow-ups-e2e.ts` uses), page webhooks
+  `page-webhooks/` (queued from `pages.ts`, `collab/service.ts` and `comments.ts`, sent as the owner
+  who last saved the webhook; `runPageWebhooks(now)`), verified pages `verification.ts`
+  (`activeVerification` is the SQL for search and lists; `runVerificationReminders(now)`), SMTP
   `mail/`, inbox `notifications.ts`, push `push.ts`, files `files.ts` + `storage/` (local, S3,
   workspace drives), import `import/`, export `export.ts`, server-made PDFs `pdf.ts` (reads a page like `print.ts`)
   and `pdf-document.ts` (pure pdfmake layout; pdfmake must stay in `serverExternalPackages` in
@@ -199,7 +202,7 @@ plus the `scripts/*-e2e.ts` of the area you touched (`pnpm tsx scripts/<name>-e2
   agents, agent-api, agent-approvers, agent-chat, agent-handoff, agent-memory, agent-mention,
   agent-schedule, agent-sharing, agent-skills, automation, timed-automation, schedule,
   row-activity, row-follow, row-mail, discussions, follow-ups (starts its own GreenMail container
-  unless given ports), page-watch, wins-log. `connector-e2e` starts its own `next dev` against
+  unless given ports), page-watch, page-webhooks, verify, wins-log. `connector-e2e` starts its own `next dev` against
   `<database>_peer`, which must exist; no other dev server may run in the same checkout.
 - Each script's header says what it needs. `.github/workflows/ci.yml` shows the env each step gets;
   not every e2e script is in CI.
