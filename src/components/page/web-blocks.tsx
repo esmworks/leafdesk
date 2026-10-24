@@ -22,7 +22,7 @@ import { linkedPageRef } from "@/lib/mentions";
 import { useEmbedHost } from "./database-embed";
 import type { PageEditor } from "./embed-blocks";
 import { BookmarkCard, EmbedFrame } from "./web-card";
-import { linkToMention } from "./link-mention";
+import { linkToMention } from "./link-mention-toolbar";
 import { isRtl } from "@/components/direction";
 
 /**
@@ -326,7 +326,7 @@ function holdsOnly(editor: PageEditor, blockId: string, url: string) {
 
 /**
  * After a lone URL is pasted into an empty line, offers to turn it into a bookmark, an embed or a
- * mention (or leave it a link); pasted within text, a mention (link-mention.tsx) or a link. The
+ * mention (or leave it a link); pasted within text, a mention (link-mention-toolbar.tsx) or a link. The
  * paste itself happens as usual; the menu only changes the block afterwards.
  * Arrow keys pick an option and Enter takes it; any other key, a click elsewhere or scrolling
  * closes the menu and leaves the link.

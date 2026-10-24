@@ -65,7 +65,7 @@ import { pasteAgentChat, useAgentChatSlashItem } from "./agent-chat-block";
 import { useButtonSlashItem } from "./button-block";
 import { useMeetingSlashItem } from "./meeting-block";
 import { PasteLinkMenu, useWebSlashItems } from "./web-blocks";
-import { LinkToolbarWithMention } from "./link-mention";
+import { LinkToolbarWithMention } from "./link-mention-toolbar";
 import { ImageLinkContext, ImageLinkDialog } from "./image-link";
 import { ImageCropContext } from "./image-crop-item";
 import { useColorSlashItems } from "./slash-colors";
@@ -342,7 +342,7 @@ export default function CollabEditor({
   // The editor's menus and its block handles follow the interface language's direction: right to
   // left, the handles sit to the right of the blocks and submenus open to the left.
   const dir = useDirection();
-  // A link in the text can become a mention (link-mention.tsx) for people who may edit.
+  // A link in the text can become a mention (link-mention-toolbar.tsx) for people who may edit.
   const linkToolbar = useMemo(
     () =>
       function PageLinkToolbar(props: LinkToolbarProps) {

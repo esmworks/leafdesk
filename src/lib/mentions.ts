@@ -31,12 +31,13 @@
  *   [Title](https://example.com/a)         a link mention: an ordinary link with the title as its
  *                                          text. Written back into the page, a link with the URL and
  *                                          text of one of its link mentions becomes that mention
- *                                          again (restoreLinkMentions); any other link stays a link.
+ *                                          again (lib/link-mentions, restoreLinkMentions); any other link stays a link. The helpers for
+ *                                          link mentions live there, apart from this file, which every
+ *                                          workspace route loads.
  */
 
 import * as Y from "yjs";
 import { COLLAB_FRAGMENT } from "./collab-constants";
-import { displayHost, markdownLinkDestination, markdownLinkText, parseWebUrl } from "./web-blocks";
 
 export const MENTION = "mention";
 export const PAGE_LINK_BLOCK = "pageLink";
@@ -205,24 +206,13 @@ export function mentionProps(props: unknown): MentionProps {
   };
 }
 
-/** The address a link mention opens: its URL when that is a web address (http or https), else null. */
-export const linkMentionHref = (props: Pick<MentionProps, "url">): string | null => parseWebUrl(props.url)?.href ?? null;
-
-/** What a link mention reads as: the page's title, or the site's address until it has one. */
-export const linkMentionTitle = (props: Pick<MentionProps, "url" | "title">): string =>
-  props.title.replace(/\s+/g, " ").trim() || displayHost(props.url) || props.url.trim();
-
 /**
- * Markdown text of a person, date or link mention (page mentions are links, written by the caller).
- * A link mention is a link with its title as the text; one without a web address writes nothing.
+ * Markdown text of a person or date mention (page mentions are links, written by the caller; link
+ * mentions are links too, lib/link-mentions linkMentionMarkdown).
  */
 export function mentionText(props: MentionProps): string {
   if (props.kind === "user") return `@${props.name.trim() || "someone"}`;
   if (props.kind === "date") return `@${props.date}`;
-  if (props.kind === "link") {
-    const href = linkMentionHref(props);
-    return href ? `[${markdownLinkText(linkMentionTitle(props))}](${markdownLinkDestination(href)})` : "";
-  }
   return "";
 }
 
@@ -232,7 +222,13 @@ export function mentionText(props: MentionProps): string {
  */
 export function mentionPlainText(props: unknown): string {
   const p = mentionProps(props);
-  if (p.kind === "link") return linkMentionHref(p) ? linkMentionTitle(p) : "";
+  // A link's title, or its site until it has one (as lib/link-mentions linkMentionTitle, which this
+  // file doesn't load); nothing for one that isn't a web address.
+  if (p.kind === "link") {
+    const url = p.url.trim();
+    if (!/^https?:\/\/[^\s/?#]/i.test(url)) return "";
+    return p.title.replace(/\s+/g, " ").trim() || url.replace(/^https?:\/\/(www\.)?/i, "").split(/[/?#]/)[0];
+  }
   return p.kind === "page" ? "" : mentionText(p);
 }
 
@@ -310,7 +306,7 @@ export function splitMentionText(text: string, people: MentionPerson[]): Piece[]
 // Walking block trees
 
 type AnyInline = { type?: string; props?: unknown; content?: unknown };
-type AnyBlock = { type?: string; props?: unknown; content?: unknown; children?: AnyBlock[] };
+export type AnyBlock = { type?: string; props?: unknown; content?: unknown; children?: AnyBlock[] };
 
 function eachInline(content: unknown, fn: (node: AnyInline) => void) {
   if (Array.isArray(content)) {
@@ -407,52 +403,6 @@ export function carryOverMentions(blocks: AnyBlock[], existing: AnyBlock[]) {
     props.id = m.id || before?.id || newMentionId();
     if (m.kind === "date" && !m.remindAt && before?.remindAt) props.remindAt = before.remindAt;
   });
-}
-
-type LinkInline = { type?: string; href?: unknown; content?: unknown; text?: unknown };
-
-const linkText = (content: unknown): string =>
-  typeof content === "string"
-    ? content
-    : Array.isArray(content)
-      ? (content as LinkInline[]).map((n) => (typeof n?.text === "string" ? n.text : linkText(n?.content))).join("")
-      : "";
-
-/**
- * Markdown written back into a page turns its link mentions into links, `[Title](url)`. This turns
- * each link with the URL and text of one of the page's link mentions back into that mention, with
- * the details it had, in order and each mention once. Other links stay links. Changes `blocks` in
- * place.
- */
-export function restoreLinkMentions(blocks: AnyBlock[], existing: AnyBlock[]) {
-  const available: { key: string; props: MentionProps }[] = [];
-  eachMention(existing, (m) => {
-    const href = m.kind === "link" ? linkMentionHref(m) : null;
-    if (href) available.push({ key: `${href}\n${linkMentionTitle(m)}`, props: m });
-  });
-  if (!available.length) return;
-  const swap = (content: unknown) => {
-    if (!Array.isArray(content)) return;
-    content.forEach((node: LinkInline, i) => {
-      if (node?.type !== "link") return;
-      const href = parseWebUrl(node.href)?.href;
-      const key = href ? `${href}\n${linkText(node.content).replace(/\s+/g, " ").trim()}` : null;
-      const at = key ? available.findIndex((a) => a.key === key) : -1;
-      if (at < 0) return;
-      const [match] = available.splice(at, 1);
-      content[i] = { type: MENTION, props: { ...match.props } };
-    });
-  };
-  const walk = (list: AnyBlock[]) => {
-    for (const block of list) {
-      const table = block.content as { type?: string; rows?: { cells?: unknown[] }[] } | null;
-      if (table && typeof table === "object" && !Array.isArray(table) && table.type === "tableContent") {
-        for (const row of table.rows ?? []) for (const cell of row.cells ?? []) swap(Array.isArray(cell) ? cell : (cell as { content?: unknown } | null)?.content);
-      } else swap(block.content);
-      if (block.children?.length) walk(block.children);
-    }
-  };
-  walk(blocks);
 }
 
 // ---------------------------------------------------------------------------------------------

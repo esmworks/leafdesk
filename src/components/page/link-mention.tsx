@@ -1,27 +1,18 @@
 "use client";
 
-import {
-  DeleteLinkButton,
-  EditLinkButton,
-  LinkToolbar,
-  OpenLinkButton,
-  useComponentsContext,
-  type LinkToolbarProps,
-} from "@blocknote/react";
-import { AtSign, Globe } from "lucide-react";
-import { useTranslations } from "next-intl";
+import { Globe } from "lucide-react";
 import { useEffect, useState, type MouseEvent } from "react";
-import { TextSelection } from "prosemirror-state";
 import { fetchLinkPreviewAction } from "@/app/actions/link-preview";
-import { EMPTY_MENTION, linkedPageRef, linkMentionHref, linkMentionTitle, MENTION, type MentionProps } from "@/lib/mentions";
-import { parseWebUrl } from "@/lib/web-blocks";
+import { linkMentionHref, linkMentionTitle } from "@/lib/link-mentions";
+import type { MentionProps } from "@/lib/mentions";
+import { parseWebUrl } from "@/lib/web-url";
 import { useEmbedHost } from "./database-embed";
-import type { PageEditor } from "./embed-blocks";
 
 /**
  * Links shown as mentions (lib/mentions, kind "link"): the site's icon, the page's title and the
  * site's name inline in the text. Made from a pasted link (web-blocks.tsx PasteLinkMenu) or from
- * a link already in the text (its toolbar's "Show as mention").
+ * a link already in the text (its toolbar's "Show as mention"), both in link-mention-toolbar.tsx,
+ * which only the editor loads: this file is part of every mention's spec.
  *
  * The details are fetched the way a bookmark's are, once, by the server's guarded fetch
  * (server/link-preview.ts), the first time someone who may edit the page sees the mention, and
@@ -88,54 +79,5 @@ export function LinkMentionChip({ props, onChange }: { props: MentionProps; onCh
       {/* The site's name, unless the title already says it. */}
       {site && !title.toLocaleLowerCase().includes(site.toLocaleLowerCase()) && <span className="ms-1 text-[0.85em] text-fg-muted">{site}</span>}
     </a>
-  );
-}
-
-/**
- * Replaces the text from `from` to `to` (a link, or a pasted address) with a mention of `url`, and
- * puts the cursor after it. False when `url` isn't a web address, or a page of this app (those
- * become page mentions instead).
- */
-export function linkToMention(editor: PageEditor, from: number, to: number, url: string): boolean {
-  const href = parseWebUrl(url)?.href;
-  if (!href || linkedPageRef(href, window.location.origin)) return false;
-  editor.transact((tr) => {
-    const node = tr.doc.type.schema.nodes[MENTION].create({ ...EMPTY_MENTION, kind: "link", url: href });
-    tr.replaceWith(from, to, node);
-    tr.setSelection(TextSelection.create(tr.doc, from + node.nodeSize));
-  });
-  return true;
-}
-
-/** The toolbar of a link in the text: BlockNote's buttons and, when `mentionable`, "Show as mention". */
-export function LinkToolbarWithMention({ editor, mentionable: allowed, ...props }: LinkToolbarProps & { editor: PageEditor; mentionable: boolean }) {
-  const t = useTranslations("page.mention");
-  const Components = useComponentsContext()!;
-  const href = parseWebUrl(props.url)?.href;
-  const mentionable = allowed && Boolean(href && !linkedPageRef(href, window.location.origin));
-  return (
-    <LinkToolbar {...props}>
-      <EditLinkButton
-        url={props.url}
-        text={props.text}
-        range={props.range}
-        setToolbarOpen={props.setToolbarOpen}
-        setToolbarPositionFrozen={props.setToolbarPositionFrozen}
-      />
-      <OpenLinkButton url={props.url} />
-      <DeleteLinkButton range={props.range} setToolbarOpen={props.setToolbarOpen} />
-      {mentionable && (
-        <Components.LinkToolbar.Button
-          className="bn-button"
-          label={t("showAsMention")}
-          mainTooltip={t("showAsMention")}
-          isSelected={false}
-          onClick={() => {
-            if (linkToMention(editor, props.range.from, props.range.to, props.url)) props.setToolbarOpen?.(false);
-          }}
-          icon={<AtSign size={16} />}
-        />
-      )}
-    </LinkToolbar>
   );
 }

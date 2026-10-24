@@ -15,13 +15,12 @@ import {
   bodyReferences,
   isBlockId,
   isPageBlockType,
-  linkMentionHref,
-  linkMentionTitle,
   MENTION,
   mentionPlainText,
   mentionProps,
   PAGE_LINK_BLOCK,
 } from "@/lib/mentions";
+import { linkMentionHref, linkMentionTitle } from "@/lib/link-mentions";
 import { withoutSyncedBlocks } from "@/lib/synced-blocks";
 import { IMAGE_BLOCK, parseImageLink } from "@/lib/image-links";
 import { BUTTON_BLOCK } from "@/lib/buttons";

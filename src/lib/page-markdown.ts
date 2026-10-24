@@ -11,7 +11,8 @@ import { restoreMeetings } from "./meetings";
 import { restoreButtons } from "./buttons";
 import { mergeReferencedBlocks, splitMarkdownReferences } from "./embed-blocks";
 import { restoreImageCrops } from "./image-crop";
-import { carryOverMentions, restoreLinkMentions } from "./mentions";
+import { restoreLinkMentions } from "./link-mentions";
+import { carryOverMentions } from "./mentions";
 import { collapseSyncedRegions, SYNCED_BLOCK, syncedBlocksIn } from "./synced-blocks";
 import { restoreBookmarks } from "./web-blocks";
 

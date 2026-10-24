@@ -30,8 +30,6 @@ import { UserAvatar } from "@/components/user-avatar";
 import {
   formatIsoDate,
   isIsoDate,
-  linkMentionHref,
-  linkMentionTitle,
   localIsoDate,
   localReminderAt,
   mentionConfig,
@@ -44,6 +42,7 @@ import {
   pagePath,
   type MentionProps,
 } from "@/lib/mentions";
+import { linkMentionHref, linkMentionTitle } from "@/lib/link-mentions";
 import { openBlockLink } from "./block-focus";
 import { LinkMentionChip } from "./link-mention";
 import { LINK_PLACEHOLDER } from "@/lib/link-context";
