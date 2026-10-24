@@ -64,7 +64,7 @@ in English until someone translates it.
 | Emails (invitations, password reset, notifications) | `src/i18n/messages/<locale>/email.json` |
 | Built-in templates (Meeting notes, Weekly plan, Project tracker) | `src/i18n/messages/<locale>/templates.json` |
 | Ready-made skills (Wrap up meeting notes, Reply to a customer…) | `src/i18n/messages/<locale>/skillTemplates.json` |
-| The editor's own menus (slash menu, formatting toolbar, placeholders) | [BlockNote](https://www.blocknotejs.org)'s dictionaries, mapped in `src/i18n/blocknote/index.ts` |
+| The editor's own menus (slash menu, formatting toolbar, placeholders) | [BlockNote](https://www.blocknotejs.org)'s dictionaries, mapped in `src/i18n/blocknote/loaders.ts` |
 | Language names in the language picker | `LOCALE_NAMES` in `src/i18n/config.ts` |
 
 The files are plain JSON in [ICU MessageFormat](https://next-intl.dev/docs/usage/messages), as read
@@ -128,10 +128,11 @@ change it everywhere.
 2. Copy `src/i18n/messages/en/` to `src/i18n/messages/<code>/` and translate every file. Nothing
    else loads them: files are found by the folder name.
 3. The editor: if BlockNote has the language (see the list in
-   `node_modules/@blocknote/core/src/i18n/locales/`), import it in `src/i18n/blocknote/index.ts`
-   and add it to `EDITOR_DICTIONARIES`. If not, copy `src/i18n/blocknote/tr.ts` to
-   `src/i18n/blocknote/<code>.ts`, translate it and import that instead (and consider
-   contributing it to BlockNote too). `pnpm typecheck` fails until every language has one.
+   `node_modules/@blocknote/core/src/i18n/locales/`), copy `src/i18n/blocknote/locales/de.ts` to
+   `locales/<code>.ts` with the code changed. If not, copy `src/i18n/blocknote/tr.ts` to
+   `src/i18n/blocknote/<code>.ts` and translate it (and consider contributing it to BlockNote
+   too). Either way, add its line to `EDITOR_DICTIONARY_LOADERS` in
+   `src/i18n/blocknote/loaders.ts`; `pnpm typecheck` fails until every language has one.
 4. Run `pnpm i18n:check <code>` until it reports nothing, then `pnpm typecheck` and `pnpm test`.
 5. Try it: `pnpm dev`, then My account → Language.
 6. Open a pull request with the new folder and the two small code changes. Say whether you are a

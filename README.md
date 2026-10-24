@@ -3488,14 +3488,15 @@ and numbers are formatted for the language. Emails go out in the recipient's lan
 last picked in My account → Language, else their browser's when they first signed in, stored with
 their account (signing in on another device doesn't trade a picked language for that browser's). Until they have signed in once since, and for invitations to addresses without
 an account, emails use the language of whoever caused them. The editor's own menus use [BlockNote](https://www.blocknotejs.org)'s dictionaries, except
-Turkish, Indonesian and Thai, which are ours (`src/i18n/blocknote/tr.ts`, `id.ts`, `th.ts`), and Hebrew, where `src/i18n/blocknote/index.ts`
-corrects the wording for resolving a comment thread.
+Turkish, Indonesian and Thai, which are ours (`src/i18n/blocknote/tr.ts`, `id.ts`, `th.ts`), and Hebrew, where `src/i18n/blocknote/locales/he.ts`
+corrects the wording for resolving a comment thread. The editor downloads only the dictionary of the
+language in use.
 
 Texts live in `src/i18n/messages/<locale>/*.json` (app, `email.json`, `templates.json` for the
 built-in templates), in ICU MessageFormat. English is the source: `pnpm i18n:check` (also part of
 `pnpm test` and CI) reports what each language lacks or gets wrong, and anything missing shows in
 English. Adding a language is a new folder of JSON files plus one line each in
-`src/i18n/config.ts` and `src/i18n/blocknote/index.ts`. Only Turkish is checked by a native speaker
+`src/i18n/config.ts` and `src/i18n/blocknote/loaders.ts` (and a one-line file in `src/i18n/blocknote/locales/`). Only Turkish is checked by a native speaker
 so far; corrections to the other languages are welcome as pull requests, as are new languages; see [CONTRIBUTING.md](CONTRIBUTING.md#translations) for the workflow.
 
 ## Architecture

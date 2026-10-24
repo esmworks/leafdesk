@@ -20,8 +20,9 @@ import { gzipSync } from "node:zlib";
  * needs them; its recorder loads only when recording), and the "Available offline" switch and its
  * state (the downloader loads on demand, but Turbopack keeps a copy of it per route group). The
  * import dialog (with the Asana and Monday.com readers, about 45 kB) and the Build with AI dialog
- * load the first time they open; the editor's dictionaries (every language in one chunk, about
- * 3 kB each) load with the editor.
+ * load the first time they open. The editor loads only the dictionary of the language in use, after
+ * itself: ours (Turkish, Indonesian, Thai) about 3 kB each, BlockNote's (one module) about 30 kB
+ * together, English none.
  */
 const BUDGET = { routeFirstLoad: 810, allClientJs: 4200 };
 

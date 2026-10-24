@@ -1,10 +1,10 @@
 import { he } from "@blocknote/core/locales";
 import { describe, expect, it } from "vitest";
-import { EDITOR_DICTIONARIES } from ".";
+import { EDITOR_DICTIONARY_LOADERS } from "./loaders";
 
 describe("editor dictionaries", () => {
-  it("say resolving a comment thread in Hebrew as resolving it, the rest as BlockNote has it", () => {
-    const hebrew = EDITOR_DICTIONARIES.he;
+  it("say resolving a comment thread in Hebrew as resolving it, the rest as BlockNote has it", async () => {
+    const hebrew = await EDITOR_DICTIONARY_LOADERS.he();
     expect(hebrew.comments.actions.resolve).toBe("סמן כנפתר");
     expect(hebrew.comments.sidebar.marked_as_resolved).toBe("סומן כנפתר");
     expect(hebrew.comments.actions.reopen).toBe(he.comments.actions.reopen);
