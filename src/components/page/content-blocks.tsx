@@ -42,7 +42,8 @@ import { useCalloutStyleName, useCalloutStyles, useOfferedCalloutStyles } from "
 import type { PageEditor } from "./embed-blocks";
 import { IconPicker } from "./icon-picker";
 import { MermaidImageView, useMermaid } from "./mermaid-diagram";
-import { HeadingList, SubpageList, Trail, type TrailCrumb } from "./page-outline";
+import { headingsOfDoc, HeadingList, sameHeadings, SubpageList, Trail, type TrailCrumb } from "./page-outline";
+import { openCollapsedAncestors } from "./block-focus";
 
 export type { TrailCrumb };
 
@@ -429,37 +430,20 @@ const CalloutBlock = createReactBlockSpec(calloutBlockConfig, {
 // ---------------------------------------------------------------------------------------------
 // Table of contents
 
-type Heading = { id: string; level: number; text: string };
-
-function headingsOf(editor: PageEditor): Heading[] {
-  const out: Heading[] = [];
-  const walk = (blocks: PageEditor["document"]) => {
-    for (const block of blocks) {
-      if (block.type === "heading") out.push({ id: block.id, level: Number(block.props.level) || 1, text: plainText(block.content) });
-      if (block.children.length) walk(block.children);
-    }
-  };
-  walk(editor.document);
-  return out;
-}
-
-const sameHeadings = (a: Heading[], b: Heading[]) =>
-  a.length === b.length && a.every((h, i) => h.id === b[i].id && h.level === b[i].level && h.text === b[i].text);
-
 const TocBlock = createReactBlockSpec(tocBlockConfig, {
   render: function TocView({ editor }) {
     const t = useTranslations("page.blocks.toc");
     const tc = useTranslations("common");
     const typed = editor as unknown as PageEditor;
-    const [headings, setHeadings] = useState(() => headingsOf(typed));
+    const [headings, setHeadings] = useState(() => headingsOfDoc(typed.prosemirrorState.doc));
     useEditorChange(() => {
-      const next = headingsOf(typed);
+      const next = headingsOfDoc(typed.prosemirrorState.doc);
       setHeadings((current) => (sameHeadings(current, next) ? current : next));
     }, editor);
     return (
       <div contentEditable={false} className="w-full">
         <HeadingList
-          headings={headings.map((h) => ({ key: h.id, level: h.level, text: h.text }))}
+          headings={headings}
           label={t("label")}
           empty={t("empty")}
           untitled={tc("untitled")}
@@ -468,7 +452,9 @@ const TocBlock = createReactBlockSpec(tocBlockConfig, {
             onClick: (event) => {
               event.preventDefault();
               const target = editor.domElement?.querySelector(`[data-node-type="blockOuter"][data-id="${CSS.escape(id)}"]`);
-              target?.scrollIntoView({ behavior: "smooth", block: "start" });
+              if (!target) return;
+              openCollapsedAncestors(target);
+              target.scrollIntoView({ behavior: "smooth", block: "start" });
             },
           })}
         />

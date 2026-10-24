@@ -21,6 +21,7 @@ import {
 } from "@blocknote/react";
 import { DirectionProvider } from "@mantine/core";
 import { X } from "lucide-react";
+import dynamic from "next/dynamic";
 import { useLocale, useTranslations } from "next-intl";
 import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 import { useBlockFocus } from "./block-focus";
@@ -71,6 +72,9 @@ import { SaveAsSnippetContext, SnippetMenu, useSnippets, useSnippetSlashItems } 
 import { readDocTitle } from "@/lib/collab-title";
 import { suggestingExtension, type SuggestingMode } from "./suggesting";
 
+/** The page's floating outline, loaded once the page has a place for it (see floating-outline.tsx). */
+const FloatingOutline = dynamic(() => import("./floating-outline"), { ssr: false });
+
 /**
  * y-prosemirror's undo plugin keeps its Y.UndoManager in plugin state but destroys it whenever the
  * editor view is destroyed. BlockNote keeps that state across an unmount, so mounting the same
@@ -118,6 +122,7 @@ export default function CollabEditor({
   row = false,
   suggestOnly = false,
   suggesting = false,
+  outlineSlot = null,
 }: {
   pageDoc: PageDoc;
   user: { id: string; name: string };
@@ -160,6 +165,8 @@ export default function CollabEditor({
   syncedBlock?: boolean;
   /** The page is a database row: its comments include the threads on its property values. */
   row?: boolean;
+  /** Where the page's floating outline goes (page-view.tsx keeps it), or null for none. */
+  outlineSlot?: HTMLElement | null;
 }) {
   const locale = useLocale();
   const colorScheme = useColorScheme();
@@ -341,6 +348,7 @@ export default function CollabEditor({
         <PageTrailProvider value={trail}>
           {/* Search works for everyone; replacing only for people who may edit. */}
           {!nested && <FindBar editor={editor} editable={editable} />}
+          {!nested && outlineSlot && <FloatingOutline editor={editor} slot={outlineSlot} />}
           <DirectionProvider initialDirection={dir}>
             <BlockNoteView
               key={locale}
