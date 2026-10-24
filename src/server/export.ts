@@ -6,6 +6,7 @@ import { toCsv } from "@/lib/csv";
 import { valueType } from "@/lib/derived";
 import { mapReferenceLines, markdownReferences } from "@/lib/embed-blocks";
 import { mapAgentChatLines } from "@/lib/agent-chat";
+import { mapButtonLines } from "@/lib/buttons";
 import { env } from "@/lib/env";
 import { layoutExport, relativeLink, rewriteLinks, type ExportLayout } from "@/lib/export-layout";
 import { fileIdOf, fileIdsIn, fileIdsInProperties, formatBytes } from "@/lib/files";
@@ -50,6 +51,8 @@ export type ExportLabels = {
   synced: SyncedLabels;
   /** An agent chat block's line, naming its agent (or "" when it is gone). */
   agentChat: (name: string) => string;
+  /** A button's line, naming its label (or "" without one): what it does stays in the app. */
+  button: (label: string) => string;
 };
 
 export const ENGLISH_EXPORT_LABELS: ExportLabels = {
@@ -59,6 +62,7 @@ export const ENGLISH_EXPORT_LABELS: ExportLabels = {
   unavailable: "Database unavailable",
   synced: ENGLISH_SYNCED_LABELS,
   agentChat: (name) => (name ? `Agent chat: ${name}` : "Agent chat"),
+  button: (label) => `Button “${label || "Button"}”`,
 };
 
 // ---------------------------------------------------------------------------------------------
@@ -74,7 +78,8 @@ export async function pageMarkdown(userId: string, pageId: string, labels: Expor
   // Synced blocks shown from other pages first, so their links and databases are labelled too.
   const expanded = await expandSyncedMarkdown(userId, pageId, content.markdown.trim(), labels.synced);
   const labelled = await labelPageLinks(userId, expanded, labels);
-  return { title: content.title, body: await nameAgentChats(pageId, await linkEmbeds(userId, labelled, labels), labels) };
+  const body = await nameAgentChats(pageId, await linkEmbeds(userId, labelled, labels), labels);
+  return { title: content.title, body: mapButtonLines(body, ({ label }) => `*${labels.button(label).replace(/[*_[\]]/g, "\\$&")}*`) };
 }
 
 /**

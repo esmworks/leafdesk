@@ -55,6 +55,7 @@ const { setPagePermission } = await import("@/server/permissions");
 const manage = await import("@/server/automations/manage");
 const { flushAutomations } = await import("@/server/automations/run");
 const { AccessError } = await import("@/server/access");
+const { listInbox } = await import("@/server/notifications");
 const { ButtonError, buttonSettings, pressButton } = await import("@/server/buttons");
 
 const RUN = `button-e2e-${Date.now().toString(36)}`;
@@ -216,6 +217,9 @@ try {
     "the people it names who can open the page are notified, from the clicker, with the message",
     notices,
   );
+  const inbox = await listInbox(ids.owner, workspaceId);
+  const shown = inbox.find((n) => n.kind === "automation" && n.pageId === weekly);
+  check(shown && shown.automationName === null && shown.automationMessage === `Started by ${ids.editor}`, "…and the notice shows in their inbox, from no automation", inbox);
 
   const sent = received.find((r) => r.headers["x-leafdesk-event"] === "button.clicked");
   check(sent, "the webhook goes out", received.map((r) => r.headers));

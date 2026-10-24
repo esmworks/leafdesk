@@ -214,6 +214,27 @@ export function restoreButtons<B extends AnyBlock>(blocks: B[], existing: B[]): 
   return walk(blocks);
 }
 
+/** Markdown with each button line (outside code fences) replaced by what `fn` makes of it, as exports show it. */
+export function mapButtonLines(markdown: string, fn: (found: { id: string; label: string }) => string): string {
+  let fence: string | null = null;
+  return markdown
+    .split("\n")
+    .map((line) => {
+      const opens = /^ {0,3}(`{3,}|~{3,})/.exec(line);
+      if (fence) {
+        if (opens && opens[1][0] === fence[0] && opens[1].length >= fence.length && !line.trim().slice(opens[1].length).trim()) fence = null;
+        return line;
+      }
+      if (opens) {
+        fence = opens[1];
+        return line;
+      }
+      const found = parseButtonLine(line);
+      return found ? fn(found) : line;
+    })
+    .join("\n");
+}
+
 /** A button's text for search and plain-text reads: its icon and label. */
 export const buttonPlainText = (props: { label?: unknown; icon?: unknown } | undefined) =>
   [typeof props?.icon === "string" ? props.icon : "", typeof props?.label === "string" ? props.label : ""].filter(Boolean).join(" ");

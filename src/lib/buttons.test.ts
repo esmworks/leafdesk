@@ -5,6 +5,7 @@ import {
   buttonPlainText,
   buttonScope,
   cleanButtonLabel,
+  mapButtonLines,
   MAX_BUTTON_LABEL,
   MAX_BUTTON_STEPS,
   parseButtonConfig,
@@ -88,6 +89,11 @@ describe("button Markdown lines", () => {
     ]);
     // Without a label in the line the button keeps its own.
     expect(restoreButtons([{ id: "b1", type: "button", props: { label: "" }, children: [] }], existing)[0].props).toEqual({ label: "Old", icon: "🚀", config: "{}" });
+  });
+
+  it("become a line of their own in exports, outside code only", () => {
+    const markdown = ["Intro", buttonLine("b1", "Go"), "```", buttonLine("b2", "Code"), "```"].join("\n");
+    expect(mapButtonLines(markdown, ({ label }) => `*Button ${label}*`).split("\n")).toEqual(["Intro", "*Button Go*", "```", buttonLine("b2", "Code"), "```"]);
   });
 
   it("read as their icon and label", () => {
