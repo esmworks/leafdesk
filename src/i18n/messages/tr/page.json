@@ -110,6 +110,7 @@
       "you": "{name} (siz)"
     },
     "threadMenu": "Yorum konusu seçenekleri",
+    "copyLink": "Bağlantıyı kopyala",
     "mute": "Yanıtları sessize al",
     "unmute": "Yanıtların sesini aç",
     "muteHint": "Bu konudaki yeni yanıtlardan haberdar olmayı bırakın. Burada yanıt yazdığınızda ya da burada anıldığınızda yeniden açılır.",
@@ -620,7 +621,8 @@
       "submit": "Göm",
       "providers": "YouTube, Vimeo, Loom, Figma, yayımlanmış Google Dokümanlar, E-Tablolar ve Slaytlar, CodePen, Spotify ve Google Haritalar. Diğer bağlantılar yer imi olur.",
       "frameTitle": "{host} kaynağından gömülü içerik",
-      "label": "Gömülü içerik"
+      "label": "Gömülü içerik",
+      "resize": "Gömülü içeriğin genişliğini değiştirmek için sürükleyin"
     },
     "paste": {
       "label": "Şu şekilde yapıştır",
@@ -710,6 +712,11 @@
   },
   "blockMenu": {
     "copyLink": "Bloğun bağlantısını kopyala",
+    "download": "İndir",
+    "alignLeft": "Sola hizala",
+    "alignCenter": "Ortala",
+    "alignRight": "Sağa hizala",
+    "wideColumns": "Geniş sütunlar",
     "hideInPrint": "Yazdırırken gizle",
     "calloutStyle": "Kutu stili",
     "turnIntoCallout": "Kutuya dönüştür",
@@ -955,7 +962,8 @@
     "markdownImage": "Görsel: {alt}",
     "markdownImageUntitled": "Görsel",
     "expand": "Görüntüleyicide aç",
-    "view": "{name} dosyasını görüntüle"
+    "view": "{name} dosyasını görüntüle",
+    "resize": "Genişliği değiştirmek için sürükleyin"
   },
   "presentation": {
     "previous": "Önceki slayt",
@@ -1190,5 +1198,16 @@
     "reset": "Görselin tamamını göster",
     "loading": "Görsel yükleniyor…",
     "failed": "Görsel yüklenemedi."
+  },
+  "commentRef": {
+    "pasteTitle": "Yoruma bağlantıyı yapıştır",
+    "pasteAsMention": "Bahsetme olarak yapıştır",
+    "pasteAsPreview": "Önizleme olarak yapıştır",
+    "pasteAsLink": "Bağlantı olarak yapıştır",
+    "noAccess": "Bu yoruma erişiminiz yok",
+    "onPage": "{title} sayfasında",
+    "replies": "{count, plural, =0 {Yanıt yok} one {# yanıt} other {# yanıt}}",
+    "openThread": "Konuyu aç",
+    "resolved": "Çözüldü"
   }
 }

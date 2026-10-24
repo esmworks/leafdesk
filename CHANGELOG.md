@@ -4,6 +4,39 @@
 
 ### Added
 
+- **More editor shortcuts.** Alt/Option+Shift+L copies a link to the block the cursor is in (as
+  "Copy link to block" does, with a "Link copied" note), Cmd/Ctrl+Shift+X strikes text through as
+  well as Cmd/Ctrl+Shift+S, and Cmd/Ctrl+Alt+T opens every toggle on the page (toggle lists and
+  toggle headings, nested ones too, and the groups of grouped table and timeline views), or closes
+  them all when none is closed. The keyboard shortcuts dialog lists them.
+- **Toggle headings take their section.** Turning a heading into a toggle heading moves the blocks
+  under it, up to the next heading of the same or a higher level, inside it, so the section folds
+  away; turning it back into a heading lets them out again. One undo step either way.
+- **Alignment for files, audio, bookmarks and embeds.** Like images and videos, they can sit at the
+  start, in the middle or at the end (the block menu, and the formatting toolbar where it shows),
+  and embeds and PDFs shown in place can be made narrower by dragging their edge. Published pages,
+  print and PDFs keep it.
+- **Wide columns.** On a page of standard width a column list can reach past the text into the
+  page's margins, up to the page's full width: drag its outer edges, or pick "Wide columns" in the
+  block menu of a block inside it. Full-width pages, phones and published pages show it at the
+  text's width.
+- **Download from the block menu.** Images, videos, audio and files get "Download", which saves
+  uploaded files as files rather than opening them, and fetches files on other sites through the
+  server (public https addresses only, up to 100 MB, signed-in readers of the page only). The image
+  viewer now also steps through the page's images from other sites.
+- **More code languages:** Agda, Coq, Dhall, EBNF, Idris, LLVM IR, Mathematica, PureScript and
+  Racket, highlighted.
+- **Dates written out in the @ menu.** "next friday", "in 3 days", "3 days ago", "yesterday" or a
+  date like "15 Oct" become a date mention, in the interface language or English, as quick add
+  reads them.
+- **Links to comments.** A comment thread's menu has "Copy link". Pasted into a page of the same
+  workspace, such a link offers "Paste as mention" (the author and the start of the comment, inline),
+  "Paste as preview" (a block with the author, time, page and text, and a link that opens the
+  thread) or the plain link. Readers who can't open the thread's page see "No access", never the
+  comment; published pages show neither.
+- **The theme follows in every tab.** Light, dark or system picked in one tab applies at once in
+  the person's other open tabs of the app.
+
 - **Danish, Dutch, Norwegian, Finnish and Swedish.** The app, its emails, templates, the editor's
   menus and the desktop app now speak Dansk, Nederlands, Norsk bokmål, Suomi and Svenska, chosen in
   My account → Language or taken from the browser (one asking for Norwegian or Nynorsk gets

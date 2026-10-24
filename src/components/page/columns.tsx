@@ -1,7 +1,8 @@
 "use client";
 
 import { createExtension } from "@blocknote/core";
-import type { DefaultReactSuggestionItem } from "@blocknote/react";
+import { SideMenuExtension } from "@blocknote/core/extensions";
+import { useBlockNoteEditor, useComponentsContext, useExtensionState, type DefaultReactSuggestionItem } from "@blocknote/react";
 import { BetweenVerticalStart, Columns2, Columns3 } from "lucide-react";
 import { useTranslations } from "next-intl";
 import type { Node as PMNode } from "prosemirror-model";
@@ -14,6 +15,7 @@ import {
   columnBlockSpecs,
   ColumnListNode,
   ColumnNode,
+  columnsWide,
   columnWidth,
   MAX_COLUMNS,
 } from "@/lib/columns";
@@ -128,6 +130,110 @@ const EditorColumnNode = ColumnNode.extend({
         destroy() {
           stop?.();
           handle.removeEventListener("pointerdown", onPointerDown);
+        },
+      };
+    };
+  },
+});
+
+/** Room kept outside a wide column list for the block handles, in pixels (globals.css). */
+const WIDE_GUTTER_PX = 48;
+
+/**
+ * A column list whose outer edges can be dragged into the page's margins (`wide`, see lib/columns).
+ * Its element carries the block's attributes; the columns sit in an inner row. The handles only
+ * show where the list can be wide (globals.css): a top-level list on a page of standard width.
+ */
+const EditorColumnListNode = ColumnListNode.extend({
+  addNodeView() {
+    return ({ node: initial, getPos, view, editor }) => {
+      let node = initial;
+      const dom = document.createElement("div");
+      dom.className = "leafdesk-column-list";
+      dom.setAttribute("data-node-type", COLUMN_LIST_BLOCK);
+      const contentDOM = document.createElement("div");
+      contentDOM.className = "leafdesk-columns";
+      const handles = (["start", "end"] as const).map((side) => {
+        const handle = document.createElement("div");
+        handle.className = `leafdesk-columns-edge leafdesk-columns-edge-${side}`;
+        handle.contentEditable = "false";
+        handle.setAttribute("aria-hidden", "true");
+        return handle;
+      });
+      dom.append(handles[0], contentDOM, handles[1]);
+
+      const sync = () => {
+        if (node.attrs.id) dom.setAttribute("data-id", String(node.attrs.id));
+        const wide = columnsWide(node.attrs.wide);
+        if (wide) dom.setAttribute("data-wide", String(wide));
+        else dom.removeAttribute("data-wide");
+        dom.style.setProperty("--wide", String(wide));
+      };
+      sync();
+
+      let stop: (() => void) | null = null;
+      const onPointerDown = (event: PointerEvent) => {
+        if (event.button !== 0 || !editor.isEditable) return;
+        const handle = event.currentTarget as HTMLElement;
+        const parent = dom.parentElement;
+        const area = dom.closest<HTMLElement>("[data-page-area]");
+        if (!parent || !area) return;
+        event.preventDefault();
+        event.stopPropagation();
+        // How far the list may reach past the text on each side, and how far it does now.
+        const text = parent.getBoundingClientRect().width;
+        const room = Math.max(0, (area.getBoundingClientRect().width - text) / 2 - WIDE_GUTTER_PX);
+        if (!room) return;
+        const startX = event.clientX;
+        // The start edge widens moving toward the start, the end edge toward the end.
+        const outward = (handle.classList.contains("leafdesk-columns-edge-start") ? -1 : 1) * inlineSign(dom);
+        const from = columnsWide(node.attrs.wide) * room;
+        let wide = columnsWide(node.attrs.wide);
+        dom.classList.add("leafdesk-columns-resizing");
+        const move = (e: PointerEvent) => {
+          wide = columnsWide(Math.min(Math.max(from + (e.clientX - startX) * outward, 0), room) / room);
+          dom.style.setProperty("--wide", String(wide));
+          dom.toggleAttribute("data-wide", wide > 0);
+        };
+        const up = () => {
+          stop?.();
+          const at = getPos();
+          if (typeof at !== "number" || view.state.doc.nodeAt(at)?.type.name !== COLUMN_LIST_BLOCK) return;
+          if (columnsWide(view.state.doc.nodeAt(at)?.attrs.wide) === wide) return sync();
+          view.dispatch(view.state.tr.setNodeAttribute(at, "wide", wide));
+        };
+        stop = () => {
+          window.removeEventListener("pointermove", move);
+          window.removeEventListener("pointerup", up);
+          window.removeEventListener("pointercancel", up);
+          dom.classList.remove("leafdesk-columns-resizing");
+          stop = null;
+        };
+        window.addEventListener("pointermove", move);
+        window.addEventListener("pointerup", up);
+        window.addEventListener("pointercancel", up);
+      };
+      for (const handle of handles) handle.addEventListener("pointerdown", onPointerDown);
+
+      return {
+        dom,
+        contentDOM,
+        update(next: PMNode) {
+          if (next.type !== node.type) return false;
+          node = next;
+          sync();
+          return true;
+        },
+        ignoreMutation(mutation: MutationRecord | { type: "selection"; target: Node }) {
+          if (mutation.type === "selection") return false;
+          return !contentDOM.contains(mutation.target) || (mutation.type === "attributes" && mutation.target === contentDOM);
+        },
+        stopEvent(event: Event) {
+          return event.target instanceof Node && handles.some((handle) => handle.contains(event.target as Node));
+        },
+        destroy() {
+          stop?.();
+          for (const handle of handles) handle.removeEventListener("pointerdown", onPointerDown);
         },
       };
     };
@@ -256,7 +362,7 @@ const ColumnCleanup = createExtension(() => ({
 }));
 
 /** The editor's column blocks: resizable columns, and the cleanup above. */
-export const columnEditorBlockSpecs = columnBlockSpecs({ columnList: ColumnListNode, column: EditorColumnNode, extensions: [ColumnCleanup()] });
+export const columnEditorBlockSpecs = columnBlockSpecs({ columnList: EditorColumnListNode, column: EditorColumnNode, extensions: [ColumnCleanup()] });
 
 // ---------------------------------------------------------------------------------------------
 // Slash menu
@@ -279,6 +385,33 @@ const emptyLine = (block: AnyBlock) =>
   !block.children.length &&
   Array.isArray(block.content) &&
   (block.content.length === 0 || (block.content.length === 1 && block.content[0].type === "text" && block.content[0].text.trim() === "/"));
+
+/**
+ * "Wide columns" in the block menu of a block in a top-level column list: the list reaches out to
+ * the page's edges, or back to the text's width. Its outer edges set anything between.
+ */
+export function WideColumnsItem() {
+  const Components = useComponentsContext()!;
+  const editor = useBlockNoteEditor() as unknown as PageEditor;
+  const block = useExtensionState(SideMenuExtension, { editor, selector: (state) => state?.block });
+  const t = useTranslations("page.blockMenu");
+  if (!block || !editor.isEditable) return null;
+  const column = enclosingColumn(editor, block as AnyBlock);
+  const list = column && editor.getParentBlock(column);
+  if (list?.type !== COLUMN_LIST_BLOCK || editor.getParentBlock(list)) return null;
+  const wide = columnsWide((list.props as { wide?: unknown }).wide) > 0;
+  return (
+    <Components.Generic.Menu.Item
+      className="bn-menu-item"
+      checked={wide}
+      onClick={() => {
+        if (editor.getBlock(list.id)) editor.updateBlock(list.id, { props: { wide: wide ? 0 : 1 } } as never);
+      }}
+    >
+      {t("wideColumns")}
+    </Components.Generic.Menu.Item>
+  );
+}
 
 /**
  * Slash menu entries for columns, read when the menu opens: "2 columns" and "3 columns", or inside

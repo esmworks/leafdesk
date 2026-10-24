@@ -47,6 +47,7 @@ import { COMMENTS_REQUEST_EVENT, takeCommentsRequest } from "@/lib/comments-requ
 import type { PageBackground } from "@/lib/page-background";
 import { DEFAULT_PAGE_STYLE, pageTextClasses, writePageStyle, type PageStyle } from "@/lib/page-style";
 import { isMac, opensPresentation } from "@/lib/shortcuts";
+import { useToggleAllShortcut } from "@/components/toggle-all";
 
 // BlockNote touches `window` during setup; render it only in the browser.
 const CollabEditor = dynamic(() => import("./collab-editor"), { ssr: false });
@@ -263,6 +264,8 @@ export function PageView({
     void document.documentElement.requestFullscreen?.().catch(() => {});
     setPresenting(true);
   }, []);
+  // Mod+Alt+T opens or closes every toggle and grouped view's group on the page.
+  useToggleAllShortcut();
   // Mod+Alt+P presents the page. In the row panel, the panel's page answers first (a capturing
   // listener), and the page beside it then leaves the key alone.
   useEffect(() => {
@@ -459,7 +462,7 @@ export function PageView({
     // The black background is dark in either theme, so the editor and diagrams draw dark on it.
     <DarkScheme dark={background?.color === "black"}>
       {/* Cmd/Ctrl+F with focus anywhere in here opens the page's find bar instead of the browser's. */}
-      <div ref={rootRef} data-find-scope className={cn("flex min-h-full flex-col", backdropClass(background))}>
+      <div ref={rootRef} data-find-scope data-page-area className={cn("flex min-h-full flex-col", backdropClass(background))}>
         {/* Above the content's own layers (frozen table columns, the title's buttons, z-30) as it scrolls under.
             The blur sits on a layer behind it: on the header itself it would hold fixed menus and dialogs inside it. */}
         <header data-window-controls-clear className="sticky top-0 z-[35] flex h-11 items-center justify-between gap-2 border-b border-transparent px-3 before:absolute before:inset-0 before:-z-10 before:bg-bg/90 before:backdrop-blur max-md:ps-1.5">

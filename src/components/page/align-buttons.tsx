@@ -19,7 +19,7 @@ type Schema = typeof pageEditorSchema;
 type PageBlock = Block<Schema["blockSchema"], Schema["inlineContentSchema"], Schema["styleSchema"]>;
 type PageTable = TableContent<Schema["inlineContentSchema"], Schema["styleSchema"]>;
 type Alignment = DefaultProps["textAlignment"];
-type Side = "left" | "center" | "right";
+export type Side = "left" | "center" | "right";
 
 /**
  * Alignment runs with the text (globals.css): the stored "left" is where a block's text starts and
@@ -27,10 +27,10 @@ type Side = "left" | "center" | "right";
  * can still be aligned to the left. These buttons stand for sides of the page, so each gives the
  * value that puts the text on its side of the block it aligns.
  */
-const valueFor = (side: Side, rtl: boolean): Alignment => (!rtl || side === "center" ? side : side === "left" ? "right" : "left");
+export const valueFor = (side: Side, rtl: boolean): Alignment => (!rtl || side === "center" ? side : side === "left" ? "right" : "left");
 
 /** Whether a block's text runs right to left, as the editor shows it (block-direction.ts). */
-function runsRtl(editor: PageEditor, blockId: string): boolean {
+export function runsRtl(editor: PageEditor, blockId: string): boolean {
   const content = editor.domElement?.querySelector(`[data-id="${CSS.escape(blockId)}"] .bn-block-content`);
   return content ? getComputedStyle(content).direction === "rtl" : document.documentElement.dir === "rtl";
 }

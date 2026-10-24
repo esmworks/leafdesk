@@ -59,7 +59,10 @@ BlockNote on Yjs; Tailwind v4; next-intl. Node 24, pnpm 11. A separate Electron 
   only exists when the app runs through `server.ts`. A block whose data is all in its props, written
   while people may be editing (meeting notes), changes them in place with `updateBlockAttributes`:
   `editBlocks` and other `writeBlocks` callers read, await, then rewrite, and can lose edits made
-  in between. Saves derive markdown and text (`collab/service.ts` `persistPage`) and announce `pageChanged()` (`page-events.ts`); row value
+  in between. Editor-side rewrites that must ride along with the change that caused them (toggle headings
+  taking their section, `components/page/toggle-headings.ts`; column cleanup) are ProseMirror
+  `appendTransaction` plugins that skip transactions carrying `ySyncPluginKey` meta (others' edits
+  and undo), so they make one undo step and never run twice. Saves derive markdown and text (`collab/service.ts` `persistPage`) and announce `pageChanged()` (`page-events.ts`); row value
   changes announce through `row-events.ts`. Page tree operations: `src/server/pages.ts`; databases,
   rows and properties: `databases.ts`; formulas and rollups: `derived.ts` (pure part in
   `src/lib/derived.ts`). Row values are checked in `databases.ts` `normalizeRowProperties` (types,
@@ -124,6 +127,13 @@ BlockNote on Yjs; Tailwind v4; next-intl. Node 24, pnpm 11. A separate Electron 
   `outputFileTracingIncludes`), PDF letterheads `letterheads.ts` (pure part in `src/lib/letterheads.ts`;
   the logo is document content kept in `pdf_letterhead`, not page decoration), backup `backup/`, SSO `sso.ts`, SCIM
   `scim.ts`, sealed secrets `secret-box.ts`.
+- **Editor odds and ends.** Media alignment and in-place width: `lib/media-blocks.ts` (file and
+  audio specs shared with the server) and `lib/media-placement.ts` (pure; published pages use it).
+  Shiki ships no grammar for some languages: `lib/code-grammars.ts` holds small ones (patterns as
+  RegExp objects with flags `dgu`; the precompiled engine compiles no strings). Downloads of files
+  on other sites go through `app/api/files/external` (connections' address checks only). Comment
+  mentions and previews: `lib/comment-refs.ts`, resolved per reader by `server/comment-refs.ts`.
+  Cmd/Ctrl+Alt+T: `components/toggle-all.ts` (views with groups join through `useToggleAllGroups`).
 - **Workspace sites** (`site.ts`, routes `src/app/s/`): a site on its own domain is routed by
   `server.ts` through `site-hosts.ts`, which sets the trusted `x-leafdesk-site-host` /
   `x-leafdesk-site-analytics` headers (dropped from every client request) that `proxy.ts` rewrites

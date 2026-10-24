@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import texts from "@/i18n/messages/en/shortcuts.json";
-import { comboText, keyLabels, opensPresentation, opensShortcuts, rowMenuShortcut, SHORTCUT_GROUPS } from "./shortcuts";
+import { comboText, keyLabels, opensPresentation, opensShortcuts, opensToggleAll, rowMenuShortcut, SHORTCUT_GROUPS } from "./shortcuts";
 import { SUBSCRIPT, SUPERSCRIPT, TEXT_SCRIPT_SHORTCUTS } from "./text-scripts";
 
 const press = (key: string, init: Partial<KeyboardEvent> = {}, target: unknown = null) =>
@@ -112,5 +112,23 @@ describe("rowMenuShortcut", () => {
   it("leaves keys something else handled, and text being composed", () => {
     expect(rowMenuShortcut(press("d", { code: "KeyD", metaKey: true, defaultPrevented: true }), true)).toBe(null);
     expect(rowMenuShortcut(press("d", { code: "KeyD", metaKey: true, isComposing: true }), true)).toBe(null);
+  });
+});
+
+describe("opensToggleAll", () => {
+  it("answers Mod+Alt+T by the key's place, whatever character Option makes", () => {
+    expect(opensToggleAll(press("†", { code: "KeyT", metaKey: true, altKey: true } as never), true)).toBe(true);
+    expect(opensToggleAll(press("t", { code: "KeyT", ctrlKey: true, altKey: true } as never), false)).toBe(true);
+    expect(opensToggleAll(press("t", { code: "KeyT", ctrlKey: true, altKey: true } as never), true)).toBe(false);
+    expect(opensToggleAll(press("T", { code: "KeyT", metaKey: true, altKey: true, shiftKey: true } as never), true)).toBe(false);
+    expect(opensToggleAll(press("t", { code: "KeyT", metaKey: true } as never), true)).toBe(false);
+    expect(opensToggleAll(press("t", { code: "KeyT", metaKey: true, altKey: true, defaultPrevented: true } as never), true)).toBe(false);
+  });
+
+  it("lists strikethrough's second key and copying a block's link", () => {
+    const combos = (id: string) => SHORTCUT_GROUPS.flatMap((group) => group.shortcuts).find((shortcut) => shortcut.id === id)?.combos.map((c) => c.join("-"));
+    expect(combos("strike")).toEqual(["Mod-Shift-S", "Mod-Shift-X"]);
+    expect(combos("copyBlockLink")).toEqual(["Alt-Shift-L"]);
+    expect(combos("toggleAll")).toEqual(["Mod-Alt-T"]);
   });
 });

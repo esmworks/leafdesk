@@ -1,5 +1,6 @@
 "use client";
 
+import { useToggleAllShortcut } from "@/components/toggle-all";
 import { FlagTriangleRight, Plus, TriangleAlert, X } from "lucide-react";
 import dynamic from "next/dynamic";
 import { useRouter, useSearchParams } from "next/navigation";
@@ -111,6 +112,8 @@ export function DatabasePage({
 }) {
   const t = useTranslations("database");
   const locale = useLocale();
+  // Mod+Alt+T opens or closes every group of the view (components/toggle-all.ts).
+  useToggleAllShortcut();
   const linked = embed?.linked;
   const embedded = embed !== undefined;
   const { snapshot, rows, loadError, error, api, offlineCopyFrom } = useDatabase(databaseId, {
