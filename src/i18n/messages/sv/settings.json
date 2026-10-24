@@ -785,7 +785,7 @@
       "editHeading": "Ändra schemat",
       "edit": "Ändra",
       "remove": "Radera schemat",
-      "every": "Var {count} {unit}",
+      "every": "Med {count} {unit}s mellanrum",
       "summary": "{how} · {time} ({zone})",
       "summaryOn": "{how} på {days} · {time} ({zone})",
       "noDatabase": "Ingen databas: den läser bara",
