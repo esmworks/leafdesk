@@ -145,6 +145,39 @@
     "unarchive": "Rimuovi dall’archivio",
     "hint": "Le pagine archiviate non compaiono nella barra laterale, nella ricerca e nei selettori, ma si possono ancora leggere e modificare."
   },
+  "verification": {
+    "byUntil": "Verificata da {name} fino al {date}",
+    "by": "Verificata da {name}",
+    "until": "Verificata fino al {date}",
+    "plain": "Verificata",
+    "expiredOn": "Verifica scaduta il {date}",
+    "hint": "Qualcuno con accesso completo ha controllato questa pagina e l’ha segnata come corretta. Modificarla non toglie la verifica.",
+    "change": "Modifica o rimuovi la verifica",
+    "menu": "Verifica pagina…",
+    "menuVerified": "Verifica…",
+    "menuHint": "Segna la pagina come controllata e corretta: la ricerca la mette più in alto e la chat IA la preferisce",
+    "title": "Verifica pagina",
+    "description": "Segna questa pagina come controllata e corretta, per un periodo o senza scadenza. La ricerca mette più in alto le pagine verificate, le contrassegna e le trova con is:verified, e la chat IA le preferisce. Modificare la pagina non toglie la verifica; ricevi un avviso qualche giorno prima della scadenza.",
+    "durationLabel": "Verificata per",
+    "durations": {
+      "week": "1 settimana",
+      "month": "1 mese",
+      "quarter": "3 mesi",
+      "year": "1 anno",
+      "until": "Fino a un giorno",
+      "forever": "Senza scadenza"
+    },
+    "dateLabel": "Verificata fino al",
+    "verify": "Verifica",
+    "verifyAgain": "Verifica di nuovo",
+    "remove": "Rimuovi la verifica",
+    "searchBadge": "Verificata",
+    "errors": {
+      "template": "I modelli e le pagine al loro interno non vengono verificati.",
+      "inTrash": "Prima ripristina la pagina dal cestino.",
+      "invalidEnd": "Scegli un giorno dopo oggi, entro cinque anni."
+    }
+  },
   "icon": {
     "add": "Aggiungi icona",
     "remove": "Rimuovi icona"

@@ -9,6 +9,7 @@ export const SETTINGS_TABS = [
   "snippets",
   "pdf",
   "connections",
+  "webhooks",
   "storage",
   "analytics",
   "aiUsage",
@@ -28,20 +29,20 @@ export const isSettingsTab = (value: unknown): value is SettingsTab =>
  */
 export const SETTINGS_TAB_GROUPS = [
   { label: "workspace", tabs: ["general", "members", "guests", "teamspaces", "groups"] },
-  { label: "features", tabs: ["agents", "snippets", "pdf", "connections", "site"] },
+  { label: "features", tabs: ["agents", "snippets", "pdf", "connections", "webhooks", "site"] },
   { label: "admin", tabs: ["security", "storage", "analytics", "aiUsage", "health", "audit"] },
 ] as const satisfies readonly { label: string; tabs: readonly SettingsTab[] }[];
 
 /** Tabs only the workspace's owners get. */
-const OWNER_TABS: readonly SettingsTab[] = ["connections", "storage", "analytics", "aiUsage", "audit"];
+const OWNER_TABS: readonly SettingsTab[] = ["connections", "webhooks", "storage", "analytics", "aiUsage", "audit"];
 
 /**
  * The tabs someone gets. Guests don't see the workspace's members or policies: only its name, and
  * leaving it. The guests themselves are for those who may bring guests in (`canInviteGuests`:
  * owners, and members when Settings > Security lets them). Analytics, which counts what each
  * person did, the audit log, which says who changed what, and connections to outside services
- * (their credentials are the workspace's), where the workspace's files are stored and what its AI
- * costs are for owners. Email on rows has no tab: it is under General, and each member connects
+ * (their credentials are the workspace's), page webhooks (they send its pages out), where the
+ * workspace's files are stored and what its AI costs are for owners. Email on rows has no tab: it is under General, and each member connects
  * their own mailbox under their account (Account > Email and calendar). Agents are listed to
  * members too: those shared with them, which their sharing lets them change. The health check covers
  * the pages each person can open, so owners and members get it alike. Snippets holds the person's

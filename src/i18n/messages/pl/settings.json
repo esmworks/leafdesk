@@ -12,6 +12,7 @@
     "groups": "Grupy",
     "agents": "Agenci",
     "connections": "Połączenia",
+    "webhooks": "Webhooki",
     "storage": "Magazyn",
     "analytics": "Analityka",
     "aiUsage": "Użycie AI",
@@ -1017,6 +1018,8 @@
     "moveToTrash": "Przenieś do kosza",
     "confirmTrash": "Przenieść „{title}” do kosza?",
     "lastEdited": "Ostatnia edycja {when}",
+    "verificationEndedBy": "Zweryfikowana przez {name}, wygasła {when}",
+    "verificationEnded": "Weryfikacja wygasła {when}",
     "alike": "Podobieństwo: {similarity, number, percent}",
     "inProperty": "{property} w {database}",
     "removeFromRelation": "Usuń",
@@ -1040,6 +1043,11 @@
       "title": "Nieruszane strony",
       "description": "Strony, których nikt nie edytował od {months, plural, one {# miesiąca} few {# miesięcy} many {# miesięcy} other {# miesiąca}}, od najdłużej nieruszanych. Mogą być nieaktualne.",
       "none": "Każda strona była niedawno edytowana."
+    },
+    "expiredVerifications": {
+      "title": "Wygasłe weryfikacje",
+      "description": "Strony, które ktoś zweryfikował do dnia, który już minął. Sprawdź je i zweryfikuj ponownie albo usuń weryfikację.",
+      "none": "Żadna weryfikacja nie wygasła."
     },
     "duplicates": {
       "title": "Możliwe duplikaty",
@@ -1673,6 +1681,8 @@
         "permission_removed": "Usunięto z udostępniania {target}: {subject}",
         "row_access_changed": "Zmieniono, komu dają dostęp wiersze: {target}",
         "deleted": "Trwale usunięto {target}",
+        "verified": "Zweryfikowano {target}",
+        "unverified": "Usunięto weryfikację {target}",
         "published": "Opublikowano {target} w internecie",
         "unpublished": "Cofnięto publikację {target}",
         "publication_revoked": "Wycofano {target} z internetu (opublikowane przez: {subject})",
@@ -1748,6 +1758,11 @@
         "created": "Utworzono automatyzację „{name}” w {target}",
         "updated": "{change, select, on {Włączono automatyzację „{name}” w {target}} off {Wyłączono automatyzację „{name}” w {target}} other {Zmieniono automatyzację „{name}” w {target}}}",
         "deleted": "Usunięto automatyzację „{name}” w {target}"
+      },
+      "webhook": {
+        "created": "Dodano webhook „{target}”",
+        "updated": "{change, select, on {Włączono webhook „{target}”} off {Wyłączono webhook „{target}”} other {Zmieniono webhook „{target}”}}",
+        "deleted": "Usunięto webhook „{target}”"
       },
       "export": {
         "workspace": "Wyeksportowano obszar roboczy ({count, plural, one {# strona} few {# strony} many {# stron} other {# strony}})",
@@ -1880,7 +1895,10 @@
     "followUpChannel": "Follow-upy: {channel}",
     "reactionTitle": "Reakcje",
     "reactionDescription": "Ktoś reaguje na Twój komentarz. Reakcje na ten sam komentarz są zbierane razem, dopóki ich nie otworzysz.",
-    "reactionChannel": "Reakcje: {channel}"
+    "reactionChannel": "Reakcje: {channel}",
+    "verificationTitle": "Zweryfikowane przez ciebie strony",
+    "verificationDescription": "Kończy się weryfikacja strony zweryfikowanej przez ciebie: kilka dni wcześniej i w chwili, gdy wygasa.",
+    "verificationChannel": "Zweryfikowane przez ciebie strony: {channel}"
   },
   "site": {
     "description": "Nadaj opublikowanym stronom tego obszaru roboczego jeden czytelny adres, stronę główną i nawigację między nimi.",
@@ -2118,6 +2136,102 @@
       "redo": "Odeślij z uwagą…",
       "notWhole": "To wywołanie jest dłuższe niż to, co widać tutaj, lub zawiera zamaskowane tutaj wartości. Przed zatwierdzeniem otwórz jego uruchomienie, aby zobaczyć wszystko, co zostałoby wysłane.",
       "openRun": "Otwórz uruchomienie, aby zatwierdzić"
+    }
+  },
+  "webhooks": {
+    "description": "Wysyłaj do innej usługi na bieżąco to, co dzieje się ze stronami tego obszaru roboczego: podpisane żądania POST na adres https, dla całego obszaru roboczego, jednej przestrzeni zespołu albo strony i jej podstron. Każde żądanie wychodzi w imieniu osoby, która ostatnio zapisała webhook, z tym, co może ona otworzyć; wiersze baz danych i szablony nie są wysyłane.",
+    "exportOff": "Eksport jest wyłączony w sekcji Ustawienia › Bezpieczeństwo, więc webhooki nic nie wysyłają, dopóki nie zostanie znów włączony.",
+    "count": "{count, plural, =0 {Brak webhooków.} one {# webhook} few {# webhooki} many {# webhooków} other {# webhooka}}",
+    "add": "Dodaj webhook",
+    "empty": "Dodaj webhook, aby wysyłać zdarzenia stron do własnej usługi.",
+    "allEvents": "Wszystkie zdarzenia",
+    "scopeLabel": {
+      "workspace": "Wszystkie strony obszaru roboczego",
+      "teamspace": "Strony przestrzeni zespołu {name}",
+      "page": "{title} i jej podstrony"
+    },
+    "events": {
+      "pageCreated": "Strona utworzona",
+      "pageUpdated": "Strona edytowana",
+      "pageMoved": "Strona przeniesiona",
+      "pageTrashed": "Strona przeniesiona do kosza",
+      "pageRestored": "Strona przywrócona z kosza",
+      "pageDeleted": "Strona trwale usunięta",
+      "commentCreated": "Komentarz dodany",
+      "ping": "Test"
+    },
+    "sendsAs": "Wysyła w imieniu: {name}, z tym, co ta osoba może otworzyć.",
+    "paused": "Wstrzymany: {name} nie jest już właścicielem. Zapisz go, aby wysyłał w twoim imieniu.",
+    "pausedBadge": "Wstrzymany",
+    "offBadge": "Wyłączony",
+    "toggle": "Wysyłanie: {name}",
+    "test": "Wyślij test",
+    "testDelivered": "Test dotarł pod adres (odpowiedź: {status}).",
+    "testFailed": "Test się nie powiódł: {reason}.",
+    "edit": "Edytuj",
+    "delete": "Usuń",
+    "deleteNote": "Przestaje działać od razu, a jego dziennik wysyłek znika razem z nim.",
+    "working": "Trwa…",
+    "secret": {
+      "show": "Sekret podpisu",
+      "rotate": "Nowy sekret",
+      "rotateNote": "Obecny sekret od razu przestaje podpisywać żądania: zaktualizuj usługę, która go sprawdza.",
+      "title": "Sekret podpisu webhooka „{name}”",
+      "label": "Sekret podpisu",
+      "note": "Sprawdzaj nim nagłówek X-Leafdesk-Signature każdego żądania: t=TIME,v1=HMAC, gdzie HMAC to szesnastkowy HMAC-SHA256 z TIME, kropki i treści. Zachowaj go w tajemnicy."
+    },
+    "log": {
+      "title": "{count, plural, =0 {Ostatnie wysyłki} one {Ostatnie wysyłki (#)} few {Ostatnie wysyłki (#)} many {Ostatnie wysyłki (#)} other {Ostatnie wysyłki (#)}}",
+      "empty": "Nic nie wysłano w ciągu ostatnich 30 dni.",
+      "attempts": "{count, plural, one {# próba} few {# próby} many {# prób} other {# próby}}",
+      "next": "następna próba o {when}"
+    },
+    "status": {
+      "pending": "Oczekuje",
+      "delivered": "Dostarczono",
+      "failed": "Nieudane",
+      "skipped": "Nie wysłano"
+    },
+    "codes": {
+      "noAccess": "osoba, w której imieniu wysyła, nie może otworzyć strony",
+      "notOwner": "osoba, w której imieniu wysyła, nie jest już właścicielem",
+      "exportOff": "eksport jest wyłączony",
+      "disabled": "webhook jest wyłączony",
+      "invalidUrl": "adres jest nieprawidłowy",
+      "blocked": "adres należy do sieci prywatnej",
+      "unreachable": "nie udało się połączyć z adresem",
+      "timeout": "brak odpowiedzi w ciągu 10 sekund",
+      "redirect": "adres odpowiedział przekierowaniem",
+      "http": "adres odpowiedział kodem {status}"
+    },
+    "form": {
+      "title": "Dodaj webhook",
+      "editTitle": "Zmień webhook",
+      "name": "Nazwa",
+      "url": "Adres",
+      "urlHint": "Adres https. Żądania są podpisywane; przekierowania nie są wykonywane.",
+      "events": "Zdarzenia",
+      "scope": "Strony",
+      "scopes": {
+        "workspace": "Cały obszar roboczy",
+        "teamspace": "Jedna przestrzeń zespołu",
+        "page": "Strona i jej podstrony"
+      },
+      "teamspace": "Wybierz przestrzeń zespołu",
+      "pickPage": "Znajdź stronę",
+      "noPages": "Brak stron do wyboru.",
+      "otherPage": "Zmień",
+      "save": "Zapisz",
+      "create": "Dodaj webhook"
+    },
+    "errors": {
+      "invalidName": "Nadaj webhookowi nazwę o długości do 100 znaków.",
+      "invalidUrl": "Wpisz prawidłowy adres https bez nazwy użytkownika i hasła.",
+      "httpsOnly": "Webhooki wysyłają tylko na adresy https.",
+      "noEvents": "Wybierz co najmniej jedno zdarzenie.",
+      "invalidScope": "Wybierz przestrzeń zespołu lub stronę tego obszaru roboczego.",
+      "tooMany": "Obszar roboczy może mieć najwyżej 25 webhooków.",
+      "ownersOnly": "Webhookami zarządzają tylko właściciele obszaru roboczego."
     }
   },
   "email": {

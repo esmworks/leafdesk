@@ -16,9 +16,11 @@ import {
   TextQuote,
   Users,
   UsersRound,
+  Webhook,
   type LucideIcon,
 } from "lucide-react";
 import type { Metadata } from "next";
+import dynamic from "next/dynamic";
 import { notFound } from "next/navigation";
 import { getLocale, getTimeZone, getTranslations } from "next-intl/server";
 import { ACCOUNT_ICONS, AccountTabContent } from "@/components/account/account-tabs";
@@ -100,6 +102,7 @@ import { listAgents } from "@/server/agents/manage";
 import { proposedNoteCounts } from "@/server/agents/memory";
 import { webSearchService } from "@/server/agents/web";
 import { listConnections } from "@/server/connections/manage";
+import { listPageWebhookDeliveries, listPageWebhooks } from "@/server/page-webhooks/manage";
 import { oauthRedirectUrl } from "@/server/connections/client";
 import { env } from "@/lib/env";
 import { aiInfoFor } from "@/server/ai";
@@ -137,6 +140,9 @@ import {
 import { listWorkspaceApps } from "@/server/workspace-apps";
 import { checkWorkspace } from "@/server/workspace-check";
 
+// Only owners on the Webhooks tab need it: loaded there, not with every settings tab.
+const WebhooksPanel = dynamic(() => import("@/components/settings/webhooks-panel").then((m) => m.WebhooksPanel));
+
 export async function generateMetadata(): Promise<Metadata> {
   const t = await getTranslations("settings");
   return { title: t("metaTitle") };
@@ -152,6 +158,7 @@ const ICONS: Record<SettingsTab, LucideIcon> = {
   snippets: TextQuote,
   pdf: FileText,
   connections: Plug,
+  webhooks: Webhook,
   storage: HardDrive,
   analytics: ChartColumn,
   aiUsage: Coins,
@@ -285,6 +292,7 @@ export default async function SettingsPage({
               notice={query.signedIn === "1" ? "signedIn" : query.connectionError === "oauthFailed" ? "oauthFailed" : undefined}
             />
           )}
+          {tab === "webhooks" && <WebhooksTab workspaceId={workspaceId} userId={user.id} />}
           {tab === "storage" && <StorageTab workspaceId={workspaceId} userId={user.id} isAdmin={isAdmin} notice={storageNoticeOf(query)} />}
           {tab === "analytics" && <AnalyticsTab workspaceId={workspaceId} userId={user.id} days={query.days} />}
           {tab === "aiUsage" && <AiUsageTab workspaceId={workspaceId} userId={user.id} month={query.month} />}
@@ -762,6 +770,29 @@ async function ConnectionsTab({
       notice={notice}
       oauthSetup={{ redirectUrl: oauthRedirectUrl(), instanceClients: Object.keys(env.connectionOAuthClients) }}
     />
+  );
+}
+
+/** Settings > Webhooks, for owners (the tab isn't offered to anyone else, and the list refuses them). */
+async function WebhooksTab({ workspaceId, userId }: { workspaceId: string; userId: string }) {
+  const [t, webhooks, teamspaces, settings] = await Promise.all([
+    getTranslations("settings"),
+    listPageWebhooks(userId, workspaceId),
+    listTeamspaces(userId, workspaceId),
+    getWorkspaceSettings(userId, workspaceId),
+  ]);
+  const logs = await Promise.all(webhooks.map((w) => listPageWebhookDeliveries(userId, w.id, 20)));
+  return (
+    <>
+      <SettingsHeader title={t("nav.webhooks")} description={t("webhooks.description")} />
+      <WebhooksPanel
+        workspaceId={workspaceId}
+        webhooks={webhooks}
+        deliveries={Object.fromEntries(webhooks.map((w, i) => [w.id, logs[i]]))}
+        teamspaces={teamspaces.filter((ts) => !ts.archivedAt).map((ts) => ({ id: ts.id, name: ts.name }))}
+        exportOff={settings.export === false}
+      />
+    </>
   );
 }
 

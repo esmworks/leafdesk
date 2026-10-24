@@ -54,6 +54,7 @@ import { pageChanged } from "@/server/page-events";
 import { rowChanged } from "@/server/row-events";
 import { recordTitleChange } from "@/server/row-activity";
 import { queuePageSave } from "@/server/page-watch";
+import { queuePageUpdated } from "@/server/page-webhooks/queue";
 import { queueRowSave } from "@/server/row-follow";
 import { authorizeCollab, parseDocName as parseName, type DocTarget } from "./authorize";
 import { isPageSaveFailed, pageSaveFailedError, type BodyWrite, type Channel, type CollabService, type CommentOpResult, type PageContent, type VersionCheck, type WriteActor } from "./bridge";
@@ -442,6 +443,8 @@ export function createCollab() {
     const editors = wrote.size ? [...wrote] : userId ? [userId] : [];
     if (row.parentId) await queueRowSave(editors, pageId, { before: row.title, after: title, body: bodyChanged }, context?.locale ?? null);
     await queuePageSave(editors, pageId, context?.locale ?? null);
+    // Page webhooks hear about it once the page is left alone for a while (server/page-webhooks).
+    await queuePageUpdated(pageId, userId ?? editors.at(-1) ?? null, { title: title !== row.title, body: bodyChanged });
     if (title !== row.title) {
       broadcast(`ws:${row.workspaceId}`, "tree");
       if (row.parentId) broadcast(`db:${row.parentId}`, "rows");

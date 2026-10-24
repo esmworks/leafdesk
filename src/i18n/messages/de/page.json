@@ -145,6 +145,39 @@
     "unarchive": "Archivierung aufheben",
     "hint": "Archivierte Seiten erscheinen nicht in Seitenleiste, Suche und Auswahllisten, lassen sich aber weiter lesen und bearbeiten."
   },
+  "verification": {
+    "byUntil": "Verifiziert von {name} bis {date}",
+    "by": "Verifiziert von {name}",
+    "until": "Verifiziert bis {date}",
+    "plain": "Verifiziert",
+    "expiredOn": "Verifizierung abgelaufen am {date}",
+    "hint": "Jemand mit Vollzugriff hat diese Seite geprüft und als richtig markiert. Bearbeiten hebt die Verifizierung nicht auf.",
+    "change": "Verifizierung ändern oder entfernen",
+    "menu": "Seite verifizieren…",
+    "menuVerified": "Verifizierung…",
+    "menuHint": "Die Seite als geprüft und richtig markieren: Die Suche stuft sie höher ein und der KI-Chat bevorzugt sie",
+    "title": "Seite verifizieren",
+    "description": "Markiere diese Seite als geprüft und richtig, für eine Weile oder ohne Ende. Die Suche stuft verifizierte Seiten höher ein, kennzeichnet sie und findet sie mit is:verified, und der KI-Chat bevorzugt sie. Bearbeiten hebt die Verifizierung nicht auf; ein paar Tage vor dem Ende sagen wir dir Bescheid.",
+    "durationLabel": "Verifiziert für",
+    "durations": {
+      "week": "1 Woche",
+      "month": "1 Monat",
+      "quarter": "3 Monate",
+      "year": "1 Jahr",
+      "until": "Bis zu einem Tag",
+      "forever": "Ohne Ende"
+    },
+    "dateLabel": "Verifiziert bis",
+    "verify": "Verifizieren",
+    "verifyAgain": "Erneut verifizieren",
+    "remove": "Verifizierung entfernen",
+    "searchBadge": "Verifiziert",
+    "errors": {
+      "template": "Vorlagen und die Seiten darin werden nicht verifiziert.",
+      "inTrash": "Stelle die Seite zuerst aus dem Papierkorb wieder her.",
+      "invalidEnd": "Wähle einen Tag nach heute, höchstens fünf Jahre im Voraus."
+    }
+  },
   "icon": {
     "add": "Symbol hinzufügen",
     "remove": "Symbol entfernen"

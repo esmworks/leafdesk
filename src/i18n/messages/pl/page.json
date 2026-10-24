@@ -145,6 +145,39 @@
     "unarchive": "Przywróć z archiwum",
     "hint": "Zarchiwizowane strony nie pojawiają się na pasku bocznym, w wyszukiwaniu ani na listach wyboru, ale nadal można je czytać i edytować."
   },
+  "verification": {
+    "byUntil": "Zweryfikowana przez {name} do {date}",
+    "by": "Zweryfikowana przez {name}",
+    "until": "Zweryfikowana do {date}",
+    "plain": "Zweryfikowana",
+    "expiredOn": "Weryfikacja wygasła {date}",
+    "hint": "Ktoś z pełnym dostępem sprawdził tę stronę i oznaczył ją jako poprawną. Edycja strony nie znosi weryfikacji.",
+    "change": "Zmień lub usuń weryfikację",
+    "menu": "Zweryfikuj stronę…",
+    "menuVerified": "Weryfikacja…",
+    "menuHint": "Oznacz stronę jako sprawdzoną i poprawną: wyszukiwanie stawia ją wyżej, a czat AI ją preferuje",
+    "title": "Zweryfikuj stronę",
+    "description": "Oznacz tę stronę jako sprawdzoną i poprawną, na jakiś czas lub bezterminowo. Wyszukiwanie stawia zweryfikowane strony wyżej, oznacza je i znajduje po is:verified, a czat AI je preferuje. Edycja strony nie znosi weryfikacji; kilka dni przed jej końcem dostaniesz powiadomienie.",
+    "durationLabel": "Zweryfikowana na",
+    "durations": {
+      "week": "1 tydzień",
+      "month": "1 miesiąc",
+      "quarter": "3 miesiące",
+      "year": "1 rok",
+      "until": "Do wybranego dnia",
+      "forever": "Bezterminowo"
+    },
+    "dateLabel": "Zweryfikowana do",
+    "verify": "Zweryfikuj",
+    "verifyAgain": "Zweryfikuj ponownie",
+    "remove": "Usuń weryfikację",
+    "searchBadge": "Zweryfikowana",
+    "errors": {
+      "template": "Szablonów ani stron w nich nie można weryfikować.",
+      "inTrash": "Najpierw przywróć stronę z kosza.",
+      "invalidEnd": "Wybierz dzień po dzisiejszym, nie dalej niż za pięć lat."
+    }
+  },
   "icon": {
     "add": "Dodaj ikonę",
     "remove": "Usuń ikonę"

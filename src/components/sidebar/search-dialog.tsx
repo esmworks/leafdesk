@@ -1,6 +1,6 @@
 "use client";
 
-import { Archive, ChevronRight, Paperclip, Search } from "lucide-react";
+import { Archive, BadgeCheck, ChevronRight, Paperclip, Search } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { useEffect, useMemo, useRef, useState, type ReactNode } from "react";
@@ -36,6 +36,8 @@ type PageItem = {
   file?: SearchHit["file"];
   /** Archived (server/page-outdated): found only while the search includes archived pages. */
   outdated?: boolean;
+  /** Verified right now (server/verification): marked, and ranked above an otherwise equal page. */
+  verified?: boolean;
 };
 type Item = { type: "page"; page: PageItem } | { type: "command"; command: SearchCommand };
 
@@ -44,7 +46,7 @@ const fold = (value: string) => searchFold(value.normalize("NFC").trim());
 
 /**
  * The search box (Cmd/Ctrl+K): pages by their title and content, narrowed with `in:` and `type:`
- * (see lib/search-query); the pages last edited before anything is typed; and, after `>`, the
+ * and `is:verified` (see lib/search-query); the pages last edited before anything is typed; and, after `>`, the
  * commands the sidebar hands it. Archived pages are found only with "Include archived" on, and say so.
  */
 export function SearchDialog({
@@ -203,6 +205,12 @@ export function SearchDialog({
                   <span className="min-w-0 flex-1">
                     <span className="flex items-baseline gap-2">
                       <span className="min-w-0 truncate text-sm font-medium">{pageLabel(item.page.title, tc("untitled"))}</span>
+                      {item.page.verified && (
+                        <span className="flex shrink-0 items-center gap-1 self-center text-xs text-fg-muted" title={t("verifiedHint")}>
+                          <BadgeCheck className="h-3 w-3" aria-hidden />
+                          {t("verified")}
+                        </span>
+                      )}
                       {item.page.outdated && (
                         <span className="flex shrink-0 items-center gap-1 self-center text-xs text-fg-faint">
                           <Archive className="h-3 w-3" aria-hidden />

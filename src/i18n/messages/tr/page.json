@@ -145,6 +145,39 @@
     "unarchive": "Arşivden çıkar",
     "hint": "Arşivlenen sayfalar kenar çubuğunda, aramada ve seçicilerde görünmez; yine de okunup düzenlenebilir."
   },
+  "verification": {
+    "byUntil": "{name} tarafından {date} tarihine kadar doğrulandı",
+    "by": "{name} tarafından doğrulandı",
+    "until": "{date} tarihine kadar doğrulandı",
+    "plain": "Doğrulandı",
+    "expiredOn": "Doğrulamanın süresi {date} tarihinde doldu",
+    "hint": "Tam erişimi olan biri bu sayfayı kontrol edip doğru olarak işaretledi. Sayfayı düzenlemek doğrulamayı kaldırmaz.",
+    "change": "Doğrulamayı değiştir ya da kaldır",
+    "menu": "Sayfayı doğrula…",
+    "menuVerified": "Doğrulama…",
+    "menuHint": "Sayfayı kontrol edilmiş ve doğru olarak işaretleyin: arama onu üst sıralara taşır, yapay zekâ sohbeti onu tercih eder",
+    "title": "Sayfayı doğrula",
+    "description": "Bu sayfayı bir süreliğine ya da süresiz olarak kontrol edilmiş ve doğru diye işaretleyin. Arama doğrulanmış sayfaları üst sıralara taşır, işaretler ve is:verified ile bulur; yapay zekâ sohbeti de onları tercih eder. Sayfayı düzenlemek doğrulamayı kaldırmaz; sona ermeden birkaç gün önce haber alırsınız.",
+    "durationLabel": "Doğrulama süresi",
+    "durations": {
+      "week": "1 hafta",
+      "month": "1 ay",
+      "quarter": "3 ay",
+      "year": "1 yıl",
+      "until": "Belirli bir güne kadar",
+      "forever": "Süresiz"
+    },
+    "dateLabel": "Doğrulamanın bitiş tarihi",
+    "verify": "Doğrula",
+    "verifyAgain": "Yeniden doğrula",
+    "remove": "Doğrulamayı kaldır",
+    "searchBadge": "Doğrulanmış",
+    "errors": {
+      "template": "Şablonlar ve içlerindeki sayfalar doğrulanmaz.",
+      "inTrash": "Önce sayfayı çöp kutusundan geri yükleyin.",
+      "invalidEnd": "Bugünden sonra ve en fazla beş yıl içinde bir gün seçin."
+    }
+  },
   "icon": {
     "add": "Simge ekle",
     "remove": "Simgeyi kaldır"

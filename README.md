@@ -81,8 +81,8 @@ for Windows, `.AppImage` for Linux) and choose *On this computer*. See [Desktop 
 - **Search box** (Cmd/Ctrl+K): before you type, the pages last edited. Narrow a search with
   `in:Projects` or `in:"Launch plan"` (that page and everything under it; several pages of that
   title, or several `in:`, search under any of them; a title nobody can see finds nothing) and
-  `type:page`, `type:database`, `type:row` (database rows) or `type:journal` (your daily notes);
-  filters work without words too,
+  `type:page`, `type:database`, `type:row` (database rows) or `type:journal` (your daily notes),
+  and `is:verified` (pages verified right now, see *Verified pages*); filters work without words too,
   listing the pages they match, last edited first. Type `>` for commands: new page or database,
   from a template, import, trash, inbox, settings and keyboard shortcuts, and, once you type
   after `>`, each setting you can see (*Settings: Security → Legal holds*). The line under the
@@ -386,6 +386,19 @@ for Windows, `.AppImage` for Linux) and choose *On this computer*. See [Desktop 
   then, along with its email if that hadn't gone yet. On a phone, swipe an item toward the end of
   the line to mark it read (or unread again) and toward its start to snooze it until tomorrow
   morning. Choose per kind whether it shows in the inbox, whether it comes by email and, on the devices where you turn them on, as a [push notification](#push-notifications).
+- **Verified pages**: someone with full access marks a page, database or row as checked and right
+  from the page's `⋯` menu, for a week, a month, three months or a year, until a day they choose,
+  or with no end. Under the title a badge says who verified it and until when, and once that day
+  passes, that the verification expired; editing the page keeps it verified. The verifier hears
+  three days before the end and when it comes (in the inbox and by email, as they choose under
+  *Pages you verified* in Settings > Preferences). Search ranks a verified page above an otherwise
+  equal one and marks it, and `is:verified` lists only verified pages; the AI chat is told which
+  sources are verified, prefers them where sources disagree, and its citations show the mark.
+  MCP's `get_page` and `search` and the REST API's pages say `verified` (who, when, until, and
+  whether it expired), and MCP's `update_page` and the REST API's `PATCH /pages/{id}` take
+  `verified` (`week`, `month`, `quarter`, `year`, a day, `forever`, or `none` to remove it).
+  Settings > Health lists the pages whose verification expired. Templates and pages in the trash
+  aren't verified, and published pages don't show verification.
 - **Page history**: versions are saved automatically while you edit and before every AI edit.
   You can preview and restore any version, and see what changed since it or since the version
   before, and who (or which AI app) changed it. Changes an AI app, the chat or an agent writes to a
@@ -445,8 +458,9 @@ for Windows, `.AppImage` for Linux) and choose *On this computer*. See [Desktop 
 - **Workspace health**: Settings → Health, for owners and members, checks the pages each person
   can open for what is worth tidying: links and mentions to pages in the trash or deleted, top-level
   pages nothing links to, pages with a title and no body, pages nobody edited for 3, 6, 12 or 24
-  months, pages that say nearly the same thing (compared by their embeddings, when the server has
-  an embeddings model and the workspace has AI on), and relations to rows in the trash or deleted.
+  months, pages whose verification expired, pages that say nearly the same thing (compared by
+  their embeddings, when the server has an embeddings model and the workspace has AI on), and
+  relations to rows in the trash or deleted.
   Where it can, a finding has a one-click fix: restore the page, link the orphan where another page
   writes its title, move the empty page to the trash, take the dead row out of the relation. The
   MCP tool `check_workspace` returns the same report.
@@ -638,6 +652,10 @@ for Windows, `.AppImage` for Linux) and choose *On this computer*. See [Desktop 
     consent screen.
   - Tokens are audience-bound. Apps can be read-only or read-write, and you can revoke them in
     My account → Connected apps.
+- **Page webhooks**: workspace owners send what happens to pages (made, edited, moved, trashed,
+  restored, deleted for good, commented on) to a service of their own as signed POST requests, for
+  the whole workspace, one teamspace or a page and the pages under it, under Settings > Webhooks or
+  with the REST API (see [Page webhooks](#page-webhooks)).
 - **REST API** under `/api/v1` with personal access tokens (read or read-write, optionally one
   workspace, optional expiry) and an OpenAPI 3.1 document (see [REST API](#rest-api)).
 - **Snippets**: content you insert while typing: `;` and a snippet's trigger in any page (or the
@@ -2029,6 +2047,68 @@ A `POST` with a JSON body (up to 64 KB; an empty body counts as `{}`) queues a r
 
 The automation can keep an example body, which its test runs use and its editor offers fields
 from. Bodies are kept in the run history for 30 days with credentials masked.
+
+## Page webhooks
+
+Workspace owners add page webhooks under Settings > Webhooks, or with the REST API
+(`/workspaces/{workspace_id}/webhooks` and `/webhooks/{webhook_id}`, scopes `webhooks:read` and
+`webhooks:write`; owners only). Each has an `https` address, the events it hears about and the
+pages it covers: the whole workspace, one teamspace, or a page and every page under it. A
+workspace has up to 25. Database rows and templates are never sent: rows have
+[automations](#automations-and-webhooks) for that.
+
+| Event | When |
+| --- | --- |
+| `page.created` | A page or database is made; sent 5 seconds later, with the body written by then |
+| `page.updated` | Its title or body changed; once the page is left alone for 2 minutes (at most 15 after the first change), one delivery for a session of edits, saying what changed |
+| `page.moved` | It moved to another page or teamspace; a page webhook hears about it if the page is in its scope before or after, with where it was (`from`) |
+| `page.trashed`, `page.restored` | It went to the trash with the pages under it (one event, for that page), or came back |
+| `page.deleted` | It was deleted for good; the body has only its `id`, `title` and `kind` |
+| `comment.created` | Someone started a comment thread on it or replied in one |
+
+Deliveries are sent like [automation webhooks](#webhooks): the same `User-Agent`,
+`X-Leafdesk-Delivery`, `X-Leafdesk-Signature` (each page webhook has its own `whsec_…` secret,
+shown in Settings and when it is added over the API, and replaced with *New secret*) and the same
+retries, 5 attempts in all, with the event's name in `X-Leafdesk-Event` (`ping` for *Send test*).
+Plain `http` is refused unless the host is in `AUTOMATION_WEBHOOK_ALLOWED_HOSTS`; private
+addresses are refused as for automations. The body:
+
+```json
+{
+  "id": "4a1e…",
+  "event": "page.updated",
+  "created_at": "2026-10-24T09:14:03.512Z",
+  "webhook": { "id": "9c3b…", "name": "Docs to search index" },
+  "workspace_id": "8a41…",
+  "actor": { "id": "u_12…", "name": "Ada Lovelace" },
+  "page": {
+    "id": "e7f2…",
+    "title": "Onboarding",
+    "kind": "page",
+    "icon": "📘",
+    "url": "https://notes.example.com/w/8a41…/p/e7f2…",
+    "parent_id": "c3d9…",
+    "teamspace_id": "b07a…",
+    "in_trash": false,
+    "created_at": "2026-09-01T08:00:00.000Z",
+    "updated_at": "2026-10-24T09:12:01.000Z",
+    "markdown": "# Onboarding\n…"
+  },
+  "changes": { "title": false, "body": true }
+}
+```
+
+`page.moved` adds `from: {parent_id, teamspace_id}`, `comment.created` adds `comment: {thread_id,
+id, reply, text}`, and the Markdown is cut at 100,000 characters (`markdown_truncated: true`).
+`actor` is `null` when nobody did it (the trash emptying itself). A parent the webhook's person
+can't open reads `null`.
+
+**Whose eyes.** A page webhook sends as the owner who saved it last (*Sends as* in Settings), and
+everything is checked again for each delivery: a page they can't open is skipped (*Not sent* in
+the delivery log), and if they are no longer an owner, nothing is sent and the webhook pauses
+until another owner saves it, which makes it send as them. While the workspace's export switch is
+off (Settings > Security), nothing is sent either. Each webhook keeps a log of its deliveries for
+30 days. Deleting the page a webhook covers removes the webhook with it.
 
 ## AI features
 

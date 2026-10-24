@@ -58,10 +58,12 @@ import { searchFold } from "@/lib/search-fold";
 import { parseSearchQuery } from "@/lib/search-query";
 import { pageChanged } from "@/server/page-events";
 import { heldPageIds, refuseHeldPages } from "@/server/legal-hold";
+import { beforePagesDeleted, queuePageCreated, queuePageMoved, queuePagesDeleted, queuePageTrashed } from "@/server/page-webhooks/queue";
 import { searchFoldSql } from "@/server/search-fold-sql";
 import { sweepDocuments } from "@/server/file-text";
 import { listedPage, isOutdated, outdatedIds } from "@/server/page-outdated";
 import { searchScope, semanticSearch, type SearchScope } from "@/server/semantic-search";
+import { activeVerification } from "@/server/verification";
 import { reciprocalRankFusion, snippetOf } from "@/server/semantic-text";
 import { assertNestable, subtreeHeight } from "@/server/page-depth";
 import { followNewSpace, freezeInheritedEntries, keepFullAccess, makePagePrivate } from "@/server/permissions";
@@ -431,6 +433,8 @@ export async function createPage(actor: WriteActor, input: CreatePageInput, { au
     if (input.markdown?.trim()) await collab.replaceContent(created.id, input.markdown, actor);
   } finally {
     pageChanged({ pageId: created.id });
+    // Page webhooks hear about it a few seconds on, with the body written by then.
+    await queuePageCreated(created.id, userId);
     collab.broadcast(`ws:${workspaceId}`, "tree");
     if (parentKind === "database") collab.broadcast(`db:${input.parentId}`, "rows");
   }
@@ -529,6 +533,8 @@ export async function archivePage(userId: string, pageId: string) {
   const trashed = [...(await sweep()), ...(await sweep())];
   // Open editors stop writing at once: a page in the trash doesn't change (assertNotInTrash).
   await getCollab().pagesTrashed(trashed.map((t) => t.id), true);
+  // One event for the page, not for each page under it.
+  if (!p.archivedAt) await queuePageTrashed(p.id, userId);
   if (!p.archivedAt && (await auditedAsPage(p))) {
     await recordAudit({
       workspaceId: p.workspaceId,
@@ -622,6 +628,7 @@ export async function restorePage(userId: string, pageId: string) {
       details: { kind: p.kind },
     });
   }
+  if (p.archivedAt) await queuePageTrashed(pageId, userId, true);
   // Back in search; the index catches up if it was left behind meanwhile (with the pages under it
   // when it was lifted to the top: their chunks name the pages above).
   pageChanged({ pageId, subtree: parentId !== p.parentId });
@@ -651,6 +658,8 @@ export async function deleteTrashedPages(workspaceId: string, pageIds: string[],
   const held = await heldPageIds(workspaceId, pageIds);
   const ids = pageIds.filter((id) => !held.has(id));
   if (!ids.length) return [];
+  // Page webhooks: what their deliveries say about the pages, read while they are still there.
+  const forWebhooks = await beforePagesDeleted(workspaceId, ids);
   const deleted = await db
     .delete(page)
     .where(and(eq(page.workspaceId, workspaceId), inArray(page.id, ids), isNotNull(page.archivedAt)))
@@ -665,6 +674,12 @@ export async function deleteTrashedPages(workspaceId: string, pageIds: string[],
       target: { type: "page" as const, id: d.id, label: d.title },
       details: { kind: d.kind },
     })),
+  );
+  await queuePagesDeleted(
+    workspaceId,
+    forWebhooks,
+    deleted.map((d) => d.id),
+    actorId,
   );
 
   getCollab().broadcast(`ws:${workspaceId}`, "tree");
@@ -819,6 +834,7 @@ export async function movePage(
   if (p.parentId !== newParentId || changesSpace) await getCollab().disconnectLostAccess(p.workspaceId);
   // Semantic search names the pages above in every chunk: the page and those under it are indexed again.
   if (p.parentId !== newParentId) pageChanged({ pageId, subtree: true });
+  if (moved) await queuePageMoved(pageId, userId, { parentId: p.parentId, teamspaceId: p.teamspaceId });
 }
 
 export type SearchHit = {
@@ -841,6 +857,8 @@ export type SearchHit = {
   file?: { id: string; name: string };
   /** The page is archived, itself or through a page above it; only searches that include archived pages find one. */
   outdated: boolean;
+  /** Verified right now (server/verification): ranked above an otherwise equal page, and marked. */
+  verified: boolean;
 };
 
 export type SearchOptions = SearchScope & {
@@ -854,13 +872,13 @@ export type SearchOptions = SearchScope & {
 };
 
 /** Whether a search has a scope of its own, which lists pages even without words to search for. */
-const scoped = ({ withinPageIds, kinds }: SearchScope) => Boolean(withinPageIds?.length || kinds?.length);
+const scoped = ({ withinPageIds, kinds, verifiedOnly }: SearchScope) => Boolean(withinPageIds?.length || kinds?.length || verifiedOnly);
 
 /**
  * Search across the user's workspaces (or one workspace): full-text search over titles and bodies,
  * merged with semantic search (reciprocal rank fusion) where the server has an embeddings model
  * and the workspace has AI on. Without one, exactly the full-text results. With a scope (pages to
- * look under, kinds of page) and no text, the pages in the scope, last edited first.
+ * look under, kinds of page, verified only) and no text, the pages in the scope, last edited first.
  */
 export async function searchPages(userId: string, query: string, options: SearchOptions = {}): Promise<SearchHit[]> {
   const q = query.trim();
@@ -894,13 +912,17 @@ export async function searchPages(userId: string, query: string, options: Search
             snippet,
             updatedAt: m.updatedAt,
             outdated: m.outdated,
+            verified: m.verified,
             match: "semantic",
             passage: m.passage,
             blockId: m.blockId,
           },
     );
   }
+  // Equal fused scores: a verified page first (sort is stable, so the fusion's order stays otherwise).
   return reciprocalRankFusion([text.map((h) => h.id), meaning.map((m) => m.id)])
+    .map((r) => ({ ...r, verified: byId.get(r.id)!.verified }))
+    .sort((a, b) => b.score - a.score || Number(b.verified) - Number(a.verified))
     .slice(0, limit)
     .map(({ id }) => byId.get(id)!);
 }
@@ -990,6 +1012,7 @@ export async function fullTextSearch(
     file_name: string | null;
     file_text: string | null;
     outdated: boolean;
+    verified: boolean;
   }>(sql`
     with candidates as (
       select p.id, ${rank} as rank, null::text as file_id
@@ -1014,11 +1037,12 @@ export async function fullTextSearch(
       -- Ranked first, then checked in that order until enough pass: the check is a function call
       -- per page, which a common word (or the first letters of one) would make for most pages.
       -- "offset 0" keeps the check out of the ranked set, and the ranked set in its order.
-      select r.id, r.rank, r.updated_at, r.file_id from (
-        select s.id, s.rank, p.updated_at, s.file_id
+      -- A verified page goes above an otherwise equal one (server/verification).
+      select r.id, r.rank, r.verified, r.updated_at, r.file_id from (
+        select s.id, s.rank, ${activeVerification("p")} as verified, p.updated_at, s.file_id
         from scored s
         join ${page} p on p.id = s.id
-        order by s.rank desc, p.updated_at desc
+        order by s.rank desc, verified desc, p.updated_at desc
         offset 0
       ) r
       where ${pageVisibleTo(userId, "r")}
@@ -1029,13 +1053,14 @@ export async function fullTextSearch(
       case when p.parent_id is not null and ${pageVisibleTo(userId, "parent")} then p.parent_id end as parent_id,
       p.kind, p.title, p.icon, p.content_text, p.updated_at,
       h.file_id, f.name as file_name, left(ft.text, 80000) as file_text,
-      ${includeOutdated ? isOutdated(workspaces, "p") : sql`false`} as outdated
+      ${includeOutdated ? isOutdated(workspaces, "p") : sql`false`} as outdated,
+      h.verified
     from hits h
     join ${page} p on p.id = h.id
     left join ${page} parent on parent.id = p.parent_id
     left join ${file} f on f.id = h.file_id
     left join ${fileText} ft on ft.file_id = h.file_id
-    order by h.rank desc, h.updated_at desc
+    order by h.rank desc, h.verified desc, h.updated_at desc
   `);
   const needles = anyWord ? terms : [q, ...q.split(/\s+/)];
   return rows.map((r) => ({
@@ -1049,6 +1074,7 @@ export async function fullTextSearch(
     snippet: makeSnippet(r.file_id ? (r.file_text ?? "") : r.content_text, needles),
     updatedAt: new Date(r.updated_at),
     outdated: Boolean(r.outdated),
+    verified: Boolean(r.verified),
     ...(r.file_id ? { file: { id: r.file_id, name: r.file_name ?? "" } } : {}),
   }));
 }
@@ -1193,10 +1219,10 @@ export async function searchWithQuery(
   /** Archived pages too (server/page-outdated.ts): the search box's "Include archived". */
   { includeOutdated = false }: { includeOutdated?: boolean } = {},
 ): Promise<SearchHit[]> {
-  const { text, within, kinds } = parseSearchQuery(query);
+  const { text, within, kinds, verified } = parseSearchQuery(query);
   const withinPageIds = within.length ? await pagesTitled(userId, workspaceId, within, 20, { includeOutdated }) : undefined;
   if (withinPageIds && !withinPageIds.length) return [];
-  return searchPages(userId, text, { workspaceId, limit, withinPageIds, kinds, includeOutdated });
+  return searchPages(userId, text, { workspaceId, limit, withinPageIds, kinds, includeOutdated, verifiedOnly: verified });
 }
 
 /**

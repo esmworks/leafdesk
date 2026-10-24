@@ -12,6 +12,7 @@
     "groups": "用户组",
     "agents": "智能体",
     "connections": "连接",
+    "webhooks": "Webhook",
     "storage": "存储",
     "analytics": "分析",
     "aiUsage": "AI 用量",
@@ -1017,6 +1018,8 @@
     "moveToTrash": "移到回收站",
     "confirmTrash": "要将“{title}”移到回收站吗？",
     "lastEdited": "最后编辑于 {when}",
+    "verificationEndedBy": "由 {name} 验证，已结束（{when}）",
+    "verificationEnded": "验证已结束（{when}）",
     "alike": "相似度 {similarity, number, percent}",
     "inProperty": "{database} 中的 {property}",
     "removeFromRelation": "移除",
@@ -1040,6 +1043,11 @@
       "title": "长期未改动的页面",
       "description": "过去 {months} 个月内无人编辑的页面，未改动时间最长的排在前面。它们可能已经过时。",
       "none": "所有页面最近都有编辑。"
+    },
+    "expiredVerifications": {
+      "title": "已过期的验证",
+      "description": "验证有效期已过的页面。请检查后重新验证，或移除验证。",
+      "none": "没有已过期的验证。"
     },
     "duplicates": {
       "title": "可能重复的页面",
@@ -1673,6 +1681,8 @@
         "permission_removed": "将 {subject} 从 {target} 的分享中移除",
         "row_access_changed": "更改了 {target} 的行授予访问权限的对象",
         "deleted": "永久删除了 {target}",
+        "verified": "验证了 {target}",
+        "unverified": "移除了 {target} 的验证",
         "published": "将 {target} 发布到了网络",
         "unpublished": "取消发布了 {target}",
         "publication_revoked": "将 {target} 从网络下线（由 {subject} 发布）",
@@ -1748,6 +1758,11 @@
         "created": "在 {target} 中创建了自动化“{name}”",
         "updated": "{change, select, on {开启了 {target} 中的自动化“{name}”} off {关闭了 {target} 中的自动化“{name}”} other {更改了 {target} 中的自动化“{name}”}}",
         "deleted": "删除了 {target} 中的自动化“{name}”"
+      },
+      "webhook": {
+        "created": "添加了 Webhook“{target}”",
+        "updated": "{change, select, on {开启了 Webhook“{target}”} off {关闭了 Webhook“{target}”} other {更改了 Webhook“{target}”}}",
+        "deleted": "移除了 Webhook“{target}”"
       },
       "export": {
         "workspace": "导出了工作区（{count} 个页面）",
@@ -1880,7 +1895,10 @@
     "followUpChannel": "跟进：{channel}",
     "reactionTitle": "回应",
     "reactionDescription": "有人回应了你写的评论。对同一条评论的回应会合在一起，直到你打开它们。",
-    "reactionChannel": "回应：{channel}"
+    "reactionChannel": "回应：{channel}",
+    "verificationTitle": "你验证的页面",
+    "verificationDescription": "你验证的页面即将失去验证状态时（提前几天）以及验证结束时通知你。",
+    "verificationChannel": "你验证的页面：{channel}"
   },
   "site": {
     "description": "为此工作区已发布的页面提供一个易读的地址、一个主页以及页面之间的导航。",
@@ -2118,6 +2136,102 @@
       "redo": "附上备注退回…",
       "notWhole": "此调用的内容比这里显示的更长，或包含此处已隐藏的值。批准前请打开其运行记录，查看将要发送的全部内容。",
       "openRun": "打开运行记录以批准"
+    }
+  },
+  "webhooks": {
+    "description": "将此工作区页面上发生的事情实时发送到其他服务：以签名的 POST 请求发送到 https 地址，范围可以是整个工作区、一个团队空间，或某个页面及其下的页面。每个请求都以最后保存该 Webhook 的人的身份发送，仅包含其可以打开的内容；数据库行和模板不会发送。",
+    "exportOff": "导出已在“设置 › 安全”中关闭，因此在重新开启之前，Webhook 不会发送任何内容。",
+    "count": "{count, plural, =0 {还没有 Webhook。} other {# 个 Webhook}}",
+    "add": "添加 Webhook",
+    "empty": "添加 Webhook，将页面事件发送到你自己的服务。",
+    "allEvents": "所有事件",
+    "scopeLabel": {
+      "workspace": "工作区的所有页面",
+      "teamspace": "{name} 的页面",
+      "page": "{title} 及其下的页面"
+    },
+    "events": {
+      "pageCreated": "页面已创建",
+      "pageUpdated": "页面已编辑",
+      "pageMoved": "页面已移动",
+      "pageTrashed": "页面已移到回收站",
+      "pageRestored": "页面已从回收站恢复",
+      "pageDeleted": "页面已永久删除",
+      "commentCreated": "已添加评论",
+      "ping": "测试"
+    },
+    "sendsAs": "以 {name} 的身份发送，仅包含其可以打开的内容。",
+    "paused": "已暂停：{name} 已不再是所有者。保存后将以你的身份发送。",
+    "pausedBadge": "已暂停",
+    "offBadge": "已关闭",
+    "toggle": "发送 {name}",
+    "test": "发送测试",
+    "testDelivered": "测试已送达该地址（响应为 {status}）。",
+    "testFailed": "测试未能送达：{reason}。",
+    "edit": "编辑",
+    "delete": "移除",
+    "deleteNote": "它会立即停止，其投递日志也会一并删除。",
+    "working": "正在处理…",
+    "secret": {
+      "show": "签名密钥",
+      "rotate": "新密钥",
+      "rotateNote": "当前密钥将立即停止用于签名：请更新校验它的服务。",
+      "title": "“{name}”的签名密钥",
+      "label": "签名密钥",
+      "note": "用它校验每个请求的 X-Leafdesk-Signature 请求头：格式为 t=TIME,v1=HMAC，其中 HMAC 是对 TIME、一个点号和请求体计算的十六进制 HMAC-SHA256。请妥善保密。"
+    },
+    "log": {
+      "title": "{count, plural, =0 {最近的投递} other {最近的投递（#）}}",
+      "empty": "最近 30 天内没有发送任何内容。",
+      "attempts": "{count, plural, other {# 次尝试}}",
+      "next": "下次尝试：{when}"
+    },
+    "status": {
+      "pending": "等待中",
+      "delivered": "已送达",
+      "failed": "失败",
+      "skipped": "未发送"
+    },
+    "codes": {
+      "noAccess": "发送身份对应的人无法打开该页面",
+      "notOwner": "发送身份对应的人已不再是所有者",
+      "exportOff": "导出已关闭",
+      "disabled": "该 Webhook 已关闭",
+      "invalidUrl": "地址无效",
+      "blocked": "地址位于私有网络中",
+      "unreachable": "无法连接到该地址",
+      "timeout": "10 秒内无响应",
+      "redirect": "地址返回了重定向",
+      "http": "地址返回了 {status}"
+    },
+    "form": {
+      "title": "添加 Webhook",
+      "editTitle": "更改 Webhook",
+      "name": "名称",
+      "url": "地址",
+      "urlHint": "一个 https 地址。请求会签名；不会跟随重定向。",
+      "events": "事件",
+      "scope": "页面",
+      "scopes": {
+        "workspace": "整个工作区",
+        "teamspace": "一个团队空间",
+        "page": "某个页面及其下的页面"
+      },
+      "teamspace": "选择团队空间",
+      "pickPage": "查找页面",
+      "noPages": "没有可选择的页面。",
+      "otherPage": "更改",
+      "save": "保存",
+      "create": "添加 Webhook"
+    },
+    "errors": {
+      "invalidName": "请为 Webhook 输入不超过 100 个字符的名称。",
+      "invalidUrl": "请输入不含用户名或密码的有效 https 地址。",
+      "httpsOnly": "Webhook 只能发送到 https 地址。",
+      "noEvents": "请至少选择一个事件。",
+      "invalidScope": "请选择此工作区的一个团队空间或页面。",
+      "tooMany": "一个工作区最多可有 25 个 Webhook。",
+      "ownersOnly": "只有工作区所有者可以管理 Webhook。"
     }
   },
   "email": {

@@ -8,6 +8,7 @@
  *   type:database          databases
  *   type:row               database rows
  *   type:journal           the user's daily notes
+ *   is:verified            pages verified right now (server/verification), not those whose verification expired
  *
  * A filter's key and value are case-insensitive; an unknown key (`foo:bar`) or value
  * (`type:foo`) is searched as text, and so is a quoted phrase ("a b", without its quotes).
@@ -21,6 +22,8 @@ export type SearchQuery = {
   /** Page titles from `in:` filters, as written. */
   within: string[];
   kinds: SearchKind[];
+  /** `is:verified`: only pages verified right now. */
+  verified: boolean;
 };
 
 /** A piece of a query: `key:"quoted value"`, `"a phrase"` or a bare word. */
@@ -96,6 +99,10 @@ function applyFilter(parsed: SearchQuery, key: string, rawValue: string): boolea
       if (!parsed.kinds.includes(kind)) parsed.kinds.push(kind);
       return true;
     }
+    case "is":
+      if (value.toLowerCase() !== "verified") return false;
+      parsed.verified = true;
+      return true;
     default:
       return false;
   }
@@ -103,7 +110,7 @@ function applyFilter(parsed: SearchQuery, key: string, rawValue: string): boolea
 
 /** Splits a query into its free text and its filters. */
 export function parseSearchQuery(query: string): SearchQuery {
-  const parsed: SearchQuery = { text: "", within: [], kinds: [] };
+  const parsed: SearchQuery = { text: "", within: [], kinds: [], verified: false };
   const words: string[] = [];
   for (const token of tokenize(query)) {
     if (token.kind === "quoted") {
@@ -120,4 +127,4 @@ export function parseSearchQuery(query: string): SearchQuery {
 }
 
 /** Whether the query has a filter (then it lists pages even without text). */
-export const hasSearchFilters = (parsed: SearchQuery) => parsed.within.length > 0 || parsed.kinds.length > 0;
+export const hasSearchFilters = (parsed: SearchQuery) => parsed.within.length > 0 || parsed.kinds.length > 0 || parsed.verified;

@@ -56,6 +56,23 @@
   came within a few hours of each other, or edits to the same page or row, show as one entry
   (“5 new comments, 1 new reaction” with the people's pictures), which opens to the single ones.
   Opening the entry, marking it read or snoozing it does so to all of them.
+- **Pages can be verified.** Someone with full access marks a page, database or row as checked
+  from its `⋯` menu, for a week, a month, three months, a year, until a chosen day or with no end;
+  a badge under the title says who verified it and until when, or that it expired, and editing the
+  page keeps it verified. The verifier is reminded three days before the end and when it comes
+  (*Pages you verified* in Settings > Preferences: inbox and email by default). Search ranks verified
+  pages above otherwise equal ones, marks them and takes `is:verified`; the AI chat prefers
+  verified sources and marks their citations; MCP's `get_page` and `search` and the REST API say
+  `verified`, and `update_page` / `PATCH /pages/{id}` take it. Settings > Health lists expired
+  verifications, and verifying goes into the audit log. Migration 0124.
+- **Page webhooks.** Workspace owners send page events (`page.created`, `page.updated` once a page
+  is left alone, `page.moved`, `page.trashed`, `page.restored`, `page.deleted`, `comment.created`)
+  to an https address as signed POSTs, for the whole workspace, a teamspace or a page and those
+  under it, under the new Settings > Webhooks tab or the REST API's new `webhooks:read` and
+  `webhooks:write` scopes. Each sends as the owner who saved it last and is checked for every
+  delivery: pages they can't open are skipped, it pauses when they are no longer an owner, and
+  nothing is sent while export is off. Failed deliveries are retried like automation webhooks;
+  a *Send test* ping and a 30-day delivery log come with each. Migration 0124.
 - **The comments panel lists a page's discussions newest first, and keeps threads to come back
   to.** Threads, on text or about the whole page, are now in order of their latest comment (or,
   from the sort menu, in the order of the page), and those with comments by others since you last

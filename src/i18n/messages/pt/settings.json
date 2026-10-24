@@ -12,6 +12,7 @@
     "groups": "Grupos",
     "agents": "Agentes",
     "connections": "Conexões",
+    "webhooks": "Webhooks",
     "storage": "Armazenamento",
     "analytics": "Análises",
     "aiUsage": "Uso de IA",
@@ -1017,6 +1018,8 @@
     "moveToTrash": "Mover para a lixeira",
     "confirmTrash": "Mover “{title}” para a lixeira?",
     "lastEdited": "Última edição {when}",
+    "verificationEndedBy": "Verificada por {name}, expirou {when}",
+    "verificationEnded": "A verificação expirou {when}",
     "alike": "{similarity, number, percent} parecidas",
     "inProperty": "{property} em {database}",
     "removeFromRelation": "Remover",
@@ -1040,6 +1043,11 @@
       "title": "Páginas sem alterações",
       "description": "Páginas que ninguém editou nos últimos {months} meses, das mais antigas para as mais recentes. Elas podem estar desatualizadas.",
       "none": "Todas as páginas foram editadas recentemente."
+    },
+    "expiredVerifications": {
+      "title": "Verificações expiradas",
+      "description": "Páginas que alguém verificou até um dia que já passou. Confira-as e verifique-as de novo, ou remova a verificação.",
+      "none": "Nenhuma verificação expirou."
     },
     "duplicates": {
       "title": "Possíveis duplicatas",
@@ -1673,6 +1681,8 @@
         "permission_removed": "Removeu {subject} do compartilhamento de {target}",
         "row_access_changed": "Alterou a quem as linhas de {target} dão acesso",
         "deleted": "Excluiu {target} permanentemente",
+        "verified": "Verificou {target}",
+        "unverified": "Removeu a verificação de {target}",
         "published": "Publicou {target} na web",
         "unpublished": "Deixou de publicar {target}",
         "publication_revoked": "Tirou {target} da web (publicada por {subject})",
@@ -1748,6 +1758,11 @@
         "created": "Criou a automação “{name}” em {target}",
         "updated": "{change, select, on {Ativou a automação “{name}” em {target}} off {Desativou a automação “{name}” em {target}} other {Alterou a automação “{name}” em {target}}}",
         "deleted": "Excluiu a automação “{name}” em {target}"
+      },
+      "webhook": {
+        "created": "Adicionou o webhook “{target}”",
+        "updated": "{change, select, on {Ativou o webhook “{target}”} off {Desativou o webhook “{target}”} other {Alterou o webhook “{target}”}}",
+        "deleted": "Removeu o webhook “{target}”"
       },
       "export": {
         "workspace": "Exportou o espaço de trabalho ({count, plural, one {# página} other {# páginas}})",
@@ -1880,7 +1895,10 @@
     "followUpChannel": "Acompanhamentos: {channel}",
     "reactionTitle": "Reações",
     "reactionDescription": "Alguém reage a um comentário seu. As reações ao mesmo comentário ficam juntas até você abri-las.",
-    "reactionChannel": "Reações: {channel}"
+    "reactionChannel": "Reações: {channel}",
+    "verificationTitle": "Páginas que você verificou",
+    "verificationDescription": "Uma página que você verificou está para deixar de ser verificada: alguns dias antes e quando isso acontece.",
+    "verificationChannel": "Páginas que você verificou: {channel}"
   },
   "site": {
     "description": "Dê às páginas publicadas deste espaço de trabalho um endereço legível, uma página inicial e navegação entre elas.",
@@ -2118,6 +2136,102 @@
       "redo": "Devolver com uma nota…",
       "notWhole": "Esta chamada é maior do que o mostrado aqui ou contém valores mascarados aqui. Abra a execução dela para ver tudo o que seria enviado antes de aprová-la.",
       "openRun": "Abrir a execução para aprovar"
+    }
+  },
+  "webhooks": {
+    "description": "Envie o que acontece com as páginas deste espaço de trabalho para outro serviço assim que acontece: requisições POST assinadas para um endereço https, para todo o espaço de trabalho, um espaço de equipe ou uma página e as subpáginas dela. Cada envio sai em nome de quem salvou o webhook por último, com o que essa pessoa pode abrir; linhas de banco de dados e modelos não são enviados.",
+    "exportOff": "A exportação está desativada em Configurações › Segurança, então os webhooks não enviam nada até que ela seja ativada de novo.",
+    "count": "{count, plural, =0 {Nenhum webhook ainda.} one {# webhook} other {# webhooks}}",
+    "add": "Adicionar webhook",
+    "empty": "Adicione um webhook para enviar eventos de páginas para um serviço seu.",
+    "allEvents": "Todos os eventos",
+    "scopeLabel": {
+      "workspace": "Todas as páginas do espaço de trabalho",
+      "teamspace": "Páginas de {name}",
+      "page": "{title} e as subpáginas dela"
+    },
+    "events": {
+      "pageCreated": "Página criada",
+      "pageUpdated": "Página editada",
+      "pageMoved": "Página movida",
+      "pageTrashed": "Página movida para a lixeira",
+      "pageRestored": "Página restaurada da lixeira",
+      "pageDeleted": "Página excluída definitivamente",
+      "commentCreated": "Comentário adicionado",
+      "ping": "Teste"
+    },
+    "sendsAs": "Envia em nome de {name}, com o que essa pessoa pode abrir.",
+    "paused": "Pausado: {name} não está mais entre os proprietários. Salve-o para que envie em seu nome.",
+    "pausedBadge": "Pausado",
+    "offBadge": "Desativado",
+    "toggle": "Enviar “{name}”",
+    "test": "Enviar teste",
+    "testDelivered": "O teste chegou ao endereço (ele respondeu {status}).",
+    "testFailed": "O teste não foi entregue: {reason}.",
+    "edit": "Editar",
+    "delete": "Remover",
+    "deleteNote": "Ele para na hora, e o registro de entregas vai junto.",
+    "working": "Processando…",
+    "secret": {
+      "show": "Segredo de assinatura",
+      "rotate": "Novo segredo",
+      "rotateNote": "O segredo atual deixa de assinar na hora: atualize o serviço que o confere.",
+      "title": "Segredo de assinatura de “{name}”",
+      "label": "Segredo de assinatura",
+      "note": "Use-o para conferir o cabeçalho X-Leafdesk-Signature de cada requisição: t=TIME,v1=HMAC, em que HMAC é o HMAC-SHA256 em hexadecimal de TIME, um ponto e o corpo. Mantenha-o em segredo."
+    },
+    "log": {
+      "title": "{count, plural, =0 {Entregas recentes} other {Entregas recentes (#)}}",
+      "empty": "Nada enviado nos últimos 30 dias.",
+      "attempts": "{count, plural, one {# tentativa} other {# tentativas}}",
+      "next": "próxima tentativa às {when}"
+    },
+    "status": {
+      "pending": "Aguardando",
+      "delivered": "Entregue",
+      "failed": "Falhou",
+      "skipped": "Não enviado"
+    },
+    "codes": {
+      "noAccess": "a pessoa em nome de quem ele envia não pode abrir a página",
+      "notOwner": "a pessoa em nome de quem ele envia não está mais entre os proprietários",
+      "exportOff": "a exportação está desativada",
+      "disabled": "o webhook está desativado",
+      "invalidUrl": "o endereço não é válido",
+      "blocked": "o endereço está em uma rede privada",
+      "unreachable": "não foi possível alcançar o endereço",
+      "timeout": "sem resposta em 10 segundos",
+      "redirect": "o endereço respondeu com um redirecionamento",
+      "http": "o endereço respondeu {status}"
+    },
+    "form": {
+      "title": "Adicionar um webhook",
+      "editTitle": "Alterar o webhook",
+      "name": "Nome",
+      "url": "Endereço",
+      "urlHint": "Um endereço https. As requisições são assinadas; redirecionamentos não são seguidos.",
+      "events": "Eventos",
+      "scope": "Páginas",
+      "scopes": {
+        "workspace": "Todo o espaço de trabalho",
+        "teamspace": "Um espaço de equipe",
+        "page": "Uma página e as subpáginas dela"
+      },
+      "teamspace": "Escolha um espaço de equipe",
+      "pickPage": "Encontrar uma página",
+      "noPages": "Nenhuma página para escolher.",
+      "otherPage": "Trocar",
+      "save": "Salvar",
+      "create": "Adicionar webhook"
+    },
+    "errors": {
+      "invalidName": "Dê ao webhook um nome de até 100 caracteres.",
+      "invalidUrl": "Digite um endereço https válido, sem nome de usuário nem senha.",
+      "httpsOnly": "Webhooks só vão para endereços https.",
+      "noEvents": "Escolha pelo menos um evento.",
+      "invalidScope": "Escolha um espaço de equipe ou uma página deste espaço de trabalho.",
+      "tooMany": "Um espaço de trabalho pode ter até 25 webhooks.",
+      "ownersOnly": "Só os proprietários do espaço de trabalho gerenciam webhooks."
     }
   },
   "email": {

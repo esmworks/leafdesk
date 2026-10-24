@@ -27,6 +27,7 @@ const KIND_KEYS = {
   review: "review",
   follow_up: "followUp",
   reaction: "reaction",
+  verification: "verification",
 } as const satisfies Record<PreferenceKind, string>;
 const LOCAL_MODE_HIDDEN_KINDS: readonly PreferenceKind[] = ["access_request", "join_request"];
 /**

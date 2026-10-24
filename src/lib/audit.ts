@@ -72,6 +72,8 @@ export const AUDIT_CATEGORIES = {
     "page.trashed",
     "page.restored",
     "page.deleted",
+    "page.verified",
+    "page.unverified",
     "page.published",
     "page.unpublished",
     "page.publication_revoked",
@@ -93,6 +95,9 @@ export const AUDIT_CATEGORIES = {
     "automation.created",
     "automation.updated",
     "automation.deleted",
+    "webhook.created",
+    "webhook.updated",
+    "webhook.deleted",
     "mail.databases_changed",
     "mail.mailbox_connected",
     "mail.mailbox_disconnected",
@@ -175,7 +180,8 @@ export type AuditTargetType =
   | "site"
   | "connection"
   | "mailbox"
-  | "legal_hold";
+  | "legal_hold"
+  | "webhook";
 
 /** A stored event, as the list and the CSV show it. Names are as they were when it happened. */
 export type AuditEvent = {
@@ -467,7 +473,8 @@ export function describeAuditEvent(event: Pick<AuditEvent, "action" | "targetLab
       values.level = known(t, `audit.agentLevels.${text(d.level)}`, text(d.level));
       break;
     case "agent.updated":
-    case "automation.updated": {
+    case "automation.updated":
+    case "webhook.updated": {
       // Turning it on or off reads as such; any other change as a change.
       const previous = record(d.previous);
       values.change =

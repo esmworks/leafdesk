@@ -86,6 +86,13 @@ const outdated = vi.hoisted(() => ({
 }));
 vi.mock("@/server/page-outdated", async (importOriginal) => ({ ...(await importOriginal<object>()), ...outdated }));
 
+const verification = vi.hoisted(() => ({
+  verificationOf: vi.fn<(pageId: string) => Promise<unknown>>(async () => null),
+  activeVerifications: vi.fn(async () => new Map()),
+  setPageVerification: vi.fn(async (_userId: string, _pageId: string, _until: Date | null | undefined) => ({ workspaceId: "ws-1", verification: null })),
+}));
+vi.mock("@/server/verification", async (importOriginal) => ({ ...(await importOriginal<object>()), ...verification }));
+
 const teamspaces = vi.hoisted(() => ({
   listTeamspaces: vi.fn(),
   getTeamspace: vi.fn(),
@@ -454,6 +461,29 @@ describe("content writes", () => {
     expect(pages.renamePage).not.toHaveBeenCalled();
   });
 
+  it("verifies a page for a while, until a day or with no end, and removes it", async () => {
+    const r = await callTool(writer, "update_page", { page_id: "page-1", verified: "month" });
+    expect(r.isError).toBe(false);
+    const until = verification.setPageVerification.mock.calls[0][2] as Date;
+    expect(until).toBeInstanceOf(Date);
+    expect(until.getTime()).toBeGreaterThan(Date.now() + 27 * 86_400_000);
+    await callTool(writer, "update_page", { page_id: "page-1", verified: "forever" });
+    expect(verification.setPageVerification.mock.calls[1][2]).toBeNull();
+    await callTool(writer, "update_page", { page_id: "page-1", verified: "none" });
+    expect(verification.setPageVerification.mock.calls[2][2]).toBeUndefined();
+    expect(collab.replaceContent).not.toHaveBeenCalled();
+  });
+
+  it("refuses a verification end it doesn't know, before writing anything", async () => {
+    for (const verified of ["fortnight", "2020-01-01", "2026-02-30"]) {
+      const r = await callTool(writer, "update_page", { page_id: "page-1", title: "New", verified });
+      expect(r.isError).toBe(true);
+      expect(r.text).toMatch(/verified must be/);
+    }
+    expect(verification.setPageVerification).not.toHaveBeenCalled();
+    expect(pages.renamePage).not.toHaveBeenCalled();
+  });
+
   it("explains a lock the page gained meanwhile", async () => {
     collab.replaceContent.mockRejectedValueOnce(Object.assign(new Error("The page is locked"), { code: "pageLocked" }));
     const r = await callTool(writer, "update_page", { page_id: "page-1", markdown: "x" });
@@ -562,6 +592,17 @@ describe("errors and bounds", () => {
     expect((await callTool(reader, "get_page", { page_id: "page-1" })).data.locked).toBe(false);
     pages.getPage.mockResolvedValue({ ...page, lockedAt: new Date() });
     expect((await callTool(reader, "get_page", { page_id: "page-1" })).data.locked).toBe(true);
+  });
+
+  it("says who verified the page and until when", async () => {
+    expect((await callTool(reader, "get_page", { page_id: "page-1" })).data.verified).toBeNull();
+    verification.verificationOf.mockResolvedValue({ byId: "user-2", by: "Ada", at: "2026-10-01T00:00:00.000Z", until: "2026-11-01T00:00:00.000Z", expired: false });
+    expect((await callTool(reader, "get_page", { page_id: "page-1" })).data.verified).toEqual({
+      by: "Ada",
+      at: "2026-10-01T00:00:00.000Z",
+      until: "2026-11-01T00:00:00.000Z",
+      expired: false,
+    });
   });
 });
 
@@ -3547,6 +3588,7 @@ describe("check_workspace", () => {
     orphans: { items: [{ ...page("page-o", ""), linkFrom: { id: "page-1", title: "Plan", icon: null } }], total: 101 },
     empty: { items: [page("page-e", "Blank")], total: 1 },
     stale: { items: [{ ...page("page-s", "Q1 notes"), updatedAt: "2025-01-01T00:00:00.000Z" }], total: 1 },
+    expiredVerifications: { items: [{ ...page("page-v", "Handbook"), by: "Ada", until: "2026-09-01T00:00:00.000Z" }], total: 1 },
     duplicates: { status: "skipped", reason: "noEmbeddings" },
     brokenRelations: {
       items: [
@@ -3584,6 +3626,7 @@ describe("check_workspace", () => {
       orphan_pages: 101,
       empty_pages: 1,
       stale_pages: 1,
+      expired_verifications: 1,
       possible_duplicates: "not checked",
       broken_relations: 1,
     });
@@ -3596,6 +3639,7 @@ describe("check_workspace", () => {
     expect(data.orphan_pages.items[0]).toMatchObject({ title: "Untitled", title_written_in: { id: "page-1", title: "Plan" } });
     expect(data.orphan_pages.more).toBe(100);
     expect(data.stale_pages.items[0].last_edited).toBe("2025-01-01T00:00:00.000Z");
+    expect(data.expired_verifications.items[0]).toMatchObject({ title: "Handbook", verified_by: "Ada", ended: "2026-09-01T00:00:00.000Z" });
     expect(data.possible_duplicates.description).toMatch(/no embeddings model/);
     expect(data.broken_relations.items[0]).toMatchObject({ property: "Blocked by", database: { title: "Tasks" }, can_fix: true });
     expect(data.how_to_fix).toMatch(/restore_page/);

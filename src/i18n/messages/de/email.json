@@ -77,6 +77,16 @@
     "action": "Seite öffnen",
     "optOut": "Du erhältst diese E-Mails, weil du eine Erinnerung eingerichtet hast. Du kannst sie unter Mein Konto > Präferenzen abschalten."
   },
+  "pageVerification": {
+    "endsSubject": "Deine Verifizierung von „{page}“ endet am {date}",
+    "endsHeading": "Verifizierung endet bald",
+    "endsBody": "Du hast „{page}“ in {workspace} bis zum {date} verifiziert. Wenn sie noch stimmt, verifiziere sie über das ⋯-Menü der Seite erneut, damit sie verifiziert bleibt.",
+    "endedSubject": "Deine Verifizierung von „{page}“ ist abgelaufen",
+    "endedHeading": "Verifizierung abgelaufen",
+    "endedBody": "Deine Verifizierung von „{page}“ in {workspace} ist am {date} abgelaufen. Die Seite zeigt „Verifizierung abgelaufen“, bis jemand sie erneut verifiziert.",
+    "action": "Seite öffnen",
+    "optOut": "Du erhältst diese E-Mails, weil du die Seite verifiziert hast. Du kannst sie unter Mein Konto > Präferenzen abschalten."
+  },
   "dateReminder": {
     "subject": "Erinnerung: „{page}“ am {date}",
     "heading": "„{page}“ ist am {date}",
@@ -242,6 +252,8 @@
     "followUp": "Follow-up „{sequence}“ pausiert: Die nächste E-Mail muss angesehen werden",
     "reaction": "{actor} hat mit {emoji} auf deinen Kommentar reagiert",
     "people": "{others, plural, =0 {{name}} one {{name} und # weitere Person} other {{name} und # weitere Personen}}",
+    "verificationEnds": "Deine Verifizierung dieser Seite endet am {date}",
+    "verificationEnded": "Deine Verifizierung dieser Seite ist am {date} abgelaufen",
     "someone": "Jemand",
     "joinRequestTitle": "Beitrittsanfrage",
     "joinRequest": "{actor} möchte beitreten",

@@ -1147,6 +1147,8 @@ export function createMcpServer(principal: McpPrincipal) {
                             ? `${who} changed "${title}" in ${pageLabel(n.databaseTitle)}, a row the user follows`
                           : n.kind === "page_updated"
                             ? `${who} edited "${title}", a page the user watches (get_page shows it now; list_page_history what changed)`
+                          : n.kind === "verification"
+                            ? `The user's verification of "${title}" ${n.reminderDate && n.createdAt >= new Date(n.reminderDate) ? "expired" : "ends"} on ${n.reminderDate ?? "a date"} (update_page with verified renews it)`
                           : n.kind === "follow_up"
                             ? `The follow-up "${n.followUp?.sequence ?? ""}" on "${title}" in ${pageLabel(n.databaseTitle)} is paused: its next email didn't pass the check (list_enrollments shows what it found; fix the row or the sequence, then resume it in the app)`
                           : n.kind === "row_email"

@@ -8,6 +8,7 @@ import {
   notification,
   page,
   pageUpdateEmail as pageUpdateEmailLog,
+  pageVerification,
   user,
   workspace,
   workspaceJoinRequest,
@@ -29,6 +30,7 @@ import {
   mentionEmail,
   pageUpdateDigestEmail,
   pageUpdateEmail,
+  pageVerificationEmail,
   reminderEmail,
   rowUpdateEmail,
   sendMail,
@@ -44,7 +46,8 @@ import { startSweep } from "@/server/sweep";
 /**
  * Emails people about pages shared with them, comments in their threads, mentions of them, their
  * reminders, requests for access to their pages, what database automations tell them and changes to
- * the rows they follow, and owners about join requests. The queue is the notification itself:
+ * the rows they follow, verifiers about their verifications ending, and owners about join requests.
+ * The queue is the notification itself:
  * `recordShare`, `recordComment`, `recordMentions`, `recordReminder`, `recordAccessRequest`,
  * `recordJoinRequest`, `recordRowUpdate` and the automation
  * worker set `email_due_at` (a little ahead, or now for reminders and requests), undoing the share or the mention (or answering or deciding the request)
@@ -78,6 +81,7 @@ type Due = Pick<
   | "date"
   | "propertyId"
   | "message"
+  | "createdAt"
 >;
 
 let mailer: (mail: OutgoingMail) => Promise<void> = sendMail;
@@ -100,6 +104,7 @@ async function deliverDue(everything = false) {
           "automation",
           "row_update",
           "page_updated",
+          "verification",
         ]),
         everything ? isNotNull(notification.emailDueAt) : lte(notification.emailDueAt, new Date()),
         // A snoozed notification's email waits until it comes back (see snoozeNotification).
@@ -122,6 +127,7 @@ async function deliverDue(everything = false) {
       date: notification.date,
       propertyId: notification.propertyId,
       message: notification.message,
+      createdAt: notification.createdAt,
     });
   // Page updates are held back together, per person (see sendPageUpdates).
   const pageUpdates = new Map<string, Due[]>();
@@ -279,6 +285,7 @@ async function send({
   date,
   propertyId,
   message,
+  createdAt,
 }: Due) {
   if (readAt || kind === "assignment" || isOwnerKind(kind)) return;
   const locale = await recipientLocale(userId, emailLocale);
@@ -336,6 +343,15 @@ async function send({
       return;
     }
     await mailer({ to: recipient.email, ...reminderEmail(locale, { date, pageTitle, workspaceName: space?.name ?? "", link }) });
+    return;
+  }
+  if (kind === "verification") {
+    if (!date) return;
+    // Verified again since (another end) or the verification removed: nothing to say any more.
+    const [current] = await db.select({ expiresAt: pageVerification.expiresAt }).from(pageVerification).where(eq(pageVerification.pageId, pageId));
+    if (current?.expiresAt?.toISOString() !== date) return;
+    const content = pageVerificationEmail(locale, { until: date, ended: createdAt >= new Date(date), pageTitle, workspaceName: space?.name ?? "", link });
+    await mailer({ to: recipient.email, ...content });
     return;
   }
   if (kind === "access_request") {

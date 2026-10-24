@@ -25,6 +25,7 @@ export function describeWorkspaceCheck(check: WorkspaceCheck) {
       orphan_pages: check.orphans.total,
       empty_pages: check.empty.total,
       stale_pages: check.stale.total,
+      expired_verifications: check.expiredVerifications.total,
       possible_duplicates: check.duplicates.status === "done" ? check.duplicates.total : "not checked",
       broken_relations: check.brokenRelations.total,
     },
@@ -50,6 +51,11 @@ export function describeWorkspaceCheck(check: WorkspaceCheck) {
       description: `Pages nobody edited in the last ${check.staleMonths} months, longest untouched first.`,
       items: check.stale.items.map((p) => ({ ...pageOut(p), last_edited: p.updatedAt })),
       ...more(check.stale.items.length, check.stale.total),
+    },
+    expired_verifications: {
+      description: "Pages whose verification ended: someone vouched for them until then. Check them again.",
+      items: check.expiredVerifications.items.map((p) => ({ ...pageOut(p), verified_by: p.by, ended: p.until })),
+      ...more(check.expiredVerifications.items.length, check.expiredVerifications.total),
     },
     possible_duplicates:
       check.duplicates.status === "done"
@@ -80,6 +86,7 @@ export function describeWorkspaceCheck(check: WorkspaceCheck) {
       "Ask the user before changing anything. A page in the trash comes back with restore_page (when can_restore). " +
       "A link to a deleted page goes by editing the page's body with update_page. An orphan page can be linked from title_written_in or moved under a page with move_page. " +
       "An empty page goes to the trash with archive_page. A stale page may be out of date: read it with get_page. " +
+      "A page whose verification ended is verified again with update_page verified, after reading it. " +
       "A relation to a row in the trash or deleted is cleared with update_database_row, setting the property to its other rows.",
   };
 }

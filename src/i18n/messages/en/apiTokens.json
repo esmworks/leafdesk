@@ -110,6 +110,10 @@
       "agents": {
         "name": "Agents",
         "hint": "Agents' settings, runs, schedules and sharing."
+      },
+      "webhooks": {
+        "name": "Webhooks",
+        "hint": "Page webhooks and their deliveries; writing adds, changes and tests them (owners only)."
       }
     },
     "summary": {

@@ -257,6 +257,11 @@ export function InboxDialog({
                         ? t("rowUpdate", { actor: item.actorName || t("someone") })
                       : item.kind === "page_updated"
                         ? t("pageUpdated", { actor: item.actorName || t("someone") })
+                      : item.kind === "verification"
+                        ? // Recorded at or after the end: it ended; before it: it ends soon.
+                          t(item.reminderDate && new Date(item.createdAt) >= new Date(item.reminderDate) ? "verificationEnded" : "verificationEnds", {
+                            date: item.reminderDate ? new Intl.DateTimeFormat(locale, { dateStyle: "medium" }).format(new Date(item.reminderDate)) : "",
+                          })
                       : item.kind === "row_email"
                         ? t("rowEmail", { from: item.rowEmail?.from || t("someone") })
                       : item.kind === "follow_up"

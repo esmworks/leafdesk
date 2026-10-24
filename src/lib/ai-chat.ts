@@ -57,6 +57,8 @@ export type ChatSourceView = {
   blockId: string | null;
   /** A web page the answer read: its address (`title` its title; `pageId` null). */
   url?: string;
+  /** The page is verified now (server/verification.ts). */
+  verified?: boolean;
 };
 
 /** A page the chat read, as the reader may see it now (null: they can no longer open it). */

@@ -145,6 +145,39 @@
     "unarchive": "Bỏ lưu trữ",
     "hint": "Các trang đã lưu trữ nằm ngoài thanh bên, tìm kiếm và bộ chọn, nhưng vẫn có thể đọc và chỉnh sửa."
   },
+  "verification": {
+    "byUntil": "Được {name} xác minh đến {date}",
+    "by": "Được {name} xác minh",
+    "until": "Đã xác minh đến {date}",
+    "plain": "Đã xác minh",
+    "expiredOn": "Xác minh đã hết hạn vào {date}",
+    "hint": "Một người có toàn quyền đã kiểm tra trang này và đánh dấu là chính xác. Chỉnh sửa trang vẫn giữ trạng thái đã xác minh.",
+    "change": "Thay đổi hoặc gỡ xác minh",
+    "menu": "Xác minh trang…",
+    "menuVerified": "Xác minh…",
+    "menuHint": "Đánh dấu trang là đã kiểm tra và chính xác: tìm kiếm xếp nó cao hơn và trò chuyện AI ưu tiên nó",
+    "title": "Xác minh trang",
+    "description": "Đánh dấu trang này là đã kiểm tra và chính xác, trong một thời gian hoặc không có hạn. Tìm kiếm xếp các trang đã xác minh cao hơn, đánh dấu chúng và tìm chúng bằng is:verified, còn trò chuyện AI ưu tiên chúng. Chỉnh sửa trang vẫn giữ trạng thái đã xác minh; bạn sẽ được báo vài ngày trước khi xác minh hết hạn.",
+    "durationLabel": "Xác minh trong",
+    "durations": {
+      "week": "1 tuần",
+      "month": "1 tháng",
+      "quarter": "3 tháng",
+      "year": "1 năm",
+      "until": "Đến một ngày cụ thể",
+      "forever": "Không có hạn"
+    },
+    "dateLabel": "Xác minh đến",
+    "verify": "Xác minh",
+    "verifyAgain": "Xác minh lại",
+    "remove": "Gỡ xác minh",
+    "searchBadge": "Đã xác minh",
+    "errors": {
+      "template": "Không thể xác minh mẫu và các trang trong mẫu.",
+      "inTrash": "Hãy khôi phục trang từ thùng rác trước.",
+      "invalidEnd": "Hãy chọn một ngày sau hôm nay, trong vòng năm năm."
+    }
+  },
   "icon": {
     "add": "Thêm biểu tượng",
     "remove": "Xóa biểu tượng"

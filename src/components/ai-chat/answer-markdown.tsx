@@ -9,6 +9,8 @@
  * image URL written there would otherwise be fetched by the reader's browser (a way to send data
  * out). Links open in a new tab.
  */
+import { BadgeCheck } from "lucide-react";
+import { useTranslations } from "next-intl";
 import { useMemo } from "react";
 import Markdown, { type Components } from "react-markdown";
 import remarkGfm from "remark-gfm";
@@ -27,6 +29,7 @@ export default function AnswerMarkdown({
   sources: Map<number, ChatSourceView>;
   onSource: (source: ChatSourceView) => void;
 }) {
+  const verifiedLabel = useTranslations("page.verification")("searchBadge");
   const components = useMemo<Components>(
     () => ({
       p: ({ node: _, className, ...props }) => <p {...props} className={cn("mb-2", className)} />,
@@ -75,9 +78,11 @@ export default function AnswerMarkdown({
               // On the chat page a source opens in the row panel, which steps through these.
               data-open-row={source.kind === "database" ? undefined : source.pageId}
               onClick={() => onSource(source)}
-              title={pageLabel(source.title ?? "")}
+              title={source.verified ? `${pageLabel(source.title ?? "")} · ${verifiedLabel}` : pageLabel(source.title ?? "")}
+              data-verified={source.verified ? "" : undefined}
               className={chip}
             >
+              {source.verified && <BadgeCheck className="h-2.5 w-2.5" aria-label={verifiedLabel} />}
               {n}
             </button>
           ) : (
@@ -92,7 +97,7 @@ export default function AnswerMarkdown({
         );
       },
     }),
-    [sources, onSource],
+    [sources, onSource, verifiedLabel],
   );
   return (
     <div className="break-words [&>*:first-child]:mt-0 [&>*:last-child]:mb-0">

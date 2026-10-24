@@ -136,6 +136,8 @@ export type PushItem = {
   reaction?: { emojis: string[]; people: { name: string }[] } | null;
   /** Comments about a suggested edit: what became of it. */
   suggestion?: SuggestionNotice | null;
+  /** When it was recorded: a verification reminder recorded at or after its date says the verification ended. */
+  createdAt?: Date | string;
 };
 
 /** The line of a comment notification about a suggested edit, in the inbox and in push messages. */
@@ -247,6 +249,12 @@ export function pushPayload(
           emoji: item.reaction?.emojis.join(" ") ?? "",
         });
         break;
+      case "verification": {
+        // Recorded at or after the end: it ended; before it: it ends soon.
+        const ended = item.reminderDate !== null && new Date(item.createdAt ?? Date.now()) >= new Date(item.reminderDate);
+        line = t(ended ? "verificationEnded" : "verificationEnds", { date: item.reminderDate ? formatDate(item.reminderDate, reminderZone(item)) : "" });
+        break;
+      }
       case "row_email":
         // Who wrote, not the subject: a lock screen shows it to whoever holds the device.
         line = t("rowEmail", { from: item.rowEmail?.from || t("someone") });

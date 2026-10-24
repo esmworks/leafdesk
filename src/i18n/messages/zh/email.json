@@ -77,6 +77,16 @@
     "action": "打开页面",
     "optOut": "你收到这类邮件是因为你设置了提醒。你可以在“我的账户 > 偏好设置”中关闭它们。"
   },
+  "pageVerification": {
+    "endsSubject": "你对“{page}”的验证将于 {date} 结束",
+    "endsHeading": "验证即将结束",
+    "endsBody": "你已将 {workspace} 中的“{page}”验证至 {date}。如果内容仍然正确，请从页面的 ⋯ 菜单重新验证，以保持其已验证状态。",
+    "endedSubject": "你对“{page}”的验证已过期",
+    "endedHeading": "验证已过期",
+    "endedBody": "你对 {workspace} 中“{page}”的验证已于 {date} 结束。在有人重新验证之前，该页面会显示“验证已过期”。",
+    "action": "打开页面",
+    "optOut": "你收到这类邮件是因为你验证了该页面。你可以在“我的账户 > 偏好设置”中关闭它们。"
+  },
   "dateReminder": {
     "subject": "提醒：“{page}”在 {date}",
     "heading": "“{page}”在 {date}",
@@ -242,6 +252,8 @@
     "followUp": "跟进“{sequence}”已暂停：下一封邮件需要你查看",
     "reaction": "{actor} 用 {emoji} 回应了你的评论",
     "people": "{others, plural, =0 {{name}} other {{name} 等 # 人}}",
+    "verificationEnds": "你对此页面的验证将于 {date} 结束",
+    "verificationEnded": "你对此页面的验证已于 {date} 过期",
     "someone": "有人",
     "joinRequestTitle": "加入申请",
     "joinRequest": "{actor} 申请加入",

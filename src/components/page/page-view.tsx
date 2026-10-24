@@ -36,6 +36,7 @@ import { usePendingSuggestions } from "./pending-suggestions";
 import type { Decision } from "@/lib/suggestions";
 import { useIsOffline, useOffline } from "@/components/offline/offline-context";
 import { SkillBar } from "@/components/skills/skill-bar";
+import { VerificationBadge } from "./verification";
 import { DarkScheme } from "@/components/theme/theme-provider";
 import { rememberPage } from "@/components/offline/offline-store";
 import { PAGE_HEADER_EVENT } from "@/lib/collab-constants";
@@ -54,6 +55,7 @@ const HistoryPanel = dynamic(() => import("./history-panel").then((m) => m.Histo
 const MarkdownSourceView = dynamic(() => import("./markdown-source").then((m) => m.MarkdownSourceView), { ssr: false });
 // Loaded when it opens, likewise.
 const Presentation = dynamic(() => import("./presentation"), { ssr: false });
+const VerifyDialog = dynamic(() => import("./verify-dialog").then((m) => m.VerifyDialog), { ssr: false });
 
 type Crumb = { id: string; title: string; icon: string | null; kind: PageKind };
 
@@ -127,6 +129,8 @@ export function PageView({
   const [pending, startTransition] = useTransition();
   const canEdit = hasLevel(info.level, "edit");
   const canDelete = hasLevel(info.level, "full");
+  // Full access verifies a page (server/verification); templates and pages in the trash aren't.
+  const canVerify = canDelete && !info.template && !page.archived && !offline;
   // Locked against accidental edits (lib/page-lock; a database's lock is about its schema instead).
   // Follows the page menu at once, and other people's changes through the header event below.
   const [lockedNow, setLockedNow] = useState(info.locked);
@@ -135,6 +139,9 @@ export function PageView({
   const [skillNow, setSkillNow] = useState(info.skill);
   // Whether it is archived (server/page-outdated), likewise.
   const [outdatedNow, setOutdatedNow] = useState(info.outdated);
+  // Whether it is verified (server/verification), likewise, and the dialog that changes it.
+  const [verifiedNow, setVerifiedNow] = useState(info.verified);
+  const [verifyOpen, setVerifyOpen] = useState(false);
   // The collab server drops edits from people who may only view, and from everyone while the page
   // is locked, so don't let them type at all. Offline edits are kept in this browser: the doc syncs
   // them when the connection comes back.
@@ -169,6 +176,7 @@ export function PageView({
   useEffect(() => setLockedNow(info.locked), [info.locked]);
   useEffect(() => setSkillNow(info.skill), [info.skill]);
   useEffect(() => setOutdatedNow(info.outdated), [info.outdated]);
+  useEffect(() => setVerifiedNow(info.verified), [info.verified]);
   useEffect(() => setBackground(page.background), [page.background]);
   // A link to one of the page's threads (`#comment-<id>`) opens the comments; the panel selects it.
   useEffect(() => {
@@ -530,6 +538,8 @@ export function PageView({
                   : undefined
               }
               onAnswerAll={canEdit && !locked && !page.archived && pendingSuggestions.length ? answerAllSuggestions : undefined}
+              onVerified={setVerifiedNow}
+              onVerify={canVerify ? () => setVerifyOpen(true) : undefined}
             />
           </div>
         </header>
@@ -612,6 +622,19 @@ export function PageView({
                 </div>
               )}
             </div>
+            {verifiedNow && !page.archived && (
+              <VerificationBadge verification={verifiedNow} onChange={canVerify ? () => setVerifyOpen(true) : undefined} />
+            )}
+            {canVerify && verifyOpen && (
+              <VerifyDialog
+                workspaceId={workspaceId}
+                pageId={page.id}
+                verification={verifiedNow}
+                open={verifyOpen}
+                onClose={() => setVerifyOpen(false)}
+                onDone={setVerifiedNow}
+              />
+            )}
             {skillNow && !wide && !page.archived && (
               <SkillBar
                 workspaceId={workspaceId}

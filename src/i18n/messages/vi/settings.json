@@ -12,6 +12,7 @@
     "groups": "Nhóm",
     "agents": "Tác tử",
     "connections": "Kết nối",
+    "webhooks": "Webhook",
     "storage": "Lưu trữ",
     "analytics": "Phân tích",
     "aiUsage": "Mức sử dụng AI",
@@ -1017,6 +1018,8 @@
     "moveToTrash": "Chuyển vào thùng rác",
     "confirmTrash": "Chuyển “{title}” vào thùng rác?",
     "lastEdited": "Chỉnh sửa gần nhất {when}",
+    "verificationEndedBy": "Được {name} xác minh, đã kết thúc {when}",
+    "verificationEnded": "Xác minh đã kết thúc {when}",
     "alike": "giống nhau {similarity, number, percent}",
     "inProperty": "{property} trong {database}",
     "removeFromRelation": "Xóa",
@@ -1040,6 +1043,11 @@
       "title": "Các trang không được chạm đến",
       "description": "Các trang không ai chỉnh sửa trong {months} tháng qua, trang để lâu nhất xếp trước. Chúng có thể đã lỗi thời.",
       "none": "Mọi trang đều được chỉnh sửa gần đây."
+    },
+    "expiredVerifications": {
+      "title": "Xác minh đã hết hạn",
+      "description": "Các trang được ai đó xác minh đến một ngày đã qua. Hãy kiểm tra và xác minh lại, hoặc gỡ xác minh.",
+      "none": "Không có xác minh nào hết hạn."
     },
     "duplicates": {
       "title": "Có thể trùng lặp",
@@ -1673,6 +1681,8 @@
         "permission_removed": "Đã xóa {subject} khỏi việc chia sẻ {target}",
         "row_access_changed": "Đã thay đổi những ai được các hàng của {target} cấp quyền truy cập",
         "deleted": "Đã xóa vĩnh viễn {target}",
+        "verified": "Đã xác minh {target}",
+        "unverified": "Đã gỡ xác minh của {target}",
         "published": "Đã xuất bản {target} lên web",
         "unpublished": "Đã hủy xuất bản {target}",
         "publication_revoked": "Đã gỡ {target} khỏi web (do {subject} xuất bản)",
@@ -1748,6 +1758,11 @@
         "created": "Đã tạo tự động hóa “{name}” trong {target}",
         "updated": "{change, select, on {Đã bật tự động hóa “{name}” trong {target}} off {Đã tắt tự động hóa “{name}” trong {target}} other {Đã thay đổi tự động hóa “{name}” trong {target}}}",
         "deleted": "Đã xóa tự động hóa “{name}” trong {target}"
+      },
+      "webhook": {
+        "created": "Đã thêm webhook “{target}”",
+        "updated": "{change, select, on {Đã bật webhook “{target}”} off {Đã tắt webhook “{target}”} other {Đã thay đổi webhook “{target}”}}",
+        "deleted": "Đã xóa webhook “{target}”"
       },
       "export": {
         "workspace": "Đã xuất không gian làm việc ({count, plural, other {# trang}})",
@@ -1880,7 +1895,10 @@
     "followUpChannel": "Chuỗi theo dõi: {channel}",
     "reactionTitle": "Cảm xúc",
     "reactionDescription": "Có người bày tỏ cảm xúc với một bình luận bạn đã viết. Các cảm xúc với cùng một bình luận được gộp lại cho đến khi bạn mở chúng.",
-    "reactionChannel": "Cảm xúc: {channel}"
+    "reactionChannel": "Cảm xúc: {channel}",
+    "verificationTitle": "Các trang bạn đã xác minh",
+    "verificationDescription": "Một trang bạn đã xác minh sắp hết trạng thái đã xác minh: vài ngày trước đó, và khi nó hết hạn.",
+    "verificationChannel": "Các trang bạn đã xác minh: {channel}"
   },
   "site": {
     "description": "Cho các trang đã xuất bản của không gian làm việc này một địa chỉ dễ đọc, một trang chủ và điều hướng giữa chúng.",
@@ -2118,6 +2136,102 @@
       "redo": "Trả lại kèm ghi chú…",
       "notWhole": "Lệnh gọi này dài hơn phần hiển thị ở đây, hoặc chứa các giá trị bị che ở đây. Hãy mở lần chạy của nó để xem toàn bộ những gì sẽ được gửi trước khi chấp thuận.",
       "openRun": "Mở lần chạy để chấp thuận"
+    }
+  },
+  "webhooks": {
+    "description": "Gửi những gì xảy ra với các trang của không gian làm việc này đến một dịch vụ khác ngay khi nó xảy ra: các yêu cầu POST có chữ ký đến một địa chỉ https, cho cả không gian làm việc, một không gian nhóm, hoặc một trang và các trang bên dưới nó. Mỗi yêu cầu được gửi dưới danh nghĩa người lưu webhook gần nhất, trong phạm vi những gì người đó được mở; hàng cơ sở dữ liệu và mẫu không được gửi.",
+    "exportOff": "Tính năng xuất đang tắt trong Cài đặt › Bảo mật, nên webhook không gửi gì cho đến khi tính năng này được bật lại.",
+    "count": "{count, plural, =0 {Chưa có webhook nào.} other {# webhook}}",
+    "add": "Thêm webhook",
+    "empty": "Thêm một webhook để gửi sự kiện của trang đến dịch vụ của riêng bạn.",
+    "allEvents": "Mọi sự kiện",
+    "scopeLabel": {
+      "workspace": "Mọi trang của không gian làm việc",
+      "teamspace": "Các trang của {name}",
+      "page": "{title} và các trang bên dưới"
+    },
+    "events": {
+      "pageCreated": "Trang được tạo",
+      "pageUpdated": "Trang được chỉnh sửa",
+      "pageMoved": "Trang được di chuyển",
+      "pageTrashed": "Trang được chuyển vào thùng rác",
+      "pageRestored": "Trang được khôi phục từ thùng rác",
+      "pageDeleted": "Trang bị xóa vĩnh viễn",
+      "commentCreated": "Bình luận được thêm",
+      "ping": "Thử nghiệm"
+    },
+    "sendsAs": "Gửi dưới danh nghĩa {name}, trong phạm vi những gì người đó được mở.",
+    "paused": "Đã tạm dừng: {name} không còn là chủ sở hữu. Hãy lưu để gửi dưới danh nghĩa của bạn.",
+    "pausedBadge": "Đã tạm dừng",
+    "offBadge": "Tắt",
+    "toggle": "Gửi {name}",
+    "test": "Gửi thử",
+    "testDelivered": "Lần thử đã đến được địa chỉ (phản hồi {status}).",
+    "testFailed": "Lần thử không thành công: {reason}.",
+    "edit": "Chỉnh sửa",
+    "delete": "Xóa",
+    "deleteNote": "Webhook dừng ngay lập tức, và nhật ký gửi của nó cũng bị xóa theo.",
+    "working": "Đang xử lý…",
+    "secret": {
+      "show": "Khóa bí mật để ký",
+      "rotate": "Khóa bí mật mới",
+      "rotateNote": "Khóa bí mật hiện tại ngừng ký ngay lập tức: hãy cập nhật dịch vụ kiểm tra nó.",
+      "title": "Khóa bí mật để ký của “{name}”",
+      "label": "Khóa bí mật để ký",
+      "note": "Dùng nó để kiểm tra tiêu đề X-Leafdesk-Signature của mỗi yêu cầu: t=TIME,v1=HMAC, trong đó HMAC là HMAC-SHA256 dạng hex của TIME, một dấu chấm và phần thân yêu cầu. Hãy giữ bí mật."
+    },
+    "log": {
+      "title": "{count, plural, =0 {Lần gửi gần đây} other {Lần gửi gần đây (#)}}",
+      "empty": "Không có gì được gửi trong 30 ngày qua.",
+      "attempts": "{count, plural, other {# lần thử}}",
+      "next": "lần thử tiếp theo lúc {when}"
+    },
+    "status": {
+      "pending": "Đang chờ",
+      "delivered": "Đã gửi",
+      "failed": "Thất bại",
+      "skipped": "Không gửi"
+    },
+    "codes": {
+      "noAccess": "người đứng tên gửi không mở được trang",
+      "notOwner": "người đứng tên gửi không còn là chủ sở hữu",
+      "exportOff": "tính năng xuất đang tắt",
+      "disabled": "webhook đang tắt",
+      "invalidUrl": "địa chỉ không hợp lệ",
+      "blocked": "địa chỉ nằm trong một mạng riêng",
+      "unreachable": "không thể kết nối đến địa chỉ",
+      "timeout": "không có phản hồi trong vòng 10 giây",
+      "redirect": "địa chỉ phản hồi bằng một chuyển hướng",
+      "http": "địa chỉ phản hồi {status}"
+    },
+    "form": {
+      "title": "Thêm một webhook",
+      "editTitle": "Thay đổi webhook",
+      "name": "Tên",
+      "url": "Địa chỉ",
+      "urlHint": "Một địa chỉ https. Các yêu cầu được ký; chuyển hướng không được theo.",
+      "events": "Sự kiện",
+      "scope": "Trang",
+      "scopes": {
+        "workspace": "Cả không gian làm việc",
+        "teamspace": "Một không gian nhóm",
+        "page": "Một trang và các trang bên dưới"
+      },
+      "teamspace": "Chọn một không gian nhóm",
+      "pickPage": "Tìm một trang",
+      "noPages": "Không có trang nào để chọn.",
+      "otherPage": "Thay đổi",
+      "save": "Lưu",
+      "create": "Thêm webhook"
+    },
+    "errors": {
+      "invalidName": "Hãy đặt cho webhook một tên dài tối đa 100 ký tự.",
+      "invalidUrl": "Hãy nhập một địa chỉ https hợp lệ, không kèm tên người dùng hay mật khẩu.",
+      "httpsOnly": "Webhook chỉ gửi đến địa chỉ https.",
+      "noEvents": "Hãy chọn ít nhất một sự kiện.",
+      "invalidScope": "Hãy chọn một không gian nhóm hoặc một trang của không gian làm việc này.",
+      "tooMany": "Một không gian làm việc có tối đa 25 webhook.",
+      "ownersOnly": "Chỉ chủ sở hữu của không gian làm việc mới quản lý webhook."
     }
   },
   "email": {

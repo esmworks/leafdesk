@@ -12,6 +12,7 @@
     "groups": "קבוצות",
     "agents": "סוכנים",
     "connections": "חיבורים",
+    "webhooks": "Webhooks",
     "storage": "אחסון",
     "analytics": "ניתוח נתונים",
     "aiUsage": "שימוש בבינה מלאכותית",
@@ -1017,6 +1018,8 @@
     "moveToTrash": "העברה לאשפה",
     "confirmTrash": "להעביר את “{title}” לאשפה?",
     "lastEdited": "נערך לאחרונה {when}",
+    "verificationEndedBy": "אומת על ידי {name}, הסתיים {when}",
+    "verificationEnded": "האימות הסתיים {when}",
     "alike": "{similarity, number, percent} דמיון",
     "inProperty": "{property} ב־{database}",
     "removeFromRelation": "הסרה",
@@ -1040,6 +1043,11 @@
       "title": "דפים ללא שינוי",
       "description": "דפים שאף אחד לא ערך ב־{months} החודשים האחרונים, מהוותיק ביותר. ייתכן שהם לא מעודכנים.",
       "none": "כל הדפים נערכו לאחרונה."
+    },
+    "expiredVerifications": {
+      "title": "אימותים שפג תוקפם",
+      "description": "דפים שמישהו אימת עד יום שכבר עבר. כדאי לבדוק אותם ולאמת אותם שוב, או להסיר את האימות.",
+      "none": "אין אימות שפג תוקפו."
     },
     "duplicates": {
       "title": "כפילויות אפשריות",
@@ -1673,6 +1681,8 @@
         "permission_removed": "הסרת {subject} מהשיתוף של {target}",
         "row_access_changed": "שינוי האנשים שהשורות של {target} נותנות להם גישה",
         "deleted": "מחיקת {target} לצמיתות",
+        "verified": "אימות {target}",
+        "unverified": "הסרת האימות של {target}",
         "published": "פרסום {target} ברשת",
         "unpublished": "ביטול הפרסום של {target}",
         "publication_revoked": "הורדת {target} מהרשת (פורסם על ידי {subject})",
@@ -1748,6 +1758,11 @@
         "created": "יצירת האוטומציה “{name}” ב־{target}",
         "updated": "{change, select, on {הפעלת האוטומציה “{name}” ב־{target}} off {השבתת האוטומציה “{name}” ב־{target}} other {שינוי האוטומציה “{name}” ב־{target}}}",
         "deleted": "מחיקת האוטומציה “{name}” ב־{target}"
+      },
+      "webhook": {
+        "created": "הוספת ה־webhook “{target}”",
+        "updated": "{change, select, on {הפעלת ה־webhook “{target}”} off {כיבוי ה־webhook “{target}”} other {שינוי ה־webhook “{target}”}}",
+        "deleted": "הסרת ה־webhook “{target}”"
       },
       "export": {
         "workspace": "ייצוא סביבת העבודה ({count, plural, one {דף אחד} two {שני דפים} other {# דפים}})",
@@ -1880,7 +1895,10 @@
     "followUpChannel": "רצפי מעקב: {channel}",
     "reactionTitle": "תגובות אמוג׳י",
     "reactionDescription": "מישהו מגיב באמוג׳י לתגובה שכתבת. תגובות לאותה תגובה מתקבצות יחד עד שתפתחו אותן.",
-    "reactionChannel": "תגובות אמוג׳י: {channel}"
+    "reactionChannel": "תגובות אמוג׳י: {channel}",
+    "verificationTitle": "דפים שאימתת",
+    "verificationDescription": "האימות של דף שאימתת עומד להסתיים: כמה ימים לפני כן, וכשהוא מסתיים.",
+    "verificationChannel": "דפים שאימתת: {channel}"
   },
   "site": {
     "description": "כתובת קריאה אחת לדפים המפורסמים של סביבת העבודה הזו, עם דף בית וניווט ביניהם.",
@@ -2118,6 +2136,102 @@
       "redo": "החזרה עם הערה…",
       "notWhole": "הקריאה הזו ארוכה ממה שמוצג כאן, או מכילה ערכים שמוסתרים כאן. כדי לראות את כל מה שיישלח לפני האישור, יש לפתוח את ההרצה שלה.",
       "openRun": "פתיחת ההרצה לאישור"
+    }
+  },
+  "webhooks": {
+    "description": "אפשר לשלוח את מה שקורה לדפים של סביבת העבודה הזו לשירות אחר ברגע שזה קורה: בקשות POST חתומות לכתובת https, עבור כל סביבת העבודה, מרחב צוות אחד, או דף והדפים שמתחתיו. כל webhook נשלח בשם מי ששמר אותו אחרון, ורק עם מה שמותר לו/ה לפתוח; שורות של מסדי נתונים ותבניות לא נשלחות.",
+    "exportOff": "הייצוא כבוי בהגדרות › אבטחה, ולכן ה־webhooks לא שולחים דבר עד שיופעל שוב.",
+    "count": "{count, plural, =0 {אין עדיין webhooks.} one {webhook אחד} two {שני webhooks} other {# webhooks}}",
+    "add": "הוספת webhook",
+    "empty": "אפשר להוסיף webhook כדי לשלוח אירועי דפים לשירות משלך.",
+    "allEvents": "כל האירועים",
+    "scopeLabel": {
+      "workspace": "כל הדפים של סביבת העבודה",
+      "teamspace": "הדפים של {name}",
+      "page": "{title} והדפים שמתחתיו"
+    },
+    "events": {
+      "pageCreated": "דף נוצר",
+      "pageUpdated": "דף נערך",
+      "pageMoved": "דף הועבר",
+      "pageTrashed": "דף הועבר לאשפה",
+      "pageRestored": "דף שוחזר מהאשפה",
+      "pageDeleted": "דף נמחק לצמיתות",
+      "commentCreated": "נוספה תגובה",
+      "ping": "בדיקה"
+    },
+    "sendsAs": "נשלח בשם {name}, ורק עם מה שמותר לו/ה לפתוח.",
+    "paused": "מושהה: {name} כבר לא בעלים. אפשר לשמור אותו כדי שיישלח בשמך.",
+    "pausedBadge": "מושהה",
+    "offBadge": "כבוי",
+    "toggle": "שליחת {name}",
+    "test": "שליחת בדיקה",
+    "testDelivered": "הבדיקה הגיעה לכתובת (התשובה הייתה {status}).",
+    "testFailed": "הבדיקה לא עברה: {reason}.",
+    "edit": "עריכה",
+    "delete": "הסרה",
+    "deleteNote": "הוא נעצר מיד, ויומן המסירות שלו נמחק יחד איתו.",
+    "working": "בעבודה…",
+    "secret": {
+      "show": "סוד החתימה",
+      "rotate": "סוד חדש",
+      "rotateNote": "הסוד הנוכחי מפסיק לחתום מיד: יש לעדכן את השירות שבודק אותו.",
+      "title": "סוד החתימה של “{name}”",
+      "label": "סוד החתימה",
+      "note": "יש לבדוק איתו את הכותרת X-Leafdesk-Signature של כל בקשה: t=TIME,v1=HMAC, כאשר HMAC הוא HMAC-SHA256 בהקסדצימלי של TIME, נקודה והגוף. יש לשמור אותו בסוד."
+    },
+    "log": {
+      "title": "{count, plural, =0 {מסירות אחרונות} other {מסירות אחרונות (#)}}",
+      "empty": "לא נשלח דבר ב־30 הימים האחרונים.",
+      "attempts": "{count, plural, one {ניסיון אחד} two {שני ניסיונות} other {# ניסיונות}}",
+      "next": "הניסיון הבא ב־{when}"
+    },
+    "status": {
+      "pending": "ממתין",
+      "delivered": "נמסר",
+      "failed": "נכשל",
+      "skipped": "לא נשלח"
+    },
+    "codes": {
+      "noAccess": "האדם שבשמו הוא נשלח לא יכול לפתוח את הדף",
+      "notOwner": "האדם שבשמו הוא נשלח כבר לא בעלים",
+      "exportOff": "הייצוא כבוי",
+      "disabled": "ה־webhook כבוי",
+      "invalidUrl": "הכתובת לא תקינה",
+      "blocked": "הכתובת נמצאת ברשת פרטית",
+      "unreachable": "לא ניתן היה להגיע לכתובת",
+      "timeout": "לא התקבלה תשובה תוך 10 שניות",
+      "redirect": "הכתובת השיבה בהפניה",
+      "http": "הכתובת השיבה {status}"
+    },
+    "form": {
+      "title": "הוספת webhook",
+      "editTitle": "שינוי ה־webhook",
+      "name": "שם",
+      "url": "כתובת",
+      "urlHint": "כתובת https. הבקשות חתומות; הפניות לא נעקבות.",
+      "events": "אירועים",
+      "scope": "דפים",
+      "scopes": {
+        "workspace": "כל סביבת העבודה",
+        "teamspace": "מרחב צוות אחד",
+        "page": "דף והדפים שמתחתיו"
+      },
+      "teamspace": "בחירת מרחב צוות",
+      "pickPage": "חיפוש דף",
+      "noPages": "אין דפים לבחירה.",
+      "otherPage": "שינוי",
+      "save": "שמירה",
+      "create": "הוספת webhook"
+    },
+    "errors": {
+      "invalidName": "יש לתת ל־webhook שם של עד 100 תווים.",
+      "invalidUrl": "יש להזין כתובת https תקינה בלי שם משתמש או סיסמה.",
+      "httpsOnly": "Webhooks נשלחים רק לכתובות https.",
+      "noEvents": "יש לבחור אירוע אחד לפחות.",
+      "invalidScope": "יש לבחור מרחב צוות או דף של סביבת העבודה הזו.",
+      "tooMany": "בסביבת עבודה יכולים להיות עד 25 webhooks.",
+      "ownersOnly": "רק הבעלים של סביבת העבודה מנהלים webhooks."
     }
   },
   "email": {

@@ -77,6 +77,16 @@
     "action": "Buka halaman",
     "optOut": "Anda menerima ini karena Anda mengatur pengingat. Anda dapat mematikannya di Akun saya > Preferensi."
   },
+  "pageVerification": {
+    "endsSubject": "Verifikasi Anda atas “{page}” berakhir pada {date}",
+    "endsHeading": "Verifikasi segera berakhir",
+    "endsBody": "Anda memverifikasi “{page}” di {workspace} hingga {date}. Jika isinya masih benar, verifikasi lagi dari menu ⋯ halaman agar tetap terverifikasi.",
+    "endedSubject": "Verifikasi Anda atas “{page}” telah kedaluwarsa",
+    "endedHeading": "Verifikasi kedaluwarsa",
+    "endedBody": "Verifikasi Anda atas “{page}” di {workspace} berakhir pada {date}. Halaman ini menampilkan “Verifikasi kedaluwarsa” sampai seseorang memverifikasinya lagi.",
+    "action": "Buka halaman",
+    "optOut": "Anda menerima ini karena Anda memverifikasi halaman tersebut. Anda dapat mematikannya di Akun saya > Preferensi."
+  },
   "dateReminder": {
     "subject": "Pengingat: “{page}” pada {date}",
     "heading": "“{page}” pada {date}",
@@ -242,6 +252,8 @@
     "followUp": "Tindak lanjut “{sequence}” dijeda: email berikutnya perlu diperiksa",
     "reaction": "{actor} memberi reaksi {emoji} pada komentar Anda",
     "people": "{others, plural, =0 {{name}} other {{name} dan # lainnya}}",
+    "verificationEnds": "Verifikasi Anda atas halaman ini berakhir pada {date}",
+    "verificationEnded": "Verifikasi Anda atas halaman ini kedaluwarsa pada {date}",
     "someone": "Seseorang",
     "joinRequestTitle": "Permintaan bergabung",
     "joinRequest": "{actor} meminta untuk bergabung",
