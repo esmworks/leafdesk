@@ -550,7 +550,9 @@
     "parentOptionToggle": "Erbjud ”{option}” när ”{parent}” är ”{value}”",
     "sortOptionsAsc": "Sortera A → Ö",
     "sortOptionsDesc": "Sortera Ö → A",
-    "dragOption": "Dra för att flytta {name}"
+    "dragOption": "Dra för att flytta {name}",
+    "urlPreview": "Visa som länkförhandsvisning",
+    "urlPreviewHint": "Radsidor visar den länkade sidans ikon, titel och bild under länken."
   },
   "rowProperties": {
     "noProperties": "Inga egenskaper",
@@ -971,7 +973,8 @@
     "sprintsDatabase": "Den här databasen innehåller en annan databas sprintar: slå på eller av sprintar där.",
     "noCurrentSprint": "Ingen sprint är aktuell. Markera först en sprint som aktuell.",
     "invalidSprints": "Sprintar kan inte ställas in så här: kontrollera sprintlängden, första dagen och sprintdatabasen.",
-    "sprintStateOption": "Det här alternativet anger en sprints läge. Byt namn på det om du vill, eller stäng av sprintar innan du raderar det."
+    "sprintStateOption": "Det här alternativet anger en sprints läge. Byt namn på det om du vill, eller stäng av sprintar innan du raderar det.",
+    "invalidSlackUrl": "Inte adressen till en inkommande webhook i Slack (https://hooks.slack.com/services/…)."
   },
   "formula": {
     "title": "Formel",
@@ -1272,7 +1275,8 @@
         "log": "Skriv i körhistoriken",
         "celebrate": "Fira med konfetti",
         "approval": "Be om godkännande",
-        "start_sequence": "Starta en uppföljning"
+        "start_sequence": "Starta en uppföljning",
+        "slack": "Skicka till Slack"
       },
       "trashHelp": "Flyttar raden till papperskorgen, där den kan återställas tills papperskorgen töms. Inget kan köras efter den här åtgärden.",
       "addAction": "Lägg till åtgärd",
@@ -1332,7 +1336,8 @@
         "badExample": "Exempelinnehållet är inte giltig JSON.",
         "exampleTooLong": "Exempelinnehållet är för långt.",
         "needApprovers": "Välj vem som ska tillfrågas.",
-        "needTimeout": "Ange ett helt antal dagar från 1 till 30."
+        "needTimeout": "Ange ett helt antal dagar från 1 till 30.",
+        "needSlackUrl": "Ange adressen till Slacks inkommande webhook."
       },
       "agent": "Agent",
       "chooseAgent": "Välj en agent…",
@@ -1464,7 +1469,8 @@
         "noAddress": "Raden har ingen e-postadress",
         "emailOff": "E-post på rader är avstängt",
         "noPerson": "Överhoppat: ingen persons ändring startade den här körningen",
-        "tooLate": "Överhoppat: för lång tid efter ändringen för att fira den"
+        "tooLate": "Överhoppat: för lång tid efter ändringen för att fira den",
+        "templateGone": "Radmallen finns inte längre"
       },
       "waitingApproval": "Väntar på godkännande",
       "approval": {
@@ -1566,7 +1572,19 @@
       "logPlaceholder": "Till exempel: Importerade {template}",
       "logHelp": "Skrivs i körhistoriken, med variablerna ifyllda.",
       "celebrateHelp": "Konfetti i appen för den som gjorde ändringen som startade körningen, i de fönster hen har öppna. Körningar som ingen startade (scheman, datum som passeras, inkommande webhooks, anonyma formulärsvar) hoppar över det, liksom körningar som når hit mer än två minuter efter ändringen.",
-      "celebrateTry": "Prova"
+      "celebrateTry": "Prova",
+      "slackUrl": "Inkommande webhook i Slack",
+      "slackReplace": "Klistra in en ny adress för att ersätta den sparade",
+      "slackSaved": "Sparad adress:",
+      "slackMessage": "Meddelande",
+      "slackPlaceholder": "Till exempel: Redo för granskning: {template}",
+      "slackHelp": "Skickar meddelandet till den inkommande webhookens Slack-kanal, med en länk till raden. Slack-formatering (*fet*, _kursiv_) fungerar. Adressen hålls hemlig och visas bara förkortad.",
+      "rowTemplate": "Radmall",
+      "rowTemplateNone": "Ingen (en tom rad)",
+      "rowTemplateDefault": "Databasens standardmall",
+      "rowTemplateDefaultNamed": "Standardmallen ({name})",
+      "rowTemplateGone": "En mall som inte längre finns",
+      "rowTemplateHelp": "Raden börjar som en kopia av mallen. Värden som anges här ersätter mallens; en tom titel behåller mallens."
     },
     "variables": {
       "button": "Infoga en variabel",
@@ -1851,5 +1869,122 @@
       "allView": "Alla sprintar",
       "boardView": "Efter läge"
     }
+  },
+  "github": {
+    "menuItem": "Pull requests på GitHub",
+    "menuHint": "Lägg till länkar till pull requests som nämner en rad med dess ID, och flytta radens status",
+    "title": "Pull requests på GitHub",
+    "intro": "En pull request som nämner en rad med dess ID, som {example}, i sin titel, beskrivning eller gren lägger till sin länk på raden och kan flytta radens status.",
+    "needUniqueId": "Lägg först till en ID-egenskap i den här databasen: pull requests nämner rader med deras ID.",
+    "needPrefix": "Ge först ID-egenskapen ”{property}” ett prefix, som UPPG: pull requests nämner rader med det.",
+    "linkProperty": "Lägg till länkar till pull requests i",
+    "noLinks": "Lägg inte till länkar",
+    "newProperty": "Ny textegenskap…",
+    "newPropertyName": "Pull requests",
+    "newPropertyLabel": "Den nya egenskapens namn",
+    "linkHelp": "En textegenskap behåller alla pull requests, en per rad; en URL-egenskap behåller den senaste.",
+    "statusProperty": "Flytta statusen i",
+    "noStatus": "Ändra inte statusen",
+    "noStatusProperty": "Den här databasen har ingen statusegenskap, så bara länkar läggs till.",
+    "statusOff": "Statusen förblir som den är.",
+    "statusHelp": "Utkast till pull requests lägger till sin länk men flyttar inget förrän de är redo för granskning. En rad vars status redan är klar flyttas bara när en pull request sammanfogas.",
+    "move": {
+      "opened": "Öppnad eller redo för granskning",
+      "merged": "Sammanfogad",
+      "closed": "Stängd utan sammanfogning"
+    },
+    "leave": "Låt den vara som den är",
+    "setUp": "Konfigurera",
+    "save": "Spara",
+    "change": "Ändra",
+    "whatItDoes": "Vad den gör",
+    "linksTo": "Lägger till länkar till pull requests i ”{property}”.",
+    "noLinksSaved": "Lägger inte till några länkar.",
+    "movesIn": "Flyttar ”{property}”: {moves}.",
+    "moves": {
+      "opened": "öppnad till {option}",
+      "merged": "sammanfogad till {option}",
+      "closed": "stängd utan sammanfogning till {option}"
+    },
+    "noMoves": "Låter statusen vara som den är.",
+    "inGithub": "I GitHub",
+    "steps": "Öppna Webhooks i repots Settings, välj Add webhook, fyll i fälten nedan, välj ”Let me select individual events” och kryssa bara i Pull requests.",
+    "payloadUrl": "Payload URL",
+    "secret": "Secret",
+    "showSecret": "Visa hemligheten",
+    "hideSecret": "Dölj hemligheten",
+    "secretUnreadable": "Hemligheten kan inte längre läsas på den här servern. Skapa en ny och ge den till GitHub.",
+    "rotate": "Skapa en ny hemlighet",
+    "rotateConfirm": "Skapa en ny hemlighet? Leveranser som signerats med den gamla avvisas tills du ger GitHub den nya.",
+    "contentType": "Content type",
+    "events": "Händelser",
+    "eventsValue": "Pull requests",
+    "deliveries": "Senaste leveranser",
+    "refresh": "Uppdatera",
+    "noDeliveries": "Inget har kommit än. När du lägger till webhooken skickar GitHub en ping som visas här.",
+    "ping": "Ping från GitHub",
+    "pingOk": "Webhooken är ansluten.",
+    "otherEvent": "Händelsen {event}",
+    "handling": "Hanteras…",
+    "ignored": "Inget att göra för ”{action}”.",
+    "noIds": "Nämner ingen rad i den här databasen.",
+    "outcome": {
+      "updated": "uppdaterad",
+      "unchanged": "redan aktuell",
+      "notFound": "hittades inte",
+      "noAccess": "ingen redigeringsåtkomst",
+      "failed": "misslyckades"
+    },
+    "deliveryErrors": {
+      "noUniqueId": "Databasen har inte längre någon ID-egenskap med prefix.",
+      "runAsGone": "Personen den körs som finns inte längre. Spara konfigurationen igen.",
+      "accessLost": "Personen den körs som kan inte längre redigera den här databasen. Spara konfigurationen igen.",
+      "inTrash": "Databasen ligger i papperskorgen.",
+      "failed": "Något gick fel när den hanterades."
+    },
+    "runsAs": "Ändringar görs som {name}, som sparade den senast.",
+    "runsAsGone": "Personen den kördes som finns inte längre: spara den igen för att köra den som dig.",
+    "remove": "Ta bort",
+    "removeConfirm": "Ta bort GitHub-konfigurationen? GitHubs leveranser avvisas från och med då; länkar som redan lagts till finns kvar.",
+    "errors": {
+      "noUniqueId": "Lägg först till en ID-egenskap med prefix i den här databasen.",
+      "invalidProperty": "Välj en text- eller URL-egenskap för länkarna, en statusegenskap och dess alternativ.",
+      "notSetUp": "Den här databasen har ingen GitHub-konfiguration."
+    }
+  },
+  "slack": {
+    "menuItem": "Slack-aviseringar",
+    "menuHint": "Skicka till en Slack-kanal när en rad läggs till eller en egenskap ändras",
+    "title": "Slack-aviseringar",
+    "intro": "Skickar till en Slack-kanal när en rad läggs till eller en egenskap ändras. Den sparas som en automatisering som du kan ändra senare.",
+    "url": "Inkommande webhook i Slack",
+    "urlHelp": "Lägg till appen Incoming WebHooks i kanalen i Slack och kopiera dess webhook-URL. Den hålls hemlig och visas bara förkortad.",
+    "when": "När",
+    "rowAdded": "En rad läggs till",
+    "propertyChanges": "{property} ändras",
+    "to": "Till",
+    "anyValue": "Valfritt värde",
+    "checked": "Ikryssad",
+    "unchecked": "Inte ikryssad",
+    "message": "Meddelande",
+    "messageHelp": "Variabler inom dubbla klammerparenteser fylls i från raden. En länk till raden läggs till i slutet.",
+    "defaultAdded": "{actor} lade till en rad i {database}",
+    "defaultChanged": "{actor} ändrade {property} till {value}",
+    "nameAdded": "Slack: nya rader",
+    "nameChanged": "Slack: {property} ändrades",
+    "nameChangedTo": "Slack: {property} är {value}",
+    "create": "Skapa",
+    "created": "Skapade automatiseringen ”{name}”.",
+    "existing": "Automatiseringar som skickar till Slack",
+    "existingHelp": "Ändra eller stäng av dem bland databasens automatiseringar.",
+    "off": "av"
+  },
+  "templateValues": {
+    "me": "Jag",
+    "today": "I dag",
+    "now": "Nu",
+    "hint": "Fylls i när en rad läggs till från den här mallen",
+    "dateWhen": "Anges när en rad läggs till",
+    "meOption": "Den som lägger till raden"
   }
 }

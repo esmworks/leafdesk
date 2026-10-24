@@ -34,7 +34,27 @@
     "stopped": "Stoppat. Du kan fortfarande behålla det som har skrivits hittills.",
     "applyFailed": "Förslaget kunde inte läggas till på sidan.",
     "asSuggestions": "Lägg till som ändringsförslag",
-    "selectionChanged": "Den markerade texten ändrades under tiden, så förslaget lades till nedanför den."
+    "selectionChanged": "Den markerade texten ändrades under tiden, så förslaget lades till nedanför den.",
+    "saved": {
+      "title": "Sparade promptar",
+      "empty": "Spara en instruktion du använder ofta med bokmärket bredvid Skicka. Instruktioner för hela teamet är <skills>färdigheter</skills>.",
+      "saveInstruction": "Spara prompt",
+      "name": "Namn",
+      "namePlaceholder": "Ge prompten ett namn",
+      "save": "Spara",
+      "cancel": "Avbryt",
+      "rename": "Nytt namn",
+      "renameNamed": "Byt namn på {name}",
+      "deleteNamed": "Radera {name}",
+      "errors": {
+        "emptyName": "Ge prompten ett namn.",
+        "emptyPrompt": "Det finns ingen instruktion att spara.",
+        "nameTooLong": "Namnet får vara högst {max} tecken.",
+        "promptTooLong": "Prompten får vara högst {max} tecken.",
+        "full": "Du kan ha högst {max} sparade promptar. Radera en för att spara en ny.",
+        "notFound": "Den här sparade prompten finns inte längre."
+      }
+    }
   },
   "errors": {
     "disabled": "AI är inte tillgängligt i den här arbetsytan.",

@@ -41,6 +41,7 @@
       "language": "språk översättning",
       "theme": "mörkt läge ljust läge färger tema",
       "contrast": "tillgänglighet hög kontrast",
+      "desktopLinks": "electron windows mac flikar öppna länkar skrivbordsapp dator",
       "notifications": "push e-post aviseringar meddelanden",
       "watchedPages": "följ prenumerera bevaka",
       "offlineDevice": "offline ladda ned cache utrymme",
@@ -1119,6 +1120,20 @@
       "note": "Hög kontrast gör sekundär text, linjer och fokusramar tydligare, i båda temana. Den här inställningen gäller bara den här webbläsaren. Med systeminställningen följer den din enhets alternativ för ökad kontrast."
     }
   },
+  "desktopLinks": {
+    "heading": "Skrivbordsappen",
+    "label": "Öppna länkar i skrivbordsappen",
+    "note": "När du öppnar en Leafdesk-sida i en webbläsare på en dator som har skrivbordsappen kan den gå vidare till appen, i en egen flik. Inuti appen ändras inget.",
+    "off": "Av",
+    "ask": "Erbjud att öppna dem",
+    "always": "Öppna dem alltid",
+    "banner": {
+      "text": "Öppna den här sidan i skrivbordsappen?",
+      "open": "Öppna i appen",
+      "always": "Alltid",
+      "dismiss": "Stäng"
+    }
+  },
   "language": {
     "heading": "Språk",
     "label": "Gränssnittets språk",
@@ -1863,6 +1878,11 @@
       "sensitive_content": {
         "found": "Hittade {kind} ({excerpt}) på {target}",
         "dismissed": "Avfärdade {kind} ({excerpt}) som hittats på {target}"
+      },
+      "github_sync": {
+        "created": "Konfigurerade pull requests på GitHub i {target}",
+        "updated": "Ändrade GitHub-konfigurationen för {target}",
+        "deleted": "Tog bort GitHub-konfigurationen för {target}"
       }
     },
     "decisions": {

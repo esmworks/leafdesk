@@ -1178,7 +1178,8 @@
       "invalidTarget": "Länken att öppna är inte giltig.",
       "buttonGone": "Knappen har tagits bort från sidan.",
       "error": "Något gick fel.",
-      "step": "Steg {step} ({type}) kördes inte: {reason}"
+      "step": "Steg {step} ({type}) kördes inte: {reason}",
+      "templateGone": "Radmallen finns inte längre."
     }
   },
   "imageCrop": {
