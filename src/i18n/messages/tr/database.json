@@ -1464,7 +1464,8 @@
         "noAddress": "Satırın e-posta adresi yok",
         "emailOff": "Satırlarda e-posta kapalı",
         "noPerson": "Atlandı: bu çalışmayı bir kişinin değişikliği başlatmadı",
-        "tooLate": "Atlandı: kutlamak için değişikliğin üzerinden çok zaman geçti"
+        "tooLate": "Atlandı: kutlamak için değişikliğin üzerinden çok zaman geçti",
+        "templateGone": "Satır şablonu artık yok"
       },
       "waitingApproval": "Onay bekliyor",
       "approval": {
@@ -1566,7 +1567,13 @@
       "logPlaceholder": "Örneğin: {template} içe aktarıldı",
       "logHelp": "Değişkenleri doldurulmuş olarak çalışma geçmişine yazılır.",
       "celebrateHelp": "Çalışmayı başlatan değişikliği kim yaptıysa, uygulamada açık olan pencerelerinde konfeti patlar. Kimsenin başlatmadığı çalışmalar (zamanlamalar, geçen tarihler, gelen webhook'lar, adsız form yanıtları) bu adımı atlar; değişiklikten iki dakikadan uzun süre sonra buraya gelen çalışmalar da.",
-      "celebrateTry": "Dene"
+      "celebrateTry": "Dene",
+      "rowTemplate": "Satır şablonu",
+      "rowTemplateNone": "Yok (boş satır)",
+      "rowTemplateDefault": "Veritabanının varsayılan şablonu",
+      "rowTemplateDefaultNamed": "Varsayılan şablon ({name})",
+      "rowTemplateGone": "Artık var olmayan bir şablon",
+      "rowTemplateHelp": "Satır şablonun bir kopyası olarak başlar. Burada belirlenen değerler şablonunkilerin yerine geçer; boş başlık şablonun başlığını korur."
     },
     "variables": {
       "button": "Değişken ekle",

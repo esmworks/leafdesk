@@ -1464,7 +1464,8 @@
         "noAddress": "The row has no email address",
         "emailOff": "Email on rows is off",
         "noPerson": "Skipped: no person's change started this run",
-        "tooLate": "Skipped: too long after the change to celebrate it"
+        "tooLate": "Skipped: too long after the change to celebrate it",
+        "templateGone": "The row template no longer exists"
       },
       "waitingApproval": "Waiting for approval",
       "approval": {
@@ -1566,7 +1567,13 @@
       "logPlaceholder": "For example: Imported {template}",
       "logHelp": "Written into the run history, with its variables filled in.",
       "celebrateHelp": "Confetti in the app for whoever made the change that started the run, in the windows they have open. Runs nobody started (schedules, dates passing, incoming webhooks, anonymous form answers) skip it, and so do runs that get here more than two minutes after the change.",
-      "celebrateTry": "Try it"
+      "celebrateTry": "Try it",
+      "rowTemplate": "Row template",
+      "rowTemplateNone": "None (a blank row)",
+      "rowTemplateDefault": "The database’s default template",
+      "rowTemplateDefaultNamed": "The default template ({name})",
+      "rowTemplateGone": "A template that no longer exists",
+      "rowTemplateHelp": "The row starts as a copy of the template. Values set here go over the template’s; an empty title keeps the template’s."
     },
     "variables": {
       "button": "Insert a variable",

@@ -1464,7 +1464,8 @@
         "noAddress": "La fila no tiene dirección de correo",
         "emailOff": "El correo en las filas está desactivado",
         "noPerson": "Omitido: ningún cambio de una persona inició esta ejecución",
-        "tooLate": "Omitido: ha pasado demasiado tiempo desde el cambio para celebrarlo"
+        "tooLate": "Omitido: ha pasado demasiado tiempo desde el cambio para celebrarlo",
+        "templateGone": "La plantilla de fila ya no existe"
       },
       "waitingApproval": "Esperando aprobación",
       "approval": {
@@ -1566,7 +1567,13 @@
       "logPlaceholder": "Por ejemplo: Importado {template}",
       "logHelp": "Se escribe en el historial de ejecuciones con sus variables rellenadas.",
       "celebrateHelp": "Confeti en la app para quien hizo el cambio que inició la ejecución, en las ventanas que tenga abiertas. Las ejecuciones que nadie inició (programaciones, fechas que pasan, webhooks entrantes, respuestas anónimas de formularios) se lo saltan, igual que las que llegan aquí más de dos minutos después del cambio.",
-      "celebrateTry": "Probar"
+      "celebrateTry": "Probar",
+      "rowTemplate": "Plantilla de fila",
+      "rowTemplateNone": "Ninguna (fila vacía)",
+      "rowTemplateDefault": "Plantilla predeterminada de la base de datos",
+      "rowTemplateDefaultNamed": "La plantilla predeterminada ({name})",
+      "rowTemplateGone": "Una plantilla que ya no existe",
+      "rowTemplateHelp": "La fila empieza como una copia de la plantilla. Los valores fijados aquí sustituyen a los de la plantilla; un título vacío conserva el de la plantilla."
     },
     "variables": {
       "button": "Insertar una variable",

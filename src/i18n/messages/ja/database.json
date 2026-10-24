@@ -1464,7 +1464,8 @@
         "noAddress": "行にメールアドレスがありません",
         "emailOff": "行のメールがオフです",
         "noPerson": "スキップ: この実行は人による変更で始まっていません",
-        "tooLate": "スキップ: 変更から時間がたちすぎています"
+        "tooLate": "スキップ: 変更から時間がたちすぎています",
+        "templateGone": "行テンプレートはもう存在しません"
       },
       "waitingApproval": "承認待ち",
       "approval": {
@@ -1566,7 +1567,13 @@
       "logPlaceholder": "例：{template} をインポートしました",
       "logHelp": "変数を埋めた状態で実行履歴に書き込まれます。",
       "celebrateHelp": "実行のきっかけとなる変更をした人の、アプリで開いているウィンドウに紙吹雪を表示します。誰も始めていない実行（スケジュール、日付の経過、受信 Webhook、匿名のフォーム回答）と、変更から 2 分以上たってこのステップに来た実行では、スキップされます。",
-      "celebrateTry": "試す"
+      "celebrateTry": "試す",
+      "rowTemplate": "行テンプレート",
+      "rowTemplateNone": "なし（空の行）",
+      "rowTemplateDefault": "データベースの既定のテンプレート",
+      "rowTemplateDefaultNamed": "既定のテンプレート（{name}）",
+      "rowTemplateGone": "存在しないテンプレート",
+      "rowTemplateHelp": "行はテンプレートのコピーとして作成されます。ここで設定した値はテンプレートの値より優先され、タイトルが空ならテンプレートのタイトルになります。"
     },
     "variables": {
       "button": "変数を挿入",

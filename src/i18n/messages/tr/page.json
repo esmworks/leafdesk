@@ -1178,7 +1178,8 @@
       "invalidTarget": "Açılacak bağlantı geçerli değil.",
       "buttonGone": "Düğme sayfadan kaldırıldı.",
       "error": "Bir sorun oluştu.",
-      "step": "{step}. adım ({type}) çalışmadı: {reason}"
+      "step": "{step}. adım ({type}) çalışmadı: {reason}",
+      "templateGone": "Satır şablonu artık yok."
     }
   },
   "imageCrop": {

@@ -1464,7 +1464,8 @@
         "noAddress": "La riga non ha un indirizzo email",
         "emailOff": "Le email sulle righe sono disattivate",
         "noPerson": "Saltato: nessuna modifica di una persona ha avviato questa esecuzione",
-        "tooLate": "Saltato: è passato troppo tempo dalla modifica per festeggiarla"
+        "tooLate": "Saltato: è passato troppo tempo dalla modifica per festeggiarla",
+        "templateGone": "Il modello di riga non esiste più"
       },
       "waitingApproval": "In attesa di approvazione",
       "approval": {
@@ -1566,7 +1567,13 @@
       "logPlaceholder": "Ad esempio: Importato {template}",
       "logHelp": "Scritto nella cronologia delle esecuzioni, con le variabili compilate.",
       "celebrateHelp": "Coriandoli nell’app per chi ha fatto la modifica che ha avviato l’esecuzione, nelle finestre che ha aperte. Le esecuzioni che nessuno ha avviato (pianificazioni, date trascorse, webhook in arrivo, risposte anonime ai moduli) lo saltano, come quelle che ci arrivano più di due minuti dopo la modifica.",
-      "celebrateTry": "Prova"
+      "celebrateTry": "Prova",
+      "rowTemplate": "Modello di riga",
+      "rowTemplateNone": "Nessuno (riga vuota)",
+      "rowTemplateDefault": "Modello predefinito del database",
+      "rowTemplateDefaultNamed": "Il modello predefinito ({name})",
+      "rowTemplateGone": "Un modello che non esiste più",
+      "rowTemplateHelp": "La riga parte come copia del modello. I valori impostati qui sostituiscono quelli del modello; un titolo vuoto mantiene quello del modello."
     },
     "variables": {
       "button": "Inserisci una variabile",

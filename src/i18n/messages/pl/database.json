@@ -1464,7 +1464,8 @@
         "noAddress": "Wiersz nie ma adresu e-mail",
         "emailOff": "E-maile w wierszach są wyłączone",
         "noPerson": "Pominięto: tego przebiegu nie uruchomiła zmiana żadnej osoby",
-        "tooLate": "Pominięto: od zmiany minęło zbyt dużo czasu, by ją świętować"
+        "tooLate": "Pominięto: od zmiany minęło zbyt dużo czasu, by ją świętować",
+        "templateGone": "Szablon wiersza już nie istnieje"
       },
       "waitingApproval": "Czeka na zatwierdzenie",
       "approval": {
@@ -1566,7 +1567,13 @@
       "logPlaceholder": "Na przykład: Zaimportowano {template}",
       "logHelp": "Zapisywana w historii uruchomień z uzupełnionymi zmiennymi.",
       "celebrateHelp": "Konfetti w aplikacji dla osoby, której zmiana uruchomiła przebieg, w otwartych przez nią oknach. Przebiegi, których nikt nie uruchomił (harmonogramy, mijające daty, przychodzące webhooki, anonimowe odpowiedzi na formularze), pomijają ten krok, podobnie jak te, które docierają do niego później niż dwie minuty po zmianie.",
-      "celebrateTry": "Wypróbuj"
+      "celebrateTry": "Wypróbuj",
+      "rowTemplate": "Szablon wiersza",
+      "rowTemplateNone": "Brak (pusty wiersz)",
+      "rowTemplateDefault": "Domyślny szablon bazy danych",
+      "rowTemplateDefaultNamed": "Szablon domyślny ({name})",
+      "rowTemplateGone": "Szablon, który już nie istnieje",
+      "rowTemplateHelp": "Wiersz powstaje jako kopia szablonu. Wartości ustawione tutaj zastępują wartości szablonu; pusty tytuł zachowuje tytuł szablonu."
     },
     "variables": {
       "button": "Wstaw zmienną",

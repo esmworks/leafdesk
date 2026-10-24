@@ -1464,7 +1464,8 @@
         "noAddress": "A linha não tem endereço de e-mail",
         "emailOff": "O e-mail nas linhas está desativado",
         "noPerson": "Ignorado: nenhuma alteração de uma pessoa iniciou esta execução",
-        "tooLate": "Ignorado: passou tempo demais desde a alteração para celebrá-la"
+        "tooLate": "Ignorado: passou tempo demais desde a alteração para celebrá-la",
+        "templateGone": "O modelo de linha já não existe"
       },
       "waitingApproval": "Aguardando aprovação",
       "approval": {
@@ -1566,7 +1567,13 @@
       "logPlaceholder": "Por exemplo: {template} importado",
       "logHelp": "Escrita no histórico de execuções, com as variáveis preenchidas.",
       "celebrateHelp": "Confetes no app para quem fez a alteração que iniciou a execução, nas janelas que tiver abertas. Execuções que ninguém iniciou (agendamentos, datas que passam, webhooks recebidos, respostas anônimas de formulários) pulam esta etapa, assim como as que chegam aqui mais de dois minutos depois da alteração.",
-      "celebrateTry": "Experimentar"
+      "celebrateTry": "Experimentar",
+      "rowTemplate": "Modelo de linha",
+      "rowTemplateNone": "Nenhum (linha em branco)",
+      "rowTemplateDefault": "Modelo padrão do banco de dados",
+      "rowTemplateDefaultNamed": "O modelo padrão ({name})",
+      "rowTemplateGone": "Um modelo que já não existe",
+      "rowTemplateHelp": "A linha começa como uma cópia do modelo. Os valores definidos aqui substituem os do modelo; um título vazio mantém o do modelo."
     },
     "variables": {
       "button": "Inserir uma variável",

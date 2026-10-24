@@ -121,8 +121,11 @@ export type AutomationAction = (
       sorts?: SortRule[];
       limit: number;
     }
-  /** Adds a row to a database (this one or another), with these values (property ids). */
-  | { type: "create_row"; databaseId: string; title?: string; values: StepValues }
+  /**
+   * Adds a row to a database (this one or another), with these values (property ids), from a row
+   * template of it when `template` says so (see RowTemplateChoice); the values go over the template's.
+   */
+  | { type: "create_row"; databaseId: string; title?: string; values: StepValues; template?: string }
   /**
    * Changes the first row of a database whose `matchPropertyId` ("title" for the row's title)
    * equals `matchValue`, or adds one with it when there is none.
@@ -296,6 +299,19 @@ export const UNSETTABLE_TYPES = [
   "last_edited_time",
   "unique_id",
 ] as const;
+
+/**
+ * The row template a step that adds a row starts from (server/templates.ts rowTemplateInput): a
+ * template of the step's database by id, or DEFAULT_ROW_TEMPLATE for the database's default one
+ * (a blank row when it has none). Missing: a blank row.
+ */
+export const DEFAULT_ROW_TEMPLATE = "default";
+
+/** A step's row template as it is kept: DEFAULT_ROW_TEMPLATE, an id, or undefined for none. */
+export function cleanRowTemplate(value: unknown): string | undefined {
+  if (value === DEFAULT_ROW_TEMPLATE) return value;
+  return typeof value === "string" && /^[\w-]{1,100}$/.test(value) ? value : undefined;
+}
 
 export function isDynamicValue(value: unknown): value is AutomationDynamicValue {
   return (

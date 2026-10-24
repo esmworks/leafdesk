@@ -14,6 +14,7 @@ import {
 } from "@/lib/builtin-templates";
 import { DASHBOARD_BLOCK, newWidgetId, serializeDashboard, type DashboardWidget } from "@/lib/dashboard";
 import { DATABASE_BLOCK } from "@/lib/embed-blocks";
+import { DEFAULT_ROW_TEMPLATE } from "@/lib/automations";
 import { holdsOptions } from "@/lib/property-types";
 import { namesMe, resolveMarkers } from "@/lib/template-values";
 import { AccessError, accessRank, levelFromRank, pageVisibleTo, requireMembership, requirePageAccess, type AccessLevel } from "@/server/access";
@@ -320,6 +321,21 @@ export async function createRow(
     properties: input.properties,
   });
   return { id: created.id, position: created.position, templateId: null };
+}
+
+/**
+ * What `createRow` takes for a button's or automation's row template (lib/automations
+ * DEFAULT_ROW_TEMPLATE, a template's id or nothing); null when that template is no longer one of
+ * the database's. Access to it is checked when the row is made.
+ */
+export async function rowTemplateInput(databaseId: string, template: string | undefined): Promise<{ templateId: string | null; useDefault: boolean } | null> {
+  if (!template) return { templateId: null, useDefault: false };
+  if (template === DEFAULT_ROW_TEMPLATE) return { templateId: null, useDefault: true };
+  const [found] = await db
+    .select({ id: page.id })
+    .from(page)
+    .where(and(eq(page.id, template), eq(page.parentId, databaseId), eq(page.isTemplate, true), isNull(page.archivedAt)));
+  return found ? { templateId: found.id, useDefault: false } : null;
 }
 
 async function resolveLevel(userId: string, pageId: string) {

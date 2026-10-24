@@ -247,8 +247,9 @@ const actionInput = z.discriminatedUnion("type", [
     type: z.literal("create_row"),
     id: stepId,
     database_id: databaseInput("to add the row to"),
-    title: z.string().max(MAX_STEP_MESSAGE).optional().describe("The new row's title; may hold templates."),
+    title: z.string().max(MAX_STEP_MESSAGE).optional().describe("Its title; may hold templates."),
     values: stepValues("the new row (that database's property names)").optional(),
+    template_id: z.string().optional().describe('Row template id, or "default".'),
   }),
   z.object({
     type: z.literal("upsert_row"),
@@ -320,7 +321,7 @@ const actionsInput = z
   .min(1)
   .max(MAX_AUTOMATION_ACTIONS)
   .describe(
-    `What the automation does, in order (at most ${MAX_AUTOMATION_ACTIONS} steps; each works or fails on its own): set_properties, notify (an inbox notification, and an email as each person chooses, to people who can open the row, or the database for a run without one), webhook, run_agent (queues a run of an agent on the row), move_to_trash (the last step; not with run_agent), http_request (must answer 2xx in 15 s; no redirects; network errors, timeouts and 502-504 tried up to 5 times), find_rows, create_row, upsert_row, wait, log, celebrate (confetti for whoever made the change), approval (asks the people it names and those in the row's person properties, in "For review"; the run waits: approved, it goes on; rejected, it stops; unanswered in timeout_days it stops, or goes on with on_timeout continue; noApprovers if nobody is found; not for_each; a test run skips it) or start_sequence (starts one of the database's follow-up sequences on the row, from the mailbox of the person the automation runs as; a row in it already is skipped: alreadyEnrolled). A schedule or incoming_webhook automation has no row: set_properties, run_agent and notify with properties need for_each (once per row of an earlier find_rows step, one after another, {{item}} holding its values by name, id, title, url); webhook and move_to_trash are impossible. Saving a run_agent step shares the database with the agent at edit access, taken back once no automation of the database runs it; only workspace owners and agent editors add or change run_agent steps, others may keep or remove one. A step's optional id is what later templates call its output by ({{find.rows}}): a-z, 0-9 and _, starting with a letter, at most 32 characters, not "trigger" or "item"; left out, it is the type (find, find_2 …), and list_automations shows it. ${TEMPLATE_NOTE}`,
+    `What the automation does, in order (at most ${MAX_AUTOMATION_ACTIONS} steps; each works or fails on its own): set_properties, notify (an inbox notification, and an email as each person chooses, to people who can open the row, or the database for a run without one), webhook, run_agent (queues a run of an agent on the row), move_to_trash (the last step; not with run_agent), http_request (must answer 2xx in 15 s; no redirects; network errors, timeouts and 502-504 tried up to 5 times), find_rows, create_row, upsert_row, wait, log, celebrate (confetti for whoever made the change), approval (asks the people it names and those in the row's person properties, in "For review"; the run waits: approved, it goes on; rejected, it stops; unanswered in timeout_days it stops, or goes on with on_timeout continue; noApprovers if nobody is found; not for_each; a test run skips it) or start_sequence (starts one of the database's follow-up sequences on the row, from the mailbox of the person the automation runs as; a row in it already is skipped: alreadyEnrolled). A schedule or incoming_webhook automation has no row: set_properties, run_agent and notify with properties need for_each (once per row of an earlier find_rows step, {{item}} holding its values by name, id, title, url); webhook and move_to_trash are impossible. Saving a run_agent step shares the database with the agent at edit access, taken back once no automation of the database runs it; only workspace owners and agent editors add or change run_agent steps, others may keep or remove one. A step's optional id names its output for later templates ({{find.rows}}): a-z, 0-9 and _, starting with a letter, at most 32, not "trigger" or "item"; by default the type (find, find_2 …). ${TEMPLATE_NOTE}`,
   );
 
 const nameInput = z.string().min(1).max(MAX_AUTOMATION_NAME);
@@ -509,7 +510,7 @@ async function toActions(userId: string, actions: ActionsArg): Promise<Automatio
         break;
       }
       case "create_row":
-        step = { type: "create_row", database: a.database_id, ...(a.title !== undefined ? { title: a.title } : {}), ...(a.values ? { values: a.values } : {}) };
+        step = { type: "create_row", database: a.database_id, ...(a.title !== undefined ? { title: a.title } : {}), ...(a.values ? { values: a.values } : {}), ...(a.template_id ? { template: a.template_id } : {}) };
         break;
       case "upsert_row":
         step = {
@@ -837,6 +838,7 @@ function describeAction(ctx: AutomationContext, action: AutomationAction, all: A
         type: "create_row",
         database,
         ...(action.title ? { title: action.title } : {}),
+        ...(action.template ? { template: action.template } : {}),
         values: describeValues(ctx.databases.get(action.databaseId), action.values),
         summary: `Add a row to ${databaseLabel(database)}`,
       };

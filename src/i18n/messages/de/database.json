@@ -1464,7 +1464,8 @@
         "noAddress": "Die Zeile hat keine E-Mail-Adresse",
         "emailOff": "E-Mails in Zeilen sind ausgeschaltet",
         "noPerson": "Übersprungen: Diesen Lauf hat keine Änderung einer Person gestartet",
-        "tooLate": "Übersprungen: zu lange nach der Änderung, um sie zu feiern"
+        "tooLate": "Übersprungen: zu lange nach der Änderung, um sie zu feiern",
+        "templateGone": "Die Zeilenvorlage gibt es nicht mehr"
       },
       "waitingApproval": "Wartet auf Freigabe",
       "approval": {
@@ -1566,7 +1567,13 @@
       "logPlaceholder": "Zum Beispiel: {template} importiert",
       "logHelp": "Wird mit ausgefüllten Variablen in den Ausführungsverlauf geschrieben.",
       "celebrateHelp": "Konfetti in der App für die Person, deren Änderung den Lauf gestartet hat, in ihren offenen Fenstern. Läufe, die niemand gestartet hat (Zeitpläne, verstrichene Daten, eingehende Webhooks, anonyme Formularantworten), überspringen den Schritt, ebenso Läufe, die ihn erst mehr als zwei Minuten nach der Änderung erreichen.",
-      "celebrateTry": "Ausprobieren"
+      "celebrateTry": "Ausprobieren",
+      "rowTemplate": "Zeilenvorlage",
+      "rowTemplateNone": "Keine (leere Zeile)",
+      "rowTemplateDefault": "Standardvorlage der Datenbank",
+      "rowTemplateDefaultNamed": "Die Standardvorlage ({name})",
+      "rowTemplateGone": "Eine Vorlage, die es nicht mehr gibt",
+      "rowTemplateHelp": "Die Zeile beginnt als Kopie der Vorlage. Hier gesetzte Werte ersetzen die der Vorlage; ein leerer Titel behält den der Vorlage."
     },
     "variables": {
       "button": "Variable einfügen",

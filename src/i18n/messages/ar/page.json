@@ -1178,7 +1178,8 @@
       "invalidTarget": "الرابط المطلوب فتحه غير صالح.",
       "buttonGone": "أُزيل الزر من الصفحة.",
       "error": "حدث خطأ ما.",
-      "step": "لم تُنفَّذ الخطوة {step} ({type}): {reason}"
+      "step": "لم تُنفَّذ الخطوة {step} ({type}): {reason}",
+      "templateGone": "قالب الصف لم يعد موجودًا."
     }
   },
   "imageCrop": {

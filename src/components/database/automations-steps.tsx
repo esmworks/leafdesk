@@ -11,6 +11,7 @@ import { useAutomationWorkspace, useDatabaseInfo, useDatabaseList } from "./auto
 import { newKey, parseJson, type DraftActionOf, type Person, type WaitUnit } from "./automations-shared";
 import { selectClass, ValuesEditor } from "./automations-values";
 import { TemplateField } from "./automations-variables";
+import { RowTemplateSelect } from "./row-template-select";
 import { PeopleProvider } from "./person-cell";
 import { RelationProvider } from "./relation-context";
 import { columnsOf, FilterEditor, SortEditor } from "./view-bar";
@@ -273,10 +274,19 @@ export function RowWriteEditor({
         value={action.databaseId}
         // Values name the database's own properties.
         onChange={(id) =>
-          onChange(action.type === "upsert_row" ? { ...action, databaseId: id, entries: [], matchProperty: "title" } : { ...action, databaseId: id, entries: [] })
+          onChange(
+            action.type === "upsert_row" ? { ...action, databaseId: id, entries: [], matchProperty: "title" } : { ...action, databaseId: id, entries: [], template: "" },
+          )
         }
       />
       {info === null && <p className="text-xs text-danger">{t("databaseUnavailable")}</p>}
+      {info && action.type === "create_row" && (
+        <div>
+          <Label>{t("rowTemplate")}</Label>
+          <RowTemplateSelect info={info} value={action.template} onChange={(template) => onChange({ ...action, template })} />
+          {action.template && <p className="mt-1 text-xs text-fg-faint">{t("rowTemplateHelp")}</p>}
+        </div>
+      )}
       {action.type === "upsert_row" && (
         <div>
           <Label>{t("match")}</Label>

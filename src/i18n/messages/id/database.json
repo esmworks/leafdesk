@@ -1464,7 +1464,8 @@
         "noAddress": "Baris tidak memiliki alamat email",
         "emailOff": "Email di baris dinonaktifkan",
         "noPerson": "Dilewati: tidak ada perubahan dari seseorang yang memulai eksekusi ini",
-        "tooLate": "Dilewati: terlalu lama setelah perubahan untuk dirayakan"
+        "tooLate": "Dilewati: terlalu lama setelah perubahan untuk dirayakan",
+        "templateGone": "Templat baris sudah tidak ada"
       },
       "waitingApproval": "Menunggu persetujuan",
       "approval": {
@@ -1566,7 +1567,13 @@
       "logPlaceholder": "Misalnya: Mengimpor {template}",
       "logHelp": "Ditulis ke riwayat eksekusi, dengan variabelnya terisi.",
       "celebrateHelp": "Konfeti di aplikasi untuk orang yang membuat perubahan yang memulai eksekusi, di jendela yang mereka buka. Eksekusi yang tidak dimulai siapa pun (jadwal, tanggal terlewati, webhook masuk, jawaban formulir anonim) melewatinya, begitu pula eksekusi yang sampai di sini lebih dari dua menit setelah perubahan.",
-      "celebrateTry": "Coba"
+      "celebrateTry": "Coba",
+      "rowTemplate": "Templat baris",
+      "rowTemplateNone": "Tidak ada (baris kosong)",
+      "rowTemplateDefault": "Templat bawaan database",
+      "rowTemplateDefaultNamed": "Templat bawaan ({name})",
+      "rowTemplateGone": "Templat yang sudah tidak ada",
+      "rowTemplateHelp": "Baris dimulai sebagai salinan templat. Nilai yang diatur di sini menggantikan nilai templat; judul kosong mempertahankan judul templat."
     },
     "variables": {
       "button": "Sisipkan variabel",

@@ -1178,7 +1178,8 @@
       "invalidTarget": "Liên kết cần mở không hợp lệ.",
       "buttonGone": "Nút đã bị xóa khỏi trang.",
       "error": "Đã xảy ra lỗi.",
-      "step": "Bước {step} ({type}) không chạy: {reason}"
+      "step": "Bước {step} ({type}) không chạy: {reason}",
+      "templateGone": "Mẫu hàng không còn tồn tại."
     }
   },
   "imageCrop": {

@@ -1464,7 +1464,8 @@
         "noAddress": "Hàng không có địa chỉ email",
         "emailOff": "Email trên hàng đã bị tắt",
         "noPerson": "Đã bỏ qua: không có thay đổi của ai đã bắt đầu lần chạy này",
-        "tooLate": "Đã bỏ qua: quá lâu sau thay đổi để ăn mừng"
+        "tooLate": "Đã bỏ qua: quá lâu sau thay đổi để ăn mừng",
+        "templateGone": "Mẫu hàng không còn tồn tại"
       },
       "waitingApproval": "Đang chờ phê duyệt",
       "approval": {
@@ -1566,7 +1567,13 @@
       "logPlaceholder": "Ví dụ: Đã nhập {template}",
       "logHelp": "Được ghi vào lịch sử chạy, với các biến đã được điền.",
       "celebrateHelp": "Pháo giấy trong ứng dụng dành cho người đã thực hiện thay đổi bắt đầu lần chạy, trong các cửa sổ họ đang mở. Các lần chạy không do ai bắt đầu (lịch, ngày đến hạn, webhook đến, câu trả lời biểu mẫu ẩn danh) sẽ bỏ qua, và các lần chạy đến đây sau thay đổi hơn hai phút cũng vậy.",
-      "celebrateTry": "Thử xem"
+      "celebrateTry": "Thử xem",
+      "rowTemplate": "Mẫu hàng",
+      "rowTemplateNone": "Không (hàng trống)",
+      "rowTemplateDefault": "Mẫu mặc định của cơ sở dữ liệu",
+      "rowTemplateDefaultNamed": "Mẫu mặc định ({name})",
+      "rowTemplateGone": "Mẫu không còn tồn tại",
+      "rowTemplateHelp": "Hàng bắt đầu là bản sao của mẫu. Giá trị đặt ở đây thay cho giá trị của mẫu; tiêu đề trống sẽ giữ tiêu đề của mẫu."
     },
     "variables": {
       "button": "Chèn một biến",

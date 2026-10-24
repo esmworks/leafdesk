@@ -1178,7 +1178,8 @@
       "invalidTarget": "Il link da aprire non è valido.",
       "buttonGone": "Il pulsante è stato rimosso dalla pagina.",
       "error": "Qualcosa è andato storto.",
-      "step": "Il passaggio {step} ({type}) non è stato eseguito: {reason}"
+      "step": "Il passaggio {step} ({type}) non è stato eseguito: {reason}",
+      "templateGone": "Il modello di riga non esiste più."
     }
   },
   "imageCrop": {

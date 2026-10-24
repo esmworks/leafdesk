@@ -50,6 +50,7 @@ import { notAgentUser } from "@/server/agents/users";
 import { recordAudit, runAsAuditOrigin } from "@/server/audit";
 import { enrollRows, SequenceError, type EnrollOutcome, type SequenceErrorCode } from "@/server/sequences/manage";
 import { archivePage, renamePage } from "@/server/pages";
+import { createRow as createRowFromTemplate, rowTemplateInput } from "@/server/templates";
 import { exportAllowed } from "@/server/workspaces";
 import { ApprovalStepError, askApproval, closeApprovals, readAnswer, stillWaiting } from "./approval";
 import { celebrate } from "./celebrate";
@@ -910,6 +911,16 @@ async function createRow(ctx: StepContext, action: Extract<AutomationAction, { t
   const title = action.title ? resolveText(action.title, scope) : { value: "", missing: [] };
   const { patch, shown, missing } = await resolveRowValues(ctx, action.databaseId, action.values, scope);
   const input = missingNote({ database: { id: database.id, title: pageLabel(database.title) }, title: title.value, values: shown }, [...title.missing, ...missing]);
+  if (action.template) {
+    // From a row template: the step's values go over the template's; "me" is the automation's person.
+    const template = await rowTemplateInput(action.databaseId, action.template);
+    if (!template) throw Object.assign(new StepFailure("templateGone", "The row template is gone"), { input });
+    const made = await asAutomation(() =>
+      createRowFromTemplate({ userId: ctx.runAs }, action.databaseId, { title: title.value.trim(), properties: patch, ...template, timeZone: ctx.timeZone }),
+    );
+    const [row] = await db.select({ title: page.title }).from(page).where(eq(page.id, made.id));
+    return { input, output: { id: made.id, title: pageLabel(row?.title ?? ""), url: rowUrl(database.workspaceId, made.id), created: true } };
+  }
   const [created] = await asAutomation(() => createRows(ctx.runAs, action.databaseId, [{ title: title.value.trim(), properties: patch }]));
   const output = { id: created.id, title: pageLabel(created.title), url: rowUrl(database.workspaceId, created.id), created: true };
   return { input, output };
