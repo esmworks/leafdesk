@@ -198,6 +198,13 @@
     "scope": "Odpowiadaj na podstawie",
     "scopeWorkspace": "Cały obszar roboczy",
     "scopePage": "Ta strona i jej podstrony",
+    "scopeTeamspace": "Przestrzeń zespołu",
+    "scopeAsked": {
+      "page": "Pytanie o „{title}” i jej podstrony",
+      "pageUnknown": "Pytanie o stronę i jej podstrony",
+      "teamspace": "Pytanie o przestrzeń zespołu „{title}”",
+      "teamspaceUnknown": "Pytanie o przestrzeń zespołu"
+    },
     "thinking": "Myślenie…",
     "steps": {
       "working": "Praca · {time}",

@@ -198,6 +198,13 @@
     "scope": "回答范围",
     "scopeWorkspace": "整个工作区",
     "scopePage": "此页面及其子页面",
+    "scopeTeamspace": "团队空间",
+    "scopeAsked": {
+      "page": "关于“{title}”及其子页面的提问",
+      "pageUnknown": "关于某个页面及其子页面的提问",
+      "teamspace": "关于团队空间“{title}”的提问",
+      "teamspaceUnknown": "关于某个团队空间的提问"
+    },
     "thinking": "正在思考…",
     "steps": {
       "working": "正在处理 · {time}",

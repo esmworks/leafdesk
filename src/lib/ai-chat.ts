@@ -18,8 +18,14 @@ export const MAX_MEMORY_CHARS = 300;
 /** A note about the person; `app`: the connected app that kept or last changed it, if one did. */
 export type MemoryView = { id: string; text: string; app: string | null; createdAt: string; updatedAt: string };
 
-/** What the chat answers from: the whole workspace, or a page and the pages under it. */
-export type ChatScope = { pageId: string } | null;
+/** What the chat answers from: the whole workspace, a page and the pages under it, or a teamspace's pages. */
+export type ChatScope = { pageId: string } | { teamspaceId: string } | null;
+
+/**
+ * The scope a question was asked in, as its conversation shows it: the page's or teamspace's
+ * title as the person may see it now (null when they no longer can).
+ */
+export type ChatScopeView = { kind: "page" | "teamspace"; id: string; title: string | null };
 
 export type { ChatAttachmentRecord, ChatAttachmentView, ChatChange, ChatConnectionRecord, ChatMemoryRecord, ChatWebRecord, ChatWriteAction, ChatWriteStepAction };
 
@@ -141,6 +147,8 @@ export type ChatMessageView = {
   content: string;
   /** Questions: the skill the answer followed. */
   skill?: { id: string; title: string };
+  /** Questions asked of part of the workspace: which part. */
+  scope?: ChatScopeView;
   /** Questions: the files attached to it (gone ones left out). */
   attachments?: ChatAttachmentView[];
   /** A research question, or its report. */
@@ -180,7 +188,7 @@ export const changedThings = (step: ChatStepView | ChatStepRecord) =>
  * its id, sending `ping` now and then meanwhile.
  */
 export type ChatEvent =
-  | { type: "conversation"; id: string; title: string }
+  | { type: "conversation"; id: string; title: string; scope?: ChatScopeView }
   | { type: "thinking" }
   | { type: "reasoning"; text: string }
   | { type: "step"; step: ChatStepView }

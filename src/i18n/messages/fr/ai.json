@@ -198,6 +198,13 @@
     "scope": "Répondre à partir de",
     "scopeWorkspace": "Tout l’espace de travail",
     "scopePage": "Cette page et ses sous-pages",
+    "scopeTeamspace": "Espace d'équipe",
+    "scopeAsked": {
+      "page": "Demandé sur « {title} » et ses sous-pages",
+      "pageUnknown": "Demandé sur une page et ses sous-pages",
+      "teamspace": "Demandé sur l'espace d'équipe « {title} »",
+      "teamspaceUnknown": "Demandé sur un espace d'équipe"
+    },
     "thinking": "Réflexion…",
     "steps": {
       "working": "En cours · {time}",

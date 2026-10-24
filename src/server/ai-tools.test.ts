@@ -33,14 +33,16 @@ vi.mock("@/server/page-outdated", () => ({
 }));
 vi.mock("@/server/semantic-search", () => ({
   inSubtree: vi.fn(),
+  inScope: vi.fn(),
   chunksOfPages: async (ids: string[]) => new Map([...chunks].filter(([id]) => ids.includes(id))),
 }));
 
 const { prepareWrite, runTool } = await import("./ai-tools");
 
-const search = async (query: string, scopeId?: string) => {
+const search = async (query: string, scopeId?: string, kind: "page" | "teamspace" = "page") => {
   const registry = { sources: [], byKey: new Map() };
-  const outcome = await runTool({ userId: "u" } as never, "w", scopeId, { name: "search_pages", arguments: { query } }, registry, 50_000);
+  const scope = scopeId ? { kind, id: scopeId } : undefined;
+  const outcome = await runTool({ userId: "u" } as never, "w", scope, { name: "search_pages", arguments: { query } }, registry, 50_000);
   return { outcome, sources: registry.sources as { pageId: string; blockId: string | null; text: string }[] };
 };
 
@@ -101,7 +103,14 @@ describe("search_pages and archived pages", () => {
     outdatedScopes.add("old-page");
     await search("prices", "old-page");
     expect(included()).toBe(true);
-    expect(searchCalls.at(-1)![2]).toMatchObject({ withinPageId: "old-page" });
+    expect(searchCalls.at(-1)![2]).toMatchObject({ within: { kind: "page", id: "old-page" } });
+  });
+
+  it("searches only a teamspace's pages in a chat kept to it, archived ones left out", async () => {
+    outdatedScopes.add("ts1");
+    await search("prices", "ts1", "teamspace");
+    expect(included()).toBe(false);
+    expect(searchCalls.at(-1)![2]).toMatchObject({ within: { kind: "teamspace", id: "ts1" } });
   });
 });
 
@@ -145,7 +154,7 @@ describe("attached files and new databases", () => {
   });
 
   const prepare = (name: string, args: Record<string, unknown>, scopeId: string | null = null) =>
-    prepareWrite({ userId: "u", actor: { userId: "u" } } as never, "w", scopeId, { name, arguments: args }, { attachments: [file] });
+    prepareWrite({ userId: "u", actor: { userId: "u" } } as never, "w", scopeId ? { kind: "page", id: scopeId } : null, { name, arguments: args }, { attachments: [file] });
 
   it("shows the columns a CSV database gets, types guessed or given, before asking", async () => {
     const prepared = await prepare("create_database_from_csv", { column_types: { notes: "skip", paid: "checkbox" } });

@@ -9,16 +9,17 @@
 import { SquarePen } from "lucide-react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useTranslations } from "next-intl";
-import { useCallback, useEffect, useRef } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { useRowPanel } from "@/components/database/row-panel-context";
 import { useIsOffline } from "@/components/offline/offline-context";
 import { SidebarOpenButton } from "@/components/sidebar/sidebar-context";
 import { IconButton } from "@/components/ui";
-import { chatPath, sourceHref, type ChatSourceView } from "@/lib/ai-chat";
+import { chatPath, sourceHref, type ChatScopeView, type ChatSourceView } from "@/lib/ai-chat";
 import { rowFromSearch, withRow } from "@/lib/row-panel";
 import { useAiChat } from "./chat-panel";
 import { ChatThread } from "./chat-thread";
 import { MemoryButton } from "./memory-dialog";
+import { ScopePicker } from "./scope-picker";
 import { useChat } from "./use-chat";
 
 /** `memory`: the workspace has the chat's memory on (its Memory view is shown). */
@@ -31,6 +32,8 @@ export function ChatPage({ workspaceId, available, memory }: { workspaceId: stri
   const offline = useIsOffline();
   // The conversation the page shows (or null: a new chat), as far as the address is concerned.
   const shown = useRef<string | null | undefined>(undefined);
+  // The whole workspace, or one of the person's teamspaces (no page is open here).
+  const [scope, setScope] = useState<ChatScopeView | null>(null);
   const chat = useChat(workspaceId, {
     options: context?.options,
     onConversation: (id) => {
@@ -93,7 +96,15 @@ export function ChatPage({ workspaceId, available, memory }: { workspaceId: stri
           <SquarePen className="h-4 w-4" />
         </IconButton>
       </div>
-      <ChatThread chat={chat} blocked={blocked} onSend={(again) => void chat.send(null, again)} onSource={openSource} variant="page" voice={context?.voice ?? null} />
+      <ChatThread
+        chat={chat}
+        blocked={blocked}
+        onSend={(again) => void chat.send(scope, again)}
+        onSource={openSource}
+        variant="page"
+        voice={context?.voice ?? null}
+        footer={<ScopePicker workspaceId={workspaceId} pageId={null} value={scope} onChange={setScope} disabled={chat.running} />}
+      />
     </div>
   );
 }

@@ -236,6 +236,8 @@ export type ChatMessageRecord = {
   content: string;
   /** Questions: the skill the answer followed, with its title then. */
   skill?: { id: string; title: string };
+  /** Questions asked of part of the workspace: a page (and the pages under it) or a teamspace. */
+  scope?: { kind: "page" | "teamspace"; id: string };
   /** Questions: the files attached to it. */
   attachments?: ChatAttachmentRecord[];
   /** Questions asked in research mode, and their answers (a report). */

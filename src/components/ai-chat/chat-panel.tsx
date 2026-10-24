@@ -17,9 +17,10 @@ import { MemoryButton } from "./memory-dialog";
 import { useIsOffline } from "@/components/offline/offline-context";
 import { FOCUS_BLOCK_EVENT } from "@/components/page/block-focus";
 import { cn, IconButton, MenuItem, MenuSeparator, Popover } from "@/components/ui";
-import { chatPath, isChatPath, sourceHref, type ChatOptions, type ChatSourceView, type ConversationSummary } from "@/lib/ai-chat";
+import { chatPath, isChatPath, sourceHref, type ChatOptions, type ChatScopeView, type ChatSourceView, type ConversationSummary } from "@/lib/ai-chat";
 import type { VoiceNoteLimits } from "@/lib/voice-notes";
 import { ChatThread } from "./chat-thread";
+import { ScopePicker } from "./scope-picker";
 import { useChat } from "./use-chat";
 
 type ChatContext = {
@@ -134,11 +135,12 @@ function ChatPanel({
   const { conversations, refreshConversations } = context;
   const currentPageId = /\/p\/([\w-]+)/.exec(pathname)?.[1] ?? null;
   const offline = useIsOffline();
-  const [scope, setScope] = useState<"workspace" | "page">("workspace");
+  const [scope, setScope] = useState<ChatScopeView | null>(null);
   const chat = useChat(workspaceId, { options: context.options, onAnswered: () => void refreshConversations() });
   const { conversationId, messages, running } = chat;
   const blocked = offline ? t("offline") : !available ? t("disabled") : null;
-  const pageScope = scope === "page" && currentPageId ? currentPageId : null;
+  // The page scope is the page open when the question is sent.
+  const asked: ChatScopeView | null = scope?.kind === "page" ? (currentPageId ? { kind: "page", id: currentPageId, title: null } : null) : scope;
 
   const openConversation = chat.openConversation;
   useEffect(() => {
@@ -262,27 +264,11 @@ function ChatPanel({
       <ChatThread
         chat={chat}
         blocked={blocked}
-        onSend={(again) => void chat.send(pageScope, again)}
+        onSend={(again) => void chat.send(asked, again)}
         onSource={openSource}
         variant="panel"
         voice={context.voice}
-        footer={
-          <div className="mt-2 flex items-center gap-2 text-xs text-fg-muted">
-            <label htmlFor="ai-chat-scope">{t("scope")}</label>
-            <select
-              id="ai-chat-scope"
-              value={pageScope ? "page" : "workspace"}
-              onChange={(e) => setScope(e.target.value === "page" ? "page" : "workspace")}
-              disabled={running}
-              className="h-6 min-w-0 flex-1 rounded border border-border bg-bg px-1 text-xs text-fg"
-            >
-              <option value="workspace">{t("scopeWorkspace")}</option>
-              <option value="page" disabled={!currentPageId}>
-                {t("scopePage")}
-              </option>
-            </select>
-          </div>
-        }
+        footer={<ScopePicker workspaceId={workspaceId} pageId={currentPageId} value={scope} onChange={setScope} disabled={running} />}
       />
     </aside>
   );

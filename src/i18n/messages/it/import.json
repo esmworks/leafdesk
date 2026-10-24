@@ -1,10 +1,11 @@
 {
   "open": "Importa",
   "title": "Importa",
-  "description": "Porta dentro pagine da file Markdown, esportazioni ZIP e documenti Word, righe da un file CSV o da una cartella di lavoro Excel, una bacheca Trello, Asana o Monday.com, oppure ticket Jira che restano sincronizzati.",
+  "description": "Porta dentro pagine da file Markdown, esportazioni ZIP, documenti Word e PDF, righe da un file CSV o da una cartella di lavoro Excel, una bacheca Trello, Asana o Monday.com, oppure ticket Jira che restano sincronizzati.",
   "tabs": {
     "pages": "Markdown e ZIP",
     "docx": "Word",
+    "pdf": "PDF",
     "csv": "CSV ed Excel",
     "trello": "Trello",
     "asana": "Asana",
@@ -28,6 +29,12 @@
   "docx": {
     "help": "Ogni documento Word (.docx) diventa una pagina, con intestazioni, elenchi, tabelle, link, immagini e note a piè di pagina. Un’intestazione all’inizio del documento diventa il titolo della pagina; altrimenti lo diventa il nome del file.",
     "choose": "Scegli file Word"
+  },
+  "pdf": {
+    "help": "Ogni PDF diventa una pagina fatta del suo testo: le righe più grandi diventano titoli, e paragrafi ed elenchi numerati o puntati vengono mantenuti, anche tra un'interruzione di pagina e l'altra. Intestazioni e piè di pagina ripetuti e numeri di pagina vengono tralasciati. Un titolo in cima diventa il titolo della pagina; altrimenti lo diventa il nome del file.",
+    "scans": "Un PDF scansionato non ha testo da leggere e non può essere importato: esegui prima il riconoscimento del testo (OCR) oppure caricalo in una pagina come file.",
+    "choose": "Scegli file PDF",
+    "attach": "Allega anche ogni PDF alla sua pagina, per immagini, tabelle e impaginazione"
   },
   "csv": {
     "choose": "Scegli un file CSV o Excel",
@@ -208,6 +215,9 @@
     "unsupportedWorkbook": "Si possono importare solo cartelle di lavoro .xlsx senza password. Salva il file come Cartella di lavoro di Excel (.xlsx) senza password e riprova.",
     "badDocx": "Impossibile leggere “{name}” come documento Word. Si possono importare solo file .docx: salva prima i vecchi file .doc come .docx.",
     "docxTooComplex": "“{name}” è troppo grande o complesso per essere importato come una sola pagina.",
+    "badPdf": "Impossibile leggere «{name}» come PDF. Potrebbe essere danneggiato o protetto da password.",
+    "pdfNoText": "«{name}» non ha testo da importare: sembra una scansione. Esegui prima il riconoscimento del testo (OCR) oppure caricalo in una pagina come file.",
+    "pdfTooComplex": "«{name}» è troppo grande per essere importato come una sola pagina.",
     "badTrello": "Il file non è un’esportazione di una bacheca Trello. In Trello, scegli Esporta come JSON dal menu della bacheca e scegli quel file.",
     "badAsana": "Il file non è un'esportazione di un progetto Asana. In Asana, scegli Esporta → CSV o JSON dal menu del progetto e scegli quel file.",
     "badMonday": "Il file non è un'esportazione di una bacheca Monday.com. In Monday.com, scegli Esporta bacheca in Excel dal menu della bacheca e scegli quel file.",

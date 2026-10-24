@@ -1,10 +1,11 @@
 {
   "open": "导入",
   "title": "导入",
-  "description": "从 Markdown 文件、ZIP 导出和 Word 文档导入页面，从 CSV 文件或 Excel 工作簿导入行，导入一个 Trello、Asana 或 Monday.com 看板，或导入保持同步的 Jira 事务。",
+  "description": "从 Markdown 文件、ZIP 导出、Word 文档和 PDF 导入页面，从 CSV 文件或 Excel 工作簿导入行，导入一个 Trello、Asana 或 Monday.com 看板，或导入保持同步的 Jira 事务。",
   "tabs": {
     "pages": "Markdown 和 ZIP",
     "docx": "Word",
+    "pdf": "PDF",
     "csv": "CSV 和 Excel",
     "trello": "Trello",
     "asana": "Asana",
@@ -28,6 +29,12 @@
   "docx": {
     "help": "每个 Word 文档（.docx）都会成为一个页面，包括其中的标题、列表、表格、链接、图片和脚注。文档最开头的标题会成为页面标题；否则使用文件名。",
     "choose": "选择 Word 文件"
+  },
+  "pdf": {
+    "help": "每个 PDF 会变成由其文字组成的页面：较大的行成为标题，段落以及编号和项目符号列表也会保留，跨越分页也一样。重复的页眉、页脚和页码会被略去。最顶部的标题成为页面标题，否则使用文件名。",
+    "scans": "扫描的 PDF 没有可读取的文字，无法导入：请先对其进行文字识别（OCR），或将其作为文件上传到页面。",
+    "choose": "选择 PDF 文件",
+    "attach": "同时将每个 PDF 附加到其页面，保留其中的图片、表格和版式"
   },
   "csv": {
     "choose": "选择 CSV 或 Excel 文件",
@@ -208,6 +215,9 @@
     "unsupportedWorkbook": "只能导入没有密码的 .xlsx 工作簿。请将文件另存为不带密码的 Excel 工作簿（.xlsx）后重试。",
     "badDocx": "无法将“{name}”作为 Word 文档读取。只能导入 .docx 文件；请先将较旧的 .doc 文件另存为 .docx。",
     "docxTooComplex": "“{name}”过大或过于复杂，无法作为一个页面导入。",
+    "badPdf": "无法将“{name}”作为 PDF 读取。它可能已损坏或受密码保护。",
+    "pdfNoText": "“{name}”没有可导入的文字：它看起来是扫描件。请先对其进行文字识别（OCR），或将其作为文件上传到页面。",
+    "pdfTooComplex": "“{name}”太大，无法作为一个页面导入。",
     "badTrello": "该文件不是 Trello 看板的导出文件。请在 Trello 的看板菜单中选择“导出为 JSON”，然后选择该文件。",
     "badAsana": "该文件不是 Asana 项目导出。请在 Asana 的项目菜单中选择“导出 → CSV”或 JSON，然后选择该文件。",
     "badMonday": "该文件不是 Monday.com 看板导出。请在 Monday.com 的看板菜单中选择“将看板导出到 Excel”，然后选择该文件。",

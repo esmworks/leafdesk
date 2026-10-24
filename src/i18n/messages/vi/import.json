@@ -1,10 +1,11 @@
 {
   "open": "Nhập",
   "title": "Nhập",
-  "description": "Đưa trang vào từ tệp Markdown, tệp xuất ZIP và tài liệu Word, đưa hàng vào từ tệp CSV hoặc sổ làm việc Excel, từ một bảng Trello, Asana hoặc Monday.com, hoặc đưa vào các issue Jira luôn được đồng bộ.",
+  "description": "Đưa trang vào từ tệp Markdown, tệp xuất ZIP, tài liệu Word và tệp PDF, đưa hàng vào từ tệp CSV hoặc sổ làm việc Excel, từ một bảng Trello, Asana hoặc Monday.com, hoặc đưa vào các issue Jira luôn được đồng bộ.",
   "tabs": {
     "pages": "Markdown & ZIP",
     "docx": "Word",
+    "pdf": "PDF",
     "csv": "CSV & Excel",
     "trello": "Trello",
     "asana": "Asana",
@@ -28,6 +29,12 @@
   "docx": {
     "help": "Mỗi tài liệu Word (.docx) trở thành một trang, kèm tiêu đề, danh sách, bảng, liên kết, hình ảnh và chú thích cuối trang. Tiêu đề ở trên cùng sẽ thành tiêu đề của trang; nếu không, tên tệp sẽ được dùng.",
     "choose": "Chọn tệp Word"
+  },
+  "pdf": {
+    "help": "Mỗi tệp PDF trở thành một trang gồm văn bản của nó: các dòng lớn hơn thành tiêu đề, còn đoạn văn và danh sách đánh số hoặc gạch đầu dòng cũng được giữ lại, kể cả khi vắt qua ngắt trang. Đầu trang, chân trang lặp lại và số trang được bỏ qua. Tiêu đề ở trên cùng trở thành tên trang; nếu không có thì dùng tên tệp.",
+    "scans": "PDF được quét không có văn bản để đọc nên không thể nhập: hãy chạy nhận dạng văn bản (OCR) trước, hoặc tải nó lên một trang dưới dạng tệp.",
+    "choose": "Chọn tệp PDF",
+    "attach": "Đính kèm thêm mỗi tệp PDF vào trang của nó, để giữ hình ảnh, bảng và bố cục"
   },
   "csv": {
     "choose": "Chọn một tệp CSV hoặc Excel",
@@ -208,6 +215,9 @@
     "unsupportedWorkbook": "Chỉ nhập được sổ làm việc .xlsx không có mật khẩu. Hãy lưu tệp dưới dạng Sổ làm việc Excel (.xlsx) không có mật khẩu rồi thử lại.",
     "badDocx": "Không thể đọc “{name}” như một tài liệu Word. Chỉ nhập được tệp .docx; hãy lưu các tệp .doc cũ thành .docx trước.",
     "docxTooComplex": "“{name}” quá lớn hoặc quá phức tạp để nhập thành một trang.",
+    "badPdf": "Không thể đọc “{name}” dưới dạng PDF. Tệp có thể bị hỏng hoặc được bảo vệ bằng mật khẩu.",
+    "pdfNoText": "“{name}” không có văn bản để nhập: có vẻ là bản quét. Hãy chạy nhận dạng văn bản (OCR) trước, hoặc tải nó lên một trang dưới dạng tệp.",
+    "pdfTooComplex": "“{name}” quá lớn để nhập thành một trang.",
     "badTrello": "Tệp này không phải là tệp xuất của bảng Trello. Trong Trello, hãy chọn Xuất dưới dạng JSON từ menu của bảng và chọn tệp đó.",
     "badAsana": "Tệp này không phải là tệp xuất của một dự án Asana. Trong Asana, hãy chọn Xuất → CSV hoặc JSON từ menu của dự án và chọn tệp đó.",
     "badMonday": "Tệp này không phải là tệp xuất của một bảng Monday.com. Trong Monday.com, hãy chọn Xuất bảng sang Excel từ menu của bảng và chọn tệp đó.",

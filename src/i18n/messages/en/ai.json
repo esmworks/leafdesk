@@ -198,6 +198,13 @@
     "scope": "Answer from",
     "scopeWorkspace": "The whole workspace",
     "scopePage": "This page and its subpages",
+    "scopeTeamspace": "Teamspace",
+    "scopeAsked": {
+      "page": "Asked of “{title}” and its subpages",
+      "pageUnknown": "Asked of a page and its subpages",
+      "teamspace": "Asked of the teamspace “{title}”",
+      "teamspaceUnknown": "Asked of a teamspace"
+    },
     "thinking": "Thinking…",
     "steps": {
       "working": "Working · {time}",

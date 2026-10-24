@@ -118,6 +118,18 @@ export function inSubtree(rootId: string, alias = "p"): SQL {
   )`;
 }
 
+/** What an AI chat keeps to: a page and the pages under it, or the pages of a teamspace. */
+export type ChatScopeRef = { kind: "page" | "teamspace"; id: string };
+
+/**
+ * The condition that a page of `alias` is in a chat's scope: under the page, or in the teamspace
+ * (every page of a teamspace's tree carries its id, see page.teamspaceId).
+ */
+export function inScope(scope: ChatScopeRef, alias = "p"): SQL {
+  if (!/^[a-z_]+$/.test(alias)) throw new Error(`Bad table alias: ${alias}`);
+  return scope.kind === "page" ? inSubtree(scope.id, alias) : sql`${sql.raw(`"${alias}"."teamspace_id"`)} = ${scope.id}`;
+}
+
 /**
  * The indexed chunks of `pageIds` (of their workspace's current model), by page. No access checks:
  * only for pages a search just found for the reader.
@@ -162,18 +174,27 @@ export async function embeddingGroups(workspaceIds: string[]) {
  * Where a search looks: under pages (any of them), at pages of some kinds (see lib/search-query),
  * and at archived pages too (`includeOutdated`, see server/page-outdated.ts; left out otherwise).
  */
-export type SearchScope = { withinPageId?: string; withinPageIds?: string[]; kinds?: SearchKind[]; includeOutdated?: boolean; verifiedOnly?: boolean };
+export type SearchScope = {
+  withinPageId?: string;
+  withinPageIds?: string[];
+  /** Only pages of this teamspace (an AI chat kept to it). */
+  withinTeamspaceId?: string;
+  kinds?: SearchKind[];
+  includeOutdated?: boolean;
+  verifiedOnly?: boolean;
+};
 
 /**
  * The `and …` conditions a search scope puts on the pages of `alias`: inside `withinPageId` and
- * inside one of `withinPageIds` (each the page itself or under it), of one of `kinds` (a row is a
+ * inside one of `withinPageIds` (each the page itself or under it), in `withinTeamspaceId`, of one of `kinds` (a row is a
  * page whose parent is a database, a journal page one of `userId`'s daily notes), and verified
  * right now with `verifiedOnly` (server/verification). Empty for no scope.
  */
-export function searchScope({ withinPageId, withinPageIds = [], kinds = [], verifiedOnly = false }: SearchScope, userId: string, alias = "p"): SQL {
+export function searchScope({ withinPageId, withinPageIds = [], withinTeamspaceId, kinds = [], verifiedOnly = false }: SearchScope, userId: string, alias = "p"): SQL {
   if (!/^[a-z_]+$/.test(alias)) throw new Error(`Bad table alias: ${alias}`);
   const parts: SQL[] = [];
   if (withinPageId) parts.push(inSubtree(withinPageId, alias));
+  if (withinTeamspaceId) parts.push(inScope({ kind: "teamspace", id: withinTeamspaceId }, alias));
   if (withinPageIds.length) parts.push(sql`(${sql.join(withinPageIds.map((id) => inSubtree(id, alias)), sql` or `)})`);
   if (kinds.length) {
     const kind = sql.raw(`"${alias}"."kind"`);

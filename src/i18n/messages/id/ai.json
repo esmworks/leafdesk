@@ -198,6 +198,13 @@
     "scope": "Jawab dari",
     "scopeWorkspace": "Seluruh ruang kerja",
     "scopePage": "Halaman ini dan subhalamannya",
+    "scopeTeamspace": "Ruang tim",
+    "scopeAsked": {
+      "page": "Ditanyakan tentang “{title}” dan subhalamannya",
+      "pageUnknown": "Ditanyakan tentang sebuah halaman dan subhalamannya",
+      "teamspace": "Ditanyakan tentang ruang tim “{title}”",
+      "teamspaceUnknown": "Ditanyakan tentang sebuah ruang tim"
+    },
     "thinking": "Berpikir…",
     "steps": {
       "working": "Bekerja · {time}",

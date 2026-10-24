@@ -1,10 +1,11 @@
 {
   "open": "Importieren",
   "title": "Importieren",
-  "description": "Importiere Seiten aus Markdown-Dateien, ZIP-Exporten und Word-Dokumenten, Zeilen aus einer CSV-Datei oder Excel-Arbeitsmappe, ein Board aus Trello, Asana oder Monday.com oder Jira-Vorgänge, die synchron bleiben.",
+  "description": "Importiere Seiten aus Markdown-Dateien, ZIP-Exporten, Word-Dokumenten und PDFs, Zeilen aus einer CSV-Datei oder Excel-Arbeitsmappe, ein Board aus Trello, Asana oder Monday.com oder Jira-Vorgänge, die synchron bleiben.",
   "tabs": {
     "pages": "Markdown & ZIP",
     "docx": "Word",
+    "pdf": "PDF",
     "csv": "CSV & Excel",
     "trello": "Trello",
     "asana": "Asana",
@@ -28,6 +29,12 @@
   "docx": {
     "help": "Jedes Word-Dokument (.docx) wird eine Seite, mit Überschriften, Listen, Tabellen, Links, Bildern und Fußnoten. Eine Überschrift ganz am Anfang wird zum Titel der Seite, sonst der Dateiname.",
     "choose": "Word-Dateien auswählen"
+  },
+  "pdf": {
+    "help": "Jedes PDF wird zu einer Seite aus seinem Text: Größere Zeilen werden zu Überschriften, Absätze sowie nummerierte und Aufzählungslisten kommen mit, auch über Seitenumbrüche hinweg. Wiederkehrende Kopf- und Fußzeilen und Seitenzahlen bleiben weg. Eine Überschrift ganz oben wird zum Titel der Seite, sonst der Dateiname.",
+    "scans": "Ein gescanntes PDF hat keinen lesbaren Text und kann nicht importiert werden: Lass zuerst eine Texterkennung (OCR) darüber laufen oder lade es als Datei auf eine Seite hoch.",
+    "choose": "PDF-Dateien auswählen",
+    "attach": "Jedes PDF auch an seine Seite anhängen, für seine Bilder, Tabellen und sein Layout"
   },
   "csv": {
     "choose": "CSV- oder Excel-Datei auswählen",
@@ -208,6 +215,9 @@
     "unsupportedWorkbook": "Nur .xlsx-Arbeitsmappen ohne Kennwort können importiert werden. Speichere die Datei als Excel-Arbeitsmappe (.xlsx) ohne Kennwort und versuche es erneut.",
     "badDocx": "„{name}“ kann nicht als Word-Dokument gelesen werden. Nur .docx-Dateien können importiert werden; speichere ältere .doc-Dateien zuerst als .docx.",
     "docxTooComplex": "„{name}“ ist zu groß oder zu komplex, um als eine Seite importiert zu werden.",
+    "badPdf": "„{name}“ kann nicht als PDF gelesen werden. Es ist vielleicht beschädigt oder mit einem Passwort geschützt.",
+    "pdfNoText": "„{name}“ hat keinen Text zum Importieren: Es sieht nach einem Scan aus. Lass zuerst eine Texterkennung (OCR) darüber laufen oder lade es als Datei auf eine Seite hoch.",
+    "pdfTooComplex": "„{name}“ ist zu groß, um als eine Seite importiert zu werden.",
     "badTrello": "Die Datei ist kein Trello-Board-Export. Wähle in Trello im Menü des Boards Als JSON exportieren und dann diese Datei.",
     "badAsana": "Die Datei ist kein Asana-Projektexport. Wähle in Asana im Menü des Projekts Exportieren → CSV oder JSON und dann diese Datei.",
     "badMonday": "Die Datei ist kein Monday.com-Board-Export. Wähle in Monday.com im Menü des Boards Board nach Excel exportieren und dann diese Datei.",

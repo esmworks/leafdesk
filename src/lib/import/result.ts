@@ -28,6 +28,12 @@ export const IMPORT_ERROR_CODES = [
   "badDocx",
   /** A Word document (`name`) too large or too complex to read as one page in time. */
   "docxTooComplex",
+  /** A PDF (`name`) that can't be read: not a PDF, damaged, or locked with a password. */
+  "badPdf",
+  /** A PDF (`name`) without a text layer (a scan): there is no text to make a page of. */
+  "pdfNoText",
+  /** A PDF (`name`) with more pages than an import reads (PDF_LIMITS), or too much text for one page. */
+  "pdfTooComplex",
   /** The file isn't a Trello board's JSON export. */
   "badTrello",
   /** The file isn't an Asana project's CSV or JSON export. */

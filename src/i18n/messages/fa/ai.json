@@ -198,6 +198,13 @@
     "scope": "پاسخ از",
     "scopeWorkspace": "کل فضای کاری",
     "scopePage": "این صفحه و زیرصفحه‌هایش",
+    "scopeTeamspace": "فضای تیمی",
+    "scopeAsked": {
+      "page": "پرسیده‌شده دربارهٔ «{title}» و زیرصفحه‌هایش",
+      "pageUnknown": "پرسیده‌شده دربارهٔ یک صفحه و زیرصفحه‌هایش",
+      "teamspace": "پرسیده‌شده دربارهٔ فضای تیمی «{title}»",
+      "teamspaceUnknown": "پرسیده‌شده دربارهٔ یک فضای تیمی"
+    },
     "thinking": "در حال فکر کردن…",
     "steps": {
       "working": "در حال کار · {time}",

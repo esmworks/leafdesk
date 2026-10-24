@@ -842,11 +842,11 @@ export async function teamspacesByMember(viewerId: string, workspaceId: string) 
   return byUser;
 }
 
-/** The teamspace's id, name and icon when the user can see it (see visibleTeamspace), else null. */
+/** The teamspace's id, name, icon and workspace when the user can see it (see visibleTeamspace), else null. */
 export async function teamspaceLabel(userId: string, teamspaceId: string) {
   try {
     const { teamspace: found } = await visibleTeamspace(userId, teamspaceId);
-    return { id: found.id, name: found.name, icon: found.icon };
+    return { id: found.id, name: found.name, icon: found.icon, workspaceId: found.workspaceId };
   } catch (error) {
     if (error instanceof AccessError) return null;
     throw error;

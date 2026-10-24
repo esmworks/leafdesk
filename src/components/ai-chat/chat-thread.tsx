@@ -24,6 +24,7 @@ import {
   FilePlus,
   Hand,
   Globe,
+  Crosshair,
   Loader2,
   MessageSquareDiff,
   Paperclip,
@@ -654,6 +655,16 @@ function Question({ message, page, onEdit }: { message: ChatMessage; page: boole
         <p className={cn("mb-1 flex items-center gap-1.5 text-xs text-fg-muted", page ? "justify-end" : "ms-8")}>
           <Telescope className="h-3.5 w-3.5 shrink-0" />
           <span>{t("research.asked")}</span>
+        </p>
+      )}
+      {message.scope && (
+        <p className={cn("mb-1 flex items-center gap-1.5 text-xs text-fg-muted", page ? "justify-end" : "ms-8")}>
+          <Crosshair className="h-3.5 w-3.5 shrink-0" />
+          <span className="min-w-0 truncate">
+            {message.scope.title === null
+              ? t(`scopeAsked.${message.scope.kind}Unknown`)
+              : t(`scopeAsked.${message.scope.kind}`, { title: message.scope.title || tc("untitled") })}
+          </span>
         </p>
       )}
       {message.skill && (

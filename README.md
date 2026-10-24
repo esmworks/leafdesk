@@ -25,7 +25,7 @@ after you approve them over OAuth.
   tell it, reusable skills, and agents that work on database rows, with Anthropic, OpenAI, Google
   or a local model.
 - **Bring your pages**: import a Notion *Markdown & CSV* export, an Obsidian vault, a Trello board,
-  an Asana project, a Monday.com board, Markdown files, Word documents, a folder or CSV, and keep a
+  an Asana project, a Monday.com board, Markdown files, Word documents, PDFs, a folder or CSV, and keep a
   database of Jira issues in sync.
 - **Ready for a team**: teamspaces, page permissions, guests, single sign-on (OIDC, SAML), SCIM,
   two-step verification, passkeys and an audit log.
@@ -563,6 +563,22 @@ for Windows, `.AppImage` for Linux) and choose *On this computer*. See [Desktop 
   left out and listed in the result; comments and page breaks are dropped. Old `.doc` files need
   saving as `.docx` first. A document is read in a separate worker with a time and memory limit,
   and one that can't be read stops the import before any page is created.
+- **Import from PDF**: choose one or more PDFs on Import's PDF tab; each becomes a page made of
+  its text layer, read by the same reader search uses for PDFs. A PDF has no structure of its own,
+  so it is read from the layout: the size most of the text has is the body's, and short lines in a
+  larger size become headings (the largest size a first-level one, then second and third); lines
+  close under each other join into paragraphs (a word hyphenated at a line's end is joined again),
+  and a paragraph that runs over a page break stays whole; lines starting with a bullet character
+  or a number (`1.`, `1)`) become bulleted or numbered lists, nested by how far in they stand.
+  What recurs at the top or bottom of most pages (running headers and footers) and page numbers
+  there are left out. A heading at the very top becomes the page's title, otherwise the file name
+  does. With *Also attach each PDF to its page* (on by default) the PDF itself is uploaded and
+  shown at the end of the page, for its pictures, tables and layout; one over the upload limit is
+  left off and listed in the result. Bullets drawn as shapes rather than characters, bold and
+  italic, links, tables and columns side by side don't come through as such (columns are read
+  line by line across). A scan without a text layer is refused with a note to run text
+  recognition (OCR) first; so are PDFs over 25 MB or 500 pages, and damaged or password-protected
+  ones. As with Word, one that can't be read stops the import before any page is created.
 - **Import from Notion**: in Notion, export a page or the workspace as *Markdown & CSV* with
   subpages, and choose the downloaded ZIP in Import (a large export split into parts, an
   `Export-….zip` holding `…-Part-1.zip` and so on, works as it is). Pages keep their tree, without
@@ -2384,7 +2400,11 @@ takes are listed above it (searches with how many pages they found, pages read, 
 queried, what the model says before them) with a running clock, then folded into how long it took; they are kept with the
 conversation. Answers cite their sources as numbered
 links to the page, and to the block the passage starts at when it is known. *Answer from* → *This
-page and its subpages* keeps questions to the page you are on. *Stop* ends an answer; what was written so far
+page and its subpages* keeps questions to the page you are on, and picking one of your teamspaces
+(in the panel and the full-page chat) keeps them to that teamspace's pages: search, semantic
+search, reading pages and comments, querying databases and the workspace map the model gets all
+keep to it on the server, with your access checked as always. Each question shows what it was
+asked of, by the page's or teamspace's name as you may see it now. *Stop* ends an answer; what was written so far
 is kept. Under an answer are *Copy*, *Answer again* (the latest) and its time; hovering a question
 shows its time, *Edit* (the latest: answered again in its place) and *Copy*. An answer that
 changed things can't be answered again or edited. Conversations are private to you and listed in the full-page chat's sidebar and under
@@ -2401,7 +2421,7 @@ text), change a row's values or title (`update_row`), add a page under a page, o
 at the top of the workspace (`create_page`), and change a page's or row's text block by block
 (`edit_page`: replace a block, insert after one, append or delete one, by the block ids it reads
 first), and make a PDF file of a page or row (`create_pdf`, see [PDF](#pdf)), as you and only where you may edit (and, with
-*Answer from* a page, only under it). What it may do is picked under the question box and
+*Answer from* a page or teamspace, only in it). What it may do is picked under the question box and
 remembered in the browser: *Ask* (the default) shows each change in the box's place before it is
 made (what, where, a new row's values and the start of a new page's text; for a change to a page's
 text the blocks it changes, adds and removes; for a changed row each property's old value next to

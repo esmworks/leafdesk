@@ -2,7 +2,7 @@ import { Worker } from "node:worker_threads";
 import { unzipSync } from "fflate";
 import { plainText } from "@/lib/content-markdown";
 import { isImageFile } from "@/lib/files";
-import { ImportError } from "@/lib/import/result";
+import { ImportError, type ImportErrorCode } from "@/lib/import/result";
 import { serverEditor, type PageBlock } from "@/server/blocknote";
 import { sanitizeBlocks } from "@/server/published-body";
 
@@ -221,15 +221,29 @@ const count = (blocks: PageBlock[]): number => blocks.reduce((sum, b) => sum + 1
  * heading (or a Title paragraph): that heading then leaves the body.
  */
 export async function docxBlocks(name: string, html: string): Promise<{ title: string | null; blocks: PageBlock[] }> {
+  return htmlBlocks(name, notesInPlace(html), { unreadable: "badDocx", tooComplex: "docxTooComplex" });
+}
+
+/**
+ * The blocks of a document converted to HTML (a Word document, a PDF's text), checked as a
+ * published page's are and against DOCX_LIMITS.blocks, and its title from a first-level heading
+ * at the very top (see docxBlocks). `codes`: the errors for HTML that can't be read and for too
+ * many blocks.
+ */
+export async function htmlBlocks(
+  name: string,
+  html: string,
+  codes: { unreadable: ImportErrorCode; tooComplex: ImportErrorCode },
+): Promise<{ title: string | null; blocks: PageBlock[] }> {
   let parsed: PageBlock[];
   try {
-    parsed = (await serverEditor.tryParseHTMLToBlocks(notesInPlace(html))) as PageBlock[];
+    parsed = (await serverEditor.tryParseHTMLToBlocks(html)) as PageBlock[];
   } catch {
-    throw new ImportError(`“${name}” can't be read as a Word document`, "badDocx", { name });
+    throw new ImportError(`“${name}” can't be read`, codes.unreadable, { name });
   }
   const blocks = sanitizeBlocks(parsed);
   if (count(blocks) > DOCX_LIMITS.blocks) {
-    throw new ImportError(`“${name}” is too large to import as one page`, "docxTooComplex", { name });
+    throw new ImportError(`“${name}” is too large to import as one page`, codes.tooComplex, { name });
   }
   const first = blocks[0];
   if (first?.type === "heading" && (first.props as { level?: number }).level === 1) {

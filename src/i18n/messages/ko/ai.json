@@ -198,6 +198,13 @@
     "scope": "답변 범위",
     "scopeWorkspace": "전체 워크스페이스",
     "scopePage": "이 페이지와 하위 페이지",
+    "scopeTeamspace": "팀스페이스",
+    "scopeAsked": {
+      "page": "“{title}” 및 하위 페이지에 대한 질문",
+      "pageUnknown": "한 페이지와 하위 페이지에 대한 질문",
+      "teamspace": "팀스페이스 “{title}”에 대한 질문",
+      "teamspaceUnknown": "한 팀스페이스에 대한 질문"
+    },
     "thinking": "생각하는 중…",
     "steps": {
       "working": "작업 중 · {time}",
