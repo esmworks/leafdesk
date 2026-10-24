@@ -277,12 +277,18 @@ function blockContent(block: MdBlock, walk: Walk, width: number): Content[] {
     }
     case "file":
     case "video":
-    case "audio":
-      return [{ stack: [fileLine(block, input), ...captionLine(str(prop(block, "caption")))], margin: [0, 0, 0, 6] }];
+    case "audio": {
+      // Aligned as on the page (lib/media-placement): justify is for text.
+      const align = alignment(prop(block, "textAlignment"));
+      const placed = align === "justify" ? undefined : align;
+      return [{ stack: [fileLine(block, input), ...captionLine(str(prop(block, "caption")), placed)], margin: [0, 0, 0, 6], ...(placed ? { alignment: placed } : {}) }];
+    }
     case BOOKMARK_BLOCK:
     case WEB_EMBED_BLOCK: {
       const url = str(prop(block, "url"));
-      return url ? [{ text: url, link: url, color: LINK, decoration: "underline", margin: [0, 0, 0, 6] }] : [];
+      const align = alignment(prop(block, "textAlignment"));
+      const placed = align === "justify" ? undefined : align;
+      return url ? [{ text: url, link: url, color: LINK, decoration: "underline", margin: [0, 0, 0, 6], ...(placed ? { alignment: placed } : {}) }] : [];
     }
     case COLUMN_LIST_BLOCK: {
       const columns = (block.children ?? []).filter((c) => c.type === COLUMN_BLOCK);

@@ -110,6 +110,7 @@
       "you": "{name} (you)"
     },
     "threadMenu": "Thread options",
+    "copyLink": "Copy link",
     "mute": "Mute replies",
     "unmute": "Unmute replies",
     "muteHint": "Stop hearing about new replies in this thread. Replying here, or being mentioned here, turns it back on.",
@@ -651,7 +652,8 @@
       "submit": "Embed",
       "providers": "YouTube, Vimeo, Loom, Figma, published Google Docs, Sheets and Slides, CodePen, Spotify and Google Maps. Other links become a bookmark.",
       "frameTitle": "Embedded content from {host}",
-      "label": "Embed"
+      "label": "Embed",
+      "resize": "Drag to change the embed’s width"
     },
     "paste": {
       "label": "Paste as",
@@ -741,6 +743,11 @@
   },
   "blockMenu": {
     "copyLink": "Copy link to block",
+    "download": "Download",
+    "alignLeft": "Align left",
+    "alignCenter": "Align center",
+    "alignRight": "Align right",
+    "wideColumns": "Wide columns",
     "hideInPrint": "Hide when printing",
     "calloutStyle": "Callout style",
     "turnIntoCallout": "Turn into callout",
@@ -986,7 +993,8 @@
     "markdownImage": "Image: {alt}",
     "markdownImageUntitled": "Image",
     "expand": "Open in viewer",
-    "view": "View {name}"
+    "view": "View {name}",
+    "resize": "Drag to change the width"
   },
   "presentation": {
     "previous": "Previous slide",
@@ -1221,5 +1229,16 @@
     "reset": "Show the whole image",
     "loading": "Loading the image…",
     "failed": "The image couldn’t be loaded."
+  },
+  "commentRef": {
+    "pasteTitle": "Paste link to a comment",
+    "pasteAsMention": "Paste as mention",
+    "pasteAsPreview": "Paste as preview",
+    "pasteAsLink": "Paste as link",
+    "noAccess": "No access to this comment",
+    "onPage": "On {title}",
+    "replies": "{count, plural, =0 {No replies} one {# reply} other {# replies}}",
+    "openThread": "Open thread",
+    "resolved": "Resolved"
   }
 }

@@ -252,6 +252,11 @@ export function ViewLayoutMenu({
               {t("showIcons")}
             </Toggle>
           )}
+          {view.type === "table" && (
+            <Toggle on={config.showVerticalLines !== false} onChange={(on) => set({ showVerticalLines: on ? undefined : false })}>
+              {t("showVerticalLines")}
+            </Toggle>
+          )}
           <Toggle on={!!config.showOutdated} onChange={(on) => set({ showOutdated: on || undefined })}>
             {t("showOutdated")}
           </Toggle>

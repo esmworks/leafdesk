@@ -265,7 +265,7 @@ function Table({ rows, table, href, print }: { rows: PublishedRow[]; table: Publ
   return (
     // In print the table fits the page: columns share its width and long values wrap.
     <div className={cn("pb-3", !print && "overflow-x-auto [color-scheme:light_dark]")}>
-      <table className={cn("w-full border-collapse text-sm", !print && "min-w-max")}>
+      <table className={cn("w-full border-collapse text-sm", !print && "min-w-max", table.noVerticalLines && "[&_td]:border-s-0 [&_th]:border-s-0")}>
         <thead>
           <tr>
             <th className={cn("h-[33px] border-y border-border px-2 text-start font-normal text-fg-muted", !print && "min-w-60")}>

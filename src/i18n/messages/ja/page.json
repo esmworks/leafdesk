@@ -110,6 +110,7 @@
       "you": "{name}（あなた）"
     },
     "threadMenu": "スレッドのオプション",
+    "copyLink": "リンクをコピー",
     "mute": "返信をミュート",
     "unmute": "返信のミュートを解除",
     "muteHint": "このスレッドの新しい返信の通知を受け取らないようにします。ここで返信するか、ここでメンションされると元に戻ります。",
@@ -651,7 +652,8 @@
       "submit": "埋め込む",
       "providers": "YouTube、Vimeo、Loom、Figma、公開されたGoogleドキュメント・スプレッドシート・スライド、CodePen、Spotify、Googleマップに対応しています。それ以外のリンクはブックマークになります。",
       "frameTitle": "{host}からの埋め込みコンテンツ",
-      "label": "埋め込み"
+      "label": "埋め込み",
+      "resize": "ドラッグして埋め込みの幅を変更"
     },
     "paste": {
       "label": "貼り付け形式",
@@ -741,6 +743,11 @@
   },
   "blockMenu": {
     "copyLink": "ブロックへのリンクをコピー",
+    "download": "ダウンロード",
+    "alignLeft": "左揃え",
+    "alignCenter": "中央揃え",
+    "alignRight": "右揃え",
+    "wideColumns": "幅広の列",
     "hideInPrint": "印刷時に非表示にする",
     "calloutStyle": "コールアウトのスタイル",
     "turnIntoCallout": "コールアウトに変換",
@@ -986,7 +993,8 @@
     "markdownImage": "画像: {alt}",
     "markdownImageUntitled": "画像",
     "expand": "ビューアーで開く",
-    "view": "{name} を表示"
+    "view": "{name} を表示",
+    "resize": "ドラッグして幅を変更"
   },
   "presentation": {
     "previous": "前のスライド",
@@ -1221,5 +1229,16 @@
     "reset": "画像全体を表示",
     "loading": "画像を読み込んでいます…",
     "failed": "画像を読み込めませんでした。"
+  },
+  "commentRef": {
+    "pasteTitle": "コメントへのリンクを貼り付け",
+    "pasteAsMention": "メンションとして貼り付け",
+    "pasteAsPreview": "プレビューとして貼り付け",
+    "pasteAsLink": "リンクとして貼り付け",
+    "noAccess": "このコメントへのアクセス権がありません",
+    "onPage": "{title} 上",
+    "replies": "{count, plural, =0 {返信なし} other {# 件の返信}}",
+    "openThread": "スレッドを開く",
+    "resolved": "解決済み"
   }
 }

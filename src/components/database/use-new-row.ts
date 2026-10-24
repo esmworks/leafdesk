@@ -27,7 +27,8 @@ const EDITOR_WAIT_MS = 300;
 
 /**
  * A new row's title editor opens once the server has created the row. What is typed before that is
- * kept and handed to the editor; Enter or Escape saves it as the title without opening it; and
+ * kept and handed to the editor; Enter or Escape saves it as the title without opening it; Escape
+ * with nothing typed, there or in the title editor, throws the new row away (to the trash); and
  * "New" does nothing while a row is still being created, so neither a click nor Enter on the
  * focused button makes a second row. The title is saved with quick add (see quick-add): the view
  * provides `quick` (QuickAddContext) to the title editor, which then shows what it recognises.
@@ -40,6 +41,32 @@ export function useNewRow(api: DatabaseApi, view: View, properties: Property[]) 
   const capture = useRef<HTMLInputElement | null>(null);
 
   useEffect(() => () => capture.current?.remove(), []);
+  const deleteRow = api.deleteRow;
+  // Escape in the new row's title editor while it is empty throws the row away. The editor is the
+  // text field that has the focus once it opens (it takes it when it mounts), or the next one to.
+  useEffect(() => {
+    if (!editing) return;
+    let field: HTMLElement | null = null;
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key !== "Escape" || e.isComposing || (e.currentTarget as HTMLInputElement).value.trim()) return;
+      void deleteRow(editing, { quiet: true });
+      setEditing(null);
+    };
+    const take = (el: Element | null) => {
+      if (!(el instanceof HTMLInputElement || el instanceof HTMLTextAreaElement) || el === capture.current) return false;
+      field = el;
+      field.addEventListener("keydown", onKey);
+      return true;
+    };
+    const onFocus = (e: FocusEvent) => {
+      if (take(e.target as Element)) document.removeEventListener("focusin", onFocus);
+    };
+    if (!take(document.activeElement)) document.addEventListener("focusin", onFocus);
+    return () => {
+      document.removeEventListener("focusin", onFocus);
+      field?.removeEventListener("keydown", onKey);
+    };
+  }, [editing, deleteRow]);
   // The same function across renders, so views can hand their cards callbacks that don't change.
   const stopEditing = useCallback(() => {
     capture.current?.remove();
@@ -53,11 +80,13 @@ export function useNewRow(api: DatabaseApi, view: View, properties: Property[]) 
     const field = captureField();
     capture.current = field;
     let finished = false;
+    let discarded = false;
     let created = false;
     field.addEventListener("keydown", (e) => {
       if (e.isComposing || e.keyCode === 229 || (e.key !== "Enter" && e.key !== "Escape")) return;
       e.preventDefault();
       finished = true;
+      discarded = e.key === "Escape" && !field.value.trim();
       field.remove();
     });
     // Focus moving on (to the title editor, or a click elsewhere) ends the capture; the text stays.
@@ -76,6 +105,7 @@ export function useNewRow(api: DatabaseApi, view: View, properties: Property[]) 
       if (!id || finished) {
         field.remove();
         if (id && text) saveTitle(id, text);
+        else if (id && discarded) void deleteRow(id, { quiet: true });
         return;
       }
       setEditing(id);

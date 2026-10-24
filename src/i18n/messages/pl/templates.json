@@ -231,6 +231,79 @@
       }
     }
   },
+  "sprints": {
+    "title": "Sprinty",
+    "description": "Zadania planowane w dwutygodniowych sprintach: bieżący sprint na tablicy, planowanie sprintów i backlog.",
+    "page": "Sprinty zespołu",
+    "markdown": "Planuj pracę zespołu w dwutygodniowych sprintach. **Bieżący sprint** pokazuje zadania tego sprintu według stanu, **Planowanie sprintów** zadania każdego nadchodzącego sprintu, a **Backlog** zadania, które nie trafiły jeszcze do żadnego sprintu. Gdy sprint się kończy, otwórz **Sprinty** w menu bazy danych i wybierz **Zakończ sprint**: zaczyna się następny sprint, a niedokończone zadania przechodzą do niego.",
+    "database": "Zadania",
+    "table": "Wszystkie zadania",
+    "board": "Tablica",
+    "properties": {
+      "assignee": "Osoba przypisana",
+      "priority": "Priorytet",
+      "points": "Punkty"
+    },
+    "options": {
+      "high": "Wysoki",
+      "medium": "Średni",
+      "low": "Niski"
+    },
+    "rowTemplate": {
+      "title": "Nowe zadanie",
+      "markdown": "## Co\n\n\n\n## Gotowe, gdy\n\n- [ ] \n\n## Notatki\n\n"
+    },
+    "rows": {
+      "goal": "Uzgodnić cel sprintu",
+      "signup": "Zbudować nowy formularz rejestracji",
+      "emails": "Napisać e-maile powitalne",
+      "tests": "Przetestować rejestrację na telefonach",
+      "pricing": "Zaktualizować stronę z cennikiem",
+      "feedback": "Uporządkować opinie klientów z zeszłego miesiąca"
+    }
+  },
+  "docs": {
+    "title": "Dokumentacja",
+    "description": "Poradniki, materiały referencyjne i zasady w jednym miejscu, z kategorią, osobą odpowiedzialną i datą ostatniej edycji każdego dokumentu.",
+    "markdown": "Każdy dokument to strona w bibliotece poniżej, z kategorią i osobą odpowiedzialną. Gdy sprawdzisz, że dokument jest poprawny, wybierz **Zweryfikuj stronę** w jego menu: wyszukiwanie pokazuje zweryfikowane dokumenty na początku i je oznacza, `is:verified` znajduje tylko je, a czat AI przedkłada je nad inne.",
+    "database": "Biblioteka dokumentów",
+    "table": "Wszystkie dokumenty",
+    "board": "Według kategorii",
+    "recent": "Ostatnio edytowane",
+    "properties": {
+      "category": "Kategoria",
+      "owner": "Odpowiedzialny",
+      "edited": "Ostatnia edycja"
+    },
+    "categories": {
+      "guide": "Poradnik",
+      "reference": "Materiał referencyjny",
+      "policy": "Zasady",
+      "onboarding": "Wdrożenie"
+    },
+    "rowTemplate": {
+      "title": "Nowy dokument",
+      "markdown": "## Podsumowanie\n\n\n\n## Szczegóły\n\n\n\n## Powiązane\n\n- "
+    },
+    "rows": {
+      "writing": {
+        "title": "Jak piszemy dokumentację",
+        "markdown": "## Podsumowanie\n\nJeden dokument na jeden temat, napisany dla kogoś, kto dopiero go poznaje.\n\n## Szczegóły\n\n- Zacznij od tego, co czytelnik ma zrobić.\n- Pisz krótkie kroki we właściwej kolejności.\n- Wskaż osobę odpowiedzialną i zweryfikuj dokument, gdy go sprawdzisz."
+      },
+      "onboarding": {
+        "title": "Lista zadań na pierwszy tydzień",
+        "markdown": "## Podsumowanie\n\nCo robi nowa osoba w zespole w pierwszym tygodniu.\n\n## Szczegóły\n\n- [ ] Skonfiguruj swoje konta\n- [ ] Poznaj swój zespół\n- [ ] Przeczytaj dokumentację swojego obszaru"
+      },
+      "release": {
+        "title": "Proces wydania",
+        "markdown": "## Podsumowanie\n\nJak zmiana trafia od przeglądu do klientów.\n\n## Szczegóły\n\n1. Przejrzyj i scal zmianę.\n2. Przetestuj ją na serwerze testowym.\n3. Wydaj ją i poinformuj zespół."
+      },
+      "expenses": {
+        "title": "Zasady rozliczania wydatków",
+        "markdown": "## Podsumowanie\n\nZa co płaci firma i jak rozliczyć wydatek.\n\n## Szczegóły\n\n- Zachowaj paragon.\n- Rozlicz wydatek w ciągu 30 dni.\n- Zapytaj przełożonego, zanim wydasz więcej niż zwykle."
+      }
+    }
+  },
   "journal": {
     "title": "Dziennik",
     "markdown": "## Cel dnia\n\n- [ ] \n\n## Notatki\n\n## Zrobione dziś\n"

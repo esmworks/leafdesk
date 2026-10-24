@@ -14,7 +14,8 @@ import { coverProperty, galleryCover } from "@/lib/views";
 import { CardTitleInput } from "./card-title-input";
 import { Floating, useFloating } from "./floating";
 import { OpenRowItems } from "./open-row-items";
-import { RowValue, shownValues } from "./property-cell";
+import { shownValues, type CreateOption } from "./property-cell";
+import { CardValue, type SetCardValue } from "./card-value";
 import { QuickAddContext } from "./quick-add";
 import { openRowProps, useIsOpenRow, useRowOpener, type RowOpener } from "./row-panel-context";
 import { useNewRow } from "./use-new-row";
@@ -63,6 +64,7 @@ export function GalleryView({
     [stopEditing, quick],
   );
   const onCardDelete = useCallback((rowId: string) => void api.deleteRow(rowId), [api]);
+  const onCardValue = useCallback<SetCardValue>((rowId, propertyId, value) => void api.setCell(rowId, propertyId, value), [api]);
 
   const add = async () => {
     await createNew(() => api.createRow());
@@ -91,6 +93,8 @@ export function GalleryView({
               typed={editTitleOf === row.id ? typed : undefined}
               onTitle={onCardTitle}
               onDelete={onCardDelete}
+              onValue={onCardValue}
+              onCreateOption={api.createOption}
             />
           ))}
           {!readOnly && (
@@ -127,6 +131,8 @@ const GalleryCard = memo(function GalleryCard({
   typed,
   onTitle,
   onDelete,
+  onValue,
+  onCreateOption,
 }: {
   workspaceId: string;
   row: Row;
@@ -147,6 +153,9 @@ const GalleryCard = memo(function GalleryCard({
   typed?: string;
   onTitle: (row: Row, title: string) => void;
   onDelete: (rowId: string) => void;
+  /** Changes a value shown on the card in place (see CardValue). */
+  onValue: SetCardValue;
+  onCreateOption: CreateOption;
 }) {
   const tc = useTranslations("common");
   const opener = useRowOpener(workspaceId);
@@ -213,7 +222,7 @@ const GalleryCard = memo(function GalleryCard({
                 className={cn("flex max-w-full min-w-0 text-fg-muted", wrap ? "items-start" : "items-center", cellMarkClass(color, p.id))}
                 title={p.name}
               >
-                <RowValue prop={p} row={row} wrap={wrap} />
+                <CardValue prop={p} row={row} wrap={wrap} readOnly={readOnly} onChange={onValue} onCreateOption={onCreateOption} />
               </div>
             ))}
           </div>

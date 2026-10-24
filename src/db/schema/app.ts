@@ -598,6 +598,11 @@ export type RelationConfig = {
   /** A "blocked_by" relation: how waiting rows follow when the rows they wait for move. */
   dependencies?: DependencyConfig;
   /**
+   * Properties of the related database whose values the row picker shows beside each row's
+   * title (up to three, see databases.setRelationPickerProperties); just titles when missing.
+   */
+  pickerProperties?: string[];
+  /**
    * A "sprint" relation: how the sprints database it links to is laid out. Kept when sprints are
    * turned off (only the role goes), so turning them on again picks the same sprints up.
    */
@@ -731,6 +736,17 @@ export type PropertyOptions = {
    */
   url?: { preview: true };
   /**
+   * Person properties: a row names one person at most (lib/properties normalizeValue refuses more);
+   * any number when missing. Rows naming more when it is turned on keep them until changed.
+   */
+  person?: { single: true };
+  /**
+   * Status properties: "checkbox" shows a box, ticked while the option is in the done group;
+   * ticking it picks the first done option, unticking the first to-do one (lib/properties
+   * statusFromCheckbox). The option shows when missing. Values stay options either way.
+   */
+  statusDisplay?: "checkbox";
+  /**
    * Row pages: "hide_empty" leaves the property out while the row has no value for it, "hide"
    * always (both under "more properties", see lib/page-visibility); shown when missing.
    */
@@ -798,7 +814,19 @@ export type FilterOp =
   | "lte"
   | "is_within";
 /** Values of an `is_within` rule: date ranges relative to the day the view is looked at. */
-export type RelativeDateRange = "today" | "this_week" | "this_month" | "past_n_days" | "next_n_days";
+export type RelativeDateRange =
+  | "today"
+  | "this_week"
+  | "last_week"
+  | "next_week"
+  | "this_month"
+  | "last_month"
+  | "next_month"
+  | "this_year"
+  | "last_year"
+  | "next_year"
+  | "past_n_days"
+  | "next_n_days";
 /**
  * `days` is only used by `is_within` rules with a `past_n_days` / `next_n_days` value. `is_any_of` and
  * `is_none_of` rules hold a list of values (option, person or row ids).
@@ -940,6 +968,14 @@ export type ViewConfig = {
   showIcons?: boolean;
   /** Timelines: whether the table of row titles shows left of the bars; shown when missing. */
   showTable?: boolean;
+  /** Table views: the lines between columns, published tables too; shown when missing. */
+  showVerticalLines?: boolean;
+  /**
+   * The row template "New" starts from in this view, over the database's default (see
+   * server/templates.ts createRow): a template's id, or null for blank rows. The database's
+   * default when missing, or when the template is no longer one of the database's.
+   */
+  defaultTemplateId?: string | null;
   /** Galleries: "medium" when missing. */
   cardSize?: CardSize;
   /** Boards and galleries: long values on cards wrap onto more lines instead of cutting off; cut off when missing. */

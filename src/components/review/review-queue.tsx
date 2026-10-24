@@ -1,5 +1,6 @@
 "use client";
 
+import { iconPrefix } from "@/lib/icon-value";
 import { ClipboardCheck } from "lucide-react";
 import { usePathname, useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
@@ -160,7 +161,7 @@ export function ReviewQueue({
             <option value="">{t("filters.allAgents")}</option>
             {queue.facets.agents.map((a) => (
               <option key={a.id} value={a.id}>
-                {a.icon ? `${a.icon} ` : ""}
+                {iconPrefix(a.icon)}
                 {a.name}
               </option>
             ))}
@@ -174,7 +175,7 @@ export function ReviewQueue({
             <option value="">{t("filters.allDatabases")}</option>
             {queue.facets.databases.map((d) => (
               <option key={d.id} value={d.id}>
-                {d.icon ? `${d.icon} ` : ""}
+                {iconPrefix(d.icon)}
                 {pageLabel(d.title, tc("untitled"))}
               </option>
             ))}

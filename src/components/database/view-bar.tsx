@@ -915,13 +915,20 @@ function useDescribeFilter() {
 }
 
 /** Message keys (`database.filter.relative.*`) for the choices of an "is within" rule. */
-const RANGE_LABELS: Record<RelativeDateRange, "today" | "thisWeek" | "thisMonth" | "pastNDays" | "nextNDays"> = {
+const RANGE_LABELS = {
   today: "today",
   this_week: "thisWeek",
+  last_week: "lastWeek",
+  next_week: "nextWeek",
   this_month: "thisMonth",
+  last_month: "lastMonth",
+  next_month: "nextMonth",
+  this_year: "thisYear",
+  last_year: "lastYear",
+  next_year: "nextYear",
   past_n_days: "pastNDays",
   next_n_days: "nextNDays",
-};
+} as const satisfies Record<RelativeDateRange, string>;
 
 /** "This week", "Past 7 days"… for an "is within" rule's value. */
 function useRangeLabel() {

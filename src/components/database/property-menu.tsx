@@ -6,6 +6,7 @@ import {
   ArrowDownAZ,
   ArrowDownZA,
   ArrowLeft,
+  ArrowLeftRight,
   ArrowLeftToLine,
   ArrowRightToLine,
   ArrowUp,
@@ -34,16 +35,18 @@ import {
   Rows3,
   Settings2,
   Sigma,
+  SquareCheck,
   Trash2,
   Ungroup,
+  UserRound,
   WrapText,
 } from "lucide-react";
 import { useLocale, useTranslations } from "next-intl";
-import { Fragment, useEffect, useRef, useState } from "react";
+import { Fragment, useEffect, useId, useRef, useState } from "react";
 import { useReorderDrag, type ReorderDragHandlers } from "@/components/use-reorder-drag";
 import { useDirection } from "@/components/direction";
 import { Button, cn, Input, MenuItem, MenuSeparator } from "@/components/ui";
-import { isComputed, isDerived, PROPERTY_TYPES, STATUS_GROUPS, type StatusGroup } from "@/lib/property-types";
+import { isComputed, isDerived, MAX_PICKER_PROPERTIES, PROPERTY_TYPES, STATUS_GROUPS, type StatusGroup } from "@/lib/property-types";
 import { pageLabel } from "@/lib/labels";
 import { canRestrict } from "@/lib/property-access";
 import { SELECT_COLORS, sortOptionsByName, sortStatusOptions, statusColor, statusGroupOf } from "@/lib/properties";
@@ -68,9 +71,15 @@ import { PropertyTypeIcon, usePropertyTypeLabel } from "./property-icons";
 import { RelationSetup } from "./relation-cell";
 import { useRelations } from "./relation-context";
 import { useSchema } from "./schema-context";
+import { newPropertyName, typesMatching } from "@/lib/property-type-search";
 import type { DerivedInput, Property, PropertyType, RelationInput, RollupInput, SelectOption } from "./types";
 
-/** Name + type picker used by the table "+" header and the row page "Add property". */
+/**
+ * Name + type picker used by the table "+" header and the row page "Add property". The name also
+ * finds types: typing narrows the list to the types it names, arrows move through it and Enter
+ * makes the one marked (text when the name names none), named after its type when that is all the
+ * name says.
+ */
 export function AddPropertyPanel({
   onCreate,
   onCreateAutofill,
@@ -87,9 +96,20 @@ export function AddPropertyPanel({
   const [name, setName] = useState("");
   const [step, setStep] = useState<"type" | "relation" | "formula" | "rollup" | "unique_id" | "autofill">("type");
   const input = useRef<HTMLInputElement>(null);
+  const listId = useId();
   useEffect(() => input.current?.focus(), []);
-  // A new property without a name is named after its type, in the user's language.
-  const nameFor = (type: PropertyType) => name.trim() || typeLabel(type);
+  const matching = typesMatching(PROPERTY_TYPES, typeLabel, name);
+  const listed = matching.length ? matching : PROPERTY_TYPES;
+  // The type Enter makes: the one moved to with the arrows, else the first found, else text.
+  const [moved, setMoved] = useState<number | null>(null);
+  const marked = moved ?? (matching.length ? 0 : Math.max(0, listed.indexOf("text")));
+  const types = useRef<HTMLDivElement>(null);
+  // A block body: scrollIntoView returns a promise in newer browsers, and an effect may only return a cleanup.
+  useEffect(() => {
+    types.current?.querySelector("[data-marked]")?.scrollIntoView({ block: "nearest" });
+  }, [marked]);
+  // A new property without a name, or named just as a type is, is named after its type in the user's language.
+  const nameFor = (type: PropertyType) => newPropertyName(type, typeLabel, name);
   const create = (type: PropertyType) => {
     if (type === "relation" || type === "formula" || type === "rollup" || type === "unique_id") {
       setStep(type);
@@ -169,17 +189,32 @@ export function AddPropertyPanel({
           value={name}
           placeholder={t("name")}
           aria-label={t("name")}
-          onChange={(e) => setName(e.target.value)}
-          onKeyDown={(e) => e.key === "Enter" && create("text")}
+          onChange={(e) => {
+            setName(e.target.value);
+            setMoved(null);
+          }}
+          onKeyDown={(e) => {
+            if (e.nativeEvent.isComposing) return;
+            if (e.key === "Enter") create(listed[marked] ?? "text");
+            else if (e.key === "ArrowDown" || e.key === "ArrowUp") {
+              e.preventDefault();
+              setMoved((marked + (e.key === "ArrowDown" ? 1 : listed.length - 1)) % listed.length);
+            }
+          }}
+          aria-controls={listId}
           className="h-7"
         />
       </div>
       <div className="px-2 pt-1.5 pb-1 text-xs text-fg-muted">{t("type")}</div>
-      {PROPERTY_TYPES.map((type) => (
-        <MenuItem key={type} icon={<PropertyTypeIcon type={type} />} onClick={() => create(type)}>
-          {typeLabel(type)}
-        </MenuItem>
-      ))}
+      <div ref={types} id={listId}>
+        {listed.map((type, i) => (
+          <div key={type} data-marked={i === marked ? "" : undefined}>
+            <MenuItem icon={<PropertyTypeIcon type={type} />} active={i === marked} onClick={() => create(type)}>
+              {typeLabel(type)}
+            </MenuItem>
+          </div>
+        ))}
+      </div>
       {onCreateAutofill && (
         <>
           <MenuSeparator />
@@ -256,6 +291,14 @@ export type PropertyMenuActions = {
   setUniqueIdPrefix?: (prefix: string | null) => void;
   /** URLs: whether row pages show a preview of the linked page (server/url-preview.ts). */
   setUrlPreview?: (on: boolean) => void;
+  /** People: whether a row names one person at most. */
+  setOnePerson?: (on: boolean) => void;
+  /** Statuses: whether they show as a checkbox ticked for done options. */
+  setStatusCheckbox?: (on: boolean) => void;
+  /** Relations: the related database's properties the row picker shows beside titles. */
+  setPickerProperties?: (ids: string[]) => void;
+  /** One-way relations: adds the paired property to the related database. */
+  makeTwoWay?: () => void;
   /** Text properties, when AI is available: turns AI autofill on, changes it or (null) turns it off. */
   setAutofill?: (config: AiAutofillConfig | null) => void;
   /** Autofill properties: works the values of the view's rows out again. */
@@ -300,6 +343,7 @@ export function PropertyMenu({
     | "date-options"
     | "unique-id"
     | "page-visibility"
+    | "picker"
     | "autofill"
     | "calculate"
     | "insert-before"
@@ -488,6 +532,10 @@ export function PropertyMenu({
     );
   }
 
+  if (page === "picker" && prop && actions.setPickerProperties) {
+    return <PickerPropertiesEditor prop={prop} onChange={actions.setPickerProperties} onBack={() => setPage("main")} />;
+  }
+
   if (page === "page-visibility" && prop && actions.setPageVisibility) {
     const current = pageVisibilityOf(prop);
     return (
@@ -646,6 +694,44 @@ export function PropertyMenu({
         onClick={run(() => actions.setUrlPreview?.(!prop.options.url?.preview))}
       >
         {t("urlPreview")}
+      </MenuItem>
+    ),
+    prop?.type === "status" && actions.setStatusCheckbox && (
+      <MenuItem
+        key="status-checkbox"
+        icon={icon(SquareCheck)}
+        pressed={prop.options.statusDisplay === "checkbox"}
+        trailing={prop.options.statusDisplay === "checkbox" ? icon(Check) : undefined}
+        title={t("statusCheckboxHint")}
+        onClick={run(() => actions.setStatusCheckbox?.(prop.options.statusDisplay !== "checkbox"))}
+      >
+        {t("statusCheckbox")}
+      </MenuItem>
+    ),
+    prop?.type === "relation" && actions.makeTwoWay && !prop.options.relation?.pairedPropertyId && !prop.options.relation?.role && (
+      <TwoWayItem key="two-way" prop={prop} onClick={run(actions.makeTwoWay)} />
+    ),
+    prop?.type === "relation" && actions.setPickerProperties && (
+      <MenuItem
+        key="picker"
+        icon={icon(Rows3)}
+        trailing={<ChevronRight className="h-3.5 w-3.5 rtl:-scale-x-100" />}
+        title={t("pickerPropertiesHint")}
+        onClick={() => setPage("picker")}
+      >
+        {t("pickerProperties")}
+      </MenuItem>
+    ),
+    prop?.type === "person" && actions.setOnePerson && (
+      <MenuItem
+        key="one-person"
+        icon={icon(UserRound)}
+        pressed={Boolean(prop.options.person?.single)}
+        trailing={prop.options.person?.single ? icon(Check) : undefined}
+        title={t("onePersonHint")}
+        onClick={run(() => actions.setOnePerson?.(!prop.options.person?.single))}
+      >
+        {t("onePerson")}
       </MenuItem>
     ),
     isAutofillType(prop?.type) && prop?.options.ai && actions.updateAllAutofill && (
@@ -1394,6 +1480,52 @@ function DraggableOption({
 function withParents(option: SelectOption, ids: string[]): SelectOption {
   const { parentOptionIds: _old, ...rest } = option;
   return ids.length ? { ...rest, parentOptionIds: ids } : rest;
+}
+
+/** Makes a one-way relation two-way: "Show on <related database> too". */
+function TwoWayItem({ prop, onClick }: { prop: Property; onClick: () => void }) {
+  const t = useTranslations("database.relation");
+  const tc = useTranslations("common");
+  const target = useRelations()?.targets[prop.id];
+  if (!target?.database) return null;
+  return (
+    <MenuItem icon={<ArrowLeftRight className="h-3.5 w-3.5" />} title={t("twoWayHint")} onClick={onClick}>
+      {t("twoWay", { title: pageLabel(target.database.title, tc("untitled")) })}
+    </MenuItem>
+  );
+}
+
+/** Up to three properties of the related database that the row picker shows beside each title. */
+function PickerPropertiesEditor({ prop, onChange, onBack }: { prop: Property; onChange: (ids: string[]) => void; onBack: () => void }) {
+  const t = useTranslations("database.propertyMenu");
+  const target = useRelations()?.targets[prop.id];
+  const [ids, setIds] = useState<string[]>(prop.options.relation?.pickerProperties ?? []);
+  const choices = (target?.properties ?? []).filter((p) => p.type !== "relation" && !isDerived(p.type));
+  const toggle = (id: string) => {
+    const next = ids.includes(id) ? ids.filter((x) => x !== id) : [...ids, id];
+    if (next.length > MAX_PICKER_PROPERTIES) return;
+    setIds(next);
+    onChange(next);
+  };
+  return (
+    <div className="w-60">
+      <SubmenuHeader title={t("pickerProperties")} onBack={onBack} />
+      <div className="px-2 pb-1 text-xs text-fg-muted">{t("pickerPropertiesHint")}</div>
+      {choices.map((p) => (
+        <MenuItem
+          key={p.id}
+          icon={<PropertyTypeIcon type={p.type} />}
+          pressed={ids.includes(p.id)}
+          trailing={ids.includes(p.id) ? <Check className="h-3.5 w-3.5" /> : undefined}
+          disabled={!ids.includes(p.id) && ids.length >= MAX_PICKER_PROPERTIES}
+          onClick={() => toggle(p.id)}
+        >
+          {p.name}
+        </MenuItem>
+      ))}
+      {!choices.length && <div className="px-2 py-1 text-xs text-fg-faint">{t("pickerPropertiesNone")}</div>}
+    </div>
+  );
 }
 
 /** Which database a relation points to, and whether it is mirrored there. */

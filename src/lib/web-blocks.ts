@@ -16,6 +16,9 @@ import { parseWebUrl } from "./web-url";
 
 export { displayHost, isLoneUrl, markdownLinkDestination, markdownLinkText, MAX_URL_LENGTH, parseWebUrl } from "./web-url";
 
+/** As BlockNote's `textAlignment` (defaultProps), written out so this module needs no editor code. */
+const ALIGNMENT = { default: "left", values: ["left", "center", "right", "justify"] } as const;
+
 export const BOOKMARK_BLOCK = "bookmark";
 export const WEB_EMBED_BLOCK = "webEmbed";
 export type WebBlockType = typeof BOOKMARK_BLOCK | typeof WEB_EMBED_BLOCK;
@@ -39,14 +42,21 @@ export const bookmarkBlockConfig = {
      * 0 for the whole width. A share rather than pixels, so published pages and print keep it.
      */
     width: { default: 0 },
+    /** Where a narrower card sits: left (where the text starts), center or right (lib/media-blocks). */
+    textAlignment: ALIGNMENT,
   },
   content: "none",
 } as const;
 
 export const webEmbedBlockConfig = {
   type: WEB_EMBED_BLOCK,
-  /** The URL as pasted; the iframe's address comes from `embedFor(url)`. */
-  propSchema: { url: { default: "" } },
+  propSchema: {
+    /** The URL as pasted; the iframe's address comes from `embedFor(url)`. */
+    url: { default: "" },
+    /** As a bookmark's: percent of the column (lib/media-blocks mediaWidth), 0 for all of it. */
+    width: { default: 0 },
+    textAlignment: ALIGNMENT,
+  },
   content: "none",
 } as const;
 

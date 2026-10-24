@@ -85,6 +85,7 @@ export const DATABASE_ERROR_CODES = [
   "notDependencyRelation",
   "invalidDependencySettings",
   "invalidPerson",
+  "onePerson",
   "readOnlyProperty",
   "relationTargetReadOnly",
   "databaseLocked",
@@ -222,19 +223,33 @@ export function statusGroupOf(option: Pick<SelectOption, "group">): StatusGroup 
 }
 
 /** The option `value` (a row's value of the status or select property `property`) picks, if any. */
-export function optionOf(property: { options: PropertyOptions }, value: unknown): SelectOption | undefined {
+export function optionOf(property: { options: Pick<PropertyOptions, "options"> }, value: unknown): SelectOption | undefined {
   return (property.options.options ?? []).find((o) => o.id === value);
 }
 
 /** Whether `value`, a row's value of the status property `property`, is in the "done" group. */
-export function isDoneStatus(property: { options: PropertyOptions }, value: unknown) {
+export function isDoneStatus(property: { options: Pick<PropertyOptions, "options"> }, value: unknown) {
   const option = optionOf(property, value);
   return option !== undefined && statusGroupOf(option) === "done";
 }
 
 /** The first option of the status property's "done" group: what marking a row done picks. */
-export function firstDoneOption(property: { options: PropertyOptions }): SelectOption | undefined {
+export function firstDoneOption(property: { options: Pick<PropertyOptions, "options"> }): SelectOption | undefined {
   return (property.options.options ?? []).find((o) => statusGroupOf(o) === "done");
+}
+
+/** The first option of the status property's "to do" group: what unmarking a row done picks. */
+export function firstTodoOption(property: { options: Pick<PropertyOptions, "options"> }): SelectOption | undefined {
+  return (property.options.options ?? []).find((o) => statusGroupOf(o) === "todo");
+}
+
+/**
+ * A status shown as a checkbox (options.statusDisplay): the value ticking (`done`) or unticking it
+ * gives, or undefined when the property has no option for that (nothing changes then).
+ */
+export function statusFromCheckbox(property: { options: Pick<PropertyOptions, "options"> }, done: boolean): string | null | undefined {
+  if (done) return firstDoneOption(property)?.id;
+  return firstTodoOption(property)?.id ?? null;
 }
 
 /** Default color for a status option added to `group`. */
@@ -464,6 +479,9 @@ export function normalizeValue(prop: PropertyDef, value: unknown): unknown {
         throw new PropertyValueError(`"${prop.name}" takes a list of people`, "invalidPerson", { property: prop.name });
       }
       const unique = [...new Set((raw as string[]).map((v) => v.trim()).filter(Boolean))];
+      if (prop.options.person?.single && unique.length > 1) {
+        throw new PropertyValueError(`"${prop.name}" holds one person`, "onePerson", { property: prop.name });
+      }
       return unique.length ? unique : null;
     }
     case "multi_select": {
@@ -1014,7 +1032,12 @@ export function defaultsFromFilters(
       rule = { ...rule, op: prop.type === "select" || prop.type === "status" ? "equals" : "contains", value: values[0] };
     }
     if (rule.op === "equals" && ["select", "status", "text", "number", "date"].includes(prop.type)) out[prop.id] = rule.value;
-    else if (rule.op === "is_within" && prop.type === "date") out[prop.id] = timeZone ? timestampDay(now, timeZone)! : dayString(now);
+    else if (rule.op === "is_within" && prop.type === "date") {
+      // Today, or for a range that lies before or after it (last week, next month…) its nearest day.
+      const today = timeZone ? timestampDay(now, timeZone)! : dayString(now);
+      const range = relativeDateRange(rule.value, rule.days, now, timeZone);
+      out[prop.id] = range ? (today < range.start ? range.start : today > range.end ? range.end : today) : today;
+    }
     else if (rule.op === "contains" && prop.type === "multi_select") out[prop.id] = [rule.value];
     else if (rule.op === "contains" && prop.type === "text") out[prop.id] = rule.value;
     else if (rule.op === "contains" && prop.type === "person") {

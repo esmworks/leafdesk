@@ -231,6 +231,79 @@
       }
     }
   },
+  "sprints": {
+    "title": "Sprint",
+    "description": "Tugas yang direncanakan dalam sprint dua minggu: sprint saat ini di papan, perencanaan sprint, dan backlog.",
+    "page": "Sprint tim",
+    "markdown": "Rencanakan pekerjaan tim dalam sprint dua minggu. **Sprint saat ini** menampilkan tugas sprint ini menurut status, **Perencanaan sprint** tugas setiap sprint yang akan datang, dan **Backlog** tugas yang belum masuk sprint mana pun. Saat sprint berakhir, buka **Sprint** di menu basis data lalu pilih **Selesaikan sprint**: sprint berikutnya dimulai dan tugas yang belum selesai pindah ke sprint itu.",
+    "database": "Tugas",
+    "table": "Semua tugas",
+    "board": "Papan",
+    "properties": {
+      "assignee": "Penerima tugas",
+      "priority": "Prioritas",
+      "points": "Poin"
+    },
+    "options": {
+      "high": "Tinggi",
+      "medium": "Sedang",
+      "low": "Rendah"
+    },
+    "rowTemplate": {
+      "title": "Tugas baru",
+      "markdown": "## Apa\n\n\n\n## Selesai jika\n\n- [ ] \n\n## Catatan\n\n"
+    },
+    "rows": {
+      "goal": "Sepakati tujuan sprint",
+      "signup": "Buat formulir pendaftaran baru",
+      "emails": "Tulis email sambutan",
+      "tests": "Uji pendaftaran di ponsel",
+      "pricing": "Perbarui halaman harga",
+      "feedback": "Pilah masukan pelanggan bulan lalu"
+    }
+  },
+  "docs": {
+    "title": "Dokumen",
+    "description": "Panduan, referensi, dan kebijakan di satu tempat, lengkap dengan kategori, penanggung jawab, dan kapan masing-masing terakhir diedit.",
+    "markdown": "Setiap dokumen adalah halaman di pustaka di bawah, dengan kategori dan penanggung jawabnya. Setelah Anda memastikan sebuah dokumen sudah benar, pilih **Verifikasi halaman** di menunya: pencarian menempatkan dokumen terverifikasi di urutan teratas dan menandainya, `is:verified` hanya menemukan dokumen tersebut, dan obrolan AI lebih mengutamakannya.",
+    "database": "Pustaka dokumen",
+    "table": "Semua dokumen",
+    "board": "Menurut kategori",
+    "recent": "Baru diedit",
+    "properties": {
+      "category": "Kategori",
+      "owner": "Penanggung jawab",
+      "edited": "Terakhir diedit"
+    },
+    "categories": {
+      "guide": "Panduan",
+      "reference": "Referensi",
+      "policy": "Kebijakan",
+      "onboarding": "Orientasi"
+    },
+    "rowTemplate": {
+      "title": "Dokumen baru",
+      "markdown": "## Ringkasan\n\n\n\n## Detail\n\n\n\n## Terkait\n\n- "
+    },
+    "rows": {
+      "writing": {
+        "title": "Cara kami menulis dokumen",
+        "markdown": "## Ringkasan\n\nSatu dokumen untuk satu topik, ditulis untuk orang yang baru mengenalnya.\n\n## Detail\n\n- Mulailah dengan apa yang perlu dilakukan pembaca.\n- Buat langkah-langkah singkat dan berurutan.\n- Tetapkan penanggung jawab, dan verifikasi dokumen setelah Anda memeriksanya."
+      },
+      "onboarding": {
+        "title": "Daftar periksa minggu pertama",
+        "markdown": "## Ringkasan\n\nApa yang dilakukan rekan tim baru di minggu pertamanya.\n\n## Detail\n\n- [ ] Siapkan akun Anda\n- [ ] Kenali tim Anda\n- [ ] Baca dokumen bidang Anda"
+      },
+      "release": {
+        "title": "Proses rilis",
+        "markdown": "## Ringkasan\n\nBagaimana perubahan berjalan dari tinjauan hingga ke pelanggan.\n\n## Detail\n\n1. Tinjau dan gabungkan perubahan.\n2. Uji di server staging.\n3. Rilis dan beri tahu tim."
+      },
+      "expenses": {
+        "title": "Kebijakan pengeluaran",
+        "markdown": "## Ringkasan\n\nApa yang dibayar perusahaan dan cara mengajukan klaimnya.\n\n## Detail\n\n- Simpan kuitansinya.\n- Ajukan klaim dalam 30 hari.\n- Tanyakan kepada manajer Anda sebelum mengeluarkan lebih dari biasanya."
+      }
+    }
+  },
   "journal": {
     "title": "Jurnal",
     "markdown": "## Fokus\n\n- [ ] \n\n## Catatan\n\n## Selesai hari ini\n"

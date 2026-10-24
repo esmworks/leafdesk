@@ -76,6 +76,10 @@
       "blank": "空の行",
       "setDefault": "「新規」で使用",
       "isDefault": "「新規」で使用中",
+      "isViewDefault": "このビューで「新規」に使用中",
+      "forThisView": "このビュー用",
+      "forAllViews": "すべてのビュー用",
+      "followAllViews": "ここではすべてのビューの既定を使う",
       "edit": "テンプレートを編集",
       "delete": "テンプレートを削除",
       "confirmDelete": "この行テンプレートを完全に削除しますか？このテンプレートから作成済みの行はそのまま残ります。",
@@ -226,7 +230,14 @@
     "relative": {
       "today": "今日",
       "thisWeek": "今週",
+      "lastWeek": "先週",
+      "nextWeek": "来週",
       "thisMonth": "今月",
+      "lastMonth": "先月",
+      "nextMonth": "来月",
+      "thisYear": "今年",
+      "lastYear": "昨年",
+      "nextYear": "来年",
       "pastNDays": "過去N日間",
       "nextNDays": "今後N日間",
       "pastDays": "過去{count}日間",
@@ -254,7 +265,8 @@
     "clickForMenu": "クリックしてメニューを開く",
     "sortedNoDrag": "ビューが並べ替えられている間は行をドラッグできません",
     "sortedAscending": "昇順で並べ替え済み",
-    "sortedDescending": "降順で並べ替え済み"
+    "sortedDescending": "降順で並べ替え済み",
+    "fillHandle": "上下にドラッグして、この値でセルを埋める"
   },
   "rowMenu": {
     "open": "開く",
@@ -554,6 +566,13 @@
     "dragOption": "ドラッグして{name}を移動",
     "urlPreview": "リンクプレビューとして表示",
     "urlPreviewHint": "行ページのリンクの下に、リンク先ページのアイコン、タイトル、画像を表示します。",
+    "onePerson": "1人に限定",
+    "onePersonHint": "各行に指定できるのは1人までです。すでに複数指定されている行は、変更されるまでそのままです。",
+    "statusCheckbox": "チェックボックスで表示",
+    "statusCheckboxHint": "ステータスが完了のあいだチェックが入ります。チェックすると最初の完了ステータス、外すと最初の未着手ステータスになります。",
+    "pickerProperties": "行の選択画面に表示",
+    "pickerPropertiesHint": "行をリンクするとき、各行の名前の横に最大3つのプロパティを表示します。",
+    "pickerPropertiesNone": "関連データベースに表示できるプロパティがありません。",
     "icon": "アイコン"
   },
   "rowProperties": {
@@ -775,6 +794,7 @@
     "showTable": "テーブルを表示",
     "showWeekends": "週末を表示",
     "showIcons": "ページアイコンを表示",
+    "showVerticalLines": "縦線を表示",
     "openRows": "行を開く場所",
     "openRowsIn": {
       "panel": "サイドパネル",
@@ -928,6 +948,7 @@
     "pageLocked": "このページはロックされています。タイトル、アイコン、背景、テキストを変更するには、ページのメニューからロックを解除してください。",
     "pageInTrash": "このページはゴミ箱にあります。変更するには復元してください。",
     "invalidPerson": "「{property}」には、このワークスペースのユーザーだけを入れられます。",
+    "onePerson": "「{property}」に指定できるのは1人だけです。",
     "readOnlyProperty": "「{property}」は自動で入力されるため、変更できません。",
     "invalidFilter": "このフィルターは保存できません。ページを再読み込みして、もう一度お試しください。",
     "tooManyRows": "一度に変更できるのは最大{max}行です。",

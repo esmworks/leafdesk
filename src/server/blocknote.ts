@@ -1,6 +1,7 @@
 import { isBuiltinIcon, readBuiltinIcon } from "@/lib/icon-value";
 import { BUILTIN_ICONS } from "@/lib/builtin-icons-data";
 import { ICON_COLOR_HEX } from "@/lib/builtin-icon-svg";
+import { commentPreviewBlockConfig } from "@/lib/comment-refs";
 import { randomBytes } from "node:crypto";
 import {
   BlockNoteSchema,
@@ -44,6 +45,7 @@ import { markdownToPageBlocks } from "@/lib/page-markdown";
 import { textScriptStyleSpecs } from "@/lib/text-scripts";
 import { syncedBlockConfig } from "@/lib/synced-blocks";
 import { linkedImageSpec } from "@/lib/image-links";
+import { alignedAudioSpec, serverFileSpec } from "@/lib/media-blocks";
 import { suggestionMarks } from "@/lib/suggestion-marks";
 import { webBlockServerSpecs } from "./web-blocks";
 
@@ -274,12 +276,17 @@ export const pageSchema = BlockNoteSchema.create({
     ...defaultBlockSpecs,
     // Images may link to a web address or a page (lib/image-links).
     image: linkedImageSpec(),
+    // Files and audio may be aligned, and a file shown in place made narrower (lib/media-blocks).
+    file: serverFileSpec(),
+    audio: alignedAudioSpec(),
     database: createBlockSpec(databaseBlockConfig, marker("database"))(),
     linkedView: createBlockSpec(linkedViewBlockConfig, marker("linkedView"))(),
     dashboard: createBlockSpec(dashboardBlockConfig, marker("dashboard"))(),
     ...contentBlockSpecs,
     ...webBlockServerSpecs,
     pageLink: createBlockSpec(pageLinkBlockConfig, marker("pageLink"))(),
+    // Only its ids: what a reader sees of the thread is worked out for them (server/comment-refs).
+    commentPreview: createBlockSpec(commentPreviewBlockConfig, marker("commentPreview"))(),
     // Only the page's id: its body is never part of this page's text, Markdown or history.
     syncedPage: createBlockSpec(syncedPageBlockConfig, marker("syncedPage"))(),
     // Only its ids: its blocks are a fragment of the source page's document (lib/synced-blocks).

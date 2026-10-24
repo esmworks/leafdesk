@@ -231,6 +231,79 @@
       }
     }
   },
+  "sprints": {
+    "title": "Sprint",
+    "description": "Công việc được lên kế hoạch theo các sprint hai tuần: sprint hiện tại trên bảng, lập kế hoạch sprint và backlog.",
+    "page": "Sprint của nhóm",
+    "markdown": "Lên kế hoạch công việc của nhóm theo các sprint hai tuần. **Sprint hiện tại** hiển thị công việc của sprint này theo trạng thái, **Lập kế hoạch sprint** hiển thị công việc của từng sprint sắp tới, và **Backlog** hiển thị những công việc chưa thuộc sprint nào. Khi một sprint kết thúc, hãy mở **Sprint** trong menu của cơ sở dữ liệu và chọn **Hoàn thành sprint**: sprint tiếp theo sẽ bắt đầu và các công việc chưa xong được chuyển sang đó.",
+    "database": "Công việc",
+    "table": "Tất cả công việc",
+    "board": "Bảng Kanban",
+    "properties": {
+      "assignee": "Người được giao",
+      "priority": "Ưu tiên",
+      "points": "Điểm"
+    },
+    "options": {
+      "high": "Cao",
+      "medium": "Trung bình",
+      "low": "Thấp"
+    },
+    "rowTemplate": {
+      "title": "Công việc mới",
+      "markdown": "## Việc cần làm\n\n\n\n## Xong khi\n\n- [ ] \n\n## Ghi chú\n\n"
+    },
+    "rows": {
+      "goal": "Thống nhất mục tiêu sprint",
+      "signup": "Xây dựng biểu mẫu đăng ký mới",
+      "emails": "Viết email chào mừng",
+      "tests": "Kiểm thử đăng ký trên điện thoại",
+      "pricing": "Cập nhật trang bảng giá",
+      "feedback": "Phân loại phản hồi khách hàng tháng trước"
+    }
+  },
+  "docs": {
+    "title": "Tài liệu",
+    "description": "Hướng dẫn, tài liệu tham khảo và chính sách ở cùng một nơi, kèm danh mục, người phụ trách và thời điểm chỉnh sửa gần nhất của từng tài liệu.",
+    "markdown": "Mỗi tài liệu là một trang trong thư viện bên dưới, kèm danh mục và người phụ trách. Khi bạn đã kiểm tra rằng một tài liệu chính xác, hãy chọn **Xác minh trang** trong menu của nó: tìm kiếm xếp các tài liệu đã xác minh lên đầu và đánh dấu chúng, `is:verified` chỉ tìm những tài liệu đó, và trò chuyện AI ưu tiên chúng.",
+    "database": "Thư viện tài liệu",
+    "table": "Tất cả tài liệu",
+    "board": "Theo danh mục",
+    "recent": "Chỉnh sửa gần đây",
+    "properties": {
+      "category": "Danh mục",
+      "owner": "Người phụ trách",
+      "edited": "Chỉnh sửa lần cuối"
+    },
+    "categories": {
+      "guide": "Hướng dẫn",
+      "reference": "Tham khảo",
+      "policy": "Chính sách",
+      "onboarding": "Hội nhập"
+    },
+    "rowTemplate": {
+      "title": "Tài liệu mới",
+      "markdown": "## Tóm tắt\n\n\n\n## Chi tiết\n\n\n\n## Liên quan\n\n- "
+    },
+    "rows": {
+      "writing": {
+        "title": "Cách chúng tôi viết tài liệu",
+        "markdown": "## Tóm tắt\n\nMỗi tài liệu cho một chủ đề, viết cho người mới tìm hiểu chủ đề đó.\n\n## Chi tiết\n\n- Bắt đầu bằng việc người đọc cần làm.\n- Viết các bước ngắn gọn và theo thứ tự.\n- Chỉ định người phụ trách và xác minh tài liệu khi bạn đã kiểm tra."
+      },
+      "onboarding": {
+        "title": "Danh sách việc tuần đầu tiên",
+        "markdown": "## Tóm tắt\n\nNhững việc một đồng nghiệp mới làm trong tuần đầu tiên.\n\n## Chi tiết\n\n- [ ] Thiết lập tài khoản của bạn\n- [ ] Làm quen với nhóm của bạn\n- [ ] Đọc tài liệu về mảng của bạn"
+      },
+      "release": {
+        "title": "Quy trình phát hành",
+        "markdown": "## Tóm tắt\n\nMột thay đổi đi từ khâu review đến khách hàng như thế nào.\n\n## Chi tiết\n\n1. Review và hợp nhất thay đổi.\n2. Kiểm thử trên máy chủ staging.\n3. Phát hành và báo cho nhóm."
+      },
+      "expenses": {
+        "title": "Chính sách chi phí",
+        "markdown": "## Tóm tắt\n\nCông ty chi trả những gì và cách yêu cầu hoàn tiền.\n\n## Chi tiết\n\n- Giữ lại hóa đơn.\n- Yêu cầu hoàn tiền trong vòng 30 ngày.\n- Hỏi quản lý trước khi chi nhiều hơn bình thường."
+      }
+    }
+  },
   "journal": {
     "title": "Nhật ký",
     "markdown": "## Trọng tâm\n\n- [ ] \n\n## Ghi chú\n\n## Đã làm hôm nay\n"

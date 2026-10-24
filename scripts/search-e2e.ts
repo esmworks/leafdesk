@@ -3,7 +3,9 @@
  * not, several pages of one title, a page the person can't see), `type:` (pages, databases, rows),
  * filters without text, filters with text, words inside Japanese, Chinese and Korean sentences,
  * Turkish words written with I, ı, İ or i found by each other, a page too large for the whole of it
- * to be indexed, and the pages last edited before anything is typed.
+ * to be indexed, and the pages last edited before anything is typed. Also "quoted phrases" (in the
+ * box and through the shared search operation), the box's teamspace, people and date filters, and
+ * the pages the person opened last (falling back while views aren't recorded).
  * Creates its own users and workspace and deletes them afterwards.
  *
  *   pnpm tsx scripts/search-e2e.ts
@@ -17,9 +19,13 @@ try {
 } catch {}
 
 // Imported after .env is loaded: the database client reads DATABASE_URL when it is created.
-const { inArray } = await import("drizzle-orm");
+const { eq, inArray, sql } = await import("drizzle-orm");
 const { db } = await import("@/db");
-const { user, workspace, workspaceMember } = await import("@/db/schema");
+const { page, user, workspace, workspaceMember } = await import("@/db/schema");
+const { search: searchOperation } = await import("@/server/operations");
+const { recentlyViewedPages, recordPageView } = await import("@/server/page-views");
+const { removePagePermission } = await import("@/server/permissions");
+const { createTeamspace, joinTeamspace } = await import("@/server/teamspaces");
 const { registerCollab } = await import("@/server/collab/bridge");
 const { createCollab } = await import("@/server/collab/service");
 const { createPage, fullTextSearch, recentPages, searchWithQuery } = await import("@/server/pages");
@@ -41,7 +47,7 @@ function check(condition: unknown, label: string, detail?: unknown): asserts con
   console.log(`ok    ${label}`);
 }
 
-const ids = { owner: `${RUN}-owner`, guest: `${RUN}-guest` };
+const ids = { owner: `${RUN}-owner`, guest: `${RUN}-guest`, member: `${RUN}-member` };
 const userIds = Object.values(ids);
 const workspaceId = `${RUN}-ws`;
 const titlesOf = (hits: { title: string }[]) => hits.map((h) => h.title).sort();
@@ -52,6 +58,7 @@ try {
   await db.insert(workspaceMember).values([
     { workspaceId, userId: ids.owner, role: "owner" },
     { workspaceId, userId: ids.guest, role: "guest" },
+    { workspaceId, userId: ids.member, role: "member" },
   ]);
   const owner = { userId: ids.owner };
   const make = (title: string, parentId: string | null = null, kind: "page" | "database" = "page") =>
@@ -230,6 +237,124 @@ try {
     titlesOf(await search("budget", ids.guest)),
   );
   check((await search("budget in:Projects", ids.guest)).length === 0, "…and in: naming a page they can't see finds nothing");
+
+  // Quoted phrases: the words whole, next to each other and in that order.
+  const withBody = (title: string, markdown: string, userId = ids.owner) => createPage({ userId }, { workspaceId, title, markdown });
+  const agreed = await withBody("Spring notes", "We agreed on the launch plan for spring.");
+  const reversed = await withBody("Ready notes", "The plan for the launch is ready.");
+  const planning = await withBody("Offsite agenda", "A day of planning together.");
+  const quarterly = await withBody("Quarterly launch plan", "Dates and owners.");
+  const has = (hits: { id: string }[], ...pages: { id: string }[]) => pages.every((p) => idsOf(hits).includes(p.id));
+  const hasNone = (hits: { id: string }[], ...pages: { id: string }[]) => pages.every((p) => !idsOf(hits).includes(p.id));
+  check(has(await search("launch plan"), agreed, reversed, quarterly), "words without quotes are found anywhere on the page", titlesOf(await search("launch plan")));
+  check(
+    has(await search('"launch plan"'), agreed, quarterly) && hasNone(await search('"launch plan"'), reversed),
+    "a quoted phrase is found only with its words next to each other, in the body or the title",
+    titlesOf(await search('"launch plan"')),
+  );
+  check(hasNone(await search('"plan launch"'), agreed, quarterly), "…in that order");
+  check(has(await search('"LAUNCH   Plan"'), agreed), "…whatever the case and spacing");
+  check(
+    has(await search("plan"), planning) && hasNone(await search('"plan"'), planning) && has(await search('"plan"'), reversed),
+    "a quoted word is found whole, not as the start of a longer one",
+  );
+  check(has(await search('"launch pl'), agreed, reversed), "a quote still being typed is searched as words");
+  check(
+    has(await search('spring "launch plan"'), agreed) && hasNone(await search('dates "launch plan"'), agreed),
+    "a phrase and words together: all of them are needed",
+  );
+  check((await search('"launch plan"')).find((h) => h.id === agreed.id)?.snippet.includes("launch plan"), "…and the snippet shows the phrase");
+  const tokyoNotes = await withBody("東京メモ", "東京都の会議資料をまとめました。");
+  const apart = await withBody("別メモ", "会議の資料はあとで。");
+  check(
+    has(await search('"会議資料"'), tokyoNotes) && hasNone(await search('"会議資料"'), apart),
+    "a Japanese phrase in quotes is found where its characters stand together",
+    titlesOf(await search('"会議資料"')),
+  );
+  check(has(await search('"資料"'), tokyoNotes, apart), "…and one quoted word inside sentences, like unquoted");
+  const viaOperation = await searchOperation({ userId: ids.owner } as never, { query: '"launch plan"', workspace_id: workspaceId, limit: 20 });
+  check(
+    viaOperation.results.some((r) => r.id === agreed.id) && !viaOperation.results.some((r) => r.id === reversed.id),
+    "MCP and the REST API take quoted phrases too",
+  );
+  const question = await searchOperation({ userId: ids.owner } as never, { query: '"launch plan" spring', workspace_id: workspaceId, limit: 20 }, { anyWord: true });
+  check(question.results.some((r) => r.id === reversed.id), "the AI chat's any-word search leaves quotes alone");
+
+  // The box's filters: teamspace, who created or last edited a page, and when.
+  const team = await createTeamspace(ids.owner, workspaceId, { name: `${RUN} team`, access: "open" });
+  await joinTeamspace(ids.member, team.id);
+  const inTeam = await createPage({ userId: ids.member }, { workspaceId, teamspaceId: team.id, title: "Roadmap draft", markdown: "Roadmap for the year." });
+  const ownerInTeam = await createPage(owner, { workspaceId, teamspaceId: team.id, title: "Roadmap review" });
+  const filtered = (query: string, filters: Partial<import("@/lib/search-filters").SearchFilters>, userId = ids.owner) =>
+    searchWithQuery(userId, workspaceId, query, 50, {
+      filters: { teamspaceIds: [], createdBy: [], editedBy: [], date: null, ...filters },
+      timeZone: "Europe/Istanbul",
+    });
+  check(
+    JSON.stringify(titlesOf(await filtered("", { teamspaceIds: [team.id] }))) === JSON.stringify(["Roadmap draft", "Roadmap review"]),
+    "a teamspace filter without text lists that teamspace's pages",
+    titlesOf(await filtered("", { teamspaceIds: [team.id] })),
+  );
+  check(
+    JSON.stringify(titlesOf(await filtered("roadmap", { createdBy: [ids.member] }))) === JSON.stringify(["Roadmap draft"]),
+    "created by narrows a search to the pages those people made",
+  );
+  // The owner edits the member's page: it is last edited by the owner from now on.
+  await db.update(page).set({ title: "Roadmap draft 2", updatedBy: ids.owner }).where(eq(page.id, inTeam.id));
+  check(
+    has(await filtered("roadmap", { editedBy: [ids.owner] }), inTeam, ownerInTeam) && (await filtered("roadmap", { editedBy: [ids.member] })).length === 0,
+    "last edited by narrows to the pages those people edited last",
+  );
+  check((await filtered("roadmap", { createdBy: ["nobody"] })).length === 0, "a person who made nothing finds nothing");
+  // Made 40 days ago, last edited 10 days ago (raw SQL keeps the times as written).
+  await db.execute(sql`update ${page} set created_at = now() - interval '40 days', updated_at = now() - interval '10 days' where id = ${ownerInTeam.id}`);
+  const day = (daysAgo: number) => new Date(Date.now() - daysAgo * 86_400_000).toISOString().slice(0, 10);
+  check(
+    has(await filtered("roadmap", { date: { field: "edited", preset: "month" } }), ownerInTeam) &&
+      hasNone(await filtered("roadmap", { date: { field: "edited", preset: "week" } }), ownerInTeam) &&
+      has(await filtered("roadmap", { date: { field: "edited", preset: "today" } }), inTeam),
+    "edited today, in the last 7 or 30 days",
+  );
+  check(
+    hasNone(await filtered("roadmap", { date: { field: "created", preset: "month" } }), ownerInTeam) &&
+      has(await filtered("roadmap", { date: { field: "created", preset: "custom", from: day(45), to: day(35) } }), ownerInTeam) &&
+      hasNone(await filtered("roadmap", { date: { field: "created", preset: "custom", from: day(45), to: day(35) } }), inTeam),
+    "created in the last 30 days, or between chosen days",
+  );
+  check(
+    JSON.stringify(titlesOf(await filtered("", { teamspaceIds: [team.id] }, ids.guest))) === "[]",
+    "filters don't show anyone pages they can't open",
+  );
+  const restFilters = await searchOperation(
+    { userId: ids.owner } as never,
+    { query: "", workspace_id: workspaceId, limit: 20 },
+    { filters: { teamspaceIds: [team.id], createdBy: [ids.member] } },
+  );
+  check(restFilters.results.map((r) => r.id).join() === inTeam.id, "the REST API's filters list pages without a query");
+
+  // The pages the person opened last ("Jump back in", the box before anything is typed).
+  const shared = await createPage(owner, { workspaceId, teamspaceId: null, title: "Shared plan" });
+  await setPagePermission(ids.owner, shared.id, ids.member, "view");
+  const at = (minutesAgo: number) => new Date(Date.now() - minutesAgo * 60_000);
+  await recordPageView(ids.member, inTeam.id, at(30));
+  await recordPageView(ids.member, shared.id, at(20));
+  await recordPageView(ids.member, ownerInTeam.id, at(10));
+  const viewed = await recentlyViewedPages(ids.member, workspaceId, 8);
+  check(
+    JSON.stringify(viewed?.map((p) => p.id)) === JSON.stringify([ownerInTeam.id, shared.id, inTeam.id]),
+    "the pages someone opened come last opened first",
+    viewed,
+  );
+  check((await recentlyViewedPages(ids.owner, workspaceId, 8))?.length === 0, "…their own views only");
+  await removePagePermission(ids.owner, shared.id, ids.member);
+  check(!(await recentlyViewedPages(ids.member, workspaceId, 8))?.some((p) => p.id === shared.id), "a page they can no longer open leaves the list");
+  await db.update(workspaceMember).set({ pageViews: false }).where(eq(workspaceMember.userId, ids.member));
+  check((await recentlyViewedPages(ids.member, workspaceId, 8)) === null, "with their own recording off, there is no list (the pages last edited show instead)");
+  await db.update(workspaceMember).set({ pageViews: true }).where(eq(workspaceMember.userId, ids.member));
+  await db.update(workspace).set({ settings: { pageViews: false } }).where(eq(workspace.id, workspaceId));
+  check((await recentlyViewedPages(ids.member, workspaceId, 8)) === null, "…and with the workspace's recording off");
+  check((await recentlyViewedPages(ids.guest, workspaceId, 8)) === null, "a guest, whose views aren't recorded, has no list");
+  await db.update(workspace).set({ settings: {} }).where(eq(workspace.id, workspaceId));
 
   const recent = await recentPages(ids.owner, workspaceId, 3);
   check(recent.length === 3 && recent[0].updatedAt >= recent[2].updatedAt, "the pages last edited come newest first", recent);

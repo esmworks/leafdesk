@@ -76,6 +76,10 @@
       "blank": "Tom rad",
       "setDefault": "Bruk for «Ny»",
       "isDefault": "Brukes for «Ny»",
+      "isViewDefault": "Brukes for «Ny» i denne visningen",
+      "forThisView": "For denne visningen",
+      "forAllViews": "For alle visninger",
+      "followAllViews": "Bruk standarden for alle visninger her",
       "edit": "Rediger mal",
       "delete": "Slett mal",
       "confirmDelete": "Vil du slette denne radmalen permanent? Rader som allerede er laget fra den, forblir som de er.",
@@ -226,7 +230,14 @@
     "relative": {
       "today": "I dag",
       "thisWeek": "Denne uken",
+      "lastWeek": "Forrige uke",
+      "nextWeek": "Neste uke",
       "thisMonth": "Denne måneden",
+      "lastMonth": "Forrige måned",
+      "nextMonth": "Neste måned",
+      "thisYear": "I år",
+      "lastYear": "I fjor",
+      "nextYear": "Neste år",
       "pastNDays": "Siste N dager",
       "nextNDays": "Neste N dager",
       "pastDays": "{count, plural, one {Siste dag} other {Siste # dager}}",
@@ -254,7 +265,8 @@
     "clickForMenu": "Klikk for å åpne menyen",
     "sortedNoDrag": "Rader kan ikke dras mens visningen er sortert",
     "sortedAscending": "Sortert stigende",
-    "sortedDescending": "Sortert synkende"
+    "sortedDescending": "Sortert synkende",
+    "fillHandle": "Dra opp eller ned for å fylle cellene med denne verdien"
   },
   "rowMenu": {
     "open": "Åpne",
@@ -554,6 +566,13 @@
     "dragOption": "Dra for å flytte {name}",
     "urlPreview": "Vis som lenkeforhåndsvisning",
     "urlPreviewHint": "Radsider viser ikonet, tittelen og bildet til den lenkede siden under lenken.",
+    "onePerson": "Begrens til én person",
+    "onePersonHint": "Hver rad nevner høyst én person. Rader med flere beholder dem til de endres.",
+    "statusCheckbox": "Vis som avkrysningsboks",
+    "statusCheckboxHint": "En boks som er krysset av mens statusen er ferdig. Avkrysning velger den første ferdig-statusen, fjerning den første å gjøre-statusen.",
+    "pickerProperties": "Vis i radvelgeren",
+    "pickerPropertiesHint": "Opptil tre egenskaper vist ved siden av hver rads navn når rader kobles.",
+    "pickerPropertiesNone": "Den relaterte databasen har ingen egenskaper å vise.",
     "icon": "Ikon"
   },
   "rowProperties": {
@@ -775,6 +794,7 @@
     "showTable": "Vis tabell",
     "showWeekends": "Vis helger",
     "showIcons": "Vis sideikoner",
+    "showVerticalLines": "Vis loddrette linjer",
     "openRows": "Åpne rader i",
     "openRowsIn": {
       "panel": "Sidepanel",
@@ -928,6 +948,7 @@
     "pageLocked": "Denne siden er låst. Lås den opp fra menyen for å endre tittel, ikon, bakgrunn eller tekst.",
     "pageInTrash": "Denne siden ligger i papirkurven. Gjenopprett den for å endre den.",
     "invalidPerson": "«{property}» kan bare inneholde personer i dette arbeidsområdet.",
+    "onePerson": "«{property}» kan bare ha én person.",
     "readOnlyProperty": "«{property}» fylles ut automatisk og kan ikke endres.",
     "invalidFilter": "Dette filteret kan ikke lagres. Last inn siden på nytt og prøv igjen.",
     "tooManyRows": "Du kan endre høyst {max} rader om gangen.",

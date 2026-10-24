@@ -16,6 +16,7 @@ import { db } from "@/db";
 import { dailyNote, page, pageChunk } from "@/db/schema";
 import type { PageKind } from "@/db/schema";
 import { sharedLimiter } from "@/lib/rate-limit";
+import type { TimeRange } from "@/lib/search-filters";
 import type { SearchKind } from "@/lib/search-query";
 import { pageVisibleTo, workspacesHeldBack } from "@/server/access";
 import { aiTargetFor, embed, embeddingModelFor, embeddingModelOf, embeddingsEnabled, minSimilarityOf } from "@/server/ai";
@@ -182,16 +183,43 @@ export type SearchScope = {
   kinds?: SearchKind[];
   includeOutdated?: boolean;
   verifiedOnly?: boolean;
+  /** Only pages of one of these teamspaces (the search box's teamspace filter). */
+  teamspaceIds?: string[];
+  /** Only pages one of these people created, or edited last (lib/search-filters). */
+  createdBy?: string[];
+  editedBy?: string[];
+  /** Only pages created, or last edited, in this time. */
+  createdIn?: TimeRange;
+  editedIn?: TimeRange;
 };
 
 /**
  * The `and …` conditions a search scope puts on the pages of `alias`: inside `withinPageId` and
  * inside one of `withinPageIds` (each the page itself or under it), in `withinTeamspaceId`, of one of `kinds` (a row is a
  * page whose parent is a database, a journal page one of `userId`'s daily notes), and verified
- * right now with `verifiedOnly` (server/verification). Empty for no scope.
+ * right now with `verifiedOnly` (server/verification), in one of `teamspaceIds`, created or last
+ * edited by one of `createdBy` / `editedBy`, and created or last edited in `createdIn` / `editedIn`.
+ * Empty for no scope.
  */
-export function searchScope({ withinPageId, withinPageIds = [], withinTeamspaceId, kinds = [], verifiedOnly = false }: SearchScope, userId: string, alias = "p"): SQL {
+export function searchScope(
+  {
+    withinPageId,
+    withinPageIds = [],
+    withinTeamspaceId,
+    kinds = [],
+    verifiedOnly = false,
+    teamspaceIds = [],
+    createdBy = [],
+    editedBy = [],
+    createdIn,
+    editedIn,
+  }: SearchScope,
+  userId: string,
+  alias = "p",
+): SQL {
   if (!/^[a-z_]+$/.test(alias)) throw new Error(`Bad table alias: ${alias}`);
+  const column = (name: string) => sql.raw(`"${alias}"."${name}"`);
+  const oneOf = (name: string, values: string[]) => sql`${column(name)} in (${sql.join(values.map((v) => sql`${v}`), sql`, `)})`;
   const parts: SQL[] = [];
   if (withinPageId) parts.push(inSubtree(withinPageId, alias));
   if (withinTeamspaceId) parts.push(inScope({ kind: "teamspace", id: withinTeamspaceId }, alias));
@@ -208,6 +236,13 @@ export function searchScope({ withinPageId, withinPageIds = [], withinTeamspaceI
     parts.push(sql`(${sql.join(kinds.map((k) => byKind[k]), sql` or `)})`);
   }
   if (verifiedOnly) parts.push(activeVerification(alias));
+  if (teamspaceIds.length) parts.push(oneOf("teamspace_id", teamspaceIds));
+  if (createdBy.length) parts.push(oneOf("created_by", createdBy));
+  if (editedBy.length) parts.push(oneOf("updated_by", editedBy));
+  for (const [name, range] of [["created_at", createdIn], ["updated_at", editedIn]] as const) {
+    if (range?.from) parts.push(sql`${column(name)} >= ${range.from.toISOString()}::timestamptz`);
+    if (range?.to) parts.push(sql`${column(name)} < ${range.to.toISOString()}::timestamptz`);
+  }
   return parts.length ? sql`and ${sql.join(parts, sql` and `)}` : sql``;
 }
 

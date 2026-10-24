@@ -76,6 +76,10 @@
       "blank": "Riga vuota",
       "setDefault": "Usa per “Nuovo”",
       "isDefault": "Usato per “Nuovo”",
+      "isViewDefault": "Usato per “Nuovo” in questa vista",
+      "forThisView": "Per questa vista",
+      "forAllViews": "Per tutte le viste",
+      "followAllViews": "Usa qui quello di tutte le viste",
       "edit": "Modifica modello",
       "delete": "Elimina modello",
       "confirmDelete": "Eliminare definitivamente questo modello di riga? Le righe già create da esso restano come sono.",
@@ -226,7 +230,14 @@
     "relative": {
       "today": "Oggi",
       "thisWeek": "Questa settimana",
+      "lastWeek": "La settimana scorsa",
+      "nextWeek": "La settimana prossima",
       "thisMonth": "Questo mese",
+      "lastMonth": "Il mese scorso",
+      "nextMonth": "Il mese prossimo",
+      "thisYear": "Quest’anno",
+      "lastYear": "L’anno scorso",
+      "nextYear": "L’anno prossimo",
       "pastNDays": "Ultimi N giorni",
       "nextNDays": "Prossimi N giorni",
       "pastDays": "{count, plural, one {Ultimo giorno} other {Ultimi # giorni}}",
@@ -254,7 +265,8 @@
     "clickForMenu": "Fai clic per aprire il menu",
     "sortedNoDrag": "Le righe non si possono trascinare mentre la vista è ordinata",
     "sortedAscending": "Ordinata in modo crescente",
-    "sortedDescending": "Ordinata in modo decrescente"
+    "sortedDescending": "Ordinata in modo decrescente",
+    "fillHandle": "Trascina in su o in giù per riempire le celle con questo valore"
   },
   "rowMenu": {
     "open": "Apri",
@@ -554,6 +566,13 @@
     "dragOption": "Trascina per spostare {name}",
     "urlPreview": "Mostra come anteprima del link",
     "urlPreviewHint": "Le pagine delle righe mostrano icona, titolo e immagine della pagina collegata sotto il link.",
+    "onePerson": "Limita a una persona",
+    "onePersonHint": "Ogni riga indica al massimo una persona. Le righe che ne indicano di più le mantengono finché non vengono modificate.",
+    "statusCheckbox": "Mostra come casella",
+    "statusCheckboxHint": "Una casella spuntata finché lo stato è completato. Spuntarla sceglie il primo stato completato, togliere la spunta il primo da fare.",
+    "pickerProperties": "Mostra nel selettore di righe",
+    "pickerPropertiesHint": "Fino a tre proprietà mostrate accanto al nome di ogni riga quando si collegano righe.",
+    "pickerPropertiesNone": "Il database collegato non ha proprietà da mostrare.",
     "icon": "Icona"
   },
   "rowProperties": {
@@ -775,6 +794,7 @@
     "showTable": "Mostra tabella",
     "showWeekends": "Mostra i fine settimana",
     "showIcons": "Mostra le icone delle pagine",
+    "showVerticalLines": "Mostra le linee verticali",
     "openRows": "Apri le righe in",
     "openRowsIn": {
       "panel": "Pannello laterale",
@@ -928,6 +948,7 @@
     "pageLocked": "Questa pagina è bloccata. Sbloccala dal suo menu per modificarne titolo, icona, sfondo o testo.",
     "pageInTrash": "Questa pagina è nel cestino. Ripristinala per modificarla.",
     "invalidPerson": "“{property}” può contenere solo persone di questo spazio di lavoro.",
+    "onePerson": "“{property}” contiene una sola persona.",
     "readOnlyProperty": "“{property}” viene compilata automaticamente e non può essere modificata.",
     "invalidFilter": "Questo filtro non può essere salvato. Ricarica la pagina e riprova.",
     "tooManyRows": "Puoi modificare al massimo {max} righe alla volta.",

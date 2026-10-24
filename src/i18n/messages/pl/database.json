@@ -76,6 +76,10 @@
       "blank": "Pusty wiersz",
       "setDefault": "Używaj dla „Nowy”",
       "isDefault": "Używany dla „Nowy”",
+      "isViewDefault": "Używany dla „Nowy” w tym widoku",
+      "forThisView": "Dla tego widoku",
+      "forAllViews": "Dla wszystkich widoków",
+      "followAllViews": "Użyj tu domyślnego dla wszystkich widoków",
       "edit": "Edytuj szablon",
       "delete": "Usuń szablon",
       "confirmDelete": "Usunąć ten szablon wiersza na stałe? Wiersze już z niego utworzone pozostaną bez zmian.",
@@ -226,7 +230,14 @@
     "relative": {
       "today": "Dzisiaj",
       "thisWeek": "Ten tydzień",
+      "lastWeek": "Poprzedni tydzień",
+      "nextWeek": "Następny tydzień",
       "thisMonth": "Ten miesiąc",
+      "lastMonth": "Poprzedni miesiąc",
+      "nextMonth": "Następny miesiąc",
+      "thisYear": "Ten rok",
+      "lastYear": "Poprzedni rok",
+      "nextYear": "Następny rok",
       "pastNDays": "Ostatnie N dni",
       "nextNDays": "Następne N dni",
       "pastDays": "{count, plural, one {Ostatni dzień} few {Ostatnie # dni} many {Ostatnie # dni} other {Ostatnie # dnia}}",
@@ -254,7 +265,8 @@
     "clickForMenu": "Kliknij, aby otworzyć menu",
     "sortedNoDrag": "Wierszy nie można przeciągać, gdy widok jest posortowany",
     "sortedAscending": "Posortowano rosnąco",
-    "sortedDescending": "Posortowano malejąco"
+    "sortedDescending": "Posortowano malejąco",
+    "fillHandle": "Przeciągnij w górę lub w dół, aby wypełnić komórki tą wartością"
   },
   "rowMenu": {
     "open": "Otwórz",
@@ -554,6 +566,13 @@
     "dragOption": "Przeciągnij, aby przenieść {name}",
     "urlPreview": "Pokaż jako podgląd linku",
     "urlPreviewHint": "Strony wierszy pokazują pod linkiem ikonę, tytuł i obraz podlinkowanej strony.",
+    "onePerson": "Ogranicz do jednej osoby",
+    "onePersonHint": "Każdy wiersz wskazuje najwyżej jedną osobę. Wiersze, które wskazują więcej, zachowują je do czasu zmiany.",
+    "statusCheckbox": "Pokaż jako pole wyboru",
+    "statusCheckboxHint": "Pole zaznaczone, gdy status jest ukończony. Zaznaczenie wybiera pierwszy status ukończony, odznaczenie pierwszy do zrobienia.",
+    "pickerProperties": "Pokaż w wyborze wierszy",
+    "pickerPropertiesHint": "Do trzech właściwości wyświetlanych obok nazwy każdego wiersza podczas łączenia wierszy.",
+    "pickerPropertiesNone": "Powiązana baza danych nie ma właściwości do pokazania.",
     "icon": "Ikona"
   },
   "rowProperties": {
@@ -775,6 +794,7 @@
     "showTable": "Pokaż tabelę",
     "showWeekends": "Pokazuj weekendy",
     "showIcons": "Pokazuj ikony stron",
+    "showVerticalLines": "Pokazuj linie pionowe",
     "openRows": "Otwieraj wiersze w",
     "openRowsIn": {
       "panel": "Panel boczny",
@@ -928,6 +948,7 @@
     "pageLocked": "Ta strona jest zablokowana. Odblokuj ją w jej menu, aby zmienić tytuł, ikonę, tło lub tekst.",
     "pageInTrash": "Ta strona jest w koszu. Przywróć ją, aby ją zmienić.",
     "invalidPerson": "„{property}” może zawierać tylko osoby z tego obszaru roboczego.",
+    "onePerson": "„{property}” może zawierać tylko jedną osobę.",
     "readOnlyProperty": "„{property}” jest wypełniane automatycznie i nie można tego zmienić.",
     "invalidFilter": "Nie można zapisać tego filtra. Odśwież stronę i spróbuj ponownie.",
     "tooManyRows": "Naraz możesz zmienić najwyżej {max, plural, one {# wiersz} few {# wiersze} many {# wierszy} other {# wiersza}}.",

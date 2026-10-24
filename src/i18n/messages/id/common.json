@@ -29,5 +29,14 @@
     "busy": "Anda sudah memiliki ekspor yang sedang berjalan. Tunggu hingga unduhannya selesai.",
     "disabled": "Ekspor dinonaktifkan di ruang kerja ini."
   },
-  "celebrate": "Kerja bagus!"
+  "celebrate": "Kerja bagus!",
+  "toast": {
+    "undo": "Urungkan",
+    "dismiss": "Tutup",
+    "movedTo": "Dipindahkan ke",
+    "movedToPlace": "Dipindahkan ke {place}",
+    "trashed": "Dipindahkan ke sampah",
+    "rowsTrashed": "{count, plural, other {# baris dipindahkan ke sampah}}",
+    "undoFailed": "Tidak dapat diurungkan."
+  }
 }

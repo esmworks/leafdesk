@@ -76,6 +76,10 @@
       "blank": "Tom rad",
       "setDefault": "Använd för ”Ny”",
       "isDefault": "Används för ”Ny”",
+      "isViewDefault": "Används för ”Ny” i den här vyn",
+      "forThisView": "För den här vyn",
+      "forAllViews": "För alla vyer",
+      "followAllViews": "Använd standarden för alla vyer här",
       "edit": "Redigera mallen",
       "delete": "Radera mallen",
       "confirmDelete": "Radera den här radmallen för gott? Rader som redan skapats från den förblir som de är.",
@@ -226,7 +230,14 @@
     "relative": {
       "today": "I dag",
       "thisWeek": "Den här veckan",
+      "lastWeek": "Förra veckan",
+      "nextWeek": "Nästa vecka",
       "thisMonth": "Den här månaden",
+      "lastMonth": "Förra månaden",
+      "nextMonth": "Nästa månad",
+      "thisYear": "I år",
+      "lastYear": "I fjol",
+      "nextYear": "Nästa år",
       "pastNDays": "Senaste N dagarna",
       "nextNDays": "Kommande N dagarna",
       "pastDays": "{count, plural, one {Senaste dagen} other {Senaste # dagarna}}",
@@ -254,7 +265,8 @@
     "clickForMenu": "Klicka för att öppna menyn",
     "sortedNoDrag": "Rader kan inte dras medan vyn är sorterad",
     "sortedAscending": "Sorterad stigande",
-    "sortedDescending": "Sorterad fallande"
+    "sortedDescending": "Sorterad fallande",
+    "fillHandle": "Dra uppåt eller nedåt för att fylla cellerna med det här värdet"
   },
   "rowMenu": {
     "open": "Öppna",
@@ -554,6 +566,13 @@
     "dragOption": "Dra för att flytta {name}",
     "urlPreview": "Visa som länkförhandsvisning",
     "urlPreviewHint": "Radsidor visar den länkade sidans ikon, titel och bild under länken.",
+    "onePerson": "Begränsa till en person",
+    "onePersonHint": "Varje rad anger högst en person. Rader som anger fler behåller dem tills de ändras.",
+    "statusCheckbox": "Visa som kryssruta",
+    "statusCheckboxHint": "En ruta som är ikryssad medan statusen är klar. Att kryssa i väljer den första klar-statusen, att kryssa ur den första att göra-statusen.",
+    "pickerProperties": "Visa i radväljaren",
+    "pickerPropertiesHint": "Upp till tre egenskaper visas bredvid varje rads namn när rader länkas.",
+    "pickerPropertiesNone": "Den relaterade databasen har inga egenskaper att visa.",
     "icon": "Ikon"
   },
   "rowProperties": {
@@ -775,6 +794,7 @@
     "showTable": "Visa tabell",
     "showWeekends": "Visa helger",
     "showIcons": "Visa sidikoner",
+    "showVerticalLines": "Visa lodräta linjer",
     "openRows": "Öppna rader i",
     "openRowsIn": {
       "panel": "Sidopanel",
@@ -928,6 +948,7 @@
     "pageLocked": "Den här sidan är låst. Lås upp den från dess meny för att ändra titel, ikon, bakgrund eller text.",
     "pageInTrash": "Den här sidan ligger i papperskorgen. Återställ den för att ändra den.",
     "invalidPerson": "”{property}” kan bara innehålla personer i den här arbetsytan.",
+    "onePerson": "”{property}” kan bara ha en person.",
     "readOnlyProperty": "”{property}” fylls i automatiskt och kan inte ändras.",
     "invalidFilter": "Det här filtret kan inte sparas. Läs in sidan igen och försök på nytt.",
     "tooManyRows": "Du kan ändra högst {max} rader åt gången.",

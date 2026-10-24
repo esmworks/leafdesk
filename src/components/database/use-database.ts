@@ -12,6 +12,8 @@ import {
   createRowAction,
   deletePropertyAction,
   duplicatePropertyAction,
+  makeRelationTwoWayAction,
+  setRelationPickerPropertiesAction,
   deleteViewAction,
   duplicateRowsAction,
   setRowsIconAction,
@@ -26,10 +28,12 @@ import {
   updateRowPropertiesAction,
   updateRowsPropertiesAction,
   updateViewAction,
+  restoreRowsAction,
   type ActionResult,
 } from "@/app/actions/databases";
 import { addAutofillPropertyAction, refreshAutofillAction, setAutofillAction } from "@/app/actions/ai";
-import { archivePageAction, setPageIconAction } from "@/app/actions/pages";
+import { archivePageAction, restorePageAction, setPageIconAction } from "@/app/actions/pages";
+import { showToast } from "@/components/toast";
 import { useChannel, useChannels } from "@/components/collab/use-channel";
 import { useIsOffline, useOffline } from "@/components/offline/offline-context";
 import { databaseSnapshotKey, deleteSnapshot, loadSnapshot, saveSnapshot } from "@/components/offline/offline-store";
@@ -349,11 +353,11 @@ export function useDatabase(
       report,
 
       /**
-       * Adds a row: blank, from a row template (templateId), or from the database's default
-       * template when it has one (useDefault, what "New" does). Returns its id.
+       * Adds a row: blank, from a row template (templateId), or from the default template of the
+       * view (viewId) or else the database when there is one (useDefault, what "New" does). Returns its id.
        */
       async createRow(
-        input: { title?: string; properties?: Record<string, unknown>; templateId?: string | null; useDefault?: boolean } = {},
+        input: { title?: string; properties?: Record<string, unknown>; templateId?: string | null; useDefault?: boolean; viewId?: string } = {},
       ) {
         if (!snapshot) return null;
         try {
@@ -366,11 +370,24 @@ export function useDatabase(
         }
       },
 
-      async deleteRow(rowId: string) {
+      /** Moves a row to the trash; `quiet` leaves out the toast that offers to undo it. */
+      async deleteRow(rowId: string, { quiet = false }: { quiet?: boolean } = {}) {
         setRemoved((s) => new Set(s).add(rowId));
         try {
           await archivePageAction(rowId);
           await refetch();
+          if (quiet) return;
+          showToast({
+            message: tc("toast.rowsTrashed", { count: 1 }),
+            undo: async () => {
+              try {
+                await restorePageAction(rowId);
+              } catch {
+                showToast({ message: tc("toast.undoFailed") });
+              }
+              await refetch();
+            },
+          });
         } catch (e) {
           report(e);
         } finally {
@@ -389,6 +406,16 @@ export function useDatabase(
           const result = await unwrap(archiveRowsAction(databaseId, rowIds));
           if (result.skipped.length) setError(tb("skipped", { count: result.skipped.length }));
           await refetch();
+          if (result.done.length) {
+            showToast({
+              message: tc("toast.rowsTrashed", { count: result.done.length }),
+              undo: async () => {
+                const restored = await restoreRowsAction(result.done);
+                if (!restored.ok) showToast({ message: tc("toast.undoFailed") });
+                await refetch();
+              },
+            });
+          }
         } catch (e) {
           report(e);
         } finally {
@@ -573,6 +600,22 @@ export function useDatabase(
         );
       },
 
+      /** Shows a status property as a checkbox ticked for its done options, or as the option. */
+      setStatusCheckbox(prop: Property, on: boolean) {
+        const { statusDisplay: _old, ...rest } = prop.options;
+        return mutateSchema(patchProperty(prop.id, { options: on ? { ...rest, statusDisplay: "checkbox" } : rest }), () =>
+          updatePropertyAction(prop.id, { statusDisplay: on ? "checkbox" : "option" }),
+        );
+      },
+
+      /** Limits a person property to one person a row, or lifts the limit. */
+      setOnePerson(prop: Property, on: boolean) {
+        const { person: _old, ...rest } = prop.options;
+        return mutateSchema(patchProperty(prop.id, { options: on ? { ...rest, person: { single: true } } : rest }), () =>
+          updatePropertyAction(prop.id, { onePerson: on }),
+        );
+      },
+
       /** Saves a date property's display and reminder (see lib/date-options); the server checks it. */
       setDateOptions(prop: Property, input: DateOptionsInput) {
         const checked = checkDateOptions(input, prop.options.date, new Date());
@@ -627,6 +670,22 @@ export function useDatabase(
           report(e);
           return null;
         }
+      },
+
+      /** Shows these properties of the related database beside each title in a relation's row picker. */
+      setPickerProperties(prop: Property, ids: string[]) {
+        const relation = prop.options.relation;
+        if (!relation) return;
+        const { pickerProperties: _old, ...rest } = relation;
+        return mutateSchema(
+          patchProperty(prop.id, { options: { ...prop.options, relation: ids.length ? { ...rest, pickerProperties: ids } : rest } }),
+          () => setRelationPickerPropertiesAction(prop.id, ids),
+        );
+      },
+
+      /** Makes a one-way relation two-way: the related database gets the paired property. */
+      makeTwoWay(prop: Property, pairedName?: string) {
+        return mutateSchema((s) => s, () => makeRelationTwoWayAction(prop.id, pairedName));
       },
 
       /** Copies a property with its values right after it; returns the copy. */

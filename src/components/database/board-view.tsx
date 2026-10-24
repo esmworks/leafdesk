@@ -28,7 +28,8 @@ import { GroupLabel, HiddenGroups, useGroupContext, useGroupName } from "./group
 import { OpenRowItems } from "./open-row-items";
 import { usePeople } from "./person-cell";
 import { usePropertyAccess } from "./property-access";
-import { RowValue, shownValues } from "./property-cell";
+import { shownValues, type CreateOption } from "./property-cell";
+import { CardValue, type SetCardValue } from "./card-value";
 import { QuickAddContext } from "./quick-add";
 import { CardTitleInput } from "./card-title-input";
 import { HIDE_SCROLLBAR, StickyScrollbar, useDragPan } from "./scroll-x";
@@ -104,6 +105,7 @@ export function BoardView({
     [stopEditing, quick],
   );
   const onCardDelete = useCallback((rowId: string) => void api.deleteRow(rowId), [api]);
+  const onCardValue = useCallback<SetCardValue>((rowId, propertyId, value) => void api.setCell(rowId, propertyId, value), [api]);
   const onCardDragStart = useCallback((e: DragEvent<HTMLDivElement>, rowId: string, from: string) => {
     e.dataTransfer.setData("text/plain", rowId);
     e.dataTransfer.effectAllowed = "move";
@@ -432,6 +434,8 @@ export function BoardView({
                           typed={editTitleOf === row.id ? typed : undefined}
                           onTitle={onCardTitle}
                           onDelete={onCardDelete}
+                          onValue={onCardValue}
+                          onCreateOption={api.createOption}
                           onDragStart={onCardDragStart}
                           onDragEnd={onCardDragEnd}
                         />
@@ -786,6 +790,8 @@ const Card = memo(function Card({
   typed,
   onTitle,
   onDelete,
+  onValue,
+  onCreateOption,
   onDragStart,
   onDragEnd,
 }: {
@@ -807,6 +813,9 @@ const Card = memo(function Card({
   typed?: string;
   onTitle: (row: Row, title: string) => void;
   onDelete: (rowId: string) => void;
+  /** Changes a value shown on the card in place (see CardValue). */
+  onValue: SetCardValue;
+  onCreateOption: CreateOption;
   onDragStart: (e: DragEvent<HTMLDivElement>, rowId: string, group: string) => void;
   onDragEnd: () => void;
 }) {
@@ -850,7 +859,7 @@ const Card = memo(function Card({
               className={cn("flex max-w-full min-w-0 text-fg-muted", wrap ? "items-start" : "items-center", cellMarkClass(color, p.id))}
               title={p.name}
             >
-              <RowValue prop={p} row={row} wrap={wrap} />
+              <CardValue prop={p} row={row} wrap={wrap} readOnly={readOnly} onChange={onValue} onCreateOption={onCreateOption} />
             </div>
           ))}
         </div>

@@ -110,6 +110,7 @@
       "you": "{name} (أنت)"
     },
     "threadMenu": "خيارات سلسلة التعليقات",
+    "copyLink": "نسخ الرابط",
     "mute": "كتم الردود",
     "unmute": "إلغاء كتم الردود",
     "muteHint": "توقّف عن تلقّي إشعارات بالردود الجديدة في هذه السلسلة. تعود الإشعارات عندما ترد هنا أو يذكرك أحد هنا.",
@@ -651,7 +652,8 @@
       "submit": "تضمين",
       "providers": "YouTube وVimeo وLoom وFigma ومستندات Google Docs وSheets وSlides المنشورة وCodePen وSpotify وGoogle Maps. تصبح الروابط الأخرى إشارة مرجعية.",
       "frameTitle": "محتوى مضمّن من {host}",
-      "label": "تضمين"
+      "label": "تضمين",
+      "resize": "اسحب لتغيير عرض المحتوى المضمّن"
     },
     "paste": {
       "label": "اللصق كـ",
@@ -741,6 +743,11 @@
   },
   "blockMenu": {
     "copyLink": "نسخ رابط الكتلة",
+    "download": "تنزيل",
+    "alignLeft": "محاذاة لليسار",
+    "alignCenter": "توسيط",
+    "alignRight": "محاذاة لليمين",
+    "wideColumns": "أعمدة عريضة",
     "hideInPrint": "إخفاء عند الطباعة",
     "calloutStyle": "نمط التنبيه",
     "turnIntoCallout": "تحويل إلى تنبيه",
@@ -986,7 +993,8 @@
     "markdownImage": "صورة: {alt}",
     "markdownImageUntitled": "صورة",
     "expand": "فتح في العارض",
-    "view": "عرض {name}"
+    "view": "عرض {name}",
+    "resize": "اسحب لتغيير العرض"
   },
   "presentation": {
     "previous": "الشريحة السابقة",
@@ -1221,5 +1229,16 @@
     "reset": "إظهار الصورة كاملة",
     "loading": "جارٍ تحميل الصورة…",
     "failed": "تعذّر تحميل الصورة."
+  },
+  "commentRef": {
+    "pasteTitle": "لصق رابط تعليق",
+    "pasteAsMention": "لصق كإشارة",
+    "pasteAsPreview": "لصق كمعاينة",
+    "pasteAsLink": "لصق كرابط",
+    "noAccess": "لا يمكنك الوصول إلى هذا التعليق",
+    "onPage": "في {title}",
+    "replies": "{count, plural, =0 {لا ردود} one {رد واحد} two {ردّان} few {# ردود} many {# ردًا} other {# رد}}",
+    "openThread": "فتح المناقشة",
+    "resolved": "تمّ الحل"
   }
 }

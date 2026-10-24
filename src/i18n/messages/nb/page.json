@@ -110,6 +110,7 @@
       "you": "{name} (deg)"
     },
     "threadMenu": "Trådalternativer",
+    "copyLink": "Kopier lenke",
     "mute": "Demp svar",
     "unmute": "Slå på svar igjen",
     "muteHint": "Slutt å få beskjed om nye svar i denne tråden. Hvis du svarer her eller blir nevnt her, slås det på igjen.",
@@ -651,7 +652,8 @@
       "submit": "Bygg inn",
       "providers": "YouTube, Vimeo, Loom, Figma, publiserte Google Docs, Sheets og Slides, CodePen, Spotify og Google Maps. Andre lenker blir et bokmerke.",
       "frameTitle": "Innebygd innhold fra {host}",
-      "label": "Innebygging"
+      "label": "Innebygging",
+      "resize": "Dra for å endre bredden på innbyggingen"
     },
     "paste": {
       "label": "Lim inn som",
@@ -741,6 +743,11 @@
   },
   "blockMenu": {
     "copyLink": "Kopier lenke til blokken",
+    "download": "Last ned",
+    "alignLeft": "Venstrejuster",
+    "alignCenter": "Midtstill",
+    "alignRight": "Høyrejuster",
+    "wideColumns": "Brede kolonner",
     "hideInPrint": "Skjul ved utskrift",
     "calloutStyle": "Infoboksstil",
     "turnIntoCallout": "Gjør om til infoboks",
@@ -986,7 +993,8 @@
     "markdownImage": "Bilde: {alt}",
     "markdownImageUntitled": "Bilde",
     "expand": "Åpne i fremviseren",
-    "view": "Vis {name}"
+    "view": "Vis {name}",
+    "resize": "Dra for å endre bredden"
   },
   "presentation": {
     "previous": "Forrige lysbilde",
@@ -1221,5 +1229,16 @@
     "reset": "Vis hele bildet",
     "loading": "Laster inn bildet…",
     "failed": "Bildet kunne ikke lastes inn."
+  },
+  "commentRef": {
+    "pasteTitle": "Lim inn lenke til en kommentar",
+    "pasteAsMention": "Lim inn som omtale",
+    "pasteAsPreview": "Lim inn som forhåndsvisning",
+    "pasteAsLink": "Lim inn som lenke",
+    "noAccess": "Ingen tilgang til denne kommentaren",
+    "onPage": "På {title}",
+    "replies": "{count, plural, =0 {Ingen svar} one {# svar} other {# svar}}",
+    "openThread": "Åpne tråd",
+    "resolved": "Løst"
   }
 }

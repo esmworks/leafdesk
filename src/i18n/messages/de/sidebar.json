@@ -69,6 +69,7 @@
     "includeArchivedHint": "Auch archivierte Seiten finden",
     "inDocument": "Im Dokument {name} auf dieser Seite gefunden",
     "recent": "Zuletzt bearbeitet",
+    "recentViewed": "Zuletzt angesehen",
     "commands": "Befehle",
     "noCommands": "Kein passender Befehl",
     "setting": "Einstellungen: {tab} → {setting}",
@@ -76,7 +77,29 @@
     "hint": {
       "in": "innerhalb einer Seite",
       "type": "nur Datenbanken (oder page, row)",
-      "commands": "Befehle"
+      "commands": "Befehle",
+      "phrase": "genaue Wortfolge"
+    },
+    "filters": {
+      "label": "Filter",
+      "teamspace": "Teamspace",
+      "createdBy": "Erstellt von",
+      "editedBy": "Zuletzt bearbeitet von",
+      "date": "Datum",
+      "edited": "Zuletzt bearbeitet",
+      "created": "Erstellt",
+      "today": "Heute",
+      "week": "Letzte 7 Tage",
+      "month": "Letzte 30 Tage",
+      "custom": "Eigener Zeitraum",
+      "from": "Von",
+      "to": "Bis",
+      "more": "{first} +{count}",
+      "you": "{name} (du)",
+      "findPerson": "Person suchen…",
+      "noPeople": "Niemand gefunden",
+      "remove": "Filter entfernen",
+      "clear": "Filter zurücksetzen"
     }
   },
   "trash": {

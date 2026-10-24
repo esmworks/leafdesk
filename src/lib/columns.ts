@@ -14,6 +14,11 @@ import { Node } from "@tiptap/core";
  *
  * A column's `width` is its share of the row (a flex-grow factor, 1 by default), so equal columns
  * need nothing stored and a resized one keeps its proportion at any page width.
+ *
+ * A column list's `wide` is how far it reaches past the text into the page's margins on a page of
+ * standard width: 0 not at all (the default), 1 out to the page's edges less room for the block
+ * handles (globals.css). Full-width pages, narrow screens and published pages show it at the
+ * text's width.
  */
 
 export const COLUMN_LIST_BLOCK = "columnList";
@@ -29,6 +34,13 @@ export function columnWidth(value: unknown): number {
   const n = typeof value === "number" ? value : Number.parseFloat(String(value ?? ""));
   if (!Number.isFinite(n) || n <= 0) return 1;
   return Math.round(Math.min(Math.max(n, 0.1), 10) * 100) / 100;
+}
+
+/** A usable `wide`: 0 to 1, in hundredths. */
+export function columnsWide(value: unknown): number {
+  const n = typeof value === "number" ? value : Number.parseFloat(String(value ?? ""));
+  if (!Number.isFinite(n) || n <= 0) return 0;
+  return Math.round(Math.min(n, 1) * 100) / 100;
 }
 
 function domFor(name: string, className: string, attributes: Record<string, unknown>) {
@@ -49,6 +61,15 @@ export const ColumnListNode = Node.create({
   content: "column column+",
   priority: 40,
   defining: true,
+  addAttributes() {
+    return {
+      wide: {
+        default: 0,
+        parseHTML: (element) => columnsWide(element.getAttribute("data-wide")),
+        renderHTML: (attributes) => (columnsWide(attributes.wide) ? { "data-wide": String(columnsWide(attributes.wide)) } : {}),
+      },
+    };
+  },
   parseHTML() {
     return [{ tag: `div[data-node-type="${COLUMN_LIST_BLOCK}"]` }];
   },
@@ -90,7 +111,7 @@ export function columnBlockSpecs({
   extensions,
 }: { columnList?: Node; column?: Node; extensions?: ExtensionFactoryInstance[] } = {}) {
   return {
-    columnList: createBlockSpecFromTiptapNode({ node: columnList, type: COLUMN_LIST_BLOCK, content: "none" }, {}, extensions),
+    columnList: createBlockSpecFromTiptapNode({ node: columnList, type: COLUMN_LIST_BLOCK, content: "none" }, { wide: { default: 0 } }, extensions),
     column: createBlockSpecFromTiptapNode({ node: column, type: COLUMN_BLOCK, content: "none" }, { width: { default: 1 } }),
   };
 }
@@ -108,22 +129,27 @@ export function columnBlockSpecs({
  *   <!-- leafdesk:column width=2 -->
  *   Right column's blocks, twice as wide
  *   <!-- leafdesk:/columns -->
+ *
+ * A wide list says so on its first line: `<!-- leafdesk:columns wide=1 -->`.
  */
-export type ColumnMarker = { kind: "columns" } | { kind: "column"; width: number } | { kind: "end" };
+export type ColumnMarker = { kind: "columns"; wide?: number } | { kind: "column"; width: number } | { kind: "end" };
 
 export function columnMarkerLine(marker: ColumnMarker): string {
-  if (marker.kind === "columns") return "<!-- leafdesk:columns -->";
+  if (marker.kind === "columns") {
+    const wide = columnsWide(marker.wide);
+    return wide ? `<!-- leafdesk:columns wide=${wide} -->` : "<!-- leafdesk:columns -->";
+  }
   if (marker.kind === "end") return "<!-- leafdesk:/columns -->";
   const width = columnWidth(marker.width);
   return width === 1 ? "<!-- leafdesk:column -->" : `<!-- leafdesk:column width=${width} -->`;
 }
 
-const MARKER_LINE = /^ {0,3}<!--\s*leafdesk:(columns|column|\/columns)(?:\s+width=([0-9]*\.?[0-9]+))?\s*-->\s*$/;
+const MARKER_LINE = /^ {0,3}<!--\s*leafdesk:(columns|column|\/columns)(?:\s+(?:width|wide)=([0-9]*\.?[0-9]+))?\s*-->\s*$/;
 
 export function parseColumnMarker(line: string): ColumnMarker | null {
   const match = MARKER_LINE.exec(line);
   if (!match) return null;
-  if (match[1] === "columns") return { kind: "columns" };
+  if (match[1] === "columns") return columnsWide(match[2]) ? { kind: "columns", wide: columnsWide(match[2]) } : { kind: "columns" };
   if (match[1] === "/columns") return { kind: "end" };
   return { kind: "column", width: columnWidth(match[2] ?? 1) };
 }
@@ -185,7 +211,7 @@ export function groupColumns<B extends Tree>(blocks: B[]): B[] {
     }
     out.push({
       type: COLUMN_LIST_BLOCK,
-      props: {},
+      props: marker.wide ? { wide: columnsWide(marker.wide) } : {},
       children: columns.map((column) => ({
         type: COLUMN_BLOCK,
         props: { width: column.width },

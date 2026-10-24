@@ -27,9 +27,10 @@ const bookmark = {
     siteName: "Example",
     fetchedAt: "2026-09-27T10:00:00.000Z",
     width: 60,
+    textAlignment: "center",
   },
 };
-const embed = { type: "webEmbed", props: { url: "https://www.youtube.com/watch?v=dQw4w9WgXcQ" } };
+const embed = { type: "webEmbed", props: { url: "https://www.youtube.com/watch?v=dQw4w9WgXcQ", width: 0, textAlignment: "left" } };
 
 describe("web blocks in the server schema", () => {
   it("are known to the schema", () => {
@@ -64,8 +65,8 @@ describe("web blocks in Markdown", () => {
   it("read an embed line back as an embed", async () => {
     const blocks = stored(await markdownToBlocks("Intro\n\n[video](https://youtu.be/dQw4w9WgXcQ) <!-- leafdesk:embed -->\n\nhttps://vimeo.com/1 <!-- leafdesk:embed -->"));
     expect(blocks.map((b) => b.type)).toEqual(["paragraph", "webEmbed", "webEmbed"]);
-    expect(blocks[1].props).toEqual({ url: "https://youtu.be/dQw4w9WgXcQ" });
-    expect(blocks[2].props).toEqual({ url: "https://vimeo.com/1" });
+    expect(blocks[1].props).toEqual({ url: "https://youtu.be/dQw4w9WgXcQ", width: 0, textAlignment: "left" });
+    expect(blocks[2].props).toEqual({ url: "https://vimeo.com/1", width: 0, textAlignment: "left" });
   });
 
   it("read a marked link as a new bookmark without details yet", async () => {

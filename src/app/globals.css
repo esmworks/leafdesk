@@ -1158,6 +1158,30 @@ input.leafdesk-callout-title-input {
 }
 
 /*
+ * Files, audio, bookmarks and embeds aligned as a whole (lib/media-blocks), as images are: a box
+ * narrower than the line (`data-media-box`, made so by dragging its edge) sits at the start, in the
+ * middle or at the end. An aligned file name or audio player takes its own width, not the line's.
+ */
+.bn-block-content[data-text-alignment="center"] [data-media-box] {
+  margin-inline: auto;
+}
+.bn-block-content[data-text-alignment="right"] [data-media-box] {
+  margin-inline-start: auto;
+}
+/* The box moves; the text in a bookmark's card still reads from its start. */
+.bn-block-content[data-text-alignment] [data-media-box] {
+  text-align: start;
+}
+.bn-block-content[data-content-type="file"]:is([data-text-alignment="center"], [data-text-alignment="right"])
+  .bn-file-block-content-wrapper:has(.bn-file-name-with-icon) {
+  width: fit-content;
+  max-width: 100%;
+}
+.bn-block-content[data-content-type="audio"]:is([data-text-alignment="center"], [data-text-alignment="right"]) .bn-file-block-content-wrapper {
+  width: min(100%, 28rem);
+}
+
+/*
  * Columns (see components/page/columns.tsx): blocks side by side, each column taking its share of
  * the row. The gap leaves room for a block's side menu and the resize handle in its middle. On
  * phones the columns stack.
@@ -1213,6 +1237,63 @@ input.leafdesk-callout-title-input {
   }
   .leafdesk-column-resize {
     display: none;
+  }
+}
+
+/*
+ * Wide column lists (lib/columns `wide`): on a page of standard width, a top-level list reaches
+ * past the text into the page's margins, `--wide` of the way out to the page's edges less 48px for
+ * the block handles; its outer edges are dragged to set it. The page's width is `--page-area`,
+ * which the page view's element (data-page-area) sets from its size (page-view.tsx). Full-width
+ * pages, the page beside the comments panel and phones show it at the text's width.
+ */
+@property --page-area {
+  syntax: "<length>";
+  inherits: true;
+  initial-value: 0px;
+}
+.leafdesk-column-list {
+  position: relative;
+}
+.leafdesk-columns-edge {
+  display: none;
+}
+@media (min-width: 768px) {
+  .page-column:not(.page-beside-panel) .bn-editor > .bn-block-group > .leafdesk-column-list[data-wide] {
+    margin-inline: calc(var(--wide, 0) * min(0px, (100% - var(--page-area)) / 2 + 48px));
+  }
+  .page-column:not(.page-beside-panel) .bn-editor[contenteditable="true"] > .bn-block-group > .leafdesk-column-list > .leafdesk-columns-edge {
+    display: block;
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    width: 10px;
+    cursor: ew-resize;
+    z-index: 1;
+  }
+  .leafdesk-columns-edge-start {
+    inset-inline-start: -14px;
+  }
+  .leafdesk-columns-edge-end {
+    inset-inline-end: -14px;
+  }
+  .leafdesk-columns-edge::after {
+    content: "";
+    position: absolute;
+    top: 4px;
+    bottom: 4px;
+    inset-inline-start: 4px;
+    width: 2px;
+    border-radius: 1px;
+    background: transparent;
+    transition: background 120ms;
+  }
+  .leafdesk-columns-edge:hover::after,
+  .leafdesk-columns-resizing > .leafdesk-columns-edge::after {
+    background: var(--fg-faint);
+  }
+  .leafdesk-columns-resizing {
+    user-select: none;
   }
 }
 
@@ -1286,6 +1367,15 @@ input.leafdesk-callout-title-input {
   text-decoration: underline;
   text-decoration-color: var(--fg-faint);
   text-underline-offset: 2px;
+}
+/* A mentioned comment: its author and the start of what they wrote, on one line. */
+.leafdesk-mention-comment .leafdesk-mention-label {
+  display: inline-block;
+  max-width: min(28em, 100%);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  vertical-align: bottom;
 }
 .leafdesk-mention-muted,
 .leafdesk-mention-muted .leafdesk-mention-icon {

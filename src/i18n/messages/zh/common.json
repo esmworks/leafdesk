@@ -29,5 +29,14 @@
     "busy": "你已有一个导出正在进行。请等待其下载完成。",
     "disabled": "此工作区已关闭导出功能。"
   },
-  "celebrate": "干得好！"
+  "celebrate": "干得好！",
+  "toast": {
+    "undo": "撤销",
+    "dismiss": "关闭",
+    "movedTo": "已移动到",
+    "movedToPlace": "已移动到 {place}",
+    "trashed": "已移到回收站",
+    "rowsTrashed": "已将 {count} 行移到回收站",
+    "undoFailed": "无法撤销。"
+  }
 }

@@ -1,5 +1,6 @@
 import { createBundledHighlighter } from "@shikijs/core";
 import { createJavaScriptRawEngine } from "@shikijs/engine-javascript/raw";
+import { LOCAL_GRAMMARS } from "./code-grammars";
 import { highlightLanguage } from "./code-languages";
 
 /**
@@ -16,18 +17,23 @@ export const DARK_THEME = "github-dark";
 
 const createHighlighter = createBundledHighlighter({
   langs: {
+    agda: () => Promise.resolve({ default: [LOCAL_GRAMMARS.agda] }),
     bash: () => import("@shikijs/langs-precompiled/shellscript"),
     c: () => import("@shikijs/langs-precompiled/c"),
+    coq: () => import("@shikijs/langs-precompiled/coq"),
     cpp: () => import("@shikijs/langs-precompiled/cpp"),
     csharp: () => import("@shikijs/langs-precompiled/csharp"),
     css: () => import("@shikijs/langs-precompiled/css"),
     dart: () => import("@shikijs/langs-precompiled/dart"),
+    dhall: () => Promise.resolve({ default: [LOCAL_GRAMMARS.dhall] }),
     diff: () => import("@shikijs/langs-precompiled/diff"),
     dockerfile: () => import("@shikijs/langs-precompiled/dockerfile"),
+    ebnf: () => Promise.resolve({ default: [LOCAL_GRAMMARS.ebnf] }),
     elixir: () => import("@shikijs/langs-precompiled/elixir"),
     go: () => import("@shikijs/langs-precompiled/go"),
     graphql: () => import("@shikijs/langs-precompiled/graphql"),
     html: () => import("@shikijs/langs-precompiled/html"),
+    idris: () => Promise.resolve({ default: [LOCAL_GRAMMARS.idris] }),
     ini: () => import("@shikijs/langs-precompiled/ini"),
     java: () => import("@shikijs/langs-precompiled/java"),
     javascript: () => import("@shikijs/langs-precompiled/javascript"),
@@ -35,16 +41,20 @@ const createHighlighter = createBundledHighlighter({
     jsx: () => import("@shikijs/langs-precompiled/jsx"),
     kotlin: () => import("@shikijs/langs-precompiled/kotlin"),
     latex: () => import("@shikijs/langs-precompiled/latex"),
+    llvm: () => import("@shikijs/langs-precompiled/llvm"),
     lua: () => import("@shikijs/langs-precompiled/lua"),
     makefile: () => import("@shikijs/langs-precompiled/make"),
+    wolfram: () => import("@shikijs/langs-precompiled/wolfram"),
     markdown: () => import("@shikijs/langs-precompiled/markdown"),
     nginx: () => import("@shikijs/langs-precompiled/nginx"),
     "objective-c": () => import("@shikijs/langs-precompiled/objective-c"),
     php: () => import("@shikijs/langs-precompiled/php"),
     powershell: () => import("@shikijs/langs-precompiled/powershell"),
     protobuf: () => import("@shikijs/langs-precompiled/proto"),
+    purescript: () => import("@shikijs/langs-precompiled/purescript"),
     python: () => import("@shikijs/langs-precompiled/python"),
     r: () => import("@shikijs/langs-precompiled/r"),
+    racket: () => import("@shikijs/langs-precompiled/racket"),
     ruby: () => import("@shikijs/langs-precompiled/ruby"),
     rust: () => import("@shikijs/langs-precompiled/rust"),
     scala: () => import("@shikijs/langs-precompiled/scala"),

@@ -29,5 +29,14 @@
     "busy": "Du har allerede en eksport som kjører. Vent til nedlastingen er ferdig.",
     "disabled": "Eksport er slått av i dette arbeidsområdet."
   },
-  "celebrate": "Godt jobbet!"
+  "celebrate": "Godt jobbet!",
+  "toast": {
+    "undo": "Angre",
+    "dismiss": "Lukk",
+    "movedTo": "Flyttet til",
+    "movedToPlace": "Flyttet til {place}",
+    "trashed": "Flyttet til papirkurven",
+    "rowsTrashed": "{count, plural, one {Raden ble flyttet til papirkurven} other {# rader ble flyttet til papirkurven}}",
+    "undoFailed": "Kunne ikke angre."
+  }
 }

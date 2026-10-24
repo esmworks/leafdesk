@@ -29,5 +29,14 @@
     "busy": "Du har redan en export som pågår. Vänta tills nedladdningen är klar.",
     "disabled": "Export är avstängt i den här arbetsytan."
   },
-  "celebrate": "Bra jobbat!"
+  "celebrate": "Bra jobbat!",
+  "toast": {
+    "undo": "Ångra",
+    "dismiss": "Stäng",
+    "movedTo": "Flyttad till",
+    "movedToPlace": "Flyttad till {place}",
+    "trashed": "Flyttad till papperskorgen",
+    "rowsTrashed": "{count, plural, one {Raden flyttades till papperskorgen} other {# rader flyttades till papperskorgen}}",
+    "undoFailed": "Det gick inte att ångra."
+  }
 }

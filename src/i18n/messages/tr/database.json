@@ -76,6 +76,10 @@
       "blank": "Boş satır",
       "setDefault": "“Yeni” için kullan",
       "isDefault": "“Yeni” için kullanılıyor",
+      "isViewDefault": "Bu görünümde “Yeni” için kullanılıyor",
+      "forThisView": "Bu görünüm için",
+      "forAllViews": "Tüm görünümler için",
+      "followAllViews": "Burada tüm görünümlerinkini kullan",
       "edit": "Şablonu düzenle",
       "delete": "Şablonu sil",
       "confirmDelete": "Bu satır şablonu kalıcı olarak silinsin mi? Ondan oluşturulmuş satırlar olduğu gibi kalır.",
@@ -226,7 +230,14 @@
     "relative": {
       "today": "Bugün",
       "thisWeek": "Bu hafta",
+      "lastWeek": "Geçen hafta",
+      "nextWeek": "Gelecek hafta",
       "thisMonth": "Bu ay",
+      "lastMonth": "Geçen ay",
+      "nextMonth": "Gelecek ay",
+      "thisYear": "Bu yıl",
+      "lastYear": "Geçen yıl",
+      "nextYear": "Gelecek yıl",
       "pastNDays": "Son N gün",
       "nextNDays": "Önümüzdeki N gün",
       "pastDays": "Son {count} gün",
@@ -254,7 +265,8 @@
     "clickForMenu": "Menüyü açmak için tıklayın",
     "sortedNoDrag": "Görünüm sıralıyken satırlar sürüklenemez",
     "sortedAscending": "Artan sıralı",
-    "sortedDescending": "Azalan sıralı"
+    "sortedDescending": "Azalan sıralı",
+    "fillHandle": "Hücreleri bu değerle doldurmak için yukarı ya da aşağı sürükleyin"
   },
   "rowMenu": {
     "open": "Aç",
@@ -554,6 +566,13 @@
     "dragOption": "{name} seçeneğini taşımak için sürükleyin",
     "urlPreview": "Bağlantı önizlemesi olarak göster",
     "urlPreviewHint": "Satır sayfaları bağlantının altında bağlanan sayfanın simgesini, başlığını ve görselini gösterir.",
+    "onePerson": "Tek kişiyle sınırla",
+    "onePersonHint": "Her satır en fazla bir kişiyi gösterir. Daha fazla kişi içeren satırlar değiştirilene kadar onları korur.",
+    "statusCheckbox": "Onay kutusu olarak göster",
+    "statusCheckboxHint": "Durum tamamlandıyken işaretli bir kutu. İşaretlemek ilk tamamlandı durumunu, işareti kaldırmak ilk yapılacak durumunu seçer.",
+    "pickerProperties": "Satır seçicide göster",
+    "pickerPropertiesHint": "Satır bağlarken her satırın adının yanında en fazla üç özellik gösterilir.",
+    "pickerPropertiesNone": "İlişkili veritabanında gösterilecek özellik yok.",
     "icon": "Simge"
   },
   "rowProperties": {
@@ -775,6 +794,7 @@
     "showTable": "Tabloyu göster",
     "showWeekends": "Hafta sonlarını göster",
     "showIcons": "Sayfa simgelerini göster",
+    "showVerticalLines": "Dikey çizgileri göster",
     "openRows": "Satırları aç",
     "openRowsIn": {
       "panel": "Yan panelde",
@@ -928,6 +948,7 @@
     "pageLocked": "Bu sayfa kilitli. Başlığını, simgesini, arka planını veya metnini değiştirmek için sayfanın menüsünden kilidi açın.",
     "pageInTrash": "Bu sayfa çöp kutusunda. Değiştirmek için geri yükleyin.",
     "invalidPerson": "“{property}” yalnızca bu çalışma alanındaki kişileri içerebilir.",
+    "onePerson": "“{property}” yalnızca bir kişi tutar.",
     "readOnlyProperty": "“{property}” otomatik doldurulur, değiştirilemez.",
     "invalidFilter": "Bu filtre kaydedilemedi. Sayfayı yenileyip tekrar deneyin.",
     "tooManyRows": "Tek seferde en fazla {max} satır değiştirilebilir.",

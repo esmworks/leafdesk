@@ -2,7 +2,7 @@
 
 import { CommentsExtension, type ThreadData } from "@blocknote/core/comments";
 import { Thread, useBlockNoteEditor, useExtension, useExtensionState, useThreads } from "@blocknote/react";
-import { ArrowDownUp, Bell, BellOff, Bookmark, BookmarkX, Check, ChevronDown, MoreHorizontal, Undo2, UserRound, X } from "lucide-react";
+import { ArrowDownUp, Bell, BellOff, Bookmark, BookmarkX, Check, ChevronDown, Link2, MoreHorizontal, Undo2, UserRound, X } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { memo, useCallback, useEffect, useMemo, useRef, useState, useSyncExternalStore, type CSSProperties, type FocusEvent } from "react";
 import {
@@ -15,6 +15,9 @@ import {
 } from "@/app/actions/comments";
 import { Button, cn, IconButton, MenuItem, Popover, textareaClass } from "@/components/ui";
 import { UserAvatar } from "@/components/user-avatar";
+import { commentPath } from "@/lib/comment-refs";
+import { copyAppLink } from "./editor-shortcuts";
+import { useEmbedHost } from "./database-embed";
 import { isPageThread, mergedFromOf, propertyOf, suggestionOfThread, threadOfHash } from "@/lib/comments";
 import { PROPERTY_COMMENT_EVENT, takePropertyCommentRequest, type PropertyCommentRequest } from "@/lib/comments-request";
 import { isAiSuggestion, suggestionAuthor, type Decision } from "@/lib/suggestions";
@@ -456,6 +459,7 @@ const SidebarThread = memo(function SidebarThread({
 }) {
   const t = useTranslations("page.comments");
   const comments = useExtension(CommentsExtension);
+  const workspaceId = useEmbedHost()?.workspaceId;
   const onFocus = useCallback(
     (event: FocusEvent) => {
       if ((event.target as Element).closest(".bn-action-toolbar")) return;
@@ -525,6 +529,15 @@ const SidebarThread = memo(function SidebarThread({
                 }}
               >
                 {t(marked ? "unmark" : "mark")}
+              </MenuItem>
+              <MenuItem
+                icon={<Link2 className="h-4 w-4" />}
+                onClick={() => {
+                  close();
+                  if (workspaceId) void copyAppLink(commentPath(workspaceId, pageId, thread.id), document.body);
+                }}
+              >
+                {t("copyLink")}
               </MenuItem>
               <MenuItem
                 icon={muted ? <Bell className="h-4 w-4" /> : <BellOff className="h-4 w-4" />}

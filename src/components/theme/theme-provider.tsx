@@ -1,8 +1,11 @@
 "use client";
 
-import { createContext, useContext, useEffect, useState } from "react";
+import { createContext, useCallback, useContext, useEffect, useState } from "react";
 import { useMediaQuery } from "@/components/use-media-query";
-import type { Theme } from "@/lib/theme";
+import { isTheme, type Theme } from "@/lib/theme";
+
+/** The channel the person's tabs of this site tell each other a theme was picked on. */
+const THEME_CHANNEL = "leafdesk:theme";
 
 type ChosenTheme = { theme: Theme | null; setTheme: (theme: Theme | null) => void };
 
@@ -13,15 +16,34 @@ const SchemeOverride = createContext<Theme | null>(null);
 /**
  * Holds the theme chosen for this browser (lib/theme.ts): the server's choice from the cookie, or
  * the one just picked in Settings, so <html data-theme> (the stylesheet) and the parts that draw
- * themselves (editor, diagrams) switch together.
+ * themselves (editor, diagrams) switch together. A theme picked in one tab applies at once in the
+ * person's other tabs of this site (a BroadcastChannel; the cookie already holds it for reloads).
  */
 export function ThemeProvider({ theme: saved, children }: { theme: Theme | null; children: React.ReactNode }) {
-  const [theme, setTheme] = useState(saved);
+  const [theme, setOwnTheme] = useState(saved);
+  const [channel, setChannel] = useState<BroadcastChannel | null>(null);
+  useEffect(() => {
+    if (typeof BroadcastChannel === "undefined") return;
+    const opened = new BroadcastChannel(THEME_CHANNEL);
+    opened.onmessage = (event: MessageEvent<unknown>) => {
+      const next = (event.data as { theme?: unknown } | null)?.theme;
+      if (next === null || isTheme(next)) setOwnTheme(next);
+    };
+    setChannel(opened);
+    return () => opened.close();
+  }, []);
+  const setTheme = useCallback(
+    (next: Theme | null) => {
+      setOwnTheme(next);
+      channel?.postMessage({ theme: next });
+    },
+    [channel],
+  );
   // A refresh brings the saved choice back from the server, which may have changed in another tab.
   const [lastSaved, setLastSaved] = useState(saved);
   if (saved !== lastSaved) {
     setLastSaved(saved);
-    setTheme(saved);
+    setOwnTheme(saved);
   }
   useEffect(() => {
     if (theme) document.documentElement.dataset.theme = theme;

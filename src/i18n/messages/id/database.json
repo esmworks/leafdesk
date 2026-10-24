@@ -76,6 +76,10 @@
       "blank": "Baris kosong",
       "setDefault": "Gunakan untuk “Baru”",
       "isDefault": "Dipakai untuk “Baru”",
+      "isViewDefault": "Dipakai untuk “Baru” di tampilan ini",
+      "forThisView": "Untuk tampilan ini",
+      "forAllViews": "Untuk semua tampilan",
+      "followAllViews": "Gunakan bawaan semua tampilan di sini",
       "edit": "Edit templat",
       "delete": "Hapus templat",
       "confirmDelete": "Hapus templat baris ini secara permanen? Baris yang sudah dibuat darinya tidak berubah.",
@@ -226,7 +230,14 @@
     "relative": {
       "today": "Hari ini",
       "thisWeek": "Minggu ini",
+      "lastWeek": "Minggu lalu",
+      "nextWeek": "Minggu depan",
       "thisMonth": "Bulan ini",
+      "lastMonth": "Bulan lalu",
+      "nextMonth": "Bulan depan",
+      "thisYear": "Tahun ini",
+      "lastYear": "Tahun lalu",
+      "nextYear": "Tahun depan",
       "pastNDays": "N hari terakhir",
       "nextNDays": "N hari ke depan",
       "pastDays": "{count, plural, other {# hari terakhir}}",
@@ -254,7 +265,8 @@
     "clickForMenu": "Klik untuk membuka menu",
     "sortedNoDrag": "Baris tidak dapat diseret saat tampilan diurutkan",
     "sortedAscending": "Diurutkan menaik",
-    "sortedDescending": "Diurutkan menurun"
+    "sortedDescending": "Diurutkan menurun",
+    "fillHandle": "Seret ke atas atau ke bawah untuk mengisi sel dengan nilai ini"
   },
   "rowMenu": {
     "open": "Buka",
@@ -554,6 +566,13 @@
     "dragOption": "Seret untuk memindahkan {name}",
     "urlPreview": "Tampilkan sebagai pratinjau tautan",
     "urlPreviewHint": "Halaman baris menampilkan ikon, judul, dan gambar halaman tertaut di bawah tautan.",
+    "onePerson": "Batasi ke satu orang",
+    "onePersonHint": "Setiap baris menyebut paling banyak satu orang. Baris yang menyebut lebih tetap menyimpannya sampai diubah.",
+    "statusCheckbox": "Tampilkan sebagai kotak centang",
+    "statusCheckboxHint": "Kotak tercentang selama status selesai. Mencentangnya memilih status selesai pertama, menghapus centang memilih status belum dikerjakan pertama.",
+    "pickerProperties": "Tampilkan di pemilih baris",
+    "pickerPropertiesHint": "Hingga tiga properti ditampilkan di samping nama setiap baris saat menautkan baris.",
+    "pickerPropertiesNone": "Basis data terkait tidak memiliki properti untuk ditampilkan.",
     "icon": "Ikon"
   },
   "rowProperties": {
@@ -775,6 +794,7 @@
     "showTable": "Tampilkan tabel",
     "showWeekends": "Tampilkan akhir pekan",
     "showIcons": "Tampilkan ikon halaman",
+    "showVerticalLines": "Tampilkan garis vertikal",
     "openRows": "Buka baris di",
     "openRowsIn": {
       "panel": "Panel samping",
@@ -928,6 +948,7 @@
     "pageLocked": "Halaman ini dikunci. Buka kunci dari menunya untuk mengubah judul, ikon, latar belakang, atau teksnya.",
     "pageInTrash": "Halaman ini ada di sampah. Pulihkan untuk mengubahnya.",
     "invalidPerson": "“{property}” hanya dapat berisi orang di ruang kerja ini.",
+    "onePerson": "“{property}” hanya berisi satu orang.",
     "readOnlyProperty": "“{property}” diisi otomatis dan tidak dapat diubah.",
     "invalidFilter": "Filter ini tidak dapat disimpan. Muat ulang halaman dan coba lagi.",
     "tooManyRows": "Anda dapat mengubah paling banyak {max} baris sekaligus.",
