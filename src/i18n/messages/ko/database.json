@@ -317,7 +317,9 @@
     "pasteLeftOut": "붙여넣은 셀 {count}개가 제외되었습니다. 열에 맞지 않거나 변경할 수 없는 셀입니다.",
     "exportDisabled": "이 워크스페이스에서는 내보내기가 꺼져 있습니다.",
     "merge": "병합",
-    "mergeHint": "2~5개 행을 하나로 병합"
+    "mergeHint": "2~5개 행을 하나로 병합",
+    "setIcon": "아이콘 설정",
+    "removeIcon": "아이콘 제거"
   },
   "calculate": {
     "calculate": "계산",
@@ -421,7 +423,8 @@
     "endTime": "종료 시간",
     "endDateSwitch": "종료일",
     "includeTime": "시간 포함",
-    "hiddenByParent": "옵션 {count}개는 이 행의 “{parent}”와(과) 맞지 않습니다."
+    "hiddenByParent": "옵션 {count}개는 이 행의 “{parent}”와(과) 맞지 않습니다.",
+    "rangeHint": "Shift를 누른 채 날짜를 클릭하면 종료일이 설정됩니다."
   },
   "checklist": {
     "addItem": "항목 추가",
@@ -536,7 +539,10 @@
     "noParentOptions": "“{parent}”에 아직 옵션이 없습니다.",
     "parentOptionsLabel": "“{parent}”이(가) 다음일 때:",
     "parentOptionsAll": "항상",
-    "parentOptionToggle": "“{parent}”이(가) “{value}”일 때 “{option}” 표시"
+    "parentOptionToggle": "“{parent}”이(가) “{value}”일 때 “{option}” 표시",
+    "sortOptionsAsc": "오름차순 정렬 (A → Z)",
+    "sortOptionsDesc": "내림차순 정렬 (Z → A)",
+    "dragOption": "끌어서 {name} 이동"
   },
   "rowProperties": {
     "noProperties": "속성 없음",
@@ -768,7 +774,8 @@
     "newPlaceProperty": "새 장소 속성",
     "pinColor": "핀 색상",
     "noPinColor": "없음",
-    "colorRules": "색상 규칙"
+    "colorRules": "색상 규칙",
+    "wrapProperties": "모든 속성 줄 바꿈"
   },
   "gallery": {
     "new": "새로 만들기",

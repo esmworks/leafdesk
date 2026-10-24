@@ -67,6 +67,7 @@ export function BoardView({
   const { viewerId } = usePeople();
   const groupBy = boardGroupProperty(properties, view.config.groupBy);
   const showIcons = view.config.showIcons !== false;
+  const wrapProperties = view.config.wrapProperties === true;
   const groupContext = useGroupContext(groupBy);
   const groupName = useGroupName(groupBy ?? { name: "" });
   const [dragId, setDragId] = useState<string | null>(null);
@@ -420,6 +421,7 @@ export function BoardView({
                           workspaceId={workspaceId}
                           row={row}
                           showIcon={showIcons}
+                          wrap={wrapProperties}
                           group={key}
                           props={cardProps}
                           color={colors?.get(row.id)}
@@ -773,6 +775,7 @@ const Card = memo(function Card({
   workspaceId,
   row,
   showIcon,
+  wrap,
   group,
   props,
   color,
@@ -789,6 +792,8 @@ const Card = memo(function Card({
   row: Row;
   /** The view shows rows' page icons (see ViewConfig showIcons). */
   showIcon: boolean;
+  /** Long values take more lines instead of being cut off (see ViewConfig wrapProperties). */
+  wrap: boolean;
   /** The column the card is in: a card with several values shows in several. */
   group: string;
   props: Property[];
@@ -839,8 +844,12 @@ const Card = memo(function Card({
       {shown.length > 0 && (
         <div className="mt-2 flex flex-col items-start gap-1.5 text-xs">
           {shown.map((p) => (
-            <div key={p.id} className={cn("flex max-w-full min-w-0 items-center text-fg-muted", cellMarkClass(color, p.id))} title={p.name}>
-              <RowValue prop={p} row={row} />
+            <div
+              key={p.id}
+              className={cn("flex max-w-full min-w-0 text-fg-muted", wrap ? "items-start" : "items-center", cellMarkClass(color, p.id))}
+              title={p.name}
+            >
+              <RowValue prop={p} row={row} wrap={wrap} />
             </div>
           ))}
         </div>

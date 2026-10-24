@@ -317,7 +317,9 @@
     "pasteLeftOut": "{count, plural, one {# خانه جای‌گذاری‌شده کنار گذاشته شد: با ستونش سازگار نیست یا نمی‌توانید آن را تغییر دهید.} other {# خانه جای‌گذاری‌شده کنار گذاشته شدند: با ستون‌هایشان سازگار نیستند یا نمی‌توانید آن‌ها را تغییر دهید.}}",
     "exportDisabled": "برون‌بری در این فضای کاری خاموش است.",
     "merge": "ادغام",
-    "mergeHint": "ادغام ۲ تا ۵ ردیف در یک ردیف"
+    "mergeHint": "ادغام ۲ تا ۵ ردیف در یک ردیف",
+    "setIcon": "تنظیم نماد",
+    "removeIcon": "حذف نماد"
   },
   "calculate": {
     "calculate": "محاسبه",
@@ -421,7 +423,8 @@
     "endTime": "زمان پایان",
     "endDateSwitch": "تاریخ پایان",
     "includeTime": "شامل زمان",
-    "hiddenByParent": "{count, plural, one {# گزینه} other {# گزینه}} با «{parent}» این ردیف جور نیست."
+    "hiddenByParent": "{count, plural, one {# گزینه} other {# گزینه}} با «{parent}» این ردیف جور نیست.",
+    "rangeHint": "برای تعیین تاریخ پایان، با نگه‌داشتن Shift روی یک روز کلیک کنید."
   },
   "checklist": {
     "addItem": "افزودن مورد",
@@ -536,7 +539,10 @@
     "noParentOptions": "«{parent}» هنوز گزینه‌ای ندارد.",
     "parentOptionsLabel": "با «{parent}»:",
     "parentOptionsAll": "همیشه",
-    "parentOptionToggle": "پیشنهاد «{option}» وقتی «{parent}» برابر «{value}» است"
+    "parentOptionToggle": "پیشنهاد «{option}» وقتی «{parent}» برابر «{value}» است",
+    "sortOptionsAsc": "مرتب‌سازی الف ← ی",
+    "sortOptionsDesc": "مرتب‌سازی ی ← الف",
+    "dragOption": "برای جابه‌جا کردن {name} بکشید"
   },
   "rowProperties": {
     "noProperties": "بدون ویژگی",
@@ -768,7 +774,8 @@
     "newPlaceProperty": "ویژگی مکان تازه",
     "pinColor": "رنگ نشانگر",
     "noPinColor": "هیچ",
-    "colorRules": "قواعد رنگ"
+    "colorRules": "قواعد رنگ",
+    "wrapProperties": "شکستن خط همه ویژگی‌ها"
   },
   "gallery": {
     "new": "جدید",

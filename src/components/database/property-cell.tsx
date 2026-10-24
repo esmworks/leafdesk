@@ -31,7 +31,7 @@ import { RelationChips, RelationPicker } from "./relation-cell";
 import { useRelations } from "./relation-context";
 import type { ChecklistItem, Property, SelectOption } from "./types";
 import { useToday, useViewerTimeZone } from "./use-today";
-import { dateDraft, dateStartDay, draftValue, formatDateValue, parseDateValue, type DateDraft } from "@/lib/date-value";
+import { dateDraft, dateStartDay, draftValue, extendDraft, formatDateValue, parseDateValue, type DateDraft } from "@/lib/date-value";
 import { searchFold } from "@/lib/search-fold";
 import { relativeDay } from "@/lib/date-options";
 import { dayNumber, dayString } from "@/lib/time-zone";
@@ -43,6 +43,8 @@ import { useSchema } from "./schema-context";
 
 // The place editor (its search and suggestions) loads when a place is first edited.
 const PlaceEditor = dynamic(() => import("./place-editor").then((m) => m.PlaceEditor), { ssr: false });
+// Only the date editor shows it: kept out of the first load the row panel brings along.
+const DayGrid = dynamic(() => import("./date-day-grid").then((m) => m.DayGrid), { ssr: false, loading: () => <div className="h-60" /> });
 
 export type CreateOption = (propertyId: string, name: string) => Promise<SelectOption | null>;
 
@@ -225,7 +227,7 @@ export function PropertyDisplay({ prop, value, wrap, style }: { prop: ShownPrope
           href={String(value)}
           target="_blank"
           rel="noreferrer noopener"
-          className="truncate text-fg underline decoration-border underline-offset-2 hover:decoration-fg-muted"
+          className={cn("text-fg underline decoration-border underline-offset-2 hover:decoration-fg-muted", wrap ? "break-all" : "truncate")}
           onClick={(e) => e.stopPropagation()}
         >
           {String(value).replace(/^https?:\/\//i, "")}
@@ -236,7 +238,7 @@ export function PropertyDisplay({ prop, value, wrap, style }: { prop: ShownPrope
       return (
         <a
           href={prop.type === "email" ? `mailto:${String(value)}` : phoneHref(String(value))}
-          className="truncate text-fg underline decoration-border underline-offset-2 hover:decoration-fg-muted"
+          className={cn("text-fg underline decoration-border underline-offset-2 hover:decoration-fg-muted", wrap ? "break-all" : "truncate")}
           onClick={(e) => e.stopPropagation()}
         >
           {String(value)}
@@ -520,11 +522,17 @@ export function PropertyCell({
   upload,
   style,
   rowValues,
+  onTab,
 }: {
   prop: Property;
   value: unknown;
   onChange: (value: unknown) => void;
   onCreateOption: CreateOption;
+  /**
+   * Tab (Shift+Tab: `back`) in a text editor saves the value and calls this with the cell, which
+   * then has the focus back: the view moves on to the next value from there.
+   */
+  onTab?: (cell: HTMLElement, back: boolean) => void;
   /** The row's values: a select depending on another offers the options that go with its value there. */
   rowValues?: Record<string, unknown>;
   readOnly?: boolean;
@@ -532,7 +540,8 @@ export function PropertyCell({
   style?: FormulaStyle;
   /** The viewer may not see this value (property access): a lock stands in for it. */
   hidden?: boolean;
-  variant?: "table" | "panel";
+  /** "list": a compact value in a list view's line, at the size of its other values. */
+  variant?: "table" | "panel" | "list";
   wrap?: boolean;
   /** Start in edit mode (e.g. the title of a freshly created row). */
   autoEdit?: boolean;
@@ -550,10 +559,13 @@ export function PropertyCell({
   const [editing, setEditing] = useState(Boolean(autoEdit) && !readOnly);
 
   const base = cn(
-    "flex w-full min-w-0 items-center text-sm",
-    variant === "table" ? "min-h-[33px] px-2 py-1" : "min-h-[30px] rounded-md px-2 py-1",
+    "flex min-w-0 items-center",
+    variant === "list" ? "max-w-full rounded px-1 py-0.5 text-xs" : "w-full text-sm",
+    variant === "table" && "min-h-[33px] px-2 py-1",
+    variant === "panel" && "min-h-[30px] rounded-md px-2 py-1",
     !readOnly && "cursor-pointer",
     !readOnly && variant === "panel" && "hover:bg-bg-hover",
+    !readOnly && variant === "list" && "hover:bg-bg-active",
   );
 
   if (hidden) {
@@ -595,7 +607,7 @@ export function PropertyCell({
         data-cell-edit={readOnly ? undefined : ""}
         onClick={() => !readOnly && setEditing(true)}
         onKeyDown={(e) => {
-          if (!readOnly && (e.key === "Enter" || e.key === " ") && e.target === e.currentTarget) {
+          if (!readOnly && ((e.key === "Enter" && !e.shiftKey) || e.key === " ") && e.target === e.currentTarget) {
             e.preventDefault();
             setEditing(true);
           }
@@ -629,6 +641,7 @@ export function PropertyCell({
           draft={draft}
           upload={upload}
           rowValues={rowValues}
+          onTab={onTab && anchor ? (back) => setTimeout(() => onTab(anchor, back)) : undefined}
         />
       )}
     </>
@@ -645,6 +658,7 @@ function CellEditor({
   draft,
   upload,
   rowValues,
+  onTab,
 }: {
   prop: Property;
   value: unknown;
@@ -655,6 +669,7 @@ function CellEditor({
   draft?: string;
   upload?: UploadFile;
   rowValues?: Record<string, unknown>;
+  onTab?: (back: boolean) => void;
 }) {
   switch (prop.type) {
     case "text":
@@ -663,7 +678,7 @@ function CellEditor({
     case "email":
     case "phone":
       return (
-        <TextEditor prop={prop} value={value} anchor={anchor} onChange={onChange} onClose={onClose} startWith={draft} />
+        <TextEditor prop={prop} value={value} anchor={anchor} onChange={onChange} onClose={onClose} startWith={draft} onTab={onTab} />
       );
     case "checklist":
       return (
@@ -771,6 +786,7 @@ function TextEditor({
   onChange,
   onClose,
   startWith,
+  onTab,
 }: {
   prop: Property;
   value: unknown;
@@ -778,6 +794,8 @@ function TextEditor({
   onChange: (value: unknown) => void;
   onClose: () => void;
   startWith?: string;
+  /** Tab saves and hands on to the next value (see PropertyCell onTab); without it Tab leaves the field. */
+  onTab?: (back: boolean) => void;
 }) {
   const t = useTranslations("database.cell");
   // A new row's title (see quick-add): what quick add recognises shows under the editor.
@@ -833,6 +851,9 @@ function TextEditor({
           if (e.key === "Enter" && !e.shiftKey) {
             e.preventDefault();
             commit();
+          } else if (e.key === "Tab" && onTab && !e.nativeEvent.isComposing) {
+            e.preventDefault();
+            if (commit()) onTab(e.shiftKey);
           }
         }}
         className={cn(
@@ -869,7 +890,8 @@ function clockMinutes(text: string): number | null {
 /**
  * Edits a date: its day (or a range of days with "End date") and, with "Include time", its time
  * of day on the viewer's clock. Every change is saved right away. A new start moves the end
- * along, so a range keeps its length; an end can't go before the start.
+ * along, so a range keeps its length; an end can't go before the start. Days are typed or picked
+ * from a month; Shift-clicking a second day there makes the date a range up to it.
  */
 function DateEditor({
   value,
@@ -965,6 +987,14 @@ function DateEditor({
             )}
           </div>
         )}
+      </div>
+      <div className="mt-2 border-t border-border pt-2">
+        <DayGrid
+          start={draft?.start ?? null}
+          end={draft?.end ?? null}
+          today={today}
+          onPick={(day, extend) => (extend && draft ? save(extendDraft(draft, day)) : setStart(day))}
+        />
       </div>
       <div className="mt-2 flex flex-col gap-1.5 border-t border-border px-1 pt-2">
         <div className="flex items-center justify-between gap-2 text-sm">

@@ -317,7 +317,9 @@
     "pasteLeftOut": "{count, plural, one {Pominięto # wklejoną komórkę: nie pasuje do swojej kolumny lub nie możesz jej zmienić.} few {Pominięto # wklejone komórki: nie pasują do swoich kolumn lub nie możesz ich zmienić.} many {Pominięto # wklejonych komórek: nie pasują do swoich kolumn lub nie możesz ich zmienić.} other {Pominięto # wklejonej komórki: nie pasują do swoich kolumn lub nie możesz ich zmienić.}}",
     "exportDisabled": "Eksport jest wyłączony w tym obszarze roboczym.",
     "merge": "Scal",
-    "mergeHint": "Scal od 2 do 5 wierszy w jeden"
+    "mergeHint": "Scal od 2 do 5 wierszy w jeden",
+    "setIcon": "Ustaw ikonę",
+    "removeIcon": "Usuń ikonę"
   },
   "calculate": {
     "calculate": "Oblicz",
@@ -421,7 +423,8 @@
     "endTime": "Godzina zakończenia",
     "endDateSwitch": "Data zakończenia",
     "includeTime": "Uwzględnij godzinę",
-    "hiddenByParent": "{count, plural, one {# opcja nie pasuje} few {# opcje nie pasują} many {# opcji nie pasuje} other {# opcji nie pasuje}} do „{parent}” w tym wierszu."
+    "hiddenByParent": "{count, plural, one {# opcja nie pasuje} few {# opcje nie pasują} many {# opcji nie pasuje} other {# opcji nie pasuje}} do „{parent}” w tym wierszu.",
+    "rangeHint": "Kliknij dzień z Shiftem, aby ustawić datę końcową."
   },
   "checklist": {
     "addItem": "Dodaj element",
@@ -536,7 +539,10 @@
     "noParentOptions": "„{parent}” nie ma jeszcze opcji.",
     "parentOptionsLabel": "Przy „{parent}”:",
     "parentOptionsAll": "zawsze",
-    "parentOptionToggle": "Oferuj „{option}”, gdy „{parent}” to „{value}”"
+    "parentOptionToggle": "Oferuj „{option}”, gdy „{parent}” to „{value}”",
+    "sortOptionsAsc": "Sortuj A → Z",
+    "sortOptionsDesc": "Sortuj Z → A",
+    "dragOption": "Przeciągnij, aby przenieść {name}"
   },
   "rowProperties": {
     "noProperties": "Brak właściwości",
@@ -768,7 +774,8 @@
     "newPlaceProperty": "Nowa właściwość miejsca",
     "pinColor": "Kolor pinezek",
     "noPinColor": "Brak",
-    "colorRules": "Reguły kolorów"
+    "colorRules": "Reguły kolorów",
+    "wrapProperties": "Zawijaj wszystkie właściwości"
   },
   "gallery": {
     "new": "Nowy",

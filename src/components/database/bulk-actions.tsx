@@ -1,10 +1,11 @@
 "use client";
 
-import { ArrowLeft, Copy, Download, FileSpreadsheet, Merge, Pencil, Trash2, X } from "lucide-react";
+import { ArrowLeft, CircleOff, Copy, Download, FileSpreadsheet, Merge, Pencil, SmilePlus, Trash2, X } from "lucide-react";
 import { useLocale, useTranslations } from "next-intl";
 import { useState } from "react";
 import type { Selection } from "@/components/selection";
 import { Button, cn, Input, MenuItem } from "@/components/ui";
+import { IconGrid } from "@/components/page/icon-picker";
 import { Floating, useFloating } from "./floating";
 import { MergeRowsDialog } from "./merge-rows-dialog";
 import { MAX_MERGE_ROWS, MIN_MERGE_ROWS } from "@/lib/merge-rows";
@@ -61,6 +62,7 @@ export function BulkActionBar({
 }) {
   const t = useTranslations("database.bulk");
   const edit = useFloating<HTMLButtonElement>();
+  const iconMenu = useFloating<HTMLButtonElement>();
   const [busy, setBusy] = useState(false);
   // The rows being merged: the dialog stays open on them while the selection changes beside it.
   const [merging, setMerging] = useState<string[] | null>(null);
@@ -129,6 +131,25 @@ export function BulkActionBar({
           <Floating open={edit.open} anchor={edit.el} onClose={edit.close} className="w-72 p-0">
             <BulkEditPanel properties={properties} rows={selectedRows} api={api} onDone={edit.close} />
           </Floating>
+          <button ref={iconMenu.ref} type="button" disabled={busy} onClick={iconMenu.toggle} className={action} title={t("setIcon")}>
+            <SmilePlus className="h-3.5 w-3.5 text-fg-muted" />
+            <span className="max-sm:sr-only">{t("setIcon")}</span>
+          </button>
+          <Floating open={iconMenu.open} anchor={iconMenu.el} onClose={iconMenu.close} className="w-72">
+            <IconGrid
+              icon={null}
+              onChange={(icon) => {
+                iconMenu.close();
+                void run(() => api.setRowsIcon(ids, icon));
+              }}
+            />
+          </Floating>
+          {selectedRows.some((r) => r.icon) && (
+            <button type="button" disabled={busy} onClick={() => run(() => api.setRowsIcon(ids, null))} className={action} title={t("removeIcon")}>
+              <CircleOff className="h-3.5 w-3.5 text-fg-muted" />
+              <span className="max-sm:sr-only">{t("removeIcon")}</span>
+            </button>
+          )}
           <button
             type="button"
             disabled={busy}

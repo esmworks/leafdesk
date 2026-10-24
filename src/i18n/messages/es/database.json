@@ -317,7 +317,9 @@
     "pasteLeftOut": "{count, plural, one {Se omitió # celda pegada: no encaja en su columna o no puedes cambiarla.} other {Se omitieron # celdas pegadas: no encajan en sus columnas o no puedes cambiarlas.}}",
     "exportDisabled": "La exportación está desactivada en este espacio de trabajo.",
     "merge": "Combinar",
-    "mergeHint": "Combinar de 2 a 5 filas en una"
+    "mergeHint": "Combinar de 2 a 5 filas en una",
+    "setIcon": "Poner icono",
+    "removeIcon": "Quitar icono"
   },
   "calculate": {
     "calculate": "Calcular",
@@ -421,7 +423,8 @@
     "endTime": "Hora de fin",
     "endDateSwitch": "Fecha de fin",
     "includeTime": "Incluir hora",
-    "hiddenByParent": "{count, plural, one {# opción no va} other {# opciones no van}} con el valor de “{parent}” de esta fila."
+    "hiddenByParent": "{count, plural, one {# opción no va} other {# opciones no van}} con el valor de “{parent}” de esta fila.",
+    "rangeHint": "Haz clic en un día con Mayús para fijar la fecha de fin."
   },
   "checklist": {
     "addItem": "Añadir un elemento",
@@ -536,7 +539,10 @@
     "noParentOptions": "“{parent}” aún no tiene opciones.",
     "parentOptionsLabel": "Con “{parent}”:",
     "parentOptionsAll": "siempre",
-    "parentOptionToggle": "Ofrecer “{option}” cuando “{parent}” sea “{value}”"
+    "parentOptionToggle": "Ofrecer “{option}” cuando “{parent}” sea “{value}”",
+    "sortOptionsAsc": "Ordenar A → Z",
+    "sortOptionsDesc": "Ordenar Z → A",
+    "dragOption": "Arrastra para mover {name}"
   },
   "rowProperties": {
     "noProperties": "Sin propiedades",
@@ -768,7 +774,8 @@
     "newPlaceProperty": "Nueva propiedad de lugar",
     "pinColor": "Color del marcador",
     "noPinColor": "Ninguno",
-    "colorRules": "Reglas de color"
+    "colorRules": "Reglas de color",
+    "wrapProperties": "Ajustar todas las propiedades"
   },
   "gallery": {
     "new": "Nuevo",

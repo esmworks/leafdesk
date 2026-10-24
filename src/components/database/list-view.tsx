@@ -3,13 +3,15 @@
 import { cellMarkClass, colorMarkClass, type RowColors } from "@/lib/color-rules";
 import { Plus } from "lucide-react";
 import { useTranslations } from "next-intl";
+import { useRef, type KeyboardEvent } from "react";
 import { cn, PageIcon } from "@/components/ui";
 import { pageLabel } from "@/lib/labels";
 import { isHiddenInView } from "@/lib/properties";
 import type { SubItemLine } from "@/lib/sub-items";
 import { CardTitleInput } from "./card-title-input";
 import { RowMenu } from "./gallery-view";
-import { RowValue, shownValues } from "./property-cell";
+import { uploadToPage } from "./files-cell";
+import { PropertyCell, shownValues } from "./property-cell";
 import { QuickAddContext } from "./quick-add";
 import { openRowProps, useIsOpenRow, useRowOpener } from "./row-panel-context";
 import { useNewRow } from "./use-new-row";
@@ -18,7 +20,11 @@ import { AddSubItemButton, SUB_ITEM_INDENT, SubItemCount, SubItemToggle, useSubI
 import type { Property, Row, View } from "./types";
 import type { DatabaseApi } from "./use-database";
 
-/** One compact line per row: title on the left, the properties the view shows on the right. */
+/**
+ * One compact line per row: title on the left, the properties the view shows on the right. Values
+ * edit in place with the table's editors; Tab and Shift+Tab move between a line's values, and
+ * Shift+Enter on a line adds a row right below it.
+ */
 export function ListView({
   workspaceId,
   view,
@@ -55,6 +61,20 @@ export function ListView({
     subItems.expand(row.id);
     await createNew(() => api.createRow({ properties: { [subItems.parent!.id]: [row.id] } }));
   };
+  /**
+   * A new row right below `row` (Shift+Enter), with the view's filter values like any new row, and
+   * under the same parent while sub-items nest. A sorted view puts it where its values go.
+   */
+  const addBelow = async (row: Row) => {
+    const parent = subItems.nested && subItems.parent && access.canEditValues(subItems.parent.id) ? subItems.parent : null;
+    const parentValue = parent ? row.properties[parent.id] : undefined;
+    const properties = parent && Array.isArray(parentValue) && parentValue.length ? { [parent.id]: parentValue } : undefined;
+    await createNew(async () => {
+      const id = await api.createRow(properties ? { properties } : {});
+      if (id && !view.config.sorts?.length) void api.moveRowBeside(id, row.id, "after");
+      return id;
+    });
+  };
 
   return (
     <QuickAddContext value={quick}>
@@ -79,6 +99,8 @@ export function ListView({
                 if (title !== line.row.title) quick.save(line.row.id, title);
               }}
               onDelete={() => api.deleteRow(line.row.id)}
+              api={api}
+              onAddBelow={readOnly ? undefined : () => void addBelow(line.row)}
             />
           ))}
         </div>
@@ -112,6 +134,8 @@ function ListRow({
   typed,
   onTitle,
   onDelete,
+  api,
+  onAddBelow,
 }: {
   workspaceId: string;
   line: SubItemLine<Row>;
@@ -130,16 +154,43 @@ function ListRow({
   typed?: string;
   onTitle: (title: string) => void;
   onDelete: () => void;
+  api: DatabaseApi;
+  /** Adds a row below this one (Shift+Enter); missing where rows can't be added. */
+  onAddBelow?: () => void;
 }) {
   const tc = useTranslations("common");
   const opener = useRowOpener(workspaceId);
+  const access = usePropertyAccess();
+  const box = useRef<HTMLDivElement>(null);
   const row = line.row;
   const isOpen = useIsOpenRow(opener, row.id);
   const shown = shownValues(props, row);
   const label = pageLabel(row.title, tc("untitled"));
+
+  /** Moves the focus from the title or a value to the next value (`back`: the one before); false at either end. */
+  const moveFocus = (from: Element, back: boolean) => {
+    const stops = [...(box.current?.querySelectorAll<HTMLElement>("[data-list-title], [data-list-values] [data-cell-edit]") ?? [])];
+    const at = stops.indexOf(from as HTMLElement);
+    const next = at < 0 ? undefined : stops[at + (back ? -1 : 1)];
+    next?.focus();
+    return !!next;
+  };
+  const onKeyDown = (e: KeyboardEvent<HTMLDivElement>) => {
+    // Keys typed in an editor (shown over the line, outside it) are the editor's.
+    if (!box.current?.contains(e.target as Node) || e.nativeEvent.isComposing) return;
+    if (e.key === "Enter" && e.shiftKey && onAddBelow && !editTitle) {
+      e.preventDefault();
+      onAddBelow();
+    } else if (e.key === "Tab" && !e.ctrlKey && !e.metaKey && !e.altKey && moveFocus(e.target as Element, e.shiftKey)) {
+      e.preventDefault();
+    }
+  };
+
   return (
     <div
+      ref={box}
       role="listitem"
+      onKeyDown={onKeyDown}
       className={cn(
         "group relative flex min-h-9 items-center gap-2 border-b border-border px-2 hover:bg-bg-hover",
         isOpen && "bg-bg-hover",
@@ -151,10 +202,11 @@ function ListRow({
       <div
         role="link"
         tabIndex={0}
+        data-list-title=""
         {...openRowProps(opener, row.id, !editTitle)}
         onClick={(e) => !editTitle && opener.open(row.id, e)}
         onKeyDown={(e) => {
-          if (e.key === "Enter" && !editTitle && e.target === e.currentTarget) opener.open(row.id, e);
+          if (e.key === "Enter" && !e.shiftKey && !editTitle && e.target === e.currentTarget) opener.open(row.id, e);
         }}
         className="flex min-w-0 flex-1 cursor-pointer items-center gap-2 self-stretch rounded-sm"
       >
@@ -165,17 +217,32 @@ function ListRow({
           <span className={cn("min-w-0 truncate text-sm font-medium", !row.title && "text-fg-faint", cellMarkClass(color, "title"))}>{label}</span>
         )}
         {!nested && <SubItemCount count={line.children} />}
-        {shown.length > 0 && (
-          // Values are chips: they shrink from the left on narrow screens so the title keeps its room.
-          <div className="ms-auto flex max-w-[60%] min-w-0 shrink items-center justify-end gap-3 overflow-hidden text-xs text-fg-muted">
-            {shown.map((p) => (
-              <span key={p.id} className={cn("flex min-w-0 shrink-0 items-center last:shrink", cellMarkClass(color, p.id))} title={p.name}>
-                <RowValue prop={p} row={row} />
-              </span>
-            ))}
-          </div>
-        )}
       </div>
+      {shown.length > 0 && (
+        // Values are chips: they shrink from the left on narrow screens so the title keeps its room.
+        <div data-list-values="" className="flex max-w-[60%] min-w-0 shrink items-center justify-end gap-1 overflow-hidden text-xs text-fg-muted">
+          {shown.map((p) => {
+            const valueAccess = access.valueAccess(row, p.id);
+            return (
+              <span key={p.id} className={cn("flex min-w-0 shrink-0 items-center last:shrink", cellMarkClass(color, p.id))} title={p.name}>
+                <PropertyCell
+                  variant="list"
+                  prop={p}
+                  value={row.properties[p.id]}
+                  style={row.styles?.[p.id]}
+                  hidden={valueAccess === "hidden"}
+                  readOnly={readOnly || valueAccess === "readOnly"}
+                  onChange={(v) => void api.setCell(row.id, p.id, v)}
+                  onCreateOption={api.createOption}
+                  rowValues={row.properties}
+                  upload={p.type === "files" ? uploadToPage(row.id) : undefined}
+                  onTab={(cell, back) => moveFocus(cell, back)}
+                />
+              </span>
+            );
+          })}
+        </div>
+      )}
       {onAddSubItem && !editTitle && (
         <AddSubItemButton title={label} onAdd={onAddSubItem} className="shrink-0 opacity-0 group-hover:opacity-100 focus-visible:opacity-100" />
       )}

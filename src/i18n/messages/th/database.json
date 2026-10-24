@@ -317,7 +317,9 @@
     "pasteLeftOut": "{count, plural, other {ข้ามเซลล์ที่วาง # เซลล์: ไม่เข้ากับคอลัมน์หรือคุณเปลี่ยนไม่ได้}}",
     "exportDisabled": "การส่งออกถูกปิดในพื้นที่ทำงานนี้",
     "merge": "รวม",
-    "mergeHint": "รวม 2 ถึง 5 แถวเป็นแถวเดียว"
+    "mergeHint": "รวม 2 ถึง 5 แถวเป็นแถวเดียว",
+    "setIcon": "ตั้งไอคอน",
+    "removeIcon": "ลบไอคอน"
   },
   "calculate": {
     "calculate": "คำนวณ",
@@ -421,7 +423,8 @@
     "endTime": "เวลาสิ้นสุด",
     "endDateSwitch": "วันที่สิ้นสุด",
     "includeTime": "รวมเวลา",
-    "hiddenByParent": "{count, plural, other {# ตัวเลือกไม่เข้ากับ}} “{parent}” ของแถวนี้"
+    "hiddenByParent": "{count, plural, other {# ตัวเลือกไม่เข้ากับ}} “{parent}” ของแถวนี้",
+    "rangeHint": "กด Shift ค้างแล้วคลิกวันเพื่อตั้งวันที่สิ้นสุด"
   },
   "checklist": {
     "addItem": "เพิ่มรายการ",
@@ -536,7 +539,10 @@
     "noParentOptions": "“{parent}” ยังไม่มีตัวเลือก",
     "parentOptionsLabel": "กับ “{parent}”:",
     "parentOptionsAll": "ทุกค่า",
-    "parentOptionToggle": "เสนอ “{option}” เมื่อ “{parent}” เป็น “{value}”"
+    "parentOptionToggle": "เสนอ “{option}” เมื่อ “{parent}” เป็น “{value}”",
+    "sortOptionsAsc": "เรียง ก → ฮ",
+    "sortOptionsDesc": "เรียง ฮ → ก",
+    "dragOption": "ลากเพื่อย้าย {name}"
   },
   "rowProperties": {
     "noProperties": "ไม่มีคุณสมบัติ",
@@ -768,7 +774,8 @@
     "newPlaceProperty": "คุณสมบัติสถานที่ใหม่",
     "pinColor": "สีหมุด",
     "noPinColor": "ไม่มี",
-    "colorRules": "กฎสี"
+    "colorRules": "กฎสี",
+    "wrapProperties": "ตัดบรรทัดคุณสมบัติทั้งหมด"
   },
   "gallery": {
     "new": "ใหม่",

@@ -61,3 +61,17 @@ describe("where a view opens its rows", () => {
     expect(layoutConfigError({ openRows: "tab" } as unknown as ViewConfig)).toBe("openRows must be one of: panel, page");
   });
 });
+
+describe("wrapping card values", () => {
+  it("is on or off, and off when missing", () => {
+    expect(layoutConfigError({ wrapProperties: true })).toBeNull();
+    expect(layoutConfigError({ wrapProperties: false })).toBeNull();
+    expect(layoutConfigError({})).toBeNull();
+    expect(layoutConfigError({ wrapProperties: "yes" } as unknown as ViewConfig)).toBe("wrapProperties must be true or false");
+  });
+
+  it("is checked in a dashboard's widgets too", () => {
+    const widget = { id: "w1", span: 2, view: { type: "board", config: { wrapProperties: 1 } } };
+    expect(layoutConfigError({ widgets: [widget] } as unknown as ViewConfig)).toBe('Widget "w1": wrapProperties must be true or false');
+  });
+});

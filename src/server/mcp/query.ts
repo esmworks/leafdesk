@@ -414,6 +414,7 @@ export function describeViewConfig(props: PropertyDef[], config: ViewConfig, loo
     ...(config.showTable === false ? { show_table: false } : {}),
     ...(config.showWeekends === false ? { show_weekends: false } : {}),
     ...(config.showIcons === false ? { show_icons: false } : {}),
+    ...(config.wrapProperties ? { wrap_properties: true } : {}),
     ...(config.cardSize ? { card_size: config.cardSize } : {}),
     ...(config.cover ? { cover: config.cover.source === "property" ? keyName(props, config.cover.propertyId) : config.cover.source } : {}),
     ...(config.subItems ? { sub_items: config.subItems } : {}),

@@ -317,7 +317,9 @@
     "pasteLeftOut": "{count, plural, other {# sel yang ditempel dilewati: tidak sesuai dengan kolomnya atau Anda tidak dapat mengubahnya.}}",
     "exportDisabled": "Ekspor dinonaktifkan di ruang kerja ini.",
     "merge": "Gabungkan",
-    "mergeHint": "Gabungkan 2 sampai 5 baris menjadi satu"
+    "mergeHint": "Gabungkan 2 sampai 5 baris menjadi satu",
+    "setIcon": "Atur ikon",
+    "removeIcon": "Hapus ikon"
   },
   "calculate": {
     "calculate": "Hitung",
@@ -421,7 +423,8 @@
     "endTime": "Waktu selesai",
     "endDateSwitch": "Tanggal selesai",
     "includeTime": "Sertakan waktu",
-    "hiddenByParent": "{count, plural, other {# opsi tidak sesuai}} dengan “{parent}” pada baris ini."
+    "hiddenByParent": "{count, plural, other {# opsi tidak sesuai}} dengan “{parent}” pada baris ini.",
+    "rangeHint": "Shift-klik sebuah hari untuk mengatur tanggal selesai."
   },
   "checklist": {
     "addItem": "Tambahkan item",
@@ -536,7 +539,10 @@
     "noParentOptions": "“{parent}” belum memiliki opsi.",
     "parentOptionsLabel": "Dengan “{parent}”:",
     "parentOptionsAll": "semua",
-    "parentOptionToggle": "Tawarkan “{option}” saat “{parent}” adalah “{value}”"
+    "parentOptionToggle": "Tawarkan “{option}” saat “{parent}” adalah “{value}”",
+    "sortOptionsAsc": "Urutkan A → Z",
+    "sortOptionsDesc": "Urutkan Z → A",
+    "dragOption": "Seret untuk memindahkan {name}"
   },
   "rowProperties": {
     "noProperties": "Tidak ada properti",
@@ -768,7 +774,8 @@
     "newPlaceProperty": "Properti tempat baru",
     "pinColor": "Warna pin",
     "noPinColor": "Tidak ada",
-    "colorRules": "Aturan warna"
+    "colorRules": "Aturan warna",
+    "wrapProperties": "Bungkus semua properti"
   },
   "gallery": {
     "new": "Baru",

@@ -317,7 +317,9 @@
     "pasteLeftOut": "{count, plural, one {# cella incollata è stata esclusa: non è adatta alla sua colonna o non puoi modificarla.} other {# celle incollate sono state escluse: non sono adatte alle loro colonne o non puoi modificarle.}}",
     "exportDisabled": "L’esportazione è disattivata in questo spazio di lavoro.",
     "merge": "Unisci",
-    "mergeHint": "Unisci da 2 a 5 righe in una"
+    "mergeHint": "Unisci da 2 a 5 righe in una",
+    "setIcon": "Imposta icona",
+    "removeIcon": "Rimuovi icona"
   },
   "calculate": {
     "calculate": "Calcola",
@@ -421,7 +423,8 @@
     "endTime": "Ora di fine",
     "endDateSwitch": "Data di fine",
     "includeTime": "Includi ora",
-    "hiddenByParent": "{count, plural, one {# opzione non va} other {# opzioni non vanno}} con “{parent}” di questa riga."
+    "hiddenByParent": "{count, plural, one {# opzione non va} other {# opzioni non vanno}} con “{parent}” di questa riga.",
+    "rangeHint": "Fai clic su un giorno tenendo premuto Maiusc per impostare la data di fine."
   },
   "checklist": {
     "addItem": "Aggiungi un elemento",
@@ -536,7 +539,10 @@
     "noParentOptions": "“{parent}” non ha ancora opzioni.",
     "parentOptionsLabel": "Con “{parent}”:",
     "parentOptionsAll": "sempre",
-    "parentOptionToggle": "Offri “{option}” quando “{parent}” è “{value}”"
+    "parentOptionToggle": "Offri “{option}” quando “{parent}” è “{value}”",
+    "sortOptionsAsc": "Ordina A → Z",
+    "sortOptionsDesc": "Ordina Z → A",
+    "dragOption": "Trascina per spostare {name}"
   },
   "rowProperties": {
     "noProperties": "Nessuna proprietà",
@@ -768,7 +774,8 @@
     "newPlaceProperty": "Nuova proprietà luogo",
     "pinColor": "Colore dei segnaposto",
     "noPinColor": "Nessuno",
-    "colorRules": "Regole di colore"
+    "colorRules": "Regole di colore",
+    "wrapProperties": "A capo per tutte le proprietà"
   },
   "gallery": {
     "new": "Nuovo",

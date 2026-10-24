@@ -317,7 +317,9 @@
     "pasteLeftOut": "{count, plural, one {# cellule collée a été ignorée : elle ne correspond pas à sa colonne ou vous ne pouvez pas la modifier.} other {# cellules collées ont été ignorées : elles ne correspondent pas à leurs colonnes ou vous ne pouvez pas les modifier.}}",
     "exportDisabled": "L’exportation est désactivée dans cet espace de travail.",
     "merge": "Fusionner",
-    "mergeHint": "Fusionner 2 à 5 lignes en une seule"
+    "mergeHint": "Fusionner 2 à 5 lignes en une seule",
+    "setIcon": "Définir l’icône",
+    "removeIcon": "Retirer l’icône"
   },
   "calculate": {
     "calculate": "Calculer",
@@ -421,7 +423,8 @@
     "endTime": "Heure de fin",
     "endDateSwitch": "Date de fin",
     "includeTime": "Inclure l’heure",
-    "hiddenByParent": "{count, plural, one {# option ne va pas} other {# options ne vont pas}} avec « {parent} » de cette ligne."
+    "hiddenByParent": "{count, plural, one {# option ne va pas} other {# options ne vont pas}} avec « {parent} » de cette ligne.",
+    "rangeHint": "Maj-clic sur un jour pour définir la date de fin."
   },
   "checklist": {
     "addItem": "Ajouter un élément",
@@ -536,7 +539,10 @@
     "noParentOptions": "« {parent} » n’a pas encore d’options.",
     "parentOptionsLabel": "Avec « {parent} » :",
     "parentOptionsAll": "toujours",
-    "parentOptionToggle": "Proposer « {option} » quand « {parent} » vaut « {value} »"
+    "parentOptionToggle": "Proposer « {option} » quand « {parent} » vaut « {value} »",
+    "sortOptionsAsc": "Trier de A à Z",
+    "sortOptionsDesc": "Trier de Z à A",
+    "dragOption": "Faire glisser pour déplacer {name}"
   },
   "rowProperties": {
     "noProperties": "Aucune propriété",
@@ -768,7 +774,8 @@
     "newPlaceProperty": "Nouvelle propriété de lieu",
     "pinColor": "Couleur des repères",
     "noPinColor": "Aucune",
-    "colorRules": "Règles de couleur"
+    "colorRules": "Règles de couleur",
+    "wrapProperties": "Renvoyer toutes les propriétés à la ligne"
   },
   "gallery": {
     "new": "Nouveau",

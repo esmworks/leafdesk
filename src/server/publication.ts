@@ -377,6 +377,8 @@ export type PublishedDatabase = {
   cardSize: CardSize;
   /** The view shows no page icons: rows come without theirs, and lists leave out the default one. */
   noIcons?: true;
+  /** Board and gallery cards: long values take more lines instead of being cut off. */
+  wrap?: true;
   /** Charts (layout "chart"). */
   chart?: PublishedChart;
 };
@@ -1133,6 +1135,8 @@ export async function publishedDatabase(
     groups: layout === "board" || layout === "table" ? groups : null,
     cardSize: chosen.config.cardSize ?? "medium",
     ...(icons ? {} : { noIcons: true as const }),
+    // Board and gallery cards wrapping long values (see ViewConfig wrapProperties).
+    ...((layout === "board" || layout === "gallery") && chosen.config.wrapProperties ? { wrap: true as const } : {}),
   };
 }
 

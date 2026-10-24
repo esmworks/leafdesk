@@ -317,7 +317,9 @@
     "pasteLeftOut": "{count, plural, other {# ô đã dán bị bỏ qua: chúng không phù hợp với cột hoặc bạn không thể thay đổi chúng.}}",
     "exportDisabled": "Tính năng xuất đã bị tắt trong không gian làm việc này.",
     "merge": "Gộp",
-    "mergeHint": "Gộp 2 đến 5 hàng thành một"
+    "mergeHint": "Gộp 2 đến 5 hàng thành một",
+    "setIcon": "Đặt biểu tượng",
+    "removeIcon": "Gỡ biểu tượng"
   },
   "calculate": {
     "calculate": "Tính toán",
@@ -421,7 +423,8 @@
     "endTime": "Giờ kết thúc",
     "endDateSwitch": "Ngày kết thúc",
     "includeTime": "Bao gồm giờ",
-    "hiddenByParent": "{count, plural, other {# tùy chọn không đi}} với “{parent}” của hàng này."
+    "hiddenByParent": "{count, plural, other {# tùy chọn không đi}} với “{parent}” của hàng này.",
+    "rangeHint": "Nhấn Shift và bấm vào một ngày để đặt ngày kết thúc."
   },
   "checklist": {
     "addItem": "Thêm một mục",
@@ -536,7 +539,10 @@
     "noParentOptions": "“{parent}” chưa có tùy chọn nào.",
     "parentOptionsLabel": "Với “{parent}”:",
     "parentOptionsAll": "bất kỳ",
-    "parentOptionToggle": "Đưa ra “{option}” khi “{parent}” là “{value}”"
+    "parentOptionToggle": "Đưa ra “{option}” khi “{parent}” là “{value}”",
+    "sortOptionsAsc": "Sắp xếp A → Z",
+    "sortOptionsDesc": "Sắp xếp Z → A",
+    "dragOption": "Kéo để di chuyển {name}"
   },
   "rowProperties": {
     "noProperties": "Không có thuộc tính",
@@ -768,7 +774,8 @@
     "newPlaceProperty": "Thuộc tính địa điểm mới",
     "pinColor": "Màu ghim",
     "noPinColor": "Không có",
-    "colorRules": "Quy tắc màu"
+    "colorRules": "Quy tắc màu",
+    "wrapProperties": "Xuống dòng mọi thuộc tính"
   },
   "gallery": {
     "new": "Mới",

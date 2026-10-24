@@ -14,6 +14,7 @@ import {
   duplicatePropertyAction,
   deleteViewAction,
   duplicateRowsAction,
+  setRowsIconAction,
   ensureOptionAction,
   loadDatabaseAction,
   moveRowAction,
@@ -400,6 +401,20 @@ export function useDatabase(
         setSnapshot((s) => (s ? { ...s, rows: s.rows.map((r) => (r.id === rowId ? { ...r, icon } : r)) } : s));
         try {
           await setPageIconAction(rowId, icon);
+        } catch (e) {
+          report(e);
+        } finally {
+          await refetch();
+        }
+      },
+
+      /** Gives the selected rows one icon, or takes theirs away (null); skipped rows are reported. */
+      async setRowsIcon(rowIds: string[], icon: string | null) {
+        const ids = new Set(rowIds);
+        setSnapshot((s) => (s ? { ...s, rows: s.rows.map((r) => (ids.has(r.id) ? { ...r, icon } : r)) } : s));
+        try {
+          const result = await unwrap(setRowsIconAction(databaseId, rowIds, icon));
+          if (result.skipped.length) setError(tb("skipped", { count: result.skipped.length }));
         } catch (e) {
           report(e);
         } finally {

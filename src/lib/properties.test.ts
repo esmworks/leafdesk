@@ -11,6 +11,7 @@ import {
   localDay,
   makeStatusOptions,
   phoneHref,
+  sortOptionsByName,
   sortStatusOptions,
   groupRowsByPerson,
   movePersonValue,
@@ -837,5 +838,36 @@ describe("newAssignees", () => {
 
   it("ignores removals, unchanged values and other properties", () => {
     expect(newAssignees(props, { p_owner: ["u1", "u2"] }, { p_owner: ["u2"], p_text: ["u9"] }, "me-id")).toEqual([]);
+  });
+});
+
+describe("sortOptionsByName", () => {
+  const option = (name: string, group?: "todo" | "in_progress" | "done") => ({ id: name, name, color: "gray" as const, ...(group ? { group } : {}) });
+  const names = (options: { name: string }[]) => options.map((o) => o.name);
+
+  it("orders names A to Z or Z to A, numbers by their value and case aside", () => {
+    const options = [option("phase 10"), option("Beta"), option("Phase 2"), option("alpha")];
+    expect(names(sortOptionsByName(options, "asc", "en"))).toEqual(["alpha", "Beta", "Phase 2", "phase 10"]);
+    expect(names(sortOptionsByName(options, "desc", "en"))).toEqual(["phase 10", "Phase 2", "Beta", "alpha"]);
+  });
+
+  it("compares as the viewer's language reads", () => {
+    const options = [option("Zeytin"), option("Çilek"), option("Armut")];
+    expect(names(sortOptionsByName(options, "asc", "tr"))).toEqual(["Armut", "Çilek", "Zeytin"]);
+    const swedish = [option("Örn"), option("Zebra"), option("Apa")];
+    expect(names(sortOptionsByName(swedish, "asc", "sv"))).toEqual(["Apa", "Zebra", "Örn"]);
+  });
+
+  it("keeps the options themselves and leaves the list it was given alone", () => {
+    const options = [option("b"), option("a")];
+    const sorted = sortOptionsByName(options, "asc", "en");
+    expect(sorted[0]).toBe(options[1]);
+    expect(names(options)).toEqual(["b", "a"]);
+  });
+
+  it("sorts status options within each group, the groups in their order", () => {
+    const options = [option("Waiting", "todo"), option("Backlog", "todo"), option("Review", "in_progress"), option("Doing", "in_progress"), option("Shipped", "done"), option("Dropped", "done")];
+    expect(names(sortOptionsByName(options, "asc", "en", true))).toEqual(["Backlog", "Waiting", "Doing", "Review", "Dropped", "Shipped"]);
+    expect(names(sortOptionsByName(options, "desc", "en", true))).toEqual(["Waiting", "Backlog", "Review", "Doing", "Shipped", "Dropped"]);
   });
 });

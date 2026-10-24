@@ -195,7 +195,8 @@ for Windows, `.AppImage` for Linux) and choose *On this computer*. See [Desktop 
   - Each view with rows can leave out the rows' page icons (Layout → *Show page icons*; published
     views too), and a calendar can leave out Saturdays and Sundays (*Show weekends*, month and
     week alike): its weekdays then share the width, and rows only on a weekend are listed under it
-    with their day, to open or drag onto a weekday.
+    with their day, to open or drag onto a weekday. Boards and galleries can wrap long values on
+    their cards onto more lines instead of cutting them off (*Wrap all properties*).
   - Table views calculate column totals, averages, counts and more over the filtered rows.
   - Board columns show how many cards they hold next to their name, and can show one calculation
     over a property for their cards on the line under it, the same in every column: the sum of the
@@ -208,7 +209,12 @@ for Windows, `.AppImage` for Linux) and choose *On this computer*. See [Desktop 
     import reads it (numbers, dates, yes/no, option and people names), adding options a select
     lacks and, in an ungrouped table, rows past the last one. One pasted value fills the whole
     range; cells that don't fit their column or that you may not change are left out and counted.
-    From 120 rows on, a table renders only the rows near the visible part of the page.
+    From 120 rows on, a table renders only the rows near the visible part of the page. Selected
+    rows can be edited, given an icon, duplicated, merged, exported or trashed together.
+  - List views edit the values on each line in place, with the table's editors: Tab and Shift+Tab
+    move between a line's values and Shift+Enter adds a row right below the line.
+  - The options of a select, multi-select or status are dragged into order or sorted A → Z or
+    Z → A once, compared as the viewer's language reads (a status within each group).
   - Formulas read the row's properties and, through a relation, the properties of the linked rows
     (`sum(map(prop("Tasks"), prop(current, "Hours")))`, with `filter`, `find`, `some`, `every`,
     `first`, `last` and `at`), one step away and up to 200 linked rows. `sum`, `average` (also
@@ -234,7 +240,8 @@ for Windows, `.AppImage` for Linux) and choose *On this computer*. See [Desktop 
     multi-select or status option (a dash stands for a space). What's recognised shows under the
     name while you type, and each part can be kept in the name instead.
   - Dates can have an end and a time of day ("Oct 12 → Oct 14", "Oct 12, 14:30 → 16:00"), shown in
-    each viewer's time zone; filters match a range on every day it covers.
+    each viewer's time zone; filters match a range on every day it covers. In the date picker's
+    month, Shift-clicking a second day makes the date a range.
   - Calendar views show a month, with dates over several days as bars across them, or a week with
     its hours; a row is added on a day or at an hour, and dragging it moves its whole date.
   - Date properties can show dates relative to today ("Tomorrow", "In 3 days", "2 days ago", up to

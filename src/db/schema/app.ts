@@ -893,6 +893,8 @@ export type ViewConfig = {
   showTable?: boolean;
   /** Galleries: "medium" when missing. */
   cardSize?: CardSize;
+  /** Boards and galleries: long values on cards wrap onto more lines instead of cutting off; cut off when missing. */
+  wrapProperties?: boolean;
   /** Galleries: the first image of each row when missing. */
   cover?: ViewCover;
   /** Charts: "bar" when missing. */

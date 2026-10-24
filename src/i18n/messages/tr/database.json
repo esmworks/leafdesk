@@ -317,7 +317,9 @@
     "pasteLeftOut": "{count, plural, one {Yapıştırılan # hücre atlandı: sütununa uymuyor ya da onu değiştiremezsin.} other {Yapıştırılan # hücre atlandı: sütunlarına uymuyor ya da onları değiştiremezsin.}}",
     "exportDisabled": "Bu çalışma alanında dışa aktarma kapalı.",
     "merge": "Birleştir",
-    "mergeHint": "2 ila 5 satırı tek satırda birleştir"
+    "mergeHint": "2 ila 5 satırı tek satırda birleştir",
+    "setIcon": "Simge ayarla",
+    "removeIcon": "Simgeyi kaldır"
   },
   "calculate": {
     "calculate": "Hesapla",
@@ -421,7 +423,8 @@
     "endTime": "Bitiş saati",
     "endDateSwitch": "Bitiş tarihi",
     "includeTime": "Saat ekle",
-    "hiddenByParent": "{count, plural, one {# seçenek} other {# seçenek}} bu satırın “{parent}” değerine uymuyor."
+    "hiddenByParent": "{count, plural, one {# seçenek} other {# seçenek}} bu satırın “{parent}” değerine uymuyor.",
+    "rangeHint": "Bitiş tarihi için Shift tuşuna basılıyken bir güne tıklayın."
   },
   "checklist": {
     "addItem": "Madde ekleyin",
@@ -536,7 +539,10 @@
     "noParentOptions": "“{parent}” özelliğinin henüz seçeneği yok.",
     "parentOptionsLabel": "“{parent}” şu olduğunda:",
     "parentOptionsAll": "her zaman",
-    "parentOptionToggle": "“{parent}” “{value}” olduğunda “{option}” sunulsun"
+    "parentOptionToggle": "“{parent}” “{value}” olduğunda “{option}” sunulsun",
+    "sortOptionsAsc": "A → Z sırala",
+    "sortOptionsDesc": "Z → A sırala",
+    "dragOption": "{name} seçeneğini taşımak için sürükleyin"
   },
   "rowProperties": {
     "noProperties": "Özellik yok",
@@ -768,7 +774,8 @@
     "newPlaceProperty": "Yeni konum özelliği",
     "pinColor": "İğne rengi",
     "noPinColor": "Yok",
-    "colorRules": "Renk kuralları"
+    "colorRules": "Renk kuralları",
+    "wrapProperties": "Tüm özellikleri sar"
   },
   "gallery": {
     "new": "Yeni",

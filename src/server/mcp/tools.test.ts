@@ -1072,6 +1072,23 @@ describe("relations and calendars", () => {
     expect(databases.updateView).toHaveBeenLastCalledWith("user-1", "view-g", { config: { showIcons: undefined } });
   });
 
+  it("wraps long values on board and gallery cards only", async () => {
+    const views = [
+      { id: "view-b", name: "Board", type: "board", config: { groupBy: "prop-status" } },
+      { id: "view-g", name: "Cards", type: "gallery", config: { wrapProperties: true } },
+      { id: "view-c", name: "Agenda", type: "calendar", config: { dateBy: "prop-due" } },
+    ];
+    databases.getDatabase.mockResolvedValue({ ...database, views });
+    const onCalendar = await callTool(writer, "update_database_view", { database_id: "db-1", view_id: "view-c", wrap_properties: true });
+    expect(onCalendar.text).toMatch(/wrap_properties only applies to board and gallery views/);
+    const r = await callTool(writer, "update_database_view", { database_id: "db-1", view_id: "view-b", wrap_properties: true });
+    expect(databases.updateView).toHaveBeenLastCalledWith("user-1", "view-b", { config: { groupBy: "prop-status", wrapProperties: true } });
+    expect(r.data).toMatchObject({ wrap_properties: true });
+    // Turned off: the setting goes back to its default rather than being stored.
+    await callTool(writer, "update_database_view", { database_id: "db-1", view_id: "view-g", wrap_properties: false });
+    expect(databases.updateView).toHaveBeenLastCalledWith("user-1", "view-g", { config: { wrapProperties: undefined } });
+  });
+
   it("sets where a view opens its rows, for views with rows only", async () => {
     const views = [
       { id: "view-b", name: "Board", type: "board", config: { groupBy: "prop-status" } },

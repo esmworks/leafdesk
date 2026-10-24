@@ -469,6 +469,35 @@ export async function setPageIcon(userId: string, pageId: string, icon: string |
 }
 
 /**
+ * Gives every selected row of a database the same icon, or takes theirs away (null): "Set icon" on
+ * a selection. The icon is checked once, before anything is written. Access is checked per row as
+ * for setPageIcon: rows the user may not edit, rows in the trash and locked rows are skipped and
+ * returned (see rowsWithAccess).
+ */
+export async function setRowsIcon(userId: string, databaseId: string, rowIds: string[], icon: string | null): Promise<BulkResult> {
+  const ids = bulkRowIds(rowIds);
+  const checked = icon === null ? null : checkedIcon(icon);
+  const database = await requirePageAccess(userId, databaseId, "view");
+  if (database.kind !== "database") throw withCode(new AccessError("Not a database"), "notADatabase");
+  const { rows, skipped } = await rowsWithAccess(userId, databaseId, ids, "edit");
+  if (!rows.length) return { done: [], skipped };
+  const changed = await db
+    .update(page)
+    .set({ icon: checked, updatedBy: userId })
+    .where(and(inArray(page.id, rows.map((r) => r.id)), isNull(page.lockedAt)))
+    .returning({ id: page.id });
+  const done = new Set(changed.map((r) => r.id));
+  const collab = getCollab();
+  collab.broadcast(`ws:${database.workspaceId}`, "tree");
+  collab.broadcast(`db:${databaseId}`, "rows");
+  for (const id of done) collab.broadcast(`page:${id}`, PAGE_HEADER_EVENT);
+  return {
+    done: ids.filter((id) => done.has(id)),
+    skipped: [...skipped, ...rows.filter((r) => !done.has(r.id)).map((r) => r.id)],
+  };
+}
+
+/**
  * Locks or unlocks a page (not a database: see setDatabaseLocked) against accidental edits of its
  * title, icon, background and body (lib/page-lock). Anyone who can edit the page may do either.
  * Open editors turn read-only, or editable again, without a reload.
