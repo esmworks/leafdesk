@@ -7,13 +7,16 @@ import { applyCalloutStyles, findCalloutStyle, type CalloutStyle } from "@/lib/c
 import { BREADCRUMB_BLOCK, CALLOUT_BLOCK, MERMAID_BLOCK, SUBPAGES_BLOCK, TOC_BLOCK } from "@/lib/content-blocks";
 import { plainText } from "@/lib/content-markdown";
 import { AGENT_CHAT_BLOCK } from "@/lib/agent-chat";
-import { DASHBOARD_BLOCK, parseDashboard, type DashboardWidget } from "@/lib/dashboard";
+import { DASHBOARD_BLOCK, dashboardLayout, parseDashboard, type DashboardLayout, type DashboardWidget } from "@/lib/dashboard";
 import { isEmbedBlockType, parseLinkedView, type EmbedBlockType, type LinkedView } from "@/lib/embed-blocks";
 import { pdfFileId, spreadsheetFileId } from "@/lib/files";
 import { BOOKMARK_BLOCK, embedFor, isWebBlockType, parseWebUrl, type EmbedTarget } from "@/lib/web-blocks";
 import { bodyReferences, isBlockId, isPageBlockType, MENTION, mentionPlainText, mentionProps, PAGE_LINK_BLOCK } from "@/lib/mentions";
 import { withoutSyncedBlocks } from "@/lib/synced-blocks";
+import { IMAGE_BLOCK, parseImageLink } from "@/lib/image-links";
+import { BUTTON_BLOCK } from "@/lib/buttons";
 import { serverEditor as editor, type PageBlock } from "@/server/blocknote";
+import { fragmentBlocks } from "@/server/synced-body";
 
 /**
  * Turns a stored page body (Yjs state) into HTML for the public, read-only view of a published page.
@@ -82,6 +85,10 @@ function sanitizeValue(value: Json): Json {
     if (key === "props" && child && typeof child === "object" && !Array.isArray(child)) {
       const props = { ...(child as Record<string, Json>) };
       if ("url" in props && !isSafeMediaUrl(props.url)) props.url = "";
+      // An image's link: a web address, or a page of the app (resolveMentions decides what it becomes).
+      if ("link" in props && !parseImageLink(props.link)) props.link = "";
+      // What a button does is the editors' business: a published page shows its label, disabled.
+      if (node.type === BUTTON_BLOCK) props.config = "";
       next[key] = props;
     } else {
       next[key] = sanitizeValue(child);
@@ -152,6 +159,11 @@ function resolveMentions(blocks: PageBlock[], refs: Map<string, PublishedPageRef
       const content = pageRefInline(refs.get(String(pageId ?? "")), at);
       return { id: block.id, type: "paragraph", props: {}, content, children } as unknown as PageBlock;
     }
+    if (block.type === IMAGE_BLOCK) {
+      // An image linking to a page links to it where it is published, or to nothing.
+      const link = parseImageLink((block.props as { link?: unknown }).link);
+      if (link?.kind === "page") return { ...block, props: { ...block.props, link: refs.get(link.pageId)?.href ?? "" }, children } as PageBlock;
+    }
     return { ...block, content: resolveInline(block.content as Json, refs), children } as PageBlock;
   });
 }
@@ -175,8 +187,8 @@ export type BodyHeading = { anchor: string; level: number; text: string };
 export type BodySegment =
   | { kind: "html"; html: string }
   | { kind: "embed"; type: EmbedBlockType; databaseId: string; view: LinkedView | null }
-  /** A dashboard's widgets, each a database seen through its own view. */
-  | { kind: "dashboard"; widgets: DashboardWidget[] }
+  /** A dashboard's widgets, each a database seen through its own view, in a grid or as tabs. */
+  | { kind: "dashboard"; widgets: DashboardWidget[]; layout: DashboardLayout }
   | { kind: "toc"; headings: BodyHeading[] }
   | { kind: "breadcrumb" }
   | { kind: "subpages" }
@@ -498,6 +510,20 @@ export type BodyOptions = {
   calloutStyles?: readonly CalloutStyle[];
 };
 
+/** The pages the body's images link to. */
+function imageLinkPages(blocks: PageBlock[]): string[] {
+  const out: string[] = [];
+  const walk = (list: PageBlock[]) => {
+    for (const block of list) {
+      const link = block.type === IMAGE_BLOCK ? parseImageLink((block.props as { link?: unknown }).link) : null;
+      if (link?.kind === "page") out.push(link.pageId);
+      if (block.children?.length) walk(block.children);
+    }
+  };
+  walk(blocks);
+  return out;
+}
+
 /** The blocks without the callouts hidden in print, in columns and nested blocks too. */
 function withoutHiddenInPrint(blocks: PageBlock[]): PageBlock[] {
   return blocks.flatMap((block): PageBlock[] => {
@@ -527,7 +553,8 @@ export async function bodySegmentsFromYdoc(state: Uint8Array | null, options: Bo
   const doc = new Y.Doc();
   try {
     Y.applyUpdate(doc, state);
-    return await bodySegmentsFromBlocks(editor.yXmlFragmentToBlocks(doc.getXmlFragment(COLLAB_FRAGMENT)), options);
+    // Suggested edits that wait for an answer aren't published (see synced-body fragmentBlocks).
+    return await bodySegmentsFromBlocks(fragmentBlocks(doc.getXmlFragment(COLLAB_FRAGMENT)), options);
   } finally {
     doc.destroy();
   }
@@ -540,7 +567,7 @@ export async function bodySegmentsFromBlocks(
 ): Promise<BodySegment[]> {
   const expanded = applyCalloutStyles(expandSynced ? await expandSynced(body) : withoutSyncedBlocks(body), calloutStyles);
   const blocks = print ? withoutHiddenInPrint(expanded) : expanded;
-  const { pageIds } = bodyReferences(blocks);
+  const pageIds = [...new Set([...bodyReferences(blocks).pageIds, ...imageLinkPages(blocks)])];
   const refs = pageIds.length && resolvePages ? await resolvePages(pageIds) : new Map<string, PublishedPageRef>();
   // Every heading of the page, filled in as the runs are written; tables of contents share it.
   const headings: BodyHeading[] = [];
@@ -608,10 +635,11 @@ export async function bodySegmentsFromBlocks(
         return;
       }
       if (block.type === DASHBOARD_BLOCK) {
-        const widgets = parseDashboard((block.props as { widgets?: unknown }).widgets);
+        const props = block.props as { widgets?: unknown; layout?: unknown };
+        const widgets = parseDashboard(props.widgets);
         if (!widgets.length) return;
         await flush();
-        segments.push({ kind: "dashboard", widgets });
+        segments.push({ kind: "dashboard", widgets, layout: dashboardLayout(props.layout) });
         return;
       }
       if (block.type === AGENT_CHAT_BLOCK) {

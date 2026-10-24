@@ -33,6 +33,7 @@ import { pushEndpoints, vapidPublicKey } from "@/server/push";
 import { telegramNotificationsOn } from "@/server/telegram/links";
 import type { requireSession } from "@/server/session";
 import { env } from "@/lib/env";
+import { settingAnchor } from "@/lib/settings-search";
 import { storageNoticeOf } from "@/lib/workspace-storage";
 import { instanceAdmin } from "@/server/first-admin";
 import { getStorageAccounts } from "@/server/storage/accounts";
@@ -103,7 +104,9 @@ async function MailTab({ userId }: { userId: string }) {
     <>
       <SettingsHeader title={t("nav.mail")} description={t("mail.description")} />
       <div className="space-y-10">
-        <OwnMailboxes initial={mailboxes} />
+        <div id={settingAnchor("mailboxes")} className="space-y-10">
+          <OwnMailboxes initial={mailboxes} />
+        </div>
         <CalendarFeeds userId={userId} />
       </div>
     </>
@@ -132,12 +135,12 @@ async function ProfileTab({ session }: { session: Session }) {
     <>
       <SettingsHeader title={t("nav.profile")} description={t("profile.description")} />
       <div className="space-y-10">
-        <SettingsGroup title={t("profile.heading")}>
+        <SettingsGroup anchor="profile" title={t("profile.heading")}>
           <ProfileSettings name={overview.name} image={overview.image} />
         </SettingsGroup>
         {/* On one computer the account's address is the app's own and reaches nobody: nothing to change or verify. */}
         {!env.localMode && (
-          <SettingsGroup title={t("email.heading")}>
+          <SettingsGroup anchor="email" title={t("email.heading")}>
             <AccountEmailSettings
               email={overview.email}
               emailVerified={overview.emailVerified}
@@ -147,7 +150,7 @@ async function ProfileTab({ session }: { session: Session }) {
             />
           </SettingsGroup>
         )}
-        <SettingsGroup title={t("delete.heading")}>
+        <SettingsGroup anchor="deleteAccount" title={t("delete.heading")}>
           <DeleteAccountSettings email={overview.email} plan={plan} proof={proof} />
         </SettingsGroup>
       </div>
@@ -167,13 +170,13 @@ async function SecurityTab({ session }: { session: Session }) {
     <>
       <SettingsHeader title={t("nav.security")} description={ts("description")} />
       <div className="space-y-10">
-        <SettingsGroup title={t("password.heading")}>
+        <SettingsGroup anchor="password" title={t("password.heading")}>
           <PasswordSettings hasPassword={overview.hasPassword} providers={overview.providers} proof={proof} />
         </SettingsGroup>
-        <SettingsGroup title={ts("twoFactor.heading")} description={ts("twoFactor.headingDescription")}>
+        <SettingsGroup anchor="twoFactor" title={ts("twoFactor.heading")} description={ts("twoFactor.headingDescription")}>
           <TwoFactorSettings enabled={security.twoFactorEnabled} hasPassword={security.hasPassword} />
         </SettingsGroup>
-        <SettingsGroup title={ts("passkeys.heading")} description={ts("passkeys.headingDescription")}>
+        <SettingsGroup anchor="passkeys" title={ts("passkeys.heading")} description={ts("passkeys.headingDescription")}>
           <PasskeySettings passkeys={security.passkeys} />
         </SettingsGroup>
         <SessionList sessions={overview.sessions} />
@@ -201,14 +204,17 @@ async function PreferencesTab({ userId }: { userId: string }) {
     <>
       <SettingsHeader title={t("nav.preferences")} description={ts("preferences.description")} />
       <div className="space-y-10">
-        <SettingsGroup title={ts("language.heading")}>
+        <SettingsGroup anchor="language" title={ts("language.heading")}>
           <LanguageSettings current={isLocale(savedLocale) ? savedLocale : null} />
         </SettingsGroup>
-        <SettingsGroup title={ts("theme.heading")}>
+        <SettingsGroup anchor="theme" title={ts("theme.heading")}>
           <ThemeSettings current={isTheme(savedTheme) ? savedTheme : null} />
-          <ContrastSettings current={isContrast(savedContrast) ? savedContrast : null} />
+          <div id={settingAnchor("contrast")}>
+            <ContrastSettings current={isContrast(savedContrast) ? savedContrast : null} />
+          </div>
         </SettingsGroup>
         <SettingsGroup
+          anchor="notifications"
           title={ts("notifications.heading")}
           description={
             <>
@@ -221,7 +227,7 @@ async function PreferencesTab({ userId }: { userId: string }) {
         >
           <NotificationSettings preferences={notificationPreferences} push={publicKey ? { publicKey, endpoints } : null} telegram={telegram} />
         </SettingsGroup>
-        <SettingsGroup title={ts("notifications.watchedHeading")} description={ts("notifications.watchedDescription")}>
+        <SettingsGroup anchor="watchedPages" title={ts("notifications.watchedHeading")} description={ts("notifications.watchedDescription")}>
           <WatchedPages pages={watches.pages} teamspaces={watches.teamspaces} />
         </SettingsGroup>
       </div>

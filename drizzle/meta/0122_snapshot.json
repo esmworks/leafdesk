@@ -1,5 +1,5 @@
 {
-  "id": "57753080-e371-47b7-80fc-d560b9d274b7",
+  "id": "285c7826-e656-4dd0-a848-93872106cad2",
   "prevId": "0df9b303-3c09-4cc7-8d5c-f137c45a192b",
   "version": "7",
   "dialect": "postgresql",
@@ -16394,8 +16394,8 @@
       "checkConstraints": {},
       "isRLSEnabled": false
     },
-    "public.database_sync": {
-      "name": "database_sync",
+    "public.legal_hold": {
+      "name": "legal_hold",
       "schema": "",
       "columns": {
         "id": {
@@ -16410,96 +16410,18 @@
           "primaryKey": false,
           "notNull": true
         },
-        "database_id": {
-          "name": "database_id",
+        "name": {
+          "name": "name",
           "type": "text",
           "primaryKey": false,
           "notNull": true
         },
-        "source": {
-          "name": "source",
+        "reason": {
+          "name": "reason",
           "type": "text",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "site_url": {
-          "name": "site_url",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "query": {
-          "name": "query",
-          "type": "jsonb",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "mapping": {
-          "name": "mapping",
-          "type": "jsonb",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "secrets": {
-          "name": "secrets",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "interval_minutes": {
-          "name": "interval_minutes",
-          "type": "integer",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "enabled": {
-          "name": "enabled",
-          "type": "boolean",
           "primaryKey": false,
           "notNull": true,
-          "default": true
-        },
-        "next_run_at": {
-          "name": "next_run_at",
-          "type": "timestamp with time zone",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "running_until": {
-          "name": "running_until",
-          "type": "timestamp with time zone",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "last_run_at": {
-          "name": "last_run_at",
-          "type": "timestamp with time zone",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "last_count": {
-          "name": "last_count",
-          "type": "integer",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "last_error": {
-          "name": "last_error",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "last_error_detail": {
-          "name": "last_error_detail",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "run_as": {
-          "name": "run_as",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false
+          "default": "''"
         },
         "created_by": {
           "name": "created_by",
@@ -16513,49 +16435,11 @@
           "primaryKey": false,
           "notNull": true,
           "default": "now()"
-        },
-        "updated_at": {
-          "name": "updated_at",
-          "type": "timestamp with time zone",
-          "primaryKey": false,
-          "notNull": true,
-          "default": "now()"
         }
       },
       "indexes": {
-        "database_sync_database_idx": {
-          "name": "database_sync_database_idx",
-          "columns": [
-            {
-              "expression": "database_id",
-              "isExpression": false,
-              "asc": true,
-              "nulls": "last"
-            }
-          ],
-          "isUnique": true,
-          "concurrently": false,
-          "method": "btree",
-          "with": {}
-        },
-        "database_sync_due_idx": {
-          "name": "database_sync_due_idx",
-          "columns": [
-            {
-              "expression": "next_run_at",
-              "isExpression": false,
-              "asc": true,
-              "nulls": "last"
-            }
-          ],
-          "isUnique": false,
-          "where": "\"database_sync\".\"enabled\"",
-          "concurrently": false,
-          "method": "btree",
-          "with": {}
-        },
-        "database_sync_workspace_idx": {
-          "name": "database_sync_workspace_idx",
+        "legal_hold_workspace_idx": {
+          "name": "legal_hold_workspace_idx",
           "columns": [
             {
               "expression": "workspace_id",
@@ -16571,9 +16455,9 @@
         }
       },
       "foreignKeys": {
-        "database_sync_workspace_id_workspace_id_fk": {
-          "name": "database_sync_workspace_id_workspace_id_fk",
-          "tableFrom": "database_sync",
+        "legal_hold_workspace_id_workspace_id_fk": {
+          "name": "legal_hold_workspace_id_workspace_id_fk",
+          "tableFrom": "legal_hold",
           "tableTo": "workspace",
           "columnsFrom": [
             "workspace_id"
@@ -16581,38 +16465,12 @@
           "columnsTo": [
             "id"
           ],
-          "onDelete": "cascade",
+          "onDelete": "restrict",
           "onUpdate": "no action"
         },
-        "database_sync_database_id_page_id_fk": {
-          "name": "database_sync_database_id_page_id_fk",
-          "tableFrom": "database_sync",
-          "tableTo": "page",
-          "columnsFrom": [
-            "database_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
-          "onDelete": "cascade",
-          "onUpdate": "no action"
-        },
-        "database_sync_run_as_user_id_fk": {
-          "name": "database_sync_run_as_user_id_fk",
-          "tableFrom": "database_sync",
-          "tableTo": "user",
-          "columnsFrom": [
-            "run_as"
-          ],
-          "columnsTo": [
-            "id"
-          ],
-          "onDelete": "set null",
-          "onUpdate": "no action"
-        },
-        "database_sync_created_by_user_id_fk": {
-          "name": "database_sync_created_by_user_id_fk",
-          "tableFrom": "database_sync",
+        "legal_hold_created_by_user_id_fk": {
+          "name": "legal_hold_created_by_user_id_fk",
+          "tableFrom": "legal_hold",
           "tableTo": "user",
           "columnsFrom": [
             "created_by"
@@ -16625,6 +16483,82 @@
         }
       },
       "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.legal_hold_person": {
+      "name": "legal_hold_person",
+      "schema": "",
+      "columns": {
+        "hold_id": {
+          "name": "hold_id",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "user_id": {
+          "name": "user_id",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        }
+      },
+      "indexes": {
+        "legal_hold_person_user_idx": {
+          "name": "legal_hold_person_user_idx",
+          "columns": [
+            {
+              "expression": "user_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        }
+      },
+      "foreignKeys": {
+        "legal_hold_person_hold_id_legal_hold_id_fk": {
+          "name": "legal_hold_person_hold_id_legal_hold_id_fk",
+          "tableFrom": "legal_hold_person",
+          "tableTo": "legal_hold",
+          "columnsFrom": [
+            "hold_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        },
+        "legal_hold_person_user_id_user_id_fk": {
+          "name": "legal_hold_person_user_id_user_id_fk",
+          "tableFrom": "legal_hold_person",
+          "tableTo": "user",
+          "columnsFrom": [
+            "user_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "restrict",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {
+        "legal_hold_person_hold_id_user_id_pk": {
+          "name": "legal_hold_person_hold_id_user_id_pk",
+          "columns": [
+            "hold_id",
+            "user_id"
+          ]
+        }
+      },
       "uniqueConstraints": {},
       "policies": {},
       "checkConstraints": {},

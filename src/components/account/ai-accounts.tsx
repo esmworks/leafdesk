@@ -28,6 +28,7 @@ export function AiAccountsSettings({ initial }: { initial: AiAccountView[] }) {
 
   return (
     <SettingsGroup
+      anchor="aiAccounts"
       title={t("heading")}
       description={t("description")}
       action={

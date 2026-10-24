@@ -17,7 +17,7 @@ after you approve them over OAuth.
 </picture>
 
 - **Pages and databases**: a block editor with slash commands, and databases whose rows are pages,
-  shown as table, board, calendar, gallery, list, timeline, map, chart, dashboard or form, with relations,
+  shown as table, board, calendar, gallery, list, feed, timeline, map, chart, dashboard or form, with relations,
   formulas and rollups; dashboards put numbers, charts and lists from several databases on a page.
 - **Realtime and offline**: edit together with live cursors, keep working without a connection.
 - **Built for AI assistants**: connect Claude or any other MCP client over OAuth 2.1 and approve
@@ -82,12 +82,16 @@ for Windows, `.AppImage` for Linux) and choose *On this computer*. See [Desktop 
 - **Search box** (Cmd/Ctrl+K): before you type, the pages last edited. Narrow a search with
   `in:Projects` or `in:"Launch plan"` (that page and everything under it; several pages of that
   title, or several `in:`, search under any of them; a title nobody can see finds nothing) and
-  `type:page`, `type:database`, `type:row` (database rows) or `type:journal` (your daily notes);
-  filters work without words too,
+  `type:page`, `type:database`, `type:row` (database rows) or `type:journal` (your daily notes),
+  and `is:verified` (pages verified right now, see *Verified pages*); filters work without words too,
   listing the pages they match, last edited first. Type `>` for commands: new page or database,
-  from a template, import, trash, inbox, settings and keyboard shortcuts. The line under the
+  from a template, import, trash, inbox, settings and keyboard shortcuts, and, once you type
+  after `>`, each setting you can see (*Settings: Security → Legal holds*). The line under the
   results puts each of these into the box. The words you typed show in bold in the text under each
   result.
+- **Settings search**: the box at the top of Settings' navigation finds a setting on any tab you
+  have, by its name, its tab or other words ("dark mode", "2fa", "ip"), opens the tab, scrolls to
+  the setting and highlights it.
 - **Page style**: at the top of a page's `⋯` menu, a typeface for the page (default, serif or
   mono), small text, and full width. It is set per page and everyone sees it, changing live for
   whoever has the page open; anyone who can edit the page can change it. Copies and templates keep
@@ -117,7 +121,22 @@ for Windows, `.AppImage` for Linux) and choose *On this computer*. See [Desktop 
   the same grid as a tab of the database, its widgets all views of that database, starting with
   the row count, the sum of the first number property, a chart by the first select or status
   property and the rows edited last. Dashboard views aren't published, printed or shown by linked
-  views.
+  views. The `/tabs` block is a dashboard laid out as tabs: one view at a time, each named on its
+  tab, for several databases (or views of one) in little room; readers get only the tabs whose
+  database they can open, and published pages switch tabs in place.
+- **Buttons**: the `/button` block, with a label and an emoji, does a few things in order when
+  someone clicks it: insert blocks written in Markdown below it or at the top or end of the page,
+  add a row to a database, change the rows of a database that filters match (up to 100), notify
+  people, send the page to a webhook (signed like automations' webhooks, when the workspace lets
+  content leave it) and open a web address or a page. Texts take `{{today}}`, `{{now}}` and
+  `{{me}}`, and values can be today or whoever clicked; a button can ask before it runs. It runs as
+  whoever clicks, each step with their access: viewing the page is enough to click, inserting
+  blocks needs edit access to it and rows need edit access to their database. The first step they
+  can't do stops the button and says which and why. Its changes are theirs: they start the
+  database's automations, and the row's activity marks them as made through a button. People who
+  can edit the page set it up from the button's settings; published pages and the print view show
+  it disabled, and Markdown over MCP and the API holds only its id and label
+  (`<!-- leafdesk:button <id> "Label" -->`), so it can't be made or changed there.
 - **Web bookmarks and embeds**: link cards with the page's title, description and image (fetched
   once on the server behind an SSRF guard), and YouTube, Vimeo, Loom, Figma, Google Docs, CodePen,
   Spotify and Google Maps embeds in sandboxed iframes.
@@ -136,7 +155,8 @@ for Windows, `.AppImage` for Linux) and choose *On this computer*. See [Desktop 
   databases. Where the server can transcribe, the quick note takes voice notes too (see
   [Voice notes](#voice-notes)).
 - **Desktop app** for macOS, Windows and Linux: a window on your server, or Leafdesk running on
-  the computer itself with its own database and daily backups (see [Desktop app](#desktop-app)).
+  the computer itself with its own database and daily backups (see [Desktop app](#desktop-app)). A
+  system-wide shortcut (Cmd/Ctrl+Shift+J) brings it forward on AI chat.
 - **Find and replace** in a page (Cmd/Ctrl+F): highlights every match, steps through them, and
   replaces one or all in a single undo step. Anyone who can open the page can search it.
 - **Databases**: every row is also a page.
@@ -149,7 +169,8 @@ for Windows, `.AppImage` for Linux) and choose *On this computer*. See [Desktop 
     changes the other row's paired property too. That takes edit access to the row you change and
     being able to see the row you link, not edit access to the other database; making a two-way
     relation takes edit access to both databases, since it adds the paired property to the other.
-  - Views: table, board, calendar, gallery, list, timeline, map (rows as pins at a place
+  - Views: table, board, calendar, gallery, list, feed (rows as posts, newest first, with the
+    start of their bodies, emoji reactions and their comments), timeline, map (rows as pins at a place
     property), chart and dashboard (widgets over the database, see Dashboards), each with its own filters,
     sorting, grouping and shown properties (one by one, or all hidden or shown at once). Filters
     combine with "and"/"or" in groups and take relative dates such as "this week". Text can be
@@ -178,7 +199,9 @@ for Windows, `.AppImage` for Linux) and choose *On this computer*. See [Desktop 
   - Number properties show as a number, percentage or amount of money, or as a colored bar or
     ring filled by the value divided by a number of your choice.
   - Row pages show every property, or leave some out (always, or while they are empty) behind
-    "N more properties"; the choice is the database's, for everyone.
+    "N more properties"; the choice is the database's, for everyone. People with full access pin up
+    to four properties into a strip under the title and show the others above the body or beside it
+    where the page is wide enough.
   - Rows open in a side panel beside the view, which stays in use: the row's properties, body
     (edited together, with who's there), comments and menu, with the next and previous rows of the
     view (J and K), "Open as full page" and a copy link. The open row is in the address, so links
@@ -308,7 +331,23 @@ for Windows, `.AppImage` for Linux) and choose *On this computer*. See [Desktop 
   [Building databases with AI](#ai-features)).
 - **Comments**: select text and comment on it; reply, react, resolve and reopen threads, live for
   everyone on the page. People who can comment on a page (or edit it) write comments and viewers
-  read along; full access also deletes other people's comments.
+  read along; full access also deletes other people's comments. On a database row, each property
+  value takes threads of its own: the comment button beside a value (with how many open threads it
+  has) starts one, and the comments panel lists them under the property's name. Only people who
+  see that value read, write and hear about them (a row's access counts too), and a deleted
+  property's threads come back when it is restored.
+- **Suggested edits**: switch the page header from *Editing* to *Suggesting* and changes show as
+  suggestions instead: inserted text underlined, deleted text struck through but kept, new
+  formatting marked, live for everyone. Each is a thread in the comments panel, in its author's
+  name, which people who may edit accept or reject (one at a time, or all from the page menu) and
+  its author withdraws. People who may only comment always suggest: their connection to the page
+  takes their own suggestions and nothing else, checked by the server on every change (it compares
+  the page with their suggestions taken back before and after), so they never edit the page itself.
+  A pending suggestion isn't part of the page anywhere else: Markdown, search, published pages,
+  PDF and print, exports, history, MCP, the REST API and the AI read the page without it, and server
+  writes keep the suggestions of blocks they leave as they were. Watchers hear about new
+  suggestions like new threads; authors hear when theirs are answered. The writing assistant can
+  apply its text as suggestions, marked as the AI's.
 - **Mentions and page links**: `@` mentions people, pages (with their live title, or "No access")
   and dates with optional reminders; `[[` links to a page, or to a new page inside this one with
   the title typed, and `[[Title]]` typed, pasted or written through MCP and the API links to the
@@ -367,7 +406,22 @@ for Windows, `.AppImage` for Linux) and choose *On this computer*. See [Desktop 
   find there an agent's call waiting for approval and the notes an agent's run proposed for its
   memory. A comment notification opens the page with that thread selected. Snooze an item
   for an hour, until tomorrow morning or until next Monday (9:00 your time): it leaves the inbox and comes back unread
-  then, along with its email if that hadn't gone yet. Choose per kind whether it shows in the inbox, whether it comes by email and, on the devices where you turn them on, as a [push notification](#push-notifications).
+  then, along with its email if that hadn't gone yet. On a phone, swipe an item toward the end of
+  the line to mark it read (or unread again) and toward its start to snooze it until tomorrow
+  morning. Choose per kind whether it shows in the inbox, whether it comes by email and, on the devices where you turn them on, as a [push notification](#push-notifications).
+- **Verified pages**: someone with full access marks a page, database or row as checked and right
+  from the page's `⋯` menu, for a week, a month, three months or a year, until a day they choose,
+  or with no end. Under the title a badge says who verified it and until when, and once that day
+  passes, that the verification expired; editing the page keeps it verified. The verifier hears
+  three days before the end and when it comes (in the inbox and by email, as they choose under
+  *Pages you verified* in Settings > Preferences). Search ranks a verified page above an otherwise
+  equal one and marks it, and `is:verified` lists only verified pages; the AI chat is told which
+  sources are verified, prefers them where sources disagree, and its citations show the mark.
+  MCP's `get_page` and `search` and the REST API's pages say `verified` (who, when, until, and
+  whether it expired), and MCP's `update_page` and the REST API's `PATCH /pages/{id}` take
+  `verified` (`week`, `month`, `quarter`, `year`, a day, `forever`, or `none` to remove it).
+  Settings > Health lists the pages whose verification expired. Templates and pages in the trash
+  aren't verified, and published pages don't show verification.
 - **Page history**: versions are saved automatically while you edit and before every AI edit.
   You can preview and restore any version, and see what changed since it or since the version
   before, and who (or which AI app) changed it. Changes an AI app, the chat or an agent writes to a
@@ -427,8 +481,9 @@ for Windows, `.AppImage` for Linux) and choose *On this computer*. See [Desktop 
 - **Workspace health**: Settings → Health, for owners and members, checks the pages each person
   can open for what is worth tidying: links and mentions to pages in the trash or deleted, top-level
   pages nothing links to, pages with a title and no body, pages nobody edited for 3, 6, 12 or 24
-  months, pages that say nearly the same thing (compared by their embeddings, when the server has
-  an embeddings model and the workspace has AI on), and relations to rows in the trash or deleted.
+  months, pages whose verification expired, pages that say nearly the same thing (compared by
+  their embeddings, when the server has an embeddings model and the workspace has AI on), and
+  relations to rows in the trash or deleted.
   Where it can, a finding has a one-click fix: restore the page, link the orphan where another page
   writes its title, move the empty page to the trash, take the dead row out of the relation. The
   MCP tool `check_workspace` returns the same report.
@@ -439,6 +494,13 @@ for Windows, `.AppImage` for Linux) and choose *On this computer*. See [Desktop 
   connected apps, exports), with the app or identity provider it went through and the address it
   came from, newest first, filtered by person, kind of change and dates, and as CSV. Events are
   kept for a year.
+- **Legal holds**: owners put a named hold, with its reason, on people of the workspace (members,
+  guests, or people who have left) in Settings → Security. While it stands, nothing they created
+  or edited there is deleted for good: their pages and rows (and pages above them, with their
+  history, comments and files) can go to the trash and come back, but *Delete forever*, the trash
+  and history retention, the file cleanups, deleting templates, deleted properties' values and
+  comments keep them or refuse with a message, and neither the workspace nor their accounts can be
+  deleted. Setting and releasing a hold is in the audit log.
 - **Publish to the web**: a read-only public link for a page and its subpages, kept out of search
   engines unless you allow them. Published databases show the views you pick (tables, boards,
   lists, galleries) and visitors switch between them; their browsers get each property's name,
@@ -460,7 +522,10 @@ for Windows, `.AppImage` for Linux) and choose *On this computer*. See [Desktop 
   into a database. Search finds pages by the words of the PDFs, Word documents and Excel workbooks
   they show. Any uploaded file opens full screen in the file viewer, with ← and → for the page's
   other files: images zoom, Word documents, CSV, Markdown, JSON, code and text show their
-  contents, and the rest offers a download.
+  contents, and the rest offers a download. An image can link to a web address or a page of the
+  workspace (*Link…* in its block menu): in the editor a small button on it follows the link,
+  while read-only and published pages and the print view make the image itself the link, and
+  Markdown keeps it as `[![alt](image)](link)`.
 - **Import**: bring in Markdown files, a folder or a ZIP as pages that keep their folder
   structure, with links between the files turned into page links and the images they show
   uploaded, into the page or teamspace you start it from. A link naming a file by its bare name
@@ -592,9 +657,12 @@ for Windows, `.AppImage` for Linux) and choose *On this computer*. See [Desktop 
   summarize a page, as a suggestion you accept or discard; database properties that AI fills in
   (text: a summary, a translation or your own prompt over the row's values; a select, multi-select,
   status, number or checkbox from your prompt); a chat, on its own page
-  or in a panel beside a page, that answers questions from the pages you can read, citing them, and
-  remembers what you tell it about yourself (asking first; each person, or a workspace's owners for
-  everyone, can turn the memory off, see [Memory](#ai-features)); and semantic search with an
+  or in a panel beside a page, that answers questions from the pages you can read, citing them,
+  reads the images, documents and CSV files you attach, writes long cited reports in research mode
+  (from the web too, where owners turn web search on), answers with the model you pick where the
+  server offers several, and remembers what you tell it about yourself (asking first; each person,
+  or a workspace's owners for everyone, can turn the memory off, see [Memory](#ai-features)); and
+  semantic search with an
   embeddings model. Anthropic, OpenAI, Google, any OpenAI-compatible server, or a local model
   with Ollama or LM Studio (see [AI features](#ai-features)).
 - **Voice notes** (optional, off until speech to text is set up): speak in the quick note or with
@@ -626,6 +694,10 @@ for Windows, `.AppImage` for Linux) and choose *On this computer*. See [Desktop 
     consent screen.
   - Tokens are audience-bound. Apps can be read-only or read-write, and you can revoke them in
     My account → Connected apps.
+- **Page webhooks**: workspace owners send what happens to pages (made, edited, moved, trashed,
+  restored, deleted for good, commented on) to a service of their own as signed POST requests, for
+  the whole workspace, one teamspace or a page and the pages under it, under Settings > Webhooks or
+  with the REST API (see [Page webhooks](#page-webhooks)).
 - **REST API** under `/api/v1` with personal access tokens (read or read-write, optionally one
   workspace, optional expiry) and an OpenAPI 3.1 document (see [REST API](#rest-api)).
 - **Snippets**: content you insert while typing: `;` and a snippet's trigger in any page (or the
@@ -915,7 +987,8 @@ Pages stay in the trash for the time owners choose in Settings > Security > Data
 days by default, or forever); once a day the server deletes the pages whose time is up, with their
 files, and prunes old page history (versions older than 90 days or past the newest 200 of a page;
 saved versions and those from before a restore stay a year) and the audit log's events older than
-a year. Production servers run this cleanup; set `RETENTION_JOB=on` or `off` to decide otherwise
+a year. Pages a legal hold keeps (see Settings > Security > Legal holds) stay in the trash, with all
+their history, until the hold is released. Production servers run this cleanup; set `RETENTION_JOB=on` or `off` to decide otherwise
 (a dev server doesn't run it unless it is `on`).
 
 The ZIP is streamed while it is built, one download at a time per person. Larger exports are
@@ -1136,7 +1209,10 @@ windows the pages open stay in the app only when they are on your server. Menus 
 language chosen in My account, or the system's. The server's pages may use notifications, the clipboard,
 full screen and the microphone (voice notes); nothing else, and no other site. Single sign-on and
 connecting apps happen inside the app, so the sign-in it leads to stays with it. The window
-remembers its size and place. Offline editing works as in the installed web app, which needs HTTPS
+remembers its size and place. Cmd+Shift+J on macOS (Ctrl+Shift+J on Windows and Linux), pressed in
+any app, brings Leafdesk forward and opens AI chat in the workspace its window shows, or a quick
+note where AI is off there; *Go → Ask AI Shortcut* picks other keys or turns it off, and says
+when another app already has the keys. Offline editing works as in the installed web app, which needs HTTPS
 (or `localhost`) for the service worker.
 
 **Not yet.** Push notifications don't reach the desktop app (the inbox still shows what's new), and
@@ -2014,6 +2090,68 @@ A `POST` with a JSON body (up to 64 KB; an empty body counts as `{}`) queues a r
 The automation can keep an example body, which its test runs use and its editor offers fields
 from. Bodies are kept in the run history for 30 days with credentials masked.
 
+## Page webhooks
+
+Workspace owners add page webhooks under Settings > Webhooks, or with the REST API
+(`/workspaces/{workspace_id}/webhooks` and `/webhooks/{webhook_id}`, scopes `webhooks:read` and
+`webhooks:write`; owners only). Each has an `https` address, the events it hears about and the
+pages it covers: the whole workspace, one teamspace, or a page and every page under it. A
+workspace has up to 25. Database rows and templates are never sent: rows have
+[automations](#automations-and-webhooks) for that.
+
+| Event | When |
+| --- | --- |
+| `page.created` | A page or database is made; sent 5 seconds later, with the body written by then |
+| `page.updated` | Its title or body changed; once the page is left alone for 2 minutes (at most 15 after the first change), one delivery for a session of edits, saying what changed |
+| `page.moved` | It moved to another page or teamspace; a page webhook hears about it if the page is in its scope before or after, with where it was (`from`) |
+| `page.trashed`, `page.restored` | It went to the trash with the pages under it (one event, for that page), or came back |
+| `page.deleted` | It was deleted for good; the body has only its `id`, `title` and `kind` |
+| `comment.created` | Someone started a comment thread on it or replied in one |
+
+Deliveries are sent like [automation webhooks](#webhooks): the same `User-Agent`,
+`X-Leafdesk-Delivery`, `X-Leafdesk-Signature` (each page webhook has its own `whsec_…` secret,
+shown in Settings and when it is added over the API, and replaced with *New secret*) and the same
+retries, 5 attempts in all, with the event's name in `X-Leafdesk-Event` (`ping` for *Send test*).
+Plain `http` is refused unless the host is in `AUTOMATION_WEBHOOK_ALLOWED_HOSTS`; private
+addresses are refused as for automations. The body:
+
+```json
+{
+  "id": "4a1e…",
+  "event": "page.updated",
+  "created_at": "2026-10-24T09:14:03.512Z",
+  "webhook": { "id": "9c3b…", "name": "Docs to search index" },
+  "workspace_id": "8a41…",
+  "actor": { "id": "u_12…", "name": "Ada Lovelace" },
+  "page": {
+    "id": "e7f2…",
+    "title": "Onboarding",
+    "kind": "page",
+    "icon": "📘",
+    "url": "https://notes.example.com/w/8a41…/p/e7f2…",
+    "parent_id": "c3d9…",
+    "teamspace_id": "b07a…",
+    "in_trash": false,
+    "created_at": "2026-09-01T08:00:00.000Z",
+    "updated_at": "2026-10-24T09:12:01.000Z",
+    "markdown": "# Onboarding\n…"
+  },
+  "changes": { "title": false, "body": true }
+}
+```
+
+`page.moved` adds `from: {parent_id, teamspace_id}`, `comment.created` adds `comment: {thread_id,
+id, reply, text}`, and the Markdown is cut at 100,000 characters (`markdown_truncated: true`).
+`actor` is `null` when nobody did it (the trash emptying itself). A parent the webhook's person
+can't open reads `null`.
+
+**Whose eyes.** A page webhook sends as the owner who saved it last (*Sends as* in Settings), and
+everything is checked again for each delivery: a page they can't open is skipped (*Not sent* in
+the delivery log), and if they are no longer an owner, nothing is sent and the webhook pauses
+until another owner saves it, which makes it send as them. While the workspace's export switch is
+off (Settings > Security), nothing is sent either. Each webhook keeps a log of its deliveries for
+30 days. Deleting the page a webhook covers removes the webhook with it.
+
 ## AI features
 
 Leafdesk can use a language model for a writing assistant in pages, database properties that AI
@@ -2083,7 +2221,8 @@ as it can (Claude Sonnet and Opus 5.5 can't stop thinking, so "off" is low effor
 | Meeting notes: summary, decisions and action items | `AI_MODEL` | low |
 | Writing assistant: improve, fix, shorten, translate, continue, summarize | `AI_MODEL` | low |
 | Writing assistant: your own instruction | `AI_MODEL` | medium |
-| Chat | `AI_MODEL` | medium |
+| Chat | `AI_MODEL` (or the model picked, see `AI_CHAT_MODELS`) | medium |
+| Chat in research mode | `AI_MODEL` (or the model picked) | the model's default |
 | Drafting an agent from a description | `AI_MODEL` | medium |
 | Building databases from a description | `AI_MODEL` | medium |
 | Agents | `AI_MODEL` | the model's default (Claude 5.5: high) |
@@ -2205,6 +2344,48 @@ waits, and stopping the answer, leaving the page or 15 minutes without an answer
 Changes made, declined or failed show among the answer's steps with links, are kept with the
 conversation (also when the answer itself didn't come), and later questions know them.
 
+**Files in the chat.** The paperclip under the question box attaches files to a question, and so
+does dropping them on the box or pasting them: images (PNG, JPEG, GIF, WebP), PDF, Word and Excel
+documents, CSV, Markdown and text files, up to 5 per question, 20 MB each (images 5 MB). Each is
+uploaded as it is attached and shows as a chip with its name and size (a CSV file's rows and
+columns), in the box and then on the question, where it opens the file. A question may be only
+files. Documents are read to text the way search reads them (the first 50 pages or 200,000
+characters), CSV files as tables (up to 1,000 rows and 100 columns, refused with a message
+beyond), and the files stay with the conversation: every later question sends them again, newest
+first and cut to fit, and the model reads on in one with `read_attachment` and can make a
+database of a CSV file (`create_database_from_csv`, its columns' types guessed from the values).
+Images go to the model as images, with their own question only, where the model takes them (the
+catalog says so for the models it knows; `AI_IMAGE_INPUT=true` says it for others); otherwise the
+box says so and nothing is sent. What a file says is data for the model, never instructions.
+Attached files count against the workspace's storage, are stored apart from its pages (only the
+person who attached them can open them, and backups and exports leave them out), and are deleted
+with their conversation; one attached but never sent goes after a day.
+
+**Picking the model.** `AI_CHAT_MODELS` lists more models at the same provider (same key and
+endpoint), comma-separated, that the chat's box offers next to `AI_MODEL` and `AI_FAST_MODEL`.
+Where there is more than one, a model picker sits under the box: a conversation keeps the model it
+was last asked with, and a new one starts with the model of your latest. Usage and cost are counted
+per model (see *Usage and cost limits*). A workspace on its own AI account answers with that
+account's model, without a picker.
+
+```bash
+AI_MODEL=claude-sonnet-5-5
+AI_FAST_MODEL=claude-haiku-5-5
+AI_CHAT_MODELS=claude-opus-5-5
+```
+
+**Research.** The telescope button under the box turns on research mode for the questions that
+follow. The model first plans the sub-questions that together answer the question (shown as a
+step), then searches the workspace (full text and by meaning, as you), reads the best pages and
+databases, reads attached files and, where web search is on, searches the web and reads the best
+results, and finally writes a long report in Markdown with a summary, a section per sub-question
+and what remains open, citing every source by number (web sources as links). It only reads:
+nothing is changed, no note is kept and no other service is called, whatever the mode under the
+box. It takes up to 14 turns and 400,000 tokens (each turn also counts against the rate and cost
+limits like any other); past them it writes the report with what it has. *Save as page* under a
+report makes it a private page at the top of the workspace, its citations links to the sources
+with a list of them at the end.
+
 **Reviewing AI changes.** After an AI app, the chat or an agent writes to a page's body, the page
 shows a bar above the body with how many blocks changed and who changed them. *Review* opens the
 changes block by block, with *Keep* and *Undo* for each, next to *Keep all* and *Undo all*. Undoing
@@ -2255,14 +2436,25 @@ the workspace's usage (see *Usage and cost limits*), never its content.
 With a hosted provider, what is sent is subject to that provider's terms; a local model keeps
 everything on your machines.
 
-**Web search for agents.** Agents an owner gave web access (see [Agents](#agents)) can also search
-the web when the server has a search service: set `WEB_SEARCH_URL` to a self-hosted
-[SearXNG](https://docs.searxng.org) instance with its JSON output turned on (`json` listed under
-`search.formats` in its `settings.yml`), e.g. `WEB_SEARCH_URL=http://searxng:8080`. Leafdesk asks
-`<WEB_SEARCH_URL>/search?q=…&format=json` (an address with a path of its own is used as it is) and
-waits 10 seconds at most. The service is the server's own, so it may be on a private network; the
-pages agents then read may not. Unset, agents with web access read only the pages whose links they
-are given or find in the workspace.
+**Web search.** Agents an owner gave web access (see [Agents](#agents)) can also search the web
+when the server has a search service, and so can the AI chat where a workspace's owners turn on
+Settings → General → AI → *Web search in the AI chat* (off by default; research mode searches the
+web there too). The service is set with `WEB_SEARCH_PROVIDER`:
+
+| `WEB_SEARCH_PROVIDER` | Needs |
+| --- | --- |
+| `searxng` (the default when only `WEB_SEARCH_URL` is set) | `WEB_SEARCH_URL`: a self-hosted [SearXNG](https://docs.searxng.org) instance with its JSON output turned on (`json` listed under `search.formats` in its `settings.yml`), e.g. `http://searxng:8080`, asked at `<WEB_SEARCH_URL>/search?q=…&format=json` (an address with a path of its own is used as it is) |
+| `brave` | `WEB_SEARCH_API_KEY` from the Brave Search API |
+| `tavily` | `WEB_SEARCH_API_KEY` from Tavily |
+
+For `brave` and `tavily`, `WEB_SEARCH_URL` overrides their address. A search waits 10 seconds at
+most. The service is the server's own, so it may be on a private network; the pages read from the
+web may not (the same checks as for links to files, with size and time limits). Unset, agents with
+web access read only the pages whose links they are given or find in the workspace, and the chat
+has no web tools. In the chat, web search only reads (`search_web`, `read_web_page`): web pages
+are written by anyone, so what they say reaches the model framed as outside data, and once an
+answer read from the web every change and note it wants is asked about, also in *Auto*. The words
+it searches with leave the workspace for the search service.
 
 **Limits.**
 
@@ -2275,6 +2467,8 @@ are given or find in the workspace.
 | `AI_WORKSPACE_RATE_LIMIT` | 120 | Requests per workspace per minute, AI property values included (they wait for their turn) |
 | `AI_CONCURRENCY` | 2 | AI property values worked out at the same time |
 | `AI_CONTEXT_WINDOW` | 32768 | Context size, in tokens, assumed for OpenAI-compatible and local models (the chat and agents fit their prompt in it) |
+| `AI_CHAT_MODELS` | none | More models the chat's box offers to pick from, comma-separated (see *Picking the model*) |
+| `AI_IMAGE_INPUT` | false | Models the catalog doesn't know (OpenAI-compatible and local ones) take images attached to a chat question |
 | `AI_MONTHLY_LIMIT_USD` | none | The most each workspace's AI may cost the server's `AI_*` key in a calendar month, in US dollars (see below) |
 
 ### Usage and cost limits
@@ -3256,7 +3450,7 @@ The tools cover:
   (including one- or two-way relations), `set_sub_items`, `set_dependencies`, `update_database_property`,
   `change_database_property_type` (converts the values in every row; `dry_run` counts what would
   convert and what would be cleared without changing anything), `delete_database_property`,
-  `create_database_view` and `update_database_view` (table, board, calendar, gallery, list,
+  `create_database_view` and `update_database_view` (table, board, calendar, gallery, list, feed,
   timeline, map (with `place_by`), chart, dashboard or form, including a form's public link and a dashboard's `widgets`; a chart over a date takes `accumulate`
   for running totals or a burndown, a calendar `calendar_mode` (month or week), a board `aggregate` and `aggregate_property` for what its column headers show, and table, list and timeline views take `sub_items`;
   `update_database_view` also moves a
@@ -3276,8 +3470,9 @@ The tools cover:
   the trash.
 - **Dashboards:** `add_dashboard` adds a dashboard of widgets (each a database and the settings of
   a view, as for `create_database_view`; a number is a chart with `chart_type: "number"`) to the end
-  of a page, and `update_dashboard_widget` adds, changes, moves or removes one widget. `get_page`
-  lists a page's dashboards and their widgets; a widget on a database the user can't open names
+  of a page (`layout: "tabs"` shows one widget at a time, as tabs), and `update_dashboard_widget`
+  adds, changes, moves or removes one widget. `get_page` lists a page's dashboards, their layout and
+  their widgets; a widget on a database the user can't open names
   nothing of it.
 - **Automations:** `list_automations`, `create_automation`, `update_automation`,
   `publish_automation`, `discard_automation_draft`, `test_automation`, `delete_automation` and
@@ -3469,7 +3664,7 @@ Useful scripts:
 | `pnpm mail:test you@example.com` | Send a test email with the SMTP settings from `.env` |
 | `pnpm db:generate` | New migration from schema changes in `src/db/schema` |
 | `pnpm search:index [workspace-id…]` | Builds or catches up the semantic search index (see [Semantic search](#semantic-search)) |
-| `pnpm tsx scripts/access-e2e.ts` | End-to-end checks against the database for page permissions, guests and publishing. The other `scripts/*-e2e.ts` files do the same for their areas (teamspaces, membership policies and join requests, databases, filters, bulk actions, AI features, semantic search and AI chat (with a stand-in OpenAI-compatible server), property types, places and map views (with a stand-in address search), people, trash and its retention, views, formulas, charts, dashboards, forms, inline databases, publishing options, sites and duplicating published pages, presence, offline editing, uploads and who may read the files pages show, import, Notion import, export, full-text search, upserts and guarded bulk row edits, deleting stored files, the search box's filters, backlinks and unlinked mentions, synced pages, the graph, the workspace health check, skills (MCP prompts over an in-memory transport, the AI chat with a stand-in model), and `roundtrip-e2e.ts` for an export imported again); `mcp-e2e.ts` and `auth-e2e.ts` below need a running server. |
+| `pnpm tsx scripts/access-e2e.ts` | End-to-end checks against the database for page permissions, guests and publishing. The other `scripts/*-e2e.ts` files do the same for their areas (teamspaces, membership policies and join requests, databases, filters, bulk actions, AI features, semantic search and AI chat (with a stand-in OpenAI-compatible server), property types, places and map views (with a stand-in address search), feed views, reactions, database tabs and row page layout, people, trash and its retention, views, formulas, charts, dashboards, forms, inline databases, publishing options, sites and duplicating published pages, presence, offline editing, uploads and who may read the files pages show, import, Notion import, export, full-text search, upserts and guarded bulk row edits, deleting stored files, the search box's filters, backlinks and unlinked mentions, synced pages, the graph, the workspace health check, skills (MCP prompts over an in-memory transport, the AI chat with a stand-in model), and `roundtrip-e2e.ts` for an export imported again); `mcp-e2e.ts` and `auth-e2e.ts` below need a running server. |
 | `pnpm tsx scripts/sw-e2e.ts` | Checks the service worker (`public/sw.js`) in headless Chrome against a stand-in server: offline pages, per-user copies, the offline page (set `CHROME_PATH` outside macOS) |
 | `pnpm tsx scripts/mcp-e2e.ts` | End-to-end OAuth + MCP check against a running server (see the header of the file) |
 | `pnpm tsx scripts/api-e2e.ts` | End-to-end REST API check (tokens, every endpoint, access, rate limits, OpenAPI) against a running server |

@@ -12,6 +12,7 @@
     "groups": "קבוצות",
     "agents": "סוכנים",
     "connections": "חיבורים",
+    "webhooks": "Webhooks",
     "storage": "אחסון",
     "analytics": "ניתוח נתונים",
     "aiUsage": "שימוש בבינה מלאכותית",
@@ -21,6 +22,67 @@
     "site": "אתר",
     "snippets": "קטעים",
     "pdf": "תבניות PDF"
+  },
+  "search": {
+    "label": "חיפוש בהגדרות",
+    "placeholder": "חיפוש בהגדרות",
+    "noResults": "אין הגדרות מתאימות.",
+    "labels": {
+      "aiUsagePeople": "שימוש לפי אדם"
+    },
+    "keywords": {
+      "profile": "שם תמונה אווטאר",
+      "email": "כתובת שינוי אימות דוא״ל",
+      "deleteAccount": "הסרה סגירה חשבון מחיקה",
+      "password": "שינוי איפוס כניסה סיסמה",
+      "twoFactor": "2fa mfa מאמת קוד",
+      "passkeys": "webauthn מפתח אבטחה טביעת אצבע פנים",
+      "sessions": "מכשירים מחובר התנתקות",
+      "language": "שפה תרגום אזור",
+      "theme": "מצב כהה מצב בהיר צבעים",
+      "contrast": "נגישות ניגודיות גבוהה",
+      "notifications": "push דוא״ל התראות",
+      "watchedPages": "מעקב הרשמה צפייה",
+      "offlineDevice": "לא מקוון הורדה מטמון מקום",
+      "offlinePages": "לא מקוון הורדה בלי אינטרנט",
+      "mailboxes": "דוא״ל תיבת דואר נכנס imap smtp",
+      "calendars": "ical פיד הרשמה לוח שנה",
+      "storageAccounts": "drive s3 קבצים ענן",
+      "connectedApps": "oauth לקוחות גישה ביטול",
+      "aiAccounts": "מפתח api מפתח משלך ספק",
+      "telegram": "בוט צ׳אט הודעות",
+      "mcp": "עוזר model context protocol שרת",
+      "apiTokens": "rest api אסימון מפתח מפתח תוכנה",
+      "about": "גרסה רישיון עדכון",
+      "workspaceName": "שם שינוי שם סמל",
+      "ai": "בינה מלאכותית צ׳אט מודל ספק זיכרון",
+      "workspaceMail": "דוא״ל שורות דואר שליחה",
+      "export": "גיבוי הורדה zip markdown",
+      "members": "אנשים הזמנה משתמשים תפקידים הסרה",
+      "agents": "בינה מלאכותית עוזר אוטומציה בוט",
+      "snippets": "טקסט קיצורים קטעים",
+      "letterheads": "pdf כותרת עליונה כותרת תחתונה לוגו הדפסה",
+      "connections": "שילובים mcp שירותים כלים",
+      "webhooks": "וובהוק webhook http post אירועים אינטגרציה התראה שליחה",
+      "site": "אתר פרסום דומיין אינטרנט",
+      "requireTwoFactor": "2fa mfa חובה מדיניות",
+      "loginMethod": "sso סיסמה כניסה מדיניות",
+      "allowedNetworks": "ip רשימת היתרים כתובת משרד vpn",
+      "membership": "הזמנה הצטרפות בקשות דומיינים",
+      "sso": "saml oidc ספק זהויות",
+      "scim": "הקצאה ספרייה סנכרון משתמשים",
+      "exportPolicy": "הורדה הדפסה pdf",
+      "connectedAppsPolicy": "mcp rest api אסימונים גישה",
+      "publishing": "פרסום אינטרנט שיתוף קישור ציבורי",
+      "retention": "אשפה היסטוריה מחיקה שמירה ימים",
+      "legalHolds": "התדיינות שימור גילוי אלקטרוני",
+      "storage": "קבצים s3 drive דלי",
+      "analyticsPeople": "פעילות עריכות סטטיסטיקה",
+      "aiUsageLimit": "תקציב עלות הוצאות תקרה",
+      "aiUsagePeople": "לאדם חבר עלות אסימונים",
+      "health": "קישורים שבורים יתומים כפולים דפים ריקים",
+      "audit": "יומן היסטוריה אירועים מי שינה"
+    }
   },
   "workspace": {
     "heading": "סביבת עבודה",
@@ -957,6 +1019,8 @@
     "moveToTrash": "העברה לאשפה",
     "confirmTrash": "להעביר את “{title}” לאשפה?",
     "lastEdited": "נערך לאחרונה {when}",
+    "verificationEndedBy": "אומת על ידי {name}, הסתיים {when}",
+    "verificationEnded": "האימות הסתיים {when}",
     "alike": "{similarity, number, percent} דמיון",
     "inProperty": "{property} ב־{database}",
     "removeFromRelation": "הסרה",
@@ -980,6 +1044,11 @@
       "title": "דפים ללא שינוי",
       "description": "דפים שאף אחד לא ערך ב־{months} החודשים האחרונים, מהוותיק ביותר. ייתכן שהם לא מעודכנים.",
       "none": "כל הדפים נערכו לאחרונה."
+    },
+    "expiredVerifications": {
+      "title": "אימותים שפג תוקפם",
+      "description": "דפים שמישהו אימת עד יום שכבר עבר. כדאי לבדוק אותם ולאמת אותם שוב, או להסיר את האימות.",
+      "none": "אין אימות שפג תוקפו."
     },
     "duplicates": {
       "title": "כפילויות אפשריות",
@@ -1387,6 +1456,50 @@
       "memberView": "{count, plural, =0 {כבוי: אפשר לפתוח את סביבת העבודה מכל רשת.} one {פעיל: אפשר לפתוח את סביבת העבודה רק מרשת מאושרת אחת.} other {פעיל: אפשר לפתוח את סביבת העבודה רק מ-# רשתות מאושרות.}}"
     }
   },
+  "legalHolds": {
+    "title": "החזקות משפטיות",
+    "description": "כל עוד החזקה בתוקף, אי אפשר למחוק לצמיתות שום דבר שהאנשים שהיא חלה עליהם יצרו או ערכו בסביבת העבודה הזו. עדיין אפשר להעביר את הדפים והשורות שלהם לאשפה, אבל הם נשארים שם עם ההיסטוריה, התגובות והקבצים שלהם; אי אפשר למחוק את סביבת העבודה ואת החשבונות שלהם.",
+    "holds": "החזקות",
+    "holdsDescription": "הטלה והסרה של החזקה נרשמות ביומן הביקורת.",
+    "empty": "אין החזקות.",
+    "new": "החזקה חדשה",
+    "setBy": "הוטלה על ידי {name} ב-{date, date, medium}",
+    "setOn": "הוטלה ב-{date, date, medium}",
+    "people": "{count, plural, one {אדם אחד} other {# אנשים}}",
+    "left": "עזב",
+    "guest": "אורח",
+    "release": "הסרה",
+    "confirmRelease": "הסרת {name}",
+    "form": {
+      "title": "החזקה משפטית חדשה",
+      "description": "בחרו את האנשים שהיא חלה עליהם: חברים, אורחים או אנשים שעזבו אבל יצרו או ערכו כאן משהו.",
+      "name": "שם",
+      "namePlaceholder": "עניין או תיק",
+      "reason": "סיבה",
+      "reasonPlaceholder": "רשות: למה, ומי ביקש",
+      "people": "אנשים ({count})",
+      "search": "חיפוש אנשים",
+      "loading": "טוען…",
+      "nobody": "אין התאמות.",
+      "submit": "הטלת החזקה"
+    },
+    "errors": {
+      "pageHeld": "החזקה משפטית שומרת על הדף הזה, או על דף שמתחתיו: אי אפשר למחוק אותו לצמיתות כל עוד ההחזקה בתוקף, והוא נשאר באשפה.",
+      "templateHeld": "החזקה משפטית שומרת על התבנית הזו: אי אפשר למחוק אותה כל עוד ההחזקה בתוקף.",
+      "propertyHeld": "החזקה משפטית שומרת על הערכים של המאפיין הזה: אי אפשר למחוק אותו לצמיתות כל עוד ההחזקה בתוקף.",
+      "commentHeld": "החזקה משפטית שומרת על התגובה הזו: אי אפשר למחוק אותה כל עוד ההחזקה בתוקף.",
+      "letterheadHeld": "החזקה משפטית שומרת על נייר המכתבים הזה: אי אפשר למחוק אותו כל עוד ההחזקה בתוקף.",
+      "workspaceHeld": "בסביבת העבודה הזו יש החזקה משפטית. הסירו אותה (הגדרות > אבטחה) לפני מחיקת סביבת העבודה.",
+      "nameRequired": "תנו להחזקה שם.",
+      "nameTooLong": "השם יכול להכיל עד 200 תווים.",
+      "reasonTooLong": "הסיבה יכולה להכיל עד 2,000 תווים.",
+      "noPeople": "בחרו על מי ההחזקה חלה.",
+      "tooManyPeople": "החזקה אחת חלה על 200 אנשים לכל היותר.",
+      "unknownPerson": "מישהו שבחרתם כבר לא בסביבת העבודה הזו.",
+      "notFound": "ההחזקה הזו כבר הוסרה.",
+      "ownersOnly": "רק בעלים מנהלים החזקות משפטיות."
+    }
+  },
   "audit": {
     "description": "תיעוד של מי שינה מה בסביבת העבודה הזו: חברים ותפקידים, הזמנות, שיתוף, מרחבי צוות וקבוצות, הגדרות, אבטחה, דפים שנוצרו, הועברו, הושלכו לאשפה ונמחקו, פרסום, אפליקציות מחוברות וייצוא. רק הבעלים יכולים לראות אותו.",
     "filters": "סינון יומן הביקורת",
@@ -1501,6 +1614,7 @@
       "loginMethod": "איך חברים מתחברים",
       "ai": "תכונות AI",
       "aiMemory": "זיכרון AI",
+      "aiWebSearch": "חיפוש ברשת בצ׳אט ה־AI",
       "aiMonthlyLimitUsd": "מגבלת עלות חודשית לבינה מלאכותית",
       "trashRetentionDays": "מחיקת דפים מהאשפה אחרי",
       "export": "לאפשר ייצוא",
@@ -1568,6 +1682,8 @@
         "permission_removed": "הסרת {subject} מהשיתוף של {target}",
         "row_access_changed": "שינוי האנשים שהשורות של {target} נותנות להם גישה",
         "deleted": "מחיקת {target} לצמיתות",
+        "verified": "אימות {target}",
+        "unverified": "הסרת האימות של {target}",
         "published": "פרסום {target} ברשת",
         "unpublished": "ביטול הפרסום של {target}",
         "publication_revoked": "הורדת {target} מהרשת (פורסם על ידי {subject})",
@@ -1622,6 +1738,10 @@
         "token_created": "יצירת אסימון ה־SCIM {target}",
         "token_revoked": "ביטול אסימון ה־SCIM {target}"
       },
+      "legal_hold": {
+        "set": "הטיל את ההחזקה המשפטית {target} על {names}",
+        "released": "הסיר את ההחזקה המשפטית {target} מעל {names}"
+      },
       "site": {
         "saved": "שמירת האתר בכתובת {slug}",
         "removed": "הסרת האתר בכתובת {slug}"
@@ -1639,6 +1759,11 @@
         "created": "יצירת האוטומציה “{name}” ב־{target}",
         "updated": "{change, select, on {הפעלת האוטומציה “{name}” ב־{target}} off {השבתת האוטומציה “{name}” ב־{target}} other {שינוי האוטומציה “{name}” ב־{target}}}",
         "deleted": "מחיקת האוטומציה “{name}” ב־{target}"
+      },
+      "webhook": {
+        "created": "הוספת ה־webhook “{target}”",
+        "updated": "{change, select, on {הפעלת ה־webhook “{target}”} off {כיבוי ה־webhook “{target}”} other {שינוי ה־webhook “{target}”}}",
+        "deleted": "הסרת ה־webhook “{target}”"
       },
       "export": {
         "workspace": "ייצוא סביבת העבודה ({count, plural, one {דף אחד} two {שני דפים} other {# דפים}})",
@@ -1771,7 +1896,10 @@
     "followUpChannel": "רצפי מעקב: {channel}",
     "reactionTitle": "תגובות אמוג׳י",
     "reactionDescription": "מישהו מגיב באמוג׳י לתגובה שכתבת. תגובות לאותה תגובה מתקבצות יחד עד שתפתחו אותן.",
-    "reactionChannel": "תגובות אמוג׳י: {channel}"
+    "reactionChannel": "תגובות אמוג׳י: {channel}",
+    "verificationTitle": "דפים שאימתת",
+    "verificationDescription": "האימות של דף שאימתת עומד להסתיים: כמה ימים לפני כן, וכשהוא מסתיים.",
+    "verificationChannel": "דפים שאימתת: {channel}"
   },
   "site": {
     "description": "כתובת קריאה אחת לדפים המפורסמים של סביבת העבודה הזו, עם דף בית וניווט ביניהם.",
@@ -2009,6 +2137,102 @@
       "redo": "החזרה עם הערה…",
       "notWhole": "הקריאה הזו ארוכה ממה שמוצג כאן, או מכילה ערכים שמוסתרים כאן. כדי לראות את כל מה שיישלח לפני האישור, יש לפתוח את ההרצה שלה.",
       "openRun": "פתיחת ההרצה לאישור"
+    }
+  },
+  "webhooks": {
+    "description": "אפשר לשלוח את מה שקורה לדפים של סביבת העבודה הזו לשירות אחר ברגע שזה קורה: בקשות POST חתומות לכתובת https, עבור כל סביבת העבודה, מרחב צוות אחד, או דף והדפים שמתחתיו. כל webhook נשלח בשם מי ששמר אותו אחרון, ורק עם מה שמותר לו/ה לפתוח; שורות של מסדי נתונים ותבניות לא נשלחות.",
+    "exportOff": "הייצוא כבוי בהגדרות › אבטחה, ולכן ה־webhooks לא שולחים דבר עד שיופעל שוב.",
+    "count": "{count, plural, =0 {אין עדיין webhooks.} one {webhook אחד} two {שני webhooks} other {# webhooks}}",
+    "add": "הוספת webhook",
+    "empty": "אפשר להוסיף webhook כדי לשלוח אירועי דפים לשירות משלך.",
+    "allEvents": "כל האירועים",
+    "scopeLabel": {
+      "workspace": "כל הדפים של סביבת העבודה",
+      "teamspace": "הדפים של {name}",
+      "page": "{title} והדפים שמתחתיו"
+    },
+    "events": {
+      "pageCreated": "דף נוצר",
+      "pageUpdated": "דף נערך",
+      "pageMoved": "דף הועבר",
+      "pageTrashed": "דף הועבר לאשפה",
+      "pageRestored": "דף שוחזר מהאשפה",
+      "pageDeleted": "דף נמחק לצמיתות",
+      "commentCreated": "נוספה תגובה",
+      "ping": "בדיקה"
+    },
+    "sendsAs": "נשלח בשם {name}, ורק עם מה שמותר לו/ה לפתוח.",
+    "paused": "מושהה: {name} כבר לא בעלים. אפשר לשמור אותו כדי שיישלח בשמך.",
+    "pausedBadge": "מושהה",
+    "offBadge": "כבוי",
+    "toggle": "שליחת {name}",
+    "test": "שליחת בדיקה",
+    "testDelivered": "הבדיקה הגיעה לכתובת (התשובה הייתה {status}).",
+    "testFailed": "הבדיקה לא עברה: {reason}.",
+    "edit": "עריכה",
+    "delete": "הסרה",
+    "deleteNote": "הוא נעצר מיד, ויומן המסירות שלו נמחק יחד איתו.",
+    "working": "בעבודה…",
+    "secret": {
+      "show": "סוד החתימה",
+      "rotate": "סוד חדש",
+      "rotateNote": "הסוד הנוכחי מפסיק לחתום מיד: יש לעדכן את השירות שבודק אותו.",
+      "title": "סוד החתימה של “{name}”",
+      "label": "סוד החתימה",
+      "note": "יש לבדוק איתו את הכותרת X-Leafdesk-Signature של כל בקשה: t=TIME,v1=HMAC, כאשר HMAC הוא HMAC-SHA256 בהקסדצימלי של TIME, נקודה והגוף. יש לשמור אותו בסוד."
+    },
+    "log": {
+      "title": "{count, plural, =0 {מסירות אחרונות} other {מסירות אחרונות (#)}}",
+      "empty": "לא נשלח דבר ב־30 הימים האחרונים.",
+      "attempts": "{count, plural, one {ניסיון אחד} two {שני ניסיונות} other {# ניסיונות}}",
+      "next": "הניסיון הבא ב־{when}"
+    },
+    "status": {
+      "pending": "ממתין",
+      "delivered": "נמסר",
+      "failed": "נכשל",
+      "skipped": "לא נשלח"
+    },
+    "codes": {
+      "noAccess": "האדם שבשמו הוא נשלח לא יכול לפתוח את הדף",
+      "notOwner": "האדם שבשמו הוא נשלח כבר לא בעלים",
+      "exportOff": "הייצוא כבוי",
+      "disabled": "ה־webhook כבוי",
+      "invalidUrl": "הכתובת לא תקינה",
+      "blocked": "הכתובת נמצאת ברשת פרטית",
+      "unreachable": "לא ניתן היה להגיע לכתובת",
+      "timeout": "לא התקבלה תשובה תוך 10 שניות",
+      "redirect": "הכתובת השיבה בהפניה",
+      "http": "הכתובת השיבה {status}"
+    },
+    "form": {
+      "title": "הוספת webhook",
+      "editTitle": "שינוי ה־webhook",
+      "name": "שם",
+      "url": "כתובת",
+      "urlHint": "כתובת https. הבקשות חתומות; הפניות לא נעקבות.",
+      "events": "אירועים",
+      "scope": "דפים",
+      "scopes": {
+        "workspace": "כל סביבת העבודה",
+        "teamspace": "מרחב צוות אחד",
+        "page": "דף והדפים שמתחתיו"
+      },
+      "teamspace": "בחירת מרחב צוות",
+      "pickPage": "חיפוש דף",
+      "noPages": "אין דפים לבחירה.",
+      "otherPage": "שינוי",
+      "save": "שמירה",
+      "create": "הוספת webhook"
+    },
+    "errors": {
+      "invalidName": "יש לתת ל־webhook שם של עד 100 תווים.",
+      "invalidUrl": "יש להזין כתובת https תקינה בלי שם משתמש או סיסמה.",
+      "httpsOnly": "Webhooks נשלחים רק לכתובות https.",
+      "noEvents": "יש לבחור אירוע אחד לפחות.",
+      "invalidScope": "יש לבחור מרחב צוות או דף של סביבת העבודה הזו.",
+      "tooMany": "בסביבת עבודה יכולים להיות עד 25 webhooks.",
+      "ownersOnly": "רק הבעלים של סביבת העבודה מנהלים webhooks."
     }
   },
   "email": {

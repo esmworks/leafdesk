@@ -4,6 +4,7 @@ import { AccessError, ConnectedAppReadOnlyError } from "@/server/access";
 import { AgentError } from "@/server/agents/manage";
 import { AiError } from "@/server/ai/errors";
 import { ToolInputError, VersionConflictError } from "@/server/mcp/format";
+import { PageWebhookError } from "@/server/page-webhooks/manage";
 import { GroupError } from "@/lib/groups";
 import { TeamspaceError } from "@/lib/teamspace-error";
 import { PAGE_LOCKED_MESSAGE } from "@/lib/page-lock";
@@ -132,6 +133,7 @@ export function apiErrorFor(error: unknown): ApiError {
   if (error instanceof PropertyValueError) return new ApiError(400, "invalid_property_value", error.message, undefined, { param: propertyParam(error) });
   if (error instanceof TeamspaceError) return new ApiError(403, "forbidden", error.message);
   if (error instanceof GroupError) return new ApiError(400, "invalid_request", error.message);
+  if (error instanceof PageWebhookError) return new ApiError(400, "invalid_request", `${error.message}.`);
   // Locks guard against accidents rather than limit access: like operations' own refusals of a
   // locked page, they say what to do (lib/page-lock).
   const { code } = error as { code?: unknown };

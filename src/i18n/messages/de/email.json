@@ -57,6 +57,11 @@
     "action": "Seite öffnen",
     "optOut": "Du erhältst diese E-Mails, weil du an dieser Diskussion beteiligt bist. Du kannst sie unter Mein Konto > Präferenzen abschalten."
   },
+  "suggestion": {
+    "subject": "{actor} hat Änderungen an „{page}“ vorgeschlagen",
+    "heading": "{actor} hat Änderungen an „{page}“ vorgeschlagen",
+    "body": "Der Vorschlag steht auf „{page}“ in {workspace}. Nimm ihn auf der Seite an, lehne ihn ab oder antworte in seiner Diskussion."
+  },
   "mention": {
     "subject": "{actor} hat dich auf „{page}“ erwähnt",
     "heading": "{actor} hat dich auf „{page}“ erwähnt",
@@ -71,6 +76,16 @@
     "body": "Du wolltest an {date} auf „{page}“ in {workspace} erinnert werden.",
     "action": "Seite öffnen",
     "optOut": "Du erhältst diese E-Mails, weil du eine Erinnerung eingerichtet hast. Du kannst sie unter Mein Konto > Präferenzen abschalten."
+  },
+  "pageVerification": {
+    "endsSubject": "Deine Verifizierung von „{page}“ endet am {date}",
+    "endsHeading": "Verifizierung endet bald",
+    "endsBody": "Du hast „{page}“ in {workspace} bis zum {date} verifiziert. Wenn sie noch stimmt, verifiziere sie über das ⋯-Menü der Seite erneut, damit sie verifiziert bleibt.",
+    "endedSubject": "Deine Verifizierung von „{page}“ ist abgelaufen",
+    "endedHeading": "Verifizierung abgelaufen",
+    "endedBody": "Deine Verifizierung von „{page}“ in {workspace} ist am {date} abgelaufen. Die Seite zeigt „Verifizierung abgelaufen“, bis jemand sie erneut verifiziert.",
+    "action": "Seite öffnen",
+    "optOut": "Du erhältst diese E-Mails, weil du die Seite verifiziert hast. Du kannst sie unter Mein Konto > Präferenzen abschalten."
   },
   "dateReminder": {
     "subject": "Erinnerung: „{page}“ am {date}",
@@ -220,11 +235,15 @@
     "assignment": "{actor} hat dich bei „{property}“ eingetragen",
     "pageShared": "{actor} hat diese Seite mit dir geteilt",
     "comment": "{actor} hat in einer Diskussion kommentiert, an der du beteiligt bist",
+    "suggested": "{actor} hat Änderungen an dieser Seite vorgeschlagen",
+    "suggestionAccepted": "{actor} hat deinen Änderungsvorschlag angenommen",
+    "suggestionRejected": "{actor} hat deinen Änderungsvorschlag abgelehnt",
     "mention": "{actor} hat dich erwähnt",
     "reminder": "Erinnerung: {date}",
     "accessRequest": "{actor} möchte Zugriff auf diese Seite",
     "automation": "Automatisierung „{name}“: {actor} hat diese Zeile hinzugefügt oder geändert",
     "automationDatePassed": "Automatisierung „{name}“: Das Datum dieser Zeile ist erreicht",
+    "button": "{actor} hat dir diese Seite mit einer Schaltfläche geschickt",
     "rowUpdate": "{actor} hat geändert: {fields}",
     "rowUpdateSome": "{actor} hat diese Zeile geändert",
     "rowUpdateTitle": "Titel",
@@ -234,6 +253,8 @@
     "followUp": "Follow-up „{sequence}“ pausiert: Die nächste E-Mail muss angesehen werden",
     "reaction": "{actor} hat mit {emoji} auf deinen Kommentar reagiert",
     "people": "{others, plural, =0 {{name}} one {{name} und # weitere Person} other {{name} und # weitere Personen}}",
+    "verificationEnds": "Deine Verifizierung dieser Seite endet am {date}",
+    "verificationEnded": "Deine Verifizierung dieser Seite ist am {date} abgelaufen",
     "someone": "Jemand",
     "joinRequestTitle": "Beitrittsanfrage",
     "joinRequest": "{actor} möchte beitreten",

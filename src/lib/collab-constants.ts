@@ -13,6 +13,11 @@ export const AUTO_SNAPSHOT_INTERVAL_MS = 10 * 60 * 1000;
  */
 export const PAGE_HEADER_EVENT = "header";
 /**
+ * Sent on a database row's own document after a change to the comments on its property values,
+ * which the document doesn't hold (server/property-comments.ts): its comments load them again.
+ */
+export const PROPERTY_COMMENTS_EVENT = "property-comments";
+/**
  * Sent on a page's own document after an AI app, the chat or an agent changed its body: the page
  * view looks for changes to review (server/page-review.ts).
  */
@@ -30,3 +35,11 @@ export const PAGE_SAVED_EVENT = "saved";
  * server turned down meanwhile.
  */
 export const PAGE_WRITABLE_EVENT = "writable";
+
+/**
+ * Sent to a connection of someone who may only suggest (comment access) before the server drops
+ * it for a change that was more than their own suggestions (collab/suggest-guard). Their tab
+ * forgets its copy of the page and loads it again (components/collab/socket): the change can't be
+ * sent, and edits after it build on it.
+ */
+export const SUGGESTION_REFUSED_EVENT = "suggestion-refused";

@@ -30,7 +30,7 @@ type WebView = { id: string; name: string; type: ViewType; published: boolean };
 type Outside = { id: string; title: string; icon: string | null; shown: boolean };
 
 /** Published pages draw these views as they are; the rest show as tables. */
-const DRAWN: ViewType[] = ["table", "board", "list", "gallery"];
+const DRAWN: ViewType[] = ["table", "board", "list", "gallery", "feed"];
 type Blocker = "needsFullAccess" | "notAllowed" | "publishingOff" | null;
 
 /** Publish tab of the Share popover: turn the public, read-only link on or off. */

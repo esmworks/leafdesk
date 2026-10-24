@@ -222,4 +222,36 @@ describe("searchWeb", () => {
     expect(out.content).toContain("1. Leafdesk\nhttps://leafdesk.app/\n");
     expect(out.step).toEqual({ kind: "tool", connectionId: null, tool: "search_web", input: '{"query":"leafdesk"}', outcome: "done" });
   });
+
+  const recording = (body: unknown) => {
+    const calls: { url: string; init: RequestInit }[] = [];
+    const fetcher = (async (url: URL | string, init?: RequestInit) => {
+      calls.push({ url: String(url), init: init ?? {} });
+      return new Response(JSON.stringify(body), { status: 200, headers: { "content-type": "application/json" } });
+    }) as typeof fetch;
+    return { calls, fetcher };
+  };
+
+  it("asks Brave with its key and reads its web results as plain text", async () => {
+    const { calls, fetcher } = recording({
+      web: { results: [{ title: "Leafdesk", url: "https://leafdesk.app/", description: "A <strong>workspace</strong> &amp; more" }] },
+    });
+    const found = await searchWeb("leafdesk", { env: { WEB_SEARCH_PROVIDER: "brave", WEB_SEARCH_API_KEY: "brave-key" }, fetcher });
+    expect(calls[0].url).toBe(`https://api.search.brave.com/res/v1/web/search?q=leafdesk&count=${MAX_SEARCH_RESULTS}`);
+    expect(new Headers(calls[0].init.headers).get("x-subscription-token")).toBe("brave-key");
+    expect(found).toEqual([{ title: "Leafdesk", url: "https://leafdesk.app/", snippet: "A workspace & more" }]);
+    // Brave's answer without web results is no results, not an error.
+    const empty = recording({ query: {} });
+    expect(await searchWeb("q", { env: { WEB_SEARCH_PROVIDER: "brave", WEB_SEARCH_API_KEY: "k" }, fetcher: empty.fetcher })).toEqual([]);
+  });
+
+  it("posts the question to Tavily with its key as a bearer token", async () => {
+    const { calls, fetcher } = recording({ results: [{ title: "Docs", url: "https://leafdesk.app/docs", content: "How it works" }] });
+    const found = await searchWeb("leafdesk docs", { env: { WEB_SEARCH_PROVIDER: "tavily", WEB_SEARCH_API_KEY: "tvly" }, fetcher });
+    expect(calls[0].url).toBe("https://api.tavily.com/search");
+    expect(calls[0].init.method).toBe("POST");
+    expect(new Headers(calls[0].init.headers).get("authorization")).toBe("Bearer tvly");
+    expect(JSON.parse(String(calls[0].init.body))).toEqual({ query: "leafdesk docs", max_results: MAX_SEARCH_RESULTS });
+    expect(found).toEqual([{ title: "Docs", url: "https://leafdesk.app/docs", snippet: "How it works" }]);
+  });
 });

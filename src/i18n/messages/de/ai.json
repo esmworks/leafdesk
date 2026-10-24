@@ -33,6 +33,7 @@
     "reviewNote": "KI kann Fehler machen. Prüfe den Text, bevor du ihn übernimmst.",
     "stopped": "Gestoppt. Du kannst den bisher geschriebenen Text trotzdem übernehmen.",
     "applyFailed": "Der Vorschlag konnte der Seite nicht hinzugefügt werden.",
+    "asSuggestions": "Als Änderungsvorschläge einfügen",
     "selectionChanged": "Der ausgewählte Text hat sich inzwischen geändert, daher wurde der Vorschlag darunter eingefügt."
   },
   "errors": {
@@ -136,6 +137,8 @@
     "ownersOnly": "Nur Eigentümer können dies ändern.",
     "memory": "KI-Gedächtnis",
     "memoryHint": "Wenn an, hält der KI-Chat kurze Notizen über Personen fest, die ihm etwas über sich erzählen, und schickt sie mit ihren späteren Fragen mit. Jede Person kann es für sich ausschalten. Wenn aus, ist die Gedächtnis-Ansicht ausgeblendet und keine Frage enthält Notizen; die Notizen bleiben erhalten und werden nicht gelöscht. Auch die Läufe von Agenten enthalten dann keine Notizen und schlagen keine vor.",
+    "webSearch": "Websuche im KI-Chat",
+    "webSearchHint": "Wenn eingeschaltet, darf der KI-Chat mit dem Suchdienst des Servers im Web suchen und Webseiten lesen, nur lesend: Nachdem er aus dem Web gelesen hat, wird jede Änderung, die er machen will, erfragt. Der Recherchemodus sucht auch im Web. Fragen und Text, mit denen er sucht, verlassen den Workspace zum Suchdienst.",
     "provider": "Anbieter",
     "providerValue": "{provider}, Modell {model}",
     "notConfigured": "Auf diesem Server ist weder ein KI-Anbieter noch ein Embedding-Modell eingerichtet, daher sind KI-Funktionen aus. Eine Administratorin oder ein Administrator kann sie mit den Umgebungsvariablen AI_PROVIDER und AI_MODEL (und AI_EMBEDDINGS_MODEL) einrichten (siehe README).",
@@ -208,6 +211,10 @@
       "query": "Abgefragt",
       "rows": "{count, plural, =0 {keine passenden Zeilen} one {# Zeile} other {# Zeilen}}",
       "queryGone": "Eine Datenbank abgefragt, die du nicht mehr öffnen kannst",
+      "plan": "Recherche geplant:",
+      "webSearched": "Im Web nach „{query}“ gesucht · {count, plural, =0 {nichts gefunden} one {# Ergebnis} other {# Ergebnisse}}",
+      "webRead": "Gelesen",
+      "webReadFailed": "Nicht lesbar:",
       "write": {
         "done": {
           "createRow": "Zeile hinzugefügt:",
@@ -323,7 +330,14 @@
       "auto": "Automatisch",
       "autoHint": "Fügt hinzu und ändert, ohne zu fragen",
       "read": "Nur lesen",
-      "readHint": "Ändert nichts"
+      "readHint": "Ändert nichts",
+      "asSuggestions": "Seitenänderungen als Vorschläge",
+      "asSuggestionsHint": "Was der Chat in eine Seite schreibt, erscheint als Änderungsvorschlag, den du annehmen oder ablehnen kannst"
+    },
+    "model": {
+      "label": "Modell",
+      "hint": "Das Modell, das in dieser Unterhaltung antwortet",
+      "images": "Liest Bilder"
     },
     "actions": {
       "edit": "Bearbeiten",
@@ -333,17 +347,33 @@
     "actionsFor": "Aktionen für {name}",
     "greeting": "Was möchtest du wissen?",
     "files": {
-      "attach": "CSV-Datei anhängen",
-      "attachHint": "Eine CSV-Datei anhängen (bis 1.000 Zeilen und 1 MB), um Fragen dazu zu stellen oder eine Datenbank daraus zu machen",
-      "drop": "CSV-Datei hier ablegen, um sie anzuhängen",
+      "attach": "Dateien anhängen",
+      "attachHint": "Bilder, PDF-, Word-, Excel-, CSV- oder Textdateien anhängen, um Fragen dazu zu stellen",
+      "drop": "Dateien ablegen, um sie anzuhängen",
       "remove": "{name} entfernen",
       "size": "{rows, plural, one {# Zeile} other {# Zeilen}} × {columns, plural, one {# Spalte} other {# Spalten}}",
-      "notCsv": "Nur CSV-Dateien können angehängt werden. Speichere die Tabelle zuerst als CSV.",
-      "tooLarge": "Die Datei ist größer als {size}. Hänge eine kleinere CSV-Datei an.",
+      "uploading": "Wird hochgeladen…",
+      "notSupported": "Der Chat liest Bilder, PDF-, Word- und Excel-Dokumente sowie CSV-, Markdown- und Textdateien.",
+      "tooLarge": "Die Datei ist größer als {size}. Hänge eine kleinere Datei an.",
       "tooManyRows": "Die Datei hat mehr als {rows} Zeilen. Hänge eine kürzere CSV-Datei an oder importiere sie als Datenbank.",
       "tooManyColumns": "Die Datei hat mehr als {columns} Spalten.",
       "empty": "Die Datei ist leer.",
-      "tooMany": "Eine Frage kann höchstens {count} Dateien haben."
+      "tooMany": "Eine Frage kann höchstens {count} Dateien haben.",
+      "noImages": "Das gewählte Modell nimmt keine Bilder an. Wähle ein anderes Modell oder entferne das Bild.",
+      "quota": "Die Datei wurde nicht angehängt: Der Dateispeicher dieses Workspace ist voll.",
+      "failed": "{name} konnte nicht angehängt werden."
+    },
+    "research": {
+      "sourcesHeading": "Quellen",
+      "untitled": "Recherchebericht",
+      "toggle": "Recherche",
+      "toggleHint": "Recherchemodus: plant Teilfragen, durchsucht und liest den Workspace (und das Web, wo eingeschaltet) und schreibt dann einen langen Bericht mit Quellen. Ändert nichts.",
+      "placeholder": "Was soll recherchiert werden?",
+      "asked": "Recherche",
+      "readOnly": "Recherche liest nur: Sie ändert nichts",
+      "save": "Als Seite speichern",
+      "openPage": "Seite öffnen",
+      "saveFailed": "Der Bericht konnte nicht als Seite gespeichert werden."
     }
   },
   "memory": {

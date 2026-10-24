@@ -16,6 +16,14 @@
     "createdBy": "Dibuat oleh {name}",
     "someone": "Seseorang",
     "comments": "Komentar",
+    "suggesting": {
+      "editing": "Mengedit",
+      "suggesting": "Menyarankan",
+      "label": "Mode: {mode}",
+      "editingHint": "Ubah halaman secara langsung",
+      "suggestingHint": "Perubahan Anda tampil sebagai saran yang dapat diterima atau ditolak orang lain",
+      "forcedHint": "Anda dapat berkomentar di halaman ini, jadi perubahan Anda menjadi saran yang dapat diterima atau ditolak oleh pengeditnya"
+    },
     "share": "Bagikan",
     "accessRequests": "{count, plural, other {# permintaan akses}}",
     "addFavorite": "Tambahkan ke favorit",
@@ -51,6 +59,9 @@
     "exportPdf": "Ekspor sebagai PDF",
     "printView": "Cetak",
     "exportPreparing": "Menyiapkan ekspor…",
+    "acceptAllSuggestions": "Terima semua saran",
+    "rejectAllSuggestions": "Tolak semua saran",
+    "rejectAllConfirm": "Tolak semua saran edit di halaman ini?",
     "versionHistory": "Riwayat versi",
     "lastEdited": "Terakhir diedit oleh {name}",
     "wordCount": "{words, plural, other {# kata}}, {characters, plural, other {# karakter}}",
@@ -94,6 +105,20 @@
     "muted": "Balasan dibisukan",
     "mutedHint": "Anda tidak mendapat kabar tentang balasan di utas ini sampai Anda membalas di sini atau seseorang menyebut Anda di sini.",
     "mergedFrom": "Dari “{title}”",
+    "suggestion": {
+      "label": "Saran edit",
+      "byAi": "Saran edit dari AI",
+      "accept": "Terima",
+      "reject": "Tolak",
+      "withdraw": "Tarik kembali",
+      "errors": {
+        "notAllowed": "Anda tidak dapat menanggapi saran ini.",
+        "notFound": "Saran ini sudah ditanggapi atau ditarik kembali.",
+        "pageLocked": "Halaman ini dikunci.",
+        "pageInTrash": "Halaman ini ada di sampah.",
+        "failed": "Saran tidak dapat ditanggapi. Coba lagi."
+      }
+    },
     "sort": {
       "label": "Urutkan utas",
       "recent": "Aktivitas terbaru dulu",
@@ -105,7 +130,12 @@
     "mark": "Kembali nanti",
     "unmark": "Hapus “Kembali nanti”",
     "markHint": "Simpan utas ini di Ditandai sampai Anda melepas tandanya. Hanya Anda yang melihatnya.",
-    "unmarkHint": "Keluarkan utas ini dari daftar Ditandai Anda."
+    "unmarkHint": "Keluarkan utas ini dari daftar Ditandai Anda.",
+    "aboutProperty": "Tentang “{name}”",
+    "onProperty": "Komentari “{name}”",
+    "propertyPlaceholder": "Bagaimana dengan nilai ini?",
+    "post": "Komentari",
+    "propertyGone": "Nilai ini tidak dapat dikomentari lagi."
   },
   "archived": {
     "banner": "Halaman ini ada di sampah.",
@@ -119,6 +149,39 @@
     "above": "Diarsipkan bersama halaman di atas halaman ini.",
     "unarchive": "Keluarkan dari arsip",
     "hint": "Halaman yang diarsipkan tidak muncul di bilah samping, pencarian, dan pemilih, tetapi tetap dapat dibaca dan diedit."
+  },
+  "verification": {
+    "byUntil": "Diverifikasi oleh {name} hingga {date}",
+    "by": "Diverifikasi oleh {name}",
+    "until": "Terverifikasi hingga {date}",
+    "plain": "Terverifikasi",
+    "expiredOn": "Verifikasi kedaluwarsa pada {date}",
+    "hint": "Seseorang dengan akses penuh memeriksa halaman ini dan menandainya sebagai benar. Mengedit halaman ini tidak menghapus verifikasinya.",
+    "change": "Ubah atau hapus verifikasi",
+    "menu": "Verifikasi halaman…",
+    "menuVerified": "Verifikasi…",
+    "menuHint": "Tandai halaman sebagai sudah diperiksa dan benar: pencarian menempatkannya lebih tinggi dan obrolan AI lebih mengutamakannya",
+    "title": "Verifikasi halaman",
+    "description": "Tandai halaman ini sebagai sudah diperiksa dan benar, untuk sementara atau tanpa batas waktu. Pencarian menempatkan halaman terverifikasi lebih tinggi, menandainya, dan menemukannya dengan is:verified, dan obrolan AI lebih mengutamakannya. Mengedit halaman tidak menghapus verifikasinya; Anda akan diberi tahu beberapa hari sebelum verifikasi berakhir.",
+    "durationLabel": "Terverifikasi selama",
+    "durations": {
+      "week": "1 minggu",
+      "month": "1 bulan",
+      "quarter": "3 bulan",
+      "year": "1 tahun",
+      "until": "Hingga tanggal tertentu",
+      "forever": "Tanpa batas waktu"
+    },
+    "dateLabel": "Terverifikasi hingga",
+    "verify": "Verifikasi",
+    "verifyAgain": "Verifikasi lagi",
+    "remove": "Hapus verifikasi",
+    "searchBadge": "Terverifikasi",
+    "errors": {
+      "template": "Templat dan halaman di dalamnya tidak dapat diverifikasi.",
+      "inTrash": "Pulihkan halaman dari sampah terlebih dahulu.",
+      "invalidEnd": "Pilih tanggal setelah hari ini, dalam lima tahun ke depan."
+    }
   },
   "icon": {
     "add": "Tambahkan ikon",
@@ -334,6 +397,11 @@
         "title": "Dasbor",
         "subtext": "Angka, bagan, dan daftar dari basis data Anda",
         "aliases": "dasbor dashboard widget kpi metrik bagan angka metrics charts numbers"
+      },
+      "databaseTabs": {
+        "title": "Tab basis data",
+        "subtext": "Beberapa basis data atau tampilan, masing-masing satu tab",
+        "aliases": "tab basis data tampilan ganti tabs"
       }
     }
   },
@@ -587,6 +655,17 @@
     "addTitle": "Tambahkan judul",
     "removeTitle": "Hapus judul"
   },
+  "imageLink": {
+    "menuItem": "Tautan…",
+    "editMenuItem": "Edit tautan…",
+    "title": "Tautkan gambar",
+    "urlLabel": "Alamat web",
+    "toPage": "Menaut ke halaman “{title}”",
+    "invalid": "Masukkan alamat web yang diawali http:// atau https://, atau pilih halaman.",
+    "pickPage": "Tautkan ke halaman…",
+    "remove": "Hapus tautan",
+    "open": "Buka tautan"
+  },
   "pdf": {
     "untitled": "PDF",
     "openInNewTab": "Buka di tab baru",
@@ -676,6 +755,19 @@
     "filters": "{count, plural, other {# filter}}",
     "updatedNow": "baru saja diperbarui",
     "updated": "diperbarui {time}"
+  },
+  "databaseTabs": {
+    "title": "Tab basis data",
+    "empty": "Tab ini belum menampilkan basis data apa pun.",
+    "emptyEditable": "Tampilkan beberapa basis data, atau beberapa tampilan dari satu basis data, sebagai tab. Setiap tab adalah tampilan tersendiri.",
+    "add": "Tambahkan tab",
+    "full": "Tab memuat paling banyak {max} tampilan.",
+    "menu": "Opsi tab",
+    "rename": "Ganti nama",
+    "remove": "Hapus tab",
+    "nameLabel": "Nama tab",
+    "namePlaceholder": "Nama basis data",
+    "noAccess": "Tidak ada akses"
   },
   "voiceNote": {
     "record": "Rekam catatan suara",
@@ -948,5 +1040,80 @@
       "copyLink": "Salin tautan"
     },
     "awaitingOwner": "Menunggu pemilik ruang kerja menyetujui sebuah panggilan…"
+  },
+  "button": {
+    "untitled": "Tombol",
+    "placeholder": "Label tombol",
+    "done": "Selesai",
+    "confirm": "Jalankan “{label}”?",
+    "blockLabel": "Tombol “{label}”",
+    "slash": {
+      "title": "Tombol",
+      "subtext": "Menjalankan beberapa langkah berurutan saat diklik",
+      "aliases": "button action click run tombol aksi jalankan"
+    },
+    "settings": {
+      "open": "Pengaturan tombol",
+      "icon": "Emoji",
+      "label": "Label",
+      "confirm": "Tanya sebelum menjalankan",
+      "confirmHelp": "Siapa pun yang mengeklik akan mengonfirmasi terlebih dahulu.",
+      "steps": "Saat diklik",
+      "stepsHelp": "Langkah dijalankan berurutan sebagai orang yang mengeklik, dengan akses orang tersebut. Langkah yang tidak dapat dilakukannya akan menghentikan tombol di sana.",
+      "addStep": "Tambahkan langkah",
+      "moveUp": "Pindahkan ke atas",
+      "moveDown": "Pindahkan ke bawah",
+      "insertAt": "Di mana",
+      "at": {
+        "below": "Di bawah tombol",
+        "top": "Di bagian atas halaman",
+        "bottom": "Di akhir halaman"
+      },
+      "markdown": "Blok dalam Markdown",
+      "people": "Orang",
+      "message": "Pesan",
+      "notifyHelp": "Hanya orang yang dapat membuka halaman ini yang diberi notifikasi.",
+      "url": "Alamat",
+      "secret": "Rahasia penandatanganan",
+      "copySecret": "Salin rahasia",
+      "webhookHelp": "Mengirim halaman ini sebagai JSON yang ditandatangani dengan rahasia, jika ruang kerja mengizinkan konten keluar.",
+      "target": "Alamat web atau halaman",
+      "pickPage": "Pilih halaman",
+      "toPage": "Membuka “{title}”",
+      "rowTitle": "Judul",
+      "values": "Nilai",
+      "updateHelp": "Mengubah paling banyak {max} baris yang cocok dengan filter dan dapat dilihat oleh orang yang mengeklik."
+    },
+    "variables": {
+      "group": "Tombol",
+      "today": "Hari ini",
+      "now": "Sekarang",
+      "me": "Yang mengeklik"
+    },
+    "steps": {
+      "insert": "Sisipkan blok",
+      "add_row": "Tambahkan baris",
+      "update_rows": "Ubah baris",
+      "notify": "Beri notifikasi ke orang",
+      "webhook": "Kirim webhook",
+      "open": "Buka tautan atau halaman"
+    },
+    "failed": {
+      "notFound": "Tombol ini tidak ada lagi di halaman.",
+      "noSteps": "Tombol ini belum melakukan apa pun.",
+      "inTrash": "Tombol di halaman yang ada di sampah tidak berjalan.",
+      "rateLimited": "Tombol ini terlalu sering diklik. Tunggu sebentar lalu coba lagi.",
+      "noAccess": "Anda tidak memiliki akses untuk melakukan ini.",
+      "locked": "Halaman ini dikunci.",
+      "notConfigured": "Langkah ini belum diatur.",
+      "databaseGone": "Basis data sudah tidak ada atau ada di sampah.",
+      "invalidValue": "Ada nilai yang tidak sesuai dengan propertinya.",
+      "exportOff": "Ruang kerja ini tidak mengizinkan konten keluar.",
+      "webhookFailed": "Alamat tidak menerima webhook.",
+      "invalidTarget": "Tautan yang akan dibuka tidak valid.",
+      "buttonGone": "Tombol telah dihapus dari halaman.",
+      "error": "Terjadi kesalahan.",
+      "step": "Langkah {step} ({type}) tidak berjalan: {reason}"
+    }
   }
 }

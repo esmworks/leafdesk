@@ -3,6 +3,7 @@ import type { FormCondition, FormConfig, FormQuestion, PropertyOptions, Property
 import { normalizeValue, PropertyValueError, type DatabaseErrorCode } from "./properties";
 import { atLeast } from "./property-access";
 import { holdsOptions } from "./property-types";
+import { searchFold } from "./search-fold";
 import type { PropertyAccess } from "./property-access-rows";
 
 /**
@@ -138,7 +139,7 @@ export function conditionHolds(condition: Pick<FormCondition, "op" | "values">, 
     case "notContains": {
       let contains = false;
       if (type === "multi_select") contains = Array.isArray(value) && value.some((v) => values.includes(v as string));
-      else if (typeof value === "string" && values[0]) contains = value.toLowerCase().includes(values[0].trim().toLowerCase());
+      else if (typeof value === "string" && values[0]) contains = searchFold(value).includes(searchFold(values[0].trim()));
       return condition.op === "contains" ? contains : !contains;
     }
   }

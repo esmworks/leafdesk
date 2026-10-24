@@ -29,6 +29,7 @@ import { AddMeetingItem } from "./meeting-block";
 import { SaveAsSnippetItem } from "./snippets";
 import { turnIntoSyncedBlock } from "./synced-block";
 import { CalloutStyleItem, CalloutTitleItem } from "./callout-menu";
+import { ImageLinkItem } from "./image-link";
 
 // Tables being turned into a database: a second click waits for the first.
 const turning = new Set<string>();
@@ -169,6 +170,7 @@ export function pageSideMenu(onError: (message: string) => void): FC<SideMenuPro
         <CalloutTitleItem />
         <HideInPrintItem />
         <CopyBlockLinkItem />
+        <ImageLinkItem />
         <TurnIntoDatabaseItem onError={onError} />
         <TurnIntoSyncedBlockItem onError={onError} />
         <SaveAsSnippetItem />

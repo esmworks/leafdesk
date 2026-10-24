@@ -2,10 +2,11 @@
 
 /**
  * One step an AI answer or an agent's run took (a search, a page read, a database queried, a
- * change made, a note kept about the person or dropped, a call to a connection's tool, a thought),
- * as a line: an icon and what happened, the pages it names as links.
+ * change made, a note kept about the person or dropped, a call to a connection's tool, a research
+ * plan, a web search or a web page read, a thought), as a line: an icon and what happened, the
+ * pages it names as links (web pages open in a new tab).
  */
-import { Ban, BookOpen, Brain, BrainCog, CircleAlert, ClipboardList, FileDown, FilePen, FilePlus, Filter, Lightbulb, ListPlus, Merge, MessageSquarePlus, PencilLine, Plug, Search, Table2 } from "lucide-react";
+import { Ban, BookOpen, Brain, BrainCog, CircleAlert, ClipboardList, FileDown, FilePen, FilePlus, Filter, Globe, Lightbulb, ListPlus, ListTree, Merge, MessageSquarePlus, PencilLine, Plug, Search, Table2 } from "lucide-react";
 import { useLocale, useTranslations } from "next-intl";
 import { Fragment } from "react";
 import { cn, PageIcon, pageLabel } from "@/components/ui";
@@ -81,6 +82,42 @@ export function StepLine({ step, onSource }: { step: ChatStepView; onSource: (so
           <code className="mt-0.5 block truncate text-xs text-fg-faint" title={step.input}>
             {step.input}
           </code>
+        </span>
+      </>
+    );
+  }
+  if (step.kind === "plan") {
+    return (
+      <>
+        <ListTree className={icon} />
+        <span className="min-w-0 break-words">
+          {t("steps.plan")}
+          <ol className="mt-0.5 list-decimal ps-4">
+            {step.questions.map((q, i) => (
+              <li key={i}>{q}</li>
+            ))}
+          </ol>
+        </span>
+      </>
+    );
+  }
+  if (step.kind === "web") {
+    if (step.action === "search") {
+      return (
+        <>
+          <Globe className={icon} />
+          <span className="min-w-0 break-words">{t("steps.webSearched", { query: step.query, count: step.results })}</span>
+        </>
+      );
+    }
+    return (
+      <>
+        {step.outcome === "failed" ? <CircleAlert className={cn(icon, "text-danger")} /> : <Globe className={icon} />}
+        <span className="flex min-w-0 items-center gap-1">
+          {step.outcome === "failed" ? t("steps.webReadFailed") : t("steps.webRead")}
+          <a href={step.url} target="_blank" rel="noopener noreferrer nofollow" className="min-w-0 truncate text-fg hover:underline" title={step.url}>
+            {step.title || step.url}
+          </a>
         </span>
       </>
     );

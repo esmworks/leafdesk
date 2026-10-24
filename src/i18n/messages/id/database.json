@@ -29,6 +29,7 @@
     "calendar": "Kalender",
     "gallery": "Galeri",
     "list": "Daftar",
+    "feed": "Umpan",
     "timeline": "Linimasa",
     "chart": "Bagan",
     "dashboard": "Dasbor",
@@ -512,6 +513,9 @@
       "hide": "Disembunyikan"
     },
     "pageVisibilityHint": "Untuk semua orang. Properti tersembunyi tetap dapat dijangkau dengan satu klik di bawah “properti lainnya” pada setiap halaman baris.",
+    "pinToTitle": "Sematkan di bawah judul",
+    "unpinFromTitle": "Lepas dari bawah judul",
+    "pinFull": "Paling banyak {max} properti dapat disematkan.",
     "dateDisplay": "Tampilkan sebagai",
     "displayDate": "Tanggal",
     "displayRelative": "Relatif",
@@ -535,7 +539,12 @@
     "addProperty": "Tambahkan properti",
     "moreProperties": "{count, plural, other {# properti lagi}}",
     "fewerProperties": "{count, plural, other {Sembunyikan # properti}}",
-    "propertyMenu": "Opsi untuk {name}"
+    "propertyMenu": "Opsi untuk {name}",
+    "commentOnProperty": "Komentari {name}",
+    "propertyComments": "{count, plural, other {# komentar terbuka}} pada {name}",
+    "pinned": "Properti yang disematkan",
+    "showBeside": "Tampilkan di samping halaman",
+    "showAbove": "Tampilkan di atas halaman"
   },
   "rowActivity": {
     "title": "Aktivitas",
@@ -545,6 +554,7 @@
     "formAnswer": "Jawaban formulir",
     "agent": "agen",
     "automation": "otomatisasi",
+    "button": "tombol",
     "ai": "AI",
     "aiFor": "(untuk {name})",
     "created": "<actor>{name}</actor> membuat baris ini",
@@ -761,6 +771,30 @@
     "new": "Baru",
     "empty": "Tidak ada baris untuk ditampilkan."
   },
+  "feed": {
+    "someone": "Seseorang",
+    "empty": "Belum ada postingan.",
+    "emptyCanPost": "Belum ada postingan. Tambahkan baris untuk menulis yang pertama.",
+    "morePosts": "{count, plural, other {Tampilkan # postingan lagi}}",
+    "showMore": "Tampilkan lebih banyak",
+    "showLess": "Tampilkan lebih sedikit",
+    "bodyCut": "Selebihnya ada di halaman baris.",
+    "addReaction": "Tambahkan reaksi",
+    "reactedBy": "{names} bereaksi dengan {emoji}",
+    "reactionCount": "{emoji}: {count, plural, other {# reaksi}}",
+    "comments": "Komentar",
+    "allComments": "{count, plural, other {Tampilkan semua # komentar}}",
+    "commentPlaceholder": "Tulis komentar…",
+    "send": "Kirim",
+    "errors": {
+      "failed": "Terjadi kesalahan. Coba lagi.",
+      "tooLong": "Komentar itu terlalu panjang.",
+      "notAllowed": "Anda tidak dapat berkomentar di sini.",
+      "invalidEmoji": "Pilih satu emoji saja.",
+      "tooMany": "Anda sudah memberi reaksi sebanyak yang bisa diberikan satu orang pada postingan ini.",
+      "inTrash": "Postingan di sampah tidak dapat diberi reaksi."
+    }
+  },
   "chart": {
     "type": "Tipe bagan",
     "types": {
@@ -877,6 +911,7 @@
     "invalidNumberFormat": "Format angka ini tidak dapat disimpan.",
     "invalidDateOptions": "Pengaturan tanggal ini tidak dapat disimpan.",
     "invalidPageVisibility": "Pengaturan halaman baris ini tidak dapat disimpan.",
+    "tooManyPinned": "Halaman baris menyematkan paling banyak {max} properti.",
     "calendarFeedNotCalendar": "Hanya tampilan kalender yang dapat dilanggani.",
     "calendarFeedExportOff": "Pemilik ruang kerja menonaktifkan ekspor, jadi langganan kalender juga nonaktif.",
     "webhookExportOff": "Pemilik ruang kerja menonaktifkan ekspor, jadi webhook juga nonaktif.",

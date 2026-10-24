@@ -12,7 +12,7 @@
   stay, and an assignee whose Jira email address is a member's becomes that person, who is told
   when assigned later. The database's ⟳ button shows when it last synced and why it paused, and
   lets people with full access sync now, change the query, sign-in or interval, or stop syncing.
-  Migration 0122 adds the `database_sync` table.
+  Migration 0127 adds the `database_sync` table.
 - **Form questions can depend on earlier answers, take a number of choices, and show people their
   own answers.** In the form builder, *Show only when…* asks a question only when an earlier
   question's answer is (or isn't) one of some options, contains (or doesn't contain) a text, is
@@ -65,6 +65,23 @@
   came within a few hours of each other, or edits to the same page or row, show as one entry
   (“5 new comments, 1 new reaction” with the people's pictures), which opens to the single ones.
   Opening the entry, marking it read or snoozing it does so to all of them.
+- **Pages can be verified.** Someone with full access marks a page, database or row as checked
+  from its `⋯` menu, for a week, a month, three months, a year, until a chosen day or with no end;
+  a badge under the title says who verified it and until when, or that it expired, and editing the
+  page keeps it verified. The verifier is reminded three days before the end and when it comes
+  (*Pages you verified* in Settings > Preferences: inbox and email by default). Search ranks verified
+  pages above otherwise equal ones, marks them and takes `is:verified`; the AI chat prefers
+  verified sources and marks their citations; MCP's `get_page` and `search` and the REST API say
+  `verified`, and `update_page` / `PATCH /pages/{id}` take it. Settings > Health lists expired
+  verifications, and verifying goes into the audit log. Migration 0124.
+- **Page webhooks.** Workspace owners send page events (`page.created`, `page.updated` once a page
+  is left alone, `page.moved`, `page.trashed`, `page.restored`, `page.deleted`, `comment.created`)
+  to an https address as signed POSTs, for the whole workspace, a teamspace or a page and those
+  under it, under the new Settings > Webhooks tab or the REST API's new `webhooks:read` and
+  `webhooks:write` scopes. Each sends as the owner who saved it last and is checked for every
+  delivery: pages they can't open are skipped, it pauses when they are no longer an owner, and
+  nothing is sent while export is off. Failed deliveries are retried like automation webhooks;
+  a *Send test* ping and a 30-day delivery log come with each. Migration 0124.
 - **The comments panel lists a page's discussions newest first, and keeps threads to come back
   to.** Threads, on text or about the whole page, are now in order of their latest comment (or,
   from the sort menu, in the order of the page), and those with comments by others since you last
@@ -73,6 +90,37 @@
   those threads until you take the mark off. MCP's `list_comments` and the REST API's comments
   say `marked: true` for threads the asking user marked. The marks and when each person saw each
   thread are kept per person (migration 0117) and go with the thread.
+- **Comments on a row's property values.** Each property on a row page and in the row panel has a
+  comment button that starts a thread on that value, with the number of open threads beside it.
+  The comments panel lists these threads under their property's name; they resolve, mark, mute
+  and notify like others, and MCP's `list_comments` names the property. Only people who see the
+  value read, write and hear about them, and people a restricted row leaves out read none; a
+  deleted property's threads go away until it is restored. They are kept apart from the row's
+  document, in a table of their own (migration 0126).
+- **Buttons on pages.** The `/button` block does a few things in order when someone clicks it:
+  inserts blocks written in Markdown (below the button, or at the top or end of the page), adds a
+  row to a database, changes the rows of a database that filters match, notifies people, sends
+  the page to a signed webhook and opens a web address or a page. Texts take `{{today}}`, `{{now}}`
+  and `{{me}}`, and a button can ask before it runs. It runs as whoever clicks, each step with
+  their access, and stops at the first step they can't do, saying which and why. Its row changes
+  are the clicker's own: they start the database's automations, and the row's activity marks them
+  as made through a button (migration 0126). Published pages and the print view show buttons
+  disabled; Markdown over MCP and the API keeps a button as a line with its id and label.
+- **Images can link somewhere.** *Link…* in an image's block menu sets a web address or a page of
+  the workspace. In the editor a small button on the image follows it; read-only pages, published
+  pages and the print view make the image itself the link. Markdown writes and reads a linked
+  image as `[![alt](image)](link)`.
+- **Suggested edits.** The page header switches between *Editing* and *Suggesting*: while
+  suggesting, typed text shows underlined as an insertion, deleted text stays, struck through, and
+  new formatting is marked as a change, live for everyone on the page. Each suggestion is a thread
+  in the comments panel, opened in its author's name, with *Accept* and *Reject* for people who may
+  edit and *Withdraw* for its author; the page menu accepts or rejects them all. People who may
+  only comment always suggest, and the server takes nothing else from their connection. Until a
+  suggestion is accepted the page reads without it: its Markdown, search, published pages, PDF
+  and print, exports, history, MCP, the REST API and the AI. A page's watchers (a row's
+  followers) hear about new suggestions as about new threads, by inbox, push and email, and the
+  author hears when theirs is accepted or rejected. MCP's `list_comments` and the REST API say
+  `suggestion` for a suggestion's thread. The writing assistant can apply its text as suggestions.
 - **Views color rows by rules.** *Color rules* in a view's layout menu (tables, boards, galleries,
   lists, calendars and timelines) colors the rows that match conditions: each rule has a color
   from the option palette, colors the whole row or card or one property's value, and tests rows
@@ -109,15 +157,33 @@
   search, OpenStreetMap's by default, empty turns it off), `MAP_TILE_URL` and
   `MAP_TILE_ATTRIBUTION` (the map's tiles and their credit, OpenStreetMap's by default, an empty
   URL turns maps off). No migration. New dependency: Leaflet.
+- **Feed views.** A *feed* view shows a database's rows as posts in one column, newest first
+  unless the view sorts otherwise: each with who wrote it and when, the view's shown properties and
+  the start of its body, which "Show more" opens in place. Under each post people who may comment
+  react with emoji and read and add the row's comments. Reactions to rows follow page access and
+  are new; color rules color posts. Linked views, dashboards, MCP, the REST API and the AI chat
+  can make feed views; published pages show each post's date, title, values and the start of its
+  body, without reactions or comments. Migration 0125 (the reactions, and the row page setting
+  below).
+- **Database tabs.** The `/tabs` block shows several databases, or views of one, as tabs, each a
+  view of its own that editors set up with its toolbar, rename, reorder and remove. Readers get only
+  the tabs whose database they can open. It is a dashboard laid out as tabs, so Markdown, `get_page`
+  and the dashboard tools read and change it (`add_dashboard` takes `layout: "tabs"`); published
+  pages switch tabs in place and print every tab.
+- **Row page layout.** People with full access to a database pin up to four properties into a
+  strip under its rows' titles, from a property's menu on a row, and choose whether the other
+  properties show above the body or in a column beside it where the page is wide enough (above it
+  on phones and in narrow side panels). The choice is the database's, for everyone. Published rows
+  show pinned properties first.
 - **The AI chat reads comments and page history, takes CSV files, and makes databases and
   forms.** It lists a page's comment threads, open and resolved, with their authors, the text
   they are on and their replies, and can comment or reply as the person (`list_comments`,
   `add_comment`). It lists a page's saved versions and reads one or shows what changed since it
   or by it (`page_history`, `page_version`, the same operations as MCP's history tools). A CSV
-  file can be attached to a question with the paperclip, by dropping it on the box or by pasting
-  it (up to 1,000 rows, 100 columns and 1 MB, with a clear message beyond); the question shows it
-  as a chip with its name and size, the model gets the table cut to fit and can read the rest,
-  and the file stays with the conversation for the questions after it. The chat makes a new
+  file attached to a question (see *Attach images and documents to the AI chat*) is read as a
+  table (up to 1,000 rows and 100 columns, with a clear message beyond): its chip shows its rows
+  and columns, the model gets the table cut to fit and reads the rest with `read_attachment`, and
+  the file stays with the conversation for the questions after it. The chat makes a new
   database with the properties, types and options asked for, or one from an attached file with
   each column's type guessed from its values and its rows imported, under a page the person may
   edit or at the top, private to them (`create_database`, `create_database_from_csv`). It adds
@@ -127,6 +193,38 @@
   and made as the person through the same code as the app's own edits (a new or imported
   database goes into the audit log as one made in the app does); the Telegram bot asks the same
   way.
+- **Attach images and documents to the AI chat.** The paperclip under the question box, dropping
+  files on it or pasting them attaches up to 5 files to a question: images (sent as images to
+  models that take them; the box says so for one that doesn't), PDF, Word and Excel documents
+  (read to text as search reads them), CSV, Markdown and text files, up to 20 MB each (images
+  5 MB). Each is uploaded as it is attached and shows as a chip, in the box and on the question,
+  where it opens the file; a question may be only files. Files stay with the conversation, so
+  later questions see them again (cut to fit) and the chat reads on in one with `read_attachment`.
+  They are stored apart from the workspace's pages: only the person who attached them can open
+  them, backups and exports leave them out, and they are deleted with their conversation (an
+  upload never sent after a day). Migration 0123 (`ai_chat_file`, `ai_conversation.model`).
+- **Pick the AI chat's model.** `AI_CHAT_MODELS` lists more models at the server's provider that
+  the chat's box offers next to `AI_MODEL` and `AI_FAST_MODEL`; with more than one, a picker sits
+  under the box. A conversation keeps its model, a new one starts with the person's latest, and
+  usage and cost are counted per model as before. `AI_IMAGE_INPUT=true` says that models the
+  catalog doesn't know (OpenAI-compatible and local ones) take images. New env vars:
+  `AI_CHAT_MODELS`, `AI_IMAGE_INPUT`.
+- **Research mode in the AI chat.** The telescope button under the box asks for a report instead
+  of an answer: the model plans sub-questions (shown as a step), searches and reads the workspace
+  as the person, attached files and, where web search is on, the web, then writes a long report
+  with a section per sub-question, citing every source. It only reads (no changes, notes or
+  connections, whatever the mode) and has up to 14 turns and 400,000 tokens, counted against the
+  workspace's limits like other requests (as *AI chat* in the usage view). *Save as page* makes a
+  report a private page with its citations as links and a list of sources.
+- **Web search in the AI chat, and Brave or Tavily as the search service.** Where the server has
+  a search service, owners can turn on Settings → General → AI → *Web search in the AI chat* (off
+  by default): the chat then searches the web and reads web pages (`search_web`,
+  `read_web_page`), read-only, fetched with the same address checks and size and time limits as
+  agents' reads, their text framed as outside data, and once an answer read from the web every
+  change it wants is asked about, also in *Auto*. Web sources are cited as links. Besides a
+  self-hosted SearXNG (`WEB_SEARCH_URL`), `WEB_SEARCH_PROVIDER=brave` or `tavily` with
+  `WEB_SEARCH_API_KEY` uses those services, for agents with web access too. New env vars:
+  `WEB_SEARCH_PROVIDER`, `WEB_SEARCH_API_KEY`.
 - **Build databases with AI.** *Build with AI* in the sidebar's *+* menus, on the home page, in
   Cmd+K and as `/` *Build databases with AI* in a page: describe what you want to keep track of and
   the AI drafts up to four databases for it, with typed properties, select options with colors,
@@ -198,6 +296,41 @@
   log. Tables keep their layout, with amounts on the right; a row's values are left out unless
   asked for. An agent can do the same in its owner's chat. New dependency: pdfmake.
 
+- **PDF letterheads.** Owners set up the workspace's letterheads in the new Settings → PDF
+  templates tab: a logo on the left, in the middle or on the right, lines at the top of every page
+  (company, address, tax number) and at the foot (bank details), an accent color and page numbers.
+  One is the default. PDF files from the page menu and the AI chat print in it, or in another one
+  picked by name, or in none. Guests make PDFs without letterheads. Migration 0115 adds the
+  `pdf_letterhead` table.
+
+- **Owners can put people under a legal hold.** Settings → Security → Legal holds lists the holds
+  of the workspace, each with its name, reason, who set it and when, and the people it covers:
+  members, guests, or people who have left but created or edited something there. While a hold
+  stands, nothing they created or edited (a page they made, last edited, saved a version of,
+  changed a value of, uploaded a file to or commented on, and any page above one) is deleted for
+  good: it can still go to the trash and come back, but *Delete forever*, the trash and history
+  retention, the file cleanups, deleting a template, a deleted property's values or a comment keep
+  it or refuse with a message, the workspace can't be deleted, and the people's accounts can't be
+  deleted. Removing a held person from the workspace, also over SCIM, keeps their pages, as it
+  always did. Setting and releasing a hold is recorded in the audit log, and backups carry the
+  holds. Migration 0122 adds them.
+- **Settings can be searched.** A box at the top of Settings' navigation finds a setting on any tab
+  you have, your account's included, by its name, its tab or other words people look for it by
+  ("dark mode", "2fa", "ip", "backup"): picking one opens its tab, scrolls to the setting and
+  highlights it for a moment. Only what you can see is found: owners' settings for owners, and
+  nothing a guest's or a one-computer Leafdesk's Settings leave out. The search box (Cmd/Ctrl+K)
+  finds them too after `>`, as *Settings: Security → Approved networks*.
+- **Swipe inbox items on a phone.** On a touch screen, swiping an item of the inbox toward the end
+  of the line marks it read, or unread again, and swiping it toward the start snoozes it until
+  tomorrow at 9:00; what letting go will do shows behind the item as it moves. A group of
+  notifications about one page goes the same way, all of it. The buttons stay, and a mouse or pen
+  works as before.
+- **The desktop app has a system-wide shortcut to AI chat.** Pressing Cmd+Shift+J on macOS
+  (Ctrl+Shift+J on Windows and Linux) in any app brings Leafdesk forward and opens AI chat in the
+  workspace its window shows, or a quick note where AI is off in that workspace. *Go → Ask AI
+  Shortcut* switches it to Cmd/Ctrl+Shift+Space or Cmd/Ctrl+Option/Alt+L, or turns it off; when
+  another app already has the keys, the menu says so and another can be picked. The choice is kept
+  in the app's settings.
 - **Table rows move by their handle, which also opens a fuller row menu.** The ⋯ button before
   each row of a table is now a handle: drag it to move the row among the others (in its group, and
   under the same parent when sub-items nest) while no sort orders the view; the order is the one
@@ -210,13 +343,6 @@
   the row, ⌘⇧P moves it, ⌘⇧M opens its comments and Del moves it to the trash; the menu shows
   the keys, and so does the shortcuts list. The page ⋯ menu counts a page's words and characters
   too.
-- **PDF letterheads.** Owners set up the workspace's letterheads in the new Settings → PDF
-  templates tab: a logo on the left, in the middle or on the right, lines at the top of every page
-  (company, address, tax number) and at the foot (bank details), an accent color and page numbers.
-  One is the default. PDF files from the page menu and the AI chat print in it, or in another one
-  picked by name, or in none. Guests make PDFs without letterheads. Migration 0115 adds the
-  `pdf_letterhead` table.
-
 - **Skills live in a skills database.** *New skill* in the skills library, and the ready-made
   skills, now add a row to a skills database: the person's own, made private at the top of the
   workspace the first time, with *Description*, *Files*, *Tags* and *Created by* properties and its
@@ -645,6 +771,14 @@
 
 ### Changed
 
+- **Pages open with less to download.** The workspace's routes no longer load the page editor
+  until a row is opened beside them, so Home, Settings, the graph, reviews, people and AI download
+  about 300 kB less (gzipped) when they open. Board, calendar, timeline, chart and form views, the
+  automations dialog, the importer and the QR codes of two-step setup load when first used (views
+  in the background once their database has loaded), so a page or database opens with about 75 kB
+  less. The client JavaScript budget now checks what opening a page downloads (the largest route,
+  and all routes' first loads together) and the largest chunk loaded on demand, instead of the sum
+  of every chunk the build holds.
 - **"Export as PDF" downloads a PDF file.** The page menu's *Export as PDF* now makes the file on
   the server, in a letterhead picked in its dialog (for a row, with its values if asked). The
   browser's print dialog moved to *Print*, which still keeps the page exactly as it looks, diagrams
@@ -743,6 +877,11 @@
   medium. Agents keep the model's default. The README's AI section has the table.
 
 ### Fixed
+
+- **Text filters match the Turkish dotted and dotless i.** A "contains ist" filter now finds
+  "İstanbul", and "ışık" finds "IŞIK": database view filters, form question conditions and option
+  names given by name (MCP, the REST API, a new tag typed into a cell) fold case with İ, I, i and ı
+  treated alike, as search and pickers already did. Other letters keep their accents.
 
 - **The AI chat knows today's date.** Each question now carries the date, weekday and time in the
   asker's time zone (the browser's), so "today", "this week" and dates written into quotes come out

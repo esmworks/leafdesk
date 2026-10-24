@@ -1,7 +1,7 @@
 import { eq } from "drizzle-orm";
 import * as z from "zod";
 import { db } from "@/db";
-import { emailSequence, page, sequenceEnrollment, user, workspaceAgent } from "@/db/schema";
+import { emailSequence, page, pageWebhook, sequenceEnrollment, user, workspaceAgent } from "@/db/schema";
 import type { ApiTokenScope } from "@/lib/api-scopes";
 import type { AgentView } from "@/lib/agents";
 import { AccessError, ConnectedAppReadOnlyError } from "@/server/access";
@@ -27,6 +27,9 @@ import * as review from "@/server/pending-changes";
 import { describePendingChange, editOf, reviewInputs } from "@/server/mcp/reviews";
 import { describeEnrollment, describeOutcomes, describeSequence, sequenceInputs } from "@/server/mcp/sequences";
 import * as sequences from "@/server/sequences/manage";
+import { sendTestDelivery } from "@/server/page-webhooks/deliver";
+import { describeDelivery, describeWebhook, toWebhookInput, toWebhookPatch, webhookInputs } from "@/server/page-webhooks/describe";
+import * as webhooks from "@/server/page-webhooks/manage";
 import * as ops from "@/server/operations";
 import { MAX_ACTIVITY_PAGE } from "@/server/row-activity-feed";
 import { voiceAudioType } from "@/lib/voice-notes";
@@ -63,7 +66,7 @@ export type ApiRoute<Q extends Schema = Schema, B extends Schema = Schema> = {
   /** Relative to /api/v1, with `{name}` path parameters. */
   path: string;
   operationId: string;
-  tag: "Account" | "Workspaces" | "Pages" | "Databases" | "Rows" | "Comments" | "Agents" | "Review" | "Follow-ups";
+  tag: "Account" | "Workspaces" | "Pages" | "Databases" | "Rows" | "Comments" | "Agents" | "Review" | "Follow-ups" | "Webhooks";
   summary: string;
   description?: string;
   /** What the token needs to call it; null for any token (GET /me). */
@@ -133,6 +136,13 @@ async function requireFollowUpInWorkspace(principal: ApiPrincipal, kind: "sequen
   if (!principal.workspaceId) return;
   const table = kind === "sequence" ? emailSequence : sequenceEnrollment;
   const [row] = await db.select({ workspaceId: table.workspaceId }).from(table).where(eq(table.id, id)).limit(1);
+  if (!row || row.workspaceId !== principal.workspaceId) throw new AccessError();
+}
+
+/** A page webhook of the token's workspace (refused for a token of another workspace); the call checks the owner. */
+async function requireWebhookInWorkspace(principal: ApiPrincipal, webhookId: string) {
+  if (!principal.workspaceId) return;
+  const [row] = await db.select({ workspaceId: pageWebhook.workspaceId }).from(pageWebhook).where(eq(pageWebhook.id, webhookId)).limit(1);
   if (!row || row.workspaceId !== principal.workspaceId) throw new AccessError();
 }
 
@@ -486,7 +496,7 @@ export const API_ROUTES: ApiRoute[] = [
     tag: "Pages",
     summary: "Update a page",
     description:
-      'Changes the title, icon, background and/or body. mode "replace" overwrites the body with the Markdown given, "append" adds it to the end; with `block_id` (from a read with `with_block_ids`), "replace_block" puts the Markdown in place of that block, "insert_after" adds it after the block and "delete_block" removes it. With `expected_version` (the `version` a read of the page returned) the page changes only while its body still has that version; otherwise nothing is written and the answer is 409 `version_conflict`. The previous body is saved to page history first, and open editors update live.',
+      'Changes the title, icon, background, verification and/or body. `verified` marks the page as checked (full access) for "week", "month", "quarter" or "year", until a day (YYYY-MM-DD) or "forever"; "none" removes it. mode "replace" overwrites the body with the Markdown given, "append" adds it to the end; with `block_id` (from a read with `with_block_ids`), "replace_block" puts the Markdown in place of that block, "insert_after" adds it after the block and "delete_block" removes it. With `expected_version` (the `version` a read of the page returned) the page changes only while its body still has that version; otherwise nothing is written and the answer is 409 `version_conflict`. The previous body is saved to page history first, and open editors update live.',
     scope: "pages:write",
     body: pageBodies.updatePage,
     response: "PageChanged",
@@ -1145,6 +1155,128 @@ export const API_ROUTES: ApiRoute[] = [
     handler: async ({ principal, params }) => {
       await requireFollowUpInWorkspace(principal, "enrollment", params.enrollment_id);
       return describeEnrollment(await sequences.resumeEnrollment(principal.userId, params.enrollment_id));
+    },
+  }),
+  defineRoute({
+    method: "GET",
+    path: "/workspaces/{workspace_id}/webhooks",
+    operationId: "listWebhooks",
+    tag: "Webhooks",
+    summary: "List page webhooks",
+    description:
+      "The workspace's page webhooks: addresses that get a signed POST when a page in their scope is created, edited, moved, trashed, restored or deleted, or commented on. Each sends as the owner who saved it last (`sends_as`), with what they may open. Workspace owners only.",
+    scope: "webhooks:read",
+    response: "WebhookList",
+    handler: async ({ principal, params }) => {
+      requireWorkspace(principal, params.workspace_id);
+      return { workspace_id: params.workspace_id, webhooks: (await webhooks.listPageWebhooks(principal.userId, params.workspace_id)).map(describeWebhook) };
+    },
+  }),
+  defineRoute({
+    method: "POST",
+    path: "/workspaces/{workspace_id}/webhooks",
+    operationId: "createWebhook",
+    tag: "Webhooks",
+    summary: "Add a page webhook",
+    description:
+      "Adds a page webhook sending as the token's user, and answers its signing `secret`: check the `X-Leafdesk-Signature` header of each request with it (`t=TIME,v1=HMAC`, HMAC the hex HMAC-SHA256 of TIME, a dot and the body). `X-Leafdesk-Event` names the event and `X-Leafdesk-Delivery` the delivery. Failed deliveries are tried again with growing waits, five times in all. Workspace owners only; up to 25 per workspace.",
+    scope: "webhooks:write",
+    body: webhookInputs.create,
+    status: 201,
+    response: "WebhookCreated",
+    handler: async ({ principal, params, body }) => {
+      requireWorkspace(principal, params.workspace_id);
+      const { webhook, secret } = await webhooks.createPageWebhook(principal.userId, params.workspace_id, toWebhookInput(body));
+      return { ...describeWebhook(webhook), secret };
+    },
+  }),
+  defineRoute({
+    method: "GET",
+    path: "/webhooks/{webhook_id}",
+    operationId: "getWebhook",
+    tag: "Webhooks",
+    summary: "Read a page webhook",
+    scope: "webhooks:read",
+    response: "Webhook",
+    handler: async ({ principal, params }) => {
+      await requireWebhookInWorkspace(principal, params.webhook_id);
+      return describeWebhook(await webhooks.getPageWebhook(principal.userId, params.webhook_id));
+    },
+  }),
+  defineRoute({
+    method: "PATCH",
+    path: "/webhooks/{webhook_id}",
+    operationId: "updateWebhook",
+    tag: "Webhooks",
+    summary: "Update a page webhook",
+    description: "Changes the fields given; the others keep their values. Saving it makes the token's user the one it sends as, and lifts a pause (`paused`).",
+    scope: "webhooks:write",
+    body: webhookInputs.update,
+    response: "Webhook",
+    handler: async ({ principal, params, body }) => {
+      await requireWebhookInWorkspace(principal, params.webhook_id);
+      return describeWebhook(await webhooks.updatePageWebhook(principal.userId, params.webhook_id, toWebhookPatch(body)));
+    },
+  }),
+  defineRoute({
+    method: "DELETE",
+    path: "/webhooks/{webhook_id}",
+    operationId: "deleteWebhook",
+    tag: "Webhooks",
+    summary: "Remove a page webhook",
+    description: "It stops at once; its delivery log goes with it.",
+    scope: "webhooks:write",
+    response: "WebhookDeleted",
+    handler: async ({ principal, params }) => {
+      await requireWebhookInWorkspace(principal, params.webhook_id);
+      await webhooks.deletePageWebhook(principal.userId, params.webhook_id);
+      return { deleted: params.webhook_id };
+    },
+  }),
+  defineRoute({
+    method: "POST",
+    path: "/webhooks/{webhook_id}/secret",
+    operationId: "replaceWebhookSecret",
+    tag: "Webhooks",
+    summary: "Replace a page webhook's secret",
+    description: "A new signing secret; the old one stops signing at once.",
+    scope: "webhooks:write",
+    response: "WebhookSecret",
+    handler: async ({ principal, params }) => {
+      await requireWebhookInWorkspace(principal, params.webhook_id);
+      return { id: params.webhook_id, secret: await webhooks.pageWebhookSecretFor(principal.userId, params.webhook_id, true) };
+    },
+  }),
+  defineRoute({
+    method: "POST",
+    path: "/webhooks/{webhook_id}/test",
+    operationId: "testWebhook",
+    tag: "Webhooks",
+    summary: "Send a test delivery",
+    description: "Sends a `ping` event now and says how the address answered (it isn't tried again). Kept in the delivery log.",
+    scope: "webhooks:write",
+    response: "WebhookDelivery",
+    handler: async ({ principal, params }) => {
+      await requireWebhookInWorkspace(principal, params.webhook_id);
+      await sendTestDelivery(principal.userId, params.webhook_id);
+      const [latest] = await webhooks.listPageWebhookDeliveries(principal.userId, params.webhook_id, 1);
+      return describeDelivery(latest);
+    },
+  }),
+  defineRoute({
+    method: "GET",
+    path: "/webhooks/{webhook_id}/deliveries",
+    operationId: "listWebhookDeliveries",
+    tag: "Webhooks",
+    summary: "List a page webhook's deliveries",
+    description:
+      "What was sent in the last 30 days, newest first: `pending` (waiting, or to be tried again at `next_attempt_at`), `delivered`, `failed` or `skipped` (nothing was sent: `reason` says why, such as `no_access` when the person it sends as can't open the page, or `export_off`).",
+    scope: "webhooks:read",
+    query: z.object({ limit: limitInput(200, 50) }),
+    response: "WebhookDeliveryList",
+    handler: async ({ principal, params, query }) => {
+      await requireWebhookInWorkspace(principal, params.webhook_id);
+      return { webhook_id: params.webhook_id, deliveries: (await webhooks.listPageWebhookDeliveries(principal.userId, params.webhook_id, query.limit)).map(describeDelivery) };
     },
   }),
 ];

@@ -7,6 +7,7 @@
 import { groupColumns } from "./columns";
 import { restoreDashboards } from "./dashboard";
 import { restoreMeetings } from "./meetings";
+import { restoreButtons } from "./buttons";
 import { finishMarkdownImport, footnoteMarkdown, prepareMarkdownExport, prepareMarkdownImport, type MdBlock } from "./content-markdown";
 import type { MentionPerson } from "./mentions";
 import { markdownToPageBlocks } from "./page-markdown";
@@ -52,7 +53,7 @@ export async function editorMarkdownToBlocks<B extends MdBlock>(
     const blocks = await editor.tryParseMarkdownToBlocks(prepared.markdown);
     return finishMarkdownImport(blocks, prepared, id, parse, { appUrl });
   };
-  return restoreMeetings(restoreDashboards(groupColumns(notes.restore(await parse(notes.markdown))), []), []);
+  return restoreButtons(restoreMeetings(restoreDashboards(groupColumns(notes.restore(await parse(notes.markdown))), []), []), []);
 }
 
 /**

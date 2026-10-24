@@ -93,6 +93,12 @@ export type WorkspaceSettings = {
    */
   aiMemory: boolean;
   /**
+   * Whether the AI chat may search the web and read web pages (server/ai-chat-web.ts), where the
+   * server has a search service. Off until an owner turns it on: questions' words go to the search
+   * service then.
+   */
+  aiWebSearch: boolean;
+  /**
    * The most the workspace's AI requests may cost in a calendar month (UTC), in US dollars, as an
    * owner set it; null: no limit of its own. Counts what every AI account paid, the workspace's own
    * included. The server's AI_MONTHLY_LIMIT_USD caps what its own AI_* key pays besides (see
@@ -169,6 +175,7 @@ export const DEFAULT_WORKSPACE_SETTINGS: WorkspaceSettings = {
   loginMethod: "any",
   ai: true,
   aiMemory: true,
+  aiWebSearch: false,
   aiMonthlyLimitUsd: null,
   trashRetentionDays: 30,
   export: true,
@@ -489,6 +496,11 @@ export const page = pgTable(
      */
     voiceNoteInstructions: text("voice_note_instructions").notNull().default(""),
     /**
+     * Databases: row pages show the properties in a column beside the body where the page is wide
+     * enough, instead of above it (lib/row-layout). Pinned properties stay under the title either way.
+     */
+    propertiesBeside: boolean("properties_beside").notNull().default(false),
+    /**
      * A skill (server/skills.ts): reusable instructions, the page's body, offered in the skills
      * library, to MCP clients as prompts and in the AI chat. Pages and rows only, never templates.
      */
@@ -671,6 +683,11 @@ export type PropertyOptions = {
    * always (both under "more properties", see lib/page-visibility); shown when missing.
    */
   pageVisibility?: Exclude<PageVisibility, "show">;
+  /**
+   * Row pages: the property sits in the compact strip under the row's title, whatever its
+   * pageVisibility says (a few per database, see lib/row-layout).
+   */
+  pinned?: true;
 };
 
 export const databaseProperty = pgTable(
@@ -703,7 +720,7 @@ export const databaseProperty = pgTable(
   ],
 );
 
-export type ViewType = "table" | "board" | "calendar" | "gallery" | "list" | "timeline" | "map" | "chart" | "dashboard" | "form";
+export type ViewType = "table" | "board" | "calendar" | "gallery" | "list" | "feed" | "timeline" | "map" | "chart" | "dashboard" | "form";
 /** Grouping by a date: one group per day, week (Monday to Sunday), month or year. */
 export type GroupDateBy = "day" | "week" | "month" | "year";
 export type GroupStatusBy = "option" | "group";
@@ -1046,8 +1063,26 @@ export const rowActivity = pgTable(
   (t) => [
     // A row's feed, newest first; also the newest entry about a value, for merging.
     index("row_activity_row_time_idx").on(t.rowId, t.createdAt.desc(), t.id.desc()),
-    check("row_activity_actor_kind_check", sql`${t.actorKind} in ('user', 'agent', 'automation', 'ai', 'form')`),
+    check("row_activity_actor_kind_check", sql`${t.actorKind} in ('user', 'agent', 'automation', 'ai', 'form', 'button')`),
     check("row_activity_kind_check", sql`${t.kind} in ('created', 'title', 'property', 'merged')`),
     check("row_activity_property_check", sql`(${t.kind} = 'property') = (${t.propertyId} is not null)`),
   ],
 );
+
+/**
+ * The comment threads on a database row's property values (server/property-comments.ts), in the
+ * same form as a page's own (a Yjs `threads` map, each thread's metadata naming its property), but
+ * kept here rather than in the row's document: everyone who opens the row gets its document, and a
+ * thread about a property must stay with the people who can see that property. One per row that
+ * has any; goes with the row.
+ */
+export const propertyComment = pgTable("property_comment", {
+  pageId: text("page_id")
+    .primaryKey()
+    .references(() => page.id, { onDelete: "cascade" }),
+  workspaceId: text("workspace_id")
+    .notNull()
+    .references(() => workspace.id, { onDelete: "cascade" }),
+  threads: bytea("threads").notNull(),
+  updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
+});

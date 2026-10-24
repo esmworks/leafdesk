@@ -2,17 +2,20 @@
 
 /**
  * An AI chat answer as markdown (GitHub's dialect: tables, task lists, strikethrough), with its
- * citations as buttons to the sources. Loaded with the chat panel's first answer, so pages don't
- * carry the markdown parser. Raw HTML is shown as text (but for the `<sup>` and `<sub>` page bodies
- * write superscript and subscript in, see lib/remark-text-scripts) and images are not loaded: an
- * answer can repeat what a page says, and an image URL written there would otherwise be fetched by
- * the reader's browser (a way to send data out). Links open in a new tab.
+ * citations as buttons to the sources (a web page cited opens in a new tab). Loaded with the chat
+ * panel's first answer, so pages don't carry the markdown parser. Raw HTML is shown as text (but
+ * for the `<sup>` and `<sub>` page bodies write superscript and subscript in, see
+ * lib/remark-text-scripts) and images are not loaded: an answer can repeat what a page says, and an
+ * image URL written there would otherwise be fetched by the reader's browser (a way to send data
+ * out). Links open in a new tab.
  */
+import { BadgeCheck } from "lucide-react";
+import { useTranslations } from "next-intl";
 import { useMemo } from "react";
 import Markdown, { type Components } from "react-markdown";
 import remarkGfm from "remark-gfm";
 import { cn, pageLabel } from "@/components/ui";
-import { CITE_HREF, citationLinks, type ChatSourceView } from "@/lib/ai-chat";
+import { CITE_HREF, citationLinks, sourceHref, type ChatSourceView } from "@/lib/ai-chat";
 import { remarkTextScripts } from "@/lib/remark-text-scripts";
 
 const REMARK_PLUGINS = [remarkGfm, remarkTextScripts];
@@ -26,6 +29,7 @@ export default function AnswerMarkdown({
   sources: Map<number, ChatSourceView>;
   onSource: (source: ChatSourceView) => void;
 }) {
+  const verifiedLabel = useTranslations("page.verification")("searchBadge");
   const components = useMemo<Components>(
     () => ({
       p: ({ node: _, className, ...props }) => <p {...props} className={cn("mb-2", className)} />,
@@ -57,15 +61,28 @@ export default function AnswerMarkdown({
         if (href?.startsWith(CITE_HREF)) {
           const n = Number(href.slice(CITE_HREF.length));
           const source = sources.get(n);
+          const chip =
+            "mx-0.5 inline-flex h-4 min-w-4 -translate-y-0.5 items-center justify-center rounded bg-bg-active px-1 align-middle text-[10px] font-medium text-fg-muted hover:bg-accent hover:text-accent-fg";
+          // Only http(s) addresses: what a web page called itself is not trusted.
+          const web = source?.url ? sourceHref(source) : null;
+          if (web) {
+            return (
+              <a href={web} target="_blank" rel="noopener noreferrer nofollow" title={source?.title || web} className={chip}>
+                {n}
+              </a>
+            );
+          }
           return source?.pageId ? (
             <button
               type="button"
               // On the chat page a source opens in the row panel, which steps through these.
               data-open-row={source.kind === "database" ? undefined : source.pageId}
               onClick={() => onSource(source)}
-              title={pageLabel(source.title ?? "")}
-              className="mx-0.5 inline-flex h-4 min-w-4 -translate-y-0.5 items-center justify-center rounded bg-bg-active px-1 align-middle text-[10px] font-medium text-fg-muted hover:bg-accent hover:text-accent-fg"
+              title={source.verified ? `${pageLabel(source.title ?? "")} · ${verifiedLabel}` : pageLabel(source.title ?? "")}
+              data-verified={source.verified ? "" : undefined}
+              className={chip}
             >
+              {source.verified && <BadgeCheck className="h-2.5 w-2.5" aria-label={verifiedLabel} />}
               {n}
             </button>
           ) : (
@@ -80,7 +97,7 @@ export default function AnswerMarkdown({
         );
       },
     }),
-    [sources, onSource],
+    [sources, onSource, verifiedLabel],
   );
   return (
     <div className="break-words [&>*:first-child]:mt-0 [&>*:last-child]:mb-0">

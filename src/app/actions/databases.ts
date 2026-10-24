@@ -10,6 +10,7 @@ import { isLocale, TIME_ZONE_COOKIE } from "@/i18n/config";
 import type { PageVisibility } from "@/lib/page-visibility";
 import type { DependencyInput } from "@/lib/dependencies";
 import type { MergeChoices } from "@/lib/merge-rows";
+import { LegalHoldError } from "@/lib/legal-hold";
 import { isDatabaseErrorCode, PropertyValueError } from "@/lib/properties";
 import type { PropertyLevel } from "@/lib/property-access";
 import type { RowAccessConfig } from "@/lib/row-access";
@@ -59,6 +60,7 @@ async function run<T>(fn: (userId: string) => Promise<T>): Promise<ActionResult<
     ) {
       return { ok: false, error: await errorMessage(error) };
     }
+    if (error instanceof LegalHoldError) return { ok: false, error: (await getTranslations("settings.legalHolds.errors"))(error.code) };
     console.error("[database action]", error);
     const t = await getTranslations("common");
     return { ok: false, error: t("genericError") };
@@ -293,6 +295,16 @@ export async function updatePropertyAction(
   },
 ) {
   return run((userId) => databases.updateProperty(userId, propertyId, patch));
+}
+
+/** Pins a property under its rows' titles, or unpins it (lib/row-layout). */
+export async function setPropertyPinnedAction(propertyId: string, pinned: boolean) {
+  return run((userId) => databases.setPropertyPinned(userId, String(propertyId), pinned === true));
+}
+
+/** Shows the database's row properties beside the row's body, or above it (lib/row-layout). */
+export async function setPropertiesBesideAction(databaseId: string, beside: boolean) {
+  return run((userId) => databases.setPropertiesBeside(userId, String(databaseId), beside === true));
 }
 
 export async function ensureOptionAction(propertyId: string, name: string) {

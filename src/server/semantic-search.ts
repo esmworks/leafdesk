@@ -22,6 +22,7 @@ import { aiTargetFor, embed, embeddingModelFor, embeddingModelOf, embeddingsEnab
 import { listedPage, isOutdated } from "@/server/page-outdated";
 import { maybeSweep } from "@/server/semantic-index";
 import { passageOf, vectorLiteral } from "@/server/semantic-text";
+import { activeVerification } from "@/server/verification";
 import { listWorkspaces, workspaceSettings } from "@/server/workspaces";
 
 /** Queries shorter than this aren't searched by meaning (they match too much). */
@@ -47,6 +48,8 @@ export type SemanticHit = {
   blockId: string | null;
   /** Archived, itself or through a page above it: only when the search includes archived pages. */
   outdated: boolean;
+  /** Verified right now (server/verification): it ranks above an otherwise equal page. */
+  verified: boolean;
 };
 
 type Cache = Map<string, number[]>;
@@ -159,14 +162,15 @@ export async function embeddingGroups(workspaceIds: string[]) {
  * Where a search looks: under pages (any of them), at pages of some kinds (see lib/search-query),
  * and at archived pages too (`includeOutdated`, see server/page-outdated.ts; left out otherwise).
  */
-export type SearchScope = { withinPageId?: string; withinPageIds?: string[]; kinds?: SearchKind[]; includeOutdated?: boolean };
+export type SearchScope = { withinPageId?: string; withinPageIds?: string[]; kinds?: SearchKind[]; includeOutdated?: boolean; verifiedOnly?: boolean };
 
 /**
  * The `and …` conditions a search scope puts on the pages of `alias`: inside `withinPageId` and
  * inside one of `withinPageIds` (each the page itself or under it), of one of `kinds` (a row is a
- * page whose parent is a database, a journal page one of `userId`'s daily notes). Empty for no scope.
+ * page whose parent is a database, a journal page one of `userId`'s daily notes), and verified
+ * right now with `verifiedOnly` (server/verification). Empty for no scope.
  */
-export function searchScope({ withinPageId, withinPageIds = [], kinds = [] }: SearchScope, userId: string, alias = "p"): SQL {
+export function searchScope({ withinPageId, withinPageIds = [], kinds = [], verifiedOnly = false }: SearchScope, userId: string, alias = "p"): SQL {
   if (!/^[a-z_]+$/.test(alias)) throw new Error(`Bad table alias: ${alias}`);
   const parts: SQL[] = [];
   if (withinPageId) parts.push(inSubtree(withinPageId, alias));
@@ -182,6 +186,7 @@ export function searchScope({ withinPageId, withinPageIds = [], kinds = [] }: Se
     };
     parts.push(sql`(${sql.join(kinds.map((k) => byKind[k]), sql` or `)})`);
   }
+  if (verifiedOnly) parts.push(activeVerification(alias));
   return parts.length ? sql`and ${sql.join(parts, sql` and `)}` : sql``;
 }
 
@@ -208,7 +213,9 @@ export async function semanticSearch(
     const vector = await queryVector(userId, q, payer, group.model);
     if (vector) hits.push(...(await rankGroup(userId, vector, { ...group, limit }, scope)));
   }
-  return hits.sort((a, b) => b.score - a.score || b.updatedAt.getTime() - a.updatedAt.getTime()).slice(0, limit);
+  return hits
+    .sort((a, b) => b.score - a.score || Number(b.verified) - Number(a.verified) || b.updatedAt.getTime() - a.updatedAt.getTime())
+    .slice(0, limit);
 }
 
 /** The best `limit` pages of a group of workspaces that share one model, ranked against its query vector. */
@@ -231,6 +238,7 @@ async function rankGroup(
     icon: string | null;
     updated_at: Date;
     outdated: boolean;
+    verified: boolean;
   }>(sql`
     with candidates as materialized (
       select distinct c.page_id from ${pageChunk} c
@@ -258,11 +266,13 @@ async function rankGroup(
       -- A parent they can't see isn't named, not even by id.
       case when p.parent_id is not null and ${pageVisibleTo(userId, "parent")} then p.parent_id end as parent_id,
       p.kind, p.title, p.icon, p.updated_at,
-      ${scope.includeOutdated ? isOutdated(workspaces, "p") : sql`false`} as outdated
+      ${scope.includeOutdated ? isOutdated(workspaces, "p") : sql`false`} as outdated,
+      ${activeVerification("p")} as verified
     from best b
     join ${page} p on p.id = b.page_id
     left join ${page} parent on parent.id = p.parent_id
-    order by b.score desc, p.updated_at desc
+    -- A verified page above an otherwise equal one (server/verification).
+    order by b.score desc, verified desc, p.updated_at desc
     limit ${limit}
   `);
   return rows.map((r) => ({
@@ -278,5 +288,6 @@ async function rankGroup(
     passage: passageOf(r.text, r.title),
     blockId: r.block_id,
     outdated: Boolean(r.outdated),
+    verified: Boolean(r.verified),
   }));
 }

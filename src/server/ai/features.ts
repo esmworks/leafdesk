@@ -37,6 +37,9 @@ const PLANS: [feature: string, plan: AiFeaturePlan][] = [
   ["formula.", { thinking: "low" }],
   // Questions over the workspace's pages, often with figures, while the person waits.
   ["chat", { thinking: "medium" }],
+  // A report from many sources, written once while the person watches its steps: the model's own
+  // thinking, as for an agent's work.
+  ["chat.research", {}],
   // An agent drafted from an owner's description: instructions it will follow alone, so the main
   // model, while the owner waits for one answer.
   ["agent.draft", { thinking: "medium" }],

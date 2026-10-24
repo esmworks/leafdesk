@@ -57,6 +57,11 @@
     "action": "打开页面",
     "optOut": "你收到这类邮件是因为你参与了此评论讨论。你可以在“我的账户 > 偏好设置”中关闭它们。"
   },
+  "suggestion": {
+    "subject": "{actor} 建议修改“{page}”",
+    "heading": "{actor} 建议修改“{page}”",
+    "body": "建议位于 {workspace} 中的“{page}”。可在页面上接受或拒绝，或在其讨论中回复。"
+  },
   "mention": {
     "subject": "{actor} 在“{page}”中提及了你",
     "heading": "{actor} 在“{page}”中提及了你",
@@ -71,6 +76,16 @@
     "body": "你设置了在 {workspace} 的“{page}”中提醒你 {date}。",
     "action": "打开页面",
     "optOut": "你收到这类邮件是因为你设置了提醒。你可以在“我的账户 > 偏好设置”中关闭它们。"
+  },
+  "pageVerification": {
+    "endsSubject": "你对“{page}”的验证将于 {date} 结束",
+    "endsHeading": "验证即将结束",
+    "endsBody": "你已将 {workspace} 中的“{page}”验证至 {date}。如果内容仍然正确，请从页面的 ⋯ 菜单重新验证，以保持其已验证状态。",
+    "endedSubject": "你对“{page}”的验证已过期",
+    "endedHeading": "验证已过期",
+    "endedBody": "你对 {workspace} 中“{page}”的验证已于 {date} 结束。在有人重新验证之前，该页面会显示“验证已过期”。",
+    "action": "打开页面",
+    "optOut": "你收到这类邮件是因为你验证了该页面。你可以在“我的账户 > 偏好设置”中关闭它们。"
   },
   "dateReminder": {
     "subject": "提醒：“{page}”在 {date}",
@@ -220,11 +235,15 @@
     "assignment": "{actor} 将你分配到了“{property}”",
     "pageShared": "{actor} 与你分享了此页面",
     "comment": "{actor} 在你参与的讨论中发表了评论",
+    "suggested": "{actor} 建议修改此页面",
+    "suggestionAccepted": "{actor} 接受了你建议的修改",
+    "suggestionRejected": "{actor} 拒绝了你建议的修改",
     "mention": "{actor} 提及了你",
     "reminder": "提醒：{date}",
     "accessRequest": "{actor} 申请访问此页面",
     "automation": "自动化“{name}”：{actor} 添加或更改了这一行",
     "automationDatePassed": "自动化“{name}”：这一行的日期已到",
+    "button": "{actor} 通过按钮向你发送了此页面",
     "rowUpdate": "{actor} 更改了：{fields}",
     "rowUpdateSome": "{actor} 更改了这一行",
     "rowUpdateTitle": "标题",
@@ -234,6 +253,8 @@
     "followUp": "跟进“{sequence}”已暂停：下一封邮件需要你查看",
     "reaction": "{actor} 用 {emoji} 回应了你的评论",
     "people": "{others, plural, =0 {{name}} other {{name} 等 # 人}}",
+    "verificationEnds": "你对此页面的验证将于 {date} 结束",
+    "verificationEnded": "你对此页面的验证已于 {date} 过期",
     "someone": "有人",
     "joinRequestTitle": "加入申请",
     "joinRequest": "{actor} 申请加入",

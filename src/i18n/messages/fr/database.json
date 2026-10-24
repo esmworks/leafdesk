@@ -29,6 +29,7 @@
     "calendar": "Calendrier",
     "gallery": "Galerie",
     "list": "Liste",
+    "feed": "Fil",
     "timeline": "Chronologie",
     "chart": "Graphique",
     "dashboard": "Tableau de bord",
@@ -512,6 +513,9 @@
       "hide": "Masquée"
     },
     "pageVisibilityHint": "Pour tout le monde. Les propriétés masquées restent à un clic sous « autres propriétés » sur chaque page de ligne.",
+    "pinToTitle": "Épingler sous le titre",
+    "unpinFromTitle": "Détacher du titre",
+    "pinFull": "Vous pouvez épingler jusqu'à {max} propriétés.",
     "dateDisplay": "Afficher comme",
     "displayDate": "Date",
     "displayRelative": "Relative",
@@ -535,7 +539,12 @@
     "addProperty": "Ajouter une propriété",
     "moreProperties": "{count, plural, one {# autre propriété} other {# autres propriétés}}",
     "fewerProperties": "{count, plural, one {Masquer # propriété} other {Masquer # propriétés}}",
-    "propertyMenu": "Options de {name}"
+    "propertyMenu": "Options de {name}",
+    "commentOnProperty": "Commenter {name}",
+    "propertyComments": "{count, plural, one {# commentaire ouvert} other {# commentaires ouverts}} sur {name}",
+    "pinned": "Propriétés épinglées",
+    "showBeside": "Afficher à côté de la page",
+    "showAbove": "Afficher au-dessus de la page"
   },
   "rowActivity": {
     "title": "Activité",
@@ -545,6 +554,7 @@
     "formAnswer": "Une réponse de formulaire",
     "agent": "agent",
     "automation": "automatisation",
+    "button": "bouton",
     "ai": "IA",
     "aiFor": "(pour {name})",
     "created": "<actor>{name}</actor> a créé cette ligne",
@@ -761,6 +771,30 @@
     "new": "Nouveau",
     "empty": "Aucune ligne à afficher."
   },
+  "feed": {
+    "someone": "Quelqu'un",
+    "empty": "Aucune publication pour l'instant.",
+    "emptyCanPost": "Aucune publication pour l'instant. Ajoutez une ligne pour écrire la première.",
+    "morePosts": "{count, plural, one {Afficher # publication de plus} other {Afficher # publications de plus}}",
+    "showMore": "Afficher plus",
+    "showLess": "Afficher moins",
+    "bodyCut": "La suite se trouve sur la page de la ligne.",
+    "addReaction": "Ajouter une réaction",
+    "reactedBy": "{names} a réagi avec {emoji}",
+    "reactionCount": "{emoji} : {count, plural, one {# réaction} other {# réactions}}",
+    "comments": "Commentaires",
+    "allComments": "{count, plural, one {Afficher # commentaire} other {Afficher les # commentaires}}",
+    "commentPlaceholder": "Écrire un commentaire…",
+    "send": "Envoyer",
+    "errors": {
+      "failed": "Une erreur s'est produite. Réessayez.",
+      "tooLong": "Ce commentaire est trop long.",
+      "notAllowed": "Vous ne pouvez pas commenter ici.",
+      "invalidEmoji": "Choisissez un seul emoji.",
+      "tooMany": "Vous avez laissé sur cette publication autant de réactions qu'une personne le peut.",
+      "inTrash": "Les publications dans la corbeille ne peuvent pas recevoir de réactions."
+    }
+  },
   "chart": {
     "type": "Type de graphique",
     "types": {
@@ -877,6 +911,7 @@
     "invalidNumberFormat": "Ce format de nombre ne peut pas être enregistré.",
     "invalidDateOptions": "Ces réglages de date ne peuvent pas être enregistrés.",
     "invalidPageVisibility": "Ce réglage des pages de ligne ne peut pas être enregistré.",
+    "tooManyPinned": "Les pages de ligne épinglent jusqu'à {max} propriétés.",
     "calendarFeedNotCalendar": "Seules les vues calendrier peuvent faire l’objet d’un abonnement.",
     "calendarFeedExportOff": "Les propriétaires de l’espace de travail ont désactivé l’export, les abonnements de calendrier le sont donc aussi.",
     "webhookExportOff": "Les propriétaires de l’espace de travail ont désactivé l’export, les webhooks le sont donc aussi.",

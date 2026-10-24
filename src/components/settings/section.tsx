@@ -1,4 +1,5 @@
 import type { ReactNode } from "react";
+import { settingAnchor } from "@/lib/settings-search";
 
 // Used from server and client components alike, so it cannot pull `cn` from the client-only ui module.
 const cn = (...classes: (string | false | undefined)[]) => classes.filter(Boolean).join(" ");
@@ -15,6 +16,7 @@ export function SettingsHeader({ title, description }: { title: string; descript
 
 /** A titled block of settings; rows inside are drawn as one card with dividers. */
 export function SettingsGroup({
+  anchor,
   title,
   description,
   action,
@@ -22,6 +24,8 @@ export function SettingsGroup({
   bare,
   className,
 }: {
+  /** The setting's id in lib/settings-search.ts, which the settings search jumps to. */
+  anchor?: string;
   title?: string;
   description?: ReactNode;
   /** Controls shown to the right of the title. */
@@ -32,7 +36,7 @@ export function SettingsGroup({
   className?: string;
 }) {
   return (
-    <section className={cn("space-y-3", className)}>
+    <section id={anchor && settingAnchor(anchor)} className={cn("space-y-3", className)}>
       {(title || action) && (
         <div className="flex items-end gap-4">
           <div className="min-w-0 flex-1">
@@ -53,6 +57,7 @@ export function SettingsGroup({
 
 /** One setting: label and help on the left, its control on the right, optional full-width content below. */
 export function SettingsRow({
+  anchor,
   title,
   description,
   htmlFor,
@@ -60,6 +65,8 @@ export function SettingsRow({
   children,
   className,
 }: {
+  /** The setting's id in lib/settings-search.ts, which the settings search jumps to. */
+  anchor?: string;
   title: ReactNode;
   description?: ReactNode;
   /** Id of the control, so the title works as its label. */
@@ -70,7 +77,7 @@ export function SettingsRow({
 }) {
   const Title = htmlFor ? "label" : "div";
   return (
-    <div className={cn("px-5 py-4", className)}>
+    <div id={anchor && settingAnchor(anchor)} className={cn("px-5 py-4", className)}>
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:gap-6">
         <div className="min-w-0 flex-1">
           <Title htmlFor={htmlFor} className="block text-sm font-medium">

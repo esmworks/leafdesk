@@ -167,15 +167,17 @@ const COMMENT_EXCERPT = 500;
 
 export function commentEmail(
   locale: Locale,
-  comment: { actorName: string; pageTitle: string; workspaceName: string; text: string; link: string },
+  /** `suggested`: about a new suggested edit, whose thread's first comment says what it changes. */
+  comment: { actorName: string; pageTitle: string; workspaceName: string; text: string; link: string; suggested?: boolean },
 ): RenderedEmail {
   const t = emailTranslator(locale);
   const names = { actor: comment.actorName, page: comment.pageTitle, workspace: comment.workspaceName };
   const text = comment.text.length > COMMENT_EXCERPT ? `${comment.text.slice(0, COMMENT_EXCERPT).trimEnd()}…` : comment.text;
+  const kind = comment.suggested ? "suggestion" : "comment";
   return renderEmail(locale, {
-    subject: t("comment.subject", names),
-    heading: t("comment.heading", names),
-    paragraphs: [t("comment.quote", { text }), t("comment.body", names), t("comment.optOut")],
+    subject: t(`${kind}.subject`, names),
+    heading: t(`${kind}.heading`, names),
+    paragraphs: [t("comment.quote", { text }), t(`${kind}.body`, names), t("comment.optOut")],
     action: { label: t("comment.action"), url: comment.link },
   });
 }
@@ -205,6 +207,22 @@ export function reminderEmail(
     heading: t("reminder.heading", names),
     paragraphs: [t("reminder.body", names), t("reminder.optOut")],
     action: { label: t("reminder.action"), url: reminder.link },
+  });
+}
+
+/** To whoever verified a page: their verification ends in a few days, or ended (see server/verification.ts). */
+export function pageVerificationEmail(
+  locale: Locale,
+  reminder: { until: string; ended: boolean; pageTitle: string; workspaceName: string; link: string },
+): RenderedEmail {
+  const t = emailTranslator(locale);
+  const names = { date: formatIsoDate(reminder.until, locale, "long", "UTC"), page: reminder.pageTitle, workspace: reminder.workspaceName };
+  const stage = reminder.ended ? "ended" : "ends";
+  return renderEmail(locale, {
+    subject: t(`pageVerification.${stage}Subject`, names),
+    heading: t(`pageVerification.${stage}Heading`, names),
+    paragraphs: [t(`pageVerification.${stage}Body`, names), t("pageVerification.optOut")],
+    action: { label: t("pageVerification.action"), url: reminder.link },
   });
 }
 

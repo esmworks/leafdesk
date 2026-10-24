@@ -16,6 +16,14 @@
     "createdBy": "Utworzone przez: {name}",
     "someone": "Ktoś",
     "comments": "Komentarze",
+    "suggesting": {
+      "editing": "Edycja",
+      "suggesting": "Sugestie",
+      "label": "Tryb: {mode}",
+      "editingHint": "Zmieniaj stronę bezpośrednio",
+      "suggestingHint": "Twoje zmiany pojawiają się jako sugestie, które inni mogą przyjąć lub odrzucić",
+      "forcedHint": "Możesz komentować tę stronę, więc twoje zmiany są sugestiami, które jej redaktorzy mogą przyjąć lub odrzucić"
+    },
     "share": "Udostępnij",
     "accessRequests": "{count, plural, one {# prośba o dostęp} few {# prośby o dostęp} many {# próśb o dostęp} other {# prośby o dostęp}}",
     "addFavorite": "Dodaj do ulubionych",
@@ -51,6 +59,9 @@
     "exportPdf": "Eksportuj jako PDF",
     "printView": "Drukuj",
     "exportPreparing": "Przygotowywanie eksportu…",
+    "acceptAllSuggestions": "Przyjmij wszystkie sugestie",
+    "rejectAllSuggestions": "Odrzuć wszystkie sugestie",
+    "rejectAllConfirm": "Odrzucić wszystkie sugerowane zmiany na tej stronie?",
     "versionHistory": "Historia wersji",
     "lastEdited": "Ostatnio edytowane przez: {name}",
     "wordCount": "{words, plural, one {# słowo} few {# słowa} many {# słów} other {# słowa}}, {characters, plural, one {# znak} few {# znaki} many {# znaków} other {# znaku}}",
@@ -72,6 +83,7 @@
   },
   "comments": {
     "aboutPage": "O tej stronie",
+    "aboutProperty": "Do „{name}”",
     "title": "Komentarze",
     "close": "Zamknij komentarze",
     "filters": {
@@ -94,6 +106,20 @@
     "muted": "Odpowiedzi wyciszone",
     "mutedHint": "Nie otrzymujesz powiadomień o odpowiedziach w tym wątku, dopóki tu nie odpowiesz lub ktoś cię tu nie wspomni.",
     "mergedFrom": "Z „{title}”",
+    "suggestion": {
+      "label": "Sugerowana zmiana",
+      "byAi": "Zmiana sugerowana przez AI",
+      "accept": "Przyjmij",
+      "reject": "Odrzuć",
+      "withdraw": "Wycofaj",
+      "errors": {
+        "notAllowed": "Nie możesz odpowiedzieć na tę sugestię.",
+        "notFound": "Ta sugestia ma już odpowiedź albo została wycofana.",
+        "pageLocked": "Strona jest zablokowana.",
+        "pageInTrash": "Strona jest w koszu.",
+        "failed": "Nie udało się odpowiedzieć na sugestię. Spróbuj ponownie."
+      }
+    },
     "sort": {
       "label": "Sortuj wątki",
       "recent": "Najnowsza aktywność najpierw",
@@ -105,7 +131,11 @@
     "mark": "Wróć później",
     "unmark": "Usuń „Wróć później”",
     "markHint": "Wątek zostaje w Oznaczonych, dopóki nie usuniesz oznaczenia. Widzisz je tylko Ty.",
-    "unmarkHint": "Usuń ten wątek z listy Oznaczonych."
+    "unmarkHint": "Usuń ten wątek z listy Oznaczonych.",
+    "onProperty": "Komentarz do „{name}”",
+    "propertyPlaceholder": "Co z tą wartością?",
+    "post": "Skomentuj",
+    "propertyGone": "Tej wartości nie można już komentować."
   },
   "archived": {
     "banner": "Ta strona jest w koszu.",
@@ -119,6 +149,39 @@
     "above": "Zarchiwizowano razem ze stroną nadrzędną.",
     "unarchive": "Przywróć z archiwum",
     "hint": "Zarchiwizowane strony nie pojawiają się na pasku bocznym, w wyszukiwaniu ani na listach wyboru, ale nadal można je czytać i edytować."
+  },
+  "verification": {
+    "byUntil": "Zweryfikowana przez {name} do {date}",
+    "by": "Zweryfikowana przez {name}",
+    "until": "Zweryfikowana do {date}",
+    "plain": "Zweryfikowana",
+    "expiredOn": "Weryfikacja wygasła {date}",
+    "hint": "Ktoś z pełnym dostępem sprawdził tę stronę i oznaczył ją jako poprawną. Edycja strony nie znosi weryfikacji.",
+    "change": "Zmień lub usuń weryfikację",
+    "menu": "Zweryfikuj stronę…",
+    "menuVerified": "Weryfikacja…",
+    "menuHint": "Oznacz stronę jako sprawdzoną i poprawną: wyszukiwanie stawia ją wyżej, a czat AI ją preferuje",
+    "title": "Zweryfikuj stronę",
+    "description": "Oznacz tę stronę jako sprawdzoną i poprawną, na jakiś czas lub bezterminowo. Wyszukiwanie stawia zweryfikowane strony wyżej, oznacza je i znajduje po is:verified, a czat AI je preferuje. Edycja strony nie znosi weryfikacji; kilka dni przed jej końcem dostaniesz powiadomienie.",
+    "durationLabel": "Zweryfikowana na",
+    "durations": {
+      "week": "1 tydzień",
+      "month": "1 miesiąc",
+      "quarter": "3 miesiące",
+      "year": "1 rok",
+      "until": "Do wybranego dnia",
+      "forever": "Bezterminowo"
+    },
+    "dateLabel": "Zweryfikowana do",
+    "verify": "Zweryfikuj",
+    "verifyAgain": "Zweryfikuj ponownie",
+    "remove": "Usuń weryfikację",
+    "searchBadge": "Zweryfikowana",
+    "errors": {
+      "template": "Szablonów ani stron w nich nie można weryfikować.",
+      "inTrash": "Najpierw przywróć stronę z kosza.",
+      "invalidEnd": "Wybierz dzień po dzisiejszym, nie dalej niż za pięć lat."
+    }
   },
   "icon": {
     "add": "Dodaj ikonę",
@@ -334,6 +397,11 @@
         "title": "Pulpit",
         "subtext": "Liczby, wykresy i listy z twoich baz danych",
         "aliases": "pulpit widżety wskaźniki wykresy liczby dashboard widgets kpi metrics charts numbers"
+      },
+      "databaseTabs": {
+        "title": "Karty baz danych",
+        "subtext": "Kilka baz danych lub widoków, każdy na osobnej karcie",
+        "aliases": "karty zakładki baza danych widoki przełącz tabs"
       }
     }
   },
@@ -587,6 +655,17 @@
     "addTitle": "Dodaj tytuł",
     "removeTitle": "Usuń tytuł"
   },
+  "imageLink": {
+    "menuItem": "Link…",
+    "editMenuItem": "Edytuj link…",
+    "title": "Dodaj link do obrazu",
+    "urlLabel": "Adres internetowy",
+    "toPage": "Prowadzi do strony „{title}”",
+    "invalid": "Wpisz adres internetowy zaczynający się od http:// lub https:// albo wybierz stronę.",
+    "pickPage": "Link do strony…",
+    "remove": "Usuń link",
+    "open": "Otwórz link"
+  },
   "pdf": {
     "untitled": "PDF",
     "openInNewTab": "Otwórz w nowej karcie",
@@ -676,6 +755,19 @@
     "filters": "{count, plural, one {# filtr} few {# filtry} many {# filtrów} other {# filtra}}",
     "updatedNow": "zaktualizowano przed chwilą",
     "updated": "zaktualizowano {time}"
+  },
+  "databaseTabs": {
+    "title": "Karty baz danych",
+    "empty": "Te karty nie pokazują jeszcze żadnej bazy danych.",
+    "emptyEditable": "Pokaż kilka baz danych albo widoków jednej bazy jako karty. Każda karta to osobny widok.",
+    "add": "Dodaj kartę",
+    "full": "Karty mieszczą do {max} widoków.",
+    "menu": "Opcje karty",
+    "rename": "Zmień nazwę",
+    "remove": "Usuń kartę",
+    "nameLabel": "Nazwa karty",
+    "namePlaceholder": "Nazwa bazy danych",
+    "noAccess": "Brak dostępu"
   },
   "voiceNote": {
     "record": "Nagraj notatkę głosową",
@@ -948,5 +1040,80 @@
       "copyLink": "Kopiuj link"
     },
     "awaitingOwner": "Czeka, aż właściciel obszaru roboczego zatwierdzi wywołanie…"
+  },
+  "button": {
+    "untitled": "Przycisk",
+    "placeholder": "Etykieta przycisku",
+    "done": "Gotowe",
+    "confirm": "Uruchomić „{label}”?",
+    "blockLabel": "Przycisk „{label}”",
+    "slash": {
+      "title": "Przycisk",
+      "subtext": "Po kliknięciu wykonuje kilka kroków po kolei",
+      "aliases": "button action click run przycisk akcja uruchom"
+    },
+    "settings": {
+      "open": "Ustawienia przycisku",
+      "icon": "Emoji",
+      "label": "Etykieta",
+      "confirm": "Pytaj przed uruchomieniem",
+      "confirmHelp": "Osoba, która kliknie, najpierw potwierdza.",
+      "steps": "Po kliknięciu",
+      "stepsHelp": "Kroki wykonują się po kolei, jako osoba, która kliknęła, i z jej dostępem. Krok, którego nie może wykonać, zatrzymuje przycisk w tym miejscu.",
+      "addStep": "Dodaj krok",
+      "moveUp": "Przesuń w górę",
+      "moveDown": "Przesuń w dół",
+      "insertAt": "Gdzie",
+      "at": {
+        "below": "Pod przyciskiem",
+        "top": "Na początku strony",
+        "bottom": "Na końcu strony"
+      },
+      "markdown": "Bloki w Markdown",
+      "people": "Osoby",
+      "message": "Wiadomość",
+      "notifyHelp": "Powiadomienie dostaną tylko osoby, które mogą otworzyć tę stronę.",
+      "url": "Adres",
+      "secret": "Sekret podpisu",
+      "copySecret": "Skopiuj sekret",
+      "webhookHelp": "Wysyła tę stronę jako JSON podpisany sekretem, jeśli obszar roboczy pozwala wysyłać treści na zewnątrz.",
+      "target": "Adres internetowy lub strona",
+      "pickPage": "Wybierz stronę",
+      "toPage": "Otwiera „{title}”",
+      "rowTitle": "Tytuł",
+      "values": "Wartości",
+      "updateHelp": "Zmienia najwyżej {max} wierszy pasujących do filtrów, które widzi osoba klikająca."
+    },
+    "variables": {
+      "group": "Przycisk",
+      "today": "Dzisiaj",
+      "now": "Teraz",
+      "me": "Kto kliknął"
+    },
+    "steps": {
+      "insert": "Wstaw bloki",
+      "add_row": "Dodaj wiersz",
+      "update_rows": "Zmień wiersze",
+      "notify": "Powiadom osoby",
+      "webhook": "Wyślij webhook",
+      "open": "Otwórz link lub stronę"
+    },
+    "failed": {
+      "notFound": "Tego przycisku nie ma już na stronie.",
+      "noSteps": "Ten przycisk jeszcze nic nie robi.",
+      "inTrash": "Przyciski na stronach w koszu nie działają.",
+      "rateLimited": "Ten przycisk był klikany zbyt często. Poczekaj chwilę i spróbuj ponownie.",
+      "noAccess": "Nie masz dostępu, by to zrobić.",
+      "locked": "Strona jest zablokowana.",
+      "notConfigured": "Ten krok nie jest skonfigurowany.",
+      "databaseGone": "Baza danych nie istnieje lub jest w koszu.",
+      "invalidValue": "Jedna z wartości nie pasuje do swojej właściwości.",
+      "exportOff": "Ten obszar roboczy nie pozwala wysyłać treści na zewnątrz.",
+      "webhookFailed": "Adres nie przyjął webhooka.",
+      "invalidTarget": "Link do otwarcia jest nieprawidłowy.",
+      "buttonGone": "Przycisk został usunięty ze strony.",
+      "error": "Coś poszło nie tak.",
+      "step": "Krok {step} ({type}) nie został wykonany: {reason}"
+    }
   }
 }

@@ -57,6 +57,11 @@
     "action": "Sayfayı aç",
     "optOut": "Bu yorum konusuna katıldığınız için bu e-postaları alıyorsunuz. Hesabım > Tercihler'den kapatabilirsiniz."
   },
+  "suggestion": {
+    "subject": "{actor}, “{page}” sayfasında değişiklik önerdi",
+    "heading": "{actor}, “{page}” sayfasında değişiklik önerdi",
+    "body": "Öneri, {workspace} içindeki “{page}” sayfasında. Sayfadan kabul edin ya da reddedin veya önerinin konusunda yanıt verin."
+  },
   "mention": {
     "subject": "{actor}, “{page}” sayfasında sizden bahsetti",
     "heading": "{actor}, “{page}” sayfasında sizden bahsetti",
@@ -71,6 +76,16 @@
     "body": "{workspace} çalışma alanındaki “{page}” sayfasında {date} için hatırlatma istemiştiniz.",
     "action": "Sayfayı aç",
     "optOut": "Hatırlatma kurduğunuz için bu e-postaları alıyorsunuz. Hesabım > Tercihler'den kapatabilirsiniz."
+  },
+  "pageVerification": {
+    "endsSubject": "“{page}” sayfasındaki doğrulamanız {date} tarihinde sona eriyor",
+    "endsHeading": "Doğrulama yakında sona eriyor",
+    "endsBody": "{workspace} çalışma alanındaki “{page}” sayfasını {date} tarihine kadar doğruladınız. Hâlâ doğruysa, doğrulanmış kalması için sayfanın ⋯ menüsünden yeniden doğrulayın.",
+    "endedSubject": "“{page}” sayfasındaki doğrulamanızın süresi doldu",
+    "endedHeading": "Doğrulamanın süresi doldu",
+    "endedBody": "{workspace} çalışma alanındaki “{page}” sayfasına ait doğrulamanız {date} tarihinde sona erdi. Biri yeniden doğrulayana kadar sayfada “Doğrulamanın süresi doldu” yazar.",
+    "action": "Sayfayı aç",
+    "optOut": "Sayfayı doğruladığınız için bu e-postaları alıyorsunuz. Hesabım > Tercihler'den kapatabilirsiniz."
   },
   "dateReminder": {
     "subject": "Hatırlatma: “{page}”, {date}",
@@ -220,11 +235,15 @@
     "assignment": "{actor}, sizi “{property}” alanına atadı",
     "pageShared": "{actor} bu sayfayı sizinle paylaştı",
     "comment": "{actor}, katıldığınız bir yorum konusuna yazdı",
+    "suggested": "{actor} bu sayfada değişiklik önerdi",
+    "suggestionAccepted": "{actor} önerdiğiniz değişikliği kabul etti",
+    "suggestionRejected": "{actor} önerdiğiniz değişikliği reddetti",
     "mention": "{actor} sizden bahsetti",
     "reminder": "Hatırlatma: {date}",
     "accessRequest": "{actor} bu sayfaya erişim istedi",
     "automation": "“{name}” otomasyonu: {actor} bu satırı ekledi ya da değiştirdi",
     "automationDatePassed": "“{name}” otomasyonu: bu satırın tarihi geldi",
+    "button": "{actor} bu sayfayı size bir düğmeyle gönderdi",
     "rowUpdate": "{actor} şunları değiştirdi: {fields}",
     "rowUpdateSome": "{actor} bu satırı değiştirdi",
     "rowUpdateTitle": "başlık",
@@ -234,6 +253,8 @@
     "followUp": "“{sequence}” takibi duraklatıldı: sıradaki e-postasına bakılması gerekiyor",
     "reaction": "{actor} yorumunuza {emoji} tepkisi verdi",
     "people": "{others, plural, =0 {{name}} one {{name} ve # kişi daha} other {{name} ve # kişi daha}}",
+    "verificationEnds": "Bu sayfadaki doğrulamanız {date} tarihinde sona eriyor",
+    "verificationEnded": "Bu sayfadaki doğrulamanızın süresi {date} tarihinde doldu",
     "someone": "Biri",
     "joinRequestTitle": "Katılma isteği",
     "joinRequest": "{actor} katılmak istedi",

@@ -33,6 +33,7 @@
     "reviewNote": "A IA pode cometer erros. Confira o texto antes de mantê-lo.",
     "stopped": "Parado. Você ainda pode manter o que foi escrito até agora.",
     "applyFailed": "Não foi possível adicionar a sugestão à página.",
+    "asSuggestions": "Adicionar como alterações sugeridas",
     "selectionChanged": "O texto selecionado mudou nesse meio-tempo, então a sugestão foi adicionada abaixo dele."
   },
   "errors": {
@@ -136,6 +137,8 @@
     "ownersOnly": "Só proprietários podem alterar isto.",
     "memory": "Memória da IA",
     "memoryHint": "Quando ativada, o chat de IA guarda notas curtas sobre as pessoas que falam de si mesmas para ele e as envia junto com as perguntas seguintes delas. Cada pessoa pode desativá-la para si. Quando desativada, a tela Memória fica oculta e as perguntas de ninguém levam notas; as notas são mantidas, não excluídas. As execuções dos agentes também passam a não levar notas nem propor novas.",
+    "webSearch": "Pesquisa na web no chat de IA",
+    "webSearchHint": "Quando ativada, o chat de IA pode pesquisar na web com o serviço de pesquisa do servidor e ler páginas web, só lendo: depois de ler da web, cada alteração que quiser fazer é perguntada. O modo pesquisa também pesquisa na web. As perguntas e o texto com que pesquisa saem do espaço de trabalho para o serviço de pesquisa.",
     "provider": "Provedor",
     "providerValue": "{provider}, modelo {model}",
     "notConfigured": "Nenhum provedor de IA ou modelo de embeddings está configurado neste servidor, então os recursos de IA estão desativados. Um administrador pode configurá-los com as variáveis de ambiente AI_PROVIDER e AI_MODEL (e AI_EMBEDDINGS_MODEL) (veja o README).",
@@ -208,6 +211,10 @@
       "query": "Consultou",
       "rows": "{count, plural, =0 {nenhuma linha corresponde} one {# linha} other {# linhas}}",
       "queryGone": "Consultou um banco de dados que você não pode mais abrir",
+      "plan": "Planejou a pesquisa:",
+      "webSearched": "Pesquisou na web “{query}” · {count, plural, =0 {nada encontrado} one {# resultado} other {# resultados}}",
+      "webRead": "Leu",
+      "webReadFailed": "Não conseguiu ler",
       "write": {
         "done": {
           "createRow": "Linha adicionada:",
@@ -323,7 +330,14 @@
       "auto": "Automático",
       "autoHint": "Adiciona e altera sem perguntar",
       "read": "Somente leitura",
-      "readHint": "Não altera nada"
+      "readHint": "Não altera nada",
+      "asSuggestions": "Alterações em páginas como sugestões",
+      "asSuggestionsHint": "O que o chat escreve em uma página aparece como alterações sugeridas para você aceitar ou rejeitar"
+    },
+    "model": {
+      "label": "Modelo",
+      "hint": "O modelo que responde nesta conversa",
+      "images": "Lê imagens"
     },
     "actions": {
       "edit": "Editar",
@@ -333,17 +347,33 @@
     "actionsFor": "Ações de {name}",
     "greeting": "O que você quer saber?",
     "files": {
-      "attach": "Anexar um arquivo CSV",
-      "attachHint": "Anexe um arquivo CSV (até 1.000 linhas e 1 MB) para perguntar sobre ele ou criar um banco de dados a partir dele",
-      "drop": "Solte o arquivo CSV para anexá-lo",
+      "attach": "Anexar arquivos",
+      "attachHint": "Anexe imagens ou arquivos PDF, Word, Excel, CSV ou de texto para perguntar sobre eles",
+      "drop": "Solte os arquivos para anexá-los",
       "remove": "Remover {name}",
       "size": "{rows, plural, one {# linha} other {# linhas}} × {columns, plural, one {# coluna} other {# colunas}}",
-      "notCsv": "Só é possível anexar arquivos CSV. Salve a planilha como CSV primeiro.",
-      "tooLarge": "O arquivo é maior que {size}. Anexe um CSV menor.",
+      "uploading": "Enviando…",
+      "notSupported": "O chat lê imagens, documentos PDF, Word e Excel e arquivos CSV, Markdown e de texto.",
+      "tooLarge": "O arquivo é maior que {size}. Anexe um arquivo menor.",
       "tooManyRows": "O arquivo tem mais de {rows} linhas. Anexe um CSV mais curto ou importe-o como banco de dados.",
       "tooManyColumns": "O arquivo tem mais de {columns} colunas.",
       "empty": "O arquivo está vazio.",
-      "tooMany": "Uma pergunta pode ter no máximo {count} arquivos."
+      "tooMany": "Uma pergunta pode ter no máximo {count} arquivos.",
+      "noImages": "O modelo escolhido não aceita imagens. Escolha outro modelo ou remova a imagem.",
+      "quota": "O arquivo não foi anexado: este espaço de trabalho está sem armazenamento.",
+      "failed": "Não foi possível anexar {name}."
+    },
+    "research": {
+      "sourcesHeading": "Fontes",
+      "untitled": "Relatório de pesquisa",
+      "toggle": "Pesquisa",
+      "toggleHint": "Modo pesquisa: planeja subperguntas, pesquisa e lê o espaço de trabalho (e a web, onde estiver ativada) e escreve um relatório longo com fontes. Não altera nada.",
+      "placeholder": "O que deve pesquisar?",
+      "asked": "Pesquisa",
+      "readOnly": "A pesquisa só lê: não altera nada",
+      "save": "Salvar como página",
+      "openPage": "Abrir a página",
+      "saveFailed": "Não foi possível salvar o relatório como página."
     }
   },
   "memory": {

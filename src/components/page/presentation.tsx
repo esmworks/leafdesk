@@ -3,9 +3,8 @@
 import "@blocknote/core/fonts/inter.css";
 import "@blocknote/mantine/style.css";
 import "katex/dist/katex.min.css";
-import { createExtension } from "@blocknote/core";
+import { createExtension, docToBlocks } from "@blocknote/core";
 import { CommentMark } from "@blocknote/core/comments";
-import { yXmlFragmentToBlocks } from "@blocknote/core/yjs";
 import { BlockNoteView } from "@blocknote/mantine";
 import { useCreateBlockNote } from "@blocknote/react";
 import { DirectionProvider } from "@mantine/core";
@@ -24,6 +23,9 @@ import type { PageBackground } from "@/lib/page-background";
 import { pageTextClasses, type PageStyle } from "@/lib/page-style";
 import { isMac, opensPresentation } from "@/lib/shortcuts";
 import { splitSlides } from "@/lib/slides";
+import { suggestionMarks } from "@/lib/suggestion-marks";
+import { rejectedView } from "@/lib/suggestions";
+import { yXmlFragmentToProseMirrorRootNode } from "y-prosemirror";
 import { BlockDirection } from "./block-direction";
 import { codeHighlighting } from "./code-block";
 import { PageTrailProvider, type TrailCrumb } from "./content-blocks";
@@ -133,15 +135,16 @@ function Slides({
   // One read-only editor shows the slide's blocks, with the page's schema and table options so
   // every block (merged cells, columns, embeds) draws as it does on the page.
   const editor = useCreateBlockNote(
-    { schema: pageEditorSchema, dictionary, tables: { splitCells: true }, extensions: [codeHighlighting(), BlockDirection(), commentMarks] },
+    { schema: pageEditorSchema, dictionary, tables: { splitCells: true }, extensions: [codeHighlighting(), BlockDirection(), commentMarks, suggestionMarks] },
     [dictionary],
   ) as unknown as PageEditor;
 
-  // The page's blocks as the shared document has them, read again once edits pause.
+  // The page's blocks as the shared document has them, read again once edits pause; as the page
+  // reads, without the suggested edits that wait for an answer.
   const [blocks, setBlocks] = useState<AnyBlock[] | null>(null);
   useEffect(() => {
     const fragment = pageDoc.doc.getXmlFragment(COLLAB_FRAGMENT);
-    const read = () => setBlocks(yXmlFragmentToBlocks(editor as never, fragment) as AnyBlock[]);
+    const read = () => setBlocks(docToBlocks(rejectedView(yXmlFragmentToProseMirrorRootNode(fragment, editor.pmSchema))) as unknown as AnyBlock[]);
     read();
     let timer: ReturnType<typeof setTimeout> | undefined;
     const onChange = () => {

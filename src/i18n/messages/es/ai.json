@@ -33,6 +33,7 @@
     "reviewNote": "La IA puede equivocarse. Revisa el texto antes de conservarlo.",
     "stopped": "Detenido. Aún puedes conservar lo que se ha escrito hasta ahora.",
     "applyFailed": "No se pudo añadir la sugerencia a la página.",
+    "asSuggestions": "Añadir como cambios sugeridos",
     "selectionChanged": "El texto seleccionado cambió mientras tanto, así que la sugerencia se añadió debajo."
   },
   "errors": {
@@ -136,6 +137,8 @@
     "ownersOnly": "Solo los propietarios pueden cambiar esto.",
     "memory": "Memoria de la IA",
     "memoryHint": "Si está activada, el chat de IA guarda notas breves sobre las personas que le cuentan algo de sí mismas y las envía con sus preguntas posteriores. Cada persona puede desactivarla para sí. Si está desactivada, la vista Memoria se oculta y ninguna pregunta lleva notas; las notas se conservan, no se eliminan. Las ejecuciones de los agentes tampoco llevan notas ni proponen ninguna.",
+    "webSearch": "Búsqueda web en el chat de IA",
+    "webSearchHint": "Si está activada, el chat de IA puede buscar en la web con el servicio de búsqueda del servidor y leer páginas web, solo leyendo: después de leer de la web, pregunta antes de cada cambio que quiera hacer. El modo investigación también busca en la web. Las preguntas y el texto con que busca salen del espacio de trabajo hacia el servicio de búsqueda.",
     "provider": "Proveedor",
     "providerValue": "{provider}, modelo {model}",
     "notConfigured": "No hay ningún proveedor de IA ni modelo de embeddings configurado en este servidor, así que las funciones de IA están desactivadas. Un administrador puede configurarlos con las variables de entorno AI_PROVIDER y AI_MODEL (y AI_EMBEDDINGS_MODEL) (consulta el README).",
@@ -208,6 +211,10 @@
       "query": "Consultó",
       "rows": "{count, plural, =0 {ninguna fila coincide} one {# fila} other {# filas}}",
       "queryGone": "Consultó una base de datos que ya no puedes abrir",
+      "plan": "Planificó la investigación:",
+      "webSearched": "Buscó en la web «{query}» · {count, plural, =0 {sin resultados} one {# resultado} other {# resultados}}",
+      "webRead": "Leyó",
+      "webReadFailed": "No pudo leer",
       "write": {
         "done": {
           "createRow": "Fila añadida:",
@@ -323,7 +330,14 @@
       "auto": "Automático",
       "autoHint": "Añade y cambia sin preguntar",
       "read": "Solo lectura",
-      "readHint": "No cambia nada"
+      "readHint": "No cambia nada",
+      "asSuggestions": "Cambios en páginas como sugerencias",
+      "asSuggestionsHint": "Lo que el chat escribe en una página aparece como cambios sugeridos que puedes aceptar o rechazar"
+    },
+    "model": {
+      "label": "Modelo",
+      "hint": "El modelo que responde en esta conversación",
+      "images": "Lee imágenes"
     },
     "actions": {
       "edit": "Editar",
@@ -333,17 +347,33 @@
     "actionsFor": "Acciones para {name}",
     "greeting": "¿Qué quieres saber?",
     "files": {
-      "attach": "Adjuntar un archivo CSV",
-      "attachHint": "Adjunta un archivo CSV (hasta 1000 filas y 1 MB) para preguntar sobre él o crear una base de datos con él",
-      "drop": "Suelta el archivo CSV para adjuntarlo",
+      "attach": "Adjuntar archivos",
+      "attachHint": "Adjunta imágenes o archivos PDF, Word, Excel, CSV o de texto para preguntar sobre ellos",
+      "drop": "Suelta los archivos para adjuntarlos",
       "remove": "Quitar {name}",
       "size": "{rows, plural, one {# fila} other {# filas}} × {columns, plural, one {# columna} other {# columnas}}",
-      "notCsv": "Solo se pueden adjuntar archivos CSV. Guarda primero la hoja de cálculo como CSV.",
-      "tooLarge": "El archivo pesa más de {size}. Adjunta un CSV más pequeño.",
+      "uploading": "Subiendo…",
+      "notSupported": "El chat lee imágenes, documentos PDF, Word y Excel, y archivos CSV, Markdown y de texto.",
+      "tooLarge": "El archivo pesa más de {size}. Adjunta uno más pequeño.",
       "tooManyRows": "El archivo tiene más de {rows} filas. Adjunta un CSV más corto o impórtalo como base de datos.",
       "tooManyColumns": "El archivo tiene más de {columns} columnas.",
       "empty": "El archivo está vacío.",
-      "tooMany": "Una pregunta puede tener como máximo {count} archivos."
+      "tooMany": "Una pregunta puede tener como máximo {count} archivos.",
+      "noImages": "El modelo elegido no admite imágenes. Elige otro modelo o quita la imagen.",
+      "quota": "No se adjuntó el archivo: este espacio de trabajo no tiene más almacenamiento.",
+      "failed": "No se pudo adjuntar {name}."
+    },
+    "research": {
+      "sourcesHeading": "Fuentes",
+      "untitled": "Informe de investigación",
+      "toggle": "Investigar",
+      "toggleHint": "Modo investigación: plantea subpreguntas, busca y lee en el espacio de trabajo (y en la web, si está activada) y escribe un informe extenso con fuentes. No cambia nada.",
+      "placeholder": "¿Qué quieres investigar?",
+      "asked": "Investigación",
+      "readOnly": "La investigación solo lee: no cambia nada",
+      "save": "Guardar como página",
+      "openPage": "Abrir la página",
+      "saveFailed": "No se pudo guardar el informe como página."
     }
   },
   "memory": {

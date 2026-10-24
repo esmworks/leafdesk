@@ -12,6 +12,7 @@
     "groups": "用户组",
     "agents": "智能体",
     "connections": "连接",
+    "webhooks": "Webhook",
     "storage": "存储",
     "analytics": "分析",
     "aiUsage": "AI 用量",
@@ -21,6 +22,67 @@
     "site": "站点",
     "snippets": "片段",
     "pdf": "PDF 模板"
+  },
+  "search": {
+    "label": "搜索设置",
+    "placeholder": "搜索设置",
+    "noResults": "没有匹配的设置。",
+    "labels": {
+      "aiUsagePeople": "按人统计的用量"
+    },
+    "keywords": {
+      "profile": "名称 照片 头像 图片",
+      "email": "地址 更改 验证 邮箱",
+      "deleteAccount": "移除 关闭 账号 删除",
+      "password": "更改 重置 登录 密码",
+      "twoFactor": "2fa mfa 身份验证器 验证码",
+      "passkeys": "webauthn 安全密钥 指纹 面容",
+      "sessions": "设备 已登录 退出登录",
+      "language": "语言 翻译 区域",
+      "theme": "深色模式 浅色模式 颜色",
+      "contrast": "无障碍 高对比度",
+      "notifications": "推送 邮件 提醒 通知",
+      "watchedPages": "关注 订阅 关注页面",
+      "offlineDevice": "离线 下载 缓存 空间",
+      "offlinePages": "离线 下载 无网络",
+      "mailboxes": "邮件 收件箱 imap smtp",
+      "calendars": "ical 订阅源 订阅 日历",
+      "storageAccounts": "drive s3 文件 云",
+      "connectedApps": "oauth 客户端 访问 撤销",
+      "aiAccounts": "api 密钥 自有密钥 提供商",
+      "telegram": "机器人 聊天 消息",
+      "mcp": "助手 model context protocol 服务器",
+      "apiTokens": "rest api 令牌 密钥 开发者",
+      "about": "版本 许可证 更新",
+      "workspaceName": "名称 重命名 图标",
+      "ai": "人工智能 聊天 模型 提供商 记忆",
+      "workspaceMail": "邮件 行 发送",
+      "export": "备份 下载 zip markdown",
+      "members": "成员 邀请 用户 角色 移除",
+      "agents": "ai 助手 自动化 机器人",
+      "snippets": "文本 缩写 片段",
+      "letterheads": "pdf 页眉 页脚 标志 打印",
+      "connections": "集成 mcp 服务 工具",
+      "webhooks": "网络钩子 webhook http post 事件 集成 通知 发送",
+      "site": "网站 发布 域名",
+      "requireTwoFactor": "2fa mfa 强制 策略",
+      "loginMethod": "sso 密码 登录 策略",
+      "allowedNetworks": "ip 允许列表 地址 办公室 vpn",
+      "membership": "邀请 加入 申请 域名",
+      "sso": "saml oidc 身份提供商",
+      "scim": "预配 目录 同步 用户",
+      "exportPolicy": "下载 打印 pdf",
+      "connectedAppsPolicy": "mcp rest api 令牌 访问",
+      "publishing": "发布 网页 分享 公开链接",
+      "retention": "回收站 历史 删除 保留 天数",
+      "legalHolds": "诉讼 保全 电子取证 保留",
+      "storage": "文件 s3 drive 存储桶",
+      "analyticsPeople": "活动 编辑 统计",
+      "aiUsageLimit": "预算 费用 支出 上限",
+      "aiUsagePeople": "按人 成员 费用 令牌",
+      "health": "失效链接 孤立 重复 空页面",
+      "audit": "日志 历史 事件 修改者"
+    }
   },
   "workspace": {
     "heading": "工作区",
@@ -957,6 +1019,8 @@
     "moveToTrash": "移到回收站",
     "confirmTrash": "要将“{title}”移到回收站吗？",
     "lastEdited": "最后编辑于 {when}",
+    "verificationEndedBy": "由 {name} 验证，已结束（{when}）",
+    "verificationEnded": "验证已结束（{when}）",
     "alike": "相似度 {similarity, number, percent}",
     "inProperty": "{database} 中的 {property}",
     "removeFromRelation": "移除",
@@ -980,6 +1044,11 @@
       "title": "长期未改动的页面",
       "description": "过去 {months} 个月内无人编辑的页面，未改动时间最长的排在前面。它们可能已经过时。",
       "none": "所有页面最近都有编辑。"
+    },
+    "expiredVerifications": {
+      "title": "已过期的验证",
+      "description": "验证有效期已过的页面。请检查后重新验证，或移除验证。",
+      "none": "没有已过期的验证。"
     },
     "duplicates": {
       "title": "可能重复的页面",
@@ -1387,6 +1456,50 @@
       "memberView": "{count, plural, =0 {关闭：可从任何网络打开工作区。} other {开启：只能从 # 个已批准的网络打开工作区。}}"
     }
   },
+  "legalHolds": {
+    "title": "法律保留",
+    "description": "保留生效期间，保留对象在此工作区中创建或编辑的任何内容都不能被永久删除。他们的页面和行仍可移到回收站，但会连同历史、评论和文件一起留在那里；工作区和他们的账户也不能被删除。",
+    "holds": "保留",
+    "holdsDescription": "设置和解除保留都会记录在审计日志中。",
+    "empty": "没有保留。",
+    "new": "新建保留",
+    "setBy": "由 {name} 于 {date, date, medium} 设置",
+    "setOn": "于 {date, date, medium} 设置",
+    "people": "{count, plural, other {# 人}}",
+    "left": "已离开",
+    "guest": "访客",
+    "release": "解除",
+    "confirmRelease": "解除 {name}",
+    "form": {
+      "title": "新建法律保留",
+      "description": "选择保留对象：成员、访客，或已离开但在这里创建或编辑过内容的人。",
+      "name": "名称",
+      "namePlaceholder": "事项或案件",
+      "reason": "原因",
+      "reasonPlaceholder": "可选：原因以及由谁提出",
+      "people": "对象（{count}）",
+      "search": "搜索人员",
+      "loading": "正在加载…",
+      "nobody": "没有匹配的人。",
+      "submit": "设置保留"
+    },
+    "errors": {
+      "pageHeld": "法律保留保留着此页面或其下的页面：保留生效期间不能永久删除，它会留在回收站中。",
+      "templateHeld": "法律保留保留着此模板：保留生效期间不能删除。",
+      "propertyHeld": "法律保留保留着此属性的值：保留生效期间不能永久删除。",
+      "commentHeld": "法律保留保留着此评论：保留生效期间不能删除。",
+      "letterheadHeld": "法律保留保留着此信头：保留生效期间不能删除。",
+      "workspaceHeld": "此工作区有法律保留。请先解除（设置 > 安全），再删除工作区。",
+      "nameRequired": "请为保留命名。",
+      "nameTooLong": "名称最多 200 个字符。",
+      "reasonTooLong": "原因最多 2,000 个字符。",
+      "noPeople": "请选择保留对象。",
+      "tooManyPeople": "一个保留最多包含 200 人。",
+      "unknownPerson": "你选择的某人已不在此工作区。",
+      "notFound": "该保留已被解除。",
+      "ownersOnly": "只有所有者可以管理法律保留。"
+    }
+  },
   "audit": {
     "description": "记录在此工作区中谁更改了什么：成员和角色、邀请、分享、团队空间和用户组、设置、安全、页面的创建、移动、移到回收站和删除、发布、已连接的应用和导出。只有所有者可以看到。",
     "filters": "筛选审计日志",
@@ -1501,6 +1614,7 @@
       "loginMethod": "成员如何登录",
       "ai": "AI 功能",
       "aiMemory": "AI 记忆",
+      "aiWebSearch": "AI 聊天网络搜索",
       "aiMonthlyLimitUsd": "每月 AI 费用上限",
       "trashRetentionDays": "回收站中的页面保留期限",
       "export": "允许导出",
@@ -1568,6 +1682,8 @@
         "permission_removed": "将 {subject} 从 {target} 的分享中移除",
         "row_access_changed": "更改了 {target} 的行授予访问权限的对象",
         "deleted": "永久删除了 {target}",
+        "verified": "验证了 {target}",
+        "unverified": "移除了 {target} 的验证",
         "published": "将 {target} 发布到了网络",
         "unpublished": "取消发布了 {target}",
         "publication_revoked": "将 {target} 从网络下线（由 {subject} 发布）",
@@ -1622,6 +1738,10 @@
         "token_created": "创建了 SCIM 令牌 {target}",
         "token_revoked": "撤销了 SCIM 令牌 {target}"
       },
+      "legal_hold": {
+        "set": "为 {names} 设置了法律保留 {target}",
+        "released": "解除了 {names} 的法律保留 {target}"
+      },
       "site": {
         "saved": "保存了位于 {slug} 的站点",
         "removed": "下线了位于 {slug} 的站点"
@@ -1639,6 +1759,11 @@
         "created": "在 {target} 中创建了自动化“{name}”",
         "updated": "{change, select, on {开启了 {target} 中的自动化“{name}”} off {关闭了 {target} 中的自动化“{name}”} other {更改了 {target} 中的自动化“{name}”}}",
         "deleted": "删除了 {target} 中的自动化“{name}”"
+      },
+      "webhook": {
+        "created": "添加了 Webhook“{target}”",
+        "updated": "{change, select, on {开启了 Webhook“{target}”} off {关闭了 Webhook“{target}”} other {更改了 Webhook“{target}”}}",
+        "deleted": "移除了 Webhook“{target}”"
       },
       "export": {
         "workspace": "导出了工作区（{count} 个页面）",
@@ -1771,7 +1896,10 @@
     "followUpChannel": "跟进：{channel}",
     "reactionTitle": "回应",
     "reactionDescription": "有人回应了你写的评论。对同一条评论的回应会合在一起，直到你打开它们。",
-    "reactionChannel": "回应：{channel}"
+    "reactionChannel": "回应：{channel}",
+    "verificationTitle": "你验证的页面",
+    "verificationDescription": "你验证的页面即将失去验证状态时（提前几天）以及验证结束时通知你。",
+    "verificationChannel": "你验证的页面：{channel}"
   },
   "site": {
     "description": "为此工作区已发布的页面提供一个易读的地址、一个主页以及页面之间的导航。",
@@ -2009,6 +2137,102 @@
       "redo": "附上备注退回…",
       "notWhole": "此调用的内容比这里显示的更长，或包含此处已隐藏的值。批准前请打开其运行记录，查看将要发送的全部内容。",
       "openRun": "打开运行记录以批准"
+    }
+  },
+  "webhooks": {
+    "description": "将此工作区页面上发生的事情实时发送到其他服务：以签名的 POST 请求发送到 https 地址，范围可以是整个工作区、一个团队空间，或某个页面及其下的页面。每个请求都以最后保存该 Webhook 的人的身份发送，仅包含其可以打开的内容；数据库行和模板不会发送。",
+    "exportOff": "导出已在“设置 › 安全”中关闭，因此在重新开启之前，Webhook 不会发送任何内容。",
+    "count": "{count, plural, =0 {还没有 Webhook。} other {# 个 Webhook}}",
+    "add": "添加 Webhook",
+    "empty": "添加 Webhook，将页面事件发送到你自己的服务。",
+    "allEvents": "所有事件",
+    "scopeLabel": {
+      "workspace": "工作区的所有页面",
+      "teamspace": "{name} 的页面",
+      "page": "{title} 及其下的页面"
+    },
+    "events": {
+      "pageCreated": "页面已创建",
+      "pageUpdated": "页面已编辑",
+      "pageMoved": "页面已移动",
+      "pageTrashed": "页面已移到回收站",
+      "pageRestored": "页面已从回收站恢复",
+      "pageDeleted": "页面已永久删除",
+      "commentCreated": "已添加评论",
+      "ping": "测试"
+    },
+    "sendsAs": "以 {name} 的身份发送，仅包含其可以打开的内容。",
+    "paused": "已暂停：{name} 已不再是所有者。保存后将以你的身份发送。",
+    "pausedBadge": "已暂停",
+    "offBadge": "已关闭",
+    "toggle": "发送 {name}",
+    "test": "发送测试",
+    "testDelivered": "测试已送达该地址（响应为 {status}）。",
+    "testFailed": "测试未能送达：{reason}。",
+    "edit": "编辑",
+    "delete": "移除",
+    "deleteNote": "它会立即停止，其投递日志也会一并删除。",
+    "working": "正在处理…",
+    "secret": {
+      "show": "签名密钥",
+      "rotate": "新密钥",
+      "rotateNote": "当前密钥将立即停止用于签名：请更新校验它的服务。",
+      "title": "“{name}”的签名密钥",
+      "label": "签名密钥",
+      "note": "用它校验每个请求的 X-Leafdesk-Signature 请求头：格式为 t=TIME,v1=HMAC，其中 HMAC 是对 TIME、一个点号和请求体计算的十六进制 HMAC-SHA256。请妥善保密。"
+    },
+    "log": {
+      "title": "{count, plural, =0 {最近的投递} other {最近的投递（#）}}",
+      "empty": "最近 30 天内没有发送任何内容。",
+      "attempts": "{count, plural, other {# 次尝试}}",
+      "next": "下次尝试：{when}"
+    },
+    "status": {
+      "pending": "等待中",
+      "delivered": "已送达",
+      "failed": "失败",
+      "skipped": "未发送"
+    },
+    "codes": {
+      "noAccess": "发送身份对应的人无法打开该页面",
+      "notOwner": "发送身份对应的人已不再是所有者",
+      "exportOff": "导出已关闭",
+      "disabled": "该 Webhook 已关闭",
+      "invalidUrl": "地址无效",
+      "blocked": "地址位于私有网络中",
+      "unreachable": "无法连接到该地址",
+      "timeout": "10 秒内无响应",
+      "redirect": "地址返回了重定向",
+      "http": "地址返回了 {status}"
+    },
+    "form": {
+      "title": "添加 Webhook",
+      "editTitle": "更改 Webhook",
+      "name": "名称",
+      "url": "地址",
+      "urlHint": "一个 https 地址。请求会签名；不会跟随重定向。",
+      "events": "事件",
+      "scope": "页面",
+      "scopes": {
+        "workspace": "整个工作区",
+        "teamspace": "一个团队空间",
+        "page": "某个页面及其下的页面"
+      },
+      "teamspace": "选择团队空间",
+      "pickPage": "查找页面",
+      "noPages": "没有可选择的页面。",
+      "otherPage": "更改",
+      "save": "保存",
+      "create": "添加 Webhook"
+    },
+    "errors": {
+      "invalidName": "请为 Webhook 输入不超过 100 个字符的名称。",
+      "invalidUrl": "请输入不含用户名或密码的有效 https 地址。",
+      "httpsOnly": "Webhook 只能发送到 https 地址。",
+      "noEvents": "请至少选择一个事件。",
+      "invalidScope": "请选择此工作区的一个团队空间或页面。",
+      "tooMany": "一个工作区最多可有 25 个 Webhook。",
+      "ownersOnly": "只有工作区所有者可以管理 Webhook。"
     }
   },
   "email": {

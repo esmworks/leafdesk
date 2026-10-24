@@ -8,6 +8,7 @@ import { groupColumns } from "./columns";
 import { footnoteMarkdown, type MdBlock } from "./content-markdown";
 import { restoreDashboards } from "./dashboard";
 import { restoreMeetings } from "./meetings";
+import { restoreButtons } from "./buttons";
 import { mergeReferencedBlocks, splitMarkdownReferences } from "./embed-blocks";
 import { carryOverMentions } from "./mentions";
 import { collapseSyncedRegions, SYNCED_BLOCK, syncedBlocksIn } from "./synced-blocks";
@@ -54,9 +55,10 @@ export async function markdownToPageBlocks<B extends MdBlock>(
   // A rewrite of the whole body (not an append) gets the page's bookmarks back from their link lines
   // and its dashboards from theirs; an append makes no dashboard (restoreDashboards drops the lines).
   // Meetings likewise: a rewrite keeps the page's meeting blocks its regions name, an addition gets
-  // their text as plain blocks (a meeting lives in one place).
-  if (!keepMissingInline) return restoreMeetings(restoreDashboards(blocks, []), []);
-  const rewritten = restoreMeetings(restoreDashboards(restoreBookmarks(blocks, existing), existing), existing);
+  // their text as plain blocks (a meeting lives in one place). Buttons as dashboards: Markdown
+  // names the page's own, it can't make one.
+  if (!keepMissingInline) return restoreButtons(restoreMeetings(restoreDashboards(blocks, []), []), []);
+  const rewritten = restoreButtons(restoreMeetings(restoreDashboards(restoreBookmarks(blocks, existing), existing), existing), existing);
   carryOverBlockIds(rewritten, existing);
   return rewritten;
 }

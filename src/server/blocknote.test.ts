@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import * as Y from "yjs";
 import { agentChatLine } from "@/lib/agent-chat";
+import { buttonLine, serializeButtonConfig } from "@/lib/buttons";
 import { blocksToPlainText } from "@/lib/blocks";
 import { COLLAB_FRAGMENT } from "@/lib/collab-constants";
 import { dashboardLine, newWidget, serializeDashboard } from "@/lib/dashboard";
@@ -122,7 +123,7 @@ describe("database blocks in page bodies", () => {
     expect(kept[0].props).toEqual({ widgets });
     const doc = new Y.Doc();
     doc.transact(() => serverEditor.blocksToYXmlFragment(kept, doc.getXmlFragment(COLLAB_FRAGMENT)));
-    expect(read(doc)[0].props).toEqual({ widgets });
+    expect(read(doc)[0].props).toEqual({ widgets, layout: "grid" });
 
     const dropped = await markdownToBlocks("New", existing);
     expect(dropped.map((b) => b.type)).toEqual(["paragraph"]);
@@ -261,6 +262,45 @@ describe("published body segments", () => {
     const html = segment.kind === "html" ? segment.html : "";
     expect(html).not.toContain("\uFFFC");
     expect(html).toContain("<p><br></p>");
+  });
+
+  it("wrap linked images in their link: a web address, or a page where it is published", async () => {
+    const doc = docFrom([
+      { type: "image", props: { url: "https://x.test/a.png", name: "Web", link: "https://example.com/x" } },
+      { type: "image", props: { url: "https://x.test/b.png", name: "Shared", link: "/w/ws1/p/shared" } },
+      { type: "image", props: { url: "https://x.test/c.png", name: "Private", link: "/w/ws1/p/private" } },
+    ]);
+    const resolvePages = async (ids: string[]) => new Map(ids.map((id) => [id, { text: id, href: id === "shared" ? "/s/token/shared" : null }]));
+    const html = (await bodySegmentsFromYdoc(Y.encodeStateAsUpdate(doc), { resolvePages })).map((s) => (s.kind === "html" ? s.html : "")).join("");
+    expect(html).toMatch(/<a href="https:\/\/example.com\/x"[^>]*><img src="https:\/\/x.test\/a.png"/);
+    expect(html).toMatch(/<a href="\/s\/token\/shared"[^>]*><img src="https:\/\/x.test\/b.png"/);
+    expect(html).not.toContain("/w/ws1/p/");
+    expect(html).toContain('src="https://x.test/c.png"');
+  });
+});
+
+describe("linked images", () => {
+  it("round-trip through Markdown, a caption and a page link too", async () => {
+    const blocks = [
+      { type: "image", props: { url: "https://x.test/a.png", name: "Chart", link: "https://example.com/x" } },
+      { type: "image", props: { url: "/api/files/f1", name: "Plan", caption: "Draft", link: "/w/ws1/p/page-1" } },
+    ] as unknown as PageBlock[];
+    const markdown = await blocksToMarkdown(blocks);
+    expect(markdown).toContain("[![Chart](https://x.test/a.png)](https://example.com/x)");
+    const back = await markdownToBlocks(markdown);
+    expect(back.map((b) => b.props)).toMatchObject([
+      { url: "https://x.test/a.png", name: "Chart", link: "https://example.com/x" },
+      { url: "/api/files/f1", name: "Plan", caption: "Draft", link: "/w/ws1/p/page-1" },
+    ]);
+  });
+
+  it("keep their link through the Yjs document, and read a pasted image in a link", async () => {
+    const doc = docFrom([{ type: "image", props: { url: "https://x.test/a.png", link: "https://example.com/x" } }]);
+    expect(read(doc)[0].props).toMatchObject({ link: "https://example.com/x" });
+    const pasted = await serverEditor.tryParseHTMLToBlocks('<a href="https://example.com/y"><img src="https://x.test/b.png" alt="B"></a>');
+    expect(pasted[0]).toMatchObject({ type: "image", props: { url: "https://x.test/b.png", link: "https://example.com/y" } });
+    const unsafe = await serverEditor.tryParseHTMLToBlocks('<a href="javascript:alert(1)"><img src="https://x.test/b.png"></a>');
+    expect(unsafe[0]).toMatchObject({ type: "image", props: { link: "" } });
   });
 });
 
@@ -409,5 +449,51 @@ describe("agent chats in page bodies", () => {
     const segments = await bodySegmentsFromYdoc(Y.encodeStateAsUpdate(doc));
     expect(segments.map((s) => s.kind)).toEqual(["html", "agentChat"]);
     expect(JSON.stringify(segments)).not.toContain("a1");
+  });
+});
+
+describe("buttons in page bodies", () => {
+  const config = serializeButtonConfig({ confirm: true, steps: [{ type: "insert", at: "below", markdown: "- [ ] {{today}}" }] });
+  const existing = () =>
+    read(
+      docFrom([
+        { type: "paragraph", content: "Before" },
+        { id: "btn1", type: "button", props: { label: "Start the week", icon: "🚀", config } },
+      ]),
+    );
+
+  it("write their id and label to Markdown, and keep what they do on a rewrite", async () => {
+    const blocks = existing();
+    const markdown = (await blocksToMarkdown(blocks)).trim();
+    expect(markdown).toBe(`Before\n\n${buttonLine("btn1", "Start the week")}`);
+    // What it does stays in the page.
+    expect(markdown).not.toContain("today");
+    expect(blocksToPlainText(blocks)).toContain("🚀 Start the week");
+
+    const renamed = await markdownToBlocks(`${buttonLine("btn1", "Begin")}\n\nAfter`, blocks);
+    expect(renamed.map((b) => [b.type, b.id ?? null])).toEqual([
+      ["button", "btn1"],
+      ["paragraph", expect.anything()],
+    ]);
+    expect(renamed[0].props).toEqual({ label: "Begin", icon: "🚀", config });
+  });
+
+  it("can't be made from Markdown", async () => {
+    expect(await markdownToBlocks(buttonLine("elsewhere", "Mine"), existing())).toEqual([]);
+    expect(await markdownToBlocks(buttonLine("btn1", "Copy"), existing(), { keepMissingInline: false })).toEqual([]);
+    // Named twice, it stays once.
+    const twice = await markdownToBlocks(`${buttonLine("btn1", "A")}\n\n${buttonLine("btn1", "B")}`, existing());
+    expect(twice.filter((b) => b.type === "button")).toHaveLength(1);
+  });
+
+  it("show their label, disabled and without their steps, on a published page", async () => {
+    const doc = docFrom([
+      { type: "paragraph", content: "Visible" },
+      { id: "btn1", type: "button", props: { label: "Start the week", icon: "", config } },
+    ]);
+    const html = JSON.stringify(await bodySegmentsFromYdoc(Y.encodeStateAsUpdate(doc)));
+    expect(html).toContain("Start the week");
+    expect(html).toContain("disabled");
+    expect(html).not.toContain("today");
   });
 });

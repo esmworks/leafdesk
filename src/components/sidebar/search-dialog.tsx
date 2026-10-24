@@ -1,6 +1,6 @@
 "use client";
 
-import { Archive, ChevronRight, Paperclip, Search } from "lucide-react";
+import { Archive, BadgeCheck, ChevronRight, Paperclip, Search } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { useEffect, useMemo, useRef, useState, type ReactNode } from "react";
@@ -14,8 +14,12 @@ import { highlightParts } from "@/lib/search-highlight";
 import { parseSearchQuery } from "@/lib/search-query";
 import type { SearchHit } from "@/server/pages";
 
-/** Something the search box can do instead of opening a page: typed after `>`. */
-export type SearchCommand = { id: string; label: string; icon: ReactNode; run: () => void };
+/**
+ * Something the search box can do instead of opening a page: typed after `>`. `keywords`: other
+ * words it is found by. `whenTyped`: listed only once something is typed after `>` (the settings,
+ * which would otherwise bury the rest).
+ */
+export type SearchCommand = { id: string; label: string; icon: ReactNode; run: () => void; keywords?: string; whenTyped?: boolean };
 
 /**
  * `blockId`: where the passage a search by meaning matched starts; the page opens there. `file`: the
@@ -32,6 +36,8 @@ type PageItem = {
   file?: SearchHit["file"];
   /** Archived (server/page-outdated): found only while the search includes archived pages. */
   outdated?: boolean;
+  /** Verified right now (server/verification): marked, and ranked above an otherwise equal page. */
+  verified?: boolean;
 };
 type Item = { type: "page"; page: PageItem } | { type: "command"; command: SearchCommand };
 
@@ -40,7 +46,7 @@ const fold = (value: string) => searchFold(value.normalize("NFC").trim());
 
 /**
  * The search box (Cmd/Ctrl+K): pages by their title and content, narrowed with `in:` and `type:`
- * (see lib/search-query); the pages last edited before anything is typed; and, after `>`, the
+ * and `is:verified` (see lib/search-query); the pages last edited before anything is typed; and, after `>`, the
  * commands the sidebar hands it. Archived pages are found only with "Include archived" on, and say so.
  */
 export function SearchDialog({
@@ -112,8 +118,10 @@ export function SearchDialog({
 
   const items = useMemo<Item[]>(() => {
     if (commandMode) {
-      const wanted = fold(trimmed.slice(1));
-      return commands.filter((c) => fold(c.label).includes(wanted)).map((command) => ({ type: "command", command }));
+      const words = fold(trimmed.slice(1)).split(/\s+/).filter(Boolean);
+      return commands
+        .filter((c) => (words.length > 0 || !c.whenTyped) && words.every((word) => fold(`${c.label} ${c.keywords ?? ""}`).includes(word)))
+        .map((command) => ({ type: "command", command }));
     }
     const pages: PageItem[] = trimmed ? hits : recent;
     return pages.map((page) => ({ type: "page", page }));
@@ -197,6 +205,12 @@ export function SearchDialog({
                   <span className="min-w-0 flex-1">
                     <span className="flex items-baseline gap-2">
                       <span className="min-w-0 truncate text-sm font-medium">{pageLabel(item.page.title, tc("untitled"))}</span>
+                      {item.page.verified && (
+                        <span className="flex shrink-0 items-center gap-1 self-center text-xs text-fg-muted" title={t("verifiedHint")}>
+                          <BadgeCheck className="h-3 w-3" aria-hidden />
+                          {t("verified")}
+                        </span>
+                      )}
                       {item.page.outdated && (
                         <span className="flex shrink-0 items-center gap-1 self-center text-xs text-fg-faint">
                           <Archive className="h-3 w-3" aria-hidden />

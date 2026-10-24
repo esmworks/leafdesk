@@ -16,6 +16,14 @@
     "createdBy": "Creata da {name}",
     "someone": "Qualcuno",
     "comments": "Commenti",
+    "suggesting": {
+      "editing": "Modifica",
+      "suggesting": "Suggerimenti",
+      "label": "Modalità: {mode}",
+      "editingHint": "Modifica direttamente la pagina",
+      "suggestingHint": "Le tue modifiche appaiono come suggerimenti che altri possono accettare o rifiutare",
+      "forcedHint": "Puoi commentare questa pagina, quindi le tue modifiche sono suggerimenti che i suoi editor possono accettare o rifiutare"
+    },
     "share": "Condividi",
     "accessRequests": "{count, plural, one {# richiesta di accesso} other {# richieste di accesso}}",
     "addFavorite": "Aggiungi ai preferiti",
@@ -51,6 +59,9 @@
     "exportPdf": "Esporta come PDF",
     "printView": "Stampa",
     "exportPreparing": "Preparazione dell’esportazione…",
+    "acceptAllSuggestions": "Accetta tutti i suggerimenti",
+    "rejectAllSuggestions": "Rifiuta tutti i suggerimenti",
+    "rejectAllConfirm": "Rifiutare tutte le modifiche suggerite in questa pagina?",
     "versionHistory": "Cronologia delle versioni",
     "lastEdited": "Ultima modifica di {name}",
     "wordCount": "{words, plural, one {# parola} other {# parole}}, {characters, plural, one {# carattere} other {# caratteri}}",
@@ -72,6 +83,7 @@
   },
   "comments": {
     "aboutPage": "Su questa pagina",
+    "aboutProperty": "Su «{name}»",
     "title": "Commenti",
     "close": "Chiudi i commenti",
     "filters": {
@@ -94,6 +106,20 @@
     "muted": "Risposte silenziate",
     "mutedHint": "Non ricevi avvisi sulle risposte in questa discussione finché non rispondi qui o qualcuno non ti menziona qui.",
     "mergedFrom": "Da «{title}»",
+    "suggestion": {
+      "label": "Modifica suggerita",
+      "byAi": "Modifica suggerita dall’IA",
+      "accept": "Accetta",
+      "reject": "Rifiuta",
+      "withdraw": "Ritira",
+      "errors": {
+        "notAllowed": "Non puoi rispondere a questo suggerimento.",
+        "notFound": "Questo suggerimento ha già avuto risposta o è stato ritirato.",
+        "pageLocked": "La pagina è bloccata.",
+        "pageInTrash": "La pagina è nel cestino.",
+        "failed": "Impossibile rispondere al suggerimento. Riprova."
+      }
+    },
     "sort": {
       "label": "Ordina le discussioni",
       "recent": "Attività più recente prima",
@@ -105,7 +131,11 @@
     "mark": "Riprendi più tardi",
     "unmark": "Togli “Riprendi più tardi”",
     "markHint": "La discussione resta tra i Segnati finché non togli il segno. Lo vedi solo tu.",
-    "unmarkHint": "Togli questa discussione dalla tua lista dei Segnati."
+    "unmarkHint": "Togli questa discussione dalla tua lista dei Segnati.",
+    "onProperty": "Commenta «{name}»",
+    "propertyPlaceholder": "Che ne dici di questo valore?",
+    "post": "Commenta",
+    "propertyGone": "Questo valore non si può più commentare."
   },
   "archived": {
     "banner": "Questa pagina è nel cestino.",
@@ -119,6 +149,39 @@
     "above": "Archiviata insieme a una pagina superiore.",
     "unarchive": "Rimuovi dall’archivio",
     "hint": "Le pagine archiviate non compaiono nella barra laterale, nella ricerca e nei selettori, ma si possono ancora leggere e modificare."
+  },
+  "verification": {
+    "byUntil": "Verificata da {name} fino al {date}",
+    "by": "Verificata da {name}",
+    "until": "Verificata fino al {date}",
+    "plain": "Verificata",
+    "expiredOn": "Verifica scaduta il {date}",
+    "hint": "Qualcuno con accesso completo ha controllato questa pagina e l’ha segnata come corretta. Modificarla non toglie la verifica.",
+    "change": "Modifica o rimuovi la verifica",
+    "menu": "Verifica pagina…",
+    "menuVerified": "Verifica…",
+    "menuHint": "Segna la pagina come controllata e corretta: la ricerca la mette più in alto e la chat IA la preferisce",
+    "title": "Verifica pagina",
+    "description": "Segna questa pagina come controllata e corretta, per un periodo o senza scadenza. La ricerca mette più in alto le pagine verificate, le contrassegna e le trova con is:verified, e la chat IA le preferisce. Modificare la pagina non toglie la verifica; ricevi un avviso qualche giorno prima della scadenza.",
+    "durationLabel": "Verificata per",
+    "durations": {
+      "week": "1 settimana",
+      "month": "1 mese",
+      "quarter": "3 mesi",
+      "year": "1 anno",
+      "until": "Fino a un giorno",
+      "forever": "Senza scadenza"
+    },
+    "dateLabel": "Verificata fino al",
+    "verify": "Verifica",
+    "verifyAgain": "Verifica di nuovo",
+    "remove": "Rimuovi la verifica",
+    "searchBadge": "Verificata",
+    "errors": {
+      "template": "I modelli e le pagine al loro interno non vengono verificati.",
+      "inTrash": "Prima ripristina la pagina dal cestino.",
+      "invalidEnd": "Scegli un giorno dopo oggi, entro cinque anni."
+    }
   },
   "icon": {
     "add": "Aggiungi icona",
@@ -334,6 +397,11 @@
         "title": "Dashboard",
         "subtext": "Numeri, grafici ed elenchi dai tuoi database",
         "aliases": "dashboard widgets kpi metrics charts numbers widget metriche grafici numeri cruscotto"
+      },
+      "databaseTabs": {
+        "title": "Schede di database",
+        "subtext": "Più database o viste, una scheda ciascuno",
+        "aliases": "schede tab database viste cambia"
       }
     }
   },
@@ -587,6 +655,17 @@
     "addTitle": "Aggiungi titolo",
     "removeTitle": "Rimuovi titolo"
   },
+  "imageLink": {
+    "menuItem": "Link…",
+    "editMenuItem": "Modifica link…",
+    "title": "Collega l’immagine",
+    "urlLabel": "Indirizzo web",
+    "toPage": "Porta alla pagina «{title}»",
+    "invalid": "Inserisci un indirizzo web che inizi con http:// o https://, oppure scegli una pagina.",
+    "pickPage": "Collega a una pagina…",
+    "remove": "Rimuovi link",
+    "open": "Apri link"
+  },
   "pdf": {
     "untitled": "PDF",
     "openInNewTab": "Apri in una nuova scheda",
@@ -676,6 +755,19 @@
     "filters": "{count, plural, one {# filtro} other {# filtri}}",
     "updatedNow": "aggiornato ora",
     "updated": "aggiornato {time}"
+  },
+  "databaseTabs": {
+    "title": "Schede di database",
+    "empty": "Queste schede non mostrano ancora alcun database.",
+    "emptyEditable": "Mostra più database, o viste di uno stesso database, come schede. Ogni scheda è una vista a sé.",
+    "add": "Aggiungi scheda",
+    "full": "Le schede contengono fino a {max} viste.",
+    "menu": "Opzioni della scheda",
+    "rename": "Rinomina",
+    "remove": "Rimuovi scheda",
+    "nameLabel": "Nome della scheda",
+    "namePlaceholder": "Il nome del database",
+    "noAccess": "Nessun accesso"
   },
   "voiceNote": {
     "record": "Registra una nota vocale",
@@ -948,5 +1040,80 @@
       "copyLink": "Copia link"
     },
     "awaitingOwner": "In attesa che un proprietario dello spazio di lavoro approvi una chiamata…"
+  },
+  "button": {
+    "untitled": "Pulsante",
+    "placeholder": "Etichetta del pulsante",
+    "done": "Fatto",
+    "confirm": "Eseguire «{label}»?",
+    "blockLabel": "Pulsante «{label}»",
+    "slash": {
+      "title": "Pulsante",
+      "subtext": "Fa alcune cose in ordine quando lo si clicca",
+      "aliases": "button action click run pulsante azione esegui"
+    },
+    "settings": {
+      "open": "Impostazioni del pulsante",
+      "icon": "Emoji",
+      "label": "Etichetta",
+      "confirm": "Chiedi prima di eseguire",
+      "confirmHelp": "Chi clicca conferma prima.",
+      "steps": "Al clic",
+      "stepsHelp": "I passaggi vengono eseguiti in ordine, come chi clicca e con il suo accesso. Un passaggio che non può fare ferma il pulsante lì.",
+      "addStep": "Aggiungi un passaggio",
+      "moveUp": "Sposta su",
+      "moveDown": "Sposta giù",
+      "insertAt": "Dove",
+      "at": {
+        "below": "Sotto il pulsante",
+        "top": "In cima alla pagina",
+        "bottom": "Alla fine della pagina"
+      },
+      "markdown": "Blocchi in Markdown",
+      "people": "Persone",
+      "message": "Messaggio",
+      "notifyHelp": "Ricevono la notifica solo le persone che possono aprire questa pagina.",
+      "url": "Indirizzo",
+      "secret": "Segreto di firma",
+      "copySecret": "Copia il segreto",
+      "webhookHelp": "Invia questa pagina come JSON, firmata con il segreto, se lo spazio di lavoro lascia uscire i contenuti.",
+      "target": "Indirizzo web o pagina",
+      "pickPage": "Scegli una pagina",
+      "toPage": "Apre «{title}»",
+      "rowTitle": "Titolo",
+      "values": "Valori",
+      "updateHelp": "Modifica al massimo {max} righe che corrispondono ai filtri e che chi clicca può vedere."
+    },
+    "variables": {
+      "group": "Pulsante",
+      "today": "Oggi",
+      "now": "Adesso",
+      "me": "Chi ha cliccato"
+    },
+    "steps": {
+      "insert": "Inserisci blocchi",
+      "add_row": "Aggiungi una riga",
+      "update_rows": "Modifica righe",
+      "notify": "Notifica persone",
+      "webhook": "Invia un webhook",
+      "open": "Apri un link o una pagina"
+    },
+    "failed": {
+      "notFound": "Questo pulsante non è più nella pagina.",
+      "noSteps": "Questo pulsante non fa ancora nulla.",
+      "inTrash": "I pulsanti delle pagine nel cestino non vengono eseguiti.",
+      "rateLimited": "Questo pulsante è stato cliccato troppe volte. Attendi un momento e riprova.",
+      "noAccess": "Non hai accesso per farlo.",
+      "locked": "La pagina è bloccata.",
+      "notConfigured": "Questo passaggio non è configurato.",
+      "databaseGone": "Il database non esiste più o è nel cestino.",
+      "invalidValue": "Un valore non è adatto alla sua proprietà.",
+      "exportOff": "Questo spazio di lavoro non lascia uscire i contenuti.",
+      "webhookFailed": "L’indirizzo non ha accettato il webhook.",
+      "invalidTarget": "Il link da aprire non è valido.",
+      "buttonGone": "Il pulsante è stato rimosso dalla pagina.",
+      "error": "Qualcosa è andato storto.",
+      "step": "Il passaggio {step} ({type}) non è stato eseguito: {reason}"
+    }
   }
 }

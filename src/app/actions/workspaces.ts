@@ -7,6 +7,7 @@ import { type Proof, proofOf } from "@/lib/account";
 import { isStrongSession } from "@/lib/auth-security";
 import { isBuiltinTemplateKey, type BuiltinTemplateKey } from "@/lib/builtin-templates";
 import { AccessError } from "@/server/access";
+import { LegalHoldError } from "@/lib/legal-hold";
 import { AccountError } from "@/server/account";
 import { revokeFormPublication } from "@/server/forms";
 import { approveJoinRequest, declineJoinRequest, joinFromSwitcher } from "@/server/join-requests";
@@ -45,6 +46,7 @@ async function run<T>(fn: () => Promise<T>): Promise<ActionResult<T>> {
     if (error instanceof AccessError) return fail("ownersOnly");
     // Proof asked before deleting the workspace, worded as on the account page.
     if (error instanceof AccountError) return { ok: false, error: (await getTranslations("account.errors"))(error.code), code: error.code };
+    if (error instanceof LegalHoldError) return { ok: false, error: (await getTranslations("settings.legalHolds.errors"))(error.code), code: error.code };
     throw error;
   }
 }

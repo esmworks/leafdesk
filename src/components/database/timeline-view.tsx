@@ -39,7 +39,7 @@ import {
 import { TIMELINE_ZOOMS } from "@/lib/views";
 import type { SubItemLine } from "@/lib/sub-items";
 import { blockedByProperty, storedBlockers } from "@/lib/dependencies";
-import { CardTitleInput } from "./board-view";
+import { CardTitleInput } from "./card-title-input";
 import { AddSubItemButton, SUB_ITEM_INDENT, SubItemCount, SubItemToggle, useSubItems } from "./sub-items";
 import { usePeople } from "./person-cell";
 import { GroupLabel, useGroupContext, useGroupName } from "./group-label";

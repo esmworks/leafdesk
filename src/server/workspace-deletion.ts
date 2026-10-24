@@ -5,6 +5,7 @@ import { confirmsWorkspaceName, type Proof } from "@/lib/account";
 import { type AccountSession, reauthenticate } from "@/server/account";
 import { AccessError, requireMembership } from "@/server/access";
 import { getCollab } from "@/server/collab/bridge";
+import { refuseWorkspaceWithHolds } from "@/server/legal-hold";
 import { deleteQueued, fileObject, fileObjectColumns, queueStorageDeletion } from "@/server/files";
 import { mailStatus, sendMail, workspaceDeletedEmail } from "@/server/mail";
 import { recipientLocale } from "@/server/mail/locale";
@@ -13,7 +14,8 @@ import { deleteWorkspaces, lockOwnedWorkspace, WorkspaceError } from "@/server/w
 
 /**
  * Deletes a workspace for good (Settings > General). Owners only, after the workspace's name typed
- * to confirm and the same proof as deleting the account (`reauthenticate`).
+ * to confirm and the same proof as deleting the account (`reauthenticate`). Refused while it has a
+ * legal hold (server/legal-hold.ts; its foreign key refuses it too).
  *
  * In one transaction, with the workspace locked (nobody joins and no owner changes meanwhile): the
  * workspace goes with everything that belongs to it (by foreign keys: members, pages, databases,
@@ -42,6 +44,8 @@ export async function deleteWorkspace(current: AccountSession, workspaceId: stri
   if (!confirmsWorkspaceName(input.confirmation, row.name)) {
     throw new WorkspaceError("confirmationMismatch", "Type the workspace's name to delete it.");
   }
+  // Before the proof too, so a refused deletion doesn't use up a code.
+  await refuseWorkspaceWithHolds(workspaceId);
   await reauthenticate(current, input.proof);
 
   const { keys, pageIds, people, cutOff } = await db.transaction(async (tx) => {

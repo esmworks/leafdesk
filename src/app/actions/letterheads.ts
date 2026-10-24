@@ -1,6 +1,7 @@
 "use server";
 
 import { getTranslations } from "next-intl/server";
+import { LegalHoldError } from "@/lib/legal-hold";
 import type { Letterhead } from "@/lib/letterheads";
 import { AccessError } from "@/server/access";
 import { createLetterhead, deleteLetterhead, LetterheadError, listLetterheads, setDefaultLetterhead, updateLetterhead } from "@/server/letterheads";
@@ -13,6 +14,7 @@ async function run<T>(fn: () => Promise<T>): Promise<ActionResult<T>> {
   try {
     return { ok: true, data: await fn() };
   } catch (error) {
+    if (error instanceof LegalHoldError) return { ok: false, error: (await getTranslations("settings.legalHolds.errors"))(error.code), code: error.code };
     const code = error instanceof LetterheadError ? error.code : error instanceof AccessError ? "notFound" : null;
     if (!code) throw error;
     const t = await getTranslations("settings.letterheads.errors");

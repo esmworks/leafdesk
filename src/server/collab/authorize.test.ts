@@ -23,17 +23,28 @@ beforeEach(() => vi.clearAllMocks());
 describe("authorizeCollab", () => {
   it("lets editors write to an unlocked page", async () => {
     access.pageAccessOf.mockResolvedValue({ page: page("page", null), level: "edit" });
-    expect(await authorizeCollab("u1", { kind: "page", id: "p1" })).toEqual({ readOnly: false });
+    expect(await authorizeCollab("u1", { kind: "page", id: "p1" })).toEqual({ readOnly: false, suggestOnly: false });
   });
 
   it("makes a locked page read-only for everyone, full access included", async () => {
     access.pageAccessOf.mockResolvedValue({ page: page("page", new Date()), level: "full" });
-    expect(await authorizeCollab("u1", { kind: "page", id: "p1" })).toEqual({ readOnly: true });
+    expect(await authorizeCollab("u1", { kind: "page", id: "p1" })).toEqual({ readOnly: true, suggestOnly: false });
+  });
+
+  it("lets people who may comment suggest edits to a page they can't edit, and viewers only read", async () => {
+    access.pageAccessOf.mockResolvedValue({ page: page("page", null), level: "comment" });
+    expect(await authorizeCollab("u1", { kind: "page", id: "p1" })).toEqual({ readOnly: false, suggestOnly: true });
+    access.pageAccessOf.mockResolvedValue({ page: page("page", new Date()), level: "comment" });
+    expect(await authorizeCollab("u1", { kind: "page", id: "p1" })).toEqual({ readOnly: true, suggestOnly: false });
+    access.pageAccessOf.mockResolvedValue({ page: page("database", null), level: "comment" });
+    expect(await authorizeCollab("u1", { kind: "page", id: "p1" })).toEqual({ readOnly: true, suggestOnly: false });
+    access.pageAccessOf.mockResolvedValue({ page: page("page", null), level: "view" });
+    expect(await authorizeCollab("u1", { kind: "page", id: "p1" })).toEqual({ readOnly: true, suggestOnly: false });
   });
 
   it("leaves a locked database's title and description editable: its lock is about the schema", async () => {
     access.pageAccessOf.mockResolvedValue({ page: page("database", new Date()), level: "edit" });
-    expect(await authorizeCollab("u1", { kind: "page", id: "p1" })).toEqual({ readOnly: false });
+    expect(await authorizeCollab("u1", { kind: "page", id: "p1" })).toEqual({ readOnly: false, suggestOnly: false });
   });
 
   it("still refuses people who can't see the page", async () => {

@@ -17,7 +17,7 @@ import { MemoryButton } from "./memory-dialog";
 import { useIsOffline } from "@/components/offline/offline-context";
 import { FOCUS_BLOCK_EVENT } from "@/components/page/block-focus";
 import { cn, IconButton, MenuItem, MenuSeparator, Popover } from "@/components/ui";
-import { chatPath, isChatPath, sourceHref, type ChatSourceView, type ConversationSummary } from "@/lib/ai-chat";
+import { chatPath, isChatPath, sourceHref, type ChatOptions, type ChatSourceView, type ConversationSummary } from "@/lib/ai-chat";
 import type { VoiceNoteLimits } from "@/lib/voice-notes";
 import { ChatThread } from "./chat-thread";
 import { useChat } from "./use-chat";
@@ -28,6 +28,8 @@ type ChatContext = {
   available: boolean;
   /** The recording limits when questions can be dictated (speech to text works here), else null. */
   voice: VoiceNoteLimits | null;
+  /** The models the box offers, the one a new conversation starts with, and web search (chatOptionsFor). */
+  options: ChatOptions;
   /** The panel beside the page. */
   open: boolean;
   setOpen: (open: boolean) => void;
@@ -49,19 +51,22 @@ export function useAiChat() {
 /**
  * Holds the chat for a workspace's pages. `available`: AI is on in the workspace (the chat explains
  * when it isn't); `memory`: so is the chat's memory (its Memory view is shown); `voice`: questions
- * can be dictated (see voiceNoteLimits). Only rendered when the server has an AI provider.
+ * can be dictated (see voiceNoteLimits); `options`: what the box offers (chatOptionsFor). Only
+ * rendered when the server has an AI provider.
  */
 export function AiChatProvider({
   workspaceId,
   available,
   memory,
   voice,
+  options,
   children,
 }: {
   workspaceId: string;
   available: boolean;
   memory: boolean;
   voice: VoiceNoteLimits | null;
+  options: ChatOptions;
   children: ReactNode;
 }) {
   const pathname = usePathname();
@@ -88,8 +93,8 @@ export function AiChatProvider({
   const backPath = useCallback(() => lastPage.current, []);
 
   const value = useMemo(
-    () => ({ workspaceId, available, voice, open, setOpen, openPanel, conversations, refreshConversations, backPath }),
-    [workspaceId, available, voice, open, openPanel, conversations, refreshConversations, backPath],
+    () => ({ workspaceId, available, voice, options, open, setOpen, openPanel, conversations, refreshConversations, backPath }),
+    [workspaceId, available, voice, options, open, openPanel, conversations, refreshConversations, backPath],
   );
   return (
     <Context.Provider value={value}>
@@ -130,7 +135,7 @@ function ChatPanel({
   const currentPageId = /\/p\/([\w-]+)/.exec(pathname)?.[1] ?? null;
   const offline = useIsOffline();
   const [scope, setScope] = useState<"workspace" | "page">("workspace");
-  const chat = useChat(workspaceId, { onAnswered: () => void refreshConversations() });
+  const chat = useChat(workspaceId, { options: context.options, onAnswered: () => void refreshConversations() });
   const { conversationId, messages, running } = chat;
   const blocked = offline ? t("offline") : !available ? t("disabled") : null;
   const pageScope = scope === "page" && currentPageId ? currentPageId : null;

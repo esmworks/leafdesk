@@ -1,7 +1,7 @@
 // Client-safe: shared by the AI chat's server side (src/server/ai-chat.ts, /api/ai/chat) and its
 // panel (src/components/ai-chat).
 
-import type { ChatChange, ChatConnectionRecord, ChatMemoryRecord, ChatStepRecord, ChatWriteAction, ChatWriteStepAction } from "@/db/schema/ai";
+import type { ChatAttachmentRecord, ChatChange, ChatConnectionRecord, ChatMemoryRecord, ChatStepRecord, ChatWebRecord, ChatWriteAction, ChatWriteStepAction } from "@/db/schema/ai";
 import type { PageKind } from "@/db/schema/app";
 import type { BlockChange } from "./page-diff";
 import type { AiErrorCode } from "./ai";
@@ -21,7 +21,17 @@ export type MemoryView = { id: string; text: string; app: string | null; created
 /** What the chat answers from: the whole workspace, or a page and the pages under it. */
 export type ChatScope = { pageId: string } | null;
 
-export type { ChatAttachmentView, ChatChange, ChatConnectionRecord, ChatMemoryRecord, ChatWriteAction, ChatWriteStepAction };
+export type { ChatAttachmentRecord, ChatAttachmentView, ChatChange, ChatConnectionRecord, ChatMemoryRecord, ChatWebRecord, ChatWriteAction, ChatWriteStepAction };
+
+// ----------------------------------------------------------------------------------- models
+
+/**
+ * What the chat box offers in a workspace: the models to pick from (the main one first; no picker
+ * with one), the model a new conversation starts with (the person's latest), whether the chat may
+ * search the web (owners turned it on, and the server has a search service), and whether research
+ * mode can search the web too.
+ */
+export type ChatOptions = { models: { id: string; images: boolean }[]; defaultModel: string | null; webSearch: boolean };
 
 /**
  * What the chat may change: `ask` asks the person before each change (the answer waits), `auto`
@@ -45,6 +55,10 @@ export type ChatSourceView = {
   kind: PageKind | null;
   /** The block the cited passage starts at, when known. */
   blockId: string | null;
+  /** A web page the answer read: its address (`title` its title; `pageId` null). */
+  url?: string;
+  /** The page is verified now (server/verification.ts). */
+  verified?: boolean;
 };
 
 /** A page the chat read, as the reader may see it now (null: they can no longer open it). */
@@ -64,7 +78,9 @@ export type ChatStepView =
   | ChatWriteView
   | ChatMemoryRecord
   | ChatConnectionRecord
-  | { kind: "thought"; text: string };
+  | { kind: "thought"; text: string }
+  | { kind: "plan"; questions: string[] }
+  | ChatWebRecord;
 
 /**
  * A change the chat made, the person declined or that failed: `target` is the database a row went
@@ -125,8 +141,12 @@ export type ChatMessageView = {
   content: string;
   /** Questions: the skill the answer followed. */
   skill?: { id: string; title: string };
-  /** Questions: the CSV files attached to them. */
+  /** Questions: the files attached to it (gone ones left out). */
   attachments?: ChatAttachmentView[];
+  /** A research question, or its report. */
+  research?: boolean;
+  /** Answers: the model that wrote it. */
+  model?: string;
   sources?: ChatSourceView[];
   note?: "stopped" | "cutOff";
   /** Answers: the steps taken and how long the answer took (not kept before steps were). */
@@ -215,6 +235,42 @@ export function citationLinks(text: string): string {
     .join("");
 }
 
+/**
+ * A research report as a page's Markdown (Save as page): each citation a link to its source, and
+ * the sources listed under `heading` at the end. A source the reader can't open any more keeps its
+ * number without a link or title. Code stays as written, as in citationLinks.
+ */
+export function reportMarkdown(text: string, sources: ChatSourceView[], heading: string): string {
+  const byNumber = new Map(sources.map((s) => [s.n, s]));
+  const cited = citedNumbers(text).filter((n) => byNumber.has(n));
+  const body = text
+    .split(/(```[\s\S]*?(?:```|$)|`[^`\n]*`)/g)
+    .map((part, i) =>
+      i % 2
+        ? part
+        : part.replace(/\[(\d{1,3}(?:\s*,\s*\d{1,3})*)\](?![(:])/g, (whole, list: string) =>
+            list
+              .split(",")
+              .map((n) => {
+                const source = byNumber.get(Number(n.trim()));
+                const href = source ? sourceHref(source) : null;
+                return href ? `[[${n.trim()}]](${href})` : `[${n.trim()}]`;
+              })
+              .join(""),
+          ),
+    )
+    .join("")
+    .trim();
+  if (!cited.length) return body;
+  const list = cited.map((n) => {
+    const source = byNumber.get(n)!;
+    const href = sourceHref(source);
+    const title = (source.title ?? "").replace(/[[\]]/g, "").trim() || href || "";
+    return href ? `${n}. [${title}](${href})` : `${n}. ${title || "—"}`;
+  });
+  return `${body}\n\n## ${heading}\n\n${list.join("\n")}`;
+}
+
 /** The full-page chat, showing a conversation when given. */
 export function chatPath(workspaceId: string, conversationId?: string | null): string {
   return `/w/${workspaceId}/ai${conversationId ? `?c=${encodeURIComponent(conversationId)}` : ""}`;
@@ -225,8 +281,9 @@ export function isChatPath(pathname: string, workspaceId: string): boolean {
   return pathname === `/w/${workspaceId}/ai`;
 }
 
-/** The link to a cited passage: the page, scrolled to the block it starts at. */
-export function sourceHref(source: Pick<ChatSourceView, "workspaceId" | "pageId" | "blockId">): string | null {
+/** The link to a cited passage: the page, scrolled to the block it starts at; a web page's address. */
+export function sourceHref(source: Pick<ChatSourceView, "workspaceId" | "pageId" | "blockId" | "url">): string | null {
+  if (source.url) return /^https?:\/\//i.test(source.url) ? source.url : null;
   if (!source.pageId || !source.workspaceId) return null;
   return `/w/${source.workspaceId}/p/${source.pageId}${source.blockId ? `#block-${source.blockId}` : ""}`;
 }

@@ -62,6 +62,7 @@ import {
   withoutParentOptions,
 } from "@/lib/dependent-options";
 import { cleanDescription, MAX_PROPERTY_DESCRIPTION } from "@/lib/property-description";
+import { searchFold } from "@/lib/search-fold";
 import { makesLoop, parentProperty, singleParent, storedParent, subItemsProperty } from "@/lib/sub-items";
 import {
   blockedByProperty,
@@ -78,6 +79,7 @@ import {
 import { calculationFormat, checkNumberFormat, takesNumberFormat, valueFormat } from "@/lib/number-format";
 import { checkNumberDisplay } from "@/lib/number-display";
 import { isPageVisibility, type PageVisibility } from "@/lib/page-visibility";
+import { canPin, isPinned, MAX_PINNED } from "@/lib/row-layout";
 import { checkDateOptions, type DateOptionsInput } from "@/lib/date-options";
 import { shiftDateValue } from "@/lib/date-value";
 import { dayValue } from "@/lib/timeline";
@@ -123,6 +125,7 @@ import { queueRowWrites } from "@/server/row-follow";
 import { workspacePeople, workspaceSettings, type WorkspacePerson } from "@/server/workspaces";
 import { agentMarks, isAgentUser } from "@/server/agents/users";
 import { recordAudit } from "@/server/audit";
+import { heldPageIds, refuseHeldPages } from "@/server/legal-hold";
 import {
   assignmentsTheySee,
   propertyAccessFor,
@@ -2023,6 +2026,34 @@ export async function updateProperty(
   return { date };
 }
 
+/**
+ * Pins a property to the strip under its rows' titles, or takes it out (lib/row-layout). How row
+ * pages look is the database's, for everyone: full access, as for who sees each property.
+ */
+export async function setPropertyPinned(userId: string, propertyId: string, pinned: boolean) {
+  const prop = await requireProperty(userId, propertyId);
+  await requireDatabase(userId, prop.databaseId, "full");
+  if (pinned === isPinned(prop)) return;
+  if (pinned && !canPin(await getProperties(prop.databaseId), prop.id)) {
+    throw Object.assign(withCode(new Error("Too many pinned properties"), "tooManyPinned"), { params: { max: String(MAX_PINNED) } });
+  }
+  const { pinned: _was, ...rest } = prop.options;
+  await db
+    .update(databaseProperty)
+    .set({ options: pinned ? { ...rest, pinned: true } : rest })
+    .where(eq(databaseProperty.id, propertyId));
+  notifySchema(prop.databaseId);
+}
+
+/** Shows a database's row properties beside the row's body on wide pages, or above it (lib/row-layout); full access. */
+export async function setPropertiesBeside(userId: string, databaseId: string, beside: boolean) {
+  const database = await requireDatabase(userId, databaseId, "full");
+  assertUnlocked(database);
+  // How its rows look isn't an edit of the database: its edit time stays.
+  await db.update(page).set({ propertiesBeside: beside, ...KEEP_EDIT_TIME }).where(eq(page.id, databaseId));
+  notifySchema(databaseId);
+}
+
 /** Adds a select option by name if missing and returns it (used when typing a new tag). */
 export async function ensureOption(userId: string, propertyId: string, name: string) {
   const prop = await requireProperty(userId, propertyId, { cellEdit: true });
@@ -2030,7 +2061,7 @@ export async function ensureOption(userId: string, propertyId: string, name: str
     throw withCode(new Error("Not a select property"), "notASelectProperty");
   }
   const options = prop.options.options ?? [];
-  const existing = options.find((o) => o.name.toLowerCase() === name.trim().toLowerCase());
+  const existing = options.find((o) => searchFold(o.name) === searchFold(name.trim()));
   if (existing) return existing;
   // A status option added by name (a new board column) starts out as to do.
   const option: SelectOption =
@@ -2226,6 +2257,9 @@ export async function restoreProperty(userId: string, propertyId: string) {
 export async function purgeProperty(userId: string, propertyId: string) {
   const { prop, database } = await requireDeletedProperty(userId, propertyId);
   const detach = await mayOnlyDetach(userId, await withPair(prop, db, true), true);
+  // Its values on rows a legal hold keeps (and the other side's, when that goes too) stay.
+  const sides = detach ? [prop] : await withPair(prop, db, true);
+  await refuseHeldPages(database.workspaceId, [...new Set(sides.map((p) => p.databaseId))], "propertyHeld");
   const pair = await db.transaction(async (tx) => {
     const pair = await withPair(prop, tx, true);
     // Alone, it leaves the other side as a one-way relation (see eraseProperties).
@@ -2239,7 +2273,8 @@ export async function purgeProperty(userId: string, propertyId: string) {
 
 /**
  * Deletes deleted properties for good, with the other sides of their relations (the daily cleanup,
- * server/retention). Recorded in the audit log as the server's own. Returns how many went.
+ * server/retention). Recorded in the audit log as the server's own. Returns how many went. Those
+ * with values a legal hold keeps (either side's database holds a held row) are left for later.
  */
 export async function purgeDeletedProperties(workspaceId: string, propertyIds: string[]) {
   if (!propertyIds.length) return 0;
@@ -2248,8 +2283,13 @@ export async function purgeDeletedProperties(workspaceId: string, propertyIds: s
       .select()
       .from(databaseProperty)
       .where(and(inArray(databaseProperty.id, propertyIds), isNotNull(databaseProperty.deletedAt)));
+    const pairs = await Promise.all(due.map((p) => withPair(p, tx, true)));
+    const held = await heldPageIds(workspaceId, [...new Set(pairs.flat().map((p) => p.databaseId))], tx);
     const all = new Map<string, DatabaseProperty>();
-    for (const p of due) for (const q of await withPair(p, tx, true)) all.set(q.id, q);
+    for (const pair of pairs) {
+      if (pair.some((q) => held.has(q.databaseId))) continue;
+      for (const q of pair) all.set(q.id, q);
+    }
     const props = [...all.values()];
     await eraseProperties(tx, props);
     await auditProperties(tx, workspaceId, null, "property.deleted", props);
@@ -2513,7 +2553,7 @@ async function retypeProperty(
           : {};
     // Whether it shows on row pages, and what it holds, don't depend on the type; the property it
     // depends on only while it is still a select or multi-select (whose options keep their lists).
-    const { pageVisibility, description, dependsOn } = prop.options;
+    const { pageVisibility, pinned, description, dependsOn } = prop.options;
     const kept = canDepend(input.type) && dependsOn ? { dependsOn } : {};
     const typed: PropertyOptions =
       typeOptions.options && !kept.dependsOn ? { ...typeOptions, options: withoutParentOptions(typeOptions.options) } : typeOptions;
@@ -2522,6 +2562,7 @@ async function retypeProperty(
       ...typed,
       ...kept,
       ...(pageVisibility ? { pageVisibility } : {}),
+      ...(pinned ? { pinned } : {}),
     };
     // New values by row id; null removes one. Unticked boxes and types Leafdesk works out store none.
     const next: Record<string, unknown> = {};
@@ -3374,6 +3415,8 @@ export async function getRow(userId: string, rowId: string) {
     databaseId: row.parentId,
     databaseTitle: database.title,
     databaseLocked: Boolean(database.lockedAt),
+    /** Row pages show the properties beside the body where there is room (lib/row-layout). */
+    propertiesBeside: database.propertiesBeside,
     row: {
       id: row.id,
       title: row.title,

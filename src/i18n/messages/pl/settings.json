@@ -12,6 +12,7 @@
     "groups": "Grupy",
     "agents": "Agenci",
     "connections": "Połączenia",
+    "webhooks": "Webhooki",
     "storage": "Magazyn",
     "analytics": "Analityka",
     "aiUsage": "Użycie AI",
@@ -21,6 +22,67 @@
     "site": "Witryna",
     "snippets": "Fragmenty",
     "pdf": "Szablony PDF"
+  },
+  "search": {
+    "label": "Szukaj w ustawieniach",
+    "placeholder": "Szukaj w ustawieniach",
+    "noResults": "Żadne ustawienie nie pasuje.",
+    "labels": {
+      "aiUsagePeople": "Użycie według osoby"
+    },
+    "keywords": {
+      "profile": "imię zdjęcie awatar obraz",
+      "email": "adres zmień zweryfikuj e-mail",
+      "deleteAccount": "usuń zamknij konto",
+      "password": "zmień zresetuj logowanie hasło",
+      "twoFactor": "2fa mfa aplikacja uwierzytelniająca kod",
+      "passkeys": "webauthn klucz bezpieczeństwa odcisk palca twarz",
+      "sessions": "urządzenia zalogowane wyloguj",
+      "language": "język tłumaczenie region",
+      "theme": "tryb ciemny tryb jasny kolory",
+      "contrast": "dostępność wysoki kontrast",
+      "notifications": "push e-mail alerty powiadomienie",
+      "watchedPages": "obserwuj subskrybuj śledź",
+      "offlineDevice": "offline pobierz pamięć podręczna miejsce",
+      "offlinePages": "offline pobierz bez internetu",
+      "mailboxes": "e-mail skrzynka odbiorcza imap smtp",
+      "calendars": "ical kanał subskrybuj kalendarz",
+      "storageAccounts": "drive s3 pliki chmura",
+      "connectedApps": "oauth klienci dostęp odwołaj",
+      "aiAccounts": "klucz api własny klucz dostawca",
+      "telegram": "bot czat wiadomości",
+      "mcp": "asystent model context protocol serwer",
+      "apiTokens": "rest api token klucz programista",
+      "about": "wersja licencja aktualizacja",
+      "workspaceName": "nazwa zmień nazwę ikona",
+      "ai": "sztuczna inteligencja czat model dostawca pamięć",
+      "workspaceMail": "e-mail wiersze poczta wyślij",
+      "export": "kopia zapasowa pobierz zip markdown",
+      "members": "osoby zaproś użytkownicy role usuń",
+      "agents": "ai asystent automatyzacja bot",
+      "snippets": "tekst skróty fragmenty",
+      "letterheads": "pdf nagłówek stopka logo drukuj",
+      "connections": "integracje mcp usługi narzędzia",
+      "webhooks": "webhook http post zdarzenia integracja powiadomienie wysyłanie",
+      "site": "strona www publikuj domena",
+      "requireTwoFactor": "2fa mfa wymuś zasada",
+      "loginMethod": "sso hasło logowanie zasada",
+      "allowedNetworks": "ip lista dozwolonych adres biuro vpn",
+      "membership": "zaproś dołącz prośby domeny",
+      "sso": "saml oidc dostawca tożsamości",
+      "scim": "aprowizacja katalog synchronizacja użytkownicy",
+      "exportPolicy": "pobierz drukuj pdf",
+      "connectedAppsPolicy": "mcp rest api tokeny dostęp",
+      "publishing": "publikuj web udostępnij link publiczny",
+      "retention": "kosz historia usuń zachowaj dni",
+      "legalHolds": "spór sądowy zachowaj ediscovery",
+      "storage": "pliki s3 drive bucket",
+      "analyticsPeople": "aktywność edycje statystyki",
+      "aiUsageLimit": "budżet koszt wydatki limit",
+      "aiUsagePeople": "na osobę członek koszt tokeny",
+      "health": "zepsute linki osierocone duplikaty puste strony",
+      "audit": "dziennik historia zdarzenia kto zmienił"
+    }
   },
   "workspace": {
     "heading": "Obszar roboczy",
@@ -957,6 +1019,8 @@
     "moveToTrash": "Przenieś do kosza",
     "confirmTrash": "Przenieść „{title}” do kosza?",
     "lastEdited": "Ostatnia edycja {when}",
+    "verificationEndedBy": "Zweryfikowana przez {name}, wygasła {when}",
+    "verificationEnded": "Weryfikacja wygasła {when}",
     "alike": "Podobieństwo: {similarity, number, percent}",
     "inProperty": "{property} w {database}",
     "removeFromRelation": "Usuń",
@@ -980,6 +1044,11 @@
       "title": "Nieruszane strony",
       "description": "Strony, których nikt nie edytował od {months, plural, one {# miesiąca} few {# miesięcy} many {# miesięcy} other {# miesiąca}}, od najdłużej nieruszanych. Mogą być nieaktualne.",
       "none": "Każda strona była niedawno edytowana."
+    },
+    "expiredVerifications": {
+      "title": "Wygasłe weryfikacje",
+      "description": "Strony, które ktoś zweryfikował do dnia, który już minął. Sprawdź je i zweryfikuj ponownie albo usuń weryfikację.",
+      "none": "Żadna weryfikacja nie wygasła."
     },
     "duplicates": {
       "title": "Możliwe duplikaty",
@@ -1387,6 +1456,50 @@
       "memberView": "{count, plural, =0 {Wyłączone: obszar roboczy otwiera się z każdej sieci.} one {Włączone: obszar roboczy otwiera się tylko z # zatwierdzonej sieci.} few {Włączone: obszar roboczy otwiera się tylko z # zatwierdzonych sieci.} many {Włączone: obszar roboczy otwiera się tylko z # zatwierdzonych sieci.} other {Włączone: obszar roboczy otwiera się tylko z # zatwierdzonych sieci.}}"
     }
   },
+  "legalHolds": {
+    "title": "Blokady prawne",
+    "description": "Dopóki blokada obowiązuje, niczego, co objęte nią osoby utworzyły lub edytowały w tym obszarze roboczym, nie można trwale usunąć. Ich strony i wiersze nadal mogą trafić do kosza, ale zostają tam z historią, komentarzami i plikami; nie można usunąć obszaru roboczego ani ich kont.",
+    "holds": "Blokady",
+    "holdsDescription": "Nałożenie i zdjęcie blokady jest zapisywane w dzienniku audytu.",
+    "empty": "Brak blokad.",
+    "new": "Nowa blokada",
+    "setBy": "Nałożona przez {name} {date, date, medium}",
+    "setOn": "Nałożona {date, date, medium}",
+    "people": "{count, plural, one {# osoba} few {# osoby} many {# osób} other {# osoby}}",
+    "left": "odszedł",
+    "guest": "gość",
+    "release": "Zdejmij",
+    "confirmRelease": "Zdejmij {name}",
+    "form": {
+      "title": "Nowa blokada prawna",
+      "description": "Wybierz osoby, które obejmuje: członków, gości lub osoby, które odeszły, ale coś tu utworzyły lub edytowały.",
+      "name": "Nazwa",
+      "namePlaceholder": "Sprawa lub postępowanie",
+      "reason": "Powód",
+      "reasonPlaceholder": "Opcjonalnie: dlaczego i kto o nią poprosił",
+      "people": "Osoby ({count})",
+      "search": "Szukaj osób",
+      "loading": "Wczytywanie…",
+      "nobody": "Nikt nie pasuje.",
+      "submit": "Nałóż blokadę"
+    },
+    "errors": {
+      "pageHeld": "Blokada prawna chroni tę stronę lub stronę pod nią: nie można jej trwale usunąć, dopóki blokada obowiązuje, i zostaje w koszu.",
+      "templateHeld": "Blokada prawna chroni ten szablon: nie można go usunąć, dopóki blokada obowiązuje.",
+      "propertyHeld": "Blokada prawna chroni wartości tej właściwości: nie można jej trwale usunąć, dopóki blokada obowiązuje.",
+      "commentHeld": "Blokada prawna chroni ten komentarz: nie można go usunąć, dopóki blokada obowiązuje.",
+      "letterheadHeld": "Blokada prawna chroni ten papier firmowy: nie można go usunąć, dopóki blokada obowiązuje.",
+      "workspaceHeld": "Ten obszar roboczy ma blokadę prawną. Zdejmij ją (Ustawienia > Bezpieczeństwo), zanim usuniesz obszar roboczy.",
+      "nameRequired": "Nadaj blokadzie nazwę.",
+      "nameTooLong": "Nazwa może mieć najwyżej 200 znaków.",
+      "reasonTooLong": "Powód może mieć najwyżej 2000 znaków.",
+      "noPeople": "Wybierz, kogo obejmuje blokada.",
+      "tooManyPeople": "Jedna blokada obejmuje najwyżej 200 osób.",
+      "unknownPerson": "Wybranej osoby nie ma już w tym obszarze roboczym.",
+      "notFound": "Ta blokada została już zdjęta.",
+      "ownersOnly": "Blokadami prawnymi zarządzają tylko właściciele."
+    }
+  },
   "audit": {
     "description": "Rejestr tego, kto co zmienił w tym obszarze roboczym: członkowie i role, zaproszenia, udostępnianie, przestrzenie zespołów i grupy, ustawienia, bezpieczeństwo, tworzenie, przenoszenie, wyrzucanie do kosza i usuwanie stron, publikowanie, połączone aplikacje i eksporty. Widzą go tylko właściciele.",
     "filters": "Filtruj dziennik inspekcji",
@@ -1501,6 +1614,7 @@
       "loginMethod": "Jak logują się członkowie",
       "ai": "Funkcje AI",
       "aiMemory": "Pamięć AI",
+      "aiWebSearch": "Wyszukiwanie w sieci w czacie AI",
       "aiMonthlyLimitUsd": "Miesięczny limit kosztów AI",
       "trashRetentionDays": "Usuwaj strony z kosza po",
       "export": "Zezwól na eksport",
@@ -1568,6 +1682,8 @@
         "permission_removed": "Usunięto z udostępniania {target}: {subject}",
         "row_access_changed": "Zmieniono, komu dają dostęp wiersze: {target}",
         "deleted": "Trwale usunięto {target}",
+        "verified": "Zweryfikowano {target}",
+        "unverified": "Usunięto weryfikację {target}",
         "published": "Opublikowano {target} w internecie",
         "unpublished": "Cofnięto publikację {target}",
         "publication_revoked": "Wycofano {target} z internetu (opublikowane przez: {subject})",
@@ -1622,6 +1738,10 @@
         "token_created": "Utworzono token SCIM {target}",
         "token_revoked": "Unieważniono token SCIM {target}"
       },
+      "legal_hold": {
+        "set": "Nałożył blokadę prawną {target} na {names}",
+        "released": "Zdjął blokadę prawną {target} z {names}"
+      },
       "site": {
         "saved": "Zapisano witrynę pod adresem {slug}",
         "removed": "Wyłączono witrynę pod adresem {slug}"
@@ -1639,6 +1759,11 @@
         "created": "Utworzono automatyzację „{name}” w {target}",
         "updated": "{change, select, on {Włączono automatyzację „{name}” w {target}} off {Wyłączono automatyzację „{name}” w {target}} other {Zmieniono automatyzację „{name}” w {target}}}",
         "deleted": "Usunięto automatyzację „{name}” w {target}"
+      },
+      "webhook": {
+        "created": "Dodano webhook „{target}”",
+        "updated": "{change, select, on {Włączono webhook „{target}”} off {Wyłączono webhook „{target}”} other {Zmieniono webhook „{target}”}}",
+        "deleted": "Usunięto webhook „{target}”"
       },
       "export": {
         "workspace": "Wyeksportowano obszar roboczy ({count, plural, one {# strona} few {# strony} many {# stron} other {# strony}})",
@@ -1771,7 +1896,10 @@
     "followUpChannel": "Follow-upy: {channel}",
     "reactionTitle": "Reakcje",
     "reactionDescription": "Ktoś reaguje na Twój komentarz. Reakcje na ten sam komentarz są zbierane razem, dopóki ich nie otworzysz.",
-    "reactionChannel": "Reakcje: {channel}"
+    "reactionChannel": "Reakcje: {channel}",
+    "verificationTitle": "Zweryfikowane przez ciebie strony",
+    "verificationDescription": "Kończy się weryfikacja strony zweryfikowanej przez ciebie: kilka dni wcześniej i w chwili, gdy wygasa.",
+    "verificationChannel": "Zweryfikowane przez ciebie strony: {channel}"
   },
   "site": {
     "description": "Nadaj opublikowanym stronom tego obszaru roboczego jeden czytelny adres, stronę główną i nawigację między nimi.",
@@ -2009,6 +2137,102 @@
       "redo": "Odeślij z uwagą…",
       "notWhole": "To wywołanie jest dłuższe niż to, co widać tutaj, lub zawiera zamaskowane tutaj wartości. Przed zatwierdzeniem otwórz jego uruchomienie, aby zobaczyć wszystko, co zostałoby wysłane.",
       "openRun": "Otwórz uruchomienie, aby zatwierdzić"
+    }
+  },
+  "webhooks": {
+    "description": "Wysyłaj do innej usługi na bieżąco to, co dzieje się ze stronami tego obszaru roboczego: podpisane żądania POST na adres https, dla całego obszaru roboczego, jednej przestrzeni zespołu albo strony i jej podstron. Każde żądanie wychodzi w imieniu osoby, która ostatnio zapisała webhook, z tym, co może ona otworzyć; wiersze baz danych i szablony nie są wysyłane.",
+    "exportOff": "Eksport jest wyłączony w sekcji Ustawienia › Bezpieczeństwo, więc webhooki nic nie wysyłają, dopóki nie zostanie znów włączony.",
+    "count": "{count, plural, =0 {Brak webhooków.} one {# webhook} few {# webhooki} many {# webhooków} other {# webhooka}}",
+    "add": "Dodaj webhook",
+    "empty": "Dodaj webhook, aby wysyłać zdarzenia stron do własnej usługi.",
+    "allEvents": "Wszystkie zdarzenia",
+    "scopeLabel": {
+      "workspace": "Wszystkie strony obszaru roboczego",
+      "teamspace": "Strony przestrzeni zespołu {name}",
+      "page": "{title} i jej podstrony"
+    },
+    "events": {
+      "pageCreated": "Strona utworzona",
+      "pageUpdated": "Strona edytowana",
+      "pageMoved": "Strona przeniesiona",
+      "pageTrashed": "Strona przeniesiona do kosza",
+      "pageRestored": "Strona przywrócona z kosza",
+      "pageDeleted": "Strona trwale usunięta",
+      "commentCreated": "Komentarz dodany",
+      "ping": "Test"
+    },
+    "sendsAs": "Wysyła w imieniu: {name}, z tym, co ta osoba może otworzyć.",
+    "paused": "Wstrzymany: {name} nie jest już właścicielem. Zapisz go, aby wysyłał w twoim imieniu.",
+    "pausedBadge": "Wstrzymany",
+    "offBadge": "Wyłączony",
+    "toggle": "Wysyłanie: {name}",
+    "test": "Wyślij test",
+    "testDelivered": "Test dotarł pod adres (odpowiedź: {status}).",
+    "testFailed": "Test się nie powiódł: {reason}.",
+    "edit": "Edytuj",
+    "delete": "Usuń",
+    "deleteNote": "Przestaje działać od razu, a jego dziennik wysyłek znika razem z nim.",
+    "working": "Trwa…",
+    "secret": {
+      "show": "Sekret podpisu",
+      "rotate": "Nowy sekret",
+      "rotateNote": "Obecny sekret od razu przestaje podpisywać żądania: zaktualizuj usługę, która go sprawdza.",
+      "title": "Sekret podpisu webhooka „{name}”",
+      "label": "Sekret podpisu",
+      "note": "Sprawdzaj nim nagłówek X-Leafdesk-Signature każdego żądania: t=TIME,v1=HMAC, gdzie HMAC to szesnastkowy HMAC-SHA256 z TIME, kropki i treści. Zachowaj go w tajemnicy."
+    },
+    "log": {
+      "title": "{count, plural, =0 {Ostatnie wysyłki} one {Ostatnie wysyłki (#)} few {Ostatnie wysyłki (#)} many {Ostatnie wysyłki (#)} other {Ostatnie wysyłki (#)}}",
+      "empty": "Nic nie wysłano w ciągu ostatnich 30 dni.",
+      "attempts": "{count, plural, one {# próba} few {# próby} many {# prób} other {# próby}}",
+      "next": "następna próba o {when}"
+    },
+    "status": {
+      "pending": "Oczekuje",
+      "delivered": "Dostarczono",
+      "failed": "Nieudane",
+      "skipped": "Nie wysłano"
+    },
+    "codes": {
+      "noAccess": "osoba, w której imieniu wysyła, nie może otworzyć strony",
+      "notOwner": "osoba, w której imieniu wysyła, nie jest już właścicielem",
+      "exportOff": "eksport jest wyłączony",
+      "disabled": "webhook jest wyłączony",
+      "invalidUrl": "adres jest nieprawidłowy",
+      "blocked": "adres należy do sieci prywatnej",
+      "unreachable": "nie udało się połączyć z adresem",
+      "timeout": "brak odpowiedzi w ciągu 10 sekund",
+      "redirect": "adres odpowiedział przekierowaniem",
+      "http": "adres odpowiedział kodem {status}"
+    },
+    "form": {
+      "title": "Dodaj webhook",
+      "editTitle": "Zmień webhook",
+      "name": "Nazwa",
+      "url": "Adres",
+      "urlHint": "Adres https. Żądania są podpisywane; przekierowania nie są wykonywane.",
+      "events": "Zdarzenia",
+      "scope": "Strony",
+      "scopes": {
+        "workspace": "Cały obszar roboczy",
+        "teamspace": "Jedna przestrzeń zespołu",
+        "page": "Strona i jej podstrony"
+      },
+      "teamspace": "Wybierz przestrzeń zespołu",
+      "pickPage": "Znajdź stronę",
+      "noPages": "Brak stron do wyboru.",
+      "otherPage": "Zmień",
+      "save": "Zapisz",
+      "create": "Dodaj webhook"
+    },
+    "errors": {
+      "invalidName": "Nadaj webhookowi nazwę o długości do 100 znaków.",
+      "invalidUrl": "Wpisz prawidłowy adres https bez nazwy użytkownika i hasła.",
+      "httpsOnly": "Webhooki wysyłają tylko na adresy https.",
+      "noEvents": "Wybierz co najmniej jedno zdarzenie.",
+      "invalidScope": "Wybierz przestrzeń zespołu lub stronę tego obszaru roboczego.",
+      "tooMany": "Obszar roboczy może mieć najwyżej 25 webhooków.",
+      "ownersOnly": "Webhookami zarządzają tylko właściciele obszaru roboczego."
     }
   },
   "email": {

@@ -1,4 +1,5 @@
 import { BrowserWindow, Menu, shell, type MenuItemConstructorOptions } from "electron";
+import { shortcutLabel } from "./global-shortcut.ts";
 import type { Strings } from "./strings.ts";
 
 export const WEBSITE = "https://esmworks.github.io/leafdesk/";
@@ -9,6 +10,8 @@ type Actions = {
   goHome: (window: BrowserWindow) => void;
   /** Leafdesk on this computer's backups, while it runs. */
   backups?: { now: () => void; show: () => void; chooseFolder: () => void };
+  /** The global shortcut to AI chat: the choices, the one picked (null: off), and whether another app has it. */
+  shortcut: { choices: string[]; current: string | null; inUse: boolean; pick: (accelerator: string | null) => void };
 };
 
 /** The application menu, in the app's language; macOS gets its own app menu first. */
@@ -27,6 +30,20 @@ export function buildMenu(t: Strings, actions: Actions) {
         { type: "separator" },
       ]
     : [];
+  const { shortcut } = actions;
+  // The shortcuts are labels, not the items' accelerators: those would take the keys inside the app too.
+  const shortcutItems: MenuItemConstructorOptions[] = [
+    ...shortcut.choices.map(
+      (accelerator): MenuItemConstructorOptions => ({
+        label: shortcutLabel(accelerator, process.platform),
+        type: "radio",
+        checked: accelerator === shortcut.current,
+        click: () => shortcut.pick(accelerator),
+      }),
+    ),
+    { label: t.shortcutOff, type: "radio", checked: shortcut.current === null, click: () => shortcut.pick(null) },
+    ...(shortcut.inUse ? [{ type: "separator" as const }, { label: t.shortcutInUse, enabled: false }] : []),
+  ];
 
   const template: MenuItemConstructorOptions[] = [
     ...(mac
@@ -97,6 +114,8 @@ export function buildMenu(t: Strings, actions: Actions) {
         },
         { type: "separator" },
         { label: t.goHome, accelerator: "CmdOrCtrl+Shift+H", click: focused(actions.goHome) },
+        { type: "separator" },
+        { label: t.menuAiShortcut, submenu: shortcutItems },
       ],
     },
     {
