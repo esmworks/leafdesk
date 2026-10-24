@@ -964,5 +964,80 @@
       "copyLink": "Copia link"
     },
     "awaitingOwner": "In attesa che un proprietario dello spazio di lavoro approvi una chiamata…"
+  },
+  "button": {
+    "untitled": "Pulsante",
+    "placeholder": "Etichetta del pulsante",
+    "done": "Fatto",
+    "confirm": "Eseguire «{label}»?",
+    "blockLabel": "Pulsante «{label}»",
+    "slash": {
+      "title": "Pulsante",
+      "subtext": "Fa alcune cose in ordine quando lo si clicca",
+      "aliases": "button action click run pulsante azione esegui"
+    },
+    "settings": {
+      "open": "Impostazioni del pulsante",
+      "icon": "Emoji",
+      "label": "Etichetta",
+      "confirm": "Chiedi prima di eseguire",
+      "confirmHelp": "Chi clicca conferma prima.",
+      "steps": "Al clic",
+      "stepsHelp": "I passaggi vengono eseguiti in ordine, come chi clicca e con il suo accesso. Un passaggio che non può fare ferma il pulsante lì.",
+      "addStep": "Aggiungi un passaggio",
+      "moveUp": "Sposta su",
+      "moveDown": "Sposta giù",
+      "insertAt": "Dove",
+      "at": {
+        "below": "Sotto il pulsante",
+        "top": "In cima alla pagina",
+        "bottom": "Alla fine della pagina"
+      },
+      "markdown": "Blocchi in Markdown",
+      "people": "Persone",
+      "message": "Messaggio",
+      "notifyHelp": "Ricevono la notifica solo le persone che possono aprire questa pagina.",
+      "url": "Indirizzo",
+      "secret": "Segreto di firma",
+      "copySecret": "Copia il segreto",
+      "webhookHelp": "Invia questa pagina come JSON, firmata con il segreto, se lo spazio di lavoro lascia uscire i contenuti.",
+      "target": "Indirizzo web o pagina",
+      "pickPage": "Scegli una pagina",
+      "toPage": "Apre «{title}»",
+      "rowTitle": "Titolo",
+      "values": "Valori",
+      "updateHelp": "Modifica al massimo {max} righe che corrispondono ai filtri e che chi clicca può vedere."
+    },
+    "variables": {
+      "group": "Pulsante",
+      "today": "Oggi",
+      "now": "Adesso",
+      "me": "Chi ha cliccato"
+    },
+    "steps": {
+      "insert": "Inserisci blocchi",
+      "add_row": "Aggiungi una riga",
+      "update_rows": "Modifica righe",
+      "notify": "Notifica persone",
+      "webhook": "Invia un webhook",
+      "open": "Apri un link o una pagina"
+    },
+    "failed": {
+      "notFound": "Questo pulsante non è più nella pagina.",
+      "noSteps": "Questo pulsante non fa ancora nulla.",
+      "inTrash": "I pulsanti delle pagine nel cestino non vengono eseguiti.",
+      "rateLimited": "Questo pulsante è stato cliccato troppe volte. Attendi un momento e riprova.",
+      "noAccess": "Non hai accesso per farlo.",
+      "locked": "La pagina è bloccata.",
+      "notConfigured": "Questo passaggio non è configurato.",
+      "databaseGone": "Il database non esiste più o è nel cestino.",
+      "invalidValue": "Un valore non è adatto alla sua proprietà.",
+      "exportOff": "Questo spazio di lavoro non lascia uscire i contenuti.",
+      "webhookFailed": "L’indirizzo non ha accettato il webhook.",
+      "invalidTarget": "Il link da aprire non è valido.",
+      "buttonGone": "Il pulsante è stato rimosso dalla pagina.",
+      "error": "Qualcosa è andato storto.",
+      "step": "Il passaggio {step} ({type}) non è stato eseguito: {reason}"
+    }
   }
 }

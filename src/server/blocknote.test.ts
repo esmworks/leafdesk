@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import * as Y from "yjs";
 import { agentChatLine } from "@/lib/agent-chat";
+import { buttonLine, serializeButtonConfig } from "@/lib/buttons";
 import { blocksToPlainText } from "@/lib/blocks";
 import { COLLAB_FRAGMENT } from "@/lib/collab-constants";
 import { dashboardLine, newWidget, serializeDashboard } from "@/lib/dashboard";
@@ -448,5 +449,51 @@ describe("agent chats in page bodies", () => {
     const segments = await bodySegmentsFromYdoc(Y.encodeStateAsUpdate(doc));
     expect(segments.map((s) => s.kind)).toEqual(["html", "agentChat"]);
     expect(JSON.stringify(segments)).not.toContain("a1");
+  });
+});
+
+describe("buttons in page bodies", () => {
+  const config = serializeButtonConfig({ confirm: true, steps: [{ type: "insert", at: "below", markdown: "- [ ] {{today}}" }] });
+  const existing = () =>
+    read(
+      docFrom([
+        { type: "paragraph", content: "Before" },
+        { id: "btn1", type: "button", props: { label: "Start the week", icon: "🚀", config } },
+      ]),
+    );
+
+  it("write their id and label to Markdown, and keep what they do on a rewrite", async () => {
+    const blocks = existing();
+    const markdown = (await blocksToMarkdown(blocks)).trim();
+    expect(markdown).toBe(`Before\n\n${buttonLine("btn1", "Start the week")}`);
+    // What it does stays in the page.
+    expect(markdown).not.toContain("today");
+    expect(blocksToPlainText(blocks)).toContain("🚀 Start the week");
+
+    const renamed = await markdownToBlocks(`${buttonLine("btn1", "Begin")}\n\nAfter`, blocks);
+    expect(renamed.map((b) => [b.type, b.id ?? null])).toEqual([
+      ["button", "btn1"],
+      ["paragraph", expect.anything()],
+    ]);
+    expect(renamed[0].props).toEqual({ label: "Begin", icon: "🚀", config });
+  });
+
+  it("can't be made from Markdown", async () => {
+    expect(await markdownToBlocks(buttonLine("elsewhere", "Mine"), existing())).toEqual([]);
+    expect(await markdownToBlocks(buttonLine("btn1", "Copy"), existing(), { keepMissingInline: false })).toEqual([]);
+    // Named twice, it stays once.
+    const twice = await markdownToBlocks(`${buttonLine("btn1", "A")}\n\n${buttonLine("btn1", "B")}`, existing());
+    expect(twice.filter((b) => b.type === "button")).toHaveLength(1);
+  });
+
+  it("show their label, disabled and without their steps, on a published page", async () => {
+    const doc = docFrom([
+      { type: "paragraph", content: "Visible" },
+      { id: "btn1", type: "button", props: { label: "Start the week", icon: "", config } },
+    ]);
+    const html = JSON.stringify(await bodySegmentsFromYdoc(Y.encodeStateAsUpdate(doc)));
+    expect(html).toContain("Start the week");
+    expect(html).toContain("disabled");
+    expect(html).not.toContain("today");
   });
 });

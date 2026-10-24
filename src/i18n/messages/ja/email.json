@@ -225,6 +225,7 @@
     "accessRequest": "{actor}がこのページへのアクセスをリクエストしました",
     "automation": "オートメーション「{name}」：{actor}がこの行を追加または変更しました",
     "automationDatePassed": "オートメーション「{name}」：この行の日付になりました",
+    "button": "{actor} さんがボタンでこのページを送信しました",
     "rowUpdate": "{actor}さんが変更: {fields}",
     "rowUpdateSome": "{actor}さんがこの行を変更しました",
     "rowUpdateTitle": "タイトル",

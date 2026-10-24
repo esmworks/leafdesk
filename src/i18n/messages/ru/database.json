@@ -547,6 +547,7 @@
     "formAnswer": "Ответ формы",
     "agent": "агент",
     "automation": "автоматизация",
+    "button": "кнопка",
     "ai": "ИИ",
     "aiFor": "(для {name})",
     "created": "<actor>{name}</actor> создал(а) эту строку",

@@ -133,6 +133,7 @@
     "accessRequest": "{actor} bu sayfaya erişim istedi",
     "automation": "“{name}” otomasyonu: {actor} bu satırı ekledi ya da değiştirdi",
     "automationDatePassed": "“{name}” otomasyonu: bu satırın tarihi geldi",
+    "button": "{actor} bu sayfayı size bir düğmeyle gönderdi",
     "rowUpdate": "{actor} bu satırı değiştirdi",
     "pageUpdated": "{actor} bu sayfayı düzenledi",
     "rowEmail": "{from} e-posta gönderdi",

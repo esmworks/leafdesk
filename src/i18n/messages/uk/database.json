@@ -547,6 +547,7 @@
     "formAnswer": "Відповідь із форми",
     "agent": "агент",
     "automation": "автоматизація",
+    "button": "кнопка",
     "ai": "ШІ",
     "aiFor": "(для {name})",
     "created": "<actor>{name}</actor>: створено цей рядок",

@@ -547,6 +547,7 @@
     "formAnswer": "一份表单答复",
     "agent": "智能体",
     "automation": "自动化",
+    "button": "按钮",
     "ai": "AI",
     "aiFor": "（代表 {name}）",
     "created": "<actor>{name}</actor> 创建了这一行",

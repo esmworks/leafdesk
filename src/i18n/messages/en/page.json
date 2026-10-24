@@ -964,5 +964,80 @@
       "copyLink": "Copy link"
     },
     "awaitingOwner": "Waiting for a workspace owner to approve a call…"
+  },
+  "button": {
+    "untitled": "Button",
+    "placeholder": "Button label",
+    "done": "Done",
+    "confirm": "Run “{label}”?",
+    "blockLabel": "Button “{label}”",
+    "slash": {
+      "title": "Button",
+      "subtext": "Does a few things in order when clicked",
+      "aliases": "button action click run"
+    },
+    "settings": {
+      "open": "Button settings",
+      "icon": "Emoji",
+      "label": "Label",
+      "confirm": "Ask before running",
+      "confirmHelp": "Whoever clicks confirms first.",
+      "steps": "When clicked",
+      "stepsHelp": "Steps run in order, as whoever clicks and with their access. A step they can’t do stops the button there.",
+      "addStep": "Add a step",
+      "moveUp": "Move up",
+      "moveDown": "Move down",
+      "insertAt": "Where",
+      "at": {
+        "below": "Below the button",
+        "top": "At the top of the page",
+        "bottom": "At the end of the page"
+      },
+      "markdown": "Blocks in Markdown",
+      "people": "People",
+      "message": "Message",
+      "notifyHelp": "Only people who can open this page are notified.",
+      "url": "Address",
+      "secret": "Signing secret",
+      "copySecret": "Copy the secret",
+      "webhookHelp": "Sends this page as JSON, signed with the secret, if the workspace lets content leave it.",
+      "target": "Web address or page",
+      "pickPage": "Choose a page",
+      "toPage": "Opens “{title}”",
+      "rowTitle": "Title",
+      "values": "Values",
+      "updateHelp": "Changes at most {max} rows that match the filters and that whoever clicks can see."
+    },
+    "variables": {
+      "group": "Button",
+      "today": "Today",
+      "now": "Now",
+      "me": "Who clicked"
+    },
+    "steps": {
+      "insert": "Insert blocks",
+      "add_row": "Add a row",
+      "update_rows": "Change rows",
+      "notify": "Notify people",
+      "webhook": "Send a webhook",
+      "open": "Open a link or page"
+    },
+    "failed": {
+      "notFound": "This button is no longer on the page.",
+      "noSteps": "This button doesn’t do anything yet.",
+      "inTrash": "Buttons on pages in the trash don’t run.",
+      "rateLimited": "This button was clicked too often. Wait a moment and try again.",
+      "noAccess": "You don’t have access to do this.",
+      "locked": "The page is locked.",
+      "notConfigured": "This step isn’t set up.",
+      "databaseGone": "The database is gone or in the trash.",
+      "invalidValue": "A value doesn’t fit its property.",
+      "exportOff": "This workspace doesn’t let content leave it.",
+      "webhookFailed": "The address didn’t accept the webhook.",
+      "invalidTarget": "The link to open isn’t valid.",
+      "buttonGone": "The button was removed from the page.",
+      "error": "Something went wrong.",
+      "step": "Step {step} ({type}) didn’t run: {reason}"
+    }
   }
 }

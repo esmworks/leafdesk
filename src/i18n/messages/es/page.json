@@ -964,5 +964,80 @@
       "copyLink": "Copiar enlace"
     },
     "awaitingOwner": "Esperando a que un propietario del espacio de trabajo apruebe una llamada…"
+  },
+  "button": {
+    "untitled": "Botón",
+    "placeholder": "Texto del botón",
+    "done": "Hecho",
+    "confirm": "¿Ejecutar «{label}»?",
+    "blockLabel": "Botón «{label}»",
+    "slash": {
+      "title": "Botón",
+      "subtext": "Hace varias cosas en orden al hacer clic",
+      "aliases": "button action click run botón acción ejecutar"
+    },
+    "settings": {
+      "open": "Ajustes del botón",
+      "icon": "Emoji",
+      "label": "Texto",
+      "confirm": "Preguntar antes de ejecutar",
+      "confirmHelp": "Quien hace clic confirma primero.",
+      "steps": "Al hacer clic",
+      "stepsHelp": "Los pasos se ejecutan en orden, como quien hace clic y con su acceso. Un paso que no pueda hacer detiene el botón ahí.",
+      "addStep": "Añadir un paso",
+      "moveUp": "Subir",
+      "moveDown": "Bajar",
+      "insertAt": "Dónde",
+      "at": {
+        "below": "Debajo del botón",
+        "top": "Al principio de la página",
+        "bottom": "Al final de la página"
+      },
+      "markdown": "Bloques en Markdown",
+      "people": "Personas",
+      "message": "Mensaje",
+      "notifyHelp": "Solo se avisa a quienes pueden abrir esta página.",
+      "url": "Dirección",
+      "secret": "Secreto de firma",
+      "copySecret": "Copiar el secreto",
+      "webhookHelp": "Envía esta página como JSON, firmada con el secreto, si el espacio de trabajo deja salir su contenido.",
+      "target": "Dirección web o página",
+      "pickPage": "Elegir una página",
+      "toPage": "Abre «{title}»",
+      "rowTitle": "Título",
+      "values": "Valores",
+      "updateHelp": "Cambia como máximo {max} filas que coincidan con los filtros y que quien hace clic pueda ver."
+    },
+    "variables": {
+      "group": "Botón",
+      "today": "Hoy",
+      "now": "Ahora",
+      "me": "Quien hizo clic"
+    },
+    "steps": {
+      "insert": "Insertar bloques",
+      "add_row": "Añadir una fila",
+      "update_rows": "Cambiar filas",
+      "notify": "Avisar a personas",
+      "webhook": "Enviar un webhook",
+      "open": "Abrir un enlace o una página"
+    },
+    "failed": {
+      "notFound": "Este botón ya no está en la página.",
+      "noSteps": "Este botón todavía no hace nada.",
+      "inTrash": "Los botones de las páginas en la papelera no se ejecutan.",
+      "rateLimited": "Se hizo clic en este botón demasiadas veces. Espera un momento y vuelve a intentarlo.",
+      "noAccess": "No tienes acceso para hacer esto.",
+      "locked": "La página está bloqueada.",
+      "notConfigured": "Este paso no está configurado.",
+      "databaseGone": "La base de datos ya no existe o está en la papelera.",
+      "invalidValue": "Un valor no encaja con su propiedad.",
+      "exportOff": "Este espacio de trabajo no deja salir su contenido.",
+      "webhookFailed": "La dirección no aceptó el webhook.",
+      "invalidTarget": "El enlace que se debe abrir no es válido.",
+      "buttonGone": "El botón se quitó de la página.",
+      "error": "Algo salió mal.",
+      "step": "El paso {step} ({type}) no se ejecutó: {reason}"
+    }
   }
 }

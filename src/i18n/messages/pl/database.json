@@ -547,6 +547,7 @@
     "formAnswer": "Odpowiedź z formularza",
     "agent": "agent",
     "automation": "automatyzacja",
+    "button": "przycisk",
     "ai": "AI",
     "aiFor": "(dla {name})",
     "created": "<actor>{name}</actor>: utworzono ten wiersz",

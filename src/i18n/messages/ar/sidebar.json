@@ -133,6 +133,7 @@
     "accessRequest": "طلب {actor} الوصول إلى هذه الصفحة",
     "automation": "الأتمتة «{name}»: أضاف {actor} هذا الصف أو غيّره",
     "automationDatePassed": "الأتمتة «{name}»: حان موعد تاريخ هذا الصف",
+    "button": "أرسل إليك {actor} هذه الصفحة عبر زر",
     "rowUpdate": "غيّر {actor} هذا الصف",
     "pageUpdated": "عدّل {actor} هذه الصفحة",
     "rowEmail": "رسالة بريد من {from}",

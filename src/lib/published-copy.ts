@@ -1,4 +1,5 @@
 import { AGENT_CHAT_BLOCK } from "./agent-chat";
+import { BUTTON_BLOCK } from "./buttons";
 import { DASHBOARD_BLOCK, parseDashboard, serializeDashboard } from "./dashboard";
 import { isEmbedBlockType } from "./embed-blocks";
 import { MEETING_BLOCK, parseAttendees, serializeAttendees } from "./meetings";
@@ -120,6 +121,8 @@ export function copyPublishedBlocks<B extends Block>(blocks: B[], refs: CopyRefs
     }
     // A chat with an agent of the source workspace: the copy's workspace has no such agent.
     if (block.type === AGENT_CHAT_BLOCK) return children as B[];
+    // A button's steps name the source workspace's databases and people: the copy keeps its label.
+    if (block.type === BUTTON_BLOCK) return [{ ...block, props: { ...props, config: "" }, children }];
     // A meeting keeps what was said and written up; its people are names only in the new workspace,
     // and a recording under way there isn't one here.
     if (block.type === MEETING_BLOCK) {

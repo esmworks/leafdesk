@@ -225,6 +225,7 @@
     "accessRequest": "{actor} asked for access to this page",
     "automation": "Automation “{name}”: {actor} added or changed this row",
     "automationDatePassed": "Automation “{name}”: this row’s date has come",
+    "button": "{actor} sent you this page with a button",
     "rowUpdate": "{actor} changed {fields}",
     "rowUpdateSome": "{actor} changed this row",
     "rowUpdateTitle": "the title",

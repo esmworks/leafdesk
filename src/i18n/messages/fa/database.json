@@ -547,6 +547,7 @@
     "formAnswer": "پاسخ یک فرم",
     "agent": "عامل",
     "automation": "خودکارسازی",
+    "button": "دکمه",
     "ai": "هوش مصنوعی",
     "aiFor": "(برای {name})",
     "created": "<actor>{name}</actor> این ردیف را ایجاد کرد",

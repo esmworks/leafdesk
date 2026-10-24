@@ -225,6 +225,7 @@
     "accessRequest": "{actor} درخواست دسترسی به این صفحه را داد",
     "automation": "خودکارسازی «{name}»: {actor} این ردیف را اضافه یا تغییر داد",
     "automationDatePassed": "خودکارسازی «{name}»: تاریخ این ردیف فرا رسیده است",
+    "button": "{actor} این صفحه را با یک دکمه برایتان فرستاد",
     "rowUpdate": "{actor} تغییر داد: {fields}",
     "rowUpdateSome": "{actor} این ردیف را تغییر داد",
     "rowUpdateTitle": "عنوان",

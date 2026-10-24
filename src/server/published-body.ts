@@ -14,6 +14,7 @@ import { BOOKMARK_BLOCK, embedFor, isWebBlockType, parseWebUrl, type EmbedTarget
 import { bodyReferences, isBlockId, isPageBlockType, MENTION, mentionPlainText, mentionProps, PAGE_LINK_BLOCK } from "@/lib/mentions";
 import { withoutSyncedBlocks } from "@/lib/synced-blocks";
 import { IMAGE_BLOCK, parseImageLink } from "@/lib/image-links";
+import { BUTTON_BLOCK } from "@/lib/buttons";
 import { serverEditor as editor, type PageBlock } from "@/server/blocknote";
 
 /**
@@ -85,6 +86,8 @@ function sanitizeValue(value: Json): Json {
       if ("url" in props && !isSafeMediaUrl(props.url)) props.url = "";
       // An image's link: a web address, or a page of the app (resolveMentions decides what it becomes).
       if ("link" in props && !parseImageLink(props.link)) props.link = "";
+      // What a button does is the editors' business: a published page shows its label, disabled.
+      if (node.type === BUTTON_BLOCK) props.config = "";
       next[key] = props;
     } else {
       next[key] = sanitizeValue(child);

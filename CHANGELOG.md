@@ -37,6 +37,26 @@
   those threads until you take the mark off. MCP's `list_comments` and the REST API's comments
   say `marked: true` for threads the asking user marked. The marks and when each person saw each
   thread are kept per person (migration 0117) and go with the thread.
+- **Comments on a row's property values.** Each property on a row page and in the row panel has a
+  comment button that starts a thread on that value, with the number of open threads beside it.
+  The comments panel lists these threads under their property's name; they resolve, mark, mute
+  and notify like others, and MCP's `list_comments` names the property. Only people who see the
+  value read, write and hear about them, and people a restricted row leaves out read none; a
+  deleted property's threads go away until it is restored. They are kept apart from the row's
+  document, in a table of their own (migration 0121).
+- **Buttons on pages.** The `/button` block does a few things in order when someone clicks it:
+  inserts blocks written in Markdown (below the button, or at the top or end of the page), adds a
+  row to a database, changes the rows of a database that filters match, notifies people, sends
+  the page to a signed webhook and opens a web address or a page. Texts take `{{today}}`, `{{now}}`
+  and `{{me}}`, and a button can ask before it runs. It runs as whoever clicks, each step with
+  their access, and stops at the first step they can't do, saying which and why. Its row changes
+  are the clicker's own: they start the database's automations, and the row's activity marks them
+  as made through a button (migration 0121). Published pages and the print view show buttons
+  disabled; Markdown over MCP and the API keeps a button as a line with its id and label.
+- **Images can link somewhere.** *Link…* in an image's block menu sets a web address or a page of
+  the workspace. In the editor a small button on the image follows it; read-only pages, published
+  pages and the print view make the image itself the link. Markdown writes and reads a linked
+  image as `[![alt](image)](link)`.
 - **Views color rows by rules.** *Color rules* in a view's layout menu (tables, boards, galleries,
   lists, calendars and timelines) colors the rows that match conditions: each rule has a color
   from the option palette, colors the whole row or card or one property's value, and tests rows

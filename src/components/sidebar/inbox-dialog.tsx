@@ -245,6 +245,9 @@ export function InboxDialog({
                     : item.kind === "automation"
                       ? item.reminderDate
                         ? t("automationDatePassed", { name: item.automationName ?? "" })
+                        : item.automationName === null
+                          ? // No automation: someone clicked a button on the page (server/buttons.ts).
+                            t("button", { actor: item.actorName || t("someone") })
                         : item.actorName
                           ? t("automation", { name: item.automationName ?? "", actor: item.actorName })
                           : // A schedule, a request or a test run: nobody's change started it.

@@ -1,0 +1,52 @@
+"use server";
+
+import { getTranslations } from "next-intl/server";
+import type { ActionResult } from "@/app/actions/workspaces";
+import { BUTTON_STEP_TYPES } from "@/lib/buttons";
+import { AccessError } from "@/server/access";
+import { ButtonError, buttonSettings, pressButton } from "@/server/buttons";
+import { requireUserId } from "@/server/session";
+
+// Buttons on pages (server/buttons.ts): a click, and what a button's settings need.
+// What stopped a button comes back translated: which step, and why.
+
+const isId = (value: unknown): value is string => typeof value === "string" && value.length > 0 && value.length <= 100;
+
+/** Clicks the button; the browser opens what it says to open once every step is done. */
+export async function pressButtonAction(
+  pageId: string,
+  blockId: string,
+  timeZone: string,
+): Promise<ActionResult<{ open: { href: string; page: boolean } | null }>> {
+  const userId = await requireUserId();
+  const t = await getTranslations("page.button.failed");
+  if (!isId(pageId) || !isId(blockId)) return { ok: false, error: t("notFound") };
+  try {
+    const press = await pressButton(userId, pageId, blockId, { timeZone: typeof timeZone === "string" ? timeZone.slice(0, 64) : "UTC" });
+    if (press.ok) return { ok: true, data: { open: press.open } };
+    const tStep = await getTranslations("page.button.steps");
+    // The steps before it stay done: the message says how far it got.
+    const type = BUTTON_STEP_TYPES.includes(press.type) ? press.type : "insert";
+    return { ok: false, error: t("step", { step: press.step + 1, type: tStep(type), reason: t(press.code) }) };
+  } catch (error) {
+    if (error instanceof ButtonError) return { ok: false, error: t(error.code) };
+    if (error instanceof AccessError) return { ok: false, error: t("noAccess") };
+    console.error("[button action]", error);
+    const tc = await getTranslations("common");
+    return { ok: false, error: tc("genericError") };
+  }
+}
+
+/** What a button's settings show: its webhooks' signing secret and the people it can notify. Needs edit access to the page. */
+export async function buttonSettingsAction(pageId: string, blockId: string): Promise<ActionResult<Awaited<ReturnType<typeof buttonSettings>>>> {
+  const userId = await requireUserId();
+  const t = await getTranslations("page.button.failed");
+  if (!isId(pageId) || !isId(blockId)) return { ok: false, error: t("notFound") };
+  try {
+    return { ok: true, data: await buttonSettings(userId, pageId, blockId) };
+  } catch (error) {
+    if (error instanceof ButtonError) return { ok: false, error: t(error.code) };
+    if (error instanceof AccessError) return { ok: false, error: t("noAccess") };
+    throw error;
+  }
+}

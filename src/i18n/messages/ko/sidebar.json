@@ -133,6 +133,7 @@
     "accessRequest": "{actor}님이 이 페이지에 대한 액세스를 요청했습니다",
     "automation": "자동화 “{name}”: {actor}님이 이 행을 추가하거나 변경했습니다",
     "automationDatePassed": "자동화 “{name}”: 이 행의 날짜가 되었습니다",
+    "button": "{actor} 님이 버튼으로 이 페이지를 보냈습니다",
     "rowUpdate": "{actor} 님이 이 행을 변경했습니다",
     "pageUpdated": "{actor} 님이 이 페이지를 편집했습니다",
     "rowEmail": "{from}에게서 온 이메일",

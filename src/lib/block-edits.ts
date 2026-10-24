@@ -9,8 +9,11 @@ import { locate, tidyColumns, trimTrailingEmpty, type ReviewBlock } from "./page
 export const BLOCK_EDIT_OPS = ["replace", "insert_after", "append", "delete"] as const;
 export type BlockEditOp = (typeof BLOCK_EDIT_OPS)[number];
 
-/** An edit as asked for: `markdown` for everything but delete, `blockId` for everything but append. */
-export type BlockEdit = { op: BlockEditOp; blockId?: string; markdown?: string };
+/**
+ * An edit as asked for: `markdown` for everything but delete, `blockId` for everything but append
+ * and prepend (new blocks at the top, which buttons put there and AI apps aren't offered).
+ */
+export type BlockEdit = { op: BlockEditOp | "prepend"; blockId?: string; markdown?: string };
 
 /** The most edits one call makes. */
 export const MAX_BLOCK_EDITS = 30;
@@ -26,7 +29,7 @@ export function stripBlockMarkers(markdown: string) {
 
 /** What is wrong with an edit as asked for, or null. */
 export function blockEditProblem(edit: BlockEdit): string | null {
-  if (!BLOCK_EDIT_OPS.includes(edit.op)) return `op must be one of ${BLOCK_EDIT_OPS.join(", ")}`;
+  if (!(BLOCK_EDIT_OPS as readonly string[]).includes(edit.op)) return `op must be one of ${BLOCK_EDIT_OPS.join(", ")}`;
   if (edit.op !== "append" && !edit.blockId) return `${edit.op} needs block_id`;
   if (edit.op !== "delete" && (edit.markdown === undefined || !stripBlockMarkers(edit.markdown).trim())) return `${edit.op} needs markdown`;
   return null;
@@ -38,12 +41,16 @@ export function blockEditProblem(edit: BlockEdit): string | null {
  */
 export function applyBlockEdits(
   body: readonly ReviewBlock[],
-  edits: readonly { op: BlockEditOp; blockId?: string; blocks: ReviewBlock[] }[],
+  edits: readonly { op: BlockEdit["op"]; blockId?: string; blocks: ReviewBlock[] }[],
 ): { blocks: ReviewBlock[] } | { missing: string } {
   let blocks = structuredClone(body) as ReviewBlock[];
   for (const edit of edits) {
     if (edit.op === "append") {
       blocks = [...trimTrailingEmpty(blocks), ...structuredClone(edit.blocks)];
+      continue;
+    }
+    if (edit.op === "prepend") {
+      blocks = [...structuredClone(edit.blocks), ...blocks];
       continue;
     }
     const place = edit.blockId ? locate(blocks, edit.blockId) : null;

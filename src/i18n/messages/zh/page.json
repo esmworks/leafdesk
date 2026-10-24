@@ -964,5 +964,80 @@
       "copyLink": "复制链接"
     },
     "awaitingOwner": "正在等待工作区所有者批准调用…"
+  },
+  "button": {
+    "untitled": "按钮",
+    "placeholder": "按钮文字",
+    "done": "已完成",
+    "confirm": "要运行“{label}”吗?",
+    "blockLabel": "按钮“{label}”",
+    "slash": {
+      "title": "按钮",
+      "subtext": "点击后按顺序执行几个步骤",
+      "aliases": "button action click run 按钮 操作 运行"
+    },
+    "settings": {
+      "open": "按钮设置",
+      "icon": "表情符号",
+      "label": "文字",
+      "confirm": "运行前询问",
+      "confirmHelp": "点击的人需要先确认。",
+      "steps": "点击时",
+      "stepsHelp": "步骤以点击者的身份和权限按顺序运行。遇到点击者无法执行的步骤时，按钮会在那里停止。",
+      "addStep": "添加步骤",
+      "moveUp": "上移",
+      "moveDown": "下移",
+      "insertAt": "位置",
+      "at": {
+        "below": "按钮下方",
+        "top": "页面顶部",
+        "bottom": "页面末尾"
+      },
+      "markdown": "Markdown 格式的块",
+      "people": "人员",
+      "message": "消息",
+      "notifyHelp": "只会通知能打开此页面的人。",
+      "url": "地址",
+      "secret": "签名密钥",
+      "copySecret": "复制密钥",
+      "webhookHelp": "如果工作区允许内容外发，则以 JSON 发送此页面，并用密钥签名。",
+      "target": "网址或页面",
+      "pickPage": "选择页面",
+      "toPage": "打开“{title}”",
+      "rowTitle": "标题",
+      "values": "值",
+      "updateHelp": "最多更改 {max} 行符合筛选条件且点击者可见的行。"
+    },
+    "variables": {
+      "group": "按钮",
+      "today": "今天",
+      "now": "现在",
+      "me": "点击者"
+    },
+    "steps": {
+      "insert": "插入块",
+      "add_row": "添加行",
+      "update_rows": "更改行",
+      "notify": "通知人员",
+      "webhook": "发送 Webhook",
+      "open": "打开链接或页面"
+    },
+    "failed": {
+      "notFound": "此按钮已不在页面上。",
+      "noSteps": "此按钮还没有设置任何操作。",
+      "inTrash": "回收站中页面上的按钮不会运行。",
+      "rateLimited": "此按钮点击过于频繁。请稍候再试。",
+      "noAccess": "你没有执行此操作的权限。",
+      "locked": "页面已锁定。",
+      "notConfigured": "此步骤尚未设置。",
+      "databaseGone": "数据库已不存在或在回收站中。",
+      "invalidValue": "某个值不符合其属性。",
+      "exportOff": "此工作区不允许内容外发。",
+      "webhookFailed": "该地址未接受 Webhook。",
+      "invalidTarget": "要打开的链接无效。",
+      "buttonGone": "按钮已从页面中移除。",
+      "error": "出了点问题。",
+      "step": "第 {step} 步({type})未运行:{reason}"
+    }
   }
 }

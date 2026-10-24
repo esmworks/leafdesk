@@ -964,5 +964,80 @@
       "copyLink": "Link kopieren"
     },
     "awaitingOwner": "Wartet darauf, dass ein Workspace-Inhaber einen Aufruf freigibt…"
+  },
+  "button": {
+    "untitled": "Schaltfläche",
+    "placeholder": "Beschriftung",
+    "done": "Erledigt",
+    "confirm": "„{label}“ ausführen?",
+    "blockLabel": "Schaltfläche „{label}“",
+    "slash": {
+      "title": "Schaltfläche",
+      "subtext": "Erledigt beim Klicken ein paar Schritte nacheinander",
+      "aliases": "button action click run schaltfläche knopf aktion"
+    },
+    "settings": {
+      "open": "Einstellungen der Schaltfläche",
+      "icon": "Emoji",
+      "label": "Beschriftung",
+      "confirm": "Vor dem Ausführen nachfragen",
+      "confirmHelp": "Wer klickt, bestätigt zuerst.",
+      "steps": "Beim Klicken",
+      "stepsHelp": "Die Schritte laufen nacheinander, als die Person, die klickt, und mit ihrem Zugriff. Ein Schritt, den sie nicht ausführen darf, hält die Schaltfläche dort an.",
+      "addStep": "Schritt hinzufügen",
+      "moveUp": "Nach oben",
+      "moveDown": "Nach unten",
+      "insertAt": "Wo",
+      "at": {
+        "below": "Unter der Schaltfläche",
+        "top": "Am Anfang der Seite",
+        "bottom": "Am Ende der Seite"
+      },
+      "markdown": "Blöcke in Markdown",
+      "people": "Personen",
+      "message": "Nachricht",
+      "notifyHelp": "Benachrichtigt werden nur Personen, die diese Seite öffnen können.",
+      "url": "Adresse",
+      "secret": "Signaturgeheimnis",
+      "copySecret": "Geheimnis kopieren",
+      "webhookHelp": "Sendet diese Seite als JSON, mit dem Geheimnis signiert, wenn der Arbeitsbereich Inhalte nach außen lässt.",
+      "target": "Webadresse oder Seite",
+      "pickPage": "Seite auswählen",
+      "toPage": "Öffnet „{title}“",
+      "rowTitle": "Titel",
+      "values": "Werte",
+      "updateHelp": "Ändert höchstens {max} Zeilen, die zu den Filtern passen und die die klickende Person sehen kann."
+    },
+    "variables": {
+      "group": "Schaltfläche",
+      "today": "Heute",
+      "now": "Jetzt",
+      "me": "Wer geklickt hat"
+    },
+    "steps": {
+      "insert": "Blöcke einfügen",
+      "add_row": "Zeile hinzufügen",
+      "update_rows": "Zeilen ändern",
+      "notify": "Personen benachrichtigen",
+      "webhook": "Webhook senden",
+      "open": "Link oder Seite öffnen"
+    },
+    "failed": {
+      "notFound": "Diese Schaltfläche ist nicht mehr auf der Seite.",
+      "noSteps": "Diese Schaltfläche tut noch nichts.",
+      "inTrash": "Schaltflächen auf Seiten im Papierkorb werden nicht ausgeführt.",
+      "rateLimited": "Diese Schaltfläche wurde zu oft geklickt. Warte kurz und versuche es noch einmal.",
+      "noAccess": "Dafür hast du keinen Zugriff.",
+      "locked": "Die Seite ist gesperrt.",
+      "notConfigured": "Dieser Schritt ist nicht eingerichtet.",
+      "databaseGone": "Die Datenbank gibt es nicht mehr oder sie liegt im Papierkorb.",
+      "invalidValue": "Ein Wert passt nicht zu seiner Eigenschaft.",
+      "exportOff": "Dieser Arbeitsbereich lässt keine Inhalte nach außen.",
+      "webhookFailed": "Die Adresse hat den Webhook nicht angenommen.",
+      "invalidTarget": "Der zu öffnende Link ist ungültig.",
+      "buttonGone": "Die Schaltfläche wurde von der Seite entfernt.",
+      "error": "Etwas ist schiefgelaufen.",
+      "step": "Schritt {step} ({type}) wurde nicht ausgeführt: {reason}"
+    }
   }
 }

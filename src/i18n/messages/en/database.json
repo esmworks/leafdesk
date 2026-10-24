@@ -547,6 +547,7 @@
     "formAnswer": "A form answer",
     "agent": "agent",
     "automation": "automation",
+    "button": "button",
     "ai": "AI",
     "aiFor": "(for {name})",
     "created": "<actor>{name}</actor> created this row",

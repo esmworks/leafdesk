@@ -133,6 +133,7 @@
     "accessRequest": "{actor} möchte Zugriff auf diese Seite",
     "automation": "Automatisierung „{name}“: {actor} hat diese Zeile hinzugefügt oder geändert",
     "automationDatePassed": "Automatisierung „{name}“: Das Datum dieser Zeile ist erreicht",
+    "button": "{actor} hat dir diese Seite mit einer Schaltfläche geschickt",
     "rowUpdate": "{actor} hat diese Zeile geändert",
     "pageUpdated": "{actor} hat diese Seite bearbeitet",
     "rowEmail": "E-Mail von {from}",

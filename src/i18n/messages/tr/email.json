@@ -225,6 +225,7 @@
     "accessRequest": "{actor} bu sayfaya erişim istedi",
     "automation": "“{name}” otomasyonu: {actor} bu satırı ekledi ya da değiştirdi",
     "automationDatePassed": "“{name}” otomasyonu: bu satırın tarihi geldi",
+    "button": "{actor} bu sayfayı size bir düğmeyle gönderdi",
     "rowUpdate": "{actor} şunları değiştirdi: {fields}",
     "rowUpdateSome": "{actor} bu satırı değiştirdi",
     "rowUpdateTitle": "başlık",

@@ -547,6 +547,7 @@
     "formAnswer": "תשובה לטופס",
     "agent": "סוכן",
     "automation": "אוטומציה",
+    "button": "כפתור",
     "ai": "AI",
     "aiFor": "(עבור {name})",
     "created": "<actor>{name}</actor> יצר את השורה הזו",

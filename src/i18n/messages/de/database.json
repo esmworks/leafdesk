@@ -547,6 +547,7 @@
     "formAnswer": "Eine Formularantwort",
     "agent": "Agent",
     "automation": "Automation",
+    "button": "Schaltfläche",
     "ai": "KI",
     "aiFor": "(für {name})",
     "created": "<actor>{name}</actor> hat diese Zeile erstellt",

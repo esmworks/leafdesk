@@ -24,6 +24,7 @@ import {
 } from "./columns";
 import { DASHBOARD_BLOCK, dashboardLine, parseDashboardLine } from "./dashboard";
 import { AGENT_CHAT_BLOCK, agentChatLine, newChatId, parseAgentChatLine } from "./agent-chat";
+import { BUTTON_BLOCK, buttonLine, cleanButtonLabel, parseButtonLine } from "./buttons";
 import { isMeetingEnd, MEETING_BLOCK, meetingMarkdown, parseMeetingBegin } from "./meetings";
 import { BLOCK_COLORS } from "./block-colors";
 import { IMAGE_BLOCK, linkedImageMarkdown, parseLinkedImageLine } from "./image-links";
@@ -280,6 +281,9 @@ export function prepareMarkdownExport<B extends MdBlock>(
           return paragraph(blockToken("<!-- leafdesk:toc -->"));
         case DASHBOARD_BLOCK:
           return paragraph(block.id ? blockToken(dashboardLine(block.id)) : "");
+        case BUTTON_BLOCK:
+          // Its id and label; what it does stays in the page (lib/buttons restoreButtons).
+          return paragraph(block.id ? blockToken(buttonLine(block.id, cleanButtonLabel(block.props?.label))) : "");
         case MEETING_BLOCK: {
           // Its region (lib/meetings): summary and transcript, so search, MCP and the AI read them.
           const markdown = meetingMarkdown(block.props);
@@ -464,6 +468,7 @@ type Pending =
   | { type: typeof PAGE_LINK_BLOCK | typeof SYNCED_PAGE_BLOCK; pageId: string; blockId: string }
   | { type: typeof COLUMN_BLOCK; marker: ColumnMarker }
   | { type: typeof DASHBOARD_BLOCK; id: string }
+  | { type: typeof BUTTON_BLOCK; id: string; label: string }
   | { type: typeof AGENT_CHAT_BLOCK; agentId: string; chatId: string }
   | { type: typeof IMAGE_BLOCK; url: string; name: string; caption: string; link: string }
   | { type: typeof MEETING_BLOCK; meetingId: string; markdown: string }
@@ -540,6 +545,11 @@ export function prepareMarkdownImport(markdown: string, nonce: string, { appUrl 
     const dashboard = parseDashboardLine(line);
     if (dashboard) {
       blockLine({ type: DASHBOARD_BLOCK, id: dashboard });
+      continue;
+    }
+    const button = parseButtonLine(line);
+    if (button) {
+      blockLine({ type: BUTTON_BLOCK, ...button });
       continue;
     }
     const agentChat = parseAgentChatLine(line);
@@ -865,6 +875,9 @@ export async function finishMarkdownImport<B extends MdBlock>(
         return { type: AGENT_CHAT_BLOCK, props: { agentId: pending.agentId, chatId: pending.chatId || newChatId() }, children: [] } as unknown as B;
       case IMAGE_BLOCK:
         return { type: IMAGE_BLOCK, props: { url: pending.url, name: pending.name, caption: pending.caption, link: pending.link }, children: [] } as unknown as B;
+      case BUTTON_BLOCK:
+        // Only the id and label: the page's button with that id comes back whole (lib/buttons restoreButtons).
+        return { id: pending.id, type: BUTTON_BLOCK, props: { label: pending.label }, children: [] } as unknown as B;
       case DASHBOARD_BLOCK:
         // Only the id: the page's dashboard with it comes back whole (lib/dashboard restoreDashboards).
         return { id: pending.id, type: DASHBOARD_BLOCK, props: {}, children: [] } as unknown as B;

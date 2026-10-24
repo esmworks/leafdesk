@@ -117,6 +117,19 @@ for Windows, `.AppImage` for Linux) and choose *On this computer*. See [Desktop 
   the row count, the sum of the first number property, a chart by the first select or status
   property and the rows edited last. Dashboard views aren't published, printed or shown by linked
   views.
+- **Buttons**: the `/button` block, with a label and an emoji, does a few things in order when
+  someone clicks it: insert blocks written in Markdown below it or at the top or end of the page,
+  add a row to a database, change the rows of a database that filters match (up to 100), notify
+  people, send the page to a webhook (signed like automations' webhooks, when the workspace lets
+  content leave it) and open a web address or a page. Texts take `{{today}}`, `{{now}}` and
+  `{{me}}`, and values can be today or whoever clicked; a button can ask before it runs. It runs as
+  whoever clicks, each step with their access: viewing the page is enough to click, inserting
+  blocks needs edit access to it and rows need edit access to their database. The first step they
+  can't do stops the button and says which and why. Its changes are theirs: they start the
+  database's automations, and the row's activity marks them as made through a button. People who
+  can edit the page set it up from the button's settings; published pages and the print view show
+  it disabled, and Markdown over MCP and the API holds only its id and label
+  (`<!-- leafdesk:button <id> "Label" -->`), so it can't be made or changed there.
 - **Web bookmarks and embeds**: link cards with the page's title, description and image (fetched
   once on the server behind an SSRF guard), and YouTube, Vimeo, Loom, Figma, Google Docs, CodePen,
   Spotify and Google Maps embeds in sandboxed iframes.
@@ -297,7 +310,11 @@ for Windows, `.AppImage` for Linux) and choose *On this computer*. See [Desktop 
   Templates stay out of the sidebar, search, trash and published sites.
 - **Comments**: select text and comment on it; reply, react, resolve and reopen threads, live for
   everyone on the page. People who can comment on a page (or edit it) write comments and viewers
-  read along; full access also deletes other people's comments.
+  read along; full access also deletes other people's comments. On a database row, each property
+  value takes threads of its own: the comment button beside a value (with how many open threads it
+  has) starts one, and the comments panel lists them under the property's name. Only people who
+  see that value read, write and hear about them (a row's access counts too), and a deleted
+  property's threads come back when it is restored.
 - **Mentions and page links**: `@` mentions people, pages (with their live title, or "No access")
   and dates with optional reminders; `[[` links to a page, or to a new page inside this one with
   the title typed, and `[[Title]]` typed, pasted or written through MCP and the API links to the
@@ -449,7 +466,10 @@ for Windows, `.AppImage` for Linux) and choose *On this computer*. See [Desktop 
   into a database. Search finds pages by the words of the PDFs, Word documents and Excel workbooks
   they show. Any uploaded file opens full screen in the file viewer, with ← and → for the page's
   other files: images zoom, Word documents, CSV, Markdown, JSON, code and text show their
-  contents, and the rest offers a download.
+  contents, and the rest offers a download. An image can link to a web address or a page of the
+  workspace (*Link…* in its block menu): in the editor a small button on it follows the link,
+  while read-only and published pages and the print view make the image itself the link, and
+  Markdown keeps it as `[![alt](image)](link)`.
 - **Import**: bring in Markdown files, a folder or a ZIP as pages that keep their folder
   structure, with links between the files turned into page links and the images they show
   uploaded, into the page or teamspace you start it from. A link naming a file by its bare name

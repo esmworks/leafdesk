@@ -225,6 +225,7 @@
     "accessRequest": "{actor} prosi o dostęp do tej strony",
     "automation": "Automatyzacja „{name}”: {actor} dodaje lub zmienia ten wiersz",
     "automationDatePassed": "Automatyzacja „{name}”: nadeszła data tego wiersza",
+    "button": "{actor} wysłał(a) Ci tę stronę przyciskiem",
     "rowUpdate": "{actor} zmienia: {fields}",
     "rowUpdateSome": "{actor} zmienia ten wiersz",
     "rowUpdateTitle": "tytuł",

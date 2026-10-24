@@ -22,6 +22,7 @@ import {
 import type { PropertyType } from "@/lib/property-types";
 import { isAgentUser } from "@/server/agents/users";
 import { runningAutomation } from "@/server/automations/queue";
+import { pressingButton } from "@/server/button-press";
 
 type RowWrite = { rowId: string; before: Record<string, unknown>; after: Record<string, unknown> };
 
@@ -51,13 +52,14 @@ export const asApprovedProposal = <T>(proposedBy: string, fn: () => Promise<T>) 
  * Who a write is by. An AI value is the AI's whoever set it off (a person, an agent or an
  * automation), worked out for the person named. An agent's writes run as automations do (so they
  * start none), and still read as the agent's; nobody named is an anonymous form answer when it
- * made the row.
+ * made the row. A person's writes through a button on a page (server/buttons.ts) say so.
  */
 async function actorKindOf(actorId: string | null, anonymousForm: boolean, ai = false): Promise<RowActivityActor> {
   if (!actorId) return anonymousForm ? "form" : "user";
   if (ai) return "ai";
   if (await isAgentUser(actorId)) return "agent";
-  return runningAutomation() ? "automation" : "user";
+  if (runningAutomation()) return "automation";
+  return pressingButton() ? "button" : "user";
 }
 
 /**

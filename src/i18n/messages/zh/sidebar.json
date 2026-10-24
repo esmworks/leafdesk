@@ -133,6 +133,7 @@
     "accessRequest": "{actor} 申请访问此页面",
     "automation": "自动化“{name}”：{actor} 添加或更改了这一行",
     "automationDatePassed": "自动化“{name}”：这一行的日期已到",
+    "button": "{actor} 通过按钮向你发送了此页面",
     "rowUpdate": "{actor} 更改了这一行",
     "pageUpdated": "{actor} 编辑了此页面",
     "rowEmail": "来自 {from} 的邮件",

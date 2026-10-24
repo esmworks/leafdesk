@@ -547,6 +547,7 @@
     "formAnswer": "Bir form yanıtı",
     "agent": "ajan",
     "automation": "otomasyon",
+    "button": "düğme",
     "ai": "Yapay zekâ",
     "aiFor": "({name} adına)",
     "created": "<actor>{name}</actor> bu satırı oluşturdu",

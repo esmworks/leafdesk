@@ -133,6 +133,7 @@
     "accessRequest": "{actor} prosi o dostęp do tej strony",
     "automation": "Automatyzacja „{name}”: {actor} dodaje lub zmienia ten wiersz",
     "automationDatePassed": "Automatyzacja „{name}”: nadeszła data tego wiersza",
+    "button": "{actor} wysłał(a) Ci tę stronę przyciskiem",
     "rowUpdate": "{actor} zmienia ten wiersz",
     "pageUpdated": "{actor} edytuje tę stronę",
     "rowEmail": "E-mail od {from}",

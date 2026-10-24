@@ -964,5 +964,80 @@
       "copyLink": "Copiar link"
     },
     "awaitingOwner": "Aguardando um proprietário do espaço de trabalho aprovar uma chamada…"
+  },
+  "button": {
+    "untitled": "Botão",
+    "placeholder": "Rótulo do botão",
+    "done": "Concluído",
+    "confirm": "Executar “{label}”?",
+    "blockLabel": "Botão “{label}”",
+    "slash": {
+      "title": "Botão",
+      "subtext": "Faz algumas coisas em ordem ao ser clicado",
+      "aliases": "button action click run botão ação executar"
+    },
+    "settings": {
+      "open": "Configurações do botão",
+      "icon": "Emoji",
+      "label": "Rótulo",
+      "confirm": "Perguntar antes de executar",
+      "confirmHelp": "Quem clicar confirma primeiro.",
+      "steps": "Ao clicar",
+      "stepsHelp": "Os passos são executados em ordem, como quem clica e com o acesso dessa pessoa. Um passo que ela não possa fazer para o botão ali.",
+      "addStep": "Adicionar um passo",
+      "moveUp": "Mover para cima",
+      "moveDown": "Mover para baixo",
+      "insertAt": "Onde",
+      "at": {
+        "below": "Abaixo do botão",
+        "top": "No início da página",
+        "bottom": "No fim da página"
+      },
+      "markdown": "Blocos em Markdown",
+      "people": "Pessoas",
+      "message": "Mensagem",
+      "notifyHelp": "Só são notificadas as pessoas que podem abrir esta página.",
+      "url": "Endereço",
+      "secret": "Segredo de assinatura",
+      "copySecret": "Copiar o segredo",
+      "webhookHelp": "Envia esta página como JSON, assinada com o segredo, se o espaço de trabalho permitir que o conteúdo saia dele.",
+      "target": "Endereço web ou página",
+      "pickPage": "Escolher uma página",
+      "toPage": "Abre “{title}”",
+      "rowTitle": "Título",
+      "values": "Valores",
+      "updateHelp": "Altera no máximo {max} linhas que correspondam aos filtros e que quem clica possa ver."
+    },
+    "variables": {
+      "group": "Botão",
+      "today": "Hoje",
+      "now": "Agora",
+      "me": "Quem clicou"
+    },
+    "steps": {
+      "insert": "Inserir blocos",
+      "add_row": "Adicionar uma linha",
+      "update_rows": "Alterar linhas",
+      "notify": "Notificar pessoas",
+      "webhook": "Enviar um webhook",
+      "open": "Abrir um link ou página"
+    },
+    "failed": {
+      "notFound": "Este botão já não está na página.",
+      "noSteps": "Este botão ainda não faz nada.",
+      "inTrash": "Botões em páginas na lixeira não são executados.",
+      "rateLimited": "Este botão foi clicado vezes demais. Aguarde um momento e tente de novo.",
+      "noAccess": "Você não tem acesso para fazer isso.",
+      "locked": "A página está bloqueada.",
+      "notConfigured": "Este passo não está configurado.",
+      "databaseGone": "A base de dados não existe mais ou está na lixeira.",
+      "invalidValue": "Um valor não serve para sua propriedade.",
+      "exportOff": "Este espaço de trabalho não permite que o conteúdo saia dele.",
+      "webhookFailed": "O endereço não aceitou o webhook.",
+      "invalidTarget": "O link a abrir não é válido.",
+      "buttonGone": "O botão foi removido da página.",
+      "error": "Algo deu errado.",
+      "step": "O passo {step} ({type}) não foi executado: {reason}"
+    }
   }
 }

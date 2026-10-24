@@ -133,6 +133,7 @@
     "accessRequest": "{actor} ha chiesto l’accesso a questa pagina",
     "automation": "Automazione “{name}”: {actor} ha aggiunto o modificato questa riga",
     "automationDatePassed": "Automazione “{name}”: è arrivata la data di questa riga",
+    "button": "{actor} ti ha inviato questa pagina con un pulsante",
     "rowUpdate": "{actor} ha modificato questa riga",
     "pageUpdated": "{actor} ha modificato questa pagina",
     "rowEmail": "Email da {from}",

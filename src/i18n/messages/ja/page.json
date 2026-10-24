@@ -964,5 +964,80 @@
       "copyLink": "リンクをコピー"
     },
     "awaitingOwner": "ワークスペースのオーナーが呼び出しを承認するのを待っています…"
+  },
+  "button": {
+    "untitled": "ボタン",
+    "placeholder": "ボタンのラベル",
+    "done": "完了",
+    "confirm": "「{label}」を実行しますか?",
+    "blockLabel": "ボタン「{label}」",
+    "slash": {
+      "title": "ボタン",
+      "subtext": "クリックすると、いくつかの処理を順に行います",
+      "aliases": "button action click run ボタン アクション 実行"
+    },
+    "settings": {
+      "open": "ボタンの設定",
+      "icon": "絵文字",
+      "label": "ラベル",
+      "confirm": "実行前に確認する",
+      "confirmHelp": "クリックした人がまず確認します。",
+      "steps": "クリックしたとき",
+      "stepsHelp": "ステップは、クリックした人として、その人のアクセス権で順に実行されます。その人が実行できないステップがあると、ボタンはそこで止まります。",
+      "addStep": "ステップを追加",
+      "moveUp": "上へ移動",
+      "moveDown": "下へ移動",
+      "insertAt": "挿入先",
+      "at": {
+        "below": "ボタンの下",
+        "top": "ページの先頭",
+        "bottom": "ページの末尾"
+      },
+      "markdown": "Markdown のブロック",
+      "people": "ユーザー",
+      "message": "メッセージ",
+      "notifyHelp": "このページを開けるユーザーにだけ通知されます。",
+      "url": "送信先 URL",
+      "secret": "署名シークレット",
+      "copySecret": "シークレットをコピー",
+      "webhookHelp": "ワークスペースがコンテンツの外部送信を許可している場合、このページをシークレットで署名した JSON として送信します。",
+      "target": "Web アドレスまたはページ",
+      "pickPage": "ページを選択",
+      "toPage": "「{title}」を開きます",
+      "rowTitle": "タイトル",
+      "values": "値",
+      "updateHelp": "フィルターに一致し、クリックした人が見られる行を最大 {max} 行変更します。"
+    },
+    "variables": {
+      "group": "ボタン",
+      "today": "今日",
+      "now": "現在",
+      "me": "クリックした人"
+    },
+    "steps": {
+      "insert": "ブロックを挿入",
+      "add_row": "行を追加",
+      "update_rows": "行を変更",
+      "notify": "ユーザーに通知",
+      "webhook": "Webhook を送信",
+      "open": "リンクまたはページを開く"
+    },
+    "failed": {
+      "notFound": "このボタンはもうページにありません。",
+      "noSteps": "このボタンにはまだ何も設定されていません。",
+      "inTrash": "ゴミ箱にあるページのボタンは実行されません。",
+      "rateLimited": "このボタンのクリックが多すぎます。少し待ってからもう一度お試しください。",
+      "noAccess": "この操作を行うアクセス権がありません。",
+      "locked": "ページはロックされています。",
+      "notConfigured": "このステップは設定されていません。",
+      "databaseGone": "データベースが存在しないか、ゴミ箱にあります。",
+      "invalidValue": "プロパティに合わない値があります。",
+      "exportOff": "このワークスペースではコンテンツの外部送信が許可されていません。",
+      "webhookFailed": "送信先が Webhook を受け付けませんでした。",
+      "invalidTarget": "開くリンクが正しくありません。",
+      "buttonGone": "ボタンはページから削除されました。",
+      "error": "問題が発生しました。",
+      "step": "ステップ {step}({type})は実行されませんでした: {reason}"
+    }
   }
 }

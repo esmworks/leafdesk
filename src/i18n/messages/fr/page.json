@@ -964,5 +964,80 @@
       "copyLink": "Copier le lien"
     },
     "awaitingOwner": "En attente de l’approbation d’un appel par un propriétaire de l’espace de travail…"
+  },
+  "button": {
+    "untitled": "Bouton",
+    "placeholder": "Libellé du bouton",
+    "done": "Terminé",
+    "confirm": "Exécuter « {label} » ?",
+    "blockLabel": "Bouton « {label} »",
+    "slash": {
+      "title": "Bouton",
+      "subtext": "Fait quelques actions dans l’ordre au clic",
+      "aliases": "button action click run bouton action exécuter"
+    },
+    "settings": {
+      "open": "Paramètres du bouton",
+      "icon": "Emoji",
+      "label": "Libellé",
+      "confirm": "Demander avant d’exécuter",
+      "confirmHelp": "La personne qui clique confirme d’abord.",
+      "steps": "Au clic",
+      "stepsHelp": "Les étapes s’exécutent dans l’ordre, au nom de la personne qui clique et avec ses accès. Une étape qu’elle ne peut pas faire arrête le bouton à cet endroit.",
+      "addStep": "Ajouter une étape",
+      "moveUp": "Monter",
+      "moveDown": "Descendre",
+      "insertAt": "Où",
+      "at": {
+        "below": "Sous le bouton",
+        "top": "En haut de la page",
+        "bottom": "À la fin de la page"
+      },
+      "markdown": "Blocs en Markdown",
+      "people": "Personnes",
+      "message": "Message",
+      "notifyHelp": "Seules les personnes qui peuvent ouvrir cette page sont notifiées.",
+      "url": "Adresse",
+      "secret": "Secret de signature",
+      "copySecret": "Copier le secret",
+      "webhookHelp": "Envoie cette page en JSON, signée avec le secret, si l’espace de travail laisse sortir son contenu.",
+      "target": "Adresse web ou page",
+      "pickPage": "Choisir une page",
+      "toPage": "Ouvre « {title} »",
+      "rowTitle": "Titre",
+      "values": "Valeurs",
+      "updateHelp": "Modifie au plus {max} lignes qui correspondent aux filtres et que la personne qui clique peut voir."
+    },
+    "variables": {
+      "group": "Bouton",
+      "today": "Aujourd’hui",
+      "now": "Maintenant",
+      "me": "Qui a cliqué"
+    },
+    "steps": {
+      "insert": "Insérer des blocs",
+      "add_row": "Ajouter une ligne",
+      "update_rows": "Modifier des lignes",
+      "notify": "Notifier des personnes",
+      "webhook": "Envoyer un webhook",
+      "open": "Ouvrir un lien ou une page"
+    },
+    "failed": {
+      "notFound": "Ce bouton n’est plus sur la page.",
+      "noSteps": "Ce bouton ne fait encore rien.",
+      "inTrash": "Les boutons des pages dans la corbeille ne s’exécutent pas.",
+      "rateLimited": "Ce bouton a été cliqué trop souvent. Patientez un instant et réessayez.",
+      "noAccess": "Vous n’avez pas l’accès nécessaire pour cela.",
+      "locked": "La page est verrouillée.",
+      "notConfigured": "Cette étape n’est pas configurée.",
+      "databaseGone": "La base de données n’existe plus ou est dans la corbeille.",
+      "invalidValue": "Une valeur ne convient pas à sa propriété.",
+      "exportOff": "Cet espace de travail ne laisse pas sortir son contenu.",
+      "webhookFailed": "L’adresse n’a pas accepté le webhook.",
+      "invalidTarget": "Le lien à ouvrir n’est pas valide.",
+      "buttonGone": "Le bouton a été retiré de la page.",
+      "error": "Un problème est survenu.",
+      "step": "L’étape {step} ({type}) ne s’est pas exécutée : {reason}"
+    }
   }
 }

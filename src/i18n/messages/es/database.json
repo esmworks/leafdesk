@@ -547,6 +547,7 @@
     "formAnswer": "Una respuesta de formulario",
     "agent": "agente",
     "automation": "automatización",
+    "button": "botón",
     "ai": "IA",
     "aiFor": "(en nombre de {name})",
     "created": "<actor>{name}</actor> creó esta fila",

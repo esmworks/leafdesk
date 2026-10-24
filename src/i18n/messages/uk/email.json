@@ -225,6 +225,7 @@
     "accessRequest": "{actor} просить доступ до цієї сторінки",
     "automation": "Автоматизація «{name}»: {actor} додає або змінює цей рядок",
     "automationDatePassed": "Автоматизація «{name}»: настала дата цього рядка",
+    "button": "{actor} надіслав(ла) вам цю сторінку кнопкою",
     "rowUpdate": "{actor} змінює: {fields}",
     "rowUpdateSome": "{actor}: зміни в цьому рядку",
     "rowUpdateTitle": "назва",

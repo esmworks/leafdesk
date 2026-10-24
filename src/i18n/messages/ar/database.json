@@ -547,6 +547,7 @@
     "formAnswer": "إجابة نموذج",
     "agent": "وكيل",
     "automation": "أتمتة",
+    "button": "زر",
     "ai": "الذكاء الاصطناعي",
     "aiFor": "(لصالح {name})",
     "created": "أنشأ <actor>{name}</actor> هذا الصف",

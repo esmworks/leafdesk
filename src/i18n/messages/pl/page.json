@@ -964,5 +964,80 @@
       "copyLink": "Kopiuj link"
     },
     "awaitingOwner": "Czeka, aż właściciel obszaru roboczego zatwierdzi wywołanie…"
+  },
+  "button": {
+    "untitled": "Przycisk",
+    "placeholder": "Etykieta przycisku",
+    "done": "Gotowe",
+    "confirm": "Uruchomić „{label}”?",
+    "blockLabel": "Przycisk „{label}”",
+    "slash": {
+      "title": "Przycisk",
+      "subtext": "Po kliknięciu wykonuje kilka kroków po kolei",
+      "aliases": "button action click run przycisk akcja uruchom"
+    },
+    "settings": {
+      "open": "Ustawienia przycisku",
+      "icon": "Emoji",
+      "label": "Etykieta",
+      "confirm": "Pytaj przed uruchomieniem",
+      "confirmHelp": "Osoba, która kliknie, najpierw potwierdza.",
+      "steps": "Po kliknięciu",
+      "stepsHelp": "Kroki wykonują się po kolei, jako osoba, która kliknęła, i z jej dostępem. Krok, którego nie może wykonać, zatrzymuje przycisk w tym miejscu.",
+      "addStep": "Dodaj krok",
+      "moveUp": "Przesuń w górę",
+      "moveDown": "Przesuń w dół",
+      "insertAt": "Gdzie",
+      "at": {
+        "below": "Pod przyciskiem",
+        "top": "Na początku strony",
+        "bottom": "Na końcu strony"
+      },
+      "markdown": "Bloki w Markdown",
+      "people": "Osoby",
+      "message": "Wiadomość",
+      "notifyHelp": "Powiadomienie dostaną tylko osoby, które mogą otworzyć tę stronę.",
+      "url": "Adres",
+      "secret": "Sekret podpisu",
+      "copySecret": "Skopiuj sekret",
+      "webhookHelp": "Wysyła tę stronę jako JSON podpisany sekretem, jeśli obszar roboczy pozwala wysyłać treści na zewnątrz.",
+      "target": "Adres internetowy lub strona",
+      "pickPage": "Wybierz stronę",
+      "toPage": "Otwiera „{title}”",
+      "rowTitle": "Tytuł",
+      "values": "Wartości",
+      "updateHelp": "Zmienia najwyżej {max} wierszy pasujących do filtrów, które widzi osoba klikająca."
+    },
+    "variables": {
+      "group": "Przycisk",
+      "today": "Dzisiaj",
+      "now": "Teraz",
+      "me": "Kto kliknął"
+    },
+    "steps": {
+      "insert": "Wstaw bloki",
+      "add_row": "Dodaj wiersz",
+      "update_rows": "Zmień wiersze",
+      "notify": "Powiadom osoby",
+      "webhook": "Wyślij webhook",
+      "open": "Otwórz link lub stronę"
+    },
+    "failed": {
+      "notFound": "Tego przycisku nie ma już na stronie.",
+      "noSteps": "Ten przycisk jeszcze nic nie robi.",
+      "inTrash": "Przyciski na stronach w koszu nie działają.",
+      "rateLimited": "Ten przycisk był klikany zbyt często. Poczekaj chwilę i spróbuj ponownie.",
+      "noAccess": "Nie masz dostępu, by to zrobić.",
+      "locked": "Strona jest zablokowana.",
+      "notConfigured": "Ten krok nie jest skonfigurowany.",
+      "databaseGone": "Baza danych nie istnieje lub jest w koszu.",
+      "invalidValue": "Jedna z wartości nie pasuje do swojej właściwości.",
+      "exportOff": "Ten obszar roboczy nie pozwala wysyłać treści na zewnątrz.",
+      "webhookFailed": "Adres nie przyjął webhooka.",
+      "invalidTarget": "Link do otwarcia jest nieprawidłowy.",
+      "buttonGone": "Przycisk został usunięty ze strony.",
+      "error": "Coś poszło nie tak.",
+      "step": "Krok {step} ({type}) nie został wykonany: {reason}"
+    }
   }
 }

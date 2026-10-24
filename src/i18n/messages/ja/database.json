@@ -547,6 +547,7 @@
     "formAnswer": "フォームの回答",
     "agent": "エージェント",
     "automation": "オートメーション",
+    "button": "ボタン",
     "ai": "AI",
     "aiFor": "（{name}の代理）",
     "created": "<actor>{name}</actor>がこの行を作成しました",

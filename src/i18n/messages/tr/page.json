@@ -964,5 +964,80 @@
       "copyLink": "Bağlantıyı kopyala"
     },
     "awaitingOwner": "Bir çalışma alanı sahibinin çağrıyı onaylaması bekleniyor…"
+  },
+  "button": {
+    "untitled": "Düğme",
+    "placeholder": "Düğme etiketi",
+    "done": "Tamamlandı",
+    "confirm": "“{label}” çalıştırılsın mı?",
+    "blockLabel": "“{label}” düğmesi",
+    "slash": {
+      "title": "Düğme",
+      "subtext": "Tıklanınca birkaç işi sırayla yapar",
+      "aliases": "button action click run düğme buton eylem çalıştır"
+    },
+    "settings": {
+      "open": "Düğme ayarları",
+      "icon": "Emoji",
+      "label": "Etiket",
+      "confirm": "Çalıştırmadan önce sor",
+      "confirmHelp": "Tıklayan kişi önce onaylar.",
+      "steps": "Tıklanınca",
+      "stepsHelp": "Adımlar, tıklayan kişi olarak ve onun erişimiyle sırayla çalışır. Yapamadığı bir adım düğmeyi orada durdurur.",
+      "addStep": "Adım ekle",
+      "moveUp": "Yukarı taşı",
+      "moveDown": "Aşağı taşı",
+      "insertAt": "Nereye",
+      "at": {
+        "below": "Düğmenin altına",
+        "top": "Sayfanın başına",
+        "bottom": "Sayfanın sonuna"
+      },
+      "markdown": "Markdown olarak bloklar",
+      "people": "Kişiler",
+      "message": "Mesaj",
+      "notifyHelp": "Yalnızca bu sayfayı açabilen kişilere bildirilir.",
+      "url": "Adres",
+      "secret": "İmza anahtarı",
+      "copySecret": "Anahtarı kopyala",
+      "webhookHelp": "Çalışma alanı içeriğin dışarı çıkmasına izin veriyorsa bu sayfayı anahtarla imzalanmış JSON olarak gönderir.",
+      "target": "Web adresi veya sayfa",
+      "pickPage": "Sayfa seç",
+      "toPage": "“{title}” açılır",
+      "rowTitle": "Başlık",
+      "values": "Değerler",
+      "updateHelp": "Filtrelere uyan ve tıklayan kişinin görebildiği en fazla {max} satırı değiştirir."
+    },
+    "variables": {
+      "group": "Düğme",
+      "today": "Bugün",
+      "now": "Şimdi",
+      "me": "Tıklayan kişi"
+    },
+    "steps": {
+      "insert": "Blok ekle",
+      "add_row": "Satır ekle",
+      "update_rows": "Satırları değiştir",
+      "notify": "Kişilere bildir",
+      "webhook": "Webhook gönder",
+      "open": "Bağlantı veya sayfa aç"
+    },
+    "failed": {
+      "notFound": "Bu düğme artık sayfada değil.",
+      "noSteps": "Bu düğme henüz bir şey yapmıyor.",
+      "inTrash": "Çöp kutusundaki sayfalardaki düğmeler çalışmaz.",
+      "rateLimited": "Bu düğmeye çok sık tıklandı. Biraz bekleyip yeniden deneyin.",
+      "noAccess": "Bunu yapmak için erişiminiz yok.",
+      "locked": "Sayfa kilitli.",
+      "notConfigured": "Bu adım ayarlanmamış.",
+      "databaseGone": "Veritabanı artık yok ya da çöp kutusunda.",
+      "invalidValue": "Bir değer özelliğine uymuyor.",
+      "exportOff": "Bu çalışma alanı içeriğin dışarı çıkmasına izin vermiyor.",
+      "webhookFailed": "Adres webhook’u kabul etmedi.",
+      "invalidTarget": "Açılacak bağlantı geçerli değil.",
+      "buttonGone": "Düğme sayfadan kaldırıldı.",
+      "error": "Bir sorun oluştu.",
+      "step": "{step}. adım ({type}) çalışmadı: {reason}"
+    }
   }
 }

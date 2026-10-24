@@ -964,5 +964,80 @@
       "copyLink": "링크 복사"
     },
     "awaitingOwner": "워크스페이스 소유자가 호출을 승인하기를 기다리는 중…"
+  },
+  "button": {
+    "untitled": "버튼",
+    "placeholder": "버튼 레이블",
+    "done": "완료",
+    "confirm": "“{label}”을(를) 실행할까요?",
+    "blockLabel": "버튼 “{label}”",
+    "slash": {
+      "title": "버튼",
+      "subtext": "클릭하면 몇 가지 작업을 차례로 실행합니다",
+      "aliases": "button action click run 버튼 동작 실행"
+    },
+    "settings": {
+      "open": "버튼 설정",
+      "icon": "이모지",
+      "label": "레이블",
+      "confirm": "실행 전에 확인",
+      "confirmHelp": "클릭한 사람이 먼저 확인합니다.",
+      "steps": "클릭하면",
+      "stepsHelp": "단계는 클릭한 사람으로서, 그 사람의 권한으로 차례대로 실행됩니다. 그 사람이 할 수 없는 단계에서 버튼이 멈춥니다.",
+      "addStep": "단계 추가",
+      "moveUp": "위로 이동",
+      "moveDown": "아래로 이동",
+      "insertAt": "위치",
+      "at": {
+        "below": "버튼 아래",
+        "top": "페이지 맨 위",
+        "bottom": "페이지 맨 끝"
+      },
+      "markdown": "Markdown 블록",
+      "people": "사람",
+      "message": "메시지",
+      "notifyHelp": "이 페이지를 열 수 있는 사람에게만 알립니다.",
+      "url": "주소",
+      "secret": "서명 시크릿",
+      "copySecret": "시크릿 복사",
+      "webhookHelp": "워크스페이스가 콘텐츠 외부 전송을 허용하면 이 페이지를 시크릿으로 서명한 JSON으로 보냅니다.",
+      "target": "웹 주소 또는 페이지",
+      "pickPage": "페이지 선택",
+      "toPage": "“{title}” 열기",
+      "rowTitle": "제목",
+      "values": "값",
+      "updateHelp": "필터와 일치하고 클릭한 사람이 볼 수 있는 행을 최대 {max}개 변경합니다."
+    },
+    "variables": {
+      "group": "버튼",
+      "today": "오늘",
+      "now": "지금",
+      "me": "클릭한 사람"
+    },
+    "steps": {
+      "insert": "블록 삽입",
+      "add_row": "행 추가",
+      "update_rows": "행 변경",
+      "notify": "사람에게 알림",
+      "webhook": "웹훅 보내기",
+      "open": "링크 또는 페이지 열기"
+    },
+    "failed": {
+      "notFound": "이 버튼은 더 이상 페이지에 없습니다.",
+      "noSteps": "이 버튼은 아직 아무 작업도 하지 않습니다.",
+      "inTrash": "휴지통에 있는 페이지의 버튼은 실행되지 않습니다.",
+      "rateLimited": "이 버튼을 너무 자주 클릭했습니다. 잠시 후 다시 시도하세요.",
+      "noAccess": "이 작업을 할 권한이 없습니다.",
+      "locked": "페이지가 잠겨 있습니다.",
+      "notConfigured": "이 단계가 설정되지 않았습니다.",
+      "databaseGone": "데이터베이스가 없거나 휴지통에 있습니다.",
+      "invalidValue": "속성에 맞지 않는 값이 있습니다.",
+      "exportOff": "이 워크스페이스는 콘텐츠 외부 전송을 허용하지 않습니다.",
+      "webhookFailed": "주소가 웹훅을 받지 않았습니다.",
+      "invalidTarget": "열 링크가 올바르지 않습니다.",
+      "buttonGone": "버튼이 페이지에서 제거되었습니다.",
+      "error": "문제가 발생했습니다.",
+      "step": "{step}단계({type})가 실행되지 않았습니다: {reason}"
+    }
   }
 }

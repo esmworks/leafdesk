@@ -209,7 +209,7 @@ function withContentNote(result: CallToolResult): CallToolResult {
 }
 
 const EMBED_NOTE =
-  "Databases shown inside a page body appear in its Markdown as their own lines, `<!-- leafdesk:database <id> -->` (an inline database) or `<!-- leafdesk:linked-view <id> -->` (a linked view of a database); get_page lists them under embedded_databases. A dashboard (see add_dashboard) is the line `<!-- leafdesk:dashboard <id> -->`; get_page lists dashboards and their widgets under dashboards. A chat with an agent, where readers of the page talk to it in the app, is the line `<!-- leafdesk:agent-chat <agent_id> <chat_id> -->` (keep the chat_id: it holds the readers' conversations; a new line may leave it out).";
+  "Databases shown inside a page body appear in its Markdown as their own lines, `<!-- leafdesk:database <id> -->` (an inline database) or `<!-- leafdesk:linked-view <id> -->` (a linked view of a database); get_page lists them under embedded_databases. A dashboard (see add_dashboard) is the line `<!-- leafdesk:dashboard <id> -->`; get_page lists dashboards and their widgets under dashboards. A chat with an agent, where readers of the page talk to it in the app, is the line `<!-- leafdesk:agent-chat <agent_id> <chat_id> -->` (keep the chat_id: it holds the readers' conversations; a new line may leave it out). A button, which does what the page's editors set up when clicked in the app, is the line `<!-- leafdesk:button <id> \"Label\" -->`: keep it as it is to keep the button (the label may change); Markdown can't make one.";
 
 /** How formulas are written, for tool descriptions. */
 const FORMULA_HELP =
@@ -1149,6 +1149,8 @@ export function createMcpServer(principal: McpPrincipal) {
                             ? `Email from ${n.rowEmail?.from ?? "someone"} came in on "${title}" in ${pageLabel(n.databaseTitle)}`
                           : n.kind === "reaction"
                             ? `${n.reaction?.people.map((p) => p.name).join(", ") || who} reacted ${n.reaction?.emojis.join(" ") ?? ""} to the user's comment on "${title}" (see list_comments)`
+                          : n.kind === "automation" && n.automationName === null
+                            ? `${who} clicked a button on "${title}" that tells the user${n.automationMessage ? `: ${n.automationMessage}` : ""}`
                           : n.kind === "automation"
                             ? n.automationMessage
                               ? `Automation "${n.automationName ?? ""}" about "${title}": ${n.automationMessage}`

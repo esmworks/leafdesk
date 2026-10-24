@@ -26,6 +26,7 @@ import { env } from "@/lib/env";
 import { mapFilterRules } from "@/lib/filters";
 import { pageLabel } from "@/lib/labels";
 import { holdsOptions, holdsPeople } from "@/lib/property-types";
+import { coerceValue } from "./values";
 import { isCredentialKey, REDACTED, redactError, redactText, redactValue } from "@/lib/redact";
 import { dayString, localDay } from "@/lib/time-zone";
 import { resolvePageAccess } from "@/server/access";
@@ -608,35 +609,11 @@ async function resolveRowValues(ctx: StepContext, databaseId: string, values: Re
       // Nobody to set when an anonymous form answer (or a schedule) started it: the value stays as it is.
       else if (ctx.run.actorId) out = [ctx.run.actorId];
       else continue;
-    } else out = coerce(prop, resolveValue(value, scope, missing).value);
+    } else out = coerceValue(prop, resolveValue(value, scope, missing).value);
     patch[id] = out;
     shown[prop.name] = out;
   }
   return { patch, shown, missing };
-}
-
-/** A resolved value made fit for the property it goes into. */
-function coerce(prop: Prop, value: unknown): unknown {
-  if (value === null || value === undefined || value === "") return null;
-  if (prop.type === "relation" || holdsPeople(prop.type) || prop.type === "multi_select" || prop.type === "files") {
-    if (prop.type === "files") return value;
-    return idsOf(value);
-  }
-  if (prop.type === "number") {
-    if (typeof value === "number") return value;
-    const n = Number(textOf(value).trim());
-    return Number.isFinite(n) && textOf(value).trim() !== "" ? n : textOf(value);
-  }
-  if (prop.type === "checkbox") {
-    if (typeof value === "boolean") return value;
-    const text = textOf(value).trim().toLowerCase();
-    return text === "true" || text === "yes" || text === "1";
-  }
-  if (prop.type === "checklist") return value;
-  // A place from another row stays one; text is looked up as an address when the row is written.
-  if (prop.type === "place" && value && typeof value === "object" && !Array.isArray(value)) return value;
-  if (typeof value === "object") return textOf(value);
-  return value;
 }
 
 async function setProperties(ctx: StepContext, rowId: string, databaseId: string, values: Record<string, unknown>, scope: TemplateScope): Promise<StepResult> {
@@ -970,7 +947,7 @@ async function upsertRow(ctx: StepContext, action: Extract<AutomationAction, { t
     return { input, output: { id: existing.id, title: title?.value.trim() || pageLabel(existing.title), url: rowUrl(database.workspaceId, existing.id), created: false } };
   }
   const properties = { ...patch };
-  if (matchProp && properties[matchProp.id] === undefined) properties[matchProp.id] = coerce(matchProp, needle);
+  if (matchProp && properties[matchProp.id] === undefined) properties[matchProp.id] = coerceValue(matchProp, needle);
   const newTitle = matchProp ? (title?.value.trim() ?? "") : needle;
   const [created] = await asAutomation(() => createRows(ctx.runAs, action.databaseId, [{ title: newTitle, properties }]));
   return { input, output: { id: created.id, title: pageLabel(created.title), url: rowUrl(database.workspaceId, created.id), created: true } };

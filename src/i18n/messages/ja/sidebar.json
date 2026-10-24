@@ -133,6 +133,7 @@
     "accessRequest": "{actor}がこのページへのアクセスをリクエストしました",
     "automation": "オートメーション「{name}」：{actor}がこの行を追加または変更しました",
     "automationDatePassed": "オートメーション「{name}」：この行の日付になりました",
+    "button": "{actor} さんがボタンでこのページを送信しました",
     "rowUpdate": "{actor}さんがこの行を変更しました",
     "pageUpdated": "{actor}さんがこのページを編集しました",
     "rowEmail": "{from}からのメール",

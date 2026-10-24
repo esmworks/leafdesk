@@ -133,6 +133,7 @@
     "accessRequest": "{actor} ביקש גישה לדף הזה",
     "automation": "אוטומציה “{name}”: {actor} הוסיף או שינה את השורה הזו",
     "automationDatePassed": "אוטומציה “{name}”: הגיע התאריך של השורה הזו",
+    "button": "{actor} שלח לך את הדף הזה באמצעות כפתור",
     "rowUpdate": "{actor} שינה את השורה הזו",
     "pageUpdated": "{actor} ערך את הדף הזה",
     "rowEmail": "אימייל מ־{from}",

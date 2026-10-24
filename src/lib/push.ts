@@ -213,7 +213,12 @@ export function pushPayload(
         line = t("reminder", { date: item.reminderDate ? formatDate(item.reminderDate, reminderZone(item)) : "" });
         break;
       case "automation":
-        line = item.reminderDate ? t("automationDatePassed", { name: item.automationName ?? "" }) : t("automation", { name: item.automationName ?? "", actor });
+        // No automation: someone clicked a button on the page (server/buttons.ts).
+        line = item.reminderDate
+          ? t("automationDatePassed", { name: item.automationName ?? "" })
+          : item.automationName === null
+            ? t("button", { actor })
+            : t("automation", { name: item.automationName, actor });
         break;
       case "row_update": {
         // Which values changed, not what to: a lock screen shows it to whoever holds the device.

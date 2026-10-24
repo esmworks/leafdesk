@@ -547,6 +547,7 @@
     "formAnswer": "양식 응답",
     "agent": "에이전트",
     "automation": "자동화",
+    "button": "버튼",
     "ai": "AI",
     "aiFor": "({name} 요청)",
     "created": "<actor>{name}</actor>이(가) 이 행을 만들었습니다",

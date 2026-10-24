@@ -547,6 +547,7 @@
     "formAnswer": "Una risposta al modulo",
     "agent": "agente",
     "automation": "automazione",
+    "button": "pulsante",
     "ai": "IA",
     "aiFor": "(per {name})",
     "created": "<actor>{name}</actor> ha creato questa riga",
