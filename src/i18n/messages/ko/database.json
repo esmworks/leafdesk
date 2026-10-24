@@ -76,6 +76,10 @@
       "blank": "빈 행",
       "setDefault": "“새로 만들기”에 사용",
       "isDefault": "“새로 만들기”에 사용 중",
+      "isViewDefault": "이 보기에서 “새로 만들기”에 사용 중",
+      "forThisView": "이 보기에",
+      "forAllViews": "모든 보기에",
+      "followAllViews": "여기서 모든 보기의 기본값 사용",
       "edit": "템플릿 편집",
       "delete": "템플릿 삭제",
       "confirmDelete": "이 행 템플릿을 영구 삭제할까요? 이 템플릿으로 이미 만든 행은 그대로 유지됩니다.",
@@ -225,7 +229,14 @@
     "relative": {
       "today": "오늘",
       "thisWeek": "이번 주",
+      "lastWeek": "지난주",
+      "nextWeek": "다음 주",
       "thisMonth": "이번 달",
+      "lastMonth": "지난달",
+      "nextMonth": "다음 달",
+      "thisYear": "올해",
+      "lastYear": "작년",
+      "nextYear": "내년",
       "pastNDays": "지난 N일",
       "nextNDays": "다음 N일",
       "pastDays": "지난 {count}일",
@@ -253,7 +264,8 @@
     "clickForMenu": "클릭하여 메뉴 열기",
     "sortedNoDrag": "보기가 정렬된 동안에는 행을 끌 수 없습니다",
     "sortedAscending": "오름차순 정렬됨",
-    "sortedDescending": "내림차순 정렬됨"
+    "sortedDescending": "내림차순 정렬됨",
+    "fillHandle": "위나 아래로 끌어 이 값으로 셀 채우기"
   },
   "rowMenu": {
     "open": "열기",
@@ -780,6 +792,7 @@
     "showTable": "표 표시",
     "showWeekends": "주말 표시",
     "showIcons": "페이지 아이콘 표시",
+    "showVerticalLines": "세로선 표시",
     "openRows": "행 열기 위치",
     "openRowsIn": {
       "panel": "사이드 패널",

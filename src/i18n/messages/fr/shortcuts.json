@@ -51,6 +51,7 @@
     "moveBar": "Déplacer une barre de la frise d’un jour",
     "saveFormula": "Enregistrer une formule ou une consigne de remplissage par IA",
     "clearSelection": "Désélectionner les lignes",
+    "fillDown": "Remplir vers le bas les cellules sélectionnées du tableau à partir de celles du haut (cellules d’une seule ligne : la dupliquer)",
     "rowDuplicate": "Dupliquer la ligne (son menu ouvert dans un tableau)",
     "rowMoveTo": "Déplacer la ligne (son menu ouvert)",
     "rowComment": "Commenter la ligne (son menu ouvert)",

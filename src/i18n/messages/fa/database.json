@@ -76,6 +76,10 @@
       "blank": "ردیف خالی",
       "setDefault": "استفاده برای «جدید»",
       "isDefault": "استفاده‌شده برای «جدید»",
+      "isViewDefault": "استفاده‌شده برای «جدید» در این نما",
+      "forThisView": "برای این نما",
+      "forAllViews": "برای همهٔ نماها",
+      "followAllViews": "استفاده از پیش‌فرض همهٔ نماها در اینجا",
       "edit": "ویرایش الگو",
       "delete": "حذف الگو",
       "confirmDelete": "این الگوی ردیف برای همیشه حذف شود؟ ردیف‌هایی که قبلاً از روی آن ساخته شده‌اند همان‌طور باقی می‌مانند.",
@@ -225,7 +229,14 @@
     "relative": {
       "today": "امروز",
       "thisWeek": "این هفته",
+      "lastWeek": "هفتهٔ گذشته",
+      "nextWeek": "هفتهٔ آینده",
       "thisMonth": "این ماه",
+      "lastMonth": "ماه گذشته",
+      "nextMonth": "ماه آینده",
+      "thisYear": "امسال",
+      "lastYear": "سال گذشته",
+      "nextYear": "سال آینده",
       "pastNDays": "N روز گذشته",
       "nextNDays": "N روز آینده",
       "pastDays": "{count, plural, one {روز گذشته} other {# روز گذشته}}",
@@ -253,7 +264,8 @@
     "clickForMenu": "برای باز کردن منو کلیک کنید",
     "sortedNoDrag": "تا وقتی نما مرتب شده است، ردیف‌ها کشیده نمی‌شوند",
     "sortedAscending": "مرتب‌شده به‌صورت صعودی",
-    "sortedDescending": "مرتب‌شده به‌صورت نزولی"
+    "sortedDescending": "مرتب‌شده به‌صورت نزولی",
+    "fillHandle": "برای پر کردن خانه‌ها با این مقدار، به بالا یا پایین بکشید"
   },
   "rowMenu": {
     "open": "باز کردن",
@@ -780,6 +792,7 @@
     "showTable": "نمایش جدول",
     "showWeekends": "نمایش آخر هفته‌ها",
     "showIcons": "نمایش نماد صفحه‌ها",
+    "showVerticalLines": "نمایش خطوط عمودی",
     "openRows": "باز کردن ردیف‌ها در",
     "openRowsIn": {
       "panel": "پنل کناری",

@@ -51,6 +51,7 @@
     "moveBar": "Sposta una barra della timeline di un giorno",
     "saveFormula": "Salva una formula o un prompt di compilazione automatica con l’IA",
     "clearSelection": "Deseleziona le righe",
+    "fillDown": "Riempi verso il basso le celle selezionate della tabella da quelle in alto (con celle di una sola riga: duplicala)",
     "rowDuplicate": "Duplica la riga (con il suo menu aperto in una tabella)",
     "rowMoveTo": "Sposta la riga altrove (con il suo menu aperto)",
     "rowComment": "Commenta la riga (con il suo menu aperto)",

@@ -76,6 +76,10 @@
       "blank": "Tom rad",
       "setDefault": "Använd för ”Ny”",
       "isDefault": "Används för ”Ny”",
+      "isViewDefault": "Används för ”Ny” i den här vyn",
+      "forThisView": "För den här vyn",
+      "forAllViews": "För alla vyer",
+      "followAllViews": "Använd standarden för alla vyer här",
       "edit": "Redigera mallen",
       "delete": "Radera mallen",
       "confirmDelete": "Radera den här radmallen för gott? Rader som redan skapats från den förblir som de är.",
@@ -225,7 +229,14 @@
     "relative": {
       "today": "I dag",
       "thisWeek": "Den här veckan",
+      "lastWeek": "Förra veckan",
+      "nextWeek": "Nästa vecka",
       "thisMonth": "Den här månaden",
+      "lastMonth": "Förra månaden",
+      "nextMonth": "Nästa månad",
+      "thisYear": "I år",
+      "lastYear": "I fjol",
+      "nextYear": "Nästa år",
       "pastNDays": "Senaste N dagarna",
       "nextNDays": "Kommande N dagarna",
       "pastDays": "{count, plural, one {Senaste dagen} other {Senaste # dagarna}}",
@@ -253,7 +264,8 @@
     "clickForMenu": "Klicka för att öppna menyn",
     "sortedNoDrag": "Rader kan inte dras medan vyn är sorterad",
     "sortedAscending": "Sorterad stigande",
-    "sortedDescending": "Sorterad fallande"
+    "sortedDescending": "Sorterad fallande",
+    "fillHandle": "Dra uppåt eller nedåt för att fylla cellerna med det här värdet"
   },
   "rowMenu": {
     "open": "Öppna",
@@ -780,6 +792,7 @@
     "showTable": "Visa tabell",
     "showWeekends": "Visa helger",
     "showIcons": "Visa sidikoner",
+    "showVerticalLines": "Visa lodräta linjer",
     "openRows": "Öppna rader i",
     "openRowsIn": {
       "panel": "Sidopanel",

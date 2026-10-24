@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import texts from "@/i18n/messages/en/shortcuts.json";
-import { comboText, keyLabels, opensPresentation, opensShortcuts, opensToggleAll, rowMenuShortcut, SHORTCUT_GROUPS } from "./shortcuts";
+import { cellGridShortcut, comboText, keyLabels, opensPresentation, opensShortcuts, opensToggleAll, rowMenuShortcut, SHORTCUT_GROUPS } from "./shortcuts";
 import { SUBSCRIPT, SUPERSCRIPT, TEXT_SCRIPT_SHORTCUTS } from "./text-scripts";
 
 const press = (key: string, init: Partial<KeyboardEvent> = {}, target: unknown = null) =>
@@ -130,5 +130,25 @@ describe("opensToggleAll", () => {
     expect(combos("strike")).toEqual(["Mod-Shift-S", "Mod-Shift-X"]);
     expect(combos("copyBlockLink")).toEqual(["Alt-Shift-L"]);
     expect(combos("toggleAll")).toEqual(["Mod-Alt-T"]);
+  });
+});
+
+describe("cellGridShortcut", () => {
+  it("fills down on Mod+D, by the key's place", () => {
+    expect(cellGridShortcut(press("d", { code: "KeyD", metaKey: true }), true)).toBe("fillDown");
+    expect(cellGridShortcut(press("d", { code: "KeyD", ctrlKey: true }), false)).toBe("fillDown");
+    // Another layout's letter on the same key.
+    expect(cellGridShortcut(press("e", { code: "KeyD", ctrlKey: true }), false)).toBe("fillDown");
+  });
+
+  it("leaves other combinations alone", () => {
+    expect(cellGridShortcut(press("d", { code: "KeyD", ctrlKey: true }), true)).toBe(null);
+    expect(cellGridShortcut(press("d", { code: "KeyD", metaKey: true }), false)).toBe(null);
+    expect(cellGridShortcut(press("D", { code: "KeyD", metaKey: true, shiftKey: true }), true)).toBe(null);
+    expect(cellGridShortcut(press("d", { code: "KeyD", metaKey: true, altKey: true }), true)).toBe(null);
+    expect(cellGridShortcut(press("d", { code: "KeyD" }), true)).toBe(null);
+    expect(cellGridShortcut(press("c", { code: "KeyC", metaKey: true }), true)).toBe(null);
+    expect(cellGridShortcut(press("d", { code: "KeyD", metaKey: true, defaultPrevented: true }), true)).toBe(null);
+    expect(cellGridShortcut(press("d", { code: "KeyD", metaKey: true, isComposing: true }), true)).toBe(null);
   });
 });

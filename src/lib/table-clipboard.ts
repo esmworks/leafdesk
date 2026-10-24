@@ -237,3 +237,31 @@ export function planPaste({ grid, target, rowIds, columns, canEdit, canAddRows, 
 
 const writable = (type: PasteColumn["type"]) => type === "title" || isImportableType(type);
 const isBlank = (row: PastedRow) => !row.title && !Object.keys(row.values).length;
+
+// ---------------------------------------------------------------------------------------------
+// Filling
+
+/**
+ * The cells a fill writes when the handle of the range `from` is dragged to row `to`: the rows
+ * below its bottom or above its top, in its columns; null while the drag stays inside it.
+ */
+export function fillTarget(from: CellBounds, to: number): CellBounds | null {
+  if (to > from.bottom) return { top: from.bottom + 1, bottom: to, left: from.left, right: from.right };
+  if (to < from.top) return { top: to, bottom: from.top - 1, left: from.left, right: from.right };
+  return null;
+}
+
+/**
+ * A fill as a grid to paste over `target` (see planPaste): the range's cells (`source`, as copied,
+ * top row first) repeated in their order over the target's rows, so one row fills every row with
+ * itself and several keep their rhythm, up or down. Empty cells clear what they fill.
+ */
+export function fillGrid(source: (string | number | null)[][], from: CellBounds, target: CellBounds): string[][] {
+  const height = source.length;
+  if (!height) return [];
+  const text = (cell: string | number | null | undefined) => (cell === null || cell === undefined ? "" : String(cell));
+  return Array.from({ length: target.bottom - target.top + 1 }, (_, i) => {
+    const row = source[((((target.top + i - from.top) % height) + height) % height)];
+    return row.map(text);
+  });
+}

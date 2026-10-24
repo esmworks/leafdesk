@@ -380,6 +380,8 @@ export type PublishedDatabase = {
   noIcons?: true;
   /** Board and gallery cards: long values take more lines instead of being cut off. */
   wrap?: true;
+  /** Tables: no lines between columns, only between rows. */
+  noVerticalLines?: true;
   /** Charts (layout "chart"). */
   chart?: PublishedChart;
 };
@@ -1139,6 +1141,8 @@ export async function publishedDatabase(
     ...(icons ? {} : { noIcons: true as const }),
     // Board and gallery cards wrapping long values (see ViewConfig wrapProperties).
     ...((layout === "board" || layout === "gallery") && chosen.config.wrapProperties ? { wrap: true as const } : {}),
+    // Tables without lines between their columns (see ViewConfig showVerticalLines).
+    ...(layout === "table" && chosen.config.showVerticalLines === false ? { noVerticalLines: true as const } : {}),
   };
 }
 

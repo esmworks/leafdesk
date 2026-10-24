@@ -172,7 +172,8 @@
     start of their bodies, emoji reactions and their comments), timeline, map (rows as pins at a place
     property), chart and dashboard (widgets over the database, see Dashboards), each with its own filters,
     sorting, grouping and shown properties (one by one, or all hidden or shown at once). Filters
-    combine with "and"/"or" in groups and take relative dates such as "this week". Text can be
+    combine with "and"/"or" in groups and take relative dates: today, this, last or next week (Monday
+    to Sunday), month or year, and the past or next few days. Text can be
     filtered on what it does or does not contain, numbers with =, ≠, <, ≤, > and ≥, dates on,
     before, after, on or before and on or after a day, and selects, statuses, tags, relations and
     people on any of several values or none of them in one rule. A "Me" filter (also inside such a
@@ -186,7 +187,10 @@
     views too), and a calendar can leave out Saturdays and Sundays (*Show weekends*, month and
     week alike): its weekdays then share the width, and rows only on a weekend are listed under it
     with their day, to open or drag onto a weekday. Boards and galleries can wrap long values on
-    their cards onto more lines instead of cutting them off (*Wrap all properties*).
+    their cards onto more lines instead of cutting them off (*Wrap all properties*), and a table
+    can leave out the lines between its columns (*Show vertical lines*; published tables too).
+  - Clicking a value on a board or gallery card edits it in place with the table's editor, without
+    opening the row; people who can't change it see the plain value.
   - Table columns are resized by dragging their edge; double-clicking the edge fits the column to
     its header and the rows shown. The width is kept with the view.
   - Names, options and linked rows cut short with an ellipsis show in full as a tooltip on hover;
@@ -203,6 +207,9 @@
     import reads it (numbers, dates, yes/no, option and people names), adding options a select
     lacks and, in an ungrouped table, rows past the last one. One pasted value fills the whole
     range; cells that don't fit their column or that you may not change are left out and counted.
+    The handle at the bottom-right of the selection fills the cells it is dragged over (up or down)
+    with the selection's values, and Cmd/Ctrl+D fills a range down from its top cell in each column
+    (on a single row it duplicates the row); both write the same way a paste does.
     From 120 rows on, a table renders only the rows near the visible part of the page. Selected
     rows can be edited, given or cleared of an icon, duplicated, merged, exported or trashed
     together (rows the viewer may not edit, and locked rows, are skipped and counted).
@@ -325,7 +332,9 @@
   - Put a database inside any page, or show a view of an existing one there. A table block turns
     into a database from its block menu: its first row names the properties.
   - Lock a database to freeze its properties and views, and export its rows as CSV.
-  - Row templates with preset properties and content; pick one as the default for "New". A
+  - Row templates with preset properties and content; pick one as the default for "New", for all
+    views or only for the view you are in (that view's "New" then starts from it, or from a blank
+    row, while other views, forms, the API and MCP keep the database's default). A
     template's person can be *Me* and its date *Today* or *Now*: filled in with whoever adds the
     row and the day (in their time zone) or moment they add it, whether by hand, a button, an
     automation, a repeating template (as the person who set the repeat), the API or MCP (in UTC).

@@ -51,6 +51,7 @@
     "moveBar": "Siirrä aikajanan palkkia päivällä",
     "saveFormula": "Tallenna kaava tai tekoälytäytön kehote",
     "clearSelection": "Tyhjennä rivivalinta",
+    "fillDown": "Täytä valitut taulukon solut alaspäin ylimmistä (kun valittuna on yhden rivin soluja: monista rivi)",
     "rowDuplicate": "Monista rivi (sen valikko auki taulukossa)",
     "rowMoveTo": "Siirrä rivi muualle (sen valikko auki)",
     "rowComment": "Kommentoi riviä (sen valikko auki)",

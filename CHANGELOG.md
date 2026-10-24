@@ -65,6 +65,28 @@
   comment; published pages show neither.
 - **The theme follows in every tab.** Light, dark or system picked in one tab applies at once in
   the person's other open tabs of the app.
+- **Fill cells by dragging.** A selected cell or range in a table has a small handle at its
+  bottom-right corner: drag it up or down and the values are copied into the cells it passes over
+  (a range of several rows repeats in its order), in one write that goes through the same checks as
+  pasting. Cmd/Ctrl+D fills a range down from its top cell in each column; with a single row it
+  duplicates the row, now also without the row menu open.
+- **Edit values on board and gallery cards.** Clicking a value shown on a card opens the same
+  editor a table cell uses (a select's options, a date picker, a person list…) without opening the
+  row. Read-only viewers and properties they can't edit still show the plain value.
+- **More date ranges in filters.** "Is within" on a date now also offers last and next week, last
+  and next month, and this, last and next year, in views and in MCP, REST and AI chat filters.
+  Weeks run Monday to Sunday, as "this week" already did; a new row in a view filtered on one gets
+  the day in that range closest to today.
+- **Find a property type by typing.** The name box of the header's "+" also searches the types by
+  their names in the interface language; Enter (or the arrow keys, then Enter) creates the
+  highlighted type, and a name that is just a type's name gives the property that type's default
+  name.
+- **A default row template per view.** "Set as default" in a database's row templates menu asks
+  whether the template is the default for this view or for all views. "New" in that view then
+  starts from the view's own choice (a template or a blank row), while other views and other doors
+  (MCP, REST, forms) keep the database's default; "For all views" clears the views' own choices.
+- **Hide vertical gridlines in tables.** Layout → "Show vertical lines" turns off the lines
+  between a table's columns, for that view and where it is published.
 
 ### Changed
 

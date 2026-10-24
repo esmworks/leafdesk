@@ -183,6 +183,16 @@ try {
   check(thisWeek.split(",").includes("today") && !/far|undated/.test(thisWeek), "due this week", thisWeek);
   const thisMonth = await titles(within("this_month"));
   check(thisMonth.split(",").includes("today") && !/far|undated/.test(thisMonth), "due this month", thisMonth);
+  // Whole weeks, months and years around this one never hold today; which other rows they hold depends on the day.
+  for (const range of ["last_week", "next_week", "last_month", "next_month", "last_year", "next_year"]) {
+    const shown = (await titles(within(range))).split(",");
+    check(!shown.includes("today") && !shown.includes("undated"), `due ${range.replace("_", " ")} leaves today out`, shown);
+  }
+  const thisYear = await titles(within("this_year"));
+  check(thisYear.split(",").includes("today") && !/undated/.test(thisYear), "due this year", thisYear);
+  const nextWeek = await titles(within("next_week"));
+  const lastWeek = await titles(within("last_week"));
+  check(!nextWeek.includes("recent") && !lastWeek.includes("soon"), "last and next week look back and ahead", { lastWeek, nextWeek });
   check((await titles(within("past_n_days"))) === (await titles({})), "past N days without N filters nothing yet");
   const created = await titles({ filters: [{ propertyId: "created_at", op: "is_within", value: "today" }] });
   check(created === (await titles({})), "rows created today match created time is today", created);

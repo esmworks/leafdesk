@@ -76,6 +76,10 @@
       "blank": "Baris kosong",
       "setDefault": "Gunakan untuk “Baru”",
       "isDefault": "Dipakai untuk “Baru”",
+      "isViewDefault": "Dipakai untuk “Baru” di tampilan ini",
+      "forThisView": "Untuk tampilan ini",
+      "forAllViews": "Untuk semua tampilan",
+      "followAllViews": "Gunakan bawaan semua tampilan di sini",
       "edit": "Edit templat",
       "delete": "Hapus templat",
       "confirmDelete": "Hapus templat baris ini secara permanen? Baris yang sudah dibuat darinya tidak berubah.",
@@ -225,7 +229,14 @@
     "relative": {
       "today": "Hari ini",
       "thisWeek": "Minggu ini",
+      "lastWeek": "Minggu lalu",
+      "nextWeek": "Minggu depan",
       "thisMonth": "Bulan ini",
+      "lastMonth": "Bulan lalu",
+      "nextMonth": "Bulan depan",
+      "thisYear": "Tahun ini",
+      "lastYear": "Tahun lalu",
+      "nextYear": "Tahun depan",
       "pastNDays": "N hari terakhir",
       "nextNDays": "N hari ke depan",
       "pastDays": "{count, plural, other {# hari terakhir}}",
@@ -253,7 +264,8 @@
     "clickForMenu": "Klik untuk membuka menu",
     "sortedNoDrag": "Baris tidak dapat diseret saat tampilan diurutkan",
     "sortedAscending": "Diurutkan menaik",
-    "sortedDescending": "Diurutkan menurun"
+    "sortedDescending": "Diurutkan menurun",
+    "fillHandle": "Seret ke atas atau ke bawah untuk mengisi sel dengan nilai ini"
   },
   "rowMenu": {
     "open": "Buka",
@@ -780,6 +792,7 @@
     "showTable": "Tampilkan tabel",
     "showWeekends": "Tampilkan akhir pekan",
     "showIcons": "Tampilkan ikon halaman",
+    "showVerticalLines": "Tampilkan garis vertikal",
     "openRows": "Buka baris di",
     "openRowsIn": {
       "panel": "Panel samping",

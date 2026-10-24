@@ -76,6 +76,10 @@
       "blank": "Tom række",
       "setDefault": "Brug til “Ny”",
       "isDefault": "Bruges til “Ny”",
+      "isViewDefault": "Bruges til “Ny” i denne visning",
+      "forThisView": "Til denne visning",
+      "forAllViews": "Til alle visninger",
+      "followAllViews": "Brug standarden for alle visninger her",
       "edit": "Redigér skabelon",
       "delete": "Slet skabelon",
       "confirmDelete": "Vil du slette denne rækkeskabelon permanent? Rækker, der allerede er lavet ud fra den, forbliver som de er.",
@@ -225,7 +229,14 @@
     "relative": {
       "today": "I dag",
       "thisWeek": "Denne uge",
+      "lastWeek": "Sidste uge",
+      "nextWeek": "Næste uge",
       "thisMonth": "Denne måned",
+      "lastMonth": "Sidste måned",
+      "nextMonth": "Næste måned",
+      "thisYear": "I år",
+      "lastYear": "Sidste år",
+      "nextYear": "Næste år",
       "pastNDays": "Seneste N dage",
       "nextNDays": "Næste N dage",
       "pastDays": "{count, plural, one {Seneste dag} other {Seneste # dage}}",
@@ -253,7 +264,8 @@
     "clickForMenu": "Klik for at åbne menuen",
     "sortedNoDrag": "Rækker kan ikke trækkes, mens visningen er sorteret",
     "sortedAscending": "Sorteret stigende",
-    "sortedDescending": "Sorteret faldende"
+    "sortedDescending": "Sorteret faldende",
+    "fillHandle": "Træk op eller ned for at udfylde cellerne med denne værdi"
   },
   "rowMenu": {
     "open": "Åbn",
@@ -780,6 +792,7 @@
     "showTable": "Vis tabel",
     "showWeekends": "Vis weekender",
     "showIcons": "Vis sideikoner",
+    "showVerticalLines": "Vis lodrette linjer",
     "openRows": "Åbn rækker i",
     "openRowsIn": {
       "panel": "Sidepanel",

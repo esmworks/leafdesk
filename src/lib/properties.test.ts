@@ -483,6 +483,17 @@ describe("defaultsFromFilters", () => {
     ];
     expect(defaultsFromFilters(filters, props)).toEqual({});
   });
+
+  it("dates a new row today, or on the nearest day of a range that lies before or after it", () => {
+    const date = [prop("date")];
+    const now = new Date(2026, 8, 30, 12);
+    const within = (value: string, days?: number): FilterRule[] => [{ propertyId: "p_date", op: "is_within", value, days }];
+    expect(defaultsFromFilters(within("this_week"), date, { now })).toEqual({ p_date: "2026-09-30" });
+    expect(defaultsFromFilters(within("past_n_days", 3), date, { now })).toEqual({ p_date: "2026-09-30" });
+    expect(defaultsFromFilters(within("last_week"), date, { now })).toEqual({ p_date: "2026-09-27" });
+    expect(defaultsFromFilters(within("next_month"), date, { now })).toEqual({ p_date: "2026-10-01" });
+    expect(defaultsFromFilters(within("last_year"), date, { now })).toEqual({ p_date: "2025-12-31" });
+  });
 });
 
 describe("created by properties", () => {

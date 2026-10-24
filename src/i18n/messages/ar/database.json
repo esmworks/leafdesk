@@ -76,6 +76,10 @@
       "blank": "صف فارغ",
       "setDefault": "الاستخدام لـ «جديد»",
       "isDefault": "مستخدم لـ «جديد»",
+      "isViewDefault": "مستخدم لـ «جديد» في هذا العرض",
+      "forThisView": "لهذا العرض",
+      "forAllViews": "لكل العروض",
+      "followAllViews": "استخدام الافتراضي لكل العروض هنا",
       "edit": "تحرير القالب",
       "delete": "حذف القالب",
       "confirmDelete": "حذف قالب الصف هذا نهائيًا؟ تبقى الصفوف التي أُنشئت منه كما هي.",
@@ -225,7 +229,14 @@
     "relative": {
       "today": "اليوم",
       "thisWeek": "هذا الأسبوع",
+      "lastWeek": "الأسبوع الماضي",
+      "nextWeek": "الأسبوع القادم",
       "thisMonth": "هذا الشهر",
+      "lastMonth": "الشهر الماضي",
+      "nextMonth": "الشهر القادم",
+      "thisYear": "هذا العام",
+      "lastYear": "العام الماضي",
+      "nextYear": "العام القادم",
       "pastNDays": "آخر N يوم",
       "nextNDays": "الأيام N القادمة",
       "pastDays": "{count, plural, one {اليوم الماضي} two {آخر يومين} few {آخر # أيام} many {آخر # يومًا} other {آخر # يوم}}",
@@ -253,7 +264,8 @@
     "clickForMenu": "انقر لفتح القائمة",
     "sortedNoDrag": "لا يمكن سحب الصفوف ما دام العرض مرتبًا",
     "sortedAscending": "مرتبة تصاعديًا",
-    "sortedDescending": "مرتبة تنازليًا"
+    "sortedDescending": "مرتبة تنازليًا",
+    "fillHandle": "اسحب لأعلى أو لأسفل لملء الخلايا بهذه القيمة"
   },
   "rowMenu": {
     "open": "فتح",
@@ -780,6 +792,7 @@
     "showTable": "إظهار الجدول",
     "showWeekends": "إظهار عطلات نهاية الأسبوع",
     "showIcons": "إظهار أيقونات الصفحات",
+    "showVerticalLines": "إظهار الخطوط العمودية",
     "openRows": "فتح الصفوف في",
     "openRowsIn": {
       "panel": "لوحة جانبية",

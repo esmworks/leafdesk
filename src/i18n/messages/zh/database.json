@@ -76,6 +76,10 @@
       "blank": "空白行",
       "setDefault": "用于“新建”",
       "isDefault": "已用于“新建”",
+      "isViewDefault": "已在此视图中用于“新建”",
+      "forThisView": "用于此视图",
+      "forAllViews": "用于所有视图",
+      "followAllViews": "在此使用所有视图的默认设置",
       "edit": "编辑模板",
       "delete": "删除模板",
       "confirmDelete": "要永久删除此行模板吗？已基于它创建的行会保持不变。",
@@ -225,7 +229,14 @@
     "relative": {
       "today": "今天",
       "thisWeek": "本周",
+      "lastWeek": "上周",
+      "nextWeek": "下周",
       "thisMonth": "本月",
+      "lastMonth": "上个月",
+      "nextMonth": "下个月",
+      "thisYear": "今年",
+      "lastYear": "去年",
+      "nextYear": "明年",
       "pastNDays": "过去 N 天",
       "nextNDays": "未来 N 天",
       "pastDays": "{count, plural, other {过去 # 天}}",
@@ -253,7 +264,8 @@
     "clickForMenu": "点击打开菜单",
     "sortedNoDrag": "视图已排序时无法拖动行",
     "sortedAscending": "已升序排列",
-    "sortedDescending": "已降序排列"
+    "sortedDescending": "已降序排列",
+    "fillHandle": "向上或向下拖动，用此值填充单元格"
   },
   "rowMenu": {
     "open": "打开",
@@ -780,6 +792,7 @@
     "showTable": "显示表格",
     "showWeekends": "显示周末",
     "showIcons": "显示页面图标",
+    "showVerticalLines": "显示竖线",
     "openRows": "行的打开方式",
     "openRowsIn": {
       "panel": "侧边面板",

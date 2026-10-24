@@ -51,6 +51,7 @@
     "moveBar": "Przesuń pasek na osi czasu o jeden dzień",
     "saveFormula": "Zapisz formułę lub polecenie autouzupełniania AI",
     "clearSelection": "Wyczyść zaznaczenie wierszy",
+    "fillDown": "Wypełnij zaznaczone komórki tabeli w dół od górnych (przy zaznaczonych komórkach jednego wiersza: duplikuj go)",
     "rowDuplicate": "Duplikuj wiersz (przy otwartym menu w tabeli)",
     "rowMoveTo": "Przenieś wiersz gdzie indziej (przy otwartym menu)",
     "rowComment": "Skomentuj wiersz (przy otwartym menu)",

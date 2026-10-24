@@ -464,7 +464,12 @@ export function TableView({
           className={cn("relative border-b border-border p-0 align-top outline-none", frozen(0, selected).className, mark(TITLE))}
           style={frozen(0).style}
         >
-          <CellMark active={grid.isActive(at, 0)} selected={grid.spans && grid.isSelected(at, 0)} />
+          <CellMark
+            active={grid.isActive(at, 0)}
+            selected={grid.spans && grid.isSelected(at, 0)}
+            filling={grid.fillingEdges(at, 0)}
+            handle={grid.fillHandle(at, 0)}
+          />
           <div className="flex font-medium" style={subItems.nested ? { paddingInlineStart: line.depth * SUB_ITEM_INDENT + 4 } : undefined}>
             {subItems.nested && <SubItemToggle line={line} title={label} onToggle={() => subItems.toggle(row.id)} className="h-[33px]" />}
             {showIcons && row.icon && <span className="flex h-[33px] shrink-0 items-center ps-2 leading-none">{row.icon}</span>}
@@ -515,7 +520,12 @@ export function TableView({
               className={cn("relative border-b border-s border-border p-0 align-top outline-none", frozen(i + 1, selected).className, mark(p.id))}
               style={frozen(i + 1).style}
             >
-              <CellMark active={grid.isActive(at, i + 1)} selected={grid.spans && grid.isSelected(at, i + 1)} />
+              <CellMark
+                active={grid.isActive(at, i + 1)}
+                selected={grid.spans && grid.isSelected(at, i + 1)}
+                filling={grid.fillingEdges(at, i + 1)}
+                handle={grid.fillHandle(at, i + 1)}
+              />
               {valueAccess === "hidden" ? (
                 <PropertyCell prop={p} value={undefined} hidden onChange={() => {}} onCreateOption={createOption} />
               ) : (
@@ -635,6 +645,7 @@ export function TableView({
     },
     // Rows pasted past the last one are added; a grouped table wouldn't know which group they go in.
     canAddRows: !readOnly && !grouping,
+    canFill: !readOnly,
     timeZone,
     write: (plan: PastePlan) => {
       const shown: ShownValue[] = plan.updates.flatMap((u) => [
@@ -645,6 +656,12 @@ export function TableView({
       ]);
       void api.pasteRows(plan, shown);
     },
+    duplicateRow: readOnly
+      ? undefined
+      : (r) => {
+          const row = gridRows[r]?.line.row;
+          if (row) void api.duplicateRows([row.id]);
+        },
     reveal: (r) => (gridRows[r] && bodyControls.current ? bodyControls.current.reveal(gridRows[r].item) : false),
   });
 
@@ -722,7 +739,11 @@ export function TableView({
         className={cn("page-gutter-table overflow-x-auto pb-3 outline-none [color-scheme:light_dark]", HIDE_SCROLLBAR, grid.spans && "select-none")}
         style={{ "--table-handles": `${handles + 8}px` } as React.CSSProperties}
       >
-        <table className="table-fixed border-collapse text-sm" style={{ width: totalWidth }}>
+        <table
+          // Without vertical lines (Layout → Show vertical lines), only the rows' lines remain.
+          className={cn("table-fixed border-collapse text-sm", view.config.showVerticalLines === false && "[&_td]:border-s-0 [&_th]:border-s-0")}
+          style={{ width: totalWidth }}
+        >
           <colgroup>
             <col style={{ width: handles }} />
             <col style={{ width: nameWidth }} />
@@ -1207,17 +1228,47 @@ function Spacer({ height, columns }: { height: number; columns: number }) {
   );
 }
 
-/** The active cell's outline and the selected range's tint, over a body cell. */
-function CellMark({ active, selected }: { active: boolean; selected: boolean }) {
-  if (!active && !selected) return null;
+/**
+ * The active cell's outline and the selected range's tint over a body cell, a dashed outline over
+ * the cells the fill handle is dragged across, and the handle itself at the range's bottom corner.
+ */
+function CellMark({
+  active,
+  selected,
+  filling,
+  handle,
+}: {
+  active: boolean;
+  selected: boolean;
+  /** The sides of the filled area this cell is on, while the fill handle is dragged over it. */
+  filling: { top: boolean; bottom: boolean; start: boolean; end: boolean } | null;
+  handle: { onMouseDown: (e: React.MouseEvent<HTMLElement>) => void } | null;
+}) {
+  const t = useTranslations("database.table");
+  if (!active && !selected && !filling && !handle) return null;
   return (
-    <span
-      aria-hidden
-      className={cn(
-        "pointer-events-none absolute inset-0 z-10",
-        selected && "bg-accent/10",
-        active && "shadow-[inset_0_0_0_2px_var(--accent)]",
+    <>
+      <span
+        aria-hidden
+        className={cn(
+          "pointer-events-none absolute inset-0 z-10",
+          selected && "bg-accent/10",
+          active && "shadow-[inset_0_0_0_2px_var(--accent)]",
+          filling && "border-dashed border-accent bg-accent/5",
+          filling?.top && "border-t-2",
+          filling?.bottom && "border-b-2",
+          filling?.start && "border-s-2",
+          filling?.end && "border-e-2",
+        )}
+      />
+      {handle && (
+        <span
+          role="presentation"
+          title={t("fillHandle")}
+          onMouseDown={handle.onMouseDown}
+          className="absolute -inset-e-1 -bottom-1 z-20 h-2 w-2 cursor-crosshair rounded-[1px] border border-bg bg-accent pointer-coarse:hidden"
+        />
       )}
-    />
+    </>
   );
 }

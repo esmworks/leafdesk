@@ -812,7 +812,19 @@ export type FilterOp =
   | "lte"
   | "is_within";
 /** Values of an `is_within` rule: date ranges relative to the day the view is looked at. */
-export type RelativeDateRange = "today" | "this_week" | "this_month" | "past_n_days" | "next_n_days";
+export type RelativeDateRange =
+  | "today"
+  | "this_week"
+  | "last_week"
+  | "next_week"
+  | "this_month"
+  | "last_month"
+  | "next_month"
+  | "this_year"
+  | "last_year"
+  | "next_year"
+  | "past_n_days"
+  | "next_n_days";
 /**
  * `days` is only used by `is_within` rules with a `past_n_days` / `next_n_days` value. `is_any_of` and
  * `is_none_of` rules hold a list of values (option, person or row ids).
@@ -952,6 +964,14 @@ export type ViewConfig = {
   showIcons?: boolean;
   /** Timelines: whether the table of row titles shows left of the bars; shown when missing. */
   showTable?: boolean;
+  /** Table views: the lines between columns, published tables too; shown when missing. */
+  showVerticalLines?: boolean;
+  /**
+   * The row template "New" starts from in this view, over the database's default (see
+   * server/templates.ts createRow): a template's id, or null for blank rows. The database's
+   * default when missing, or when the template is no longer one of the database's.
+   */
+  defaultTemplateId?: string | null;
   /** Galleries: "medium" when missing. */
   cardSize?: CardSize;
   /** Boards and galleries: long values on cards wrap onto more lines instead of cutting off; cut off when missing. */

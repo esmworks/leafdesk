@@ -51,6 +51,7 @@
     "moveBar": "Flytta en stapel i tidslinjen en dag",
     "saveFormula": "Spara en formel eller en prompt för AI-ifyllning",
     "clearSelection": "Rensa radmarkeringen",
+    "fillDown": "Fyll de markerade tabellcellerna nedåt från de översta (med celler från en rad markerade: duplicera raden)",
     "rowDuplicate": "Duplicera raden (med dess meny öppen i en tabell)",
     "rowMoveTo": "Flytta raden någon annanstans (med dess meny öppen)",
     "rowComment": "Kommentera raden (med dess meny öppen)",

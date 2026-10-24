@@ -51,6 +51,7 @@
     "moveBar": "Mover una barra de la cronología un día",
     "saveFormula": "Guardar una fórmula o una instrucción de autorrelleno con IA",
     "clearSelection": "Quitar la selección de filas",
+    "fillDown": "Rellenar hacia abajo las celdas seleccionadas de la tabla desde las de arriba (con celdas de una sola fila: duplicarla)",
     "rowDuplicate": "Duplicar la fila (con su menú abierto en una tabla)",
     "rowMoveTo": "Mover la fila a otro sitio (con su menú abierto)",
     "rowComment": "Comentar la fila (con su menú abierto)",

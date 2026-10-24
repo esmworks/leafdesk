@@ -118,8 +118,9 @@ export async function createRowAction(
     properties?: Record<string, unknown>;
     /** Copy this row template of the database (see server/templates.ts). */
     templateId?: string | null;
-    /** Start from the database's default row template, when it has one. */
+    /** Start from the default row template of the view (`viewId`) or else the database, when it has one. */
     useDefault?: boolean;
+    viewId?: string;
   } = {},
 ) {
   return run(async (userId) => {
@@ -130,6 +131,7 @@ export async function createRowAction(
         properties: input.properties,
         templateId: input.templateId,
         useDefault: input.useDefault,
+        viewId: typeof input.viewId === "string" ? input.viewId : undefined,
         timeZone: await cookieTimeZone(),
       });
       return { id: created.id, position: created.position };
