@@ -318,16 +318,18 @@ export async function PublishedBody({
         );
         return (
           <section key={i} className="my-4">
-            <h2 className={cn("text-base font-semibold", pad, styles.heading)}>
-              {href && !block.database.outside ? (
-                <Link href={href(block.database.id, block.database.title)} className="inline-flex items-center gap-1.5 hover:underline">
-                  {label}
-                </Link>
-              ) : (
-                <span className="inline-flex items-center gap-1.5">{label}</span>
-              )}
-            </h2>
-            <PublishedDatabaseView table={block.database.table} links={linksOf(block.database)} print={print} className={cn("mt-2", pad)} />
+            {!block.hideTitle && (
+              <h2 className={cn("text-base font-semibold", pad, styles.heading)}>
+                {href && !block.database.outside ? (
+                  <Link href={href(block.database.id, block.database.title)} className="inline-flex items-center gap-1.5 hover:underline">
+                    {label}
+                  </Link>
+                ) : (
+                  <span className="inline-flex items-center gap-1.5">{label}</span>
+                )}
+              </h2>
+            )}
+            <PublishedDatabaseView table={block.database.table} links={linksOf(block.database)} print={print} className={cn(!block.hideTitle && "mt-2", pad)} />
           </section>
         );
       }

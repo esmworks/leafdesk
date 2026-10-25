@@ -430,6 +430,7 @@
     "linked": "Länkad vy",
     "layout": "Layout",
     "viewOnly": "Bara personer som kan redigera den här sidan kan ändra den här vyn.",
+    "showTitle": "Visa rubrik",
     "picker": {
       "title": "Välj en databas",
       "search": "Sök databaser",

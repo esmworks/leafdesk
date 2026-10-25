@@ -430,6 +430,7 @@
     "linked": "关联视图",
     "layout": "布局",
     "viewOnly": "只有能编辑此页面的人才能更改此视图。",
+    "showTitle": "显示标题",
     "picker": {
       "title": "选择数据库",
       "search": "搜索数据库",

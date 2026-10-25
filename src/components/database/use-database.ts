@@ -7,6 +7,7 @@ import {
   setSubItemsAction,
   setDependenciesAction,
   addViewAction,
+  duplicateViewAction,
   archiveRowsAction,
   changePropertyTypeAction,
   createRowAction,
@@ -706,6 +707,10 @@ export function useDatabase(
 
       addView(name: string, type: ViewType) {
         return mutateSchema((s) => s, () => addViewAction(databaseId, { name, type }));
+      },
+
+      duplicateView(view: View, name: string) {
+        return mutateSchema((s) => s, () => duplicateViewAction(view.id, name));
       },
 
       updateView(view: View, patch: { name?: string; config?: ViewConfig }) {

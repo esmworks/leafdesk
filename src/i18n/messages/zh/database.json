@@ -126,6 +126,9 @@
     "rename": "重命名",
     "viewName": "视图名称",
     "deleteView": "删除视图",
+    "duplicate": "复制视图",
+    "duplicateHint": "此视图的副本，包含其布局、筛选和排序",
+    "copyName": "{name}（副本）",
     "exportView": "导出此视图",
     "export": {
       "csv": "CSV",

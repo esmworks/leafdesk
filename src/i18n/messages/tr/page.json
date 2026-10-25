@@ -430,6 +430,7 @@
     "linked": "Bağlı görünüm",
     "layout": "Düzen",
     "viewOnly": "Bu görünümü yalnızca bu sayfayı düzenleyebilenler değiştirebilir.",
+    "showTitle": "Başlığı göster",
     "picker": {
       "title": "Bir veritabanı seçin",
       "search": "Veritabanlarında ara",

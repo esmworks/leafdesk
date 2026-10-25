@@ -126,6 +126,9 @@
     "rename": "Hernoemen",
     "viewName": "Naam van de weergave",
     "deleteView": "Weergave verwijderen",
+    "duplicate": "Weergave dupliceren",
+    "duplicateHint": "Een kopie van deze weergave met indeling, filters en sorteringen",
+    "copyName": "{name} (kopie)",
     "exportView": "Deze weergave exporteren",
     "export": {
       "csv": "CSV",

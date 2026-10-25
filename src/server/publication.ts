@@ -410,6 +410,8 @@ export type PublishedBlock =
        * Null otherwise: the block then shows nothing about it.
        */
       database: PublishedEmbed | null;
+      /** A linked view shown without the database's name above it. */
+      hideTitle?: true;
     };
 /**
  * A dashboard widget on a published page: its database as its view shows it, published under the
@@ -778,7 +780,12 @@ async function publishedBody(
           };
         }
         if (segment.kind !== "embed") return segment;
-        return { kind: "embed", type: segment.type, database: await publishedEmbed(publisher, rootId, outside, segment.databaseId, segment.view, loads) };
+        return {
+          kind: "embed",
+          type: segment.type,
+          database: await publishedEmbed(publisher, rootId, outside, segment.databaseId, segment.view, loads),
+          ...(segment.view?.hideTitle ? { hideTitle: true as const } : {}),
+        };
       }),
     );
   return resolve(segments);

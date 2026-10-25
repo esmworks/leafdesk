@@ -390,6 +390,11 @@ export async function addViewAction(databaseId: string, input: { name: string; t
   return run((userId) => databases.addView(userId, databaseId, input));
 }
 
+export async function duplicateViewAction(viewId: string, name: string) {
+  if (typeof viewId !== "string" || typeof name !== "string") return { ok: false as const, error: "Invalid view" };
+  return run((userId) => databases.duplicateView(userId, viewId, name.slice(0, 200)));
+}
+
 export async function updateViewAction(viewId: string, patch: { name?: string; config?: ViewConfig }) {
   return run((userId) => databases.updateView(userId, viewId, patch));
 }

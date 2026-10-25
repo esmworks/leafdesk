@@ -126,6 +126,9 @@
     "rename": "تغییر نام",
     "viewName": "نام نما",
     "deleteView": "حذف نما",
+    "duplicate": "تکثیر نما",
+    "duplicateHint": "یک رونوشت از این نما با چیدمان، فیلترها و مرتب‌سازی‌هایش",
+    "copyName": "{name} (رونوشت)",
     "exportView": "خروجی گرفتن از این نما",
     "export": {
       "csv": "CSV",

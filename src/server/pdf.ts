@@ -205,9 +205,9 @@ async function embedsOf(userId: string, blocks: MdBlock[], nameLabel: string, lo
     if (!block.id || !isEmbedBlockType(block.type)) continue;
     const databaseId = String(block.props?.databaseId ?? "");
     if (!databaseId) continue;
-    const view = block.type === "linkedView" ? { linked: parseLinkedView(block.props?.view) } : {};
-    const embed = await printedEmbed(userId, databaseId, view, loads);
-    if (embed) out.set(block.id, { title: embed.title, table: tableOf(embed.table, nameLabel, locale) });
+    const linked = block.type === "linkedView" ? parseLinkedView(block.props?.view) : undefined;
+    const embed = await printedEmbed(userId, databaseId, linked ? { linked } : {}, loads);
+    if (embed) out.set(block.id, { title: linked?.hideTitle ? null : embed.title, table: tableOf(embed.table, nameLabel, locale) });
   }
   return out;
 }

@@ -126,6 +126,9 @@
     "rename": "名前を変更",
     "viewName": "ビュー名",
     "deleteView": "ビューを削除",
+    "duplicate": "ビューを複製",
+    "duplicateHint": "このビューをレイアウト、フィルター、並べ替えごとコピーします",
+    "copyName": "{name}（コピー）",
     "exportView": "このビューをエクスポート",
     "export": {
       "csv": "CSV",

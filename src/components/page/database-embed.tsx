@@ -1,6 +1,6 @@
 "use client";
 
-import { ArrowUpRight, ChevronDown, Lock, RotateCcw, Trash2 } from "lucide-react";
+import { ArrowUpRight, Check, ChevronDown, Heading, Lock, RotateCcw, Trash2 } from "lucide-react";
 import Link from "next/link";
 import { useTranslations } from "next-intl";
 import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState, useTransition } from "react";
@@ -11,7 +11,7 @@ import { DatabasePage } from "@/components/database/database-page";
 import { Floating, useFloating } from "@/components/database/floating";
 import { ViewIcon } from "@/components/database/property-icons";
 import type { DatabaseSnapshot, Property } from "@/components/database/types";
-import { Button, cn, MenuItem, PageIcon, pageLabel } from "@/components/ui";
+import { Button, cn, MenuItem, MenuSeparator, PageIcon, pageLabel } from "@/components/ui";
 import type { ViewConfig, ViewType } from "@/db/schema/app";
 import { chartGroupProperty } from "@/lib/chart";
 import { LINKED_VIEW_TYPES, type LinkedView } from "@/lib/embed-blocks";
@@ -166,17 +166,22 @@ function EmbedHeader({
   const tc = useTranslations("common");
   const { database } = snapshot;
   const href = `/w/${database.workspaceId}/p/${database.id}`;
+  // A linked view without its title keeps only what the page's editors change it with.
+  const titled = !linked?.view.hideTitle;
+  if (!titled && !linked?.onChange) return null;
   return (
     <div className="flex min-w-0 items-center gap-2 pb-1">
-      <Link
-        href={href}
-        title={t("open")}
-        className="group flex min-w-0 items-center gap-1.5 rounded px-1 py-0.5 -ms-1 text-base font-semibold hover:bg-bg-hover"
-      >
-        <PageIcon icon={database.icon} kind="database" className="text-base" />
-        <span className="truncate">{pageLabel(database.title, tc("untitled"))}</span>
-        <ArrowUpRight className="h-3.5 w-3.5 shrink-0 text-fg-faint opacity-0 transition-opacity group-hover:opacity-100" />
-      </Link>
+      {titled && (
+        <Link
+          href={href}
+          title={t("open")}
+          className="group flex min-w-0 items-center gap-1.5 rounded px-1 py-0.5 -ms-1 text-base font-semibold hover:bg-bg-hover"
+        >
+          <PageIcon icon={database.icon} kind="database" className="text-base" />
+          <span className="truncate">{pageLabel(database.title, tc("untitled"))}</span>
+          <ArrowUpRight className="h-3.5 w-3.5 shrink-0 text-fg-faint opacity-0 transition-opacity group-hover:opacity-100" />
+        </Link>
+      )}
       {linked && (
         <>
           <span className="shrink-0 text-xs text-fg-faint">{t("linked")}</span>
@@ -240,12 +245,25 @@ function LayoutMenu({
             icon={<ViewIcon type={type} />}
             onClick={() => {
               menu.close();
-              if (type !== view.type) onChange({ type, config: startingConfig(type, view.config, properties) });
+              if (type !== view.type) onChange({ ...view, type, config: startingConfig(type, view.config, properties) });
             }}
           >
             <span className={cn(type === view.type && "font-medium")}>{td(`views.${type}`)}</span>
           </MenuItem>
         ))}
+        <MenuSeparator />
+        <MenuItem
+          icon={<Heading className="h-4 w-4" />}
+          pressed={!view.hideTitle}
+          trailing={view.hideTitle ? undefined : <Check className="h-3.5 w-3.5" />}
+          onClick={() => {
+            menu.close();
+            const { hideTitle, ...rest } = view;
+            onChange(hideTitle ? rest : { ...rest, hideTitle: true });
+          }}
+        >
+          {t("showTitle")}
+        </MenuItem>
       </Floating>
     </>
   );

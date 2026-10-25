@@ -430,6 +430,7 @@
     "linked": "Vista collegata",
     "layout": "Layout",
     "viewOnly": "Solo chi può modificare questa pagina può cambiare questa vista.",
+    "showTitle": "Mostra titolo",
     "picker": {
       "title": "Scegli un database",
       "search": "Cerca database",

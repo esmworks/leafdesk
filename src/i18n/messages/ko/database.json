@@ -126,6 +126,9 @@
     "rename": "이름 변경",
     "viewName": "보기 이름",
     "deleteView": "보기 삭제",
+    "duplicate": "보기 복제",
+    "duplicateHint": "레이아웃, 필터, 정렬을 포함한 이 보기의 사본",
+    "copyName": "{name} (사본)",
     "exportView": "이 보기 내보내기",
     "export": {
       "csv": "CSV",

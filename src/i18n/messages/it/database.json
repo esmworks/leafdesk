@@ -126,6 +126,9 @@
     "rename": "Rinomina",
     "viewName": "Nome della vista",
     "deleteView": "Elimina vista",
+    "duplicate": "Duplica vista",
+    "duplicateHint": "Una copia di questa vista con layout, filtri e ordinamenti",
+    "copyName": "{name} (copia)",
     "exportView": "Esporta questa vista",
     "export": {
       "csv": "CSV",

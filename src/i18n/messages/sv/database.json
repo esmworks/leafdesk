@@ -126,6 +126,9 @@
     "rename": "Byt namn",
     "viewName": "Vyns namn",
     "deleteView": "Radera vyn",
+    "duplicate": "Duplicera vy",
+    "duplicateHint": "En kopia av den här vyn med layout, filter och sortering",
+    "copyName": "{name} (kopia)",
     "exportView": "Exportera den här vyn",
     "export": {
       "csv": "CSV",

@@ -504,6 +504,14 @@ export function DatabasePage({
     if (created) selectView(created.id);
   };
 
+  const duplicateView = async (v: View) => {
+    const taken = new Set(views.map((other) => other.name));
+    let name = t("viewTabs.copyName", { name: v.name });
+    for (let i = 2; taken.has(name); i++) name = `${t("viewTabs.copyName", { name: v.name })} ${i}`;
+    const created = await api.duplicateView(v, name);
+    if (created) selectView(created.id);
+  };
+
   /** "New": from the default row template when there is one; the menu beside it picks another or none. */
   const newRow = async (template?: string | null) => {
     const id = await viewApi.createRow(template === undefined ? { useDefault: true } : { templateId: template });
@@ -543,6 +551,7 @@ export function DatabasePage({
                         onMove={(id, target, side) => api.moveView(id, target, side)}
                         deleted={deletedSchema}
                         onExport={exportable && exportsRows && !offline ? exportView : undefined}
+                        onDuplicate={duplicateView}
                         onDelete={async (v) => {
                           if (v.id === view?.id) {
                             const next = views.find((x) => x.id !== v.id);

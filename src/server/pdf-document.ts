@@ -22,7 +22,8 @@ import { tint, type LogoPlace } from "@/lib/letterheads";
  */
 
 export type PdfTable = { header: string[]; rows: string[][] };
-export type PdfEmbed = { title: string; table: PdfTable };
+/** `title` null: a linked view shown without the database's name. */
+export type PdfEmbed = { title: string | null; table: PdfTable };
 
 export type PdfSection = {
   title: string;
@@ -309,7 +310,7 @@ function blockContent(block: MdBlock, walk: Walk, width: number): Content[] {
         const embed = block.id ? section.embeds.get(block.id) : undefined;
         if (!embed) return [{ text: input.labels.unavailable, italics: true, color: FAINT, margin: [0, 0, 0, 6] }];
         return [
-          { text: embed.title || input.labels.untitled, bold: true, margin: [0, 4, 0, 4] },
+          ...(embed.title === null ? [] : [{ text: embed.title || input.labels.untitled, bold: true, margin: [0, 4, 0, 4] } as Content]),
           { ...dataTable(embed.table, input), margin: [0, 0, 0, 8] },
         ];
       }

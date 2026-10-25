@@ -126,6 +126,9 @@
     "rename": "Omdøb",
     "viewName": "Visningens navn",
     "deleteView": "Slet visning",
+    "duplicate": "Dupliker visning",
+    "duplicateHint": "En kopi af denne visning med layout, filtre og sortering",
+    "copyName": "{name} (kopi)",
     "exportView": "Eksportér denne visning",
     "export": {
       "csv": "CSV",

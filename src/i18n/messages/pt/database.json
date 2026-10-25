@@ -126,6 +126,9 @@
     "rename": "Renomear",
     "viewName": "Nome da visualização",
     "deleteView": "Excluir visualização",
+    "duplicate": "Duplicar visualização",
+    "duplicateHint": "Uma cópia desta visualização com layout, filtros e ordenações",
+    "copyName": "{name} (cópia)",
     "exportView": "Exportar esta visualização",
     "export": {
       "csv": "CSV",

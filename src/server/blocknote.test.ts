@@ -325,6 +325,15 @@ describe("linked view settings", () => {
       config: { chartType: "donut" },
     });
   });
+
+  it("keep a hidden title, and only as true", () => {
+    const hidden = parseLinkedView(serializeLinkedView({ type: "list", config: {}, hideTitle: true }));
+    expect(hidden).toEqual({ type: "list", config: {}, hideTitle: true });
+    expect(parseLinkedView(JSON.stringify({ type: "list", config: {}, hideTitle: "yes" }))).toEqual({ type: "list", config: {} });
+    expect(serializeLinkedView({ type: "list", config: {} })).toBe('{"type":"list","config":{}}');
+    // A malformed config still keeps the choice.
+    expect(parseLinkedView(JSON.stringify({ type: "list", config: { filters: "bad" }, hideTitle: true }))).toEqual({ type: "list", config: {}, hideTitle: true });
+  });
 });
 
 describe("synced blocks in page bodies", () => {

@@ -126,6 +126,9 @@
     "rename": "Zmień nazwę",
     "viewName": "Nazwa widoku",
     "deleteView": "Usuń widok",
+    "duplicate": "Duplikuj widok",
+    "duplicateHint": "Kopia tego widoku z układem, filtrami i sortowaniem",
+    "copyName": "{name} (kopia)",
     "exportView": "Eksportuj ten widok",
     "export": {
       "csv": "CSV",

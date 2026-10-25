@@ -194,6 +194,7 @@ async function printSection(userId: string, pageId: string, depth: number, index
           kind: "embed",
           type: segment.type,
           database: await printedEmbed(userId, segment.databaseId, segment.type === "linkedView" ? { linked: segment.view } : {}, loads),
+          ...(segment.view?.hideTitle ? { hideTitle: true as const } : {}),
         };
       }),
     );

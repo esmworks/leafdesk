@@ -430,6 +430,7 @@
     "linked": "Vue liée",
     "layout": "Disposition",
     "viewOnly": "Seules les personnes pouvant modifier cette page peuvent modifier cette vue.",
+    "showTitle": "Afficher le titre",
     "picker": {
       "title": "Choisir une base de données",
       "search": "Rechercher des bases de données",

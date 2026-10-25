@@ -193,6 +193,10 @@
     week alike): its weekdays then share the width, and rows only on a weekend are listed under it
     with their day, to open or drag onto a weekday. Boards and galleries can wrap long values on
     their cards onto more lines instead of cutting them off (*Wrap all properties*).
+  - *Duplicate view* in a view's tab menu makes a copy with its layout, filters, sorts and other
+    settings, named "… (copy)", right after it. A linked view on a page can leave out the
+    database's name above it (Layout → *Show title*); published and printed pages and PDFs leave it
+    out too.
   - Table columns are resized by dragging their edge; double-clicking the edge fits the column to
     its header and the rows shown. The width is kept with the view.
   - Names, options and linked rows cut short with an ellipsis show in full as a tooltip on hover;

@@ -8,6 +8,7 @@ import {
   Check,
   ChevronDown,
   ChevronRight,
+  Copy,
   Eye,
   EyeOff,
   FileCode,
@@ -96,6 +97,7 @@ export function ViewTabs({
   readOnly,
   deleted,
   onExport,
+  onDuplicate,
 }: {
   views: View[];
   activeId: string;
@@ -109,6 +111,8 @@ export function ViewTabs({
   deleted?: DeletedSchemaProps;
   /** Exports what the active view shows; its menu offers it (to viewers too) when set. */
   onExport?: (format: ViewExportFormat) => void;
+  /** Makes a copy of the view with its settings, beside it. */
+  onDuplicate?: (view: View) => void;
 }) {
   const t = useTranslations("database");
   const add = useFloating<HTMLButtonElement>();
@@ -133,6 +137,7 @@ export function ViewTabs({
           onRename={(name) => onRename(view, name)}
           onDelete={() => onDelete(view)}
           onExport={view.id === activeId ? onExport : undefined}
+          onDuplicate={onDuplicate && !readOnly ? () => onDuplicate(view) : undefined}
         />
       ))}
       {!readOnly && (
@@ -196,6 +201,7 @@ function ViewTab({
   onRename,
   onDelete,
   onExport,
+  onDuplicate,
 }: {
   view: View;
   active: boolean;
@@ -207,6 +213,7 @@ function ViewTab({
   onRename: (name: string) => void;
   onDelete: () => void;
   onExport?: (format: ViewExportFormat) => void;
+  onDuplicate?: () => void;
 }) {
   const t = useTranslations("database.viewTabs");
   // Viewers open the menu just to export.
@@ -286,6 +293,18 @@ function ViewTab({
                 }}
               >
                 {t("rename")}
+              </MenuItem>
+            )}
+            {onDuplicate && (
+              <MenuItem
+                icon={<Copy className="h-3.5 w-3.5" />}
+                title={t("duplicateHint")}
+                onClick={() => {
+                  menu.close();
+                  onDuplicate();
+                }}
+              >
+                {t("duplicate")}
               </MenuItem>
             )}
             {onExport && (

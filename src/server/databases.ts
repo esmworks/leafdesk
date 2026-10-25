@@ -2962,6 +2962,18 @@ export async function addView(userId: string, databaseId: string, input: { name:
   return created;
 }
 
+/**
+ * A copy of a view with all its settings (layout, filters, sorts, grouping, shown properties, a
+ * form's questions, a dashboard's widgets), named `name`, right after it.
+ */
+export async function duplicateView(userId: string, viewId: string, name: string) {
+  const view = await requireView(userId, viewId);
+  assertUnlocked(view);
+  const created = await addView(userId, view.databaseId, { name: name.trim() || view.name, type: view.type, config: view.config });
+  await moveView(userId, created.id, view.id, "after");
+  return { ...created, position: view.position + 1 };
+}
+
 /** A view the user may change (every caller edits it). */
 async function requireView(userId: string, viewId: string, { deleted = false } = {}) {
   const [view] = await db
