@@ -1232,6 +1232,18 @@ input.leafdesk-callout-title-input {
 .leafdesk-column-resizing {
   user-select: none;
 }
+/* Where a dragged block dropped at another's side goes (columns.tsx ColumnDrop). */
+.leafdesk-column-drop {
+  position: fixed;
+  width: 4px;
+  border-radius: 2px;
+  background: var(--accent);
+  pointer-events: none;
+  z-index: 50;
+}
+body:has(.leafdesk-column-drop) .prosemirror-dropcursor-block {
+  display: none;
+}
 @media (max-width: 639px) {
   .leafdesk-columns {
     flex-direction: column;

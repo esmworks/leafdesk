@@ -130,7 +130,13 @@
     "rename": "Yeniden adlandır",
     "viewName": "Görünüm adı",
     "deleteView": "Görünümü sil",
-    "icon": "Simge"
+    "icon": "Simge",
+    "exportView": "Bu görünümü dışa aktar",
+    "export": {
+      "csv": "CSV",
+      "html": "HTML sayfası",
+      "pdf": "PDF"
+    }
   },
   "deleted": {
     "properties": "Silinen özellikler",

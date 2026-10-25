@@ -601,18 +601,22 @@
       "two": {
         "title": "2 Spalten",
         "subtext": "Zwei Spalten mit Blöcken nebeneinander",
-        "aliases": "columns column layout side 2 two spalten spalte nebeneinander zwei"
+        "aliases": "columns column layout side 2 two spalten spalte nebeneinander zwei col2"
       },
       "three": {
         "title": "3 Spalten",
         "subtext": "Drei Spalten mit Blöcken nebeneinander",
-        "aliases": "columns column layout side 3 three spalten spalte nebeneinander drei"
+        "aliases": "columns column layout side 3 three spalten spalte nebeneinander drei col3"
       },
       "add": {
         "title": "Spalte hinzufügen",
         "subtext": "Eine neue Spalte rechts von dieser (bis zu 5)",
         "aliases": "column columns add new layout spalte spalten hinzufügen neu"
       }
+    },
+    "turnInto": {
+      "title": "Umwandeln in",
+      "columns": "{count} Spalten, je ein Block"
     },
     "pageLink": {
       "title": "Link zu Seite",

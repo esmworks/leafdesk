@@ -601,18 +601,22 @@
       "two": {
         "title": "2列",
         "subtext": "ブロックを2列に並べて配置",
-        "aliases": "columns column layout side 2 two 列 段組み レイアウト"
+        "aliases": "columns column layout side 2 two 列 段組み レイアウト col2"
       },
       "three": {
         "title": "3列",
         "subtext": "ブロックを3列に並べて配置",
-        "aliases": "columns column layout side 3 three 列 段組み レイアウト"
+        "aliases": "columns column layout side 3 three 列 段組み レイアウト col3"
       },
       "add": {
         "title": "列を追加",
         "subtext": "この列の右に新しい列を追加（最大5列）",
         "aliases": "column columns add new layout 列 追加 レイアウト"
       }
+    },
+    "turnInto": {
+      "title": "変換",
+      "columns": "{count} 列（各列に 1 ブロック）"
     },
     "pageLink": {
       "title": "ページへのリンク",

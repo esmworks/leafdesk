@@ -130,7 +130,13 @@
     "rename": "Nimeä uudelleen",
     "viewName": "Näkymän nimi",
     "deleteView": "Poista näkymä",
-    "icon": "Kuvake"
+    "icon": "Kuvake",
+    "exportView": "Vie tämä näkymä",
+    "export": {
+      "csv": "CSV",
+      "html": "HTML-sivu",
+      "pdf": "PDF"
+    }
   },
   "deleted": {
     "properties": "Poistetut ominaisuudet",

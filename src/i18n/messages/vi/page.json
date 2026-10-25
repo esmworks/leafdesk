@@ -601,18 +601,22 @@
       "two": {
         "title": "2 cột",
         "subtext": "Hai cột khối nằm cạnh nhau",
-        "aliases": "cột bố cục cạnh nhau columns column layout side 2 two"
+        "aliases": "cột bố cục cạnh nhau columns column layout side 2 two col2"
       },
       "three": {
         "title": "3 cột",
         "subtext": "Ba cột khối nằm cạnh nhau",
-        "aliases": "cột bố cục cạnh nhau columns column layout side 3 three"
+        "aliases": "cột bố cục cạnh nhau columns column layout side 3 three col3"
       },
       "add": {
         "title": "Thêm cột",
         "subtext": "Một cột mới bên phải cột này (tối đa 5)",
         "aliases": "cột thêm mới bố cục column columns add new layout"
       }
+    },
+    "turnInto": {
+      "title": "Chuyển thành",
+      "columns": "{count} cột, mỗi cột một khối"
     },
     "pageLink": {
       "title": "Liên kết đến trang",

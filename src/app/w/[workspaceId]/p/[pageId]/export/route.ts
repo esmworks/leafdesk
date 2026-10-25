@@ -10,6 +10,7 @@ import {
   assertExportAllowed,
   attachment,
   databaseCsv,
+  databaseViewTable,
   databaseXlsx,
   ExportError,
   exportErrorResponse,
@@ -20,11 +21,15 @@ import {
   planSummary,
   recordExport,
   startExport,
+  type ViewExport,
 } from "@/server/export";
 import { exportLabels } from "@/server/export-labels";
 import { LetterheadError } from "@/server/letterheads";
 import { getPage } from "@/server/pages";
-import { pagePdf } from "@/server/pdf";
+import { pagePdf, viewPdf } from "@/server/pdf";
+import { tableHtml } from "@/lib/table-html";
+import { toCsv } from "@/lib/csv";
+import { getLocale } from "next-intl/server";
 import { getSkillContent, SkillError } from "@/server/skills";
 import { blockedByWorkspacePolicy, getSession, policyRefusal } from "@/server/session";
 
@@ -50,6 +55,16 @@ async function requestedRows(request: Request): Promise<string[] | null> {
 }
 
 /**
+ * What a view shows, as a POST to export just that sends it (`{ rows, properties, name }`, see
+ * ViewExport): the ids as strings, at most MAX_BULK_ROWS rows.
+ */
+async function requestedView(request: Request): Promise<ViewExport> {
+  const body = ((await request.json().catch(() => null)) ?? {}) as Record<string, unknown>;
+  const ids = (value: unknown, max: number) => (Array.isArray(value) ? value.filter((id): id is string => typeof id === "string").slice(0, max) : []);
+  return { rows: ids(body.rows, MAX_BULK_ROWS), properties: ids(body.properties, 500), name: typeof body.name === "string" ? body.name.slice(0, 200) : "" };
+}
+
+/**
  * A page as Markdown, or a database's rows as CSV (all of them, or with POST the selected ones);
  * `?format=xlsx` gives the rows as an Excel workbook instead, and `?format=skill` a skill as a ZIP of
  * `<name>/SKILL.md` (the folder AI assistants install skills from), and `?format=pdf` the page as a
@@ -61,6 +76,8 @@ async function requestedRows(request: Request): Promise<string[] | null> {
  * adding `check=1` only answers whether that export can be made (JSON), so the page menu can say
  * why not before starting a download. Pages the user can't see are 404; with export turned off in
  * the workspace, every export is 403 (`{error: "disabled"}`).
+ * A database's view exports what the view shows with a POST to `?view=1` (see requestedView), as
+ * CSV, or with `&format=html` or `&format=pdf` as a page of its own or a PDF.
  */
 export async function GET(request: Request, { params }: { params: Promise<{ pageId: string }> }) {
   const session = await getSession();
@@ -90,6 +107,27 @@ export async function GET(request: Request, { params }: { params: Promise<{ page
       }
     }
 
+    if (target.kind === "database" && request.method === "POST" && query.get("view") === "1") {
+      const view = await requestedView(request);
+      const format = query.get("format");
+      if (format === "pdf") {
+        const release = startExport(userId);
+        try {
+          const pdf = await viewPdf(userId, pageId, view);
+          return new Response(new Uint8Array(pdf.bytes), {
+            headers: { "Content-Type": "application/pdf", "Content-Disposition": attachment(pdf.title, "pdf"), "Cache-Control": "no-store" },
+          });
+        } finally {
+          release();
+        }
+      }
+      const html = format === "html";
+      const { title, header, cells } = await databaseViewTable(userId, pageId, view, html ? "html" : "csv");
+      const name = pageLabel(title, labels.untitled);
+      return html
+        ? download(tableHtml(name, header, cells, await getLocale()), "text/html", attachment(name, "html"))
+        : download(toCsv([header, ...cells]), "text/csv", attachment(name, "csv"));
+    }
     if (query.get("format") === "pdf") {
       // Drawing a PDF takes a while: one at a time per person, like the archives.
       const release = startExport(userId);

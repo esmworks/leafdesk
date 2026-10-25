@@ -130,7 +130,13 @@
     "rename": "Renomear",
     "viewName": "Nome da visualização",
     "deleteView": "Excluir visualização",
-    "icon": "Ícone"
+    "icon": "Ícone",
+    "exportView": "Exportar esta visualização",
+    "export": {
+      "csv": "CSV",
+      "html": "Página HTML",
+      "pdf": "PDF"
+    }
   },
   "deleted": {
     "properties": "Propriedades excluídas",

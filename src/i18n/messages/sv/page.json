@@ -601,18 +601,22 @@
       "two": {
         "title": "2 kolumner",
         "subtext": "Två kolumner med block sida vid sida",
-        "aliases": "kolumner kolumn layout sida 2 två columns column side two"
+        "aliases": "kolumner kolumn layout sida 2 två columns column side two col2"
       },
       "three": {
         "title": "3 kolumner",
         "subtext": "Tre kolumner med block sida vid sida",
-        "aliases": "kolumner kolumn layout sida 3 tre columns column side three"
+        "aliases": "kolumner kolumn layout sida 3 tre columns column side three col3"
       },
       "add": {
         "title": "Lägg till kolumn",
         "subtext": "En ny kolumn till höger om den här (upp till 5)",
         "aliases": "kolumn kolumner lägg till ny layout column columns add new"
       }
+    },
+    "turnInto": {
+      "title": "Gör om till",
+      "columns": "{count} kolumner, ett block i varje"
     },
     "pageLink": {
       "title": "Länk till sida",

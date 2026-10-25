@@ -3,7 +3,9 @@
 [← README](../README.md) · [All documentation](README.md)
 
 The page menu exports a page as Markdown or a database as CSV, and a skill as `SKILL.md` (see
-[Skills](ai.md#skills)). "Export with subpages" (for a
+[Skills](ai.md#skills)). A view's tab menu exports just what that view shows (its filtered, sorted
+rows and the properties it shows, in its order) as CSV, an HTML page or a PDF, for viewers too.
+"Export with subpages" (for a
 database, "Export with row pages") downloads a ZIP of the page and everything under it; owners
 can download the whole workspace from Settings → General → Export, as Markdown and CSV or as PDFs
 (to move a workspace to another server, back it up instead, see [Backups](#backups)). Owners can turn exporting off

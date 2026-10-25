@@ -601,18 +601,22 @@
       "two": {
         "title": "2 columnas",
         "subtext": "Dos columnas de bloques una al lado de la otra",
-        "aliases": "columnas columna columns column diseño disposicion lado 2 dos"
+        "aliases": "columnas columna columns column diseño disposicion lado 2 dos col2"
       },
       "three": {
         "title": "3 columnas",
         "subtext": "Tres columnas de bloques una al lado de la otra",
-        "aliases": "columnas columna columns column diseño disposicion lado 3 tres"
+        "aliases": "columnas columna columns column diseño disposicion lado 3 tres col3"
       },
       "add": {
         "title": "Añadir columna",
         "subtext": "Una nueva columna a la derecha de esta (hasta 5)",
         "aliases": "columna columnas añadir anadir nueva column add diseño"
       }
+    },
+    "turnInto": {
+      "title": "Convertir en",
+      "columns": "{count} columnas, un bloque en cada una"
     },
     "pageLink": {
       "title": "Enlace a página",

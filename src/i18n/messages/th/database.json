@@ -130,7 +130,13 @@
     "rename": "เปลี่ยนชื่อ",
     "viewName": "ชื่อมุมมอง",
     "deleteView": "ลบมุมมอง",
-    "icon": "ไอคอน"
+    "icon": "ไอคอน",
+    "exportView": "ส่งออกมุมมองนี้",
+    "export": {
+      "csv": "CSV",
+      "html": "หน้า HTML",
+      "pdf": "PDF"
+    }
   },
   "deleted": {
     "properties": "คุณสมบัติที่ถูกลบ",

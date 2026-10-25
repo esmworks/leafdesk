@@ -130,7 +130,13 @@
     "rename": "Đổi tên",
     "viewName": "Tên chế độ xem",
     "deleteView": "Xóa chế độ xem",
-    "icon": "Biểu tượng"
+    "icon": "Biểu tượng",
+    "exportView": "Xuất chế độ xem này",
+    "export": {
+      "csv": "CSV",
+      "html": "Trang HTML",
+      "pdf": "PDF"
+    }
   },
   "deleted": {
     "properties": "Thuộc tính đã xóa",

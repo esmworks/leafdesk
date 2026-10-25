@@ -130,7 +130,13 @@
     "rename": "名前を変更",
     "viewName": "ビュー名",
     "deleteView": "ビューを削除",
-    "icon": "アイコン"
+    "icon": "アイコン",
+    "exportView": "このビューをエクスポート",
+    "export": {
+      "csv": "CSV",
+      "html": "HTML ページ",
+      "pdf": "PDF"
+    }
   },
   "deleted": {
     "properties": "削除したプロパティ",

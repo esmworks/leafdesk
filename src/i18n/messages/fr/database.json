@@ -130,7 +130,13 @@
     "rename": "Renommer",
     "viewName": "Nom de la vue",
     "deleteView": "Supprimer la vue",
-    "icon": "Icône"
+    "icon": "Icône",
+    "exportView": "Exporter cette vue",
+    "export": {
+      "csv": "CSV",
+      "html": "Page HTML",
+      "pdf": "PDF"
+    }
   },
   "deleted": {
     "properties": "Propriétés supprimées",

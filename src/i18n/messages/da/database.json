@@ -130,7 +130,13 @@
     "rename": "Omdøb",
     "viewName": "Visningens navn",
     "deleteView": "Slet visning",
-    "icon": "Ikon"
+    "icon": "Ikon",
+    "exportView": "Eksportér denne visning",
+    "export": {
+      "csv": "CSV",
+      "html": "HTML-side",
+      "pdf": "PDF"
+    }
   },
   "deleted": {
     "properties": "Slettede egenskaber",

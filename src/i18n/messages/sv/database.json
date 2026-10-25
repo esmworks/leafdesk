@@ -130,7 +130,13 @@
     "rename": "Byt namn",
     "viewName": "Vyns namn",
     "deleteView": "Radera vyn",
-    "icon": "Ikon"
+    "icon": "Ikon",
+    "exportView": "Exportera den här vyn",
+    "export": {
+      "csv": "CSV",
+      "html": "HTML-sida",
+      "pdf": "PDF"
+    }
   },
   "deleted": {
     "properties": "Raderade egenskaper",

@@ -130,7 +130,13 @@
     "rename": "Перейменувати",
     "viewName": "Назва подання",
     "deleteView": "Видалити подання",
-    "icon": "Значок"
+    "icon": "Значок",
+    "exportView": "Експортувати це подання",
+    "export": {
+      "csv": "CSV",
+      "html": "HTML-сторінка",
+      "pdf": "PDF"
+    }
   },
   "deleted": {
     "properties": "Видалені властивості",

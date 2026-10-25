@@ -43,6 +43,19 @@ export function columnsWide(value: unknown): number {
   return Math.round(Math.min(n, 1) * 100) / 100;
 }
 
+/**
+ * Where a block dropped at `x` goes beside the block whose box is `rect`: "before" or "after" it
+ * in reading order when `x` is near its left or right side (a seventh of its width, between 24 and
+ * 96 pixels), null elsewhere. Right to left, the left side is after.
+ */
+export function dropSide(rect: { left: number; width: number }, x: number, rtl: boolean): "before" | "after" | null {
+  const zone = Math.min(Math.max(rect.width / 7, 24), 96);
+  const left = x < rect.left + zone;
+  const right = x > rect.left + rect.width - zone;
+  if (left === right) return null;
+  return left !== rtl ? "before" : "after";
+}
+
 function domFor(name: string, className: string, attributes: Record<string, unknown>) {
   const dom = document.createElement("div");
   dom.className = className;

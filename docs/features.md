@@ -73,8 +73,11 @@
   seeing those they may open; a page with one doesn't list them again at its end when published or
   printed), and columns (2 to 5, resizable, blocks
   dragged in and out with the side menu, stacked on phones, and on pages of standard width able to
-  reach into the margins), also on published pages and in
-  Markdown. Table cells merge across columns and rows from the formatting toolbar (Markdown writes
+  reach into the margins; `/col2` and `/col3` make them, a block dropped at another's left or right
+  side goes beside it, and *Turn into* in a block's menu puts the selected blocks one to a column),
+  also on published pages and in Markdown. *Turn into* also changes the kind of the selected text
+  blocks (heading, list, quote, code …), and a space typed right after `/` closes the slash menu.
+  Table cells merge across columns and rows from the formatting toolbar (Markdown writes
   the full grid, the covered places empty). Code blocks take their language from a menu (plain text
   and 51 languages) and color their code in it, published pages and the print view included; Enter
   in a code block starts the new line with the indentation of the one before it. *Copy* in a code
@@ -357,7 +360,8 @@
     answers are never shown.
   - Put a database inside any page, or show a view of an existing one there. A table block turns
     into a database from its block menu: its first row names the properties.
-  - Lock a database to freeze its properties and views, and export its rows as CSV.
+  - Lock a database to freeze its properties and views, and export its rows as CSV. A view's tab
+    menu exports just what the view shows as CSV, an HTML page or a PDF.
   - Row templates with preset properties and content; pick one as the default for "New", for all
     views or only for the view you are in (that view's "New" then starts from it, or from a blank
     row, while other views, forms, the API and MCP keep the database's default). A

@@ -601,18 +601,22 @@
       "two": {
         "title": "2 kolom",
         "subtext": "Dua kolom blok berdampingan",
-        "aliases": "kolom tata letak samping 2 dua columns column layout side two"
+        "aliases": "kolom tata letak samping 2 dua columns column layout side two col2"
       },
       "three": {
         "title": "3 kolom",
         "subtext": "Tiga kolom blok berdampingan",
-        "aliases": "kolom tata letak samping 3 tiga columns column layout side three"
+        "aliases": "kolom tata letak samping 3 tiga columns column layout side three col3"
       },
       "add": {
         "title": "Tambah kolom",
         "subtext": "Kolom baru di sebelah kanan kolom ini (hingga 5)",
         "aliases": "kolom tambah baru tata letak column columns add new layout"
       }
+    },
+    "turnInto": {
+      "title": "Ubah menjadi",
+      "columns": "{count} kolom, satu blok per kolom"
     },
     "pageLink": {
       "title": "Tautan ke halaman",

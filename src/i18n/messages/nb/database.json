@@ -130,7 +130,13 @@
     "rename": "Gi nytt navn",
     "viewName": "Navn på visning",
     "deleteView": "Slett visning",
-    "icon": "Ikon"
+    "icon": "Ikon",
+    "exportView": "Eksporter denne visningen",
+    "export": {
+      "csv": "CSV",
+      "html": "HTML-side",
+      "pdf": "PDF"
+    }
   },
   "deleted": {
     "properties": "Slettede egenskaper",

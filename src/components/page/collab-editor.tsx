@@ -5,7 +5,7 @@ import "@blocknote/mantine/style.css";
 import "katex/dist/katex.min.css";
 import { createExtension } from "@blocknote/core";
 import { CommentsExtension } from "@blocknote/core/comments";
-import { filterSuggestionItems } from "@blocknote/core/extensions";
+import { filterSuggestionItems, SuggestionMenu } from "@blocknote/core/extensions";
 import { withCollaboration } from "@blocknote/core/yjs";
 import { BlockNoteView } from "@blocknote/mantine";
 import {
@@ -19,6 +19,7 @@ import {
   SideMenuController,
   SuggestionMenuController,
   useCreateBlockNote,
+  useExtension,
   type LinkToolbarProps,
 } from "@blocknote/react";
 import { DirectionProvider } from "@mantine/core";
@@ -573,11 +574,17 @@ function SlashMenu({
   const aiItems = useAiSlashItems(assistant?.open ?? noop, assistant !== null);
   const voiceItems = useVoiceSlashItems(voiceNote?.open ?? noop, voiceNote !== null);
   const snippetItems = useSnippetSlashItems(snippets);
+  const suggestionMenu = useExtension(SuggestionMenu, { editor });
   return (
     <SuggestionMenuController
       triggerCharacter="/"
-      getItems={async (query) =>
-        filterSuggestionItems(
+      getItems={async (query) => {
+        // A space right after the slash means it was just a slash: the menu closes.
+        if (query.startsWith(" ")) {
+          suggestionMenu.closeMenu();
+          return [];
+        }
+        return filterSuggestionItems(
           withEmbedItems(getDefaultReactSlashMenuItems(editor), [
             ...embedItems(),
             ...contentItems,
@@ -595,8 +602,8 @@ function SlashMenu({
             ...voiceItems,
           ]),
           query,
-        )
-      }
+        );
+      }}
     />
   );
 }

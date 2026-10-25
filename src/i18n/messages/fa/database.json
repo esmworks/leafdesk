@@ -130,7 +130,13 @@
     "rename": "تغییر نام",
     "viewName": "نام نما",
     "deleteView": "حذف نما",
-    "icon": "نماد"
+    "icon": "نماد",
+    "exportView": "خروجی گرفتن از این نما",
+    "export": {
+      "csv": "CSV",
+      "html": "صفحهٔ HTML",
+      "pdf": "PDF"
+    }
   },
   "deleted": {
     "properties": "ویژگی‌های حذف‌شده",

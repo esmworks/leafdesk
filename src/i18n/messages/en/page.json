@@ -601,18 +601,22 @@
       "two": {
         "title": "2 columns",
         "subtext": "Two columns of blocks side by side",
-        "aliases": "columns column layout side 2 two"
+        "aliases": "columns column layout side 2 two col2"
       },
       "three": {
         "title": "3 columns",
         "subtext": "Three columns of blocks side by side",
-        "aliases": "columns column layout side 3 three"
+        "aliases": "columns column layout side 3 three col3"
       },
       "add": {
         "title": "Add column",
         "subtext": "A new column to the right of this one (up to 5)",
         "aliases": "column columns add new layout"
       }
+    },
+    "turnInto": {
+      "title": "Turn into",
+      "columns": "{count} columns, one block each"
     },
     "pageLink": {
       "title": "Link to page",

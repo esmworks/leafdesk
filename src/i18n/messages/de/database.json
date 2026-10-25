@@ -130,7 +130,13 @@
     "rename": "Umbenennen",
     "viewName": "Name der Ansicht",
     "deleteView": "Ansicht löschen",
-    "icon": "Symbol"
+    "icon": "Symbol",
+    "exportView": "Diese Ansicht exportieren",
+    "export": {
+      "csv": "CSV",
+      "html": "HTML-Seite",
+      "pdf": "PDF"
+    }
   },
   "deleted": {
     "properties": "Gelöschte Eigenschaften",

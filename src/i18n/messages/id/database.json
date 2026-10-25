@@ -130,7 +130,13 @@
     "rename": "Ganti nama",
     "viewName": "Nama tampilan",
     "deleteView": "Hapus tampilan",
-    "icon": "Ikon"
+    "icon": "Ikon",
+    "exportView": "Ekspor tampilan ini",
+    "export": {
+      "csv": "CSV",
+      "html": "Halaman HTML",
+      "pdf": "PDF"
+    }
   },
   "deleted": {
     "properties": "Properti yang dihapus",

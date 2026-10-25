@@ -130,7 +130,13 @@
     "rename": "Hernoemen",
     "viewName": "Naam van de weergave",
     "deleteView": "Weergave verwijderen",
-    "icon": "Pictogram"
+    "icon": "Pictogram",
+    "exportView": "Deze weergave exporteren",
+    "export": {
+      "csv": "CSV",
+      "html": "HTML-pagina",
+      "pdf": "PDF"
+    }
   },
   "deleted": {
     "properties": "Verwijderde eigenschappen",

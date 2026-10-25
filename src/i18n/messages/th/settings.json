@@ -1664,6 +1664,7 @@
       "zip": "ZIP",
       "csv": "CSV",
       "xlsx": "Excel",
+      "html": "HTML",
       "docx": "Word",
       "google-docs": "Google เอกสาร",
       "markdown": "Markdown",
