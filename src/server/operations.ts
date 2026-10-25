@@ -624,7 +624,8 @@ export async function listTeamspaces(ctx: OperationContext, { workspace_id, incl
       role: t.role,
       // Watching a teamspace watches all its pages (watch_page mutes single ones).
       watching: t.watching,
-      can_add_pages: t.joined && !t.archivedAt,
+      can_add_pages: t.joined && !t.archivedAt && t.canArrangeTopLevel,
+      top_level_locked: t.topLevelLocked,
     })),
     note: 'Pages outside every teamspace are private: create_page / move_page with teamspace_id "private".',
   };

@@ -71,6 +71,7 @@
     "actionFailed": "작업을 완료하지 못했습니다.",
     "viewers": "다른 사람 {count}명이 이 페이지를 보고 있습니다",
     "viewersTitle": "이 페이지를 보는 사람",
+    "goToViewer": "{name} 님이 있는 곳으로 이동",
     "saveAsTemplate": "템플릿으로 저장",
     "saveAsRowTemplate": "행 템플릿으로 저장",
     "deleteTemplate": "템플릿 삭제",
@@ -671,10 +672,10 @@
     "embed": {
       "title": "임베드",
       "subtext": "YouTube, Figma, Google Docs, Maps 등",
-      "aliases": "embed iframe youtube vimeo loom figma google docs sheets slides codepen replit excalidraw framer sketch spotify maps video 임베드 동영상 비디오 지도 hex deepnote pitch website",
+      "aliases": "embed iframe youtube vimeo loom figma google docs sheets slides codepen replit excalidraw framer sketch miro spotify maps video 임베드 동영상 비디오 지도 hex deepnote pitch website",
       "placeholder": "임베드할 링크 붙여넣기",
       "submit": "임베드",
-      "providers": "YouTube, Vimeo, Loom, Figma, 게시된 Google Docs·Sheets·Slides, CodePen, Replit, Excalidraw, Framer, Sketch, Spotify, Google Maps를 지원합니다. 다른 https 사이트(Hex, Deepnote, Pitch 등)는 허용하는 경우 그대로 표시됩니다.",
+      "providers": "YouTube, Vimeo, Loom, Figma, 게시된 Google Docs·Sheets·Slides, CodePen, Replit, Excalidraw, Framer, Sketch, Miro, Spotify, Google Maps를 지원합니다. 다른 https 사이트(Hex, Deepnote, Pitch 등)는 허용하는 경우 그대로 표시됩니다.",
       "frameTitle": "{host}의 임베드된 콘텐츠",
       "label": "임베드",
       "resize": "드래그하여 임베드 너비 변경"

@@ -70,7 +70,7 @@ import { activeVerification } from "@/server/verification";
 import { reciprocalRankFusion, snippetOf } from "@/server/semantic-text";
 import { assertNestable, subtreeHeight } from "@/server/page-depth";
 import { followNewSpace, freezeInheritedEntries, keepFullAccess, makePagePrivate } from "@/server/permissions";
-import { placeTopLevel, requireTeamspaceForPages, sidebarTeamspaces, type TeamspaceSummary } from "@/server/teamspaces";
+import { placeTopLevel, requireArrangeTopLevel, requireTeamspaceForPages, sidebarTeamspaces, type TeamspaceSummary } from "@/server/teamspaces";
 import { listWorkspaces, requireTopLevel, workspaceSettings } from "@/server/workspaces";
 
 import { placeInSections, PRIVATE_SECTION, SHARED_SECTION, type TreeSection } from "@/lib/tree-sections";
@@ -559,6 +559,8 @@ function subtreeIds(rootId: string) {
 
 export async function archivePage(userId: string, pageId: string) {
   const p = await requireTrashAccess(userId, pageId);
+  // A teamspace's top-level pages may be locked to those who manage it (server/teamspaces.ts).
+  if (!p.parentId) await requireArrangeTopLevel(userId, p.teamspaceId);
   // Templates aren't listed in the trash; they are deleted from the template picker instead.
   if (p.isTemplate) throw withCode(new Error("Templates are deleted, not moved to the trash"), "isTemplate");
   const archivedAt = new Date();
@@ -635,6 +637,8 @@ export async function restorePage(userId: string, pageId: string) {
     const [parent] = await db.select({ archivedAt: page.archivedAt }).from(page).where(eq(page.id, parentId));
     if (!parent || parent.archivedAt) parentId = null;
   }
+  // Back at the top of a teamspace whose top-level pages may be locked (server/teamspaces.ts).
+  if (!parentId) await requireArrangeTopLevel(userId, p.teamspaceId);
   // Only what was trashed together with it: subpages trashed earlier stay in the trash as their own
   // entries (archivePage stamps just the pages that weren't archived yet).
   const restored = await db
@@ -679,6 +683,7 @@ export async function restorePage(userId: string, pageId: string) {
 export async function deletePagePermanently(userId: string, pageId: string) {
   const p = await requirePageAccess(userId, pageId, "full");
   if (!p.archivedAt) throw new Error("Move the page to the trash before deleting it");
+  if (!p.parentId) await requireArrangeTopLevel(userId, p.teamspaceId);
   // Said, rather than left in the trash without a word (deleteTrashedPages keeps it either way).
   await refuseHeldPages(p.workspaceId, [pageId]);
   await deleteTrashedPages(p.workspaceId, [pageId], userId);
@@ -808,6 +813,9 @@ export async function movePage(
   const space = parent ? parent.teamspaceId : teamspaceId === undefined ? current.teamspaceId : teamspaceId;
   const changesSpace = space !== current.teamspaceId;
   const p = current.parentId === newParentId && !changesSpace ? current : await requirePageAccess(userId, pageId, "full");
+  // A top-level page of a teamspace that locks them stays where it is, in its place among them, for
+  // all but those who manage it; entering the top level there is checked below.
+  if (current.parentId === null) await requireArrangeTopLevel(userId, current.teamspaceId);
   if (!newParentId && (p.parentId !== null || changesSpace)) {
     await requireMember(userId, p.workspaceId);
     if (space) await requireTeamspaceForPages(userId, space, p.workspaceId);

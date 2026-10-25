@@ -78,6 +78,7 @@ import { pageSideMenu } from "./table-to-database";
 import { SaveAsSnippetContext, SnippetMenu, useSnippets, useSnippetSlashItems } from "./snippets";
 import { readDocTitle } from "@/lib/collab-title";
 import { suggestingExtension, type SuggestingMode } from "./suggesting";
+import { useFollowPresence } from "./follow-presence";
 import { ListMarkers } from "./list-markers";
 import { QuoteSizeDefault } from "./quote-size";
 import { ToggleHeadingSections } from "./toggle-headings";
@@ -339,6 +340,20 @@ export default function CollabEditor({
     threadStore.anchor = () => selectionAnchor(editor);
   }, [threadStore, editor]);
 
+  // One recording or video plays at a time: starting one in the page pauses the others.
+  useEffect(() => {
+    if (nested) return;
+    const onPlay = (event: Event) => {
+      const started = event.target;
+      if (!(started instanceof HTMLMediaElement) || !started.closest(".leafdesk-editor")) return;
+      for (const media of document.querySelectorAll<HTMLMediaElement>(".leafdesk-editor :is(audio, video)")) {
+        if (media !== started && !media.paused) media.pause();
+      }
+    };
+    document.addEventListener("play", onPlay, true);
+    return () => document.removeEventListener("play", onPlay, true);
+  }, [nested]);
+
   const ai = aiWanted && !nested;
   const voice = nested ? null : voiceWanted;
   const commentsOpen = commentsWanted && !nested;
@@ -346,6 +361,8 @@ export default function CollabEditor({
   const voiceNote = useVoiceNote(editor, pageId, voice && editable && !offline ? voice : null);
   // Links to a passage (the AI chat's citations) scroll to its block: the page's own blocks.
   useBlockFocus(!nested);
+  // Someone picked in the header's list of who is here: to their cursor (follow-presence.ts).
+  useFollowPresence(editor as unknown as PageEditor, pageDoc.provider.awareness, !nested);
 
   // `;` and the slash menu insert snippets, "Save as snippet" in the block menu makes one (snippets.tsx).
   const pageTitle = () => readDocTitle(pageDoc.doc) ?? crumbs.at(-1)?.title ?? "";

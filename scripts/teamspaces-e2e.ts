@@ -378,6 +378,37 @@ try {
   await rejects(() => movePage(bob, opPage.id, null, undefined, general), anyError, "moving a page one only reads is refused");
   check((await spaceOf(bobs.id)) === general, "refused moves leave the page where it was");
 
+  // ── Locked top-level pages ───────────────────────────────────────────────────────────────────
+  const lockTop = await createPage({ userId: owner }, { workspaceId, title: `${RUN} locked top`, teamspaceId: general });
+  await rejects(() => updateTeamspace(bob, general, { topLevelLocked: true }), anyError, "members can't lock a teamspace's top-level pages");
+  await updateTeamspace(owner, general, { topLevelLocked: true });
+  const seenByBob = (await listTeamspaces(bob, workspaceId)).find((t) => t.id === general);
+  check(seenByBob?.topLevelLocked === true && seenByBob.canArrangeTopLevel === false, "a member sees the lock and that it holds them", seenByBob);
+  check((await listTeamspaces(owner, workspaceId)).find((t) => t.id === general)?.canArrangeTopLevel === true, "…and an owner that it doesn't");
+  await rejects(
+    () => createPage({ userId: bob }, { workspaceId, title: `${RUN} refused`, teamspaceId: general }),
+    isCode("topLevelLocked"),
+    "a member can't add a top-level page to it",
+  );
+  const unplaced = await createPage({ userId: bob }, { workspaceId, title: `${RUN} unplaced` });
+  check((await spaceOf(unplaced.id)) === null, "…and a page made without a teamspace becomes theirs, not the locked one's");
+  await rejects(() => movePage(bob, lockTop.id, null, 12345), isCode("topLevelLocked"), "nor reorder its top-level pages");
+  await rejects(() => movePage(bob, lockTop.id, null, undefined, null), isCode("topLevelLocked"), "nor move one out");
+  await rejects(() => movePage(bob, unplaced.id, null, undefined, general), isCode("topLevelLocked"), "nor move a page in");
+  await rejects(() => archivePage(bob, lockTop.id), isCode("topLevelLocked"), "nor move one to the trash");
+  const underLocked = await createPage({ userId: bob }, { workspaceId, parentId: lockTop.id, title: `${RUN} under the locked` });
+  check((await spaceOf(underLocked.id)) === general, "…but adds pages under them");
+  await movePage(bob, underLocked.id, genPage.id);
+  check(true, "…and moves pages below the top level");
+  await movePage(owner, lockTop.id, null, 12345);
+  await archivePage(owner, lockTop.id);
+  await restorePage(owner, lockTop.id);
+  check((await spaceOf(lockTop.id)) === general, "an owner still arranges, trashes and restores them");
+  await updateTeamspace(owner, general, { topLevelLocked: false });
+  await archivePage(bob, lockTop.id);
+  check(true, "unlocked, members arrange them again");
+
+
   // A restricted page keeps its people but not its "everyone" entry when it changes space.
   const restricted = await createPage({ userId: owner }, { workspaceId, title: `${RUN} restricted`, teamspaceId: general });
   await setPagePermission(owner, restricted.id, owner, "full");

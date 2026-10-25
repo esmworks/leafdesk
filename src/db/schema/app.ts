@@ -440,6 +440,11 @@ export const teamspace = pgTable(
     description: text("description").notNull().default(""),
     access: text("access").$type<TeamspaceAccess>().notNull().default("open"),
     memberLevel: text("member_level").$type<TeamspaceMemberLevel>().notNull().default("full"),
+    /**
+     * Only those who manage it add, move, reorder and remove its top-level pages; members still
+     * edit those pages (as their access says) and everything under them (server/teamspaces.ts).
+     */
+    topLevelLocked: boolean("top_level_locked").notNull().default(false),
     /** Archived teamspaces leave the sidebar and take no new pages; their pages keep their access. */
     archivedAt: timestamp("archived_at", { withTimezone: true }),
     createdBy: text("created_by").references(() => user.id, { onDelete: "set null" }),

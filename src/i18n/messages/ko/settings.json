@@ -1673,7 +1673,8 @@
       "icon": "아이콘",
       "description": "설명",
       "access": "액세스",
-      "memberLevel": "멤버 액세스"
+      "memberLevel": "멤버 액세스",
+      "topLevelLocked": "최상위 페이지 잠금"
     },
     "via": {
       "invitation": "초대",

@@ -16,6 +16,8 @@ import {
 import { CommentMark } from "@blocknote/core/comments";
 import { ServerBlockNoteEditor } from "@blocknote/server-util";
 import katex from "katex";
+// Chemical equations and units in equations: \ce{…} and \pu{…} (mhchem).
+import "katex/contrib/mhchem";
 import {
   breadcrumbBlockConfig,
   calloutBlockConfig,

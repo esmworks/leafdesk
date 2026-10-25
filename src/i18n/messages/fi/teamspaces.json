@@ -32,7 +32,8 @@
     "invalidIcon": "Kuvakkeen on oltava emoji tai sisäänrakennettu kuvake.",
     "notConvertible": "Vain sivusta voi tulla tiimitila: ei tietokannasta, rivistä tai mallista.",
     "invalidEmail": "Anna kelvollinen sähköpostiosoite.",
-    "cantInvite": "Et voi kutsua ihmisiä tähän työtilaan. Pyydä omistajaa."
+    "cantInvite": "Et voi kutsua ihmisiä tähän työtilaan. Pyydä omistajaa.",
+    "topLevelLocked": "Vain tiimitilan omistajat voivat lisätä, siirtää ja poistaa sen ylimmän tason sivuja."
   },
   "dialog": {
     "createTitle": "Uusi tiimitila",
@@ -50,6 +51,8 @@
     "creating": "Luodaan…",
     "memberLevel": "Jäsenten oikeudet sen sivuihin",
     "memberLevelHint": "Mitä jäsenet saavat sivuilla, joilla sitä ei ole asetettu erikseen. Tiimitilan omistajat ja työtilan omistajat saavat aina täydet oikeudet; sivun jakoasetukset ohittavat tämän silti.",
+    "topLevelLocked": "Lukitse ylimmän tason sivut",
+    "topLevelLockedHint": "Vain tiimitilan omistajat lisäävät, siirtävät, järjestävät ja poistavat sen ylimmän tason sivuja. Jäsenet muokkaavat edelleen niitä ja niiden sisällä olevia sivuja.",
     "memberLevelLocked": "Vain työtilan omistajat voivat muuttaa, mitä kaikki saavat oletustiimitilassa."
   },
   "members": {

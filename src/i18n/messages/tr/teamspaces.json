@@ -32,7 +32,8 @@
     "invalidIcon": "Simge bir emoji ya da yerleşik bir simge olmalı.",
     "notConvertible": "Yalnızca bir sayfa ekip alanına dönüşebilir: veritabanı, satır ya da şablon dönüşemez.",
     "invalidEmail": "Geçerli bir e-posta adresi girin.",
-    "cantInvite": "Bu çalışma alanına kişi davet edemezsiniz. Bir sahibe sorun."
+    "cantInvite": "Bu çalışma alanına kişi davet edemezsiniz. Bir sahibe sorun.",
+    "topLevelLocked": "Bu teamspace'in en üst sayfalarını yalnızca sahipleri ekleyip taşıyabilir ve kaldırabilir."
   },
   "dialog": {
     "createTitle": "Yeni ekip alanı",
@@ -50,6 +51,8 @@
     "creating": "Oluşturuluyor…",
     "memberLevel": "Üyelerin sayfalara erişimi",
     "memberLevelHint": "Kendi erişimini belirlemeyen sayfalarda üyelerin aldığı erişim. Ekip alanı sahipleri ve çalışma alanı sahipleri her zaman tam erişim alır; bir sayfanın paylaşım ayarları bunu yine geçersiz kılar.",
+    "topLevelLocked": "En üst sayfaları kilitle",
+    "topLevelLockedHint": "Teamspace'in en üst sayfalarını yalnızca sahipleri ekler, taşır, sıralar ve kaldırır. Üyeler bu sayfaları ve içlerindeki sayfaları düzenlemeye devam eder.",
     "memberLevelLocked": "Varsayılan bir ekip alanında herkesin ne alacağını yalnızca çalışma alanı sahipleri değiştirebilir."
   },
   "members": {

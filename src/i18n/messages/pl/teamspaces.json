@@ -32,7 +32,8 @@
     "invalidIcon": "Ikona musi być emoji lub wbudowaną ikoną.",
     "notConvertible": "Przestrzenią zespołu może stać się tylko strona, nie baza danych, wiersz ani szablon.",
     "invalidEmail": "Wpisz prawidłowy adres e-mail.",
-    "cantInvite": "Nie możesz zapraszać osób do tego obszaru roboczego. Poproś właściciela."
+    "cantInvite": "Nie możesz zapraszać osób do tego obszaru roboczego. Poproś właściciela.",
+    "topLevelLocked": "Tylko właściciele teamspace mogą dodawać, przenosić i usuwać jego strony najwyższego poziomu."
   },
   "dialog": {
     "createTitle": "Nowa przestrzeń zespołu",
@@ -50,6 +51,8 @@
     "creating": "Tworzenie…",
     "memberLevel": "Dostęp członków do jej stron",
     "memberLevelHint": "Dostęp członków do stron, które same go nie określają. Właściciele przestrzeni zespołu i właściciele obszaru roboczego zawsze mają pełny dostęp; ustawienia udostępniania strony nadal mają pierwszeństwo.",
+    "topLevelLocked": "Zablokuj strony najwyższego poziomu",
+    "topLevelLockedHint": "Tylko właściciele teamspace dodają, przenoszą, porządkują i usuwają jego strony najwyższego poziomu. Członkowie nadal je edytują, podobnie jak strony w nich.",
     "memberLevelLocked": "Tylko właściciele obszaru roboczego mogą zmienić dostęp wszystkich w domyślnej przestrzeni zespołu."
   },
   "members": {

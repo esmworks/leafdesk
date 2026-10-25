@@ -1673,7 +1673,8 @@
       "icon": "الأيقونة",
       "description": "الوصف",
       "access": "الوصول",
-      "memberLevel": "وصول الأعضاء"
+      "memberLevel": "وصول الأعضاء",
+      "topLevelLocked": "قفل الصفحات العليا"
     },
     "via": {
       "invitation": "دعوة",

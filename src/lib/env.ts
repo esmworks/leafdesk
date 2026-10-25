@@ -4,10 +4,14 @@ import type { OAuthStorageKind } from "@/lib/workspace-storage";
 import { sessionDaysFrom } from "@/lib/session-lifetime";
 import { adminEmailsFrom, workspaceCreationFrom } from "@/lib/instance-admin";
 import { vapidFrom } from "@/lib/push";
-import { socialProvidersFrom, type SocialProvider } from "@/lib/social-providers";
+import { appleCredentialsFromKey } from "@/lib/apple-client-secret";
+import { socialProvidersFrom, type SocialCredentials, type SocialProvider } from "@/lib/social-providers";
 import { instanceOidcFrom, ssoTrustedOriginsFrom } from "@/lib/sso-config";
 import { parseAiMonthlyLimit } from "@/lib/ai-usage";
 import { webSearchFrom } from "@/lib/web-search";
+
+/** Apple's credentials made from its key, once: they keep the secret they made (lib/apple-client-secret.ts). */
+let appleFromKey: { value: SocialCredentials | null } | undefined;
 
 function required(name: string): string {
   const value = process.env[name];
@@ -239,9 +243,18 @@ export const env = {
   get workspaceCreation() {
     return workspaceCreationFrom(process.env.WORKSPACE_CREATION);
   },
-  /** GITHUB_CLIENT_ID/SECRET and GOOGLE_CLIENT_ID/SECRET each turn on sign-in with that provider. */
+  /**
+   * GITHUB_CLIENT_ID/SECRET, GOOGLE_CLIENT_ID/SECRET and APPLE_CLIENT_ID/SECRET each turn on
+   * sign-in with that provider; Apple also with APPLE_TEAM_ID, APPLE_KEY_ID and APPLE_PRIVATE_KEY
+   * instead of a secret (lib/apple-client-secret.ts), made once per process.
+   */
   get socialProviders() {
-    return socialProvidersFrom(process.env);
+    const providers = socialProvidersFrom(process.env);
+    if (!providers.apple) {
+      appleFromKey ??= { value: appleCredentialsFromKey(process.env) };
+      if (appleFromKey.value) providers.apple = appleFromKey.value;
+    }
+    return providers;
   },
   get enabledSocialProviders(): SocialProvider[] {
     return Object.keys(this.socialProviders) as SocialProvider[];

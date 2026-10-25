@@ -1673,7 +1673,8 @@
       "icon": "סמל",
       "description": "תיאור",
       "access": "גישה",
-      "memberLevel": "גישת החברים"
+      "memberLevel": "גישת החברים",
+      "topLevelLocked": "נעילת דפי הרמה העליונה"
     },
     "via": {
       "invitation": "הזמנה",

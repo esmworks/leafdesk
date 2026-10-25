@@ -71,6 +71,7 @@
     "actionFailed": "İşlem tamamlanamadı.",
     "viewers": "{count, plural, other {Bu sayfayı # kişi daha görüntülüyor}}",
     "viewersTitle": "Bu sayfayı görüntüleyenler",
+    "goToViewer": "{name} nerede ise oraya git",
     "saveAsTemplate": "Şablon olarak kaydet",
     "saveAsRowTemplate": "Satır şablonu olarak kaydet",
     "deleteTemplate": "Şablonu sil",
@@ -671,10 +672,10 @@
     "embed": {
       "title": "Gömülü içerik",
       "subtext": "YouTube, Figma, Google Dokümanlar, Haritalar ve dahası",
-      "aliases": "göm gömülü embed iframe youtube vimeo loom figma google dokümanlar tablolar slaytlar codepen replit excalidraw framer sketch spotify harita video hex deepnote pitch website",
+      "aliases": "göm gömülü embed iframe youtube vimeo loom figma google dokümanlar tablolar slaytlar codepen replit excalidraw framer sketch miro spotify harita video hex deepnote pitch website",
       "placeholder": "Gömmek için bir bağlantı yapıştırın",
       "submit": "Göm",
-      "providers": "YouTube, Vimeo, Loom, Figma, yayımlanmış Google Dokümanlar, E-Tablolar ve Slaytlar, CodePen, Replit, Excalidraw, Framer, Sketch, Spotify ve Google Haritalar. Diğer https siteleri (Hex, Deepnote, Pitch …) izin verdikleri yerde oldukları gibi gösterilir.",
+      "providers": "YouTube, Vimeo, Loom, Figma, yayımlanmış Google Dokümanlar, E-Tablolar ve Slaytlar, CodePen, Replit, Excalidraw, Framer, Sketch, Miro, Spotify ve Google Haritalar. Diğer https siteleri (Hex, Deepnote, Pitch …) izin verdikleri yerde oldukları gibi gösterilir.",
       "frameTitle": "{host} kaynağından gömülü içerik",
       "label": "Gömülü içerik",
       "resize": "Gömülü içeriğin genişliğini değiştirmek için sürükleyin"

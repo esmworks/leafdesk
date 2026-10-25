@@ -1673,7 +1673,8 @@
       "icon": "kuvake",
       "description": "kuvaus",
       "access": "pääsy",
-      "memberLevel": "jäsenten käyttöoikeus"
+      "memberLevel": "jäsenten käyttöoikeus",
+      "topLevelLocked": "ylimmän tason sivujen lukitus"
     },
     "via": {
       "invitation": "kutsu",

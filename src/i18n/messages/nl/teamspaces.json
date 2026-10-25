@@ -32,7 +32,8 @@
     "invalidIcon": "Het pictogram moet een emoji of een ingebouwd pictogram zijn.",
     "notConvertible": "Alleen een pagina kan een teamruimte worden: geen database, rij of sjabloon.",
     "invalidEmail": "Voer een geldig e-mailadres in.",
-    "cantInvite": "Je kunt geen mensen uitnodigen voor deze werkruimte. Vraag het een eigenaar."
+    "cantInvite": "Je kunt geen mensen uitnodigen voor deze werkruimte. Vraag het een eigenaar.",
+    "topLevelLocked": "Alleen de eigenaren van de teamspace kunnen de bovenste pagina's toevoegen, verplaatsen en verwijderen."
   },
   "dialog": {
     "createTitle": "Nieuwe teamruimte",
@@ -50,6 +51,8 @@
     "creating": "Aanmaken…",
     "memberLevel": "Toegang van leden tot de pagina’s",
     "memberLevelHint": "Wat leden krijgen op pagina’s die dit niet zelf instellen. Eigenaren van de teamruimte en van de werkruimte krijgen altijd volledige toegang; de deelinstellingen van een pagina gaan hier nog steeds boven.",
+    "topLevelLocked": "Bovenste pagina's vergrendelen",
+    "topLevelLockedHint": "Alleen de eigenaren van de teamspace voegen de bovenste pagina's toe, verplaatsen, ordenen en verwijderen ze. Leden blijven ze bewerken, en de pagina's erin ook.",
     "memberLevelLocked": "Alleen eigenaren van de werkruimte kunnen wijzigen wat iedereen in een standaardteamruimte krijgt."
   },
   "members": {

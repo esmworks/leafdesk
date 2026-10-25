@@ -171,8 +171,9 @@ function createAuth() {
       },
     },
     ...socialAuthOptions(env.socialProviders),
-    // Identity providers on a private network that SSO may call (the instance issuer, SSO_TRUSTED_ORIGINS).
-    trustedOrigins: env.ssoTrustedOrigins,
+    // Identity providers on a private network that SSO may call (the instance issuer, SSO_TRUSTED_ORIGINS),
+    // and Apple, whose sign-in comes back as a form posted from its own site.
+    trustedOrigins: [...env.ssoTrustedOrigins, ...(env.socialProviders.apple ? ["https://appleid.apple.com"] : [])],
     databaseHooks: {
       user: {
         create: {

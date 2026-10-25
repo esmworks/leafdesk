@@ -1,0 +1,1 @@
+ALTER TABLE "teamspace" ADD COLUMN "top_level_locked" boolean DEFAULT false NOT NULL;

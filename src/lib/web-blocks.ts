@@ -100,6 +100,7 @@ export type EmbedProvider =
   | "excalidraw"
   | "framer"
   | "sketch"
+  | "miro"
   | "spotify"
   | "maps"
   | "web";
@@ -124,6 +125,7 @@ export const EMBED_FRAME_ORIGINS = [
   "https://excalidraw.com",
   "https://framer.com",
   "https://www.sketch.com",
+  "https://miro.com",
   "https://open.spotify.com",
   "https://www.google.com",
 ] as const;
@@ -326,6 +328,15 @@ function sketch(url: URL): EmbedTarget | null {
   return { provider: "sketch", src: `https://www.sketch.com/embed/${parts.join("/")}`, height: 500 };
 }
 
+/** A Miro board, `miro.com/app/board/<id>/`, live in Miro's own frame. */
+function miro(url: URL): EmbedTarget | null {
+  if (!hostIs(url, "miro.com", "www.miro.com")) return null;
+  const parts = segments(url);
+  if (parts.length !== 3 || parts[0] !== "app" || (parts[1] !== "board" && parts[1] !== "live-embed")) return null;
+  if (!/^[A-Za-z0-9_=-]{6,64}$/.test(parts[2])) return null;
+  return { provider: "miro", src: `https://miro.com/app/live-embed/${parts[2]}/`, height: 500 };
+}
+
 const SPOTIFY_KINDS = new Set(["track", "album", "playlist", "episode", "show", "artist"]);
 
 function spotify(url: URL): EmbedTarget | null {
@@ -377,7 +388,7 @@ function maps(url: URL): EmbedTarget | null {
   return { provider: "maps", src: `https://www.google.com/maps?${params}`, height: 450 };
 }
 
-const PROVIDERS = [youtube, vimeo, loom, figma, google, codepen, replit, excalidraw, framer, sketch, spotify, maps];
+const PROVIDERS = [youtube, vimeo, loom, figma, google, codepen, replit, excalidraw, framer, sketch, miro, spotify, maps];
 
 /** The iframe for a pasted URL when it belongs to a named provider, else null (a pasted link then offers a bookmark). */
 export function embedFor(input: unknown): EmbedTarget | null {

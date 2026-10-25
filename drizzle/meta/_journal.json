@@ -1009,6 +1009,13 @@
       "when": 1792934462718,
       "tag": "0143_page_reports",
       "breakpoints": true
+    },
+    {
+      "idx": 144,
+      "version": "7",
+      "when": 1792938223250,
+      "tag": "0144_teamspace_top_level_lock",
+      "breakpoints": true
     }
   ]
 }

@@ -97,9 +97,17 @@ export async function turnPageIntoTeamspaceAction(workspaceId: string, pageId: s
 export async function updateTeamspaceAction(
   workspaceId: string,
   teamspaceId: string,
-  patch: { name?: string; icon?: string | null; description?: string; access?: TeamspaceAccess; memberLevel?: TeamspaceMemberLevel },
+  patch: {
+    name?: string;
+    icon?: string | null;
+    description?: string;
+    access?: TeamspaceAccess;
+    memberLevel?: TeamspaceMemberLevel;
+    topLevelLocked?: boolean;
+  },
 ) {
   if (patch.access !== undefined && !isTeamspaceAccess(patch.access)) return fail("invalidAccess");
+  if (patch.topLevelLocked !== undefined && typeof patch.topLevelLocked !== "boolean") return fail("invalidAccess");
   if (patch.memberLevel !== undefined && !isTeamspaceMemberLevel(patch.memberLevel)) return fail("invalidMemberLevel");
   const result = await run((userId) => updateTeamspace(userId, teamspaceId, patch));
   refresh(workspaceId);

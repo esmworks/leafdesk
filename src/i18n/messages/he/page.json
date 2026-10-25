@@ -71,6 +71,7 @@
     "actionFailed": "לא ניתן היה להשלים את הפעולה.",
     "viewers": "{count, plural, one {אדם נוסף צופה בדף הזה} two {שני אנשים נוספים צופים בדף הזה} other {# אנשים נוספים צופים בדף הזה}}",
     "viewersTitle": "צופים בדף הזה",
+    "goToViewer": "מעבר למקום שבו {name} נמצא/ת",
     "saveAsTemplate": "שמירה כתבנית",
     "saveAsRowTemplate": "שמירה כתבנית שורה",
     "deleteTemplate": "מחיקת התבנית",
@@ -671,10 +672,10 @@
     "embed": {
       "title": "הטמעה",
       "subtext": "YouTube, Figma, Google Docs, Maps ועוד",
-      "aliases": "הטמעה וידאו מפות embed iframe youtube vimeo loom figma google docs sheets slides codepen replit excalidraw framer sketch spotify maps video hex deepnote pitch website",
+      "aliases": "הטמעה וידאו מפות embed iframe youtube vimeo loom figma google docs sheets slides codepen replit excalidraw framer sketch miro spotify maps video hex deepnote pitch website",
       "placeholder": "הדבקת קישור להטמעה",
       "submit": "הטמעה",
-      "providers": "YouTube, Vimeo, Loom, Figma, מסמכי Google Docs, Sheets ו־Slides שפורסמו, CodePen, Replit, Excalidraw, Framer, Sketch, Spotify ו־Google Maps. אתרי https אחרים (Hex, Deepnote, Pitch …) מוצגים כפי שהם כשהם מאפשרים זאת.",
+      "providers": "YouTube, Vimeo, Loom, Figma, מסמכי Google Docs, Sheets ו־Slides שפורסמו, CodePen, Replit, Excalidraw, Framer, Sketch, Miro, Spotify ו־Google Maps. אתרי https אחרים (Hex, Deepnote, Pitch …) מוצגים כפי שהם כשהם מאפשרים זאת.",
       "frameTitle": "תוכן מוטמע מ־{host}",
       "label": "הטמעה",
       "resize": "גררו כדי לשנות את רוחב התוכן המוטמע"

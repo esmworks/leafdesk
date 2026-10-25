@@ -18,6 +18,8 @@ import {
   type DefaultReactSuggestionItem,
 } from "@blocknote/react";
 import katex from "katex";
+// Chemical equations and units in equations: \ce{…} and \pu{…} (mhchem).
+import "katex/contrib/mhchem";
 import { Info, ListTree, PrinterX, Radical, Route, Sigma, SmilePlus, SquareDashed, Superscript, TableOfContents, Workflow } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { createContext, useCallback, useContext, useEffect, useMemo, useState } from "react";

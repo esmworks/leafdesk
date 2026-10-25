@@ -13,6 +13,7 @@
     "close": "Fechar uma caixa de diálogo, menu ou painel",
     "present": "Apresentar a página como slides",
     "toggleAll": "Abrir ou fechar todos os blocos recolhíveis e grupos da página",
+    "theme": "Alternar entre claro e escuro",
     "search": "Pesquisar",
     "sidebar": "Mostrar ou ocultar a barra lateral",
     "find": "Localizar na página",

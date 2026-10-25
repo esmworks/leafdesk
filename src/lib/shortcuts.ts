@@ -51,6 +51,8 @@ export const SHORTCUT_GROUPS: readonly ShortcutGroup[] = [
       { id: "present", combos: [["Mod", "Alt", "P"]] },
       // components/toggle-all.ts, on pages and databases: toggles and grouped views' groups.
       { id: "toggleAll", combos: [TOGGLE_ALL_COMBO] },
+      // components/sidebar/sidebar-context.tsx, in a workspace.
+      { id: "theme", combos: [["Mod", "Shift", "L"]] },
     ],
   },
   {

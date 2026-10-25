@@ -496,3 +496,12 @@ describe("content blocks on published pages", () => {
     expect(html).toMatch(/<h2 id="heading-2"[^>]*><span id="block-[\w-]+" class="block-anchor"><\/span>Two &lt;b&gt;<\/h2>/);
   });
 });
+
+describe("chemical equations", () => {
+  it("draw \\ce and \\pu (mhchem) instead of an error", async () => {
+    const html = await serverEditor.blocksToHTMLLossy([{ type: "math", content: "\\ce{2H2 + O2 -> 2H2O} \\quad \\pu{123 kJ/mol}" }] as never);
+    // Without mhchem KaTeX shows an unknown command in red; with it, H2O has its subscript.
+    expect(html).not.toContain("#cc0000");
+    expect(html).toContain("<msub>");
+  });
+});

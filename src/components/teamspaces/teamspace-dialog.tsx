@@ -73,6 +73,7 @@ function TeamspaceForm({
   const [description, setDescription] = useState(teamspace?.description ?? "");
   const [access, setAccess] = useState<TeamspaceAccess>(teamspace?.access ?? "open");
   const [memberLevel, setMemberLevel] = useState<TeamspaceMemberLevel>(teamspace?.memberLevel ?? "full");
+  const [topLevelLocked, setTopLevelLocked] = useState(teamspace?.topLevelLocked ?? false);
 
   // Making a teamspace default, or one default no longer, changes everyone's sidebar: owners only.
   const accessLocked = !isWorkspaceOwner && teamspace?.access === "default";
@@ -107,12 +108,20 @@ function TeamspaceForm({
       return;
     }
     // Only what changed, so an unchanged access never needs a workspace owner.
-    const patch: { name?: string; icon?: string | null; description?: string; access?: TeamspaceAccess; memberLevel?: TeamspaceMemberLevel } = {};
+    const patch: {
+      name?: string;
+      icon?: string | null;
+      description?: string;
+      access?: TeamspaceAccess;
+      memberLevel?: TeamspaceMemberLevel;
+      topLevelLocked?: boolean;
+    } = {};
     if (cleanName !== teamspace.name) patch.name = cleanName;
     if (icon !== teamspace.icon) patch.icon = icon;
     if (cleanDescription !== teamspace.description) patch.description = cleanDescription;
     if (access !== teamspace.access) patch.access = access;
     if (memberLevel !== teamspace.memberLevel) patch.memberLevel = memberLevel;
+    if (topLevelLocked !== teamspace.topLevelLocked) patch.topLevelLocked = topLevelLocked;
     if (!Object.keys(patch).length) {
       onClose();
       return;
@@ -217,6 +226,21 @@ function TeamspaceForm({
         </select>
         <span className="block text-xs text-fg-muted">{memberLocked ? t("dialog.memberLevelLocked") : t("dialog.memberLevelHint")}</span>
       </label>
+
+      {teamspace && (
+        <label className="flex cursor-pointer items-start gap-2 text-sm">
+          <input
+            type="checkbox"
+            checked={topLevelLocked}
+            onChange={(e) => setTopLevelLocked(e.target.checked)}
+            className="mt-0.5 h-4 w-4 shrink-0 accent-[var(--color-accent)]"
+          />
+          <span>
+            <span className="block">{t("dialog.topLevelLocked")}</span>
+            <span className="block text-xs text-fg-muted">{t("dialog.topLevelLockedHint")}</span>
+          </span>
+        </label>
+      )}
 
       {error && <p className="text-xs text-danger">{error}</p>}
       <div className="flex justify-end gap-2">

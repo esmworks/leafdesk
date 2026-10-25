@@ -5,7 +5,9 @@ import { useTranslations } from "next-intl";
 import { usePathname } from "next/navigation";
 import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import { cn, IconButton } from "@/components/ui";
+import { useChosenTheme } from "@/components/theme/theme-provider";
 import { clampSidebarWidth, formatSidebarCookie, SIDEBAR_COOKIE, type SidebarLayout } from "@/lib/sidebar-layout";
+import { THEME_COOKIE } from "@/lib/theme";
 
 function saveLayout(layout: SidebarLayout) {
   document.cookie = `${SIDEBAR_COOKIE}=${formatSidebarCookie(layout)}; path=/; max-age=31536000; samesite=lax`;
@@ -83,11 +85,19 @@ export function SidebarProvider({ initial, children }: { initial: SidebarLayout;
     [collapsed],
   );
 
+  const { setTheme } = useChosenTheme();
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
       if ((e.metaKey || e.ctrlKey) && e.key === "\\") {
         e.preventDefault();
         toggle();
+      } else if ((e.metaKey || e.ctrlKey) && e.shiftKey && !e.altKey && e.code === "KeyL") {
+        // Light or dark, the other one of what shows now; kept for this browser like Settings' choice.
+        e.preventDefault();
+        const shown = document.documentElement.dataset.theme;
+        const next = (shown ? shown === "dark" : matchMedia("(prefers-color-scheme: dark)").matches) ? "light" : "dark";
+        document.cookie = `${THEME_COOKIE}=${next}; path=/; max-age=31536000; samesite=lax`;
+        setTheme(next);
       } else if (e.key === "Escape") {
         setDrawerOpen(false);
         setPeek(false);
@@ -95,7 +105,7 @@ export function SidebarProvider({ initial, children }: { initial: SidebarLayout;
     };
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
-  }, [toggle]);
+  }, [toggle, setTheme]);
 
   const value = useMemo<SidebarContextValue>(
     () => ({

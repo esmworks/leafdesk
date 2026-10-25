@@ -1673,7 +1673,8 @@
       "icon": "ikon",
       "description": "beskrivelse",
       "access": "adgang",
-      "memberLevel": "medlemmernes adgang"
+      "memberLevel": "medlemmernes adgang",
+      "topLevelLocked": "lås på øverste sider"
     },
     "via": {
       "invitation": "en invitation",

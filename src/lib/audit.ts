@@ -418,7 +418,7 @@ export function settingChanges(t: AuditTranslator, changes: unknown): string {
     .join("; ");
 }
 
-const TEAMSPACE_FIELDS = ["name", "icon", "description", "access", "memberLevel"] as const;
+const TEAMSPACE_FIELDS = ["name", "icon", "description", "access", "memberLevel", "topLevelLocked"] as const;
 
 /**
  * What the event did, in the viewer's language, without the actor (the log shows them apart):

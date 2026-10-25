@@ -1673,7 +1673,8 @@
       "icon": "アイコン",
       "description": "説明",
       "access": "アクセス",
-      "memberLevel": "メンバーのアクセス"
+      "memberLevel": "メンバーのアクセス",
+      "topLevelLocked": "最上位ページのロック"
     },
     "via": {
       "invitation": "招待",

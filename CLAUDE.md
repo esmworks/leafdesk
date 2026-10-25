@@ -31,7 +31,7 @@ BlockNote on Yjs; Tailwind v4; next-intl. Node 24, pnpm 11. A separate Electron 
 - `src/server/`: server-only domain code (by convention; there is no `server-only` import).
 - `src/lib/`: mostly pure code shared by client and server (property types, views, filters,
   formulas in `formula/`, markdown, search words, importers in `import/`). Server-only exceptions:
-  `auth.ts`, `env.ts`, `client-ip.ts`, `secret-files.ts`, `totp.ts`; client-only: `auth-client.ts`.
+  `auth.ts`, `env.ts`, `client-ip.ts`, `secret-files.ts`, `totp.ts`, `apple-client-secret.ts`; client-only: `auth-client.ts`.
 - `src/components/`: React components by area (`page/`, `database/`, `settings/`, `ai-chat/`,
   `sidebar/`, `published/` …). Server components live here too: a file without `"use client"` is
   one, and may import `@/server/*`.
@@ -56,7 +56,8 @@ BlockNote on Yjs; Tailwind v4; next-intl. Node 24, pnpm 11. A separate Electron 
   is a member on content; `managesPeople`, `mayChangeRole`, `mayRemove`); people management checks
   `requirePeopleManager`, while `requireMembership(…, "owner")` stays owner-only. Shares: `permissions.ts`; per-property rules:
   `property-access.ts`; rows giving the people they name access: `row-access.ts`; teamspace
-  membership: `teamspaces.ts`; guests: `guests.ts`. Sign-in policies (approved networks, two-step,
+  membership: `teamspaces.ts` (a locked teamspace's top level: `requireArrangeTopLevel`, checked in
+  `pages.ts` moves, trash, restore and delete and in `requireTeamspaceForPages`); guests: `guests.ts`. Sign-in policies (approved networks, two-step,
   SSO only) are `policyHold` there; the request's address comes from `CLIENT_IP_HEADER`, which
   `server.ts` sets on requests and on websocket upgrades alike.
 - **Page content.** The Yjs document is the source of truth. Writes from the server go through

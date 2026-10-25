@@ -71,6 +71,7 @@
     "actionFailed": "Impossible d’effectuer cette action.",
     "viewers": "{count, plural, one {# autre personne consulte cette page} other {# autres personnes consultent cette page}}",
     "viewersTitle": "Personnes sur cette page",
+    "goToViewer": "Aller là où se trouve {name}",
     "saveAsTemplate": "Enregistrer comme modèle",
     "saveAsRowTemplate": "Enregistrer comme modèle de ligne",
     "deleteTemplate": "Supprimer le modèle",
@@ -671,10 +672,10 @@
     "embed": {
       "title": "Intégration",
       "subtext": "YouTube, Figma, Google Docs, Maps et plus encore",
-      "aliases": "embed iframe youtube vimeo loom figma google docs sheets slides codepen replit excalidraw framer sketch spotify maps video intégrer intégration vidéo carte hex deepnote pitch website",
+      "aliases": "embed iframe youtube vimeo loom figma google docs sheets slides codepen replit excalidraw framer sketch miro spotify maps video intégrer intégration vidéo carte hex deepnote pitch website",
       "placeholder": "Collez un lien à intégrer",
       "submit": "Intégrer",
-      "providers": "YouTube, Vimeo, Loom, Figma, Google Docs, Sheets et Slides publiés, CodePen, Replit, Excalidraw, Framer, Sketch, Spotify et Google Maps. Les autres sites https (Hex, Deepnote, Pitch …) s’affichent tels quels s’ils le permettent.",
+      "providers": "YouTube, Vimeo, Loom, Figma, Google Docs, Sheets et Slides publiés, CodePen, Replit, Excalidraw, Framer, Sketch, Miro, Spotify et Google Maps. Les autres sites https (Hex, Deepnote, Pitch …) s’affichent tels quels s’ils le permettent.",
       "frameTitle": "Contenu intégré depuis {host}",
       "label": "Intégration",
       "resize": "Faites glisser pour changer la largeur de l’intégration"
