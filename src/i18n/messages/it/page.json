@@ -44,7 +44,13 @@
       "serif": "Serif",
       "mono": "Mono",
       "smallText": "Testo piccolo",
-      "fullWidth": "Larghezza piena"
+      "fullWidth": "Larghezza piena",
+      "backlinks": "Backlink",
+      "backlinksModes": {
+        "expanded": "Sotto la pagina",
+        "popup": "In un popup",
+        "off": "Nascosti"
+      }
     },
     "lockDatabase": "Blocca database",
     "lockHint": "Finché è bloccato, proprietà e viste non possono cambiare; le righe restano modificabili.",
@@ -552,7 +558,9 @@
       "plainText": "Testo semplice",
       "format": "Formatta il codice",
       "formatSyntaxError": "Il codice non è stato formattato: c’è un errore di sintassi alla riga {line}.",
-      "formatFailed": "Impossibile formattare il codice."
+      "formatFailed": "Impossibile formattare il codice.",
+      "caption": "Didascalia",
+      "captionPlaceholder": "Scrivi una didascalia…"
     },
     "math": {
       "title": "Equazione",
@@ -635,7 +643,7 @@
     "pageLink": {
       "title": "Link a pagina",
       "subtext": "Un link a un’altra pagina, con il suo titolo sempre aggiornato",
-      "aliases": "link page mention reference pagina menzione riferimento collegamento"
+      "aliases": "link page mention reference pagina menzione riferimento collegamento ltp"
     },
     "syncedPage": {
       "title": "Pagina sincronizzata",
@@ -1280,5 +1288,22 @@
     "replies": "{count, plural, =0 {Nessuna risposta} one {# risposta} other {# risposte}}",
     "openThread": "Apri discussione",
     "resolved": "Risolto"
+  },
+  "newPageRoute": {
+    "documentTitle": "Nuova pagina",
+    "creating": "Creazione della pagina…",
+    "failed": "Impossibile creare la pagina.",
+    "home": "Vai allo spazio di lavoro"
+  },
+  "linkPicker": {
+    "placeholder": "Incolla un link o cerca pagine",
+    "pages": "Pagine",
+    "newPage": "Nuova pagina: {title}"
+  },
+  "turnIntoPage": {
+    "menuItem": "Trasforma in pagina in…",
+    "title": "Trasforma in pagina in",
+    "here": "Dentro questa pagina",
+    "failed": "Impossibile spostare i blocchi in una nuova pagina."
   }
 }

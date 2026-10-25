@@ -76,7 +76,7 @@ import { FAVORITES_EVENT } from "@/lib/favorites-event";
 import { OfflineToggle } from "@/components/offline/offline-toggle";
 import { OPEN_SHARE_EVENT } from "@/lib/share-event";
 import type { Presence } from "@/lib/presence";
-import { PAGE_FONTS, type PageStyle } from "@/lib/page-style";
+import { BACKLINKS_MODES, PAGE_FONTS, type BacklinksMode, type PageStyle } from "@/lib/page-style";
 import { printPath } from "@/lib/print";
 import { relativeTime } from "@/lib/relative-time";
 import { comboText, isMac } from "@/lib/shortcuts";
@@ -480,6 +480,21 @@ function StyleControls({ style, onStyle }: { style: PageStyle; onStyle: (change:
         <span className="flex-1">{t("fullWidth")}</span>
         <Switch checked={style.fullWidth} onChange={(fullWidth) => onStyle({ fullWidth })} label={t("fullWidth")} />
       </div>
+      <label className="flex items-center gap-2 rounded px-2 py-1.5 text-sm">
+        <Link2 className="h-4 w-4 text-fg-muted" />
+        <span className="flex-1">{t("backlinks")}</span>
+        <select
+          value={style.backlinks}
+          onChange={(e) => onStyle({ backlinks: e.target.value as BacklinksMode })}
+          className="rounded border border-border bg-bg px-1 py-0.5 text-xs text-fg"
+        >
+          {BACKLINKS_MODES.map((mode) => (
+            <option key={mode} value={mode}>
+              {t(`backlinksModes.${mode}`)}
+            </option>
+          ))}
+        </select>
+      </label>
       <MenuSeparator />
     </>
   );

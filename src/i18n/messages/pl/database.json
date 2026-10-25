@@ -965,7 +965,9 @@
     "zooms": {
       "day": "Dzień",
       "week": "Tydzień",
-      "month": "Miesiąc"
+      "month": "Miesiąc",
+      "quarter": "Kwartał",
+      "year": "Rok"
     },
     "showTable": "Pokaż tabelę",
     "hideTable": "Ukryj tabelę",
@@ -974,7 +976,8 @@
     "resizeStart": "Przeciągnij, aby zmienić początek",
     "resizeEnd": "Przeciągnij, aby zmienić koniec",
     "empty": "Brak wierszy z wartością: {property}.",
-    "dragHint": "Przeciągnij wiersz na oś czasu, aby nadać mu datę."
+    "dragHint": "Przeciągnij wiersz na oś czasu, aby nadać mu datę.",
+    "quarter": "Q{quarter}"
   },
   "errors": {
     "invalidUrl": "„{property}” musi być adresem URL http(s) lub mailto.",
@@ -1195,7 +1198,8 @@
     "save": "Zapisz agregację",
     "create": "Dodaj agregację",
     "back": "Wstecz",
-    "summary": "{function}: {property} w {relation}"
+    "summary": "{function}: {property} w {relation}",
+    "showUnique": "Pokaż unikalne wartości"
   },
   "propertyAccess": {
     "menuItem": "Dostęp do właściwości",

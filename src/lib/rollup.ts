@@ -1,5 +1,5 @@
 import type { PropertyOptions, PropertyType } from "@/db/schema/app";
-import { isApplicable, isRollupFn, rollupValues, type RollupFn } from "./aggregate";
+import { isApplicable, isListRollup, isRollupFn, rollupValues, type RollupFn } from "./aggregate";
 import { isErrorValue, readPropertyValue, TITLE_FIELD, valueType, type ErrorValue, type FormulaContext } from "./derived";
 import { formatValue, type FormulaErrorCode } from "./formula";
 
@@ -59,7 +59,7 @@ export function resolveRollup(prop: Prop, props: Prop[], targetProps: Prop[] | u
   if (!target) {
     return rollupError("rollupTarget", "The property this rollup reads no longer exists", { name: prop.name });
   }
-  if (config.function !== "show_original" && !isApplicable(config.function, valueType(target))) {
+  if (!isListRollup(config.function) && !isApplicable(config.function, valueType(target))) {
     return rollupError("rollupFunction", `A rollup can't calculate "${config.function}" for "${target.name}"`, {
       name: prop.name,
       function: config.function,
@@ -78,9 +78,10 @@ const ids = (v: unknown): string[] => [
 /**
  * One row's rollup value: the calculation over the rows its relation value links to, among
  * `related` (the rows the viewer may see, by id; others don't count). A number (a percentage as
- * a fraction, a date range in days), a date string, a list of texts ("show_original"), null when
+ * a fraction, a date range in days), a date string, a list of texts ("show_original", or each once
+ * with "show_unique"), null when
  * there's nothing to show, or the error a related value couldn't be worked out with.
- * `ctx` names people and linked rows for "show_original" (the related database's lookups).
+ * `ctx` names people and linked rows for the lists (the related database's lookups).
  */
 export function rollupValue(
   rollup: ResolvedRollup,

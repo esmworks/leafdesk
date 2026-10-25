@@ -965,7 +965,9 @@
     "zooms": {
       "day": "Päivä",
       "week": "Viikko",
-      "month": "Kuukausi"
+      "month": "Kuukausi",
+      "quarter": "Neljännes",
+      "year": "Vuosi"
     },
     "showTable": "Näytä taulukko",
     "hideTable": "Piilota taulukko",
@@ -974,7 +976,8 @@
     "resizeStart": "Muuta alkua vetämällä",
     "resizeEnd": "Muuta loppua vetämällä",
     "empty": "Ei vielä rivejä, joilla on arvo: {property}.",
-    "dragHint": "Anna rivelle päivämäärä vetämällä se aikajanalle."
+    "dragHint": "Anna rivelle päivämäärä vetämällä se aikajanalle.",
+    "quarter": "Q{quarter}"
   },
   "errors": {
     "invalidUrl": "Ominaisuuden ”{property}” on oltava http(s)- tai mailto-URL.",
@@ -1195,7 +1198,8 @@
     "save": "Tallenna kooste",
     "create": "Lisää kooste",
     "back": "Takaisin",
-    "summary": "{function}: {property} relaatiossa {relation}"
+    "summary": "{function}: {property} relaatiossa {relation}",
+    "showUnique": "Näytä yksilölliset arvot"
   },
   "propertyAccess": {
     "menuItem": "Ominaisuuden käyttöoikeudet",

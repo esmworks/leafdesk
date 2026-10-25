@@ -965,7 +965,9 @@
     "zooms": {
       "day": "Jour",
       "week": "Semaine",
-      "month": "Mois"
+      "month": "Mois",
+      "quarter": "Trimestre",
+      "year": "Année"
     },
     "showTable": "Afficher la table",
     "hideTable": "Masquer la table",
@@ -974,7 +976,8 @@
     "resizeStart": "Faites glisser pour modifier le début",
     "resizeEnd": "Faites glisser pour modifier la fin",
     "empty": "Aucune ligne avec {property} pour l’instant.",
-    "dragHint": "Faites glisser une ligne sur la chronologie pour lui attribuer une date."
+    "dragHint": "Faites glisser une ligne sur la chronologie pour lui attribuer une date.",
+    "quarter": "T{quarter}"
   },
   "errors": {
     "invalidUrl": "« {property} » doit être une URL http(s) ou mailto.",
@@ -1195,7 +1198,8 @@
     "save": "Enregistrer l’agrégation",
     "create": "Ajouter l’agrégation",
     "back": "Retour",
-    "summary": "{function} de {property} dans {relation}"
+    "summary": "{function} de {property} dans {relation}",
+    "showUnique": "Afficher les valeurs uniques"
   },
   "propertyAccess": {
     "menuItem": "Accès à la propriété",

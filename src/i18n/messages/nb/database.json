@@ -965,7 +965,9 @@
     "zooms": {
       "day": "Dag",
       "week": "Uke",
-      "month": "Måned"
+      "month": "Måned",
+      "quarter": "Kvartal",
+      "year": "År"
     },
     "showTable": "Vis tabell",
     "hideTable": "Skjul tabell",
@@ -974,7 +976,8 @@
     "resizeStart": "Dra for å endre starten",
     "resizeEnd": "Dra for å endre slutten",
     "empty": "Ingen rader med {property} ennå.",
-    "dragHint": "Dra en rad til tidslinjen for å gi den en dato."
+    "dragHint": "Dra en rad til tidslinjen for å gi den en dato.",
+    "quarter": "K{quarter}"
   },
   "errors": {
     "invalidUrl": "«{property}» må være en http(s)- eller mailto-URL.",
@@ -1195,7 +1198,8 @@
     "save": "Lagre aggregering",
     "create": "Legg til aggregering",
     "back": "Tilbake",
-    "summary": "{function} av {property} i {relation}"
+    "summary": "{function} av {property} i {relation}",
+    "showUnique": "Vis unike verdier"
   },
   "propertyAccess": {
     "menuItem": "Egenskapstilgang",

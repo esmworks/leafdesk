@@ -31,6 +31,7 @@ import {
   dragDays,
   dragSpan,
   headerUnits,
+  quarterOf,
   rowSpan,
   spanValues,
   timelineRange,
@@ -663,9 +664,11 @@ export function TimelineView({
                     style={{ left: dayX(u.start, range, zoom), width: u.days * DAY_WIDTH[zoom] }}
                   >
                     <span className="sticky truncate" style={{ left: panelWidth + 8 }}>
-                      {zoom === "month"
+                      {zoom === "month" || zoom === "quarter"
                         ? dayDate(u.start).getUTCFullYear()
-                        : format.dateTime(dayDate(u.start), { month: "long", year: "numeric", timeZone: "UTC" })}
+                        : zoom === "year"
+                          ? decadeLabel(dayDate(u.start).getUTCFullYear())
+                          : format.dateTime(dayDate(u.start), { month: "long", year: "numeric", timeZone: "UTC" })}
                     </span>
                   </div>
                 ))}
@@ -683,7 +686,11 @@ export function TimelineView({
                       ? dayDate(u.start).getUTCDate()
                       : zoom === "week"
                         ? format.dateTime(dayDate(u.start), { day: "numeric", month: "short", timeZone: "UTC" })
-                        : format.dateTime(dayDate(u.start), { month: "short", timeZone: "UTC" })}
+                        : zoom === "quarter"
+                          ? t("timeline.quarter", { quarter: quarterOf(u.start) })
+                          : zoom === "year"
+                            ? dayDate(u.start).getUTCFullYear()
+                            : format.dateTime(dayDate(u.start), { month: "short", timeZone: "UTC" })}
                   </div>
                 ))}
               </div>
@@ -857,3 +864,6 @@ export function TimelineView({
     </QuickAddContext>
   );
 }
+
+/** The decade a year falls in, as the year-zoom header shows it: "2020–2029". */
+const decadeLabel = (year: number) => `${year - (year % 10)}–${year - (year % 10) + 9}`;

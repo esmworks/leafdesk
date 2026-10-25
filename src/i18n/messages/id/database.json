@@ -965,7 +965,9 @@
     "zooms": {
       "day": "Hari",
       "week": "Minggu",
-      "month": "Bulan"
+      "month": "Bulan",
+      "quarter": "Kuartal",
+      "year": "Tahun"
     },
     "showTable": "Tampilkan tabel",
     "hideTable": "Sembunyikan tabel",
@@ -974,7 +976,8 @@
     "resizeStart": "Seret untuk mengubah awal",
     "resizeEnd": "Seret untuk mengubah akhir",
     "empty": "Belum ada baris dengan {property}.",
-    "dragHint": "Seret baris ke linimasa untuk memberinya tanggal."
+    "dragHint": "Seret baris ke linimasa untuk memberinya tanggal.",
+    "quarter": "K{quarter}"
   },
   "errors": {
     "invalidUrl": "“{property}” harus berupa URL http(s) atau mailto.",
@@ -1195,7 +1198,8 @@
     "save": "Simpan rollup",
     "create": "Tambahkan rollup",
     "back": "Kembali",
-    "summary": "{function} dari {property} di {relation}"
+    "summary": "{function} dari {property} di {relation}",
+    "showUnique": "Tampilkan nilai unik"
   },
   "propertyAccess": {
     "menuItem": "Akses properti",

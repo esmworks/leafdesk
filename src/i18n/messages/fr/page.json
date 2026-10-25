@@ -44,7 +44,13 @@
       "serif": "Serif",
       "mono": "Mono",
       "smallText": "Petit texte",
-      "fullWidth": "Pleine largeur"
+      "fullWidth": "Pleine largeur",
+      "backlinks": "Rétroliens",
+      "backlinksModes": {
+        "expanded": "Sous la page",
+        "popup": "Dans une fenêtre",
+        "off": "Masqués"
+      }
     },
     "lockDatabase": "Verrouiller la base de données",
     "lockHint": "Tant qu’elle est verrouillée, les propriétés et les vues ne peuvent pas changer ; les lignes restent modifiables.",
@@ -552,7 +558,9 @@
       "plainText": "Texte brut",
       "format": "Formater le code",
       "formatSyntaxError": "Le code n’a pas été formaté : erreur de syntaxe à la ligne {line}.",
-      "formatFailed": "Impossible de formater le code."
+      "formatFailed": "Impossible de formater le code.",
+      "caption": "Légende",
+      "captionPlaceholder": "Écrivez une légende…"
     },
     "math": {
       "title": "Équation",
@@ -635,7 +643,7 @@
     "pageLink": {
       "title": "Lien vers une page",
       "subtext": "Un lien vers une autre page, avec son titre à jour",
-      "aliases": "link page mention reference lien page mention référence"
+      "aliases": "link page mention reference lien page mention référence ltp"
     },
     "syncedPage": {
       "title": "Page synchronisée",
@@ -1280,5 +1288,22 @@
     "replies": "{count, plural, =0 {Aucune réponse} one {# réponse} other {# réponses}}",
     "openThread": "Ouvrir le fil",
     "resolved": "Résolu"
+  },
+  "newPageRoute": {
+    "documentTitle": "Nouvelle page",
+    "creating": "Création d'une page…",
+    "failed": "Impossible de créer la page.",
+    "home": "Aller à l'espace de travail"
+  },
+  "linkPicker": {
+    "placeholder": "Collez un lien ou cherchez des pages",
+    "pages": "Pages",
+    "newPage": "Nouvelle page : {title}"
+  },
+  "turnIntoPage": {
+    "menuItem": "Transformer en page dans…",
+    "title": "Transformer en page dans",
+    "here": "Dans cette page",
+    "failed": "Impossible de déplacer les blocs vers une nouvelle page."
   }
 }

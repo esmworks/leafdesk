@@ -44,7 +44,13 @@
       "serif": "เซอริฟ",
       "mono": "โมโน",
       "smallText": "ข้อความขนาดเล็ก",
-      "fullWidth": "เต็มความกว้าง"
+      "fullWidth": "เต็มความกว้าง",
+      "backlinks": "ลิงก์ย้อนกลับ",
+      "backlinksModes": {
+        "expanded": "ใต้หน้า",
+        "popup": "ในป๊อปอัป",
+        "off": "ซ่อน"
+      }
     },
     "lockDatabase": "ล็อกฐานข้อมูล",
     "lockHint": "ขณะล็อก คุณสมบัติและมุมมองจะเปลี่ยนไม่ได้ แต่ยังแก้ไขแถวได้",
@@ -552,7 +558,9 @@
       "plainText": "ข้อความธรรมดา",
       "format": "จัดรูปแบบโค้ด",
       "formatSyntaxError": "ไม่ได้จัดรูปแบบโค้ด: มีข้อผิดพลาดทางไวยากรณ์ที่บรรทัด {line}",
-      "formatFailed": "ไม่สามารถจัดรูปแบบโค้ดได้"
+      "formatFailed": "ไม่สามารถจัดรูปแบบโค้ดได้",
+      "caption": "คำบรรยาย",
+      "captionPlaceholder": "เขียนคำบรรยาย…"
     },
     "math": {
       "title": "สมการ",
@@ -635,7 +643,7 @@
     "pageLink": {
       "title": "ลิงก์ไปยังหน้า",
       "subtext": "ลิงก์ไปยังหน้าอื่นที่แสดงชื่อล่าสุดเสมอ",
-      "aliases": "link page mention reference ลิงก์ หน้า กล่าวถึง อ้างอิง"
+      "aliases": "link page mention reference ลิงก์ หน้า กล่าวถึง อ้างอิง ltp"
     },
     "syncedPage": {
       "title": "หน้าที่ซิงก์",
@@ -1280,5 +1288,22 @@
     "replies": "{count, plural, =0 {ยังไม่มีการตอบกลับ} other {# การตอบกลับ}}",
     "openThread": "เปิดเธรด",
     "resolved": "แก้ไขแล้ว"
+  },
+  "newPageRoute": {
+    "documentTitle": "หน้าใหม่",
+    "creating": "กำลังสร้างหน้า…",
+    "failed": "สร้างหน้าไม่ได้",
+    "home": "ไปที่พื้นที่ทำงาน"
+  },
+  "linkPicker": {
+    "placeholder": "วางลิงก์หรือค้นหาหน้า",
+    "pages": "หน้า",
+    "newPage": "หน้าใหม่: {title}"
+  },
+  "turnIntoPage": {
+    "menuItem": "เปลี่ยนเป็นหน้าใน…",
+    "title": "เปลี่ยนเป็นหน้าใน",
+    "here": "ในหน้านี้",
+    "failed": "ย้ายบล็อกไปยังหน้าใหม่ไม่ได้"
   }
 }

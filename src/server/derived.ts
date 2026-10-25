@@ -16,6 +16,7 @@ import {
   type RelatedSchemas,
   type WithResults,
 } from "@/lib/derived";
+import { isListRollup } from "@/lib/aggregate";
 import { MAX_FORMULA_STEPS } from "@/lib/formula";
 import { computedValues } from "@/lib/properties";
 import { holdsPeople, isComputed, isDerived } from "@/lib/property-types";
@@ -270,7 +271,7 @@ async function computeRollups<R extends { title: string; properties: Record<stri
     related.set(databaseId, new Map(own.map((row) => [row.id, row])));
     // Showing people or linked rows by name needs their names, as the viewer may see them.
     const named = readers.some(
-      (r) => r.options.rollup!.function === "show_original" && targets.some((t) => t.type === "relation" || holdsPeople(t.type)),
+      (r) => isListRollup(r.options.rollup!.function) && targets.some((t) => t.type === "relation" || holdsPeople(t.type)),
     );
     contexts.set(databaseId, { now, ...(named ? await options.lookups(props) : {}) });
   }

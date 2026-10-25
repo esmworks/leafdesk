@@ -965,7 +965,9 @@
     "zooms": {
       "day": "Tag",
       "week": "Woche",
-      "month": "Monat"
+      "month": "Monat",
+      "quarter": "Quartal",
+      "year": "Jahr"
     },
     "showTable": "Tabelle anzeigen",
     "hideTable": "Tabelle ausblenden",
@@ -974,7 +976,8 @@
     "resizeStart": "Ziehen, um den Beginn zu ändern",
     "resizeEnd": "Ziehen, um das Ende zu ändern",
     "empty": "Noch keine Zeilen mit {property}.",
-    "dragHint": "Zieh eine Zeile auf die Zeitleiste, um ihr ein Datum zu geben."
+    "dragHint": "Zieh eine Zeile auf die Zeitleiste, um ihr ein Datum zu geben.",
+    "quarter": "Q{quarter}"
   },
   "errors": {
     "invalidUrl": "„{property}“ muss eine http(s)- oder mailto-URL sein.",
@@ -1195,7 +1198,8 @@
     "save": "Rollup speichern",
     "create": "Rollup hinzufügen",
     "back": "Zurück",
-    "summary": "{function} von {property} in {relation}"
+    "summary": "{function} von {property} in {relation}",
+    "showUnique": "Eindeutige Werte anzeigen"
   },
   "propertyAccess": {
     "menuItem": "Zugriff auf Eigenschaft",

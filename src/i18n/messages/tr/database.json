@@ -965,7 +965,9 @@
     "zooms": {
       "day": "Gün",
       "week": "Hafta",
-      "month": "Ay"
+      "month": "Ay",
+      "quarter": "Çeyrek",
+      "year": "Yıl"
     },
     "showTable": "Tabloyu göster",
     "hideTable": "Tabloyu gizle",
@@ -974,7 +976,8 @@
     "resizeStart": "Başlangıcı değiştirmek için sürükleyin",
     "resizeEnd": "Bitişi değiştirmek için sürükleyin",
     "empty": "Henüz {property} değeri olan satır yok.",
-    "dragHint": "Tarih vermek için bir satırı zaman çizelgesine sürükleyin."
+    "dragHint": "Tarih vermek için bir satırı zaman çizelgesine sürükleyin.",
+    "quarter": "Ç{quarter}"
   },
   "errors": {
     "invalidUrl": "“{property}” bir http(s) veya mailto URL’si olmalıdır.",
@@ -1195,7 +1198,8 @@
     "save": "Toplamayı kaydet",
     "create": "Toplama ekle",
     "back": "Geri",
-    "summary": "{relation} içindeki {property}: {function}"
+    "summary": "{relation} içindeki {property}: {function}",
+    "showUnique": "Benzersiz değerleri göster"
   },
   "propertyAccess": {
     "menuItem": "Özellik erişimi",

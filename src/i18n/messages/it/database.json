@@ -965,7 +965,9 @@
     "zooms": {
       "day": "Giorno",
       "week": "Settimana",
-      "month": "Mese"
+      "month": "Mese",
+      "quarter": "Trimestre",
+      "year": "Anno"
     },
     "showTable": "Mostra tabella",
     "hideTable": "Nascondi tabella",
@@ -974,7 +976,8 @@
     "resizeStart": "Trascina per cambiare l’inizio",
     "resizeEnd": "Trascina per cambiare la fine",
     "empty": "Ancora nessuna riga con {property}.",
-    "dragHint": "Trascina una riga sulla timeline per assegnarle una data."
+    "dragHint": "Trascina una riga sulla timeline per assegnarle una data.",
+    "quarter": "T{quarter}"
   },
   "errors": {
     "invalidUrl": "“{property}” deve essere un URL http(s) o mailto.",
@@ -1195,7 +1198,8 @@
     "save": "Salva rollup",
     "create": "Aggiungi rollup",
     "back": "Indietro",
-    "summary": "{function} di {property} in {relation}"
+    "summary": "{function} di {property} in {relation}",
+    "showUnique": "Mostra valori unici"
   },
   "propertyAccess": {
     "menuItem": "Accesso alla proprietà",

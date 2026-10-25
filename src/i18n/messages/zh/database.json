@@ -965,7 +965,9 @@
     "zooms": {
       "day": "日",
       "week": "周",
-      "month": "月"
+      "month": "月",
+      "quarter": "季度",
+      "year": "年"
     },
     "showTable": "显示表格",
     "hideTable": "隐藏表格",
@@ -974,7 +976,8 @@
     "resizeStart": "拖动以更改开始时间",
     "resizeEnd": "拖动以更改结束时间",
     "empty": "还没有带{property}的行。",
-    "dragHint": "将一行拖到时间线上即可为其设置日期。"
+    "dragHint": "将一行拖到时间线上即可为其设置日期。",
+    "quarter": "第{quarter}季度"
   },
   "errors": {
     "invalidUrl": "“{property}”必须是 http(s) 或 mailto URL。",
@@ -1195,7 +1198,8 @@
     "save": "保存汇总",
     "create": "添加汇总",
     "back": "返回",
-    "summary": "{relation} 中 {property} 的{function}"
+    "summary": "{relation} 中 {property} 的{function}",
+    "showUnique": "显示唯一值"
   },
   "propertyAccess": {
     "menuItem": "属性访问权限",

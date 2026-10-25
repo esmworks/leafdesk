@@ -20,14 +20,16 @@ describe("page style", () => {
     const doc = new Y.Doc();
     writePageStyle(doc, { font: "serif" });
     writePageStyle(doc, { fullWidth: true });
-    expect(readPageStyle(doc)).toEqual({ font: "serif", smallText: false, fullWidth: true });
+    expect(readPageStyle(doc)).toEqual({ font: "serif", smallText: false, fullWidth: true, backlinks: "expanded" });
     writePageStyle(doc, { smallText: true, font: "mono" });
-    expect(readPageStyle(doc)).toEqual({ font: "mono", smallText: true, fullWidth: true });
+    expect(readPageStyle(doc)).toEqual({ font: "mono", smallText: true, fullWidth: true, backlinks: "expanded" });
+    writePageStyle(doc, { backlinks: "popup" });
+    expect(readPageStyle(doc).backlinks).toBe("popup");
   });
 
   it("stores the defaults as absent keys", () => {
     const doc = new Y.Doc();
-    writePageStyle(doc, { font: "mono", smallText: true, fullWidth: true });
+    writePageStyle(doc, { font: "mono", smallText: true, fullWidth: true, backlinks: "off" });
     writePageStyle(doc, DEFAULT_PAGE_STYLE);
     const meta = doc.getMap(COLLAB_META);
     expect([...meta.keys()]).toEqual([]);
@@ -50,6 +52,7 @@ describe("page style", () => {
     meta.set("font", "comic");
     meta.set("smallText", "yes");
     meta.set("fullWidth", 1);
+    meta.set("backlinks", "sideways");
     expect(readPageStyle(doc)).toEqual(DEFAULT_PAGE_STYLE);
   });
 
@@ -68,7 +71,7 @@ describe("page style", () => {
   });
 
   it("round-trips through its string key", () => {
-    for (const style of [DEFAULT_PAGE_STYLE, { font: "mono", smallText: true, fullWidth: false } as const]) {
+    for (const style of [DEFAULT_PAGE_STYLE, { font: "mono", smallText: true, fullWidth: false, backlinks: "popup" } as const]) {
       expect(parsePageStyleKey(pageStyleKey(style))).toEqual(style);
     }
     expect(parsePageStyleKey("nonsense")).toEqual(DEFAULT_PAGE_STYLE);
@@ -77,7 +80,7 @@ describe("page style", () => {
   it("reads a stored state, and falls back to the defaults without one or for a broken one", () => {
     const doc = new Y.Doc();
     writePageStyle(doc, { font: "serif", smallText: true });
-    expect(pageStyleFromYdoc(Y.encodeStateAsUpdate(doc))).toEqual({ font: "serif", smallText: true, fullWidth: false });
+    expect(pageStyleFromYdoc(Y.encodeStateAsUpdate(doc))).toEqual({ font: "serif", smallText: true, fullWidth: false, backlinks: "expanded" });
     expect(pageStyleFromYdoc(null)).toEqual(DEFAULT_PAGE_STYLE);
     expect(pageStyleFromYdoc(new Uint8Array([1, 2, 3, 250]))).toEqual(DEFAULT_PAGE_STYLE);
   });

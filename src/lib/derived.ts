@@ -59,6 +59,7 @@ export type RollupFormat = "number" | "percent" | "days" | "date" | "list";
 export function rollupFormat(fn: RollupFn | undefined): RollupFormat {
   switch (fn) {
     case "show_original":
+    case "show_unique":
       return "list";
     case "percent_empty":
     case "percent_not_empty":

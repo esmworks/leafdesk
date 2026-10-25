@@ -44,7 +44,13 @@
       "serif": "Có chân",
       "mono": "Đơn cách",
       "smallText": "Chữ nhỏ",
-      "fullWidth": "Toàn chiều rộng"
+      "fullWidth": "Toàn chiều rộng",
+      "backlinks": "Liên kết ngược",
+      "backlinksModes": {
+        "expanded": "Dưới trang",
+        "popup": "Trong cửa sổ bật lên",
+        "off": "Ẩn"
+      }
     },
     "lockDatabase": "Khóa cơ sở dữ liệu",
     "lockHint": "Khi bị khóa, các thuộc tính và chế độ xem không thể thay đổi; các hàng vẫn chỉnh sửa được.",
@@ -552,7 +558,9 @@
       "plainText": "Văn bản thuần",
       "format": "Định dạng mã",
       "formatSyntaxError": "Chưa định dạng được mã: có lỗi cú pháp ở dòng {line}.",
-      "formatFailed": "Không thể định dạng mã."
+      "formatFailed": "Không thể định dạng mã.",
+      "caption": "Chú thích",
+      "captionPlaceholder": "Viết chú thích…"
     },
     "math": {
       "title": "Phương trình",
@@ -635,7 +643,7 @@
     "pageLink": {
       "title": "Liên kết đến trang",
       "subtext": "Liên kết đến một trang khác, với tiêu đề luôn cập nhật",
-      "aliases": "liên kết trang nhắc đến tham chiếu link page mention reference"
+      "aliases": "liên kết trang nhắc đến tham chiếu link page mention reference ltp"
     },
     "syncedPage": {
       "title": "Trang đồng bộ",
@@ -1280,5 +1288,22 @@
     "replies": "{count, plural, =0 {Chưa có trả lời} other {# trả lời}}",
     "openThread": "Mở chuỗi",
     "resolved": "Đã giải quyết"
+  },
+  "newPageRoute": {
+    "documentTitle": "Trang mới",
+    "creating": "Đang tạo trang…",
+    "failed": "Không thể tạo trang.",
+    "home": "Đi tới không gian làm việc"
+  },
+  "linkPicker": {
+    "placeholder": "Dán liên kết hoặc tìm trang",
+    "pages": "Trang",
+    "newPage": "Trang mới: {title}"
+  },
+  "turnIntoPage": {
+    "menuItem": "Chuyển thành trang trong…",
+    "title": "Chuyển thành trang trong",
+    "here": "Bên trong trang này",
+    "failed": "Không thể chuyển các khối sang trang mới."
   }
 }

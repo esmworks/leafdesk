@@ -44,7 +44,13 @@
       "serif": "Serif",
       "mono": "Mono",
       "smallText": "Liten tekst",
-      "fullWidth": "Full bredde"
+      "fullWidth": "Full bredde",
+      "backlinks": "Tilbakelenker",
+      "backlinksModes": {
+        "expanded": "Under siden",
+        "popup": "I et hurtigvindu",
+        "off": "Skjult"
+      }
     },
     "lockDatabase": "Lås databasen",
     "lockHint": "Mens den er låst, kan ikke egenskaper og visninger endres; radene kan fortsatt redigeres.",
@@ -552,7 +558,9 @@
       "plainText": "Ren tekst",
       "format": "Formater koden",
       "formatSyntaxError": "Koden ble ikke formatert: det er en syntaksfeil på linje {line}.",
-      "formatFailed": "Koden kunne ikke formateres."
+      "formatFailed": "Koden kunne ikke formateres.",
+      "caption": "Bildetekst",
+      "captionPlaceholder": "Skriv en bildetekst …"
     },
     "math": {
       "title": "Ligning",
@@ -635,7 +643,7 @@
     "pageLink": {
       "title": "Lenke til side",
       "subtext": "En lenke til en annen side, med oppdatert tittel",
-      "aliases": "link page mention reference lenke side omtale referanse"
+      "aliases": "link page mention reference lenke side omtale referanse ltp"
     },
     "syncedPage": {
       "title": "Synkronisert side",
@@ -1280,5 +1288,22 @@
     "replies": "{count, plural, =0 {Ingen svar} one {# svar} other {# svar}}",
     "openThread": "Åpne tråd",
     "resolved": "Løst"
+  },
+  "newPageRoute": {
+    "documentTitle": "Ny side",
+    "creating": "Oppretter en side …",
+    "failed": "Kunne ikke opprette siden.",
+    "home": "Gå til arbeidsområdet"
+  },
+  "linkPicker": {
+    "placeholder": "Lim inn en lenke eller søk etter sider",
+    "pages": "Sider",
+    "newPage": "Ny side: {title}"
+  },
+  "turnIntoPage": {
+    "menuItem": "Gjør om til side i …",
+    "title": "Gjør om til side i",
+    "here": "Inne i denne siden",
+    "failed": "Kunne ikke flytte blokkene til en ny side."
   }
 }

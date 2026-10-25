@@ -44,7 +44,13 @@
       "serif": "Serif",
       "mono": "Mono",
       "smallText": "Pieni teksti",
-      "fullWidth": "Täysi leveys"
+      "fullWidth": "Täysi leveys",
+      "backlinks": "Paluulinkit",
+      "backlinksModes": {
+        "expanded": "Sivun alla",
+        "popup": "Ponnahdusikkunassa",
+        "off": "Piilotettu"
+      }
     },
     "lockDatabase": "Lukitse tietokanta",
     "lockHint": "Lukittuna ominaisuuksia ja näkymiä ei voi muuttaa; rivejä voi yhä muokata.",
@@ -552,7 +558,9 @@
       "plainText": "Pelkkä teksti",
       "format": "Muotoile koodi",
       "formatSyntaxError": "Koodia ei muotoiltu: rivillä {line} on syntaksivirhe.",
-      "formatFailed": "Koodin muotoileminen epäonnistui."
+      "formatFailed": "Koodin muotoileminen epäonnistui.",
+      "caption": "Kuvateksti",
+      "captionPlaceholder": "Kirjoita kuvateksti…"
     },
     "math": {
       "title": "Yhtälö",
@@ -635,7 +643,7 @@
     "pageLink": {
       "title": "Linkki sivuun",
       "subtext": "Linkki toiseen sivuun ajantasaisella otsikolla",
-      "aliases": "link page mention reference linkki sivu maininta viittaus"
+      "aliases": "link page mention reference linkki sivu maininta viittaus ltp"
     },
     "syncedPage": {
       "title": "Synkronoitu sivu",
@@ -1280,5 +1288,22 @@
     "replies": "{count, plural, =0 {Ei vastauksia} one {# vastaus} other {# vastausta}}",
     "openThread": "Avaa ketju",
     "resolved": "Ratkaistu"
+  },
+  "newPageRoute": {
+    "documentTitle": "Uusi sivu",
+    "creating": "Luodaan sivua…",
+    "failed": "Sivua ei voitu luoda.",
+    "home": "Siirry työtilaan"
+  },
+  "linkPicker": {
+    "placeholder": "Liitä linkki tai hae sivuja",
+    "pages": "Sivut",
+    "newPage": "Uusi sivu: {title}"
+  },
+  "turnIntoPage": {
+    "menuItem": "Muuta sivuksi kohteessa…",
+    "title": "Muuta sivuksi kohteessa",
+    "here": "Tämän sivun sisällä",
+    "failed": "Lohkoja ei voitu siirtää uudelle sivulle."
   }
 }

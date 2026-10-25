@@ -2,21 +2,27 @@ import * as Y from "yjs";
 import { COLLAB_META } from "./collab-constants";
 
 /**
- * How a page reads: its typeface, a smaller body text, and whether it uses the window's whole width.
+ * How a page reads: its typeface, a smaller body text, whether it uses the window's whole width,
+ * and how it shows the pages linking to it (its backlinks: listed under the body, behind a button
+ * at the top, or not at all).
  * Kept in the page's shared doc (the meta map, next to the title), so a change shows live for
  * everyone, works offline, and travels with copies and templates. Defaults are stored as absent keys.
  */
 export type PageFont = "default" | "serif" | "mono";
-export type PageStyle = { font: PageFont; smallText: boolean; fullWidth: boolean };
+export type BacklinksMode = "expanded" | "popup" | "off";
+export type PageStyle = { font: PageFont; smallText: boolean; fullWidth: boolean; backlinks: BacklinksMode };
 
 export const PAGE_FONTS: readonly PageFont[] = ["default", "serif", "mono"];
-export const DEFAULT_PAGE_STYLE: PageStyle = { font: "default", smallText: false, fullWidth: false };
+export const BACKLINKS_MODES: readonly BacklinksMode[] = ["expanded", "popup", "off"];
+export const DEFAULT_PAGE_STYLE: PageStyle = { font: "default", smallText: false, fullWidth: false, backlinks: "expanded" };
 
 const FONT = "font";
 const SMALL_TEXT = "smallText";
 const FULL_WIDTH = "fullWidth";
+const BACKLINKS = "backlinks";
 
 const isFont = (value: unknown): value is PageFont => PAGE_FONTS.includes(value as PageFont);
+const isBacklinksMode = (value: unknown): value is BacklinksMode => BACKLINKS_MODES.includes(value as BacklinksMode);
 
 /**
  * The page's style. Anyone who may edit can write any value into the meta map, so anything but the
@@ -25,10 +31,12 @@ const isFont = (value: unknown): value is PageFont => PAGE_FONTS.includes(value 
 export function readPageStyle(doc: Y.Doc): PageStyle {
   const meta = doc.getMap(COLLAB_META);
   const font = meta.get(FONT);
+  const backlinks = meta.get(BACKLINKS);
   return {
     font: isFont(font) ? font : "default",
     smallText: meta.get(SMALL_TEXT) === true,
     fullWidth: meta.get(FULL_WIDTH) === true,
+    backlinks: isBacklinksMode(backlinks) ? backlinks : "expanded",
   };
 }
 
@@ -39,6 +47,10 @@ export function writePageStyle(doc: Y.Doc, change: Partial<PageStyle>, origin?: 
     if (change.font !== undefined) {
       if (change.font === "default" || !isFont(change.font)) meta.delete(FONT);
       else if (meta.get(FONT) !== change.font) meta.set(FONT, change.font);
+    }
+    if (change.backlinks !== undefined) {
+      if (change.backlinks === "expanded" || !isBacklinksMode(change.backlinks)) meta.delete(BACKLINKS);
+      else if (meta.get(BACKLINKS) !== change.backlinks) meta.set(BACKLINKS, change.backlinks);
     }
     for (const [key, value] of [
       [SMALL_TEXT, change.smallText],
@@ -61,12 +73,17 @@ export function observePageStyle(doc: Y.Doc, onChange: () => void) {
 
 /** The style as one string, a stable snapshot for `useSyncExternalStore`. */
 export function pageStyleKey(style: PageStyle): string {
-  return `${style.font}|${style.smallText ? 1 : 0}|${style.fullWidth ? 1 : 0}`;
+  return `${style.font}|${style.smallText ? 1 : 0}|${style.fullWidth ? 1 : 0}|${style.backlinks}`;
 }
 
 export function parsePageStyleKey(key: string): PageStyle {
-  const [font, small, full] = key.split("|");
-  return { font: isFont(font) ? font : "default", smallText: small === "1", fullWidth: full === "1" };
+  const [font, small, full, backlinks] = key.split("|");
+  return {
+    font: isFont(font) ? font : "default",
+    smallText: small === "1",
+    fullWidth: full === "1",
+    backlinks: isBacklinksMode(backlinks) ? backlinks : "expanded",
+  };
 }
 
 /**

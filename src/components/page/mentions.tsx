@@ -26,7 +26,8 @@ import {
 import { createPageAction } from "@/app/actions/pages";
 import { useChannel } from "@/components/collab/use-channel";
 import { useOpenDailyNote } from "@/components/journal/daily-notes";
-import { Button, cn, Dialog, PageIcon, pageLabel } from "@/components/ui";
+import { Button, cn, Dialog, PageIcon, pageLabel, useDismiss } from "@/components/ui";
+import { opensAfterSpace } from "./opens-after-space";
 import { UserAvatar } from "@/components/user-avatar";
 import {
   formatIsoDate,
@@ -683,13 +684,17 @@ function usePageItem() {
 // The [[ menu
 
 const PAGE_LINK_TRIGGER = "[[";
+/** `+Title`: a new page inside this one, written into the text as a mention of it. */
+const NEW_PAGE_TRIGGER = "+";
 
 const sameTitle = (p: PageCandidate, title: string) => searchFold(p.title.trim()) === searchFold(title);
 
 /**
  * `[[` in the editor: pages to link to, and a new page inside this one with the typed title.
  * Typing `[[Title]]` out links to the page of that title when there is one; when there isn't, the
- * text stays as typed.
+ * text stays as typed. `+` after a space does it the other way round: a new page with the typed
+ * title first, then pages to link to; a number or a space right after it (`+90`, `a + b`) is
+ * just text.
  */
 export function PageLinkMenu({ editor, workspaceId, pageId, offline }: { editor: PageEditor; workspaceId: string; pageId: string; offline: boolean }) {
   const t = useTranslations("page.mention");
@@ -752,6 +757,19 @@ export function PageLinkMenu({ editor, workspaceId, pageId, offline }: { editor:
     [editor, workspaceId, offline, load, pageItem, createAndLink, t],
   );
 
+  const getNewPageItems = useCallback(
+    async (query: string): Promise<DefaultReactSuggestionItem[]> => {
+      const title = query.trim();
+      if (!title || /^[\s\d]/.test(query)) return [];
+      const pages = await load(title);
+      const create: DefaultReactSuggestionItem[] = offline
+        ? []
+        : [{ title: t("newPage", { title }), subtext: t("newPageHint"), group: t("pages"), icon: <FilePlus size={18} />, onItemClick: () => void createAndLink(title) }];
+      return [...create, ...pages.map((p) => pageItem(p, () => insertPageMention(editor, workspaceId, p)))];
+    },
+    [editor, workspaceId, offline, load, pageItem, createAndLink, t],
+  );
+
   // "[[Title]]" typed out: the page of that title, if there is one.
   const query = useExtensionState(SuggestionMenu, {
     editor,
@@ -781,6 +799,8 @@ export function PageLinkMenu({ editor, workspaceId, pageId, offline }: { editor:
   return (
     <>
       <SuggestionMenuController triggerCharacter={PAGE_LINK_TRIGGER} getItems={getItems} />
+      {/* Shown once a title is begun: not for a lone "+", nor for "+ " (text such as "a + b"). */}
+      <SuggestionMenuController triggerCharacter={NEW_PAGE_TRIGGER} shouldOpen={opensAfterSpace} minQueryLength={1} getItems={getNewPageItems} />
       {pastedComment && <CommentPasteChooser editor={editor} pasted={pastedComment} onDone={() => setPastedComment(null)} />}
     </>
   );
@@ -906,6 +926,7 @@ export function PagePicker({
   open,
   pageId,
   title,
+  here,
   onPick,
   onClose,
 }: {
@@ -913,6 +934,8 @@ export function PagePicker({
   pageId: string;
   /** What the picker is for, for screen readers ("Link to page" by default). */
   title?: string;
+  /** A choice above the pages, such as the page itself. */
+  here?: { label: string; onPick: () => void };
   onPick: (pageId: string) => void;
   onClose: () => void;
 }) {
@@ -975,6 +998,16 @@ export function PagePicker({
         />
       </div>
       <div className={cn("max-h-80 overflow-y-auto p-1", !pages && !failed && "opacity-70")}>
+        {here && (
+          <button
+            type="button"
+            onClick={here.onPick}
+            className="flex w-full items-center gap-2 rounded px-2 py-1.5 text-start text-sm font-medium hover:bg-bg-hover"
+          >
+            <FilePlus className="h-4 w-4 text-fg-muted" />
+            <span className="truncate">{here.label}</span>
+          </button>
+        )}
         {pages?.map((p, i) => (
           <button
             key={p.id}
@@ -1015,7 +1048,24 @@ const PLACES_SHOWN = 3;
  * below, folded away, the pages that write this page's title without linking to it, which someone
  * who may edit them can link from here.
  */
-export function Backlinks({ workspaceId, pageId, title, canLink }: { workspaceId: string; pageId: string; title: string; canLink: boolean }) {
+/**
+ * The pages that link to this one, and mentions of its title that don't link yet. `popup`: behind a
+ * button at the top of the page (the page's Backlinks setting, lib/page-style) instead of listed
+ * under its body.
+ */
+export function Backlinks({
+  workspaceId,
+  pageId,
+  title,
+  canLink,
+  popup = false,
+}: {
+  workspaceId: string;
+  pageId: string;
+  title: string;
+  canLink: boolean;
+  popup?: boolean;
+}) {
   const t = useTranslations("page.backlinks");
   const tc = useTranslations("common");
   const router = useRouter();
@@ -1030,6 +1080,8 @@ export function Backlinks({ workspaceId, pageId, title, canLink }: { workspaceId
   const [linking, setLinking] = useState<string | null>(null);
   const [failed, setFailed] = useState<{ id: string; locked: boolean } | null>(null);
   const [version, setVersion] = useState(0);
+  const [popupOpen, setPopupOpen] = useState(false);
+  const popupRef = useDismiss<HTMLDivElement>(popupOpen, () => setPopupOpen(false));
   // The unlinked list is a full-text search: loaded with the page, and again (with which ones can be
   // linked) once unfolded; while folded, changes elsewhere don't load it again.
   const [unlinkedVersion, setUnlinkedVersion] = useState(0);
@@ -1100,8 +1152,8 @@ export function Backlinks({ workspaceId, pageId, title, canLink }: { workspaceId
   if (!links.length && !unlinked.length) return null;
   const name = pageLabel(title, tc("untitled"));
   const row = "-mx-1 flex items-center gap-2 rounded px-1 py-1 text-sm text-fg-muted hover:bg-bg-hover hover:text-fg";
-  return (
-    <section aria-label={t("title")} className="mt-10 border-t border-border px-4 pt-4 md:px-[54px]">
+  const lists = (
+    <>
       {links.length > 0 && (
         <>
           <h2 className="text-xs font-medium text-fg-muted" title={t("count", { count: total })}>
@@ -1239,6 +1291,34 @@ export function Backlinks({ workspaceId, pageId, title, canLink }: { workspaceId
           )}
         </div>
       )}
+    </>
+  );
+  if (popup) {
+    return (
+      <div ref={popupRef} className="relative mt-2">
+        <button
+          type="button"
+          aria-expanded={popupOpen}
+          onClick={() => setPopupOpen((open) => !open)}
+          className="-mx-1 flex items-center gap-1 rounded px-1 py-0.5 text-xs font-medium text-fg-muted hover:bg-bg-hover hover:text-fg"
+        >
+          <Link2 className="h-3.5 w-3.5" />
+          {links.length > 0 ? t("count", { count: total }) : t("unlinked", { count: unlinked.length })}
+        </button>
+        {popupOpen && (
+          <section
+            aria-label={t("title")}
+            className="absolute start-0 top-full z-40 mt-1 max-h-96 w-80 max-w-[calc(100vw-2rem)] overflow-y-auto rounded-lg border border-border bg-bg p-3 shadow-lg"
+          >
+            {lists}
+          </section>
+        )}
+      </div>
+    );
+  }
+  return (
+    <section aria-label={t("title")} className="mt-10 border-t border-border px-4 pt-4 md:px-[54px]">
+      {lists}
     </section>
   );
 }

@@ -403,7 +403,10 @@ export function Sidebar({
 
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
-      if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === "k") {
+      const key = e.key.toLowerCase();
+      if ((e.metaKey || e.ctrlKey) && !e.altKey && !e.shiftKey && (key === "k" || key === "p")) {
+        // With text selected in an editor, Mod+K is the editor's link box (Mod+P still searches).
+        if (key === "k" && selectedEditableText()) return;
         e.preventDefault();
         setSearchOpen(true);
       } else if (opensShortcuts(e, isMac())) {
@@ -2410,4 +2413,13 @@ function TreeItem({
       )}
     </li>
   );
+}
+
+/** Whether text is selected in something editable: a page's editor, a field. */
+function selectedEditableText(): boolean {
+  const selection = window.getSelection();
+  if (!selection || selection.isCollapsed) return false;
+  const node = selection.anchorNode;
+  const element = node instanceof Element ? node : node?.parentElement;
+  return Boolean(element?.closest("[contenteditable='true']"));
 }

@@ -75,6 +75,9 @@ describe("rollups", () => {
     expect(run({ function: "show_original", targetPropertyId: "owner" })).toEqual(["Ada"]);
     expect(run({ function: "show_original", targetPropertyId: "hours" })).toEqual(["3", "5"]);
     expect(run({ function: "show_original", targetPropertyId: "due" })).toEqual(["2026-09-01", "2026-09-20", "2026-09-10"]);
+    // Each value once, where it first comes.
+    expect(run({ function: "show_unique", targetPropertyId: "tags" })).toEqual(["alpha", "beta"]);
+    expect(run({ function: "show_unique" })).toEqual(["Design", "Build", "Ship"]);
   });
 
   it("calculate over formulas by their result type, errors counting as empty", () => {
@@ -99,7 +102,7 @@ describe("rollups", () => {
   });
 
   it("offer showing the original values first, then the target's calculations", () => {
-    expect(rollupFunctions("number").slice(0, 2)).toEqual(["show_original", "count_all"]);
+    expect(rollupFunctions("number").slice(0, 3)).toEqual(["show_original", "show_unique", "count_all"]);
     expect(rollupFunctions("checkbox")).toContain("percent_checked");
     expect(rollupFunctions("title")).not.toContain("sum");
   });
@@ -108,6 +111,7 @@ describe("rollups", () => {
     expect(valueType(rollup("r", { function: "sum" }))).toBe("number");
     expect(valueType(rollup("r", { function: "latest_date" }))).toBe("date");
     expect(derivedType(rollup("r", { function: "show_original" }))).toBe("text");
+    expect(derivedType(rollup("r", { function: "show_unique" }))).toBe("text");
     const props = [
       rollup("pct", { function: "percent_checked", targetPropertyId: "done" }),
       rollup("names", { function: "show_original" }),

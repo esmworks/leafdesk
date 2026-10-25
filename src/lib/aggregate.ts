@@ -274,20 +274,24 @@ export function aggregateValues(values: unknown[], fn: AggregateFn, column: Aggr
 
 /**
  * What a rollup does with the values of the rows a row links to: any calculation a column of
- * the target property offers, or "show_original" to list the values themselves.
+ * the target property offers, "show_original" to list the values themselves, or "show_unique" to
+ * list each value once.
  */
-export type RollupFn = AggregateFn | "show_original";
+export type RollupFn = AggregateFn | "show_original" | "show_unique";
+
+/** Whether a rollup lists the related values (as texts) instead of calculating one. */
+export const isListRollup = (fn: unknown): fn is "show_original" | "show_unique" => fn === "show_original" || fn === "show_unique";
 export const ROLLUP_DISPLAYS = ["number", "bar", "ring"] as const;
 /** How a rollup shows a percentage. */
 export type RollupDisplay = (typeof ROLLUP_DISPLAYS)[number];
 
 export function isRollupFn(fn: unknown): fn is RollupFn {
-  return fn === "show_original" || isAggregateFn(fn);
+  return isListRollup(fn) || isAggregateFn(fn);
 }
 
-/** The rollup functions a target property type (or "title") offers, "show_original" first. */
+/** The rollup functions a target property type (or "title") offers, the lists first. */
 export function rollupFunctions(type: string): RollupFn[] {
-  return ["show_original", ...aggregateFunctions(type)];
+  return ["show_original", "show_unique", ...aggregateFunctions(type)];
 }
 
 export type RollupResult = AggregateResult | { format: "list"; value: string[] };
@@ -295,7 +299,8 @@ export type RollupResult = AggregateResult | { format: "list"; value: string[] }
 /**
  * A rollup over the related rows' values of one column: the calculation, or for "show_original"
  * every value as text, in row order (lists such as tags or people flattened, empty values left
- * out). `label` turns a value into its texts (option names, people names, titles…).
+ * out), and for "show_unique" each text once, where it first comes. `label` turns a value into its
+ * texts (option names, people names, titles…).
  */
 export function rollupValues(
   values: unknown[],
@@ -303,8 +308,9 @@ export function rollupValues(
   column: AggregateColumn,
   label: (value: unknown) => string[],
 ): RollupResult | null {
-  if (fn !== "show_original") return aggregateValues(values, fn, column);
-  return { format: "list", value: values.flatMap((v) => label(v)).filter((text) => text !== "") };
+  if (!isListRollup(fn)) return aggregateValues(values, fn, column);
+  const texts = values.flatMap((v) => label(v)).filter((text) => text !== "");
+  return { format: "list", value: fn === "show_unique" ? [...new Set(texts)] : texts };
 }
 
 /** A row's value in a column: a property id or one of the special keys (title, created/updated time). */

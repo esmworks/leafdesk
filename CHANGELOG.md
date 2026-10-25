@@ -13,7 +13,34 @@
   without opening it.
 - **A heads-up before adding to a large teamspace.** A new page or database at the top of a
   teamspace of ten people or more asks first, once per teamspace in each browser.
-
+- **Code block captions, and a web link's address on hover.** A code block's menu has *Caption*: a
+  line under the code, kept with the block, shown on published pages and in PDFs, and written in
+  Markdown (MCP, the API, exports) as `<!-- leafdesk:caption … -->` right before the fence. Resting
+  on a web link in a page shows where it goes at the start of its toolbar.
+- **Link pages as you write: `+`, the link button and "Turn into page in…".** `+` and a title after
+  a space offer a new page inside this one, linked where you typed (or a page of that title). The
+  formatting toolbar's link button (Cmd/Ctrl+K) searches the workspace's pages besides taking a web
+  address, so the selected text can link to a page, or to a new page with the text as its title. A
+  block's menu has *Turn into page in…*: the block, or the selected blocks, become a page inside
+  this one, under another page or as a row of a database, the first block's text as its title, and
+  a link to the new page takes their place. The client bundle budgets go to 767 kB for a page's
+  first load and 1169 kB for all first loads together for these.
+- **Backlinks below the page, in a popup or hidden.** A page's ••• menu has *Backlinks*: *Below the
+  page* as before, *In a popup* (a "N pages link here" button under the title opens the list), or
+  *Hidden*. Kept with the page's style in its document, so it applies for everyone and comes along
+  with copies and templates.
+- **`/new` makes a page, and the browser tab shows the page's icon.** Typing your Leafdesk address
+  with `/new` (or a bookmark of it) makes a private page in the workspace you were in last and opens
+  it with the caret in its title; `?workspace=<id>` picks another. A page's emoji or built-in icon is
+  its tab's icon, following changes as they happen (drawn by `/api/page-icon`).
+- **Timelines zoom out to quarters and years.** A timeline's *Zoom* has *Quarter* (years above) and
+  *Year* (decades above) besides day, week and month, laying out up to thirty and a hundred years;
+  MCP's `zoom` takes `quarter` and `year`.
+- **Rollups show unique values, quotes start with `|` or `"`, and Cmd/Ctrl+P searches.** A rollup's
+  *Show unique values* lists each related value once (MCP's rollup function `show_unique`). `|` or
+  `"` and a space at the start of an empty line start a quote, as `>` does. `/ltp` finds *Link to
+  page*. Cmd/Ctrl+P opens search too, and Cmd/Ctrl+K with text selected in a page is the link box
+  only, without opening search behind it.
 - **More over MCP: comment changes, meeting notes, chats with agents and moving many pages.**
   `change_comment` edits or deletes a comment, deletes a thread, resolves or reopens it, reacts to
   a comment or marks the thread *Come back later*; `add_comment` also starts a thread about the

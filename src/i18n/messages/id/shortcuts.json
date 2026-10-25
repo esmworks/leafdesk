@@ -57,6 +57,8 @@
     "rowDuplicate": "Duplikat baris (menunya terbuka di tabel)",
     "rowMoveTo": "Pindahkan baris ke tempat lain (menunya terbuka)",
     "rowComment": "Komentari baris (menunya terbuka)",
-    "rowTrash": "Pindahkan baris ke sampah (menunya terbuka)"
+    "rowTrash": "Pindahkan baris ke sampah (menunya terbuka)",
+    "link": "Tautkan teks yang dipilih",
+    "newSubPage": "Buat halaman di dalam halaman ini, ditautkan di teks (setelah spasi)"
   }
 }

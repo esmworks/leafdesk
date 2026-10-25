@@ -44,7 +44,13 @@
       "serif": "Serif",
       "mono": "Mono",
       "smallText": "Küçük metin",
-      "fullWidth": "Tam genişlik"
+      "fullWidth": "Tam genişlik",
+      "backlinks": "Geri bağlantılar",
+      "backlinksModes": {
+        "expanded": "Sayfanın altında",
+        "popup": "Açılır pencerede",
+        "off": "Gizli"
+      }
     },
     "lockDatabase": "Veritabanını kilitle",
     "lockHint": "Kilitliyken özellikler ve görünümler değiştirilemez; satırlar düzenlenebilir.",
@@ -552,7 +558,9 @@
       "plainText": "Düz metin",
       "format": "Kodu biçimlendir",
       "formatSyntaxError": "Kod biçimlendirilmedi: {line}. satırda bir söz dizimi hatası var.",
-      "formatFailed": "Kod biçimlendirilemedi."
+      "formatFailed": "Kod biçimlendirilemedi.",
+      "caption": "Açıklama",
+      "captionPlaceholder": "Açıklama yazın…"
     },
     "math": {
       "title": "Denklem",
@@ -635,7 +643,7 @@
     "pageLink": {
       "title": "Sayfa bağlantısı",
       "subtext": "Başka bir sayfaya, güncel başlığıyla bağlantı",
-      "aliases": "bağlantı sayfa bahset link page mention"
+      "aliases": "bağlantı sayfa bahset link page mention ltp"
     },
     "syncedPage": {
       "title": "Senkron sayfa",
@@ -1280,5 +1288,22 @@
     "replies": "{count, plural, =0 {Yanıt yok} one {# yanıt} other {# yanıt}}",
     "openThread": "Konuyu aç",
     "resolved": "Çözüldü"
+  },
+  "newPageRoute": {
+    "documentTitle": "Yeni sayfa",
+    "creating": "Sayfa oluşturuluyor…",
+    "failed": "Sayfa oluşturulamadı.",
+    "home": "Çalışma alanına git"
+  },
+  "linkPicker": {
+    "placeholder": "Bağlantı yapıştırın veya sayfa arayın",
+    "pages": "Sayfalar",
+    "newPage": "Yeni sayfa: {title}"
+  },
+  "turnIntoPage": {
+    "menuItem": "Şurada sayfaya dönüştür…",
+    "title": "Şurada sayfaya dönüştür",
+    "here": "Bu sayfanın içinde",
+    "failed": "Bloklar yeni bir sayfaya taşınamadı."
   }
 }

@@ -34,7 +34,9 @@ import { FormatCodeItem } from "./code-format-item";
 import { copyBlockLink } from "./editor-shortcuts";
 import { AlignMediaItems, CopyOriginalLinkItem, DownloadMediaItem, OpenLinkedPageItem } from "./media-menu";
 import { WideColumnsItem } from "./columns";
+import { CodeCaptionItem } from "./code-block";
 import { TurnIntoItem } from "./turn-into-item";
+import { TurnIntoPageItem } from "./turn-into-page-item";
 
 // Tables being turned into a database: a second click waits for the first.
 const turning = new Set<string>();
@@ -167,6 +169,7 @@ export function pageSideMenu(onError: (message: string) => void): FC<SideMenuPro
       <DragHandleMenu>
         <RemoveBlockItem>{dict.drag_handle.delete_menuitem}</RemoveBlockItem>
         <TurnIntoItem />
+        <TurnIntoPageItem />
         <BlockColorsItem>{dict.drag_handle.colors_menuitem}</BlockColorsItem>
         <TableRowHeaderItem>{dict.drag_handle.header_row_menuitem}</TableRowHeaderItem>
         <TableColumnHeaderItem>{dict.drag_handle.header_column_menuitem}</TableColumnHeaderItem>
@@ -183,6 +186,7 @@ export function pageSideMenu(onError: (message: string) => void): FC<SideMenuPro
         <ImageLinkItem />
         <ImageCropItem />
         <FormatCodeItem onError={onError} />
+        <CodeCaptionItem />
         <TurnIntoDatabaseItem onError={onError} />
         <TurnIntoSyncedBlockItem onError={onError} />
         <SaveAsSnippetItem />

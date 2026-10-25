@@ -44,7 +44,13 @@
       "serif": "Serif",
       "mono": "Mono",
       "smallText": "Liten text",
-      "fullWidth": "Full bredd"
+      "fullWidth": "Full bredd",
+      "backlinks": "Bakåtlänkar",
+      "backlinksModes": {
+        "expanded": "Under sidan",
+        "popup": "I ett popupfönster",
+        "off": "Dolda"
+      }
     },
     "lockDatabase": "Lås databasen",
     "lockHint": "Medan den är låst kan egenskaper och vyer inte ändras; rader går fortfarande att redigera.",
@@ -552,7 +558,9 @@
       "plainText": "Oformaterad text",
       "format": "Formatera koden",
       "formatSyntaxError": "Koden formaterades inte: det finns ett syntaxfel på rad {line}.",
-      "formatFailed": "Koden kunde inte formateras."
+      "formatFailed": "Koden kunde inte formateras.",
+      "caption": "Bildtext",
+      "captionPlaceholder": "Skriv en bildtext …"
     },
     "math": {
       "title": "Ekvation",
@@ -635,7 +643,7 @@
     "pageLink": {
       "title": "Länk till sida",
       "subtext": "En länk till en annan sida, med dess aktuella titel",
-      "aliases": "länk sida omnämnande referens link page mention reference"
+      "aliases": "länk sida omnämnande referens link page mention reference ltp"
     },
     "syncedPage": {
       "title": "Synkad sida",
@@ -1280,5 +1288,22 @@
     "replies": "{count, plural, =0 {Inga svar} one {# svar} other {# svar}}",
     "openThread": "Öppna tråd",
     "resolved": "Löst"
+  },
+  "newPageRoute": {
+    "documentTitle": "Ny sida",
+    "creating": "Skapar en sida …",
+    "failed": "Det gick inte att skapa sidan.",
+    "home": "Gå till arbetsytan"
+  },
+  "linkPicker": {
+    "placeholder": "Klistra in en länk eller sök efter sidor",
+    "pages": "Sidor",
+    "newPage": "Ny sida: {title}"
+  },
+  "turnIntoPage": {
+    "menuItem": "Gör om till sida i …",
+    "title": "Gör om till sida i",
+    "here": "Inuti den här sidan",
+    "failed": "Det gick inte att flytta blocken till en ny sida."
   }
 }

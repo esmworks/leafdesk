@@ -44,7 +44,13 @@
       "serif": "Serif",
       "mono": "Mono",
       "smallText": "Texto pequeño",
-      "fullWidth": "Ancho completo"
+      "fullWidth": "Ancho completo",
+      "backlinks": "Retroenlaces",
+      "backlinksModes": {
+        "expanded": "Debajo de la página",
+        "popup": "En una ventana emergente",
+        "off": "Ocultos"
+      }
     },
     "lockDatabase": "Bloquear base de datos",
     "lockHint": "Mientras está bloqueada, las propiedades y las vistas no se pueden cambiar; las filas siguen siendo editables.",
@@ -552,7 +558,9 @@
       "plainText": "Texto sin formato",
       "format": "Formatear código",
       "formatSyntaxError": "El código no se formateó: hay un error de sintaxis en la línea {line}.",
-      "formatFailed": "No se pudo formatear el código."
+      "formatFailed": "No se pudo formatear el código.",
+      "caption": "Leyenda",
+      "captionPlaceholder": "Escribe una leyenda…"
     },
     "math": {
       "title": "Ecuación",
@@ -635,7 +643,7 @@
     "pageLink": {
       "title": "Enlace a página",
       "subtext": "Un enlace a otra página, con su título actualizado",
-      "aliases": "enlace pagina página mencion mención referencia link page mention"
+      "aliases": "enlace pagina página mencion mención referencia link page mention ltp"
     },
     "syncedPage": {
       "title": "Página sincronizada",
@@ -1280,5 +1288,22 @@
     "replies": "{count, plural, =0 {Sin respuestas} one {# respuesta} other {# respuestas}}",
     "openThread": "Abrir hilo",
     "resolved": "Resuelto"
+  },
+  "newPageRoute": {
+    "documentTitle": "Página nueva",
+    "creating": "Creando una página…",
+    "failed": "No se pudo crear la página.",
+    "home": "Ir al espacio de trabajo"
+  },
+  "linkPicker": {
+    "placeholder": "Pega un enlace o busca páginas",
+    "pages": "Páginas",
+    "newPage": "Página nueva: {title}"
+  },
+  "turnIntoPage": {
+    "menuItem": "Convertir en página en…",
+    "title": "Convertir en página en",
+    "here": "Dentro de esta página",
+    "failed": "No se pudieron mover los bloques a una página nueva."
   }
 }

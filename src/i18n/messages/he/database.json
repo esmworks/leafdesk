@@ -965,7 +965,9 @@
     "zooms": {
       "day": "יום",
       "week": "שבוע",
-      "month": "חודש"
+      "month": "חודש",
+      "quarter": "רבעון",
+      "year": "שנה"
     },
     "showTable": "הצגת טבלה",
     "hideTable": "הסתרת הטבלה",
@@ -974,7 +976,8 @@
     "resizeStart": "גרירה לשינוי ההתחלה",
     "resizeEnd": "גרירה לשינוי הסיום",
     "empty": "עדיין אין שורות עם {property}.",
-    "dragHint": "אפשר לגרור שורה אל ציר הזמן כדי לתת לה תאריך."
+    "dragHint": "אפשר לגרור שורה אל ציר הזמן כדי לתת לה תאריך.",
+    "quarter": "רבעון {quarter}"
   },
   "errors": {
     "invalidUrl": "“{property}” חייב להיות כתובת URL מסוג http(s) או mailto.",
@@ -1195,7 +1198,8 @@
     "save": "שמירת הצבירה",
     "create": "הוספת צבירה",
     "back": "חזרה",
-    "summary": "{function} של {property} ב־{relation}"
+    "summary": "{function} של {property} ב־{relation}",
+    "showUnique": "הצגת ערכים ייחודיים"
   },
   "propertyAccess": {
     "menuItem": "גישה למאפיין",

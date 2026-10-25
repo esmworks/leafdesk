@@ -965,7 +965,9 @@
     "zooms": {
       "day": "วัน",
       "week": "สัปดาห์",
-      "month": "เดือน"
+      "month": "เดือน",
+      "quarter": "ไตรมาส",
+      "year": "ปี"
     },
     "showTable": "แสดงตาราง",
     "hideTable": "ซ่อนตาราง",
@@ -974,7 +976,8 @@
     "resizeStart": "ลากเพื่อเปลี่ยนวันเริ่ม",
     "resizeEnd": "ลากเพื่อเปลี่ยนวันสิ้นสุด",
     "empty": "ยังไม่มีแถวที่มี{property}",
-    "dragHint": "ลากแถวไปวางบนไทม์ไลน์เพื่อกำหนดวันที่"
+    "dragHint": "ลากแถวไปวางบนไทม์ไลน์เพื่อกำหนดวันที่",
+    "quarter": "ไตรมาส {quarter}"
   },
   "errors": {
     "invalidUrl": "“{property}” ต้องเป็น URL แบบ http(s) หรือ mailto",
@@ -1195,7 +1198,8 @@
     "save": "บันทึกโรลอัป",
     "create": "เพิ่มโรลอัป",
     "back": "กลับ",
-    "summary": "{function}ของ {property} ใน {relation}"
+    "summary": "{function}ของ {property} ใน {relation}",
+    "showUnique": "แสดงค่าที่ไม่ซ้ำ"
   },
   "propertyAccess": {
     "menuItem": "สิทธิ์เข้าถึงคุณสมบัติ",

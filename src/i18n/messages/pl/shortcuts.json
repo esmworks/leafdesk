@@ -57,6 +57,8 @@
     "rowDuplicate": "Duplikuj wiersz (przy otwartym menu w tabeli)",
     "rowMoveTo": "Przenieś wiersz gdzie indziej (przy otwartym menu)",
     "rowComment": "Skomentuj wiersz (przy otwartym menu)",
-    "rowTrash": "Przenieś wiersz do kosza (przy otwartym menu)"
+    "rowTrash": "Przenieś wiersz do kosza (przy otwartym menu)",
+    "link": "Dodaj link do zaznaczonego tekstu",
+    "newSubPage": "Utwórz stronę wewnątrz tej, z linkiem w tekście (po spacji)"
   }
 }

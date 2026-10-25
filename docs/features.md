@@ -49,7 +49,7 @@
   open, by due date or by database, with its status and first date; the first 200, the ones due
   soonest. A row opens beside the list. Tick a row with a status to set it to the first option of
   its *Done* group, and untick it to put the status back; the home page's list works the same way.
-- **Search box** (Cmd/Ctrl+K): before you type, the pages you opened last (the pages last edited
+- **Search box** (Cmd/Ctrl+K or Cmd/Ctrl+P; with text selected in a page, Cmd/Ctrl+K links it instead): before you type, the pages you opened last (the pages last edited
   while your page views aren't recorded or you haven't opened any yet). The menus under the query
   narrow it by teamspace, by who created a page or edited it last, and by when it was last edited
   or created (today, the last 7 or 30 days, or days you pick, in your time zone); they list pages
@@ -87,7 +87,11 @@
   side goes beside it, and *Turn into* in a block's menu puts the selected blocks one to a column),
   also on published pages and in Markdown. Numbered lists nested in numbered lists count in
   letters, then roman numerals, then numbers again (1, a, i), in the editor, on published pages and
-  in PDFs; inline code isn't marked by the browser's spelling check. A quote's block menu sets its
+  in PDFs; inline code isn't marked by the browser's spelling check. A code block's menu adds a
+  *Caption* under the code (published pages and PDFs show it; Markdown writes the line
+  `<!-- leafdesk:caption … -->` before the fence). Resting on a web link shows its address at the
+  start of its toolbar. `>`, `|` or `"` and a space at
+  the start of an empty line start a quote. A quote's block menu sets its
   *Quote size*: the size of the text around it, or large for a pull quote (in Markdown, the line
   `<!-- leafdesk:large-quote -->` before it); the size last picked is what new quotes start with in
   that browser. Text in Chinese, Japanese and Korean is set in faces chosen for each language, sans
@@ -173,6 +177,9 @@
   databases; a shared link can be saved as the whole page instead (see *Save a web page* under
   Import). Where the server can transcribe, the quick note takes voice notes too (see
   [Voice notes](ai.md#voice-notes)).
+- **New page from the address bar**: `/new` on your Leafdesk address (`https://…/new`) makes a
+  private page and opens it, in the workspace you were in last (`/new?workspace=<id>` for another).
+  A page's emoji or built-in icon is its browser tab's icon too.
 - **Desktop app** for macOS, Windows and Linux: a window on your server, or Leafdesk running on
   the computer itself with its own database and daily backups (see [Desktop app](desktop-and-offline.md#desktop-app)),
   with tabs, opening on the page you left and taking Leafdesk links from the browser. A
@@ -223,7 +230,8 @@
     properties instead, ten at a time, with those properties editable in place and links added or
     removed there.
   - Views: table, board, calendar, gallery, list, feed (rows as posts, newest first, with the
-    start of their bodies, emoji reactions and their comments), timeline, map (rows as pins at a place
+    start of their bodies, emoji reactions and their comments), timeline (a column per day, week,
+    month, quarter or year), map (rows as pins at a place
     property), chart and dashboard (widgets over the database, see Dashboards), each with its own filters,
     sorting, grouping and shown properties (one by one, or all hidden or shown at once). The *View
     settings* menu beside the toolbar holds all of a view's settings in one place: its layout
@@ -304,7 +312,8 @@
     move between a line's values and Shift+Enter adds a row right below the line.
   - The options of a select, multi-select or status are dragged into order or sorted A → Z or
     Z → A once, compared as the viewer's language reads (a status within each group).
-  - A rollup showing the related rows' URL, email or phone values shows each as a link.
+  - A rollup can show the related rows' values as they are (*Show original*) or each value once
+    (*Show unique values*). One showing their URL, email or phone values shows each as a link.
   - Formulas read the row's properties and, through a relation, the properties of the linked rows
     (`sum(map(prop("Tasks"), prop(current, "Hours")))`, with `filter`, `find`, `some`, `every`,
     `first`, `last` and `at`), one step away and up to 200 linked rows. `sum`, `average` (also
@@ -522,12 +531,20 @@
   the editor or a comment, shows a card with its place, last edit and first lines (a row's first
   values), only to people who may open it; `[[` links to a page, or to a new page inside this one with
   the title typed, and `[[Title]]` typed, pasted or written through MCP and the API links to the
-  page of that title; "Link to page"
+  page of that title; `+` after a space does the same the other way round, a new page inside this
+  one with the typed title first (a number or a space right after it stays text, `+90`, `a + b`);
+  the formatting toolbar's link button (Cmd/Ctrl+K) takes a web address or searches pages, so the
+  selected text links to a page, or to a new page made with it as the title; "Turn into page in…"
+  in a block's menu makes the block (or the selected blocks) a page inside this one, under another
+  page or as a row of a database, the first block's text as its title and a link to it in their
+  place; "Link to page"
   blocks (their block menu opens the page in a new tab); a "Linked from" list of backlinks on
   every page, with how many pages link there and, for each, the text around every place it links
   (the first 20 blocks), each opening that page at the block with the link; and below it the pages
   that write the page's title without linking to it, with a button that turns that text into a
   mention (a Japanese or Chinese title is found inside a sentence too, never inside a longer word).
+  The page's ••• menu sets where its backlinks show: below the page, in a popup under the title, or
+  hidden (for everyone, like the page's typeface).
   "Copy link to block" in a block's menu gives a link that opens the page at that block,
   highlighted, in the editor, on published pages and in the print view; pasted into a page it
   becomes a mention of that block, a backlink like any other, and Markdown over MCP and the API

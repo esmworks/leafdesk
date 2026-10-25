@@ -44,7 +44,13 @@
       "serif": "衬线",
       "mono": "等宽",
       "smallText": "小号文字",
-      "fullWidth": "全宽"
+      "fullWidth": "全宽",
+      "backlinks": "反向链接",
+      "backlinksModes": {
+        "expanded": "页面下方",
+        "popup": "在弹出窗口中",
+        "off": "隐藏"
+      }
     },
     "lockDatabase": "锁定数据库",
     "lockHint": "锁定期间，属性和视图无法更改；行仍可编辑。",
@@ -552,7 +558,9 @@
       "plainText": "纯文本",
       "format": "格式化代码",
       "formatSyntaxError": "代码未格式化：第 {line} 行有语法错误。",
-      "formatFailed": "无法格式化代码。"
+      "formatFailed": "无法格式化代码。",
+      "caption": "说明",
+      "captionPlaceholder": "填写说明…"
     },
     "math": {
       "title": "公式",
@@ -635,7 +643,7 @@
     "pageLink": {
       "title": "链接到页面",
       "subtext": "指向另一个页面的链接，标题实时更新",
-      "aliases": "link page mention reference 链接 页面 提及 引用"
+      "aliases": "link page mention reference 链接 页面 提及 引用 ltp"
     },
     "syncedPage": {
       "title": "同步页面",
@@ -1280,5 +1288,22 @@
     "replies": "{count, plural, =0 {暂无回复} other {# 条回复}}",
     "openThread": "打开讨论",
     "resolved": "已解决"
+  },
+  "newPageRoute": {
+    "documentTitle": "新页面",
+    "creating": "正在创建页面…",
+    "failed": "无法创建页面。",
+    "home": "前往工作区"
+  },
+  "linkPicker": {
+    "placeholder": "粘贴链接或搜索页面",
+    "pages": "页面",
+    "newPage": "新页面：{title}"
+  },
+  "turnIntoPage": {
+    "menuItem": "转为页面并放到…",
+    "title": "转为页面并放到",
+    "here": "在此页面内",
+    "failed": "无法将这些块移到新页面。"
   }
 }

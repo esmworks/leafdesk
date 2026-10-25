@@ -44,7 +44,13 @@
       "serif": "Serif",
       "mono": "Mono",
       "smallText": "Kleine tekst",
-      "fullWidth": "Volledige breedte"
+      "fullWidth": "Volledige breedte",
+      "backlinks": "Terugverwijzingen",
+      "backlinksModes": {
+        "expanded": "Onder de pagina",
+        "popup": "In een pop-up",
+        "off": "Verborgen"
+      }
     },
     "lockDatabase": "Database vergrendelen",
     "lockHint": "Zolang de database vergrendeld is, kunnen eigenschappen en weergaven niet veranderen; rijen blijven bewerkbaar.",
@@ -552,7 +558,9 @@
       "plainText": "Platte tekst",
       "format": "Code opmaken",
       "formatSyntaxError": "De code is niet opgemaakt: er staat een syntaxfout op regel {line}.",
-      "formatFailed": "De code kon niet worden opgemaakt."
+      "formatFailed": "De code kon niet worden opgemaakt.",
+      "caption": "Bijschrift",
+      "captionPlaceholder": "Schrijf een bijschrift…"
     },
     "math": {
       "title": "Vergelijking",
@@ -635,7 +643,7 @@
     "pageLink": {
       "title": "Link naar pagina",
       "subtext": "Een link naar een andere pagina, met de actuele titel",
-      "aliases": "link page mention reference pagina vermelding verwijzing"
+      "aliases": "link page mention reference pagina vermelding verwijzing ltp"
     },
     "syncedPage": {
       "title": "Gesynchroniseerde pagina",
@@ -1280,5 +1288,22 @@
     "replies": "{count, plural, =0 {Geen reacties} one {# reactie} other {# reacties}}",
     "openThread": "Draad openen",
     "resolved": "Opgelost"
+  },
+  "newPageRoute": {
+    "documentTitle": "Nieuwe pagina",
+    "creating": "Pagina wordt gemaakt…",
+    "failed": "De pagina kon niet worden gemaakt.",
+    "home": "Naar de werkruimte"
+  },
+  "linkPicker": {
+    "placeholder": "Plak een link of zoek pagina's",
+    "pages": "Pagina's",
+    "newPage": "Nieuwe pagina: {title}"
+  },
+  "turnIntoPage": {
+    "menuItem": "Omzetten naar pagina in…",
+    "title": "Omzetten naar pagina in",
+    "here": "In deze pagina",
+    "failed": "De blokken konden niet naar een nieuwe pagina worden verplaatst."
   }
 }

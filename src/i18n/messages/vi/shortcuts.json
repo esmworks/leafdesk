@@ -57,6 +57,8 @@
     "rowDuplicate": "Nhân đôi hàng (khi menu của hàng đang mở trong bảng)",
     "rowMoveTo": "Chuyển hàng đi nơi khác (khi menu của hàng đang mở)",
     "rowComment": "Bình luận về hàng (khi menu của hàng đang mở)",
-    "rowTrash": "Chuyển hàng vào thùng rác (khi menu của hàng đang mở)"
+    "rowTrash": "Chuyển hàng vào thùng rác (khi menu của hàng đang mở)",
+    "link": "Liên kết văn bản đã chọn",
+    "newSubPage": "Tạo trang bên trong trang này, liên kết trong văn bản (sau dấu cách)"
   }
 }

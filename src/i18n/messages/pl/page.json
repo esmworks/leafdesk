@@ -44,7 +44,13 @@
       "serif": "Szeryfowa",
       "mono": "Stałej szerokości",
       "smallText": "Mały tekst",
-      "fullWidth": "Pełna szerokość"
+      "fullWidth": "Pełna szerokość",
+      "backlinks": "Linki zwrotne",
+      "backlinksModes": {
+        "expanded": "Pod stroną",
+        "popup": "W okienku",
+        "off": "Ukryte"
+      }
     },
     "lockDatabase": "Zablokuj bazę danych",
     "lockHint": "Gdy baza jest zablokowana, nie można zmieniać właściwości ani widoków; wiersze nadal można edytować.",
@@ -552,7 +558,9 @@
       "plainText": "Zwykły tekst",
       "format": "Formatuj kod",
       "formatSyntaxError": "Kod nie został sformatowany: błąd składni w wierszu {line}.",
-      "formatFailed": "Nie udało się sformatować kodu."
+      "formatFailed": "Nie udało się sformatować kodu.",
+      "caption": "Podpis",
+      "captionPlaceholder": "Napisz podpis…"
     },
     "math": {
       "title": "Równanie",
@@ -635,7 +643,7 @@
     "pageLink": {
       "title": "Link do strony",
       "subtext": "Link do innej strony z jej aktualnym tytułem",
-      "aliases": "link strona wzmianka odnośnik link page mention reference"
+      "aliases": "link strona wzmianka odnośnik link page mention reference ltp"
     },
     "syncedPage": {
       "title": "Strona synchronizowana",
@@ -1280,5 +1288,22 @@
     "replies": "{count, plural, =0 {Brak odpowiedzi} one {# odpowiedź} few {# odpowiedzi} many {# odpowiedzi} other {# odpowiedzi}}",
     "openThread": "Otwórz wątek",
     "resolved": "Rozwiązany"
+  },
+  "newPageRoute": {
+    "documentTitle": "Nowa strona",
+    "creating": "Tworzenie strony…",
+    "failed": "Nie udało się utworzyć strony.",
+    "home": "Przejdź do obszaru roboczego"
+  },
+  "linkPicker": {
+    "placeholder": "Wklej link lub wyszukaj strony",
+    "pages": "Strony",
+    "newPage": "Nowa strona: {title}"
+  },
+  "turnIntoPage": {
+    "menuItem": "Zamień na stronę w…",
+    "title": "Zamień na stronę w",
+    "here": "Wewnątrz tej strony",
+    "failed": "Nie udało się przenieść bloków na nową stronę."
   }
 }

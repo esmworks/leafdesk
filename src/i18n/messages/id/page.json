@@ -44,7 +44,13 @@
       "serif": "Serif",
       "mono": "Mono",
       "smallText": "Teks kecil",
-      "fullWidth": "Lebar penuh"
+      "fullWidth": "Lebar penuh",
+      "backlinks": "Tautan balik",
+      "backlinksModes": {
+        "expanded": "Di bawah halaman",
+        "popup": "Di jendela munculan",
+        "off": "Tersembunyi"
+      }
     },
     "lockDatabase": "Kunci basis data",
     "lockHint": "Selama dikunci, properti dan tampilan tidak dapat berubah; baris tetap dapat diedit.",
@@ -552,7 +558,9 @@
       "plainText": "Teks biasa",
       "format": "Format kode",
       "formatSyntaxError": "Kode tidak diformat: ada kesalahan sintaks di baris {line}.",
-      "formatFailed": "Kode tidak dapat diformat."
+      "formatFailed": "Kode tidak dapat diformat.",
+      "caption": "Keterangan",
+      "captionPlaceholder": "Tulis keterangan…"
     },
     "math": {
       "title": "Persamaan",
@@ -635,7 +643,7 @@
     "pageLink": {
       "title": "Tautan ke halaman",
       "subtext": "Tautan ke halaman lain, dengan judul langsungnya",
-      "aliases": "tautan halaman sebut referensi link page mention reference"
+      "aliases": "tautan halaman sebut referensi link page mention reference ltp"
     },
     "syncedPage": {
       "title": "Halaman tersinkron",
@@ -1280,5 +1288,22 @@
     "replies": "{count, plural, =0 {Belum ada balasan} other {# balasan}}",
     "openThread": "Buka utas",
     "resolved": "Selesai"
+  },
+  "newPageRoute": {
+    "documentTitle": "Halaman baru",
+    "creating": "Membuat halaman…",
+    "failed": "Halaman tidak dapat dibuat.",
+    "home": "Buka ruang kerja"
+  },
+  "linkPicker": {
+    "placeholder": "Tempel tautan atau cari halaman",
+    "pages": "Halaman",
+    "newPage": "Halaman baru: {title}"
+  },
+  "turnIntoPage": {
+    "menuItem": "Ubah jadi halaman di…",
+    "title": "Ubah jadi halaman di",
+    "here": "Di dalam halaman ini",
+    "failed": "Blok tidak dapat dipindahkan ke halaman baru."
   }
 }

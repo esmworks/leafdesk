@@ -965,7 +965,9 @@
     "zooms": {
       "day": "Day",
       "week": "Week",
-      "month": "Month"
+      "month": "Month",
+      "quarter": "Quarter",
+      "year": "Year"
     },
     "showTable": "Show table",
     "hideTable": "Hide table",
@@ -974,7 +976,8 @@
     "resizeStart": "Drag to change the start",
     "resizeEnd": "Drag to change the end",
     "empty": "No rows with a {property} yet.",
-    "dragHint": "Drag a row onto the timeline to give it a date."
+    "dragHint": "Drag a row onto the timeline to give it a date.",
+    "quarter": "Q{quarter}"
   },
   "errors": {
     "invalidUrl": "“{property}” must be an http(s) or mailto URL.",
@@ -1195,7 +1198,8 @@
     "save": "Save rollup",
     "create": "Add rollup",
     "back": "Back",
-    "summary": "{function} of {property} in {relation}"
+    "summary": "{function} of {property} in {relation}",
+    "showUnique": "Show unique values"
   },
   "propertyAccess": {
     "menuItem": "Property access",

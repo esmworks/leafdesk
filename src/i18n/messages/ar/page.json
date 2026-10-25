@@ -44,7 +44,13 @@
       "serif": "Serif",
       "mono": "Mono",
       "smallText": "نص صغير",
-      "fullWidth": "عرض كامل"
+      "fullWidth": "عرض كامل",
+      "backlinks": "الروابط الواردة",
+      "backlinksModes": {
+        "expanded": "أسفل الصفحة",
+        "popup": "في نافذة منبثقة",
+        "off": "مخفية"
+      }
     },
     "lockDatabase": "قفل قاعدة البيانات",
     "lockHint": "أثناء القفل، لا يمكن تغيير الخصائص وطرق العرض؛ وتبقى الصفوف قابلة للتحرير.",
@@ -552,7 +558,9 @@
       "plainText": "نص عادي",
       "format": "تنسيق الشيفرة",
       "formatSyntaxError": "لم تُنسَّق الشيفرة: يوجد خطأ في الصياغة في السطر {line}.",
-      "formatFailed": "تعذّر تنسيق الشيفرة."
+      "formatFailed": "تعذّر تنسيق الشيفرة.",
+      "caption": "تعليق",
+      "captionPlaceholder": "اكتب تعليقًا…"
     },
     "math": {
       "title": "معادلة",
@@ -635,7 +643,7 @@
     "pageLink": {
       "title": "رابط إلى صفحة",
       "subtext": "رابط إلى صفحة أخرى، بعنوانها المباشر",
-      "aliases": "link page mention reference رابط صفحة إشارة مرجع"
+      "aliases": "link page mention reference رابط صفحة إشارة مرجع ltp"
     },
     "syncedPage": {
       "title": "صفحة متزامنة",
@@ -1280,5 +1288,22 @@
     "replies": "{count, plural, =0 {لا ردود} one {رد واحد} two {ردّان} few {# ردود} many {# ردًا} other {# رد}}",
     "openThread": "فتح المناقشة",
     "resolved": "تمّ الحل"
+  },
+  "newPageRoute": {
+    "documentTitle": "صفحة جديدة",
+    "creating": "جارٍ إنشاء صفحة…",
+    "failed": "تعذر إنشاء الصفحة.",
+    "home": "الانتقال إلى مساحة العمل"
+  },
+  "linkPicker": {
+    "placeholder": "الصق رابطًا أو ابحث في الصفحات",
+    "pages": "الصفحات",
+    "newPage": "صفحة جديدة: {title}"
+  },
+  "turnIntoPage": {
+    "menuItem": "تحويل إلى صفحة في…",
+    "title": "تحويل إلى صفحة في",
+    "here": "داخل هذه الصفحة",
+    "failed": "تعذر نقل الكتل إلى صفحة جديدة."
   }
 }

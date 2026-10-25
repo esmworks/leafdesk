@@ -44,7 +44,13 @@
       "serif": "Serif",
       "mono": "Mono",
       "smallText": "Kleiner Text",
-      "fullWidth": "Volle Breite"
+      "fullWidth": "Volle Breite",
+      "backlinks": "Rückverweise",
+      "backlinksModes": {
+        "expanded": "Unter der Seite",
+        "popup": "In einem Pop-up",
+        "off": "Ausgeblendet"
+      }
     },
     "lockDatabase": "Datenbank sperren",
     "lockHint": "Solange die Datenbank gesperrt ist, lassen sich Eigenschaften und Ansichten nicht ändern; Zeilen bleiben bearbeitbar.",
@@ -552,7 +558,9 @@
       "plainText": "Nur Text",
       "format": "Code formatieren",
       "formatSyntaxError": "Der Code wurde nicht formatiert: In Zeile {line} ist ein Syntaxfehler.",
-      "formatFailed": "Der Code konnte nicht formatiert werden."
+      "formatFailed": "Der Code konnte nicht formatiert werden.",
+      "caption": "Bildunterschrift",
+      "captionPlaceholder": "Beschriftung schreiben …"
     },
     "math": {
       "title": "Gleichung",
@@ -635,7 +643,7 @@
     "pageLink": {
       "title": "Link zu Seite",
       "subtext": "Ein Link zu einer anderen Seite mit ihrem aktuellen Titel",
-      "aliases": "link page mention reference seite verweis erwähnung verknüpfung"
+      "aliases": "link page mention reference seite verweis erwähnung verknüpfung ltp"
     },
     "syncedPage": {
       "title": "Synchronisierte Seite",
@@ -1280,5 +1288,22 @@
     "replies": "{count, plural, =0 {Keine Antworten} one {# Antwort} other {# Antworten}}",
     "openThread": "Thread öffnen",
     "resolved": "Erledigt"
+  },
+  "newPageRoute": {
+    "documentTitle": "Neue Seite",
+    "creating": "Seite wird erstellt …",
+    "failed": "Die Seite konnte nicht erstellt werden.",
+    "home": "Zum Workspace"
+  },
+  "linkPicker": {
+    "placeholder": "Link einfügen oder Seiten suchen",
+    "pages": "Seiten",
+    "newPage": "Neue Seite: {title}"
+  },
+  "turnIntoPage": {
+    "menuItem": "In Seite umwandeln in …",
+    "title": "In Seite umwandeln in",
+    "here": "In dieser Seite",
+    "failed": "Die Blöcke konnten nicht auf eine neue Seite verschoben werden."
   }
 }

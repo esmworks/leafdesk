@@ -6,6 +6,7 @@ import { RowProperties } from "@/components/database/row-properties";
 import { NoAccess } from "@/components/page/no-access";
 import { PageView } from "@/components/page/page-view";
 import { pageLabel } from "@/lib/labels";
+import { pageIconHref } from "@/lib/page-icon-href";
 import { MERGED_ORIGINAL_PARAM } from "@/lib/merge-rows";
 import { parsePageBackground } from "@/lib/page-background";
 import { pageStyleFromYdoc } from "@/lib/page-style";
@@ -42,8 +43,14 @@ export async function generateMetadata({
   // drop the view from it.
   const { view } = await searchParams;
   const viewName = p.kind === "database" ? await openViewName(p.id, typeof view === "string" ? view : null) : null;
-  return { title: viewName ? { absolute: t("page.documentViewTitle", { title, view: viewName }) } : title };
+  const icon = pageIconHref(p.icon);
+  return {
+    title: viewName ? { absolute: t("page.documentViewTitle", { title, view: viewName }) } : title,
+    // The page's emoji or built-in icon as the tab's icon; the app's own without one.
+    ...(icon ? { icons: { icon: [{ url: icon, type: "image/svg+xml" }] } } : {}),
+  };
 }
+
 
 export default async function PageRoute({ params, searchParams }: Params & { searchParams: Promise<Record<string, string | string[] | undefined>> }) {
   const user = await requireUser();
