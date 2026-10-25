@@ -2,7 +2,7 @@ import { auth } from "@/lib/auth";
 import { CLIENT_IP_HEADER } from "@/lib/client-ip";
 import { AccessError } from "@/server/access";
 import { isCrossSite } from "@/server/cross-site";
-import { FileError, uploadFile, type UploadInput } from "@/server/files";
+import { FileError, uploadCommentImage, uploadFile, type UploadInput } from "@/server/files";
 import { FormError, uploadFormFile, uploadPublicFormFile } from "@/server/forms";
 
 /**
@@ -10,6 +10,8 @@ import { FormError, uploadFormFile, uploadPublicFormFile } from "@/server/forms"
  * Content-Type and its name, URI-encoded, in `X-File-Name`. Answers 201 with the stored file (`url`
  * is what the block or files property keeps). The editor's BlockNote `uploadFile` and the files
  * property editor call this.
+ *
+ * An image for a comment uploads with `&comment=1` as well: comment access is enough for that.
  *
  * Answers to a form's files question upload with `?form=<viewId>` (in the app, signed in) or
  * `?formToken=<token>` plus the form's ticket in `X-Form-Ticket` (public forms, maybe anonymous);
@@ -58,7 +60,9 @@ export async function POST(request: Request) {
         )
       : formView
         ? await uploadFormFile(session!.user.id, formView, input)
-        : await uploadFile(session!.user.id, pageId!, input);
+        : params.get("comment") === "1"
+          ? await uploadCommentImage(session!.user.id, pageId!, input)
+          : await uploadFile(session!.user.id, pageId!, input);
     // Someone answering a public form can't open the file afterwards; nothing names the database.
     const body = formToken
       ? { id: stored.id, url: stored.url, name: stored.name, contentType: stored.contentType, size: stored.size }

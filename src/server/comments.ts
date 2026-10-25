@@ -4,18 +4,23 @@ import { user } from "@/db/schema";
 import {
   cleanCommentBody,
   CommentError,
+  commentImages,
   commentGroupMentions,
   commentMentions,
   commentText,
   isReactionEmoji,
+  keepCommentImages,
   replyAudience,
   threadParticipants,
   type CommentAnchor,
+  type CommentBody,
   type CommentOp,
   type PlainThread,
 } from "@/lib/comments";
 import { AccessError, getMembership, hasLevel, isGuest, requirePageAccess, resolvePageAccess } from "@/server/access";
 import { avatarSrc } from "@/lib/avatar";
+import { fileIdOf } from "@/lib/files";
+import { commentImagesOn } from "@/server/files";
 import { getCollab } from "@/server/collab/bridge";
 import { refuseHeldComments } from "@/server/legal-hold";
 import type { CommentOpResult } from "@/server/collab/bridge";
@@ -130,7 +135,12 @@ export async function changeComments(userId: string, pageId: string, op: Comment
   const groups = writes ? commentGroupMentions(op.body) : [];
   const groupMembers = groups.length ? [...(await groupMembersOf(target.workspaceId, groups)).values()].flat() : [];
   const mentioned = [...new Set([...people, ...groupMembers])];
-  const clean = cleanOp(op);
+  let clean = cleanOp(op);
+  // A comment shows only images stored on its page (uploaded for it); they are kept from then on.
+  if (clean.type === "createThread" || clean.type === "addComment" || clean.type === "updateComment") {
+    const images = commentImages(clean.body).map((url) => fileIdOf(url)!);
+    if (images.length) clean = { ...clean, body: keepCommentImages(clean.body as CommentBody, await commentImagesOn(pageId, images)) };
+  }
   const role = hasLevel(level, "full") ? "editor" : "comment";
   // A thread on a property value: a new one names its property, others are looked up by id.
   const propertyId = clean.type === "createThread" ? (clean.propertyId ?? null) : await propertyThreadOf(pageId, clean.threadId);

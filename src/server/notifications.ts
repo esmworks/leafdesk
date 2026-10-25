@@ -860,13 +860,15 @@ const actor = alias(user, "actor");
  * leave for an owner (none has a page) only while the user owns the workspace; snoozed ones not
  * until their time. Null when every kind is off. Expects `page` left-joined.
  */
-async function inboxFilter(userId: string, workspaceId?: string, only?: NotificationKind[]): Promise<SQL | null> {
+async function inboxFilter(userId: string, workspaceId?: string, only?: NotificationKind[], archived = false): Promise<SQL | null> {
   const kinds = (await inboxKinds(userId)).filter((k) => !only || only.includes(k));
   if (!kinds.length) return null;
   return and(
     eq(notification.userId, userId),
     workspaceId ? eq(notification.workspaceId, workspaceId) : undefined,
     inArray(notification.kind, kinds),
+    // The inbox and the archive are apart (see archiveNotifications).
+    archived ? isNotNull(notification.archivedAt) : isNull(notification.archivedAt),
     // Snoozed ones come back by themselves (deliverSnoozed); until then they aren't there.
     or(isNull(notification.snoozedUntil), lte(notification.snoozedUntil, sql`now()`)),
     // A message hidden from its row leaves the inbox too.
@@ -911,12 +913,13 @@ export async function listNotifications(
     limit = INBOX_LIMIT,
     ids: only,
     kinds,
-  }: { workspaceId?: string; unreadOnly?: boolean; limit?: number; ids?: string[]; kinds?: NotificationKind[] } = {},
+    archived = false,
+  }: { workspaceId?: string; unreadOnly?: boolean; limit?: number; ids?: string[]; kinds?: NotificationKind[]; archived?: boolean } = {},
 ): Promise<InboxItem[]> {
   if (only && !only.length) return [];
   if (workspaceId) await requireMembership(userId, workspaceId);
   const [filter, hidden] = await Promise.all([
-    inboxFilter(userId, workspaceId, kinds),
+    inboxFilter(userId, workspaceId, kinds, archived),
     workspaceId || only ? new Set<string>() : workspacesHiddenFromApp(userId),
   ]);
   if (!filter) return [];
@@ -1271,8 +1274,42 @@ async function approvalsOf(viewer: string, runIds: string[]): Promise<Map<string
   return out;
 }
 
-export async function listInbox(userId: string, workspaceId: string, kinds?: NotificationKind[]): Promise<InboxItem[]> {
-  return listNotifications(userId, { workspaceId, kinds });
+export async function listInbox(userId: string, workspaceId: string, kinds?: NotificationKind[], archived = false): Promise<InboxItem[]> {
+  return listNotifications(userId, { workspaceId, kinds, archived });
+}
+
+/**
+ * Archives the given notifications, or (`"read"`) every read one in the inbox: they leave the
+ * inbox for the archive, read (an email still to come about one doesn't go).
+ */
+export async function archiveNotifications(userId: string, workspaceId: string, which: string[] | "read") {
+  await requireMembership(userId, workspaceId);
+  if (Array.isArray(which) && !which.length) return 0;
+  const archived = await db
+    .update(notification)
+    .set({ archivedAt: new Date(), readAt: sql`coalesce(${notification.readAt}, now())` })
+    .where(
+      and(
+        eq(notification.userId, userId),
+        eq(notification.workspaceId, workspaceId),
+        isNull(notification.archivedAt),
+        which === "read" ? isNotNull(notification.readAt) : inArray(notification.id, which),
+      ),
+    )
+    .returning({ id: notification.id });
+  signal(workspaceId);
+  return archived.length;
+}
+
+/** Moves archived notifications back to the inbox, read. */
+export async function unarchiveNotifications(userId: string, workspaceId: string, notificationIds: string[]) {
+  await requireMembership(userId, workspaceId);
+  if (!notificationIds.length) return;
+  await db
+    .update(notification)
+    .set({ archivedAt: null })
+    .where(and(eq(notification.userId, userId), eq(notification.workspaceId, workspaceId), inArray(notification.id, notificationIds)));
+  signal(workspaceId);
 }
 
 export async function unreadCount(userId: string, workspaceId: string, kinds?: NotificationKind[]) {

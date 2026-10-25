@@ -152,7 +152,13 @@
       "quote": "“{quote}”",
       "removed": "Kaldırılan bir metin hakkında",
       "unknown": "Biri"
-    }
+    },
+    "attachImages": "Görsel ekle",
+    "removeImage": "Görseli kaldır",
+    "imageAlt": "Görsel {number}",
+    "moreImages": "+{count}",
+    "fewerImages": "Daha az göster",
+    "tooManyImages": "Bir yorumda en fazla {count} görsel olabilir."
   },
   "archived": {
     "banner": "Bu sayfa çöp kutusunda.",

@@ -9,6 +9,7 @@ import { and, asc, eq, inArray, isNull, lte, sql } from "drizzle-orm";
 import { db } from "@/db";
 import { aiChatFile, file, fileReference, page, propertyPermission, storageDeletion, workspaceStorage } from "@/db/schema";
 import { cleanFileName, contentTypeFor, fileIdsIn, fileIdsInProperties, fileUrl, formatBytes, isFileId } from "@/lib/files";
+import { COMMENT_IMAGE_TYPES } from "@/lib/comments";
 import { sameLocation } from "@/lib/workspace-storage";
 import { AccessError, accessRank, requireMembership, requirePageAccess, sessionHeldBack } from "@/server/access";
 import { queueDocument } from "@/server/file-text";
@@ -129,6 +130,33 @@ export async function uploadFile(userId: string, pageId: string, input: UploadIn
   if (target.archivedAt) throw new FileError("The page is in the trash", "notAllowed");
   if (target.kind === "database") throw new FileError("Databases have no body to put files in; add them to a row", "badRequest");
   return storeFile({ workspaceId: target.workspaceId, pageId, uploadedBy: userId }, input);
+}
+
+/**
+ * Stores an image to attach to a comment on a page (lib/comments CommentImages): needs only
+ * comment access, and takes only the kinds of image in COMMENT_IMAGE_TYPES.
+ */
+export async function uploadCommentImage(userId: string, pageId: string, input: UploadInput): Promise<StoredFile> {
+  const target = await requirePageAccess(userId, pageId, "comment");
+  if (target.archivedAt) throw new FileError("The page is in the trash", "notAllowed");
+  if (!COMMENT_IMAGE_TYPES.includes(contentTypeFor(input.contentType, cleanFileName(input.name)))) {
+    throw new FileError("Comments take PNG, JPEG, GIF, WebP or AVIF images", "badRequest");
+  }
+  return storeFile({ workspaceId: target.workspaceId, pageId, uploadedBy: userId }, input);
+}
+
+/**
+ * Of the files `fileIds`, the images stored on `pageId` (those a comment there may show), marked
+ * as used, so the cleanup of uploads nothing showed leaves them (they stay with the page).
+ */
+export async function commentImagesOn(pageId: string, fileIds: string[]): Promise<Set<string>> {
+  if (!fileIds.length) return new Set();
+  const found = await db
+    .update(file)
+    .set({ referencedAt: sql`coalesce(${file.referencedAt}, now())` })
+    .where(and(eq(file.pageId, pageId), inArray(file.id, fileIds), inArray(file.contentType, COMMENT_IMAGE_TYPES)))
+    .returning({ id: file.id });
+  return new Set(found.map((f) => f.id));
 }
 
 /**

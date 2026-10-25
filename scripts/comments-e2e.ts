@@ -19,9 +19,9 @@ try {
 const { and, eq, inArray } = await import("drizzle-orm");
 const Y = await import("yjs");
 const { db } = await import("@/db");
-const { notification, page, threadMute, user, workspace, workspaceMember } = await import("@/db/schema");
+const { file, notification, page, threadMute, user, workspace, workspaceMember } = await import("@/db/schema");
 const { COLLAB_FRAGMENT } = await import("@/lib/collab-constants");
-const { CommentError, commentText: commentTextOf, THREADS_MAP } = await import("@/lib/comments");
+const { CommentError, commentImages, commentText: commentTextOf, THREADS_MAP } = await import("@/lib/comments");
 const { changeComments, commentUsers, listComments } = await import("@/server/comments");
 const { getCollab, registerCollab } = await import("@/server/collab/bridge");
 const { createCollab } = await import("@/server/collab/service");
@@ -37,6 +37,8 @@ const { markThreadsSeen, setThreadMarked, threadStates } = await import("@/serve
 const { addProperty, deleteProperty, restoreProperty, updateRowProperties } = await import("@/server/databases");
 const { setPropertyAccess } = await import("@/server/property-access");
 const { setRowAccess } = await import("@/server/row-access");
+const { FileError, uploadCommentImage } = await import("@/server/files");
+const { Readable } = await import("node:stream");
 const { AccessError, requirePageAccess } = await import("@/server/access");
 const { authorizeCollab } = await import("@/server/collab/authorize");
 const { InMemoryTransport } = await import("@modelcontextprotocol/server");
@@ -239,7 +241,7 @@ try {
   await changeComments(ids.editor, doc.id, { type: "resolveThread", threadId: thread.id });
   let threads = await listComments(ids.viewer, doc.id);
   check(
-    threads[0].resolved && threads[0].resolvedBy === ids.editor && threads[0].comments[0].body?.[0].content[0].type === "text",
+    threads[0].resolved && threads[0].resolvedBy === ids.editor && commentTextOf(threads[0].comments[0].body) === "Is this realistic now?",
     "people edit their comments and resolve threads",
     threads[0],
   );
@@ -527,6 +529,46 @@ try {
   );
   check((await listComments(ids.editor, row)).some((t) => t.id === onAssignee.thread!.id), "the people it names still do");
   await setRowAccess(ids.owner, tasks, { restricted: false, rules: [] });
+
+  // Images in comments: people who may comment upload them to the page; a comment shows only the
+  // page's own images, which the cleanup of unused uploads then leaves.
+  const png = () => ({ name: "shot.png", contentType: "image/png", body: Readable.from([Buffer.from("89504e470d0a1a0a", "hex")]) });
+  const shot = await uploadCommentImage(ids.commenter, doc.id, png());
+  check(shot.pageId === doc.id, "people who may comment upload images to the page");
+  check(
+    await uploadCommentImage(ids.commenter, doc.id, { ...png(), name: "x.svg", contentType: "image/svg+xml" }).then(
+      () => false,
+      (error) => error instanceof FileError && error.code === "badRequest",
+    ),
+    "…but no SVG or other files",
+  );
+  check(
+    await uploadCommentImage(ids.viewer, doc.id, png()).then(
+      () => false,
+      (error) => error instanceof AccessError,
+    ),
+    "people who only view upload nothing",
+  );
+  const elsewhere = await createPage({ userId: ids.owner }, { workspaceId, title: "Elsewhere" });
+  const foreign = await uploadCommentImage(ids.owner, elsewhere.id, png());
+  const withImages = await changeComments(ids.commenter, doc.id, {
+    type: "createThread",
+    body: [{ type: "images", props: { urls: `${shot.url}\n${foreign.url}` } }],
+    anchor: { quote: "Second" },
+  });
+  check(
+    JSON.stringify(commentImages(withImages.comment?.body)) === JSON.stringify([shot.url]),
+    "a comment of only images is posted, with the page's own images only",
+    withImages.comment?.body,
+  );
+  const [stamped] = await db.select({ referencedAt: file.referencedAt }).from(file).where(eq(file.id, shot.id));
+  check(stamped?.referencedAt, "…which are kept from then on");
+  check(
+    (await failure(() => changeComments(ids.commenter, doc.id, { type: "createThread", body: [{ type: "images", props: { urls: foreign.url } }], anchor: { quote: "Second" } }))) ===
+      "invalidBody",
+    "a comment left with nothing to show is refused",
+  );
+  await changeComments(ids.owner, doc.id, { type: "deleteThread", threadId: withImages.thread!.id });
 
   // Deleting
   await changeComments(ids.owner, doc.id, { type: "addComment", threadId: thread.id, body: "Unread one." });

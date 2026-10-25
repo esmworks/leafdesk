@@ -152,7 +152,13 @@
       "quote": "「{quote}」",
       "removed": "削除されたテキストについて",
       "unknown": "不明なユーザー"
-    }
+    },
+    "attachImages": "画像を添付",
+    "removeImage": "画像を削除",
+    "imageAlt": "画像 {number}",
+    "moreImages": "+{count}",
+    "fewerImages": "表示を減らす",
+    "tooManyImages": "コメントに添付できる画像は最大 {count} 枚です。"
   },
   "archived": {
     "banner": "このページはゴミ箱にあります。",

@@ -152,7 +152,13 @@
       "quote": "“{quote}”",
       "removed": "Bij tekst die is verwijderd",
       "unknown": "Iemand"
-    }
+    },
+    "attachImages": "Afbeeldingen bijvoegen",
+    "removeImage": "Afbeelding verwijderen",
+    "imageAlt": "Afbeelding {number}",
+    "moreImages": "+{count}",
+    "fewerImages": "Minder tonen",
+    "tooManyImages": "Een opmerking kan maximaal {count} afbeeldingen bevatten."
   },
   "archived": {
     "banner": "Deze pagina staat in de prullenbak.",

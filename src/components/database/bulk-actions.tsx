@@ -1,9 +1,10 @@
 "use client";
 
-import { ArrowLeft, CircleOff, Copy, Download, FileSpreadsheet, Merge, Pencil, SmilePlus, Trash2, X } from "lucide-react";
+import { ArrowLeft, CircleOff, Copy, Download, FileSpreadsheet, Link2, Merge, Pencil, SmilePlus, Trash2, X } from "lucide-react";
 import { useLocale, useTranslations } from "next-intl";
 import { useState } from "react";
 import type { Selection } from "@/components/selection";
+import { showToast } from "@/components/toast";
 import { Button, cn, Input, MenuItem } from "@/components/ui";
 import { IconGrid } from "@/components/page/icon-picker";
 import { Floating, useFloating } from "./floating";
@@ -36,7 +37,8 @@ const BULK_EDITABLE = new Set<string>([
 
 /**
  * The bar that floats over a table while rows are selected: edit a property of every selected
- * row, duplicate them, export them as CSV or an Excel workbook, or move them to the trash. Viewers only get export;
+ * row, duplicate them, copy their links (one per line, which paste back as mentions), export them
+ * as CSV or an Excel workbook, or move them to the trash. Viewers only get export;
  * guests don't get the trash, and nobody gets export while the workspace has it turned off. The server checks every row again and reports rows it skipped.
  */
 export function BulkActionBar({
@@ -115,6 +117,17 @@ export function BulkActionBar({
 
   const action = "inline-flex h-8 shrink-0 items-center gap-1.5 rounded-md px-2 text-sm hover:bg-bg-hover disabled:opacity-50";
 
+  // In the table's order, not the order they were picked in.
+  const copyLinks = async () => {
+    const links = selectedRows.map((row) => `${window.location.origin}/w/${workspaceId}/p/${row.id}`);
+    try {
+      await navigator.clipboard.writeText(links.join("\n"));
+      showToast({ message: t("linksCopied", { count: links.length }) });
+    } catch {
+      api.showError(t("copyLinksFailed"));
+    }
+  };
+
   return (
     <div
       role="toolbar"
@@ -162,6 +175,10 @@ export function BulkActionBar({
           </button>
         </>
       )}
+      <button type="button" onClick={() => void copyLinks()} className={action} title={t("copyLinks")}>
+        <Link2 className="h-3.5 w-3.5 text-fg-muted" />
+        <span className="max-sm:sr-only">{t("copyLinks")}</span>
+      </button>
       {!readOnly && <BulkFollowUp databaseId={databaseId} rowIds={ids} className={action} />}
       {/* Duplicates into one: they go to the trash, which guests don't have. */}
       {!readOnly && !guest && ids.length >= MIN_MERGE_ROWS && ids.length <= MAX_MERGE_ROWS && (

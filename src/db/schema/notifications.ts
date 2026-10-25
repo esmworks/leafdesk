@@ -469,6 +469,11 @@ export const notification = pgTable(
     agentRunId: text("agent_run_id").references(() => agentRun.id, { onDelete: "cascade" }),
     createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
     readAt: timestamp("read_at", { withTimezone: true }),
+    /**
+     * Archived: out of the inbox and its unread count, listed under Archived until moved back
+     * (server/notifications archiveNotifications). Archiving marks it read. Null in the inbox.
+     */
+    archivedAt: timestamp("archived_at", { withTimezone: true }),
     /** When to email the user about it (all but assignment); cleared once the email is handled. */
     emailDueAt: timestamp("email_due_at", { withTimezone: true }),
     /** The actor's interface language, for that email. */

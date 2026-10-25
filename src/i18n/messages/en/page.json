@@ -152,7 +152,13 @@
       "quote": "“{quote}”",
       "removed": "On text that was removed",
       "unknown": "Someone"
-    }
+    },
+    "attachImages": "Attach images",
+    "removeImage": "Remove image",
+    "imageAlt": "Image {number}",
+    "moreImages": "+{count}",
+    "fewerImages": "Show fewer",
+    "tooManyImages": "A comment can have at most {count} images."
   },
   "archived": {
     "banner": "This page is in the trash.",

@@ -152,7 +152,13 @@
       "quote": "”{quote}”",
       "removed": "Poistetusta tekstistä",
       "unknown": "Joku"
-    }
+    },
+    "attachImages": "Liitä kuvia",
+    "removeImage": "Poista kuva",
+    "imageAlt": "Kuva {number}",
+    "moreImages": "+{count}",
+    "fewerImages": "Näytä vähemmän",
+    "tooManyImages": "Kommentissa voi olla enintään {count} kuvaa."
   },
   "archived": {
     "banner": "Tämä sivu on roskakorissa.",

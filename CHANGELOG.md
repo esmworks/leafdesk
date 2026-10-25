@@ -187,6 +187,19 @@
   the usual web ports, checks every redirect again, and stops after 15 seconds and 5 MB of page.
   Migration `drizzle/0139_web_clip_target.sql` adds where each person last saved to
   (`workspace_member.web_clip_target`). No MCP tool: the tool list is at its size budget.
+- **Archive notifications.** Each inbox item has *Archive*, and *Archive read* clears every read
+  one at once. Archived items are marked read, leave the inbox and its count, and are listed under
+  the inbox's *Archived* tab, where *Move to inbox* brings one back. Migration 0136.
+- **Copy links to rows, and paste lists of links as mentions.** *Copy links* in a table's selection
+  bar copies the selected rows' links, one per line. Pasting several links to pages of the
+  workspace into a page makes a mention of each, one block per line (list items when pasted into a
+  list).
+- **Images in comments, and emoji shown large.** The image button under a comment box (or pasting or
+  dropping images into it) attaches up to ten PNG, JPEG, GIF, WebP or AVIF images to the comment,
+  which can then be posted without text. People who may only comment can attach them too. One
+  image shows larger, several as thumbnails, and past four the rest fold into a *+N* tile. A
+  comment of only one to three emoji shows them large. Exports list a comment's images after its
+  text.
 
 ### Changed
 

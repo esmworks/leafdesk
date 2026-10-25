@@ -5643,6 +5643,12 @@
           "primaryKey": false,
           "notNull": false
         },
+        "archived_at": {
+          "name": "archived_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": false
+        },
         "email_due_at": {
           "name": "email_due_at",
           "type": "timestamp with time zone",

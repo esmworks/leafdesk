@@ -152,7 +152,13 @@
       "quote": "“{quote}”",
       "removed": "关于已删除的文本",
       "unknown": "某人"
-    }
+    },
+    "attachImages": "附加图片",
+    "removeImage": "移除图片",
+    "imageAlt": "图片 {number}",
+    "moreImages": "+{count}",
+    "fewerImages": "收起",
+    "tooManyImages": "一条评论最多可包含 {count} 张图片。"
   },
   "archived": {
     "banner": "此页面在回收站中。",

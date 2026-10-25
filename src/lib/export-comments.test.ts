@@ -78,6 +78,15 @@ describe("exportedThreads", () => {
 });
 
 describe("commentMarkdown", () => {
+  it("writes a comment's images a line each", () => {
+    const a = `/api/files/${"a".repeat(24)}`;
+    const b = `/api/files/${"b".repeat(24)}`;
+    expect(commentMarkdown([{ type: "paragraph", content: [text("See")] }, { type: "images", props: { urls: `${a}\n${b}` } }])).toEqual([
+      "See",
+      `![1](${a})\n![2](${b})`,
+    ]);
+  });
+
   it("keeps styles and links, and escapes what Markdown would read", () => {
     const b: CommentBody = [
       {

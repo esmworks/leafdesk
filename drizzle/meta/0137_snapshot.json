@@ -1,6 +1,6 @@
 {
   "id": "42a0dfbf-c2b1-4c20-8ae1-656cf0e05688",
-  "prevId": "6178d523-ef9c-4389-a7e0-0a95682d99be",
+  "prevId": "f261069b-61e9-4616-8031-befc1c726803",
   "version": "7",
   "dialect": "postgresql",
   "tables": {
@@ -5619,6 +5619,12 @@
         },
         "read_at": {
           "name": "read_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "archived_at": {
+          "name": "archived_at",
           "type": "timestamp with time zone",
           "primaryKey": false,
           "notNull": false

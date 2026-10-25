@@ -152,7 +152,13 @@
       "quote": "“{quote}”",
       "removed": "På tekst, der er fjernet",
       "unknown": "Nogen"
-    }
+    },
+    "attachImages": "Vedhæft billeder",
+    "removeImage": "Fjern billede",
+    "imageAlt": "Billede {number}",
+    "moreImages": "+{count}",
+    "fewerImages": "Vis færre",
+    "tooManyImages": "En kommentar kan højst have {count} billeder."
   },
   "archived": {
     "banner": "Denne side ligger i papirkurven.",

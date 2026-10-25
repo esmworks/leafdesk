@@ -863,6 +863,11 @@
 .comments-panel .comments-thread .bn-header-text {
   padding-inline-end: var(--thread-tools, 3.5rem);
 }
+/* A comment of only a few emoji shows them large (comment-mentions CommentEditorView). */
+.comment-emoji .bn-inline-content {
+  font-size: 2rem;
+  line-height: 1.25;
+}
 
 /* Find in page: every match is tinted, the current one stronger and outlined. */
 .leafdesk-find-match {

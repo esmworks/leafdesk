@@ -1,11 +1,19 @@
 "use client";
 
-import { AlarmClock, CalendarClock, Check, ChevronDown, ChevronRight, ClipboardCheck, KeyRound, Mail, NotebookPen, ShieldQuestion, UserPlus } from "lucide-react";
+import { AlarmClock, Archive, ArchiveRestore, CalendarClock, Check, ChevronDown, ChevronRight, ClipboardCheck, KeyRound, Mail, NotebookPen, ShieldQuestion, UserPlus } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useLocale, useTranslations } from "next-intl";
 import { useMemo, useState, useEffect } from "react";
 import { approveAccessRequestAction, declineAccessRequestAction } from "@/app/actions/access-requests";
-import { listInboxAction, markReadAction, markUnreadAction, snoozeAction } from "@/app/actions/notifications";
+import {
+  archiveAction,
+  archiveReadAction,
+  listInboxAction,
+  markReadAction,
+  markUnreadAction,
+  snoozeAction,
+  unarchiveAction,
+} from "@/app/actions/notifications";
 import { ApprovalActions } from "@/components/connections/approval-actions";
 import { Value } from "@/components/database/row-activity";
 import { Button, cn, Dialog, IconButton, PageIcon, pageLabel } from "@/components/ui";
@@ -29,7 +37,9 @@ import type { InboxAccessRequest, InboxItem, InboxRowUpdate } from "@/server/not
  * Email tab shows only the messages that came in on rows; opening one opens its row, where it is
  * read and answered. Notifications of one kind about one page that came close together (comments
  * and reactions, or edits) show as one entry, which opens to the single ones (lib/inbox-groups.ts);
- * opening, snoozing or marking the entry read does so to all of them.
+ * opening, snoozing or marking the entry read does so to all of them. Notifications can be archived
+ * (one by one, or every read one at once): they move to the Archived tab, read, and can be moved
+ * back from there.
  */
 export function InboxDialog({
   workspaceId,
@@ -52,7 +62,8 @@ export function InboxDialog({
   const tc = useTranslations("common");
   const [items, setItems] = useState<InboxItem[] | null>(null);
   const [error, setError] = useState(false);
-  const [tab, setTab] = useState<"all" | "email">("all");
+  const [tab, setTab] = useState<"all" | "email" | "archived">("all");
+  const archivedTab = tab === "archived";
   const [emailTab, setEmailTab] = useState(false);
 
   useEffect(() => {
@@ -87,6 +98,26 @@ export function InboxDialog({
     setItems((list) => list?.map((item) => (ids.includes(item.id) ? { ...item, read: false } : item)) ?? list);
     try {
       await markUnreadAction(workspaceId, ids);
+    } catch {
+      setError(true);
+    }
+    onRead();
+  };
+
+  // Archiving (or moving back to the inbox) takes them off the list shown.
+  const archive = async (ids: string[], back = false) => {
+    setItems((list) => list?.filter((item) => !ids.includes(item.id)) ?? list);
+    try {
+      await (back ? unarchiveAction(workspaceId, ids) : archiveAction(workspaceId, ids));
+    } catch {
+      setError(true);
+    }
+    onRead();
+  };
+  const archiveRead = async () => {
+    setItems((list) => list?.filter((item) => !item.read) ?? list);
+    try {
+      await archiveReadAction(workspaceId);
     } catch {
       setError(true);
     }
@@ -137,7 +168,7 @@ export function InboxDialog({
     <li key={item.id} className={cn("relative", nested && "ms-4 border-s border-border ps-1")}>
       <InboxSwipe
         read={item.read}
-        snoozable={canSnooze(item.kind)}
+        snoozable={canSnooze(item.kind) && !archivedTab}
         onRead={() => void (item.read ? markUnread([item.id]) : markRead([item.id]))}
         onSnooze={() => void snooze(item.id, SWIPE_SNOOZE)}
       >
@@ -145,7 +176,7 @@ export function InboxDialog({
           type="button"
           className={cn(
             "flex w-full items-start gap-2.5 rounded-md px-3 py-2 text-start hover:bg-bg-hover",
-            canSnooze(item.kind) && "pe-10",
+            canSnooze(item.kind) && !archivedTab ? "pe-[4.5rem]" : "pe-10",
           )}
           onClick={() => {
             if (!item.read) void markRead([item.id]);
@@ -306,16 +337,25 @@ export function InboxDialog({
           </time>
           {!item.read && <span className="sr-only">{t("unread")}</span>}
         </button>
-        {canSnooze(item.kind) && (
+        <div className="absolute inset-e-2 top-2 flex items-center">
+          {canSnooze(item.kind) && !archivedTab && (
+            <IconButton
+              label={t("snooze")}
+              aria-expanded={snoozing === item.id}
+              className="text-fg-faint"
+              onClick={() => setSnoozing(snoozing === item.id ? null : item.id)}
+            >
+              <AlarmClock className="h-3.5 w-3.5" />
+            </IconButton>
+          )}
           <IconButton
-            label={t("snooze")}
-            aria-expanded={snoozing === item.id}
-            className="absolute inset-e-2 top-2 text-fg-faint"
-            onClick={() => setSnoozing(snoozing === item.id ? null : item.id)}
+            label={archivedTab ? t("unarchive") : t("archive")}
+            className="text-fg-faint"
+            onClick={() => void archive([item.id], archivedTab)}
           >
-            <AlarmClock className="h-3.5 w-3.5" />
+            {archivedTab ? <ArchiveRestore className="h-3.5 w-3.5" /> : <Archive className="h-3.5 w-3.5" />}
           </IconButton>
-        )}
+        </div>
       </InboxSwipe>
       {snoozing === item.id && (
         <div className="flex flex-wrap items-center gap-1 pb-2 ps-[2.125rem] pe-3" role="group" aria-label={t("snooze")}>
@@ -373,14 +413,14 @@ export function InboxDialog({
       <li key={entry.key} className="relative">
         <InboxSwipe
           read={entry.unread === 0}
-          snoozable
+          snoozable={!archivedTab}
           onRead={() => void (entry.unread === 0 ? markUnread(ids) : markRead(unreadIds))}
           onSnooze={() => void snoozeAll(entry.key, ids, SWIPE_SNOOZE)}
         >
           <button
             type="button"
             aria-expanded={open}
-            className={cn("flex w-full items-start gap-2.5 rounded-md px-3 py-2 text-start hover:bg-bg-hover", entry.unread > 0 ? "pe-[6.25rem]" : "pe-[4.5rem]")}
+            className={cn("flex w-full items-start gap-2.5 rounded-md px-3 py-2 text-start hover:bg-bg-hover", archivedTab ? "pe-[4.5rem]" : entry.unread > 0 ? "pe-[8rem]" : "pe-[6.25rem]")}
             onClick={() => {
               if (unreadIds.length) void markRead(unreadIds);
               onClose();
@@ -427,8 +467,13 @@ export function InboxDialog({
                 <Check className="h-3.5 w-3.5" />
               </IconButton>
             )}
-            <IconButton label={t("snooze")} aria-expanded={snoozing === entry.key} className="text-fg-faint" onClick={() => setSnoozing(snoozing === entry.key ? null : entry.key)}>
-              <AlarmClock className="h-3.5 w-3.5" />
+            {!archivedTab && (
+              <IconButton label={t("snooze")} aria-expanded={snoozing === entry.key} className="text-fg-faint" onClick={() => setSnoozing(snoozing === entry.key ? null : entry.key)}>
+                <AlarmClock className="h-3.5 w-3.5" />
+              </IconButton>
+            )}
+            <IconButton label={archivedTab ? t("unarchive") : t("archive")} className="text-fg-faint" onClick={() => void archive(ids, archivedTab)}>
+              {archivedTab ? <ArchiveRestore className="h-3.5 w-3.5" /> : <Archive className="h-3.5 w-3.5" />}
             </IconButton>
             <IconButton label={open ? t("groupCollapse") : t("groupExpand", { count: entry.items.length })} aria-expanded={open} className="text-fg-faint" onClick={() => toggleGroup(entry.key)}>
               {open ? <ChevronDown className="h-3.5 w-3.5" /> : <ChevronRight className="h-3.5 w-3.5 rtl:rotate-180" />}
@@ -454,31 +499,34 @@ export function InboxDialog({
       <div className="flex items-center gap-2 border-b border-border px-4 py-2.5">
         <span className="text-sm font-medium">{t("title")}</span>
         <span className="flex-1">
-          {emailTab && (
-            <span role="tablist" aria-label={t("tabs")} className="ms-2 inline-flex gap-0.5">
-              {(["all", "email"] as const).map((value) => (
-                <button
-                  key={value}
-                  type="button"
-                  role="tab"
-                  aria-selected={tab === value}
-                  className={cn(
-                    "rounded-md px-2 py-0.5 text-sm text-fg-muted hover:bg-bg-hover",
-                    tab === value && "bg-bg-hover text-fg",
-                  )}
-                  onClick={() => {
-                    if (tab === value) return;
-                    setItems(null);
-                    setTab(value);
-                  }}
-                >
-                  {value === "all" ? t("tabAll") : t("tabEmail")}
-                </button>
-              ))}
-            </span>
-          )}
+          <span role="tablist" aria-label={t("tabs")} className="ms-2 inline-flex gap-0.5">
+            {(emailTab ? (["all", "email", "archived"] as const) : (["all", "archived"] as const)).map((value) => (
+              <button
+                key={value}
+                type="button"
+                role="tab"
+                aria-selected={tab === value}
+                className={cn(
+                  "rounded-md px-2 py-0.5 text-sm text-fg-muted hover:bg-bg-hover",
+                  tab === value && "bg-bg-hover text-fg",
+                )}
+                onClick={() => {
+                  if (tab === value) return;
+                  setItems(null);
+                  setTab(value);
+                }}
+              >
+                {value === "all" ? t("tabAll") : value === "email" ? t("tabEmail") : t("tabArchived")}
+              </button>
+            ))}
+          </span>
         </span>
-        {unread.length > 0 && (
+        {tab === "all" && items?.some((item) => item.read) && (
+          <Button size="sm" variant="ghost" onClick={() => void archiveRead()}>
+            {t("archiveRead")}
+          </Button>
+        )}
+        {unread.length > 0 && !archivedTab && (
           <Button size="sm" variant="ghost" onClick={() => void markRead()}>
             {t("markAllRead")}
           </Button>
@@ -491,7 +539,7 @@ export function InboxDialog({
       )}
       <ul className="max-h-[60vh] overflow-y-auto p-1">
         {items?.length === 0 && (
-          <li className="px-3 py-6 text-center text-sm text-fg-muted">{tab === "email" ? t("emptyEmail") : t("empty")}</li>
+          <li className="px-3 py-6 text-center text-sm text-fg-muted">{tab === "email" ? t("emptyEmail") : archivedTab ? t("emptyArchived") : t("empty")}</li>
         )}
         {entries?.map((entry) => (entry.type === "item" ? itemRow(entry.item) : groupRow(entry)))}
       </ul>

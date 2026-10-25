@@ -152,7 +152,13 @@
       "quote": "”{quote}”",
       "removed": "På text som har tagits bort",
       "unknown": "Någon"
-    }
+    },
+    "attachImages": "Bifoga bilder",
+    "removeImage": "Ta bort bild",
+    "imageAlt": "Bild {number}",
+    "moreImages": "+{count}",
+    "fewerImages": "Visa färre",
+    "tooManyImages": "En kommentar kan ha högst {count} bilder."
   },
   "archived": {
     "banner": "Den här sidan ligger i papperskorgen.",

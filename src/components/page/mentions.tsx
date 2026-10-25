@@ -37,12 +37,12 @@ import {
   mentionProps,
   newMentionId,
   blockPath,
-  linkedPageRef,
   pageLinkBlockConfig,
   pageOrBlockPath,
   pagePath,
   type MentionProps,
 } from "@/lib/mentions";
+import { pastedPageLinks } from "@/lib/pasted-links";
 import { linkMentionHref, linkMentionTitle } from "@/lib/link-mentions";
 import { openBlockLink } from "./block-focus";
 import { LinkMentionChip } from "./link-mention";
@@ -773,6 +773,9 @@ export function PageLinkMenu({ editor, workspaceId, pageId, offline }: { editor:
 
 type EditorBlock = PageEditor["document"][number];
 
+/** Blocks that pasted links one per line stay in, one item each. */
+const LIST_BLOCKS = new Set<string>(["bulletListItem", "numberedListItem", "checkListItem"]);
+
 /** Blocks of the document in order, nested ones after their parent. */
 function flatBlocks(blocks: EditorBlock[], out: EditorBlock[] = []): EditorBlock[] {
   for (const block of blocks) {
@@ -835,33 +838,45 @@ function usePastedWikilinks(editor: PageEditor, workspaceId: string, pageId: str
 }
 
 /**
- * A link to a page of this workspace's app pasted on its own (an address copied from the browser,
- * or "Copy link to block") becomes a mention of that page, at the block when the link has one: the
- * live title instead of an address, and a link backlinks count. Pasted over a selection, it links
- * the selected text as usual.
+ * Links to pages of this workspace's app pasted on their own (an address copied from the browser,
+ * "Copy link to block", or a list from "Copy links", see lib/pasted-links) become mentions of those
+ * pages, at the block when a link has one: the live title instead of an address, and links
+ * backlinks count. Links that came one per line become one block each, in a list when pasted in
+ * one (an empty block takes the first). Pasted over a selection, a link links the selected text as
+ * usual.
  */
 function usePastedPageLinks(editor: PageEditor, workspaceId: string, onComment: (pasted: PastedComment) => void) {
   useEffect(() => {
     const onPaste = (event: ClipboardEvent) => {
       const root = editor.domElement;
       if (!root || !(event.target instanceof Node) || !root.contains(event.target) || !editor.isEditable) return;
-      const text = (event.clipboardData?.getData("text/plain") ?? "").trim();
-      if (!text || /\s/.test(text) || !editor.prosemirrorState.selection.empty) return;
+      const text = event.clipboardData?.getData("text/plain") ?? "";
+      if (!text.trim() || !editor.prosemirrorState.selection.empty) return;
       // A link to a comment thread of this workspace: mention, preview or link (comment-refs.tsx).
-      const thread = linkedCommentRef(text, window.location.origin);
+      const single = text.trim();
+      const thread = /\s/.test(single) ? null : linkedCommentRef(single, window.location.origin);
       if (thread && thread.workspaceId === workspaceId) {
         event.preventDefault();
         event.stopImmediatePropagation();
-        onComment({ url: text, pageId: thread.pageId, threadId: thread.threadId });
+        onComment({ url: single, pageId: thread.pageId, threadId: thread.threadId });
         return;
       }
-      const linked = linkedPageRef(text, window.location.origin);
-      if (!linked) return;
+      const pasted = pastedPageLinks(text, window.location.origin);
+      if (!pasted) return;
       event.preventDefault();
       event.stopImmediatePropagation();
-      editor.insertInlineContent([{ type: "mention", props: { kind: "page", pageId: linked.pageId, blockId: linked.blockId } }, " "] as never, {
-        updateSelection: true,
-      });
+      const mention = (ref: { pageId: string; blockId: string }) => ({ type: "mention", props: { kind: "page", ...ref } });
+      if (!pasted.lines) {
+        editor.insertInlineContent(pasted.refs.flatMap((ref) => [mention(ref), " "]) as never, { updateSelection: true });
+        return;
+      }
+      const current = editor.getTextCursorPosition().block;
+      const type = LIST_BLOCKS.has(current.type) ? current.type : "paragraph";
+      const blocks = pasted.refs.map((ref) => ({ type, content: [mention(ref)] }));
+      const empty = Array.isArray(current.content) && current.content.length === 0;
+      const added = empty ? editor.replaceBlocks([current.id], blocks as never).insertedBlocks : editor.insertBlocks(blocks as never, current.id, "after");
+      const last = added.at(-1);
+      if (last) editor.setTextCursorPosition(last.id, "end");
     };
     document.addEventListener("paste", onPaste, true);
     return () => document.removeEventListener("paste", onPaste, true);

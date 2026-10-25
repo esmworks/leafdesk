@@ -1,17 +1,50 @@
 "use server";
 
-import { listInbox, markRead, markUnread, snoozeNotification, unreadCount } from "@/server/notifications";
+import {
+  archiveNotifications,
+  listInbox,
+  markRead,
+  markUnread,
+  snoozeNotification,
+  unarchiveNotifications,
+  unreadCount,
+} from "@/server/notifications";
 import { requireUserId } from "@/server/session";
 import { workspaceSettings } from "@/server/workspaces";
 
 /**
- * The inbox, or only the email that came in on rows (`tab` "email"), and whether the workspace has
- * email on rows turned on (the Email tab shows only then).
+ * The inbox, only the email that came in on rows (`tab` "email") or the archived notifications
+ * (`tab` "archived"), and whether the workspace has email on rows turned on (the Email tab shows
+ * only then).
  */
-export async function listInboxAction(workspaceId: string, tab: "all" | "email" = "all") {
+export async function listInboxAction(workspaceId: string, tab: "all" | "email" | "archived" = "all") {
   const userId = await requireUserId();
-  const [items, settings] = await Promise.all([listInbox(userId, workspaceId, tab === "email" ? ["row_email"] : undefined), workspaceSettings(workspaceId)]);
+  const [items, settings] = await Promise.all([
+    listInbox(userId, workspaceId, tab === "email" ? ["row_email"] : undefined, tab === "archived"),
+    workspaceSettings(workspaceId),
+  ]);
   return { items, email: settings.email };
+}
+
+const ids = (list: unknown) =>
+  Array.isArray(list) ? list.filter((id): id is string => typeof id === "string").slice(0, 500) : [];
+
+/** Archives the given notifications. */
+export async function archiveAction(workspaceId: string, notificationIds: string[]) {
+  const userId = await requireUserId();
+  await archiveNotifications(userId, String(workspaceId), ids(notificationIds));
+}
+
+/** Archives every read notification of the inbox. */
+export async function archiveReadAction(workspaceId: string) {
+  const userId = await requireUserId();
+  return archiveNotifications(userId, String(workspaceId), "read");
+}
+
+/** Moves archived notifications back to the inbox. */
+export async function unarchiveAction(workspaceId: string, notificationIds: string[]) {
+  const userId = await requireUserId();
+  await unarchiveNotifications(userId, String(workspaceId), ids(notificationIds));
 }
 
 export async function unreadCountAction(workspaceId: string) {

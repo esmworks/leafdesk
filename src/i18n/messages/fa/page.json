@@ -152,7 +152,13 @@
       "quote": "«{quote}»",
       "removed": "دربارهٔ متنی که حذف شده است",
       "unknown": "کسی"
-    }
+    },
+    "attachImages": "پیوست تصاویر",
+    "removeImage": "حذف تصویر",
+    "imageAlt": "تصویر {number}",
+    "moreImages": "+{count}",
+    "fewerImages": "نمایش کمتر",
+    "tooManyImages": "هر نظر حداکثر {count} تصویر می‌تواند داشته باشد."
   },
   "archived": {
     "banner": "این صفحه در سطل زباله است.",

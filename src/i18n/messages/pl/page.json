@@ -152,7 +152,13 @@
       "quote": "„{quote}”",
       "removed": "Do tekstu, który usunięto",
       "unknown": "Ktoś"
-    }
+    },
+    "attachImages": "Dołącz obrazy",
+    "removeImage": "Usuń obraz",
+    "imageAlt": "Obraz {number}",
+    "moreImages": "+{count}",
+    "fewerImages": "Pokaż mniej",
+    "tooManyImages": "Komentarz może zawierać najwyżej {count} obrazów."
   },
   "archived": {
     "banner": "Ta strona jest w koszu.",

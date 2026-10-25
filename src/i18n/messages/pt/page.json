@@ -152,7 +152,13 @@
       "quote": "“{quote}”",
       "removed": "Sobre um texto que foi removido",
       "unknown": "Alguém"
-    }
+    },
+    "attachImages": "Anexar imagens",
+    "removeImage": "Remover imagem",
+    "imageAlt": "Imagem {number}",
+    "moreImages": "+{count}",
+    "fewerImages": "Mostrar menos",
+    "tooManyImages": "Um comentário pode ter no máximo {count} imagens."
   },
   "archived": {
     "banner": "Esta página está na lixeira.",

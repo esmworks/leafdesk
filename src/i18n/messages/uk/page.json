@@ -152,7 +152,13 @@
       "quote": "«{quote}»",
       "removed": "До тексту, який було видалено",
       "unknown": "Хтось"
-    }
+    },
+    "attachImages": "Прикріпити зображення",
+    "removeImage": "Вилучити зображення",
+    "imageAlt": "Зображення {number}",
+    "moreImages": "+{count}",
+    "fewerImages": "Показати менше",
+    "tooManyImages": "Коментар може містити щонайбільше {count} зображень."
   },
   "archived": {
     "banner": "Ця сторінка в кошику.",

@@ -439,7 +439,8 @@
   wrote in since you looked, and with its person picker only those someone started or replied in.
   A thread's menu has *Come back later*, a mark only you see that the *Marked* filter lists, and
   *Mute replies*, which keeps its new comments from reaching you until you reply or are mentioned
-  there.
+  there. A comment can carry up to ten images (the image button under the box, or paste or drop
+  them), shown as thumbnails that fold past four; a comment of just a few emoji shows them large.
 - **Suggested edits**: switch the page header from *Editing* to *Suggesting* and changes show as
   suggestions instead: inserted text underlined, deleted text struck through but kept, new
   formatting marked, live for everyone. Each is a thread in the comments panel, in its author's
@@ -469,6 +470,9 @@
   highlighted, in the editor, on published pages and in the print view; pasted into a page it
   becomes a mention of that block, a backlink like any other, and Markdown over MCP and the API
   keeps it as `[Title](/w/<workspace>/p/<page>#block-<id>)`.
+  Several links to pages pasted together (one per line, or on one line) become a mention each:
+  one per line makes a block each, in a list when pasted into one. *Copy links* in a table's
+  selection bar copies the selected rows' links one per line, ready to paste that way.
 - **Synced pages**: a block that shows another page's body inside this one, live. People who may
   edit that page edit it right there, alongside everyone else on either page; people who may only
   view it read it; people who can't open it see "No access", as a mention shows them. Its text
@@ -520,7 +524,9 @@
   selected. Snooze an item for an hour, until tomorrow morning or until next Monday (9:00 your
   time): it leaves the inbox and comes back unread then, along with its email if that hadn't gone
   yet. On a phone, swipe an item toward the end of the line to mark it read (or unread again) and
-  toward its start to snooze it until tomorrow morning. Choose per kind whether it shows in the
+  toward its start to snooze it until tomorrow morning. Archive an item, or every read one at once
+  (*Archive read*), to clear the inbox: archived items are read, listed under *Archived* and can be
+  moved back. Choose per kind whether it shows in the
   inbox, whether it comes by email and, on the devices where you turn them on, as a [push
   notification](self-hosting.md#push-notifications).
 - **Verified pages**: someone with full access marks a page, database or row as checked and right

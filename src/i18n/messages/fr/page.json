@@ -152,7 +152,13 @@
       "quote": "« {quote} »",
       "removed": "Sur un texte qui a été supprimé",
       "unknown": "Quelqu’un"
-    }
+    },
+    "attachImages": "Joindre des images",
+    "removeImage": "Retirer l’image",
+    "imageAlt": "Image {number}",
+    "moreImages": "+{count}",
+    "fewerImages": "Afficher moins",
+    "tooManyImages": "Un commentaire peut contenir au plus {count} images."
   },
   "archived": {
     "banner": "Cette page est dans la corbeille.",

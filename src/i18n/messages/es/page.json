@@ -152,7 +152,13 @@
       "quote": "«{quote}»",
       "removed": "Sobre un texto que se eliminó",
       "unknown": "Alguien"
-    }
+    },
+    "attachImages": "Adjuntar imágenes",
+    "removeImage": "Quitar imagen",
+    "imageAlt": "Imagen {number}",
+    "moreImages": "+{count}",
+    "fewerImages": "Mostrar menos",
+    "tooManyImages": "Un comentario puede tener como máximo {count} imágenes."
   },
   "archived": {
     "banner": "Esta página está en la papelera.",

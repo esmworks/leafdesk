@@ -4,9 +4,10 @@
  * property values are kept apart, on the server only (server/property-comments.ts), since not
  * everyone who opens the row may see every value. Only the server writes them (see
  * server/comments.ts), so who wrote what can be trusted. A comment's body is a small BlockNote
- * document: paragraphs of styled text and links.
+ * document: paragraphs of styled text and links, and the images attached to it.
  */
 
+import { fileIdOf, fileUrl } from "./files";
 import { displayHost, parseWebUrl } from "./web-url";
 
 /** The map in the page's document holding its threads, as BlockNote's thread stores expect. */
@@ -85,7 +86,15 @@ export type PlainThread = {
 type Styles = Partial<Record<(typeof STYLES)[number], true>>;
 type Text = { type: "text"; text: string; styles: Styles };
 type Inline = Text | { type: "link"; href: string; content: Text[] };
-export type CommentBody = { type: "paragraph"; content: Inline[] }[];
+export type CommentParagraph = { type: "paragraph"; content: Inline[] };
+/** Images attached to a comment, their URLs (`/api/files/<id>`) a line each: BlockNote props are strings. */
+export type CommentImages = { type: "images"; props: { urls: string } };
+export type CommentBody = (CommentParagraph | CommentImages)[];
+
+/** Most images one comment holds. */
+export const MAX_COMMENT_IMAGES = 10;
+/** The kinds of image a comment takes (no SVG: it can carry script). */
+export const COMMENT_IMAGE_TYPES = ["image/png", "image/jpeg", "image/gif", "image/webp", "image/avif"];
 
 const STYLES = ["bold", "italic", "underline", "strike", "code"] as const;
 
@@ -137,28 +146,81 @@ function cleanInline(node: unknown): Inline[] {
 
 /**
  * A comment body the way it is stored: paragraphs of text with bold, italic, underline, strike or
- * code, and web or email links. People mentioned become their name as text; other blocks, styles
- * and attributes are left out; plain strings become one paragraph per line. Throws CommentError for empty or overlong comments.
+ * code, and web or email links, then the images attached to it (uploaded files, one block of at
+ * most MAX_COMMENT_IMAGES). People mentioned become their name as text; other blocks, styles
+ * and attributes are left out; plain strings become one paragraph per line. Throws CommentError
+ * for empty or overlong comments; a comment of only images is not empty.
  */
 export function cleanCommentBody(body: unknown): CommentBody {
   const blocks: unknown[] =
     typeof body === "string" ? body.split("\n").map((line) => ({ type: "paragraph", content: line })) : Array.isArray(body) ? body : [];
   if (blocks.length > MAX_PARAGRAPHS) throw new CommentError(`A comment has at most ${MAX_PARAGRAPHS} paragraphs`, "tooLong");
+  const urls: string[] = [];
   const clean: CommentBody = blocks.flatMap((block) => {
+    if (isRecord(block) && block.type === "images") {
+      urls.push(...imageUrlsOf(block));
+      return [];
+    }
     if (!isRecord(block) || (block.type !== undefined && block.type !== "paragraph")) return [];
     const content = typeof block.content === "string" ? [block.content] : Array.isArray(block.content) ? block.content : [];
     return [{ type: "paragraph" as const, content: content.flatMap(cleanInline) }];
   });
+  const images = [...new Set(urls)];
+  if (images.length > MAX_COMMENT_IMAGES) throw new CommentError(`A comment has at most ${MAX_COMMENT_IMAGES} images`, "tooLong");
   const text = commentText(clean);
-  if (!text.trim()) throw new CommentError("A comment needs some text", "invalidBody");
+  if (!text.trim() && !images.length) throw new CommentError("A comment needs some text", "invalidBody");
   if (text.length > MAX_COMMENT_LENGTH) throw new CommentError(`A comment has at most ${MAX_COMMENT_LENGTH} characters`, "tooLong");
-  return clean;
+  // Text the editor leaves before the images (an empty last line) goes.
+  while (images.length && clean.length && !commentText([clean.at(-1)]).trim()) clean.pop();
+  return images.length ? [...clean, { type: "images", props: { urls: images.join("\n") } }] : clean;
 }
 
-/** A comment's text, one line per paragraph (links as their text). */
+/** The uploaded files an images block (CommentImages) shows, as `/api/files/<id>`; anything else is left out. */
+function imageUrlsOf(block: Record<string, unknown>): string[] {
+  const urls = isRecord(block.props) && typeof block.props.urls === "string" ? block.props.urls : "";
+  return urls.split("\n").flatMap((url) => {
+    const id = fileIdOf(url);
+    return id ? [fileUrl(id)] : [];
+  });
+}
+
+/** The images attached to a comment, as `/api/files/<id>`, in order. */
+export function commentImages(body: unknown): string[] {
+  if (!Array.isArray(body)) return [];
+  return body.flatMap((block) => (isRecord(block) && block.type === "images" ? imageUrlsOf(block) : []));
+}
+
+/** The body with only the images `keep` names (by file id); a comment left with no text and no images is refused. */
+export function keepCommentImages(body: CommentBody, keep: ReadonlySet<string>): CommentBody {
+  const kept = body.flatMap((block): CommentBody => {
+    if (block.type !== "images") return [block];
+    const urls = imageUrlsOf(block).filter((url) => keep.has(fileIdOf(url)!));
+    return urls.length ? [{ type: "images", props: { urls: urls.join("\n") } }] : [];
+  });
+  if (!commentText(kept).trim() && !commentImages(kept).length) throw new CommentError("A comment needs some text", "invalidBody");
+  return kept;
+}
+
+/** At most this many emoji make a comment of only emoji, shown large. */
+const MAX_BIG_EMOJI = 3;
+
+/** Whether `text` is one to three emoji and nothing else (spaces aside): such a comment shows large. */
+export function isEmojiOnly(text: string): boolean {
+  const graphemes = [...new Intl.Segmenter(undefined, { granularity: "grapheme" }).segment(text)]
+    .map((part) => part.segment)
+    .filter((part) => !/^\s+$/u.test(part));
+  return (
+    graphemes.length > 0 &&
+    graphemes.length <= MAX_BIG_EMOJI &&
+    graphemes.every((part) => /\p{Extended_Pictographic}|\p{Regional_Indicator}{2}/u.test(part) && !/[\p{L}\p{N}]/u.test(part))
+  );
+}
+
+/** A comment's text, one line per paragraph (links as their text; images left out). */
 export function commentText(body: unknown): string {
   if (!Array.isArray(body)) return "";
   return body
+    .filter((block) => !isRecord(block) || block.type !== "images")
     .map((block) => {
       if (!isRecord(block)) return "";
       const content = typeof block.content === "string" ? [block.content] : Array.isArray(block.content) ? block.content : [];
