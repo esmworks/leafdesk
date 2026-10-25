@@ -74,6 +74,7 @@
       "scim": "provisioning directory sync users",
       "exportPolicy": "download print pdf",
       "connectedAppsPolicy": "mcp rest api tokens access",
+      "onlyApprovedApps": "approve allow list mcp apps integrations",
       "publishing": "publish web share public link",
       "retention": "trash history delete keep days",
       "legalHolds": "litigation preserve ediscovery keep",
@@ -1477,6 +1478,10 @@
       "read": "Read only",
       "off": "No access"
     },
+    "onlyApprovedApps": {
+      "title": "Only approved apps",
+      "description": "Only the AI assistants and other MCP apps an owner approved under “Apps that reach this workspace” can reach it; to the others it is hidden. REST API tokens aren't affected."
+    },
     "workspaceApps": {
       "title": "Apps that reach this workspace",
       "description": "AI assistants and other apps that people here connected over MCP, and their REST API tokens that can reach this workspace, with when each last did. Disconnecting one takes it from that person's account: it reaches none of their workspaces until they connect it again.",
@@ -1488,6 +1493,12 @@
       "reads": "Reads only",
       "readsHere": "Reads only here: connected apps may only read",
       "offHere": "No access here: connected apps are off",
+      "notApprovedHere": "No access here: not approved",
+      "approved": "Approved",
+      "approve": "Approve",
+      "unapprove": "Withdraw approval",
+      "approveError": "Could not change the approval. Try again.",
+      "approvedFull": "This workspace already has 500 approved apps. Withdraw one first.",
       "thisWorkspaceOnly": "This workspace only",
       "connected": "Connected {date}",
       "lastUsed": "Last used here {when}",
@@ -1689,6 +1700,7 @@
       "trashRetentionDays": "Delete pages in the trash after",
       "export": "Allow export",
       "connectedApps": "Connected apps and API tokens",
+      "onlyApprovedApps": "Only approved apps",
       "accessRequests": "Access requests",
       "memberInvites": "Who can add members",
       "allowedDomains": "Allowed email domains",
@@ -1822,7 +1834,9 @@
       },
       "connected_app": {
         "connected": "Connected the app {target}",
-        "revoked": "{hasSubject, select, yes {Disconnected {subject}'s app {target}} other {Disconnected the app {target}}}"
+        "revoked": "{hasSubject, select, yes {Disconnected {subject}'s app {target}} other {Disconnected the app {target}}}",
+        "approved": "Approved the app {target}",
+        "unapproved": "Withdrew the approval of the app {target}"
       },
       "api_token": {
         "created": "Created the API token {target}",

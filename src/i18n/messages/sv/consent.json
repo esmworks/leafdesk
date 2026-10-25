@@ -16,7 +16,8 @@
   "readOnlyHint": "Avmarkera för att bara ge läsåtkomst. Varje ändring sparas först i sidans historik, så du kan ångra den.",
   "access": {
     "all": "Åtkomsten gäller alla arbetsytor du tillhör. Du kan när som helst koppla från appen i Inställningar.",
-    "listed": "Åtkomsten gäller alla arbetsytor du tillhör: {workspaces}. Du kan när som helst koppla från appen i Inställningar."
+    "listed": "Åtkomsten gäller alla arbetsytor du tillhör: {workspaces}. Du kan när som helst koppla från appen i Inställningar.",
+    "awaitingApproval": "{count, plural, one {{workspaces} släpper bara in appar som ägarna har godkänt: den här appen når den inte förrän någon av dem godkänner den.} other {{workspaces} släpper bara in appar som ägarna har godkänt: den här appen når dem inte förrän en ägare godkänner den.}}"
   },
   "deny": "Neka",
   "denying": "Nekar…",

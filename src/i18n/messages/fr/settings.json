@@ -74,6 +74,7 @@
       "scim": "provisionnement annuaire synchronisation utilisateurs",
       "exportPolicy": "télécharger imprimer pdf",
       "connectedAppsPolicy": "mcp rest api jetons accès",
+      "onlyApprovedApps": "approuver liste autorisée mcp apps intégrations",
       "publishing": "publier web partager lien public",
       "retention": "corbeille historique supprimer conserver jours",
       "legalHolds": "litige conserver ediscovery préserver",
@@ -1477,6 +1478,10 @@
       "read": "Lecture seule",
       "off": "Aucun accès"
     },
+    "onlyApprovedApps": {
+      "title": "Seulement les apps approuvées",
+      "description": "Seuls les assistants IA et autres applications MCP qu’un propriétaire a approuvés dans « Applications qui accèdent à cet espace de travail » peuvent y accéder ; pour les autres, il est masqué. Les jetons de l’API REST ne sont pas concernés."
+    },
     "workspaceApps": {
       "title": "Applications qui accèdent à cet espace de travail",
       "description": "Les assistants IA et autres applications que les personnes d’ici ont connectés par MCP, et leurs jetons d’API REST qui atteignent cet espace de travail, avec leur dernière utilisation ici. En déconnecter une la retire du compte de la personne : elle n’atteint plus aucun de ses espaces de travail tant qu’elle ne la reconnecte pas.",
@@ -1488,6 +1493,12 @@
       "reads": "Lit seulement",
       "readsHere": "Lit seulement ici : les applications connectées ne peuvent que lire",
       "offHere": "Aucun accès ici : les applications connectées sont désactivées",
+      "notApprovedHere": "Aucun accès ici : non approuvée",
+      "approved": "Approuvée",
+      "approve": "Approuver",
+      "unapprove": "Retirer l’approbation",
+      "approveError": "Impossible de modifier l’approbation. Réessayez.",
+      "approvedFull": "Cet espace de travail a déjà 500 applications approuvées. Retirez-en une d’abord.",
       "thisWorkspaceOnly": "Cet espace de travail seulement",
       "connected": "Connectée le {date}",
       "lastUsed": "Dernière utilisation ici {when}",
@@ -1689,6 +1700,7 @@
       "trashRetentionDays": "Supprimer les pages de la corbeille après",
       "export": "Autoriser l’exportation",
       "connectedApps": "Applications connectées et jetons d’API",
+      "onlyApprovedApps": "Seulement les apps approuvées",
       "accessRequests": "Demandes d’accès",
       "memberInvites": "Qui peut ajouter des membres",
       "allowedDomains": "Domaines de messagerie autorisés",
@@ -1822,7 +1834,9 @@
       },
       "connected_app": {
         "connected": "A connecté l’application {target}",
-        "revoked": "{hasSubject, select, yes {A déconnecté l’application {target} de {subject}} other {A déconnecté l’application {target}}}"
+        "revoked": "{hasSubject, select, yes {A déconnecté l’application {target} de {subject}} other {A déconnecté l’application {target}}}",
+        "approved": "A approuvé l’application {target}",
+        "unapproved": "A retiré l’approbation de l’application {target}"
       },
       "api_token": {
         "created": "A créé le jeton d’API {target}",

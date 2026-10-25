@@ -4,6 +4,12 @@
 
 ### Added
 
+- **Only approved apps.** Owners can let in only the MCP apps they approved: *Only approved apps*
+  in Settings → Security, with *Approve* and *Withdraw approval* on each app in *Apps that reach
+  this workspace*. To an app not approved the workspace is hidden, as when connected apps are off;
+  the server's own clients and REST API tokens aren't held to it. The consent screen names the
+  workspaces an app won't reach until an owner approves it, and the audit log records approvals
+  (`connected_app.approved`, `connected_app.unapproved`).
 - **"Can edit content" access.** The Share panel, invitations by email, groups and access requests
   have a level between *Can comment* and *Can edit*: people with it write the page's body, title
   and icon, add, fill in, duplicate, merge and trash rows, and fill in forms, but don't change a

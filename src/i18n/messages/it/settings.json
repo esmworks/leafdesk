@@ -74,6 +74,7 @@
       "scim": "provisioning directory sincronizza utenti",
       "exportPolicy": "scarica stampa pdf",
       "connectedAppsPolicy": "mcp rest api token accesso",
+      "onlyApprovedApps": "approva elenco consentiti mcp app integrazioni",
       "publishing": "pubblica web condividi link pubblico",
       "retention": "cestino cronologia elimina conserva giorni",
       "legalHolds": "contenzioso conserva ediscovery preserva",
@@ -1477,6 +1478,10 @@
       "read": "Sola lettura",
       "off": "Nessun accesso"
     },
+    "onlyApprovedApps": {
+      "title": "Solo app approvate",
+      "description": "Solo gli assistenti IA e le altre app MCP che un proprietario ha approvato in «App che raggiungono questo spazio di lavoro» possono raggiungerlo; alle altre resta nascosto. I token dell’API REST non sono interessati."
+    },
     "workspaceApps": {
       "title": "App che raggiungono questo spazio di lavoro",
       "description": "Gli assistenti IA e le altre app che le persone qui hanno connesso tramite MCP, e i loro token API REST che possono raggiungere questo spazio di lavoro, con l’ultima volta in cui sono stati usati. Disconnetterne uno lo toglie dall’account di quella persona: non raggiunge più nessuno dei suoi spazi di lavoro finché non lo connette di nuovo.",
@@ -1488,6 +1493,12 @@
       "reads": "Solo lettura",
       "readsHere": "Qui solo lettura: le app connesse possono solo leggere",
       "offHere": "Qui nessun accesso: le app connesse sono disattivate",
+      "notApprovedHere": "Nessun accesso qui: non approvata",
+      "approved": "Approvata",
+      "approve": "Approva",
+      "unapprove": "Ritira l’approvazione",
+      "approveError": "Impossibile modificare l’approvazione. Riprova.",
+      "approvedFull": "Questo spazio di lavoro ha già 500 app approvate. Ritirane prima una.",
       "thisWorkspaceOnly": "Solo questo spazio di lavoro",
       "connected": "Connessa il {date}",
       "lastUsed": "Ultimo utilizzo qui {when}",
@@ -1689,6 +1700,7 @@
       "trashRetentionDays": "Elimina le pagine nel cestino dopo",
       "export": "Consenti l’esportazione",
       "connectedApps": "App connesse e token API",
+      "onlyApprovedApps": "Solo app approvate",
       "accessRequests": "Richieste di accesso",
       "memberInvites": "Chi può aggiungere membri",
       "allowedDomains": "Domini email consentiti",
@@ -1822,7 +1834,9 @@
       },
       "connected_app": {
         "connected": "Ha connesso l’app {target}",
-        "revoked": "{hasSubject, select, yes {Ha disconnesso l’app {target} di {subject}} other {Ha disconnesso l’app {target}}}"
+        "revoked": "{hasSubject, select, yes {Ha disconnesso l’app {target} di {subject}} other {Ha disconnesso l’app {target}}}",
+        "approved": "Ha approvato l’app {target}",
+        "unapproved": "Ha ritirato l’approvazione dell’app {target}"
       },
       "api_token": {
         "created": "Ha creato il token API {target}",

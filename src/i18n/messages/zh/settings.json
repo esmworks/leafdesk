@@ -74,6 +74,7 @@
       "scim": "预配 目录 同步 用户",
       "exportPolicy": "下载 打印 pdf",
       "connectedAppsPolicy": "mcp rest api 令牌 访问",
+      "onlyApprovedApps": "批准 允许列表 mcp 应用 集成",
       "publishing": "发布 网页 分享 公开链接",
       "retention": "回收站 历史 删除 保留 天数",
       "legalHolds": "诉讼 保全 电子取证 保留",
@@ -1477,6 +1478,10 @@
       "read": "只读",
       "off": "无访问权限"
     },
+    "onlyApprovedApps": {
+      "title": "仅限已批准的应用",
+      "description": "只有所有者在“可访问此工作区的应用”中批准的 AI 助手和其他 MCP 应用才能访问此工作区；对其他应用它是隐藏的。REST API 令牌不受影响。"
+    },
     "workspaceApps": {
       "title": "可访问此工作区的应用",
       "description": "这里的人通过 MCP 连接的 AI 助手和其他应用，以及他们可访问此工作区的 REST API 令牌，并显示各自最近一次使用的时间。断开某个应用会将其从对应用户的账户中移除：在对方重新连接之前，它无法访问其任何工作区。",
@@ -1488,6 +1493,12 @@
       "reads": "只读",
       "readsHere": "在此只读：已连接的应用只能读取",
       "offHere": "在此无访问权限：已连接的应用已关闭",
+      "notApprovedHere": "此处无访问权限：未批准",
+      "approved": "已批准",
+      "approve": "批准",
+      "unapprove": "撤销批准",
+      "approveError": "无法更改批准。请重试。",
+      "approvedFull": "此工作区已有 500 个已批准的应用。请先撤销其中一个。",
       "thisWorkspaceOnly": "仅此工作区",
       "connected": "连接于 {date}",
       "lastUsed": "上次在此使用于 {when}",
@@ -1689,6 +1700,7 @@
       "trashRetentionDays": "回收站中的页面保留期限",
       "export": "允许导出",
       "connectedApps": "已连接的应用和 API 令牌",
+      "onlyApprovedApps": "仅限已批准的应用",
       "accessRequests": "访问申请",
       "memberInvites": "谁可以添加成员",
       "allowedDomains": "允许的邮箱域名",
@@ -1822,7 +1834,9 @@
       },
       "connected_app": {
         "connected": "连接了应用 {target}",
-        "revoked": "{hasSubject, select, yes {断开了 {subject} 的应用 {target}} other {断开了应用 {target}}}"
+        "revoked": "{hasSubject, select, yes {断开了 {subject} 的应用 {target}} other {断开了应用 {target}}}",
+        "approved": "批准了应用 {target}",
+        "unapproved": "撤销了应用 {target} 的批准"
       },
       "api_token": {
         "created": "创建了 API 令牌 {target}",

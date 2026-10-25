@@ -123,6 +123,17 @@ export type WorkspaceSettings = {
    */
   connectedApps: "full" | "read" | "off";
   /**
+   * Only the MCP apps an owner approved (`approvedApps`) reach the workspace; to the others it is
+   * hidden, as with `connectedApps` "off". The server's own clients and REST API tokens aren't held
+   * to it (see server/connected-app.ts).
+   */
+  onlyApprovedApps: boolean;
+  /**
+   * The OAuth clients owners approved (Settings > Security > Apps that reach this workspace). Set
+   * only by approving and withdrawing (server/workspace-apps.ts), never by a settings patch.
+   */
+  approvedApps: string[];
+  /**
    * Whether someone who opens a link to a page they can't see may ask for access from the "You
    * don't have access" screen, and someone who can view or comment on a page for more from its
    * Share menu (see server/access-requests.ts). Guests and people outside the workspace too:
@@ -195,6 +206,8 @@ export const DEFAULT_WORKSPACE_SETTINGS: WorkspaceSettings = {
   trashRetentionDays: 30,
   export: true,
   connectedApps: "full",
+  onlyApprovedApps: false,
+  approvedApps: [],
   accessRequests: true,
   memberInvites: "owners",
   allowedDomains: [],

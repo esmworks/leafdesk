@@ -74,6 +74,7 @@
       "scim": "Bereitstellung Verzeichnis Synchronisierung Benutzer",
       "exportPolicy": "herunterladen drucken PDF",
       "connectedAppsPolicy": "MCP REST API Token Zugriff",
+      "onlyApprovedApps": "freigeben zulassen liste mcp apps integrationen",
       "publishing": "veröffentlichen Web teilen öffentlicher Link",
       "retention": "Papierkorb Verlauf löschen aufbewahren Tage",
       "legalHolds": "Rechtsstreit sichern E-Discovery aufbewahren",
@@ -1477,6 +1478,10 @@
       "read": "Nur lesen",
       "off": "Kein Zugriff"
     },
+    "onlyApprovedApps": {
+      "title": "Nur freigegebene Apps",
+      "description": "Nur KI-Assistenten und andere MCP-Apps, die ein Eigentümer unter „Apps mit Zugriff auf diesen Workspace“ freigegeben hat, erreichen ihn; für alle anderen ist er verborgen. REST-API-Tokens sind nicht betroffen."
+    },
     "workspaceApps": {
       "title": "Apps mit Zugriff auf diesen Workspace",
       "description": "KI-Assistenten und andere Apps, die Personen hier über MCP verbunden haben, und ihre REST-API-Token, die diesen Workspace erreichen, mit dem Zeitpunkt der letzten Nutzung hier. Trennst du eine, verschwindet sie aus dem Konto der Person: Sie erreicht keinen ihrer Workspaces mehr, bis sie sie neu verbindet.",
@@ -1488,6 +1493,12 @@
       "reads": "Liest nur",
       "readsHere": "Liest hier nur: verbundene Apps dürfen nur lesen",
       "offHere": "Hier kein Zugriff: verbundene Apps sind aus",
+      "notApprovedHere": "Kein Zugriff hier: nicht freigegeben",
+      "approved": "Freigegeben",
+      "approve": "Freigeben",
+      "unapprove": "Freigabe zurückziehen",
+      "approveError": "Die Freigabe konnte nicht geändert werden. Versuche es erneut.",
+      "approvedFull": "Dieser Workspace hat bereits 500 freigegebene Apps. Ziehe zuerst eine Freigabe zurück.",
       "thisWorkspaceOnly": "Nur dieser Workspace",
       "connected": "Verbunden am {date}",
       "lastUsed": "Hier zuletzt genutzt {when}",
@@ -1689,6 +1700,7 @@
       "trashRetentionDays": "Seiten im Papierkorb löschen nach",
       "export": "Export erlauben",
       "connectedApps": "Verbundene Apps und API-Token",
+      "onlyApprovedApps": "Nur freigegebene Apps",
       "accessRequests": "Zugriffsanfragen",
       "memberInvites": "Wer Mitglieder hinzufügen kann",
       "allowedDomains": "Zugelassene E-Mail-Domains",
@@ -1822,7 +1834,9 @@
       },
       "connected_app": {
         "connected": "Hat die App {target} verbunden",
-        "revoked": "{hasSubject, select, yes {Hat die Verbindung der App {target} von {subject} getrennt} other {Hat die Verbindung der App {target} getrennt}}"
+        "revoked": "{hasSubject, select, yes {Hat die Verbindung der App {target} von {subject} getrennt} other {Hat die Verbindung der App {target} getrennt}}",
+        "approved": "Hat die App {target} freigegeben",
+        "unapproved": "Hat die Freigabe der App {target} zurückgezogen"
       },
       "api_token": {
         "created": "Hat das API-Token {target} erstellt",

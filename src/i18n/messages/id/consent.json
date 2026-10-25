@@ -16,7 +16,8 @@
   "readOnlyHint": "Hapus centang untuk memberi akses hanya-baca. Setiap perubahan disimpan ke riwayat halaman terlebih dahulu, sehingga Anda bisa membatalkannya.",
   "access": {
     "all": "Akses mencakup setiap ruang kerja yang Anda ikuti. Anda dapat memutuskan aplikasi kapan saja di Pengaturan.",
-    "listed": "Akses mencakup setiap ruang kerja yang Anda ikuti: {workspaces}. Anda dapat memutuskan aplikasi kapan saja di Pengaturan."
+    "listed": "Akses mencakup setiap ruang kerja yang Anda ikuti: {workspaces}. Anda dapat memutuskan aplikasi kapan saja di Pengaturan.",
+    "awaitingApproval": "{count, plural, other {{workspaces} hanya mengizinkan aplikasi yang disetujui pemiliknya: aplikasi ini tidak akan menjangkaunya sampai seorang pemilik menyetujuinya.}}"
   },
   "deny": "Tolak",
   "denying": "Menolak…",

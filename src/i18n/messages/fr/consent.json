@@ -16,7 +16,8 @@
   "readOnlyHint": "Décochez pour n’accorder qu’un accès en lecture seule. Chaque modification est d’abord enregistrée dans l’historique de la page, vous pouvez donc l’annuler.",
   "access": {
     "all": "L’accès couvre tous les espaces de travail dont vous faites partie. Vous pouvez déconnecter l’application à tout moment dans les Paramètres.",
-    "listed": "L’accès couvre tous les espaces de travail dont vous faites partie : {workspaces}. Vous pouvez déconnecter l’application à tout moment dans les Paramètres."
+    "listed": "L’accès couvre tous les espaces de travail dont vous faites partie : {workspaces}. Vous pouvez déconnecter l’application à tout moment dans les Paramètres.",
+    "awaitingApproval": "{count, plural, one {{workspaces} n’accepte que les applications approuvées par ses propriétaires : cette application n’y accédera pas avant que l’un d’eux l’approuve.} other {{workspaces} n’acceptent que les applications approuvées par leurs propriétaires : cette application n’y accédera pas avant qu’un propriétaire l’approuve.}}"
   },
   "deny": "Refuser",
   "denying": "Refus…",

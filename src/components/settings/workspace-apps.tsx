@@ -2,28 +2,42 @@ import { getFormatter, getNow, getTranslations } from "next-intl/server";
 import type { ConnectedAppsMode } from "@/server/connected-app";
 import type { WorkspaceApp } from "@/server/workspace-apps";
 import { AppTile } from "./app-tile";
+import { ApproveWorkspaceAppButton } from "./approve-workspace-app-button";
 import { DisconnectWorkspaceAppButton } from "./disconnect-workspace-app-button";
 
 /**
  * Settings > Security, for owners: the apps the workspace's people connected that can reach it,
  * with when each last did, and a way to disconnect one. What each may do here is told with the
- * workspace's connected-apps setting (`mode`), which narrows what their scopes allow.
+ * workspace's connected-apps setting (`mode`), which narrows what their scopes allow, and with
+ * `onlyApproved`: then an app owners haven't approved doesn't reach the workspace at all. Apps are
+ * approved (or no longer) here.
  */
 export async function WorkspaceApps({
   workspaceId,
   apps,
   total,
   mode,
+  onlyApproved,
 }: {
   workspaceId: string;
   apps: WorkspaceApp[];
   total: number;
   mode: ConnectedAppsMode;
+  onlyApproved: boolean;
 }) {
   const [t, format, now] = await Promise.all([getTranslations("settings.security.workspaceApps"), getFormatter(), getNow()]);
   if (!apps.length) return <p className="px-5 py-8 text-center text-sm text-fg-muted">{t("empty")}</p>;
   const date = (value: Date) => format.dateTime(value, { dateStyle: "medium" });
-  const may = (app: WorkspaceApp) => (mode === "off" ? t("offHere") : !app.writes ? t("reads") : mode === "read" ? t("readsHere") : t("writes"));
+  const may = (app: WorkspaceApp) =>
+    mode === "off"
+      ? t("offHere")
+      : onlyApproved && app.approved === false
+        ? t("notApprovedHere")
+        : !app.writes
+          ? t("reads")
+          : mode === "read"
+            ? t("readsHere")
+            : t("writes");
   return (
     <>
       <ul aria-label={t("list")} className="divide-y divide-border">
@@ -43,6 +57,7 @@ export async function WorkspaceApps({
                   </div>
                   <p className="mt-1 text-xs text-fg-muted">
                     {[
+                      app.approved ? t("approved") : null,
                       may(app),
                       app.kind === "api_token" && !app.allWorkspaces ? t("thisWorkspaceOnly") : null,
                       t("connected", { date: date(app.connectedAt) }),
@@ -53,13 +68,16 @@ export async function WorkspaceApps({
                   </p>
                 </div>
               </div>
-              <DisconnectWorkspaceAppButton
-                workspaceId={workspaceId}
-                target={{ kind: app.kind, userId: app.person.id, id: app.id }}
-                name={app.name}
-                person={person}
-                allWorkspaces={app.allWorkspaces}
-              />
+              <div className="flex shrink-0 items-start gap-2">
+                {app.approved !== null && <ApproveWorkspaceAppButton workspaceId={workspaceId} clientId={app.id} approved={app.approved} />}
+                <DisconnectWorkspaceAppButton
+                  workspaceId={workspaceId}
+                  target={{ kind: app.kind, userId: app.person.id, id: app.id }}
+                  name={app.name}
+                  person={person}
+                  allWorkspaces={app.allWorkspaces}
+                />
+              </div>
             </li>
           );
         })}

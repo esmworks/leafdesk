@@ -74,6 +74,7 @@
       "scim": "aprowizacja katalog synchronizacja użytkownicy",
       "exportPolicy": "pobierz drukuj pdf",
       "connectedAppsPolicy": "mcp rest api tokeny dostęp",
+      "onlyApprovedApps": "zatwierdź lista dozwolonych mcp aplikacje integracje",
       "publishing": "publikuj web udostępnij link publiczny",
       "retention": "kosz historia usuń zachowaj dni",
       "legalHolds": "spór sądowy zachowaj ediscovery",
@@ -1477,6 +1478,10 @@
       "read": "Tylko odczyt",
       "off": "Brak dostępu"
     },
+    "onlyApprovedApps": {
+      "title": "Tylko zatwierdzone aplikacje",
+      "description": "Dostęp mają tylko asystenci AI i inne aplikacje MCP zatwierdzone przez właściciela w sekcji „Aplikacje z dostępem do tego obszaru roboczego”; dla pozostałych jest ukryty. Tokenów REST API to nie dotyczy."
+    },
     "workspaceApps": {
       "title": "Aplikacje z dostępem do tego obszaru roboczego",
       "description": "Asystenci AI i inne aplikacje połączone tutaj przez MCP oraz tokeny REST API z dostępem do tego obszaru roboczego, wraz z czasem ostatniego użycia. Odłączenie aplikacji usuwa ją z konta danej osoby: traci dostęp do wszystkich jej obszarów roboczych, dopóki osoba nie połączy jej ponownie.",
@@ -1488,6 +1493,12 @@
       "reads": "Tylko odczyt",
       "readsHere": "Tutaj tylko odczyt: połączone aplikacje mogą tylko czytać",
       "offHere": "Tutaj brak dostępu: połączone aplikacje są wyłączone",
+      "notApprovedHere": "Brak dostępu tutaj: niezatwierdzona",
+      "approved": "Zatwierdzona",
+      "approve": "Zatwierdź",
+      "unapprove": "Wycofaj zatwierdzenie",
+      "approveError": "Nie udało się zmienić zatwierdzenia. Spróbuj ponownie.",
+      "approvedFull": "Ten obszar roboczy ma już 500 zatwierdzonych aplikacji. Najpierw wycofaj jedną.",
       "thisWorkspaceOnly": "Tylko ten obszar roboczy",
       "connected": "Połączono {date}",
       "lastUsed": "Ostatnio użyto tutaj {when}",
@@ -1689,6 +1700,7 @@
       "trashRetentionDays": "Usuwaj strony z kosza po",
       "export": "Zezwól na eksport",
       "connectedApps": "Połączone aplikacje i tokeny API",
+      "onlyApprovedApps": "Tylko zatwierdzone aplikacje",
       "accessRequests": "Prośby o dostęp",
       "memberInvites": "Kto może dodawać członków",
       "allowedDomains": "Dozwolone domeny e-mail",
@@ -1822,7 +1834,9 @@
       },
       "connected_app": {
         "connected": "Połączono aplikację {target}",
-        "revoked": "{hasSubject, select, yes {Odłączono aplikację {target} użytkownika {subject}} other {Odłączono aplikację {target}}}"
+        "revoked": "{hasSubject, select, yes {Odłączono aplikację {target} użytkownika {subject}} other {Odłączono aplikację {target}}}",
+        "approved": "Zatwierdzono aplikację {target}",
+        "unapproved": "Wycofano zatwierdzenie aplikacji {target}"
       },
       "api_token": {
         "created": "Utworzono token API {target}",

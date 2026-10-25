@@ -102,6 +102,7 @@ export const SETTINGS_SEARCH_ENTRIES: readonly SettingsSearchEntry[] = [
   { id: "guestPolicies", tab: "security", label: "settings:security.guestsHeading", when: online },
   { id: "exportPolicy", tab: "security", label: "settings:security.export.title", keywords: true },
   { id: "connectedAppsPolicy", tab: "security", label: "settings:security.connectedApps.title", keywords: true },
+  { id: "onlyApprovedApps", tab: "security", label: "settings:security.onlyApprovedApps.title", keywords: true },
   { id: "sensitiveContent", tab: "security", label: "settings:sensitiveContent.title", keywords: true, when: owner },
   { id: "sensitiveFindings", tab: "security", label: "settings:sensitiveContent.findingsTitle", keywords: true, when: owner },
   { id: "workspaceApps", tab: "security", label: "settings:security.workspaceApps.title", when: owner },

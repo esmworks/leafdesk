@@ -16,7 +16,8 @@
   "readOnlyHint": "Uncheck to give read-only access. Every edit is saved to page history first, so you can undo it.",
   "access": {
     "all": "Access covers every workspace you belong to. You can disconnect the app at any time in Settings.",
-    "listed": "Access covers every workspace you belong to: {workspaces}. You can disconnect the app at any time in Settings."
+    "listed": "Access covers every workspace you belong to: {workspaces}. You can disconnect the app at any time in Settings.",
+    "awaitingApproval": "{count, plural, one {{workspaces} lets in only the apps its owners approved: this app won't reach it until one of them approves it.} other {{workspaces} let in only the apps their owners approved: this app won't reach them until an owner approves it.}}"
   },
   "deny": "Deny",
   "denying": "Denying…",

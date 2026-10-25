@@ -74,6 +74,7 @@
       "scim": "provisionering katalog synkronisering brugere",
       "exportPolicy": "download udskriv PDF eksport",
       "connectedAppsPolicy": "MCP REST API tokens adgang",
+      "onlyApprovedApps": "godkend tilladelsesliste mcp apps integrationer",
       "publishing": "udgiv web del offentligt link",
       "retention": "papirkurv historik slet behold dage opbevaring",
       "legalHolds": "retssag bevar ediscovery behold juridisk tilbageholdelse",
@@ -1477,6 +1478,10 @@
       "read": "Kun læse",
       "off": "Ingen adgang"
     },
+    "onlyApprovedApps": {
+      "title": "Kun godkendte apps",
+      "description": "Kun de AI-assistenter og andre MCP-apps, som en ejer har godkendt under “Apps, der når dette arbejdsområde”, kan nå det; for andre er det skjult. REST API-tokens påvirkes ikke."
+    },
     "workspaceApps": {
       "title": "Apps, der når dette arbejdsområde",
       "description": "AI-assistenter og andre apps, som personer her har forbundet via MCP, og deres REST API-tokens, der kan nå dette arbejdsområde, med hvornår hver af dem sidst gjorde det. Afbryder du en, fjernes den fra den persons konto: den når ingen af vedkommendes arbejdsområder, før vedkommende forbinder den igen.",
@@ -1488,6 +1493,12 @@
       "reads": "Læser kun",
       "readsHere": "Læser kun her: forbundne apps må kun læse",
       "offHere": "Ingen adgang her: forbundne apps er slået fra",
+      "notApprovedHere": "Ingen adgang her: ikke godkendt",
+      "approved": "Godkendt",
+      "approve": "Godkend",
+      "unapprove": "Træk godkendelse tilbage",
+      "approveError": "Godkendelsen kunne ikke ændres. Prøv igen.",
+      "approvedFull": "Dette arbejdsområde har allerede 500 godkendte apps. Træk en tilbage først.",
       "thisWorkspaceOnly": "Kun dette arbejdsområde",
       "connected": "Forbundet {date}",
       "lastUsed": "Sidst brugt her {when}",
@@ -1689,6 +1700,7 @@
       "trashRetentionDays": "Slet sider i papirkurven efter",
       "export": "Tillad eksport",
       "connectedApps": "Forbundne apps og API-tokens",
+      "onlyApprovedApps": "Kun godkendte apps",
       "accessRequests": "Adgangsanmodninger",
       "memberInvites": "Hvem kan tilføje medlemmer",
       "allowedDomains": "Tilladte e-maildomæner",
@@ -1822,7 +1834,9 @@
       },
       "connected_app": {
         "connected": "Forbandt appen {target}",
-        "revoked": "{hasSubject, select, yes {Afbrød {subject}s app {target}} other {Afbrød appen {target}}}"
+        "revoked": "{hasSubject, select, yes {Afbrød {subject}s app {target}} other {Afbrød appen {target}}}",
+        "approved": "Godkendte appen {target}",
+        "unapproved": "Trak godkendelsen af appen {target} tilbage"
       },
       "api_token": {
         "created": "Oprettede API-tokenet {target}",

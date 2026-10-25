@@ -74,6 +74,7 @@
       "scim": "cấp phát thư mục đồng bộ người dùng",
       "exportPolicy": "tải xuống in pdf xuất",
       "connectedAppsPolicy": "mcp rest api token quyền truy cập",
+      "onlyApprovedApps": "duyệt danh sách cho phép ứng dụng mcp tích hợp",
       "publishing": "xuất bản web chia sẻ liên kết công khai",
       "retention": "thùng rác lịch sử xóa giữ ngày",
       "legalHolds": "kiện tụng bảo toàn ediscovery giữ",
@@ -1477,6 +1478,10 @@
       "read": "Chỉ đọc",
       "off": "Không có quyền truy cập"
     },
+    "onlyApprovedApps": {
+      "title": "Chỉ ứng dụng đã duyệt",
+      "description": "Chỉ trợ lý AI và các ứng dụng MCP khác mà chủ sở hữu đã duyệt trong “Các ứng dụng truy cập không gian làm việc này” mới truy cập được; với các ứng dụng khác, không gian làm việc bị ẩn. Token REST API không bị ảnh hưởng."
+    },
     "workspaceApps": {
       "title": "Các ứng dụng truy cập không gian làm việc này",
       "description": "Các trợ lý AI và ứng dụng khác mà mọi người ở đây đã kết nối qua MCP, cùng token REST API của họ có thể truy cập không gian làm việc này, kèm lần dùng gần nhất của từng mục. Ngắt kết nối một mục sẽ gỡ nó khỏi tài khoản của người đó: nó không truy cập được không gian làm việc nào của họ cho đến khi họ kết nối lại.",
@@ -1488,6 +1493,12 @@
       "reads": "Chỉ đọc",
       "readsHere": "Chỉ đọc tại đây: các ứng dụng đã kết nối chỉ được đọc",
       "offHere": "Không có quyền truy cập tại đây: các ứng dụng đã kết nối đang tắt",
+      "notApprovedHere": "Không có quyền truy cập ở đây: chưa được duyệt",
+      "approved": "Đã duyệt",
+      "approve": "Duyệt",
+      "unapprove": "Rút lại phê duyệt",
+      "approveError": "Không thể thay đổi phê duyệt. Hãy thử lại.",
+      "approvedFull": "Không gian làm việc này đã có 500 ứng dụng được duyệt. Hãy rút lại một ứng dụng trước.",
       "thisWorkspaceOnly": "Chỉ không gian làm việc này",
       "connected": "Kết nối {date}",
       "lastUsed": "Dùng lần cuối tại đây {when}",
@@ -1689,6 +1700,7 @@
       "trashRetentionDays": "Xóa các trang trong thùng rác sau",
       "export": "Cho phép xuất",
       "connectedApps": "Ứng dụng đã kết nối và token API",
+      "onlyApprovedApps": "Chỉ ứng dụng đã duyệt",
       "accessRequests": "Yêu cầu quyền truy cập",
       "memberInvites": "Ai có thể thêm thành viên",
       "allowedDomains": "Tên miền email được phép",
@@ -1822,7 +1834,9 @@
       },
       "connected_app": {
         "connected": "Đã kết nối ứng dụng {target}",
-        "revoked": "{hasSubject, select, yes {Đã ngắt kết nối ứng dụng {target} của {subject}} other {Đã ngắt kết nối ứng dụng {target}}}"
+        "revoked": "{hasSubject, select, yes {Đã ngắt kết nối ứng dụng {target} của {subject}} other {Đã ngắt kết nối ứng dụng {target}}}",
+        "approved": "Đã duyệt ứng dụng {target}",
+        "unapproved": "Đã rút lại phê duyệt ứng dụng {target}"
       },
       "api_token": {
         "created": "Đã tạo token API {target}",

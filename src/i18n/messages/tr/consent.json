@@ -16,7 +16,8 @@
   "readOnlyHint": "Salt okunur erişim vermek için işareti kaldırın. Her düzenleme önce sayfa geçmişine kaydedilir, böylece geri alabilirsiniz.",
   "access": {
     "all": "Erişim, üyesi olduğunuz tüm çalışma alanlarını kapsar. Uygulamanın bağlantısını istediğiniz zaman Ayarlar'dan kesebilirsiniz.",
-    "listed": "Erişim, üyesi olduğunuz tüm çalışma alanlarını kapsar: {workspaces}. Uygulamanın bağlantısını istediğiniz zaman Ayarlar'dan kesebilirsiniz."
+    "listed": "Erişim, üyesi olduğunuz tüm çalışma alanlarını kapsar: {workspaces}. Uygulamanın bağlantısını istediğiniz zaman Ayarlar'dan kesebilirsiniz.",
+    "awaitingApproval": "{count, plural, one {{workspaces} yalnızca sahiplerinin onayladığı uygulamalara açık: bu uygulama, sahiplerinden biri onaylayana kadar oraya erişemez.} other {{workspaces} yalnızca sahiplerinin onayladığı uygulamalara açık: bu uygulama, bir sahip onaylayana kadar onlara erişemez.}}"
   },
   "deny": "Reddet",
   "denying": "Reddediliyor…",
