@@ -232,10 +232,14 @@ try {
     ["an unknown op", { filters: [{ propertyId: stage.id, op: "matches" as never, value: "x" }] }],
     ["an unknown combinator", { filters: [], filterCombinator: "xor" as never }],
     [
-      "groups nested three levels deep",
+      "groups nested four levels deep",
       {
         filters: [
-          { type: "group", combinator: "or", rules: [{ type: "group", combinator: "or", rules: [{ type: "group", combinator: "or", rules: [] }] }] },
+          {
+            type: "group",
+            combinator: "or",
+            rules: [{ type: "group", combinator: "or", rules: [{ type: "group", combinator: "or", rules: [{ type: "group", combinator: "or", rules: [] }] }] }],
+          },
         ],
       },
     ],
