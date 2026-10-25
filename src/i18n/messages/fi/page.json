@@ -462,6 +462,7 @@
     "linked": "Linkitetty näkymä",
     "layout": "Asettelu",
     "viewOnly": "Vain henkilöt, jotka voivat muokata tätä sivua, voivat muuttaa tätä näkymää.",
+    "showTitle": "Näytä otsikko",
     "picker": {
       "title": "Valitse tietokanta",
       "search": "Hae tietokantoja",

@@ -39,7 +39,8 @@ export const isEmbedBlockType = (type: unknown): type is EmbedBlockType =>
 // ---------------------------------------------------------------------------------------------
 // Linked view settings
 
-export type LinkedView = { type: ViewType; config: ViewConfig };
+/** `hideTitle`: the block shows the view without the database's name above it. */
+export type LinkedView = { type: ViewType; config: ViewConfig; hideTitle?: true };
 
 export const DEFAULT_LINKED_VIEW: LinkedView = { type: "table", config: {} };
 
@@ -70,16 +71,18 @@ export function parseLinkedView(value: unknown): LinkedView {
 /** A linked view already parsed from JSON (a dashboard widget's), checked like parseLinkedView's. */
 export function checkLinkedView(parsed: unknown): LinkedView {
   if (!parsed || typeof parsed !== "object") return DEFAULT_LINKED_VIEW;
-  const { type, config } = parsed as { type?: unknown; config?: unknown };
+  const { type, config, hideTitle } = parsed as { type?: unknown; config?: unknown; hideTitle?: unknown };
   if (!isViewType(type) || !(LINKED_VIEW_TYPES as readonly ViewType[]).includes(type)) return DEFAULT_LINKED_VIEW;
-  if (!config || typeof config !== "object" || Array.isArray(config)) return { type, config: {} };
+  const shown = hideTitle === true ? { hideTitle: true as const } : {};
+  if (!config || typeof config !== "object" || Array.isArray(config)) return { type, config: {}, ...shown };
   // Only dashboard views hold widgets.
   const { widgets: _, ...c } = config as ViewConfig;
-  if (filterConfigError(c) || layoutConfigError(c)) return { type, config: {} };
-  return { type, config: c };
+  if (filterConfigError(c) || layoutConfigError(c)) return { type, config: {}, ...shown };
+  return { type, config: c, ...shown };
 }
 
-export const serializeLinkedView = (view: LinkedView) => JSON.stringify({ type: view.type, config: view.config });
+export const serializeLinkedView = (view: LinkedView) =>
+  JSON.stringify({ type: view.type, config: view.config, ...(view.hideTitle ? { hideTitle: true } : {}) });
 
 // ---------------------------------------------------------------------------------------------
 // Markdown

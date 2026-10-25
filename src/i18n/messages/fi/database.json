@@ -131,6 +131,9 @@
     "viewName": "Näkymän nimi",
     "deleteView": "Poista näkymä",
     "icon": "Kuvake",
+    "duplicate": "Monista näkymä",
+    "duplicateHint": "Kopio tästä näkymästä asetteluineen, suodattimineen ja lajitteluineen",
+    "copyName": "{name} (kopio)",
     "exportView": "Vie tämä näkymä",
     "export": {
       "csv": "CSV",

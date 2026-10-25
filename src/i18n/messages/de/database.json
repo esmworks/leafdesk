@@ -131,6 +131,9 @@
     "viewName": "Name der Ansicht",
     "deleteView": "Ansicht löschen",
     "icon": "Symbol",
+    "duplicate": "Ansicht duplizieren",
+    "duplicateHint": "Eine Kopie dieser Ansicht mit Layout, Filtern und Sortierung",
+    "copyName": "{name} (Kopie)",
     "exportView": "Diese Ansicht exportieren",
     "export": {
       "csv": "CSV",

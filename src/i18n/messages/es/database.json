@@ -131,6 +131,9 @@
     "viewName": "Nombre de la vista",
     "deleteView": "Eliminar vista",
     "icon": "Icono",
+    "duplicate": "Duplicar vista",
+    "duplicateHint": "Una copia de esta vista con su diseño, filtros y ordenación",
+    "copyName": "{name} (copia)",
     "exportView": "Exportar esta vista",
     "export": {
       "csv": "CSV",

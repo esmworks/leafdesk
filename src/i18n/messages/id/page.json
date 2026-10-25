@@ -462,6 +462,7 @@
     "linked": "Tampilan tertaut",
     "layout": "Tata letak",
     "viewOnly": "Hanya orang yang dapat mengedit halaman ini yang dapat mengubah tampilan ini.",
+    "showTitle": "Tampilkan judul",
     "picker": {
       "title": "Pilih basis data",
       "search": "Cari basis data",

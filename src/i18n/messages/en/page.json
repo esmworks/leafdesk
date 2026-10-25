@@ -462,6 +462,7 @@
     "linked": "Linked view",
     "layout": "Layout",
     "viewOnly": "Only people who can edit this page can change this view.",
+    "showTitle": "Show title",
     "picker": {
       "title": "Choose a database",
       "search": "Search databases",

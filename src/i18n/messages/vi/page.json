@@ -462,6 +462,7 @@
     "linked": "Chế độ xem liên kết",
     "layout": "Bố cục",
     "viewOnly": "Chỉ những người có thể chỉnh sửa trang này mới thay đổi được chế độ xem này.",
+    "showTitle": "Hiện tiêu đề",
     "picker": {
       "title": "Chọn một cơ sở dữ liệu",
       "search": "Tìm cơ sở dữ liệu",

@@ -131,6 +131,9 @@
     "viewName": "اسم طريقة العرض",
     "deleteView": "حذف طريقة العرض",
     "icon": "الأيقونة",
+    "duplicate": "تكرار العرض",
+    "duplicateHint": "نسخة من هذا العرض بتخطيطه ومرشحاته وطرق فرزه",
+    "copyName": "{name} (نسخة)",
     "exportView": "تصدير هذا العرض",
     "export": {
       "csv": "CSV",

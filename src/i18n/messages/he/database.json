@@ -131,6 +131,9 @@
     "viewName": "שם התצוגה",
     "deleteView": "מחיקת התצוגה",
     "icon": "סמל",
+    "duplicate": "שכפול תצוגה",
+    "duplicateHint": "עותק של התצוגה הזו עם הפריסה, המסננים והמיונים שלה",
+    "copyName": "{name} (עותק)",
     "exportView": "ייצוא התצוגה הזו",
     "export": {
       "csv": "CSV",

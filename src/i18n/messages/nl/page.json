@@ -462,6 +462,7 @@
     "linked": "Gekoppelde weergave",
     "layout": "Indeling",
     "viewOnly": "Alleen mensen die deze pagina kunnen bewerken, kunnen deze weergave wijzigen.",
+    "showTitle": "Titel tonen",
     "picker": {
       "title": "Kies een database",
       "search": "Databases zoeken",

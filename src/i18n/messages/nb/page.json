@@ -462,6 +462,7 @@
     "linked": "Koblet visning",
     "layout": "Oppsett",
     "viewOnly": "Bare personer som kan redigere denne siden, kan endre denne visningen.",
+    "showTitle": "Vis tittel",
     "picker": {
       "title": "Velg en database",
       "search": "Søk i databaser",

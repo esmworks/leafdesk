@@ -131,6 +131,9 @@
     "viewName": "Nama tampilan",
     "deleteView": "Hapus tampilan",
     "icon": "Ikon",
+    "duplicate": "Duplikat tampilan",
+    "duplicateHint": "Salinan tampilan ini dengan tata letak, filter, dan urutannya",
+    "copyName": "{name} (salinan)",
     "exportView": "Ekspor tampilan ini",
     "export": {
       "csv": "CSV",

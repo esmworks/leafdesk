@@ -462,6 +462,7 @@
     "linked": "Połączony widok",
     "layout": "Układ",
     "viewOnly": "Ten widok mogą zmieniać tylko osoby, które mogą edytować tę stronę.",
+    "showTitle": "Pokaż tytuł",
     "picker": {
       "title": "Wybierz bazę danych",
       "search": "Szukaj baz danych",

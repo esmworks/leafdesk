@@ -131,6 +131,9 @@
     "viewName": "Görünüm adı",
     "deleteView": "Görünümü sil",
     "icon": "Simge",
+    "duplicate": "Görünümü çoğalt",
+    "duplicateHint": "Bu görünümün düzeni, filtreleri ve sıralamalarıyla bir kopyası",
+    "copyName": "{name} (kopya)",
     "exportView": "Bu görünümü dışa aktar",
     "export": {
       "csv": "CSV",

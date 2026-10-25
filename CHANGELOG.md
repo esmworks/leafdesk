@@ -71,6 +71,10 @@
 - **Jira reporters.** Jira syncs fill a *Reporter* person property from the issue's reporter,
   matched by email like the assignee; the sync dialog picks which person property it goes to, or
   none.
+- **Duplicate a view, and hide a linked view's title.** *Duplicate view* in a view's tab menu
+  makes a copy of the view with its layout, filters, sorts and shown properties, named "… (copy)",
+  right after it, and opens it. A linked view on a page can leave out the database's name above it
+  (*Show title* in its layout menu), on published and printed pages and in PDFs too.
 - **Undo a move or a trip to the trash.** Moving a page with *Move to* shows a note at the bottom of
   the window with a link to where it went and *Undo*, which puts it back in its old place among its
   siblings. Moving a page to the trash (from the sidebar or the page) and moving database rows to

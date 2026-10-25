@@ -131,6 +131,9 @@
     "viewName": "Nome da visualização",
     "deleteView": "Excluir visualização",
     "icon": "Ícone",
+    "duplicate": "Duplicar visualização",
+    "duplicateHint": "Uma cópia desta visualização com layout, filtros e ordenações",
+    "copyName": "{name} (cópia)",
     "exportView": "Exportar esta visualização",
     "export": {
       "csv": "CSV",

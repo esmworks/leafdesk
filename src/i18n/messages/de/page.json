@@ -462,6 +462,7 @@
     "linked": "Verknüpfte Ansicht",
     "layout": "Layout",
     "viewOnly": "Nur Personen, die diese Seite bearbeiten können, können diese Ansicht ändern.",
+    "showTitle": "Titel anzeigen",
     "picker": {
       "title": "Datenbank auswählen",
       "search": "Datenbanken suchen",

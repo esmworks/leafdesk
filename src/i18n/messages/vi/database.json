@@ -131,6 +131,9 @@
     "viewName": "Tên chế độ xem",
     "deleteView": "Xóa chế độ xem",
     "icon": "Biểu tượng",
+    "duplicate": "Nhân bản chế độ xem",
+    "duplicateHint": "Bản sao của chế độ xem này cùng bố cục, bộ lọc và cách sắp xếp",
+    "copyName": "{name} (bản sao)",
     "exportView": "Xuất chế độ xem này",
     "export": {
       "csv": "CSV",

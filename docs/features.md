@@ -221,6 +221,10 @@
     can leave out the lines between its columns (*Show vertical lines*; published tables too).
   - Clicking a value on a board or gallery card edits it in place with the table's editor, without
     opening the row; people who can't change it see the plain value.
+  - *Duplicate view* in a view's tab menu makes a copy with its layout, filters, sorts and other
+    settings, named "… (copy)", right after it. A linked view on a page can leave out the
+    database's name above it (Layout → *Show title*); published and printed pages and PDFs leave it
+    out too.
   - Table columns are resized by dragging their edge; double-clicking the edge fits the column to
     its header and the rows shown. The width is kept with the view.
   - Names, options and linked rows cut short with an ellipsis show in full as a tooltip on hover;

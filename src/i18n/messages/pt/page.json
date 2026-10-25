@@ -462,6 +462,7 @@
     "linked": "Visualização vinculada",
     "layout": "Layout",
     "viewOnly": "Só quem pode editar esta página pode alterar esta visualização.",
+    "showTitle": "Mostrar título",
     "picker": {
       "title": "Escolha um banco de dados",
       "search": "Pesquisar bancos de dados",

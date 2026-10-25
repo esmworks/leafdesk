@@ -131,6 +131,9 @@
     "viewName": "Nazwa widoku",
     "deleteView": "Usuń widok",
     "icon": "Ikona",
+    "duplicate": "Duplikuj widok",
+    "duplicateHint": "Kopia tego widoku z układem, filtrami i sortowaniem",
+    "copyName": "{name} (kopia)",
     "exportView": "Eksportuj ten widok",
     "export": {
       "csv": "CSV",

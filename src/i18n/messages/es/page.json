@@ -462,6 +462,7 @@
     "linked": "Vista vinculada",
     "layout": "Diseño",
     "viewOnly": "Solo las personas que pueden editar esta página pueden cambiar esta vista.",
+    "showTitle": "Mostrar título",
     "picker": {
       "title": "Elige una base de datos",
       "search": "Buscar bases de datos",
