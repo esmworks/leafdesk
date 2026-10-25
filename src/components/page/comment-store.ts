@@ -28,7 +28,7 @@ class ReadOnlyThreadStoreAuth extends ThreadStoreAuth {
 }
 
 /** What the viewer may do with comments: full access is BlockNote's "editor", edit access its "comment". */
-function authFor(userId: string, level: "view" | "comment" | "edit" | "full"): ThreadStoreAuth {
+function authFor(userId: string, level: "view" | "comment" | "content" | "edit" | "full"): ThreadStoreAuth {
   if (level === "view") return new ReadOnlyThreadStoreAuth();
   return new DefaultThreadStoreAuth(userId, level === "full" ? "editor" : "comment");
 }
@@ -40,7 +40,7 @@ function authFor(userId: string, level: "view" | "comment" | "edit" | "full"): T
 export class CommentAuth extends ThreadStoreAuth {
   private current: ThreadStoreAuth = new ReadOnlyThreadStoreAuth();
 
-  set(userId: string, level: "view" | "comment" | "edit" | "full") {
+  set(userId: string, level: "view" | "comment" | "content" | "edit" | "full") {
     this.current = authFor(userId, level);
   }
 

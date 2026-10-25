@@ -4,6 +4,14 @@
 
 ### Added
 
+- **"Can edit content" access.** The Share panel, invitations by email, groups and access requests
+  have a level between *Can comment* and *Can edit*: people with it write the page's body, title
+  and icon, add, fill in, duplicate, merge and trash rows, and fill in forms, but don't change a
+  database's properties, views, forms, automations or row templates, and don't lock, move or share
+  the page; to them a database shows as locked, and the filters and sorts they set stay their own.
+  Migration 0141 widens the level checks of `page_permission`, `page_invitation` and
+  `page_group_permission` and redefines `page_access_level`, whose ranks move up by one above
+  *Can comment*.
 - **Embed any website.** The Embed block shows any https site as it is, not only the named
   providers: Hex apps, Deepnote blocks, Pitch presentations and the like, in the same sandboxed
   frame, without a referrer. Sites that refuse to be framed show an empty frame with their link,

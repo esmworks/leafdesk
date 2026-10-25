@@ -88,7 +88,7 @@ import { PresenceAvatars } from "./presence-avatars";
 import { SharePanel } from "./share-panel";
 import { searchFold } from "@/lib/search-fold";
 
-const RANK = { none: 0, view: 1, comment: 2, edit: 3, full: 4 } as const;
+const RANK = { none: 0, view: 1, comment: 2, content: 3, edit: 4, full: 5 } as const;
 /** Client-side mirror of the server's level check, for hiding what the server would refuse. */
 export const hasLevel = (level: PageHeaderInfo["level"], needed: Exclude<PageHeaderInfo["level"], "none">) => RANK[level] >= RANK[needed];
 
@@ -550,6 +550,8 @@ function PageMenu({
   const [pending, startTransition] = useTransition();
   const zipExport = useZipExport();
   const canEdit = hasLevel(info.level, "edit");
+  // "Can edit content": the body, title and icon, rows and their values, but not how the page is set up.
+  const canEditContent = hasLevel(info.level, "content");
   const canManage = hasLevel(info.level, "full");
   const isDatabase = page.kind === "database";
   // A template (or a row template) itself: deleted rather than trashed, and it stays where it is listed.
@@ -760,7 +762,7 @@ function PageMenu({
               </MenuItem>
             )}
             {/* The copy lands beside the original; at the top level that isn't open to every guest. */}
-            {!page.archived && canEdit && (page.parentId !== null || info.topLevel) && (
+            {!page.archived && canEditContent && (page.parentId !== null || info.topLevel) && (
               <MenuItem icon={<Copy className="h-4 w-4" />} onClick={() => duplicate(close)}>
                 {t("duplicate")}
               </MenuItem>
@@ -772,7 +774,7 @@ function PageMenu({
               </MenuItem>
             )}
             {/* Duplicates of this row into one; the rows merged go to the trash, which guests don't have. */}
-            {page.isRow && !page.archived && canEdit && !info.template && !info.guest && (
+            {page.isRow && !page.archived && canEditContent && !info.template && !info.guest && (
               <MenuItem
                 icon={<Merge className="h-4 w-4" />}
                 onClick={() => {
@@ -834,7 +836,7 @@ function PageMenu({
                 {info.verified ? tVerify("menuVerified") : tVerify("menu")}
               </MenuItem>
             )}
-            {!page.archived && canEdit && !templateRoot && (
+            {!page.archived && (page.isRow ? canEditContent : canEdit) && !templateRoot && (
               <MenuItem
                 icon={<Trash2 className="h-4 w-4" />}
                 onClick={() => {
@@ -1051,8 +1053,8 @@ function PageMenu({
                 </a>
               </>
             )}
-            {/* Writing the body needs edit access, and the page unlocked; databases have no body. */}
-            {onMarkdown && page.hasBody && !isDatabase && !page.archived && canEdit && !info.locked && (
+            {/* Writing the body needs content access, and the page unlocked; databases have no body. */}
+            {onMarkdown && page.hasBody && !isDatabase && !page.archived && canEditContent && !info.locked && (
               <MenuItem
                 icon={<FileCode className="h-4 w-4" />}
                 onClick={() => {

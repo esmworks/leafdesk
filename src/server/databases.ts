@@ -961,7 +961,7 @@ export async function dropCopiedSubItems(rowId: string, databaseId: string, prop
 }
 
 export async function updateRowProperties(userId: string, rowId: string, patch: Record<string, unknown>) {
-  const row = await requirePageAccess(userId, rowId, "edit");
+  const row = await requirePageAccess(userId, rowId, "content");
   if (!row.parentId) throw withCode(new Error("Page is not a database row"), "notADatabaseRow");
   assertNotInTrash(row);
   await requireDatabase(userId, row.parentId, "view");
@@ -1075,7 +1075,7 @@ export async function updateRowsProperties(
   const ids = bulkRowIds(rowIds);
   await requireDatabase(userId, databaseId, "view");
   const normalized = await normalizeRowProperties(userId, databaseId, patch, {}, { check: false, dependencies: false });
-  const found = await rowsWithAccess(userId, databaseId, ids, "edit");
+  const found = await rowsWithAccess(userId, databaseId, ids, "content");
   // Rows where property access keeps the user from these values are skipped like rows they can't edit.
   const access = await propertyAccessFor(userId, databaseId);
   const rows = found.rows.filter((row) => {
@@ -1252,7 +1252,7 @@ async function shiftWaitingRows(
   });
   if (!plan.length) return;
 
-  const found = await rowsWithAccess(actorId, databaseId, plan.map((s) => s.id), "edit");
+  const found = await rowsWithAccess(actorId, databaseId, plan.map((s) => s.id), "content");
   const access = await propertyAccessFor(actorId, databaseId);
   const shifts: { rowId: string; before: Record<string, unknown>; after: Record<string, unknown> }[] = [];
   for (const row of found.rows) {
@@ -1291,7 +1291,7 @@ export type NewRow = { title: string; properties?: Record<string, unknown> };
  * bad value leaves the database unchanged and a retried import doesn't leave duplicates behind.
  */
 export async function createRows(userId: string, databaseId: string, rows: NewRow[]) {
-  const database = await requireDatabase(userId, databaseId, "edit");
+  const database = await requireDatabase(userId, databaseId, "content");
   if (database.archivedAt) throw withCode(new AccessError("Parent page is in the trash"), "parentInTrash");
   if (!rows.length) return [];
 
@@ -3304,7 +3304,7 @@ export async function moveRow(
     groupFrom,
   }: { position?: number; groupBy?: string; groupValue?: string | null; groupFrom?: string | null },
 ) {
-  const row = await requirePageAccess(userId, rowId, "edit");
+  const row = await requirePageAccess(userId, rowId, "content");
   if (!row.parentId) throw withCode(new Error("Page is not a database row"), "notADatabaseRow");
   await requireDatabase(userId, row.parentId, "view");
   const properties = { ...row.properties };
@@ -3350,7 +3350,7 @@ export async function moveRow(
  * neighbour's position.
  */
 export async function moveRowBeside(userId: string, rowId: string, targetId: string, side: "before" | "after") {
-  const row = await requirePageAccess(userId, rowId, "edit");
+  const row = await requirePageAccess(userId, rowId, "content");
   if (!row.parentId) throw withCode(new Error("Page is not a database row"), "notADatabaseRow");
   const databaseId = row.parentId;
   await requireDatabase(userId, databaseId, "view");
@@ -3368,7 +3368,7 @@ export async function moveRowBeside(userId: string, rowId: string, targetId: str
   const before = order[index - 1];
   const after = order[index];
   if (before && after && !(before.position < after.position)) {
-    const canRenumber = await requireDatabase(userId, databaseId, "edit").then(
+    const canRenumber = await requireDatabase(userId, databaseId, "content").then(
       () => true,
       () => false,
     );
@@ -3817,7 +3817,10 @@ export async function listWorkspaceDatabases(userId: string, workspaceId: string
 export async function getRow(userId: string, rowId: string) {
   const row = await requirePageAccess(userId, rowId, "view");
   if (!row.parentId) throw withCode(new Error("Page is not a database row"), "notADatabaseRow");
-  const database = await requireDatabase(userId, row.parentId, "view");
+  const [database, { level: databaseLevel }] = await Promise.all([
+    requireDatabase(userId, row.parentId, "view"),
+    pageAccessOf(userId, row.parentId),
+  ]);
   const [all, access] = await Promise.all([getProperties(row.parentId), propertyAccessFor(userId, row.parentId)]);
   const properties = access.visible(all);
   const [relations, people] = await Promise.all([getRelationTargets(userId, properties), getPeople(userId, properties)]);
@@ -3826,6 +3829,8 @@ export async function getRow(userId: string, rowId: string) {
     databaseId: row.parentId,
     databaseTitle: database.title,
     databaseLocked: Boolean(database.lockedAt),
+    /** The viewer may add properties to the database ("Can edit content" changes values only). */
+    schemaEditable: hasLevel(databaseLevel, "edit"),
     /** Row pages show the properties beside the body where there is room (lib/row-layout). */
     propertiesBeside: database.propertiesBeside,
     row: {

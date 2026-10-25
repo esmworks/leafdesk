@@ -1,7 +1,7 @@
 import type { TeamspaceAccess, TeamspaceMemberLevel } from "@/db/schema/app";
 import type { PageLevel } from "@/db/schema/permissions";
 
-const ORDER: readonly PageLevel[] = ["none", "view", "comment", "edit", "full"];
+const ORDER: readonly PageLevel[] = ["none", "view", "comment", "content", "edit", "full"];
 
 /**
  * A teamspace's access, who is in it by row or group (a default one has everyone in it anyway),

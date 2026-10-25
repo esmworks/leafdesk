@@ -419,9 +419,11 @@
       "full": "Akses penuh",
       "edit": "Dapat mengedit",
       "comment": "Dapat berkomentar",
+      "content": "Dapat mengedit konten",
       "view": "Dapat melihat",
       "none": "Tanpa akses"
     },
+    "contentHint": "Mengedit teks dan baris database, bukan properti, tampilan, atau pengaturan",
     "errors": {
       "notMember": "Orang ini bukan anggota ruang kerja.",
       "lastFullAccess": "Seseorang harus tetap memiliki akses penuh ke halaman. Beri orang lain akses penuh terlebih dahulu.",

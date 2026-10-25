@@ -419,9 +419,11 @@
       "full": "Pełny dostęp",
       "edit": "Może edytować",
       "comment": "Może komentować",
+      "content": "Może edytować treść",
       "view": "Może wyświetlać",
       "none": "Brak dostępu"
     },
+    "contentHint": "Edycja tekstu i wierszy baz danych, bez właściwości, widoków i ustawień",
     "errors": {
       "notMember": "Ta osoba nie jest członkiem obszaru roboczego.",
       "lastFullAccess": "Ktoś musi zachować pełny dostęp do strony. Najpierw nadaj pełny dostęp komuś innemu.",

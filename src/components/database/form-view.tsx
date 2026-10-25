@@ -57,6 +57,7 @@ export function FormView({
   databaseTitle,
   api,
   editable,
+  buildable = editable,
   archived,
   preview,
 }: {
@@ -66,6 +67,8 @@ export function FormView({
   api: DatabaseApi;
   /** Edit access and the database isn't in the trash: build the form and fill it in. */
   editable: boolean;
+  /** May change the form too, not only fill it in (as `editable` unless given). */
+  buildable?: boolean;
   archived: boolean;
   /** Editors: show the form as people fill it in. */
   preview: boolean;
@@ -76,7 +79,7 @@ export function FormView({
   const access = usePropertyAccess();
   // The form shows people what they sent through it: loaded when it is filled in, and again after
   // each answer.
-  const showOwn = form.showOwnAnswers === true && !(editable && !preview);
+  const showOwn = form.showOwnAnswers === true && !(buildable && !preview);
   const [own, setOwn] = useState<OwnSubmission[] | null>(null);
   const loadOwn = async () => {
     const result = await ownSubmissionsAction(view.id).catch(() => null);
@@ -88,7 +91,7 @@ export function FormView({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [view.id, showOwn]);
 
-  if (editable && !preview) {
+  if (buildable && !preview) {
     return (
       <FormBuilder
         form={form}

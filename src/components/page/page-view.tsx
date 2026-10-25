@@ -139,7 +139,10 @@ export function PageView({
   const [outlineEl, setOutlineEl] = useState<HTMLDivElement | null>(null);
   const [actionError, setActionError] = useState<string | null>(null);
   const [pending, startTransition] = useTransition();
-  const canEdit = hasLevel(info.level, "edit");
+  // What the page holds (body, title, icon, cover) takes content access; its structure (locking,
+  // a skill's settings, bringing a page back from the trash) edit access.
+  const canEdit = hasLevel(info.level, "content");
+  const canEditStructure = hasLevel(info.level, "edit");
   const canDelete = hasLevel(info.level, "full");
   // Full access verifies a page (server/verification); templates and pages in the trash aren't.
   const canVerify = canDelete && !info.template && !page.archived && !offline;
@@ -532,7 +535,7 @@ export function PageView({
           <div className="flex shrink-0 items-center gap-0.5">
             <SyncStatus connection={connection} pendingEdits={pendingEdits} />
             {locked && !page.archived && (
-              <LockedNotice onUnlock={canEdit && !offline ? unlock : undefined} pending={pending} />
+              <LockedNotice onUnlock={canEditStructure && !offline ? unlock : undefined} pending={pending} />
             )}
             <PageHeaderActions
               workspaceId={workspaceId}
@@ -595,7 +598,7 @@ export function PageView({
         {page.archived && (
           <div className="flex items-center justify-center gap-3 bg-danger px-4 py-2 text-sm text-white">
             {t("archived.banner")}
-            {canEdit && (
+            {(page.isRow ? canEdit : canEditStructure) && (
               <Button size="sm" className="border-white/60 bg-transparent text-white hover:bg-white/10" onClick={restore} disabled={pending || offline}>
                 <RotateCcw className="h-3.5 w-3.5" /> {tc("restore")}
               </Button>
@@ -698,7 +701,7 @@ export function PageView({
                 pageId={page.id}
                 description={skillNow.description}
                 property={skillNow.property}
-                editable={canEdit && !offline}
+                editable={canEditStructure && !offline}
               />
             )}
             {showBody && !wide && (

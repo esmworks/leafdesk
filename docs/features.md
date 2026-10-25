@@ -594,7 +594,10 @@
   whoever adds a page at its top. Below full access, members are held to the database property
   access rules too.
 - **Sharing and permissions**: give people, or everyone in the page's teamspace (the workspace
-  for a private page), full, edit, comment, view or no access to a page. Subpages inherit it
+  for a private page), full, edit, edit content, comment, view or no access to a page. *Can edit
+  content* writes the body, title and icon, adds and fills in rows and moves them to the trash, but
+  doesn't change how the page is set up: a database's properties, views, automations and row
+  templates, locking, moving or sharing it. Subpages inherit it
   unless you change them; pages nest at most 60 levels deep, so what is set above a page always
   reaches it. Share a page with someone outside the workspace by email and they join
   as a guest who sees only the pages shared with them (an account whose address was never

@@ -419,9 +419,11 @@
       "full": "Vollzugriff",
       "edit": "Kann bearbeiten",
       "comment": "Kann kommentieren",
+      "content": "Kann Inhalte bearbeiten",
       "view": "Kann ansehen",
       "none": "Kein Zugriff"
     },
+    "contentHint": "Text und Datenbankzeilen bearbeiten, keine Eigenschaften, Ansichten oder Einstellungen",
     "errors": {
       "notMember": "Diese Person ist kein Mitglied des Workspace.",
       "lastFullAccess": "Jemand muss Vollzugriff auf die Seite behalten. Gib zuerst einer anderen Person Vollzugriff.",

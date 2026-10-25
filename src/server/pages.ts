@@ -37,6 +37,7 @@ import {
   requireMember,
   requireMembership,
   requirePageAccess,
+  requireTrashAccess,
   workspacesHeldBack,
 } from "@/server/access";
 import { recordAudit } from "@/server/audit";
@@ -355,7 +356,8 @@ export async function createPage(actor: WriteActor, input: CreatePageInput, { au
   // A top-level page goes to a teamspace, or is private: theirs alone.
   let placement: { teamspaceId: string | null; private: boolean } = { teamspaceId: null, private: false };
   if (input.parentId) {
-    const parent = await requirePageAccess(userId, input.parentId, "edit");
+    // A page or row under it is content of the parent; a new database adds structure.
+    const parent = await requirePageAccess(userId, input.parentId, kind === "database" ? "edit" : "content");
     workspaceId = parent.workspaceId;
     placement = { teamspaceId: parent.teamspaceId, private: false };
     parentKind = parent.kind;
@@ -457,7 +459,7 @@ function assertChangeable(p: Parameters<typeof assertPageUnlocked>[0] & Paramete
 }
 
 export async function renamePage(actor: WriteActor, pageId: string, title: string) {
-  assertChangeable(await requirePageAccess(actor.userId, pageId, "edit"));
+  assertChangeable(await requirePageAccess(actor.userId, pageId, "content"));
   // Title lives in the shared doc so open editors update live; the store hook persists it.
   await getCollab().setTitle(pageId, title.trim(), actor);
 }
@@ -471,7 +473,7 @@ function checkedIcon(value: unknown) {
 
 export async function setPageIcon(userId: string, pageId: string, icon: string | null) {
   const checked = icon === null ? null : checkedIcon(icon);
-  const p = await requirePageAccess(userId, pageId, "edit");
+  const p = await requirePageAccess(userId, pageId, "content");
   assertChangeable(p);
   await db.update(page).set({ icon: checked, updatedBy: userId }).where(eq(page.id, pageId));
   pageHeaderChanged(p);
@@ -537,7 +539,7 @@ function pageHeaderChanged(p: { id: string; workspaceId: string; parentId: strin
 
 /** Sets or removes the page's background color (lib/page-background). */
 export async function setPageBackground(userId: string, pageId: string, background: PageBackground | null) {
-  const p = await requirePageAccess(userId, pageId, "edit");
+  const p = await requirePageAccess(userId, pageId, "content");
   assertChangeable(p);
   const checked = background === null ? null : parsePageBackground(background);
   if (background !== null && !checked) throw new Error("Not a background");
@@ -556,7 +558,7 @@ function subtreeIds(rootId: string) {
 }
 
 export async function archivePage(userId: string, pageId: string) {
-  const p = await requirePageAccess(userId, pageId, "edit");
+  const p = await requireTrashAccess(userId, pageId);
   // Templates aren't listed in the trash; they are deleted from the template picker instead.
   if (p.isTemplate) throw withCode(new Error("Templates are deleted, not moved to the trash"), "isTemplate");
   const archivedAt = new Date();
@@ -626,7 +628,7 @@ export async function archiveRows(userId: string, databaseId: string, rowIds: st
 }
 
 export async function restorePage(userId: string, pageId: string) {
-  const p = await requirePageAccess(userId, pageId, "edit");
+  const p = await requireTrashAccess(userId, pageId);
   // Restoring under an archived parent would leave the page unreachable; lift it to the root.
   let parentId = p.parentId;
   if (parentId) {
@@ -1295,7 +1297,7 @@ export async function getSnapshot(userId: string, snapshotId: string) {
 
 export async function restoreSnapshot(actor: WriteActor, snapshotId: string) {
   const snap = await getSnapshot(actor.userId, snapshotId);
-  assertChangeable(await requirePageAccess(actor.userId, snap.pageId, "edit"));
+  assertChangeable(await requirePageAccess(actor.userId, snap.pageId, "content"));
   await getCollab().restoreSnapshot(snapshotId, actor);
   return snap.pageId;
 }

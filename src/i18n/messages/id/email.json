@@ -43,6 +43,7 @@
     "levels": {
       "view": "melihat",
       "comment": "melihat dan berkomentar pada",
+      "content": "mengedit konten",
       "edit": "mengedit",
       "full": "melihat, mengedit, dan membagikan"
     },

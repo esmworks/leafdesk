@@ -100,6 +100,7 @@ export function DatabasePage({
   databaseId,
   canEdit = true,
   canComment = canEdit,
+  canEditStructure = canEdit,
   guest = false,
   exportable = true,
   embed,
@@ -110,6 +111,11 @@ export function DatabasePage({
   canEdit?: boolean;
   /** The viewer may comment on rows (and react to them in a feed); as `canEdit` unless given. */
   canComment?: boolean;
+  /**
+   * The viewer may change properties and views, not only rows and their values; as `canEdit` unless
+   * given. "Can edit content" gives rows and values alone: the database shows as locked to them.
+   */
+  canEditStructure?: boolean;
   /** Guests get fewer bulk actions (no trash). */
   guest?: boolean;
   /** The workspace lets people export its pages (the selection's CSV export). */
@@ -173,9 +179,10 @@ export function DatabasePage({
   // Rows and views change through the server: offline, the database is read-only.
   const offline = useIsOffline() || offlineCopyFrom !== null;
   const readOnly = (snapshot?.database.archived ?? false) || !canEdit || offline;
-  const locked = snapshot?.database.locked ?? false;
+  const structureReadOnly = readOnly || !canEditStructure;
+  const locked = (snapshot?.database.locked ?? false) || !canEditStructure;
   // A linked view's settings belong to the page showing it, not to the database.
-  const configReadOnly = linked ? !linked.onChange : readOnly;
+  const configReadOnly = linked ? !linked.onChange : structureReadOnly;
   // Whoever may not change the view still filters and sorts it for themselves: their rules stay
   // here, per view, until the page closes, and replace the view's own for them alone. For those who
   // may change it (but a linked view's, which belong to the page showing it), new filters and sorts
@@ -490,7 +497,7 @@ export function DatabasePage({
 
   // Deleted properties and views, for those who may change the schema (as deleting them took).
   const deletedSchema =
-    !readOnly && !locked && !linked
+    !structureReadOnly && !locked && !linked
       ? {
           databaseId,
           reloadKey: `${snapshot.properties.map((p) => p.id).join()}|${snapshot.views.map((v) => v.id).join()}`,
@@ -498,7 +505,7 @@ export function DatabasePage({
         }
       : undefined;
   // Automations belong to the database, not to a page showing one of its views; full access only.
-  const canManageAutomations = Boolean(snapshot.canManageAccess) && !readOnly && !linked;
+  const canManageAutomations = Boolean(snapshot.canManageAccess) && !structureReadOnly && !linked;
 
   const addView = async (type: ViewType) => {
     // Names for new views follow the UI language; existing names are stored data and stay as-is.
@@ -583,7 +590,7 @@ export function DatabasePage({
                             properties={snapshot.properties}
                             workspaceId={workspaceId}
                             databaseId={databaseId}
-                            editable={!readOnly}
+                            editable={!structureReadOnly}
                             preview={formPreview}
                             onPreview={setFormPreview}
                           />
@@ -619,12 +626,12 @@ export function DatabasePage({
                             locked={locked}
                             onConfig={(config) => setConfig(view, config)}
                             onCreateDateProperty={createDateProperty}
-                            onCreatePlaceProperty={readOnly ? undefined : createPlaceProperty}
-                            onSubItems={readOnly ? undefined : (on, propertyId) => void api.setSubItems(on, propertyId)}
-                            onDependencies={readOnly ? undefined : (on, input) => void api.setDependencies(on, input)}
-                            onSprints={readOnly || linked ? undefined : () => setSprintsOpen(true)}
+                            onCreatePlaceProperty={structureReadOnly ? undefined : createPlaceProperty}
+                            onSubItems={structureReadOnly ? undefined : (on, propertyId) => void api.setSubItems(on, propertyId)}
+                            onDependencies={structureReadOnly ? undefined : (on, input) => void api.setDependencies(on, input)}
+                            onSprints={structureReadOnly || linked ? undefined : () => setSprintsOpen(true)}
                           />
-                          {!readOnly && (onSprintBoard || sprintsHere) && (
+                          {!structureReadOnly && (onSprintBoard || sprintsHere) && (
                             <Button size="sm" variant="ghost" onClick={() => setCompleteOpen(true)} title={t("sprints.complete")}>
                               <FlagTriangleRight className="h-3.5 w-3.5" />
                               <span className="hidden lg:inline">{t("sprints.complete")}</span>
@@ -704,7 +711,7 @@ export function DatabasePage({
                     {!view ? (
                       <div className="page-gutter py-10 text-center text-sm text-fg-muted">
                         {t("page.noViews")}
-                        {!readOnly && (
+                        {!structureReadOnly && (
                           <div className="mt-3">
                             <Button size="sm" onClick={() => addView("table")}>
                               <Plus className="h-3.5 w-3.5" />
@@ -721,6 +728,7 @@ export function DatabasePage({
                         databaseTitle={snapshot.database.title}
                         api={api}
                         editable={!readOnly}
+                        buildable={!structureReadOnly}
                         archived={snapshot.database.archived}
                         preview={formPreview}
                       />

@@ -150,7 +150,7 @@ export function assignmentEmail(
 
 export function shareEmail(
   locale: Locale,
-  share: { actorName: string; pageTitle: string; workspaceName: string; level: "view" | "comment" | "edit" | "full"; link: string },
+  share: { actorName: string; pageTitle: string; workspaceName: string; level: "view" | "comment" | "content" | "edit" | "full"; link: string },
 ): RenderedEmail {
   const t = emailTranslator(locale);
   const names = { actor: share.actorName, page: share.pageTitle, workspace: share.workspaceName };
@@ -458,7 +458,7 @@ export function accessRequestEmail(
 /** To the requester: their request was approved, with the level they got. */
 export function accessApprovedEmail(
   locale: Locale,
-  approval: { actorName: string; pageTitle: string; workspaceName: string; level: "view" | "comment" | "edit" | "full"; link: string },
+  approval: { actorName: string; pageTitle: string; workspaceName: string; level: "view" | "comment" | "content" | "edit" | "full"; link: string },
 ): RenderedEmail {
   const t = emailTranslator(locale);
   const names = { actor: approval.actorName || t("mention.someone"), page: approval.pageTitle, workspace: approval.workspaceName };

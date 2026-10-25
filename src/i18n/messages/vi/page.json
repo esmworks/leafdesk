@@ -419,9 +419,11 @@
       "full": "Toàn quyền",
       "edit": "Có thể chỉnh sửa",
       "comment": "Có thể bình luận",
+      "content": "Có thể sửa nội dung",
       "view": "Có thể xem",
       "none": "Không có quyền truy cập"
     },
+    "contentHint": "Sửa văn bản và hàng cơ sở dữ liệu, không sửa thuộc tính, chế độ xem hay cài đặt",
     "errors": {
       "notMember": "Người này không phải thành viên của không gian làm việc.",
       "lastFullAccess": "Phải có người giữ toàn quyền đối với trang. Hãy cấp toàn quyền cho người khác trước.",

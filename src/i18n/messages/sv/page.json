@@ -419,9 +419,11 @@
       "full": "Full åtkomst",
       "edit": "Kan redigera",
       "comment": "Kan kommentera",
+      "content": "Kan redigera innehåll",
       "view": "Kan visa",
       "none": "Ingen åtkomst"
     },
+    "contentHint": "Redigera text och databasrader, inte egenskaper, vyer eller inställningar",
     "errors": {
       "notMember": "Den här personen är inte medlem i arbetsytan.",
       "lastFullAccess": "Någon måste behålla full åtkomst till sidan. Ge först någon annan full åtkomst.",

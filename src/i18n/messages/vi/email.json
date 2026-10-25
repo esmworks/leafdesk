@@ -43,6 +43,7 @@
     "levels": {
       "view": "xem",
       "comment": "xem và bình luận",
+      "content": "chỉnh sửa nội dung",
       "edit": "chỉnh sửa",
       "full": "xem, chỉnh sửa và chia sẻ"
     },

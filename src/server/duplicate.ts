@@ -445,7 +445,9 @@ export async function duplicatePage(
   let parentInTemplate = false;
   let placement: { teamspaceId: string | null; private: boolean } = { teamspaceId: null, private: false };
   if (source.parentId) {
-    const parent = await requirePageAccess(userId, source.parentId, "edit");
+    const parent = await requirePageAccess(userId, source.parentId, "content");
+    // Rows and pages are content; a row template is part of how its database is set up.
+    if (parent.kind === "database" && source.isTemplate) await requirePageAccess(userId, source.parentId, "edit");
     if (parent.archivedAt) throw withCode(new AccessError("Parent page is in the trash"), "parentInTrash");
     parentKind = parent.kind;
     parentInTemplate = parent.inTemplate;
@@ -608,7 +610,7 @@ async function pointAtCopiedSyncedBlocks(tx: Tx, plan: DuplicatePlan) {
 
 /**
  * Duplicates several rows of a database, each copy right after its original (see duplicatePage).
- * Needs edit access to the database, like adding a row. Rows the user can't see, rows in the
+ * Needs content access to the database, like adding a row. Rows the user can't see, rows in the
  * trash and ids of other pages are skipped and returned. Each row is copied in its own
  * transaction, so an error part way keeps the copies made so far; open views hear about all of
  * them once.
@@ -620,7 +622,7 @@ export async function duplicateRows(
   copySuffix: string,
 ): Promise<BulkResult> {
   const ids = bulkRowIds(rowIds);
-  const database = await requirePageAccess(actor.userId, databaseId, "edit");
+  const database = await requirePageAccess(actor.userId, databaseId, "content");
   if (database.kind !== "database") throw withCode(new AccessError("Not a database"), "notADatabase");
   if (database.archivedAt) throw withCode(new AccessError("Parent page is in the trash"), "parentInTrash");
   const { rows, skipped } = await rowsWithAccess(actor.userId, databaseId, ids, "view");

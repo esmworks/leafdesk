@@ -419,9 +419,11 @@
       "full": "Full access",
       "edit": "Can edit",
       "comment": "Can comment",
+      "content": "Can edit content",
       "view": "Can view",
       "none": "No access"
     },
+    "contentHint": "Edit text and database rows, not properties, views or settings",
     "errors": {
       "notMember": "This person isn't a member of the workspace.",
       "lastFullAccess": "Someone must keep full access to the page. Give someone else full access first.",

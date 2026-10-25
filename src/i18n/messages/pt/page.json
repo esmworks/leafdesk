@@ -419,9 +419,11 @@
       "full": "Acesso total",
       "edit": "Pode editar",
       "comment": "Pode comentar",
+      "content": "Pode editar o conteúdo",
       "view": "Pode ver",
       "none": "Sem acesso"
     },
+    "contentHint": "Editar texto e linhas de bancos de dados, não propriedades, visualizações ou configurações",
     "errors": {
       "notMember": "Esta pessoa não é membro do espaço de trabalho.",
       "lastFullAccess": "Alguém precisa manter acesso total à página. Dê acesso total a outra pessoa primeiro.",

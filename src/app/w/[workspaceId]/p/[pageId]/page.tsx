@@ -9,7 +9,7 @@ import { pageLabel } from "@/lib/labels";
 import { MERGED_ORIGINAL_PARAM } from "@/lib/merge-rows";
 import { parsePageBackground } from "@/lib/page-background";
 import { pageStyleFromYdoc } from "@/lib/page-style";
-import { AccessError, WorkspacePolicyError } from "@/server/access";
+import { AccessError, hasLevel, WorkspacePolicyError } from "@/server/access";
 import { accessRequestsOffered } from "@/server/access-requests";
 import { getPageHeaderInfo } from "@/server/page-meta";
 import { getBreadcrumbs, getPage, openViewName } from "@/server/pages";
@@ -69,7 +69,9 @@ export default async function PageRoute({ params, searchParams }: Params & { sea
   const isRow = parent?.kind === "database";
   const archived = Boolean(p.archivedAt);
   // Viewers see the database and row values but can't change them; the server refuses it too.
-  const canEdit = info.level === "edit" || info.level === "full";
+  // "Can edit content" changes rows and values, not the database's properties and views.
+  const canEdit = hasLevel(info.level, "content");
+  const canEditStructure = hasLevel(info.level, "edit");
 
   return (
     <PageView
@@ -88,6 +90,7 @@ export default async function PageRoute({ params, searchParams }: Params & { sea
           workspaceId={workspaceId}
           databaseId={p.id}
           canEdit={canEdit && !archived}
+          canEditStructure={canEditStructure && !archived}
           canComment={(canEdit || info.level === "comment") && !archived}
           guest={info.guest}
           exportable={info.exportable}

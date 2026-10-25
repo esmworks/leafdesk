@@ -419,9 +419,11 @@
       "full": "Fuld adgang",
       "edit": "Kan redigere",
       "comment": "Kan kommentere",
+      "content": "Kan redigere indhold",
       "view": "Kan se",
       "none": "Ingen adgang"
     },
+    "contentHint": "Redigere tekst og databaserækker, ikke egenskaber, visninger eller indstillinger",
     "errors": {
       "notMember": "Denne person er ikke medlem af arbejdsområdet.",
       "lastFullAccess": "Nogen skal beholde fuld adgang til siden. Giv først en anden fuld adgang.",

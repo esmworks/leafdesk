@@ -419,9 +419,11 @@
       "full": "Volledige toegang",
       "edit": "Kan bewerken",
       "comment": "Kan opmerkingen plaatsen",
+      "content": "Kan inhoud bewerken",
       "view": "Kan bekijken",
       "none": "Geen toegang"
     },
+    "contentHint": "Tekst en databaserijen bewerken, geen eigenschappen, weergaven of instellingen",
     "errors": {
       "notMember": "Deze persoon is geen lid van de werkruimte.",
       "lastFullAccess": "Iemand moet volledige toegang tot de pagina houden. Geef eerst iemand anders volledige toegang.",

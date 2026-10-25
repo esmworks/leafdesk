@@ -319,7 +319,9 @@ export async function workspacesHeldBack(userId: string, workspaceIds: Iterable<
 /**
  * - `view`: read the page, its history and, for databases, its rows and schema.
  * - `comment`: also comment on it (see server/comments.ts).
- * - `edit`: change content, title, icon, properties, rows, views; move or trash it.
+ * - `content`: also change what it holds: its body, title, icon and cover, a database's rows and
+ *   their values, new pages under it. Not its structure.
+ * - `edit`: also its structure: a database's properties, views and settings; move or trash it.
  * - `full`: also delete it for good (and, later, change who it is shared with).
  */
 export type AccessLevel = PageLevel;
@@ -336,13 +338,13 @@ export const FULL_RANK = rank("full");
 export const EDIT_RANK = rank("edit");
 
 /** A stored level (a column or value holding "view" … "full") as the rank `page_access_level` returns. */
-export const rankOf = (level: SQL | AnyColumn) => sql<number>`coalesce(array_position(array['view', 'comment', 'edit', 'full'], ${level}::text), 0)`;
+export const rankOf = (level: SQL | AnyColumn) => sql<number>`coalesce(array_position(array['view', 'comment', 'content', 'edit', 'full'], ${level}::text), 0)`;
 
-/** The level `page_access_level` returns (0–4) as a name; anything unexpected is `none`. */
+/** The level `page_access_level` returns (0–5) as a name; anything unexpected is `none`. */
 export const levelFromRank = (value: unknown): AccessLevel => PAGE_LEVELS[Number(value)] ?? "none";
 
 /**
- * SQL: the user's access rank (0–4) on a page id expression. A user acting for someone (an agent's
+ * SQL: the user's access rank (0–5) on a page id expression. A user acting for someone (an agent's
  * run started by a member, see acting-for.ts) gets the lower of their two ranks.
  */
 export function accessRank(userId: string, pageId: SQL) {
@@ -495,6 +497,19 @@ export async function pageAccessOf(userId: string, pageId: string) {
 export async function requirePageAccess(userId: string, pageId: string, needed: RequiredLevel) {
   const { page: found, level } = await resolvePageAccess(userId, pageId);
   if (!found || !hasLevel(level, needed)) throw new AccessError();
+  return found;
+}
+
+/**
+ * requirePageAccess for moving a page to the trash or back: a database's row takes content access
+ * (rows are what a database holds), any other page edit access (pages make up the tree).
+ */
+export async function requireTrashAccess(userId: string, pageId: string) {
+  const { page: found, level } = await resolvePageAccess(userId, pageId);
+  if (!found || !hasLevel(level, "content")) throw new AccessError();
+  if (hasLevel(level, "edit")) return found;
+  const [parent] = found.parentId ? await db.select({ kind: page.kind }).from(page).where(eq(page.id, found.parentId)) : [];
+  if (parent?.kind !== "database") throw new AccessError();
   return found;
 }
 

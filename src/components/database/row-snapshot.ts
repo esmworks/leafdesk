@@ -9,7 +9,7 @@ export type RowSnapshot = {
   databaseTitle: string;
   /** The row's title, which formulas can read. */
   title: string;
-  /** The database's schema is locked: no new properties from here. */
+  /** The database's schema is locked, or the viewer may change values only: no new properties from here. */
   locked: boolean;
   properties: Property[];
   values: Record<string, unknown>;
@@ -41,7 +41,7 @@ export function rowSnapshotOf(data: LoadedRow): RowSnapshot {
   return {
     databaseTitle: data.databaseTitle,
     title: data.row.title,
-    locked: data.databaseLocked,
+    locked: data.databaseLocked || !data.schemaEditable,
     properties: data.properties,
     values: data.row.properties,
     relations: data.relations,

@@ -229,7 +229,8 @@ export async function createFromTemplate(
   let parentInTemplate = false;
   let placement: { teamspaceId: string | null; private: boolean } = { teamspaceId: null, private: false };
   if (parentId) {
-    const parent = await requirePageAccess(userId, parentId, "edit");
+    // A row or page is content of its parent; a new database adds structure (as in createPage).
+    const parent = await requirePageAccess(userId, parentId, template.kind === "database" ? "edit" : "content");
     if (parent.workspaceId !== template.workspaceId) throw new AccessError("Templates are used in their own workspace");
     if (parent.archivedAt) throw withCode(new AccessError("Parent page is in the trash"), "parentInTrash");
     if (parent.kind === "database" && template.kind === "database") {
@@ -335,7 +336,7 @@ export async function createRow(
     locale?: string;
   },
 ): Promise<{ id: string; position: number; templateId: string | null }> {
-  const database = await requireDatabase(actor.userId, databaseId, "edit");
+  const database = await requireDatabase(actor.userId, databaseId, "content");
   let templateId = input.templateId ?? null;
   if (!templateId && input.useDefault) {
     const own = input.viewId ? await viewDefaultTemplate(input.viewId, databaseId) : undefined;

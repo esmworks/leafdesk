@@ -43,6 +43,7 @@
     "levels": {
       "view": "visa",
       "comment": "visa och kommentera",
+      "content": "redigera innehållet i",
       "edit": "redigera",
       "full": "visa, redigera och dela"
     },

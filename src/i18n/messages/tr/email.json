@@ -43,6 +43,7 @@
     "levels": {
       "view": "görüntüleyebilirsiniz",
       "comment": "görüntüleyip yorum yapabilirsiniz",
+      "content": "içeriğini düzenleyebilirsiniz",
       "edit": "düzenleyebilirsiniz",
       "full": "görüntüleyebilir, düzenleyebilir ve paylaşabilirsiniz"
     },

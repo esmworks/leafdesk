@@ -419,9 +419,11 @@
       "full": "Tam erişim",
       "edit": "Düzenleyebilir",
       "comment": "Yorum yapabilir",
+      "content": "İçeriği düzenleyebilir",
       "view": "Görüntüleyebilir",
       "none": "Erişim yok"
     },
+    "contentHint": "Metni ve veritabanı satırlarını düzenler; özellikleri, görünümleri ve ayarları değil",
     "errors": {
       "notMember": "Bu kişi çalışma alanının üyesi değil.",
       "lastFullAccess": "Sayfada tam erişimi olan en az bir kişi kalmalı. Önce başka birine tam erişim verin.",

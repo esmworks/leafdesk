@@ -2,7 +2,7 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 
 const access = vi.hoisted(() => {
   class AccessError extends Error {}
-  const ranks = { none: 0, view: 1, comment: 2, edit: 3, full: 4 } as const;
+  const ranks = { none: 0, view: 1, comment: 2, content: 3, edit: 4, full: 5 } as const;
   return {
     AccessError,
     findMembership: vi.fn(async () => ({ role: "member" })),
@@ -23,6 +23,11 @@ beforeEach(() => vi.clearAllMocks());
 describe("authorizeCollab", () => {
   it("lets editors write to an unlocked page", async () => {
     access.pageAccessOf.mockResolvedValue({ page: page("page", null), level: "edit" });
+    expect(await authorizeCollab("u1", { kind: "page", id: "p1" })).toEqual({ readOnly: false, suggestOnly: false });
+  });
+
+  it("lets those who may edit content write the body too", async () => {
+    access.pageAccessOf.mockResolvedValue({ page: page("page", null), level: "content" });
     expect(await authorizeCollab("u1", { kind: "page", id: "p1" })).toEqual({ readOnly: false, suggestOnly: false });
   });
 

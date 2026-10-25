@@ -48,7 +48,7 @@ function storedBlocks(blocks: PageBlock[]): PageBlock[] {
 }
 
 async function editablePage(userId: string, pageId: string) {
-  const found = await requirePageAccess(userId, pageId, "edit");
+  const found = await requirePageAccess(userId, pageId, "content");
   if (found.kind === "database") throw new MarkdownSourceError("database");
   if (found.archivedAt) throw new MarkdownSourceError("trashed");
   return found;

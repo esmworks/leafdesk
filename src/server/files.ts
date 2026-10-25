@@ -126,7 +126,7 @@ export type UploadInput = {
 
 /** Stores a file on a page; needs edit access to it. */
 export async function uploadFile(userId: string, pageId: string, input: UploadInput): Promise<StoredFile> {
-  const target = await requirePageAccess(userId, pageId, "edit");
+  const target = await requirePageAccess(userId, pageId, "content");
   if (target.archivedAt) throw new FileError("The page is in the trash", "notAllowed");
   if (target.kind === "database") throw new FileError("Databases have no body to put files in; add them to a row", "badRequest");
   return storeFile({ workspaceId: target.workspaceId, pageId, uploadedBy: userId }, input);
@@ -248,7 +248,7 @@ export async function uploadFromUrl(
   { name, contentType, fetchOptions }: { name?: string; contentType?: string; fetchOptions?: Partial<RemoteFetchOptions> } = {},
 ): Promise<StoredFile> {
   // Check access before reaching out anywhere.
-  await requirePageAccess(userId, pageId, "edit");
+  await requirePageAccess(userId, pageId, "content");
   const { maxFileBytes } = uploadLimits();
   let remote;
   try {

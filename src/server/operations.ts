@@ -1077,7 +1077,7 @@ export async function updatePage(
       throw new ToolInputError("Databases have no text body. Use create_database_row or update_database_row.");
     }
     // The body goes through a direct collab connection, which checks no access of its own.
-    await requirePageAccess(userId, page_id, "edit");
+    await requirePageAccess(userId, page_id, "content");
     const collab = getCollab();
     const check = { expectedVersion: expected_version, reportVersion: true };
     let write;

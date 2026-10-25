@@ -295,7 +295,8 @@ export function createCollab() {
       select x.user_id, page_access_level(x.user_id, ${pageId})::int as level
       from jsonb_array_elements_text(${JSON.stringify(userIds)}::jsonb) as x(user_id)
     `);
-    // 3 is edit, 2 comment (page_access_level): people who may comment suggest again, viewers stay read-only.
+    // 3 and up write the body (content, edit, full), 2 comments (page_access_level): people who may
+    // comment suggest again, viewers stay read-only.
     const levels = new Map(rows.map((r) => [r.user_id, Number(r.level)]));
     for (const connection of waiting) {
       const level = levels.get((connection.context as Context).userId!) ?? 0;
@@ -1244,7 +1245,7 @@ export function createCollab() {
           const row = found.get(`${(connection.context as Context).userId}:${target.id}`);
           if (!row) continue; // another workspace's page
           const level = Number(row.level);
-          // 1 view, 2 comment, 3 edit (page_access_level): a writable connection of someone who may
+          // 1 view, 2 comment, 3 content and up (page_access_level): a writable connection of someone who may
           // no longer edit is out of date (one that takes only suggestions stays while they may
           // comment); a read-only or suggesting one of someone who may edit now takes their edits
           // from here on, and a read-only one of someone who may comment their suggestions, unless

@@ -419,9 +419,11 @@
       "full": "Täydet oikeudet",
       "edit": "Voi muokata",
       "comment": "Voi kommentoida",
+      "content": "Voi muokata sisältöä",
       "view": "Voi katsella",
       "none": "Ei käyttöoikeutta"
     },
+    "contentHint": "Muokata tekstiä ja tietokannan rivejä, ei ominaisuuksia, näkymiä tai asetuksia",
     "errors": {
       "notMember": "Tämä henkilö ei ole työtilan jäsen.",
       "lastFullAccess": "Jollakulla on oltava täydet oikeudet sivuun. Anna ensin jollekulle toiselle täydet oikeudet.",

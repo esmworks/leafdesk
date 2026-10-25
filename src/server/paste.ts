@@ -77,7 +77,7 @@ export async function pasteRows(
   }
 
   // Rows already there: checked one by one against what they hold, then written.
-  const found = await rowsWithAccess(userId, databaseId, ids, "edit");
+  const found = await rowsWithAccess(userId, databaseId, ids, "content");
   const writes: { row: (typeof found.rows)[number]; values: Record<string, unknown>; title?: string }[] = [];
   for (const row of found.rows) {
     const update = byRow.get(row.id)!;

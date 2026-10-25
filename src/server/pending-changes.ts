@@ -177,7 +177,7 @@ export async function reviewersOf(
   if (change.kind === "email_draft") return change.senderId ? [change.senderId] : [];
   const target = change.rowId ?? change.databaseId;
   const mayEdit = async (userId: string) =>
-    !(await isAgentUser(userId)) && Boolean(await findMembership(userId, change.workspaceId)) && hasLevel((await pageAccessOf(userId, target)).level, "edit");
+    !(await isAgentUser(userId)) && Boolean(await findMembership(userId, change.workspaceId)) && hasLevel((await pageAccessOf(userId, target)).level, "content");
   for (const id of new Set(candidates.filter((c): c is string => !!c))) {
     if (await mayEdit(id)) return [id];
   }
@@ -359,7 +359,7 @@ async function viewsOf(viewer: string, where: SQL | undefined, limit: number): P
     }
     if (c.kind === "email_draft") {
       if (!c.rowId || r.rowArchived || !(await readsMail(c.rowId))) continue;
-      prepared.push({ r, fields: [], editable: c.senderId === viewer && hasLevel(level, "edit") });
+      prepared.push({ r, fields: [], editable: c.senderId === viewer && hasLevel(level, "content") });
       continue;
     }
     const schema = schemas.get(c.databaseId)!;
@@ -384,7 +384,7 @@ async function viewsOf(viewer: string, where: SQL | undefined, limit: number): P
         after: payload.properties[prop.id],
       });
     }
-    const editable = hasLevel(level, "edit") && ids.every((id) => atLeast(schema.access.levelOf(id, accessRow), "edit_values"));
+    const editable = hasLevel(level, "content") && ids.every((id) => atLeast(schema.access.levelOf(id, accessRow), "edit_values"));
     prepared.push({ r, fields, editable });
   }
 

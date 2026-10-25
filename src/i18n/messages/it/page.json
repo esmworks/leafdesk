@@ -419,9 +419,11 @@
       "full": "Accesso completo",
       "edit": "Può modificare",
       "comment": "Può commentare",
+      "content": "Può modificare i contenuti",
       "view": "Può visualizzare",
       "none": "Nessun accesso"
     },
+    "contentHint": "Modificare testo e righe dei database, non proprietà, viste o impostazioni",
     "errors": {
       "notMember": "Questa persona non è un membro dello spazio di lavoro.",
       "lastFullAccess": "Qualcuno deve mantenere l’accesso completo alla pagina. Prima dai l’accesso completo a qualcun altro.",

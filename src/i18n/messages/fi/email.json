@@ -43,6 +43,7 @@
     "levels": {
       "view": "katsella",
       "comment": "katsella ja kommentoida",
+      "content": "muokata (vain sisältöä)",
       "edit": "muokata",
       "full": "katsella, muokata ja jakaa"
     },

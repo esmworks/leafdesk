@@ -13,7 +13,7 @@ vi.mock("@/db", () => ({
 }));
 vi.mock("@/server/access", () => ({
   accessRank: () => "rank",
-  levelFromRank: (rank: unknown) => (["none", "view", "comment", "edit", "full"] as const)[Number(rank)] ?? "none",
+  levelFromRank: (rank: unknown) => (["none", "view", "comment", "content", "edit", "full"] as const)[Number(rank)] ?? "none",
   pageVisibleTo: () => "visible",
   requirePageAccess: vi.fn(),
   workspacesHeldBack: async (_: string, ids: string[]) => new Set(ids.filter((id) => heldBack.has(id))),

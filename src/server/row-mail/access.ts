@@ -15,7 +15,7 @@ export type RowMailAccess = {
   rowId: string;
   databaseId: string;
   workspaceId: string;
-  level: "view" | "comment" | "edit" | "full";
+  level: "view" | "comment" | "content" | "edit" | "full";
   /** Full access to the database: may hide anyone's message from the row. */
   databaseFull: boolean;
 };

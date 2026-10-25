@@ -63,7 +63,7 @@ export const isSyncedSource = (ref: SyncedRef, hostPageId: string) => ref.pageId
 // What a reader sees
 
 /** Access levels, as server/access ranks them. */
-export type SyncedAccessLevel = "none" | "view" | "comment" | "edit" | "full";
+export type SyncedAccessLevel = "none" | "view" | "comment" | "content" | "edit" | "full";
 
 /**
  * What a synced block shows its reader:
@@ -95,7 +95,7 @@ export function syncedSourceState(facts: SyncedSourceFacts): Exclude<SyncedState
   if (facts && (facts.level === "none" || facts.heldBack)) return "noAccess";
   if (!facts) return "deleted";
   if (facts.archived) return "trashed";
-  const canEdit = facts.level === "edit" || facts.level === "full";
+  const canEdit = facts.level === "content" || facts.level === "edit" || facts.level === "full";
   return canEdit && !facts.locked ? "editable" : "readOnly";
 }
 
