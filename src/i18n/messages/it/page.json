@@ -568,18 +568,22 @@
       "two": {
         "title": "2 colonne",
         "subtext": "Due colonne di blocchi affiancate",
-        "aliases": "columns column layout side 2 two colonne colonna affiancate due"
+        "aliases": "columns column layout side 2 two colonne colonna affiancate due col2"
       },
       "three": {
         "title": "3 colonne",
         "subtext": "Tre colonne di blocchi affiancate",
-        "aliases": "columns column layout side 3 three colonne colonna affiancate tre"
+        "aliases": "columns column layout side 3 three colonne colonna affiancate tre col3"
       },
       "add": {
         "title": "Aggiungi colonna",
         "subtext": "Una nuova colonna a destra di questa (fino a 5)",
         "aliases": "column columns add new layout colonna colonne aggiungi nuova"
       }
+    },
+    "turnInto": {
+      "title": "Trasforma in",
+      "columns": "{count} colonne, un blocco ciascuna"
     },
     "pageLink": {
       "title": "Link a pagina",

@@ -568,18 +568,22 @@
       "two": {
         "title": "2 kolommen",
         "subtext": "Twee kolommen met blokken naast elkaar",
-        "aliases": "columns column layout side 2 two kolommen kolom twee"
+        "aliases": "columns column layout side 2 two kolommen kolom twee col2"
       },
       "three": {
         "title": "3 kolommen",
         "subtext": "Drie kolommen met blokken naast elkaar",
-        "aliases": "columns column layout side 3 three kolommen kolom drie"
+        "aliases": "columns column layout side 3 three kolommen kolom drie col3"
       },
       "add": {
         "title": "Kolom toevoegen",
         "subtext": "Een nieuwe kolom rechts van deze (maximaal 5)",
         "aliases": "column columns add new layout kolom toevoegen nieuw"
       }
+    },
+    "turnInto": {
+      "title": "Omzetten naar",
+      "columns": "{count} kolommen, één blok per kolom"
     },
     "pageLink": {
       "title": "Link naar pagina",

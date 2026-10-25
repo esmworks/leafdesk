@@ -568,18 +568,22 @@
       "two": {
         "title": "2열",
         "subtext": "나란히 놓인 블록 2열",
-        "aliases": "columns column layout side 2 two 열 레이아웃 나란히 2열"
+        "aliases": "columns column layout side 2 two 열 레이아웃 나란히 2열 col2"
       },
       "three": {
         "title": "3열",
         "subtext": "나란히 놓인 블록 3열",
-        "aliases": "columns column layout side 3 three 열 레이아웃 나란히 3열"
+        "aliases": "columns column layout side 3 three 열 레이아웃 나란히 3열 col3"
       },
       "add": {
         "title": "열 추가",
         "subtext": "이 열의 오른쪽에 새 열 추가(최대 5개)",
         "aliases": "column columns add new layout 열 추가 새 레이아웃"
       }
+    },
+    "turnInto": {
+      "title": "전환",
+      "columns": "{count}개 열, 열마다 블록 하나"
     },
     "pageLink": {
       "title": "페이지 링크",

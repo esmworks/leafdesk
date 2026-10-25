@@ -568,18 +568,22 @@
       "two": {
         "title": "2 עמודות",
         "subtext": "שתי עמודות של בלוקים זו לצד זו",
-        "aliases": "עמודות עמודה פריסה צד 2 שתיים columns column layout side two"
+        "aliases": "עמודות עמודה פריסה צד 2 שתיים columns column layout side two col2"
       },
       "three": {
         "title": "3 עמודות",
         "subtext": "שלוש עמודות של בלוקים זו לצד זו",
-        "aliases": "עמודות עמודה פריסה צד 3 שלוש columns column layout side three"
+        "aliases": "עמודות עמודה פריסה צד 3 שלוש columns column layout side three col3"
       },
       "add": {
         "title": "הוספת עמודה",
         "subtext": "עמודה חדשה מימין לעמודה הזו (עד 5)",
         "aliases": "עמודה עמודות הוספה חדשה פריסה column columns add new layout"
       }
+    },
+    "turnInto": {
+      "title": "הפיכה ל",
+      "columns": "{count} עמודות, בלוק אחד בכל אחת"
     },
     "pageLink": {
       "title": "קישור לדף",

@@ -568,18 +568,22 @@
       "two": {
         "title": "2 saraketta",
         "subtext": "Kaksi lohkosaraketta vierekkäin",
-        "aliases": "columns column layout side 2 two sarakkeet sarake asettelu kaksi"
+        "aliases": "columns column layout side 2 two sarakkeet sarake asettelu kaksi col2"
       },
       "three": {
         "title": "3 saraketta",
         "subtext": "Kolme lohkosaraketta vierekkäin",
-        "aliases": "columns column layout side 3 three sarakkeet sarake asettelu kolme"
+        "aliases": "columns column layout side 3 three sarakkeet sarake asettelu kolme col3"
       },
       "add": {
         "title": "Lisää sarake",
         "subtext": "Uusi sarake tämän oikealle puolelle (enintään 5)",
         "aliases": "column columns add new layout sarake sarakkeet lisää uusi asettelu"
       }
+    },
+    "turnInto": {
+      "title": "Muuta muotoon",
+      "columns": "{count} saraketta, yksi lohko kussakin"
     },
     "pageLink": {
       "title": "Linkki sivuun",

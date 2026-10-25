@@ -568,18 +568,22 @@
       "two": {
         "title": "2 คอลัมน์",
         "subtext": "บล็อกสองคอลัมน์เคียงข้างกัน",
-        "aliases": "columns column layout side 2 two คอลัมน์ เลย์เอาต์ สอง"
+        "aliases": "columns column layout side 2 two คอลัมน์ เลย์เอาต์ สอง col2"
       },
       "three": {
         "title": "3 คอลัมน์",
         "subtext": "บล็อกสามคอลัมน์เคียงข้างกัน",
-        "aliases": "columns column layout side 3 three คอลัมน์ เลย์เอาต์ สาม"
+        "aliases": "columns column layout side 3 three คอลัมน์ เลย์เอาต์ สาม col3"
       },
       "add": {
         "title": "เพิ่มคอลัมน์",
         "subtext": "คอลัมน์ใหม่ทางขวาของคอลัมน์นี้ (สูงสุด 5)",
         "aliases": "column columns add new layout คอลัมน์ เพิ่ม ใหม่"
       }
+    },
+    "turnInto": {
+      "title": "เปลี่ยนเป็น",
+      "columns": "{count} คอลัมน์ คอลัมน์ละหนึ่งบล็อก"
     },
     "pageLink": {
       "title": "ลิงก์ไปยังหน้า",

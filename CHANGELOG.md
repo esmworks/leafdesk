@@ -46,6 +46,12 @@
   image shows larger, several as thumbnails, and past four the rest fold into a *+N* tile. A
   comment of only one to three emoji shows them large. Exports list a comment's images after its
   text.
+- **More ways to make columns, and Turn into.** `/col2` and `/col3` find the column layouts in the
+  slash menu. Dragging a block by its handle to the left or right side of another block puts the
+  two side by side (beside a column, it becomes a new column there), with a line showing where.
+  *Turn into* in a block's menu changes the selected text blocks into another kind (text, headings,
+  lists, toggle list, quote, code) or puts them in columns, one to a column (a single block gets
+  an empty column beside it). Typing a space right after `/` closes the slash menu.
 
 ### Changed
 

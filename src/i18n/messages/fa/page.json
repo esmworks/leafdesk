@@ -568,18 +568,22 @@
       "two": {
         "title": "2 ستون",
         "subtext": "دو ستون بلوک کنار هم",
-        "aliases": "ستون ستون‌ها چیدمان دو columns column layout side 2 two"
+        "aliases": "ستون ستون‌ها چیدمان دو columns column layout side 2 two col2"
       },
       "three": {
         "title": "3 ستون",
         "subtext": "سه ستون بلوک کنار هم",
-        "aliases": "ستون ستون‌ها چیدمان سه columns column layout side 3 three"
+        "aliases": "ستون ستون‌ها چیدمان سه columns column layout side 3 three col3"
       },
       "add": {
         "title": "افزودن ستون",
         "subtext": "یک ستون جدید در سمت راست این ستون (حداکثر 5)",
         "aliases": "ستون افزودن جدید چیدمان column columns add new layout"
       }
+    },
+    "turnInto": {
+      "title": "تبدیل به",
+      "columns": "{count} ستون، در هر ستون یک بلوک"
     },
     "pageLink": {
       "title": "لینک به صفحه",

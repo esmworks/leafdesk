@@ -63,8 +63,11 @@
   too, and hovering a number shows its note), Mermaid diagrams with a live preview, a table of contents, a breadcrumb, a list of the page's subpages (live, each reader
   seeing those they may open; a page with one doesn't list them again at its end when published or
   printed), and columns (2 to 5, resizable, blocks
-  dragged in and out with the side menu, stacked on phones), also on published pages and in
-  Markdown. Table cells merge across columns and rows from the formatting toolbar (Markdown writes
+  dragged in and out with the side menu, stacked on phones; `/col2` and `/col3` make them, a block
+  dropped at another's left or right side goes beside it, and *Turn into* in a block's menu puts
+  the selected blocks one to a column), also on published pages and in Markdown. *Turn into* also
+  changes the kind of the selected text blocks (heading, list, quote, code …), and a space typed
+  right after `/` closes the slash menu. Table cells merge across columns and rows from the formatting toolbar (Markdown writes
   the full grid, the covered places empty). Code blocks take their language from a menu (plain text
   and 42 languages) and color their code in it, published pages and the print view included; Enter
   in a code block starts the new line with the indentation of the one before it. *Copy* in a code

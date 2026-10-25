@@ -568,18 +568,22 @@
       "two": {
         "title": "2 sütun",
         "subtext": "Yan yana iki sütun blok",
-        "aliases": "sütun sütunlar kolon düzen yan yana columns 2 iki"
+        "aliases": "sütun sütunlar kolon düzen yan yana columns 2 iki col2"
       },
       "three": {
         "title": "3 sütun",
         "subtext": "Yan yana üç sütun blok",
-        "aliases": "sütun sütunlar kolon düzen yan yana columns 3 üç"
+        "aliases": "sütun sütunlar kolon düzen yan yana columns 3 üç col3"
       },
       "add": {
         "title": "Sütun ekle",
         "subtext": "Bu sütunun sağına yeni bir sütun (en fazla 5)",
         "aliases": "sütun ekle yeni kolon column add"
       }
+    },
+    "turnInto": {
+      "title": "Dönüştür",
+      "columns": "{count} sütun, her birinde bir blok"
     },
     "pageLink": {
       "title": "Sayfa bağlantısı",

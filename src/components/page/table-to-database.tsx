@@ -32,6 +32,7 @@ import { CalloutStyleItem, CalloutTitleItem } from "./callout-menu";
 import { ImageLinkItem } from "./image-link";
 import { ImageCropItem } from "./image-crop-item";
 import { FormatCodeItem } from "./code-format-item";
+import { TurnIntoItem } from "./turn-into-item";
 
 // Tables being turned into a database: a second click waits for the first.
 const turning = new Set<string>();
@@ -165,6 +166,7 @@ export function pageSideMenu(onError: (message: string) => void): FC<SideMenuPro
     return (
       <DragHandleMenu>
         <RemoveBlockItem>{dict.drag_handle.delete_menuitem}</RemoveBlockItem>
+        <TurnIntoItem />
         <BlockColorsItem>{dict.drag_handle.colors_menuitem}</BlockColorsItem>
         <TableRowHeaderItem>{dict.drag_handle.header_row_menuitem}</TableRowHeaderItem>
         <TableColumnHeaderItem>{dict.drag_handle.header_column_menuitem}</TableColumnHeaderItem>

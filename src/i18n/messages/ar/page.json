@@ -568,18 +568,22 @@
       "two": {
         "title": "عمودان",
         "subtext": "عمودان من الكتل جنبًا إلى جنب",
-        "aliases": "columns column layout side 2 two أعمدة عمودان تخطيط"
+        "aliases": "columns column layout side 2 two أعمدة عمودان تخطيط col2"
       },
       "three": {
         "title": "3 أعمدة",
         "subtext": "ثلاثة أعمدة من الكتل جنبًا إلى جنب",
-        "aliases": "columns column layout side 3 three أعمدة ثلاثة تخطيط"
+        "aliases": "columns column layout side 3 three أعمدة ثلاثة تخطيط col3"
       },
       "add": {
         "title": "إضافة عمود",
         "subtext": "عمود جديد على يمين هذا العمود (حتى 5)",
         "aliases": "column columns add new layout عمود إضافة جديد تخطيط"
       }
+    },
+    "turnInto": {
+      "title": "تحويل إلى",
+      "columns": "{count} أعمدة، كتلة في كل عمود"
     },
     "pageLink": {
       "title": "رابط إلى صفحة",

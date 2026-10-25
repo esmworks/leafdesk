@@ -568,18 +568,22 @@
       "two": {
         "title": "2 栏",
         "subtext": "两栏并排的块",
-        "aliases": "columns column layout side 2 two 分栏 两栏 布局"
+        "aliases": "columns column layout side 2 two 分栏 两栏 布局 col2"
       },
       "three": {
         "title": "3 栏",
         "subtext": "三栏并排的块",
-        "aliases": "columns column layout side 3 three 分栏 三栏 布局"
+        "aliases": "columns column layout side 3 three 分栏 三栏 布局 col3"
       },
       "add": {
         "title": "添加栏",
         "subtext": "在此栏右侧新增一栏（最多 5 栏）",
         "aliases": "column columns add new layout 添加栏 分栏 布局"
       }
+    },
+    "turnInto": {
+      "title": "转换为",
+      "columns": "{count} 栏，每栏一个块"
     },
     "pageLink": {
       "title": "链接到页面",

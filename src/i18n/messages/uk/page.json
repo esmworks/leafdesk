@@ -568,18 +568,22 @@
       "two": {
         "title": "2 стовпці",
         "subtext": "Два стовпці блоків поруч",
-        "aliases": "columns column layout side 2 two стовпці колонки два"
+        "aliases": "columns column layout side 2 two стовпці колонки два col2"
       },
       "three": {
         "title": "3 стовпці",
         "subtext": "Три стовпці блоків поруч",
-        "aliases": "columns column layout side 3 three стовпці колонки три"
+        "aliases": "columns column layout side 3 three стовпці колонки три col3"
       },
       "add": {
         "title": "Додати стовпець",
         "subtext": "Новий стовпець праворуч від цього (до 5)",
         "aliases": "column columns add new layout стовпець колонка додати"
       }
+    },
+    "turnInto": {
+      "title": "Перетворити на",
+      "columns": "Колонки ({count}), по одному блоку в кожній"
     },
     "pageLink": {
       "title": "Посилання на сторінку",

@@ -568,18 +568,22 @@
       "two": {
         "title": "2 kolumny",
         "subtext": "Dwie kolumny bloków obok siebie",
-        "aliases": "kolumny kolumna układ obok 2 dwie columns column layout side two"
+        "aliases": "kolumny kolumna układ obok 2 dwie columns column layout side two col2"
       },
       "three": {
         "title": "3 kolumny",
         "subtext": "Trzy kolumny bloków obok siebie",
-        "aliases": "kolumny kolumna układ obok 3 trzy columns column layout side three"
+        "aliases": "kolumny kolumna układ obok 3 trzy columns column layout side three col3"
       },
       "add": {
         "title": "Dodaj kolumnę",
         "subtext": "Nowa kolumna na prawo od tej (maksymalnie 5)",
         "aliases": "kolumna kolumny dodaj nowa układ column columns add new layout"
       }
+    },
+    "turnInto": {
+      "title": "Zamień na",
+      "columns": "Kolumny ({count}), po jednym bloku w każdej"
     },
     "pageLink": {
       "title": "Link do strony",

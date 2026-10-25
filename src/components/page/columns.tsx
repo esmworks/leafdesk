@@ -6,23 +6,28 @@ import { BetweenVerticalStart, Columns2, Columns3 } from "lucide-react";
 import { useTranslations } from "next-intl";
 import type { Node as PMNode } from "prosemirror-model";
 import { Plugin, PluginKey, type Transaction } from "prosemirror-state";
+import type { EditorView } from "prosemirror-view";
 import { useCallback } from "react";
 import { ySyncPluginKey } from "y-prosemirror";
 import {
   COLUMN_BLOCK,
   COLUMN_LIST_BLOCK,
   columnBlockSpecs,
+  isColumnBlockType,
   ColumnListNode,
   ColumnNode,
   columnWidth,
+  dropSide,
   MAX_COLUMNS,
+  MIN_COLUMNS,
 } from "@/lib/columns";
 import { inlineSign } from "@/components/direction";
 import type { PageEditor } from "./embed-blocks";
 
 /**
  * The editor's side of columns (nodes shared with the server in lib/columns): a handle between
- * columns to resize them, the cleanup that removes a column once its last block is gone, and the
+ * columns to resize them, the cleanup that removes a column once its last block is gone, dropping
+ * a dragged block at another's side to put them in columns, turning blocks into columns, and the
  * slash menu entries. Moving blocks into, out of and between columns is BlockNote's own side menu
  * drag; its core keeps column lists valid when blocks are moved or removed through its API.
  */
@@ -255,8 +260,165 @@ const ColumnCleanup = createExtension(() => ({
   ],
 }));
 
-/** The editor's column blocks: resizable columns, and the cleanup above. */
-export const columnEditorBlockSpecs = columnBlockSpecs({ columnList: ColumnListNode, column: EditorColumnNode, extensions: [ColumnCleanup()] });
+// ---------------------------------------------------------------------------------------------
+// Dropping beside a block
+
+/**
+ * Blocks dragged by their handle and dropped near the left or right side of another block go
+ * beside it: the two become a column list, or, for a block in a column, the dragged blocks become
+ * a new column next to that one (while the list has room). A line along that side shows where.
+ * Column lists themselves don't go into columns.
+ */
+const ColumnDrop = createExtension(({ editor }: { editor: PageEditor }) => {
+  let target: { id: string; side: "before" | "after" } | null = null;
+  let marker: HTMLDivElement | null = null;
+  const clear = () => {
+    target = null;
+    marker?.remove();
+    marker = null;
+  };
+  // The blocks being dragged: their ids, or null when it isn't blocks (or holds columns).
+  const dragged = (view: EditorView): string[] | null => {
+    const slice = view.dragging?.slice;
+    if (!slice) return null;
+    const ids: string[] = [];
+    let columns = false;
+    slice.content.descendants((node) => {
+      if (node.type.name === COLUMN_LIST_BLOCK || node.type.name === COLUMN_BLOCK) columns = true;
+      if (node.type.name === "blockContainer" && node.attrs.id) {
+        ids.push(String(node.attrs.id));
+        return false;
+      }
+      return !columns;
+    });
+    return columns || !ids.length ? null : ids;
+  };
+  // The block beside which a drop at (x, y) would go: one at the top level or in a column. In the
+  // page's margins, the block level with the pointer.
+  const besideOf = (view: EditorView, x: number, y: number) => {
+    for (const dx of [0, 48, -48, 96]) {
+      const hit = document.elementFromPoint(x + dx, y)?.closest(".bn-block-outer[data-id]");
+      if (!hit || !view.dom.contains(hit)) continue;
+      let block = editor.getBlock(hit.getAttribute("data-id")!);
+      while (block) {
+        const parent = editor.getParentBlock(block);
+        if (!parent || parent.type === COLUMN_BLOCK) break;
+        block = parent;
+      }
+      return block;
+    }
+    return undefined;
+  };
+  return {
+    key: "leafdeskColumnDrop",
+    prosemirrorPlugins: [
+      new Plugin({
+        key: new PluginKey("leafdeskColumnDrop"),
+        props: {
+          handleDOMEvents: {
+            dragover(view, event) {
+              const ids = dragged(view);
+              const block = ids && editor.isEditable ? besideOf(view, event.clientX, event.clientY) : undefined;
+              if (!ids || !block || ids.includes(block.id) || block.type === COLUMN_LIST_BLOCK) {
+                clear();
+                return false;
+              }
+              const column = editor.getParentBlock(block);
+              const inColumn = column?.type === COLUMN_BLOCK;
+              if (inColumn && (editor.getParentBlock(column)?.children.length ?? 0) >= MAX_COLUMNS) {
+                clear();
+                return false;
+              }
+              const element = view.dom.querySelector(inColumn ? `[data-node-type="${COLUMN_BLOCK}"][data-id="${column.id}"]` : `.bn-block-outer[data-id="${block.id}"]`);
+              if (!(element instanceof HTMLElement)) return false;
+              const rect = element.getBoundingClientRect();
+              const rtl = inlineSign(element) < 0;
+              const side = dropSide(rect, event.clientX, rtl);
+              if (!side) {
+                clear();
+                return false;
+              }
+              target = { id: block.id, side };
+              if (!marker) {
+                marker = document.createElement("div");
+                marker.className = "leafdesk-column-drop";
+                document.body.append(marker);
+              }
+              const x = (side === "before") !== rtl ? rect.left : rect.right;
+              Object.assign(marker.style, { left: `${x - 2}px`, top: `${rect.top}px`, height: `${rect.height}px` });
+              return false;
+            },
+            dragleave(view, event) {
+              if (!(event.relatedTarget instanceof Node && view.dom.contains(event.relatedTarget))) clear();
+              return false;
+            },
+            dragend() {
+              clear();
+              return false;
+            },
+          },
+          handleDrop(view, _event, _slice, moved) {
+            const at = target;
+            clear();
+            const ids = dragged(view);
+            if (!at || !ids || !moved) return false;
+            editor.transact(() => {
+              const blocks = ids.flatMap((id) => editor.getBlock(id) ?? []);
+              editor.removeBlocks(blocks);
+              const block = editor.getBlock(at.id);
+              if (!block) return;
+              const added = { type: COLUMN_BLOCK, children: blocks };
+              const column = editor.getParentBlock(block);
+              if (column?.type === COLUMN_BLOCK) {
+                editor.insertBlocks([added] as never, column, at.side);
+              } else {
+                const own = { type: COLUMN_BLOCK, children: [block] };
+                editor.replaceBlocks([block], [{ type: COLUMN_LIST_BLOCK, children: at.side === "before" ? [added, own] : [own, added] }] as never);
+              }
+            });
+            return true;
+          },
+        },
+      }),
+    ],
+  };
+});
+
+/** The editor's column blocks: resizable columns, the cleanup and the drops above. */
+export const columnEditorBlockSpecs = columnBlockSpecs({
+  columnList: ColumnListNode,
+  column: EditorColumnNode,
+  extensions: [ColumnCleanup(), ColumnDrop()],
+});
+
+/**
+ * Whether `blocks` (side by side in the page, none in a column or a column list) can become
+ * columns: two to five go one to a column, a single one gets an empty column beside it.
+ */
+export function canTurnIntoColumns(editor: PageEditor, blocks: AnyBlock[]): boolean {
+  if (!blocks.length || blocks.length > MAX_COLUMNS) return false;
+  const parent = editor.getParentBlock(blocks[0])?.id;
+  return blocks.every(
+    (block) => !isColumnBlockType(block.type) && editor.getParentBlock(block)?.id === parent && !enclosingColumn(editor, block),
+  );
+}
+
+/** Puts `blocks` in columns (see canTurnIntoColumns), the cursor in the first empty column if one was made. */
+export function turnIntoColumns(editor: PageEditor, blocks: AnyBlock[]) {
+  if (!canTurnIntoColumns(editor, blocks)) return;
+  const columns =
+    blocks.length >= MIN_COLUMNS
+      ? blocks.map((block) => ({ type: COLUMN_BLOCK, children: [block] }))
+      : [
+          { type: COLUMN_BLOCK, children: blocks },
+          { type: COLUMN_BLOCK, children: [{ type: "paragraph" }] },
+        ];
+  editor.transact(() => {
+    const [list] = editor.replaceBlocks(blocks, [{ type: COLUMN_LIST_BLOCK, children: columns }] as never).insertedBlocks;
+    const empty = blocks.length < MIN_COLUMNS ? list?.children.at(-1)?.children[0] : undefined;
+    if (empty) editor.setTextCursorPosition(empty, "start");
+  });
+}
 
 // ---------------------------------------------------------------------------------------------
 // Slash menu

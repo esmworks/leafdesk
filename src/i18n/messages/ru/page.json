@@ -568,18 +568,22 @@
       "two": {
         "title": "2 колонки",
         "subtext": "Две колонки блоков рядом",
-        "aliases": "колонки колонка макет рядом 2 две columns column layout side two"
+        "aliases": "колонки колонка макет рядом 2 две columns column layout side two col2"
       },
       "three": {
         "title": "3 колонки",
         "subtext": "Три колонки блоков рядом",
-        "aliases": "колонки колонка макет рядом 3 три columns column layout side three"
+        "aliases": "колонки колонка макет рядом 3 три columns column layout side three col3"
       },
       "add": {
         "title": "Добавить колонку",
         "subtext": "Новая колонка справа от этой (до 5)",
         "aliases": "колонка колонки добавить новая макет column columns add new layout"
       }
+    },
+    "turnInto": {
+      "title": "Превратить в",
+      "columns": "Колонки ({count}), по одному блоку в каждой"
     },
     "pageLink": {
       "title": "Ссылка на страницу",

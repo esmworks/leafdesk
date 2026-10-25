@@ -568,18 +568,22 @@
       "two": {
         "title": "2 kolonner",
         "subtext": "To kolonner med blokke side om side",
-        "aliases": "columns column layout side 2 two kolonner to"
+        "aliases": "columns column layout side 2 two kolonner to col2"
       },
       "three": {
         "title": "3 kolonner",
         "subtext": "Tre kolonner med blokke side om side",
-        "aliases": "columns column layout side 3 three kolonner tre"
+        "aliases": "columns column layout side 3 three kolonner tre col3"
       },
       "add": {
         "title": "Tilføj kolonne",
         "subtext": "En ny kolonne til højre for denne (op til 5)",
         "aliases": "column columns add new layout kolonne tilføj"
       }
+    },
+    "turnInto": {
+      "title": "Lav om til",
+      "columns": "{count} kolonner, én blok i hver"
     },
     "pageLink": {
       "title": "Link til side",
