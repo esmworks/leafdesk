@@ -42,23 +42,39 @@ export function groupAssigned<R extends { date: string | null; endDate?: string 
   })).filter((g) => g.rows.length > 0);
 }
 
-/** How a list of assigned rows is grouped: by when they are due, or by the database they are in. */
+/**
+ * How a list of assigned rows is grouped: by when they are due, or by the database they are in (a
+ * to-do written in a page: by that page).
+ */
 export type AssignedGrouping = "due" | "database";
 
 export const isAssignedGrouping = (value: unknown): value is AssignedGrouping => value === "due" || value === "database";
 
+/** A database row, or a to-do in a page (server/page-tasks.ts), as groupByDatabase places them. */
+type Placed = { date: string | null; updatedAt: Date } & (
+  | { type?: "row"; databaseId: string; databaseTitle: string | null }
+  | { type: "pageTask"; pageId: string; pageTitle: string }
+);
+
+/** Where an item goes: its database (null: shared without it) or the page its to-do is in. */
+const placeOf = (item: Placed): { id: string | null; title: string | null } =>
+  item.type === "pageTask"
+    ? { id: item.pageId, title: item.pageTitle }
+    : { id: item.databaseTitle === null ? null : item.databaseId, title: item.databaseTitle };
+
 /**
  * The rows by database, the databases by name, and the rows of each in due-date order: the
  * earliest date first, rows without one last, then the row edited last. Rows shared with the
- * viewer without their database (no title) come last, together, under a null database.
+ * viewer without their database (no title) come last, together, under a null database. To-dos in
+ * pages go under their page, which sorts by its title among the databases.
  */
-export function groupByDatabase<R extends { databaseId: string; databaseTitle: string | null; date: string | null; updatedAt: Date }>(
+export function groupByDatabase<R extends Placed>(
   rows: R[],
   collator: Intl.Collator = new Intl.Collator(),
 ): { databaseId: string | null; databaseTitle: string | null; rows: R[] }[] {
   const byDatabase = new Map<string | null, R[]>();
   for (const row of rows) {
-    const key = row.databaseTitle === null ? null : row.databaseId;
+    const key = placeOf(row).id;
     const list = byDatabase.get(key);
     if (list) list.push(row);
     else byDatabase.set(key, [row]);
@@ -66,7 +82,7 @@ export function groupByDatabase<R extends { databaseId: string; databaseTitle: s
   return [...byDatabase.entries()]
     .map(([databaseId, list]) => ({
       databaseId,
-      databaseTitle: databaseId === null ? null : list[0].databaseTitle,
+      databaseTitle: databaseId === null ? null : placeOf(list[0]).title,
       rows: list.sort(
         (a, b) =>
           (a.date === null ? 1 : 0) - (b.date === null ? 1 : 0) ||

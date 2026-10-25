@@ -16,12 +16,14 @@ import { openAssignedRows } from "@/server/assigned";
 import { runAsConnectedApp } from "@/server/connected-app";
 import { getProperties, requireDatabase, viewedRows, withCode } from "@/server/databases";
 import { pickLocale, savedLocale } from "@/server/mail/locale";
+import { openPageTasks } from "@/server/page-tasks";
 import { exportAllowed, listWorkspaces } from "@/server/workspaces";
 
 /**
  * Calendar feeds: database rows as an iCalendar address that calendar apps subscribe to, each row
  * an event on its date. A feed holds either a calendar view's rows or the rows assigned to its user
- * across a workspace (as the home page lists them, see server/assigned). The address holds a secret
+ * across a workspace, with the dated to-dos in pages that mention them (as the home page lists
+ * them, see server/assigned and server/page-tasks). The address holds a secret
  * standing for its user; every read sees what that user may see then (the view's filters, page and
  * property access), so taking their access away, or the workspace turning export or connected apps
  * off, empties or stops the feed. Like an API token it reads outside the workspace's sign-in
@@ -284,11 +286,25 @@ async function assignedFeedText(feed: Feed, workspaceId: string, now: Date): Pro
   ]);
   if (!allowed || !space) return { status: 404 };
 
-  const rows = await openAssignedRows(feed.userId, workspaceId);
+  const [rows, tasks] = await Promise.all([openAssignedRows(feed.userId, workspaceId), openPageTasks(feed.userId, workspaceId)]);
   // Each row on the first date its user may see, with its database's name when they may open it.
   const events = rows.flatMap(
     (row) => rowEvent(row, row.dateValue, workspaceId, row.databaseTitle === null ? undefined : pageLabel(row.databaseTitle, "Untitled")) ?? [],
   );
+  // Each to-do in a page that mentions them on its first date, named after its page.
+  const host = new URL(env.appUrl).host;
+  for (const task of tasks) {
+    if (!task.dateValue) continue;
+    const pageName = pageLabel(task.pageTitle, "Untitled");
+    events.push({
+      uid: `${task.pageId}-${task.blockId}@${host}`,
+      date: task.dateValue,
+      title: task.text || pageName,
+      description: pageName,
+      url: `${env.appUrl}${task.path}`,
+      updatedAt: task.updatedAt,
+    });
+  }
   const name = `${space.name} · ${label}`;
   return { status: 200, body: icsCalendar(name, events), name };
 }

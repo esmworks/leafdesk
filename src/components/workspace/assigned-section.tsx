@@ -5,7 +5,8 @@ import { AssignedList } from "@/components/workspace/assigned-list";
 import type { AssignedRows } from "@/server/assigned";
 
 /**
- * The home page's list of open database rows assigned to the viewer, by when they are due, with
+ * The home page's list of open database rows assigned to the viewer and unticked to-dos in pages
+ * that mention them, by when they are due, with
  * the calendar feed of them and a link to My tasks in its header. Says so when nothing is assigned.
  */
 export async function AssignedSection({

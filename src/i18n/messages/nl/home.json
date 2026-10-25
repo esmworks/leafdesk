@@ -2,7 +2,7 @@
   "hello": "Hallo, {name}",
   "jumpBackIn": "Verder waar je was",
   "recent": "Onlangs bewerkt",
-  "assignedEmpty": "Er is niets aan je toegewezen. Rijen in databases die aan jou zijn toegewezen, verschijnen hier.",
+  "assignedEmpty": "Er is niets aan je toegewezen. Rijen in databases die aan jou zijn toegewezen, en taken in pagina's die je noemen, verschijnen hier.",
   "empty": "Hier staat nog niets. Maak je eerste pagina om te beginnen.",
   "emptyGuest": "Hier is nog niets met je gedeeld. Pagina’s verschijnen zodra iemand ze met je deelt.",
   "newPage": "Nieuwe pagina",
@@ -22,16 +22,20 @@
   "assignedAll": "Alles bekijken",
   "myTasks": {
     "title": "Mijn taken",
-    "description": "Rijen uit databases die je kunt openen, die aan jou zijn toegewezen en nog niet klaar zijn, in de hele werkruimte.",
+    "description": "Rijen uit databases die je kunt openen, die aan jou zijn toegewezen en nog niet klaar zijn, en niet afgevinkte taken in pagina's die je noemen, in de hele werkruimte.",
     "grouping": "Groeperen op",
     "byDue": "Op deadline",
-    "byDatabase": "Op database",
+    "byDatabase": "Op database of pagina",
     "sharedRows": "Met jou gedeelde rijen",
     "shown": "De {shown} met de eerstvolgende deadline van {total} weergegeven.",
     "markDone": "“{title}” als klaar markeren",
     "undoLabel": "“{title}” als niet klaar markeren",
     "undo": "Ongedaan maken",
     "markFailed": "Kan de rij niet als klaar markeren.",
-    "undoFailed": "Kan de status van de rij niet terugzetten. Wijzig die in de rij zelf."
+    "undoFailed": "Kan de status van de rij niet terugzetten. Wijzig die in de rij zelf.",
+    "untitledTask": "Taak",
+    "onPage": "in <page>{title}</page>",
+    "tickFailed": "Kan de taak niet afvinken.",
+    "untickFailed": "Kan het vinkje niet weghalen. Haal het weg in de pagina."
   }
 }

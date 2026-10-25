@@ -4,6 +4,14 @@
 
 ### Added
 
+- **To-dos written in pages show up in My tasks.** An unticked to-do that mentions someone is
+  listed in their My tasks and on the home page beside the rows assigned to them: its text without
+  the mentions, the page it is on with its icon, and the first date mentioned in it as its due
+  date, grouped by date like rows (or under its page when grouped by database). Clicking one opens
+  the page at the to-do; ticking it ticks the to-do in the page, for people who may edit it. The
+  calendar feed of assigned rows includes the dated ones. Group and agent mentions don't count.
+  Migration 0146 adds the index (`page_task`), kept in line on every save, and queues the pages
+  written before it, which the server indexes in the background after the upgrade.
 - **Type dates in words, everywhere a date is typed.** One grammar reads dates after `@` in a page,
   in a new box on top of a date property's picker, in a date mention's menu (for its date and for
   a reminder at any time) and under a date filter's value; the box shows what the words name and

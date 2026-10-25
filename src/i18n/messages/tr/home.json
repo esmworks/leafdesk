@@ -2,7 +2,7 @@
   "hello": "Merhaba, {name}",
   "jumpBackIn": "Kaldığınız yerden devam edin",
   "recent": "Son düzenlenenler",
-  "assignedEmpty": "Size atanmış bir iş yok. Veritabanlarında size atanan satırlar burada görünür.",
+  "assignedEmpty": "Size atanmış bir iş yok. Veritabanlarında size atanan satırlar ve sizden bahseden sayfalardaki yapılacaklar burada görünür.",
   "empty": "Burada henüz bir şey yok. Başlamak için ilk sayfanızı oluşturun.",
   "emptyGuest": "Burada henüz sizinle paylaşılan bir şey yok. Biri sizinle bir sayfa paylaştığında burada görünecek.",
   "newPage": "Yeni sayfa",
@@ -22,16 +22,20 @@
   "assignedAll": "Tümünü gör",
   "myTasks": {
     "title": "Görevlerim",
-    "description": "Çalışma alanı genelinde açabildiğiniz veritabanlarında size atanmış ve bitmemiş satırlar.",
+    "description": "Çalışma alanı genelinde açabildiğiniz veritabanlarında size atanmış ve bitmemiş satırlar ile sizden bahseden sayfalardaki işaretlenmemiş yapılacaklar.",
     "grouping": "Gruplama",
     "byDue": "Bitiş tarihine göre",
-    "byDatabase": "Veritabanına göre",
+    "byDatabase": "Veritabanına veya sayfaya göre",
     "sharedRows": "Sizinle paylaşılan satırlar",
     "shown": "{total} satırdan tarihi en yakın {shown} tanesi gösteriliyor.",
     "markDone": "“{title}” satırını bitti olarak işaretle",
     "undoLabel": "“{title}” satırını bitmedi olarak işaretle",
     "undo": "Geri al",
     "markFailed": "Satır bitti olarak işaretlenemedi.",
-    "undoFailed": "Satırın durumu geri alınamadı. Satırın içinden değiştirin."
+    "undoFailed": "Satırın durumu geri alınamadı. Satırın içinden değiştirin.",
+    "untitledTask": "Yapılacak",
+    "onPage": "<page>{title}</page> sayfasında",
+    "tickFailed": "Yapılacak işaretlenemedi.",
+    "untickFailed": "Yapılacağın işareti kaldırılamadı. Sayfada kaldırın."
   }
 }

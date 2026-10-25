@@ -9,6 +9,7 @@ import { dayString } from "@/lib/time-zone";
 import { accessRank, childVisibleTo, hasLevel, levelFromRank, pageVisibleTo, requireMembership, requirePageAccess } from "@/server/access";
 import { updateRowProperties } from "@/server/databases";
 import { loadProperties } from "@/server/derived";
+import { openPageTasks, type AssignedPageTask } from "@/server/page-tasks";
 import { propertyAccessFor } from "@/server/property-access";
 
 /** How many rows the home page lists: enough for a week's work, short enough to keep the page. */
@@ -19,6 +20,7 @@ export const MY_TASKS_LIMIT = 200;
 export const CANDIDATE_LIMIT = 1000;
 
 export type AssignedRow = {
+  type: "row";
   id: string;
   title: string;
   icon: string | null;
@@ -43,17 +45,26 @@ export type AssignedRow = {
   updatedAt: Date;
 };
 
+export type { AssignedPageTask };
+
+/** What My tasks and the home page list: a database row, or a to-do in a page (server/page-tasks.ts). */
+export type AssignedItem = AssignedRow | AssignedPageTask;
+
 export type AssignedRows = {
-  groups: { key: AssignedGroupKey; rows: AssignedRow[] }[];
-  /** Every open row assigned to the viewer, of which `groups` holds the first ASSIGNED_LIMIT. */
+  groups: { key: AssignedGroupKey; rows: AssignedItem[] }[];
+  /** Every open row and to-do of the viewer's, of which `groups` holds the first ASSIGNED_LIMIT. */
   total: number;
 };
 
+/** The page an item is about: the row itself, or the page a to-do is in. */
+const pageOf = (item: AssignedItem) => (item.type === "row" ? item.id : item.pageId);
+
 /**
  * The database rows of a workspace that a person property assigns to `userId` and that aren't
- * done, grouped by their date relative to `today` (the viewer's calendar day). Only rows the viewer
- * may open count, and only where they may see the person property that names them; a status or
- * date hidden from them neither shows nor decides anything.
+ * done, with the unticked to-dos in its pages that mention them (server/page-tasks.ts), grouped by
+ * their date relative to `today` (the viewer's calendar day). Only rows and pages the viewer may
+ * open count, and only where they may see the person property that names them; a status or date
+ * hidden from them neither shows nor decides anything.
  */
 export async function assignedRows(
   userId: string,
@@ -62,22 +73,27 @@ export async function assignedRows(
   timeZone = "UTC",
   limit = ASSIGNED_LIMIT,
 ): Promise<AssignedRows> {
-  const rows = await openAssignedRows(userId, workspaceId, timeZone, { markable: true });
-  // Keep the first rows in group order, then group those again.
-  const shown = groupAssigned(rows, today)
+  const [rows, tasks] = await Promise.all([
+    openAssignedRows(userId, workspaceId, timeZone, { markable: true }),
+    openPageTasks(userId, workspaceId, timeZone, { markable: true }),
+  ]);
+  const items: AssignedItem[] = [...rows, ...tasks];
+  // Keep the first items in group order, then group those again.
+  const shown = groupAssigned(items, today)
     .flatMap((g) => g.rows)
     .slice(0, limit);
-  // Edit access to each row shown, in one query (the candidates were only checked for viewing).
-  const markable = shown.filter((r) => r.markable).map((r) => r.id);
+  // Edit access to each row (or to-do's page) shown, in one query (the candidates were only
+  // checked for viewing).
+  const markable = [...new Set(shown.filter((r) => r.markable).map(pageOf))];
   if (markable.length) {
     const levels = await db
       .select({ id: page.id, level: accessRank(userId, sql`${page.id}`) })
       .from(page)
       .where(inArray(page.id, markable));
     const editable = new Set(levels.filter((l) => hasLevel(levelFromRank(l.level), "content")).map((l) => l.id));
-    for (const row of shown) row.markable = row.markable && editable.has(row.id);
+    for (const item of shown) item.markable = item.markable && editable.has(pageOf(item));
   }
-  return { groups: groupAssigned(shown, today), total: rows.length };
+  return { groups: groupAssigned(shown, today), total: items.length };
 }
 
 /**
@@ -185,6 +201,7 @@ export async function openAssignedRows(
     // Times count on their day in the viewer's zone.
     const days = dateProp ? dateDays(value(dateProp.id), timeZone) : null;
     rows.push({
+      type: "row",
       id: row.id,
       title: row.title,
       icon: row.icon,

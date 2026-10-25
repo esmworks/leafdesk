@@ -2,7 +2,7 @@
   "hello": "Hei, {name}",
   "jumpBackIn": "Fortsett der du slapp",
   "recent": "Nylig redigert",
-  "assignedEmpty": "Ingenting er tildelt deg. Rader du er tildelt i databaser, vises her.",
+  "assignedEmpty": "Ingenting er tildelt deg. Rader du er tildelt i databaser, og gjøremål på sider som nevner deg, vises her.",
   "empty": "Ingenting her ennå. Opprett din første side for å komme i gang.",
   "emptyGuest": "Ingenting er delt med deg her ennå. Sider vises så snart noen deler dem med deg.",
   "newPage": "Ny side",
@@ -22,16 +22,20 @@
   "assignedAll": "Se alle",
   "myTasks": {
     "title": "Mine oppgaver",
-    "description": "Rader i databasene du kan åpne, som er tildelt deg og ikke er ferdige, i hele arbeidsområdet.",
+    "description": "Rader i databasene du kan åpne, som er tildelt deg og ikke er ferdige, og gjøremål uten hake på sider som nevner deg, i hele arbeidsområdet.",
     "grouping": "Grupper etter",
     "byDue": "Etter frist",
-    "byDatabase": "Etter database",
+    "byDatabase": "Etter database eller side",
     "sharedRows": "Rader som er delt med deg",
     "shown": "Viser de {shown} med nærmest frist av {total}.",
     "markDone": "Merk «{title}» som ferdig",
     "undoLabel": "Merk «{title}» som ikke ferdig",
     "undo": "Angre",
     "markFailed": "Kunne ikke merke raden som ferdig.",
-    "undoFailed": "Kunne ikke sette statusen til raden tilbake. Endre den i raden."
+    "undoFailed": "Kunne ikke sette statusen til raden tilbake. Endre den i raden.",
+    "untitledTask": "Gjøremål",
+    "onPage": "på <page>{title}</page>",
+    "tickFailed": "Kunne ikke krysse av gjøremålet.",
+    "untickFailed": "Kunne ikke fjerne haken. Fjern den på siden."
   }
 }

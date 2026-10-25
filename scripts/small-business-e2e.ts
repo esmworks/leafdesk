@@ -474,7 +474,7 @@ try {
     "the net worth by date has one bar per day counted",
     netWorthByDate,
   );
-  const assigned = (await assignedRows(ids.owner, workspaceId, day(0))).groups.flatMap((g) => g.rows);
+  const assigned = (await assignedRows(ids.owner, workspaceId, day(0))).groups.flatMap((g) => g.rows).filter((r) => r.type === "row");
   const assignedOn = new Map(assigned.map((r) => [r.title, r.date]));
   check(
     assignedOn.get("Soğuk oda") === day(-1) && assignedOn.get("Montaj") === day(-2) && assignedOn.get("Keşif") === day(5) && !assignedOn.has("Eski iş"),

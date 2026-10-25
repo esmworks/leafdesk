@@ -2,7 +2,7 @@
   "hello": "Hej, {name}",
   "jumpBackIn": "Fortsæt hvor du slap",
   "recent": "Redigeret for nylig",
-  "assignedEmpty": "Intet er tildelt dig. Rækker i databaser, som du er tildelt, vises her.",
+  "assignedEmpty": "Intet er tildelt dig. Rækker i databaser, som du er tildelt, og opgaver på sider, der nævner dig, vises her.",
   "empty": "Her er ikke noget endnu. Opret din første side for at komme i gang.",
   "emptyGuest": "Intet er delt med dig her endnu. Sider vises, når nogen deler dem med dig.",
   "newPage": "Ny side",
@@ -22,16 +22,20 @@
   "assignedAll": "Se alle",
   "myTasks": {
     "title": "Mine opgaver",
-    "description": "Rækker i de databaser, du kan åbne, som er tildelt dig og ikke er færdige, i hele arbejdsområdet.",
+    "description": "Rækker i de databaser, du kan åbne, som er tildelt dig og ikke er færdige, og opgaver uden flueben på sider, der nævner dig, i hele arbejdsområdet.",
     "grouping": "Gruppér efter",
     "byDue": "Efter forfaldsdato",
-    "byDatabase": "Efter database",
+    "byDatabase": "Efter database eller side",
     "sharedRows": "Rækker delt med dig",
     "shown": "Viser de {shown} med tidligst forfald af {total}.",
     "markDone": "Markér “{title}” som færdig",
     "undoLabel": "Markér “{title}” som ikke færdig",
     "undo": "Fortryd",
     "markFailed": "Rækken kunne ikke markeres som færdig.",
-    "undoFailed": "Rækkens status kunne ikke sættes tilbage. Ret den i rækken."
+    "undoFailed": "Rækkens status kunne ikke sættes tilbage. Ret den i rækken.",
+    "untitledTask": "Opgave",
+    "onPage": "på <page>{title}</page>",
+    "tickFailed": "Opgaven kunne ikke krydses af.",
+    "untickFailed": "Fluebenet kunne ikke fjernes. Fjern det på siden."
   }
 }

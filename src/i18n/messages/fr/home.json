@@ -2,7 +2,7 @@
   "hello": "Bonjour, {name}",
   "jumpBackIn": "Reprendre",
   "recent": "Modifiées récemment",
-  "assignedEmpty": "Rien ne vous est assigné. Les lignes qui vous sont assignées dans les bases de données apparaissent ici.",
+  "assignedEmpty": "Rien ne vous est assigné. Les lignes qui vous sont assignées dans les bases de données, et les tâches des pages qui vous mentionnent, apparaissent ici.",
   "empty": "Rien pour l’instant. Créez votre première page pour commencer.",
   "emptyGuest": "Rien n’a encore été partagé avec vous ici. Les pages apparaissent dès que quelqu’un les partage avec vous.",
   "newPage": "Nouvelle page",
@@ -22,16 +22,20 @@
   "assignedAll": "Tout voir",
   "myTasks": {
     "title": "Mes tâches",
-    "description": "Les lignes des bases de données que vous pouvez ouvrir, qui vous sont assignées et ne sont pas terminées, dans tout l’espace de travail.",
+    "description": "Les lignes des bases de données que vous pouvez ouvrir, qui vous sont assignées et ne sont pas terminées, et les tâches non cochées des pages qui vous mentionnent, dans tout l’espace de travail.",
     "grouping": "Regrouper par",
     "byDue": "Par échéance",
-    "byDatabase": "Par base de données",
+    "byDatabase": "Par base de données ou page",
     "sharedRows": "Lignes partagées avec vous",
     "shown": "Les {shown} plus proches de leur échéance sur {total} sont affichées.",
     "markDone": "Marquer « {title} » comme terminée",
     "undoLabel": "Marquer « {title} » comme non terminée",
     "undo": "Annuler",
     "markFailed": "Impossible de marquer la ligne comme terminée.",
-    "undoFailed": "Impossible de rétablir le statut de la ligne. Modifiez-le dans la ligne."
+    "undoFailed": "Impossible de rétablir le statut de la ligne. Modifiez-le dans la ligne.",
+    "untitledTask": "Tâche",
+    "onPage": "dans <page>{title}</page>",
+    "tickFailed": "Impossible de cocher la tâche.",
+    "untickFailed": "Impossible de décocher la tâche. Décochez-la dans la page."
   }
 }

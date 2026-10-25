@@ -4,7 +4,11 @@
  * they can't open or values hidden from them (a hidden person property doesn't count, a hidden
  * status or date neither shows nor decides), the name of a database they can't open, and the cap.
  * Then the calendar feed of those rows: the dated ones as events, gone with export or connected
- * apps turned off or membership lost, replaced or turned off. Creates its own users and workspaces and deletes them afterwards.
+ * apps turned off or membership lost, replaced or turned off. Then to-dos in pages that mention
+ * someone (server/page-tasks.ts): indexed on save, listed by date with their page, ticked and
+ * unticked from the list (edit access only), hidden on pages the viewer can't open or in the
+ * trash, in the feed when dated, and indexed by the backfill. Creates its own users and workspaces
+ * and deletes them afterwards.
  *
  *   pnpm tsx scripts/assigned-e2e.ts
  *
@@ -19,9 +23,10 @@ try {
 // Imported after .env is loaded: the database client reads DATABASE_URL when it is created.
 const { and, eq, inArray } = await import("drizzle-orm");
 const { db } = await import("@/db");
-const { calendarFeed, user, workspace, workspaceMember } = await import("@/db/schema");
+const { calendarFeed, pageTask, pageTaskBackfill, user, workspace, workspaceMember } = await import("@/db/schema");
 const { dayString, localDay } = await import("@/lib/time-zone");
-const { registerCollab } = await import("@/server/collab/bridge");
+const { getCollab, registerCollab } = await import("@/server/collab/bridge");
+const { backfillPageTasks, setPageTaskChecked } = await import("@/server/page-tasks");
 const { createCollab } = await import("@/server/collab/service");
 const { addProperty } = await import("@/server/databases");
 const { loadProperties } = await import("@/server/derived");
@@ -103,7 +108,7 @@ try {
   await createRowTemplate(owner, tasks.id, { title: "Row template", properties: mine });
 
   const asMember = await assignedRows(ids.member, workspaceId, today);
-  const titles = (r: typeof asMember) => r.groups.map((g) => [g.key, g.rows.map((x) => x.title)]);
+  const titles = (r: typeof asMember) => r.groups.map((g) => [g.key, g.rows.map((x) => (x.type === "row" ? x.title : x.text))]);
   check(
     JSON.stringify(titles(asMember)) ===
       JSON.stringify([
@@ -120,7 +125,7 @@ try {
   check(asMember.total === 6, "the total counts the open rows", asMember.total);
   const first = asMember.groups[0].rows[0];
   check(
-    first.id === overdue.id && first.date === day(-1) && first.status?.name === "Not started" && first.databaseTitle === "Tasks",
+    first.type === "row" && first.id === overdue.id && first.date === day(-1) && first.status?.name === "Not started" && first.databaseTitle === "Tasks",
     "a row carries its date, status and database",
     first,
   );
@@ -163,7 +168,7 @@ try {
   await setPropertyAccess(ids.owner, hiddenDate.id, { everyone: "none", exceptions: [] });
 
   const withHidden = await assignedRows(ids.member, workspaceId, today);
-  const all = withHidden.groups.flatMap((g) => g.rows);
+  const all = withHidden.groups.flatMap((g) => g.rows).filter((r) => r.type === "row");
   check(!all.some((r) => r.title === "Named in a hidden property"), "a hidden person property assigns nobody", titles(withHidden));
   const shownDone = all.find((r) => r.id === doneHidden.id);
   check(
@@ -181,7 +186,7 @@ try {
   await setPagePermission(ids.owner, secret.id, null, "none");
   const sharedRow = await createPage(owner, { workspaceId, parentId: secret.id, title: "Shared row", properties: { Assignee: [ids.member] } });
   await setPagePermission(ids.owner, sharedRow.id, ids.member, "view");
-  const shared = (await assignedRows(ids.member, workspaceId, today)).groups.flatMap((g) => g.rows).find((r) => r.id === sharedRow.id);
+  const shared = (await assignedRows(ids.member, workspaceId, today)).groups.flatMap((g) => g.rows).filter((r) => r.type === "row").find((r) => r.id === sharedRow.id);
   check(shared && shared.databaseTitle === null, "a row shared on its own shows without its database's name", shared);
 
   // The cap: the first rows in group order, with the total of all.
@@ -279,6 +284,106 @@ try {
   await deleteAssignedCalendarFeed(ids.member, workspaceId);
   check((await readCalendarFeed(newSecret)).status === 404, "turned off, it reads nothing");
   check((await readCalendarFeed(ownerFeed)).status === 200, "…and the other person's still reads");
+
+  // ── To-dos in pages that mention someone (server/page-tasks.ts) ──────────────────────────────
+  const tasksOf = async (userId: string) =>
+    (await assignedRows(userId, workspaceId, today)).groups.flatMap((g) => g.rows.map((r) => ({ ...r, group: g.key }))).filter((r) => r.type === "pageTask");
+  const indexed = async (pageId: string) =>
+    (await db.select().from(pageTask).where(eq(pageTask.pageId, pageId))).sort((a, b) => a.text.localeCompare(b.text) || a.userId.localeCompare(b.userId));
+  const before = await assignedRows(ids.member, workspaceId, today);
+  const notes = await createPage(owner, { workspaceId, title: "Launch notes", icon: "🚀" });
+  await getCollab().replaceContent(
+    notes.id,
+    [
+      `- [ ] @${ids.member}: write the post by @${day(-3)}`,
+      `- [ ] Review the launch @${ids.member} @${ids.owner} @${day(2)}`,
+      `- [x] @${ids.member} already done`,
+      "- [ ] Nobody named",
+      `Plain text naming @${ids.member}`,
+    ].join("\n"),
+    owner,
+  );
+  const rowsAfterWrite = await indexed(notes.id);
+  check(
+    JSON.stringify(rowsAfterWrite.map((r) => [r.text, r.userId, r.date])) ===
+      JSON.stringify([
+        ["Review the launch", ids.member, day(2)],
+        ["Review the launch", ids.owner, day(2)],
+        ["write the post by", ids.member, day(-3)],
+      ]),
+    "a save indexes each unticked to-do once per person it mentions, with its text and first date",
+    rowsAfterWrite,
+  );
+  const writePost = rowsAfterWrite.find((r) => r.text === "write the post by")!;
+  const memberTasks = await tasksOf(ids.member);
+  const overdueTask = memberTasks.find((t) => t.blockId === writePost.blockId);
+  check(
+    memberTasks.length === 2 &&
+      overdueTask?.group === "overdue" &&
+      overdueTask.pageTitle === "Launch notes" &&
+      overdueTask.pageIcon === "🚀" &&
+      overdueTask.path === `/w/${workspaceId}/p/${notes.id}#block-${writePost.blockId}` &&
+      overdueTask.markable,
+    "the list holds the member's to-dos by date, each with its page and a link to the block",
+    memberTasks,
+  );
+  check(memberTasks.find((t) => t.blockId !== writePost.blockId)?.group === "next7", "…a to-do due in two days among the next 7 days");
+  check((await assignedRows(ids.member, workspaceId, today)).total === before.total + 2, "…counted in the total");
+  check((await tasksOf(ids.owner)).length === 1, "the owner gets the to-do that mentions them too");
+
+  // Ticking from the list writes the block; the save takes it out of the index.
+  await setPageTaskChecked(ids.member, notes.id, writePost.blockId, true);
+  const ticked = (await getCollab().readBlocks(notes.id)).blocks as { id: string; props: { checked?: unknown } }[];
+  check(ticked.find((b) => b.id === writePost.blockId)?.props.checked === true, "ticking from the list ticks the to-do in the page");
+  check(!(await tasksOf(ids.member)).some((t) => t.blockId === writePost.blockId), "…and it leaves the list");
+  await setPageTaskChecked(ids.member, notes.id, writePost.blockId, false);
+  check((await tasksOf(ids.member)).some((t) => t.blockId === writePost.blockId), "unticking brings it back");
+
+  // Who may tick: edit access to the page's content.
+  await setPagePermission(ids.owner, notes.id, ids.owner, "full");
+  await setPagePermission(ids.owner, notes.id, ids.member, "view");
+  await setPagePermission(ids.owner, notes.id, null, "none");
+  check((await tasksOf(ids.member)).every((t) => !t.markable), "a to-do on a page the member may only view can't be ticked from the list");
+  let viewerRefused = false;
+  try {
+    await setPageTaskChecked(ids.member, notes.id, writePost.blockId, true);
+  } catch (error) {
+    viewerRefused = error instanceof AccessError;
+  }
+  check(viewerRefused, "…nor ticked through the action");
+  await setPagePermission(ids.owner, notes.id, ids.member, "none");
+  check((await tasksOf(ids.member)).length === 0, "a page the member can't open lists none of its to-dos");
+  await setPagePermission(ids.owner, notes.id, ids.member, "edit");
+
+  // Edits follow; the trash hides them.
+  await getCollab().replaceContent(notes.id, `- [ ] @${ids.member} write the launch post`, owner);
+  const rewritten = await indexed(notes.id);
+  check(
+    rewritten.length === 1 && rewritten[0].text === "write the launch post" && rewritten[0].date === null,
+    "rewriting the page brings the index in line",
+    rewritten,
+  );
+  const afterRewrite = await readCalendarFeed(ownerFeed);
+  check(afterRewrite.status === 200 && !afterRewrite.body.includes(notes.id), "a to-do the owner is no longer named in leaves their feed");
+  await getCollab().replaceContent(notes.id, `- [ ] @${ids.owner} call the printer @${day(1)}`, owner);
+  const featured = await readCalendarFeed(ownerFeed);
+  const withTask = featured.status === 200 ? featured.body.replace(/\r\n /g, "") : "";
+  check(
+    withTask.includes("SUMMARY:call the printer\r\nDESCRIPTION:Launch notes\r\n") && withTask.includes(`/w/${workspaceId}/p/${notes.id}#block-`),
+    "the feed of assigned rows holds a dated to-do, named after its page and linking to it",
+    withTask,
+  );
+
+  // The backfill indexes pages written before the index.
+  await db.delete(pageTask).where(eq(pageTask.pageId, notes.id));
+  await db.insert(pageTaskBackfill).values({ pageId: notes.id }).onConflictDoNothing();
+  let queued = 1;
+  while (queued > 0) queued = await backfillPageTasks();
+  check((await indexed(notes.id)).length === 1, "the backfill indexes a queued page", await indexed(notes.id));
+  check((await db.select().from(pageTaskBackfill).where(eq(pageTaskBackfill.pageId, notes.id))).length === 0, "…and takes it off the queue");
+
+  await archivePage(ids.owner, notes.id);
+  check((await tasksOf(ids.owner)).length === 0, "a page in the trash lists none of its to-dos");
 
   let refused = false;
   try {
