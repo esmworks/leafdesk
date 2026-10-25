@@ -58,6 +58,7 @@
     "rowMoveTo": "Siirrä rivi muualle (sen valikko auki)",
     "rowComment": "Kommentoi riviä (sen valikko auki)",
     "rowTrash": "Siirrä rivi roskakoriin (sen valikko auki)",
-    "link": "Linkitä valittu teksti"
+    "link": "Linkitä valittu teksti",
+    "newSubPage": "Luo sivu tämän sisään, linkitettynä tekstissä (välilyönnin jälkeen)"
   }
 }

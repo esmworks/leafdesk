@@ -104,6 +104,13 @@ describe("pdfDocument", () => {
     expect(JSON.stringify(content[2])).toContain('"link":"https://app.example/api/files/bbbbbbbbbbbbbbbbbbbbbbbb"');
   });
 
+  it("writes a code block's caption under it", () => {
+    const content = contentOf(input([block("codeBlock", "let a = 1;", { language: "js", caption: "Setting a" }), block("codeBlock", "b()", { language: "js", caption: "" })]));
+    expect(JSON.stringify(content[1])).toContain('"text":"Setting a"');
+    expect(JSON.stringify(content[2])).not.toContain("caption");
+    expect(content[2]).toMatchObject({ table: expect.anything() });
+  });
+
   it("draws a cropped image as an SVG showing only its part", () => {
     const url = "/api/files/aaaaaaaaaaaaaaaaaaaaaaaa";
     const images = new Map([[url, "data:image/png;base64,AAAA"]]);

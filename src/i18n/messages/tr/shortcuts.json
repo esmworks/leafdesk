@@ -58,6 +58,7 @@
     "rowMoveTo": "Satırı başka yere taşı (menüsü açıkken)",
     "rowComment": "Satıra yorum yap (menüsü açıkken)",
     "rowTrash": "Satırı çöp kutusuna taşı (menüsü açıkken)",
-    "link": "Seçili metne bağlantı ekle"
+    "link": "Seçili metne bağlantı ekle",
+    "newSubPage": "Bunun içinde, metinden bağlantı verilen bir sayfa oluştur (boşluktan sonra)"
   }
 }

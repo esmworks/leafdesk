@@ -558,7 +558,9 @@
       "plainText": "Oformaterad text",
       "format": "Formatera koden",
       "formatSyntaxError": "Koden formaterades inte: det finns ett syntaxfel på rad {line}.",
-      "formatFailed": "Koden kunde inte formateras."
+      "formatFailed": "Koden kunde inte formateras.",
+      "caption": "Bildtext",
+      "captionPlaceholder": "Skriv en bildtext …"
     },
     "math": {
       "title": "Ekvation",
@@ -1292,5 +1294,16 @@
     "creating": "Skapar en sida …",
     "failed": "Det gick inte att skapa sidan.",
     "home": "Gå till arbetsytan"
+  },
+  "linkPicker": {
+    "placeholder": "Klistra in en länk eller sök efter sidor",
+    "pages": "Sidor",
+    "newPage": "Ny sida: {title}"
+  },
+  "turnIntoPage": {
+    "menuItem": "Gör om till sida i …",
+    "title": "Gör om till sida i",
+    "here": "Inuti den här sidan",
+    "failed": "Det gick inte att flytta blocken till en ny sida."
   }
 }

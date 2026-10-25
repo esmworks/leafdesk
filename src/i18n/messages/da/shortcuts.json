@@ -58,6 +58,7 @@
     "rowMoveTo": "Flyt rækken et andet sted hen (med dens menu åben)",
     "rowComment": "Kommentér rækken (med dens menu åben)",
     "rowTrash": "Flyt rækken til papirkurven (med dens menu åben)",
-    "link": "Link den markerede tekst"
+    "link": "Link den markerede tekst",
+    "newSubPage": "Opret en side i denne, linket i teksten (efter et mellemrum)"
   }
 }

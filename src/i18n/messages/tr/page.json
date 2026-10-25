@@ -558,7 +558,9 @@
       "plainText": "Düz metin",
       "format": "Kodu biçimlendir",
       "formatSyntaxError": "Kod biçimlendirilmedi: {line}. satırda bir söz dizimi hatası var.",
-      "formatFailed": "Kod biçimlendirilemedi."
+      "formatFailed": "Kod biçimlendirilemedi.",
+      "caption": "Açıklama",
+      "captionPlaceholder": "Açıklama yazın…"
     },
     "math": {
       "title": "Denklem",
@@ -1292,5 +1294,16 @@
     "creating": "Sayfa oluşturuluyor…",
     "failed": "Sayfa oluşturulamadı.",
     "home": "Çalışma alanına git"
+  },
+  "linkPicker": {
+    "placeholder": "Bağlantı yapıştırın veya sayfa arayın",
+    "pages": "Sayfalar",
+    "newPage": "Yeni sayfa: {title}"
+  },
+  "turnIntoPage": {
+    "menuItem": "Şurada sayfaya dönüştür…",
+    "title": "Şurada sayfaya dönüştür",
+    "here": "Bu sayfanın içinde",
+    "failed": "Bloklar yeni bir sayfaya taşınamadı."
   }
 }

@@ -58,6 +58,7 @@
     "rowMoveTo": "Zeile verschieben (ihr Menü geöffnet)",
     "rowComment": "Zeile kommentieren (ihr Menü geöffnet)",
     "rowTrash": "Zeile in den Papierkorb verschieben (ihr Menü geöffnet)",
-    "link": "Markierten Text verlinken"
+    "link": "Markierten Text verlinken",
+    "newSubPage": "Eine Seite in dieser anlegen, im Text verlinkt (nach einem Leerzeichen)"
   }
 }

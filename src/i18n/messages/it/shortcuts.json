@@ -58,6 +58,7 @@
     "rowMoveTo": "Sposta la riga altrove (con il suo menu aperto)",
     "rowComment": "Commenta la riga (con il suo menu aperto)",
     "rowTrash": "Sposta la riga nel cestino (con il suo menu aperto)",
-    "link": "Collega il testo selezionato"
+    "link": "Collega il testo selezionato",
+    "newSubPage": "Crea una pagina dentro questa, collegata nel testo (dopo uno spazio)"
   }
 }

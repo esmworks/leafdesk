@@ -10,7 +10,7 @@ import {
 } from "@blocknote/react";
 import { TextQuote } from "lucide-react";
 import { useLocale, useTimeZone, useTranslations } from "next-intl";
-import { TextSelection, type Transaction } from "prosemirror-state";
+import { TextSelection } from "prosemirror-state";
 import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import { getSnippetAction } from "@/app/actions/snippets";
 import { announceSnippetsChanged, useSnippetLibrary } from "@/components/snippets/library";
@@ -26,6 +26,7 @@ import {
 } from "@/lib/snippets";
 import { browserTimeZone } from "@/lib/time-zone";
 import type { PageEditor } from "./embed-blocks";
+import { opensAfterSpace } from "./opens-after-space";
 
 type AnyBlock = PageEditor["document"][number];
 
@@ -115,14 +116,6 @@ export function usePlaceholderContext(me: string, pageTitle: () => string) {
     (): PlaceholderContext => ({ now: new Date(), locale, timeZone, me, page: title.current() }),
     [locale, timeZone, me],
   );
-}
-
-/** Opens only at the start of a line or after a space: a semicolon after a word is just a semicolon. */
-function opensAfterSpace(tr: Transaction) {
-  const { $from } = tr.selection;
-  if ($from.parentOffset === 0) return true;
-  const before = $from.parent.textBetween($from.parentOffset - 1, $from.parentOffset, undefined, "￼");
-  return /\s/.test(before);
 }
 
 type InsertOptions = {

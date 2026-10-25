@@ -173,7 +173,10 @@ BlockNote on Yjs; Tailwind v4; next-intl. Node 24, pnpm 11. A separate Electron 
   size last picked (`components/page/quote-size.ts`, an `appendTransaction` plugin reusing
   `changedRanges` from `toggle-headings.ts`).
   What tables offer (merging, cell colors, headers) is `TABLE_SETTINGS` in `embed-blocks.tsx`, for
-  every editor that shows tables. BlockNote's own Backspace runs before a plugin's `handleKeyDown`:
+  every editor that shows tables. A prop added to one of BlockNote's own blocks (a quote's size, a
+  code block's caption) goes in one config in `lib/` (`quote-block.ts`, `code-block.ts`) that the
+  editor's spec and `server/blocknote.ts` both use: the side that doesn't know a prop drops it.
+  BlockNote's own Backspace runs before a plugin's `handleKeyDown`:
   an extension that must see Backspace first takes it in `keyboardShortcuts` (`smart-quotes.ts`).
 - **Icons.** A stored icon is an emoji or `icon:<name>[:<color>]` (`src/lib/icon-value.ts`, tiny and
   safe anywhere; checked by `lib/icon.ts` `parseIcon` against `lib/builtin-icon-names.ts`). Show one

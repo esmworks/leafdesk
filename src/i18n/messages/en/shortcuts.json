@@ -58,6 +58,7 @@
     "rowMoveTo": "Move the row elsewhere (its menu open)",
     "rowComment": "Comment on the row (its menu open)",
     "rowTrash": "Move the row to the trash (its menu open)",
-    "link": "Link the selected text"
+    "link": "Link the selected text",
+    "newSubPage": "Make a page inside this one, linked in the text (after a space)"
   }
 }

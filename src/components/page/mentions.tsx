@@ -27,6 +27,7 @@ import { createPageAction } from "@/app/actions/pages";
 import { useChannel } from "@/components/collab/use-channel";
 import { useOpenDailyNote } from "@/components/journal/daily-notes";
 import { Button, cn, Dialog, PageIcon, pageLabel, useDismiss } from "@/components/ui";
+import { opensAfterSpace } from "./opens-after-space";
 import { UserAvatar } from "@/components/user-avatar";
 import {
   formatIsoDate,
@@ -683,13 +684,17 @@ function usePageItem() {
 // The [[ menu
 
 const PAGE_LINK_TRIGGER = "[[";
+/** `+Title`: a new page inside this one, written into the text as a mention of it. */
+const NEW_PAGE_TRIGGER = "+";
 
 const sameTitle = (p: PageCandidate, title: string) => searchFold(p.title.trim()) === searchFold(title);
 
 /**
  * `[[` in the editor: pages to link to, and a new page inside this one with the typed title.
  * Typing `[[Title]]` out links to the page of that title when there is one; when there isn't, the
- * text stays as typed.
+ * text stays as typed. `+` after a space does it the other way round: a new page with the typed
+ * title first, then pages to link to; a number or a space right after it (`+90`, `a + b`) is
+ * just text.
  */
 export function PageLinkMenu({ editor, workspaceId, pageId, offline }: { editor: PageEditor; workspaceId: string; pageId: string; offline: boolean }) {
   const t = useTranslations("page.mention");
@@ -752,6 +757,19 @@ export function PageLinkMenu({ editor, workspaceId, pageId, offline }: { editor:
     [editor, workspaceId, offline, load, pageItem, createAndLink, t],
   );
 
+  const getNewPageItems = useCallback(
+    async (query: string): Promise<DefaultReactSuggestionItem[]> => {
+      const title = query.trim();
+      if (!title || /^[\s\d]/.test(query)) return [];
+      const pages = await load(title);
+      const create: DefaultReactSuggestionItem[] = offline
+        ? []
+        : [{ title: t("newPage", { title }), subtext: t("newPageHint"), group: t("pages"), icon: <FilePlus size={18} />, onItemClick: () => void createAndLink(title) }];
+      return [...create, ...pages.map((p) => pageItem(p, () => insertPageMention(editor, workspaceId, p)))];
+    },
+    [editor, workspaceId, offline, load, pageItem, createAndLink, t],
+  );
+
   // "[[Title]]" typed out: the page of that title, if there is one.
   const query = useExtensionState(SuggestionMenu, {
     editor,
@@ -781,6 +799,8 @@ export function PageLinkMenu({ editor, workspaceId, pageId, offline }: { editor:
   return (
     <>
       <SuggestionMenuController triggerCharacter={PAGE_LINK_TRIGGER} getItems={getItems} />
+      {/* Shown once a title is begun: not for a lone "+", nor for "+ " (text such as "a + b"). */}
+      <SuggestionMenuController triggerCharacter={NEW_PAGE_TRIGGER} shouldOpen={opensAfterSpace} minQueryLength={1} getItems={getNewPageItems} />
       {pastedComment && <CommentPasteChooser editor={editor} pasted={pastedComment} onDone={() => setPastedComment(null)} />}
     </>
   );
@@ -906,6 +926,7 @@ export function PagePicker({
   open,
   pageId,
   title,
+  here,
   onPick,
   onClose,
 }: {
@@ -913,6 +934,8 @@ export function PagePicker({
   pageId: string;
   /** What the picker is for, for screen readers ("Link to page" by default). */
   title?: string;
+  /** A choice above the pages, such as the page itself. */
+  here?: { label: string; onPick: () => void };
   onPick: (pageId: string) => void;
   onClose: () => void;
 }) {
@@ -975,6 +998,16 @@ export function PagePicker({
         />
       </div>
       <div className={cn("max-h-80 overflow-y-auto p-1", !pages && !failed && "opacity-70")}>
+        {here && (
+          <button
+            type="button"
+            onClick={here.onPick}
+            className="flex w-full items-center gap-2 rounded px-2 py-1.5 text-start text-sm font-medium hover:bg-bg-hover"
+          >
+            <FilePlus className="h-4 w-4 text-fg-muted" />
+            <span className="truncate">{here.label}</span>
+          </button>
+        )}
         {pages?.map((p, i) => (
           <button
             key={p.id}

@@ -90,6 +90,7 @@ export const SHORTCUT_GROUPS: readonly ShortcutGroup[] = [
       { id: "slashMenu", combos: [["/"]] },
       { id: "mention", combos: [["@"]] },
       { id: "pageLink", combos: [["[["]] },
+      { id: "newSubPage", combos: [["+"]] },
       // BlockNote's block shortcuts.
       { id: "paragraph", combos: [["Mod", "Alt", "0"]] },
       { id: "heading1", combos: [["Mod", "Alt", "1"]] },

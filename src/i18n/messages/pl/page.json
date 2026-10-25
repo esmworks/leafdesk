@@ -558,7 +558,9 @@
       "plainText": "Zwykły tekst",
       "format": "Formatuj kod",
       "formatSyntaxError": "Kod nie został sformatowany: błąd składni w wierszu {line}.",
-      "formatFailed": "Nie udało się sformatować kodu."
+      "formatFailed": "Nie udało się sformatować kodu.",
+      "caption": "Podpis",
+      "captionPlaceholder": "Napisz podpis…"
     },
     "math": {
       "title": "Równanie",
@@ -1292,5 +1294,16 @@
     "creating": "Tworzenie strony…",
     "failed": "Nie udało się utworzyć strony.",
     "home": "Przejdź do obszaru roboczego"
+  },
+  "linkPicker": {
+    "placeholder": "Wklej link lub wyszukaj strony",
+    "pages": "Strony",
+    "newPage": "Nowa strona: {title}"
+  },
+  "turnIntoPage": {
+    "menuItem": "Zamień na stronę w…",
+    "title": "Zamień na stronę w",
+    "here": "Wewnątrz tej strony",
+    "failed": "Nie udało się przenieść bloków na nową stronę."
   }
 }

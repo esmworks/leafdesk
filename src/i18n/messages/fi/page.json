@@ -558,7 +558,9 @@
       "plainText": "Pelkkä teksti",
       "format": "Muotoile koodi",
       "formatSyntaxError": "Koodia ei muotoiltu: rivillä {line} on syntaksivirhe.",
-      "formatFailed": "Koodin muotoileminen epäonnistui."
+      "formatFailed": "Koodin muotoileminen epäonnistui.",
+      "caption": "Kuvateksti",
+      "captionPlaceholder": "Kirjoita kuvateksti…"
     },
     "math": {
       "title": "Yhtälö",
@@ -1292,5 +1294,16 @@
     "creating": "Luodaan sivua…",
     "failed": "Sivua ei voitu luoda.",
     "home": "Siirry työtilaan"
+  },
+  "linkPicker": {
+    "placeholder": "Liitä linkki tai hae sivuja",
+    "pages": "Sivut",
+    "newPage": "Uusi sivu: {title}"
+  },
+  "turnIntoPage": {
+    "menuItem": "Muuta sivuksi kohteessa…",
+    "title": "Muuta sivuksi kohteessa",
+    "here": "Tämän sivun sisällä",
+    "failed": "Lohkoja ei voitu siirtää uudelle sivulle."
   }
 }

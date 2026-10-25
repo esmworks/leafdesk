@@ -558,7 +558,9 @@
       "plainText": "Plain text",
       "format": "Format code",
       "formatSyntaxError": "The code wasn't formatted: there's a syntax error on line {line}.",
-      "formatFailed": "The code couldn't be formatted."
+      "formatFailed": "The code couldn't be formatted.",
+      "caption": "Caption",
+      "captionPlaceholder": "Write a caption…"
     },
     "math": {
       "title": "Equation",
@@ -1292,5 +1294,16 @@
     "creating": "Creating a page…",
     "failed": "Couldn't create the page.",
     "home": "Go to the workspace"
+  },
+  "linkPicker": {
+    "placeholder": "Paste a link or search pages",
+    "pages": "Pages",
+    "newPage": "New page: {title}"
+  },
+  "turnIntoPage": {
+    "menuItem": "Turn into page in…",
+    "title": "Turn into page in",
+    "here": "Inside this page",
+    "failed": "Couldn't move the blocks to a new page."
   }
 }

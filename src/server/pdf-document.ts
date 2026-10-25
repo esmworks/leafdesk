@@ -1,3 +1,4 @@
+import { cleanCodeCaption } from "@/lib/code-caption";
 import { builtinIconSvg } from "@/lib/builtin-icon-svg";
 import type { Alignment, Column, Content, ContentImage, ContentTable, ContentText, TableCell, TDocumentDefinitions } from "pdfmake/interfaces";
 import { CALLOUT_BLOCK, MATH_BLOCK, MERMAID_BLOCK, BREADCRUMB_BLOCK, FOOTNOTE, INLINE_MATH, SUBPAGES_BLOCK, TOC_BLOCK } from "@/lib/content-blocks";
@@ -299,8 +300,12 @@ function blockContent(block: MdBlock, walk: Walk, width: number): Content[] {
       return [boxed([text, ...nested(block, walk, width - 12)], { edge: BORDER })];
     }
     case "codeBlock":
-    case MERMAID_BLOCK:
-      return [boxed([{ text: plainText(block.content) || " ", fontSize: 9, preserveLeadingSpaces: true, lineHeight: 1.2 }], { fill: SUBTLE })];
+    case MERMAID_BLOCK: {
+      const code = boxed([{ text: plainText(block.content) || " ", fontSize: 9, preserveLeadingSpaces: true, lineHeight: 1.2 }], { fill: SUBTLE });
+      // A code block's caption (lib/code-block) under it.
+      const caption = cleanCodeCaption(str(prop(block, "caption")));
+      return caption ? [{ stack: [code, ...captionLine(caption)], margin: [0, 0, 0, 6] }] : [code];
+    }
     case MATH_BLOCK:
       return [{ text: plainText(block.content), italics: true, alignment: "center", margin: [0, 4, 0, 8] }];
     case CALLOUT_BLOCK: {

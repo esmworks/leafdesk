@@ -58,6 +58,7 @@
     "rowMoveTo": "Pindahkan baris ke tempat lain (menunya terbuka)",
     "rowComment": "Komentari baris (menunya terbuka)",
     "rowTrash": "Pindahkan baris ke sampah (menunya terbuka)",
-    "link": "Tautkan teks yang dipilih"
+    "link": "Tautkan teks yang dipilih",
+    "newSubPage": "Buat halaman di dalam halaman ini, ditautkan di teks (setelah spasi)"
   }
 }

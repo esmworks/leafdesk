@@ -31,6 +31,7 @@ import {
 } from "@/lib/content-blocks";
 import { columnBlockSpecs } from "@/lib/columns";
 import { quoteBlockSpec } from "@/lib/quote-block";
+import { serverCodeBlockSpec } from "@/lib/code-block";
 import { finishMarkdownImport, plainText, prepareMarkdownExport, prepareMarkdownImport } from "@/lib/content-markdown";
 import {
   mentionConfig,
@@ -279,6 +280,8 @@ export const pageSchema = BlockNoteSchema.create({
     ...defaultBlockSpecs,
     // Quotes in the text's size or large (lib/quote-block).
     quote: quoteBlockSpec(),
+    // Code blocks may have a caption (lib/code-block).
+    codeBlock: serverCodeBlockSpec(),
     // Images may link to a web address or a page (lib/image-links).
     image: linkedImageSpec(),
     // Files and audio may be aligned, and a file shown in place made narrower (lib/media-blocks).

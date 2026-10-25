@@ -13,7 +13,7 @@ import { useTranslations } from "next-intl";
 import { useState } from "react";
 import { TextSelection } from "prosemirror-state";
 import { EMPTY_MENTION, linkedPageRef, MENTION } from "@/lib/mentions";
-import { parseWebUrl } from "@/lib/web-url";
+import { parseWebUrl, shownAddress } from "@/lib/web-url";
 import type { PageEditor } from "./embed-blocks";
 
 /**
@@ -33,7 +33,7 @@ export function linkToMention(editor: PageEditor, from: number, to: number, url:
 }
 
 /**
- * The toolbar of a link in the text: BlockNote's buttons, "Copy link" and, when `mentionable` (the
+ * The toolbar of a link in the text: where it goes, BlockNote's buttons, "Copy link" and, when `mentionable` (the
  * page can be edited), "Show as mention" and "Turn into bookmark".
  */
 export function LinkToolbarWithMention({ editor, mentionable: allowed, ...props }: LinkToolbarProps & { editor: PageEditor; mentionable: boolean }) {
@@ -41,9 +41,16 @@ export function LinkToolbarWithMention({ editor, mentionable: allowed, ...props 
   const Components = useComponentsContext()!;
   const [copied, setCopied] = useState(false);
   const href = parseWebUrl(props.url)?.href;
-  const mentionable = allowed && Boolean(href && !linkedPageRef(href, window.location.origin));
+  const web = Boolean(href && !linkedPageRef(href, window.location.origin));
+  const mentionable = allowed && web;
   return (
     <LinkToolbar {...props}>
+      {/* Where a web link goes, before anyone opens it (a page link has its hover card). */}
+      {web && (
+        <span title={props.url} dir="ltr" className="max-w-56 self-center truncate px-2 text-xs text-fg-muted">
+          {shownAddress(props.url)}
+        </span>
+      )}
       <EditLinkButton
         url={props.url}
         text={props.text}

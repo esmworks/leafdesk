@@ -52,3 +52,14 @@ export function markdownLinkText(text: string): string {
 export function markdownLinkDestination(href: string): string {
   return /[\s()<>]/.test(href) ? `<${href.replace(/[<>\s]/g, encodeURIComponent)}>` : href;
 }
+
+/** A web address as the link toolbar shows it: without its scheme, a leading www. or a trailing slash. */
+export function shownAddress(url: string): string {
+  try {
+    const parsed = new URL(url);
+    if (parsed.protocol === "mailto:" || parsed.protocol === "tel:") return decodeURIComponent(parsed.href.slice(parsed.protocol.length));
+    return decodeURI(`${parsed.host.replace(/^www\./, "")}${parsed.pathname}${parsed.search}${parsed.hash}`).replace(/\/$/, "");
+  } catch {
+    return url;
+  }
+}

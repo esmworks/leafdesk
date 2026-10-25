@@ -558,7 +558,9 @@
       "plainText": "Nur Text",
       "format": "Code formatieren",
       "formatSyntaxError": "Der Code wurde nicht formatiert: In Zeile {line} ist ein Syntaxfehler.",
-      "formatFailed": "Der Code konnte nicht formatiert werden."
+      "formatFailed": "Der Code konnte nicht formatiert werden.",
+      "caption": "Bildunterschrift",
+      "captionPlaceholder": "Beschriftung schreiben …"
     },
     "math": {
       "title": "Gleichung",
@@ -1292,5 +1294,16 @@
     "creating": "Seite wird erstellt …",
     "failed": "Die Seite konnte nicht erstellt werden.",
     "home": "Zum Workspace"
+  },
+  "linkPicker": {
+    "placeholder": "Link einfügen oder Seiten suchen",
+    "pages": "Seiten",
+    "newPage": "Neue Seite: {title}"
+  },
+  "turnIntoPage": {
+    "menuItem": "In Seite umwandeln in …",
+    "title": "In Seite umwandeln in",
+    "here": "In dieser Seite",
+    "failed": "Die Blöcke konnten nicht auf eine neue Seite verschoben werden."
   }
 }

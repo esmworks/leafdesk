@@ -558,7 +558,9 @@
       "plainText": "Texto simples",
       "format": "Formatar código",
       "formatSyntaxError": "O código não foi formatado: há um erro de sintaxe na linha {line}.",
-      "formatFailed": "Não foi possível formatar o código."
+      "formatFailed": "Não foi possível formatar o código.",
+      "caption": "Legenda",
+      "captionPlaceholder": "Escreva uma legenda…"
     },
     "math": {
       "title": "Equação",
@@ -1292,5 +1294,16 @@
     "creating": "Criando uma página…",
     "failed": "Não foi possível criar a página.",
     "home": "Ir para o espaço de trabalho"
+  },
+  "linkPicker": {
+    "placeholder": "Cole um link ou pesquise páginas",
+    "pages": "Páginas",
+    "newPage": "Nova página: {title}"
+  },
+  "turnIntoPage": {
+    "menuItem": "Transformar em página em…",
+    "title": "Transformar em página em",
+    "here": "Dentro desta página",
+    "failed": "Não foi possível mover os blocos para uma nova página."
   }
 }

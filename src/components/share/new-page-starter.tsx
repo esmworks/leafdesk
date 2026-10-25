@@ -1,6 +1,5 @@
 "use client";
 
-import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { useEffect, useRef, useState } from "react";
@@ -33,9 +32,10 @@ export function NewPageStarter({ workspaceId }: { workspaceId: string }) {
       {failed ? (
         <p role="alert">
           {t("failed")}{" "}
-          <Link href={`/w/${workspaceId}`} className="text-accent underline-offset-2 hover:underline">
+          {/* A plain link: the page's own chunk stays small, and this is only for when making fails. */}
+          <a href={`/w/${workspaceId}`} className="text-accent underline-offset-2 hover:underline">
             {t("home")}
-          </Link>
+          </a>
         </p>
       ) : (
         <p aria-live="polite">{t("creating")}</p>

@@ -1,3 +1,4 @@
+import { cleanCodeCaption, codeCaptionLine, readCodeCaptionLine } from "./code-caption";
 import {
   ALERT_KINDS,
   alertKindForColor,
@@ -410,8 +411,13 @@ export function prepareMarkdownExport<B extends MdBlock>(
             { type: "paragraph", content: blockToken("</details>"), children: [] },
           ] as unknown as B[];
         }
-        case "codeBlock":
-          return { ...block, children };
+        case "codeBlock": {
+          // A caption is a marker line right before the fence (lib/code-block).
+          const caption = cleanCodeCaption(String(block.props?.caption ?? ""));
+          // Without it in the block, whose HTML (a figure, for published pages) Markdown can't read.
+          const code = { ...block, props: { ...block.props, caption: "" }, children };
+          return caption ? ([{ type: "paragraph", content: blockToken(codeCaptionLine(caption)), children: [] }, code] as unknown as B[]) : code;
+        }
         default:
           return { ...block, content: inline(block.content), children };
       }
@@ -499,7 +505,8 @@ type Pending =
   | { type: typeof AGENT_CHAT_BLOCK; agentId: string; chatId: string }
   | { type: typeof IMAGE_BLOCK; url: string; name: string; caption: string; link: string }
   | { type: typeof MEETING_BLOCK; meetingId: string; markdown: string }
-  | { type: typeof SYNCED_BLOCK; pageId: string; syncId: string };
+  | { type: typeof SYNCED_BLOCK; pageId: string; syncId: string }
+  | { type: "codeCaption"; caption: string };
 
 const FENCE_OPEN = /^ {0,3}(`{3,}|~{3,})/;
 const FENCE_CLOSE = /^ {0,3}(`{3,}|~{3,})\s*$/;
@@ -552,6 +559,16 @@ export function prepareMarkdownImport(markdown: string, nonce: string, { appUrl 
       fence = opening[1];
       out.push(line);
       continue;
+    }
+    // A code block's caption, on the line before its fence (blank lines between allowed).
+    const caption = readCodeCaptionLine(line);
+    if (caption !== null) {
+      let next = i + 1;
+      while (next < lines.length && !lines[next].trim()) next++;
+      if (FENCE_OPEN.test(lines[next] ?? "")) {
+        blockLine({ type: "codeCaption", caption });
+        continue;
+      }
     }
     const columnMarker = parseColumnMarker(line);
     if (columnMarker) {
@@ -936,6 +953,9 @@ export async function finishMarkdownImport<B extends MdBlock>(
         } as unknown as B;
       case COLUMN_BLOCK:
         return columnMarkerBlock<B>(pending.marker);
+      case "codeCaption":
+        // Taken by the code block after it (walk); one without a code block after it is dropped there.
+        return { type: "paragraph", content: [], children: [] } as unknown as B;
       case "quote": {
         // Like a callout's: the first paragraph is the quote's text, anything after it nested.
         const inner = pending.markdown.trim() ? await parse(pending.markdown) : [];
@@ -980,11 +1000,24 @@ export async function finishMarkdownImport<B extends MdBlock>(
 
   const walk = async (list: B[]): Promise<B[]> => {
     const out: B[] = [];
+    // A caption read just before, for the code block that comes next.
+    let caption: string | null = null;
     for (const block of list) {
       const text = Array.isArray(block.content) && block.content.length === 1 ? (block.content[0] as Inline).text : undefined;
       const token = block.type === "paragraph" && typeof text === "string" ? blockToken.exec(text.trim()) : null;
-      if (token && prepared.blocks[Number(token[1])]) {
-        out.push(await toBlock(prepared.blocks[Number(token[1])]));
+      const pending = token ? prepared.blocks[Number(token[1])] : undefined;
+      const captioned = caption;
+      caption = null;
+      if (pending?.type === "codeCaption") {
+        caption = pending.caption;
+        continue;
+      }
+      if (pending) {
+        out.push(await toBlock(pending));
+        continue;
+      }
+      if (captioned && block.type === "codeBlock") {
+        out.push({ ...block, props: { ...block.props, caption: captioned }, children: block.children ?? [] });
         continue;
       }
       const children = block.children?.length ? await walk(block.children as B[]) : (block.children ?? []);

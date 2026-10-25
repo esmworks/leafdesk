@@ -558,7 +558,9 @@
       "plainText": "טקסט פשוט",
       "format": "עיצוב הקוד",
       "formatSyntaxError": "הקוד לא עוצב: יש שגיאת תחביר בשורה {line}.",
-      "formatFailed": "לא ניתן היה לעצב את הקוד."
+      "formatFailed": "לא ניתן היה לעצב את הקוד.",
+      "caption": "כיתוב",
+      "captionPlaceholder": "כתבו כיתוב…"
     },
     "math": {
       "title": "משוואה",
@@ -1292,5 +1294,16 @@
     "creating": "יוצרים דף…",
     "failed": "לא ניתן היה ליצור את הדף.",
     "home": "מעבר לסביבת העבודה"
+  },
+  "linkPicker": {
+    "placeholder": "הדביקו קישור או חפשו דפים",
+    "pages": "דפים",
+    "newPage": "דף חדש: {title}"
+  },
+  "turnIntoPage": {
+    "menuItem": "הפיכה לדף בתוך…",
+    "title": "הפיכה לדף בתוך",
+    "here": "בתוך הדף הזה",
+    "failed": "לא ניתן היה להעביר את הבלוקים לדף חדש."
   }
 }

@@ -558,7 +558,9 @@
       "plainText": "Testo semplice",
       "format": "Formatta il codice",
       "formatSyntaxError": "Il codice non è stato formattato: c’è un errore di sintassi alla riga {line}.",
-      "formatFailed": "Impossibile formattare il codice."
+      "formatFailed": "Impossibile formattare il codice.",
+      "caption": "Didascalia",
+      "captionPlaceholder": "Scrivi una didascalia…"
     },
     "math": {
       "title": "Equazione",
@@ -1292,5 +1294,16 @@
     "creating": "Creazione della pagina…",
     "failed": "Impossibile creare la pagina.",
     "home": "Vai allo spazio di lavoro"
+  },
+  "linkPicker": {
+    "placeholder": "Incolla un link o cerca pagine",
+    "pages": "Pagine",
+    "newPage": "Nuova pagina: {title}"
+  },
+  "turnIntoPage": {
+    "menuItem": "Trasforma in pagina in…",
+    "title": "Trasforma in pagina in",
+    "here": "Dentro questa pagina",
+    "failed": "Impossibile spostare i blocchi in una nuova pagina."
   }
 }

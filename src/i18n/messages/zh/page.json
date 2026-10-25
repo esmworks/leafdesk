@@ -558,7 +558,9 @@
       "plainText": "纯文本",
       "format": "格式化代码",
       "formatSyntaxError": "代码未格式化：第 {line} 行有语法错误。",
-      "formatFailed": "无法格式化代码。"
+      "formatFailed": "无法格式化代码。",
+      "caption": "说明",
+      "captionPlaceholder": "填写说明…"
     },
     "math": {
       "title": "公式",
@@ -1292,5 +1294,16 @@
     "creating": "正在创建页面…",
     "failed": "无法创建页面。",
     "home": "前往工作区"
+  },
+  "linkPicker": {
+    "placeholder": "粘贴链接或搜索页面",
+    "pages": "页面",
+    "newPage": "新页面：{title}"
+  },
+  "turnIntoPage": {
+    "menuItem": "转为页面并放到…",
+    "title": "转为页面并放到",
+    "here": "在此页面内",
+    "failed": "无法将这些块移到新页面。"
   }
 }

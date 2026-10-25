@@ -558,7 +558,9 @@
       "plainText": "Ren tekst",
       "format": "Formater koden",
       "formatSyntaxError": "Koden ble ikke formatert: det er en syntaksfeil på linje {line}.",
-      "formatFailed": "Koden kunne ikke formateres."
+      "formatFailed": "Koden kunne ikke formateres.",
+      "caption": "Bildetekst",
+      "captionPlaceholder": "Skriv en bildetekst …"
     },
     "math": {
       "title": "Ligning",
@@ -1292,5 +1294,16 @@
     "creating": "Oppretter en side …",
     "failed": "Kunne ikke opprette siden.",
     "home": "Gå til arbeidsområdet"
+  },
+  "linkPicker": {
+    "placeholder": "Lim inn en lenke eller søk etter sider",
+    "pages": "Sider",
+    "newPage": "Ny side: {title}"
+  },
+  "turnIntoPage": {
+    "menuItem": "Gjør om til side i …",
+    "title": "Gjør om til side i",
+    "here": "Inne i denne siden",
+    "failed": "Kunne ikke flytte blokkene til en ny side."
   }
 }

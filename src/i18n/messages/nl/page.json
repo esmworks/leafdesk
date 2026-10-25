@@ -558,7 +558,9 @@
       "plainText": "Platte tekst",
       "format": "Code opmaken",
       "formatSyntaxError": "De code is niet opgemaakt: er staat een syntaxfout op regel {line}.",
-      "formatFailed": "De code kon niet worden opgemaakt."
+      "formatFailed": "De code kon niet worden opgemaakt.",
+      "caption": "Bijschrift",
+      "captionPlaceholder": "Schrijf een bijschrift…"
     },
     "math": {
       "title": "Vergelijking",
@@ -1292,5 +1294,16 @@
     "creating": "Pagina wordt gemaakt…",
     "failed": "De pagina kon niet worden gemaakt.",
     "home": "Naar de werkruimte"
+  },
+  "linkPicker": {
+    "placeholder": "Plak een link of zoek pagina's",
+    "pages": "Pagina's",
+    "newPage": "Nieuwe pagina: {title}"
+  },
+  "turnIntoPage": {
+    "menuItem": "Omzetten naar pagina in…",
+    "title": "Omzetten naar pagina in",
+    "here": "In deze pagina",
+    "failed": "De blokken konden niet naar een nieuwe pagina worden verplaatst."
   }
 }

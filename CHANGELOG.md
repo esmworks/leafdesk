@@ -4,6 +4,18 @@
 
 ### Added
 
+- **Code block captions, and a web link's address on hover.** A code block's menu has *Caption*: a
+  line under the code, kept with the block, shown on published pages and in PDFs, and written in
+  Markdown (MCP, the API, exports) as `<!-- leafdesk:caption … -->` right before the fence. Resting
+  on a web link in a page shows where it goes at the start of its toolbar.
+- **Link pages as you write: `+`, the link button and "Turn into page in…".** `+` and a title after
+  a space offer a new page inside this one, linked where you typed (or a page of that title). The
+  formatting toolbar's link button (Cmd/Ctrl+K) searches the workspace's pages besides taking a web
+  address, so the selected text can link to a page, or to a new page with the text as its title. A
+  block's menu has *Turn into page in…*: the block, or the selected blocks, become a page inside
+  this one, under another page or as a row of a database, the first block's text as its title, and
+  a link to the new page takes their place. The client bundle budgets go to 767 kB for a page's
+  first load and 1169 kB for all first loads together for these.
 - **Backlinks below the page, in a popup or hidden.** A page's ••• menu has *Backlinks*: *Below the
   page* as before, *In a popup* (a "N pages link here" button under the title opens the list), or
   *Hidden*. Kept with the page's style in its document, so it applies for everyone and comes along

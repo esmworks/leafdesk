@@ -558,7 +558,9 @@
       "plainText": "Teks biasa",
       "format": "Format kode",
       "formatSyntaxError": "Kode tidak diformat: ada kesalahan sintaks di baris {line}.",
-      "formatFailed": "Kode tidak dapat diformat."
+      "formatFailed": "Kode tidak dapat diformat.",
+      "caption": "Keterangan",
+      "captionPlaceholder": "Tulis keterangan…"
     },
     "math": {
       "title": "Persamaan",
@@ -1292,5 +1294,16 @@
     "creating": "Membuat halaman…",
     "failed": "Halaman tidak dapat dibuat.",
     "home": "Buka ruang kerja"
+  },
+  "linkPicker": {
+    "placeholder": "Tempel tautan atau cari halaman",
+    "pages": "Halaman",
+    "newPage": "Halaman baru: {title}"
+  },
+  "turnIntoPage": {
+    "menuItem": "Ubah jadi halaman di…",
+    "title": "Ubah jadi halaman di",
+    "here": "Di dalam halaman ini",
+    "failed": "Blok tidak dapat dipindahkan ke halaman baru."
   }
 }

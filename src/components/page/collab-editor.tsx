@@ -82,7 +82,9 @@ import { useFollowPresence } from "./follow-presence";
 import { ListMarkers } from "./list-markers";
 import { QuoteSizeDefault } from "./quote-size";
 import { ToggleHeadingSections } from "./toggle-headings";
+import { LinkPageButton } from "./link-page-button";
 import { QuoteShortcut } from "./quote-shortcut";
+import { TurnIntoPageContext } from "./turn-into-page-item";
 import { SmartQuotes } from "./smart-quotes";
 import { editorShortcuts } from "./editor-shortcuts";
 import { LinkCopiedNotice } from "./link-copied-notice";
@@ -90,6 +92,7 @@ import { LinkCopiedNotice } from "./link-copied-notice";
 /** The page's floating outline, loaded once the page has a place for it (see floating-outline.tsx). */
 const FloatingOutline = dynamic(() => import("./floating-outline"), { ssr: false });
 const ImageCropDialog = dynamic(() => import("./image-crop-dialog"), { ssr: false });
+const TurnIntoPageDialog = dynamic(() => import("./turn-into-page"), { ssr: false });
 
 /**
  * y-prosemirror's undo plugin keeps its Y.UndoManager in plugin state but destroys it whenever the
@@ -209,6 +212,8 @@ export default function CollabEditor({
   const pickSynced = useCallback((at: string) => setLinkAt({ at, type: SYNCED_PAGE_BLOCK }), []);
   // The image block whose link is being set ("Link…" in its block menu).
   const [linkImageAt, setLinkImageAt] = useState<string | null>(null);
+  // The blocks "Turn into page in…" in a block's menu is moving (turn-into-page.tsx).
+  const [turnIntoPage, setTurnIntoPage] = useState<string[] | null>(null);
   const [cropImageAt, setCropImageAt] = useState<string | null>(null);
   const tSynced = useTranslations("page.blocks.syncedPage");
   const tSyncedBlock = useTranslations("page.syncedBlock");
@@ -418,7 +423,9 @@ export default function CollabEditor({
                 <SaveAsSnippetContext.Provider value={snippets.save}>
                   <ImageLinkContext.Provider value={setLinkImageAt}>
                     <ImageCropContext.Provider value={setCropImageAt}>
-                      <SideMenuController sideMenu={sideMenu} floatingUIOptions={sideMenuPlacement} />
+                      <TurnIntoPageContext.Provider value={offline ? null : setTurnIntoPage}>
+                        <SideMenuController sideMenu={sideMenu} floatingUIOptions={sideMenuPlacement} />
+                      </TurnIntoPageContext.Provider>
                     </ImageCropContext.Provider>
                   </ImageLinkContext.Provider>
                 </SaveAsSnippetContext.Provider>
@@ -452,6 +459,10 @@ export default function CollabEditor({
                     <FormattingToolbar>
                       {ai && editable && !offline && <AskAiToolbarButton key="askAi" onOpen={() => assistant.open()} />}
                       {withSideAlignButtons(withTextScriptButtons(getFormattingToolbarItems()))
+                        // The link button that also finds and makes pages (link-page-button.tsx).
+                        .map((item) =>
+                          item.key === "createLinkButton" ? <LinkPageButton key="createLinkButton" workspaceId={workspaceId} pageId={pageId} offline={offline} /> : item,
+                        )
                         .filter((item) => (canComment && !offline) || item.key !== "addCommentButton")
                         // Someone who may only suggest changes text and its style, not blocks.
                         .filter((item) => editable || !typing || SUGGESTABLE_BUTTONS.has(String(item.key)))}
@@ -518,6 +529,9 @@ export default function CollabEditor({
               setBuildAt(null);
             }}
           />
+        )}
+        {turnIntoPage && (
+          <TurnIntoPageDialog editor={editor} workspaceId={workspaceId} pageId={pageId} blockIds={turnIntoPage} onClose={() => setTurnIntoPage(null)} />
         )}
         <PagePicker
           open={linkAt !== null}

@@ -58,6 +58,7 @@
     "rowMoveTo": "Flytta raden någon annanstans (med dess meny öppen)",
     "rowComment": "Kommentera raden (med dess meny öppen)",
     "rowTrash": "Flytta raden till papperskorgen (med dess meny öppen)",
-    "link": "Länka den markerade texten"
+    "link": "Länka den markerade texten",
+    "newSubPage": "Skapa en sida i den här, länkad i texten (efter ett mellanslag)"
   }
 }

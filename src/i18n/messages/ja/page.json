@@ -558,7 +558,9 @@
       "plainText": "プレーンテキスト",
       "format": "コードを整形",
       "formatSyntaxError": "コードを整形できませんでした: {line} 行目に構文エラーがあります。",
-      "formatFailed": "コードを整形できませんでした。"
+      "formatFailed": "コードを整形できませんでした。",
+      "caption": "キャプション",
+      "captionPlaceholder": "キャプションを入力…"
     },
     "math": {
       "title": "数式ブロック",
@@ -1292,5 +1294,16 @@
     "creating": "ページを作成しています…",
     "failed": "ページを作成できませんでした。",
     "home": "ワークスペースへ移動"
+  },
+  "linkPicker": {
+    "placeholder": "リンクを貼り付けるか、ページを検索",
+    "pages": "ページ",
+    "newPage": "新しいページ: {title}"
+  },
+  "turnIntoPage": {
+    "menuItem": "ページに変換して移動…",
+    "title": "ページに変換して移動",
+    "here": "このページの中",
+    "failed": "ブロックを新しいページに移動できませんでした。"
   }
 }

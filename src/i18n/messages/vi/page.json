@@ -558,7 +558,9 @@
       "plainText": "Văn bản thuần",
       "format": "Định dạng mã",
       "formatSyntaxError": "Chưa định dạng được mã: có lỗi cú pháp ở dòng {line}.",
-      "formatFailed": "Không thể định dạng mã."
+      "formatFailed": "Không thể định dạng mã.",
+      "caption": "Chú thích",
+      "captionPlaceholder": "Viết chú thích…"
     },
     "math": {
       "title": "Phương trình",
@@ -1292,5 +1294,16 @@
     "creating": "Đang tạo trang…",
     "failed": "Không thể tạo trang.",
     "home": "Đi tới không gian làm việc"
+  },
+  "linkPicker": {
+    "placeholder": "Dán liên kết hoặc tìm trang",
+    "pages": "Trang",
+    "newPage": "Trang mới: {title}"
+  },
+  "turnIntoPage": {
+    "menuItem": "Chuyển thành trang trong…",
+    "title": "Chuyển thành trang trong",
+    "here": "Bên trong trang này",
+    "failed": "Không thể chuyển các khối sang trang mới."
   }
 }

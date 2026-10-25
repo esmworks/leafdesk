@@ -558,7 +558,9 @@
       "plainText": "Texte brut",
       "format": "Formater le code",
       "formatSyntaxError": "Le code n’a pas été formaté : erreur de syntaxe à la ligne {line}.",
-      "formatFailed": "Impossible de formater le code."
+      "formatFailed": "Impossible de formater le code.",
+      "caption": "Légende",
+      "captionPlaceholder": "Écrivez une légende…"
     },
     "math": {
       "title": "Équation",
@@ -1292,5 +1294,16 @@
     "creating": "Création d'une page…",
     "failed": "Impossible de créer la page.",
     "home": "Aller à l'espace de travail"
+  },
+  "linkPicker": {
+    "placeholder": "Collez un lien ou cherchez des pages",
+    "pages": "Pages",
+    "newPage": "Nouvelle page : {title}"
+  },
+  "turnIntoPage": {
+    "menuItem": "Transformer en page dans…",
+    "title": "Transformer en page dans",
+    "here": "Dans cette page",
+    "failed": "Impossible de déplacer les blocs vers une nouvelle page."
   }
 }

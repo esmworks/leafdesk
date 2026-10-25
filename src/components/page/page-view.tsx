@@ -271,7 +271,8 @@ export function PageView({
     if (icon) root.dataset.pageIcon = icon;
     else delete root.dataset.pageIcon;
     const href = pageIconHref(icon);
-    const link = href ? Object.assign(document.createElement("link"), { rel: "icon", type: "image/svg+xml", href }) : null;
+    const shown = href && document.head.querySelector(`link[rel~="icon"][href="${CSS.escape(href)}"]`);
+    const link = href && !shown ? Object.assign(document.createElement("link"), { rel: "icon", type: "image/svg+xml", href }) : null;
     if (link) document.head.append(link);
     return () => {
       delete root.dataset.pageIcon;

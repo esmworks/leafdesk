@@ -85,7 +85,10 @@
   side goes beside it, and *Turn into* in a block's menu puts the selected blocks one to a column),
   also on published pages and in Markdown. Numbered lists nested in numbered lists count in
   letters, then roman numerals, then numbers again (1, a, i), in the editor, on published pages and
-  in PDFs; inline code isn't marked by the browser's spelling check. `>`, `|` or `"` and a space at
+  in PDFs; inline code isn't marked by the browser's spelling check. A code block's menu adds a
+  *Caption* under the code (published pages and PDFs show it; Markdown writes the line
+  `<!-- leafdesk:caption … -->` before the fence). Resting on a web link shows its address at the
+  start of its toolbar. `>`, `|` or `"` and a space at
   the start of an empty line start a quote. A quote's block menu sets its
   *Quote size*: the size of the text around it, or large for a pull quote (in Markdown, the line
   `<!-- leafdesk:large-quote -->` before it); the size last picked is what new quotes start with in
@@ -526,7 +529,13 @@
   the editor or a comment, shows a card with its place, last edit and first lines (a row's first
   values), only to people who may open it; `[[` links to a page, or to a new page inside this one with
   the title typed, and `[[Title]]` typed, pasted or written through MCP and the API links to the
-  page of that title; "Link to page"
+  page of that title; `+` after a space does the same the other way round, a new page inside this
+  one with the typed title first (a number or a space right after it stays text, `+90`, `a + b`);
+  the formatting toolbar's link button (Cmd/Ctrl+K) takes a web address or searches pages, so the
+  selected text links to a page, or to a new page made with it as the title; "Turn into page in…"
+  in a block's menu makes the block (or the selected blocks) a page inside this one, under another
+  page or as a row of a database, the first block's text as its title and a link to it in their
+  place; "Link to page"
   blocks (their block menu opens the page in a new tab); a "Linked from" list of backlinks on
   every page, with how many pages link there and, for each, the text around every place it links
   (the first 20 blocks), each opening that page at the block with the link; and below it the pages
