@@ -56,9 +56,17 @@
   PDF: the rows the view shows after its filters, sorts and search, in its order, with the
   properties it shows, in its column order. People who can only view the database can export too,
   while the workspace allows exporting; the audit log names the format.
+- **Filter chips you can click.** The chips under a view's toolbar that show its filters open
+  just that filter to change it when clicked, and their ✕ removes it.
 
 ### Changed
 
+- **Changing a view's filters and sorts makes a draft first.** For people who can change a view,
+  new filters and sorts apply for them alone, marked *Not saved*, until *Save for everyone* saves
+  them to the view; *Reset* throws them away. A linked view's filters save as before, and other
+  view settings still save at once.
+- **Filter groups nest three levels deep**, in the filter menu (one before), MCP, the REST API and
+  the AI chat (two before).
 - **The documentation moved from the README into `docs/`.** README.md keeps the overview, the
   quick start, security, license and trademarks, and lists the rest: features, running a server,
   install and offline use, export, email on rows, accounts and security, automations and webhooks,

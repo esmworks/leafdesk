@@ -1638,10 +1638,10 @@ describe("filter groups over MCP", () => {
     const deep = await callTool(writer, "update_database_view", {
       database_id: "db-1",
       view_id: "view-1",
-      filters: [{ type: "group", rules: [{ type: "group", rules: [{ type: "group", rules: [leaf] }] }] }],
+      filters: [{ type: "group", rules: [{ type: "group", rules: [{ type: "group", rules: [{ type: "group", rules: [leaf] }] }] }] }],
     });
     expect(deep.isError).toBe(true);
-    expect(deep.text).toMatch(/at most 2 levels deep/);
+    expect(deep.text).toMatch(/at most 3 levels deep/);
     const unknown = await callTool(writer, "query_database", {
       database_id: "db-1",
       filters: [{ property: "Notes", op: "matches", value: "x" }],

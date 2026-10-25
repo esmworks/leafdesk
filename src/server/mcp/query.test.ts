@@ -380,9 +380,26 @@ describe("filter groups and relative dates", () => {
     expect(toFilterEntries(all, [{ property: "Status", op: "is_empty" }])).toEqual([{ propertyId: "p_status", op: "is_empty" }]);
   });
 
+  it("takes groups three levels deep, checking the innermost one's rules", () => {
+    const innermost = (rules: unknown[], combinator?: unknown) => ({
+      type: "group" as const,
+      rules: [{ type: "group" as const, rules: [{ type: "group", combinator, rules } as never] }],
+    });
+    expect(toFilterEntries(all, [innermost([{ property: "Status", op: "is_empty" }], "or")])).toEqual([
+      { type: "group", combinator: "and", rules: [{ type: "group", combinator: "and", rules: [{ type: "group", combinator: "or", rules: [{ propertyId: "p_status", op: "is_empty" }] }] }] },
+    ]);
+    expect(() => toFilterEntries(all, [innermost([{ property: "Status", op: "matches" }])])).toThrowError(/Unknown filter operator "matches"/);
+    expect(() => toFilterEntries(all, [innermost([{ op: "is_empty" }])])).toThrowError(/needs a property/);
+    expect(() => toFilterEntries(all, [innermost([{ property: "Status", op: "is_empty" }], "xor")])).toThrowError(/"and" or "or"/);
+    expect(() => toFilterEntries(all, [innermost([])])).toThrowError(/at least one rule/);
+  });
+
   it("rejects groups nested too deep, empty groups and bad rules inside groups", () => {
-    const deep = { type: "group" as const, rules: [{ type: "group" as const, rules: [{ type: "group" as const, rules: [] }] }] };
-    expect(() => toFilterEntries(all, [deep])).toThrowError(/at most 2 levels deep/);
+    const deep = {
+      type: "group" as const,
+      rules: [{ type: "group" as const, rules: [{ type: "group" as const, rules: [{ type: "group" as const, rules: [] }] }] }],
+    };
+    expect(() => toFilterEntries(all, [deep])).toThrowError(/at most 3 levels deep/);
     expect(() => toFilterEntries(all, [{ type: "group", rules: [] }])).toThrowError(/at least one rule/);
     expect(() =>
       toFilterEntries(all, [{ type: "group", rules: [{ property: "Status", op: "equals", value: "Blocked" }] }]),

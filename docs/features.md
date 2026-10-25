@@ -174,7 +174,9 @@
     start of their bodies, emoji reactions and their comments), timeline, map (rows as pins at a place
     property), chart and dashboard (widgets over the database, see Dashboards), each with its own filters,
     sorting, grouping and shown properties (one by one, or all hidden or shown at once). Filters
-    combine with "and"/"or" in groups and take relative dates such as "this week". Text can be
+    combine with "and"/"or" in groups (nested up to three levels) and take relative dates such as
+    "this week". The filters in use show as chips under the view's toolbar: clicking one changes
+    just that filter, its ✕ removes it. Text can be
     filtered on what it does or does not contain, numbers with =, ≠, <, ≤, > and ≥, dates on,
     before, after, on or before and on or after a day, and selects, statuses, tags, relations and
     people on any of several values or none of them in one rule. A "Me" filter (also inside such a
@@ -183,7 +185,9 @@
     for the rows that match filters of the same kind; the first matching rule wins.
   - People who can only view a database (or a view whose settings they can't change) still filter
     and sort it for themselves: their rules replace the view's for them alone, marked *Only for
-    you*, are never saved, and *Reset* brings back the view's own.
+    you*, are never saved, and *Reset* brings back the view's own. People who can change the view
+    get a draft the same way, marked *Not saved*: *Save for everyone* saves its filters and sorts to
+    the view, *Reset* throws them away. (A linked view's filters still save as they change.)
   - Each view with rows can leave out the rows' page icons (Layout → *Show page icons*; published
     views too), and a calendar can leave out Saturdays and Sundays (*Show weekends*, month and
     week alike): its weekdays then share the width, and rows only on a weekend are listed under it
