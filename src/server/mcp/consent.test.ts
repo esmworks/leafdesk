@@ -1,3 +1,4 @@
+// The OAuth consent screen: scope descriptions, safe redirect URLs and signed queries.
 import { makeSignature } from "better-auth/crypto";
 import { describe, expect, it, vi } from "vitest";
 import { describeScope, safeHttpUrl, verifySignedAuthorizationQuery } from "./consent";

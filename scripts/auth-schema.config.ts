@@ -1,4 +1,4 @@
-// Used only by `pnpm auth:schema` to generate src/db/schema/auth.ts.
+// Used only by `pnpm auth:schema` to generate src/db/schema/auth.ts; the secret is never used at runtime.
 import { betterAuth } from "better-auth";
 import { baseAuthOptions } from "../src/lib/auth-options";
 

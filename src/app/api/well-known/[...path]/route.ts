@@ -17,7 +17,7 @@ function resolvePath(path: string[]): string {
 }
 
 /**
- * Serves /.well-known/* (rewritten here by next.config) through Better Auth: authorization
+ * Serves /.well-known/* (next.config rewrites it to this route) through Better Auth: authorization
  * server metadata, OpenID configuration and the MCP protected-resource metadata. The plugins
  * match on the original root path, so the request is rebuilt with it.
  */
