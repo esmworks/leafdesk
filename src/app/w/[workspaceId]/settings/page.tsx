@@ -77,7 +77,7 @@ import { CalloutStylesSettings } from "@/components/settings/callout-styles-sett
 import { LetterheadsSettings } from "@/components/settings/letterheads-settings";
 import { SnippetsTabs } from "@/components/snippets/snippets-tabs";
 import { parseAnalyticsPeriod } from "@/lib/analytics";
-import { storedCalloutStyles } from "@/lib/callout-styles";
+import { storedCalloutStyles } from "@/lib/callout-styles-parse";
 import { parseAuditFilters } from "@/lib/audit";
 import { parseStaleMonths } from "@/lib/workspace-check";
 import { isStrongSession } from "@/lib/auth-security";

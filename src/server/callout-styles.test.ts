@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import * as Y from "yjs";
-import { parseCalloutStyles, resolveCallout, storedCalloutStyles, type CalloutStyle } from "@/lib/callout-styles";
+import { resolveCallout, type CalloutStyle } from "@/lib/callout-styles";
+import { parseCalloutStyles, storedCalloutStyles } from "@/lib/callout-styles-parse";
 import { COLLAB_FRAGMENT } from "@/lib/collab-constants";
 import { editorBlocksToMarkdown, editorMarkdownToBlocks } from "@/lib/editor-markdown";
 import { blocksToMarkdown, markdownToBlocks, serverEditor } from "./blocknote";

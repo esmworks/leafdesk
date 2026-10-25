@@ -47,7 +47,7 @@ import { assignableRoles, invitationApplies, linkAccess, memberInviteMode, verif
 import { managesPeople, mayChangeRole, mayRemove } from "@/lib/workspace-roles";
 import { TRASH_RETENTION_CHOICES } from "@/lib/retention";
 import { parseDomains } from "@/lib/sso-config";
-import { parseCalloutStyles } from "@/lib/callout-styles";
+import { parseCalloutStyles } from "@/lib/callout-styles-parse";
 import { parseAiMonthlyLimit } from "@/lib/ai-usage";
 import { cleanSidebarLayout, type SidebarLayout } from "@/lib/sidebar-sections";
 import { env } from "@/lib/env";

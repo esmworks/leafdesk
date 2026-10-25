@@ -16,11 +16,11 @@ import {
   MAX_CALLOUT_NAME,
   MAX_CALLOUT_STYLES,
   MAX_CALLOUT_TITLE,
-  parseCalloutStyles,
   type CalloutBorder,
   type CalloutStyle,
   type CalloutStyleProblem,
 } from "@/lib/callout-styles";
+import { parseCalloutStyles } from "@/lib/callout-styles-parse";
 import { useAction } from "./workspace-settings";
 
 const EMPTY: CalloutStyle = { key: "", name: "", icon: "💡", color: "gray", border: "left", title: "" };

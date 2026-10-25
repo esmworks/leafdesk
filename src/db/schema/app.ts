@@ -175,7 +175,7 @@ export type WorkspaceSettings = {
   sensitiveContent: boolean;
   /**
    * The workspace's callout styles (lib/callout-styles): named box looks its owners define in
-   * Settings > General and everyone inserts. Checked by parseCalloutStyles when saved.
+   * Settings > General and everyone inserts. Checked by parseCalloutStyles (lib/callout-styles-parse) when saved.
    */
   calloutStyles: CalloutStyle[];
 };
