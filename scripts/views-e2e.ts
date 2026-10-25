@@ -198,7 +198,7 @@ try {
 
   // Config validation
   const bad: [string, object][] = [
-    ["zoom", { zoom: "year" }],
+    ["zoom", { zoom: "decade" }],
     ["card size", { cardSize: "huge" }],
     ["cover", { cover: { source: "files" } }],
     ["cover shape", { cover: "first_image" }],
