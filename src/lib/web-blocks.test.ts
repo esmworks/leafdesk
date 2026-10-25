@@ -104,6 +104,7 @@ describe("embedFor", () => {
     );
     expect(src("https://www.sketch.com/s/1b2c3d4e-aaaa/a/Abc123")).toBe("https://www.sketch.com/embed/s/1b2c3d4e-aaaa/a/Abc123");
     expect(src("https://www.sketch.com/s/1b2c3d4e-aaaa/p/Abc123/play")).toBe("https://www.sketch.com/embed/s/1b2c3d4e-aaaa/p/Abc123/play");
+    expect(src("https://miro.com/app/board/uXjVO1aBcDe=/?share_link_id=123")).toBe("https://miro.com/app/live-embed/uXjVO1aBcDe=/");
     expect(src("https://open.spotify.com/track/4uLU6hMCjMI75M1A2tKUQC?si=x")).toBe(
       "https://open.spotify.com/embed/track/4uLU6hMCjMI75M1A2tKUQC",
     );
@@ -132,6 +133,7 @@ describe("embedFor", () => {
       "https://excalidraw.com/#json=abc,key\"onload",
       "https://framer.com/projects/Site--abc",
       "https://www.sketch.com/s/abc/x/y",
+      "https://miro.com/app/dashboard/",
       "https://open.spotify.com/user/abc",
       "https://www.figma.com/community/file/123",
       "http://loom.com.attacker.example/share/0281766fa2d04bb788eaf19e65135184",
@@ -153,6 +155,7 @@ describe("embedFor", () => {
       "https://excalidraw.com/#json=a,b",
       "https://framer.com/share/a",
       "https://www.sketch.com/s/abc",
+      "https://miro.com/app/board/uXjVO1aBcDe=/",
       "https://open.spotify.com/show/4uLU6hMCjMI75M1A2tKUQC",
       "https://maps.google.com/?q=x",
     ];

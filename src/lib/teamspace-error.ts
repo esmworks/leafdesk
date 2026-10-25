@@ -14,7 +14,9 @@ export type TeamspaceErrorCode =
   | "everyoneIn"
   | "notConvertible"
   /** Inviting someone to the teamspace: the text isn't an email address. */
-  | "invalidEmail";
+  | "invalidEmail"
+  /** Its top-level pages are locked, and the person doesn't manage it. */
+  | "topLevelLocked";
 
 /** An expected failure the UI translates by `code`; the English message is for logs and MCP. */
 export class TeamspaceError extends Error {

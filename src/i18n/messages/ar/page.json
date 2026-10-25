@@ -71,6 +71,7 @@
     "actionFailed": "تعذّر إتمام ذلك.",
     "viewers": "{count, plural, one {شخص آخر يشاهد هذه الصفحة} two {شخصان آخران يشاهدان هذه الصفحة} few {# أشخاص آخرين يشاهدون هذه الصفحة} many {# شخصًا آخر يشاهدون هذه الصفحة} other {# شخص آخر يشاهدون هذه الصفحة}}",
     "viewersTitle": "يشاهدون هذه الصفحة",
+    "goToViewer": "الانتقال إلى حيث يوجد {name}",
     "saveAsTemplate": "حفظ كقالب",
     "saveAsRowTemplate": "حفظ كقالب صف",
     "deleteTemplate": "حذف القالب",
@@ -671,10 +672,10 @@
     "embed": {
       "title": "تضمين",
       "subtext": "YouTube وFigma وGoogle Docs والخرائط والمزيد",
-      "aliases": "embed iframe youtube vimeo loom figma google docs sheets slides codepen replit excalidraw framer sketch spotify maps video تضمين فيديو خرائط hex deepnote pitch website",
+      "aliases": "embed iframe youtube vimeo loom figma google docs sheets slides codepen replit excalidraw framer sketch miro spotify maps video تضمين فيديو خرائط hex deepnote pitch website",
       "placeholder": "الصق رابطًا لتضمينه",
       "submit": "تضمين",
-      "providers": "YouTube وVimeo وLoom وFigma ومستندات Google Docs وSheets وSlides المنشورة وCodePen وReplit وExcalidraw وFramer وSketch وSpotify وGoogle Maps. تظهر مواقع https الأخرى (Hex وDeepnote وPitch …) كما هي حيث تسمح بذلك.",
+      "providers": "YouTube وVimeo وLoom وFigma ومستندات Google Docs وSheets وSlides المنشورة وCodePen وReplit وExcalidraw وFramer وSketch وMiro وSpotify وGoogle Maps. تظهر مواقع https الأخرى (Hex وDeepnote وPitch …) كما هي حيث تسمح بذلك.",
       "frameTitle": "محتوى مضمّن من {host}",
       "label": "تضمين",
       "resize": "اسحب لتغيير عرض المحتوى المضمّن"

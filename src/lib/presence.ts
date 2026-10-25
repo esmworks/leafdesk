@@ -12,6 +12,9 @@ export const PRESENCE_FIELD = "presence";
  */
 export const CURSOR_FIELD = "user";
 
+/** Sent (with someone's user id) to scroll the page's editor to their cursor (components/page/follow-presence.ts). */
+export const FOLLOW_USER_EVENT = "leafdesk:follow-user";
+
 const CURSOR_COLORS = ["#e5484d", "#f76b15", "#ffc53d", "#30a46c", "#12a594", "#0090ff", "#6e56cf", "#d6409f"];
 
 /** A person's cursor and avatar color, the same in every browser and on the server. */

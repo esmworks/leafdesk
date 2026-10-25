@@ -32,7 +32,8 @@
     "invalidIcon": "图标必须是表情符号或内置图标。",
     "notConvertible": "只有页面可以变成团队空间，数据库、行或模板不行。",
     "invalidEmail": "请输入有效的电子邮件地址。",
-    "cantInvite": "你不能邀请他人加入此工作区。请联系所有者。"
+    "cantInvite": "你不能邀请他人加入此工作区。请联系所有者。",
+    "topLevelLocked": "只有团队空间的所有者可以添加、移动和移除其顶层页面。"
   },
   "dialog": {
     "createTitle": "新建团队空间",
@@ -50,6 +51,8 @@
     "creating": "正在创建…",
     "memberLevel": "成员对其页面的访问权限",
     "memberLevelHint": "成员在未单独设置权限的页面上获得的权限。团队空间所有者和工作区所有者始终拥有完全访问权限；页面自身的分享设置仍会覆盖此设置。",
+    "topLevelLocked": "锁定顶层页面",
+    "topLevelLockedHint": "只有团队空间的所有者可以添加、移动、排序和移除其顶层页面。成员仍可编辑这些页面及其中的页面。",
     "memberLevelLocked": "只有工作区所有者可以更改所有人在默认团队空间中的权限。"
   },
   "members": {

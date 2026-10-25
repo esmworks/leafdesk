@@ -24,7 +24,7 @@ import { env } from "@/lib/env";
 import { ICON_RULE, parseIcon } from "@/lib/icon";
 import { TeamspaceError } from "@/lib/teamspace-error";
 import type { TeamspaceReach } from "@/lib/teamspace-reach";
-import { AccessError, isGuest, requireMember } from "@/server/access";
+import { AccessError, getMembership, isGuest, requireMember } from "@/server/access";
 import { changedValues, recordAudit } from "@/server/audit";
 import { getCollab } from "@/server/collab/bridge";
 import { afterAccessChange, groupMemberIds, requireGroupIn } from "@/server/groups";
@@ -168,6 +168,10 @@ export type TeamspaceSummary = {
   /** The viewer watches all its pages (server/page-watch.ts). */
   watching: boolean;
   canManage: boolean;
+  /** Only those who manage it arrange its top-level pages. */
+  topLevelLocked: boolean;
+  /** The viewer may add, move and remove its top-level pages: it isn't locked, or they manage it. */
+  canArrangeTopLevel: boolean;
   canJoin: boolean;
   canLeave: boolean;
 };
@@ -189,6 +193,7 @@ export async function listTeamspaces(
     description: string;
     access: TeamspaceAccess;
     member_level: TeamspaceMemberLevel;
+    top_level_locked: boolean;
     archived_at: Date | null;
     updated_at: Date;
     created_at: Date;
@@ -253,6 +258,8 @@ export async function listTeamspaces(
       viaGroup: Boolean(r.via_group) && r.access !== "default",
       watching: Boolean(r.watching),
       canManage: canManage(t, workspaceRole, row),
+      topLevelLocked: Boolean(r.top_level_locked),
+      canArrangeTopLevel: !r.top_level_locked || canManage(t, workspaceRole, row),
       canJoin: !joined && r.access === "open" && !r.archived_at,
       // The last owner hands the teamspace on first (a default teamspace's owners are optional).
       // Someone in it through a group leaves the group instead.
@@ -294,6 +301,8 @@ export type TeamspaceInput = {
   access?: TeamspaceAccess;
   /** What members get on its pages where a page says nothing (see TEAMSPACE_MEMBER_LEVELS). */
   memberLevel?: TeamspaceMemberLevel;
+  /** Only those who manage it arrange its top-level pages. */
+  topLevelLocked?: boolean;
 };
 
 /**
@@ -370,6 +379,7 @@ export async function updateTeamspace(
     ...(patch.description !== undefined ? { description: patch.description.trim().slice(0, MAX_DESCRIPTION) } : {}),
     access,
     memberLevel,
+    ...(typeof patch.topLevelLocked === "boolean" ? { topLevelLocked: patch.topLevelLocked } : {}),
   };
   await db.transaction(async (tx) => {
     if (current.access === "default" && access !== "default") {
@@ -980,7 +990,28 @@ export async function requireTeamspaceForPages(userId: string, teamspaceId: stri
     throw new TeamspaceError("notMember", "Join the teamspace to add pages to it.");
   }
   if (found.archivedAt) throw new TeamspaceError("archived", "This teamspace is archived.");
+  if (found.topLevelLocked && !canManage(found, membership.role as WorkspaceRole, row)) throw topLevelLocked();
   return found;
+}
+
+const topLevelLocked = () =>
+  new TeamspaceError("topLevelLocked", "Only the teamspace's owners add, move and remove its top-level pages.");
+
+/**
+ * Whether `userId` may arrange the top-level pages of the teamspace: add, move, reorder, trash,
+ * restore or delete them. Always, unless its top-level pages are locked and they don't manage it.
+ */
+export async function mayArrangeTopLevel(userId: string, teamspaceId: string): Promise<boolean> {
+  const [found] = await db.select().from(teamspace).where(eq(teamspace.id, teamspaceId)).limit(1);
+  if (!found?.topLevelLocked) return true;
+  const membership = await getMembership(userId, found.workspaceId);
+  if (!membership) return false;
+  return canManage(found, membership.role as WorkspaceRole, await ownRow(db, teamspaceId, userId));
+}
+
+/** Throws TeamspaceError("topLevelLocked") unless `userId` may arrange the teamspace's top-level pages (mayArrangeTopLevel). */
+export async function requireArrangeTopLevel(userId: string, teamspaceId: string | null | undefined) {
+  if (teamspaceId && !(await mayArrangeTopLevel(userId, teamspaceId))) throw topLevelLocked();
 }
 
 /** The oldest default teamspace that isn't archived: where top-level pages go when nobody says. */
@@ -1012,8 +1043,9 @@ export async function placeTopLevel(
   }
   if (requested === null) return { teamspaceId: null, private: true };
   if (requested === undefined) {
+    // Into the workspace's default teamspace, unless its top-level pages are locked to them: then theirs.
     const fallback = await defaultTeamspaceId(workspaceId);
-    return fallback ? { teamspaceId: fallback, private: false } : { teamspaceId: null, private: true };
+    return fallback && (await mayArrangeTopLevel(userId, fallback)) ? { teamspaceId: fallback, private: false } : { teamspaceId: null, private: true };
   }
   await requireTeamspaceForPages(userId, requested, workspaceId);
   return { teamspaceId: requested, private: false };

@@ -3,11 +3,12 @@
 import { useTranslations } from "next-intl";
 import { cn, Popover } from "@/components/ui";
 import { UserAvatar } from "@/components/user-avatar";
-import { splitViewers, textOn, userColor, type Presence } from "@/lib/presence";
+import { FOLLOW_USER_EVENT, splitViewers, textOn, userColor, type Presence } from "@/lib/presence";
 
 /**
  * Who else has the page open, in the page header: a few avatars in their cursor colors and "+N"
- * for the rest. Clicking lists everyone by name. Shows nothing while you are alone.
+ * for the rest. Clicking lists everyone by name; picking someone there goes to their cursor
+ * (follow-presence.ts). Shows nothing while you are alone.
  */
 export function PresenceAvatars({ viewers }: { viewers: Presence[] }) {
   const t = useTranslations("page.header");
@@ -47,9 +48,16 @@ export function PresenceAvatars({ viewers }: { viewers: Presence[] }) {
       <div className="px-2 pt-1 pb-1.5 text-xs font-medium text-fg-muted">{t("viewersTitle")}</div>
       <ul className="max-h-64 overflow-y-auto">
         {viewers.map((viewer) => (
-          <li key={viewer.id} className="flex items-center gap-2 rounded px-2 py-1.5 text-sm">
-            <Avatar viewer={viewer} />
-            <span className="min-w-0 flex-1 truncate">{nameOf(viewer)}</span>
+          <li key={viewer.id}>
+            <button
+              type="button"
+              title={t("goToViewer", { name: nameOf(viewer) })}
+              onClick={() => window.dispatchEvent(new CustomEvent(FOLLOW_USER_EVENT, { detail: viewer.id }))}
+              className="flex w-full items-center gap-2 rounded px-2 py-1.5 text-start text-sm hover:bg-bg-hover"
+            >
+              <Avatar viewer={viewer} />
+              <span className="min-w-0 flex-1 truncate">{nameOf(viewer)}</span>
+            </button>
           </li>
         ))}
       </ul>

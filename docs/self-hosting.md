@@ -211,17 +211,22 @@ deleted, and one that fails 10 times in a row has it dropped.
 
 ## Social login
 
-People can also sign in with GitHub or Google. Each provider is off until you set both of its
+People can also sign in with GitHub, Google or Apple. Each provider is off until you set its
 variables in `.env` and restart:
 
 | Provider | Variables | Callback URL to register |
 | --- | --- | --- |
 | GitHub ([new OAuth app](https://github.com/settings/applications/new)) | `GITHUB_CLIENT_ID`, `GITHUB_CLIENT_SECRET` | `${APP_URL}/api/auth/callback/github` |
 | Google ([OAuth client](https://console.cloud.google.com/apis/credentials), type "Web application") | `GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET` | `${APP_URL}/api/auth/callback/google` |
+| Apple ([Services ID](https://developer.apple.com/account/resources/identifiers/list/serviceId) with Sign in with Apple, and a key for it) | `APPLE_CLIENT_ID` (the Services ID), and `APPLE_TEAM_ID`, `APPLE_KEY_ID`, `APPLE_PRIVATE_KEY` (the .p8 file's text) or `APPLE_CLIENT_SECRET` | `${APP_URL}/api/auth/callback/apple` (Apple wants an https address, and the domain registered with the Services ID) |
 
 For example, with `APP_URL=https://notes.example.com` the GitHub callback URL is
 `https://notes.example.com/api/auth/callback/github`. The sign-in and sign-up pages show a
-"Continue with …" button for each configured provider.
+"Continue with …" button for each configured provider. Apple's client secret is a token that
+Apple accepts for six months at most: given the key, the server makes it and makes a new one
+before it runs out; one set in `APPLE_CLIENT_SECRET` is used as it is, and must be renewed by hand.
+Apple gives a person's name only the first time they sign in, and may give an address that
+forwards to theirs (`…@privaterelay.appleid.com`) when they choose to hide their own.
 
 - **Existing accounts:** signing in with a provider opens the account that has the same email,
   as long as the provider says the address is verified. Otherwise the person is asked to sign in

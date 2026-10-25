@@ -1673,7 +1673,8 @@
       "icon": "pictogram",
       "description": "beschrijving",
       "access": "toegang",
-      "memberLevel": "toegang van leden"
+      "memberLevel": "toegang van leden",
+      "topLevelLocked": "vergrendeling van de bovenste pagina's"
     },
     "via": {
       "invitation": "een uitnodiging",

@@ -1673,7 +1673,8 @@
       "icon": "图标",
       "description": "描述",
       "access": "访问权限",
-      "memberLevel": "成员的访问权限"
+      "memberLevel": "成员的访问权限",
+      "topLevelLocked": "顶层页面锁定"
     },
     "via": {
       "invitation": "邀请",

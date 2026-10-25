@@ -32,7 +32,8 @@
     "invalidIcon": "Ikon harus berupa emoji atau ikon bawaan.",
     "notConvertible": "Hanya halaman yang bisa menjadi ruang tim, bukan database, baris, atau templat.",
     "invalidEmail": "Masukkan alamat email yang valid.",
-    "cantInvite": "Anda tidak dapat mengundang orang ke ruang kerja ini. Minta kepada pemilik."
+    "cantInvite": "Anda tidak dapat mengundang orang ke ruang kerja ini. Minta kepada pemilik.",
+    "topLevelLocked": "Hanya pemilik teamspace yang dapat menambah, memindahkan, dan menghapus halaman tingkat atasnya."
   },
   "dialog": {
     "createTitle": "Ruang tim baru",
@@ -50,6 +51,8 @@
     "creating": "Membuat…",
     "memberLevel": "Akses anggota ke halamannya",
     "memberLevelHint": "Apa yang didapat anggota pada halaman yang tidak mengaturnya sendiri. Pemilik ruang tim dan pemilik ruang kerja selalu mendapat akses penuh; pengaturan berbagi halaman tetap menimpa ini.",
+    "topLevelLocked": "Kunci halaman tingkat atas",
+    "topLevelLockedHint": "Hanya pemilik teamspace yang menambah, memindahkan, mengurutkan, dan menghapus halaman tingkat atasnya. Anggota tetap dapat menyunting halaman itu dan halaman di dalamnya.",
     "memberLevelLocked": "Hanya pemilik ruang kerja yang dapat mengubah apa yang didapat semua orang di ruang tim bawaan."
   },
   "members": {

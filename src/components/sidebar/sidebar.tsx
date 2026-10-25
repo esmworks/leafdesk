@@ -472,9 +472,14 @@ export function Sidebar({
    * Whether a dragged page may go under `parentId`, or to the top of `section` when that is null,
    * mirroring movePage's checks.
    */
+  // Teamspaces whose top-level pages only their managers arrange, when this person doesn't (server/teamspaces.ts).
+  const lockedTop = new Set(teamspaces.filter((ts) => !ts.canArrangeTopLevel).map((ts) => ts.id));
+  const pinned = (node: TreeNode) => node.parentId === null && lockedTop.has(node.section);
+
   function canDrop(draggedId: string, parentId: string | null, section: TreeSection) {
     const dragged = byId.get(draggedId);
-    if (!dragged || !canEdit(dragged)) return false;
+    if (!dragged || !canEdit(dragged) || pinned(dragged)) return false;
+    if (!parentId && lockedTop.has(section)) return false;
     // Not into itself or one of its subpages: that would cut the branch off the tree.
     for (let id = parentId; id; id = byId.get(id)?.parentId ?? null) if (id === draggedId) return false;
     if (!parentId) {
@@ -809,6 +814,7 @@ export function Sidebar({
     dragging,
     onDragging: setDragging,
     canDrop,
+    pinned,
     offline,
     keptOffline,
   };
@@ -1803,6 +1809,8 @@ function TeamspaceSection({
   const t = useTranslations("sidebar");
   const router = useRouter();
   const { over, handlers } = useRootDrop({ ...tree, section: teamspace.id, roots });
+  // Top-level pages locked to those who manage it (server/teamspaces.ts): no adding them here.
+  const adds = teamspace.canArrangeTopLevel;
   return (
     <li>
       <div
@@ -1891,6 +1899,7 @@ function TeamspaceSection({
               </>
             )}
           </Popover>
+          {adds && (
           <Popover
             align="end"
             trigger={({ toggle }) => (
@@ -1906,12 +1915,13 @@ function TeamspaceSection({
           >
             {newMenu}
           </Popover>
+          )}
         </div>
       </div>
       {open &&
         (roots.length > 0 ? (
           <TreeLevel nodes={roots} depth={1} {...tree} />
-        ) : (
+        ) : adds ? (
           <button
             type="button"
             onClick={onCreate}
@@ -1921,7 +1931,7 @@ function TeamspaceSection({
           >
             {t("teamspaces.empty")}
           </button>
-        ))}
+        ) : null)}
     </li>
   );
 }
@@ -2125,6 +2135,8 @@ type TreeContext = {
   dragging: string | null;
   onDragging: (id: string | null) => void;
   canDrop: (draggedId: string, parentId: string | null, section: TreeSection) => boolean;
+  /** A top-level page of a teamspace that locks them, for someone who doesn't manage it: it stays put. */
+  pinned: (node: TreeNode) => boolean;
   /** No server: no creating, trashing or moving pages. */
   offline: boolean;
   /** Pages downloaded to this device for offline use. */
@@ -2203,7 +2215,7 @@ function TreeItem({
     <li>
       <div
         data-sidebar-page={node.id}
-        draggable={editable && !renaming}
+        draggable={editable && !renaming && !props.pinned(node)}
         onDragStart={(e) => {
           e.dataTransfer.setData(DRAG_TYPE, node.id);
           e.dataTransfer.effectAllowed = "move";
@@ -2318,16 +2330,18 @@ function TreeItem({
                       >
                         {t("pages.rename")}
                       </MenuItem>
-                      <MenuItem
-                        danger
-                        icon={<Trash2 className="h-4 w-4" />}
-                        onClick={() => {
-                          close();
-                          onArchive(node.id);
-                        }}
-                      >
-                        {t("pages.moveToTrash")}
-                      </MenuItem>
+                      {!props.pinned(node) && (
+                        <MenuItem
+                          danger
+                          icon={<Trash2 className="h-4 w-4" />}
+                          onClick={() => {
+                            close();
+                            onArchive(node.id);
+                          }}
+                        >
+                          {t("pages.moveToTrash")}
+                        </MenuItem>
+                      )}
                       <MenuSeparator />
                     </>
                   )}

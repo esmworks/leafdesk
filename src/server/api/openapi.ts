@@ -176,6 +176,10 @@ const SCHEMAS: Record<string, JsonSchema> = {
           joined: { type: "boolean" },
           role: { type: ["string", "null"], enum: ["owner", "member", null] },
           can_add_pages: { type: "boolean" },
+          top_level_locked: {
+            type: "boolean",
+            description: "Only its owners (and workspace owners, unless it is private) add, move and remove its top-level pages.",
+          },
         },
         ["id", "name", "access", "joined", "can_add_pages"],
       ),

@@ -7,9 +7,9 @@ export type BlockColor = (typeof BLOCK_COLORS)[number];
 
 /**
  * What a slash menu color entry is found by besides its title: the color's English name, its name
- * in the interface language and the words for text or background, lowercased, once each.
+ * in the interface language (gray also as "grey") and the words for text or background, lowercased, once each.
  */
 export function colorAliases(color: BlockColor, localName: string, words: string[]): string[] {
-  const all = [color, localName, ...words].map((word) => word.trim().toLowerCase()).filter(Boolean);
+  const all = [color, ...(color === "gray" ? ["grey"] : []), localName, ...words].map((word) => word.trim().toLowerCase()).filter(Boolean);
   return [...new Set(all)];
 }

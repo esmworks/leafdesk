@@ -1673,7 +1673,8 @@
       "icon": "Symbol",
       "description": "Beschreibung",
       "access": "Zugriff",
-      "memberLevel": "Zugriff der Mitglieder"
+      "memberLevel": "Zugriff der Mitglieder",
+      "topLevelLocked": "Sperre der obersten Seiten"
     },
     "via": {
       "invitation": "eine Einladung",

@@ -32,7 +32,8 @@
     "invalidIcon": "L’icona deve essere un’emoji o un’icona integrata.",
     "notConvertible": "Solo una pagina può diventare uno spazio del team, non un database, una riga o un modello.",
     "invalidEmail": "Inserisci un indirizzo email valido.",
-    "cantInvite": "Non puoi invitare persone in questo spazio di lavoro. Chiedi a un proprietario."
+    "cantInvite": "Non puoi invitare persone in questo spazio di lavoro. Chiedi a un proprietario.",
+    "topLevelLocked": "Solo i proprietari del teamspace possono aggiungere, spostare e rimuovere le sue pagine di primo livello."
   },
   "dialog": {
     "createTitle": "Nuovo spazio del team",
@@ -50,6 +51,8 @@
     "creating": "Creazione in corso…",
     "memberLevel": "Accesso dei membri alle sue pagine",
     "memberLevelHint": "L’accesso che i membri hanno sulle pagine che non lo impostano da sé. I proprietari dello spazio del team e dello spazio di lavoro hanno sempre accesso completo; le impostazioni di condivisione di una pagina prevalgono comunque su questa.",
+    "topLevelLocked": "Blocca le pagine di primo livello",
+    "topLevelLockedHint": "Solo i proprietari del teamspace aggiungono, spostano, riordinano e rimuovono le sue pagine di primo livello. I membri continuano a modificarle, insieme alle pagine che contengono.",
     "memberLevelLocked": "Solo i proprietari dello spazio di lavoro possono cambiare l’accesso di tutti in uno spazio del team predefinito."
   },
   "members": {

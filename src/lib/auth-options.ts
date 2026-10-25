@@ -231,6 +231,8 @@ export function socialAuthOptions(providers: Partial<Record<SocialProvider, Soci
     socialProviders: {
       ...(providers.github && { github: providers.github }),
       ...(providers.google && { google: { ...providers.google, prompt: "select_account" as const } }),
+      // The same object: its secret is read when Apple is called, and renews itself (lib/apple-client-secret.ts).
+      ...(providers.apple && { apple: providers.apple }),
     },
     account: {
       accountLinking: {

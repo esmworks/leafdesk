@@ -12,5 +12,6 @@ describe("block colors", () => {
   it("are found by their English and local names and the given words, once each", () => {
     expect(colorAliases("red", "Kırmızı", ["renk", "metin", "Renk", ""])).toEqual(["red", "kırmızı", "renk", "metin"]);
     expect(colorAliases("blue", "Blue", ["color"])).toEqual(["blue", "color"]);
+    expect(colorAliases("gray", "Gray", ["color"])).toEqual(["gray", "grey", "color"]);
   });
 });

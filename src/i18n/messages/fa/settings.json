@@ -1673,7 +1673,8 @@
       "icon": "نماد",
       "description": "توضیحات",
       "access": "دسترسی",
-      "memberLevel": "دسترسی اعضا"
+      "memberLevel": "دسترسی اعضا",
+      "topLevelLocked": "قفل صفحه‌های سطح بالا"
     },
     "via": {
       "invitation": "یک دعوت‌نامه",

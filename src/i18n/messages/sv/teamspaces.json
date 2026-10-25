@@ -32,7 +32,8 @@
     "invalidIcon": "Ikonen måste vara en emoji eller en inbyggd ikon.",
     "notConvertible": "Bara en sida kan bli en teamyta: inte en databas, en rad eller en mall.",
     "invalidEmail": "Ange en giltig e-postadress.",
-    "cantInvite": "Du kan inte bjuda in personer till den här arbetsytan. Fråga en ägare."
+    "cantInvite": "Du kan inte bjuda in personer till den här arbetsytan. Fråga en ägare.",
+    "topLevelLocked": "Bara teamspacets ägare kan lägga till, flytta och ta bort dess översta sidor."
   },
   "dialog": {
     "createTitle": "Ny teamyta",
@@ -50,6 +51,8 @@
     "creating": "Skapar…",
     "memberLevel": "Medlemmars åtkomst till dess sidor",
     "memberLevelHint": "Vad medlemmar får på sidor som inte själva anger det. Teamytans ägare och arbetsytans ägare får alltid full åtkomst; en sidas delningsinställningar gäller ändå före detta.",
+    "topLevelLocked": "Lås översta sidor",
+    "topLevelLockedHint": "Bara teamspacets ägare lägger till, flyttar, ordnar och tar bort dess översta sidor. Medlemmar redigerar fortfarande dem och sidorna i dem.",
     "memberLevelLocked": "Bara arbetsytans ägare kan ändra vad alla får i en standardteamyta."
   },
   "members": {

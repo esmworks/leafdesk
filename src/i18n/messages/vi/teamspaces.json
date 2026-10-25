@@ -32,7 +32,8 @@
     "invalidIcon": "Biểu tượng phải là một emoji hoặc một biểu tượng có sẵn.",
     "notConvertible": "Chỉ một trang mới có thể thành không gian nhóm, không phải cơ sở dữ liệu, hàng hay mẫu.",
     "invalidEmail": "Hãy nhập địa chỉ email hợp lệ.",
-    "cantInvite": "Bạn không thể mời người khác vào không gian làm việc này. Hãy nhờ chủ sở hữu."
+    "cantInvite": "Bạn không thể mời người khác vào không gian làm việc này. Hãy nhờ chủ sở hữu.",
+    "topLevelLocked": "Chỉ chủ sở hữu teamspace mới có thể thêm, di chuyển và xoá các trang cấp cao nhất của nó."
   },
   "dialog": {
     "createTitle": "Không gian nhóm mới",
@@ -50,6 +51,8 @@
     "creating": "Đang tạo…",
     "memberLevel": "Quyền của thành viên trên các trang của nó",
     "memberLevelHint": "Quyền mà thành viên có trên các trang không tự đặt quyền riêng. Chủ sở hữu của không gian nhóm và chủ sở hữu không gian làm việc luôn có toàn quyền; cài đặt chia sẻ của một trang vẫn ghi đè lên điều này.",
+    "topLevelLocked": "Khoá các trang cấp cao nhất",
+    "topLevelLockedHint": "Chỉ chủ sở hữu teamspace mới thêm, di chuyển, sắp xếp và xoá các trang cấp cao nhất. Thành viên vẫn chỉnh sửa được các trang đó và các trang bên trong.",
     "memberLevelLocked": "Chỉ chủ sở hữu không gian làm việc mới có thể thay đổi quyền mà mọi người có trong một không gian nhóm mặc định."
   },
   "members": {

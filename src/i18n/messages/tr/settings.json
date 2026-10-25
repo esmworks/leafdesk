@@ -1673,7 +1673,8 @@
       "icon": "simge",
       "description": "açıklama",
       "access": "erişim",
-      "memberLevel": "üyelerin erişimi"
+      "memberLevel": "üyelerin erişimi",
+      "topLevelLocked": "en üst sayfa kilidi"
     },
     "via": {
       "invitation": "davet",

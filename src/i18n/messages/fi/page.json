@@ -71,6 +71,7 @@
     "actionFailed": "Toiminto epäonnistui.",
     "viewers": "{count, plural, one {# muu henkilö katselee tätä sivua} other {# muuta henkilöä katselee tätä sivua}}",
     "viewersTitle": "Katselee tätä sivua",
+    "goToViewer": "Siirry kohtaan, jossa {name} on",
     "saveAsTemplate": "Tallenna mallina",
     "saveAsRowTemplate": "Tallenna rivimallina",
     "deleteTemplate": "Poista malli",
@@ -671,10 +672,10 @@
     "embed": {
       "title": "Upotus",
       "subtext": "YouTube, Figma, Google Docs, Maps ja muuta",
-      "aliases": "embed iframe youtube vimeo loom figma google docs sheets slides codepen replit excalidraw framer sketch spotify maps video upotus upota hex deepnote pitch website",
+      "aliases": "embed iframe youtube vimeo loom figma google docs sheets slides codepen replit excalidraw framer sketch miro spotify maps video upotus upota hex deepnote pitch website",
       "placeholder": "Liitä upotettava linkki",
       "submit": "Upota",
-      "providers": "YouTube, Vimeo, Loom, Figma, julkaistut Google Docs-, Sheets- ja Slides-tiedostot, CodePen, Replit, Excalidraw, Framer, Sketch, Spotify ja Google Maps. Muut https-sivustot (Hex, Deepnote, Pitch …) näkyvät sellaisinaan, jos ne sallivat sen.",
+      "providers": "YouTube, Vimeo, Loom, Figma, julkaistut Google Docs-, Sheets- ja Slides-tiedostot, CodePen, Replit, Excalidraw, Framer, Sketch, Miro, Spotify ja Google Maps. Muut https-sivustot (Hex, Deepnote, Pitch …) näkyvät sellaisinaan, jos ne sallivat sen.",
       "frameTitle": "Upotettu sisältö sivustolta {host}",
       "label": "Upotus",
       "resize": "Vedä muuttaaksesi upotuksen leveyttä"

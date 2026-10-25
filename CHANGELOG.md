@@ -12,6 +12,23 @@
   sends a message to an agent as the app's agent chat does and waits for its answer, and
   `get_agent_chat` reads those conversations. `move_page` takes `page_ids` to move several pages
   to one place. The tool list stays within its budget (90 tools, 164 KB).
+- **Sign in with Apple.** Set `APPLE_CLIENT_ID` with either `APPLE_CLIENT_SECRET` or, so the
+  secret never runs out, `APPLE_TEAM_ID`, `APPLE_KEY_ID` and `APPLE_PRIVATE_KEY`: Leafdesk then
+  signs a new client secret itself before the old one expires (see
+  [Social login](docs/self-hosting.md#social-login)).
+- **Lock a teamspace's top-level pages.** Teamspace settings have *Lock top-level pages*: only those
+  who manage the teamspace then add, move, reorder, trash or restore the pages at its top, while
+  members keep editing in and under them. The REST API and MCP list it as `top_level_locked`.
+  Migration `0144_teamspace_top_level_lock`.
+- **Chemical equations.** Equations understand `\ce{…}` and `\pu{…}` for chemical formulas,
+  reactions and units.
+- **Miro embeds.** A Miro board link embeds as a live board, a pasted one offers *Embed*, and
+  `/miro` finds the Embed block.
+- **Ctrl+Shift+L switches between light and dark** (⌘⇧L on a Mac); the keyboard shortcuts list
+  shows it.
+- **Go to a collaborator.** Clicking someone among the people in a page's header scrolls to where
+  they are typing.
+
 - **Report a published page.** Published pages and site pages have *Report page* at their foot,
   for visitors without an account too: a reason, a few words and, if they like, an email address.
   The workspace's owners hear about it in their inbox (once a day per page) and handle the open
@@ -352,6 +369,9 @@
   just that filter to change it when clicked, and their ✕ removes it.
 
 ### Changed
+
+- **One player at a time.** Starting an audio or video block on a page pauses the one playing.
+- **`/grey`** finds the gray text and background colors, like `/gray`.
 
 - **A copied column is as wide as the original.** Duplicating a property gives the copy's column the
   original's width in every view that set one.

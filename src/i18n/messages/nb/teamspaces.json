@@ -32,7 +32,8 @@
     "invalidIcon": "Ikonet må være en emoji eller et innebygd ikon.",
     "notConvertible": "Bare en side kan bli et teamområde: ikke en database, en rad eller en mal.",
     "invalidEmail": "Skriv inn en gyldig e-postadresse.",
-    "cantInvite": "Du kan ikke invitere personer til dette arbeidsområdet. Spør en eier."
+    "cantInvite": "Du kan ikke invitere personer til dette arbeidsområdet. Spør en eier.",
+    "topLevelLocked": "Bare teamspacets eiere kan legge til, flytte og fjerne de øverste sidene."
   },
   "dialog": {
     "createTitle": "Nytt teamområde",
@@ -50,6 +51,8 @@
     "creating": "Oppretter…",
     "memberLevel": "Medlemmenes tilgang til sidene",
     "memberLevelHint": "Det medlemmer får på sider som ikke angir det selv. Eierne av teamområdet og eierne av arbeidsområdet får alltid full tilgang; delingsinnstillingene til en side overstyrer fortsatt dette.",
+    "topLevelLocked": "Lås øverste sider",
+    "topLevelLockedHint": "Bare teamspacets eiere legger til, flytter, ordner og fjerner de øverste sidene. Medlemmer redigerer fortsatt dem og sidene i dem.",
     "memberLevelLocked": "Bare eiere av arbeidsområdet kan endre hva alle får i et standard teamområde."
   },
   "members": {

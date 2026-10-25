@@ -20,6 +20,12 @@ describe("socialProvidersFrom", () => {
     });
   });
 
+  it("takes Apple's secret as it is given", () => {
+    expect(socialProvidersFrom({ APPLE_CLIENT_ID: "com.example.web", APPLE_CLIENT_SECRET: "eyJ.jwt.sig" })).toEqual({
+      apple: { clientId: "com.example.web", clientSecret: "eyJ.jwt.sig" },
+    });
+  });
+
   it("leaves a provider off when half configured or blank", () => {
     expect(socialProvidersFrom({ GITHUB_CLIENT_ID: "gh-id", GOOGLE_CLIENT_SECRET: "g-secret" })).toEqual({});
     expect(socialProvidersFrom({ GITHUB_CLIENT_ID: "gh-id", GITHUB_CLIENT_SECRET: "  " })).toEqual({});

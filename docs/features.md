@@ -75,7 +75,7 @@
   keeps the current style. Databases always use the full width. With the comments panel open, a
   page moves left of it (and narrows when the window is too small) instead of running under it.
 - **Rich blocks**: callouts (one can be hidden when printing: it stays on screen and is left out
-  of PDFs), LaTeX equations (block and inline, KaTeX), footnotes (`/footnote` puts a number in the
+  of PDFs), LaTeX equations (block and inline, KaTeX, with `\ce{…}` and `\pu{…}` for chemical equations and units), footnotes (`/footnote` puts a number in the
   text and the note in a popup; the page lists its notes at the end, on published pages and in PDFs
   too, and hovering a number shows its note), Mermaid diagrams with a live preview, a table of contents, a breadcrumb, a list of the page's subpages (live, each reader
   seeing those they may open; a page with one doesn't list them again at its end when published or
@@ -138,8 +138,8 @@
   (`<!-- leafdesk:button <id> "Label" -->`), so it can't be made or changed there.
 - **Web bookmarks and embeds**: link cards with the page's title, description and image (fetched
   once on the server behind an SSRF guard), and YouTube, Vimeo, Loom, Figma, Google Docs, CodePen,
-  Replit, Excalidraw, Framer, Sketch, Spotify and Google Maps embeds in sandboxed iframes (a pasted
-  link of one of them offers *Embed*, and `/replit`, `/excalidraw`, `/framer` and `/sketch` find the
+  Replit, Excalidraw, Framer, Sketch, Miro, Spotify and Google Maps embeds in sandboxed iframes (a pasted
+  link of one of them offers *Embed*, and `/replit`, `/excalidraw`, `/framer`, `/sketch` and `/miro` find the
   block). The Embed block also shows any other https
   site as it is (Hex apps, Deepnote blocks, Pitch presentations…) in the same sandbox, in the
   site's own origin and without a referrer; sites that refuse to be framed (many do, with
@@ -157,7 +157,8 @@
   place when the link was all it held.
 - **Realtime collaboration**: several people can edit the same page at once (Yjs over WebSocket
   via Hocuspocus), with live cursors. The page header shows who else has the page open, including
-  people who can only view it.
+  people who can only view it; clicking one of them scrolls to where they are typing. When one
+  audio or video block on a page starts playing, the others pause.
 - **Offline editing**: pages you opened before stay readable and editable without a connection;
   the edits sync when it is back, merged with what others wrote meanwhile. The sidebar and
   recently opened databases stay readable. The page header shows offline, syncing and synced (see
@@ -635,7 +636,9 @@
   sets what its members get on its pages (full access, can edit, can comment or can view) where a
   page isn't shared otherwise; its owners and workspace owners get full access, and so does
   whoever adds a page at its top. Below full access, members are held to the database property
-  access rules too.
+  access rules too. Those who manage a teamspace can *Lock top-level pages* in its settings: then
+  only they add, move, reorder, trash or restore the pages at its top, while members keep working
+  in and under them as their access allows.
 - **Sharing and permissions**: give people, or everyone in the page's teamspace (the workspace
   for a private page), full, edit, edit content, comment, view or no access to a page. *Can edit
   content* writes the body, title and icon, adds and fills in rows and moves them to the trash, but
@@ -977,7 +980,7 @@
   [Who can join a workspace](account-and-security.md#who-can-join-a-workspace) and
   [Workspace security switches](account-and-security.md#workspace-security-switches)).
 - **Email**: invitations, password reset, assignment and share notifications over SMTP (see [Email](self-hosting.md#email)).
-- **Sign in with GitHub or Google**, optional (see [Social login](self-hosting.md#social-login)).
+- **Sign in with GitHub, Google or Apple**, optional (see [Social login](self-hosting.md#social-login)).
 - **My account**: name and picture, password, email address, signed-in devices, connected apps,
   language and notification settings in one place, and deleting the account (see
   [My account](account-and-security.md#my-account)).
@@ -1023,7 +1026,8 @@
   browser; Arabic, Hebrew and Persian lay the app out right to left (see [Languages](development.md#languages)).
 - **Light and dark themes**: following the system, or chosen for the browser in Preferences, each
   with a high contrast option (stronger secondary text, lines and focus) that also follows the
-  system's "increase contrast" setting.
+  system's "increase contrast" setting. Ctrl+Shift+L (⌘⇧L on a Mac) switches between light and
+  dark.
 - **MCP server with OAuth 2.1**: remote MCP endpoint at `/mcp`.
   - Supports Client ID Metadata Documents and Dynamic Client Registration, with PKCE and a
     consent screen.

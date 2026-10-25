@@ -1673,7 +1673,8 @@
       "icon": "значок",
       "description": "опис",
       "access": "доступ",
-      "memberLevel": "доступ учасників"
+      "memberLevel": "доступ учасників",
+      "topLevelLocked": "блокування сторінок верхнього рівня"
     },
     "via": {
       "invitation": "запрошення",

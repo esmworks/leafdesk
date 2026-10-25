@@ -32,7 +32,8 @@
     "invalidIcon": "Das Symbol muss ein Emoji oder ein eingebautes Symbol sein.",
     "notConvertible": "Nur eine Seite kann zum Teamspace werden, keine Datenbank, Zeile oder Vorlage.",
     "invalidEmail": "Gib eine gültige E-Mail-Adresse ein.",
-    "cantInvite": "Du kannst keine Personen in diesen Workspace einladen. Frag einen Inhaber."
+    "cantInvite": "Du kannst keine Personen in diesen Workspace einladen. Frag einen Inhaber.",
+    "topLevelLocked": "Nur die Besitzer des Teamspace können seine obersten Seiten hinzufügen, verschieben und entfernen."
   },
   "dialog": {
     "createTitle": "Neuer Teamspace",
@@ -50,6 +51,8 @@
     "creating": "Wird erstellt…",
     "memberLevel": "Zugriff der Mitglieder auf seine Seiten",
     "memberLevelHint": "Was Mitglieder auf Seiten erhalten, die es nicht selbst festlegen. Eigentümer des Teambereichs und des Workspace haben immer Vollzugriff; die Freigabe einer Seite geht weiterhin vor.",
+    "topLevelLocked": "Oberste Seiten sperren",
+    "topLevelLockedHint": "Nur die Besitzer des Teamspace fügen seine obersten Seiten hinzu, verschieben, ordnen und entfernen sie. Mitglieder bearbeiten sie und die Seiten darin weiterhin.",
     "memberLevelLocked": "Nur Workspace-Eigentümer können ändern, was alle in einem Standard-Teambereich erhalten."
   },
   "members": {

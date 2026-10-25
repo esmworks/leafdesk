@@ -1673,7 +1673,8 @@
       "icon": "biểu tượng",
       "description": "mô tả",
       "access": "quyền truy cập",
-      "memberLevel": "quyền truy cập của thành viên"
+      "memberLevel": "quyền truy cập của thành viên",
+      "topLevelLocked": "khoá trang cấp cao nhất"
     },
     "via": {
       "invitation": "một lời mời",

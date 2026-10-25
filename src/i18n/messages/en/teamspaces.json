@@ -32,7 +32,8 @@
     "invalidIcon": "The icon must be an emoji or a built-in icon.",
     "notConvertible": "Only a page can become a teamspace: not a database, a row or a template.",
     "invalidEmail": "Enter a valid email address.",
-    "cantInvite": "You can't invite people to this workspace. Ask an owner."
+    "cantInvite": "You can't invite people to this workspace. Ask an owner.",
+    "topLevelLocked": "Only the teamspace's owners can add, move and remove its top-level pages."
   },
   "dialog": {
     "createTitle": "New teamspace",
@@ -50,6 +51,8 @@
     "creating": "Creating…",
     "memberLevel": "Members' access to its pages",
     "memberLevelHint": "What members get on pages that don't set it themselves. The teamspace's owners and workspace owners always get full access; a page's sharing settings still override this.",
+    "topLevelLocked": "Lock top-level pages",
+    "topLevelLockedHint": "Only the teamspace's owners add, move, reorder and remove its top-level pages. Members still edit them and the pages inside them.",
     "memberLevelLocked": "Only workspace owners can change what everyone gets in a default teamspace."
   },
   "members": {

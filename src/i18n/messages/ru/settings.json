@@ -1673,7 +1673,8 @@
       "icon": "значок",
       "description": "описание",
       "access": "доступ",
-      "memberLevel": "доступ участников"
+      "memberLevel": "доступ участников",
+      "topLevelLocked": "блокировку страниц верхнего уровня"
     },
     "via": {
       "invitation": "приглашение",

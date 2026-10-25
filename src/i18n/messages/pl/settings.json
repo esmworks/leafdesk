@@ -1673,7 +1673,8 @@
       "icon": "ikonę",
       "description": "opis",
       "access": "dostęp",
-      "memberLevel": "dostęp członków"
+      "memberLevel": "dostęp członków",
+      "topLevelLocked": "blokada stron najwyższego poziomu"
     },
     "via": {
       "invitation": "zaproszenie",

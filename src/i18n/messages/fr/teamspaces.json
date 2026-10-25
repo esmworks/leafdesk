@@ -32,7 +32,8 @@
     "invalidIcon": "L’icône doit être un emoji ou une icône intégrée.",
     "notConvertible": "Seule une page peut devenir un espace d’équipe, pas une base de données, une ligne ni un modèle.",
     "invalidEmail": "Saisissez une adresse e-mail valide.",
-    "cantInvite": "Vous ne pouvez pas inviter de personnes dans cet espace de travail. Demandez à un propriétaire."
+    "cantInvite": "Vous ne pouvez pas inviter de personnes dans cet espace de travail. Demandez à un propriétaire.",
+    "topLevelLocked": "Seuls les propriétaires du teamspace peuvent ajouter, déplacer et retirer ses pages de premier niveau."
   },
   "dialog": {
     "createTitle": "Nouvel espace d’équipe",
@@ -50,6 +51,8 @@
     "creating": "Création…",
     "memberLevel": "Accès des membres à ses pages",
     "memberLevelHint": "Ce que les membres obtiennent sur les pages qui ne le définissent pas elles-mêmes. Les propriétaires de l'espace d'équipe et de l'espace de travail ont toujours un accès complet ; le partage d'une page reste prioritaire.",
+    "topLevelLocked": "Verrouiller les pages de premier niveau",
+    "topLevelLockedHint": "Seuls les propriétaires du teamspace ajoutent, déplacent, réordonnent et retirent ses pages de premier niveau. Les membres continuent de les modifier, ainsi que les pages qu'elles contiennent.",
     "memberLevelLocked": "Seuls les propriétaires de l'espace de travail peuvent changer ce que tout le monde obtient dans un espace d'équipe par défaut."
   },
   "members": {
