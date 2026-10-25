@@ -14,8 +14,9 @@ export async function generateMetadata(): Promise<Metadata> {
 }
 
 /**
- * My tasks: the open database rows assigned to the person across the workspace (server/assigned.ts),
- * by due date or by database (`?by=database`), the first MY_TASKS_LIMIT of them.
+ * My tasks: the open database rows assigned to the person across the workspace (server/assigned.ts)
+ * and the unticked to-dos in pages that mention them (server/page-tasks.ts), by due date or by
+ * database or page (`?by=database`), the first MY_TASKS_LIMIT of them.
  */
 export default async function MyTasksPage({
   params,

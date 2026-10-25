@@ -38,7 +38,8 @@
   straight quote.
 - **Home page**: quick buttons for a new page, database or template; today's daily note (or a
   button that starts it) and the few before it; the database rows assigned to you that aren't done
-  and that you can open, grouped as overdue, today, the next 7 days, later and no date; *Jump back
+  and that you can open, with the unticked to-dos in pages that mention you (see *My tasks*),
+  grouped as overdue, today, the next 7 days, later and no date; *Jump back
   in*, the pages you opened last (while the workspace and you record page views, see *People directory and analytics*;
   only pages you can still open); and the pages edited last. My account → Preferences → *Start page*
   opens Leafdesk on the home page or on the page you opened last on any device (while your page
@@ -49,6 +50,13 @@
   open, by due date or by database, with its status and first date; the first 200, the ones due
   soonest. A row opens beside the list. Tick a row with a status to set it to the first option of
   its *Done* group, and untick it to put the status back; the home page's list works the same way.
+  To-dos written in pages are listed too: an unticked to-do that mentions you (`@` and your name)
+  shows its text without the mentions, "on" its page with the page's icon, and the first date
+  mentioned in it as its due date; it goes under its page when grouped by database. Only pages you
+  can open count, not those in the trash or templates. Clicking one opens its page at the to-do;
+  ticking it ticks the to-do in the page (with edit access to the page), and it leaves the list
+  once the page is saved. Mentioning a group or an agent in a to-do doesn't put it in anyone's
+  list; mention the people themselves.
 - **Search box** (Cmd/Ctrl+K or Cmd/Ctrl+P; with text selected in a page, Cmd/Ctrl+K links it instead): before you type, the pages you opened last (the pages last edited
   while your page views aren't recorded or you haven't opened any yet). The menus under the query
   narrow it by teamspace, by who created a page or edited it last, and by when it was last edited
@@ -393,7 +401,8 @@
     switch rather than its sign-in policies: it stops while export or connected apps are off.
     The home page's "Assigned to you" section has the same kind of address for the rows assigned
     to you across the workspace's databases (those with a date you may see, done ones left out,
-    at most the 1,000 assigned rows edited last), named after the workspace. Settings → Email and
+    at most the 1,000 assigned rows edited last) and the dated to-dos in pages that mention you,
+    named after the workspace. Settings → Email and
     calendar lists every address you made, in every workspace, and turns any of them off.
   - Sub-items: turned on in a table, list or timeline view's settings, a row can go under another
     row of the same database (a "Parent item" property holds its one parent, "Sub-items" lists the

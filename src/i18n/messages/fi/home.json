@@ -2,7 +2,7 @@
   "hello": "Hei, {name}",
   "jumpBackIn": "Jatka siitä, mihin jäit",
   "recent": "Viimeksi muokatut",
-  "assignedEmpty": "Sinulle ei ole osoitettu mitään. Tietokantojen rivit, joihin sinut on osoitettu, näkyvät tässä.",
+  "assignedEmpty": "Sinulle ei ole osoitettu mitään. Tietokantojen rivit, joihin sinut on osoitettu, ja sivujen tehtävät, joissa sinut mainitaan, näkyvät tässä.",
   "empty": "Täällä ei ole vielä mitään. Aloita luomalla ensimmäinen sivusi.",
   "emptyGuest": "Kanssasi ei ole vielä jaettu täällä mitään. Sivut näkyvät, kun joku jakaa ne kanssasi.",
   "newPage": "Uusi sivu",
@@ -22,16 +22,20 @@
   "assignedAll": "Näytä kaikki",
   "myTasks": {
     "title": "Omat tehtävät",
-    "description": "Koko työtilan tietokantojen rivit, jotka voit avata, jotka on osoitettu sinulle ja jotka eivät ole valmiita.",
+    "description": "Koko työtilan tietokantojen rivit, jotka voit avata, jotka on osoitettu sinulle ja jotka eivät ole valmiita, sekä rastittamattomat tehtävät sivuilla, joilla sinut mainitaan.",
     "grouping": "Ryhmittelyperuste",
     "byDue": "Määräpäivän mukaan",
-    "byDatabase": "Tietokannan mukaan",
+    "byDatabase": "Tietokannan tai sivun mukaan",
     "sharedRows": "Kanssasi jaetut rivit",
     "shown": "Näytetään {shown} pian erääntyvää, yhteensä {total}.",
     "markDone": "Merkitse ”{title}” valmiiksi",
     "undoLabel": "Merkitse ”{title}” keskeneräiseksi",
     "undo": "Kumoa",
     "markFailed": "Riviä ei voitu merkitä valmiiksi.",
-    "undoFailed": "Rivin tilaa ei voitu palauttaa. Muuta se rivillä."
+    "undoFailed": "Rivin tilaa ei voitu palauttaa. Muuta se rivillä.",
+    "untitledTask": "Tehtävä",
+    "onPage": "sivulla <page>{title}</page>",
+    "tickFailed": "Tehtävää ei voitu rastittaa.",
+    "untickFailed": "Rastia ei voitu poistaa. Poista se sivulla."
   }
 }

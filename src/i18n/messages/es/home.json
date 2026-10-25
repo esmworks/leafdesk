@@ -2,7 +2,7 @@
   "hello": "Hola, {name}",
   "jumpBackIn": "Retoma tu trabajo",
   "recent": "Editado recientemente",
-  "assignedEmpty": "No tienes nada asignado. Las filas que te asignen en las bases de datos aparecen aquí.",
+  "assignedEmpty": "No tienes nada asignado. Las filas que te asignen en las bases de datos, y las tareas de las páginas que te mencionan, aparecen aquí.",
   "empty": "Todavía no hay nada aquí. Crea tu primera página para empezar.",
   "emptyGuest": "Todavía no se ha compartido nada contigo aquí. Las páginas aparecerán cuando alguien las comparta contigo.",
   "newPage": "Nueva página",
@@ -22,16 +22,20 @@
   "assignedAll": "Ver todo",
   "myTasks": {
     "title": "Mis tareas",
-    "description": "Filas de las bases de datos que puedes abrir, asignadas a ti y sin terminar, en todo el espacio de trabajo.",
+    "description": "Filas de las bases de datos que puedes abrir, asignadas a ti y sin terminar, y tareas sin marcar de las páginas que te mencionan, en todo el espacio de trabajo.",
     "grouping": "Agrupar por",
     "byDue": "Por fecha de vencimiento",
-    "byDatabase": "Por base de datos",
+    "byDatabase": "Por base de datos o página",
     "sharedRows": "Filas compartidas contigo",
     "shown": "Se muestran las {shown} que vencen antes de {total}.",
     "markDone": "Marcar “{title}” como hecha",
     "undoLabel": "Marcar “{title}” como no hecha",
     "undo": "Deshacer",
     "markFailed": "No se pudo marcar la fila como hecha.",
-    "undoFailed": "No se pudo restaurar el estado de la fila. Cámbialo en la fila."
+    "undoFailed": "No se pudo restaurar el estado de la fila. Cámbialo en la fila.",
+    "untitledTask": "Tarea",
+    "onPage": "en <page>{title}</page>",
+    "tickFailed": "No se pudo marcar la tarea.",
+    "untickFailed": "No se pudo desmarcar la tarea. Desmárcala en la página."
   }
 }

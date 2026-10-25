@@ -160,7 +160,7 @@ try {
   const [note] = await createRows(owner, notes.id, [{ title: "A note", properties: { [who]: [alice] } }]).then((rows) => rows.map((r) => r.id));
 
   const mine = await assignedRows(alice, workspaceId, today, "UTC", MY_TASKS_LIMIT);
-  const listed = mine.groups.flatMap((g) => g.rows);
+  const listed = mine.groups.flatMap((g) => g.rows).filter((r) => r.type === "row");
   const listedIds = new Set(listed.map((r) => r.id));
   check(listedIds.has(overdue) && listedIds.has(dueToday) && listedIds.has(undated) && listedIds.has(note), "rows naming alice in any person property are listed", [...listedIds]);
   check(!listedIds.has(done), "done rows are left out");
@@ -175,7 +175,7 @@ try {
       JSON.stringify([["overdue", [overdue]], ["today", [dueToday]], ["none", mine.groups.find((g) => g.key === "none")!.rows.map((r) => r.id)]]) &&
       mine.groups.find((g) => g.key === "none")!.rows.length === 3,
     "grouped by due date: overdue, today, then the rows without a date",
-    mine.groups.map((g) => [g.key, g.rows.map((r) => r.title)]),
+    mine.groups.map((g) => [g.key, g.rows.map((r) => (r.type === "row" ? r.title : r.text))]),
   );
   const markable = new Map(listed.map((r) => [r.id, r.markable]));
   check(markable.get(overdue) && markable.get(dueToday) && markable.get(undated), "rows alice may edit with a status can be marked done");
@@ -199,7 +199,7 @@ try {
   await rejects(() => markAssignedDone(alice, shared), isAccessError, "a row she may only view can't be marked done");
   await rejects(() => markAssignedDone(alice, hidden), isAccessError, "…nor one she can't open");
   await rejects(() => markAssignedDone(alice, note), (e) => e instanceof AssignedRowError, "…nor one without a status");
-  const guestList = (await assignedRows(guest, workspaceId, today)).groups.flatMap((g) => g.rows);
+  const guestList = (await assignedRows(guest, workspaceId, today)).groups.flatMap((g) => g.rows).filter((r) => r.type === "row");
   check(guestList.length === 1 && guestList[0].id === shared, "a guest sees the rows shared with them that name them", guestList.map((r) => r.title));
   await rejects(() => assignedRows(`${RUN}-nobody`, workspaceId, today), () => true, "someone outside the workspace gets nothing");
 

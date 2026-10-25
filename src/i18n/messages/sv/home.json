@@ -2,7 +2,7 @@
   "hello": "Hej, {name}",
   "jumpBackIn": "Fortsätt där du slutade",
   "recent": "Nyligen redigerade",
-  "assignedEmpty": "Inget är tilldelat dig. Rader i databaser som tilldelas dig visas här.",
+  "assignedEmpty": "Inget är tilldelat dig. Rader i databaser som tilldelas dig, och att göra-punkter på sidor som nämner dig, visas här.",
   "empty": "Här finns inget än. Skapa din första sida för att komma igång.",
   "emptyGuest": "Inget har delats med dig här än. Sidor visas när någon delar dem med dig.",
   "newPage": "Ny sida",
@@ -22,16 +22,20 @@
   "assignedAll": "Visa alla",
   "myTasks": {
     "title": "Mina uppgifter",
-    "description": "Rader i databaser du kan öppna som är tilldelade dig och inte är klara, i hela arbetsytan.",
+    "description": "Rader i databaser du kan öppna som är tilldelade dig och inte är klara, och att göra-punkter utan bock på sidor som nämner dig, i hela arbetsytan.",
     "grouping": "Gruppera efter",
     "byDue": "Efter förfallodatum",
-    "byDatabase": "Efter databas",
+    "byDatabase": "Efter databas eller sida",
     "sharedRows": "Rader som delats med dig",
     "shown": "Visar de {shown} med närmast förfallodatum av {total}.",
     "markDone": "Markera ”{title}” som klar",
     "undoLabel": "Markera ”{title}” som inte klar",
     "undo": "Ångra",
     "markFailed": "Det gick inte att markera raden som klar.",
-    "undoFailed": "Det gick inte att återställa radens status. Ändra den i raden."
+    "undoFailed": "Det gick inte att återställa radens status. Ändra den i raden.",
+    "untitledTask": "Att göra",
+    "onPage": "på <page>{title}</page>",
+    "tickFailed": "Det gick inte att bocka av punkten.",
+    "untickFailed": "Det gick inte att ta bort bocken. Ta bort den på sidan."
   }
 }

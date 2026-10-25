@@ -2,7 +2,7 @@
   "hello": "Olá, {name}",
   "jumpBackIn": "Continue de onde parou",
   "recent": "Editados recentemente",
-  "assignedEmpty": "Nada está atribuído a você. As linhas de bancos de dados atribuídas a você aparecem aqui.",
+  "assignedEmpty": "Nada está atribuído a você. As linhas de bancos de dados atribuídas a você, e as tarefas em páginas que mencionam você, aparecem aqui.",
   "empty": "Nada aqui ainda. Crie sua primeira página para começar.",
   "emptyGuest": "Nada foi compartilhado com você aqui ainda. As páginas aparecem assim que alguém as compartilhar com você.",
   "newPage": "Nova página",
@@ -22,16 +22,20 @@
   "assignedAll": "Ver tudo",
   "myTasks": {
     "title": "Minhas tarefas",
-    "description": "Linhas dos bancos de dados que você pode abrir, atribuídas a você e não concluídas, em todo o espaço de trabalho.",
+    "description": "Linhas dos bancos de dados que você pode abrir, atribuídas a você e não concluídas, e tarefas não marcadas em páginas que mencionam você, em todo o espaço de trabalho.",
     "grouping": "Agrupar por",
     "byDue": "Por prazo",
-    "byDatabase": "Por banco de dados",
+    "byDatabase": "Por banco de dados ou página",
     "sharedRows": "Linhas compartilhadas com você",
     "shown": "Mostrando as {shown} com prazo mais próximo de {total}.",
     "markDone": "Marcar “{title}” como concluída",
     "undoLabel": "Marcar “{title}” como não concluída",
     "undo": "Desfazer",
     "markFailed": "Não foi possível marcar a linha como concluída.",
-    "undoFailed": "Não foi possível restaurar o status da linha. Altere-o na linha."
+    "undoFailed": "Não foi possível restaurar o status da linha. Altere-o na linha.",
+    "untitledTask": "Tarefa",
+    "onPage": "em <page>{title}</page>",
+    "tickFailed": "Não foi possível marcar a tarefa.",
+    "untickFailed": "Não foi possível desmarcar a tarefa. Desmarque-a na página."
   }
 }
