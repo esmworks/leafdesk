@@ -17,6 +17,7 @@ import { openRowProps, useIsOpenRow, useRowOpener } from "./row-panel-context";
 import { useNewRow } from "./use-new-row";
 import { usePropertyAccess } from "./property-access";
 import { AddSubItemButton, SUB_ITEM_INDENT, SubItemCount, SubItemToggle, useSubItems } from "./sub-items";
+import { ViewSections } from "./view-sections";
 import type { Property, Row, View } from "./types";
 import type { DatabaseApi } from "./use-database";
 
@@ -53,8 +54,8 @@ export function ListView({
   const subItems = useSubItems(view, properties, allRows);
   const canAddSubItem = !readOnly && subItems.nested && !!subItems.parent && access.canEditValues(subItems.parent.id);
 
-  const add = async () => {
-    await createNew(() => api.createRow());
+  const add = async (values?: Record<string, unknown>) => {
+    await createNew(() => api.createRow(values && Object.keys(values).length ? { properties: values } : {}));
   };
   const addSubItem = async (row: Row) => {
     if (!subItems.parent) return;
@@ -63,12 +64,14 @@ export function ListView({
   };
   /**
    * A new row right below `row` (Shift+Enter), with the view's filter values like any new row, and
-   * under the same parent while sub-items nest. A sorted view puts it where its values go.
+   * under the same parent while sub-items nest, in the same section with its value. A sorted view
+   * puts it where its values go.
    */
-  const addBelow = async (row: Row) => {
+  const addBelow = async (row: Row, groupValues?: Record<string, unknown>) => {
     const parent = subItems.nested && subItems.parent && access.canEditValues(subItems.parent.id) ? subItems.parent : null;
     const parentValue = parent ? row.properties[parent.id] : undefined;
-    const properties = parent && Array.isArray(parentValue) && parentValue.length ? { [parent.id]: parentValue } : undefined;
+    const values = { ...groupValues, ...(parent && Array.isArray(parentValue) && parentValue.length ? { [parent.id]: parentValue } : {}) };
+    const properties = Object.keys(values).length ? values : undefined;
     await createNew(async () => {
       const id = await api.createRow(properties ? { properties } : {});
       if (id && !view.config.sorts?.length) void api.moveRowBeside(id, row.id, "after");
@@ -79,42 +82,52 @@ export function ListView({
   return (
     <QuickAddContext value={quick}>
       <div className="page-gutter pb-6">
-        <div role="list" className="flex flex-col">
-          {subItems.lines(rows).map((line) => (
-            <ListRow
-              key={line.row.id}
-              workspaceId={workspaceId}
-              line={line}
-              showIcon={view.config.showIcons !== false}
-              nested={subItems.nested}
-              onToggle={() => subItems.toggle(line.row.id)}
-              onAddSubItem={canAddSubItem ? () => void addSubItem(line.row) : undefined}
-              props={shownProps}
-              color={colors?.get(line.row.id)}
-              readOnly={readOnly}
-              editTitle={editTitleOf === line.row.id}
-              typed={typed}
-              onTitle={(title) => {
-                stopEditing();
-                if (title !== line.row.title) quick.save(line.row.id, title);
-              }}
-              onDelete={() => api.deleteRow(line.row.id)}
-              api={api}
-              onAddBelow={readOnly ? undefined : () => void addBelow(line.row)}
-            />
-          ))}
-        </div>
-        {!rows.length && readOnly && <p className="py-10 text-center text-sm text-fg-muted">{t("list.empty")}</p>}
-        {!readOnly && (
-          <button
-            type="button"
-            onClick={add}
-            className="mt-0.5 flex h-8 w-full items-center gap-1.5 rounded-md px-2 text-sm text-fg-muted hover:bg-bg-hover hover:text-fg"
-          >
-            <Plus className="h-3.5 w-3.5" />
-            {t("list.new")}
-          </button>
-        )}
+        <ViewSections view={view} properties={properties} rows={rows} api={api} readOnly={readOnly} onAdd={(values) => void add(values)}>
+          {(shown, group) => {
+            const addHere = group ? group.add : readOnly ? undefined : () => void add();
+            return (
+              <>
+                <div role="list" className="flex flex-col">
+                  {subItems.lines(shown).map((line) => (
+                    <ListRow
+                      key={line.row.id}
+                      workspaceId={workspaceId}
+                      line={line}
+                      showIcon={view.config.showIcons !== false}
+                      nested={subItems.nested}
+                      onToggle={() => subItems.toggle(line.row.id)}
+                      onAddSubItem={canAddSubItem ? () => void addSubItem(line.row) : undefined}
+                      props={shownProps}
+                      color={colors?.get(line.row.id)}
+                      readOnly={readOnly}
+                      editTitle={editTitleOf === line.row.id}
+                      typed={typed}
+                      onTitle={(title) => {
+                        stopEditing();
+                        if (title !== line.row.title) quick.save(line.row.id, title);
+                      }}
+                      onDelete={() => api.deleteRow(line.row.id)}
+                      api={api}
+                      onAddBelow={readOnly ? undefined : () => void addBelow(line.row, group?.values)}
+                    />
+                  ))}
+                </div>
+                {!group && !rows.length && readOnly && <p className="py-10 text-center text-sm text-fg-muted">{t("list.empty")}</p>}
+                {/* In sections each group adds its own rows, with its value. */}
+                {addHere && (
+                  <button
+                    type="button"
+                    onClick={addHere}
+                    className="mt-0.5 flex h-8 w-full items-center gap-1.5 rounded-md px-2 text-sm text-fg-muted hover:bg-bg-hover hover:text-fg"
+                  >
+                    <Plus className="h-3.5 w-3.5" />
+                    {t("list.new")}
+                  </button>
+                )}
+              </>
+            );
+          }}
+        </ViewSections>
       </div>
     </QuickAddContext>
   );

@@ -1516,7 +1516,7 @@ describe("database views", () => {
     const due = { id: "prop-due", name: "Due", type: "date", options: {} };
     databases.getDatabase.mockResolvedValue({ ...database, properties: [status, notes, due] });
     const onCalendar = await callTool(writer, "create_database_view", { database_id: "db-1", name: "C", type: "calendar", group_by: "Due" });
-    expect(onCalendar.text).toMatch(/only applies to board, table, timeline, map and chart/);
+    expect(onCalendar.text).toMatch(/only applies to board, table, list, gallery, timeline, map and chart/);
     const wrongProp = await callTool(writer, "create_database_view", {
       database_id: "db-1",
       name: "T",
@@ -2081,7 +2081,7 @@ describe("duplicate_page", () => {
     );
     const { isError, data } = await callTool(writer, "duplicate_page", { page_id: "page-1" });
     expect(isError).toBe(false);
-    expect(duplicate.duplicatePage).toHaveBeenCalledWith(actor, "page-1", " (copy)", { withoutRows: false });
+    expect(duplicate.duplicatePage).toHaveBeenCalledWith(actor, "page-1", { withoutRows: false });
     expect(pages.renamePage).not.toHaveBeenCalled();
     expect(data).toMatchObject({ id: "page-copy", title: "Plan (copy)", duplicated_from: "page-1", teamspace: "Private" });
     expect(data.url).toMatch(/\/w\/ws-1\/p\/page-copy$/);
@@ -2090,7 +2090,7 @@ describe("duplicate_page", () => {
   it("leaves the rows out of the databases it copies when asked", async () => {
     duplicate.duplicatePage.mockResolvedValue({ id: "page-copy", workspaceId: "ws-1" });
     await callTool(writer, "duplicate_page", { page_id: "page-1", without_rows: true });
-    expect(duplicate.duplicatePage).toHaveBeenCalledWith(actor, "page-1", " (copy)", { withoutRows: true });
+    expect(duplicate.duplicatePage).toHaveBeenCalledWith(actor, "page-1", { withoutRows: true });
   });
 
   it("renames the copy when a title is given", async () => {
@@ -3357,8 +3357,8 @@ describe("dashboards", () => {
   it("refuses forms and settings a layout doesn't have, before writing", async () => {
     const form = await callTool(writer, "add_dashboard", { page_id: "page-1", widgets: [{ database_id: "db-1", type: "form" }] });
     expect(form.isError).toBe(true);
-    const listGroup = await callTool(writer, "add_dashboard", { page_id: "page-1", widgets: [{ database_id: "db-1", type: "list", group_by: "Status" }] });
-    expect(listGroup.text).toMatch(/group_by only applies to/);
+    const calendarGroup = await callTool(writer, "add_dashboard", { page_id: "page-1", widgets: [{ database_id: "db-1", type: "calendar", group_by: "Status" }] });
+    expect(calendarGroup.text).toMatch(/group_by only applies to/);
     databases.getDatabase.mockRejectedValueOnce(new AccessError("No access"));
     const hidden = await callTool(writer, "add_dashboard", { page_id: "page-1", widgets: [{ database_id: "db-2" }] });
     expect(hidden.isError).toBe(true);

@@ -36,7 +36,6 @@
     "linkCopied": "Link kopieret",
     "duplicate": "Duplikér",
     "duplicateWithoutRows": "Duplikér uden rækker",
-    "duplicateSuffix": " (kopi)",
     "duplicateFailed": "Siden kunne ikke duplikeres.",
     "moveTo": "Flyt til",
     "style": {
@@ -769,7 +768,9 @@
     "turnIntoCallout": "Lav om til infoboks",
     "plainCallout": "Almindelig infoboks",
     "addTitle": "Tilføj titel",
-    "removeTitle": "Fjern titel"
+    "removeTitle": "Fjern titel",
+    "copyOriginalLink": "Kopiér original link",
+    "openInNewTab": "Åbn i ny fane"
   },
   "imageLink": {
     "menuItem": "Link…",

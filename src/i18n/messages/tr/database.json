@@ -618,7 +618,8 @@
     "propertyComments": "{name} üzerinde {count, plural, one {# açık yorum} other {# açık yorum}}",
     "pinned": "Sabitlenen özellikler",
     "showBeside": "Sayfanın yanında göster",
-    "showAbove": "Sayfanın üstünde göster"
+    "showAbove": "Sayfanın üstünde göster",
+    "copyValue": "{name} değerini kopyala"
   },
   "rowActivity": {
     "title": "Etkinlik",
@@ -1161,7 +1162,9 @@
     "expand": "{name} grubunu genişlet",
     "rowCount": "{count, plural, other {# satır}}",
     "actions": "Grup işlemleri",
-    "addRow": "{name} grubuna satır ekle"
+    "addRow": "{name} grubuna satır ekle",
+    "subGroupBy": "Alt grup",
+    "colorColumns": "Sütunları renklendir"
   },
   "rollup": {
     "title": "Toplama",

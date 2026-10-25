@@ -618,7 +618,8 @@
     "propertyComments": "{count, plural, one {# avoin kommentti} other {# avointa kommenttia}}: {name}",
     "pinned": "Kiinnitetyt ominaisuudet",
     "showBeside": "Näytä sivun vieressä",
-    "showAbove": "Näytä sivun yläpuolella"
+    "showAbove": "Näytä sivun yläpuolella",
+    "copyValue": "Kopioi {name}"
   },
   "rowActivity": {
     "title": "Toiminta",
@@ -1161,7 +1162,9 @@
     "expand": "Laajenna {name}",
     "rowCount": "{count, plural, one {# rivi} other {# riviä}}",
     "actions": "Ryhmän toiminnot",
-    "addRow": "Lisää rivi ryhmään {name}"
+    "addRow": "Lisää rivi ryhmään {name}",
+    "subGroupBy": "Alaryhmä",
+    "colorColumns": "Väritä sarakkeet"
   },
   "rollup": {
     "title": "Kooste",

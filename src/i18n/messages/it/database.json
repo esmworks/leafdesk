@@ -618,7 +618,8 @@
     "propertyComments": "{count, plural, one {# commento aperto} other {# commenti aperti}} su {name}",
     "pinned": "Proprietà fissate",
     "showBeside": "Mostra accanto alla pagina",
-    "showAbove": "Mostra sopra la pagina"
+    "showAbove": "Mostra sopra la pagina",
+    "copyValue": "Copia {name}"
   },
   "rowActivity": {
     "title": "Attività",
@@ -1161,7 +1162,9 @@
     "expand": "Espandi {name}",
     "rowCount": "{count, plural, one {# riga} other {# righe}}",
     "actions": "Azioni sul gruppo",
-    "addRow": "Aggiungi una riga a {name}"
+    "addRow": "Aggiungi una riga a {name}",
+    "subGroupBy": "Sottogruppo",
+    "colorColumns": "Colora le colonne"
   },
   "rollup": {
     "title": "Rollup",

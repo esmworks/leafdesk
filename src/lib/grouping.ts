@@ -2,6 +2,7 @@ import type { GroupDateBy, PropertyOptions, PropertyType, SelectOption, ViewConf
 import {
   groupRows,
   groupRowsByPerson,
+  isGroupable,
   localDay,
   movePersonValue,
   orderGroups,
@@ -44,6 +45,23 @@ export type GroupValue =
 export type Group<T> = RowGroup<T> & { value: GroupValue };
 
 export type GroupSettings = Pick<ViewConfig, "groupDateBy" | "groupStatusBy">;
+
+/** The view types that group their rows into sections when `groupBy` names a groupable property. */
+export const SECTIONED_VIEWS = new Set(["table", "list", "gallery"]);
+
+/**
+ * A board's sub-group property (ViewConfig subGroupBy): groupable, still there and not the
+ * property the columns stand for; null otherwise.
+ */
+export function subGroupProperty<P extends { id: string; type: PropertyType }>(
+  properties: P[],
+  config: Pick<ViewConfig, "subGroupBy">,
+  columns: { id: string } | undefined,
+): P | null {
+  const id = config.subGroupBy;
+  if (!id || id === columns?.id) return null;
+  return properties.find((p) => p.id === id && isGroupable(p.type)) ?? null;
+}
 
 export type GroupContext = {
   /** People person-like properties can hold (see groupRowsByPerson). */

@@ -81,6 +81,11 @@ BlockNote on Yjs; Tailwind v4; next-intl. Node 24, pnpm 11. A separate Electron 
   code: an inserted row always gets the next number (the value it brings is dropped) and an
   update keeps the old one. Copies that must keep their numbers (a duplicated database, a restored
   backup) insert the rows before the property; `server/unique-ids.ts` checks prefixes.
+  Grouped lists and galleries share `components/database/view-sections.tsx` (the header is
+  `GroupHeader` in `group-label.tsx`, also a board's sub-group); a board's sub-groups
+  (`subGroupBy`) use the default date and status grouping. A new property-id field of `ViewConfig`
+  goes into `lib/duplicate.ts` (`remapViewConfig`, `dropPropertyReferences`),
+  `lib/convert-property.ts` `retypeViewConfig` and `lib/views.ts` `layoutConfigError`.
   Several linked databases at once (views, example rows, an intro page) are a plan: checked in
   `src/lib/database-plan.ts`, created all-or-nothing by `database-plan.ts` `createFromPlan`, which
   Build with AI (`ai-build.ts` drafts the plan) and the AI chat's `create_database` both use.
@@ -149,6 +154,9 @@ BlockNote on Yjs; Tailwind v4; next-intl. Node 24, pnpm 11. A separate Electron 
   on other sites go through `app/api/files/external` (connections' address checks only). Comment
   mentions and previews: `lib/comment-refs.ts`, resolved per reader by `server/comment-refs.ts`.
   Cmd/Ctrl+Alt+T: `components/toggle-all.ts` (views with groups join through `useToggleAllGroups`).
+  What tables offer (merging, cell colors, headers) is `TABLE_SETTINGS` in `embed-blocks.tsx`, for
+  every editor that shows tables. BlockNote's own Backspace runs before a plugin's `handleKeyDown`:
+  an extension that must see Backspace first takes it in `keyboardShortcuts` (`smart-quotes.ts`).
 - **Icons.** A stored icon is an emoji or `icon:<name>[:<color>]` (`src/lib/icon-value.ts`, tiny and
   safe anywhere; checked by `lib/icon.ts` `parseIcon` against `lib/builtin-icon-names.ts`). Show one
   with `IconGlyph` (`components/builtin-icon.tsx`), never as raw text; text output strips it with

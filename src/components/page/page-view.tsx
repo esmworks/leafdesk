@@ -518,7 +518,8 @@ export function PageView({
                 {({ toggle, close: _, ...trigger }) => (
                   <button
                     type="button"
-                    onClick={toggle}
+                    // Scrolled down, the page's own crumb goes back to its top; at the top it lists the pages beside it.
+                    onClick={(e) => scrollToTop(e.currentTarget) || toggle()}
                     {...trigger}
                     className="flex min-w-0 items-center gap-1 rounded px-1 py-0.5 text-fg hover:bg-bg-hover"
                   >
@@ -983,4 +984,19 @@ function SyncStatus({ connection, pendingEdits }: { connection: ConnectionState;
       {connection === "live" && !justSynced && <span className="sr-only">{label}</span>}
     </span>
   );
+}
+
+/**
+ * Scrolls the page holding `from` back to its top, smoothly unless motion is reduced; false when it
+ * is already there (or nothing scrolls).
+ */
+function scrollToTop(from: HTMLElement): boolean {
+  for (let node = from.parentElement; node; node = node.parentElement) {
+    const { overflowY } = getComputedStyle(node);
+    if ((overflowY !== "auto" && overflowY !== "scroll") || node.scrollHeight <= node.clientHeight) continue;
+    if (node.scrollTop < 8) return false;
+    node.scrollTo({ top: 0, behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth" });
+    return true;
+  }
+  return false;
 }

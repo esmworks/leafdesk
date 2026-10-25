@@ -36,7 +36,6 @@
     "linkCopied": "Lenken er kopiert",
     "duplicate": "Dupliser",
     "duplicateWithoutRows": "Dupliser uten rader",
-    "duplicateSuffix": " (kopi)",
     "duplicateFailed": "Kunne ikke duplisere siden.",
     "moveTo": "Flytt til",
     "style": {
@@ -769,7 +768,9 @@
     "turnIntoCallout": "Gjør om til infoboks",
     "plainCallout": "Enkel infoboks",
     "addTitle": "Legg til tittel",
-    "removeTitle": "Fjern tittel"
+    "removeTitle": "Fjern tittel",
+    "copyOriginalLink": "Kopier opprinnelig lenke",
+    "openInNewTab": "Åpne i ny fane"
   },
   "imageLink": {
     "menuItem": "Lenke…",

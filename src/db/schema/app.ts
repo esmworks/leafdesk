@@ -696,6 +696,11 @@ export type RollupConfig = {
    * calculationFormat). Worked out whenever properties are read; never stored.
    */
   number?: NumberFormat;
+  /**
+   * A rollup showing the related rows' URL, email or phone values as they are: the kind of link
+   * each value makes. Worked out whenever properties are read; never stored.
+   */
+  links?: "url" | "email" | "phone";
 };
 /**
  * How a number property, or a formula giving a number, shows its values (see lib/number-format).
@@ -995,8 +1000,21 @@ export type ColorRule = {
 export type ViewConfig = {
   /** An icon (lib/icon) shown instead of the view type's, in the view tabs; missing for the type's. */
   icon?: string;
-  /** Boards: the column property. Timelines: optional swimlanes (none when missing). Charts: the bars, points or slices. */
+  /**
+   * Boards: the column property. Tables, lists and galleries: optional sections (none when missing).
+   * Timelines: optional swimlanes (none when missing). Charts: the bars, points or slices.
+   */
   groupBy?: string;
+  /**
+   * Boards: a second groupable property that splits the board into sections, each holding every
+   * column; none when missing. Its groups use the default date and status grouping, in their
+   * natural order (see lib/grouping subGroupProperty).
+   */
+  subGroupBy?: string;
+  /** Boards: sub-groups shown collapsed, by group key. */
+  collapsedSubGroups?: string[];
+  /** Boards: columns tinted with their option's color; tinted when missing. */
+  colorColumns?: boolean;
   /** Calendar views: the date property that places rows on days. Timelines: where bars start. */
   dateBy?: string;
   /** Timelines: the date property where bars end; without it bars are one day long. */
@@ -1070,18 +1088,21 @@ export type ViewConfig = {
   groupStatusBy?: GroupStatusBy;
   /** Board views: what each column header shows: its card count when missing, or a calculation over one property. */
   boardAggregate?: ChartAggregate;
-  /** Board, table and chart views: group order by group key (see lib/grouping), "" for no value. Unlisted groups follow in their natural order. */
+  /** Grouped views (boards, tables, lists, galleries, charts): group order by group key (see lib/grouping), "" for no value. Unlisted groups follow in their natural order. */
   groupOrder?: string[];
-  /** Board, table and chart views: groups the user hid, by group key ("" for no value). */
+  /** Grouped views: groups the user hid, by group key ("" for no value). */
   hiddenGroups?: string[];
-  /** Board, table and chart views: leave out groups without rows (the no-value group only shows with rows anyway). */
+  /**
+   * Grouped views: leave out groups without rows (the no-value group only shows with rows anyway);
+   * on boards also sub-groups without rows.
+   */
   hideEmptyGroups?: boolean;
   /**
    * Table, list and timeline views of a database with sub-items: rows under their parent
    * ("nested", the default), every row on its own ("flat"), or only the rows without a parent.
    */
   subItems?: SubItemsDisplay;
-  /** Table views: groups shown collapsed, by group key. */
+  /** Table, list and gallery views: groups shown collapsed, by group key. */
   collapsedGroups?: string[];
   /** Table views: column widths in pixels the user dragged, keyed by property id or "title". */
   columnWidths?: Record<string, number>;

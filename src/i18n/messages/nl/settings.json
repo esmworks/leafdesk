@@ -92,7 +92,8 @@
       "eventStream": "siem beveiliging logboek stream export webhook doorsturen gebeurtenissen",
       "sensitiveContent": "dlp gegevenslekpreventie creditcard iban geheimen tokens sleutels scannen",
       "sensitiveFindings": "dlp bevindingen gelekte geheimen kaartnummers negeren",
-      "domainPeople": "domein accounts gebruikers bedrijf e-mail schaduw onbeheerd"
+      "domainPeople": "domein accounts gebruikers bedrijf e-mail schaduw onbeheerd",
+      "openOnStart": "start opstarten eerste pagina laatst bezocht recent"
     }
   },
   "workspace": {
@@ -2847,5 +2848,12 @@
     "removing": "Verwijderen…",
     "noMatches": "Niemand komt overeen.",
     "empty": "Nog geen accounts op deze server gebruiken deze domeinen."
+  },
+  "openOnStart": {
+    "heading": "Pagina bij het starten",
+    "label": "Openen bij het starten",
+    "note": "Wat Leafdesk opent wanneer je het start of inlogt: de startpagina van de werkruimte, of de pagina die je het laatst hebt geopend op een van je apparaten, zolang je paginaweergaven worden bijgehouden. Een link naar een pagina opent nog steeds die pagina.",
+    "home": "Startpagina",
+    "last_page": "Laatst geopende pagina"
   }
 }

@@ -92,7 +92,8 @@
       "eventStream": "siem seguridad registro transmisión stream exportar webhook reenviar eventos",
       "sensitiveContent": "dlp prevención pérdida de datos tarjeta de crédito iban secretos tokens claves escanear datos sensibles",
       "sensitiveFindings": "dlp hallazgos secretos filtrados números de tarjeta descartar",
-      "domainPeople": "dominio cuentas usuarios empresa correo shadow it no gestionadas"
+      "domainPeople": "dominio cuentas usuarios empresa correo shadow it no gestionadas",
+      "openOnStart": "inicio arranque primera página última visitada reciente"
     }
   },
   "workspace": {
@@ -2847,5 +2848,12 @@
     "removing": "Quitando…",
     "noMatches": "Nadie coincide.",
     "empty": "Todavía no hay cuentas en este servidor que usen estos dominios."
+  },
+  "openOnStart": {
+    "heading": "Página al iniciar",
+    "label": "Abrir al iniciar",
+    "note": "Lo que Leafdesk abre al iniciarlo o al iniciar sesión: la página de inicio del espacio de trabajo, o la última página que abriste en cualquiera de tus dispositivos, mientras se registren tus visitas a páginas. Un enlace a una página sigue abriendo esa página.",
+    "home": "Página de inicio",
+    "last_page": "Última página que abriste"
   }
 }

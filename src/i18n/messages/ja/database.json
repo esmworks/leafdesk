@@ -618,7 +618,8 @@
     "propertyComments": "{name} に未解決のコメントが {count, plural, other {# 件}}",
     "pinned": "固定したプロパティ",
     "showBeside": "ページの横に表示",
-    "showAbove": "ページの上に表示"
+    "showAbove": "ページの上に表示",
+    "copyValue": "{name}をコピー"
   },
   "rowActivity": {
     "title": "アクティビティ",
@@ -1161,7 +1162,9 @@
     "expand": "{name}を展開",
     "rowCount": "{count}行",
     "actions": "グループの操作",
-    "addRow": "{name}に行を追加"
+    "addRow": "{name}に行を追加",
+    "subGroupBy": "サブグループ",
+    "colorColumns": "列に色を付ける"
   },
   "rollup": {
     "title": "ロールアップ",

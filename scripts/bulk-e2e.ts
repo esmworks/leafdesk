@@ -211,10 +211,10 @@ try {
 
   // Duplicate
   broadcasts.length = 0;
-  const copies = await duplicateRows(actor, tasks.id, [r2.id, r1.id, "nope"], " (copy)");
+  const copies = await duplicateRows(actor, tasks.id, [r2.id, r1.id, "nope"]);
   check(copies.done.length === 2 && same(copies.skipped, ["nope"]), "duplicating copies every visible row", copies);
   const [copy2, copy1] = await Promise.all(copies.done.map(row));
-  check(copy2.title === "r2 (copy)" && copy1.title === "r1 (copy)", "copies are named like page duplicates", [copy1, copy2]);
+  check(copy2.title === "r2 (1)" && copy1.title === "r1 (1)", "copies are numbered like page duplicates", [copy1, copy2]);
   check(
     copy2.properties[stage.id] === b.id && same(copy2.properties[assignee.id], [ids.member]),
     "copies keep the values",
@@ -223,10 +223,10 @@ try {
   const order = await db
     .select({ title: page.title })
     .from(page)
-    .where(and(eq(page.parentId, tasks.id), inArray(page.title, ["r1", "r1 (copy)", "r2", "r2 (copy)"])))
+    .where(and(eq(page.parentId, tasks.id), inArray(page.title, ["r1", "r1 (1)", "r2", "r2 (1)"])))
     .orderBy(asc(page.position));
   check(
-    same(order.map((r) => r.title), ["r1", "r1 (copy)", "r2", "r2 (copy)"]),
+    same(order.map((r) => r.title), ["r1", "r1 (1)", "r2", "r2 (1)"]),
     "each copy sits right after its original",
     order,
   );
@@ -235,10 +235,10 @@ try {
     "open views hear about all copies once",
     broadcasts,
   );
-  const hiddenCopy = await duplicateRows({ userId: ids.member }, tasks.id, [r3.id], " (copy)");
+  const hiddenCopy = await duplicateRows({ userId: ids.member }, tasks.id, [r3.id]);
   check(same(hiddenCopy, { done: [], skipped: [r3.id] }), "rows the user can't see aren't copied");
   check(
-    await rejects(duplicateRows({ userId: ids.guest }, tasks.id, [r1.id], " (copy)"), (e) => e instanceof AccessError),
+    await rejects(duplicateRows({ userId: ids.guest }, tasks.id, [r1.id]), (e) => e instanceof AccessError),
     "viewers of the database can't duplicate rows",
   );
 

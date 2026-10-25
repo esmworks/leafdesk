@@ -428,6 +428,8 @@ export function describeViewConfig(props: PropertyDef[], config: ViewConfig, loo
   };
   return {
     ...(config.groupBy ? { group_by: keyName(props, config.groupBy), ...describeGrouping(byId.get(config.groupBy), config) } : {}),
+    ...(config.subGroupBy && byId.has(config.subGroupBy) ? { sub_group_by: keyName(props, config.subGroupBy) } : {}),
+    ...(config.colorColumns === false ? { color_columns: false } : {}),
     ...(config.dateBy ? { date_by: keyName(props, config.dateBy) } : {}),
     ...(config.endDateBy ? { end_date_by: keyName(props, config.endDateBy) } : {}),
     ...(config.placeBy ? { place_by: keyName(props, config.placeBy) } : {}),

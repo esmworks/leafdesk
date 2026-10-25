@@ -36,7 +36,6 @@
     "linkCopied": "リンクをコピーしました",
     "duplicate": "複製",
     "duplicateWithoutRows": "行なしで複製",
-    "duplicateSuffix": "（コピー）",
     "duplicateFailed": "ページを複製できませんでした。",
     "moveTo": "移動先",
     "style": {
@@ -769,7 +768,9 @@
     "turnIntoCallout": "コールアウトに変換",
     "plainCallout": "通常のコールアウト",
     "addTitle": "タイトルを追加",
-    "removeTitle": "タイトルを削除"
+    "removeTitle": "タイトルを削除",
+    "copyOriginalLink": "元のリンクをコピー",
+    "openInNewTab": "新しいタブで開く"
   },
   "imageLink": {
     "menuItem": "リンク…",

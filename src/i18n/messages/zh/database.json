@@ -618,7 +618,8 @@
     "propertyComments": "{name} 上有 {count, plural, other {# 条}}未解决的评论",
     "pinned": "已固定的属性",
     "showBeside": "显示在页面旁边",
-    "showAbove": "显示在页面上方"
+    "showAbove": "显示在页面上方",
+    "copyValue": "复制{name}"
   },
   "rowActivity": {
     "title": "动态",
@@ -1161,7 +1162,9 @@
     "expand": "展开 {name}",
     "rowCount": "{count} 行",
     "actions": "分组操作",
-    "addRow": "向 {name} 添加一行"
+    "addRow": "向 {name} 添加一行",
+    "subGroupBy": "子分组",
+    "colorColumns": "为列着色"
   },
   "rollup": {
     "title": "汇总",

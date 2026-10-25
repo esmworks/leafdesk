@@ -9,6 +9,7 @@ import {
   groupTarget,
   isGroupable,
   moveGroupValue,
+  subGroupProperty,
   type Group,
 } from "./grouping";
 import { makeStatusOptions } from "./properties";
@@ -286,3 +287,22 @@ describe("moving rows between groups", () => {
     expect(groupDefaults(prop("date"), month)).toEqual({ p_date: "2026-09-01" });
   });
 });
+
+describe("subGroupProperty", () => {
+  const status = prop("status");
+  const person = prop("person");
+  const text = prop("text");
+  const props = [status, person, text];
+
+  it("finds a groupable property other than the columns'", () => {
+    expect(subGroupProperty(props, { subGroupBy: person.id }, status)).toBe(person);
+  });
+
+  it("is null without one, for the columns' own property, a gone or ungroupable one", () => {
+    expect(subGroupProperty(props, {}, status)).toBeNull();
+    expect(subGroupProperty(props, { subGroupBy: status.id }, status)).toBeNull();
+    expect(subGroupProperty(props, { subGroupBy: "gone" }, status)).toBeNull();
+    expect(subGroupProperty(props, { subGroupBy: text.id }, status)).toBeNull();
+  });
+});
+

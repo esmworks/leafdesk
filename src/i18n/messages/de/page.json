@@ -36,7 +36,6 @@
     "linkCopied": "Link kopiert",
     "duplicate": "Duplizieren",
     "duplicateWithoutRows": "Ohne Zeilen duplizieren",
-    "duplicateSuffix": " (Kopie)",
     "duplicateFailed": "Die Seite konnte nicht dupliziert werden.",
     "moveTo": "Verschieben nach",
     "style": {
@@ -769,7 +768,9 @@
     "turnIntoCallout": "In Hinweis umwandeln",
     "plainCallout": "Einfacher Hinweis",
     "addTitle": "Titel hinzufügen",
-    "removeTitle": "Titel entfernen"
+    "removeTitle": "Titel entfernen",
+    "copyOriginalLink": "Originallink kopieren",
+    "openInNewTab": "In neuem Tab öffnen"
   },
   "imageLink": {
     "menuItem": "Link…",

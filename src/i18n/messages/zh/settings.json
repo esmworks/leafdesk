@@ -92,7 +92,8 @@
       "eventStream": "siem 安全 日志 流式 导出 webhook 转发 事件",
       "sensitiveContent": "dlp 数据防泄漏 信用卡 银行卡 iban 机密 令牌 密钥 扫描",
       "sensitiveFindings": "dlp 发现 泄露 机密 卡号 忽略",
-      "domainPeople": "域名 账户 用户 公司 邮箱 未管理"
+      "domainPeople": "域名 账户 用户 公司 邮箱 未管理",
+      "openOnStart": "启动 开始 首页 上次访问 最近"
     }
   },
   "workspace": {
@@ -2847,5 +2848,12 @@
     "removing": "正在移除…",
     "noMatches": "没有匹配的人员。",
     "empty": "此服务器上还没有使用这些域名的账户。"
+  },
+  "openOnStart": {
+    "heading": "启动页面",
+    "label": "启动时打开",
+    "note": "启动 Leafdesk 或登录时打开的内容：工作区的主页，或在记录你的页面浏览期间，你在任意设备上最后打开的页面。指向某个页面的链接仍会打开该页面。",
+    "home": "主页",
+    "last_page": "最后打开的页面"
   }
 }

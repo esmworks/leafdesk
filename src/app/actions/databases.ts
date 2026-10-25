@@ -203,10 +203,7 @@ export async function setRowsIconAction(databaseId: string, rowIds: string[], ic
 }
 
 export async function duplicateRowsAction(databaseId: string, rowIds: string[]) {
-  return run(async (userId) => {
-    const t = await getTranslations("page.header");
-    return duplicateRows({ userId }, databaseId, rowIds, t("duplicateSuffix"));
-  });
+  return run((userId) => duplicateRows({ userId }, databaseId, rowIds));
 }
 
 /** What merging these rows would bring together (the merge dialog). */

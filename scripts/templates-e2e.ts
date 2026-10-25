@@ -394,7 +394,7 @@ try {
     "saving a row as a template makes a row template of its database",
     savedRowPage,
   );
-  const copy = await duplicatePage(owner, tasks.id, " (copy)");
+  const copy = await duplicatePage(owner, tasks.id);
   const copyRows = await childrenOf(copy.id);
   const copiedTemplates = copyRows.filter((r) => r.isTemplate);
   const copyDb = await row(copy.id);

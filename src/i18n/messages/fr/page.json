@@ -36,7 +36,6 @@
     "linkCopied": "Lien copié",
     "duplicate": "Dupliquer",
     "duplicateWithoutRows": "Dupliquer sans les lignes",
-    "duplicateSuffix": " (copie)",
     "duplicateFailed": "Impossible de dupliquer la page.",
     "moveTo": "Déplacer vers",
     "style": {
@@ -769,7 +768,9 @@
     "turnIntoCallout": "Transformer en encadré",
     "plainCallout": "Encadré simple",
     "addTitle": "Ajouter un titre",
-    "removeTitle": "Retirer le titre"
+    "removeTitle": "Retirer le titre",
+    "copyOriginalLink": "Copier le lien d'origine",
+    "openInNewTab": "Ouvrir dans un nouvel onglet"
   },
   "imageLink": {
     "menuItem": "Lien…",

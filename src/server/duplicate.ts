@@ -1,4 +1,4 @@
-import { and, asc, eq, gt, inArray, isNotNull, isNull, like, sql } from "drizzle-orm";
+import { and, asc, eq, gt, inArray, isNotNull, isNull, like, or, sql } from "drizzle-orm";
 import * as Y from "yjs";
 import { db } from "@/db";
 import {
@@ -15,6 +15,7 @@ import {
 import {
   copyAccess,
   dropPropertyReferences,
+  numberedCopyTitle,
   planDuplicate,
   planPropertyRules,
   redactCopy,
@@ -426,7 +427,6 @@ async function accessForCopy(userId: string, source: { id: string; parentId: str
 export async function duplicatePage(
   actor: WriteActor,
   pageId: string,
-  copySuffix: string,
   /** False when the caller tells open views about several copies at once. */
   {
     notify = true,
@@ -457,7 +457,7 @@ export async function duplicatePage(
       throw error;
     });
   }
-  const title = `${source.title}${copySuffix}`.trim();
+  const title = await copyTitle(source);
 
   const { root } = await copyPageTree(actor, source, {
     parentId: source.parentId,
@@ -495,6 +495,25 @@ export async function duplicatePage(
     if (parentKind === "database") collab.broadcast(`db:${source.parentId}`, "rows");
   }
   return { id: root.id, workspaceId: source.workspaceId };
+}
+
+const likeEscape = (text: string) => text.replace(/[\\%_]/g, "\\$&");
+
+/** The title a copy of `source` gets beside it: numbered after the copies there (see numberedCopyTitle). */
+async function copyTitle(source: { title: string; parentId: string | null; workspaceId: string }) {
+  const title = source.title.trim();
+  if (!title) return "";
+  const base = title.replace(/ \(\d+\)$/u, "");
+  const siblings = await db
+    .select({ title: page.title })
+    .from(page)
+    .where(
+      and(
+        source.parentId ? eq(page.parentId, source.parentId) : and(isNull(page.parentId), eq(page.workspaceId, source.workspaceId)),
+        or(eq(page.title, base), like(page.title, `${likeEscape(base)} (%)`), like(page.title, `${likeEscape(title)} (%)`)),
+      ),
+    );
+  return numberedCopyTitle(title, siblings.map((s) => s.title));
 }
 
 /** Copied page documents without the comments of their source (see stripComments). */
@@ -613,12 +632,7 @@ async function pointAtCopiedSyncedBlocks(tx: Tx, plan: DuplicatePlan) {
  * transaction, so an error part way keeps the copies made so far; open views hear about all of
  * them once.
  */
-export async function duplicateRows(
-  actor: WriteActor,
-  databaseId: string,
-  rowIds: string[],
-  copySuffix: string,
-): Promise<BulkResult> {
+export async function duplicateRows(actor: WriteActor, databaseId: string, rowIds: string[]): Promise<BulkResult> {
   const ids = bulkRowIds(rowIds);
   const database = await requirePageAccess(actor.userId, databaseId, "edit");
   if (database.kind !== "database") throw withCode(new AccessError("Not a database"), "notADatabase");
@@ -626,7 +640,7 @@ export async function duplicateRows(
   const { rows, skipped } = await rowsWithAccess(actor.userId, databaseId, ids, "view");
   const done: string[] = [];
   try {
-    for (const row of rows) done.push((await duplicatePage(actor, row.id, copySuffix, { notify: false })).id);
+    for (const row of rows) done.push((await duplicatePage(actor, row.id, { notify: false })).id);
   } finally {
     if (done.length) {
       const collab = getCollab();

@@ -618,7 +618,8 @@
     "propertyComments": "{name}에 열린 댓글 {count, plural, other {#개}}",
     "pinned": "고정한 속성",
     "showBeside": "페이지 옆에 표시",
-    "showAbove": "페이지 위에 표시"
+    "showAbove": "페이지 위에 표시",
+    "copyValue": "{name} 복사"
   },
   "rowActivity": {
     "title": "활동",
@@ -1161,7 +1162,9 @@
     "expand": "{name} 펼치기",
     "rowCount": "행 {count}개",
     "actions": "그룹 작업",
-    "addRow": "{name}에 행 추가"
+    "addRow": "{name}에 행 추가",
+    "subGroupBy": "하위 그룹",
+    "colorColumns": "열 색상 표시"
   },
   "rollup": {
     "title": "롤업",

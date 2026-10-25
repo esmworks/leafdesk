@@ -152,7 +152,7 @@ try {
   check(!(await servedAnonymously(secretFile.id)), "visitors of the member's published page don't get the file");
   const exported = await planExport(ids.member, { pageId: mine.id });
   check(!exported.files.some((f) => f.id === secretFile.id), "an export of the page leaves the file out", exported.files);
-  const memberCopy = await duplicatePage(member, mine.id, " (copy)");
+  const memberCopy = await duplicatePage(member, mine.id);
   check((await reference(memberCopy.id, secretFile.id))?.authorized === false, "a duplicate of the page carries the URL unauthorized");
   check(!(await canRead(ids.member, secretFile.id)), "…so duplicating doesn't launder it");
 
@@ -170,7 +170,7 @@ try {
   check(guestExport.files.some((f) => f.id === secretFile.id), "an export of the owner's page has the file");
 
   // Copies keep what their source showed.
-  const ownerCopy = await duplicatePage(owner, shared.id, " (copy)");
+  const ownerCopy = await duplicatePage(owner, shared.id);
   await setPagePermission(ids.owner, shared.id, ids.guest, "none");
   check((await reference(ownerCopy.id, secretFile.id))?.authorized === true, "a duplicate of the owner's page authorizes the copy's reference");
   check(await canRead(ids.guest, secretFile.id), "…so the guest reads the file through the copy alone");

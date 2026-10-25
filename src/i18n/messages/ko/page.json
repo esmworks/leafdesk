@@ -36,7 +36,6 @@
     "linkCopied": "링크가 복사되었습니다",
     "duplicate": "복제",
     "duplicateWithoutRows": "행 없이 복제",
-    "duplicateSuffix": " (사본)",
     "duplicateFailed": "페이지를 복제하지 못했습니다.",
     "moveTo": "이동",
     "style": {
@@ -769,7 +768,9 @@
     "turnIntoCallout": "콜아웃으로 전환",
     "plainCallout": "기본 콜아웃",
     "addTitle": "제목 추가",
-    "removeTitle": "제목 제거"
+    "removeTitle": "제목 제거",
+    "copyOriginalLink": "원본 링크 복사",
+    "openInNewTab": "새 탭에서 열기"
   },
   "imageLink": {
     "menuItem": "링크…",

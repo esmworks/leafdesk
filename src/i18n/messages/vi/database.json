@@ -618,7 +618,8 @@
     "propertyComments": "{count, plural, other {# bình luận đang mở}} về {name}",
     "pinned": "Thuộc tính đã ghim",
     "showBeside": "Hiển thị bên cạnh trang",
-    "showAbove": "Hiển thị phía trên trang"
+    "showAbove": "Hiển thị phía trên trang",
+    "copyValue": "Sao chép {name}"
   },
   "rowActivity": {
     "title": "Hoạt động",
@@ -1161,7 +1162,9 @@
     "expand": "Mở rộng {name}",
     "rowCount": "{count, plural, other {# hàng}}",
     "actions": "Thao tác nhóm",
-    "addRow": "Thêm một hàng vào {name}"
+    "addRow": "Thêm một hàng vào {name}",
+    "subGroupBy": "Nhóm con",
+    "colorColumns": "Tô màu cột"
   },
   "rollup": {
     "title": "Tổng hợp",

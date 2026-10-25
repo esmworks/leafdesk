@@ -36,7 +36,6 @@
     "linkCopied": "تم نسخ الرابط",
     "duplicate": "تكرار",
     "duplicateWithoutRows": "تكرار بدون صفوف",
-    "duplicateSuffix": " (نسخة)",
     "duplicateFailed": "تعذّر تكرار الصفحة.",
     "moveTo": "نقل إلى",
     "style": {
@@ -769,7 +768,9 @@
     "turnIntoCallout": "تحويل إلى تنبيه",
     "plainCallout": "تنبيه عادي",
     "addTitle": "إضافة عنوان",
-    "removeTitle": "إزالة العنوان"
+    "removeTitle": "إزالة العنوان",
+    "copyOriginalLink": "نسخ الرابط الأصلي",
+    "openInNewTab": "فتح في علامة تبويب جديدة"
   },
   "imageLink": {
     "menuItem": "رابط…",

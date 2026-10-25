@@ -36,7 +36,6 @@
     "linkCopied": "Link gekopieerd",
     "duplicate": "Dupliceren",
     "duplicateWithoutRows": "Dupliceren zonder rijen",
-    "duplicateSuffix": " (kopie)",
     "duplicateFailed": "Kan de pagina niet dupliceren.",
     "moveTo": "Verplaatsen naar",
     "style": {
@@ -769,7 +768,9 @@
     "turnIntoCallout": "Omzetten naar callout",
     "plainCallout": "Eenvoudige callout",
     "addTitle": "Titel toevoegen",
-    "removeTitle": "Titel verwijderen"
+    "removeTitle": "Titel verwijderen",
+    "copyOriginalLink": "Oorspronkelijke link kopiëren",
+    "openInNewTab": "Openen in nieuw tabblad"
   },
   "imageLink": {
     "menuItem": "Link…",

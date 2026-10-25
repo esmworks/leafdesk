@@ -113,7 +113,7 @@ export function coverProperty<P extends { id: string; type: string }>(config: Pi
  */
 export function layoutConfigError(config: ViewConfig): string | null {
   const c = config as Record<string, unknown>;
-  for (const key of ["groupBy", "dateBy", "endDateBy", "stackBy", "placeBy"] as const) {
+  for (const key of ["groupBy", "subGroupBy", "dateBy", "endDateBy", "stackBy", "placeBy"] as const) {
     if (c[key] !== undefined && typeof c[key] !== "string") return `${key} must be a property id`;
   }
   if (c.subItems !== undefined && !SUB_ITEMS_DISPLAYS.includes(c.subItems as SubItemsDisplay)) {
@@ -128,7 +128,7 @@ export function layoutConfigError(config: ViewConfig): string | null {
   if (c.openRows !== undefined && !OPEN_ROWS.includes(c.openRows as OpenRows)) {
     return `openRows must be one of: ${OPEN_ROWS.join(", ")}`;
   }
-  for (const key of ["showTable", "showValues", "showLegend", "showWeekends", "showIcons", "wrapProperties", "showVerticalLines"] as const) {
+  for (const key of ["showTable", "showValues", "showLegend", "showWeekends", "showIcons", "wrapProperties", "showVerticalLines", "colorColumns"] as const) {
     if (c[key] !== undefined && typeof c[key] !== "boolean") return `${key} must be true or false`;
   }
   if (c.defaultTemplateId !== undefined && c.defaultTemplateId !== null && (typeof c.defaultTemplateId !== "string" || !c.defaultTemplateId)) {
@@ -170,7 +170,7 @@ export function layoutConfigError(config: ViewConfig): string | null {
     if (!isBoardAggregateFn(agg.fn)) return `Board columns can't calculate "${String(agg.fn)}"`;
   }
   // Charts read these to lay out their groups; a stray value would break every viewer.
-  for (const key of ["groupOrder", "hiddenGroups"] as const) {
+  for (const key of ["groupOrder", "hiddenGroups", "collapsedSubGroups"] as const) {
     const keys = c[key];
     if (keys !== undefined && (!Array.isArray(keys) || !keys.every((k) => typeof k === "string"))) {
       return `${key} must be a list of group keys`;

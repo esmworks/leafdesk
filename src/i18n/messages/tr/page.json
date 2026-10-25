@@ -36,7 +36,6 @@
     "linkCopied": "Bağlantı kopyalandı",
     "duplicate": "Kopyasını oluştur",
     "duplicateWithoutRows": "Satırlar olmadan kopyasını oluştur",
-    "duplicateSuffix": " (kopya)",
     "duplicateFailed": "Kopya oluşturulamadı.",
     "moveTo": "Taşı",
     "style": {
@@ -769,7 +768,9 @@
     "turnIntoCallout": "Kutuya dönüştür",
     "plainCallout": "Düz kutu",
     "addTitle": "Başlık ekle",
-    "removeTitle": "Başlığı kaldır"
+    "removeTitle": "Başlığı kaldır",
+    "copyOriginalLink": "Asıl bağlantıyı kopyala",
+    "openInNewTab": "Yeni sekmede aç"
   },
   "imageLink": {
     "menuItem": "Bağlantı…",

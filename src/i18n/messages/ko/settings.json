@@ -92,7 +92,8 @@
       "eventStream": "siem 보안 로그 스트림 내보내기 웹훅 전달 이벤트",
       "sensitiveContent": "dlp 데이터 유출 방지 신용카드 iban 비밀 토큰 키 검사",
       "sensitiveFindings": "dlp 발견 유출 비밀 카드 번호 무시",
-      "domainPeople": "도메인 계정 사용자 회사 이메일 관리되지 않는"
+      "domainPeople": "도메인 계정 사용자 회사 이메일 관리되지 않는",
+      "openOnStart": "시작 실행 첫 페이지 마지막 방문 최근"
     }
   },
   "workspace": {
@@ -2847,5 +2848,12 @@
     "removing": "제거 중…",
     "noMatches": "일치하는 사람이 없습니다.",
     "empty": "이 서버에 아직 이 도메인을 사용하는 계정이 없습니다."
+  },
+  "openOnStart": {
+    "heading": "시작 페이지",
+    "label": "시작할 때 열기",
+    "note": "Leafdesk를 시작하거나 로그인할 때 열리는 화면: 워크스페이스의 홈 페이지, 또는 페이지 조회가 기록되는 동안에는 어느 기기에서든 마지막으로 연 페이지입니다. 페이지 링크는 여전히 해당 페이지를 엽니다.",
+    "home": "홈 페이지",
+    "last_page": "마지막으로 연 페이지"
   }
 }

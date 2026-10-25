@@ -618,7 +618,8 @@
     "propertyComments": "{count, plural, one {# open comment} other {# open comments}} on {name}",
     "pinned": "Pinned properties",
     "showBeside": "Show beside the page",
-    "showAbove": "Show above the page"
+    "showAbove": "Show above the page",
+    "copyValue": "Copy {name}"
   },
   "rowActivity": {
     "title": "Activity",
@@ -1161,7 +1162,9 @@
     "expand": "Expand {name}",
     "rowCount": "{count, plural, one {# row} other {# rows}}",
     "actions": "Group actions",
-    "addRow": "Add a row to {name}"
+    "addRow": "Add a row to {name}",
+    "subGroupBy": "Sub-group",
+    "colorColumns": "Color columns"
   },
   "rollup": {
     "title": "Rollup",

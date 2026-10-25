@@ -92,7 +92,8 @@
       "eventStream": "SIEM sikkerhed log strøm eksport webhook videresend hændelser",
       "sensitiveContent": "DLP datatabsforebyggelse kreditkort IBAN hemmeligheder tokens nøgler scan",
       "sensitiveFindings": "DLP fund lækkede hemmeligheder kortnumre afvis",
-      "domainPeople": "domæne konti brugere firma e-mail skygge-it ikke-administreret"
+      "domainPeople": "domæne konti brugere firma e-mail skygge-it ikke-administreret",
+      "openOnStart": "start opstart første side sidst besøgt seneste"
     }
   },
   "workspace": {
@@ -2847,5 +2848,12 @@
     "removing": "Fjerner…",
     "noMatches": "Ingen passer.",
     "empty": "Ingen konti på denne server bruger disse domæner endnu."
+  },
+  "openOnStart": {
+    "heading": "Side ved start",
+    "label": "Åbn ved start",
+    "note": "Hvad Leafdesk åbner, når du starter det eller logger ind: arbejdsområdets startside eller den side, du sidst åbnede på en af dine enheder, så længe dine sidevisninger registreres. Et link til en side åbner stadig den side.",
+    "home": "Startside",
+    "last_page": "Den side, du sidst åbnede"
   }
 }

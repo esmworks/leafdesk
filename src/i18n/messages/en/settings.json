@@ -92,7 +92,8 @@
       "eventStream": "siem security log stream export webhook forward events",
       "sensitiveContent": "dlp data loss prevention credit card iban secrets tokens keys scan",
       "sensitiveFindings": "dlp findings leaked secrets card numbers dismiss",
-      "domainPeople": "domain accounts users company email shadow unmanaged"
+      "domainPeople": "domain accounts users company email shadow unmanaged",
+      "openOnStart": "startup launch first page last visited recent"
     }
   },
   "workspace": {
@@ -2847,5 +2848,12 @@
     "removing": "Removing…",
     "noMatches": "No one matches.",
     "empty": "No accounts on this server use these domains yet."
+  },
+  "openOnStart": {
+    "heading": "Start page",
+    "label": "Open on start",
+    "note": "What Leafdesk opens when you start it or sign in: the workspace's home page, or the page you opened last on any of your devices, while your page views are recorded. A link to a page still opens that page.",
+    "home": "Home page",
+    "last_page": "Last page you opened"
   }
 }

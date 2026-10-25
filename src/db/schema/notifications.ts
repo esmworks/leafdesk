@@ -135,6 +135,8 @@ export const userPreference = pgTable("user_preference", {
    * answers).
    */
   desktopLinks: text("desktop_links").notNull().default("off"),
+  /** What the app opens on when they start it (lib/open-on-start.ts): "home" or "last_page". */
+  openOnStart: text("open_on_start").notNull().default("home"),
   /**
    * The icon picker's (server/icon-preferences.ts): the skin tone emoji that have tones are picked
    * in, 1 (lightest) to 5, null for none; and the color built-in icons are picked in (lib/icon-value

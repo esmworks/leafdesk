@@ -57,6 +57,10 @@ describe("where a view opens its rows", () => {
   });
 
   it("refuses anything but panel, center or page", () => {
+    expect(layoutConfigError({ subGroupBy: "p1", colorColumns: false, collapsedSubGroups: ["a", ""] })).toBeNull();
+    expect(layoutConfigError({ subGroupBy: 3 } as never)).toMatch(/subGroupBy/);
+    expect(layoutConfigError({ colorColumns: "no" } as never)).toMatch(/colorColumns/);
+    expect(layoutConfigError({ collapsedSubGroups: "a" } as never)).toMatch(/collapsedSubGroups/);
     expect(layoutConfigError({ openRows: "page" })).toBeNull();
     expect(layoutConfigError({ openRows: "center" })).toBeNull();
     expect(layoutConfigError({ openRows: "panel" })).toBeNull();

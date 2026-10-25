@@ -618,7 +618,8 @@
     "propertyComments": "{count, plural, other {ความคิดเห็นที่เปิดอยู่ # รายการ}} ใน {name}",
     "pinned": "คุณสมบัติที่ปักหมุด",
     "showBeside": "แสดงข้างหน้า",
-    "showAbove": "แสดงเหนือหน้า"
+    "showAbove": "แสดงเหนือหน้า",
+    "copyValue": "คัดลอก {name}"
   },
   "rowActivity": {
     "title": "กิจกรรม",
@@ -1161,7 +1162,9 @@
     "expand": "ขยาย {name}",
     "rowCount": "{count, plural, other {# แถว}}",
     "actions": "การดำเนินการของกลุ่ม",
-    "addRow": "เพิ่มแถวใน {name}"
+    "addRow": "เพิ่มแถวใน {name}",
+    "subGroupBy": "กลุ่มย่อย",
+    "colorColumns": "ใส่สีคอลัมน์"
   },
   "rollup": {
     "title": "โรลอัป",

@@ -36,7 +36,6 @@
     "linkCopied": "Länken har kopierats",
     "duplicate": "Duplicera",
     "duplicateWithoutRows": "Duplicera utan rader",
-    "duplicateSuffix": " (kopia)",
     "duplicateFailed": "Det gick inte att duplicera sidan.",
     "moveTo": "Flytta till",
     "style": {
@@ -769,7 +768,9 @@
     "turnIntoCallout": "Gör om till inforuta",
     "plainCallout": "Enkel inforuta",
     "addTitle": "Lägg till titel",
-    "removeTitle": "Ta bort titel"
+    "removeTitle": "Ta bort titel",
+    "copyOriginalLink": "Kopiera originallänk",
+    "openInNewTab": "Öppna i ny flik"
   },
   "imageLink": {
     "menuItem": "Länk…",

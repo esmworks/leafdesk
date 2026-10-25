@@ -618,7 +618,8 @@
     "propertyComments": "{count, plural, one {# åpen kommentar} other {# åpne kommentarer}} på {name}",
     "pinned": "Festede egenskaper",
     "showBeside": "Vis ved siden av sideinnholdet",
-    "showAbove": "Vis over sideinnholdet"
+    "showAbove": "Vis over sideinnholdet",
+    "copyValue": "Kopier {name}"
   },
   "rowActivity": {
     "title": "Aktivitet",
@@ -1161,7 +1162,9 @@
     "expand": "Vis {name}",
     "rowCount": "{count, plural, one {# rad} other {# rader}}",
     "actions": "Gruppehandlinger",
-    "addRow": "Legg til en rad i {name}"
+    "addRow": "Legg til en rad i {name}",
+    "subGroupBy": "Undergruppe",
+    "colorColumns": "Fargelegg kolonner"
   },
   "rollup": {
     "title": "Aggregering",

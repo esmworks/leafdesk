@@ -100,14 +100,18 @@ function Layout({ table, href, print, compact }: { table: PublishedDatabase; hre
       );
     case "gallery":
       return (
-        <div
-          className="grid gap-3"
-          style={{ gridTemplateColumns: `repeat(auto-fill, minmax(min(${CARD_WIDTH[table.cardSize]}, 100%), 1fr))` }}
-        >
-          {table.rows.map((row) => (
-            <Card key={row.id} row={row} table={table} href={href} cover={row.cover !== undefined} />
-          ))}
-        </div>
+        <Sections table={table} rowsOf={rowsOf}>
+          {(rows) => (
+            <div
+              className="grid gap-3"
+              style={{ gridTemplateColumns: `repeat(auto-fill, minmax(min(${CARD_WIDTH[table.cardSize]}, 100%), 1fr))` }}
+            >
+              {rows.map((row) => (
+                <Card key={row.id} row={row} table={table} href={href} cover={row.cover !== undefined} />
+              ))}
+            </div>
+          )}
+        </Sections>
       );
     case "feed":
       return (
@@ -119,28 +123,45 @@ function Layout({ table, href, print, compact }: { table: PublishedDatabase; hre
       );
     case "list":
       return (
-        <div role="list" className="border-t border-border">
-          {table.rows.map((row) => (
-            <ListRow key={row.id} row={row} table={table} href={href} />
-          ))}
-        </div>
+        <Sections table={table} rowsOf={rowsOf}>
+          {(rows) => (
+            <div role="list" className="border-t border-border">
+              {rows.map((row) => (
+                <ListRow key={row.id} row={row} table={table} href={href} />
+              ))}
+            </div>
+          )}
+        </Sections>
       );
     case "table":
-      if (!table.groups) return <Table rows={table.rows} table={table} href={href} print={print} />;
-      return (
-        <div className="flex flex-col gap-6">
-          {table.groups.list.map((g) => (
-            <section key={g.key}>
-              <h3 className="mb-1 flex h-8 items-center gap-2 px-1">
-                <GroupLabel prop={table.groups!.property} group={g} />
-                <span className="text-xs text-fg-faint">{g.rowIds.length}</span>
-              </h3>
-              <Table rows={rowsOf(g.rowIds)} table={table} href={href} print={print} />
-            </section>
-          ))}
-        </div>
-      );
+      return <Sections table={table} rowsOf={rowsOf}>{(rows) => <Table rows={rows} table={table} href={href} print={print} />}</Sections>;
   }
+}
+
+/** A table, list or gallery in its groups' sections, when the view groups by a published property. */
+function Sections({
+  table,
+  rowsOf,
+  children,
+}: {
+  table: PublishedDatabase;
+  rowsOf: (ids: string[]) => PublishedRow[];
+  children: (rows: PublishedRow[]) => React.ReactNode;
+}) {
+  if (!table.groups) return children(table.rows);
+  return (
+    <div className="flex flex-col gap-6">
+      {table.groups.list.map((g) => (
+        <section key={g.key}>
+          <h3 className="mb-1 flex h-8 items-center gap-2 px-1">
+            <GroupLabel prop={table.groups!.property} group={g} />
+            <span className="text-xs text-fg-faint">{g.rowIds.length}</span>
+          </h3>
+          {children(rowsOf(g.rowIds))}
+        </section>
+      ))}
+    </div>
+  );
 }
 
 function Title({ row, className }: { row: PublishedRow; className?: string }) {

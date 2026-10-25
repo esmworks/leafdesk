@@ -57,7 +57,7 @@ import { codeHighlighting } from "./code-block";
 import { EmbedHostProvider, type EmbedHost } from "./database-embed";
 import { FindBar } from "./find-bar";
 import { FindReplace } from "./find-replace";
-import { DatabasePicker, pageEditorSchema, placeEmbedBlock, useEmbedSlashItems, withEmbedItems, type PageEditor } from "./embed-blocks";
+import { DatabasePicker, pageEditorSchema, placeEmbedBlock, TABLE_SETTINGS, useEmbedSlashItems, withEmbedItems, type PageEditor } from "./embed-blocks";
 import { MentionMenu, PageLinkMenu, PagePicker, usePageLinkSlashItem, usePageRefUpdates } from "./mentions";
 import { PagePreviews } from "./page-preview";
 import type { PageDoc } from "./use-page-doc";
@@ -79,6 +79,7 @@ import { SaveAsSnippetContext, SnippetMenu, useSnippets, useSnippetSlashItems } 
 import { readDocTitle } from "@/lib/collab-title";
 import { suggestingExtension, type SuggestingMode } from "./suggesting";
 import { ToggleHeadingSections } from "./toggle-headings";
+import { SmartQuotes } from "./smart-quotes";
 import { editorShortcuts } from "./editor-shortcuts";
 import { LinkCopiedNotice } from "./link-copied-notice";
 
@@ -298,9 +299,10 @@ export default function CollabEditor({
       schema: pageEditorSchema,
       dictionary,
       uploadFile,
-      // Selected table cells can be merged into one, and a merged cell split again.
-      tables: { splitCells: true },
-      extensions: [KeepUndoAttached(), FindReplace(), codeHighlighting(), BlockDirection(), ToggleHeadingSections(), shortcuts, comments, suggestions],
+      // Selected table cells can be merged into one, and a merged cell split again; rows and
+      // columns take text and background colors, and the first row or column can be a header.
+      tables: TABLE_SETTINGS,
+      extensions: [KeepUndoAttached(), FindReplace(), codeHighlighting(), BlockDirection(), ToggleHeadingSections(), SmartQuotes(), shortcuts, comments, suggestions],
       // A synced block copied with "Copy synced block" lands as a reference; none lands inside one.
       // A link to an agent of the workspace, alone in an empty paragraph, becomes a chat with it.
       pasteHandler: ({ event, editor, defaultPasteHandler }) => {

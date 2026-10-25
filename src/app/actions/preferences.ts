@@ -4,6 +4,8 @@ import { getIconPreferences, isIconColor, isSkinTone, setIconPreferences, type I
 import { isOwnerKind, NOTIFICATION_KINDS, type PreferenceKind } from "@/db/schema";
 import { isDesktopLinks } from "@/lib/desktop-links";
 import { setDesktopLinks } from "@/server/desktop-links";
+import { isOpenOnStart } from "@/lib/open-on-start";
+import { setOpenOnStart } from "@/server/open-on-start";
 import { NOTIFICATION_CHANNELS, setNotificationPreference, type NotificationChannel } from "@/server/notification-preferences";
 import { requireUserId } from "@/server/session";
 
@@ -21,6 +23,13 @@ export async function setDesktopLinksAction(value: string | null) {
   const userId = await requireUserId();
   if (!isDesktopLinks(value)) throw new Error("Unknown desktop links preference");
   await setDesktopLinks(userId, value);
+}
+
+/** Whether the app starts on the workspace's home page or on the page opened last. */
+export async function setOpenOnStartAction(value: string | null) {
+  const userId = await requireUserId();
+  if (!isOpenOnStart(value)) throw new Error("Unknown start page preference");
+  await setOpenOnStart(userId, value);
 }
 
 /** The icon picker's remembered skin tone and icon color (server/icon-preferences.ts). */

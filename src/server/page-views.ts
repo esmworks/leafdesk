@@ -196,3 +196,29 @@ export async function recentlyViewedPages(userId: string, workspaceId: string, l
   `);
   return rows.map((r) => ({ id: r.id, title: r.title, icon: r.icon, kind: r.kind, updatedAt: new Date(r.updated_at), viewedAt: new Date(r.viewed_at) }));
 }
+
+/**
+ * The page the person opened last in any of their workspaces, where they may still open it and
+ * their views are recorded (see recentlyViewedPages): what the app starts on for those who ask
+ * for it (lib/open-on-start.ts). Null when there is none.
+ */
+export async function lastViewedPage(userId: string): Promise<{ id: string; workspaceId: string } | null> {
+  // The workspaces of their latest views, newest first; each is then asked as "Jump back in" asks.
+  const rows = await db.execute<{ workspace_id: string }>(sql`
+    select p.workspace_id, max(v.last_viewed_at) as viewed_at
+    from ${pageView} v
+    join ${page} p on p.id = v.page_id
+    where v.user_id = ${userId}
+    group by p.workspace_id
+    order by viewed_at desc
+    limit 5
+  `);
+  for (const { workspace_id: workspaceId } of rows) {
+    const [latest] = (await recentlyViewedPages(userId, workspaceId, 1).catch((error) => {
+      if (error instanceof AccessError) return null;
+      throw error;
+    })) ?? [];
+    if (latest) return { id: latest.id, workspaceId };
+  }
+  return null;
+}

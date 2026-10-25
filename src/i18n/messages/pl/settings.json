@@ -92,7 +92,8 @@
       "eventStream": "siem bezpieczeństwo dziennik log strumień eksport webhook przekazywanie zdarzenia",
       "sensitiveContent": "dlp zapobieganie wyciekom danych karta kredytowa iban sekrety tokeny klucze skanowanie",
       "sensitiveFindings": "dlp wykrycia wyciek sekretów numery kart odrzuć",
-      "domainPeople": "domena konta użytkownicy firma e-mail shadow niezarządzane"
+      "domainPeople": "domena konta użytkownicy firma e-mail shadow niezarządzane",
+      "openOnStart": "start uruchomienie pierwsza strona ostatnio odwiedzona"
     }
   },
   "workspace": {
@@ -2847,5 +2848,12 @@
     "removing": "Usuwanie…",
     "noMatches": "Nikt nie pasuje.",
     "empty": "Żadne konto na tym serwerze nie używa jeszcze tych domen."
+  },
+  "openOnStart": {
+    "heading": "Strona startowa",
+    "label": "Otwieraj przy starcie",
+    "note": "Co Leafdesk otwiera po uruchomieniu lub zalogowaniu: stronę główną obszaru roboczego albo stronę otwartą ostatnio na dowolnym z Twoich urządzeń, o ile Twoje wyświetlenia stron są rejestrowane. Link do strony nadal otwiera tę stronę.",
+    "home": "Strona główna",
+    "last_page": "Ostatnio otwarta strona"
   }
 }

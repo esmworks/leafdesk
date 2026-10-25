@@ -92,7 +92,8 @@
       "eventStream": "siem sicherheit protokoll stream export webhook ereignisse weiterleiten",
       "sensitiveContent": "dlp datenverlust sensible daten kreditkarte iban geheimnisse token schlüssel scannen",
       "sensitiveFindings": "dlp funde geleakte geheimnisse kartennummern verwerfen",
-      "domainPeople": "domain konten benutzer firma e-mail schatten-it unverwaltet"
+      "domainPeople": "domain konten benutzer firma e-mail schatten-it unverwaltet",
+      "openOnStart": "start starten erste seite zuletzt besucht"
     }
   },
   "workspace": {
@@ -2847,5 +2848,12 @@
     "removing": "Wird entfernt…",
     "noMatches": "Niemand entspricht der Suche.",
     "empty": "Noch verwendet kein Konto auf diesem Server diese Domains."
+  },
+  "openOnStart": {
+    "heading": "Seite beim Start",
+    "label": "Beim Start öffnen",
+    "note": "Was Leafdesk beim Start oder nach der Anmeldung öffnet: die Startseite des Workspace oder die Seite, die du zuletzt auf einem deiner Geräte geöffnet hast, solange deine Seitenaufrufe erfasst werden. Ein Link zu einer Seite öffnet weiterhin diese Seite.",
+    "home": "Startseite",
+    "last_page": "Zuletzt geöffnete Seite"
   }
 }

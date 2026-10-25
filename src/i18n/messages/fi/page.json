@@ -36,7 +36,6 @@
     "linkCopied": "Linkki kopioitu",
     "duplicate": "Monista",
     "duplicateWithoutRows": "Monista ilman rivejä",
-    "duplicateSuffix": " (kopio)",
     "duplicateFailed": "Sivun monistaminen epäonnistui.",
     "moveTo": "Siirrä kohteeseen",
     "style": {
@@ -769,7 +768,9 @@
     "turnIntoCallout": "Muunna huomiolaatikoksi",
     "plainCallout": "Tavallinen huomiolaatikko",
     "addTitle": "Lisää otsikko",
-    "removeTitle": "Poista otsikko"
+    "removeTitle": "Poista otsikko",
+    "copyOriginalLink": "Kopioi alkuperäinen linkki",
+    "openInNewTab": "Avaa uudessa välilehdessä"
   },
   "imageLink": {
     "menuItem": "Linkki…",

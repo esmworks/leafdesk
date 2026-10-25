@@ -92,7 +92,8 @@
       "eventStream": "siem keamanan log aliran ekspor webhook teruskan peristiwa",
       "sensitiveContent": "dlp pencegahan kebocoran data kartu kredit iban rahasia token kunci pindai",
       "sensitiveFindings": "dlp temuan rahasia bocor nomor kartu abaikan",
-      "domainPeople": "domain akun pengguna perusahaan email tidak dikelola"
+      "domainPeople": "domain akun pengguna perusahaan email tidak dikelola",
+      "openOnStart": "mulai buka halaman pertama terakhir dikunjungi terbaru"
     }
   },
   "workspace": {
@@ -2847,5 +2848,12 @@
     "removing": "Menghapus…",
     "noMatches": "Tidak ada yang cocok.",
     "empty": "Belum ada akun di server ini yang memakai domain ini."
+  },
+  "openOnStart": {
+    "heading": "Halaman awal",
+    "label": "Buka saat mulai",
+    "note": "Yang dibuka Leafdesk saat dimulai atau saat Anda masuk: beranda ruang kerja, atau halaman yang terakhir Anda buka di perangkat mana pun, selama tampilan halaman Anda dicatat. Tautan ke suatu halaman tetap membuka halaman itu.",
+    "home": "Beranda",
+    "last_page": "Halaman terakhir yang Anda buka"
   }
 }

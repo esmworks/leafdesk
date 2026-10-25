@@ -31,7 +31,7 @@ import { ImageLinkItem } from "./image-link";
 import { ImageCropItem } from "./image-crop-item";
 import { FormatCodeItem } from "./code-format-item";
 import { copyBlockLink } from "./editor-shortcuts";
-import { AlignMediaItems, DownloadMediaItem } from "./media-menu";
+import { AlignMediaItems, CopyOriginalLinkItem, DownloadMediaItem, OpenLinkedPageItem } from "./media-menu";
 import { WideColumnsItem } from "./columns";
 import { TurnIntoItem } from "./turn-into-item";
 
@@ -153,8 +153,8 @@ function HideInPrintItem() {
 /**
  * The page editor's side menu (add block, drag handle). Its block menu has the editor's own entries
  * (delete, colors, table headers), the callout's style (or turning a block of text into a callout,
- * callout-menu.tsx), its title, "Copy link to block", for media "Download" and alignment
- * (media-menu.tsx), in a column "Wide columns" (columns.tsx), for a callout "Hide when printing", for a
+ * callout-menu.tsx), its title, "Copy link to block", for a link to a page "Open in new tab", for
+ * a bookmark or embed "Copy link to original", for media "Download" and alignment (media-menu.tsx), in a column "Wide columns" (columns.tsx), for a callout "Hide when printing", for a
  * code block "Format code", for a table "Turn into database", "Turn into synced block" and "Save as snippet"; `onError` shows why
  * a change failed. Made once per editor: a new
  * component each render would close an open menu.
@@ -172,7 +172,9 @@ export function pageSideMenu(onError: (message: string) => void): FC<SideMenuPro
         <CalloutStyleItem />
         <CalloutTitleItem />
         <HideInPrintItem />
+        <OpenLinkedPageItem />
         <CopyBlockLinkItem />
+        <CopyOriginalLinkItem />
         <DownloadMediaItem />
         <AlignMediaItems />
         <WideColumnsItem />

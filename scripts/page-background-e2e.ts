@@ -99,7 +99,7 @@ try {
   }
   check(refused && (await stored(notes.id))?.color === "green", "an image is refused and the background stays");
 
-  const copy = await duplicatePage(actor, notes.id, " (copy)");
+  const copy = await duplicatePage(actor, notes.id);
   const copied = await stored(copy.id);
   check(copied?.color === "green" && copied?.pattern === "grid", "a copy keeps the background", copied);
 

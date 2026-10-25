@@ -194,7 +194,7 @@ try {
 
   // Copies aren't on the web with their original's picks
   await setWebViews(ids.owner, tasks.id, [list.id]);
-  const copy = await duplicatePage(actor, tasks.id, " (copy)");
+  const copy = await duplicatePage(actor, tasks.id);
   const copied = await getWebViews(ids.owner, copy.id);
   check(copied?.filter((v) => v.published).length === 1 && copied[0].published, "a copied database starts with its first view on the web", copied);
 

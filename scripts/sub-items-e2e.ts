@@ -181,7 +181,7 @@ try {
   );
 
   // A copy of B sits under B's parent, without taking B's sub-items
-  const bCopy = await duplicatePage(actor, b, " (copy)");
+  const bCopy = await duplicatePage(actor, b);
   check(
     (await values(bCopy.id)).parent.join() === a &&
       !(await values(bCopy.id)).children.length &&
@@ -269,7 +269,7 @@ try {
   check(named.data?.parent_property === "Epic" && named.data.sub_items_property === "Stories", "set_sub_items names new properties", named);
 
   // A copy of the database keeps its sub-items, pointing at its own rows
-  const copied = await duplicatePage(actor, tasks.id, " (copy)");
+  const copied = await duplicatePage(actor, tasks.id);
   const copyProps = await getProperties(copied.id);
   const copyParent = parentProperty(copyProps);
   check(

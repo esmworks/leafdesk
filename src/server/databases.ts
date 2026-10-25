@@ -312,7 +312,8 @@ export async function knownRelatedSchemas(userId: string, props: Pick<DatabasePr
 /**
  * Rollups that sum, average… a number property (or a formula giving a number) get its format
  * (RollupConfig.number), so they show in it and filters compare what they show; read each time, a
- * change of that format shows at once.
+ * change of that format shows at once. Rollups showing URL, email or phone values as they are
+ * say so (RollupConfig.links), so their values show as links.
  */
 async function withRollupUnits(properties: DatabaseProperty[]): Promise<DatabaseProperty[]> {
   const related = new Map(properties.flatMap((p) => (p.type === "relation" && p.options.relation ? [[p.id, p.options.relation.databaseId]] : [])));
@@ -325,7 +326,9 @@ async function withRollupUnits(properties: DatabaseProperty[]): Promise<Database
     const databaseId = databaseOf(p);
     const target = config && databaseId ? targets.get(databaseId)?.find((t) => t.id === config.targetPropertyId) : undefined;
     const number = config && target ? calculationFormat(config.function, { number: valueFormat(target) }) : undefined;
-    return number ? { ...p, options: { ...p.options, rollup: { ...config!, number } } } : p;
+    const links =
+      config?.function === "show_original" && (target?.type === "url" || target?.type === "email" || target?.type === "phone") ? target.type : undefined;
+    return number || links ? { ...p, options: { ...p.options, rollup: { ...config!, ...(number ? { number } : {}), ...(links ? { links } : {}) } } } : p;
   });
 }
 
@@ -1388,6 +1391,25 @@ async function uniquePropertyName(databaseId: string, name: string, exec: Execut
 }
 
 /**
+ * Whether row pages of the database hide some property while it is empty: new properties then
+ * start hidden while empty too (lib/page-visibility).
+ */
+async function hidesEmpty(exec: Executor, databaseId: string) {
+  const [found] = await exec
+    .select({ id: databaseProperty.id })
+    .from(databaseProperty)
+    .where(
+      and(
+        eq(databaseProperty.databaseId, databaseId),
+        isNull(databaseProperty.deletedAt),
+        sql`${databaseProperty.options} ->> 'pageVisibility' = 'hide_empty'`,
+      ),
+    )
+    .limit(1);
+  return !!found;
+}
+
+/**
  * Calendar entries show only the properties the user picked (a new calendar view hides every
  * property), so a property added later starts hidden there too.
  */
@@ -1721,7 +1743,7 @@ export async function addProperty(
         databaseId,
         name,
         type: input.type,
-        options,
+        options: (await hidesEmpty(tx, databaseId)) ? { ...options, pageVisibility: "hide_empty" } : options,
         position: await nextPropertyPosition(databaseId, tx),
       })
       .returning();
@@ -1738,7 +1760,10 @@ export async function addProperty(
         databaseId: target.id,
         name: pairedName,
         type: "relation",
-        options: { relation: { databaseId, pairedPropertyId: created.id } },
+        options: {
+          relation: { databaseId, pairedPropertyId: created.id },
+          ...((await hidesEmpty(tx, target.id)) ? { pageVisibility: "hide_empty" as const } : {}),
+        },
         position: await nextPropertyPosition(target.id, tx),
       })
       .returning();

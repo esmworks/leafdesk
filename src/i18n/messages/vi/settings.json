@@ -92,7 +92,8 @@
       "eventStream": "siem bảo mật nhật ký luồng xuất webhook chuyển tiếp sự kiện",
       "sensitiveContent": "dlp chống rò rỉ dữ liệu thẻ tín dụng iban bí mật token khóa quét",
       "sensitiveFindings": "dlp phát hiện bí mật rò rỉ số thẻ bỏ qua",
-      "domainPeople": "tên miền tài khoản người dùng công ty email không được quản lý"
+      "domainPeople": "tên miền tài khoản người dùng công ty email không được quản lý",
+      "openOnStart": "khởi động mở đầu trang đầu tiên truy cập gần nhất gần đây"
     }
   },
   "workspace": {
@@ -2847,5 +2848,12 @@
     "removing": "Đang xóa…",
     "noMatches": "Không có ai phù hợp.",
     "empty": "Chưa có tài khoản nào trên máy chủ này dùng các tên miền này."
+  },
+  "openOnStart": {
+    "heading": "Trang khởi động",
+    "label": "Mở khi khởi động",
+    "note": "Những gì Leafdesk mở khi khởi động hoặc khi bạn đăng nhập: trang chủ của không gian làm việc, hoặc trang bạn mở gần nhất trên bất kỳ thiết bị nào, miễn là lượt xem trang của bạn được ghi lại. Liên kết tới một trang vẫn mở trang đó.",
+    "home": "Trang chủ",
+    "last_page": "Trang bạn mở gần nhất"
   }
 }

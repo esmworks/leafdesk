@@ -618,7 +618,8 @@
     "propertyComments": "{count, plural, one {# otwarty komentarz} few {# otwarte komentarze} many {# otwartych komentarzy} other {# otwartego komentarza}} do {name}",
     "pinned": "Przypięte właściwości",
     "showBeside": "Pokaż obok strony",
-    "showAbove": "Pokaż nad stroną"
+    "showAbove": "Pokaż nad stroną",
+    "copyValue": "Kopiuj: {name}"
   },
   "rowActivity": {
     "title": "Aktywność",
@@ -1161,7 +1162,9 @@
     "expand": "Rozwiń {name}",
     "rowCount": "{count, plural, one {# wiersz} few {# wiersze} many {# wierszy} other {# wiersza}}",
     "actions": "Działania na grupie",
-    "addRow": "Dodaj wiersz do {name}"
+    "addRow": "Dodaj wiersz do {name}",
+    "subGroupBy": "Podgrupa",
+    "colorColumns": "Koloruj kolumny"
   },
   "rollup": {
     "title": "Agregacja",

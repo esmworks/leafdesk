@@ -248,7 +248,7 @@ try {
   await updateView(ids.owner, gallery.id, { config: {} });
 
   // Duplicating keeps the timeline pointing at the copied properties
-  const copy = await duplicatePage(actor, tasks.id, " (copy)");
+  const copy = await duplicatePage(actor, tasks.id);
   const copied = await getDatabaseSnapshot(ids.owner, copy.id);
   const copiedTimeline = copied.views.find((v) => v.type === "timeline" && v.name === "Plan")!;
   const copiedEnds = copied.properties.find((p) => p.name === "Ends")!;
@@ -264,7 +264,7 @@ try {
   const childrenOf = async (id: string) =>
     db.select({ id: page.id, title: page.title, isTemplate: page.isTemplate }).from(page).where(eq(page.parentId, id));
   const source = await getDatabaseSnapshot(ids.owner, tasks.id);
-  const empty = await duplicatePage(actor, tasks.id, " (empty)", { withoutRows: true });
+  const empty = await duplicatePage(actor, tasks.id, { withoutRows: true });
   const emptied = await getDatabaseSnapshot(ids.owner, empty.id);
   const emptyChildren = await childrenOf(empty.id);
   check(emptied.rows.length === 0 && source.rows.length > 0, "a database duplicated without rows has none", emptied.rows.length);

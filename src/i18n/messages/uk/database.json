@@ -618,7 +618,8 @@
     "propertyComments": "{count, plural, one {# відкритий коментар} few {# відкриті коментарі} many {# відкритих коментарів} other {# відкритого коментаря}} до {name}",
     "pinned": "Закріплені властивості",
     "showBeside": "Показувати поруч зі сторінкою",
-    "showAbove": "Показувати над сторінкою"
+    "showAbove": "Показувати над сторінкою",
+    "copyValue": "Скопіювати: {name}"
   },
   "rowActivity": {
     "title": "Активність",
@@ -1161,7 +1162,9 @@
     "expand": "Розгорнути «{name}»",
     "rowCount": "{count, plural, one {# рядок} few {# рядки} many {# рядків} other {# рядка}}",
     "actions": "Дії з групою",
-    "addRow": "Додати рядок до «{name}»"
+    "addRow": "Додати рядок до «{name}»",
+    "subGroupBy": "Підгрупа",
+    "colorColumns": "Кольорові стовпці"
   },
   "rollup": {
     "title": "Зведення",

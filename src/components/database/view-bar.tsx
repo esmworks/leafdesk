@@ -53,7 +53,7 @@ import {
   MAX_FILTER_DEPTH,
 } from "@/lib/filters";
 import { valueType } from "@/lib/derived";
-import { GROUP_DATE_BY, groupDateByOf } from "@/lib/grouping";
+import { GROUP_DATE_BY, groupDateByOf, SECTIONED_VIEWS, subGroupProperty } from "@/lib/grouping";
 import { pageLabel } from "@/lib/labels";
 import {
   boardGroupProperty,
@@ -594,18 +594,18 @@ export function ViewToolbar({
         />
       </Floating>
 
-      {!readOnly && (view.type === "board" || view.type === "table") && (
+      {!readOnly && (view.type === "board" || SECTIONED_VIEWS.has(view.type)) && (
         <>
           <ToolbarButton
             icon={<Rows3 className="h-4 w-4" />}
             label={groupBy ? t("toolbar.groupWithName", { name: groupBy.name }) : t("toolbar.group")}
-            active={view.type === "table" && Boolean(groupBy)}
+            active={view.type !== "board" && Boolean(groupBy)}
             buttonRef={groupMenu.ref}
             onClick={groupMenu.toggle}
           />
           <Floating open={groupMenu.open} anchor={groupMenu.el} onClose={groupMenu.close} align="end">
             <div className="px-2 pt-1 pb-1.5 text-xs text-fg-muted">{t("toolbar.groupBy")}</div>
-            {view.type === "table" && (
+            {view.type !== "board" && (
               <MenuItem
                 active={!groupBy}
                 icon={<X className="h-3.5 w-3.5" />}
@@ -634,6 +634,9 @@ export function ViewToolbar({
               <div className="max-w-60 px-2 pb-1 text-xs text-fg-faint">{t("toolbar.groupNeedsSelect")}</div>
             )}
             {groupBy && <GroupSettings prop={groupBy} config={config} onConfig={onConfig} />}
+            {view.type === "board" && groupBy && (
+              <BoardGroupSettings groupBy={groupBy} properties={groupProps} config={config} onConfig={onConfig} />
+            )}
             {!locked && (
               <>
                 <MenuSeparator />
@@ -831,6 +834,48 @@ function GroupSettings({
         onClick={() => onConfig({ ...config, hideEmptyGroups: config.hideEmptyGroups ? undefined : true })}
       >
         {t("hideEmpty")}
+      </MenuItem>
+    </>
+  );
+}
+
+/**
+ * A board's sub-groups (sections across every column, by a second property) and whether its
+ * columns take their option's color.
+ */
+function BoardGroupSettings({
+  groupBy,
+  properties,
+  config,
+  onConfig,
+}: {
+  groupBy: Property;
+  /** The groupable properties. */
+  properties: Property[];
+  config: ViewConfig;
+  onConfig: (config: ViewConfig) => void;
+}) {
+  const t = useTranslations("database");
+  const sub = subGroupProperty(properties, config, groupBy);
+  return (
+    <>
+      <label className="flex items-center justify-between gap-3 px-2 py-1 text-sm">
+        <span className="text-fg-muted">{t("group.subGroupBy")}</span>
+        <NativeSelect
+          label={t("group.subGroupBy")}
+          value={sub?.id ?? ""}
+          onChange={(id) => onConfig({ ...config, subGroupBy: id || undefined, collapsedSubGroups: undefined })}
+          options={[
+            { value: "", label: t("toolbar.noGrouping") },
+            ...properties.filter((p) => p.id !== groupBy.id).map((p) => ({ value: p.id, label: p.name })),
+          ]}
+        />
+      </label>
+      <MenuItem
+        icon={config.colorColumns !== false ? <Check className="h-3.5 w-3.5" /> : <span />}
+        onClick={() => onConfig({ ...config, colorColumns: config.colorColumns === false ? undefined : false })}
+      >
+        {t("group.colorColumns")}
       </MenuItem>
     </>
   );

@@ -36,7 +36,6 @@
     "linkCopied": "คัดลอกลิงก์แล้ว",
     "duplicate": "ทำสำเนา",
     "duplicateWithoutRows": "ทำสำเนาโดยไม่มีแถว",
-    "duplicateSuffix": " (สำเนา)",
     "duplicateFailed": "ทำสำเนาหน้าไม่ได้",
     "moveTo": "ย้ายไปที่",
     "style": {
@@ -769,7 +768,9 @@
     "turnIntoCallout": "แปลงเป็นกล่องเน้นข้อความ",
     "plainCallout": "กล่องเน้นข้อความแบบเรียบ",
     "addTitle": "เพิ่มชื่อ",
-    "removeTitle": "นำชื่อออก"
+    "removeTitle": "นำชื่อออก",
+    "copyOriginalLink": "คัดลอกลิงก์ต้นฉบับ",
+    "openInNewTab": "เปิดในแท็บใหม่"
   },
   "imageLink": {
     "menuItem": "ลิงก์…",

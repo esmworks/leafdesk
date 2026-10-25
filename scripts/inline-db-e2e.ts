@@ -249,7 +249,7 @@ try {
   check(restored.archivedAt === null, "restoring the page restores its inline database");
 
   // Duplicating the page copies its inline database; linked views keep their source
-  const copy = await duplicatePage(owner, host.id, " (copy)");
+  const copy = await duplicatePage(owner, host.id);
   const [copiedDb] = await db.select({ id: page.id }).from(page).where(eq(page.parentId, copy.id));
   check(copiedDb && copiedDb.id !== inline.id, "the duplicate has its own copy of the inline database", copiedDb);
   const copyBlocks = await storedBlocks(copy.id);

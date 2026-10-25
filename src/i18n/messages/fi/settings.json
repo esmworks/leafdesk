@@ -92,7 +92,8 @@
       "eventStream": "siem tietoturva loki virta vienti webhook välitä tapahtumat tapahtumavirta",
       "sensitiveContent": "dlp tietovuotojen esto luottokortti iban salaisuudet tunnukset avaimet skannaus arkaluonteinen",
       "sensitiveFindings": "dlp löydökset vuotaneet salaisuudet korttinumerot ohita",
-      "domainPeople": "verkkotunnus tilit käyttäjät yritys sähköposti varjo hallitsemattomat"
+      "domainPeople": "verkkotunnus tilit käyttäjät yritys sähköposti varjo hallitsemattomat",
+      "openOnStart": "käynnistys aloitus ensimmäinen sivu viimeksi avattu viimeisin"
     }
   },
   "workspace": {
@@ -2847,5 +2848,12 @@
     "removing": "Poistetaan…",
     "noMatches": "Kukaan ei vastaa hakua.",
     "empty": "Mikään tämän palvelimen tili ei vielä käytä näitä verkkotunnuksia."
+  },
+  "openOnStart": {
+    "heading": "Aloitussivu",
+    "label": "Avaa käynnistettäessä",
+    "note": "Mitä Leafdesk avaa käynnistettäessä tai kirjautuessasi: työtilan etusivun tai sivun, jonka avasit viimeksi millä tahansa laitteellasi, kunhan sivujen katselusi tallennetaan. Linkki sivulle avaa yhä sen sivun.",
+    "home": "Etusivu",
+    "last_page": "Viimeksi avaamasi sivu"
   }
 }

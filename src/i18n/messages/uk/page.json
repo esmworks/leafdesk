@@ -36,7 +36,6 @@
     "linkCopied": "Посилання скопійовано",
     "duplicate": "Дублювати",
     "duplicateWithoutRows": "Дублювати без рядків",
-    "duplicateSuffix": " (копія)",
     "duplicateFailed": "Не вдалося продублювати сторінку.",
     "moveTo": "Перемістити в",
     "style": {
@@ -769,7 +768,9 @@
     "turnIntoCallout": "Перетворити на виноску",
     "plainCallout": "Звичайна виноска",
     "addTitle": "Додати заголовок",
-    "removeTitle": "Прибрати заголовок"
+    "removeTitle": "Прибрати заголовок",
+    "copyOriginalLink": "Копіювати початкове посилання",
+    "openInNewTab": "Відкрити в новій вкладці"
   },
   "imageLink": {
     "menuItem": "Посилання…",

@@ -618,7 +618,8 @@
     "propertyComments": "{count, plural, one {# открытый комментарий} few {# открытых комментария} many {# открытых комментариев} other {# открытого комментария}} к {name}",
     "pinned": "Закреплённые свойства",
     "showBeside": "Показывать рядом со страницей",
-    "showAbove": "Показывать над страницей"
+    "showAbove": "Показывать над страницей",
+    "copyValue": "Скопировать: {name}"
   },
   "rowActivity": {
     "title": "Активность",
@@ -1161,7 +1162,9 @@
     "expand": "Развернуть «{name}»",
     "rowCount": "{count, plural, one {# строка} few {# строки} many {# строк} other {# строки}}",
     "actions": "Действия с группой",
-    "addRow": "Добавить строку в «{name}»"
+    "addRow": "Добавить строку в «{name}»",
+    "subGroupBy": "Подгруппа",
+    "colorColumns": "Цветные столбцы"
   },
   "rollup": {
     "title": "Сводка",

@@ -618,7 +618,8 @@
     "propertyComments": "{count, plural, one {# نظر باز} other {# نظر باز}} دربارهٔ {name}",
     "pinned": "ویژگی‌های سنجاق‌شده",
     "showBeside": "نمایش کنار صفحه",
-    "showAbove": "نمایش بالای صفحه"
+    "showAbove": "نمایش بالای صفحه",
+    "copyValue": "کپی {name}"
   },
   "rowActivity": {
     "title": "فعالیت",
@@ -1161,7 +1162,9 @@
     "expand": "باز کردن {name}",
     "rowCount": "{count, plural, one {# ردیف} other {# ردیف}}",
     "actions": "اقدامات گروه",
-    "addRow": "افزودن ردیف به {name}"
+    "addRow": "افزودن ردیف به {name}",
+    "subGroupBy": "زیرگروه",
+    "colorColumns": "رنگی کردن ستون‌ها"
   },
   "rollup": {
     "title": "تجمیع",

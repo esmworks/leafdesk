@@ -54,6 +54,29 @@ export type DuplicatePlan = {
   views: SourceView[];
 };
 
+/**
+ * The title of a copy of a page titled `title`, among `siblings` (the titles beside it): numbered
+ * after the copies already there, "Plan (1)", "Plan (2)"… A copy of a copy counts on from the
+ * original ("Plan (1)" makes "Plan (3)" when "Plan (2)" exists), as long as the original's title
+ * is still beside it; "Report (2024)" alone becomes "Report (2024) (1)". Untitled pages make
+ * untitled copies.
+ */
+export function numberedCopyTitle(title: string, siblings: readonly string[]): string {
+  const trimmed = title.trim();
+  if (!trimmed) return "";
+  const numbered = / \((\d+)\)$/u;
+  const stripped = trimmed.replace(numbered, "");
+  const base = stripped !== trimmed && siblings.some((t) => t.trim() === stripped) ? stripped : trimmed;
+  let last = 0;
+  for (const sibling of siblings) {
+    const t = sibling.trim();
+    if (!t.startsWith(base)) continue;
+    const match = numbered.exec(t.slice(base.length));
+    if (match && match.index === 0) last = Math.max(last, Number(match[1]));
+  }
+  return `${base} (${last + 1})`;
+}
+
 /** Maps an id through `map`, keeping ids it doesn't know (special keys such as "title", stale ids). */
 const through = (map: Map<string, string>) => (id: string) => map.get(id) ?? id;
 
@@ -351,6 +374,11 @@ export function remapViewConfig(
       if (config.collapsedGroups) out.collapsedGroups = remapKeys(config.collapsedGroups);
     }
   }
+  if (config.subGroupBy !== undefined) {
+    out.subGroupBy = map(config.subGroupBy);
+    const rowIds = rowIdsFor(config.subGroupBy);
+    if (rowIds && config.collapsedSubGroups) out.collapsedSubGroups = config.collapsedSubGroups.map((key) => rowIds.get(key) ?? key);
+  }
   if (config.dateBy !== undefined) out.dateBy = map(config.dateBy);
   if (config.endDateBy !== undefined) out.endDateBy = map(config.endDateBy);
   if (config.placeBy !== undefined) out.placeBy = map(config.placeBy);
@@ -408,6 +436,7 @@ export function dropPropertyReferences(config: ViewConfig, gone: (propertyId: st
   return {
     ...c,
     groupBy: c.groupBy !== undefined && gone(c.groupBy) ? undefined : c.groupBy,
+    subGroupBy: c.subGroupBy !== undefined && gone(c.subGroupBy) ? undefined : c.subGroupBy,
     dateBy: c.dateBy !== undefined && gone(c.dateBy) ? undefined : c.dateBy,
     endDateBy: c.endDateBy !== undefined && gone(c.endDateBy) ? undefined : c.endDateBy,
     placeBy: c.placeBy !== undefined && gone(c.placeBy) ? undefined : c.placeBy,

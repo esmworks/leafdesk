@@ -36,7 +36,6 @@
     "linkCopied": "Đã sao chép liên kết",
     "duplicate": "Nhân đôi",
     "duplicateWithoutRows": "Nhân đôi không kèm hàng",
-    "duplicateSuffix": " (bản sao)",
     "duplicateFailed": "Không thể nhân đôi trang.",
     "moveTo": "Chuyển đến",
     "style": {
@@ -769,7 +768,9 @@
     "turnIntoCallout": "Chuyển thành hộp nhấn mạnh",
     "plainCallout": "Hộp nhấn mạnh thường",
     "addTitle": "Thêm tiêu đề",
-    "removeTitle": "Xóa tiêu đề"
+    "removeTitle": "Xóa tiêu đề",
+    "copyOriginalLink": "Sao chép liên kết gốc",
+    "openInNewTab": "Mở trong tab mới"
   },
   "imageLink": {
     "menuItem": "Liên kết…",

@@ -92,7 +92,8 @@
       "eventStream": "siem güvenlik kayıt günlük akış aktarım dışa aktar webhook olay yönlendir",
       "sensitiveContent": "dlp veri sızıntısı önleme kredi kartı iban gizli bilgi belirteç anahtar tarama kimlik numarası",
       "sensitiveFindings": "dlp bulgular sızan gizli bilgiler kart numaraları yok say",
-      "domainPeople": "alan adı hesaplar kullanıcılar şirket e-posta gölge yönetilmeyen"
+      "domainPeople": "alan adı hesaplar kullanıcılar şirket e-posta gölge yönetilmeyen",
+      "openOnStart": "başlangıç açılış ilk sayfa son ziyaret edilen son"
     }
   },
   "workspace": {
@@ -2847,5 +2848,12 @@
     "removing": "Çıkarılıyor…",
     "noMatches": "Eşleşen kimse yok.",
     "empty": "Bu sunucuda henüz bu alan adlarını kullanan hesap yok."
+  },
+  "openOnStart": {
+    "heading": "Başlangıç sayfası",
+    "label": "Açılışta göster",
+    "note": "Leafdesk'i başlattığınızda ya da oturum açtığınızda ne açılacağı: çalışma alanının ana sayfası ya da sayfa görüntülemeleriniz kaydedildiği sürece herhangi bir cihazınızda en son açtığınız sayfa. Bir sayfanın bağlantısı yine o sayfayı açar.",
+    "home": "Ana sayfa",
+    "last_page": "En son açtığınız sayfa"
   }
 }

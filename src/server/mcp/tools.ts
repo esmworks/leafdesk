@@ -501,6 +501,8 @@ function colorRuleFilters(filters: unknown[]): FilterEntryInput[] {
 type ViewInput = {
   color_rules?: ColorRuleInput[];
   group_by?: string | null;
+  sub_group_by?: string | null;
+  color_columns?: boolean;
   group_date_by?: (typeof GROUP_DATE_BY)[number];
   group_status_by?: "option" | "group";
   hide_empty_groups?: boolean;
@@ -542,6 +544,12 @@ const groupSettingsInput = {
     .optional()
     .describe('Grouping by a status: "option" per option (default) or "group" (todo, in_progress, done).'),
   hide_empty_groups: z.boolean().optional().describe("Leave out groups without rows."),
+};
+
+/** A board's sub-groups and column colors, for create_database_view and update_database_view. */
+const boardGroupInputs = {
+  sub_group_by: z.string().nullable().optional().describe("Boards: a second property splitting cards into sections; null for none."),
+  color_columns: z.boolean().optional().describe("Boards: tint columns in their option's color (default true)."),
 };
 
 /** Layouts a dashboard widget shows: any view but a form or a dashboard. */
@@ -613,9 +621,9 @@ function viewConfigPatch(
     const names = types.length > 1 ? `${types.slice(0, -1).join(", ")} and ${types.at(-1)}` : types[0];
     throw new ToolInputError(`${setting} only applies to ${names} views.`);
   };
-  const grouped = type === "board" || type === "table" || type === "chart";
+  const grouped = type === "board" || type === "table" || type === "list" || type === "gallery" || type === "chart";
   if (input.group_by !== undefined) {
-    only("group_by", "board", "table", "timeline", "map", "chart");
+    only("group_by", "board", "table", "list", "gallery", "timeline", "map", "chart");
     if (input.group_by === null) {
       if (type === "board") throw new ToolInputError("Boards always group their cards; pass a property to group by.");
       if (type === "chart") throw new ToolInputError("Charts always group their rows; pass a property to group by.");
@@ -641,7 +649,22 @@ function viewConfigPatch(
   }
   const groupSettings = input.group_date_by ?? input.group_status_by ?? input.hide_empty_groups;
   if (groupSettings !== undefined && !grouped) {
-    throw new ToolInputError("group_date_by, group_status_by and hide_empty_groups only apply to board, table and chart views.");
+    throw new ToolInputError("group_date_by, group_status_by and hide_empty_groups only apply to board, table, list, gallery and chart views.");
+  }
+  if (input.sub_group_by !== undefined) {
+    only("sub_group_by", "board");
+    if (input.sub_group_by === null) patch.subGroupBy = undefined;
+    else {
+      const prop = requireProperty(props, input.sub_group_by);
+      if (!isGroupable(prop.type)) throw new ToolInputError(`Boards sub-group by the same kinds of property they group by; "${prop.name}" is ${prop.type}.`);
+      if (prop.id === (patch.groupBy ?? current.groupBy)) throw new ToolInputError(`"${prop.name}" already makes the board's columns.`);
+      patch.subGroupBy = prop.id;
+    }
+    patch.collapsedSubGroups = undefined;
+  }
+  if (input.color_columns !== undefined) {
+    only("color_columns", "board");
+    patch.colorColumns = input.color_columns ? undefined : false;
   }
   if (input.group_date_by) patch.groupDateBy = input.group_date_by;
   if (input.group_status_by) patch.groupStatusBy = input.group_status_by === "group" ? "group" : undefined;
@@ -2979,9 +3002,10 @@ export function createMcpServer(principal: McpPrincipal) {
           .string()
           .optional()
           .describe(
-            "Board, table, timeline or map (pin colors): the property to group rows by. Boards default to the first select or status property; the others are not grouped unless given.",
+            "Board, table, list, gallery, timeline or map (pin colors): the property to group rows by. Boards default to the first select or status property; the others are not grouped unless given.",
           ),
         ...groupSettingsInput,
+        ...boardGroupInputs,
         date_by: z
           .string()
           .optional()
@@ -3049,8 +3073,9 @@ export function createMcpServer(principal: McpPrincipal) {
           .string()
           .nullable()
           .optional()
-          .describe("Board, table, timeline or map: the property to group rows by; null removes a table's grouping, a timeline's swimlanes or a map's colors."),
+          .describe("Board, table, list, gallery, timeline or map: the property to group rows by; null removes a table's grouping, a timeline's swimlanes or a map's colors."),
         ...groupSettingsInput,
+        ...boardGroupInputs,
         date_by: z
           .string()
           .optional()
@@ -3326,10 +3351,10 @@ export function createMcpServer(principal: McpPrincipal) {
     "duplicate_page",
     {
       title: "Duplicate a page",
-      description: `Copy a page with everything under it the user can see (sub-pages, databases with their properties, views and rows) right after the original: under the same parent, or at the top level of the same teamspace (among the user's private pages when they can't add pages there). A database row is copied into its database with its values. Comments and the pages' sharing come along; favorites, publication, history and locks stay with the original. Needs edit access where the copy goes; at most ${MAX_DUPLICATE_PAGES} pages at once. The copy is titled "<title> (copy)" unless title is given; move it elsewhere with move_page.`,
+      description: `Copy a page with everything under it the user can see (sub-pages, databases with their properties, views and rows) right after the original: under the same parent, or at the top level of the same teamspace (among the user's private pages when they can't add pages there). A database row is copied into its database with its values. Comments and the pages' sharing come along; favorites, publication, history and locks stay with the original. Needs edit access where the copy goes; at most ${MAX_DUPLICATE_PAGES} pages at once. The copy is titled "<title> (1)", "(2)"… unless title is given; move it elsewhere with move_page.`,
       inputSchema: z.object({
         page_id: id("page"),
-        title: z.string().min(1).max(500).optional().describe('Title of the copy. Default: the original\'s title plus " (copy)".'),
+        title: z.string().min(1).max(500).optional().describe('Title of the copy. Default: the original\'s title numbered (1), (2)…'),
         without_rows: z
           .boolean()
           .optional()
@@ -3343,7 +3368,7 @@ export function createMcpServer(principal: McpPrincipal) {
       if (page.archivedAt) throw new ToolInputError("This page is in the trash. Restore it with restore_page before duplicating it.");
       let copy: { id: string };
       try {
-        copy = await duplicatePage(actor, page_id, " (copy)", { withoutRows: without_rows === true });
+        copy = await duplicatePage(actor, page_id, { withoutRows: without_rows === true });
       } catch (error) {
         // The page limit is a plain Error; everything else keeps its own mapping.
         if (error instanceof Error && error.message.startsWith("Can't duplicate more than")) {

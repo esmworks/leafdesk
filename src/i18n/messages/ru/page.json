@@ -36,7 +36,6 @@
     "linkCopied": "Ссылка скопирована",
     "duplicate": "Дублировать",
     "duplicateWithoutRows": "Дублировать без строк",
-    "duplicateSuffix": " (копия)",
     "duplicateFailed": "Не удалось дублировать страницу.",
     "moveTo": "Переместить в",
     "style": {
@@ -769,7 +768,9 @@
     "turnIntoCallout": "Превратить в выноску",
     "plainCallout": "Обычная выноска",
     "addTitle": "Добавить заголовок",
-    "removeTitle": "Убрать заголовок"
+    "removeTitle": "Убрать заголовок",
+    "copyOriginalLink": "Копировать исходную ссылку",
+    "openInNewTab": "Открыть в новой вкладке"
   },
   "imageLink": {
     "menuItem": "Ссылка…",

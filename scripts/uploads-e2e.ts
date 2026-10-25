@@ -244,7 +244,7 @@ try {
   check(!(await canRead(ids.outsider, image.id)), "…so pasting a URL there grants nothing");
 
   // Copies share the stored file
-  const copy = await duplicatePage({ userId: ids.owner }, other.id, " (copy)");
+  const copy = await duplicatePage({ userId: ids.owner }, other.id);
   check((await refsOf(image.id)).includes(copy.id), "a duplicate shows the same file right away");
   await setPagePermission(ids.owner, other.id, ids.guest2, "none");
   await setPagePermission(ids.owner, copy.id, ids.guest2, "view");

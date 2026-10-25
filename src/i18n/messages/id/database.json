@@ -618,7 +618,8 @@
     "propertyComments": "{count, plural, other {# komentar terbuka}} pada {name}",
     "pinned": "Properti yang disematkan",
     "showBeside": "Tampilkan di samping halaman",
-    "showAbove": "Tampilkan di atas halaman"
+    "showAbove": "Tampilkan di atas halaman",
+    "copyValue": "Salin {name}"
   },
   "rowActivity": {
     "title": "Aktivitas",
@@ -1161,7 +1162,9 @@
     "expand": "Luaskan {name}",
     "rowCount": "{count, plural, other {# baris}}",
     "actions": "Tindakan kelompok",
-    "addRow": "Tambahkan baris ke {name}"
+    "addRow": "Tambahkan baris ke {name}",
+    "subGroupBy": "Subgrup",
+    "colorColumns": "Warnai kolom"
   },
   "rollup": {
     "title": "Rollup",

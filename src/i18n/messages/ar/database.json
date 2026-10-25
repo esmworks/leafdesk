@@ -618,7 +618,8 @@
     "propertyComments": "{count, plural, zero {لا تعليقات مفتوحة} one {تعليق مفتوح واحد} two {تعليقان مفتوحان} few {# تعليقات مفتوحة} many {# تعليقًا مفتوحًا} other {# تعليق مفتوح}} على {name}",
     "pinned": "الخصائص المثبّتة",
     "showBeside": "العرض بجانب الصفحة",
-    "showAbove": "العرض فوق الصفحة"
+    "showAbove": "العرض فوق الصفحة",
+    "copyValue": "نسخ {name}"
   },
   "rowActivity": {
     "title": "النشاط",
@@ -1161,7 +1162,9 @@
     "expand": "توسيع {name}",
     "rowCount": "{count, plural, zero {لا صفوف} one {صف واحد} two {صفّان} few {# صفوف} many {# صفًا} other {# صف}}",
     "actions": "إجراءات المجموعة",
-    "addRow": "إضافة صف إلى {name}"
+    "addRow": "إضافة صف إلى {name}",
+    "subGroupBy": "مجموعة فرعية",
+    "colorColumns": "تلوين الأعمدة"
   },
   "rollup": {
     "title": "التلخيص",

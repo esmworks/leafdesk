@@ -36,7 +36,6 @@
     "linkCopied": "Link copied",
     "duplicate": "Duplicate",
     "duplicateWithoutRows": "Duplicate without rows",
-    "duplicateSuffix": " (copy)",
     "duplicateFailed": "Couldn't duplicate the page.",
     "moveTo": "Move to",
     "style": {
@@ -769,7 +768,9 @@
     "turnIntoCallout": "Turn into callout",
     "plainCallout": "Plain callout",
     "addTitle": "Add title",
-    "removeTitle": "Remove title"
+    "removeTitle": "Remove title",
+    "copyOriginalLink": "Copy link to original",
+    "openInNewTab": "Open in new tab"
   },
   "imageLink": {
     "menuItem": "Link…",

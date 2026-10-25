@@ -36,7 +36,6 @@
     "linkCopied": "لینک کپی شد",
     "duplicate": "تکثیر",
     "duplicateWithoutRows": "تکثیر بدون ردیف‌ها",
-    "duplicateSuffix": " (کپی)",
     "duplicateFailed": "صفحه تکثیر نشد.",
     "moveTo": "انتقال به",
     "style": {
@@ -769,7 +768,9 @@
     "turnIntoCallout": "تبدیل به کادر",
     "plainCallout": "کادر ساده",
     "addTitle": "افزودن عنوان",
-    "removeTitle": "حذف عنوان"
+    "removeTitle": "حذف عنوان",
+    "copyOriginalLink": "کپی پیوند اصلی",
+    "openInNewTab": "باز کردن در زبانهٔ جدید"
   },
   "imageLink": {
     "menuItem": "پیوند…",

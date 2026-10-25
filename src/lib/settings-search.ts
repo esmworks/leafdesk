@@ -48,6 +48,7 @@ export const SETTINGS_SEARCH_ENTRIES: readonly SettingsSearchEntry[] = [
   { id: "language", tab: "preferences", label: "settings:language.heading", keywords: true },
   { id: "theme", tab: "preferences", label: "settings:theme.heading", keywords: true },
   { id: "contrast", tab: "preferences", label: "settings:theme.contrast.label", keywords: true },
+  { id: "openOnStart", tab: "preferences", label: "settings:openOnStart.heading", keywords: true },
   { id: "desktopLinks", tab: "preferences", label: "settings:desktopLinks.heading", keywords: true, when: online },
   { id: "notifications", tab: "preferences", label: "settings:notifications.heading", keywords: true },
   { id: "watchedPages", tab: "preferences", label: "settings:notifications.watchedHeading", keywords: true },

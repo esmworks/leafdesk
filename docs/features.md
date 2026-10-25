@@ -6,7 +6,8 @@
   colors included) and markdown shortcuts, icons (beside the title: an emoji, found by name in the interface language and
   in the skin tone you last picked, or one of a few hundred built-in line icons in one of nine colors
   that read well in light, dark and high contrast; *Random* picks one), backgrounds (a color that suits the light and dark theme, or black, with an optional faint
-  pattern), favorites, duplicate, move, trash with restore (emptied after a time owners choose; moving a page, or
+  pattern), favorites, duplicate (copies numbered "Plan (1)", "Plan (2)"…, a copy of a copy counting on
+  from the original), move, trash with restore (emptied after a time owners choose; moving a page, or
   trashing pages or rows, shows a note with *Undo*, and a move links to where the page went), archive (an outdated page, such
   as an old price list, leaves the sidebar, search, pickers and database views with the pages and rows under it, yet stays
   readable, editable and linked; a banner on it says who archived it and when, and search finds it with *Include archived*), export as Markdown or PDF (or, with
@@ -30,12 +31,17 @@
   characters, and *Present* (⌘⌥P, Ctrl+Alt+P) shows it full screen as read-only slides: a new
   slide at each divider, or else at each heading of level 1 or 2. Resting on a page in the
   breadcrumb (or ↓ on it) lists the pages beside it, its parent's other subpages or a row's
-  database's other rows, to jump to.
+  database's other rows, to jump to; clicking the page's own crumb while it is scrolled down goes
+  back to its top. Quotes typed in a page become typographic ones (“ ” ‘ ’, ’ in "don’t"), except in
+  code, code blocks, equations and diagram sources; Backspace right after one gives back the
+  straight quote.
 - **Home page**: quick buttons for a new page, database or template; today's daily note (or a
   button that starts it) and the few before it; the database rows assigned to you that aren't done
   and that you can open, grouped as overdue, today, the next 7 days, later and no date; *Jump back
   in*, the pages you opened last (while the workspace and you record page views, see *People directory and analytics*;
-  only pages you can still open); and the pages edited last.
+  only pages you can still open); and the pages edited last. My account → Preferences → *Start page*
+  opens Leafdesk on the home page or on the page you opened last on any device (while your page
+  views are recorded), when you start it or sign in.
 - **My tasks** (in the sidebar; hide or move it like its other sections): every database row
   assigned to you across the workspace, in any person property, that isn't done and that you can
   open, by due date or by database, with its status and first date; the first 200, the ones due
@@ -78,7 +84,9 @@
   also on published pages and in Markdown. *Turn into* also changes the kind of the selected text
   blocks (heading, list, quote, code …), and a space typed right after `/` closes the slash menu.
   Table cells merge across columns and rows from the formatting toolbar (Markdown writes
-  the full grid, the covered places empty). Code blocks take their language from a menu (plain text
+  the full grid, the covered places empty), and a table's row and column handles color their
+  cells' text or background and make the first row or column a header (published pages and PDFs
+  show both). Code blocks take their language from a menu (plain text
   and 51 languages) and color their code in it, published pages and the print view included; Enter
   in a code block starts the new line with the indentation of the one before it. *Copy* in a code
   block's corner, in the editor and on published pages, copies its code. *Format code* in
@@ -126,7 +134,8 @@
   site's own origin and without a referrer; sites that refuse to be framed (many do, with
   `X-Frame-Options` or `frame-ancestors`) show an empty frame with their link under it, and this
   app's own pages are never framed. A bookmark card can be made narrower by
-  dragging its edge; published pages and print keep the width. A pasted link can also become a link
+  dragging its edge; published pages and print keep the width. A bookmark's or embed's block menu
+  has *Copy link to original*, beside *Copy link to block*. A pasted link can also become a link
   mention: the site's icon, the page's title and the site's name inline in the text, fetched the
   same way and stored with it (*Show as mention* in a link's toolbar does the same for a link
   already there). Markdown, MCP and exports write it as `[Title](url)`, and writing a page's
@@ -202,7 +211,11 @@
   - Views: table, board, calendar, gallery, list, feed (rows as posts, newest first, with the
     start of their bodies, emoji reactions and their comments), timeline, map (rows as pins at a place
     property), chart and dashboard (widgets over the database, see Dashboards), each with its own filters,
-    sorting, grouping and shown properties (one by one, or all hidden or shown at once). Filters
+    sorting, grouping and shown properties (one by one, or all hidden or shown at once). Tables,
+    lists and galleries can group their rows into sections that fold away, boards always group
+    into columns and can split them into sub-groups by a second property (sections across every
+    column; a card dragged into another changes both values), and a board's columns can leave out
+    their option colors (*Color columns*). Filters
     combine with "and"/"or" in groups (nested up to three levels) and take relative dates: today,
     this, last or next week (Monday to Sunday), month or year, and the past or next few days. The
     filters in use show as chips under the view's toolbar: clicking one changes just that filter,
@@ -268,6 +281,7 @@
     move between a line's values and Shift+Enter adds a row right below the line.
   - The options of a select, multi-select or status are dragged into order or sorted A → Z or
     Z → A once, compared as the viewer's language reads (a status within each group).
+  - A rollup showing the related rows' URL, email or phone values shows each as a link.
   - Formulas read the row's properties and, through a relation, the properties of the linked rows
     (`sum(map(prop("Tasks"), prop(current, "Hours")))`, with `filter`, `find`, `some`, `every`,
     `first`, `last` and `at`), one step away and up to 200 linked rows. `sum`, `average` (also
@@ -280,7 +294,9 @@
   - Number properties, formulas giving a number and rollups show as a number, percentage or amount
     of money, or as a colored bar or ring filled by the value divided by a number of your choice.
   - Row pages show every property, or leave some out (always, or while they are empty) behind
-    "N more properties"; the choice is the database's, for everyone. People with full access pin up
+    "N more properties"; the choice is the database's, for everyone, and while one property hides
+    when empty, new ones start that way too. Text, number, URL, email, phone, ID and created or
+    edited time values have a copy button beside them there. People with full access pin up
     to four properties into a strip under the title and show the others above the body or beside it
     where the page is wide enough.
   - Rows open in a side panel beside the view, which stays in use: the row's properties, body
@@ -474,7 +490,7 @@
   writes keep the suggestions of blocks they leave as they were. Watchers hear about new
   suggestions like new threads; authors hear when theirs are answered. The writing assistant can
   apply its text as suggestions, marked as the AI's.
-- **Mentions and page links**: `@` mentions people, groups of the workspace (each member who can
+- **Mentions and page links**: `@` mentions people (those with your email domain first), groups of the workspace (each member who can
   open the page is notified as if mentioned by name; hovering the mention lists them; Markdown
   writes it `@Group name`), pages (with their live title, or "No access")
   and dates with optional reminders. Resting the pointer on a page mention or a link to a page, in
@@ -482,7 +498,7 @@
   values), only to people who may open it; `[[` links to a page, or to a new page inside this one with
   the title typed, and `[[Title]]` typed, pasted or written through MCP and the API links to the
   page of that title; "Link to page"
-  blocks; a "Linked from" list of backlinks on
+  blocks (their block menu opens the page in a new tab); a "Linked from" list of backlinks on
   every page, with how many pages link there and, for each, the text around every place it links
   (the first 20 blocks), each opening that page at the block with the link; and below it the pages
   that write the page's title without linking to it, with a button that turns that text into a
@@ -564,8 +580,9 @@
   Settings > Health lists the pages whose verification expired. Templates and pages in the trash
   aren't verified, and published pages don't show verification.
 - **Page history**: versions are saved automatically while you edit and before every AI edit.
-  You can preview and restore any version, and see what changed since it or since the version
-  before, and who (or which AI app) changed it. Changes an AI app, the chat or an agent writes to a
+  You can preview and restore any version (those of the last week listed as "2 hours ago" or
+  "yesterday", older ones by their date, the exact time on hover), and see what changed since it or
+  since the version before, and who (or which AI app) changed it. Changes an AI app, the chat or an agent writes to a
   page's body can be kept or undone block by block (see
   [Reviewing AI changes](ai.md#ai-features)).
 - **Teamspaces**: group pages and people. Every workspace starts with a *General* teamspace

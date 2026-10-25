@@ -172,7 +172,7 @@ try {
     (e) => e instanceof PropertyValueError && e.code === "typeChangeNamesPeople",
     "a rule's person property can't change its type",
   );
-  const copy = await duplicatePage({ userId: owner }, D, " copy");
+  const copy = await duplicatePage({ userId: owner }, D);
   const copied = await loadRowAccess(copy.id);
   const copiedAssignee = (await getProperties(copy.id)).find((p) => p.name === "Assignee")!;
   check(

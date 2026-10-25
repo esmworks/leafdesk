@@ -253,7 +253,7 @@ try {
   check(!pruned.options.options!.find((o) => o.id === berlin)!.parentOptionIds, "removing a parent option prunes its children's lists (Berlin now goes anywhere)", pruned.options.options);
 
   // Duplicating the database keeps descriptions and points dependencies at the copies.
-  const copy = await duplicatePage(actor, customers.id, " (copy)");
+  const copy = await duplicatePage(actor, customers.id);
   const copied = await databases.getProperties(copy.id);
   const copiedCity = copied.find((p) => p.name === "City")!;
   check(copied.find((p) => p.name === "Segment")!.options.description === segment.options.description, "a copy keeps the descriptions");

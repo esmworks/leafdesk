@@ -618,7 +618,8 @@
     "propertyComments": "{count, plural, one {# åben kommentar} other {# åbne kommentarer}} på {name}",
     "pinned": "Fastgjorte egenskaber",
     "showBeside": "Vis ved siden af siden",
-    "showAbove": "Vis over siden"
+    "showAbove": "Vis over siden",
+    "copyValue": "Kopiér {name}"
   },
   "rowActivity": {
     "title": "Aktivitet",
@@ -1161,7 +1162,9 @@
     "expand": "Fold {name} ud",
     "rowCount": "{count, plural, one {# række} other {# rækker}}",
     "actions": "Gruppehandlinger",
-    "addRow": "Tilføj en række i {name}"
+    "addRow": "Tilføj en række i {name}",
+    "subGroupBy": "Undergruppe",
+    "colorColumns": "Farvelæg kolonner"
   },
   "rollup": {
     "title": "Opsamling",

@@ -280,7 +280,7 @@ try {
 
   // Duplicating the database carries groups over with the copy's property ids
   await updateView(ids.owner, view.id, { config: { ...mineOrDone, filterCombinator: "or" } });
-  const copy = await duplicatePage(actor, tasks.id, " (copy)");
+  const copy = await duplicatePage(actor, tasks.id);
   const copyViews = await db.select().from(databaseView).where(eq(databaseView.databaseId, copy.id));
   const copied = copyViews.find((v) => v.name === "Filtered");
   const copyProps = (await getDatabase(ids.owner, copy.id)).properties;

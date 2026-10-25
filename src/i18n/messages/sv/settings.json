@@ -92,7 +92,8 @@
       "eventStream": "siem säkerhetslogg ström export webhook vidarebefordra händelser",
       "sensitiveContent": "dlp dataförlustskydd kreditkort iban hemligheter token nycklar skanna känsligt innehåll",
       "sensitiveFindings": "dlp fynd läckta hemligheter kortnummer avfärda",
-      "domainPeople": "domän konton användare företag e-post skugg-it ohanterade"
+      "domainPeople": "domän konton användare företag e-post skugg-it ohanterade",
+      "openOnStart": "start uppstart första sida senast besökt senaste"
     }
   },
   "workspace": {
@@ -2847,5 +2848,12 @@
     "removing": "Tar bort…",
     "noMatches": "Ingen matchar.",
     "empty": "Inga konton på den här servern använder de här domänerna än."
+  },
+  "openOnStart": {
+    "heading": "Sida vid start",
+    "label": "Öppna vid start",
+    "note": "Vad Leafdesk öppnar när du startar det eller loggar in: arbetsytans startsida, eller sidan du senast öppnade på någon av dina enheter, så länge dina sidvisningar registreras. En länk till en sida öppnar fortfarande den sidan.",
+    "home": "Startsida",
+    "last_page": "Senast öppnade sidan"
   }
 }

@@ -618,7 +618,8 @@
     "propertyComments": "{count, plural, one {# open opmerking} other {# open opmerkingen}} bij {name}",
     "pinned": "Vastgemaakte eigenschappen",
     "showBeside": "Naast de pagina tonen",
-    "showAbove": "Boven de pagina tonen"
+    "showAbove": "Boven de pagina tonen",
+    "copyValue": "{name} kopiëren"
   },
   "rowActivity": {
     "title": "Activiteit",
@@ -1161,7 +1162,9 @@
     "expand": "{name} uitvouwen",
     "rowCount": "{count, plural, one {# rij} other {# rijen}}",
     "actions": "Groepsacties",
-    "addRow": "Een rij toevoegen aan {name}"
+    "addRow": "Een rij toevoegen aan {name}",
+    "subGroupBy": "Subgroep",
+    "colorColumns": "Kolommen kleuren"
   },
   "rollup": {
     "title": "Rollup",

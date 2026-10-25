@@ -218,7 +218,7 @@ try {
   check((await stored(notes.id)).lockedAt !== null, "it can go to the trash and back, still locked");
   const child = await pages.createPage(owner, { workspaceId, parentId: notes.id, title: "Child" });
   check(Boolean(child.id), "sub-pages can be added under it");
-  const copy = await duplicatePage(owner, notes.id, " (copy)");
+  const copy = await duplicatePage(owner, notes.id);
   check((await stored(copy.id)).lockedAt === null, "a copy starts unlocked");
   await pages.renamePage(owner, copy.id, "Copy renamed");
   check((await collab.readPage(copy.id)).title === "Copy renamed", "…and can be edited");

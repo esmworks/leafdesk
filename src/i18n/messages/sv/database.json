@@ -618,7 +618,8 @@
     "propertyComments": "{count, plural, one {# öppen kommentar} other {# öppna kommentarer}} på {name}",
     "pinned": "Fästa egenskaper",
     "showBeside": "Visa bredvid sidan",
-    "showAbove": "Visa ovanför sidan"
+    "showAbove": "Visa ovanför sidan",
+    "copyValue": "Kopiera {name}"
   },
   "rowActivity": {
     "title": "Aktivitet",
@@ -1161,7 +1162,9 @@
     "expand": "Fäll ut {name}",
     "rowCount": "{count, plural, one {# rad} other {# rader}}",
     "actions": "Gruppåtgärder",
-    "addRow": "Lägg till en rad i {name}"
+    "addRow": "Lägg till en rad i {name}",
+    "subGroupBy": "Undergrupp",
+    "colorColumns": "Färglägg kolumner"
   },
   "rollup": {
     "title": "Sammanställning",

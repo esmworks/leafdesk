@@ -618,7 +618,8 @@
     "propertyComments": "{count, plural, one {תגובה פתוחה אחת} other {# תגובות פתוחות}} על {name}",
     "pinned": "מאפיינים מוצמדים",
     "showBeside": "הצגה לצד הדף",
-    "showAbove": "הצגה מעל הדף"
+    "showAbove": "הצגה מעל הדף",
+    "copyValue": "העתקת {name}"
   },
   "rowActivity": {
     "title": "פעילות",
@@ -1161,7 +1162,9 @@
     "expand": "הרחבת {name}",
     "rowCount": "{count, plural, one {שורה אחת} two {שתי שורות} other {# שורות}}",
     "actions": "פעולות על הקבוצה",
-    "addRow": "הוספת שורה אל {name}"
+    "addRow": "הוספת שורה אל {name}",
+    "subGroupBy": "תת־קבוצה",
+    "colorColumns": "צביעת עמודות"
   },
   "rollup": {
     "title": "צבירה",

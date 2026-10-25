@@ -217,7 +217,7 @@ try {
   );
 
   // Duplicating keeps the chart pointing at the copied properties
-  const copy = await duplicatePage(actor, deals.id, " (copy)");
+  const copy = await duplicatePage(actor, deals.id);
   const copied = await getDatabaseSnapshot(ids.owner, copy.id);
   const copiedChart = copied.views.find((v) => v.name === "Pipeline")!;
   const copiedMonths = copied.views.find((v) => v.name === "Months")!;

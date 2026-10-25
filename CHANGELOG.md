@@ -4,6 +4,35 @@
 
 ### Added
 
+- **Sub-groups on boards.** *Sub-group* in a board's Group menu splits the board into sections by a
+  second property (a status, a select, a person, a date…), each holding every column: a card
+  dragged into another section changes both values, and *New* in a section's column starts the
+  card with both. Sections fold away (for everyone when you may change the view, else just for you),
+  Cmd/Ctrl+Alt+T opens or closes them all, and *Hide empty groups* leaves out empty ones too. The
+  same menu's *Color columns* turns the option colors of the columns off. MCP's
+  `create_database_view` and `update_database_view` take `sub_group_by` and `color_columns`, and
+  `get_database` names them.
+- **Group lists and galleries.** Lists and galleries group their rows into sections by a property,
+  like tables: each section folds away, can be hidden and adds rows with its value, published pages
+  show the sections, and MCP's `group_by` takes them.
+- **Colors and headers in simple tables.** A table block's row and column handles color their
+  cells' text or background and make the first row or column a header, in the editor, on published
+  pages and in PDFs.
+- **Typographic quotes.** Quotes typed in a page become “ ” and ‘ ’ (and ’ in "don’t"), except in
+  code, code blocks, equations and diagram sources; Backspace right after one gives back the
+  straight quote.
+- **Copy a value from a row page.** Text, number, URL, email, phone, ID, created time and last
+  edited time values have a copy button beside them on row pages.
+- **Links in rollups.** A rollup showing the related rows' URL, email or phone values shows each
+  as a link that opens it.
+- **Start on the page you left.** My account → Preferences → *Start page* opens Leafdesk on the
+  workspace's home page (as before) or on the page you opened last, on any device, while your page
+  views are recorded. Migration `drizzle/0141_open_on_start.sql` adds
+  `user_preference.open_on_start`.
+- **Copy link to original, and open a linked page in a new tab.** A bookmark's or embed's block
+  menu copies the address it shows, beside *Copy link to block*, and a link to a page has *Open in
+  new tab*.
+
 - **Embed any website.** The Embed block shows any https site as it is, not only the named
   providers: Hex apps, Deepnote blocks, Pitch presentations and the like, in the same sandboxed
   frame, without a referrer. Sites that refuse to be framed show an empty frame with their link,
@@ -233,6 +262,18 @@
   just that filter to change it when clicked, and their ✕ removes it.
 
 ### Changed
+
+- **Copies are numbered.** Duplicating a page or rows names the copy "Plan (1)", then "Plan (2)",
+  instead of "Plan (copy)"; a copy of a copy counts on from the original. MCP's `duplicate_page`
+  does the same.
+- **Page history says when in words.** Versions of the last week read "2 hours ago" or
+  "yesterday", older ones their date written out, with the exact time on hover.
+- **The page's own crumb goes back to the top.** Clicking the current page in the breadcrumbs of a
+  page scrolled down scrolls it back to the top; at the top it still lists the pages beside it.
+- **New properties hide when empty like the others.** While a property of a database hides on
+  row pages when it is empty, properties added to that database start the same way.
+- **Colleagues first in @ menus.** People whose email address has your domain come before others
+  when you mention someone.
 
 - **Bars and rings for formulas and rollups.** Formulas giving a number and rollups can show as a
   colored bar or ring with a divisor, like number properties (*Show as* in a rollup's menu). A
