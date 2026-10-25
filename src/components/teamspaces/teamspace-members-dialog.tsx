@@ -17,12 +17,12 @@ import { IconGlyph } from "@/components/builtin-icon";
 import { CopyButton } from "@/components/settings/copy-button";
 import { useAction } from "@/components/settings/workspace-settings";
 import { Button, cn, Dialog, IconButton, Input, selectClass } from "@/components/ui";
-import type { TeamspaceRole } from "@/db/schema/app";
+import type { TeamspaceRole, WorkspaceRole } from "@/db/schema/app";
 import type { TeamspaceGroupSummary, TeamspacePerson, TeamspaceSummary } from "@/server/teamspaces";
 import { isEmail, normalizeEmail } from "@/lib/emails";
 import { searchFold } from "@/lib/search-fold";
 
-type WorkspacePerson = { userId: string; name: string; email: string; role: "owner" | "member" | "guest" };
+type WorkspacePerson = { userId: string; name: string; email: string; role: WorkspaceRole };
 
 /**
  * Who is in a teamspace: people, and groups whose members are all in it. Its managers change

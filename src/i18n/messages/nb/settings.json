@@ -116,7 +116,7 @@
   },
   "members": {
     "heading": "Medlemmer",
-    "description": "Medlemmer kan se og redigere alle sider med mindre delingen er begrenset; gjester ser bare sider som er delt med dem. Eiere kan også administrere medlemmer.",
+    "description": "Medlemmer kan se og redigere alle sider med mindre delingen er begrenset; gjester ser bare sider som er delt med dem. Eiere kan også administrere medlemmer; medlemsadministratorer administrerer personer og grupper, men ingen andre innstillinger.",
     "tabs": {
       "members": "Medlemmer",
       "invitations": "Ventende invitasjoner",
@@ -157,6 +157,7 @@
     "roleLabel": "Rolle",
     "roles": {
       "owner": "Eier",
+      "membership_admin": "Medlemsadministrator",
       "member": "Medlem",
       "guest": "Gjest"
     },
@@ -215,6 +216,7 @@
       "decline": "Avslå"
     },
     "removeBodyChoose": "{name} mister tilgangen til dette arbeidsområdet med en gang, også i åpne sider og tilkoblede apper.",
+    "removeBodyToOwner": "{name} mister straks tilgangen til dette arbeidsområdet, også på åpne sider og i tilkoblede apper. Sider bare vedkommende kunne administrere, og teamområder ingen andre styrer, går til arbeidsområdets eldste eier.",
     "heirLabel": "Overlat sidene til",
     "heirHint": "Sider som bare {name} kunne administrere, og teamområder ingen andre styrer, går til personen du velger.",
     "heirCount": "{count, plural, =0 {{name} administrerer ingen sider alene akkurat nå. Teamområder ingen andre styrer, går til personen du velger.} one {# side som bare {name} kunne administrere, går til personen du velger, sammen med teamområder ingen andre styrer.} other {# sider som bare {name} kunne administrere, går til personen du velger, sammen med teamområder ingen andre styrer.}}",
@@ -223,7 +225,7 @@
   "guests": {
     "heading": "Gjester",
     "description": "Gjester er personer utenfor arbeidsområdet som bare ser sidene som er delt med dem. Se hva hver gjest kan åpne, trekk tilbake tilgang, gjør en gjest til medlem eller fjern gjesten.",
-    "descriptionMember": "Gjester er personer utenfor arbeidsområdet som bare ser sidene som er delt med dem. Du kan trekke tilbake tilgang på sider du har full tilgang til. Bare eiere kan gjøre en gjest til medlem eller fjerne gjesten.",
+    "descriptionMember": "Gjester er personer utenfor arbeidsområdet som bare ser sidene som er delt med dem. Du kan trekke tilbake tilgang på sider du har full tilgang til. Bare eiere og medlemsadministratorer kan gjøre en gjest til medlem eller fjerne gjesten.",
     "count": "{count, plural, =0 {Ingen gjester} one {# gjest} other {# gjester}}",
     "search": "Søk etter gjester eller sider",
     "exportCsv": "Last ned gjester som CSV",
@@ -329,7 +331,7 @@
   "groups": {
     "heading": "Grupper",
     "description": "Grupper samler personer slik at du kan dele en side med alle sammen eller legge dem til i et teamområde på én gang. Den som blir med i en gruppe, får det gruppen har; den som forlater den, mister det. Bare eiere og medlemmer kan være med i grupper, ikke gjester.",
-    "ownersOnly": "Bare eiere av arbeidsområdet kan opprette og endre grupper.",
+    "ownersOnly": "Bare eiere av arbeidsområdet og medlemsadministratorer kan opprette og endre grupper.",
     "newButton": "Ny gruppe",
     "search": "Søk i grupper",
     "empty": "Ingen grupper ennå.",
@@ -374,7 +376,8 @@
       "nameRequired": "Gi gruppen et navn.",
       "nameTaken": "En annen gruppe har allerede dette navnet.",
       "notMember": "Bare eiere og medlemmer av arbeidsområdet kan være med i gruppene der.",
-      "accessDenied": "Bare eiere av arbeidsområdet kan endre grupper."
+      "ownMembership": "Medlemsadministratorer kan ikke legge seg selv til i en gruppe. Spør en eier av arbeidsområdet.",
+      "accessDenied": "Bare eiere av arbeidsområdet og medlemsadministratorer kan endre grupper."
     }
   },
   "agents": {
@@ -1202,6 +1205,7 @@
     "invalidSetting": "Den innstillingen er ikke tilgjengelig.",
     "nameRequired": "Gi arbeidsområdet et navn.",
     "alreadyMember": "Denne personen er allerede medlem.",
+    "ownerInvitation": "Denne adressen har en invitasjon til å bli eier. Bare en eier kan endre den.",
     "notMember": "Denne personen er ikke medlem.",
     "lastOwner": "Et arbeidsområde må ha minst én eier.",
     "lastOwnerRemove": "Et arbeidsområde må ha minst én eier. Gjør noen andre til eier først.",
@@ -1624,6 +1628,7 @@
     "privatePages": "private sider",
     "roles": {
       "owner": "eier",
+      "membership_admin": "medlemsadministrator",
       "member": "medlem",
       "guest": "gjest"
     },

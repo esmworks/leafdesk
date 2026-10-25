@@ -5,6 +5,7 @@ import { getLocale, getTranslations } from "next-intl/server";
 import type { WorkspaceRole, WorkspaceSettings } from "@/db/schema";
 import { type Proof, proofOf } from "@/lib/account";
 import { isStrongSession } from "@/lib/auth-security";
+import { isWorkspaceRole } from "@/lib/workspace-roles";
 import { isBuiltinTemplateKey, type BuiltinTemplateKey } from "@/lib/builtin-templates";
 import { AccessError } from "@/server/access";
 import { LegalHoldError } from "@/lib/legal-hold";
@@ -59,7 +60,6 @@ async function fail(code: WorkspaceErrorCode | "ownersOnly" | "unknownRole", det
   return { ok: false, error: withDetail ? t(code, { detail }) : t(code), code };
 }
 
-const ROLES: WorkspaceRole[] = ["owner", "member", "guest"];
 const refresh = (workspaceId: string) => revalidatePath(`/w/${workspaceId}`, "layout");
 
 /**
@@ -115,7 +115,7 @@ export async function renameWorkspaceAction(workspaceId: string, name: string) {
 
 export async function addMembersAction(workspaceId: string, emails: string[], role: WorkspaceRole) {
   const userId = await requireUserId();
-  if (!ROLES.includes(role)) return fail("unknownRole");
+  if (!isWorkspaceRole(role)) return fail("unknownRole");
   if (!Array.isArray(emails) || !emails.every((e) => typeof e === "string")) return fail("invalidEmail");
   const result = await run(() => addMembers(userId, workspaceId, emails, role));
   refresh(workspaceId);
@@ -142,7 +142,7 @@ export async function setJoinLinkAction(workspaceId: string, mode: (typeof JOIN_
 
 export async function setMemberRoleAction(workspaceId: string, targetId: string, role: WorkspaceRole) {
   const userId = await requireUserId();
-  if (!ROLES.includes(role)) return fail("unknownRole");
+  if (!isWorkspaceRole(role)) return fail("unknownRole");
   const result = await run(() => setMemberRole(userId, workspaceId, targetId, role));
   refresh(workspaceId);
   return result;

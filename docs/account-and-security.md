@@ -50,7 +50,9 @@ How long a sign-in lasts is set for the whole server:
 
 ## Who can join a workspace
 
-Owners decide in the workspace's **Settings → Security → Members**:
+Owners decide in the workspace's **Settings → Security → Members**. Where an owner approves or
+declines below (join requests, members' additions waiting for approval), a membership admin may
+too; join requests reach them in the inbox and by email like owners.
 
 - **Who can add members:** *Owners only* (default), *Members, with an owner's approval*, or
   *Owners and members*. Members add people as members only, never as owners or guests. With

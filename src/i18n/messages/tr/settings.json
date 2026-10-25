@@ -116,7 +116,7 @@
   },
   "members": {
     "heading": "Üyeler",
-    "description": "Üyeler, paylaşımı kısıtlanmamış tüm sayfaları görür ve düzenler; misafirler yalnızca kendileriyle paylaşılan sayfaları görür. Sahipler ayrıca üyeleri yönetebilir.",
+    "description": "Üyeler, paylaşımı kısıtlanmamış tüm sayfaları görür ve düzenler; misafirler yalnızca kendileriyle paylaşılan sayfaları görür. Sahipler ayrıca üyeleri yönetebilir; üyelik yöneticileri kişileri ve grupları yönetir, başka ayarları değil.",
     "tabs": {
       "members": "Üyeler",
       "invitations": "Bekleyen davetler",
@@ -157,6 +157,7 @@
     "roleLabel": "Rol",
     "roles": {
       "owner": "Sahip",
+      "membership_admin": "Üyelik yöneticisi",
       "member": "Üye",
       "guest": "Misafir"
     },
@@ -215,6 +216,7 @@
       "decline": "Reddet"
     },
     "removeBodyChoose": "{name}, açık sayfalar ve bağlı uygulamalar dahil bu çalışma alanına erişimini hemen kaybeder.",
+    "removeBodyToOwner": "{name} bu çalışma alanına erişimini hemen kaybeder; açık sayfalar ve bağlı uygulamalar da dahil. Yalnızca onun yönetebildiği sayfalar ve başka kimsenin yönetmediği ekip alanları çalışma alanının en eski sahibine geçer.",
     "heirLabel": "Sayfalarını devralacak kişi",
     "heirHint": "Yalnızca {name} kişisinin yönetebildiği sayfalar ve başka kimsenin yönetmediği ekip alanları seçtiğiniz kişiye geçer.",
     "heirCount": "{count, plural, =0 {{name} şu anda tek başına yönettiği bir sayfaya sahip değil. Başka kimsenin yönetmediği ekip alanları seçtiğiniz kişiye geçer.} one {Yalnızca {name} kişisinin yönetebildiği # sayfa, başka kimsenin yönetmediği ekip alanlarıyla birlikte seçtiğiniz kişiye geçer.} other {Yalnızca {name} kişisinin yönetebildiği # sayfa, başka kimsenin yönetmediği ekip alanlarıyla birlikte seçtiğiniz kişiye geçer.}}",
@@ -223,7 +225,7 @@
   "guests": {
     "heading": "Misafirler",
     "description": "Misafirler, çalışma alanının dışından gelen ve yalnızca kendileriyle paylaşılan sayfaları gören kişilerdir. Her misafirin neleri açabildiğini görün, erişimi geri alın, misafiri üye yapın ya da çıkarın.",
-    "descriptionMember": "Misafirler, çalışma alanının dışından gelen ve yalnızca kendileriyle paylaşılan sayfaları gören kişilerdir. Tam erişiminiz olan sayfalardaki erişimi geri alabilirsiniz. Misafiri üye yapmak veya çıkarmak yalnızca sahiplere açık.",
+    "descriptionMember": "Misafirler, çalışma alanının dışından gelen ve yalnızca kendileriyle paylaşılan sayfaları gören kişilerdir. Tam erişiminiz olan sayfalardaki erişimi geri alabilirsiniz. Misafiri üye yapmak veya çıkarmak yalnızca sahiplere ve üyelik yöneticilerine açık.",
     "count": "{count, plural, =0 {Misafir yok} one {# misafir} other {# misafir}}",
     "search": "Misafir veya sayfa ara",
     "exportCsv": "Misafirleri CSV olarak indir",
@@ -329,7 +331,7 @@
   "groups": {
     "heading": "Gruplar",
     "description": "Gruplar kişileri bir araya getirir; böylece bir sayfayı hepsiyle paylaşabilir ya da hepsini bir ekip alanına tek seferde ekleyebilirsiniz. Gruba katılan, grubun erişimini alır; gruptan ayrılan kaybeder. Gruplarda yalnızca sahipler ve üyeler olabilir, misafirler olamaz.",
-    "ownersOnly": "Grupları yalnızca çalışma alanı sahipleri oluşturup değiştirebilir.",
+    "ownersOnly": "Grupları yalnızca çalışma alanı sahipleri ve üyelik yöneticileri oluşturup değiştirebilir.",
     "newButton": "Yeni grup",
     "search": "Grup ara",
     "empty": "Henüz grup yok.",
@@ -374,7 +376,8 @@
       "nameRequired": "Gruba bir ad verin.",
       "nameTaken": "Bu adda başka bir grup var.",
       "notMember": "Gruplarda yalnızca çalışma alanının sahipleri ve üyeleri olabilir.",
-      "accessDenied": "Grupları yalnızca çalışma alanı sahipleri değiştirebilir."
+      "ownMembership": "Üyelik yöneticileri kendilerini bir gruba ekleyemez. Bir çalışma alanı sahibinden isteyin.",
+      "accessDenied": "Grupları yalnızca çalışma alanı sahipleri ve üyelik yöneticileri değiştirebilir."
     }
   },
   "agents": {
@@ -1202,6 +1205,7 @@
     "invalidSetting": "Bu ayar kullanılamıyor.",
     "nameRequired": "Çalışma alanına bir ad verin.",
     "alreadyMember": "Bu kişi zaten üye.",
+    "ownerInvitation": "Bu adresin sahip olmak için bir daveti var. Bunu yalnızca bir sahip değiştirebilir.",
     "notMember": "Bu kişi üye değil.",
     "lastOwner": "Bir çalışma alanının en az bir sahibi olmalı.",
     "lastOwnerRemove": "Bir çalışma alanının en az bir sahibi olmalı. Önce başka birini sahip yapın.",
@@ -1624,6 +1628,7 @@
     "privatePages": "özel sayfalar",
     "roles": {
       "owner": "sahip",
+      "membership_admin": "üyelik yöneticisi",
       "member": "üye",
       "guest": "misafir"
     },

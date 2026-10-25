@@ -974,6 +974,13 @@
       "when": 1792885917076,
       "tag": "0139_web_clip_target",
       "breakpoints": true
+    },
+    {
+      "idx": 139,
+      "version": "7",
+      "when": 1792886443859,
+      "tag": "0140_membership_admin",
+      "breakpoints": true
     }
   ]
 }

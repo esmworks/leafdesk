@@ -19,19 +19,21 @@ type MembershipSettings = Pick<
 
 /**
  * What adding a member does when `role` asks: add or invite right away, file a request an owner
- * approves, or nothing (refused). Owners always add; members as the workspace allows; guests never.
+ * approves, or nothing (refused). Owners and membership admins always add; members as the
+ * workspace allows; guests never.
  */
 export function memberInviteMode(role: WorkspaceRole | null, settings: Pick<WorkspaceSettings, "memberInvites">) {
-  if (role === "owner") return "direct" as const;
+  if (role === "owner" || role === "membership_admin") return "direct" as const;
   if (role !== "member") return "denied" as const;
   if (settings.memberInvites === "any_member") return "direct" as const;
   if (settings.memberInvites === "members_with_approval") return "request" as const;
   return "denied" as const;
 }
 
-/** The roles someone may add people with: owners any, members only members. */
+/** The roles someone may add people with: owners any, membership admins any but owner, members only members. */
 export function assignableRoles(role: WorkspaceRole | null): WorkspaceRole[] {
-  if (role === "owner") return ["owner", "member", "guest"];
+  if (role === "owner") return ["owner", "membership_admin", "member", "guest"];
+  if (role === "membership_admin") return ["membership_admin", "member", "guest"];
   if (role === "member") return ["member"];
   return [];
 }

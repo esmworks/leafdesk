@@ -14,6 +14,7 @@
     "action": "초대 수락",
     "roles": {
       "owner": "소유자",
+      "membership_admin": "멤버 관리자",
       "member": "멤버",
       "guest": "게스트"
     }

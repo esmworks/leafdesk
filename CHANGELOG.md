@@ -4,6 +4,19 @@
 
 ### Added
 
+- **Membership admin role.** Owners can make someone a *membership admin* in Settings → Members.
+  On content a membership admin is exactly a member (pages, databases, teamspaces, AI, agents,
+  MCP and the REST API). With people they do what owners do: add and remove members and guests,
+  change roles among member, membership admin and guest, approve or decline join requests and
+  members' additions, manage invitations (into teamspaces too) and groups, and export the member
+  list; join requests reach them in the inbox and by email. They never make, demote or remove an
+  owner, don't see invitations to become an owner, can't add themselves to a group, and get no
+  other owner tab or action (security, join link, ownership, audit log, analytics, connections,
+  SCIM, single sign-on). When a membership admin removes someone, the pages and teamspaces only
+  that person could manage pass to the oldest owner: choosing who takes them over is for owners.
+  MCP's `list_users`, `list_workspaces` and `invite_member` and the REST API's workspace list name
+  the new role; SCIM treats it as a member. Migration `drizzle/0140_membership_admin.sql` adds the
+  role, a check on the role column and the role to `page_access_level`.
 - **Published links that expire.** The Publish panel sets a date and time a page's web link stops
   working, and extends or removes it later. Once it passes, the link, its subpages, the files they
   show, copying it and the workspace site treat the page as unpublished, checked whenever they are

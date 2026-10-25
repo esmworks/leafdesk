@@ -14,6 +14,7 @@
     "action": "קבלת ההזמנה",
     "roles": {
       "owner": "בעלים",
+      "membership_admin": "מנהל חברים",
       "member": "חבר",
       "guest": "אורח"
     }

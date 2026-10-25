@@ -1,4 +1,4 @@
-import { and, Column, eq, getTableName, is, ne, sql, type AnyColumn, type SQL } from "drizzle-orm";
+import { and, Column, eq, getTableName, inArray, is, ne, sql, type AnyColumn, type SQL } from "drizzle-orm";
 import { db } from "@/db";
 import {
   page,
@@ -12,6 +12,7 @@ import {
   type WorkspaceRole,
 } from "@/db/schema";
 import { env } from "@/lib/env";
+import { contentRole, managesPeople } from "@/lib/workspace-roles";
 import { ipAllowed, storedAllowedNetworks, type AllowedNetwork } from "@/lib/ip-allowlist";
 import { notAgentUser } from "@/server/agents/users";
 import { INSTANCE_SSO_PROVIDER_ID, workspaceProviderId } from "@/lib/sso-config";
@@ -24,9 +25,9 @@ import { actingFor } from "@/server/acting-for";
  * The one place that decides who may see or change a page. Everything that reads or writes pages
  * goes through `requirePageAccess` (one page) or `pageVisibleTo` (lists, as a SQL condition).
  *
- * The rule itself is the SQL function `page_access_level` (drizzle/0003_page_permission.sql):
- * workspace members get full access unless a page permission on the page or its nearest ancestor
- * says otherwise, and anyone in the workspace can be given access to a page and its subpages.
+ * The rule itself is the SQL function `page_access_level` (drizzle/0003_page_permission.sql, last
+ * redefined in drizzle/0140_membership_admin.sql): workspace members (membership admins among
+ * them) get full access unless a page permission on the page or its nearest ancestor says otherwise, and anyone in the workspace can be given access to a page and its subpages.
  * A database's row access (server/row-access.ts) adds what its rows give the people they name, and
  * may keep its rows from everyone else (last redefined in drizzle/0118_row_access.sql).
  *
@@ -148,7 +149,7 @@ export type PolicyState = {
  * Pure: whether the policies hold back a session. Approved networks come first, for everyone in the
  * workspace, owners and guests too (owners can't save a list that leaves out their own address, and
  * instance administrators can clear it): no other gate helps someone on another network. Two-step
- * applies to everyone in the workspace, guests too. "SSO only" applies to members: owners keep their other ways in (a broken identity
+ * applies to everyone in the workspace, guests too. "SSO only" applies to members (membership admins too): owners keep their other ways in (a broken identity
  * provider must not lock the workspace), and guests come from outside the organization. A session
  * counts when it came through the workspace's own connection or the instance provider. While
  * neither exists the policy has nothing to send people to, so it holds nobody back.
@@ -156,7 +157,7 @@ export type PolicyState = {
 export function policyHold(state: PolicyState, facts: SessionFacts, workspaceId: string): PolicyHold | null {
   if (!ipAllowed(facts.ip, state.allowedNetworks)) return "ip";
   if (state.requireTwoFactor && !facts.strong) return "two-factor";
-  if (state.loginMethod !== "sso" || state.role !== "member") return null;
+  if (state.loginMethod !== "sso" || contentRole(state.role) !== "member") return null;
   if (!state.hasConnection && !state.instanceSso) return null;
   const provider = facts.ssoProviderId;
   if (provider && state.hasConnection && provider === workspaceProviderId(workspaceId)) return null;
@@ -393,7 +394,34 @@ export async function requireMembership(userId: string, workspaceId: string, rol
 
 export const isGuest = (role: WorkspaceRole) => role === "guest";
 
-/** The workspace's owners: who decides join requests (server/join-requests.ts) and hears about them. */
+/**
+ * Owners and membership admins (lib/workspace-roles.ts `managesPeople`): who invites and removes
+ * people, changes roles other than owner, decides join requests and runs groups. AccessError for
+ * anyone else. What touches owners themselves is checked again where it happens (`mayChangeRole`,
+ * `mayRemove`).
+ */
+export async function requirePeopleManager(userId: string, workspaceId: string) {
+  const membership = await requireMembership(userId, workspaceId);
+  if (!managesPeople(membership.role)) throw new AccessError();
+  return membership;
+}
+
+/** The workspace's owners and membership admins: who decides join requests and hears about them. */
+export async function peopleManagerIds(workspaceId: string): Promise<string[]> {
+  const rows = await db
+    .select({ id: workspaceMember.userId })
+    .from(workspaceMember)
+    .where(
+      and(
+        eq(workspaceMember.workspaceId, workspaceId),
+        inArray(workspaceMember.role, ["owner", "membership_admin"]),
+        notAgentUser(workspaceMember.userId),
+      ),
+    );
+  return rows.map((row) => row.id);
+}
+
+/** The workspace's owners: who hears about agents' calls, sensitive content and the like (join requests: `peopleManagerIds`). */
 export async function workspaceOwnerIds(workspaceId: string): Promise<string[]> {
   const rows = await db
     .select({ id: workspaceMember.userId })
@@ -420,9 +448,13 @@ export const inWorkspace = (userId: SQL | AnyColumn, workspaceId: string | SQL |
 export const ownsWorkspace = (userId: string, workspaceId: SQL | AnyColumn) =>
   sql<boolean>`exists (select 1 from ${workspaceMember} wm where wm.workspace_id = ${workspaceId} and wm.user_id = ${userId} and wm.role = 'owner')`;
 
+/** SQL: whether the user manages the workspace's people (an owner or membership admin, see `requirePeopleManager`). */
+export const managesPeopleOf = (userId: string, workspaceId: SQL | AnyColumn) =>
+  sql<boolean>`exists (select 1 from ${workspaceMember} wm where wm.workspace_id = ${workspaceId} and wm.user_id = ${userId} and wm.role in ('owner', 'membership_admin'))`;
+
 /**
- * An owner or member, not a guest: for creating top-level pages and for seeing who is in the
- * workspace. Must match the roles `page_access_level` gives workspace-wide access to.
+ * An owner, membership admin or member, not a guest: for creating top-level pages and for seeing
+ * who is in the workspace. Must match the roles `page_access_level` gives workspace-wide access to.
  */
 export async function requireMember(userId: string, workspaceId: string) {
   const membership = await requireMembership(userId, workspaceId);

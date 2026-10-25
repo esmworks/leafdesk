@@ -116,7 +116,7 @@
   },
   "members": {
     "heading": "Miembros",
-    "description": "Los miembros pueden ver y editar todas las páginas, salvo las que tengan el uso compartido restringido; los invitados solo ven las páginas compartidas con ellos. Los propietarios también pueden gestionar a los miembros.",
+    "description": "Los miembros pueden ver y editar todas las páginas, salvo las que tengan el uso compartido restringido; los invitados solo ven las páginas compartidas con ellos. Los propietarios también pueden gestionar a los miembros; los administradores de miembros gestionan personas y grupos, pero ningún otro ajuste.",
     "tabs": {
       "members": "Miembros",
       "invitations": "Invitaciones pendientes",
@@ -157,6 +157,7 @@
     "roleLabel": "Rol",
     "roles": {
       "owner": "Propietario",
+      "membership_admin": "Administrador de miembros",
       "member": "Miembro",
       "guest": "Invitado"
     },
@@ -215,6 +216,7 @@
       "decline": "Rechazar"
     },
     "removeBodyChoose": "{name} pierde el acceso a este espacio de trabajo de inmediato, también en las páginas abiertas y las apps conectadas.",
+    "removeBodyToOwner": "{name} pierde el acceso a este espacio de trabajo de inmediato, también en páginas abiertas y aplicaciones conectadas. Las páginas que solo esa persona podía gestionar, y los espacios de equipo que nadie más dirige, pasan al propietario más antiguo del espacio de trabajo.",
     "heirLabel": "Pasar sus páginas a",
     "heirHint": "Las páginas que solo {name} podía gestionar, y los espacios de equipo que nadie más dirige, pasan a la persona que elijas.",
     "heirCount": "{count, plural, =0 {{name} no gestiona ninguna página en solitario ahora mismo. Los espacios de equipo que nadie más dirige pasan a la persona que elijas.} one {# página que solo {name} podía gestionar pasa a la persona que elijas, junto con los espacios de equipo que nadie más dirige.} other {# páginas que solo {name} podía gestionar pasan a la persona que elijas, junto con los espacios de equipo que nadie más dirige.}}",
@@ -223,7 +225,7 @@
   "guests": {
     "heading": "Invitados",
     "description": "Los invitados son personas de fuera del espacio de trabajo que solo ven las páginas compartidas con ellas. Consulta qué puede abrir cada invitado, retira accesos, convierte a un invitado en miembro o quítalo.",
-    "descriptionMember": "Los invitados son personas de fuera del espacio de trabajo que solo ven las páginas compartidas con ellas. Puedes retirar el acceso a las páginas en las que tienes acceso total. Solo los propietarios pueden convertir a un invitado en miembro o quitarlo.",
+    "descriptionMember": "Los invitados son personas de fuera del espacio de trabajo que solo ven las páginas compartidas con ellas. Puedes retirar el acceso a las páginas en las que tienes acceso total. Solo los propietarios y los administradores de miembros pueden convertir a un invitado en miembro o quitarlo.",
     "count": "{count, plural, =0 {Sin invitados} one {# invitado} other {# invitados}}",
     "search": "Buscar invitados o páginas",
     "exportCsv": "Descargar invitados como CSV",
@@ -329,7 +331,7 @@
   "groups": {
     "heading": "Grupos",
     "description": "Los grupos reúnen a personas para que puedas compartir una página con todas ellas o añadirlas a un espacio de equipo de una vez. Quien entra en un grupo obtiene lo que tiene el grupo; quien sale, lo pierde. Solo los propietarios y los miembros pueden estar en grupos, no los invitados.",
-    "ownersOnly": "Solo los propietarios del espacio de trabajo pueden crear y cambiar grupos.",
+    "ownersOnly": "Solo los propietarios del espacio de trabajo y los administradores de miembros pueden crear y cambiar grupos.",
     "newButton": "Nuevo grupo",
     "search": "Buscar grupos",
     "empty": "Aún no hay grupos.",
@@ -374,7 +376,8 @@
       "nameRequired": "Ponle un nombre al grupo.",
       "nameTaken": "Otro grupo ya tiene este nombre.",
       "notMember": "Solo los propietarios y miembros del espacio de trabajo pueden estar en sus grupos.",
-      "accessDenied": "Solo los propietarios del espacio de trabajo pueden cambiar los grupos."
+      "ownMembership": "Los administradores de miembros no pueden añadirse a sí mismos a un grupo. Pídeselo a un propietario del espacio de trabajo.",
+      "accessDenied": "Solo los propietarios del espacio de trabajo y los administradores de miembros pueden cambiar los grupos."
     }
   },
   "agents": {
@@ -1202,6 +1205,7 @@
     "invalidSetting": "Ese ajuste no está disponible.",
     "nameRequired": "Ponle un nombre al espacio de trabajo.",
     "alreadyMember": "Esta persona ya es miembro.",
+    "ownerInvitation": "Esta dirección tiene una invitación para ser propietario. Solo un propietario puede cambiarla.",
     "notMember": "Esta persona no es miembro.",
     "lastOwner": "Un espacio de trabajo necesita al menos un propietario.",
     "lastOwnerRemove": "Un espacio de trabajo necesita al menos un propietario. Primero haz propietario a otra persona.",
@@ -1624,6 +1628,7 @@
     "privatePages": "páginas privadas",
     "roles": {
       "owner": "propietario",
+      "membership_admin": "administrador de miembros",
       "member": "miembro",
       "guest": "invitado"
     },

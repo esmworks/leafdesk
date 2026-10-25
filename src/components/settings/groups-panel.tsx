@@ -17,9 +17,10 @@ import { Button, Dialog, IconButton, Input, MenuItem, MenuSeparator } from "@/co
 import { UserAvatar } from "@/components/user-avatar";
 import { MAX_GROUP_NAME } from "@/lib/groups";
 import { searchFold } from "@/lib/search-fold";
+import type { WorkspaceRole } from "@/db/schema/app";
 import type { GroupSummary } from "@/server/groups";
 
-type Person = { userId: string; name: string; email: string; image: string | null; role: "owner" | "member" | "guest" };
+type Person = { userId: string; name: string; email: string; image: string | null; role: WorkspaceRole };
 
 function matches(query: string, ...values: string[]) {
   const q = searchFold(query.trim());
@@ -28,17 +29,20 @@ function matches(query: string, ...values: string[]) {
 
 /**
  * Settings > Groups: the workspace's member groups with who is in them and the teamspaces they
- * joined. Workspace owners create, rename and delete groups and choose their members; owners and
- * members see them.
+ * joined. Workspace owners and membership admins create, rename and delete groups and choose their
+ * members; members see them.
  */
 export function GroupsPanel({
   workspaceId,
-  isOwner,
+  canManage,
+  ownId,
   groups,
   members,
 }: {
   workspaceId: string;
-  isOwner: boolean;
+  canManage: boolean;
+  /** The viewer, when they may not put themselves in a group (a membership admin): left out of the pickers. */
+  ownId: string | null;
   groups: GroupSummary[];
   /** Everyone in the workspace; guests are left out of the pickers. */
   members: Person[];
@@ -71,13 +75,13 @@ export function GroupsPanel({
               className="ps-7 sm:w-56"
             />
           </div>
-          {isOwner && (
+          {canManage && (
             <Button variant="primary" className="ms-auto" onClick={() => setCreating(true)}>
               {t("newButton")}
             </Button>
           )}
         </div>
-        {!isOwner && <p className="text-xs text-fg-muted">{t("ownersOnly")}</p>}
+        {!canManage && <p className="text-xs text-fg-muted">{t("ownersOnly")}</p>}
 
         <div className="overflow-hidden rounded-xl border border-border">
           {shown.length ? (
@@ -105,7 +109,7 @@ export function GroupsPanel({
                     <GroupRow
                       key={group.id}
                       group={group}
-                      isOwner={isOwner}
+                      canManage={canManage}
                       onOpen={() => setOpenId(group.id)}
                       onRename={() => setRenamingId(group.id)}
                       onDelete={() => setDeletingId(group.id)}
@@ -116,7 +120,7 @@ export function GroupsPanel({
             </div>
           ) : (
             <p className="px-4 py-8 text-center text-sm text-fg-muted">
-              {groups.length ? t("noMatches") : isOwner ? t("emptyOwner") : t("empty")}
+              {groups.length ? t("noMatches") : canManage ? t("emptyOwner") : t("empty")}
             </p>
           )}
         </div>
@@ -129,8 +133,8 @@ export function GroupsPanel({
         <GroupMembersDialog
           workspaceId={workspaceId}
           group={open}
-          canManage={isOwner}
-          members={members}
+          canManage={canManage}
+          members={ownId ? members.filter((m) => m.userId !== ownId) : members}
           onClose={() => setOpenId(null)}
         />
       )}
@@ -140,13 +144,13 @@ export function GroupsPanel({
 
 function GroupRow({
   group,
-  isOwner,
+  canManage,
   onOpen,
   onRename,
   onDelete,
 }: {
   group: GroupSummary;
-  isOwner: boolean;
+  canManage: boolean;
   onOpen: () => void;
   onRename: () => void;
   onDelete: () => void;
@@ -196,9 +200,9 @@ function GroupRow({
               onOpen();
             }}
           >
-            {isOwner ? t("manageMembers") : t("viewMembers")}
+            {canManage ? t("manageMembers") : t("viewMembers")}
           </MenuItem>
-          {isOwner && (
+          {canManage && (
             <>
               <MenuItem
                 onClick={() => {
@@ -292,7 +296,7 @@ function DeleteDialog({ workspaceId, group, onClose }: { workspaceId: string; gr
   );
 }
 
-/** Who is in a group; workspace owners add and remove people. */
+/** Who is in a group; workspace owners and membership admins add and remove people. */
 function GroupMembersDialog({
   workspaceId,
   group,

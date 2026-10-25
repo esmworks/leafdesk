@@ -14,6 +14,7 @@
     "action": "Aceptar invitación",
     "roles": {
       "owner": "propietario",
+      "membership_admin": "administrador de miembros",
       "member": "miembro",
       "guest": "invitado"
     }

@@ -1,3 +1,5 @@
+import type { WorkspaceRole } from "@/db/schema/app";
+
 /**
  * Shared, database-free pieces of the account page (see server/account.ts): error codes the UI
  * translates, limits, and what deleting an account does to each workspace.
@@ -88,7 +90,7 @@ export function passwordProblem(password: unknown): AccountErrorCode | null {
 export type WorkspaceStanding = {
   id: string;
   name: string;
-  role: "owner" | "member" | "guest";
+  role: WorkspaceRole;
   /** People in the workspace, guests and this person included. */
   people: number;
   owners: number;
