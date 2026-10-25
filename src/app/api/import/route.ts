@@ -18,6 +18,7 @@ import { importCsvAsDatabase, importCsvIntoDatabase, recordImport, type ColumnTa
 import { importDocx } from "@/server/import/docx";
 import { importEnex } from "@/server/import/enex";
 import { importPages } from "@/server/import/markdown";
+import { importMhtml } from "@/server/import/mhtml";
 import { importPdf } from "@/server/import/pdf";
 import { importTrello } from "@/server/import/trello";
 import { TeamspaceError } from "@/server/teamspaces";
@@ -26,8 +27,9 @@ import { TeamspaceError } from "@/server/teamspaces";
  * Imports files: `POST /api/import` with a multipart form, answered with an ImportResult (see
  * lib/import/result) or `{ error, code, params }`.
  *
- *   mode=pages      Markdown and CSV files, and ZIPs of them, as pages under `parentId` (or the top
- *                   level of `workspaceId`). Each `file` may have a `path` (its place in a folder).
+ *   mode=pages      Markdown and CSV files, TextBundles and TextPacks, and ZIPs of them, as pages under
+ *                   `parentId` (or the top level of `workspaceId`). Each `file` may have a `path` (its
+ *                   place in a folder).
  *                   `vault=1`: the files are an Obsidian vault whose `.obsidian` folder wasn't sent.
  *   mode=docx       Word documents (.docx), each `file` a page under `parentId` / `workspaceId`.
  *   mode=confluence A Confluence space exported as HTML (its ZIP as `file`), as pages under
@@ -39,6 +41,9 @@ import { TeamspaceError } from "@/server/teamspaces";
  *                   none) and `types` (JSON: a property type or null per column; guessed when missing).
  *   mode=csv-merge  One CSV or Excel `file`'s rows added to the database `databaseId`; `mapping`
  *                   (JSON) says where each column goes: "title", a property id, or null.
+ *   mode=mhtml      Single-file web pages (.mht, .mhtml: OneNote's export among them), each `file` a
+ *                   page (a OneNote section a page with one under it per OneNote page) under
+ *                   `parentId` / `workspaceId`.
  *   mode=enex       Evernote exports (.enex, or ZIPs of them), each `file` a database of its notes
  *                   under `parentId` / `workspaceId`.
  *   mode=trello     One Trello board's JSON export (`file`) as a new database under `parentId` /
@@ -112,6 +117,9 @@ export async function POST(request: Request) {
     } else if (mode === "pdf") {
       const files = await Promise.all(uploads.map(async (f) => ({ name: f.name, data: new Uint8Array(await f.arrayBuffer()) })));
       result = await importPdf(actor, { workspaceId, parentId, teamspaceId, files, attach: field("attach") === "1" });
+    } else if (mode === "mhtml") {
+      const files = await Promise.all(uploads.map(async (f) => ({ name: f.name, data: new Uint8Array(await f.arrayBuffer()) })));
+      result = await importMhtml(actor, { workspaceId, parentId, teamspaceId, files });
     } else if (mode === "enex") {
       const files = await Promise.all(uploads.map(async (f) => ({ name: f.name, data: new Uint8Array(await f.arrayBuffer()) })));
       const names = await enexImportNames().catch(() => undefined);

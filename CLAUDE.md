@@ -150,7 +150,8 @@ BlockNote on Yjs; Tailwind v4; next-intl. Node 24, pnpm 11. A separate Electron 
   reads pages whose `updated_at` moved past `sensitive_scan`), verified pages `verification.ts`
   (`activeVerification` is the SQL for search and lists; `runVerificationReminders(now)`), SMTP
   `mail/`, inbox `notifications.ts`, push `push.ts`, files `files.ts` + `storage/` (local, S3,
-  workspace drives), import `import/` (a web page: `web-clip.ts`, fetched through `connections/fetch.ts` with `{ web: true }`, read by
+  workspace drives), import `import/` (TextBundles: `lib/import/textbundle.ts` turns each into a Markdown file of the upload;
+  OneNote and other `.mht` files: `lib/import/mhtml.ts` reads the MIME parts, `mhtml-convert.ts` the HTML; a web page: `web-clip.ts`, fetched through `connections/fetch.ts` with `{ web: true }`, read by
   `web-clip-extract.ts`, recipes by `src/lib/recipe.ts`), export `export.ts`, server-made PDFs `pdf.ts` (reads a page like `print.ts`; `export-pdf.ts` zips one per page for the workspace export)
   and `pdf-document.ts` (pure pdfmake layout; pdfmake must stay in `serverExternalPackages` in
   `next.config.ts`, bundled it loses its font files, and its fonts in the standalone build's

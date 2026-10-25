@@ -7,6 +7,7 @@
     "docx": "Word",
     "pdf": "PDF",
     "evernote": "Evernote",
+    "onenote": "OneNote (.mht)",
     "confluence": "Confluence",
     "csv": "CSV ja Excel",
     "trello": "Trello",
@@ -25,6 +26,7 @@
     "help": "Markdown-tiedostoista tulee sivuja, ja kansiot säilyttävät rakenteensa. CSV-tiedostoista tulee tietokantoja, ja sivujen linkittämät kuvat ladataan palvelimelle.",
     "notion": "Notionista: vie muodossa ”Markdown & CSV” alasivuineen ja valitse ZIP sellaisenaan kuin se latautui (myös osiin jaetut viennit toimivat). Alasivut, tietokannat, relaatiot, huomiolaatikot, avattavat lohkot ja kuvat tulevat mukana.",
     "obsidian": "Obsidianista: valitse holvin kansio tai siitä tehty ZIP. Muistiinpanojen väliset linkit (myös [[wikilinkit]]), upotetut kuvat ja tiedostot sekä huomiolaatikot tulevat mukana.",
+    "textbundle": "TextBundle- ja TextPack-tiedostoista (Bearista, Ulyssesista, iA Writeristä ja muista Markdown-sovelluksista) tulee kustakin sivu kuvineen ja liitteineen: valitse .textpack-tiedostot, niistä tehty ZIP tai kansio, jossa on .textbundle-kansioita.",
     "chooseFiles": "Valitse tiedostot",
     "chooseFolder": "Valitse kansio",
     "drop": "tai pudota tiedostot tähän",
@@ -53,6 +55,11 @@
       "sourceUrl": "Lähde-URL",
       "encrypted": "Salattu teksti jätettiin pois tuonnista."
     }
+  },
+  "onenote": {
+    "help": "Jokaisesta tiedostosta tulee sivu tekstineen, otsikoineen, luetteloineen, taulukoineen, linkkeineen ja kuvineen. Osan tiedostosta tulee osan nimen mukainen sivu, jonka alle tulee sivu kustakin sen sivusta. Myös minkä tahansa yhdeksi tiedostoksi tallennetun verkkosivun (.mht tai .mhtml) voi tuoda.",
+    "export": "Valitse OneNote for Windowsissa Tiedosto → Vie, sitten Sivu tai Osa ja Yhden tiedoston verkkosivu (*.mht), ja valitse tallennetut tiedostot tästä. OneNoten Word- (.docx) ja PDF-viennit voi tuoda Word- ja PDF-välilehdillä.",
+    "choose": "Valitse .mht-tiedostot"
   },
   "confluence": {
     "help": "Jokaisesta Confluence-tilan sivusta tulee sivu, sisäkkäin kuten tilassa. Otsikot, luettelot, taulukot, koodilohkot, tietopaneelit (huomiolaatikkoina), laajennettavat osiot (avattavina luetteloina), tehtävälistat, kuvat ja liitetiedostot tulevat mukaan, ja sivujen väliset linkit muuttuvat sivumaininnoiksi.",
@@ -294,6 +301,7 @@
     "pdfNoText": "Tiedostossa ”{name}” ei ole tuotavaa tekstiä: se näyttää skannaukselta. Aja sille ensin tekstintunnistus (OCR) tai lataa se sivulle tiedostona.",
     "pdfTooComplex": "”{name}” on liian suuri tuotavaksi yhtenä sivuna.",
     "badEnex": "Tiedostoa ”{name}” ei voi lukea Evernote-vientinä. Vie muistiinpanot Evernotessa ENEX-muodossa (.enex) ja valitse se tiedosto.",
+    "badMhtml": "Tiedostoa ”{name}” ei voi lukea yhden tiedoston verkkosivuna. Vie OneNotessa muodossa Yhden tiedoston verkkosivu (*.mht) ja valitse se tiedosto.",
     "badTrello": "Tiedosto ei ole Trello-taulun vienti. Valitse Trellossa taulun valikosta Vie JSON-muodossa ja valitse se tiedosto.",
     "badAsana": "Tiedosto ei ole Asana-projektin vienti. Valitse Asanassa projektin valikosta Vie → CSV tai JSON ja valitse se tiedosto.",
     "badMonday": "Tiedosto ei ole Monday.com-taulun vienti. Valitse Monday.comissa taulun valikosta Export board to Excel ja valitse se tiedosto.",

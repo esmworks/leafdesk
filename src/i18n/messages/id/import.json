@@ -7,6 +7,7 @@
     "docx": "Word",
     "pdf": "PDF",
     "evernote": "Evernote",
+    "onenote": "OneNote (.mht)",
     "confluence": "Confluence",
     "csv": "CSV & Excel",
     "trello": "Trello",
@@ -25,6 +26,7 @@
     "help": "Berkas Markdown menjadi halaman dan folder mempertahankan strukturnya. Berkas CSV menjadi basis data, dan gambar yang ditautkan halaman diunggah.",
     "notion": "Dari Notion: ekspor sebagai “Markdown & CSV” beserta subhalaman, lalu pilih ZIP seperti saat diunduh (ekspor yang terpisah juga dapat). Subhalaman, basis data, relasi, callout, toggle, dan gambar ikut terbawa.",
     "obsidian": "Dari Obsidian: pilih folder vault, atau ZIP-nya. Tautan antarcatatan (termasuk [[wikilinks]]), gambar dan berkas yang disematkan, serta callout ikut terbawa.",
+    "textbundle": "Berkas TextBundle dan TextPack (dari Bear, Ulysses, iA Writer, dan aplikasi Markdown lain) masing-masing menjadi satu halaman, beserta gambar dan lampirannya: pilih berkas .textpack, ZIP-nya, atau folder berisi folder .textbundle.",
     "chooseFiles": "Pilih berkas",
     "chooseFolder": "Pilih folder",
     "drop": "atau jatuhkan berkas di sini",
@@ -53,6 +55,11 @@
       "sourceUrl": "URL sumber",
       "encrypted": "Teks terenkripsi tidak ikut diimpor."
     }
+  },
+  "onenote": {
+    "help": "Setiap berkas menjadi satu halaman dengan teks, judul, daftar, tabel, tautan, dan gambarnya. Berkas sebuah bagian menjadi halaman bernama bagian itu, dengan satu halaman di bawahnya untuk tiap halamannya. Halaman web apa pun yang disimpan sebagai satu berkas (.mht atau .mhtml) juga bisa diimpor.",
+    "export": "Di OneNote untuk Windows, pilih File → Ekspor, lalu Halaman atau Bagian dan Halaman Web File Tunggal (*.mht), lalu pilih berkas yang disimpan di sini. Ekspor Word (.docx) dan PDF dari OneNote bisa diimpor di tab Word dan PDF.",
+    "choose": "Pilih berkas .mht"
   },
   "confluence": {
     "help": "Setiap halaman di ruang Confluence menjadi halaman, bersarang seperti di ruang tersebut. Judul, daftar, tabel, blok kode, panel info (sebagai callout), bagian yang dapat dibentangkan (sebagai daftar toggle), daftar tugas, gambar, dan file lampiran ikut terbawa, dan tautan antarhalaman menjadi sebutan halaman.",
@@ -294,6 +301,7 @@
     "pdfNoText": "“{name}” tidak punya teks untuk diimpor: tampaknya hasil pindaian. Jalankan pengenalan teks (OCR) dulu, atau unggah ke halaman sebagai berkas.",
     "pdfTooComplex": "“{name}” terlalu besar untuk diimpor sebagai satu halaman.",
     "badEnex": "“{name}” tidak dapat dibaca sebagai ekspor Evernote. Di Evernote, ekspor catatan sebagai ENEX (.enex) lalu pilih berkas itu.",
+    "badMhtml": "“{name}” tidak dapat dibaca sebagai halaman web satu berkas. Di OneNote, ekspor sebagai Halaman Web File Tunggal (*.mht) lalu pilih berkas itu.",
     "badTrello": "Berkas ini bukan ekspor papan Trello. Di Trello, pilih Ekspor sebagai JSON dari menu papan dan pilih berkas itu.",
     "badAsana": "Berkas ini bukan ekspor proyek Asana. Di Asana, pilih Ekspor → CSV atau JSON dari menu proyek dan pilih berkas itu.",
     "badMonday": "Berkas ini bukan ekspor papan Monday.com. Di Monday.com, pilih Ekspor papan ke Excel dari menu papan dan pilih berkas itu.",

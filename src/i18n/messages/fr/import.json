@@ -7,6 +7,7 @@
     "docx": "Word",
     "pdf": "PDF",
     "evernote": "Evernote",
+    "onenote": "OneNote (.mht)",
     "confluence": "Confluence",
     "csv": "CSV et Excel",
     "trello": "Trello",
@@ -25,6 +26,7 @@
     "help": "Les fichiers Markdown deviennent des pages et les dossiers conservent leur structure. Les fichiers CSV deviennent des bases de données, et les images vers lesquelles pointent les pages sont ajoutées.",
     "notion": "Depuis Notion : exportez au format « Markdown et CSV » avec les sous-pages, puis choisissez le ZIP tel qu’il a été téléchargé (les exportations divisées fonctionnent aussi). Les sous-pages, bases de données, relations, encadrés, blocs dépliables et images sont importés.",
     "obsidian": "Depuis Obsidian : choisissez le dossier du coffre ou un ZIP de celui-ci. Les liens entre notes (y compris les [[wikiliens]]), les images et fichiers intégrés et les encadrés sont importés.",
+    "textbundle": "Les fichiers TextBundle et TextPack (de Bear, Ulysses, iA Writer et d'autres applis Markdown) deviennent chacun une page, avec leurs images et pièces jointes : choisissez des fichiers .textpack, un ZIP de ceux-ci ou un dossier contenant des dossiers .textbundle.",
     "chooseFiles": "Choisir des fichiers",
     "chooseFolder": "Choisir un dossier",
     "drop": "ou déposez des fichiers ici",
@@ -53,6 +55,11 @@
       "sourceUrl": "URL source",
       "encrypted": "Le texte chiffré n’a pas été importé."
     }
+  },
+  "onenote": {
+    "help": "Chaque fichier devient une page avec son texte, ses titres, listes, tableaux, liens et images. Le fichier d'une section devient une page au nom de la section, avec une page en dessous pour chacune de ses pages. Toute page web enregistrée en un seul fichier (.mht ou .mhtml) peut aussi être importée.",
+    "export": "Dans OneNote pour Windows, choisissez Fichier → Exporter, puis Page ou Section et Page web à fichier unique (*.mht), et choisissez ici les fichiers enregistrés. Les exports Word (.docx) et PDF de OneNote s'importent dans les onglets Word et PDF.",
+    "choose": "Choisir des fichiers .mht"
   },
   "confluence": {
     "help": "Chaque page d’un espace Confluence devient une page, imbriquée comme dans l’espace. Titres, listes, tableaux, blocs de code, panneaux d’information (en encadrés), sections dépliables (en listes dépliantes), listes de tâches, images et fichiers joints suivent, et les liens entre pages deviennent des mentions de page.",
@@ -294,6 +301,7 @@
     "pdfNoText": "« {name} » n'a pas de texte à importer : il semble s'agir d'un scan. Passez-le d'abord à la reconnaissance de texte (OCR), ou téléversez-le sur une page en tant que fichier.",
     "pdfTooComplex": "« {name} » est trop volumineux pour être importé en une seule page.",
     "badEnex": "« {name} » ne peut pas être lu comme un export Evernote. Dans Evernote, exportez les notes au format ENEX (.enex) et choisissez ce fichier.",
+    "badMhtml": "« {name} » ne peut pas être lu comme une page web à fichier unique. Dans OneNote, exportez au format Page web à fichier unique (*.mht) et choisissez ce fichier.",
     "badTrello": "Ce fichier n’est pas un export de tableau Trello. Dans Trello, choisissez Exporter au format JSON dans le menu du tableau, puis ce fichier.",
     "badAsana": "Le fichier n’est pas un export de projet Asana. Dans Asana, choisissez Exporter → CSV ou JSON dans le menu du projet, puis ce fichier.",
     "badMonday": "Le fichier n’est pas un export de tableau Monday.com. Dans Monday.com, choisissez Exporter le tableau vers Excel dans le menu du tableau, puis ce fichier.",
