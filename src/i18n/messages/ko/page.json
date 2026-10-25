@@ -85,6 +85,7 @@
     "exportDisabledBody": "이 워크스페이스의 소유자가 페이지 내보내기와 인쇄를 꺼 두었습니다.",
     "showInGraph": "그래프에서 보기",
     "present": "프레젠테이션",
+    "readAloud": "소리 내어 읽기",
     "watch": "지켜보기",
     "watchHint": "다른 사람이 이 페이지를 편집하거나 댓글 스레드를 시작하면 받은편지함에서 알림을 받습니다.",
     "mute": "음소거",
@@ -777,6 +778,24 @@
     "morePlaces": "{count}곳 더",
     "fewerPlaces": "간단히 보기",
     "morePages": "페이지 {count}개 더 보기"
+  },
+  "related": {
+    "title": "관련 페이지",
+    "hint": "이 페이지와 의미가 가깝지만 아직 링크하지 않은 페이지",
+    "edited": "{time} 편집됨"
+  },
+  "readAloud": {
+    "label": "소리 내어 읽기",
+    "play": "읽기",
+    "pause": "일시 정지",
+    "previous": "이전 블록",
+    "next": "다음 블록",
+    "close": "읽기 중지",
+    "progress": "{current} / {total}",
+    "speed": "속도",
+    "voice": "음성",
+    "unsupported": "이 브라우저는 페이지를 소리 내어 읽을 수 없습니다.",
+    "nothing": "이 페이지에는 읽을 내용이 없습니다."
   },
   "blockMenu": {
     "copyLink": "블록 링크 복사",

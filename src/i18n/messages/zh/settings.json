@@ -84,7 +84,7 @@
       "ownPageViews": "浏览 跟踪 隐私 退出 分析",
       "aiUsageLimit": "预算 费用 支出 上限",
       "aiUsagePeople": "按人 成员 费用 令牌",
-      "health": "失效链接 孤立 重复 空页面",
+      "health": "失效链接 孤立 重复 空页面 网页链接 网址 URL 404",
       "audit": "日志 历史 事件 修改者",
       "siteHeader": "导航 菜单 链接 顶栏",
       "siteDescription": "seo 元 描述 搜索引擎 预览 open graph",
@@ -1079,6 +1079,19 @@
       "title": "失效链接",
       "description": "页面中指向回收站中或已永久删除页面的链接和提及。",
       "none": "没有失效链接。"
+    },
+    "brokenWebLinks": {
+      "title": "失效的网页链接",
+      "description": "页面和 URL 属性中已无法访问的网址。服务器大约每周检查一次每个网址，无法访问的网站要连续几天失败后才会列出。",
+      "none": "没有失效的网页链接。",
+      "pending": "{count, plural, other {还有 # 个网址正在检查。}}请稍后再打开此标签页。",
+      "skipped": "未检查：此服务器不检查网页链接。",
+      "notFound": "未找到（{status}）",
+      "gone": "已被网站删除（{status}）",
+      "noHost": "该网站的地址已不存在",
+      "serverError": "网站返回错误（{status}）",
+      "unreachable": "无法访问该网站",
+      "inProperty": "在 {property} 中"
     },
     "orphans": {
       "title": "无入口的页面",

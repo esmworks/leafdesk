@@ -2,9 +2,11 @@
  * The workspace check (server/workspace-check.ts gathers it, Settings > Health and the MCP tool
  * check_workspace show it): what is worth tidying among the pages someone can open. Links to pages
  * in the trash or deleted, pages nothing leads to, pages with a title and no body, pages nobody
- * edited for months, pages whose verification ended, pages that say nearly the same thing, and
- * relations to rows in the trash or deleted. Everything here is plain data and pure functions, shared by the server and the browser.
+ * edited for months, pages whose verification ended, pages that say nearly the same thing,
+ * relations to rows in the trash or deleted, and web links that stopped working. Everything here is plain data and pure functions, shared by the server and the browser.
  */
+
+import type { WebLinkReason } from "@/lib/web-links";
 
 export type CheckPageKind = "page" | "database" | "row";
 
@@ -44,6 +46,20 @@ export type BrokenRelation = {
   canFix: boolean;
 };
 
+/**
+ * A web address in a page's body, or in a row's URL property, that stopped working (lib/web-links):
+ * why, the HTTP status when there was an answer, and when it was last checked.
+ */
+export type BrokenWebLink = {
+  source: CheckPage;
+  url: string;
+  reason: WebLinkReason;
+  httpStatus: number | null;
+  checkedAt: string | null;
+  /** The URL property that holds it, for a row's value. */
+  property?: { id: string; name: string };
+};
+
 /** A list of findings: the first ones and how many there are in all. */
 export type CheckSection<T> = { items: T[]; total: number };
 
@@ -53,6 +69,15 @@ export type DuplicatesSkipped = "noEmbeddings" | "aiOff";
 export type DuplicateSection =
   | (CheckSection<DuplicatePair> & { status: "done"; minSimilarity: number; compared: number })
   | { status: "skipped"; reason: DuplicatesSkipped };
+
+/**
+ * Broken web links, of the addresses the pages hold (`links`, at most MAX_WEB_LINKS): `pending` of
+ * them not checked yet (the server fetches them in the background). Skipped where the server
+ * doesn't check web links (WEB_LINK_CHECKS=off).
+ */
+export type WebLinkSection =
+  | (CheckSection<BrokenWebLink> & { status: "done"; links: number; pending: number })
+  | { status: "skipped" };
 
 export type WorkspaceCheck = {
   workspaceId: string;
@@ -69,9 +94,19 @@ export type WorkspaceCheck = {
   expiredVerifications: CheckSection<ExpiredVerification>;
   duplicates: DuplicateSection;
   brokenRelations: CheckSection<BrokenRelation>;
+  brokenWebLinks: WebLinkSection;
 };
 
-export const CHECK_SECTIONS = ["brokenLinks", "orphans", "empty", "stale", "expiredVerifications", "duplicates", "brokenRelations"] as const;
+export const CHECK_SECTIONS = [
+  "brokenLinks",
+  "brokenWebLinks",
+  "orphans",
+  "empty",
+  "stale",
+  "expiredVerifications",
+  "duplicates",
+  "brokenRelations",
+] as const;
 export type CheckSectionKey = (typeof CHECK_SECTIONS)[number];
 
 /** Pages one check looks at at most; past this the ones edited longest ago are left out. */
@@ -181,7 +216,7 @@ export function similarPairs(
   return out.sort((p, q) => q.similarity - p.similarity || p.a.localeCompare(q.a) || p.b.localeCompare(q.b));
 }
 
-/** How many findings the report has, all kinds together (duplicates only when that check ran). */
+/** How many findings the report has, all kinds together (duplicates and web links only when those checks ran). */
 export function findingCount(check: WorkspaceCheck): number {
   return (
     check.brokenLinks.total +
@@ -190,6 +225,7 @@ export function findingCount(check: WorkspaceCheck): number {
     check.stale.total +
     check.expiredVerifications.total +
     (check.duplicates.status === "done" ? check.duplicates.total : 0) +
-    check.brokenRelations.total
+    check.brokenRelations.total +
+    (check.brokenWebLinks.status === "done" ? check.brokenWebLinks.total : 0)
   );
 }

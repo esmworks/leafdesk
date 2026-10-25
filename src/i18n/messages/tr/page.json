@@ -85,6 +85,7 @@
     "exportDisabledBody": "Bu çalışma alanının sahipleri sayfaların dışa aktarılmasını ve yazdırılmasını kapattı.",
     "showInGraph": "Grafikte göster",
     "present": "Sunum yap",
+    "readAloud": "Sesli oku",
     "watch": "İzle",
     "watchHint": "Bu sayfayı başka biri düzenlediğinde ya da üzerinde yorum dizisi başlattığında gelen kutunuzda haber alın.",
     "mute": "Sessize al",
@@ -777,6 +778,24 @@
     "morePlaces": "{count} yer daha",
     "fewerPlaces": "Daha az göster",
     "morePages": "{count} sayfa daha göster"
+  },
+  "related": {
+    "title": "İlgili sayfalar",
+    "hint": "Bu sayfaya anlamca yakın, henüz bağlantı verilmemiş sayfalar",
+    "edited": "{time} düzenlendi"
+  },
+  "readAloud": {
+    "label": "Sesli okuma",
+    "play": "Oku",
+    "pause": "Duraklat",
+    "previous": "Önceki blok",
+    "next": "Sonraki blok",
+    "close": "Okumayı durdur",
+    "progress": "{current} / {total}",
+    "speed": "Hız",
+    "voice": "Ses",
+    "unsupported": "Bu tarayıcı sayfaları sesli okuyamıyor.",
+    "nothing": "Bu sayfada okunacak bir şey yok."
   },
   "blockMenu": {
     "copyLink": "Bloğun bağlantısını kopyala",

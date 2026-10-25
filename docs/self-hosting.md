@@ -266,6 +266,21 @@ lookups and map views, not bulk geocoding or heavy traffic. For more, run your o
 [Nominatim](https://nominatim.org) and tile server or point the variables at a commercial
 provider that offers the same interfaces. In the dark scheme the tiles are dimmed with a filter.
 
+## Broken web links
+
+Settings → Health lists web links in pages that stopped working: the server fetches the web
+addresses of pages and URL properties in the background, about once a week each, from public
+addresses only (hosts in `CONNECTOR_ALLOWED_HOSTS` too, as for saving a web page). Its requests say
+`Leafdesk link check (+APP_URL)`. To never fetch them, for a server that shouldn't reach the
+internet on its own, set:
+
+```bash
+WEB_LINK_CHECKS=off
+```
+
+Health then says the links aren't checked. See [Workspace health](features.md) for what counts as
+broken.
+
 ## Instance administrators
 
 The first account created on a new server is its administrator, so whoever installs Leafdesk can

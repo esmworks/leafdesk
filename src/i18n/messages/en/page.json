@@ -85,6 +85,7 @@
     "exportDisabledBody": "The owners of this workspace have turned off exporting and printing its pages.",
     "showInGraph": "Show in graph",
     "present": "Present",
+    "readAloud": "Read aloud",
     "watch": "Watch",
     "watchHint": "Hear in your inbox when someone else edits this page or starts a comment thread on it.",
     "mute": "Mute",
@@ -777,6 +778,24 @@
     "morePlaces": "{count, plural, one {# more place} other {# more places}}",
     "fewerPlaces": "Show fewer",
     "morePages": "{count, plural, one {Show # more page} other {Show # more pages}}"
+  },
+  "related": {
+    "title": "Related pages",
+    "hint": "Pages close in meaning to this one that it doesn't link to yet",
+    "edited": "edited {time}"
+  },
+  "readAloud": {
+    "label": "Read aloud",
+    "play": "Read",
+    "pause": "Pause",
+    "previous": "Previous block",
+    "next": "Next block",
+    "close": "Stop reading",
+    "progress": "{current} of {total}",
+    "speed": "Speed",
+    "voice": "Voice",
+    "unsupported": "This browser can't read pages aloud.",
+    "nothing": "There's nothing to read on this page."
   },
   "blockMenu": {
     "copyLink": "Copy link to block",

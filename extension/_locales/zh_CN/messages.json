@@ -1,0 +1,50 @@
+{
+  "extName": {
+    "message": "保存到 Leafdesk"
+  },
+  "extDescription": {
+    "message": "将当前页面、链接或所选文本保存到你的 Leafdesk 工作区。"
+  },
+  "actionTitle": {
+    "message": "将此页面保存到 Leafdesk"
+  },
+  "menuPage": {
+    "message": "将页面保存到 Leafdesk"
+  },
+  "menuLink": {
+    "message": "将链接保存到 Leafdesk"
+  },
+  "menuSelection": {
+    "message": "将所选内容保存到 Leafdesk"
+  },
+  "optionsTitle": {
+    "message": "保存到 Leafdesk"
+  },
+  "optionsAddress": {
+    "message": "你的 Leafdesk 地址"
+  },
+  "optionsHelp": {
+    "message": "你打开 Leafdesk 时使用的地址，例如 https://leafdesk.example.com。"
+  },
+  "optionsSave": {
+    "message": "保存"
+  },
+  "optionsSaved": {
+    "message": "已保存。保存的页面会在 Leafdesk 的快速笔记中打开。"
+  },
+  "optionsInvalid": {
+    "message": "请输入网址，例如 https://leafdesk.example.com。"
+  },
+  "optionsHowTitle": {
+    "message": "如何保存"
+  },
+  "optionsHowButton": {
+    "message": "点击扩展按钮（或按 Alt+Shift+S）保存当前页面，页面上所选的文本会作为引用一并保存。"
+  },
+  "optionsHowMenu": {
+    "message": "右键点击页面、链接或所选文本，然后选择“保存到 Leafdesk”。"
+  },
+  "optionsHowSignIn": {
+    "message": "Leafdesk 会在新标签页中打开：选择保存位置，或保存整个页面。如果尚未登录，请在那里登录。"
+  }
+}

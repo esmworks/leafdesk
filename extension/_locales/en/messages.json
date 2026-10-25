@@ -1,0 +1,50 @@
+{
+  "extName": {
+    "message": "Save to Leafdesk"
+  },
+  "extDescription": {
+    "message": "Save the page you are on, a link or the text you selected to your Leafdesk workspace."
+  },
+  "actionTitle": {
+    "message": "Save this page to Leafdesk"
+  },
+  "menuPage": {
+    "message": "Save page to Leafdesk"
+  },
+  "menuLink": {
+    "message": "Save link to Leafdesk"
+  },
+  "menuSelection": {
+    "message": "Save selection to Leafdesk"
+  },
+  "optionsTitle": {
+    "message": "Save to Leafdesk"
+  },
+  "optionsAddress": {
+    "message": "Your Leafdesk address"
+  },
+  "optionsHelp": {
+    "message": "The address you open Leafdesk at, like https://leafdesk.example.com."
+  },
+  "optionsSave": {
+    "message": "Save"
+  },
+  "optionsSaved": {
+    "message": "Saved. Pages you save open in Leafdesk's quick note."
+  },
+  "optionsInvalid": {
+    "message": "Enter a web address, like https://leafdesk.example.com."
+  },
+  "optionsHowTitle": {
+    "message": "How to save"
+  },
+  "optionsHowButton": {
+    "message": "Click the extension's button (or press Alt+Shift+S) to save the page you are on, with the text you selected on it as a quote."
+  },
+  "optionsHowMenu": {
+    "message": "Right-click a page, a link or selected text and choose Save to Leafdesk."
+  },
+  "optionsHowSignIn": {
+    "message": "Leafdesk opens in a new tab: choose where it goes, or save the whole page. Sign in there if you aren't yet."
+  }
+}

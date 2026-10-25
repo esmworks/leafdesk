@@ -149,6 +149,8 @@ services:
       AUTOMATION_DATE_CHECK_SECONDS: ${AUTOMATION_DATE_CHECK_SECONDS:-}
       # Connections: private hosts they may reach, and the key that seals their secrets (see docs/connections.md).
       CONNECTOR_ALLOWED_HOSTS: ${CONNECTOR_ALLOWED_HOSTS:-}
+      # Settings → Health: off stops fetching the web addresses in pages to find broken links.
+      WEB_LINK_CHECKS: ${WEB_LINK_CHECKS:-}
       # Email on rows: mail servers on a private network that mailboxes may reach (see docs/email-on-rows.md).
       MAIL_ALLOWED_HOSTS: ${MAIL_ALLOWED_HOSTS:-}
       LEAFDESK_ENCRYPTION_KEY: ${LEAFDESK_ENCRYPTION_KEY:-}

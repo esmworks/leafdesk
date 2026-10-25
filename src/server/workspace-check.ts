@@ -7,7 +7,7 @@
 import { and, desc, eq, inArray, isNull, sql } from "drizzle-orm";
 import { alias } from "drizzle-orm/pg-core";
 import { db } from "@/db";
-import { page, pageChunk, type RowProperties } from "@/db/schema";
+import { page, type RowProperties } from "@/db/schema";
 import { markdownPageIds } from "@/lib/mentions";
 import { atLeast } from "@/lib/property-access";
 import {
@@ -24,6 +24,7 @@ import {
   staleCutoff,
   type BrokenLink,
   type BrokenRelation,
+  type BrokenWebLink,
   type CheckedPage,
   type CheckPage,
   type CheckPageKind,
@@ -32,15 +33,20 @@ import {
   type Orphan,
   type ExpiredVerification,
   type StalePage,
+  type WebLinkSection,
   type WorkspaceCheck,
 } from "@/lib/workspace-check";
+import { env } from "@/lib/env";
+import { isReported, markdownWebLinks, MAX_WEB_LINKS, normalizeWebLink, type WebLinkReason } from "@/lib/web-links";
 import { AccessError, accessRank, getMembership, isGuest, levelFromRank, pageVisibleTo, requirePageAccess } from "@/server/access";
 import { embeddingModelFor, embeddingsEnabled } from "@/server/ai";
 import { updateRowProperties } from "@/server/databases";
 import { loadProperties } from "@/server/derived";
 import { listUnlinkedMentions, resolvePageRefs } from "@/server/mentions";
 import { propertyAccessFor } from "@/server/property-access";
+import { meanEmbeddings } from "@/server/semantic-search";
 import { expiredVerifications } from "@/server/verification";
+import { wantWebLinks, webLinkChecksEnabled, webLinkStates } from "@/server/web-links";
 import { workspaceSettings } from "@/server/workspaces";
 
 const asIds = (v: unknown): string[] => (Array.isArray(v) ? v.filter((x): x is string => typeof x === "string") : []);
@@ -51,13 +57,7 @@ function chunks<T>(items: T[], size: number): T[][] {
   return out;
 }
 
-const idList = (ids: string[]) =>
-  sql.join(
-    ids.map((id) => sql`${id}`),
-    sql`, `,
-  );
-
-type Loaded = CheckedPage & { icon: string | null; parentId: string | null; hasRefs: boolean };
+type Loaded = CheckedPage & { icon: string | null; parentId: string | null; hasRefs: boolean; hasWeb: boolean };
 
 export type CheckOptions = {
   /** Pages nobody edited for this many months are stale (DEFAULT_STALE_MONTHS). */
@@ -92,7 +92,7 @@ export async function checkWorkspace(
 
   const cutoff = staleCutoff(now, staleMonths);
   const orphans = checked.filter(isOrphan);
-  const [brokenLinks, linkFrom, duplicates, brokenRelations, ended] = await Promise.all([
+  const [brokenLinks, linkFrom, duplicates, brokenRelations, ended, brokenWebLinks] = await Promise.all([
     findBrokenLinks(
       userId,
       checked.filter((p) => p.hasRefs),
@@ -102,6 +102,7 @@ export async function checkWorkspace(
     findDuplicates(workspaceId, checked, asCheckPage, minSimilarity),
     findBrokenRelations(userId, checked, byId, editable, asCheckPage),
     expiredVerifications(userId, workspaceId, MAX_CHECKED_PAGES),
+    findBrokenWebLinks(userId, workspaceId, checked, asCheckPage, now),
   ]);
 
   return {
@@ -128,6 +129,7 @@ export async function checkWorkspace(
     ),
     duplicates,
     brokenRelations: section(brokenRelations),
+    brokenWebLinks,
   };
 }
 
@@ -146,6 +148,7 @@ async function loadPages(userId: string, workspaceId: string): Promise<Loaded[]>
       updatedAt: page.updatedAt,
       emptyBody: sql<boolean>`btrim(${page.contentMarkdown}) = ''`,
       hasRefs: sql<boolean>`strpos(${page.contentMarkdown}, '/p/') > 0`,
+      hasWeb: sql<boolean>`strpos(${page.contentMarkdown}, 'http') > 0`,
       // Pages inside count whoever can open them: such a page isn't empty, and nothing leads nowhere.
       hasChildren: sql<boolean>`exists (select 1 from ${page} c where c.parent_id = ${page.id} and c.archived_at is null and not c.is_template)`,
     })
@@ -178,6 +181,7 @@ async function loadPages(userId: string, workspaceId: string): Promise<Loaded[]>
     linkedTo: linked.has(r.id),
     emptyBody: Boolean(r.emptyBody),
     hasRefs: Boolean(r.hasRefs),
+    hasWeb: Boolean(r.hasWeb),
     isSkill: r.isSkill,
     updatedAt: new Date(r.updatedAt),
   }));
@@ -283,30 +287,18 @@ async function findDuplicates(
   // Pages only: rows say little each, and databases have no body.
   const candidates = checked.filter((p) => p.kind === "page").slice(0, MAX_DUPLICATE_PAGES);
   const byId = new Map(candidates.map((p) => [p.id, p]));
-  const vectors: { id: string; vector: number[] }[] = [];
-  for (const part of chunks(candidates, 250)) {
-    const rows = await db.execute<{ page_id: string; vector: number[] | string }>(sql`
-      select m.page_id, array_agg(m.x order by m.i)::float8[] as vector from (
-        select c.page_id, u.i, avg(u.x) as x
-        from ${pageChunk} c cross join lateral unnest(c.embedding) with ordinality as u(x, i)
-        where c.workspace_id = ${workspaceId} and c.model = ${model} and c.page_id in (${idList(part.map((p) => p.id))})
-        group by c.page_id, u.i
-      ) m group by m.page_id
-    `);
-    for (const r of rows) if (byId.has(r.page_id)) vectors.push({ id: r.page_id, vector: parseVector(r.vector) });
-  }
+  const means = await meanEmbeddings(
+    workspaceId,
+    model,
+    candidates.map((p) => p.id),
+  );
+  const vectors = [...means].filter(([id]) => byId.has(id)).map(([id, vector]) => ({ id, vector }));
   const pairs = similarPairs(vectors, minSimilarity).map(({ a, b, similarity }) => ({
     a: asCheckPage(byId.get(a)!),
     b: asCheckPage(byId.get(b)!),
     similarity: Math.round(similarity * 1000) / 1000,
   }));
   return { status: "done", minSimilarity, compared: vectors.length, ...section(pairs) };
-}
-
-/** A float8[] as the driver hands it over: an array, or Postgres' text form when it doesn't parse it. */
-function parseVector(value: number[] | string): number[] {
-  if (Array.isArray(value)) return value.map(Number);
-  return value.replace(/[{}]/g, "").split(",").filter(Boolean).map(Number);
 }
 
 /**
@@ -373,6 +365,103 @@ async function findBrokenRelations(
       },
     ];
   });
+}
+
+/**
+ * Web addresses in the bodies of `checked` (pages edited last first) and in the URL properties of
+ * their rows the user may see there, that stopped working (server/web-links). Asks about them all,
+ * so the ones not known yet are fetched in the background; the app's own addresses aren't web links.
+ */
+async function findBrokenWebLinks(
+  userId: string,
+  workspaceId: string,
+  checked: Loaded[],
+  asCheckPage: (p: Loaded) => CheckPage,
+  now: Date,
+): Promise<WebLinkSection> {
+  if (!webLinkChecksEnabled()) return { status: "skipped" };
+  const own = (() => {
+    try {
+      return new URL(env.appUrl).origin;
+    } catch {
+      return null;
+    }
+  })();
+  type Found = { source: Loaded; url: string; property?: { id: string; name: string } };
+  const found: Found[] = [];
+  const urls = new Set<string>();
+  const add = (f: Found) => {
+    if (own && new URL(f.url).origin === own) return;
+    if (!urls.has(f.url)) {
+      if (urls.size >= MAX_WEB_LINKS) return;
+      urls.add(f.url);
+    }
+    found.push(f);
+  };
+
+  const byId = new Map(checked.map((p) => [p.id, p]));
+  const withWeb = checked.filter((p) => p.hasWeb);
+  for (const part of chunks(withWeb, 500)) {
+    const rows = await db
+      .select({ id: page.id, markdown: page.contentMarkdown })
+      .from(page)
+      .where(
+        inArray(
+          page.id,
+          part.map((p) => p.id),
+        ),
+      );
+    const markdownOf = new Map(rows.map((r) => [r.id, r.markdown]));
+    for (const p of part) for (const url of markdownWebLinks(markdownOf.get(p.id) ?? "")) add({ source: p, url });
+  }
+
+  // Rows' URL values, in the properties the user may see on each row.
+  const databaseIds = checked.filter((p) => p.kind === "database").map((p) => p.id);
+  const urlProps = new Map(
+    [...(databaseIds.length ? await loadProperties(databaseIds) : new Map())]
+      .map(([databaseId, props]) => [databaseId, props.filter((p: { type: string }) => p.type === "url")] as const)
+      .filter(([, props]) => props.length),
+  );
+  const rowIds = checked.filter((p) => p.kind === "row" && p.parentId && urlProps.has(p.parentId)).map((p) => p.id);
+  const values: { id: string; parentId: string; properties: RowProperties; createdBy: string | null }[] = [];
+  for (const part of chunks(rowIds, 1000)) {
+    const rows = await db
+      .select({ id: page.id, parentId: page.parentId, properties: page.properties, createdBy: page.createdBy })
+      .from(page)
+      .where(inArray(page.id, part));
+    for (const r of rows) if (r.parentId) values.push({ ...r, parentId: r.parentId });
+  }
+  for (const [databaseId, rows] of Map.groupBy(values, (v) => v.parentId)) {
+    const access = await propertyAccessFor(userId, databaseId);
+    for (const row of rows) {
+      for (const prop of urlProps.get(databaseId) ?? []) {
+        if (!atLeast(access.levelOf(prop.id, row), "view")) continue;
+        const value = row.properties[prop.id];
+        const url = typeof value === "string" ? normalizeWebLink(value.trim()) : null;
+        if (url) add({ source: byId.get(row.id)!, url, property: { id: prop.id, name: prop.name } });
+      }
+    }
+  }
+
+  const list = [...urls];
+  await wantWebLinks(workspaceId, list, now);
+  const states = await webLinkStates(workspaceId, list);
+  const broken = found.flatMap((f): BrokenWebLink[] => {
+    const state = states.get(f.url);
+    if (!state || !isReported(state)) return [];
+    return [
+      {
+        source: asCheckPage(f.source),
+        url: f.url,
+        reason: (state.reason ?? "unreachable") as WebLinkReason,
+        httpStatus: state.httpStatus,
+        checkedAt: state.checkedAt ? new Date(state.checkedAt).toISOString() : null,
+        ...(f.property ? { property: f.property } : {}),
+      },
+    ];
+  });
+  const pending = list.filter((url) => (states.get(url)?.status ?? "pending") === "pending").length;
+  return { status: "done", links: list.length, pending, ...section(broken) };
 }
 
 /**

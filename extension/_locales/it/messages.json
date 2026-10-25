@@ -1,0 +1,50 @@
+{
+  "extName": {
+    "message": "Salva in Leafdesk"
+  },
+  "extDescription": {
+    "message": "Salva la pagina in cui ti trovi, un link o il testo selezionato nel tuo spazio di lavoro Leafdesk."
+  },
+  "actionTitle": {
+    "message": "Salva questa pagina in Leafdesk"
+  },
+  "menuPage": {
+    "message": "Salva pagina in Leafdesk"
+  },
+  "menuLink": {
+    "message": "Salva link in Leafdesk"
+  },
+  "menuSelection": {
+    "message": "Salva selezione in Leafdesk"
+  },
+  "optionsTitle": {
+    "message": "Salva in Leafdesk"
+  },
+  "optionsAddress": {
+    "message": "Il tuo indirizzo Leafdesk"
+  },
+  "optionsHelp": {
+    "message": "L’indirizzo a cui apri Leafdesk, come https://leafdesk.example.com."
+  },
+  "optionsSave": {
+    "message": "Salva"
+  },
+  "optionsSaved": {
+    "message": "Salvato. Le pagine che salvi si aprono nella nota rapida di Leafdesk."
+  },
+  "optionsInvalid": {
+    "message": "Inserisci un indirizzo web, come https://leafdesk.example.com."
+  },
+  "optionsHowTitle": {
+    "message": "Come salvare"
+  },
+  "optionsHowButton": {
+    "message": "Fai clic sul pulsante dell’estensione (o premi Alt+Maiusc+S) per salvare la pagina in cui ti trovi, con il testo selezionato come citazione."
+  },
+  "optionsHowMenu": {
+    "message": "Fai clic destro su una pagina, un link o un testo selezionato e scegli Salva in Leafdesk."
+  },
+  "optionsHowSignIn": {
+    "message": "Leafdesk si apre in una nuova scheda: scegli dove va, oppure salva l’intera pagina. Accedi lì se non l’hai ancora fatto."
+  }
+}

@@ -1,0 +1,50 @@
+{
+  "extName": {
+    "message": "Gem i Leafdesk"
+  },
+  "extDescription": {
+    "message": "Gem siden, du er på, et link eller den tekst, du har markeret, i dit Leafdesk-arbejdsområde."
+  },
+  "actionTitle": {
+    "message": "Gem denne side i Leafdesk"
+  },
+  "menuPage": {
+    "message": "Gem side i Leafdesk"
+  },
+  "menuLink": {
+    "message": "Gem link i Leafdesk"
+  },
+  "menuSelection": {
+    "message": "Gem markering i Leafdesk"
+  },
+  "optionsTitle": {
+    "message": "Gem i Leafdesk"
+  },
+  "optionsAddress": {
+    "message": "Din Leafdesk-adresse"
+  },
+  "optionsHelp": {
+    "message": "Adressen, du åbner Leafdesk på, f.eks. https://leafdesk.example.com."
+  },
+  "optionsSave": {
+    "message": "Gem"
+  },
+  "optionsSaved": {
+    "message": "Gemt. Sider, du gemmer, åbner i Leafdesks hurtignote."
+  },
+  "optionsInvalid": {
+    "message": "Angiv en webadresse, f.eks. https://leafdesk.example.com."
+  },
+  "optionsHowTitle": {
+    "message": "Sådan gemmer du"
+  },
+  "optionsHowButton": {
+    "message": "Klik på udvidelsens knap (eller tryk på Alt+Shift+S) for at gemme siden, du er på, med den tekst, du har markeret, som citat."
+  },
+  "optionsHowMenu": {
+    "message": "Højreklik på en side, et link eller markeret tekst, og vælg Gem i Leafdesk."
+  },
+  "optionsHowSignIn": {
+    "message": "Leafdesk åbner i en ny fane: Vælg, hvor det skal hen, eller gem hele siden. Log ind der, hvis du ikke allerede er det."
+  }
+}

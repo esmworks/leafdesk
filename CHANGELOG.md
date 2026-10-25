@@ -4,6 +4,23 @@
 
 ### Added
 
+- **Save to Leafdesk browser extension.** A new extension for Chrome, Edge and Firefox
+  (`extension/`, a zip in every release) saves the page you are on from its toolbar button
+  (Alt+Shift+S), and a page, a link or selected text from the context menu. It opens Leafdesk's
+  quick note on your own server, where you choose where it goes or save the whole page, and sends
+  nothing anywhere else.
+- **Read aloud.** A page's ••• menu has *Read aloud*: the browser's own speech reads the page
+  block by block, marking the block being read, with pause, previous and next block, speed and
+  voice. Nothing leaves the device.
+- **Related pages.** Under a page's backlinks, up to five pages close to it in meaning that it
+  doesn't link to yet, with when each was last edited and its closest passage. They come from the
+  embeddings semantic search already keeps, so no model is called; the list shows only where the
+  server has an embeddings model and the workspace has AI on.
+- **Broken web links in Settings → Health.** Web addresses in pages and URL properties that stopped
+  working: the server fetches them in the background about once a week, lists 404 and 410 at once
+  and a site that is down only after three failed checks a day apart. `check_workspace` over MCP
+  reports them too. Migration 0145 adds the `web_link_check` table; the new `WEB_LINK_CHECKS=off`
+  stops the server from fetching them.
 - **Sort search results.** The search box has a *Sort* menu beside its filters: best match (the
   default), or last edited or created, newest or oldest first. A date order takes every page that
   matches into account, not only the best few.

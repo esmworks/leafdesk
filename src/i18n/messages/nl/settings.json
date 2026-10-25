@@ -84,7 +84,7 @@
       "ownPageViews": "weergaven tracking privacy afmelden statistieken",
       "aiUsageLimit": "budget kosten uitgaven limiet",
       "aiUsagePeople": "per persoon lid kosten tokens",
-      "health": "kapotte links verweesde duplicaten lege pagina’s",
+      "health": "kapotte links verweesde duplicaten lege pagina’s weblinks url 404",
       "audit": "logboek geschiedenis gebeurtenissen wie wijzigde",
       "siteHeader": "navigatie menu links bovenbalk",
       "siteDescription": "seo meta beschrijving zoekmachines voorbeeld open graph",
@@ -1079,6 +1079,19 @@
       "title": "Kapotte links",
       "description": "Links en vermeldingen in een pagina naar een pagina in de prullenbak of definitief verwijderd.",
       "none": "Geen kapotte links."
+    },
+    "brokenWebLinks": {
+      "title": "Kapotte weblinks",
+      "description": "Webadressen in pagina’s en URL-eigenschappen die niet meer werken. De server controleert elk adres ongeveer eens per week en toont een onbereikbare site pas als die een paar dagen achter elkaar faalt.",
+      "none": "Geen kapotte weblinks.",
+      "pending": "{count, plural, one {# adres wordt nog gecontroleerd.} other {# adressen worden nog gecontroleerd.}} Open dit tabblad later opnieuw.",
+      "skipped": "Niet gecontroleerd: deze server controleert geen weblinks.",
+      "notFound": "Niet gevonden ({status})",
+      "gone": "Verwijderd door de site ({status})",
+      "noHost": "Het adres van de site bestaat niet meer",
+      "serverError": "De site antwoordt met een fout ({status})",
+      "unreachable": "De site is niet bereikbaar",
+      "inProperty": "In {property}"
     },
     "orphans": {
       "title": "Pagina’s waar niets naartoe leidt",

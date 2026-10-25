@@ -1,0 +1,50 @@
+{
+  "extName": {
+    "message": "Spara i Leafdesk"
+  },
+  "extDescription": {
+    "message": "Spara sidan du är på, en länk eller texten du har markerat i din Leafdesk-arbetsyta."
+  },
+  "actionTitle": {
+    "message": "Spara den här sidan i Leafdesk"
+  },
+  "menuPage": {
+    "message": "Spara sidan i Leafdesk"
+  },
+  "menuLink": {
+    "message": "Spara länken i Leafdesk"
+  },
+  "menuSelection": {
+    "message": "Spara markeringen i Leafdesk"
+  },
+  "optionsTitle": {
+    "message": "Spara i Leafdesk"
+  },
+  "optionsAddress": {
+    "message": "Din Leafdesk-adress"
+  },
+  "optionsHelp": {
+    "message": "Adressen du öppnar Leafdesk på, till exempel https://leafdesk.example.com."
+  },
+  "optionsSave": {
+    "message": "Spara"
+  },
+  "optionsSaved": {
+    "message": "Sparat. Sidor du sparar öppnas i Leafdesks snabbanteckning."
+  },
+  "optionsInvalid": {
+    "message": "Ange en webbadress, till exempel https://leafdesk.example.com."
+  },
+  "optionsHowTitle": {
+    "message": "Så sparar du"
+  },
+  "optionsHowButton": {
+    "message": "Klicka på tilläggets knapp (eller tryck på Alt+Shift+S) för att spara sidan du är på, med texten du har markerat på den som citat."
+  },
+  "optionsHowMenu": {
+    "message": "Högerklicka på en sida, en länk eller markerad text och välj Spara i Leafdesk."
+  },
+  "optionsHowSignIn": {
+    "message": "Leafdesk öppnas i en ny flik: välj var det ska hamna, eller spara hela sidan. Logga in där om du inte redan har gjort det."
+  }
+}

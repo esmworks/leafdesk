@@ -1,0 +1,50 @@
+{
+  "extName": {
+    "message": "In Leafdesk speichern"
+  },
+  "extDescription": {
+    "message": "Speichere die Seite, auf der du bist, einen Link oder markierten Text in deinem Leafdesk-Arbeitsbereich."
+  },
+  "actionTitle": {
+    "message": "Diese Seite in Leafdesk speichern"
+  },
+  "menuPage": {
+    "message": "Seite in Leafdesk speichern"
+  },
+  "menuLink": {
+    "message": "Link in Leafdesk speichern"
+  },
+  "menuSelection": {
+    "message": "Auswahl in Leafdesk speichern"
+  },
+  "optionsTitle": {
+    "message": "In Leafdesk speichern"
+  },
+  "optionsAddress": {
+    "message": "Deine Leafdesk-Adresse"
+  },
+  "optionsHelp": {
+    "message": "Die Adresse, unter der du Leafdesk öffnest, etwa https://leafdesk.example.com."
+  },
+  "optionsSave": {
+    "message": "Speichern"
+  },
+  "optionsSaved": {
+    "message": "Gespeichert. Gespeicherte Seiten öffnen sich in der Schnellnotiz von Leafdesk."
+  },
+  "optionsInvalid": {
+    "message": "Gib eine Webadresse ein, etwa https://leafdesk.example.com."
+  },
+  "optionsHowTitle": {
+    "message": "So speicherst du"
+  },
+  "optionsHowButton": {
+    "message": "Klicke auf die Schaltfläche der Erweiterung (oder drücke Alt+Shift+S), um die aktuelle Seite zu speichern, mit dem darauf markierten Text als Zitat."
+  },
+  "optionsHowMenu": {
+    "message": "Klicke mit der rechten Maustaste auf eine Seite, einen Link oder markierten Text und wähle „In Leafdesk speichern“."
+  },
+  "optionsHowSignIn": {
+    "message": "Leafdesk öffnet sich in einem neuen Tab: Wähle, wohin es kommt, oder speichere die ganze Seite. Melde dich dort an, falls noch nicht geschehen."
+  }
+}

@@ -85,6 +85,7 @@
     "exportDisabledBody": "Ejerne af dette arbejdsområde har slået eksport og udskrivning af dets sider fra.",
     "showInGraph": "Vis i graf",
     "present": "Præsentér",
+    "readAloud": "Læs højt",
     "watch": "Følg",
     "watchHint": "Få besked i din indbakke, når en anden redigerer denne side eller starter en kommentartråd på den.",
     "mute": "Slå lyden fra",
@@ -777,6 +778,24 @@
     "morePlaces": "{count, plural, one {# sted mere} other {# steder mere}}",
     "fewerPlaces": "Vis færre",
     "morePages": "{count, plural, one {Vis # side mere} other {Vis # sider mere}}"
+  },
+  "related": {
+    "title": "Relaterede sider",
+    "hint": "Sider, der minder om denne i betydning, og som den endnu ikke linker til",
+    "edited": "redigeret {time}"
+  },
+  "readAloud": {
+    "label": "Højtlæsning",
+    "play": "Læs",
+    "pause": "Pause",
+    "previous": "Forrige blok",
+    "next": "Næste blok",
+    "close": "Stop oplæsningen",
+    "progress": "{current} af {total}",
+    "speed": "Hastighed",
+    "voice": "Stemme",
+    "unsupported": "Denne browser kan ikke læse sider højt.",
+    "nothing": "Der er intet at læse på denne side."
   },
   "blockMenu": {
     "copyLink": "Kopiér link til blok",
