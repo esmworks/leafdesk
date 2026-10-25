@@ -3,12 +3,13 @@
 import { createExtension } from "@blocknote/core";
 import { copyText } from "@/components/settings/copy-button";
 import { blockPath } from "@/lib/mentions";
-import { COPY_BLOCK_LINK_COMBO, STRIKE_COMBO } from "@/lib/shortcuts";
+import { CODE_LANGUAGE_COMBO, COPY_BLOCK_LINK_COMBO, STRIKE_COMBO } from "@/lib/shortcuts";
 
 /**
  * The page editor's keys besides BlockNote's (lib/shortcuts lists them for the shortcuts dialog):
  * Mod+Shift+X for strikethrough (as well as BlockNote's Mod+Shift+S), and Alt+Shift+L to copy a
- * link to the block the cursor is in, the same link as "Copy link to block" in the block menu.
+ * link to the block the cursor is in, the same link as "Copy link to block" in the block menu, and
+ * Mod+Alt+L in a code block to pick its language from the keyboard (code-block.tsx's menu).
  */
 
 /** Sent when a link to a block or a thread was copied; the editor shows "Link copied" (LinkCopiedNotice). */
@@ -39,6 +40,18 @@ export const editorShortcuts = (where: () => { workspaceId: string; pageId: stri
       [keyName(STRIKE_COMBO)]: ({ editor }) => {
         if (!editor.isEditable) return false;
         editor.toggleStyles({ strike: true } as never);
+        return true;
+      },
+      [keyName(CODE_LANGUAGE_COMBO)]: ({ editor }) => {
+        const block = editor.getTextCursorPosition().block;
+        if (!editor.isEditable || block?.type !== "codeBlock") return false;
+        const menu = editor.domElement?.querySelector<HTMLSelectElement>(`select[data-code-language="${CSS.escape(block.id)}"]`);
+        if (!menu) return false;
+        menu.focus();
+        // Opens the list where the browser can; elsewhere the focused menu takes arrow keys and typing.
+        try {
+          menu.showPicker();
+        } catch {}
         return true;
       },
       [keyName(COPY_BLOCK_LINK_COMBO)]: ({ editor }) => {

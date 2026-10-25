@@ -671,10 +671,10 @@
     "embed": {
       "title": "Embed",
       "subtext": "YouTube, Figma, Google Docs, Maps and more",
-      "aliases": "embed iframe youtube vimeo loom figma google docs sheets slides codepen spotify maps video hex deepnote pitch website",
+      "aliases": "embed iframe youtube vimeo loom figma google docs sheets slides codepen replit excalidraw framer sketch spotify maps video hex deepnote pitch website",
       "placeholder": "Paste a link to embed",
       "submit": "Embed",
-      "providers": "YouTube, Vimeo, Loom, Figma, published Google Docs, Sheets and Slides, CodePen, Spotify and Google Maps. Other https sites (Hex, Deepnote, Pitch …) show as they are where they allow it.",
+      "providers": "YouTube, Vimeo, Loom, Figma, published Google Docs, Sheets and Slides, CodePen, Replit, Excalidraw, Framer, Sketch, Spotify and Google Maps. Other https sites (Hex, Deepnote, Pitch …) show as they are where they allow it.",
       "frameTitle": "Embedded content from {host}",
       "label": "Embed",
       "resize": "Drag to change the embed’s width"
@@ -783,7 +783,10 @@
     "addTitle": "Add title",
     "removeTitle": "Remove title",
     "copyOriginalLink": "Copy link to original",
-    "openInNewTab": "Open in new tab"
+    "openInNewTab": "Open in new tab",
+    "quoteSize": "Quote size",
+    "quoteSizeDefault": "Default",
+    "quoteSizeLarge": "Large"
   },
   "imageLink": {
     "menuItem": "Link…",
@@ -812,7 +815,8 @@
     "comments": "Include comments",
     "hint": "Diagrams and equations print as text; use Print for the page exactly as it looks.",
     "download": "Download",
-    "preparing": "Preparing…"
+    "preparing": "Preparing…",
+    "textSize": "Text size"
   },
   "spreadsheet": {
     "untitled": "Workbook",

@@ -74,8 +74,13 @@ export const CodeBlock = createReactBlockSpec(
             {editor.isEditable ? (
               <select
                 aria-label={t("language")}
+                data-code-language={block.id}
                 value={value}
-                onChange={(event) => editor.updateBlock(block.id, { props: { language: event.target.value } })}
+                onChange={(event) => {
+                  editor.updateBlock(block.id, { props: { language: event.target.value } });
+                  // Picked from the keyboard (editor-shortcuts.ts), typing goes on in the code.
+                  if (event.target.matches(":focus-visible")) editor.focus();
+                }}
                 className="cursor-pointer appearance-none rounded bg-transparent px-1 py-0.5 text-xs text-white/50 outline-none transition-colors hover:bg-white/10 hover:text-white/80 focus-visible:bg-white/10 focus-visible:text-white/80"
               >
                 <option value={PLAIN_TEXT} className="text-black">

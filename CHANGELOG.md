@@ -12,6 +12,42 @@
   sends a message to an agent as the app's agent chat does and waits for its answer, and
   `get_agent_chat` reads those conversations. `move_page` takes `page_ids` to move several pages
   to one place. The tool list stays within its budget (90 tools, 164 KB).
+- **Report a published page.** Published pages and site pages have *Report page* at their foot,
+  for visitors without an account too: a reason, a few words and, if they like, an email address.
+  The workspace's owners hear about it in their inbox (once a day per page) and handle the open
+  reports in Settings → Security: *Take off the web* unpublishes the page, *Dismiss* closes the
+  report; reports and what was done with them are in the audit log (`page.reported`,
+  `page.report_dismissed`). Five reports an hour per address, thirty a day per public address.
+  Migration `0143_page_reports`.
+- **Large quotes.** A quote's block menu has *Quote size*: the size of the text around it, or large
+  for a pull quote, in the editor, on published pages, in the print view and in PDFs. Markdown and
+  MCP write `<!-- leafdesk:large-quote -->` before a large one.
+- **Chinese, Japanese and Korean text in PDFs.** *Export as PDF* sets CJK text in Noto Sans CJK, in
+  the face of the reader's language, where the server has the font. The Docker image now installs
+  Debian's `fonts-noto-cjk` (about 90 MB more); other installs add that package or its
+  equivalent, or keep printing such text as empty boxes as before.
+- **Replit, Excalidraw, Framer and Sketch embeds.** Links to a repl, an Excalidraw drawing (shared
+  or live), a Framer prototype or a Sketch document, artboard or prototype embed in their own
+  players, a pasted one offers *Embed*, and `/replit`, `/excalidraw`, `/framer` and `/sketch` find
+  the Embed block.
+- **Nested numbered lists count in letters and roman numerals.** A numbered list inside a numbered
+  list counts a, b, c, the next level in i, ii, iii, then numbers again, in the editor, on published
+  pages, in the print view and in PDFs.
+- **Text size of PDF exports.** *Export as PDF* has a *Text size* menu, from 75 to 150 percent;
+  the letterhead keeps its size.
+- **More currencies.** The number format menu offers over 40 currencies, and the one you last
+  picked comes first and is what the next new amount starts in.
+- **Julia code blocks** are colored like the other languages (`julia`, `jl`).
+- **A code block's language from the keyboard.** Cmd/Ctrl+Alt+L in a code block opens its language
+  menu; picking one goes back to the code.
+- **New quotes take the size last picked.** The *Quote size* picked in a quote's menu is what new
+  quotes start with in that browser.
+- **Faces for Chinese, Japanese and Korean.** Such text is set in sans and serif faces chosen for
+  each language (by the app's language), on pages, published pages and the page's *Serif* typeface.
+- **Back to where you were when switching workspaces.** With *Start page* set to the page opened
+  last, switching to another workspace opens the page you opened last there.
+- **A date mention's day in full.** Resting on a date mention shows its day with the weekday (and
+  its reminder, when it has one).
 - **Sub-groups on boards.** *Sub-group* on the Group page of a board's *View settings* splits the board into sections by a
   second property (a status, a select, a person, a date…), each holding every column: a card
   dragged into another section changes both values, and *New* in a section's column starts the
@@ -317,6 +353,9 @@
 
 ### Changed
 
+- **A copied column is as wide as the original.** Duplicating a property gives the copy's column the
+  original's width in every view that set one.
+- **Inline code isn't spell-checked.** The browser no longer underlines words in inline code.
 - **A smaller MCP tool list, with docs on demand.** Every client sends the tool list to its model at
   the start of each session; it goes from 99 tools and 277 KB to 86 tools and 158 KB, and the largest
   tool from 25 KB to 9 KB. What a model needs only now and then is now MCP resources,

@@ -89,7 +89,20 @@ export function bookmarkWidth(value: unknown): number | null {
 // Embeds
 
 /** A named provider, whose links are rewritten to its player; "web" is any other site, framed as it is (embedAny). */
-export type EmbedProvider = "youtube" | "vimeo" | "loom" | "figma" | "google" | "codepen" | "spotify" | "maps" | "web";
+export type EmbedProvider =
+  | "youtube"
+  | "vimeo"
+  | "loom"
+  | "figma"
+  | "google"
+  | "codepen"
+  | "replit"
+  | "excalidraw"
+  | "framer"
+  | "sketch"
+  | "spotify"
+  | "maps"
+  | "web";
 
 export type EmbedTarget = {
   provider: EmbedProvider;
@@ -107,6 +120,10 @@ export const EMBED_FRAME_ORIGINS = [
   "https://www.figma.com",
   "https://docs.google.com",
   "https://codepen.io",
+  "https://replit.com",
+  "https://excalidraw.com",
+  "https://framer.com",
+  "https://www.sketch.com",
   "https://open.spotify.com",
   "https://www.google.com",
 ] as const;
@@ -262,6 +279,53 @@ function codepen(url: URL): EmbedTarget | null {
   return { provider: "codepen", src: `https://codepen.io/${user}/embed/${slug}?default-tab=result`, height: 400 };
 }
 
+const SLUG = /^[A-Za-z0-9_.-]{1,100}$/;
+
+/** A repl, `replit.com/@user/name`, run in Replit's own player. */
+function replit(url: URL): EmbedTarget | null {
+  if (!hostIs(url, "replit.com", "www.replit.com", "repl.it")) return null;
+  const parts = segments(url);
+  if (parts.length !== 2 || !/^@[A-Za-z0-9_-]{1,64}$/.test(parts[0]) || !SLUG.test(parts[1])) return null;
+  return { provider: "replit", src: `https://replit.com/${parts[0]}/${parts[1]}?embed=true`, height: 500 };
+}
+
+/**
+ * A drawing shared from Excalidraw: a read-only link (`#json=id,key`) or a live session
+ * (`#room=id,key`). The key stays in the fragment, which never reaches Excalidraw's server.
+ */
+function excalidraw(url: URL): EmbedTarget | null {
+  if (!hostIs(url, "excalidraw.com", "www.excalidraw.com")) return null;
+  if (url.pathname !== "/" || url.search) return null;
+  const hash = /^#(json|room)=([A-Za-z0-9_-]{1,64}),([A-Za-z0-9_-]{1,64})$/.exec(url.hash);
+  if (!hash) return null;
+  return { provider: "excalidraw", src: `https://excalidraw.com/#${hash[1]}=${hash[2]},${hash[3]}`, height: 500 };
+}
+
+/** A prototype shared from Framer, `framer.com/share/<name>`. */
+function framer(url: URL): EmbedTarget | null {
+  if (!hostIs(url, "framer.com", "www.framer.com")) return null;
+  const parts = segments(url);
+  if (parts.length !== 2 || (parts[0] !== "share" && parts[0] !== "embed") || !SLUG.test(parts[1])) return null;
+  return { provider: "framer", src: `https://framer.com/embed/${parts[1]}`, height: 600 };
+}
+
+const SKETCH_ID = /^[A-Za-z0-9-]{1,64}$/;
+
+/** A Sketch document shared on the web, one of its artboards or a prototype. */
+function sketch(url: URL): EmbedTarget | null {
+  if (!hostIs(url, "sketch.com", "www.sketch.com")) return null;
+  let parts = segments(url);
+  if (parts[0] === "embed") parts = parts.slice(1);
+  if (parts[0] !== "s" || !parts[1] || !SKETCH_ID.test(parts[1])) return null;
+  const rest = parts.slice(2);
+  const ok =
+    rest.length === 0 ||
+    (rest.length === 2 && rest[0] === "a" && SKETCH_ID.test(rest[1])) ||
+    (rest.length === 3 && rest[0] === "p" && SKETCH_ID.test(rest[1]) && rest[2] === "play");
+  if (!ok) return null;
+  return { provider: "sketch", src: `https://www.sketch.com/embed/${parts.join("/")}`, height: 500 };
+}
+
 const SPOTIFY_KINDS = new Set(["track", "album", "playlist", "episode", "show", "artist"]);
 
 function spotify(url: URL): EmbedTarget | null {
@@ -313,7 +377,7 @@ function maps(url: URL): EmbedTarget | null {
   return { provider: "maps", src: `https://www.google.com/maps?${params}`, height: 450 };
 }
 
-const PROVIDERS = [youtube, vimeo, loom, figma, google, codepen, spotify, maps];
+const PROVIDERS = [youtube, vimeo, loom, figma, google, codepen, replit, excalidraw, framer, sketch, spotify, maps];
 
 /** The iframe for a pasted URL when it belongs to a named provider, else null (a pasted link then offers a bookmark). */
 export function embedFor(input: unknown): EmbedTarget | null {

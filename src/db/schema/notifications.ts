@@ -382,13 +382,22 @@ export const NOTIFICATION_KINDS = [
   "agent_report",
   "ai_account_detached",
   "sensitive_content",
+  "page_reported",
 ] as const;
 export type NotificationKind = (typeof NOTIFICATION_KINDS)[number];
 /**
  * Kinds that always show to the workspace's owners: an agent's call or notes waiting for them, a
- * scheduled run's report, the AI account the workspace ran on gone, or sensitive content found.
+ * scheduled run's report, the AI account the workspace ran on gone, sensitive content found, or a
+ * visitor's report about a published page.
  */
-export const OWNER_KINDS = ["agent_approval", "agent_memory", "agent_report", "ai_account_detached", "sensitive_content"] as const satisfies readonly NotificationKind[];
+export const OWNER_KINDS = [
+  "agent_approval",
+  "agent_memory",
+  "agent_report",
+  "ai_account_detached",
+  "sensitive_content",
+  "page_reported",
+] as const satisfies readonly NotificationKind[];
 export type OwnerKind = (typeof OWNER_KINDS)[number];
 export const isOwnerKind = (kind: string): kind is OwnerKind => (OWNER_KINDS as readonly string[]).includes(kind);
 /** Kinds people choose to hear about (not OWNER_KINDS). */
@@ -427,7 +436,9 @@ export type PreferenceKind = Exclude<NotificationKind, OwnerKind>;
  * "ai_account_detached": the workspace's AI no longer runs on `actorId`'s own AI account (they left
  * the workspace, deleted the account or their whole account); it has no page.
  * "sensitive_content": sensitive content of kind `message` (a SensitiveKind) was found on page
- * `pageId` (server/sensitive-content.ts); owners hear of a page and kind at most once a day. Unread ones are dropped when the change is
+ * `pageId` (server/sensitive-content.ts); owners hear of a page and kind at most once a day.
+ * "page_reported": a visitor reported published page `pageId` for reason `message` (a
+ * ReportReason, server/page-reports.ts). Unread ones are dropped when the change is
  * undone (or the request decided). Rows are recorded
  * whatever the user's preferences; the inbox leaves out the kinds they turned off.
  */

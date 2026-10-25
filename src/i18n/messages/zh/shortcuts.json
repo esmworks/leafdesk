@@ -43,6 +43,7 @@
     "moveUp": "上移块",
     "moveDown": "下移块",
     "copyBlockLink": "复制指向该块的链接",
+    "codeLanguage": "选择代码块的语言",
     "undo": "撤销",
     "redo": "重做",
     "openRow": "打开当前聚焦的行或卡片",

@@ -94,7 +94,8 @@
       "sensitiveContent": "dlp prevenção perda de dados cartão de crédito iban segredos tokens chaves verificar",
       "sensitiveFindings": "dlp ocorrências segredos vazados números de cartão dispensar",
       "domainPeople": "domínio contas usuários empresa e-mail shadow não gerenciadas",
-      "openOnStart": "início inicialização primeira página última visitada recente"
+      "openOnStart": "início inicialização primeira página última visitada recente",
+      "pageReports": "denunciar denúncia abuso reclamação remover publicada pública web páginas"
     }
   },
   "workspace": {
@@ -1531,6 +1532,18 @@
       "yourAddressMissing": "Seu endereço, {ip}, não está na lista: salvá-la deixaria você de fora, então adicione-o primeiro.",
       "lockoutHelp": "Se uma lista algum dia deixar todos de fora, um administrador da instância pode esvaziá-la na página de administração.",
       "memberView": "{count, plural, =0 {Desativado: o espaço de trabalho abre de qualquer rede.} one {Ativado: o espaço de trabalho só abre de # rede aprovada.} other {Ativado: o espaço de trabalho só abre de # redes aprovadas.}}"
+    },
+    "pageReports": {
+      "title": "Denúncias sobre páginas publicadas",
+      "description": "Os visitantes denunciam páginas publicadas pelo link no rodapé. Retire a página da web ou descarte a denúncia.",
+      "none": "Nenhuma denúncia aberta.",
+      "reportedAt": "Denunciada {when}",
+      "from": "De {email}",
+      "offline": "Já não está na web",
+      "unpublish": "Retirar da web",
+      "dismiss": "Descartar",
+      "more": "{count, plural, one {Mais # denúncia} other {Mais # denúncias}}",
+      "gone": "Esta denúncia já foi tratada."
     }
   },
   "legalHolds": {
@@ -1776,7 +1789,9 @@
         "unpublished": "Deixou de publicar {target}",
         "publication_revoked": "Tirou {target} da web (publicada por {subject})",
         "rows_merged": "Mesclou {count, plural, one {# linha} other {# linhas}} em {target}",
-        "publication_expiry_changed": "{change, select, removed {Removeu a validade do link web de {target}} other {Definiu que o link web de {target} para de funcionar em {to}}}"
+        "publication_expiry_changed": "{change, select, removed {Removeu a validade do link web de {target}} other {Definiu que o link web de {target} para de funcionar em {to}}}",
+        "reported": "Um visitante denunciou {target}: {reason, select, spam {spam ou golpe} harmful {conteúdo de ódio, violento ou de assédio} illegal {conteúdo ilegal} privacy {dados pessoais} copyright {direitos autorais} other {outra coisa}}",
+        "report_dismissed": "Descartou uma denúncia sobre {target}"
       },
       "property": {
         "access_changed": "Alterou quem pode acessar “{property}” em {target}",

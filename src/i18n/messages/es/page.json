@@ -671,10 +671,10 @@
     "embed": {
       "title": "Incrustar",
       "subtext": "YouTube, Figma, Google Docs, Maps y más",
-      "aliases": "incrustar insertar embed iframe youtube vimeo loom figma google docs documentos sheets hojas slides presentaciones codepen spotify maps mapas video vídeo hex deepnote pitch website",
+      "aliases": "incrustar insertar embed iframe youtube vimeo loom figma google docs documentos sheets hojas slides presentaciones codepen replit excalidraw framer sketch spotify maps mapas video vídeo hex deepnote pitch website",
       "placeholder": "Pega un enlace para incrustar",
       "submit": "Incrustar",
-      "providers": "YouTube, Vimeo, Loom, Figma, Google Docs, Sheets y Slides publicados, CodePen, Spotify y Google Maps. Otros sitios https (Hex, Deepnote, Pitch …) se muestran tal cual cuando lo permiten.",
+      "providers": "YouTube, Vimeo, Loom, Figma, Google Docs, Sheets y Slides publicados, CodePen, Replit, Excalidraw, Framer, Sketch, Spotify y Google Maps. Otros sitios https (Hex, Deepnote, Pitch …) se muestran tal cual cuando lo permiten.",
       "frameTitle": "Contenido incrustado de {host}",
       "label": "Contenido incrustado",
       "resize": "Arrastra para cambiar el ancho del contenido insertado"
@@ -783,7 +783,10 @@
     "addTitle": "Añadir título",
     "removeTitle": "Quitar título",
     "copyOriginalLink": "Copiar enlace original",
-    "openInNewTab": "Abrir en una pestaña nueva"
+    "openInNewTab": "Abrir en una pestaña nueva",
+    "quoteSize": "Tamaño de la cita",
+    "quoteSizeDefault": "Predeterminado",
+    "quoteSizeLarge": "Grande"
   },
   "imageLink": {
     "menuItem": "Enlace…",
@@ -812,7 +815,8 @@
     "comments": "Incluir comentarios",
     "hint": "Los diagramas y las ecuaciones se imprimen como texto; usa Imprimir para obtener la página tal como se ve.",
     "download": "Descargar",
-    "preparing": "Preparando…"
+    "preparing": "Preparando…",
+    "textSize": "Tamaño del texto"
   },
   "spreadsheet": {
     "untitled": "Libro",

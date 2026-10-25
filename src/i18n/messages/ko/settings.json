@@ -94,7 +94,8 @@
       "sensitiveContent": "dlp 데이터 유출 방지 신용카드 iban 비밀 토큰 키 검사",
       "sensitiveFindings": "dlp 발견 유출 비밀 카드 번호 무시",
       "domainPeople": "도메인 계정 사용자 회사 이메일 관리되지 않는",
-      "openOnStart": "시작 실행 첫 페이지 마지막 방문 최근"
+      "openOnStart": "시작 실행 첫 페이지 마지막 방문 최근",
+      "pageReports": "신고 악용 불만 게시 중단 게시된 공개 웹 페이지"
     }
   },
   "workspace": {
@@ -1531,6 +1532,18 @@
       "yourAddressMissing": "내 주소({ip})가 목록에 없습니다. 저장하면 들어갈 수 없게 되니 먼저 추가하세요.",
       "lockoutHelp": "목록 때문에 아무도 들어갈 수 없게 되면 인스턴스 관리자가 관리 페이지에서 목록을 비울 수 있습니다.",
       "memberView": "{count, plural, =0 {꺼짐: 어느 네트워크에서나 워크스페이스를 열 수 있습니다.} other {켜짐: 승인된 네트워크 #개에서만 워크스페이스를 열 수 있습니다.}}"
+    },
+    "pageReports": {
+      "title": "게시된 페이지 신고",
+      "description": "방문자는 게시된 페이지 하단의 링크로 신고합니다. 페이지를 웹에서 내리거나 신고를 무시하세요.",
+      "none": "처리할 신고가 없습니다.",
+      "reportedAt": "{when}에 신고됨",
+      "from": "보낸 사람: {email}",
+      "offline": "더 이상 웹에 없음",
+      "unpublish": "웹에서 내리기",
+      "dismiss": "무시",
+      "more": "{count, plural, other {신고 #건 더}}",
+      "gone": "이미 처리된 신고입니다."
     }
   },
   "legalHolds": {
@@ -1776,7 +1789,9 @@
         "unpublished": "{target}의 게시를 취소했습니다",
         "publication_revoked": "{target}을(를) 웹에서 내렸습니다({subject}이(가) 게시함)",
         "rows_merged": "행 {count}개를 {target}에 병합",
-        "publication_expiry_changed": "{change, select, removed {{target}의 웹 링크 만료를 제거했습니다} other {{target}의 웹 링크가 {to}에 작동을 멈추도록 설정했습니다}}"
+        "publication_expiry_changed": "{change, select, removed {{target}의 웹 링크 만료를 제거했습니다} other {{target}의 웹 링크가 {to}에 작동을 멈추도록 설정했습니다}}",
+        "reported": "방문자가 {target}을(를) 신고했습니다: {reason, select, spam {스팸 또는 사기} harmful {혐오, 폭력 또는 괴롭힘} illegal {불법 콘텐츠} privacy {개인정보} copyright {저작권} other {기타}}",
+        "report_dismissed": "{target}에 대한 신고를 무시함"
       },
       "property": {
         "access_changed": "{target}에서 “{property}”에 액세스할 수 있는 사람을 변경했습니다",

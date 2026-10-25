@@ -2,6 +2,7 @@
 
 import {
   BlockNoteSchema,
+  createStyleSpecFromTipTapMark,
   defaultBlockSpecs,
   defaultInlineContentSpecs,
   defaultStyleSpecs,
@@ -14,6 +15,7 @@ import { useTranslations } from "next-intl";
 import { useMemo } from "react";
 import { createInlineDatabaseAction } from "@/app/actions/embeds";
 import { DASHBOARD_BLOCK } from "@/lib/dashboard";
+import { quoteBlockSpec } from "@/lib/quote-block";
 import {
   DATABASE_BLOCK,
   databaseBlockConfig,
@@ -85,12 +87,24 @@ const LinkedViewBlock = createReactBlockSpec(linkedViewBlockConfig, {
   toExternalHTML: () => <div />,
 });
 
+/** Inline code as BlockNote has it, but never underlined by the browser's spelling check. */
+const inlineCode = createStyleSpecFromTipTapMark(
+  defaultStyleSpecs.code.implementation.mark.extend({
+    renderHTML({ HTMLAttributes }) {
+      return ["code", { ...HTMLAttributes, spellcheck: "false" }, 0];
+    },
+  }),
+  "boolean",
+);
+
 /** What tables offer in page editors: merging cells, colors for cells, rows and columns, and headers. */
 export const TABLE_SETTINGS = { splitCells: true, cellBackgroundColor: true, cellTextColor: true, headers: true };
 
 export const pageEditorSchema = BlockNoteSchema.create({
   blockSpecs: {
     ...defaultBlockSpecs,
+    // Quotes in the text's size or large (lib/quote-block).
+    quote: quoteBlockSpec(),
     // Images may link to a web address or a page (lib/image-links; editor-files.tsx opens it).
     image: linkedImageSpec(),
     // A language menu and colored code (see code-block.tsx).
@@ -122,7 +136,7 @@ export const pageEditorSchema = BlockNoteSchema.create({
   },
   inlineContentSpecs: { ...defaultInlineContentSpecs, ...contentInlineSpecs, ...mentionInlineSpecs },
   // Superscript and subscript (lib/text-scripts), shared with the server's schema.
-  styleSpecs: { ...defaultStyleSpecs, ...textScriptStyleSpecs },
+  styleSpecs: { ...defaultStyleSpecs, code: inlineCode, ...textScriptStyleSpecs },
 });
 
 export type PageEditor = BlockNoteEditor<

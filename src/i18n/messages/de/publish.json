@@ -84,5 +84,30 @@
   "cancelExpiry": "Abbrechen",
   "expiryPast": "Wähle einen Zeitpunkt in der Zukunft.",
   "expiryTooFar": "Wähle einen Zeitpunkt innerhalb der nächsten zehn Jahre.",
-  "expiredDescription": "Über den Link kann diese Seite samt Unterseiten gerade niemand öffnen: Besucher erfahren, dass sie nicht gefunden wurde."
+  "expiredDescription": "Über den Link kann diese Seite samt Unterseiten gerade niemand öffnen: Besucher erfahren, dass sie nicht gefunden wurde.",
+  "report": {
+    "link": "Seite melden",
+    "metaTitle": "Seite melden",
+    "title": "„{title}“ melden",
+    "description": "Sagen Sie den Verantwortlichen dieses Arbeitsbereichs, was mit dieser Seite nicht stimmt. Sie sehen Ihre Meldung, aber nicht, wer Sie sind – außer Sie geben eine E-Mail-Adresse an.",
+    "back": "Zurück zur Seite",
+    "reason": "Was stimmt nicht?",
+    "reasons": {
+      "spam": "Spam oder Betrug",
+      "harmful": "Hassvoll, gewalttätig oder belästigend",
+      "illegal": "Rechtswidrige Inhalte",
+      "privacy": "Teilt persönliche Daten einer Person",
+      "copyright": "Verletzt das Urheberrecht",
+      "other": "Etwas anderes"
+    },
+    "details": "Details (optional)",
+    "email": "Ihre E-Mail-Adresse (optional)",
+    "emailHint": "Nur wenn Sie eine Antwort möchten.",
+    "send": "Meldung senden",
+    "sent": "Danke. Ihre Meldung wurde an die Verantwortlichen dieses Arbeitsbereichs gesendet.",
+    "errors": {
+      "invalid": "Wählen Sie aus, was nicht stimmt, und prüfen Sie die E-Mail-Adresse.",
+      "rateLimited": "Sie haben gerade mehrere Meldungen gesendet. Versuchen Sie es gleich noch einmal."
+    }
+  }
 }

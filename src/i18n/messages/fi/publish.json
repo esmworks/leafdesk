@@ -84,5 +84,30 @@
   "cancelExpiry": "Peruuta",
   "expiryPast": "Valitse tuleva ajankohta.",
   "expiryTooFar": "Valitse ajankohta seuraavan kymmenen vuoden sisältä.",
-  "expiredDescription": "Kukaan ei voi nyt avata tätä sivua tai sen alasivuja linkin kautta: vierailijat näkevät, ettei sivua löytynyt."
+  "expiredDescription": "Kukaan ei voi nyt avata tätä sivua tai sen alasivuja linkin kautta: vierailijat näkevät, ettei sivua löytynyt.",
+  "report": {
+    "link": "Ilmoita sivusta",
+    "metaTitle": "Ilmoita sivusta",
+    "title": "Ilmoita sivusta ”{title}”",
+    "description": "Kerro tämän työtilan ylläpitäjille, mikä tässä sivussa on vialla. He näkevät ilmoituksesi mutta eivät sitä, kuka olet, ellet jätä sähköpostiosoitetta.",
+    "back": "Takaisin sivulle",
+    "reason": "Mikä on vialla?",
+    "reasons": {
+      "spam": "Roskapostia tai huijaus",
+      "harmful": "Vihamielistä, väkivaltaista tai häiritsevää",
+      "illegal": "Laitonta sisältöä",
+      "privacy": "Jakaa jonkun henkilötietoja",
+      "copyright": "Loukkaa tekijänoikeutta",
+      "other": "Jotain muuta"
+    },
+    "details": "Lisätiedot (valinnainen)",
+    "email": "Sähköpostiosoitteesi (valinnainen)",
+    "emailHint": "Vain jos haluat vastauksen.",
+    "send": "Lähetä ilmoitus",
+    "sent": "Kiitos. Ilmoituksesi lähetettiin tämän työtilan ylläpitäjille.",
+    "errors": {
+      "invalid": "Valitse, mikä on vialla, ja tarkista sähköpostiosoite.",
+      "rateLimited": "Lähetit juuri useita ilmoituksia. Yritä hetken kuluttua uudelleen."
+    }
+  }
 }

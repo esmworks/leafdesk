@@ -161,6 +161,8 @@ const withoutScripts = (styles: Inline["styles"]) => Object.fromEntries(Object.e
 
 /** The line written right before a callout hidden in print. */
 const NO_PRINT_MARKER = "<!-- leafdesk:no-print -->";
+/** The line written right before a quote in the large size (lib/quote-block). */
+const LARGE_QUOTE_MARKER = "<!-- leafdesk:large-quote -->";
 
 const TOKEN_LINE = (nonce: string) => new RegExp(`^([ \\t]*)leafdesk${nonce}b(\\d+)x[ \\t]*$`, "gm");
 
@@ -191,7 +193,7 @@ export function prepareMarkdownExport<B extends MdBlock>(
   const blockMarkdown: string[] = [];
   const inlineMarkdown: string[] = [];
   /** Callouts and quotes with nested blocks, by token: a quote has no marker line. */
-  const callouts: { marker: string | null; icon: string; hideInPrint: boolean }[] = [];
+  const callouts: { marker: string | null; icon: string; hideInPrint: boolean; large?: boolean }[] = [];
   /** Footnotes' notes, by token; numbered in the order the Markdown has them (see finish). */
   const notes: string[] = [];
   const blockToken = (markdown: string) => `leafdesk${nonce}b${blockMarkdown.push(markdown) - 1}x`;
@@ -356,11 +358,12 @@ export function prepareMarkdownExport<B extends MdBlock>(
         }
         case "quote":
         case CALLOUT_BLOCK: {
-          // A quote without nested blocks is BlockNote's own.
-          if (block.type === "quote" && !children.length) return { ...block, content: inline(block.content), children };
+          // A quote without nested blocks, in the usual size, is BlockNote's own.
+          const large = block.type === "quote" && block.props?.size === "large";
+          if (block.type === "quote" && !children.length && !large) return { ...block, content: inline(block.content), children };
           const i = callouts.push(
             block.type === "quote"
-              ? { marker: null, icon: "", hideInPrint: false }
+              ? { marker: null, icon: "", hideInPrint: false, large }
               : {
                   marker: calloutMarker(block.props),
                   icon: String(block.props?.icon ?? "").trim(),
@@ -422,11 +425,12 @@ export function prepareMarkdownExport<B extends MdBlock>(
   );
   const quoteCallouts = (markdown: string): string => {
     const quoted = markdown.replace(innerCallout, (_, indent: string, i: string, text: string) => {
-      const { marker, icon, hideInPrint } = callouts[Number(i)];
+      const { marker, icon, hideInPrint, large } = callouts[Number(i)];
       const lines = text.replace(/\s+$/, "").split("\n").map((line, n) => (n === 0 ? line : line.slice(indent.length)));
       if (icon) lines[0] = lines[0] ? `${icon} ${lines[0]}` : icon;
       const quoted = (marker ? [marker, ...lines] : lines).map((line) => `${indent}> ${line}`.trimEnd());
-      return (hideInPrint ? [`${indent}${NO_PRINT_MARKER}`, ...quoted] : quoted).join("\n");
+      const before = [...(hideInPrint ? [`${indent}${NO_PRINT_MARKER}`] : []), ...(large ? [`${indent}${LARGE_QUOTE_MARKER}`] : [])];
+      return [...before, ...quoted].join("\n");
     });
     return quoted === markdown ? markdown : quoteCallouts(quoted);
   };
@@ -484,7 +488,7 @@ type Pending =
   | { type: typeof MATH_BLOCK; latex: string }
   | { type: typeof TOC_BLOCK | typeof BREADCRUMB_BLOCK | typeof SUBPAGES_BLOCK }
   | { type: typeof CALLOUT_BLOCK; color: string; styleKey: string; title: string; markdown: string; hideInPrint: boolean }
-  | { type: "quote"; markdown: string }
+  | { type: "quote"; markdown: string; large: boolean }
   | { type: typeof BOOKMARK_BLOCK; url: string; title: string }
   | { type: typeof WEB_EMBED_BLOCK; url: string }
   | { type: typeof PAGE_LINK_BLOCK | typeof SYNCED_PAGE_BLOCK; pageId: string; blockId: string }
@@ -503,6 +507,7 @@ const FENCE_CLOSE = /^ {0,3}(`{3,}|~{3,})\s*$/;
 const CALLOUT_START = /^( {0,3})> ?\[!([A-Za-z0-9][A-Za-z0-9-]*)(?:\|([A-Za-z]*))?\][ \t]*(.*)$/;
 const QUOTE_LINE = /^( {0,3})> ?(.*)$/;
 const NO_PRINT_LINE = /^ {0,3}<!--\s*leafdesk:no-print\s*-->\s*$/;
+const LARGE_QUOTE_LINE = /^ {0,3}<!--\s*leafdesk:large-quote\s*-->\s*$/;
 /** A line that starts a block of its own, so it can't continue a quoted paragraph without its ">". */
 const BLOCK_START = /^\s*(?:$|#{1,6}(?:\s|$)|`{3,}|~{3,}|[*+-](?:\s|$)|\d{1,9}[.)](?:\s|$)|<|\$\$|\||(?:[*_-][ \t]*){3,}$|=+[ \t]*$)/;
 const MATH_OPEN = /^ {0,3}\$\$(.*)$/;
@@ -533,6 +538,7 @@ export function prepareMarkdownImport(markdown: string, nonce: string, { appUrl 
   };
   let fence: string | null = null;
   let hideNext = false;
+  let largeNext = false;
   for (let i = 0; i < lines.length; i++) {
     const line = lines[i];
     if (fence) {
@@ -608,6 +614,11 @@ export function prepareMarkdownImport(markdown: string, nonce: string, { appUrl 
       hideNext = true;
       continue;
     }
+    // The same for a quote in the large size.
+    if (LARGE_QUOTE_LINE.test(line) && QUOTE_LINE.test(lines[i + 1] ?? "") && !CALLOUT_START.test(lines[i + 1] ?? "")) {
+      largeNext = true;
+      continue;
+    }
     const pageLink = PAGE_LINK_LINE.exec(line);
     if (pageLink?.[2].toLowerCase() === "comment") {
       const thread = linkedCommentRef(pageLink[1], appUrl);
@@ -642,8 +653,9 @@ export function prepareMarkdownImport(markdown: string, nonce: string, { appUrl 
       const markdown = body.join("\n");
       // At the quote's indent: one under a list item stays in it.
       const indent = (callout ?? quote)![1];
-      blockLine(callout ? { type: CALLOUT_BLOCK, ...calloutOf(callout[2], callout[3], callout[4]), markdown, hideInPrint: hideNext } : { type: "quote", markdown }, indent);
+      blockLine(callout ? { type: CALLOUT_BLOCK, ...calloutOf(callout[2], callout[3], callout[4]), markdown, hideInPrint: hideNext } : { type: "quote", markdown, large: largeNext }, indent);
       hideNext = false;
+      largeNext = false;
       continue;
     }
     const math = MATH_OPEN.exec(line);
@@ -930,7 +942,7 @@ export async function finishMarkdownImport<B extends MdBlock>(
         const first = inner[0]?.type === "paragraph" ? inner.shift()! : null;
         return {
           type: "quote",
-          props: {},
+          props: pending.large ? { size: "large" } : {},
           content: Array.isArray(first?.content) ? first.content : [],
           children: [...(first?.children ?? []), ...inner],
         } as unknown as B;

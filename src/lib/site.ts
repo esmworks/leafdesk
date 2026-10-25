@@ -191,7 +191,7 @@ const APP_ICONS = new Set(["/icon.svg", "/favicon.ico", "/apple-icon.png"]);
 /**
  * Where a request on a site's own domain goes. Only the published site is served there: its pages
  * at the root, read with GET. Duplicating a page needs signing in, which happens at the app's
- * address; a site address of the app (`/s/<slug>/…`) leads to the same page at the root. Anything
+ * address, and so does reporting a page; a site address of the app (`/s/<slug>/…`) leads to the same page at the root. Anything
  * else — the app, sign-in, the API, MCP, the collaboration socket, a form — is not found, so no
  * session is ever used on a customer's host.
  */
@@ -203,11 +203,11 @@ export function routeOnSiteHost(method: string, path: string, slug: string, appU
   if (pathname.startsWith("/_next/") || FILE_PATH.test(pathname) || APP_ICONS.has(pathname)) return { kind: "pass" };
   // The MCP endpoint is a route of its own, outside the proxy that would serve the site there.
   if (pathname === "/mcp") return { kind: "notFound" };
-  if (pathname === "/duplicate") return { kind: "redirect", location: `${appUrl}/s/${slug}/duplicate${search}` };
+  if (pathname === "/duplicate" || pathname === "/report") return { kind: "redirect", location: `${appUrl}/s/${slug}${pathname}${search}` };
   if (pathname === "/" || ROOT_SEGMENT.test(pathname)) return { kind: "site" };
   if (pathname === `/s/${slug}` || pathname.startsWith(`/s/${slug}/`)) {
     const rest = pathname.slice(`/s/${slug}`.length) || "/";
-    if (rest === "/" || (ROOT_SEGMENT.test(rest) && rest !== "/duplicate")) return { kind: "redirect", location: `${rest}${search}` };
+    if (rest === "/" || (ROOT_SEGMENT.test(rest) && rest !== "/duplicate" && rest !== "/report")) return { kind: "redirect", location: `${rest}${search}` };
   }
   return { kind: "notFound" };
 }

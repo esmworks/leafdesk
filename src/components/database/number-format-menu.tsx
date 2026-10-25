@@ -30,6 +30,24 @@ const DECIMALS = [0, 1, 2, 3, 4];
 /** The currency a new currency format starts with: the one most people writing in the language use. */
 const LOCALE_CURRENCY: Record<string, string> = { tr: "TRY", de: "EUR", fr: "EUR", es: "EUR" };
 
+/** localStorage: the currency this browser last picked, offered first and taken by the next new currency format. */
+const LAST_CURRENCY_KEY = "leafdesk:last-currency";
+
+function lastCurrency(): string | null {
+  try {
+    const code = localStorage.getItem(LAST_CURRENCY_KEY);
+    return code && /^[A-Z]{3}$/.test(code) ? code : null;
+  } catch {
+    return null;
+  }
+}
+
+function rememberCurrency(code: string) {
+  try {
+    localStorage.setItem(LAST_CURRENCY_KEY, code);
+  } catch {}
+}
+
 const FORMAT_LABELS = { number: "formatNumber", percent: "formatPercent", currency: "formatCurrency" } as const;
 
 /** "TRY · Turkish lira" in the viewer's language, or the code alone where the browser can't name it. */
@@ -72,6 +90,7 @@ export function NumberFormatEditor({
   const currencyName = useCurrencyName();
   // Edited locally and saved per change; the parent applies it optimistically.
   const [format, setFormat] = useState<NumberFormat>(prop.options.number ?? { format: "number" });
+  const [recent] = useState(lastCurrency);
 
   const save = (next: NumberFormat) => {
     setFormat(next);
@@ -80,10 +99,11 @@ export function NumberFormatEditor({
   const choose = (kind: NumberFormatKind) => {
     if (kind === format.format) return;
     const { decimals } = format;
-    const currency = kind === "currency" ? (format.currency ?? LOCALE_CURRENCY[locale] ?? "USD") : undefined;
+    const currency = kind === "currency" ? (format.currency ?? recent ?? LOCALE_CURRENCY[locale] ?? "USD") : undefined;
     save({ format: kind, ...(currency ? { currency } : {}), ...(decimals !== undefined ? { decimals } : {}) });
   };
-  const currencies = format.currency && !COMMON_CURRENCIES.includes(format.currency) ? [format.currency, ...COMMON_CURRENCIES] : COMMON_CURRENCIES;
+  // The one last picked comes first, and the property's own is listed even when it isn't a common one.
+  const currencies = [...new Set([...(recent ? [recent] : []), ...(format.currency ? [format.currency] : []), ...COMMON_CURRENCIES])];
   const decimals = format.decimals !== undefined && !DECIMALS.includes(format.decimals) ? [...DECIMALS, format.decimals] : DECIMALS;
   const example = format.format === "percent" ? 0.155 : 1234.5;
 
@@ -122,7 +142,14 @@ export function NumberFormatEditor({
         {format.format === "currency" && (
           <label className="block">
             <span className="mb-1 block text-xs text-fg-muted">{t("formatCurrency")}</span>
-            <select className={menuFieldClass} value={format.currency} onChange={(e) => save({ ...format, currency: e.target.value })}>
+            <select
+              className={menuFieldClass}
+              value={format.currency}
+              onChange={(e) => {
+                rememberCurrency(e.target.value);
+                save({ ...format, currency: e.target.value });
+              }}
+            >
               {currencies.map((code) => (
                 <option key={code} value={code}>
                   {currencyName(code)}

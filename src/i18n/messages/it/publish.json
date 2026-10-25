@@ -84,5 +84,30 @@
   "cancelExpiry": "Annulla",
   "expiryPast": "Scegli una data futura.",
   "expiryTooFar": "Scegli una data entro i prossimi dieci anni.",
-  "expiredDescription": "Ora nessuno può aprire questa pagina o le sue sottopagine dal link: chi lo visita vede che non è stata trovata."
+  "expiredDescription": "Ora nessuno può aprire questa pagina o le sue sottopagine dal link: chi lo visita vede che non è stata trovata.",
+  "report": {
+    "link": "Segnala pagina",
+    "metaTitle": "Segnala pagina",
+    "title": "Segnala «{title}»",
+    "description": "Comunica a chi gestisce questo spazio di lavoro cosa non va in questa pagina. Vedranno la tua segnalazione, non chi sei, a meno che tu non lasci un indirizzo email.",
+    "back": "Torna alla pagina",
+    "reason": "Cosa non va?",
+    "reasons": {
+      "spam": "Spam o truffa",
+      "harmful": "Odio, violenza o molestie",
+      "illegal": "Contenuti illegali",
+      "privacy": "Condivide dati personali di qualcuno",
+      "copyright": "Viola il diritto d'autore",
+      "other": "Altro"
+    },
+    "details": "Dettagli (facoltativo)",
+    "email": "La tua email (facoltativa)",
+    "emailHint": "Solo se vuoi una risposta.",
+    "send": "Invia segnalazione",
+    "sent": "Grazie. La tua segnalazione è stata inviata a chi gestisce questo spazio di lavoro.",
+    "errors": {
+      "invalid": "Scegli cosa non va e controlla l'indirizzo email.",
+      "rateLimited": "Hai appena inviato diverse segnalazioni. Riprova tra poco."
+    }
+  }
 }

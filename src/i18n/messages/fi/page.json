@@ -671,10 +671,10 @@
     "embed": {
       "title": "Upotus",
       "subtext": "YouTube, Figma, Google Docs, Maps ja muuta",
-      "aliases": "embed iframe youtube vimeo loom figma google docs sheets slides codepen spotify maps video upotus upota hex deepnote pitch website",
+      "aliases": "embed iframe youtube vimeo loom figma google docs sheets slides codepen replit excalidraw framer sketch spotify maps video upotus upota hex deepnote pitch website",
       "placeholder": "Liitä upotettava linkki",
       "submit": "Upota",
-      "providers": "YouTube, Vimeo, Loom, Figma, julkaistut Google Docs-, Sheets- ja Slides-tiedostot, CodePen, Spotify ja Google Maps. Muut https-sivustot (Hex, Deepnote, Pitch …) näkyvät sellaisinaan, jos ne sallivat sen.",
+      "providers": "YouTube, Vimeo, Loom, Figma, julkaistut Google Docs-, Sheets- ja Slides-tiedostot, CodePen, Replit, Excalidraw, Framer, Sketch, Spotify ja Google Maps. Muut https-sivustot (Hex, Deepnote, Pitch …) näkyvät sellaisinaan, jos ne sallivat sen.",
       "frameTitle": "Upotettu sisältö sivustolta {host}",
       "label": "Upotus",
       "resize": "Vedä muuttaaksesi upotuksen leveyttä"
@@ -783,7 +783,10 @@
     "addTitle": "Lisää otsikko",
     "removeTitle": "Poista otsikko",
     "copyOriginalLink": "Kopioi alkuperäinen linkki",
-    "openInNewTab": "Avaa uudessa välilehdessä"
+    "openInNewTab": "Avaa uudessa välilehdessä",
+    "quoteSize": "Lainauksen koko",
+    "quoteSizeDefault": "Oletus",
+    "quoteSizeLarge": "Suuri"
   },
   "imageLink": {
     "menuItem": "Linkki…",
@@ -812,7 +815,8 @@
     "comments": "Sisällytä kommentit",
     "hint": "Kaaviot ja yhtälöt tulostuvat tekstinä; käytä Tulosta-toimintoa, jos haluat sivun täsmälleen sellaisena kuin se näkyy.",
     "download": "Lataa",
-    "preparing": "Valmistellaan…"
+    "preparing": "Valmistellaan…",
+    "textSize": "Tekstin koko"
   },
   "spreadsheet": {
     "untitled": "Työkirja",

@@ -32,6 +32,7 @@ export const CODE_LANGUAGES: Record<string, { name: string; aliases?: string[] }
   java: { name: "Java" },
   javascript: { name: "JavaScript", aliases: ["js", "mjs", "cjs"] },
   json: { name: "JSON" },
+  julia: { name: "Julia", aliases: ["jl"] },
   jsx: { name: "JSX" },
   kotlin: { name: "Kotlin", aliases: ["kt", "kts"] },
   latex: { name: "LaTeX", aliases: ["tex"] },

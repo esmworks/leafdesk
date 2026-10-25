@@ -84,5 +84,30 @@
   "cancelExpiry": "Annuleren",
   "expiryPast": "Kies een tijdstip in de toekomst.",
   "expiryTooFar": "Kies een tijdstip binnen de komende tien jaar.",
-  "expiredDescription": "Niemand kan deze pagina of haar subpagina’s nu via de link openen: bezoekers krijgen te zien dat ze niet gevonden is."
+  "expiredDescription": "Niemand kan deze pagina of haar subpagina’s nu via de link openen: bezoekers krijgen te zien dat ze niet gevonden is.",
+  "report": {
+    "link": "Pagina melden",
+    "metaTitle": "Pagina melden",
+    "title": "“{title}” melden",
+    "description": "Vertel de beheerders van deze werkruimte wat er mis is met deze pagina. Ze zien je melding, niet wie je bent, tenzij je een e-mailadres achterlaat.",
+    "back": "Terug naar de pagina",
+    "reason": "Wat is er mis?",
+    "reasons": {
+      "spam": "Spam of oplichting",
+      "harmful": "Haatdragend, gewelddadig of intimiderend",
+      "illegal": "Illegale inhoud",
+      "privacy": "Deelt iemands persoonsgegevens",
+      "copyright": "Schendt auteursrecht",
+      "other": "Iets anders"
+    },
+    "details": "Details (optioneel)",
+    "email": "Je e-mailadres (optioneel)",
+    "emailHint": "Alleen als je een antwoord wilt.",
+    "send": "Melding versturen",
+    "sent": "Bedankt. Je melding is naar de beheerders van deze werkruimte gestuurd.",
+    "errors": {
+      "invalid": "Kies wat er mis is en controleer het e-mailadres.",
+      "rateLimited": "Je hebt net meerdere meldingen verstuurd. Probeer het zo opnieuw."
+    }
+  }
 }

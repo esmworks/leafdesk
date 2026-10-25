@@ -228,7 +228,8 @@
     "reviewTitle": "Cần xem xét",
     "review": "{count, plural, other {# thay đổi đang chờ bạn xem xét, mới nhất từ {agent}}}",
     "automationRun": "Tự động hóa “{name}”",
-    "sensitiveContent": "Đã tìm thấy {kind, select, card {số thẻ thanh toán} iban {IBAN} national_id {số định danh cá nhân} private_key {khóa riêng tư} aws_key {khóa truy cập AWS} github_token {token GitHub} slack_token {token Slack} api_key {khóa API} jwt {JSON Web Token} other {nội dung nhạy cảm}} ở đây. Xem lại trong Cài đặt > Bảo mật."
+    "sensitiveContent": "Đã tìm thấy {kind, select, card {số thẻ thanh toán} iban {IBAN} national_id {số định danh cá nhân} private_key {khóa riêng tư} aws_key {khóa truy cập AWS} github_token {token GitHub} slack_token {token Slack} api_key {khóa API} jwt {JSON Web Token} other {nội dung nhạy cảm}} ở đây. Xem lại trong Cài đặt > Bảo mật.",
+    "pageReported": "Một khách truy cập đã báo cáo trang này: {reason, select, spam {spam hoặc lừa đảo} harmful {nội dung thù ghét, bạo lực hoặc quấy rối} illegal {nội dung bất hợp pháp} privacy {thông tin cá nhân} copyright {bản quyền} other {vấn đề khác}}. Xem trong Cài đặt > Bảo mật."
   },
   "templates": {
     "title": "Mẫu",

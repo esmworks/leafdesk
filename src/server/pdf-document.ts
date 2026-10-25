@@ -7,6 +7,7 @@ import { commentText } from "@/lib/comments";
 import { isEmbedBlockType } from "@/lib/embed-blocks";
 import type { ExportedThread } from "@/lib/export-comments";
 import { cropSvg, parseImageCrop } from "@/lib/image-crop";
+import { listStyleAt } from "@/lib/list-markers";
 import { SUBSCRIPT, SUPERSCRIPT } from "@/lib/text-scripts";
 import { BOOKMARK_BLOCK, WEB_EMBED_BLOCK } from "@/lib/web-blocks";
 import { tint, type LogoPlace } from "@/lib/letterheads";
@@ -58,7 +59,56 @@ export type PdfInput = {
   labels: { untitled: string; unavailable: string };
   /** What every page prints around the body; without one, page numbers when there are several pages. */
   letterhead?: PdfLetterhead | null;
+  /** How big the body's text is, 1 as it is (lib/pdf-text-scale); the letterhead keeps its size. */
+  textScale?: number;
+  /** The font Chinese, Japanese and Korean text is set in (pdf.ts cjkFont), which Roboto has no letters for; null leaves it in Roboto. */
+  cjkFont?: string | null;
 };
+
+/** Han, kana, Hangul, CJK punctuation and full-width forms: what Roboto can't draw and the CJK font can. */
+const CJK_TEXT = /([\u1100-\u11ff\u2e80-\u9fff\ua960-\ua97f\uac00-\ud7ff\uf900-\ufaff\ufe30-\ufe4f\uff00-\uffef\u{20000}-\u{3134f}]+)/u;
+
+/** `value` cut into runs, the CJK ones in `font`; the string itself when it has none. */
+function cjkRuns(value: string, font: string): string | ContentText[] {
+  if (!CJK_TEXT.test(value)) return value;
+  return value
+    .split(CJK_TEXT)
+    .filter(Boolean)
+    .map((part) => (CJK_TEXT.test(part) ? { text: part, font } : { text: part }));
+}
+
+/** `content` with its Chinese, Japanese and Korean text set in `font` (other text, images and data left as they are). */
+export function withCjkFont<T>(content: T, font: string | null | undefined): T {
+  if (!font) return content;
+  const walk = (node: unknown, inArray: boolean): unknown => {
+    if (typeof node === "string") {
+      if (!inArray) return node;
+      const runs = cjkRuns(node, font);
+      return typeof runs === "string" ? runs : { text: runs };
+    }
+    if (Array.isArray(node)) return node.map((item) => walk(item, true));
+    if (!node || typeof node !== "object") return node;
+    const out: Record<string, unknown> = {};
+    for (const [k, v] of Object.entries(node)) {
+      out[k] = k === "text" && typeof v === "string" ? cjkRuns(v, font) : k === "image" || k === "svg" || k === "qr" || k === "link" ? v : walk(v, false);
+    }
+    return out;
+  };
+  return walk(content, false) as T;
+}
+
+/** `content` with every font size in it times `factor` (images and other data left as they are). */
+function scaleFonts<T>(content: T, factor: number): T {
+  if (factor === 1) return content;
+  const walk = (node: unknown): unknown => {
+    if (Array.isArray(node)) return node.map(walk);
+    if (!node || typeof node !== "object") return node;
+    const out: Record<string, unknown> = {};
+    for (const [k, v] of Object.entries(node)) out[k] = k === "fontSize" && typeof v === "number" ? Math.round(v * factor * 10) / 10 : walk(v);
+    return out;
+  };
+  return walk(content) as T;
+}
 
 // Light theme (globals.css): text, muted and faint text, borders, subtle fill, links.
 const FG = "#1f2023";
@@ -186,16 +236,19 @@ function checkbox(checked: boolean): Column {
 }
 
 /** One list item: its text and what is nested in it. */
-function listItem(block: MdBlock, walk: Walk, width: number): Content {
-  const children = block.children?.length ? blocksContent(block.children, walk, width - INDENT) : [];
+function listItem(block: MdBlock, walk: Walk, width: number, depth: number): Content {
+  const children = block.children?.length ? blocksContent(block.children, walk, width - INDENT, block.type === "numberedListItem" ? depth + 1 : depth) : [];
   const text = paragraph(block, walk);
   return children.length ? { stack: [text, ...children] } : text;
 }
 
 const LIST_TYPES = new Set(["bulletListItem", "numberedListItem"]);
 
-/** Blocks as content, consecutive list items of a kind as one list. */
-function blocksContent(blocks: MdBlock[], walk: Walk, width = CONTENT_WIDTH): Content[] {
+/**
+ * Blocks as content, consecutive list items of a kind as one list. `depth` is how many numbered
+ * lists they are nested in, which picks how a numbered list counts (lib/list-markers).
+ */
+function blocksContent(blocks: MdBlock[], walk: Walk, width = CONTENT_WIDTH, depth = 0): Content[] {
   const out: Content[] = [];
   for (let i = 0; i < blocks.length; i++) {
     const block = blocks[i];
@@ -203,11 +256,17 @@ function blocksContent(blocks: MdBlock[], walk: Walk, width = CONTENT_WIDTH): Co
       const items: MdBlock[] = [];
       while (i < blocks.length && blocks[i].type === block.type) items.push(blocks[i++]);
       i--;
-      const list = items.map((item) => listItem(item, walk, width));
+      const list = items.map((item) => listItem(item, walk, width, depth));
       if (block.type === "bulletListItem") out.push({ ul: list, margin: [0, 0, 0, 6], markerColor: MUTED });
       else {
         const start = Number(prop(block, "start"));
-        out.push({ ol: list, margin: [0, 0, 0, 6], ...(Number.isInteger(start) && start > 1 ? { start } : {}) });
+        const style = listStyleAt(depth);
+        out.push({
+          ol: list,
+          margin: [0, 0, 0, 6],
+          ...(style !== "decimal" ? { type: style } : {}),
+          ...(Number.isInteger(start) && start > 1 ? { start } : {}),
+        });
       }
       continue;
     }
@@ -234,8 +293,11 @@ function blockContent(block: MdBlock, walk: Walk, width: number): Content[] {
       ];
     case "toggleListItem":
       return [{ ...paragraph(block, walk), margin: [0, 0, 0, 4] }, ...nested(block, walk, width)];
-    case "quote":
-      return [boxed([paragraph(block, walk), ...nested(block, walk, width - 12)], { edge: BORDER })];
+    case "quote": {
+      // A large quote (lib/quote-block) in bigger text; what is nested in it in the usual size.
+      const text = prop(block, "size") === "large" ? { ...paragraph(block, walk), fontSize: 14, lineHeight: 1.25 } : paragraph(block, walk);
+      return [boxed([text, ...nested(block, walk, width - 12)], { edge: BORDER })];
+    }
     case "codeBlock":
     case MERMAID_BLOCK:
       return [boxed([{ text: plainText(block.content) || " ", fontSize: 9, preserveLeadingSpaces: true, lineHeight: 1.2 }], { fill: SUBTLE })];
@@ -624,20 +686,27 @@ export function pdfDocument(input: PdfInput): TDocumentDefinitions {
   const footLines = letterhead ? linesOf(letterhead.footer).length : 0;
   const top = head ? HEAD_TOP + head + 8 + HEAD_BELOW : PAGE_MARGIN;
   const bottom = footLines ? Math.max(PAGE_MARGIN + 8, FOOT_TOP + 6 + footLines * FOOT_LINE + 20) : PAGE_MARGIN + 8;
-  const headContent = letterhead ? letterheadTop(letterhead) : null;
+  const headContent = letterhead ? withCjkFont(letterheadTop(letterhead), input.cjkFont) : null;
+  const scale = input.textScale ?? 1;
   return {
     pageSize: "A4",
     pageMargins: [PAGE_MARGIN, top, PAGE_MARGIN, bottom],
     info: { title: input.title || input.labels.untitled, creator: "Leafdesk", producer: "Leafdesk" },
-    defaultStyle: { font: "Roboto", fontSize: 10.5, lineHeight: 1.3, color: FG },
+    defaultStyle: { font: "Roboto", fontSize: Math.round(10.5 * scale * 10) / 10, lineHeight: 1.3, color: FG },
     ...(headContent ? { header: () => headContent } : {}),
     footer: (current: number, total: number) =>
       letterhead
-        ? letterheadFoot(letterhead, current, total)
+        ? withCjkFont(letterheadFoot(letterhead, current, total), input.cjkFont)
         : total > 1
           ? { text: `${current} / ${total}`, alignment: "right", fontSize: 8, color: FAINT, margin: [PAGE_MARGIN, 16, PAGE_MARGIN, 0] }
           : null,
-    content: input.sections.flatMap((section, i) => sectionContent(section, i, input)),
+    content: withCjkFont(
+      scaleFonts(
+        input.sections.flatMap((section, i) => sectionContent(section, i, input)),
+        scale,
+      ),
+      input.cjkFont,
+    ),
     // A heading at the foot of a page moves to the next one, with what follows it.
     pageBreakBefore: (node, pages) => typeof node.headlineLevel === "number" && pages.getFollowingNodesOnPage().length === 0,
   };

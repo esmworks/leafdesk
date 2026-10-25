@@ -43,6 +43,7 @@
     "moveUp": "Di chuyển khối lên",
     "moveDown": "Di chuyển khối xuống",
     "copyBlockLink": "Sao chép liên kết đến khối",
+    "codeLanguage": "Chọn ngôn ngữ cho khối mã",
     "undo": "Hoàn tác",
     "redo": "Làm lại",
     "openRow": "Mở hàng hoặc thẻ đang chọn",

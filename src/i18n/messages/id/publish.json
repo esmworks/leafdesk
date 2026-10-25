@@ -84,5 +84,30 @@
   "cancelExpiry": "Batal",
   "expiryPast": "Pilih waktu di masa mendatang.",
   "expiryTooFar": "Pilih waktu dalam sepuluh tahun ke depan.",
-  "expiredDescription": "Saat ini tidak ada yang bisa membuka halaman ini atau subhalamannya lewat tautan: pengunjung diberi tahu bahwa halaman tidak ditemukan."
+  "expiredDescription": "Saat ini tidak ada yang bisa membuka halaman ini atau subhalamannya lewat tautan: pengunjung diberi tahu bahwa halaman tidak ditemukan.",
+  "report": {
+    "link": "Laporkan halaman",
+    "metaTitle": "Laporkan halaman",
+    "title": "Laporkan “{title}”",
+    "description": "Beri tahu pengelola ruang kerja ini apa yang salah dengan halaman ini. Mereka melihat laporan Anda, bukan siapa Anda, kecuali Anda meninggalkan alamat email.",
+    "back": "Kembali ke halaman",
+    "reason": "Apa yang salah?",
+    "reasons": {
+      "spam": "Spam atau penipuan",
+      "harmful": "Kebencian, kekerasan, atau pelecehan",
+      "illegal": "Konten ilegal",
+      "privacy": "Membagikan informasi pribadi seseorang",
+      "copyright": "Melanggar hak cipta",
+      "other": "Hal lain"
+    },
+    "details": "Detail (opsional)",
+    "email": "Email Anda (opsional)",
+    "emailHint": "Hanya jika Anda ingin dibalas.",
+    "send": "Kirim laporan",
+    "sent": "Terima kasih. Laporan Anda telah dikirim ke pengelola ruang kerja ini.",
+    "errors": {
+      "invalid": "Pilih apa yang salah, dan periksa alamat email.",
+      "rateLimited": "Anda baru saja mengirim beberapa laporan. Coba lagi sebentar lagi."
+    }
+  }
 }

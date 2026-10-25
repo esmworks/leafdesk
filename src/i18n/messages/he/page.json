@@ -671,10 +671,10 @@
     "embed": {
       "title": "הטמעה",
       "subtext": "YouTube, Figma, Google Docs, Maps ועוד",
-      "aliases": "הטמעה וידאו מפות embed iframe youtube vimeo loom figma google docs sheets slides codepen spotify maps video hex deepnote pitch website",
+      "aliases": "הטמעה וידאו מפות embed iframe youtube vimeo loom figma google docs sheets slides codepen replit excalidraw framer sketch spotify maps video hex deepnote pitch website",
       "placeholder": "הדבקת קישור להטמעה",
       "submit": "הטמעה",
-      "providers": "YouTube, Vimeo, Loom, Figma, מסמכי Google Docs, Sheets ו־Slides שפורסמו, CodePen, Spotify ו־Google Maps. אתרי https אחרים (Hex, Deepnote, Pitch …) מוצגים כפי שהם כשהם מאפשרים זאת.",
+      "providers": "YouTube, Vimeo, Loom, Figma, מסמכי Google Docs, Sheets ו־Slides שפורסמו, CodePen, Replit, Excalidraw, Framer, Sketch, Spotify ו־Google Maps. אתרי https אחרים (Hex, Deepnote, Pitch …) מוצגים כפי שהם כשהם מאפשרים זאת.",
       "frameTitle": "תוכן מוטמע מ־{host}",
       "label": "הטמעה",
       "resize": "גררו כדי לשנות את רוחב התוכן המוטמע"
@@ -783,7 +783,10 @@
     "addTitle": "הוספת כותרת",
     "removeTitle": "הסרת הכותרת",
     "copyOriginalLink": "העתקת הקישור המקורי",
-    "openInNewTab": "פתיחה בכרטיסייה חדשה"
+    "openInNewTab": "פתיחה בכרטיסייה חדשה",
+    "quoteSize": "גודל ציטוט",
+    "quoteSizeDefault": "ברירת מחדל",
+    "quoteSizeLarge": "גדול"
   },
   "imageLink": {
     "menuItem": "קישור…",
@@ -812,7 +815,8 @@
     "comments": "לכלול תגובות",
     "hint": "תרשימים ומשוואות מודפסים כטקסט; כדי לקבל את הדף בדיוק כפי שהוא נראה, השתמשו ב„הדפסה”.",
     "download": "הורדה",
-    "preparing": "מכין…"
+    "preparing": "מכין…",
+    "textSize": "גודל טקסט"
   },
   "spreadsheet": {
     "untitled": "חוברת עבודה",

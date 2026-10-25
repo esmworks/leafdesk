@@ -281,7 +281,8 @@
     "aiAccountDetached": "워크스페이스의 AI가 더 이상 {actor}님의 키로 실행되지 않습니다.",
     "reviewTitle": "검토 대기",
     "review": "{count, plural, =1 {{agent}이(가) 검토할 변경을 제안했습니다} other {변경 #개가 검토를 기다립니다. 최근 제안: {agent}}}",
-    "sensitiveContent": "이 페이지에서 {kind, select, card {결제 카드 번호} iban {IBAN} national_id {신분증 번호} private_key {개인 키} aws_key {AWS 액세스 키} github_token {GitHub 토큰} slack_token {Slack 토큰} api_key {API 키} jwt {JSON Web Token} other {민감한 콘텐츠}}이(가) 발견되었습니다."
+    "sensitiveContent": "이 페이지에서 {kind, select, card {결제 카드 번호} iban {IBAN} national_id {신분증 번호} private_key {개인 키} aws_key {AWS 액세스 키} github_token {GitHub 토큰} slack_token {Slack 토큰} api_key {API 키} jwt {JSON Web Token} other {민감한 콘텐츠}}이(가) 발견되었습니다.",
+    "pageReported": "방문자가 이 페이지를 신고했습니다: {reason, select, spam {스팸 또는 사기} harmful {혐오, 폭력 또는 괴롭힘} illegal {불법 콘텐츠} privacy {개인정보} copyright {저작권} other {기타}}."
   },
   "agentReply": {
     "aiOff": "답할 수 없습니다: 이 워크스페이스에서 AI가 꺼져 있습니다.",

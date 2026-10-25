@@ -1,6 +1,7 @@
 import { strToU8, zipSync } from "fflate";
 import { env } from "@/lib/env";
 import { pageLabel } from "@/lib/labels";
+import { pdfTextScale } from "@/lib/pdf-text-scale";
 import { skillMarkdown, skillSlug } from "@/lib/skills";
 import { XLSX_MIME } from "@/lib/xlsx";
 import { AccessError } from "@/server/access";
@@ -69,7 +70,8 @@ async function requestedView(request: Request): Promise<ViewExport> {
  * `?format=xlsx` gives the rows as an Excel workbook instead, and `?format=skill` a skill as a ZIP of
  * `<name>/SKILL.md` (the folder AI assistants install skills from), and `?format=pdf` the page as a
  * PDF file made on the server (server/pdf.ts), in `?letterhead=<id>` (or `none`; the workspace's
- * default when left out), a row with its values under the title with `&properties=1`.
+ * default when left out), a row with its values under the title with `&properties=1`, its text
+ * bigger or smaller with `&scale=<percent>` (lib/pdf-text-scale).
  * `comments=1` adds the comment threads the user can see after each page, in Markdown, ZIP and PDF
  * exports (lib/export-comments).
  * With `?subpages=1`, the page or database with everything under it as a ZIP (see server/export);
@@ -136,6 +138,7 @@ export async function GET(request: Request, { params }: { params: Promise<{ page
           properties: query.get("properties") === "1",
           letterhead: query.get("letterhead") ?? undefined,
           comments,
+          textScale: pdfTextScale(query.get("scale")),
         });
         return new Response(new Uint8Array(pdf.bytes), {
           headers: { "Content-Type": "application/pdf", "Content-Disposition": attachment(pdf.title, "pdf"), "Cache-Control": "no-store" },

@@ -43,6 +43,7 @@
     "moveUp": "Siirrä lohkoa ylöspäin",
     "moveDown": "Siirrä lohkoa alaspäin",
     "copyBlockLink": "Kopioi linkki lohkoon",
+    "codeLanguage": "Valitse koodilohkon kieli",
     "undo": "Kumoa",
     "redo": "Tee uudelleen",
     "openRow": "Avaa valittu rivi tai kortti",

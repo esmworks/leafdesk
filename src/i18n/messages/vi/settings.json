@@ -94,7 +94,8 @@
       "sensitiveContent": "dlp chống rò rỉ dữ liệu thẻ tín dụng iban bí mật token khóa quét",
       "sensitiveFindings": "dlp phát hiện bí mật rò rỉ số thẻ bỏ qua",
       "domainPeople": "tên miền tài khoản người dùng công ty email không được quản lý",
-      "openOnStart": "khởi động mở đầu trang đầu tiên truy cập gần nhất gần đây"
+      "openOnStart": "khởi động mở đầu trang đầu tiên truy cập gần nhất gần đây",
+      "pageReports": "báo cáo lạm dụng khiếu nại gỡ xuất bản công khai web trang"
     }
   },
   "workspace": {
@@ -1531,6 +1532,18 @@
       "yourAddressMissing": "Địa chỉ của bạn, {ip}, không có trong danh sách: lưu danh sách sẽ khiến bạn bị khóa ở ngoài, nên hãy thêm nó trước.",
       "lockoutHelp": "Nếu một danh sách từng khóa tất cả mọi người ở ngoài, quản trị viên của hệ thống có thể xóa nó trên trang quản trị.",
       "memberView": "{count, plural, =0 {Tắt: không gian làm việc mở được từ mọi mạng.} other {Bật: không gian làm việc chỉ mở được từ # mạng được phê duyệt.}}"
+    },
+    "pageReports": {
+      "title": "Báo cáo về các trang đã xuất bản",
+      "description": "Khách truy cập báo cáo trang đã xuất bản qua liên kết ở cuối trang. Gỡ trang khỏi web hoặc bỏ qua báo cáo.",
+      "none": "Không có báo cáo nào đang mở.",
+      "reportedAt": "Báo cáo {when}",
+      "from": "Từ {email}",
+      "offline": "Không còn trên web",
+      "unpublish": "Gỡ khỏi web",
+      "dismiss": "Bỏ qua",
+      "more": "{count, plural, other {Còn # báo cáo}}",
+      "gone": "Báo cáo này đã được xử lý."
     }
   },
   "legalHolds": {
@@ -1776,7 +1789,9 @@
         "unpublished": "Đã hủy xuất bản {target}",
         "publication_revoked": "Đã gỡ {target} khỏi web (do {subject} xuất bản)",
         "rows_merged": "Đã gộp {count, plural, other {# hàng}} vào {target}",
-        "publication_expiry_changed": "{change, select, removed {Đã bỏ thời hạn của liên kết web {target}} other {Đã đặt liên kết web {target} ngừng hoạt động vào {to}}}"
+        "publication_expiry_changed": "{change, select, removed {Đã bỏ thời hạn của liên kết web {target}} other {Đã đặt liên kết web {target} ngừng hoạt động vào {to}}}",
+        "reported": "Một khách truy cập đã báo cáo {target}: {reason, select, spam {spam hoặc lừa đảo} harmful {nội dung thù ghét, bạo lực hoặc quấy rối} illegal {nội dung bất hợp pháp} privacy {thông tin cá nhân} copyright {bản quyền} other {vấn đề khác}}",
+        "report_dismissed": "Đã bỏ qua một báo cáo về {target}"
       },
       "property": {
         "access_changed": "Đã thay đổi ai có thể truy cập “{property}” trong {target}",

@@ -228,7 +228,8 @@
     "reviewTitle": "Do przejrzenia",
     "review": "{count, plural, one {{agent} proponuje zmianę do przejrzenia} few {# zmiany czekają, aż je przejrzysz, najnowsza od: {agent}} many {# zmian czeka, aż je przejrzysz, najnowsza od: {agent}} other {# zmiany czeka, aż ją przejrzysz, najnowsza od: {agent}}}",
     "automationRun": "Automatyzacja „{name}”",
-    "sensitiveContent": "Znaleziono tutaj {kind, select, card {numer karty płatniczej} iban {numer IBAN} national_id {krajowy numer identyfikacyjny} private_key {klucz prywatny} aws_key {klucz dostępu AWS} github_token {token GitHub} slack_token {token Slack} api_key {klucz API} jwt {token JWT (JSON Web Token)} other {poufne treści}}. Sprawdź w sekcji Ustawienia > Bezpieczeństwo."
+    "sensitiveContent": "Znaleziono tutaj {kind, select, card {numer karty płatniczej} iban {numer IBAN} national_id {krajowy numer identyfikacyjny} private_key {klucz prywatny} aws_key {klucz dostępu AWS} github_token {token GitHub} slack_token {token Slack} api_key {klucz API} jwt {token JWT (JSON Web Token)} other {poufne treści}}. Sprawdź w sekcji Ustawienia > Bezpieczeństwo.",
+    "pageReported": "Odwiedzający zgłosił tę stronę: {reason, select, spam {spam lub oszustwo} harmful {treści nienawistne, brutalne lub nękające} illegal {treści nielegalne} privacy {dane osobowe} copyright {prawa autorskie} other {coś innego}}. Sprawdź w Ustawienia > Bezpieczeństwo."
   },
   "templates": {
     "title": "Szablony",

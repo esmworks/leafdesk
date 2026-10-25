@@ -94,7 +94,8 @@
       "sensitiveContent": "dlp datenverlust sensible daten kreditkarte iban geheimnisse token schlüssel scannen",
       "sensitiveFindings": "dlp funde geleakte geheimnisse kartennummern verwerfen",
       "domainPeople": "domain konten benutzer firma e-mail schatten-it unverwaltet",
-      "openOnStart": "start starten erste seite zuletzt besucht"
+      "openOnStart": "start starten erste seite zuletzt besucht",
+      "pageReports": "melden meldung missbrauch beschwerde entfernen veröffentlicht öffentlich web seiten"
     }
   },
   "workspace": {
@@ -1531,6 +1532,18 @@
       "yourAddressMissing": "Deine Adresse, {ip}, steht nicht auf der Liste: Gespeichert würdest du ausgesperrt, füge sie also zuerst hinzu.",
       "lockoutHelp": "Sperrt eine Liste einmal alle aus, kann ein Instanz-Administrator sie auf der Admin-Seite leeren.",
       "memberView": "{count, plural, =0 {Aus: Der Workspace lässt sich aus jedem Netzwerk öffnen.} one {An: Der Workspace lässt sich nur aus # freigegebenen Netzwerk öffnen.} other {An: Der Workspace lässt sich nur aus # freigegebenen Netzwerken öffnen.}}"
+    },
+    "pageReports": {
+      "title": "Meldungen zu veröffentlichten Seiten",
+      "description": "Besucher melden veröffentlichte Seiten über den Link an deren Ende. Nehmen Sie die Seite aus dem Web oder verwerfen Sie die Meldung.",
+      "none": "Keine offenen Meldungen.",
+      "reportedAt": "Gemeldet {when}",
+      "from": "Von {email}",
+      "offline": "Nicht mehr im Web",
+      "unpublish": "Aus dem Web nehmen",
+      "dismiss": "Verwerfen",
+      "more": "{count, plural, one {# weitere Meldung} other {# weitere Meldungen}}",
+      "gone": "Diese Meldung wurde bereits bearbeitet."
     }
   },
   "legalHolds": {
@@ -1776,7 +1789,9 @@
         "unpublished": "Hat die Veröffentlichung von {target} beendet",
         "publication_revoked": "Hat {target} aus dem Web genommen (veröffentlicht von {subject})",
         "rows_merged": "Hat {count, plural, one {# Zeile} other {# Zeilen}} mit {target} zusammengeführt",
-        "publication_expiry_changed": "{change, select, removed {Hat den Ablauf des Web-Links von {target} entfernt} other {Hat den Web-Link von {target} bis {to} befristet}}"
+        "publication_expiry_changed": "{change, select, removed {Hat den Ablauf des Web-Links von {target} entfernt} other {Hat den Web-Link von {target} bis {to} befristet}}",
+        "reported": "Ein Besucher hat {target} gemeldet: {reason, select, spam {Spam oder Betrug} harmful {hassvolle, gewalttätige oder belästigende Inhalte} illegal {rechtswidrige Inhalte} privacy {persönliche Daten} copyright {Urheberrecht} other {etwas anderes}}",
+        "report_dismissed": "Eine Meldung zu {target} verworfen"
       },
       "property": {
         "access_changed": "Hat den Zugriff auf „{property}“ in {target} geändert",

@@ -14,7 +14,11 @@ export const NUMBER_FORMATS = ["number", "percent", "currency"] as const;
 export type NumberFormatKind = (typeof NUMBER_FORMATS)[number];
 
 /** Currencies the property menu offers first; any other ISO 4217 code works too (MCP). */
-export const COMMON_CURRENCIES = ["TRY", "EUR", "USD", "GBP", "CHF", "JPY", "CAD", "AUD", "CNY", "SEK", "NOK", "DKK", "PLN", "INR"];
+export const COMMON_CURRENCIES = [
+  "TRY", "EUR", "USD", "GBP", "CHF", "JPY", "CAD", "AUD", "CNY", "SEK", "NOK", "DKK", "PLN", "INR",
+  "AED", "ARS", "BRL", "CLP", "COP", "CZK", "EGP", "HKD", "HUF", "IDR", "ILS", "KRW", "MAD", "MXN",
+  "MYR", "NGN", "NZD", "PEN", "PHP", "RON", "RUB", "SAR", "SGD", "THB", "TWD", "UAH", "VND", "ZAR",
+];
 
 /** The Intl options a number format sets. */
 export type NumberFormatOptions = Pick<Intl.NumberFormatOptions, "style" | "currency" | "minimumFractionDigits" | "maximumFractionDigits">;

@@ -84,5 +84,30 @@
   "cancelExpiry": "Anuluj",
   "expiryPast": "Wybierz termin w przyszłości.",
   "expiryTooFar": "Wybierz termin w ciągu najbliższych dziesięciu lat.",
-  "expiredDescription": "Nikt nie może teraz otworzyć tej strony ani jej podstron przez link: odwiedzający widzą, że jej nie znaleziono."
+  "expiredDescription": "Nikt nie może teraz otworzyć tej strony ani jej podstron przez link: odwiedzający widzą, że jej nie znaleziono.",
+  "report": {
+    "link": "Zgłoś stronę",
+    "metaTitle": "Zgłoś stronę",
+    "title": "Zgłoś „{title}”",
+    "description": "Napisz osobom prowadzącym tę przestrzeń roboczą, co jest nie tak z tą stroną. Zobaczą Twoje zgłoszenie, ale nie to, kim jesteś, chyba że zostawisz adres e-mail.",
+    "back": "Wróć do strony",
+    "reason": "Co jest nie tak?",
+    "reasons": {
+      "spam": "Spam lub oszustwo",
+      "harmful": "Nienawiść, przemoc lub nękanie",
+      "illegal": "Treści nielegalne",
+      "privacy": "Ujawnia czyjeś dane osobowe",
+      "copyright": "Narusza prawa autorskie",
+      "other": "Coś innego"
+    },
+    "details": "Szczegóły (opcjonalnie)",
+    "email": "Twój e-mail (opcjonalnie)",
+    "emailHint": "Tylko jeśli chcesz otrzymać odpowiedź.",
+    "send": "Wyślij zgłoszenie",
+    "sent": "Dziękujemy. Twoje zgłoszenie trafiło do osób prowadzących tę przestrzeń roboczą.",
+    "errors": {
+      "invalid": "Wybierz, co jest nie tak, i sprawdź adres e-mail.",
+      "rateLimited": "Właśnie wysłano kilka zgłoszeń. Spróbuj ponownie za chwilę."
+    }
+  }
 }

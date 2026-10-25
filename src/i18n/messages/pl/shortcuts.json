@@ -43,6 +43,7 @@
     "moveUp": "Przenieś blok w górę",
     "moveDown": "Przenieś blok w dół",
     "copyBlockLink": "Kopiuj link do bloku",
+    "codeLanguage": "Wybierz język bloku kodu",
     "undo": "Cofnij",
     "redo": "Ponów",
     "openRow": "Otwórz zaznaczony wiersz lub kartę",

@@ -671,10 +671,10 @@
     "embed": {
       "title": "Indlejring",
       "subtext": "YouTube, Figma, Google Docs, Maps og mere",
-      "aliases": "embed iframe youtube vimeo loom figma google docs sheets slides codepen spotify maps video indlejr hex deepnote pitch website",
+      "aliases": "embed iframe youtube vimeo loom figma google docs sheets slides codepen replit excalidraw framer sketch spotify maps video indlejr hex deepnote pitch website",
       "placeholder": "Indsæt et link, der skal indlejres",
       "submit": "Indlejr",
-      "providers": "YouTube, Vimeo, Loom, Figma, udgivne Google Docs, Sheets og Slides, CodePen, Spotify og Google Maps. Andre https-sider (Hex, Deepnote, Pitch …) vises, som de er, hvor de tillader det.",
+      "providers": "YouTube, Vimeo, Loom, Figma, udgivne Google Docs, Sheets og Slides, CodePen, Replit, Excalidraw, Framer, Sketch, Spotify og Google Maps. Andre https-sider (Hex, Deepnote, Pitch …) vises, som de er, hvor de tillader det.",
       "frameTitle": "Indlejret indhold fra {host}",
       "label": "Indlejring",
       "resize": "Træk for at ændre indlejringens bredde"
@@ -783,7 +783,10 @@
     "addTitle": "Tilføj titel",
     "removeTitle": "Fjern titel",
     "copyOriginalLink": "Kopiér original link",
-    "openInNewTab": "Åbn i ny fane"
+    "openInNewTab": "Åbn i ny fane",
+    "quoteSize": "Citatstørrelse",
+    "quoteSizeDefault": "Standard",
+    "quoteSizeLarge": "Stor"
   },
   "imageLink": {
     "menuItem": "Link…",
@@ -812,7 +815,8 @@
     "comments": "Medtag kommentarer",
     "hint": "Diagrammer og ligninger udskrives som tekst; brug Udskriv for at få siden præcis, som den ser ud.",
     "download": "Hent",
-    "preparing": "Forbereder…"
+    "preparing": "Forbereder…",
+    "textSize": "Tekststørrelse"
   },
   "spreadsheet": {
     "untitled": "Projektmappe",

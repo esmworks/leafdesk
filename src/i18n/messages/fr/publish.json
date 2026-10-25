@@ -84,5 +84,30 @@
   "cancelExpiry": "Annuler",
   "expiryPast": "Choisissez une date dans le futur.",
   "expiryTooFar": "Choisissez une date dans les dix prochaines années.",
-  "expiredDescription": "Plus personne ne peut ouvrir cette page ni ses sous-pages avec le lien : les visiteurs voient qu’elle est introuvable."
+  "expiredDescription": "Plus personne ne peut ouvrir cette page ni ses sous-pages avec le lien : les visiteurs voient qu’elle est introuvable.",
+  "report": {
+    "link": "Signaler la page",
+    "metaTitle": "Signaler la page",
+    "title": "Signaler « {title} »",
+    "description": "Dites aux responsables de cet espace de travail ce qui ne va pas sur cette page. Ils voient votre signalement, pas qui vous êtes, sauf si vous laissez une adresse e-mail.",
+    "back": "Retour à la page",
+    "reason": "Quel est le problème ?",
+    "reasons": {
+      "spam": "Spam ou arnaque",
+      "harmful": "Haineux, violent ou harcelant",
+      "illegal": "Contenu illégal",
+      "privacy": "Partage des informations personnelles de quelqu'un",
+      "copyright": "Enfreint le droit d'auteur",
+      "other": "Autre chose"
+    },
+    "details": "Détails (facultatif)",
+    "email": "Votre e-mail (facultatif)",
+    "emailHint": "Seulement si vous souhaitez une réponse.",
+    "send": "Envoyer le signalement",
+    "sent": "Merci. Votre signalement a été envoyé aux responsables de cet espace de travail.",
+    "errors": {
+      "invalid": "Choisissez le problème et vérifiez l'adresse e-mail.",
+      "rateLimited": "Vous venez d'envoyer plusieurs signalements. Réessayez dans un moment."
+    }
+  }
 }

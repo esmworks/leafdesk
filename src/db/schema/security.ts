@@ -1,6 +1,7 @@
 import { sql } from "drizzle-orm";
 import { boolean, check, index, integer, pgTable, text, timestamp, uniqueIndex } from "drizzle-orm/pg-core";
 import type { AuditStreamErrorCode } from "../../lib/audit-stream";
+import type { ReportReason, ReportStatus } from "../../lib/page-reports";
 import type { SensitiveKind, SensitiveStatus } from "../../lib/sensitive-content";
 import { page, workspace } from "./app";
 import { auditEvent } from "./audit";
@@ -114,4 +115,42 @@ export const sensitiveScan = pgTable(
     scannedAt: timestamp("scanned_at", { withTimezone: true }).notNull().defaultNow(),
   },
   (t) => [index("sensitive_scan_workspace_idx").on(t.workspaceId)],
+);
+
+/**
+ * A visitor's report about a published page (server/page-reports.ts): `pageId` is the page they
+ * were reading, `publishedPageId` the page whose publication served it (taken off the web when an
+ * owner unpublishes). Who reported is kept only as the email address they chose to leave (and the
+ * account, when they were signed in). Open until an owner dismisses it or takes the page off the
+ * web; the workspace's owners hear about each one in their inbox.
+ */
+export const pageReport = pgTable(
+  "page_report",
+  {
+    id: text("id")
+      .primaryKey()
+      .$defaultFn(() => crypto.randomUUID()),
+    workspaceId: text("workspace_id")
+      .notNull()
+      .references(() => workspace.id, { onDelete: "cascade" }),
+    pageId: text("page_id")
+      .notNull()
+      .references(() => page.id, { onDelete: "cascade" }),
+    publishedPageId: text("published_page_id")
+      .notNull()
+      .references(() => page.id, { onDelete: "cascade" }),
+    reason: text("reason").$type<ReportReason>().notNull(),
+    details: text("details").notNull().default(""),
+    email: text("email"),
+    reporterId: text("reporter_id").references(() => user.id, { onDelete: "set null" }),
+    status: text("status").$type<ReportStatus>().notNull().default("open"),
+    createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+    handledAt: timestamp("handled_at", { withTimezone: true }),
+    handledBy: text("handled_by").references(() => user.id, { onDelete: "set null" }),
+  },
+  (t) => [
+    index("page_report_workspace_idx").on(t.workspaceId, t.status, t.createdAt),
+    index("page_report_page_idx").on(t.pageId),
+    check("page_report_status_check", sql`${t.status} in ('open', 'dismissed', 'unpublished')`),
+  ],
 );

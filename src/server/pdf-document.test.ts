@@ -1,3 +1,4 @@
+import { existsSync } from "node:fs";
 import { describe, expect, it } from "vitest";
 import pdfmake from "pdfmake";
 import roboto from "pdfmake/fonts/Roboto.js";
@@ -223,5 +224,50 @@ describe("pdfDocument", () => {
     expect(read).toContain("Sayın ESM Soğutma");
     expect(read).toContain("İstanbul");
     expect(read).toContain("ödeme: 90 gün çek");
+  });
+
+  it("counts nested numbered lists in letters, then roman numerals", () => {
+    const deep = block("numberedListItem", [text("a")], {}, [block("numberedListItem", [text("i")])]);
+    const content = contentOf(input([block("numberedListItem", [text("1")], {}, [deep])]));
+    const json = JSON.stringify(content);
+    expect(json).toContain('"type":"lower-alpha"');
+    expect(json).toContain('"type":"lower-roman"');
+    expect((content[1] as { type?: string }).type).toBeUndefined();
+  });
+
+  it("scales the body's text, not the letterhead's", () => {
+    const letterhead = { logo: null, logoPlace: "center" as const, header: "ESM", footer: "", accent: "", pageNumbers: true };
+    const plain = pdfDocument({ ...input([block("heading", [text("Part")], { level: 2 })]), letterhead });
+    const big = pdfDocument({ ...input([block("heading", [text("Part")], { level: 2 })]), letterhead, textScale: 1.5 });
+    expect(big.defaultStyle?.fontSize).toBe(15.8);
+    const sizes = (doc: typeof plain) => [...JSON.stringify(doc.content).matchAll(/"fontSize":([\d.]+)/g)].map((m) => Number(m[1]));
+    expect(sizes(big)).toEqual(sizes(plain).map((n) => Math.round(n * 15) / 10));
+    expect(JSON.stringify(typeof big.header === "function" ? big.header(1, 1, { width: 0, height: 0, orientation: "portrait" }) : null)).toBe(
+      JSON.stringify(typeof plain.header === "function" ? plain.header(1, 1, { width: 0, height: 0, orientation: "portrait" }) : null),
+    );
+  });
+
+  it("sets Chinese, Japanese and Korean text in the CJK font, the rest in Roboto", () => {
+    const content = contentOf({ ...input([block("paragraph", [text("Offer 見積書 for 한국")])]), cjkFont: "CJK" });
+    expect(content[1]).toMatchObject({
+      text: [{ text: [{ text: "Offer " }, { text: "見積書", font: "CJK" }, { text: " for " }, { text: "한국", font: "CJK" }] }],
+    });
+    // Without a CJK font nothing changes.
+    expect(JSON.stringify(contentOf(input([block("paragraph", [text("見積書")])])))).not.toContain('"font"');
+  });
+
+  const NOTO = "/usr/share/fonts/opentype/noto/NotoSansCJK-Regular.ttc";
+  it.skipIf(!existsSync(NOTO))("renders CJK text that reads back where Noto Sans CJK is installed", async () => {
+    const face = [NOTO, "NotoSansCJKjp-Regular"] as unknown as string;
+    pdfmake.setFonts({ ...roboto, CJK: { normal: face, bold: face } });
+    pdfmake.setLocalAccessPolicy(() => true);
+    const bytes = await pdfmake
+      .createPdf(pdfDocument({ ...input([block("paragraph", [text("見積書 — 한국어, 中文 and English")])]), cjkFont: "CJK" }))
+      .getBuffer();
+    const { extractText, getDocumentProxy } = await import("unpdf");
+    const { text: read } = await extractText(await getDocumentProxy(new Uint8Array(bytes)), { mergePages: true });
+    expect(read).toContain("見積書");
+    expect(read).toContain("한국어");
+    expect(read).toContain("English");
   });
 });

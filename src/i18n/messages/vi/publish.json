@@ -84,5 +84,30 @@
   "cancelExpiry": "Hủy",
   "expiryPast": "Hãy chọn một thời điểm trong tương lai.",
   "expiryTooFar": "Hãy chọn một thời điểm trong vòng mười năm tới.",
-  "expiredDescription": "Hiện không ai mở được trang này hay các trang con qua liên kết: khách truy cập sẽ thấy trang không tồn tại."
+  "expiredDescription": "Hiện không ai mở được trang này hay các trang con qua liên kết: khách truy cập sẽ thấy trang không tồn tại.",
+  "report": {
+    "link": "Báo cáo trang",
+    "metaTitle": "Báo cáo trang",
+    "title": "Báo cáo “{title}”",
+    "description": "Cho những người quản lý không gian làm việc này biết trang này có vấn đề gì. Họ thấy báo cáo của bạn, không biết bạn là ai, trừ khi bạn để lại email.",
+    "back": "Quay lại trang",
+    "reason": "Có vấn đề gì?",
+    "reasons": {
+      "spam": "Spam hoặc lừa đảo",
+      "harmful": "Thù ghét, bạo lực hoặc quấy rối",
+      "illegal": "Nội dung bất hợp pháp",
+      "privacy": "Chia sẻ thông tin cá nhân của người khác",
+      "copyright": "Vi phạm bản quyền",
+      "other": "Vấn đề khác"
+    },
+    "details": "Chi tiết (không bắt buộc)",
+    "email": "Email của bạn (không bắt buộc)",
+    "emailHint": "Chỉ khi bạn muốn được phản hồi.",
+    "send": "Gửi báo cáo",
+    "sent": "Cảm ơn bạn. Báo cáo đã được gửi tới những người quản lý không gian làm việc này.",
+    "errors": {
+      "invalid": "Chọn vấn đề và kiểm tra địa chỉ email.",
+      "rateLimited": "Bạn vừa gửi nhiều báo cáo. Hãy thử lại sau ít phút."
+    }
+  }
 }

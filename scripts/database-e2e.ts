@@ -170,7 +170,14 @@ try {
   const editedAt = async (rowId: string) =>
     (await db.select({ at: page.updatedAt }).from(page).where(eq(page.id, rowId)))[0].at.getTime();
   const before = await editedAt(r1.id);
+  const [firstView] = await db.select().from(databaseView).where(eq(databaseView.databaseId, tasks.id)).limit(1);
+  await db
+    .update(databaseView)
+    .set({ config: { ...firstView.config, columnWidths: { ...firstView.config.columnWidths, [tags.id]: 321 } } })
+    .where(eq(databaseView.id, firstView.id));
   const tagsCopy = await duplicateProperty(ids.owner, tags.id, "Tags (copy)");
+  const [widened] = await db.select().from(databaseView).where(eq(databaseView.id, firstView.id));
+  check(widened.config.columnWidths?.[tagsCopy.id] === 321, "a copied column is as wide as the original", widened.config.columnWidths);
   const tagsCopy2 = await duplicateProperty(ids.owner, tags.id, "Tags (copy)");
   const after = await values(r1.id);
   check(

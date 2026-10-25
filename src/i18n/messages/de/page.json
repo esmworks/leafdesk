@@ -671,10 +671,10 @@
     "embed": {
       "title": "Einbetten",
       "subtext": "YouTube, Figma, Google Docs, Maps und mehr",
-      "aliases": "embed iframe youtube vimeo loom figma google docs sheets slides codepen spotify maps video einbetten karten hex deepnote pitch website",
+      "aliases": "embed iframe youtube vimeo loom figma google docs sheets slides codepen replit excalidraw framer sketch spotify maps video einbetten karten hex deepnote pitch website",
       "placeholder": "Link zum Einbetten einfügen",
       "submit": "Einbetten",
-      "providers": "YouTube, Vimeo, Loom, Figma, veröffentlichte Google Docs, Sheets und Slides, CodePen, Spotify und Google Maps. Andere https-Seiten (Hex, Deepnote, Pitch …) erscheinen so, wie sie sind, wenn sie es zulassen.",
+      "providers": "YouTube, Vimeo, Loom, Figma, veröffentlichte Google Docs, Sheets und Slides, CodePen, Replit, Excalidraw, Framer, Sketch, Spotify und Google Maps. Andere https-Seiten (Hex, Deepnote, Pitch …) erscheinen so, wie sie sind, wenn sie es zulassen.",
       "frameTitle": "Eingebetteter Inhalt von {host}",
       "label": "Einbettung",
       "resize": "Ziehen, um die Breite der Einbettung zu ändern"
@@ -783,7 +783,10 @@
     "addTitle": "Titel hinzufügen",
     "removeTitle": "Titel entfernen",
     "copyOriginalLink": "Originallink kopieren",
-    "openInNewTab": "In neuem Tab öffnen"
+    "openInNewTab": "In neuem Tab öffnen",
+    "quoteSize": "Zitatgröße",
+    "quoteSizeDefault": "Standard",
+    "quoteSizeLarge": "Groß"
   },
   "imageLink": {
     "menuItem": "Link…",
@@ -812,7 +815,8 @@
     "comments": "Kommentare einschließen",
     "hint": "Diagramme und Formeln werden als Text gedruckt; mit Drucken erhalten Sie die Seite genau so, wie sie aussieht.",
     "download": "Herunterladen",
-    "preparing": "Wird vorbereitet…"
+    "preparing": "Wird vorbereitet…",
+    "textSize": "Textgröße"
   },
   "spreadsheet": {
     "untitled": "Arbeitsmappe",

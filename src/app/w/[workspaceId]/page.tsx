@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { redirect } from "next/navigation";
 import { getFormatter, getTimeZone, getTranslations } from "next-intl/server";
 import { TodayNoteSection } from "@/components/journal/today-note-section";
 import { AssignedSection } from "@/components/workspace/assigned-section";
@@ -11,12 +12,25 @@ import { assignedRows } from "@/server/assigned";
 import { listDailyNotes } from "@/server/journal";
 import { recentlyViewedPages } from "@/server/page-views";
 import { parentTitles, recentPages } from "@/server/pages";
+import { workspaceResumePath } from "@/server/open-on-start";
 import { requireWorkspaceSession } from "@/server/session";
 import { topLevelAccess } from "@/server/workspaces";
 
-export default async function WorkspaceHome({ params }: { params: Promise<{ workspaceId: string }> }) {
-  const { workspaceId } = await params;
+export default async function WorkspaceHome({
+  params,
+  searchParams,
+}: {
+  params: Promise<{ workspaceId: string }>;
+  searchParams: Promise<{ resume?: string | string[] }>;
+}) {
+  const [{ workspaceId }, query] = await Promise.all([params, searchParams]);
   const { user } = await requireWorkspaceSession(workspaceId);
+  // Switching workspaces (`?resume`, the sidebar's menu) goes back to the page opened last there
+  // for those who start on the page they opened last (lib/open-on-start.ts).
+  if (query.resume !== undefined) {
+    const path = await workspaceResumePath(user.id, workspaceId);
+    if (path) redirect(path);
+  }
   const now = new Date();
   // Today in the viewer's time zone, so a row due today counts as today wherever they are.
   const timeZone = await getTimeZone();

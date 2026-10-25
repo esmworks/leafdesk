@@ -28,6 +28,7 @@ import {
   tocBlockConfig,
 } from "@/lib/content-blocks";
 import { columnBlockSpecs } from "@/lib/columns";
+import { quoteBlockSpec } from "@/lib/quote-block";
 import { finishMarkdownImport, plainText, prepareMarkdownExport, prepareMarkdownImport } from "@/lib/content-markdown";
 import {
   mentionConfig,
@@ -274,6 +275,8 @@ const mention = createInlineContentSpec(mentionConfig, {
 export const pageSchema = BlockNoteSchema.create({
   blockSpecs: {
     ...defaultBlockSpecs,
+    // Quotes in the text's size or large (lib/quote-block).
+    quote: quoteBlockSpec(),
     // Images may link to a web address or a page (lib/image-links).
     image: linkedImageSpec(),
     // Files and audio may be aligned, and a file shown in place made narrower (lib/media-blocks).

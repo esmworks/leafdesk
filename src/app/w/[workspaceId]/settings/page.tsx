@@ -31,6 +31,7 @@ import { AiUsagePanel } from "@/components/settings/ai-usage-panel";
 import { AuditPanel } from "@/components/settings/audit-panel";
 import { AuditStreamSettings } from "@/components/settings/audit-stream-settings";
 import { DomainPeople } from "@/components/settings/domain-people";
+import { PageReports } from "@/components/settings/page-reports";
 import { SensitiveContentSetting, SensitiveFindings } from "@/components/settings/sensitive-content-settings";
 import { ConnectionsPanel } from "@/components/settings/connections-panel";
 import { GroupsPanel } from "@/components/settings/groups-panel";
@@ -119,6 +120,7 @@ import { workspaceAnalytics } from "@/server/analytics";
 import { ownPageViews } from "@/server/page-views";
 import { auditActors, listAuditEvents } from "@/server/audit";
 import { getAuditStream } from "@/server/audit-stream";
+import { listPageReports } from "@/server/page-reports";
 import { listSensitiveFindings } from "@/server/sensitive-content";
 import { listWorkspaceFormPublications } from "@/server/forms";
 import { listJoinRequests } from "@/server/join-requests";
@@ -492,7 +494,10 @@ async function SecurityTab({ workspaceId, userId, isOwner }: { workspaceId: stri
       isOwner && !local ? domainPeople(userId, workspaceId) : null,
       getTranslations("settings"),
     ]);
-  const findings = isOwner && settings.sensitiveContent ? await listSensitiveFindings(userId, workspaceId) : null;
+  const [findings, reports] = await Promise.all([
+    isOwner && settings.sensitiveContent ? listSensitiveFindings(userId, workspaceId) : null,
+    isOwner && !local ? listPageReports(userId, workspaceId) : null,
+  ]);
   const setup = ssoSetupInfo(workspaceId);
   return (
     <div className="space-y-10">
@@ -628,6 +633,11 @@ async function SecurityTab({ workspaceId, userId, isOwner }: { workspaceId: stri
           description={t(settings.publishing === "off" ? "security.publications.off" : "security.publications.description")}
         >
           <PublishedPages workspaceId={workspaceId} publications={publications} />
+        </SettingsGroup>
+      )}
+      {reports && (
+        <SettingsGroup anchor="pageReports" title={t("security.pageReports.title")} description={t("security.pageReports.description")}>
+          <PageReports workspaceId={workspaceId} reports={reports.reports} total={reports.total} />
         </SettingsGroup>
       )}
       {forms && (

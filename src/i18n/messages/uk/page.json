@@ -671,10 +671,10 @@
     "embed": {
       "title": "Вбудувати",
       "subtext": "YouTube, Figma, Google Docs, Maps тощо",
-      "aliases": "embed iframe youtube vimeo loom figma google docs sheets slides codepen spotify maps video вбудувати відео карти hex deepnote pitch website",
+      "aliases": "embed iframe youtube vimeo loom figma google docs sheets slides codepen replit excalidraw framer sketch spotify maps video вбудувати відео карти hex deepnote pitch website",
       "placeholder": "Вставте посилання для вбудовування",
       "submit": "Вбудувати",
-      "providers": "YouTube, Vimeo, Loom, Figma, опубліковані Google Docs, Sheets і Slides, CodePen, Spotify та Google Maps. Інші сайти https (Hex, Deepnote, Pitch …) показуються як є, якщо вони це дозволяють.",
+      "providers": "YouTube, Vimeo, Loom, Figma, опубліковані Google Docs, Sheets і Slides, CodePen, Replit, Excalidraw, Framer, Sketch, Spotify та Google Maps. Інші сайти https (Hex, Deepnote, Pitch …) показуються як є, якщо вони це дозволяють.",
       "frameTitle": "Вбудований вміст з {host}",
       "label": "Вбудований вміст",
       "resize": "Перетягніть, щоб змінити ширину вбудованого вмісту"
@@ -783,7 +783,10 @@
     "addTitle": "Додати заголовок",
     "removeTitle": "Прибрати заголовок",
     "copyOriginalLink": "Копіювати початкове посилання",
-    "openInNewTab": "Відкрити в новій вкладці"
+    "openInNewTab": "Відкрити в новій вкладці",
+    "quoteSize": "Розмір цитати",
+    "quoteSizeDefault": "Звичайний",
+    "quoteSizeLarge": "Великий"
   },
   "imageLink": {
     "menuItem": "Посилання…",
@@ -812,7 +815,8 @@
     "comments": "Додати коментарі",
     "hint": "Діаграми й формули друкуються як текст; щоб отримати сторінку точно як на екрані, скористайтеся «Друк».",
     "download": "Завантажити",
-    "preparing": "Підготовка…"
+    "preparing": "Підготовка…",
+    "textSize": "Розмір тексту"
   },
   "spreadsheet": {
     "untitled": "Книга",

@@ -43,6 +43,7 @@
     "moveUp": "Flytt blokken opp",
     "moveDown": "Flytt blokken ned",
     "copyBlockLink": "Kopier en lenke til blokken",
+    "codeLanguage": "Velg språket til kodeblokken",
     "undo": "Angre",
     "redo": "Gjør om",
     "openRow": "Åpne raden eller kortet som har fokus",

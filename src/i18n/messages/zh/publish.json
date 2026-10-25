@@ -84,5 +84,30 @@
   "cancelExpiry": "取消",
   "expiryPast": "请选择将来的时间。",
   "expiryTooFar": "请选择未来十年内的时间。",
-  "expiredDescription": "现在任何人都无法通过链接打开此页面及其子页面：访客会看到页面不存在。"
+  "expiredDescription": "现在任何人都无法通过链接打开此页面及其子页面：访客会看到页面不存在。",
+  "report": {
+    "link": "举报页面",
+    "metaTitle": "举报页面",
+    "title": "举报“{title}”",
+    "description": "告诉此工作区的管理者这个页面有什么问题。除非你留下电子邮件地址，否则他们只能看到举报内容，看不到你是谁。",
+    "back": "返回页面",
+    "reason": "有什么问题？",
+    "reasons": {
+      "spam": "垃圾信息或诈骗",
+      "harmful": "仇恨、暴力或骚扰",
+      "illegal": "违法内容",
+      "privacy": "泄露他人的个人信息",
+      "copyright": "侵犯版权",
+      "other": "其他"
+    },
+    "details": "详细说明（可选）",
+    "email": "你的电子邮件（可选）",
+    "emailHint": "仅在你希望收到回复时填写。",
+    "send": "发送举报",
+    "sent": "谢谢。你的举报已发送给此工作区的管理者。",
+    "errors": {
+      "invalid": "请选择问题并检查电子邮件地址。",
+      "rateLimited": "你刚刚发送了多次举报，请稍后再试。"
+    }
+  }
 }

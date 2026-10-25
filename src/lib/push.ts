@@ -164,6 +164,8 @@ export function pushLink(item: PushItem): string {
   if (item.kind === "ai_account_detached") return `/w/${item.workspaceId}/settings`;
   // Findings are reviewed, and dismissed, in Settings > Security.
   if (item.kind === "sensitive_content") return `/w/${item.workspaceId}/settings?tab=security#setting-sensitiveFindings`;
+  // Reports are dismissed, or the page taken off the web, in Settings > Security.
+  if (item.kind === "page_reported") return `/w/${item.workspaceId}/settings?tab=security#setting-pageReports`;
   if (item.pageId === null) return `/w/${item.workspaceId}/settings?tab=members&view=requests`;
   if (item.kind === "row_email" && item.rowEmail) return `/w/${item.workspaceId}/p/${item.pageId}${rowEmailHash(item.rowEmail.id)}`;
   return `/w/${item.workspaceId}/p/${item.pageId}${(item.kind === "comment" || item.kind === "reaction") && item.threadId ? commentHash(item.threadId) : ""}`;
@@ -211,6 +213,9 @@ export function pushPayload(
     // The page's title, and what kind of thing: never the value, not even masked.
     title = item.pageTitle?.trim() || t("untitled");
     line = t("sensitiveContent", { kind: item.automationMessage ?? "" });
+  } else if (item.kind === "page_reported") {
+    title = item.pageTitle?.trim() || t("untitled");
+    line = t("pageReported", { reason: item.automationMessage ?? "" });
   } else if (item.kind === "join_request") {
     title = t("joinRequestTitle");
     line = item.requestKind === "invite" ? t("inviteRequest", { actor, email: item.requestEmail ?? "" }) : t("joinRequest", { actor });

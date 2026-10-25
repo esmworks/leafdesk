@@ -671,10 +671,10 @@
     "embed": {
       "title": "ฝัง",
       "subtext": "YouTube, Figma, Google Docs, Maps และอื่น ๆ",
-      "aliases": "embed iframe youtube vimeo loom figma google docs sheets slides codepen spotify maps video ฝัง วิดีโอ hex deepnote pitch website",
+      "aliases": "embed iframe youtube vimeo loom figma google docs sheets slides codepen replit excalidraw framer sketch spotify maps video ฝัง วิดีโอ hex deepnote pitch website",
       "placeholder": "วางลิงก์ที่จะฝัง",
       "submit": "ฝัง",
-      "providers": "YouTube, Vimeo, Loom, Figma, Google Docs, Sheets และ Slides ที่เผยแพร่แล้ว, CodePen, Spotify และ Google Maps เว็บไซต์ https อื่น (Hex, Deepnote, Pitch …) จะแสดงตามจริงหากเว็บไซต์อนุญาต",
+      "providers": "YouTube, Vimeo, Loom, Figma, Google Docs, Sheets และ Slides ที่เผยแพร่แล้ว, CodePen, Replit, Excalidraw, Framer, Sketch, Spotify และ Google Maps เว็บไซต์ https อื่น (Hex, Deepnote, Pitch …) จะแสดงตามจริงหากเว็บไซต์อนุญาต",
       "frameTitle": "เนื้อหาที่ฝังจาก {host}",
       "label": "ฝัง",
       "resize": "ลากเพื่อเปลี่ยนความกว้างของเนื้อหาที่ฝัง"
@@ -783,7 +783,10 @@
     "addTitle": "เพิ่มชื่อ",
     "removeTitle": "นำชื่อออก",
     "copyOriginalLink": "คัดลอกลิงก์ต้นฉบับ",
-    "openInNewTab": "เปิดในแท็บใหม่"
+    "openInNewTab": "เปิดในแท็บใหม่",
+    "quoteSize": "ขนาดคำพูดอ้างอิง",
+    "quoteSizeDefault": "ค่าเริ่มต้น",
+    "quoteSizeLarge": "ใหญ่"
   },
   "imageLink": {
     "menuItem": "ลิงก์…",
@@ -812,7 +815,8 @@
     "comments": "รวมความคิดเห็น",
     "hint": "แผนภาพและสมการจะพิมพ์เป็นข้อความ ใช้ พิมพ์ เพื่อให้ได้หน้าตามที่เห็นทุกประการ",
     "download": "ดาวน์โหลด",
-    "preparing": "กำลังเตรียม…"
+    "preparing": "กำลังเตรียม…",
+    "textSize": "ขนาดข้อความ"
   },
   "spreadsheet": {
     "untitled": "สมุดงาน",

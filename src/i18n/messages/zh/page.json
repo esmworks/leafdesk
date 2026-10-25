@@ -671,10 +671,10 @@
     "embed": {
       "title": "嵌入",
       "subtext": "YouTube、Figma、Google Docs、地图等",
-      "aliases": "embed iframe youtube vimeo loom figma google docs sheets slides codepen spotify maps video 嵌入 视频 地图 hex deepnote pitch website",
+      "aliases": "embed iframe youtube vimeo loom figma google docs sheets slides codepen replit excalidraw framer sketch spotify maps video 嵌入 视频 地图 hex deepnote pitch website",
       "placeholder": "粘贴要嵌入的链接",
       "submit": "嵌入",
-      "providers": "YouTube、Vimeo、Loom、Figma、已发布的 Google Docs、Sheets 和 Slides、CodePen、Spotify 和 Google Maps。其他 https 网站（Hex、Deepnote、Pitch 等）在其允许时按原样显示。",
+      "providers": "YouTube、Vimeo、Loom、Figma、已发布的 Google Docs、Sheets 和 Slides、CodePen、Replit、Excalidraw、Framer、Sketch、Spotify 和 Google Maps。其他 https 网站（Hex、Deepnote、Pitch 等）在其允许时按原样显示。",
       "frameTitle": "来自 {host} 的嵌入内容",
       "label": "嵌入",
       "resize": "拖动以更改嵌入内容的宽度"
@@ -783,7 +783,10 @@
     "addTitle": "添加标题",
     "removeTitle": "移除标题",
     "copyOriginalLink": "复制原始链接",
-    "openInNewTab": "在新标签页中打开"
+    "openInNewTab": "在新标签页中打开",
+    "quoteSize": "引用大小",
+    "quoteSizeDefault": "默认",
+    "quoteSizeLarge": "大"
   },
   "imageLink": {
     "menuItem": "链接…",
@@ -812,7 +815,8 @@
     "comments": "包含评论",
     "hint": "图表和公式会以文字形式打印；如需与页面完全一致，请使用“打印”。",
     "download": "下载",
-    "preparing": "正在准备…"
+    "preparing": "正在准备…",
+    "textSize": "文字大小"
   },
   "spreadsheet": {
     "untitled": "工作簿",

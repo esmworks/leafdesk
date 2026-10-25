@@ -671,10 +671,10 @@
     "embed": {
       "title": "Nhúng",
       "subtext": "YouTube, Figma, Google Docs, Maps và nhiều dịch vụ khác",
-      "aliases": "nhúng embed iframe youtube vimeo loom figma google docs sheets slides codepen spotify maps video hex deepnote pitch website",
+      "aliases": "nhúng embed iframe youtube vimeo loom figma google docs sheets slides codepen replit excalidraw framer sketch spotify maps video hex deepnote pitch website",
       "placeholder": "Dán liên kết để nhúng",
       "submit": "Nhúng",
-      "providers": "YouTube, Vimeo, Loom, Figma, Google Docs, Sheets và Slides đã xuất bản, CodePen, Spotify và Google Maps. Các trang https khác (Hex, Deepnote, Pitch …) hiển thị nguyên trạng nếu trang cho phép.",
+      "providers": "YouTube, Vimeo, Loom, Figma, Google Docs, Sheets và Slides đã xuất bản, CodePen, Replit, Excalidraw, Framer, Sketch, Spotify và Google Maps. Các trang https khác (Hex, Deepnote, Pitch …) hiển thị nguyên trạng nếu trang cho phép.",
       "frameTitle": "Nội dung nhúng từ {host}",
       "label": "Nhúng",
       "resize": "Kéo để đổi độ rộng của nội dung nhúng"
@@ -783,7 +783,10 @@
     "addTitle": "Thêm tiêu đề",
     "removeTitle": "Xóa tiêu đề",
     "copyOriginalLink": "Sao chép liên kết gốc",
-    "openInNewTab": "Mở trong tab mới"
+    "openInNewTab": "Mở trong tab mới",
+    "quoteSize": "Cỡ trích dẫn",
+    "quoteSizeDefault": "Mặc định",
+    "quoteSizeLarge": "Lớn"
   },
   "imageLink": {
     "menuItem": "Liên kết…",
@@ -812,7 +815,8 @@
     "comments": "Kèm bình luận",
     "hint": "Sơ đồ và phương trình được in dưới dạng văn bản; hãy dùng In để có trang đúng như hiển thị.",
     "download": "Tải xuống",
-    "preparing": "Đang chuẩn bị…"
+    "preparing": "Đang chuẩn bị…",
+    "textSize": "Cỡ chữ"
   },
   "spreadsheet": {
     "untitled": "Sổ tính",

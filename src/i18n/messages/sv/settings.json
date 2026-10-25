@@ -94,7 +94,8 @@
       "sensitiveContent": "dlp dataförlustskydd kreditkort iban hemligheter token nycklar skanna känsligt innehåll",
       "sensitiveFindings": "dlp fynd läckta hemligheter kortnummer avfärda",
       "domainPeople": "domän konton användare företag e-post skugg-it ohanterade",
-      "openOnStart": "start uppstart första sida senast besökt senaste"
+      "openOnStart": "start uppstart första sida senast besökt senaste",
+      "pageReports": "anmäl anmälan missbruk klagomål ta bort publicerad offentlig webb sidor"
     }
   },
   "workspace": {
@@ -1531,6 +1532,18 @@
       "yourAddressMissing": "Din adress, {ip}, finns inte på listan: om du sparar den stängs du ute, så lägg till den först.",
       "lockoutHelp": "Om en lista någon gång stänger ute alla kan en administratör för instansen rensa den på administrationssidan.",
       "memberView": "{count, plural, =0 {Av: arbetsytan öppnas från alla nätverk.} one {På: arbetsytan öppnas bara från # godkänt nätverk.} other {På: arbetsytan öppnas bara från # godkända nätverk.}}"
+    },
+    "pageReports": {
+      "title": "Anmälningar av publicerade sidor",
+      "description": "Besökare anmäler publicerade sidor via länken längst ned. Ta bort sidan från webben eller avfärda anmälan.",
+      "none": "Inga öppna anmälningar.",
+      "reportedAt": "Anmäld {when}",
+      "from": "Från {email}",
+      "offline": "Inte längre på webben",
+      "unpublish": "Ta bort från webben",
+      "dismiss": "Avfärda",
+      "more": "{count, plural, one {# anmälan till} other {# anmälningar till}}",
+      "gone": "Den här anmälan är redan hanterad."
     }
   },
   "legalHolds": {
@@ -1776,7 +1789,9 @@
         "unpublished": "Avpublicerade {target}",
         "publication_revoked": "Tog ned {target} från webben (publicerad av {subject})",
         "rows_merged": "Sammanfogade {count, plural, one {# rad} other {# rader}} med {target}",
-        "publication_expiry_changed": "{change, select, removed {Tog bort giltighetstiden för webblänken till {target}} other {Satte webblänken till {target} att sluta fungera {to}}}"
+        "publication_expiry_changed": "{change, select, removed {Tog bort giltighetstiden för webblänken till {target}} other {Satte webblänken till {target} att sluta fungera {to}}}",
+        "reported": "En besökare anmälde {target}: {reason, select, spam {spam eller bedrägeri} harmful {hatiskt, våldsamt eller trakasserande innehåll} illegal {olagligt innehåll} privacy {personuppgifter} copyright {upphovsrätt} other {något annat}}",
+        "report_dismissed": "Avfärdade en anmälan om {target}"
       },
       "property": {
         "access_changed": "Ändrade vem som har åtkomst till ”{property}” i {target}",

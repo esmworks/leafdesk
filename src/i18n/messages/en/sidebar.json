@@ -228,7 +228,8 @@
     "reviewTitle": "For review",
     "review": "{count, plural, one {{agent} proposed a change for your review} other {# changes wait for your review, the latest from {agent}}}",
     "automationRun": "Automation “{name}”",
-    "sensitiveContent": "Found {kind, select, card {a payment card number} iban {an IBAN} national_id {a national ID number} private_key {a private key} aws_key {an AWS access key} github_token {a GitHub token} slack_token {a Slack token} api_key {an API key} jwt {a JSON Web Token} other {sensitive content}} here. Review it in Settings > Security."
+    "sensitiveContent": "Found {kind, select, card {a payment card number} iban {an IBAN} national_id {a national ID number} private_key {a private key} aws_key {an AWS access key} github_token {a GitHub token} slack_token {a Slack token} api_key {an API key} jwt {a JSON Web Token} other {sensitive content}} here. Review it in Settings > Security.",
+    "pageReported": "A visitor reported this page: {reason, select, spam {spam or a scam} harmful {hateful, violent or harassing content} illegal {illegal content} privacy {personal information} copyright {copyright} other {something else}}. Review it in Settings > Security."
   },
   "templates": {
     "title": "Templates",

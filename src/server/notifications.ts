@@ -523,6 +523,21 @@ export async function recordSensitiveContent(workspaceId: string, pageId: string
 }
 
 /**
+ * Tells the workspace's owners that a visitor reported the published page `pageId` for `reason`
+ * (server/page-reports.ts, which limits how often). Inbox and push only.
+ */
+export async function recordPageReport(workspaceId: string, pageId: string, reason: string) {
+  const owners = await workspaceOwnerIds(workspaceId);
+  if (!owners.length) return;
+  const inserted = await db
+    .insert(notification)
+    .values(owners.map((userId) => ({ userId, workspaceId, kind: "page_reported" as const, actorId: null, pageId, message: reason })))
+    .returning({ id: notification.id });
+  signal(workspaceId);
+  pushNotifications(inserted.map((n) => n.id));
+}
+
+/**
  * Tells everyone in the workspace with full access to the page that `requesterId` asked for access
  * (request `requestId`), and emails them right away. The email is in each approver's language, else
  * in the requester's (`locale`, see server/share-emails.ts). Returns who was told.

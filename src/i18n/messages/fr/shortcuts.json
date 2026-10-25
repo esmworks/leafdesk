@@ -43,6 +43,7 @@
     "moveUp": "Monter le bloc",
     "moveDown": "Descendre le bloc",
     "copyBlockLink": "Copier un lien vers le bloc",
+    "codeLanguage": "Choisir le langage du bloc de code",
     "undo": "Annuler",
     "redo": "Rétablir",
     "openRow": "Ouvrir la ligne ou la carte sélectionnée",

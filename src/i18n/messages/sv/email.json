@@ -281,7 +281,8 @@
     "aiAccountDetached": "Arbetsytans AI körs inte längre med {actor}s nyckel.",
     "reviewTitle": "Att granska",
     "review": "{count, plural, one {{agent} föreslog en ändring för din granskning} other {# ändringar väntar på din granskning, den senaste från {agent}}}",
-    "sensitiveContent": "Hittade {kind, select, card {ett betalkortsnummer} iban {ett IBAN} national_id {ett personnummer} private_key {en privat nyckel} aws_key {en AWS-åtkomstnyckel} github_token {en GitHub-token} slack_token {en Slack-token} api_key {en API-nyckel} jwt {en JSON Web Token} other {känsligt innehåll}} på den här sidan."
+    "sensitiveContent": "Hittade {kind, select, card {ett betalkortsnummer} iban {ett IBAN} national_id {ett personnummer} private_key {en privat nyckel} aws_key {en AWS-åtkomstnyckel} github_token {en GitHub-token} slack_token {en Slack-token} api_key {en API-nyckel} jwt {en JSON Web Token} other {känsligt innehåll}} på den här sidan.",
+    "pageReported": "En besökare anmälde den här sidan: {reason, select, spam {spam eller bedrägeri} harmful {hatiskt, våldsamt eller trakasserande innehåll} illegal {olagligt innehåll} privacy {personuppgifter} copyright {upphovsrätt} other {något annat}}."
   },
   "agentReply": {
     "aiOff": "Jag kan inte svara: AI är avstängt i den här arbetsytan.",

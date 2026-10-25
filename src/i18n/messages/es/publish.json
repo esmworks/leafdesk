@@ -84,5 +84,30 @@
   "cancelExpiry": "Cancelar",
   "expiryPast": "Elige una fecha futura.",
   "expiryTooFar": "Elige una fecha dentro de los próximos diez años.",
-  "expiredDescription": "Ahora nadie puede abrir esta página ni sus subpáginas con el enlace: a quien lo visite se le indica que no se encontró."
+  "expiredDescription": "Ahora nadie puede abrir esta página ni sus subpáginas con el enlace: a quien lo visite se le indica que no se encontró.",
+  "report": {
+    "link": "Denunciar página",
+    "metaTitle": "Denunciar página",
+    "title": "Denunciar «{title}»",
+    "description": "Cuéntales a quienes gestionan este espacio de trabajo qué está mal en esta página. Verán tu denuncia, no quién eres, salvo que dejes un correo electrónico.",
+    "back": "Volver a la página",
+    "reason": "¿Qué está mal?",
+    "reasons": {
+      "spam": "Spam o estafa",
+      "harmful": "Odio, violencia o acoso",
+      "illegal": "Contenido ilegal",
+      "privacy": "Comparte información personal de alguien",
+      "copyright": "Infringe derechos de autor",
+      "other": "Otra cosa"
+    },
+    "details": "Detalles (opcional)",
+    "email": "Tu correo electrónico (opcional)",
+    "emailHint": "Solo si quieres recibir respuesta.",
+    "send": "Enviar denuncia",
+    "sent": "Gracias. Tu denuncia se envió a quienes gestionan este espacio de trabajo.",
+    "errors": {
+      "invalid": "Elige qué está mal y revisa el correo electrónico.",
+      "rateLimited": "Acabas de enviar varias denuncias. Inténtalo de nuevo en un rato."
+    }
+  }
 }

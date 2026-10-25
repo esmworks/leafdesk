@@ -84,5 +84,30 @@
   "cancelExpiry": "Avbryt",
   "expiryPast": "Välj en tidpunkt i framtiden.",
   "expiryTooFar": "Välj en tidpunkt inom de närmaste tio åren.",
-  "expiredDescription": "Ingen kan öppna den här sidan eller dess undersidor via länken nu: besökare får veta att den inte hittades."
+  "expiredDescription": "Ingen kan öppna den här sidan eller dess undersidor via länken nu: besökare får veta att den inte hittades.",
+  "report": {
+    "link": "Anmäl sida",
+    "metaTitle": "Anmäl sida",
+    "title": "Anmäl ”{title}”",
+    "description": "Berätta för dem som driver den här arbetsytan vad som är fel med sidan. De ser din anmälan, inte vem du är, om du inte lämnar en e-postadress.",
+    "back": "Tillbaka till sidan",
+    "reason": "Vad är fel?",
+    "reasons": {
+      "spam": "Spam eller bedrägeri",
+      "harmful": "Hatiskt, våldsamt eller trakasserande",
+      "illegal": "Olagligt innehåll",
+      "privacy": "Delar någons personuppgifter",
+      "copyright": "Gör intrång i upphovsrätten",
+      "other": "Något annat"
+    },
+    "details": "Detaljer (valfritt)",
+    "email": "Din e-postadress (valfritt)",
+    "emailHint": "Bara om du vill ha svar.",
+    "send": "Skicka anmälan",
+    "sent": "Tack. Din anmälan har skickats till dem som driver den här arbetsytan.",
+    "errors": {
+      "invalid": "Välj vad som är fel och kontrollera e-postadressen.",
+      "rateLimited": "Du har nyss skickat flera anmälningar. Försök igen om en stund."
+    }
+  }
 }

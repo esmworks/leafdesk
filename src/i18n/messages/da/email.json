@@ -281,7 +281,8 @@
     "aiAccountDetached": "Arbejdsområdets AI kører ikke længere på {actor}s nøgle.",
     "reviewTitle": "Til gennemgang",
     "review": "{count, plural, one {{agent} har foreslået en ændring til din gennemgang} other {# ændringer venter på din gennemgang, den seneste fra {agent}}}",
-    "sensitiveContent": "Fandt {kind, select, card {et betalingskortnummer} iban {et IBAN} national_id {et personnummer} private_key {en privat nøgle} aws_key {en AWS-adgangsnøgle} github_token {et GitHub-token} slack_token {et Slack-token} api_key {en API-nøgle} jwt {et JSON Web Token} other {følsomt indhold}} på denne side."
+    "sensitiveContent": "Fandt {kind, select, card {et betalingskortnummer} iban {et IBAN} national_id {et personnummer} private_key {en privat nøgle} aws_key {en AWS-adgangsnøgle} github_token {et GitHub-token} slack_token {et Slack-token} api_key {en API-nøgle} jwt {et JSON Web Token} other {følsomt indhold}} på denne side.",
+    "pageReported": "En besøgende har anmeldt denne side: {reason, select, spam {spam eller svindel} harmful {hadsk, voldeligt eller chikanerende indhold} illegal {ulovligt indhold} privacy {personoplysninger} copyright {ophavsret} other {noget andet}}."
   },
   "agentReply": {
     "aiOff": "Jeg kan ikke svare: AI er slået fra i dette arbejdsområde.",

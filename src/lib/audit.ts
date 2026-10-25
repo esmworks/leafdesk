@@ -93,6 +93,8 @@ export const AUDIT_CATEGORIES = {
     "page.published",
     "page.unpublished",
     "page.publication_revoked",
+    "page.reported",
+    "page.report_dismissed",
     "page.publication_expiry_changed",
     "property.trashed",
     "property.restored",
@@ -496,6 +498,11 @@ export function describeAuditEvent(event: Pick<AuditEvent, "action" | "targetLab
       break;
     case "sequence.stopped":
       // Read as a choice in the message (why it stopped), not as the word.
+      values.reason = text(d.reason);
+      break;
+    case "page.reported":
+    case "page.report_dismissed":
+      // Read as a choice in the message (why it was reported), not as the word.
       values.reason = text(d.reason);
       break;
     case "review.approved":

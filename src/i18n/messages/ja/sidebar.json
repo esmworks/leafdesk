@@ -228,7 +228,8 @@
     "reviewTitle": "確認待ち",
     "review": "{count, plural, =1 {{agent}が確認用に変更を提案しました} other {#件の変更が確認を待っています（最新は{agent}から）}}",
     "automationRun": "オートメーション「{name}」",
-    "sensitiveContent": "ここで{kind, select, card {支払いカード番号} iban {IBAN} national_id {国民ID番号} private_key {秘密鍵} aws_key {AWS アクセスキー} github_token {GitHub トークン} slack_token {Slack トークン} api_key {API キー} jwt {JSON Web Token} other {機密コンテンツ}}が見つかりました。「設定 > セキュリティ」で確認してください。"
+    "sensitiveContent": "ここで{kind, select, card {支払いカード番号} iban {IBAN} national_id {国民ID番号} private_key {秘密鍵} aws_key {AWS アクセスキー} github_token {GitHub トークン} slack_token {Slack トークン} api_key {API キー} jwt {JSON Web Token} other {機密コンテンツ}}が見つかりました。「設定 > セキュリティ」で確認してください。",
+    "pageReported": "訪問者がこのページを報告しました：{reason, select, spam {スパムまたは詐欺} harmful {憎悪・暴力・嫌がらせ} illegal {違法なコンテンツ} privacy {個人情報} copyright {著作権} other {その他}}。設定 > セキュリティで確認してください。"
   },
   "templates": {
     "title": "テンプレート",

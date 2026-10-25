@@ -1,11 +1,12 @@
 "use client";
 
 import { FileDown } from "lucide-react";
-import { useTranslations } from "next-intl";
+import { useFormatter, useTranslations } from "next-intl";
 import { useEffect, useId, useState } from "react";
 import { listLetterheadsAction } from "@/app/actions/letterheads";
 import { Button, cn, Dialog, selectClass, Switch } from "@/components/ui";
 import type { Letterhead } from "@/lib/letterheads";
+import { PDF_TEXT_SCALES } from "@/lib/pdf-text-scale";
 
 /** The file name a download's Content-Disposition gives (its UTF-8 form first). */
 function fileNameOf(disposition: string | null, fallback: string): string {
@@ -22,7 +23,7 @@ function fileNameOf(disposition: string | null, fallback: string): string {
  * The page menu's "Export as PDF": the page as a PDF file made on the server (the export route's
  * `format=pdf`), in one of the workspace's letterheads (its default picked first) and, for a row,
  * with its values and with the comments if asked (the page menu's "Include comments" picks the
- * latter first). The file is fetched rather than linked, so a refusal (another export
+ * latter first), in a text size from 75 to 150 percent. The file is fetched rather than linked, so a refusal (another export
  * running, export turned off) shows here instead of downloading as a file. Loaded with the menu's
  * first use, not with every page.
  */
@@ -42,11 +43,14 @@ export default function PdfExportDialog({
   const t = useTranslations("page.pdfExport");
   const tExport = useTranslations("common.export");
   const tc = useTranslations("common");
+  const format = useFormatter();
+  const formatPercent = (percent: number) => format.number(percent / 100, { style: "percent" });
   const id = useId();
   const [letterheads, setLetterheads] = useState<Letterhead[] | null>(null);
   const [choice, setChoice] = useState("none");
   const [properties, setProperties] = useState(false);
   const [comments, setComments] = useState(commentsFirst);
+  const [scale, setScale] = useState(100);
   const [pending, setPending] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -69,7 +73,13 @@ export default function PdfExportDialog({
     setPending(true);
     setError(null);
     try {
-      const query = new URLSearchParams({ format: "pdf", letterhead: choice, ...(isRow && properties ? { properties: "1" } : {}), ...(comments ? { comments: "1" } : {}) });
+      const query = new URLSearchParams({
+        format: "pdf",
+        letterhead: choice,
+        ...(isRow && properties ? { properties: "1" } : {}),
+        ...(comments ? { comments: "1" } : {}),
+        ...(scale !== 100 ? { scale: String(scale) } : {}),
+      });
       const res = await fetch(`/w/${workspaceId}/p/${pageId}/export?${query}`, { cache: "no-store" });
       if (!res.ok) {
         const body = (await res.json().catch(() => null)) as { error?: string } | null;
@@ -115,6 +125,22 @@ export default function PdfExportDialog({
             ))}
           </select>
           {letterheads?.length === 0 && <p className="text-xs text-fg-muted">{t("noLetterheads")}</p>}
+        </div>
+        <div className="flex items-center justify-between gap-3 text-sm">
+          <label htmlFor={`${id}-scale`}>{t("textSize")}</label>
+          <select
+            id={`${id}-scale`}
+            className={selectClass}
+            value={scale}
+            disabled={pending}
+            onChange={(e) => setScale(Number(e.target.value))}
+          >
+            {PDF_TEXT_SCALES.map((percent) => (
+              <option key={percent} value={percent}>
+                {formatPercent(percent)}
+              </option>
+            ))}
+          </select>
         </div>
         {isRow && (
           <div className="flex items-center justify-between gap-3 text-sm">

@@ -16,7 +16,7 @@ import { ySyncPluginKey } from "y-prosemirror";
 type Turned = { pos: number; toggle: boolean };
 
 /** Where in `doc` the transactions changed something, as ranges of the final document. */
-function changedRanges(transactions: readonly Transaction[]): { from: number; to: number }[] {
+export function changedRanges(transactions: readonly Transaction[]): { from: number; to: number }[] {
   const ranges: { from: number; to: number }[] = [];
   transactions.forEach((tr, i) => {
     tr.steps.forEach((step, j) => {

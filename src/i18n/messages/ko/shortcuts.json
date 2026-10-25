@@ -43,6 +43,7 @@
     "moveUp": "블록을 위로 이동",
     "moveDown": "블록을 아래로 이동",
     "copyBlockLink": "블록 링크 복사",
+    "codeLanguage": "코드 블록 언어 선택",
     "undo": "실행 취소",
     "redo": "다시 실행",
     "openRow": "포커스된 행 또는 카드 열기",

@@ -94,7 +94,8 @@
       "sensitiveContent": "dlp gegevenslekpreventie creditcard iban geheimen tokens sleutels scannen",
       "sensitiveFindings": "dlp bevindingen gelekte geheimen kaartnummers negeren",
       "domainPeople": "domein accounts gebruikers bedrijf e-mail schaduw onbeheerd",
-      "openOnStart": "start opstarten eerste pagina laatst bezocht recent"
+      "openOnStart": "start opstarten eerste pagina laatst bezocht recent",
+      "pageReports": "melden melding misbruik klacht verwijderen gepubliceerd openbaar web pagina's"
     }
   },
   "workspace": {
@@ -1531,6 +1532,18 @@
       "yourAddressMissing": "Je adres, {ip}, staat niet op de lijst: opslaan zou je buitensluiten, dus voeg het eerst toe.",
       "lockoutHelp": "Als een lijst ooit iedereen buitensluit, kan een beheerder van de instantie haar leegmaken op de beheerpagina.",
       "memberView": "{count, plural, =0 {Uit: de werkruimte opent vanaf elk netwerk.} one {Aan: de werkruimte opent alleen vanaf # goedgekeurd netwerk.} other {Aan: de werkruimte opent alleen vanaf # goedgekeurde netwerken.}}"
+    },
+    "pageReports": {
+      "title": "Meldingen over gepubliceerde pagina's",
+      "description": "Bezoekers melden gepubliceerde pagina's via de link onderaan. Haal de pagina van het web of negeer de melding.",
+      "none": "Geen openstaande meldingen.",
+      "reportedAt": "Gemeld {when}",
+      "from": "Van {email}",
+      "offline": "Niet meer op het web",
+      "unpublish": "Van het web halen",
+      "dismiss": "Negeren",
+      "more": "{count, plural, one {Nog # melding} other {Nog # meldingen}}",
+      "gone": "Deze melding is al afgehandeld."
     }
   },
   "legalHolds": {
@@ -1776,7 +1789,9 @@
         "unpublished": "De publicatie van {target} ingetrokken",
         "publication_revoked": "{target} van het web gehaald (gepubliceerd door {subject})",
         "rows_merged": "{count, plural, one {# rij} other {# rijen}} samengevoegd in {target}",
-        "publication_expiry_changed": "{change, select, removed {Vervaldatum van de weblink van {target} verwijderd} other {Weblink van {target} laten verlopen op {to}}}"
+        "publication_expiry_changed": "{change, select, removed {Vervaldatum van de weblink van {target} verwijderd} other {Weblink van {target} laten verlopen op {to}}}",
+        "reported": "Een bezoeker heeft {target} gemeld: {reason, select, spam {spam of oplichting} harmful {haatdragende, gewelddadige of intimiderende inhoud} illegal {illegale inhoud} privacy {persoonsgegevens} copyright {auteursrecht} other {iets anders}}",
+        "report_dismissed": "Heeft een melding over {target} genegeerd"
       },
       "property": {
         "access_changed": "Gewijzigd wie toegang heeft tot “{property}” in {target}",
