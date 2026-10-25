@@ -70,6 +70,34 @@ export const pageTaskBackfill = pgTable("page_task_backfill", {
 });
 
 /**
+ * A `#tag` written in a page's text (lib/tags), for search: derived from the body on every save
+ * (server/page-tags.ts syncPageTags). `key` is the tag folded for comparing, `label` its first
+ * spelling on the page, `count` how often it appears there. Who may see one is its page's matter.
+ */
+export const pageTag = pgTable(
+  "page_tag",
+  {
+    pageId: text("page_id")
+      .notNull()
+      .references(() => page.id, { onDelete: "cascade" }),
+    key: text("key").notNull(),
+    label: text("label").notNull(),
+    count: integer("count").notNull().default(1),
+  },
+  (t) => [primaryKey({ columns: [t.pageId, t.key] }), index("page_tag_key_idx").on(t.key.op("text_pattern_ops"))],
+);
+
+/**
+ * Pages whose tags are still to be read from their body (server/page-tags.ts): those written before
+ * tags were indexed (filled by the migration) and those of a restored workspace. Each is read once.
+ */
+export const pageTagQueue = pgTable("page_tag_queue", {
+  pageId: text("page_id")
+    .primaryKey()
+    .references(() => page.id, { onDelete: "cascade" }),
+});
+
+/**
  * Someone opened a page, database or row in the app (server/page-views.ts): one row per page,
  * person and UTC day, with how many times (a reopening within VIEW_REPEAT_MS doesn't count again)
  * and when last. For analytics only, never content; kept a year (PAGE_VIEW_RETENTION_DAYS).

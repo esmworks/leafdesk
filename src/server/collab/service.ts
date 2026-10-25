@@ -47,6 +47,7 @@ import { blocksToMarkdown, markdownToBlocks, serverEditor as editor, type PageBl
 import { authorizeFileReferences, referencedFileIds, unauthorizedFileIds } from "@/server/files";
 import { syncMeetingNotes } from "@/server/meeting-notes";
 import { syncPageTasks } from "@/server/page-tasks";
+import { syncPageTags } from "@/server/page-tags";
 import { labelPageLinks, mentionablePeople, pagesNamed, syncPageReferences } from "@/server/mentions";
 import { announceSuggestions } from "@/server/suggested-edits";
 import { bodyBlocks, fragmentBlocks, syncedBlocksOf } from "@/server/synced-body";
@@ -400,6 +401,8 @@ export function createCollab() {
     await syncMeetingNotes(pageId, blocks);
     // My tasks lists the page's unticked to-dos that mention people (catches its own errors).
     await syncPageTasks(pageId, blocks);
+    // The page's `#tags`, which search finds it by, follow its text (catches its own errors).
+    await syncPageTags(pageId, blocks);
     // New suggestions reach the page's watchers like new threads do (catches its own errors).
     if (suggestionThreads.opened.length) await announceSuggestions(row.workspaceId, pageId, suggestionThreads.opened);
     if (!edited) return;

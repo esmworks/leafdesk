@@ -1348,5 +1348,10 @@
     "title": "Gör om till sida i",
     "here": "Inuti den här sidan",
     "failed": "Det gick inte att flytta blocken till en ny sida."
+  },
+  "tags": {
+    "label": "Taggar",
+    "pages": "{count, plural, one {# sida} other {# sidor}}",
+    "find": "Hitta sidor med #{tag}"
   }
 }

@@ -1348,5 +1348,10 @@
     "title": "Zamień na stronę w",
     "here": "Wewnątrz tej strony",
     "failed": "Nie udało się przenieść bloków na nową stronę."
+  },
+  "tags": {
+    "label": "Tagi",
+    "pages": "{count, plural, one {# strona} few {# strony} many {# stron} other {# strony}}",
+    "find": "Znajdź strony z #{tag}"
   }
 }

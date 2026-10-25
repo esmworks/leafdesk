@@ -79,7 +79,8 @@
       "in": "di dalam halaman",
       "type": "hanya basis data (atau halaman, baris)",
       "commands": "perintah",
-      "phrase": "frasa persis"
+      "phrase": "frasa persis",
+      "tag": "tag"
     },
     "filters": {
       "label": "Filter",
@@ -110,7 +111,9 @@
         "createdNewest": "Dibuat: terbaru dulu",
         "createdOldest": "Dibuat: terlama dulu"
       }
-    }
+    },
+    "tags": "Tag",
+    "tagPages": "{count, plural, other {# halaman}}"
   },
   "trash": {
     "title": "Sampah",

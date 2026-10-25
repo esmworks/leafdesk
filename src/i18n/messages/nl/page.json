@@ -1348,5 +1348,10 @@
     "title": "Omzetten naar pagina in",
     "here": "In deze pagina",
     "failed": "De blokken konden niet naar een nieuwe pagina worden verplaatst."
+  },
+  "tags": {
+    "label": "Tags",
+    "pages": "{count, plural, one {# pagina} other {# pagina's}}",
+    "find": "Pagina's met #{tag} zoeken"
   }
 }

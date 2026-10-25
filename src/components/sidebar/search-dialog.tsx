@@ -1,11 +1,12 @@
 "use client";
 
-import { Archive, BadgeCheck, ChevronRight, Paperclip, Search } from "lucide-react";
+import { Archive, BadgeCheck, ChevronRight, Hash, Paperclip, Search } from "lucide-react";
 import dynamic from "next/dynamic";
 import { useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import { recentSearchAction, searchAction } from "@/app/actions/pages";
+import { tagSuggestionsAction } from "@/app/actions/tags";
 import { openBlockLink } from "@/components/page/block-focus";
 import { cn, Dialog, PageIcon, pageLabel, Switch } from "@/components/ui";
 import type { PageKind } from "@/db/schema";
@@ -14,6 +15,8 @@ import { searchFold } from "@/lib/search-fold";
 import { highlightParts } from "@/lib/search-highlight";
 import { hasFilterValues, NO_SEARCH_FILTERS, type SearchFilters, type SearchSort } from "@/lib/search-filter-state";
 import { parseSearchQuery } from "@/lib/search-query";
+import { tagKey, typedTag } from "@/lib/tags";
+import type { TagSuggestion } from "@/server/page-tags";
 import type { SearchHit } from "@/server/pages";
 
 // Loaded with the box, not with the sidebar: the sidebar is in every page's first load.
@@ -47,27 +50,31 @@ type PageItem = {
   /** Verified right now (server/verification): marked, and ranked above an otherwise equal page. */
   verified?: boolean;
 };
-type Item = { type: "page"; page: PageItem } | { type: "command"; command: SearchCommand };
+type Item = { type: "page"; page: PageItem } | { type: "command"; command: SearchCommand } | { type: "tag"; tag: TagSuggestion };
 
 /** Compared as pickers compare: case and the Turkish dotted and dotless i aside (lib/search-fold). */
 const fold = (value: string) => searchFold(value.normalize("NFC").trim());
 
 /**
- * The search box (Cmd/Ctrl+K): pages by their title and content, narrowed with `in:` and `type:`
- * and `is:verified` (see lib/search-query) and with the filter menus under the query (teamspace,
+ * The search box (Cmd/Ctrl+K): pages by their title and content, narrowed with `in:`, `type:`,
+ * `is:verified` and `#tags` (see lib/search-query) and with the filter menus under the query (teamspace,
  * people, date: lib/search-filters), text in "quotes" found as written; before anything is typed
  * or chosen, the pages the person opened last (the pages last edited while their views aren't
  * recorded); and, after `>`, the commands the sidebar hands it. Archived pages are found only with
- * "Include archived" on, and say so.
+ * "Include archived" on, and say so. While a `#tag` is typed at the end of the query, the tags of
+ * pages the person can open that start so come first, to complete it. `initialQuery`: what it
+ * opens with (a tag clicked in a page).
  */
 export function SearchDialog({
   workspaceId,
   open,
+  initialQuery = "",
   onClose,
   commands = [],
 }: {
   workspaceId: string;
   open: boolean;
+  initialQuery?: string;
   onClose: () => void;
   commands?: SearchCommand[];
 }) {
@@ -83,6 +90,8 @@ export function SearchDialog({
   const [active, setActive] = useState(0);
   const [loading, setLoading] = useState(false);
   const [includeOutdated, setIncludeOutdated] = useState(false);
+  // Tags offered for the `#tag` being typed, as last loaded.
+  const [tagHits, setTagHits] = useState<TagSuggestion[]>([]);
   const requestId = useRef(0);
   const input = useRef<HTMLInputElement>(null);
   const list = useRef<HTMLUListElement>(null);
@@ -94,8 +103,16 @@ export function SearchDialog({
   const words = useMemo(() => {
     if (commandMode) return [];
     const parsed = parseSearchQuery(trimmed);
-    return [...parsed.phrases, ...parsed.text.split(/\s+/)];
+    return [...parsed.phrases, ...parsed.text.split(/\s+/), ...parsed.tags.map((tag) => `#${tag}`)];
   }, [trimmed, commandMode]);
+  // The `#tag` being typed at the end of the query (a space after it ends it).
+  const typing = commandMode ? null : typedTag(query);
+  const tagQuery = typing?.query ?? null;
+  const tags = useMemo(() => {
+    if (tagQuery === null) return [];
+    const wanted = tagKey(tagQuery);
+    return tagHits.filter((tag) => tag.key.startsWith(wanted));
+  }, [tagQuery, tagHits]);
 
   useEffect(() => {
     if (!open) {
@@ -104,8 +121,10 @@ export function SearchDialog({
       setActive(0);
       setFilters(NO_SEARCH_FILTERS);
       setSort("relevance");
+      setTagHits([]);
       return;
     }
+    if (initialQuery) setQuery(initialQuery);
     let live = true;
     recentSearchAction(workspaceId).then(
       (found) => live && setRecent(found),
@@ -114,7 +133,22 @@ export function SearchDialog({
     return () => {
       live = false;
     };
-  }, [open, workspaceId]);
+  }, [open, workspaceId, initialQuery]);
+
+  useEffect(() => {
+    if (tagQuery === null) return;
+    let live = true;
+    const timer = setTimeout(() => {
+      tagSuggestionsAction(workspaceId, tagQuery).then(
+        (found) => live && setTagHits(found),
+        () => {},
+      );
+    }, 100);
+    return () => {
+      live = false;
+      clearTimeout(timer);
+    };
+  }, [tagQuery, workspaceId]);
 
   useEffect(() => {
     // Bumped even when cleared, so a request still in flight can't fill the empty box.
@@ -144,8 +178,8 @@ export function SearchDialog({
         .map((command) => ({ type: "command", command }));
     }
     const pages: PageItem[] = trimmed || filtered ? hits : recent.pages;
-    return pages.map((page) => ({ type: "page", page }));
-  }, [commandMode, trimmed, filtered, commands, hits, recent]);
+    return [...tags.map((tag): Item => ({ type: "tag", tag })), ...pages.map((page): Item => ({ type: "page", page }))];
+  }, [commandMode, trimmed, filtered, commands, hits, recent, tags]);
 
   useEffect(() => {
     list.current?.querySelector(`[data-index="${active}"]`)?.scrollIntoView({ block: "nearest" });
@@ -153,6 +187,12 @@ export function SearchDialog({
 
   function choose(item: Item | undefined) {
     if (!item) return;
+    if (item.type === "tag") {
+      // Completes the tag being typed; the box stays open with the pages carrying it.
+      if (typing) setQuery(`${query.slice(0, typing.start)}#${item.tag.label} `);
+      input.current?.focus();
+      return;
+    }
     onClose();
     if (item.type === "command") item.command.run();
     else openBlockLink(pageOrBlockPath(workspaceId, item.page.id, item.page.blockId), router.push);
@@ -207,8 +247,18 @@ export function SearchDialog({
           </li>
         )}
         {empty && <li role="presentation" className="px-3 py-6 text-center text-sm text-fg-muted">{commandMode ? t("noCommands") : t("noResults")}</li>}
+        {tags.length > 0 && (
+          <li role="presentation" className="px-3 pt-2 pb-1 text-xs font-medium text-fg-muted">
+            {t("tags")}
+          </li>
+        )}
         {items.map((item, i) => (
-          <li key={item.type === "page" ? item.page.id : item.command.id} id={`search-item-${i}`} role="option" aria-selected={i === active}>
+          <li
+            key={item.type === "page" ? item.page.id : item.type === "tag" ? `#${item.tag.key}` : item.command.id}
+            id={`search-item-${i}`}
+            role="option"
+            aria-selected={i === active}
+          >
             <button
               type="button"
               data-index={i}
@@ -221,6 +271,12 @@ export function SearchDialog({
                 <>
                   <span className="mt-0.5 text-fg-muted">{item.command.icon}</span>
                   <span className="min-w-0 flex-1 truncate text-sm">{item.command.label}</span>
+                </>
+              ) : item.type === "tag" ? (
+                <>
+                  <Hash className="mt-0.5 h-4 w-4 shrink-0 text-fg-muted" aria-hidden />
+                  <span className="min-w-0 flex-1 truncate text-sm">{item.tag.label}</span>
+                  <span className="shrink-0 text-xs text-fg-muted">{t("tagPages", { count: item.tag.pages })}</span>
                 </>
               ) : (
                 <>
@@ -279,6 +335,7 @@ export function SearchDialog({
         <HintButton onClick={() => insert("type:database")} token="type:database" label={t("hint.type")} />
         <HintButton onClick={() => insert("type:journal")} token="type:journal" label={tj("searchHint")} />
         <HintButton onClick={() => insert('"')} token='"…"' label={t("hint.phrase")} />
+        <HintButton onClick={() => insert("#")} token="#…" label={t("hint.tag")} />
         {commands.length > 0 && <HintButton onClick={() => insert(">")} token=">" label={t("hint.commands")} />}
         <span className="ms-auto flex items-center gap-2" title={t("includeArchivedHint")}>
           <span aria-hidden>{t("includeArchived")}</span>

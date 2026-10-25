@@ -1348,5 +1348,10 @@
     "title": "Ubah jadi halaman di",
     "here": "Di dalam halaman ini",
     "failed": "Blok tidak dapat dipindahkan ke halaman baru."
+  },
+  "tags": {
+    "label": "Tag",
+    "pages": "{count, plural, other {# halaman}}",
+    "find": "Cari halaman dengan #{tag}"
   }
 }

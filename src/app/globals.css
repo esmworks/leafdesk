@@ -1421,6 +1421,26 @@ body:has(.leafdesk-column-drop) .prosemirror-dropcursor-block {
 }
 
 /*
+ * #tags in a page (components/page/tags.ts): plain text marked as a quiet chip in the accent color.
+ * Clicking one finds the pages carrying it (with Ctrl or Cmd where the page can be edited).
+ */
+.leafdesk-tag {
+  color: var(--accent);
+  background: color-mix(in srgb, var(--accent) 10%, transparent);
+  border-radius: 3px;
+  padding: 0 2px;
+  margin: 0 -1px;
+  box-decoration-break: clone;
+  -webkit-box-decoration-break: clone;
+}
+.ProseMirror[contenteditable="false"] .leafdesk-tag {
+  cursor: pointer;
+}
+.ProseMirror[contenteditable="false"] .leafdesk-tag:hover {
+  background: color-mix(in srgb, var(--accent) 18%, transparent);
+}
+
+/*
  * Mentions: inline text with a small icon, no chip background until hovered. Page mentions are
  * underlined like links; ones that can't be opened (no access, deleted) are muted.
  */

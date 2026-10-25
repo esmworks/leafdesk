@@ -79,7 +79,8 @@
       "in": "trong một trang",
       "type": "chỉ cơ sở dữ liệu (hoặc trang, hàng)",
       "commands": "lệnh",
-      "phrase": "cụm từ chính xác"
+      "phrase": "cụm từ chính xác",
+      "tag": "thẻ"
     },
     "filters": {
       "label": "Bộ lọc",
@@ -110,7 +111,9 @@
         "createdNewest": "Ngày tạo: mới nhất trước",
         "createdOldest": "Ngày tạo: cũ nhất trước"
       }
-    }
+    },
+    "tags": "Thẻ",
+    "tagPages": "{count, plural, other {# trang}}"
   },
   "trash": {
     "title": "Thùng rác",

@@ -79,7 +79,8 @@
       "in": "bir sayfanın içinde",
       "type": "yalnız veritabanları (ya da page, row)",
       "commands": "komutlar",
-      "phrase": "tam ifade"
+      "phrase": "tam ifade",
+      "tag": "etiket"
     },
     "filters": {
       "label": "Filtreler",
@@ -110,7 +111,9 @@
         "createdNewest": "Oluşturma: en yeni önce",
         "createdOldest": "Oluşturma: en eski önce"
       }
-    }
+    },
+    "tags": "Etiketler",
+    "tagPages": "{count, plural, one {# sayfa} other {# sayfa}}"
   },
   "trash": {
     "title": "Çöp kutusu",

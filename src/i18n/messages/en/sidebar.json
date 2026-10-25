@@ -79,7 +79,8 @@
       "in": "inside a page",
       "type": "only databases (or page, row)",
       "commands": "commands",
-      "phrase": "exact phrase"
+      "phrase": "exact phrase",
+      "tag": "tag"
     },
     "filters": {
       "label": "Filters",
@@ -110,7 +111,9 @@
         "createdNewest": "Created: newest first",
         "createdOldest": "Created: oldest first"
       }
-    }
+    },
+    "tags": "Tags",
+    "tagPages": "{count, plural, one {# page} other {# pages}}"
   },
   "trash": {
     "title": "Trash",

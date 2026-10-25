@@ -66,12 +66,28 @@
   `in:Projects` or `in:"Launch plan"` (that page and everything under it; several pages of that
   title, or several `in:`, search under any of them; a title nobody can see finds nothing) and
   `type:page`, `type:database`, `type:row` (database rows) or `type:journal` (your daily notes),
-  and `is:verified` (pages verified right now, see *Verified pages*); filters work without words too,
-  listing the pages they match, last edited first. Type `>` for commands: new page or database,
+  and `is:verified` (pages verified right now, see *Verified pages*), and `#home` or `tag:home`
+  (pages carrying that tag or one under it, see *Tags*; with several tags, pages carrying each);
+  filters work without words too, listing the pages they match, last edited first. While you type
+  `#` and a letter, the tags of pages you can open that start so come first, most used first with
+  how many pages carry each; `/` narrows to a branch and picking one completes it. Type `>` for commands: new page or database,
   from a template, import, trash, inbox, settings and keyboard shortcuts, and, once you type
   after `>`, each setting you can see (*Settings: Security → Legal holds*). The line under the
   results puts each of these into the box. The words you typed show in bold in the text under each
   result.
+- **Tags**: write `#tag` anywhere in a page's text, at its start or after a space or an opening
+  bracket or quote, and find everything carrying it with `#tag` in the search box. A tag is
+  letters, digits, `_` and `-` with at least one letter (`#1` isn't one, nor a color like
+  `#ff0000`), in any script, and `/` makes a hierarchy: `#home/renovation` is found by `#home` too.
+  Case and accents don't count (`#Café` is `#cafe`); the spelling met first is the one shown. Tags
+  stay plain text, so Markdown, copies, history, exports, imports (an Obsidian vault's tags among
+  them) and MCP read them as written; text in code, equations, diagram sources, links and
+  mentions isn't a tag, nor `# ` at the start of a line, which still makes a heading. In a page
+  tags show in the accent color; clicking one (with Ctrl or Cmd where you can edit) opens the
+  search box with it. Typing `#` and a letter offers the tags of pages you can open, most used
+  first: Enter or Tab completes one (Enter on a tag typed out in full starts a new line), Escape
+  or a space leaves the text as typed. MCP's `search` and the REST API's `GET /search` take a
+  `tag`. Published pages show tags as plain text.
 - **Settings search**: the box at the top of Settings' navigation finds a setting on any tab you
   have, by its name, its tab or other words ("dark mode", "2fa", "ip"), opens the tab, scrolls to
   the setting and highlights it.

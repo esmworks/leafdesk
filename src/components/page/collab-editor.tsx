@@ -87,6 +87,7 @@ import { LinkPageButton } from "./link-page-button";
 import { QuoteShortcut } from "./quote-shortcut";
 import { TurnIntoPageContext } from "./turn-into-page-item";
 import { SmartQuotes } from "./smart-quotes";
+import { TagMarks } from "./tags";
 import { editorShortcuts } from "./editor-shortcuts";
 import { LinkCopiedNotice } from "./link-copied-notice";
 
@@ -94,6 +95,7 @@ import { LinkCopiedNotice } from "./link-copied-notice";
 const FloatingOutline = dynamic(() => import("./floating-outline"), { ssr: false });
 const ImageCropDialog = dynamic(() => import("./image-crop-dialog"), { ssr: false });
 const TurnIntoPageDialog = dynamic(() => import("./turn-into-page"), { ssr: false });
+const TagMenu = dynamic(() => import("./tag-menu"), { ssr: false });
 
 /**
  * y-prosemirror's undo plugin keeps its Y.UndoManager in plugin state but destroys it whenever the
@@ -312,7 +314,7 @@ export default function CollabEditor({
       // Selected table cells can be merged into one, and a merged cell split again; rows and
       // columns take text and background colors, and the first row or column can be a header.
       tables: TABLE_SETTINGS,
-      extensions: [KeepUndoAttached(), FindReplace(), codeHighlighting(), BlockDirection(), ListMarkers(), QuoteSizeDefault(), ToggleHeadingSections(), SmartQuotes(), QuoteShortcut(), shortcuts, comments, suggestions],
+      extensions: [KeepUndoAttached(), FindReplace(), codeHighlighting(), BlockDirection(), ListMarkers(), QuoteSizeDefault(), ToggleHeadingSections(), SmartQuotes(), QuoteShortcut(), TagMarks(), shortcuts, comments, suggestions],
       // A synced block copied with "Copy synced block" lands as a reference; none lands inside one.
       // A link to an agent of the workspace, alone in an empty paragraph, becomes a chat with it.
       pasteHandler: ({ event, editor, defaultPasteHandler }) => {
@@ -455,6 +457,8 @@ export default function CollabEditor({
               {editable && <PageLinkMenu editor={editor} workspaceId={workspaceId} pageId={pageId} offline={offline} />}
               <PasteLinkMenu editor={editor} />
               <EmojiMenu editor={editor} />
+              {/* Typing a #tag offers the workspace's tags (tag-menu.tsx); they are marked for everyone (tags.ts). */}
+              {typing && !offline && <TagMenu editor={editor} workspaceId={workspaceId} />}
               <LinkToolbarController linkToolbar={linkToolbar} />
               {/* People who may only read get no toolbar; commenting shows it on read-only pages too. */}
               {(editable || canComment) && (

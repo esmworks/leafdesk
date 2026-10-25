@@ -121,7 +121,10 @@ BlockNote on Yjs; Tailwind v4; next-intl. Node 24, pnpm 11. A separate Electron 
   by full-text, document and ID hits and by search by meaning alike, so a new filter goes there (and
   into `scoped()` in pages.ts, or it won't list pages without text). The box's typed syntax and
   quoted phrases: `src/lib/search-query.ts`; its filter menus: `src/lib/search-filters.ts` (server),
-  `search-filter-state.ts` (import-free, for the box in every first load).
+  `search-filter-state.ts` (import-free, for the box in every first load). `#tags` are plain text:
+  grammar `src/lib/tags.ts` (in the first load too), read from blocks by `lib/tag-blocks.ts`, indexed
+  in `page_tag` by `server/page-tags.ts` (persistPage, copies, backfill queue), marked and suggested
+  in the editor by `components/page/tags.ts` and `tag-menu.tsx`.
 - **Agents.** `src/server/agents/run.ts` is the worker (`agent_run`, its `source` typed in
   `src/lib/agents.ts`) and holds the tool lists; runs are queued from `requests.ts`, `chat.ts`,
   `mentions.ts`, `handoff.ts` and the `agent` schedule kind. Each agent is its own user.

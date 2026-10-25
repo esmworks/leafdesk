@@ -60,6 +60,7 @@ import { COMBINE, MAX_MERGE_ROWS, MERGE_TITLE, MIN_MERGE_ROWS, type MergeChoices
 import * as skills from "@/server/skills";
 import * as snippets from "@/server/snippets";
 import { parseSearchQuery } from "@/lib/search-query";
+import { searchedTag } from "@/lib/tags";
 import { skillSlug } from "@/lib/skills";
 import { MAX_ACTIVITY_PAGE } from "@/server/row-activity-feed";
 import { valueText } from "@/lib/row-activity";
@@ -187,13 +188,14 @@ export const sortsInput = z.array(
 /** Arguments of each shared operation, as the MCP tools take them (REST puts ids in the path). */
 export const inputs = {
   search: z.object({
-    query: z.string().min(1).describe("Words to look for."),
+    query: z.string().describe("Words to look for (may be empty with tag)."),
     workspace_id: z.string().optional().describe("Only search this workspace."),
     limit: z.number().int().min(1).max(50).default(10).describe("Maximum results (1-50, default 10)."),
     include_archived: z
       .boolean()
       .optional()
       .describe("Also include archived pages (out of date but kept; not the trash), marked archived: true. Left out by default."),
+    tag: z.string().optional().describe('Only pages whose text carries this #tag or one under it ("home" also finds #home/renovation).'),
   }),
   listPages: z.object({
     workspace_id: id("workspace"),
@@ -673,11 +675,12 @@ export async function listGroups(ctx: OperationContext, { workspace_id }: Args<"
  * pages with any of the query's words, not all (AI chat, which searches with whole questions).
  * Archived pages (server/page-outdated.ts) only with `include_archived`. Text in double quotes must
  * appear as written (lib/search-query), except with `anyWord`. `filters`: teamspaces, people who
- * created or last edited a page, and when (the REST API's search parameters).
+ * created or last edited a page, and when, and tags (the REST API's search parameters); `tag`
+ * narrows to pages carrying it (lib/tags).
  */
 export async function search(
   ctx: OperationContext,
-  { query, workspace_id, limit, include_archived = false }: Args<"search">,
+  { query, workspace_id, limit, include_archived = false, tag }: Args<"search">,
   {
     within,
     passages = false,
@@ -687,9 +690,11 @@ export async function search(
     within?: ChatScopeRef;
     passages?: boolean;
     anyWord?: boolean;
-    filters?: Pick<pages.SearchOptions, "teamspaceIds" | "createdBy" | "editedBy" | "createdIn" | "editedIn">;
+    filters?: Pick<pages.SearchOptions, "teamspaceIds" | "createdBy" | "editedBy" | "createdIn" | "editedIn" | "tags">;
   } = {},
 ) {
+  const tagged = tag === undefined ? null : searchedTag(tag.trim().replace(/^#/, ""));
+  if (tag !== undefined && !tagged) throw new ToolInputError(`"${tag}" is not a tag: letters, digits, _ and -, with / between levels, at least one letter.`);
   const hits = await pages.searchPages(ctx.userId, query, {
     workspaceId: workspace_id,
     limit,
@@ -698,6 +703,7 @@ export async function search(
     includeOutdated: include_archived,
     ...(anyWord ? {} : { phrases: parseSearchQuery(query).phrases }),
     ...filters,
+    ...(tagged ? { tags: [...(filters.tags ?? []), tagged.key] } : {}),
   });
   const verifications = await activeVerifications(hits.filter((h) => h.verified).map((h) => h.id));
   return {

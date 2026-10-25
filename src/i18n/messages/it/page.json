@@ -1348,5 +1348,10 @@
     "title": "Trasforma in pagina in",
     "here": "Dentro questa pagina",
     "failed": "Impossibile spostare i blocchi in una nuova pagina."
+  },
+  "tags": {
+    "label": "Tag",
+    "pages": "{count, plural, one {# pagina} other {# pagine}}",
+    "find": "Trova le pagine con #{tag}"
   }
 }

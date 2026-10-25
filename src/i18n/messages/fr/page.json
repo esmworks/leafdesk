@@ -1348,5 +1348,10 @@
     "title": "Transformer en page dans",
     "here": "Dans cette page",
     "failed": "Impossible de déplacer les blocs vers une nouvelle page."
+  },
+  "tags": {
+    "label": "Étiquettes",
+    "pages": "{count, plural, one {# page} other {# pages}}",
+    "find": "Trouver les pages avec #{tag}"
   }
 }

@@ -3,7 +3,7 @@ import { hasSearchFilters, parseSearchQuery } from "./search-query";
 
 describe("parseSearchQuery", () => {
   it("leaves plain text as it is", () => {
-    expect(parseSearchQuery("  launch   plan ")).toEqual({ text: "launch plan", within: [], kinds: [], verified: false, phrases: [] });
+    expect(parseSearchQuery("  launch   plan ")).toEqual({ text: "launch plan", within: [], kinds: [], verified: false, phrases: [], tags: [] });
   });
 
   it("takes in: filters, quoted or not, anywhere in the query", () => {
@@ -13,6 +13,7 @@ describe("parseSearchQuery", () => {
       kinds: [],
       verified: false,
       phrases: [],
+      tags: [],
     });
     expect(parseSearchQuery("in:projects IN:Projects").within).toEqual(["projects"]);
   });
@@ -22,7 +23,7 @@ describe("parseSearchQuery", () => {
   });
 
   it("takes type:journal (and daily) for daily notes", () => {
-    expect(parseSearchQuery("standup type:journal type:Daily")).toEqual({ text: "standup", within: [], kinds: ["journal"], verified: false, phrases: [] });
+    expect(parseSearchQuery("standup type:journal type:Daily")).toEqual({ text: "standup", within: [], kinds: ["journal"], verified: false, phrases: [], tags: [] });
   });
 
   it("searches unknown filters, empty values and phrases as text", () => {
@@ -32,11 +33,12 @@ describe("parseSearchQuery", () => {
       kinds: [],
       verified: false,
       phrases: ["a phrase"],
+      tags: [],
     });
   });
 
   it("takes is:verified, and searches other is: values as text", () => {
-    expect(parseSearchQuery("onboarding IS:Verified")).toEqual({ text: "onboarding", within: [], kinds: [], verified: true, phrases: [] });
+    expect(parseSearchQuery("onboarding IS:Verified")).toEqual({ text: "onboarding", within: [], kinds: [], verified: true, phrases: [], tags: [] });
     expect(parseSearchQuery("is:done").text).toBe("is:done");
   });
 
@@ -67,9 +69,30 @@ describe("parseSearchQuery", () => {
     expect(parsed.within).toEqual(["x"]);
   });
 
+  it("takes #tags and tag: filters, compared without case or accents", () => {
+    expect(parseSearchQuery("budget #Home/Renovation tag:Café #home/renovation")).toEqual({
+      text: "budget",
+      within: [],
+      kinds: [],
+      verified: false,
+      phrases: [],
+      tags: ["home/renovation", "cafe"],
+    });
+    expect(parseSearchQuery('tag:"#İstanbul" #ışık').tags).toEqual(["istanbul", "isik"]);
+    // A trailing slash or hyphen while typing still narrows to the tag.
+    expect(parseSearchQuery("#home/").tags).toEqual(["home"]);
+  });
+
+  it("searches what isn't a tag as text", () => {
+    const parsed = parseSearchQuery("#1 # #123 C# tag:42 #a//b #ff0000 tag:");
+    expect(parsed.tags).toEqual([]);
+    expect(parsed.text).toBe("#1 # #123 C# tag:42 #a//b #ff0000 tag:");
+  });
+
   it("tells whether a query has filters", () => {
     expect(hasSearchFilters(parseSearchQuery("text"))).toBe(false);
     expect(hasSearchFilters(parseSearchQuery("type:row"))).toBe(true);
     expect(hasSearchFilters(parseSearchQuery("is:verified"))).toBe(true);
+    expect(hasSearchFilters(parseSearchQuery("#home"))).toBe(true);
   });
 });

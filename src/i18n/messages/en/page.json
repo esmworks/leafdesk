@@ -1348,5 +1348,10 @@
     "title": "Turn into page in",
     "here": "Inside this page",
     "failed": "Couldn't move the blocks to a new page."
+  },
+  "tags": {
+    "label": "Tags",
+    "pages": "{count, plural, one {# page} other {# pages}}",
+    "find": "Find pages tagged #{tag}"
   }
 }

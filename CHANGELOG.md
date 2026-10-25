@@ -24,6 +24,17 @@
   calendar feed of assigned rows includes the dated ones. Group and agent mentions don't count.
   Migration 0146 adds the index (`page_task`), kept in line on every save, and queues the pages
   written before it, which the server indexes in the background after the upgrade.
+- **`#tags` in page text.** Write `#tag` anywhere in a page (letters, digits, `_` and `-`, at
+  least one letter, `/` for a hierarchy such as `#home/renovation`) and find every page carrying
+  it with `#tag` or `tag:tag` in the search box; a tag also finds the tags under it, and case and
+  accents don't count. Tags stay plain text: code, equations, diagram sources, links and mentions
+  hold none, and `# ` at the start of a line still makes a heading. Typing `#` and a letter in the
+  search box or in a page offers the tags of pages you can open, most used first with how many
+  pages carry each; pages mark tags in the accent color, and clicking one (with Ctrl or Cmd where
+  the page can be edited) searches for it. MCP's `search` and the REST API's `GET /search` take a
+  `tag`. Migration 0147 adds the index of tags, kept in line on every save, and queues pages
+  written before it, which a background job reads once; a restored workspace's pages are read
+  again the same way.
 - **Type dates in words, everywhere a date is typed.** One grammar reads dates after `@` in a page,
   in a new box on top of a date property's picker, in a date mention's menu (for its date and for
   a reminder at any time) and under a date filter's value; the box shows what the words name and

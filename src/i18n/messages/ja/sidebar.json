@@ -79,7 +79,8 @@
       "in": "ページ内",
       "type": "データベースのみ（またはpage、row）",
       "commands": "コマンド",
-      "phrase": "完全一致するフレーズ"
+      "phrase": "完全一致するフレーズ",
+      "tag": "タグ"
     },
     "filters": {
       "label": "フィルター",
@@ -110,7 +111,9 @@
         "createdNewest": "作成日：新しい順",
         "createdOldest": "作成日：古い順"
       }
-    }
+    },
+    "tags": "タグ",
+    "tagPages": "{count, plural, other {#ページ}}"
   },
   "trash": {
     "title": "ゴミ箱",
