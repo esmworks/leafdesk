@@ -8,7 +8,10 @@
  * HTML (pages nested as in the space, panels, code, tasks, expands, links and attachments), Evernote exports (a database
  * each with tags, times, author and source URL as properties, a row per note with its to-dos,
  * tables and attachments, encrypted text and unreadable notes reported, entity declarations
- * refused, exports in a ZIP), PDFs (a page of their text: headings
+ * refused, exports in a ZIP), TextBundles and TextPacks (a page each, titled by their heading,
+ * their assets uploaded), OneNote's single-file web page exports (a page, a section's pages under
+ * one named after it, pictures uploaded, tag icons and outside pictures left out) and other
+ * single-file web pages, PDFs (a page of their text: headings
  * by size, paragraphs joined across lines and page breaks, lists, running headers and footers left
  * out, the PDF itself attached; a scan refused), Trello boards (a database on a
  * board view grouped by list, labels, members as people or text, dates, checklists, custom fields,
@@ -64,6 +67,8 @@ const { importConfluence } = await import("@/server/import/confluence");
 const { confluenceExport } = await import("@/server/import/confluence-fixtures");
 const { importEnex } = await import("@/server/import/enex");
 const enexFixture = await import("@/lib/import/enex-fixtures");
+const { importMhtml } = await import("@/server/import/mhtml");
+const mhtmlFixture = await import("@/lib/import/mhtml-fixtures");
 const { importPdf } = await import("@/server/import/pdf");
 const { default: pdfmake } = await import("pdfmake");
 const { importCsvAsDatabase, importCsvIntoDatabase } = await import("@/server/import/csv");
@@ -755,6 +760,139 @@ try {
     "Evernote exports go only where the user may add pages",
   );
 
+  // TextBundles and TextPacks: a page each, beside the other files of the upload
+  const bundlesHome = await createPage(owner, { workspaceId, title: "Bundles" });
+  const tripPack = zip({
+    "Trip.textbundle/info.json": JSON.stringify({ version: 2, type: "net.daringfireball.markdown" }),
+    "Trip.textbundle/text.md": "# Paris trip\n\n![Eiffel](assets/eiffel%20tower.png)\n\nSee [the plan](../Plan.textbundle) and [tickets](assets/tickets.pdf).",
+    "Trip.textbundle/assets/eiffel tower.png": png,
+    "Trip.textbundle/assets/tickets.pdf": "%PDF-1.4 tickets",
+    "Trip.textbundle/assets/unused.png": png,
+  });
+  const fromBundles = await importPages(owner, {
+    workspaceId,
+    parentId: bundlesHome.id,
+    files: [
+      { path: "Notes.zip", data: zip({ "Notes/Trip.textpack": tripPack, "Notes/Plan.textbundle/text.txt": "Pack the bags", "Notes/Plan.textbundle/info.json": "{}", "Notes/Loose.md": "# Loose\n\nPlain Markdown" }) },
+      { path: "Inbox.textpack", data: zip({ "text.md": "No heading here", "info.json": "{}" }) },
+    ],
+  });
+  const notesFolder = await byTitle(bundlesHome.id, "Notes");
+  check(
+    JSON.stringify(fromBundles.pages.map((p) => p.title)) === JSON.stringify(["Inbox", "Notes"]) &&
+      (await titles(notesFolder.id)).join() === "Loose,Plan,Paris trip",
+    "each TextBundle and TextPack becomes a page, titled by its heading or else its name, beside the upload's other files",
+    { pages: fromBundles.pages, notes: await titles(notesFolder.id) },
+  );
+  const tripPage = await byTitle(notesFolder.id, "Paris trip");
+  const planPage = await byTitle(notesFolder.id, "Plan");
+  const tripFiles = await db.select().from(file).where(eq(file.pageId, tripPage.id));
+  await eventually(async () => (await body(tripPage.id)).includes("/api/files/"), "the trip body");
+  const tripBody = await body(tripPage.id);
+  check(
+    tripFiles.map((f) => f.name).sort().join() === "eiffel tower.png,tickets.pdf" &&
+      tripFiles.every((f) => tripBody.includes(`/api/files/${f.id}`)) && !tripBody.includes("# Paris trip") && tripBody.includes(pagePath(workspaceId, planPage.id)),
+    "…its assets uploaded to it and its links pointed at the uploads and at the other bundle's page",
+    { tripFiles, tripBody },
+  );
+  await eventually(async () => (await body(planPage.id)).includes("Pack the bags"), "the plan body");
+  const bundleWarned = fromBundles.warnings.map((w) => `${w.code}:${"path" in w ? w.path : ""}:${"reason" in w ? w.reason : ""}`);
+  check(
+    JSON.stringify(bundleWarned) === JSON.stringify(["skipped:Notes/Trip.textbundle/assets/unused.png:unused"]),
+    "…an asset the text doesn't show reported, info.json left out quietly",
+    fromBundles.warnings,
+  );
+  const [bundleAudit] = await db
+    .select()
+    .from(auditEvent)
+    .where(and(eq(auditEvent.workspaceId, workspaceId), eq(auditEvent.action, "page.imported"), eq(auditEvent.actorUserId, ids.owner)))
+    .orderBy(desc(auditEvent.createdAt))
+    .limit(1);
+  check((bundleAudit?.details as { format?: string } | undefined)?.format === "textbundle", "a TextBundle import is recorded as one", bundleAudit);
+
+  // OneNote's single-file web pages: a page, or a section's pages under one named after it
+  const { oneNoteFile, oneNoteHtml, oneNotePage, PNG_BASE64: ONE_PNG } = mhtmlFixture;
+  const oneNoteHome = await createPage(owner, { workspaceId, title: "OneNote" });
+  const sectionFile = oneNoteFile(
+    oneNoteHtml([
+      oneNotePage({
+        title: "Kickoff",
+        outlines: [
+          "<p>Agenda with <span style='font-weight:bold'>owners</span> and <a href=\"https://example.com/agenda\">the doc</a></p>",
+          "<p><img src=\"Notes_files/image002.png\" width=16 height=16>Send the notes</p>",
+          "<img src=\"Notes_files/image001.png\" width=300 height=200><img src=\"https://cdn.example/remote.png\">",
+        ],
+      }),
+      oneNotePage({ title: "Follow-up", outlines: ["<ul><li>Budget</li><li>Hiring</li></ul>", "<img src=\"Notes_files/image001.png\">"] }),
+    ]),
+    { "image001.png": ONE_PNG, "image002.png": ONE_PNG },
+  );
+  const pageFile = oneNoteFile(oneNoteHtml([oneNotePage({ title: "Ideas", outlines: ["<p>One idea</p>"] })]));
+  const fromOneNote = await importMhtml(owner, {
+    workspaceId,
+    parentId: oneNoteHome.id,
+    files: [
+      { name: "Meetings.mht", data: sectionFile },
+      { name: "Ideas.mht", data: pageFile },
+    ],
+  });
+  const meetings = await byTitle(oneNoteHome.id, "Meetings");
+  check(
+    JSON.stringify(fromOneNote.pages.map((p) => p.title)) === JSON.stringify(["Meetings", "Ideas"]) &&
+      (await titles(meetings.id)).join() === "Kickoff,Follow-up" && fromOneNote.created.pages === 4,
+    "a OneNote section becomes a page named after it with a page under it per OneNote page; a page export one page",
+    { pages: fromOneNote.pages, created: fromOneNote.created },
+  );
+  const kickoff = await byTitle(meetings.id, "Kickoff");
+  const followUp = await byTitle(meetings.id, "Follow-up");
+  const oneNoteFiles = await db.select().from(file).where(eq(file.pageId, kickoff.id));
+  await eventually(async () => (await body(kickoff.id)).includes("Send the notes"), "the kickoff body");
+  const kickoffBody = await body(kickoff.id);
+  check(
+    fromOneNote.created.files === 1 && oneNoteFiles.length === 1 && oneNoteFiles[0].name === "image001.png" &&
+      (kickoffBody.match(/!\[/g) ?? []).length === 1 && kickoffBody.includes(`/api/files/${oneNoteFiles[0].id}`) &&
+      kickoffBody.includes("**owners**") && kickoffBody.includes("[the doc](https://example.com/agenda)") &&
+      kickoffBody.includes("Thursday, October 1, 2026 9:30 AM") && !kickoffBody.includes("Kickoff") && !kickoffBody.includes("Created with OneNote"),
+    "…its picture uploaded once, the tag icon and the outside picture left out, the title out of the body and the date kept",
+    { kickoffBody, oneNoteFiles },
+  );
+  await eventually(async () => (await body(followUp.id)).includes("Hiring"), "the follow-up body");
+  check((await body(followUp.id)).includes(`/api/files/${oneNoteFiles[0].id}`), "…the same picture on another page points at the one upload", await body(followUp.id));
+  const oneNoteWarned = fromOneNote.warnings.map((w) => `${w.code}:${"path" in w ? w.path : ""}:${"reason" in w ? w.reason : ""}`);
+  check(JSON.stringify(oneNoteWarned) === JSON.stringify(["fileNotStored:Meetings.mht/remote.png:external"]), "…and the outside picture reported", fromOneNote.warnings);
+  const [oneNoteAudit] = await db
+    .select()
+    .from(auditEvent)
+    .where(and(eq(auditEvent.workspaceId, workspaceId), eq(auditEvent.action, "page.imported"), eq(auditEvent.actorUserId, ids.owner)))
+    .orderBy(desc(auditEvent.createdAt))
+    .limit(1);
+  check((oneNoteAudit?.details as { format?: string } | undefined)?.format === "onenote", "a OneNote import is recorded as one", oneNoteAudit);
+  const savedPage = mhtmlFixture.mhtml([
+    { type: "text/html", charset: "windows-1252", location: "https://example.com/post.html", encoding: "8bit", body: "", bytes: Uint8Array.from("<title>Caf\u00e9 notes</title><p>Saved \u0093page\u0094</p>", (c) => c.charCodeAt(0)) },
+  ]);
+  const fromWeb = await importMhtml(owner, { workspaceId, parentId: oneNoteHome.id, files: [{ name: "post.mhtml", data: savedPage }] });
+  await eventually(async () => (await body(fromWeb.pages[0].id)).includes("page"), "the saved page body");
+  check(
+    fromWeb.pages[0].title === "Café notes" && (await body(fromWeb.pages[0].id)).includes("Saved \u201cpage\u201d"),
+    "a web page saved as one file comes in as a page, in its character set",
+    { pages: fromWeb.pages, body: await body(fromWeb.pages[0].id) },
+  );
+  const oneNoteBefore = (await titles(oneNoteHome.id)).length;
+  check(
+    (await failure(() =>
+      importMhtml(owner, { workspaceId, parentId: oneNoteHome.id, files: [{ name: "Good.mht", data: pageFile }, { name: "Broken.mht", data: strToU8("<p>not MIME</p>") }] }),
+    )) === "badMhtml" && (await titles(oneNoteHome.id)).length === oneNoteBefore,
+    "a file that isn't a web archive stops the import before any page is created",
+  );
+  check(
+    (await failure(() => importMhtml(owner, { workspaceId, parentId: oneNoteHome.id, files: [{ name: "Notes.one", data: strToU8("binary") }] }))) === "badMhtml",
+    "only .mht and .mhtml files are taken",
+  );
+  check(
+    (await failure(() => importMhtml({ userId: ids.guest }, { workspaceId, parentId: oneNoteHome.id, files: [{ name: "x.mht", data: pageFile }] }))) === "access",
+    "web archives go only where the user may add pages",
+  );
+
   // PDFs: a page of their text each (generated here with the standard Helvetica font, so they stay small)
   pdfmake.setFonts({ Helvetica: { normal: "Helvetica", bold: "Helvetica-Bold", italics: "Helvetica-Oblique", bolditalics: "Helvetica-BoldOblique" } });
   pdfmake.setUrlAccessPolicy(() => false);
@@ -1367,6 +1505,16 @@ try {
     "…and refuses a damaged one with a code the dialog translates",
     brokenEnex,
   );
+  const mhtmlRoute = await post({ mode: "mhtml", workspaceId, parentId: home.id }, [{ name: "Ideas.mht", data: pageFile }]);
+  check(mhtmlRoute.status === 201 && mhtmlRoute.json.pages[0].title === "Ideas" && mhtmlRoute.json.created.pages === 1, "…OneNote's web archives as pages", mhtmlRoute);
+  const brokenMhtml = await post({ mode: "mhtml", workspaceId, parentId: home.id }, [{ name: "Broken.mht", data: "not an archive" }]);
+  check(
+    brokenMhtml.status === 400 && brokenMhtml.json.code === "badMhtml" && brokenMhtml.json.params.name === "Broken.mht",
+    "…and refuses a file that isn't one with a code the dialog translates",
+    brokenMhtml,
+  );
+  const packRoute = await post({ mode: "pages", workspaceId, parentId: home.id }, [{ name: "Inbox.textpack", data: zip({ "text.md": "# Packed\n\nText" }) }]);
+  check(packRoute.status === 201 && packRoute.json.pages[0].title === "Packed", "…and TextPacks with the pages", packRoute);
   const pdfRoute = await post({ mode: "pdf", workspaceId, parentId: home.id, attach: "1" }, [{ name: "Memo.pdf", data: memoPdf }]);
   check(pdfRoute.status === 201 && pdfRoute.json.pages[0].title === "Memo" && pdfRoute.json.created.files === 1, "…PDFs as pages, attached when asked", pdfRoute);
   const scanRoute = await post({ mode: "pdf", workspaceId, parentId: home.id }, [{ name: "Scan.pdf", data: scanPdf }]);

@@ -896,6 +896,35 @@
   links, pictures and linked attachments are uploaded to the page under their own names, and a
   link to a page the export doesn't hold keeps its text and is reported. Other macros keep the
   text they show. The export's HTML is read without running its scripts or loading anything.
+- **Import TextBundles and TextPacks**: Bear, Ulysses, iA Writer and other Markdown apps export a
+  note as a TextBundle (a `Name.textbundle` folder holding `info.json`, the text as `text.md`,
+  `text.markdown` or `text.txt`, and an `assets/` folder) or a TextPack (the same, zipped). Choose
+  `.textpack` files, a ZIP of them (alongside other Markdown, as in any ZIP), or a folder holding
+  `.textbundle` folders on Import's Markdown tab. Each bundle becomes a page beside the upload's
+  other files, titled by the heading its text starts with (which then leaves the body), else by the
+  bundle's name; its text is read as Markdown, and the pictures and files of its `assets/` folder
+  that the text shows are uploaded to the page, as for any Markdown note. Assets the text doesn't
+  show are listed in the result; `info.json` is left out. A link from one bundle to another leads
+  to that bundle's page.
+- **Import from OneNote**: OneNote's own `.one` and `.onepkg` files can't be read outside OneNote,
+  so export first: in OneNote for Windows, choose *File → Export*, then *Page* or *Section* and
+  *Single File Web Page (\*.mht)*, and pick the saved files on Import's *OneNote (.mht)* tab. A
+  page's file becomes a page titled by the page's title, with its date and time as the first line;
+  a section's file becomes a page named after the file (OneNote names it after the section) with a
+  page under it for each OneNote page, in order. Headings, bold, italic, underline, lists, tables,
+  web and mail links and pictures come along; pictures are uploaded once each, and a picture shown
+  on several pages points at the one upload. OneNote's tag icons (to-do boxes and the like, exported
+  as tiny pictures), its "Created with OneNote" line and links between OneNote pages are left out.
+  A file whose pages don't have the shape OneNote writes comes in as one page. OneNote's *Word
+  Document (.docx)* and *PDF* exports can be imported on the Word and PDF tabs instead. Any other
+  web page saved as one file (`.mht` or `.mhtml`, by a browser or Word) is imported on the same tab
+  as one page, titled by a first-level heading at its very top, else its `<title>`, else its file
+  name, with all of its body (menus included: it isn't trimmed to its article as *Save from web*
+  does). The file is read as a MIME message (`base64` and quoted-printable parts, each text in its
+  character set) and its pictures are found by `Content-Location` or `cid:`; nothing it links to
+  outside the file is fetched (such pictures are left out and reported), its HTML is read without
+  running scripts or loading anything, and only what pages can hold survives. Tested against files
+  written by hand in the shape OneNote's export has, not yet a real export.
 - **Import from Evernote**: in Evernote, select notes or a notebook and choose *Export → ENEX*,
   then pick the .enex files (or a ZIP of them) on Import's Evernote tab. Each export becomes a
   database named after its file, with a row per note: tags become a multi-select, the creation and

@@ -7,6 +7,7 @@
     "docx": "Word",
     "pdf": "PDF",
     "evernote": "Evernote",
+    "onenote": "OneNote (.mht)",
     "confluence": "Confluence",
     "csv": "CSV & Excel",
     "trello": "Trello",
@@ -25,6 +26,7 @@
     "help": "Markdown-Dateien werden zu Seiten, und Ordner behalten ihre Struktur. CSV-Dateien werden zu Datenbanken, und Bilder, auf die Seiten verlinken, werden hochgeladen.",
     "notion": "Aus Notion: Exportiere als „Markdown & CSV“ mit Unterseiten und wähle die ZIP-Datei so, wie sie heruntergeladen wurde (auch aufgeteilte Exporte funktionieren). Unterseiten, Datenbanken, Relationen, Callouts, Toggles und Bilder werden mit übernommen.",
     "obsidian": "Aus Obsidian: Wähle den Ordner des Vaults oder eine ZIP-Datei davon. Links zwischen Notizen (auch [[Wikilinks]]), eingebettete Bilder und Dateien sowie Callouts werden mit übernommen.",
+    "textbundle": "TextBundle- und TextPack-Dateien (aus Bear, Ulysses, iA Writer und anderen Markdown-Apps) werden je zu einer Seite, mit ihren Bildern und Anhängen: Wähle .textpack-Dateien, eine ZIP-Datei davon oder einen Ordner mit .textbundle-Ordnern.",
     "chooseFiles": "Dateien auswählen",
     "chooseFolder": "Ordner auswählen",
     "drop": "oder Dateien hierher ziehen",
@@ -53,6 +55,11 @@
       "sourceUrl": "Quell-URL",
       "encrypted": "Verschlüsselter Text wurde beim Import ausgelassen."
     }
+  },
+  "onenote": {
+    "help": "Jede Datei wird zu einer Seite mit ihrem Text, ihren Überschriften, Listen, Tabellen, Links und Bildern. Die Datei eines Abschnitts wird zu einer Seite mit dem Namen des Abschnitts und darunter einer Seite für jede seiner Seiten. Jede als einzelne Datei gespeicherte Webseite (.mht oder .mhtml) lässt sich ebenfalls importieren.",
+    "export": "Wähle in OneNote für Windows Datei → Exportieren, dann Seite oder Abschnitt und Webseite in einer Datei (*.mht), und wähle hier die gespeicherten Dateien. Die Word- (.docx) und PDF-Exporte von OneNote lassen sich auf den Tabs Word und PDF importieren.",
+    "choose": ".mht-Dateien auswählen"
   },
   "confluence": {
     "help": "Jede Seite eines Confluence-Bereichs wird eine Seite, verschachtelt wie im Bereich. Überschriften, Listen, Tabellen, Codeblöcke, Infopanels (als Hinweisboxen), aufklappbare Abschnitte (als Umschaltlisten), Aufgabenlisten, Bilder und angehängte Dateien kommen mit, und Links zwischen Seiten werden Seitenerwähnungen.",
@@ -294,6 +301,7 @@
     "pdfNoText": "„{name}“ hat keinen Text zum Importieren: Es sieht nach einem Scan aus. Lass zuerst eine Texterkennung (OCR) darüber laufen oder lade es als Datei auf eine Seite hoch.",
     "pdfTooComplex": "„{name}“ ist zu groß, um als eine Seite importiert zu werden.",
     "badEnex": "„{name}“ kann nicht als Evernote-Export gelesen werden. Exportiere die Notizen in Evernote als ENEX (.enex) und wähle diese Datei.",
+    "badMhtml": "„{name}“ kann nicht als Webseite in einer Datei gelesen werden. Exportiere in OneNote als Webseite in einer Datei (*.mht) und wähle diese Datei.",
     "badTrello": "Die Datei ist kein Trello-Board-Export. Wähle in Trello im Menü des Boards Als JSON exportieren und dann diese Datei.",
     "badAsana": "Die Datei ist kein Asana-Projektexport. Wähle in Asana im Menü des Projekts Exportieren → CSV oder JSON und dann diese Datei.",
     "badMonday": "Die Datei ist kein Monday.com-Board-Export. Wähle in Monday.com im Menü des Boards Board nach Excel exportieren und dann diese Datei.",

@@ -7,6 +7,7 @@
     "docx": "Word",
     "pdf": "PDF",
     "evernote": "Evernote",
+    "onenote": "OneNote (.mht)",
     "confluence": "Confluence",
     "csv": "CSV ve Excel",
     "trello": "Trello",
@@ -25,6 +26,7 @@
     "help": "Markdown dosyaları sayfa olur, klasörler yapısını korur. CSV dosyaları veritabanı olur, sayfaların bağlantı verdiği görseller yüklenir.",
     "notion": "Notion'dan: Notion'da “Markdown ve CSV” biçiminde, alt sayfalarla dışa aktarın ve indirilen ZIP'i olduğu gibi seçin (parçalara bölünmüş dışa aktarımlar da olur). Alt sayfalar, veritabanları, ilişkiler, açıklama kutuları, açılır bloklar ve görseller birlikte gelir.",
     "obsidian": "Obsidian'dan: kasanın klasörünü ya da ZIP'ini seçin. Notlar arası bağlantılar ([[wikilink]]'ler dahil), gömülü görseller ve dosyalar ve açıklama kutuları birlikte gelir.",
+    "textbundle": "TextBundle ve TextPack dosyaları (Bear, Ulysses, iA Writer ve diğer Markdown uygulamalarından) görselleri ve ekleriyle birlikte birer sayfa olur: .textpack dosyalarını, bunların ZIP'ini ya da .textbundle klasörleri içeren bir klasörü seçin.",
     "chooseFiles": "Dosya seç",
     "chooseFolder": "Klasör seç",
     "drop": "ya da dosyaları buraya bırakın",
@@ -53,6 +55,11 @@
       "sourceUrl": "Kaynak URL",
       "encrypted": "Şifreli metin içe aktarıma alınmadı."
     }
+  },
+  "onenote": {
+    "help": "Her dosya; metni, başlıkları, listeleri, tabloları, bağlantıları ve görselleriyle bir sayfa olur. Bir bölümün dosyası, bölümün adını taşıyan bir sayfa olur ve altında bölümün her sayfası için bir sayfa oluşur. Tek dosya olarak kaydedilmiş herhangi bir web sayfası (.mht veya .mhtml) da içe aktarılabilir.",
+    "export": "Windows için OneNote'ta Dosya → Dışarı Aktar'ı, ardından Sayfa veya Bölüm ile Tek Dosya Web Sayfası (*.mht) seçeneğini seçin ve kaydedilen dosyaları burada seçin. OneNote'un Word (.docx) ve PDF dışa aktarımları Word ve PDF sekmelerinden içe aktarılabilir.",
+    "choose": ".mht dosyalarını seçin"
   },
   "confluence": {
     "help": "Confluence alanının her sayfası, alandaki gibi iç içe bir sayfa olur. Başlıklar, listeler, tablolar, kod blokları, bilgi panelleri (vurgu kutusu olarak), açılır bölümler (açılır liste olarak), görev listeleri, görseller ve ekli dosyalar gelir; sayfalar arası bağlantılar sayfa bahsetmesine dönüşür.",
@@ -294,6 +301,7 @@
     "pdfNoText": "“{name}” içinde içe aktarılacak metin yok: taranmış bir belgeye benziyor. Önce metin tanıma (OCR) uygulayın ya da bir sayfaya dosya olarak yükleyin.",
     "pdfTooComplex": "“{name}” tek bir sayfa olarak içe aktarılamayacak kadar büyük.",
     "badEnex": "“{name}” bir Evernote dışa aktarımı olarak okunamıyor. Evernote'ta notları ENEX (.enex) olarak dışa aktarıp o dosyayı seçin.",
+    "badMhtml": "“{name}” tek dosyalık bir web sayfası olarak okunamıyor. OneNote'ta Tek Dosya Web Sayfası (*.mht) olarak dışarı aktarıp o dosyayı seçin.",
     "badTrello": "Dosya bir Trello panosu dışa aktarımı değil. Trello'da panonun menüsünden JSON olarak dışa aktar'ı seçip o dosyayı seçin.",
     "badAsana": "Dosya bir Asana projesi dışa aktarımı değil. Asana'da projenin menüsünden Dışa aktar → CSV veya JSON'u seçip o dosyayı seçin.",
     "badMonday": "Dosya bir Monday.com panosu dışa aktarımı değil. Monday.com'da panonun menüsünden Panoyu Excel'e aktar'ı seçip o dosyayı seçin.",
