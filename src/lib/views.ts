@@ -17,6 +17,7 @@ import { colorRulesConfigError } from "./color-rules";
 import { CHART_ACCUMULATES, CHART_SORTS, CHART_TYPES, isBoardAggregateFn, isChartAggregateFn } from "./chart";
 import { filterConfigError } from "./filters";
 import { formConfigError } from "./forms";
+import { isLoadLimit, LOAD_LIMITS } from "./load-limit";
 import { CREATED_KEY, SELECT_COLORS } from "./properties";
 import { SUB_ITEMS_DISPLAYS } from "./sub-items";
 
@@ -134,6 +135,7 @@ export function layoutConfigError(config: ViewConfig): string | null {
   if (c.defaultTemplateId !== undefined && c.defaultTemplateId !== null && (typeof c.defaultTemplateId !== "string" || !c.defaultTemplateId)) {
     return "defaultTemplateId must be a row template's id, or null for blank rows";
   }
+  if (c.loadLimit !== undefined && !isLoadLimit(c.loadLimit)) return `Load limit must be one of: ${LOAD_LIMITS.join(", ")}`;
   if (c.cardSize !== undefined && !CARD_SIZES.includes(c.cardSize as CardSize)) {
     return `Card size must be one of: ${CARD_SIZES.join(", ")}`;
   }

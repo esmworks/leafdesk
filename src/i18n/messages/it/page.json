@@ -245,6 +245,7 @@
     "change": "Sfondo",
     "colors": "Colore",
     "patterns": "Motivo",
+    "covers": "Copertina",
     "none": "Nessuno",
     "remove": "Rimuovi sfondo",
     "colorNames": {
@@ -262,6 +263,16 @@
       "plus": "Croci",
       "grid": "Griglia",
       "lines": "Linee"
+    },
+    "coverNames": {
+      "sunrise": "Alba",
+      "ocean": "Oceano",
+      "forest": "Foresta",
+      "dusk": "Crepuscolo",
+      "aurora": "Aurora boreale",
+      "sand": "Sabbia",
+      "mint": "Menta",
+      "slate": "Ardesia"
     }
   },
   "title": {
@@ -418,9 +429,11 @@
       "full": "Accesso completo",
       "edit": "Può modificare",
       "comment": "Può commentare",
+      "content": "Può modificare i contenuti",
       "view": "Può visualizzare",
       "none": "Nessun accesso"
     },
+    "contentHint": "Modificare testo e righe dei database, non proprietà, viste o impostazioni",
     "errors": {
       "notMember": "Questa persona non è un membro dello spazio di lavoro.",
       "lastFullAccess": "Qualcuno deve mantenere l’accesso completo alla pagina. Prima dai l’accesso completo a qualcun altro.",
@@ -1064,11 +1077,11 @@
         "mediaSize": "Dimensioni di immagini e video",
         "callout": "Colori e icone dei riquadri che il Markdown non può rappresentare",
         "textStyle": "Parte della formattazione, come la sottolineatura",
-        "table": "Larghezze delle colonne, righe di intestazione, celle unite e colori delle celle delle tabelle",
+        "table": "Celle unite delle tabelle",
         "blockSetting": "Altre impostazioni dei blocchi",
         "content": "Parte del contenuto che il Markdown non può contenere"
       },
-      "synced": "{count, plural, one {Le tue modifiche in un blocco sincronizzato: modificalo nella pagina} other {Le tue modifiche in # blocchi sincronizzati: modificali nella pagina}}",
+      "synced": "{count, plural, one {Le tue modifiche in un blocco sincronizzato che non puoi modificare} other {Le tue modifiche in # blocchi sincronizzati che non puoi modificare}}",
       "confirm": "Salva comunque"
     },
     "conflict": {

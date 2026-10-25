@@ -16,7 +16,8 @@
   "readOnlyHint": "Deseleziona per concedere l’accesso in sola lettura. Ogni modifica viene prima salvata nella cronologia della pagina, quindi puoi annullarla.",
   "access": {
     "all": "L’accesso riguarda tutti gli spazi di lavoro di cui fai parte. Puoi scollegare l’app in qualsiasi momento dalle Impostazioni.",
-    "listed": "L’accesso riguarda tutti gli spazi di lavoro di cui fai parte: {workspaces}. Puoi scollegare l’app in qualsiasi momento dalle Impostazioni."
+    "listed": "L’accesso riguarda tutti gli spazi di lavoro di cui fai parte: {workspaces}. Puoi scollegare l’app in qualsiasi momento dalle Impostazioni.",
+    "awaitingApproval": "{count, plural, one {{workspaces} accetta solo le app approvate dai suoi proprietari: questa app non lo raggiungerà finché uno di loro non la approva.} other {{workspaces} accettano solo le app approvate dai loro proprietari: questa app non li raggiungerà finché un proprietario non la approva.}}"
   },
   "deny": "Rifiuta",
   "denying": "Rifiuto in corso…",

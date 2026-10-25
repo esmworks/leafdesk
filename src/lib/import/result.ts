@@ -42,6 +42,8 @@ export const IMPORT_ERROR_CODES = [
   "badAsana",
   /** The file isn't a Monday.com board exported to Excel (or saved as CSV). */
   "badMonday",
+  /** The upload isn't a Confluence space exported as HTML (no page of one in it). */
+  "badConfluence",
   /** Merging: no column goes to a property, or two go to the same one. */
   "badMapping",
   /** The destination is missing, in the trash or not editable, or not a database when merging. */

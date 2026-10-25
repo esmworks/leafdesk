@@ -6,8 +6,9 @@
   colors included) and markdown shortcuts, icons (beside the title: an emoji, found by name in the interface language and
   in the skin tone you last picked, or one of a few hundred built-in line icons in one of nine colors
   that read well in light, dark and high contrast; *Random* picks one), backgrounds (a color that suits the light and dark theme, or black, with an optional faint
-  pattern), favorites, duplicate (copies numbered "Plan (1)", "Plan (2)"…, a copy of a copy counting on
-  from the original), move, trash with restore (emptied after a time owners choose; moving a page, or
+  pattern, and a cover: a band across the top in one of eight gradients, on the page and its published copy;
+  none of them loads an image), favorites, duplicate (copies numbered "Plan (1)", "Plan (2)"…, a copy of a
+  copy counting on from the original), move, trash with restore (emptied after a time owners choose; moving a page, or
   trashing pages or rows, shows a note with *Undo*, and a move links to where the page went), archive (an outdated page, such
   as an old price list, leaves the sidebar, search, pickers and database views with the pages and rows under it, yet stays
   readable, editable and linked; a banner on it says who archived it and when, and search finds it with *Include archived*), export as Markdown or PDF (or, with
@@ -211,11 +212,16 @@
   - Views: table, board, calendar, gallery, list, feed (rows as posts, newest first, with the
     start of their bodies, emoji reactions and their comments), timeline, map (rows as pins at a place
     property), chart and dashboard (widgets over the database, see Dashboards), each with its own filters,
-    sorting, grouping and shown properties (one by one, or all hidden or shown at once). Tables,
-    lists and galleries can group their rows into sections that fold away, boards always group
-    into columns and can split them into sub-groups by a second property (sections across every
-    column; a card dragged into another changes both values), and a board's columns can leave out
-    their option colors (*Color columns*). Filters
+    sorting, grouping and shown properties (one by one, or all hidden or shown at once). The *View
+    settings* menu beside the toolbar holds all of a view's settings in one place: its layout
+    (a table, board, calendar, gallery, list, feed, timeline or map switches to any of the others,
+    keeping its filters, sorts, properties and grouping, which a board shows as columns, a timeline
+    as swimlanes and a map as pin colors; a board, calendar or map without one picks what it goes by),
+    properties, filters, sorts and grouping, each a page of the menu, then the layout's own
+    settings, *Duplicate* and *Delete*. Tables, lists and galleries can group their rows into
+    sections that fold away, boards always group into columns and can split them into sub-groups
+    by a second property (sections across every column; a card dragged into another changes both
+    values), and a board's columns can leave out their option colors (*Color columns*). Filters
     combine with "and"/"or" in groups (nested up to three levels) and take relative dates: today,
     this, last or next week (Monday to Sunday), month or year, and the past or next few days. The
     filters in use show as chips under the view's toolbar: clicking one changes just that filter,
@@ -223,7 +229,7 @@
     filtered on what it does or does not contain, numbers with =, ≠, <, ≤, > and ≥, dates on,
     before, after, on or before and on or after a day, and selects, statuses, tags, relations and
     people on any of several values or none of them in one rule. A "Me" filter (also inside such a
-    list) shows each viewer their own rows. *Color rules* in the layout menu (tables, boards,
+    list) shows each viewer their own rows. *Color rules* in the view settings menu (tables, boards,
     galleries, lists, calendars, timelines) color the whole row or card, or one property's value,
     for the rows that match filters of the same kind; the first matching rule wins.
   - People who can only view a database (or a view whose settings they can't change) still filter
@@ -240,6 +246,10 @@
     with their day, to open or drag onto a weekday. Boards and galleries can wrap long values on
     their cards onto more lines instead of cutting them off (*Wrap all properties*), and a table
     can leave out the lines between its columns (*Show vertical lines*; published tables too).
+  - Large databases: a board column and a gallery show 50 cards, then *Load more* adds as many
+    again (Layout → *Load limit*: 10, 25, 50 or 100; filters, sorts, counts and calculations still
+    take every row, and cards added there stay in view). A list, like a table, draws only the lines
+    near the visible part of the page from 120 rows on. Published views show every card.
   - Clicking a value on a board or gallery card edits it in place with the table's editor, without
     opening the row; people who can't change it see the plain value.
   - *Duplicate view* in a view's tab menu makes a copy with its layout, filters, sorts and other
@@ -524,8 +534,12 @@
   or deleted, or when the blocks were removed from it, and keeps working when that page moves. The
   original lists the pages showing it, *Unsync* turns a reference into a plain copy, and a synced
   block can't go inside another. Published pages, Markdown and PDF exports and `get_page` over MCP
-  show the blocks with the same rules (a published page only when the original is published too);
-  Markdown written over MCP or the API leaves them as they are. Search, by words or by meaning,
+  show the blocks with the same rules (a published page only when the original is published too).
+  Markdown written over MCP, the REST API or *Edit as Markdown* writes what changed between a
+  synced block's marker lines to its blocks, where the writer may edit the original page (saving
+  that page to its history first); otherwise they stay as they are, and a synced block written with
+  nothing between its lines is only placed, as are synced blocks in imported Markdown. Tables written as Markdown keep their column widths,
+  header rows and columns, cell colors and alignment, which Markdown has no form for. Search, by words or by meaning,
   finds them on the original page only, and its history shows their changes.
 - **Graph**: every page someone can open in a workspace as a point, joined by the links between
   pages, database relations and the page tree, laid out by how they connect. It is beside a page
@@ -611,7 +625,10 @@
   whoever adds a page at its top. Below full access, members are held to the database property
   access rules too.
 - **Sharing and permissions**: give people, or everyone in the page's teamspace (the workspace
-  for a private page), full, edit, comment, view or no access to a page. Subpages inherit it
+  for a private page), full, edit, edit content, comment, view or no access to a page. *Can edit
+  content* writes the body, title and icon, adds and fills in rows and moves them to the trash, but
+  doesn't change how the page is set up: a database's properties, views, automations and row
+  templates, locking, moving or sharing it. Subpages inherit it
   unless you change them; pages nest at most 60 levels deep, so what is set above a page always
   reaches it. Share a page with someone outside the workspace by email and they join
   as a guest who sees only the pages shared with them (an account whose address was never
@@ -802,6 +819,17 @@
   wikilink or its ZIP holds the `.obsidian` folder; other Markdown keeps `%%`, `^` and `==` as
   written. A note whose first line is a heading other than its file name takes the heading as its
   title (links still find it by file name).
+- **Import from Confluence**: in Confluence, open a space's settings and choose *Export space →
+  HTML*, then pick the downloaded ZIP on Import's Confluence tab. Each page of the space becomes a
+  page, nested as the space's index lists them (a page it leaves out goes under the parent its
+  breadcrumbs name); a space with one top page comes in as that page, otherwise a page named after
+  the space holds the top pages. Headings, formatting, lists, tables, links and quotes come along;
+  info, note, tip and warning panels become callouts in their colors (with their titles), the code
+  macro a code block in its language, expand sections toggles, task lists to-dos, the table of
+  contents a table of contents and emoticons emoji. Links between the space's pages become page
+  links, pictures and linked attachments are uploaded to the page under their own names, and a
+  link to a page the export doesn't hold keeps its text and is reported. Other macros keep the
+  text they show. The export's HTML is read without running its scripts or loading anything.
 - **Import from Evernote**: in Evernote, select notes or a notebook and choose *Export → ENEX*,
   then pick the .enex files (or a ZIP of them) on Import's Evernote tab. Each export becomes a
   database named after its file, with a row per note: tags become a multi-select, the creation and
@@ -890,6 +918,19 @@
   full access can also sync now, change the query or sign-in, pick the person property the
   reporter goes to (or none), or stop syncing (the rows stay).
   Tested against a stand-in Jira (`scripts/jira-sync-e2e.ts`), not yet a real site.
+- **Sync GitHub pull requests**: Import's GitHub tab takes a repository (`owner/name` or its
+  address), a token for a private one (read access to pull requests is enough; it also raises
+  GitHub's rate limit, and is kept sealed) and, for GitHub Enterprise Server, its address, and makes
+  a database whose rows are the pull requests: number, title, state (*Draft*, *Open*, *Merged*,
+  *Closed*, grouped to do, in progress and done), author and assignees as persons when they sign in
+  to Leafdesk with that GitHub account (others by login in *Author (others)* and *Assignees
+  (others)*), labels, branch, base branch, created and merged dates and a link back, opening on a
+  board by state. It takes the open pull requests (and, on each run, the last 100 closed ones, to
+  finish the rows of those merged or closed since) or all of them, the 1,000 most recently updated,
+  and syncs as often and as one-way as a Jira sync. A spent rate limit waits for the next run; a
+  refused token or a deleted *Number* property pauses it. In the database's sync dialog people with
+  full access can change which pull requests it takes, how often, the token, sync now or stop.
+  Tested against a stand-in GitHub (`scripts/github-pulls-sync-e2e.ts`), not yet the real API.
 - **GitHub pull requests update tasks**: *GitHub pull requests* in the ••• menu of a database with
   an ID property with a prefix gives a payload URL and a secret to add as a repository webhook
   (JSON, *Pull requests* events). A pull request that names rows by their ID (`TASK-12`, in any

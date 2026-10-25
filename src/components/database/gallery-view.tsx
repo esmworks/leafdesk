@@ -11,8 +11,10 @@ import { pageLabel } from "@/lib/labels";
 import { isHiddenInView } from "@/lib/properties";
 import { firstImageFile } from "@/lib/files";
 import { coverProperty, galleryCover } from "@/lib/views";
+import { firstRows, loadLimitOf } from "@/lib/load-limit";
 import { CardTitleInput } from "./card-title-input";
 import { Floating, useFloating } from "./floating";
+import { LoadMore } from "./load-more";
 import { OpenRowItems } from "./open-row-items";
 import { shownValues, type CreateOption } from "./property-cell";
 import { CardValue, type SetCardValue } from "./card-value";
@@ -46,7 +48,7 @@ export function GalleryView({
   colors?: ReadonlyMap<string, RowColors>;
 }) {
   const t = useTranslations("database");
-  const { editTitleOf, typed, create: createNew, stopEditing, quick } = useNewRow(api, view, properties);
+  const { editTitleOf, typed, create: createNew, stopEditing, quick, added } = useNewRow(api, view, properties);
   const size = view.config.cardSize ?? "medium";
   const showIcons = view.config.showIcons !== false;
   const wrapProperties = view.config.wrapProperties === true;
@@ -70,14 +72,19 @@ export function GalleryView({
   const add = async (values?: Record<string, unknown>) => {
     await createNew(() => api.createRow(values && Object.keys(values).length ? { properties: values } : {}));
   };
+  // Cards past the view's load limit show after "Load more" (lib/load-limit), per section when grouped.
+  const loadLimit = loadLimitOf(view.config);
+  const [more, setMore] = useState<Record<string, number>>({});
 
   return (
     <QuickAddContext value={quick}>
       <div className="page-gutter pb-6">
         <ViewSections view={view} properties={properties} rows={rows} api={api} readOnly={readOnly} onAdd={(values) => void add(values)}>
-          {(shown, group) => {
+          {(sectionRows, group) => {
             // In sections each group adds its own rows, with its value.
             const addHere = group ? group.add : readOnly ? undefined : () => void add();
+            const key = group?.key ?? "";
+            const { shown, hidden } = firstRows(sectionRows, loadLimit + (more[key] ?? 0), added);
             return (
               <>
                 <div
@@ -118,6 +125,7 @@ export function GalleryView({
                     </button>
                   )}
                 </div>
+                {hidden > 0 && <LoadMore hidden={hidden} onClick={() => setMore((m) => ({ ...m, [key]: (m[key] ?? 0) + loadLimit }))} className="mt-2" />}
                 {!group && !rows.length && readOnly && <p className="py-10 text-center text-sm text-fg-muted">{t("gallery.empty")}</p>}
               </>
             );

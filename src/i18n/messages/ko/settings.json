@@ -74,6 +74,7 @@
       "scim": "프로비저닝 디렉터리 동기화 사용자",
       "exportPolicy": "다운로드 인쇄 pdf",
       "connectedAppsPolicy": "mcp rest api 토큰 액세스",
+      "onlyApprovedApps": "승인 허용 목록 mcp 앱 연동",
       "publishing": "게시 웹 공유 공개 링크",
       "retention": "휴지통 기록 삭제 보관 일",
       "legalHolds": "소송 보존 전자증거개시 보관",
@@ -1478,6 +1479,10 @@
       "read": "읽기 전용",
       "off": "액세스 없음"
     },
+    "onlyApprovedApps": {
+      "title": "승인된 앱만",
+      "description": "소유자가 “이 워크스페이스에 접근하는 앱”에서 승인한 AI 어시스턴트와 기타 MCP 앱만 접근할 수 있으며, 다른 앱에는 숨겨집니다. REST API 토큰에는 영향이 없습니다."
+    },
     "workspaceApps": {
       "title": "이 워크스페이스에 접근하는 앱",
       "description": "이 워크스페이스의 사람들이 MCP로 연결한 AI 어시스턴트와 기타 앱, 그리고 이 워크스페이스에 접근할 수 있는 REST API 토큰과 각각의 마지막 사용 시점입니다. 연결을 해제하면 해당 사람의 계정에서 제거되어, 다시 연결할 때까지 그 사람의 어느 워크스페이스에도 접근하지 못합니다.",
@@ -1489,6 +1494,12 @@
       "reads": "읽기만",
       "readsHere": "여기에서는 읽기만 가능: 연결된 앱은 읽기만 할 수 있습니다",
       "offHere": "여기에서는 액세스 없음: 연결된 앱이 꺼져 있습니다",
+      "notApprovedHere": "여기에서는 접근 불가: 승인되지 않음",
+      "approved": "승인됨",
+      "approve": "승인",
+      "unapprove": "승인 철회",
+      "approveError": "승인을 변경할 수 없습니다. 다시 시도하세요.",
+      "approvedFull": "이 워크스페이스에는 이미 승인된 앱이 500개 있습니다. 먼저 하나의 승인을 철회하세요.",
       "thisWorkspaceOnly": "이 워크스페이스만",
       "connected": "{date}에 연결됨",
       "lastUsed": "여기에서 마지막 사용: {when}",
@@ -1674,7 +1685,10 @@
       "notion": "Notion",
       "obsidian": "Obsidian",
       "enex": "Evernote",
-      "web": "웹페이지"
+      "web": "웹페이지",
+      "jira": "Jira",
+      "github": "GitHub",
+      "confluence": "Confluence"
     },
     "settingNames": {
       "guestInvites": "게스트를 초대할 수 있는 사람",
@@ -1690,6 +1704,7 @@
       "trashRetentionDays": "휴지통의 페이지 삭제 기한",
       "export": "내보내기 허용",
       "connectedApps": "연결된 앱과 API 토큰",
+      "onlyApprovedApps": "승인된 앱만",
       "accessRequests": "액세스 요청",
       "memberInvites": "멤버를 추가할 수 있는 사람",
       "allowedDomains": "허용된 이메일 도메인",
@@ -1823,7 +1838,9 @@
       },
       "connected_app": {
         "connected": "앱 {target}을(를) 연결했습니다",
-        "revoked": "{hasSubject, select, yes {{subject}의 앱 {target}의 연결을 해제했습니다} other {앱 {target}의 연결을 해제했습니다}}"
+        "revoked": "{hasSubject, select, yes {{subject}의 앱 {target}의 연결을 해제했습니다} other {앱 {target}의 연결을 해제했습니다}}",
+        "approved": "앱 {target}을(를) 승인했습니다",
+        "unapproved": "앱 {target}의 승인을 철회했습니다"
       },
       "api_token": {
         "created": "API 토큰 {target}을(를) 만들었습니다",

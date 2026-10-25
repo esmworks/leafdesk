@@ -858,7 +858,17 @@
     "pinColor": "สีหมุด",
     "noPinColor": "ไม่มี",
     "colorRules": "กฎสี",
-    "wrapProperties": "ตัดบรรทัดคุณสมบัติทั้งหมด"
+    "wrapProperties": "ตัดบรรทัดคุณสมบัติทั้งหมด",
+    "loadLimit": "ขีดจำกัดการโหลด",
+    "loadLimitCards": "{count} การ์ด",
+    "loadMore": "โหลดเพิ่ม",
+    "moreCards": "{count, plural, other {อีก # การ์ด}}"
+  },
+  "viewMenu": {
+    "label": "การตั้งค่ามุมมอง",
+    "back": "ย้อนกลับ",
+    "layoutHint": "มุมมองยังคงตัวกรอง การเรียงลำดับ และคุณสมบัติไว้",
+    "shown": "แสดง {count}"
   },
   "gallery": {
     "new": "ใหม่",
@@ -1899,6 +1909,18 @@
     "viewOnly": "เฉพาะผู้ที่มีสิทธิ์เต็มในฐานข้อมูลเท่านั้นที่เปลี่ยนการซิงก์ได้",
     "reporter": "ผู้รายงาน",
     "reporterNone": "ไม่ซิงค์"
+  },
+  "githubPulls": {
+    "button": "ซิงก์จาก GitHub",
+    "buttonPaused": "หยุดการซิงก์ GitHub ชั่วคราว",
+    "title": "การซิงก์ GitHub",
+    "lastRun": "ซิงก์ล่าสุด {when} {count, plural, other {# Pull Request}}",
+    "withToken": "ใช้โทเค็น",
+    "withoutToken": "ไม่ใช้โทเค็น",
+    "overwrite": "GitHub เป็นต้นทาง คุณสมบัติที่ซิงก์และชื่อแถวจะถูกเขียนทับทุกครั้งที่ซิงก์ ดังนั้นให้แก้ไขบน GitHub คุณสมบัติที่คุณเพิ่มเองจะคงเดิม และแถวของ Pull Request ที่การซิงก์ไม่ได้ดึงมาแล้วจะไม่ถูกแตะต้อง",
+    "changeToken": "เปลี่ยนโทเค็น",
+    "tokenEmpty": "เว้นว่างไว้เพื่อซิงก์โดยไม่ใช้โทเค็น",
+    "stopConfirm": "หยุดซิงก์ฐานข้อมูลนี้ไหม แถวต่าง ๆ จะคงเดิม และโทเค็นจะถูกลืม"
   },
   "sprints": {
     "menuItem": "สปรินต์",

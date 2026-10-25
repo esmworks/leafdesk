@@ -162,6 +162,12 @@ the REST API.
   pages answer as pages the user can't see). This applies to the MCP server, the REST API and the
   AI chat from Telegram (read only: it answers without changing anything); the app itself in the
   browser is not affected.
+- **Only approved apps:** off by default. On, only the MCP apps an owner approved in *Apps that
+  reach this workspace* below reach the workspace; to every other app it is hidden, as with *No
+  access*, whoever connected it. An approval is the app's (its OAuth client), so it covers everyone
+  here who connects that app. The server's own clients and REST API tokens aren't held to it. The
+  consent screen tells someone connecting an app which of their workspaces it won't reach until an
+  owner approves it.
 - **Apps that reach this workspace** (owners): the MCP apps the workspace's people connected and
   their API tokens for it (for all their workspaces or this one; expired ones and the server's
   own clients are left out), with what each may do, who connected it, when, and when it last
@@ -171,6 +177,8 @@ the REST API.
   that person's account: an app or a token belongs to the person, so it stops reaching all of their
   workspaces until they connect it again or make a new token. Only this workspace's audit log
   records it, with the owner as who did it and the person it was about.
+  *Approve* and *Withdraw approval* on an app decide whether it reaches the workspace while *Only
+  approved apps* is on (a workspace keeps at most 500 approvals); both are recorded in the audit log.
 
 - **People from your domains** (owners, once the workspace has verified email domains): every
   account on the server with an address in those domains or their subdomains, whether it is in

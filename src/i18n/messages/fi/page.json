@@ -245,6 +245,7 @@
     "change": "Tausta",
     "colors": "Väri",
     "patterns": "Kuvio",
+    "covers": "Kansikuva",
     "none": "Ei mitään",
     "remove": "Poista tausta",
     "colorNames": {
@@ -262,6 +263,16 @@
       "plus": "Ristit",
       "grid": "Ruudukko",
       "lines": "Viivat"
+    },
+    "coverNames": {
+      "sunrise": "Auringonnousu",
+      "ocean": "Valtameri",
+      "forest": "Metsä",
+      "dusk": "Hämärä",
+      "aurora": "Revontulet",
+      "sand": "Hiekka",
+      "mint": "Minttu",
+      "slate": "Liuske"
     }
   },
   "title": {
@@ -418,9 +429,11 @@
       "full": "Täydet oikeudet",
       "edit": "Voi muokata",
       "comment": "Voi kommentoida",
+      "content": "Voi muokata sisältöä",
       "view": "Voi katsella",
       "none": "Ei käyttöoikeutta"
     },
+    "contentHint": "Muokata tekstiä ja tietokannan rivejä, ei ominaisuuksia, näkymiä tai asetuksia",
     "errors": {
       "notMember": "Tämä henkilö ei ole työtilan jäsen.",
       "lastFullAccess": "Jollakulla on oltava täydet oikeudet sivuun. Anna ensin jollekulle toiselle täydet oikeudet.",
@@ -1064,11 +1077,11 @@
         "mediaSize": "Kuvien ja videoiden koot",
         "callout": "Huomiolaatikoiden värit ja kuvakkeet, joille Markdownissa ei ole muotoa",
         "textStyle": "Osa tekstin muotoilusta, kuten alleviivaus",
-        "table": "Taulukon sarakeleveydet, otsikkorivit, yhdistetyt solut ja solujen värit",
+        "table": "Taulukoiden yhdistetyt solut",
         "blockSetting": "Muut lohkoasetukset",
         "content": "Osa sisällöstä, jota Markdown ei pysty säilyttämään"
       },
-      "synced": "{count, plural, one {Muutoksesi synkronoidun lohkon sisällä: muokkaa sitä sen sijaan sivulla} other {Muutoksesi # synkronoidun lohkon sisällä: muokkaa niitä sen sijaan sivulla}}",
+      "synced": "{count, plural, one {Muutoksesi synkronoidun lohkon sisällä, jota et voi muokata} other {Muutoksesi # synkronoidun lohkon sisällä, joita et voi muokata}}",
       "confirm": "Tallenna silti"
     },
     "conflict": {

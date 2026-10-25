@@ -158,7 +158,7 @@ try {
   check((await failure(() => pages.renamePage(owner, notes.id, "Renamed"))) === "locked", "renaming is refused");
   check((await failure(() => pages.setPageIcon(ids.owner, notes.id, "🔥"))) === "locked", "changing the icon is refused");
   check(
-    (await failure(() => pages.setPageBackground(ids.owner, notes.id, { color: "green", pattern: null }))) === "locked",
+    (await failure(() => pages.setPageBackground(ids.owner, notes.id, { color: "green", pattern: null, cover: null }))) === "locked",
     "changing the background is refused",
   );
   check((await failure(() => pages.restoreSnapshot(owner, version.id))) === "locked", "restoring a version is refused");
@@ -273,7 +273,7 @@ try {
   check((await failure(() => pages.renamePage(owner, copy.id, "Trashed rename"))) === "trash", "…renaming it is refused");
   check((await failure(() => pages.setPageIcon(ids.owner, copy.id, "🔥"))) === "trash", "…so is changing its icon");
   check(
-    (await failure(() => pages.setPageBackground(ids.owner, copy.id, { color: "green", pattern: null }))) === "trash",
+    (await failure(() => pages.setPageBackground(ids.owner, copy.id, { color: "green", pattern: null, cover: null }))) === "trash",
     "…and its background",
   );
   check((await failure(() => pages.restoreSnapshot(owner, copyVersion.id))) === "trash", "…and restoring a version of it");

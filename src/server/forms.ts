@@ -254,10 +254,10 @@ function asksForFiles(form: FormConfig | undefined, properties: DatabaseProperty
 
 /**
  * Stores a file for an answer to a form in the app, held by the form's database until the answer
- * is sent. Needs what sending the answer needs: edit access to the database.
+ * is sent. Needs what sending the answer needs: content access to the database.
  */
 export async function uploadFormFile(userId: string, viewId: string, input: UploadInput): Promise<StoredFile> {
-  const { view, database } = await requireForm(userId, viewId, "edit");
+  const { view, database } = await requireForm(userId, viewId, "content");
   if (database.archivedAt) throw withCode(new AccessError("Parent page is in the trash"), "parentInTrash");
   if (!asksForFiles(view.config.form, await answerable(userId, database.id, await getProperties(database.id), userId))) {
     throw new FormError("This form doesn't ask for files", "notAllowed");
@@ -305,11 +305,11 @@ export async function uploadPublicFormFile(
 
 /**
  * Fills in a form in the app: adds a row with the answers and the form's default values, created
- * by the user. Needs edit access to the database, like adding a row any other way.
+ * by the user. Needs content access to the database, like adding a row any other way.
  */
 export async function submitForm(userId: string, viewId: string, answers: Record<string, unknown>) {
   assertSize(answers);
-  const { view, database } = await requireForm(userId, viewId, "edit");
+  const { view, database } = await requireForm(userId, viewId, "content");
   if (database.archivedAt) throw withCode(new AccessError("Parent page is in the trash"), "parentInTrash");
   // Only what they may set in the row they add (see answerable).
   const properties = await answerable(userId, database.id, await getProperties(database.id), userId);
@@ -455,7 +455,7 @@ async function publisherCanAdd(publishedBy: string | null, databaseId: string) {
   if (!publishedBy) return false;
   // The publisher's standing, whoever is looking (their own session may be held back by a policy).
   const { level } = await pageAccessOf(publishedBy, databaseId);
-  return hasLevel(level, "edit");
+  return hasLevel(level, "content");
 }
 
 /**

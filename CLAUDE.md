@@ -50,7 +50,7 @@ BlockNote on Yjs; Tailwind v4; next-intl. Node 24, pnpm 11. A separate Electron 
 - **Access.** `src/server/access.ts` is the one place that decides who may see or change a page:
   `requirePageAccess(userId, pageId, level)` for one page, `pageVisibleTo(userId)` as the SQL
   condition for lists. The rule is the SQL function `page_access_level`, last redefined in
-  `drizzle/0140_membership_admin.sql`. For a database's rows, `childVisibleTo(userId, databaseId)` works it
+  `drizzle/0141_edit_content.sql`. For a database's rows, `childVisibleTo(userId, databaseId)` works it
   out once per database instead of once per row; Postgres JIT can add about 200 ms to such queries,
   so `server/assigned.ts` runs them with `set local jit = off`. Roles: `src/lib/workspace-roles.ts` (`contentRole`: a membership admin
   is a member on content; `managesPeople`, `mayChangeRole`, `mayRemove`); people management checks
@@ -126,9 +126,11 @@ BlockNote on Yjs; Tailwind v4; next-intl. Node 24, pnpm 11. A separate Electron 
   table synced in `persistPage` by `meeting-notes.ts`), sprints `sprints.ts` (no table: the setup is the `sprints` config on the task database's relation
   with role `sprint`; the current sprint's views filter on a hidden rollup of the sprint state, so
   they follow a completion without changing; rollups show option names, so `updateProperty`
-  rewrites such rollup filters when options are renamed), Telegram bot `src/server/telegram/`, Jira syncs `jira-sync/` (own
-  `database_sync` table and a one-minute sweep; pure mapping in `src/lib/jira-sync.ts`), GitHub
-  pull requests `github-sync/` (deliveries handled in the request at `api/github/[syncId]`; pure
+  rewrites such rollup filters when options are renamed), Telegram bot `src/server/telegram/`, synced databases (own
+  `database_sync` table, `source` jira or github; the runs and the one-minute sweep are
+  `jira-sync/run.ts` for both, rows written by `synced-rows.ts`; Jira in `jira-sync/` and
+  `src/lib/jira-sync.ts`, GitHub pull requests in `github-pulls/` and `src/lib/github-pulls-sync.ts`,
+  people matched by their `account` with provider github), GitHub pull requests moving tasks `github-sync/` (deliveries handled in the request at `api/github/[syncId]`; pure
   ID matching and the status rule in `src/lib/github-sync.ts`), the Send to Slack step's address
   check and message in `src/lib/slack.ts`, mail to and from rows `row-mail/`, follow-up
   sequences on rows `sequences/` (sent by a 30-second `startSequences` job; `runSequences(now)` runs
@@ -246,8 +248,8 @@ because they are separate module graphs.
   read once in `database-page.tsx` and handed down; a card asks `useIsOpenRow`
   (`components/database/row-panel-context.ts`). Views are memoized; keep their props stable
   (`src/lib/keep-unchanged.ts` keeps unchanged row objects across refetches).
-- **Page decoration** (the page background, and anything like it added later) never loads a URL or
-  image a person supplies: only colors and patterns written in the stylesheet
+- **Page decoration** (the page background and cover, and anything like them added later) never loads a
+  URL or image a person supplies: only colors, patterns and cover gradients written in the stylesheet
   (`src/lib/page-background.ts`). File and image blocks are content, not decoration.
 - **Better Auth hooks** (`src/lib/auth-options.ts`): a `before` hook's returned `body` is merged
   into the request body, so leaving a key out doesn't remove it; `delete` it from `ctx.body`.
@@ -280,7 +282,7 @@ plus the `scripts/*-e2e.ts` of the area you touched (`pnpm tsx scripts/<name>-e2
   agents, agent-api, agent-approvers, agent-chat, agent-handoff, agent-memory, agent-mention,
   agent-schedule, agent-sharing, agent-skills, automation, button, timed-automation, schedule,
   row-activity, row-follow, row-mail, discussions, follow-ups (starts its own GreenMail container
-  unless given ports), page-watch, page-webhooks, verify, wins-log, jira-sync, sprints. `connector-e2e` starts its own `next dev` against
+  unless given ports), page-watch, page-webhooks, verify, wins-log, jira-sync, github-pulls-sync, sprints. `connector-e2e` starts its own `next dev` against
   `<database>_peer`, which must exist; no other dev server may run in the same checkout.
 - Each script's header says what it needs. `.github/workflows/ci.yml` shows the env each step gets;
   not every e2e script is in CI.

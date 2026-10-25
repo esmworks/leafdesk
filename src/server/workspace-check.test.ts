@@ -130,7 +130,8 @@ beforeEach(() => {
     pageRow("r2", { parentId: "tasks", parentKind: "database", emptyBody: true }),
   ];
   world.linked = ["notes"];
-  world.levels = { roadmap: 3, loose: 1, blank: 3, r1: 3, trashed: 3, trashedRow: 1 };
+  // page_access_level ranks: 1 view, 4 edit.
+  world.levels = { roadmap: 4, loose: 1, blank: 4, r1: 4, trashed: 4, trashedRow: 1 };
   world.markdown = {
     roadmap: [
       "[page](/w/ws/p/notes)",
@@ -151,7 +152,7 @@ beforeEach(() => {
     id === "loose" ? [{ id: "notes", title: "Notes", icon: null, canEdit: false }, { id: "roadmap", title: "Roadmap", icon: "🗺", canEdit: true }] : [],
   );
   world.existing = [
-    { id: "trashed", title: "Old plan", icon: "📄", level: 3 },
+    { id: "trashed", title: "Old plan", icon: "📄", level: 4 },
     { id: "trashedRow", title: "Done task", icon: null, level: 1 },
   ];
   derived.loadProperties.mockResolvedValue(

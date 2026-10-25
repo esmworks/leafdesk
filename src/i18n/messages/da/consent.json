@@ -16,7 +16,8 @@
   "readOnlyHint": "Fjern fluebenet for at give skrivebeskyttet adgang. Hver redigering gemmes først i sidens historik, så du kan fortryde den.",
   "access": {
     "all": "Adgangen gælder alle de arbejdsområder, du er med i. Du kan til enhver tid afbryde forbindelsen til appen under Indstillinger.",
-    "listed": "Adgangen gælder alle de arbejdsområder, du er med i: {workspaces}. Du kan til enhver tid afbryde forbindelsen til appen under Indstillinger."
+    "listed": "Adgangen gælder alle de arbejdsområder, du er med i: {workspaces}. Du kan til enhver tid afbryde forbindelsen til appen under Indstillinger.",
+    "awaitingApproval": "{count, plural, one {{workspaces} lukker kun apps ind, som ejerne har godkendt: denne app når det ikke, før en af dem godkender den.} other {{workspaces} lukker kun apps ind, som ejerne har godkendt: denne app når dem ikke, før en ejer godkender den.}}"
   },
   "deny": "Afvis",
   "denying": "Afviser…",

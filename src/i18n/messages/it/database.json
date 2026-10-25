@@ -858,7 +858,17 @@
     "pinColor": "Colore dei segnaposto",
     "noPinColor": "Nessuno",
     "colorRules": "Regole di colore",
-    "wrapProperties": "A capo per tutte le proprietà"
+    "wrapProperties": "A capo per tutte le proprietà",
+    "loadLimit": "Limite di caricamento",
+    "loadLimitCards": "{count} schede",
+    "loadMore": "Carica altro",
+    "moreCards": "{count, plural, one {# altra scheda} other {altre # schede}}"
+  },
+  "viewMenu": {
+    "label": "Impostazioni della vista",
+    "back": "Indietro",
+    "layoutHint": "La vista mantiene filtri, ordinamenti e proprietà.",
+    "shown": "{count} visibili"
   },
   "gallery": {
     "new": "Nuovo",
@@ -1899,6 +1909,18 @@
     "viewOnly": "Solo chi ha accesso completo al database può modificare la sincronizzazione.",
     "reporter": "Segnalatore",
     "reporterNone": "Non sincronizzato"
+  },
+  "githubPulls": {
+    "button": "Sincronizzato da GitHub",
+    "buttonPaused": "Sincronizzazione GitHub in pausa",
+    "title": "Sincronizzazione GitHub",
+    "lastRun": "Ultima sincronizzazione {when}, {count, plural, one {# pull request} other {# pull request}}",
+    "withToken": "Con un token",
+    "withoutToken": "Senza token",
+    "overwrite": "La fonte è GitHub: le proprietà sincronizzate e i titoli delle righe vengono sovrascritti a ogni sincronizzazione, quindi modificali su GitHub. Le proprietà che aggiungi tu restano come sono, e le righe delle pull request che la sincronizzazione non prende più non vengono toccate.",
+    "changeToken": "Cambia il token",
+    "tokenEmpty": "Lascia vuoto per sincronizzare senza token.",
+    "stopConfirm": "Interrompere la sincronizzazione di questo database? Le sue righe restano come sono e il token viene dimenticato."
   },
   "sprints": {
     "menuItem": "Sprint",

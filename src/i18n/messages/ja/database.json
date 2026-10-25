@@ -858,7 +858,17 @@
     "pinColor": "ピンの色",
     "noPinColor": "なし",
     "colorRules": "色ルール",
-    "wrapProperties": "すべてのプロパティを折り返す"
+    "wrapProperties": "すべてのプロパティを折り返す",
+    "loadLimit": "読み込み上限",
+    "loadLimitCards": "{count} 件のカード",
+    "loadMore": "さらに読み込む",
+    "moreCards": "{count, plural, other {残り # 件のカード}}"
+  },
+  "viewMenu": {
+    "label": "ビューの設定",
+    "back": "戻る",
+    "layoutHint": "フィルター、並べ替え、プロパティはそのまま残ります。",
+    "shown": "{count} 件表示"
   },
   "gallery": {
     "new": "新規",
@@ -1899,6 +1909,18 @@
     "viewOnly": "同期を変更できるのは、データベースへのフルアクセス権を持つ人だけです。",
     "reporter": "報告者",
     "reporterNone": "同期しない"
+  },
+  "githubPulls": {
+    "button": "GitHubと同期中",
+    "buttonPaused": "GitHub同期は一時停止中",
+    "title": "GitHub同期",
+    "lastRun": "最終同期 {when}、{count, plural, other {#件のプルリクエスト}}",
+    "withToken": "トークンあり",
+    "withoutToken": "トークンなし",
+    "overwrite": "GitHubが元データです。同期されるプロパティと行のタイトルは同期のたびに上書きされるため、GitHubで変更してください。自分で追加したプロパティはそのまま残り、同期の対象から外れたプルリクエストの行もそのままにされます。",
+    "changeToken": "トークンを変更",
+    "tokenEmpty": "空のままにすると、トークンなしで同期します。",
+    "stopConfirm": "このデータベースの同期を停止しますか？行はそのまま残り、トークンは破棄されます。"
   },
   "sprints": {
     "menuItem": "スプリント",

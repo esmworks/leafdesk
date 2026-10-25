@@ -289,7 +289,7 @@ The tools cover:
   `create_database_view` and `update_database_view` (table, board, calendar, gallery, list, feed,
   timeline, map (with `place_by`), chart, dashboard or form, including a form's public link and a dashboard's `widgets`; a chart over a date takes `accumulate`
   for running totals or a burndown, a calendar `calendar_mode` (month or week) and `show_weekends`, views with rows `show_icons` and `color_rules`, a board `aggregate` and `aggregate_property` for what its column headers show, and table, list and timeline views take `sub_items`;
-  `update_database_view` also moves a
+  `update_database_view` also switches a view with rows to another such layout with `type` and moves a
   view's tab with `before_view_id` or `after_view_id`), and `set_property_access` (who may
   see and change a property). `query_database` returns `next_cursor` and `has_more`: passing the
   cursor back with the same filters and sorts reads on from the last row returned, so rows added

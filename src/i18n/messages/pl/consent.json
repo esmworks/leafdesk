@@ -16,7 +16,8 @@
   "readOnlyHint": "Odznacz, aby dać dostęp tylko do odczytu. Każda zmiana jest najpierw zapisywana w historii strony, więc możesz ją cofnąć.",
   "access": {
     "all": "Dostęp obejmuje wszystkie obszary robocze, do których należysz. Możesz w każdej chwili odłączyć aplikację w Ustawieniach.",
-    "listed": "Dostęp obejmuje wszystkie obszary robocze, do których należysz: {workspaces}. Możesz w każdej chwili odłączyć aplikację w Ustawieniach."
+    "listed": "Dostęp obejmuje wszystkie obszary robocze, do których należysz: {workspaces}. Możesz w każdej chwili odłączyć aplikację w Ustawieniach.",
+    "awaitingApproval": "{count, plural, one {{workspaces} wpuszcza tylko aplikacje zatwierdzone przez właścicieli: ta aplikacja nie będzie mieć do niego dostępu, dopóki ktoś z nich jej nie zatwierdzi.} few {{workspaces} wpuszczają tylko aplikacje zatwierdzone przez właścicieli: ta aplikacja nie będzie mieć do nich dostępu, dopóki właściciel jej nie zatwierdzi.} many {{workspaces} wpuszczają tylko aplikacje zatwierdzone przez właścicieli: ta aplikacja nie będzie mieć do nich dostępu, dopóki właściciel jej nie zatwierdzi.} other {{workspaces} wpuszczają tylko aplikacje zatwierdzone przez właścicieli: ta aplikacja nie będzie mieć do nich dostępu, dopóki właściciel jej nie zatwierdzi.}}"
   },
   "deny": "Odmów",
   "denying": "Odmawianie…",

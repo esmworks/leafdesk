@@ -1,6 +1,7 @@
 import { and, Column, eq, getTableName, inArray, is, ne, sql, type AnyColumn, type SQL } from "drizzle-orm";
 import { db } from "@/db";
 import {
+  oauthClient,
   page,
   pageColumns,
   PAGE_LEVELS,
@@ -16,7 +17,15 @@ import { contentRole, managesPeople } from "@/lib/workspace-roles";
 import { ipAllowed, storedAllowedNetworks, type AllowedNetwork } from "@/lib/ip-allowlist";
 import { notAgentUser } from "@/server/agents/users";
 import { INSTANCE_SSO_PROVIDER_ID, workspaceProviderId } from "@/lib/sso-config";
-import { connectedAppCall, connectedAppRefusal, connectedAppsMode, type ConnectedAppCall, type ConnectedAppsMode } from "@/server/connected-app";
+import {
+  appModeHere,
+  connectedAppCall,
+  connectedAppRefusal,
+  connectedAppsMode,
+  type ConnectedAppCall,
+  type ConnectedAppIdentity,
+  type ConnectedAppsMode,
+} from "@/server/connected-app";
 import { noteConnectedAppUse } from "@/server/connected-app-use";
 import { requestSession } from "@/server/request-session";
 import { actingFor } from "@/server/acting-for";
@@ -220,17 +229,34 @@ export async function sessionHold(userId: string, workspaceId: string): Promise<
   return held;
 }
 
-/** The workspace's connected-apps setting, asked once per request. */
+/**
+ * SQL: whether owners approved the app (see appModeHere), on a row of `workspace`. REST API tokens,
+ * calls with no app and the server's own OAuth clients (those that skip consent) always are.
+ */
+function appApproved(app: ConnectedAppIdentity | null): SQL {
+  if (app?.kind !== "connected_app") return sql`true`;
+  return sql`(coalesce(${workspace.settings}->'approvedApps', '[]'::jsonb) @> jsonb_build_array(${app.id}::text)
+    or exists (select 1 from ${oauthClient} where ${oauthClient.clientId} = ${app.id} and ${oauthClient.skipConsent}))`;
+}
+
+/** SQL: the workspace lets in only approved apps, on a row of `workspace`. */
+const onlyApprovedApps = sql`coalesce((${workspace.settings}->>'onlyApprovedApps')::boolean, false)`;
+
+/** The workspace's connected-apps setting as it holds for this request's app, asked once per request. */
 function appsModeOf(call: ConnectedAppCall, workspaceId: string): Promise<ConnectedAppsMode> {
   let mode = call.modes.get(workspaceId);
   if (!mode) {
     mode = db
-      .select({ mode: sql<string | null>`${workspace.settings}->>'connectedApps'` })
+      .select({
+        mode: sql<string | null>`${workspace.settings}->>'connectedApps'`,
+        onlyApproved: sql<boolean>`${onlyApprovedApps}`,
+        approved: sql<boolean>`${appApproved(call.app)}`,
+      })
       .from(workspace)
       .where(eq(workspace.id, workspaceId))
       .limit(1)
       .then(([row]) => {
-        const found = connectedAppsMode(row?.mode);
+        const found = appModeHere(connectedAppsMode(row?.mode), row?.onlyApproved === true, row?.approved !== false);
         // The app reached the workspace: its owners see when (calendar feeds aren't apps). Not when
         // the setting turns it away: hidden here, or a write where apps may only read.
         if (call.app && connectedAppRefusal(found, call.writing) === null) noteConnectedAppUse(call.userId, call.app, workspaceId);
@@ -252,7 +278,8 @@ export async function connectedAppHold(userId: string, workspaceId: string): Pro
 
 /**
  * Of the user's workspaces, the ones hidden from the connected app serving this request (owners
- * turned connected apps off); none outside connected-app requests. For lists across workspaces.
+ * turned connected apps off, or let in only apps they approved and not this one); none outside
+ * connected-app requests. For lists across workspaces.
  */
 export async function workspacesHiddenFromApp(userId: string): Promise<Set<string>> {
   const call = connectedAppCall(userId);
@@ -261,8 +288,27 @@ export async function workspacesHiddenFromApp(userId: string): Promise<Set<strin
     .select({ id: workspace.id })
     .from(workspaceMember)
     .innerJoin(workspace, eq(workspace.id, workspaceMember.workspaceId))
-    .where(and(eq(workspaceMember.userId, userId), sql`${workspace.settings}->>'connectedApps' = 'off'`));
+    .where(
+      and(
+        eq(workspaceMember.userId, userId),
+        sql`(${workspace.settings}->>'connectedApps' = 'off' or (${onlyApprovedApps} and not ${appApproved(call.app)}))`,
+      ),
+    );
   return new Set(rows.map((r) => r.id));
+}
+
+/**
+ * The names of the user's workspaces that let in only the apps their owners approved and haven't
+ * approved this OAuth client (see appModeHere): for the consent screen to say it won't reach them.
+ */
+export async function workspacesAwaitingApproval(userId: string, clientId: string): Promise<string[]> {
+  const rows = await db
+    .select({ name: workspace.name })
+    .from(workspaceMember)
+    .innerJoin(workspace, eq(workspace.id, workspaceMember.workspaceId))
+    .where(and(eq(workspaceMember.userId, userId), onlyApprovedApps, sql`not ${appApproved({ kind: "connected_app", id: clientId })}`))
+    .orderBy(workspace.createdAt);
+  return rows.map((r) => r.name);
 }
 
 /**
@@ -319,7 +365,9 @@ export async function workspacesHeldBack(userId: string, workspaceIds: Iterable<
 /**
  * - `view`: read the page, its history and, for databases, its rows and schema.
  * - `comment`: also comment on it (see server/comments.ts).
- * - `edit`: change content, title, icon, properties, rows, views; move or trash it.
+ * - `content`: also change what it holds: its body, title, icon and cover, a database's rows and
+ *   their values, new pages under it. Not its structure.
+ * - `edit`: also its structure: a database's properties, views and settings; move or trash it.
  * - `full`: also delete it for good (and, later, change who it is shared with).
  */
 export type AccessLevel = PageLevel;
@@ -336,13 +384,13 @@ export const FULL_RANK = rank("full");
 export const EDIT_RANK = rank("edit");
 
 /** A stored level (a column or value holding "view" … "full") as the rank `page_access_level` returns. */
-export const rankOf = (level: SQL | AnyColumn) => sql<number>`coalesce(array_position(array['view', 'comment', 'edit', 'full'], ${level}::text), 0)`;
+export const rankOf = (level: SQL | AnyColumn) => sql<number>`coalesce(array_position(array['view', 'comment', 'content', 'edit', 'full'], ${level}::text), 0)`;
 
-/** The level `page_access_level` returns (0–4) as a name; anything unexpected is `none`. */
+/** The level `page_access_level` returns (0–5) as a name; anything unexpected is `none`. */
 export const levelFromRank = (value: unknown): AccessLevel => PAGE_LEVELS[Number(value)] ?? "none";
 
 /**
- * SQL: the user's access rank (0–4) on a page id expression. A user acting for someone (an agent's
+ * SQL: the user's access rank (0–5) on a page id expression. A user acting for someone (an agent's
  * run started by a member, see acting-for.ts) gets the lower of their two ranks.
  */
 export function accessRank(userId: string, pageId: SQL) {
@@ -495,6 +543,19 @@ export async function pageAccessOf(userId: string, pageId: string) {
 export async function requirePageAccess(userId: string, pageId: string, needed: RequiredLevel) {
   const { page: found, level } = await resolvePageAccess(userId, pageId);
   if (!found || !hasLevel(level, needed)) throw new AccessError();
+  return found;
+}
+
+/**
+ * requirePageAccess for moving a page to the trash or back: a database's row takes content access
+ * (rows are what a database holds), any other page edit access (pages make up the tree).
+ */
+export async function requireTrashAccess(userId: string, pageId: string) {
+  const { page: found, level } = await resolvePageAccess(userId, pageId);
+  if (!found || !hasLevel(level, "content")) throw new AccessError();
+  if (hasLevel(level, "edit")) return found;
+  const [parent] = found.parentId ? await db.select({ kind: page.kind }).from(page).where(eq(page.id, found.parentId)) : [];
+  if (parent?.kind !== "database") throw new AccessError();
   return found;
 }
 

@@ -1,4 +1,5 @@
 import { getTranslations } from "next-intl/server";
+import type { GithubPullsNames } from "@/lib/github-pulls-sync";
 import type { JiraNames } from "@/lib/jira-sync";
 import type { BoardNames } from "@/server/import/board";
 import type { EnexNames } from "@/server/import/enex";
@@ -98,5 +99,24 @@ export async function jiraSyncNames(): Promise<JiraNames> {
     due: t("due"),
     link: t("link"),
     board: td("views.board"),
+  };
+}
+
+export async function githubPullsNames(): Promise<GithubPullsNames> {
+  const [t, td] = await Promise.all([getTranslations("import.githubPulls.names"), getTranslations("database")]);
+  return {
+    number: t("number"),
+    state: t("state"),
+    author: t("author"),
+    assignees: t("assignees"),
+    others: (column) => t("others", { column }),
+    labels: t("labels"),
+    branch: t("branch"),
+    base: t("base"),
+    created: t("created"),
+    merged: t("merged"),
+    link: t("link"),
+    board: td("views.board"),
+    stages: { draft: t("stages.draft"), open: t("stages.open"), merged: t("stages.merged"), closed: t("stages.closed") },
   };
 }

@@ -386,7 +386,7 @@ export async function rollupsOverRestricted(props: Property[], depth = 0): Promi
 async function runJob(job: Job): Promise<number> {
   try {
     const { page: row, level } = await pageAccessOf(job.userId, job.rowId);
-    if (!row || row.archivedAt || row.parentId !== job.databaseId || !hasLevel(level, "edit")) {
+    if (!row || row.archivedAt || row.parentId !== job.databaseId || !hasLevel(level, "content")) {
       throw new AiError("noAccess", "The row can't be changed by the person who asked");
     }
     if (!(await aiAvailable(job.workspaceId))) throw new AiError("disabled", "AI is off for this workspace");
@@ -567,7 +567,7 @@ export async function requestAutofill(userId: string, propertyId: string, rowIds
   if (ids.length > MAX_AUTOFILL_ROWS) throw new AiError("tooLarge", `At most ${MAX_AUTOFILL_ROWS} rows at once`);
   // One request against the person's allowance per refresh; the values then share the workspace's.
   takeRateLimit({ userId });
-  const found = await databases.rowsWithAccess(userId, prop.databaseId, ids, "edit");
+  const found = await databases.rowsWithAccess(userId, prop.databaseId, ids, "content");
   // Rows where property access keeps them from changing the value are skipped too.
   const rows = found.rows.filter((r) => mayWrite(access, r, prop.id));
   const queued = new Set(rows.map((r) => r.id));

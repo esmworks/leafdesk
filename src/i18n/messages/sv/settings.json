@@ -74,6 +74,7 @@
       "scim": "provisionering katalog synk användare",
       "exportPolicy": "ladda ned skriv ut pdf export",
       "connectedAppsPolicy": "mcp rest api token åtkomst appar",
+      "onlyApprovedApps": "godkänn tillåtelselista mcp appar integrationer",
       "publishing": "publicera webb dela offentlig länk",
       "retention": "papperskorg historik radera behåll dagar lagringstid",
       "legalHolds": "tvist bevara ediscovery behåll juridiskt bevarande",
@@ -1478,6 +1479,10 @@
       "read": "Bara läsa",
       "off": "Ingen åtkomst"
     },
+    "onlyApprovedApps": {
+      "title": "Bara godkända appar",
+      "description": "Bara AI-assistenter och andra MCP-appar som en ägare har godkänt under ”Appar som når den här arbetsytan” kan nå den; för andra är den dold. REST API-token påverkas inte."
+    },
     "workspaceApps": {
       "title": "Appar som når den här arbetsytan",
       "description": "AI-assistenter och andra appar som personer här har anslutit via MCP, och deras REST API-token som kan nå den här arbetsytan, med när var och en senast gjorde det. Att koppla från en tar bort den från personens konto: den når ingen av hens arbetsytor förrän hen ansluter den igen.",
@@ -1489,6 +1494,12 @@
       "reads": "Läser bara",
       "readsHere": "Läser bara här: anslutna appar får bara läsa",
       "offHere": "Ingen åtkomst här: anslutna appar är avstängda",
+      "notApprovedHere": "Ingen åtkomst här: inte godkänd",
+      "approved": "Godkänd",
+      "approve": "Godkänn",
+      "unapprove": "Dra tillbaka godkännande",
+      "approveError": "Det gick inte att ändra godkännandet. Försök igen.",
+      "approvedFull": "Den här arbetsytan har redan 500 godkända appar. Dra tillbaka en först.",
       "thisWorkspaceOnly": "Bara den här arbetsytan",
       "connected": "Ansluten {date}",
       "lastUsed": "Senast använd här {when}",
@@ -1674,7 +1685,10 @@
       "notion": "Notion",
       "obsidian": "Obsidian",
       "enex": "Evernote",
-      "web": "Webbsida"
+      "web": "Webbsida",
+      "jira": "Jira",
+      "github": "GitHub",
+      "confluence": "Confluence"
     },
     "settingNames": {
       "guestInvites": "Vem kan bjuda in gäster",
@@ -1690,6 +1704,7 @@
       "trashRetentionDays": "Radera sidor i papperskorgen efter",
       "export": "Tillåt export",
       "connectedApps": "Anslutna appar och API-token",
+      "onlyApprovedApps": "Bara godkända appar",
       "accessRequests": "Åtkomstförfrågningar",
       "memberInvites": "Vem kan lägga till medlemmar",
       "allowedDomains": "Tillåtna e-postdomäner",
@@ -1823,7 +1838,9 @@
       },
       "connected_app": {
         "connected": "Anslöt appen {target}",
-        "revoked": "{hasSubject, select, yes {Kopplade från {subject}s app {target}} other {Kopplade från appen {target}}}"
+        "revoked": "{hasSubject, select, yes {Kopplade från {subject}s app {target}} other {Kopplade från appen {target}}}",
+        "approved": "Godkände appen {target}",
+        "unapproved": "Drog tillbaka godkännandet av appen {target}"
       },
       "api_token": {
         "created": "Skapade API-token {target}",

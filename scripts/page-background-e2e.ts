@@ -84,11 +84,11 @@ try {
   const notes = await createPage(actor, { workspaceId, kind: "page", title: "Notes" });
   const stored = async (id: string) => (await db.select({ background: page.background }).from(page).where(eq(page.id, id)))[0].background;
 
-  await setPageBackground(ids.owner, notes.id, { color: "green", pattern: null });
+  await setPageBackground(ids.owner, notes.id, { color: "green", pattern: null, cover: null });
   check((await stored(notes.id))?.color === "green", "a color background is kept");
-  await setPageBackground(ids.owner, notes.id, { color: null, pattern: "dots" });
+  await setPageBackground(ids.owner, notes.id, { color: null, pattern: "dots", cover: null });
   check((await stored(notes.id))?.pattern === "dots" && (await stored(notes.id))?.color === null, "so is a pattern alone");
-  await setPageBackground(ids.owner, notes.id, { color: "green", pattern: "grid" });
+  await setPageBackground(ids.owner, notes.id, { color: "green", pattern: "grid", cover: "forest" });
 
   let refused = false;
   try {
@@ -101,7 +101,7 @@ try {
 
   const copy = await duplicatePage(actor, notes.id);
   const copied = await stored(copy.id);
-  check(copied?.color === "green" && copied?.pattern === "grid", "a copy keeps the background", copied);
+  check(copied?.color === "green" && copied?.pattern === "grid" && copied?.cover === "forest", "a copy keeps the background and cover", copied);
 
   await setPageBackground(ids.owner, notes.id, null);
   check((await stored(notes.id)) === null, "null removes it");
@@ -111,9 +111,14 @@ try {
   check(set.data?.changed?.includes("background"), "update_page sets a background", set);
   const read = await callTool(ids.owner, "get_page", { page_id: notes.id });
   check(read.data?.background === "color:black pattern:plus", "get_page shows it as one string", read.data);
+  const withCover = await callTool(ids.owner, "update_page", { page_id: notes.id, background: "color:black cover:ocean" });
+  check(!withCover.isError && (await stored(notes.id))?.cover === "ocean", "update_page sets a cover", withCover.text);
+  const coverRead = await callTool(ids.owner, "get_page", { page_id: notes.id });
+  check(coverRead.data?.background === "color:black cover:ocean", "get_page shows the cover", coverRead.data);
   await callTool(ids.owner, "update_page", { page_id: notes.id, background: "color:purple" });
-  check((await stored(notes.id))?.pattern === null, "a new background replaces the whole of the old one");
-  for (const wrong of ["https://images.example/a.jpg", "/api/files/AbCdEfGhIjKlMnOpQrStUvWx", "gradient:forest", "pattern:stars"]) {
+  const replaced = await stored(notes.id);
+  check(replaced?.pattern === null && replaced?.cover === null, "a new background replaces the whole of the old one", replaced);
+  for (const wrong of ["https://images.example/a.jpg", "/api/files/AbCdEfGhIjKlMnOpQrStUvWx", "gradient:forest", "pattern:stars", "cover:stars", "cover:https://images.example/a.jpg"]) {
     const answer = await callTool(ids.owner, "update_page", { page_id: notes.id, background: wrong });
     check(answer.isError && answer.text.includes("color:"), `update_page refuses ${wrong}`, answer.text);
   }

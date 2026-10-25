@@ -432,7 +432,7 @@ describe("content writes", () => {
       "# New",
       { userId: "user-1", oauthClientId: "client-1" },
       true,
-      { expectedVersion: undefined, reportVersion: true },
+      { expectedVersion: undefined, reportVersion: true, syncedBlocks: true },
     );
     expect(r.data.url).toBe("http://localhost:3000/w/ws-1/p/page-1");
     expect(r.data.version).toBe("v2");
@@ -504,6 +504,7 @@ describe("content writes", () => {
     expect(collab.replaceContent).toHaveBeenCalledWith("page-1", "# New", expect.anything(), true, {
       expectedVersion: "v1",
       reportVersion: true,
+      syncedBlocks: true,
     });
     expect(r.data.version).toBe("v2");
   });
@@ -1099,6 +1100,25 @@ describe("relations and calendars", () => {
     // Turned off: the setting goes back to its default rather than being stored.
     await callTool(writer, "update_database_view", { database_id: "db-1", view_id: "view-g", wrap_properties: false });
     expect(databases.updateView).toHaveBeenLastCalledWith("user-1", "view-g", { config: { wrapProperties: undefined } });
+  });
+
+  it("sets how many cards boards and galleries show before Load more", async () => {
+    const views = [
+      { id: "view-b", name: "Board", type: "board", config: { groupBy: "prop-status" } },
+      { id: "view-g", name: "Cards", type: "gallery", config: { loadLimit: 25 } },
+      { id: "view-t", name: "Table", type: "table", config: {} },
+    ];
+    databases.getDatabase.mockResolvedValue({ ...database, views });
+    const onTable = await callTool(writer, "update_database_view", { database_id: "db-1", view_id: "view-t", load_limit: 25 });
+    expect(onTable.text).toMatch(/load_limit only applies to board and gallery views/);
+    const odd = await callTool(writer, "update_database_view", { database_id: "db-1", view_id: "view-b", load_limit: 30 });
+    expect(odd.isError).toBe(true);
+    const r = await callTool(writer, "update_database_view", { database_id: "db-1", view_id: "view-b", load_limit: 10 });
+    expect(databases.updateView).toHaveBeenLastCalledWith("user-1", "view-b", { config: { groupBy: "prop-status", loadLimit: 10 } });
+    expect(r.data).toMatchObject({ load_limit: 10 });
+    // The default isn't stored.
+    await callTool(writer, "update_database_view", { database_id: "db-1", view_id: "view-g", load_limit: 50 });
+    expect(databases.updateView).toHaveBeenLastCalledWith("user-1", "view-g", { config: { loadLimit: undefined } });
   });
 
   it("sets where a view opens its rows, for views with rows only", async () => {

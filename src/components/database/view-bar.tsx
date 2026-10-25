@@ -5,7 +5,6 @@ import {
   ArrowDown,
   ArrowUp,
   ArrowUpDown,
-  CalendarDays,
   Check,
   ChevronDown,
   ChevronRight,
@@ -20,7 +19,6 @@ import {
   Pencil,
   Plus,
   RotateCcw,
-  Rows3,
   Search,
   Trash2,
   UserRound,
@@ -53,13 +51,10 @@ import {
   MAX_FILTER_DEPTH,
 } from "@/lib/filters";
 import { valueType } from "@/lib/derived";
-import { GROUP_DATE_BY, groupDateByOf, SECTIONED_VIEWS, subGroupProperty } from "@/lib/grouping";
 import { pageLabel } from "@/lib/labels";
 import {
-  boardGroupProperty,
   filterNeedsValue,
   filterOperators,
-  isGroupable,
   isHiddenInView,
   isSortable,
   moveProperty,
@@ -68,7 +63,7 @@ import {
 } from "@/lib/properties";
 import { fromPercentPoints, isPercent, valueFormat } from "@/lib/number-format";
 import { holdsOptions, holdsPeople, holdsTimestamp, PERSON_ME } from "@/lib/property-types";
-import { VIEW_TYPES, viewDateProperty } from "@/lib/views";
+import { VIEW_TYPES } from "@/lib/views";
 import { DeletedSchemaList } from "./deleted-schema";
 import { Floating, useFloating } from "./floating";
 import { usePeople } from "./person-cell";
@@ -489,11 +484,8 @@ export function ViewToolbar({
   properties,
   onConfig,
   filterRequest,
-  onCreateGroupProperty,
-  onCreateDateProperty,
   readOnly,
   personal,
-  locked,
   deleted,
 }: {
   view: View;
@@ -501,29 +493,19 @@ export function ViewToolbar({
   onConfig: (config: ViewConfig) => void;
   /** Opens the filters once the view has the filter a column's menu added. */
   filterRequest?: FilterRequest | null;
-  onCreateGroupProperty: () => void;
-  onCreateDateProperty: () => void;
   readOnly?: boolean;
   /**
    * With `readOnly`: filters and sorts the viewer sets for themselves, kept by the page and never
    * saved, so only Filter and Sort show.
    */
   personal?: boolean;
-  /** The schema is locked: no creating properties from the group and calendar menus. */
-  locked?: boolean;
   /** Set for people who may change the database's schema: the Properties menu lists deleted ones. */
   deleted?: DeletedSchemaProps;
 }) {
   const t = useTranslations("database");
   const filterMenu = useFloating<HTMLButtonElement>();
   const sortMenu = useFloating<HTMLButtonElement>();
-  const groupMenu = useFloating<HTMLButtonElement>();
   const propsMenu = useFloating<HTMLButtonElement>();
-  const [showDeleted, setShowDeleted] = useState(false);
-  const closeProps = () => {
-    propsMenu.close();
-    setShowDeleted(false);
-  };
   const config = view.config;
   const filters = config.filters ?? [];
   const filterCount = filterRules(filters).length;
@@ -542,19 +524,6 @@ export function ViewToolbar({
   const sorts = config.sorts ?? [];
   const hiddenCount = properties.filter((p) => isHiddenInView(view, p)).length;
   const columns = columnsOf(properties, t("nameColumn"));
-  const groupProps = properties.filter((p) => isGroupable(p.type));
-  // Boards always group (by the first fitting property until one is picked); tables only on request.
-  const groupBy =
-    view.type === "board"
-      ? boardGroupProperty(properties, config.groupBy)
-      : groupProps.find((p) => p.id === config.groupBy);
-  const dateMenu = useFloating<HTMLButtonElement>();
-  const dateProps = properties.filter((p) => p.type === "date");
-  const dateBy = viewDateProperty(config, properties);
-  // `properties` is in the view's order, so dragging one in the properties menu reorders the view.
-  const propertyDrag = useReorderDrag("y", (moved, target, side) =>
-    onConfig({ ...config, propertyOrder: moveProperty(properties, moved, target, side) }),
-  );
 
   if (readOnly && !personal) return null;
   return (
@@ -594,111 +563,6 @@ export function ViewToolbar({
         />
       </Floating>
 
-      {!readOnly && (view.type === "board" || SECTIONED_VIEWS.has(view.type)) && (
-        <>
-          <ToolbarButton
-            icon={<Rows3 className="h-4 w-4" />}
-            label={groupBy ? t("toolbar.groupWithName", { name: groupBy.name }) : t("toolbar.group")}
-            active={view.type !== "board" && Boolean(groupBy)}
-            buttonRef={groupMenu.ref}
-            onClick={groupMenu.toggle}
-          />
-          <Floating open={groupMenu.open} anchor={groupMenu.el} onClose={groupMenu.close} align="end">
-            <div className="px-2 pt-1 pb-1.5 text-xs text-fg-muted">{t("toolbar.groupBy")}</div>
-            {view.type !== "board" && (
-              <MenuItem
-                active={!groupBy}
-                icon={<X className="h-3.5 w-3.5" />}
-                onClick={() => {
-                  groupMenu.close();
-                  if (groupBy) onConfig({ ...config, groupBy: undefined });
-                }}
-              >
-                {t("toolbar.noGrouping")}
-              </MenuItem>
-            )}
-            {groupProps.map((p) => (
-              <MenuItem
-                key={p.id}
-                active={p.id === groupBy?.id}
-                icon={<PropertyTypeIcon type={p.type} icon={p.options.icon} />}
-                onClick={() => {
-                  groupMenu.close();
-                  onConfig({ ...config, groupBy: p.id });
-                }}
-              >
-                {p.name}
-              </MenuItem>
-            ))}
-            {!groupProps.length && (
-              <div className="max-w-60 px-2 pb-1 text-xs text-fg-faint">{t("toolbar.groupNeedsSelect")}</div>
-            )}
-            {groupBy && <GroupSettings prop={groupBy} config={config} onConfig={onConfig} />}
-            {view.type === "board" && groupBy && (
-              <BoardGroupSettings groupBy={groupBy} properties={groupProps} config={config} onConfig={onConfig} />
-            )}
-            {!locked && (
-              <>
-                <MenuSeparator />
-                <MenuItem
-                  icon={<Plus className="h-3.5 w-3.5" />}
-                  onClick={() => {
-                    groupMenu.close();
-                    onCreateGroupProperty();
-                  }}
-                >
-                  {t("toolbar.newSelectProperty")}
-                </MenuItem>
-              </>
-            )}
-          </Floating>
-        </>
-      )}
-
-      {!readOnly && view.type === "calendar" && (
-        <>
-          <ToolbarButton
-            icon={<CalendarDays className="h-4 w-4" />}
-            label={dateBy ? t("toolbar.calendarWithName", { name: dateBy.name }) : t("toolbar.calendarBy")}
-            buttonRef={dateMenu.ref}
-            onClick={dateMenu.toggle}
-          />
-          <Floating open={dateMenu.open} anchor={dateMenu.el} onClose={dateMenu.close} align="end">
-            <div className="px-2 pt-1 pb-1.5 text-xs text-fg-muted">{t("toolbar.calendarBy")}</div>
-            {dateProps.map((p) => (
-              <MenuItem
-                key={p.id}
-                active={p.id === dateBy?.id}
-                icon={<PropertyTypeIcon type={p.type} icon={p.options.icon} />}
-                onClick={() => {
-                  dateMenu.close();
-                  onConfig({ ...config, dateBy: p.id });
-                }}
-              >
-                {p.name}
-              </MenuItem>
-            ))}
-            {!dateProps.length && (
-              <div className="px-2 pb-1 text-xs text-fg-faint">{t("toolbar.calendarNeedsDate")}</div>
-            )}
-            {!locked && (
-              <>
-                <MenuSeparator />
-                <MenuItem
-                  icon={<Plus className="h-3.5 w-3.5" />}
-                  onClick={() => {
-                    dateMenu.close();
-                    onCreateDateProperty();
-                  }}
-                >
-                  {t("toolbar.newDateProperty")}
-                </MenuItem>
-              </>
-            )}
-          </Floating>
-        </>
-      )}
-
       {!readOnly && (
         <ToolbarButton
           icon={<EyeOff className="h-4 w-4" />}
@@ -708,176 +572,111 @@ export function ViewToolbar({
           onClick={propsMenu.toggle}
         />
       )}
-      <Floating open={propsMenu.open} anchor={propsMenu.el} onClose={closeProps} align="end">
-        {showDeleted && deleted ? (
-          <DeletedSchemaList kind="properties" {...deleted} onBack={() => setShowDeleted(false)} />
-        ) : (
-          <div className="w-64">
-            <div className="flex items-center justify-between gap-2 px-2 pt-1 pb-1.5 text-xs text-fg-muted">
-              <span className="truncate">{t("toolbar.shownInView")}</span>
-              {properties.length > 0 && (
-                // Hides every property while any shows; shows them all once all are hidden.
-                <button
-                  type="button"
-                  onClick={() => onConfig(setAllHiddenInView(view, properties, hiddenCount < properties.length))}
-                  className="-my-0.5 shrink-0 rounded px-1 py-0.5 text-accent hover:bg-bg-hover"
-                >
-                  {t(hiddenCount < properties.length ? "toolbar.hideAll" : "toolbar.showAll")}
-                </button>
-              )}
-            </div>
-            {!properties.length && <div className="px-2 pb-1.5 text-xs text-fg-faint">{t("toolbar.noProperties")}</div>}
-            {properties.map((p) => {
-              const isHidden = isHiddenInView(view, p);
-              const drag = propertyDrag.handlers(p.id);
-              return (
-                <button
-                  key={p.id}
-                  type="button"
-                  data-property={p.id}
-                  draggable
-                  onDragStart={drag.onDragStart}
-                  onDragOver={drag.onDragOver}
-                  onDrop={drag.onDrop}
-                  onDragEnd={drag.onDragEnd}
-                  onClick={() => onConfig(toggleHiddenInView(view, p))}
-                  className={cn(
-                    "group/prop relative flex w-full items-center gap-2 rounded px-2 py-1.5 text-start text-sm hover:bg-bg-hover",
-                    drag.dragging && "opacity-50",
-                  )}
-                >
-                  {drag.dropSide && (
-                    <span
-                      aria-hidden
-                      className={cn(
-                        "pointer-events-none absolute inset-x-1 h-0.5 bg-accent",
-                        drag.dropSide === "before" ? "-top-px" : "-bottom-px",
-                      )}
-                    />
-                  )}
-                  <GripVertical
-                    aria-hidden
-                    className="-ms-1.5 h-3.5 w-3.5 shrink-0 cursor-grab text-fg-faint opacity-0 group-hover/prop:opacity-100"
-                  />
-                  <PropertyTypeIcon type={p.type} icon={p.options.icon} className="-ms-1 h-3.5 w-3.5 text-fg-muted" />
-                  <span className={cn("flex-1 truncate", isHidden && "text-fg-faint")}>{p.name}</span>
-                  <PropertyLock propertyId={p.id} />
-                  {isHidden ? (
-                    <EyeOff className="h-3.5 w-3.5 text-fg-faint" aria-label={t("toolbar.hidden")} />
-                  ) : (
-                    <Eye className="h-3.5 w-3.5 text-fg-muted" aria-label={t("toolbar.shown")} />
-                  )}
-                </button>
-              );
-            })}
-            {deleted && (
-              <>
-                <MenuSeparator />
-                <MenuItem
-                  icon={<Trash2 className="h-3.5 w-3.5" />}
-                  trailing={<ChevronRight className="h-3.5 w-3.5 rtl:-scale-x-100" />}
-                  onClick={() => setShowDeleted(true)}
-                >
-                  {t("deleted.properties")}
-                </MenuItem>
-              </>
-            )}
-          </div>
-        )}
+      <Floating open={propsMenu.open} anchor={propsMenu.el} onClose={propsMenu.close} align="end">
+        <PropertiesPanel view={view} properties={properties} onConfig={onConfig} deleted={deleted} />
       </Floating>
     </div>
   );
 }
 
-/** How the view groups by `prop`: date bucket size, status by option or stage, and empty groups. */
-function GroupSettings({
-  prop,
-  config,
-  onConfig,
-}: {
-  prop: Property;
-  config: ViewConfig;
-  onConfig: (config: ViewConfig) => void;
-}) {
-  const t = useTranslations("database.group");
-  const dates = prop.type === "date" || holdsTimestamp(prop.type);
-  return (
-    <>
-      <MenuSeparator />
-      {dates && (
-        <label className="flex items-center justify-between gap-3 px-2 py-1 text-sm">
-          <span className="text-fg-muted">{t("dateBy")}</span>
-          <NativeSelect
-            label={t("dateBy")}
-            value={groupDateByOf(config)}
-            onChange={(v) => onConfig({ ...config, groupDateBy: v as ViewConfig["groupDateBy"] })}
-            options={GROUP_DATE_BY.map((by) => ({ value: by, label: t(`dateByOptions.${by}`) }))}
-          />
-        </label>
-      )}
-      {prop.type === "status" && (
-        <label className="flex items-center justify-between gap-3 px-2 py-1 text-sm">
-          <span className="text-fg-muted">{t("statusBy")}</span>
-          <NativeSelect
-            label={t("statusBy")}
-            value={config.groupStatusBy === "group" ? "group" : "option"}
-            onChange={(v) => onConfig({ ...config, groupStatusBy: v === "group" ? "group" : undefined })}
-            options={[
-              { value: "option", label: t("statusByOptions.option") },
-              { value: "group", label: t("statusByOptions.group") },
-            ]}
-          />
-        </label>
-      )}
-      <MenuItem
-        icon={config.hideEmptyGroups ? <Check className="h-3.5 w-3.5" /> : <span />}
-        onClick={() => onConfig({ ...config, hideEmptyGroups: config.hideEmptyGroups ? undefined : true })}
-      >
-        {t("hideEmpty")}
-      </MenuItem>
-    </>
-  );
-}
-
 /**
- * A board's sub-groups (sections across every column, by a second property) and whether its
- * columns take their option's color.
+ * The properties a view shows, in its order: click one to show or hide it, drag to reorder, and
+ * (with `deleted`) the deleted ones to restore. In the toolbar's Properties menu and the view
+ * settings menu.
  */
-function BoardGroupSettings({
-  groupBy,
+export function PropertiesPanel({
+  view,
   properties,
-  config,
   onConfig,
+  deleted,
 }: {
-  groupBy: Property;
-  /** The groupable properties. */
+  view: View;
   properties: Property[];
-  config: ViewConfig;
   onConfig: (config: ViewConfig) => void;
+  deleted?: DeletedSchemaProps;
 }) {
   const t = useTranslations("database");
-  const sub = subGroupProperty(properties, config, groupBy);
-  return (
-    <>
-      <label className="flex items-center justify-between gap-3 px-2 py-1 text-sm">
-        <span className="text-fg-muted">{t("group.subGroupBy")}</span>
-        <NativeSelect
-          label={t("group.subGroupBy")}
-          value={sub?.id ?? ""}
-          onChange={(id) => onConfig({ ...config, subGroupBy: id || undefined, collapsedSubGroups: undefined })}
-          options={[
-            { value: "", label: t("toolbar.noGrouping") },
-            ...properties.filter((p) => p.id !== groupBy.id).map((p) => ({ value: p.id, label: p.name })),
-          ]}
-        />
-      </label>
-      <MenuItem
-        icon={config.colorColumns !== false ? <Check className="h-3.5 w-3.5" /> : <span />}
-        onClick={() => onConfig({ ...config, colorColumns: config.colorColumns === false ? undefined : false })}
-      >
-        {t("group.colorColumns")}
-      </MenuItem>
-    </>
+  const [showDeleted, setShowDeleted] = useState(false);
+  const config = view.config;
+  const hiddenCount = properties.filter((p) => isHiddenInView(view, p)).length;
+  // `properties` is in the view's order, so dragging one in the properties menu reorders the view.
+  const propertyDrag = useReorderDrag("y", (moved, target, side) =>
+    onConfig({ ...config, propertyOrder: moveProperty(properties, moved, target, side) }),
+  );
+  return showDeleted && deleted ? (
+    <DeletedSchemaList kind="properties" {...deleted} onBack={() => setShowDeleted(false)} />
+  ) : (
+    <div className="w-64">
+      <div className="flex items-center justify-between gap-2 px-2 pt-1 pb-1.5 text-xs text-fg-muted">
+        <span className="truncate">{t("toolbar.shownInView")}</span>
+        {properties.length > 0 && (
+          // Hides every property while any shows; shows them all once all are hidden.
+          <button
+            type="button"
+            onClick={() => onConfig(setAllHiddenInView(view, properties, hiddenCount < properties.length))}
+            className="-my-0.5 shrink-0 rounded px-1 py-0.5 text-accent hover:bg-bg-hover"
+          >
+            {t(hiddenCount < properties.length ? "toolbar.hideAll" : "toolbar.showAll")}
+          </button>
+        )}
+      </div>
+      {!properties.length && <div className="px-2 pb-1.5 text-xs text-fg-faint">{t("toolbar.noProperties")}</div>}
+      {properties.map((p) => {
+        const isHidden = isHiddenInView(view, p);
+        const drag = propertyDrag.handlers(p.id);
+        return (
+          <button
+            key={p.id}
+            type="button"
+            data-property={p.id}
+            draggable
+            onDragStart={drag.onDragStart}
+            onDragOver={drag.onDragOver}
+            onDrop={drag.onDrop}
+            onDragEnd={drag.onDragEnd}
+            onClick={() => onConfig(toggleHiddenInView(view, p))}
+            className={cn(
+              "group/prop relative flex w-full items-center gap-2 rounded px-2 py-1.5 text-start text-sm hover:bg-bg-hover",
+              drag.dragging && "opacity-50",
+            )}
+          >
+            {drag.dropSide && (
+              <span
+                aria-hidden
+                className={cn(
+                  "pointer-events-none absolute inset-x-1 h-0.5 bg-accent",
+                  drag.dropSide === "before" ? "-top-px" : "-bottom-px",
+                )}
+              />
+            )}
+            <GripVertical
+              aria-hidden
+              className="-ms-1.5 h-3.5 w-3.5 shrink-0 cursor-grab text-fg-faint opacity-0 group-hover/prop:opacity-100"
+            />
+            <PropertyTypeIcon type={p.type} icon={p.options.icon} className="-ms-1 h-3.5 w-3.5 text-fg-muted" />
+            <span className={cn("flex-1 truncate", isHidden && "text-fg-faint")}>{p.name}</span>
+            <PropertyLock propertyId={p.id} />
+            {isHidden ? (
+              <EyeOff className="h-3.5 w-3.5 text-fg-faint" aria-label={t("toolbar.hidden")} />
+            ) : (
+              <Eye className="h-3.5 w-3.5 text-fg-muted" aria-label={t("toolbar.shown")} />
+            )}
+          </button>
+        );
+      })}
+      {deleted && (
+        <>
+          <MenuSeparator />
+          <MenuItem
+            icon={<Trash2 className="h-3.5 w-3.5" />}
+            trailing={<ChevronRight className="h-3.5 w-3.5 rtl:-scale-x-100" />}
+            onClick={() => setShowDeleted(true)}
+          >
+            {t("deleted.properties")}
+          </MenuItem>
+        </>
+      )}
+    </div>
   );
 }
 

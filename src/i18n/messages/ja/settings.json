@@ -74,6 +74,7 @@
       "scim": "プロビジョニング ディレクトリ 同期 ユーザー",
       "exportPolicy": "ダウンロード 印刷 pdf",
       "connectedAppsPolicy": "mcp rest api トークン アクセス",
+      "onlyApprovedApps": "承認 許可リスト mcp アプリ 連携",
       "publishing": "公開 ウェブ 共有 公開リンク",
       "retention": "ゴミ箱 履歴 削除 保持 日数",
       "legalHolds": "訴訟 保全 eディスカバリー 保持",
@@ -1478,6 +1479,10 @@
       "read": "読み取り専用",
       "off": "アクセス権なし"
     },
+    "onlyApprovedApps": {
+      "title": "承認済みのアプリのみ",
+      "description": "オーナーが「このワークスペースにアクセスできるアプリ」で承認した AI アシスタントやその他の MCP アプリだけがアクセスでき、それ以外からは非表示になります。REST API トークンには影響しません。"
+    },
     "workspaceApps": {
       "title": "このワークスペースにアクセスできるアプリ",
       "description": "ここにいる人がMCPで接続したAIアシスタントやその他のアプリと、このワークスペースにアクセスできるREST APIトークンです。それぞれの最終使用日時も表示されます。接続を解除すると、その人のアカウントから外され、再度接続するまでその人のどのワークスペースにもアクセスできなくなります。",
@@ -1489,6 +1494,12 @@
       "reads": "読み取りのみ",
       "readsHere": "ここでは読み取りのみ：接続済みアプリは読み取りのみ可能です",
       "offHere": "ここではアクセス権なし：接続済みアプリはオフです",
+      "notApprovedHere": "ここではアクセス不可: 未承認",
+      "approved": "承認済み",
+      "approve": "承認",
+      "unapprove": "承認を取り消す",
+      "approveError": "承認を変更できませんでした。もう一度お試しください。",
+      "approvedFull": "このワークスペースには既に 500 個の承認済みアプリがあります。先にいずれかの承認を取り消してください。",
       "thisWorkspaceOnly": "このワークスペースのみ",
       "connected": "{date}に接続",
       "lastUsed": "ここでの最終使用：{when}",
@@ -1674,7 +1685,10 @@
       "notion": "Notion",
       "obsidian": "Obsidian",
       "enex": "Evernote",
-      "web": "ウェブページ"
+      "web": "ウェブページ",
+      "jira": "Jira",
+      "github": "GitHub",
+      "confluence": "Confluence"
     },
     "settingNames": {
       "guestInvites": "ゲストを招待できる人",
@@ -1690,6 +1704,7 @@
       "trashRetentionDays": "ゴミ箱のページを削除するまでの期間",
       "export": "エクスポートを許可",
       "connectedApps": "接続済みアプリとAPIトークン",
+      "onlyApprovedApps": "承認済みのアプリのみ",
       "accessRequests": "アクセスリクエスト",
       "memberInvites": "メンバーを追加できる人",
       "allowedDomains": "許可するメールドメイン",
@@ -1823,7 +1838,9 @@
       },
       "connected_app": {
         "connected": "アプリ{target}を接続しました",
-        "revoked": "{hasSubject, select, yes {{subject}のアプリ{target}の接続を解除しました} other {アプリ{target}の接続を解除しました}}"
+        "revoked": "{hasSubject, select, yes {{subject}のアプリ{target}の接続を解除しました} other {アプリ{target}の接続を解除しました}}",
+        "approved": "アプリ{target}を承認しました",
+        "unapproved": "アプリ{target}の承認を取り消しました"
       },
       "api_token": {
         "created": "APIトークン{target}を作成しました",

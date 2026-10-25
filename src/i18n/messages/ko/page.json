@@ -245,6 +245,7 @@
     "change": "배경",
     "colors": "색상",
     "patterns": "패턴",
+    "covers": "커버",
     "none": "없음",
     "remove": "배경 제거",
     "colorNames": {
@@ -262,6 +263,16 @@
       "plus": "십자",
       "grid": "격자",
       "lines": "선"
+    },
+    "coverNames": {
+      "sunrise": "일출",
+      "ocean": "바다",
+      "forest": "숲",
+      "dusk": "황혼",
+      "aurora": "오로라",
+      "sand": "모래",
+      "mint": "민트",
+      "slate": "슬레이트"
     }
   },
   "title": {
@@ -418,9 +429,11 @@
       "full": "전체 액세스",
       "edit": "편집 가능",
       "comment": "댓글 가능",
+      "content": "콘텐츠 편집 가능",
       "view": "보기 가능",
       "none": "액세스 없음"
     },
+    "contentHint": "텍스트와 데이터베이스 행을 편집할 수 있으며 속성, 보기, 설정은 변경할 수 없습니다",
     "errors": {
       "notMember": "이 사람은 워크스페이스 멤버가 아닙니다.",
       "lastFullAccess": "누군가는 페이지에 대한 전체 액세스 권한을 유지해야 합니다. 먼저 다른 사람에게 전체 액세스 권한을 주세요.",
@@ -1064,11 +1077,11 @@
         "mediaSize": "이미지 및 동영상 크기",
         "callout": "Markdown으로 표현할 수 없는 콜아웃 색상과 아이콘",
         "textStyle": "밑줄 등 일부 텍스트 서식",
-        "table": "표의 열 너비, 머리글 행, 병합된 셀, 셀 색상",
+        "table": "표의 병합된 셀",
         "blockSetting": "기타 블록 설정",
         "content": "Markdown이 담을 수 없는 일부 콘텐츠"
       },
-      "synced": "{count, plural, other {동기화 블록 #개 안의 변경 사항: 페이지에서 편집하세요}}",
+      "synced": "{count, plural, other {편집할 수 없는 동기화 블록 #개 안의 변경 사항}}",
       "confirm": "그래도 저장"
     },
     "conflict": {

@@ -74,7 +74,7 @@ export async function assignedRows(
       .select({ id: page.id, level: accessRank(userId, sql`${page.id}`) })
       .from(page)
       .where(inArray(page.id, markable));
-    const editable = new Set(levels.filter((l) => hasLevel(levelFromRank(l.level), "edit")).map((l) => l.id));
+    const editable = new Set(levels.filter((l) => hasLevel(levelFromRank(l.level), "content")).map((l) => l.id));
     for (const row of shown) row.markable = row.markable && editable.has(row.id);
   }
   return { groups: groupAssigned(shown, today), total: rows.length };
@@ -210,7 +210,7 @@ export async function openAssignedRows(
  * property and the option it had, to put it back.
  */
 export async function markAssignedDone(userId: string, rowId: string) {
-  const row = await requirePageAccess(userId, rowId, "edit");
+  const row = await requirePageAccess(userId, rowId, "content");
   if (!row.parentId) throw new AssignedRowError("noStatus");
   const props = (await loadProperties([row.parentId])).get(row.parentId) ?? [];
   const levels = await propertyAccessFor(userId, row.parentId);

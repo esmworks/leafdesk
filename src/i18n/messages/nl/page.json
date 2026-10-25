@@ -245,6 +245,7 @@
     "change": "Achtergrond",
     "colors": "Kleur",
     "patterns": "Patroon",
+    "covers": "Omslag",
     "none": "Geen",
     "remove": "Achtergrond verwijderen",
     "colorNames": {
@@ -262,6 +263,16 @@
       "plus": "Kruisjes",
       "grid": "Raster",
       "lines": "Lijnen"
+    },
+    "coverNames": {
+      "sunrise": "Zonsopgang",
+      "ocean": "Oceaan",
+      "forest": "Bos",
+      "dusk": "Schemering",
+      "aurora": "Noorderlicht",
+      "sand": "Zand",
+      "mint": "Munt",
+      "slate": "Leisteen"
     }
   },
   "title": {
@@ -418,9 +429,11 @@
       "full": "Volledige toegang",
       "edit": "Kan bewerken",
       "comment": "Kan opmerkingen plaatsen",
+      "content": "Kan inhoud bewerken",
       "view": "Kan bekijken",
       "none": "Geen toegang"
     },
+    "contentHint": "Tekst en databaserijen bewerken, geen eigenschappen, weergaven of instellingen",
     "errors": {
       "notMember": "Deze persoon is geen lid van de werkruimte.",
       "lastFullAccess": "Iemand moet volledige toegang tot de pagina houden. Geef eerst iemand anders volledige toegang.",
@@ -1064,11 +1077,11 @@
         "mediaSize": "Afmetingen van afbeeldingen en video’s",
         "callout": "Kleuren en pictogrammen van callouts waarvoor Markdown geen vorm heeft",
         "textStyle": "Sommige tekstopmaak, zoals onderstrepen",
-        "table": "Kolombreedtes, koprijen, samengevoegde cellen en celkleuren van tabellen",
+        "table": "Samengevoegde cellen van tabellen",
         "blockSetting": "Andere blokinstellingen",
         "content": "Sommige inhoud die Markdown niet kan bevatten"
       },
-      "synced": "{count, plural, one {Je wijzigingen in een gesynchroniseerd blok: bewerk het in plaats daarvan op de pagina} other {Je wijzigingen in # gesynchroniseerde blokken: bewerk ze in plaats daarvan op de pagina}}",
+      "synced": "{count, plural, one {Je wijzigingen in een gesynchroniseerd blok dat je niet kunt bewerken} other {Je wijzigingen in # gesynchroniseerde blokken die je niet kunt bewerken}}",
       "confirm": "Toch opslaan"
     },
     "conflict": {

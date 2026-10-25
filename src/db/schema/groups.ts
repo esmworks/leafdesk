@@ -88,7 +88,7 @@ export const pageGroupPermission = pgTable(
       columns: [t.groupId, t.workspaceId],
       foreignColumns: [memberGroup.id, memberGroup.workspaceId],
     }).onDelete("cascade"),
-    check("page_group_permission_level_check", sql`${t.level} in ('none', 'view', 'comment', 'edit', 'full')`),
+    check("page_group_permission_level_check", sql`${t.level} in ('none', 'view', 'comment', 'content', 'edit', 'full')`),
   ],
 );
 

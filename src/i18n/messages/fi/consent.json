@@ -16,7 +16,8 @@
   "readOnlyHint": "Poista valinta, jos haluat antaa vain lukuoikeuden. Jokainen muokkaus tallennetaan ensin sivun historiaan, joten voit kumota sen.",
   "access": {
     "all": "Pääsy koskee kaikkia työtiloja, joihin kuulut. Voit katkaista sovelluksen yhteyden milloin tahansa asetuksista.",
-    "listed": "Pääsy koskee kaikkia työtiloja, joihin kuulut: {workspaces}. Voit katkaista sovelluksen yhteyden milloin tahansa asetuksista."
+    "listed": "Pääsy koskee kaikkia työtiloja, joihin kuulut: {workspaces}. Voit katkaista sovelluksen yhteyden milloin tahansa asetuksista.",
+    "awaitingApproval": "{count, plural, one {{workspaces} päästää sisään vain omistajiensa hyväksymät sovellukset: tämä sovellus ei pääse sinne ennen kuin joku heistä hyväksyy sen.} other {{workspaces} päästävät sisään vain omistajiensa hyväksymät sovellukset: tämä sovellus ei pääse niihin ennen kuin omistaja hyväksyy sen.}}"
   },
   "deny": "Estä",
   "denying": "Estetään…",

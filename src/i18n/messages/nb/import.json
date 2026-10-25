@@ -7,11 +7,13 @@
     "docx": "Word",
     "pdf": "PDF",
     "evernote": "Evernote",
+    "confluence": "Confluence",
     "csv": "CSV og Excel",
     "trello": "Trello",
     "asana": "Asana",
     "monday": "Monday.com",
     "jira": "Jira",
+    "github": "GitHub",
     "googleDocs": "Google Dokumenter",
     "web": "Nettside"
   },
@@ -51,6 +53,11 @@
       "sourceUrl": "Kilde-URL",
       "encrypted": "Kryptert tekst ble utelatt fra importen."
     }
+  },
+  "confluence": {
+    "help": "Hver side i et Confluence-område blir en side, nestet som i området. Overskrifter, lister, tabeller, kodeblokker, infopaneler (som merknadsbokser), utvidbare seksjoner (som vekslelister), oppgavelister, bilder og vedlagte filer blir med, og lenker mellom sider blir sidenevnelser.",
+    "export": "Åpne områdets innstillinger i Confluence, velg Eksporter område → HTML, og velg deretter den nedlastede ZIP-filen.",
+    "choose": "Velg eksporten (.zip)"
   },
   "csv": {
     "choose": "Velg en CSV- eller Excel-fil",
@@ -160,6 +167,53 @@
       "alreadyRunning": "En synkronisering pågår. Prøv igjen om et øyeblikk."
     }
   },
+  "githubPulls": {
+    "help": "Få en database med pull requestene i et GitHub-repository som holdes oppdatert: hver pull request er en rad med nummer, tilstand (utkast, åpen, flettet eller lukket), forfatter, ansvarlige, etiketter, grener, datoer og en lenke tilbake. Endringer går én vei, fra GitHub til Leafdesk. Personer kjennes igjen på GitHub-kontoen de logger inn med.",
+    "repo": "Repository",
+    "repoPlaceholder": "eier/navn eller adressen til repositoryet",
+    "token": "Token (valgfritt)",
+    "tokenHelp": "Trengs for private repositoryer, og det hever GitHubs grense for forespørsler. Lesetilgang til pull requests er nok. Det lagres forseglet på serveren.",
+    "tokenLink": "Opprett et token",
+    "server": "GitHub Enterprise Server (valgfritt)",
+    "serverPlaceholder": "github.example.com",
+    "pulls": "Pull requests",
+    "states": {
+      "open": "De åpne",
+      "all": "Alle (de {limit} sist oppdaterte)"
+    },
+    "names": {
+      "number": "Nummer",
+      "state": "Tilstand",
+      "author": "Forfatter",
+      "assignees": "Ansvarlige",
+      "others": "{column} (andre)",
+      "labels": "Etiketter",
+      "branch": "Gren",
+      "base": "Basisgren",
+      "created": "Opprettet",
+      "merged": "Flettet",
+      "link": "GitHub-lenke",
+      "stages": {
+        "draft": "Utkast",
+        "open": "Åpen",
+        "merged": "Flettet",
+        "closed": "Lukket"
+      }
+    },
+    "errors": {
+      "unauthorized": "GitHub avviste tokenet.",
+      "forbidden": "Tokenet får ikke lese pull requestene i dette repositoryet.",
+      "notFound": "Repositoryet finnes ikke, eller det er privat og tokenet når det ikke.",
+      "unreachable": "GitHub kunne ikke nås, eller grensen for forespørsler er brukt opp. Synkroniseringen prøver igjen neste gang.",
+      "runAsGone": "Personen som satte opp synkroniseringen, har ikke lenger en konto.",
+      "accessLost": "Personen synkroniseringen kjører som, kan ikke lenger redigere denne databasen.",
+      "keyGone": "Nummer-egenskapen ble slettet eller fikk en annen type, så pull requests kan ikke kobles til rader.",
+      "failed": "Synkroniseringen mislyktes. Den prøver igjen neste gang.",
+      "invalidSite": "Det er ikke en adresse Leafdesk kan nå.",
+      "invalidInput": "Oppgi repositoryet som eier/navn.",
+      "alreadyRunning": "En synkronisering pågår. Prøv igjen om et øyeblikk."
+    }
+  },
   "board": {
     "links": "Ingenting lastes ned: filer og lenker i eksporten forblir lenker.",
     "comments": "{count, plural, one {# kommentar havner} other {# kommentarer havner}} på sidene til radene, under forfatter og tidspunkt.",
@@ -243,6 +297,7 @@
     "badTrello": "Filen er ikke en eksport av en Trello-tavle. Velg Eksporter som JSON fra menyen til tavlen i Trello og velg den filen.",
     "badAsana": "Filen er ikke en eksport av et Asana-prosjekt. Velg Eksporter → CSV eller JSON fra menyen til prosjektet i Asana og velg den filen.",
     "badMonday": "Filen er ikke en eksport av en Monday.com-tavle. Velg Eksporter tavle til Excel fra menyen til tavlen i Monday.com og velg den filen.",
+    "badConfluence": "Filen er ikke et Confluence-område eksportert som HTML. Velg Eksporter område → HTML i områdets innstillinger i Confluence, og velg ZIP-filen som lastes ned.",
     "badMapping": "Velg hvor minst én kolonne skal, og hver egenskap bare én gang.",
     "noAccess": "Du kan ikke legge til sider der, eller stedet finnes ikke lenger.",
     "notADatabase": "Rader kan bare legges til i en database.",

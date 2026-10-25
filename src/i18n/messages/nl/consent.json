@@ -16,7 +16,8 @@
   "readOnlyHint": "Vink uit om alleen leestoegang te geven. Elke bewerking wordt eerst in de paginageschiedenis opgeslagen, zodat je die ongedaan kunt maken.",
   "access": {
     "all": "De toegang geldt voor alle werkruimtes waarvan je lid bent. Je kunt de app altijd ontkoppelen in Instellingen.",
-    "listed": "De toegang geldt voor alle werkruimtes waarvan je lid bent: {workspaces}. Je kunt de app altijd ontkoppelen in Instellingen."
+    "listed": "De toegang geldt voor alle werkruimtes waarvan je lid bent: {workspaces}. Je kunt de app altijd ontkoppelen in Instellingen.",
+    "awaitingApproval": "{count, plural, one {{workspaces} laat alleen apps toe die de eigenaren hebben goedgekeurd: deze app bereikt hem pas als een van hen hem goedkeurt.} other {{workspaces} laten alleen apps toe die de eigenaren hebben goedgekeurd: deze app bereikt ze pas als een eigenaar hem goedkeurt.}}"
   },
   "deny": "Weigeren",
   "denying": "Weigeren…",

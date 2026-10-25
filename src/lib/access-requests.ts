@@ -12,7 +12,7 @@ export const ACCESS_REQUEST_LIMIT = { count: 10, windowMs: 60 * 60_000 } as cons
 
 export type ApprovalLevel = Exclude<PageLevel, "none">;
 
-export const APPROVAL_LEVELS: readonly ApprovalLevel[] = ["view", "comment", "edit", "full"];
+export const APPROVAL_LEVELS: readonly ApprovalLevel[] = ["view", "comment", "content", "edit", "full"];
 
 export const isApprovalLevel = (value: unknown): value is ApprovalLevel =>
   typeof value === "string" && (APPROVAL_LEVELS as readonly string[]).includes(value);
@@ -30,7 +30,7 @@ export type MoreAccessLevel = (typeof MORE_ACCESS_LEVELS)[number];
 export const isMoreAccessLevel = (value: unknown): value is MoreAccessLevel =>
   typeof value === "string" && (MORE_ACCESS_LEVELS as readonly string[]).includes(value);
 
-const RANK: Record<PageLevel, number> = { none: 0, view: 1, comment: 2, edit: 3, full: 4 };
+const RANK: Record<PageLevel, number> = { none: 0, view: 1, comment: 2, content: 3, edit: 4, full: 5 };
 
 /** Whether `level` is more than `current`. */
 export const isAbove = (level: PageLevel, current: PageLevel) => RANK[level] > RANK[current];

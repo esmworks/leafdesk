@@ -7,7 +7,7 @@ import { AccessError } from "@/server/access";
 import { revalidateAccountPages } from "@/server/account-pages";
 import { revokeConnectedApp } from "@/server/mcp/grants";
 import { requireUserId } from "@/server/session";
-import { disconnectWorkspaceApp } from "@/server/workspace-apps";
+import { ApprovedAppsFullError, disconnectWorkspaceApp, setWorkspaceAppApproved } from "@/server/workspace-apps";
 
 /** Disconnects an OAuth client: removes the user's consent and revokes its tokens. */
 export async function revokeConnectedAppAction(clientId: string) {
@@ -35,5 +35,22 @@ export async function disconnectWorkspaceAppAction(
   }
   revalidatePath(`/w/${workspaceId}/settings`);
   revalidateAccountPages();
+  return { ok: true, data: undefined };
+}
+
+/**
+ * A workspace owner approves an app for the workspace, or withdraws the approval (Settings >
+ * Security): where only approved apps may come, it reaches the workspace or stops reaching it.
+ */
+export async function setWorkspaceAppApprovedAction(workspaceId: string, clientId: string, approve: boolean): Promise<ActionResult> {
+  const userId = await requireUserId();
+  try {
+    await setWorkspaceAppApproved(userId, String(workspaceId), String(clientId), approve === true);
+  } catch (error) {
+    if (!(error instanceof AccessError) && !(error instanceof ApprovedAppsFullError)) throw error;
+    const t = await getTranslations("settings.security.workspaceApps");
+    return { ok: false, error: t(error instanceof ApprovedAppsFullError ? "approvedFull" : "gone") };
+  }
+  revalidatePath(`/w/${workspaceId}/settings`);
   return { ok: true, data: undefined };
 }

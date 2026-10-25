@@ -1,5 +1,5 @@
 {
-  "id": "b3c4b259-dca5-40a6-bc78-2caaa46e7da9",
+  "id": "b1ecd671-d5f9-42bc-be19-b82c009457ac",
   "prevId": "206afd5c-59fe-4f1a-83d3-9d157bdf0a7f",
   "version": "7",
   "dialect": "postgresql",
@@ -4435,7 +4435,7 @@
       "checkConstraints": {
         "page_invitation_level_check": {
           "name": "page_invitation_level_check",
-          "value": "\"page_invitation\".\"level\" in ('view', 'comment', 'edit', 'full')"
+          "value": "\"page_invitation\".\"level\" in ('view', 'comment', 'content', 'edit', 'full')"
         }
       },
       "isRLSEnabled": false
@@ -4589,7 +4589,7 @@
       "checkConstraints": {
         "page_permission_level_check": {
           "name": "page_permission_level_check",
-          "value": "\"page_permission\".\"level\" in ('none', 'view', 'comment', 'edit', 'full')"
+          "value": "\"page_permission\".\"level\" in ('none', 'view', 'comment', 'content', 'edit', 'full')"
         }
       },
       "isRLSEnabled": false
@@ -7501,13 +7501,6 @@
           "notNull": true,
           "default": "'off'"
         },
-        "open_on_start": {
-          "name": "open_on_start",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true,
-          "default": "'home'"
-        },
         "emoji_skin_tone": {
           "name": "emoji_skin_tone",
           "type": "integer",
@@ -9958,7 +9951,7 @@
       "checkConstraints": {
         "page_group_permission_level_check": {
           "name": "page_group_permission_level_check",
-          "value": "\"page_group_permission\".\"level\" in ('none', 'view', 'comment', 'edit', 'full')"
+          "value": "\"page_group_permission\".\"level\" in ('none', 'view', 'comment', 'content', 'edit', 'full')"
         }
       },
       "isRLSEnabled": false

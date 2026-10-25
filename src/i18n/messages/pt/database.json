@@ -858,7 +858,17 @@
     "pinColor": "Cor do marcador",
     "noPinColor": "Nenhuma",
     "colorRules": "Regras de cor",
-    "wrapProperties": "Quebrar todas as propriedades"
+    "wrapProperties": "Quebrar todas as propriedades",
+    "loadLimit": "Limite de carregamento",
+    "loadLimitCards": "{count} cartões",
+    "loadMore": "Carregar mais",
+    "moreCards": "{count, plural, one {mais # cartão} other {mais # cartões}}"
+  },
+  "viewMenu": {
+    "label": "Configurações da visualização",
+    "back": "Voltar",
+    "layoutHint": "A visualização mantém seus filtros, ordenações e propriedades.",
+    "shown": "{count} visíveis"
   },
   "gallery": {
     "new": "Novo",
@@ -1899,6 +1909,18 @@
     "viewOnly": "Só pessoas com acesso total ao banco de dados podem alterar a sincronização.",
     "reporter": "Relator",
     "reporterNone": "Não sincronizado"
+  },
+  "githubPulls": {
+    "button": "Sincronizado do GitHub",
+    "buttonPaused": "Sincronização com o GitHub pausada",
+    "title": "Sincronização com o GitHub",
+    "lastRun": "Última sincronização {when}, {count, plural, one {# pull request} other {# pull requests}}",
+    "withToken": "Com um token",
+    "withoutToken": "Sem token",
+    "overwrite": "O GitHub é a fonte: as propriedades sincronizadas e os títulos das linhas são sobrescritos a cada sincronização, então altere-os no GitHub. Propriedades que você mesmo adicionar ficam como estão, e linhas de pull requests que a sincronização não traz mais não são mexidas.",
+    "changeToken": "Trocar o token",
+    "tokenEmpty": "Deixe vazio para sincronizar sem token.",
+    "stopConfirm": "Parar de sincronizar este banco de dados? As linhas ficam como estão e o token é esquecido."
   },
   "sprints": {
     "menuItem": "Sprints",

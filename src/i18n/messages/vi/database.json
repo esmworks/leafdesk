@@ -858,7 +858,17 @@
     "pinColor": "Màu ghim",
     "noPinColor": "Không có",
     "colorRules": "Quy tắc màu",
-    "wrapProperties": "Xuống dòng mọi thuộc tính"
+    "wrapProperties": "Xuống dòng mọi thuộc tính",
+    "loadLimit": "Giới hạn tải",
+    "loadLimitCards": "{count} thẻ",
+    "loadMore": "Tải thêm",
+    "moreCards": "{count, plural, other {thêm # thẻ}}"
+  },
+  "viewMenu": {
+    "label": "Cài đặt chế độ xem",
+    "back": "Quay lại",
+    "layoutHint": "Chế độ xem giữ nguyên bộ lọc, sắp xếp và thuộc tính.",
+    "shown": "Hiển thị {count}"
   },
   "gallery": {
     "new": "Mới",
@@ -1899,6 +1909,18 @@
     "viewOnly": "Chỉ những người có toàn quyền với cơ sở dữ liệu mới có thể thay đổi việc đồng bộ.",
     "reporter": "Người báo cáo",
     "reporterNone": "Không đồng bộ"
+  },
+  "githubPulls": {
+    "button": "Đồng bộ từ GitHub",
+    "buttonPaused": "Đã tạm dừng đồng bộ GitHub",
+    "title": "Đồng bộ GitHub",
+    "lastRun": "Đồng bộ lần cuối {when}, {count, plural, other {# pull request}}",
+    "withToken": "Có token",
+    "withoutToken": "Không có token",
+    "overwrite": "GitHub là nguồn: các thuộc tính được đồng bộ và tiêu đề hàng bị ghi đè mỗi lần đồng bộ, vì vậy hãy thay đổi chúng trên GitHub. Thuộc tính bạn tự thêm vẫn giữ nguyên, và các hàng của pull request mà đồng bộ không còn lấy sẽ không bị đụng tới.",
+    "changeToken": "Đổi token",
+    "tokenEmpty": "Để trống để đồng bộ không cần token.",
+    "stopConfirm": "Dừng đồng bộ cơ sở dữ liệu này? Các hàng vẫn giữ nguyên và token sẽ bị quên."
   },
   "sprints": {
     "menuItem": "Sprint",

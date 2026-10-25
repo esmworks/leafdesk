@@ -245,6 +245,7 @@
     "change": "Arka plan",
     "colors": "Renk",
     "patterns": "Desen",
+    "covers": "Kapak",
     "none": "Yok",
     "remove": "Arka planı kaldır",
     "colorNames": {
@@ -262,6 +263,16 @@
       "plus": "Artılar",
       "grid": "Izgara",
       "lines": "Çizgiler"
+    },
+    "coverNames": {
+      "sunrise": "Gün doğumu",
+      "ocean": "Okyanus",
+      "forest": "Orman",
+      "dusk": "Alacakaranlık",
+      "aurora": "Kutup ışıkları",
+      "sand": "Kum",
+      "mint": "Nane",
+      "slate": "Arduvaz"
     }
   },
   "title": {
@@ -418,9 +429,11 @@
       "full": "Tam erişim",
       "edit": "Düzenleyebilir",
       "comment": "Yorum yapabilir",
+      "content": "İçeriği düzenleyebilir",
       "view": "Görüntüleyebilir",
       "none": "Erişim yok"
     },
+    "contentHint": "Metni ve veritabanı satırlarını düzenler; özellikleri, görünümleri ve ayarları değil",
     "errors": {
       "notMember": "Bu kişi çalışma alanının üyesi değil.",
       "lastFullAccess": "Sayfada tam erişimi olan en az bir kişi kalmalı. Önce başka birine tam erişim verin.",
@@ -1064,11 +1077,11 @@
         "mediaSize": "Görsel ve video boyutları",
         "callout": "Markdown'da karşılığı olmayan bilgi kutusu renkleri ve simgeleri",
         "textStyle": "Altı çizili gibi bazı metin biçimleri",
-        "table": "Tablo sütun genişlikleri, başlık satırları, birleştirilmiş hücreler ve hücre renkleri",
+        "table": "Tablolardaki birleştirilmiş hücreler",
         "blockSetting": "Diğer blok ayarları",
         "content": "Markdown'ın tutamadığı bazı içerikler"
       },
-      "synced": "{count, plural, one {Senkron bir bloğun içindeki değişiklikleriniz: onu sayfada düzenleyin} other {# senkron bloğun içindeki değişiklikleriniz: onları sayfada düzenleyin}}",
+      "synced": "{count, plural, one {Düzenleyemediğiniz senkron bir bloğun içindeki değişiklikleriniz} other {Düzenleyemediğiniz # senkron bloğun içindeki değişiklikleriniz}}",
       "confirm": "Yine de kaydet"
     },
     "conflict": {

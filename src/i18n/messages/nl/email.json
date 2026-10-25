@@ -43,6 +43,7 @@
     "levels": {
       "view": "bekijken",
       "comment": "bekijken en becommentariëren",
+      "content": "inhoudelijk bewerken",
       "edit": "bewerken",
       "full": "bekijken, bewerken en delen"
     },

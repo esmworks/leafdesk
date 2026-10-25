@@ -58,6 +58,8 @@ type Source = {
   losses: MarkdownLoss[];
   blocks: unknown[];
   people: MentionPerson[];
+  /** Synced blocks a save can't write to (server/markdown-source). */
+  readOnlySynced: string[];
 };
 
 /** How long typing pauses before the preview follows. */
@@ -329,7 +331,7 @@ export function MarkdownSourceView({
 
   const save = useCallback(() => {
     if (!source || saving || offline || !dirty) return;
-    const synced = changedSyncedRegions(source.markdown, text);
+    const synced = changedSyncedRegions(source.markdown, text, source.readOnlySynced);
     if (source.losses.length || synced) {
       setPrompt({ kind: "losses", losses: source.losses, synced });
       return;

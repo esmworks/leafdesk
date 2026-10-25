@@ -858,7 +858,17 @@
     "pinColor": "图钉颜色",
     "noPinColor": "无",
     "colorRules": "颜色规则",
-    "wrapProperties": "所有属性自动换行"
+    "wrapProperties": "所有属性自动换行",
+    "loadLimit": "加载上限",
+    "loadLimitCards": "{count} 张卡片",
+    "loadMore": "加载更多",
+    "moreCards": "{count, plural, other {还有 # 张卡片}}"
+  },
+  "viewMenu": {
+    "label": "视图设置",
+    "back": "返回",
+    "layoutHint": "视图会保留其筛选、排序和属性。",
+    "shown": "显示 {count} 个"
   },
   "gallery": {
     "new": "新建",
@@ -1899,6 +1909,18 @@
     "viewOnly": "只有对数据库拥有完全访问权限的人才能更改同步。",
     "reporter": "报告人",
     "reporterNone": "不同步"
+  },
+  "githubPulls": {
+    "button": "已从 GitHub 同步",
+    "buttonPaused": "GitHub 同步已暂停",
+    "title": "GitHub 同步",
+    "lastRun": "上次同步：{when}，{count, plural, other {# 个拉取请求}}",
+    "withToken": "使用令牌",
+    "withoutToken": "不使用令牌",
+    "overwrite": "GitHub 是数据来源：同步的属性和行标题会在每次同步时被覆盖，所以请在 GitHub 上更改它们。你自己添加的属性保持不变，同步不再获取的拉取请求所在的行也不会被改动。",
+    "changeToken": "更换令牌",
+    "tokenEmpty": "留空即可不使用令牌同步。",
+    "stopConfirm": "停止同步此数据库？其中的行保持不变，令牌将被遗忘。"
   },
   "sprints": {
     "menuItem": "冲刺",

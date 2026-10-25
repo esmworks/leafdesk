@@ -4,14 +4,14 @@
 
 ### Added
 
-- **Sub-groups on boards.** *Sub-group* in a board's Group menu splits the board into sections by a
+- **Sub-groups on boards.** *Sub-group* on the Group page of a board's *View settings* splits the board into sections by a
   second property (a status, a select, a person, a date…), each holding every column: a card
   dragged into another section changes both values, and *New* in a section's column starts the
   card with both. Sections fold away (for everyone when you may change the view, else just for you),
   Cmd/Ctrl+Alt+T opens or closes them all, and *Hide empty groups* leaves out empty ones too. The
   same menu's *Color columns* turns the option colors of the columns off. MCP's
   `create_database_view` and `update_database_view` take `sub_group_by` and `color_columns`, and
-  `get_database` names them.
+  `get_database` names them; the MCP tool list's size budget goes from 276,500 to 277,500 bytes for them.
 - **Group lists and galleries.** Lists and galleries group their rows into sections by a property,
   like tables: each section folds away, can be hidden and adds rows with its value, published pages
   show the sections, and MCP's `group_by` takes them.
@@ -27,12 +27,58 @@
   as a link that opens it.
 - **Start on the page you left.** My account → Preferences → *Start page* opens Leafdesk on the
   workspace's home page (as before) or on the page you opened last, on any device, while your page
-  views are recorded. Migration `drizzle/0141_open_on_start.sql` adds
+  views are recorded. Migration `drizzle/0142_open_on_start.sql` adds
   `user_preference.open_on_start`.
 - **Copy link to original, and open a linked page in a new tab.** A bookmark's or embed's block
   menu copies the address it shows, beside *Copy link to block*, and a link to a page has *Open in
   new tab*.
-
+- **All of a view's settings in one menu.** The layout button beside a database's toolbar is now
+  *View settings*: its layout, properties, filters, sorts and grouping, each a page of the menu,
+  then the layout's own settings and *Duplicate* and *Delete*. The calendar date and grouping
+  moved there from the toolbar. A table, board, calendar, gallery, list, feed, timeline or map view
+  can now switch to any of the others, keeping its filters, sorts, properties and grouping; MCP's
+  `update_database_view` takes the new layout as `type`.
+- **Page covers.** The background picker has a *Cover* row: a band across the top of the page in one
+  of eight gradients, shown on the published page too. Like colors and patterns, covers are drawn by
+  the app's stylesheet and load no image; MCP and the REST API read and write them as
+  `cover:<name>` in the page's `background`.
+- **Import a Confluence space.** Import has a Confluence tab: a space exported as HTML (a ZIP)
+  becomes pages nested as in the space, with info panels as callouts, code macros as code blocks
+  in their language, expand sections as toggles, task lists as to-dos, links between pages as page
+  links, and pictures and linked attachments uploaded under their own names (`POST /api/import`
+  `mode=confluence`).
+- **Load limit for boards and galleries.** A board column and a gallery show 50 cards, then *Load
+  more* adds as many again; Layout → *Load limit* sets 10, 25, 50 or 100 per view (MCP
+  `update_database_view` `load_limit`). Filters, sorts and counts still take every row. List views
+  draw only the lines near the visible part of the page from 120 rows on, as tables do.
+- **Writing synced blocks and tables as Markdown.** Markdown written over MCP, the REST API or
+  *Edit as Markdown* now saves what changed between a synced block's marker lines to its blocks,
+  when the writer may edit the original page (that page is saved to its history first; writing
+  back what `get_page` read changes nothing, and a synced block with nothing between its lines is
+  only placed; imports and new pages only place synced blocks). *Edit as Markdown* shows the blocks of synced blocks from other pages too, and warns
+  only of changes to ones you may not edit. Tables rewritten from Markdown keep their column
+  widths, header rows and columns, cell colors and alignment.
+- **Sync GitHub pull requests.** Import has a GitHub tab: a repository (and a token for a private
+  one, or a GitHub Enterprise Server's address) becomes a database of its pull requests that stays
+  in step one way, with number, state (Draft, Open, Merged, Closed), author and assignees (people
+  who sign in with that GitHub account, others by login), labels, branches, dates and a link, and a
+  board by state. It takes the open pull requests, finishing the rows of those merged or closed
+  since, or all of them (the 1,000 most recently updated); the database's sync dialog changes it,
+  syncs now or stops it. Runs alongside Jira syncs in `database_sync` (no migration).
+- **Only approved apps.** Owners can let in only the MCP apps they approved: *Only approved apps*
+  in Settings → Security, with *Approve* and *Withdraw approval* on each app in *Apps that reach
+  this workspace*. To an app not approved the workspace is hidden, as when connected apps are off;
+  the server's own clients and REST API tokens aren't held to it. The consent screen names the
+  workspaces an app won't reach until an owner approves it, and the audit log records approvals
+  (`connected_app.approved`, `connected_app.unapproved`).
+- **"Can edit content" access.** The Share panel, invitations by email, groups and access requests
+  have a level between *Can comment* and *Can edit*: people with it write the page's body, title
+  and icon, add, fill in, duplicate, merge and trash rows, and fill in forms, but don't change a
+  database's properties, views, forms, automations or row templates, and don't lock, move or share
+  the page; to them a database shows as locked, and the filters and sorts they set stay their own.
+  Migration 0141 widens the level checks of `page_permission`, `page_invitation` and
+  `page_group_permission` and redefines `page_access_level`, whose ranks move up by one above
+  *Can comment*.
 - **Embed any website.** The Embed block shows any https site as it is, not only the named
   providers: Hex apps, Deepnote blocks, Pitch presentations and the like, in the same sandboxed
   frame, without a referrer. Sites that refuse to be framed show an empty frame with their link,

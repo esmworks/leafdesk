@@ -28,8 +28,8 @@ import { PublishTab } from "./publish-tab";
 type Sharing = Awaited<ReturnType<typeof getSharingAction>>;
 type CurrentUser = { id: string; name: string; email?: string };
 
-const LEVELS: PageLevel[] = ["full", "edit", "comment", "view", "none"];
-const RANK: Record<PageLevel, number> = { none: 0, view: 1, comment: 2, edit: 3, full: 4 };
+const LEVELS: PageLevel[] = ["full", "edit", "content", "comment", "view", "none"];
+const RANK: Record<PageLevel, number> = { none: 0, view: 1, comment: 2, content: 3, edit: 4, full: 5 };
 
 /**
  * The Share popover: who can open the page (Share) and the public web link (Publish). Templates
@@ -745,7 +745,12 @@ function LevelSelect({
           </option>
         )}
         {LEVELS.filter((level) => !only || only.includes(level) || level === value).map((level) => (
-          <option key={level} value={level} disabled={RANK[level] < RANK[floor] && level !== value}>
+          <option
+            key={level}
+            value={level}
+            disabled={RANK[level] < RANK[floor] && level !== value}
+            title={level === "content" ? t("contentHint") : undefined}
+          >
             {t(`levels.${level}`)}
           </option>
         ))}

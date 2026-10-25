@@ -16,7 +16,8 @@
   "readOnlyHint": "Entferne das Häkchen, um nur Lesezugriff zu gewähren. Jede Änderung wird vorher im Seitenverlauf gespeichert, sodass du sie rückgängig machen kannst.",
   "access": {
     "all": "Der Zugriff umfasst alle Workspaces, in denen du Mitglied bist. Du kannst die App jederzeit in den Einstellungen trennen.",
-    "listed": "Der Zugriff umfasst alle Workspaces, in denen du Mitglied bist: {workspaces}. Du kannst die App jederzeit in den Einstellungen trennen."
+    "listed": "Der Zugriff umfasst alle Workspaces, in denen du Mitglied bist: {workspaces}. Du kannst die App jederzeit in den Einstellungen trennen.",
+    "awaitingApproval": "{count, plural, one {{workspaces} lässt nur Apps zu, die seine Eigentümer freigegeben haben: Diese App erreicht ihn erst, wenn einer von ihnen sie freigibt.} other {{workspaces} lassen nur Apps zu, die ihre Eigentümer freigegeben haben: Diese App erreicht sie erst, wenn ein Eigentümer sie freigibt.}}"
   },
   "deny": "Ablehnen",
   "denying": "Wird abgelehnt…",

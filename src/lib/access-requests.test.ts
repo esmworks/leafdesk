@@ -95,9 +95,10 @@ describe("asking for more access", () => {
   });
 
   it("lets approvers give only more than the requester has", () => {
-    expect(approvalLevelsFor("none")).toEqual(["view", "comment", "edit", "full"]);
-    expect(approvalLevelsFor("view")).toEqual(["comment", "edit", "full"]);
-    expect(approvalLevelsFor("comment")).toEqual(["edit", "full"]);
+    expect(approvalLevelsFor("none")).toEqual(["view", "comment", "content", "edit", "full"]);
+    expect(approvalLevelsFor("view")).toEqual(["comment", "content", "edit", "full"]);
+    expect(approvalLevelsFor("comment")).toEqual(["content", "edit", "full"]);
+    expect(approvalLevelsFor("content")).toEqual(["edit", "full"]);
     expect(approvalLevelsFor("full")).toEqual([]);
   });
 

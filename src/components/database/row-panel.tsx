@@ -439,7 +439,7 @@ function RowPanel({
   let body: ReactNode;
   if (result?.ok) {
     const { data } = result;
-    const canEdit = data.info.level === "edit" || data.info.level === "full";
+    const canEdit = data.info.level === "content" || data.info.level === "edit" || data.info.level === "full";
     body = (
       <Suspense
         fallback={

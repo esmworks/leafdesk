@@ -731,12 +731,20 @@ export function useDatabase(
         return mutateSchema((s) => s, () => duplicateViewAction(view.id, name));
       },
 
-      updateView(view: View, patch: { name?: string; config?: ViewConfig }) {
+      /** Renames a view, changes its settings or switches its layout (lib/view-layouts). */
+      updateView(view: View, patch: { name?: string; config?: ViewConfig; type?: ViewType }) {
         return mutateSchema(
           (s) => ({
             ...s,
             views: s.views.map((v) =>
-              v.id === view.id ? { ...v, ...(patch.name ? { name: patch.name } : {}), ...(patch.config ? { config: patch.config } : {}) } : v,
+              v.id === view.id
+                ? {
+                    ...v,
+                    ...(patch.name ? { name: patch.name } : {}),
+                    ...(patch.config ? { config: patch.config } : {}),
+                    ...(patch.type ? { type: patch.type } : {}),
+                  }
+                : v,
             ),
           }),
           () => updateViewAction(view.id, patch),

@@ -74,6 +74,7 @@
       "scim": "aprovisionamiento directorio sincronizar usuarios",
       "exportPolicy": "descargar imprimir pdf",
       "connectedAppsPolicy": "mcp rest api tokens acceso",
+      "onlyApprovedApps": "aprobar lista permitida mcp apps integraciones",
       "publishing": "publicar web compartir enlace público",
       "retention": "papelera historial eliminar conservar días",
       "legalHolds": "litigio preservar ediscovery conservar",
@@ -1478,6 +1479,10 @@
       "read": "Solo lectura",
       "off": "Sin acceso"
     },
+    "onlyApprovedApps": {
+      "title": "Solo apps aprobadas",
+      "description": "Solo los asistentes de IA y otras apps MCP que un propietario aprobó en «Apps que acceden a este espacio de trabajo» pueden llegar a él; para las demás queda oculto. Los tokens de la API REST no se ven afectados."
+    },
     "workspaceApps": {
       "title": "Apps que acceden a este espacio de trabajo",
       "description": "Los asistentes de IA y otras apps que las personas de aquí conectaron por MCP, y sus tokens de la API REST que llegan a este espacio de trabajo, con cuándo se usó cada uno aquí por última vez. Al desconectar una, sale de la cuenta de esa persona: no llega a ninguno de sus espacios de trabajo hasta que la vuelva a conectar.",
@@ -1489,6 +1494,12 @@
       "reads": "Solo lee",
       "readsHere": "Solo lee aquí: las apps conectadas solo pueden leer",
       "offHere": "Sin acceso aquí: las apps conectadas están desactivadas",
+      "notApprovedHere": "Sin acceso aquí: no aprobada",
+      "approved": "Aprobada",
+      "approve": "Aprobar",
+      "unapprove": "Retirar aprobación",
+      "approveError": "No se pudo cambiar la aprobación. Inténtalo de nuevo.",
+      "approvedFull": "Este espacio de trabajo ya tiene 500 apps aprobadas. Retira una primero.",
       "thisWorkspaceOnly": "Solo este espacio de trabajo",
       "connected": "Conectada el {date}",
       "lastUsed": "Último uso aquí {when}",
@@ -1674,7 +1685,10 @@
       "notion": "Notion",
       "obsidian": "Obsidian",
       "enex": "Evernote",
-      "web": "Página web"
+      "web": "Página web",
+      "jira": "Jira",
+      "github": "GitHub",
+      "confluence": "Confluence"
     },
     "settingNames": {
       "guestInvites": "Quién puede añadir invitados",
@@ -1690,6 +1704,7 @@
       "trashRetentionDays": "Eliminar las páginas de la papelera tras",
       "export": "Permitir exportar",
       "connectedApps": "Apps conectadas y tokens de API",
+      "onlyApprovedApps": "Solo apps aprobadas",
       "accessRequests": "Solicitudes de acceso",
       "memberInvites": "Quién puede añadir miembros",
       "allowedDomains": "Dominios de correo permitidos",
@@ -1823,7 +1838,9 @@
       },
       "connected_app": {
         "connected": "Conectó la app {target}",
-        "revoked": "{hasSubject, select, yes {Desconectó la app {target} de {subject}} other {Desconectó la app {target}}}"
+        "revoked": "{hasSubject, select, yes {Desconectó la app {target} de {subject}} other {Desconectó la app {target}}}",
+        "approved": "Aprobó la app {target}",
+        "unapproved": "Retiró la aprobación de la app {target}"
       },
       "api_token": {
         "created": "Creó el token de API {target}",

@@ -74,6 +74,7 @@
       "scim": "provisiointi hakemisto synkronointi käyttäjät",
       "exportPolicy": "lataa tulosta pdf vienti",
       "connectedAppsPolicy": "mcp rest api tunnukset pääsy",
+      "onlyApprovedApps": "hyväksy sallittujen lista mcp sovellukset integraatiot",
       "publishing": "julkaise verkko jaa julkinen linkki",
       "retention": "roskakori historia poista säilytä päivää säilytysaika",
       "legalHolds": "oikeudenkäynti säilytä ediscovery pidä oikeudellinen säilytys",
@@ -1478,6 +1479,10 @@
       "read": "Vain luku",
       "off": "Ei pääsyä"
     },
+    "onlyApprovedApps": {
+      "title": "Vain hyväksytyt sovellukset",
+      "description": "Vain ne tekoälyavustajat ja muut MCP-sovellukset, jotka omistaja on hyväksynyt kohdassa ”Sovellukset, jotka pääsevät tähän työtilaan”, pääsevät siihen; muilta se on piilossa. REST API -tunnuksiin tämä ei vaikuta."
+    },
     "workspaceApps": {
       "title": "Sovellukset, jotka pääsevät tähän työtilaan",
       "description": "Tekoälyavustajat ja muut sovellukset, jotka täkäläiset henkilöt ovat yhdistäneet MCP:n kautta, sekä heidän REST API -tunnuksensa, jotka pääsevät tähän työtilaan, ja milloin kukin viimeksi teki niin. Yhteyden katkaiseminen poistaa sovelluksen kyseisen henkilön tililtä: se ei pääse mihinkään hänen työtiloistaan, ennen kuin hän yhdistää sen uudelleen.",
@@ -1489,6 +1494,12 @@
       "reads": "Vain lukee",
       "readsHere": "Täällä vain luku: yhdistetyt sovellukset saavat vain lukea",
       "offHere": "Täällä ei pääsyä: yhdistetyt sovellukset ovat pois päältä",
+      "notApprovedHere": "Ei pääsyä tähän: ei hyväksytty",
+      "approved": "Hyväksytty",
+      "approve": "Hyväksy",
+      "unapprove": "Peru hyväksyntä",
+      "approveError": "Hyväksyntää ei voitu muuttaa. Yritä uudelleen.",
+      "approvedFull": "Tässä työtilassa on jo 500 hyväksyttyä sovellusta. Peru ensin jonkin hyväksyntä.",
       "thisWorkspaceOnly": "Vain tämä työtila",
       "connected": "Yhdistetty {date}",
       "lastUsed": "Viimeksi käytetty täällä {when}",
@@ -1674,7 +1685,10 @@
       "notion": "Notion",
       "obsidian": "Obsidian",
       "enex": "Evernote",
-      "web": "Verkkosivu"
+      "web": "Verkkosivu",
+      "jira": "Jira",
+      "github": "GitHub",
+      "confluence": "Confluence"
     },
     "settingNames": {
       "guestInvites": "Kuka voi kutsua vieraita",
@@ -1690,6 +1704,7 @@
       "trashRetentionDays": "Poista roskakorissa olevat sivut",
       "export": "Salli vienti",
       "connectedApps": "Yhdistetyt sovellukset ja API-tunnukset",
+      "onlyApprovedApps": "Vain hyväksytyt sovellukset",
       "accessRequests": "Käyttöoikeuspyynnöt",
       "memberInvites": "Kuka voi lisätä jäseniä",
       "allowedDomains": "Sallitut sähköpostin verkkotunnukset",
@@ -1823,7 +1838,9 @@
       },
       "connected_app": {
         "connected": "Yhdisti sovelluksen {target}",
-        "revoked": "{hasSubject, select, yes {Katkaisi henkilön {subject} sovelluksen {target} yhteyden} other {Katkaisi sovelluksen {target} yhteyden}}"
+        "revoked": "{hasSubject, select, yes {Katkaisi henkilön {subject} sovelluksen {target} yhteyden} other {Katkaisi sovelluksen {target} yhteyden}}",
+        "approved": "Hyväksyi sovelluksen {target}",
+        "unapproved": "Perui sovelluksen {target} hyväksynnän"
       },
       "api_token": {
         "created": "Loi API-tunnuksen {target}",

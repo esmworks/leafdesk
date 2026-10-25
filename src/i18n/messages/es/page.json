@@ -245,6 +245,7 @@
     "change": "Fondo",
     "colors": "Color",
     "patterns": "Patrón",
+    "covers": "Portada",
     "none": "Ninguno",
     "remove": "Quitar fondo",
     "colorNames": {
@@ -262,6 +263,16 @@
       "plus": "Cruces",
       "grid": "Cuadrícula",
       "lines": "Líneas"
+    },
+    "coverNames": {
+      "sunrise": "Amanecer",
+      "ocean": "Océano",
+      "forest": "Bosque",
+      "dusk": "Anochecer",
+      "aurora": "Aurora",
+      "sand": "Arena",
+      "mint": "Menta",
+      "slate": "Pizarra"
     }
   },
   "title": {
@@ -418,9 +429,11 @@
       "full": "Acceso completo",
       "edit": "Puede editar",
       "comment": "Puede comentar",
+      "content": "Puede editar el contenido",
       "view": "Puede ver",
       "none": "Sin acceso"
     },
+    "contentHint": "Editar texto y filas de bases de datos, no propiedades, vistas ni ajustes",
     "errors": {
       "notMember": "Esta persona no es miembro del espacio de trabajo.",
       "lastFullAccess": "Alguien debe conservar el acceso completo a la página. Primero da acceso completo a otra persona.",
@@ -1064,11 +1077,11 @@
         "mediaSize": "Tamaños de imágenes y videos",
         "callout": "Colores e iconos de textos destacados que Markdown no puede representar",
         "textStyle": "Parte del formato del texto, como el subrayado",
-        "table": "Anchos de columna, filas de encabezado, celdas combinadas y colores de celda de las tablas",
+        "table": "Celdas combinadas de las tablas",
         "blockSetting": "Otros ajustes de bloques",
         "content": "Parte del contenido que Markdown no puede guardar"
       },
-      "synced": "{count, plural, one {Tus cambios dentro de un bloque sincronizado: edítalo en la página} other {Tus cambios dentro de # bloques sincronizados: edítalos en la página}}",
+      "synced": "{count, plural, one {Tus cambios dentro de un bloque sincronizado que no puedes editar} other {Tus cambios dentro de # bloques sincronizados que no puedes editar}}",
       "confirm": "Guardar de todos modos"
     },
     "conflict": {

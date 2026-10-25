@@ -56,7 +56,7 @@ export async function answerSuggestions(userId: string, pageId: string, decision
   const picked = cleanIds(ids);
   const { page: target, level } = await resolvePageAccess(userId, pageId);
   if (!target || !hasLevel(level, "comment")) throw new AccessError();
-  if (!hasLevel(level, "edit") && (decision !== "reject" || !picked || picked.some((id) => suggestionAuthor(id) !== userId))) {
+  if (!hasLevel(level, "content") && (decision !== "reject" || !picked || picked.some((id) => suggestionAuthor(id) !== userId))) {
     throw new AccessError();
   }
   const answered = await getCollab().resolveSuggestions(pageId, decision, picked, { userId });

@@ -36,6 +36,8 @@ const { archivePage, createPage, ENGLISH_SEED_NAMES, setPageLocked } = await imp
 const { setPagePermission } = await import("@/server/permissions");
 const { AccessError } = await import("@/server/access");
 const { readMarkdownSource, saveMarkdownSource } = await import("@/server/markdown-source");
+const { getPage } = await import("@/server/operations");
+const Y = await import("yjs");
 
 const RUN = `mdsource-e2e-${Date.now().toString(36)}`;
 
@@ -237,9 +239,108 @@ try {
   const again = await readMarkdownSource(ids.editor, spec.id);
   check(again.losses.length === 0 && again.markdown.includes("A new paragraph."), "read again, the page still loses nothing", again.losses);
 
-  // Edits inside a synced block's lines aren't the Markdown's to save
-  check(changedSyncedRegions(again.markdown, again.markdown.replace("Shared text", "Changed text")) === 1, "an edit inside a synced block's lines is noticed");
-  check(changedSyncedRegions(again.markdown, again.markdown.replace("A new paragraph.", "Other text.")) === 0, "…and one outside them is not");
+  // The page's own synced block is the editor's to change: a change there isn't warned of
+  check(again.readOnlySynced.length === 0, "the page's own synced block isn't read-only to its editor", again.readOnlySynced);
+  check(changedSyncedRegions(again.markdown, again.markdown.replace("Shared text", "Changed text"), again.readOnlySynced) === 0, "an edit inside its lines isn't a loss");
+
+  // Writing through synced blocks: lines changed between a synced block's lines go to its blocks
+  const fragmentText = () =>
+    inDoc(spec.id, ids.owner, (doc) =>
+      (serverEditor.yXmlFragmentToBlocks(doc.getXmlFragment(syncedFragmentName(syncId))) as unknown as Block[]).map(textOf).join("|"),
+    );
+  const stateOf = () => inDoc(spec.id, ids.owner, (doc) => Buffer.from(Y.encodeStateVector(doc)).toString("base64"));
+  const throughSave = await saveMarkdownSource({ userId: ids.editor }, spec.id, again.markdown.replace("Shared text", "Shared text, edited"), again.version);
+  check((await fragmentText()) === "Shared text, edited", "a save that changes a synced block's lines changes its blocks", await fragmentText());
+  check(!throughSave.conflict && throughSave.version === (await service.pageVersion(spec.id)), "…and reports the version with them", throughSave);
+  const reread = await readMarkdownSource(ids.editor, spec.id);
+  check(reread.markdown.includes("Shared text, edited"), "…which the Markdown reads back", reread.markdown);
+
+  // A page showing it (a reference): writes from there reach the original only for who may edit it
+  const shower = await createPage(owner, { workspaceId, title: "Shower" });
+  await setPagePermission(ids.owner, shower.id, ids.editor, "edit");
+  await setPagePermission(ids.owner, shower.id, ids.viewer, "edit");
+  await service.replaceContent(shower.id, `Shown here:\n\n<!-- leafdesk:synced-block ${spec.id} ${syncId} -->\n<!-- leafdesk:synced-block-end -->`, owner);
+  check((await fragmentText()) === "Shared text, edited", "placing it with nothing between its lines leaves its blocks as they are", await fragmentText());
+  const read = (await getPage({ userId: ids.editor, actor: { userId: ids.editor } }, { page_id: shower.id } as never)) as { markdown: string };
+  check(read.markdown.includes("Shared text, edited"), "get_page shows the synced block's blocks", read.markdown);
+  const stateBefore = await stateOf();
+  const specVersions = async () => (await db.select({ id: pageSnapshot.id }).from(pageSnapshot).where(eq(pageSnapshot.pageId, spec.id))).length;
+  const versionsBefore = await specVersions();
+  await service.replaceContent(shower.id, read.markdown, { userId: ids.editor }, true, { syncedBlocks: true });
+  check((await stateOf()) === stateBefore && (await specVersions()) === versionsBefore, "writing back what get_page read changes nothing on the original");
+  await service.replaceContent(shower.id, read.markdown.replace("Shared text, edited", "Changed from the other page"), { userId: ids.editor }, true, { syncedBlocks: true });
+  check((await fragmentText()) === "Changed from the other page", "a change made on a page showing it reaches the original", await fragmentText());
+  const importState = await stateOf();
+  await service.replaceContent(shower.id, read.markdown.replace("Shared text, edited", "From an old export"), { userId: ids.editor }, false, { wikilinks: false });
+  check((await stateOf()) === importState, "a write that only places synced blocks (an import, a new page) changes nothing on the original");
+  await service.replaceContent(shower.id, read.markdown, { userId: ids.editor });
+  const mcpVersions = await db.select({ reason: pageSnapshot.reason, createdBy: pageSnapshot.createdBy }).from(pageSnapshot).where(eq(pageSnapshot.pageId, spec.id));
+  check(mcpVersions.length === versionsBefore + 1 && mcpVersions.some((v) => v.reason === "before_mcp_write" && v.createdBy === ids.editor), "…saving the original to its history first", mcpVersions);
+  const viewerRead = (await getPage({ userId: ids.viewer, actor: { userId: ids.viewer } }, { page_id: shower.id } as never)) as { markdown: string };
+  const viewerState = await stateOf();
+  await service.replaceContent(shower.id, viewerRead.markdown.replace("Changed from the other page", "Viewer's change"), { userId: ids.viewer }, true, { syncedBlocks: true });
+  check((await stateOf()) === viewerState && (await fragmentText()) === "Changed from the other page", "someone who may only view the original changes nothing there");
+  const viewerSource = await readMarkdownSource(ids.viewer, shower.id);
+  const editorSource = await readMarkdownSource(ids.editor, shower.id);
+  check(
+    viewerSource.markdown.includes("Changed from the other page") && viewerSource.readOnlySynced.includes(`${spec.id}:${syncId}`) && editorSource.readOnlySynced.length === 0,
+    "the Markdown source view shows a synced block from another page, read-only to who may only view the original",
+    { viewer: viewerSource.readOnlySynced, editor: editorSource.readOnlySynced },
+  );
+  check(
+    changedSyncedRegions(viewerSource.markdown, viewerSource.markdown.replace("Changed from the other page", "Mine"), viewerSource.readOnlySynced) === 1,
+    "…so a change there is warned of",
+  );
+  await service.replaceContent(shower.id, read.markdown.replace("Shared text, edited", "Suggested"), { userId: ids.editor, asSuggestions: true }, true, { syncedBlocks: true });
+  check((await fragmentText()) === "Changed from the other page", "a write made as suggestions leaves synced blocks alone");
+
+  // A link in it to a page whose title changed reads with the new title, and writing that back is no change either
+  await inDoc(spec.id, ids.owner, (doc) =>
+    serverEditor.blocksToYXmlFragment(
+      [{ type: "paragraph", content: [{ type: "text", text: "See ", styles: {} }, { type: "link", href: `/w/${workspaceId}/p/${shower.id}`, content: "an old title" }] }] as never,
+      doc.getXmlFragment(syncedFragmentName(syncId)),
+    ),
+  );
+  const labelled = (await getPage({ userId: ids.editor, actor: { userId: ids.editor } }, { page_id: shower.id } as never)) as { markdown: string };
+  check(labelled.markdown.includes("[Shower]("), "get_page labels the link with the page's title", labelled.markdown);
+  const labelledState = await stateOf();
+  await service.replaceContent(shower.id, labelled.markdown, { userId: ids.editor }, true, { syncedBlocks: true });
+  check((await stateOf()) === labelledState, "…and writing it back changes nothing on the original");
+
+  // Tables keep their widths, header settings and cell colors through Markdown
+  const tablePage = await createPage(owner, { workspaceId, title: "Table" });
+  const cell = (text: string, props: Record<string, unknown> = {}) => ({ type: "tableCell", props, content: [{ type: "text", text, styles: {} }] });
+  await service.transformBlocks(
+    tablePage.id,
+    () => [
+      {
+        type: "table",
+        content: {
+          type: "tableContent",
+          columnWidths: [220, 90],
+          headerRows: 1,
+          rows: [
+            { cells: [cell("Name"), cell("Score", { backgroundColor: "blue" })] },
+            { cells: [cell("Ada"), cell("10", { textColor: "red", textAlignment: "right" })] },
+          ],
+        },
+      },
+    ],
+    owner,
+  );
+  const tableSource = await readMarkdownSource(ids.owner, tablePage.id);
+  check(!tableSource.losses.includes("table"), "a table's widths and colors aren't listed as lost", tableSource.losses);
+  await service.replaceContent(tablePage.id, tableSource.markdown.replace("10", "12"), owner, true);
+  const [tableBlock] = await bodyOf(tablePage.id);
+  const content = tableBlock.content as { columnWidths: unknown[]; rows: { cells: { props: Record<string, unknown> }[] }[] };
+  check(
+    JSON.stringify(content.columnWidths) === "[220,90]" &&
+      content.rows[0].cells[1].props.backgroundColor === "blue" &&
+      content.rows[1].cells[1].props.textColor === "red" &&
+      content.rows[1].cells[1].props.textAlignment === "right",
+    "a table rewritten through Markdown keeps its widths, colors and alignment",
+    content,
+  );
 
   // Someone else types meanwhile: a conflict, and nothing is written
   const stale = await readMarkdownSource(ids.editor, spec.id);

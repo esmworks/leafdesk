@@ -179,11 +179,11 @@ function compareInline(before: unknown[], after: unknown[], found: Set<MarkdownL
 }
 
 /**
- * How many synced blocks `edited` changes the blocks of. A synced block's blocks show in its
- * page's Markdown between its marker lines, but a write never takes them from there (they are
- * edited in the page itself, see lib/synced-blocks): such changes are lost.
+ * How many synced blocks among `readOnly` (by syncedKey) `edited` changes the blocks of. A synced
+ * block's blocks show in its page's Markdown between its marker lines; a save writes changes there
+ * to the synced block when the writer may edit it, and loses the others.
  */
-export function changedSyncedRegions(original: string, edited: string): number {
+export function changedSyncedRegions(original: string, edited: string, readOnly: readonly string[]): number {
   const regions = (markdown: string) => {
     const found = new Map<string, string>();
     mapSyncedRegions(markdown, (ref, inner) => {
@@ -196,7 +196,7 @@ export function changedSyncedRegions(original: string, edited: string): number {
   let changed = 0;
   for (const [key, inner] of regions(edited)) {
     const was = before.get(key);
-    if (was !== undefined && was !== inner) changed++;
+    if (was !== undefined && was !== inner && readOnly.includes(key)) changed++;
   }
   return changed;
 }

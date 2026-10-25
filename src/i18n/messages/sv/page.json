@@ -245,6 +245,7 @@
     "change": "Bakgrund",
     "colors": "Färg",
     "patterns": "Mönster",
+    "covers": "Omslag",
     "none": "Ingen",
     "remove": "Ta bort bakgrund",
     "colorNames": {
@@ -262,6 +263,16 @@
       "plus": "Kryss",
       "grid": "Rutnät",
       "lines": "Linjer"
+    },
+    "coverNames": {
+      "sunrise": "Soluppgång",
+      "ocean": "Hav",
+      "forest": "Skog",
+      "dusk": "Skymning",
+      "aurora": "Norrsken",
+      "sand": "Sand",
+      "mint": "Mint",
+      "slate": "Skiffer"
     }
   },
   "title": {
@@ -418,9 +429,11 @@
       "full": "Full åtkomst",
       "edit": "Kan redigera",
       "comment": "Kan kommentera",
+      "content": "Kan redigera innehåll",
       "view": "Kan visa",
       "none": "Ingen åtkomst"
     },
+    "contentHint": "Redigera text och databasrader, inte egenskaper, vyer eller inställningar",
     "errors": {
       "notMember": "Den här personen är inte medlem i arbetsytan.",
       "lastFullAccess": "Någon måste behålla full åtkomst till sidan. Ge först någon annan full åtkomst.",
@@ -1064,11 +1077,11 @@
         "mediaSize": "Storlekar på bilder och videor",
         "callout": "Färger och ikoner på inforutor som Markdown saknar form för",
         "textStyle": "Viss textformatering, som understrykning",
-        "table": "Tabellers kolumnbredder, rubrikrader, sammanslagna celler och cellfärger",
+        "table": "Sammanslagna celler i tabeller",
         "blockSetting": "Andra blockinställningar",
         "content": "Visst innehåll som Markdown inte kan rymma"
       },
-      "synced": "{count, plural, one {Dina ändringar i ett synkat block: redigera det på sidan i stället} other {Dina ändringar i # synkade block: redigera dem på sidan i stället}}",
+      "synced": "{count, plural, one {Dina ändringar i ett synkat block som du inte kan redigera} other {Dina ändringar i # synkade block som du inte kan redigera}}",
       "confirm": "Spara ändå"
     },
     "conflict": {

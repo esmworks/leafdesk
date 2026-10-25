@@ -14,11 +14,13 @@ const FIRST_ROWS = 60;
 /**
  * The element that scrolls a table's rows up and down: the nearest ancestor of the table's own box
  * (which only scrolls sideways, though it computes as `overflow-y: auto` too) that may scroll
- * vertically, preferring one that has more to show than fits.
+ * vertically, preferring one that has more to show than fits. Outside a table (a list view's
+ * lines), the nearest such ancestor of `start`.
  */
 function scrollParent(start: HTMLElement | null): HTMLElement | null {
   let first: HTMLElement | null = null;
-  for (let node = start?.closest("table")?.parentElement?.parentElement; node; node = node.parentElement) {
+  const table = start?.closest("table");
+  for (let node = table ? table.parentElement?.parentElement : start?.parentElement; node; node = node.parentElement) {
     const { overflowY } = getComputedStyle(node);
     if (overflowY !== "auto" && overflowY !== "scroll") continue;
     if (node.scrollHeight > node.clientHeight) return node;
@@ -29,10 +31,11 @@ function scrollParent(start: HTMLElement | null): HTMLElement | null {
 
 /**
  * Shows only the table body rows near the visible part of the page (plus OVERSCAN), with spacers
- * standing in for the rest, once there are WINDOW_FROM rows or more. The page scrolls, not the
- * table: rows are placed by where the body starts (`start`, the header's bottom edge) inside the
- * nearest scrolling ancestor. Row heights are measured as they render (wrapped cells make rows
- * taller), so `estimate` only has to be close.
+ * standing in for the rest, once there are WINDOW_FROM rows or more; a list view's lines likewise.
+ * The page scrolls, not the table: rows are placed by where the body starts (`start`, the header's
+ * bottom edge, or an empty element right above a list) inside the nearest scrolling ancestor. Row
+ * heights are measured as they render (wrapped cells make rows taller), so `estimate` only has to
+ * be close.
  */
 export function useTableWindow({
   start,

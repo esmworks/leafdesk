@@ -245,6 +245,7 @@
     "change": "Latar belakang",
     "colors": "Warna",
     "patterns": "Pola",
+    "covers": "Sampul",
     "none": "Tidak ada",
     "remove": "Hapus latar belakang",
     "colorNames": {
@@ -262,6 +263,16 @@
       "plus": "Silang",
       "grid": "Kisi",
       "lines": "Garis"
+    },
+    "coverNames": {
+      "sunrise": "Matahari terbit",
+      "ocean": "Samudra",
+      "forest": "Hutan",
+      "dusk": "Senja",
+      "aurora": "Aurora",
+      "sand": "Pasir",
+      "mint": "Mint",
+      "slate": "Batu tulis"
     }
   },
   "title": {
@@ -418,9 +429,11 @@
       "full": "Akses penuh",
       "edit": "Dapat mengedit",
       "comment": "Dapat berkomentar",
+      "content": "Dapat mengedit konten",
       "view": "Dapat melihat",
       "none": "Tanpa akses"
     },
+    "contentHint": "Mengedit teks dan baris database, bukan properti, tampilan, atau pengaturan",
     "errors": {
       "notMember": "Orang ini bukan anggota ruang kerja.",
       "lastFullAccess": "Seseorang harus tetap memiliki akses penuh ke halaman. Beri orang lain akses penuh terlebih dahulu.",
@@ -1064,11 +1077,11 @@
         "mediaSize": "Ukuran gambar dan video",
         "callout": "Warna dan ikon callout yang tidak memiliki bentuk di Markdown",
         "textStyle": "Beberapa pemformatan teks, seperti garis bawah",
-        "table": "Lebar kolom tabel, baris header, sel yang digabung, dan warna sel",
+        "table": "Sel tabel yang digabung",
         "blockSetting": "Pengaturan blok lainnya",
         "content": "Beberapa konten yang tidak dapat ditampung Markdown"
       },
-      "synced": "{count, plural, other {Perubahan Anda di dalam # blok tersinkron: edit di halaman saja}}",
+      "synced": "{count, plural, other {Perubahan Anda di dalam # blok tersinkron yang tidak dapat Anda edit}}",
       "confirm": "Tetap simpan"
     },
     "conflict": {

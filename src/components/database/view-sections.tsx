@@ -90,7 +90,7 @@ export function ViewSections({
               onHide={() => setHidden(group.key, true)}
               onAdd={() => add?.()}
             />
-            {open && <div className="pt-1">{children(group.rows, { add, values })}</div>}
+            {open && <div className="pt-1">{children(group.rows, { key: group.key, add, values })}</div>}
           </section>
         );
       })}
@@ -102,7 +102,7 @@ export function ViewSections({
 }
 
 /**
- * A section's rows are laid out with this: `add` adds a row into the group and `values` are what a
- * row there gets, when the viewer may add one.
+ * A section's rows are laid out with this: its group's `key`; `add` adds a row into the group and
+ * `values` are what a row there gets, when the viewer may add one.
  */
-export type SectionGroup = { add?: () => void; values?: Record<string, unknown> };
+export type SectionGroup = { key: string; add?: () => void; values?: Record<string, unknown> };

@@ -245,6 +245,7 @@
     "change": "背景",
     "colors": "色",
     "patterns": "パターン",
+    "covers": "カバー",
     "none": "なし",
     "remove": "背景を削除",
     "colorNames": {
@@ -262,6 +263,16 @@
       "plus": "クロス",
       "grid": "グリッド",
       "lines": "ライン"
+    },
+    "coverNames": {
+      "sunrise": "朝焼け",
+      "ocean": "海",
+      "forest": "森",
+      "dusk": "夕暮れ",
+      "aurora": "オーロラ",
+      "sand": "砂",
+      "mint": "ミント",
+      "slate": "スレート"
     }
   },
   "title": {
@@ -418,9 +429,11 @@
       "full": "フルアクセス",
       "edit": "編集可能",
       "comment": "コメント可能",
+      "content": "内容を編集可能",
       "view": "閲覧可能",
       "none": "アクセス権なし"
     },
+    "contentHint": "テキストとデータベースの行を編集できます。プロパティ、ビュー、設定は変更できません",
     "errors": {
       "notMember": "この人はワークスペースのメンバーではありません。",
       "lastFullAccess": "誰かがこのページへのフルアクセス権を持っている必要があります。先にほかの人にフルアクセス権を与えてください。",
@@ -1064,11 +1077,11 @@
         "mediaSize": "画像と動画のサイズ",
         "callout": "Markdownで表せないコールアウトの色とアイコン",
         "textStyle": "下線など一部の文字書式",
-        "table": "表の列幅、見出し行、結合したセル、セルの色",
+        "table": "表の結合したセル",
         "blockSetting": "その他のブロック設定",
         "content": "Markdownで表せない一部のコンテンツ"
       },
-      "synced": "{count, plural, other {#個の同期ブロック内の変更: ページ上で編集してください}}",
+      "synced": "{count, plural, other {編集できない#個の同期ブロック内の変更}}",
       "confirm": "それでも保存"
     },
     "conflict": {

@@ -858,7 +858,17 @@
     "pinColor": "Nastan väri",
     "noPinColor": "Ei mitään",
     "colorRules": "Värisäännöt",
-    "wrapProperties": "Rivitä kaikki ominaisuudet"
+    "wrapProperties": "Rivitä kaikki ominaisuudet",
+    "loadLimit": "Latausraja",
+    "loadLimitCards": "{count} korttia",
+    "loadMore": "Lataa lisää",
+    "moreCards": "{count, plural, one {# kortti lisää} other {# korttia lisää}}"
+  },
+  "viewMenu": {
+    "label": "Näkymän asetukset",
+    "back": "Takaisin",
+    "layoutHint": "Näkymä säilyttää suodattimensa, lajittelunsa ja ominaisuutensa.",
+    "shown": "{count} näkyvissä"
   },
   "gallery": {
     "new": "Uusi",
@@ -1899,6 +1909,18 @@
     "viewOnly": "Vain henkilöt, joilla on täydet oikeudet tietokantaan, voivat muuttaa synkronointia.",
     "reporter": "Raportoija",
     "reporterNone": "Ei synkronoida"
+  },
+  "githubPulls": {
+    "button": "Synkronoitu GitHubista",
+    "buttonPaused": "GitHub-synkronointi keskeytetty",
+    "title": "GitHub-synkronointi",
+    "lastRun": "Synkronoitu viimeksi {when}, {count, plural, one {# pull request} other {# pull requestia}}",
+    "withToken": "Tunnuksella",
+    "withoutToken": "Ilman tunnusta",
+    "overwrite": "GitHub on lähde: synkronoidut ominaisuudet ja rivien otsikot kirjoitetaan yli joka synkronoinnissa, joten muuta niitä GitHubissa. Itse lisäämäsi ominaisuudet pysyvät ennallaan, eikä rivejä, joiden pull requesteja synkronointi ei enää hae, muuteta.",
+    "changeToken": "Vaihda tunnus",
+    "tokenEmpty": "Jätä tyhjäksi synkronoidaksesi ilman tunnusta.",
+    "stopConfirm": "Lopetetaanko tämän tietokannan synkronointi? Sen rivit pysyvät ennallaan, ja tunnus unohdetaan."
   },
   "sprints": {
     "menuItem": "Sprintit",

@@ -195,7 +195,7 @@ function openTarget(step: Extract<ButtonStep, { type: "open" }>) {
 async function insertBlocks(press: Press, step: Extract<ButtonStep, { type: "insert" }>) {
   const markdown = resolveText(step.markdown, press.scope).value;
   if (!markdown.trim()) throw new StepFailure("notConfigured", "Nothing to insert");
-  await requirePageAccess(press.userId, press.pageId, "edit");
+  await requirePageAccess(press.userId, press.pageId, "content");
   const edit = step.at === "below" ? { op: "insert_after" as const, blockId: press.blockId } : { op: step.at === "top" ? ("prepend" as const) : ("append" as const) };
   const written = await getCollab().editBlocks(press.pageId, [{ ...edit, markdown }], { userId: press.userId });
   if (written.missing) throw new StepFailure("buttonGone", "The button isn't on the page any more");
@@ -206,7 +206,7 @@ async function writableDatabase(press: Press, databaseId: string) {
   if (!databaseId) throw new StepFailure("notConfigured", "No database chosen");
   let database;
   try {
-    database = await requireDatabase(press.userId, databaseId, "edit");
+    database = await requireDatabase(press.userId, databaseId, "content");
   } catch {
     throw new StepFailure("noAccess", "You can't add or change rows in that database");
   }
@@ -306,7 +306,7 @@ async function webhook(press: Press, step: Extract<ButtonStep, { type: "webhook"
  * workspace's people a notice can go to (none for guests, who can't list them).
  */
 export async function buttonSettings(userId: string, pageId: string, blockId: string) {
-  const page = await requirePageAccess(userId, pageId, "edit");
+  const page = await requirePageAccess(userId, pageId, "content");
   const members = await listMembers(userId, page.workspaceId).catch((error) => {
     if (error instanceof AccessError) return [];
     throw error;

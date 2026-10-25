@@ -29,7 +29,7 @@ export type PropertyRule = {
 };
 
 /** Access to the database page itself, as `page_access_level` gives it. */
-export type DatabaseLevel = "none" | "view" | "comment" | "edit" | "full";
+export type DatabaseLevel = "none" | "view" | "comment" | "content" | "edit" | "full";
 
 /** Who is looking, for working out their level on each property. */
 export type PropertyViewer = { userId: string; groupIds: readonly string[]; databaseLevel: DatabaseLevel };
@@ -68,6 +68,8 @@ export function namesPeople(type: string) {
 /** The most a level on the database page allows on any of its properties. */
 export function databaseCap(level: DatabaseLevel): PropertyLevel {
   if (level === "full" || level === "edit") return "edit";
+  // Content access changes rows' values, never the properties themselves.
+  if (level === "content") return "edit_values";
   if (level === "view" || level === "comment") return "view";
   return "none";
 }

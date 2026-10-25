@@ -123,6 +123,17 @@ export type WorkspaceSettings = {
    */
   connectedApps: "full" | "read" | "off";
   /**
+   * Only the MCP apps an owner approved (`approvedApps`) reach the workspace; to the others it is
+   * hidden, as with `connectedApps` "off". The server's own clients and REST API tokens aren't held
+   * to it (see server/connected-app.ts).
+   */
+  onlyApprovedApps: boolean;
+  /**
+   * The OAuth clients owners approved (Settings > Security > Apps that reach this workspace). Set
+   * only by approving and withdrawing (server/workspace-apps.ts), never by a settings patch.
+   */
+  approvedApps: string[];
+  /**
    * Whether someone who opens a link to a page they can't see may ask for access from the "You
    * don't have access" screen, and someone who can view or comment on a page for more from its
    * Share menu (see server/access-requests.ts). Guests and people outside the workspace too:
@@ -195,6 +206,8 @@ export const DEFAULT_WORKSPACE_SETTINGS: WorkspaceSettings = {
   trashRetentionDays: 30,
   export: true,
   connectedApps: "full",
+  onlyApprovedApps: false,
+  approvedApps: [],
   accessRequests: true,
   memberInvites: "owners",
   allowedDomains: [],
@@ -893,6 +906,8 @@ export type FilterGroup = { type: "group"; combinator: FilterCombinator; rules: 
 export type FilterEntry = FilterRule | FilterGroup;
 /** Gallery card sizes. */
 export type CardSize = "small" | "medium" | "large";
+/** Cards a board column or a gallery shows before "Load more" (lib/load-limit). */
+export type LoadLimit = 10 | 25 | 50 | 100;
 /**
  * Where gallery cards take their cover from: the first image in the row's body, the first image of
  * a files property, or nowhere.
@@ -1048,6 +1063,8 @@ export type ViewConfig = {
   cardSize?: CardSize;
   /** Boards and galleries: long values on cards wrap onto more lines instead of cutting off; cut off when missing. */
   wrapProperties?: boolean;
+  /** Boards (per column) and galleries: cards shown before "Load more"; 50 when missing. */
+  loadLimit?: LoadLimit;
   /** Galleries: the first image of each row when missing. */
   cover?: ViewCover;
   /** Charts: "bar" when missing. */

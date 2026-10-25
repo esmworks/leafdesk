@@ -16,7 +16,8 @@
   "readOnlyHint": "Fjern avmerkingen for å gi skrivebeskyttet tilgang. Hver endring lagres først i sidehistorikken, så du kan angre den.",
   "access": {
     "all": "Tilgangen gjelder alle arbeidsområder du er med i. Du kan når som helst koble fra appen under Innstillinger.",
-    "listed": "Tilgangen gjelder alle arbeidsområder du er med i: {workspaces}. Du kan når som helst koble fra appen under Innstillinger."
+    "listed": "Tilgangen gjelder alle arbeidsområder du er med i: {workspaces}. Du kan når som helst koble fra appen under Innstillinger.",
+    "awaitingApproval": "{count, plural, one {{workspaces} slipper bare inn apper som eierne har godkjent: denne appen når det ikke før en av dem godkjenner den.} other {{workspaces} slipper bare inn apper som eierne har godkjent: denne appen når dem ikke før en eier godkjenner den.}}"
   },
   "deny": "Avslå",
   "denying": "Avslår…",

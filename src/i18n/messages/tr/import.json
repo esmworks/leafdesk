@@ -7,11 +7,13 @@
     "docx": "Word",
     "pdf": "PDF",
     "evernote": "Evernote",
+    "confluence": "Confluence",
     "csv": "CSV ve Excel",
     "trello": "Trello",
     "asana": "Asana",
     "monday": "Monday.com",
     "jira": "Jira",
+    "github": "GitHub",
     "googleDocs": "Google Docs",
     "web": "Web sayfası"
   },
@@ -51,6 +53,11 @@
       "sourceUrl": "Kaynak URL",
       "encrypted": "Şifreli metin içe aktarıma alınmadı."
     }
+  },
+  "confluence": {
+    "help": "Confluence alanının her sayfası, alandaki gibi iç içe bir sayfa olur. Başlıklar, listeler, tablolar, kod blokları, bilgi panelleri (vurgu kutusu olarak), açılır bölümler (açılır liste olarak), görev listeleri, görseller ve ekli dosyalar gelir; sayfalar arası bağlantılar sayfa bahsetmesine dönüşür.",
+    "export": "Confluence'ta alanın ayarlarını açıp Alanı dışa aktar → HTML'i seçin, sonra indirilen ZIP'i seçin.",
+    "choose": "Dışa aktarımı seç (.zip)"
   },
   "csv": {
     "choose": "CSV veya Excel dosyası seç",
@@ -160,6 +167,53 @@
       "alreadyRunning": "Bir eşitleme sürüyor. Birazdan yeniden deneyin."
     }
   },
+  "githubPulls": {
+    "help": "Bir GitHub deposunun pull request'lerinin güncel kalan bir veritabanını alın: her pull request; numarası, durumu (taslak, açık, birleştirildi ya da kapalı), yazarı, atananları, etiketleri, dalları, tarihleri ve geri bağlantısıyla bir satır olur. Değişiklikler tek yönlüdür, GitHub'dan Leafdesk'e. Kişiler oturum açtıkları GitHub hesabıyla eşleştirilir.",
+    "repo": "Depo",
+    "repoPlaceholder": "sahip/ad ya da deponun adresi",
+    "token": "Anahtar (isteğe bağlı)",
+    "tokenHelp": "Özel depolar için gerekir ve GitHub'ın istek sınırını yükseltir. Pull request'leri okuma izni yeter. Sunucuda mühürlü olarak saklanır.",
+    "tokenLink": "Anahtar oluştur",
+    "server": "GitHub Enterprise Server (isteğe bağlı)",
+    "serverPlaceholder": "github.example.com",
+    "pulls": "Pull request'ler",
+    "states": {
+      "open": "Açık olanlar",
+      "all": "Tümü (en son güncellenen {limit} tanesi)"
+    },
+    "names": {
+      "number": "Numara",
+      "state": "Durum",
+      "author": "Yazar",
+      "assignees": "Atananlar",
+      "others": "{column} (diğerleri)",
+      "labels": "Etiketler",
+      "branch": "Dal",
+      "base": "Hedef dal",
+      "created": "Oluşturuldu",
+      "merged": "Birleştirildi",
+      "link": "GitHub bağlantısı",
+      "stages": {
+        "draft": "Taslak",
+        "open": "Açık",
+        "merged": "Birleştirildi",
+        "closed": "Kapalı"
+      }
+    },
+    "errors": {
+      "unauthorized": "GitHub anahtarı reddetti.",
+      "forbidden": "Anahtar bu deponun pull request'lerini okuyamıyor.",
+      "notFound": "Böyle bir depo yok ya da özel ve anahtar ona erişemiyor.",
+      "unreachable": "GitHub'a ulaşılamadı ya da istek sınırı doldu. Eşitleme bir dahaki sefere yeniden dener.",
+      "runAsGone": "Eşitlemeyi kuran kişinin artık bir hesabı yok.",
+      "accessLost": "Eşitlemenin adına çalıştığı kişi artık bu veritabanını düzenleyemiyor.",
+      "keyGone": "Numara özelliği silindi ya da türü değişti, bu yüzden pull request'ler satırlarla eşleştirilemiyor.",
+      "failed": "Eşitleme başarısız oldu. Bir dahaki sefere yeniden dener.",
+      "invalidSite": "Bu, Leafdesk'in ulaşabileceği bir adres değil.",
+      "invalidInput": "Depoyu sahip/ad biçiminde yazın.",
+      "alreadyRunning": "Bir eşitleme sürüyor. Birazdan yeniden deneyin."
+    }
+  },
   "board": {
     "links": "Hiçbir şey indirilmez: dışa aktarımdaki dosyalar ve bağlantılar bağlantı olarak kalır.",
     "comments": "{count, plural, one {# yorum} other {# yorum}} satırların sayfalarına, yazarı ve zamanıyla birlikte eklenir.",
@@ -243,6 +297,7 @@
     "badTrello": "Dosya bir Trello panosu dışa aktarımı değil. Trello'da panonun menüsünden JSON olarak dışa aktar'ı seçip o dosyayı seçin.",
     "badAsana": "Dosya bir Asana projesi dışa aktarımı değil. Asana'da projenin menüsünden Dışa aktar → CSV veya JSON'u seçip o dosyayı seçin.",
     "badMonday": "Dosya bir Monday.com panosu dışa aktarımı değil. Monday.com'da panonun menüsünden Panoyu Excel'e aktar'ı seçip o dosyayı seçin.",
+    "badConfluence": "Dosya, HTML olarak dışa aktarılmış bir Confluence alanı değil. Confluence'ta alanın ayarlarında Alanı dışa aktar → HTML'i seçin ve indirdiği ZIP'i seçin.",
     "badMapping": "En az bir sütunun hedefini seçin; her özellik yalnızca bir kez kullanılabilir.",
     "noAccess": "Oraya sayfa ekleyemezsiniz ya da artık mevcut değil.",
     "notADatabase": "Satırlar yalnızca bir veritabanına eklenebilir.",

@@ -16,7 +16,8 @@
   "readOnlyHint": "Desmarca esta opción para dar acceso de solo lectura. Cada edición se guarda antes en el historial de la página, así que puedes deshacerla.",
   "access": {
     "all": "El acceso abarca todos los espacios de trabajo de los que formas parte. Puedes desconectar la app en cualquier momento en Configuración.",
-    "listed": "El acceso abarca todos los espacios de trabajo de los que formas parte: {workspaces}. Puedes desconectar la app en cualquier momento en Configuración."
+    "listed": "El acceso abarca todos los espacios de trabajo de los que formas parte: {workspaces}. Puedes desconectar la app en cualquier momento en Configuración.",
+    "awaitingApproval": "{count, plural, one {{workspaces} solo admite las apps que aprobaron sus propietarios: esta app no llegará a él hasta que uno de ellos la apruebe.} other {{workspaces} solo admiten las apps que aprobaron sus propietarios: esta app no llegará a ellos hasta que un propietario la apruebe.}}"
   },
   "deny": "Denegar",
   "denying": "Denegando…",

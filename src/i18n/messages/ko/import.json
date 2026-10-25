@@ -7,11 +7,13 @@
     "docx": "Word",
     "pdf": "PDF",
     "evernote": "Evernote",
+    "confluence": "Confluence",
     "csv": "CSV 및 Excel",
     "trello": "Trello",
     "asana": "Asana",
     "monday": "Monday.com",
     "jira": "Jira",
+    "github": "GitHub",
     "googleDocs": "Google 문서",
     "web": "웹페이지"
   },
@@ -51,6 +53,11 @@
       "sourceUrl": "원본 URL",
       "encrypted": "암호화된 텍스트는 가져오지 않았습니다."
     }
+  },
+  "confluence": {
+    "help": "Confluence 스페이스의 각 페이지가 스페이스와 같은 구조의 페이지가 됩니다. 제목, 목록, 표, 코드 블록, 정보 패널(콜아웃으로), 펼치기 섹션(토글로), 작업 목록, 이미지와 첨부 파일이 함께 들어오고, 페이지 사이의 링크는 페이지 멘션이 됩니다.",
+    "export": "Confluence에서 스페이스 설정을 열고 스페이스 내보내기 → HTML을 선택한 다음 다운로드한 ZIP을 선택하세요.",
+    "choose": "내보내기 선택 (.zip)"
   },
   "csv": {
     "choose": "CSV 또는 Excel 파일 선택",
@@ -160,6 +167,53 @@
       "alreadyRunning": "동기화가 진행 중입니다. 잠시 후 다시 시도하세요."
     }
   },
+  "githubPulls": {
+    "help": "GitHub 저장소의 풀 리퀘스트가 계속 반영되는 데이터베이스가 생깁니다. 각 풀 리퀘스트는 번호, 상태(초안, 열림, 병합됨, 닫힘), 작성자, 담당자, 레이블, 브랜치, 날짜, 원래 위치로 가는 링크가 있는 행이 됩니다. 변경은 GitHub에서 Leafdesk로 한 방향으로만 흐릅니다. 사람은 로그인에 쓰는 GitHub 계정으로 짝지어집니다.",
+    "repo": "저장소",
+    "repoPlaceholder": "owner/name 또는 저장소 주소",
+    "token": "토큰(선택)",
+    "tokenHelp": "비공개 저장소에 필요하고, GitHub의 요청 한도도 높여 줍니다. 풀 리퀘스트 읽기 권한이면 충분합니다. 서버에 봉인되어 보관됩니다.",
+    "tokenLink": "토큰 만들기",
+    "server": "GitHub Enterprise Server(선택)",
+    "serverPlaceholder": "github.example.com",
+    "pulls": "풀 리퀘스트",
+    "states": {
+      "open": "열린 것",
+      "all": "전체(최근 업데이트된 {limit}개)"
+    },
+    "names": {
+      "number": "번호",
+      "state": "상태",
+      "author": "작성자",
+      "assignees": "담당자",
+      "others": "{column}(기타)",
+      "labels": "레이블",
+      "branch": "브랜치",
+      "base": "기준 브랜치",
+      "created": "생성일",
+      "merged": "병합일",
+      "link": "GitHub 링크",
+      "stages": {
+        "draft": "초안",
+        "open": "열림",
+        "merged": "병합됨",
+        "closed": "닫힘"
+      }
+    },
+    "errors": {
+      "unauthorized": "GitHub가 토큰을 거부했습니다.",
+      "forbidden": "이 토큰으로는 이 저장소의 풀 리퀘스트를 읽을 수 없습니다.",
+      "notFound": "그런 저장소가 없거나, 토큰이 닿지 않는 비공개 저장소입니다.",
+      "unreachable": "GitHub에 연결할 수 없거나 요청 한도를 다 썼습니다. 다음 동기화 때 다시 시도합니다.",
+      "runAsGone": "동기화를 설정한 사람의 계정이 더 이상 없습니다.",
+      "accessLost": "동기화를 실행하는 사람이 더 이상 이 데이터베이스를 편집할 수 없습니다.",
+      "keyGone": "번호 속성이 삭제되었거나 유형이 바뀌어 풀 리퀘스트를 행과 짝지을 수 없습니다.",
+      "failed": "동기화에 실패했습니다. 다음에 다시 시도합니다.",
+      "invalidSite": "Leafdesk가 접근할 수 있는 주소가 아닙니다.",
+      "invalidInput": "저장소를 owner/name 형식으로 입력하세요.",
+      "alreadyRunning": "동기화가 진행 중입니다. 잠시 후 다시 시도하세요."
+    }
+  },
   "board": {
     "links": "아무것도 다운로드하지 않습니다. 내보내기의 파일과 링크는 링크로 남습니다.",
     "comments": "댓글 {count}개는 작성자와 시간과 함께 각 행의 페이지에 들어갑니다.",
@@ -243,6 +297,7 @@
     "badTrello": "이 파일은 Trello 보드 내보내기가 아닙니다. Trello의 보드 메뉴에서 JSON으로 내보내기를 선택한 후 그 파일을 고르세요.",
     "badAsana": "이 파일은 Asana 프로젝트 내보내기가 아닙니다. Asana에서 프로젝트 메뉴의 내보내기 → CSV 또는 JSON을 선택하고 그 파일을 고르세요.",
     "badMonday": "이 파일은 Monday.com 보드 내보내기가 아닙니다. Monday.com에서 보드 메뉴의 보드를 Excel로 내보내기를 선택하고 그 파일을 고르세요.",
+    "badConfluence": "이 파일은 HTML로 내보낸 Confluence 스페이스가 아닙니다. Confluence의 스페이스 설정에서 스페이스 내보내기 → HTML을 선택하고 다운로드한 ZIP을 선택하세요.",
     "badMapping": "적어도 한 열의 대상을 선택하고, 각 속성은 한 번만 선택하세요.",
     "noAccess": "그곳에 페이지를 추가할 수 없거나 더 이상 존재하지 않습니다.",
     "notADatabase": "행은 데이터베이스에만 추가할 수 있습니다.",

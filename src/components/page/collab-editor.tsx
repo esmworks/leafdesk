@@ -151,7 +151,7 @@ export default function CollabEditor({
    * What the viewer may do with comments: "comment" and up write them (their editor may still be
    * read-only), full access also deletes other people's. "view" when the page is in the trash.
    */
-  level: "view" | "comment" | "edit" | "full";
+  level: "view" | "comment" | "content" | "edit" | "full";
   /** The page being edited: new inline databases are created under it. */
   workspaceId: string;
   pageId: string;

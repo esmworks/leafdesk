@@ -858,7 +858,17 @@
     "pinColor": "Nålens farve",
     "noPinColor": "Ingen",
     "colorRules": "Farveregler",
-    "wrapProperties": "Ombryd alle egenskaber"
+    "wrapProperties": "Ombryd alle egenskaber",
+    "loadLimit": "Indlæsningsgrænse",
+    "loadLimitCards": "{count} kort",
+    "loadMore": "Indlæs flere",
+    "moreCards": "{count, plural, one {# kort mere} other {# kort mere}}"
+  },
+  "viewMenu": {
+    "label": "Visningsindstillinger",
+    "back": "Tilbage",
+    "layoutHint": "Visningen beholder sine filtre, sorteringer og egenskaber.",
+    "shown": "{count} vist"
   },
   "gallery": {
     "new": "Ny",
@@ -1899,6 +1909,18 @@
     "viewOnly": "Kun personer med fuld adgang til databasen kan ændre synkroniseringen.",
     "reporter": "Indberetter",
     "reporterNone": "Ikke synkroniseret"
+  },
+  "githubPulls": {
+    "button": "Synkroniseret fra GitHub",
+    "buttonPaused": "GitHub-synkronisering sat på pause",
+    "title": "GitHub-synkronisering",
+    "lastRun": "Sidst synkroniseret {when}, {count, plural, one {# pull request} other {# pull requests}}",
+    "withToken": "Med et token",
+    "withoutToken": "Uden token",
+    "overwrite": "GitHub er kilden: de synkroniserede egenskaber og rækketitler overskrives ved hver synkronisering, så ændr dem på GitHub. Egenskaber, du selv tilføjer, forbliver som de er, og rækker for pull requests, som synkroniseringen ikke længere henter, røres ikke.",
+    "changeToken": "Skift token",
+    "tokenEmpty": "Lad feltet stå tomt for at synkronisere uden token.",
+    "stopConfirm": "Stop synkroniseringen af denne database? Rækkerne forbliver som de er, og tokenet glemmes."
   },
   "sprints": {
     "menuItem": "Sprints",

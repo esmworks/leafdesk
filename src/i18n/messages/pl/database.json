@@ -858,7 +858,17 @@
     "pinColor": "Kolor pinezek",
     "noPinColor": "Brak",
     "colorRules": "Reguły kolorów",
-    "wrapProperties": "Zawijaj wszystkie właściwości"
+    "wrapProperties": "Zawijaj wszystkie właściwości",
+    "loadLimit": "Limit wczytywania",
+    "loadLimitCards": "{count} kart",
+    "loadMore": "Wczytaj więcej",
+    "moreCards": "{count, plural, one {jeszcze # karta} few {jeszcze # karty} many {jeszcze # kart} other {jeszcze # karty}}"
+  },
+  "viewMenu": {
+    "label": "Ustawienia widoku",
+    "back": "Wstecz",
+    "layoutHint": "Widok zachowuje swoje filtry, sortowania i właściwości.",
+    "shown": "Widoczne: {count}"
   },
   "gallery": {
     "new": "Nowy",
@@ -1899,6 +1909,18 @@
     "viewOnly": "Tylko osoby z pełnym dostępem do bazy danych mogą zmienić synchronizację.",
     "reporter": "Zgłaszający",
     "reporterNone": "Nie synchronizowane"
+  },
+  "githubPulls": {
+    "button": "Synchronizowana z GitHubem",
+    "buttonPaused": "Synchronizacja z GitHubem wstrzymana",
+    "title": "Synchronizacja z GitHubem",
+    "lastRun": "Ostatnia synchronizacja {when}, {count, plural, one {# pull request} few {# pull requesty} many {# pull requestów} other {# pull requestu}}",
+    "withToken": "Z tokenem",
+    "withoutToken": "Bez tokenu",
+    "overwrite": "Źródłem jest GitHub: zsynchronizowane właściwości i tytuły wierszy są nadpisywane przy każdej synchronizacji, więc zmieniaj je na GitHubie. Właściwości dodane przez Ciebie zostają bez zmian, a wiersze pull requestów, których synchronizacja już nie pobiera, nie są ruszane.",
+    "changeToken": "Zmień token",
+    "tokenEmpty": "Zostaw puste, aby synchronizować bez tokenu.",
+    "stopConfirm": "Zakończyć synchronizację tej bazy danych? Jej wiersze zostaną bez zmian, a token zostanie zapomniany."
   },
   "sprints": {
     "menuItem": "Sprinty",

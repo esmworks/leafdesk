@@ -143,7 +143,7 @@ export function RowMenu({
     });
 
   // Before the server answers, the viewer counts as an editor: the table shows this menu to editors only.
-  const canEdit = info ? hasLevel(info.level, "edit") : true;
+  const canEdit = info ? hasLevel(info.level, "content") : true;
   const canComment = info ? hasLevel(info.level, "comment") : true;
   const canManage = !!info && hasLevel(info.level, "full") && !info.template;
 

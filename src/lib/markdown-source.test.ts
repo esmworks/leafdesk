@@ -91,15 +91,21 @@ describe("changedSyncedRegions", () => {
   const region = (inner: string, syncId = "s1") =>
     `Intro\n\n<!-- leafdesk:synced-block p1 ${syncId} -->\n\n${inner}\n\n<!-- leafdesk:synced-block-end -->\n\nOutro`;
 
-  it("counts synced blocks whose lines were edited", () => {
-    expect(changedSyncedRegions(region("Shared"), region("Shared"))).toBe(0);
-    expect(changedSyncedRegions(region("Shared"), region("Changed"))).toBe(1);
-    expect(changedSyncedRegions(region("Shared"), region("Shared").replace("Outro", "Other"))).toBe(0);
+  const readOnly = ["p1:s1", "p1:s2"];
+
+  it("counts synced blocks the reader can't edit whose lines were edited", () => {
+    expect(changedSyncedRegions(region("Shared"), region("Shared"), readOnly)).toBe(0);
+    expect(changedSyncedRegions(region("Shared"), region("Changed"), readOnly)).toBe(1);
+    expect(changedSyncedRegions(region("Shared"), region("Shared").replace("Outro", "Other"), readOnly)).toBe(0);
+  });
+
+  it("doesn't count synced blocks the save writes to", () => {
+    expect(changedSyncedRegions(region("Shared"), region("Changed"), [])).toBe(0);
   });
 
   it("leaves out synced blocks that were removed or added", () => {
-    expect(changedSyncedRegions(region("Shared"), "Intro\n\nOutro")).toBe(0);
-    expect(changedSyncedRegions("Intro", region("New", "s2"))).toBe(0);
+    expect(changedSyncedRegions(region("Shared"), "Intro\n\nOutro", readOnly)).toBe(0);
+    expect(changedSyncedRegions("Intro", region("New", "s2"), readOnly)).toBe(0);
   });
 });
 
