@@ -38,6 +38,8 @@ export const TOGGLE_ALL_COMBO = ["Mod", "Alt", "T"] as const satisfies Combo;
  * cells of one row selected duplicates that row (see cellGridShortcut).
  */
 export const FILL_DOWN_COMBO = ["Mod", "D"] as const satisfies Combo;
+/** Saves the page as a version, asking for an optional name first (see savesVersion). */
+export const SAVE_VERSION_COMBO = ["Mod", "S"] as const satisfies Combo;
 
 export const SHORTCUT_GROUPS: readonly ShortcutGroup[] = [
   {
@@ -51,6 +53,8 @@ export const SHORTCUT_GROUPS: readonly ShortcutGroup[] = [
       { id: "present", combos: [["Mod", "Alt", "P"]] },
       // components/toggle-all.ts, on pages and databases: toggles and grouped views' groups.
       { id: "toggleAll", combos: [TOGGLE_ALL_COMBO] },
+      // components/page/page-view.tsx and history-panel.tsx, on pages the person can edit.
+      { id: "saveVersion", combos: [SAVE_VERSION_COMBO] },
       // components/sidebar/sidebar-context.tsx, in a workspace.
       { id: "theme", combos: [["Mod", "Shift", "L"]] },
     ],
@@ -184,6 +188,15 @@ export function opensShortcuts(e: KeyEventLike, mac: boolean): boolean {
  */
 export function opensPresentation(e: KeyEventLike, mac: boolean): boolean {
   if (e.defaultPrevented || e.isComposing || e.shiftKey || !e.altKey || e.code !== "KeyP") return false;
+  return mac ? e.metaKey && !e.ctrlKey : e.ctrlKey && !e.metaKey;
+}
+
+/**
+ * Whether a key press saves the page as a version: Mod+S (SAVE_VERSION_COMBO), matched by the key's
+ * place. Not with Shift (Mod+Shift+S strikes text through) or Alt.
+ */
+export function savesVersion(e: KeyEventLike, mac: boolean): boolean {
+  if (e.defaultPrevented || e.isComposing || e.shiftKey || e.altKey || e.code !== "KeyS") return false;
   return mac ? e.metaKey && !e.ctrlKey : e.ctrlKey && !e.metaKey;
 }
 

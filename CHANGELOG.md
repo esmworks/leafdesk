@@ -17,6 +17,15 @@
   `@` (`@fri 5pm`) it gives the date mention a reminder then. Bare numbers, two-digit years, days
   that don't exist and `in +2w` are refused rather than guessed. `next friday` and `next week`
   now count weeks from the first day of the week in the interface language there.
+- **Named versions in page history.** People who can edit a page save a version with *Save
+  version* in the page history or Cmd/Ctrl+S on the page (listed in the keyboard shortcuts), and
+  can give it a name. When nothing changed since the newest version, that version gets the name
+  instead of a copy being saved. Any version can be named, renamed or have its name cleared from
+  the history, which shows a named version's name in place of its kind and can list named
+  versions only. The daily history cleanup never removes named versions, and they don't count
+  toward its 200 versions per page; legal holds work as before. MCP's `get_page_history` and the AI
+  chat's page history give a version's `name`. Migration 0145 adds
+  the column.
 - **Sort search results.** The search box has a *Sort* menu beside its filters: best match (the
   default), or last edited or created, newest or oldest first. A date order takes every page that
   matches into account, not only the best few.

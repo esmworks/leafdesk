@@ -13,6 +13,7 @@
     "close": "Close a dialog, menu or panel",
     "present": "Present the page as slides",
     "toggleAll": "Open or close all toggles and groups on the page",
+    "saveVersion": "Save a version of the page",
     "theme": "Switch between light and dark",
     "search": "Search",
     "sidebar": "Show or hide the sidebar",

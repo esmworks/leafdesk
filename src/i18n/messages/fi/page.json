@@ -322,9 +322,37 @@
       "beforeMerge": "Ennen rivien yhdistämistä"
     },
     "empty": "Ei vielä versioita. Versiot tallennetaan automaattisesti muokatessasi ja ennen kuin mikään tekoälysovellus muuttaa tätä sivua.",
+    "saveVersion": "Tallenna versio",
+    "namedOnly": "Vain nimetyt versiot",
+    "emptyNamed": "Nimettyjä versioita ei vielä ole. Tallenna versio nimellä tai nimeä jokin luettelosta.",
+    "name": "Nimeä tämä versio",
+    "rename": "Nimeä tämä versio uudelleen",
     "restore": "Palauta tämä versio",
     "restoring": "Palautetaan…",
     "restoreHint": "Nykyinen sisältö tallennetaan ensin versioksi.",
+    "versionName": {
+      "saveTitle": "Tallenna versio",
+      "saveHint": "Tallentaa sivun sellaisena kuin se nyt on. Anna sille nimi, niin löydät sen uudelleen: nimetyt versiot säilyvät niin kauan kuin sivu.",
+      "renameTitle": "Nimeä versio",
+      "renameHint": "Versio ajalta {date}. Nimetyt versiot säilyvät niin kauan kuin sivu; jätä nimi tyhjäksi poistaaksesi sen.",
+      "unchangedTitle": "Mikään ei muuttunut",
+      "unchangedHint": "Sivu on sama kuin versio ajalta {date}, joten nimi annetaan sille kopion tallentamisen sijaan. Jätä nimi tyhjäksi poistaaksesi sen.",
+      "nameLabel": "Nimi",
+      "namePlaceholder": "Valinnainen, esim. Lähetetty tarkistettavaksi",
+      "save": "Tallenna versio",
+      "saveName": "Tallenna nimi",
+      "saving": "Tallennetaan…",
+      "saved": "Versio tallennettu",
+      "savedNamed": "Versio ”{name}” tallennettu",
+      "named": "Versio nimetty: ”{name}”",
+      "nameCleared": "Version nimi poistettu",
+      "errors": {
+        "invalidName": "Nimessä voi olla enintään {max} merkkiä.",
+        "inTrash": "Tämä sivu on roskakorissa. Palauta se ensin.",
+        "failed": "Tallennus epäonnistui. Yritä uudelleen.",
+        "state": "Muutoksia edellisen version jälkeen ei voitu tarkistaa."
+      }
+    },
     "diff": {
       "rangeCurrent": "Muutokset version {from} jälkeen nykyiseen sivuun",
       "rangePrevious": "Muutokset {from} – {to}",

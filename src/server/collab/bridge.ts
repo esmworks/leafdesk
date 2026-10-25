@@ -168,9 +168,10 @@ export interface CollabService {
   restoreSnapshot(snapshotId: string, actor: WriteActor): Promise<void>;
   /**
    * Saves the page as it is now (the live document when it is open) as a history version, e.g.
-   * before the editor's AI assistant applies a suggestion in the browser.
+   * before the editor's AI assistant applies a suggestion in the browser, or a version someone
+   * saves (`manual`, with the name they gave it: lib/page-versions). Returns the version's id.
    */
-  snapshot(pageId: string, reason: "before_ai_edit" | "manual", actor: WriteActor): Promise<void>;
+  snapshot(pageId: string, reason: "before_ai_edit" | "manual", actor: WriteActor, name?: string | null): Promise<string>;
   /**
    * Brings what database rows merged into this one hold (server/merge-rows.ts): each source's body,
    * when it isn't empty, goes after the page's own under a heading (`heading`), its blocks with ids

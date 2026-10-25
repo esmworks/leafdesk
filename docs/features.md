@@ -651,7 +651,15 @@
 - **Page history**: versions are saved automatically while you edit and before every AI edit.
   You can preview and restore any version (those of the last week listed as "2 hours ago" or
   "yesterday", older ones by their date, the exact time on hover), and see what changed since it or
-  since the version before, and who (or which AI app) changed it. Changes an AI app, the chat or an agent writes to a
+  since the version before, and who (or which AI app) changed it. People who can edit a page save a
+  version themselves with *Save version* in the history or Cmd/Ctrl+S on the page, giving it a name
+  if they like ("Sent to legal"); when nothing changed since the newest version, that one gets the
+  name instead of a copy being saved. Any version can be named, renamed or have its name cleared
+  (an empty name) from the history, where a named version shows its name and *Named versions only*
+  lists just those. Named versions are kept as long as the page: the daily history cleanup leaves
+  them, and they don't count toward its limit of versions per page. Pages in the trash can't be
+  saved or named; locked pages can. MCP's `get_page_history` and the AI chat give a version's
+  `name`. Changes an AI app, the chat or an agent writes to a
   page's body can be kept or undone block by block (see
   [Reviewing AI changes](ai.md#ai-features)).
 - **Teamspaces**: group pages and people. Every workspace starts with a *General* teamspace

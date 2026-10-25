@@ -148,7 +148,9 @@ BlockNote on Yjs; Tailwind v4; next-intl. Node 24, pnpm 11. A separate Electron 
   events committed out of order still go; `runAuditStreams(now)`), sensitive content scans
   `sensitive-content.ts` (detectors and masking pure in `src/lib/sensitive-content.ts`; a sweep
   reads pages whose `updated_at` moved past `sensitive_scan`), verified pages `verification.ts`
-  (`activeVerification` is the SQL for search and lists; `runVerificationReminders(now)`), SMTP
+  (`activeVerification` is the SQL for search and lists; `runVerificationReminders(now)`), named
+  page versions `page-versions.ts` (`page_snapshot.name`; `retention.ts` `pruneSnapshots` never
+  deletes a named one; listing, preview and restore stay in `pages.ts`), SMTP
   `mail/`, inbox `notifications.ts`, push `push.ts`, files `files.ts` + `storage/` (local, S3,
   workspace drives), import `import/` (a web page: `web-clip.ts`, fetched through `connections/fetch.ts` with `{ web: true }`, read by
   `web-clip-extract.ts`, recipes by `src/lib/recipe.ts`), export `export.ts`, server-made PDFs `pdf.ts` (reads a page like `print.ts`; `export-pdf.ts` zips one per page for the workspace export)

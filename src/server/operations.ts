@@ -2018,7 +2018,10 @@ export async function listMeetingNotes(ctx: OperationContext, { workspace_id, qu
 
 // ---------------------------------------------------------------------------- history
 
-/** A page's saved versions, newest first, with who made each change (a user, or a user through an app). */
+/**
+ * A page's saved versions, newest first, with who made each change (a user, or a user through an
+ * app) and the name someone gave it (server/page-versions), when they did.
+ */
 export async function listPageHistory(ctx: OperationContext, { page_id }: Args<"pageId">) {
   const snapshots = await pages.listSnapshots(ctx.userId, page_id);
   return {
@@ -2026,6 +2029,7 @@ export async function listPageHistory(ctx: OperationContext, { page_id }: Args<"
     versions: snapshots.map((s) => ({
       id: s.id,
       title: pageLabel(s.title),
+      ...(s.name ? { name: s.name } : {}),
       saved_at: new Date(s.createdAt).toISOString(),
       reason: s.reason,
       by: s.clientName ? `${s.authorName ?? "Unknown"} via ${s.clientName}` : (s.authorName ?? null),
@@ -2041,6 +2045,7 @@ export async function getPageVersion(ctx: OperationContext, { version_id, offset
     id: snap.id,
     page_id: snap.pageId,
     title: pageLabel(snap.title),
+    ...(snap.name ? { name: snap.name } : {}),
     saved_at: new Date(snap.createdAt).toISOString(),
     markdown: body.text,
     ...(body.truncated ? { markdown_truncated: true, markdown_total_chars: body.totalChars, ...("note" in body ? { note: body.note } : {}) } : {}),

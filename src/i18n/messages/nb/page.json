@@ -322,9 +322,37 @@
       "beforeMerge": "Før sammenslåing av rader"
     },
     "empty": "Ingen versjoner ennå. Versjoner lagres automatisk mens du redigerer og før en KI-app endrer denne siden.",
+    "saveVersion": "Lagre versjon",
+    "namedOnly": "Bare navngitte versjoner",
+    "emptyNamed": "Ingen navngitte versjoner ennå. Lagre en versjon med et navn, eller gi en i listen et navn.",
+    "name": "Gi denne versjonen et navn",
+    "rename": "Gi denne versjonen nytt navn",
     "restore": "Gjenopprett denne versjonen",
     "restoring": "Gjenoppretter…",
     "restoreHint": "Det gjeldende innholdet lagres først som en versjon.",
+    "versionName": {
+      "saveTitle": "Lagre versjon",
+      "saveHint": "Lagrer siden slik den er nå. Gi den et navn for å finne den igjen: navngitte versjoner beholdes så lenge siden finnes.",
+      "renameTitle": "Gi versjonen et navn",
+      "renameHint": "Versjonen fra {date}. Navngitte versjoner beholdes så lenge siden finnes; la navnet stå tomt for å fjerne det.",
+      "unchangedTitle": "Ingenting er endret",
+      "unchangedHint": "Siden er den samme som versjonen fra {date}, så den versjonen får navnet i stedet for at en kopi lagres. La navnet stå tomt for å fjerne det.",
+      "nameLabel": "Navn",
+      "namePlaceholder": "Valgfritt, f.eks. Sendt til gjennomgang",
+      "save": "Lagre versjon",
+      "saveName": "Lagre navn",
+      "saving": "Lagrer…",
+      "saved": "Versjonen er lagret",
+      "savedNamed": "Versjonen «{name}» er lagret",
+      "named": "Versjonen heter nå «{name}»",
+      "nameCleared": "Versjonens navn er fjernet",
+      "errors": {
+        "invalidName": "Et navn kan ha høyst {max} tegn.",
+        "inTrash": "Denne siden er i papirkurven. Gjenopprett den først.",
+        "failed": "Kunne ikke lagre. Prøv igjen.",
+        "state": "Kunne ikke sjekke om noe er endret siden siste versjon."
+      }
+    },
     "diff": {
       "rangeCurrent": "Endringer fra versjonen fra {from} til den gjeldende siden",
       "rangePrevious": "Endringer fra {from} til {to}",

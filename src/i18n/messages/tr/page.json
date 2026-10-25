@@ -322,9 +322,37 @@
       "beforeMerge": "Satırlar birleştirilmeden önce"
     },
     "empty": "Henüz sürüm yok. Siz düzenlerken ve bir yapay zekâ uygulaması bu sayfayı değiştirmeden önce sürümler otomatik olarak kaydedilir.",
+    "saveVersion": "Sürümü kaydet",
+    "namedOnly": "Yalnızca adlandırılmış sürümler",
+    "emptyNamed": "Henüz adlandırılmış sürüm yok. Bir sürümü adıyla kaydedin ya da listeden birine ad verin.",
+    "name": "Bu sürüme ad ver",
+    "rename": "Bu sürümü yeniden adlandır",
     "restore": "Bu sürümü geri yükle",
     "restoring": "Geri yükleniyor…",
     "restoreHint": "Mevcut içerik önce bir sürüm olarak kaydedilir.",
+    "versionName": {
+      "saveTitle": "Sürümü kaydet",
+      "saveHint": "Sayfayı şu anki hâliyle kaydeder. Yeniden bulmak için bir ad verin: adlandırılmış sürümler sayfa durdukça saklanır.",
+      "renameTitle": "Sürüme ad ver",
+      "renameHint": "{date} tarihli sürüm. Adlandırılmış sürümler sayfa durdukça saklanır; adı kaldırmak için alanı boş bırakın.",
+      "unchangedTitle": "Hiçbir şey değişmedi",
+      "unchangedHint": "Sayfa {date} tarihli sürümle aynı; bu yüzden bir kopya kaydetmek yerine o sürüme ad verilir. Adı kaldırmak için alanı boş bırakın.",
+      "nameLabel": "Ad",
+      "namePlaceholder": "İsteğe bağlı, ör. İncelemeye gönderildi",
+      "save": "Sürümü kaydet",
+      "saveName": "Adı kaydet",
+      "saving": "Kaydediliyor…",
+      "saved": "Sürüm kaydedildi",
+      "savedNamed": "“{name}” sürümü kaydedildi",
+      "named": "Sürüme “{name}” adı verildi",
+      "nameCleared": "Sürümün adı kaldırıldı",
+      "errors": {
+        "invalidName": "Bir ad en fazla {max} karakter olabilir.",
+        "inTrash": "Bu sayfa çöp kutusunda. Önce geri yükleyin.",
+        "failed": "Kaydedilemedi. Yeniden deneyin.",
+        "state": "Son sürümden bu yana değişiklik olup olmadığı denetlenemedi."
+      }
+    },
     "diff": {
       "rangeCurrent": "{from} sürümünden güncel sayfaya kadar yapılan değişiklikler",
       "rangePrevious": "{from} ile {to} arasındaki değişiklikler",

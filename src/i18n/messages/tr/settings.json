@@ -1422,7 +1422,7 @@
     },
     "historyRetention": {
       "title": "Sayfa geçmişi",
-      "description": "Bir sayfanın önceki sürümleri {days} gün, sayfa başına en fazla {count} adet saklanır. Kaydedilen sürümler ve geri yüklemeden önceki sürümler {keptDays} gün saklanır; sayfanın en son sürümü her zaman kalır."
+      "description": "Bir sayfanın önceki sürümleri {days} gün, sayfa başına en fazla {count} tane saklanır. Kaydedilen sürümler ve geri yüklemeden önceki sürümler {keptDays} gün, adlandırılmış sürümler sayfa durdukça saklanır; bir sayfanın en son sürümü her zaman kalır."
     },
     "membersHeading": "Üyeler",
     "memberInvites": {

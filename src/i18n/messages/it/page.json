@@ -322,9 +322,37 @@
       "beforeMerge": "Prima di unire righe"
     },
     "empty": "Ancora nessuna versione. Le versioni vengono salvate automaticamente mentre modifichi e prima che un’app di IA cambi questa pagina.",
+    "saveVersion": "Salva versione",
+    "namedOnly": "Solo versioni con nome",
+    "emptyNamed": "Ancora nessuna versione con nome. Salva una versione con un nome o dai un nome a una della lista.",
+    "name": "Dai un nome a questa versione",
+    "rename": "Rinomina questa versione",
     "restore": "Ripristina questa versione",
     "restoring": "Ripristino…",
     "restoreHint": "Il contenuto attuale viene prima salvato come versione.",
+    "versionName": {
+      "saveTitle": "Salva versione",
+      "saveHint": "Salva la pagina com’è adesso. Dalle un nome per ritrovarla: le versioni con nome vengono conservate finché esiste la pagina.",
+      "renameTitle": "Dai un nome alla versione",
+      "renameHint": "La versione del {date}. Le versioni con nome vengono conservate finché esiste la pagina; lascia il nome vuoto per toglierlo.",
+      "unchangedTitle": "Non è cambiato nulla",
+      "unchangedHint": "La pagina è uguale alla versione del {date}, quindi il nome va a quella versione invece di salvarne una copia. Lascia il nome vuoto per toglierlo.",
+      "nameLabel": "Nome",
+      "namePlaceholder": "Facoltativo, ad es. Inviata per revisione",
+      "save": "Salva versione",
+      "saveName": "Salva nome",
+      "saving": "Salvataggio…",
+      "saved": "Versione salvata",
+      "savedNamed": "Versione “{name}” salvata",
+      "named": "Versione chiamata “{name}”",
+      "nameCleared": "Nome della versione tolto",
+      "errors": {
+        "invalidName": "Un nome può avere al massimo {max} caratteri.",
+        "inTrash": "Questa pagina è nel cestino. Ripristinala prima.",
+        "failed": "Impossibile salvare. Riprova.",
+        "state": "Impossibile controllare le modifiche dall’ultima versione."
+      }
+    },
     "diff": {
       "rangeCurrent": "Modifiche dalla versione del {from} alla pagina attuale",
       "rangePrevious": "Modifiche da {from} a {to}",

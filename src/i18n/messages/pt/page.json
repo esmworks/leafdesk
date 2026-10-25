@@ -322,9 +322,37 @@
       "beforeMerge": "Antes de mesclar linhas"
     },
     "empty": "Nenhuma versão ainda. As versões são salvas automaticamente enquanto você edita e antes que qualquer app de IA altere esta página.",
+    "saveVersion": "Salvar versão",
+    "namedOnly": "Apenas versões com nome",
+    "emptyNamed": "Ainda não há versões com nome. Salve uma versão com um nome ou dê nome a uma da lista.",
+    "name": "Dar nome a esta versão",
+    "rename": "Renomear esta versão",
     "restore": "Restaurar esta versão",
     "restoring": "Restaurando…",
     "restoreHint": "O conteúdo atual é salvo como uma versão antes.",
+    "versionName": {
+      "saveTitle": "Salvar versão",
+      "saveHint": "Salva a página como está agora. Dê um nome para encontrá-la de novo: versões com nome são mantidas enquanto a página existir.",
+      "renameTitle": "Dar nome à versão",
+      "renameHint": "A versão de {date}. Versões com nome são mantidas enquanto a página existir; deixe o nome vazio para removê-lo.",
+      "unchangedTitle": "Nada mudou",
+      "unchangedHint": "A página é igual à versão de {date}, então essa versão recebe o nome em vez de salvar uma cópia. Deixe o nome vazio para removê-lo.",
+      "nameLabel": "Nome",
+      "namePlaceholder": "Opcional, ex.: Enviada para revisão",
+      "save": "Salvar versão",
+      "saveName": "Salvar nome",
+      "saving": "Salvando…",
+      "saved": "Versão salva",
+      "savedNamed": "Versão “{name}” salva",
+      "named": "Versão chamada “{name}”",
+      "nameCleared": "Nome da versão removido",
+      "errors": {
+        "invalidName": "Um nome pode ter no máximo {max} caracteres.",
+        "inTrash": "Esta página está na lixeira. Restaure-a primeiro.",
+        "failed": "Não foi possível salvar. Tente novamente.",
+        "state": "Não foi possível verificar alterações desde a última versão."
+      }
+    },
     "diff": {
       "rangeCurrent": "Alterações da versão de {from} até a página atual",
       "rangePrevious": "Alterações de {from} até {to}",

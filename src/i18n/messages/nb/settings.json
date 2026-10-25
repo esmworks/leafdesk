@@ -1422,7 +1422,7 @@
     },
     "historyRetention": {
       "title": "Sidehistorikk",
-      "description": "Tidligere versjoner av en side oppbevares i {days} dager, opptil {count} per side. Lagrede versjoner og versjoner fra før en gjenoppretting oppbevares i {keptDays} dager, og den nyeste versjonen av en side blir alltid beholdt."
+      "description": "Tidligere versjoner av en side beholdes i {days} dager, opptil {count} per side. Lagrede versjoner og versjoner fra før en gjenoppretting beholdes i {keptDays} dager, navngitte versjoner så lenge siden finnes, og den nyeste versjonen av en side blir alltid værende."
     },
     "membersHeading": "Medlemmer",
     "memberInvites": {

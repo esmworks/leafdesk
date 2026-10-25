@@ -322,9 +322,37 @@
       "beforeMerge": "Przed scaleniem wierszy"
     },
     "empty": "Brak wersji. Wersje są zapisywane automatycznie podczas edycji i zanim jakakolwiek aplikacja AI zmieni tę stronę.",
+    "saveVersion": "Zapisz wersję",
+    "namedOnly": "Tylko nazwane wersje",
+    "emptyNamed": "Nie ma jeszcze nazwanych wersji. Zapisz wersję z nazwą albo nazwij jedną z listy.",
+    "name": "Nazwij tę wersję",
+    "rename": "Zmień nazwę tej wersji",
     "restore": "Przywróć tę wersję",
     "restoring": "Przywracanie…",
     "restoreHint": "Bieżąca treść zostanie najpierw zapisana jako wersja.",
+    "versionName": {
+      "saveTitle": "Zapisz wersję",
+      "saveHint": "Zapisuje stronę w obecnym stanie. Nadaj jej nazwę, aby ją potem odnaleźć: nazwane wersje są przechowywane tak długo jak strona.",
+      "renameTitle": "Nazwij wersję",
+      "renameHint": "Wersja z {date}. Nazwane wersje są przechowywane tak długo jak strona; zostaw nazwę pustą, aby ją usunąć.",
+      "unchangedTitle": "Nic się nie zmieniło",
+      "unchangedHint": "Strona jest taka sama jak wersja z {date}, więc to ta wersja dostaje nazwę zamiast zapisywania kopii. Zostaw nazwę pustą, aby ją usunąć.",
+      "nameLabel": "Nazwa",
+      "namePlaceholder": "Opcjonalnie, np. Wysłano do przeglądu",
+      "save": "Zapisz wersję",
+      "saveName": "Zapisz nazwę",
+      "saving": "Zapisywanie…",
+      "saved": "Wersja zapisana",
+      "savedNamed": "Zapisano wersję „{name}”",
+      "named": "Wersja nazwana „{name}”",
+      "nameCleared": "Usunięto nazwę wersji",
+      "errors": {
+        "invalidName": "Nazwa może mieć najwyżej {max} znaków.",
+        "inTrash": "Ta strona jest w koszu. Najpierw ją przywróć.",
+        "failed": "Nie udało się zapisać. Spróbuj ponownie.",
+        "state": "Nie udało się sprawdzić zmian od ostatniej wersji."
+      }
+    },
     "diff": {
       "rangeCurrent": "Zmiany od wersji z {from} do bieżącej strony",
       "rangePrevious": "Zmiany od {from} do {to}",
