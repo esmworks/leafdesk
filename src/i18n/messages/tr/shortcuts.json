@@ -46,6 +46,7 @@
     "moveDown": "Bloğu aşağı taşı",
     "copyBlockLink": "Bloğa bağlantıyı kopyala",
     "codeLanguage": "Kod bloğunun dilini seç",
+    "dictate": "İmlecin olduğu yere dikte et (bitirmek için yeniden basın veya Enter, ya da konuşurken basılı tutun)",
     "undo": "Geri al",
     "redo": "Yinele",
     "openRow": "Odaktaki satırı veya kartı aç",

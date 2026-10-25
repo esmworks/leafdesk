@@ -40,6 +40,8 @@ export const TOGGLE_ALL_COMBO = ["Mod", "Alt", "T"] as const satisfies Combo;
 export const FILL_DOWN_COMBO = ["Mod", "D"] as const satisfies Combo;
 /** Saves the page as a version, asking for an optional name first (see savesVersion). */
 export const SAVE_VERSION_COMBO = ["Mod", "S"] as const satisfies Combo;
+/** Starts and finishes dictating at the caret (lib/dictation pressesDictate, components/page/dictation.tsx). */
+export const DICTATE_COMBO = ["Mod", "Shift", "D"] as const satisfies Combo;
 
 export const SHORTCUT_GROUPS: readonly ShortcutGroup[] = [
   {
@@ -112,6 +114,8 @@ export const SHORTCUT_GROUPS: readonly ShortcutGroup[] = [
       // components/page/editor-shortcuts.ts.
       { id: "copyBlockLink", combos: [COPY_BLOCK_LINK_COMBO] },
       { id: "codeLanguage", combos: [CODE_LANGUAGE_COMBO] },
+      // components/page/dictation.tsx, where the workspace can transcribe.
+      { id: "dictate", combos: [DICTATE_COMBO] },
       { id: "undo", combos: [["Mod", "Z"]] },
       { id: "redo", combos: [["Mod", "Shift", "Z"], ["Mod", "Y"]] },
     ],

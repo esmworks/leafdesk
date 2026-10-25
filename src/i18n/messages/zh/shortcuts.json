@@ -46,6 +46,7 @@
     "moveDown": "下移块",
     "copyBlockLink": "复制指向该块的链接",
     "codeLanguage": "选择代码块的语言",
+    "dictate": "在光标处听写（再按一次或按 Enter 结束，或说话时按住）",
     "undo": "撤销",
     "redo": "重做",
     "openRow": "打开当前聚焦的行或卡片",

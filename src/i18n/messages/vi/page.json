@@ -1003,6 +1003,19 @@
       "followed": "Các ghi chú giọng nói được lưu ở đây tuân theo hướng dẫn viết của cơ sở dữ liệu này."
     }
   },
+  "dictation": {
+    "slashTitle": "Đọc chính tả",
+    "slashSubtext": "Hãy nói, lời của bạn sẽ được viết ở đây đúng như bạn nói",
+    "slashAliases": "đọc chính tả dictate giọng nói nói micrô chép lời",
+    "starting": "Đang bắt đầu…",
+    "listening": "Đang nghe",
+    "writing": "Đang viết…",
+    "finish": "Kết thúc đọc chính tả và viết văn bản",
+    "hint": "Nhấn {shortcut} hoặc Enter để kết thúc, Esc để hủy",
+    "autoStopped": "Đọc chính tả đã dừng ở giới hạn {minutes} phút. Những gì bạn nói đến lúc đó đã được viết.",
+    "copied": "Không thể đặt văn bản đọc chính tả vào trang, nên văn bản đã được sao chép vào bộ nhớ tạm.",
+    "notPlaced": "Không thể đặt văn bản đọc chính tả vào trang hoặc sao chép: {text}"
+  },
   "review": {
     "bar": "{count, plural, other {# thay đổi của AI cần xem xét}}",
     "by": "bởi {names}",

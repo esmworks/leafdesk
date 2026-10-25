@@ -1003,6 +1003,19 @@
       "followed": "Voice notes saved here follow this database's writing instructions."
     }
   },
+  "dictation": {
+    "slashTitle": "Dictate",
+    "slashSubtext": "Speak, and your words are written here as you say them",
+    "slashAliases": "dictate dictation speech voice talk microphone transcribe",
+    "starting": "Starting…",
+    "listening": "Listening",
+    "writing": "Writing…",
+    "finish": "Finish dictating and write the text",
+    "hint": "Press {shortcut} or Enter to finish, Esc to cancel",
+    "autoStopped": "Dictation stopped at the {minutes} min limit. What you said until then was written.",
+    "copied": "The dictated text couldn't be placed in the page, so it was copied to the clipboard.",
+    "notPlaced": "The dictated text couldn't be placed in the page or copied: {text}"
+  },
   "review": {
     "bar": "{count, plural, one {# AI change to review} other {# AI changes to review}}",
     "by": "by {names}",

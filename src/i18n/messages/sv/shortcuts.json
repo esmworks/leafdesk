@@ -46,6 +46,7 @@
     "moveDown": "Flytta blocket nedåt",
     "copyBlockLink": "Kopiera en länk till blocket",
     "codeLanguage": "Välj kodblockets språk",
+    "dictate": "Diktera vid markören (tryck igen eller Enter för att avsluta, eller håll ned medan du pratar)",
     "undo": "Ångra",
     "redo": "Gör om",
     "openRow": "Öppna den markerade raden eller kortet",

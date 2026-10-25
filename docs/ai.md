@@ -154,7 +154,8 @@ open as you move between pages and can be expanded to the full page. A source cl
 page (a citation or a page it read) opens in a panel at its right, scrolled to the passage; K and J
 go through the conversation's other sources and Esc closes it (a database, or any source on a phone,
 opens as its page). Where the workspace can transcribe recordings (as for voice notes), a microphone
-in the box dictates a question into it, unsent, to fix first; the recording isn't kept. A question
+in the box dictates a question into it, unsent, to fix first; the recording isn't kept (in a page,
+Cmd/Ctrl+Shift+D dictates at the caret, see [Voice notes](#voice-notes)). A question
 sent while an answer is being written waits in a strip above the box and is asked once the answer
 is done (*Stop* gives the waiting questions back), and while the model thinks the line saying so
 shows the newest line of its thinking. Questions are answered from the pages
@@ -474,6 +475,17 @@ assistant, the page is saved to its history first and Undo takes the note back. 
 secure (https) connection and the browser's permission to use the microphone; when either is
 missing, or the browser can't record, the app says so and offers the file instead. A recording stops
 by itself at the length or size limit.
+
+**Dictating into a page.** Where voice notes work, Cmd/Ctrl+Shift+D in a page you can edit (or `/`
+*Dictate*) writes what you say at the caret, word for word, with no AI rewrite. Press the keys again,
+Enter or the chip beside the caret to finish; or hold the keys while you talk and let go. The chip
+shows *Starting*, *Listening* with a level meter, then *Writing…*. The text replaces what was selected
+when you started, spaced from the words around it, as one change that Undo takes back. If someone
+edited around that spot meanwhile it follows their edit; if the spot is gone it goes at the caret,
+and if it can't go in the page at all it is copied to the clipboard. Esc cancels and writes nothing,
+as do clicking elsewhere in the page, leaving it or starting another dictation. Not in code blocks or
+read-only pages; it needs a browser that can record, and the recording limits above apply. The audio
+isn't kept, and the transcription counts as voice in the workspace's AI usage.
 
 **From other apps.** A script or app with a personal access token can send a recording to
 `POST /api/v1/voice-notes` as multipart form data and get the note saved in one call (see

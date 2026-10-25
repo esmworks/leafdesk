@@ -1003,6 +1003,19 @@
       "followed": "Röstanteckningar som sparas här följer den här databasens skrivinstruktioner."
     }
   },
+  "dictation": {
+    "slashTitle": "Diktera",
+    "slashSubtext": "Prata, så skrivs dina ord här precis som du säger dem",
+    "slashAliases": "diktera diktat dictate tal röst mikrofon transkribera",
+    "starting": "Startar…",
+    "listening": "Lyssnar",
+    "writing": "Skriver…",
+    "finish": "Avsluta dikteringen och skriv texten",
+    "hint": "Tryck på {shortcut} eller Enter för att avsluta, Esc för att avbryta",
+    "autoStopped": "Dikteringen stoppade vid gränsen på {minutes} min. Det du sa fram till dess skrevs.",
+    "copied": "Den dikterade texten kunde inte placeras på sidan, så den kopierades till urklipp.",
+    "notPlaced": "Den dikterade texten kunde varken placeras på sidan eller kopieras: {text}"
+  },
   "review": {
     "bar": "{count, plural, one {# AI-ändring att granska} other {# AI-ändringar att granska}}",
     "by": "av {names}",

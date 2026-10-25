@@ -46,6 +46,7 @@
     "moveDown": "Bajar el bloque",
     "copyBlockLink": "Copiar un enlace al bloque",
     "codeLanguage": "Elegir el lenguaje del bloque de código",
+    "dictate": "Dictar en el cursor (pulsa de nuevo o Intro para terminar, o mantén pulsado mientras hablas)",
     "undo": "Deshacer",
     "redo": "Rehacer",
     "openRow": "Abrir la fila o tarjeta seleccionada",

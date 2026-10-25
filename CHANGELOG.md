@@ -4,6 +4,18 @@
 
 ### Added
 
+- **Dictate into a page at the caret.** Where voice notes work, Cmd/Ctrl+Shift+D in a page you can
+  edit, or `/` *Dictate*, records and writes what you said where the caret was, as you said it (no
+  AI rewrite), replacing what was selected then. Press the keys again, Enter or the chip beside the
+  caret to finish, or hold the keys while you talk and let go; the chip shows *Starting*,
+  *Listening* with a level meter, and *Writing…*. Esc, clicking elsewhere in the page, leaving it or
+  starting another dictation cancels without writing. The text goes in as one undo step, spaced
+  from the words around it, follows edits made around its spot meanwhile, and goes to the caret or,
+  failing that, the clipboard when the spot is gone. Not in code blocks or read-only pages; the
+  recording limits, usage limits and the workspace's AI setting apply as for voice notes, and the
+  transcription counts as voice usage (`voice.dictate`; the transcribe route takes `use=page`). The
+  shortcut is in the keyboard shortcuts list. Dictating in the AI chat's box and in a page now
+  cancel each other.
 - **Type dates in words, everywhere a date is typed.** One grammar reads dates after `@` in a page,
   in a new box on top of a date property's picker, in a date mention's menu (for its date and for
   a reminder at any time) and under a date filter's value; the box shows what the words name and

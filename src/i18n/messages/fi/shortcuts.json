@@ -46,6 +46,7 @@
     "moveDown": "Siirrä lohkoa alaspäin",
     "copyBlockLink": "Kopioi linkki lohkoon",
     "codeLanguage": "Valitse koodilohkon kieli",
+    "dictate": "Sanele kohdistimen kohtaan (lopeta painamalla uudelleen tai Enter, tai pidä pohjassa puhuessasi)",
     "undo": "Kumoa",
     "redo": "Tee uudelleen",
     "openRow": "Avaa valittu rivi tai kortti",

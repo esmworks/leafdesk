@@ -1003,6 +1003,19 @@
       "followed": "Tänne tallennetut äänimuistiinpanot noudattavat tämän tietokannan kirjoitusohjeita."
     }
   },
+  "dictation": {
+    "slashTitle": "Sanele",
+    "slashSubtext": "Puhu, niin sanasi kirjoitetaan tähän sellaisinaan",
+    "slashAliases": "sanele sanelu dictate puhe ääni mikrofoni litteroi",
+    "starting": "Käynnistetään…",
+    "listening": "Kuuntelee",
+    "writing": "Kirjoitetaan…",
+    "finish": "Lopeta sanelu ja kirjoita teksti",
+    "hint": "Lopeta painamalla {shortcut} tai Enter, peru painamalla Esc",
+    "autoStopped": "Sanelu pysähtyi {minutes} min rajaan. Siihen asti sanomasi kirjoitettiin.",
+    "copied": "Saneltua tekstiä ei voitu lisätä sivulle, joten se kopioitiin leikepöydälle.",
+    "notPlaced": "Saneltua tekstiä ei voitu lisätä sivulle eikä kopioida: {text}"
+  },
   "review": {
     "bar": "{count, plural, one {# tekoälyn muutos tarkistettavana} other {# tekoälyn muutosta tarkistettavana}}",
     "by": "tekijä: {names}",

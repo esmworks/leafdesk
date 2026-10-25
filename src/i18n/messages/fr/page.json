@@ -1003,6 +1003,19 @@
       "followed": "Les notes vocales enregistrées ici suivent les consignes de rédaction de cette base de données."
     }
   },
+  "dictation": {
+    "slashTitle": "Dicter",
+    "slashSubtext": "Parlez, et vos mots sont écrits ici tels que vous les dites",
+    "slashAliases": "dicter dictée dictate parole voix micro transcrire",
+    "starting": "Démarrage…",
+    "listening": "Écoute",
+    "writing": "Écriture…",
+    "finish": "Terminer la dictée et écrire le texte",
+    "hint": "Appuyez sur {shortcut} ou Entrée pour terminer, Échap pour annuler",
+    "autoStopped": "La dictée s'est arrêtée à la limite de {minutes} min. Ce que vous avez dit jusque-là a été écrit.",
+    "copied": "Le texte dicté n'a pas pu être placé dans la page, il a donc été copié dans le presse-papiers.",
+    "notPlaced": "Le texte dicté n'a pu être ni placé dans la page ni copié : {text}"
+  },
   "review": {
     "bar": "{count, plural, one {# modification de l’IA à vérifier} other {# modifications de l’IA à vérifier}}",
     "by": "par {names}",

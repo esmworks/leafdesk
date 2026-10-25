@@ -46,6 +46,7 @@
     "moveDown": "Mover o bloco para baixo",
     "copyBlockLink": "Copiar um link para o bloco",
     "codeLanguage": "Escolher a linguagem do bloco de código",
+    "dictate": "Ditar no cursor (pressione de novo ou Enter para concluir, ou mantenha pressionado enquanto fala)",
     "undo": "Desfazer",
     "redo": "Refazer",
     "openRow": "Abrir a linha ou o cartão em foco",

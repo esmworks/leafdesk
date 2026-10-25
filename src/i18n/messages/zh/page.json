@@ -1003,6 +1003,19 @@
       "followed": "保存到这里的语音笔记会遵循此数据库的写作说明。"
     }
   },
+  "dictation": {
+    "slashTitle": "听写",
+    "slashSubtext": "说话即可，你说的话会原样写在这里",
+    "slashAliases": "听写 语音输入 dictate 语音 说话 麦克风 转写",
+    "starting": "正在启动…",
+    "listening": "正在听",
+    "writing": "正在写入…",
+    "finish": "结束听写并写入文字",
+    "hint": "按 {shortcut} 或 Enter 结束，按 Esc 取消",
+    "autoStopped": "听写已在 {minutes} 分钟的上限处停止。此前说的内容已写入。",
+    "copied": "听写的文字无法放入页面，已复制到剪贴板。",
+    "notPlaced": "听写的文字既无法放入页面，也无法复制：{text}"
+  },
   "review": {
     "bar": "{count} 处 AI 更改待审阅",
     "by": "由 {names}",

@@ -1003,6 +1003,19 @@
       "followed": "Las notas de voz que se guardan aquí siguen las instrucciones de redacción de esta base de datos."
     }
   },
+  "dictation": {
+    "slashTitle": "Dictar",
+    "slashSubtext": "Habla y tus palabras se escriben aquí tal como las dices",
+    "slashAliases": "dictar dictado dictate voz hablar micrófono transcribir",
+    "starting": "Iniciando…",
+    "listening": "Escuchando",
+    "writing": "Escribiendo…",
+    "finish": "Terminar el dictado y escribir el texto",
+    "hint": "Pulsa {shortcut} o Intro para terminar, Esc para cancelar",
+    "autoStopped": "El dictado se detuvo en el límite de {minutes} min. Se escribió lo que dijiste hasta entonces.",
+    "copied": "No se pudo colocar el texto dictado en la página, así que se copió al portapapeles.",
+    "notPlaced": "No se pudo colocar el texto dictado en la página ni copiarlo: {text}"
+  },
   "review": {
     "bar": "{count, plural, one {# cambio de la IA por revisar} other {# cambios de la IA por revisar}}",
     "by": "por {names}",

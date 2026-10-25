@@ -168,6 +168,10 @@ BlockNote on Yjs; Tailwind v4; next-intl. Node 24, pnpm 11. A separate Electron 
   on other sites go through `app/api/files/external` (connections' address checks only). Comment
   mentions and previews: `lib/comment-refs.ts`, resolved per reader by `server/comment-refs.ts`.
   Cmd/Ctrl+Alt+T: `components/toggle-all.ts` (views with groups join through `useToggleAllGroups`).
+  Dictation at the caret: `components/page/dictation.tsx` (phases in `lib/dictation.ts`; recording,
+  the transcribe request and one-dictation-at-a-time shared with the chat in `voice/dictation.ts`).
+  A place kept across async work is a Yjs relative position (`ai-assist.tsx` does the same): others'
+  edits reach ProseMirror as whole-document replacements, so a ProseMirror mapping doesn't follow them.
   Nested numbered lists count 1, a, i by depth (`lib/list-markers.ts`): the editor adds
   `data-marker` beside BlockNote's `data-index` (`components/page/list-markers.ts`), published pages
   style nested `<ol>`, `pdf-document.ts` passes the depth down.

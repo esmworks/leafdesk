@@ -1003,6 +1003,19 @@
       "followed": "Notatki głosowe zapisywane tutaj są pisane według instrukcji tej bazy danych."
     }
   },
+  "dictation": {
+    "slashTitle": "Dyktuj",
+    "slashSubtext": "Mów, a Twoje słowa zostaną zapisane tutaj tak, jak je mówisz",
+    "slashAliases": "dyktuj dyktowanie dictate mowa głos mikrofon transkrypcja",
+    "starting": "Uruchamianie…",
+    "listening": "Słucham",
+    "writing": "Zapisywanie…",
+    "finish": "Zakończ dyktowanie i wpisz tekst",
+    "hint": "Naciśnij {shortcut} lub Enter, aby zakończyć, Esc, aby anulować",
+    "autoStopped": "Dyktowanie zatrzymało się na limicie {minutes} min. To, co powiedziano do tej pory, zostało zapisane.",
+    "copied": "Nie udało się wstawić podyktowanego tekstu na stronę, więc skopiowano go do schowka.",
+    "notPlaced": "Nie udało się wstawić podyktowanego tekstu na stronę ani go skopiować: {text}"
+  },
   "review": {
     "bar": "{count, plural, one {# zmiana AI do przejrzenia} few {# zmiany AI do przejrzenia} many {# zmian AI do przejrzenia} other {# zmiany AI do przejrzenia}}",
     "by": "autor: {names}",

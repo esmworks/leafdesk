@@ -46,6 +46,7 @@
     "moveDown": "Flytt blokken ned",
     "copyBlockLink": "Kopier en lenke til blokken",
     "codeLanguage": "Velg språket til kodeblokken",
+    "dictate": "Diktér ved markøren (trykk igjen eller Enter for å avslutte, eller hold inne mens du snakker)",
     "undo": "Angre",
     "redo": "Gjør om",
     "openRow": "Åpne raden eller kortet som har fokus",

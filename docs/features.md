@@ -1086,8 +1086,10 @@
 - **Voice notes** (optional, off until speech to text is set up): speak in the quick note or with
   `/` *Voice note* in a page, and AI writes what you said up as a clean note with a title, lists
   kept, the transcript in a toggle under it. From the quick note it is saved as a private page or a
-  database row whose select and multi-select properties it fills from their options. OpenAI or any
-  server with an OpenAI-compatible transcription API, such as a local Whisper server (see
+  database row whose select and multi-select properties it fills from their options. In a page,
+  Cmd/Ctrl+Shift+D (or `/` *Dictate*) writes what you say at the caret as you said it, without AI;
+  press again, press Enter or hold the keys while you talk. OpenAI or any server with an
+  OpenAI-compatible transcription API, such as a local Whisper server (see
   [Voice notes](ai.md#voice-notes)).
 - **Meeting notes** (with speech to text): `/` *Meeting notes* in a page records a meeting of up to
   three hours, the transcript filling in as you talk, and AI writes the summary, decisions and

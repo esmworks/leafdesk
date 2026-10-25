@@ -46,6 +46,7 @@
     "moveDown": "Pindahkan blok ke bawah",
     "copyBlockLink": "Salin tautan ke blok",
     "codeLanguage": "Pilih bahasa blok kode",
+    "dictate": "Dikte di posisi kursor (tekan lagi atau Enter untuk selesai, atau tahan selama berbicara)",
     "undo": "Urungkan",
     "redo": "Ulangi",
     "openRow": "Buka baris atau kartu yang difokuskan",

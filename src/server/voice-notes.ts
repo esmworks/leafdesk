@@ -227,19 +227,21 @@ export async function draftVoiceNote(
 }
 
 /**
- * A question dictated in the AI chat's box: the recording written down as it was said, for the
- * person to check before sending. Works where voice notes do, and counts as the chat's AI usage
- * ("chat.dictate"). Throws AiError ("noAccess", "disabled", and transcription failures).
+ * Dictation: the recording written down as it was said, a question in the AI chat's box for the
+ * person to check before sending, or (`inPage`) text the page editor writes at the caret. Works
+ * where voice notes do, and counts as the chat's AI usage ("chat.dictate") or as voice
+ * ("voice.dictate"). Throws AiError ("noAccess", "disabled", and transcription failures).
  */
 export async function transcribeDictation(
   userId: string,
   workspaceId: string,
   audio: { bytes: Blob; type: string },
-  { signal }: { signal?: AbortSignal } = {},
+  { signal, inPage = false }: { signal?: AbortSignal; inPage?: boolean } = {},
 ): Promise<string> {
   await requireMembership(userId, workspaceId).catch(noAccess);
   if (!(await voiceNoteLimits(workspaceId))) throw new AiError("disabled", "Speech to text is off for this workspace");
-  return (await transcribe(audio, { feature: "chat.dictate", userId, workspaceId, signal })).trim().slice(0, MAX_TRANSCRIPT);
+  const feature = inPage ? "voice.dictate" : "chat.dictate";
+  return (await transcribe(audio, { feature, userId, workspaceId, signal })).trim().slice(0, MAX_TRANSCRIPT);
 }
 
 export type SaveVoiceNoteInput = {
