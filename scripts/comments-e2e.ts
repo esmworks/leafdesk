@@ -310,8 +310,10 @@ try {
   const aiThread = r.data.thread_id as string;
   r = await callTool(ids.owner, "add_comment", { page_id: doc.id, text: "x", quote: "nowhere to be found" });
   check(r.isError && r.text.includes("exact text"), "add_comment explains quotes it can't find", r.text);
-  r = await callTool(ids.owner, "add_comment", { page_id: doc.id, text: "x" });
-  check(r.isError && r.text.includes("either quote"), "add_comment needs a quote or a thread", r.text);
+  r = await callTool(ids.owner, "add_comment", { page_id: doc.id, text: "About all of it." });
+  check(!r.isError && r.data.about_page === true && r.data.thread_id, "add_comment without a quote or a thread starts one about the whole page", r.text);
+  r = await callTool(ids.owner, "change_comment", { page_id: doc.id, thread_id: r.data.thread_id, action: "delete_thread" });
+  check(!r.isError && r.data.deleted === true, "…which change_comment can delete again", r.text);
   r = await callTool(ids.owner, "add_comment", { page_id: doc.id, text: "x", thread_id: aiThread }, [READ_SCOPE]);
   check(r.isError && r.text.includes("read-only"), "add_comment needs pages:write", r.text);
   r = await callTool(ids.editor, "add_comment", { page_id: doc.id, text: "Agreed.", thread_id: aiThread });

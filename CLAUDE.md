@@ -255,7 +255,9 @@ because they are separate module graphs.
 - **Schema and migrations.** Change `src/db/schema/*`, then `pnpm db:generate`. Hand-written SQL
   (functions, triggers) goes after the generated statements behind `--> statement-breakpoint`, or
   in `drizzle-kit generate --custom --name <name>`. The server never migrates on start: run
-  `pnpm db:migrate` (Docker runs it before the server).
+  `pnpm db:migrate` (Docker runs it before the server). Never edit a migration's SQL once it has
+  shipped, not even a trailing newline: databases record its hash, and the upgrade test
+  (`scripts/upgrade-test.sh`) fails when the file no longer matches.
 - **Renumbering a migration** after a parallel branch took the number: rename the file, its journal
   tag and the snapshot `id`/`prevId` chain, and keep `when` in `_journal.json` increasing
   (`max(now, previous + 1)`). Drizzle skips a migration whose `when` is older than the last applied
