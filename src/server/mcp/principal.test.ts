@@ -1,3 +1,4 @@
+// MCP bearer tokens: claims to auth info, the principal and the resource metadata URL.
 import { describe, expect, it } from "vitest";
 import { authInfoFromClaims, bearerToken, principalFromAuthInfo, protectedResourceMetadataUrl } from "./principal";
 

@@ -1,3 +1,4 @@
+// The pure part of Markdown, CSV and ZIP imports: paths, titles, the page plan and links.
 import { describe, expect, it } from "vitest";
 import {
   cleanTitle,

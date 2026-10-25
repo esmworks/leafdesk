@@ -1,3 +1,4 @@
+// Unit tests: src/**/*.test.ts in the node environment, with `@/db` mocked (no database).
 import { fileURLToPath } from "node:url";
 import { defineConfig } from "vitest/config";
 

@@ -1,3 +1,4 @@
+// drizzle-kit settings for `pnpm db:generate`; migrations are applied by scripts/migrate.ts.
 import { defineConfig } from "drizzle-kit";
 
 try {
