@@ -31,7 +31,7 @@ In Markdown a callout's icon leads its text under the alert line (`> [!TIP]`, th
 | Scope | Endpoints |
 | --- | --- |
 | `workspaces:read` | `GET /workspaces`, a workspace's teamspaces and groups |
-| `pages:read`, `pages:write` | pages (database rows too, as pages), their sub-pages, the page tree, daily notes; writing creates, changes, moves, trashes, restores, archives and watches pages and makes voice notes |
+| `pages:read`, `pages:write` | pages (database rows too, as pages), their sub-pages, the page tree, daily notes; saving a web page (`POST /pages/from-web`; into a database it needs `rows:write` too); writing creates, changes, moves, trashes, restores, archives and watches pages and makes voice notes |
 | `search:read` | `GET /search` |
 | `databases:read` | `GET /databases/{id}` (properties and views) |
 | `rows:read`, `rows:write` | `POST /databases/{id}/query`, `GET /rows/{id}` and its activity, changes waiting for review; writing adds, upserts and changes rows (a voice note into a database needs it too) and approves or dismisses those changes |

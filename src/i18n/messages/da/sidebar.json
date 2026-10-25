@@ -54,6 +54,7 @@
     "moveFailed": "Siden kunne ikke flyttes hertil. Det kræver fuld adgang til siden at flytte den et andet sted hen.",
     "fromTemplate": "Fra en skabelon",
     "import": "Importér…",
+    "saveFromWeb": "Gem fra nettet …",
     "confirmMoveSpace": "Vil du flytte denne side til {place}? Hvem der kan se den, ændres tilsvarende."
   },
   "search": {

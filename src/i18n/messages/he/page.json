@@ -821,7 +821,12 @@
     "shortcut": "פתק מהיר חדש",
     "shortcutShort": "פתק מהיר",
     "destination": "שמירה ב־",
-    "privatePage": "דף פרטי"
+    "privatePage": "דף פרטי",
+    "fullPage": {
+      "heading": "שמירת הדף כולו",
+      "help": "שומר את הטקסט והתמונות של הדף עם קישור חזרה, במקום הקישור בלבד.",
+      "save": "שמירת הדף כולו"
+    }
   },
   "dashboard": {
     "title": "לוח בקרה",

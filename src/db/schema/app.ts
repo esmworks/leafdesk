@@ -298,6 +298,12 @@ export const workspaceMember = pgTable(
     aiMemory: boolean("ai_memory").notNull().default(true),
     /** Whether the pages they open here are recorded for analytics (server/page-views.ts), while the workspace records them. */
     pageViews: boolean("page_views").notNull().default(true),
+    /**
+     * Where they last saved a web page to in this workspace (server/web-clip.ts): a page (saved
+     * under it) or a database (saved as its row). Null: a private page at the top. Checked again
+     * when read: a target gone, in the trash or no longer theirs to edit counts as null.
+     */
+    webClipTarget: text("web_clip_target"),
     createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
   },
   (t) => [

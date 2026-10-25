@@ -821,7 +821,12 @@
     "shortcut": "新しいクイックメモ",
     "shortcutShort": "クイックメモ",
     "destination": "保存先",
-    "privatePage": "プライベートページ"
+    "privatePage": "プライベートページ",
+    "fullPage": {
+      "heading": "ページ全体を保存",
+      "help": "リンクだけでなく、ページの本文と画像を元ページへのリンク付きで保存します。",
+      "save": "ページ全体を保存"
+    }
   },
   "dashboard": {
     "title": "ダッシュボード",

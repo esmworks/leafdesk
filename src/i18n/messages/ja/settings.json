@@ -1671,7 +1671,8 @@
       "skill": "スキル（SKILL.md）",
       "notion": "Notion",
       "obsidian": "Obsidian",
-      "enex": "Evernote"
+      "enex": "Evernote",
+      "web": "ウェブページ"
     },
     "settingNames": {
       "guestInvites": "ゲストを招待できる人",

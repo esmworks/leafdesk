@@ -821,7 +821,12 @@
     "shortcut": "Nouvelle note rapide",
     "shortcutShort": "Note rapide",
     "destination": "Enregistrer dans",
-    "privatePage": "Page privée"
+    "privatePage": "Page privée",
+    "fullPage": {
+      "heading": "Enregistrer toute la page",
+      "help": "Enregistre le texte et les images de la page avec un lien vers elle, plutôt que le seul lien.",
+      "save": "Enregistrer toute la page"
+    }
   },
   "dashboard": {
     "title": "Tableau de bord",

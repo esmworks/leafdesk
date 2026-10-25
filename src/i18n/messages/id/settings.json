@@ -1671,7 +1671,8 @@
       "skill": "Keterampilan (SKILL.md)",
       "notion": "Notion",
       "obsidian": "Obsidian",
-      "enex": "Evernote"
+      "enex": "Evernote",
+      "web": "Halaman web"
     },
     "settingNames": {
       "guestInvites": "Siapa yang dapat mengundang tamu",

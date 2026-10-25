@@ -821,7 +821,12 @@
     "shortcut": "Neue schnelle Notiz",
     "shortcutShort": "Schnelle Notiz",
     "destination": "Speichern in",
-    "privatePage": "Private Seite"
+    "privatePage": "Private Seite",
+    "fullPage": {
+      "heading": "Die ganze Seite speichern",
+      "help": "Speichert Text und Bilder der Seite mit einem Link zurück, statt nur den Link.",
+      "save": "Ganze Seite speichern"
+    }
   },
   "dashboard": {
     "title": "Dashboard",

@@ -54,6 +54,7 @@
     "moveFailed": "Halaman tidak dapat dipindahkan ke sini. Memindahkannya ke tempat lain memerlukan akses penuh ke halaman tersebut.",
     "fromTemplate": "Dari templat",
     "import": "Impor…",
+    "saveFromWeb": "Simpan dari web…",
     "confirmMoveSpace": "Pindahkan halaman ini ke {place}? Siapa yang dapat melihatnya akan menyesuaikan."
   },
   "search": {

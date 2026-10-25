@@ -12,7 +12,8 @@
     "asana": "Asana",
     "monday": "Monday.com",
     "jira": "Jira",
-    "googleDocs": "Google Docs"
+    "googleDocs": "Google Docs",
+    "web": "Trang web"
   },
   "destination": "Đặt dưới",
   "topLevel": "Cấp cao nhất của không gian làm việc",
@@ -219,7 +220,8 @@
       "badNote": "Không đọc được ghi chú “{path}” nên đã bỏ qua.",
       "notEnex": "“{path}” đã bị bỏ qua: không phải tệp xuất Evernote (.enex)."
     },
-    "more": "…và {count, plural, other {# mục nữa}}."
+    "more": "…và {count, plural, other {# mục nữa}}.",
+    "tooManyImages": "Thêm {count} hình ảnh đã bị bỏ qua: một trang web đã lưu giữ tối đa {limit} hình."
   },
   "errors": {
     "tooLarge": "Phần tải lên lớn hơn {limit}.",
@@ -269,6 +271,42 @@
       "signIn": "“{name}” cần đăng nhập lại Google: chủ sở hữu làm việc này trong Cài đặt → Kết nối.",
       "notFound": "Không đọc được một tài liệu qua “{name}”: hãy kiểm tra liên kết, và tài khoản Google của kết nối có được mở nó không.",
       "notADocument": "“{id}” không phải là tài liệu Google."
+    }
+  },
+  "web": {
+    "title": "Lưu từ web",
+    "description": "Lưu một trang web thành trang: văn bản, hình ảnh và liên kết quay lại trang gốc.",
+    "help": "Dán địa chỉ của một trang web. Văn bản chính được lưu mà không có menu, quảng cáo và chân trang xung quanh, còn hình ảnh được sao chép vào không gian làm việc. Công thức nấu ăn được đặt lên đầu, nguyên liệu thành danh sách kiểm tra.",
+    "url": "Địa chỉ web",
+    "target": "Lưu vào",
+    "privatePage": "Trang riêng tư ở cấp cao nhất",
+    "underPage": "Bên dưới một trang",
+    "intoDatabase": "Thành một hàng của cơ sở dữ liệu",
+    "save": "Lưu trang",
+    "saving": "Đang lưu trang…",
+    "bookmarklet": {
+      "heading": "Lưu từ trình duyệt",
+      "help": "Kéo nút này lên thanh dấu trang của trình duyệt. Trên bất kỳ trang web nào, nhấp vào để lưu trang đó vào đây; văn bản bạn đã chọn sẽ đi kèm dưới dạng trích dẫn.",
+      "link": "Lưu vào Leafdesk"
+    },
+    "errors": {
+      "invalidUrl": "Đây không phải địa chỉ web. Hãy dán địa chỉ bắt đầu bằng http:// hoặc https://.",
+      "blocked": "Không thể lưu địa chỉ này: nó trỏ vào mạng riêng hoặc cổng mà trang web không dùng.",
+      "unreachable": "Không thể truy cập trang. Hãy kiểm tra địa chỉ và thử lại.",
+      "timeout": "Trang phản hồi quá lâu. Hãy thử lại sau.",
+      "httpError": "Trang web trả về lỗi: trang có thể yêu cầu đăng nhập hoặc không còn tồn tại.",
+      "notHtml": "Địa chỉ này không phải trang web (có thể là tệp). Hãy tải tệp lên một trang.",
+      "noAccess": "Bạn không thể thêm trang ở đó. Hãy chọn nơi lưu khác.",
+      "badTarget": "Trang web có thể được lưu bên dưới một trang hoặc vào cơ sở dữ liệu của không gian làm việc này.",
+      "tooComplex": "Trang quá lớn hoặc quá phức tạp để lưu thành một trang."
+    },
+    "recipe": {
+      "yield": "Khẩu phần",
+      "prepTime": "Sơ chế",
+      "cookTime": "Nấu",
+      "totalTime": "Tổng",
+      "ingredients": "Nguyên liệu",
+      "steps": "Các bước"
     }
   }
 }

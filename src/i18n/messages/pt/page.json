@@ -821,7 +821,12 @@
     "shortcut": "Nova nota rápida",
     "shortcutShort": "Nota rápida",
     "destination": "Salvar em",
-    "privatePage": "Página privada"
+    "privatePage": "Página privada",
+    "fullPage": {
+      "heading": "Guardar a página inteira",
+      "help": "Guarda o texto e as imagens da página com um link para ela, em vez de só o link.",
+      "save": "Guardar página inteira"
+    }
   },
   "dashboard": {
     "title": "Painel",

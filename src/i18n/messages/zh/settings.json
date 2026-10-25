@@ -1671,7 +1671,8 @@
       "skill": "技能（SKILL.md）",
       "notion": "Notion",
       "obsidian": "Obsidian",
-      "enex": "Evernote"
+      "enex": "Evernote",
+      "web": "网页"
     },
     "settingNames": {
       "guestInvites": "谁可以邀请访客",

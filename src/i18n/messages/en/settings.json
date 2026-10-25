@@ -1671,7 +1671,8 @@
       "skill": "Skill (SKILL.md)",
       "notion": "Notion",
       "obsidian": "Obsidian",
-      "enex": "Evernote"
+      "enex": "Evernote",
+      "web": "Web page"
     },
     "settingNames": {
       "guestInvites": "Who can invite guests",

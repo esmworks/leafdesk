@@ -12,7 +12,8 @@
     "asana": "Asana",
     "monday": "Monday.com",
     "jira": "Jira",
-    "googleDocs": "Google Docs"
+    "googleDocs": "Google Docs",
+    "web": "Webseite"
   },
   "destination": "Einfügen unter",
   "topLevel": "Oberste Ebene des Workspace",
@@ -219,7 +220,8 @@
       "badNote": "Die Notiz „{path}“ kann nicht gelesen werden und wurde ausgelassen.",
       "notEnex": "„{path}“ wurde ausgelassen: Die Datei ist kein Evernote-Export (.enex)."
     },
-    "more": "…und {count, plural, one {# weiterer} other {# weitere}}."
+    "more": "…und {count, plural, one {# weiterer} other {# weitere}}.",
+    "tooManyImages": "{count, plural, one {# weiteres Bild wurde} other {# weitere Bilder wurden}} weggelassen: Eine gespeicherte Webseite behält höchstens {limit}."
   },
   "errors": {
     "tooLarge": "Der Upload ist größer als {limit}.",
@@ -269,6 +271,42 @@
       "signIn": "„{name}“ muss sich erneut bei Google anmelden: Das macht ein Inhaber unter Einstellungen → Verbindungen.",
       "notFound": "Ein Dokument kann über „{name}“ nicht gelesen werden: Prüfe den Link und ob das Google-Konto der Verbindung es öffnen darf.",
       "notADocument": "„{id}“ ist kein Google-Dokument."
+    }
+  },
+  "web": {
+    "title": "Aus dem Web speichern",
+    "description": "Eine Webseite als Seite speichern: ihr Text, ihre Bilder und ein Link zurück.",
+    "help": "Füge die Adresse einer Webseite ein. Ihr Haupttext wird ohne Menüs, Werbung und Fußzeilen gespeichert, ihre Bilder werden in den Arbeitsbereich kopiert. Ein Rezept steht oben, mit den Zutaten als Checkliste.",
+    "url": "Webadresse",
+    "target": "Speichern in",
+    "privatePage": "Private Seite ganz oben",
+    "underPage": "Unter einer Seite",
+    "intoDatabase": "Als Zeile einer Datenbank",
+    "save": "Seite speichern",
+    "saving": "Seite wird gespeichert …",
+    "bookmarklet": {
+      "heading": "Aus dem Browser speichern",
+      "help": "Zieh diese Schaltfläche in die Lesezeichenleiste deines Browsers. Klicke sie auf einer beliebigen Webseite an, um die Seite hier zu speichern; markierter Text kommt als Zitat mit.",
+      "link": "In Leafdesk speichern"
+    },
+    "errors": {
+      "invalidUrl": "Das ist keine Webadresse. Füge eine ein, die mit http:// oder https:// beginnt.",
+      "blocked": "Diese Adresse kann nicht gespeichert werden: Sie zeigt in ein privates Netzwerk oder auf einen Port, den Webseiten nicht verwenden.",
+      "unreachable": "Die Seite war nicht erreichbar. Prüfe die Adresse und versuche es erneut.",
+      "timeout": "Die Seite hat zu lange nicht geantwortet. Versuche es später erneut.",
+      "httpError": "Die Website hat mit einem Fehler geantwortet: Die Seite erfordert vielleicht eine Anmeldung oder existiert nicht mehr.",
+      "notHtml": "Diese Adresse ist keine Webseite (vielleicht eine Datei). Lade Dateien stattdessen auf eine Seite hoch.",
+      "noAccess": "Dort kannst du keine Seiten hinzufügen. Wähle einen anderen Ort zum Speichern.",
+      "badTarget": "Eine Webseite kann unter einer Seite oder in einer Datenbank dieses Arbeitsbereichs gespeichert werden.",
+      "tooComplex": "Die Seite ist zu groß oder zu komplex, um sie als eine Seite zu speichern."
+    },
+    "recipe": {
+      "yield": "Ergibt",
+      "prepTime": "Vorbereitung",
+      "cookTime": "Kochen",
+      "totalTime": "Gesamt",
+      "ingredients": "Zutaten",
+      "steps": "Zubereitung"
     }
   }
 }

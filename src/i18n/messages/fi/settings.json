@@ -1671,7 +1671,8 @@
       "skill": "Taito (SKILL.md)",
       "notion": "Notion",
       "obsidian": "Obsidian",
-      "enex": "Evernote"
+      "enex": "Evernote",
+      "web": "Verkkosivu"
     },
     "settingNames": {
       "guestInvites": "Kuka voi kutsua vieraita",

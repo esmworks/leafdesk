@@ -54,6 +54,7 @@
     "moveFailed": "No se pudo mover la página aquí. Para moverla a otro lugar necesitas acceso completo a ella.",
     "fromTemplate": "Desde una plantilla",
     "import": "Importar…",
+    "saveFromWeb": "Guardar desde la web…",
     "confirmMoveSpace": "¿Mover esta página a {place}? Quién puede verla cambiará en consecuencia."
   },
   "search": {

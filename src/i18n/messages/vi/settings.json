@@ -1671,7 +1671,8 @@
       "skill": "Kỹ năng (SKILL.md)",
       "notion": "Notion",
       "obsidian": "Obsidian",
-      "enex": "Evernote"
+      "enex": "Evernote",
+      "web": "Trang web"
     },
     "settingNames": {
       "guestInvites": "Ai có thể mời khách",

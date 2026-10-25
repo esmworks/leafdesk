@@ -821,7 +821,12 @@
     "shortcut": "Ny hurtig note",
     "shortcutShort": "Hurtig note",
     "destination": "Gem i",
-    "privatePage": "Privat side"
+    "privatePage": "Privat side",
+    "fullPage": {
+      "heading": "Gem hele siden",
+      "help": "Gemmer sidens tekst og billeder med et link tilbage i stedet for kun linket.",
+      "save": "Gem hele siden"
+    }
   },
   "dashboard": {
     "title": "Dashboard",

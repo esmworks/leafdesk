@@ -54,6 +54,7 @@
     "moveFailed": "Không thể chuyển trang đến đây. Muốn chuyển trang đi nơi khác, bạn cần có toàn quyền với trang đó.",
     "fromTemplate": "Từ một mẫu",
     "import": "Nhập…",
+    "saveFromWeb": "Lưu từ web…",
     "confirmMoveSpace": "Chuyển trang này đến {place}? Những người có thể xem trang sẽ thay đổi cho phù hợp."
   },
   "search": {

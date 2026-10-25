@@ -1671,7 +1671,8 @@
       "skill": "מיומנות (SKILL.md)",
       "notion": "Notion",
       "obsidian": "Obsidian",
-      "enex": "Evernote"
+      "enex": "Evernote",
+      "web": "דף אינטרנט"
     },
     "settingNames": {
       "guestInvites": "מי יכול להזמין אורחים",

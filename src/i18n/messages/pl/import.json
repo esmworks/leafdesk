@@ -12,7 +12,8 @@
     "asana": "Asana",
     "monday": "Monday.com",
     "jira": "Jira",
-    "googleDocs": "Google Docs"
+    "googleDocs": "Google Docs",
+    "web": "Strona WWW"
   },
   "destination": "Umieść w",
   "topLevel": "Najwyższy poziom obszaru roboczego",
@@ -219,7 +220,8 @@
       "badNote": "Nie można odczytać notatki „{path}”, więc ją pominięto.",
       "notEnex": "Pominięto „{path}”: to nie jest eksport z Evernote (.enex)."
     },
-    "more": "…i jeszcze {count}."
+    "more": "…i jeszcze {count}.",
+    "tooManyImages": "Pominięto {count, plural, one {jeszcze # obraz} few {jeszcze # obrazy} many {jeszcze # obrazów} other {jeszcze # obrazu}}: zapisana strona WWW zachowuje najwyżej {limit}."
   },
   "errors": {
     "tooLarge": "Przesyłane pliki przekraczają {limit}.",
@@ -269,6 +271,42 @@
       "signIn": "„{name}” wymaga ponownego zalogowania do Google: robi to właściciel w Ustawienia → Połączenia.",
       "notFound": "Nie można odczytać dokumentu przez „{name}”: sprawdź link i czy konto Google połączenia może go otworzyć.",
       "notADocument": "„{id}” nie jest dokumentem Google."
+    }
+  },
+  "web": {
+    "title": "Zapisz z sieci",
+    "description": "Zapisz stronę WWW jako stronę: jej tekst, obrazy i link do źródła.",
+    "help": "Wklej adres strony WWW. Jej główny tekst zostanie zapisany bez otaczających go menu, reklam i stopek, a obrazy zostaną skopiowane do obszaru roboczego. Przepis trafia na początek, a składniki jako lista kontrolna.",
+    "url": "Adres WWW",
+    "target": "Zapisz w",
+    "privatePage": "Prywatna strona na najwyższym poziomie",
+    "underPage": "Pod stroną",
+    "intoDatabase": "Jako wiersz bazy danych",
+    "save": "Zapisz stronę",
+    "saving": "Zapisywanie strony…",
+    "bookmarklet": {
+      "heading": "Zapisuj z przeglądarki",
+      "help": "Przeciągnij ten przycisk na pasek zakładek przeglądarki. Na dowolnej stronie WWW kliknij go, aby zapisać ją tutaj; zaznaczony tekst zostanie dołączony jako cytat.",
+      "link": "Zapisz w Leafdesk"
+    },
+    "errors": {
+      "invalidUrl": "To nie jest adres WWW. Wklej adres zaczynający się od http:// lub https://.",
+      "blocked": "Tego adresu nie można zapisać: prowadzi do sieci prywatnej lub na port, którego strony WWW nie używają.",
+      "unreachable": "Nie udało się połączyć ze stroną. Sprawdź adres i spróbuj ponownie.",
+      "timeout": "Strona zbyt długo nie odpowiadała. Spróbuj później.",
+      "httpError": "Witryna odpowiedziała błędem: strona może wymagać zalogowania lub już nie istnieje.",
+      "notHtml": "Ten adres nie jest stroną WWW (może to plik). Zamiast tego prześlij pliki na stronę.",
+      "noAccess": "Nie możesz tam dodawać stron. Wybierz inne miejsce zapisu.",
+      "badTarget": "Stronę WWW można zapisać pod stroną lub w bazie danych tego obszaru roboczego.",
+      "tooComplex": "Strona jest zbyt duża lub złożona, by zapisać ją jako jedną stronę."
+    },
+    "recipe": {
+      "yield": "Porcje",
+      "prepTime": "Przygotowanie",
+      "cookTime": "Gotowanie",
+      "totalTime": "Razem",
+      "ingredients": "Składniki",
+      "steps": "Przygotowanie krok po kroku"
     }
   }
 }

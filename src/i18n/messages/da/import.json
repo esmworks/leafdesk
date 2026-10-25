@@ -12,7 +12,8 @@
     "asana": "Asana",
     "monday": "Monday.com",
     "jira": "Jira",
-    "googleDocs": "Google Docs"
+    "googleDocs": "Google Docs",
+    "web": "Webside"
   },
   "destination": "Placér under",
   "topLevel": "Øverste niveau i arbejdsområdet",
@@ -219,7 +220,8 @@
       "badNote": "Noten “{path}” kan ikke læses og blev udeladt.",
       "notEnex": "“{path}” blev udeladt: det er ikke en Evernote-eksport (.enex)."
     },
-    "more": "…og {count, plural, one {# mere} other {# mere}}."
+    "more": "…og {count, plural, one {# mere} other {# mere}}.",
+    "tooManyImages": "{count, plural, one {# billede mere blev} other {# billeder mere blev}} udeladt: en gemt webside beholder højst {limit}."
   },
   "errors": {
     "tooLarge": "Uploadet er større end {limit}.",
@@ -269,6 +271,42 @@
       "signIn": "“{name}” skal logges ind på Google igen: det gør en ejer under Indstillinger → Forbindelser.",
       "notFound": "Et dokument kan ikke læses via “{name}”: tjek linket, og at forbindelsens Google-konto må åbne det.",
       "notADocument": "“{id}” er ikke et Google-dokument."
+    }
+  },
+  "web": {
+    "title": "Gem fra nettet",
+    "description": "Gem en webside som en side: dens tekst, billeder og et link tilbage.",
+    "help": "Indsæt adressen på en webside. Hovedteksten gemmes uden menuer, reklamer og sidefødder omkring den, og billederne kopieres til arbejdsområdet. En opskrift kommer først, med ingredienserne som tjekliste.",
+    "url": "Webadresse",
+    "target": "Gem i",
+    "privatePage": "Privat side øverst",
+    "underPage": "Under en side",
+    "intoDatabase": "Som række i en database",
+    "save": "Gem side",
+    "saving": "Gemmer siden …",
+    "bookmarklet": {
+      "heading": "Gem fra din browser",
+      "help": "Træk denne knap til din browsers bogmærkelinje. Klik på den på en hvilken som helst webside for at gemme siden her; markeret tekst kommer med som citat.",
+      "link": "Gem i Leafdesk"
+    },
+    "errors": {
+      "invalidUrl": "Det er ikke en webadresse. Indsæt en, der begynder med http:// eller https://.",
+      "blocked": "Denne adresse kan ikke gemmes: den peger ind i et privat netværk eller på en port, websider ikke bruger.",
+      "unreachable": "Siden kunne ikke nås. Tjek adressen, og prøv igen.",
+      "timeout": "Siden var for længe om at svare. Prøv igen senere.",
+      "httpError": "Webstedet svarede med en fejl: siden kræver måske login, eller den findes ikke længere.",
+      "notHtml": "Denne adresse er ikke en webside (måske en fil). Upload i stedet filer til en side.",
+      "noAccess": "Du kan ikke tilføje sider der. Vælg et andet sted at gemme.",
+      "badTarget": "En webside kan gemmes under en side eller i en database i dette arbejdsområde.",
+      "tooComplex": "Siden er for stor eller kompleks til at blive gemt som én side."
+    },
+    "recipe": {
+      "yield": "Giver",
+      "prepTime": "Forberedelse",
+      "cookTime": "Tilberedning",
+      "totalTime": "I alt",
+      "ingredients": "Ingredienser",
+      "steps": "Fremgangsmåde"
     }
   }
 }
