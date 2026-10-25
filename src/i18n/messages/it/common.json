@@ -38,5 +38,11 @@
     "trashed": "Spostata nel cestino",
     "rowsTrashed": "{count, plural, one {Riga spostata nel cestino} other {# righe spostate nel cestino}}",
     "undoFailed": "Impossibile annullare."
+  },
+  "datePhrase": {
+    "label": "Scrivi una data",
+    "placeholder": "Scrivi una data: domani 17:00, 31 ago, +2w",
+    "preview": "{when} · Invio per impostare",
+    "unreadable": "Non è una data. Prova «domani 9:00», «31 agosto» o «2w»."
   }
 }

@@ -745,6 +745,8 @@
     "reminderSet": "Lời nhắc: {when}",
     "reminderHint": "Bạn sẽ nhận được trong hộp thư đến và qua email.",
     "reminderPast": "Thời điểm đó đã qua; hãy chọn ngày hoặc lời nhắc muộn hơn.",
+    "remindAt": "Nhắc lúc",
+    "remindAtPlaceholder": "Hoặc nhập thời gian: thứ Sáu 17:00, -1d",
     "done": "Xong"
   },
   "preview": {

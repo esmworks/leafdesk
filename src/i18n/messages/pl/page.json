@@ -745,6 +745,8 @@
     "reminderSet": "Przypomnienie: {when}",
     "reminderHint": "Otrzymasz je w skrzynce odbiorczej i e-mailem.",
     "reminderPast": "Ten termin już minął; wybierz późniejszą datę lub przypomnienie.",
+    "remindAt": "Przypomnij o",
+    "remindAtPlaceholder": "Albo wpisz kiedy: piątek 17:00, -1d",
     "done": "Gotowe"
   },
   "preview": {

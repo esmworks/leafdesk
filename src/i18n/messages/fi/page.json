@@ -745,6 +745,8 @@
     "reminderSet": "Muistutus: {when}",
     "reminderHint": "Saat sen saapuneisiin ja sähköpostiin.",
     "reminderPast": "Ajankohta on jo mennyt; valitse myöhempi päivämäärä tai muistutus.",
+    "remindAt": "Muistutus klo",
+    "remindAtPlaceholder": "Tai kirjoita milloin: perjantaina 17:00, -1d",
     "done": "Valmis"
   },
   "preview": {

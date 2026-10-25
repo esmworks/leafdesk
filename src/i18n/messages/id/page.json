@@ -745,6 +745,8 @@
     "reminderSet": "Pengingat: {when}",
     "reminderHint": "Anda akan menerimanya di kotak masuk dan lewat email.",
     "reminderPast": "Waktu itu sudah lewat; pilih tanggal atau pengingat yang lebih akhir.",
+    "remindAt": "Ingatkan pada",
+    "remindAtPlaceholder": "Atau ketik kapan: jumat 17:00, -1d",
     "done": "Selesai"
   },
   "preview": {

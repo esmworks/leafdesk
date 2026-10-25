@@ -745,6 +745,8 @@
     "reminderSet": "リマインダー：{when}",
     "reminderHint": "受信トレイとメールに届きます。",
     "reminderPast": "その時刻は過ぎています。後の日付またはリマインダーを選択してください。",
+    "remindAt": "通知する日時",
+    "remindAtPlaceholder": "または日時を入力: 金曜日 17:00, -1d",
     "done": "完了"
   },
   "preview": {

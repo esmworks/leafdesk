@@ -38,5 +38,11 @@
     "trashed": "Movida a la papelera",
     "rowsTrashed": "{count, plural, one {Fila movida a la papelera} other {# filas movidas a la papelera}}",
     "undoFailed": "No se pudo deshacer."
+  },
+  "datePhrase": {
+    "label": "Escribe una fecha",
+    "placeholder": "Escribe una fecha: mañana 17:00, 31 ago, +2w",
+    "preview": "{when} · Intro para fijarla",
+    "unreadable": "No es una fecha. Prueba «mañana 9:00», «31 agosto» o «2w»."
   }
 }

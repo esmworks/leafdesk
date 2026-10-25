@@ -745,6 +745,8 @@
     "reminderSet": "Lembrete: {when}",
     "reminderHint": "Você vai recebê-lo na caixa de entrada e por e-mail.",
     "reminderPast": "Esse horário já passou; escolha uma data ou um lembrete mais tarde.",
+    "remindAt": "Lembrar às",
+    "remindAtPlaceholder": "Ou digite quando: sexta-feira 17:00, -1d",
     "done": "Concluído"
   },
   "preview": {

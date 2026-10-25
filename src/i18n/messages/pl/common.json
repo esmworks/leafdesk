@@ -38,5 +38,11 @@
     "trashed": "Przeniesiono do kosza",
     "rowsTrashed": "{count, plural, one {Przeniesiono wiersz do kosza} few {Przeniesiono # wiersze do kosza} many {Przeniesiono # wierszy do kosza} other {Przeniesiono # wiersza do kosza}}",
     "undoFailed": "Nie udało się cofnąć."
+  },
+  "datePhrase": {
+    "label": "Wpisz datę",
+    "placeholder": "Wpisz datę: jutro 17:00, 31 sie, +2w",
+    "preview": "{when} · Enter, aby ustawić",
+    "unreadable": "To nie jest data. Spróbuj „jutro 9:00”, „31 sierpnia” lub „2w”."
   }
 }

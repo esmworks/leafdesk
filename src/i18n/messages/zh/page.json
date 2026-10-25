@@ -745,6 +745,8 @@
     "reminderSet": "提醒：{when}",
     "reminderHint": "你会在收件箱中和通过邮件收到提醒。",
     "reminderPast": "该时间已过；请选择更晚的日期或提醒时间。",
+    "remindAt": "提醒时间",
+    "remindAtPlaceholder": "或输入时间：周五 17:00、-1d",
     "done": "完成"
   },
   "preview": {

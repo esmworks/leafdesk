@@ -745,6 +745,8 @@
     "reminderSet": "Påminnelse: {when}",
     "reminderHint": "Du får den i innboksen og på e-post.",
     "reminderPast": "Det tidspunktet har passert; velg en senere dato eller påminnelse.",
+    "remindAt": "Påminn kl.",
+    "remindAtPlaceholder": "Eller skriv når: fredag 17:00, -1d",
     "done": "Ferdig"
   },
   "preview": {

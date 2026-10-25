@@ -351,6 +351,28 @@
   - Dates can have an end and a time of day ("Oct 12 → Oct 14", "Oct 12, 14:30 → 16:00"), shown in
     each viewer's time zone; filters match a range on every day it covers. In the date picker's
     month, Shift-clicking a second day makes the date a range.
+  - Dates can be typed in words, the same way everywhere a date is typed: after `@` in a page, in
+    the box on top of a date property's picker, a date mention's menu (its date and its reminder)
+    and under a date filter's value. The box says what the words name as you type; Enter sets it.
+    Words are read in the interface language and in English; case, spaces and commas don't matter.
+    Without a clock the words name a **day** (the same day for everyone); with one, or as minutes
+    or hours from now, a **time** in your time zone, which a date property keeps only with
+    *Include time* on (else its day) and a date mention keeps as its reminder.
+    - Days: `today`, `tomorrow`, `yesterday`, `next week`, `next month`, `friday` or `fri` (always
+      the next one, a week on when it's today), `next friday` (in next week, counted from the
+      week's first day in your language), `3 days ago`.
+    - Dates: `aug 31`, `31 august`, `sept 10` (any first three letters or more of a month), with
+      a year `aug 31, 2027`; `2026-08-31`; slash dates `10/28`, `28/10`, `10/28/2027`, read in
+      the order of your language or of the date property's format (month/day/year or
+      day/month/year), except when only one of the numbers can be a month; `15.10.2026`.
+    - Times: `5pm`, `9:30 am`, `17:30`, after a date (`fri 5pm`, `aug 31 at 9 pm`, `yarın saat
+      17:30`) or alone: today at that time, or tomorrow once it has passed.
+    - From now: `30m`, `4h`, `in 3d`, `2 weeks`, `2mo` (minutes and hours give a time, days and
+      longer a day; 31 January and a month is 28 February).
+    - From the day shown: `+2w`, `-3d` count from the date the picker shows (the date mention's own
+      date for its reminder: `-1d` is the day before), so `+1w` and then `-2d` step through days.
+    - Refused rather than guessed: a bare number (`31`, `9`), a two-digit year (`10/28/27`), a day
+      that doesn't exist (`feb 29 2027`), `in +2w`.
   - Calendar views show a month, with dates over several days as bars across them, or a week with
     its hours; a row is added on a day or at an hour, and dragging it moves its whole date.
   - Date, created time and last edited time properties show dates in the viewer's language as a
@@ -527,7 +549,8 @@
 - **Mentions and page links**: `@` mentions people (those with your email domain first), groups of the workspace (each member who can
   open the page is notified as if mentioned by name; hovering the mention lists them; Markdown
   writes it `@Group name`), pages (with their live title, or "No access")
-  and dates with optional reminders. Resting the pointer on a page mention or a link to a page, in
+  and dates with optional reminders, typed in words (`@next friday`, `@aug 31`; with a time,
+  `@fri 5pm`, the date gets a reminder then; see the dates under *Databases*). Resting the pointer on a page mention or a link to a page, in
   the editor or a comment, shows a card with its place, last edit and first lines (a row's first
   values), only to people who may open it; `[[` links to a page, or to a new page inside this one with
   the title typed, and `[[Title]]` typed, pasted or written through MCP and the API links to the

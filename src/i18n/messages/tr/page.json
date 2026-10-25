@@ -745,6 +745,8 @@
     "reminderSet": "Hatırlatma: {when}",
     "reminderHint": "Gelen kutunuza ve e-postanıza gelir.",
     "reminderPast": "Bu zaman geçti; daha ileri bir tarih ya da hatırlatma seçin.",
+    "remindAt": "Hatırlatma zamanı",
+    "remindAtPlaceholder": "Ya da zamanı yazın: cuma 17:00, -1d",
     "done": "Tamam"
   },
   "preview": {

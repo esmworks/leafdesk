@@ -745,6 +745,8 @@
     "reminderSet": "Reminder: {when}",
     "reminderHint": "You'll get it in your inbox and by email.",
     "reminderPast": "That time has passed; pick a later date or reminder.",
+    "remindAt": "Remind at",
+    "remindAtPlaceholder": "Or type when: fri 5pm, -1d",
     "done": "Done"
   },
   "preview": {
