@@ -294,6 +294,7 @@
     "editProperty": "Rediger egenskap",
     "openIn": "Åpne i",
     "sidePanel": "Sidepanel",
+    "centerPanel": "Sentrert vindu",
     "fullPage": "Helside",
     "newTab": "Ny fane",
     "comment": "Kommenter",
@@ -846,6 +847,7 @@
     "openRows": "Åpne rader i",
     "openRowsIn": {
       "panel": "Sidepanel",
+      "center": "Sentrert vindu",
       "page": "Helside"
     },
     "showOutdated": "Vis arkiverte rader",

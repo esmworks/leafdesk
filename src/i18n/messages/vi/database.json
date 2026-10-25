@@ -294,6 +294,7 @@
     "editProperty": "Chỉnh sửa thuộc tính",
     "openIn": "Mở trong",
     "sidePanel": "Bảng bên",
+    "centerPanel": "Cửa sổ ở giữa",
     "fullPage": "Trang đầy đủ",
     "newTab": "Thẻ mới",
     "comment": "Bình luận",
@@ -846,6 +847,7 @@
     "openRows": "Mở các hàng trong",
     "openRowsIn": {
       "panel": "Bảng bên",
+      "center": "Cửa sổ ở giữa",
       "page": "Trang đầy đủ"
     },
     "showOutdated": "Hiện các hàng đã lưu trữ",

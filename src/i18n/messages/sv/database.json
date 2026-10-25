@@ -294,6 +294,7 @@
     "editProperty": "Redigera egenskap",
     "openIn": "Öppna i",
     "sidePanel": "Sidopanel",
+    "centerPanel": "Centrerat fönster",
     "fullPage": "Helsida",
     "newTab": "Ny flik",
     "comment": "Kommentera",
@@ -846,6 +847,7 @@
     "openRows": "Öppna rader i",
     "openRowsIn": {
       "panel": "Sidopanel",
+      "center": "Centrerat fönster",
       "page": "Helsida"
     },
     "showOutdated": "Visa arkiverade rader",

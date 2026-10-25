@@ -183,13 +183,20 @@ export function RowPanelProvider({
   const shownWidth = clampPanelWidth(width, viewport);
   const shown = available && rowId !== null;
 
+  // The view the row is shown from says where: beside it, or in the middle of the window over it
+  // (data-open-rows). Asked again as the views' rows change: after a reload they come after the panel.
+  const [centered, setCentered] = useState(false);
+  useLayoutEffect(() => {
+    if (rowId) setCentered(sourceOf(rowId, origin.current.source)?.getAttribute("data-open-rows") === "center");
+  }, [rowId, orderVersion]);
+
   // The page beside the panel narrows to keep clear of it (see <main> in app/w/[workspaceId]/layout.tsx).
   useEffect(() => {
     const root = document.documentElement;
-    if (!shown) return;
+    if (!shown || centered) return;
     root.style.setProperty("--row-panel-width", `${shownWidth}px`);
     return () => void root.style.removeProperty("--row-panel-width");
-  }, [shown, shownWidth]);
+  }, [shown, centered, shownWidth]);
 
   const resize = useCallback((next: number, save: boolean) => {
     const w = clampPanelWidth(next, window.innerWidth);
@@ -211,6 +218,7 @@ export function RowPanelProvider({
           user={user}
           rowId={rowId}
           width={shownWidth}
+          centered={centered}
           onResize={resize}
           origin={origin}
           orderVersion={orderVersion}
@@ -232,6 +240,7 @@ function RowPanel({
   user,
   rowId,
   width,
+  centered,
   onResize,
   origin,
   orderVersion,
@@ -242,6 +251,7 @@ function RowPanel({
   user: { id: string; name: string };
   rowId: string;
   width: number;
+  centered: boolean;
   onResize: (width: number, save: boolean) => void;
   origin: RefObject<RowOrigin>;
   orderVersion: number;
@@ -337,7 +347,7 @@ function RowPanel({
       if (e.key === "Escape") {
         if (e.metaKey || e.ctrlKey || e.altKey || e.shiftKey) return;
         if (panelRef.current?.querySelector(".comments-panel")) return;
-        if (document.querySelector('[role="dialog"][aria-modal="true"]')) return;
+        if (document.querySelector('[role="dialog"][aria-modal="true"]:not([data-row-panel])')) return;
         e.preventDefault();
         onClose();
         return;
@@ -502,13 +512,39 @@ function RowPanel({
     );
   }
 
+  const label = result?.ok && !result.data.databaseId ? title : t("label", { title });
+  if (centered) {
+    // Over the view, which stays as it is behind it; a click beside it closes it. The row's
+    // comments open at the window's edge, over the backdrop.
+    return (
+      <div
+        className="fixed inset-0 z-40 flex items-center justify-center overscroll-contain bg-black/30 p-4 sm:p-10"
+        onClick={(e) => {
+          if (e.target === e.currentTarget) onClose();
+        }}
+      >
+        <aside
+          ref={panelRef}
+          data-row-panel
+          role="dialog"
+          aria-modal="true"
+          aria-label={label}
+          tabIndex={-1}
+          style={{ "--comments-right": "0px" } as CSSProperties}
+          className="flex h-full max-h-[56rem] w-full max-w-[60rem] flex-col overflow-hidden rounded-lg border border-border bg-bg shadow-2xl outline-none"
+        >
+          <div className="min-h-0 flex-1 overflow-y-auto">{body}</div>
+        </aside>
+      </div>
+    );
+  }
   return (
     <aside
       ref={panelRef}
       data-row-panel
       role="dialog"
       aria-modal="false"
-      aria-label={result?.ok && !result.data.databaseId ? title : t("label", { title })}
+      aria-label={label}
       tabIndex={-1}
       // The row's comments open beside the panel (components/page/comments-panel.tsx).
       style={{ width, "--comments-right": `${width}px` } as CSSProperties}

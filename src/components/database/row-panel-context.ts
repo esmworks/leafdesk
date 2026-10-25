@@ -3,7 +3,11 @@
 import { createContext, useContext, useMemo, useSyncExternalStore, type MouseEvent } from "react";
 import { opensNewTab } from "@/lib/row-panel";
 
-/** Where a row was opened from: its view (`data-row-source`) and the element that opened it. */
+/**
+ * Where a row was opened from: its view (`data-row-source`) and the element that opened it. A view
+ * whose `data-row-source` element says `data-open-rows="center"` opens its rows in the middle of the
+ * window (row-panel.tsx).
+ */
 export type RowOrigin = { source: Element | null; trigger: HTMLElement | null };
 
 /**
@@ -75,6 +79,8 @@ export type RowOpener = {
   openPage: (rowId: string) => void;
   /** Rows open in the panel (else as pages). */
   inPanel: boolean;
+  /** The panel opens in the middle of the window, over the view, instead of beside it. */
+  centered?: boolean;
 };
 
 export const RowOpenerContext = createContext<RowOpener | null>(null);

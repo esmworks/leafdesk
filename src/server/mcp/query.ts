@@ -440,7 +440,7 @@ export function describeViewConfig(props: PropertyDef[], config: ViewConfig, loo
     ...(config.cardSize ? { card_size: config.cardSize } : {}),
     ...(config.cover ? { cover: config.cover.source === "property" ? keyName(props, config.cover.propertyId) : config.cover.source } : {}),
     ...(config.subItems ? { sub_items: config.subItems } : {}),
-    ...(config.openRows === "page" ? { open_rows: "page" } : {}),
+    ...(config.openRows === "page" || config.openRows === "center" ? { open_rows: config.openRows } : {}),
     ...(type === "chart" ? describeChart(props, config) : {}),
     ...(type === "board" ? describeBoard(props, config) : {}),
     ...(config.filters?.length ? { filters: config.filters.map(describeEntry) } : {}),

@@ -294,6 +294,7 @@
     "editProperty": "Özelliği düzenle",
     "openIn": "Şurada aç",
     "sidePanel": "Yan panel",
+    "centerPanel": "Ortada pencere",
     "fullPage": "Tam sayfa",
     "newTab": "Yeni sekme",
     "comment": "Yorum yap",
@@ -846,6 +847,7 @@
     "openRows": "Satırları aç",
     "openRowsIn": {
       "panel": "Yan panelde",
+      "center": "Ortada pencerede",
       "page": "Tam sayfada"
     },
     "showOutdated": "Arşivlenen satırları göster",

@@ -294,6 +294,7 @@
     "editProperty": "Edit properti",
     "openIn": "Buka di",
     "sidePanel": "Panel samping",
+    "centerPanel": "Jendela di tengah",
     "fullPage": "Halaman penuh",
     "newTab": "Tab baru",
     "comment": "Komentar",
@@ -846,6 +847,7 @@
     "openRows": "Buka baris di",
     "openRowsIn": {
       "panel": "Panel samping",
+      "center": "Jendela di tengah",
       "page": "Halaman penuh"
     },
     "showOutdated": "Tampilkan baris yang diarsipkan",

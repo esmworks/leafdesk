@@ -44,10 +44,11 @@ describe("viewDateProperty", () => {
 });
 
 describe("where a view opens its rows", () => {
-  it("opens them beside the view unless set to open pages, so views saved before the setting open the panel", () => {
+  it("opens them beside the view unless set otherwise, so views saved before the setting open the panel", () => {
     expect(openRowsOf({})).toBe("panel");
     expect(openRowsOf({ openRows: "panel" })).toBe("panel");
     expect(openRowsOf({ openRows: "page" })).toBe("page");
+    expect(openRowsOf({ openRows: "center" })).toBe("center");
     expect(openRowsOf({ openRows: "sideways" } as unknown as ViewConfig)).toBe("panel");
   });
 
@@ -55,10 +56,11 @@ describe("where a view opens its rows", () => {
     expect(VIEW_TYPES.filter(opensRows)).toEqual(["table", "board", "calendar", "gallery", "list", "feed", "timeline", "map"]);
   });
 
-  it("refuses anything but panel or page", () => {
+  it("refuses anything but panel, center or page", () => {
     expect(layoutConfigError({ openRows: "page" })).toBeNull();
+    expect(layoutConfigError({ openRows: "center" })).toBeNull();
     expect(layoutConfigError({ openRows: "panel" })).toBeNull();
-    expect(layoutConfigError({ openRows: "tab" } as unknown as ViewConfig)).toBe("openRows must be one of: panel, page");
+    expect(layoutConfigError({ openRows: "tab" } as unknown as ViewConfig)).toBe("openRows must be one of: panel, center, page");
   });
 });
 

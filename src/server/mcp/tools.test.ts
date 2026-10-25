@@ -1113,6 +1113,8 @@ describe("relations and calendars", () => {
     const r = await callTool(writer, "update_database_view", { database_id: "db-1", view_id: "view-b", open_rows: "page" });
     expect(databases.updateView).toHaveBeenLastCalledWith("user-1", "view-b", { config: { groupBy: "prop-status", openRows: "page" } });
     expect(r.data).toMatchObject({ open_rows: "page" });
+    await callTool(writer, "update_database_view", { database_id: "db-1", view_id: "view-b", open_rows: "center" });
+    expect(databases.updateView).toHaveBeenLastCalledWith("user-1", "view-b", { config: { groupBy: "prop-status", openRows: "center" } });
     // Back to the default: the setting is left out, as views saved before it have it.
     await callTool(writer, "update_database_view", { database_id: "db-1", view_id: "view-p", open_rows: "panel" });
     expect(databases.updateView).toHaveBeenLastCalledWith("user-1", "view-p", { config: { groupBy: "prop-status", openRows: undefined } });

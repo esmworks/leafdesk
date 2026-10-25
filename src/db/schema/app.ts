@@ -899,8 +899,8 @@ export type SubItemsDisplay = "nested" | "flat" | "parents";
 export type TimelineZoom = "day" | "week" | "month";
 /** Calendar views: a month of days, or a week with its hours. */
 export type CalendarMode = "month" | "week";
-/** Where a view opens a row: in a panel beside the view, or as its own page. */
-export type OpenRows = "panel" | "page";
+/** Where a view opens a row: in a panel beside the view, in the middle of the window over it, or as its own page. */
+export type OpenRows = "panel" | "center" | "page";
 /** Chart kinds: vertical bars (columns), horizontal bars, a line, or a donut (a pie with a hole). */
 /** `number` shows one value: the measure over all of the view's rows (see lib/chart isNumberChart). */
 export type ChartType = "bar" | "horizontal_bar" | "line" | "donut" | "number";

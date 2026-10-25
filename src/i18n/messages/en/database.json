@@ -294,6 +294,7 @@
     "editProperty": "Edit property",
     "openIn": "Open in",
     "sidePanel": "Side panel",
+    "centerPanel": "Centered window",
     "fullPage": "Full page",
     "newTab": "New tab",
     "comment": "Comment",
@@ -846,6 +847,7 @@
     "openRows": "Open rows in",
     "openRowsIn": {
       "panel": "Side panel",
+      "center": "Centered window",
       "page": "Full page"
     },
     "showOutdated": "Show archived rows",

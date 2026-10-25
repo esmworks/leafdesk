@@ -294,6 +294,7 @@
     "editProperty": "Muokkaa ominaisuutta",
     "openIn": "Avaa kohteessa",
     "sidePanel": "Sivupaneeli",
+    "centerPanel": "Keskitetty ikkuna",
     "fullPage": "Koko sivu",
     "newTab": "Uusi välilehti",
     "comment": "Kommentoi",
@@ -846,6 +847,7 @@
     "openRows": "Avaa rivit kohteessa",
     "openRowsIn": {
       "panel": "Sivupaneeli",
+      "center": "Keskitetty ikkuna",
       "page": "Koko sivu"
     },
     "showOutdated": "Näytä arkistoidut rivit",

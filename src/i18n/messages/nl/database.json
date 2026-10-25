@@ -294,6 +294,7 @@
     "editProperty": "Eigenschap bewerken",
     "openIn": "Openen in",
     "sidePanel": "Zijpaneel",
+    "centerPanel": "Gecentreerd venster",
     "fullPage": "Volledige pagina",
     "newTab": "Nieuw tabblad",
     "comment": "Opmerking",
@@ -846,6 +847,7 @@
     "openRows": "Rijen openen in",
     "openRowsIn": {
       "panel": "Zijpaneel",
+      "center": "Gecentreerd venster",
       "page": "Volledige pagina"
     },
     "showOutdated": "Gearchiveerde rijen tonen",

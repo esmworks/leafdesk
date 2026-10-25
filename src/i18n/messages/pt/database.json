@@ -294,6 +294,7 @@
     "editProperty": "Editar propriedade",
     "openIn": "Abrir em",
     "sidePanel": "Painel lateral",
+    "centerPanel": "Janela centralizada",
     "fullPage": "Página inteira",
     "newTab": "Nova aba",
     "comment": "Comentar",
@@ -846,6 +847,7 @@
     "openRows": "Abrir linhas em",
     "openRowsIn": {
       "panel": "Painel lateral",
+      "center": "Janela centralizada",
       "page": "Página inteira"
     },
     "showOutdated": "Mostrar linhas arquivadas",

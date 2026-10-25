@@ -294,6 +294,7 @@
     "editProperty": "编辑属性",
     "openIn": "打开方式",
     "sidePanel": "侧边面板",
+    "centerPanel": "居中窗口",
     "fullPage": "整页",
     "newTab": "新标签页",
     "comment": "评论",
@@ -846,6 +847,7 @@
     "openRows": "行的打开方式",
     "openRowsIn": {
       "panel": "侧边面板",
+      "center": "居中窗口",
       "page": "完整页面"
     },
     "showOutdated": "显示已归档的行",

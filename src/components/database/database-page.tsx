@@ -318,7 +318,9 @@ export function DatabasePage({
   // offline always open pages (the panel loads rows from the server).
   const rowPanel = useRowPanel();
   const sourceRef = useRef<HTMLDivElement>(null);
-  const inPanel = Boolean(rowPanel?.available) && !!view && opensRows(view.type) && openRowsOf(view.config) === "panel" && !offline;
+  const openRows = view ? openRowsOf(view.config) : "panel";
+  const inPanel = Boolean(rowPanel?.available) && !!view && opensRows(view.type) && openRows !== "page" && !offline;
+  const centered = inPanel && openRows === "center";
   const openRowTo = rowPanel?.open;
   // The same opener while rows open and close beside the view: its rows ask which one is open
   // themselves (useIsOpenRow), so a row opening doesn't redraw the whole view.
@@ -334,8 +336,9 @@ export function DatabasePage({
       },
       openPage: (rowId) => router.push(href(rowId)),
       inPanel,
+      centered,
     };
-  }, [workspaceId, inPanel, openRowTo, router]);
+  }, [workspaceId, inPanel, centered, openRowTo, router]);
   // The panel's previous and next rows follow the view.
   const rowsChanged = rowPanel?.rowsChanged;
   useEffect(() => {
@@ -542,7 +545,7 @@ export function DatabasePage({
             <AiAutofillProvider value={aiContext}>
               {/* Wide layout: controls sit in the page gutter, the board scrolls edge to edge. */}
               <RowOpenerContext value={opener}>
-                <div ref={sourceRef} data-row-source className="min-w-0">
+                <div ref={sourceRef} data-row-source data-open-rows={centered ? "center" : undefined} className="min-w-0">
                   <div className="page-gutter">
                     {embed?.header?.(snapshot)}
                     {offline && <OfflineNotice savedAt={offlineCopyFrom} />}

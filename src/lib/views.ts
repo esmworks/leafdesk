@@ -43,7 +43,7 @@ export const CARD_SIZES = ["small", "medium", "large"] as const satisfies readon
 export const COVER_SOURCES = ["first_image", "property", "none"] as const satisfies readonly ViewCover["source"][];
 export const TIMELINE_ZOOMS = ["day", "week", "month"] as const satisfies readonly TimelineZoom[];
 export const CALENDAR_MODES = ["month", "week"] as const satisfies readonly CalendarMode[];
-export const OPEN_ROWS = ["panel", "page"] as const satisfies readonly OpenRows[];
+export const OPEN_ROWS = ["panel", "center", "page"] as const satisfies readonly OpenRows[];
 /** The views whose rows open from them; forms have none and charts list theirs as links. */
 export const ROW_VIEW_TYPES = ["table", "board", "calendar", "gallery", "list", "feed", "timeline", "map"] as const satisfies readonly ViewType[];
 
@@ -86,9 +86,9 @@ export function withViewSorts<C extends Pick<ViewConfig, "sorts">>(view: { type:
   return view.type === "feed" && !view.config.sorts?.length ? { ...view.config, sorts: [...FEED_SORTS] } : view.config;
 }
 
-/** Where the view opens its rows: a panel beside it unless it was set to open them as pages. */
+/** Where the view opens its rows: a panel beside it unless it was set to open them in the middle of the window or as pages. */
 export function openRowsOf(config: Pick<ViewConfig, "openRows">): OpenRows {
-  return config.openRows === "page" ? "page" : "panel";
+  return config.openRows === "page" || config.openRows === "center" ? config.openRows : "panel";
 }
 
 export function galleryCover(config: Pick<ViewConfig, "cover">): ViewCover["source"] {

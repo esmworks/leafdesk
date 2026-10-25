@@ -294,6 +294,7 @@
     "editProperty": "Edytuj właściwość",
     "openIn": "Otwórz w",
     "sidePanel": "Panel boczny",
+    "centerPanel": "Okno na środku",
     "fullPage": "Pełna strona",
     "newTab": "Nowa karta",
     "comment": "Skomentuj",
@@ -846,6 +847,7 @@
     "openRows": "Otwieraj wiersze w",
     "openRowsIn": {
       "panel": "Panel boczny",
+      "center": "Okno na środku",
       "page": "Pełna strona"
     },
     "showOutdated": "Pokaż zarchiwizowane wiersze",

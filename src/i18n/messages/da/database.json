@@ -294,6 +294,7 @@
     "editProperty": "Redigér egenskab",
     "openIn": "Åbn i",
     "sidePanel": "Sidepanel",
+    "centerPanel": "Centreret vindue",
     "fullPage": "Hel side",
     "newTab": "Ny fane",
     "comment": "Kommentér",
@@ -846,6 +847,7 @@
     "openRows": "Åbn rækker i",
     "openRowsIn": {
       "panel": "Sidepanel",
+      "center": "Centreret vindue",
       "page": "Hel side"
     },
     "showOutdated": "Vis arkiverede rækker",

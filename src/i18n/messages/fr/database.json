@@ -294,6 +294,7 @@
     "editProperty": "Modifier la propriété",
     "openIn": "Ouvrir dans",
     "sidePanel": "Panneau latéral",
+    "centerPanel": "Fenêtre centrée",
     "fullPage": "Pleine page",
     "newTab": "Nouvel onglet",
     "comment": "Commenter",
@@ -846,6 +847,7 @@
     "openRows": "Ouvrir les lignes dans",
     "openRowsIn": {
       "panel": "Panneau latéral",
+      "center": "Fenêtre centrée",
       "page": "Pleine page"
     },
     "showOutdated": "Afficher les lignes archivées",

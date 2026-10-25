@@ -294,6 +294,7 @@
     "editProperty": "속성 편집",
     "openIn": "열기 위치",
     "sidePanel": "사이드 패널",
+    "centerPanel": "가운데 창",
     "fullPage": "전체 페이지",
     "newTab": "새 탭",
     "comment": "댓글",
@@ -846,6 +847,7 @@
     "openRows": "행 열기 위치",
     "openRowsIn": {
       "panel": "사이드 패널",
+      "center": "가운데 창",
       "page": "전체 페이지"
     },
     "showOutdated": "보관된 행 표시",
