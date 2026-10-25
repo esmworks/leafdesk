@@ -26,6 +26,8 @@ import {
   OTHER_KEY,
 } from "@/lib/chart";
 import {
+  FILTER_COMBINATORS,
+  FILTER_OPS,
   filterValues,
   isDayCount,
   isFilterGroup,
@@ -320,10 +322,19 @@ export function toFilterEntries(props: PropertyDef[], inputs: FilterEntryInput[]
         if (depth >= MAX_FILTER_DEPTH) {
           throw new PropertyValueError(`Filter groups can be nested at most ${MAX_FILTER_DEPTH} levels deep`);
         }
-        if (!entry.rules.length) throw new PropertyValueError("A filter group needs at least one rule");
-        return { type: "group", combinator: entry.combinator ?? "and", rules: convert(entry.rules, depth + 1) };
+        // The innermost group comes unchecked by the tools' input schema (see filtersInput).
+        const combinator = entry.combinator ?? "and";
+        if (!FILTER_COMBINATORS.includes(combinator)) throw new PropertyValueError(`A filter group's combinator must be "and" or "or"`);
+        if (!Array.isArray(entry.rules) || !entry.rules.length) throw new PropertyValueError("A filter group needs at least one rule");
+        return { type: "group", combinator, rules: convert(entry.rules, depth + 1) };
       }
       if (++count > MAX_FILTER_RULES) throw new PropertyValueError(`A view can have at most ${MAX_FILTER_RULES} filter rules`);
+      // Those of the innermost group come unchecked by the tools' input schema (see filtersInput).
+      const rule = entry as Partial<FilterInput>;
+      if (typeof rule.property !== "string" || !rule.property) throw new PropertyValueError("A filter rule needs a property");
+      if (!FILTER_OPS.includes(rule.op as FilterOp)) {
+        throw new PropertyValueError(`Unknown filter operator "${String(rule.op)}". Use one of: ${FILTER_OPS.join(", ")}`);
+      }
       return toFilterRule(props, entry as FilterInput, lookups);
     });
   return convert(inputs, 0);

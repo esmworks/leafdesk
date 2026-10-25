@@ -329,16 +329,17 @@ describe("filter tree helpers", () => {
 });
 
 describe("filterConfigError", () => {
-  it("accepts old rule lists, groups two levels deep and incomplete rules", () => {
+  it("accepts old rule lists, groups three levels deep and incomplete rules", () => {
     expect(filterConfigError({})).toBeNull();
     expect(filterConfigError({ filters: [rule("p_select", "equals", "o1")] })).toBeNull();
     expect(filterConfigError({ filters: [or(and(rule("p_select", "equals")))], filterCombinator: "or" })).toBeNull();
+    expect(filterConfigError({ filters: [or(and(or(rule("p_select", "equals", "o1"))))] })).toBeNull();
     expect(filterConfigError({ filters: [{ propertyId: "p_date", op: "is_within" }] })).toBeNull();
   });
 
   it("rejects unknown ops, bad groups and too deep nesting", () => {
     expect(filterConfigError({ filters: [{ propertyId: "p_select", op: "matches" as never }] })).toMatch(/Unknown filter operator "matches"/);
-    expect(filterConfigError({ filters: [or(and(or(rule("p_select", "equals", "o1"))))] })).toMatch(/at most 2 levels/);
+    expect(filterConfigError({ filters: [or(and(or(and(rule("p_select", "equals", "o1")))))] })).toMatch(/at most 3 levels/);
     expect(filterConfigError({ filters: [{ type: "group", combinator: "xor", rules: [] } as never] })).toMatch(/"and" or "or"/);
     expect(filterConfigError({ filterCombinator: "xor" as never })).toMatch(/"and" or "or"/);
     expect(filterConfigError({ filters: "all" as never })).toMatch(/list/);

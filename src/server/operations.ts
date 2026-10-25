@@ -158,9 +158,10 @@ const ruleOrGroup = <G extends z.ZodType>(group: G, rule: typeof filterRuleInput
       return branch.map((e) => `${e.path.length ? `${e.path.join(".")}: ` : ""}${e.message}`).join("; ") || undefined;
     },
   });
-// Spelled out level by level (instead of a recursive schema) so every MCP client can read it. A
-// group nested deeper than MAX_FILTER_DEPTH still parses at the innermost level and is then
-// rejected by toFilterEntries with a message saying so.
+// Spelled out level by level (instead of a recursive schema) so every MCP client can read it. The
+// innermost group isn't spelled out again (each level is sent once more with every tool that takes
+// filters): toFilterEntries checks it, and refuses a group nested deeper than MAX_FILTER_DEPTH
+// with a message saying so.
 const deepestGroup = z.object({ type: z.literal("group") }).loose();
 export const filtersInput = z
   .array(ruleOrGroup(filterGroupInput(ruleOrGroup(filterGroupInput(ruleOrGroup(deepestGroup)))), filterRuleInput))

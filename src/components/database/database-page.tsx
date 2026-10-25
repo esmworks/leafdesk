@@ -40,8 +40,14 @@ import { ActiveRulesBar, ViewSearch, ViewTabs, ViewToolbar, type FilterRequest, 
 import { saveDownload } from "./download";
 import { timelineDates, ViewLayoutMenu } from "./view-settings";
 
-/** The rules a viewer who may not change a view sets for themselves (see `ownRules`). */
+/** The rules a viewer who may not change a view sets for themselves, or a draft of its rules (see `ownRules`). */
 type PersonalRules = Pick<ViewConfig, "filters" | "filterCombinator" | "sorts">;
+
+/** Whether two sets of filters and sorts are the same, a missing list being an empty one. */
+function sameRules(a: PersonalRules, b: PersonalRules): boolean {
+  const plain = (r: PersonalRules) => JSON.stringify([r.filters ?? [], r.filters?.length ? (r.filterCombinator ?? "and") : "and", r.sorts ?? []]);
+  return plain(a) === plain(b);
+}
 
 // The page redraws with every change of its address, a row opening beside the view among them;
 // a view, with its hundreds of rows, only when what it's given changes.
@@ -171,10 +177,13 @@ export function DatabasePage({
   // A linked view's settings belong to the page showing it, not to the database.
   const configReadOnly = linked ? !linked.onChange : readOnly;
   // Whoever may not change the view still filters and sorts it for themselves: their rules stay
-  // here, per view, until the page closes, and replace the view's own for them alone.
+  // here, per view, until the page closes, and replace the view's own for them alone. For those who
+  // may change it (but a linked view's, which belong to the page showing it), new filters and sorts
+  // are a draft the same way until they save them to the view for everyone.
   const personalRules = configReadOnly;
+  const draftRules = !personalRules && !linked;
   const [ownRules, setOwnRules] = useState<Record<string, PersonalRules>>({});
-  const ownViewRules = personalRules && savedView ? ownRules[savedView.id] : undefined;
+  const ownViewRules = (personalRules || draftRules) && savedView ? ownRules[savedView.id] : undefined;
   const view = useMemo(
     () => (savedView && ownViewRules ? { ...savedView, config: { ...savedView.config, ...ownViewRules } } : savedView),
     [savedView, ownViewRules],
@@ -367,12 +376,43 @@ export function DatabasePage({
   // What the views are given stays the same from one render of the page to the next (see MemoBoardView).
   const setConfig = useCallback(
     async (v: View, config: ViewConfig) => {
-      if (!personalRules) return baseApi.updateView(v, { config });
       const { filters, filterCombinator, sorts } = config;
-      setOwnRules((all) => ({ ...all, [v.id]: { filters, filterCombinator, sorts } }));
-      return null;
+      if (personalRules) {
+        setOwnRules((all) => ({ ...all, [v.id]: { filters, filterCombinator, sorts } }));
+        return null;
+      }
+      const saved = snapshot?.views.find((other) => other.id === v.id);
+      if (!draftRules || !saved) return baseApi.updateView(v, { config });
+      // The rules go to the draft (none when they are the view's own again), anything else to the view.
+      const rules = { filters, filterCombinator, sorts };
+      const own = { filters: saved.config.filters, filterCombinator: saved.config.filterCombinator, sorts: saved.config.sorts };
+      setOwnRules((all) => {
+        const rest = { ...all };
+        if (sameRules(rules, own)) delete rest[v.id];
+        else rest[v.id] = rules;
+        return rest;
+      });
+      const others = { ...config, ...own };
+      if (JSON.stringify(others) === JSON.stringify({ ...saved.config, ...own })) return null;
+      return baseApi.updateView(saved, { config: others });
     },
-    [baseApi, personalRules],
+    [baseApi, personalRules, draftRules, snapshot?.views],
+  );
+  // Saves the draft's filters and sorts to the view, for everyone.
+  const saveDraft = useCallback(
+    async (v: View) => {
+      const saved = snapshot?.views.find((other) => other.id === v.id);
+      const rules = ownRules[v.id];
+      if (!saved || !rules) return;
+      // The view takes the rules at once (updateView shows them before the server answers).
+      setOwnRules((all) => {
+        const rest = { ...all };
+        delete rest[v.id];
+        return rest;
+      });
+      await baseApi.updateView(saved, { config: { ...saved.config, ...rules } });
+    },
+    [baseApi, ownRules, snapshot?.views],
   );
   const properties = snapshot?.properties;
   // Adds a rule on the column with its first operator, like the filter menu's "Add filter".
@@ -642,6 +682,7 @@ export function DatabasePage({
                                 })
                             : undefined
                         }
+                        onSave={ownViewRules && draftRules ? () => void saveDraft(view) : undefined}
                         onConfig={(config) => setConfig(view, config)}
                       />
                     )}

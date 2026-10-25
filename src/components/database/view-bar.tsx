@@ -49,6 +49,7 @@ import {
   MAX_RELATIVE_DAYS,
   RELATIVE_DATE_RANGES,
   rangeNeedsDays,
+  MAX_FILTER_DEPTH,
 } from "@/lib/filters";
 import { valueType } from "@/lib/derived";
 import { GROUP_DATE_BY, groupDateByOf } from "@/lib/grouping";
@@ -823,6 +824,7 @@ export function ActiveRulesBar({
   onConfig,
   readOnly,
   onReset,
+  onSave,
 }: {
   view: View;
   properties: Property[];
@@ -830,6 +832,8 @@ export function ActiveRulesBar({
   readOnly?: boolean;
   /** Set while the rules are the viewer's own, not the view's: says so, and goes back to the view's. */
   onReset?: () => void;
+  /** With `onReset`, for people who may change the view: the rules are a draft, saved to it for everyone with this. */
+  onSave?: () => void;
 }) {
   const t = useTranslations("database");
   const locale = useLocale();
@@ -864,16 +868,28 @@ export function ActiveRulesBar({
       {filters.map((f, i) => (
         <Fragment key={`f-${i}`}>
           {or && i > 0 && <span className="text-fg-faint">{word("or")}</span>}
-          <span className="inline-flex min-h-6 items-center gap-1 rounded-md border border-border px-1.5 text-fg-muted">
-            <ListFilter className="h-3 w-3 shrink-0" />
-            {describeEntry(f)}
-          </span>
+          {readOnly ? (
+            <span className="inline-flex min-h-6 items-center gap-1 rounded-md border border-border px-1.5 text-fg-muted">
+              <ListFilter className="h-3 w-3 shrink-0" />
+              {describeEntry(f)}
+            </span>
+          ) : (
+            <FilterChip
+              entry={f}
+              label={describeEntry(f)}
+              columns={columns}
+              onChange={(entries) => onConfig({ ...view.config, filters: filters.flatMap((e, j) => (j === i ? entries : [e])) })}
+            />
+          )}
         </Fragment>
       ))}
       {onReset && (
-        <span title={t("activeRules.personalTitle")} className="inline-flex h-6 items-center gap-1 px-1 text-fg-faint">
+        <span
+          title={t(onSave ? "activeRules.draftTitle" : "activeRules.personalTitle")}
+          className="inline-flex h-6 items-center gap-1 px-1 text-fg-faint"
+        >
           <UserRound className="h-3 w-3" />
-          {t("activeRules.personal")}
+          {t(onSave ? "activeRules.draft" : "activeRules.personal")}
         </span>
       )}
       {!readOnly && (
@@ -897,7 +913,64 @@ export function ActiveRulesBar({
           {t("activeRules.reset")}
         </button>
       )}
+      {onReset && onSave && (
+        <button
+          type="button"
+          title={t("activeRules.saveTitle")}
+          onClick={onSave}
+          className="inline-flex h-6 items-center gap-1 rounded-md bg-accent px-2 font-medium text-accent-fg hover:opacity-90"
+        >
+          <Check className="h-3 w-3" />
+          {t("activeRules.save")}
+        </button>
+      )}
     </div>
+  );
+}
+
+/**
+ * One of the view's filters as a chip: clicking it opens just that filter to change it, and its ✕
+ * takes it away. Rules added from there join the view's filters beside it.
+ */
+function FilterChip({
+  entry,
+  label,
+  columns,
+  onChange,
+}: {
+  entry: FilterEntry;
+  label: string;
+  columns: Column[];
+  onChange: (entries: FilterEntry[]) => void;
+}) {
+  const t = useTranslations("database.activeRules");
+  const menu = useFloating<HTMLButtonElement>();
+  return (
+    <span className="inline-flex min-h-6 items-center rounded-md border border-border text-fg-muted">
+      <button
+        ref={menu.ref}
+        type="button"
+        onClick={menu.toggle}
+        aria-expanded={menu.open}
+        title={t("editFilter")}
+        className="inline-flex min-h-6 items-center gap-1 rounded-s-md ps-1.5 pe-1 hover:bg-bg-hover hover:text-fg"
+      >
+        <ListFilter className="h-3 w-3 shrink-0" />
+        {label}
+      </button>
+      <button
+        type="button"
+        aria-label={t("removeFilter", { filter: label })}
+        title={t("removeFilter", { filter: label })}
+        onClick={() => onChange([])}
+        className="inline-flex h-6 w-5 items-center justify-center rounded-e-md hover:bg-bg-hover hover:text-fg"
+      >
+        <X className="h-3 w-3" />
+      </button>
+      <Floating open={menu.open} anchor={menu.el} onClose={menu.close}>
+        <FilterEditor columns={columns} filters={[entry]} combinator="and" onChange={(entries) => onChange(entries)} />
+      </Floating>
+    </span>
   );
 }
 
@@ -985,8 +1058,8 @@ function useRangeLabel() {
   };
 }
 
-/** Groups the editor lets users add: top-level groups of rules. Deeper groups (made over MCP) still show and edit. */
-const EDITOR_GROUP_DEPTH = 1;
+/** Groups the editor lets users add: as deep as a view's filters may nest (see lib/filters). */
+const EDITOR_GROUP_DEPTH = MAX_FILTER_DEPTH;
 
 export function FilterEditor({
   columns,
