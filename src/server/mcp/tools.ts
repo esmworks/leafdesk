@@ -243,11 +243,11 @@ const formulaInput = z.string().max(MAX_FORMULA_LENGTH);
 
 /** How rollups are set up, for tool descriptions. */
 const ROLLUP_HELP =
-  'A rollup calculates over the rows a relation links to: pass rollup {relation, property, function}, naming a relation property of this database and a property of the related database ("title" for the related rows\' titles). Functions: show_original (lists the values), count_all, count_values, count_unique, count_empty, count_not_empty, percent_empty, percent_not_empty; for numbers sum, average, median, min, max, range; for dates earliest_date, latest_date, date_range (days); for checkboxes count_checked, count_unchecked, percent_checked, percent_unchecked. display (number, bar or ring) is how the app shows a percentage. Only related rows the reader can see count. Percentages come back as fractions (0.25) and filter as percent points (25).';
+  'A rollup calculates over the rows a relation links to: pass rollup {relation, property, function}, naming a relation property of this database and a property of the related database ("title" for the related rows\' titles). Functions: show_original (lists the values), show_unique (lists each value once), count_all, count_values, count_unique, count_empty, count_not_empty, percent_empty, percent_not_empty; for numbers sum, average, median, min, max, range; for dates earliest_date, latest_date, date_range (days); for checkboxes count_checked, count_unchecked, percent_checked, percent_unchecked. display (number, bar or ring) is how the app shows a percentage. Only related rows the reader can see count. Percentages come back as fractions (0.25) and filter as percent points (25).';
 const rollupInput = z.object({
   relation: z.string().min(1).describe("Relation property of this database, by name or id."),
   property: z.string().min(1).describe('Property of the related database, by name or id, or "title".'),
-  function: z.enum(["show_original", ...AGGREGATE_FNS]),
+  function: z.enum(["show_original", "show_unique", ...AGGREGATE_FNS]),
   display: z.enum(ROLLUP_DISPLAYS).optional(),
 });
 
@@ -423,7 +423,7 @@ const viewLayoutInputs = {
     .nullable()
     .optional()
     .describe("Timeline only: the property where bars end (null: each bar is one day)."),
-  zoom: z.enum(TIMELINE_ZOOMS).optional().describe('Timeline only: a column per day, week or month ("week" by default).'),
+  zoom: z.enum(TIMELINE_ZOOMS).optional().describe('Timeline only: a column per day, week, month, quarter or year ("week" by default).'),
   calendar_mode: z
     .enum(CALENDAR_MODES)
     .optional()

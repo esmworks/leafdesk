@@ -44,7 +44,13 @@
       "serif": "Serif",
       "mono": "Mono",
       "smallText": "Small text",
-      "fullWidth": "Full width"
+      "fullWidth": "Full width",
+      "backlinks": "Backlinks",
+      "backlinksModes": {
+        "expanded": "Below the page",
+        "popup": "In a popup",
+        "off": "Hidden"
+      }
     },
     "lockDatabase": "Lock database",
     "lockHint": "While locked, properties and views can't change; rows stay editable.",
@@ -635,7 +641,7 @@
     "pageLink": {
       "title": "Link to page",
       "subtext": "A link to another page, with its live title",
-      "aliases": "link page mention reference"
+      "aliases": "link page mention reference ltp"
     },
     "syncedPage": {
       "title": "Synced page",
@@ -1280,5 +1286,11 @@
     "replies": "{count, plural, =0 {No replies} one {# reply} other {# replies}}",
     "openThread": "Open thread",
     "resolved": "Resolved"
+  },
+  "newPageRoute": {
+    "documentTitle": "New page",
+    "creating": "Creating a page…",
+    "failed": "Couldn't create the page.",
+    "home": "Go to the workspace"
   }
 }

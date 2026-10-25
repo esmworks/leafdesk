@@ -26,7 +26,7 @@ import {
 import { createPageAction } from "@/app/actions/pages";
 import { useChannel } from "@/components/collab/use-channel";
 import { useOpenDailyNote } from "@/components/journal/daily-notes";
-import { Button, cn, Dialog, PageIcon, pageLabel } from "@/components/ui";
+import { Button, cn, Dialog, PageIcon, pageLabel, useDismiss } from "@/components/ui";
 import { UserAvatar } from "@/components/user-avatar";
 import {
   formatIsoDate,
@@ -1015,7 +1015,24 @@ const PLACES_SHOWN = 3;
  * below, folded away, the pages that write this page's title without linking to it, which someone
  * who may edit them can link from here.
  */
-export function Backlinks({ workspaceId, pageId, title, canLink }: { workspaceId: string; pageId: string; title: string; canLink: boolean }) {
+/**
+ * The pages that link to this one, and mentions of its title that don't link yet. `popup`: behind a
+ * button at the top of the page (the page's Backlinks setting, lib/page-style) instead of listed
+ * under its body.
+ */
+export function Backlinks({
+  workspaceId,
+  pageId,
+  title,
+  canLink,
+  popup = false,
+}: {
+  workspaceId: string;
+  pageId: string;
+  title: string;
+  canLink: boolean;
+  popup?: boolean;
+}) {
   const t = useTranslations("page.backlinks");
   const tc = useTranslations("common");
   const router = useRouter();
@@ -1030,6 +1047,8 @@ export function Backlinks({ workspaceId, pageId, title, canLink }: { workspaceId
   const [linking, setLinking] = useState<string | null>(null);
   const [failed, setFailed] = useState<{ id: string; locked: boolean } | null>(null);
   const [version, setVersion] = useState(0);
+  const [popupOpen, setPopupOpen] = useState(false);
+  const popupRef = useDismiss<HTMLDivElement>(popupOpen, () => setPopupOpen(false));
   // The unlinked list is a full-text search: loaded with the page, and again (with which ones can be
   // linked) once unfolded; while folded, changes elsewhere don't load it again.
   const [unlinkedVersion, setUnlinkedVersion] = useState(0);
@@ -1100,8 +1119,8 @@ export function Backlinks({ workspaceId, pageId, title, canLink }: { workspaceId
   if (!links.length && !unlinked.length) return null;
   const name = pageLabel(title, tc("untitled"));
   const row = "-mx-1 flex items-center gap-2 rounded px-1 py-1 text-sm text-fg-muted hover:bg-bg-hover hover:text-fg";
-  return (
-    <section aria-label={t("title")} className="mt-10 border-t border-border px-4 pt-4 md:px-[54px]">
+  const lists = (
+    <>
       {links.length > 0 && (
         <>
           <h2 className="text-xs font-medium text-fg-muted" title={t("count", { count: total })}>
@@ -1239,6 +1258,34 @@ export function Backlinks({ workspaceId, pageId, title, canLink }: { workspaceId
           )}
         </div>
       )}
+    </>
+  );
+  if (popup) {
+    return (
+      <div ref={popupRef} className="relative mt-2">
+        <button
+          type="button"
+          aria-expanded={popupOpen}
+          onClick={() => setPopupOpen((open) => !open)}
+          className="-mx-1 flex items-center gap-1 rounded px-1 py-0.5 text-xs font-medium text-fg-muted hover:bg-bg-hover hover:text-fg"
+        >
+          <Link2 className="h-3.5 w-3.5" />
+          {links.length > 0 ? t("count", { count: total }) : t("unlinked", { count: unlinked.length })}
+        </button>
+        {popupOpen && (
+          <section
+            aria-label={t("title")}
+            className="absolute start-0 top-full z-40 mt-1 max-h-96 w-80 max-w-[calc(100vw-2rem)] overflow-y-auto rounded-lg border border-border bg-bg p-3 shadow-lg"
+          >
+            {lists}
+          </section>
+        )}
+      </div>
+    );
+  }
+  return (
+    <section aria-label={t("title")} className="mt-10 border-t border-border px-4 pt-4 md:px-[54px]">
+      {lists}
     </section>
   );
 }

@@ -921,7 +921,7 @@ export type ViewCover = { source: "first_image" } | { source: "none" } | { sourc
 /** How a view of a database with sub-items shows them (see ViewConfig `subItems`). */
 export type SubItemsDisplay = "nested" | "flat" | "parents";
 /** Timeline scale: a column per day, per week or per month. */
-export type TimelineZoom = "day" | "week" | "month";
+export type TimelineZoom = "day" | "week" | "month" | "quarter" | "year";
 /** Calendar views: a month of days, or a week with its hours. */
 export type CalendarMode = "month" | "week";
 /** Where a view opens a row: in a panel beside the view, in the middle of the window over it, or as its own page. */

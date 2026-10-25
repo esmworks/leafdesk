@@ -59,7 +59,7 @@ export const SHORTCUT_GROUPS: readonly ShortcutGroup[] = [
     id: "navigation",
     shortcuts: [
       // components/sidebar/sidebar.tsx and sidebar-context.tsx.
-      { id: "search", combos: [["Mod", "K"]] },
+      { id: "search", combos: [["Mod", "K"], ["Mod", "P"]] },
       { id: "sidebar", combos: [["Mod", "\\"]] },
       // components/page/find-bar.tsx.
       { id: "find", combos: [["Mod", "F"]] },
@@ -79,6 +79,8 @@ export const SHORTCUT_GROUPS: readonly ShortcutGroup[] = [
       { id: "code", combos: [["Mod", "E"]] },
       { id: "superscript", combos: [["Mod", "."]] },
       { id: "subscript", combos: [["Mod", ","]] },
+      // BlockNote's link box, with text selected (the sidebar's Mod+K leaves it alone then).
+      { id: "link", combos: [["Mod", "K"]] },
     ],
   },
   {
@@ -97,7 +99,7 @@ export const SHORTCUT_GROUPS: readonly ShortcutGroup[] = [
       { id: "numberedList", combos: [["Mod", "Shift", "7"]] },
       { id: "checklist", combos: [["Mod", "Shift", "9"]] },
       { id: "toggleList", combos: [["Mod", "Shift", "6"]] },
-      { id: "quote", combos: [["Mod", "Alt", "Q"]] },
+      { id: "quote", combos: [["Mod", "Alt", "Q"], [">"], ["|"], ['"']] },
       { id: "indent", combos: [["Tab"]] },
       { id: "outdent", combos: [["Shift", "Tab"]] },
       { id: "moveUp", combos: [["Mod", "Shift", "ArrowUp"]] },

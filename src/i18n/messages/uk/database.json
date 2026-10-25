@@ -965,7 +965,9 @@
     "zooms": {
       "day": "День",
       "week": "Тиждень",
-      "month": "Місяць"
+      "month": "Місяць",
+      "quarter": "Квартал",
+      "year": "Рік"
     },
     "showTable": "Показати таблицю",
     "hideTable": "Сховати таблицю",
@@ -974,7 +976,8 @@
     "resizeStart": "Перетягніть, щоб змінити початок",
     "resizeEnd": "Перетягніть, щоб змінити кінець",
     "empty": "Ще немає рядків зі значенням «{property}».",
-    "dragHint": "Перетягніть рядок на часову шкалу, щоб задати йому дату."
+    "dragHint": "Перетягніть рядок на часову шкалу, щоб задати йому дату.",
+    "quarter": "{quarter} кв."
   },
   "errors": {
     "invalidUrl": "«{property}» має бути URL http(s) або mailto.",
@@ -1195,7 +1198,8 @@
     "save": "Зберегти зведення",
     "create": "Додати зведення",
     "back": "Назад",
-    "summary": "{function}: {property} у «{relation}»"
+    "summary": "{function}: {property} у «{relation}»",
+    "showUnique": "Показати унікальні значення"
   },
   "propertyAccess": {
     "menuItem": "Доступ до властивості",

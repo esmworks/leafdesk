@@ -965,7 +965,9 @@
     "zooms": {
       "day": "روز",
       "week": "هفته",
-      "month": "ماه"
+      "month": "ماه",
+      "quarter": "فصل",
+      "year": "سال"
     },
     "showTable": "نمایش جدول",
     "hideTable": "پنهان کردن جدول",
@@ -974,7 +976,8 @@
     "resizeStart": "برای تغییر شروع بکشید",
     "resizeEnd": "برای تغییر پایان بکشید",
     "empty": "هنوز ردیفی با {property} وجود ندارد.",
-    "dragHint": "برای دادن تاریخ به یک ردیف، آن را روی خط زمانی بکشید."
+    "dragHint": "برای دادن تاریخ به یک ردیف، آن را روی خط زمانی بکشید.",
+    "quarter": "فصل {quarter}"
   },
   "errors": {
     "invalidUrl": "«{property}» باید یک URL از نوع http(s) یا mailto باشد.",
@@ -1195,7 +1198,8 @@
     "save": "ذخیره تجمیع",
     "create": "افزودن تجمیع",
     "back": "بازگشت",
-    "summary": "{function} {property} در {relation}"
+    "summary": "{function} {property} در {relation}",
+    "showUnique": "نمایش مقادیر یکتا"
   },
   "propertyAccess": {
     "menuItem": "دسترسی ویژگی",

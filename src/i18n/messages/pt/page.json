@@ -44,7 +44,13 @@
       "serif": "Serifa",
       "mono": "Mono",
       "smallText": "Texto pequeno",
-      "fullWidth": "Largura total"
+      "fullWidth": "Largura total",
+      "backlinks": "Backlinks",
+      "backlinksModes": {
+        "expanded": "Abaixo da página",
+        "popup": "Em um pop-up",
+        "off": "Ocultos"
+      }
     },
     "lockDatabase": "Bloquear banco de dados",
     "lockHint": "Enquanto estiver bloqueado, as propriedades e visualizações não podem mudar; as linhas continuam editáveis.",
@@ -635,7 +641,7 @@
     "pageLink": {
       "title": "Link para página",
       "subtext": "Um link para outra página, com o título sempre atualizado",
-      "aliases": "link página menção referência page mention"
+      "aliases": "link página menção referência page mention ltp"
     },
     "syncedPage": {
       "title": "Página sincronizada",
@@ -1280,5 +1286,11 @@
     "replies": "{count, plural, =0 {Sem respostas} one {# resposta} other {# respostas}}",
     "openThread": "Abrir conversa",
     "resolved": "Resolvido"
+  },
+  "newPageRoute": {
+    "documentTitle": "Nova página",
+    "creating": "Criando uma página…",
+    "failed": "Não foi possível criar a página.",
+    "home": "Ir para o espaço de trabalho"
   }
 }

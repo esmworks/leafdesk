@@ -12,17 +12,17 @@ import { timestampDay } from "./time-zone";
 
 const MS_PER_DAY = 86_400_000;
 
-/** Pixels one day takes at each zoom level: a column is a day, a week or a month. */
-export const DAY_WIDTH: Record<TimelineZoom, number> = { day: 40, week: 20, month: 4 };
+/** Pixels one day takes at each zoom level: a column is a day, a week, a month, a quarter or a year. */
+export const DAY_WIDTH: Record<TimelineZoom, number> = { day: 40, week: 20, month: 4, quarter: 1.5, year: 0.4 };
 
 /**
- * The widest range a timeline lays out at each zoom (about two, five and twenty years). Bars
- * outside it are clipped at the edge; everything is still reachable by zooming out.
+ * The widest range a timeline lays out at each zoom (about two, five, twenty, thirty and a hundred
+ * years). Bars outside it are clipped at the edge; everything is still reachable by zooming out.
  */
-export const MAX_RANGE_DAYS: Record<TimelineZoom, number> = { day: 730, week: 1830, month: 7300 };
+export const MAX_RANGE_DAYS: Record<TimelineZoom, number> = { day: 730, week: 1830, month: 7300, quarter: 10_960, year: 36_525 };
 
 /** Empty space kept before the first and after the last bar (and today). */
-const PADDING_DAYS: Record<TimelineZoom, number> = { day: 14, week: 42, month: 180 };
+const PADDING_DAYS: Record<TimelineZoom, number> = { day: 14, week: 42, month: 180, quarter: 365, year: 730 };
 
 export type DaySpan = { start: number; end: number };
 
@@ -66,6 +66,20 @@ export function addMonths(day: number, months: number): number {
   return Math.floor(Date.UTC(d.getUTCFullYear(), d.getUTCMonth() + months, 1) / MS_PER_DAY);
 }
 
+/** The first day of the day's quarter (January, April, July or October). */
+export function quarterStart(day: number): number {
+  const d = dayDate(day);
+  return Math.floor(Date.UTC(d.getUTCFullYear(), d.getUTCMonth() - (d.getUTCMonth() % 3), 1) / MS_PER_DAY);
+}
+
+/** The first day of the day's year, or of the year `years` after it. */
+export function yearStart(day: number, years = 0): number {
+  return Math.floor(Date.UTC(dayDate(day).getUTCFullYear() + years, 0, 1) / MS_PER_DAY);
+}
+
+/** The quarter (1-4) a day falls in. */
+export const quarterOf = (day: number) => Math.floor(dayDate(day).getUTCMonth() / 3) + 1;
+
 export function daysInMonth(year: number, month: number): number {
   return new Date(Date.UTC(year, month + 1, 0)).getUTCDate();
 }
@@ -74,6 +88,8 @@ export function daysInMonth(year: number, month: number): number {
 export function unitStart(day: number, zoom: TimelineZoom): number {
   if (zoom === "day") return day;
   if (zoom === "week") return weekStart(day);
+  if (zoom === "quarter") return quarterStart(day);
+  if (zoom === "year") return yearStart(day);
   return monthStart(day);
 }
 
@@ -81,6 +97,8 @@ export function unitStart(day: number, zoom: TimelineZoom): number {
 export function nextUnit(day: number, zoom: TimelineZoom): number {
   if (zoom === "day") return day + 1;
   if (zoom === "week") return weekStart(day) + 7;
+  if (zoom === "quarter") return addMonths(quarterStart(day), 3);
+  if (zoom === "year") return yearStart(day, 1);
   return addMonths(day, 1);
 }
 
@@ -149,18 +167,17 @@ function unitsOf(range: DaySpan, next: (day: number) => number): TimelineUnit[] 
 }
 
 /**
- * The two header rows: the columns (days, weeks or months) and above them what they belong to
- * (months, or years for month columns).
+ * The two header rows: the columns (days, weeks, months, quarters or years) and above them what
+ * they belong to (months; years for month and quarter columns; decades for year columns).
  */
 export function headerUnits(range: DaySpan, zoom: TimelineZoom): { top: TimelineUnit[]; columns: TimelineUnit[] } {
   const columns = unitsOf(range, (day) => nextUnit(day, zoom));
   const top =
-    zoom === "month"
-      ? unitsOf(range, (day) => {
-          const d = dayDate(day);
-          return Math.floor(Date.UTC(d.getUTCFullYear() + 1, 0, 1) / MS_PER_DAY);
-        })
-      : unitsOf(range, (day) => addMonths(day, 1));
+    zoom === "month" || zoom === "quarter"
+      ? unitsOf(range, (day) => yearStart(day, 1))
+      : zoom === "year"
+        ? unitsOf(range, (day) => yearStart(day, 10 - (dayDate(day).getUTCFullYear() % 10)))
+        : unitsOf(range, (day) => addMonths(day, 1));
   return { top, columns };
 }
 

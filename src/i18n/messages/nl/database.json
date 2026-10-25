@@ -965,7 +965,9 @@
     "zooms": {
       "day": "Dag",
       "week": "Week",
-      "month": "Maand"
+      "month": "Maand",
+      "quarter": "Kwartaal",
+      "year": "Jaar"
     },
     "showTable": "Tabel tonen",
     "hideTable": "Tabel verbergen",
@@ -974,7 +976,8 @@
     "resizeStart": "Sleep om het begin te wijzigen",
     "resizeEnd": "Sleep om het einde te wijzigen",
     "empty": "Nog geen rijen met {property}.",
-    "dragHint": "Sleep een rij naar de tijdlijn om haar een datum te geven."
+    "dragHint": "Sleep een rij naar de tijdlijn om haar een datum te geven.",
+    "quarter": "K{quarter}"
   },
   "errors": {
     "invalidUrl": "“{property}” moet een http(s)- of mailto-URL zijn.",
@@ -1195,7 +1198,8 @@
     "save": "Rollup opslaan",
     "create": "Rollup toevoegen",
     "back": "Terug",
-    "summary": "{function} van {property} in {relation}"
+    "summary": "{function} van {property} in {relation}",
+    "showUnique": "Unieke waarden tonen"
   },
   "propertyAccess": {
     "menuItem": "Toegang tot eigenschap",

@@ -965,7 +965,9 @@
     "zooms": {
       "day": "День",
       "week": "Неделя",
-      "month": "Месяц"
+      "month": "Месяц",
+      "quarter": "Квартал",
+      "year": "Год"
     },
     "showTable": "Показать таблицу",
     "hideTable": "Скрыть таблицу",
@@ -974,7 +976,8 @@
     "resizeStart": "Перетащите, чтобы изменить начало",
     "resizeEnd": "Перетащите, чтобы изменить окончание",
     "empty": "Пока нет строк со значением «{property}».",
-    "dragHint": "Перетащите строку на временную шкалу, чтобы задать ей дату."
+    "dragHint": "Перетащите строку на временную шкалу, чтобы задать ей дату.",
+    "quarter": "{quarter} кв."
   },
   "errors": {
     "invalidUrl": "«{property}» должно быть URL-адресом http(s) или mailto.",
@@ -1195,7 +1198,8 @@
     "save": "Сохранить сводку",
     "create": "Добавить сводку",
     "back": "Назад",
-    "summary": "{function}: {property} в {relation}"
+    "summary": "{function}: {property} в {relation}",
+    "showUnique": "Показать уникальные значения"
   },
   "propertyAccess": {
     "menuItem": "Доступ к свойству",

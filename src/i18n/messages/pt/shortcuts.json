@@ -57,6 +57,7 @@
     "rowDuplicate": "Duplicar a linha (com o menu dela aberto numa tabela)",
     "rowMoveTo": "Mover a linha para outro lugar (com o menu aberto)",
     "rowComment": "Comentar a linha (com o menu aberto)",
-    "rowTrash": "Mover a linha para a lixeira (com o menu aberto)"
+    "rowTrash": "Mover a linha para a lixeira (com o menu aberto)",
+    "link": "Vincular o texto selecionado"
   }
 }

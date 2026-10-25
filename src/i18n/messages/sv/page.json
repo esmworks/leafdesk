@@ -44,7 +44,13 @@
       "serif": "Serif",
       "mono": "Mono",
       "smallText": "Liten text",
-      "fullWidth": "Full bredd"
+      "fullWidth": "Full bredd",
+      "backlinks": "Bakåtlänkar",
+      "backlinksModes": {
+        "expanded": "Under sidan",
+        "popup": "I ett popupfönster",
+        "off": "Dolda"
+      }
     },
     "lockDatabase": "Lås databasen",
     "lockHint": "Medan den är låst kan egenskaper och vyer inte ändras; rader går fortfarande att redigera.",
@@ -635,7 +641,7 @@
     "pageLink": {
       "title": "Länk till sida",
       "subtext": "En länk till en annan sida, med dess aktuella titel",
-      "aliases": "länk sida omnämnande referens link page mention reference"
+      "aliases": "länk sida omnämnande referens link page mention reference ltp"
     },
     "syncedPage": {
       "title": "Synkad sida",
@@ -1280,5 +1286,11 @@
     "replies": "{count, plural, =0 {Inga svar} one {# svar} other {# svar}}",
     "openThread": "Öppna tråd",
     "resolved": "Löst"
+  },
+  "newPageRoute": {
+    "documentTitle": "Ny sida",
+    "creating": "Skapar en sida …",
+    "failed": "Det gick inte att skapa sidan.",
+    "home": "Gå till arbetsytan"
   }
 }

@@ -36,7 +36,7 @@ import { firstImageInYdoc, PG_MARKDOWN_IMAGE_PATTERN } from "@/lib/cover";
 import { asFiles, fileIdOf, fileIdsInProperties, fileUrl, type FileValue } from "@/lib/files";
 import { assertNotInTrash } from "@/lib/page-lock";
 import { repeatSummary, type TemplateRepeatSummary } from "@/lib/schedule";
-import { isApplicable, isRollupFn, ROLLUP_DISPLAYS, type RollupDisplay } from "@/lib/aggregate";
+import { isApplicable, isListRollup, isRollupFn, ROLLUP_DISPLAYS, type RollupDisplay } from "@/lib/aggregate";
 import { compileFormulas, formulaForStorage, relatedDatabases, TITLE_FIELD, valueType, type RelatedSchemas } from "@/lib/derived";
 import type { FormulaError, FormulaResultType, FormulaStyle } from "@/lib/formula";
 import { isEmptyValue, lostValues, planConversion, retypeViewConfig, type ConversionContext } from "@/lib/convert-property";
@@ -327,7 +327,7 @@ async function withRollupUnits(properties: DatabaseProperty[]): Promise<Database
     const target = config && databaseId ? targets.get(databaseId)?.find((t) => t.id === config.targetPropertyId) : undefined;
     const number = config && target ? calculationFormat(config.function, { number: valueFormat(target) }) : undefined;
     const links =
-      config?.function === "show_original" && (target?.type === "url" || target?.type === "email" || target?.type === "phone") ? target.type : undefined;
+      isListRollup(config?.function) && (target?.type === "url" || target?.type === "email" || target?.type === "phone") ? target.type : undefined;
     return number || links ? { ...p, options: { ...p.options, rollup: { ...config!, ...(number ? { number } : {}), ...(links ? { links } : {}) } } } : p;
   });
 }
@@ -1567,7 +1567,7 @@ async function rollupConfig(
   if (target !== TITLE_FIELD && target.id === self.id) throw invalid("a rollup can't roll up itself");
   const fn = input.function;
   if (!isRollupFn(fn)) throw invalid(`unknown function "${String(fn)}"`);
-  if (fn !== "show_original" && !isApplicable(fn, target === TITLE_FIELD ? TITLE_FIELD : valueType(target))) {
+  if (!isListRollup(fn) && !isApplicable(fn, target === TITLE_FIELD ? TITLE_FIELD : valueType(target))) {
     throw invalid(`"${fn}" doesn't apply to ${target === TITLE_FIELD ? "titles" : `"${target.name}"`}`);
   }
   if (input.display !== undefined && !ROLLUP_DISPLAYS.includes(input.display as RollupDisplay)) {
@@ -2030,7 +2030,7 @@ async function followRenamedOptions(tx: Executor, propertyId: string, renamed: M
       and(
         eq(databaseProperty.type, "rollup"),
         sql`${databaseProperty.options} -> 'rollup' ->> 'targetPropertyId' = ${propertyId}::text`,
-        sql`${databaseProperty.options} -> 'rollup' ->> 'function' = 'show_original'`,
+        sql`${databaseProperty.options} -> 'rollup' ->> 'function' in ('show_original', 'show_unique')`,
       ),
     );
   if (!rollups.length) return [];

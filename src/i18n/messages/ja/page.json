@@ -44,7 +44,13 @@
       "serif": "セリフ",
       "mono": "等幅",
       "smallText": "小さい文字",
-      "fullWidth": "全幅"
+      "fullWidth": "全幅",
+      "backlinks": "バックリンク",
+      "backlinksModes": {
+        "expanded": "ページの下",
+        "popup": "ポップアップで",
+        "off": "非表示"
+      }
     },
     "lockDatabase": "データベースをロック",
     "lockHint": "ロック中はプロパティとビューを変更できません。行は引き続き編集できます。",
@@ -635,7 +641,7 @@
     "pageLink": {
       "title": "ページへのリンク",
       "subtext": "ほかのページへのリンク（タイトルは自動で更新）",
-      "aliases": "link page mention reference リンク ページ 参照"
+      "aliases": "link page mention reference リンク ページ 参照 ltp"
     },
     "syncedPage": {
       "title": "同期ページ",
@@ -1280,5 +1286,11 @@
     "replies": "{count, plural, =0 {返信なし} other {# 件の返信}}",
     "openThread": "スレッドを開く",
     "resolved": "解決済み"
+  },
+  "newPageRoute": {
+    "documentTitle": "新しいページ",
+    "creating": "ページを作成しています…",
+    "failed": "ページを作成できませんでした。",
+    "home": "ワークスペースへ移動"
   }
 }

@@ -965,7 +965,9 @@
     "zooms": {
       "day": "Dag",
       "week": "Vecka",
-      "month": "Månad"
+      "month": "Månad",
+      "quarter": "Kvartal",
+      "year": "År"
     },
     "showTable": "Visa tabell",
     "hideTable": "Dölj tabell",
@@ -974,7 +976,8 @@
     "resizeStart": "Dra för att ändra starten",
     "resizeEnd": "Dra för att ändra slutet",
     "empty": "Inga rader med {property} än.",
-    "dragHint": "Dra en rad till tidslinjen för att ge den ett datum."
+    "dragHint": "Dra en rad till tidslinjen för att ge den ett datum.",
+    "quarter": "K{quarter}"
   },
   "errors": {
     "invalidUrl": "”{property}” måste vara en http(s)- eller mailto-URL.",
@@ -1195,7 +1198,8 @@
     "save": "Spara sammanställning",
     "create": "Lägg till sammanställning",
     "back": "Tillbaka",
-    "summary": "{function} av {property} i {relation}"
+    "summary": "{function} av {property} i {relation}",
+    "showUnique": "Visa unika värden"
   },
   "propertyAccess": {
     "menuItem": "Egenskapsåtkomst",

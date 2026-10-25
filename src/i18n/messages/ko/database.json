@@ -965,7 +965,9 @@
     "zooms": {
       "day": "일",
       "week": "주",
-      "month": "월"
+      "month": "월",
+      "quarter": "분기",
+      "year": "연"
     },
     "showTable": "표 표시",
     "hideTable": "표 숨기기",
@@ -974,7 +976,8 @@
     "resizeStart": "끌어서 시작 변경",
     "resizeEnd": "끌어서 종료 변경",
     "empty": "아직 {property}이(가) 있는 행이 없습니다.",
-    "dragHint": "행을 타임라인으로 끌어 놓으면 날짜가 지정됩니다."
+    "dragHint": "행을 타임라인으로 끌어 놓으면 날짜가 지정됩니다.",
+    "quarter": "{quarter}분기"
   },
   "errors": {
     "invalidUrl": "“{property}”은(는) http(s) 또는 mailto URL이어야 합니다.",
@@ -1195,7 +1198,8 @@
     "save": "롤업 저장",
     "create": "롤업 추가",
     "back": "뒤로",
-    "summary": "{relation}의 {property} {function}"
+    "summary": "{relation}의 {property} {function}",
+    "showUnique": "고유한 값 표시"
   },
   "propertyAccess": {
     "menuItem": "속성 액세스",

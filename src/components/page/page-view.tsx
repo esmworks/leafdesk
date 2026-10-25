@@ -47,6 +47,7 @@ import { PAGE_HEADER_EVENT } from "@/lib/collab-constants";
 import { threadOfHash } from "@/lib/comments";
 import { COMMENTS_REQUEST_EVENT, takeCommentsRequest } from "@/lib/comments-request";
 import type { PageBackground } from "@/lib/page-background";
+import { pageIconHref } from "@/lib/page-icon-href";
 import { DEFAULT_PAGE_STYLE, pageTextClasses, writePageStyle, type PageStyle } from "@/lib/page-style";
 import { isMac, opensPresentation } from "@/lib/shortcuts";
 import { useToggleAllShortcut } from "@/components/toggle-all";
@@ -261,14 +262,20 @@ export function PageView({
       ? t("documentViewTitle", { title: label, view: viewName })
       : t("documentTitle", { title: label });
   }, [title, untitled, viewName, t, inPanel]);
-  // The page's icon, which the desktop app shows on its tab (desktop/src/preload.cts reads it).
+  // The page's icon, which the desktop app shows on its tab (desktop/src/preload.cts reads it), and
+  // the browser tab's icon: a link of its own after the app's, kept in step with live changes (the
+  // route's metadata gives the same one on a fresh load).
   useEffect(() => {
     if (inPanel) return;
     const root = document.documentElement;
     if (icon) root.dataset.pageIcon = icon;
     else delete root.dataset.pageIcon;
+    const href = pageIconHref(icon);
+    const link = href ? Object.assign(document.createElement("link"), { rel: "icon", type: "image/svg+xml", href }) : null;
+    if (link) document.head.append(link);
     return () => {
       delete root.dataset.pageIcon;
+      link?.remove();
     };
   }, [icon, inPanel]);
 
@@ -680,6 +687,9 @@ export function PageView({
                 </div>
               )}
             </div>
+            {pageStyle.backlinks === "popup" && (
+              <Backlinks workspaceId={workspaceId} pageId={page.id} title={page.title} canLink={!offline && !page.archived} popup />
+            )}
             {/* A row template's title may say @today, @now and @me (lib/template-values). */}
             {info.template === "row" && editable && !page.archived && (
               <p className="mt-1 text-xs text-fg-faint">{t("template.titleMarkers")}</p>
@@ -759,8 +769,11 @@ export function PageView({
               )}
             </div>
           </div>
-          {/* Databases too: a page can mention one. */}
-          <Backlinks workspaceId={workspaceId} pageId={page.id} title={page.title} canLink={!offline && !page.archived} />
+          {/* Databases too: a page can mention one. Listed here unless the page shows them in a popup
+              under its title or not at all (its Backlinks setting, lib/page-style). */}
+          {pageStyle.backlinks === "expanded" && (
+            <Backlinks workspaceId={workspaceId} pageId={page.id} title={page.title} canLink={!offline && !page.archived} />
+          )}
         </div>
 
         {graphOpen && !offline && !page.archived && (

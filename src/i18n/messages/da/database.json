@@ -965,7 +965,9 @@
     "zooms": {
       "day": "Dag",
       "week": "Uge",
-      "month": "Måned"
+      "month": "Måned",
+      "quarter": "Kvartal",
+      "year": "År"
     },
     "showTable": "Vis tabel",
     "hideTable": "Skjul tabel",
@@ -974,7 +976,8 @@
     "resizeStart": "Træk for at ændre starten",
     "resizeEnd": "Træk for at ændre slutningen",
     "empty": "Ingen rækker med en {property} endnu.",
-    "dragHint": "Træk en række ind på tidslinjen for at give den en dato."
+    "dragHint": "Træk en række ind på tidslinjen for at give den en dato.",
+    "quarter": "K{quarter}"
   },
   "errors": {
     "invalidUrl": "“{property}” skal være en http(s)- eller mailto-URL.",
@@ -1195,7 +1198,8 @@
     "save": "Gem opsamling",
     "create": "Tilføj opsamling",
     "back": "Tilbage",
-    "summary": "{function} af {property} i {relation}"
+    "summary": "{function} af {property} i {relation}",
+    "showUnique": "Vis unikke værdier"
   },
   "propertyAccess": {
     "menuItem": "Egenskabsadgang",

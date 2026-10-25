@@ -965,7 +965,9 @@
     "zooms": {
       "day": "日",
       "week": "週",
-      "month": "月"
+      "month": "月",
+      "quarter": "四半期",
+      "year": "年"
     },
     "showTable": "テーブルを表示",
     "hideTable": "テーブルを非表示",
@@ -974,7 +976,8 @@
     "resizeStart": "ドラッグして開始を変更",
     "resizeEnd": "ドラッグして終了を変更",
     "empty": "{property}のある行はまだありません。",
-    "dragHint": "行をタイムラインにドラッグすると日付を設定できます。"
+    "dragHint": "行をタイムラインにドラッグすると日付を設定できます。",
+    "quarter": "第{quarter}四半期"
   },
   "errors": {
     "invalidUrl": "「{property}」にはhttp(s)またはmailtoのURLを入力してください。",
@@ -1195,7 +1198,8 @@
     "save": "ロールアップを保存",
     "create": "ロールアップを追加",
     "back": "戻る",
-    "summary": "{relation}の{property}の{function}"
+    "summary": "{relation}の{property}の{function}",
+    "showUnique": "一意の値を表示"
   },
   "propertyAccess": {
     "menuItem": "プロパティのアクセス権",

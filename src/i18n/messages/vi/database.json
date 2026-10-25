@@ -965,7 +965,9 @@
     "zooms": {
       "day": "Ngày",
       "week": "Tuần",
-      "month": "Tháng"
+      "month": "Tháng",
+      "quarter": "Quý",
+      "year": "Năm"
     },
     "showTable": "Hiện bảng",
     "hideTable": "Ẩn bảng",
@@ -974,7 +976,8 @@
     "resizeStart": "Kéo để đổi ngày bắt đầu",
     "resizeEnd": "Kéo để đổi ngày kết thúc",
     "empty": "Chưa có hàng nào có {property}.",
-    "dragHint": "Kéo một hàng vào dòng thời gian để gán ngày cho nó."
+    "dragHint": "Kéo một hàng vào dòng thời gian để gán ngày cho nó.",
+    "quarter": "Q{quarter}"
   },
   "errors": {
     "invalidUrl": "“{property}” phải là URL http(s) hoặc mailto.",
@@ -1195,7 +1198,8 @@
     "save": "Lưu tổng hợp",
     "create": "Thêm tổng hợp",
     "back": "Quay lại",
-    "summary": "{function} của {property} trong {relation}"
+    "summary": "{function} của {property} trong {relation}",
+    "showUnique": "Hiển thị giá trị duy nhất"
   },
   "propertyAccess": {
     "menuItem": "Quyền truy cập thuộc tính",

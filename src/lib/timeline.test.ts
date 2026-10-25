@@ -12,6 +12,7 @@ import {
   MAX_RANGE_DAYS,
   monthStart,
   nextUnit,
+  quarterOf,
   rowSpan,
   spanValues,
   timelineRange,
@@ -76,6 +77,25 @@ describe("calendar units", () => {
     expect(dayValue(unitStart(day, "month"))).toBe("2026-09-01");
     expect(dayValue(nextUnit(day, "week"))).toBe("2026-09-28");
     expect(dayValue(nextUnit(day, "month"))).toBe("2026-10-01");
+    expect(dayValue(unitStart(day, "quarter"))).toBe("2026-07-01");
+    expect(dayValue(nextUnit(day, "quarter"))).toBe("2026-10-01");
+    expect(dayValue(nextUnit(d("2026-12-31"), "quarter"))).toBe("2027-01-01");
+    expect(dayValue(unitStart(day, "year"))).toBe("2026-01-01");
+    expect(dayValue(nextUnit(day, "year"))).toBe("2027-01-01");
+    expect(quarterOf(day)).toBe(3);
+    expect(quarterOf(d("2026-01-01"))).toBe(1);
+  });
+
+  it("put years above quarters and decades above years", () => {
+    const quarters = headerUnits({ start: d("2025-10-01"), end: d("2026-06-30") }, "quarter");
+    expect(quarters.columns.map((u) => dayValue(u.start))).toEqual(["2025-10-01", "2026-01-01", "2026-04-01"]);
+    expect(quarters.top.map((u) => dayValue(u.start))).toEqual(["2025-10-01", "2026-01-01"]);
+    const years = headerUnits({ start: d("2018-01-01"), end: d("2021-12-31") }, "year");
+    expect(years.columns).toHaveLength(4);
+    expect(years.top.map((u) => [dayValue(u.start), u.days])).toEqual([
+      ["2018-01-01", d("2020-01-01") - d("2018-01-01")],
+      ["2020-01-01", d("2022-01-01") - d("2020-01-01")],
+    ]);
   });
 });
 

@@ -44,7 +44,13 @@
       "serif": "เซอริฟ",
       "mono": "โมโน",
       "smallText": "ข้อความขนาดเล็ก",
-      "fullWidth": "เต็มความกว้าง"
+      "fullWidth": "เต็มความกว้าง",
+      "backlinks": "ลิงก์ย้อนกลับ",
+      "backlinksModes": {
+        "expanded": "ใต้หน้า",
+        "popup": "ในป๊อปอัป",
+        "off": "ซ่อน"
+      }
     },
     "lockDatabase": "ล็อกฐานข้อมูล",
     "lockHint": "ขณะล็อก คุณสมบัติและมุมมองจะเปลี่ยนไม่ได้ แต่ยังแก้ไขแถวได้",
@@ -635,7 +641,7 @@
     "pageLink": {
       "title": "ลิงก์ไปยังหน้า",
       "subtext": "ลิงก์ไปยังหน้าอื่นที่แสดงชื่อล่าสุดเสมอ",
-      "aliases": "link page mention reference ลิงก์ หน้า กล่าวถึง อ้างอิง"
+      "aliases": "link page mention reference ลิงก์ หน้า กล่าวถึง อ้างอิง ltp"
     },
     "syncedPage": {
       "title": "หน้าที่ซิงก์",
@@ -1280,5 +1286,11 @@
     "replies": "{count, plural, =0 {ยังไม่มีการตอบกลับ} other {# การตอบกลับ}}",
     "openThread": "เปิดเธรด",
     "resolved": "แก้ไขแล้ว"
+  },
+  "newPageRoute": {
+    "documentTitle": "หน้าใหม่",
+    "creating": "กำลังสร้างหน้า…",
+    "failed": "สร้างหน้าไม่ได้",
+    "home": "ไปที่พื้นที่ทำงาน"
   }
 }

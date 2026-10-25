@@ -965,7 +965,9 @@
     "zooms": {
       "day": "يوم",
       "week": "أسبوع",
-      "month": "شهر"
+      "month": "شهر",
+      "quarter": "ربع سنة",
+      "year": "سنة"
     },
     "showTable": "إظهار الجدول",
     "hideTable": "إخفاء الجدول",
@@ -974,7 +976,8 @@
     "resizeStart": "اسحب لتغيير البداية",
     "resizeEnd": "اسحب لتغيير النهاية",
     "empty": "لا صفوف لها {property} بعد.",
-    "dragHint": "اسحب صفًا إلى المخطط الزمني لمنحه تاريخًا."
+    "dragHint": "اسحب صفًا إلى المخطط الزمني لمنحه تاريخًا.",
+    "quarter": "الربع {quarter}"
   },
   "errors": {
     "invalidUrl": "يجب أن تكون «{property}» عنوان URL من نوع http(s) أو mailto.",
@@ -1195,7 +1198,8 @@
     "save": "حفظ التلخيص",
     "create": "إضافة تلخيص",
     "back": "رجوع",
-    "summary": "{function} لـ {property} في {relation}"
+    "summary": "{function} لـ {property} في {relation}",
+    "showUnique": "عرض القيم الفريدة"
   },
   "propertyAccess": {
     "menuItem": "الوصول إلى الخاصية",

@@ -44,7 +44,13 @@
       "serif": "Serif",
       "mono": "Mono",
       "smallText": "Kleine tekst",
-      "fullWidth": "Volledige breedte"
+      "fullWidth": "Volledige breedte",
+      "backlinks": "Terugverwijzingen",
+      "backlinksModes": {
+        "expanded": "Onder de pagina",
+        "popup": "In een pop-up",
+        "off": "Verborgen"
+      }
     },
     "lockDatabase": "Database vergrendelen",
     "lockHint": "Zolang de database vergrendeld is, kunnen eigenschappen en weergaven niet veranderen; rijen blijven bewerkbaar.",
@@ -635,7 +641,7 @@
     "pageLink": {
       "title": "Link naar pagina",
       "subtext": "Een link naar een andere pagina, met de actuele titel",
-      "aliases": "link page mention reference pagina vermelding verwijzing"
+      "aliases": "link page mention reference pagina vermelding verwijzing ltp"
     },
     "syncedPage": {
       "title": "Gesynchroniseerde pagina",
@@ -1280,5 +1286,11 @@
     "replies": "{count, plural, =0 {Geen reacties} one {# reactie} other {# reacties}}",
     "openThread": "Draad openen",
     "resolved": "Opgelost"
+  },
+  "newPageRoute": {
+    "documentTitle": "Nieuwe pagina",
+    "creating": "Pagina wordt gemaakt…",
+    "failed": "De pagina kon niet worden gemaakt.",
+    "home": "Naar de werkruimte"
   }
 }

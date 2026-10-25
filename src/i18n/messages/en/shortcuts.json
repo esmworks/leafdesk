@@ -57,6 +57,7 @@
     "rowDuplicate": "Duplicate the row (its menu open in a table)",
     "rowMoveTo": "Move the row elsewhere (its menu open)",
     "rowComment": "Comment on the row (its menu open)",
-    "rowTrash": "Move the row to the trash (its menu open)"
+    "rowTrash": "Move the row to the trash (its menu open)",
+    "link": "Link the selected text"
   }
 }

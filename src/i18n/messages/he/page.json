@@ -44,7 +44,13 @@
       "serif": "סריף",
       "mono": "רוחב קבוע",
       "smallText": "טקסט קטן",
-      "fullWidth": "רוחב מלא"
+      "fullWidth": "רוחב מלא",
+      "backlinks": "קישורים נכנסים",
+      "backlinksModes": {
+        "expanded": "מתחת לדף",
+        "popup": "בחלון קופץ",
+        "off": "מוסתרים"
+      }
     },
     "lockDatabase": "נעילת מסד הנתונים",
     "lockHint": "בזמן הנעילה אי אפשר לשנות מאפיינים ותצוגות; את השורות עדיין אפשר לערוך.",
@@ -635,7 +641,7 @@
     "pageLink": {
       "title": "קישור לדף",
       "subtext": "קישור לדף אחר, עם הכותרת העדכנית שלו",
-      "aliases": "קישור דף אזכור הפניה link page mention reference"
+      "aliases": "קישור דף אזכור הפניה link page mention reference ltp"
     },
     "syncedPage": {
       "title": "דף מסונכרן",
@@ -1280,5 +1286,11 @@
     "replies": "{count, plural, =0 {אין תשובות} one {תשובה אחת} other {# תשובות}}",
     "openThread": "פתיחת השרשור",
     "resolved": "נפתר"
+  },
+  "newPageRoute": {
+    "documentTitle": "דף חדש",
+    "creating": "יוצרים דף…",
+    "failed": "לא ניתן היה ליצור את הדף.",
+    "home": "מעבר לסביבת העבודה"
   }
 }

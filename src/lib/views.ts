@@ -42,7 +42,7 @@ export const VIEW_TYPES = [
 export const LINKED_VIEW_TYPES = VIEW_TYPES.filter((type) => type !== "form" && type !== "dashboard");
 export const CARD_SIZES = ["small", "medium", "large"] as const satisfies readonly CardSize[];
 export const COVER_SOURCES = ["first_image", "property", "none"] as const satisfies readonly ViewCover["source"][];
-export const TIMELINE_ZOOMS = ["day", "week", "month"] as const satisfies readonly TimelineZoom[];
+export const TIMELINE_ZOOMS = ["day", "week", "month", "quarter", "year"] as const satisfies readonly TimelineZoom[];
 export const CALENDAR_MODES = ["month", "week"] as const satisfies readonly CalendarMode[];
 export const OPEN_ROWS = ["panel", "center", "page"] as const satisfies readonly OpenRows[];
 /** The views whose rows open from them; forms have none and charts list theirs as links. */

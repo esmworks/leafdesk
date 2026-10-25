@@ -57,6 +57,7 @@
     "rowDuplicate": "Zeile duplizieren (ihr Menü in einer Tabelle geöffnet)",
     "rowMoveTo": "Zeile verschieben (ihr Menü geöffnet)",
     "rowComment": "Zeile kommentieren (ihr Menü geöffnet)",
-    "rowTrash": "Zeile in den Papierkorb verschieben (ihr Menü geöffnet)"
+    "rowTrash": "Zeile in den Papierkorb verschieben (ihr Menü geöffnet)",
+    "link": "Markierten Text verlinken"
   }
 }

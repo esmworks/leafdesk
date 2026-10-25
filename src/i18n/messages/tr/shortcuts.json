@@ -57,6 +57,7 @@
     "rowDuplicate": "Satırın kopyasını oluştur (tabloda menüsü açıkken)",
     "rowMoveTo": "Satırı başka yere taşı (menüsü açıkken)",
     "rowComment": "Satıra yorum yap (menüsü açıkken)",
-    "rowTrash": "Satırı çöp kutusuna taşı (menüsü açıkken)"
+    "rowTrash": "Satırı çöp kutusuna taşı (menüsü açıkken)",
+    "link": "Seçili metne bağlantı ekle"
   }
 }

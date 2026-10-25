@@ -57,6 +57,7 @@
     "rowDuplicate": "Duplicar la fila (con su menú abierto en una tabla)",
     "rowMoveTo": "Mover la fila a otro sitio (con su menú abierto)",
     "rowComment": "Comentar la fila (con su menú abierto)",
-    "rowTrash": "Mover la fila a la papelera (con su menú abierto)"
+    "rowTrash": "Mover la fila a la papelera (con su menú abierto)",
+    "link": "Enlazar el texto seleccionado"
   }
 }

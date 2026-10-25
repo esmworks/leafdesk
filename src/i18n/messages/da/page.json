@@ -44,7 +44,13 @@
       "serif": "Serif",
       "mono": "Mono",
       "smallText": "Lille tekst",
-      "fullWidth": "Fuld bredde"
+      "fullWidth": "Fuld bredde",
+      "backlinks": "Tilbagelinks",
+      "backlinksModes": {
+        "expanded": "Under siden",
+        "popup": "I et pop op-vindue",
+        "off": "Skjult"
+      }
     },
     "lockDatabase": "Lås database",
     "lockHint": "Mens den er låst, kan egenskaber og visninger ikke ændres; rækker kan stadig redigeres.",
@@ -635,7 +641,7 @@
     "pageLink": {
       "title": "Link til side",
       "subtext": "Et link til en anden side med dens aktuelle titel",
-      "aliases": "link page mention reference side omtale"
+      "aliases": "link page mention reference side omtale ltp"
     },
     "syncedPage": {
       "title": "Synkroniseret side",
@@ -1280,5 +1286,11 @@
     "replies": "{count, plural, =0 {Ingen svar} one {# svar} other {# svar}}",
     "openThread": "Åbn tråd",
     "resolved": "Løst"
+  },
+  "newPageRoute": {
+    "documentTitle": "Ny side",
+    "creating": "Opretter en side …",
+    "failed": "Siden kunne ikke oprettes.",
+    "home": "Gå til arbejdsområdet"
   }
 }

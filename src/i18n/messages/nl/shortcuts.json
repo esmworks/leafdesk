@@ -57,6 +57,7 @@
     "rowDuplicate": "De rij dupliceren (met het rijmenu open in een tabel)",
     "rowMoveTo": "De rij ergens anders heen verplaatsen (met het rijmenu open)",
     "rowComment": "Een opmerking bij de rij plaatsen (met het rijmenu open)",
-    "rowTrash": "De rij naar de prullenbak verplaatsen (met het rijmenu open)"
+    "rowTrash": "De rij naar de prullenbak verplaatsen (met het rijmenu open)",
+    "link": "De geselecteerde tekst koppelen"
   }
 }

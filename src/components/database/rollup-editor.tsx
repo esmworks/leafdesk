@@ -119,7 +119,7 @@ export function RollupEditor({
               <select className={menuFieldClass} value={chosenFn} onChange={(e) => setFn(e.target.value as RollupFn)} disabled={!targetType}>
                 {functions.map((f) => (
                   <option key={f} value={f}>
-                    {f === "show_original" ? t("showOriginal") : tc(`menu.${f}`)}
+                    {f === "show_original" ? t("showOriginal") : f === "show_unique" ? t("showUnique") : tc(`menu.${f}`)}
                   </option>
                 ))}
               </select>

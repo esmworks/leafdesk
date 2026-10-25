@@ -57,6 +57,7 @@
     "rowDuplicate": "Duplicera raden (med dess meny öppen i en tabell)",
     "rowMoveTo": "Flytta raden någon annanstans (med dess meny öppen)",
     "rowComment": "Kommentera raden (med dess meny öppen)",
-    "rowTrash": "Flytta raden till papperskorgen (med dess meny öppen)"
+    "rowTrash": "Flytta raden till papperskorgen (med dess meny öppen)",
+    "link": "Länka den markerade texten"
   }
 }

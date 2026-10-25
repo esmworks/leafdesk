@@ -44,7 +44,13 @@
       "serif": "سریف",
       "mono": "تک‌فاصله",
       "smallText": "متن کوچک",
-      "fullWidth": "تمام‌عرض"
+      "fullWidth": "تمام‌عرض",
+      "backlinks": "پیوندهای ورودی",
+      "backlinksModes": {
+        "expanded": "زیر صفحه",
+        "popup": "در پنجرهٔ بازشو",
+        "off": "پنهان"
+      }
     },
     "lockDatabase": "قفل کردن پایگاه داده",
     "lockHint": "تا وقتی قفل است، ویژگی‌ها و نماها تغییر نمی‌کنند؛ ردیف‌ها همچنان قابل ویرایش‌اند.",
@@ -635,7 +641,7 @@
     "pageLink": {
       "title": "لینک به صفحه",
       "subtext": "لینکی به صفحه‌ای دیگر، با عنوان به‌روز آن",
-      "aliases": "لینک صفحه اشاره ارجاع link page mention reference"
+      "aliases": "لینک صفحه اشاره ارجاع link page mention reference ltp"
     },
     "syncedPage": {
       "title": "صفحهٔ همگام",
@@ -1280,5 +1286,11 @@
     "replies": "{count, plural, =0 {بدون پاسخ} other {# پاسخ}}",
     "openThread": "باز کردن رشته",
     "resolved": "حل‌شده"
+  },
+  "newPageRoute": {
+    "documentTitle": "صفحهٔ جدید",
+    "creating": "در حال ساختن صفحه…",
+    "failed": "ساختن صفحه ممکن نشد.",
+    "home": "رفتن به فضای کار"
   }
 }

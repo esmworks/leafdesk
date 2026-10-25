@@ -965,7 +965,9 @@
     "zooms": {
       "day": "Dia",
       "week": "Semana",
-      "month": "Mês"
+      "month": "Mês",
+      "quarter": "Trimestre",
+      "year": "Ano"
     },
     "showTable": "Mostrar tabela",
     "hideTable": "Ocultar tabela",
@@ -974,7 +976,8 @@
     "resizeStart": "Arraste para mudar o início",
     "resizeEnd": "Arraste para mudar o término",
     "empty": "Nenhuma linha com {property} ainda.",
-    "dragHint": "Arraste uma linha para a linha do tempo para dar uma data a ela."
+    "dragHint": "Arraste uma linha para a linha do tempo para dar uma data a ela.",
+    "quarter": "T{quarter}"
   },
   "errors": {
     "invalidUrl": "“{property}” deve ser uma URL http(s) ou mailto.",
@@ -1195,7 +1198,8 @@
     "save": "Salvar agregação",
     "create": "Adicionar agregação",
     "back": "Voltar",
-    "summary": "{function} de {property} em {relation}"
+    "summary": "{function} de {property} em {relation}",
+    "showUnique": "Mostrar valores únicos"
   },
   "propertyAccess": {
     "menuItem": "Acesso à propriedade",
