@@ -79,7 +79,8 @@
       "in": "בתוך דף",
       "type": "רק מסדי נתונים (או דף, שורה)",
       "commands": "פקודות",
-      "phrase": "ביטוי מדויק"
+      "phrase": "ביטוי מדויק",
+      "tag": "תגית"
     },
     "filters": {
       "label": "מסננים",
@@ -110,7 +111,9 @@
         "createdNewest": "יצירה: החדשים קודם",
         "createdOldest": "יצירה: הישנים קודם"
       }
-    }
+    },
+    "tags": "תגיות",
+    "tagPages": "{count, plural, one {עמוד אחד} other {# עמודים}}"
   },
   "trash": {
     "title": "אשפה",

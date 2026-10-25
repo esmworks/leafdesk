@@ -79,7 +79,8 @@
       "in": "binnen een pagina",
       "type": "alleen databases (of page, row)",
       "commands": "opdrachten",
-      "phrase": "exacte woordgroep"
+      "phrase": "exacte woordgroep",
+      "tag": "tag"
     },
     "filters": {
       "label": "Filters",
@@ -110,7 +111,9 @@
         "createdNewest": "Gemaakt: nieuwste eerst",
         "createdOldest": "Gemaakt: oudste eerst"
       }
-    }
+    },
+    "tags": "Tags",
+    "tagPages": "{count, plural, one {# pagina} other {# pagina's}}"
   },
   "trash": {
     "title": "Prullenbak",

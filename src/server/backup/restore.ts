@@ -29,6 +29,7 @@ import { fileIdOf, isFileId } from "@/lib/files";
 import { isReservedEmail, isRestoredEmail, restoredEmail } from "@/lib/reserved-emails";
 import { readAiConfig } from "@/server/ai/config";
 import { recordAudit } from "@/server/audit";
+import { queueWorkspaceTags } from "@/server/page-tags";
 import { newHookSalt } from "@/server/automations/incoming";
 import { newSecretSalt } from "@/server/automations/webhook";
 import { newEventSecret } from "@/server/connections/manage";
@@ -90,6 +91,8 @@ export async function restoreBackup(actorId: string, archive: string): Promise<R
     applyPeople(actorId, workspaceId, rows, people);
     const notes = await fitThisServer(manifest, rows);
     await storeAndInsert(actorId, archive, manifest, rows, people, byName);
+    // The index of the pages' #tags isn't in the backup: they are read from the pages again.
+    await queueWorkspaceTags(workspaceId);
     // New uploads go to the restorer's default storage account, if they have one; the restored
     // files stay in the server's storage, where an owner can move them from.
     await attachDefaultStorage(actorId, workspaceId);

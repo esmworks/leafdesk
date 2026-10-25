@@ -1335,5 +1335,10 @@
     "title": "Muuta sivuksi kohteessa",
     "here": "Tämän sivun sisällä",
     "failed": "Lohkoja ei voitu siirtää uudelle sivulle."
+  },
+  "tags": {
+    "label": "Tunnisteet",
+    "pages": "{count, plural, one {# sivu} other {# sivua}}",
+    "find": "Etsi sivut, joilla on #{tag}"
   }
 }

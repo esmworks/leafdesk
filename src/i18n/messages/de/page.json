@@ -1335,5 +1335,10 @@
     "title": "In Seite umwandeln in",
     "here": "In dieser Seite",
     "failed": "Die Blöcke konnten nicht auf eine neue Seite verschoben werden."
+  },
+  "tags": {
+    "label": "Tags",
+    "pages": "{count, plural, one {# Seite} other {# Seiten}}",
+    "find": "Seiten mit #{tag} finden"
   }
 }

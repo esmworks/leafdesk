@@ -46,6 +46,7 @@ import { serverBuildId } from "@/server/build-id";
 import { blocksToMarkdown, markdownToBlocks, serverEditor as editor, type PageBlock } from "@/server/blocknote";
 import { authorizeFileReferences, referencedFileIds, unauthorizedFileIds } from "@/server/files";
 import { syncMeetingNotes } from "@/server/meeting-notes";
+import { syncPageTags } from "@/server/page-tags";
 import { labelPageLinks, mentionablePeople, pagesNamed, syncPageReferences } from "@/server/mentions";
 import { announceSuggestions } from "@/server/suggested-edits";
 import { bodyBlocks, fragmentBlocks, syncedBlocksOf } from "@/server/synced-body";
@@ -397,6 +398,8 @@ export function createCollab() {
     await syncPageReferences(pageId, row.workspaceId, blocks, userId ?? null, context?.locale ?? null);
     // The Meetings page's rows follow the body's meeting blocks (catches its own errors).
     await syncMeetingNotes(pageId, blocks);
+    // The page's `#tags`, which search finds it by, follow its text (catches its own errors).
+    await syncPageTags(pageId, blocks);
     // New suggestions reach the page's watchers like new threads do (catches its own errors).
     if (suggestionThreads.opened.length) await announceSuggestions(row.workspaceId, pageId, suggestionThreads.opened);
     if (!edited) return;

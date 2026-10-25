@@ -79,7 +79,8 @@
       "in": "在页面内",
       "type": "仅数据库（或页面、行）",
       "commands": "命令",
-      "phrase": "精确短语"
+      "phrase": "精确短语",
+      "tag": "标签"
     },
     "filters": {
       "label": "筛选",
@@ -110,7 +111,9 @@
         "createdNewest": "创建时间：最新优先",
         "createdOldest": "创建时间：最早优先"
       }
-    }
+    },
+    "tags": "标签",
+    "tagPages": "{count, plural, other {# 个页面}}"
   },
   "trash": {
     "title": "回收站",

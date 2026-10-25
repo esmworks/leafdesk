@@ -1335,5 +1335,10 @@
     "title": "Lav om til side i",
     "here": "Inde i denne side",
     "failed": "Blokkene kunne ikke flyttes til en ny side."
+  },
+  "tags": {
+    "label": "Tags",
+    "pages": "{count, plural, one {# side} other {# sider}}",
+    "find": "Find sider med #{tag}"
   }
 }

@@ -34,6 +34,7 @@ import * as webhooks from "@/server/page-webhooks/manage";
 import * as ops from "@/server/operations";
 import { MAX_ACTIVITY_PAGE } from "@/server/row-activity-feed";
 import { MAX_FILTER_VALUES } from "@/lib/search-filters";
+import { searchedTag } from "@/lib/tags";
 import { voiceAudioType } from "@/lib/voice-notes";
 import { AUDIT_ACTOR_KINDS, AUDIT_CATEGORY_NAMES } from "@/lib/audit";
 import { streamedAuditEvent } from "@/lib/audit-stream";
@@ -360,6 +361,7 @@ export const API_ROUTES: ApiRoute[] = [
       created_before: searchTime.describe("Only pages created before this time (ISO 8601; a day alone is its start in UTC)."),
       edited_after: searchTime.describe("Only pages last edited at or after this time (ISO 8601; a day alone is its start in UTC)."),
       edited_before: searchTime.describe("Only pages last edited before this time (ISO 8601; a day alone is its start in UTC)."),
+      tag: z.string().optional().describe('Only pages whose text carries this #tag or one under it ("home" also finds #home/renovation).'),
       limit: limitInput(50, 10),
       cursor: cursorInput,
     }),
@@ -371,6 +373,9 @@ export const API_ROUTES: ApiRoute[] = [
         throw new ApiError(400, "invalid_request", `Search returns the first ${MAX_SEARCH_WINDOW} matches; narrow the query.`);
       }
       const people = (list: string[] | undefined) => list?.map((id) => (id === "me" ? ctx.userId : id));
+      const badTag = (): never => {
+        throw new ApiError(400, "validation_error", "Not a tag: letters, digits, _ and -, with / between levels, at least one letter.", undefined, { param: "tag" });
+      };
       const range = (from?: Date, to?: Date) => (from || to ? { from, to } : undefined);
       const filters = {
         teamspaceIds: query.teamspace_id,
@@ -378,6 +383,7 @@ export const API_ROUTES: ApiRoute[] = [
         editedBy: people(query.edited_by),
         createdIn: range(query.created_after, query.created_before),
         editedIn: range(query.edited_after, query.edited_before),
+        tags: query.tag === undefined ? undefined : [searchedTag(query.tag.trim().replace(/^#/, ""))?.key ?? badTag()],
       };
       const filtered = Object.values(filters).some((value) => value !== undefined);
       if (!query.query.trim() && !filtered) throw new ApiError(400, "validation_error", "Give a query, a filter or both.", undefined, { param: "query" });

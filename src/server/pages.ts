@@ -931,9 +931,10 @@ export type SearchOptions = SearchScope & {
 };
 
 /** Whether a search has a scope of its own, which lists pages even without words to search for. */
-const scoped = ({ withinPageIds, kinds, verifiedOnly, teamspaceIds, createdBy, editedBy, createdIn, editedIn }: SearchScope) =>
+const scoped = ({ withinPageIds, kinds, verifiedOnly, teamspaceIds, createdBy, editedBy, createdIn, editedIn, tags }: SearchScope) =>
   Boolean(
     withinPageIds?.length ||
+      tags?.length ||
       kinds?.length ||
       verifiedOnly ||
       teamspaceIds?.length ||
@@ -1187,7 +1188,9 @@ export async function fullTextSearch(
     left join ${fileText} ft on ft.file_id = h.file_id
     order by ${sort === "relevance" ? sql`h.rank desc, h.verified desc, h.updated_at desc` : searchSortOrder(sort, "h")}
   `);
-  const needles = anyWord ? terms : [...phrases, q, ...q.split(/\s+/)];
+  // A page found by its tags shows the text around the first one.
+  const tagged = (scope.tags ?? []).map((tag) => `#${tag}`);
+  const needles = anyWord ? terms : [...phrases, ...(q || !tagged.length ? [q, ...q.split(/\s+/)] : []), ...tagged];
   return rows.map((r) => ({
     id: r.id,
     workspaceId: r.workspace_id,
@@ -1360,7 +1363,7 @@ export async function searchWithQuery(
     sort = "relevance",
   }: { includeOutdated?: boolean; filters?: SearchFilters; timeZone?: string; now?: Date; sort?: SearchSort } = {},
 ): Promise<SearchHit[]> {
-  const { text, within, kinds, verified, phrases } = parseSearchQuery(query);
+  const { text, within, kinds, verified, phrases, tags } = parseSearchQuery(query);
   const withinPageIds = within.length ? await pagesTitled(userId, workspaceId, within, 20, { includeOutdated }) : undefined;
   if (withinPageIds && !withinPageIds.length) return [];
   const { teamspaceIds, createdBy, editedBy, date } = filters;
@@ -1373,6 +1376,7 @@ export async function searchWithQuery(
     includeOutdated,
     verifiedOnly: verified,
     phrases,
+    tags,
     teamspaceIds,
     createdBy,
     editedBy,

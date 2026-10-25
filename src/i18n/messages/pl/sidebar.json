@@ -79,7 +79,8 @@
       "in": "wewnątrz strony",
       "type": "tylko bazy danych (lub strony, wiersze)",
       "commands": "polecenia",
-      "phrase": "dokładna fraza"
+      "phrase": "dokładna fraza",
+      "tag": "tag"
     },
     "filters": {
       "label": "Filtry",
@@ -110,7 +111,9 @@
         "createdNewest": "Utworzenie: od najnowszych",
         "createdOldest": "Utworzenie: od najstarszych"
       }
-    }
+    },
+    "tags": "Tagi",
+    "tagPages": "{count, plural, one {# strona} few {# strony} many {# stron} other {# strony}}"
   },
   "trash": {
     "title": "Kosz",

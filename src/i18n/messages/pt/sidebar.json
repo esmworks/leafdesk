@@ -79,7 +79,8 @@
       "in": "dentro de uma página",
       "type": "só bancos de dados (ou página, linha)",
       "commands": "comandos",
-      "phrase": "frase exata"
+      "phrase": "frase exata",
+      "tag": "etiqueta"
     },
     "filters": {
       "label": "Filtros",
@@ -110,7 +111,9 @@
         "createdNewest": "Criação: mais recentes primeiro",
         "createdOldest": "Criação: mais antigas primeiro"
       }
-    }
+    },
+    "tags": "Etiquetas",
+    "tagPages": "{count, plural, one {# página} other {# páginas}}"
   },
   "trash": {
     "title": "Lixeira",

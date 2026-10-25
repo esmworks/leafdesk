@@ -79,7 +79,8 @@
       "in": "inuti en sida",
       "type": "bara databaser (eller page, row)",
       "commands": "kommandon",
-      "phrase": "exakt fras"
+      "phrase": "exakt fras",
+      "tag": "tagg"
     },
     "filters": {
       "label": "Filter",
@@ -110,7 +111,9 @@
         "createdNewest": "Skapad: nyaste först",
         "createdOldest": "Skapad: äldsta först"
       }
-    }
+    },
+    "tags": "Taggar",
+    "tagPages": "{count, plural, one {# sida} other {# sidor}}"
   },
   "trash": {
     "title": "Papperskorg",

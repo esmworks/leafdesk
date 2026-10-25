@@ -49,6 +49,7 @@ if (!env.ownStorageEnabled) {
   console.log("own storage: on");
 }
 const { startLinkPlacesBackfill, startReminders } = await import("./src/server/mentions");
+const { startPageTagsBackfill } = await import("./src/server/page-tags");
 const { startSnoozes } = await import("./src/server/notifications");
 const { startRowUpdates } = await import("./src/server/row-follow");
 const { startPageUpdates } = await import("./src/server/page-watch");
@@ -194,6 +195,8 @@ server.listen(port, hostname, () => {
   startReminders();
   // Links indexed before "Linked from" kept each linking block get theirs, then this stops.
   startLinkPlacesBackfill();
+  // Reads the #tags of pages written before tags were indexed, and of restored workspaces.
+  startPageTagsBackfill();
   // Reminds rows' people ahead of the dates of date properties that have a reminder.
   startDateReminders();
   // Brings snoozed notifications back to the inbox when their time comes.

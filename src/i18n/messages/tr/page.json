@@ -1335,5 +1335,10 @@
     "title": "Şurada sayfaya dönüştür",
     "here": "Bu sayfanın içinde",
     "failed": "Bloklar yeni bir sayfaya taşınamadı."
+  },
+  "tags": {
+    "label": "Etiketler",
+    "pages": "{count, plural, one {# sayfa} other {# sayfa}}",
+    "find": "#{tag} etiketli sayfaları bul"
   }
 }

@@ -79,7 +79,8 @@
       "in": "페이지 안에서",
       "type": "데이터베이스만 (또는 페이지, 행)",
       "commands": "명령",
-      "phrase": "정확한 문구"
+      "phrase": "정확한 문구",
+      "tag": "태그"
     },
     "filters": {
       "label": "필터",
@@ -110,7 +111,9 @@
         "createdNewest": "생성: 최신순",
         "createdOldest": "생성: 오래된순"
       }
-    }
+    },
+    "tags": "태그",
+    "tagPages": "{count, plural, other {페이지 #개}}"
   },
   "trash": {
     "title": "휴지통",

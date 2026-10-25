@@ -1335,5 +1335,10 @@
     "title": "Chuyển thành trang trong",
     "here": "Bên trong trang này",
     "failed": "Không thể chuyển các khối sang trang mới."
+  },
+  "tags": {
+    "label": "Thẻ",
+    "pages": "{count, plural, other {# trang}}",
+    "find": "Tìm các trang có #{tag}"
   }
 }

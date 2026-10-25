@@ -79,7 +79,8 @@
       "in": "innerhalb einer Seite",
       "type": "nur Datenbanken (oder page, row)",
       "commands": "Befehle",
-      "phrase": "genaue Wortfolge"
+      "phrase": "genaue Wortfolge",
+      "tag": "Tag"
     },
     "filters": {
       "label": "Filter",
@@ -110,7 +111,9 @@
         "createdNewest": "Erstellt: neueste zuerst",
         "createdOldest": "Erstellt: älteste zuerst"
       }
-    }
+    },
+    "tags": "Tags",
+    "tagPages": "{count, plural, one {# Seite} other {# Seiten}}"
   },
   "trash": {
     "title": "Papierkorb",

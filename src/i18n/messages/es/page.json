@@ -1335,5 +1335,10 @@
     "title": "Convertir en página en",
     "here": "Dentro de esta página",
     "failed": "No se pudieron mover los bloques a una página nueva."
+  },
+  "tags": {
+    "label": "Etiquetas",
+    "pages": "{count, plural, one {# página} other {# páginas}}",
+    "find": "Buscar páginas con #{tag}"
   }
 }

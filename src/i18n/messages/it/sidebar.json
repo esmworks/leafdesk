@@ -79,7 +79,8 @@
       "in": "dentro una pagina",
       "type": "solo database (o page, row)",
       "commands": "comandi",
-      "phrase": "frase esatta"
+      "phrase": "frase esatta",
+      "tag": "tag"
     },
     "filters": {
       "label": "Filtri",
@@ -110,7 +111,9 @@
         "createdNewest": "Creazione: più recenti prima",
         "createdOldest": "Creazione: meno recenti prima"
       }
-    }
+    },
+    "tags": "Tag",
+    "tagPages": "{count, plural, one {# pagina} other {# pagine}}"
   },
   "trash": {
     "title": "Cestino",

@@ -75,7 +75,8 @@ Filter ops: `contains`, `does_not_contain`, `equals`, `not_equals`, `is_any_of` 
   out unless `include_archived` is true). `GET /search` takes text in double quotes as a phrase and
   the filters `teamspace_id`, `created_by` and `edited_by` (comma-separated ids, `me` for
   yourself), `created_after`, `created_before`, `edited_after` and `edited_before` (ISO 8601; a day
-  alone is its start in UTC); with a filter the query may be left out. `GET /pages/{id}`
+  alone is its start in UTC) and `tag` (pages whose text carries that `#tag` or one under it); with
+  a filter the query may be left out. `GET /pages/{id}`
   gives the body's `version`, and `PATCH` takes it back as `expected_version`: when the body
   changed since, nothing is written and the answer is `409` `version_conflict` with the current
   version. Body writes report the new `version`.

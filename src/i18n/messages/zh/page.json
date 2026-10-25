@@ -1335,5 +1335,10 @@
     "title": "转为页面并放到",
     "here": "在此页面内",
     "failed": "无法将这些块移到新页面。"
+  },
+  "tags": {
+    "label": "标签",
+    "pages": "{count, plural, other {# 个页面}}",
+    "find": "查找带有 #{tag} 的页面"
   }
 }

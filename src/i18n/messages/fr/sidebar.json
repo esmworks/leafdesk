@@ -79,7 +79,8 @@
       "in": "dans une page",
       "type": "seulement les bases de données (ou page, row)",
       "commands": "commandes",
-      "phrase": "expression exacte"
+      "phrase": "expression exacte",
+      "tag": "étiquette"
     },
     "filters": {
       "label": "Filtres",
@@ -110,7 +111,9 @@
         "createdNewest": "Création : plus récente d’abord",
         "createdOldest": "Création : plus ancienne d’abord"
       }
-    }
+    },
+    "tags": "Étiquettes",
+    "tagPages": "{count, plural, one {# page} other {# pages}}"
   },
   "trash": {
     "title": "Corbeille",
