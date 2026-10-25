@@ -29,6 +29,8 @@ export const ROW_MENU_COMBOS = {
  */
 export const STRIKE_COMBO = ["Mod", "Shift", "X"] as const satisfies Combo;
 export const COPY_BLOCK_LINK_COMBO = ["Alt", "Shift", "L"] as const satisfies Combo;
+/** Opens the language menu of the code block the cursor is in (components/page/editor-shortcuts.ts). */
+export const CODE_LANGUAGE_COMBO = ["Mod", "Alt", "L"] as const satisfies Combo;
 /** Opens or closes every toggle and group on the page (see opensToggleAll). */
 export const TOGGLE_ALL_COMBO = ["Mod", "Alt", "T"] as const satisfies Combo;
 /**
@@ -100,6 +102,7 @@ export const SHORTCUT_GROUPS: readonly ShortcutGroup[] = [
       { id: "moveDown", combos: [["Mod", "Shift", "ArrowDown"]] },
       // components/page/editor-shortcuts.ts.
       { id: "copyBlockLink", combos: [COPY_BLOCK_LINK_COMBO] },
+      { id: "codeLanguage", combos: [CODE_LANGUAGE_COMBO] },
       { id: "undo", combos: [["Mod", "Z"]] },
       { id: "redo", combos: [["Mod", "Shift", "Z"], ["Mod", "Y"]] },
     ],

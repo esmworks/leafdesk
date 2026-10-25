@@ -79,6 +79,7 @@ import { SaveAsSnippetContext, SnippetMenu, useSnippets, useSnippetSlashItems } 
 import { readDocTitle } from "@/lib/collab-title";
 import { suggestingExtension, type SuggestingMode } from "./suggesting";
 import { ListMarkers } from "./list-markers";
+import { QuoteSizeDefault } from "./quote-size";
 import { ToggleHeadingSections } from "./toggle-headings";
 import { SmartQuotes } from "./smart-quotes";
 import { editorShortcuts } from "./editor-shortcuts";
@@ -303,7 +304,7 @@ export default function CollabEditor({
       // Selected table cells can be merged into one, and a merged cell split again; rows and
       // columns take text and background colors, and the first row or column can be a header.
       tables: TABLE_SETTINGS,
-      extensions: [KeepUndoAttached(), FindReplace(), codeHighlighting(), BlockDirection(), ListMarkers(), ToggleHeadingSections(), SmartQuotes(), shortcuts, comments, suggestions],
+      extensions: [KeepUndoAttached(), FindReplace(), codeHighlighting(), BlockDirection(), ListMarkers(), QuoteSizeDefault(), ToggleHeadingSections(), SmartQuotes(), shortcuts, comments, suggestions],
       // A synced block copied with "Copy synced block" lands as a reference; none lands inside one.
       // A link to an agent of the workspace, alone in an empty paragraph, becomes a chat with it.
       pasteHandler: ({ event, editor, defaultPasteHandler }) => {

@@ -1422,6 +1422,15 @@ async function hideInCalendars(exec: Executor, databaseId: string, propertyId: s
     .where(and(eq(databaseView.databaseId, databaseId), eq(databaseView.type, "calendar")));
 }
 
+/** Views of the database that set a width for property `from`'s column give `to`'s the same (a copy starts as wide). */
+async function copyColumnWidth(exec: Executor, databaseId: string, from: string, to: string) {
+  const width = sql`${databaseView.config} -> 'columnWidths' -> ${from}::text`;
+  await exec
+    .update(databaseView)
+    .set({ config: sql`jsonb_set(${databaseView.config}, ${`{columnWidths,${to}}`}::text[], ${width})` })
+    .where(and(eq(databaseView.databaseId, databaseId), sql`${width} is not null`));
+}
+
 /**
  * A formula as `userId` would save it for property `self` (a new one's id may be made up), checked
  * against the properties they may know of (`properties`), related rows' included: the expression
@@ -2700,6 +2709,7 @@ export async function duplicateProperty(userId: string, propertyId: string, name
       })
       .returning();
     await hideInCalendars(tx, prop.databaseId, created.id);
+    await copyColumnWidth(tx, prop.databaseId, propertyId, created.id);
     const rows = await tx
       .update(page)
       .set({

@@ -43,6 +43,7 @@
     "moveUp": "Mover o bloco para cima",
     "moveDown": "Mover o bloco para baixo",
     "copyBlockLink": "Copiar um link para o bloco",
+    "codeLanguage": "Escolher a linguagem do bloco de código",
     "undo": "Desfazer",
     "redo": "Refazer",
     "openRow": "Abrir a linha ou o cartão em foco",

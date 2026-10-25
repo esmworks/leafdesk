@@ -1102,7 +1102,8 @@ export function Sidebar({
                       active={w.id === workspaceId}
                       onClick={() => {
                         close();
-                        router.push(`/w/${w.id}`);
+                        // The page opened last there, for those who start on it (app/w/[workspaceId]/page.tsx).
+                        router.push(`/w/${w.id}?resume`);
                       }}
                     >
                       {w.name}

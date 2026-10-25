@@ -43,6 +43,7 @@
     "moveUp": "Het blok omhoog verplaatsen",
     "moveDown": "Het blok omlaag verplaatsen",
     "copyBlockLink": "Een link naar het blok kopiëren",
+    "codeLanguage": "Taal van het codeblok kiezen",
     "undo": "Ongedaan maken",
     "redo": "Opnieuw",
     "openRow": "De geselecteerde rij of kaart openen",

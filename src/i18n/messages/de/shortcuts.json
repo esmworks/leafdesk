@@ -43,6 +43,7 @@
     "moveUp": "Block nach oben verschieben",
     "moveDown": "Block nach unten verschieben",
     "copyBlockLink": "Link zum Block kopieren",
+    "codeLanguage": "Sprache des Codeblocks wählen",
     "undo": "Rückgängig",
     "redo": "Wiederholen",
     "openRow": "Fokussierte Zeile oder Karte öffnen",

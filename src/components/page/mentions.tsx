@@ -223,6 +223,15 @@ function reminderChoice(date: string, remindAt: string): ReminderChoice {
   return REMINDER_DAYS.find((days) => localReminderAt(date, days) === new Date(remindAt).toISOString()) ?? "custom";
 }
 
+/** A date mention's day written out with its weekday ("Sunday, October 25, 2026"), for its tooltip; its time too when it has one. */
+function fullDate(date: string, locale: string): string {
+  const day = /^(\d{4})-(\d{2})-(\d{2})$/.exec(date);
+  const long: Intl.DateTimeFormatOptions = { weekday: "long", year: "numeric", month: "long", day: "numeric" };
+  if (day) return new Intl.DateTimeFormat(locale, { ...long, timeZone: "UTC" }).format(new Date(Date.UTC(+day[1], +day[2] - 1, +day[3])));
+  const at = Date.parse(date);
+  return Number.isNaN(at) ? date : new Intl.DateTimeFormat(locale, { ...long, hour: "numeric", minute: "2-digit" }).format(new Date(at));
+}
+
 function DateMentionChip({ props, onChange }: { props: MentionProps; onChange: ((next: Partial<MentionProps>) => void) | null }) {
   const locale = useLocale();
   const t = useTranslations("page.mention");
@@ -237,7 +246,7 @@ function DateMentionChip({ props, onChange }: { props: MentionProps; onChange: (
       <span
         ref={anchor}
         className="leafdesk-mention leafdesk-mention-date"
-        title={when ? t("reminderSet", { when }) : undefined}
+        title={when ? `${fullDate(props.date, locale)}\n${t("reminderSet", { when })}` : fullDate(props.date, locale)}
         onClick={opens ? () => setOpen((v) => !v) : undefined}
         style={opens ? undefined : { cursor: "default" }}
       >

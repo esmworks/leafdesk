@@ -42,7 +42,8 @@
   in*, the pages you opened last (while the workspace and you record page views, see *People directory and analytics*;
   only pages you can still open); and the pages edited last. My account → Preferences → *Start page*
   opens Leafdesk on the home page or on the page you opened last on any device (while your page
-  views are recorded), when you start it or sign in.
+  views are recorded), when you start it or sign in; with the latter, switching to another
+  workspace from the sidebar's menu opens the page you opened last there.
 - **My tasks** (in the sidebar; hide or move it like its other sections): every database row
   assigned to you across the workspace, in any person property, that isn't done and that you can
   open, by due date or by database, with its status and first date; the first 200, the ones due
@@ -86,13 +87,16 @@
   letters, then roman numerals, then numbers again (1, a, i), in the editor, on published pages and
   in PDFs; inline code isn't marked by the browser's spelling check. A quote's block menu sets its
   *Quote size*: the size of the text around it, or large for a pull quote (in Markdown, the line
-  `<!-- leafdesk:large-quote -->` before it). *Turn into* also changes the kind of the selected text
+  `<!-- leafdesk:large-quote -->` before it); the size last picked is what new quotes start with in
+  that browser. Text in Chinese, Japanese and Korean is set in faces chosen for each language, sans
+  and serif (the page's *Serif* typeface too). Resting on a date mention shows its day written out
+  with the weekday. *Turn into* also changes the kind of the selected text
   blocks (heading, list, quote, code …), and a space typed right after `/` closes the slash menu.
   Table cells merge across columns and rows from the formatting toolbar (Markdown writes
   the full grid, the covered places empty), and a table's row and column handles color their
   cells' text or background and make the first row or column a header (published pages and PDFs
   show both). Code blocks take their language from a menu (plain text
-  and 52 languages) and color their code in it, published pages and the print view included; Enter
+  and 52 languages; Cmd/Ctrl+Alt+L in a code block opens it from the keyboard) and color their code in it, published pages and the print view included; Enter
   in a code block starts the new line with the indentation of the one before it. *Copy* in a code
   block's corner, in the editor and on published pages, copies its code. *Format code* in
   the block's menu formats JavaScript, TypeScript, JSX, TSX, JSON, CSS, SCSS, HTML, Vue, Markdown,

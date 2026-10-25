@@ -168,7 +168,9 @@ BlockNote on Yjs; Tailwind v4; next-intl. Node 24, pnpm 11. A separate Electron 
   `data-marker` beside BlockNote's `data-index` (`components/page/list-markers.ts`), published pages
   style nested `<ol>`, `pdf-document.ts` passes the depth down.
   Quotes have a `size` prop (`lib/quote-block.ts`, in both schemas); a large one is written with
-  `<!-- leafdesk:large-quote -->` before it, like a callout's `no-print` marker.
+  `<!-- leafdesk:large-quote -->` before it, like a callout's `no-print` marker; new quotes take the
+  size last picked (`components/page/quote-size.ts`, an `appendTransaction` plugin reusing
+  `changedRanges` from `toggle-headings.ts`).
   What tables offer (merging, cell colors, headers) is `TABLE_SETTINGS` in `embed-blocks.tsx`, for
   every editor that shows tables. BlockNote's own Backspace runs before a plugin's `handleKeyDown`:
   an extension that must see Backspace first takes it in `keyboardShortcuts` (`smart-quotes.ts`).

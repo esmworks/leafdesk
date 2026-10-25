@@ -205,7 +205,29 @@
   --color-removed-bg: var(--removed-bg);
   --color-removed-fg: var(--removed-fg);
   --color-removed-bar: var(--removed-bar);
-  --font-sans: "Inter", ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+  --font-sans: "Inter", var(--font-cjk-sans), ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+}
+
+/*
+ * Chinese, Japanese and Korean text in faces chosen for each, sans and serif, by the language the
+ * app is in (the shapes of Han characters differ between them): Inter and the serif stack have no
+ * such letters, so these draw them. Simplified Chinese unless the language says otherwise.
+ */
+:root {
+  --font-cjk-sans: "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", "Noto Sans SC", "Noto Sans CJK SC", "Source Han Sans SC";
+  --font-cjk-serif: "Songti SC", "STSong", "SimSun", "Noto Serif SC", "Noto Serif CJK SC", "Source Han Serif SC";
+}
+:root:is(:lang(zh-Hant), :lang(zh-TW), :lang(zh-HK)) {
+  --font-cjk-sans: "PingFang TC", "Microsoft JhengHei", "Noto Sans TC", "Noto Sans CJK TC", "Source Han Sans TC";
+  --font-cjk-serif: "Songti TC", "PMingLiU", "Noto Serif TC", "Noto Serif CJK TC", "Source Han Serif TC";
+}
+:root:lang(ja) {
+  --font-cjk-sans: "Hiragino Sans", "Hiragino Kaku Gothic ProN", "Yu Gothic", "Meiryo", "Noto Sans JP", "Noto Sans CJK JP", "Source Han Sans JP";
+  --font-cjk-serif: "Hiragino Mincho ProN", "Yu Mincho", "Noto Serif JP", "Noto Serif CJK JP", "Source Han Serif JP";
+}
+:root:lang(ko) {
+  --font-cjk-sans: "Apple SD Gothic Neo", "Malgun Gothic", "Noto Sans KR", "Noto Sans CJK KR", "Source Han Sans KR";
+  --font-cjk-serif: "AppleMyungjo", "Batang", "Noto Serif KR", "Noto Serif CJK KR", "Source Han Serif KR";
 }
 
 @layer base {
@@ -664,7 +686,7 @@
  * the title stays as it is.
  */
 .page-font-serif {
-  --page-font: ui-serif, Georgia, Cambria, "Times New Roman", Times, serif;
+  --page-font: ui-serif, Georgia, Cambria, "Times New Roman", Times, var(--font-cjk-serif), serif;
 }
 .page-font-mono {
   --page-font: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;

@@ -5,10 +5,14 @@ import { useBlockNoteEditor, useComponentsContext, useExtensionState, usePortalE
 import { useTranslations } from "next-intl";
 import { QUOTE_SIZES, type QuoteSize } from "@/lib/quote-block";
 import type { PageEditor } from "./embed-blocks";
+import { rememberQuoteSize } from "./quote-size";
 
 const LABELS = { default: "quoteSizeDefault", large: "quoteSizeLarge" } as const;
 
-/** "Quote size" in a quote's block menu: the size of the text around it, or large (lib/quote-block). */
+/**
+ * "Quote size" in a quote's block menu: the size of the text around it, or large (lib/quote-block).
+ * The size picked is what new quotes start with in this browser (quote-size.ts).
+ */
 export function QuoteSizeItem() {
   const Components = useComponentsContext()!;
   const portalElement = usePortalElement();
@@ -18,6 +22,7 @@ export function QuoteSizeItem() {
   if (!block || block.type !== "quote" || !editor.isEditable) return null;
   const current = (block.props as { size?: QuoteSize }).size ?? "default";
   const pick = (size: QuoteSize) => {
+    rememberQuoteSize(size);
     if (editor.getBlock(block.id)) editor.updateBlock(block.id, { props: { size } } as never);
   };
   return (
