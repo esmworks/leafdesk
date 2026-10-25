@@ -11,7 +11,8 @@ import { DASHBOARD_BLOCK, dashboardLayout, parseDashboard, type DashboardLayout,
 import { isEmbedBlockType, parseLinkedView, type EmbedBlockType, type LinkedView } from "@/lib/embed-blocks";
 import { pdfFileId, spreadsheetFileId } from "@/lib/files";
 import { mediaAlignment, mediaWidth, type MediaAlignment } from "@/lib/media-placement";
-import { BOOKMARK_BLOCK, bookmarkWidth, embedFor, isWebBlockType, parseWebUrl, type EmbedTarget } from "@/lib/web-blocks";
+import { env } from "@/lib/env";
+import { BOOKMARK_BLOCK, bookmarkWidth, embedAny, isWebBlockType, parseWebUrl, type EmbedTarget } from "@/lib/web-blocks";
 import {
   bodyReferences,
   isBlockId,
@@ -277,13 +278,16 @@ const isStandalone = (block: PageBlock) =>
   block.type === AGENT_CHAT_BLOCK ||
   inPlaceFileOf(block) !== null;
 
+/** This app's origin: its own pages are never framed in an embed. */
+const appOrigin = () => new URL(env.appUrl).origin;
+
 /** A bookmark or embed block as the published page draws it, or null when it has no valid URL. */
 function webSegment(block: PageBlock): BodySegment | null {
   const props = block.props as Record<string, unknown>;
   const url = parseWebUrl(props.url)?.href;
   if (!url) return null;
   if (block.type !== BOOKMARK_BLOCK) {
-    const embed = embedFor(url);
+    const embed = embedAny(url, appOrigin());
     if (embed) return { kind: "webEmbed", url, embed, ...placementOf(props) };
   }
   const text = (name: string) => (typeof props[name] === "string" ? (props[name] as string) : "");

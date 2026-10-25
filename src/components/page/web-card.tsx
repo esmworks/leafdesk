@@ -103,7 +103,8 @@ export function EmbedFrame({ url, embed, title }: { url: string; embed: EmbedTar
           sandbox={EMBED_SANDBOX}
           allow={EMBED_ALLOW}
           allowFullScreen
-          referrerPolicy={EMBED_REFERRER_POLICY}
+          // Any other site learns nothing of where it is shown; named providers get this app's origin (some need it to play).
+          referrerPolicy={embed.provider === "web" ? "no-referrer" : EMBED_REFERRER_POLICY}
           loading="lazy"
           className="block h-full w-full border-0"
         />

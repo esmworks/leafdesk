@@ -114,24 +114,27 @@ describe("web blocks in Markdown", () => {
 });
 
 describe("web blocks on published pages", () => {
-  it("come back as bookmark and iframe segments, iframes only for allowlisted providers", async () => {
+  it("come back as bookmark and iframe segments, iframes only for https sites", async () => {
     const doc = docFrom([
       { type: "paragraph", content: [text("Before")] },
       bookmark,
       embed,
       { type: "webEmbed", props: { url: "https://unknown.example/video" } },
+      { type: "webEmbed", props: { url: "http://plain.example/" } },
       { type: "bookmark", props: { url: "javascript:alert(1)", title: "Evil" } },
       { type: "bookmark", props: { url: "https://example.com/", image: "javascript:alert(1)", favicon: "data:x" } },
     ]);
     const segments = await bodySegmentsFromYdoc(Y.encodeStateAsUpdate(doc));
-    expect(segments.map((s) => s.kind)).toEqual(["html", "bookmark", "webEmbed", "bookmark", "bookmark"]);
+    expect(segments.map((s) => s.kind)).toEqual(["html", "bookmark", "webEmbed", "webEmbed", "bookmark", "bookmark"]);
     expect(segments[1]).toMatchObject({ kind: "bookmark", bookmark: { url: "https://example.com/post", title: bookmark.props.title, width: 60 } });
     expect(segments[2]).toMatchObject({
       kind: "webEmbed",
       url: "https://www.youtube.com/watch?v=dQw4w9WgXcQ",
       embed: { src: "https://www.youtube-nocookie.com/embed/dQw4w9WgXcQ" },
     });
-    expect(segments[3]).toMatchObject({ kind: "bookmark", bookmark: { url: "https://unknown.example/video" } });
-    expect(segments[4]).toMatchObject({ kind: "bookmark", bookmark: { url: "https://example.com/", image: "", favicon: "", width: null } });
+    // Any other https site is framed as it is; plain http stays a link card.
+    expect(segments[3]).toMatchObject({ kind: "webEmbed", embed: { provider: "web", src: "https://unknown.example/video" } });
+    expect(segments[4]).toMatchObject({ kind: "bookmark", bookmark: { url: "http://plain.example/" } });
+    expect(segments[5]).toMatchObject({ kind: "bookmark", bookmark: { url: "https://example.com/", image: "", favicon: "", width: null } });
   });
 });

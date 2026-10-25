@@ -659,10 +659,10 @@
     "embed": {
       "title": "Osadzenie",
       "subtext": "YouTube, Figma, Dokumenty Google, Mapy i inne",
-      "aliases": "osadź osadzenie iframe youtube vimeo loom figma google docs sheets slides codepen spotify maps wideo embed video",
+      "aliases": "osadź osadzenie iframe youtube vimeo loom figma google docs sheets slides codepen spotify maps wideo embed video hex deepnote pitch website",
       "placeholder": "Wklej link do osadzenia",
       "submit": "Osadź",
-      "providers": "YouTube, Vimeo, Loom, Figma, opublikowane Dokumenty, Arkusze i Prezentacje Google, CodePen, Spotify i Mapy Google. Inne linki stają się zakładką.",
+      "providers": "YouTube, Vimeo, Loom, Figma, opublikowane Dokumenty, Arkusze i Prezentacje Google, CodePen, Spotify i Mapy Google. Inne witryny https (Hex, Deepnote, Pitch …) są pokazywane tak, jak są, jeśli na to pozwalają.",
       "frameTitle": "Osadzona treść z {host}",
       "label": "Osadzenie",
       "resize": "Przeciągnij, aby zmienić szerokość osadzenia"

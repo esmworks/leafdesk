@@ -659,10 +659,10 @@
     "embed": {
       "title": "Upotus",
       "subtext": "YouTube, Figma, Google Docs, Maps ja muuta",
-      "aliases": "embed iframe youtube vimeo loom figma google docs sheets slides codepen spotify maps video upotus upota",
+      "aliases": "embed iframe youtube vimeo loom figma google docs sheets slides codepen spotify maps video upotus upota hex deepnote pitch website",
       "placeholder": "Liitä upotettava linkki",
       "submit": "Upota",
-      "providers": "YouTube, Vimeo, Loom, Figma, julkaistut Google Docs-, Sheets- ja Slides-tiedostot, CodePen, Spotify ja Google Maps. Muista linkeistä tulee kirjanmerkki.",
+      "providers": "YouTube, Vimeo, Loom, Figma, julkaistut Google Docs-, Sheets- ja Slides-tiedostot, CodePen, Spotify ja Google Maps. Muut https-sivustot (Hex, Deepnote, Pitch …) näkyvät sellaisinaan, jos ne sallivat sen.",
       "frameTitle": "Upotettu sisältö sivustolta {host}",
       "label": "Upotus",
       "resize": "Vedä muuttaaksesi upotuksen leveyttä"

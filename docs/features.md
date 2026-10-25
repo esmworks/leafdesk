@@ -121,7 +121,11 @@
   (`<!-- leafdesk:button <id> "Label" -->`), so it can't be made or changed there.
 - **Web bookmarks and embeds**: link cards with the page's title, description and image (fetched
   once on the server behind an SSRF guard), and YouTube, Vimeo, Loom, Figma, Google Docs, CodePen,
-  Spotify and Google Maps embeds in sandboxed iframes. A bookmark card can be made narrower by
+  Spotify and Google Maps embeds in sandboxed iframes. The Embed block also shows any other https
+  site as it is (Hex apps, Deepnote blocks, Pitch presentations…) in the same sandbox, in the
+  site's own origin and without a referrer; sites that refuse to be framed (many do, with
+  `X-Frame-Options` or `frame-ancestors`) show an empty frame with their link under it, and this
+  app's own pages are never framed. A bookmark card can be made narrower by
   dragging its edge; published pages and print keep the width. A pasted link can also become a link
   mention: the site's icon, the page's title and the site's name inline in the text, fetched the
   same way and stored with it (*Show as mention* in a link's toolbar does the same for a link

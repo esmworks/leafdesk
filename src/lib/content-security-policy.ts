@@ -1,5 +1,3 @@
-import { EMBED_FRAME_ORIGINS } from "@/lib/web-blocks";
-
 /**
  * The Content-Security-Policy of every page (see proxy.ts), so that HTML which slipped past the
  * sanitizers (a published page's body, a bookmark, a diagram) can't run script on this origin,
@@ -13,7 +11,9 @@ import { EMBED_FRAME_ORIGINS } from "@/lib/web-blocks";
  *   A nonce in style-src would turn 'unsafe-inline' off, so none is given there.
  * - Images and media may come from anywhere: bookmarks hotlink their preview image and icon (see
  *   components/page/web-card.tsx), and image, video and audio blocks can point at any address.
- * - Frames: this origin (the inline PDF viewer, an <object>) and the allowlisted embed providers.
+ * - Frames: this origin (the inline PDF viewer, an <object>) and any https site, which embed blocks
+ *   may show (lib/web-blocks embedAny). A frame runs in the framed site's own origin, sandboxed,
+ *   never in this one, so it can't reach the session cookie or the page around it.
  * - Connections: this origin, its websockets included (collaboration, and HMR in development),
  *   spelled out for browsers whose 'self' doesn't cover ws:/wss:.
  * - `analytics`: the pages of a workspace site with a Google Analytics ID (server/site-hosts.ts)
@@ -41,7 +41,7 @@ export function contentSecurityPolicy({
     ["media-src", "*", "data:", "blob:"],
     ["font-src", "'self'", "data:"],
     ["connect-src", "'self'", ...sockets, ...(analytics ? ANALYTICS_CONNECTIONS : [])],
-    ["frame-src", "'self'", ...EMBED_FRAME_ORIGINS],
+    ["frame-src", "'self'", "https:"],
     ["object-src", "'self'"],
     ["worker-src", "'self'", "blob:"],
     ["manifest-src", "'self'"],

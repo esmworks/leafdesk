@@ -88,20 +88,18 @@ export function bookmarkWidth(value: unknown): number | null {
 // ---------------------------------------------------------------------------------------------
 // Embeds
 
-export type EmbedProvider = "youtube" | "vimeo" | "loom" | "figma" | "google" | "codepen" | "spotify" | "maps";
+/** A named provider, whose links are rewritten to its player; "web" is any other site, framed as it is (embedAny). */
+export type EmbedProvider = "youtube" | "vimeo" | "loom" | "figma" | "google" | "codepen" | "spotify" | "maps" | "web";
 
 export type EmbedTarget = {
   provider: EmbedProvider;
-  /** The iframe's address, always on one of EMBED_FRAME_ORIGINS. */
+  /** The iframe's address: on one of EMBED_FRAME_ORIGINS for a named provider, else the https address given. */
   src: string;
   /** Fixed height in pixels, or null to keep a 16:9 box. */
   height: number | null;
 };
 
-/**
- * Every origin an embed iframe may load: the pages' Content-Security-Policy lists them in
- * `frame-src` (see lib/content-security-policy).
- */
+/** The origins the named providers' players are on (embedFor). */
 export const EMBED_FRAME_ORIGINS = [
   "https://www.youtube-nocookie.com",
   "https://player.vimeo.com",
@@ -317,7 +315,7 @@ function maps(url: URL): EmbedTarget | null {
 
 const PROVIDERS = [youtube, vimeo, loom, figma, google, codepen, spotify, maps];
 
-/** The iframe for a pasted URL when it belongs to an allowlisted provider, else null. */
+/** The iframe for a pasted URL when it belongs to a named provider, else null (a pasted link then offers a bookmark). */
 export function embedFor(input: unknown): EmbedTarget | null {
   const url = parseWebUrl(input);
   if (!url) return null;
@@ -326,6 +324,23 @@ export function embedFor(input: unknown): EmbedTarget | null {
     if (target) return target;
   }
   return null;
+}
+
+/** Height of a frame of any other site, which says nothing about its size. */
+const WEB_EMBED_HEIGHT = 500;
+
+/**
+ * The iframe of an embed block: a named provider's player, or any other https site framed as it
+ * is (Hex apps, Deepnote blocks, Pitch presentations and the like), never this app's own pages
+ * (`appOrigin`). A site that refuses to be framed shows as an empty frame with its link under it.
+ * The frame keeps the site in its own origin (EMBED_SANDBOX), apart from this app's cookies.
+ */
+export function embedAny(input: unknown, appOrigin: string): EmbedTarget | null {
+  const named = embedFor(input);
+  if (named) return named;
+  const url = parseWebUrl(input);
+  if (!url || url.protocol !== "https:" || url.origin === appOrigin) return null;
+  return { provider: "web", src: url.href, height: WEB_EMBED_HEIGHT };
 }
 
 // ---------------------------------------------------------------------------------------------

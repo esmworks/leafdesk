@@ -659,10 +659,10 @@
     "embed": {
       "title": "Indlejring",
       "subtext": "YouTube, Figma, Google Docs, Maps og mere",
-      "aliases": "embed iframe youtube vimeo loom figma google docs sheets slides codepen spotify maps video indlejr",
+      "aliases": "embed iframe youtube vimeo loom figma google docs sheets slides codepen spotify maps video indlejr hex deepnote pitch website",
       "placeholder": "Indsæt et link, der skal indlejres",
       "submit": "Indlejr",
-      "providers": "YouTube, Vimeo, Loom, Figma, udgivne Google Docs, Sheets og Slides, CodePen, Spotify og Google Maps. Andre links bliver til et bogmærke.",
+      "providers": "YouTube, Vimeo, Loom, Figma, udgivne Google Docs, Sheets og Slides, CodePen, Spotify og Google Maps. Andre https-sider (Hex, Deepnote, Pitch …) vises, som de er, hvor de tillader det.",
       "frameTitle": "Indlejret indhold fra {host}",
       "label": "Indlejring",
       "resize": "Træk for at ændre indlejringens bredde"

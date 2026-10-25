@@ -659,10 +659,10 @@
     "embed": {
       "title": "הטמעה",
       "subtext": "YouTube, Figma, Google Docs, Maps ועוד",
-      "aliases": "הטמעה וידאו מפות embed iframe youtube vimeo loom figma google docs sheets slides codepen spotify maps video",
+      "aliases": "הטמעה וידאו מפות embed iframe youtube vimeo loom figma google docs sheets slides codepen spotify maps video hex deepnote pitch website",
       "placeholder": "הדבקת קישור להטמעה",
       "submit": "הטמעה",
-      "providers": "YouTube, Vimeo, Loom, Figma, מסמכי Google Docs, Sheets ו־Slides שפורסמו, CodePen, Spotify ו־Google Maps. קישורים אחרים הופכים לסימנייה.",
+      "providers": "YouTube, Vimeo, Loom, Figma, מסמכי Google Docs, Sheets ו־Slides שפורסמו, CodePen, Spotify ו־Google Maps. אתרי https אחרים (Hex, Deepnote, Pitch …) מוצגים כפי שהם כשהם מאפשרים זאת.",
       "frameTitle": "תוכן מוטמע מ־{host}",
       "label": "הטמעה",
       "resize": "גררו כדי לשנות את רוחב התוכן המוטמע"

@@ -659,10 +659,10 @@
     "embed": {
       "title": "جاسازی",
       "subtext": "YouTube، Figma، Google Docs، Maps و موارد دیگر",
-      "aliases": "جاسازی ویدیو نقشه embed iframe youtube vimeo loom figma google docs sheets slides codepen spotify maps video",
+      "aliases": "جاسازی ویدیو نقشه embed iframe youtube vimeo loom figma google docs sheets slides codepen spotify maps video hex deepnote pitch website",
       "placeholder": "لینکی را برای جاسازی جای‌گذاری کنید",
       "submit": "جاسازی",
-      "providers": "YouTube، Vimeo، Loom، Figma، Google Docs و Sheets و Slides منتشرشده، CodePen، Spotify و Google Maps. لینک‌های دیگر به نشانک تبدیل می‌شوند.",
+      "providers": "YouTube، Vimeo، Loom، Figma، Google Docs و Sheets و Slides منتشرشده، CodePen، Spotify و Google Maps. دیگر سایت‌های https (Hex، Deepnote، Pitch …) در جایی که اجازه دهند همان‌طور که هستند نمایش داده می‌شوند.",
       "frameTitle": "محتوای جاسازی‌شده از {host}",
       "label": "جاسازی",
       "resize": "برای تغییر پهنای محتوای جاسازی‌شده بکشید"

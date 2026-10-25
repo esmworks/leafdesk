@@ -659,10 +659,10 @@
     "embed": {
       "title": "Embed",
       "subtext": "YouTube, Figma, Google Docs, Maps and more",
-      "aliases": "embed iframe youtube vimeo loom figma google docs sheets slides codepen spotify maps video",
+      "aliases": "embed iframe youtube vimeo loom figma google docs sheets slides codepen spotify maps video hex deepnote pitch website",
       "placeholder": "Paste a link to embed",
       "submit": "Embed",
-      "providers": "YouTube, Vimeo, Loom, Figma, published Google Docs, Sheets and Slides, CodePen, Spotify and Google Maps. Other links become a bookmark.",
+      "providers": "YouTube, Vimeo, Loom, Figma, published Google Docs, Sheets and Slides, CodePen, Spotify and Google Maps. Other https sites (Hex, Deepnote, Pitch …) show as they are where they allow it.",
       "frameTitle": "Embedded content from {host}",
       "label": "Embed",
       "resize": "Drag to change the embed’s width"

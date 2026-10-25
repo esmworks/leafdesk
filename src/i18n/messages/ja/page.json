@@ -659,10 +659,10 @@
     "embed": {
       "title": "埋め込み",
       "subtext": "YouTube、Figma、Googleドキュメント、マップなど",
-      "aliases": "embed iframe youtube vimeo loom figma google docs sheets slides codepen spotify maps video 埋め込み 動画 マップ",
+      "aliases": "embed iframe youtube vimeo loom figma google docs sheets slides codepen spotify maps video 埋め込み 動画 マップ hex deepnote pitch website",
       "placeholder": "埋め込むリンクを貼り付け",
       "submit": "埋め込む",
-      "providers": "YouTube、Vimeo、Loom、Figma、公開されたGoogleドキュメント・スプレッドシート・スライド、CodePen、Spotify、Googleマップに対応しています。それ以外のリンクはブックマークになります。",
+      "providers": "YouTube、Vimeo、Loom、Figma、公開されたGoogleドキュメント・スプレッドシート・スライド、CodePen、Spotify、Googleマップに対応しています。その他の https サイト（Hex、Deepnote、Pitch など）は、許可されていればそのまま表示されます。",
       "frameTitle": "{host}からの埋め込みコンテンツ",
       "label": "埋め込み",
       "resize": "ドラッグして埋め込みの幅を変更"

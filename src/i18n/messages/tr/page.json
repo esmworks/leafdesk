@@ -659,10 +659,10 @@
     "embed": {
       "title": "Gömülü içerik",
       "subtext": "YouTube, Figma, Google Dokümanlar, Haritalar ve dahası",
-      "aliases": "göm gömülü embed iframe youtube vimeo loom figma google dokümanlar tablolar slaytlar codepen spotify harita video",
+      "aliases": "göm gömülü embed iframe youtube vimeo loom figma google dokümanlar tablolar slaytlar codepen spotify harita video hex deepnote pitch website",
       "placeholder": "Gömmek için bir bağlantı yapıştırın",
       "submit": "Göm",
-      "providers": "YouTube, Vimeo, Loom, Figma, yayımlanmış Google Dokümanlar, E-Tablolar ve Slaytlar, CodePen, Spotify ve Google Haritalar. Diğer bağlantılar yer imi olur.",
+      "providers": "YouTube, Vimeo, Loom, Figma, yayımlanmış Google Dokümanlar, E-Tablolar ve Slaytlar, CodePen, Spotify ve Google Haritalar. Diğer https siteleri (Hex, Deepnote, Pitch …) izin verdikleri yerde oldukları gibi gösterilir.",
       "frameTitle": "{host} kaynağından gömülü içerik",
       "label": "Gömülü içerik",
       "resize": "Gömülü içeriğin genişliğini değiştirmek için sürükleyin"

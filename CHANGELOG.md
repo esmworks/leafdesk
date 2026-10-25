@@ -4,6 +4,12 @@
 
 ### Added
 
+- **Embed any website.** The Embed block shows any https site as it is, not only the named
+  providers: Hex apps, Deepnote blocks, Pitch presentations and the like, in the same sandboxed
+  frame, without a referrer. Sites that refuse to be framed show an empty frame with their link,
+  and the app's own pages are never framed; plain http links still become bookmarks. The pages'
+  Content-Security-Policy now allows frames from any https origin (`frame-src 'self' https:`)
+  instead of the providers' list.
 - **A card for links shown as mentions.** Resting the pointer on a link mention shows its title,
   site and address, with *Copy link* and, on pages you can edit, *Refresh*, which fetches its
   details again, and *Turn into bookmark*. A link's toolbar has *Copy link* and *Turn into

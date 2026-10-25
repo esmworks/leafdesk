@@ -13,6 +13,7 @@ import {
   bookmarkBlockConfig,
   bookmarkWidth,
   displayHost,
+  embedAny,
   embedFor,
   isLoneUrl,
   parseWebUrl,
@@ -299,7 +300,7 @@ const WebEmbedBlock = createReactBlockSpec(webEmbedBlockConfig, {
     const editor = anyEditor as unknown as PageEditor;
     const canEdit = useCanEdit(anyEditor);
     const url = parseWebUrl(block.props.url)?.href ?? "";
-    const embed = useMemo(() => embedFor(url), [url]);
+    const embed = useMemo(() => embedAny(url, window.location.origin), [url]);
     // The width while the frame's edge is dragged; undefined when not dragging.
     const [dragWidth, setDragWidth] = useState<number | null | undefined>(undefined);
     const box = useRef<HTMLDivElement>(null);
@@ -313,8 +314,8 @@ const WebEmbedBlock = createReactBlockSpec(webEmbedBlockConfig, {
             blockId={block.id}
             kind="embed"
             onSubmit={(next) => {
-              // Sites that can't be embedded become a bookmark instead.
-              if (embedFor(next)) editor.updateBlock(block.id, { props: { url: next } });
+              // Addresses that can't be framed (not https, or this app's own pages) become a bookmark instead.
+              if (embedAny(next, window.location.origin)) editor.updateBlock(block.id, { props: { url: next } });
               else editor.updateBlock(block.id, { type: BOOKMARK_BLOCK, props: { url: next } });
               moveCursorAfter(editor, block.id);
             }}

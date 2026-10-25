@@ -659,10 +659,10 @@
     "embed": {
       "title": "Insluiten",
       "subtext": "YouTube, Figma, Google Docs, Maps en meer",
-      "aliases": "embed iframe youtube vimeo loom figma google docs sheets slides codepen spotify maps video insluiten",
+      "aliases": "embed iframe youtube vimeo loom figma google docs sheets slides codepen spotify maps video insluiten hex deepnote pitch website",
       "placeholder": "Plak een link om in te sluiten",
       "submit": "Insluiten",
-      "providers": "YouTube, Vimeo, Loom, Figma, gepubliceerde Google Docs, Sheets en Slides, CodePen, Spotify en Google Maps. Andere links worden een bladwijzer.",
+      "providers": "YouTube, Vimeo, Loom, Figma, gepubliceerde Google Docs, Sheets en Slides, CodePen, Spotify en Google Maps. Andere https-sites (Hex, Deepnote, Pitch …) worden getoond zoals ze zijn, als ze dat toestaan.",
       "frameTitle": "Ingesloten inhoud van {host}",
       "label": "Insluiting",
       "resize": "Sleep om de breedte van de insluiting te wijzigen"

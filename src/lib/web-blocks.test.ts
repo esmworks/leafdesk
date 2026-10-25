@@ -3,6 +3,7 @@ import {
   bookmarkWidth,
   displayHost,
   EMBED_FRAME_ORIGINS,
+  embedAny,
   embedFor,
   isLoneUrl,
   markdownLinkDestination,
@@ -139,6 +140,29 @@ describe("embedFor", () => {
       expect(embed, url).not.toBeNull();
       expect(EMBED_FRAME_ORIGINS).toContain(new URL(embed!.src).origin);
     }
+  });
+});
+
+describe("embedAny", () => {
+  const APP = "https://work.example.com";
+
+  it("keeps named providers' players", () => {
+    expect(embedAny("https://youtu.be/dQw4w9WgXcQ", APP)).toEqual(embedFor("https://youtu.be/dQw4w9WgXcQ"));
+  });
+
+  it("frames any other https site as it is", () => {
+    for (const url of ["https://app.hex.tech/acme/app/abc123/latest", "https://embed.deepnote.com/a/b/c?height=400", "https://pitch.com/v/deck-x1y2z3"]) {
+      expect(embedAny(url, APP)).toEqual({ provider: "web", src: url, height: 500 });
+    }
+    expect(embedAny("example.org/a", APP)?.src).toBe("https://example.org/a");
+  });
+
+  it("never frames plain http, other schemes or this app's own pages", () => {
+    expect(embedAny("http://example.org/", APP)).toBeNull();
+    expect(embedAny("javascript:alert(1)", APP)).toBeNull();
+    expect(embedAny("ftp://example.org/x", APP)).toBeNull();
+    expect(embedAny("https://work.example.com/w/ws/p/page", APP)).toBeNull();
+    expect(embedAny("https://work.example.com:8443/w/ws/p/page", APP)?.provider).toBe("web");
   });
 });
 

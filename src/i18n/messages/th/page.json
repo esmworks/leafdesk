@@ -659,10 +659,10 @@
     "embed": {
       "title": "ฝัง",
       "subtext": "YouTube, Figma, Google Docs, Maps และอื่น ๆ",
-      "aliases": "embed iframe youtube vimeo loom figma google docs sheets slides codepen spotify maps video ฝัง วิดีโอ",
+      "aliases": "embed iframe youtube vimeo loom figma google docs sheets slides codepen spotify maps video ฝัง วิดีโอ hex deepnote pitch website",
       "placeholder": "วางลิงก์ที่จะฝัง",
       "submit": "ฝัง",
-      "providers": "YouTube, Vimeo, Loom, Figma, Google Docs, Sheets และ Slides ที่เผยแพร่แล้ว, CodePen, Spotify และ Google Maps ลิงก์อื่นจะกลายเป็นบุ๊กมาร์ก",
+      "providers": "YouTube, Vimeo, Loom, Figma, Google Docs, Sheets และ Slides ที่เผยแพร่แล้ว, CodePen, Spotify และ Google Maps เว็บไซต์ https อื่น (Hex, Deepnote, Pitch …) จะแสดงตามจริงหากเว็บไซต์อนุญาต",
       "frameTitle": "เนื้อหาที่ฝังจาก {host}",
       "label": "ฝัง",
       "resize": "ลากเพื่อเปลี่ยนความกว้างของเนื้อหาที่ฝัง"

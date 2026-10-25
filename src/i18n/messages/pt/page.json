@@ -659,10 +659,10 @@
     "embed": {
       "title": "Incorporar",
       "subtext": "YouTube, Figma, Google Docs, Maps e mais",
-      "aliases": "incorporar embed iframe youtube vimeo loom figma google docs planilhas apresentações sheets slides codepen spotify mapas maps vídeo",
+      "aliases": "incorporar embed iframe youtube vimeo loom figma google docs planilhas apresentações sheets slides codepen spotify mapas maps vídeo hex deepnote pitch website",
       "placeholder": "Cole um link para incorporar",
       "submit": "Incorporar",
-      "providers": "YouTube, Vimeo, Loom, Figma, Google Docs, Sheets e Slides publicados, CodePen, Spotify e Google Maps. Outros links viram um marcador.",
+      "providers": "YouTube, Vimeo, Loom, Figma, Google Docs, Sheets e Slides publicados, CodePen, Spotify e Google Maps. Outros sites https (Hex, Deepnote, Pitch …) aparecem como são, quando permitem.",
       "frameTitle": "Conteúdo incorporado de {host}",
       "label": "Incorporação",
       "resize": "Arraste para mudar a largura do conteúdo incorporado"

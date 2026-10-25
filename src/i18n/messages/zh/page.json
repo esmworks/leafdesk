@@ -659,10 +659,10 @@
     "embed": {
       "title": "嵌入",
       "subtext": "YouTube、Figma、Google Docs、地图等",
-      "aliases": "embed iframe youtube vimeo loom figma google docs sheets slides codepen spotify maps video 嵌入 视频 地图",
+      "aliases": "embed iframe youtube vimeo loom figma google docs sheets slides codepen spotify maps video 嵌入 视频 地图 hex deepnote pitch website",
       "placeholder": "粘贴要嵌入的链接",
       "submit": "嵌入",
-      "providers": "YouTube、Vimeo、Loom、Figma、已发布的 Google Docs、Sheets 和 Slides、CodePen、Spotify 和 Google Maps。其他链接会显示为书签。",
+      "providers": "YouTube、Vimeo、Loom、Figma、已发布的 Google Docs、Sheets 和 Slides、CodePen、Spotify 和 Google Maps。其他 https 网站（Hex、Deepnote、Pitch 等）在其允许时按原样显示。",
       "frameTitle": "来自 {host} 的嵌入内容",
       "label": "嵌入",
       "resize": "拖动以更改嵌入内容的宽度"

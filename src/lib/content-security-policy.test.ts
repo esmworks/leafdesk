@@ -1,6 +1,5 @@
 import { describe, expect, it } from "vitest";
 import { contentSecurityPolicy, newNonce, policyNonce } from "./content-security-policy";
-import { EMBED_FRAME_ORIGINS } from "./web-blocks";
 
 const directives = (policy: string) =>
   new Map(policy.split("; ").map((d) => { const [name, ...values] = d.split(" "); return [name, values]; }));
@@ -14,10 +13,10 @@ describe("content security policy", () => {
     expect(dev.get("script-src")).toContain("'unsafe-eval'");
   });
 
-  it("keeps other sites from framing pages and limits frames to the embed providers", () => {
+  it("keeps other sites from framing pages and lets pages frame https sites only", () => {
     const policy = directives(contentSecurityPolicy({ nonce: "n", host: "app.example.com", dev: false }));
     expect(policy.get("frame-ancestors")).toEqual(["'self'"]);
-    expect(policy.get("frame-src")).toEqual(["'self'", ...EMBED_FRAME_ORIGINS]);
+    expect(policy.get("frame-src")).toEqual(["'self'", "https:"]);
     expect(policy.get("base-uri")).toEqual(["'self'"]);
     expect(policy.get("form-action")).toEqual(["'self'"]);
   });

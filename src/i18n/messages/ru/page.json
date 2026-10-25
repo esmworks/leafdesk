@@ -659,10 +659,10 @@
     "embed": {
       "title": "Встраивание",
       "subtext": "YouTube, Figma, Google Docs, Карты и другое",
-      "aliases": "встроить встраивание видео карты embed iframe youtube vimeo loom figma google docs sheets slides codepen spotify maps video",
+      "aliases": "встроить встраивание видео карты embed iframe youtube vimeo loom figma google docs sheets slides codepen spotify maps video hex deepnote pitch website",
       "placeholder": "Вставьте ссылку для встраивания",
       "submit": "Встроить",
-      "providers": "YouTube, Vimeo, Loom, Figma, опубликованные Google Docs, Sheets и Slides, CodePen, Spotify и Google Maps. Другие ссылки становятся закладками.",
+      "providers": "YouTube, Vimeo, Loom, Figma, опубликованные Google Docs, Sheets и Slides, CodePen, Spotify и Google Maps. Другие сайты https (Hex, Deepnote, Pitch …) показываются как есть, если они это разрешают.",
       "frameTitle": "Встроенное содержимое с {host}",
       "label": "Встраивание",
       "resize": "Перетащите, чтобы изменить ширину встроенного содержимого"

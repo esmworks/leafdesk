@@ -659,10 +659,10 @@
     "embed": {
       "title": "Sematan",
       "subtext": "YouTube, Figma, Google Docs, Maps, dan lainnya",
-      "aliases": "sematan embed iframe youtube vimeo loom figma google docs sheets slides codepen spotify maps video",
+      "aliases": "sematan embed iframe youtube vimeo loom figma google docs sheets slides codepen spotify maps video hex deepnote pitch website",
       "placeholder": "Tempel tautan untuk disematkan",
       "submit": "Sematkan",
-      "providers": "YouTube, Vimeo, Loom, Figma, Google Docs, Sheets, dan Slides yang diterbitkan, CodePen, Spotify, dan Google Maps. Tautan lain menjadi markah.",
+      "providers": "YouTube, Vimeo, Loom, Figma, Google Docs, Sheets, dan Slides yang diterbitkan, CodePen, Spotify, dan Google Maps. Situs https lain (Hex, Deepnote, Pitch …) tampil apa adanya jika mengizinkannya.",
       "frameTitle": "Konten tersemat dari {host}",
       "label": "Sematan",
       "resize": "Seret untuk mengubah lebar sematan"
