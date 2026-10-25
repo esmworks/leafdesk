@@ -857,7 +857,11 @@
     "pinColor": "Колір міток",
     "noPinColor": "Немає",
     "colorRules": "Правила кольору",
-    "wrapProperties": "Переносити всі властивості"
+    "wrapProperties": "Переносити всі властивості",
+    "loadLimit": "Ліміт завантаження",
+    "loadLimitCards": "{count} карток",
+    "loadMore": "Завантажити ще",
+    "moreCards": "{count, plural, one {ще # картка} few {ще # картки} many {ще # карток} other {ще # картки}}"
   },
   "gallery": {
     "new": "Створити",

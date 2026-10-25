@@ -857,7 +857,11 @@
     "pinColor": "צבע הסיכה",
     "noPinColor": "ללא",
     "colorRules": "כללי צבע",
-    "wrapProperties": "גלישת שורות בכל המאפיינים"
+    "wrapProperties": "גלישת שורות בכל המאפיינים",
+    "loadLimit": "מגבלת טעינה",
+    "loadLimitCards": "{count} כרטיסים",
+    "loadMore": "טען עוד",
+    "moreCards": "{count, plural, one {כרטיס נוסף אחד} other {# כרטיסים נוספים}}"
   },
   "gallery": {
     "new": "חדש",

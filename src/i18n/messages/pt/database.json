@@ -857,7 +857,11 @@
     "pinColor": "Cor do marcador",
     "noPinColor": "Nenhuma",
     "colorRules": "Regras de cor",
-    "wrapProperties": "Quebrar todas as propriedades"
+    "wrapProperties": "Quebrar todas as propriedades",
+    "loadLimit": "Limite de carregamento",
+    "loadLimitCards": "{count} cartões",
+    "loadMore": "Carregar mais",
+    "moreCards": "{count, plural, one {mais # cartão} other {mais # cartões}}"
   },
   "gallery": {
     "new": "Novo",

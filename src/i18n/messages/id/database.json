@@ -857,7 +857,11 @@
     "pinColor": "Warna pin",
     "noPinColor": "Tidak ada",
     "colorRules": "Aturan warna",
-    "wrapProperties": "Bungkus semua properti"
+    "wrapProperties": "Bungkus semua properti",
+    "loadLimit": "Batas muat",
+    "loadLimitCards": "{count} kartu",
+    "loadMore": "Muat lebih banyak",
+    "moreCards": "{count, plural, other {# kartu lagi}}"
   },
   "gallery": {
     "new": "Baru",

@@ -3,7 +3,7 @@
 import { cellMarkClass, colorMarkClass, type RowColors } from "@/lib/color-rules";
 import { Plus } from "lucide-react";
 import { useTranslations } from "next-intl";
-import { useRef, type KeyboardEvent } from "react";
+import { useCallback, useEffect, useRef, useState, type KeyboardEvent } from "react";
 import { cn, PageIcon } from "@/components/ui";
 import { pageLabel } from "@/lib/labels";
 import { isHiddenInView } from "@/lib/properties";
@@ -15,10 +15,14 @@ import { PropertyCell, shownValues } from "./property-cell";
 import { QuickAddContext } from "./quick-add";
 import { openRowProps, useIsOpenRow, useRowOpener } from "./row-panel-context";
 import { useNewRow } from "./use-new-row";
+import { useTableWindow } from "./use-table-window";
 import { usePropertyAccess } from "./property-access";
 import { AddSubItemButton, SUB_ITEM_INDENT, SubItemCount, SubItemToggle, useSubItems } from "./sub-items";
 import type { Property, Row, View } from "./types";
 import type { DatabaseApi } from "./use-database";
+
+/** A line's height before it is measured (see useTableWindow). */
+const LINE_HEIGHT = 37;
 
 /**
  * One compact line per row: title on the left, the properties the view shows on the right. Values
@@ -52,6 +56,7 @@ export function ListView({
   const access = usePropertyAccess();
   const subItems = useSubItems(view, properties, allRows);
   const canAddSubItem = !readOnly && subItems.nested && !!subItems.parent && access.canEditValues(subItems.parent.id);
+  const [start, setStart] = useState<HTMLDivElement | null>(null);
 
   const add = async () => {
     await createNew(() => api.createRow());
@@ -76,33 +81,53 @@ export function ListView({
     });
   };
 
+  // Long lists draw only the lines near what's visible, as tables do (see useTableWindow).
+  const lines = subItems.lines(rows);
+  const body = useTableWindow({ start, count: lines.length, estimate: () => LINE_HEIGHT, keyOf: (i) => lines[i].row.id });
+  // A new line whose title is being typed is scrolled to once, should it be outside what's drawn.
+  const editIndex = editTitleOf ? lines.findIndex((line) => line.row.id === editTitleOf) : -1;
+  const revealed = useRef<string | null>(null);
+  useEffect(() => {
+    if (!editTitleOf || editIndex < 0 || revealed.current === editTitleOf) return;
+    revealed.current = editTitleOf;
+    body.reveal(editIndex);
+  }, [editTitleOf, editIndex, body]);
+
   return (
     <QuickAddContext value={quick}>
       <div className="page-gutter pb-6">
+        <div ref={setStart} aria-hidden />
         <div role="list" className="flex flex-col">
-          {subItems.lines(rows).map((line) => (
-            <ListRow
-              key={line.row.id}
-              workspaceId={workspaceId}
-              line={line}
-              showIcon={view.config.showIcons !== false}
-              nested={subItems.nested}
-              onToggle={() => subItems.toggle(line.row.id)}
-              onAddSubItem={canAddSubItem ? () => void addSubItem(line.row) : undefined}
-              props={shownProps}
-              color={colors?.get(line.row.id)}
-              readOnly={readOnly}
-              editTitle={editTitleOf === line.row.id}
-              typed={typed}
-              onTitle={(title) => {
-                stopEditing();
-                if (title !== line.row.title) quick.save(line.row.id, title);
-              }}
-              onDelete={() => api.deleteRow(line.row.id)}
-              api={api}
-              onAddBelow={readOnly ? undefined : () => void addBelow(line.row)}
-            />
-          ))}
+          {body.padTop > 0 && <div aria-hidden style={{ height: body.padTop }} />}
+          {body.indexes.map((index) => {
+            const line = lines[index];
+            return (
+              <ListRow
+                key={line.row.id}
+                index={index}
+                measure={body.measure}
+                workspaceId={workspaceId}
+                line={line}
+                showIcon={view.config.showIcons !== false}
+                nested={subItems.nested}
+                onToggle={() => subItems.toggle(line.row.id)}
+                onAddSubItem={canAddSubItem ? () => void addSubItem(line.row) : undefined}
+                props={shownProps}
+                color={colors?.get(line.row.id)}
+                readOnly={readOnly}
+                editTitle={editTitleOf === line.row.id}
+                typed={typed}
+                onTitle={(title) => {
+                  stopEditing();
+                  if (title !== line.row.title) quick.save(line.row.id, title);
+                }}
+                onDelete={() => api.deleteRow(line.row.id)}
+                api={api}
+                onAddBelow={readOnly ? undefined : () => void addBelow(line.row)}
+              />
+            );
+          })}
+          {body.padBottom > 0 && <div aria-hidden style={{ height: body.padBottom }} />}
         </div>
         {!rows.length && readOnly && <p className="py-10 text-center text-sm text-fg-muted">{t("list.empty")}</p>}
         {!readOnly && (
@@ -122,6 +147,8 @@ export function ListView({
 
 function ListRow({
   workspaceId,
+  index,
+  measure,
   line,
   showIcon,
   nested,
@@ -138,6 +165,9 @@ function ListRow({
   onAddBelow,
 }: {
   workspaceId: string;
+  /** The line's place in the list, and what measures its height (see useTableWindow). */
+  index: number;
+  measure?: (el: HTMLElement | null) => void;
   line: SubItemLine<Row>;
   /** The view shows rows' page icons (see ViewConfig showIcons). */
   showIcon: boolean;
@@ -162,6 +192,13 @@ function ListRow({
   const opener = useRowOpener(workspaceId);
   const access = usePropertyAccess();
   const box = useRef<HTMLDivElement>(null);
+  const setBox = useCallback(
+    (el: HTMLDivElement | null) => {
+      box.current = el;
+      measure?.(el);
+    },
+    [measure],
+  );
   const row = line.row;
   const isOpen = useIsOpenRow(opener, row.id);
   const shown = shownValues(props, row);
@@ -188,7 +225,8 @@ function ListRow({
 
   return (
     <div
-      ref={box}
+      ref={setBox}
+      data-index={index}
       role="listitem"
       onKeyDown={onKeyDown}
       className={cn(

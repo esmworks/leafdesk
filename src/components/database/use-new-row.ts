@@ -37,6 +37,7 @@ export function useNewRow(api: DatabaseApi, view: View, properties: Property[]) 
   const quick = useQuickAdd(api, view, properties);
   const saveTitle = quick.save;
   const [editing, setEditing] = useState<string | null>(null);
+  const [added, setAdded] = useState<string[]>([]);
   const busy = useRef(false);
   const capture = useRef<HTMLInputElement | null>(null);
 
@@ -101,6 +102,7 @@ export function useNewRow(api: DatabaseApi, view: View, properties: Property[]) 
     try {
       const id = await run();
       created = true;
+      if (id) setAdded((ids) => [...ids, id]);
       const text = field.value.trim();
       if (!id || finished) {
         field.remove();
@@ -128,6 +130,8 @@ export function useNewRow(api: DatabaseApi, view: View, properties: Property[]) 
     /** What was typed before that editor opened; it starts with this. */
     typed: editing ? (capture.current?.value ?? "") : "",
     create,
+    /** The rows made here since the view opened (cards past a load limit stay shown, see lib/load-limit). */
+    added,
     /** Names a row from its title editor (`quick.save`): the title without what quick add took, and those values. */
     quick,
     stopEditing,

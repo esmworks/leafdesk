@@ -857,7 +857,11 @@
     "pinColor": "Couleur des repères",
     "noPinColor": "Aucune",
     "colorRules": "Règles de couleur",
-    "wrapProperties": "Renvoyer toutes les propriétés à la ligne"
+    "wrapProperties": "Renvoyer toutes les propriétés à la ligne",
+    "loadLimit": "Limite de chargement",
+    "loadLimitCards": "{count} cartes",
+    "loadMore": "Charger plus",
+    "moreCards": "{count, plural, one {# carte de plus} other {# cartes de plus}}"
   },
   "gallery": {
     "new": "Nouveau",

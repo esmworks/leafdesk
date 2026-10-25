@@ -857,7 +857,11 @@
     "pinColor": "Pinfarbe",
     "noPinColor": "Keine",
     "colorRules": "Farbregeln",
-    "wrapProperties": "Alle Eigenschaften umbrechen"
+    "wrapProperties": "Alle Eigenschaften umbrechen",
+    "loadLimit": "Ladelimit",
+    "loadLimitCards": "{count} Karten",
+    "loadMore": "Mehr laden",
+    "moreCards": "{count, plural, one {# weitere Karte} other {# weitere Karten}}"
   },
   "gallery": {
     "new": "Neu",

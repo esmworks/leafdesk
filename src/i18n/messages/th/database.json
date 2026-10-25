@@ -857,7 +857,11 @@
     "pinColor": "สีหมุด",
     "noPinColor": "ไม่มี",
     "colorRules": "กฎสี",
-    "wrapProperties": "ตัดบรรทัดคุณสมบัติทั้งหมด"
+    "wrapProperties": "ตัดบรรทัดคุณสมบัติทั้งหมด",
+    "loadLimit": "ขีดจำกัดการโหลด",
+    "loadLimitCards": "{count} การ์ด",
+    "loadMore": "โหลดเพิ่ม",
+    "moreCards": "{count, plural, other {อีก # การ์ด}}"
   },
   "gallery": {
     "new": "ใหม่",

@@ -857,7 +857,11 @@
     "pinColor": "Nålfarge",
     "noPinColor": "Ingen",
     "colorRules": "Fargeregler",
-    "wrapProperties": "Bryt alle egenskaper"
+    "wrapProperties": "Bryt alle egenskaper",
+    "loadLimit": "Lastegrense",
+    "loadLimitCards": "{count} kort",
+    "loadMore": "Last inn flere",
+    "moreCards": "{count, plural, one {# kort til} other {# kort til}}"
   },
   "gallery": {
     "new": "Ny",

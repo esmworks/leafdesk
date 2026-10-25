@@ -857,7 +857,11 @@
     "pinColor": "Nålens farve",
     "noPinColor": "Ingen",
     "colorRules": "Farveregler",
-    "wrapProperties": "Ombryd alle egenskaber"
+    "wrapProperties": "Ombryd alle egenskaber",
+    "loadLimit": "Indlæsningsgrænse",
+    "loadLimitCards": "{count} kort",
+    "loadMore": "Indlæs flere",
+    "moreCards": "{count, plural, one {# kort mere} other {# kort mere}}"
   },
   "gallery": {
     "new": "Ny",

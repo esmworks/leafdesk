@@ -4,6 +4,10 @@
 
 ### Added
 
+- **Load limit for boards and galleries.** A board column and a gallery show 50 cards, then *Load
+  more* adds as many again; Layout → *Load limit* sets 10, 25, 50 or 100 per view (MCP
+  `update_database_view` `load_limit`). Filters, sorts and counts still take every row. List views
+  draw only the lines near the visible part of the page from 120 rows on, as tables do.
 - **Writing synced blocks and tables as Markdown.** Markdown written over MCP, the REST API or
   *Edit as Markdown* now saves what changed between a synced block's marker lines to its blocks,
   when the writer may edit the original page (that page is saved to its history first; writing

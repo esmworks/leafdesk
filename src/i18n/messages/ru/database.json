@@ -857,7 +857,11 @@
     "pinColor": "Цвет меток",
     "noPinColor": "Нет",
     "colorRules": "Правила цвета",
-    "wrapProperties": "Переносить все свойства"
+    "wrapProperties": "Переносить все свойства",
+    "loadLimit": "Лимит загрузки",
+    "loadLimitCards": "{count} карточек",
+    "loadMore": "Загрузить ещё",
+    "moreCards": "{count, plural, one {ещё # карточка} few {ещё # карточки} many {ещё # карточек} other {ещё # карточки}}"
   },
   "gallery": {
     "new": "Создать",

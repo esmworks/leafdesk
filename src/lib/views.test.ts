@@ -78,6 +78,13 @@ describe("table lines and a view's own row template", () => {
   });
 });
 
+describe("load limit", () => {
+  it("is one of the limits", () => {
+    expect(layoutConfigError({ loadLimit: 25 })).toBeNull();
+    expect(layoutConfigError({ loadLimit: 30 } as unknown as ViewConfig)).toBe("Load limit must be one of: 10, 25, 50, 100");
+  });
+});
+
 describe("wrapping card values", () => {
   it("is on or off, and off when missing", () => {
     expect(layoutConfigError({ wrapProperties: true })).toBeNull();

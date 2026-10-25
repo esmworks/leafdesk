@@ -11,8 +11,10 @@ import { pageLabel } from "@/lib/labels";
 import { isHiddenInView } from "@/lib/properties";
 import { firstImageFile } from "@/lib/files";
 import { coverProperty, galleryCover } from "@/lib/views";
+import { firstRows, loadLimitOf } from "@/lib/load-limit";
 import { CardTitleInput } from "./card-title-input";
 import { Floating, useFloating } from "./floating";
+import { LoadMore } from "./load-more";
 import { OpenRowItems } from "./open-row-items";
 import { shownValues, type CreateOption } from "./property-cell";
 import { CardValue, type SetCardValue } from "./card-value";
@@ -45,7 +47,7 @@ export function GalleryView({
   colors?: ReadonlyMap<string, RowColors>;
 }) {
   const t = useTranslations("database");
-  const { editTitleOf, typed, create: createNew, stopEditing, quick } = useNewRow(api, view, properties);
+  const { editTitleOf, typed, create: createNew, stopEditing, quick, added } = useNewRow(api, view, properties);
   const size = view.config.cardSize ?? "medium";
   const showIcons = view.config.showIcons !== false;
   const wrapProperties = view.config.wrapProperties === true;
@@ -69,6 +71,10 @@ export function GalleryView({
   const add = async () => {
     await createNew(() => api.createRow());
   };
+  // Cards past the view's load limit show after "Load more" (lib/load-limit).
+  const loadLimit = loadLimitOf(view.config);
+  const [more, setMore] = useState(0);
+  const { shown, hidden } = firstRows(rows, loadLimit + more, added);
 
   return (
     <QuickAddContext value={quick}>
@@ -77,7 +83,7 @@ export function GalleryView({
           className="grid gap-3"
           style={{ gridTemplateColumns: `repeat(auto-fill, minmax(min(${CARD_WIDTH[size]}, 100%), 1fr))` }}
         >
-          {rows.map((row) => (
+          {shown.map((row) => (
             <GalleryCard
               key={row.id}
               workspaceId={workspaceId}
@@ -111,6 +117,7 @@ export function GalleryView({
             </button>
           )}
         </div>
+        {hidden > 0 && <LoadMore hidden={hidden} onClick={() => setMore((m) => m + loadLimit)} className="mt-2" />}
         {!rows.length && readOnly && <p className="py-10 text-center text-sm text-fg-muted">{t("gallery.empty")}</p>}
       </div>
     </QuickAddContext>

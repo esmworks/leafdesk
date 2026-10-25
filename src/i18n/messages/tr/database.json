@@ -857,7 +857,11 @@
     "pinColor": "İğne rengi",
     "noPinColor": "Yok",
     "colorRules": "Renk kuralları",
-    "wrapProperties": "Tüm özellikleri sar"
+    "wrapProperties": "Tüm özellikleri sar",
+    "loadLimit": "Yükleme sınırı",
+    "loadLimitCards": "{count} kart",
+    "loadMore": "Daha fazla yükle",
+    "moreCards": "{count, plural, other {# kart daha}}"
   },
   "gallery": {
     "new": "Yeni",

@@ -857,7 +857,11 @@
     "pinColor": "لون الدبوس",
     "noPinColor": "بلا",
     "colorRules": "قواعد الألوان",
-    "wrapProperties": "التفاف جميع الخصائص"
+    "wrapProperties": "التفاف جميع الخصائص",
+    "loadLimit": "حد التحميل",
+    "loadLimitCards": "{count} بطاقة",
+    "loadMore": "تحميل المزيد",
+    "moreCards": "{count, plural, zero {لا بطاقات أخرى} one {بطاقة واحدة أخرى} two {بطاقتان أخريان} few {# بطاقات أخرى} many {# بطاقة أخرى} other {# بطاقة أخرى}}"
   },
   "gallery": {
     "new": "جديد",

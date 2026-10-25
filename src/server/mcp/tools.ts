@@ -6,6 +6,7 @@ import {
   PROPERTY_TYPES,
   type CalendarMode,
   type CardSize,
+  type LoadLimit,
   type ChartAccumulate,
   type ChartAggregate,
   type ChartSort,
@@ -57,6 +58,7 @@ import { holdsOptions, holdsTimestamp, STATUS_GROUPS } from "@/lib/property-type
 import { cleanUniqueIdPrefix } from "@/lib/unique-id";
 import { MAX_PROPERTY_DESCRIPTION } from "@/lib/property-description";
 import { CALENDAR_MODES, CARD_SIZES, OPEN_ROWS, ROW_VIEW_TYPES, TIMELINE_ZOOMS, VIEW_TYPES } from "@/lib/views";
+import { DEFAULT_LOAD_LIMIT, LOAD_LIMITS } from "@/lib/load-limit";
 import { getCollab, type WriteActor } from "@/server/collab/bridge";
 import { asWrite } from "@/server/connected-app";
 import * as databases from "@/server/databases";
@@ -470,6 +472,7 @@ const viewDisplayInputs = {
   show_weekends: z.boolean().optional().describe("Calendar only: show Saturdays and Sundays (true by default)."),
   show_icons: z.boolean().optional().describe("Views with rows: page icons by titles (true by default)."),
   wrap_properties: z.boolean().optional().describe("Board and gallery only: wrap long values on cards (default false)."),
+  load_limit: z.literal(LOAD_LIMITS).optional().describe("Board (per column) and gallery only: cards shown before Load more (default 50)."),
 };
 
 /** A view's color rules (update_database_view: a new view gets them right after it is made). */
@@ -512,6 +515,7 @@ type ViewInput = {
   show_weekends?: boolean;
   show_icons?: boolean;
   wrap_properties?: boolean;
+  load_limit?: LoadLimit;
   card_size?: CardSize;
   place_by?: string;
   /** "first_image", "none" or a files property's name. */
@@ -697,6 +701,10 @@ function viewConfigPatch(
   if (input.wrap_properties !== undefined) {
     only("wrap_properties", "board", "gallery");
     patch.wrapProperties = input.wrap_properties || undefined;
+  }
+  if (input.load_limit !== undefined) {
+    only("load_limit", "board", "gallery");
+    patch.loadLimit = input.load_limit === DEFAULT_LOAD_LIMIT ? undefined : input.load_limit;
   }
   if (input.card_size !== undefined) {
     only("card_size", "gallery");

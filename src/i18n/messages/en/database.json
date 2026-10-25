@@ -857,7 +857,11 @@
     "pinColor": "Pin color",
     "noPinColor": "None",
     "colorRules": "Color rules",
-    "wrapProperties": "Wrap all properties"
+    "wrapProperties": "Wrap all properties",
+    "loadLimit": "Load limit",
+    "loadLimitCards": "{count} cards",
+    "loadMore": "Load more",
+    "moreCards": "{count, plural, one {# more card} other {# more cards}}"
   },
   "gallery": {
     "new": "New",

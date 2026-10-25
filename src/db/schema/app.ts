@@ -901,6 +901,8 @@ export type FilterGroup = { type: "group"; combinator: FilterCombinator; rules: 
 export type FilterEntry = FilterRule | FilterGroup;
 /** Gallery card sizes. */
 export type CardSize = "small" | "medium" | "large";
+/** Cards a board column or a gallery shows before "Load more" (lib/load-limit). */
+export type LoadLimit = 10 | 25 | 50 | 100;
 /**
  * Where gallery cards take their cover from: the first image in the row's body, the first image of
  * a files property, or nowhere.
@@ -1043,6 +1045,8 @@ export type ViewConfig = {
   cardSize?: CardSize;
   /** Boards and galleries: long values on cards wrap onto more lines instead of cutting off; cut off when missing. */
   wrapProperties?: boolean;
+  /** Boards (per column) and galleries: cards shown before "Load more"; 50 when missing. */
+  loadLimit?: LoadLimit;
   /** Galleries: the first image of each row when missing. */
   cover?: ViewCover;
   /** Charts: "bar" when missing. */

@@ -857,7 +857,11 @@
     "pinColor": "Colore dei segnaposto",
     "noPinColor": "Nessuno",
     "colorRules": "Regole di colore",
-    "wrapProperties": "A capo per tutte le proprietà"
+    "wrapProperties": "A capo per tutte le proprietà",
+    "loadLimit": "Limite di caricamento",
+    "loadLimitCards": "{count} schede",
+    "loadMore": "Carica altro",
+    "moreCards": "{count, plural, one {# altra scheda} other {altre # schede}}"
   },
   "gallery": {
     "new": "Nuovo",

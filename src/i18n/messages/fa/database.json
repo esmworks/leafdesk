@@ -857,7 +857,11 @@
     "pinColor": "رنگ نشانگر",
     "noPinColor": "هیچ",
     "colorRules": "قواعد رنگ",
-    "wrapProperties": "شکستن خط همه ویژگی‌ها"
+    "wrapProperties": "شکستن خط همه ویژگی‌ها",
+    "loadLimit": "حد بارگذاری",
+    "loadLimitCards": "{count} کارت",
+    "loadMore": "بارگذاری بیشتر",
+    "moreCards": "{count, plural, one {# کارت دیگر} other {# کارت دیگر}}"
   },
   "gallery": {
     "new": "جدید",

@@ -857,7 +857,11 @@
     "pinColor": "Kolor pinezek",
     "noPinColor": "Brak",
     "colorRules": "Reguły kolorów",
-    "wrapProperties": "Zawijaj wszystkie właściwości"
+    "wrapProperties": "Zawijaj wszystkie właściwości",
+    "loadLimit": "Limit wczytywania",
+    "loadLimitCards": "{count} kart",
+    "loadMore": "Wczytaj więcej",
+    "moreCards": "{count, plural, one {jeszcze # karta} few {jeszcze # karty} many {jeszcze # kart} other {jeszcze # karty}}"
   },
   "gallery": {
     "new": "Nowy",

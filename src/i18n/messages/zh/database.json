@@ -857,7 +857,11 @@
     "pinColor": "图钉颜色",
     "noPinColor": "无",
     "colorRules": "颜色规则",
-    "wrapProperties": "所有属性自动换行"
+    "wrapProperties": "所有属性自动换行",
+    "loadLimit": "加载上限",
+    "loadLimitCards": "{count} 张卡片",
+    "loadMore": "加载更多",
+    "moreCards": "{count, plural, other {还有 # 张卡片}}"
   },
   "gallery": {
     "new": "新建",

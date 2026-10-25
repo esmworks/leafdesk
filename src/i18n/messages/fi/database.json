@@ -857,7 +857,11 @@
     "pinColor": "Nastan väri",
     "noPinColor": "Ei mitään",
     "colorRules": "Värisäännöt",
-    "wrapProperties": "Rivitä kaikki ominaisuudet"
+    "wrapProperties": "Rivitä kaikki ominaisuudet",
+    "loadLimit": "Latausraja",
+    "loadLimitCards": "{count} korttia",
+    "loadMore": "Lataa lisää",
+    "moreCards": "{count, plural, one {# kortti lisää} other {# korttia lisää}}"
   },
   "gallery": {
     "new": "Uusi",

@@ -23,8 +23,10 @@ import {
   type Group,
 } from "@/lib/grouping";
 import { isHiddenInView, positionBetween, SELECT_COLORS, statusColor } from "@/lib/properties";
+import { firstRows, loadLimitOf } from "@/lib/load-limit";
 import { Floating, useFloating } from "./floating";
 import { GroupLabel, HiddenGroups, useGroupContext, useGroupName } from "./group-label";
+import { LoadMore } from "./load-more";
 import { OpenRowItems } from "./open-row-items";
 import { usePeople } from "./person-cell";
 import { usePropertyAccess } from "./property-access";
@@ -77,12 +79,15 @@ export function BoardView({
   // each of their columns, and moving it replaces only that column's value.
   const [dragFrom, setDragFrom] = useState<string | null>(null);
   const [drop, setDrop] = useState<{ group: string; index: number } | null>(null);
-  const { editTitleOf, typed, create: createNew, stopEditing, quick } = useNewRow(api, view, properties);
+  const { editTitleOf, typed, create: createNew, stopEditing, quick, added } = useNewRow(api, view, properties);
   const today = useToday();
   // Column drag: the dragged column's key and the insertion index among the shown columns.
   const [dragCol, setDragCol] = useState<string | null>(null);
   const [colDrop, setColDrop] = useState<number | null>(null);
   const [renaming, setRenaming] = useState<string | null>(null);
+  // Cards each column shows past the view's load limit, after "Load more" (lib/load-limit).
+  const [more, setMore] = useState<Record<string, number>>({});
+  const loadLimit = loadLimitOf(view.config);
   const access = usePropertyAccess();
   const scroller = useRef<HTMLDivElement>(null);
   useDragPan(scroller, !!groupBy);
@@ -309,6 +314,7 @@ export function BoardView({
               dragId !== null && drop?.group === key && (manualOrder || !group.rows.some((r) => r.id === dragId));
             const colFrom = dragCol === null ? -1 : groups.findIndex((g) => groupKey(g) === dragCol);
             const lineAt = colDrop !== null && colDrop !== colFrom && colDrop !== colFrom + 1 ? colDrop : null;
+            const { shown, hidden } = firstRows(group.rows, loadLimit + (more[key] ?? 0), added);
             let visibleCount = 0;
             return (
               <section
@@ -414,7 +420,7 @@ export function BoardView({
                   }}
                   onDrop={(e) => onDrop(e, group)}
                 >
-                  {group.rows.map((row) => {
+                  {shown.map((row) => {
                     // Where the row stands among the column's cards other than the dragged one.
                     const visibleIndex = row.id === dragId ? -1 : visibleCount++;
                     return (
@@ -443,6 +449,9 @@ export function BoardView({
                     );
                   })}
                   {dropping && manualOrder && drop.index >= visibleCount && <DropLine />}
+                  {hidden > 0 && (
+                    <LoadMore hidden={hidden} onClick={() => setMore((m) => ({ ...m, [key]: (m[key] ?? 0) + loadLimit }))} />
+                  )}
                   {canAdd(group) && (
                     <button
                       type="button"

@@ -857,7 +857,11 @@
     "pinColor": "Kleur van de speld",
     "noPinColor": "Geen",
     "colorRules": "Kleurregels",
-    "wrapProperties": "Alle eigenschappen laten teruglopen"
+    "wrapProperties": "Alle eigenschappen laten teruglopen",
+    "loadLimit": "Laadlimiet",
+    "loadLimitCards": "{count} kaarten",
+    "loadMore": "Meer laden",
+    "moreCards": "{count, plural, one {nog # kaart} other {nog # kaarten}}"
   },
   "gallery": {
     "new": "Nieuw",

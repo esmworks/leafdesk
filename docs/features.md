@@ -227,6 +227,10 @@
     with their day, to open or drag onto a weekday. Boards and galleries can wrap long values on
     their cards onto more lines instead of cutting them off (*Wrap all properties*), and a table
     can leave out the lines between its columns (*Show vertical lines*; published tables too).
+  - Large databases: a board column and a gallery show 50 cards, then *Load more* adds as many
+    again (Layout → *Load limit*: 10, 25, 50 or 100; filters, sorts, counts and calculations still
+    take every row, and cards added there stay in view). A list, like a table, draws only the lines
+    near the visible part of the page from 120 rows on. Published views show every card.
   - Clicking a value on a board or gallery card edits it in place with the table's editor, without
     opening the row; people who can't change it see the plain value.
   - *Duplicate view* in a view's tab menu makes a copy with its layout, filters, sorts and other

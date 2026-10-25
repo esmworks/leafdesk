@@ -857,7 +857,11 @@
     "pinColor": "Màu ghim",
     "noPinColor": "Không có",
     "colorRules": "Quy tắc màu",
-    "wrapProperties": "Xuống dòng mọi thuộc tính"
+    "wrapProperties": "Xuống dòng mọi thuộc tính",
+    "loadLimit": "Giới hạn tải",
+    "loadLimitCards": "{count} thẻ",
+    "loadMore": "Tải thêm",
+    "moreCards": "{count, plural, other {thêm # thẻ}}"
   },
   "gallery": {
     "new": "Mới",
