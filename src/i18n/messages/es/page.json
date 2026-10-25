@@ -246,6 +246,7 @@
     "change": "Fondo",
     "colors": "Color",
     "patterns": "Patrón",
+    "covers": "Portada",
     "none": "Ninguno",
     "remove": "Quitar fondo",
     "colorNames": {
@@ -263,6 +264,16 @@
       "plus": "Cruces",
       "grid": "Cuadrícula",
       "lines": "Líneas"
+    },
+    "coverNames": {
+      "sunrise": "Amanecer",
+      "ocean": "Océano",
+      "forest": "Bosque",
+      "dusk": "Anochecer",
+      "aurora": "Aurora",
+      "sand": "Arena",
+      "mint": "Menta",
+      "slate": "Pizarra"
     }
   },
   "title": {

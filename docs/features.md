@@ -6,7 +6,8 @@
   colors included) and markdown shortcuts, icons (beside the title: an emoji, found by name in the interface language and
   in the skin tone you last picked, or one of a few hundred built-in line icons in one of nine colors
   that read well in light, dark and high contrast; *Random* picks one), backgrounds (a color that suits the light and dark theme, or black, with an optional faint
-  pattern), favorites, duplicate, move, trash with restore (emptied after a time owners choose; moving a page, or
+  pattern, and a cover: a band across the top in one of eight gradients, on the page and its published copy;
+  none of them loads an image), favorites, duplicate, move, trash with restore (emptied after a time owners choose; moving a page, or
   trashing pages or rows, shows a note with *Undo*, and a move links to where the page went), archive (an outdated page, such
   as an old price list, leaves the sidebar, search, pickers and database views with the pages and rows under it, yet stays
   readable, editable and linked; a banner on it says who archived it and when, and search finds it with *Include archived*), export as Markdown or PDF (or, with

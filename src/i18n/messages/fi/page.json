@@ -246,6 +246,7 @@
     "change": "Tausta",
     "colors": "Väri",
     "patterns": "Kuvio",
+    "covers": "Kansikuva",
     "none": "Ei mitään",
     "remove": "Poista tausta",
     "colorNames": {
@@ -263,6 +264,16 @@
       "plus": "Ristit",
       "grid": "Ruudukko",
       "lines": "Viivat"
+    },
+    "coverNames": {
+      "sunrise": "Auringonnousu",
+      "ocean": "Valtameri",
+      "forest": "Metsä",
+      "dusk": "Hämärä",
+      "aurora": "Revontulet",
+      "sand": "Hiekka",
+      "mint": "Minttu",
+      "slate": "Liuske"
     }
   },
   "title": {

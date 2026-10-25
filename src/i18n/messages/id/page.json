@@ -246,6 +246,7 @@
     "change": "Latar belakang",
     "colors": "Warna",
     "patterns": "Pola",
+    "covers": "Sampul",
     "none": "Tidak ada",
     "remove": "Hapus latar belakang",
     "colorNames": {
@@ -263,6 +264,16 @@
       "plus": "Silang",
       "grid": "Kisi",
       "lines": "Garis"
+    },
+    "coverNames": {
+      "sunrise": "Matahari terbit",
+      "ocean": "Samudra",
+      "forest": "Hutan",
+      "dusk": "Senja",
+      "aurora": "Aurora",
+      "sand": "Pasir",
+      "mint": "Mint",
+      "slate": "Batu tulis"
     }
   },
   "title": {

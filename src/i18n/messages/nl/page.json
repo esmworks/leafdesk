@@ -246,6 +246,7 @@
     "change": "Achtergrond",
     "colors": "Kleur",
     "patterns": "Patroon",
+    "covers": "Omslag",
     "none": "Geen",
     "remove": "Achtergrond verwijderen",
     "colorNames": {
@@ -263,6 +264,16 @@
       "plus": "Kruisjes",
       "grid": "Raster",
       "lines": "Lijnen"
+    },
+    "coverNames": {
+      "sunrise": "Zonsopgang",
+      "ocean": "Oceaan",
+      "forest": "Bos",
+      "dusk": "Schemering",
+      "aurora": "Noorderlicht",
+      "sand": "Zand",
+      "mint": "Munt",
+      "slate": "Leisteen"
     }
   },
   "title": {

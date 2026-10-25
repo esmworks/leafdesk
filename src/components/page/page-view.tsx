@@ -28,7 +28,7 @@ import { DocumentViewContext } from "./document-title";
 import { IconPicker } from "./icon-picker";
 import { BackgroundPicker } from "./page-background";
 import { CrumbSiblings } from "./crumb-siblings";
-import { backdropClass } from "./page-backdrop";
+import { backdropClass, PageCoverBand } from "./page-backdrop";
 import { Backlinks } from "./mentions";
 import { RowLayoutContext, type RowLayoutHost } from "./row-layout-context";
 import { takeNewPage } from "./new-page-focus";
@@ -638,6 +638,7 @@ export function PageView({
         {showBody && !wide && !inPanel && !commentsOpen && !graphOpen && (
           <div ref={setOutlineEl} className="pointer-events-none sticky top-11 z-20 h-0 max-lg:hidden print:hidden" />
         )}
+        <PageCoverBand background={background} />
         <div
           className={cn(
             "w-full flex-1 pb-32",

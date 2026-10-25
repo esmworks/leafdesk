@@ -246,6 +246,7 @@
     "change": "배경",
     "colors": "색상",
     "patterns": "패턴",
+    "covers": "커버",
     "none": "없음",
     "remove": "배경 제거",
     "colorNames": {
@@ -263,6 +264,16 @@
       "plus": "십자",
       "grid": "격자",
       "lines": "선"
+    },
+    "coverNames": {
+      "sunrise": "일출",
+      "ocean": "바다",
+      "forest": "숲",
+      "dusk": "황혼",
+      "aurora": "오로라",
+      "sand": "모래",
+      "mint": "민트",
+      "slate": "슬레이트"
     }
   },
   "title": {

@@ -246,6 +246,7 @@
     "change": "Hintergrund",
     "colors": "Farbe",
     "patterns": "Muster",
+    "covers": "Titelbild",
     "none": "Keins",
     "remove": "Hintergrund entfernen",
     "colorNames": {
@@ -263,6 +264,16 @@
       "plus": "Kreuze",
       "grid": "Raster",
       "lines": "Linien"
+    },
+    "coverNames": {
+      "sunrise": "Sonnenaufgang",
+      "ocean": "Ozean",
+      "forest": "Wald",
+      "dusk": "Abenddämmerung",
+      "aurora": "Polarlicht",
+      "sand": "Sand",
+      "mint": "Minze",
+      "slate": "Schiefer"
     }
   },
   "title": {

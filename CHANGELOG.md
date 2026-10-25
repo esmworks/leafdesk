@@ -4,6 +4,10 @@
 
 ### Added
 
+- **Page covers.** The background picker has a *Cover* row: a band across the top of the page in one
+  of eight gradients, shown on the published page too. Like colors and patterns, covers are drawn by
+  the app's stylesheet and load no image; MCP and the REST API read and write them as
+  `cover:<name>` in the page's `background`.
 - **Import a Confluence space.** Import has a Confluence tab: a space exported as HTML (a ZIP)
   becomes pages nested as in the space, with info panels as callouts, code macros as code blocks
   in their language, expand sections as toggles, task lists as to-dos, links between pages as page

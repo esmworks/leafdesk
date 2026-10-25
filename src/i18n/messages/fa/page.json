@@ -246,6 +246,7 @@
     "change": "پس‌زمینه",
     "colors": "رنگ",
     "patterns": "طرح",
+    "covers": "کاور",
     "none": "هیچ",
     "remove": "حذف پس‌زمینه",
     "colorNames": {
@@ -263,6 +264,16 @@
       "plus": "علامت‌های به‌علاوه",
       "grid": "شبکه",
       "lines": "خط‌ها"
+    },
+    "coverNames": {
+      "sunrise": "طلوع",
+      "ocean": "اقیانوس",
+      "forest": "جنگل",
+      "dusk": "غروب",
+      "aurora": "شفق قطبی",
+      "sand": "شن",
+      "mint": "نعناع",
+      "slate": "سنگ لوح"
     }
   },
   "title": {

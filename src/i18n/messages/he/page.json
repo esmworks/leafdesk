@@ -246,6 +246,7 @@
     "change": "רקע",
     "colors": "צבע",
     "patterns": "דוגמה",
+    "covers": "כריכה",
     "none": "ללא",
     "remove": "הסרת הרקע",
     "colorNames": {
@@ -263,6 +264,16 @@
       "plus": "צלבים",
       "grid": "רשת",
       "lines": "קווים"
+    },
+    "coverNames": {
+      "sunrise": "זריחה",
+      "ocean": "אוקיינוס",
+      "forest": "יער",
+      "dusk": "דמדומים",
+      "aurora": "זוהר צפוני",
+      "sand": "חול",
+      "mint": "מנטה",
+      "slate": "צפחה"
     }
   },
   "title": {

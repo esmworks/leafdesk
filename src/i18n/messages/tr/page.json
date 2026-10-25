@@ -246,6 +246,7 @@
     "change": "Arka plan",
     "colors": "Renk",
     "patterns": "Desen",
+    "covers": "Kapak",
     "none": "Yok",
     "remove": "Arka planı kaldır",
     "colorNames": {
@@ -263,6 +264,16 @@
       "plus": "Artılar",
       "grid": "Izgara",
       "lines": "Çizgiler"
+    },
+    "coverNames": {
+      "sunrise": "Gün doğumu",
+      "ocean": "Okyanus",
+      "forest": "Orman",
+      "dusk": "Alacakaranlık",
+      "aurora": "Kutup ışıkları",
+      "sand": "Kum",
+      "mint": "Nane",
+      "slate": "Arduvaz"
     }
   },
   "title": {

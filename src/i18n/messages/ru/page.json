@@ -246,6 +246,7 @@
     "change": "Фон",
     "colors": "Цвет",
     "patterns": "Узор",
+    "covers": "Обложка",
     "none": "Нет",
     "remove": "Удалить фон",
     "colorNames": {
@@ -263,6 +264,16 @@
       "plus": "Крестики",
       "grid": "Сетка",
       "lines": "Линии"
+    },
+    "coverNames": {
+      "sunrise": "Рассвет",
+      "ocean": "Океан",
+      "forest": "Лес",
+      "dusk": "Сумерки",
+      "aurora": "Северное сияние",
+      "sand": "Песок",
+      "mint": "Мята",
+      "slate": "Сланец"
     }
   },
   "title": {

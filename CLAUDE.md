@@ -240,8 +240,8 @@ because they are separate module graphs.
   read once in `database-page.tsx` and handed down; a card asks `useIsOpenRow`
   (`components/database/row-panel-context.ts`). Views are memoized; keep their props stable
   (`src/lib/keep-unchanged.ts` keeps unchanged row objects across refetches).
-- **Page decoration** (the page background, and anything like it added later) never loads a URL or
-  image a person supplies: only colors and patterns written in the stylesheet
+- **Page decoration** (the page background and cover, and anything like them added later) never loads a
+  URL or image a person supplies: only colors, patterns and cover gradients written in the stylesheet
   (`src/lib/page-background.ts`). File and image blocks are content, not decoration.
 - **Better Auth hooks** (`src/lib/auth-options.ts`): a `before` hook's returned `body` is merged
   into the request body, so leaving a key out doesn't remove it; `delete` it from `ctx.body`.

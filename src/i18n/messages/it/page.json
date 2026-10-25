@@ -246,6 +246,7 @@
     "change": "Sfondo",
     "colors": "Colore",
     "patterns": "Motivo",
+    "covers": "Copertina",
     "none": "Nessuno",
     "remove": "Rimuovi sfondo",
     "colorNames": {
@@ -263,6 +264,16 @@
       "plus": "Croci",
       "grid": "Griglia",
       "lines": "Linee"
+    },
+    "coverNames": {
+      "sunrise": "Alba",
+      "ocean": "Oceano",
+      "forest": "Foresta",
+      "dusk": "Crepuscolo",
+      "aurora": "Aurora boreale",
+      "sand": "Sabbia",
+      "mint": "Menta",
+      "slate": "Ardesia"
     }
   },
   "title": {

@@ -246,6 +246,7 @@
     "change": "Fundo",
     "colors": "Cor",
     "patterns": "Padrão",
+    "covers": "Capa",
     "none": "Nenhum",
     "remove": "Remover fundo",
     "colorNames": {
@@ -263,6 +264,16 @@
       "plus": "Cruzes",
       "grid": "Grade",
       "lines": "Linhas"
+    },
+    "coverNames": {
+      "sunrise": "Nascer do sol",
+      "ocean": "Oceano",
+      "forest": "Floresta",
+      "dusk": "Crepúsculo",
+      "aurora": "Aurora",
+      "sand": "Areia",
+      "mint": "Menta",
+      "slate": "Ardósia"
     }
   },
   "title": {

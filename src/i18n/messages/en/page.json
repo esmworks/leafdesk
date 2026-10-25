@@ -246,6 +246,7 @@
     "change": "Background",
     "colors": "Color",
     "patterns": "Pattern",
+    "covers": "Cover",
     "none": "None",
     "remove": "Remove background",
     "colorNames": {
@@ -263,6 +264,16 @@
       "plus": "Crosses",
       "grid": "Grid",
       "lines": "Lines"
+    },
+    "coverNames": {
+      "sunrise": "Sunrise",
+      "ocean": "Ocean",
+      "forest": "Forest",
+      "dusk": "Dusk",
+      "aurora": "Aurora",
+      "sand": "Sand",
+      "mint": "Mint",
+      "slate": "Slate"
     }
   },
   "title": {

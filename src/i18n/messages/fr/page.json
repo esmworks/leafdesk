@@ -246,6 +246,7 @@
     "change": "Arrière-plan",
     "colors": "Couleur",
     "patterns": "Motif",
+    "covers": "Couverture",
     "none": "Aucun",
     "remove": "Retirer l’arrière-plan",
     "colorNames": {
@@ -263,6 +264,16 @@
       "plus": "Croix",
       "grid": "Grille",
       "lines": "Lignes"
+    },
+    "coverNames": {
+      "sunrise": "Aurore",
+      "ocean": "Océan",
+      "forest": "Forêt",
+      "dusk": "Crépuscule",
+      "aurora": "Aurore boréale",
+      "sand": "Sable",
+      "mint": "Menthe",
+      "slate": "Ardoise"
     }
   },
   "title": {

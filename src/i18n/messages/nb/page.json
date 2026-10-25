@@ -246,6 +246,7 @@
     "change": "Bakgrunn",
     "colors": "Farge",
     "patterns": "Mønster",
+    "covers": "Forside",
     "none": "Ingen",
     "remove": "Fjern bakgrunn",
     "colorNames": {
@@ -263,6 +264,16 @@
       "plus": "Kryss",
       "grid": "Rutenett",
       "lines": "Linjer"
+    },
+    "coverNames": {
+      "sunrise": "Soloppgang",
+      "ocean": "Hav",
+      "forest": "Skog",
+      "dusk": "Skumring",
+      "aurora": "Nordlys",
+      "sand": "Sand",
+      "mint": "Mynte",
+      "slate": "Skifer"
     }
   },
   "title": {

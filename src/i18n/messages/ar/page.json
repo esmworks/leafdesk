@@ -246,6 +246,7 @@
     "change": "الخلفية",
     "colors": "اللون",
     "patterns": "النقش",
+    "covers": "الغلاف",
     "none": "بلا",
     "remove": "إزالة الخلفية",
     "colorNames": {
@@ -263,6 +264,16 @@
       "plus": "علامات زائد",
       "grid": "شبكة",
       "lines": "خطوط"
+    },
+    "coverNames": {
+      "sunrise": "شروق",
+      "ocean": "محيط",
+      "forest": "غابة",
+      "dusk": "غسق",
+      "aurora": "شفق قطبي",
+      "sand": "رمل",
+      "mint": "نعناع",
+      "slate": "أردوازي"
     }
   },
   "title": {

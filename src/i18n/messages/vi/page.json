@@ -246,6 +246,7 @@
     "change": "Hình nền",
     "colors": "Màu",
     "patterns": "Họa tiết",
+    "covers": "Ảnh bìa",
     "none": "Không có",
     "remove": "Xóa hình nền",
     "colorNames": {
@@ -263,6 +264,16 @@
       "plus": "Dấu cộng",
       "grid": "Lưới",
       "lines": "Đường kẻ"
+    },
+    "coverNames": {
+      "sunrise": "Bình minh",
+      "ocean": "Đại dương",
+      "forest": "Rừng",
+      "dusk": "Hoàng hôn",
+      "aurora": "Cực quang",
+      "sand": "Cát",
+      "mint": "Bạc hà",
+      "slate": "Đá phiến"
     }
   },
   "title": {

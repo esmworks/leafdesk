@@ -246,6 +246,7 @@
     "change": "背景",
     "colors": "颜色",
     "patterns": "图案",
+    "covers": "封面",
     "none": "无",
     "remove": "移除背景",
     "colorNames": {
@@ -263,6 +264,16 @@
       "plus": "十字",
       "grid": "网格",
       "lines": "线条"
+    },
+    "coverNames": {
+      "sunrise": "日出",
+      "ocean": "海洋",
+      "forest": "森林",
+      "dusk": "黄昏",
+      "aurora": "极光",
+      "sand": "沙滩",
+      "mint": "薄荷",
+      "slate": "石板"
     }
   },
   "title": {

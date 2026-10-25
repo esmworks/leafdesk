@@ -246,6 +246,7 @@
     "change": "背景",
     "colors": "色",
     "patterns": "パターン",
+    "covers": "カバー",
     "none": "なし",
     "remove": "背景を削除",
     "colorNames": {
@@ -263,6 +264,16 @@
       "plus": "クロス",
       "grid": "グリッド",
       "lines": "ライン"
+    },
+    "coverNames": {
+      "sunrise": "朝焼け",
+      "ocean": "海",
+      "forest": "森",
+      "dusk": "夕暮れ",
+      "aurora": "オーロラ",
+      "sand": "砂",
+      "mint": "ミント",
+      "slate": "スレート"
     }
   },
   "title": {

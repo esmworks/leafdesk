@@ -246,6 +246,7 @@
     "change": "Tło",
     "colors": "Kolor",
     "patterns": "Wzór",
+    "covers": "Okładka",
     "none": "Brak",
     "remove": "Usuń tło",
     "colorNames": {
@@ -263,6 +264,16 @@
       "plus": "Krzyżyki",
       "grid": "Siatka",
       "lines": "Linie"
+    },
+    "coverNames": {
+      "sunrise": "Wschód słońca",
+      "ocean": "Ocean",
+      "forest": "Las",
+      "dusk": "Zmierzch",
+      "aurora": "Zorza",
+      "sand": "Piasek",
+      "mint": "Mięta",
+      "slate": "Łupek"
     }
   },
   "title": {
