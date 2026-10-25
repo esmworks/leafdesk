@@ -6,7 +6,7 @@ import { AccessError } from "@/server/access";
 import { AiError } from "@/server/ai";
 import { MAX_MARKDOWN_CHARS } from "./format";
 import type { McpPrincipal } from "./principal";
-import { CONTENT_NOTE, createMcpServer } from "./tools";
+import { CONTENT_NOTE, createMcpServer, readDocs } from "./tools";
 
 vi.mock("@/db", () => ({ db: {} }));
 
@@ -1749,15 +1749,15 @@ describe("trash and history", () => {
     expect(pages.restoreSnapshot).not.toHaveBeenCalled();
   });
 
-  it("list_page_history names the MCP client behind a change", async () => {
+  it("get_page_history names the MCP client behind a change", async () => {
     pages.listSnapshots.mockResolvedValue([
       { id: "s1", title: "Plan", reason: "before_mcp_write", createdAt: new Date("2026-09-02T00:00:00Z"), authorName: "Erhan", clientName: "Claude" },
     ]);
-    const r = await callTool(reader, "list_page_history", { page_id: "page-1" });
+    const r = await callTool(reader, "get_page_history", { page_id: "page-1" });
     expect(r.data.versions[0]).toMatchObject({ id: "s1", by: "Erhan via Claude", saved_at: "2026-09-02T00:00:00.000Z" });
   });
 
-  it("diff_page_version prints the changes and who made them", async () => {
+  it("get_page_history compares a version, printing the changes and who made them", async () => {
     const { diffBlocks, diffWords, flattenBlocks } = await import("@/lib/page-diff");
     const para = (text: string) => ({ type: "paragraph", props: {}, content: text });
     pageHistory.diffSnapshot.mockResolvedValue({
@@ -1768,7 +1768,7 @@ describe("trash and history", () => {
       changes: diffBlocks(flattenBlocks([para("The quick fox")]), flattenBlocks([para("The slow fox"), para("New")])),
       actors: [{ name: "Erhan", client: "Claude" }],
     });
-    const r = await callTool(reader, "diff_page_version", { version_id: "s1" });
+    const r = await callTool(reader, "get_page_history", { version_id: "s1", compare: "current" });
     expect(pageHistory.diffSnapshot).toHaveBeenCalledWith("user-1", "s1", "current");
     expect(r.data).toMatchObject({
       from: "s1",
@@ -1780,8 +1780,17 @@ describe("trash and history", () => {
     });
 
     pageHistory.diffSnapshot.mockResolvedValue(null);
-    const oldest = await callTool(reader, "diff_page_version", { version_id: "s1", against: "previous" });
+    const oldest = await callTool(reader, "get_page_history", { version_id: "s1", compare: "previous" });
     expect(oldest.data.note).toMatch(/oldest/);
+  });
+
+  it("get_page_history reads a version by version_id, and takes either a page or a version", async () => {
+    pages.getSnapshot.mockResolvedValue({ id: "s1", pageId: "page-1", title: "Plan v1", contentMarkdown: "old", createdAt: new Date("2026-09-02T00:00:00Z") });
+    const read = await callTool(reader, "get_page_history", { version_id: "s1" });
+    expect(read.data).toMatchObject({ id: "s1", page_id: "page-1", title: "Plan v1", markdown: "old" });
+    for (const args of [{}, { page_id: "page-1", version_id: "s1" }, { page_id: "page-1", compare: "current" }]) {
+      expect((await callTool(reader, "get_page_history", args)).isError, JSON.stringify(args)).toBe(true);
+    }
   });
 });
 
@@ -2593,7 +2602,7 @@ describe("automations", () => {
       kind: "agent_memory",
       agent_id: "agent-1",
       run_id: "run-1",
-      summary: expect.stringMatching(/proposed 2 notes.*keep_agent_memory.*"Refunds over 100 EUR need a lead" and 1 more$/),
+      summary: expect.stringMatching(/proposed 2 notes.*change_agent_memory.*"Refunds over 100 EUR need a lead" and 1 more$/),
       url: expect.stringMatching(/\/w\/ws-1\/settings\?tab=agents&agent=agent-1&agentTab=memory$/),
     });
     expect(data.notifications[1].summary).toMatch(/can't open.*hidden/);
@@ -2678,22 +2687,22 @@ describe("agents", () => {
   it("registers the reads as read-only and the writes as writes, with their input schemas", async () => {
     const tools = new Map((await listTools(writer)).map((t) => [t.name, t]));
     for (const name of ["list_agents", "get_agent", "list_agent_runs"]) expect(tools.get(name)?.annotations?.readOnlyHint).toBe(true);
-    const memoryTools = ["add_agent_memory", "update_agent_memory", "keep_agent_memory", "dismiss_agent_memory", "delete_agent_memory"];
-    for (const name of ["create_agent", "update_agent", "archive_agent", "restore_agent", "set_agent_access", "set_agent_skill", ...memoryTools]) {
+    for (const name of ["create_agent", "update_agent", "set_agent_archived", "set_agent_access", "set_agent_skill", "change_agent_memory"]) {
       expect(tools.get(name)?.annotations?.readOnlyHint).toBe(false);
     }
-    expect(tools.get("archive_agent")?.annotations?.destructiveHint).toBe(true);
-    for (const name of ["dismiss_agent_memory", "delete_agent_memory"]) expect(tools.get(name)?.annotations?.destructiveHint).toBe(true);
-    expect(tools.get("keep_agent_memory")?.annotations?.destructiveHint).toBe(false);
-    expect(tools.get("keep_agent_memory")!.inputSchema.required).toEqual(["agent_id", "memory_id"]);
+    // Archiving and forgetting notes ride on these tools, so clients ask before them.
+    for (const name of ["set_agent_archived", "change_agent_memory"]) expect(tools.get(name)?.annotations?.destructiveHint).toBe(true);
+    expect(tools.get("change_agent_memory")!.inputSchema.required).toEqual(["agent_id", "action"]);
+    expect(tools.get("change_agent_memory")!.inputSchema.properties.action.enum).toEqual(["add", "update", "keep", "dismiss", "delete"]);
     expect(tools.get("create_agent")!.inputSchema.required).toEqual(["workspace_id", "name"]);
     expect(tools.get("update_agent")!.inputSchema.required).toEqual(["agent_id"]);
     expect(tools.get("set_agent_access")!.inputSchema.properties.level.enum).toEqual(["view", "comment", "edit", "remove"]);
     expect(tools.get("set_agent_skill")!.inputSchema.required).toEqual(["agent_id", "skill_id", "use"]);
-    // The automation tools take the run_agent action, with the agent by id or name and a bounded task.
+    // The automation tools take the run_agent action, with the agent by id or name and a bounded task
+    // (the list shows the actions' outline; their full shape is in the automations docs topic).
     const actions = JSON.stringify(tools.get("create_automation")!.inputSchema.properties.actions);
     expect(actions).toMatch(/run_agent/);
-    expect(actions).toMatch(/"maxLength":2000/);
+    expect(readDocs("leafdesk://docs/automations")?.text).toMatch(/"maxLength":2000/);
   });
 
   it("lists agents without their instructions, on read-only connections too", async () => {
@@ -2765,50 +2774,55 @@ describe("agents", () => {
     };
     agentMemory.listAgentMemory.mockResolvedValue([proposal]);
 
-    const added = await callTool(writer, "add_agent_memory", { agent_id: "agent-1", text: "Billing questions go to Billing" });
+    const added = await callTool(writer, "change_agent_memory", { agent_id: "agent-1", action: "add", text: "Billing questions go to Billing" });
     expect(added.isError).toBe(false);
     expect(agentMemory.addAgentMemory).toHaveBeenCalledWith("user-1", "agent-1", "Billing questions go to Billing");
     expect(added.data.memory.proposed).toMatchObject([{ memory_id: "m-2", proposed_by_run: { run_id: "run-1" } }]);
 
-    await callTool(writer, "update_agent_memory", { agent_id: "agent-1", memory_id: "m-2", text: "Refunds over 200 EUR need a lead" });
+    await callTool(writer, "change_agent_memory", { agent_id: "agent-1", action: "update", memory_id: "m-2", text: "Refunds over 200 EUR need a lead" });
     expect(agentMemory.updateAgentMemory).toHaveBeenCalledWith("user-1", "agent-1", "m-2", "Refunds over 200 EUR need a lead");
-    await callTool(writer, "keep_agent_memory", { agent_id: "agent-1", memory_id: "m-2" });
+    await callTool(writer, "change_agent_memory", { agent_id: "agent-1", action: "keep", memory_id: "m-2" });
     expect(agentMemory.keepAgentMemory).toHaveBeenCalledWith("user-1", "agent-1", "m-2", undefined);
-    await callTool(writer, "keep_agent_memory", { agent_id: "agent-1", memory_id: "m-2", text: "Changed first" });
+    await callTool(writer, "change_agent_memory", { agent_id: "agent-1", action: "keep", memory_id: "m-2", text: "Changed first" });
     expect(agentMemory.keepAgentMemory).toHaveBeenLastCalledWith("user-1", "agent-1", "m-2", "Changed first");
 
     // Dismissing takes proposals only, deleting kept notes only: each says so when the ids are the other's.
-    const dismissed = await callTool(writer, "dismiss_agent_memory", { agent_id: "agent-1", memory_ids: ["m-2"] });
+    const dismissed = await callTool(writer, "change_agent_memory", { agent_id: "agent-1", action: "dismiss", memory_ids: ["m-2"] });
     expect(agentMemory.deleteAgentMemory).toHaveBeenCalledWith("user-1", "agent-1", ["m-2"], "proposed");
     expect(dismissed.data).toMatchObject({ dismissed: 1, id: "agent-1", memory: { kept: [], proposed: [expect.anything()] } });
-    await callTool(writer, "dismiss_agent_memory", { agent_id: "agent-1", all: true });
+    await callTool(writer, "change_agent_memory", { agent_id: "agent-1", action: "dismiss", all: true });
     expect(agentMemory.deleteAgentMemory).toHaveBeenLastCalledWith("user-1", "agent-1", "proposed", "proposed");
-    await callTool(writer, "delete_agent_memory", { agent_id: "agent-1", all: true });
+    await callTool(writer, "change_agent_memory", { agent_id: "agent-1", action: "delete", all: true });
     expect(agentMemory.deleteAgentMemory).toHaveBeenLastCalledWith("user-1", "agent-1", "kept", "kept");
     agentMemory.deleteAgentMemory.mockResolvedValueOnce(0);
-    const wrongKind = await callTool(writer, "delete_agent_memory", { agent_id: "agent-1", memory_ids: ["m-2"] });
+    const wrongKind = await callTool(writer, "change_agent_memory", { agent_id: "agent-1", action: "delete", memory_ids: ["m-2"] });
     expect(wrongKind.isError).toBe(true);
-    expect(wrongKind.text).toMatch(/dismiss_agent_memory/);
-    for (const args of [{}, { memory_ids: ["m-2"], all: true }]) {
-      const unclear = await callTool(writer, "dismiss_agent_memory", { agent_id: "agent-1", ...args });
+    expect(wrongKind.text).toMatch(/action dismiss/);
+    for (const args of [{}, { memory_ids: ["m-2"], all: true }, { memory_id: "m-2" }]) {
+      const unclear = await callTool(writer, "change_agent_memory", { agent_id: "agent-1", action: "dismiss", ...args });
       expect(unclear.isError).toBe(true);
+    }
+    // Each action takes its own fields.
+    for (const args of [{ action: "add" }, { action: "update", text: "x" }, { action: "keep" }, { action: "add", text: "x", all: true }]) {
+      const wrong = await callTool(writer, "change_agent_memory", { agent_id: "agent-1", ...args });
+      expect(wrong.isError, JSON.stringify(args)).toBe(true);
     }
 
     // A connection that may only read can't change an agent's memory.
-    const readOnly = await callTool(reader, "keep_agent_memory", { agent_id: "agent-1", memory_id: "m-2" });
+    const readOnly = await callTool(reader, "change_agent_memory", { agent_id: "agent-1", action: "keep", memory_id: "m-2" });
     expect(readOnly.isError).toBe(true);
 
     const cases: [string, Record<string, string>, RegExp][] = [
       ["noteNotFound", {}, /get_agent.*only be dismissed/],
-      ["memoryFull", { max: "30" }, /full \(30 kept notes\).*delete_agent_memory/],
+      ["memoryFull", { max: "30" }, /full \(30 kept notes\).*change_agent_memory/],
       ["noteTooLong", { max: "300" }, /at most 300 characters/],
       ["noteEmpty", {}, /needs text/],
-      ["archived", {}, /restore_agent/],
+      ["archived", {}, /set_agent_archived/],
       ["notFound", {}, /list_agents/],
     ];
     for (const [code, params, message] of cases) {
       agentMemory.keepAgentMemory.mockRejectedValueOnce(new agents.AgentError(code, "x", params));
-      const result = await callTool(writer, "keep_agent_memory", { agent_id: "agent-1", memory_id: "m-9" });
+      const result = await callTool(writer, "change_agent_memory", { agent_id: "agent-1", action: "keep", memory_id: "m-9" });
       expect(result.isError).toBe(true);
       expect(result.text).toMatch(message);
     }
@@ -2898,9 +2912,9 @@ describe("agents", () => {
     expect(empty.text).toMatch(/Nothing to change/);
 
     agents.archiveAgent.mockResolvedValue({ ...agent, archived: true, enabled: false });
-    expect((await callTool(writer, "archive_agent", { agent_id: "agent-1" })).data).toMatchObject({ archived: true });
+    expect((await callTool(writer, "set_agent_archived", { agent_id: "agent-1", archived: true })).data).toMatchObject({ archived: true });
     agents.restoreAgent.mockResolvedValue({ ...agent, enabled: false });
-    expect((await callTool(writer, "restore_agent", { agent_id: "agent-1" })).data).toMatchObject({ archived: false, enabled: false });
+    expect((await callTool(writer, "set_agent_archived", { agent_id: "agent-1", archived: false })).data).toMatchObject({ archived: false, enabled: false });
   });
 
   it("shares and unshares pages and returns the agent's access", async () => {
@@ -2924,7 +2938,7 @@ describe("agents", () => {
 
     const cases: [string, Record<string, string>, RegExp][] = [
       ["notFound", {}, /list_agents/],
-      ["archived", {}, /restore_agent/],
+      ["archived", {}, /set_agent_archived/],
       ["tooMany", { max: "50" }, /at most 50 agents/],
       ["invalid", { reason: "icon" }, /an emoji/],
     ];
@@ -3158,9 +3172,8 @@ describe("agents", () => {
 
   it("adds, changes and deletes an agent's schedules, and get_agent says what stands in their way", async () => {
     const tools = new Map((await listTools(writer)).map((t) => [t.name, t]));
-    expect(tools.get("add_agent_schedule")!.inputSchema.required).toEqual(["agent_id", "repeat", "time_zone", "task"]);
-    expect(tools.get("update_agent_schedule")!.inputSchema.required).toEqual(["agent_id", "schedule_id"]);
-    expect(tools.get("delete_agent_schedule")?.annotations?.destructiveHint).toBe(true);
+    expect(tools.get("set_agent_schedule")!.inputSchema.required).toEqual(["agent_id", "action"]);
+    expect(tools.get("set_agent_schedule")?.annotations?.destructiveHint).toBe(true);
 
     const schedule = {
       id: "sched-1",
@@ -3180,8 +3193,9 @@ describe("agents", () => {
     };
     agents.getAgent.mockResolvedValue(agent);
     agentSchedules.setAgentSchedule.mockResolvedValueOnce(schedule);
-    const added = await callTool(writer, "add_agent_schedule", {
+    const added = await callTool(writer, "set_agent_schedule", {
       agent_id: "agent-1",
+      action: "add",
       repeat: { frequency: "daily", time: "08:00" },
       time_zone: "Europe/Istanbul",
       task: schedule.task,
@@ -3201,17 +3215,27 @@ describe("agents", () => {
       set_by: { id: "user-1", name: "Erhan" },
     });
     expect(added.data.schedule.note).toMatch(/give it edit access/);
-    expect((await callTool(reader, "add_agent_schedule", { agent_id: "agent-1", repeat: { frequency: "daily", time: "08:00" }, time_zone: "UTC", task: "x" })).isError).toBe(true);
+    expect((await callTool(reader, "set_agent_schedule", { agent_id: "agent-1", action: "add", repeat: { frequency: "daily", time: "08:00" }, time_zone: "UTC", task: "x" })).isError).toBe(true);
 
     // What is left out stays as it is; null takes the database away.
     agentSchedules.setAgentSchedule.mockResolvedValueOnce({ ...schedule, databaseId: null, databaseTitle: null, agentAccess: null });
-    const changed = await callTool(writer, "update_agent_schedule", { agent_id: "agent-1", schedule_id: "sched-1", database_id: null });
+    const changed = await callTool(writer, "set_agent_schedule", { agent_id: "agent-1", action: "update", schedule_id: "sched-1", database_id: null });
     expect(agentSchedules.setAgentSchedule).toHaveBeenLastCalledWith("user-1", "agent-1", "sched-1", { databaseId: null });
     expect(changed.data.schedule.database).toBeNull();
     agentSchedules.setAgentSchedule.mockRejectedValueOnce(new agents.AgentError("scheduleNotFound", "No such schedule"));
-    expect((await callTool(writer, "update_agent_schedule", { agent_id: "agent-1", schedule_id: "nope", task: "x" })).isError).toBe(true);
+    expect((await callTool(writer, "set_agent_schedule", { agent_id: "agent-1", action: "update", schedule_id: "nope", task: "x" })).isError).toBe(true);
 
-    const deleted = await callTool(writer, "delete_agent_schedule", { agent_id: "agent-1", schedule_id: "sched-1" });
+    // Each action needs its own fields: add the rule, time zone and task; update and delete the schedule's id.
+    for (const args of [
+      { action: "add", repeat: { frequency: "daily", time: "08:00" }, time_zone: "UTC" },
+      { action: "add", schedule_id: "sched-1", repeat: { frequency: "daily", time: "08:00" }, time_zone: "UTC", task: "x" },
+      { action: "update", task: "x" },
+      { action: "delete" },
+      { action: "delete", schedule_id: "sched-1", task: "x" },
+    ]) {
+      expect((await callTool(writer, "set_agent_schedule", { agent_id: "agent-1", ...args })).isError, JSON.stringify(args)).toBe(true);
+    }
+    const deleted = await callTool(writer, "set_agent_schedule", { agent_id: "agent-1", action: "delete", schedule_id: "sched-1" });
     expect(agentSchedules.removeAgentSchedule).toHaveBeenCalledWith("user-1", "agent-1", "sched-1");
     expect(deleted.data).toEqual({ agent_id: "agent-1", deleted: "sched-1" });
 
@@ -3224,7 +3248,7 @@ describe("agents", () => {
     const got = await callTool(reader, "get_agent", { agent_id: "agent-1" });
     expect(got.data.schedules).toHaveLength(2);
     expect(got.data.schedules[0]).toMatchObject({ schedule_id: "sched-1", enabled: false });
-    expect(got.data.schedules[0].note).toMatch(/update_agent_schedule/);
+    expect(got.data.schedules[0].note).toMatch(/set_agent_schedule update/);
     // A task the user can't read is kept unless they give a new one; an agent the database isn't shared with skips.
     expect(got.data.schedules[1]).toMatchObject({ schedule_id: "sched-2", task: "", database: { id: "db-1", title: null } });
     expect(got.data.schedules[1].note).toMatch(/skips its runs/);
@@ -3494,32 +3518,26 @@ describe("the user's memory", () => {
     personalMemory.deleteMemories.mockImplementation(async (_u: string, _w: string, ids: string[] | "all") => (ids === "all" ? ["m-1", "m-2"] : ids.filter((id) => id === "m-1")));
   });
 
-  it("registers the read as read-only and the writes as writes, named as the agent memory tools are", async () => {
+  it("registers the read as read-only and the changes as one write, named as the agent memory tool is", async () => {
     const tools = new Map((await listTools(writer)).map((t) => [t.name, t]));
     expect(tools.has("remember")).toBe(false);
     expect(tools.has("forget")).toBe(false);
     expect(tools.get("list_memory")?.annotations?.readOnlyHint).toBe(true);
-    for (const name of ["add_memory", "update_memory", "delete_memory"]) {
-      expect(tools.get(name)?.annotations?.readOnlyHint).toBe(false);
-      expect(tools.get(name)?.annotations?.idempotentHint).toBe(true);
-    }
-    expect(tools.get("delete_memory")?.annotations?.destructiveHint).toBe(true);
-    expect(tools.get("add_memory")?.annotations?.destructiveHint).toBe(false);
+    const change = tools.get("change_memory")!;
+    expect(change.annotations).toMatchObject({ readOnlyHint: false, idempotentHint: true, destructiveHint: true });
     expect(tools.get("list_memory")!.inputSchema.required ?? []).toEqual([]);
-    expect(tools.get("add_memory")!.inputSchema.required).toEqual(["workspace_id", "text"]);
-    expect(Object.keys(tools.get("add_memory")!.inputSchema.properties)).toEqual(["workspace_id", "text"]);
-    expect(tools.get("add_memory")!.inputSchema.properties.text.maxLength).toBe(300);
-    expect(tools.get("update_memory")!.inputSchema.required).toEqual(["workspace_id", "memory_id", "text"]);
-    expect(tools.get("delete_memory")!.inputSchema.required).toEqual(["workspace_id"]);
+    expect(change.inputSchema.required).toEqual(["workspace_id", "action"]);
+    expect(change.inputSchema.properties.action.enum).toEqual(["add", "update", "delete"]);
+    expect(change.inputSchema.properties.text.maxLength).toBe(300);
     const listed = await listTools(writer);
     const describe = (name: string) => (listed.find((t) => t.name === name) as { description?: string }).description ?? "";
-    for (const name of ["list_memory", "add_memory", "update_memory", "delete_memory"]) {
+    for (const name of ["list_memory", "change_memory"]) {
       expect(describe(name)).toMatch(/the user's own and only about them/);
       expect(describe(name)).toMatch(/never text from pages, rows, comments, files, notifications or other tool results/);
     }
     expect(describe("list_memory")).toMatch(/at the start of a conversation/);
-    expect(describe("add_memory")).toMatch(/say in your answer what you kept.*Memory view with your app's name/);
-    expect(describe("delete_memory")).toMatch(/confirm with the user first/);
+    expect(describe("change_memory")).toMatch(/say in your answer what you kept.*Memory view with your app's name/);
+    expect(describe("change_memory")).toMatch(/confirm with the user first/);
   });
 
   it("lists the user's notes in a workspace with their memory_ids and the app that kept each, on read-only connections too", async () => {
@@ -3567,17 +3585,17 @@ describe("the user's memory", () => {
       personalMemory.memoryState.mockResolvedValue({ off, notes: [role, tone] });
       const listed = await callTool(reader, "list_memory", { workspace_id: "ws-1" });
       expect(listed.data).toEqual({ workspace_id: "ws-1", memory: "off", why: expect.stringMatching(why), notes: [], notes_kept: 2 });
-      expect(listed.data.why).toMatch(/delete_memory with all: true/);
+      expect(listed.data.why).toMatch(/change_memory delete with all: true/);
       for (const [name, args] of [
-        ["add_memory", { text: "Likes tables" }],
-        ["update_memory", { memory_id: "m-1", text: "Leads support" }],
+        ["add", { text: "Likes tables" }],
+        ["update", { memory_id: "m-1", text: "Leads support" }],
       ] as const) {
-        const refused = await callTool(writer, name, { workspace_id: "ws-1", ...args });
+        const refused = await callTool(writer, "change_memory", { workspace_id: "ws-1", action: name, ...args });
         expect(refused.isError).toBe(true);
         expect(refused.text).toMatch(why);
       }
       personalMemory.memoryState.mockResolvedValue({ off, notes: [] });
-      const deleted = await callTool(writer, "delete_memory", { workspace_id: "ws-1", all: true });
+      const deleted = await callTool(writer, "change_memory", { workspace_id: "ws-1", action: "delete", all: true });
       expect(deleted.isError).toBe(false);
       expect(deleted.data).toMatchObject({ deleted: 2, memory: "off", notes: [], notes_kept: 0 });
     }
@@ -3587,7 +3605,7 @@ describe("the user's memory", () => {
 
   it("adds a note as the app, saying when the user already had it, and answers with the user's notes", async () => {
     personalMemory.writeNote.mockResolvedValue(row("m-3", "Works in Istanbul"));
-    const added = await callTool(writer, "add_memory", { workspace_id: "ws-1", text: "Works in Istanbul" });
+    const added = await callTool(writer, "change_memory", { workspace_id: "ws-1", action: "add", text: "Works in Istanbul" });
     expect(added.isError).toBe(false);
     expect(personalMemory.writeNote).toHaveBeenCalledWith("user-1", "ws-1", "Works in Istanbul", { app: "client-1" });
     expect(added.data).toMatchObject({ added: { memory_id: "m-3", text: "Works in Istanbul" }, workspace_id: "ws-1", memory: "on", notes: [{ memory_id: "m-1" }, { memory_id: "m-2" }] });
@@ -3599,46 +3617,51 @@ describe("the user's memory", () => {
 
     // A note the user already has comes back as it is, as the write found it.
     personalMemory.writeNote.mockResolvedValue(row("m-2", "Wants short answers", true));
-    const again = await callTool(writer, "add_memory", { workspace_id: "ws-1", text: "wants short answers" });
+    const again = await callTool(writer, "change_memory", { workspace_id: "ws-1", action: "add", text: "wants short answers" });
     expect(again.data).toMatchObject({ added: { memory_id: "m-2" }, already_remembered: true });
   });
 
   it("changes a note as the app, saying when it merged into another", async () => {
     personalMemory.writeNote.mockResolvedValue(row("m-1", "Leads the billing team"));
-    const updated = await callTool(writer, "update_memory", { workspace_id: "ws-1", memory_id: "m-1", text: "Leads the billing team" });
+    const updated = await callTool(writer, "change_memory", { workspace_id: "ws-1", action: "update", memory_id: "m-1", text: "Leads the billing team" });
     expect(personalMemory.writeNote).toHaveBeenCalledWith("user-1", "ws-1", "Leads the billing team", { replaces: "m-1", app: "client-1" });
     expect(updated.data).toMatchObject({ updated: { memory_id: "m-1", text: "Leads the billing team" }, notes: expect.any(Array) });
     expect(updated.data.merged).toBeUndefined();
     personalMemory.writeNote.mockResolvedValue(row("m-2", "Wants short answers", true));
-    const merged = await callTool(writer, "update_memory", { workspace_id: "ws-1", memory_id: "m-1", text: "wants short answers" });
+    const merged = await callTool(writer, "change_memory", { workspace_id: "ws-1", action: "update", memory_id: "m-1", text: "wants short answers" });
     expect(merged.data).toMatchObject({ updated: { memory_id: "m-2" }, merged: true });
   });
 
   it("deletes notes by memory_ids or all of them; ids already gone come back under not_found, the same call again doing no harm", async () => {
-    const some = await callTool(writer, "delete_memory", { workspace_id: "ws-1", memory_ids: ["m-1"] });
+    const some = await callTool(writer, "change_memory", { workspace_id: "ws-1", action: "delete", memory_ids: ["m-1"] });
     expect(personalMemory.deleteMemories).toHaveBeenCalledWith("user-1", "ws-1", ["m-1"]);
     expect(some.data).toMatchObject({ deleted: 1, workspace_id: "ws-1", notes: expect.any(Array) });
     expect(some.data.not_found).toBeUndefined();
-    const all = await callTool(writer, "delete_memory", { workspace_id: "ws-1", all: true });
+    const all = await callTool(writer, "change_memory", { workspace_id: "ws-1", action: "delete", all: true });
     expect(personalMemory.deleteMemories).toHaveBeenLastCalledWith("user-1", "ws-1", "all");
     expect(all.data.deleted).toBe(2);
     personalMemory.deleteMemories.mockResolvedValueOnce([]);
-    const again = await callTool(writer, "delete_memory", { workspace_id: "ws-1", memory_ids: ["m-1", "m-9"] });
+    const again = await callTool(writer, "change_memory", { workspace_id: "ws-1", action: "delete", memory_ids: ["m-1", "m-9"] });
     expect(again.isError).toBe(false);
     expect(again.data).toMatchObject({ deleted: 0, not_found: ["m-1", "m-9"] });
-    for (const args of [{}, { memory_ids: ["m-1"], all: true }]) {
-      const unclear = await callTool(writer, "delete_memory", { workspace_id: "ws-1", ...args });
+    for (const args of [{}, { memory_ids: ["m-1"], all: true }, { all: true, text: "x" }]) {
+      const unclear = await callTool(writer, "change_memory", { workspace_id: "ws-1", action: "delete", ...args });
       expect(unclear.isError).toBe(true);
     }
+    // Adding and changing take text (and changing a memory_id), never what deleting takes.
+    for (const args of [{ action: "add" }, { action: "update", text: "x" }, { action: "add", text: "x", memory_id: "m-1" }, { action: "add", text: "x", all: true }]) {
+      expect((await callTool(writer, "change_memory", { workspace_id: "ws-1", ...args })).isError, JSON.stringify(args)).toBe(true);
+    }
+    expect(personalMemory.writeNote).not.toHaveBeenCalled();
     expect(personalMemory.deleteMemories).toHaveBeenCalledTimes(3);
   });
 
   it("refuses changes on a read-only connection and words the memory's refusals with a next step", async () => {
     for (const [name, args] of [
-      ["add_memory", { text: "Likes tables" }],
-      ["delete_memory", { all: true }],
+      ["add", { text: "Likes tables" }],
+      ["delete", { all: true }],
     ] as const) {
-      const readOnly = await callTool(reader, name, { workspace_id: "ws-1", ...args });
+      const readOnly = await callTool(reader, "change_memory", { workspace_id: "ws-1", action: name, ...args });
       expect(readOnly.isError).toBe(true);
       expect(readOnly.text).toMatch(/pages:write/);
     }
@@ -3647,14 +3670,14 @@ describe("the user's memory", () => {
 
     const cases: [string, RegExp][] = [
       ["notFound", /No note with this memory_id.*list_memory/],
-      ["full", /full \(30 notes\).*delete_memory.*update_memory/],
+      ["full", /full \(30 notes\).*change_memory/],
       ["tooLong", /at most 300 characters/],
       ["empty", /needs text/],
       ["off", /owners turned the AI memory off/],
     ];
     for (const [code, message] of cases) {
       personalMemory.writeNote.mockRejectedValueOnce(new personalMemory.MemoryError(code, "x"));
-      const result = await callTool(writer, "update_memory", { workspace_id: "ws-1", memory_id: "m-1", text: "x" });
+      const result = await callTool(writer, "change_memory", { workspace_id: "ws-1", action: "update", memory_id: "m-1", text: "x" });
       expect(result.isError).toBe(true);
       expect(result.text).toMatch(message);
     }
@@ -4046,7 +4069,7 @@ describe("the review queue", () => {
 
   it("approves with an edit and force, and dismisses; both need pages:write", async () => {
     review.approvePendingChange.mockResolvedValueOnce({ ...change, status: "approved", conflict: false, canApprove: false });
-    const approved = await callTool(writer, "approve_pending_change", { change_id: "chg-1", properties: { Amount: 140 }, force: true });
+    const approved = await callTool(writer, "answer_pending_change", { change_id: "chg-1", decision: "approve", properties: { Amount: 140 }, force: true });
     expect(approved.data.status).toBe("approved");
     expect(review.approvePendingChange).toHaveBeenLastCalledWith("user-1", "chg-1", {
       payload: { properties: { Amount: 140 } },
@@ -4054,15 +4077,18 @@ describe("the review queue", () => {
       actor: { userId: "user-1", oauthClientId: "client-1" },
     });
     review.dismissPendingChange.mockResolvedValueOnce({ ...change, status: "dismissed" });
-    expect((await callTool(writer, "dismiss_pending_change", { change_id: "chg-1" })).data.status).toBe("dismissed");
-    expect((await callTool(reader, "dismiss_pending_change", { change_id: "chg-1" })).isError).toBe(true);
+    expect((await callTool(writer, "answer_pending_change", { change_id: "chg-1", decision: "dismiss" })).data.status).toBe("dismissed");
+    expect((await callTool(reader, "answer_pending_change", { change_id: "chg-1", decision: "dismiss" })).isError).toBe(true);
+    // Edits and force only go with approving.
+    expect((await callTool(writer, "answer_pending_change", { change_id: "chg-1", decision: "dismiss", force: true })).isError).toBe(true);
+    expect(review.dismissPendingChange).toHaveBeenCalledTimes(1);
   });
 
   it("explains a conflict and a change the user may not answer", async () => {
     const { PendingChangeError } = await import("@/server/pending-changes");
     review.approvePendingChange.mockRejectedValueOnce(new PendingChangeError("conflict", "changed"));
-    expect((await callTool(writer, "approve_pending_change", { change_id: "chg-1" })).text).toMatch(/force: true/);
+    expect((await callTool(writer, "answer_pending_change", { change_id: "chg-1", decision: "approve" })).text).toMatch(/force: true/);
     review.approvePendingChange.mockRejectedValueOnce(new AccessError("Only the person whose mailbox it goes out from may send or dismiss an email draft."));
-    expect((await callTool(writer, "approve_pending_change", { change_id: "chg-1" })).text).toMatch(/Only the person whose mailbox/);
+    expect((await callTool(writer, "answer_pending_change", { change_id: "chg-1", decision: "approve" })).text).toMatch(/Only the person whose mailbox/);
   });
 });

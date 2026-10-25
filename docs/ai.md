@@ -290,8 +290,8 @@ everyone under Settings → General → AI → *AI memory*, which also hides the
 switch deletes a note: they come back when the memory is turned on again.
 
 The same notes reach the AI apps you connect over MCP, so each of them knows you as the chat does:
-`list_memory` reads them (an app is told to at the start of a conversation), `add_memory` keeps a
-note, `update_memory` changes one and `delete_memory` deletes some or all of them, with the chat's
+`list_memory` reads them (an app is told to at the start of a conversation), and `change_memory`
+keeps a note, changes one or deletes some or all of them, with the chat's
 limits. Apps are told to keep only what you say about yourself, never what pages or tool results
 say, and to tell you what they kept; your app asks you before it calls a tool that changes
 anything, as it does for pages. *Memory* shows which app kept or last changed each note (*Kept by

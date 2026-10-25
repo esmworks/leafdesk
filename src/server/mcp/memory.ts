@@ -18,28 +18,22 @@ export const memoryInputs = {
   list: z.object({
     workspace_id: id("workspace").optional().describe("Only this workspace's notes; the notes of every workspace of the user when omitted."),
   }),
-  add: z.object({
+  change: z.object({
     workspace_id: id("workspace"),
-    text: noteInput.describe(`The note: one fact about the user, in a sentence of at most ${MAX_MEMORY_CHARS} characters, in the user's language.`),
-  }),
-  update: z.object({
-    workspace_id: id("workspace"),
-    memory_id: memoryIdInput,
-    text: noteInput.describe(`The note's new text (at most ${MAX_MEMORY_CHARS} characters).`),
-  }),
-  delete: z.object({
-    workspace_id: id("workspace"),
-    memory_ids: z.array(memoryIdInput).min(1).max(MAX_MEMORIES).optional().describe("The memory_ids of the notes to delete, from list_memory."),
-    all: z.boolean().default(false).describe("Delete every note of the user in the workspace instead (confirm with the user first)."),
+    action: z.enum(["add", "update", "delete"]).describe("add: keep a new note (text). update: change a note (memory_id, text). delete: forget notes (memory_ids, or all)."),
+    text: noteInput.optional().describe(`add, update: the note, one fact about the user in a sentence of at most ${MAX_MEMORY_CHARS} characters, in the user's language.`),
+    memory_id: memoryIdInput.optional().describe("update: the note's memory_id, from list_memory."),
+    memory_ids: z.array(memoryIdInput).min(1).max(MAX_MEMORIES).optional().describe("delete: the memory_ids of the notes to forget, from list_memory."),
+    all: z.boolean().default(false).describe("delete: forget every note of the user in the workspace instead (confirm with the user first)."),
   }),
 };
 
 /** Why nothing is read or kept, by the switch that has the memory off. */
 export const MEMORY_OFF = {
   workspace:
-    "The workspace's owners turned the AI memory off (Settings → General → AI → AI memory), so no note about the user is read or kept there. Keep nothing; the notes come back if an owner turns it on again. The user can still have them deleted (delete_memory with all: true).",
+    "The workspace's owners turned the AI memory off (Settings → General → AI → AI memory), so no note about the user is read or kept there. Keep nothing; the notes come back if an owner turns it on again. The user can still have them deleted (change_memory delete with all: true).",
   person:
-    "The user turned their memory off in this workspace (the Use memory switch in the AI chat's Memory), so no note about them is read or kept there. Keep nothing; they can turn it back on there. They can still have the notes deleted (delete_memory with all: true).",
+    "The user turned their memory off in this workspace (the Use memory switch in the AI chat's Memory), so no note about them is read or kept there. Keep nothing; they can turn it back on there. They can still have the notes deleted (change_memory delete with all: true).",
 } as const;
 
 /** Refused unless the user's memory in the workspace is on (the owners' switch and their own). */
@@ -59,7 +53,7 @@ export async function withMemoryErrors<T>(fn: () => Promise<T>): Promise<T> {
           throw new ToolInputError("No note with this memory_id in the user's memory in this workspace. Call list_memory to see their notes.");
         case "full":
           throw new ToolInputError(
-            `The user's memory in this workspace is full (${MAX_MEMORIES} notes). Delete a note that matters less with delete_memory, or change one with update_memory; or tell the user it is full.`,
+            `The user's memory in this workspace is full (${MAX_MEMORIES} notes). Delete a note that matters less or change one (change_memory); or tell the user it is full.`,
           );
         case "tooLong":
           throw new ToolInputError(`A note has at most ${MAX_MEMORY_CHARS} characters. Make it shorter.`);

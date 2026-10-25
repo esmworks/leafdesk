@@ -655,8 +655,8 @@ try {
     for (const [tool, args] of [
       ["get_page", { page_id: S }],
       ["list_pages", { workspace_id: workspaceId, parent_id: S }],
-      ["list_page_history", { page_id: S }],
-      ["get_page_version", { version_id: snap.id }],
+      ["get_page_history", { page_id: S }],
+      ["get_page_history", { version_id: snap.id }],
       ["query_database", { database_id: SD }],
     ] as const) {
       const r = await callTool(u, tool, args);

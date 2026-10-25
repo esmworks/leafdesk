@@ -11,7 +11,7 @@
   Cmd/Ctrl+Alt+T opens or closes them all, and *Hide empty groups* leaves out empty ones too. The
   same menu's *Color columns* turns the option colors of the columns off. MCP's
   `create_database_view` and `update_database_view` take `sub_group_by` and `color_columns`, and
-  `get_database` names them; the MCP tool list's size budget goes from 276,500 to 277,500 bytes for them.
+  `get_database` names them.
 - **Group lists and galleries.** Lists and galleries group their rows into sections by a property,
   like tables: each section folds away, can be hidden and adds rows with its value, published pages
   show the sections, and MCP's `group_by` takes them.
@@ -309,6 +309,22 @@
 
 ### Changed
 
+- **A smaller MCP tool list, with docs on demand.** Every client sends the tool list to its model at
+  the start of each session; it goes from 99 tools and 277 KB to 86 tools and 158 KB, and the largest
+  tool from 25 KB to 9 KB. What a model needs only now and then is now MCP resources,
+  `leafdesk://docs/<topic>` (`markdown`, `properties`, `filters`, `views`, `dashboards`,
+  `automations`), written from the same schemas the tools check, so they never drift; `get_page`
+  reads them too, for clients that don't read resources. Filters, view settings, dashboard
+  widgets, automation triggers and steps, and row values show as an outline with a pointer and are
+  checked in full when a tool is called. Writes of the same kind and risk are one tool each now:
+  `change_memory` (was `add_memory`, `update_memory`, `delete_memory`), `change_agent_memory`
+  (`add_`, `update_`, `keep_`, `dismiss_` and `delete_agent_memory`), `set_agent_schedule`
+  (`add_`, `update_`, `delete_agent_schedule`), `set_agent_archived` (`archive_agent`,
+  `restore_agent`), `answer_pending_change` (`approve_` and `dismiss_pending_change`),
+  `change_enrollment` (`stop_` and `resume_enrollment`), and the reads `get_page_history`
+  (`list_page_history`, `get_page_version`, `diff_page_version`). Reads stay apart from writes, so
+  clients still ask before every change. The budget in `tools-context.test.ts` goes down to 90
+  tools, 165 KB and 12 KB per tool.
 - **Copies are numbered.** Duplicating a page or rows names the copy "Plan (1)", then "Plan (2)",
   instead of "Plan (copy)"; a copy of a copy counts on from the original. MCP's `duplicate_page`
   does the same.

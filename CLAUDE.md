@@ -97,7 +97,14 @@ BlockNote on Yjs; Tailwind v4; next-intl. Node 24, pnpm 11. A separate Electron 
   chat, agents and automations do with pages, databases, rows and comments. Each operation runs as
   `ctx.userId` with that person's access; the caller checks its own scopes first.
 - **MCP server.** Every tool is registered in `src/server/mcp/tools.ts` `createMcpServer`; tools
-  without `readOnlyHint: true` are treated as writes. Scopes: `mcp/principal.ts`.
+  without `readOnlyHint: true` are treated as writes. Scopes: `mcp/principal.ts`. Large or rarely
+  needed inputs (filters, view settings, widgets, automation steps, row values) show only an
+  outline and a `leafdesk://docs/<topic>` pointer (`mcp/docs.ts` `checked`, `see`) and are checked
+  in full when called; the topics are MCP resources written from the strict zod schemas, also read
+  by `get_page`. Related writes of the same risk share one tool with an `action` (`change_memory`,
+  `set_agent_schedule`); keep reads and writes in separate tools, since clients ask before writes.
+  `ops.inputs` is shared with the REST API's OpenAPI: change MCP's view of an input with `.extend`
+  in `mcp/`, not there.
 - **REST API.** One route table, `API_ROUTES` in `src/server/api/routes.ts` (`defineRoute`); the
   OpenAPI document is generated from it. Bearer tokens only (`api/tokens.ts`).
 - **AI.** `src/server/ai/index.ts` is the only door to the model library: `complete`, `stream`,
@@ -212,7 +219,8 @@ because they are separate module graphs.
   names English texts that exist and a group or row marked `anchor="<id>"`, and every settings tab
   has one. A new setting gets an entry there, with the condition the page shows it under.
 - `src/server/mcp/tools-context.test.ts`: the MCP tool list every client sends its model stays
-  under 275 KB in all and 25 KB per tool. Raise a number only on purpose, in the same commit.
+  under 90 tools, 165 KB in all and 12 KB per tool. Raise a number only on purpose, in the same
+  commit; first move what a model needs only now and then into a docs topic.
 - `scripts/bundle-budget.ts` (CI, after `pnpm build`): gzipped client JS budgets for the largest
   route's first load, all routes' first-load chunks together and the largest on-demand chunk. Lazy
   code has no total. Anything in `src/app/w/[workspaceId]/layout.tsx`'s static imports (sidebar,

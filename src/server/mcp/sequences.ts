@@ -17,8 +17,10 @@ export const sequenceInputs = {
     sequence_id: z.string().min(1).describe("The sequence's id, from list_sequences."),
     row_ids: z.array(z.string().min(1)).min(1).max(MAX_BULK_ENROLL).describe(`The rows to start it on (at most ${MAX_BULK_ENROLL}), rows of the sequence's database.`),
   }),
-  stop: z.object({ enrollment_id: enrollmentId }),
-  resume: z.object({ enrollment_id: enrollmentId }),
+  change: z.object({
+    enrollment_id: enrollmentId,
+    action: z.enum(["stop", "resume"]).describe("stop: no more of its emails go out, and a draft waiting for review is withdrawn. resume: go on after a pause."),
+  }),
   enrollments: z.object({
     row_id: z.string().min(1).optional().describe("Only this row's."),
     database_id: z.string().min(1).optional().describe("Only this database's."),
