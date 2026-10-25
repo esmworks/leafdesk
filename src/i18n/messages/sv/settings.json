@@ -1422,7 +1422,7 @@
     },
     "historyRetention": {
       "title": "Sidhistorik",
-      "description": "Tidigare versioner av en sida sparas i {days} dagar, upp till {count} per sida. Sparade versioner och versioner från före en återställning sparas i {keptDays} dagar, och den senaste versionen av en sida finns alltid kvar."
+      "description": "Tidigare versioner av en sida sparas i {days} dagar, upp till {count} per sida. Sparade versioner och versioner från före en återställning sparas i {keptDays} dagar, namngivna versioner så länge sidan finns, och den senaste versionen av en sida finns alltid kvar."
     },
     "membersHeading": "Medlemmar",
     "memberInvites": {

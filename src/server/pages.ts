@@ -1287,13 +1287,18 @@ export async function listChildren(
     .orderBy(asc(page.position));
 }
 
-export async function listSnapshots(userId: string, pageId: string) {
+/**
+ * A page's newest 100 versions, newest first; with `named`, only its named versions
+ * (server/page-versions), however far back they go (the newest 1,000).
+ */
+export async function listSnapshots(userId: string, pageId: string, { named = false }: { named?: boolean } = {}) {
   await requirePageAccess(userId, pageId, "view");
   return db
     .select({
       id: pageSnapshot.id,
       title: pageSnapshot.title,
       reason: pageSnapshot.reason,
+      name: pageSnapshot.name,
       createdAt: pageSnapshot.createdAt,
       authorName: user.name,
       clientName: oauthClient.name,
@@ -1305,9 +1310,9 @@ export async function listSnapshots(userId: string, pageId: string) {
     .leftJoin(user, eq(user.id, pageSnapshot.createdBy))
     .leftJoin(workspaceAgent, eq(workspaceAgent.userId, pageSnapshot.createdBy))
     .leftJoin(oauthClient, eq(oauthClient.clientId, pageSnapshot.oauthClientId))
-    .where(eq(pageSnapshot.pageId, pageId))
+    .where(and(eq(pageSnapshot.pageId, pageId), named ? isNotNull(pageSnapshot.name) : undefined))
     .orderBy(desc(pageSnapshot.createdAt))
-    .limit(100);
+    .limit(named ? 1000 : 100);
 }
 
 export async function getSnapshot(userId: string, snapshotId: string) {
@@ -1316,6 +1321,7 @@ export async function getSnapshot(userId: string, snapshotId: string) {
       id: pageSnapshot.id,
       pageId: pageSnapshot.pageId,
       title: pageSnapshot.title,
+      name: pageSnapshot.name,
       contentMarkdown: pageSnapshot.contentMarkdown,
       createdAt: pageSnapshot.createdAt,
     })

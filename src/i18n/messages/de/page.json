@@ -322,9 +322,37 @@
       "beforeMerge": "Vor dem Zusammenführen von Zeilen"
     },
     "empty": "Noch keine Versionen. Versionen werden beim Bearbeiten automatisch gespeichert und bevor eine KI-App diese Seite ändert.",
+    "saveVersion": "Version speichern",
+    "namedOnly": "Nur benannte Versionen",
+    "emptyNamed": "Noch keine benannten Versionen. Speichere eine Version mit Namen oder benenne eine aus der Liste.",
+    "name": "Diese Version benennen",
+    "rename": "Diese Version umbenennen",
     "restore": "Diese Version wiederherstellen",
     "restoring": "Wird wiederhergestellt…",
     "restoreHint": "Der aktuelle Inhalt wird vorher als Version gespeichert.",
+    "versionName": {
+      "saveTitle": "Version speichern",
+      "saveHint": "Speichert die Seite, wie sie jetzt ist. Gib ihr einen Namen, um sie wiederzufinden: Benannte Versionen bleiben so lange wie die Seite.",
+      "renameTitle": "Version benennen",
+      "renameHint": "Die Version vom {date}. Benannte Versionen bleiben so lange wie die Seite; lass den Namen leer, um ihn zu entfernen.",
+      "unchangedTitle": "Nichts geändert",
+      "unchangedHint": "Die Seite ist dieselbe wie die Version vom {date}, deshalb bekommt diese Version den Namen, statt eine Kopie zu speichern. Lass den Namen leer, um ihn zu entfernen.",
+      "nameLabel": "Name",
+      "namePlaceholder": "Optional, z. B. Zur Prüfung geschickt",
+      "save": "Version speichern",
+      "saveName": "Namen speichern",
+      "saving": "Wird gespeichert…",
+      "saved": "Version gespeichert",
+      "savedNamed": "Version „{name}“ gespeichert",
+      "named": "Version „{name}“ benannt",
+      "nameCleared": "Name der Version entfernt",
+      "errors": {
+        "invalidName": "Ein Name darf höchstens {max} Zeichen haben.",
+        "inTrash": "Diese Seite ist im Papierkorb. Stelle sie zuerst wieder her.",
+        "failed": "Speichern fehlgeschlagen. Versuche es erneut.",
+        "state": "Änderungen seit der letzten Version konnten nicht geprüft werden."
+      }
+    },
     "diff": {
       "rangeCurrent": "Änderungen zwischen der Version vom {from} und der aktuellen Seite",
       "rangePrevious": "Änderungen zwischen {from} und {to}",

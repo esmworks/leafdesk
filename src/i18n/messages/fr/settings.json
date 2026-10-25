@@ -1422,7 +1422,7 @@
     },
     "historyRetention": {
       "title": "Historique des pages",
-      "description": "Les versions précédentes d’une page sont conservées {days} jours, jusqu’à {count} par page. Les versions enregistrées et celles d’avant une restauration sont conservées {keptDays} jours, et la dernière version d’une page est toujours gardée."
+      "description": "Les versions précédentes d’une page sont conservées {days} jours, jusqu’à {count} par page. Les versions enregistrées et celles d’avant une restauration sont conservées {keptDays} jours, les versions nommées aussi longtemps que la page, et la dernière version d’une page reste toujours."
     },
     "membersHeading": "Membres",
     "memberInvites": {

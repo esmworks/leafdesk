@@ -322,9 +322,37 @@
       "beforeMerge": "Sebelum menggabungkan baris"
     },
     "empty": "Belum ada versi. Versi disimpan otomatis saat Anda mengedit dan sebelum aplikasi AI mana pun mengubah halaman ini.",
+    "saveVersion": "Simpan versi",
+    "namedOnly": "Hanya versi bernama",
+    "emptyNamed": "Belum ada versi bernama. Simpan versi dengan nama, atau beri nama salah satu dari daftar.",
+    "name": "Beri nama versi ini",
+    "rename": "Ganti nama versi ini",
     "restore": "Pulihkan versi ini",
     "restoring": "Memulihkan…",
     "restoreHint": "Konten saat ini disimpan sebagai versi terlebih dahulu.",
+    "versionName": {
+      "saveTitle": "Simpan versi",
+      "saveHint": "Menyimpan halaman seperti sekarang. Beri nama agar mudah ditemukan lagi: versi bernama disimpan selama halaman ada.",
+      "renameTitle": "Beri nama versi",
+      "renameHint": "Versi dari {date}. Versi bernama disimpan selama halaman ada; kosongkan nama untuk menghapusnya.",
+      "unchangedTitle": "Tidak ada yang berubah",
+      "unchangedHint": "Halaman sama dengan versi dari {date}, jadi versi itu yang diberi nama alih-alih menyimpan salinan. Kosongkan nama untuk menghapusnya.",
+      "nameLabel": "Nama",
+      "namePlaceholder": "Opsional, mis. Dikirim untuk ditinjau",
+      "save": "Simpan versi",
+      "saveName": "Simpan nama",
+      "saving": "Menyimpan…",
+      "saved": "Versi disimpan",
+      "savedNamed": "Versi “{name}” disimpan",
+      "named": "Versi diberi nama “{name}”",
+      "nameCleared": "Nama versi dihapus",
+      "errors": {
+        "invalidName": "Nama paling banyak {max} karakter.",
+        "inTrash": "Halaman ini ada di tempat sampah. Pulihkan dulu.",
+        "failed": "Tidak dapat menyimpan. Coba lagi.",
+        "state": "Tidak dapat memeriksa perubahan sejak versi terakhir."
+      }
+    },
     "diff": {
       "rangeCurrent": "Perubahan dari versi {from} hingga halaman saat ini",
       "rangePrevious": "Perubahan dari {from} hingga {to}",

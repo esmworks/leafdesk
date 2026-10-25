@@ -1422,7 +1422,7 @@
     },
     "historyRetention": {
       "title": "Riwayat halaman",
-      "description": "Versi sebelumnya dari halaman disimpan selama {days} hari, hingga {count} per halaman. Versi tersimpan dan versi dari sebelum pemulihan disimpan selama {keptDays} hari, dan versi terbaru halaman selalu tetap ada."
+      "description": "Versi sebelumnya dari sebuah halaman disimpan selama {days} hari, hingga {count} per halaman. Versi yang disimpan dan versi sebelum pemulihan disimpan selama {keptDays} hari, versi bernama selama halaman ada, dan versi terbaru halaman selalu tetap ada."
     },
     "membersHeading": "Anggota",
     "memberInvites": {

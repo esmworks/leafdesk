@@ -31,8 +31,9 @@ export function daysUntil(deletesAt: Date, now: Date): number {
  * Page history. Versions saved along the way (every few minutes of editing, before an app or the
  * AI assistant writes) go after `maxAgeDays`, and past the newest `maxPerPage` of them. Versions
  * someone chose to keep (`manual`) and the page as it was before a restore (`before_restore`, the
- * way back from a mistaken restore) stay for `keptAgeDays` and don't count toward the limit. The
- * newest version of a page is always kept, so a page nobody edited for months still has one.
+ * way back from a mistaken restore) stay for `keptAgeDays` and don't count toward the limit. Named
+ * versions (lib/page-versions), of any kind, stay as long as their page. The newest version of a
+ * page is always kept, so a page nobody edited for months still has one.
  */
 export const HISTORY_RETENTION = {
   maxAgeDays: 90,

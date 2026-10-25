@@ -1422,7 +1422,7 @@
     },
     "historyRetention": {
       "title": "Seitenverlauf",
-      "description": "Frühere Versionen einer Seite werden {days} Tage lang aufbewahrt, höchstens {count} pro Seite. Gespeicherte Versionen und Versionen von vor einer Wiederherstellung bleiben {keptDays} Tage erhalten, und die neueste Version einer Seite bleibt immer."
+      "description": "Frühere Versionen einer Seite werden {days} Tage lang aufbewahrt, höchstens {count} pro Seite. Gespeicherte Versionen und Versionen von vor einer Wiederherstellung bleiben {keptDays} Tage erhalten, benannte Versionen so lange wie die Seite, und die neueste Version einer Seite bleibt immer."
     },
     "membersHeading": "Mitglieder",
     "memberInvites": {

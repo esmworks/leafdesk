@@ -322,9 +322,37 @@
       "beforeMerge": "Vóór samenvoegen van rijen"
     },
     "empty": "Nog geen versies. Versies worden automatisch opgeslagen terwijl je bewerkt en voordat een AI-app deze pagina wijzigt.",
+    "saveVersion": "Versie opslaan",
+    "namedOnly": "Alleen versies met een naam",
+    "emptyNamed": "Nog geen versies met een naam. Sla een versie op met een naam, of geef er een uit de lijst een naam.",
+    "name": "Deze versie een naam geven",
+    "rename": "Deze versie hernoemen",
     "restore": "Deze versie herstellen",
     "restoring": "Herstellen…",
     "restoreHint": "De huidige inhoud wordt eerst als versie opgeslagen.",
+    "versionName": {
+      "saveTitle": "Versie opslaan",
+      "saveHint": "Slaat de pagina op zoals hij nu is. Geef hem een naam om hem terug te vinden: versies met een naam blijven zo lang als de pagina.",
+      "renameTitle": "Versie een naam geven",
+      "renameHint": "De versie van {date}. Versies met een naam blijven zo lang als de pagina; laat de naam leeg om hem te verwijderen.",
+      "unchangedTitle": "Er is niets veranderd",
+      "unchangedHint": "De pagina is hetzelfde als de versie van {date}, dus die versie krijgt de naam in plaats van dat er een kopie wordt opgeslagen. Laat de naam leeg om hem te verwijderen.",
+      "nameLabel": "Naam",
+      "namePlaceholder": "Optioneel, bijv. Ter beoordeling gestuurd",
+      "save": "Versie opslaan",
+      "saveName": "Naam opslaan",
+      "saving": "Opslaan…",
+      "saved": "Versie opgeslagen",
+      "savedNamed": "Versie ‘{name}’ opgeslagen",
+      "named": "Versie heet nu ‘{name}’",
+      "nameCleared": "Naam van de versie verwijderd",
+      "errors": {
+        "invalidName": "Een naam mag hoogstens {max} tekens hebben.",
+        "inTrash": "Deze pagina staat in de prullenbak. Zet hem eerst terug.",
+        "failed": "Opslaan is mislukt. Probeer het opnieuw.",
+        "state": "Kon niet nagaan of er iets veranderd is sinds de laatste versie."
+      }
+    },
     "diff": {
       "rangeCurrent": "Wijzigingen van de versie van {from} tot de huidige pagina",
       "rangePrevious": "Wijzigingen van {from} tot {to}",

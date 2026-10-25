@@ -45,7 +45,8 @@ stay as they are until it is restored, and nothing can be moved or added under i
 Pages stay in the trash for the time owners choose in Settings > Security > Data retention (30
 days by default, or forever); once a day the server deletes the pages whose time is up, with their
 files, and prunes old page history (versions older than 90 days or past the newest 200 of a page;
-saved versions and those from before a restore stay a year) and the audit log's events older than
+saved versions and those from before a restore stay a year, named versions as long as the page)
+and the audit log's events older than
 a year. Pages a legal hold keeps (see Settings > Security > Legal holds) stay in the trash, with all
 their history, until the hold is released. Production servers run this cleanup; set `RETENTION_JOB=on` or `off` to decide otherwise
 (a dev server doesn't run it unless it is `on`).

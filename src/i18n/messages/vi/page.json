@@ -322,9 +322,37 @@
       "beforeMerge": "Trước khi gộp các hàng"
     },
     "empty": "Chưa có phiên bản nào. Các phiên bản được lưu tự động khi bạn chỉnh sửa và trước khi bất kỳ ứng dụng AI nào thay đổi trang này.",
+    "saveVersion": "Lưu phiên bản",
+    "namedOnly": "Chỉ phiên bản có tên",
+    "emptyNamed": "Chưa có phiên bản nào có tên. Hãy lưu một phiên bản kèm tên, hoặc đặt tên cho một phiên bản trong danh sách.",
+    "name": "Đặt tên cho phiên bản này",
+    "rename": "Đổi tên phiên bản này",
     "restore": "Khôi phục phiên bản này",
     "restoring": "Đang khôi phục…",
     "restoreHint": "Nội dung hiện tại được lưu thành một phiên bản trước.",
+    "versionName": {
+      "saveTitle": "Lưu phiên bản",
+      "saveHint": "Lưu trang như hiện tại. Đặt tên để tìm lại sau: phiên bản có tên được giữ lại chừng nào trang còn.",
+      "renameTitle": "Đặt tên phiên bản",
+      "renameHint": "Phiên bản lúc {date}. Phiên bản có tên được giữ lại chừng nào trang còn; để trống tên để xóa tên.",
+      "unchangedTitle": "Không có gì thay đổi",
+      "unchangedHint": "Trang giống phiên bản lúc {date}, nên phiên bản đó được đặt tên thay vì lưu một bản sao. Để trống tên để xóa tên.",
+      "nameLabel": "Tên",
+      "namePlaceholder": "Không bắt buộc, vd: Đã gửi duyệt",
+      "save": "Lưu phiên bản",
+      "saveName": "Lưu tên",
+      "saving": "Đang lưu…",
+      "saved": "Đã lưu phiên bản",
+      "savedNamed": "Đã lưu phiên bản “{name}”",
+      "named": "Đã đặt tên phiên bản là “{name}”",
+      "nameCleared": "Đã xóa tên phiên bản",
+      "errors": {
+        "invalidName": "Tên chỉ được dài tối đa {max} ký tự.",
+        "inTrash": "Trang này đang ở thùng rác. Hãy khôi phục trước.",
+        "failed": "Không lưu được. Hãy thử lại.",
+        "state": "Không kiểm tra được thay đổi kể từ phiên bản gần nhất."
+      }
+    },
     "diff": {
       "rangeCurrent": "Các thay đổi từ phiên bản {from} đến trang hiện tại",
       "rangePrevious": "Các thay đổi từ {from} đến {to}",

@@ -3,7 +3,7 @@
  * trash, the trash says when each page goes, and the daily cleanup deletes the pages whose time is
  * up (their subpages and files too) while leaving the rest, workspaces that keep their trash and
  * workspaces outside the run alone. It also prunes page history by age and count, keeping restore
- * points and saved versions longer and the newest version of every page, and only one cleanup runs
+ * points and saved versions longer, named versions and the newest version of every page for good, and only one cleanup runs
  * at a time. Creates its own users and workspaces and deletes them afterwards; the cleanup only
  * ever runs against those workspaces.
  *
@@ -84,12 +84,12 @@ async function stored(key: string) {
 }
 
 const emptyDoc = Y.encodeStateAsUpdate(new Y.Doc());
-function snap(pageId: string, reason: SnapshotReason, createdAt: Date) {
-  return { pageId, reason, createdAt, title: "v", ydoc: emptyDoc };
+function snap(pageId: string, reason: SnapshotReason, createdAt: Date, name: string | null = null) {
+  return { pageId, reason, createdAt, title: "v", ydoc: emptyDoc, name };
 }
 async function snapshotsOf(pageId: string) {
   return db
-    .select({ id: pageSnapshot.id, reason: pageSnapshot.reason, createdAt: pageSnapshot.createdAt })
+    .select({ id: pageSnapshot.id, reason: pageSnapshot.reason, name: pageSnapshot.name, createdAt: pageSnapshot.createdAt })
     .from(pageSnapshot)
     .where(eq(pageSnapshot.pageId, pageId));
 }
@@ -197,7 +197,8 @@ try {
   const hours = (n: number) => new Date(now.getTime() - n * 60 * 60 * 1000);
   const { maxPerPage, maxAgeDays, keptAgeDays } = HISTORY_RETENTION;
   // "live": more recent autosaves than the limit, an old app edit, and restore points and saved
-  // versions either side of their longer limit.
+  // versions either side of their longer limit. Named versions: newer than all the autosaves (they
+  // would push some out if they counted toward the limit), and past every limit.
   await db.insert(pageSnapshot).values([
     ...Array.from({ length: maxPerPage + 5 }, (_, i) => snap(id("live"), "auto", hours(i + 1))),
     snap(id("live"), "before_mcp_write", ago(maxAgeDays + 10)),
@@ -205,6 +206,10 @@ try {
     snap(id("live"), "manual", ago(keptAgeDays + 10)),
     snap(id("live"), "before_restore", ago(keptAgeDays - 10)),
     snap(id("live"), "before_restore", ago(keptAgeDays + 5)),
+    ...[1, 2, 3].map((n) => snap(id("live"), "auto", hours(n / 10), `Draft ${n}`)),
+    snap(id("live"), "auto", ago(keptAgeDays + 100), "Kickoff"),
+    snap(id("live"), "manual", ago(keptAgeDays + 10), "Signed off"),
+    snap(id("live"), "before_mcp_write", ago(maxAgeDays + 10), "Before the rewrite"),
   ]);
   // "fresh" (in A too): a lone very old version, kept as the page's newest. "new29": two old ones.
   await db.insert(pageSnapshot).values([
@@ -238,9 +243,16 @@ try {
   check((await existing(id("outsider"))).every(Boolean), "workspaces outside the run are untouched");
   check(result.trashedPages === 4 && result.workspaces === 2, "the run counts the trash entries it deleted", result);
 
-  const live = await snapshotsOf(id("live"));
+  const liveAll = await snapshotsOf(id("live"));
+  const live = liveAll.filter((s) => s.name === null);
   const count = (reason: SnapshotReason) => live.filter((s) => s.reason === reason).length;
   check(count("auto") === maxPerPage, `only the newest ${maxPerPage} autosaves of a page stay`, count("auto"));
+  const named = liveAll.filter((s) => s.name !== null).map((s) => s.name).sort();
+  check(
+    named.join() === "Before the rewrite,Draft 1,Draft 2,Draft 3,Kickoff,Signed off",
+    "named versions stay however old, and don't count toward the limit",
+    named,
+  );
   const oldestAuto = Math.min(...live.filter((s) => s.reason === "auto").map((s) => s.createdAt.getTime()));
   check(oldestAuto === hours(maxPerPage).getTime(), "…the oldest ones go");
   check(count("before_mcp_write") === 0, `versions older than ${maxAgeDays} days go`);

@@ -1422,7 +1422,7 @@
     },
     "historyRetention": {
       "title": "Page history",
-      "description": "Earlier versions of a page are kept for {days} days, up to {count} per page. Saved versions and versions from before a restore are kept for {keptDays} days, and the latest version of a page always stays."
+      "description": "Earlier versions of a page are kept for {days} days, up to {count} per page. Saved versions and versions from before a restore are kept for {keptDays} days, named versions as long as the page, and the latest version of a page always stays."
     },
     "membersHeading": "Members",
     "memberInvites": {

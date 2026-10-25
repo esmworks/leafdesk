@@ -18,7 +18,7 @@ import { pruneConnectedAppUse } from "@/server/workspace-apps";
  *    legal hold keeps (server/legal-hold.ts), which stay in the trash;
  *  - so are database properties and views deleted longer ago than that (purgeExpiredSchema);
  *  - page history is pruned by the rules in lib/retention.ts (HISTORY_RETENTION), but for pages a
- *    legal hold keeps;
+ *    legal hold keeps and for named versions;
  *  - audit log events older than AUDIT_RETENTION_DAYS are deleted;
  *  - when connected apps were last used is forgotten for apps and tokens that are gone and for
  *    people no longer in the workspace (pruneConnectedAppUse);
@@ -145,18 +145,21 @@ export async function purgeExpiredSchema({ now = new Date(), workspaceIds }: Ret
 /**
  * Deletes the page versions that HISTORY_RETENTION no longer keeps at `now`. Versions of the kinds
  * kept longer are ranked apart from the rest, so they don't push ordinary ones past the limit or
- * the other way round. Pages a legal hold keeps keep all theirs. Returns how many went.
+ * the other way round. Named versions (lib/page-versions) are never pruned and don't count toward
+ * the limit either: they go with their page. Pages a legal hold keeps keep all theirs. Returns how
+ * many went.
  */
 export async function pruneSnapshots({ now = new Date(), workspaceIds }: RetentionOptions = {}) {
   if (workspaceIds?.length === 0) return 0;
   const cutoff = historyCutoffs(now);
   const kept = sql`s.reason in ${[...HISTORY_RETENTION.keptReasons]}`;
+  const named = sql`s.name is not null`;
   const scope = workspaceIds ? sql`and s.page_id in (select id from ${page} where workspace_id in ${workspaceIds})` : sql``;
   const deleted = await db.execute<{ id: string }>(sql`
     with ranked as (
-      select s.id, s.created_at, ${kept} as kept,
+      select s.id, s.created_at, ${kept} as kept, ${named} as named,
         row_number() over (partition by s.page_id order by s.created_at desc, s.id desc) as newest,
-        row_number() over (partition by s.page_id, ${kept} order by s.created_at desc, s.id desc) as rank_in_kind
+        row_number() over (partition by s.page_id, ${kept}, ${named} order by s.created_at desc, s.id desc) as rank_in_kind
       from ${pageSnapshot} s
       where true ${scope}
     )
@@ -164,6 +167,7 @@ export async function pruneSnapshots({ now = new Date(), workspaceIds }: Retenti
     using ranked r
     where target.id = r.id
       and r.newest > 1
+      and not r.named
       and not ${touchedUnderHold(sql`target.page_id`)}
       and case
         when r.kept then r.created_at < ${cutoff.kept.toISOString()}::timestamptz

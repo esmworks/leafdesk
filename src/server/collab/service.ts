@@ -203,6 +203,7 @@ async function insertSnapshot(
   reason: SnapshotReason,
   actor: { userId?: string | null; oauthClientId?: string | null },
   fallbackTitle: string,
+  name: string | null = null,
 ) {
   const { markdown } = await deriveContent(doc, await workspaceOf(pageId), pageId);
   const [row] = await db.insert(pageSnapshot).values({
@@ -211,6 +212,7 @@ async function insertSnapshot(
     ydoc: Y.encodeStateAsUpdate(doc),
     contentMarkdown: markdown,
     reason,
+    name,
     createdBy: actor.userId ?? null,
     oauthClientId: actor.oauthClientId ?? null,
   }).returning({ id: pageSnapshot.id });
@@ -580,9 +582,9 @@ export function createCollab() {
     return result;
   };
 
-  const snapshotBefore = async (pageId: string, doc: Y.Doc, reason: SnapshotReason, actor: WriteActor) => {
+  const snapshotBefore = async (pageId: string, doc: Y.Doc, reason: SnapshotReason, actor: WriteActor, name: string | null = null) => {
     const [row] = await db.select({ title: page.title }).from(page).where(eq(page.id, pageId)).limit(1);
-    return insertSnapshot(pageId, doc, reason, actor, row?.title ?? "");
+    return insertSnapshot(pageId, doc, reason, actor, row?.title ?? "", name);
   };
 
   const writeBlocks = async (
@@ -1201,8 +1203,8 @@ export function createCollab() {
       old.destroy();
     },
 
-    async snapshot(pageId, reason, actor) {
-      await transactPage(pageId, actor, (doc) => snapshotBefore(pageId, doc, reason, actor));
+    async snapshot(pageId, reason, actor, name = null) {
+      return transactPage(pageId, actor, (doc) => snapshotBefore(pageId, doc, reason, actor, name));
     },
 
     broadcast,

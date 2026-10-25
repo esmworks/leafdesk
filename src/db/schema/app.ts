@@ -1187,6 +1187,11 @@ export const pageSnapshot = pgTable(
     ydoc: bytea("ydoc").notNull(),
     contentMarkdown: text("content_markdown").notNull().default(""),
     reason: text("reason").$type<SnapshotReason>().notNull(),
+    /**
+     * A name someone gave the version (lib/page-versions), shown in the history in place of its
+     * reason; null when unnamed. Named versions are never pruned (server/retention.ts).
+     */
+    name: text("name"),
     createdBy: text("created_by").references(() => user.id, { onDelete: "set null" }),
     /** OAuth client that triggered the write, for MCP-originated snapshots. */
     oauthClientId: text("oauth_client_id"),

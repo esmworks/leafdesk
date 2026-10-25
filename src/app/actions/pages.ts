@@ -9,6 +9,7 @@ import { readSearchFilters, readSearchSort } from "@/lib/search-filters";
 import { hasLevel } from "@/server/access";
 import * as pages from "@/server/pages";
 import { getPageSiblings } from "@/server/page-siblings";
+import { renameVersion, saveVersion, versionSaveState } from "@/server/page-versions";
 import { recentlyViewedPages } from "@/server/page-views";
 import { searchFilterOptions } from "@/server/search-filter-options";
 import { requireUserId } from "@/server/session";
@@ -174,9 +175,50 @@ export async function searchFilterOptionsAction(workspaceId: string) {
   return searchFilterOptions(userId, String(workspaceId));
 }
 
-export async function listSnapshotsAction(pageId: string) {
+/** `named`: only the versions someone named (lib/page-versions). */
+export async function listSnapshotsAction(pageId: string, named?: boolean) {
   const userId = await requireUserId();
-  return pages.listSnapshots(userId, pageId);
+  return pages.listSnapshots(userId, String(pageId), { named: named === true });
+}
+
+/** Whether Save version would save a new version or offer to name the newest (server/page-versions). */
+export async function versionSaveStateAction(pageId: string) {
+  const userId = await requireUserId();
+  return versionSaveState(userId, String(pageId));
+}
+
+type VersionResult<T> = { ok: true; data: T } | { ok: false; error: "invalidName" | "inTrash" };
+
+/** Refusals the version name prompt explains; anything else throws. */
+function versionRefusal(error: unknown): VersionResult<never> {
+  const code = (error as { code?: unknown } | null)?.code;
+  if (code === "invalidVersionName") return { ok: false, error: "invalidName" };
+  if (code === "pageInTrash") return { ok: false, error: "inTrash" };
+  throw error;
+}
+
+/** Saves the page as a version named `name` (unnamed when empty), or names the newest when nothing changed. */
+export async function saveVersionAction(
+  pageId: string,
+  name: string,
+): Promise<VersionResult<{ id: string; renamed: boolean; name: string | null }>> {
+  const userId = await requireUserId();
+  try {
+    return { ok: true, data: await saveVersion({ userId }, String(pageId), name) };
+  } catch (error) {
+    return versionRefusal(error);
+  }
+}
+
+/** Names a saved version, or clears its name when `name` is empty. */
+export async function renameVersionAction(snapshotId: string, name: string): Promise<VersionResult<{ id: string; name: string | null }>> {
+  const userId = await requireUserId();
+  try {
+    const renamed = await renameVersion(userId, String(snapshotId), name);
+    return { ok: true, data: { id: String(snapshotId), name: renamed.name } };
+  } catch (error) {
+    return versionRefusal(error);
+  }
 }
 
 export async function getSnapshotAction(snapshotId: string) {

@@ -322,9 +322,37 @@
       "beforeMerge": "Before merging rows"
     },
     "empty": "No versions yet. Versions are saved automatically while you edit and before any AI app changes this page.",
+    "saveVersion": "Save version",
+    "namedOnly": "Named versions only",
+    "emptyNamed": "No named versions yet. Save a version with a name, or name one from the list.",
+    "name": "Name this version",
+    "rename": "Rename this version",
     "restore": "Restore this version",
     "restoring": "Restoring…",
     "restoreHint": "The current content is saved as a version first.",
+    "versionName": {
+      "saveTitle": "Save version",
+      "saveHint": "Saves the page as it is now. Give it a name to find it again: named versions are kept as long as the page.",
+      "renameTitle": "Name version",
+      "renameHint": "The version of {date}. Named versions are kept as long as the page; leave the name empty to remove it.",
+      "unchangedTitle": "Nothing changed",
+      "unchangedHint": "The page is the same as the version of {date}, so that version gets the name instead of saving a copy. Leave the name empty to remove it.",
+      "nameLabel": "Name",
+      "namePlaceholder": "Optional, e.g. Sent for review",
+      "save": "Save version",
+      "saveName": "Save name",
+      "saving": "Saving…",
+      "saved": "Version saved",
+      "savedNamed": "Version “{name}” saved",
+      "named": "Version named “{name}”",
+      "nameCleared": "Version name removed",
+      "errors": {
+        "invalidName": "A name can have at most {max} characters.",
+        "inTrash": "This page is in the trash. Restore it first.",
+        "failed": "Could not save. Try again.",
+        "state": "Could not check for changes since the last version."
+      }
+    },
     "diff": {
       "rangeCurrent": "Changes from the version of {from} to the current page",
       "rangePrevious": "Changes from {from} to {to}",
