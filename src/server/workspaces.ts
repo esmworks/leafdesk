@@ -1590,9 +1590,13 @@ export async function countMembersWithoutTwoFactor(actorId: string, workspaceId:
 /**
  * The choices of each setting; allowedDomains, a list, is checked on its own (parseDomains).
  * allowedDomainsVerified isn't one: only proving a domain sets it (server/allowed-domains.ts).
+ * Nor is approvedApps: only approving an app changes it (server/workspace-apps.ts).
  */
 const SETTING_VALUES: {
-  [K in Exclude<keyof WorkspaceSettings, "allowedDomains" | "allowedDomainsVerified" | "calloutStyles" | "aiMonthlyLimitUsd">]: readonly WorkspaceSettings[K][];
+  [K in Exclude<
+    keyof WorkspaceSettings,
+    "allowedDomains" | "allowedDomainsVerified" | "calloutStyles" | "aiMonthlyLimitUsd" | "approvedApps"
+  >]: readonly WorkspaceSettings[K][];
 } = {
   guestInvites: ["owners", "members"],
   guestPrivatePages: [false, true],
@@ -1610,6 +1614,7 @@ const SETTING_VALUES: {
   joinRequests: ["nobody", "allowed_domains", "anyone_with_link"],
   export: [true, false],
   connectedApps: CONNECTED_APPS_MODES,
+  onlyApprovedApps: [false, true],
   accessRequests: [true, false],
   email: [false, true],
   pageViews: [true, false],

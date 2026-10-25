@@ -618,7 +618,8 @@
     "propertyComments": "{count, plural, one {# open comment} other {# open comments}} on {name}",
     "pinned": "Pinned properties",
     "showBeside": "Show beside the page",
-    "showAbove": "Show above the page"
+    "showAbove": "Show above the page",
+    "copyValue": "Copy {name}"
   },
   "rowActivity": {
     "title": "Activity",
@@ -857,7 +858,17 @@
     "pinColor": "Pin color",
     "noPinColor": "None",
     "colorRules": "Color rules",
-    "wrapProperties": "Wrap all properties"
+    "wrapProperties": "Wrap all properties",
+    "loadLimit": "Load limit",
+    "loadLimitCards": "{count} cards",
+    "loadMore": "Load more",
+    "moreCards": "{count, plural, one {# more card} other {# more cards}}"
+  },
+  "viewMenu": {
+    "label": "View settings",
+    "back": "Back",
+    "layoutHint": "The view keeps its filters, sorts and properties.",
+    "shown": "{count} shown"
   },
   "gallery": {
     "new": "New",
@@ -1161,7 +1172,9 @@
     "expand": "Expand {name}",
     "rowCount": "{count, plural, one {# row} other {# rows}}",
     "actions": "Group actions",
-    "addRow": "Add a row to {name}"
+    "addRow": "Add a row to {name}",
+    "subGroupBy": "Sub-group",
+    "colorColumns": "Color columns"
   },
   "rollup": {
     "title": "Rollup",
@@ -1896,6 +1909,18 @@
     "viewOnly": "Only people with full access to the database can change the sync.",
     "reporter": "Reporter",
     "reporterNone": "Not synced"
+  },
+  "githubPulls": {
+    "button": "Synced from GitHub",
+    "buttonPaused": "GitHub sync paused",
+    "title": "GitHub sync",
+    "lastRun": "Last synced {when}, {count, plural, one {# pull request} other {# pull requests}}",
+    "withToken": "With a token",
+    "withoutToken": "Without a token",
+    "overwrite": "GitHub is the source: the synced properties and row titles are written over on each sync, so change them on GitHub. Properties you add yourself stay as they are, and rows of pull requests the sync no longer takes are left alone.",
+    "changeToken": "Change the token",
+    "tokenEmpty": "Leave it empty to sync without a token.",
+    "stopConfirm": "Stop syncing this database? Its rows stay as they are, and the token is forgotten."
   },
   "sprints": {
     "menuItem": "Sprints",

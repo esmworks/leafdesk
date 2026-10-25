@@ -36,7 +36,6 @@
     "linkCopied": "링크가 복사되었습니다",
     "duplicate": "복제",
     "duplicateWithoutRows": "행 없이 복제",
-    "duplicateSuffix": " (사본)",
     "duplicateFailed": "페이지를 복제하지 못했습니다.",
     "moveTo": "이동",
     "style": {
@@ -246,6 +245,7 @@
     "change": "배경",
     "colors": "색상",
     "patterns": "패턴",
+    "covers": "커버",
     "none": "없음",
     "remove": "배경 제거",
     "colorNames": {
@@ -263,6 +263,16 @@
       "plus": "십자",
       "grid": "격자",
       "lines": "선"
+    },
+    "coverNames": {
+      "sunrise": "일출",
+      "ocean": "바다",
+      "forest": "숲",
+      "dusk": "황혼",
+      "aurora": "오로라",
+      "sand": "모래",
+      "mint": "민트",
+      "slate": "슬레이트"
     }
   },
   "title": {
@@ -419,9 +429,11 @@
       "full": "전체 액세스",
       "edit": "편집 가능",
       "comment": "댓글 가능",
+      "content": "콘텐츠 편집 가능",
       "view": "보기 가능",
       "none": "액세스 없음"
     },
+    "contentHint": "텍스트와 데이터베이스 행을 편집할 수 있으며 속성, 보기, 설정은 변경할 수 없습니다",
     "errors": {
       "notMember": "이 사람은 워크스페이스 멤버가 아닙니다.",
       "lastFullAccess": "누군가는 페이지에 대한 전체 액세스 권한을 유지해야 합니다. 먼저 다른 사람에게 전체 액세스 권한을 주세요.",
@@ -770,6 +782,8 @@
     "plainCallout": "기본 콜아웃",
     "addTitle": "제목 추가",
     "removeTitle": "제목 제거",
+    "copyOriginalLink": "원본 링크 복사",
+    "openInNewTab": "새 탭에서 열기",
     "quoteSize": "인용 크기",
     "quoteSizeDefault": "기본",
     "quoteSizeLarge": "크게"
@@ -799,10 +813,10 @@
     "noLetterheads": "소유자는 설정 → PDF 템플릿에서 로고와 회사 정보가 담긴 레터헤드를 추가할 수 있습니다.",
     "properties": "행의 값 포함",
     "comments": "댓글 포함",
-    "textSize": "글자 크기",
     "hint": "다이어그램과 수식은 텍스트로 인쇄됩니다. 보이는 그대로의 페이지가 필요하면 인쇄를 쓰세요.",
     "download": "다운로드",
-    "preparing": "준비 중…"
+    "preparing": "준비 중…",
+    "textSize": "글자 크기"
   },
   "spreadsheet": {
     "untitled": "통합 문서",
@@ -1067,11 +1081,11 @@
         "mediaSize": "이미지 및 동영상 크기",
         "callout": "Markdown으로 표현할 수 없는 콜아웃 색상과 아이콘",
         "textStyle": "밑줄 등 일부 텍스트 서식",
-        "table": "표의 열 너비, 머리글 행, 병합된 셀, 셀 색상",
+        "table": "표의 병합된 셀",
         "blockSetting": "기타 블록 설정",
         "content": "Markdown이 담을 수 없는 일부 콘텐츠"
       },
-      "synced": "{count, plural, other {동기화 블록 #개 안의 변경 사항: 페이지에서 편집하세요}}",
+      "synced": "{count, plural, other {편집할 수 없는 동기화 블록 #개 안의 변경 사항}}",
       "confirm": "그래도 저장"
     },
     "conflict": {

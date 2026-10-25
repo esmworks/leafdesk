@@ -13,6 +13,7 @@ import { isTimeZone } from "@/lib/time-zone";
 import { AccessError } from "@/server/access";
 import { isCrossSite } from "@/server/cross-site";
 import { importBoard } from "@/server/import/board";
+import { importConfluence } from "@/server/import/confluence";
 import { importCsvAsDatabase, importCsvIntoDatabase, recordImport, type ColumnTarget } from "@/server/import/csv";
 import { importDocx } from "@/server/import/docx";
 import { importEnex } from "@/server/import/enex";
@@ -29,6 +30,8 @@ import { TeamspaceError } from "@/server/teamspaces";
  *                   level of `workspaceId`). Each `file` may have a `path` (its place in a folder).
  *                   `vault=1`: the files are an Obsidian vault whose `.obsidian` folder wasn't sent.
  *   mode=docx       Word documents (.docx), each `file` a page under `parentId` / `workspaceId`.
+ *   mode=confluence A Confluence space exported as HTML (its ZIP as `file`), as pages under
+ *                   `parentId` / `workspaceId`.
  *   mode=pdf        PDFs, each `file` a page of its text under `parentId` / `workspaceId`;
  *                   `attach=1`: each PDF is also uploaded to its page and shown at its end.
  *   mode=csv-new    One CSV or Excel (.xlsx) `file` as a new database under `parentId` /
@@ -103,6 +106,9 @@ export async function POST(request: Request) {
     } else if (mode === "docx") {
       const files = await Promise.all(uploads.map(async (f) => ({ name: f.name, data: new Uint8Array(await f.arrayBuffer()) })));
       result = await importDocx(actor, { workspaceId, parentId, teamspaceId, files });
+    } else if (mode === "confluence") {
+      const files = await Promise.all(uploads.map(async (f) => ({ path: f.name, data: new Uint8Array(await f.arrayBuffer()) })));
+      result = await importConfluence(actor, { workspaceId, parentId, teamspaceId, files });
     } else if (mode === "pdf") {
       const files = await Promise.all(uploads.map(async (f) => ({ name: f.name, data: new Uint8Array(await f.arrayBuffer()) })));
       result = await importPdf(actor, { workspaceId, parentId, teamspaceId, files, attach: field("attach") === "1" });

@@ -36,7 +36,6 @@
     "linkCopied": "Link kopiert",
     "duplicate": "Duplizieren",
     "duplicateWithoutRows": "Ohne Zeilen duplizieren",
-    "duplicateSuffix": " (Kopie)",
     "duplicateFailed": "Die Seite konnte nicht dupliziert werden.",
     "moveTo": "Verschieben nach",
     "style": {
@@ -246,6 +245,7 @@
     "change": "Hintergrund",
     "colors": "Farbe",
     "patterns": "Muster",
+    "covers": "Titelbild",
     "none": "Keins",
     "remove": "Hintergrund entfernen",
     "colorNames": {
@@ -263,6 +263,16 @@
       "plus": "Kreuze",
       "grid": "Raster",
       "lines": "Linien"
+    },
+    "coverNames": {
+      "sunrise": "Sonnenaufgang",
+      "ocean": "Ozean",
+      "forest": "Wald",
+      "dusk": "Abenddämmerung",
+      "aurora": "Polarlicht",
+      "sand": "Sand",
+      "mint": "Minze",
+      "slate": "Schiefer"
     }
   },
   "title": {
@@ -419,9 +429,11 @@
       "full": "Vollzugriff",
       "edit": "Kann bearbeiten",
       "comment": "Kann kommentieren",
+      "content": "Kann Inhalte bearbeiten",
       "view": "Kann ansehen",
       "none": "Kein Zugriff"
     },
+    "contentHint": "Text und Datenbankzeilen bearbeiten, keine Eigenschaften, Ansichten oder Einstellungen",
     "errors": {
       "notMember": "Diese Person ist kein Mitglied des Workspace.",
       "lastFullAccess": "Jemand muss Vollzugriff auf die Seite behalten. Gib zuerst einer anderen Person Vollzugriff.",
@@ -770,6 +782,8 @@
     "plainCallout": "Einfacher Hinweis",
     "addTitle": "Titel hinzufügen",
     "removeTitle": "Titel entfernen",
+    "copyOriginalLink": "Originallink kopieren",
+    "openInNewTab": "In neuem Tab öffnen",
     "quoteSize": "Zitatgröße",
     "quoteSizeDefault": "Standard",
     "quoteSizeLarge": "Groß"
@@ -799,10 +813,10 @@
     "noLetterheads": "Eigentümer können unter Einstellungen → PDF-Vorlagen Briefköpfe mit Logo und Firmenangaben anlegen.",
     "properties": "Werte der Zeile einschließen",
     "comments": "Kommentare einschließen",
-    "textSize": "Textgröße",
     "hint": "Diagramme und Formeln werden als Text gedruckt; mit Drucken erhalten Sie die Seite genau so, wie sie aussieht.",
     "download": "Herunterladen",
-    "preparing": "Wird vorbereitet…"
+    "preparing": "Wird vorbereitet…",
+    "textSize": "Textgröße"
   },
   "spreadsheet": {
     "untitled": "Arbeitsmappe",
@@ -1067,11 +1081,11 @@
         "mediaSize": "Bild- und Videogrößen",
         "callout": "Callout-Farben und -Symbole, für die Markdown keine Form hat",
         "textStyle": "Manche Textformatierung, etwa Unterstreichung",
-        "table": "Spaltenbreiten, Kopfzeilen, verbundene Zellen und Zellfarben von Tabellen",
+        "table": "Verbundene Zellen von Tabellen",
         "blockSetting": "Andere Blockeinstellungen",
         "content": "Manche Inhalte, die Markdown nicht abbilden kann"
       },
-      "synced": "{count, plural, one {Deine Änderungen in einem synchronisierten Block: bearbeite ihn stattdessen auf der Seite} other {Deine Änderungen in # synchronisierten Blöcken: bearbeite sie stattdessen auf der Seite}}",
+      "synced": "{count, plural, one {Deine Änderungen in einem synchronisierten Block, den du nicht bearbeiten kannst} other {Deine Änderungen in # synchronisierten Blöcken, die du nicht bearbeiten kannst}}",
       "confirm": "Trotzdem speichern"
     },
     "conflict": {

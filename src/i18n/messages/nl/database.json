@@ -618,7 +618,8 @@
     "propertyComments": "{count, plural, one {# open opmerking} other {# open opmerkingen}} bij {name}",
     "pinned": "Vastgemaakte eigenschappen",
     "showBeside": "Naast de pagina tonen",
-    "showAbove": "Boven de pagina tonen"
+    "showAbove": "Boven de pagina tonen",
+    "copyValue": "{name} kopiëren"
   },
   "rowActivity": {
     "title": "Activiteit",
@@ -857,7 +858,17 @@
     "pinColor": "Kleur van de speld",
     "noPinColor": "Geen",
     "colorRules": "Kleurregels",
-    "wrapProperties": "Alle eigenschappen laten teruglopen"
+    "wrapProperties": "Alle eigenschappen laten teruglopen",
+    "loadLimit": "Laadlimiet",
+    "loadLimitCards": "{count} kaarten",
+    "loadMore": "Meer laden",
+    "moreCards": "{count, plural, one {nog # kaart} other {nog # kaarten}}"
+  },
+  "viewMenu": {
+    "label": "Weergave-instellingen",
+    "back": "Terug",
+    "layoutHint": "De weergave houdt haar filters, sorteringen en eigenschappen.",
+    "shown": "{count} zichtbaar"
   },
   "gallery": {
     "new": "Nieuw",
@@ -1161,7 +1172,9 @@
     "expand": "{name} uitvouwen",
     "rowCount": "{count, plural, one {# rij} other {# rijen}}",
     "actions": "Groepsacties",
-    "addRow": "Een rij toevoegen aan {name}"
+    "addRow": "Een rij toevoegen aan {name}",
+    "subGroupBy": "Subgroep",
+    "colorColumns": "Kolommen kleuren"
   },
   "rollup": {
     "title": "Rollup",
@@ -1896,6 +1909,18 @@
     "viewOnly": "Alleen mensen met volledige toegang tot de database kunnen de synchronisatie wijzigen.",
     "reporter": "Melder",
     "reporterNone": "Niet gesynchroniseerd"
+  },
+  "githubPulls": {
+    "button": "Gesynchroniseerd vanuit GitHub",
+    "buttonPaused": "GitHub-synchronisatie gepauzeerd",
+    "title": "GitHub-synchronisatie",
+    "lastRun": "Laatst gesynchroniseerd {when}, {count, plural, one {# pull request} other {# pull requests}}",
+    "withToken": "Met een token",
+    "withoutToken": "Zonder token",
+    "overwrite": "GitHub is de bron: de gesynchroniseerde eigenschappen en rijtitels worden bij elke synchronisatie overschreven, dus wijzig ze op GitHub. Eigenschappen die je zelf toevoegt blijven zoals ze zijn, en rijen van pull requests die de synchronisatie niet meer ophaalt, blijven ongemoeid.",
+    "changeToken": "Token wijzigen",
+    "tokenEmpty": "Laat leeg om zonder token te synchroniseren.",
+    "stopConfirm": "Synchronisatie van deze database stoppen? De rijen blijven zoals ze zijn en het token wordt vergeten."
   },
   "sprints": {
     "menuItem": "Sprints",

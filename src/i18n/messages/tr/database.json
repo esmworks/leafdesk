@@ -618,7 +618,8 @@
     "propertyComments": "{name} üzerinde {count, plural, one {# açık yorum} other {# açık yorum}}",
     "pinned": "Sabitlenen özellikler",
     "showBeside": "Sayfanın yanında göster",
-    "showAbove": "Sayfanın üstünde göster"
+    "showAbove": "Sayfanın üstünde göster",
+    "copyValue": "{name} değerini kopyala"
   },
   "rowActivity": {
     "title": "Etkinlik",
@@ -857,7 +858,17 @@
     "pinColor": "İğne rengi",
     "noPinColor": "Yok",
     "colorRules": "Renk kuralları",
-    "wrapProperties": "Tüm özellikleri sar"
+    "wrapProperties": "Tüm özellikleri sar",
+    "loadLimit": "Yükleme sınırı",
+    "loadLimitCards": "{count} kart",
+    "loadMore": "Daha fazla yükle",
+    "moreCards": "{count, plural, other {# kart daha}}"
+  },
+  "viewMenu": {
+    "label": "Görünüm ayarları",
+    "back": "Geri",
+    "layoutHint": "Görünüm filtrelerini, sıralamalarını ve özelliklerini korur.",
+    "shown": "{count} gösteriliyor"
   },
   "gallery": {
     "new": "Yeni",
@@ -1161,7 +1172,9 @@
     "expand": "{name} grubunu genişlet",
     "rowCount": "{count, plural, other {# satır}}",
     "actions": "Grup işlemleri",
-    "addRow": "{name} grubuna satır ekle"
+    "addRow": "{name} grubuna satır ekle",
+    "subGroupBy": "Alt grup",
+    "colorColumns": "Sütunları renklendir"
   },
   "rollup": {
     "title": "Toplama",
@@ -1896,6 +1909,18 @@
     "viewOnly": "Eşitlemeyi yalnızca veritabanına tam erişimi olan kişiler değiştirebilir.",
     "reporter": "Bildiren",
     "reporterNone": "Eşitlenmiyor"
+  },
+  "githubPulls": {
+    "button": "GitHub'dan eşitleniyor",
+    "buttonPaused": "GitHub eşitlemesi duraklatıldı",
+    "title": "GitHub eşitlemesi",
+    "lastRun": "Son eşitleme {when}, {count, plural, one {# pull request} other {# pull request}}",
+    "withToken": "Anahtarla",
+    "withoutToken": "Anahtarsız",
+    "overwrite": "Kaynak GitHub'dır: eşitlenen özellikler ve satır başlıkları her eşitlemede üzerine yazılır, bu yüzden onları GitHub'da değiştirin. Kendi eklediğiniz özellikler olduğu gibi kalır, eşitlemenin artık almadığı pull request'lerin satırlarına dokunulmaz.",
+    "changeToken": "Anahtarı değiştir",
+    "tokenEmpty": "Anahtarsız eşitlemek için boş bırakın.",
+    "stopConfirm": "Bu veritabanının eşitlemesi durdurulsun mu? Satırları olduğu gibi kalır ve anahtar unutulur."
   },
   "sprints": {
     "menuItem": "Sprintler",

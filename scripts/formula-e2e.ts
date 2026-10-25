@@ -424,7 +424,7 @@ try {
   );
 
   // Duplicating keeps formulas and rollups pointing at the copies.
-  const copy = await duplicatePage(actor, root.id, " (copy)");
+  const copy = await duplicatePage(actor, root.id);
   const copiedDbs = await db
     .select({ id: page.id, title: page.title })
     .from(page)

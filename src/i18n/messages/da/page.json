@@ -36,7 +36,6 @@
     "linkCopied": "Link kopieret",
     "duplicate": "Duplikér",
     "duplicateWithoutRows": "Duplikér uden rækker",
-    "duplicateSuffix": " (kopi)",
     "duplicateFailed": "Siden kunne ikke duplikeres.",
     "moveTo": "Flyt til",
     "style": {
@@ -246,6 +245,7 @@
     "change": "Baggrund",
     "colors": "Farve",
     "patterns": "Mønster",
+    "covers": "Cover",
     "none": "Ingen",
     "remove": "Fjern baggrund",
     "colorNames": {
@@ -263,6 +263,16 @@
       "plus": "Kryds",
       "grid": "Gitter",
       "lines": "Linjer"
+    },
+    "coverNames": {
+      "sunrise": "Solopgang",
+      "ocean": "Hav",
+      "forest": "Skov",
+      "dusk": "Skumring",
+      "aurora": "Nordlys",
+      "sand": "Sand",
+      "mint": "Mynte",
+      "slate": "Skifer"
     }
   },
   "title": {
@@ -419,9 +429,11 @@
       "full": "Fuld adgang",
       "edit": "Kan redigere",
       "comment": "Kan kommentere",
+      "content": "Kan redigere indhold",
       "view": "Kan se",
       "none": "Ingen adgang"
     },
+    "contentHint": "Redigere tekst og databaserækker, ikke egenskaber, visninger eller indstillinger",
     "errors": {
       "notMember": "Denne person er ikke medlem af arbejdsområdet.",
       "lastFullAccess": "Nogen skal beholde fuld adgang til siden. Giv først en anden fuld adgang.",
@@ -770,6 +782,8 @@
     "plainCallout": "Almindelig infoboks",
     "addTitle": "Tilføj titel",
     "removeTitle": "Fjern titel",
+    "copyOriginalLink": "Kopiér original link",
+    "openInNewTab": "Åbn i ny fane",
     "quoteSize": "Citatstørrelse",
     "quoteSizeDefault": "Standard",
     "quoteSizeLarge": "Stor"
@@ -799,10 +813,10 @@
     "noLetterheads": "Ejere kan tilføje brevpapir med logo og firmaoplysninger under Indstillinger → PDF-skabeloner.",
     "properties": "Medtag rækkens værdier",
     "comments": "Medtag kommentarer",
-    "textSize": "Tekststørrelse",
     "hint": "Diagrammer og ligninger udskrives som tekst; brug Udskriv for at få siden præcis, som den ser ud.",
     "download": "Hent",
-    "preparing": "Forbereder…"
+    "preparing": "Forbereder…",
+    "textSize": "Tekststørrelse"
   },
   "spreadsheet": {
     "untitled": "Projektmappe",
@@ -1067,11 +1081,11 @@
         "mediaSize": "Størrelser på billeder og video",
         "callout": "Farver og ikoner på infobokse, som Markdown ikke har en form for",
         "textStyle": "Noget tekstformatering, f.eks. understregning",
-        "table": "Kolonnebredder, overskriftsrækker, flettede celler og cellefarver i tabeller",
+        "table": "Flettede celler i tabeller",
         "blockSetting": "Andre blokindstillinger",
         "content": "Noget indhold, som Markdown ikke kan rumme"
       },
-      "synced": "{count, plural, one {Dine ændringer inde i en synkroniseret blok: redigér den på siden i stedet} other {Dine ændringer inde i # synkroniserede blokke: redigér dem på siden i stedet}}",
+      "synced": "{count, plural, one {Dine ændringer inde i en synkroniseret blok, du ikke kan redigere} other {Dine ændringer inde i # synkroniserede blokke, du ikke kan redigere}}",
       "confirm": "Gem alligevel"
     },
     "conflict": {

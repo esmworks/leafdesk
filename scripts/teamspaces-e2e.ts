@@ -442,7 +442,7 @@ try {
   check(restMoveOk.status === 200 && (await spaceOf(restPrivate.data.id)) === general, "REST moves a page into a teamspace", restMoveOk);
 
   // Duplicates stay in their teamspace.
-  const copy = await duplicatePage({ userId: owner }, clPage.id, " (copy)");
+  const copy = await duplicatePage({ userId: owner }, clPage.id);
   check((await spaceOf(copy.id)) === closed.id, "a duplicate stays in its teamspace");
 
   // ── Restoring a page whose parent is gone keeps its access ─────────────────────────────────

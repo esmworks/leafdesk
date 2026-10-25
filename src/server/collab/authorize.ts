@@ -36,7 +36,8 @@ export async function authorizeCollab(
   if (!page || !hasLevel(level, "view")) throw new AccessError();
   await holdBack(userId, page.workspaceId, facts);
   const writable = target.kind === "page" && !isPageLocked(page) && !page.archivedAt;
-  if (writable && hasLevel(level, "edit")) return { readOnly: false, suggestOnly: false };
+  // The body is content: content access writes it as edit access does.
+  if (writable && hasLevel(level, "content")) return { readOnly: false, suggestOnly: false };
   const suggestOnly = writable && page.kind === "page" && hasLevel(level, "comment");
   return { readOnly: !suggestOnly, suggestOnly };
 }

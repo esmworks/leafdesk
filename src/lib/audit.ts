@@ -108,6 +108,8 @@ export const AUDIT_CATEGORIES = {
   integrations: [
     "connected_app.connected",
     "connected_app.revoked",
+    "connected_app.approved",
+    "connected_app.unapproved",
     "api_token.created",
     "api_token.updated",
     "api_token.revoked",

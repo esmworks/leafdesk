@@ -36,7 +36,6 @@
     "linkCopied": "Đã sao chép liên kết",
     "duplicate": "Nhân đôi",
     "duplicateWithoutRows": "Nhân đôi không kèm hàng",
-    "duplicateSuffix": " (bản sao)",
     "duplicateFailed": "Không thể nhân đôi trang.",
     "moveTo": "Chuyển đến",
     "style": {
@@ -246,6 +245,7 @@
     "change": "Hình nền",
     "colors": "Màu",
     "patterns": "Họa tiết",
+    "covers": "Ảnh bìa",
     "none": "Không có",
     "remove": "Xóa hình nền",
     "colorNames": {
@@ -263,6 +263,16 @@
       "plus": "Dấu cộng",
       "grid": "Lưới",
       "lines": "Đường kẻ"
+    },
+    "coverNames": {
+      "sunrise": "Bình minh",
+      "ocean": "Đại dương",
+      "forest": "Rừng",
+      "dusk": "Hoàng hôn",
+      "aurora": "Cực quang",
+      "sand": "Cát",
+      "mint": "Bạc hà",
+      "slate": "Đá phiến"
     }
   },
   "title": {
@@ -419,9 +429,11 @@
       "full": "Toàn quyền",
       "edit": "Có thể chỉnh sửa",
       "comment": "Có thể bình luận",
+      "content": "Có thể sửa nội dung",
       "view": "Có thể xem",
       "none": "Không có quyền truy cập"
     },
+    "contentHint": "Sửa văn bản và hàng cơ sở dữ liệu, không sửa thuộc tính, chế độ xem hay cài đặt",
     "errors": {
       "notMember": "Người này không phải thành viên của không gian làm việc.",
       "lastFullAccess": "Phải có người giữ toàn quyền đối với trang. Hãy cấp toàn quyền cho người khác trước.",
@@ -770,6 +782,8 @@
     "plainCallout": "Hộp nhấn mạnh thường",
     "addTitle": "Thêm tiêu đề",
     "removeTitle": "Xóa tiêu đề",
+    "copyOriginalLink": "Sao chép liên kết gốc",
+    "openInNewTab": "Mở trong tab mới",
     "quoteSize": "Cỡ trích dẫn",
     "quoteSizeDefault": "Mặc định",
     "quoteSizeLarge": "Lớn"
@@ -799,10 +813,10 @@
     "noLetterheads": "Chủ sở hữu có thể thêm tiêu đề thư kèm logo và thông tin công ty trong Cài đặt → Mẫu PDF.",
     "properties": "Bao gồm các giá trị của hàng",
     "comments": "Kèm bình luận",
-    "textSize": "Cỡ chữ",
     "hint": "Sơ đồ và phương trình được in dưới dạng văn bản; hãy dùng In để có trang đúng như hiển thị.",
     "download": "Tải xuống",
-    "preparing": "Đang chuẩn bị…"
+    "preparing": "Đang chuẩn bị…",
+    "textSize": "Cỡ chữ"
   },
   "spreadsheet": {
     "untitled": "Sổ tính",
@@ -1067,11 +1081,11 @@
         "mediaSize": "Kích thước hình ảnh và video",
         "callout": "Màu và biểu tượng của hộp nhấn mạnh mà Markdown không có dạng tương ứng",
         "textStyle": "Một số định dạng văn bản, chẳng hạn gạch chân",
-        "table": "Độ rộng cột bảng, hàng tiêu đề, ô đã gộp và màu ô",
+        "table": "Ô đã gộp trong bảng",
         "blockSetting": "Các cài đặt khối khác",
         "content": "Một số nội dung mà Markdown không thể chứa"
       },
-      "synced": "{count, plural, other {Các thay đổi của bạn bên trong # khối đồng bộ: hãy chỉnh sửa chúng trên trang thay vào đó}}",
+      "synced": "{count, plural, other {Các thay đổi của bạn bên trong # khối đồng bộ mà bạn không sửa được}}",
       "confirm": "Vẫn lưu"
     },
     "conflict": {

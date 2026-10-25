@@ -36,7 +36,6 @@
     "linkCopied": "Link copiado",
     "duplicate": "Duplicar",
     "duplicateWithoutRows": "Duplicar sem linhas",
-    "duplicateSuffix": " (cópia)",
     "duplicateFailed": "Não foi possível duplicar a página.",
     "moveTo": "Mover para",
     "style": {
@@ -246,6 +245,7 @@
     "change": "Fundo",
     "colors": "Cor",
     "patterns": "Padrão",
+    "covers": "Capa",
     "none": "Nenhum",
     "remove": "Remover fundo",
     "colorNames": {
@@ -263,6 +263,16 @@
       "plus": "Cruzes",
       "grid": "Grade",
       "lines": "Linhas"
+    },
+    "coverNames": {
+      "sunrise": "Nascer do sol",
+      "ocean": "Oceano",
+      "forest": "Floresta",
+      "dusk": "Crepúsculo",
+      "aurora": "Aurora",
+      "sand": "Areia",
+      "mint": "Menta",
+      "slate": "Ardósia"
     }
   },
   "title": {
@@ -419,9 +429,11 @@
       "full": "Acesso total",
       "edit": "Pode editar",
       "comment": "Pode comentar",
+      "content": "Pode editar o conteúdo",
       "view": "Pode ver",
       "none": "Sem acesso"
     },
+    "contentHint": "Editar texto e linhas de bancos de dados, não propriedades, visualizações ou configurações",
     "errors": {
       "notMember": "Esta pessoa não é membro do espaço de trabalho.",
       "lastFullAccess": "Alguém precisa manter acesso total à página. Dê acesso total a outra pessoa primeiro.",
@@ -770,6 +782,8 @@
     "plainCallout": "Destaque simples",
     "addTitle": "Adicionar título",
     "removeTitle": "Remover título",
+    "copyOriginalLink": "Copiar link original",
+    "openInNewTab": "Abrir em nova aba",
     "quoteSize": "Tamanho da citação",
     "quoteSizeDefault": "Padrão",
     "quoteSizeLarge": "Grande"
@@ -799,10 +813,10 @@
     "noLetterheads": "Os proprietários podem adicionar papéis timbrados com logotipo e dados da empresa em Configurações → Modelos de PDF.",
     "properties": "Incluir os valores da linha",
     "comments": "Incluir comentários",
-    "textSize": "Tamanho do texto",
     "hint": "Diagramas e equações são impressos como texto; use Imprimir para ter a página exatamente como ela aparece.",
     "download": "Baixar",
-    "preparing": "Preparando…"
+    "preparing": "Preparando…",
+    "textSize": "Tamanho do texto"
   },
   "spreadsheet": {
     "untitled": "Pasta de trabalho",
@@ -1067,11 +1081,11 @@
         "mediaSize": "Tamanhos de imagens e vídeos",
         "callout": "Cores e ícones de destaques que o Markdown não representa",
         "textStyle": "Parte da formatação do texto, como o sublinhado",
-        "table": "Larguras de coluna, linhas de cabeçalho, células mescladas e cores de células das tabelas",
+        "table": "Células mescladas das tabelas",
         "blockSetting": "Outras configurações de blocos",
         "content": "Parte do conteúdo que o Markdown não consegue guardar"
       },
-      "synced": "{count, plural, one {Suas alterações dentro de um bloco sincronizado: edite-o na página} other {Suas alterações dentro de # blocos sincronizados: edite-os na página}}",
+      "synced": "{count, plural, one {Suas alterações dentro de um bloco sincronizado que você não pode editar} other {Suas alterações dentro de # blocos sincronizados que você não pode editar}}",
       "confirm": "Salvar mesmo assim"
     },
     "conflict": {

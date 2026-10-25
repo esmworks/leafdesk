@@ -428,6 +428,8 @@ export function describeViewConfig(props: PropertyDef[], config: ViewConfig, loo
   };
   return {
     ...(config.groupBy ? { group_by: keyName(props, config.groupBy), ...describeGrouping(byId.get(config.groupBy), config) } : {}),
+    ...(config.subGroupBy && byId.has(config.subGroupBy) ? { sub_group_by: keyName(props, config.subGroupBy) } : {}),
+    ...(config.colorColumns === false ? { color_columns: false } : {}),
     ...(config.dateBy ? { date_by: keyName(props, config.dateBy) } : {}),
     ...(config.endDateBy ? { end_date_by: keyName(props, config.endDateBy) } : {}),
     ...(config.placeBy ? { place_by: keyName(props, config.placeBy) } : {}),
@@ -437,6 +439,7 @@ export function describeViewConfig(props: PropertyDef[], config: ViewConfig, loo
     ...(config.showWeekends === false ? { show_weekends: false } : {}),
     ...(config.showIcons === false ? { show_icons: false } : {}),
     ...(config.wrapProperties ? { wrap_properties: true } : {}),
+    ...(config.loadLimit ? { load_limit: config.loadLimit } : {}),
     ...(config.cardSize ? { card_size: config.cardSize } : {}),
     ...(config.cover ? { cover: config.cover.source === "property" ? keyName(props, config.cover.propertyId) : config.cover.source } : {}),
     ...(config.subItems ? { sub_items: config.subItems } : {}),

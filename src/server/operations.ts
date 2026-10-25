@@ -21,6 +21,7 @@ import { isPageLocked, PAGE_LOCKED_MESSAGE } from "@/lib/page-lock";
 import {
   BACKGROUND_COLORS,
   BACKGROUND_PATTERNS,
+  PAGE_COVERS,
   backgroundText,
   parseBackgroundText,
   parsePageBackground,
@@ -296,7 +297,7 @@ export const inputs = {
       .nullable()
       .optional()
       .describe(
-        `What fills the page behind its title and body: a color as "color:<name>" (${BACKGROUND_COLORS.join(", ")}; light in the light theme and dark in the dark one, black in both), a faint pattern as "pattern:<name>" (${BACKGROUND_PATTERNS.join(", ")}), or both separated by a space, e.g. "color:black pattern:plus". It replaces the whole background. null removes it.`,
+        `What fills the page behind its title and body: a color as "color:<name>" (${BACKGROUND_COLORS.join(", ")}; light in the light theme and dark in the dark one, black in both), a faint pattern as "pattern:<name>" (${BACKGROUND_PATTERNS.join(", ")}), a gradient band across the top as "cover:<name>" (${PAGE_COVERS.join(", ")}), or several separated by spaces, e.g. "color:black pattern:plus". It replaces the whole background. null removes it.`,
       ),
     verified: z
       .string()
@@ -1036,7 +1037,7 @@ function backgroundFromInput(background: string | null) {
   const parsed = parseBackgroundText(background);
   if (!parsed) {
     throw new ToolInputError(
-      `background must be "color:<name>" (${BACKGROUND_COLORS.join(", ")}), "pattern:<name>" (${BACKGROUND_PATTERNS.join(", ")}) or both separated by a space.`,
+      `background must be "color:<name>" (${BACKGROUND_COLORS.join(", ")}), "pattern:<name>" (${BACKGROUND_PATTERNS.join(", ")}), "cover:<name>" (${PAGE_COVERS.join(", ")}) or several separated by spaces.`,
     );
   }
   return parsed;
@@ -1077,7 +1078,7 @@ export async function updatePage(
       throw new ToolInputError("Databases have no text body. Use create_database_row or update_database_row.");
     }
     // The body goes through a direct collab connection, which checks no access of its own.
-    await requirePageAccess(userId, page_id, "edit");
+    await requirePageAccess(userId, page_id, "content");
     const collab = getCollab();
     const check = { expectedVersion: expected_version, reportVersion: true };
     let write;
@@ -1090,7 +1091,7 @@ export async function updatePage(
     } else {
       // Block markers copied from a read with block ids aren't written.
       const body = stripBlockMarkers(markdown!);
-      write = mode === "append" ? await collab.appendContent(page_id, body, actor, true, check) : await collab.replaceContent(page_id, body, actor, true, check);
+      write = mode === "append" ? await collab.appendContent(page_id, body, actor, true, check) : await collab.replaceContent(page_id, body, actor, true, { ...check, syncedBlocks: true });
     }
     if (write?.conflict) throw new VersionConflictError(expected_version!, write.version);
     version = write?.version;

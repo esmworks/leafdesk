@@ -135,7 +135,7 @@ try {
 
   // Full access to a copy or a moved page is kept, never gained: a copy leaves out what the copier
   // can't see, and only someone with full access moves a page.
-  const copy = await duplicatePage({ userId: ids.member }, staff.id, " (copy)");
+  const copy = await duplicatePage({ userId: ids.member }, staff.id);
   check((await level(ids.member, copy.id)) === "full", "a member who copies the database runs the copy");
   const copied = await databases.getDatabaseSnapshot(ids.member, copy.id);
   check(!JSON.stringify(copied).includes("654321"), "…but the copy has none of the values hidden from them", copied.properties);

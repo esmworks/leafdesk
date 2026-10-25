@@ -7,11 +7,13 @@
     "docx": "Word",
     "pdf": "PDF",
     "evernote": "Evernote",
+    "confluence": "Confluence",
     "csv": "CSV i Excel",
     "trello": "Trello",
     "asana": "Asana",
     "monday": "Monday.com",
     "jira": "Jira",
+    "github": "GitHub",
     "googleDocs": "Google Docs",
     "web": "Strona WWW"
   },
@@ -51,6 +53,11 @@
       "sourceUrl": "Źródłowy URL",
       "encrypted": "Zaszyfrowany tekst został pominięty przy imporcie."
     }
+  },
+  "confluence": {
+    "help": "Każda strona przestrzeni Confluence staje się stroną, zagnieżdżoną jak w przestrzeni. Nagłówki, listy, tabele, bloki kodu, panele informacyjne (jako wyróżnienia), sekcje rozwijane (jako listy rozwijane), listy zadań, obrazy i załączone pliki zostaną przeniesione, a linki między stronami staną się wzmiankami o stronach.",
+    "export": "W Confluence otwórz ustawienia przestrzeni i wybierz Eksportuj przestrzeń → HTML, a następnie wybierz pobrany plik ZIP.",
+    "choose": "Wybierz eksport (.zip)"
   },
   "csv": {
     "choose": "Wybierz plik CSV lub Excel",
@@ -160,6 +167,53 @@
       "alreadyRunning": "Trwa synchronizacja. Spróbuj ponownie za chwilę."
     }
   },
+  "githubPulls": {
+    "help": "Miej bazę danych pull requestów z repozytorium GitHub, która nadąża za zmianami: każdy pull request to wiersz z numerem, stanem (szkic, otwarty, scalony lub zamknięty), autorem, przypisanymi osobami, etykietami, gałęziami, datami i linkiem. Zmiany płyną w jedną stronę, z GitHuba do Leafdesk. Osoby są rozpoznawane po koncie GitHub, którym się logują.",
+    "repo": "Repozytorium",
+    "repoPlaceholder": "właściciel/nazwa lub adres repozytorium",
+    "token": "Token (opcjonalnie)",
+    "tokenHelp": "Potrzebny dla prywatnych repozytoriów i podnosi limit zapytań GitHuba. Wystarczy dostęp do odczytu pull requestów. Jest przechowywany w zapieczętowanej postaci na serwerze.",
+    "tokenLink": "Utwórz token",
+    "server": "GitHub Enterprise Server (opcjonalnie)",
+    "serverPlaceholder": "github.example.com",
+    "pulls": "Pull requesty",
+    "states": {
+      "open": "Otwarte",
+      "all": "Wszystkie ({limit} ostatnio zaktualizowanych)"
+    },
+    "names": {
+      "number": "Numer",
+      "state": "Stan",
+      "author": "Autor",
+      "assignees": "Przypisani",
+      "others": "{column} (inni)",
+      "labels": "Etykiety",
+      "branch": "Gałąź",
+      "base": "Gałąź bazowa",
+      "created": "Utworzono",
+      "merged": "Scalono",
+      "link": "Link do GitHuba",
+      "stages": {
+        "draft": "Szkic",
+        "open": "Otwarty",
+        "merged": "Scalony",
+        "closed": "Zamknięty"
+      }
+    },
+    "errors": {
+      "unauthorized": "GitHub odrzucił token.",
+      "forbidden": "Token nie może odczytywać pull requestów tego repozytorium.",
+      "notFound": "Nie ma takiego repozytorium albo jest prywatne i token do niego nie sięga.",
+      "unreachable": "Nie udało się połączyć z GitHubem albo wyczerpał się limit zapytań. Synchronizacja spróbuje ponownie następnym razem.",
+      "runAsGone": "Osoba, która skonfigurowała synchronizację, nie ma już konta.",
+      "accessLost": "Osoba, jako która działa synchronizacja, nie może już edytować tej bazy danych.",
+      "keyGone": "Właściwość Numer została usunięta lub zmieniła typ, więc nie da się dopasować pull requestów do wierszy.",
+      "failed": "Synchronizacja nie powiodła się. Spróbuje ponownie następnym razem.",
+      "invalidSite": "Leafdesk nie może połączyć się z tym adresem.",
+      "invalidInput": "Podaj repozytorium w postaci właściciel/nazwa.",
+      "alreadyRunning": "Trwa synchronizacja. Spróbuj ponownie za chwilę."
+    }
+  },
   "board": {
     "links": "Nic nie jest pobierane: pliki i linki z eksportu pozostają linkami.",
     "comments": "{count, plural, one {# komentarz trafi} few {# komentarze trafią} many {# komentarzy trafi} other {# komentarza trafi}} na strony wierszy, z autorem i czasem.",
@@ -243,6 +297,7 @@
     "badTrello": "Ten plik nie jest eksportem tablicy Trello. W Trello wybierz Eksportuj jako JSON z menu tablicy i wskaż ten plik.",
     "badAsana": "Ten plik nie jest eksportem projektu z Asany. W Asanie wybierz Eksportuj → CSV lub JSON z menu projektu i wybierz ten plik.",
     "badMonday": "Ten plik nie jest eksportem tablicy z Monday.com. W Monday.com wybierz Eksportuj tablicę do Excela z menu tablicy i wybierz ten plik.",
+    "badConfluence": "Plik nie jest przestrzenią Confluence wyeksportowaną jako HTML. W Confluence wybierz Eksportuj przestrzeń → HTML w ustawieniach przestrzeni i wybierz pobrany plik ZIP.",
     "badMapping": "Wybierz miejsce docelowe dla co najmniej jednej kolumny, a każdą właściwość tylko raz.",
     "noAccess": "Nie możesz tam dodawać stron lub to miejsce już nie istnieje.",
     "notADatabase": "Wiersze można dodawać tylko do bazy danych.",

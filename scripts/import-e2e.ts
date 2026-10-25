@@ -4,7 +4,8 @@
  * as page links, images uploaded, an Obsidian vault's wikilinks, embeds, aliases and callouts), CSV files as new databases (guessed and chosen types) and into
  * existing ones (column mapping, new options, people and relations by name, cells that don't fit),
  * Excel workbooks (a database exported as one comes back with the same values), Word documents
- * (a page each, titled by their first heading, pictures uploaded), Evernote exports (a database
+ * (a page each, titled by their first heading, pictures uploaded), Confluence spaces exported as
+ * HTML (pages nested as in the space, panels, code, tasks, expands, links and attachments), Evernote exports (a database
  * each with tags, times, author and source URL as properties, a row per note with its to-dos,
  * tables and attachments, encrypted text and unreadable notes reported, entity declarations
  * refused, exports in a ZIP), PDFs (a page of their text: headings
@@ -59,6 +60,8 @@ const { AccessError } = await import("@/server/access");
 const { importPages } = await import("@/server/import/markdown");
 const { importDocx } = await import("@/server/import/docx");
 const docxFixture = await import("@/server/import/docx-fixtures");
+const { importConfluence } = await import("@/server/import/confluence");
+const { confluenceExport } = await import("@/server/import/confluence-fixtures");
 const { importEnex } = await import("@/server/import/enex");
 const enexFixture = await import("@/lib/import/enex-fixtures");
 const { importPdf } = await import("@/server/import/pdf");
@@ -573,6 +576,63 @@ try {
   check(
     (await failure(() => importDocx({ userId: ids.guest }, { workspaceId, parentId: docsHome.id, files: [{ name: "x.docx", data: notesDocx }] }))) === "access",
     "Word documents go only where the user may add pages",
+  );
+
+  // A Confluence space exported as HTML: its pages nested as the space has them
+  const spaceZip = zipSync(confluenceExport(png));
+  const spaceHome = await createPage(owner, { workspaceId, title: "Wiki" });
+  const fromConfluence = await importConfluence(owner, { workspaceId, parentId: spaceHome.id, files: [{ path: "Docs.zip", data: spaceZip }] });
+  const cfHome = fromConfluence.pages[0];
+  const cfChild = async (parentId: string, title: string) => (await children(parentId)).find((c) => c.title === title)!;
+  const setup = cfHome && (await cfChild(cfHome.id, "Setup"));
+  const guide = cfHome && (await cfChild(cfHome.id, "Guide"));
+  check(
+    fromConfluence.pages.length === 1 && cfHome.title === "Docs Home" && (await titles(cfHome.id)).join() === "Setup,Guide" &&
+      !!setup && (await titles(setup.id)).join() === "Linux,Windows",
+    "a Confluence space comes in as its home page with the pages nested as its index lists them (and one it leaves out under its breadcrumbs' parent)",
+    { pages: fromConfluence.pages, top: cfHome && (await titles(cfHome.id)) },
+  );
+  await eventually(async () => (await body(cfHome.id)).includes("Hidden text"), "the space home's body");
+  const cfBody = await body(cfHome.id);
+  const cfFiles = await db.select().from(file).where(eq(file.pageId, cfHome.id));
+  check(
+    cfBody.includes("[!NOTE|blue] Heads up") && cfBody.includes("Read this first.") && cfBody.includes("One point") &&
+      cfBody.includes("```java") && cfBody.includes("int x = 1;") && !cfBody.includes("Main.java") &&
+      cfBody.includes("[x] Done task") && cfBody.includes("[ ] Open task") && cfBody.includes("More details") &&
+      cfBody.includes("✅") && cfBody.includes("| Name") && cfBody.includes("Ada Lovelace") && !cfBody.includes("display/~ada") && !cfBody.includes("never run"),
+    "…its info panel a callout, the code macro a Java code block, task lists to-dos, an expand section a toggle, emoticons emoji and tables tables",
+    cfBody,
+  );
+  check(
+    !!guide && cfBody.includes(`](${pagePath(workspaceId, guide.id)})`) && cfBody.includes("old page") && !cfBody.includes("Gone_9") &&
+      cfFiles.length === 2 && cfFiles.every((f) => cfBody.includes(`/api/files/${f.id}`)) && fromConfluence.created.files === 2 && fromConfluence.created.pages === 5 && cfFiles.map((f) => f.name).sort().join() === "Handbook.pdf,diagram.png",
+    "…links between its pages are page links, its picture and linked attachment are uploaded under their own names, a link to a page the export hasn't is text",
+    { cfBody, cfFiles: cfFiles.map((f) => f.name), created: fromConfluence.created },
+  );
+  check(
+    fromConfluence.warnings.some((w) => w.code === "missingFile" && w.path === "DOCS/Gone_9.html" && w.page === "Docs Home"),
+    "…and reported",
+    fromConfluence.warnings,
+  );
+  await eventually(async () => (await body((await cfChild(setup.id, "Linux")).id)).includes("Back up first."), "the Linux page");
+  check((await body((await cfChild(setup.id, "Linux")).id)).includes("[!CAUTION]"), "a warning panel is a red callout", await body((await cfChild(setup.id, "Linux")).id));
+  await eventually(async () => (await body(guide.id)).includes("Basics"), "the guide");
+  check((await body(guide.id)).includes(`](${pagePath(workspaceId, cfHome.id)})`), "a link with an anchor to another page is a page link too", await body(guide.id));
+  const wikiBefore = (await titles(spaceHome.id)).length;
+  check(
+    (await failure(() => importConfluence(owner, { workspaceId, parentId: spaceHome.id, files: [{ path: "notes.zip", data: zipSync({ "a/readme.html": strToU8("<p>hi</p>") }) }] }))) ===
+      "badConfluence" && (await titles(spaceHome.id)).length === wikiBefore,
+    "a ZIP that isn't a Confluence export is refused, with nothing created",
+  );
+  const twoTops = confluenceExport(png);
+  delete twoTops["DOCS/index.html"];
+  for (const name of ["DOCS/Setup_2.html", "DOCS/Guide_4.html"]) twoTops[name] = strToU8(new TextDecoder().decode(twoTops[name]).replace(/<li><span><a href="Docs-Home_1.html">Docs Home<\/a><\/span><\/li>/, ""));
+  delete twoTops["DOCS/Docs-Home_1.html"];
+  const flat = await importConfluence(owner, { workspaceId, parentId: spaceHome.id, files: [{ path: "Docs.zip", data: zipSync(twoTops) }] });
+  check(
+    flat.pages.length === 1 && flat.pages[0].title === "Docs" && (await titles(flat.pages[0].id)).join() === "Setup,Guide",
+    "a space with several top pages comes in under a page named after the space",
+    { pages: flat.pages, top: flat.pages[0] && (await titles(flat.pages[0].id)) },
   );
 
   // Evernote exports: a database per export, a row per note, attachments uploaded to the rows
@@ -1390,6 +1450,11 @@ try {
     "other files are refused with codes the dialog translates",
     { notAsana, notMonday },
   );
+
+  const confluenceRoute = await post({ mode: "confluence", workspaceId, parentId: home.id }, [{ name: "Docs.zip", data: spaceZip }]);
+  check(confluenceRoute.status === 201 && confluenceRoute.json.pages[0].title === "Docs Home" && confluenceRoute.json.created.pages === 5, "the route imports a Confluence space", confluenceRoute);
+  const notConfluence = await post({ mode: "confluence", workspaceId, parentId: home.id }, [{ name: "x.zip", data: zipSync({ "x.txt": strToU8("x") }) }]);
+  check(notConfluence.status === 400 && notConfluence.json.code === "badConfluence", "…and refuses other ZIPs with a code the dialog translates", notConfluence);
 
   console.log(`\n${passed} checks passed`);
 } finally {

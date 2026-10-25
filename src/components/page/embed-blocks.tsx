@@ -97,6 +97,9 @@ const inlineCode = createStyleSpecFromTipTapMark(
   "boolean",
 );
 
+/** What tables offer in page editors: merging cells, colors for cells, rows and columns, and headers. */
+export const TABLE_SETTINGS = { splitCells: true, cellBackgroundColor: true, cellTextColor: true, headers: true };
+
 export const pageEditorSchema = BlockNoteSchema.create({
   blockSpecs: {
     ...defaultBlockSpecs,

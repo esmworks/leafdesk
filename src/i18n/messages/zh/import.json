@@ -7,11 +7,13 @@
     "docx": "Word",
     "pdf": "PDF",
     "evernote": "Evernote",
+    "confluence": "Confluence",
     "csv": "CSV 和 Excel",
     "trello": "Trello",
     "asana": "Asana",
     "monday": "Monday.com",
     "jira": "Jira",
+    "github": "GitHub",
     "googleDocs": "Google 文档",
     "web": "网页"
   },
@@ -51,6 +53,11 @@
       "sourceUrl": "来源 URL",
       "encrypted": "加密文本未被导入。"
     }
+  },
+  "confluence": {
+    "help": "Confluence 空间中的每个页面都会成为一个页面，层级与空间中相同。标题、列表、表格、代码块、信息面板（作为标注）、展开部分（作为折叠列表）、任务列表、图片和附件都会一并导入，页面之间的链接会变成页面提及。",
+    "export": "在 Confluence 中打开空间设置，选择“导出空间”→“HTML”，然后选择下载的 ZIP。",
+    "choose": "选择导出文件 (.zip)"
   },
   "csv": {
     "choose": "选择 CSV 或 Excel 文件",
@@ -160,6 +167,53 @@
       "alreadyRunning": "同步正在进行中。请稍后再试。"
     }
   },
+  "githubPulls": {
+    "help": "得到一个与 GitHub 仓库的拉取请求保持同步的数据库：每个拉取请求成为一行，包含编号、状态（草稿、打开、已合并或已关闭）、作者、负责人、标签、分支、日期和回到它的链接。更改只单向流动，从 GitHub 到 Leafdesk。人员按其登录所用的 GitHub 账号对应。",
+    "repo": "仓库",
+    "repoPlaceholder": "所有者/名称或仓库地址",
+    "token": "令牌（可选）",
+    "tokenHelp": "私有仓库需要它，它还能提高 GitHub 的请求限额。有拉取请求的读取权限就够了。令牌在服务器上密封保存。",
+    "tokenLink": "创建令牌",
+    "server": "GitHub Enterprise Server（可选）",
+    "serverPlaceholder": "github.example.com",
+    "pulls": "拉取请求",
+    "states": {
+      "open": "打开的",
+      "all": "全部（最近更新的 {limit} 个）"
+    },
+    "names": {
+      "number": "编号",
+      "state": "状态",
+      "author": "作者",
+      "assignees": "负责人",
+      "others": "{column}（其他）",
+      "labels": "标签",
+      "branch": "分支",
+      "base": "基础分支",
+      "created": "创建时间",
+      "merged": "合并时间",
+      "link": "GitHub 链接",
+      "stages": {
+        "draft": "草稿",
+        "open": "打开",
+        "merged": "已合并",
+        "closed": "已关闭"
+      }
+    },
+    "errors": {
+      "unauthorized": "GitHub 拒绝了该令牌。",
+      "forbidden": "该令牌无权读取此仓库的拉取请求。",
+      "notFound": "没有这个仓库，或它是令牌无法访问的私有仓库。",
+      "unreachable": "无法连接 GitHub，或请求限额已用完。同步会在下次重试。",
+      "runAsGone": "设置同步的人已没有账号。",
+      "accessLost": "同步所代表的人已无法编辑此数据库。",
+      "keyGone": "“编号”属性已被删除或更改了类型，因此无法将拉取请求与行对应。",
+      "failed": "同步失败。下次会重试。",
+      "invalidSite": "这不是 Leafdesk 能访问的地址。",
+      "invalidInput": "请以 所有者/名称 的形式填写仓库。",
+      "alreadyRunning": "正在同步。请稍后再试。"
+    }
+  },
   "board": {
     "links": "不会下载任何内容：导出中的文件和链接仍是链接。",
     "comments": "{count} 条评论会连同作者和时间放进各行的页面。",
@@ -243,6 +297,7 @@
     "badTrello": "该文件不是 Trello 看板的导出文件。请在 Trello 的看板菜单中选择“导出为 JSON”，然后选择该文件。",
     "badAsana": "该文件不是 Asana 项目导出。请在 Asana 的项目菜单中选择“导出 → CSV”或 JSON，然后选择该文件。",
     "badMonday": "该文件不是 Monday.com 看板导出。请在 Monday.com 的看板菜单中选择“将看板导出到 Excel”，然后选择该文件。",
+    "badConfluence": "该文件不是以 HTML 导出的 Confluence 空间。请在 Confluence 的空间设置中选择“导出空间”→“HTML”，然后选择下载的 ZIP。",
     "badMapping": "请至少为一列选择导入位置，且每个属性只能使用一次。",
     "noAccess": "你无法在那里添加页面，或它已不存在。",
     "notADatabase": "只能向数据库添加行。",

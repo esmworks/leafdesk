@@ -161,7 +161,7 @@ async function loadRows(exec: Executor, userId: string, input: MergeRowsInput) {
   if (rows.some((r) => r.archivedAt || r.isTemplate)) {
     throw new PropertyValueError("Rows in the trash and row templates can't be merged", "mergeRowsInvalid");
   }
-  const readOnly = rows.filter((r) => !hasLevel(levelFromRank(r.level), "edit"));
+  const readOnly = rows.filter((r) => !hasLevel(levelFromRank(r.level), "content"));
   if (readOnly.length) {
     throw new PropertyValueError(`You can only view ${rowNames(readOnly).names}: merging needs edit access to every row`, "mergeRowsReadOnly", {
       rows: rowNames(readOnly).names,
@@ -293,7 +293,7 @@ async function planMerge(exec: Executor, userId: string, input: MergeRowsInput, 
   const blocked: LinkChange[] = [];
   const accessOf = new Map<string, PropertyAccess>([[databaseId, access]]);
   for (const change of changes.values()) {
-    if (!hasLevel(levelFromRank(change.level), "edit")) {
+    if (!hasLevel(levelFromRank(change.level), "content")) {
       blocked.push(change);
       continue;
     }
@@ -724,7 +724,7 @@ export async function mergeCandidates(userId: string, rowId: string, query: stri
     .orderBy(desc(page.createdAt))
     .limit(MERGE_CANDIDATES * 3)) as StoredRow[];
   return found
-    .filter((r) => hasLevel(levelFromRank(r.level), "edit"))
+    .filter((r) => hasLevel(levelFromRank(r.level), "content"))
     .slice(0, MERGE_CANDIDATES)
     .map((r) => ({ id: r.id, title: r.title, icon: r.icon, createdAt: r.createdAt.toISOString() }));
 }

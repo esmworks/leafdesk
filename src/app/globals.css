@@ -539,6 +539,43 @@
 }
 
 /*
+ * Page covers (components/page/page-backdrop.tsx coverClass): a band across the top of the page in
+ * one of these gradients, written here like the patterns, so a cover loads nothing. Dimmed a little
+ * in the dark theme.
+ */
+.page-cover-sunrise {
+  background-image: linear-gradient(120deg, #ffc58f, #ff8fab 55%, #a99bff);
+}
+.page-cover-ocean {
+  background-image: linear-gradient(120deg, #8fd3fe, #3d7be0 60%, #283f99);
+}
+.page-cover-forest {
+  background-image: linear-gradient(120deg, #b6f0bd, #4caf68 55%, #1f6b3a);
+}
+.page-cover-dusk {
+  background-image: linear-gradient(120deg, #4b2aa8, #9c3fb8 50%, #ec6a8f);
+}
+.page-cover-aurora {
+  background-image: linear-gradient(120deg, #0d6e80, #38bdd0 45%, #b4f0c4);
+}
+.page-cover-sand {
+  background-image: linear-gradient(120deg, #fff0d9, #f1c58c 55%, #d9945a);
+}
+.page-cover-mint {
+  background-image: linear-gradient(120deg, #e3fcf3, #8eecc9 55%, #3cc59a);
+}
+.page-cover-slate {
+  background-image: linear-gradient(120deg, #cfd5dc, #7d8794 55%, #3e4651);
+}
+:root:not(:has([data-print-view])) {
+  @variant dark {
+    [class*="page-cover-"] {
+      filter: brightness(0.78) saturate(0.9);
+    }
+  }
+}
+
+/*
  * Chart marks. `--chart-1`…`--chart-8` color groups that have no color of their own, in this
  * order (it keeps neighbors apart for color-blind readers); a single series uses `--chart-1`.
  * `--chart-<option color>` paint select and status groups in their option's hue, strong enough

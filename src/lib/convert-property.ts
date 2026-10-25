@@ -346,6 +346,7 @@ export function retypeViewConfig(
   const type = valueType(to);
   // Group keys (option ids, days, people) meant the old values, unless options kept their ids.
   const regrouped = c.groupBy === id && !(holdsOptions(from) && holdsOptions(to.type));
+  const subRegrouped = c.subGroupBy === id && !(holdsOptions(from) && holdsOptions(to.type));
   const dates = type === "date" || holdsTimestamp(type) || isDerived(to.type);
   const fn = c.calculations?.[id];
   return {
@@ -358,6 +359,8 @@ export function retypeViewConfig(
     groupOrder: regrouped ? undefined : c.groupOrder,
     hiddenGroups: regrouped ? undefined : c.hiddenGroups,
     collapsedGroups: regrouped ? undefined : c.collapsedGroups,
+    subGroupBy: c.subGroupBy === id && !isGroupable(type) ? undefined : c.subGroupBy,
+    collapsedSubGroups: subRegrouped ? undefined : c.collapsedSubGroups,
     dateBy: c.dateBy === id && !dates ? undefined : c.dateBy,
     endDateBy: c.endDateBy === id && !dates ? undefined : c.endDateBy,
     placeBy: c.placeBy === id && to.type !== "place" ? undefined : c.placeBy,

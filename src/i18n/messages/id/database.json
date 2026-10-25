@@ -618,7 +618,8 @@
     "propertyComments": "{count, plural, other {# komentar terbuka}} pada {name}",
     "pinned": "Properti yang disematkan",
     "showBeside": "Tampilkan di samping halaman",
-    "showAbove": "Tampilkan di atas halaman"
+    "showAbove": "Tampilkan di atas halaman",
+    "copyValue": "Salin {name}"
   },
   "rowActivity": {
     "title": "Aktivitas",
@@ -857,7 +858,17 @@
     "pinColor": "Warna pin",
     "noPinColor": "Tidak ada",
     "colorRules": "Aturan warna",
-    "wrapProperties": "Bungkus semua properti"
+    "wrapProperties": "Bungkus semua properti",
+    "loadLimit": "Batas muat",
+    "loadLimitCards": "{count} kartu",
+    "loadMore": "Muat lebih banyak",
+    "moreCards": "{count, plural, other {# kartu lagi}}"
+  },
+  "viewMenu": {
+    "label": "Pengaturan tampilan",
+    "back": "Kembali",
+    "layoutHint": "Tampilan tetap memakai filter, urutan, dan propertinya.",
+    "shown": "{count} ditampilkan"
   },
   "gallery": {
     "new": "Baru",
@@ -1161,7 +1172,9 @@
     "expand": "Luaskan {name}",
     "rowCount": "{count, plural, other {# baris}}",
     "actions": "Tindakan kelompok",
-    "addRow": "Tambahkan baris ke {name}"
+    "addRow": "Tambahkan baris ke {name}",
+    "subGroupBy": "Subgrup",
+    "colorColumns": "Warnai kolom"
   },
   "rollup": {
     "title": "Rollup",
@@ -1896,6 +1909,18 @@
     "viewOnly": "Hanya orang dengan akses penuh ke basis data yang dapat mengubah sinkronisasi.",
     "reporter": "Pelapor",
     "reporterNone": "Tidak disinkronkan"
+  },
+  "githubPulls": {
+    "button": "Disinkronkan dari GitHub",
+    "buttonPaused": "Sinkronisasi GitHub dijeda",
+    "title": "Sinkronisasi GitHub",
+    "lastRun": "Terakhir disinkronkan {when}, {count, plural, other {# pull request}}",
+    "withToken": "Dengan token",
+    "withoutToken": "Tanpa token",
+    "overwrite": "GitHub adalah sumbernya: properti yang disinkronkan dan judul baris ditimpa pada setiap sinkronisasi, jadi ubahlah di GitHub. Properti yang Anda tambahkan sendiri tetap seperti adanya, dan baris pull request yang tidak lagi diambil sinkronisasi dibiarkan.",
+    "changeToken": "Ganti token",
+    "tokenEmpty": "Biarkan kosong untuk menyinkronkan tanpa token.",
+    "stopConfirm": "Hentikan sinkronisasi basis data ini? Barisnya tetap seperti adanya, dan tokennya dilupakan."
   },
   "sprints": {
     "menuItem": "Sprint",

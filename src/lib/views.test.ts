@@ -57,6 +57,10 @@ describe("where a view opens its rows", () => {
   });
 
   it("refuses anything but panel, center or page", () => {
+    expect(layoutConfigError({ subGroupBy: "p1", colorColumns: false, collapsedSubGroups: ["a", ""] })).toBeNull();
+    expect(layoutConfigError({ subGroupBy: 3 } as never)).toMatch(/subGroupBy/);
+    expect(layoutConfigError({ colorColumns: "no" } as never)).toMatch(/colorColumns/);
+    expect(layoutConfigError({ collapsedSubGroups: "a" } as never)).toMatch(/collapsedSubGroups/);
     expect(layoutConfigError({ openRows: "page" })).toBeNull();
     expect(layoutConfigError({ openRows: "center" })).toBeNull();
     expect(layoutConfigError({ openRows: "panel" })).toBeNull();
@@ -75,6 +79,13 @@ describe("table lines and a view's own row template", () => {
     expect(layoutConfigError({ defaultTemplateId: null })).toBeNull();
     expect(layoutConfigError({ defaultTemplateId: "" })).toMatch(/defaultTemplateId/);
     expect(layoutConfigError({ defaultTemplateId: 3 } as unknown as ViewConfig)).toMatch(/defaultTemplateId/);
+  });
+});
+
+describe("load limit", () => {
+  it("is one of the limits", () => {
+    expect(layoutConfigError({ loadLimit: 25 })).toBeNull();
+    expect(layoutConfigError({ loadLimit: 30 } as unknown as ViewConfig)).toBe("Load limit must be one of: 10, 25, 50, 100");
   });
 });
 

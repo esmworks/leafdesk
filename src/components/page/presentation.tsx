@@ -30,7 +30,7 @@ import { BlockDirection } from "./block-direction";
 import { codeHighlighting } from "./code-block";
 import { PageTrailProvider, type TrailCrumb } from "./content-blocks";
 import { EmbedHostProvider, type EmbedHost } from "./database-embed";
-import { pageEditorSchema, type PageEditor } from "./embed-blocks";
+import { pageEditorSchema, TABLE_SETTINGS, type PageEditor } from "./embed-blocks";
 import { backdropClass } from "./page-backdrop";
 import { SyncedFrameProvider } from "./synced-page";
 import type { PageDoc } from "./use-page-doc";
@@ -135,7 +135,7 @@ function Slides({
   // One read-only editor shows the slide's blocks, with the page's schema and table options so
   // every block (merged cells, columns, embeds) draws as it does on the page.
   const editor = useCreateBlockNote(
-    { schema: pageEditorSchema, dictionary, tables: { splitCells: true }, extensions: [codeHighlighting(), BlockDirection(), commentMarks, suggestionMarks] },
+    { schema: pageEditorSchema, dictionary, tables: TABLE_SETTINGS, extensions: [codeHighlighting(), BlockDirection(), commentMarks, suggestionMarks] },
     [dictionary],
   ) as unknown as PageEditor;
 

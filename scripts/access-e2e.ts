@@ -419,7 +419,7 @@ try {
   );
   const ownDb = await createPage({ userId: guest }, { workspaceId, kind: "database", title: "guest db" });
   check((await levels(ownDb.id, guest, alice)).join() === "full,none", "so does a top-level database");
-  const ownCopy = await duplicatePage({ userId: guest }, own.id, " copy");
+  const ownCopy = await duplicatePage({ userId: guest }, own.id);
   check((await levels(ownCopy.id, guest, owner)).join() === "full,none", "a copy of it is private too");
   await setPagePermission(guest, own.id, bob, "view");
   check((await levels(own.id, bob, alice)).join() === "view,none", "they can share it with a member");
@@ -431,7 +431,7 @@ try {
     isAccessError,
     "turning it off stops new ones",
   );
-  await rejects(() => duplicatePage({ userId: guest }, own.id, " copy"), isAccessError, "…copies included");
+  await rejects(() => duplicatePage({ userId: guest }, own.id), isAccessError, "…copies included");
   check((await levels(own.id, guest))[0] === "full", "…and leaves the existing ones as they are");
 
   // Who may publish (Settings > Security)
@@ -655,8 +655,8 @@ try {
     for (const [tool, args] of [
       ["get_page", { page_id: S }],
       ["list_pages", { workspace_id: workspaceId, parent_id: S }],
-      ["list_page_history", { page_id: S }],
-      ["get_page_version", { version_id: snap.id }],
+      ["get_page_history", { page_id: S }],
+      ["get_page_history", { version_id: snap.id }],
       ["query_database", { database_id: SD }],
     ] as const) {
       const r = await callTool(u, tool, args);
@@ -724,7 +724,7 @@ try {
   );
   await movePage(owner, branch.id, deep[57]);
   check((await getPage(owner, branch.id)).parentId === deep[57], "…but can be moved where they all fit");
-  await rejects(() => duplicatePage({ userId: owner }, deep[59], "copy"), isTooDeep, "…nor duplicated past it");
+  await rejects(() => duplicatePage({ userId: owner }, deep[59]), isTooDeep, "…nor duplicated past it");
   await db.delete(page).where(inArray(page.id, [deepTop.id, branch.id]));
 
   // Ownership goes to members only

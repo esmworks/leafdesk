@@ -1,6 +1,6 @@
 "use client";
 
-import { ChevronDown, ChevronRight, MessageSquare, PanelRight, PanelTop, Plus } from "lucide-react";
+import { Check, ChevronDown, ChevronRight, Copy, MessageSquare, PanelRight, PanelTop, Plus } from "lucide-react";
 import dynamic from "next/dynamic";
 import { useTranslations } from "next-intl";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
@@ -33,7 +33,7 @@ import { Floating, useFloating } from "./floating";
 import { PeopleProvider, type PeopleContextValue } from "./person-cell";
 import { uploadToPage } from "./files-cell";
 import { PropertyAccessProvider, PropertyLock, usePropertyAccess, type PropertyAccessContextValue } from "./property-access";
-import { isEmptyValue, PropertyCell } from "./property-cell";
+import { isEmptyValue, PropertyCell, useFormatDateTime } from "./property-cell";
 import { PropertyTypeIcon } from "./property-icons";
 import { usePropertyHint } from "./property-hint";
 import { RelationProvider, type RelationContextValue } from "./relation-context";
@@ -46,6 +46,8 @@ import { rowSnapshotOf, type RowSnapshot as Loaded } from "./row-snapshot";
 import type { DerivedInput, Property, RelationInput } from "./types";
 import { usePropertyThreadCount } from "@/components/page/property-threads";
 import { requestPropertyComment } from "@/lib/comments-request";
+import { copyText } from "@/components/settings/copy-button";
+import { formatUniqueId, uniqueIdPrefix } from "@/lib/unique-id";
 
 // Only URL properties set to show previews need it: kept out of the row panel's first load.
 const UrlPreview = dynamic(() => import("./url-preview"), { ssr: false });
@@ -622,8 +624,46 @@ function PropertyRow({
           <UrlPreview rowId={rowId} propertyId={p.id} url={value} />
         )}
       </div>
+      {variant !== "pinned" && valueAccess !== "hidden" && COPYABLE.has(p.type) && !isEmptyValue(p, value) && <PropertyCopy prop={p} value={value} />}
       {commentable && variant === "row" && valueAccess !== "hidden" && <PropertyComments rowId={rowId} prop={p} />}
     </div>
+  );
+}
+
+/** The types whose value a button beside it copies as text. */
+const COPYABLE = new Set<PropertyType>(["text", "number", "url", "email", "phone", "created_time", "last_edited_time", "unique_id"]);
+
+/** Copies a property's value as text (shown on hover): a time as the page shows it, an ID with its prefix. */
+function PropertyCopy({ prop, value }: { prop: Property; value: unknown }) {
+  const t = useTranslations("database.rowProperties");
+  const tc = useTranslations("common");
+  const formatDateTime = useFormatDateTime();
+  const [copied, setCopied] = useState(false);
+  useEffect(() => {
+    if (!copied) return;
+    const timer = setTimeout(() => setCopied(false), 1500);
+    return () => clearTimeout(timer);
+  }, [copied]);
+  const text =
+    prop.type === "created_time" || prop.type === "last_edited_time"
+      ? formatDateTime(String(value))
+      : prop.type === "unique_id"
+        ? formatUniqueId(value, uniqueIdPrefix(prop))
+        : String(value);
+  const label = copied ? tc("copied") : t("copyValue", { name: prop.name });
+  return (
+    <button
+      type="button"
+      aria-label={label}
+      title={label}
+      onClick={async (e) => setCopied(await copyText(text, e.currentTarget))}
+      className={cn(
+        "flex h-[30px] shrink-0 items-center rounded-md px-1.5 text-fg-muted hover:bg-bg-hover hover:text-fg focus-visible:opacity-100 pointer-coarse:opacity-100",
+        copied ? "opacity-100" : "opacity-0 group-hover/property:opacity-100",
+      )}
+    >
+      {copied ? <Check className="h-3.5 w-3.5" /> : <Copy className="h-3.5 w-3.5" />}
+    </button>
   );
 }
 

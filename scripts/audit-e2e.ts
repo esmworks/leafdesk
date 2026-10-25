@@ -542,10 +542,10 @@ try {
   await restorePage(owner, shelf.id);
   check((await about(shelf.id)).length === 0, "a row in and out of the trash isn't recorded");
 
-  const copy = await duplicatePage({ userId: owner }, roadmap.id, " (copy)");
+  const copy = await duplicatePage({ userId: owner }, roadmap.id);
   row = await latest(ws.main, "page.duplicated");
-  check(row.targetId === copy.id && describe(row) === "Duplicated Roadmap as Roadmap (copy)", "duplicating a page is recorded", describe(row));
-  const shelfCopy = await duplicatePage({ userId: owner }, shelf.id, " (copy)");
+  check(row.targetId === copy.id && describe(row) === "Duplicated Roadmap as Roadmap (1)", "duplicating a page is recorded", describe(row));
+  const shelfCopy = await duplicatePage({ userId: owner }, shelf.id);
   check((await about(shelfCopy.id)).length === 0, "…but not duplicating a row");
 
   const template = await saveAsTemplate({ userId: owner }, roadmap.id);

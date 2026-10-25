@@ -267,9 +267,9 @@ try {
   await setPagePermission(owner, restricted.id, owner, "full");
   await setPagePermission(owner, restricted.id, null, "none");
   await setPageGroupPermission(owner, restricted.id, design.id, "comment");
-  const copy = await duplicatePage({ userId: owner }, restricted.id, " (copy)");
+  const copy = await duplicatePage({ userId: owner }, restricted.id);
   check((await levels(copy.id, bob, carol)) === "comment,none", "a duplicate keeps the page's group entries");
-  const privateCopy = await duplicatePage({ userId: owner }, shared.id, " (copy)");
+  const privateCopy = await duplicatePage({ userId: owner }, shared.id);
   check((await levels(privateCopy.id, bob, owner)) === "none,full", "…but a copy of a private page is private to whoever made it, as with people");
   await archivePage(owner, shared.id);
   await restorePage(owner, sub.id);

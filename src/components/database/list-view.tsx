@@ -3,10 +3,10 @@
 import { cellMarkClass, colorMarkClass, type RowColors } from "@/lib/color-rules";
 import { Plus } from "lucide-react";
 import { useTranslations } from "next-intl";
-import { useRef, type KeyboardEvent } from "react";
+import { useCallback, useEffect, useRef, useState, type KeyboardEvent } from "react";
 import { cn, PageIcon } from "@/components/ui";
 import { pageLabel } from "@/lib/labels";
-import { isHiddenInView } from "@/lib/properties";
+import { isGroupable, isHiddenInView } from "@/lib/properties";
 import type { SubItemLine } from "@/lib/sub-items";
 import { CardTitleInput } from "./card-title-input";
 import { RowMenu } from "./gallery-view";
@@ -15,10 +15,15 @@ import { PropertyCell, shownValues } from "./property-cell";
 import { QuickAddContext } from "./quick-add";
 import { openRowProps, useIsOpenRow, useRowOpener } from "./row-panel-context";
 import { useNewRow } from "./use-new-row";
+import { useTableWindow } from "./use-table-window";
 import { usePropertyAccess } from "./property-access";
 import { AddSubItemButton, SUB_ITEM_INDENT, SubItemCount, SubItemToggle, useSubItems } from "./sub-items";
 import type { Property, Row, View } from "./types";
+import { ViewSections, type SectionGroup } from "./view-sections";
 import type { DatabaseApi } from "./use-database";
+
+/** A line's height before it is measured (see useTableWindow). */
+const LINE_HEIGHT = 37;
 
 /**
  * One compact line per row: title on the left, the properties the view shows on the right. Values
@@ -52,9 +57,10 @@ export function ListView({
   const access = usePropertyAccess();
   const subItems = useSubItems(view, properties, allRows);
   const canAddSubItem = !readOnly && subItems.nested && !!subItems.parent && access.canEditValues(subItems.parent.id);
+  const [start, setStart] = useState<HTMLDivElement | null>(null);
 
-  const add = async () => {
-    await createNew(() => api.createRow());
+  const add = async (values?: Record<string, unknown>) => {
+    await createNew(() => api.createRow(values && Object.keys(values).length ? { properties: values } : {}));
   };
   const addSubItem = async (row: Row) => {
     if (!subItems.parent) return;
@@ -63,12 +69,14 @@ export function ListView({
   };
   /**
    * A new row right below `row` (Shift+Enter), with the view's filter values like any new row, and
-   * under the same parent while sub-items nest. A sorted view puts it where its values go.
+   * under the same parent while sub-items nest, in the same section with its value. A sorted view
+   * puts it where its values go.
    */
-  const addBelow = async (row: Row) => {
+  const addBelow = async (row: Row, groupValues?: Record<string, unknown>) => {
     const parent = subItems.nested && subItems.parent && access.canEditValues(subItems.parent.id) ? subItems.parent : null;
     const parentValue = parent ? row.properties[parent.id] : undefined;
-    const properties = parent && Array.isArray(parentValue) && parentValue.length ? { [parent.id]: parentValue } : undefined;
+    const values = { ...groupValues, ...(parent && Array.isArray(parentValue) && parentValue.length ? { [parent.id]: parentValue } : {}) };
+    const properties = Object.keys(values).length ? values : undefined;
     await createNew(async () => {
       const id = await api.createRow(properties ? { properties } : {});
       if (id && !view.config.sorts?.length) void api.moveRowBeside(id, row.id, "after");
@@ -76,45 +84,82 @@ export function ListView({
     });
   };
 
+  // Long lists draw only the lines near what's visible, as tables do (see useTableWindow). A list
+  // in sections draws the lines of its open sections; folding one away is what makes it shorter.
+  const grouped = properties.some((p) => p.id === view.config.groupBy && isGroupable(p.type));
+  const lines = subItems.lines(rows);
+  const body = useTableWindow({ start, count: grouped ? 0 : lines.length, estimate: () => LINE_HEIGHT, keyOf: (i) => lines[i].row.id });
+  // A new line whose title is being typed is scrolled to once, should it be outside what's drawn.
+  const editIndex = editTitleOf && !grouped ? lines.findIndex((line) => line.row.id === editTitleOf) : -1;
+  const revealed = useRef<string | null>(null);
+  useEffect(() => {
+    if (!editTitleOf || editIndex < 0 || revealed.current === editTitleOf) return;
+    revealed.current = editTitleOf;
+    body.reveal(editIndex);
+  }, [editTitleOf, editIndex, body]);
+
+  const listRow = (line: SubItemLine<Row>, index: number, group: SectionGroup | null) => (
+    <ListRow
+      key={line.row.id}
+      index={index}
+      measure={group ? undefined : body.measure}
+      workspaceId={workspaceId}
+      line={line}
+      showIcon={view.config.showIcons !== false}
+      nested={subItems.nested}
+      onToggle={() => subItems.toggle(line.row.id)}
+      onAddSubItem={canAddSubItem ? () => void addSubItem(line.row) : undefined}
+      props={shownProps}
+      color={colors?.get(line.row.id)}
+      readOnly={readOnly}
+      editTitle={editTitleOf === line.row.id}
+      typed={typed}
+      onTitle={(title) => {
+        stopEditing();
+        if (title !== line.row.title) quick.save(line.row.id, title);
+      }}
+      onDelete={() => api.deleteRow(line.row.id)}
+      api={api}
+      onAddBelow={readOnly ? undefined : () => void addBelow(line.row, group?.values)}
+    />
+  );
+
   return (
     <QuickAddContext value={quick}>
       <div className="page-gutter pb-6">
-        <div role="list" className="flex flex-col">
-          {subItems.lines(rows).map((line) => (
-            <ListRow
-              key={line.row.id}
-              workspaceId={workspaceId}
-              line={line}
-              showIcon={view.config.showIcons !== false}
-              nested={subItems.nested}
-              onToggle={() => subItems.toggle(line.row.id)}
-              onAddSubItem={canAddSubItem ? () => void addSubItem(line.row) : undefined}
-              props={shownProps}
-              color={colors?.get(line.row.id)}
-              readOnly={readOnly}
-              editTitle={editTitleOf === line.row.id}
-              typed={typed}
-              onTitle={(title) => {
-                stopEditing();
-                if (title !== line.row.title) quick.save(line.row.id, title);
-              }}
-              onDelete={() => api.deleteRow(line.row.id)}
-              api={api}
-              onAddBelow={readOnly ? undefined : () => void addBelow(line.row)}
-            />
-          ))}
-        </div>
-        {!rows.length && readOnly && <p className="py-10 text-center text-sm text-fg-muted">{t("list.empty")}</p>}
-        {!readOnly && (
-          <button
-            type="button"
-            onClick={add}
-            className="mt-0.5 flex h-8 w-full items-center gap-1.5 rounded-md px-2 text-sm text-fg-muted hover:bg-bg-hover hover:text-fg"
-          >
-            <Plus className="h-3.5 w-3.5" />
-            {t("list.new")}
-          </button>
-        )}
+        <div ref={setStart} aria-hidden />
+        <ViewSections view={view} properties={properties} rows={rows} api={api} readOnly={readOnly} onAdd={(values) => void add(values)}>
+          {(sectionRows, group) => {
+            const addHere = group ? group.add : readOnly ? undefined : () => void add();
+            return (
+              <>
+                <div role="list" className="flex flex-col">
+                  {group ? (
+                    subItems.lines(sectionRows).map((line, i) => listRow(line, i, group))
+                  ) : (
+                    <>
+                      {body.padTop > 0 && <div aria-hidden style={{ height: body.padTop }} />}
+                      {body.indexes.map((index) => listRow(lines[index], index, null))}
+                      {body.padBottom > 0 && <div aria-hidden style={{ height: body.padBottom }} />}
+                    </>
+                  )}
+                </div>
+                {!group && !rows.length && readOnly && <p className="py-10 text-center text-sm text-fg-muted">{t("list.empty")}</p>}
+                {/* In sections each group adds its own rows, with its value. */}
+                {addHere && (
+                  <button
+                    type="button"
+                    onClick={addHere}
+                    className="mt-0.5 flex h-8 w-full items-center gap-1.5 rounded-md px-2 text-sm text-fg-muted hover:bg-bg-hover hover:text-fg"
+                  >
+                    <Plus className="h-3.5 w-3.5" />
+                    {t("list.new")}
+                  </button>
+                )}
+              </>
+            );
+          }}
+        </ViewSections>
       </div>
     </QuickAddContext>
   );
@@ -122,6 +167,8 @@ export function ListView({
 
 function ListRow({
   workspaceId,
+  index,
+  measure,
   line,
   showIcon,
   nested,
@@ -138,6 +185,9 @@ function ListRow({
   onAddBelow,
 }: {
   workspaceId: string;
+  /** The line's place in the list, and what measures its height (see useTableWindow). */
+  index: number;
+  measure?: (el: HTMLElement | null) => void;
   line: SubItemLine<Row>;
   /** The view shows rows' page icons (see ViewConfig showIcons). */
   showIcon: boolean;
@@ -162,6 +212,13 @@ function ListRow({
   const opener = useRowOpener(workspaceId);
   const access = usePropertyAccess();
   const box = useRef<HTMLDivElement>(null);
+  const setBox = useCallback(
+    (el: HTMLDivElement | null) => {
+      box.current = el;
+      measure?.(el);
+    },
+    [measure],
+  );
   const row = line.row;
   const isOpen = useIsOpenRow(opener, row.id);
   const shown = shownValues(props, row);
@@ -188,7 +245,8 @@ function ListRow({
 
   return (
     <div
-      ref={box}
+      ref={setBox}
+      data-index={index}
       role="listitem"
       onKeyDown={onKeyDown}
       className={cn(

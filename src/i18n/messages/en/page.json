@@ -36,7 +36,6 @@
     "linkCopied": "Link copied",
     "duplicate": "Duplicate",
     "duplicateWithoutRows": "Duplicate without rows",
-    "duplicateSuffix": " (copy)",
     "duplicateFailed": "Couldn't duplicate the page.",
     "moveTo": "Move to",
     "style": {
@@ -246,6 +245,7 @@
     "change": "Background",
     "colors": "Color",
     "patterns": "Pattern",
+    "covers": "Cover",
     "none": "None",
     "remove": "Remove background",
     "colorNames": {
@@ -263,6 +263,16 @@
       "plus": "Crosses",
       "grid": "Grid",
       "lines": "Lines"
+    },
+    "coverNames": {
+      "sunrise": "Sunrise",
+      "ocean": "Ocean",
+      "forest": "Forest",
+      "dusk": "Dusk",
+      "aurora": "Aurora",
+      "sand": "Sand",
+      "mint": "Mint",
+      "slate": "Slate"
     }
   },
   "title": {
@@ -419,9 +429,11 @@
       "full": "Full access",
       "edit": "Can edit",
       "comment": "Can comment",
+      "content": "Can edit content",
       "view": "Can view",
       "none": "No access"
     },
+    "contentHint": "Edit text and database rows, not properties, views or settings",
     "errors": {
       "notMember": "This person isn't a member of the workspace.",
       "lastFullAccess": "Someone must keep full access to the page. Give someone else full access first.",
@@ -770,6 +782,8 @@
     "plainCallout": "Plain callout",
     "addTitle": "Add title",
     "removeTitle": "Remove title",
+    "copyOriginalLink": "Copy link to original",
+    "openInNewTab": "Open in new tab",
     "quoteSize": "Quote size",
     "quoteSizeDefault": "Default",
     "quoteSizeLarge": "Large"
@@ -799,10 +813,10 @@
     "noLetterheads": "Owners can add letterheads with a logo and company details in Settings → PDF templates.",
     "properties": "Include the row's values",
     "comments": "Include comments",
-    "textSize": "Text size",
     "hint": "Diagrams and equations print as text; use Print for the page exactly as it looks.",
     "download": "Download",
-    "preparing": "Preparing…"
+    "preparing": "Preparing…",
+    "textSize": "Text size"
   },
   "spreadsheet": {
     "untitled": "Workbook",
@@ -1067,11 +1081,11 @@
         "mediaSize": "Image and video sizes",
         "callout": "Callout colors and icons Markdown has no form for",
         "textStyle": "Some text formatting, such as underline",
-        "table": "Table column widths, header rows, merged cells and cell colors",
+        "table": "Merged table cells",
         "blockSetting": "Other block settings",
         "content": "Some content Markdown can't hold"
       },
-      "synced": "{count, plural, one {Your changes inside a synced block: edit it on the page instead} other {Your changes inside # synced blocks: edit them on the page instead}}",
+      "synced": "{count, plural, one {Your changes inside a synced block you can't edit} other {Your changes inside # synced blocks you can't edit}}",
       "confirm": "Save anyway"
     },
     "conflict": {

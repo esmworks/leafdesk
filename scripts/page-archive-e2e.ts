@@ -161,7 +161,7 @@ try {
   check((await outdatedState(owner, L)) === null && (await treeIds()).has(L), "moved back out, it is live again");
 
   // A copy of an archived page is archived too
-  const copy = await duplicatePage({ userId: owner }, A, " (copy)");
+  const copy = await duplicatePage({ userId: owner }, A);
   const [copied] = await db.select({ at: page.outdatedAt, by: page.outdatedBy }).from(page).where(eq(page.id, copy.id));
   check(copied.at !== null && copied.by === owner, "a copy of an archived page is archived", copied);
 

@@ -618,7 +618,8 @@
     "propertyComments": "{count, plural, one {# öppen kommentar} other {# öppna kommentarer}} på {name}",
     "pinned": "Fästa egenskaper",
     "showBeside": "Visa bredvid sidan",
-    "showAbove": "Visa ovanför sidan"
+    "showAbove": "Visa ovanför sidan",
+    "copyValue": "Kopiera {name}"
   },
   "rowActivity": {
     "title": "Aktivitet",
@@ -857,7 +858,17 @@
     "pinColor": "Nålfärg",
     "noPinColor": "Ingen",
     "colorRules": "Färgregler",
-    "wrapProperties": "Radbryt alla egenskaper"
+    "wrapProperties": "Radbryt alla egenskaper",
+    "loadLimit": "Laddningsgräns",
+    "loadLimitCards": "{count} kort",
+    "loadMore": "Läs in fler",
+    "moreCards": "{count, plural, one {# kort till} other {# kort till}}"
+  },
+  "viewMenu": {
+    "label": "Vyinställningar",
+    "back": "Tillbaka",
+    "layoutHint": "Vyn behåller sina filter, sorteringar och egenskaper.",
+    "shown": "{count} visas"
   },
   "gallery": {
     "new": "Ny",
@@ -1161,7 +1172,9 @@
     "expand": "Fäll ut {name}",
     "rowCount": "{count, plural, one {# rad} other {# rader}}",
     "actions": "Gruppåtgärder",
-    "addRow": "Lägg till en rad i {name}"
+    "addRow": "Lägg till en rad i {name}",
+    "subGroupBy": "Undergrupp",
+    "colorColumns": "Färglägg kolumner"
   },
   "rollup": {
     "title": "Sammanställning",
@@ -1896,6 +1909,18 @@
     "viewOnly": "Bara personer med full åtkomst till databasen kan ändra synken.",
     "reporter": "Rapportör",
     "reporterNone": "Synkas inte"
+  },
+  "githubPulls": {
+    "button": "Synkad från GitHub",
+    "buttonPaused": "GitHub-synk pausad",
+    "title": "GitHub-synk",
+    "lastRun": "Senast synkad {when}, {count, plural, one {# pull request} other {# pull requests}}",
+    "withToken": "Med token",
+    "withoutToken": "Utan token",
+    "overwrite": "GitHub är källan: de synkade egenskaperna och radtitlarna skrivs över vid varje synk, så ändra dem på GitHub. Egenskaper du själv lägger till förblir som de är, och rader för pull requests som synken inte längre hämtar lämnas i fred.",
+    "changeToken": "Byt token",
+    "tokenEmpty": "Lämna tomt för att synka utan token.",
+    "stopConfirm": "Sluta synka den här databasen? Raderna förblir som de är och token glöms bort."
   },
   "sprints": {
     "menuItem": "Sprintar",

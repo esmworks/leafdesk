@@ -4,6 +4,8 @@
  * someone else's, not the server's own clients, not tokens for other workspaces or expired ones),
  * when each last reached this workspace (a REST request through the API's own handler, an MCP
  * request as the endpoint runs it; at most once a minute; nothing while apps are off here), and
+ * owners letting in only the apps they approved (approving and withdrawing, the server's own clients
+ * and REST API tokens not held to it), and
  * an owner disconnecting one person's app or token: only owners, only what reaches the workspace,
  * gone from all of that person's workspaces, recorded in this workspace's audit log only.
  * Creates its own users and workspaces and deletes them afterwards.
@@ -26,12 +28,12 @@ const { apiToken, auditEvent, connectedAppUse, oauthAccessToken, oauthClient, oa
 const { registerCollab } = await import("@/server/collab/bridge");
 const { createCollab } = await import("@/server/collab/service");
 const { createPage } = await import("@/server/pages");
-const { AccessError, requirePageAccess } = await import("@/server/access");
+const { AccessError, requirePageAccess, workspacesAwaitingApproval, workspacesHiddenFromApp } = await import("@/server/access");
 const { createApiToken } = await import("@/server/api/tokens");
 const { handleApiRequest } = await import("@/server/api");
 const { runAsConnectedApp } = await import("@/server/connected-app");
 const { updateWorkspaceSettings } = await import("@/server/workspaces");
-const { disconnectWorkspaceApp, listWorkspaceApps, pruneConnectedAppUse } = await import("@/server/workspace-apps");
+const { disconnectWorkspaceApp, listWorkspaceApps, pruneConnectedAppUse, setWorkspaceAppApproved } = await import("@/server/workspace-apps");
 const { noteConnectedAppUse } = await import("@/server/connected-app-use");
 
 const RUN = `workspace-apps-e2e-${Date.now().toString(36)}`;
@@ -199,6 +201,64 @@ try {
     write,
   );
   await updateWorkspaceSettings(ids.owner, ws, { connectedApps: "full" });
+
+  // ── Only approved apps ──────────────────────────────────────────────────────────────────────
+  const reads = (client: { kind: "connected_app" | "api_token"; id: string }) =>
+    runAsConnectedApp({ userId: ids.member, app: client }, () => requirePageAccess(ids.member, page.id, "view")).then(
+      () => true,
+      () => false,
+    );
+  const hiddenFor = (client: { kind: "connected_app" | "api_token"; id: string }) =>
+    runAsConnectedApp({ userId: ids.member, app: client }, () => workspacesHiddenFromApp(ids.member));
+  check(await refused(setWorkspaceAppApproved(ids.member, ws, clients.assistant, true)), "members can't approve apps");
+  check(await refused(setWorkspaceAppApproved(ids.owner, ws, `${RUN}-nobody`, true)), "owners can't approve an app no one here connected");
+  check(
+    await updateWorkspaceSettings(ids.owner, ws, { approvedApps: [clients.assistant] }).then(
+      () => false,
+      () => true,
+    ),
+    "approved apps can't be set through a settings change",
+  );
+  await updateWorkspaceSettings(ids.owner, ws, { onlyApprovedApps: true });
+  check(!(await reads(mcp)), "where only approved apps may come, an app not approved can't open the page");
+  check((await hiddenFor(mcp)).has(ws) && !(await hiddenFor(mcp)).has(other), "…and the workspace is left out of its lists, not the person's other one");
+  check(await reads({ kind: "connected_app", id: clients.own }), "the server's own clients aren't held to it");
+  check(
+    (await workspacesAwaitingApproval(ids.member, clients.assistant)).join() === RUN && !(await workspacesAwaitingApproval(ids.member, clients.own)).length,
+    "the consent screen can tell which workspaces the app won't reach yet",
+  );
+  check((await rest(everywhere.secret)).status === 200, "nor are REST API tokens");
+  check(
+    (await listWorkspaceApps(ids.owner, ws)).apps.find((a) => a.id === clients.assistant)?.approved === false,
+    "owners see the app isn't approved",
+  );
+  check((await setWorkspaceAppApproved(ids.owner, ws, clients.assistant, true)).changed, "an owner approves it");
+  check(await reads(mcp), "…and it opens the page again");
+  check(!(await hiddenFor(mcp)).has(ws), "…and lists the workspace");
+  check(
+    (await listWorkspaceApps(ids.owner, ws)).apps.find((a) => a.id === clients.assistant)?.approved === true,
+    "…shown approved in the list",
+  );
+  check(!(await setWorkspaceAppApproved(ids.owner, ws, clients.assistant, true)).changed, "approving it again changes nothing");
+  await setWorkspaceAppApproved(ids.owner, ws, clients.assistant, false);
+  check(!(await reads(mcp)), "withdrawing the approval shuts it out again");
+  await updateWorkspaceSettings(ids.owner, ws, { onlyApprovedApps: false });
+  check(await reads(mcp), "turning the setting off lets every app in again");
+  // The uses these requests record are written after them: let them land, and forget those of the
+  // server's own client and the token, which the checks below don't expect.
+  await settle();
+  await db
+    .delete(connectedAppUse)
+    .where(and(eq(connectedAppUse.userId, ids.member), inArray(connectedAppUse.appId, [clients.own, everywhere.token.id])));
+  const approvals = (await db.select().from(auditEvent).where(eq(auditEvent.workspaceId, ws)).orderBy(auditEvent.createdAt)).filter((e) =>
+    ["connected_app.approved", "connected_app.unapproved"].includes(e.action),
+  );
+  check(
+    approvals.map((e) => e.action).join() === "connected_app.approved,connected_app.unapproved" &&
+      approvals.every((e) => e.actorUserId === ids.owner && e.targetLabel === "Writing assistant"),
+    "the audit log records the approval and its withdrawal, by the owner",
+    approvals.map((e) => [e.action, e.actorUserId, e.targetLabel]),
+  );
 
   // ── Disconnecting ───────────────────────────────────────────────────────────────────────────
   check(

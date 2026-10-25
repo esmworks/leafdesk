@@ -51,6 +51,7 @@ import { AllowedNetworksSetting, AllowedNetworksSummary } from "@/components/set
 import {
   AccessRequestsSetting,
   ConnectedAppsSetting,
+  OnlyApprovedAppsSetting,
   ExportSetting,
   GuestInviteSetting,
   GuestPrivatePagesSetting,
@@ -593,6 +594,9 @@ async function SecurityTab({ workspaceId, userId, isOwner }: { workspaceId: stri
         <div id={settingAnchor("connectedAppsPolicy")}>
           <ConnectedAppsSetting workspaceId={workspaceId} settings={settings} canEdit={isOwner} />
         </div>
+        <div id={settingAnchor("onlyApprovedApps")}>
+          <OnlyApprovedAppsSetting workspaceId={workspaceId} settings={settings} canEdit={isOwner} />
+        </div>
       </SettingsGroup>
       {isOwner && (
         <SettingsGroup anchor="sensitiveContent" title={t("sensitiveContent.title")} description={t("sensitiveContent.description")}>
@@ -608,7 +612,13 @@ async function SecurityTab({ workspaceId, userId, isOwner }: { workspaceId: stri
       )}
       {apps && (
         <SettingsGroup anchor="workspaceApps" title={t("security.workspaceApps.title")} description={t("security.workspaceApps.description")}>
-          <WorkspaceApps workspaceId={workspaceId} apps={apps.apps} total={apps.total} mode={connectedAppsMode(settings.connectedApps)} />
+          <WorkspaceApps
+            workspaceId={workspaceId}
+            apps={apps.apps}
+            total={apps.total}
+            mode={connectedAppsMode(settings.connectedApps)}
+            onlyApproved={settings.onlyApprovedApps === true}
+          />
         </SettingsGroup>
       )}
       {!local && (

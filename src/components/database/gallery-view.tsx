@@ -11,14 +11,17 @@ import { pageLabel } from "@/lib/labels";
 import { isHiddenInView } from "@/lib/properties";
 import { firstImageFile } from "@/lib/files";
 import { coverProperty, galleryCover } from "@/lib/views";
+import { firstRows, loadLimitOf } from "@/lib/load-limit";
 import { CardTitleInput } from "./card-title-input";
 import { Floating, useFloating } from "./floating";
+import { LoadMore } from "./load-more";
 import { OpenRowItems } from "./open-row-items";
 import { shownValues, type CreateOption } from "./property-cell";
 import { CardValue, type SetCardValue } from "./card-value";
 import { QuickAddContext } from "./quick-add";
 import { openRowProps, useIsOpenRow, useRowOpener, type RowOpener } from "./row-panel-context";
 import { useNewRow } from "./use-new-row";
+import { ViewSections } from "./view-sections";
 import type { Property, Row, View } from "./types";
 import type { DatabaseApi } from "./use-database";
 
@@ -45,7 +48,7 @@ export function GalleryView({
   colors?: ReadonlyMap<string, RowColors>;
 }) {
   const t = useTranslations("database");
-  const { editTitleOf, typed, create: createNew, stopEditing, quick } = useNewRow(api, view, properties);
+  const { editTitleOf, typed, create: createNew, stopEditing, quick, added } = useNewRow(api, view, properties);
   const size = view.config.cardSize ?? "medium";
   const showIcons = view.config.showIcons !== false;
   const wrapProperties = view.config.wrapProperties === true;
@@ -66,52 +69,68 @@ export function GalleryView({
   const onCardDelete = useCallback((rowId: string) => void api.deleteRow(rowId), [api]);
   const onCardValue = useCallback<SetCardValue>((rowId, propertyId, value) => void api.setCell(rowId, propertyId, value), [api]);
 
-  const add = async () => {
-    await createNew(() => api.createRow());
+  const add = async (values?: Record<string, unknown>) => {
+    await createNew(() => api.createRow(values && Object.keys(values).length ? { properties: values } : {}));
   };
+  // Cards past the view's load limit show after "Load more" (lib/load-limit), per section when grouped.
+  const loadLimit = loadLimitOf(view.config);
+  const [more, setMore] = useState<Record<string, number>>({});
 
   return (
     <QuickAddContext value={quick}>
       <div className="page-gutter pb-6">
-        <div
-          className="grid gap-3"
-          style={{ gridTemplateColumns: `repeat(auto-fill, minmax(min(${CARD_WIDTH[size]}, 100%), 1fr))` }}
-        >
-          {rows.map((row) => (
-            <GalleryCard
-              key={row.id}
-              workspaceId={workspaceId}
-              row={row}
-              showIcon={showIcons}
-              wrap={wrapProperties}
-              props={cardProps}
-              color={colors?.get(row.id)}
-              coverUrl={withCover ? coverOf(row) : null}
-              coverClass={withCover ? COVER_HEIGHT[size] : null}
-              readOnly={readOnly}
-              editTitle={editTitleOf === row.id}
-              typed={editTitleOf === row.id ? typed : undefined}
-              onTitle={onCardTitle}
-              onDelete={onCardDelete}
-              onValue={onCardValue}
-              onCreateOption={api.createOption}
-            />
-          ))}
-          {!readOnly && (
-            <button
-              type="button"
-              onClick={add}
-              className={cn(
-                "flex items-center justify-center gap-1.5 rounded-lg border border-dashed border-border text-sm text-fg-muted hover:bg-bg-hover hover:text-fg",
-                withCover ? "min-h-40" : "min-h-20",
-              )}
-            >
-              <Plus className="h-3.5 w-3.5" />
-              {t("gallery.new")}
-            </button>
-          )}
-        </div>
-        {!rows.length && readOnly && <p className="py-10 text-center text-sm text-fg-muted">{t("gallery.empty")}</p>}
+        <ViewSections view={view} properties={properties} rows={rows} api={api} readOnly={readOnly} onAdd={(values) => void add(values)}>
+          {(sectionRows, group) => {
+            // In sections each group adds its own rows, with its value.
+            const addHere = group ? group.add : readOnly ? undefined : () => void add();
+            const key = group?.key ?? "";
+            const { shown, hidden } = firstRows(sectionRows, loadLimit + (more[key] ?? 0), added);
+            return (
+              <>
+                <div
+                  className="grid gap-3"
+                  style={{ gridTemplateColumns: `repeat(auto-fill, minmax(min(${CARD_WIDTH[size]}, 100%), 1fr))` }}
+                >
+                  {shown.map((row) => (
+                    <GalleryCard
+                      key={row.id}
+                      workspaceId={workspaceId}
+                      row={row}
+                      showIcon={showIcons}
+                      wrap={wrapProperties}
+                      props={cardProps}
+                      color={colors?.get(row.id)}
+                      coverUrl={withCover ? coverOf(row) : null}
+                      coverClass={withCover ? COVER_HEIGHT[size] : null}
+                      readOnly={readOnly}
+                      editTitle={editTitleOf === row.id}
+                      typed={editTitleOf === row.id ? typed : undefined}
+                      onTitle={onCardTitle}
+                      onDelete={onCardDelete}
+                      onValue={onCardValue}
+                      onCreateOption={api.createOption}
+                    />
+                  ))}
+                  {addHere && (
+                    <button
+                      type="button"
+                      onClick={addHere}
+                      className={cn(
+                        "flex items-center justify-center gap-1.5 rounded-lg border border-dashed border-border text-sm text-fg-muted hover:bg-bg-hover hover:text-fg",
+                        withCover ? "min-h-40" : "min-h-20",
+                      )}
+                    >
+                      <Plus className="h-3.5 w-3.5" />
+                      {t("gallery.new")}
+                    </button>
+                  )}
+                </div>
+                {hidden > 0 && <LoadMore hidden={hidden} onClick={() => setMore((m) => ({ ...m, [key]: (m[key] ?? 0) + loadLimit }))} className="mt-2" />}
+                {!group && !rows.length && readOnly && <p className="py-10 text-center text-sm text-fg-muted">{t("gallery.empty")}</p>}
+              </>
+            );
+          }}
+        </ViewSections>
       </div>
     </QuickAddContext>
   );

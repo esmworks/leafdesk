@@ -618,7 +618,8 @@
     "propertyComments": "{count, plural, one {# نظر باز} other {# نظر باز}} دربارهٔ {name}",
     "pinned": "ویژگی‌های سنجاق‌شده",
     "showBeside": "نمایش کنار صفحه",
-    "showAbove": "نمایش بالای صفحه"
+    "showAbove": "نمایش بالای صفحه",
+    "copyValue": "کپی {name}"
   },
   "rowActivity": {
     "title": "فعالیت",
@@ -857,7 +858,17 @@
     "pinColor": "رنگ نشانگر",
     "noPinColor": "هیچ",
     "colorRules": "قواعد رنگ",
-    "wrapProperties": "شکستن خط همه ویژگی‌ها"
+    "wrapProperties": "شکستن خط همه ویژگی‌ها",
+    "loadLimit": "حد بارگذاری",
+    "loadLimitCards": "{count} کارت",
+    "loadMore": "بارگذاری بیشتر",
+    "moreCards": "{count, plural, one {# کارت دیگر} other {# کارت دیگر}}"
+  },
+  "viewMenu": {
+    "label": "تنظیمات نما",
+    "back": "بازگشت",
+    "layoutHint": "نما فیلترها، مرتب‌سازی‌ها و ویژگی‌هایش را نگه می‌دارد.",
+    "shown": "{count} نمایش داده‌شده"
   },
   "gallery": {
     "new": "جدید",
@@ -1161,7 +1172,9 @@
     "expand": "باز کردن {name}",
     "rowCount": "{count, plural, one {# ردیف} other {# ردیف}}",
     "actions": "اقدامات گروه",
-    "addRow": "افزودن ردیف به {name}"
+    "addRow": "افزودن ردیف به {name}",
+    "subGroupBy": "زیرگروه",
+    "colorColumns": "رنگی کردن ستون‌ها"
   },
   "rollup": {
     "title": "تجمیع",
@@ -1896,6 +1909,18 @@
     "viewOnly": "فقط کسانی که به پایگاه داده دسترسی کامل دارند می‌توانند همگام‌سازی را تغییر دهند.",
     "reporter": "گزارش‌دهنده",
     "reporterNone": "همگام نمی‌شود"
+  },
+  "githubPulls": {
+    "button": "همگام با GitHub",
+    "buttonPaused": "همگام‌سازی GitHub متوقف است",
+    "title": "همگام‌سازی GitHub",
+    "lastRun": "آخرین همگام‌سازی {when}، {count, plural, one {# درخواست ادغام} other {# درخواست ادغام}}",
+    "withToken": "با توکن",
+    "withoutToken": "بدون توکن",
+    "overwrite": "منبع GitHub است: ویژگی‌های همگام‌شده و عنوان ردیف‌ها در هر همگام‌سازی بازنویسی می‌شوند، پس آن‌ها را در GitHub تغییر دهید. ویژگی‌هایی که خودتان اضافه می‌کنید همان‌طور می‌مانند و به ردیف درخواست‌های ادغامی که همگام‌سازی دیگر نمی‌آورد دست زده نمی‌شود.",
+    "changeToken": "تغییر توکن",
+    "tokenEmpty": "برای همگام‌سازی بدون توکن خالی بگذارید.",
+    "stopConfirm": "همگام‌سازی این پایگاه داده متوقف شود؟ ردیف‌هایش همان‌طور می‌مانند و توکن فراموش می‌شود."
   },
   "sprints": {
     "menuItem": "اسپرینت‌ها",

@@ -169,9 +169,11 @@ Markdown. Ctrl or ⌘ S saves and Esc closes, asking first when there are unsave
 Saving rewrites the page's text from the Markdown: blocks whose text didn't change keep their
 ids, so links to them and comments on them stay, and a version of the page as it was goes into
 its history first. Before saving, the view names what Markdown can't hold and saving would drop
-(text and background colors, alignment, image sizes, some callout settings, underline, table
-column widths and cell colors), and says so when the Markdown changed lines inside a synced block,
-whose content is edited on the page and kept as it was. When someone else changed the page after
+(text and background colors, alignment, image sizes, some callout settings, underline, merged
+table cells; a table keeps its column widths, header rows and cell colors), and says so when the
+Markdown changed lines inside a synced block you may not edit, which stays as it was. Lines
+changed inside the page's own synced blocks, and those shown from pages you may edit, are saved to
+those synced blocks. When someone else changed the page after
 the Markdown was opened, saving stops and offers to load the page as it is now or to save the
 Markdown over it. Opening and saving need a connection: when it drops, the Markdown stays open
 and can be edited, but Save is off until the connection is back.

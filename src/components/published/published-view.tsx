@@ -4,7 +4,7 @@ import { Copy, Menu } from "lucide-react";
 import Link from "next/link";
 import { getFormatter, getTranslations } from "next-intl/server";
 import type { LoadedPage } from "@/app/s/[token]/load";
-import { backdropClass } from "@/components/page/page-backdrop";
+import { backdropClass, PageCoverBand } from "@/components/page/page-backdrop";
 import { DarkScheme } from "@/components/theme/theme-provider";
 import { PageIcon } from "@/components/ui";
 import { env } from "@/lib/env";
@@ -141,6 +141,7 @@ export async function PublishedView({ loaded }: { loaded: LoadedPage }) {
 
         <div className={cn("flex min-w-0 flex-1 flex-col", backdropClass(data.background))}>
           <DarkScheme dark={data.background?.color === "black"}>
+            <PageCoverBand background={data.background} />
             <main
               className={cn(
                 "w-full min-w-0 flex-1 pb-24",

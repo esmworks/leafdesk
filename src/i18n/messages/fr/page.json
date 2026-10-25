@@ -36,7 +36,6 @@
     "linkCopied": "Lien copié",
     "duplicate": "Dupliquer",
     "duplicateWithoutRows": "Dupliquer sans les lignes",
-    "duplicateSuffix": " (copie)",
     "duplicateFailed": "Impossible de dupliquer la page.",
     "moveTo": "Déplacer vers",
     "style": {
@@ -246,6 +245,7 @@
     "change": "Arrière-plan",
     "colors": "Couleur",
     "patterns": "Motif",
+    "covers": "Couverture",
     "none": "Aucun",
     "remove": "Retirer l’arrière-plan",
     "colorNames": {
@@ -263,6 +263,16 @@
       "plus": "Croix",
       "grid": "Grille",
       "lines": "Lignes"
+    },
+    "coverNames": {
+      "sunrise": "Aurore",
+      "ocean": "Océan",
+      "forest": "Forêt",
+      "dusk": "Crépuscule",
+      "aurora": "Aurore boréale",
+      "sand": "Sable",
+      "mint": "Menthe",
+      "slate": "Ardoise"
     }
   },
   "title": {
@@ -419,9 +429,11 @@
       "full": "Accès complet",
       "edit": "Peut modifier",
       "comment": "Peut commenter",
+      "content": "Peut modifier le contenu",
       "view": "Peut consulter",
       "none": "Aucun accès"
     },
+    "contentHint": "Modifier le texte et les lignes des bases de données, pas les propriétés, vues ou réglages",
     "errors": {
       "notMember": "Cette personne n’est pas membre de l’espace de travail.",
       "lastFullAccess": "Quelqu’un doit conserver un accès complet à la page. Accordez d’abord un accès complet à une autre personne.",
@@ -770,6 +782,8 @@
     "plainCallout": "Encadré simple",
     "addTitle": "Ajouter un titre",
     "removeTitle": "Retirer le titre",
+    "copyOriginalLink": "Copier le lien d'origine",
+    "openInNewTab": "Ouvrir dans un nouvel onglet",
     "quoteSize": "Taille de la citation",
     "quoteSizeDefault": "Par défaut",
     "quoteSizeLarge": "Grande"
@@ -799,10 +813,10 @@
     "noLetterheads": "Les propriétaires peuvent ajouter des en-têtes avec logo et coordonnées dans Paramètres → Modèles PDF.",
     "properties": "Inclure les valeurs de la ligne",
     "comments": "Inclure les commentaires",
-    "textSize": "Taille du texte",
     "hint": "Les diagrammes et les équations sont imprimés en texte ; utilisez Imprimer pour obtenir la page telle qu’elle apparaît.",
     "download": "Télécharger",
-    "preparing": "Préparation…"
+    "preparing": "Préparation…",
+    "textSize": "Taille du texte"
   },
   "spreadsheet": {
     "untitled": "Classeur",
@@ -1067,11 +1081,11 @@
         "mediaSize": "Tailles des images et vidéos",
         "callout": "Couleurs et icônes d’encadrés sans équivalent en Markdown",
         "textStyle": "Une partie de la mise en forme, comme le soulignement",
-        "table": "Largeurs de colonnes, lignes d’en-tête, cellules fusionnées et couleurs de cellules des tableaux",
+        "table": "Cellules fusionnées des tableaux",
         "blockSetting": "Autres réglages de blocs",
         "content": "Du contenu que le Markdown ne peut pas contenir"
       },
-      "synced": "{count, plural, one {Vos modifications dans un bloc synchronisé : modifiez-le plutôt dans la page} other {Vos modifications dans # blocs synchronisés : modifiez-les plutôt dans la page}}",
+      "synced": "{count, plural, one {Vos modifications dans un bloc synchronisé que vous ne pouvez pas modifier} other {Vos modifications dans # blocs synchronisés que vous ne pouvez pas modifier}}",
       "confirm": "Enregistrer quand même"
     },
     "conflict": {

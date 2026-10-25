@@ -50,8 +50,8 @@ dismisses it, one at a time or several; a row changed since in a value the propo
 *Approve anyway*. The person the run worked for hears of new proposals in their inbox, and
 unanswered ones expire after 30 days. Chats with an agent still write directly; the *Request
 answerer* template proposes. An agent's email drafts wait there too (see
-[Email on rows](email-on-rows.md#email-on-rows)). Over MCP: `list_pending_changes`, `approve_pending_change` and
-`dismiss_pending_change`; over the REST API, `/pending-changes`.
+[Email on rows](email-on-rows.md#email-on-rows)). Over MCP: `list_pending_changes` and
+`answer_pending_change`; over the REST API, `/pending-changes`.
 
 **Runs people ask for.** An owner, or anyone who can edit the agent, can ask it to do a task now, over the REST API
 (`POST /api/v1/agents/{id}/runs`) or MCP (`start_agent_run`), with a task of up to 2000
@@ -195,9 +195,8 @@ push notification, without the note's text), whatever their notification choices
 It shows the first proposal's text, unless the run was on a row that owner can't open, and how
 many more the run proposed; opening it opens the agent's *Memory* tab. It can be snoozed, and goes
 away once every proposal of the run has been kept or dismissed (or dropped by a later run). Over
-MCP, owners keep and dismiss proposals with `keep_agent_memory` and `dismiss_agent_memory`, and
-write, change and delete notes with `add_agent_memory`, `update_agent_memory` and
-`delete_agent_memory`; `list_notifications` shows the inbox item with the agent's and run's ids.
+MCP, owners keep and dismiss proposals, and write, change and delete notes, with
+`change_agent_memory`; `list_notifications` shows the inbox item with the agent's and run's ids.
 
 **Handing off.** In an agent's settings, owners tick up to 10 other agents of the workspace under
 *Agents it can ask*. Its runs then get an `ask_agent` tool: the run names one of them, the task (with
@@ -263,9 +262,8 @@ workspace has at most 50 agents. A paused agent doesn't run: its queued runs end
 log as a removed permission) and takes it off the lists;
 its user stays, so what it did keeps its name. A restored agent comes back paused, with nothing
 shared; its skills and memory stay. Creating, changing and archiving agents is recorded in the audit log. Over MCP:
-`list_agents`, `get_agent`, `draft_agent`, `create_agent`, `update_agent`, `archive_agent`, `restore_agent`,
-`set_agent_access`, `set_agent_skill`, `add_agent_memory`, `update_agent_memory`,
-`keep_agent_memory`, `dismiss_agent_memory`, `delete_agent_memory`, `list_agent_runs`,
+`list_agents`, `get_agent`, `draft_agent`, `create_agent`, `update_agent`, `set_agent_archived`,
+`set_agent_access`, `set_agent_skill`, `change_agent_memory`, `set_agent_schedule`, `list_agent_runs`,
 `list_agent_versions`, `restore_agent_version` and `start_agent_run`. Over the REST API: listing, reading and changing agents (pausing, resuming, web access, the
 monthly limit, `row_changes`), asking for a run, and reading runs and usage (see [REST API](rest-api.md#rest-api)).
 

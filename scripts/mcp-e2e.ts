@@ -418,12 +418,12 @@ async function main() {
     "list_workspaces", "search", "list_pages", "get_page", "create_page", "update_page", "archive_page",
     "get_database", "query_database", "create_database_row", "create_database_rows", "update_database_row", "create_database", "add_database_property",
     "update_database_property", "change_database_property_type", "delete_database_property", "create_database_view", "update_database_view", "move_page",
-    "list_recent_pages", "check_workspace", "list_users", "list_trash", "restore_page", "list_page_history", "get_page_version", "diff_page_version", "restore_page_version",
+    "list_recent_pages", "check_workspace", "list_users", "list_trash", "restore_page", "get_page_history", "restore_page_version",
     "list_notifications", "attach_file", "invite_member", "set_property_access", "get_file", "duplicate_page",
     "list_automations", "create_automation", "update_automation", "delete_automation", "list_automation_runs", "publish_automation", "test_automation",
-    "list_agents", "get_agent", "create_agent", "update_agent", "archive_agent", "restore_agent", "set_agent_access", "set_agent_skill", "list_agent_runs", "list_agent_versions", "restore_agent_version", "list_connections",
-    "add_agent_memory", "update_agent_memory", "keep_agent_memory", "dismiss_agent_memory", "delete_agent_memory", "set_agent_connection_tools",
-    "list_skills", "get_skill", "set_skill", "list_memory", "add_memory", "update_memory", "delete_memory",
+    "list_agents", "get_agent", "create_agent", "update_agent", "set_agent_archived", "set_agent_access", "set_agent_skill", "list_agent_runs", "list_agent_versions", "restore_agent_version", "list_connections",
+    "change_agent_memory", "set_agent_schedule", "answer_pending_change", "change_enrollment", "set_agent_connection_tools",
+    "list_skills", "get_skill", "set_skill", "list_memory", "change_memory",
     "list_snippets",
   ];
   check(expected.every((t) => toolNames.includes(t)), "tools/list returns every tool", toolNames);
@@ -680,9 +680,9 @@ async function main() {
     const enrollmentId = started.rows[0].enrollment.id;
     const going = await mcp.ok("list_enrollments", { row_id: lead.id });
     check(going.enrollments?.length === 1 && going.enrollments[0].id === enrollmentId && going.enrollments[0].source === "mcp", "list_enrollments lists the row's", going);
-    const stoppedNow = await mcp.ok("stop_enrollment", { enrollment_id: enrollmentId });
-    check(stoppedNow.status === "stopped" && stoppedNow.reason === "manual", "stop_enrollment stops it", stoppedNow);
-    const resumeStopped = await mcp.call("resume_enrollment", { enrollment_id: enrollmentId });
+    const stoppedNow = await mcp.ok("change_enrollment", { enrollment_id: enrollmentId, action: "stop" });
+    check(stoppedNow.status === "stopped" && stoppedNow.reason === "manual", "change_enrollment stop stops it", stoppedNow);
+    const resumeStopped = await mcp.call("change_enrollment", { enrollment_id: enrollmentId, action: "resume" });
     check(resumeStopped.isError, "a stopped one can't be resumed", resumeStopped.text);
     await db.delete(mailbox).where((await import("drizzle-orm")).eq(mailbox.workspaceId, ws));
     await updateWorkspaceSettings(userIds[0], ws, { email: false });
@@ -850,7 +850,7 @@ async function main() {
   const groupedTable = await mcp.ok("create_database_view", { database_id: dbPage.id, name: "Grouped", group_by: "Status", hide_empty_groups: true });
   check(groupedTable.type === "table" && groupedTable.group_by === "Status" && groupedTable.hide_empty_groups === true, "tables group by a property", groupedTable);
   const calendarGroup = await mcp.call("create_database_view", { database_id: dbPage.id, name: "Bad", type: "calendar", group_by: "Tags" });
-  check(calendarGroup.isError && calendarGroup.text.includes("only applies to board, table, timeline, map and chart views"), "calendars refuse grouping", calendarGroup.text);
+  check(calendarGroup.isError && calendarGroup.text.includes("only applies to board, table, list, gallery, timeline, map and chart views"), "calendars refuse grouping", calendarGroup.text);
 
   // ---- "created by": filled in with each row's creator, filterable on "me", read-only
   await mcp.ok("add_database_property", { database_id: dbPage.id, name: "Created by", type: "created_by" });
@@ -1126,31 +1126,31 @@ async function main() {
   const proposedMemory = await mcp.ok("get_agent", { agent_id: triage.id });
   check(proposedMemory.memory.proposed.length === 2 && proposedMemory.memory.kept.length === 0, "get_agent lists the proposals", proposedMemory.memory);
   const [firstProposal, secondProposal] = proposedMemory.memory.proposed;
-  const keptOver = await mcp.ok("keep_agent_memory", { agent_id: triage.id, memory_id: firstProposal.memory_id, text: `Printers jam on Monday mornings ${RUN}` });
+  const keptOver = await mcp.ok("change_agent_memory", { agent_id: triage.id, action: "keep", memory_id: firstProposal.memory_id, text: `Printers jam on Monday mornings ${RUN}` });
   check(
     keptOver.memory.kept.length === 1 && keptOver.memory.kept[0].text === `Printers jam on Monday mornings ${RUN}` && keptOver.memory.proposed.length === 1,
-    "keep_agent_memory keeps a proposal, changed, and answers with the memory as get_agent shows it",
+    "change_agent_memory keep keeps a proposal, changed, and answers with the memory as get_agent shows it",
     keptOver.memory,
   );
-  const dismissKept = await mcp.call("dismiss_agent_memory", { agent_id: triage.id, memory_ids: [keptOver.memory.kept[0].memory_id] });
-  check(dismissKept.isError && /delete_agent_memory/.test(dismissKept.text), "dismiss_agent_memory leaves kept notes alone and says how to delete them", dismissKept.text);
-  const dismissedOver = await mcp.ok("dismiss_agent_memory", { agent_id: triage.id, all: true });
-  check(dismissedOver.dismissed === 1 && dismissedOver.memory.proposed.length === 0, "dismiss_agent_memory dismisses every proposal", dismissedOver);
+  const dismissKept = await mcp.call("change_agent_memory", { agent_id: triage.id, action: "dismiss", memory_ids: [keptOver.memory.kept[0].memory_id] });
+  check(dismissKept.isError && /action delete/.test(dismissKept.text), "change_agent_memory dismiss leaves kept notes alone and says how to delete them", dismissKept.text);
+  const dismissedOver = await mcp.ok("change_agent_memory", { agent_id: triage.id, action: "dismiss", all: true });
+  check(dismissedOver.dismissed === 1 && dismissedOver.memory.proposed.length === 0, "change_agent_memory dismiss dismisses every proposal", dismissedOver);
   const afterAnswer = await mcp.ok("list_notifications", { workspace_id: ws });
   check(!afterAnswer.notifications.some((n: { kind: string }) => n.kind === "agent_memory"), "once no proposal waits, the inbox item is gone", afterAnswer.notifications);
-  const keepGone = await mcp.call("keep_agent_memory", { agent_id: triage.id, memory_id: secondProposal.memory_id });
+  const keepGone = await mcp.call("change_agent_memory", { agent_id: triage.id, action: "keep", memory_id: secondProposal.memory_id });
   check(keepGone.isError && /get_agent/.test(keepGone.text), "keeping a dismissed proposal is a tool error pointing at get_agent", keepGone.text);
-  const ownNote = await mcp.ok("add_agent_memory", { agent_id: triage.id, text: `Escalate outages to IT ${RUN}` });
+  const ownNote = await mcp.ok("change_agent_memory", { agent_id: triage.id, action: "add", text: `Escalate outages to IT ${RUN}` });
   const ownId = ownNote.memory.kept.find((n: { text: string }) => n.text.startsWith("Escalate"))?.memory_id;
-  check(ownNote.memory.kept.length === 2 && ownId, "add_agent_memory writes a kept note", ownNote.memory);
-  const changedOwn = await mcp.ok("update_agent_memory", { agent_id: triage.id, memory_id: ownId, text: `Escalate outages to IT at once ${RUN}` });
-  check(changedOwn.memory.kept.some((n: { text: string }) => n.text === `Escalate outages to IT at once ${RUN}`), "update_agent_memory changes it", changedOwn.memory);
-  const emptyNote = await mcp.call("add_agent_memory", { agent_id: triage.id, text: "   " });
+  check(ownNote.memory.kept.length === 2 && ownId, "change_agent_memory add writes a kept note", ownNote.memory);
+  const changedOwn = await mcp.ok("change_agent_memory", { agent_id: triage.id, action: "update", memory_id: ownId, text: `Escalate outages to IT at once ${RUN}` });
+  check(changedOwn.memory.kept.some((n: { text: string }) => n.text === `Escalate outages to IT at once ${RUN}`), "change_agent_memory update changes it", changedOwn.memory);
+  const emptyNote = await mcp.call("change_agent_memory", { agent_id: triage.id, action: "add", text: "   " });
   check(emptyNote.isError && /needs text/.test(emptyNote.text), "an empty note is a tool error", emptyNote.text);
-  const deletedOwn = await mcp.ok("delete_agent_memory", { agent_id: triage.id, memory_ids: [ownId] });
-  check(deletedOwn.deleted === 1 && deletedOwn.memory.kept.length === 1, "delete_agent_memory deletes a kept note", deletedOwn);
-  const forgotAll = await mcp.ok("delete_agent_memory", { agent_id: triage.id, all: true });
-  check(forgotAll.memory.kept.length === 0, "delete_agent_memory all makes the agent forget everything", forgotAll.memory);
+  const deletedOwn = await mcp.ok("change_agent_memory", { agent_id: triage.id, action: "delete", memory_ids: [ownId] });
+  check(deletedOwn.deleted === 1 && deletedOwn.memory.kept.length === 1, "change_agent_memory delete deletes a kept note", deletedOwn);
+  const forgotAll = await mcp.ok("change_agent_memory", { agent_id: triage.id, action: "delete", all: true });
+  check(forgotAll.memory.kept.length === 0, "change_agent_memory delete all makes the agent forget everything", forgotAll.memory);
 
   // Connections: owners list them (none yet here) and choose an agent's tools on one.
   const conns = await mcp.ok("list_connections", { workspace_id: ws, agent_id: triage.id });
@@ -1298,28 +1298,28 @@ async function main() {
   const memoryUser = userIds[0];
   const emptyMemory = await mcp.ok("list_memory", { workspace_id: ws });
   check(emptyMemory.memory === "on" && emptyMemory.notes.length === 0, "list_memory starts empty", emptyMemory);
-  const remembered = await mcp.ok("add_memory", { workspace_id: ws, text: `Leads the support team ${RUN}` });
+  const remembered = await mcp.ok("change_memory", { workspace_id: ws, action: "add", text: `Leads the support team ${RUN}` });
   const roleId = remembered.added?.memory_id as string;
-  check(roleId && remembered.notes.length === 1 && !remembered.already_remembered, "add_memory keeps a note and answers with the user's notes", remembered);
+  check(roleId && remembered.notes.length === 1 && !remembered.already_remembered, "change_memory add keeps a note and answers with the user's notes", remembered);
   check(remembered.notes[0].kept_by_app === full.client_name, "…naming the app that kept it", remembered.notes[0]);
   check((await personal.listMemories(memoryUser, ws))[0]?.app === full.client_name, "…as the Memory view does");
-  const twice = await mcp.ok("add_memory", { workspace_id: ws, text: `  leads the SUPPORT   team ${RUN} ` });
+  const twice = await mcp.ok("change_memory", { workspace_id: ws, action: "add", text: `  leads the SUPPORT   team ${RUN} ` });
   check(twice.already_remembered === true && twice.added.memory_id === roleId && twice.notes.length === 1, "the same note again (case and spaces aside) is kept once", twice);
-  const corrected = await mcp.ok("update_memory", { workspace_id: ws, memory_id: roleId, text: `Leads the billing team ${RUN}` });
+  const corrected = await mcp.ok("change_memory", { workspace_id: ws, action: "update", memory_id: roleId, text: `Leads the billing team ${RUN}` });
   check(
     corrected.updated.memory_id === roleId && !corrected.merged && corrected.notes.length === 1 && corrected.notes[0].text === `Leads the billing team ${RUN}`,
-    "update_memory corrects a note",
+    "change_memory update corrects a note",
     corrected,
   );
-  const tone = await mcp.ok("add_memory", { workspace_id: ws, text: `Wants short answers ${RUN}` });
+  const tone = await mcp.ok("change_memory", { workspace_id: ws, action: "add", text: `Wants short answers ${RUN}` });
   const toneId = tone.added.memory_id as string;
-  const mergedTone = await mcp.ok("update_memory", { workspace_id: ws, memory_id: toneId, text: `leads the billing team ${RUN}` });
+  const mergedTone = await mcp.ok("change_memory", { workspace_id: ws, action: "update", memory_id: toneId, text: `leads the billing team ${RUN}` });
   check(
     mergedTone.merged === true && mergedTone.updated.memory_id === roleId && mergedTone.notes.length === 1,
-    "update_memory into the text of another note merges the two, and says so",
+    "change_memory update into the text of another note merges the two, and says so",
     mergedTone,
   );
-  const tone2 = await mcp.ok("add_memory", { workspace_id: ws, text: `Wants short answers ${RUN}` });
+  const tone2 = await mcp.ok("change_memory", { workspace_id: ws, action: "add", text: `Wants short answers ${RUN}` });
   const tone2Id = tone2.added.memory_id as string;
   // A note the person changes in Leafdesk is theirs again.
   await personal.updateMemory(memoryUser, ws, tone2Id, `Wants short answers with links ${RUN}`);
@@ -1332,85 +1332,85 @@ async function main() {
   );
   const forPrompt = await personal.memoryForPrompt(memoryUser, ws, 4000);
   check(forPrompt.count === 2 && forPrompt.text.includes(`Leads the billing team ${RUN}`), "the AI chat's questions carry the notes kept over MCP", forPrompt);
-  const tooLongNote = await mcp.call("add_memory", { workspace_id: ws, text: "x".repeat(301) });
+  const tooLongNote = await mcp.call("change_memory", { workspace_id: ws, action: "add", text: "x".repeat(301) });
   check(tooLongNote.isError, "a note over 300 characters is refused", tooLongNote.text);
-  const emptyPersonal = await mcp.call("add_memory", { workspace_id: ws, text: "   " });
+  const emptyPersonal = await mcp.call("change_memory", { workspace_id: ws, action: "add", text: "   " });
   check(emptyPersonal.isError && /needs text/.test(emptyPersonal.text), "an empty note is refused", emptyPersonal.text);
-  const wrongNote = await mcp.call("update_memory", { workspace_id: ws, memory_id: "00000000-0000-0000-0000-000000000000", text: "x" });
-  check(wrongNote.isError && /list_memory/.test(wrongNote.text), "update_memory on an unknown memory_id points at list_memory", wrongNote.text);
+  const wrongNote = await mcp.call("change_memory", { workspace_id: ws, action: "update", memory_id: "00000000-0000-0000-0000-000000000000", text: "x" });
+  check(wrongNote.isError && /list_memory/.test(wrongNote.text), "change_memory update on an unknown memory_id points at list_memory", wrongNote.text);
   // Someone else's notes stay theirs: not listed, not deleted.
   const theirs = await personal.addMemory(colleagueId, ws, `Colleague note ${RUN}`);
   const mine = await mcp.ok("list_memory", { workspace_id: ws });
-  const deleteTheirs = await mcp.ok("delete_memory", { workspace_id: ws, memory_ids: [theirs.id] });
+  const deleteTheirs = await mcp.ok("change_memory", { workspace_id: ws, action: "delete", memory_ids: [theirs.id] });
   check(!mine.notes.some((n: { memory_id: string }) => n.memory_id === theirs.id) && mine.notes.length === 2, "list_memory shows only the user's own notes", mine);
   check(
     deleteTheirs.deleted === 0 && deleteTheirs.not_found?.[0] === theirs.id && (await personal.listMemories(colleagueId, ws)).length === 1,
-    "delete_memory leaves another person's note alone, listing its id as not found",
+    "change_memory delete leaves another person's note alone, listing its id as not found",
     deleteTheirs,
   );
   // The limits are the chat's: 30 notes.
   for (let i = 0; i < 28; i++) await personal.addMemory(memoryUser, ws, `Filler ${i} ${RUN}`);
-  const memoryFull = await mcp.call("add_memory", { workspace_id: ws, text: `One too many ${RUN}` });
+  const memoryFull = await mcp.call("change_memory", { workspace_id: ws, action: "add", text: `One too many ${RUN}` });
   check(memoryFull.isError && /full \(30 notes\)/.test(memoryFull.text), "a full memory is refused with a next step", memoryFull.text);
   const fillers = (await personal.listMemories(memoryUser, ws)).filter((n) => n.text.startsWith("Filler")).map((n) => n.id);
-  const deletedFillers = await mcp.ok("delete_memory", { workspace_id: ws, memory_ids: fillers });
-  check(deletedFillers.deleted === 28 && !deletedFillers.not_found && deletedFillers.notes.length === 2, "delete_memory deletes notes by memory_ids", deletedFillers);
-  const deletedAgain = await mcp.call("delete_memory", { workspace_id: ws, memory_ids: fillers.slice(0, 2) });
+  const deletedFillers = await mcp.ok("change_memory", { workspace_id: ws, action: "delete", memory_ids: fillers });
+  check(deletedFillers.deleted === 28 && !deletedFillers.not_found && deletedFillers.notes.length === 2, "change_memory delete deletes notes by memory_ids", deletedFillers);
+  const deletedAgain = await mcp.call("change_memory", { workspace_id: ws, action: "delete", memory_ids: fillers.slice(0, 2) });
   check(!deletedAgain.isError && deletedAgain.data?.deleted === 0, "the same delete again does no harm", deletedAgain.text);
   // Off by the user's own switch, or by the owners' for the workspace: nothing read or kept.
   await personal.setMemoryUse(memoryUser, ws, false);
   const personOff = await mcp.ok("list_memory", { workspace_id: ws });
-  const personOffWrite = await mcp.call("add_memory", { workspace_id: ws, text: `Likes tables ${RUN}` });
+  const personOffWrite = await mcp.call("change_memory", { workspace_id: ws, action: "add", text: `Likes tables ${RUN}` });
   await personal.setMemoryUse(memoryUser, ws, true);
   check(
     personOff.memory === "off" && personOff.notes.length === 0 && personOff.notes_kept === 2 && /Use memory/.test(personOff.why),
     "with the user's own switch off, list_memory shows no notes, only how many",
     personOff,
   );
-  check(personOffWrite.isError && /turned their memory off/.test(personOffWrite.text), "…and add_memory says the user turned it off", personOffWrite.text);
+  check(personOffWrite.isError && /turned their memory off/.test(personOffWrite.text), "…and change_memory add says the user turned it off", personOffWrite.text);
   await updateWorkspaceSettings(memoryUser, ws, { aiMemory: false });
   const workspaceOff = await mcp.ok("list_memory", {});
-  const workspaceOffWrite = await mcp.call("update_memory", { workspace_id: ws, memory_id: roleId, text: `Leads support ${RUN}` });
+  const workspaceOffWrite = await mcp.call("change_memory", { workspace_id: ws, action: "update", memory_id: roleId, text: `Leads support ${RUN}` });
   const offEntry = workspaceOff.workspaces.find((w: { workspace_id: string }) => w.workspace_id === ws);
   check(offEntry?.memory === "off" && offEntry.notes.length === 0 && /owners turned/.test(offEntry.why), "with the owners' switch off, list_memory shows no notes", workspaceOff);
-  check(workspaceOffWrite.isError && /owners turned the AI memory off/.test(workspaceOffWrite.text), "…and update_memory says the owners turned it off", workspaceOffWrite.text);
+  check(workspaceOffWrite.isError && /owners turned the AI memory off/.test(workspaceOffWrite.text), "…and change_memory update says the owners turned it off", workspaceOffWrite.text);
   check((await personal.listMemories(memoryUser, ws)).length === 2, "neither switch deletes a note");
-  const offDelete = await mcp.ok("delete_memory", { workspace_id: ws, memory_ids: [tone2Id] });
+  const offDelete = await mcp.ok("change_memory", { workspace_id: ws, action: "delete", memory_ids: [tone2Id] });
   await updateWorkspaceSettings(memoryUser, ws, { aiMemory: true });
   check(offDelete.deleted === 1 && offDelete.memory === "off" && offDelete.notes_kept === 1, "…but the user can still have a note deleted while it is off", offDelete);
   await updateWorkspaceSettings(memoryUser, ws, { connectedApps: "read" });
-  const readOnlyRemember = await mcp.call("add_memory", { workspace_id: ws, text: `Likes tables ${RUN}` });
+  const readOnlyRemember = await mcp.call("change_memory", { workspace_id: ws, action: "add", text: `Likes tables ${RUN}` });
   const readOnlyMemory = await mcp.call("list_memory", { workspace_id: ws });
   await updateWorkspaceSettings(memoryUser, ws, { connectedApps: "full" });
-  check(readOnlyRemember.isError && /only read/.test(readOnlyRemember.text), "add_memory in a workspace where apps may only read says so", readOnlyRemember.text);
+  check(readOnlyRemember.isError && /only read/.test(readOnlyRemember.text), "change_memory add in a workspace where apps may only read says so", readOnlyRemember.text);
   check(!readOnlyMemory.isError, "…while list_memory still reads", readOnlyMemory.text);
-  const deletedEverything = await mcp.ok("delete_memory", { workspace_id: ws, all: true });
-  check(deletedEverything.deleted === 1 && deletedEverything.notes.length === 0, "delete_memory all deletes every note of the user in the workspace", deletedEverything);
+  const deletedEverything = await mcp.ok("change_memory", { workspace_id: ws, action: "delete", all: true });
+  check(deletedEverything.deleted === 1 && deletedEverything.notes.length === 0, "change_memory delete all deletes every note of the user in the workspace", deletedEverything);
   check((await personal.listMemories(colleagueId, ws)).length === 1, "…and only theirs");
 
   const unshared = await mcp.ok("set_agent_access", { agent_id: triage.id, page_id: root.id, level: "remove" });
   check(!unshared.access.pages.some((p: { page_id: string }) => p.page_id === root.id), "set_agent_access remove stops sharing a page", unshared.access);
-  const archivedAgent = await mcp.ok("archive_agent", { agent_id: triage.id });
-  check(archivedAgent.archived === true && archivedAgent.enabled === false, "archive_agent archives and pauses the agent", archivedAgent);
+  const archivedAgent = await mcp.ok("set_agent_archived", { agent_id: triage.id, archived: true });
+  check(archivedAgent.archived === true && archivedAgent.enabled === false, "set_agent_archived archives and pauses the agent", archivedAgent);
   const afterArchive = await mcp.ok("list_agents", { workspace_id: ws });
   const withArchived = await mcp.ok("list_agents", { workspace_id: ws, include_archived: true });
   check(afterArchive.agents.length === 0 && withArchived.agents[0]?.archived === true, "archived agents are listed only when asked", { afterArchive, withArchived });
   const changeArchived = await mcp.call("update_agent", { agent_id: triage.id, name: "x" });
-  check(changeArchived.isError && /restore_agent/.test(changeArchived.text), "an archived agent can't be changed until restored", changeArchived.text);
-  const restoredAgent = await mcp.ok("restore_agent", { agent_id: triage.id });
+  check(changeArchived.isError && /set_agent_archived/.test(changeArchived.text), "an archived agent can't be changed until restored", changeArchived.text);
+  const restoredAgent = await mcp.ok("set_agent_archived", { agent_id: triage.id, archived: false });
   const restoredAccess = await mcp.ok("get_agent", { agent_id: triage.id });
   check(
     restoredAgent.archived === false && restoredAgent.enabled === false && restoredAccess.access.pages.length === 0,
-    "restore_agent brings it back paused, with nothing shared",
+    "set_agent_archived false brings it back paused, with nothing shared",
     restoredAccess,
   );
 
   // ---- history: read an old version and bring it back
-  const history = await mcp.ok("list_page_history", { page_id: root.id });
-  check(history.versions.some((v: { by: string | null }) => v.by?.includes(" via ")), "list_page_history names the MCP client", history);
+  const history = await mcp.ok("get_page_history", { page_id: root.id });
+  check(history.versions.some((v: { by: string | null }) => v.by?.includes(" via ")), "get_page_history names the MCP client", history);
   const oldest = history.versions.at(-1);
-  const version = await mcp.ok("get_page_version", { version_id: oldest.id });
-  check(version.markdown.includes("First paragraph") && version.page_id === root.id, "get_page_version returns the old body", version);
+  const version = await mcp.ok("get_page_history", { version_id: oldest.id });
+  check(version.markdown.includes("First paragraph") && version.page_id === root.id, "get_page_history returns the old body", version);
   await mcp.ok("restore_page_version", { version_id: oldest.id });
   page = await mcp.ok("get_page", { page_id: root.id });
   check(page.markdown.includes("First paragraph") && !page.markdown.includes("Replaced body"), "restore_page_version brings the old body back", page.markdown);

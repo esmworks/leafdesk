@@ -256,7 +256,7 @@ try {
 
   // A copy of the database keeps dependencies on its own properties
   await setDependencies(ids.owner, tasks.id, { on: true, settings: { endPropertyId: end.id } });
-  const copied = await duplicatePage(actor, tasks.id, " (copy)");
+  const copied = await duplicatePage(actor, tasks.id);
   const copyProps = await getProperties(copied.id);
   const copyBy = blockedByProperty(copyProps);
   const copySettings = copyBy && dependencySettings(copyBy, copyProps);

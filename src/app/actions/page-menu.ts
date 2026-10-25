@@ -1,6 +1,5 @@
 "use server";
 
-import { getTranslations } from "next-intl/server";
 import { revalidatePath } from "next/cache";
 import { duplicatePage } from "@/server/duplicate";
 import { setDatabaseLocked } from "@/server/databases";
@@ -70,9 +69,8 @@ export async function duplicatePageAction(
   options: { withoutRows?: boolean } = {},
 ): Promise<{ ok: true; id: string; workspaceId: string } | { ok: false }> {
   const userId = await requireUserId();
-  const t = await getTranslations("page.header");
   try {
-    const copy = await duplicatePage({ userId }, pageId, t("duplicateSuffix"), { withoutRows: options.withoutRows === true });
+    const copy = await duplicatePage({ userId }, pageId, { withoutRows: options.withoutRows === true });
     return { ok: true, ...copy };
   } catch (error) {
     console.error("[duplicate page]", error);

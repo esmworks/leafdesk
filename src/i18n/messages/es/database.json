@@ -618,7 +618,8 @@
     "propertyComments": "{count, plural, one {# comentario abierto} other {# comentarios abiertos}} sobre {name}",
     "pinned": "Propiedades fijadas",
     "showBeside": "Mostrar junto a la página",
-    "showAbove": "Mostrar encima de la página"
+    "showAbove": "Mostrar encima de la página",
+    "copyValue": "Copiar {name}"
   },
   "rowActivity": {
     "title": "Actividad",
@@ -857,7 +858,17 @@
     "pinColor": "Color del marcador",
     "noPinColor": "Ninguno",
     "colorRules": "Reglas de color",
-    "wrapProperties": "Ajustar todas las propiedades"
+    "wrapProperties": "Ajustar todas las propiedades",
+    "loadLimit": "Límite de carga",
+    "loadLimitCards": "{count} tarjetas",
+    "loadMore": "Cargar más",
+    "moreCards": "{count, plural, one {# tarjeta más} other {# tarjetas más}}"
+  },
+  "viewMenu": {
+    "label": "Configuración de la vista",
+    "back": "Atrás",
+    "layoutHint": "La vista conserva sus filtros, ordenaciones y propiedades.",
+    "shown": "{count} visibles"
   },
   "gallery": {
     "new": "Nuevo",
@@ -1161,7 +1172,9 @@
     "expand": "Expandir {name}",
     "rowCount": "{count, plural, one {# fila} other {# filas}}",
     "actions": "Acciones de grupo",
-    "addRow": "Añadir una fila a {name}"
+    "addRow": "Añadir una fila a {name}",
+    "subGroupBy": "Subgrupo",
+    "colorColumns": "Colorear columnas"
   },
   "rollup": {
     "title": "Agregación",
@@ -1896,6 +1909,18 @@
     "viewOnly": "Solo las personas con acceso completo a la base de datos pueden cambiar la sincronización.",
     "reporter": "Informador",
     "reporterNone": "Sin sincronizar"
+  },
+  "githubPulls": {
+    "button": "Sincronizada desde GitHub",
+    "buttonPaused": "Sincronización con GitHub en pausa",
+    "title": "Sincronización con GitHub",
+    "lastRun": "Última sincronización {when}, {count, plural, one {# pull request} other {# pull requests}}",
+    "withToken": "Con un token",
+    "withoutToken": "Sin token",
+    "overwrite": "GitHub es la fuente: las propiedades sincronizadas y los títulos de las filas se sobrescriben en cada sincronización, así que cámbialos en GitHub. Las propiedades que añadas tú se quedan como están, y las filas de pull requests que la sincronización ya no toma no se tocan.",
+    "changeToken": "Cambiar el token",
+    "tokenEmpty": "Déjalo vacío para sincronizar sin token.",
+    "stopConfirm": "¿Dejar de sincronizar esta base de datos? Sus filas se quedan como están y el token se olvida."
   },
   "sprints": {
     "menuItem": "Sprints",

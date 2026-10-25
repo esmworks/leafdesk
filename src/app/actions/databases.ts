@@ -203,10 +203,7 @@ export async function setRowsIconAction(databaseId: string, rowIds: string[], ic
 }
 
 export async function duplicateRowsAction(databaseId: string, rowIds: string[]) {
-  return run(async (userId) => {
-    const t = await getTranslations("page.header");
-    return duplicateRows({ userId }, databaseId, rowIds, t("duplicateSuffix"));
-  });
+  return run((userId) => duplicateRows({ userId }, databaseId, rowIds));
 }
 
 /** What merging these rows would bring together (the merge dialog). */
@@ -397,7 +394,7 @@ export async function duplicateViewAction(viewId: string, name: string) {
   return run((userId) => databases.duplicateView(userId, viewId, name.slice(0, 200)));
 }
 
-export async function updateViewAction(viewId: string, patch: { name?: string; config?: ViewConfig }) {
+export async function updateViewAction(viewId: string, patch: { name?: string; config?: ViewConfig; type?: ViewType }) {
   return run((userId) => databases.updateView(userId, viewId, patch));
 }
 

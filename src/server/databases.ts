@@ -44,12 +44,12 @@ import { dropPropertyReferences } from "@/lib/duplicate";
 import { keepDeleted, livePropertyValues, uniqueName, withoutDeleted, type DeletedProperty, type DeletedView } from "@/lib/deleted-schema";
 import { colorRuleFilters } from "@/lib/color-rules";
 import { filterConfigError, filterRules, mapFilterRules } from "@/lib/filters";
-import { chartGroupProperty } from "@/lib/chart";
 import { defaultDashboardWidgets } from "@/lib/dashboard";
 import { defaultFormConfig, formSchemaError } from "@/lib/forms";
 import { readPlaceInput } from "@/lib/place";
 import { GeocoderError, geocodeAddress } from "./geocoder";
 import { configsOf, DEFAULT_VIEW_NAMES, galleryCover, isViewType, layoutConfigError } from "@/lib/views";
+import { canSwitchLayout, layoutDefaults, SWITCHABLE_VIEW_TYPES } from "@/lib/view-layouts";
 import {
   holdsOptions,
   holdsPeople,
@@ -312,7 +312,8 @@ export async function knownRelatedSchemas(userId: string, props: Pick<DatabasePr
 /**
  * Rollups that sum, average… a number property (or a formula giving a number) get its format
  * (RollupConfig.number), so they show in it and filters compare what they show; read each time, a
- * change of that format shows at once.
+ * change of that format shows at once. Rollups showing URL, email or phone values as they are
+ * say so (RollupConfig.links), so their values show as links.
  */
 async function withRollupUnits(properties: DatabaseProperty[]): Promise<DatabaseProperty[]> {
   const related = new Map(properties.flatMap((p) => (p.type === "relation" && p.options.relation ? [[p.id, p.options.relation.databaseId]] : [])));
@@ -325,7 +326,9 @@ async function withRollupUnits(properties: DatabaseProperty[]): Promise<Database
     const databaseId = databaseOf(p);
     const target = config && databaseId ? targets.get(databaseId)?.find((t) => t.id === config.targetPropertyId) : undefined;
     const number = config && target ? calculationFormat(config.function, { number: valueFormat(target) }) : undefined;
-    return number ? { ...p, options: { ...p.options, rollup: { ...config!, number } } } : p;
+    const links =
+      config?.function === "show_original" && (target?.type === "url" || target?.type === "email" || target?.type === "phone") ? target.type : undefined;
+    return number || links ? { ...p, options: { ...p.options, rollup: { ...config!, ...(number ? { number } : {}), ...(links ? { links } : {}) } } } : p;
   });
 }
 
@@ -961,7 +964,7 @@ export async function dropCopiedSubItems(rowId: string, databaseId: string, prop
 }
 
 export async function updateRowProperties(userId: string, rowId: string, patch: Record<string, unknown>) {
-  const row = await requirePageAccess(userId, rowId, "edit");
+  const row = await requirePageAccess(userId, rowId, "content");
   if (!row.parentId) throw withCode(new Error("Page is not a database row"), "notADatabaseRow");
   assertNotInTrash(row);
   await requireDatabase(userId, row.parentId, "view");
@@ -1075,7 +1078,7 @@ export async function updateRowsProperties(
   const ids = bulkRowIds(rowIds);
   await requireDatabase(userId, databaseId, "view");
   const normalized = await normalizeRowProperties(userId, databaseId, patch, {}, { check: false, dependencies: false });
-  const found = await rowsWithAccess(userId, databaseId, ids, "edit");
+  const found = await rowsWithAccess(userId, databaseId, ids, "content");
   // Rows where property access keeps the user from these values are skipped like rows they can't edit.
   const access = await propertyAccessFor(userId, databaseId);
   const rows = found.rows.filter((row) => {
@@ -1252,7 +1255,7 @@ async function shiftWaitingRows(
   });
   if (!plan.length) return;
 
-  const found = await rowsWithAccess(actorId, databaseId, plan.map((s) => s.id), "edit");
+  const found = await rowsWithAccess(actorId, databaseId, plan.map((s) => s.id), "content");
   const access = await propertyAccessFor(actorId, databaseId);
   const shifts: { rowId: string; before: Record<string, unknown>; after: Record<string, unknown> }[] = [];
   for (const row of found.rows) {
@@ -1291,7 +1294,7 @@ export type NewRow = { title: string; properties?: Record<string, unknown> };
  * bad value leaves the database unchanged and a retried import doesn't leave duplicates behind.
  */
 export async function createRows(userId: string, databaseId: string, rows: NewRow[]) {
-  const database = await requireDatabase(userId, databaseId, "edit");
+  const database = await requireDatabase(userId, databaseId, "content");
   if (database.archivedAt) throw withCode(new AccessError("Parent page is in the trash"), "parentInTrash");
   if (!rows.length) return [];
 
@@ -1385,6 +1388,25 @@ async function uniquePropertyName(databaseId: string, name: string, exec: Execut
     .from(databaseProperty)
     .where(and(eq(databaseProperty.databaseId, databaseId), isNull(databaseProperty.deletedAt)));
   return uniqueName(name, names.filter((p) => p.id !== except).map((p) => p.name));
+}
+
+/**
+ * Whether row pages of the database hide some property while it is empty: new properties then
+ * start hidden while empty too (lib/page-visibility).
+ */
+async function hidesEmpty(exec: Executor, databaseId: string) {
+  const [found] = await exec
+    .select({ id: databaseProperty.id })
+    .from(databaseProperty)
+    .where(
+      and(
+        eq(databaseProperty.databaseId, databaseId),
+        isNull(databaseProperty.deletedAt),
+        sql`${databaseProperty.options} ->> 'pageVisibility' = 'hide_empty'`,
+      ),
+    )
+    .limit(1);
+  return !!found;
 }
 
 /**
@@ -1721,7 +1743,7 @@ export async function addProperty(
         databaseId,
         name,
         type: input.type,
-        options,
+        options: (await hidesEmpty(tx, databaseId)) ? { ...options, pageVisibility: "hide_empty" } : options,
         position: await nextPropertyPosition(databaseId, tx),
       })
       .returning();
@@ -1738,7 +1760,10 @@ export async function addProperty(
         databaseId: target.id,
         name: pairedName,
         type: "relation",
-        options: { relation: { databaseId, pairedPropertyId: created.id } },
+        options: {
+          relation: { databaseId, pairedPropertyId: created.id },
+          ...((await hidesEmpty(tx, target.id)) ? { pageVisibility: "hide_empty" as const } : {}),
+        },
         position: await nextPropertyPosition(target.id, tx),
       })
       .returning();
@@ -2996,20 +3021,13 @@ export async function addView(userId: string, databaseId: string, input: { name:
   const props = access.visible(all);
   const formError = input.config?.form && formSchemaError(input.config.form, props);
   if (formError) throw new PropertyValueError(formError, "invalidViewConfig");
-  const config: ViewConfig = {};
-  if (input.type === "board") config.groupBy = props.find((p) => p.type === "select" || p.type === "status")?.id;
-  if (input.type === "calendar") {
-    config.dateBy = props.find((p) => p.type === "date")?.id;
-    // Calendar entries are small: show only titles until the user picks properties to show.
-    config.hidden = all.map((p) => p.id);
-  }
-  // Timelines start without swimlanes and with a week per column; list rows and timeline bars show
-  // only titles until the user picks properties (see hiddenByDefault).
-  if (input.type === "timeline") config.dateBy = props.find((p) => p.type === "date")?.id;
-  // Maps put rows on the first place property.
-  if (input.type === "map") config.placeBy = props.find((p) => p.type === "place")?.id;
-  // Charts count rows per option of the property a board would group by, in columns.
-  if (input.type === "chart") config.groupBy = chartGroupProperty(props, {})?.id;
+  // Boards group by the first select or status, calendars and timelines go by the first date, maps
+  // by the first place, and charts count rows per option of what a board would group by (see
+  // lib/view-layouts). Timelines start without swimlanes and with a week per column; list rows and
+  // timeline bars show only titles until the user picks properties (see hiddenByDefault).
+  const config: ViewConfig = layoutDefaults(input.type, props, {});
+  // Calendar entries are small: show only titles until the user picks properties to show.
+  if (input.type === "calendar") config.hidden = all.map((p) => p.id);
   // Forms start out asking for the name and every property a form can ask for.
   if (input.type === "form") config.form = defaultFormConfig(props);
   // Dashboards start with a few widgets over what the maker may see (see lib/dashboard).
@@ -3058,7 +3076,7 @@ async function requireView(userId: string, viewId: string, { deleted = false } =
 }
 
 /** Returns the view's config as stored (a form's defaults normalized to ids). */
-export async function updateView(userId: string, viewId: string, patch: { name?: string; config?: ViewConfig }) {
+export async function updateView(userId: string, viewId: string, patch: { name?: string; config?: ViewConfig; type?: ViewType }) {
   // Configs come from the client and from MCP; a malformed filter tree would break every viewer.
   const filterError = patch.config && filterConfigError(patch.config);
   if (filterError) throw new PropertyValueError(filterError, "invalidFilter");
@@ -3075,6 +3093,18 @@ export async function updateView(userId: string, viewId: string, patch: { name?:
   // Filters, sorts and layout stay adjustable on a locked database; renaming (and its icon) doesn't.
   if (patch.name !== undefined || (patch.config && patch.config.icon !== view.config.icon)) assertUnlocked(view);
   const access = await propertyAccessFor(userId, view.databaseId);
+  // Another layout keeps the view's settings and gets what it is placed by when it has none yet
+  // (lib/view-layouts). Like the rest of the layout, it may change on a locked database.
+  const type = patch.type !== undefined && patch.type !== view.type ? patch.type : undefined;
+  if (type !== undefined) {
+    if (!isViewType(type) || !canSwitchLayout(view.type, type)) {
+      throw new PropertyValueError(`A view can switch only between ${SWITCHABLE_VIEW_TYPES.join(", ")}`, "unsupportedViewType", {
+        type: String(type),
+      });
+    }
+    const config = patch.config ?? view.config;
+    patch = { ...patch, config: { ...config, ...layoutDefaults(type, access.visible(await getProperties(view.databaseId)), config) } };
+  }
   // A form's conditions and choice limits must fit the properties the editor knows of.
   if (patch.config?.form) {
     const formError = formSchemaError(patch.config.form, access.visible(await getProperties(view.databaseId)), view.config.form);
@@ -3112,11 +3142,12 @@ export async function updateView(userId: string, viewId: string, patch: { name?:
     .set({
       ...(patch.name !== undefined ? { name: patch.name.trim() || view.name } : {}),
       ...(patch.config !== undefined ? { config: patch.config } : {}),
+      ...(type !== undefined ? { type } : {}),
     })
     .where(eq(databaseView.id, viewId));
   notifySchema(view.databaseId);
   if (patch.name !== undefined) notifyTree(view.workspaceId);
-  return { config: access.viewConfig(withoutDeleted(patch.config ?? view.config, deleted)) };
+  return { type: type ?? view.type, config: access.viewConfig(withoutDeleted(patch.config ?? view.config, deleted)) };
 }
 
 /**
@@ -3304,7 +3335,7 @@ export async function moveRow(
     groupFrom,
   }: { position?: number; groupBy?: string; groupValue?: string | null; groupFrom?: string | null },
 ) {
-  const row = await requirePageAccess(userId, rowId, "edit");
+  const row = await requirePageAccess(userId, rowId, "content");
   if (!row.parentId) throw withCode(new Error("Page is not a database row"), "notADatabaseRow");
   await requireDatabase(userId, row.parentId, "view");
   const properties = { ...row.properties };
@@ -3350,7 +3381,7 @@ export async function moveRow(
  * neighbour's position.
  */
 export async function moveRowBeside(userId: string, rowId: string, targetId: string, side: "before" | "after") {
-  const row = await requirePageAccess(userId, rowId, "edit");
+  const row = await requirePageAccess(userId, rowId, "content");
   if (!row.parentId) throw withCode(new Error("Page is not a database row"), "notADatabaseRow");
   const databaseId = row.parentId;
   await requireDatabase(userId, databaseId, "view");
@@ -3368,7 +3399,7 @@ export async function moveRowBeside(userId: string, rowId: string, targetId: str
   const before = order[index - 1];
   const after = order[index];
   if (before && after && !(before.position < after.position)) {
-    const canRenumber = await requireDatabase(userId, databaseId, "edit").then(
+    const canRenumber = await requireDatabase(userId, databaseId, "content").then(
       () => true,
       () => false,
     );
@@ -3498,6 +3529,7 @@ export async function getDatabaseSnapshot(
     listRowTemplateSummaries(userId, databaseId),
     db
       .select({
+        source: databaseSync.source,
         siteUrl: databaseSync.siteUrl,
         lastRunAt: databaseSync.lastRunAt,
         lastError: databaseSync.lastError,
@@ -3527,9 +3559,9 @@ export async function getDatabaseSnapshot(
     rows,
     /** Row templates, for the menu next to "New". */
     templates,
-    /** Where the rows are kept in step from (server/jira-sync), when they are. */
+    /** Where the rows are kept in step from (Jira, GitHub; server/jira-sync/run), when they are. */
     sync: synced
-      ? ({ source: "jira", ...synced, lastRunAt: synced.lastRunAt?.toISOString() ?? null } satisfies DatabaseSyncSummary)
+      ? ({ ...synced, lastRunAt: synced.lastRunAt?.toISOString() ?? null } satisfies DatabaseSyncSummary)
       : null,
     relations,
     people,
@@ -3817,7 +3849,10 @@ export async function listWorkspaceDatabases(userId: string, workspaceId: string
 export async function getRow(userId: string, rowId: string) {
   const row = await requirePageAccess(userId, rowId, "view");
   if (!row.parentId) throw withCode(new Error("Page is not a database row"), "notADatabaseRow");
-  const database = await requireDatabase(userId, row.parentId, "view");
+  const [database, { level: databaseLevel }] = await Promise.all([
+    requireDatabase(userId, row.parentId, "view"),
+    pageAccessOf(userId, row.parentId),
+  ]);
   const [all, access] = await Promise.all([getProperties(row.parentId), propertyAccessFor(userId, row.parentId)]);
   const properties = access.visible(all);
   const [relations, people] = await Promise.all([getRelationTargets(userId, properties), getPeople(userId, properties)]);
@@ -3826,6 +3861,8 @@ export async function getRow(userId: string, rowId: string) {
     databaseId: row.parentId,
     databaseTitle: database.title,
     databaseLocked: Boolean(database.lockedAt),
+    /** The viewer may add properties to the database ("Can edit content" changes values only). */
+    schemaEditable: hasLevel(databaseLevel, "edit"),
     /** Row pages show the properties beside the body where there is room (lib/row-layout). */
     propertiesBeside: database.propertiesBeside,
     row: {

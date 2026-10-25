@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { redirect } from "next/navigation";
 import { getFormatter, getTranslations } from "next-intl/server";
 import { listWorkspaces } from "@/server/pages";
+import { workspacesAwaitingApproval } from "@/server/access";
 import { getSession, policyGatePath, requestIp } from "@/server/session";
 import { getConsentClient, verifySignedAuthorizationQuery } from "@/server/mcp/consent";
 import { connectingHeldBack } from "@/server/mcp/grants";
@@ -86,7 +87,10 @@ export default async function ConsentPage({ searchParams }: { searchParams: Sear
   }
 
   const scopes = (query.get("scope") ?? "").split(" ").filter(Boolean);
-  const workspaces = await listWorkspaces(session.user.id);
+  const [workspaces, awaitingApproval] = await Promise.all([
+    listWorkspaces(session.user.id),
+    workspacesAwaitingApproval(session.user.id, client.clientId),
+  ]);
   const redirectHost = hostOf(query.get("redirect_uri"));
   const siteHost = hostOf(client.uri);
 
@@ -127,6 +131,11 @@ export default async function ConsentPage({ searchParams }: { searchParams: Sear
         workspaces={workspaces.length ? format.list(workspaces.map((w) => w.name), { type: "conjunction" }) : null}
         redirectHost={redirectHost}
       />
+      {awaitingApproval.length > 0 && (
+        <p className="mt-3 text-xs text-fg-muted">
+          {t("access.awaitingApproval", { workspaces: format.list(awaitingApproval, { type: "conjunction" }), count: awaitingApproval.length })}
+        </p>
+      )}
     </Shell>
   );
 }

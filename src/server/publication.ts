@@ -24,7 +24,7 @@ import { PG_MARKDOWN_IMAGE_PATTERN } from "@/lib/cover";
 import type { FormulaStyle } from "@/lib/formula";
 import { LIST_WIDGET_ROWS, type DashboardLayout, type DashboardWidget, type WidgetColor, type WidgetSpan } from "@/lib/dashboard";
 import type { EmbedBlockType, LinkedView } from "@/lib/embed-blocks";
-import { arrangeGroups, boardGroupProperty, groupRowsBy, isGroupable, type GroupValue } from "@/lib/grouping";
+import { arrangeGroups, boardGroupProperty, groupRowsBy, isGroupable, SECTIONED_VIEWS, type GroupValue } from "@/lib/grouping";
 import { parsePageBackground, type PageBackground } from "@/lib/page-background";
 import { DEFAULT_PAGE_STYLE, pageStyleFromYdoc, type PageStyle } from "@/lib/page-style";
 import { applyView, computedValues, isHiddenInView, orderProperties } from "@/lib/properties";
@@ -411,7 +411,7 @@ export type PublishedDatabase = {
   /** Live rows, filtered and sorted by the view. */
   rows: PublishedRow[];
   /**
-   * Board columns, or table sections, when the view groups by a published property: the view's
+   * Board columns, or table, list and gallery sections, when the view groups by a published property: the view's
    * shown groups in its order, each with the ids of its rows.
    */
   groups: { property: PublishedProperty; list: { key: string; value: GroupValue; rowIds: string[] }[] } | null;
@@ -1191,7 +1191,7 @@ export async function publishedDatabase(
       ...coverOf(row),
       ...(excerpts ? { excerpt: excerpts.get(row.id) ?? "" } : {}),
     })),
-    groups: layout === "board" || layout === "table" ? groups : null,
+    groups: layout === "board" || layout === "table" || layout === "list" || layout === "gallery" ? groups : null,
     cardSize: chosen.config.cardSize ?? "medium",
     ...(icons ? {} : { noIcons: true as const }),
     // Board and gallery cards wrapping long values (see ViewConfig wrapProperties).
@@ -1264,7 +1264,7 @@ function onlyValuesOf<R extends PublishedRow>(row: R, shown: DatabaseProperty[])
 }
 
 /**
- * Board columns and table sections, in the view's order without the groups it hides. Only for
+ * Board columns and table, list and gallery sections, in the view's order without the groups it hides. Only for
  * properties the page publishes: groups by people or linked rows would name what it doesn't.
  * Created and edited times count by their UTC day, as the visitor's time zone isn't known here.
  */
@@ -1276,7 +1276,7 @@ function publishedGroups(
   const property =
     view.type === "board"
       ? boardGroupProperty(properties, view.config.groupBy)
-      : view.type === "table"
+      : SECTIONED_VIEWS.has(view.type)
         ? properties.find((p) => p.id === view.config.groupBy && isGroupable(p.type))
         : undefined;
   if (!property || PRIVATE_TYPES.has(property.type)) return null;

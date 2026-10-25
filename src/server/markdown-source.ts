@@ -4,11 +4,12 @@ import { env } from "@/lib/env";
 import { markdownLosses, type MarkdownLoss } from "@/lib/markdown-source";
 import type { MentionPerson } from "@/lib/mentions";
 import { assertPageUnlocked } from "@/lib/page-lock";
-import { SYNCED_BLOCK } from "@/lib/synced-blocks";
+import { SYNCED_BLOCK, syncedKey, syncedRegions } from "@/lib/synced-blocks";
 import { requirePageAccess } from "@/server/access";
 import { blocksToMarkdown, markdownToBlocks, serverEditor, type PageBlock } from "@/server/blocknote";
 import { getCollab, type BodyWrite, type WriteActor } from "@/server/collab/bridge";
 import { mentionablePeople } from "@/server/mentions";
+import { expandSyncedMarkdown, syncedSources } from "@/server/synced-blocks";
 
 /**
  * A page body as Markdown to edit as text (components/page/markdown-source.tsx), and its save.
@@ -26,6 +27,11 @@ export type MarkdownSource = {
   blocks: unknown[];
   /** People `@Name` mentions, as a save reads them. */
   people: MentionPerson[];
+  /**
+   * Synced blocks (lib/synced-blocks syncedKey) the Markdown shows but the reader may not edit: a
+   * save leaves what is between their lines as it is. The others' lines are saved to them.
+   */
+  readOnlySynced: string[];
 };
 
 /** Not a page whose body can be edited as Markdown: a database, or one in the trash. */
@@ -48,7 +54,7 @@ function storedBlocks(blocks: PageBlock[]): PageBlock[] {
 }
 
 async function editablePage(userId: string, pageId: string) {
-  const found = await requirePageAccess(userId, pageId, "edit");
+  const found = await requirePageAccess(userId, pageId, "content");
   if (found.kind === "database") throw new MarkdownSourceError("database");
   if (found.archivedAt) throw new MarkdownSourceError("trashed");
   return found;
@@ -67,7 +73,14 @@ export async function readMarkdownSource(userId: string, pageId: string): Promis
     read = { blocks: blocks as PageBlock[], markdown, version: before };
     if (versionOf(markdown) === before) break;
   }
-  const { blocks, markdown, version } = read!;
+  const { blocks, version } = read!;
+  // Synced blocks shown from other pages read as their blocks, as far as the reader may see them.
+  const markdown = await expandSyncedMarkdown(userId, pageId, read!.markdown);
+  const others = [...new Set(syncedRegions(markdown).flatMap((r) => (r.ref.pageId === pageId ? [] : [r.ref.pageId])))];
+  const sources = others.length ? await syncedSources(userId, others) : new Map();
+  const readOnlySynced = syncedRegions(markdown)
+    .filter((r) => r.ref.pageId !== pageId && sources.get(r.ref.pageId)?.state !== "editable")
+    .map((r) => syncedKey(r.ref));
   const body = storedBlocks(blocks);
   const people = await mentionablePeople(pageId);
   // What a save of this very Markdown would store, against the body as it is: through a document as
@@ -82,7 +95,7 @@ export async function readMarkdownSource(userId: string, pageId: string): Promis
   } finally {
     doc.destroy();
   }
-  return { markdown, version, losses: markdownLosses(body, storedBlocks(stored)), blocks: body, people };
+  return { markdown, version, losses: markdownLosses(body, storedBlocks(stored)), blocks: body, people, readOnlySynced };
 }
 
 /**
@@ -90,12 +103,14 @@ export async function readMarkdownSource(userId: string, pageId: string): Promis
  * written and the result says `conflict`, with the body's version now (a save expecting that one
  * writes over the other changes). The page is saved to its history first. Inline databases,
  * synced blocks, bookmarks, dashboards and mentions carry over as for MCP writes
- * (server/blocknote markdownToBlocks), and comments stay on the text they're about.
+ * (server/blocknote markdownToBlocks), changes between a synced block's lines go to its blocks
+ * where the writer may edit them (CollabService.replaceContent), and comments stay on the text
+ * they're about.
  */
 export async function saveMarkdownSource(actor: WriteActor, pageId: string, markdown: string, expectedVersion: string): Promise<BodyWrite> {
   const found = await editablePage(actor.userId, pageId);
   assertPageUnlocked(found);
-  const write = await getCollab().replaceContent(pageId, markdown, actor, "before_markdown_edit", { expectedVersion });
+  const write = await getCollab().replaceContent(pageId, markdown, actor, "before_markdown_edit", { expectedVersion, syncedBlocks: true });
   // A write with an expected version always reports one.
   return write!;
 }

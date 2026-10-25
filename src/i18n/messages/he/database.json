@@ -618,7 +618,8 @@
     "propertyComments": "{count, plural, one {תגובה פתוחה אחת} other {# תגובות פתוחות}} על {name}",
     "pinned": "מאפיינים מוצמדים",
     "showBeside": "הצגה לצד הדף",
-    "showAbove": "הצגה מעל הדף"
+    "showAbove": "הצגה מעל הדף",
+    "copyValue": "העתקת {name}"
   },
   "rowActivity": {
     "title": "פעילות",
@@ -857,7 +858,17 @@
     "pinColor": "צבע הסיכה",
     "noPinColor": "ללא",
     "colorRules": "כללי צבע",
-    "wrapProperties": "גלישת שורות בכל המאפיינים"
+    "wrapProperties": "גלישת שורות בכל המאפיינים",
+    "loadLimit": "מגבלת טעינה",
+    "loadLimitCards": "{count} כרטיסים",
+    "loadMore": "טען עוד",
+    "moreCards": "{count, plural, one {כרטיס נוסף אחד} other {# כרטיסים נוספים}}"
+  },
+  "viewMenu": {
+    "label": "הגדרות תצוגה",
+    "back": "חזרה",
+    "layoutHint": "התצוגה שומרת את המסננים, המיונים והמאפיינים שלה.",
+    "shown": "{count} מוצגים"
   },
   "gallery": {
     "new": "חדש",
@@ -1161,7 +1172,9 @@
     "expand": "הרחבת {name}",
     "rowCount": "{count, plural, one {שורה אחת} two {שתי שורות} other {# שורות}}",
     "actions": "פעולות על הקבוצה",
-    "addRow": "הוספת שורה אל {name}"
+    "addRow": "הוספת שורה אל {name}",
+    "subGroupBy": "תת־קבוצה",
+    "colorColumns": "צביעת עמודות"
   },
   "rollup": {
     "title": "צבירה",
@@ -1896,6 +1909,18 @@
     "viewOnly": "רק אנשים עם גישה מלאה למסד הנתונים יכולים לשנות את הסנכרון.",
     "reporter": "מדווח",
     "reporterNone": "לא מסונכרן"
+  },
+  "githubPulls": {
+    "button": "מסונכרן מ־GitHub",
+    "buttonPaused": "הסנכרון עם GitHub מושהה",
+    "title": "סנכרון GitHub",
+    "lastRun": "סונכרן לאחרונה {when}, {count, plural, one {בקשת משיכה אחת} two {שתי בקשות משיכה} other {# בקשות משיכה}}",
+    "withToken": "עם אסימון",
+    "withoutToken": "בלי אסימון",
+    "overwrite": "GitHub הוא המקור: המאפיינים המסונכרנים וכותרות השורות נכתבים מחדש בכל סנכרון, לכן שנו אותם ב־GitHub. מאפיינים שתוסיפו בעצמכם נשארים כפי שהם, ושורות של בקשות משיכה שהסנכרון כבר לא מביא לא משתנות.",
+    "changeToken": "החלפת האסימון",
+    "tokenEmpty": "השאירו ריק כדי לסנכרן בלי אסימון.",
+    "stopConfirm": "להפסיק את הסנכרון של מסד הנתונים הזה? השורות שלו נשארות כפי שהן, והאסימון נשכח."
   },
   "sprints": {
     "menuItem": "ספרינטים",

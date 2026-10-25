@@ -7,11 +7,13 @@
     "docx": "Word",
     "pdf": "PDF",
     "evernote": "Evernote",
+    "confluence": "Confluence",
     "csv": "CSV & Excel",
     "trello": "Trello",
     "asana": "Asana",
     "monday": "Monday.com",
     "jira": "Jira",
+    "github": "GitHub",
     "googleDocs": "Google Docs",
     "web": "Webseite"
   },
@@ -51,6 +53,11 @@
       "sourceUrl": "Quell-URL",
       "encrypted": "Verschlüsselter Text wurde beim Import ausgelassen."
     }
+  },
+  "confluence": {
+    "help": "Jede Seite eines Confluence-Bereichs wird eine Seite, verschachtelt wie im Bereich. Überschriften, Listen, Tabellen, Codeblöcke, Infopanels (als Hinweisboxen), aufklappbare Abschnitte (als Umschaltlisten), Aufgabenlisten, Bilder und angehängte Dateien kommen mit, und Links zwischen Seiten werden Seitenerwähnungen.",
+    "export": "Öffne in Confluence die Einstellungen des Bereichs, wähle Bereich exportieren → HTML und dann die heruntergeladene ZIP-Datei.",
+    "choose": "Export auswählen (.zip)"
   },
   "csv": {
     "choose": "CSV- oder Excel-Datei auswählen",
@@ -160,6 +167,53 @@
       "alreadyRunning": "Eine Synchronisierung läuft gerade. Versuche es gleich noch einmal."
     }
   },
+  "githubPulls": {
+    "help": "Erhalte eine Datenbank der Pull Requests eines GitHub-Repositorys, die auf dem gleichen Stand bleibt: Jeder Pull Request wird eine Zeile mit Nummer, Zustand (Entwurf, offen, gemergt oder geschlossen), Autor, zugewiesenen Personen, Labels, Branches, Daten und einem Link zurück. Änderungen fließen nur in eine Richtung, von GitHub zu Leafdesk. Personen werden über das GitHub-Konto zugeordnet, mit dem sie sich anmelden.",
+    "repo": "Repository",
+    "repoPlaceholder": "inhaber/name oder die Adresse des Repositorys",
+    "token": "Token (optional)",
+    "tokenHelp": "Nötig für private Repositorys, und es erhöht GitHubs Ratenlimit. Lesezugriff auf Pull Requests genügt. Es wird versiegelt auf dem Server aufbewahrt.",
+    "tokenLink": "Token erstellen",
+    "server": "GitHub Enterprise Server (optional)",
+    "serverPlaceholder": "github.example.com",
+    "pulls": "Pull Requests",
+    "states": {
+      "open": "Die offenen",
+      "all": "Alle (die {limit} zuletzt aktualisierten)"
+    },
+    "names": {
+      "number": "Nummer",
+      "state": "Zustand",
+      "author": "Autor",
+      "assignees": "Zugewiesen",
+      "others": "{column} (andere)",
+      "labels": "Labels",
+      "branch": "Branch",
+      "base": "Basis-Branch",
+      "created": "Erstellt",
+      "merged": "Gemergt",
+      "link": "GitHub-Link",
+      "stages": {
+        "draft": "Entwurf",
+        "open": "Offen",
+        "merged": "Gemergt",
+        "closed": "Geschlossen"
+      }
+    },
+    "errors": {
+      "unauthorized": "GitHub hat das Token abgelehnt.",
+      "forbidden": "Das Token darf die Pull Requests dieses Repositorys nicht lesen.",
+      "notFound": "Dieses Repository gibt es nicht, oder es ist privat und das Token erreicht es nicht.",
+      "unreachable": "GitHub war nicht erreichbar oder das Ratenlimit ist aufgebraucht. Die Synchronisierung versucht es beim nächsten Mal erneut.",
+      "runAsGone": "Die Person, die die Synchronisierung eingerichtet hat, hat kein Konto mehr.",
+      "accessLost": "Die Person, als die die Synchronisierung läuft, kann diese Datenbank nicht mehr bearbeiten.",
+      "keyGone": "Die Eigenschaft Nummer wurde gelöscht oder ihr Typ geändert, daher lassen sich Pull Requests keinen Zeilen mehr zuordnen.",
+      "failed": "Die Synchronisierung ist fehlgeschlagen. Sie versucht es beim nächsten Mal erneut.",
+      "invalidSite": "Diese Adresse kann Leafdesk nicht erreichen.",
+      "invalidInput": "Gib das Repository als inhaber/name an.",
+      "alreadyRunning": "Eine Synchronisierung läuft. Versuche es gleich noch einmal."
+    }
+  },
   "board": {
     "links": "Nichts wird heruntergeladen: Dateien und Links im Export bleiben Links.",
     "comments": "{count, plural, one {# Kommentar kommt} other {# Kommentare kommen}} mit Autor und Zeit auf die Seiten der Zeilen.",
@@ -243,6 +297,7 @@
     "badTrello": "Die Datei ist kein Trello-Board-Export. Wähle in Trello im Menü des Boards Als JSON exportieren und dann diese Datei.",
     "badAsana": "Die Datei ist kein Asana-Projektexport. Wähle in Asana im Menü des Projekts Exportieren → CSV oder JSON und dann diese Datei.",
     "badMonday": "Die Datei ist kein Monday.com-Board-Export. Wähle in Monday.com im Menü des Boards Board nach Excel exportieren und dann diese Datei.",
+    "badConfluence": "Die Datei ist kein als HTML exportierter Confluence-Bereich. Wähle in Confluence in den Bereichseinstellungen Bereich exportieren → HTML und dann die heruntergeladene ZIP-Datei.",
     "badMapping": "Lege für mindestens eine Spalte ein Ziel fest und verwende jede Eigenschaft nur einmal.",
     "noAccess": "Du kannst dort keine Seiten hinzufügen, oder das Ziel existiert nicht mehr.",
     "notADatabase": "Zeilen können nur einer Datenbank hinzugefügt werden.",

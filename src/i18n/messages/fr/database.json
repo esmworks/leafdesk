@@ -618,7 +618,8 @@
     "propertyComments": "{count, plural, one {# commentaire ouvert} other {# commentaires ouverts}} sur {name}",
     "pinned": "Propriétés épinglées",
     "showBeside": "Afficher à côté de la page",
-    "showAbove": "Afficher au-dessus de la page"
+    "showAbove": "Afficher au-dessus de la page",
+    "copyValue": "Copier {name}"
   },
   "rowActivity": {
     "title": "Activité",
@@ -857,7 +858,17 @@
     "pinColor": "Couleur des repères",
     "noPinColor": "Aucune",
     "colorRules": "Règles de couleur",
-    "wrapProperties": "Renvoyer toutes les propriétés à la ligne"
+    "wrapProperties": "Renvoyer toutes les propriétés à la ligne",
+    "loadLimit": "Limite de chargement",
+    "loadLimitCards": "{count} cartes",
+    "loadMore": "Charger plus",
+    "moreCards": "{count, plural, one {# carte de plus} other {# cartes de plus}}"
+  },
+  "viewMenu": {
+    "label": "Paramètres de la vue",
+    "back": "Retour",
+    "layoutHint": "La vue garde ses filtres, ses tris et ses propriétés.",
+    "shown": "{count} affichées"
   },
   "gallery": {
     "new": "Nouveau",
@@ -1161,7 +1172,9 @@
     "expand": "Déplier {name}",
     "rowCount": "{count, plural, one {# ligne} other {# lignes}}",
     "actions": "Actions sur le groupe",
-    "addRow": "Ajouter une ligne à {name}"
+    "addRow": "Ajouter une ligne à {name}",
+    "subGroupBy": "Sous-groupe",
+    "colorColumns": "Colorer les colonnes"
   },
   "rollup": {
     "title": "Agrégation",
@@ -1896,6 +1909,18 @@
     "viewOnly": "Seules les personnes ayant un accès complet à la base de données peuvent modifier la synchronisation.",
     "reporter": "Rapporteur",
     "reporterNone": "Non synchronisé"
+  },
+  "githubPulls": {
+    "button": "Synchronisée avec GitHub",
+    "buttonPaused": "Synchronisation GitHub en pause",
+    "title": "Synchronisation GitHub",
+    "lastRun": "Dernière synchronisation {when}, {count, plural, one {# pull request} other {# pull requests}}",
+    "withToken": "Avec un jeton",
+    "withoutToken": "Sans jeton",
+    "overwrite": "GitHub est la source : les propriétés synchronisées et les titres des lignes sont réécrits à chaque synchronisation, modifiez-les donc sur GitHub. Les propriétés que vous ajoutez vous-même restent telles quelles, et les lignes des pull requests que la synchronisation ne prend plus ne sont pas touchées.",
+    "changeToken": "Changer le jeton",
+    "tokenEmpty": "Laissez vide pour synchroniser sans jeton.",
+    "stopConfirm": "Arrêter la synchronisation de cette base de données ? Ses lignes restent telles quelles et le jeton est oublié."
   },
   "sprints": {
     "menuItem": "Sprints",

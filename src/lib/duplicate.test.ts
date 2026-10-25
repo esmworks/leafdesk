@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { dropPropertyReferences, planDuplicate, remapViewConfig, type DuplicateInput, type SourcePage } from "./duplicate";
+import { dropPropertyReferences, numberedCopyTitle, planDuplicate, remapViewConfig, type DuplicateInput, type SourcePage } from "./duplicate";
 
 const pageOf = (id: string, parentId: string | null, extra: Partial<SourcePage> = {}): SourcePage => ({
   id,
@@ -259,6 +259,23 @@ describe("planDuplicate", () => {
   });
 });
 
+describe("numberedCopyTitle", () => {
+  it("numbers copies after the ones already beside the page", () => {
+    expect(numberedCopyTitle("Meeting note", ["Meeting note"])).toBe("Meeting note (1)");
+    expect(numberedCopyTitle("Meeting note", ["Meeting note", "Meeting note (1)", "Meeting note (3)"])).toBe("Meeting note (4)");
+  });
+
+  it("counts a copy of a copy on from the original while it is beside it", () => {
+    expect(numberedCopyTitle("Plan (1)", ["Plan", "Plan (1)", "Plan (2)"])).toBe("Plan (3)");
+    expect(numberedCopyTitle("Report (2024)", ["Report (2024)"])).toBe("Report (2024) (1)");
+  });
+
+  it("ignores titles that only start alike, and keeps untitled pages untitled", () => {
+    expect(numberedCopyTitle("Plan", ["Plan", "Plan B (4)", "Planning (2)"])).toBe("Plan (1)");
+    expect(numberedCopyTitle("  ", [])).toBe("");
+  });
+});
+
 describe("remapViewConfig", () => {
   it("leaves an empty config empty", () => {
     expect(remapViewConfig({}, new Map(), () => null)).toEqual({});
@@ -309,6 +326,19 @@ describe("remapViewConfig", () => {
     expect(
       remapViewConfig({ dateBy: "start", endDateBy: "end", groupBy: "status", zoom: "month", showTable: false }, ids, () => null),
     ).toEqual({ dateBy: "start2", endDateBy: "end2", groupBy: "status2", zoom: "month", showTable: false });
+  });
+
+  it("maps a board's sub-group property and the folded sub-groups of a relation", () => {
+    const ids = new Map([
+      ["status", "status2"],
+      ["link", "link2"],
+    ]);
+    const rows = new Map([["r1", "r1copy"]]);
+    expect(
+      remapViewConfig({ groupBy: "status", subGroupBy: "link", collapsedSubGroups: ["r1", ""], colorColumns: false }, ids, (id) =>
+        id === "link" ? rows : null,
+      ),
+    ).toEqual({ groupBy: "status2", subGroupBy: "link2", collapsedSubGroups: ["r1copy", ""], colorColumns: false });
   });
 
   it("maps a chart's group, stack and measured properties and keeps its settings", () => {

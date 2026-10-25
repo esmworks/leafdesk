@@ -428,7 +428,7 @@ export async function completeSprint(userId: string, databaseId: string, { dryRu
     if (!plan) throw refuse("No sprint is current", "noCurrentSprint");
     const existing = [plan.completed, ..."row" in plan.current ? [plan.current.row] : [], ..."row" in plan.next ? [plan.next.row] : []];
     for (const row of existing) {
-      if (!hasLevel(levelFromRank(row.level), "edit")) throw new AccessError();
+      if (!hasLevel(levelFromRank(row.level), "content")) throw new AccessError();
       sprintAccess.requireValues(row, sprintKeys);
     }
     const currentId = "row" in plan.current ? plan.current.row.id : plan.current.create.id;
@@ -453,7 +453,7 @@ export async function completeSprint(userId: string, databaseId: string, { dryRu
       .for("update");
     const moves = tasksToMove(linked, sprintPropertyId, plan.completed.id, currentId, (task) => !!status && isDoneStatus(status, task.properties[status.id]));
     const allowed = moves.filter(({ task }) => {
-      if (!hasLevel(levelFromRank(task.level), "edit")) return false;
+      if (!hasLevel(levelFromRank(task.level), "content")) return false;
       try {
         taskAccess.requireValues(task, [sprintPropertyId]);
         return true;

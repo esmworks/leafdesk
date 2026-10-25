@@ -2,7 +2,7 @@
  * End-to-end check of page history diffs against the database: an AI app's writes are saved as
  * versions named after the app, a version compares with the one before it and with the current
  * page (including edits still only in the open document), a restore leaves nothing to compare,
- * MCP diff_page_version prints the same changes, and only people who can view the page can read
+ * MCP get_page_history (compare) prints the same changes, and only people who can view the page can read
  * them. Creates its own users, workspace and OAuth client and deletes them afterwards.
  *
  *   pnpm tsx scripts/history-e2e.ts
@@ -175,8 +175,8 @@ try {
   );
 
   // MCP prints the same diff
-  r = await callTool(ids.owner, "diff_page_version", { version_id: second.id });
-  check(!r.isError && r.data.changed === true, "MCP diff_page_version compares with the current page", r.text);
+  r = await callTool(ids.owner, "get_page_history", { version_id: second.id, compare: "current" });
+  check(!r.isError && r.data.changed === true, "MCP get_page_history compares with the current page", r.text);
   check(
     r.data.diff === "  Intro\n~ The [-quick-]{+slow+} fox jumps\n- Old ending\n+ * new item" &&
       r.data.changed_by.join() === `${ids.owner} via Test AI`,
@@ -207,7 +207,7 @@ try {
   check(await rejectsAccess(() => diffSnapshot(ids.guest, second.id, "current")), "a guest without access can't");
   check(await rejectsAccess(() => diffSnapshot(ids.outsider, second.id, "previous")), "…nor can someone outside the workspace");
   check(await rejectsAccess(() => diffSnapshot(ids.owner, `${RUN}-missing`, "current")), "an unknown version is refused");
-  const denied = await callTool(ids.outsider, "diff_page_version", { version_id: second.id });
+  const denied = await callTool(ids.outsider, "get_page_history", { version_id: second.id, compare: "current" });
   check(denied.isError, "MCP refuses the diff to someone without access", denied.text);
 
   // After restoring a version, it matches the current page

@@ -42,7 +42,7 @@ export type EditorActionInput = z.infer<typeof editorActionInput>;
 
 /** The page, when the person may edit it and the workspace has AI on; throws AiError otherwise. */
 async function editablePage(userId: string, pageId: string) {
-  const found = await requirePageAccess(userId, pageId, "edit").catch((error) => {
+  const found = await requirePageAccess(userId, pageId, "content").catch((error) => {
     if (error instanceof AccessError && !(error instanceof WorkspacePolicyError)) throw new AiError("noAccess", "Page not found");
     throw error;
   });

@@ -16,7 +16,8 @@
   "readOnlyHint": "Bỏ chọn để chỉ cấp quyền đọc. Mọi chỉnh sửa đều được lưu vào lịch sử trang trước, nên bạn có thể hoàn tác.",
   "access": {
     "all": "Quyền truy cập bao gồm mọi không gian làm việc bạn tham gia. Bạn có thể ngắt kết nối ứng dụng bất cứ lúc nào trong Cài đặt.",
-    "listed": "Quyền truy cập bao gồm mọi không gian làm việc bạn tham gia: {workspaces}. Bạn có thể ngắt kết nối ứng dụng bất cứ lúc nào trong Cài đặt."
+    "listed": "Quyền truy cập bao gồm mọi không gian làm việc bạn tham gia: {workspaces}. Bạn có thể ngắt kết nối ứng dụng bất cứ lúc nào trong Cài đặt.",
+    "awaitingApproval": "{count, plural, other {{workspaces} chỉ cho phép các ứng dụng mà chủ sở hữu đã duyệt: ứng dụng này sẽ không truy cập được cho đến khi một chủ sở hữu duyệt nó.}}"
   },
   "deny": "Từ chối",
   "denying": "Đang từ chối…",

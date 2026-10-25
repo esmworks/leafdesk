@@ -388,7 +388,7 @@ try {
   check((await forms.getPublicForm(byMember.token)) !== null, "restoring the database opens the link again");
 
   // A copy never keeps the link
-  const copy = await duplicatePage(actor, leads.id, " (copy)");
+  const copy = await duplicatePage(actor, leads.id);
   const copyProps = await getProperties(copy.id);
   const copyViews = await db.select().from(databaseView).where(eq(databaseView.databaseId, copy.id));
   const copyForm = copyViews.find((v) => v.type === "form")!;
@@ -652,7 +652,7 @@ try {
   check((await forms.listOwnSubmissions(ids.member, reportForm.id)) === null, "…in the app either");
 
   // A copy keeps the conditions, about the copied properties
-  const reportsCopy = await duplicatePage(actor, reports.id, " (copy)");
+  const reportsCopy = await duplicatePage(actor, reports.id);
   const copiedProps = await getProperties(reportsCopy.id);
   const [copiedForm] = (await db.select().from(databaseView).where(eq(databaseView.databaseId, reportsCopy.id))).filter((v) => v.type === "form");
   const copiedDetails = copiedForm.config.form?.questions?.find((q) => q.propertyId === copiedProps.find((p) => p.name === "Details")!.id);

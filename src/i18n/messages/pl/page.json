@@ -36,7 +36,6 @@
     "linkCopied": "Skopiowano link",
     "duplicate": "Duplikuj",
     "duplicateWithoutRows": "Duplikuj bez wierszy",
-    "duplicateSuffix": " (kopia)",
     "duplicateFailed": "Nie udało się zduplikować strony.",
     "moveTo": "Przenieś do",
     "style": {
@@ -246,6 +245,7 @@
     "change": "Tło",
     "colors": "Kolor",
     "patterns": "Wzór",
+    "covers": "Okładka",
     "none": "Brak",
     "remove": "Usuń tło",
     "colorNames": {
@@ -263,6 +263,16 @@
       "plus": "Krzyżyki",
       "grid": "Siatka",
       "lines": "Linie"
+    },
+    "coverNames": {
+      "sunrise": "Wschód słońca",
+      "ocean": "Ocean",
+      "forest": "Las",
+      "dusk": "Zmierzch",
+      "aurora": "Zorza",
+      "sand": "Piasek",
+      "mint": "Mięta",
+      "slate": "Łupek"
     }
   },
   "title": {
@@ -419,9 +429,11 @@
       "full": "Pełny dostęp",
       "edit": "Może edytować",
       "comment": "Może komentować",
+      "content": "Może edytować treść",
       "view": "Może wyświetlać",
       "none": "Brak dostępu"
     },
+    "contentHint": "Edycja tekstu i wierszy baz danych, bez właściwości, widoków i ustawień",
     "errors": {
       "notMember": "Ta osoba nie jest członkiem obszaru roboczego.",
       "lastFullAccess": "Ktoś musi zachować pełny dostęp do strony. Najpierw nadaj pełny dostęp komuś innemu.",
@@ -770,6 +782,8 @@
     "plainCallout": "Zwykłe wyróżnienie",
     "addTitle": "Dodaj tytuł",
     "removeTitle": "Usuń tytuł",
+    "copyOriginalLink": "Kopiuj oryginalny link",
+    "openInNewTab": "Otwórz w nowej karcie",
     "quoteSize": "Rozmiar cytatu",
     "quoteSizeDefault": "Domyślny",
     "quoteSizeLarge": "Duży"
@@ -799,10 +813,10 @@
     "noLetterheads": "Właściciele mogą dodać papiery firmowe z logo i danymi firmy w Ustawieniach → Szablony PDF.",
     "properties": "Dołącz wartości wiersza",
     "comments": "Dołącz komentarze",
-    "textSize": "Rozmiar tekstu",
     "hint": "Diagramy i równania drukują się jako tekst; użyj Drukuj, aby otrzymać stronę dokładnie taką, jak wygląda.",
     "download": "Pobierz",
-    "preparing": "Przygotowywanie…"
+    "preparing": "Przygotowywanie…",
+    "textSize": "Rozmiar tekstu"
   },
   "spreadsheet": {
     "untitled": "Skoroszyt",
@@ -1067,11 +1081,11 @@
         "mediaSize": "Rozmiary obrazów i filmów",
         "callout": "Kolory i ikony wyróżnień, których Markdown nie wyraża",
         "textStyle": "Część formatowania tekstu, np. podkreślenie",
-        "table": "Szerokości kolumn, wiersze nagłówka, scalone komórki i kolory komórek tabel",
+        "table": "Scalone komórki tabel",
         "blockSetting": "Inne ustawienia bloków",
         "content": "Część treści, której Markdown nie pomieści"
       },
-      "synced": "{count, plural, one {Twoje zmiany w # bloku synchronizowanym: edytuj go na stronie} few {Twoje zmiany w # blokach synchronizowanych: edytuj je na stronie} many {Twoje zmiany w # blokach synchronizowanych: edytuj je na stronie} other {Twoje zmiany w # bloku synchronizowanego: edytuj je na stronie}}",
+      "synced": "{count, plural, one {Twoje zmiany w # bloku synchronizowanym, którego nie możesz edytować} few {Twoje zmiany w # blokach synchronizowanych, których nie możesz edytować} many {Twoje zmiany w # blokach synchronizowanych, których nie możesz edytować} other {Twoje zmiany w # bloku synchronizowanego, którego nie możesz edytować}}",
       "confirm": "Zapisz mimo to"
     },
     "conflict": {

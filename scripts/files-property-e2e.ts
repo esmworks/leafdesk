@@ -256,7 +256,7 @@ try {
   check(withFiles.map((r) => r.id).sort().join() === [row1.id, row3.id].sort().join(), "is not empty finds the rows with files");
 
   // Copies of a row show the same files
-  const copy = await duplicatePage({ userId: ids.owner }, row1.id, " (copy)");
+  const copy = await duplicatePage({ userId: ids.owner }, row1.id);
   check((await refsOf(image.id)).includes(copy.id), "a duplicated row references the same files");
 
   // Gallery covers and published databases

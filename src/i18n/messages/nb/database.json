@@ -618,7 +618,8 @@
     "propertyComments": "{count, plural, one {# åpen kommentar} other {# åpne kommentarer}} på {name}",
     "pinned": "Festede egenskaper",
     "showBeside": "Vis ved siden av sideinnholdet",
-    "showAbove": "Vis over sideinnholdet"
+    "showAbove": "Vis over sideinnholdet",
+    "copyValue": "Kopier {name}"
   },
   "rowActivity": {
     "title": "Aktivitet",
@@ -857,7 +858,17 @@
     "pinColor": "Nålfarge",
     "noPinColor": "Ingen",
     "colorRules": "Fargeregler",
-    "wrapProperties": "Bryt alle egenskaper"
+    "wrapProperties": "Bryt alle egenskaper",
+    "loadLimit": "Lastegrense",
+    "loadLimitCards": "{count} kort",
+    "loadMore": "Last inn flere",
+    "moreCards": "{count, plural, one {# kort til} other {# kort til}}"
+  },
+  "viewMenu": {
+    "label": "Visningsinnstillinger",
+    "back": "Tilbake",
+    "layoutHint": "Visningen beholder filtre, sorteringer og egenskaper.",
+    "shown": "{count} vist"
   },
   "gallery": {
     "new": "Ny",
@@ -1161,7 +1172,9 @@
     "expand": "Vis {name}",
     "rowCount": "{count, plural, one {# rad} other {# rader}}",
     "actions": "Gruppehandlinger",
-    "addRow": "Legg til en rad i {name}"
+    "addRow": "Legg til en rad i {name}",
+    "subGroupBy": "Undergruppe",
+    "colorColumns": "Fargelegg kolonner"
   },
   "rollup": {
     "title": "Aggregering",
@@ -1896,6 +1909,18 @@
     "viewOnly": "Bare personer med full tilgang til databasen kan endre synkroniseringen.",
     "reporter": "Rapportør",
     "reporterNone": "Ikke synkronisert"
+  },
+  "githubPulls": {
+    "button": "Synkronisert fra GitHub",
+    "buttonPaused": "GitHub-synkronisering satt på pause",
+    "title": "GitHub-synkronisering",
+    "lastRun": "Sist synkronisert {when}, {count, plural, one {# pull request} other {# pull requests}}",
+    "withToken": "Med token",
+    "withoutToken": "Uten token",
+    "overwrite": "GitHub er kilden: de synkroniserte egenskapene og radtitlene overskrives ved hver synkronisering, så endre dem på GitHub. Egenskaper du legger til selv, forblir som de er, og rader for pull requests som synkroniseringen ikke lenger henter, røres ikke.",
+    "changeToken": "Bytt token",
+    "tokenEmpty": "La feltet stå tomt for å synkronisere uten token.",
+    "stopConfirm": "Slutte å synkronisere denne databasen? Radene forblir som de er, og tokenet glemmes."
   },
   "sprints": {
     "menuItem": "Sprinter",

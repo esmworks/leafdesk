@@ -28,7 +28,7 @@ import { DocumentViewContext } from "./document-title";
 import { IconPicker } from "./icon-picker";
 import { BackgroundPicker } from "./page-background";
 import { CrumbSiblings } from "./crumb-siblings";
-import { backdropClass } from "./page-backdrop";
+import { backdropClass, PageCoverBand } from "./page-backdrop";
 import { Backlinks } from "./mentions";
 import { RowLayoutContext, type RowLayoutHost } from "./row-layout-context";
 import { takeNewPage } from "./new-page-focus";
@@ -139,7 +139,10 @@ export function PageView({
   const [outlineEl, setOutlineEl] = useState<HTMLDivElement | null>(null);
   const [actionError, setActionError] = useState<string | null>(null);
   const [pending, startTransition] = useTransition();
-  const canEdit = hasLevel(info.level, "edit");
+  // What the page holds (body, title, icon, cover) takes content access; its structure (locking,
+  // a skill's settings, bringing a page back from the trash) edit access.
+  const canEdit = hasLevel(info.level, "content");
+  const canEditStructure = hasLevel(info.level, "edit");
   const canDelete = hasLevel(info.level, "full");
   // Full access verifies a page (server/verification); templates and pages in the trash aren't.
   const canVerify = canDelete && !info.template && !page.archived && !offline;
@@ -518,7 +521,8 @@ export function PageView({
                 {({ toggle, close: _, ...trigger }) => (
                   <button
                     type="button"
-                    onClick={toggle}
+                    // Scrolled down, the page's own crumb goes back to its top; at the top it lists the pages beside it.
+                    onClick={(e) => scrollToTop(e.currentTarget) || toggle()}
                     {...trigger}
                     className="flex min-w-0 items-center gap-1 rounded px-1 py-0.5 text-fg hover:bg-bg-hover"
                   >
@@ -532,7 +536,7 @@ export function PageView({
           <div className="flex shrink-0 items-center gap-0.5">
             <SyncStatus connection={connection} pendingEdits={pendingEdits} />
             {locked && !page.archived && (
-              <LockedNotice onUnlock={canEdit && !offline ? unlock : undefined} pending={pending} />
+              <LockedNotice onUnlock={canEditStructure && !offline ? unlock : undefined} pending={pending} />
             )}
             <PageHeaderActions
               workspaceId={workspaceId}
@@ -595,7 +599,7 @@ export function PageView({
         {page.archived && (
           <div className="flex items-center justify-center gap-3 bg-danger px-4 py-2 text-sm text-white">
             {t("archived.banner")}
-            {canEdit && (
+            {(page.isRow ? canEdit : canEditStructure) && (
               <Button size="sm" className="border-white/60 bg-transparent text-white hover:bg-white/10" onClick={restore} disabled={pending || offline}>
                 <RotateCcw className="h-3.5 w-3.5" /> {tc("restore")}
               </Button>
@@ -635,6 +639,7 @@ export function PageView({
         {showBody && !wide && !inPanel && !commentsOpen && !graphOpen && (
           <div ref={setOutlineEl} className="pointer-events-none sticky top-11 z-20 h-0 max-lg:hidden print:hidden" />
         )}
+        <PageCoverBand background={background} />
         <div
           className={cn(
             "w-full flex-1 pb-32",
@@ -698,7 +703,7 @@ export function PageView({
                 pageId={page.id}
                 description={skillNow.description}
                 property={skillNow.property}
-                editable={canEdit && !offline}
+                editable={canEditStructure && !offline}
               />
             )}
             {showBody && !wide && (
@@ -983,4 +988,19 @@ function SyncStatus({ connection, pendingEdits }: { connection: ConnectionState;
       {connection === "live" && !justSynced && <span className="sr-only">{label}</span>}
     </span>
   );
+}
+
+/**
+ * Scrolls the page holding `from` back to its top, smoothly unless motion is reduced; false when it
+ * is already there (or nothing scrolls).
+ */
+function scrollToTop(from: HTMLElement): boolean {
+  for (let node = from.parentElement; node; node = node.parentElement) {
+    const { overflowY } = getComputedStyle(node);
+    if ((overflowY !== "auto" && overflowY !== "scroll") || node.scrollHeight <= node.clientHeight) continue;
+    if (node.scrollTop < 8) return false;
+    node.scrollTo({ top: 0, behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth" });
+    return true;
+  }
+  return false;
 }

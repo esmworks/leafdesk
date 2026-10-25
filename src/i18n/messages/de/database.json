@@ -618,7 +618,8 @@
     "propertyComments": "{count, plural, one {# offener Kommentar} other {# offene Kommentare}} zu {name}",
     "pinned": "Angeheftete Eigenschaften",
     "showBeside": "Neben der Seite zeigen",
-    "showAbove": "Über der Seite zeigen"
+    "showAbove": "Über der Seite zeigen",
+    "copyValue": "{name} kopieren"
   },
   "rowActivity": {
     "title": "Aktivität",
@@ -857,7 +858,17 @@
     "pinColor": "Pinfarbe",
     "noPinColor": "Keine",
     "colorRules": "Farbregeln",
-    "wrapProperties": "Alle Eigenschaften umbrechen"
+    "wrapProperties": "Alle Eigenschaften umbrechen",
+    "loadLimit": "Ladelimit",
+    "loadLimitCards": "{count} Karten",
+    "loadMore": "Mehr laden",
+    "moreCards": "{count, plural, one {# weitere Karte} other {# weitere Karten}}"
+  },
+  "viewMenu": {
+    "label": "Ansichtseinstellungen",
+    "back": "Zurück",
+    "layoutHint": "Die Ansicht behält ihre Filter, Sortierungen und Eigenschaften.",
+    "shown": "{count} sichtbar"
   },
   "gallery": {
     "new": "Neu",
@@ -1161,7 +1172,9 @@
     "expand": "{name} ausklappen",
     "rowCount": "{count, plural, one {# Zeile} other {# Zeilen}}",
     "actions": "Gruppenaktionen",
-    "addRow": "Zeile zu {name} hinzufügen"
+    "addRow": "Zeile zu {name} hinzufügen",
+    "subGroupBy": "Untergruppe",
+    "colorColumns": "Spalten einfärben"
   },
   "rollup": {
     "title": "Rollup",
@@ -1896,6 +1909,18 @@
     "viewOnly": "Nur Personen mit Vollzugriff auf die Datenbank können die Synchronisierung ändern.",
     "reporter": "Melder",
     "reporterNone": "Nicht synchronisiert"
+  },
+  "githubPulls": {
+    "button": "Mit GitHub synchronisiert",
+    "buttonPaused": "GitHub-Synchronisierung pausiert",
+    "title": "GitHub-Synchronisierung",
+    "lastRun": "Zuletzt synchronisiert {when}, {count, plural, one {# Pull Request} other {# Pull Requests}}",
+    "withToken": "Mit Token",
+    "withoutToken": "Ohne Token",
+    "overwrite": "GitHub ist die Quelle: Die synchronisierten Eigenschaften und Zeilentitel werden bei jeder Synchronisierung überschrieben, ändere sie also auf GitHub. Eigenschaften, die du selbst hinzufügst, bleiben, wie sie sind, und Zeilen von Pull Requests, die die Synchronisierung nicht mehr holt, bleiben unberührt.",
+    "changeToken": "Token ändern",
+    "tokenEmpty": "Leer lassen, um ohne Token zu synchronisieren.",
+    "stopConfirm": "Synchronisierung dieser Datenbank beenden? Ihre Zeilen bleiben, wie sie sind, und das Token wird vergessen."
   },
   "sprints": {
     "menuItem": "Sprints",

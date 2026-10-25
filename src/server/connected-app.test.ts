@@ -1,5 +1,5 @@
 import { describe, expect, it, vi } from "vitest";
-import { asWrite, connectedAppCall, connectedAppRefusal, connectedAppsMode, runAsConnectedApp } from "./connected-app";
+import { appModeHere, asWrite, connectedAppCall, connectedAppRefusal, connectedAppsMode, runAsConnectedApp } from "./connected-app";
 import { mayPublish } from "./workspaces";
 
 vi.mock("@/db", () => ({ db: {} }));
@@ -18,6 +18,14 @@ describe("the connected-apps setting", () => {
     expect(connectedAppRefusal("read", true)).toBe("readOnly");
     expect(connectedAppRefusal("full", false)).toBeNull();
     expect(connectedAppRefusal("full", true)).toBeNull();
+  });
+
+  it("turns away apps owners haven't approved where only approved apps may come", () => {
+    expect(appModeHere("full", true, false)).toBe("off");
+    expect(appModeHere("read", true, false)).toBe("off");
+    expect(appModeHere("read", true, true)).toBe("read");
+    expect(appModeHere("full", false, false)).toBe("full");
+    expect(appModeHere("off", false, true)).toBe("off");
   });
 });
 

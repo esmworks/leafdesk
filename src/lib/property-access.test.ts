@@ -64,6 +64,8 @@ describe("resolvePropertyLevel", () => {
     expect(canRestrict("created_by")).toBe(false);
     expect(canRestrict("last_edited_time")).toBe(false);
     expect(databaseCap("full")).toBe("edit");
+    // "Can edit content": values, not the properties themselves.
+    expect(databaseCap("content")).toBe("edit_values");
   });
 });
 

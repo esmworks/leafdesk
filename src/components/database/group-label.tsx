@@ -1,10 +1,10 @@
 "use client";
 
 import { IconGlyph } from "@/components/builtin-icon";
-import { Eye, EyeOff, Square, SquareCheck } from "lucide-react";
+import { ChevronRight, Ellipsis, Eye, EyeOff, Plus, Square, SquareCheck } from "lucide-react";
 import { useFormatter, useTranslations } from "next-intl";
 import { useMemo } from "react";
-import { cn } from "@/components/ui";
+import { cn, MenuItem } from "@/components/ui";
 import type { Group, GroupContext, GroupValue } from "@/lib/grouping";
 import { pageLabel } from "@/lib/labels";
 import { statusColor } from "@/lib/properties";
@@ -203,5 +203,98 @@ export function HiddenGroups({
         </div>
       </Floating>
     </>
+  );
+}
+
+/**
+ * A group's title row in a grouped table, list or gallery and a board's sub-group: collapse
+ * toggle, name and row count, then (on hover) hiding the group and adding a row to it. Stays at
+ * the left edge while the view scrolls sideways. `onHide` missing: the group can't be hidden.
+ */
+export function GroupHeader({
+  prop,
+  group,
+  name,
+  open,
+  offset,
+  readOnly,
+  canAdd,
+  onToggle,
+  onHide,
+  onAdd,
+}: {
+  prop: Property;
+  group: AnyGroup & { rows: unknown[] };
+  name: string;
+  open: boolean;
+  /** Room before the toggle: a table's row controls; none when missing. */
+  offset?: number;
+  readOnly?: boolean;
+  canAdd: boolean;
+  onToggle: () => void;
+  onHide?: () => void;
+  onAdd: () => void;
+}) {
+  const t = useTranslations("database");
+  const menu = useFloating<HTMLButtonElement>();
+  return (
+    <div
+      className="group/grp sticky inset-s-0 flex h-10 w-max items-center gap-1.5 pt-2"
+      style={offset ? { paddingInlineStart: Math.max(offset - 28, 0) } : undefined}
+    >
+      <button
+        type="button"
+        aria-expanded={open}
+        aria-label={t(open ? "group.collapse" : "group.expand", { name })}
+        title={t(open ? "group.collapse" : "group.expand", { name })}
+        onClick={onToggle}
+        className="inline-flex h-6 w-6 items-center justify-center rounded text-fg-muted hover:bg-bg-hover hover:text-fg"
+      >
+        <ChevronRight className={cn("h-4 w-4 transition-transform", open ? "rotate-90" : "rtl:rotate-180")} />
+      </button>
+      <GroupLabel prop={prop} group={group} className="font-medium" />
+      <span className="text-xs text-fg-muted tabular-nums" title={t("group.rowCount", { count: group.rows.length })}>
+        {group.rows.length}
+      </span>
+      {!readOnly && onHide && (
+        <>
+          <button
+            ref={menu.ref}
+            type="button"
+            aria-label={t("group.actions")}
+            title={t("group.actions")}
+            onClick={menu.toggle}
+            className={cn(
+              "inline-flex h-6 w-6 items-center justify-center rounded text-fg-muted hover:bg-bg-hover hover:text-fg focus-visible:opacity-100 pointer-coarse:opacity-100",
+              menu.open ? "opacity-100" : "opacity-0 group-hover/grp:opacity-100",
+            )}
+          >
+            <Ellipsis className="h-3.5 w-3.5" />
+          </button>
+          <Floating open={menu.open} anchor={menu.el} onClose={menu.close}>
+            <MenuItem
+              icon={<EyeOff className="h-3.5 w-3.5" />}
+              onClick={() => {
+                menu.close();
+                onHide();
+              }}
+            >
+              {t("board.hideGroup")}
+            </MenuItem>
+          </Floating>
+        </>
+      )}
+      {canAdd && (
+        <button
+          type="button"
+          aria-label={t("group.addRow", { name })}
+          title={t("group.addRow", { name })}
+          onClick={onAdd}
+          className="inline-flex h-6 w-6 items-center justify-center rounded text-fg-muted opacity-0 group-hover/grp:opacity-100 hover:bg-bg-hover hover:text-fg focus-visible:opacity-100 pointer-coarse:opacity-100"
+        >
+          <Plus className="h-3.5 w-3.5" />
+        </button>
+      )}
+    </div>
   );
 }

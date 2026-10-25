@@ -175,9 +175,9 @@ try {
   check((await numberOf(`${RUN}-raw`, uid.id)) === 19, "a row inserted straight into the table gets the next number, not the one it brought");
 
   // Duplicating
-  const copy = await duplicatePage(actor, before[0].id, " (copy)");
+  const copy = await duplicatePage(actor, before[0].id);
   check((await numberOf(copy.id, uid.id)) === 20, "a duplicated row gets a new number", await numberOf(copy.id, uid.id));
-  const tasksCopy = await duplicatePage(actor, tasks.id, " (copy)");
+  const tasksCopy = await duplicatePage(actor, tasks.id);
   const [copiedProp] = (await databases.getProperties(tasksCopy.id)).filter((p) => p.type === "unique_id");
   const copiedRows = await numbersIn(tasksCopy.id, copiedProp.id);
   check(

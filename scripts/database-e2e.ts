@@ -1,6 +1,7 @@
 /**
  * End-to-end check of database edits against the database: deleting options clears them from rows,
- * stale relation links don't block edits, properties added later start hidden on calendars, a
+ * stale relation links don't block edits, properties added later start hidden on calendars (and
+ * hidden on row pages while empty when another property is), a
  * trashed database still lists the rows trashed with it, options sorted by name keep that order,
  * rows dragged beside another land there even when they share a position, and the page header
  * knows guests and counts words.
@@ -208,7 +209,12 @@ try {
       (error: { code?: string }) => error.code ?? "unknown",
     );
   const kind = await addProperty(ids.owner, tasks.id, { name: "Kind", type: "text" });
+  check(kind.options.pageVisibility === undefined, "a new property shows on row pages while none hides when empty", kind.options);
+  await updateProperty(ids.owner, kind.id, { pageVisibility: "hide_empty" });
   const when = await addProperty(ids.owner, tasks.id, { name: "When", type: "text" });
+  check(when.options.pageVisibility === "hide_empty", "…and hides when empty once one does", when.options);
+  await updateProperty(ids.owner, kind.id, { pageVisibility: "show" });
+  await updateProperty(ids.owner, when.id, { pageVisibility: "show" });
   const owner = await addProperty(ids.owner, tasks.id, { name: "Owner", type: "person" });
   const ref = await addProperty(ids.owner, tasks.id, { name: "Ref", type: "text" });
   const r3 = await createPage(actor, { workspaceId, parentId: tasks.id, title: "r3" });

@@ -7,11 +7,13 @@
     "docx": "Word",
     "pdf": "PDF",
     "evernote": "Evernote",
+    "confluence": "Confluence",
     "csv": "CSVとExcel",
     "trello": "Trello",
     "asana": "Asana",
     "monday": "Monday.com",
     "jira": "Jira",
+    "github": "GitHub",
     "googleDocs": "Google ドキュメント",
     "web": "ウェブページ"
   },
@@ -51,6 +53,11 @@
       "sourceUrl": "ソースURL",
       "encrypted": "暗号化されたテキストは取り込まれませんでした。"
     }
+  },
+  "confluence": {
+    "help": "Confluence スペースの各ページが、スペースと同じ階層のページになります。見出し、リスト、表、コードブロック、情報パネル（コールアウトとして）、展開セクション（トグルとして）、タスクリスト、画像、添付ファイルが取り込まれ、ページ間のリンクはページメンションになります。",
+    "export": "Confluence でスペースの設定を開き、［スペースをエクスポート］→［HTML］を選んで、ダウンロードした ZIP を選びます。",
+    "choose": "エクスポートを選択 (.zip)"
   },
   "csv": {
     "choose": "CSVまたはExcelファイルを選択",
@@ -160,6 +167,53 @@
       "alreadyRunning": "同期の実行中です。しばらくしてからもう一度お試しください。"
     }
   },
+  "githubPulls": {
+    "help": "GitHubリポジトリのプルリクエストのデータベースができ、常に最新の状態に保たれます。各プルリクエストは、番号、状態（下書き、オープン、マージ済み、クローズ）、作成者、担当者、ラベル、ブランチ、日付、元へのリンクを持つ行になります。変更はGitHubからLeafdeskへの一方向です。人は、サインインに使っているGitHubアカウントで照合されます。",
+    "repo": "リポジトリ",
+    "repoPlaceholder": "owner/name またはリポジトリのアドレス",
+    "token": "トークン（任意）",
+    "tokenHelp": "非公開のリポジトリに必要で、GitHubのレート制限も上がります。プルリクエストの読み取り権限があれば十分です。サーバーで封印して保管されます。",
+    "tokenLink": "トークンを作成",
+    "server": "GitHub Enterprise Server（任意）",
+    "serverPlaceholder": "github.example.com",
+    "pulls": "プルリクエスト",
+    "states": {
+      "open": "オープンのもの",
+      "all": "すべて（最近更新された{limit}件）"
+    },
+    "names": {
+      "number": "番号",
+      "state": "状態",
+      "author": "作成者",
+      "assignees": "担当者",
+      "others": "{column}（その他）",
+      "labels": "ラベル",
+      "branch": "ブランチ",
+      "base": "ベースブランチ",
+      "created": "作成日",
+      "merged": "マージ日",
+      "link": "GitHubリンク",
+      "stages": {
+        "draft": "下書き",
+        "open": "オープン",
+        "merged": "マージ済み",
+        "closed": "クローズ"
+      }
+    },
+    "errors": {
+      "unauthorized": "GitHubがトークンを拒否しました。",
+      "forbidden": "このトークンでは、このリポジトリのプルリクエストを読み取れません。",
+      "notFound": "そのリポジトリは存在しないか、トークンの届かない非公開のものです。",
+      "unreachable": "GitHubに接続できないか、レート制限に達しました。次回の同期で再試行します。",
+      "runAsGone": "同期を設定した人のアカウントがもうありません。",
+      "accessLost": "同期を実行する人がこのデータベースを編集できなくなりました。",
+      "keyGone": "番号のプロパティが削除されたか種類が変わったため、プルリクエストを行に対応づけられません。",
+      "failed": "同期に失敗しました。次回再試行します。",
+      "invalidSite": "Leafdeskが接続できるアドレスではありません。",
+      "invalidInput": "リポジトリを owner/name の形で入力してください。",
+      "alreadyRunning": "同期中です。しばらくしてからもう一度お試しください。"
+    }
+  },
   "board": {
     "links": "何もダウンロードしません。エクスポート内のファイルとリンクはリンクのままです。",
     "comments": "{count}件のコメントは、投稿者と日時とともに各行のページに入ります。",
@@ -243,6 +297,7 @@
     "badTrello": "このファイルはTrelloのボードのエクスポートではありません。Trelloでボードのメニューから「JSONとしてエクスポート」を選び、そのファイルを選択してください。",
     "badAsana": "このファイルはAsanaのプロジェクトのエクスポートではありません。Asanaでプロジェクトのメニューからエクスポート → CSV または JSON を選び、そのファイルを選んでください。",
     "badMonday": "このファイルはMonday.comのボードのエクスポートではありません。Monday.comでボードのメニューからボードをExcelにエクスポートを選び、そのファイルを選んでください。",
+    "badConfluence": "このファイルは HTML でエクスポートされた Confluence スペースではありません。Confluence のスペース設定で［スペースをエクスポート］→［HTML］を選び、ダウンロードした ZIP を選んでください。",
     "badMapping": "少なくとも1つの列の取り込み先を選択し、各プロパティは1回だけ使ってください。",
     "noAccess": "そこにはページを追加できないか、すでに存在しません。",
     "notADatabase": "行はデータベースにしか追加できません。",

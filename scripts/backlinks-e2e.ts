@@ -124,7 +124,7 @@ try {
     longContext,
   );
 
-  const copy = await duplicatePage(owner, notes.id, " (copy)");
+  const copy = await duplicatePage(owner, notes.id);
   check((await backlink(target.id, copy.id))?.context === `Now ${P} ships first.`, "a copy keeps the context of its links");
 
   const mcp = (await getPage({ userId: ids.owner, actor: owner }, { page_id: target.id, offset: 0 })) as {

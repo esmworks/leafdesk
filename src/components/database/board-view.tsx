@@ -20,11 +20,14 @@ import {
   groupsByStatusStage,
   groupTarget,
   moveGroupValue,
+  subGroupProperty,
   type Group,
 } from "@/lib/grouping";
 import { isHiddenInView, positionBetween, SELECT_COLORS, statusColor } from "@/lib/properties";
+import { firstRows, loadLimitOf } from "@/lib/load-limit";
 import { Floating, useFloating } from "./floating";
-import { GroupLabel, HiddenGroups, useGroupContext, useGroupName } from "./group-label";
+import { GroupHeader, GroupLabel, HiddenGroups, useGroupContext, useGroupName } from "./group-label";
+import { LoadMore } from "./load-more";
 import { OpenRowItems } from "./open-row-items";
 import { usePeople } from "./person-cell";
 import { usePropertyAccess } from "./property-access";
@@ -39,6 +42,7 @@ import { useFormatResult } from "./table-calculations";
 import { useNewRow } from "./use-new-row";
 import { isRtl } from "@/components/direction";
 import { useToday } from "./use-today";
+import { useToggleAllGroups } from "@/components/toggle-all";
 import type { Property, Row, View } from "./types";
 import type { DatabaseApi } from "./use-database";
 
@@ -68,35 +72,62 @@ export function BoardView({
   const t = useTranslations("database");
   const { viewerId } = usePeople();
   const groupBy = boardGroupProperty(properties, view.config.groupBy);
+  const subGroupBy = subGroupProperty(properties, view.config, groupBy);
   const showIcons = view.config.showIcons !== false;
   const wrapProperties = view.config.wrapProperties === true;
   const groupContext = useGroupContext(groupBy);
+  const subGroupContext = useGroupContext(subGroupBy ?? undefined);
   const groupName = useGroupName(groupBy ?? { name: "" });
+  const laneName = useGroupName(subGroupBy ?? { name: "" });
   const [dragId, setDragId] = useState<string | null>(null);
-  // The column a card was picked up from: a card with several people, tags or linked rows shows in
-  // each of their columns, and moving it replaces only that column's value.
+  // The column (and sub-group) a card was picked up from: a card with several people, tags or
+  // linked rows shows in each of their columns, and moving it replaces only that column's value.
   const [dragFrom, setDragFrom] = useState<string | null>(null);
-  const [drop, setDrop] = useState<{ group: string; index: number } | null>(null);
-  const { editTitleOf, typed, create: createNew, stopEditing, quick } = useNewRow(api, view, properties);
+  const [dragLaneFrom, setDragLaneFrom] = useState<string | null>(null);
+  // `cell`: the column's key, or with sub-groups the cell's (see cellKey).
+  const [drop, setDrop] = useState<{ cell: string; index: number } | null>(null);
+  const { editTitleOf, typed, create: createNew, stopEditing, quick, added } = useNewRow(api, view, properties);
   const today = useToday();
   // Column drag: the dragged column's key and the insertion index among the shown columns.
   const [dragCol, setDragCol] = useState<string | null>(null);
   const [colDrop, setColDrop] = useState<number | null>(null);
   const [renaming, setRenaming] = useState<string | null>(null);
+  // Cards each column (or sub-group's cell) shows past the view's load limit, after "Load more" (lib/load-limit).
+  const [more, setMore] = useState<Record<string, number>>({});
+  const loadLimit = loadLimitOf(view.config);
   const access = usePropertyAccess();
   const scroller = useRef<HTMLDivElement>(null);
   useDragPan(scroller, !!groupBy);
+  // Viewers can't save the view, so the sub-groups they fold stay on this page, as in tables.
+  const [ownCollapsed, setOwnCollapsed] = useState<string[] | null>(null);
+  const collapsedLanes = useMemo(
+    () => new Set(ownCollapsed ?? view.config.collapsedSubGroups ?? []),
+    [ownCollapsed, view.config.collapsedSubGroups],
+  );
 
   // A drag redraws the board at each move over a column: the cards get only props that stay the
   // same then (the grouping, their properties, callbacks taking the row), so only the dragged one redraws.
   const cardProps = useMemo(
-    () => (groupBy ? properties.filter((p) => p.id !== groupBy.id && !isHiddenInView(view, p)) : []),
-    [properties, groupBy, view],
+    () => (groupBy ? properties.filter((p) => p.id !== groupBy.id && p.id !== subGroupBy?.id && !isHiddenInView(view, p)) : []),
+    [properties, groupBy, subGroupBy, view],
   );
   const arranged = useMemo(
     () => (groupBy ? arrangeGroups(groupRowsBy(rows, groupBy, view.config, groupContext), view.config) : null),
     [rows, groupBy, view.config, groupContext],
   );
+  // Sub-groups take the default date and status grouping, in their natural order; only empty ones
+  // can be left out (see ViewConfig subGroupBy).
+  const lanes = useMemo(
+    () =>
+      subGroupBy
+        ? arrangeGroups(groupRowsBy(rows, subGroupBy, {}, subGroupContext), { hideEmptyGroups: view.config.hideEmptyGroups }).shown.map(
+            (lane) => ({ ...lane, ids: new Set(lane.rows.map((r) => r.id)) }),
+          )
+        : null,
+    [rows, subGroupBy, subGroupContext, view.config.hideEmptyGroups],
+  );
+  const laneKeys = useMemo(() => lanes?.map((l) => l.key) ?? null, [lanes]);
+  useToggleAllGroups(laneKeys, collapsedLanes, setOwnCollapsed);
   const onCardTitle = useCallback(
     (row: Row, title: string) => {
       stopEditing();
@@ -106,15 +137,18 @@ export function BoardView({
   );
   const onCardDelete = useCallback((rowId: string) => void api.deleteRow(rowId), [api]);
   const onCardValue = useCallback<SetCardValue>((rowId, propertyId, value) => void api.setCell(rowId, propertyId, value), [api]);
-  const onCardDragStart = useCallback((e: DragEvent<HTMLDivElement>, rowId: string, from: string) => {
+  const onCardDragStart = useCallback((e: DragEvent<HTMLDivElement>, rowId: string, cell: string) => {
     e.dataTransfer.setData("text/plain", rowId);
     e.dataTransfer.effectAllowed = "move";
+    const { col, lane } = splitCellKey(cell);
     setDragId(rowId);
-    setDragFrom(from);
+    setDragFrom(col);
+    setDragLaneFrom(lane);
   }, []);
   const onCardDragEnd = useCallback(() => {
     setDragId(null);
     setDragFrom(null);
+    setDragLaneFrom(null);
     setDrop(null);
   }, []);
 
@@ -155,18 +189,27 @@ export function BoardView({
   // a card changes column only where the viewer may change its value in that row.
   const fixedOptions = locked || !access.canEditSchema(groupBy.id);
   const canChangeGroup = (row: Row) => access.valueAccess(row, groupBy.id) === "edit";
+  const canChangeLane = (row: Row) => !!subGroupBy && access.valueAccess(row, subGroupBy.id) === "edit";
   // Columns stand for options the board can add, rename, recolor and delete.
   const editsOptions =
     groupBy.type === "select" ||
     groupBy.type === "multi_select" ||
     (groupBy.type === "status" && !groupsByStatusStage(groupBy, view.config));
-  // A card with several values shows in several columns; which one it left matters.
-  const listValued = groupBy.type === "multi_select" || groupBy.type === "relation" || holdsPeople(groupBy.type);
+  // A card with several values shows in several columns (or sub-groups); which one it left matters.
+  const listValued = (prop: Property) => prop.type === "multi_select" || prop.type === "relation" || holdsPeople(prop.type);
 
   const setGroupHidden = (key: string, hide: boolean) => {
     const next = [...hiddenKeys].filter((k) => k !== key);
     if (hide) next.push(key);
     void api.updateView(view, { config: { ...view.config, hiddenGroups: next } });
+  };
+  const toggleLane = (key: string) => {
+    const next = collapsedLanes.has(key) ? [...collapsedLanes].filter((k) => k !== key) : [...collapsedLanes, key];
+    if (readOnly) setOwnCollapsed(next);
+    else {
+      setOwnCollapsed(null);
+      void api.updateView(view, { config: { ...view.config, collapsedSubGroups: next } });
+    }
   };
   const updateOption = (id: string, patch: Partial<SelectOption>) =>
     api.setOptions(groupBy, options.map((o) => (o.id === id ? { ...o, ...patch } : o)));
@@ -217,11 +260,20 @@ export function BoardView({
     void api.updateView(view, { config: { ...view.config, groupOrder: order } });
   };
 
-  const onDragOver = (e: DragEvent<HTMLDivElement>, group: Group<Row>) => {
+  type Lane = NonNullable<typeof lanes>[number];
+  /** The cards of `group` in `lane`, or all of them without sub-groups. */
+  const cardsOf = (group: Group<Row>, lane?: Lane) => (lane ? group.rows.filter((r) => lane.ids.has(r.id)) : group.rows);
+  // Whether the dragged card stays in the lane it came from (a card with several values in the
+  // sub-group property shows in several lanes, like in columns).
+  const sameLaneOf = (row: Row, lane?: Lane) =>
+    !lane || !subGroupBy || (listValued(subGroupBy) && dragLaneFrom !== null ? dragLaneFrom === lane.key : lane.ids.has(row.id));
+
+  const onDragOver = (e: DragEvent<HTMLDivElement>, group: Group<Row>, lane?: Lane) => {
     if (!dragId) return;
-    if (dragFrom !== groupKey(group) && groupTarget(groupBy, group) === undefined) return;
     const dragged = rows.find((r) => r.id === dragId);
-    if (dragFrom !== groupKey(group) && (!dragged || !canChangeGroup(dragged))) return;
+    if (!dragged) return;
+    if (dragFrom !== groupKey(group) && (groupTarget(groupBy, group) === undefined || !canChangeGroup(dragged))) return;
+    if (lane && subGroupBy && !sameLaneOf(dragged, lane) && (groupTarget(subGroupBy, lane) === undefined || !canChangeLane(dragged))) return;
     e.preventDefault();
     e.dataTransfer.dropEffect = "move";
     const cards = [...e.currentTarget.querySelectorAll<HTMLElement>("[data-card]")].filter(
@@ -232,48 +284,57 @@ export function BoardView({
       return e.clientY < r.top + r.height / 2;
     });
     if (index === -1) index = cards.length;
-    const key = groupKey(group);
-    if (drop?.group !== key || drop.index !== index) setDrop({ group: key, index });
+    const cell = cellKey(groupKey(group), lane?.key);
+    if (drop?.cell !== cell || drop.index !== index) setDrop({ cell, index });
   };
 
-  const onDrop = (e: DragEvent<HTMLDivElement>, group: Group<Row>) => {
+  const onDrop = (e: DragEvent<HTMLDivElement>, group: Group<Row>, lane?: Lane) => {
     if (dragCol !== null) return;
     e.preventDefault();
     const rowId = dragId ?? e.dataTransfer.getData("text/plain");
-    const index = drop?.group === groupKey(group) ? drop.index : group.rows.length;
+    const cards = cardsOf(group, lane);
+    const index = drop?.cell === cellKey(groupKey(group), lane?.key) ? drop.index : cards.length;
     const from = dragFrom;
+    const laneFrom = dragLaneFrom;
     setDragId(null);
     setDragFrom(null);
+    setDragLaneFrom(null);
     setDrop(null);
     const row = rows.find((r) => r.id === rowId);
     if (!row) return;
-    const others = group.rows.filter((r) => r.id !== rowId);
-    const sameGroup = listValued && from !== null ? from === groupKey(group) : group.rows.some((r) => r.id === rowId);
+    const others = cards.filter((r) => r.id !== rowId);
+    const sameGroup = listValued(groupBy) && from !== null ? from === groupKey(group) : group.rows.some((r) => r.id === rowId);
     const target = groupTarget(groupBy, group);
     if (!sameGroup && (target === undefined || !canChangeGroup(row))) return;
+    const sameLane = !lane || !subGroupBy || (listValued(subGroupBy) && laneFrom !== null ? laneFrom === lane.key : lane.ids.has(rowId));
+    const laneTarget = lane && subGroupBy ? groupTarget(subGroupBy, lane) : undefined;
+    if (!sameLane && (laneTarget === undefined || !canChangeLane(row))) return;
     const move: { position?: number; groupBy?: string; groupValue?: string | null; groupFrom?: string | null } = {};
     if (!sameGroup) {
       move.groupBy = groupBy.id;
-      move.groupValue = target;
-      // A date moves as a whole (a range keeps its length, a time its time on the viewer's clock),
-      // worked out here in the viewer's zone; the server takes the moved value as it is.
-      if (groupBy.type === "date" && target) {
-        const moved = moveGroupValue(groupBy, row.properties[groupBy.id], null, target);
-        if (typeof moved === "string") move.groupValue = moved;
-      }
-      if (listValued) move.groupFrom = from || null;
+      move.groupValue = movedTarget(groupBy, row, target!);
+      if (listValued(groupBy)) move.groupFrom = from || null;
     }
     if (manualOrder) {
       const position = positionBetween(others[index - 1]?.position, others[index]?.position);
-      const currentIndex = group.rows.findIndex((r) => r.id === rowId);
-      if (!sameGroup || currentIndex !== index) move.position = position;
+      const currentIndex = cards.findIndex((r) => r.id === rowId);
+      if (!sameGroup || !sameLane || currentIndex !== index) move.position = position;
+    }
+    // A card moved to another sub-group changes that property too, before its column and place
+    // (server actions run one after another).
+    if (!sameLane && subGroupBy) {
+      void api.moveRow(rowId, {
+        groupBy: subGroupBy.id,
+        groupValue: movedTarget(subGroupBy, row, laneTarget!),
+        ...(listValued(subGroupBy) ? { groupFrom: laneFrom || null } : {}),
+      });
     }
     if (move.position === undefined && move.groupBy === undefined) return;
     void api.moveRow(rowId, move);
   };
 
-  const addCard = async (group: Group<Row>) => {
-    const defaults = groupDefaults(groupBy, group);
+  const addCard = async (group: Group<Row>, lane?: Lane) => {
+    const defaults = { ...(lane && subGroupBy && canAddToLane(lane) ? groupDefaults(subGroupBy, lane) : {}), ...groupDefaults(groupBy, group) };
     await createNew(() => api.createRow(Object.keys(defaults).length ? { properties: defaults } : {}));
   };
 
@@ -283,201 +344,289 @@ export function BoardView({
     !readOnly &&
     (group.value.kind === "none" || access.canEditValues(groupBy.id)) &&
     canAddToGroup(groupBy, group, { viewerId, today });
+  const canAddToLane = (lane: Lane) =>
+    !!subGroupBy && (lane.value.kind === "none" || access.canEditValues(subGroupBy.id)) && canAddToGroup(subGroupBy, lane, { viewerId, today });
+  // Without colored columns every column takes the plain gray.
   const tint = (group: Group<Row>) =>
-    group.value.kind === "option"
-      ? group.value.option.color
-      : group.value.kind === "status_group"
-        ? statusColor(group.value.group)
-        : "gray";
+    view.config.colorColumns === false
+      ? "gray"
+      : group.value.kind === "option"
+        ? group.value.option.color
+        : group.value.kind === "status_group"
+          ? statusColor(group.value.group)
+          : "gray";
+  const colFrom = dragCol === null ? -1 : groups.findIndex((g) => groupKey(g) === dragCol);
+  const lineAt = colDrop !== null && colDrop !== colFrom && colDrop !== colFrom + 1 ? colDrop : null;
+
+  /** A column's title bar: its name, figure, menu and add button; dragged to move the column. */
+  const columnHeader = (group: Group<Row>) => {
+    const key = groupKey(group);
+    return (
+      <>
+        <header
+          draggable={!readOnly && renaming !== key}
+          title={readOnly ? undefined : t("board.moveColumn")}
+          onDragStart={(e) => {
+            const col = e.currentTarget.closest("section");
+            if (col) {
+              const r = col.getBoundingClientRect();
+              e.dataTransfer.setDragImage(col, e.clientX - r.left, e.clientY - r.top);
+            }
+            e.dataTransfer.setData("application/x-leafdesk-column", key);
+            e.dataTransfer.effectAllowed = "move";
+            setDragCol(key);
+          }}
+          onDragEnd={() => {
+            setDragCol(null);
+            setColDrop(null);
+          }}
+          className={cn("flex h-8 items-center gap-2 px-1", !readOnly && "cursor-grab active:cursor-grabbing")}
+        >
+          {group.value.kind === "option" && renaming === key ? (
+            <GroupNameInput
+              initial={group.value.option.name}
+              onDone={(name) => {
+                setRenaming(null);
+                if (name && group.value.kind === "option" && name !== group.value.option.name) {
+                  void updateOption(key, { name });
+                }
+              }}
+            />
+          ) : (
+            <GroupLabel prop={groupBy} group={group} className="font-medium" />
+          )}
+          {measure.kind === "count" ? (
+            <ColumnFigure
+              rows={group.rows}
+              measure={measure}
+              properties={properties}
+              groupBy={groupBy.id}
+              readOnly={readOnly}
+              onChange={setBoardAggregate}
+            />
+          ) : (
+            <span className="text-xs text-fg-muted tabular-nums" title={t("board.cardCount", { count: group.rows.length })}>
+              {group.rows.length}
+            </span>
+          )}
+          <span className="flex-1" />
+          {!readOnly && (
+            <GroupMenu
+              option={editsOptions && group.value.kind === "option" ? group.value.option : null}
+              locked={fixedOptions}
+              onRename={() => setRenaming(key)}
+              onColor={(color) => updateOption(key, { color })}
+              onHide={() => setGroupHidden(key, true)}
+              onDelete={() => deleteGroup(group)}
+            />
+          )}
+          {canAdd(group) && (
+            <button
+              type="button"
+              aria-label={t("board.addCard")}
+              title={t("board.addCard")}
+              onClick={() => addCard(group)}
+              className="inline-flex h-6 w-6 items-center justify-center rounded text-fg-muted opacity-0 group-hover/col:opacity-100 hover:bg-fg/10 hover:text-fg focus-visible:opacity-100 pointer-coarse:opacity-100"
+            >
+              <Plus className="h-3.5 w-3.5" />
+            </button>
+          )}
+        </header>
+        {/* A calculation gets a line of its own under the column's name, where it has room. */}
+        {measure.kind === "aggregate" && (
+          <div className="flex px-1 pb-0.5">
+            <ColumnFigure
+              rows={group.rows}
+              measure={measure}
+              properties={properties}
+              groupBy={groupBy.id}
+              readOnly={readOnly}
+              onChange={setBoardAggregate}
+            />
+          </div>
+        )}
+      </>
+    );
+  };
+
+  /** The cards of a column (in one sub-group, when the board has them), where cards are dropped. */
+  const cardList = (group: Group<Row>, lane?: Lane) => {
+    const key = groupKey(group);
+    const cell = cellKey(key, lane?.key);
+    const cards = cardsOf(group, lane);
+    // With a sort active a card can only change column: no target inside its own column,
+    // and no insertion line, since the sort decides where it lands.
+    const dropping = dragId !== null && drop?.cell === cell && (manualOrder || !cards.some((r) => r.id === dragId));
+    const { shown, hidden } = firstRows(cards, loadLimit + (more[cell] ?? 0), added);
+    const addable = canAdd(group) && (!lane || canAddToLane(lane));
+    let visibleCount = 0;
+    return (
+      <div
+        className={cn("flex min-h-10 flex-col gap-2 pt-1", lane && "rounded-lg transition-shadow", lane && dropping && "ring-2 ring-accent/50")}
+        onDragOver={(e) => onDragOver(e, group, lane)}
+        onDragLeave={(e) => {
+          if (!e.currentTarget.contains(e.relatedTarget as Node)) setDrop(null);
+        }}
+        onDrop={(e) => onDrop(e, group, lane)}
+      >
+        {shown.map((row) => {
+          // Where the row stands among the cell's cards other than the dragged one.
+          const visibleIndex = row.id === dragId ? -1 : visibleCount++;
+          return (
+            <div key={row.id}>
+              {dropping && manualOrder && drop.index === visibleIndex && <DropLine />}
+              <Card
+                workspaceId={workspaceId}
+                row={row}
+                showIcon={showIcons}
+                wrap={wrapProperties}
+                group={cell}
+                props={cardProps}
+                color={colors?.get(row.id)}
+                readOnly={readOnly}
+                dragging={dragId === row.id}
+                editTitle={editTitleOf === row.id}
+                typed={editTitleOf === row.id ? typed : undefined}
+                onTitle={onCardTitle}
+                onDelete={onCardDelete}
+                onValue={onCardValue}
+                onCreateOption={api.createOption}
+                onDragStart={onCardDragStart}
+                onDragEnd={onCardDragEnd}
+              />
+            </div>
+          );
+        })}
+        {dropping && manualOrder && drop.index >= visibleCount && <DropLine />}
+        {hidden > 0 && <LoadMore hidden={hidden} onClick={() => setMore((m) => ({ ...m, [cell]: (m[cell] ?? 0) + loadLimit }))} />}
+        {addable && (
+          <button
+            type="button"
+            onClick={() => addCard(group, lane)}
+            className="flex h-8 items-center gap-1.5 rounded-lg px-2 text-sm text-fg-muted hover:bg-fg/5 hover:text-fg"
+          >
+            <Plus className="h-3.5 w-3.5" />
+            {t("board.new")}
+          </button>
+        )}
+      </div>
+    );
+  };
+
+  const columnClass = (group: Group<Row>) =>
+    cn(`tint-${tint(group)}`, "relative flex w-[17rem] shrink-0 flex-col bg-[var(--opt-tint)] p-2", dragCol === groupKey(group) && "opacity-50");
+  const colDragProps = {
+    onDragOver: onColDragOver,
+    onDragLeave: (e: DragEvent<HTMLDivElement>) => {
+      if (!e.currentTarget.contains(e.relatedTarget as Node)) setColDrop(null);
+    },
+    onDrop: onColDrop,
+  };
+  const extras = (!readOnly || hiddenGroups.length > 0) && (
+    <div className="flex shrink-0 flex-col items-start gap-1">
+      {!readOnly && !fixedOptions && editsOptions && <NewGroup onCreate={(name) => api.createOption(groupBy.id, name)} />}
+      {hiddenGroups.length > 0 && (
+        <HiddenGroups prop={groupBy} groups={hiddenGroups} readOnly={readOnly} onShow={(key) => setGroupHidden(key, false)} className="w-44" />
+      )}
+    </div>
+  );
 
   return (
     <QuickAddContext value={quick}>
       <div ref={scroller} className={cn("page-gutter overflow-x-auto pb-6", HIDE_SCROLLBAR)}>
-        <div
-          className="flex w-max items-start gap-3"
-          onDragOver={onColDragOver}
-          onDragLeave={(e) => {
-            if (!e.currentTarget.contains(e.relatedTarget as Node)) setColDrop(null);
-          }}
-          onDrop={onColDrop}
-        >
-          {groups.map((group, i) => {
-            const key = groupKey(group);
-            // With a sort active a card can only change column: no target inside its own column,
-            // and no insertion line, since the sort decides where it lands.
-            const dropping =
-              dragId !== null && drop?.group === key && (manualOrder || !group.rows.some((r) => r.id === dragId));
-            const colFrom = dragCol === null ? -1 : groups.findIndex((g) => groupKey(g) === dragCol);
-            const lineAt = colDrop !== null && colDrop !== colFrom && colDrop !== colFrom + 1 ? colDrop : null;
-            let visibleCount = 0;
-            return (
-              <section
-                key={key || "__none"}
-                data-col={key}
-                aria-label={groupName(group)}
-                className={cn(
-                  `tint-${tint(group)}`,
-                  "group/col relative flex w-[17rem] shrink-0 flex-col rounded-xl bg-[var(--opt-tint)] p-2 transition-[box-shadow,opacity]",
-                  dropping && "ring-2 ring-accent/50",
-                  dragCol === key && "opacity-50",
-                )}
-              >
-                {lineAt === i && <ColumnDropLine side="start" />}
-                {lineAt === groups.length && i === groups.length - 1 && <ColumnDropLine side="end" />}
-                <header
-                  draggable={!readOnly && renaming !== key}
-                  title={readOnly ? undefined : t("board.moveColumn")}
-                  onDragStart={(e) => {
-                    const col = e.currentTarget.closest("section");
-                    if (col) {
-                      const r = col.getBoundingClientRect();
-                      e.dataTransfer.setDragImage(col, e.clientX - r.left, e.clientY - r.top);
-                    }
-                    e.dataTransfer.setData("application/x-leafdesk-column", key);
-                    e.dataTransfer.effectAllowed = "move";
-                    setDragCol(key);
-                  }}
-                  onDragEnd={() => {
-                    setDragCol(null);
-                    setColDrop(null);
-                  }}
-                  className={cn("flex h-8 items-center gap-2 px-1", !readOnly && "cursor-grab active:cursor-grabbing")}
+        {lanes && subGroupBy ? (
+          // Sub-groups: the column titles once, then each sub-group with a cell per column.
+          <div className="flex w-max flex-col gap-1">
+            <div className="flex items-start gap-3" {...colDragProps}>
+              {groups.map((group, i) => (
+                <section
+                  key={groupKey(group) || "__none"}
+                  data-col={groupKey(group)}
+                  aria-label={groupName(group)}
+                  className={cn(columnClass(group), "group/col rounded-xl pb-1 transition-opacity")}
                 >
-                  {group.value.kind === "option" && renaming === key ? (
-                    <GroupNameInput
-                      initial={group.value.option.name}
-                      onDone={(name) => {
-                        setRenaming(null);
-                        if (name && group.value.kind === "option" && name !== group.value.option.name) {
-                          void updateOption(key, { name });
-                        }
-                      }}
-                    />
-                  ) : (
-                    <GroupLabel prop={groupBy} group={group} className="font-medium" />
-                  )}
-                  {measure.kind === "count" ? (
-                    <ColumnFigure
-                      rows={group.rows}
-                      measure={measure}
-                      properties={properties}
-                      groupBy={groupBy.id}
-                      readOnly={readOnly}
-                      onChange={setBoardAggregate}
-                    />
-                  ) : (
-                    <span className="text-xs text-fg-muted tabular-nums" title={t("board.cardCount", { count: group.rows.length })}>
-                      {group.rows.length}
-                    </span>
-                  )}
-                  <span className="flex-1" />
-                  {!readOnly && (
-                    <GroupMenu
-                      option={editsOptions && group.value.kind === "option" ? group.value.option : null}
-                      locked={fixedOptions}
-                      onRename={() => setRenaming(key)}
-                      onColor={(color) => updateOption(key, { color })}
-                      onHide={() => setGroupHidden(key, true)}
-                      onDelete={() => deleteGroup(group)}
-                    />
-                  )}
-                  {canAdd(group) && (
-                    <button
-                      type="button"
-                      aria-label={t("board.addCard")}
-                      title={t("board.addCard")}
-                      onClick={() => addCard(group)}
-                      className="inline-flex h-6 w-6 items-center justify-center rounded text-fg-muted opacity-0 group-hover/col:opacity-100 hover:bg-fg/10 hover:text-fg focus-visible:opacity-100 pointer-coarse:opacity-100"
-                    >
-                      <Plus className="h-3.5 w-3.5" />
-                    </button>
-                  )}
-                </header>
-                {/* A calculation gets a line of its own under the column's name, where it has room. */}
-                {measure.kind === "aggregate" && (
-                  <div className="flex px-1 pb-0.5">
-                    <ColumnFigure
-                      rows={group.rows}
-                      measure={measure}
-                      properties={properties}
-                      groupBy={groupBy.id}
-                      readOnly={readOnly}
-                      onChange={setBoardAggregate}
-                    />
-                  </div>
-                )}
-                <div
-                  className="flex min-h-10 flex-col gap-2 pt-1"
-                  onDragOver={(e) => onDragOver(e, group)}
-                  onDragLeave={(e) => {
-                    if (!e.currentTarget.contains(e.relatedTarget as Node)) setDrop(null);
-                  }}
-                  onDrop={(e) => onDrop(e, group)}
-                >
-                  {group.rows.map((row) => {
-                    // Where the row stands among the column's cards other than the dragged one.
-                    const visibleIndex = row.id === dragId ? -1 : visibleCount++;
-                    return (
-                      <div key={row.id}>
-                        {dropping && manualOrder && drop.index === visibleIndex && <DropLine />}
-                        <Card
-                          workspaceId={workspaceId}
-                          row={row}
-                          showIcon={showIcons}
-                          wrap={wrapProperties}
-                          group={key}
-                          props={cardProps}
-                          color={colors?.get(row.id)}
-                          readOnly={readOnly}
-                          dragging={dragId === row.id}
-                          editTitle={editTitleOf === row.id}
-                          typed={editTitleOf === row.id ? typed : undefined}
-                          onTitle={onCardTitle}
-                          onDelete={onCardDelete}
-                          onValue={onCardValue}
-                          onCreateOption={api.createOption}
-                          onDragStart={onCardDragStart}
-                          onDragEnd={onCardDragEnd}
-                        />
-                      </div>
-                    );
-                  })}
-                  {dropping && manualOrder && drop.index >= visibleCount && <DropLine />}
-                  {canAdd(group) && (
-                    <button
-                      type="button"
-                      onClick={() => addCard(group)}
-                      className="flex h-8 items-center gap-1.5 rounded-lg px-2 text-sm text-fg-muted hover:bg-fg/5 hover:text-fg"
-                    >
-                      <Plus className="h-3.5 w-3.5" />
-                      {t("board.new")}
-                    </button>
+                  {lineAt === i && <ColumnDropLine side="start" />}
+                  {lineAt === groups.length && i === groups.length - 1 && <ColumnDropLine side="end" />}
+                  {columnHeader(group)}
+                </section>
+              ))}
+              {extras}
+            </div>
+            {lanes.map((lane) => {
+              const open = !collapsedLanes.has(lane.key);
+              const name = laneName(lane);
+              return (
+                <div key={lane.key || "__none"} role="group" aria-label={name}>
+                  <GroupHeader
+                    prop={subGroupBy}
+                    group={lane}
+                    name={name}
+                    open={open}
+                    readOnly={readOnly}
+                    canAdd={false}
+                    onToggle={() => toggleLane(lane.key)}
+                    onAdd={() => undefined}
+                  />
+                  {open && (
+                    <div className="flex items-stretch gap-3 pt-1">
+                      {groups.map((group) => (
+                        <div key={groupKey(group) || "__none"} className={cn(columnClass(group), "group/col rounded-xl")}>
+                          {cardList(group, lane)}
+                        </div>
+                      ))}
+                    </div>
                   )}
                 </div>
-              </section>
-            );
-          })}
-          {(!readOnly || hiddenGroups.length > 0) && (
-            <div className="flex shrink-0 flex-col items-start gap-1">
-              {!readOnly && !fixedOptions && editsOptions && (
-                <NewGroup onCreate={(name) => api.createOption(groupBy.id, name)} />
-              )}
-              {hiddenGroups.length > 0 && (
-                <HiddenGroups
-                  prop={groupBy}
-                  groups={hiddenGroups}
-                  readOnly={readOnly}
-                  onShow={(key) => setGroupHidden(key, false)}
-                  className="w-44"
-                />
-              )}
-            </div>
-          )}
-        </div>
+              );
+            })}
+          </div>
+        ) : (
+          <div className="flex w-max items-start gap-3" {...colDragProps}>
+            {groups.map((group, i) => {
+              const key = groupKey(group);
+              const dropping = dragId !== null && drop?.cell === key && (manualOrder || !group.rows.some((r) => r.id === dragId));
+              return (
+                <section
+                  key={key || "__none"}
+                  data-col={key}
+                  aria-label={groupName(group)}
+                  className={cn(columnClass(group), "group/col rounded-xl transition-[box-shadow,opacity]", dropping && "ring-2 ring-accent/50")}
+                >
+                  {lineAt === i && <ColumnDropLine side="start" />}
+                  {lineAt === groups.length && i === groups.length - 1 && <ColumnDropLine side="end" />}
+                  {columnHeader(group)}
+                  {cardList(group)}
+                </section>
+              );
+            })}
+            {extras}
+          </div>
+        )}
       </div>
       <StickyScrollbar target={scroller} />
     </QuickAddContext>
   );
+}
+
+/** The drop target of a column, or of a column within a sub-group. */
+function cellKey(col: string, lane?: string) {
+  return lane === undefined ? col : `${lane}\u0000${col}`;
+}
+
+function splitCellKey(cell: string): { col: string; lane: string | null } {
+  const at = cell.indexOf("\u0000");
+  return at < 0 ? { col: cell, lane: null } : { col: cell.slice(at + 1), lane: cell.slice(0, at) };
+}
+
+/**
+ * What a card moved into a group takes: the group's target, or for a date the row's date moved
+ * there as a whole (a range keeps its length, a time its time on the viewer's clock), worked out
+ * here in the viewer's zone; the server takes the moved value as it is.
+ */
+function movedTarget(prop: Property, row: Row, target: string | null): string | null {
+  if (prop.type !== "date" || !target) return target;
+  const moved = moveGroupValue(prop, row.properties[prop.id], null, target);
+  return typeof moved === "string" ? moved : target;
 }
 
 /**
@@ -801,7 +950,7 @@ const Card = memo(function Card({
   showIcon: boolean;
   /** Long values take more lines instead of being cut off (see ViewConfig wrapProperties). */
   wrap: boolean;
-  /** The column the card is in: a card with several values shows in several. */
+  /** The column the card is in (and its sub-group, see cellKey): a card with several values shows in several. */
   group: string;
   props: Property[];
   /** What color rules color on the card: the card, its name or values. */

@@ -213,6 +213,14 @@ a workspace was written by people, some from outside it (guests, form visitors, 
 services): the server's instructions and the end of every read tool's result tell the assistant
 to treat it as data, never as instructions.
 
+Every client sends the tool list to its model at the start of each session, so the list keeps to
+what is needed often. What is needed only now and then is documented on demand as MCP resources,
+`leafdesk://docs/<topic>` (`markdown`, `properties`, `filters`, `views`, `dashboards`,
+`automations`): the full shape of filters, view settings, dashboard widgets and automation steps,
+how each property type's values are written, and the block forms of page bodies. Tools show those
+inputs as an outline with a pointer to their topic and check them in full when called. A client
+that doesn't read resources gets the same text from `get_page` with the address as `page_id`.
+
 The tools cover:
 
 - **Finding things:** `list_workspaces`, `list_teamspaces`, `search` (also by the words of the PDFs, Word documents and Excel workbooks pages show; such a result names the `document`), `list_pages`, `list_recent_pages`, `list_users` (with when each member joined), `list_groups` (member groups with their members and teamspaces).
@@ -242,7 +250,8 @@ The tools cover:
   comments don't change it, and without `expected_version` writes work as before. Body changes
   can be kept or undone on the page (see [Reviewing AI changes](ai.md#ai-features)). Wherever a tool takes an id, a Leafdesk link the user pasted works too
   (`https://…/w/<workspace>/p/<page>`, `?view=<view>` for a view).
-- **Page history:** `list_page_history`, `get_page_version`, `diff_page_version`, `restore_page_version`.
+- **Page history:** `get_page_history` (a page's versions with `page_id`; one version's body with
+  `version_id`, or what changed with `compare`) and `restore_page_version`.
 - **Row activity:** `list_row_activity` lists who created a row and who changed what in it, newest
   first; a value AI autofill filled in has `actor: "ai"`, with the person it was worked out for in
   `by`.
@@ -289,7 +298,7 @@ The tools cover:
   `create_database_view` and `update_database_view` (table, board, calendar, gallery, list, feed,
   timeline, map (with `place_by`), chart, dashboard or form, including a form's public link and a dashboard's `widgets`; a chart over a date takes `accumulate`
   for running totals or a burndown, a calendar `calendar_mode` (month or week) and `show_weekends`, views with rows `show_icons` and `color_rules`, a board `aggregate` and `aggregate_property` for what its column headers show, and table, list and timeline views take `sub_items`;
-  `update_database_view` also moves a
+  `update_database_view` also switches a view with rows to another such layout with `type` and moves a
   view's tab with `before_view_id` or `after_view_id`), and `set_property_access` (who may
   see and change a property). `query_database` returns `next_cursor` and `has_more`: passing the
   cursor back with the same filters and sorts reads on from the last row returned, so rows added
@@ -323,18 +332,18 @@ The tools cover:
 - **Agents:** `list_agents`, `get_agent` (its instructions, the pages shared with it, its
   skills and its memory), `draft_agent` (a draft from what the user says it should do: its
   instructions, the pages it needs and suggested schedules and automations, nothing saved),
-  `create_agent`, `update_agent`, `archive_agent`, `restore_agent`, `set_agent_access`
+  `create_agent`, `update_agent`, `set_agent_archived` (archive or bring back), `set_agent_access`
   (view, comment, edit or remove), `set_agent_skill` (give or take a skill only owners can edit),
-  `keep_agent_memory` and `dismiss_agent_memory` (answer the notes its runs proposed),
-  `add_agent_memory`, `update_agent_memory` and `delete_agent_memory` (an owner's own notes)
+  `change_agent_memory` (keep or dismiss the notes its runs proposed; add, update or delete
+  an owner's own notes), `set_agent_schedule` (add, update or delete a schedule)
   and `list_agent_runs` (each run's steps summarized), `start_agent_run` (ask an agent for a task
   now, on a row or on none); `get_agent` also shows its monthly token limit and usage by month,
   and `update_agent` sets the limit, the model its runs use (`main` or `fast`) and `row_changes`
-  (`direct` or `review`). `list_pending_changes`, `approve_pending_change` (with edits, and
-  `force` for a row changed since) and `dismiss_pending_change` answer what agents proposed for
+  (`direct` or `review`). `list_pending_changes` and `answer_pending_change` (approve, with
+  edits and `force` for a row changed since, or dismiss) answer what agents proposed for
   review. Owners manage agents; members can list them (see [Agents](agents.md#agents)).
-- **Memory:** `list_memory` (the user's notes in one workspace or all of them), `add_memory`,
-  `update_memory` and `delete_memory` (by ids or all, also while the memory is off): the notes the
+- **Memory:** `list_memory` (the user's notes in one workspace or all of them) and
+  `change_memory` (add, update, or delete by ids or all, also while the memory is off): the notes the
   AI chat keeps about the user, theirs alone and only while the memory is on, each showing the app
   that kept it (see [Memory](ai.md#ai-features)).
 - **Snippets:** `list_snippets` (the user's own and the workspace's, with their Markdown and what

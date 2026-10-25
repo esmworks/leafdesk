@@ -34,6 +34,7 @@ import * as agents from "@/server/agents/manage";
 import type { AutomationActionInput, AutomationInput, AutomationRunView, AutomationView } from "@/server/automations/manage";
 import * as databases from "@/server/databases";
 import { filterCombinatorInput, filtersInput, id, rowValue, sortsInput } from "@/server/operations";
+import { checked, see } from "./docs";
 import * as workspaces from "@/server/workspaces";
 import { pageUrl, ToolInputError } from "./format";
 import {
@@ -86,7 +87,7 @@ const scheduleInput = z
   ])
   .describe("When it runs, in the automation's time_zone.");
 
-const triggerInput = z
+export const triggerInput = z
   .discriminatedUnion("type", [
     z.object({ type: z.literal("row_created") }),
     z.object({
@@ -322,7 +323,7 @@ const actionInput = z.discriminatedUnion("type", [
 const TEMPLATE_NOTE =
   'Text in steps may hold templates: {{trigger.X}} is what started the run (a row trigger: the row\'s values by property name, and id, title, url, event, database, actor and changes.<Property>.before / .after; date_passed adds date; incoming_webhook: the JSON body; schedule: event, scheduledFor and database), {{item.X}} the found row of a for_each step, and {{<step id>.X}} what an earlier step gave: find_rows {rows, count, first} (rows by property name, id, title, url), http_request {status, headers, body}, create_row and upsert_row {id, title, url, created}, log {message}, wait {until}, approval {approved, approved_by: {id, name}, answered_at}, set_properties {id, values}, notify {notified}, run_agent {agentRunId}, start_sequence {enrollmentId}, and a for_each step {count, items}. Paths use dots, list positions and quotes: {{find.rows.0.title}}, {{http.body.customer["e-mail"]}}; names match exactly, then regardless of case. In text a missing path is empty and a list is joined with ", "; a value that is only a template keeps its type (null if missing). A step that uses a failed or skipped step is skipped (dependencyFailed).';
 
-const actionsInput = z
+export const actionsInput = z
   .array(actionInput)
   .min(1)
   .max(MAX_AUTOMATION_ACTIONS)
@@ -350,6 +351,18 @@ const publishInput = (what: string) =>
       `true (default): ${what} published at once as the automation's next version. false: kept as a draft that doesn't run until publish_automation; test_automation runs it.`,
     );
 
+/** The trigger and steps as tools take them: outlines with a pointer to their docs, checked in full when called. */
+const triggerParam = checked(
+  triggerInput,
+  "object",
+  `When it runs: {type: "row_created" | "property_changed" | "date_passed" | "schedule" | "incoming_webhook", …}. ${see("automations")}`,
+);
+const actionsParam = checked(
+  actionsInput,
+  "array",
+  `The steps in order, each {type, …}: set_properties, notify, webhook, slack, run_agent, move_to_trash, http_request, find_rows, create_row, upsert_row, wait, approval, start_sequence, celebrate or log; for_each repeats one per row an earlier find_rows found, and {{templates}} read earlier outputs. ${see("automations")}`,
+);
+
 export const automationInputs = {
   list: z.object({ database_id: id("database") }),
   create: z.object({
@@ -357,8 +370,8 @@ export const automationInputs = {
     name: nameInput.describe("A name for the automation, shown in the database's automations."),
     enabled: z.boolean().optional().describe("Whether it runs once published (default true)."),
     time_zone: timeZoneInput("UTC when left out"),
-    trigger: triggerInput,
-    actions: actionsInput,
+    trigger: triggerParam,
+    actions: actionsParam,
     publish: publishInput("it is"),
   }),
   // No defaults here: what is left out stays as it is.
@@ -367,8 +380,8 @@ export const automationInputs = {
     name: nameInput.optional(),
     enabled: z.boolean().optional().describe("Turn the automation on or off (at once, draft or not)."),
     time_zone: timeZoneInput("left out, the stored zone stays"),
-    trigger: triggerInput.optional(),
-    actions: actionsInput.optional().describe("Replaces all of the automation's steps."),
+    trigger: triggerParam.optional(),
+    actions: actionsParam.optional(),
     publish: publishInput("a new trigger, steps or time zone are"),
     new_webhook_address: z
       .literal(true)

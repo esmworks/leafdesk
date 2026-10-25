@@ -36,7 +36,6 @@
     "linkCopied": "リンクをコピーしました",
     "duplicate": "複製",
     "duplicateWithoutRows": "行なしで複製",
-    "duplicateSuffix": "（コピー）",
     "duplicateFailed": "ページを複製できませんでした。",
     "moveTo": "移動先",
     "style": {
@@ -246,6 +245,7 @@
     "change": "背景",
     "colors": "色",
     "patterns": "パターン",
+    "covers": "カバー",
     "none": "なし",
     "remove": "背景を削除",
     "colorNames": {
@@ -263,6 +263,16 @@
       "plus": "クロス",
       "grid": "グリッド",
       "lines": "ライン"
+    },
+    "coverNames": {
+      "sunrise": "朝焼け",
+      "ocean": "海",
+      "forest": "森",
+      "dusk": "夕暮れ",
+      "aurora": "オーロラ",
+      "sand": "砂",
+      "mint": "ミント",
+      "slate": "スレート"
     }
   },
   "title": {
@@ -419,9 +429,11 @@
       "full": "フルアクセス",
       "edit": "編集可能",
       "comment": "コメント可能",
+      "content": "内容を編集可能",
       "view": "閲覧可能",
       "none": "アクセス権なし"
     },
+    "contentHint": "テキストとデータベースの行を編集できます。プロパティ、ビュー、設定は変更できません",
     "errors": {
       "notMember": "この人はワークスペースのメンバーではありません。",
       "lastFullAccess": "誰かがこのページへのフルアクセス権を持っている必要があります。先にほかの人にフルアクセス権を与えてください。",
@@ -770,6 +782,8 @@
     "plainCallout": "通常のコールアウト",
     "addTitle": "タイトルを追加",
     "removeTitle": "タイトルを削除",
+    "copyOriginalLink": "元のリンクをコピー",
+    "openInNewTab": "新しいタブで開く",
     "quoteSize": "引用のサイズ",
     "quoteSizeDefault": "標準",
     "quoteSizeLarge": "大"
@@ -799,10 +813,10 @@
     "noLetterheads": "オーナーは 設定 → PDF テンプレート で、ロゴと会社情報入りのレターヘッドを追加できます。",
     "properties": "行の値を含める",
     "comments": "コメントを含める",
-    "textSize": "文字サイズ",
     "hint": "図や数式はテキストとして印刷されます。見たままのページが必要なら「印刷」を使ってください。",
     "download": "ダウンロード",
-    "preparing": "準備中…"
+    "preparing": "準備中…",
+    "textSize": "文字サイズ"
   },
   "spreadsheet": {
     "untitled": "ブック",
@@ -1067,11 +1081,11 @@
         "mediaSize": "画像と動画のサイズ",
         "callout": "Markdownで表せないコールアウトの色とアイコン",
         "textStyle": "下線など一部の文字書式",
-        "table": "表の列幅、見出し行、結合したセル、セルの色",
+        "table": "表の結合したセル",
         "blockSetting": "その他のブロック設定",
         "content": "Markdownで表せない一部のコンテンツ"
       },
-      "synced": "{count, plural, other {#個の同期ブロック内の変更: ページ上で編集してください}}",
+      "synced": "{count, plural, other {編集できない#個の同期ブロック内の変更}}",
       "confirm": "それでも保存"
     },
     "conflict": {

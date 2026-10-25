@@ -1,0 +1,1 @@
+ALTER TABLE "user_preference" ADD COLUMN "open_on_start" text DEFAULT 'home' NOT NULL;

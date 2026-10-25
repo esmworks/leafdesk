@@ -9,8 +9,8 @@ vi.mock("@/db", () => ({ db: {} }));
 
 describe("levelFromRank", () => {
   it("maps the SQL function's result to a level, and anything unexpected to none", () => {
-    expect([0, 1, 2, 3, 4].map(levelFromRank)).toEqual(["none", "view", "comment", "edit", "full"]);
-    expect(levelFromRank("3")).toBe("edit");
+    expect([0, 1, 2, 3, 4, 5].map(levelFromRank)).toEqual(["none", "view", "comment", "content", "edit", "full"]);
+    expect(levelFromRank("4")).toBe("edit");
     expect(levelFromRank(null)).toBe("none");
     expect(levelFromRank(7)).toBe("none");
   });

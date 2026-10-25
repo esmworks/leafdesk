@@ -74,6 +74,7 @@
       "scim": "hazırlama dizin eşitleme kullanıcılar",
       "exportPolicy": "indir yazdır pdf",
       "connectedAppsPolicy": "mcp rest api belirteçler erişim",
+      "onlyApprovedApps": "onay izin listesi mcp uygulama entegrasyon",
       "publishing": "yayınla web paylaş herkese açık bağlantı",
       "retention": "çöp kutusu geçmiş sil sakla gün",
       "legalHolds": "dava koru e-keşif sakla yasal",
@@ -93,6 +94,7 @@
       "sensitiveContent": "dlp veri sızıntısı önleme kredi kartı iban gizli bilgi belirteç anahtar tarama kimlik numarası",
       "sensitiveFindings": "dlp bulgular sızan gizli bilgiler kart numaraları yok say",
       "domainPeople": "alan adı hesaplar kullanıcılar şirket e-posta gölge yönetilmeyen",
+      "openOnStart": "başlangıç açılış ilk sayfa son ziyaret edilen son",
       "pageReports": "bildir bildirim şikayet kötüye kullanım yayından kaldır yayımlanan herkese açık web sayfaları"
     }
   },
@@ -1478,6 +1480,10 @@
       "read": "Yalnızca okuma",
       "off": "Erişim yok"
     },
+    "onlyApprovedApps": {
+      "title": "Yalnızca onaylı uygulamalar",
+      "description": "Bu çalışma alanına yalnızca bir sahibin “Bu çalışma alanına ulaşan uygulamalar” altında onayladığı yapay zekâ asistanları ve diğer MCP uygulamaları erişebilir; diğerlerinden gizlenir. REST API anahtarları etkilenmez."
+    },
     "workspaceApps": {
       "title": "Bu çalışma alanına ulaşan uygulamalar",
       "description": "Buradaki kişilerin MCP ile bağladığı yapay zekâ asistanları ve diğer uygulamalar ile bu çalışma alanına ulaşan REST API anahtarları; her birinin burada en son ne zaman kullanıldığıyla. Birinin bağlantısını kestiğinizde o kişinin hesabından kalkar: kişi yeniden bağlayana kadar hiçbir çalışma alanına ulaşamaz.",
@@ -1489,6 +1495,12 @@
       "reads": "Yalnızca okur",
       "readsHere": "Burada yalnızca okur: bağlı uygulamalar yalnızca okuyabilir",
       "offHere": "Burada erişimi yok: bağlı uygulamalar kapalı",
+      "notApprovedHere": "Burada erişimi yok: onaylanmadı",
+      "approved": "Onaylı",
+      "approve": "Onayla",
+      "unapprove": "Onayı geri çek",
+      "approveError": "Onay değiştirilemedi. Yeniden deneyin.",
+      "approvedFull": "Bu çalışma alanında zaten 500 onaylı uygulama var. Önce birinin onayını geri çekin.",
       "thisWorkspaceOnly": "Yalnızca bu çalışma alanı",
       "connected": "Bağlandı: {date}",
       "lastUsed": "Burada son kullanım: {when}",
@@ -1686,7 +1698,10 @@
       "notion": "Notion",
       "obsidian": "Obsidian",
       "enex": "Evernote",
-      "web": "Web sayfası"
+      "web": "Web sayfası",
+      "jira": "Jira",
+      "github": "GitHub",
+      "confluence": "Confluence"
     },
     "settingNames": {
       "guestInvites": "Kimler misafir davet edebilir",
@@ -1702,6 +1717,7 @@
       "trashRetentionDays": "Çöp kutusundaki sayfaların silinme süresi",
       "export": "Dışa aktarmaya izin ver",
       "connectedApps": "Bağlı uygulamalar ve API anahtarları",
+      "onlyApprovedApps": "Yalnızca onaylı uygulamalar",
       "accessRequests": "Erişim istekleri",
       "memberInvites": "Kimler üye ekleyebilir",
       "allowedDomains": "İzin verilen e-posta alan adları",
@@ -1837,7 +1853,9 @@
       },
       "connected_app": {
         "connected": "Uygulama bağlandı: {target}",
-        "revoked": "{hasSubject, select, yes {{subject} kişisinin uygulamasının bağlantısı kesildi: {target}} other {Uygulamanın bağlantısı kesildi: {target}}}"
+        "revoked": "{hasSubject, select, yes {{subject} kişisinin uygulamasının bağlantısı kesildi: {target}} other {Uygulamanın bağlantısı kesildi: {target}}}",
+        "approved": "Uygulama onaylandı: {target}",
+        "unapproved": "Uygulamanın onayı geri çekildi: {target}"
       },
       "api_token": {
         "created": "API anahtarı oluşturuldu: {target}",
@@ -2862,5 +2880,12 @@
     "removing": "Çıkarılıyor…",
     "noMatches": "Eşleşen kimse yok.",
     "empty": "Bu sunucuda henüz bu alan adlarını kullanan hesap yok."
+  },
+  "openOnStart": {
+    "heading": "Başlangıç sayfası",
+    "label": "Açılışta göster",
+    "note": "Leafdesk'i başlattığınızda ya da oturum açtığınızda ne açılacağı: çalışma alanının ana sayfası ya da sayfa görüntülemeleriniz kaydedildiği sürece herhangi bir cihazınızda en son açtığınız sayfa. Bir sayfanın bağlantısı yine o sayfayı açar.",
+    "home": "Ana sayfa",
+    "last_page": "En son açtığınız sayfa"
   }
 }

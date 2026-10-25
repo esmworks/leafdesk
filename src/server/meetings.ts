@@ -62,7 +62,7 @@ const LENGTH_SLACK = 60;
 
 /** The page a meeting block is on, checked: the person may edit it, and it can be written. */
 async function meetingPage(userId: string, pageId: string) {
-  const found = await requirePageAccess(userId, pageId, "edit").catch((error) => {
+  const found = await requirePageAccess(userId, pageId, "content").catch((error) => {
     if (error instanceof AccessError) throw new MeetingError("noAccess", "You can't edit this page");
     throw error;
   });

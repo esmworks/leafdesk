@@ -7,11 +7,13 @@
     "docx": "Word",
     "pdf": "PDF",
     "evernote": "Evernote",
+    "confluence": "Confluence",
     "csv": "CSV & Excel",
     "trello": "Trello",
     "asana": "Asana",
     "monday": "Monday.com",
     "jira": "Jira",
+    "github": "GitHub",
     "googleDocs": "Google Docs",
     "web": "Trang web"
   },
@@ -51,6 +53,11 @@
       "sourceUrl": "URL nguồn",
       "encrypted": "Văn bản mã hóa đã không được nhập."
     }
+  },
+  "confluence": {
+    "help": "Mỗi trang của một không gian Confluence trở thành một trang, lồng nhau như trong không gian. Tiêu đề, danh sách, bảng, khối mã, bảng thông tin (thành khung chú thích), phần mở rộng (thành danh sách thu gọn), danh sách việc, hình ảnh và tệp đính kèm đều được mang theo, và liên kết giữa các trang trở thành nhắc đến trang.",
+    "export": "Trong Confluence, mở cài đặt không gian và chọn Xuất không gian → HTML, rồi chọn tệp ZIP đã tải xuống.",
+    "choose": "Chọn tệp xuất (.zip)"
   },
   "csv": {
     "choose": "Chọn một tệp CSV hoặc Excel",
@@ -160,6 +167,53 @@
       "alreadyRunning": "Đang có một lần đồng bộ chạy. Hãy thử lại sau giây lát."
     }
   },
+  "githubPulls": {
+    "help": "Có một cơ sở dữ liệu các pull request của một kho GitHub luôn bắt kịp thay đổi: mỗi pull request là một hàng với số, trạng thái (bản nháp, đang mở, đã hợp nhất hoặc đã đóng), tác giả, người được giao, nhãn, nhánh, ngày tháng và một liên kết quay lại. Thay đổi chỉ đi một chiều, từ GitHub sang Leafdesk. Mọi người được nhận ra qua tài khoản GitHub họ dùng để đăng nhập.",
+    "repo": "Kho",
+    "repoPlaceholder": "chủ sở hữu/tên hoặc địa chỉ của kho",
+    "token": "Token (không bắt buộc)",
+    "tokenHelp": "Cần cho kho riêng tư, và nâng giới hạn yêu cầu của GitHub. Chỉ cần quyền đọc pull request. Token được niêm phong trên máy chủ.",
+    "tokenLink": "Tạo token",
+    "server": "GitHub Enterprise Server (không bắt buộc)",
+    "serverPlaceholder": "github.example.com",
+    "pulls": "Pull request",
+    "states": {
+      "open": "Những cái đang mở",
+      "all": "Tất cả ({limit} cái được cập nhật gần nhất)"
+    },
+    "names": {
+      "number": "Số",
+      "state": "Trạng thái",
+      "author": "Tác giả",
+      "assignees": "Người được giao",
+      "others": "{column} (khác)",
+      "labels": "Nhãn",
+      "branch": "Nhánh",
+      "base": "Nhánh gốc",
+      "created": "Ngày tạo",
+      "merged": "Ngày hợp nhất",
+      "link": "Liên kết GitHub",
+      "stages": {
+        "draft": "Bản nháp",
+        "open": "Đang mở",
+        "merged": "Đã hợp nhất",
+        "closed": "Đã đóng"
+      }
+    },
+    "errors": {
+      "unauthorized": "GitHub đã từ chối token.",
+      "forbidden": "Token không được phép đọc pull request của kho này.",
+      "notFound": "Không có kho này, hoặc kho riêng tư mà token không truy cập được.",
+      "unreachable": "Không kết nối được GitHub, hoặc đã hết giới hạn yêu cầu. Lần đồng bộ sau sẽ thử lại.",
+      "runAsGone": "Người thiết lập đồng bộ không còn tài khoản.",
+      "accessLost": "Người mà đồng bộ chạy dưới danh nghĩa không còn sửa được cơ sở dữ liệu này.",
+      "keyGone": "Thuộc tính Số đã bị xóa hoặc đổi loại, nên không thể khớp pull request với hàng.",
+      "failed": "Đồng bộ thất bại. Lần sau sẽ thử lại.",
+      "invalidSite": "Đó không phải địa chỉ Leafdesk có thể truy cập.",
+      "invalidInput": "Ghi kho theo dạng chủ sở hữu/tên.",
+      "alreadyRunning": "Đang có một lần đồng bộ. Hãy thử lại sau giây lát."
+    }
+  },
   "board": {
     "links": "Không có gì được tải xuống: các tệp và liên kết trong bản xuất vẫn là liên kết.",
     "comments": "{count, plural, other {# bình luận được đưa}} vào trang của các hàng, kèm tên tác giả và thời gian.",
@@ -243,6 +297,7 @@
     "badTrello": "Tệp này không phải là tệp xuất của bảng Trello. Trong Trello, hãy chọn Xuất dưới dạng JSON từ menu của bảng và chọn tệp đó.",
     "badAsana": "Tệp này không phải là tệp xuất của một dự án Asana. Trong Asana, hãy chọn Xuất → CSV hoặc JSON từ menu của dự án và chọn tệp đó.",
     "badMonday": "Tệp này không phải là tệp xuất của một bảng Monday.com. Trong Monday.com, hãy chọn Xuất bảng sang Excel từ menu của bảng và chọn tệp đó.",
+    "badConfluence": "Tệp này không phải là không gian Confluence được xuất dưới dạng HTML. Trong Confluence, chọn Xuất không gian → HTML trong cài đặt không gian rồi chọn tệp ZIP đã tải xuống.",
     "badMapping": "Hãy chọn nơi đưa ít nhất một cột, và mỗi thuộc tính chỉ dùng một lần.",
     "noAccess": "Bạn không thể thêm trang vào đó, hoặc nó không còn tồn tại.",
     "notADatabase": "Chỉ có thể thêm hàng vào một cơ sở dữ liệu.",

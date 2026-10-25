@@ -379,6 +379,8 @@ function DerivedDisplay({ prop, value, wrap, style }: { prop: ShownProperty; val
     );
   }
   if (Array.isArray(value)) {
+    const links = prop.type === "rollup" ? prop.options.rollup?.links : undefined;
+    if (links) return <RollupLinks kind={links} values={value.map(String)} className={textClass} />;
     return <span className={textClass}>{value.map(String).join(", ")}</span>;
   }
   if (prop.type === "rollup" && typeof value === "number") return <RollupNumber prop={prop} value={value} />;
@@ -407,6 +409,37 @@ function DerivedDisplay({ prop, value, wrap, style }: { prop: ShownProperty; val
     default:
       return <span {...styledProps(whole, textClass)}>{String(value)}</span>;
   }
+}
+
+/** A rollup's URL, email or phone values, each a link that opens it (a page, a new email, a call). */
+function RollupLinks({ kind, values, className }: { kind: "url" | "email" | "phone"; values: string[]; className: string }) {
+  const hrefOf = (value: string) =>
+    kind === "email" ? `mailto:${value}` : kind === "phone" ? phoneHref(value) : /^https?:\/\//i.test(value) ? value : null;
+  return (
+    <span className={className}>
+      {values.map((value, i) => {
+        const href = hrefOf(value);
+        return (
+          <Fragment key={i}>
+            {i > 0 && ", "}
+            {href ? (
+              <a
+                href={href}
+                target={kind === "url" ? "_blank" : undefined}
+                rel="noreferrer noopener"
+                className="text-fg underline decoration-border underline-offset-2 hover:decoration-fg-muted"
+                onClick={(e) => e.stopPropagation()}
+              >
+                {kind === "url" ? value.replace(/^https?:\/\//i, "") : value}
+              </a>
+            ) : (
+              value
+            )}
+          </Fragment>
+        );
+      })}
+    </span>
+  );
 }
 
 /**

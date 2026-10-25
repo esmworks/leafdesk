@@ -37,8 +37,16 @@ export const reviewInputs = {
     text: z.string().max(100_000).optional().describe("An email draft: the text instead (plain text)."),
     force: z.boolean().default(false).describe("Approve although the row changed since the proposal in a value it sets (conflict: true): the proposal's value overwrites it."),
   }),
-  dismiss: z.object({ change_id: changeId }),
 };
+
+/** The MCP tool's input: approve (with the edits approve takes) or dismiss. */
+export const answerInput = z.object({
+  change_id: changeId,
+  decision: z
+    .enum(["approve", "dismiss"])
+    .describe("approve: make the change as the user (with the fields below to make an edited version). dismiss: don't make it (an automation's approval is rejected)."),
+  ...reviewInputs.approve.omit({ change_id: true }).shape,
+});
 
 /** The edit an approve call carries, or undefined when it approves the proposal as it is. */
 export function editOf(args: { title?: string; properties?: Record<string, unknown>; markdown?: string; subject?: string; text?: string }) {

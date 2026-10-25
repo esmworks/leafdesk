@@ -74,6 +74,7 @@
       "scim": "provisioning directory synchronisatie gebruikers",
       "exportPolicy": "downloaden afdrukken pdf",
       "connectedAppsPolicy": "mcp rest api tokens toegang",
+      "onlyApprovedApps": "goedkeuren toegestane lijst mcp apps integraties",
       "publishing": "publiceren web delen openbare link",
       "retention": "prullenbak geschiedenis verwijderen bewaren dagen",
       "legalHolds": "rechtszaak bewaren ediscovery juridische bewaarplicht",
@@ -93,6 +94,7 @@
       "sensitiveContent": "dlp gegevenslekpreventie creditcard iban geheimen tokens sleutels scannen",
       "sensitiveFindings": "dlp bevindingen gelekte geheimen kaartnummers negeren",
       "domainPeople": "domein accounts gebruikers bedrijf e-mail schaduw onbeheerd",
+      "openOnStart": "start opstarten eerste pagina laatst bezocht recent",
       "pageReports": "melden melding misbruik klacht verwijderen gepubliceerd openbaar web pagina's"
     }
   },
@@ -1478,6 +1480,10 @@
       "read": "Alleen lezen",
       "off": "Geen toegang"
     },
+    "onlyApprovedApps": {
+      "title": "Alleen goedgekeurde apps",
+      "description": "Alleen AI-assistenten en andere MCP-apps die een eigenaar heeft goedgekeurd onder ‘Apps die deze werkruimte bereiken’ kunnen erbij; voor andere is hij verborgen. REST API-tokens worden niet beïnvloed."
+    },
     "workspaceApps": {
       "title": "Apps die deze werkruimte bereiken",
       "description": "AI-assistenten en andere apps die mensen hier via MCP hebben gekoppeld, en hun REST API-tokens die deze werkruimte kunnen bereiken, met wanneer elk het laatst actief was. Als je er een ontkoppelt, verdwijnt die uit het account van die persoon: ze bereikt geen enkele werkruimte van die persoon meer tot die haar opnieuw koppelt.",
@@ -1489,6 +1495,12 @@
       "reads": "Leest alleen",
       "readsHere": "Leest hier alleen: gekoppelde apps mogen alleen lezen",
       "offHere": "Hier geen toegang: gekoppelde apps staan uit",
+      "notApprovedHere": "Geen toegang hier: niet goedgekeurd",
+      "approved": "Goedgekeurd",
+      "approve": "Goedkeuren",
+      "unapprove": "Goedkeuring intrekken",
+      "approveError": "Kon de goedkeuring niet wijzigen. Probeer het opnieuw.",
+      "approvedFull": "Deze werkruimte heeft al 500 goedgekeurde apps. Trek er eerst een in.",
       "thisWorkspaceOnly": "Alleen deze werkruimte",
       "connected": "Gekoppeld {date}",
       "lastUsed": "Hier laatst gebruikt {when}",
@@ -1686,7 +1698,10 @@
       "notion": "Notion",
       "obsidian": "Obsidian",
       "enex": "Evernote",
-      "web": "Webpagina"
+      "web": "Webpagina",
+      "jira": "Jira",
+      "github": "GitHub",
+      "confluence": "Confluence"
     },
     "settingNames": {
       "guestInvites": "Wie gasten kan uitnodigen",
@@ -1702,6 +1717,7 @@
       "trashRetentionDays": "Pagina’s in de prullenbak verwijderen na",
       "export": "Exporteren toestaan",
       "connectedApps": "Gekoppelde apps en API-tokens",
+      "onlyApprovedApps": "Alleen goedgekeurde apps",
       "accessRequests": "Toegangsverzoeken",
       "memberInvites": "Wie leden kan toevoegen",
       "allowedDomains": "Toegestane e-maildomeinen",
@@ -1837,7 +1853,9 @@
       },
       "connected_app": {
         "connected": "De app {target} gekoppeld",
-        "revoked": "{hasSubject, select, yes {De app {target} van {subject} ontkoppeld} other {De app {target} ontkoppeld}}"
+        "revoked": "{hasSubject, select, yes {De app {target} van {subject} ontkoppeld} other {De app {target} ontkoppeld}}",
+        "approved": "De app {target} goedgekeurd",
+        "unapproved": "Goedkeuring van de app {target} ingetrokken"
       },
       "api_token": {
         "created": "Het API-token {target} gemaakt",
@@ -2862,5 +2880,12 @@
     "removing": "Verwijderen…",
     "noMatches": "Niemand komt overeen.",
     "empty": "Nog geen accounts op deze server gebruiken deze domeinen."
+  },
+  "openOnStart": {
+    "heading": "Pagina bij het starten",
+    "label": "Openen bij het starten",
+    "note": "Wat Leafdesk opent wanneer je het start of inlogt: de startpagina van de werkruimte, of de pagina die je het laatst hebt geopend op een van je apparaten, zolang je paginaweergaven worden bijgehouden. Een link naar een pagina opent nog steeds die pagina.",
+    "home": "Startpagina",
+    "last_page": "Laatst geopende pagina"
   }
 }

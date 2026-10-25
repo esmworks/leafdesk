@@ -73,7 +73,7 @@ function noAccess(error: unknown): never {
 
 /** A database the person may add rows to, in `workspaceId`; throws AiError("noAccess") otherwise. */
 async function targetDatabase(userId: string, workspaceId: string, databaseId: string) {
-  const found = await requirePageAccess(userId, databaseId, "edit").catch(noAccess);
+  const found = await requirePageAccess(userId, databaseId, "content").catch(noAccess);
   if (found.kind !== "database" || found.workspaceId !== workspaceId || found.archivedAt || found.inTemplate) {
     throw new AiError("noAccess", "Database not found");
   }
@@ -101,7 +101,7 @@ export async function voiceNoteDatabases(
     .from(page)
     .where(and(eq(page.workspaceId, workspaceId), eq(page.kind, "database"), eq(page.inTemplate, false), isNull(page.archivedAt)))
     .orderBy(page.title);
-  return rows.filter((row) => hasLevel(levelFromRank(row.level), "edit")).map(({ level: _level, ...row }) => row);
+  return rows.filter((row) => hasLevel(levelFromRank(row.level), "content")).map(({ level: _level, ...row }) => row);
 }
 
 /** The select and multi-select properties (with options) of a database the AI may fill for a note. */
@@ -149,7 +149,7 @@ export type VoiceNoteTarget =
  */
 async function resolveTarget(userId: string, target: VoiceNoteTarget): Promise<{ workspaceId: string; databaseId: string | null; instructions: string }> {
   if ("pageId" in target) {
-    const found = await requirePageAccess(userId, target.pageId, "edit").catch(noAccess);
+    const found = await requirePageAccess(userId, target.pageId, "content").catch(noAccess);
     if (found.archivedAt || found.kind !== "page") throw new AiError("noAccess", "Page not found");
     if (isPageLocked(found)) throw new AiError("noAccess", "The page is locked");
     return { workspaceId: found.workspaceId, databaseId: null, instructions: "" };

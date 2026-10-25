@@ -198,9 +198,16 @@ export const agentInputs = {
     task: scheduleTaskInput.optional(),
     database_id: scheduleDatabaseInput.optional(),
   }),
-  scheduleId: z.object({
+  setSchedule: z.object({
     agent_id: id("agent"),
-    schedule_id: id("schedule").describe("The schedule's id, from get_agent's schedules."),
+    action: z
+      .enum(["add", "update", "delete"])
+      .describe("add: a new schedule (repeat, time_zone, task; database_id optional). update: change one (schedule_id; what you leave out stays as it is). delete: remove one (schedule_id)."),
+    schedule_id: id("schedule").optional().describe("update, delete: the schedule's id, from get_agent's schedules."),
+    repeat: repeatInput.optional(),
+    time_zone: timeZoneInput.optional(),
+    task: scheduleTaskInput.optional(),
+    database_id: scheduleDatabaseInput.optional(),
   }),
   access: z.object({
     agent_id: id("agent"),
@@ -233,34 +240,23 @@ export const agentInputs = {
     agent_id: id("agent"),
     limit: z.number().int().min(1).max(100).default(20).describe("Maximum runs (1-100, default 20)."),
   }),
-  addNote: z.object({
+  memory: z.object({
     agent_id: id("agent"),
-    text: noteInput.describe(`The note: one fact, in a sentence of at most ${MAX_MEMORY_CHARS} characters.`),
+    action: z
+      .enum(["add", "update", "keep", "dismiss", "delete"])
+      .describe(
+        "add: keep a new note at once (text). update: change a note's text, kept or proposed (memory_id, text; a proposal stays one). keep: keep a note a run proposed (memory_id, text to change it first). dismiss: drop proposals (memory_ids, or all). delete: drop kept notes (memory_ids, or all: the agent forgets everything it remembers).",
+      ),
+    text: noteInput.optional().describe(`add, update, keep: the note, one fact in a sentence of at most ${MAX_MEMORY_CHARS} characters.`),
+    memory_id: memoryIdInput.optional(),
+    memory_ids: z
+      .array(memoryIdInput)
+      .min(1)
+      .max(MAX_MEMORIES + MAX_AGENT_PROPOSALS)
+      .optional()
+      .describe("dismiss: proposals, from get_agent's memory.proposed. delete: kept notes, from memory.kept."),
+    all: z.boolean().default(false).describe("dismiss, delete: every proposal, or every kept note, instead of memory_ids."),
   }),
-  updateNote: z.object({
-    agent_id: id("agent"),
-    memory_id: memoryIdInput,
-    text: noteInput.describe(`The note's new text (at most ${MAX_MEMORY_CHARS} characters). A proposal stays one until it is kept.`),
-  }),
-  keepNote: z.object({
-    agent_id: id("agent"),
-    memory_id: memoryIdInput.describe("The memory_id of a proposed note, from get_agent's memory.proposed."),
-    text: noteInput.optional().describe(`Keep it with this text instead (at most ${MAX_MEMORY_CHARS} characters); leave out to keep it as proposed.`),
-  }),
-  dropNotes: (what: "proposed" | "kept") =>
-    z.object({
-      agent_id: id("agent"),
-      memory_ids: z
-        .array(memoryIdInput)
-        .min(1)
-        .max(MAX_MEMORIES + MAX_AGENT_PROPOSALS)
-        .optional()
-        .describe(what === "proposed" ? "The memory_ids of proposals, from get_agent's memory.proposed." : "The memory_ids of kept notes, from get_agent's memory.kept."),
-      all: z
-        .boolean()
-        .default(false)
-        .describe(what === "proposed" ? "Dismiss every proposal waiting for an owner instead." : "Delete every kept note instead: the agent forgets everything it remembers."),
-    }),
 };
 
 /** At least one note, by id or all of them, never both. */
@@ -351,10 +347,10 @@ export async function withAgentErrors<T>(fn: () => Promise<T>): Promise<T> {
           );
         case "archived":
           throw new ToolInputError(
-            "This agent is archived. Call restore_agent first: it comes back paused, with nothing shared with it.",
+            "This agent is archived. Bring it back first (set_agent_archived with archived false): it comes back paused, with nothing shared with it.",
           );
         case "tooMany":
-          throw new ToolInputError(`A workspace has at most ${error.params.max ?? MAX_AGENTS} agents. Archive one with archive_agent first.`);
+          throw new ToolInputError(`A workspace has at most ${error.params.max ?? MAX_AGENTS} agents. Archive one first (set_agent_archived).`);
         case "notAPage":
           throw new ToolInputError(
             "No page with this id in the agent's workspace that the user can open. Use search or list_pages to find the page.",
@@ -375,7 +371,7 @@ export async function withAgentErrors<T>(fn: () => Promise<T>): Promise<T> {
           throw new ToolInputError(`A note has at most ${error.params.max ?? MAX_MEMORY_CHARS} characters. Make it shorter.`);
         case "memoryFull":
           throw new ToolInputError(
-            `The agent's memory is full (${error.params.max ?? MAX_MEMORIES} kept notes). Delete a note with delete_agent_memory first, or change one with update_agent_memory.`,
+            `The agent's memory is full (${error.params.max ?? MAX_MEMORIES} kept notes). Delete or change a note first (change_agent_memory).`,
           );
         case "paused":
           throw new ToolInputError("This agent is paused. Turn it on with update_agent (enabled: true) to run it.");
@@ -399,7 +395,7 @@ export async function withAgentErrors<T>(fn: () => Promise<T>): Promise<T> {
           );
         case "tooManySchedules":
           throw new ToolInputError(
-            `No room for another schedule (an agent has at most ${MAX_AGENT_SCHEDULES}, and a workspace has a limit too). Change one with update_agent_schedule, or delete one with delete_agent_schedule.`,
+            `No room for another schedule (an agent has at most ${MAX_AGENT_SCHEDULES}, and a workspace has a limit too). Change or delete one first (set_agent_schedule).`,
           );
         case "scheduleNotFound":
           throw new ToolInputError("No schedule with this schedule_id on the agent. Call get_agent to see its schedules.");
@@ -407,7 +403,7 @@ export async function withAgentErrors<T>(fn: () => Promise<T>): Promise<T> {
           throw new ToolInputError("No version with this number of the agent (only the latest ones are kept). Call list_agent_versions to see them.");
         case "noteNotFound":
           throw new ToolInputError(
-            "No note with this memory_id in the agent's memory that the user may read. Call get_agent to see its notes; a proposal from a run on a row the user can't open may only be dismissed (dismiss_agent_memory).",
+            "No note with this memory_id in the agent's memory that the user may read. Call get_agent to see its notes; a proposal from a run on a row the user can't open may only be dismissed (change_agent_memory dismiss).",
           );
       }
     }
@@ -583,17 +579,17 @@ export function describeAgentDraft(workspaceId: string, draft: AgentDraft) {
       task: a.task,
     })),
     next:
-      "Show the draft to the user and change what they ask. To set it up: create_agent (name, icon, description, instructions), set_agent_access for each page at its level, add_agent_schedule for each schedule (with the user's time_zone), and create_automation on each automation's database with its trigger and a run_agent action naming the agent, with the task as its prompt.",
+      "Show the draft to the user and change what they ask. To set it up: create_agent (name, icon, description, instructions), set_agent_access for each page at its level, set_agent_schedule add for each schedule (with the user's time_zone), and create_automation on each automation's database with its trigger and a run_agent action naming the agent, with the task as its prompt.",
   };
 }
 
 /** One of an agent's schedules, snake_case, with a note on what stands in its way. */
 export function describeAgentSchedule(workspaceId: string, s: AgentScheduleView) {
   const notes: string[] = [];
-  if (!s.enabled && s.lastError) notes.push(`${SCHEDULE_PAUSED[s.lastError]}; set it again (update_agent_schedule) to turn it back on.`);
+  if (!s.enabled && s.lastError) notes.push(`${SCHEDULE_PAUSED[s.lastError]}; set it again (set_agent_schedule update) to turn it back on.`);
   else if (s.lastError === "failed") notes.push(SCHEDULE_PAUSED.failed);
   if (s.agentAccess === "none") notes.push("The agent can't open the database: it skips its runs until the database is shared with it (set_agent_access).");
-  if (s.taskHidden) notes.push("The task is hidden: the user can't open the database. update_agent_schedule keeps it unless given a new task.");
+  if (s.taskHidden) notes.push("The task is hidden: the user can't open the database. set_agent_schedule update keeps it unless given a new task.");
   else if (s.agentAccess === "view" || s.agentAccess === "comment") notes.push(`The agent can only ${s.agentAccess === "view" ? "read" : "read and comment on"} the database: give it edit access (set_agent_access) to change rows.`);
   return {
     schedule_id: s.id,

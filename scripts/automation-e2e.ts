@@ -249,7 +249,7 @@ try {
   await flushAutomations();
   check(received.length === 2, "rows added at once (MCP, API, imports, forms) send one webhook each", received.length);
   received.length = 0;
-  const copy = await duplicatePage(owner, first.id, " (copy)");
+  const copy = await duplicatePage(owner, first.id);
   await flushAutomations();
   check(received.length === 1 && JSON.parse(received[0].body).row.id === copy.id, "a duplicated row counts as added");
   received.length = 0;

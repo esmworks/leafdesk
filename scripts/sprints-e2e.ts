@@ -243,7 +243,7 @@ try {
   await updateRowProperties(ids.owner, sprints[3].id, { [stateId]: config.states.current });
 
   // A copy of the project keeps sprints, kept in the copied sprints database
-  const copy = await duplicatePage(actor, project.id, " (copy)");
+  const copy = await duplicatePage(actor, project.id);
   const copied = await db.select().from(page).where(eq(page.parentId, copy.id));
   const copiedTasks = copied.find((p) => p.title === "Tasks")!;
   const copiedSprints = copied.find((p) => p.title === "Sprints")!;

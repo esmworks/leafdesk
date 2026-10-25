@@ -164,6 +164,52 @@ export function ExportSetting({
   );
 }
 
+/** Whether only the MCP apps owners approved reach the workspace (approved in the list of apps below). */
+export function OnlyApprovedAppsSetting({
+  workspaceId,
+  settings,
+  canEdit,
+}: {
+  workspaceId: string;
+  settings: WorkspaceSettings;
+  canEdit: boolean;
+}) {
+  const t = useTranslations("settings.security");
+  const [value, setValue] = useState(settings.onlyApprovedApps === true);
+  const { pending, error, run } = useAction();
+
+  return (
+    <SettingsRow
+      title={t("onlyApprovedApps.title")}
+      description={
+        error ? (
+          <span className="text-danger">{error}</span>
+        ) : (
+          <>
+            {t("onlyApprovedApps.description")}
+            {!canEdit && <> {t("ownersOnly")}</>}
+          </>
+        )
+      }
+      control={
+        <Switch
+          checked={value}
+          label={t("onlyApprovedApps.title")}
+          disabled={!canEdit || pending}
+          onChange={(next) => {
+            setValue(next);
+            run(async () => {
+              const result = await updateWorkspaceSettingsAction(workspaceId, { onlyApprovedApps: next });
+              if (!result.ok) setValue(!next);
+              return result;
+            });
+          }}
+        />
+      }
+    />
+  );
+}
+
 /** Whether guests may add top-level pages that only they can see. */
 export function GuestPrivatePagesSetting({
   workspaceId,

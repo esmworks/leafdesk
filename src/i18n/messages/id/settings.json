@@ -74,6 +74,7 @@
       "scim": "penyediaan direktori sinkron pengguna",
       "exportPolicy": "unduh cetak pdf ekspor",
       "connectedAppsPolicy": "mcp rest api token akses",
+      "onlyApprovedApps": "setujui daftar izin aplikasi mcp integrasi",
       "publishing": "terbitkan web bagikan tautan publik",
       "retention": "sampah riwayat hapus simpan hari",
       "legalHolds": "litigasi pertahankan ediscovery simpan",
@@ -93,6 +94,7 @@
       "sensitiveContent": "dlp pencegahan kebocoran data kartu kredit iban rahasia token kunci pindai",
       "sensitiveFindings": "dlp temuan rahasia bocor nomor kartu abaikan",
       "domainPeople": "domain akun pengguna perusahaan email tidak dikelola",
+      "openOnStart": "mulai buka halaman pertama terakhir dikunjungi terbaru",
       "pageReports": "laporkan laporan penyalahgunaan keluhan turunkan diterbitkan publik web halaman"
     }
   },
@@ -1478,6 +1480,10 @@
       "read": "Hanya baca",
       "off": "Tanpa akses"
     },
+    "onlyApprovedApps": {
+      "title": "Hanya aplikasi yang disetujui",
+      "description": "Hanya asisten AI dan aplikasi MCP lain yang disetujui pemilik di “Aplikasi yang menjangkau ruang kerja ini” yang dapat menjangkaunya; bagi yang lain ruang kerja ini tersembunyi. Token REST API tidak terpengaruh."
+    },
     "workspaceApps": {
       "title": "Aplikasi yang menjangkau ruang kerja ini",
       "description": "Asisten AI dan aplikasi lain yang dihubungkan orang di sini melalui MCP, serta token REST API mereka yang dapat menjangkau ruang kerja ini, beserta kapan masing-masing terakhir digunakan. Memutuskan salah satunya menghapusnya dari akun orang itu: ia tidak menjangkau ruang kerja mereka mana pun sampai mereka menghubungkannya lagi.",
@@ -1489,6 +1495,12 @@
       "reads": "Hanya membaca",
       "readsHere": "Hanya membaca di sini: aplikasi terhubung hanya boleh membaca",
       "offHere": "Tanpa akses di sini: aplikasi terhubung dimatikan",
+      "notApprovedHere": "Tidak ada akses di sini: belum disetujui",
+      "approved": "Disetujui",
+      "approve": "Setujui",
+      "unapprove": "Tarik persetujuan",
+      "approveError": "Tidak dapat mengubah persetujuan. Coba lagi.",
+      "approvedFull": "Ruang kerja ini sudah memiliki 500 aplikasi yang disetujui. Tarik salah satunya dulu.",
       "thisWorkspaceOnly": "Hanya ruang kerja ini",
       "connected": "Terhubung {date}",
       "lastUsed": "Terakhir digunakan di sini {when}",
@@ -1686,7 +1698,10 @@
       "notion": "Notion",
       "obsidian": "Obsidian",
       "enex": "Evernote",
-      "web": "Halaman web"
+      "web": "Halaman web",
+      "jira": "Jira",
+      "github": "GitHub",
+      "confluence": "Confluence"
     },
     "settingNames": {
       "guestInvites": "Siapa yang dapat mengundang tamu",
@@ -1702,6 +1717,7 @@
       "trashRetentionDays": "Hapus halaman di sampah setelah",
       "export": "Izinkan ekspor",
       "connectedApps": "Aplikasi terhubung dan token API",
+      "onlyApprovedApps": "Hanya aplikasi yang disetujui",
       "accessRequests": "Permintaan akses",
       "memberInvites": "Siapa yang dapat menambah anggota",
       "allowedDomains": "Domain email yang diizinkan",
@@ -1837,7 +1853,9 @@
       },
       "connected_app": {
         "connected": "Menghubungkan aplikasi {target}",
-        "revoked": "{hasSubject, select, yes {Memutuskan aplikasi {target} milik {subject}} other {Memutuskan aplikasi {target}}}"
+        "revoked": "{hasSubject, select, yes {Memutuskan aplikasi {target} milik {subject}} other {Memutuskan aplikasi {target}}}",
+        "approved": "Menyetujui aplikasi {target}",
+        "unapproved": "Menarik persetujuan aplikasi {target}"
       },
       "api_token": {
         "created": "Membuat token API {target}",
@@ -2862,5 +2880,12 @@
     "removing": "Menghapus…",
     "noMatches": "Tidak ada yang cocok.",
     "empty": "Belum ada akun di server ini yang memakai domain ini."
+  },
+  "openOnStart": {
+    "heading": "Halaman awal",
+    "label": "Buka saat mulai",
+    "note": "Yang dibuka Leafdesk saat dimulai atau saat Anda masuk: beranda ruang kerja, atau halaman yang terakhir Anda buka di perangkat mana pun, selama tampilan halaman Anda dicatat. Tautan ke suatu halaman tetap membuka halaman itu.",
+    "home": "Beranda",
+    "last_page": "Halaman terakhir yang Anda buka"
   }
 }

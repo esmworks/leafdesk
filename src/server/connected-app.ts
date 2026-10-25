@@ -5,6 +5,7 @@ import { AsyncLocalStorage } from "node:async_hooks";
  * REST API token (/api/v1). Each workspace's owners decide what those may do there
  * (`connectedApps` in WorkspaceSettings): whatever their user may ("full"), only read ("read"), or
  * nothing, the workspace then being hidden from them ("off").
+ * They may also let in only the MCP apps they approved (`onlyApprovedApps`, see appModeHere).
  *
  * The two endpoints run each request inside `runAsConnectedApp`, and the access checks (access.ts)
  * hold it to the policy the way they hold browser sessions to the sign-in policies: a hidden
@@ -68,6 +69,15 @@ export function connectedAppCall(userId: string): ConnectedAppCall | null {
 /** A stored setting as a mode: anything unknown (or unset) is the default, "full". */
 export function connectedAppsMode(value: unknown): ConnectedAppsMode {
   return value === "read" || value === "off" ? value : "full";
+}
+
+/**
+ * Pure: the setting as it holds for one app. Where only approved apps may come
+ * (`onlyApprovedApps`), an MCP app owners haven't approved finds the workspace off; REST API tokens
+ * and the server's own clients count as approved (`approved` true).
+ */
+export function appModeHere(mode: ConnectedAppsMode, onlyApproved: boolean, approved: boolean): ConnectedAppsMode {
+  return onlyApproved && !approved ? "off" : mode;
 }
 
 /**

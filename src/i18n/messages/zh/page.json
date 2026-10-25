@@ -36,7 +36,6 @@
     "linkCopied": "链接已复制",
     "duplicate": "创建副本",
     "duplicateWithoutRows": "创建不含行的副本",
-    "duplicateSuffix": "（副本）",
     "duplicateFailed": "无法创建页面副本。",
     "moveTo": "移动到",
     "style": {
@@ -246,6 +245,7 @@
     "change": "背景",
     "colors": "颜色",
     "patterns": "图案",
+    "covers": "封面",
     "none": "无",
     "remove": "移除背景",
     "colorNames": {
@@ -263,6 +263,16 @@
       "plus": "十字",
       "grid": "网格",
       "lines": "线条"
+    },
+    "coverNames": {
+      "sunrise": "日出",
+      "ocean": "海洋",
+      "forest": "森林",
+      "dusk": "黄昏",
+      "aurora": "极光",
+      "sand": "沙滩",
+      "mint": "薄荷",
+      "slate": "石板"
     }
   },
   "title": {
@@ -419,9 +429,11 @@
       "full": "完全访问",
       "edit": "可编辑",
       "comment": "可评论",
+      "content": "可编辑内容",
       "view": "可查看",
       "none": "无访问权限"
     },
+    "contentHint": "可编辑文本和数据库行，不能更改属性、视图或设置",
     "errors": {
       "notMember": "此人不是工作区成员。",
       "lastFullAccess": "必须有人保留对此页面的完全访问权限。请先给予其他人完全访问权限。",
@@ -770,6 +782,8 @@
     "plainCallout": "普通标注",
     "addTitle": "添加标题",
     "removeTitle": "移除标题",
+    "copyOriginalLink": "复制原始链接",
+    "openInNewTab": "在新标签页中打开",
     "quoteSize": "引用大小",
     "quoteSizeDefault": "默认",
     "quoteSizeLarge": "大"
@@ -799,10 +813,10 @@
     "noLetterheads": "所有者可以在 设置 → PDF 模板 中添加带徽标和公司信息的信笺。",
     "properties": "包含该行的值",
     "comments": "包含评论",
-    "textSize": "文字大小",
     "hint": "图表和公式会以文字形式打印；如需与页面完全一致，请使用“打印”。",
     "download": "下载",
-    "preparing": "正在准备…"
+    "preparing": "正在准备…",
+    "textSize": "文字大小"
   },
   "spreadsheet": {
     "untitled": "工作簿",
@@ -1067,11 +1081,11 @@
         "mediaSize": "图片和视频尺寸",
         "callout": "Markdown 无法表示的标注颜色和图标",
         "textStyle": "部分文字格式，例如下划线",
-        "table": "表格的列宽、标题行、合并的单元格和单元格颜色",
+        "table": "表格中合并的单元格",
         "blockSetting": "其他块设置",
         "content": "Markdown 无法承载的部分内容"
       },
-      "synced": "{count, plural, other {你在 # 个同步块中的更改：请在页面上编辑}}",
+      "synced": "{count, plural, other {你在 # 个无法编辑的同步块中的更改}}",
       "confirm": "仍然保存"
     },
     "conflict": {

@@ -36,7 +36,6 @@
     "linkCopied": "Lenken er kopiert",
     "duplicate": "Dupliser",
     "duplicateWithoutRows": "Dupliser uten rader",
-    "duplicateSuffix": " (kopi)",
     "duplicateFailed": "Kunne ikke duplisere siden.",
     "moveTo": "Flytt til",
     "style": {
@@ -246,6 +245,7 @@
     "change": "Bakgrunn",
     "colors": "Farge",
     "patterns": "Mønster",
+    "covers": "Forside",
     "none": "Ingen",
     "remove": "Fjern bakgrunn",
     "colorNames": {
@@ -263,6 +263,16 @@
       "plus": "Kryss",
       "grid": "Rutenett",
       "lines": "Linjer"
+    },
+    "coverNames": {
+      "sunrise": "Soloppgang",
+      "ocean": "Hav",
+      "forest": "Skog",
+      "dusk": "Skumring",
+      "aurora": "Nordlys",
+      "sand": "Sand",
+      "mint": "Mynte",
+      "slate": "Skifer"
     }
   },
   "title": {
@@ -419,9 +429,11 @@
       "full": "Full tilgang",
       "edit": "Kan redigere",
       "comment": "Kan kommentere",
+      "content": "Kan redigere innhold",
       "view": "Kan lese",
       "none": "Ingen tilgang"
     },
+    "contentHint": "Redigere tekst og databaserader, ikke egenskaper, visninger eller innstillinger",
     "errors": {
       "notMember": "Denne personen er ikke medlem av arbeidsområdet.",
       "lastFullAccess": "Noen må beholde full tilgang til siden. Gi noen andre full tilgang først.",
@@ -770,6 +782,8 @@
     "plainCallout": "Enkel infoboks",
     "addTitle": "Legg til tittel",
     "removeTitle": "Fjern tittel",
+    "copyOriginalLink": "Kopier opprinnelig lenke",
+    "openInNewTab": "Åpne i ny fane",
     "quoteSize": "Sitatstørrelse",
     "quoteSizeDefault": "Standard",
     "quoteSizeLarge": "Stor"
@@ -799,10 +813,10 @@
     "noLetterheads": "Eiere kan legge til brevhoder med logo og firmaopplysninger under Innstillinger → PDF-maler.",
     "properties": "Ta med verdiene i raden",
     "comments": "Ta med kommentarer",
-    "textSize": "Tekststørrelse",
     "hint": "Diagrammer og ligninger skrives ut som tekst; bruk Skriv ut for å få siden nøyaktig slik den ser ut.",
     "download": "Last ned",
-    "preparing": "Klargjør…"
+    "preparing": "Klargjør…",
+    "textSize": "Tekststørrelse"
   },
   "spreadsheet": {
     "untitled": "Arbeidsbok",
@@ -1067,11 +1081,11 @@
         "mediaSize": "Størrelser på bilder og videoer",
         "callout": "Farger og ikoner på infobokser som Markdown ikke har noen form for",
         "textStyle": "Noe tekstformatering, for eksempel understreking",
-        "table": "Kolonnebredder, overskriftsrader, sammenslåtte celler og cellefarger i tabeller",
+        "table": "Sammenslåtte celler i tabeller",
         "blockSetting": "Andre blokkinnstillinger",
         "content": "Noe innhold som Markdown ikke kan romme"
       },
-      "synced": "{count, plural, one {Endringene dine inne i en synkronisert blokk: rediger den på siden i stedet} other {Endringene dine inne i # synkroniserte blokker: rediger dem på siden i stedet}}",
+      "synced": "{count, plural, one {Endringene dine inne i en synkronisert blokk du ikke kan redigere} other {Endringene dine inne i # synkroniserte blokker du ikke kan redigere}}",
       "confirm": "Lagre likevel"
     },
     "conflict": {

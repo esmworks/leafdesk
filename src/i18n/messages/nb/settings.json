@@ -74,6 +74,7 @@
       "scim": "klargjøring katalog synkroniser brukere provisjonering",
       "exportPolicy": "nedlasting utskrift pdf eksport",
       "connectedAppsPolicy": "mcp rest api token tilgang",
+      "onlyApprovedApps": "godkjenn tillatelsesliste mcp apper integrasjoner",
       "publishing": "publiser web del offentlig lenke",
       "retention": "papirkurv historikk slett behold dager oppbevaring",
       "legalHolds": "rettssak bevar ediscovery behold rettslig bevaring",
@@ -93,6 +94,7 @@
       "sensitiveContent": "dlp tap av data kredittkort iban hemmeligheter token nøkler skann",
       "sensitiveFindings": "dlp funn lekkede hemmeligheter kortnumre avvis",
       "domainPeople": "domene kontoer brukere firma e-post skygge uadministrert",
+      "openOnStart": "start oppstart første side sist besøkt nylig",
       "pageReports": "rapporter rapport misbruk klage fjern publisert offentlig nett sider"
     }
   },
@@ -1478,6 +1480,10 @@
       "read": "Bare lese",
       "off": "Ingen tilgang"
     },
+    "onlyApprovedApps": {
+      "title": "Bare godkjente apper",
+      "description": "Bare KI-assistenter og andre MCP-apper som en eier har godkjent under «Apper som når dette arbeidsområdet», kan nå det; for andre er det skjult. REST API-tokener påvirkes ikke."
+    },
     "workspaceApps": {
       "title": "Apper som når dette arbeidsområdet",
       "description": "KI-assistenter og andre apper som folk her har koblet til via MCP, og deres REST API-tokener som når dette arbeidsområdet, med når hver av dem sist ble brukt. Hvis du kobler fra en, fjernes den fra kontoen til den personen: den når ingen av arbeidsområdene deres før de kobler den til igjen.",
@@ -1489,6 +1495,12 @@
       "reads": "Bare leser",
       "readsHere": "Bare lesing her: tilkoblede apper kan bare lese",
       "offHere": "Ingen tilgang her: tilkoblede apper er slått av",
+      "notApprovedHere": "Ingen tilgang her: ikke godkjent",
+      "approved": "Godkjent",
+      "approve": "Godkjenn",
+      "unapprove": "Trekk tilbake godkjenning",
+      "approveError": "Kunne ikke endre godkjenningen. Prøv igjen.",
+      "approvedFull": "Dette arbeidsområdet har allerede 500 godkjente apper. Trekk tilbake én først.",
       "thisWorkspaceOnly": "Bare dette arbeidsområdet",
       "connected": "Koblet til {date}",
       "lastUsed": "Sist brukt her {when}",
@@ -1686,7 +1698,10 @@
       "notion": "Notion",
       "obsidian": "Obsidian",
       "enex": "Evernote",
-      "web": "Nettside"
+      "web": "Nettside",
+      "jira": "Jira",
+      "github": "GitHub",
+      "confluence": "Confluence"
     },
     "settingNames": {
       "guestInvites": "Hvem kan invitere gjester",
@@ -1702,6 +1717,7 @@
       "trashRetentionDays": "Slett sider i papirkurven etter",
       "export": "Tillat eksport",
       "connectedApps": "Tilkoblede apper og API-tokener",
+      "onlyApprovedApps": "Bare godkjente apper",
       "accessRequests": "Tilgangsforespørsler",
       "memberInvites": "Hvem kan legge til medlemmer",
       "allowedDomains": "Tillatte e-postdomener",
@@ -1837,7 +1853,9 @@
       },
       "connected_app": {
         "connected": "Koblet til appen {target}",
-        "revoked": "{hasSubject, select, yes {Koblet fra appen {target} som tilhører {subject}} other {Koblet fra appen {target}}}"
+        "revoked": "{hasSubject, select, yes {Koblet fra appen {target} som tilhører {subject}} other {Koblet fra appen {target}}}",
+        "approved": "Godkjente appen {target}",
+        "unapproved": "Trakk tilbake godkjenningen av appen {target}"
       },
       "api_token": {
         "created": "Opprettet API-tokenet {target}",
@@ -2862,5 +2880,12 @@
     "removing": "Fjerner…",
     "noMatches": "Ingen samsvarer.",
     "empty": "Ingen kontoer på denne serveren bruker disse domenene ennå."
+  },
+  "openOnStart": {
+    "heading": "Side ved oppstart",
+    "label": "Åpne ved oppstart",
+    "note": "Hva Leafdesk åpner når du starter det eller logger inn: arbeidsområdets startside, eller siden du sist åpnet på en av enhetene dine, så lenge sidevisningene dine registreres. En lenke til en side åpner fortsatt den siden.",
+    "home": "Startside",
+    "last_page": "Siden du sist åpnet"
   }
 }

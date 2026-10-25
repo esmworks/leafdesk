@@ -6,7 +6,7 @@ import { BlockNoteSchema, defaultStyleSpecs } from "@blocknote/core";
 import { BlockNoteView } from "@blocknote/mantine";
 import { useCreateBlockNote } from "@blocknote/react";
 import { History, X } from "lucide-react";
-import { useFormatter, useTranslations } from "next-intl";
+import { useFormatter, useLocale, useTranslations } from "next-intl";
 import { useEffect, useMemo, useState, useTransition } from "react";
 import { diffSnapshotAction, getSnapshotAction, listSnapshotsAction, restoreSnapshotAction } from "@/app/actions/pages";
 import { Button, cn, IconButton, pageLabel } from "@/components/ui";
@@ -14,6 +14,7 @@ import { useColorScheme } from "@/components/theme/theme-provider";
 import { useEditorDictionary } from "@/i18n/blocknote";
 import { parseDashboardLine } from "@/lib/dashboard";
 import { DATABASE_BLOCK, mapReferenceLines } from "@/lib/embed-blocks";
+import { relativeTime } from "@/lib/relative-time";
 import { textScriptStyleSpecs } from "@/lib/text-scripts";
 import { BlockDirection } from "./block-direction";
 import { HistoryDiff, type VersionDiff } from "./history-diff";
@@ -22,6 +23,7 @@ type SnapshotItem = Awaited<ReturnType<typeof listSnapshotsAction>>[number];
 /** What the preview shows: the version itself, or its changes against the current page or the version before it. */
 type Mode = "version" | "current" | "previous";
 const MODES: Mode[] = ["version", "current", "previous"];
+const WEEK = 7 * 24 * 3600 * 1000;
 
 /** BlockNote's blocks, with the page's text styles so a version's superscripts show as such. */
 const previewSchema = BlockNoteSchema.create({ styleSpecs: { ...defaultStyleSpecs, ...textScriptStyleSpecs } });
@@ -75,6 +77,7 @@ export function HistoryPanel({ pageId, onClose, readOnly }: { pageId: string; on
   const t = useTranslations("page.history");
   const tc = useTranslations("common");
   const format = useFormatter();
+  const locale = useLocale();
 
   function describe(s: SnapshotItem) {
     switch (s.reason) {
@@ -141,6 +144,15 @@ export function HistoryPanel({ pageId, onClose, readOnly }: { pageId: string; on
     };
   }, [selected, mode]);
 
+  // A version of the last week reads as "2 hours ago" or "yesterday", an older one as its date
+  // written out; the exact time shows on hover.
+  const when = (at: Date | string) => {
+    const date = new Date(at);
+    return Date.now() - date.getTime() < WEEK
+      ? relativeTime(date, locale)
+      : format.dateTime(date, { dateStyle: "long", timeStyle: "short" });
+  };
+  const exactly = (at: Date | string) => format.dateTime(new Date(at), { dateStyle: "full", timeStyle: "medium" });
   const savedAt = (id: string | null) => {
     const item = id ? items?.find((s) => s.id === id) : undefined;
     return item ? format.dateTime(new Date(item.createdAt), { dateStyle: "medium", timeStyle: "short" }) : null;
@@ -228,7 +240,9 @@ export function HistoryPanel({ pageId, onClose, readOnly }: { pageId: string; on
                   selected === s.id && "bg-bg-active hover:bg-bg-active",
                 )}
               >
-                <div className="text-sm">{format.dateTime(new Date(s.createdAt), { dateStyle: "medium", timeStyle: "short" })}</div>
+                <time dateTime={new Date(s.createdAt).toISOString()} title={exactly(s.createdAt)} className="block text-sm">
+                  {when(s.createdAt)}
+                </time>
                 <div className="truncate text-xs text-fg-muted">
                   {describe(s)}
                   {s.authorName ? ` · ${s.authorIsAgent ? tc("agentName", { name: s.authorName }) : s.authorName}` : ""}

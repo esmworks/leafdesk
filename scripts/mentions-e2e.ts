@@ -381,7 +381,7 @@ try {
   // Copies
   await setReminder(new Date(Date.now() + 3 * 60 * 60_000).toISOString());
   const before = (await db.select().from(notification).where(eq(notification.kind, "mention"))).length;
-  const copy = await duplicatePage(owner, plan.id, " (copy)");
+  const copy = await duplicatePage(owner, plan.id);
   const copied = await mentionsOf(copy.id);
   check(copied.some((m) => m.kind === "user"), "a copy keeps its mentions", copied);
   check((await db.select().from(notification).where(eq(notification.kind, "mention"))).length === before, "…without notifying the people in them again");

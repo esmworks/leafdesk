@@ -6,15 +6,17 @@ import { cn, Popover } from "@/components/ui";
 import {
   BACKGROUND_COLORS,
   BACKGROUND_PATTERNS,
+  PAGE_COVERS,
   pageBackground,
   type BackgroundColor,
   type BackgroundPattern,
   type PageBackground,
+  type PageCover,
 } from "@/lib/page-background";
 
 const SWATCH = "flex h-7 items-center justify-center rounded-md border border-border ring-offset-2 ring-offset-bg hover:opacity-85";
 
-/** Choose a page's background color and pattern, or remove them. Stays open so both can be tried. */
+/** Choose a page's background color, pattern and cover, or remove them. Stays open so they can be tried together. */
 export function BackgroundPicker({
   background,
   onChange,
@@ -30,8 +32,9 @@ export function BackgroundPicker({
   const t = useTranslations("page.background");
   const color = background?.color ?? null;
   const pattern = background?.pattern ?? null;
-  const set = (nextColor: BackgroundColor | null, nextPattern: BackgroundPattern | null) => {
-    if (nextColor !== color || nextPattern !== pattern) onChange(pageBackground(nextColor, nextPattern));
+  const cover = background?.cover ?? null;
+  const set = (nextColor: BackgroundColor | null, nextPattern: BackgroundPattern | null, nextCover: PageCover | null = cover) => {
+    if (nextColor !== color || nextPattern !== pattern || nextCover !== cover) onChange(pageBackground(nextColor, nextPattern, nextCover));
   };
 
   const none = (active: boolean, onClick: () => void) => (
@@ -83,6 +86,23 @@ export function BackgroundPicker({
                   onClick={() => set(color, p)}
                   // Drawn like the page's own pattern, so it shows in the page's colors.
                   className={cn(`page-pattern page-pattern-${p}`, SWATCH, "h-9 overflow-hidden bg-bg", pattern === p && "ring-2 ring-accent")}
+                />
+              ))}
+            </div>
+          </div>
+          <div>
+            <p className="mb-1.5 px-0.5 text-xs font-medium text-fg-muted">{t("covers")}</p>
+            <div className="grid grid-cols-5 gap-1.5">
+              {none(!cover, () => set(color, pattern, null))}
+              {PAGE_COVERS.map((c) => (
+                <button
+                  key={c}
+                  type="button"
+                  aria-label={t(`coverNames.${c}`)}
+                  aria-pressed={cover === c}
+                  title={t(`coverNames.${c}`)}
+                  onClick={() => set(color, pattern, c)}
+                  className={cn(`page-cover-${c}`, SWATCH, "h-9", cover === c && "ring-2 ring-accent")}
                 />
               ))}
             </div>

@@ -590,9 +590,14 @@ export async function linkUnlinkedMention(userId: string, sourceId: string, targ
 async function peopleMatching(userId: string, workspaceId: string, q: string) {
   const membership = await getMembership(userId, workspaceId);
   if (!membership || isGuest(membership.role)) return [];
-  return (await workspacePeople(workspaceId))
+  const people = await workspacePeople(workspaceId);
+  // People with the user's own email domain (their colleagues) come before others, the user last.
+  const domainOf = (email: string) => email.slice(email.lastIndexOf("@") + 1).toLowerCase();
+  const own = domainOf(people.find((p) => p.id === userId)?.email ?? "");
+  const rank = (p: (typeof people)[number]) => (p.id === userId ? 2 : own && domainOf(p.email) === own ? 0 : 1);
+  return people
     .filter((p) => !q || searchFold(p.name).includes(q) || searchFold(p.email).startsWith(q))
-    .sort((a, b) => (a.id === userId ? 1 : 0) - (b.id === userId ? 1 : 0) || a.name.localeCompare(b.name))
+    .sort((a, b) => rank(a) - rank(b) || a.name.localeCompare(b.name))
     .map((p) => ({ id: p.id, name: p.name, image: avatarSrc(p.image) }));
 }
 
