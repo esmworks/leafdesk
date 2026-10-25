@@ -125,7 +125,13 @@
     "addViewHeading": "添加视图",
     "rename": "重命名",
     "viewName": "视图名称",
-    "deleteView": "删除视图"
+    "deleteView": "删除视图",
+    "exportView": "导出此视图",
+    "export": {
+      "csv": "CSV",
+      "html": "HTML 页面",
+      "pdf": "PDF"
+    }
   },
   "deleted": {
     "properties": "已删除的属性",

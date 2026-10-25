@@ -125,7 +125,13 @@
     "addViewHeading": "إضافة طريقة عرض",
     "rename": "إعادة التسمية",
     "viewName": "اسم طريقة العرض",
-    "deleteView": "حذف طريقة العرض"
+    "deleteView": "حذف طريقة العرض",
+    "exportView": "تصدير هذا العرض",
+    "export": {
+      "csv": "CSV",
+      "html": "صفحة HTML",
+      "pdf": "PDF"
+    }
   },
   "deleted": {
     "properties": "الخصائص المحذوفة",

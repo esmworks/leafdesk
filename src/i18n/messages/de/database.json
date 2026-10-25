@@ -125,7 +125,13 @@
     "addViewHeading": "Ansicht hinzufügen",
     "rename": "Umbenennen",
     "viewName": "Name der Ansicht",
-    "deleteView": "Ansicht löschen"
+    "deleteView": "Ansicht löschen",
+    "exportView": "Diese Ansicht exportieren",
+    "export": {
+      "csv": "CSV",
+      "html": "HTML-Seite",
+      "pdf": "PDF"
+    }
   },
   "deleted": {
     "properties": "Gelöschte Eigenschaften",

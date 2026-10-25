@@ -125,7 +125,13 @@
     "addViewHeading": "הוספת תצוגה",
     "rename": "שינוי שם",
     "viewName": "שם התצוגה",
-    "deleteView": "מחיקת התצוגה"
+    "deleteView": "מחיקת התצוגה",
+    "exportView": "ייצוא התצוגה הזו",
+    "export": {
+      "csv": "CSV",
+      "html": "דף HTML",
+      "pdf": "PDF"
+    }
   },
   "deleted": {
     "properties": "מאפיינים שנמחקו",

@@ -52,6 +52,10 @@
   *Turn into* in a block's menu changes the selected text blocks into another kind (text, headings,
   lists, toggle list, quote, code) or puts them in columns, one to a column (a single block gets
   an empty column beside it). Typing a space right after `/` closes the slash menu.
+- **Export just this view.** A view's tab menu has *Export this view* as CSV, an HTML page or a
+  PDF: the rows the view shows after its filters, sorts and search, in its order, with the
+  properties it shows, in its column order. People who can only view the database can export too,
+  while the workspace allows exporting; the audit log names the format.
 
 ### Changed
 

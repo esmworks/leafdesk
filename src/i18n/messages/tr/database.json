@@ -125,7 +125,13 @@
     "addViewHeading": "Görünüm ekleyin",
     "rename": "Yeniden adlandır",
     "viewName": "Görünüm adı",
-    "deleteView": "Görünümü sil"
+    "deleteView": "Görünümü sil",
+    "exportView": "Bu görünümü dışa aktar",
+    "export": {
+      "csv": "CSV",
+      "html": "HTML sayfası",
+      "pdf": "PDF"
+    }
   },
   "deleted": {
     "properties": "Silinen özellikler",

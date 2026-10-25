@@ -125,7 +125,13 @@
     "addViewHeading": "Een weergave toevoegen",
     "rename": "Hernoemen",
     "viewName": "Naam van de weergave",
-    "deleteView": "Weergave verwijderen"
+    "deleteView": "Weergave verwijderen",
+    "exportView": "Deze weergave exporteren",
+    "export": {
+      "csv": "CSV",
+      "html": "HTML-pagina",
+      "pdf": "PDF"
+    }
   },
   "deleted": {
     "properties": "Verwijderde eigenschappen",

@@ -157,28 +157,32 @@ export function databaseTable(
   snapshot: Snapshot,
   rows: Snapshot["rows"],
   fileText: (f: { name: string; url: string }) => string,
+  properties: Snapshot["properties"] = snapshot.properties,
 ): { header: string[]; cells: (string | number | null)[][] } {
   const titleOf = new Map(Object.values(snapshot.relations).flatMap((r) => r.rows.map((row) => [row.id, row.title] as const)));
   // A relation to the same database would otherwise print ids for its trashed rows.
   if (snapshot.database.archived) for (const row of rows) if (!titleOf.has(row.id)) titleOf.set(row.id, row.title);
   const nameOf = new Map(snapshot.people.map((p) => [p.id, p.name] as const));
   return {
-    header: ["Name", ...snapshot.properties.map((p) => p.name)],
-    cells: rows.map((row) => [row.title, ...snapshot.properties.map((p) => cellText(p, row.properties[p.id], { titleOf, nameOf, fileText }))]),
+    header: ["Name", ...properties.map((p) => p.name)],
+    cells: rows.map((row) => [row.title, ...properties.map((p) => cellText(p, row.properties[p.id], { titleOf, nameOf, fileText }))]),
   };
 }
 
 /**
  * A database's rows for a one-file export (all of them, or those of `only`, in that order) as
- * table cells, recorded in the audit log as exported in `format`.
+ * table cells, recorded in the audit log as exported in `format`; with `columns`, only those
+ * properties, in that order (ids the user can't see match nothing).
  */
-async function exportedTable(userId: string, databaseId: string, only: string[] | null, format: "csv" | "xlsx") {
+async function exportedTable(userId: string, databaseId: string, only: string[] | null, format: ExportRecord["format"], columns: string[] | null = null) {
   const snapshot = await getDatabaseSnapshot(userId, databaseId);
   await assertExportAllowed(snapshot.database.workspaceId);
   const byId = new Map(snapshot.rows.map((row) => [row.id, row]));
   const rows = only ? only.flatMap((id) => byId.get(id) ?? []) : snapshot.rows;
+  const propertyById = new Map(snapshot.properties.map((p) => [p.id, p]));
+  const properties = columns ? [...new Set(columns)].flatMap((id) => propertyById.get(id) ?? []) : snapshot.properties;
   // "photo.png (https://…/api/files/…)": the link opens for people who can see the row.
-  const table = databaseTable(snapshot, rows, (f) => `${f.name} (${env.appUrl}${f.url})`);
+  const table = databaseTable(snapshot, rows, (f) => `${f.name} (${env.appUrl}${f.url})`, properties);
   await recordExport(userId, {
     workspaceId: snapshot.database.workspaceId,
     page: { id: databaseId, title: snapshot.database.title },
@@ -192,6 +196,19 @@ async function exportedTable(userId: string, databaseId: string, only: string[] 
 export async function databaseCsv(userId: string, databaseId: string, only: string[] | null = null) {
   const { snapshot, header, cells } = await exportedTable(userId, databaseId, only, "csv");
   return { title: snapshot.database.title, csv: toCsv([header, ...cells]) };
+}
+
+/** What a view shows, for exporting just that: its rows and properties in its order, and its name. */
+export type ViewExport = { rows: string[]; properties: string[]; name: string };
+
+/**
+ * The rows and properties a view of a database shows (see ViewExport) as table cells, for a CSV,
+ * HTML or PDF of just that view, titled after the database and the view.
+ */
+export async function databaseViewTable(userId: string, databaseId: string, view: ViewExport, format: "csv" | "html" | "pdf") {
+  const { snapshot, header, cells } = await exportedTable(userId, databaseId, view.rows, format, view.properties);
+  const title = [snapshot.database.title.trim(), view.name.trim()].filter(Boolean).join(" – ");
+  return { title, workspaceId: snapshot.database.workspaceId, header, cells };
 }
 
 /**
@@ -223,7 +240,7 @@ export type ExportRecord = {
   workspaceId: string;
   /** The page exported; null for the whole workspace. */
   page: { id: string; title: string } | null;
-  format: "zip" | "csv" | "xlsx" | "markdown" | "pdf" | "skill";
+  format: "zip" | "csv" | "xlsx" | "html" | "markdown" | "pdf" | "skill";
   /** The pages' comments went in too. */
   comments?: boolean;
   /** How many pages (or rows, or files) it holds, when known. */

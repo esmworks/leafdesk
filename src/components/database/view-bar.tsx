@@ -10,6 +10,9 @@ import {
   ChevronRight,
   Eye,
   EyeOff,
+  FileCode,
+  FileSpreadsheet,
+  FileText,
   GripVertical,
   ListFilter,
   Pencil,
@@ -77,6 +80,10 @@ export { ViewIcon };
 /** What a menu needs to list a database's deleted properties or views (see DeletedSchemaList). */
 export type DeletedSchemaProps = { databaseId: string; reloadKey: unknown; onChanged: () => void };
 
+/** The files a view exports to, just what it shows (see DatabasePage exportView). */
+export const VIEW_EXPORTS = ["csv", "html", "pdf"] as const;
+export type ViewExportFormat = (typeof VIEW_EXPORTS)[number];
+
 export function ViewTabs({
   views,
   activeId,
@@ -87,6 +94,7 @@ export function ViewTabs({
   onMove,
   readOnly,
   deleted,
+  onExport,
 }: {
   views: View[];
   activeId: string;
@@ -98,6 +106,8 @@ export function ViewTabs({
   readOnly?: boolean;
   /** Set for people who may change the database's schema: the menu lists its deleted views. */
   deleted?: DeletedSchemaProps;
+  /** Exports what the active view shows; its menu offers it (to viewers too) when set. */
+  onExport?: (format: ViewExportFormat) => void;
 }) {
   const t = useTranslations("database");
   const add = useFloating<HTMLButtonElement>();
@@ -121,6 +131,7 @@ export function ViewTabs({
           onSelect={() => onSelect(view.id)}
           onRename={(name) => onRename(view, name)}
           onDelete={() => onDelete(view)}
+          onExport={view.id === activeId ? onExport : undefined}
         />
       ))}
       {!readOnly && (
@@ -183,6 +194,7 @@ function ViewTab({
   onSelect,
   onRename,
   onDelete,
+  onExport,
 }: {
   view: View;
   active: boolean;
@@ -193,8 +205,11 @@ function ViewTab({
   onSelect: () => void;
   onRename: (name: string) => void;
   onDelete: () => void;
+  onExport?: (format: ViewExportFormat) => void;
 }) {
   const t = useTranslations("database.viewTabs");
+  // Viewers open the menu just to export.
+  const hasMenu = !readOnly || !!onExport;
   const menu = useFloating<HTMLButtonElement>();
   const [renaming, setRenaming] = useState(false);
   const [name, setName] = useState(view.name);
@@ -224,7 +239,7 @@ function ViewTab({
       <button
         ref={menu.ref}
         type="button"
-        onClick={() => (active && !readOnly ? menu.toggle() : onSelect())}
+        onClick={() => (active && hasMenu ? menu.toggle() : onSelect())}
         className={cn(
           "inline-flex h-7 items-center gap-1.5 rounded-md px-2 text-sm hover:bg-bg-hover",
           active ? "font-medium text-fg" : "text-fg-muted",
@@ -232,7 +247,7 @@ function ViewTab({
       >
         <ViewIcon type={view.type} />
         <span className="max-w-40 truncate">{view.name}</span>
-        {active && !readOnly && <ChevronDown className="h-3 w-3 text-fg-faint" />}
+        {active && hasMenu && <ChevronDown className="h-3 w-3 text-fg-faint" />}
       </button>
       <Floating
         open={menu.open}
@@ -261,16 +276,46 @@ function ViewTab({
           </div>
         ) : (
           <>
-            <MenuItem
-              icon={<Pencil className="h-3.5 w-3.5" />}
-              onClick={() => {
-                setName(view.name);
-                setRenaming(true);
-              }}
-            >
-              {t("rename")}
-            </MenuItem>
-            {canDelete && (
+            {!readOnly && (
+              <MenuItem
+                icon={<Pencil className="h-3.5 w-3.5" />}
+                onClick={() => {
+                  setName(view.name);
+                  setRenaming(true);
+                }}
+              >
+                {t("rename")}
+              </MenuItem>
+            )}
+            {onExport && (
+              <>
+                {!readOnly && <MenuSeparator />}
+                <div className="px-2 pt-1 pb-1.5 text-xs text-fg-muted">
+                  {t("exportView")}
+                </div>
+                {VIEW_EXPORTS.map((format) => (
+                  <MenuItem
+                    key={format}
+                    icon={
+                      format === "csv" ? (
+                        <FileSpreadsheet className="h-3.5 w-3.5" />
+                      ) : format === "html" ? (
+                        <FileCode className="h-3.5 w-3.5" />
+                      ) : (
+                        <FileText className="h-3.5 w-3.5" />
+                      )
+                    }
+                    onClick={() => {
+                      menu.close();
+                      onExport(format);
+                    }}
+                  >
+                    {t(`export.${format}`)}
+                  </MenuItem>
+                ))}
+              </>
+            )}
+            {canDelete && !readOnly && (
               <>
                 <MenuSeparator />
                 <MenuItem

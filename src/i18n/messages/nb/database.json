@@ -125,7 +125,13 @@
     "addViewHeading": "Legg til en visning",
     "rename": "Gi nytt navn",
     "viewName": "Navn på visning",
-    "deleteView": "Slett visning"
+    "deleteView": "Slett visning",
+    "exportView": "Eksporter denne visningen",
+    "export": {
+      "csv": "CSV",
+      "html": "HTML-side",
+      "pdf": "PDF"
+    }
   },
   "deleted": {
     "properties": "Slettede egenskaper",

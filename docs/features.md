@@ -326,7 +326,8 @@
     answers are never shown.
   - Put a database inside any page, or show a view of an existing one there. A table block turns
     into a database from its block menu: its first row names the properties.
-  - Lock a database to freeze its properties and views, and export its rows as CSV.
+  - Lock a database to freeze its properties and views, and export its rows as CSV. A view's tab
+    menu exports just what the view shows as CSV, an HTML page or a PDF.
   - Row templates with preset properties and content; pick one as the default for "New". A
     template's person can be *Me* and its date *Today* or *Now*: filled in with whoever adds the
     row and the day (in their time zone) or moment they add it, whether by hand, a button, an

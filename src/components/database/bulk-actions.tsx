@@ -7,6 +7,7 @@ import type { Selection } from "@/components/selection";
 import { showToast } from "@/components/toast";
 import { Button, cn, Input, MenuItem } from "@/components/ui";
 import { IconGrid } from "@/components/page/icon-picker";
+import { saveDownload } from "./download";
 import { Floating, useFloating } from "./floating";
 import { MergeRowsDialog } from "./merge-rows-dialog";
 import { MAX_MERGE_ROWS, MIN_MERGE_ROWS } from "@/lib/merge-rows";
@@ -100,18 +101,9 @@ export function BulkActionBar({
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ rows: ids }),
         });
-        // Export turned off since the table loaded (the bar hides the button while it is off).
-        if (res.status === 403 && (await res.json().catch(() => null))?.error === "disabled") return api.showError(t("exportDisabled"));
-        if (!res.ok) throw new Error(String(res.status));
-        const name = /filename\*=UTF-8''([^;]+)/.exec(res.headers.get("Content-Disposition") ?? "")?.[1];
-        const url = URL.createObjectURL(await res.blob());
-        const link = document.createElement("a");
-        link.href = url;
-        link.download = name ? decodeURIComponent(name) : `export.${format}`;
-        link.click();
-        setTimeout(() => URL.revokeObjectURL(url), 1000);
-      } catch {
-        api.showError(t("exportFailed"));
+        await saveDownload(res, `export.${format}`);
+      } catch (error) {
+        api.showError(t(error instanceof Error && error.message === "disabled" ? "exportDisabled" : "exportFailed"));
       }
     });
 

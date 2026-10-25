@@ -125,7 +125,13 @@
     "addViewHeading": "Thêm một chế độ xem",
     "rename": "Đổi tên",
     "viewName": "Tên chế độ xem",
-    "deleteView": "Xóa chế độ xem"
+    "deleteView": "Xóa chế độ xem",
+    "exportView": "Xuất chế độ xem này",
+    "export": {
+      "csv": "CSV",
+      "html": "Trang HTML",
+      "pdf": "PDF"
+    }
   },
   "deleted": {
     "properties": "Thuộc tính đã xóa",

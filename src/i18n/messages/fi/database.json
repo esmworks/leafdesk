@@ -125,7 +125,13 @@
     "addViewHeading": "Lisää näkymä",
     "rename": "Nimeä uudelleen",
     "viewName": "Näkymän nimi",
-    "deleteView": "Poista näkymä"
+    "deleteView": "Poista näkymä",
+    "exportView": "Vie tämä näkymä",
+    "export": {
+      "csv": "CSV",
+      "html": "HTML-sivu",
+      "pdf": "PDF"
+    }
   },
   "deleted": {
     "properties": "Poistetut ominaisuudet",

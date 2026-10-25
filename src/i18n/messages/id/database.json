@@ -125,7 +125,13 @@
     "addViewHeading": "Tambahkan tampilan",
     "rename": "Ganti nama",
     "viewName": "Nama tampilan",
-    "deleteView": "Hapus tampilan"
+    "deleteView": "Hapus tampilan",
+    "exportView": "Ekspor tampilan ini",
+    "export": {
+      "csv": "CSV",
+      "html": "Halaman HTML",
+      "pdf": "PDF"
+    }
   },
   "deleted": {
     "properties": "Properti yang dihapus",

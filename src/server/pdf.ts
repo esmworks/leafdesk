@@ -17,7 +17,7 @@ import { requirePageAccess } from "@/server/access";
 import type { PageBlock } from "@/server/blocknote";
 import { calloutStylesOf } from "@/server/callout-styles";
 import { getCollab } from "@/server/collab/bridge";
-import { assertExportAllowed, pageThreads, recordExport } from "@/server/export";
+import { assertExportAllowed, databaseViewTable, pageThreads, recordExport, type ViewExport } from "@/server/export";
 import { commentExportLabels } from "@/server/export-labels";
 import { fileForViewer, readStored } from "@/server/files";
 import { letterheadForPdf } from "@/server/letterheads";
@@ -121,6 +121,35 @@ export async function pagePdf(
   });
   await recordExport(userId, { workspaceId: target.workspaceId, page: { id: target.id, title: target.title }, format: "pdf", comments, pages: 1 });
   return { bytes, title: section.title, workspaceId: target.workspaceId };
+}
+
+/**
+ * What a view of the database `databaseId` shows (see ViewExport) as a PDF: its title, then the
+ * rows as a table, in the workspace's default letterhead. Recorded as an export like the others.
+ */
+export async function viewPdf(userId: string, databaseId: string, view: ViewExport): Promise<PagePdf> {
+  const table = await databaseViewTable(userId, databaseId, view, "pdf");
+  const [letterhead, labels] = await Promise.all([letterheadForPdf(userId, table.workspaceId, undefined), pdfLabels()]);
+  const title = pageLabel(table.title, labels.untitled);
+  const bytes = await renderPdf({
+    title,
+    sections: [
+      {
+        title,
+        blocks: [],
+        properties: [],
+        database: { header: table.header, rows: table.cells.map((row) => row.map((cell) => (cell === null ? "" : String(cell)))) },
+        embeds: new Map(),
+        crumbs: [],
+        children: [],
+      },
+    ],
+    images: new Map(),
+    link: (url) => (url.startsWith("/") ? `${env.appUrl}${url}` : url),
+    labels,
+    letterhead,
+  });
+  return { bytes, title, workspaceId: table.workspaceId };
 }
 
 /** The texts a PDF prints, in the reader's language (English outside a request). */

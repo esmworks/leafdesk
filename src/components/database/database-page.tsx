@@ -12,7 +12,7 @@ import type { ViewConfig, ViewType } from "@/db/schema/app";
 import type { LinkedView } from "@/lib/embed-blocks";
 import { colorRows, type RowColors } from "@/lib/color-rules";
 import { valueType } from "@/lib/derived";
-import { applyView, defaultsFromFilters, filterOperators, orderProperties } from "@/lib/properties";
+import { applyView, defaultsFromFilters, filterOperators, isHiddenInView, orderProperties } from "@/lib/properties";
 import { atLeast } from "@/lib/property-access";
 import { searchRows } from "@/lib/row-search";
 import { opensNewTab } from "@/lib/row-panel";
@@ -35,7 +35,8 @@ import { useDatabase } from "./use-database";
 import { OfflineNotice } from "@/components/offline/offline-notice";
 import { AiAutofillProvider, type AiAutofillContextValue } from "./ai-autofill";
 import { useIsOffline } from "@/components/offline/offline-context";
-import { ActiveRulesBar, ViewSearch, ViewTabs, ViewToolbar, type FilterRequest } from "./view-bar";
+import { ActiveRulesBar, ViewSearch, ViewTabs, ViewToolbar, type FilterRequest, type ViewExportFormat } from "./view-bar";
+import { saveDownload } from "./download";
 import { timelineDates, ViewLayoutMenu } from "./view-settings";
 
 /** The rules a viewer who may not change a view sets for themselves (see `ownRules`). */
@@ -336,6 +337,30 @@ export function DatabasePage({
     [snapshot?.properties, view?.config.propertyOrder],
   );
 
+  // Just what the view shows: its rows (filtered, sorted, searched) and its shown properties, in its order.
+  const exportView = useCallback(
+    async (format: ViewExportFormat) => {
+      if (!view) return;
+      try {
+        const res = await fetch(`/w/${workspaceId}/p/${databaseId}/export?view=1${format === "csv" ? "" : `&format=${format}`}`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            rows: visibleRows.map((row) => row.id),
+            properties: viewProperties.filter((p) => !isHiddenInView(view, p)).map((p) => p.id),
+            name: view.name,
+          }),
+        });
+        await saveDownload(res, `export.${format}`);
+      } catch (error) {
+        api.showError(t(error instanceof Error && error.message === "disabled" ? "bulk.exportDisabled" : "bulk.exportFailed"));
+      }
+    },
+    [view, workspaceId, databaseId, visibleRows, viewProperties, api, t],
+  );
+  // Views with rows to list; a chart, a dashboard and a form show something else.
+  const exportsRows = !!view && view.type !== "chart" && view.type !== "dashboard" && view.type !== "form";
+
   // What the views are given stays the same from one render of the page to the next (see MemoBoardView).
   const setConfig = useCallback(
     async (v: View, config: ViewConfig) => {
@@ -477,6 +502,7 @@ export function DatabasePage({
                         onRename={(v, name) => api.updateView(v, { name })}
                         onMove={(id, target, side) => api.moveView(id, target, side)}
                         deleted={deletedSchema}
+                        onExport={exportable && exportsRows && !offline ? exportView : undefined}
                         onDelete={async (v) => {
                           if (v.id === view?.id) {
                             const next = views.find((x) => x.id !== v.id);

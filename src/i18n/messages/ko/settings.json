@@ -1647,6 +1647,7 @@
       "zip": "ZIP",
       "csv": "CSV",
       "xlsx": "Excel",
+      "html": "HTML",
       "docx": "Word",
       "google-docs": "Google 문서",
       "markdown": "Markdown",

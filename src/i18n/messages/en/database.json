@@ -125,7 +125,13 @@
     "addViewHeading": "Add a view",
     "rename": "Rename",
     "viewName": "View name",
-    "deleteView": "Delete view"
+    "deleteView": "Delete view",
+    "exportView": "Export this view",
+    "export": {
+      "csv": "CSV",
+      "html": "HTML page",
+      "pdf": "PDF"
+    }
   },
   "deleted": {
     "properties": "Deleted properties",

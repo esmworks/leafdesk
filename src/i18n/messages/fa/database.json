@@ -125,7 +125,13 @@
     "addViewHeading": "افزودن یک نما",
     "rename": "تغییر نام",
     "viewName": "نام نما",
-    "deleteView": "حذف نما"
+    "deleteView": "حذف نما",
+    "exportView": "خروجی گرفتن از این نما",
+    "export": {
+      "csv": "CSV",
+      "html": "صفحهٔ HTML",
+      "pdf": "PDF"
+    }
   },
   "deleted": {
     "properties": "ویژگی‌های حذف‌شده",

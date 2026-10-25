@@ -125,7 +125,13 @@
     "addViewHeading": "เพิ่มมุมมอง",
     "rename": "เปลี่ยนชื่อ",
     "viewName": "ชื่อมุมมอง",
-    "deleteView": "ลบมุมมอง"
+    "deleteView": "ลบมุมมอง",
+    "exportView": "ส่งออกมุมมองนี้",
+    "export": {
+      "csv": "CSV",
+      "html": "หน้า HTML",
+      "pdf": "PDF"
+    }
   },
   "deleted": {
     "properties": "คุณสมบัติที่ถูกลบ",

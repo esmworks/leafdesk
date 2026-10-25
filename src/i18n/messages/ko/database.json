@@ -125,7 +125,13 @@
     "addViewHeading": "보기 추가",
     "rename": "이름 변경",
     "viewName": "보기 이름",
-    "deleteView": "보기 삭제"
+    "deleteView": "보기 삭제",
+    "exportView": "이 보기 내보내기",
+    "export": {
+      "csv": "CSV",
+      "html": "HTML 페이지",
+      "pdf": "PDF"
+    }
   },
   "deleted": {
     "properties": "삭제된 속성",
