@@ -75,11 +75,13 @@
   dragged in and out with the side menu, stacked on phones, and on pages of standard width able to
   reach into the margins; `/col2` and `/col3` make them, a block dropped at another's left or right
   side goes beside it, and *Turn into* in a block's menu puts the selected blocks one to a column),
-  also on published pages and in Markdown. *Turn into* also changes the kind of the selected text
+  also on published pages and in Markdown. Numbered lists nested in numbered lists count in
+  letters, then roman numerals, then numbers again (1, a, i), in the editor, on published pages and
+  in PDFs; inline code isn't marked by the browser's spelling check. *Turn into* also changes the kind of the selected text
   blocks (heading, list, quote, code …), and a space typed right after `/` closes the slash menu.
   Table cells merge across columns and rows from the formatting toolbar (Markdown writes
   the full grid, the covered places empty). Code blocks take their language from a menu (plain text
-  and 51 languages) and color their code in it, published pages and the print view included; Enter
+  and 52 languages) and color their code in it, published pages and the print view included; Enter
   in a code block starts the new line with the indentation of the one before it. *Copy* in a code
   block's corner, in the editor and on published pages, copies its code. *Format code* in
   the block's menu formats JavaScript, TypeScript, JSX, TSX, JSON, CSS, SCSS, HTML, Vue, Markdown,
@@ -121,7 +123,9 @@
   (`<!-- leafdesk:button <id> "Label" -->`), so it can't be made or changed there.
 - **Web bookmarks and embeds**: link cards with the page's title, description and image (fetched
   once on the server behind an SSRF guard), and YouTube, Vimeo, Loom, Figma, Google Docs, CodePen,
-  Spotify and Google Maps embeds in sandboxed iframes. The Embed block also shows any other https
+  Replit, Excalidraw, Framer, Sketch, Spotify and Google Maps embeds in sandboxed iframes (a pasted
+  link of one of them offers *Embed*, and `/replit`, `/excalidraw`, `/framer` and `/sketch` find the
+  block). The Embed block also shows any other https
   site as it is (Hex apps, Deepnote blocks, Pitch presentations…) in the same sandbox, in the
   site's own origin and without a referrer; sites that refuse to be framed (many do, with
   `X-Frame-Options` or `frame-ancestors`) show an empty frame with their link under it, and this
@@ -278,7 +282,9 @@
     ("days left until the due date"), from the properties' names and types only, checks it and
     shows what it gives on the first rows before *Use formula*.
   - Number properties, formulas giving a number and rollups show as a number, percentage or amount
-    of money, or as a colored bar or ring filled by the value divided by a number of your choice.
+    of money (over 40 currencies in the menu, the one you last picked first and taken by the next
+    new amount; MCP takes any ISO 4217 code), or as a colored bar or ring filled by the value
+    divided by a number of your choice.
   - Row pages show every property, or leave some out (always, or while they are empty) behind
     "N more properties"; the choice is the database's, for everyone. People with full access pin up
     to four properties into a strip under the title and show the others above the body or beside it

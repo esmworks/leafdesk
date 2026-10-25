@@ -63,7 +63,7 @@ export async function renderPdf(input: Parameters<typeof pdfDocument>[0]): Promi
  * "none", or left out for its default (server/letterheads.ts). Throws AccessError when the page
  * can't be viewed, ExportError while export is off and LetterheadError for a letterhead that
  * isn't the workspace's. `comments`: the comment threads `userId` can see on the page follow the
- * body (lib/export-comments). `record: false` leaves the export out of the audit log, for an
+ * body (lib/export-comments). `textScale`: the body's text bigger or smaller (pdfTextScale). `record: false` leaves the export out of the audit log, for an
  * archive of many pages that is recorded once (server/export-pdf.ts).
  */
 export async function pagePdf(
@@ -74,7 +74,8 @@ export async function pagePdf(
     letterhead: choice,
     comments = false,
     record = true,
-  }: { properties?: boolean; letterhead?: string; comments?: boolean; record?: boolean } = {},
+    textScale = 1,
+  }: { properties?: boolean; letterhead?: string; comments?: boolean; record?: boolean; textScale?: number } = {},
 ): Promise<PagePdf> {
   const target = await requirePageAccess(userId, pageId, "view");
   await assertExportAllowed(target.workspaceId);
@@ -125,6 +126,7 @@ export async function pagePdf(
     link: (url) => (url.startsWith("/") ? `${env.appUrl}${url}` : url),
     labels,
     letterhead,
+    textScale,
   });
   if (record) {
     await recordExport(userId, { workspaceId: target.workspaceId, page: { id: target.id, title: target.title }, format: "pdf", comments, pages: 1 });

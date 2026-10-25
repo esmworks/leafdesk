@@ -224,4 +224,25 @@ describe("pdfDocument", () => {
     expect(read).toContain("İstanbul");
     expect(read).toContain("ödeme: 90 gün çek");
   });
+
+  it("counts nested numbered lists in letters, then roman numerals", () => {
+    const deep = block("numberedListItem", [text("a")], {}, [block("numberedListItem", [text("i")])]);
+    const content = contentOf(input([block("numberedListItem", [text("1")], {}, [deep])]));
+    const json = JSON.stringify(content);
+    expect(json).toContain('"type":"lower-alpha"');
+    expect(json).toContain('"type":"lower-roman"');
+    expect((content[1] as { type?: string }).type).toBeUndefined();
+  });
+
+  it("scales the body's text, not the letterhead's", () => {
+    const letterhead = { logo: null, logoPlace: "center" as const, header: "ESM", footer: "", accent: "", pageNumbers: true };
+    const plain = pdfDocument({ ...input([block("heading", [text("Part")], { level: 2 })]), letterhead });
+    const big = pdfDocument({ ...input([block("heading", [text("Part")], { level: 2 })]), letterhead, textScale: 1.5 });
+    expect(big.defaultStyle?.fontSize).toBe(15.8);
+    const sizes = (doc: typeof plain) => [...JSON.stringify(doc.content).matchAll(/"fontSize":([\d.]+)/g)].map((m) => Number(m[1]));
+    expect(sizes(big)).toEqual(sizes(plain).map((n) => Math.round(n * 15) / 10));
+    expect(JSON.stringify(typeof big.header === "function" ? big.header(1, 1, { width: 0, height: 0, orientation: "portrait" }) : null)).toBe(
+      JSON.stringify(typeof plain.header === "function" ? plain.header(1, 1, { width: 0, height: 0, orientation: "portrait" }) : null),
+    );
+  });
 });

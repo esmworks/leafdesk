@@ -659,10 +659,10 @@
     "embed": {
       "title": "Embed",
       "subtext": "YouTube, Figma, Google Docs, Maps and more",
-      "aliases": "embed iframe youtube vimeo loom figma google docs sheets slides codepen spotify maps video hex deepnote pitch website",
+      "aliases": "embed iframe youtube vimeo loom figma google docs sheets slides codepen replit excalidraw framer sketch spotify maps video hex deepnote pitch website",
       "placeholder": "Paste a link to embed",
       "submit": "Embed",
-      "providers": "YouTube, Vimeo, Loom, Figma, published Google Docs, Sheets and Slides, CodePen, Spotify and Google Maps. Other https sites (Hex, Deepnote, Pitch …) show as they are where they allow it.",
+      "providers": "YouTube, Vimeo, Loom, Figma, published Google Docs, Sheets and Slides, CodePen, Replit, Excalidraw, Framer, Sketch, Spotify and Google Maps. Other https sites (Hex, Deepnote, Pitch …) show as they are where they allow it.",
       "frameTitle": "Embedded content from {host}",
       "label": "Embed",
       "resize": "Drag to change the embed’s width"
@@ -796,6 +796,7 @@
     "noLetterheads": "Owners can add letterheads with a logo and company details in Settings → PDF templates.",
     "properties": "Include the row's values",
     "comments": "Include comments",
+    "textSize": "Text size",
     "hint": "Diagrams and equations print as text; use Print for the page exactly as it looks.",
     "download": "Download",
     "preparing": "Preparing…"

@@ -94,6 +94,16 @@ describe("embedFor", () => {
       "https://docs.google.com/presentation/d/1AbCdEfGhIjKlMn/embed?start=false&loop=false",
     );
     expect(src("https://codepen.io/someone/pen/abcXYZ")).toBe("https://codepen.io/someone/embed/abcXYZ?default-tab=result");
+    expect(src("https://replit.com/@someone/hello-world")).toBe("https://replit.com/@someone/hello-world?embed=true");
+    expect(src("https://replit.com/@someone/hello-world?v=1")).toBe("https://replit.com/@someone/hello-world?embed=true");
+    expect(src("https://excalidraw.com/#json=abcDEF123,Key_-456")).toBe("https://excalidraw.com/#json=abcDEF123,Key_-456");
+    expect(src("https://excalidraw.com/#room=0a1b2c3d,Key_-456")).toBe("https://excalidraw.com/#room=0a1b2c3d,Key_-456");
+    expect(src("https://framer.com/share/My-Prototype--aBcD123/")).toBe("https://framer.com/embed/My-Prototype--aBcD123");
+    expect(src("https://www.sketch.com/s/1b2c3d4e-aaaa-bbbb-cccc-1234567890ab")).toBe(
+      "https://www.sketch.com/embed/s/1b2c3d4e-aaaa-bbbb-cccc-1234567890ab",
+    );
+    expect(src("https://www.sketch.com/s/1b2c3d4e-aaaa/a/Abc123")).toBe("https://www.sketch.com/embed/s/1b2c3d4e-aaaa/a/Abc123");
+    expect(src("https://www.sketch.com/s/1b2c3d4e-aaaa/p/Abc123/play")).toBe("https://www.sketch.com/embed/s/1b2c3d4e-aaaa/p/Abc123/play");
     expect(src("https://open.spotify.com/track/4uLU6hMCjMI75M1A2tKUQC?si=x")).toBe(
       "https://open.spotify.com/embed/track/4uLU6hMCjMI75M1A2tKUQC",
     );
@@ -115,6 +125,13 @@ describe("embedFor", () => {
       "https://example.com/watch?v=dQw4w9WgXcQ",
       "https://vimeo.com/about",
       "https://codepen.io/someone",
+      "https://replit.com/@someone",
+      "https://replit.com/someone/hello",
+      "https://excalidraw.com/",
+      "https://excalidraw.com/#json=abc",
+      "https://excalidraw.com/#json=abc,key\"onload",
+      "https://framer.com/projects/Site--abc",
+      "https://www.sketch.com/s/abc/x/y",
       "https://open.spotify.com/user/abc",
       "https://www.figma.com/community/file/123",
       "http://loom.com.attacker.example/share/0281766fa2d04bb788eaf19e65135184",
@@ -132,6 +149,10 @@ describe("embedFor", () => {
       "https://www.figma.com/file/AbCdEf1234567890",
       "https://docs.google.com/document/d/e/2PACX-1vQabcdefghijk/pub",
       "https://codepen.io/a/pen/abc",
+      "https://replit.com/@a/b",
+      "https://excalidraw.com/#json=a,b",
+      "https://framer.com/share/a",
+      "https://www.sketch.com/s/abc",
       "https://open.spotify.com/show/4uLU6hMCjMI75M1A2tKUQC",
       "https://maps.google.com/?q=x",
     ];

@@ -659,10 +659,10 @@
     "embed": {
       "title": "Osadzenie",
       "subtext": "YouTube, Figma, Dokumenty Google, Mapy i inne",
-      "aliases": "osadź osadzenie iframe youtube vimeo loom figma google docs sheets slides codepen spotify maps wideo embed video hex deepnote pitch website",
+      "aliases": "osadź osadzenie iframe youtube vimeo loom figma google docs sheets slides codepen replit excalidraw framer sketch spotify maps wideo embed video hex deepnote pitch website",
       "placeholder": "Wklej link do osadzenia",
       "submit": "Osadź",
-      "providers": "YouTube, Vimeo, Loom, Figma, opublikowane Dokumenty, Arkusze i Prezentacje Google, CodePen, Spotify i Mapy Google. Inne witryny https (Hex, Deepnote, Pitch …) są pokazywane tak, jak są, jeśli na to pozwalają.",
+      "providers": "YouTube, Vimeo, Loom, Figma, opublikowane Dokumenty, Arkusze i Prezentacje Google, CodePen, Replit, Excalidraw, Framer, Sketch, Spotify i Mapy Google. Inne witryny https (Hex, Deepnote, Pitch …) są pokazywane tak, jak są, jeśli na to pozwalają.",
       "frameTitle": "Osadzona treść z {host}",
       "label": "Osadzenie",
       "resize": "Przeciągnij, aby zmienić szerokość osadzenia"
@@ -796,6 +796,7 @@
     "noLetterheads": "Właściciele mogą dodać papiery firmowe z logo i danymi firmy w Ustawieniach → Szablony PDF.",
     "properties": "Dołącz wartości wiersza",
     "comments": "Dołącz komentarze",
+    "textSize": "Rozmiar tekstu",
     "hint": "Diagramy i równania drukują się jako tekst; użyj Drukuj, aby otrzymać stronę dokładnie taką, jak wygląda.",
     "download": "Pobierz",
     "preparing": "Przygotowywanie…"

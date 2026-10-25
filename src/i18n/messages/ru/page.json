@@ -659,10 +659,10 @@
     "embed": {
       "title": "Встраивание",
       "subtext": "YouTube, Figma, Google Docs, Карты и другое",
-      "aliases": "встроить встраивание видео карты embed iframe youtube vimeo loom figma google docs sheets slides codepen spotify maps video hex deepnote pitch website",
+      "aliases": "встроить встраивание видео карты embed iframe youtube vimeo loom figma google docs sheets slides codepen replit excalidraw framer sketch spotify maps video hex deepnote pitch website",
       "placeholder": "Вставьте ссылку для встраивания",
       "submit": "Встроить",
-      "providers": "YouTube, Vimeo, Loom, Figma, опубликованные Google Docs, Sheets и Slides, CodePen, Spotify и Google Maps. Другие сайты https (Hex, Deepnote, Pitch …) показываются как есть, если они это разрешают.",
+      "providers": "YouTube, Vimeo, Loom, Figma, опубликованные Google Docs, Sheets и Slides, CodePen, Replit, Excalidraw, Framer, Sketch, Spotify и Google Maps. Другие сайты https (Hex, Deepnote, Pitch …) показываются как есть, если они это разрешают.",
       "frameTitle": "Встроенное содержимое с {host}",
       "label": "Встраивание",
       "resize": "Перетащите, чтобы изменить ширину встроенного содержимого"
@@ -796,6 +796,7 @@
     "noLetterheads": "Владельцы могут добавить бланки с логотипом и данными компании в разделе Настройки → Шаблоны PDF.",
     "properties": "Включить значения строки",
     "comments": "Включить комментарии",
+    "textSize": "Размер текста",
     "hint": "Диаграммы и формулы печатаются как текст; чтобы получить страницу в точности как на экране, используйте «Печать».",
     "download": "Скачать",
     "preparing": "Подготовка…"

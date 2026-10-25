@@ -659,10 +659,10 @@
     "embed": {
       "title": "تضمين",
       "subtext": "YouTube وFigma وGoogle Docs والخرائط والمزيد",
-      "aliases": "embed iframe youtube vimeo loom figma google docs sheets slides codepen spotify maps video تضمين فيديو خرائط hex deepnote pitch website",
+      "aliases": "embed iframe youtube vimeo loom figma google docs sheets slides codepen replit excalidraw framer sketch spotify maps video تضمين فيديو خرائط hex deepnote pitch website",
       "placeholder": "الصق رابطًا لتضمينه",
       "submit": "تضمين",
-      "providers": "YouTube وVimeo وLoom وFigma ومستندات Google Docs وSheets وSlides المنشورة وCodePen وSpotify وGoogle Maps. تظهر مواقع https الأخرى (Hex وDeepnote وPitch …) كما هي حيث تسمح بذلك.",
+      "providers": "YouTube وVimeo وLoom وFigma ومستندات Google Docs وSheets وSlides المنشورة وCodePen وReplit وExcalidraw وFramer وSketch وSpotify وGoogle Maps. تظهر مواقع https الأخرى (Hex وDeepnote وPitch …) كما هي حيث تسمح بذلك.",
       "frameTitle": "محتوى مضمّن من {host}",
       "label": "تضمين",
       "resize": "اسحب لتغيير عرض المحتوى المضمّن"
@@ -796,6 +796,7 @@
     "noLetterheads": "يمكن للمالكين إضافة ترويسات بشعار وبيانات الشركة من الإعدادات ← قوالب PDF.",
     "properties": "تضمين قيم الصف",
     "comments": "تضمين التعليقات",
+    "textSize": "حجم النص",
     "hint": "تُطبع المخططات والمعادلات نصًا؛ استخدم «طباعة» للحصول على الصفحة كما تظهر تمامًا.",
     "download": "تنزيل",
     "preparing": "جارٍ التحضير…"

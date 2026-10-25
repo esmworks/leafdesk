@@ -2,6 +2,7 @@
 
 import {
   BlockNoteSchema,
+  createStyleSpecFromTipTapMark,
   defaultBlockSpecs,
   defaultInlineContentSpecs,
   defaultStyleSpecs,
@@ -85,6 +86,16 @@ const LinkedViewBlock = createReactBlockSpec(linkedViewBlockConfig, {
   toExternalHTML: () => <div />,
 });
 
+/** Inline code as BlockNote has it, but never underlined by the browser's spelling check. */
+const inlineCode = createStyleSpecFromTipTapMark(
+  defaultStyleSpecs.code.implementation.mark.extend({
+    renderHTML({ HTMLAttributes }) {
+      return ["code", { ...HTMLAttributes, spellcheck: "false" }, 0];
+    },
+  }),
+  "boolean",
+);
+
 export const pageEditorSchema = BlockNoteSchema.create({
   blockSpecs: {
     ...defaultBlockSpecs,
@@ -119,7 +130,7 @@ export const pageEditorSchema = BlockNoteSchema.create({
   },
   inlineContentSpecs: { ...defaultInlineContentSpecs, ...contentInlineSpecs, ...mentionInlineSpecs },
   // Superscript and subscript (lib/text-scripts), shared with the server's schema.
-  styleSpecs: { ...defaultStyleSpecs, ...textScriptStyleSpecs },
+  styleSpecs: { ...defaultStyleSpecs, code: inlineCode, ...textScriptStyleSpecs },
 });
 
 export type PageEditor = BlockNoteEditor<

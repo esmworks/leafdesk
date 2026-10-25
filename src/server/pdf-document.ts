@@ -7,6 +7,7 @@ import { commentText } from "@/lib/comments";
 import { isEmbedBlockType } from "@/lib/embed-blocks";
 import type { ExportedThread } from "@/lib/export-comments";
 import { cropSvg, parseImageCrop } from "@/lib/image-crop";
+import { listStyleAt } from "@/lib/list-markers";
 import { SUBSCRIPT, SUPERSCRIPT } from "@/lib/text-scripts";
 import { BOOKMARK_BLOCK, WEB_EMBED_BLOCK } from "@/lib/web-blocks";
 import { tint, type LogoPlace } from "@/lib/letterheads";
@@ -58,7 +59,22 @@ export type PdfInput = {
   labels: { untitled: string; unavailable: string };
   /** What every page prints around the body; without one, page numbers when there are several pages. */
   letterhead?: PdfLetterhead | null;
+  /** How big the body's text is, 1 as it is (lib/pdf-text-scale); the letterhead keeps its size. */
+  textScale?: number;
 };
+
+/** `content` with every font size in it times `factor` (images and other data left as they are). */
+function scaleFonts<T>(content: T, factor: number): T {
+  if (factor === 1) return content;
+  const walk = (node: unknown): unknown => {
+    if (Array.isArray(node)) return node.map(walk);
+    if (!node || typeof node !== "object") return node;
+    const out: Record<string, unknown> = {};
+    for (const [k, v] of Object.entries(node)) out[k] = k === "fontSize" && typeof v === "number" ? Math.round(v * factor * 10) / 10 : walk(v);
+    return out;
+  };
+  return walk(content) as T;
+}
 
 // Light theme (globals.css): text, muted and faint text, borders, subtle fill, links.
 const FG = "#1f2023";
@@ -186,16 +202,19 @@ function checkbox(checked: boolean): Column {
 }
 
 /** One list item: its text and what is nested in it. */
-function listItem(block: MdBlock, walk: Walk, width: number): Content {
-  const children = block.children?.length ? blocksContent(block.children, walk, width - INDENT) : [];
+function listItem(block: MdBlock, walk: Walk, width: number, depth: number): Content {
+  const children = block.children?.length ? blocksContent(block.children, walk, width - INDENT, block.type === "numberedListItem" ? depth + 1 : depth) : [];
   const text = paragraph(block, walk);
   return children.length ? { stack: [text, ...children] } : text;
 }
 
 const LIST_TYPES = new Set(["bulletListItem", "numberedListItem"]);
 
-/** Blocks as content, consecutive list items of a kind as one list. */
-function blocksContent(blocks: MdBlock[], walk: Walk, width = CONTENT_WIDTH): Content[] {
+/**
+ * Blocks as content, consecutive list items of a kind as one list. `depth` is how many numbered
+ * lists they are nested in, which picks how a numbered list counts (lib/list-markers).
+ */
+function blocksContent(blocks: MdBlock[], walk: Walk, width = CONTENT_WIDTH, depth = 0): Content[] {
   const out: Content[] = [];
   for (let i = 0; i < blocks.length; i++) {
     const block = blocks[i];
@@ -203,11 +222,17 @@ function blocksContent(blocks: MdBlock[], walk: Walk, width = CONTENT_WIDTH): Co
       const items: MdBlock[] = [];
       while (i < blocks.length && blocks[i].type === block.type) items.push(blocks[i++]);
       i--;
-      const list = items.map((item) => listItem(item, walk, width));
+      const list = items.map((item) => listItem(item, walk, width, depth));
       if (block.type === "bulletListItem") out.push({ ul: list, margin: [0, 0, 0, 6], markerColor: MUTED });
       else {
         const start = Number(prop(block, "start"));
-        out.push({ ol: list, margin: [0, 0, 0, 6], ...(Number.isInteger(start) && start > 1 ? { start } : {}) });
+        const style = listStyleAt(depth);
+        out.push({
+          ol: list,
+          margin: [0, 0, 0, 6],
+          ...(style !== "decimal" ? { type: style } : {}),
+          ...(Number.isInteger(start) && start > 1 ? { start } : {}),
+        });
       }
       continue;
     }
@@ -625,11 +650,12 @@ export function pdfDocument(input: PdfInput): TDocumentDefinitions {
   const top = head ? HEAD_TOP + head + 8 + HEAD_BELOW : PAGE_MARGIN;
   const bottom = footLines ? Math.max(PAGE_MARGIN + 8, FOOT_TOP + 6 + footLines * FOOT_LINE + 20) : PAGE_MARGIN + 8;
   const headContent = letterhead ? letterheadTop(letterhead) : null;
+  const scale = input.textScale ?? 1;
   return {
     pageSize: "A4",
     pageMargins: [PAGE_MARGIN, top, PAGE_MARGIN, bottom],
     info: { title: input.title || input.labels.untitled, creator: "Leafdesk", producer: "Leafdesk" },
-    defaultStyle: { font: "Roboto", fontSize: 10.5, lineHeight: 1.3, color: FG },
+    defaultStyle: { font: "Roboto", fontSize: Math.round(10.5 * scale * 10) / 10, lineHeight: 1.3, color: FG },
     ...(headContent ? { header: () => headContent } : {}),
     footer: (current: number, total: number) =>
       letterhead
@@ -637,7 +663,10 @@ export function pdfDocument(input: PdfInput): TDocumentDefinitions {
         : total > 1
           ? { text: `${current} / ${total}`, alignment: "right", fontSize: 8, color: FAINT, margin: [PAGE_MARGIN, 16, PAGE_MARGIN, 0] }
           : null,
-    content: input.sections.flatMap((section, i) => sectionContent(section, i, input)),
+    content: scaleFonts(
+      input.sections.flatMap((section, i) => sectionContent(section, i, input)),
+      scale,
+    ),
     // A heading at the foot of a page moves to the next one, with what follows it.
     pageBreakBefore: (node, pages) => typeof node.headlineLevel === "number" && pages.getFollowingNodesOnPage().length === 0,
   };

@@ -659,10 +659,10 @@
     "embed": {
       "title": "Incorpora",
       "subtext": "YouTube, Figma, Google Docs, Maps e altro",
-      "aliases": "embed iframe youtube vimeo loom figma google docs sheets slides codepen spotify maps video incorpora incorporato mappa hex deepnote pitch website",
+      "aliases": "embed iframe youtube vimeo loom figma google docs sheets slides codepen replit excalidraw framer sketch spotify maps video incorpora incorporato mappa hex deepnote pitch website",
       "placeholder": "Incolla un link da incorporare",
       "submit": "Incorpora",
-      "providers": "YouTube, Vimeo, Loom, Figma, Google Docs, Sheets e Slides pubblicati, CodePen, Spotify e Google Maps. Gli altri siti https (Hex, Deepnote, Pitch …) appaiono così come sono, se lo consentono.",
+      "providers": "YouTube, Vimeo, Loom, Figma, Google Docs, Sheets e Slides pubblicati, CodePen, Replit, Excalidraw, Framer, Sketch, Spotify e Google Maps. Gli altri siti https (Hex, Deepnote, Pitch …) appaiono così come sono, se lo consentono.",
       "frameTitle": "Contenuto incorporato da {host}",
       "label": "Contenuto incorporato",
       "resize": "Trascina per cambiare la larghezza del contenuto incorporato"
@@ -796,6 +796,7 @@
     "noLetterheads": "I proprietari possono aggiungere carte intestate con logo e dati aziendali in Impostazioni → Modelli PDF.",
     "properties": "Includi i valori della riga",
     "comments": "Includi i commenti",
+    "textSize": "Dimensione del testo",
     "hint": "Diagrammi ed equazioni vengono stampati come testo; usa Stampa per avere la pagina esattamente com’è.",
     "download": "Scarica",
     "preparing": "Preparazione…"

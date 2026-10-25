@@ -659,10 +659,10 @@
     "embed": {
       "title": "Bädda in",
       "subtext": "YouTube, Figma, Google Dokument, Maps med mera",
-      "aliases": "bädda in inbäddning iframe youtube vimeo loom figma google docs sheets slides codepen spotify maps video embed hex deepnote pitch website",
+      "aliases": "bädda in inbäddning iframe youtube vimeo loom figma google docs sheets slides codepen replit excalidraw framer sketch spotify maps video embed hex deepnote pitch website",
       "placeholder": "Klistra in en länk att bädda in",
       "submit": "Bädda in",
-      "providers": "YouTube, Vimeo, Loom, Figma, publicerade Google Dokument, Kalkylark och Presentationer, CodePen, Spotify och Google Maps. Andra https-webbplatser (Hex, Deepnote, Pitch …) visas som de är där de tillåter det.",
+      "providers": "YouTube, Vimeo, Loom, Figma, publicerade Google Dokument, Kalkylark och Presentationer, CodePen, Replit, Excalidraw, Framer, Sketch, Spotify och Google Maps. Andra https-webbplatser (Hex, Deepnote, Pitch …) visas som de är där de tillåter det.",
       "frameTitle": "Inbäddat innehåll från {host}",
       "label": "Inbäddning",
       "resize": "Dra för att ändra inbäddningens bredd"
@@ -796,6 +796,7 @@
     "noLetterheads": "Ägare kan lägga till brevhuvuden med logotyp och företagsuppgifter i Inställningar → PDF-mallar.",
     "properties": "Ta med radens värden",
     "comments": "Ta med kommentarer",
+    "textSize": "Textstorlek",
     "hint": "Diagram och ekvationer skrivs ut som text; använd Skriv ut för att få sidan exakt som den ser ut.",
     "download": "Ladda ned",
     "preparing": "Förbereder…"

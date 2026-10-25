@@ -4,6 +4,19 @@
 
 ### Added
 
+- **Replit, Excalidraw, Framer and Sketch embeds.** Links to a repl, an Excalidraw drawing (shared
+  or live), a Framer prototype or a Sketch document, artboard or prototype embed in their own
+  players, a pasted one offers *Embed*, and `/replit`, `/excalidraw`, `/framer` and `/sketch` find
+  the Embed block.
+- **Nested numbered lists count in letters and roman numerals.** A numbered list inside a numbered
+  list counts a, b, c, the next level in i, ii, iii, then numbers again, in the editor, on published
+  pages, in the print view and in PDFs.
+- **Text size of PDF exports.** *Export as PDF* has a *Text size* menu, from 75 to 150 percent;
+  the letterhead keeps its size.
+- **More currencies.** The number format menu offers over 40 currencies, and the one you last
+  picked comes first and is what the next new amount starts in.
+- **Julia code blocks** are colored like the other languages (`julia`, `jl`).
+
 - **Embed any website.** The Embed block shows any https site as it is, not only the named
   providers: Hex apps, Deepnote blocks, Pitch presentations and the like, in the same sandboxed
   frame, without a referrer. Sites that refuse to be framed show an empty frame with their link,
@@ -234,6 +247,7 @@
 
 ### Changed
 
+- **Inline code isn't spell-checked.** The browser no longer underlines words in inline code.
 - **Bars and rings for formulas and rollups.** Formulas giving a number and rollups can show as a
   colored bar or ring with a divisor, like number properties (*Show as* in a rollup's menu). A
   rollup's older bar or ring setting is taken as the starting point.

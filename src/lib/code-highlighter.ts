@@ -38,6 +38,7 @@ const createHighlighter = createBundledHighlighter({
     java: () => import("@shikijs/langs-precompiled/java"),
     javascript: () => import("@shikijs/langs-precompiled/javascript"),
     json: () => import("@shikijs/langs-precompiled/json"),
+    julia: () => import("@shikijs/langs-precompiled/julia"),
     jsx: () => import("@shikijs/langs-precompiled/jsx"),
     kotlin: () => import("@shikijs/langs-precompiled/kotlin"),
     latex: () => import("@shikijs/langs-precompiled/latex"),

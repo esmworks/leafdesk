@@ -1106,6 +1106,10 @@ input.leafdesk-callout-title-input {
   padding-right: 0;
   padding-inline-end: 4px;
 }
+/* A numbered list nested in another counts in letters, then roman numerals (list-markers.ts). */
+:root .bn-container .bn-block-outer:not([data-prev-type]) > .bn-block > .bn-block-content[data-content-type="numberedListItem"][data-marker]::before {
+  content: attr(data-marker) ".";
+}
 :root .bn-container .bn-block-content[data-content-type="checkListItem"] > div > input {
   margin-left: 0;
   margin-right: 0;

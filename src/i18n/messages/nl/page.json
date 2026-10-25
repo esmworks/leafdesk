@@ -659,10 +659,10 @@
     "embed": {
       "title": "Insluiten",
       "subtext": "YouTube, Figma, Google Docs, Maps en meer",
-      "aliases": "embed iframe youtube vimeo loom figma google docs sheets slides codepen spotify maps video insluiten hex deepnote pitch website",
+      "aliases": "embed iframe youtube vimeo loom figma google docs sheets slides codepen replit excalidraw framer sketch spotify maps video insluiten hex deepnote pitch website",
       "placeholder": "Plak een link om in te sluiten",
       "submit": "Insluiten",
-      "providers": "YouTube, Vimeo, Loom, Figma, gepubliceerde Google Docs, Sheets en Slides, CodePen, Spotify en Google Maps. Andere https-sites (Hex, Deepnote, Pitch …) worden getoond zoals ze zijn, als ze dat toestaan.",
+      "providers": "YouTube, Vimeo, Loom, Figma, gepubliceerde Google Docs, Sheets en Slides, CodePen, Replit, Excalidraw, Framer, Sketch, Spotify en Google Maps. Andere https-sites (Hex, Deepnote, Pitch …) worden getoond zoals ze zijn, als ze dat toestaan.",
       "frameTitle": "Ingesloten inhoud van {host}",
       "label": "Insluiting",
       "resize": "Sleep om de breedte van de insluiting te wijzigen"
@@ -796,6 +796,7 @@
     "noLetterheads": "Eigenaren kunnen briefpapier met een logo en bedrijfsgegevens toevoegen in Instellingen → PDF-sjablonen.",
     "properties": "De waarden van de rij meenemen",
     "comments": "Opmerkingen meenemen",
+    "textSize": "Tekstgrootte",
     "hint": "Diagrammen en vergelijkingen worden als tekst afgedrukt; gebruik Afdrukken voor de pagina precies zoals die eruitziet.",
     "download": "Downloaden",
     "preparing": "Voorbereiden…"

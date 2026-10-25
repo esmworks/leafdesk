@@ -659,10 +659,10 @@
     "embed": {
       "title": "جاسازی",
       "subtext": "YouTube، Figma، Google Docs، Maps و موارد دیگر",
-      "aliases": "جاسازی ویدیو نقشه embed iframe youtube vimeo loom figma google docs sheets slides codepen spotify maps video hex deepnote pitch website",
+      "aliases": "جاسازی ویدیو نقشه embed iframe youtube vimeo loom figma google docs sheets slides codepen replit excalidraw framer sketch spotify maps video hex deepnote pitch website",
       "placeholder": "لینکی را برای جاسازی جای‌گذاری کنید",
       "submit": "جاسازی",
-      "providers": "YouTube، Vimeo، Loom، Figma، Google Docs و Sheets و Slides منتشرشده، CodePen، Spotify و Google Maps. دیگر سایت‌های https (Hex، Deepnote، Pitch …) در جایی که اجازه دهند همان‌طور که هستند نمایش داده می‌شوند.",
+      "providers": "YouTube، Vimeo، Loom، Figma، Google Docs و Sheets و Slides منتشرشده، CodePen، Replit، Excalidraw، Framer، Sketch، Spotify و Google Maps. دیگر سایت‌های https (Hex، Deepnote، Pitch …) در جایی که اجازه دهند همان‌طور که هستند نمایش داده می‌شوند.",
       "frameTitle": "محتوای جاسازی‌شده از {host}",
       "label": "جاسازی",
       "resize": "برای تغییر پهنای محتوای جاسازی‌شده بکشید"
@@ -796,6 +796,7 @@
     "noLetterheads": "مالکان می‌توانند در تنظیمات ← قالب‌های PDF سربرگ‌هایی با لوگو و مشخصات شرکت بیفزایند.",
     "properties": "مقادیر سطر را هم بیاور",
     "comments": "شامل‌کردن دیدگاه‌ها",
+    "textSize": "اندازهٔ متن",
     "hint": "نمودارها و فرمول‌ها به صورت متن چاپ می‌شوند؛ برای داشتن صفحه دقیقاً همان‌طور که دیده می‌شود از «چاپ» استفاده کنید.",
     "download": "دانلود",
     "preparing": "در حال آماده‌سازی…"

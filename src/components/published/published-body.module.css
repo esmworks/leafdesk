@@ -90,6 +90,27 @@
   list-style: decimal;
 }
 
+/* Nested numbered lists count in letters, then roman numerals, then numbers again (lib/list-markers). */
+.body ol ol {
+  list-style: lower-alpha;
+}
+
+.body ol ol ol {
+  list-style: lower-roman;
+}
+
+.body ol ol ol ol {
+  list-style: decimal;
+}
+
+.body ol ol ol ol ol {
+  list-style: lower-alpha;
+}
+
+.body ol ol ol ol ol ol {
+  list-style: lower-roman;
+}
+
 /* Check list items: BlockNote renders <li data-checked><input type="checkbox"><p>…</p></li>. */
 .body li[data-checked] {
   list-style: none;

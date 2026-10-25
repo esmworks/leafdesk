@@ -659,10 +659,10 @@
     "embed": {
       "title": "Incorporar",
       "subtext": "YouTube, Figma, Google Docs, Maps e mais",
-      "aliases": "incorporar embed iframe youtube vimeo loom figma google docs planilhas apresentações sheets slides codepen spotify mapas maps vídeo hex deepnote pitch website",
+      "aliases": "incorporar embed iframe youtube vimeo loom figma google docs planilhas apresentações sheets slides codepen replit excalidraw framer sketch spotify mapas maps vídeo hex deepnote pitch website",
       "placeholder": "Cole um link para incorporar",
       "submit": "Incorporar",
-      "providers": "YouTube, Vimeo, Loom, Figma, Google Docs, Sheets e Slides publicados, CodePen, Spotify e Google Maps. Outros sites https (Hex, Deepnote, Pitch …) aparecem como são, quando permitem.",
+      "providers": "YouTube, Vimeo, Loom, Figma, Google Docs, Sheets e Slides publicados, CodePen, Replit, Excalidraw, Framer, Sketch, Spotify e Google Maps. Outros sites https (Hex, Deepnote, Pitch …) aparecem como são, quando permitem.",
       "frameTitle": "Conteúdo incorporado de {host}",
       "label": "Incorporação",
       "resize": "Arraste para mudar a largura do conteúdo incorporado"
@@ -796,6 +796,7 @@
     "noLetterheads": "Os proprietários podem adicionar papéis timbrados com logotipo e dados da empresa em Configurações → Modelos de PDF.",
     "properties": "Incluir os valores da linha",
     "comments": "Incluir comentários",
+    "textSize": "Tamanho do texto",
     "hint": "Diagramas e equações são impressos como texto; use Imprimir para ter a página exatamente como ela aparece.",
     "download": "Baixar",
     "preparing": "Preparando…"
