@@ -234,7 +234,7 @@ The tools cover:
   top-level pages (`"private"` for the user's private pages). Without one, a page an AI app
   creates at the top is private to the user, so nothing an app makes is shared before they
   decide; the user moves it to share it.
-- **Pages:** `get_page`, `create_page`, `update_page`, `move_page`, `duplicate_page` (a copy with
+- **Pages:** `get_page`, `create_page`, `update_page`, `move_page` (`page_ids` moves several pages to one place), `duplicate_page` (a copy with
   everything under it, beside the original; `without_rows` copies databases without their rows), `archive_page`, `list_trash`, `restore_page` (the
   trash), `set_page_archived` (archive an outdated page or unarchive it; `search`, `list_pages`
   and `query_database` leave archived pages and rows out unless `include_archived` is true).
@@ -263,9 +263,14 @@ The tools cover:
   to another. Read-only apps can list notes but not make one.
 - **Skills:** `list_skills`, `get_skill`, `set_skill`; every skill is also a prompt of its name
   (see [Skills](ai.md#skills)).
-- **Comments:** `list_comments`, `add_comment` (start a thread on quoted text, or reply). A thread
-  about the whole page, as agents write them, comes back with `about_page: true` and no quote, and
-  one the user marked *Come back later* with `marked: true`.
+- **Comments:** `list_comments`, `add_comment` (start a thread on quoted text, on a row's value
+  with `property`, or about the whole page with neither; or reply), `change_comment` (edit or
+  delete a comment, delete a thread, resolve or reopen it, add or take back an emoji reaction, or
+  mark it *Come back later*). A thread about the whole page comes back with `about_page: true` and
+  no quote, and one the user marked with `marked: true`.
+- **Meeting notes:** `list_meeting_notes` lists a workspace's meetings, newest first, narrowed by
+  words and days; `get_page` on a meeting's page reads its summary, decisions, action items and
+  transcript.
 - **Mentions:** page bodies read and write mentions as Markdown: `[Title](/w/<workspace>/p/<page>)`
   for a page, `@Name` for a person, `@YYYY-MM-DD` for a date, and a link shown as a mention as an
   ordinary `[Title](https://…)` that comes back as the mention when the page's Markdown is written
@@ -337,7 +342,8 @@ The tools cover:
   `change_agent_memory` (keep or dismiss the notes its runs proposed; add, update or delete
   an owner's own notes), `set_agent_schedule` (add, update or delete a schedule)
   and `list_agent_runs` (each run's steps summarized), `start_agent_run` (ask an agent for a task
-  now, on a row or on none); `get_agent` also shows its monthly token limit and usage by month,
+  now, on a row or on none), `chat_with_agent` and `get_agent_chat` (chat with it as in the app's
+  agent chat, waiting for the answer, and read those conversations); `get_agent` also shows its monthly token limit and usage by month,
   and `update_agent` sets the limit, the model its runs use (`main` or `fast`) and `row_changes`
   (`direct` or `review`). `list_pending_changes` and `answer_pending_change` (approve, with
   edits and `force` for a row changed since, or dismiss) answer what agents proposed for

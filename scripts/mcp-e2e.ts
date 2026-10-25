@@ -417,7 +417,7 @@ async function main() {
   const expected = [
     "list_workspaces", "search", "list_pages", "get_page", "create_page", "update_page", "archive_page",
     "get_database", "query_database", "create_database_row", "create_database_rows", "update_database_row", "create_database", "add_database_property",
-    "update_database_property", "change_database_property_type", "delete_database_property", "create_database_view", "update_database_view", "move_page",
+    "update_database_property", "change_database_property_type", "delete_database_property", "create_database_view", "update_database_view", "move_page", "change_comment", "list_meeting_notes", "chat_with_agent", "get_agent_chat",
     "list_recent_pages", "check_workspace", "list_users", "list_trash", "restore_page", "get_page_history", "restore_page_version",
     "list_notifications", "attach_file", "invite_member", "set_property_access", "get_file", "duplicate_page",
     "list_automations", "create_automation", "update_automation", "delete_automation", "list_automation_runs", "publish_automation", "test_automation",
@@ -700,6 +700,32 @@ async function main() {
   const rowsNow = await mcp.ok("query_database", { database_id: dbPage.id });
   check(rowsNow.rows.some((r: { id: string }) => r.id === moved.id), "the moved page shows up as a row", rowsNow);
   await mcp.ok("move_page", { page_id: moved.id, parent_id: root.id });
+  const second = await mcp.ok("create_page", { workspace_id: ws, title: `MCP e2e move 2 ${RUN}` });
+  const many = await mcp.ok("move_page", { page_ids: [moved.id, second.id, root.id], parent_id: child.id });
+  check(
+    many.moved.map((m: { id: string }) => m.id).join() === `${moved.id},${second.id}` && many.not_moved?.[0]?.id === root.id && /inside itself/.test(many.not_moved[0].error),
+    "move_page moves several pages, listing the one that can't move",
+    many,
+  );
+
+  // ---- comments: about the whole page, then changed
+  const pageThread = await mcp.ok("add_comment", { page_id: second.id, text: `Who owns this? ${RUN}` });
+  check(pageThread.about_page === true && pageThread.thread_id, "add_comment without a quote starts a thread about the whole page", pageThread);
+  const edited = await mcp.ok("change_comment", { page_id: second.id, thread_id: pageThread.thread_id, action: "edit", comment_id: pageThread.comment_id, text: `Who owns it? ${RUN}` });
+  check(edited.thread.about_page === true && edited.thread.comments[0].text === `Who owns it? ${RUN}`, "change_comment edits a comment", edited);
+  const reacted = await mcp.ok("change_comment", { page_id: second.id, thread_id: pageThread.thread_id, action: "react", comment_id: pageThread.comment_id, emoji: "👍" });
+  check(reacted.thread.comments[0].reactions?.[0]?.emoji === "👍", "change_comment reacts to a comment", reacted);
+  const marked = await mcp.ok("change_comment", { page_id: second.id, thread_id: pageThread.thread_id, action: "mark" });
+  check(marked.thread.marked === true, "change_comment marks a thread to come back to", marked);
+  const resolvedThread = await mcp.ok("change_comment", { page_id: second.id, thread_id: pageThread.thread_id, action: "resolve" });
+  check(resolvedThread.thread.resolved === true, "change_comment resolves a thread", resolvedThread);
+  const openThreads = await mcp.ok("list_comments", { page_id: second.id });
+  check(openThreads.threads.length === 0, "a resolved thread leaves list_comments", openThreads);
+  await mcp.ok("change_comment", { page_id: second.id, thread_id: pageThread.thread_id, action: "reopen" });
+  const goneThread = await mcp.ok("change_comment", { page_id: second.id, thread_id: pageThread.thread_id, action: "delete_thread" });
+  check(goneThread.deleted === true, "change_comment deletes a thread", goneThread);
+  const noMeetings = await mcp.ok("list_meeting_notes", { workspace_id: ws, query: `nothing ${RUN}` });
+  check(Array.isArray(noMeetings.meetings) && noMeetings.meetings.length === 0, "list_meeting_notes lists meetings, narrowed by words", noMeetings);
 
   const recent = await mcp.ok("list_recent_pages", { workspace_id: ws, limit: 50 });
   check(recent.pages.some((p: { id: string }) => p.id === moved.id), "list_recent_pages lists fresh edits", recent);
@@ -1038,6 +1064,11 @@ async function main() {
   check(agentNoChange.isError && /Nothing to change/.test(agentNoChange.text), "update_agent without changes is a tool error", agentNoChange.text);
   const renamedAgent = await mcp.ok("update_agent", { agent_id: triage.id, name: `Triage bot ${RUN}`, enabled: true });
   check(renamedAgent.name === `Triage bot ${RUN}` && renamedAgent.enabled === true, "update_agent renames and turns the agent on", renamedAgent);
+  // AI isn't set up for this run: the chat says so, and sending is refused with why.
+  const chatInfo = await mcp.ok("get_agent_chat", { agent_id: triage.id });
+  check(chatInfo.state === "aiOff" && chatInfo.conversations.length === 0, "get_agent_chat says where the user stands with the agent's chat", chatInfo);
+  const chatOff = await mcp.call("chat_with_agent", { agent_id: triage.id, message: "Hello", wait_seconds: 0 });
+  check(chatOff.isError && /AI is off/.test(chatOff.text), "chat_with_agent refuses while AI is off, saying so", chatOff.text);
   const listedAgents = await mcp.ok("list_agents", { workspace_id: ws });
   check(
     listedAgents.agents.length === 1 && listedAgents.agents[0].id === triage.id && !("instructions" in listedAgents.agents[0]),

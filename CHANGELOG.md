@@ -4,6 +4,14 @@
 
 ### Added
 
+- **More over MCP: comment changes, meeting notes, chats with agents and moving many pages.**
+  `change_comment` edits or deletes a comment, deletes a thread, resolves or reopens it, reacts to
+  a comment or marks the thread *Come back later*; `add_comment` also starts a thread about the
+  whole page, or on a row's value with `property` (the REST API's comment endpoint takes both too).
+  `list_meeting_notes` lists a workspace's meetings, narrowed by words and days. `chat_with_agent`
+  sends a message to an agent as the app's agent chat does and waits for its answer, and
+  `get_agent_chat` reads those conversations. `move_page` takes `page_ids` to move several pages
+  to one place. The tool list stays within its budget (90 tools, 164 KB).
 - **Sub-groups on boards.** *Sub-group* on the Group page of a board's *View settings* splits the board into sections by a
   second property (a status, a select, a person, a date…), each holding every column: a card
   dragged into another section changes both values, and *New* in a section's column starts the

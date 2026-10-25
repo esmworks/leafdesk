@@ -34,7 +34,9 @@ import {
 import { MAX_AGENT_REQUEST, type AgentDraft, type DraftTrigger } from "@/lib/agent-draft";
 import { AGENT_SHARE_LEVELS, type AgentSharingView } from "@/lib/agent-sharing";
 import type { AgentRestoreSkip, AgentVersionView } from "@/lib/agent-versions";
+import { MAX_AGENT_CHAT_MESSAGE } from "@/lib/agent-chat";
 import { MAX_MEMORIES, MAX_MEMORY_CHARS } from "@/lib/ai-chat";
+import { AgentChatRefusal } from "@/server/agents/chat";
 import { pageLabel } from "@/lib/labels";
 import { MAX_REPEAT_INTERVAL, REPEAT_FREQUENCIES } from "@/lib/schedule";
 import { AgentError } from "@/server/agents/manage";
@@ -47,6 +49,9 @@ import { pageUrl, ToolInputError } from "./format";
  * Agents over MCP: the tools' input schemas, their output (snake_case, with app links), and
  * AgentError turned into errors with a next step a model can take.
  */
+
+/** Longest chat_with_agent waits for an answer: clients give a call about a minute. */
+export const MAX_CHAT_WAIT = 50;
 
 const nameInput = z.string().min(1).max(MAX_AGENT_NAME);
 const iconInput = z
@@ -198,6 +203,22 @@ export const agentInputs = {
     task: scheduleTaskInput.optional(),
     database_id: scheduleDatabaseInput.optional(),
   }),
+  chat: z.object({
+    agent_id: id("agent"),
+    message: z.string().min(1).max(MAX_AGENT_CHAT_MESSAGE).describe(`What to say to the agent (at most ${MAX_AGENT_CHAT_MESSAGE} characters), in the user's words.`),
+    conversation_id: z.string().min(1).max(100).optional().describe("Go on in this conversation (from get_agent_chat); leave out to start a new one."),
+    wait_seconds: z
+      .number()
+      .int()
+      .min(0)
+      .max(MAX_CHAT_WAIT)
+      .default(20)
+      .describe(`How long to wait for the answer (0-${MAX_CHAT_WAIT} seconds, default 20); read a later answer with get_agent_chat.`),
+  }),
+  chatRead: z.object({
+    agent_id: id("agent"),
+    conversation_id: z.string().min(1).max(100).optional().describe("Read this conversation; leave out to list the user's conversations with the agent."),
+  }),
   setSchedule: z.object({
     agent_id: id("agent"),
     action: z
@@ -268,6 +289,28 @@ export function notesToDrop(args: { memory_ids?: string[]; all: boolean }): stri
 }
 
 type RepeatArgs = z.infer<typeof repeatInput>;
+
+/** Why a chat message wasn't taken, with what to do next. */
+const CHAT_REFUSALS: Partial<Record<AgentChatRefusal["code"], string>> = {
+  busy: "The agent is still answering in this conversation. Read the answer with get_agent_chat, then send the next message.",
+  noAccess: "The user can't chat with this agent: it isn't shared with them (share_agent), or the conversation isn't theirs.",
+  guest: "Guests don't chat with agents.",
+  gone: "This agent is archived or no longer in the workspace (list_agents).",
+  paused: "The agent is paused; someone who can edit it turns it on with update_agent (enabled true).",
+  aiOff: "AI is off for this workspace, so agents don't answer.",
+  limitReached: "The agent used its monthly token limit (get_agent shows its usage; an owner can raise it with update_agent).",
+  rateLimited: "Too many AI requests just now. Wait a little and send again.",
+};
+
+/** AgentChatRefusal as errors with a next step. */
+export async function withChatErrors<T>(fn: () => Promise<T>): Promise<T> {
+  try {
+    return await fn();
+  } catch (error) {
+    if (error instanceof AgentChatRefusal) throw new ToolInputError(CHAT_REFUSALS[error.code] ?? `${error.message}.`);
+    throw error;
+  }
+}
 
 /** A schedule tool's (or endpoint's) arguments as setAgentSchedule takes them: only what was given. */
 export function toScheduleInput(args: { repeat?: RepeatArgs; time_zone?: string; task?: string; database_id?: string | null }) {

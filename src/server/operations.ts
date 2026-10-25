@@ -8,7 +8,7 @@
 import { createHash } from "node:crypto";
 import * as z from "zod";
 import type { Locale } from "@/i18n/config";
-import { commentText, MAX_COMMENT_LENGTH } from "@/lib/comments";
+import { commentText, MAX_COMMENT_LENGTH, type CommentOp } from "@/lib/comments";
 import { blockMarker, stripBlockMarkers } from "@/lib/block-edits";
 import { markdownReferences } from "@/lib/embed-blocks";
 import { env } from "@/lib/env";
@@ -31,7 +31,7 @@ import type { ImportWarning } from "@/lib/import/result";
 import { calloutStylesOfWorkspaces } from "@/server/callout-styles";
 import { getCollab, type WriteActor } from "@/server/collab/bridge";
 import * as comments from "@/server/comments";
-import { markedAmong } from "@/server/thread-state";
+import { markedAmong, setThreadMarked } from "@/server/thread-state";
 import * as databases from "@/server/databases";
 import type { StoredFile } from "@/server/files";
 import { resolveEmbeds } from "@/server/embeds";
@@ -457,7 +457,27 @@ export const inputs = {
     page_id: id("page"),
     text: z.string().min(1).max(MAX_COMMENT_LENGTH).describe("The comment."),
     quote: z.string().min(1).max(1000).optional().describe("Start a new thread on this exact text of the page."),
+    property: z.string().min(1).max(200).optional().describe("A database row: start a thread on this property's value instead (its name or id)."),
     thread_id: z.string().min(1).optional().describe("Reply in this thread instead."),
+  }),
+  changeComment: z.object({
+    page_id: id("page"),
+    thread_id: z.string().min(1).max(100).describe("The thread's id, from list_comments."),
+    action: z
+      .enum(["edit", "delete", "delete_thread", "resolve", "reopen", "react", "unreact", "mark", "unmark"])
+      .describe(
+        "edit: change a comment's text (comment_id, text). delete: delete a comment (comment_id). delete_thread: delete the whole thread. resolve / reopen: the thread. react / unreact: add or take back the user's emoji on a comment (comment_id, emoji). mark / unmark: the user's own Come back later mark on the thread.",
+      ),
+    comment_id: z.string().min(1).max(100).optional().describe("edit, delete, react, unreact: the comment's id, from list_comments."),
+    text: z.string().min(1).max(MAX_COMMENT_LENGTH).optional().describe("edit: the comment's new text."),
+    emoji: z.string().min(1).max(32).optional().describe("react, unreact: one emoji, such as 👍."),
+  }),
+  listMeetingNotes: z.object({
+    workspace_id: id("workspace"),
+    query: z.string().max(200).optional().describe("Only meetings whose title, page, attendees or summary hold every word of this."),
+    from: z.string().regex(/^\d{4}-\d{2}-\d{2}$/).optional().describe("Only meetings held or planned on or after this day (YYYY-MM-DD, UTC)."),
+    to: z.string().regex(/^\d{4}-\d{2}-\d{2}$/).optional().describe("Only meetings held or planned on or before this day (YYYY-MM-DD, UTC)."),
+    limit: z.number().int().min(1).max(100).default(25).describe("Maximum meetings (1-100, default 25)."),
   }),
   listSkills: z.object({
     workspace_id: z.string().optional().describe("Only this workspace's skills. Leave out for every workspace."),
@@ -1895,24 +1915,103 @@ export async function listComments(ctx: OperationContext, { page_id, include_res
   };
 }
 
-export async function addComment(ctx: OperationContext, { page_id, text, quote, thread_id }: Args<"addComment">) {
+export async function addComment(ctx: OperationContext, { page_id, text, quote, property, thread_id }: Args<"addComment">) {
   const { userId } = ctx;
-  if (!quote === !thread_id) throw new ToolInputError("Pass either quote (to start a thread) or thread_id (to reply), not both.");
-  const page = await pages.getPage(userId, page_id);
+  if ([quote, property, thread_id].filter((v) => v !== undefined).length > 1) {
+    throw new ToolInputError("Pass at most one of quote (a thread on text), property (a thread on a row's value) or thread_id (a reply); none starts a thread about the whole page.");
+  }
+  const { page, parentDatabase } = await loadPage(ctx, page_id);
+  let propertyId: string | undefined;
+  if (property !== undefined) {
+    if (!parentDatabase) throw new ToolInputError("property is for database rows; this page isn't one. Quote its text, or leave quote out for a thread about the whole page.");
+    const { properties } = await databases.getDatabase(userId, parentDatabase.id);
+    const { prop } = resolvePropertyKey(properties, property);
+    if (!prop) throw new ToolInputError(`"${property}" is not a property of this row's database. get_database lists them.`);
+    propertyId = prop.id;
+  }
   const result = thread_id
     ? await comments.changeComments(userId, page_id, { type: "addComment", threadId: thread_id, body: text })
-    : await comments.changeComments(userId, page_id, { type: "createThread", body: text, anchor: { quote: quote! } }).catch((error) => {
-        if (error instanceof Error && error.message.includes("quoted text")) {
-          throw new ToolInputError(
-            "The page doesn't have that exact text within one paragraph. Copy a short passage from get_page's markdown, without formatting characters.",
-          );
-        }
-        throw error;
-      });
+    : await comments
+        .changeComments(userId, page_id, {
+          type: "createThread",
+          body: text,
+          ...(quote ? { anchor: { quote } } : {}),
+          ...(propertyId ? { propertyId } : {}),
+        })
+        .catch((error) => {
+          if (error instanceof Error && error.message.includes("quoted text")) {
+            throw new ToolInputError(
+              "The page doesn't have that exact text within one paragraph. Copy a short passage from get_page's markdown, without formatting characters.",
+            );
+          }
+          throw error;
+        });
   return {
     thread_id: result.thread?.id,
     comment_id: result.comment?.id,
+    ...(!thread_id && !quote && !propertyId ? { about_page: true } : {}),
     url: pageUrl(page.workspaceId, page.id),
+  };
+}
+
+/**
+ * Changes a comment thread as `ctx`: edits or deletes a comment (the user's own, or anyone's with
+ * full access), deletes, resolves or reopens the thread, reacts to a comment, or marks the thread
+ * for the user to come back to. Answers with the thread as list_comments shows it, or deleted.
+ */
+export async function changeComment(ctx: OperationContext, { page_id, thread_id, action, comment_id, text, emoji }: Args<"changeComment">) {
+  const { userId } = ctx;
+  const onComment = action === "edit" || action === "delete" || action === "react" || action === "unreact";
+  if (onComment && !comment_id) throw new ToolInputError(`${action} needs the comment's comment_id, from list_comments.`);
+  if (!onComment && comment_id) throw new ToolInputError(`${action} is about the whole thread; leave comment_id out.`);
+  if ((action === "edit") !== (text !== undefined)) throw new ToolInputError(action === "edit" ? "edit needs text: the comment's new text." : "text goes only with edit.");
+  const reacting = action === "react" || action === "unreact";
+  if (reacting !== (emoji !== undefined)) throw new ToolInputError(reacting ? `${action} needs an emoji.` : "emoji goes only with react and unreact.");
+  if (action === "mark" || action === "unmark") await setThreadMarked(userId, page_id, thread_id, action === "mark");
+  else {
+    const op: CommentOp =
+      action === "edit"
+        ? { type: "updateComment", threadId: thread_id, commentId: comment_id!, body: text }
+        : action === "delete"
+          ? { type: "deleteComment", threadId: thread_id, commentId: comment_id! }
+          : action === "delete_thread"
+            ? { type: "deleteThread", threadId: thread_id }
+            : action === "resolve"
+              ? { type: "resolveThread", threadId: thread_id }
+              : action === "reopen"
+                ? { type: "unresolveThread", threadId: thread_id }
+                : { type: action === "react" ? "addReaction" : "deleteReaction", threadId: thread_id, commentId: comment_id!, emoji: emoji! };
+    await comments.changeComments(userId, page_id, op);
+  }
+  const { threads, url } = await listComments(ctx, { page_id, include_resolved: true });
+  const thread = threads.find((t) => t.id === thread_id);
+  return thread ? { page_id, thread, url } : { page_id, thread_id, deleted: true, url };
+}
+
+/** The meetings of a workspace the user can see, newest first, narrowed as asked. */
+export async function listMeetingNotes(ctx: OperationContext, { workspace_id, query, from, to, limit }: Args<"listMeetingNotes">) {
+  const { listMeetings } = await import("@/server/meetings");
+  const { matchesMeeting } = await import("@/lib/meeting-list");
+  const day = (m: { startedAt: string | null; scheduledAt: string | null }) => (m.startedAt ?? m.scheduledAt ?? "").slice(0, 10);
+  const all = (await listMeetings(ctx.userId, workspace_id)).filter(
+    (m) => (!query || matchesMeeting(m, query)) && (!from || (day(m) && day(m) >= from)) && (!to || (day(m) && day(m) <= to)),
+  );
+  return {
+    workspace_id,
+    meetings: all.slice(0, limit).map((m) => ({
+      page_id: m.pageId,
+      title: m.title || pageLabel(m.pageTitle),
+      ...(m.title && m.title !== m.pageTitle ? { page_title: pageLabel(m.pageTitle) } : {}),
+      status: m.status || (m.startedAt ? "ended" : "planned"),
+      scheduled_at: m.scheduledAt,
+      started_at: m.startedAt,
+      ended_at: m.endedAt,
+      minutes: Math.round(m.seconds / 60),
+      attendees: m.attendees.map((a) => a.name),
+      ...(m.preview ? { summary_start: m.preview } : {}),
+      url: pageUrl(workspace_id, m.pageId),
+    })),
+    ...(all.length > limit ? { more: all.length - limit } : {}),
   };
 }
 
