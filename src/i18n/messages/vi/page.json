@@ -1065,11 +1065,11 @@
         "mediaSize": "Kích thước hình ảnh và video",
         "callout": "Màu và biểu tượng của hộp nhấn mạnh mà Markdown không có dạng tương ứng",
         "textStyle": "Một số định dạng văn bản, chẳng hạn gạch chân",
-        "table": "Độ rộng cột bảng, hàng tiêu đề, ô đã gộp và màu ô",
+        "table": "Ô đã gộp trong bảng",
         "blockSetting": "Các cài đặt khối khác",
         "content": "Một số nội dung mà Markdown không thể chứa"
       },
-      "synced": "{count, plural, other {Các thay đổi của bạn bên trong # khối đồng bộ: hãy chỉnh sửa chúng trên trang thay vào đó}}",
+      "synced": "{count, plural, other {Các thay đổi của bạn bên trong # khối đồng bộ mà bạn không sửa được}}",
       "confirm": "Vẫn lưu"
     },
     "conflict": {

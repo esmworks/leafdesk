@@ -1065,11 +1065,11 @@
         "mediaSize": "Image and video sizes",
         "callout": "Callout colors and icons Markdown has no form for",
         "textStyle": "Some text formatting, such as underline",
-        "table": "Table column widths, header rows, merged cells and cell colors",
+        "table": "Merged table cells",
         "blockSetting": "Other block settings",
         "content": "Some content Markdown can't hold"
       },
-      "synced": "{count, plural, one {Your changes inside a synced block: edit it on the page instead} other {Your changes inside # synced blocks: edit them on the page instead}}",
+      "synced": "{count, plural, one {Your changes inside a synced block you can't edit} other {Your changes inside # synced blocks you can't edit}}",
       "confirm": "Save anyway"
     },
     "conflict": {

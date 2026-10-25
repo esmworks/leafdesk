@@ -1065,11 +1065,11 @@
         "mediaSize": "Kuvien ja videoiden koot",
         "callout": "Huomiolaatikoiden värit ja kuvakkeet, joille Markdownissa ei ole muotoa",
         "textStyle": "Osa tekstin muotoilusta, kuten alleviivaus",
-        "table": "Taulukon sarakeleveydet, otsikkorivit, yhdistetyt solut ja solujen värit",
+        "table": "Taulukoiden yhdistetyt solut",
         "blockSetting": "Muut lohkoasetukset",
         "content": "Osa sisällöstä, jota Markdown ei pysty säilyttämään"
       },
-      "synced": "{count, plural, one {Muutoksesi synkronoidun lohkon sisällä: muokkaa sitä sen sijaan sivulla} other {Muutoksesi # synkronoidun lohkon sisällä: muokkaa niitä sen sijaan sivulla}}",
+      "synced": "{count, plural, one {Muutoksesi synkronoidun lohkon sisällä, jota et voi muokata} other {Muutoksesi # synkronoidun lohkon sisällä, joita et voi muokata}}",
       "confirm": "Tallenna silti"
     },
     "conflict": {

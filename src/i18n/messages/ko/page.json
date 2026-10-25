@@ -1065,11 +1065,11 @@
         "mediaSize": "이미지 및 동영상 크기",
         "callout": "Markdown으로 표현할 수 없는 콜아웃 색상과 아이콘",
         "textStyle": "밑줄 등 일부 텍스트 서식",
-        "table": "표의 열 너비, 머리글 행, 병합된 셀, 셀 색상",
+        "table": "표의 병합된 셀",
         "blockSetting": "기타 블록 설정",
         "content": "Markdown이 담을 수 없는 일부 콘텐츠"
       },
-      "synced": "{count, plural, other {동기화 블록 #개 안의 변경 사항: 페이지에서 편집하세요}}",
+      "synced": "{count, plural, other {편집할 수 없는 동기화 블록 #개 안의 변경 사항}}",
       "confirm": "그래도 저장"
     },
     "conflict": {

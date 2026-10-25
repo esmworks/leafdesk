@@ -1065,11 +1065,11 @@
         "mediaSize": "Rozmiary obrazów i filmów",
         "callout": "Kolory i ikony wyróżnień, których Markdown nie wyraża",
         "textStyle": "Część formatowania tekstu, np. podkreślenie",
-        "table": "Szerokości kolumn, wiersze nagłówka, scalone komórki i kolory komórek tabel",
+        "table": "Scalone komórki tabel",
         "blockSetting": "Inne ustawienia bloków",
         "content": "Część treści, której Markdown nie pomieści"
       },
-      "synced": "{count, plural, one {Twoje zmiany w # bloku synchronizowanym: edytuj go na stronie} few {Twoje zmiany w # blokach synchronizowanych: edytuj je na stronie} many {Twoje zmiany w # blokach synchronizowanych: edytuj je na stronie} other {Twoje zmiany w # bloku synchronizowanego: edytuj je na stronie}}",
+      "synced": "{count, plural, one {Twoje zmiany w # bloku synchronizowanym, którego nie możesz edytować} few {Twoje zmiany w # blokach synchronizowanych, których nie możesz edytować} many {Twoje zmiany w # blokach synchronizowanych, których nie możesz edytować} other {Twoje zmiany w # bloku synchronizowanego, którego nie możesz edytować}}",
       "confirm": "Zapisz mimo to"
     },
     "conflict": {

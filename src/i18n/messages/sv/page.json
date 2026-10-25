@@ -1065,11 +1065,11 @@
         "mediaSize": "Storlekar på bilder och videor",
         "callout": "Färger och ikoner på inforutor som Markdown saknar form för",
         "textStyle": "Viss textformatering, som understrykning",
-        "table": "Tabellers kolumnbredder, rubrikrader, sammanslagna celler och cellfärger",
+        "table": "Sammanslagna celler i tabeller",
         "blockSetting": "Andra blockinställningar",
         "content": "Visst innehåll som Markdown inte kan rymma"
       },
-      "synced": "{count, plural, one {Dina ändringar i ett synkat block: redigera det på sidan i stället} other {Dina ändringar i # synkade block: redigera dem på sidan i stället}}",
+      "synced": "{count, plural, one {Dina ändringar i ett synkat block som du inte kan redigera} other {Dina ändringar i # synkade block som du inte kan redigera}}",
       "confirm": "Spara ändå"
     },
     "conflict": {

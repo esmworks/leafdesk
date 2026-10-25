@@ -4,6 +4,13 @@
 
 ### Added
 
+- **Writing synced blocks and tables as Markdown.** Markdown written over MCP, the REST API or
+  *Edit as Markdown* now saves what changed between a synced block's marker lines to its blocks,
+  when the writer may edit the original page (that page is saved to its history first; writing
+  back what `get_page` read changes nothing, and a synced block with nothing between its lines is
+  only placed; imports and new pages only place synced blocks). *Edit as Markdown* shows the blocks of synced blocks from other pages too, and warns
+  only of changes to ones you may not edit. Tables rewritten from Markdown keep their column
+  widths, header rows and columns, cell colors and alignment.
 - **Sync GitHub pull requests.** Import has a GitHub tab: a repository (and a token for a private
   one, or a GitHub Enterprise Server's address) becomes a database of its pull requests that stays
   in step one way, with number, state (Draft, Open, Merged, Closed), author and assignees (people

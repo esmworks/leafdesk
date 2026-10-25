@@ -1065,11 +1065,11 @@
         "mediaSize": "Ukuran gambar dan video",
         "callout": "Warna dan ikon callout yang tidak memiliki bentuk di Markdown",
         "textStyle": "Beberapa pemformatan teks, seperti garis bawah",
-        "table": "Lebar kolom tabel, baris header, sel yang digabung, dan warna sel",
+        "table": "Sel tabel yang digabung",
         "blockSetting": "Pengaturan blok lainnya",
         "content": "Beberapa konten yang tidak dapat ditampung Markdown"
       },
-      "synced": "{count, plural, other {Perubahan Anda di dalam # blok tersinkron: edit di halaman saja}}",
+      "synced": "{count, plural, other {Perubahan Anda di dalam # blok tersinkron yang tidak dapat Anda edit}}",
       "confirm": "Tetap simpan"
     },
     "conflict": {

@@ -35,7 +35,7 @@ import { migrateDocTitle, readDocTitle, writeDocTitle } from "@/lib/collab-title
 import { assertNotInTrash, assertPageUnlocked, isPageLocked } from "@/lib/page-lock";
 import type { ReviewBlock } from "@/lib/page-review";
 import { writePageStyle } from "@/lib/page-style";
-import { syncedElementsIn, syncedFragmentName } from "@/lib/synced-blocks";
+import { syncedBlocksIn, syncedElementsIn, syncedFragmentName, syncedKey, syncedRegions, withoutBlockIds, withoutSyncedBlocks, type SyncedRef } from "@/lib/synced-blocks";
 import { requestLocale } from "@/i18n/config";
 import { env } from "@/lib/env";
 import { CLIENT_IP_HEADER } from "@/lib/client-ip";
@@ -43,12 +43,13 @@ import { COLLAB_FORBIDDEN, COLLAB_IP, COLLAB_SSO, COLLAB_STALE, COLLAB_TWO_STEP,
 import { AccessError, policyHoldFor, WorkspacePolicyError } from "@/server/access";
 import { collabSessionFacts } from "@/server/account-security";
 import { serverBuildId } from "@/server/build-id";
-import { blocksToMarkdown, markdownToBlocks, serverEditor as editor } from "@/server/blocknote";
+import { blocksToMarkdown, markdownToBlocks, serverEditor as editor, type PageBlock } from "@/server/blocknote";
 import { authorizeFileReferences, referencedFileIds, unauthorizedFileIds } from "@/server/files";
 import { syncMeetingNotes } from "@/server/meeting-notes";
-import { mentionablePeople, pagesNamed, syncPageReferences } from "@/server/mentions";
+import { labelPageLinks, mentionablePeople, pagesNamed, syncPageReferences } from "@/server/mentions";
 import { announceSuggestions } from "@/server/suggested-edits";
 import { bodyBlocks, fragmentBlocks, syncedBlocksOf } from "@/server/synced-body";
+import { syncedSources } from "@/server/synced-blocks";
 import { pageChanged } from "@/server/page-events";
 import { rowChanged } from "@/server/row-events";
 import { recordTitleChange } from "@/server/row-activity";
@@ -127,11 +128,11 @@ function readThreadsOf(doc: Y.Doc): PlainThread[] {
 }
 
 /**
- * Runs a write that may replace text carrying comment marks, then puts those marks back where the
- * same text still is, so threads stay anchored.
+ * Runs a write that may replace text carrying comment marks (in the body, or in `fragment`: a
+ * synced block's blocks), then puts those marks back where the same text still is, so threads stay
+ * anchored.
  */
-function keepingComments(doc: Y.Doc, write: () => void) {
-  const fragment = doc.getXmlFragment(COLLAB_FRAGMENT);
+function keepingComments(doc: Y.Doc, write: () => void, fragment = doc.getXmlFragment(COLLAB_FRAGMENT)) {
   const threads = threadsOf(doc);
   const quotes = threads.size ? threadQuotes(fragment) : new Map<string, string>();
   write();
@@ -655,6 +656,71 @@ export function createCollab() {
     return result;
   };
 
+  /**
+   * Writes what a rewrite's Markdown holds between the lines of the synced blocks the page shows
+   * (`refs`) into those synced blocks, on the pages they come from: only where that Markdown says
+   * something other than the blocks do now (read back the same way, so Markdown as a read gave it
+   * writes nothing) and isn't empty, and only where the writer may edit the original page, as in the editor
+   * (lib/synced-blocks syncedSourceState). Other pages are saved to their history first when the
+   * write is (the page written was already). Suggestions stay on the page they are made on, so a
+   * write made as suggestions leaves synced blocks alone. Returns whether the page's own synced
+   * blocks changed.
+   */
+  const writeSyncedRegions = async (
+    hostPageId: string,
+    markdown: string,
+    refs: SyncedRef[],
+    actor: WriteActor,
+    snapshot: boolean | "before_markdown_edit",
+  ) => {
+    if (actor.asSuggestions || !refs.length) return false;
+    const shown = new Set(refs.map(syncedKey));
+    const regions = new Map<string, { ref: SyncedRef; inner: string }>();
+    for (const region of syncedRegions(markdown)) {
+      const key = syncedKey(region.ref);
+      // Nothing between the lines only places the synced block (as a reference is written): it
+      // never empties one. Removing a synced block's blocks is done on its page.
+      if (shown.has(key) && !regions.has(key) && region.inner.trim()) regions.set(key, region);
+    }
+    if (!regions.size) return false;
+    const sources = await syncedSources(actor.userId, [...new Set([...regions.values()].map((r) => r.ref.pageId))]);
+    let own = false;
+    for (const [sourceId, source] of sources) {
+      if (source.state !== "editable") continue;
+      const mine = [...regions.values()].filter((r) => r.ref.pageId === sourceId);
+      const context = { people: await mentionablePeople(sourceId), appUrl: env.appUrl, pageId: sourceId };
+      const changed = await transactPage(sourceId, actor, async (doc) => {
+        const held = new Set(syncedElementsIn(doc).flatMap((ref) => (ref.pageId === sourceId ? [ref.syncId] : [])));
+        const writes: { syncId: string; blocks: PageBlock[] }[] = [];
+        for (const { ref, inner } of mine) {
+          if (!held.has(ref.syncId)) continue;
+          const existing = syncedBlocksOf(doc, ref.syncId) as PageBlock[];
+          const read = async (text: string) => JSON.stringify(withoutBlockIds(withoutSyncedBlocks(await markdownToBlocks(text, existing, context))));
+          const next = withoutSyncedBlocks(await markdownToBlocks(inner, existing, context));
+          const written = JSON.stringify(withoutBlockIds(next));
+          // As the blocks read now: plain, or with page links labelled as get_page gives them.
+          const plain = await blocksToMarkdown(existing, { workspaceId: source.workspaceId });
+          if (written === (await read(plain)) || written === (await read(await labelPageLinks(actor.userId, plain)))) continue;
+          writes.push({ syncId: ref.syncId, blocks: await linkWritten(sourceId, actor, next) });
+        }
+        if (!writes.length) return false;
+        if (snapshot && sourceId !== hostPageId) await snapshotBefore(sourceId, doc, snapshot === true ? "before_mcp_write" : snapshot, actor);
+        doc.transact(
+          () => {
+            for (const { syncId, blocks } of writes) {
+              const fragment = doc.getXmlFragment(syncedFragmentName(syncId));
+              keepingComments(doc, () => writeBlocksKeepingSuggestions(fragment, blocks), fragment);
+            }
+          },
+          { source: "local", context: actor },
+        );
+        return true;
+      });
+      if (changed && sourceId === hostPageId) own = true;
+    }
+    return own;
+  };
+
   /** Blocks written as Markdown, with `[[Title]]` linked to the pages the writer can see (lib/wikilinks). */
   const linkWritten = async <T extends unknown[]>(pageId: string, actor: WriteActor, blocks: T): Promise<T> => {
     const titles = wikilinkTitles(blocks);
@@ -926,19 +992,25 @@ export function createCollab() {
       });
     },
 
-    async replaceContent(pageId, markdown, actor, snapshot = false, { wikilinks = true, ...check } = {}) {
+    async replaceContent(pageId, markdown, actor, snapshot = false, { wikilinks = true, syncedBlocks = false, ...check } = {}) {
       // Database blocks the Markdown names keep their settings; inline databases it leaves out stay.
+      let refs: SyncedRef[] = [];
       const { write } = await writeBlocks(
         pageId,
         actor,
         async (existing, mentions) => {
           const blocks = await markdownToBlocks(markdown, existing, mentions);
+          refs = syncedBlocksIn(blocks as never);
           return wikilinks ? linkWritten(pageId, actor, blocks) : blocks;
         },
         snapshot,
         check,
       );
-      return write;
+      if (write?.conflict || !syncedBlocks) return write;
+      // Lines changed inside the page's synced blocks go to the synced blocks themselves.
+      const own = await writeSyncedRegions(pageId, markdown, refs, actor, snapshot);
+      // The page's own synced blocks are part of its version.
+      return own && write ? { ...write, version: await service.pageVersion(pageId) } : write;
     },
 
     async appendContent(pageId, markdown, actor, snapshot = false, check = {}) {

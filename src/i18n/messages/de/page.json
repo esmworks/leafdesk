@@ -1065,11 +1065,11 @@
         "mediaSize": "Bild- und Videogrößen",
         "callout": "Callout-Farben und -Symbole, für die Markdown keine Form hat",
         "textStyle": "Manche Textformatierung, etwa Unterstreichung",
-        "table": "Spaltenbreiten, Kopfzeilen, verbundene Zellen und Zellfarben von Tabellen",
+        "table": "Verbundene Zellen von Tabellen",
         "blockSetting": "Andere Blockeinstellungen",
         "content": "Manche Inhalte, die Markdown nicht abbilden kann"
       },
-      "synced": "{count, plural, one {Deine Änderungen in einem synchronisierten Block: bearbeite ihn stattdessen auf der Seite} other {Deine Änderungen in # synchronisierten Blöcken: bearbeite sie stattdessen auf der Seite}}",
+      "synced": "{count, plural, one {Deine Änderungen in einem synchronisierten Block, den du nicht bearbeiten kannst} other {Deine Änderungen in # synchronisierten Blöcken, die du nicht bearbeiten kannst}}",
       "confirm": "Trotzdem speichern"
     },
     "conflict": {

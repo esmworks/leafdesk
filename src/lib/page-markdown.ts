@@ -14,6 +14,7 @@ import { restoreImageCrops } from "./image-crop";
 import { restoreLinkMentions } from "./link-mentions";
 import { carryOverMentions } from "./mentions";
 import { collapseSyncedRegions, SYNCED_BLOCK, syncedBlocksIn } from "./synced-blocks";
+import { restoreTableLooks } from "./table-looks";
 import { restoreBookmarks } from "./web-blocks";
 
 export type PageMarkdownOptions = {
@@ -66,6 +67,8 @@ export async function markdownToPageBlocks<B extends MdBlock>(
   // Images come back whole from Markdown; ones still showing the same file keep their crop.
   restoreImageCrops(rewritten, existing);
   carryOverBlockIds(rewritten, existing);
+  // Tables keep their column widths, header rows and cell colors, which Markdown can't hold.
+  restoreTableLooks(rewritten, existing);
   return rewritten;
 }
 

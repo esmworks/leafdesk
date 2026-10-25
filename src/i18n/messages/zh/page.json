@@ -1065,11 +1065,11 @@
         "mediaSize": "图片和视频尺寸",
         "callout": "Markdown 无法表示的标注颜色和图标",
         "textStyle": "部分文字格式，例如下划线",
-        "table": "表格的列宽、标题行、合并的单元格和单元格颜色",
+        "table": "表格中合并的单元格",
         "blockSetting": "其他块设置",
         "content": "Markdown 无法承载的部分内容"
       },
-      "synced": "{count, plural, other {你在 # 个同步块中的更改：请在页面上编辑}}",
+      "synced": "{count, plural, other {你在 # 个无法编辑的同步块中的更改}}",
       "confirm": "仍然保存"
     },
     "conflict": {

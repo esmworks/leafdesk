@@ -508,8 +508,12 @@
   or deleted, or when the blocks were removed from it, and keeps working when that page moves. The
   original lists the pages showing it, *Unsync* turns a reference into a plain copy, and a synced
   block can't go inside another. Published pages, Markdown and PDF exports and `get_page` over MCP
-  show the blocks with the same rules (a published page only when the original is published too);
-  Markdown written over MCP or the API leaves them as they are. Search, by words or by meaning,
+  show the blocks with the same rules (a published page only when the original is published too).
+  Markdown written over MCP, the REST API or *Edit as Markdown* writes what changed between a
+  synced block's marker lines to its blocks, where the writer may edit the original page (saving
+  that page to its history first); otherwise they stay as they are, and a synced block written with
+  nothing between its lines is only placed, as are synced blocks in imported Markdown. Tables written as Markdown keep their column widths,
+  header rows and columns, cell colors and alignment, which Markdown has no form for. Search, by words or by meaning,
   finds them on the original page only, and its history shows their changes.
 - **Graph**: every page someone can open in a workspace as a point, joined by the links between
   pages, database relations and the page tree, laid out by how they connect. It is beside a page

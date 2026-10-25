@@ -1065,11 +1065,11 @@
         "mediaSize": "Tailles des images et vidéos",
         "callout": "Couleurs et icônes d’encadrés sans équivalent en Markdown",
         "textStyle": "Une partie de la mise en forme, comme le soulignement",
-        "table": "Largeurs de colonnes, lignes d’en-tête, cellules fusionnées et couleurs de cellules des tableaux",
+        "table": "Cellules fusionnées des tableaux",
         "blockSetting": "Autres réglages de blocs",
         "content": "Du contenu que le Markdown ne peut pas contenir"
       },
-      "synced": "{count, plural, one {Vos modifications dans un bloc synchronisé : modifiez-le plutôt dans la page} other {Vos modifications dans # blocs synchronisés : modifiez-les plutôt dans la page}}",
+      "synced": "{count, plural, one {Vos modifications dans un bloc synchronisé que vous ne pouvez pas modifier} other {Vos modifications dans # blocs synchronisés que vous ne pouvez pas modifier}}",
       "confirm": "Enregistrer quand même"
     },
     "conflict": {

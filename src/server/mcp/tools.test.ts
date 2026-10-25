@@ -432,7 +432,7 @@ describe("content writes", () => {
       "# New",
       { userId: "user-1", oauthClientId: "client-1" },
       true,
-      { expectedVersion: undefined, reportVersion: true },
+      { expectedVersion: undefined, reportVersion: true, syncedBlocks: true },
     );
     expect(r.data.url).toBe("http://localhost:3000/w/ws-1/p/page-1");
     expect(r.data.version).toBe("v2");
@@ -504,6 +504,7 @@ describe("content writes", () => {
     expect(collab.replaceContent).toHaveBeenCalledWith("page-1", "# New", expect.anything(), true, {
       expectedVersion: "v1",
       reportVersion: true,
+      syncedBlocks: true,
     });
     expect(r.data.version).toBe("v2");
   });

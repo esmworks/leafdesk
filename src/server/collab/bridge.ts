@@ -91,13 +91,16 @@ export interface CollabService {
   /**
    * `wikilinks: false` leaves `[[Title]]` as written (imports, which resolve their own links);
    * otherwise it links to the page of that title the writer can open (lib/wikilinks).
+   * `syncedBlocks: true` (rewrites of a page someone read: MCP and REST page updates, the Markdown
+   * source view) also writes what changed between the lines of the synced blocks the page shows to
+   * those synced blocks, where the writer may edit them; otherwise their lines only place them.
    */
   replaceContent(
     pageId: string,
     markdown: string,
     actor: WriteActor,
     snapshot?: boolean | "before_markdown_edit",
-    options?: { wikilinks?: boolean } & VersionCheck,
+    options?: { wikilinks?: boolean; syncedBlocks?: boolean } & VersionCheck,
   ): Promise<BodyWrite | null>;
   appendContent(pageId: string, markdown: string, actor: WriteActor, snapshot?: boolean, options?: VersionCheck): Promise<BodyWrite | null>;
   /**

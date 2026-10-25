@@ -1090,7 +1090,7 @@ export async function updatePage(
     } else {
       // Block markers copied from a read with block ids aren't written.
       const body = stripBlockMarkers(markdown!);
-      write = mode === "append" ? await collab.appendContent(page_id, body, actor, true, check) : await collab.replaceContent(page_id, body, actor, true, check);
+      write = mode === "append" ? await collab.appendContent(page_id, body, actor, true, check) : await collab.replaceContent(page_id, body, actor, true, { ...check, syncedBlocks: true });
     }
     if (write?.conflict) throw new VersionConflictError(expected_version!, write.version);
     version = write?.version;

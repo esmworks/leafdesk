@@ -1065,11 +1065,11 @@
         "mediaSize": "Størrelser på billeder og video",
         "callout": "Farver og ikoner på infobokse, som Markdown ikke har en form for",
         "textStyle": "Noget tekstformatering, f.eks. understregning",
-        "table": "Kolonnebredder, overskriftsrækker, flettede celler og cellefarver i tabeller",
+        "table": "Flettede celler i tabeller",
         "blockSetting": "Andre blokindstillinger",
         "content": "Noget indhold, som Markdown ikke kan rumme"
       },
-      "synced": "{count, plural, one {Dine ændringer inde i en synkroniseret blok: redigér den på siden i stedet} other {Dine ændringer inde i # synkroniserede blokke: redigér dem på siden i stedet}}",
+      "synced": "{count, plural, one {Dine ændringer inde i en synkroniseret blok, du ikke kan redigere} other {Dine ændringer inde i # synkroniserede blokke, du ikke kan redigere}}",
       "confirm": "Gem alligevel"
     },
     "conflict": {
