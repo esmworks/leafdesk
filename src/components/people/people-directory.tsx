@@ -4,6 +4,7 @@ import { Search } from "lucide-react";
 import Link from "next/link";
 import { useFormatter, useTranslations } from "next-intl";
 import { useMemo, useState } from "react";
+import { IconGlyph } from "@/components/builtin-icon";
 import { Input, PageIcon, pageLabel } from "@/components/ui";
 import { UserAvatar } from "@/components/user-avatar";
 import { type DirectoryPerson, matchesPerson } from "@/lib/people";
@@ -143,8 +144,8 @@ function Labels({ title, empty, items }: { title: string; empty: string; items: 
           {items.map((item) => (
             <li key={item.id} className="inline-flex h-6 max-w-full items-center gap-1 rounded-md bg-bg-hover px-1.5 text-xs">
               {item.icon && (
-                <span aria-hidden className="leading-none">
-                  {item.icon}
+                <span aria-hidden>
+                  <IconGlyph icon={item.icon} />
                 </span>
               )}
               <span className="truncate">{item.name}</span>

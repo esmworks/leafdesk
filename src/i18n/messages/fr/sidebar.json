@@ -54,6 +54,7 @@
     "moveFailed": "Impossible de déplacer la page ici. Pour la déplacer ailleurs, vous devez disposer d’un accès complet.",
     "fromTemplate": "À partir d’un modèle",
     "import": "Importer…",
+    "saveFromWeb": "Enregistrer depuis le web…",
     "confirmMoveSpace": "Déplacer cette page vers {place} ? Les personnes qui peuvent la voir changeront en conséquence."
   },
   "search": {
@@ -69,6 +70,7 @@
     "includeArchivedHint": "Trouver aussi les pages archivées",
     "inDocument": "Trouvé dans le document {name} de cette page",
     "recent": "Modifiées récemment",
+    "recentViewed": "Consultées récemment",
     "commands": "Commandes",
     "noCommands": "Aucune commande correspondante",
     "setting": "Paramètres : {tab} → {setting}",
@@ -76,7 +78,29 @@
     "hint": {
       "in": "dans une page",
       "type": "seulement les bases de données (ou page, row)",
-      "commands": "commandes"
+      "commands": "commandes",
+      "phrase": "expression exacte"
+    },
+    "filters": {
+      "label": "Filtres",
+      "teamspace": "Espace d’équipe",
+      "createdBy": "Créé par",
+      "editedBy": "Dernière modification par",
+      "date": "Date",
+      "edited": "Dernière modification",
+      "created": "Création",
+      "today": "Aujourd’hui",
+      "week": "7 derniers jours",
+      "month": "30 derniers jours",
+      "custom": "Période personnalisée",
+      "from": "Du",
+      "to": "Au",
+      "more": "{first} +{count}",
+      "you": "{name} (vous)",
+      "findPerson": "Rechercher une personne…",
+      "noPeople": "Aucune personne trouvée",
+      "remove": "Supprimer le filtre",
+      "clear": "Effacer les filtres"
     }
   },
   "trash": {

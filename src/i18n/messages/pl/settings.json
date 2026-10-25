@@ -58,7 +58,7 @@
       "workspaceName": "nazwa zmień nazwę ikona",
       "ai": "sztuczna inteligencja czat model dostawca pamięć",
       "workspaceMail": "e-mail wiersze poczta wyślij",
-      "export": "kopia zapasowa pobierz zip markdown",
+      "export": "kopia zapasowa pobierz zip markdown pdf",
       "members": "osoby zaproś użytkownicy role usuń",
       "agents": "ai asystent automatyzacja bot",
       "snippets": "tekst skróty fragmenty",
@@ -108,11 +108,15 @@
     "description": "Pobierz wszystkie widoczne dla ciebie strony jako plik ZIP: strony jako Markdown, bazy danych jako CSV oraz wyświetlane w nich pliki. Strony w koszu są pomijane; szablony trafiają do folderu Templates.",
     "button": "Eksportuj",
     "preparing": "Przygotowywanie…",
-    "disabled": "Eksport jest wyłączony dla tego obszaru roboczego w sekcji Ustawienia → Bezpieczeństwo."
+    "disabled": "Eksport jest wyłączony dla tego obszaru roboczego w sekcji Ustawienia → Bezpieczeństwo.",
+    "format": "Format eksportu",
+    "formatMarkdown": "Markdown i CSV",
+    "formatPdf": "PDF",
+    "descriptionPdf": "Pobierz wszystkie widoczne dla ciebie strony jako plik ZIP z plikami PDF, w folderach odpowiadających drzewu stron: bazy danych jako tabele ich wierszy, a wiersze z własnym tekstem jako osobne pliki PDF. Strony z kosza i szablony są pomijane; najwyżej {limit, number} plików PDF."
   },
   "members": {
     "heading": "Członkowie",
-    "description": "Członkowie mogą wyświetlać i edytować każdą stronę, chyba że jej udostępnianie jest ograniczone; goście widzą tylko udostępnione im strony. Właściciele mogą też zarządzać członkami.",
+    "description": "Członkowie mogą wyświetlać i edytować każdą stronę, chyba że jej udostępnianie jest ograniczone; goście widzą tylko udostępnione im strony. Właściciele mogą też zarządzać członkami; administratorzy członków zarządzają osobami i grupami, ale żadnymi innymi ustawieniami.",
     "tabs": {
       "members": "Członkowie",
       "invitations": "Oczekujące zaproszenia",
@@ -153,6 +157,7 @@
     "roleLabel": "Rola",
     "roles": {
       "owner": "Właściciel",
+      "membership_admin": "Administrator członków",
       "member": "Członek",
       "guest": "Gość"
     },
@@ -209,12 +214,18 @@
       "someone": "Członek",
       "approve": "Zatwierdź",
       "decline": "Odrzuć"
-    }
+    },
+    "removeBodyChoose": "{name} natychmiast traci dostęp do tego obszaru roboczego, także na otwartych stronach i w połączonych aplikacjach.",
+    "removeBodyToOwner": "{name} od razu traci dostęp do tego obszaru roboczego, także na otwartych stronach i w połączonych aplikacjach. Strony, którymi tylko ta osoba mogła zarządzać, oraz przestrzenie zespołów, których nikt inny nie prowadzi, przechodzą na najstarszego właściciela obszaru roboczego.",
+    "heirLabel": "Przekaż strony osobie",
+    "heirHint": "Strony, którymi tylko {name} mógł(a) zarządzać, i przestrzenie zespołu, którymi nikt inny nie zarządza, przejdą na wybraną osobę.",
+    "heirCount": "{count, plural, =0 {{name} nie zarządza obecnie samodzielnie żadną stroną. Przestrzenie zespołu, którymi nikt inny nie zarządza, przejdą na wybraną osobę.} one {# strona, którą tylko {name} mógł(a) zarządzać, przejdzie na wybraną osobę razem z przestrzeniami zespołu, którymi nikt inny nie zarządza.} few {# strony, którymi tylko {name} mógł(a) zarządzać, przejdą na wybraną osobę razem z przestrzeniami zespołu, którymi nikt inny nie zarządza.} many {# stron, którymi tylko {name} mógł(a) zarządzać, przejdzie na wybraną osobę razem z przestrzeniami zespołu, którymi nikt inny nie zarządza.} other {# strony, którymi tylko {name} mógł(a) zarządzać, przejdzie na wybraną osobę razem z przestrzeniami zespołu, którymi nikt inny nie zarządza.}}",
+    "heirYou": "{name} (ty)"
   },
   "guests": {
     "heading": "Goście",
     "description": "Goście to osoby spoza obszaru roboczego, które widzą tylko udostępnione im strony. Sprawdź, co może otworzyć każdy gość, odbierz dostęp, ustaw gościa jako członka lub go usuń.",
-    "descriptionMember": "Goście to osoby spoza obszaru roboczego, które widzą tylko udostępnione im strony. Możesz odebrać dostęp do stron, do których masz pełny dostęp. Tylko właściciele mogą ustawić gościa jako członka lub go usunąć.",
+    "descriptionMember": "Goście to osoby spoza obszaru roboczego, które widzą tylko udostępnione im strony. Możesz odebrać dostęp do stron, do których masz pełny dostęp. Tylko właściciele i administratorzy członków mogą ustawić gościa jako członka lub go usunąć.",
     "count": "{count, plural, =0 {Brak gości} one {# gość} few {# gości} many {# gości} other {# gościa}}",
     "search": "Szukaj gości lub stron",
     "exportCsv": "Pobierz listę gości jako CSV",
@@ -320,7 +331,7 @@
   "groups": {
     "heading": "Grupy",
     "description": "Grupy łączą osoby, dzięki czemu możesz udostępnić stronę im wszystkim lub dodać je do przestrzeni zespołu za jednym razem. Kto dołącza do grupy, otrzymuje to, co ma grupa; kto ją opuszcza, to traci. Do grup mogą należeć tylko właściciele i członkowie, nie goście.",
-    "ownersOnly": "Tylko właściciele obszaru roboczego mogą tworzyć i zmieniać grupy.",
+    "ownersOnly": "Tylko właściciele obszaru roboczego i administratorzy członków mogą tworzyć i zmieniać grupy.",
     "newButton": "Nowa grupa",
     "search": "Szukaj grup",
     "empty": "Brak grup.",
@@ -365,7 +376,8 @@
       "nameRequired": "Nadaj grupie nazwę.",
       "nameTaken": "Inna grupa ma już tę nazwę.",
       "notMember": "Do grup mogą należeć tylko właściciele i członkowie obszaru roboczego.",
-      "accessDenied": "Tylko właściciele obszaru roboczego mogą zmieniać grupy."
+      "ownMembership": "Administratorzy członków nie mogą dodać samych siebie do grupy. Poproś właściciela obszaru roboczego.",
+      "accessDenied": "Tylko właściciele obszaru roboczego i administratorzy członków mogą zmieniać grupy."
     }
   },
   "agents": {
@@ -734,7 +746,7 @@
       "accessDenied": "Nie masz uprawnień, aby to zrobić.",
       "reasons": {
         "name": "Nadaj agentowi nazwę.",
-        "icon": "Ikona agenta to emoji.",
+        "icon": "Ikona agenta to emoji lub wbudowana ikona.",
         "level": "Agent może wyświetlać, komentować lub edytować stronę.",
         "template": "Ten szablon nie istnieje.",
         "database": "Wybierz bazę danych z tego obszaru roboczego.",
@@ -1193,6 +1205,7 @@
     "invalidSetting": "To ustawienie nie jest dostępne.",
     "nameRequired": "Nadaj obszarowi roboczemu nazwę.",
     "alreadyMember": "Ta osoba jest już członkiem.",
+    "ownerInvitation": "Ten adres ma zaproszenie do zostania właścicielem. Tylko właściciel może je zmienić.",
     "notMember": "Ta osoba nie jest członkiem.",
     "lastOwner": "Obszar roboczy musi mieć co najmniej jednego właściciela.",
     "lastOwnerRemove": "Obszar roboczy musi mieć co najmniej jednego właściciela. Najpierw ustaw kogoś innego jako właściciela.",
@@ -1222,7 +1235,8 @@
     "invalidNetworkLabel": "Etykieta {detail} jest za długa: najwyżej 100 znaków.",
     "tooManyNetworks": "Obszar roboczy może mieć najwyżej 100 zatwierdzonych sieci.",
     "ipLocksYouOut": "Na tej liście nie ma Twojego obecnego adresu, {detail}, więc po zapisaniu stracisz dostęp do obszaru roboczego. Najpierw dodaj swój adres lub obejmujący go zakres.",
-    "ipUnknown": "Serwer nie widzi Twojego adresu, więc nie może sprawdzić, czy ta lista zachowa Twój dostęp. Zapisz ją przez połączenie, którego adres serwer widzi, albo wyczyść listę."
+    "ipUnknown": "Serwer nie widzi Twojego adresu, więc nie może sprawdzić, czy ta lista zachowa Twój dostęp. Zapisz ją przez połączenie, którego adres serwer widzi, albo wyczyść listę.",
+    "heirInvalid": "Wybierz właściciela lub członka, który zostaje w obszarze roboczym."
   },
   "security": {
     "description": "Zdecyduj, jak osoby się logują, kto może wprowadzać osoby do tego obszaru roboczego, co mogą robić goście, co może go opuszczać (eksporty, połączone aplikacje) i kto może publikować strony w internecie. Tylko właściciele mogą zmieniać te ustawienia.",
@@ -1269,7 +1283,9 @@
       "unpublish": "Cofnij publikację",
       "confirm": "Cofnąć publikację tej strony? Link przestanie działać dla wszystkich.",
       "indexable": "Wyszukiwarki dozwolone",
-      "off": "Publikowanie jest wyłączone: żadna z tych stron nie jest teraz w internecie. Wrócą po ponownym włączeniu publikowania, chyba że cofniesz ich publikację."
+      "off": "Publikowanie jest wyłączone: żadna z tych stron nie jest teraz w internecie. Wrócą po ponownym włączeniu publikowania, chyba że cofniesz ich publikację.",
+      "expiresOn": "Wygasa {date}",
+      "expiredOn": "Wygasł {date}"
     },
     "forms": {
       "title": "Formularze publiczne",
@@ -1612,6 +1628,7 @@
     "privatePages": "prywatne strony",
     "roles": {
       "owner": "właściciel",
+      "membership_admin": "administrator członków",
       "member": "członek",
       "guest": "gość"
     },
@@ -1655,7 +1672,8 @@
       "skill": "Umiejętność (SKILL.md)",
       "notion": "Notion",
       "obsidian": "Obsidian",
-      "enex": "Evernote"
+      "enex": "Evernote",
+      "web": "Strona WWW"
     },
     "settingNames": {
       "guestInvites": "Kto może zapraszać gości",
@@ -1708,7 +1726,8 @@
         "removed": "Usunięto {target} ({role})",
         "left": "Opuszczenie obszaru roboczego",
         "role_changed": "Zmieniono rolę {target}: {from} → {to}",
-        "ownership_transferred": "Ustawiono {target} jako właściciela i zmieniono własną rolę na członka"
+        "ownership_transferred": "Ustawiono {target} jako właściciela i zmieniono własną rolę na członka",
+        "content_handed_over": "Przekazano {subject} {count, plural, one {# stronę} few {# strony} many {# stron} other {# strony}}, którymi tylko {target} mógł(a) zarządzać"
       },
       "invitation": {
         "sent": "Zaproszono {target} z rolą: {role}",
@@ -1740,7 +1759,8 @@
         "published": "Opublikowano {target} w internecie",
         "unpublished": "Cofnięto publikację {target}",
         "publication_revoked": "Wycofano {target} z internetu (opublikowane przez: {subject})",
-        "rows_merged": "Scalono {count, plural, one {# wiersz} few {# wiersze} many {# wierszy} other {# wiersza}} z {target}"
+        "rows_merged": "Scalono {count, plural, one {# wiersz} few {# wiersze} many {# wierszy} other {# wiersza}} z {target}",
+        "publication_expiry_changed": "{change, select, removed {Usunięto wygaśnięcie linku internetowego {target}} other {Ustawiono wygaśnięcie linku internetowego {target} na {to}}}"
       },
       "property": {
         "access_changed": "Zmieniono, kto ma dostęp do „{property}” w {target}",
@@ -1910,6 +1930,15 @@
       "slack_token": "token Slack",
       "api_key": "klucz API",
       "jwt": "token JWT (JSON Web Token)"
+    },
+    "audienceLine": "Odbiorcy: {audience}",
+    "audience": {
+      "web": "Opublikowana w internecie",
+      "workspace": "Cały obszar roboczy",
+      "workspaceTeamspace": "Cały obszar roboczy (przestrzeń zespołu {name})",
+      "teamspace": "Przestrzeń zespołu {name}",
+      "people": "Wybrane osoby ({count})",
+      "private": "Prywatna"
     }
   },
   "notifications": {
@@ -2656,7 +2685,7 @@
       "reservedKey": "Ten klucz należy do wbudowanego rodzaju (note, tip, important, warning, caution, info, danger, details, frame, card, panel).",
       "duplicateKey": "Inny styl ma już ten klucz.",
       "name": "Wpisz nazwę o długości do 60 znaków.",
-      "icon": "Wybierz jedno emoji albo brak ikony.",
+      "icon": "Wybierz jedno emoji lub wbudowaną ikonę albo brak ikony.",
       "color": "Wybierz kolor.",
       "border": "Wybierz obramowanie.",
       "title": "Tytuł może mieć najwyżej 120 znaków."

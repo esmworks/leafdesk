@@ -12,7 +12,8 @@
     "asana": "Asana",
     "monday": "Monday.com",
     "jira": "Jira",
-    "googleDocs": "Google Docs"
+    "googleDocs": "Google Docs",
+    "web": "Verkkosivu"
   },
   "destination": "Sijainti",
   "topLevel": "Työtilan ylin taso",
@@ -139,7 +140,8 @@
       "type": "Tyyppi",
       "labels": "Tunnisteet",
       "due": "Määräpäivä",
-      "link": "Jira-linkki"
+      "link": "Jira-linkki",
+      "reporter": "Raportoija"
     },
     "errors": {
       "unauthorized": "Jira hylkäsi sähköpostiosoitteen ja API-tunnuksen.",
@@ -218,7 +220,8 @@
       "badNote": "Muistiinpanoa ”{path}” ei voi lukea, ja se jätettiin pois.",
       "notEnex": "”{path}” jätettiin pois: se ei ole Evernote-vienti (.enex)."
     },
-    "more": "…ja {count, plural, one {# muu} other {# muuta}}."
+    "more": "…ja {count, plural, one {# muu} other {# muuta}}.",
+    "tooManyImages": "{count, plural, one {# kuva lisää jätettiin} other {# kuvaa lisää jätettiin}} pois: tallennettuun verkkosivuun säilytetään enintään {limit}."
   },
   "errors": {
     "tooLarge": "Lataus on suurempi kuin {limit}.",
@@ -268,6 +271,42 @@
       "signIn": "Yhteys ”{name}” vaatii uuden kirjautumisen Googleen: omistaja tekee sen kohdassa Asetukset → Yhteydet.",
       "notFound": "Dokumenttia ei voi lukea yhteyden ”{name}” kautta: tarkista linkki ja se, että yhteyden Google-tili saa avata sen.",
       "notADocument": "”{id}” ei ole Google-dokumentti."
+    }
+  },
+  "web": {
+    "title": "Tallenna verkosta",
+    "description": "Tallenna verkkosivu sivuksi: sen teksti, kuvat ja linkki takaisin.",
+    "help": "Liitä verkkosivun osoite. Sen pääteksti tallennetaan ilman ympäröiviä valikoita, mainoksia ja alatunnisteita, ja sen kuvat kopioidaan työtilaan. Resepti tulee ensin, ainekset tarkistuslistana.",
+    "url": "Verkko-osoite",
+    "target": "Tallenna kohteeseen",
+    "privatePage": "Yksityinen sivu ylimmälle tasolle",
+    "underPage": "Sivun alle",
+    "intoDatabase": "Tietokannan riviksi",
+    "save": "Tallenna sivu",
+    "saving": "Tallennetaan sivua…",
+    "bookmarklet": {
+      "heading": "Tallenna selaimesta",
+      "help": "Vedä tämä painike selaimesi kirjanmerkkipalkkiin. Napsauta sitä millä tahansa verkkosivulla tallentaaksesi sivun tänne; valitsemasi teksti tulee mukaan lainauksena.",
+      "link": "Tallenna Leafdeskiin"
+    },
+    "errors": {
+      "invalidUrl": "Tämä ei ole verkko-osoite. Liitä osoite, joka alkaa http:// tai https://.",
+      "blocked": "Tätä osoitetta ei voi tallentaa: se osoittaa yksityiseen verkkoon tai porttiin, jota verkkosivut eivät käytä.",
+      "unreachable": "Sivua ei tavoitettu. Tarkista osoite ja yritä uudelleen.",
+      "timeout": "Sivu vastasi liian hitaasti. Yritä myöhemmin uudelleen.",
+      "httpError": "Sivusto vastasi virheellä: sivu saattaa vaatia kirjautumista tai sitä ei enää ole.",
+      "notHtml": "Tämä osoite ei ole verkkosivu (ehkä tiedosto). Lataa tiedostot mieluummin sivulle.",
+      "noAccess": "Et voi lisätä sivuja sinne. Valitse toinen tallennuspaikka.",
+      "badTarget": "Verkkosivun voi tallentaa sivun alle tai tämän työtilan tietokantaan.",
+      "tooComplex": "Sivu on liian suuri tai monimutkainen tallennettavaksi yhdeksi sivuksi."
+    },
+    "recipe": {
+      "yield": "Määrä",
+      "prepTime": "Valmistelu",
+      "cookTime": "Kypsennys",
+      "totalTime": "Yhteensä",
+      "ingredients": "Ainekset",
+      "steps": "Valmistus"
     }
   }
 }

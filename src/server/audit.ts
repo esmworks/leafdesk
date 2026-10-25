@@ -19,6 +19,7 @@ import { redactValue } from "@/lib/redact";
 import { requireMembership } from "@/server/access";
 import { connectedAppCall } from "@/server/connected-app";
 import { clientDisplayName } from "@/server/mcp/grants";
+import { pageAudience } from "@/server/page-audience";
 
 /**
  * The workspace audit log (issue #61, lib/audit.ts for the actions): `recordAudit` writes what an
@@ -42,7 +43,7 @@ import { clientDisplayName } from "@/server/mcp/grants";
  */
 
 type Tx = Parameters<Parameters<typeof db.transaction>[0]>[0];
-type Executor = Pick<typeof db, "select" | "insert">;
+type Executor = Pick<typeof db, "select" | "insert" | "execute">;
 
 export type AuditTarget = {
   type: AuditTargetType;
@@ -212,6 +213,14 @@ async function write(executor: Executor, inputs: AuditInput[], facts: RequestFac
     const target = input.target ?? null;
     const { label, email } = target ? await labelOf(executor, target) : { label: "" };
     const details: Record<string, unknown> = { ...input.details, ...(email ? { email } : {}) };
+    // Who could reach the page then (see lib/page-audience.ts); never holds the event back.
+    if (target?.type === "page" && target.id) {
+      const audience = await pageAudience(executor, target.id).catch((error: unknown) => {
+        console.error("[audit] could not read the page's audience", error);
+        return null;
+      });
+      if (audience) details.audience = audience;
+    }
     const subject = input.subject;
     if (subject) {
       details.subjectType = subject.type;

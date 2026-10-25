@@ -8,9 +8,11 @@ import { listGroups } from "@/server/groups";
 import { setWatchingTeamspace } from "@/server/page-watch";
 import { requireUserId } from "@/server/session";
 import { previewTeamspaceFromPage, turnPageIntoTeamspace } from "@/server/teamspace-from-page";
+import { WorkspaceError } from "@/server/workspaces";
 import {
   addTeamspaceGroups,
   addTeamspaceMembers,
+  inviteToTeamspace,
   canCreateTeamspace,
   createTeamspace,
   isTeamspaceAccess,
@@ -143,6 +145,30 @@ export async function addTeamspaceMembersAction(
   const result = await run((userId) => addTeamspaceMembers(userId, teamspaceId, userIds, role === "owner" ? "owner" : "member"));
   refresh(workspaceId);
   return result;
+}
+
+/**
+ * Brings someone into the teamspace by email (see inviteToTeamspace): added when they are in the
+ * workspace already, else invited to it with the teamspace, or asked for when members' invitations
+ * wait for an owner's approval. The result says which, with the invitation's link to share.
+ */
+export async function inviteToTeamspaceAction(workspaceId: string, teamspaceId: string, email: string, role: TeamspaceRole = "member") {
+  if (typeof email !== "string" || email.length > 320) return fail("invalidEmail");
+  const userId = await requireUserId();
+  try {
+    const data = await inviteToTeamspace(userId, teamspaceId, email, role === "owner" ? "owner" : "member");
+    refresh(workspaceId);
+    return { ok: true as const, data };
+  } catch (error) {
+    if (error instanceof TeamspaceError) return fail(error.code);
+    // Inviting to the workspace is refused as adding a member there is (settings' texts).
+    if (error instanceof WorkspaceError) {
+      const t = await getTranslations("settings.errors");
+      return { ok: false as const, error: t.has(error.code) ? t(error.code as "invalidEmail") : (await getTranslations("teamspaces.errors"))("cantInvite") };
+    }
+    if (error instanceof AccessError) return { ok: false as const, error: (await getTranslations("teamspaces.errors"))("cantInvite") };
+    throw error;
+  }
 }
 
 export async function removeTeamspaceMemberAction(workspaceId: string, teamspaceId: string, targetId: string) {

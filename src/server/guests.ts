@@ -11,13 +11,14 @@ import {
   workspaceInvitation,
   workspaceMember,
 } from "@/db/schema";
+import { managesPeople } from "@/lib/workspace-roles";
 import { AccessError, accessRank, FULL_RANK, getMembership, pageIdColumn } from "@/server/access";
 import { notAgentUser } from "@/server/agents/users";
 import { canInviteGuests } from "@/server/workspaces";
 
 /**
  * Settings > Guests: who is in the workspace as a guest, and what they were given. For the people
- * who may bring guests in (`canInviteGuests`): owners, and members when the workspace lets them.
+ * who may bring guests in (`canInviteGuests`): owners and membership admins, and members when the workspace lets them.
  *
  * A guest sees a page through an entry of their own on it or an ancestor (see
  * `page_access_level`), so their own entries are the whole of what they were given: subpages that
@@ -61,7 +62,7 @@ export type Guest = {
   invitedBy: { id: string; name: string } | null;
   /** Invited but not joined: when their invitation link stops working. */
   expiresAt: Date | null;
-  /** The workspace invitation, for owners to withdraw; null for everyone else. */
+  /** The workspace invitation, for owners and membership admins to withdraw; null for everyone else. */
   invitationId: string | null;
   pages: GuestPage[];
   /** Pages they have an entry on that the viewer can't see. */
@@ -71,11 +72,15 @@ export type Guest = {
   hiddenInvitations: number;
 };
 
-/** Owners, or members the workspace lets invite guests; anyone else gets AccessError. */
+/**
+ * Owners and membership admins, or members the workspace lets invite guests; anyone else gets
+ * AccessError. `managesPeople`: an owner or membership admin, who also sees the workspace's guest
+ * invitations and withdraws them.
+ */
 export async function requireGuestManager(userId: string, workspaceId: string) {
   const [allowed, membership] = await Promise.all([canInviteGuests(userId, workspaceId), getMembership(userId, workspaceId)]);
   if (!allowed) throw new AccessError();
-  return { isOwner: membership?.role === "owner" };
+  return { managesPeople: managesPeople(membership?.role) };
 }
 
 type EntryRow = {
@@ -126,10 +131,11 @@ function byPrincipal(rows: EntryRow[]) {
 /**
  * The workspace's guests and the people invited as guests who haven't joined, with the pages each
  * was given and the page invitations waiting for them. Members see an invited guest only when a
- * page they can see waits for them; the workspace's invitations are otherwise for owners.
+ * page they can see waits for them; the workspace's invitations are otherwise for owners and
+ * membership admins.
  */
 export async function listGuests(actorId: string, workspaceId: string): Promise<Guest[]> {
-  const { isOwner } = await requireGuestManager(actorId, workspaceId);
+  const { managesPeople: isManager } = await requireGuestManager(actorId, workspaceId);
   const inviter = alias(user, "inviter");
   const [members, invited, entries, pending] = await Promise.all([
     // Who brought them in, as the membership records it (`invited_by`). Where it doesn't (the
@@ -220,7 +226,7 @@ export async function listGuests(actorId: string, workspaceId: string): Promise<
   });
   for (const i of invited) {
     const invitations = waiting.shown.get(i.email) ?? [];
-    if (!isOwner && !invitations.length) continue;
+    if (!isManager && !invitations.length) continue;
     guests.push({
       userId: null,
       name: "",
@@ -229,7 +235,7 @@ export async function listGuests(actorId: string, workspaceId: string): Promise<
       addedAt: i.addedAt,
       invitedBy: by(i.invitedById, i.invitedByName),
       expiresAt: i.expiresAt,
-      invitationId: isOwner ? i.id : null,
+      invitationId: isManager ? i.id : null,
       pages: [],
       hiddenPages: 0,
       invitations,

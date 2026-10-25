@@ -14,6 +14,7 @@
     "action": "Tacka ja till inbjudan",
     "roles": {
       "owner": "ägare",
+      "membership_admin": "medlemsadministratör",
       "member": "medlem",
       "guest": "gäst"
     }

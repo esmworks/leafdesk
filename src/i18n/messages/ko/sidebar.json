@@ -54,6 +54,7 @@
     "moveFailed": "페이지를 여기로 이동할 수 없습니다. 다른 곳으로 이동하려면 해당 페이지에 대한 전체 액세스 권한이 필요합니다.",
     "fromTemplate": "템플릿에서",
     "import": "가져오기…",
+    "saveFromWeb": "웹에서 저장…",
     "confirmMoveSpace": "이 페이지를 {place}(으)로 이동할까요? 볼 수 있는 사람도 그에 맞게 바뀝니다."
   },
   "search": {
@@ -69,6 +70,7 @@
     "includeArchivedHint": "보관된 페이지도 찾기",
     "inDocument": "이 페이지의 문서 {name}에서 찾음",
     "recent": "최근 편집",
+    "recentViewed": "최근 본 페이지",
     "commands": "명령",
     "noCommands": "일치하는 명령 없음",
     "setting": "설정: {tab} → {setting}",
@@ -76,7 +78,29 @@
     "hint": {
       "in": "페이지 안에서",
       "type": "데이터베이스만 (또는 페이지, 행)",
-      "commands": "명령"
+      "commands": "명령",
+      "phrase": "정확한 문구"
+    },
+    "filters": {
+      "label": "필터",
+      "teamspace": "팀스페이스",
+      "createdBy": "생성자",
+      "editedBy": "최종 편집자",
+      "date": "날짜",
+      "edited": "마지막 편집",
+      "created": "생성일",
+      "today": "오늘",
+      "week": "지난 7일",
+      "month": "지난 30일",
+      "custom": "기간 직접 지정",
+      "from": "시작",
+      "to": "종료",
+      "more": "{first} +{count}",
+      "you": "{name} (나)",
+      "findPerson": "사람 찾기…",
+      "noPeople": "찾은 사람이 없습니다",
+      "remove": "필터 제거",
+      "clear": "필터 지우기"
     }
   },
   "trash": {

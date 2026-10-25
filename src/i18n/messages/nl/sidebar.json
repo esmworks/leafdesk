@@ -54,6 +54,7 @@
     "moveFailed": "De pagina kon niet hierheen worden verplaatst. Om haar ergens anders heen te verplaatsen, heb je volledige toegang nodig.",
     "fromTemplate": "Vanuit een sjabloon",
     "import": "Importeren…",
+    "saveFromWeb": "Opslaan van het web…",
     "confirmMoveSpace": "Deze pagina naar {place} verplaatsen? Wie haar kan zien, verandert mee."
   },
   "search": {
@@ -69,6 +70,7 @@
     "includeArchivedHint": "Ook gearchiveerde pagina’s vinden",
     "inDocument": "Gevonden in het document {name} op deze pagina",
     "recent": "Onlangs bewerkt",
+    "recentViewed": "Onlangs bekeken",
     "commands": "Opdrachten",
     "noCommands": "Geen overeenkomende opdracht",
     "setting": "Instellingen: {tab} → {setting}",
@@ -76,7 +78,29 @@
     "hint": {
       "in": "binnen een pagina",
       "type": "alleen databases (of page, row)",
-      "commands": "opdrachten"
+      "commands": "opdrachten",
+      "phrase": "exacte woordgroep"
+    },
+    "filters": {
+      "label": "Filters",
+      "teamspace": "Teamruimte",
+      "createdBy": "Gemaakt door",
+      "editedBy": "Laatst bewerkt door",
+      "date": "Datum",
+      "edited": "Laatst bewerkt",
+      "created": "Gemaakt",
+      "today": "Vandaag",
+      "week": "Afgelopen 7 dagen",
+      "month": "Afgelopen 30 dagen",
+      "custom": "Aangepaste periode",
+      "from": "Van",
+      "to": "Tot",
+      "more": "{first} +{count}",
+      "you": "{name} (jij)",
+      "findPerson": "Zoek een persoon…",
+      "noPeople": "Niemand gevonden",
+      "remove": "Filter verwijderen",
+      "clear": "Filters wissen"
     }
   },
   "trash": {

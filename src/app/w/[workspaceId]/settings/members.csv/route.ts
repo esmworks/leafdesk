@@ -1,10 +1,10 @@
 import { toCsv } from "@/lib/csv";
-import { AccessError, requireMembership } from "@/server/access";
+import { AccessError, requirePeopleManager } from "@/server/access";
 import { groupsByMember } from "@/server/groups";
 import { blockedByWorkspacePolicy, getSession, policyRefusal } from "@/server/session";
 import { lastEdits, listMembers } from "@/server/workspaces";
 
-/** Members as CSV, for owners. Anyone else gets 404 so the workspace's existence doesn't leak. */
+/** Members as CSV, for owners and membership admins. Anyone else gets 404 so the workspace's existence doesn't leak. */
 export async function GET(_request: Request, { params }: { params: Promise<{ workspaceId: string }> }) {
   const session = await getSession();
   if (!session) return new Response("Unauthorized", { status: 401 });
@@ -12,7 +12,7 @@ export async function GET(_request: Request, { params }: { params: Promise<{ wor
   const hold = await blockedByWorkspacePolicy(session, workspaceId);
   if (hold) return new Response(policyRefusal(hold), { status: 403 });
   try {
-    await requireMembership(session.user.id, workspaceId, "owner");
+    await requirePeopleManager(session.user.id, workspaceId);
     const [members, edits, groups] = await Promise.all([
       listMembers(session.user.id, workspaceId),
       lastEdits(session.user.id, workspaceId),

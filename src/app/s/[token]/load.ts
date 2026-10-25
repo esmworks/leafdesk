@@ -1,3 +1,5 @@
+import { iconPrefix } from "@/lib/icon-value";
+import { builtinIconSvg } from "@/lib/builtin-icon-svg";
 import type { Metadata } from "next";
 import { headers } from "next/headers";
 import { notFound, redirect } from "next/navigation";
@@ -71,11 +73,17 @@ export async function publishedMetadata(key: string, segment?: string, viewId?: 
   const [loaded, tc] = await Promise.all([loadPublished(key, segment, viewId), getTranslations("common")]);
   const { data, site } = loaded;
   const title = pageLabel(data.title, tc("untitled"));
-  const full = data.icon ? `${data.icon} ${title}` : title;
+  const full = `${iconPrefix(data.icon)}${title}`;
   const shown = site?.title && data.id !== site.homeId ? `${full} · ${site.title}` : full;
   const description = data.description || site?.description || undefined;
   const canonical = canonicalUrl(loaded);
-  const favicon = site && emojiIcon(site.homeIcon);
+  // The home page's emoji or built-in icon, drawn by favicon.svg; the version makes browsers fetch a new one.
+  const emoji = site && emojiIcon(site.homeIcon);
+  const favicon = emoji
+    ? [...emoji].map((c) => c.codePointAt(0)!.toString(16)).join("-")
+    : site && builtinIconSvg(site.homeIcon)
+      ? site.homeIcon!.replaceAll(":", "-")
+      : null;
   return {
     // A site is its owner's: its pages' titles don't end in the app's name.
     title: site ? { absolute: shown } : shown,
@@ -85,13 +93,6 @@ export async function publishedMetadata(key: string, segment?: string, viewId?: 
     ...(canonical ? { alternates: { canonical } } : {}),
     openGraph: { type: "website", title: shown, description, url: canonical, siteName: site?.title || undefined },
     twitter: { card: "summary", title: shown, description },
-    // The home page's emoji, drawn by favicon.svg; the version makes browsers fetch a new one.
-    ...(favicon
-      ? {
-          icons: {
-            icon: [{ url: `${data.links.base}/favicon.svg?v=${[...favicon].map((c) => c.codePointAt(0)!.toString(16)).join("-")}`, type: "image/svg+xml" }],
-          },
-        }
-      : {}),
+    ...(favicon ? { icons: { icon: [{ url: `${data.links.base}/favicon.svg?v=${favicon}`, type: "image/svg+xml" }] } } : {}),
   };
 }

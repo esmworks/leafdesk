@@ -1,5 +1,6 @@
 "use client";
 
+import { useToggleAllShortcut } from "@/components/toggle-all";
 import { FlagTriangleRight, Plus, TriangleAlert, X } from "lucide-react";
 import dynamic from "next/dynamic";
 import { useRouter, useSearchParams } from "next/navigation";
@@ -118,6 +119,8 @@ export function DatabasePage({
 }) {
   const t = useTranslations("database");
   const locale = useLocale();
+  // Mod+Alt+T opens or closes every group of the view (components/toggle-all.ts).
+  useToggleAllShortcut();
   const linked = embed?.linked;
   const embedded = embed !== undefined;
   const { snapshot, rows, loadError, error, api, offlineCopyFrom } = useDatabase(databaseId, {
@@ -512,9 +515,13 @@ export function DatabasePage({
     if (created) selectView(created.id);
   };
 
-  /** "New": from the default row template when there is one; the menu beside it picks another or none. */
+  /**
+   * "New": from the default row template when there is one, the view's own before the database's
+   * (a linked view has none of its own); the menu beside it picks another or none.
+   */
   const newRow = async (template?: string | null) => {
-    const id = await viewApi.createRow(template === undefined ? { useDefault: true } : { templateId: template });
+    const viewId = view && !linked ? view.id : undefined;
+    const id = await viewApi.createRow(template === undefined ? { useDefault: true, viewId } : { templateId: template });
     if (!id) return;
     // Beside the view in the panel, ready for its name. Otherwise, inside a page the new row shows
     // up in place: leaving the page would lose the reader's spot.
@@ -548,6 +555,7 @@ export function DatabasePage({
                         onSelect={selectView}
                         onAdd={addView}
                         onRename={(v, name) => api.updateView(v, { name })}
+                        onIcon={(v, icon) => api.updateView(v, { config: { ...v.config, icon: icon ?? undefined } })}
                         onMove={(id, target, side) => api.moveView(id, target, side)}
                         deleted={deletedSchema}
                         onExport={exportable && exportsRows && !offline ? exportView : undefined}
@@ -639,6 +647,8 @@ export function DatabasePage({
                               <RowTemplatesMenu
                                 workspaceId={workspaceId}
                                 snapshot={snapshot}
+                                view={view && !linked && !configReadOnly ? view : null}
+                                onViewDefault={(v, defaultTemplateId) => void api.updateView(v, { config: { ...v.config, defaultTemplateId } })}
                                 onCreate={(templateId) => void newRow(templateId)}
                                 onChanged={() => void api.refetch()}
                                 onError={api.showError}

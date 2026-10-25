@@ -144,7 +144,7 @@ const SCHEMAS: Record<string, JsonSchema> = {
         {
           id,
           name: { type: "string" },
-          role: { type: "string", enum: ["owner", "member", "guest"] },
+          role: { type: "string", enum: ["owner", "membership_admin", "member", "guest"] },
           callout_styles: {
             type: "array",
             description: "The workspace's callout styles, when it has any: a page body writes one as `> [!key] Title`.",
@@ -328,6 +328,21 @@ const SCHEMAS: Record<string, JsonSchema> = {
       },
     },
     ["id", "title", "workspace_id", "url"],
+  ),
+  WebPageSaved: loose(
+    {
+      id,
+      title: { type: "string" },
+      workspace_id: id,
+      ...teamspaceFields,
+      parent_id: { type: ["string", "null"] },
+      row: { type: "boolean", description: "Saved into a database as its row." },
+      url,
+      source_url: { type: "string", description: "The web page's address." },
+      pictures_copied: { type: "integer", description: "Pictures of the page copied into the workspace." },
+      warnings: { type: "array", items: { type: "string" }, description: "What was left out (pictures that couldn't be copied, or over the limit)." },
+    },
+    ["id", "title", "workspace_id", "url", "source_url"],
   ),
   DailyNote: loose(
     {
@@ -918,7 +933,25 @@ const SCHEMAS: Record<string, JsonSchema> = {
         },
         ["kind", "id", "name"],
       ),
-      target: { type: ["object", "null"], properties: { type: { type: "string" }, id: { type: ["string", "null"] }, label: { type: "string" } } },
+      target: {
+        type: ["object", "null"],
+        properties: {
+          type: { type: "string" },
+          id: { type: ["string", "null"] },
+          label: { type: "string" },
+          audience: {
+            type: "object",
+            description:
+              "Pages only: who could reach the page when it happened. `kind` is web (published), workspace (everyone in it; `teamspace` names a teamspace everyone is in), teamspace (its members; `teamspace` names it), people (only those it is shared with: `people` and `groups` count them) or private.",
+            properties: {
+              kind: { type: "string", enum: ["web", "workspace", "teamspace", "people", "private"] },
+              teamspace: { type: "string" },
+              people: { type: "integer" },
+              groups: { type: "integer" },
+            },
+          },
+        },
+      },
       details: { type: "object", additionalProperties: true, description: "Small before/after values, credentials masked." },
     },
     ["id", "time", "action", "actor", "details"],

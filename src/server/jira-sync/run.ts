@@ -42,6 +42,7 @@ const TYPES: Record<JiraField, PropertyType> = {
   status: "status",
   assignee: "person",
   assigneeOthers: "text",
+  reporter: "person",
   priority: "select",
   type: "select",
   labels: "multi_select",
@@ -99,7 +100,9 @@ export async function applyIssues(database: Database, runAs: string, mapping: Ji
   const props = added ? await getProperties(database.id) : before;
 
   const match = await matcher(runAs, database.workspaceId);
-  const person = (assignee: { name: string; email: string | null }) => match(assignee) ?? null;
+  const person = (someone: { name: string; email: string | null }) => match(someone) ?? null;
+  // People of new rows go in afterwards, unannounced (see above): the assignee and the reporter.
+  const deferred = [live.assignee, live.reporter].filter((id): id is string => Boolean(id));
 
   const stored = await db
     .select({ id: page.id, title: page.title, properties: page.properties, archivedAt: page.archivedAt, createdBy: page.createdBy })
@@ -115,7 +118,7 @@ export async function applyIssues(database: Database, runAs: string, mapping: Ji
   }
 
   const invalid = new Map<string, number>();
-  const fresh: { title: string; properties: Record<string, unknown>; assigned: string[] | null }[] = [];
+  const fresh: { title: string; properties: Record<string, unknown>; people: Record<string, string[]> }[] = [];
   const changes: { rowId: string; before: Record<string, unknown>; after: Record<string, unknown>; patch: Record<string, unknown> }[] = [];
   const renames: { id: string; title: string }[] = [];
   const done = new Set<string>();
@@ -128,12 +131,13 @@ export async function applyIssues(database: Database, runAs: string, mapping: Ji
     if (!existing) {
       const normalized = await checkValues(runAs, database.id, values, props, invalid);
       // Assignments of new rows go in afterwards, unannounced (see above).
-      let assigned: string[] | null = null;
-      if (live.assignee && Array.isArray(normalized[live.assignee])) {
-        assigned = normalized[live.assignee] as string[];
-        delete normalized[live.assignee];
+      const people: Record<string, string[]> = {};
+      for (const id of deferred) {
+        if (!Array.isArray(normalized[id])) continue;
+        people[id] = normalized[id] as string[];
+        delete normalized[id];
       }
-      fresh.push({ title: row.title, properties: normalized, assigned });
+      fresh.push({ title: row.title, properties: normalized, people });
       continue;
     }
     const normalized = await checkValues(runAs, database.id, values, props, invalid, existing);
@@ -151,10 +155,9 @@ export async function applyIssues(database: Database, runAs: string, mapping: Ji
 
   if (fresh.length) {
     const created = await writeRows(database, runAs, fresh.map(({ title, properties }) => ({ title, properties })));
-    const assignee = live.assignee;
-    if (assignee) {
-      const assigned = fresh.flatMap((row, i) => (row.assigned ? [{ id: created[i].id, ids: row.assigned }] : []));
-      if (assigned.length) await writeIds(assignee, assigned);
+    for (const propertyId of deferred) {
+      const assigned = fresh.flatMap((row, i) => (row.people[propertyId] ? [{ id: created[i].id, ids: row.people[propertyId] }] : []));
+      if (assigned.length) await writeIds(propertyId, assigned);
     }
   }
   for (const { rowId, patch } of changes) {

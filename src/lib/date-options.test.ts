@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { checkDateOptions, dueReminderDay, relativeDay, reminderInstant } from "./date-options";
+import { checkDateOptions, dueReminderDay, relativeDay, reminderInstant, takesDateOptions } from "./date-options";
 import { dayString } from "./time-zone";
 
 const now = new Date("2026-10-10T12:00:00Z");
@@ -43,6 +43,27 @@ describe("checkDateOptions", () => {
     expect(checkDateOptions({ reminderDays: 3 }, undefined, now).ok).toBe(false);
     expect(checkDateOptions({ display: "weird" as "date" }, undefined, now).ok).toBe(false);
     expect(checkDateOptions({ reminderDays: 1, timeZone: "Mars/Olympus" }, undefined, now).ok).toBe(false);
+  });
+});
+
+describe("date formats", () => {
+  it("stores a format and a clock, and drops them back to the default", () => {
+    expect(checkDateOptions({ format: "dmy", clock: "24h" }, undefined, now)).toEqual({ ok: true, options: { format: "dmy", clock: "24h" } });
+    expect(checkDateOptions({ format: "default" }, { format: "dmy", clock: "24h" }, now)).toEqual({ ok: true, options: { clock: "24h" } });
+    expect(checkDateOptions({ clock: null }, { clock: "12h" }, now)).toEqual({ ok: true, options: null });
+    expect(checkDateOptions({ display: "relative" }, { format: "ymd" }, now)).toEqual({ ok: true, options: { display: "relative", format: "ymd" } });
+  });
+
+  it("refuses formats and clocks it doesn't know", () => {
+    expect(checkDateOptions({ format: "yyyy" as never }, undefined, now).ok).toBe(false);
+    expect(checkDateOptions({ clock: "36h" as never }, undefined, now).ok).toBe(false);
+  });
+
+  it("applies to dates and to when rows were made or edited", () => {
+    expect(takesDateOptions("date")).toBe(true);
+    expect(takesDateOptions("created_time")).toBe(true);
+    expect(takesDateOptions("last_edited_time")).toBe(true);
+    expect(takesDateOptions("text")).toBe(false);
   });
 });
 

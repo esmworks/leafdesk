@@ -1,6 +1,7 @@
 // Client-safe: shared by the button block (components/page/button-block.tsx), its settings, the
 // server that runs it (server/buttons.ts) and the Markdown and editor schemas.
 
+import { iconText } from "./icon-value";
 import { cleanRowTemplate, isDynamicValue, MAX_NOTIFY_PEOPLE, MAX_STEP_MESSAGE, MAX_WEBHOOK_URL, type StepValues } from "./automations";
 import { SELECT_COLORS } from "./properties";
 import type { FilterCombinator, FilterEntry } from "@/db/schema/app";
@@ -258,4 +259,4 @@ export function mapButtonLines(markdown: string, fn: (found: { id: string; label
 
 /** A button's text for search and plain-text reads: its icon and label. */
 export const buttonPlainText = (props: { label?: unknown; icon?: unknown } | undefined) =>
-  [typeof props?.icon === "string" ? props.icon : "", typeof props?.label === "string" ? props.label : ""].filter(Boolean).join(" ");
+  [typeof props?.icon === "string" ? iconText(props.icon) : "", typeof props?.label === "string" ? props.label : ""].filter(Boolean).join(" ");

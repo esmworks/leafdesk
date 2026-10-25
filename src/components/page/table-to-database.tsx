@@ -20,8 +20,6 @@ import { tableToDatabaseAction } from "@/app/actions/embeds";
 import { CALLOUT_BLOCK } from "@/lib/content-blocks";
 import { DATABASE_BLOCK } from "@/lib/embed-blocks";
 import { SYNCED_BLOCK } from "@/lib/synced-blocks";
-import { copyText } from "@/components/settings/copy-button";
-import { blockPath } from "@/lib/mentions";
 import { tableRecords, type TableBlockContent } from "@/lib/table-to-database";
 import { useEmbedHost } from "./database-embed";
 import { placeEmbedBlock, type PageEditor } from "./embed-blocks";
@@ -32,6 +30,9 @@ import { CalloutStyleItem, CalloutTitleItem } from "./callout-menu";
 import { ImageLinkItem } from "./image-link";
 import { ImageCropItem } from "./image-crop-item";
 import { FormatCodeItem } from "./code-format-item";
+import { copyBlockLink } from "./editor-shortcuts";
+import { AlignMediaItems, DownloadMediaItem } from "./media-menu";
+import { WideColumnsItem } from "./columns";
 import { TurnIntoItem } from "./turn-into-item";
 
 // Tables being turned into a database: a second click waits for the first.
@@ -104,9 +105,9 @@ function TurnIntoSyncedBlockItem({ onError }: { onError: (message: string) => vo
 }
 
 /**
- * "Copy link to block": the address of the page with the block's id, which opens the page scrolled
- * to the block and highlights it (block-focus.ts). Pasted into a page, it becomes a mention of the
- * block (mentions.tsx).
+ * "Copy link to block" (also Alt+Shift+L, editor-shortcuts.ts): the address of the page with the
+ * block's id, which opens the page scrolled to the block and highlights it (block-focus.ts). Pasted
+ * into a page, it becomes a mention of the block (mentions.tsx).
  */
 function CopyBlockLinkItem() {
   const Components = useComponentsContext()!;
@@ -118,10 +119,7 @@ function CopyBlockLinkItem() {
   return (
     <Components.Generic.Menu.Item
       className="bn-menu-item"
-      onClick={() => {
-        const url = new URL(blockPath(host.workspaceId, host.pageId, block.id), window.location.origin).href;
-        void copyText(url, editor.domElement ?? document.body);
-      }}
+      onClick={() => void copyBlockLink(host.workspaceId, host.pageId, block.id, editor.domElement ?? document.body)}
     >
       {t("copyLink")}
     </Components.Generic.Menu.Item>
@@ -155,7 +153,8 @@ function HideInPrintItem() {
 /**
  * The page editor's side menu (add block, drag handle). Its block menu has the editor's own entries
  * (delete, colors, table headers), the callout's style (or turning a block of text into a callout,
- * callout-menu.tsx), its title, "Copy link to block", for a callout "Hide when printing", for a
+ * callout-menu.tsx), its title, "Copy link to block", for media "Download" and alignment
+ * (media-menu.tsx), in a column "Wide columns" (columns.tsx), for a callout "Hide when printing", for a
  * code block "Format code", for a table "Turn into database", "Turn into synced block" and "Save as snippet"; `onError` shows why
  * a change failed. Made once per editor: a new
  * component each render would close an open menu.
@@ -174,6 +173,9 @@ export function pageSideMenu(onError: (message: string) => void): FC<SideMenuPro
         <CalloutTitleItem />
         <HideInPrintItem />
         <CopyBlockLinkItem />
+        <DownloadMediaItem />
+        <AlignMediaItems />
+        <WideColumnsItem />
         <ImageLinkItem />
         <ImageCropItem />
         <FormatCodeItem onError={onError} />

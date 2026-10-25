@@ -110,6 +110,7 @@
       "you": "{name} (vous)"
     },
     "threadMenu": "Options du fil",
+    "copyLink": "Copier le lien",
     "mute": "Masquer les réponses",
     "unmute": "Réactiver les réponses",
     "muteHint": "Ne plus être averti des nouvelles réponses dans ce fil. Répondre ici, ou y être mentionné, les réactive.",
@@ -207,7 +208,38 @@
   },
   "icon": {
     "add": "Ajouter une icône",
-    "remove": "Supprimer l’icône"
+    "remove": "Supprimer l’icône",
+    "emojiTab": "Emoji",
+    "iconsTab": "Icônes",
+    "searchEmoji": "Rechercher un emoji",
+    "searchIcons": "Rechercher une icône",
+    "random": "Au hasard",
+    "skinTone": "Teint",
+    "tones": {
+      "0": "Sans teint",
+      "1": "Peau claire",
+      "2": "Peau moyennement claire",
+      "3": "Peau légèrement mate",
+      "4": "Peau mate",
+      "5": "Peau foncée"
+    },
+    "color": "Couleur de l’icône",
+    "textColor": "Couleur du texte",
+    "categoriesLabel": "Catégories",
+    "categories": {
+      "smileys": "Smileys et émotions",
+      "people": "Personnes et corps",
+      "nature": "Animaux et nature",
+      "food": "Nourriture et boissons",
+      "travel": "Voyages et lieux",
+      "activities": "Activités",
+      "objects": "Objets",
+      "symbols": "Symboles",
+      "flags": "Drapeaux"
+    },
+    "loading": "Chargement…",
+    "loadFailed": "Impossible de charger les emoji.",
+    "noMatches": "Aucun résultat."
   },
   "background": {
     "add": "Ajouter un arrière-plan",
@@ -484,7 +516,8 @@
     "row": "Ceci est un modèle de ligne. Les nouvelles lignes créées à partir de lui reprennent ses propriétés et son contenu.",
     "inside": "Cette page fait partie d’un modèle.",
     "use": "Utiliser le modèle",
-    "confirmDelete": "Supprimer définitivement ce modèle ? Les pages déjà créées à partir de lui restent inchangées."
+    "confirmDelete": "Supprimer définitivement ce modèle ? Les pages déjà créées à partir de lui restent inchangées.",
+    "titleMarkers": "Écrivez @today, @now ou @me dans le titre : chaque nouvelle ligne reçoit la date, l’heure ou le nom de la personne qui l’ajoute."
   },
   "blocks": {
     "callout": {
@@ -631,7 +664,8 @@
       "submit": "Intégrer",
       "providers": "YouTube, Vimeo, Loom, Figma, Google Docs, Sheets et Slides publiés, CodePen, Spotify et Google Maps. Les autres liens deviennent un signet.",
       "frameTitle": "Contenu intégré depuis {host}",
-      "label": "Intégration"
+      "label": "Intégration",
+      "resize": "Faites glisser pour changer la largeur de l’intégration"
     },
     "paste": {
       "label": "Coller comme",
@@ -721,6 +755,11 @@
   },
   "blockMenu": {
     "copyLink": "Copier le lien vers le bloc",
+    "download": "Télécharger",
+    "alignLeft": "Aligner à gauche",
+    "alignCenter": "Centrer",
+    "alignRight": "Aligner à droite",
+    "wideColumns": "Colonnes larges",
     "hideInPrint": "Masquer à l’impression",
     "calloutStyle": "Style d’encadré",
     "turnIntoCallout": "Transformer en encadré",
@@ -793,7 +832,12 @@
     "shortcut": "Nouvelle note rapide",
     "shortcutShort": "Note rapide",
     "destination": "Enregistrer dans",
-    "privatePage": "Page privée"
+    "privatePage": "Page privée",
+    "fullPage": {
+      "heading": "Enregistrer toute la page",
+      "help": "Enregistre le texte et les images de la page avec un lien vers elle, plutôt que le seul lien.",
+      "save": "Enregistrer toute la page"
+    }
   },
   "dashboard": {
     "title": "Tableau de bord",
@@ -966,7 +1010,8 @@
     "markdownImage": "Image : {alt}",
     "markdownImageUntitled": "Image",
     "expand": "Ouvrir dans la visionneuse",
-    "view": "Voir {name}"
+    "view": "Voir {name}",
+    "resize": "Faites glisser pour changer la largeur"
   },
   "presentation": {
     "previous": "Diapositive précédente",
@@ -1128,7 +1173,7 @@
     },
     "settings": {
       "open": "Paramètres du bouton",
-      "icon": "Emoji",
+      "icon": "Icône",
       "label": "Libellé",
       "color": "Couleur",
       "colorDefault": "Par défaut",
@@ -1201,5 +1246,16 @@
     "reset": "Afficher l’image entière",
     "loading": "Chargement de l’image…",
     "failed": "Impossible de charger l’image."
+  },
+  "commentRef": {
+    "pasteTitle": "Coller le lien d’un commentaire",
+    "pasteAsMention": "Coller comme mention",
+    "pasteAsPreview": "Coller comme aperçu",
+    "pasteAsLink": "Coller comme lien",
+    "noAccess": "Aucun accès à ce commentaire",
+    "onPage": "Sur {title}",
+    "replies": "{count, plural, =0 {Aucune réponse} one {# réponse} other {# réponses}}",
+    "openThread": "Ouvrir le fil",
+    "resolved": "Résolu"
   }
 }

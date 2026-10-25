@@ -1,5 +1,6 @@
 "use client";
 
+import { iconPrefix } from "@/lib/icon-value";
 import { Plus, X } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { useMemo } from "react";
@@ -43,7 +44,7 @@ export function DatabasePicker({ databaseId, value, onChange }: { databaseId: st
         <option value={databaseId}>{t("thisDatabase", { title: pageLabel(own?.title, tc("untitled")) })}</option>
         {others.map((d) => (
           <option key={d.id} value={d.id}>
-            {d.icon ? `${d.icon} ` : ""}
+            {iconPrefix(d.icon)}
             {pageLabel(d.title, tc("untitled"))}
           </option>
         ))}

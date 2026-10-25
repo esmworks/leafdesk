@@ -1,0 +1,1 @@
+ALTER TABLE "workspace_member" ADD COLUMN "web_clip_target" text;

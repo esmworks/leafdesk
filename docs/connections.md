@@ -282,7 +282,8 @@ The tools cover:
   its link. It needs no extra permission: the user reads a file when they can see a page showing it.
 - **Databases:** `get_database`, `query_database`, `create_database`, `create_database_row`,
   `create_database_rows`, `update_database_row`, `update_database_rows`, `add_database_property`
-  (including one- or two-way relations), `set_sub_items`, `set_dependencies`, `update_database_property`,
+  (including one- or two-way relations), `set_sub_items`, `set_dependencies`, `update_database_property`
+  (`one_row` limits a relation to one linked row),
   `change_database_property_type` (converts the values in every row; `dry_run` counts what would
   convert and what would be cleared without changing anything), `delete_database_property`,
   `create_database_view` and `update_database_view` (table, board, calendar, gallery, list, feed,

@@ -29,8 +29,10 @@
     "everyoneIn": "Everyone in the workspace is in this teamspace already.",
     "accessDenied": "You can't do that in this teamspace.",
     "invalidMemberLevel": "Choose what members get on the teamspace's pages.",
-    "invalidIcon": "The icon must be an emoji.",
-    "notConvertible": "Only a page can become a teamspace: not a database, a row or a template."
+    "invalidIcon": "The icon must be an emoji or a built-in icon.",
+    "notConvertible": "Only a page can become a teamspace: not a database, a row or a template.",
+    "invalidEmail": "Enter a valid email address.",
+    "cantInvite": "You can't invite people to this workspace. Ask an owner."
   },
   "dialog": {
     "createTitle": "New teamspace",
@@ -73,7 +75,16 @@
     "chooseGroup": "Choose a group",
     "addGroupButton": "Add group",
     "removeGroup": "Remove {name}",
-    "groupMemberCount": "{count, plural, =0 {No members} one {# member} other {# members}}"
+    "groupMemberCount": "{count, plural, =0 {No members} one {# member} other {# members}}",
+    "searchOrInvite": "Search people or enter an email",
+    "inviteEmail": "Invite {email}",
+    "inviteHint": "They are invited to the workspace and join this teamspace when they accept.",
+    "inviteButton": "Invite",
+    "invitedAdded": "{email} is in this teamspace now.",
+    "invitedRequested": "An owner has to approve inviting {email}. Once approved, they join this teamspace when they accept.",
+    "invitedSent": "Invitation sent to {email}. They join this teamspace when they accept.",
+    "invitedLink": "Invitation for {email} created, but no email went out. Share the link with them.",
+    "copyInviteLink": "Copy link"
   },
   "memberLevel": {
     "full": "Full access",

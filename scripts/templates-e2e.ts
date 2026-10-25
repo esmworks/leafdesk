@@ -39,6 +39,8 @@ const { AccessError } = await import("@/server/access");
 const { InMemoryTransport } = await import("@modelcontextprotocol/server");
 const { createMcpServer } = await import("@/server/mcp/tools");
 const { READ_SCOPE, WRITE_SCOPE } = await import("@/server/mcp/principal");
+const { getSprints } = await import("@/server/sprints");
+const { activeVerifications } = await import("@/server/verification");
 
 const RUN = `templates-e2e-${Date.now().toString(36)}`;
 
@@ -338,6 +340,52 @@ try {
     "…and is only the default of its own database",
   );
 
+  // A view's own default template: "New" in that view starts from it, other views keep the database's
+  const feature = await templates.createRowTemplate(owner, tasks.id, { title: "Feature" });
+  const featureView = await databases.addView(ids.owner, tasks.id, { name: "Features", type: "board" });
+  const plainView = await databases.addView(ids.owner, tasks.id, { name: "Plain", type: "list" });
+  await databases.updateView(ids.owner, featureView.id, { config: { defaultTemplateId: feature.id } });
+  const inFeatureView = await templates.createRow(owner, tasks.id, { useDefault: true, viewId: featureView.id });
+  check(inFeatureView.templateId === feature.id && (await row(inFeatureView.id)).title === "Feature", "New in a view starts from the view's own default template");
+  const inPlainView = await templates.createRow(owner, tasks.id, { useDefault: true, viewId: plainView.id });
+  check(inPlainView.templateId === bug.id, "…while other views keep the database's default");
+  check((await templates.createRow(owner, tasks.id, { useDefault: true })).templateId === bug.id, "…and so does a row made outside any view");
+  check(
+    (await templates.createRow(owner, tasks.id, { useDefault: true, viewId: featureView.id, properties: { Status: "Done" } })).templateId === feature.id,
+    "…with values given too, as New in the view gives its filters' values",
+  );
+  const otherView = await databases.addView(ids.owner, other.id, { name: "Elsewhere", type: "table" });
+  await databases.updateView(ids.owner, otherView.id, { config: { defaultTemplateId: feature.id } });
+  check(
+    (await templates.createRow(owner, tasks.id, { useDefault: true, viewId: otherView.id })).templateId === bug.id,
+    "another database's view doesn't choose this database's template",
+  );
+  await databases.updateView(ids.owner, featureView.id, { config: { defaultTemplateId: null } });
+  check((await templates.createRow(owner, tasks.id, { useDefault: true, viewId: featureView.id })).templateId === null, "a view can start its rows blank");
+  check(
+    (await failure(() => databases.updateView(ids.owner, featureView.id, { config: { defaultTemplateId: 7 as never } }))) === "invalidViewConfig",
+    "…and a malformed choice is refused",
+  );
+  await databases.updateView(ids.owner, featureView.id, { config: { defaultTemplateId: feature.id } });
+  await databases.updateView(ids.owner, plainView.id, { config: { defaultTemplateId: null } });
+  await templates.setDefaultRowTemplate(ids.owner, tasks.id, feature.id, { allViews: true });
+  const afterAll = (await databases.getDatabaseSnapshot(ids.owner, tasks.id)).views;
+  check(
+    afterAll.every((v) => v.config.defaultTemplateId === undefined) &&
+      (await templates.createRow(owner, tasks.id, { useDefault: true, viewId: plainView.id })).templateId === feature.id,
+    "choosing a default for all views drops the views' own choices",
+    afterAll.map((v) => v.config),
+  );
+  await templates.setDefaultRowTemplate(ids.owner, tasks.id, bug.id);
+  await databases.updateView(ids.owner, featureView.id, { config: { defaultTemplateId: feature.id } });
+  await templates.deleteTemplate(ids.owner, feature.id);
+  check(
+    (await templates.createRow(owner, tasks.id, { useDefault: true, viewId: featureView.id })).templateId === bug.id,
+    "a view whose template was deleted falls back to the database's default",
+  );
+  await databases.deleteView(ids.owner, featureView.id);
+  await databases.deleteView(ids.owner, plainView.id);
+
   // Saving a row as a row template; duplicating a database keeps its templates
   const savedRow = await templates.saveAsTemplate(owner, chosen.id);
   const savedRowPage = await row(savedRow.id);
@@ -476,6 +524,70 @@ try {
   );
   check(!(await templates.listTemplates(ids.member, workspaceId)).some((t) => t.id === tracker.id), "built-ins don't add workspace templates");
   check((await failure(() => templates.createFromBuiltin({ userId: ids.guest }, workspaceId, "weekly-plan"))) === "access", "guests can't add built-ins at the top level");
+
+  // Sprints: a page holding the tasks, with sprints turned on and the example tasks in sprints.
+  const sprintsMade = await templates.createFromBuiltin(member, workspaceId, "sprints", { locale: "en" });
+  const sprintsHost = await row(sprintsMade.id);
+  const underHost = await db.select().from(page).where(eq(page.parentId, sprintsMade.id));
+  const tasksDb = underHost.find((p) => p.title === "Tasks");
+  const sprintsDb = underHost.find((p) => p.title === "Sprints");
+  check(
+    sprintsHost.title === "Team sprints" && sprintsHost.kind === "page" && !!tasksDb && tasksDb.kind === "database" && !!sprintsDb,
+    "the sprints template makes a page holding the tasks and, beside them, their sprints",
+    underHost.map((p) => p.title),
+  );
+  check((await getCollab().readPage(sprintsMade.id)).markdown.includes("Complete sprint"), "…with its introduction and the tasks shown in it");
+  const sprintInfo = await getSprints(ids.member, tasksDb!.id);
+  check(sprintInfo.side === "tasks" && sprintInfo.on && sprintInfo.weeks === 2 && !!sprintInfo.current && !!sprintInfo.next, "…with two-week sprints on, one current and one next", sprintInfo);
+  const taskSnapshot = await databases.getDatabaseSnapshot(ids.member, tasksDb!.id);
+  check(
+    ["All tasks", "Board", "Current sprint", "Sprint planning", "Backlog"].every((name) => taskSnapshot.views.some((v) => v.name === name)) &&
+      taskSnapshot.views.find((v) => v.name === "Board")?.type === "board",
+    "…a board by status, the current sprint, planning and the backlog",
+    taskSnapshot.views.map((v) => v.name),
+  );
+  const sprintProp = taskSnapshot.properties.find((p) => p.name === "Sprint")!;
+  const inSprint = (id: string | undefined) => taskSnapshot.rows.filter((r) => JSON.stringify(r.properties[sprintProp.id] ?? null) === JSON.stringify(id ? [id] : null)).length;
+  if (sprintInfo.side === "tasks" && sprintInfo.on) {
+    check(
+      taskSnapshot.rows.length === 6 && inSprint(sprintInfo.current?.id) === 3 && inSprint(sprintInfo.next?.id) === 1 && inSprint(undefined) === 2,
+      "…three example tasks in the current sprint, one next and two in the backlog",
+      taskSnapshot.rows.map((r) => [r.title, r.properties[sprintProp.id]]),
+    );
+  }
+
+  // Docs: a library of docs with a category, an owner and when each was last edited; two verified.
+  const docsMade = await templates.createFromBuiltin(member, workspaceId, "docs", { locale: "en" });
+  const [library] = await db.select().from(page).where(eq(page.parentId, docsMade.id));
+  const docsDb = await databases.getDatabaseSnapshot(ids.member, library.id);
+  check(
+    (await row(docsMade.id)).title === "Docs" &&
+      library.title === "Doc library" &&
+      ["Category", "Owner", "Last edited"].every((name) => docsDb.properties.some((p) => p.name === name)) &&
+      docsDb.properties.find((p) => p.name === "Last edited")?.type === "last_edited_time",
+    "the docs template makes a doc library with a category, an owner and the last edit",
+    docsDb.properties.map((p) => [p.name, p.type]),
+  );
+  const ownerProp = docsDb.properties.find((p) => p.name === "Owner")!;
+  check(
+    docsDb.rows.length === 4 && docsDb.rows.every((r) => JSON.stringify(r.properties[ownerProp.id]) === JSON.stringify([ids.member])),
+    "…four example docs owned by whoever picked it",
+    docsDb.rows.map((r) => r.properties[ownerProp.id]),
+  );
+  check(
+    (await getCollab().readPage(docsDb.rows.find((r) => r.title === "Release process")!.id)).markdown.includes("staging"),
+    "…each with a body",
+  );
+  const verified = await activeVerifications(docsDb.rows.map((r) => r.id));
+  check(
+    verified.size === 2 && [...verified.values()].every((v) => v.byId === ids.member && !!v.until),
+    "…two verified by them, for a while",
+    [...verified.values()],
+  );
+  check(
+    docsDb.views.some((v) => v.name === "By category" && v.type === "board") && docsDb.views.some((v) => v.name === "Recently edited"),
+    "…on a board by category and sorted by the last edit",
+  );
 
   // ---------------------------------------------------------------------------------------------
   // A subpage saved as a template keeps the access it had from above

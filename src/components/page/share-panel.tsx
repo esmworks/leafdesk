@@ -1,5 +1,6 @@
 "use client";
 
+import { IconGlyph } from "@/components/builtin-icon";
 import { Bot, Check, Clock, Link2, Mail, Search, Send, Users, UsersRound, X } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { UserAvatar } from "@/components/user-avatar";
@@ -693,7 +694,7 @@ function Avatar({ name, image }: { name: string; image?: string | null }) {
 function AgentAvatar({ icon }: { icon: string | null }) {
   return (
     <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-md bg-bg-active text-sm text-fg-muted" aria-hidden>
-      {icon || <Bot className="h-3.5 w-3.5" />}
+      {icon ? <IconGlyph icon={icon} /> : <Bot className="h-3.5 w-3.5" />}
     </span>
   );
 }

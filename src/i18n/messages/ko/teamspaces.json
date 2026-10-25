@@ -29,8 +29,10 @@
     "everyoneIn": "워크스페이스의 모든 사람이 이미 이 팀스페이스에 속해 있습니다.",
     "accessDenied": "이 팀스페이스에서는 그 작업을 할 수 없습니다.",
     "invalidMemberLevel": "멤버가 팀스페이스 페이지에서 받을 권한을 선택하세요.",
-    "invalidIcon": "아이콘은 이모지여야 합니다.",
-    "notConvertible": "팀스페이스로 바꿀 수 있는 것은 페이지뿐입니다. 데이터베이스, 행, 템플릿은 안 됩니다."
+    "invalidIcon": "아이콘은 이모지 또는 기본 제공 아이콘이어야 합니다.",
+    "notConvertible": "팀스페이스로 바꿀 수 있는 것은 페이지뿐입니다. 데이터베이스, 행, 템플릿은 안 됩니다.",
+    "invalidEmail": "올바른 이메일 주소를 입력하세요.",
+    "cantInvite": "이 워크스페이스에 사람을 초대할 수 없습니다. 소유자에게 요청하세요."
   },
   "dialog": {
     "createTitle": "새 팀스페이스",
@@ -73,7 +75,16 @@
     "chooseGroup": "그룹 선택",
     "addGroupButton": "그룹 추가",
     "removeGroup": "{name} 제거",
-    "groupMemberCount": "{count, plural, =0 {멤버 없음} other {멤버 #명}}"
+    "groupMemberCount": "{count, plural, =0 {멤버 없음} other {멤버 #명}}",
+    "searchOrInvite": "사람을 검색하거나 이메일 입력",
+    "inviteEmail": "{email} 초대",
+    "inviteHint": "워크스페이스에 초대되며, 수락하면 이 팀스페이스에 참여합니다.",
+    "inviteButton": "초대",
+    "invitedAdded": "{email}이(가) 이제 이 팀스페이스에 있습니다.",
+    "invitedRequested": "{email} 초대는 소유자의 승인이 필요합니다. 승인되면 초대를 수락할 때 이 팀스페이스에 참여합니다.",
+    "invitedSent": "{email}에게 초대를 보냈습니다. 수락하면 이 팀스페이스에 참여합니다.",
+    "invitedLink": "{email}의 초대를 만들었지만 이메일은 보내지 않았습니다. 링크를 공유하세요.",
+    "copyInviteLink": "링크 복사"
   },
   "memberLevel": {
     "full": "전체 액세스",

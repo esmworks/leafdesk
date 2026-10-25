@@ -1,5 +1,6 @@
 "use client";
 
+import { IconGlyph } from "@/components/builtin-icon";
 import { ExternalLink, Globe, Lock } from "lucide-react";
 import Link from "next/link";
 import { useFormatter, useTranslations } from "next-intl";
@@ -31,7 +32,7 @@ function PublishedPageRow({ workspaceId, publication: p }: { workspaceId: string
       </span>
     ) : (
       <Link href={`/w/${workspaceId}/p/${p.pageId}`} className="inline-flex min-w-0 items-center gap-1.5 hover:underline">
-        {p.icon ? <span>{p.icon}</span> : <Globe className="h-3.5 w-3.5 shrink-0 text-fg-muted" />}
+        {p.icon ? <IconGlyph icon={p.icon} /> : <Globe className="h-3.5 w-3.5 shrink-0 text-fg-muted" />}
         <span className="truncate">{p.title || tc("untitled")}</span>
       </Link>
     );
@@ -47,6 +48,14 @@ function PublishedPageRow({ workspaceId, publication: p }: { workspaceId: string
             {p.publishedBy ? t("publishedBy", { name: p.publishedBy, date }) : t("publishedOn", { date })}
             {p.inTrash && <> · {t("inTrash")}</>}
             {p.indexable && <> · {t("indexable")}</>}
+            {p.expiresAt && (
+              <>
+                {" · "}
+                <span className={p.expired ? "text-danger" : undefined}>
+                  {t(p.expired ? "expiredOn" : "expiresOn", { date: format.dateTime(p.expiresAt, { dateStyle: "medium", timeStyle: "short" }) })}
+                </span>
+              </>
+            )}
           </>
         )
       }

@@ -215,7 +215,20 @@ try {
   check(search.status === 200 && search.body.results.length === 2 && search.body.has_more, "GET /search finds pages and pages through them", search.body);
   const search2 = await api("GET", `/search?query=${encodeURIComponent(`${RUN} Child`)}&limit=2&cursor=${search.body.next_cursor}`, R);
   check(search2.body.results.length === 1 && !search2.body.has_more, "…the cursor gives the remaining match");
-  check(errorCode(await api("GET", "/search", R)) === "validation_error", "search needs a query");
+  check(errorCode(await api("GET", "/search", R)) === "validation_error", "search needs a query or a filter");
+  const mine = await api("GET", `/search?created_by=me&edited_after=${new Date(Date.now() - 3_600_000).toISOString()}&limit=50`, R);
+  check(
+    mine.status === 200 && mine.body.results.some((r: any) => r.title.includes(`${RUN} Child`)),
+    "GET /search lists the pages a filter matches without a query (created by me, edited in the last hour)",
+    mine.body,
+  );
+  const nobody = await api("GET", `/search?query=${encodeURIComponent(`${RUN} Child`)}&created_by=nobody`, R);
+  check(nobody.status === 200 && nobody.body.results.length === 0, "…and narrows a query (created by someone who made none)");
+  const later = await api("GET", `/search?query=${encodeURIComponent(`${RUN} Child`)}&created_after=2999-01-01`, R);
+  check(later.status === 200 && later.body.results.length === 0, "…a day alone counts from its start");
+  check(errorCode(await api("GET", "/search?edited_after=yesterday", R)) === "validation_error", "…and a time it can't read is a 400");
+  const phrase = await api("GET", `/search?query=${encodeURIComponent(`"Child ${RUN}"`)}`, R);
+  check(phrase.status === 200 && phrase.body.results.length === 0, "a quoted phrase needs its words in that order", phrase.body);
 
   // Move, archive, restore
   const moved = await api("POST", `/pages/${pageId}/move`, W, { parent_id: parent });
@@ -447,6 +460,15 @@ try {
   await denied("POST", `/databases/${database.id}/query`, pagesOnly, "rows:read", {});
   await denied("GET", `/pages/${pageId}/comments`, pagesOnly, "comments:read");
   await denied("PATCH", `/pages/${pageId}`, pagesOnly, "pages:write", { title: "no" });
+  // Saving a web page: refused before anything is fetched, so no site has to answer
+  await denied("POST", "/pages/from-web", pagesOnly, "pages:write", { url: "https://example.com/", parent_id: pageId });
+  const pagesWriter = await scoped("pages writer", ["pages:write"]);
+  const intoDatabase = await api("POST", "/pages/from-web", pagesWriter, { url: "https://example.com/", parent_id: database.id });
+  check(intoDatabase.status === 403 && errorCode(intoDatabase) === "insufficient_scope" && intoDatabase.body.error.details?.scope === "rows:write", "…and rows:write to save into a database", intoDatabase.body);
+  const badScheme = await api("POST", "/pages/from-web", W, { url: "ftp://example.com/file", parent_id: pageId });
+  check(badScheme.status === 400 && errorCode(badScheme) === "invalid_request" && badScheme.body.error.param === "url", "POST /pages/from-web refuses an address that isn't a web page", badScheme.body);
+  const privateAddress = await api("POST", "/pages/from-web", W, { url: "http://10.20.30.40/", parent_id: pageId });
+  check(privateAddress.status === 400 && privateAddress.body.error.param === "url", "…and one on a private network", privateAddress.body);
   const scopedRow = await api("POST", `/databases/${database.id}/rows`, rowsWriter, { title: "Foxtrot" });
   check(scopedRow.status === 201, "rows:write adds rows", scopedRow.body);
   check((await api("GET", `/rows/${scopedRow.body.id}`, rowsWriter)).status === 200, "…and reads them, write bringing read");

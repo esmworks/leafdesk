@@ -35,6 +35,8 @@ function useProbe(url: string): Probe {
   // Kept with the URL it answers for: the next file reads as loading until its own answer comes.
   const [probe, setProbe] = useState<{ url: string; probe: Probe } | null>(null);
   useEffect(() => {
+    // An image on another site shows as what the page says it is: its site isn't asked.
+    if (new URL(url, location.href).origin !== location.origin) return;
     const controller = new AbortController();
     fetch(url, { headers: { Range: "bytes=0-0" }, signal: controller.signal })
       .then((res) => {
@@ -194,7 +196,7 @@ export default function FileViewer({ files, start, onClose }: { files: ViewerFil
             </button>
           </div>
         )}
-        <a href={file.url} download={name} className={headerButton} aria-label={t("download")} title={t("download")}>
+        <a href={file.download ?? file.url} download={name} className={headerButton} aria-label={t("download")} title={t("download")}>
           <Download className="h-4 w-4" aria-hidden />
         </a>
         {opensInBrowser && (

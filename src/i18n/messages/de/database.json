@@ -76,6 +76,10 @@
       "blank": "Leere Zeile",
       "setDefault": "Für „Neu“ verwenden",
       "isDefault": "Wird für „Neu“ verwendet",
+      "isViewDefault": "Wird in dieser Ansicht für „Neu“ verwendet",
+      "forThisView": "Für diese Ansicht",
+      "forAllViews": "Für alle Ansichten",
+      "followAllViews": "Hier die Vorgabe aller Ansichten verwenden",
       "edit": "Vorlage bearbeiten",
       "delete": "Vorlage löschen",
       "confirmDelete": "Diese Zeilenvorlage endgültig löschen? Bereits daraus erstellte Zeilen bleiben unverändert.",
@@ -126,6 +130,7 @@
     "rename": "Umbenennen",
     "viewName": "Name der Ansicht",
     "deleteView": "Ansicht löschen",
+    "icon": "Symbol",
     "duplicate": "Ansicht duplizieren",
     "duplicateHint": "Eine Kopie dieser Ansicht mit Layout, Filtern und Sortierung",
     "copyName": "{name} (Kopie)",
@@ -240,7 +245,14 @@
     "relative": {
       "today": "Heute",
       "thisWeek": "Diese Woche",
+      "lastWeek": "Letzte Woche",
+      "nextWeek": "Nächste Woche",
       "thisMonth": "Diesen Monat",
+      "lastMonth": "Letzten Monat",
+      "nextMonth": "Nächsten Monat",
+      "thisYear": "Dieses Jahr",
+      "lastYear": "Letztes Jahr",
+      "nextYear": "Nächstes Jahr",
       "pastNDays": "Letzte N Tage",
       "nextNDays": "Nächste N Tage",
       "pastDays": "{count, plural, one {Letzter Tag} other {Letzte # Tage}}",
@@ -268,7 +280,8 @@
     "clickForMenu": "Klicken, um das Menü zu öffnen",
     "sortedNoDrag": "Zeilen lassen sich nicht ziehen, solange die Ansicht sortiert ist",
     "sortedAscending": "Aufsteigend sortiert",
-    "sortedDescending": "Absteigend sortiert"
+    "sortedDescending": "Absteigend sortiert",
+    "fillHandle": "Nach oben oder unten ziehen, um die Zellen mit diesem Wert zu füllen"
   },
   "rowMenu": {
     "open": "Öffnen",
@@ -549,9 +562,6 @@
     "pinToTitle": "Unter dem Titel anheften",
     "unpinFromTitle": "Vom Titel lösen",
     "pinFull": "Es lassen sich bis zu {max} Eigenschaften anheften.",
-    "dateDisplay": "Anzeigen als",
-    "displayDate": "Datum",
-    "displayRelative": "Relativ",
     "relativeHint": "Daten innerhalb einer Woche erscheinen als „morgen“, „in 3 Tagen“, „vor 2 Tagen“.",
     "reminder": "Erinnerung",
     "reminderNone": "Keine Erinnerung",
@@ -571,13 +581,31 @@
     "dragOption": "Ziehen, um {name} zu verschieben",
     "urlPreview": "Als Linkvorschau anzeigen",
     "urlPreviewHint": "Zeilenseiten zeigen Symbol, Titel und Bild der verlinkten Seite unter dem Link.",
+    "relationOptions": "Relationseinstellungen",
+    "showAs": "Anzeigen als",
+    "dateFormat": "Datumsformat",
+    "dateFormats": {
+      "default": "Standard",
+      "full": "Langes Datum",
+      "short": "Kurzes Datum",
+      "mdy": "Monat/Tag/Jahr",
+      "dmy": "Tag/Monat/Jahr",
+      "ymd": "Jahr/Monat/Tag",
+      "relative": "Relativ"
+    },
+    "timeFormat": "Zeitformat",
+    "timeFormats": {
+      "default": "Standard",
+      "12h": "12 Stunden",
+      "24h": "24 Stunden"
+    },
     "onePerson": "Auf eine Person beschränken",
     "onePersonHint": "Jede Zeile nennt höchstens eine Person. Zeilen mit mehreren behalten sie, bis sie geändert werden.",
+    "oneRow": "Auf eine Seite beschränken",
+    "oneRowHint": "Jede Zeile verknüpft höchstens eine Seite. Zeilen mit mehreren behalten sie, bis sie geändert werden.",
     "statusCheckbox": "Als Kontrollkästchen anzeigen",
     "statusCheckboxHint": "Ein Kästchen, das angehakt ist, solange der Status erledigt ist. Anhaken wählt den ersten Erledigt-Status, Abhaken den ersten Zu-erledigen-Status.",
-    "pickerProperties": "In der Zeilenauswahl zeigen",
-    "pickerPropertiesHint": "Bis zu drei Eigenschaften neben dem Namen jeder Zeile, wenn Zeilen verknüpft werden.",
-    "pickerPropertiesNone": "Die verknüpfte Datenbank hat keine Eigenschaften zum Anzeigen."
+    "icon": "Symbol"
   },
   "rowProperties": {
     "noProperties": "Keine Eigenschaften",
@@ -719,7 +747,23 @@
     "noMatches": "Keine passenden Zeilen",
     "newRow": "Neue Zeile",
     "open": "{title} öffnen",
-    "unlink": "Verknüpfung mit {title} entfernen"
+    "unlink": "Verknüpfung mit {title} entfernen",
+    "options": "Relationseinstellungen",
+    "rowPage": "Auf Zeilenseiten",
+    "displayInline": "Inline",
+    "displaySection": "Als eigener Abschnitt",
+    "sectionHint": "Verknüpfte Zeilen erscheinen unter den Eigenschaften, ihre Eigenschaften sind dort bearbeitbar.",
+    "shows": "Verknüpfte Zeilen zeigen",
+    "showsHint": "Zu sehen in Tabellenzellen, Karten, Zeilenseiten und der Zeilenauswahl.",
+    "titlePart": "Titel",
+    "addPart": "Eigenschaft hinzufügen…",
+    "moveUp": "{name} nach oben",
+    "moveDown": "{name} nach unten",
+    "hidePart": "{name} nicht mehr zeigen",
+    "overLimit": "Verknüpft jetzt nur eine Zeile: Wähle die, die bleiben soll.",
+    "addLink": "Verknüpfung hinzufügen",
+    "noLinks": "Noch keine verknüpften Zeilen",
+    "showMore": "{count} weitere zeigen"
   },
   "person": {
     "search": "Personen suchen",
@@ -798,6 +842,7 @@
     "showTable": "Tabelle anzeigen",
     "showWeekends": "Wochenenden anzeigen",
     "showIcons": "Seitensymbole anzeigen",
+    "showVerticalLines": "Senkrechte Linien anzeigen",
     "openRows": "Zeilen öffnen",
     "openRowsIn": {
       "panel": "Im Seitenbereich",
@@ -938,7 +983,7 @@
     "parentInTrash": "Die übergeordnete Seite liegt im Papierkorb. Stelle sie zuerst wieder her.",
     "nestedDatabase": "Eine Datenbank kann keine andere Datenbank enthalten.",
     "pageTooDeep": "Seiten können höchstens {max} Ebenen tief verschachtelt werden.",
-    "invalidIcon": "Das Symbol muss ein Emoji sein.",
+    "invalidIcon": "Das Symbol muss ein Emoji oder ein eingebautes Symbol sein.",
     "invalidRelation": "„{property}“ kann nur mit Zeilen der verknüpften Datenbank verknüpft werden.",
     "invalidRelationTarget": "Eine Relation muss auf eine Datenbank im selben Workspace verweisen.",
     "subItemLoop": "„{property}“ kann eine Zeile nicht unter sich selbst oder unter eines ihrer eigenen Unterelemente stellen.",
@@ -1000,7 +1045,9 @@
     "noCurrentSprint": "Kein Sprint ist aktuell. Markiere zuerst einen Sprint als aktuell.",
     "invalidSprints": "So lassen sich Sprints nicht einrichten: Prüfe die Sprintlänge, den ersten Tag und die Sprint-Datenbank.",
     "sprintStateOption": "Diese Option kennzeichnet den Stand eines Sprints. Benenne sie gern um oder schalte Sprints aus, bevor du sie löschst.",
-    "invalidSlackUrl": "Keine Adresse eines eingehenden Slack-Webhooks (https://hooks.slack.com/services/…)."
+    "invalidSlackUrl": "Keine Adresse eines eingehenden Slack-Webhooks (https://hooks.slack.com/services/…).",
+    "oneRow": "„{property}“ verknüpft nur eine Seite. Wähle eine.",
+    "invalidRelationOptions": "Diese Relationseinstellungen lassen sich nicht speichern."
   },
   "formula": {
     "title": "Formel",
@@ -1844,7 +1891,9 @@
     "save": "Speichern und synchronisieren",
     "stop": "Synchronisierung beenden",
     "stopConfirm": "Synchronisierung dieser Datenbank beenden? Ihre Zeilen bleiben, wie sie sind, und die Anmeldung wird vergessen.",
-    "viewOnly": "Nur Personen mit Vollzugriff auf die Datenbank können die Synchronisierung ändern."
+    "viewOnly": "Nur Personen mit Vollzugriff auf die Datenbank können die Synchronisierung ändern.",
+    "reporter": "Melder",
+    "reporterNone": "Nicht synchronisiert"
   },
   "sprints": {
     "menuItem": "Sprints",

@@ -19,10 +19,19 @@ brings the read scope of its resource. Every endpoint needs one scope (the refer
 `GET /me` takes any token), and a token without it gets `403 insufficient_scope` with the scope in
 `details.scope`:
 
+**Icons.** Pages, databases, rows, teamspaces, agents, callouts and buttons keep their icon as a
+string: an emoji as it is (`"📘"`), or a built-in line icon written `icon:<name>` or
+`icon:<name>:<color>` (`"icon:rocket:blue"`), where the color is one of `gray`, `brown`, `orange`,
+`yellow`, `green`, `blue`, `purple`, `pink` and `red` (without one it takes the text color). The
+REST API, the MCP tools and Markdown export return it unchanged, and writes accept either form; an
+unknown icon name or color is refused. The names are those of `src/lib/builtin-icon-names.ts`.
+In Markdown a callout's icon leads its text under the alert line (`> [!TIP]`, then
+`> icon:lightbulb:yellow Text`), and reads back the same way.
+
 | Scope | Endpoints |
 | --- | --- |
 | `workspaces:read` | `GET /workspaces`, a workspace's teamspaces and groups |
-| `pages:read`, `pages:write` | pages (database rows too, as pages), their sub-pages, the page tree, daily notes; writing creates, changes, moves, trashes, restores, archives and watches pages and makes voice notes |
+| `pages:read`, `pages:write` | pages (database rows too, as pages), their sub-pages, the page tree, daily notes; saving a web page (`POST /pages/from-web`; into a database it needs `rows:write` too); writing creates, changes, moves, trashes, restores, archives and watches pages and makes voice notes |
 | `search:read` | `GET /search` |
 | `databases:read` | `GET /databases/{id}` (properties and views) |
 | `rows:read`, `rows:write` | `POST /databases/{id}/query`, `GET /rows/{id}` and its activity, changes waiting for review; writing adds, upserts and changes rows (a voice note into a database needs it too) and approves or dismisses those changes |
@@ -63,7 +72,10 @@ Filter ops: `contains`, `does_not_contain`, `equals`, `not_equals`, `is_any_of` 
   `GET /pages/{id}/children`, `POST /pages/{id}/move`, `/archive` and `/restore` (the trash), and
   `POST /pages/{id}/archived` (`archived: true` or `false`: archive an outdated page or unarchive
   it; `GET /search`, the page lists and `POST /databases/{id}/query` leave archived pages and rows
-  out unless `include_archived` is true). `GET /pages/{id}`
+  out unless `include_archived` is true). `GET /search` takes text in double quotes as a phrase and
+  the filters `teamspace_id`, `created_by` and `edited_by` (comma-separated ids, `me` for
+  yourself), `created_after`, `created_before`, `edited_after` and `edited_before` (ISO 8601; a day
+  alone is its start in UTC); with a filter the query may be left out. `GET /pages/{id}`
   gives the body's `version`, and `PATCH` takes it back as `expected_version`: when the body
   changed since, nothing is written and the answer is `409` `version_conflict` with the current
   version. Body writes report the new `version`.

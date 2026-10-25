@@ -1,24 +1,28 @@
 "use client";
 
-import { Search, UsersRound, X } from "lucide-react";
+import { Mail, Search, UsersRound, X } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { useEffect, useMemo, useState } from "react";
 import {
   addTeamspaceGroupsAction,
   addTeamspaceMembersAction,
+  inviteToTeamspaceAction,
   listTeamspaceGroupsAction,
   listTeamspaceMembersAction,
   removeTeamspaceGroupAction,
   removeTeamspaceMemberAction,
   setTeamspaceRoleAction,
 } from "@/app/actions/teamspaces";
+import { IconGlyph } from "@/components/builtin-icon";
+import { CopyButton } from "@/components/settings/copy-button";
 import { useAction } from "@/components/settings/workspace-settings";
 import { Button, cn, Dialog, IconButton, Input, selectClass } from "@/components/ui";
-import type { TeamspaceRole } from "@/db/schema/app";
+import type { TeamspaceRole, WorkspaceRole } from "@/db/schema/app";
 import type { TeamspaceGroupSummary, TeamspacePerson, TeamspaceSummary } from "@/server/teamspaces";
+import { isEmail, normalizeEmail } from "@/lib/emails";
 import { searchFold } from "@/lib/search-fold";
 
-type WorkspacePerson = { userId: string; name: string; email: string; role: "owner" | "member" | "guest" };
+type WorkspacePerson = { userId: string; name: string; email: string; role: WorkspaceRole };
 
 /**
  * Who is in a teamspace: people, and groups whose members are all in it. Its managers change
@@ -113,7 +117,7 @@ function MembersBody({
     <div className="space-y-4 p-5">
       <div className="space-y-1">
         <h2 className="flex min-w-0 items-center gap-2 text-base font-semibold">
-          {teamspace.icon && <span className="leading-none">{teamspace.icon}</span>}
+          {teamspace.icon && <IconGlyph icon={teamspace.icon} />}
           <span className="truncate">{t("members.title", { name: teamspace.name })}</span>
         </h2>
         {(isDefault || !canManage) && (
@@ -126,6 +130,7 @@ function MembersBody({
           workspaceId={workspaceId}
           teamspaceId={teamspace.id}
           candidates={workspaceMembers.filter((m) => m.role !== "guest" && !people.some((p) => p.userId === m.userId))}
+          knownEmails={workspaceMembers.map((m) => normalizeEmail(m.email))}
           pending={pending}
           run={run}
           onAdded={changed}
@@ -314,10 +319,17 @@ function Groups({
   );
 }
 
+/** What inviting someone by email did, for the line under the field. */
+type InviteOutcome =
+  | { kind: "added"; email: string }
+  | { kind: "invited"; email: string; link: string; delivery: "sent" | "failed" | "off" }
+  | { kind: "requested"; email: string };
+
 function AddPeople({
   workspaceId,
   teamspaceId,
   candidates,
+  knownEmails,
   pending,
   run,
   onAdded,
@@ -325,6 +337,8 @@ function AddPeople({
   workspaceId: string;
   teamspaceId: string;
   candidates: WorkspacePerson[];
+  /** Everyone's address in the workspace (guests too): typing one of them offers no invitation. */
+  knownEmails: string[];
   pending: boolean;
   run: ReturnType<typeof useAction>["run"];
   onAdded: () => void;
@@ -340,8 +354,10 @@ function AddPeople({
   );
   // People who got added meanwhile drop out of the selection.
   const chosen = selected.filter((id) => candidates.some((c) => c.userId === id));
-
-  if (!candidates.length) return <p className="text-sm text-fg-muted">{t("noOneToAdd")}</p>;
+  // An address nobody in the workspace has: they can be invited to it, and so to this teamspace.
+  const typed = normalizeEmail(query);
+  const invitable = isEmail(typed) && !knownEmails.includes(typed) ? typed : null;
+  const [outcome, setOutcome] = useState<InviteOutcome | null>(null);
 
   return (
     <section className="space-y-2">
@@ -350,38 +366,86 @@ function AddPeople({
         <Search className="pointer-events-none absolute top-1/2 inset-s-2 h-3.5 w-3.5 -translate-y-1/2 text-fg-faint" />
         <Input
           type="search"
-          aria-label={t("search")}
-          placeholder={t("search")}
+          aria-label={t("searchOrInvite")}
+          placeholder={t("searchOrInvite")}
           value={query}
-          onChange={(e) => setQuery(e.target.value)}
+          onChange={(e) => {
+            setQuery(e.target.value);
+            setOutcome(null);
+          }}
           className="ps-7"
         />
       </div>
-      <ul className="max-h-40 divide-y divide-border overflow-y-auto rounded-md border border-border">
-        {shown.length ? (
-          shown.map((person) => (
-            <li key={person.userId}>
-              <label className="flex cursor-pointer items-center gap-2.5 px-3 py-1.5 text-sm hover:bg-bg-hover">
-                <input
-                  type="checkbox"
-                  aria-label={t("select", { name: person.name || person.email })}
-                  checked={chosen.includes(person.userId)}
-                  onChange={(e) =>
-                    setSelected((s) => (e.target.checked ? [...s, person.userId] : s.filter((id) => id !== person.userId)))
-                  }
-                  className="accent-accent"
-                />
-                <span className="min-w-0 flex-1 truncate">
-                  {person.name}
-                  <span className="text-fg-muted"> {person.email}</span>
-                </span>
-              </label>
-            </li>
-          ))
-        ) : (
-          <li className="px-3 py-3 text-center text-sm text-fg-muted">{t("noMatches")}</li>
-        )}
-      </ul>
+      {invitable && (
+        <div className="flex items-center gap-2.5 rounded-md border border-dashed border-border px-3 py-2 text-sm">
+          <Mail className="h-4 w-4 shrink-0 text-fg-muted" aria-hidden />
+          <div className="min-w-0 flex-1">
+            <div className="truncate">{t("inviteEmail", { email: invitable })}</div>
+            <div className="text-xs text-fg-muted">{t("inviteHint")}</div>
+          </div>
+          <Button
+            size="sm"
+            variant="primary"
+            disabled={pending}
+            onClick={() =>
+              run(
+                () => inviteToTeamspaceAction(workspaceId, teamspaceId, invitable, role),
+                (data) => {
+                  setOutcome(data);
+                  setQuery("");
+                  onAdded();
+                },
+              )
+            }
+          >
+            {t("inviteButton")}
+          </Button>
+        </div>
+      )}
+      {outcome && (
+        <div role="status" className="flex items-center gap-2 text-xs text-fg-muted">
+          <span className="min-w-0 flex-1">
+            {outcome.kind === "added"
+              ? t("invitedAdded", { email: outcome.email })
+              : outcome.kind === "requested"
+                ? t("invitedRequested", { email: outcome.email })
+                : outcome.delivery === "sent"
+                  ? t("invitedSent", { email: outcome.email })
+                  : t("invitedLink", { email: outcome.email })}
+          </span>
+          {outcome.kind === "invited" && outcome.delivery !== "sent" && <CopyButton value={outcome.link} label={t("copyInviteLink")} />}
+        </div>
+      )}
+      {/* An address to invite stands in for the empty list. */}
+      {!(invitable && !shown.length) && (
+        <ul className="max-h-40 divide-y divide-border overflow-y-auto rounded-md border border-border">
+          {!candidates.length ? (
+            <li className="px-3 py-3 text-center text-sm text-fg-muted">{t("noOneToAdd")}</li>
+          ) : shown.length ? (
+            shown.map((person) => (
+              <li key={person.userId}>
+                <label className="flex cursor-pointer items-center gap-2.5 px-3 py-1.5 text-sm hover:bg-bg-hover">
+                  <input
+                    type="checkbox"
+                    aria-label={t("select", { name: person.name || person.email })}
+                    checked={chosen.includes(person.userId)}
+                    onChange={(e) =>
+                      setSelected((s) => (e.target.checked ? [...s, person.userId] : s.filter((id) => id !== person.userId)))
+                    }
+                    className="accent-accent"
+                  />
+                  <span className="min-w-0 flex-1 truncate">
+                    {person.name}
+                    <span className="text-fg-muted"> {person.email}</span>
+                  </span>
+                </label>
+              </li>
+            ))
+          ) : (
+            <li className="px-3 py-3 text-center text-sm text-fg-muted">{t("noMatches")}</li>
+          )}
+        </ul>
+      )}
       <div className="flex items-center justify-end gap-2">
         <label className="flex items-center gap-2 text-sm text-fg-muted">
           {t("addAs")}

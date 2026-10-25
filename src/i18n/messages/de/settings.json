@@ -58,7 +58,7 @@
       "workspaceName": "Name umbenennen Symbol",
       "ai": "künstliche Intelligenz Chat Modell Anbieter Gedächtnis",
       "workspaceMail": "E-Mail Zeilen Mail senden",
-      "export": "Sicherung herunterladen ZIP Markdown",
+      "export": "Sicherung herunterladen ZIP Markdown pdf",
       "members": "Personen einladen Benutzer Rollen entfernen",
       "agents": "KI Assistent Automatisierung Bot",
       "snippets": "Textbausteine Kürzel",
@@ -108,11 +108,15 @@
     "description": "Lade alle Seiten, die du sehen kannst, als ZIP herunter: Seiten als Markdown, Datenbanken als CSV und die darin angezeigten Dateien. Seiten im Papierkorb werden ausgelassen; Vorlagen landen in einem Ordner „Templates“.",
     "button": "Exportieren",
     "preparing": "Wird vorbereitet…",
-    "disabled": "Der Export ist für diesen Workspace unter Einstellungen → Sicherheit ausgeschaltet."
+    "disabled": "Der Export ist für diesen Workspace unter Einstellungen → Sicherheit ausgeschaltet.",
+    "format": "Exportformat",
+    "formatMarkdown": "Markdown und CSV",
+    "formatPdf": "PDF",
+    "descriptionPdf": "Lade alle Seiten, die du sehen kannst, als ZIP mit PDFs herunter, in Ordnern, die dem Seitenbaum folgen: Datenbanken als Tabellen ihrer Zeilen, Zeilen mit eigenem Text als eigene PDFs. Seiten im Papierkorb und Vorlagen bleiben außen vor; höchstens {limit, number} PDFs."
   },
   "members": {
     "heading": "Mitglieder",
-    "description": "Mitglieder können jede Seite sehen und bearbeiten, sofern ihre Freigabe nicht eingeschränkt ist; Gäste sehen nur Seiten, die mit ihnen geteilt wurden. Inhaber können außerdem Mitglieder verwalten.",
+    "description": "Mitglieder können jede Seite sehen und bearbeiten, sofern ihre Freigabe nicht eingeschränkt ist; Gäste sehen nur Seiten, die mit ihnen geteilt wurden. Inhaber können außerdem Mitglieder verwalten; Mitglieder-Admins verwalten Personen und Gruppen, aber keine anderen Einstellungen.",
     "tabs": {
       "members": "Mitglieder",
       "invitations": "Offene Einladungen",
@@ -153,6 +157,7 @@
     "roleLabel": "Rolle",
     "roles": {
       "owner": "Inhaber",
+      "membership_admin": "Mitglieder-Admin",
       "member": "Mitglied",
       "guest": "Gast"
     },
@@ -209,12 +214,18 @@
       "someone": "Ein Mitglied",
       "approve": "Annehmen",
       "decline": "Ablehnen"
-    }
+    },
+    "removeBodyChoose": "{name} verliert sofort den Zugriff auf diesen Workspace, auch in geöffneten Seiten und verbundenen Apps.",
+    "removeBodyToOwner": "{name} verliert sofort den Zugriff auf diesen Arbeitsbereich, auch in geöffneten Seiten und verbundenen Apps. Seiten, die nur diese Person verwalten konnte, und Teambereiche, die sonst niemand leitet, gehen an den ältesten Eigentümer des Arbeitsbereichs.",
+    "heirLabel": "Seiten übergeben an",
+    "heirHint": "Seiten, die nur {name} verwalten konnte, und Teamspaces, die sonst niemand leitet, gehen an die Person, die du auswählst.",
+    "heirCount": "{count, plural, =0 {{name} verwaltet derzeit keine Seiten allein. Teamspaces, die sonst niemand leitet, gehen an die Person, die du auswählst.} one {# Seite, die nur {name} verwalten konnte, geht an die Person, die du auswählst, zusammen mit Teamspaces, die sonst niemand leitet.} other {# Seiten, die nur {name} verwalten konnte, gehen an die Person, die du auswählst, zusammen mit Teamspaces, die sonst niemand leitet.}}",
+    "heirYou": "{name} (du)"
   },
   "guests": {
     "heading": "Gäste",
     "description": "Gäste sind Personen außerhalb des Workspace, die nur Seiten sehen, die mit ihnen geteilt wurden. Sieh, was jeder Gast öffnen kann, entziehe Zugriff, mache einen Gast zum Mitglied oder entferne ihn.",
-    "descriptionMember": "Gäste sind Personen außerhalb des Workspace, die nur Seiten sehen, die mit ihnen geteilt wurden. Du kannst Zugriff auf Seiten entziehen, auf die du vollen Zugriff hast. Nur Inhaber können einen Gast zum Mitglied machen oder entfernen.",
+    "descriptionMember": "Gäste sind Personen außerhalb des Workspace, die nur Seiten sehen, die mit ihnen geteilt wurden. Du kannst Zugriff auf Seiten entziehen, auf die du vollen Zugriff hast. Nur Inhaber und Mitglieder-Admins können einen Gast zum Mitglied machen oder entfernen.",
     "count": "{count, plural, =0 {Keine Gäste} one {# Gast} other {# Gäste}}",
     "search": "Gäste oder Seiten suchen",
     "exportCsv": "Gäste als CSV herunterladen",
@@ -320,7 +331,7 @@
   "groups": {
     "heading": "Gruppen",
     "description": "Gruppen fassen Personen zusammen, damit du eine Seite mit allen teilen oder sie auf einmal zu einem Teamspace hinzufügen kannst. Wer einer Gruppe beitritt, bekommt, was die Gruppe hat; wer sie verlässt, verliert es. Nur Inhaber und Mitglieder können in Gruppen sein, keine Gäste.",
-    "ownersOnly": "Nur Workspace-Inhaber können Gruppen erstellen und ändern.",
+    "ownersOnly": "Nur Workspace-Inhaber und Mitglieder-Admins können Gruppen erstellen und ändern.",
     "newButton": "Neue Gruppe",
     "search": "Gruppen suchen",
     "empty": "Noch keine Gruppen.",
@@ -365,7 +376,8 @@
       "nameRequired": "Gib der Gruppe einen Namen.",
       "nameTaken": "Eine andere Gruppe hat bereits diesen Namen.",
       "notMember": "Nur Inhaber und Mitglieder des Workspace können in seinen Gruppen sein.",
-      "accessDenied": "Nur Workspace-Inhaber können Gruppen ändern."
+      "ownMembership": "Mitglieder-Admins können sich nicht selbst zu einer Gruppe hinzufügen. Frag einen Workspace-Inhaber.",
+      "accessDenied": "Nur Workspace-Inhaber und Mitglieder-Admins können Gruppen ändern."
     }
   },
   "agents": {
@@ -734,7 +746,7 @@
       "accessDenied": "Dazu fehlt dir die Berechtigung.",
       "reasons": {
         "name": "Gib dem Agenten einen Namen.",
-        "icon": "Das Symbol eines Agenten ist ein Emoji.",
+        "icon": "Das Symbol eines Agenten ist ein Emoji oder ein eingebautes Symbol.",
         "level": "Ein Agent kann eine Seite ansehen, kommentieren oder bearbeiten.",
         "template": "Diese Vorlage gibt es nicht.",
         "database": "Wähle eine Datenbank dieses Workspaces.",
@@ -1193,6 +1205,7 @@
     "invalidSetting": "Diese Einstellung ist nicht verfügbar.",
     "nameRequired": "Gib dem Workspace einen Namen.",
     "alreadyMember": "Diese Person ist bereits Mitglied.",
+    "ownerInvitation": "Für diese Adresse gibt es eine Einladung als Eigentümer. Nur ein Eigentümer kann sie ändern.",
     "notMember": "Diese Person ist kein Mitglied.",
     "lastOwner": "Ein Workspace braucht mindestens einen Inhaber.",
     "lastOwnerRemove": "Ein Workspace braucht mindestens einen Inhaber. Mach zuerst jemand anderen zum Inhaber.",
@@ -1222,7 +1235,8 @@
     "invalidNetworkLabel": "Die Bezeichnung von {detail} ist zu lang: höchstens 100 Zeichen.",
     "tooManyNetworks": "Ein Workspace kann höchstens 100 freigegebene Netzwerke haben.",
     "ipLocksYouOut": "Deine aktuelle Adresse, {detail}, steht nicht auf dieser Liste. Gespeichert würde sie dich aus dem Workspace aussperren. Füge zuerst deine Adresse oder einen Bereich hinzu, der sie abdeckt.",
-    "ipUnknown": "Der Server kennt deine Adresse nicht und kann daher nicht prüfen, ob du mit dieser Liste Zugang behältst. Speichere sie über eine Verbindung, deren Adresse der Server sieht, oder leere die Liste."
+    "ipUnknown": "Der Server kennt deine Adresse nicht und kann daher nicht prüfen, ob du mit dieser Liste Zugang behältst. Speichere sie über eine Verbindung, deren Adresse der Server sieht, oder leere die Liste.",
+    "heirInvalid": "Wähle einen Inhaber oder ein Mitglied, das im Workspace bleibt."
   },
   "security": {
     "description": "Lege fest, wie sich Personen anmelden, wer andere in diesen Workspace holen darf, was Gäste tun können, was ihn verlassen darf (Exporte, verbundene Apps) und wer Seiten im Web veröffentlichen darf. Nur Inhaber können diese Einstellungen ändern.",
@@ -1269,7 +1283,9 @@
       "unpublish": "Veröffentlichung aufheben",
       "confirm": "Veröffentlichung dieser Seite aufheben? Der Link funktioniert dann für niemanden mehr.",
       "indexable": "Suchmaschinen erlaubt",
-      "off": "Das Veröffentlichen ist ausgeschaltet: Keine dieser Seiten ist gerade im Web. Sie sind wieder da, sobald es eingeschaltet wird, außer du nimmst sie offline."
+      "off": "Das Veröffentlichen ist ausgeschaltet: Keine dieser Seiten ist gerade im Web. Sie sind wieder da, sobald es eingeschaltet wird, außer du nimmst sie offline.",
+      "expiresOn": "Läuft ab am {date}",
+      "expiredOn": "Abgelaufen am {date}"
     },
     "forms": {
       "title": "Öffentliche Formulare",
@@ -1612,6 +1628,7 @@
     "privatePages": "private Seiten",
     "roles": {
       "owner": "Inhaber",
+      "membership_admin": "Mitglieder-Admin",
       "member": "Mitglied",
       "guest": "Gast"
     },
@@ -1655,7 +1672,8 @@
       "skill": "Skill (SKILL.md)",
       "notion": "Notion",
       "obsidian": "Obsidian",
-      "enex": "Evernote"
+      "enex": "Evernote",
+      "web": "Webseite"
     },
     "settingNames": {
       "guestInvites": "Wer Gäste einladen darf",
@@ -1708,7 +1726,8 @@
         "removed": "Hat {target} entfernt ({role})",
         "left": "Hat den Workspace verlassen",
         "role_changed": "Hat die Rolle von {target} von {from} zu {to} geändert",
-        "ownership_transferred": "Hat {target} zum Inhaber gemacht und ist selbst Mitglied geworden"
+        "ownership_transferred": "Hat {target} zum Inhaber gemacht und ist selbst Mitglied geworden",
+        "content_handed_over": "Hat {count, plural, one {# Seite} other {# Seiten}}, die nur {target} verwalten konnte, an {subject} übergeben"
       },
       "invitation": {
         "sent": "Hat {target} als {role} eingeladen",
@@ -1740,7 +1759,8 @@
         "published": "Hat {target} im Web veröffentlicht",
         "unpublished": "Hat die Veröffentlichung von {target} beendet",
         "publication_revoked": "Hat {target} aus dem Web genommen (veröffentlicht von {subject})",
-        "rows_merged": "Hat {count, plural, one {# Zeile} other {# Zeilen}} mit {target} zusammengeführt"
+        "rows_merged": "Hat {count, plural, one {# Zeile} other {# Zeilen}} mit {target} zusammengeführt",
+        "publication_expiry_changed": "{change, select, removed {Hat den Ablauf des Web-Links von {target} entfernt} other {Hat den Web-Link von {target} bis {to} befristet}}"
       },
       "property": {
         "access_changed": "Hat den Zugriff auf „{property}“ in {target} geändert",
@@ -1910,6 +1930,15 @@
       "slack_token": "ein Slack-Token",
       "api_key": "einen API-Schlüssel",
       "jwt": "ein JSON Web Token (JWT)"
+    },
+    "audienceLine": "Zielgruppe: {audience}",
+    "audience": {
+      "web": "Im Web veröffentlicht",
+      "workspace": "Ganzer Workspace",
+      "workspaceTeamspace": "Ganzer Workspace (Teamspace {name})",
+      "teamspace": "Teamspace {name}",
+      "people": "Bestimmte Personen ({count})",
+      "private": "Privat"
     }
   },
   "notifications": {
@@ -2656,7 +2685,7 @@
       "reservedKey": "Dieser Schlüssel gehört zu einer eingebauten Art (note, tip, important, warning, caution, info, danger, details, frame, card, panel).",
       "duplicateKey": "Ein anderer Stil hat diesen Schlüssel schon.",
       "name": "Gib einen Namen mit höchstens 60 Zeichen ein.",
-      "icon": "Wähle ein Emoji oder kein Symbol.",
+      "icon": "Wähle ein Emoji oder eingebautes Symbol oder kein Symbol.",
       "color": "Wähle eine Farbe.",
       "border": "Wähle einen Rand.",
       "title": "Der Titel darf höchstens 120 Zeichen lang sein."

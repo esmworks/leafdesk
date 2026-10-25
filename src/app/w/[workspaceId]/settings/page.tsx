@@ -77,7 +77,7 @@ import { CalloutStylesSettings } from "@/components/settings/callout-styles-sett
 import { LetterheadsSettings } from "@/components/settings/letterheads-settings";
 import { SnippetsTabs } from "@/components/snippets/snippets-tabs";
 import { parseAnalyticsPeriod } from "@/lib/analytics";
-import { storedCalloutStyles } from "@/lib/callout-styles";
+import { storedCalloutStyles } from "@/lib/callout-styles-parse";
 import { parseAuditFilters } from "@/lib/audit";
 import { parseStaleMonths } from "@/lib/workspace-check";
 import { isStrongSession } from "@/lib/auth-security";
@@ -94,6 +94,8 @@ import { settingAnchor } from "@/lib/settings-search";
 import { settingsSearchIndex, settingsTabsFor } from "@/server/settings-search";
 import { SettingsJump, SettingsSearch } from "@/components/settings/settings-search";
 import { AccessError, isGuest } from "@/server/access";
+import { managesPeople } from "@/lib/workspace-roles";
+import type { WorkspaceRole } from "@/db/schema";
 import { proofSetupOf } from "@/server/account";
 import { connectedAppsMode } from "@/server/connected-app";
 import { instanceAdmin } from "@/server/first-admin";
@@ -192,6 +194,8 @@ export default async function SettingsPage({
   });
   if (!workspace) notFound();
   const isOwner = workspace.role === "owner";
+  // Owners and membership admins run the People and Groups tabs; everything else owners decide stays theirs.
+  const peopleManager = managesPeople(workspace.role);
   const guest = isGuest(workspace.role);
   const [tabs, searchIndex] = await Promise.all([settingsTabsFor(user.id, workspaceId, workspace.role), settingsSearchIndex(user.id, workspaceId)]);
   // The person's own snippets had a tab of their own; they are the Snippets tab's first list now.
@@ -259,13 +263,13 @@ export default async function SettingsPage({
             <MembersTab
               workspaceId={workspaceId}
               userId={user.id}
-              isOwner={isOwner}
+              viewerRole={workspace.role}
               view={typeof query.view === "string" ? query.view : undefined}
             />
           )}
-          {tab === "guests" && <GuestsTab workspaceId={workspaceId} userId={user.id} isOwner={isOwner} />}
+          {tab === "guests" && <GuestsTab workspaceId={workspaceId} userId={user.id} canManage={peopleManager} />}
           {tab === "teamspaces" && <TeamspacesTab workspaceId={workspaceId} userId={user.id} isOwner={isOwner} />}
-          {tab === "groups" && <GroupsTab workspaceId={workspaceId} userId={user.id} isOwner={isOwner} />}
+          {tab === "groups" && <GroupsTab workspaceId={workspaceId} userId={user.id} viewerRole={workspace.role} />}
           {tab === "agents" && (
             <AgentsTab
               workspaceId={workspaceId}
@@ -695,22 +699,25 @@ async function SiteTab({
 async function MembersTab({
   workspaceId,
   userId,
-  isOwner,
+  viewerRole,
   view,
 }: {
   workspaceId: string;
   userId: string;
-  isOwner: boolean;
+  viewerRole: WorkspaceRole;
   view: string | undefined;
 }) {
+  const isOwner = viewerRole === "owner";
+  const canManage = managesPeople(viewerRole);
   const [members, edits, invitations, joinLink, teamspaces, groups, requests, addMembers, settings] = await Promise.all([
     listMembers(userId, workspaceId),
     lastEdits(userId, workspaceId),
-    isOwner && !env.localMode ? listInvitations(userId, workspaceId) : [],
+    canManage && !env.localMode ? listInvitations(userId, workspaceId) : [],
+    // The join link lets anyone who has it in: a standing credential, owners' alone.
     isOwner && !env.localMode ? getJoinLink(userId, workspaceId) : null,
     teamspacesByMember(userId, workspaceId),
     groupsByMember(userId, workspaceId),
-    isOwner && !env.localMode ? listJoinRequests(userId, workspaceId) : [],
+    canManage && !env.localMode ? listJoinRequests(userId, workspaceId) : [],
     memberInviteAccess(userId, workspaceId),
     getWorkspaceSettings(userId, workspaceId),
   ]);
@@ -718,9 +725,9 @@ async function MembersTab({
     <MembersPanel
       workspaceId={workspaceId}
       currentUserId={userId}
-      isOwner={isOwner}
+      viewerRole={viewerRole}
       initialTab={
-        !isOwner || env.localMode ? "members" : view === "requests" ? "requests" : view === "invitations" ? "invitations" : "members"
+        !canManage || env.localMode ? "members" : view === "requests" ? "requests" : view === "invitations" ? "invitations" : "members"
       }
       addMembers={addMembers}
       members={members.map((m) => ({ ...m, lastEditedAt: edits.get(m.userId) ?? null }))}
@@ -736,17 +743,19 @@ async function MembersTab({
   );
 }
 
-async function GuestsTab({ workspaceId, userId, isOwner }: { workspaceId: string; userId: string; isOwner: boolean }) {
+async function GuestsTab({ workspaceId, userId, canManage }: { workspaceId: string; userId: string; canManage: boolean }) {
   const guests = await listGuests(userId, workspaceId);
-  return <GuestsPanel workspaceId={workspaceId} isOwner={isOwner} guests={guests} now={new Date()} />;
+  return <GuestsPanel workspaceId={workspaceId} canManage={canManage} guests={guests} now={new Date()} />;
 }
 
-async function GroupsTab({ workspaceId, userId, isOwner }: { workspaceId: string; userId: string; isOwner: boolean }) {
+async function GroupsTab({ workspaceId, userId, viewerRole }: { workspaceId: string; userId: string; viewerRole: WorkspaceRole }) {
   const [groups, members] = await Promise.all([listGroups(userId, workspaceId), listMembers(userId, workspaceId)]);
   return (
     <GroupsPanel
       workspaceId={workspaceId}
-      isOwner={isOwner}
+      canManage={managesPeople(viewerRole)}
+      // A membership admin doesn't put themselves in a group (server/groups.ts refuseJoiningOwnGroup).
+      ownId={viewerRole === "membership_admin" ? userId : null}
       groups={groups}
       members={members.map(({ userId: id, name, email, image, role }) => ({ userId: id, name, email, image, role }))}
     />

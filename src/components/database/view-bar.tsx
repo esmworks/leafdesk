@@ -1,5 +1,6 @@
 "use client";
 
+import { ViewIconMenuItem } from "./schema-icons";
 import {
   ArrowDown,
   ArrowUp,
@@ -92,6 +93,7 @@ export function ViewTabs({
   onSelect,
   onAdd,
   onRename,
+  onIcon,
   onDelete,
   onMove,
   readOnly,
@@ -104,6 +106,8 @@ export function ViewTabs({
   onSelect: (id: string) => void;
   onAdd: (type: ViewType) => void;
   onRename: (view: View, name: string) => void;
+  /** Sets a view's icon (null for its type's). */
+  onIcon?: (view: View, icon: string | null) => void;
   onDelete: (view: View) => void;
   onMove: (id: string, target: string, side: "before" | "after") => void;
   readOnly?: boolean;
@@ -135,6 +139,7 @@ export function ViewTabs({
           drag={movable ? drag.handlers(view.id) : undefined}
           onSelect={() => onSelect(view.id)}
           onRename={(name) => onRename(view, name)}
+          onIcon={onIcon && ((icon) => onIcon(view, icon))}
           onDelete={() => onDelete(view)}
           onExport={view.id === activeId ? onExport : undefined}
           onDuplicate={onDuplicate && !readOnly ? () => onDuplicate(view) : undefined}
@@ -199,6 +204,7 @@ function ViewTab({
   drag,
   onSelect,
   onRename,
+  onIcon,
   onDelete,
   onExport,
   onDuplicate,
@@ -211,6 +217,7 @@ function ViewTab({
   drag?: ReorderDragHandlers;
   onSelect: () => void;
   onRename: (name: string) => void;
+  onIcon?: (icon: string | null) => void;
   onDelete: () => void;
   onExport?: (format: ViewExportFormat) => void;
   onDuplicate?: () => void;
@@ -253,7 +260,7 @@ function ViewTab({
           active ? "font-medium text-fg" : "text-fg-muted",
         )}
       >
-        <ViewIcon type={view.type} />
+        <ViewIcon type={view.type} icon={view.config.icon} />
         <span className="max-w-40 truncate">{view.name}</span>
         {active && hasMenu && <ChevronDown className="h-3 w-3 text-fg-faint" />}
       </button>
@@ -295,6 +302,7 @@ function ViewTab({
                 {t("rename")}
               </MenuItem>
             )}
+            {!readOnly && onIcon && <ViewIconMenuItem view={view} onIcon={onIcon} onDone={menu.close} />}
             {onDuplicate && (
               <MenuItem
                 icon={<Copy className="h-3.5 w-3.5" />}
@@ -613,7 +621,7 @@ export function ViewToolbar({
               <MenuItem
                 key={p.id}
                 active={p.id === groupBy?.id}
-                icon={<PropertyTypeIcon type={p.type} />}
+                icon={<PropertyTypeIcon type={p.type} icon={p.options.icon} />}
                 onClick={() => {
                   groupMenu.close();
                   onConfig({ ...config, groupBy: p.id });
@@ -658,7 +666,7 @@ export function ViewToolbar({
               <MenuItem
                 key={p.id}
                 active={p.id === dateBy?.id}
-                icon={<PropertyTypeIcon type={p.type} />}
+                icon={<PropertyTypeIcon type={p.type} icon={p.options.icon} />}
                 onClick={() => {
                   dateMenu.close();
                   onConfig({ ...config, dateBy: p.id });
@@ -748,7 +756,7 @@ export function ViewToolbar({
                     aria-hidden
                     className="-ms-1.5 h-3.5 w-3.5 shrink-0 cursor-grab text-fg-faint opacity-0 group-hover/prop:opacity-100"
                   />
-                  <PropertyTypeIcon type={p.type} className="-ms-1 h-3.5 w-3.5 text-fg-muted" />
+                  <PropertyTypeIcon type={p.type} icon={p.options.icon} className="-ms-1 h-3.5 w-3.5 text-fg-muted" />
                   <span className={cn("flex-1 truncate", isHidden && "text-fg-faint")}>{p.name}</span>
                   <PropertyLock propertyId={p.id} />
                   {isHidden ? (
@@ -1044,13 +1052,20 @@ function useDescribeFilter() {
 }
 
 /** Message keys (`database.filter.relative.*`) for the choices of an "is within" rule. */
-const RANGE_LABELS: Record<RelativeDateRange, "today" | "thisWeek" | "thisMonth" | "pastNDays" | "nextNDays"> = {
+const RANGE_LABELS = {
   today: "today",
   this_week: "thisWeek",
+  last_week: "lastWeek",
+  next_week: "nextWeek",
   this_month: "thisMonth",
+  last_month: "lastMonth",
+  next_month: "nextMonth",
+  this_year: "thisYear",
+  last_year: "lastYear",
+  next_year: "nextYear",
   past_n_days: "pastNDays",
   next_n_days: "nextNDays",
-};
+} as const satisfies Record<RelativeDateRange, string>;
 
 /** "This week", "Past 7 days"… for an "is within" rule's value. */
 function useRangeLabel() {

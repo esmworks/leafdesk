@@ -160,6 +160,8 @@ try {
     ["show weekends", { showWeekends: 1 }],
     ["show icons", { showIcons: "no" }],
     ["wrap properties", { wrapProperties: "all" }],
+    ["vertical lines", { showVerticalLines: "no" }],
+    ["default template", { defaultTemplateId: 3 }],
   ];
   for (const [label, config] of bad) {
     check(

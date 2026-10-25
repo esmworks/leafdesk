@@ -1,5 +1,6 @@
 "use client";
 
+import { IconGlyph } from "@/components/builtin-icon";
 import { Archive, ArrowDown, ArrowUp, Check, ChevronDown, KeyRound, MoreHorizontal, Search, UserRound, X } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useFormatter, useTranslations } from "next-intl";
@@ -18,11 +19,11 @@ import { ACCESS_OPTIONS, TeamspaceDialog } from "@/components/teamspaces/teamspa
 import { TeamspaceMembersDialog } from "@/components/teamspaces/teamspace-members-dialog";
 import { Button, cn, Dialog, IconButton, Input, MenuItem, MenuSeparator, Switch } from "@/components/ui";
 import { UserAvatar } from "@/components/user-avatar";
-import type { TeamspaceAccess } from "@/db/schema/app";
+import type { TeamspaceAccess, WorkspaceRole } from "@/db/schema/app";
 import type { TeamspaceSummary } from "@/server/teamspaces";
 import { searchFold } from "@/lib/search-fold";
 
-type Person = { userId: string; name: string; email: string; role: "owner" | "member" | "guest" };
+type Person = { userId: string; name: string; email: string; role: WorkspaceRole };
 
 function matches(query: string, ...values: string[]) {
   const q = searchFold(query.trim());
@@ -313,7 +314,7 @@ function TeamspaceBadge({ teamspace, size = "md" }: { teamspace: Pick<TeamspaceS
         size === "sm" ? "h-5 w-5 text-xs" : "h-7 w-7 text-sm",
       )}
     >
-      {teamspace.icon ?? (teamspace.name.trim()[0] ?? "?").toLocaleUpperCase()}
+      {teamspace.icon ? <IconGlyph icon={teamspace.icon} /> : (teamspace.name.trim()[0] ?? "?").toLocaleUpperCase()}
     </span>
   );
 }

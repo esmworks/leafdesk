@@ -7,8 +7,8 @@ The page menu exports a page as Markdown or a database as CSV, and a skill as `S
 rows and the properties it shows, in its order) as CSV, an HTML page or a PDF, for viewers too.
 "Export with subpages" (for a
 database, "Export with row pages") downloads a ZIP of the page and everything under it; owners
-can download the whole workspace from Settings → General → Export (to move a workspace to another
-server, back it up instead, see [Backups](#backups)). Owners can turn exporting off
+can download the whole workspace from Settings → General → Export, as Markdown and CSV or as PDFs
+(to move a workspace to another server, back it up instead, see [Backups](#backups)). Owners can turn exporting off
 in Settings → Security (see [Workspace security switches](account-and-security.md#workspace-security-switches)). The
 archive mirrors the sidebar:
 
@@ -57,6 +57,13 @@ refused up front with a message:
 | --- | --- |
 | `EXPORT_MAX_PAGES` | Most pages (rows and templates included) one export may hold. Default `10000`. |
 | `EXPORT_MAX_FILES_MB` | Most MB of uploaded files one export may hold. Default `2048` (at most about 3.5 GB). |
+
+The PDF choice makes a ZIP (`<workspace> PDF.zip`) with the same folders: a PDF per page (as
+"Export as PDF" makes it, in the workspace's default letterhead), a database as a table of its rows,
+and a row as a PDF of its own only when it has text of its own, with its values. Templates and
+uploaded files stay out; at most 1,000 PDFs, made one after another while the ZIP streams. A page
+that fails to render is left out rather than stopping the download. It counts as one export in the
+audit log.
 
 ### Backups
 

@@ -58,7 +58,7 @@
       "workspaceName": "tên đổi tên biểu tượng",
       "ai": "trí tuệ nhân tạo trò chuyện mô hình nhà cung cấp bộ nhớ",
       "workspaceMail": "email hàng thư gửi",
-      "export": "sao lưu tải xuống zip markdown xuất",
+      "export": "sao lưu tải xuống zip markdown xuất pdf",
       "members": "người mời người dùng vai trò xóa thành viên",
       "agents": "ai trợ lý tự động hóa bot tác tử",
       "snippets": "văn bản viết tắt đoạn trích",
@@ -108,11 +108,15 @@
     "description": "Tải về mọi trang bạn thấy được dưới dạng tệp ZIP: trang ở dạng Markdown, cơ sở dữ liệu ở dạng CSV, cùng các tệp chúng hiển thị. Các trang trong thùng rác bị bỏ qua; các mẫu được giữ trong thư mục Mẫu.",
     "button": "Xuất",
     "preparing": "Đang chuẩn bị…",
-    "disabled": "Tính năng xuất đã bị tắt cho không gian làm việc này trong Cài đặt → Bảo mật."
+    "disabled": "Tính năng xuất đã bị tắt cho không gian làm việc này trong Cài đặt → Bảo mật.",
+    "format": "Định dạng xuất",
+    "formatMarkdown": "Markdown và CSV",
+    "formatPdf": "PDF",
+    "descriptionPdf": "Tải về mọi trang bạn thấy được dưới dạng tệp ZIP chứa các PDF, trong các thư mục theo cây trang: cơ sở dữ liệu thành bảng các hàng của nó, và các hàng có nội dung riêng thành PDF riêng. Trang trong thùng rác và mẫu không được đưa vào; tối đa {limit, number} PDF."
   },
   "members": {
     "heading": "Thành viên",
-    "description": "Thành viên có thể xem và chỉnh sửa mọi trang trừ khi việc chia sẻ của trang bị hạn chế; khách chỉ thấy các trang được chia sẻ với họ. Chủ sở hữu còn có thể quản lý thành viên.",
+    "description": "Thành viên có thể xem và chỉnh sửa mọi trang trừ khi việc chia sẻ của trang bị hạn chế; khách chỉ thấy các trang được chia sẻ với họ. Chủ sở hữu còn có thể quản lý thành viên; quản trị viên thành viên quản lý người và nhóm, nhưng không quản lý các cài đặt khác.",
     "tabs": {
       "members": "Thành viên",
       "invitations": "Lời mời đang chờ",
@@ -153,6 +157,7 @@
     "roleLabel": "Vai trò",
     "roles": {
       "owner": "Chủ sở hữu",
+      "membership_admin": "Quản trị viên thành viên",
       "member": "Thành viên",
       "guest": "Khách"
     },
@@ -209,12 +214,18 @@
       "someone": "Một thành viên",
       "approve": "Chấp thuận",
       "decline": "Từ chối"
-    }
+    },
+    "removeBodyChoose": "{name} mất quyền truy cập không gian làm việc này ngay lập tức, kể cả trong các trang đang mở và ứng dụng đã kết nối.",
+    "removeBodyToOwner": "{name} mất quyền truy cập vào không gian làm việc này ngay lập tức, kể cả trong các trang đang mở và ứng dụng đã kết nối. Các trang chỉ người này quản lý được, và các không gian nhóm không ai khác điều hành, sẽ chuyển cho chủ sở hữu lâu năm nhất của không gian làm việc.",
+    "heirLabel": "Chuyển các trang cho",
+    "heirHint": "Các trang chỉ {name} quản lý được, và các không gian nhóm không ai khác điều hành, sẽ chuyển cho người bạn chọn.",
+    "heirCount": "{count, plural, =0 {Hiện {name} không tự quản lý trang nào. Các không gian nhóm không ai khác điều hành sẽ chuyển cho người bạn chọn.} other {# trang chỉ {name} quản lý được sẽ chuyển cho người bạn chọn, cùng với các không gian nhóm không ai khác điều hành.}}",
+    "heirYou": "{name} (bạn)"
   },
   "guests": {
     "heading": "Khách",
     "description": "Khách là những người bên ngoài không gian làm việc, chỉ thấy các trang được chia sẻ với họ. Xem từng khách mở được những gì, thu hồi quyền truy cập, chuyển khách thành thành viên hoặc xóa họ.",
-    "descriptionMember": "Khách là những người bên ngoài không gian làm việc, chỉ thấy các trang được chia sẻ với họ. Bạn có thể thu hồi quyền truy cập trên các trang mà bạn có toàn quyền. Chỉ chủ sở hữu mới có thể chuyển khách thành thành viên hoặc xóa họ.",
+    "descriptionMember": "Khách là những người bên ngoài không gian làm việc, chỉ thấy các trang được chia sẻ với họ. Bạn có thể thu hồi quyền truy cập trên các trang mà bạn có toàn quyền. Chỉ chủ sở hữu và quản trị viên thành viên mới có thể chuyển khách thành thành viên hoặc xóa họ.",
     "count": "{count, plural, =0 {Không có khách} other {# khách}}",
     "search": "Tìm khách hoặc trang",
     "exportCsv": "Tải danh sách khách dưới dạng CSV",
@@ -320,7 +331,7 @@
   "groups": {
     "heading": "Nhóm",
     "description": "Nhóm gom nhiều người lại để bạn có thể chia sẻ một trang với tất cả họ hoặc thêm họ vào một không gian nhóm cùng lúc. Ai tham gia nhóm sẽ có những gì nhóm có; ai rời nhóm sẽ mất chúng. Chỉ chủ sở hữu và thành viên mới có thể ở trong nhóm, khách thì không.",
-    "ownersOnly": "Chỉ chủ sở hữu không gian làm việc mới có thể tạo và thay đổi nhóm.",
+    "ownersOnly": "Chỉ chủ sở hữu không gian làm việc và quản trị viên thành viên mới có thể tạo và thay đổi nhóm.",
     "newButton": "Nhóm mới",
     "search": "Tìm nhóm",
     "empty": "Chưa có nhóm nào.",
@@ -365,7 +376,8 @@
       "nameRequired": "Hãy đặt tên cho nhóm.",
       "nameTaken": "Một nhóm khác đã có tên này.",
       "notMember": "Chỉ chủ sở hữu và thành viên của không gian làm việc mới có thể ở trong các nhóm của nó.",
-      "accessDenied": "Chỉ chủ sở hữu không gian làm việc mới có thể thay đổi nhóm."
+      "ownMembership": "Quản trị viên thành viên không thể tự thêm mình vào nhóm. Hãy nhờ chủ sở hữu không gian làm việc.",
+      "accessDenied": "Chỉ chủ sở hữu không gian làm việc và quản trị viên thành viên mới có thể thay đổi nhóm."
     }
   },
   "agents": {
@@ -734,7 +746,7 @@
       "accessDenied": "Bạn không có quyền thực hiện việc này.",
       "reasons": {
         "name": "Hãy đặt tên cho tác tử.",
-        "icon": "Biểu tượng của tác tử là một emoji.",
+        "icon": "Biểu tượng của tác tử là một emoji hoặc một biểu tượng có sẵn.",
         "level": "Một tác tử có thể xem, bình luận hoặc chỉnh sửa một trang.",
         "template": "Mẫu này không tồn tại.",
         "database": "Hãy chọn một cơ sở dữ liệu của không gian làm việc này.",
@@ -1193,6 +1205,7 @@
     "invalidSetting": "Cài đặt đó không khả dụng.",
     "nameRequired": "Hãy đặt tên cho không gian làm việc.",
     "alreadyMember": "Người này đã là thành viên.",
+    "ownerInvitation": "Địa chỉ này có lời mời trở thành chủ sở hữu. Chỉ chủ sở hữu mới có thể thay đổi.",
     "notMember": "Người này không phải là thành viên.",
     "lastOwner": "Một không gian làm việc cần có ít nhất một chủ sở hữu.",
     "lastOwnerRemove": "Một không gian làm việc cần có ít nhất một chủ sở hữu. Hãy chỉ định người khác làm chủ sở hữu trước.",
@@ -1222,7 +1235,8 @@
     "invalidNetworkLabel": "Nhãn của {detail} quá dài: tối đa 100 ký tự.",
     "tooManyNetworks": "Một không gian làm việc có tối đa 100 mạng được phê duyệt.",
     "ipLocksYouOut": "Danh sách này không có địa chỉ hiện tại của bạn, {detail}, nên lưu nó sẽ khiến bạn bị khóa khỏi không gian làm việc. Hãy thêm địa chỉ của bạn, hoặc một dải bao gồm nó, trước.",
-    "ipUnknown": "Máy chủ không xác định được địa chỉ của bạn, nên không đảm bảo được danh sách này vẫn cho bạn truy cập. Hãy lưu từ một kết nối mà máy chủ thấy được địa chỉ, hoặc xóa danh sách."
+    "ipUnknown": "Máy chủ không xác định được địa chỉ của bạn, nên không đảm bảo được danh sách này vẫn cho bạn truy cập. Hãy lưu từ một kết nối mà máy chủ thấy được địa chỉ, hoặc xóa danh sách.",
+    "heirInvalid": "Hãy chọn một chủ sở hữu hoặc thành viên vẫn ở lại không gian làm việc."
   },
   "security": {
     "description": "Quyết định cách mọi người đăng nhập, ai có thể đưa người khác vào không gian làm việc này, khách được làm gì, những gì được phép đưa ra ngoài (xuất, ứng dụng đã kết nối) và ai có thể xuất bản trang lên web. Chỉ chủ sở hữu mới thay đổi được các cài đặt này.",
@@ -1269,7 +1283,9 @@
       "unpublish": "Hủy xuất bản",
       "confirm": "Hủy xuất bản trang này? Liên kết sẽ ngừng hoạt động với mọi người.",
       "indexable": "Cho phép công cụ tìm kiếm",
-      "off": "Việc xuất bản đang tắt: hiện không có trang nào trong số này trên web. Chúng sẽ trở lại khi bật lại việc xuất bản, trừ khi bạn hủy xuất bản chúng."
+      "off": "Việc xuất bản đang tắt: hiện không có trang nào trong số này trên web. Chúng sẽ trở lại khi bật lại việc xuất bản, trừ khi bạn hủy xuất bản chúng.",
+      "expiresOn": "Hết hạn {date}",
+      "expiredOn": "Đã hết hạn {date}"
     },
     "forms": {
       "title": "Biểu mẫu công khai",
@@ -1612,6 +1628,7 @@
     "privatePages": "trang riêng tư",
     "roles": {
       "owner": "chủ sở hữu",
+      "membership_admin": "quản trị viên thành viên",
       "member": "thành viên",
       "guest": "khách"
     },
@@ -1655,7 +1672,8 @@
       "skill": "Kỹ năng (SKILL.md)",
       "notion": "Notion",
       "obsidian": "Obsidian",
-      "enex": "Evernote"
+      "enex": "Evernote",
+      "web": "Trang web"
     },
     "settingNames": {
       "guestInvites": "Ai có thể mời khách",
@@ -1708,7 +1726,8 @@
         "removed": "Đã xóa {target} ({role})",
         "left": "Đã rời không gian làm việc",
         "role_changed": "Đã đổi vai trò của {target} từ {from} sang {to}",
-        "ownership_transferred": "Đã chỉ định {target} làm chủ sở hữu và hạ xuống thành viên"
+        "ownership_transferred": "Đã chỉ định {target} làm chủ sở hữu và hạ xuống thành viên",
+        "content_handed_over": "Đã chuyển {count, plural, other {# trang}} chỉ {target} quản lý được cho {subject}"
       },
       "invitation": {
         "sent": "Đã mời {target} với vai trò {role}",
@@ -1740,7 +1759,8 @@
         "published": "Đã xuất bản {target} lên web",
         "unpublished": "Đã hủy xuất bản {target}",
         "publication_revoked": "Đã gỡ {target} khỏi web (do {subject} xuất bản)",
-        "rows_merged": "Đã gộp {count, plural, other {# hàng}} vào {target}"
+        "rows_merged": "Đã gộp {count, plural, other {# hàng}} vào {target}",
+        "publication_expiry_changed": "{change, select, removed {Đã bỏ thời hạn của liên kết web {target}} other {Đã đặt liên kết web {target} ngừng hoạt động vào {to}}}"
       },
       "property": {
         "access_changed": "Đã thay đổi ai có thể truy cập “{property}” trong {target}",
@@ -1910,6 +1930,15 @@
       "slack_token": "một token Slack",
       "api_key": "một khóa API",
       "jwt": "một JSON Web Token"
+    },
+    "audienceLine": "Đối tượng: {audience}",
+    "audience": {
+      "web": "Đã xuất bản lên web",
+      "workspace": "Toàn bộ không gian làm việc",
+      "workspaceTeamspace": "Toàn bộ không gian làm việc (không gian nhóm {name})",
+      "teamspace": "Không gian nhóm {name}",
+      "people": "Một số người cụ thể ({count})",
+      "private": "Riêng tư"
     }
   },
   "notifications": {
@@ -2656,7 +2685,7 @@
       "reservedKey": "Khóa này đã được một loại có sẵn dùng (note, tip, important, warning, caution, info, danger, details, frame, card, panel).",
       "duplicateKey": "Một kiểu khác đã có khóa này.",
       "name": "Hãy nhập một tên tối đa 60 ký tự.",
-      "icon": "Hãy chọn một emoji, hoặc không dùng biểu tượng.",
+      "icon": "Chọn một emoji hoặc biểu tượng có sẵn, hoặc không dùng biểu tượng.",
       "color": "Hãy chọn một màu.",
       "border": "Hãy chọn một kiểu viền.",
       "title": "Giữ tiêu đề trong 120 ký tự."

@@ -20,6 +20,7 @@ import {
   type NumberFormatKind,
 } from "@/lib/number-format";
 import { SELECT_COLORS } from "@/lib/properties";
+import { rollupFormat } from "@/lib/derived";
 import { useFormatNumber } from "./property-cell";
 import type { Property } from "./types";
 
@@ -157,6 +158,51 @@ export function NumberFormatEditor({
         // A new format reads "divide by" in its own terms (percent points for a percentage).
         <DisplayEditor key={format.format} initial={prop.options.numberDisplay} format={format} onChange={onDisplayChange} />
       )}
+    </div>
+  );
+}
+
+/**
+ * The format a rollup's values show in, for its bar or ring: a percentage for "percent checked"
+ * and the like, else that of its sum, average… (filled in by the server); plain numbers otherwise.
+ */
+function rollupDisplayFormat(prop: Property): NumberFormat {
+  const config = prop.options.rollup;
+  if (rollupFormat(config?.function) === "percent") return { format: "percent" };
+  return config?.number ?? { format: "number" };
+}
+
+/**
+ * A rollup's display on its own (rollups have no number format to choose): the number, a bar or a
+ * ring, with its color and what a full one stands for. A rollup that showed its percentage as a
+ * bar or a ring before (RollupConfig `display`) starts from that.
+ */
+export function NumberDisplayEditor({
+  prop,
+  onChange,
+  onBack,
+}: {
+  prop: Property;
+  onChange: (display: NumberDisplay | null) => void;
+  onBack: () => void;
+}) {
+  const t = useTranslations("database.propertyMenu");
+  const legacy = prop.options.rollup?.display;
+  const initial = prop.options.numberDisplay ?? (legacy === "bar" || legacy === "ring" ? { display: legacy } : undefined);
+  return (
+    <div className="w-64">
+      <div className="flex items-center gap-1 px-1 pt-1">
+        <button
+          type="button"
+          aria-label={t("back")}
+          onClick={onBack}
+          className="inline-flex h-7 w-7 items-center justify-center rounded-md text-fg-muted hover:bg-bg-hover hover:text-fg"
+        >
+          <ArrowLeft className="h-3.5 w-3.5 rtl:-scale-x-100" />
+        </button>
+        <span className="truncate px-1 text-sm font-medium">{t("showAs")}</span>
+      </div>
+      <DisplayEditor initial={initial} format={rollupDisplayFormat(prop)} onChange={onChange} />
     </div>
   );
 }

@@ -3,7 +3,9 @@
 [← README](../README.md) · [All documentation](README.md)
 
 - **Pages**: nested pages, a block editor (BlockNote) with slash menu (block text and background
-  colors included) and markdown shortcuts, icons (beside the title), backgrounds (a color that suits the light and dark theme, or black, with an optional faint
+  colors included) and markdown shortcuts, icons (beside the title: an emoji, found by name in the interface language and
+  in the skin tone you last picked, or one of a few hundred built-in line icons in one of nine colors
+  that read well in light, dark and high contrast; *Random* picks one), backgrounds (a color that suits the light and dark theme, or black, with an optional faint
   pattern), favorites, duplicate, move, trash with restore (emptied after a time owners choose; moving a page, or
   trashing pages or rows, shows a note with *Undo*, and a move links to where the page went), archive (an outdated page, such
   as an old price list, leaves the sidebar, search, pickers and database views with the pages and rows under it, yet stays
@@ -15,7 +17,9 @@
   spaces between words: "会議" finds "明日の会議について", a word's characters only side by side;
   Korean words by their start, so with a particle joined on: "회의" finds "회의를"; pages whose
   title has the words come first; past the first 80,000 characters of a huge page's text, words
-  aren't found), and also by meaning when the server has an embeddings model
+  aren't found; text in double quotes, `"launch plan"`, only with its words whole, side by side and
+  in that order, and then a page found by meaning alone isn't listed), and also by meaning when the
+  server has an embeddings model
   (see [Semantic search](ai.md#semantic-search)). Full-text search also looks inside the PDFs and
   Word documents a page shows, with or without an embeddings model: a page is found when one of
   its documents has every word, after the pages that have them in their own text, and the result
@@ -29,14 +33,19 @@
   database's other rows, to jump to.
 - **Home page**: quick buttons for a new page, database or template; today's daily note (or a
   button that starts it) and the few before it; the database rows assigned to you that aren't done
-  and that you can open, grouped as overdue, today, the next 7 days, later and no date; and the
-  pages edited last.
+  and that you can open, grouped as overdue, today, the next 7 days, later and no date; *Jump back
+  in*, the pages you opened last (while the workspace and you record page views, see *People directory and analytics*;
+  only pages you can still open); and the pages edited last.
 - **My tasks** (in the sidebar; hide or move it like its other sections): every database row
   assigned to you across the workspace, in any person property, that isn't done and that you can
   open, by due date or by database, with its status and first date; the first 200, the ones due
   soonest. A row opens beside the list. Tick a row with a status to set it to the first option of
   its *Done* group, and untick it to put the status back; the home page's list works the same way.
-- **Search box** (Cmd/Ctrl+K): before you type, the pages last edited. Narrow a search with
+- **Search box** (Cmd/Ctrl+K): before you type, the pages you opened last (the pages last edited
+  while your page views aren't recorded or you haven't opened any yet). The menus under the query
+  narrow it by teamspace, by who created a page or edited it last, and by when it was last edited
+  or created (today, the last 7 or 30 days, or days you pick, in your time zone); they list pages
+  without words too. Narrow a search with
   `in:Projects` or `in:"Launch plan"` (that page and everything under it; several pages of that
   title, or several `in:`, search under any of them; a title nobody can see finds nothing) and
   `type:page`, `type:database`, `type:row` (database rows) or `type:journal` (your daily notes),
@@ -63,13 +72,14 @@
   too, and hovering a number shows its note), Mermaid diagrams with a live preview, a table of contents, a breadcrumb, a list of the page's subpages (live, each reader
   seeing those they may open; a page with one doesn't list them again at its end when published or
   printed), and columns (2 to 5, resizable, blocks
-  dragged in and out with the side menu, stacked on phones; `/col2` and `/col3` make them, a block
-  dropped at another's left or right side goes beside it, and *Turn into* in a block's menu puts
-  the selected blocks one to a column), also on published pages and in Markdown. *Turn into* also
-  changes the kind of the selected text blocks (heading, list, quote, code …), and a space typed
-  right after `/` closes the slash menu. Table cells merge across columns and rows from the formatting toolbar (Markdown writes
+  dragged in and out with the side menu, stacked on phones, and on pages of standard width able to
+  reach into the margins; `/col2` and `/col3` make them, a block dropped at another's left or right
+  side goes beside it, and *Turn into* in a block's menu puts the selected blocks one to a column),
+  also on published pages and in Markdown. *Turn into* also changes the kind of the selected text
+  blocks (heading, list, quote, code …), and a space typed right after `/` closes the slash menu.
+  Table cells merge across columns and rows from the formatting toolbar (Markdown writes
   the full grid, the covered places empty). Code blocks take their language from a menu (plain text
-  and 42 languages) and color their code in it, published pages and the print view included; Enter
+  and 51 languages) and color their code in it, published pages and the print view included; Enter
   in a code block starts the new line with the indentation of the one before it. *Copy* in a code
   block's corner, in the editor and on published pages, copies its code. *Format code* in
   the block's menu formats JavaScript, TypeScript, JSX, TSX, JSON, CSS, SCSS, HTML, Vue, Markdown,
@@ -94,7 +104,7 @@
   views. The `/tabs` block is a dashboard laid out as tabs: one view at a time, each named on its
   tab, for several databases (or views of one) in little room; readers get only the tabs whose
   database they can open, and published pages switch tabs in place.
-- **Buttons**: the `/button` block, with a label, an emoji and a color from the option palette
+- **Buttons**: the `/button` block, with a label, an emoji or built-in icon and a color from the option palette
   (light, dark and high contrast alike, on published pages and in print too), does a few things in order when
   someone clicks it: insert blocks written in Markdown below it or at the top or end of the page,
   add a row to a database (optionally from one of its row templates, or its default one; values the
@@ -129,7 +139,8 @@
   the home screen on phones; it opens in its own window. The app's icon offers a quick note, and on
   phones that support it Leafdesk shows up in the share sheet: text and links shared to it open the
   quick note filled in, saved as a private page in the workspace you pick or as a row of one of its
-  databases. Where the server can transcribe, the quick note takes voice notes too (see
+  databases; a shared link can be saved as the whole page instead (see *Save a web page* under
+  Import). Where the server can transcribe, the quick note takes voice notes too (see
   [Voice notes](ai.md#voice-notes)).
 - **Desktop app** for macOS, Windows and Linux: a window on your server, or Leafdesk running on
   the computer itself with its own database and daily backups (see [Desktop app](desktop-and-offline.md#desktop-app)),
@@ -168,15 +179,26 @@
     being able to see the row you link, not edit access to the other database; making a two-way
     relation takes edit access to both databases, since it adds the paired property to the other.
     A one-way relation can be made two-way later from its menu (*Show on … too*), which links the
-    rows back from the rows they already link to. *Show in row picker* shows up to three properties
-    of the related database beside each row's name when picking rows to link.
+    rows back from the rows they already link to.
+  - A relation can be limited to one page (*Limit to one page* in its menu), as a person property
+    can to one person: picking another row replaces the linked one, writes linking more are refused,
+    and rows linking more when it is turned on keep them until they're changed. Each side of a
+    two-way relation has its own limit, and linking to a row whose side links one moves it away
+    from its old link.
+  - A relation's *Relation options* pick up to four properties of the related database (not
+    formulas, rollups, relations or files) that linked rows show beside their title, in an order
+    you choose, in table cells, cards, row pages and the row picker; the values come with the rows
+    and keep the viewer's property access. *As a section* lists the linked rows under a row page's
+    properties instead, ten at a time, with those properties editable in place and links added or
+    removed there.
   - Views: table, board, calendar, gallery, list, feed (rows as posts, newest first, with the
     start of their bodies, emoji reactions and their comments), timeline, map (rows as pins at a place
     property), chart and dashboard (widgets over the database, see Dashboards), each with its own filters,
     sorting, grouping and shown properties (one by one, or all hidden or shown at once). Filters
-    combine with "and"/"or" in groups (nested up to three levels) and take relative dates such as
-    "this week". The filters in use show as chips under the view's toolbar: clicking one changes
-    just that filter, its ✕ removes it. Text can be
+    combine with "and"/"or" in groups (nested up to three levels) and take relative dates: today,
+    this, last or next week (Monday to Sunday), month or year, and the past or next few days. The
+    filters in use show as chips under the view's toolbar: clicking one changes just that filter,
+    its ✕ removes it. Text can be
     filtered on what it does or does not contain, numbers with =, ≠, <, ≤, > and ≥, dates on,
     before, after, on or before and on or after a day, and selects, statuses, tags, relations and
     people on any of several values or none of them in one rule. A "Me" filter (also inside such a
@@ -188,11 +210,17 @@
     you*, are never saved, and *Reset* brings back the view's own. People who can change the view
     get a draft the same way, marked *Not saved*: *Save for everyone* saves its filters and sorts to
     the view, *Reset* throws them away. (A linked view's filters still save as they change.)
+  - A view tab (its menu → *Icon*) and a property (its menu, beside the name) can have their own
+    icon from the same picker, shown in the view bar, the table header, row pages, the sidebar and
+    published pages instead of the type's.
   - Each view with rows can leave out the rows' page icons (Layout → *Show page icons*; published
     views too), and a calendar can leave out Saturdays and Sundays (*Show weekends*, month and
     week alike): its weekdays then share the width, and rows only on a weekend are listed under it
     with their day, to open or drag onto a weekday. Boards and galleries can wrap long values on
-    their cards onto more lines instead of cutting them off (*Wrap all properties*).
+    their cards onto more lines instead of cutting them off (*Wrap all properties*), and a table
+    can leave out the lines between its columns (*Show vertical lines*; published tables too).
+  - Clicking a value on a board or gallery card edits it in place with the table's editor, without
+    opening the row; people who can't change it see the plain value.
   - *Duplicate view* in a view's tab menu makes a copy with its layout, filters, sorts and other
     settings, named "… (copy)", right after it. A linked view on a page can leave out the
     database's name above it (Layout → *Show title*); published and printed pages and PDFs leave it
@@ -213,6 +241,9 @@
     import reads it (numbers, dates, yes/no, option and people names), adding options a select
     lacks and, in an ungrouped table, rows past the last one. One pasted value fills the whole
     range; cells that don't fit their column or that you may not change are left out and counted.
+    The handle at the bottom-right of the selection fills the cells it is dragged over (up or down)
+    with the selection's values, and Cmd/Ctrl+D fills a range down from its top cell in each column
+    (on a single row it duplicates the row); both write the same way a paste does.
     From 120 rows on, a table renders only the rows near the visible part of the page. Selected
     rows can be edited, given or cleared of an icon, duplicated, merged, exported or trashed
     together (rows the viewer may not edit, and locked rows, are skipped and counted).
@@ -238,8 +269,8 @@
     the workspace has AI, the editor's *Describe it* writes a formula from what it should work out
     ("days left until the due date"), from the properties' names and types only, checks it and
     shows what it gives on the first rows before *Use formula*.
-  - Number properties show as a number, percentage or amount of money, or as a colored bar or
-    ring filled by the value divided by a number of your choice.
+  - Number properties, formulas giving a number and rollups show as a number, percentage or amount
+    of money, or as a colored bar or ring filled by the value divided by a number of your choice.
   - Row pages show every property, or leave some out (always, or while they are empty) behind
     "N more properties"; the choice is the database's, for everyone. People with full access pin up
     to four properties into a strip under the title and show the others above the body or beside it
@@ -263,8 +294,11 @@
     month, Shift-clicking a second day makes the date a range.
   - Calendar views show a month, with dates over several days as bars across them, or a week with
     its hours; a row is added on a day or at an hour, and dragging it moves its whole date.
-  - Date properties can show dates relative to today ("Tomorrow", "In 3 days", "2 days ago", up to
-    a week either way, the full date on hover), and remind people of them: on the day, or 1, 2 or
+  - Date, created time and last edited time properties show dates in the viewer's language as a
+    full or short date, month/day/year, day/month/year or year/month/day, with times on a 12- or
+    24-hour clock, in the app and on published pages (exports, CSV, the API and MCP keep ISO
+    dates). They can also show dates relative to today ("Tomorrow", "In 3 days", "2 days ago", up to
+    a week either way, the full date on hover). Date properties remind people of them: on the day, or 1, 2 or
     7 days before, at 9:00 in the time zone of whoever turned the reminder on. The reminder goes to
     the people of the row's person properties (else whoever added the row) who can see the row and
     the date, to the inbox, by email and as a push like other notifications. Rows that are done, in
@@ -336,10 +370,15 @@
     into a database from its block menu: its first row names the properties.
   - Lock a database to freeze its properties and views, and export its rows as CSV. A view's tab
     menu exports just what the view shows as CSV, an HTML page or a PDF.
-  - Row templates with preset properties and content; pick one as the default for "New". A
+  - Row templates with preset properties and content; pick one as the default for "New", for all
+    views or only for the view you are in (that view's "New" then starts from it, or from a blank
+    row, while other views, forms, the API and MCP keep the database's default). A
     template's person can be *Me* and its date *Today* or *Now*: filled in with whoever adds the
     row and the day (in their time zone) or moment they add it, whether by hand, a button, an
     automation, a repeating template (as the person who set the repeat), the API or MCP (in UTC).
+    Its title can hold `@today`, `@now` and `@me`, which become the day, the moment (in the
+    maker's time zone, written in their language in the app and as ISO elsewhere) and the maker's
+    name in each new row's title.
   - *Duplicate without rows* (the database's page menu) copies a database's properties, views,
     row templates and its own page, as an empty database to fill anew. Relations, forms and access
     rules come along as with *Duplicate*; automations stay with the original either way.
@@ -389,9 +428,13 @@
   opening its day makes a new one. Guests can keep one only where they may add private pages.
 - **Templates**: save a page or database (with its subpages) as a template and create new pages
   from it, or start from built-in templates for meeting notes, a weekly plan, a project tracker, a
-  wins log (a dashboard of wins by month, type, area and impact over the database that holds them)
-  or a small business: customers, the quotes given to them, jobs and a balance sheet, linked to each
-  other, with a dashboard over all four and a weekly plan. A new workspace can start with it.
+  wins log (a dashboard of wins by month, type, area and impact over the database that holds them),
+  a small business (customers, the quotes given to them, jobs and a balance sheet, linked to each
+  other, with a dashboard over all four and a weekly plan; a new workspace can start with it),
+  sprints (a page holding a task database with two-week sprints turned on: a board by status, the
+  current sprint, sprint planning and a backlog, with example tasks in them) or docs (a doc library
+  with a category, an owner and the last edit, on a board by category and sorted by the last edit,
+  with example docs, two of them verified by you for three months).
   Templates stay out of the sidebar, search, trash and published sites.
 - **Build with AI** (with AI set up): describe what you want to keep track of and AI drafts the
   databases for it, with typed properties, options, relations between them, a few views and example
@@ -531,7 +574,12 @@
   own it, those who could edit join as members (and groups that could edit, as groups), members
   can edit its pages, and everyone else named on the page (viewers, commenters, guests) keeps what
   they had. It is private when the page was private or in a private teamspace, closed when it was in
-  a closed one, open otherwise. Guests are never in teamspaces: they get single pages. Each teamspace
+  a closed one, open otherwise. Guests are never in teamspaces: they get single pages. Those who
+  manage a teamspace that isn't default can type an email into its *Add members* field: someone
+  already in the workspace is added, anyone else is invited to the workspace as a member with the
+  teamspace (and the role picked) in the invitation, and joins both on accepting. It goes through
+  the workspace's own invitation rules (who can add members, approval, allowed domains, sign-in
+  policies), and inviting the same address again keeps the teamspaces of the first invitation. Each teamspace
   sets what its members get on its pages (full access, can edit, can comment or can view) where a
   page isn't shared otherwise; its owners and workspace owners get full access, and so does
   whoever adds a page at its top. Below full access, members are held to the database property
@@ -555,7 +603,11 @@
   search, the sidebar, the API, MCP and the AI chat follow it.
   Someone who leaves the workspace, or is removed from it, loses what it gave them by name: their
   access to pages and properties, their calendar feeds of it and API tokens made only for it
-  (pages only they could manage pass to an owner first). Coming back starts afresh.
+  (pages only they could manage, and teamspaces nobody else runs, pass to someone first). An owner
+  removing a member picks who receives them in the dialog, which says how many pages that is (the
+  owner by default; any member or owner who stays); someone leaving hands them to the oldest owner,
+  and so does the identity provider. The audit log records who received how many. Coming back
+  starts afresh.
 - **Property access**: people with full access to a database decide, from a column's menu, who
   may see and change that one property: everyone with access to the database can edit it, edit
   only its values, view it, see only that the column exists, or not see it at all, with
@@ -568,7 +620,7 @@
   can be read by people the value is hidden from. Nor does it read relations, rollups or people
   properties (or formulas reading them), which can name rows and people its readers can't open. Relations and the created/edited by/time
   properties can't be restricted.
-- **Member groups**: workspace owners gather members into groups (Settings → Groups) and share a
+- **Member groups**: workspace owners and membership admins gather members into groups (Settings → Groups) and share a
   page with a group, or add it to a teamspace, the way they would with a person. Everyone in the
   group gets that access for as long as they are in it; when a page has entries for someone and
   their groups, the highest level wins. Guests can't be in groups, and people leave their groups
@@ -598,7 +650,8 @@
   their before and after, single sign-on and SCIM, pages and databases created, duplicated,
   imported, moved, put in the trash, restored and deleted for good, publishing, API tokens and
   connected apps, exports), with the app or identity provider it went through and the address it
-  came from, newest first, filtered by person, kind of change and dates, and as CSV. Events are
+  came from, and for page events who could reach the page at that moment (private, specific
+  people, a teamspace by name, the whole workspace or the web), newest first, filtered by person, kind of change and dates, and as CSV. Events are
   kept for a year. Owners can stream new events to their security tools as they happen, and
   scripts read the log through the REST API (see [Audit log streaming](account-and-security.md#audit-log-streaming)).
 - **Sensitive content detection**: when owners turn it on in Settings → Security, pages and rows
@@ -616,7 +669,10 @@
   engines unless you allow them. Published databases show the views you pick (tables, boards,
   lists, galleries) and visitors switch between them; their browsers get each property's name,
   type and how its values show, never a formula's expression, an AI autofill prompt or a
-  reminder. Owners decide whether members may publish,
+  reminder. A published link can have an expiry: once it passes, the link, its subpages, the
+  files they show and the workspace site treat the page as unpublished, until someone extends or
+  removes the expiry in the Publish panel (Settings → Security lists links with their expiry, and
+  setting or removing one is in the audit log). Owners decide whether members may publish,
   can take any published page offline, or turn publishing off for the whole workspace (see
   [Workspace security switches](account-and-security.md#workspace-security-switches)).
 - **Workspace site**: owners give the workspace's published pages one readable address
@@ -627,7 +683,7 @@
   system), put up to six links in its header (to listed pages or web addresses), give it a default
   search description (each published page can have its own, shown with the title as the meta
   description and in Open Graph and Twitter link previews), and may add a Google Analytics 4
-  measurement ID, used only on the site's own domain. The site's favicon is its home page's emoji, drawn as SVG by the server. A site
+  measurement ID, used only on the site's own domain. The site's favicon is its home page's emoji or built-in icon, drawn as SVG by the server. A site
   can also have a domain of its own (see [Workspace site on its own domain](../README.md#workspace-site-on-its-own-domain)).
   A publication can also **allow duplicate**: signed-in
   visitors copy the page, as published, into one of their workspaces (or its templates), files
@@ -778,12 +834,25 @@
   are listed in the result. Read as the documented layout: the board's name on top, each group's
   name over its header row, subitems one column in under their item, updates on a sheet of their
   own. Tested against files built from that layout, not yet a real export.
+- **Save a web page**: *Save from web…* in the sidebar's *New* and *+* menus (or Import's *Web
+  page* tab) takes a web page's address and saves its title, a link back, its main text (without
+  the menus, ads, comments and footers around it) and its pictures, copied into the workspace (up
+  to 20 of 5 MB each). A page with a schema.org recipe starts with it: yield and times, the
+  ingredients as a checklist, the steps as a numbered list, then the rest of the page. It goes
+  under a page, into a database as a row (its first URL property gets the address) or to a
+  private page at the top; the form starts where you saved the last time. The *Save to Leafdesk*
+  bookmarklet in that dialog opens the quick note with the page you are on (address, title and the
+  text you selected, as a quote); there, as for links shared to the installed app, *Save full page*
+  saves the whole page. The server fetches only public addresses (http or https on the usual web
+  ports, every redirect checked again; `CONNECTOR_ALLOWED_HOSTS` lets hosts on your own network
+  through, as for [connections](connections.md)), at most 5 MB of page in 15 seconds. REST:
+  `POST /api/v1/pages/from-web` (see [REST API](rest-api.md)).
 - **Sync Jira issues**: Import's Jira tab takes a Jira Cloud site, an email address and an
   [API token](https://id.atlassian.com/manage-profile/security/api-tokens) (kept sealed like a
   connection's secrets), then a project or a JQL query, and makes a database whose rows are the
   issues: key, summary as the title, status (grouped to do, in progress and done by Jira's status
-  category), assignee as a person when their Jira email address is a member's (Jira usually hides
-  it; then the name goes in *Assignee (others)*), priority, type, labels, due date and a link back,
+  category), assignee and reporter as persons when their Jira email address is a member's (Jira usually hides
+  it; then the assignee's name goes in *Assignee (others)*), priority, type, labels, due date and a link back,
   opening on a board by status. It syncs every 15 minutes, hour, 6 hours, day or only on demand,
   one way: each run writes Jira's values over the synced properties and titles and adds new issues
   as rows, while properties added in Leafdesk stay, rows whose issue stops matching are left alone
@@ -792,7 +861,8 @@
   up or synced it by hand, and needs them to still be able to edit the database. Refused
   credentials, a refused query, a deleted *Key* property or more than 2,000 issues pause it until
   it is changed in the database's sync dialog (the ⟳ button on its toolbar), where people with
-  full access can also sync now, change the query or sign-in, or stop syncing (the rows stay).
+  full access can also sync now, change the query or sign-in, pick the person property the
+  reporter goes to (or none), or stop syncing (the rows stay).
   Tested against a stand-in Jira (`scripts/jira-sync-e2e.ts`), not yet a real site.
 - **GitHub pull requests update tasks**: *GitHub pull requests* in the ••• menu of a database with
   an ID property with a prefix gives a payload URL and a secret to add as a repository webhook
@@ -808,7 +878,18 @@
   The dialog lists the latest deliveries with the rows each changed; setting up, changing and
   removing it are in the audit log. Tested with signed deliveries (`scripts/github-sync-e2e.ts`),
   not yet against GitHub itself.
-- **Workspaces and members**: add people by email (several at once) as owners or members, send
+- **Workspaces and members**: four roles. Owners run the workspace; members see and edit every
+  page that isn't restricted; guests see only what is shared with them; **membership admins** have
+  exactly a member's access to content (pages, databases, teamspaces, AI, agents, MCP and the REST
+  API) and run its people as owners do: they add and remove members and guests, change roles among
+  member, membership admin and guest, approve or decline join requests, manage invitations (into
+  teamspaces too) and groups, and see Settings → Members, Guests and Groups. They never make,
+  demote or remove an owner, nor change an invitation to become one, can't add themselves to a
+  group, and get no other owner tab or action (security, join link, ownership, SCIM, single
+  sign-on, audit log, analytics, connections, export and the like). An owner removing someone
+  picks who takes over the pages only that person could manage; when a membership admin removes
+  someone, they go to the oldest owner.
+  Add people by email (several at once) as owners, membership admins or members, send
   an invitation link to people who don't have an account yet (or whose account's address was
   never verified: anyone can sign up with someone else's address), or turn on a join link anyone
   can use. Owners can export the member list as CSV, hand ownership to someone else, and decide who

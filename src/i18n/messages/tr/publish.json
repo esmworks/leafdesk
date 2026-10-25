@@ -70,5 +70,19 @@
   },
   "publishingOff": "Bu çalışma alanında web'de yayınlama kapalı. Bir sahip yeniden açana kadar yayınlanan sayfalar gösterilmez.",
   "descriptionLabel": "Arama açıklaması",
-  "descriptionHint": "Arama sonuçlarında ve bağlantı önizlemelerinde görünür. Boşsa sitenin varsayılan açıklaması kullanılır."
+  "descriptionHint": "Arama sonuçlarında ve bağlantı önizlemelerinde görünür. Boşsa sitenin varsayılan açıklaması kullanılır.",
+  "expiredTitle": "Bağlantının süresi doldu",
+  "expiry": "Bağlantı süresi",
+  "expiryHint": "Bağlantı, sayfayı yayından kaldırana kadar çalışır.",
+  "expiresOn": "Bağlantı {date} tarihinde çalışmayı bırakır.",
+  "expiredOn": "{date} tarihinde süresi doldu: bağlantı artık hiçbir yerde çalışmıyor. Geri getirmek için daha ileri bir zaman seçin ya da süreyi kaldırın.",
+  "setExpiry": "Süre koy",
+  "extendExpiry": "Uzat",
+  "expiryLabel": "Bağlantının çalışmayı bırakacağı zaman",
+  "saveExpiry": "Kaydet",
+  "removeExpiry": "Süreyi kaldır",
+  "cancelExpiry": "Vazgeç",
+  "expiryPast": "İleri bir zaman seçin.",
+  "expiryTooFar": "Önümüzdeki on yıl içinde bir zaman seçin.",
+  "expiredDescription": "Şu anda kimse bu sayfayı ya da alt sayfalarını bağlantıyla açamaz: ziyaretçiler sayfanın bulunamadığını görür."
 }

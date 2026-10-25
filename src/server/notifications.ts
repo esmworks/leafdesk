@@ -43,6 +43,8 @@ import {
   peopleWithFullAccess,
   rankOf,
   requireMembership,
+  managesPeopleOf,
+  peopleManagerIds,
   workspaceOwnerIds,
   workspaceRoleOf,
   workspacesHiddenFromApp,
@@ -567,13 +569,13 @@ export async function skipShareEmail(userId: string, pageId: string) {
 }
 
 /**
- * Tells the workspace's owners (but the one who asked) that someone asks to join it or to invite
- * someone (see server/join-requests.ts), and queues the email about it. Never throws: the request
- * was filed, and the owners see it in Settings > Members either way.
+ * Tells the workspace's owners and membership admins (but the one who asked) that someone asks to
+ * join it or to invite someone (see server/join-requests.ts), and queues the email about it. Never
+ * throws: the request was filed, and they see it in Settings > Members either way.
  */
 export async function recordJoinRequest(workspaceId: string, joinRequestId: string, actorId: string | null, locale: string | null) {
   try {
-    const recipients = (await workspaceOwnerIds(workspaceId)).filter((id) => id !== actorId);
+    const recipients = (await peopleManagerIds(workspaceId)).filter((id) => id !== actorId);
     if (!recipients.length) return;
     const emailDueAt = mailStatus() === "disabled" ? null : new Date();
     const inserted = await db
@@ -889,7 +891,9 @@ async function inboxFilter(userId: string, workspaceId?: string, only?: Notifica
           ),
         ),
       ),
-      and(inArray(notification.kind, ["join_request", ...OWNER_KINDS]), ownsWorkspace(userId, notification.workspaceId)),
+      and(inArray(notification.kind, OWNER_KINDS), ownsWorkspace(userId, notification.workspaceId)),
+      // Join requests are for whoever decides them: owners and membership admins.
+      and(eq(notification.kind, "join_request"), managesPeopleOf(userId, notification.workspaceId)),
       // Changes waiting for review have no page: they show while the user is in the workspace.
       and(eq(notification.kind, "review"), inWorkspace(sql`${userId}`, notification.workspaceId)),
     ),

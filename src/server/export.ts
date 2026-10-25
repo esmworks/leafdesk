@@ -355,9 +355,18 @@ export type ExportPlan = {
 /**
  * What an export of `scope` holds for `userId`, checked against the limits (ExportError when over).
  * A page needs view access (AccessError otherwise); a whole workspace is for its owners.
+ * `files: false` leaves uploaded files out (an archive of PDFs holds none); `maxPages` lowers the
+ * page limit (never above exportLimits').
  */
-export async function planExport(userId: string, scope: ExportScope, labels: ExportLabels = ENGLISH_EXPORT_LABELS): Promise<ExportPlan> {
-  const { maxPages, maxFileBytes } = exportLimits();
+export async function planExport(
+  userId: string,
+  scope: ExportScope,
+  labels: ExportLabels = ENGLISH_EXPORT_LABELS,
+  options: { files?: boolean; maxPages?: number } = {},
+): Promise<ExportPlan> {
+  const limits = exportLimits();
+  const maxPages = Math.min(limits.maxPages, options.maxPages ?? Infinity);
+  const { maxFileBytes } = limits;
   let workspaceId: string;
   let rootId: string | null = null;
   let title: string;
@@ -429,7 +438,7 @@ export async function planExport(userId: string, scope: ExportScope, labels: Exp
   // kept by triggers for both), of this workspace only, by the references that count (authorized,
   // or on the page the file was uploaded to: see server/files.ts). A row whose values are partly
   // kept from the exporter only brings the files its body and the values they may see hold.
-  const ids = pages.map((p) => p.id);
+  const ids = options.files === false ? [] : pages.map((p) => p.id);
   const restricted = await restrictedRowFiles(userId, ids);
   const files: PlannedFile[] = [];
   for (let i = 0; i < ids.length; i += 5000) {
@@ -544,7 +553,7 @@ export function startExport(userId: string): () => void {
 const COMPRESSED = /^(image\/(png|jpeg|gif|webp|avif|heic)|video\/|audio\/|application\/(zip|pdf|gzip|x-7z-compressed|vnd\.openxmlformats))/;
 
 /** ZIP dates run from 1980 to 2107; fflate refuses anything else. */
-function zipTime(date: Date) {
+export function zipTime(date: Date) {
   const time = date.getTime();
   if (!Number.isFinite(time)) return new Date(Date.UTC(2000, 0, 1));
   return new Date(Math.min(Math.max(time, Date.UTC(1980, 0, 2)), Date.UTC(2099, 11, 31)));

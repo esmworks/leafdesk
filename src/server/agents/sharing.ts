@@ -10,7 +10,7 @@
  */
 import { and, count, eq, inArray, isNull, or, sql } from "drizzle-orm";
 import { db } from "@/db";
-import { agentShare, memberGroup, memberGroupMember, user, workspaceAgent } from "@/db/schema";
+import { agentShare, memberGroup, memberGroupMember, user, workspaceAgent, type WorkspaceRole } from "@/db/schema";
 import {
   hasAgentLevel,
   isAgentShareLevel,
@@ -22,12 +22,13 @@ import {
   type AgentSharingView,
 } from "@/lib/agent-sharing";
 import { AccessError, ConnectedAppReadOnlyError, findMembership, requireMember, requireMembership } from "@/server/access";
+import { contentRole } from "@/lib/workspace-roles";
 import { recordAudit } from "@/server/audit";
 import { workspacePeople, workspaceSettings } from "@/server/workspaces";
 import { AgentError } from "./errors";
 
 type Agent = typeof workspaceAgent.$inferSelect;
-type Role = "owner" | "member" | "guest";
+type Role = WorkspaceRole;
 type Tx = Parameters<Parameters<typeof db.transaction>[0]>[0];
 
 /**
@@ -36,7 +37,9 @@ type Tx = Parameters<Parameters<typeof db.transaction>[0]>[0];
  * run worker asks too. `role` saves looking the membership up again (null: not in the workspace).
  */
 export async function agentLevels(userId: string, workspaceId: string, agentIds: string[] | null, role?: Role | null): Promise<Map<string, AgentLevel>> {
-  const standing = role === undefined ? ((await findMembership(userId, workspaceId))?.role ?? null) : role;
+  const found = role === undefined ? ((await findMembership(userId, workspaceId))?.role ?? null) : role;
+  // A membership admin gets on agents what a member gets (lib/workspace-roles.ts contentRole).
+  const standing = found && contentRole(found);
   const ids =
     agentIds ?? (await db.select({ id: workspaceAgent.id }).from(workspaceAgent).where(eq(workspaceAgent.workspaceId, workspaceId))).map((a) => a.id);
   const levels = new Map<string, AgentLevel>(ids.map((id) => [id, resolveAgentLevel({ role: standing })]));

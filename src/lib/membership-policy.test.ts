@@ -33,9 +33,10 @@ const person = (overrides: Partial<Candidate> = {}): Candidate => ({
 });
 
 describe("memberInviteMode", () => {
-  it("lets owners add people whatever the setting", () => {
+  it("lets owners and membership admins add people whatever the setting", () => {
     for (const memberInvites of ["owners", "members_with_approval", "any_member"] as const) {
       expect(memberInviteMode("owner", { memberInvites })).toBe("direct");
+      expect(memberInviteMode("membership_admin", { memberInvites })).toBe("direct");
     }
   });
 
@@ -54,8 +55,10 @@ describe("memberInviteMode", () => {
 });
 
 describe("assignableRoles", () => {
-  it("gives owners every role and members only the member role", () => {
-    expect(assignableRoles("owner")).toEqual(["owner", "member", "guest"]);
+  it("gives owners every role, membership admins all but owner and members only the member role", () => {
+    expect(assignableRoles("owner")).toEqual(["owner", "membership_admin", "member", "guest"]);
+    expect(assignableRoles("membership_admin")).toEqual(["membership_admin", "member", "guest"]);
+    expect(assignableRoles("membership_admin")).not.toContain("owner");
     expect(assignableRoles("member")).toEqual(["member"]);
     expect(assignableRoles("guest")).toEqual([]);
     expect(assignableRoles(null)).toEqual([]);

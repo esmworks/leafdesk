@@ -88,6 +88,3 @@ export type StatusGroup = (typeof STATUS_GROUPS)[number];
  * their names on a public page. Copies of published pages leave them out as well.
  */
 export const UNPUBLISHED_PROPERTY_TYPES: ReadonlySet<string> = new Set(["relation", "rollup", "person", "created_by", "last_edited_by"]);
-
-/** How many of the related database's properties a relation's row picker shows beside each title. */
-export const MAX_PICKER_PROPERTIES = 3;

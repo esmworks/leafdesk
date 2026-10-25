@@ -1,3 +1,4 @@
+import { builtinIconSvg } from "@/lib/builtin-icon-svg";
 import type { Alignment, Column, Content, ContentImage, ContentTable, ContentText, TableCell, TDocumentDefinitions } from "pdfmake/interfaces";
 import { CALLOUT_BLOCK, MATH_BLOCK, MERMAID_BLOCK, BREADCRUMB_BLOCK, FOOTNOTE, INLINE_MATH, SUBPAGES_BLOCK, TOC_BLOCK } from "@/lib/content-blocks";
 import { plainText, type MdBlock } from "@/lib/content-markdown";
@@ -27,6 +28,8 @@ export type PdfEmbed = { title: string | null; table: PdfTable };
 
 export type PdfSection = {
   title: string;
+  /** The page's icon: a built-in one is drawn before the title; an emoji isn't (the PDF's fonts have none). */
+  icon?: string | null;
   /** The body, after printableBlocks (server/published-body.ts). */
   blocks: MdBlock[];
   /** A row's values, when asked for, as text. */
@@ -59,6 +62,7 @@ export type PdfInput = {
 
 // Light theme (globals.css): text, muted and faint text, borders, subtle fill, links.
 const FG = "#1f2023";
+const TEXT = "#1f2023";
 const MUTED = "#6b6d75";
 const FAINT = "#9a9ca3";
 const BORDER = "#e4e4e7";
@@ -240,9 +244,12 @@ function blockContent(block: MdBlock, walk: Walk, width: number): Content[] {
     case CALLOUT_BLOCK: {
       const title = str(prop(block, "title"));
       const fill = backgroundColor(prop(block, "backgroundColor"));
+      // A built-in icon is drawn before the text; an emoji isn't (the PDF's fonts have none).
+      const icon = builtinIconSvg(str(prop(block, "icon")), { size: 11, fallbackColor: TEXT });
+      const text = paragraph(block, walk);
       const body: Content[] = [
         ...(title ? [{ text: title, bold: true, margin: [0, 0, 0, 2] } as Content] : []),
-        paragraph(block, walk),
+        icon ? { columns: [{ svg: icon, width: 11, margin: [0, 1, 0, 0] }, { ...text, width: "*" }], columnGap: 6 } : text,
         ...(block.children?.length ? blocksContent(block.children, walk, width - 20) : []),
       ];
       return [boxed(body, fill ? { fill } : { edge: BORDER, frame: true })];
@@ -271,12 +278,18 @@ function blockContent(block: MdBlock, walk: Walk, width: number): Content[] {
     }
     case "file":
     case "video":
-    case "audio":
-      return [{ stack: [fileLine(block, input), ...captionLine(str(prop(block, "caption")))], margin: [0, 0, 0, 6] }];
+    case "audio": {
+      // Aligned as on the page (lib/media-placement): justify is for text.
+      const align = alignment(prop(block, "textAlignment"));
+      const placed = align === "justify" ? undefined : align;
+      return [{ stack: [fileLine(block, input), ...captionLine(str(prop(block, "caption")), placed)], margin: [0, 0, 0, 6], ...(placed ? { alignment: placed } : {}) }];
+    }
     case BOOKMARK_BLOCK:
     case WEB_EMBED_BLOCK: {
       const url = str(prop(block, "url"));
-      return url ? [{ text: url, link: url, color: LINK, decoration: "underline", margin: [0, 0, 0, 6] }] : [];
+      const align = alignment(prop(block, "textAlignment"));
+      const placed = align === "justify" ? undefined : align;
+      return url ? [{ text: url, link: url, color: LINK, decoration: "underline", margin: [0, 0, 0, 6], ...(placed ? { alignment: placed } : {}) }] : [];
     }
     case COLUMN_LIST_BLOCK: {
       const columns = (block.children ?? []).filter((c) => c.type === COLUMN_BLOCK);
@@ -482,7 +495,15 @@ function sectionContent(section: PdfSection, index: number, input: PdfInput): Co
   const first = section.blocks[0];
   const blocks =
     first?.type === "heading" && plainText(first.content).trim().toLowerCase() === title.toLowerCase() ? section.blocks.slice(1) : section.blocks;
-  const out: Content[] = [{ text: title, fontSize: 22, bold: true, margin: [0, 0, 0, 12], ...(index > 0 ? { pageBreak: "before" as const } : {}) }];
+  const heading: Content = { text: title, fontSize: 22, bold: true };
+  const icon = builtinIconSvg(section.icon, { size: 22, fallbackColor: TEXT });
+  const out: Content[] = [
+    {
+      ...(icon ? { columns: [{ svg: icon, width: 22, margin: [0, 3, 0, 0] }, { ...heading, width: "*" }], columnGap: 10 } : heading),
+      margin: [0, 0, 0, 12],
+      ...(index > 0 ? { pageBreak: "before" as const } : {}),
+    } as Content,
+  ];
   if (section.properties.length) {
     out.push({
       table: { widths: ["auto", "*"], body: section.properties.map((p) => [{ text: p.name, color: MUTED }, { text: p.value || " " }]) },

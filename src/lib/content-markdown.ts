@@ -6,7 +6,7 @@ import {
   colorForAlertKind,
   FOOTNOTE,
   INLINE_MATH,
-  leadingEmoji,
+  leadingIcon,
   MATH_BLOCK,
   MERMAID_BLOCK,
   SUBPAGES_BLOCK,
@@ -18,6 +18,7 @@ import {
   COLUMN_LIST_BLOCK,
   columnMarkerBlock,
   columnMarkerLine,
+  columnsWide,
   columnWidth,
   parseColumnMarker,
   type ColumnMarker,
@@ -31,6 +32,7 @@ import { IMAGE_BLOCK, linkedImageMarkdown, parseLinkedImageLine } from "./image-
 import { calloutKey, calloutTitle } from "./callout-styles";
 import { TEXT_SCRIPT_TAGS, TEXT_SCRIPTS, type TextScript } from "./text-scripts";
 import { linkMentionMarkdown } from "./link-mentions";
+import { COMMENT_PREVIEW_BLOCK, COMMENT_PREVIEW_MARKER, commentPath, linkedCommentRef } from "./comment-refs";
 import { BOOKMARK_BLOCK, markdownLinkDestination, markdownLinkText, parseWebUrl, WEB_EMBED_BLOCK } from "./web-blocks";
 import {
   EMPTY_MENTION,
@@ -53,7 +55,7 @@ import { parseSyncedBegin, SYNCED_BLOCK, SYNCED_END_LINE, syncedBeginLine, synce
  * Markdown converters understand:
  *
  *   > [!NOTE]              a callout: a GitHub alert, the kind picks the color and a
- *   > 💡 Text              leading emoji is the icon
+ *   > 💡 Text              leading emoji (or built-in icon, `icon:star:blue`) is the icon
  *
  *   > [!NOTE|blue] Title   a color the five kinds don't have goes after a "|" (blue, brown,
  *   > Text                 orange, pink); text after the marker is the callout's title
@@ -166,6 +168,12 @@ const TOKEN_LINE = (nonce: string) => new RegExp(`^([ \\t]*)leafdesk${nonce}b(\\
  * Prepares blocks for BlockNote's Markdown serializer: returns blocks it can write and a function
  * that turns what it wrote into the final Markdown.
  */
+/** A link to a comment thread, as comment mentions and previews are written; "" without one. */
+function commentLinkMarkdown(text: string, workspaceId: string, pageId: string, threadId: string): string {
+  if (!/^[\w-]{1,128}$/.test(pageId) || !/^[\w-]{1,128}$/.test(threadId)) return "";
+  return `[${text.replace(/[[\]\\]/g, "\\$&")}](${commentPath(workspaceId, pageId, threadId)})`;
+}
+
 export function prepareMarkdownExport<B extends MdBlock>(
   blocks: B[],
   nonce: string,
@@ -241,7 +249,9 @@ export function prepareMarkdownExport<B extends MdBlock>(
             ? props.pageId
               ? pageLinkMarkdown(pageText(props.pageId), workspaceId, props.pageId, props.blockId)
               : ""
-            : props.kind === "link"
+            : props.kind === "comment"
+              ? commentLinkMarkdown(pageText(props.pageId), workspaceId, props.pageId, props.threadId)
+              : props.kind === "link"
               ? linkMentionMarkdown(props)
               : mentionText(props);
         return { type: "text", text: `leafdesk${nonce}i${inlineMarkdown.push(markdown) - 1}x`, styles: {} };
@@ -266,7 +276,7 @@ export function prepareMarkdownExport<B extends MdBlock>(
       if (block.type === COLUMN_LIST_BLOCK) {
         const columns = (block.children ?? []).filter((column) => column.type === COLUMN_BLOCK);
         return [
-          marker({ kind: "columns" }),
+          marker({ kind: "columns", wide: columnsWide(block.props?.wide) }),
           ...columns.flatMap((column) => [
             marker({ kind: "column", width: columnWidth(column.props?.width) }),
             ...replace((column.children ?? []) as B[]),
@@ -327,6 +337,11 @@ export function prepareMarkdownExport<B extends MdBlock>(
           const at = block.type === SYNCED_PAGE_BLOCK ? "" : String(block.props?.blockId ?? "");
           const marker = block.type === SYNCED_PAGE_BLOCK ? SYNCED_PAGE_MARKER : PAGE_LINK_MARKER;
           return paragraph(blockToken(pageId ? `${pageLinkMarkdown(pageText(pageId), workspaceId, pageId, at)} ${marker}` : ""));
+        }
+        case COMMENT_PREVIEW_BLOCK: {
+          const { pageId, threadId } = (block.props ?? {}) as { pageId?: unknown; threadId?: unknown };
+          const link = commentLinkMarkdown(pageText(String(pageId ?? "")), workspaceId, String(pageId ?? ""), String(threadId ?? ""));
+          return paragraph(blockToken(link ? `${link} ${COMMENT_PREVIEW_MARKER}` : ""));
         }
         case SYNCED_BLOCK: {
           // Its blocks between its marker lines (lib/synced-blocks): a source page's reader passes
@@ -473,6 +488,7 @@ type Pending =
   | { type: typeof BOOKMARK_BLOCK; url: string; title: string }
   | { type: typeof WEB_EMBED_BLOCK; url: string }
   | { type: typeof PAGE_LINK_BLOCK | typeof SYNCED_PAGE_BLOCK; pageId: string; blockId: string }
+  | { type: typeof COMMENT_PREVIEW_BLOCK; pageId: string; threadId: string }
   | { type: typeof COLUMN_BLOCK; marker: ColumnMarker }
   | { type: typeof DASHBOARD_BLOCK; id: string }
   | { type: typeof BUTTON_BLOCK; id: string; label: string }
@@ -500,7 +516,7 @@ const WEB_LINE =
  * A link alone on its line, then the page-link or synced-page marker:
  * `[Title](/w/…/p/…) <!-- leafdesk:page-link -->`.
  */
-const PAGE_LINK_LINE = /^ {0,3}\[(?:[^\]\\]|\\.)*\]\(\s*<?([^)\s>]+)>?\s*\)\s*<!--\s*leafdesk:(page-link|synced-page)\s*-->\s*$/i;
+const PAGE_LINK_LINE = /^ {0,3}\[(?:[^\]\\]|\\.)*\]\(\s*<?([^)\s>]+)>?\s*\)\s*<!--\s*leafdesk:(page-link|synced-page|comment)\s*-->\s*$/i;
 
 /**
  * Swaps the Markdown forms above for tokens BlockNote's parser keeps as plain text. Only lines of
@@ -593,7 +609,14 @@ export function prepareMarkdownImport(markdown: string, nonce: string, { appUrl 
       continue;
     }
     const pageLink = PAGE_LINK_LINE.exec(line);
-    const linked = pageLink ? linkedPageRef(pageLink[1], appUrl) : null;
+    if (pageLink?.[2].toLowerCase() === "comment") {
+      const thread = linkedCommentRef(pageLink[1], appUrl);
+      if (thread) {
+        blockLine({ type: COMMENT_PREVIEW_BLOCK, pageId: thread.pageId, threadId: thread.threadId });
+        continue;
+      }
+    }
+    const linked = pageLink && pageLink[2].toLowerCase() !== "comment" ? linkedPageRef(pageLink[1], appUrl) : null;
     if (linked) {
       const synced = pageLink![2].toLowerCase() === "synced-page";
       // A synced page shows the whole page, whatever block the link points at.
@@ -833,6 +856,8 @@ export async function finishMarkdownImport<B extends MdBlock>(
     if (Array.isArray(content)) {
       return content.flatMap((node: Inline) => {
         if (node?.type === "link") {
+          const thread = linkedCommentRef(node.href, appUrl);
+          if (thread) return [mention({ kind: "comment", pageId: thread.pageId, threadId: thread.threadId })];
           const linked = linkedPageRef(node.href, appUrl);
           if (linked) return [mention({ kind: "page", pageId: linked.pageId, blockId: linked.blockId })];
         }
@@ -875,6 +900,8 @@ export async function finishMarkdownImport<B extends MdBlock>(
         return { type: PAGE_LINK_BLOCK, props: { pageId: pending.pageId, blockId: pending.blockId }, children: [] } as unknown as B;
       case SYNCED_PAGE_BLOCK:
         return { type: SYNCED_PAGE_BLOCK, props: { pageId: pending.pageId }, children: [] } as unknown as B;
+      case COMMENT_PREVIEW_BLOCK:
+        return { type: COMMENT_PREVIEW_BLOCK, props: { pageId: pending.pageId, threadId: pending.threadId }, children: [] } as unknown as B;
       case SYNCED_BLOCK:
         return { type: SYNCED_BLOCK, props: { pageId: pending.pageId, syncId: pending.syncId }, children: [] } as unknown as B;
       case AGENT_CHAT_BLOCK:
@@ -916,7 +943,7 @@ export async function finishMarkdownImport<B extends MdBlock>(
         let icon = "";
         const lead = content[0];
         if (lead?.type === "text" && typeof lead.text === "string") {
-          const emoji = leadingEmoji(lead.text);
+          const emoji = leadingIcon(lead.text);
           if (emoji) {
             icon = emoji;
             const rest = lead.text.slice(emoji.length).replace(/^[ \t]+/, "");

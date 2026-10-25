@@ -769,6 +769,8 @@ export function describeProperty(
           ...(target && !target.database ? {} : { related_database_id: relation.databaseId }),
           ...(target?.database ? { related_database: pageLabel(target.database.title) } : {}),
           two_way: Boolean(relation.pairedPropertyId),
+          // Each row links one row at most: a write linking more is refused (update_database_property one_row).
+          ...(relation.single ? { one_row: true } : {}),
           ...(target?.pairedName ? { paired_property: target.pairedName } : {}),
           // Sub-items (see set_sub_items): this property holds each row's parent, or lists its sub-items.
           ...(relation.role === "parent"

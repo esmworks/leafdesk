@@ -2,7 +2,7 @@ import { and, asc, desc, eq, inArray, isNotNull, isNull, or, sql } from "drizzle
 import { alias } from "drizzle-orm/pg-core";
 import { db } from "@/db";
 import { loadMessages } from "@/i18n/messages";
-import { parseIcon } from "@/lib/icon";
+import { ICON_RULE, parseIcon } from "@/lib/icon";
 import { parsePageBackground, type PageBackground } from "@/lib/page-background";
 import { assertNotInTrash, assertPageUnlocked } from "@/lib/page-lock";
 import { makeStatusOptions } from "@/lib/properties";
@@ -55,6 +55,7 @@ import {
 } from "@/server/databases";
 import { PAGE_HEADER_EVENT } from "@/lib/collab-constants";
 import { searchFold } from "@/lib/search-fold";
+import { NO_SEARCH_FILTERS, searchDateRange, type SearchFilters } from "@/lib/search-filters";
 import { parseSearchQuery } from "@/lib/search-query";
 import { uniqueIdQuery } from "@/lib/unique-id";
 import { pageChanged } from "@/server/page-events";
@@ -94,7 +95,8 @@ export type TreeNode = {
   views?: TreeView[];
 };
 
-export type TreeView = { id: string; name: string; type: ViewType };
+/** A database's view in the sidebar: its name, type and the icon chosen for it, if any. */
+export type TreeView = { id: string; name: string; type: ViewType; icon?: string };
 
 export { listWorkspaces } from "@/server/workspaces";
 
@@ -149,13 +151,19 @@ export async function getTree(userId: string, workspaceId: string): Promise<Tree
     return where ? [{ r, ...where }] : [];
   });
   const views = await db
-    .select({ id: databaseView.id, name: databaseView.name, type: databaseView.type, databaseId: databaseView.databaseId })
+    .select({
+      id: databaseView.id,
+      name: databaseView.name,
+      type: databaseView.type,
+      databaseId: databaseView.databaseId,
+      icon: sql<string | null>`${databaseView.config} ->> 'icon'`,
+    })
     .from(databaseView)
     .innerJoin(page, eq(page.id, databaseView.databaseId))
     .where(and(eq(page.workspaceId, workspaceId), isNull(page.archivedAt), isNull(databaseView.deletedAt), pageVisibleTo(userId)))
     .orderBy(asc(databaseView.position));
   const viewsOf = new Map<string, TreeView[]>();
-  for (const { databaseId, ...v } of views) viewsOf.set(databaseId, [...(viewsOf.get(databaseId) ?? []), v]);
+  for (const { databaseId, icon, ...v } of views) viewsOf.set(databaseId, [...(viewsOf.get(databaseId) ?? []), { ...v, ...(icon ? { icon } : {}) }]);
   return nodes.map(({ r, section, parentId }) => ({
     id: r.id,
     parentId,
@@ -454,10 +462,10 @@ export async function renamePage(actor: WriteActor, pageId: string, title: strin
   await getCollab().setTitle(pageId, title.trim(), actor);
 }
 
-/** A page's icon is an emoji (lib/icon); anything else is refused with `invalidIcon`. */
+/** A page's icon is an emoji or a built-in icon (lib/icon); anything else is refused with `invalidIcon`. */
 function checkedIcon(value: unknown) {
   const icon = parseIcon(value);
-  if (!icon) throw withCode(new Error("A page's icon is an emoji"), "invalidIcon");
+  if (!icon) throw withCode(new Error(`A page's icon is ${ICON_RULE}`), "invalidIcon");
   return icon;
 }
 
@@ -901,10 +909,28 @@ export type SearchOptions = SearchScope & {
    * all of them: for the AI chat, which searches with whole questions.
    */
   anyWord?: boolean;
+  /**
+   * Text that must appear as written: its words whole and next to each other, in that order (the
+   * query's "quoted phrases", lib/search-query). Their words are in the query too. With a phrase,
+   * search by meaning only adds its passages to what full-text found, never pages of its own.
+   */
+  phrases?: string[];
 };
 
 /** Whether a search has a scope of its own, which lists pages even without words to search for. */
-const scoped = ({ withinPageIds, kinds, verifiedOnly }: SearchScope) => Boolean(withinPageIds?.length || kinds?.length || verifiedOnly);
+const scoped = ({ withinPageIds, kinds, verifiedOnly, teamspaceIds, createdBy, editedBy, createdIn, editedIn }: SearchScope) =>
+  Boolean(
+    withinPageIds?.length ||
+      kinds?.length ||
+      verifiedOnly ||
+      teamspaceIds?.length ||
+      createdBy?.length ||
+      editedBy?.length ||
+      createdIn?.from ||
+      createdIn?.to ||
+      editedIn?.from ||
+      editedIn?.to,
+  );
 
 /**
  * Search across the user's workspaces (or one workspace): full-text search over titles and bodies,
@@ -917,9 +943,10 @@ export async function searchPages(userId: string, query: string, options: Search
   if (!q && !scoped(options)) return [];
   const limit = options.limit ?? 20;
   if (options.workspaceId) await enforceWorkspacePolicy(userId, options.workspaceId);
+  const { phrases = [], ...scope } = options;
   const [text, meaning] = await Promise.all([
     fullTextSearch(userId, q, { ...options, limit }),
-    semanticSearch(userId, q, { ...options, limit }).catch((error) => {
+    semanticSearch(userId, q, { ...scope, limit }).catch((error) => {
       console.error("[search] semantic search failed", error);
       return [];
     }),
@@ -928,6 +955,8 @@ export async function searchPages(userId: string, query: string, options: Search
   const byId = new Map<string, SearchHit>(text.map((h) => [h.id, h]));
   for (const m of meaning) {
     const found = byId.get(m.id);
+    // A phrase must be on the page: meaning alone doesn't find one.
+    if (phrases.length && !found) continue;
     const snippet = snippetOf(m.passage) || found?.snippet || "";
     byId.set(
       m.id,
@@ -952,7 +981,7 @@ export async function searchPages(userId: string, query: string, options: Search
     );
   }
   // Equal fused scores: a verified page first (sort is stable, so the fusion's order stays otherwise).
-  return reciprocalRankFusion([text.map((h) => h.id), meaning.map((m) => m.id)])
+  return reciprocalRankFusion([text.map((h) => h.id), meaning.filter((m) => byId.has(m.id)).map((m) => m.id)])
     .map((r) => ({ ...r, verified: byId.get(r.id)!.verified }))
     .sort((a, b) => b.score - a.score || Number(b.verified) - Number(a.verified))
     .slice(0, limit)
@@ -974,7 +1003,7 @@ export async function searchPages(userId: string, query: string, options: Search
 export async function fullTextSearch(
   userId: string,
   query: string,
-  { workspaceId, limit = 20, anyWord = false, ...scope }: SearchOptions = {},
+  { workspaceId, limit = 20, anyWord = false, phrases = [], ...scope }: SearchOptions = {},
 ): Promise<SearchHit[]> {
   const { includeOutdated = false } = scope;
   const q = query.trim();
@@ -999,6 +1028,16 @@ export async function fullTextSearch(
       ? [sql`nullif(regexp_replace(plainto_tsquery('simple', ${searchFoldSql(rest)})::text, '''( &|$)', ''':*\\1', 'g'), '')::tsquery`]
       : []),
     ...cjk.map((run) => sql`to_tsquery('simple', ${run})`),
+    // A phrase: its words whole and in a row (the vectors keep where each word stands), its
+    // Chinese and Japanese runs by their pieces as above, which already stand in a row. Places
+    // count only up to the vector's 16,383rd, so a phrase far into a very long page may be missed.
+    ...(anyWord ? [] : phrases).flatMap((phrase) => {
+      const parts = searchQueryParts(phrase);
+      return [
+        ...(/[\p{L}\p{N}]/u.test(parts.words) ? [sql`phraseto_tsquery('simple', ${searchFoldSql(parts.words)})`] : []),
+        ...parts.cjk.map((run) => sql`to_tsquery('simple', ${run})`),
+      ];
+    }),
   ];
   const allOf = allOfParts.length ? sql`(${sql.join(allOfParts, sql` && `)})` : sql`null::tsquery`;
   const words = anyWord ? sql`to_tsquery('simple', ${searchFoldSql(anyWordTsQuery(terms))})` : allOf;
@@ -1116,7 +1155,7 @@ export async function fullTextSearch(
     left join ${fileText} ft on ft.file_id = h.file_id
     order by h.rank desc, h.verified desc, h.updated_at desc
   `);
-  const needles = anyWord ? terms : [q, ...q.split(/\s+/)];
+  const needles = anyWord ? terms : [...phrases, q, ...q.split(/\s+/)];
   return rows.map((r) => ({
     id: r.id,
     workspaceId: r.workspace_id,
@@ -1270,13 +1309,35 @@ export async function searchWithQuery(
   workspaceId: string,
   query: string,
   limit = 20,
-  /** Archived pages too (server/page-outdated.ts): the search box's "Include archived". */
-  { includeOutdated = false }: { includeOutdated?: boolean } = {},
+  /**
+   * Archived pages too (server/page-outdated.ts): the search box's "Include archived". `filters`:
+   * its teamspace, people and date filters, a date counted in days of `timeZone`.
+   */
+  {
+    includeOutdated = false,
+    filters = NO_SEARCH_FILTERS,
+    timeZone = "UTC",
+    now = new Date(),
+  }: { includeOutdated?: boolean; filters?: SearchFilters; timeZone?: string; now?: Date } = {},
 ): Promise<SearchHit[]> {
-  const { text, within, kinds, verified } = parseSearchQuery(query);
+  const { text, within, kinds, verified, phrases } = parseSearchQuery(query);
   const withinPageIds = within.length ? await pagesTitled(userId, workspaceId, within, 20, { includeOutdated }) : undefined;
   if (withinPageIds && !withinPageIds.length) return [];
-  return searchPages(userId, text, { workspaceId, limit, withinPageIds, kinds, includeOutdated, verifiedOnly: verified });
+  const { teamspaceIds, createdBy, editedBy, date } = filters;
+  const range = date ? searchDateRange(date, now, timeZone) : undefined;
+  return searchPages(userId, text, {
+    workspaceId,
+    limit,
+    withinPageIds,
+    kinds,
+    includeOutdated,
+    verifiedOnly: verified,
+    phrases,
+    teamspaceIds,
+    createdBy,
+    editedBy,
+    ...(date?.field === "created" ? { createdIn: range } : date?.field === "edited" ? { editedIn: range } : {}),
+  });
 }
 
 /**
@@ -1326,7 +1387,10 @@ export async function parentTitles(userId: string, pageIds: string[]): Promise<M
   return new Map(rows.map((row) => [row.id, row.title]));
 }
 
-export async function recentPages(userId: string, workspaceId: string, limit = 8) {
+/** A page of a recent list: the pages last edited, or (page-views.ts) last opened, with when. */
+export type RecentPage = { id: string; title: string; icon: string | null; kind: PageKind; updatedAt: Date; viewedAt?: Date };
+
+export async function recentPages(userId: string, workspaceId: string, limit = 8): Promise<RecentPage[]> {
   await requireMembership(userId, workspaceId);
   // Archived pages too stay out (server/page-outdated.ts).
   const live = and(eq(page.workspaceId, workspaceId), listedPage(workspaceId));

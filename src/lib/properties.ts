@@ -79,6 +79,8 @@ export const DATABASE_ERROR_CODES = [
   "invalidIcon",
   "invalidRelation",
   "invalidRelationTarget",
+  "oneRow",
+  "invalidRelationOptions",
   "subItemLoop",
   "notSubItemsRelation",
   "dependencyLoop",
@@ -1032,7 +1034,12 @@ export function defaultsFromFilters(
       rule = { ...rule, op: prop.type === "select" || prop.type === "status" ? "equals" : "contains", value: values[0] };
     }
     if (rule.op === "equals" && ["select", "status", "text", "number", "date"].includes(prop.type)) out[prop.id] = rule.value;
-    else if (rule.op === "is_within" && prop.type === "date") out[prop.id] = timeZone ? timestampDay(now, timeZone)! : dayString(now);
+    else if (rule.op === "is_within" && prop.type === "date") {
+      // Today, or for a range that lies before or after it (last week, next month…) its nearest day.
+      const today = timeZone ? timestampDay(now, timeZone)! : dayString(now);
+      const range = relativeDateRange(rule.value, rule.days, now, timeZone);
+      out[prop.id] = range ? (today < range.start ? range.start : today > range.end ? range.end : today) : today;
+    }
     else if (rule.op === "contains" && prop.type === "multi_select") out[prop.id] = [rule.value];
     else if (rule.op === "contains" && prop.type === "text") out[prop.id] = rule.value;
     else if (rule.op === "contains" && prop.type === "person") {

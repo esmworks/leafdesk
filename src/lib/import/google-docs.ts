@@ -1,3 +1,6 @@
+import type { WorkspaceRole } from "@/db/schema/app";
+import { contentRole } from "@/lib/workspace-roles";
+
 /**
  * Google Docs brought in through a workspace's Google Drive connection (an outbound MCP
  * connection, see server/connections): the Drive server finds documents with `search_files` and
@@ -132,11 +135,11 @@ export function base64Bytes(content: string) {
 /** What a person may do through a connection: import (download) and search, given their role. */
 export function googleDocsAccess(
   row: { status: string; tools: { name: string }[]; chatTools: string[] },
-  role: "owner" | "member" | "guest",
+  role: WorkspaceRole,
 ): { download: boolean; search: boolean } {
   const has = (name: string) => row.status === "ready" && row.tools.some((t) => t.name === name);
   // Owners manage the connection; members read through it only what an owner lets their AI chat read.
-  const may = (name: string) => has(name) && (role === "owner" || (role === "member" && row.chatTools.includes(name)));
+  const may = (name: string) => has(name) && (role === "owner" || (contentRole(role) === "member" && row.chatTools.includes(name)));
   const download = may(DRIVE_DOWNLOAD_TOOL);
   return { download, search: download && may(DRIVE_SEARCH_TOOL) };
 }

@@ -135,6 +135,13 @@ export const userPreference = pgTable("user_preference", {
    * answers).
    */
   desktopLinks: text("desktop_links").notNull().default("off"),
+  /**
+   * The icon picker's (server/icon-preferences.ts): the skin tone emoji that have tones are picked
+   * in, 1 (lightest) to 5, null for none; and the color built-in icons are picked in (lib/icon-value
+   * ICON_COLORS), null for the text color.
+   */
+  emojiSkinTone: integer("emoji_skin_tone"),
+  iconColor: text("icon_color"),
   updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
 });
 

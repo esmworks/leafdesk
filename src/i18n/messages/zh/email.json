@@ -14,6 +14,7 @@
     "action": "接受邀请",
     "roles": {
       "owner": "所有者",
+      "membership_admin": "成员管理员",
       "member": "成员",
       "guest": "访客"
     }

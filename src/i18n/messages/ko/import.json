@@ -12,7 +12,8 @@
     "asana": "Asana",
     "monday": "Monday.com",
     "jira": "Jira",
-    "googleDocs": "Google 문서"
+    "googleDocs": "Google 문서",
+    "web": "웹페이지"
   },
   "destination": "넣을 위치",
   "topLevel": "워크스페이스 최상위",
@@ -139,7 +140,8 @@
       "type": "유형",
       "labels": "레이블",
       "due": "기한",
-      "link": "Jira 링크"
+      "link": "Jira 링크",
+      "reporter": "보고자"
     },
     "errors": {
       "unauthorized": "Jira가 이메일 주소와 API 토큰을 거부했습니다.",
@@ -218,7 +220,8 @@
       "badNote": "노트 “{path}”을(를) 읽을 수 없어 제외되었습니다.",
       "notEnex": "“{path}”이(가) 제외되었습니다: Evernote 내보내기(.enex)가 아닙니다."
     },
-    "more": "…외 {count}개 더."
+    "more": "…외 {count}개 더.",
+    "tooManyImages": "이미지 {count}개가 더 제외되었습니다. 저장된 웹페이지에는 이미지를 최대 {limit}개까지 보관합니다."
   },
   "errors": {
     "tooLarge": "업로드가 {limit}보다 큽니다.",
@@ -268,6 +271,42 @@
       "signIn": "“{name}”은(는) Google에 다시 로그인해야 합니다: 소유자가 설정 → 연결에서 합니다.",
       "notFound": "“{name}”을(를) 통해 문서를 읽을 수 없습니다: 링크와, 연결의 Google 계정이 그 문서를 열 수 있는지 확인하세요.",
       "notADocument": "“{id}”은(는) Google 문서가 아닙니다."
+    }
+  },
+  "web": {
+    "title": "웹에서 저장",
+    "description": "웹페이지를 페이지로 저장합니다. 본문, 이미지, 원본 링크가 함께 저장됩니다.",
+    "help": "웹페이지 주소를 붙여 넣으세요. 주변의 메뉴, 광고, 바닥글 없이 본문이 저장되고 이미지는 워크스페이스로 복사됩니다. 레시피가 있으면 맨 앞에 오고 재료는 체크리스트가 됩니다.",
+    "url": "웹 주소",
+    "target": "저장 위치",
+    "privatePage": "최상위 개인 페이지",
+    "underPage": "페이지 아래",
+    "intoDatabase": "데이터베이스의 행으로",
+    "save": "페이지 저장",
+    "saving": "페이지 저장 중…",
+    "bookmarklet": {
+      "heading": "브라우저에서 저장",
+      "help": "이 버튼을 브라우저의 북마크바로 끌어다 놓으세요. 어느 웹페이지에서든 클릭하면 그 페이지가 여기에 저장되고, 선택한 텍스트는 인용으로 함께 들어옵니다.",
+      "link": "Leafdesk에 저장"
+    },
+    "errors": {
+      "invalidUrl": "웹 주소가 아닙니다. http:// 또는 https://로 시작하는 주소를 붙여 넣으세요.",
+      "blocked": "이 주소는 저장할 수 없습니다. 사설 네트워크나 웹페이지가 쓰지 않는 포트를 가리킵니다.",
+      "unreachable": "페이지에 연결할 수 없습니다. 주소를 확인하고 다시 시도하세요.",
+      "timeout": "페이지 응답이 너무 오래 걸렸습니다. 나중에 다시 시도하세요.",
+      "httpError": "사이트가 오류로 응답했습니다. 로그인이 필요하거나 더 이상 없는 페이지일 수 있습니다.",
+      "notHtml": "이 주소는 웹페이지가 아닙니다(파일일 수 있음). 파일은 페이지에 업로드하세요.",
+      "noAccess": "그곳에는 페이지를 추가할 수 없습니다. 다른 저장 위치를 고르세요.",
+      "badTarget": "웹페이지는 이 워크스페이스의 페이지 아래나 데이터베이스에 저장할 수 있습니다.",
+      "tooComplex": "페이지가 너무 크거나 복잡해서 한 페이지로 저장할 수 없습니다."
+    },
+    "recipe": {
+      "yield": "분량",
+      "prepTime": "준비",
+      "cookTime": "조리",
+      "totalTime": "총 시간",
+      "ingredients": "재료",
+      "steps": "만드는 법"
     }
   }
 }

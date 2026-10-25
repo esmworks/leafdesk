@@ -110,6 +110,7 @@
       "you": "{name} (ty)"
     },
     "threadMenu": "Opcje wątku",
+    "copyLink": "Kopiuj link",
     "mute": "Wycisz odpowiedzi",
     "unmute": "Wyłącz wyciszenie odpowiedzi",
     "muteHint": "Nie otrzymuj powiadomień o nowych odpowiedziach w tym wątku. Odpowiedź tutaj lub wzmianka o tobie tutaj włącza je ponownie.",
@@ -207,7 +208,38 @@
   },
   "icon": {
     "add": "Dodaj ikonę",
-    "remove": "Usuń ikonę"
+    "remove": "Usuń ikonę",
+    "emojiTab": "Emoji",
+    "iconsTab": "Ikony",
+    "searchEmoji": "Szukaj emoji",
+    "searchIcons": "Szukaj ikon",
+    "random": "Losowo",
+    "skinTone": "Odcień skóry",
+    "tones": {
+      "0": "Bez odcienia skóry",
+      "1": "Jasny odcień skóry",
+      "2": "Średnio jasny odcień skóry",
+      "3": "Średni odcień skóry",
+      "4": "Średnio ciemny odcień skóry",
+      "5": "Ciemny odcień skóry"
+    },
+    "color": "Kolor ikony",
+    "textColor": "Kolor tekstu",
+    "categoriesLabel": "Kategorie",
+    "categories": {
+      "smileys": "Buźki i emocje",
+      "people": "Ludzie i ciało",
+      "nature": "Zwierzęta i przyroda",
+      "food": "Jedzenie i picie",
+      "travel": "Podróże i miejsca",
+      "activities": "Aktywności",
+      "objects": "Przedmioty",
+      "symbols": "Symbole",
+      "flags": "Flagi"
+    },
+    "loading": "Wczytywanie…",
+    "loadFailed": "Nie udało się wczytać emoji.",
+    "noMatches": "Brak wyników."
   },
   "background": {
     "add": "Dodaj tło",
@@ -484,7 +516,8 @@
     "row": "To jest szablon wiersza. Nowe wiersze utworzone z niego otrzymują jego właściwości i treść.",
     "inside": "Ta strona jest częścią szablonu.",
     "use": "Użyj szablonu",
-    "confirmDelete": "Usunąć ten szablon na stałe? Strony już z niego utworzone pozostaną bez zmian."
+    "confirmDelete": "Usunąć ten szablon na stałe? Strony już z niego utworzone pozostaną bez zmian.",
+    "titleMarkers": "Wpisz @today, @now lub @me w tytule: każdy nowy wiersz dostanie datę, godzinę lub imię osoby, która go dodaje."
   },
   "blocks": {
     "callout": {
@@ -631,7 +664,8 @@
       "submit": "Osadź",
       "providers": "YouTube, Vimeo, Loom, Figma, opublikowane Dokumenty, Arkusze i Prezentacje Google, CodePen, Spotify i Mapy Google. Inne linki stają się zakładką.",
       "frameTitle": "Osadzona treść z {host}",
-      "label": "Osadzenie"
+      "label": "Osadzenie",
+      "resize": "Przeciągnij, aby zmienić szerokość osadzenia"
     },
     "paste": {
       "label": "Wklej jako",
@@ -721,6 +755,11 @@
   },
   "blockMenu": {
     "copyLink": "Kopiuj link do bloku",
+    "download": "Pobierz",
+    "alignLeft": "Wyrównaj do lewej",
+    "alignCenter": "Wyśrodkuj",
+    "alignRight": "Wyrównaj do prawej",
+    "wideColumns": "Szerokie kolumny",
     "hideInPrint": "Ukryj przy drukowaniu",
     "calloutStyle": "Styl wyróżnienia",
     "turnIntoCallout": "Zamień na wyróżnienie",
@@ -793,7 +832,12 @@
     "shortcut": "Nowa szybka notatka",
     "shortcutShort": "Szybka notatka",
     "destination": "Zapisz w",
-    "privatePage": "Prywatna strona"
+    "privatePage": "Prywatna strona",
+    "fullPage": {
+      "heading": "Zapisz całą stronę",
+      "help": "Zapisuje tekst i obrazy strony z linkiem do źródła zamiast samego linku.",
+      "save": "Zapisz całą stronę"
+    }
   },
   "dashboard": {
     "title": "Pulpit",
@@ -966,7 +1010,8 @@
     "markdownImage": "Obraz: {alt}",
     "markdownImageUntitled": "Obraz",
     "expand": "Otwórz w przeglądarce plików",
-    "view": "Wyświetl {name}"
+    "view": "Wyświetl {name}",
+    "resize": "Przeciągnij, aby zmienić szerokość"
   },
   "presentation": {
     "previous": "Poprzedni slajd",
@@ -1128,7 +1173,7 @@
     },
     "settings": {
       "open": "Ustawienia przycisku",
-      "icon": "Emoji",
+      "icon": "Ikona",
       "label": "Etykieta",
       "color": "Kolor",
       "colorDefault": "Domyślny",
@@ -1201,5 +1246,16 @@
     "reset": "Pokaż cały obraz",
     "loading": "Wczytywanie obrazu…",
     "failed": "Nie udało się wczytać obrazu."
+  },
+  "commentRef": {
+    "pasteTitle": "Wklej link do komentarza",
+    "pasteAsMention": "Wklej jako wzmiankę",
+    "pasteAsPreview": "Wklej jako podgląd",
+    "pasteAsLink": "Wklej jako link",
+    "noAccess": "Brak dostępu do tego komentarza",
+    "onPage": "Na stronie {title}",
+    "replies": "{count, plural, =0 {Brak odpowiedzi} one {# odpowiedź} few {# odpowiedzi} many {# odpowiedzi} other {# odpowiedzi}}",
+    "openThread": "Otwórz wątek",
+    "resolved": "Rozwiązany"
   }
 }

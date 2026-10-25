@@ -39,7 +39,9 @@ const OWNER_TABS: readonly SettingsTab[] = ["connections", "webhooks", "storage"
 /**
  * The tabs someone gets. Guests don't see the workspace's members or policies: only its name, and
  * leaving it. The guests themselves are for those who may bring guests in (`canInviteGuests`:
- * owners, and members when Settings > Security lets them). Analytics, which counts what each
+ * owners and membership admins, and members when Settings > Security lets them). Membership admins
+ * get no tab of OWNER_TABS: what they run (people, invitations, join requests, groups) is on the
+ * Members, Guests and Groups tabs everyone else in the workspace has too. Analytics, which counts what each
  * person did, the audit log, which says who changed what, and connections to outside services
  * (their credentials are the workspace's), page webhooks (they send its pages out), where the
  * workspace's files are stored and what its AI costs are for owners. Email on rows has no tab: it is under General, and each member connects

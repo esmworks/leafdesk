@@ -12,7 +12,8 @@
     "asana": "Asana",
     "monday": "Monday.com",
     "jira": "Jira",
-    "googleDocs": "Google Docs"
+    "googleDocs": "Google Docs",
+    "web": "Web sayfası"
   },
   "destination": "Nereye",
   "topLevel": "Çalışma alanının en üst düzeyi",
@@ -139,7 +140,8 @@
       "type": "Tür",
       "labels": "Etiketler",
       "due": "Bitiş tarihi",
-      "link": "Jira bağlantısı"
+      "link": "Jira bağlantısı",
+      "reporter": "Bildiren"
     },
     "errors": {
       "unauthorized": "Jira e-posta adresini ve API anahtarını kabul etmedi.",
@@ -218,7 +220,8 @@
       "badNote": "“{path}” notu okunamadığı için dışarıda bırakıldı.",
       "notEnex": "“{path}” bir Evernote dışa aktarımı (.enex) olmadığı için dışarıda bırakıldı."
     },
-    "more": "…ve {count, plural, one {# tane daha} other {# tane daha}}."
+    "more": "…ve {count, plural, one {# tane daha} other {# tane daha}}.",
+    "tooManyImages": "{count, plural, one {# resim daha} other {# resim daha}} dışarıda bırakıldı: kaydedilen bir web sayfası en fazla {limit} resim tutar."
   },
   "errors": {
     "tooLarge": "Yükleme {limit} sınırından büyük.",
@@ -268,6 +271,42 @@
       "signIn": "“{name}” için Google'da yeniden oturum açılması gerekiyor: bunu bir sahip Ayarlar → Bağlantılar'da yapar.",
       "notFound": "Bir belge “{name}” üzerinden okunamıyor: bağlantıyı ve bağlantının Google hesabının belgeyi açabildiğini kontrol edin.",
       "notADocument": "“{id}” bir Google belgesi değil."
+    }
+  },
+  "web": {
+    "title": "Web'den kaydet",
+    "description": "Bir web sayfasını sayfa olarak kaydedin: metni, resimleri ve ona geri dönen bir bağlantı.",
+    "help": "Bir web sayfasının adresini yapıştırın. Ana metni çevresindeki menüler, reklamlar ve alt bilgiler olmadan kaydedilir; resimleri çalışma alanına kopyalanır. Tarif varsa en başta yer alır, malzemeler kontrol listesi olarak.",
+    "url": "Web adresi",
+    "target": "Kaydedilecek yer",
+    "privatePage": "En üstte özel sayfa",
+    "underPage": "Bir sayfanın altına",
+    "intoDatabase": "Bir veritabanına satır olarak",
+    "save": "Sayfayı kaydet",
+    "saving": "Sayfa kaydediliyor…",
+    "bookmarklet": {
+      "heading": "Tarayıcınızdan kaydedin",
+      "help": "Bu düğmeyi tarayıcınızın yer imleri çubuğuna sürükleyin. Herhangi bir web sayfasında tıkladığınızda sayfa buraya kaydedilir; seçtiğiniz metin alıntı olarak gelir.",
+      "link": "Leafdesk'e kaydet"
+    },
+    "errors": {
+      "invalidUrl": "Bu bir web adresi değil. http:// veya https:// ile başlayan bir adres yapıştırın.",
+      "blocked": "Bu adres kaydedilemez: özel bir ağı ya da web sayfalarının kullanmadığı bir bağlantı noktasını gösteriyor.",
+      "unreachable": "Sayfaya ulaşılamadı. Adresi kontrol edip yeniden deneyin.",
+      "timeout": "Sayfa çok geç yanıt verdi. Daha sonra yeniden deneyin.",
+      "httpError": "Site bir hatayla yanıt verdi: sayfa oturum açmayı gerektiriyor olabilir ya da artık yok.",
+      "notHtml": "Bu adres bir web sayfası değil (bir dosya olabilir). Dosyaları bunun yerine bir sayfaya yükleyin.",
+      "noAccess": "Oraya sayfa ekleyemezsiniz. Kaydetmek için başka bir yer seçin.",
+      "badTarget": "Bir web sayfası bu çalışma alanındaki bir sayfanın altına ya da bir veritabanına kaydedilebilir.",
+      "tooComplex": "Sayfa tek bir sayfa olarak kaydedilemeyecek kadar büyük ya da karmaşık."
+    },
+    "recipe": {
+      "yield": "Porsiyon",
+      "prepTime": "Hazırlık",
+      "cookTime": "Pişirme",
+      "totalTime": "Toplam",
+      "ingredients": "Malzemeler",
+      "steps": "Yapılışı"
     }
   }
 }

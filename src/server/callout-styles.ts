@@ -1,7 +1,8 @@
 import { eq, inArray } from "drizzle-orm";
 import { db } from "@/db";
 import { page, workspace } from "@/db/schema";
-import { storedCalloutStyles, type CalloutStyle } from "@/lib/callout-styles";
+import { type CalloutStyle } from "@/lib/callout-styles";
+import { storedCalloutStyles } from "@/lib/callout-styles-parse";
 
 /**
  * A workspace's callout styles (lib/callout-styles), for drawing its pages: the editor, published

@@ -9,6 +9,7 @@ import { dayString, localDay } from "@/lib/time-zone";
 import { getMembership, isGuest } from "@/server/access";
 import { assignedRows } from "@/server/assigned";
 import { listDailyNotes } from "@/server/journal";
+import { recentlyViewedPages } from "@/server/page-views";
 import { parentTitles, recentPages } from "@/server/pages";
 import { requireWorkspaceSession } from "@/server/session";
 import { topLevelAccess } from "@/server/workspaces";
@@ -20,8 +21,10 @@ export default async function WorkspaceHome({ params }: { params: Promise<{ work
   // Today in the viewer's time zone, so a row due today counts as today wherever they are.
   const timeZone = await getTimeZone();
   const today = dayString(localDay(now.getTime(), timeZone));
-  const [pages, membership, topLevel, assigned, dailyNotes] = await Promise.all([
+  const [pages, viewed, membership, topLevel, assigned, dailyNotes] = await Promise.all([
     recentPages(user.id, workspaceId, 8),
+    // Null while the person's views aren't recorded: then only the pages last edited show.
+    recentlyViewedPages(user.id, workspaceId, 6),
     getMembership(user.id, workspaceId),
     topLevelAccess(user.id, workspaceId),
     assignedRows(user.id, workspaceId, today, timeZone),
@@ -31,7 +34,7 @@ export default async function WorkspaceHome({ params }: { params: Promise<{ work
     getTranslations("home"),
     getTranslations("common"),
     getFormatter(),
-    parentTitles(user.id, pages.map((p) => p.id)),
+    parentTitles(user.id, [...new Set([...pages, ...(viewed ?? [])].map((p) => p.id))]),
   ]);
   const guest = !membership || isGuest(membership.role);
 
@@ -46,6 +49,34 @@ export default async function WorkspaceHome({ params }: { params: Promise<{ work
         </div>
         {topLevel && <QuickCreate workspaceId={workspaceId} />}
       </header>
+
+      {viewed && viewed.length > 0 && (
+        <section className="space-y-3" aria-labelledby="viewed-heading">
+          <h2 id="viewed-heading" className="text-sm font-semibold">
+            {t("jumpBackIn")}
+          </h2>
+          <ul className="grid grid-cols-2 gap-2 sm:grid-cols-3">
+            {viewed.map((p) => {
+              const parent = parents.get(p.id);
+              return (
+                <li key={p.id} className="min-w-0">
+                  <Link
+                    href={`/w/${workspaceId}/p/${p.id}`}
+                    className="flex h-full flex-col gap-2 rounded-md border border-border px-3 py-3 text-sm hover:bg-bg-hover"
+                  >
+                    <PageIcon icon={p.icon} kind={p.kind} className="flex h-5 w-5 items-center text-base text-fg-muted" />
+                    <span className="line-clamp-2 font-medium break-words">{pageLabel(p.title, tc("untitled"))}</span>
+                    <span className="mt-auto flex min-w-0 flex-col text-xs text-fg-muted">
+                      {parent !== undefined && <span className="truncate">{pageLabel(parent, tc("untitled"))}</span>}
+                      <span className="truncate">{format.relativeTime(p.viewedAt, now)}</span>
+                    </span>
+                  </Link>
+                </li>
+              );
+            })}
+          </ul>
+        </section>
+      )}
 
       {/* Daily notes are private top-level pages: for those who may add them. */}
       {topLevel && <TodayNoteSection workspaceId={workspaceId} today={today} notes={dailyNotes} />}

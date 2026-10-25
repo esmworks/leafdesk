@@ -163,7 +163,7 @@ const inScope = (workspaceId: string) =>
   and(
     notAgentUser(user.id),
     or(
-      sql`exists (select 1 from ${workspaceMember} m where m.workspace_id = ${workspaceId} and m.user_id = ${user.id} and m.role in ('owner', 'member'))`,
+      sql`exists (select 1 from ${workspaceMember} m where m.workspace_id = ${workspaceId} and m.user_id = ${user.id} and m.role <> 'guest')`,
       sql`exists (select 1 from ${scimIdentity} i where i.workspace_id = ${workspaceId} and i.user_id = ${user.id})`,
     ),
   );
@@ -191,7 +191,7 @@ async function records(workspaceId: string, where?: ReturnType<typeof sql>, page
       email: r.email,
       name: r.name,
       role: r.role,
-      active: r.role === "owner" || r.role === "member",
+      active: isActiveRole(r.role),
       externalId: r.externalId,
       created: new Date(r.userCreated),
       lastModified: new Date(
@@ -246,6 +246,12 @@ async function setIdentity(workspaceId: string, userId: string, fields: { active
     });
 }
 
+/** A SCIM user is active while they are an owner or a member; a membership admin is a member here. */
+const isActiveRole = (role: string | null) => role === "owner" || isProvisionedRole(role);
+
+/** What the provider may take out of the workspace (deactivating or deleting the user): members, membership admins among them. */
+const isProvisionedRole = (role: string | null) => role === "member" || role === "membership_admin";
+
 /**
  * Applies what a request asks for: membership follows `active` (owners stay), the external id is
  * kept, and the name changes only for addresses in the workspace's verified domains.
@@ -254,15 +260,15 @@ async function applyChanges(workspaceId: string, record: { id: string; email: st
   if (changes.active === false && record.role === "owner") {
     throw new ScimError(400, "Workspace owners can't be deactivated over SCIM; change their role in the app first.", "mutability");
   }
-  if (changes.active === true && record.role !== "owner" && record.role !== "member") {
+  if (changes.active === true && !isActiveRole(record.role)) {
     if (record.role === "guest") await promoteGuest(workspaceId, record.id);
     else {
       await requireVerifiedAddress(record);
       await joinAsMember(workspaceId, record.id, record.email, "scim");
     }
   }
-  if (changes.active === false && record.role === "member") await removeMemberByProvider(workspaceId, record.id);
-  const active = changes.active ?? (record.role === "owner" || record.role === "member");
+  if (changes.active === false && isProvisionedRole(record.role)) await removeMemberByProvider(workspaceId, record.id);
+  const active = changes.active ?? isActiveRole(record.role);
   await setIdentity(workspaceId, record.id, { active, externalId: changes.externalId });
   if (changes.name && emailInDomains(record.email, await verifiedDomains(workspaceId))) {
     const clean = cleanName(changes.name);
@@ -345,7 +351,7 @@ async function deleteUser(workspaceId: string, id: string) {
   if (record.role === "owner") {
     throw new ScimError(400, "Workspace owners can't be removed over SCIM; change their role in the app first.", "mutability");
   }
-  if (record.role === "member") await removeMemberByProvider(workspaceId, id);
+  if (isProvisionedRole(record.role)) await removeMemberByProvider(workspaceId, id);
   await db.delete(scimIdentity).where(and(eq(scimIdentity.workspaceId, workspaceId), eq(scimIdentity.userId, id)));
 }
 

@@ -419,6 +419,9 @@ describe("filter groups and relative dates", () => {
       days: 14,
     });
     expect(toFilterRule(all, { property: "created_at", op: "is_within", value: "today" }).propertyId).toBe("created_at");
+    for (const value of ["last_week", "next_week", "last_month", "next_month", "this_year", "last_year", "next_year"]) {
+      expect(toFilterRule(all, { property: "Due", op: "is_within", value })).toEqual({ propertyId: "p_due", op: "is_within", value });
+    }
   });
 
   it("explains what is wrong with a relative date filter", () => {

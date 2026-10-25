@@ -23,6 +23,7 @@ import { chainTo, getPublishedPage, type PublishedPage } from "@/server/publicat
 import { forgetSiteHosts } from "@/server/site-hosts";
 import { publishingOn } from "@/server/workspaces";
 import { refuseInLocalMode } from "@/server/local-mode";
+import { livePublication } from "@/server/publication-live";
 import { env } from "@/lib/env";
 
 /**
@@ -137,6 +138,7 @@ export async function saveSite(
           eq(pagePublication.pageId, homePageId),
           eq(page.workspaceId, workspaceId),
           isNull(page.archivedAt),
+          livePublication(),
           sql`${accessRank(userId, sql`${page.id}`)} > 0`,
         ),
       )
@@ -364,6 +366,7 @@ async function listedPublications(workspaceId: string): Promise<Listed[]> {
         isNull(page.archivedAt),
         eq(page.inTemplate, false),
         isNotNull(pagePublication.publishedBy),
+        livePublication(),
       ),
     )
     .limit(MAX_LISTED);
@@ -551,7 +554,7 @@ export async function servedPublication(key: string, pageId?: string): Promise<S
     .select({ id: page.id, publisher: pagePublication.publishedBy, allowDuplicate: pagePublication.allowDuplicate })
     .from(pagePublication)
     .innerJoin(page, eq(page.id, pagePublication.pageId))
-    .where(and(eq(pagePublication.token, key), isNull(page.archivedAt)))
+    .where(and(eq(pagePublication.token, key), isNull(page.archivedAt), livePublication()))
     .limit(1);
   if (!root?.publisher) return null;
   const targetId = pageId ?? root.id;

@@ -12,7 +12,8 @@
     "asana": "Asana",
     "monday": "Monday.com",
     "jira": "Jira",
-    "googleDocs": "Google Docs"
+    "googleDocs": "Google Docs",
+    "web": "Halaman web"
   },
   "destination": "Letakkan di bawah",
   "topLevel": "Tingkat teratas ruang kerja",
@@ -139,7 +140,8 @@
       "type": "Tipe",
       "labels": "Label",
       "due": "Tanggal jatuh tempo",
-      "link": "Tautan Jira"
+      "link": "Tautan Jira",
+      "reporter": "Pelapor"
     },
     "errors": {
       "unauthorized": "Jira menolak alamat email dan token API.",
@@ -218,7 +220,8 @@
       "badNote": "Catatan “{path}” tidak dapat dibaca dan dilewati.",
       "notEnex": "“{path}” dilewati: bukan ekspor Evernote (.enex)."
     },
-    "more": "…dan {count, plural, other {# lagi}}."
+    "more": "…dan {count, plural, other {# lagi}}.",
+    "tooManyImages": "{count} gambar lagi tidak disimpan: halaman web yang disimpan menyimpan paling banyak {limit} gambar."
   },
   "errors": {
     "tooLarge": "Unggahan lebih besar dari {limit}.",
@@ -268,6 +271,42 @@
       "signIn": "“{name}” perlu masuk ke Google lagi: pemilik melakukannya di Pengaturan → Koneksi.",
       "notFound": "Sebuah dokumen tidak dapat dibaca melalui “{name}”: periksa tautannya, dan bahwa akun Google koneksi boleh membukanya.",
       "notADocument": "“{id}” bukan dokumen Google."
+    }
+  },
+  "web": {
+    "title": "Simpan dari web",
+    "description": "Simpan halaman web sebagai halaman: teks, gambar, dan tautan kembali ke sumbernya.",
+    "help": "Tempel alamat halaman web. Teks utamanya disimpan tanpa menu, iklan, dan footer di sekitarnya, dan gambarnya disalin ke ruang kerja. Resep ditaruh paling atas, dengan bahan-bahannya sebagai daftar periksa.",
+    "url": "Alamat web",
+    "target": "Simpan ke",
+    "privatePage": "Halaman pribadi di tingkat teratas",
+    "underPage": "Di bawah halaman",
+    "intoDatabase": "Sebagai baris database",
+    "save": "Simpan halaman",
+    "saving": "Menyimpan halaman…",
+    "bookmarklet": {
+      "heading": "Simpan dari browser",
+      "help": "Seret tombol ini ke bilah bookmark browser Anda. Di halaman web mana pun, klik untuk menyimpan halaman itu di sini; teks yang Anda pilih ikut sebagai kutipan.",
+      "link": "Simpan ke Leafdesk"
+    },
+    "errors": {
+      "invalidUrl": "Itu bukan alamat web. Tempel alamat yang diawali http:// atau https://.",
+      "blocked": "Alamat ini tidak bisa disimpan: alamat ini mengarah ke jaringan pribadi atau port yang tidak dipakai halaman web.",
+      "unreachable": "Halaman tidak dapat dijangkau. Periksa alamatnya lalu coba lagi.",
+      "timeout": "Halaman terlalu lama merespons. Coba lagi nanti.",
+      "httpError": "Situs menjawab dengan kesalahan: halaman mungkin perlu masuk, atau sudah tidak ada.",
+      "notHtml": "Alamat ini bukan halaman web (mungkin berkas). Unggah berkas ke halaman saja.",
+      "noAccess": "Anda tidak dapat menambahkan halaman di sana. Pilih tempat lain untuk menyimpan.",
+      "badTarget": "Halaman web dapat disimpan di bawah halaman atau ke database di ruang kerja ini.",
+      "tooComplex": "Halaman terlalu besar atau rumit untuk disimpan sebagai satu halaman."
+    },
+    "recipe": {
+      "yield": "Porsi",
+      "prepTime": "Persiapan",
+      "cookTime": "Memasak",
+      "totalTime": "Total",
+      "ingredients": "Bahan",
+      "steps": "Langkah"
     }
   }
 }

@@ -12,7 +12,8 @@
     "asana": "Asana",
     "monday": "Monday.com",
     "jira": "Jira",
-    "googleDocs": "Google Dokument"
+    "googleDocs": "Google Dokument",
+    "web": "Webbsida"
   },
   "destination": "Placera under",
   "topLevel": "Arbetsytans översta nivå",
@@ -139,7 +140,8 @@
       "type": "Typ",
       "labels": "Etiketter",
       "due": "Förfallodatum",
-      "link": "Jira-länk"
+      "link": "Jira-länk",
+      "reporter": "Rapportör"
     },
     "errors": {
       "unauthorized": "Jira avvisade e-postadressen och API-token.",
@@ -218,7 +220,8 @@
       "badNote": "Anteckningen ”{path}” kan inte läsas och utelämnades.",
       "notEnex": "”{path}” utelämnades: det är ingen Evernote-export (.enex)."
     },
-    "more": "…och {count, plural, one {# till} other {# till}}."
+    "more": "…och {count, plural, one {# till} other {# till}}.",
+    "tooManyImages": "{count, plural, one {# bild till utelämnades} other {# bilder till utelämnades}}: en sparad webbsida behåller högst {limit}."
   },
   "errors": {
     "tooLarge": "Uppladdningen är större än {limit}.",
@@ -268,6 +271,42 @@
       "signIn": "”{name}” behöver loggas in på Google igen: en ägare gör det i Inställningar → Anslutningar.",
       "notFound": "Ett dokument kan inte läsas via ”{name}”: kontrollera länken och att anslutningens Google-konto får öppna det.",
       "notADocument": "”{id}” är inget Google-dokument."
+    }
+  },
+  "web": {
+    "title": "Spara från webben",
+    "description": "Spara en webbsida som en sida: dess text, bilder och en länk tillbaka.",
+    "help": "Klistra in adressen till en webbsida. Huvudtexten sparas utan menyer, annonser och sidfötter runt omkring, och bilderna kopieras till arbetsytan. Ett recept kommer först, med ingredienserna som checklista.",
+    "url": "Webbadress",
+    "target": "Spara i",
+    "privatePage": "Privat sida högst upp",
+    "underPage": "Under en sida",
+    "intoDatabase": "Som rad i en databas",
+    "save": "Spara sida",
+    "saving": "Sparar sidan …",
+    "bookmarklet": {
+      "heading": "Spara från webbläsaren",
+      "help": "Dra den här knappen till webbläsarens bokmärkesfält. Klicka på den på valfri webbsida för att spara sidan här; markerad text följer med som citat.",
+      "link": "Spara i Leafdesk"
+    },
+    "errors": {
+      "invalidUrl": "Det är ingen webbadress. Klistra in en som börjar med http:// eller https://.",
+      "blocked": "Den här adressen kan inte sparas: den pekar in i ett privat nätverk eller mot en port som webbsidor inte använder.",
+      "unreachable": "Sidan gick inte att nå. Kontrollera adressen och försök igen.",
+      "timeout": "Sidan tog för lång tid att svara. Försök igen senare.",
+      "httpError": "Webbplatsen svarade med ett fel: sidan kräver kanske inloggning, eller så finns den inte längre.",
+      "notHtml": "Den här adressen är ingen webbsida (kanske en fil). Ladda upp filer till en sida i stället.",
+      "noAccess": "Du kan inte lägga till sidor där. Välj en annan plats att spara på.",
+      "badTarget": "En webbsida kan sparas under en sida eller i en databas i den här arbetsytan.",
+      "tooComplex": "Sidan är för stor eller komplex för att sparas som en sida."
+    },
+    "recipe": {
+      "yield": "Ger",
+      "prepTime": "Förberedelse",
+      "cookTime": "Tillagning",
+      "totalTime": "Totalt",
+      "ingredients": "Ingredienser",
+      "steps": "Gör så här"
     }
   }
 }

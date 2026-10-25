@@ -70,5 +70,19 @@
   },
   "publishingOff": "Publisering på nettet er slått av i dette arbeidsområdet. Publiserte sider vises ikke før en eier slår det på igjen.",
   "descriptionLabel": "Søkebeskrivelse",
-  "descriptionHint": "Vises i søkeresultater og lenkeforhåndsvisninger. Tom: standardbeskrivelsen for nettstedet."
+  "descriptionHint": "Vises i søkeresultater og lenkeforhåndsvisninger. Tom: standardbeskrivelsen for nettstedet.",
+  "expiredTitle": "Lenken har utløpt",
+  "expiry": "Lenkens utløp",
+  "expiryHint": "Lenken virker til du avpubliserer siden.",
+  "expiresOn": "Lenken slutter å virke {date}.",
+  "expiredOn": "Utløp {date}: lenken virker ikke lenger noe sted. Velg et senere tidspunkt eller fjern utløpet for å få den tilbake.",
+  "setExpiry": "Angi utløp",
+  "extendExpiry": "Forleng",
+  "expiryLabel": "Lenken slutter å virke",
+  "saveExpiry": "Lagre",
+  "removeExpiry": "Fjern utløp",
+  "cancelExpiry": "Avbryt",
+  "expiryPast": "Velg et tidspunkt i fremtiden.",
+  "expiryTooFar": "Velg et tidspunkt innen de neste ti årene.",
+  "expiredDescription": "Ingen kan åpne denne siden eller undersidene via lenken nå: besøkende får vite at den ikke ble funnet."
 }

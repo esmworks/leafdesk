@@ -70,5 +70,19 @@
   },
   "publishingOff": "Publikowanie w internecie jest wyłączone w tym obszarze roboczym. Opublikowane strony nie są wyświetlane, dopóki właściciel go ponownie nie włączy.",
   "descriptionLabel": "Opis dla wyszukiwarek",
-  "descriptionHint": "Pokazywany w wynikach wyszukiwania i podglądach linków. Pusty: domyślny opis witryny."
+  "descriptionHint": "Pokazywany w wynikach wyszukiwania i podglądach linków. Pusty: domyślny opis witryny.",
+  "expiredTitle": "Link wygasł",
+  "expiry": "Wygaśnięcie linku",
+  "expiryHint": "Link działa, dopóki nie cofniesz publikacji strony.",
+  "expiresOn": "Link przestanie działać {date}.",
+  "expiredOn": "Wygasł {date}: link nigdzie już nie działa. Wybierz późniejszy termin lub usuń wygaśnięcie, aby go przywrócić.",
+  "setExpiry": "Ustaw wygaśnięcie",
+  "extendExpiry": "Przedłuż",
+  "expiryLabel": "Link przestaje działać",
+  "saveExpiry": "Zapisz",
+  "removeExpiry": "Usuń wygaśnięcie",
+  "cancelExpiry": "Anuluj",
+  "expiryPast": "Wybierz termin w przyszłości.",
+  "expiryTooFar": "Wybierz termin w ciągu najbliższych dziesięciu lat.",
+  "expiredDescription": "Nikt nie może teraz otworzyć tej strony ani jej podstron przez link: odwiedzający widzą, że jej nie znaleziono."
 }

@@ -18,7 +18,7 @@ import { env } from "@/lib/env";
 import { commentHash, commentText } from "@/lib/comments";
 import { pageLabel } from "@/lib/labels";
 import { PAGE_EMAIL_COOLDOWN_MS, PAGE_EMAIL_WINDOW_MS, planPageEmails } from "@/lib/page-watch";
-import { ownsWorkspace, rankOf, resolvePageAccess, workspaceRoleOf } from "@/server/access";
+import { managesPeopleOf, rankOf, resolvePageAccess, workspaceRoleOf } from "@/server/access";
 import { getCollab } from "@/server/collab/bridge";
 import { threadsVisibleTo } from "@/server/property-comments";
 import {
@@ -236,8 +236,8 @@ async function sendPageUpdates(userId: string, entries: Due[]) {
 }
 
 /**
- * Tells an owner about a join request, if it still waits, they still own the workspace and want
- * these emails.
+ * Tells an owner or membership admin about a join request, if it still waits, they still decide
+ * them (managesPeopleOf) and want these emails.
  */
 async function sendJoinRequest(userId: string, workspaceId: string, joinRequestId: string | null, locale: Locale) {
   if (!joinRequestId || !(await wantsEmail(userId, "join_request"))) return;
@@ -246,8 +246,8 @@ async function sendJoinRequest(userId: string, workspaceId: string, joinRequestI
       kind: workspaceJoinRequest.kind,
       email: workspaceJoinRequest.email,
       askerName: user.name,
-      // Still an owner: someone demoted since the request came in doesn't get the email.
-      recipient: sql<string | null>`(select u.email from ${user} u where u.id = ${userId} and ${ownsWorkspace(userId, sql`${workspaceId}`)})`,
+      // Still deciding requests: someone demoted since the request came in doesn't get the email.
+      recipient: sql<string | null>`(select u.email from ${user} u where u.id = ${userId} and ${managesPeopleOf(userId, sql`${workspaceId}`)})`,
       workspaceName: workspace.name,
     })
     .from(workspaceJoinRequest)

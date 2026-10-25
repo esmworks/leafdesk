@@ -1,10 +1,11 @@
 import { and, asc, eq, isNull, max, sql } from "drizzle-orm";
 import { db } from "@/db";
-import { databaseView, page, type PageKind } from "@/db/schema";
+import { databaseView, page, user, type PageKind } from "@/db/schema";
 import type { FilterEntry, ViewConfig } from "@/db/schema/app";
 import {
   builtinTemplate,
   isBuiltinTemplateKey,
+  type BuiltinDatabaseTemplate,
   type BuiltinFilter,
   type BuiltinKitDatabase,
   type BuiltinKitProperty,
@@ -16,7 +17,8 @@ import { DASHBOARD_BLOCK, newWidgetId, serializeDashboard, type DashboardWidget 
 import { DATABASE_BLOCK } from "@/lib/embed-blocks";
 import { DEFAULT_ROW_TEMPLATE } from "@/lib/automations";
 import { holdsOptions } from "@/lib/property-types";
-import { namesMe, resolveMarkers } from "@/lib/template-values";
+import { sprintProperty } from "@/lib/sprints";
+import { namesMe, resolveMarkers, resolveTitleMarkers, titleHasMarkers } from "@/lib/template-values";
 import { AccessError, accessRank, levelFromRank, pageVisibleTo, requireMembership, requirePageAccess, type AccessLevel } from "@/server/access";
 import { isAgentUser } from "@/server/agents/users";
 import { recordAudit } from "@/server/audit";
@@ -40,7 +42,9 @@ import {
 import { copyPageTree } from "@/server/duplicate";
 import { archivePage, createPage, ENGLISH_SEED_NAMES, removeOrphanFiles } from "@/server/pages";
 import { refuseHeldPages } from "@/server/legal-hold";
+import { setSprints } from "@/server/sprints";
 import { placeTopLevel, TeamspaceError } from "@/server/teamspaces";
+import { setPageVerification } from "@/server/verification";
 import { createWorkspace, requireTopLevel } from "@/server/workspaces";
 
 /**
@@ -198,6 +202,11 @@ export type FromTemplateInput = {
    * their browser's, a button's clicker's, a schedule's or an automation's. UTC when missing.
    */
   timeZone?: string;
+  /**
+   * Their language, for a row template's "@today" and "@now" in its title (lib/template-values
+   * resolveTitleMarkers); ISO dates when missing.
+   */
+  locale?: string;
 };
 
 /**
@@ -233,7 +242,12 @@ export async function createFromTemplate(
     placement = await placeTopLevel(userId, template.workspaceId, topLevel, input.teamspaceId);
   }
 
-  const title = input.title?.trim() || template.title;
+  // A row template's "@today", "@now" and "@me" become the day, the moment and the maker's name.
+  const title =
+    input.title?.trim() ||
+    (template.isTemplate && template.parentId && !parentInTemplate && titleHasMarkers(template.title)
+      ? await titleWithMarkers(userId, template.title, input)
+      : template.title);
   const { root } = await copyPageTree(actor, template, {
     parentId,
     parentInTemplate,
@@ -292,25 +306,54 @@ export async function createFromTemplate(
   return { id: root.id, workspaceId: template.workspaceId, parentId };
 }
 
+/** A row template's title with its markers worked out for whoever makes the row (agents have no name there). */
+async function titleWithMarkers(userId: string, title: string, input: FromTemplateInput) {
+  const agent = await isAgentUser(userId);
+  const [maker] = agent ? [] : await db.select({ name: user.name }).from(user).where(eq(user.id, userId));
+  return (
+    resolveTitleMarkers(title, { userId: agent ? null : userId, name: maker?.name ?? null, now: new Date(), timeZone: input.timeZone, locale: input.locale }) ||
+    title
+  );
+}
+
 /**
- * A new row: from the database's default row template when it has one the user can see and no
- * values are given (`useDefault`), else blank like any new row.
+ * A new row: with `useDefault`, from the default row template of the view it is made in (`viewId`,
+ * see ViewConfig defaultTemplateId) or else the database's, when it has one the user can see;
+ * otherwise from `templateId`, or blank like any new row.
  */
 export async function createRow(
   actor: WriteActor,
   databaseId: string,
-  input: { title?: string; properties?: Record<string, unknown>; templateId?: string | null; useDefault?: boolean; timeZone?: string },
+  input: {
+    title?: string;
+    properties?: Record<string, unknown>;
+    templateId?: string | null;
+    useDefault?: boolean;
+    /** The view "New" was pressed in: its own default template comes before the database's. */
+    viewId?: string;
+    timeZone?: string;
+    locale?: string;
+  },
 ): Promise<{ id: string; position: number; templateId: string | null }> {
   const database = await requireDatabase(actor.userId, databaseId, "edit");
   let templateId = input.templateId ?? null;
-  if (!templateId && input.useDefault && database.defaultTemplateId) {
-    const { level } = await resolveLevel(actor.userId, database.defaultTemplateId);
-    if (level !== "none") templateId = database.defaultTemplateId;
+  if (!templateId && input.useDefault) {
+    const own = input.viewId ? await viewDefaultTemplate(input.viewId, databaseId) : undefined;
+    const fallback = own === undefined ? database.defaultTemplateId : own;
+    if (fallback) {
+      const { level } = await resolveLevel(actor.userId, fallback);
+      if (level !== "none") templateId = fallback;
+    }
   }
   if (templateId) {
     const template = await requireTemplate(actor.userId, templateId, "view");
     if (template.parentId !== databaseId) throw withCode(new Error("Not a row template of this database"), "notATemplate");
-    const created = await createFromTemplate(actor, templateId, { title: input.title, properties: input.properties, timeZone: input.timeZone });
+    const created = await createFromTemplate(actor, templateId, {
+      title: input.title,
+      properties: input.properties,
+      timeZone: input.timeZone,
+      locale: input.locale,
+    });
     const [row] = await db.select({ position: page.position }).from(page).where(eq(page.id, created.id));
     return { id: created.id, position: row?.position ?? 0, templateId };
   }
@@ -321,6 +364,22 @@ export async function createRow(
     properties: input.properties,
   });
   return { id: created.id, position: created.position, templateId: null };
+}
+
+/**
+ * A view's own default row template (ViewConfig defaultTemplateId): its id while it is still a
+ * row template of the database, null for blank rows, undefined when the view has none (or names
+ * a template since deleted, or isn't a view of this database): the database's default applies.
+ */
+async function viewDefaultTemplate(viewId: string, databaseId: string): Promise<string | null | undefined> {
+  const [view] = await db
+    .select({ config: databaseView.config })
+    .from(databaseView)
+    .where(and(eq(databaseView.id, viewId), eq(databaseView.databaseId, databaseId), isNull(databaseView.deletedAt)));
+  const own = view?.config.defaultTemplateId;
+  if (own === null) return null;
+  if (typeof own !== "string") return undefined;
+  return (await rowTemplateInput(databaseId, own))?.templateId ?? undefined;
 }
 
 /**
@@ -364,15 +423,24 @@ export async function createRowTemplate(
   return { id: created.id };
 }
 
-/** Picks the row template "New" starts from, or none (null) for blank rows. Needs edit access. */
-export async function setDefaultRowTemplate(userId: string, databaseId: string, templateId: string | null) {
+/**
+ * Picks the row template "New" starts from, or none (null) for blank rows. Needs edit access.
+ * `allViews` also drops the views' own choices (ViewConfig defaultTemplateId), so every view uses it.
+ */
+export async function setDefaultRowTemplate(userId: string, databaseId: string, templateId: string | null, { allViews = false } = {}) {
   await requireDatabase(userId, databaseId, "edit");
   if (templateId) {
     const template = await requireTemplate(userId, templateId, "view");
     if (template.parentId !== databaseId) throw withCode(new Error("Not a row template of this database"), "notATemplate");
   }
   await db.update(page).set({ defaultTemplateId: templateId, updatedBy: userId }).where(eq(page.id, databaseId));
-  getCollab().broadcast(`db:${databaseId}`, "rows");
+  if (allViews) {
+    await db.execute(sql`
+      update ${databaseView} set config = config - 'defaultTemplateId'
+      where ${databaseView.databaseId} = ${databaseId} and config ? 'defaultTemplateId'
+    `);
+  }
+  getCollab().broadcast(`db:${databaseId}`, allViews ? "schema" : "rows");
 }
 
 /**
@@ -588,6 +656,9 @@ async function createKit(
   }
 }
 
+/** How long the built-in templates' example pages marked verified stay verified. */
+const VERIFIED_EXAMPLE_DAYS = 90;
+
 /**
  * A new page from the built-in gallery (see lib/builtin-templates), in the user's language: a
  * page with its Markdown, or a database with its properties, views, default row template and a
@@ -623,7 +694,7 @@ export async function createFromBuiltin(
   const { userId } = actor;
   const { dashboard } = builtin;
   const host = dashboard
-    ? await createPage(actor, { workspaceId, parentId, teamspaceId, title: builtin.title, icon: builtin.icon, markdown: dashboard.markdown })
+    ? await createPage(actor, { workspaceId, parentId, teamspaceId, title: dashboard.page ?? builtin.title, icon: builtin.icon, markdown: dashboard.markdown })
     : null;
   let top: string | null = host?.id ?? null;
   try {
@@ -647,11 +718,37 @@ export async function createFromBuiltin(
     }
     const template = await createRowTemplate(actor, database.id, builtin.rowTemplate);
     await setDefaultRowTemplate(userId, database.id, template.id);
+    // Sprints beside the database (in the page, with one), and the sprint each example task is in.
+    let inSprint: (row: BuiltinDatabaseTemplate["rows"][number]) => Record<string, string[]> = () => ({});
+    if (builtin.sprints) {
+      const info = await setSprints(actor, database.id, { on: true, weeks: builtin.sprints.weeks });
+      const sprint = sprintProperty(await getProperties(database.id));
+      if (info.side === "tasks" && info.on && sprint) {
+        const ids = { current: info.current?.id, next: info.next?.id };
+        inSprint = (row) => {
+          const id = row.sprint && ids[row.sprint];
+          return id ? { [sprint.id]: [id] } : {};
+        };
+      }
+    }
+    // Verified for three months, as a person verifying would pick: search shows what verified pages look like.
+    const verifiedUntil = new Date(Date.now() + VERIFIED_EXAMPLE_DAYS * 86_400_000);
     for (const row of builtin.rows) {
-      await createPage(actor, { workspaceId, parentId: database.id, title: row.title, properties: row.properties });
+      const made = await createPage(actor, {
+        workspaceId,
+        parentId: database.id,
+        title: row.title,
+        properties: { ...row.properties, ...inSprint(row) },
+        ...(row.markdown ? { markdown: row.markdown } : {}),
+      });
+      if (row.verified) await setPageVerification(userId, made.id, verifiedUntil);
     }
     if (!host || !dashboard) return { id: database.id, workspaceId: database.workspaceId };
 
+    if (!dashboard.widgets.length) {
+      await getCollab().appendBlocks(host.id, [{ id: crypto.randomUUID(), type: DATABASE_BLOCK, props: { databaseId: database.id } }], actor);
+      return { id: host.id, workspaceId: host.workspaceId };
+    }
     // The dashboard first, then the database it charts, shown in the page.
     const widgets: DashboardWidget[] = [];
     for (const widget of dashboard.widgets) {

@@ -50,9 +50,11 @@ BlockNote on Yjs; Tailwind v4; next-intl. Node 24, pnpm 11. A separate Electron 
 - **Access.** `src/server/access.ts` is the one place that decides who may see or change a page:
   `requirePageAccess(userId, pageId, level)` for one page, `pageVisibleTo(userId)` as the SQL
   condition for lists. The rule is the SQL function `page_access_level`, last redefined in
-  `drizzle/0116_row_access.sql`. For a database's rows, `childVisibleTo(userId, databaseId)` works it
+  `drizzle/0140_membership_admin.sql`. For a database's rows, `childVisibleTo(userId, databaseId)` works it
   out once per database instead of once per row; Postgres JIT can add about 200 ms to such queries,
-  so `server/assigned.ts` runs them with `set local jit = off`. Shares: `permissions.ts`; per-property rules:
+  so `server/assigned.ts` runs them with `set local jit = off`. Roles: `src/lib/workspace-roles.ts` (`contentRole`: a membership admin
+  is a member on content; `managesPeople`, `mayChangeRole`, `mayRemove`); people management checks
+  `requirePeopleManager`, while `requireMembership(…, "owner")` stays owner-only. Shares: `permissions.ts`; per-property rules:
   `property-access.ts`; rows giving the people they name access: `row-access.ts`; teamspace
   membership: `teamspaces.ts`; guests: `guests.ts`. Sign-in policies (approved networks, two-step,
   SSO only) are `policyHold` there; the request's address comes from `CLIENT_IP_HEADER`, which
@@ -62,13 +64,19 @@ BlockNote on Yjs; Tailwind v4; next-intl. Node 24, pnpm 11. A separate Electron 
   only exists when the app runs through `server.ts`. A block whose data is all in its props, written
   while people may be editing (meeting notes), changes them in place with `updateBlockAttributes`:
   `editBlocks` and other `writeBlocks` callers read, await, then rewrite, and can lose edits made
-  in between. Saves derive markdown and text (`collab/service.ts` `persistPage`) and announce `pageChanged()` (`page-events.ts`); row value
+  in between. Editor-side rewrites that must ride along with the change that caused them (toggle headings
+  taking their section, `components/page/toggle-headings.ts`; column cleanup) are ProseMirror
+  `appendTransaction` plugins that skip transactions carrying `ySyncPluginKey` meta (others' edits
+  and undo), so they make one undo step and never run twice. Saves derive markdown and text (`collab/service.ts` `persistPage`) and announce `pageChanged()` (`page-events.ts`); row value
   changes announce through `row-events.ts`. Page tree operations: `src/server/pages.ts`; databases,
   rows and properties: `databases.ts`; formulas and rollups: `derived.ts` (pure part in
   `src/lib/derived.ts`). Row values are checked in `databases.ts` `normalizeRowProperties` (types,
   property access, dependent selects; a place's address is looked up there first, through
   `geocoder.ts`, because the shared `normalizeValue` is synchronous and takes only coordinates); a
   write that stores values another way (`ai-properties.ts` `saveValue`) calls `followOrRefuse` itself.
+  A relation's limit to one row (`single`, like a person's), row-page section and the properties
+  its linked rows show in chips, that section and the row picker are `src/lib/relation-options.ts`;
+  those values ride along in `getRelationTargets`, never a fetch per chip.
   Unique ID numbers are given out by Postgres triggers (`drizzle/0131_unique_id.sql`), never by app
   code: an inserted row always gets the next number (the value it brings is dropped) and an
   update keeps the old one. Copies that must keep their numbers (a duplicated database, a restored
@@ -94,6 +102,12 @@ BlockNote on Yjs; Tailwind v4; next-intl. Node 24, pnpm 11. A separate Electron 
   `chat-attachment-table.ts` (the parser, loaded by the box only when a file comes); AI property values: `ai-properties.ts`; notes it keeps: `ai-memory.ts`; semantic
   index and search: `semantic-index.ts`, `semantic-search.ts`. Test doubles: `ai/testing.ts`
   (`installFauxAi`, unit tests) and `ai/fake-openai.ts` (`startFakeOpenAi`, e2e scripts).
+- **Search.** `src/server/pages.ts` `searchPages` merges `fullTextSearch` with semantic search;
+  `semantic-search.ts` `searchScope` is the one place a search's scope and filters become SQL, used
+  by full-text, document and ID hits and by search by meaning alike, so a new filter goes there (and
+  into `scoped()` in pages.ts, or it won't list pages without text). The box's typed syntax and
+  quoted phrases: `src/lib/search-query.ts`; its filter menus: `src/lib/search-filters.ts` (server),
+  `search-filter-state.ts` (import-free, for the box in every first load).
 - **Agents.** `src/server/agents/run.ts` is the worker (`agent_run`, its `source` typed in
   `src/lib/agents.ts`) and holds the tool lists; runs are queued from `requests.ts`, `chat.ts`,
   `mentions.ts`, `handoff.ts` and the `agent` schedule kind. Each agent is its own user.
@@ -121,12 +135,32 @@ BlockNote on Yjs; Tailwind v4; next-intl. Node 24, pnpm 11. A separate Electron 
   reads pages whose `updated_at` moved past `sensitive_scan`), verified pages `verification.ts`
   (`activeVerification` is the SQL for search and lists; `runVerificationReminders(now)`), SMTP
   `mail/`, inbox `notifications.ts`, push `push.ts`, files `files.ts` + `storage/` (local, S3,
-  workspace drives), import `import/`, export `export.ts`, server-made PDFs `pdf.ts` (reads a page like `print.ts`)
+  workspace drives), import `import/` (a web page: `web-clip.ts`, fetched through `connections/fetch.ts` with `{ web: true }`, read by
+  `web-clip-extract.ts`, recipes by `src/lib/recipe.ts`), export `export.ts`, server-made PDFs `pdf.ts` (reads a page like `print.ts`; `export-pdf.ts` zips one per page for the workspace export)
   and `pdf-document.ts` (pure pdfmake layout; pdfmake must stay in `serverExternalPackages` in
   `next.config.ts`, bundled it loses its font files, and its fonts in the standalone build's
   `outputFileTracingIncludes`), PDF letterheads `letterheads.ts` (pure part in `src/lib/letterheads.ts`;
   the logo is document content kept in `pdf_letterhead`, not page decoration), backup `backup/`, SSO `sso.ts`, SCIM
   `scim.ts`, sealed secrets `secret-box.ts`.
+- **Editor odds and ends.** Media alignment and in-place width: `lib/media-blocks.ts` (file and
+  audio specs shared with the server) and `lib/media-placement.ts` (pure; published pages use it).
+  Shiki ships no grammar for some languages: `lib/code-grammars.ts` holds small ones (patterns as
+  RegExp objects with flags `dgu`; the precompiled engine compiles no strings). Downloads of files
+  on other sites go through `app/api/files/external` (connections' address checks only). Comment
+  mentions and previews: `lib/comment-refs.ts`, resolved per reader by `server/comment-refs.ts`.
+  Cmd/Ctrl+Alt+T: `components/toggle-all.ts` (views with groups join through `useToggleAllGroups`).
+- **Icons.** A stored icon is an emoji or `icon:<name>[:<color>]` (`src/lib/icon-value.ts`, tiny and
+  safe anywhere; checked by `lib/icon.ts` `parseIcon` against `lib/builtin-icon-names.ts`). Show one
+  with `IconGlyph` (`components/builtin-icon.tsx`), never as raw text; text output strips it with
+  `iconText`. Drawings (`lib/builtin-icons-data.ts`, from `scripts/builtin-icons.ts`) load lazily;
+  server SVG for favicons and PDF is `lib/builtin-icon-svg.ts`. Emoji data and names per locale are
+  static files in `public/emoji/` written by `scripts/emoji-data.ts`, fetched by the picker and the
+  editor's ":" menu, never imported.
+- **Published links can expire** (`page_publication.expires_at`): every query that serves or
+  lists a publication to visitors adds `livePublication()` (`src/server/publication-live.ts`, its own
+  module so `mentions.ts` can use it without an import cycle); there is no job that unpublishes.
+  `getPublishedPage`, `anyPagePublished` (files), `site.ts` and `mentions.ts` do; a new public read
+  must too. Page audit events get `details.audience` in `recordAudit` (`server/page-audience.ts`).
 - **Workspace sites** (`site.ts`, routes `src/app/s/`): a site on its own domain is routed by
   `server.ts` through `site-hosts.ts`, which sets the trusted `x-leafdesk-site-host` /
   `x-leafdesk-site-analytics` headers (dropped from every client request) that `proxy.ts` rewrites

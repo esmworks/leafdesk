@@ -110,6 +110,7 @@
       "you": "{name} (sinä)"
     },
     "threadMenu": "Ketjun asetukset",
+    "copyLink": "Kopioi linkki",
     "mute": "Mykistä vastaukset",
     "unmute": "Poista vastausten mykistys",
     "muteHint": "Lopeta ilmoitukset tämän ketjun uusista vastauksista. Vastaaminen tai mainituksi tuleminen täällä ottaa ne taas käyttöön.",
@@ -207,7 +208,38 @@
   },
   "icon": {
     "add": "Lisää kuvake",
-    "remove": "Poista kuvake"
+    "remove": "Poista kuvake",
+    "emojiTab": "Emoji",
+    "iconsTab": "Kuvakkeet",
+    "searchEmoji": "Hae emojeja",
+    "searchIcons": "Hae kuvakkeita",
+    "random": "Satunnainen",
+    "skinTone": "Ihonväri",
+    "tones": {
+      "0": "Ei ihonväriä",
+      "1": "Vaalea ihonväri",
+      "2": "Keskivaalea ihonväri",
+      "3": "Keskimmäinen ihonväri",
+      "4": "Keskitumma ihonväri",
+      "5": "Tumma ihonväri"
+    },
+    "color": "Kuvakkeen väri",
+    "textColor": "Tekstin väri",
+    "categoriesLabel": "Luokat",
+    "categories": {
+      "smileys": "Hymiöt ja tunteet",
+      "people": "Ihmiset ja keho",
+      "nature": "Eläimet ja luonto",
+      "food": "Ruoka ja juoma",
+      "travel": "Matkailu ja paikat",
+      "activities": "Aktiviteetit",
+      "objects": "Esineet",
+      "symbols": "Symbolit",
+      "flags": "Liput"
+    },
+    "loading": "Ladataan…",
+    "loadFailed": "Emojeja ei voitu ladata.",
+    "noMatches": "Ei osumia."
   },
   "background": {
     "add": "Lisää tausta",
@@ -484,7 +516,8 @@
     "row": "Tämä on rivimalli. Siitä luodut uudet rivit saavat sen ominaisuudet ja sisällön.",
     "inside": "Tämä sivu on osa mallia.",
     "use": "Käytä mallia",
-    "confirmDelete": "Poistetaanko tämä malli pysyvästi? Siitä jo luodut sivut säilyvät ennallaan."
+    "confirmDelete": "Poistetaanko tämä malli pysyvästi? Siitä jo luodut sivut säilyvät ennallaan.",
+    "titleMarkers": "Kirjoita otsikkoon @today, @now tai @me: jokainen uusi rivi saa päivämäärän, kellonajan tai lisääjän nimen."
   },
   "blocks": {
     "callout": {
@@ -631,7 +664,8 @@
       "submit": "Upota",
       "providers": "YouTube, Vimeo, Loom, Figma, julkaistut Google Docs-, Sheets- ja Slides-tiedostot, CodePen, Spotify ja Google Maps. Muista linkeistä tulee kirjanmerkki.",
       "frameTitle": "Upotettu sisältö sivustolta {host}",
-      "label": "Upotus"
+      "label": "Upotus",
+      "resize": "Vedä muuttaaksesi upotuksen leveyttä"
     },
     "paste": {
       "label": "Liitä muodossa",
@@ -721,6 +755,11 @@
   },
   "blockMenu": {
     "copyLink": "Kopioi linkki lohkoon",
+    "download": "Lataa",
+    "alignLeft": "Tasaa vasemmalle",
+    "alignCenter": "Keskitä",
+    "alignRight": "Tasaa oikealle",
+    "wideColumns": "Leveät sarakkeet",
     "hideInPrint": "Piilota tulostettaessa",
     "calloutStyle": "Huomiolaatikon tyyli",
     "turnIntoCallout": "Muunna huomiolaatikoksi",
@@ -793,7 +832,12 @@
     "shortcut": "Uusi pikamuistiinpano",
     "shortcutShort": "Pikamuistiinpano",
     "destination": "Tallenna kohteeseen",
-    "privatePage": "Yksityinen sivu"
+    "privatePage": "Yksityinen sivu",
+    "fullPage": {
+      "heading": "Tallenna koko sivu",
+      "help": "Tallentaa sivun tekstin ja kuvat linkin kanssa pelkän linkin sijaan.",
+      "save": "Tallenna koko sivu"
+    }
   },
   "dashboard": {
     "title": "Koontinäyttö",
@@ -966,7 +1010,8 @@
     "markdownImage": "Kuva: {alt}",
     "markdownImageUntitled": "Kuva",
     "expand": "Avaa katseluohjelmassa",
-    "view": "Näytä {name}"
+    "view": "Näytä {name}",
+    "resize": "Vedä muuttaaksesi leveyttä"
   },
   "presentation": {
     "previous": "Edellinen dia",
@@ -1128,7 +1173,7 @@
     },
     "settings": {
       "open": "Painikkeen asetukset",
-      "icon": "Emoji",
+      "icon": "Kuvake",
       "label": "Teksti",
       "color": "Väri",
       "colorDefault": "Oletus",
@@ -1201,5 +1246,16 @@
     "reset": "Näytä koko kuva",
     "loading": "Ladataan kuvaa…",
     "failed": "Kuvan lataaminen epäonnistui."
+  },
+  "commentRef": {
+    "pasteTitle": "Liitä linkki kommenttiin",
+    "pasteAsMention": "Liitä mainintana",
+    "pasteAsPreview": "Liitä esikatseluna",
+    "pasteAsLink": "Liitä linkkinä",
+    "noAccess": "Ei pääsyä tähän kommenttiin",
+    "onPage": "Sivulla {title}",
+    "replies": "{count, plural, =0 {Ei vastauksia} one {# vastaus} other {# vastausta}}",
+    "openThread": "Avaa ketju",
+    "resolved": "Ratkaistu"
   }
 }

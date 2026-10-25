@@ -1,13 +1,16 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
-import { getTranslations } from "next-intl/server";
+import { getTimeZone, getTranslations } from "next-intl/server";
 import type { PageKind } from "@/db/schema";
 import { LegalHoldError } from "@/lib/legal-hold";
 import type { PageBackground } from "@/lib/page-background";
+import { readSearchFilters } from "@/lib/search-filters";
 import { hasLevel } from "@/server/access";
 import * as pages from "@/server/pages";
 import { getPageSiblings } from "@/server/page-siblings";
+import { recentlyViewedPages } from "@/server/page-views";
+import { searchFilterOptions } from "@/server/search-filter-options";
 import { requireUserId } from "@/server/session";
 import { databaseSeedNames } from "./seed-names";
 
@@ -140,15 +143,31 @@ export async function listTrashAction(workspaceId: string) {
 }
 
 /** `includeOutdated`: archived pages too (server/page-outdated), marked as such. */
-export async function searchAction(workspaceId: string, query: string, includeOutdated = false) {
+/** The search box's query, with its filters (lib/search-filters); a date filter counts in the person's days. */
+export async function searchAction(workspaceId: string, query: string, includeOutdated = false, filters?: unknown) {
   const userId = await requireUserId();
-  return pages.searchWithQuery(userId, workspaceId, query, 20, { includeOutdated: includeOutdated === true });
+  return pages.searchWithQuery(userId, workspaceId, String(query), 20, {
+    includeOutdated: includeOutdated === true,
+    filters: readSearchFilters(filters),
+    timeZone: await getTimeZone(),
+  });
 }
 
-/** What the search box shows before anything is typed: the pages last edited. */
-export async function recentSearchAction(workspaceId: string) {
+/**
+ * What the search box shows before anything is typed: the pages the person opened last, or the
+ * pages last edited while their views aren't recorded or they haven't opened any yet.
+ */
+export async function recentSearchAction(workspaceId: string): Promise<{ source: "viewed" | "edited"; pages: pages.RecentPage[] }> {
   const userId = await requireUserId();
-  return pages.recentPages(userId, workspaceId, 8);
+  const viewed = await recentlyViewedPages(userId, workspaceId, 8);
+  if (viewed?.length) return { source: "viewed", pages: viewed };
+  return { source: "edited", pages: await pages.recentPages(userId, workspaceId, 8) };
+}
+
+/** The teamspaces and people the search box's filters offer. */
+export async function searchFilterOptionsAction(workspaceId: string) {
+  const userId = await requireUserId();
+  return searchFilterOptions(userId, String(workspaceId));
 }
 
 export async function listSnapshotsAction(pageId: string) {

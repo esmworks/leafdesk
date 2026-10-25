@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import * as Y from "yjs";
-import { parseCalloutStyles, resolveCallout, storedCalloutStyles, type CalloutStyle } from "@/lib/callout-styles";
+import { resolveCallout, type CalloutStyle } from "@/lib/callout-styles";
+import { parseCalloutStyles, storedCalloutStyles } from "@/lib/callout-styles-parse";
 import { COLLAB_FRAGMENT } from "@/lib/collab-constants";
 import { editorBlocksToMarkdown, editorMarkdownToBlocks } from "@/lib/editor-markdown";
 import { blocksToMarkdown, markdownToBlocks, serverEditor } from "./blocknote";
@@ -117,6 +118,22 @@ describe("callouts in Markdown", () => {
     // A styled callout's own color (drawn only once its style is gone) isn't written: it comes back gray.
     expect(again.blocks.map((b) => b.props)).toEqual(blocks.map((b: any) => (b.props.styleKey ? { ...b.props, backgroundColor: "gray" } : b.props)));
     expect(again.blocks[2].content).toEqual(blocks[2].content);
+  });
+
+  it("write a built-in icon as it is stored, and read it back", async () => {
+    const blocks = stored([
+      { type: "callout", props: { icon: "icon:lightbulb:yellow", backgroundColor: "gray" }, content: "An idea" },
+      { type: "callout", props: { icon: "icon:star", backgroundColor: "gray" }, content: "" },
+    ]);
+    const markdown = (await blocksToMarkdown(blocks)).trim();
+    expect(markdown).toBe(["> [!NOTE]", "> icon:lightbulb:yellow An idea", "", "> [!NOTE]", "> icon:star"].join("\n"));
+    const again = await roundTrip(markdown);
+    expect(again.markdown).toBe(markdown);
+    expect(again.blocks.map((b) => (b.props as { icon?: string }).icon)).toEqual(["icon:lightbulb:yellow", "icon:star"]);
+    expect(again.blocks[0].content).toEqual([text("An idea")]);
+    // Text that only looks like one stays text.
+    const plain = await roundTrip("> [!NOTE]\n> icon:star:teal is not a color");
+    expect((plain.blocks[0].props as { icon?: string }).icon).toBe("");
   });
 
   it("keep colors the alert kinds don't have after a '|', and leave the others as they were", async () => {
@@ -303,6 +320,17 @@ describe("styled callouts on published pages and in print", () => {
     expect(own).toContain('data-callout-border="full"');
     expect(own).not.toContain("data-callout-icon");
     expect(own).toContain('<div data-callout-title="">Own</div>');
+  });
+
+  it("draw a built-in icon as SVG, never as its stored text", async () => {
+    const out = await html([{ type: "callout", props: { icon: "icon:star:blue", backgroundColor: "gray" }, content: "Starred" }]);
+    expect(out).toContain('data-builtin-icon="star"');
+    expect(out).toContain("var(--icon-blue, #0b6fa7)");
+    // Only the block's data attribute keeps the stored form; no text shows it.
+    expect(out).not.toMatch(/>[^<]*icon:/);
+    const unknown = await html([{ type: "callout", props: { icon: "icon:no-such-icon", backgroundColor: "gray" }, content: "Text" }]);
+    expect(unknown).not.toContain("data-callout-icon");
+    expect(unknown).not.toMatch(/>[^<]*icon:/);
   });
 
   it("fall back to the callout's own props when its style was deleted", async () => {

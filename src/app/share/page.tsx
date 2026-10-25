@@ -4,10 +4,13 @@ import { redirect } from "next/navigation";
 import { getTranslations } from "next-intl/server";
 import { Logo } from "@/components/brand/logo";
 import { QuickNoteForm } from "@/components/share/quick-note-form";
+import { env } from "@/lib/env";
 import { decodeSharedNote, SHARED_COOKIE } from "@/lib/shared-note";
-import { listWorkspaces } from "@/server/pages";
+import { getTree, listWorkspaces } from "@/server/pages";
 import { requireUser } from "@/server/session";
 import { voiceNoteDatabases, voiceNoteLimits } from "@/server/voice-notes";
+import { lastWebClipTarget, webClipUrl } from "@/server/web-clip";
+import { topLevelAccess } from "@/server/workspaces";
 
 export async function generateMetadata(): Promise<Metadata> {
   const t = await getTranslations("page.quickNote");
@@ -21,7 +24,9 @@ const param = (value: string | string[] | undefined) => (Array.isArray(value) ? 
  * its shortcut, and from the system's share sheet with what was shared filled in: brought by a
  * cookie (see app/api/share), or as `title`, `text` and `url` in the address from an app installed
  * before shares were posted. Where the server can transcribe, it takes voice notes too; its "Voice
- * note" shortcut (`?voice=1`) starts recording right away.
+ * note" shortcut (`?voice=1`) starts recording right away. A shared web address can be saved as the
+ * whole page instead (server/web-clip.ts): the bookmarklet the import dialog offers opens this page
+ * with the address, title and selected text of the page the person is on.
  */
 export default async function QuickNotePage({
   searchParams,
@@ -40,7 +45,22 @@ export default async function QuickNotePage({
   // Apps often put the link in the text too.
   const body = [text, url && !text.includes(url) ? url : ""].filter(Boolean).join("\n\n");
   const chosen = workspaces.find((w) => w.id === param(query.workspace)) ?? workspaces[0];
-  const [limits, databases] = await Promise.all([voiceNoteLimits(chosen.id), voiceNoteDatabases(user.id, chosen.id)]);
+  const webUrl = url ? sharedWebUrl(url) : null;
+  const [limits, databases, webPage] = await Promise.all([
+    voiceNoteLimits(chosen.id),
+    voiceNoteDatabases(user.id, chosen.id),
+    webUrl
+      ? Promise.all([getTree(user.id, chosen.id), lastWebClipTarget(user.id, chosen.id), topLevelAccess(user.id, chosen.id)]).then(
+          ([tree, last, topLevel]) => ({
+            url: webUrl,
+            // The text shared along with a link is what was selected on the page (or the link again).
+            quote: text.replace(url, "").trim(),
+            tree,
+            setup: { last, topLevel: topLevel !== null, appUrl: env.appUrl },
+          }),
+        )
+      : null,
+  ]);
 
   return (
     <main className="flex min-h-full justify-center bg-bg-subtle px-4 py-10 sm:py-16">
@@ -58,9 +78,19 @@ export default async function QuickNotePage({
             body={body}
             targets={{ limits, databases }}
             voice={param(query.voice) === "1" && limits !== null}
+            webPage={webPage}
           />
         </div>
       </div>
     </main>
   );
+}
+
+/** A shared address as a web address to save whole, or null for anything else. */
+function sharedWebUrl(value: string): string | null {
+  try {
+    return webClipUrl(value).href;
+  } catch {
+    return null;
+  }
 }

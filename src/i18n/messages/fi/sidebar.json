@@ -54,6 +54,7 @@
     "moveFailed": "Sivua ei voitu siirtää tänne. Sen siirtäminen muualle vaatii siihen täydet oikeudet.",
     "fromTemplate": "Mallista",
     "import": "Tuo…",
+    "saveFromWeb": "Tallenna verkosta…",
     "confirmMoveSpace": "Siirretäänkö tämä sivu kohteeseen {place}? Näkyvyys muuttuu sen mukaisesti."
   },
   "search": {
@@ -69,6 +70,7 @@
     "includeArchivedHint": "Etsi myös arkistoituja sivuja",
     "inDocument": "Löytyi tämän sivun dokumentista {name}",
     "recent": "Viimeksi muokatut",
+    "recentViewed": "Viimeksi katsotut",
     "commands": "Komennot",
     "noCommands": "Ei vastaavaa komentoa",
     "setting": "Asetukset: {tab} → {setting}",
@@ -76,7 +78,29 @@
     "hint": {
       "in": "sivun sisältä",
       "type": "vain tietokannat (tai sivu, rivi)",
-      "commands": "komennot"
+      "commands": "komennot",
+      "phrase": "tarkka ilmaus"
+    },
+    "filters": {
+      "label": "Suodattimet",
+      "teamspace": "Tiimitila",
+      "createdBy": "Luonut",
+      "editedBy": "Viimeksi muokannut",
+      "date": "Päivämäärä",
+      "edited": "Viimeksi muokattu",
+      "created": "Luotu",
+      "today": "Tänään",
+      "week": "Viimeiset 7 päivää",
+      "month": "Viimeiset 30 päivää",
+      "custom": "Mukautettu aikaväli",
+      "from": "Alkaen",
+      "to": "Asti",
+      "more": "{first} +{count}",
+      "you": "{name} (sinä)",
+      "findPerson": "Etsi henkilö…",
+      "noPeople": "Ketään ei löytynyt",
+      "remove": "Poista suodatin",
+      "clear": "Tyhjennä suodattimet"
     }
   },
   "trash": {

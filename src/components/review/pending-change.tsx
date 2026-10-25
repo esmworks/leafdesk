@@ -1,5 +1,6 @@
 "use client";
 
+import { IconGlyph } from "@/components/builtin-icon";
 import { AlertTriangle, ArrowRight, Check, Pencil, Repeat, X, Zap } from "lucide-react";
 import Link from "next/link";
 import { useFormatter, useLocale, useTranslations } from "next-intl";
@@ -68,7 +69,7 @@ export function ChangeHeadline({ change, workspaceId, showDatabase = true }: { c
     row: () =>
       change.row ? (
         <Link href={`/w/${workspaceId}/p/${change.row.id}`} className={link}>
-          {change.row.icon ? `${change.row.icon} ` : ""}
+          {change.row.icon && <IconGlyph icon={change.row.icon} className="me-1" />}
           {pageLabel(change.row.title, tc("untitled"))}
         </Link>
       ) : (
@@ -76,7 +77,7 @@ export function ChangeHeadline({ change, workspaceId, showDatabase = true }: { c
       ),
     database: () => (
       <Link href={`/w/${workspaceId}/p/${change.database.id}`} className={link}>
-        {change.database.icon ? `${change.database.icon} ` : ""}
+        {change.database.icon && <IconGlyph icon={change.database.icon} className="me-1" />}
         {pageLabel(change.database.title, tc("untitled"))}
       </Link>
     ),

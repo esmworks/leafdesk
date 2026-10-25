@@ -14,6 +14,7 @@
     "action": "Chấp nhận lời mời",
     "roles": {
       "owner": "chủ sở hữu",
+      "membership_admin": "quản trị viên thành viên",
       "member": "thành viên",
       "guest": "khách"
     }

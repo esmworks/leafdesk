@@ -173,6 +173,41 @@ describe("built-in templates", () => {
     for (const page of rest.filter((p): p is BuiltinKitPage => p.kind === "page")) expect(page.markdown.trim().length).toBeGreaterThan(0);
   });
 
+  it.each(LOCALES)("%s: the sprints and docs templates name their own properties and options", async (locale) => {
+    const templates = await builtinTemplates(locale);
+    const sprints = templates.find((t): t is BuiltinDatabaseTemplate => t.key === "sprints")!;
+    const docs = templates.find((t): t is BuiltinDatabaseTemplate => t.key === "docs")!;
+    for (const template of [sprints, docs]) {
+      const names = [...(template.seedProperties ? [template.seedNames.status, template.seedNames.tags] : []), ...template.properties.map((p) => p.name)];
+      expect(new Set(names).size, `${locale}: ${template.key} has a property name twice`).toBe(names.length);
+      const options = new Map<string, string[]>(template.properties.filter((p) => p.options).map((p) => [p.name, p.options!]));
+      if (template.seedProperties) options.set(template.seedNames.status, [template.seedNames.notStarted, template.seedNames.inProgress, template.seedNames.done]);
+      for (const list of options.values()) expect(new Set(list).size).toBe(list.length);
+      const views = [template.seedNames.table, ...template.views.map((v) => v.name)];
+      expect(new Set(views).size, `${locale}: ${template.key} has a view name twice`).toBe(views.length);
+      for (const view of template.views) {
+        if (view.config.groupBy) expect(names).toContain(view.config.groupBy);
+        for (const sort of view.config.sorts ?? []) expect(names).toContain(sort.property);
+      }
+      for (const row of [template.rowTemplate, ...template.rows]) {
+        expect(row.title.trim()).not.toBe("");
+        for (const [name, value] of Object.entries(row.properties)) {
+          expect(names, `${locale}: ${name}`).toContain(name);
+          if (options.has(name)) expect(options.get(name), `${locale}: ${name}`).toContain(value);
+        }
+      }
+      expect(template.dashboard?.widgets).toEqual([]);
+      expect(template.dashboard?.markdown.trim()).not.toBe("");
+      expect(template.dashboard?.database.trim()).not.toBe("");
+      // The page holding the database isn't named like the databases in it.
+      expect([template.dashboard?.database, template.seedNames.table]).not.toContain(template.dashboard?.page ?? template.title);
+    }
+    expect(sprints.sprints).toEqual({ weeks: 2 });
+    expect(new Set(sprints.rows.map((r) => r.sprint ?? "backlog"))).toEqual(new Set(["current", "next", "backlog"]));
+    expect(docs.rows.some((r) => r.verified)).toBe(true);
+    for (const row of docs.rows) expect(row.markdown?.trim()).not.toBe("");
+  });
+
   it("uses English for unknown languages", async () => {
     expect((await builtinTemplates("xx"))[0].title).toBe("Meeting notes");
     expect((await builtinTemplates("tr"))[0].title).toBe("Toplantı notları");

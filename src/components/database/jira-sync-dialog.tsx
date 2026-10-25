@@ -137,6 +137,28 @@ export default function JiraSyncDialog({ databaseId, onClose, onChanged }: { dat
                   tj(`intervals.${jiraIntervalKey(sync.intervalMinutes)}`)
                 )}
               </dd>
+              {sync.canManage && (
+                <>
+                  <dt className="text-fg-muted">{t("reporter")}</dt>
+                  <dd>
+                    {/* The person property issues' reporters go to, found by email address like assignees. */}
+                    <select
+                      className={`${selectClass} h-7`}
+                      aria-label={t("reporter")}
+                      value={sync.reporter ?? ""}
+                      disabled={busy}
+                      onChange={(e) => void act(() => updateJiraSyncAction(databaseId, { reporter: e.target.value || null }), setSync)}
+                    >
+                      <option value="">{t("reporterNone")}</option>
+                      {sync.personProperties.map((p) => (
+                        <option key={p.id} value={p.id}>
+                          {p.name}
+                        </option>
+                      ))}
+                    </select>
+                  </dd>
+                </>
+              )}
             </dl>
             <p className="text-sm">
               {busy || sync.running ? (

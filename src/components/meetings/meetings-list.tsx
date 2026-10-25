@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation";
 import { useFormatter, useTranslations } from "next-intl";
 import { useMemo, useState } from "react";
 import { createMeetingNoteAction } from "@/app/actions/meetings";
+import { IconGlyph } from "@/components/builtin-icon";
 import { Button, Input } from "@/components/ui";
 import { UserAvatar } from "@/components/user-avatar";
 import { isUpcoming, matchesMeeting, type MeetingListItem } from "@/lib/meeting-list";
@@ -98,7 +99,7 @@ function Row({ item, workspaceId }: { item: MeetingListItem; workspaceId: string
   const status = STATUS_KEYS[item.status as keyof typeof STATUS_KEYS];
   return (
     <Link href={`/w/${workspaceId}/p/${item.pageId}`} className="flex items-start gap-3 px-4 py-3 hover:bg-bg-hover">
-      <span className="mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center text-fg-muted">{item.icon ?? <NotebookPen className="h-4 w-4" aria-hidden />}</span>
+      <span className="mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center text-fg-muted">{item.icon ? <IconGlyph icon={item.icon} /> : <NotebookPen className="h-4 w-4" aria-hidden />}</span>
       <span className="min-w-0 flex-1">
         <span className="flex items-baseline gap-2">
           <span className="truncate font-medium">{title}</span>

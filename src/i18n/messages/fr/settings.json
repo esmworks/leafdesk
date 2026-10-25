@@ -58,7 +58,7 @@
       "workspaceName": "nom renommer icône",
       "ai": "intelligence artificielle discussion modèle fournisseur mémoire",
       "workspaceMail": "e-mail lignes courrier envoyer",
-      "export": "sauvegarde télécharger zip markdown",
+      "export": "sauvegarde télécharger zip markdown pdf",
       "members": "personnes inviter utilisateurs rôles retirer",
       "agents": "ia assistant automatisation bot",
       "snippets": "texte raccourcis extraits",
@@ -108,11 +108,15 @@
     "description": "Téléchargez toutes les pages que vous pouvez voir dans un fichier ZIP : les pages en Markdown, les bases de données en CSV et les fichiers qu’elles affichent. Les pages de la corbeille sont exclues ; les modèles sont placés dans un dossier Modèles.",
     "button": "Exporter",
     "preparing": "Préparation…",
-    "disabled": "L’exportation est désactivée pour cet espace de travail dans Paramètres → Sécurité."
+    "disabled": "L’exportation est désactivée pour cet espace de travail dans Paramètres → Sécurité.",
+    "format": "Format d’export",
+    "formatMarkdown": "Markdown et CSV",
+    "formatPdf": "PDF",
+    "descriptionPdf": "Téléchargez toutes les pages que vous pouvez voir dans un ZIP de PDF, rangés dans des dossiers qui suivent l’arborescence : les bases de données en tableaux de leurs lignes, et les lignes qui ont leur propre texte en PDF distincts. Les pages de la corbeille et les modèles sont exclus ; {limit, number} PDF au maximum."
   },
   "members": {
     "heading": "Membres",
-    "description": "Les membres peuvent voir et modifier toutes les pages, sauf si leur partage est restreint ; les invités ne voient que les pages partagées avec eux. Les propriétaires peuvent en plus gérer les membres.",
+    "description": "Les membres peuvent voir et modifier toutes les pages, sauf si leur partage est restreint ; les invités ne voient que les pages partagées avec eux. Les propriétaires peuvent en plus gérer les membres ; les administrateurs des membres gèrent les personnes et les groupes, mais aucun autre réglage.",
     "tabs": {
       "members": "Membres",
       "invitations": "Invitations en attente",
@@ -153,6 +157,7 @@
     "roleLabel": "Rôle",
     "roles": {
       "owner": "Propriétaire",
+      "membership_admin": "Administrateur des membres",
       "member": "Membre",
       "guest": "Invité"
     },
@@ -209,12 +214,18 @@
       "someone": "Un membre",
       "approve": "Accepter",
       "decline": "Refuser"
-    }
+    },
+    "removeBodyChoose": "{name} perd immédiatement l’accès à cet espace de travail, y compris dans les pages ouvertes et les applications connectées.",
+    "removeBodyToOwner": "{name} perd immédiatement l’accès à cet espace de travail, y compris dans les pages ouvertes et les applications connectées. Les pages que cette personne était seule à pouvoir gérer, et les espaces d’équipe que personne d’autre ne dirige, passent au plus ancien propriétaire de l’espace de travail.",
+    "heirLabel": "Transférer ses pages à",
+    "heirHint": "Les pages que {name} était seul à pouvoir gérer, et les espaces d’équipe que personne d’autre ne gère, reviennent à la personne choisie.",
+    "heirCount": "{count, plural, =0 {{name} ne gère seul aucune page pour l’instant. Les espaces d’équipe que personne d’autre ne gère reviennent à la personne choisie.} one {# page que {name} était seul à pouvoir gérer revient à la personne choisie, avec les espaces d’équipe que personne d’autre ne gère.} other {# pages que {name} était seul à pouvoir gérer reviennent à la personne choisie, avec les espaces d’équipe que personne d’autre ne gère.}}",
+    "heirYou": "{name} (vous)"
   },
   "guests": {
     "heading": "Invités",
     "description": "Les invités sont des personnes extérieures à l’espace de travail qui ne voient que les pages partagées avec elles. Voyez ce que chaque invité peut ouvrir, retirez des accès, faites d’un invité un membre ou retirez-le.",
-    "descriptionMember": "Les invités sont des personnes extérieures à l’espace de travail qui ne voient que les pages partagées avec elles. Vous pouvez retirer l’accès aux pages sur lesquelles vous avez un accès complet. Seuls les propriétaires peuvent faire d’un invité un membre ou le retirer.",
+    "descriptionMember": "Les invités sont des personnes extérieures à l’espace de travail qui ne voient que les pages partagées avec elles. Vous pouvez retirer l’accès aux pages sur lesquelles vous avez un accès complet. Seuls les propriétaires et les administrateurs des membres peuvent faire d’un invité un membre ou le retirer.",
     "count": "{count, plural, =0 {Aucun invité} one {# invité} other {# invités}}",
     "search": "Rechercher des invités ou des pages",
     "exportCsv": "Télécharger les invités en CSV",
@@ -320,7 +331,7 @@
   "groups": {
     "heading": "Groupes",
     "description": "Les groupes rassemblent des personnes pour partager une page avec toutes à la fois ou les ajouter d’un coup à un espace d’équipe. Qui rejoint un groupe obtient ce que le groupe possède ; qui le quitte le perd. Seuls les propriétaires et les membres peuvent faire partie de groupes, pas les invités.",
-    "ownersOnly": "Seuls les propriétaires de l’espace de travail peuvent créer et modifier des groupes.",
+    "ownersOnly": "Seuls les propriétaires de l’espace de travail et les administrateurs des membres peuvent créer et modifier des groupes.",
     "newButton": "Nouveau groupe",
     "search": "Rechercher des groupes",
     "empty": "Aucun groupe pour l’instant.",
@@ -365,7 +376,8 @@
       "nameRequired": "Donnez un nom au groupe.",
       "nameTaken": "Un autre groupe porte déjà ce nom.",
       "notMember": "Seuls les propriétaires et les membres de l’espace de travail peuvent faire partie de ses groupes.",
-      "accessDenied": "Seuls les propriétaires de l’espace de travail peuvent modifier les groupes."
+      "ownMembership": "Les administrateurs des membres ne peuvent pas s’ajouter eux-mêmes à un groupe. Demandez à un propriétaire de l’espace de travail.",
+      "accessDenied": "Seuls les propriétaires de l’espace de travail et les administrateurs des membres peuvent modifier les groupes."
     }
   },
   "agents": {
@@ -734,7 +746,7 @@
       "accessDenied": "Vous n’avez pas l’autorisation de faire cela.",
       "reasons": {
         "name": "Donnez un nom à l’agent.",
-        "icon": "L’icône d’un agent est un emoji.",
+        "icon": "L’icône d’un agent est un emoji ou une icône intégrée.",
         "level": "Un agent peut consulter, commenter ou modifier une page.",
         "template": "Ce modèle n’existe pas.",
         "database": "Choisissez une base de données de cet espace de travail.",
@@ -1193,6 +1205,7 @@
     "invalidSetting": "Ce paramètre n’est pas disponible.",
     "nameRequired": "Donnez un nom à l’espace de travail.",
     "alreadyMember": "Cette personne est déjà membre.",
+    "ownerInvitation": "Cette adresse a une invitation à devenir propriétaire. Seul un propriétaire peut la modifier.",
     "notMember": "Cette personne n’est pas membre.",
     "lastOwner": "Un espace de travail doit avoir au moins un propriétaire.",
     "lastOwnerRemove": "Un espace de travail doit avoir au moins un propriétaire. Nommez d’abord quelqu’un d’autre propriétaire.",
@@ -1222,7 +1235,8 @@
     "invalidNetworkLabel": "Le libellé de {detail} est trop long : 100 caractères au maximum.",
     "tooManyNetworks": "Un espace de travail peut avoir au plus 100 réseaux approuvés.",
     "ipLocksYouOut": "Cette liste ne contient pas votre adresse actuelle, {detail} : l’enregistrer vous fermerait l’accès à l’espace de travail. Ajoutez d’abord votre adresse ou une plage qui la couvre.",
-    "ipUnknown": "Le serveur ne voit pas votre adresse et ne peut donc pas vérifier que cette liste vous laisse entrer. Enregistrez-la depuis une connexion dont le serveur voit l’adresse, ou videz la liste."
+    "ipUnknown": "Le serveur ne voit pas votre adresse et ne peut donc pas vérifier que cette liste vous laisse entrer. Enregistrez-la depuis une connexion dont le serveur voit l’adresse, ou videz la liste.",
+    "heirInvalid": "Choisissez un propriétaire ou un membre qui reste dans l’espace de travail."
   },
   "security": {
     "description": "Choisissez comment les personnes se connectent, qui peut faire entrer des personnes dans cet espace de travail, ce que les invités peuvent faire, ce qui peut en sortir (exportations, applications connectées) et qui peut publier des pages sur le Web. Seuls les propriétaires peuvent modifier ces paramètres.",
@@ -1269,7 +1283,9 @@
       "unpublish": "Annuler la publication",
       "confirm": "Annuler la publication de cette page ? Le lien cessera de fonctionner pour tout le monde.",
       "indexable": "Moteurs de recherche autorisés",
-      "off": "La publication est désactivée : aucune de ces pages n’est en ligne pour le moment. Elles reviendront quand la publication sera réactivée, sauf si vous les retirez."
+      "off": "La publication est désactivée : aucune de ces pages n’est en ligne pour le moment. Elles reviendront quand la publication sera réactivée, sauf si vous les retirez.",
+      "expiresOn": "Expire le {date}",
+      "expiredOn": "Expiré le {date}"
     },
     "forms": {
       "title": "Formulaires publics",
@@ -1612,6 +1628,7 @@
     "privatePages": "pages privées",
     "roles": {
       "owner": "propriétaire",
+      "membership_admin": "administrateur des membres",
       "member": "membre",
       "guest": "invité"
     },
@@ -1655,7 +1672,8 @@
       "skill": "Compétence (SKILL.md)",
       "notion": "Notion",
       "obsidian": "Obsidian",
-      "enex": "Evernote"
+      "enex": "Evernote",
+      "web": "Page web"
     },
     "settingNames": {
       "guestInvites": "Qui peut ajouter des invités",
@@ -1708,7 +1726,8 @@
         "removed": "A retiré {target} ({role})",
         "left": "A quitté l’espace de travail",
         "role_changed": "A changé le rôle de {target} de {from} à {to}",
-        "ownership_transferred": "A fait de {target} un propriétaire et est devenu membre"
+        "ownership_transferred": "A fait de {target} un propriétaire et est devenu membre",
+        "content_handed_over": "A transféré à {subject} {count, plural, one {# page} other {# pages}} que {target} était seul à pouvoir gérer"
       },
       "invitation": {
         "sent": "A invité {target} comme {role}",
@@ -1740,7 +1759,8 @@
         "published": "A publié {target} sur le Web",
         "unpublished": "A dépublié {target}",
         "publication_revoked": "A retiré {target} du Web (publiée par {subject})",
-        "rows_merged": "A fusionné {count, plural, one {# ligne} other {# lignes}} dans {target}"
+        "rows_merged": "A fusionné {count, plural, one {# ligne} other {# lignes}} dans {target}",
+        "publication_expiry_changed": "{change, select, removed {A retiré l’expiration du lien web de {target}} other {A fait expirer le lien web de {target} le {to}}}"
       },
       "property": {
         "access_changed": "A modifié l’accès à « {property} » dans {target}",
@@ -1910,6 +1930,15 @@
       "slack_token": "un jeton Slack",
       "api_key": "une clé d’API",
       "jwt": "un jeton JSON Web Token (JWT)"
+    },
+    "audienceLine": "Audience : {audience}",
+    "audience": {
+      "web": "Publiée sur le Web",
+      "workspace": "Tout l’espace de travail",
+      "workspaceTeamspace": "Tout l’espace de travail (espace d’équipe {name})",
+      "teamspace": "Espace d’équipe {name}",
+      "people": "Personnes précises ({count})",
+      "private": "Privée"
     }
   },
   "notifications": {
@@ -2656,7 +2685,7 @@
       "reservedKey": "Cette clé est réservée à un type intégré (note, tip, important, warning, caution, info, danger, details, frame, card, panel).",
       "duplicateKey": "Un autre style utilise déjà cette clé.",
       "name": "Saisissez un nom de 60 caractères au plus.",
-      "icon": "Choisissez un émoji, ou aucune icône.",
+      "icon": "Choisissez un emoji ou une icône intégrée, ou aucune icône.",
       "color": "Choisissez une couleur.",
       "border": "Choisissez une bordure.",
       "title": "Le titre ne doit pas dépasser 120 caractères."

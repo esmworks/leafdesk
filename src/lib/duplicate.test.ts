@@ -123,6 +123,7 @@ describe("planDuplicate", () => {
           hidden: ["client"],
           groupOrder: ["opt1", ""],
           hiddenGroups: ["opt2"],
+          defaultTemplateId: "t1",
         },
       },
     ],
@@ -222,6 +223,7 @@ describe("planDuplicate", () => {
       hidden: [prop("tasks", "Client").id],
       groupOrder: ["opt1", ""],
       hiddenGroups: ["opt2"],
+      defaultTemplateId: copyOf("t1"),
     });
   });
 

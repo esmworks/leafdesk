@@ -29,8 +29,10 @@
     "everyoneIn": "Wszyscy w obszarze roboczym już należą do tej przestrzeni zespołu.",
     "accessDenied": "Nie możesz tego zrobić w tej przestrzeni zespołu.",
     "invalidMemberLevel": "Wybierz, jaki dostęp mają członkowie do stron przestrzeni zespołu.",
-    "invalidIcon": "Ikona musi być emoji.",
-    "notConvertible": "Przestrzenią zespołu może stać się tylko strona, nie baza danych, wiersz ani szablon."
+    "invalidIcon": "Ikona musi być emoji lub wbudowaną ikoną.",
+    "notConvertible": "Przestrzenią zespołu może stać się tylko strona, nie baza danych, wiersz ani szablon.",
+    "invalidEmail": "Wpisz prawidłowy adres e-mail.",
+    "cantInvite": "Nie możesz zapraszać osób do tego obszaru roboczego. Poproś właściciela."
   },
   "dialog": {
     "createTitle": "Nowa przestrzeń zespołu",
@@ -73,7 +75,16 @@
     "chooseGroup": "Wybierz grupę",
     "addGroupButton": "Dodaj grupę",
     "removeGroup": "Usuń {name}",
-    "groupMemberCount": "{count, plural, =0 {Brak członków} one {# członek} few {# członków} many {# członków} other {# członka}}"
+    "groupMemberCount": "{count, plural, =0 {Brak członków} one {# członek} few {# członków} many {# członków} other {# członka}}",
+    "searchOrInvite": "Szukaj osób lub wpisz adres e-mail",
+    "inviteEmail": "Zaproś {email}",
+    "inviteHint": "Ta osoba zostanie zaproszona do obszaru roboczego i dołączy do tej przestrzeni zespołu po przyjęciu zaproszenia.",
+    "inviteButton": "Zaproś",
+    "invitedAdded": "{email} jest teraz w tej przestrzeni zespołu.",
+    "invitedRequested": "Właściciel musi zatwierdzić zaproszenie dla {email}. Po zatwierdzeniu ta osoba dołączy do tej przestrzeni zespołu, gdy przyjmie zaproszenie.",
+    "invitedSent": "Wysłano zaproszenie do {email}. Ta osoba dołączy do tej przestrzeni zespołu po przyjęciu zaproszenia.",
+    "invitedLink": "Utworzono zaproszenie dla {email}, ale nie wysłano e-maila. Udostępnij tej osobie link.",
+    "copyInviteLink": "Kopiuj link"
   },
   "memberLevel": {
     "full": "Pełny dostęp",

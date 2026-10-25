@@ -1,5 +1,6 @@
 "use client";
 
+import { iconPrefix } from "@/lib/icon-value";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useFormatter, useLocale, useTranslations } from "next-intl";
@@ -241,7 +242,7 @@ export function JournalStartPicker({ workspaceId }: { workspaceId: string }) {
           <optgroup label={t("startTemplates")}>
             {choice.templates.map((template) => (
               <option key={template.id} value={`template:${template.id}`}>
-                {template.icon ? `${template.icon} ` : ""}
+                {iconPrefix(template.icon)}
                 {pageLabel(template.title, tc("untitled"))}
               </option>
             ))}

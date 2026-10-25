@@ -88,3 +88,22 @@ describe.each([
     }
   });
 });
+
+// Built-in icons in a color (lib/icon-value): graphics, so 3:1 on every surface of the theme, and
+// 4.5:1 in high contrast.
+const ICON_COLORS = ["gray", "brown", "orange", "yellow", "green", "blue", "purple", "pink", "red"];
+describe.each([
+  ["light", light, { ...light, ...hcLight }],
+  ["dark", { ...light, ...dark }, { ...light, ...dark, ...hcDark }],
+])("icon colors, %s theme", (_theme, standard, high) => {
+  const surfaces = ["bg", "bg-subtle", "bg-hover", "bg-active"];
+
+  it("has every color, readable on every surface", () => {
+    for (const color of ICON_COLORS) {
+      for (const surface of surfaces) {
+        expect(ratio(standard[`icon-${color}`], standard[surface]), `${color} on ${surface}`).toBeGreaterThanOrEqual(3);
+        expect(ratio(high[`icon-${color}`], high[surface]), `${color} on ${surface}, high contrast`).toBeGreaterThanOrEqual(4.5);
+      }
+    }
+  });
+});

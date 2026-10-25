@@ -110,6 +110,7 @@
       "you": "{name} (você)"
     },
     "threadMenu": "Opções da conversa",
+    "copyLink": "Copiar link",
     "mute": "Silenciar respostas",
     "unmute": "Reativar respostas",
     "muteHint": "Deixe de ser avisado sobre novas respostas nesta conversa. Responder aqui, ou ser mencionado aqui, reativa os avisos.",
@@ -207,7 +208,38 @@
   },
   "icon": {
     "add": "Adicionar ícone",
-    "remove": "Remover ícone"
+    "remove": "Remover ícone",
+    "emojiTab": "Emoji",
+    "iconsTab": "Ícones",
+    "searchEmoji": "Pesquisar emoji",
+    "searchIcons": "Pesquisar ícones",
+    "random": "Aleatório",
+    "skinTone": "Tom de pele",
+    "tones": {
+      "0": "Sem tom de pele",
+      "1": "Pele clara",
+      "2": "Pele morena clara",
+      "3": "Pele morena",
+      "4": "Pele morena escura",
+      "5": "Pele escura"
+    },
+    "color": "Cor do ícone",
+    "textColor": "Cor do texto",
+    "categoriesLabel": "Categorias",
+    "categories": {
+      "smileys": "Smileys e emoções",
+      "people": "Pessoas e corpo",
+      "nature": "Animais e natureza",
+      "food": "Comida e bebida",
+      "travel": "Viagens e lugares",
+      "activities": "Atividades",
+      "objects": "Objetos",
+      "symbols": "Símbolos",
+      "flags": "Bandeiras"
+    },
+    "loading": "Carregando…",
+    "loadFailed": "Não foi possível carregar os emoji.",
+    "noMatches": "Nada encontrado."
   },
   "background": {
     "add": "Adicionar fundo",
@@ -484,7 +516,8 @@
     "row": "Este é um modelo de linha. Novas linhas criadas a partir dele recebem as propriedades e o conteúdo dele.",
     "inside": "Esta página faz parte de um modelo.",
     "use": "Usar modelo",
-    "confirmDelete": "Excluir este modelo de vez? As páginas já criadas a partir dele continuam como estão."
+    "confirmDelete": "Excluir este modelo de vez? As páginas já criadas a partir dele continuam como estão.",
+    "titleMarkers": "Escreva @today, @now ou @me no título: cada nova linha recebe a data, a hora ou o nome de quem a adiciona."
   },
   "blocks": {
     "callout": {
@@ -631,7 +664,8 @@
       "submit": "Incorporar",
       "providers": "YouTube, Vimeo, Loom, Figma, Google Docs, Sheets e Slides publicados, CodePen, Spotify e Google Maps. Outros links viram um marcador.",
       "frameTitle": "Conteúdo incorporado de {host}",
-      "label": "Incorporação"
+      "label": "Incorporação",
+      "resize": "Arraste para mudar a largura do conteúdo incorporado"
     },
     "paste": {
       "label": "Colar como",
@@ -721,6 +755,11 @@
   },
   "blockMenu": {
     "copyLink": "Copiar link do bloco",
+    "download": "Baixar",
+    "alignLeft": "Alinhar à esquerda",
+    "alignCenter": "Centralizar",
+    "alignRight": "Alinhar à direita",
+    "wideColumns": "Colunas largas",
     "hideInPrint": "Ocultar ao imprimir",
     "calloutStyle": "Estilo de destaque",
     "turnIntoCallout": "Transformar em destaque",
@@ -793,7 +832,12 @@
     "shortcut": "Nova nota rápida",
     "shortcutShort": "Nota rápida",
     "destination": "Salvar em",
-    "privatePage": "Página privada"
+    "privatePage": "Página privada",
+    "fullPage": {
+      "heading": "Guardar a página inteira",
+      "help": "Guarda o texto e as imagens da página com um link para ela, em vez de só o link.",
+      "save": "Guardar página inteira"
+    }
   },
   "dashboard": {
     "title": "Painel",
@@ -966,7 +1010,8 @@
     "markdownImage": "Imagem: {alt}",
     "markdownImageUntitled": "Imagem",
     "expand": "Abrir no visualizador",
-    "view": "Ver {name}"
+    "view": "Ver {name}",
+    "resize": "Arraste para mudar a largura"
   },
   "presentation": {
     "previous": "Slide anterior",
@@ -1128,7 +1173,7 @@
     },
     "settings": {
       "open": "Configurações do botão",
-      "icon": "Emoji",
+      "icon": "Ícone",
       "label": "Rótulo",
       "color": "Cor",
       "colorDefault": "Padrão",
@@ -1201,5 +1246,16 @@
     "reset": "Mostrar a imagem inteira",
     "loading": "Carregando a imagem…",
     "failed": "Não foi possível carregar a imagem."
+  },
+  "commentRef": {
+    "pasteTitle": "Colar link para um comentário",
+    "pasteAsMention": "Colar como menção",
+    "pasteAsPreview": "Colar como pré-visualização",
+    "pasteAsLink": "Colar como link",
+    "noAccess": "Sem acesso a este comentário",
+    "onPage": "Em {title}",
+    "replies": "{count, plural, =0 {Sem respostas} one {# resposta} other {# respostas}}",
+    "openThread": "Abrir conversa",
+    "resolved": "Resolvido"
   }
 }

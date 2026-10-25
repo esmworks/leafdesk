@@ -50,7 +50,9 @@ How long a sign-in lasts is set for the whole server:
 
 ## Who can join a workspace
 
-Owners decide in the workspace's **Settings → Security → Members**:
+Owners decide in the workspace's **Settings → Security → Members**. Where an owner approves or
+declines below (join requests, members' additions waiting for approval), a membership admin may
+too; join requests reach them in the inbox and by email like owners.
 
 - **Who can add members:** *Owners only* (default), *Members, with an owner's approval*, or
   *Owners and members*. Members add people as members only, never as owners or guests. With
@@ -369,7 +371,10 @@ Each batch is a `POST` with `Content-Type: application/json` and these headers:
 
 A test carries `"type": "ping"` and `"test": true`. `actor.kind` is `user`, `agent`, `api_token`,
 `connected_app`, `scim`, `system` or `automation` (`via` names the token, app or automation);
-`category` is the Settings filter's group, or null for an action the version doesn't know. New
+`category` is the Settings filter's group, or null for an action the version doesn't know. Page
+events add `target.audience`, who could reach the page then: `{"kind": "web"}`, `{"kind":
+"workspace", "teamspace"?: "General"}`, `{"kind": "teamspace", "teamspace": "Sales"}`, `{"kind":
+"people", "people": 2, "groups": 1}` or `{"kind": "private"}`; the CSV has it as its last column. New
 versions add actions: keep the ones you don't know. Check the signature against the raw body and
 refuse old timestamps; an event can arrive twice (a batch whose answer was lost is sent again), so
 keep the first of each event `id`.

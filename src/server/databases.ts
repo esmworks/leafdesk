@@ -1,3 +1,4 @@
+import { ICON_RULE, parseIcon } from "@/lib/icon";
 import { and, asc, desc, eq, inArray, isNotNull, isNull, or, sql } from "drizzle-orm";
 import { alias } from "drizzle-orm/pg-core";
 import { db } from "@/db";
@@ -56,7 +57,6 @@ import {
   isDerived,
   isNumbered,
   isReadOnlyType,
-  MAX_PICKER_PROPERTIES,
   PERSON_ME,
   type StatusGroup,
 } from "@/lib/property-types";
@@ -92,6 +92,7 @@ import {
 } from "@/lib/dependencies";
 import { calculationFormat, checkNumberFormat, takesNumberFormat, valueFormat } from "@/lib/number-format";
 import { checkNumberDisplay } from "@/lib/number-display";
+import { checkRelationOptions, shownPropertyIds, showableType, type RelationOptionsInput } from "@/lib/relation-options";
 import { isPageVisibility, type PageVisibility } from "@/lib/page-visibility";
 import { canPin, isPinned, MAX_PINNED } from "@/lib/row-layout";
 import { checkDateOptions, type DateOptionsInput } from "@/lib/date-options";
@@ -526,6 +527,13 @@ export async function normalizeRowProperties(
     const normalized = normalizeValue(prop, prop.type === "place" ? await resolvePlaceInput(userId, prop, value) : value);
     if (prop.type === "relation" && normalized) {
       const ids = await resolveRelationValue(userId, prop, normalized as string[], asIds(existing[prop.id]));
+      // A relation limited to one row takes one, as a person property limited to one person does
+      // (lib/properties); a value that already holds more stays as it is until it is written.
+      if (prop.options.relation?.single && !isParentProperty(prop) && ids.length > 1) {
+        throw new PropertyValueError(`"${prop.name}" links one row; give one (${ids.length} given)`, "oneRow", {
+          property: prop.name,
+        });
+      }
       // A row has one parent (see lib/sub-items).
       out[prop.id] = isParentProperty(prop) ? singleParent(ids, asIds(existing[prop.id])) : ids;
     } else if (prop.type === "person" && normalized) {
@@ -845,6 +853,13 @@ export async function syncPairedRelationsMany(
   const props = all.filter((p) => p.type === "relation" && p.options.relation?.pairedPropertyId);
   if (!props.length) return;
   const parentKey = parentProperty(all)?.id;
+  // Paired properties that link to one row (RelationConfig `single`): a row linked
+  // from here leaves the row it linked to before, as sub-items leave their old parent.
+  const paired = await db
+    .select({ id: databaseProperty.id, options: databaseProperty.options })
+    .from(databaseProperty)
+    .where(inArray(databaseProperty.id, props.map((p) => p.options.relation!.pairedPropertyId!)));
+  const single = new Set(paired.filter((p) => p.options.relation?.single).map((p) => p.id));
   const touched = new Set<string>();
   for (const { rowId, before, after } of changes) {
     for (const prop of props) {
@@ -860,6 +875,9 @@ export async function syncPairedRelationsMany(
       // Rows added as sub-items get this row as their only parent: they leave their old parent's list.
       if (added.length && parentKey === key) {
         await moveSubItems(databaseId, rowId, added, key, prop.id);
+        touched.add(databaseId);
+      } else if (added.length && single.has(key)) {
+        await moveSubItems(databaseId, rowId, added, key, prop.id, relation.databaseId);
         touched.add(databaseId);
       } else if (added.length) {
         await db
@@ -892,13 +910,22 @@ export async function syncPairedRelationsMany(
 
 /**
  * Makes `parentId` the parent of the rows `childIds` (through the parent property `parentKey`) and
- * takes them off the sub-items list (`childrenKey`) of the rows that were their parent.
+ * takes them off the sub-items list (`childrenKey`) of the rows that were their parent. Also for a
+ * two-way relation whose other side links to one row: then the rows `childIds` are in their own
+ * database (`childDatabaseId`) and `parentKey` is that side.
  */
-async function moveSubItems(databaseId: string, parentId: string, childIds: string[], parentKey: string, childrenKey: string) {
+async function moveSubItems(
+  databaseId: string,
+  parentId: string,
+  childIds: string[],
+  parentKey: string,
+  childrenKey: string,
+  childDatabaseId = databaseId,
+) {
   const children = await db
     .select({ id: page.id, properties: page.properties })
     .from(page)
-    .where(and(inArray(page.id, childIds), eq(page.parentId, databaseId)));
+    .where(and(inArray(page.id, childIds), eq(page.parentId, childDatabaseId)));
   if (!children.length) return;
   await db
     .update(page)
@@ -1571,19 +1598,52 @@ function numberFormat(type: PropertyType, input: unknown, formulaType?: FormulaR
   return checked.format;
 }
 
-/** A bar or ring display given for a property of `type`, checked (see lib/number-display); null for the number. */
-function numberDisplay(type: PropertyType, input: unknown): NumberDisplay | null {
-  if (input !== null && type !== "number") {
-    throw new PropertyValueError(`Only number properties show as a bar or a ring`, "invalidNumberFormat");
+/**
+ * A bar or ring display given for a property of `type` (a formula's: giving `formulaType`), checked
+ * (see lib/number-display); null for the number. Numbers, formulas giving a number and rollups take
+ * one (a rollup's that doesn't give a number shows as it would without).
+ */
+function numberDisplay(type: PropertyType, input: unknown, formulaType?: FormulaResultType): NumberDisplay | null {
+  if (input !== null && type !== "number" && type !== "rollup" && !(type === "formula" && formulaType === "number")) {
+    throw new PropertyValueError(
+      `Only number properties, formulas that give a number and rollups show as a bar or a ring`,
+      "invalidNumberFormat",
+    );
   }
   const checked = checkNumberDisplay(input);
   if (!checked.ok) throw new PropertyValueError(checked.message, "invalidNumberFormat");
   return checked.display;
 }
 
-/** Date options given for a property of `type`, checked against its current ones (see lib/date-options). */
+/**
+ * Relation options given for a relation property, checked (see lib/relation-options): what linked
+ * rows show must be properties of the related database the user may know of.
+ */
+async function relationOptions(userId: string, prop: DatabaseProperty, input: RelationOptionsInput): Promise<RelationConfig> {
+  const current = prop.type === "relation" ? prop.options.relation : undefined;
+  if (!current) throw new PropertyValueError(`"${prop.name}" is a ${prop.type} property; only relations have relation options`, "unsupportedType", { type: prop.type });
+  const targetId = current.databaseId;
+  const targetProps =
+    input?.show?.length && targetId
+      ? (await propertyAccessFor(userId, targetId)).visible((await loadProperties([targetId])).get(targetId) ?? [])
+      : [];
+  const checked = checkRelationOptions(input, current, targetProps);
+  if (!checked.ok) throw new PropertyValueError(checked.message, "invalidRelationOptions");
+  return checked.relation;
+}
+
+/**
+ * Date options given for a property of `type`, checked against its current ones (see
+ * lib/date-options). Created and last edited times take all but a reminder.
+ */
 function dateOptions(type: PropertyType, input: DateOptionsInput, current: DateOptions | undefined): DateOptions | null {
-  if (type !== "date") throw new PropertyValueError(`Only date properties have date options`, "invalidDateOptions");
+  const stamp = type === "created_time" || type === "last_edited_time";
+  if (type !== "date" && !stamp) {
+    throw new PropertyValueError(`Only date properties and created or last edited times have date options`, "invalidDateOptions");
+  }
+  if (stamp && input.reminderDays !== undefined && input.reminderDays !== null) {
+    throw new PropertyValueError(`Only date properties remind people`, "invalidDateOptions");
+  }
   const checked = checkDateOptions(input, current, new Date());
   if (!checked.ok) throw new PropertyValueError(checked.message, "invalidDateOptions");
   return checked.options;
@@ -2009,13 +2069,21 @@ export async function updateProperty(
     prefix?: string | null;
     /** URLs: whether row pages show a preview of the linked page (server/url-preview.ts). */
     urlPreview?: boolean;
+    /** An icon shown instead of the type's (lib/icon); null or "" for the type's. */
+    icon?: string | null;
+    /** Relations: how many rows a row links to, where row pages show them, what linked rows show. */
+    relation?: RelationOptionsInput;
     /** People: whether a row names one person at most (rows naming more keep them until changed). */
     onePerson?: boolean;
+    /** Relations: whether a row links one row at most (rows linking more keep them until changed). */
+    oneRow?: boolean;
     /** Statuses: shown as a checkbox ticked for done options, or as the option. */
     statusDisplay?: "checkbox" | "option";
   },
 ) {
   const prop = await requireProperty(userId, propertyId);
+  const icon = patch.icon === undefined ? undefined : patch.icon === null || patch.icon === "" ? null : parseIcon(patch.icon);
+  if (icon === null && patch.icon) throw new PropertyValueError(`A property's icon is ${ICON_RULE}`, "invalidIcon");
   if (patch.statusDisplay !== undefined && prop.type !== "status") {
     throw new PropertyValueError(`"${prop.name}" is a ${prop.type} property; only statuses show as a checkbox`, "unsupportedType", {
       type: prop.type,
@@ -2023,6 +2091,11 @@ export async function updateProperty(
   }
   if (patch.onePerson !== undefined && prop.type !== "person") {
     throw new PropertyValueError(`"${prop.name}" is a ${prop.type} property; only people can be limited to one`, "unsupportedType", {
+      type: prop.type,
+    });
+  }
+  if (patch.oneRow !== undefined && (prop.type !== "relation" || isParentProperty(prop))) {
+    throw new PropertyValueError(`"${prop.name}" is a ${prop.type} property; only relations can be limited to one row`, "unsupportedType", {
       type: prop.type,
     });
   }
@@ -2041,7 +2114,10 @@ export async function updateProperty(
   if (patch.pageVisibility !== undefined && !isPageVisibility(patch.pageVisibility)) {
     throw new PropertyValueError(`Unknown page visibility "${String(patch.pageVisibility)}"`, "invalidPageVisibility");
   }
-  const display = patch.numberDisplay !== undefined ? numberDisplay(prop.type, patch.numberDisplay) : undefined;
+  // A formula shows as a bar or a ring while it gives a number.
+  const displayFormulaType =
+    patch.numberDisplay && prop.type === "formula" ? (await getProperties(prop.databaseId)).find((p) => p.id === prop.id)?.options.formula?.type : undefined;
+  const relation = patch.relation !== undefined ? await relationOptions(userId, prop, patch.relation) : undefined;
   const date = patch.date !== undefined ? dateOptions(prop.type, patch.date, prop.options.date) : undefined;
   const formula =
     patch.formula && prop.type === "formula"
@@ -2060,6 +2136,8 @@ export async function updateProperty(
           ? (await getProperties(prop.databaseId)).find((p) => p.id === prop.id)?.options.formula?.type
           : undefined;
   const number = patch.number !== undefined ? numberFormat(prop.type, patch.number, formulaType) : undefined;
+  const display =
+    patch.numberDisplay !== undefined ? numberDisplay(prop.type, patch.numberDisplay, formula ? formula.type : displayFormulaType) : undefined;
   const rollup =
     patch.rollup && prop.type === "rollup"
       ? await rollupConfig(userId, { ...prop.options.rollup, ...patch.rollup }, await knownProperties(userId, prop.databaseId), {
@@ -2110,6 +2188,16 @@ export async function updateProperty(
   else if (formula && formula.type !== "number" && prop.options.number) change((o) => without(o, "number"));
   if (date !== undefined) change((o) => (date ? { ...o, date } : without(o, "date")));
   if (display !== undefined) change((o) => (display ? { ...o, numberDisplay: display } : without(o, "numberDisplay")));
+  // An expression that no longer gives a number drops its bar or ring.
+  else if (formula && formula.type !== "number" && prop.options.numberDisplay) change((o) => without(o, "numberDisplay"));
+  if (relation) change((o) => ({ ...o, relation }));
+  if (patch.oneRow !== undefined && prop.options.relation) {
+    const on = patch.oneRow === true;
+    change((o) => {
+      const { single: _single, ...rest } = o.relation ?? prop.options.relation!;
+      return { ...o, relation: on ? { ...rest, single: true } : rest };
+    });
+  }
   if (patch.pageVisibility !== undefined) {
     const visibility = patch.pageVisibility;
     change((o) => (visibility === "show" ? without(o, "pageVisibility") : { ...o, pageVisibility: visibility }));
@@ -2122,6 +2210,7 @@ export async function updateProperty(
     change((o) => (patch.statusDisplay === "checkbox" ? { ...o, statusDisplay: "checkbox" } : without(o, "statusDisplay")));
   }
   if (patch.onePerson !== undefined) change((o) => (patch.onePerson === true ? { ...o, person: { single: true } } : without(o, "person")));
+  if (icon !== undefined) change((o) => (icon ? { ...o, icon } : without(o, "icon")));
   // Options of this property others depend on that go away leave their lists (lib/dependent-options).
   const dependents = removed.length ? dependentsOf(prop.id, siblings) : [];
   const workspaceId = prefix ? await workspaceOf(prop.databaseId) : null;
@@ -2190,27 +2279,6 @@ export async function setPropertyPinned(userId: string, propertyId: string, pinn
   await db
     .update(databaseProperty)
     .set({ options: pinned ? { ...rest, pinned: true } : rest })
-    .where(eq(databaseProperty.id, propertyId));
-  notifySchema(prop.databaseId);
-}
-
-/**
- * Which properties of the related database a relation's row picker shows beside each row's title
- * (RelationConfig.pickerProperties). Ids that aren't among its properties the user may see, or that
- * hold no value of their own (relations, formulas, rollups), are left out; at most three are kept.
- */
-export async function setRelationPickerProperties(userId: string, propertyId: string, propertyIds: string[]) {
-  const prop = await requireProperty(userId, propertyId);
-  const relation = prop.type === "relation" ? prop.options.relation : undefined;
-  if (!relation) throw withCode(new Error("Not a relation property"), "unsupportedType");
-  const target = await requireDatabase(userId, relation.databaseId, "view");
-  const shown = (await propertyAccessFor(userId, target.id)).visible(await getProperties(target.id));
-  const known = new Set(shown.filter((p) => p.type !== "relation" && !isDerived(p.type)).map((p) => p.id));
-  const ids = [...new Set(propertyIds.map(String))].filter((id) => known.has(id)).slice(0, MAX_PICKER_PROPERTIES);
-  const { pickerProperties: _old, ...rest } = relation;
-  await db
-    .update(databaseProperty)
-    .set({ options: { ...prop.options, relation: ids.length ? { ...rest, pickerProperties: ids } : rest } })
     .where(eq(databaseProperty.id, propertyId));
   notifySchema(prop.databaseId);
 }
@@ -2589,8 +2657,12 @@ export async function duplicateProperty(userId: string, propertyId: string, name
     .orderBy(asc(databaseProperty.position))
     .limit(1);
   const options: PropertyOptions = structuredClone(prop.options);
-  // The copy links one way and stands for nothing: sub-items keep their one parent property.
-  if (options.relation) options.relation = { databaseId: options.relation.databaseId, pairedPropertyId: null };
+  // The copy links one way and stands for nothing: sub-items keep their one parent property. It
+  // keeps its limit to one row and how its linked rows show (lib/relation-options).
+  if (options.relation) {
+    const { databaseId, single, display, show } = options.relation;
+    options.relation = { databaseId, pairedPropertyId: null, ...(single ? { single } : {}), ...(display ? { display } : {}), ...(show ? { show } : {}) };
+  }
   const copied = await db.transaction(async (tx) => {
     const [created] = await tx
       .insert(databaseProperty)
@@ -2993,8 +3065,15 @@ export async function updateView(userId: string, viewId: string, patch: { name?:
   const layoutError = patch.config && layoutConfigError(patch.config);
   if (layoutError) throw new PropertyValueError(layoutError, "invalidViewConfig");
   const view = await requireView(userId, viewId);
-  // Filters, sorts and layout stay adjustable on a locked database; renaming doesn't.
-  if (patch.name !== undefined) assertUnlocked(view);
+  // A view's icon is an emoji or a built-in icon (lib/icon); anything else leaves it as it was.
+  if (patch.config && patch.config.icon !== view.config.icon) {
+    const icon = patch.config.icon === undefined || patch.config.icon === "" ? undefined : parseIcon(patch.config.icon);
+    if (patch.config.icon && !icon) throw new PropertyValueError(`A view's icon is ${ICON_RULE}`, "invalidIcon");
+    const { icon: _icon, ...rest } = patch.config;
+    patch = { ...patch, config: icon ? { ...rest, icon } : rest };
+  }
+  // Filters, sorts and layout stay adjustable on a locked database; renaming (and its icon) doesn't.
+  if (patch.name !== undefined || (patch.config && patch.config.icon !== view.config.icon)) assertUnlocked(view);
   const access = await propertyAccessFor(userId, view.databaseId);
   // A form's conditions and choice limits must fit the properties the editor knows of.
   if (patch.config?.form) {
@@ -3458,9 +3537,19 @@ export async function getDatabaseSnapshot(
   };
 }
 
-/** `uniqueId`: the row's ID as it shows ("TASK-12") when its database has a unique ID property, which pickers find it by too. */
-/** `values`: the row's values of the properties relation pickers show beside titles (RelationConfig.pickerProperties). */
-export type RelationTargetRow = { id: string; title: string; icon: string | null; uniqueId?: string; values?: Record<string, unknown> };
+/**
+ * `uniqueId`: the row's ID as it shows ("TASK-12") when its database has a unique ID property, which
+ * pickers find it by too. `values`: the row's values of the properties relations to it show beside
+ * its title (RelationConfig `show`), those the viewer may see; `hidden` lists the ones they may not.
+ */
+export type RelationTargetRow = {
+  id: string;
+  title: string;
+  icon: string | null;
+  uniqueId?: string;
+  values?: Record<string, unknown>;
+  hidden?: string[];
+};
 export type RelationTarget = {
   /** Null when the related database was deleted or is in the trash. */
   database: { id: string; title: string; icon: string | null } | null;
@@ -3470,6 +3559,8 @@ export type RelationTarget = {
   rows: RelationTargetRow[];
   /** Properties of the related database, for choosing what a rollup reads; empty when hidden. */
   properties: RelationTargetProperty[];
+  /** People the shown values of linked rows name (see getPeople), when they show a person property. */
+  people?: PersonRef[];
 };
 export type RelationTargetProperty = Pick<DatabaseProperty, "id" | "name" | "type" | "options">;
 
@@ -3531,51 +3622,40 @@ export async function getRelationTargets(
       }
     }),
   );
-  // Values row pickers show beside titles: only of properties the viewer may see, and only those.
-  const valuesOf = new Map<string, Record<string, unknown>>();
-  await Promise.all(
-    databases.map(async (d) => {
-      const visible = new Set(accessByTarget.get(d.id)!.visible(targetProperties.get(d.id) ?? []).map((p) => p.id));
-      const ids = [
-        ...new Set(
-          properties.flatMap((p) => (p.options.relation?.databaseId === d.id ? (p.options.relation.pickerProperties ?? []) : [])),
-        ),
-      ].filter((id) => visible.has(id));
-      if (!ids.length) return;
-      const picked = await db
-        .select({
-          id: page.id,
-          values: sql<Record<string, unknown> | null>`(select jsonb_object_agg(e.key, e.value) from jsonb_each(${page.properties}) e where e.key = any(array[${sql.join(
-            ids.map((id) => sql`${id}`),
-            sql`, `,
-          )}]::text[]))`,
-        })
-        .from(page)
-        .where(and(eq(page.parentId, d.id), eq(page.isTemplate, false), isNull(page.archivedAt)));
-      for (const p of picked) if (p.values) valuesOf.set(p.id, p.values);
-    }),
+  // Values linked rows show beside their title (lib/relation-options), by related database.
+  const shown = new Map(
+    await Promise.all(
+      databases.map(async (d) => {
+        const visible = accessByTarget.get(d.id)!.visible(targetProperties.get(d.id) ?? []);
+        const ids = new Set(
+          properties.flatMap((p) => (p.type === "relation" && p.options.relation?.databaseId === d.id ? shownPropertyIds(p.options.relation) : [])),
+        );
+        const props = visible.filter((p) => ids.has(p.id) && showableType(p.type));
+        return [d.id, props.length ? await shownValues(userId, d.id, props, accessByTarget.get(d.id)!) : null] as const;
+      }),
+    ),
   );
   const out: Record<string, RelationTarget> = {};
   for (const prop of properties) {
     const targetId = prop.type === "relation" ? prop.options.relation?.databaseId : undefined;
     if (!targetId) continue;
     const database = databases.find((d) => d.id === targetId) ?? null;
+    const values = database ? shown.get(targetId) : null;
     const pairedId = prop.options.relation?.pairedPropertyId;
     out[prop.id] = {
       database,
       // The paired property lives on the related database: named only for those who can see it.
       pairedName: (database && pairedId && paired.find((p) => p.id === pairedId)?.name) || null,
       rows: database
-        ? rows
-            .filter((r) => r.parentId === targetId)
-            .map(({ id, title, icon }) => ({
-              id,
-              title,
-              icon,
-              ...(idOf.has(id) ? { uniqueId: idOf.get(id) } : {}),
-              ...(valuesOf.has(id) ? { values: valuesOf.get(id) } : {}),
-            }))
+        ? rows.filter((r) => r.parentId === targetId).map(({ id, title, icon }) => ({
+            id,
+            title,
+            icon,
+            ...(idOf.has(id) ? { uniqueId: idOf.get(id) } : {}),
+            ...values?.rows.get(id),
+          }))
         : [],
+      ...(values?.people ? { people: values.people } : {}),
       properties: database
         ? accessByTarget
             .get(targetId)!
@@ -3585,6 +3665,40 @@ export async function getRelationTargets(
     };
   }
   return out;
+}
+
+/**
+ * The values of `props` (properties of the related database `databaseId` the viewer may know of)
+ * in its rows the viewer can see, for showing beside linked rows' titles, with the values the
+ * viewer may not see left out (`hidden`), and the people they name.
+ */
+async function shownValues(userId: string, databaseId: string, props: DatabaseProperty[], access: PropertyAccess) {
+  const stored = props.filter((p) => !isComputed(p.type));
+  const found = await db
+    .select({
+      id: page.id,
+      createdBy: page.createdBy,
+      updatedBy: page.updatedBy,
+      createdAt: page.createdAt,
+      updatedAt: page.updatedAt,
+      properties: stored.length
+        ? sql<Record<string, unknown>>`jsonb_build_object(${sql.join(
+            stored.map((p) => sql`${p.id}::text, ${page.properties} -> ${p.id}::text`),
+            sql`, `,
+          )})`
+        : sql<Record<string, unknown>>`'{}'::jsonb`,
+    })
+    .from(page)
+    .where(and(eq(page.parentId, databaseId), eq(page.isTemplate, false), isNull(page.archivedAt), childVisibleTo(userId, databaseId)));
+  const rows = new Map<string, Pick<RelationTargetRow, "values" | "hidden">>();
+  for (const row of access.strip(
+    found.map((r) => ({ ...r, properties: { ...r.properties, ...computedValues(props, r) } })),
+  )) {
+    const values = Object.fromEntries(Object.entries(row.properties).filter(([, v]) => v !== null && v !== undefined));
+    if (Object.keys(values).length || row.hidden?.length) rows.set(row.id, { values, ...(row.hidden?.length ? { hidden: row.hidden } : {}) });
+  }
+  const people = props.some((p) => holdsPeople(p.type)) ? await getPeople(userId, props) : null;
+  return { rows, people };
 }
 
 /** Someone a person property can show or hold. */

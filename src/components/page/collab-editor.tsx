@@ -67,6 +67,7 @@ import { pasteAgentChat, useAgentChatSlashItem } from "./agent-chat-block";
 import { useButtonSlashItem } from "./button-block";
 import { useMeetingSlashItem } from "./meeting-block";
 import { PasteLinkMenu, useWebSlashItems } from "./web-blocks";
+import { EmojiMenu } from "./emoji-menu";
 import { LinkToolbarWithMention } from "./link-mention-toolbar";
 import { ImageLinkContext, ImageLinkDialog } from "./image-link";
 import { ImageCropContext } from "./image-crop-item";
@@ -77,6 +78,9 @@ import { pageSideMenu } from "./table-to-database";
 import { SaveAsSnippetContext, SnippetMenu, useSnippets, useSnippetSlashItems } from "./snippets";
 import { readDocTitle } from "@/lib/collab-title";
 import { suggestingExtension, type SuggestingMode } from "./suggesting";
+import { ToggleHeadingSections } from "./toggle-headings";
+import { editorShortcuts } from "./editor-shortcuts";
+import { LinkCopiedNotice } from "./link-copied-notice";
 
 /** The page's floating outline, loaded once the page has a place for it (see floating-outline.tsx). */
 const FloatingOutline = dynamic(() => import("./floating-outline"), { ssr: false });
@@ -284,6 +288,8 @@ export default function CollabEditor({
     mode.current = currentMode;
   });
   const suggestions = useMemo(() => suggestingExtension(() => mode.current), []);
+  // Mod+Shift+X and Alt+Shift+L (editor-shortcuts.ts); a synced page's editor links to its own page.
+  const shortcuts = useMemo(() => editorShortcuts(() => uploadTo.current), []);
   // withCollaboration spreads the remaining options into the editor options, so `dictionary`
   // reaches BlockNote as-is. A language change re-creates the editor against the same Y.Doc;
   // the provider is owned by usePageDoc and is not touched.
@@ -294,7 +300,7 @@ export default function CollabEditor({
       uploadFile,
       // Selected table cells can be merged into one, and a merged cell split again.
       tables: { splitCells: true },
-      extensions: [KeepUndoAttached(), FindReplace(), codeHighlighting(), BlockDirection(), comments, suggestions],
+      extensions: [KeepUndoAttached(), FindReplace(), codeHighlighting(), BlockDirection(), ToggleHeadingSections(), shortcuts, comments, suggestions],
       // A synced block copied with "Copy synced block" lands as a reference; none lands inside one.
       // A link to an agent of the workspace, alone in an empty paragraph, becomes a chat with it.
       pasteHandler: ({ event, editor, defaultPasteHandler }) => {
@@ -312,7 +318,7 @@ export default function CollabEditor({
         showCursorLabels: "activity",
       },
     }),
-    [pageDoc, fragment, dictionary, comments, uploadFile, suggestions],
+    [pageDoc, fragment, dictionary, comments, uploadFile, suggestions, shortcuts],
   );
   // Typing: someone who may edit, or suggest (a synced page's or block's editor only edits).
   const typing = editable || (suggestOnly && !nested);
@@ -366,6 +372,7 @@ export default function CollabEditor({
           {!nested && <FindBar editor={editor} editable={editable} />}
           {!nested && outlineSlot && <FloatingOutline editor={editor} slot={outlineSlot} />}
           {!nested && <PagePreviews />}
+          {!nested && <LinkCopiedNotice />}
           <DirectionProvider initialDirection={dir}>
             <BlockNoteView
               key={locale}
@@ -373,6 +380,7 @@ export default function CollabEditor({
               theme={colorScheme}
               editable={mountEditable}
               slashMenu={false}
+              emojiPicker={false}
               sideMenu={false}
               formattingToolbar={false}
               linkToolbar={false}
@@ -413,6 +421,7 @@ export default function CollabEditor({
               {editable && <MentionMenu editor={editor} workspaceId={workspaceId} pageId={pageId} />}
               {editable && <PageLinkMenu editor={editor} workspaceId={workspaceId} pageId={pageId} offline={offline} />}
               <PasteLinkMenu editor={editor} />
+              <EmojiMenu editor={editor} />
               <LinkToolbarController linkToolbar={linkToolbar} />
               {/* People who may only read get no toolbar; commenting shows it on read-only pages too. */}
               {(editable || canComment) && (
@@ -441,7 +450,7 @@ export default function CollabEditor({
                   />
                 )}
               </CommentComponents>
-              <EditorFiles editor={editor} editable={editable} />
+              <EditorFiles editor={editor} editable={editable} pageId={pageId} />
             </BlockNoteView>
             {/* A synced page's notes are listed on its own page. */}
             {!nested && <FootnoteList editor={editor} />}

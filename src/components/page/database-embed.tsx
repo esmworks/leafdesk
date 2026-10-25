@@ -219,7 +219,7 @@ function LayoutMenu({
   if (!onChange) {
     return (
       <span className="ms-auto flex shrink-0 items-center gap-1 text-xs text-fg-muted" title={t("viewOnly")}>
-        <ViewIcon type={view.type} />
+        <ViewIcon type={view.type} icon={view.config.icon} />
         {td(`views.${view.type}`)}
       </span>
     );
@@ -233,7 +233,7 @@ function LayoutMenu({
         aria-label={t("layout")}
         className="ms-auto flex shrink-0 items-center gap-1 rounded px-1.5 py-0.5 text-xs text-fg-muted hover:bg-bg-hover hover:text-fg"
       >
-        <ViewIcon type={view.type} />
+        <ViewIcon type={view.type} icon={view.config.icon} />
         {td(`views.${view.type}`)}
         <ChevronDown className="h-3 w-3" />
       </button>

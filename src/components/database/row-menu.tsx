@@ -27,7 +27,7 @@ import { useLocale, useTranslations } from "next-intl";
 import { useEffect, useRef, useState, useTransition } from "react";
 import { createPortal } from "react-dom";
 import { getPageHeaderAction, setFavoriteAction, setFollowingAction } from "@/app/actions/page-menu";
-import { EMOJIS } from "@/components/page/icon-picker";
+import { IconGrid } from "@/components/page/icon-picker";
 import { hasLevel, MoveDialog } from "@/components/page/page-header-actions";
 import { cn, MenuItem, MenuSeparator } from "@/components/ui";
 import type { ReorderDragHandlers } from "@/components/use-reorder-drag";
@@ -91,7 +91,6 @@ export function RowMenu({
 }) {
   const t = useTranslations("database");
   const th = useTranslations("page.header");
-  const ti = useTranslations("page.icon");
   const locale = useLocale();
   const menu = useFloating<HTMLDivElement>();
   const [page, setPage] = useState<Page>("main");
@@ -349,28 +348,7 @@ export function RowMenu({
     page === "icon"
       ? submenu(
           t("rowMenu.editIcon"),
-          <>
-            <div className="grid grid-cols-8 gap-0.5">
-              {EMOJIS.map((e) => (
-                <button
-                  key={e}
-                  type="button"
-                  onClick={then(() => void api.setRowIcon(row.id, e))}
-                  className={cn("flex h-8 w-8 items-center justify-center rounded text-lg hover:bg-bg-hover", row.icon === e && "bg-bg-hover")}
-                >
-                  {e}
-                </button>
-              ))}
-            </div>
-            {row.icon && (
-              <>
-                <MenuSeparator />
-                <MenuItem icon={icon(Trash2)} onClick={then(() => void api.setRowIcon(row.id, null))}>
-                  {ti("remove")}
-                </MenuItem>
-              </>
-            )}
-          </>,
+          <IconGrid icon={row.icon} onChange={(next) => then(() => void api.setRowIcon(row.id, next))()} />,
         )
       : page === "property"
         ? submenu(

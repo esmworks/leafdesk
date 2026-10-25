@@ -57,6 +57,26 @@ describe("checkConnectionUrl", () => {
     }
   });
 
+  it("takes http web pages on the usual ports when fetching for a saved web page", () => {
+    const web = (url: string) => {
+      try {
+        checkConnectionUrl(url, { web: true });
+        return "ok";
+      } catch (error) {
+        return error instanceof ConnectionFetchError ? error.code : "other";
+      }
+    };
+    expect(web("http://example.com/article")).toBe("ok");
+    expect(web("https://example.com:8443/article")).toBe("ok");
+    expect(web("http://example.com:22/")).toBe("blocked");
+    expect(web("https://example.com:6379/")).toBe("blocked");
+    expect(web("http://127.0.0.1/")).toBe("blocked");
+    expect(web("http://169.254.169.254/latest/meta-data")).toBe("blocked");
+    expect(web("http://printer.local/")).toBe("blocked");
+    expect(web("ftp://example.com/")).toBe("invalidUrl");
+    expect(web("http://user:pw@example.com/")).toBe("invalidUrl");
+  });
+
   it("lets allowed hosts through, http included", () => {
     process.env.CONNECTOR_ALLOWED_HOSTS = "localhost:3211, mcp.lan";
     expect(codeOf("http://localhost:3211/mcp")).toBe("ok");

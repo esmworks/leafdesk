@@ -1,3 +1,4 @@
+import { IconGlyph } from "@/components/builtin-icon";
 import {
   AlignLeft,
   ArrowUpRight,
@@ -85,12 +86,21 @@ const VIEW_ICONS = {
   form: ClipboardList,
 } as const satisfies Record<ViewType, LucideIcon>;
 
-export function ViewIcon({ type, className }: { type: ViewType; className?: string }) {
+/** A view's icon: the one chosen for it (`icon`, its config's), else its type's. */
+export function ViewIcon({ type, icon, className }: { type: ViewType; icon?: string | null; className?: string }) {
+  if (icon) return <ChosenIcon icon={icon} className={className} />;
   const Icon = VIEW_ICONS[type] ?? Sheet;
   return <Icon className={className ?? "h-3.5 w-3.5"} strokeWidth={1.75} aria-hidden />;
 }
 
-export function PropertyTypeIcon({ type, className }: { type: PropertyType | "title"; className?: string }) {
+/** A property's icon: the one chosen for it (`icon`, its options'), else its type's. */
+export function PropertyTypeIcon({ type, icon, className }: { type: PropertyType | "title"; icon?: string | null; className?: string }) {
+  if (icon) return <ChosenIcon icon={icon} className={className} />;
   const Icon = type === "title" ? Type : PROPERTY_TYPE_META[type].icon;
   return <Icon className={className ?? "h-3.5 w-3.5"} strokeWidth={1.75} aria-hidden />;
+}
+
+/** An emoji or built-in icon in the box of a type's icon, a little smaller than the text. */
+function ChosenIcon({ icon, className }: { icon: string; className?: string }) {
+  return <IconGlyph icon={icon} className={`inline-flex shrink-0 items-center justify-center text-[0.8125rem] ${className ?? "h-3.5 w-3.5"}`} />;
 }

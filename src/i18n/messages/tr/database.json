@@ -76,6 +76,10 @@
       "blank": "Boş satır",
       "setDefault": "“Yeni” için kullan",
       "isDefault": "“Yeni” için kullanılıyor",
+      "isViewDefault": "Bu görünümde “Yeni” için kullanılıyor",
+      "forThisView": "Bu görünüm için",
+      "forAllViews": "Tüm görünümler için",
+      "followAllViews": "Burada tüm görünümlerinkini kullan",
       "edit": "Şablonu düzenle",
       "delete": "Şablonu sil",
       "confirmDelete": "Bu satır şablonu kalıcı olarak silinsin mi? Ondan oluşturulmuş satırlar olduğu gibi kalır.",
@@ -126,6 +130,7 @@
     "rename": "Yeniden adlandır",
     "viewName": "Görünüm adı",
     "deleteView": "Görünümü sil",
+    "icon": "Simge",
     "duplicate": "Görünümü çoğalt",
     "duplicateHint": "Bu görünümün düzeni, filtreleri ve sıralamalarıyla bir kopyası",
     "copyName": "{name} (kopya)",
@@ -240,7 +245,14 @@
     "relative": {
       "today": "Bugün",
       "thisWeek": "Bu hafta",
+      "lastWeek": "Geçen hafta",
+      "nextWeek": "Gelecek hafta",
       "thisMonth": "Bu ay",
+      "lastMonth": "Geçen ay",
+      "nextMonth": "Gelecek ay",
+      "thisYear": "Bu yıl",
+      "lastYear": "Geçen yıl",
+      "nextYear": "Gelecek yıl",
       "pastNDays": "Son N gün",
       "nextNDays": "Önümüzdeki N gün",
       "pastDays": "Son {count} gün",
@@ -268,7 +280,8 @@
     "clickForMenu": "Menüyü açmak için tıklayın",
     "sortedNoDrag": "Görünüm sıralıyken satırlar sürüklenemez",
     "sortedAscending": "Artan sıralı",
-    "sortedDescending": "Azalan sıralı"
+    "sortedDescending": "Azalan sıralı",
+    "fillHandle": "Hücreleri bu değerle doldurmak için yukarı ya da aşağı sürükleyin"
   },
   "rowMenu": {
     "open": "Aç",
@@ -549,9 +562,6 @@
     "pinToTitle": "Başlığın altına sabitle",
     "unpinFromTitle": "Başlığın altından kaldır",
     "pinFull": "En fazla {max} özellik sabitlenebilir.",
-    "dateDisplay": "Gösterim",
-    "displayDate": "Tarih",
-    "displayRelative": "Göreli",
     "relativeHint": "Bugüne bir haftadan yakın tarihler “yarın”, “3 gün sonra”, “2 gün önce” diye görünür.",
     "reminder": "Hatırlatıcı",
     "reminderNone": "Hatırlatıcı yok",
@@ -571,13 +581,31 @@
     "dragOption": "{name} seçeneğini taşımak için sürükleyin",
     "urlPreview": "Bağlantı önizlemesi olarak göster",
     "urlPreviewHint": "Satır sayfaları bağlantının altında bağlanan sayfanın simgesini, başlığını ve görselini gösterir.",
+    "relationOptions": "İlişki ayarları",
+    "showAs": "Gösterim",
+    "dateFormat": "Tarih biçimi",
+    "dateFormats": {
+      "default": "Varsayılan",
+      "full": "Uzun tarih",
+      "short": "Kısa tarih",
+      "mdy": "Ay/Gün/Yıl",
+      "dmy": "Gün/Ay/Yıl",
+      "ymd": "Yıl/Ay/Gün",
+      "relative": "Göreli"
+    },
+    "timeFormat": "Saat biçimi",
+    "timeFormats": {
+      "default": "Varsayılan",
+      "12h": "12 saat",
+      "24h": "24 saat"
+    },
     "onePerson": "Tek kişiyle sınırla",
     "onePersonHint": "Her satır en fazla bir kişiyi gösterir. Daha fazla kişi içeren satırlar değiştirilene kadar onları korur.",
+    "oneRow": "Tek sayfayla sınırla",
+    "oneRowHint": "Her satır en fazla bir sayfaya bağlanır. Daha fazlasına bağlı satırlar değiştirilene kadar onları korur.",
     "statusCheckbox": "Onay kutusu olarak göster",
     "statusCheckboxHint": "Durum tamamlandıyken işaretli bir kutu. İşaretlemek ilk tamamlandı durumunu, işareti kaldırmak ilk yapılacak durumunu seçer.",
-    "pickerProperties": "Satır seçicide göster",
-    "pickerPropertiesHint": "Satır bağlarken her satırın adının yanında en fazla üç özellik gösterilir.",
-    "pickerPropertiesNone": "İlişkili veritabanında gösterilecek özellik yok."
+    "icon": "Simge"
   },
   "rowProperties": {
     "noProperties": "Özellik yok",
@@ -719,7 +747,23 @@
     "noMatches": "Eşleşen satır yok",
     "newRow": "Yeni satır",
     "open": "{title} sayfasını aç",
-    "unlink": "{title} bağlantısını kaldır"
+    "unlink": "{title} bağlantısını kaldır",
+    "options": "İlişki ayarları",
+    "rowPage": "Satır sayfalarında",
+    "displayInline": "Satır içinde",
+    "displaySection": "Ayrı bölüm olarak",
+    "sectionHint": "Bağlı satırlar özelliklerin altında görünür; özellikleri orada düzenlenebilir.",
+    "shows": "Bağlı satırlarda görünenler",
+    "showsHint": "Tablo hücrelerinde, kartlarda, satır sayfalarında ve satır seçicide gösterilir.",
+    "titlePart": "Başlık",
+    "addPart": "Özellik ekle…",
+    "moveUp": "{name} yukarı taşı",
+    "moveDown": "{name} aşağı taşı",
+    "hidePart": "{name} gösterme",
+    "overLimit": "Artık tek bir satıra bağlanıyor: tutulacak olanı seçin.",
+    "addLink": "Bağlantı ekle",
+    "noLinks": "Henüz bağlı satır yok",
+    "showMore": "{count} tane daha göster"
   },
   "person": {
     "search": "Kişi ara",
@@ -798,6 +842,7 @@
     "showTable": "Tabloyu göster",
     "showWeekends": "Hafta sonlarını göster",
     "showIcons": "Sayfa simgelerini göster",
+    "showVerticalLines": "Dikey çizgileri göster",
     "openRows": "Satırları aç",
     "openRowsIn": {
       "panel": "Yan panelde",
@@ -938,7 +983,7 @@
     "parentInTrash": "Üst sayfa çöp kutusunda. Önce onu geri yükleyin.",
     "nestedDatabase": "Bir veritabanının içinde başka bir veritabanı olamaz.",
     "pageTooDeep": "Sayfalar en fazla {max} düzey iç içe olabilir.",
-    "invalidIcon": "Simge bir emoji olmalı.",
+    "invalidIcon": "Simge bir emoji ya da yerleşik bir simge olmalı.",
     "invalidRelation": "“{property}” yalnızca ilişkili veritabanının satırlarına bağlanabilir.",
     "invalidRelationTarget": "İlişki aynı çalışma alanındaki bir veritabanını göstermelidir.",
     "subItemLoop": "“{property}” bir satırı kendisinin ya da kendi alt öğelerinden birinin altına koyamaz.",
@@ -1000,7 +1045,9 @@
     "noCurrentSprint": "Hiçbir sprint güncel değil. Önce bir sprinti güncel olarak işaretleyin.",
     "invalidSprints": "Sprintler bu şekilde kurulamaz: sprint uzunluğunu, ilk günü ve sprint veritabanını kontrol edin.",
     "sprintStateOption": "Bu seçenek bir sprintin durumunu belirtir. Adını değiştirebilirsiniz; silmek için önce sprintleri kapatın.",
-    "invalidSlackUrl": "Bu bir Slack gelen webhook adresi değil (https://hooks.slack.com/services/…)."
+    "invalidSlackUrl": "Bu bir Slack gelen webhook adresi değil (https://hooks.slack.com/services/…).",
+    "oneRow": "“{property}” yalnızca bir sayfaya bağlanır. Birini seçin.",
+    "invalidRelationOptions": "Bu ilişki ayarları kaydedilemiyor."
   },
   "formula": {
     "title": "Formül",
@@ -1844,7 +1891,9 @@
     "save": "Kaydet ve eşitle",
     "stop": "Eşitlemeyi durdur",
     "stopConfirm": "Bu veritabanının eşitlemesi durdurulsun mu? Satırları olduğu gibi kalır ve giriş bilgileri unutulur.",
-    "viewOnly": "Eşitlemeyi yalnızca veritabanına tam erişimi olan kişiler değiştirebilir."
+    "viewOnly": "Eşitlemeyi yalnızca veritabanına tam erişimi olan kişiler değiştirebilir.",
+    "reporter": "Bildiren",
+    "reporterNone": "Eşitlenmiyor"
   },
   "sprints": {
     "menuItem": "Sprintler",

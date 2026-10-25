@@ -14,7 +14,6 @@ import {
   deletePropertyAction,
   duplicatePropertyAction,
   makeRelationTwoWayAction,
-  setRelationPickerPropertiesAction,
   deleteViewAction,
   duplicateRowsAction,
   setRowsIconAction,
@@ -41,6 +40,7 @@ import { databaseSnapshotKey, deleteSnapshot, loadSnapshot, saveSnapshot } from 
 import type { NumberDisplay, NumberFormat, PropertyType, SelectOption, ViewConfig, ViewType } from "@/db/schema/app";
 import { MAX_AUTOFILL_ROWS, type AiAutofillConfig } from "@/lib/ai";
 import { checkDateOptions, type DateOptionsInput } from "@/lib/date-options";
+import { checkRelationOptions, type RelationOptionsInput } from "@/lib/relation-options";
 import { withoutDeleted } from "@/lib/deleted-schema";
 import { keepUnchanged } from "@/lib/keep-unchanged";
 import type { DependencyInput } from "@/lib/dependencies";
@@ -354,11 +354,11 @@ export function useDatabase(
       report,
 
       /**
-       * Adds a row: blank, from a row template (templateId), or from the database's default
-       * template when it has one (useDefault, what "New" does). Returns its id.
+       * Adds a row: blank, from a row template (templateId), or from the default template of the
+       * view (viewId) or else the database when there is one (useDefault, what "New" does). Returns its id.
        */
       async createRow(
-        input: { title?: string; properties?: Record<string, unknown>; templateId?: string | null; useDefault?: boolean } = {},
+        input: { title?: string; properties?: Record<string, unknown>; templateId?: string | null; useDefault?: boolean; viewId?: string } = {},
       ) {
         if (!snapshot) return null;
         try {
@@ -567,6 +567,12 @@ export function useDatabase(
         );
       },
 
+      /** Sets the icon a property shows instead of its type's (null for the type's). */
+      setPropertyIcon(prop: Property, icon: string | null) {
+        const { icon: _old, ...rest } = prop.options;
+        return mutateSchema(patchProperty(prop.id, { options: icon ? { ...rest, icon } : rest }), () => updatePropertyAction(prop.id, { icon }));
+      },
+
       /**
        * Makes a select depend on another select property (null: on nothing; see lib/dependent-options).
        * A new one forgets which options went with which of the old one's.
@@ -595,6 +601,19 @@ export function useDatabase(
         );
       },
 
+      /**
+       * Saves where row pages show a relation and what its linked rows show (see
+       * lib/relation-options); the server checks them, and the refetch brings the values shown.
+       */
+      setRelationOptions(prop: Property, input: RelationOptionsInput) {
+        const current = prop.options.relation;
+        const checked = current ? checkRelationOptions(input, current, null) : null;
+        if (!checked?.ok) return;
+        return mutateSchema(patchProperty(prop.id, { options: { ...prop.options, relation: checked.relation } }), () =>
+          updatePropertyAction(prop.id, { relation: input }),
+        );
+      },
+
       /** Shows a status property as a checkbox ticked for its done options, or as the option. */
       setStatusCheckbox(prop: Property, on: boolean) {
         const { statusDisplay: _old, ...rest } = prop.options;
@@ -608,6 +627,16 @@ export function useDatabase(
         const { person: _old, ...rest } = prop.options;
         return mutateSchema(patchProperty(prop.id, { options: on ? { ...rest, person: { single: true } } : rest }), () =>
           updatePropertyAction(prop.id, { onePerson: on }),
+        );
+      },
+
+      /** Limits a relation to one linked row a row, or lifts the limit (as setOnePerson does for people). */
+      setOneRow(prop: Property, on: boolean) {
+        const relation = prop.options.relation;
+        if (!relation) return;
+        const { single: _old, ...rest } = relation;
+        return mutateSchema(patchProperty(prop.id, { options: { ...prop.options, relation: on ? { ...rest, single: true } : rest } }), () =>
+          updatePropertyAction(prop.id, { oneRow: on }),
         );
       },
 
@@ -665,17 +694,6 @@ export function useDatabase(
           report(e);
           return null;
         }
-      },
-
-      /** Shows these properties of the related database beside each title in a relation's row picker. */
-      setPickerProperties(prop: Property, ids: string[]) {
-        const relation = prop.options.relation;
-        if (!relation) return;
-        const { pickerProperties: _old, ...rest } = relation;
-        return mutateSchema(
-          patchProperty(prop.id, { options: { ...prop.options, relation: ids.length ? { ...rest, pickerProperties: ids } : rest } }),
-          () => setRelationPickerPropertiesAction(prop.id, ids),
-        );
       },
 
       /** Makes a one-way relation two-way: the related database gets the paired property. */

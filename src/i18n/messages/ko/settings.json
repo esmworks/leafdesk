@@ -58,7 +58,7 @@
       "workspaceName": "이름 이름 바꾸기 아이콘",
       "ai": "인공지능 채팅 모델 공급자 메모리",
       "workspaceMail": "이메일 행 메일 보내기",
-      "export": "백업 다운로드 zip markdown",
+      "export": "백업 다운로드 zip markdown pdf",
       "members": "사람 초대 사용자 역할 제거",
       "agents": "ai 어시스턴트 자동화 봇",
       "snippets": "텍스트 단축어 스니펫",
@@ -108,11 +108,15 @@
     "description": "볼 수 있는 모든 페이지를 ZIP으로 다운로드합니다. 페이지는 Markdown으로, 데이터베이스는 CSV로, 표시되는 파일도 함께 포함됩니다. 휴지통에 있는 페이지는 제외되며, 템플릿은 Templates 폴더에 보관됩니다.",
     "button": "내보내기",
     "preparing": "준비 중…",
-    "disabled": "이 워크스페이스에서는 설정 → 보안에서 내보내기가 꺼져 있습니다."
+    "disabled": "이 워크스페이스에서는 설정 → 보안에서 내보내기가 꺼져 있습니다.",
+    "format": "내보내기 형식",
+    "formatMarkdown": "Markdown 및 CSV",
+    "formatPdf": "PDF",
+    "descriptionPdf": "볼 수 있는 모든 페이지를 페이지 트리를 따르는 폴더에 담긴 PDF ZIP으로 다운로드합니다. 데이터베이스는 행 표로, 자체 텍스트가 있는 행은 별도의 PDF로 만들어집니다. 휴지통에 있는 페이지와 템플릿은 제외되며, PDF는 최대 {limit, number}개입니다."
   },
   "members": {
     "heading": "멤버",
-    "description": "멤버는 공유가 제한된 페이지를 제외한 모든 페이지를 보고 편집할 수 있으며, 게스트는 자신과 공유된 페이지만 볼 수 있습니다. 소유자는 멤버도 관리할 수 있습니다.",
+    "description": "멤버는 공유가 제한된 페이지를 제외한 모든 페이지를 보고 편집할 수 있으며, 게스트는 자신과 공유된 페이지만 볼 수 있습니다. 소유자는 멤버도 관리할 수 있습니다. 멤버 관리자는 사람과 그룹을 관리하지만 다른 설정은 관리하지 않습니다.",
     "tabs": {
       "members": "멤버",
       "invitations": "대기 중인 초대",
@@ -153,6 +157,7 @@
     "roleLabel": "역할",
     "roles": {
       "owner": "소유자",
+      "membership_admin": "멤버 관리자",
       "member": "멤버",
       "guest": "게스트"
     },
@@ -209,12 +214,18 @@
       "someone": "멤버",
       "approve": "승인",
       "decline": "거절"
-    }
+    },
+    "removeBodyChoose": "{name}은(는) 열려 있는 페이지와 연결된 앱을 포함해 이 워크스페이스에 즉시 액세스할 수 없게 됩니다.",
+    "removeBodyToOwner": "{name} 님은 열려 있는 페이지와 연결된 앱을 포함해 이 워크스페이스에 대한 액세스를 즉시 잃습니다. 이 사람만 관리할 수 있던 페이지와 다른 누구도 운영하지 않는 팀스페이스는 워크스페이스에서 가장 오래된 소유자에게 넘어갑니다.",
+    "heirLabel": "페이지를 넘겨받을 사람",
+    "heirHint": "{name}만 관리할 수 있던 페이지와 다른 누구도 운영하지 않는 팀스페이스는 선택한 사람에게 넘어갑니다.",
+    "heirCount": "{count, plural, =0 {현재 {name}이(가) 혼자 관리하는 페이지는 없습니다. 다른 누구도 운영하지 않는 팀스페이스는 선택한 사람에게 넘어갑니다.} other {{name}만 관리할 수 있던 페이지 #개가 다른 누구도 운영하지 않는 팀스페이스와 함께 선택한 사람에게 넘어갑니다.}}",
+    "heirYou": "{name}(나)"
   },
   "guests": {
     "heading": "게스트",
     "description": "게스트는 워크스페이스 외부의 사람으로, 자신과 공유된 페이지만 볼 수 있습니다. 각 게스트가 열 수 있는 페이지를 확인하고, 액세스 권한을 회수하거나, 게스트를 멤버로 지정하거나 제거할 수 있습니다.",
-    "descriptionMember": "게스트는 워크스페이스 외부의 사람으로, 자신과 공유된 페이지만 볼 수 있습니다. 전체 액세스 권한이 있는 페이지에서는 액세스 권한을 회수할 수 있습니다. 게스트를 멤버로 지정하거나 제거하는 것은 소유자만 할 수 있습니다.",
+    "descriptionMember": "게스트는 워크스페이스 외부의 사람으로, 자신과 공유된 페이지만 볼 수 있습니다. 전체 액세스 권한이 있는 페이지에서는 액세스 권한을 회수할 수 있습니다. 게스트를 멤버로 지정하거나 제거하는 것은 소유자와 멤버 관리자만 할 수 있습니다.",
     "count": "{count, plural, =0 {게스트 없음} other {게스트 #명}}",
     "search": "게스트 또는 페이지 검색",
     "exportCsv": "게스트를 CSV로 다운로드",
@@ -320,7 +331,7 @@
   "groups": {
     "heading": "그룹",
     "description": "그룹은 사람들을 묶어 한 번에 페이지를 공유하거나 팀스페이스에 추가할 수 있게 합니다. 그룹에 참여하는 사람은 그룹이 가진 권한을 얻고, 나가는 사람은 잃습니다. 그룹에는 소유자와 멤버만 속할 수 있으며 게스트는 속할 수 없습니다.",
-    "ownersOnly": "워크스페이스 소유자만 그룹을 만들고 변경할 수 있습니다.",
+    "ownersOnly": "워크스페이스 소유자와 멤버 관리자만 그룹을 만들고 변경할 수 있습니다.",
     "newButton": "새 그룹",
     "search": "그룹 검색",
     "empty": "아직 그룹이 없습니다.",
@@ -365,7 +376,8 @@
       "nameRequired": "그룹 이름을 입력하세요.",
       "nameTaken": "이미 같은 이름의 그룹이 있습니다.",
       "notMember": "워크스페이스의 소유자와 멤버만 그룹에 속할 수 있습니다.",
-      "accessDenied": "워크스페이스 소유자만 그룹을 변경할 수 있습니다."
+      "ownMembership": "멤버 관리자는 자신을 그룹에 추가할 수 없습니다. 워크스페이스 소유자에게 요청하세요.",
+      "accessDenied": "워크스페이스 소유자와 멤버 관리자만 그룹을 변경할 수 있습니다."
     }
   },
   "agents": {
@@ -734,7 +746,7 @@
       "accessDenied": "이 작업을 할 권한이 없습니다.",
       "reasons": {
         "name": "에이전트 이름을 입력하세요.",
-        "icon": "에이전트의 아이콘은 이모지여야 합니다.",
+        "icon": "에이전트의 아이콘은 이모지 또는 기본 제공 아이콘입니다.",
         "level": "에이전트는 페이지를 보거나, 댓글을 달거나, 편집할 수 있습니다.",
         "template": "이 템플릿은 존재하지 않습니다.",
         "database": "이 워크스페이스의 데이터베이스를 선택하세요.",
@@ -1193,6 +1205,7 @@
     "invalidSetting": "사용할 수 없는 설정입니다.",
     "nameRequired": "워크스페이스 이름을 입력하세요.",
     "alreadyMember": "이미 멤버인 사람입니다.",
+    "ownerInvitation": "이 주소에는 소유자가 되는 초대가 있습니다. 소유자만 변경할 수 있습니다.",
     "notMember": "멤버가 아닌 사람입니다.",
     "lastOwner": "워크스페이스에는 소유자가 한 명 이상 있어야 합니다.",
     "lastOwnerRemove": "워크스페이스에는 소유자가 한 명 이상 있어야 합니다. 먼저 다른 사람을 소유자로 지정하세요.",
@@ -1222,7 +1235,8 @@
     "invalidNetworkLabel": "{detail}의 레이블이 너무 깁니다. 최대 100자까지 입력할 수 있습니다.",
     "tooManyNetworks": "워크스페이스에는 승인된 네트워크를 최대 100개까지 둘 수 있습니다.",
     "ipLocksYouOut": "이 목록에 현재 내 주소({detail})가 없어 저장하면 워크스페이스에 들어갈 수 없게 됩니다. 먼저 내 주소나 이를 포함하는 범위를 추가하세요.",
-    "ipUnknown": "서버가 내 주소를 알 수 없어 이 목록이 나를 막지 않는지 확인할 수 없습니다. 서버가 주소를 알 수 있는 연결에서 저장하거나 목록을 비우세요."
+    "ipUnknown": "서버가 내 주소를 알 수 없어 이 목록이 나를 막지 않는지 확인할 수 없습니다. 서버가 주소를 알 수 있는 연결에서 저장하거나 목록을 비우세요.",
+    "heirInvalid": "워크스페이스에 남는 소유자나 멤버를 선택하세요."
   },
   "security": {
     "description": "로그인 방법, 이 워크스페이스에 사람을 들일 수 있는 사람, 게스트가 할 수 있는 일, 워크스페이스 밖으로 나갈 수 있는 것(내보내기, 연결된 앱), 웹에 페이지를 게시할 수 있는 사람을 정합니다. 소유자만 이 설정을 변경할 수 있습니다.",
@@ -1269,7 +1283,9 @@
       "unpublish": "게시 취소",
       "confirm": "이 페이지의 게시를 취소할까요? 모든 사람에게서 링크가 작동하지 않게 됩니다.",
       "indexable": "검색 엔진 허용됨",
-      "off": "게시가 꺼져 있습니다. 지금은 이 페이지들이 웹에 없습니다. 게시를 취소하지 않는 한 게시가 다시 켜지면 돌아옵니다."
+      "off": "게시가 꺼져 있습니다. 지금은 이 페이지들이 웹에 없습니다. 게시를 취소하지 않는 한 게시가 다시 켜지면 돌아옵니다.",
+      "expiresOn": "{date}에 만료",
+      "expiredOn": "{date}에 만료됨"
     },
     "forms": {
       "title": "공개 양식",
@@ -1612,6 +1628,7 @@
     "privatePages": "개인 페이지",
     "roles": {
       "owner": "소유자",
+      "membership_admin": "멤버 관리자",
       "member": "멤버",
       "guest": "게스트"
     },
@@ -1655,7 +1672,8 @@
       "skill": "스킬(SKILL.md)",
       "notion": "Notion",
       "obsidian": "Obsidian",
-      "enex": "Evernote"
+      "enex": "Evernote",
+      "web": "웹페이지"
     },
     "settingNames": {
       "guestInvites": "게스트를 초대할 수 있는 사람",
@@ -1708,7 +1726,8 @@
         "removed": "{target}({role})을(를) 제거했습니다",
         "left": "워크스페이스에서 나갔습니다",
         "role_changed": "{target}의 역할을 {from}에서 {to}(으)로 변경했습니다",
-        "ownership_transferred": "{target}을(를) 소유자로 지정하고 본인은 멤버로 변경했습니다"
+        "ownership_transferred": "{target}을(를) 소유자로 지정하고 본인은 멤버로 변경했습니다",
+        "content_handed_over": "{target}만 관리할 수 있던 {count, plural, other {페이지 #개}}를 {subject}에게 넘겼습니다"
       },
       "invitation": {
         "sent": "{target}을(를) {role}(으)로 초대했습니다",
@@ -1740,7 +1759,8 @@
         "published": "{target}을(를) 웹에 게시했습니다",
         "unpublished": "{target}의 게시를 취소했습니다",
         "publication_revoked": "{target}을(를) 웹에서 내렸습니다({subject}이(가) 게시함)",
-        "rows_merged": "행 {count}개를 {target}에 병합"
+        "rows_merged": "행 {count}개를 {target}에 병합",
+        "publication_expiry_changed": "{change, select, removed {{target}의 웹 링크 만료를 제거했습니다} other {{target}의 웹 링크가 {to}에 작동을 멈추도록 설정했습니다}}"
       },
       "property": {
         "access_changed": "{target}에서 “{property}”에 액세스할 수 있는 사람을 변경했습니다",
@@ -1910,6 +1930,15 @@
       "slack_token": "Slack 토큰",
       "api_key": "API 키",
       "jwt": "JSON Web Token"
+    },
+    "audienceLine": "공개 대상: {audience}",
+    "audience": {
+      "web": "웹에 게시됨",
+      "workspace": "워크스페이스 전체",
+      "workspaceTeamspace": "워크스페이스 전체(팀스페이스 {name})",
+      "teamspace": "팀스페이스 {name}",
+      "people": "특정 사용자({count})",
+      "private": "비공개"
     }
   },
   "notifications": {
@@ -2656,7 +2685,7 @@
       "reservedKey": "이 키는 기본 제공 종류가 쓰고 있습니다(note, tip, important, warning, caution, info, danger, details, frame, card, panel).",
       "duplicateKey": "다른 스타일이 이미 이 키를 쓰고 있습니다.",
       "name": "60자 이하의 이름을 입력하세요.",
-      "icon": "이모지 하나를 고르거나 아이콘 없음으로 두세요.",
+      "icon": "이모지나 기본 제공 아이콘을 하나 선택하거나 아이콘 없이 두세요.",
       "color": "색상을 고르세요.",
       "border": "테두리를 고르세요.",
       "title": "제목은 120자 이하여야 합니다."

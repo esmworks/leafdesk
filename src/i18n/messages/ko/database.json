@@ -76,6 +76,10 @@
       "blank": "빈 행",
       "setDefault": "“새로 만들기”에 사용",
       "isDefault": "“새로 만들기”에 사용 중",
+      "isViewDefault": "이 보기에서 “새로 만들기”에 사용 중",
+      "forThisView": "이 보기에",
+      "forAllViews": "모든 보기에",
+      "followAllViews": "여기서 모든 보기의 기본값 사용",
       "edit": "템플릿 편집",
       "delete": "템플릿 삭제",
       "confirmDelete": "이 행 템플릿을 영구 삭제할까요? 이 템플릿으로 이미 만든 행은 그대로 유지됩니다.",
@@ -126,6 +130,7 @@
     "rename": "이름 변경",
     "viewName": "보기 이름",
     "deleteView": "보기 삭제",
+    "icon": "아이콘",
     "duplicate": "보기 복제",
     "duplicateHint": "레이아웃, 필터, 정렬을 포함한 이 보기의 사본",
     "copyName": "{name} (사본)",
@@ -240,7 +245,14 @@
     "relative": {
       "today": "오늘",
       "thisWeek": "이번 주",
+      "lastWeek": "지난주",
+      "nextWeek": "다음 주",
       "thisMonth": "이번 달",
+      "lastMonth": "지난달",
+      "nextMonth": "다음 달",
+      "thisYear": "올해",
+      "lastYear": "작년",
+      "nextYear": "내년",
       "pastNDays": "지난 N일",
       "nextNDays": "다음 N일",
       "pastDays": "지난 {count}일",
@@ -268,7 +280,8 @@
     "clickForMenu": "클릭하여 메뉴 열기",
     "sortedNoDrag": "보기가 정렬된 동안에는 행을 끌 수 없습니다",
     "sortedAscending": "오름차순 정렬됨",
-    "sortedDescending": "내림차순 정렬됨"
+    "sortedDescending": "내림차순 정렬됨",
+    "fillHandle": "위나 아래로 끌어 이 값으로 셀 채우기"
   },
   "rowMenu": {
     "open": "열기",
@@ -549,9 +562,6 @@
     "pinToTitle": "제목 아래에 고정",
     "unpinFromTitle": "제목 아래 고정 해제",
     "pinFull": "속성은 최대 {max}개까지 고정할 수 있습니다.",
-    "dateDisplay": "표시 형식",
-    "displayDate": "날짜",
-    "displayRelative": "상대적",
     "relativeHint": "오늘로부터 일주일 이내의 날짜는 “내일”, “3일 후”, “2일 전”처럼 표시됩니다.",
     "reminder": "리마인더",
     "reminderNone": "리마인더 없음",
@@ -571,13 +581,31 @@
     "dragOption": "끌어서 {name} 이동",
     "urlPreview": "링크 미리보기로 표시",
     "urlPreviewHint": "행 페이지에서 링크 아래에 링크된 페이지의 아이콘, 제목, 이미지를 보여 줍니다.",
+    "relationOptions": "관계 설정",
+    "showAs": "표시 방식",
+    "dateFormat": "날짜 형식",
+    "dateFormats": {
+      "default": "기본값",
+      "full": "전체 날짜",
+      "short": "짧은 날짜",
+      "mdy": "월/일/년",
+      "dmy": "일/월/년",
+      "ymd": "년/월/일",
+      "relative": "상대적"
+    },
+    "timeFormat": "시간 형식",
+    "timeFormats": {
+      "default": "기본값",
+      "12h": "12시간제",
+      "24h": "24시간제"
+    },
     "onePerson": "한 명으로 제한",
     "onePersonHint": "각 행에는 최대 한 명만 지정됩니다. 이미 여러 명이 지정된 행은 변경될 때까지 그대로 유지됩니다.",
+    "oneRow": "한 페이지로 제한",
+    "oneRowHint": "각 행은 최대 한 페이지만 연결합니다. 이미 여러 페이지가 연결된 행은 변경될 때까지 그대로 유지됩니다.",
     "statusCheckbox": "체크박스로 표시",
     "statusCheckboxHint": "상태가 완료인 동안 체크됩니다. 체크하면 첫 번째 완료 상태가, 해제하면 첫 번째 할 일 상태가 선택됩니다.",
-    "pickerProperties": "행 선택기에 표시",
-    "pickerPropertiesHint": "행을 연결할 때 각 행 이름 옆에 최대 세 개의 속성을 표시합니다.",
-    "pickerPropertiesNone": "관련 데이터베이스에 표시할 속성이 없습니다."
+    "icon": "아이콘"
   },
   "rowProperties": {
     "noProperties": "속성 없음",
@@ -719,7 +747,23 @@
     "noMatches": "일치하는 행 없음",
     "newRow": "새 행",
     "open": "{title} 열기",
-    "unlink": "{title} 연결 제거"
+    "unlink": "{title} 연결 제거",
+    "options": "관계 설정",
+    "rowPage": "행 페이지에서",
+    "displayInline": "인라인",
+    "displaySection": "섹션으로",
+    "sectionHint": "연결된 행이 속성 아래에 표시되고, 그 자리에서 속성을 편집할 수 있습니다.",
+    "shows": "연결된 행에 표시할 항목",
+    "showsHint": "표 셀, 카드, 행 페이지, 행 선택 목록에 표시됩니다.",
+    "titlePart": "제목",
+    "addPart": "속성 추가…",
+    "moveUp": "{name} 위로 이동",
+    "moveDown": "{name} 아래로 이동",
+    "hidePart": "{name} 표시 안 함",
+    "overLimit": "이제 행 하나만 연결됩니다. 남길 행을 고르세요.",
+    "addLink": "연결 추가",
+    "noLinks": "아직 연결된 행이 없습니다",
+    "showMore": "{count}개 더 보기"
   },
   "person": {
     "search": "사람 검색",
@@ -798,6 +842,7 @@
     "showTable": "표 표시",
     "showWeekends": "주말 표시",
     "showIcons": "페이지 아이콘 표시",
+    "showVerticalLines": "세로선 표시",
     "openRows": "행 열기 위치",
     "openRowsIn": {
       "panel": "사이드 패널",
@@ -938,7 +983,7 @@
     "parentInTrash": "상위 페이지가 휴지통에 있습니다. 먼저 복원하세요.",
     "nestedDatabase": "데이터베이스 안에 다른 데이터베이스를 넣을 수 없습니다.",
     "pageTooDeep": "페이지는 최대 {max}단계까지만 중첩할 수 있습니다.",
-    "invalidIcon": "아이콘은 이모지여야 합니다.",
+    "invalidIcon": "아이콘은 이모지 또는 기본 제공 아이콘이어야 합니다.",
     "invalidRelation": "“{property}”은(는) 관련 데이터베이스의 행에만 연결할 수 있습니다.",
     "invalidRelationTarget": "관계형은 같은 워크스페이스의 데이터베이스를 가리켜야 합니다.",
     "subItemLoop": "“{property}”에서 행을 자기 자신이나 자신의 하위 항목 아래에 둘 수 없습니다.",
@@ -1000,7 +1045,9 @@
     "noCurrentSprint": "현재 스프린트가 없습니다. 먼저 스프린트 하나를 현재로 표시하세요.",
     "invalidSprints": "이렇게는 스프린트를 설정할 수 없습니다. 스프린트 길이, 첫날, 스프린트 데이터베이스를 확인하세요.",
     "sprintStateOption": "이 옵션은 스프린트 상태를 나타냅니다. 이름은 바꿀 수 있으며, 삭제하려면 먼저 스프린트를 끄세요.",
-    "invalidSlackUrl": "Slack 수신 웹후크 주소가 아닙니다(https://hooks.slack.com/services/…)."
+    "invalidSlackUrl": "Slack 수신 웹후크 주소가 아닙니다(https://hooks.slack.com/services/…).",
+    "oneRow": "“{property}”에는 한 페이지만 연결할 수 있습니다. 하나를 고르세요.",
+    "invalidRelationOptions": "이 관계 설정은 저장할 수 없습니다."
   },
   "formula": {
     "title": "수식",
@@ -1844,7 +1891,9 @@
     "save": "저장하고 동기화",
     "stop": "동기화 중지",
     "stopConfirm": "이 데이터베이스의 동기화를 중지할까요? 행은 그대로 남고 로그인 정보는 삭제됩니다.",
-    "viewOnly": "데이터베이스에 대한 전체 액세스 권한이 있는 사람만 동기화를 변경할 수 있습니다."
+    "viewOnly": "데이터베이스에 대한 전체 액세스 권한이 있는 사람만 동기화를 변경할 수 있습니다.",
+    "reporter": "보고자",
+    "reporterNone": "동기화 안 함"
   },
   "sprints": {
     "menuItem": "스프린트",
