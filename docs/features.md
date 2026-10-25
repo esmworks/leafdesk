@@ -126,7 +126,11 @@
   mention: the site's icon, the page's title and the site's name inline in the text, fetched the
   same way and stored with it (*Show as mention* in a link's toolbar does the same for a link
   already there). Markdown, MCP and exports write it as `[Title](url)`, and writing a page's
-  Markdown back keeps its mentions; published pages, print and PDFs show it as a link.
+  Markdown back keeps its mentions; published pages, print and PDFs show it as a link. Resting
+  the pointer on a link mention shows a card with its title, site and address, *Copy link* and,
+  for editors, *Refresh* (fetch its details again) and *Turn into bookmark*; a link's toolbar has
+  *Copy link* and *Turn into bookmark* too. A bookmark goes under the line, or takes the line's
+  place when the link was all it held.
 - **Realtime collaboration**: several people can edit the same page at once (Yjs over WebSocket
   via Hocuspocus), with live cursors. The page header shows who else has the page open, including
   people who can only view it.

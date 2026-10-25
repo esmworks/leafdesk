@@ -8,8 +8,9 @@ import {
   useComponentsContext,
   type LinkToolbarProps,
 } from "@blocknote/react";
-import { AtSign } from "lucide-react";
+import { AtSign, Bookmark, Check, Link2 } from "lucide-react";
 import { useTranslations } from "next-intl";
+import { useState } from "react";
 import { TextSelection } from "prosemirror-state";
 import { EMPTY_MENTION, linkedPageRef, MENTION } from "@/lib/mentions";
 import { parseWebUrl } from "@/lib/web-url";
@@ -31,10 +32,14 @@ export function linkToMention(editor: PageEditor, from: number, to: number, url:
   return true;
 }
 
-/** The toolbar of a link in the text: BlockNote's buttons and, when `mentionable`, "Show as mention". */
+/**
+ * The toolbar of a link in the text: BlockNote's buttons, "Copy link" and, when `mentionable` (the
+ * page can be edited), "Show as mention" and "Turn into bookmark".
+ */
 export function LinkToolbarWithMention({ editor, mentionable: allowed, ...props }: LinkToolbarProps & { editor: PageEditor; mentionable: boolean }) {
   const t = useTranslations("page.mention");
   const Components = useComponentsContext()!;
+  const [copied, setCopied] = useState(false);
   const href = parseWebUrl(props.url)?.href;
   const mentionable = allowed && Boolean(href && !linkedPageRef(href, window.location.origin));
   return (
@@ -60,6 +65,34 @@ export function LinkToolbarWithMention({ editor, mentionable: allowed, ...props 
           icon={<AtSign size={16} />}
         />
       )}
+      {mentionable && href && (
+        <Components.LinkToolbar.Button
+          className="bn-button"
+          label={t("toBookmark")}
+          mainTooltip={t("toBookmark")}
+          isSelected={false}
+          onClick={() => {
+            const { from, to } = props.range;
+            props.setToolbarOpen?.(false);
+            void import("./link-bookmark").then(({ linkToBookmark }) => linkToBookmark(editor, from, to, href));
+          }}
+          icon={<Bookmark size={16} />}
+        />
+      )}
+      <Components.LinkToolbar.Button
+        className="bn-button"
+        label={copied ? t("linkCopied") : t("copyLink")}
+        mainTooltip={copied ? t("linkCopied") : t("copyLink")}
+        isSelected={false}
+        onClick={() => {
+          // A browser that refuses the clipboard leaves the button as it was.
+          navigator.clipboard.writeText(props.url).then(
+            () => setCopied(true),
+            () => {},
+          );
+        }}
+        icon={copied ? <Check size={16} /> : <Link2 size={16} />}
+      />
     </LinkToolbar>
   );
 }

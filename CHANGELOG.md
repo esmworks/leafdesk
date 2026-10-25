@@ -4,6 +4,10 @@
 
 ### Added
 
+- **A card for links shown as mentions.** Resting the pointer on a link mention shows its title,
+  site and address, with *Copy link* and, on pages you can edit, *Refresh*, which fetches its
+  details again, and *Turn into bookmark*. A link's toolbar has *Copy link* and *Turn into
+  bookmark* too; the bookmark goes under the line, or replaces the line when the link was all of it.
 - **Open rows in a centered window.** *Open rows in → Centered window* in a view's layout menu
   opens its rows in a window in the middle of the screen, over the view, with everything the side
   panel has (properties, body, comments, next and previous row). Esc or a click beside it closes

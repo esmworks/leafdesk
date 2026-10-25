@@ -6,12 +6,13 @@ import { linkedPageRef } from "@/lib/mentions";
 /**
  * Resting the pointer on a page mention or a link to a page of this app (in the editor and in
  * comments: anything inside a BlockNote view) shows a card about the page; on a group mention, who
- * is in the group. Only with a mouse (no cards on touch screens), after a moment, and never taking
+ * is in the group; on a link shown as a mention, the link, to copy, refresh or turn into a
+ * bookmark. Only with a mouse (no cards on touch screens), after a moment, and never taking
  * the focus; leaving, Escape, a click or scrolling closes it. The card and its data
  * (page-preview-card.tsx) load the first time one opens.
  */
 
-export type PreviewTarget = { kind: "page" | "group"; id: string };
+export type PreviewTarget = { kind: "page" | "group" | "link"; id: string };
 type Shown = { anchor: HTMLElement; target: PreviewTarget };
 
 const PreviewCard = lazy(() => import("./page-preview-card"));
@@ -29,6 +30,7 @@ function previewAt(element: Element | null): Shown | null {
   if (!anchor || !anchor.closest(SCOPE) || anchor.closest(CARD)) return null;
   const groupId = anchor.getAttribute("data-mention-group");
   if (groupId) return { anchor, target: { kind: "group", id: groupId } };
+  if (anchor.hasAttribute("data-link-mention")) return { anchor, target: { kind: "link", id: anchor.getAttribute("href") ?? "" } };
   const linked = linkedPageRef(anchor.getAttribute("href"), window.location.origin);
   return linked ? { anchor, target: { kind: "page", id: linked.pageId } } : null;
 }
@@ -39,6 +41,12 @@ let shown: Shown | null = null;
 const listeners = new Set<() => void>();
 const owners: symbol[] = [];
 let stop: (() => void) | null = null;
+let closeShown: (() => void) | null = null;
+
+/** Closes the card that is open (after one of its buttons did its work). */
+export function closePreview() {
+  closeShown?.();
+}
 
 function show(next: Shown | null) {
   shown = next;
@@ -96,6 +104,7 @@ function listen(): () => void {
   const onKey = (event: KeyboardEvent) => event.key === "Escape" && close();
   const onDown = (event: PointerEvent) => !inCard(event.target) && close();
 
+  closeShown = close;
   document.addEventListener("pointerover", onOver);
   document.addEventListener("pointerout", onOut);
   document.addEventListener("keydown", onKey);
@@ -104,6 +113,7 @@ function listen(): () => void {
   window.addEventListener("blur", close);
   return () => {
     close();
+    closeShown = null;
     document.removeEventListener("pointerover", onOver);
     document.removeEventListener("pointerout", onOut);
     document.removeEventListener("keydown", onKey);

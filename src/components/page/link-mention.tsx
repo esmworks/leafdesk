@@ -1,7 +1,7 @@
 "use client";
 
 import { Globe } from "lucide-react";
-import { useEffect, useState, type MouseEvent } from "react";
+import { useCallback, useEffect, useRef, useState, type MouseEvent } from "react";
 import { fetchLinkPreviewAction } from "@/app/actions/link-preview";
 import { linkMentionHref, linkMentionTitle } from "@/lib/link-mentions";
 import type { MentionProps } from "@/lib/mentions";
@@ -22,26 +22,65 @@ import { useEmbedHost } from "./database-embed";
 /** Links whose details are being fetched in this tab, so each is fetched once at a time. */
 const fetching = new Set<string>();
 
-export function LinkMentionChip({ props, onChange }: { props: MentionProps; onChange: ((next: Partial<MentionProps>) => void) | null }) {
+/**
+ * What the card of a link mention (page-preview-card.tsx) asks of it, sent to its element:
+ * fetch its details again, or become a bookmark.
+ */
+export const LINK_ACTION_EVENT = "leafdesk:link-action";
+export type LinkAction = "refresh" | "bookmark";
+
+export function LinkMentionChip({
+  props,
+  onChange,
+  onBookmark,
+}: {
+  props: MentionProps;
+  onChange: ((next: Partial<MentionProps>) => void) | null;
+  onBookmark: ((element: HTMLElement) => void) | null;
+}) {
   const host = useEmbedHost();
   const href = linkMentionHref(props);
   const favicon = parseWebUrl(props.favicon)?.href ?? "";
   const [iconFailed, setIconFailed] = useState<string | null>(null);
-  const fetchNow = Boolean(onChange && host?.editable && href && !props.fetchedAt);
+  const editable = Boolean(onChange && host?.editable && href);
+  const fetchNow = editable && !props.fetchedAt;
 
-  useEffect(() => {
-    if (!fetchNow || !host || !href || !onChange || fetching.has(href)) return;
+  const onChangeRef = useRef(onChange);
+  onChangeRef.current = onChange;
+  const fetchDetails = useCallback(() => {
+    const change = onChangeRef.current;
+    if (!host || !href || !change || fetching.has(href)) return;
     fetching.add(href);
     fetchLinkPreviewAction(host.pageId, href)
       .then((res) => {
         // Tried either way: a link that can't be read isn't fetched again on every visit.
-        if (res.ok) onChange({ title: res.data.title, favicon: res.data.favicon, siteName: res.data.siteName, fetchedAt: res.data.fetchedAt });
-        else onChange({ fetchedAt: new Date().toISOString() });
+        if (res.ok) change({ title: res.data.title, favicon: res.data.favicon, siteName: res.data.siteName, fetchedAt: res.data.fetchedAt });
+        else change({ fetchedAt: new Date().toISOString() });
       })
       .catch(() => {})
       .finally(() => fetching.delete(href));
-    // eslint-disable-next-line react-hooks/exhaustive-deps -- once per link; onChange changes with every render
+  }, [host, href]);
+
+  useEffect(() => {
+    if (fetchNow) fetchDetails();
+    // Once per link: not again as the host's other details change.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [fetchNow, href, host?.pageId]);
+
+  const element = useRef<HTMLAnchorElement>(null);
+  const bookmarkRef = useRef(onBookmark);
+  bookmarkRef.current = onBookmark;
+  useEffect(() => {
+    const el = element.current;
+    if (!el || !editable) return;
+    const onAction = (event: Event) => {
+      const action = (event as CustomEvent<LinkAction>).detail;
+      if (action === "refresh") fetchDetails();
+      else if (action === "bookmark") bookmarkRef.current?.(el);
+    };
+    el.addEventListener(LINK_ACTION_EVENT, onAction);
+    return () => el.removeEventListener(LINK_ACTION_EVENT, onAction);
+  }, [editable, fetchDetails]);
 
   const title = linkMentionTitle(props);
   const site = props.siteName.replace(/\s+/g, " ").trim();
@@ -53,13 +92,18 @@ export function LinkMentionChip({ props, onChange }: { props: MentionProps; onCh
   };
   return (
     <a
+      ref={element}
       href={href ?? undefined}
       target="_blank"
       rel="noopener noreferrer nofollow"
       onClick={open}
-      title={href ?? undefined}
       className="leafdesk-mention leafdesk-mention-page leafdesk-mention-link"
       data-mention-status={href ? "ok" : undefined}
+      // For its card (page-preview.tsx): what it shows, and whether it can be changed here.
+      data-link-mention=""
+      data-link-site={site || undefined}
+      data-link-icon={favicon || undefined}
+      data-link-editable={editable && onBookmark ? "" : undefined}
     >
       {favicon && iconFailed !== favicon ? (
         <img

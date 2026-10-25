@@ -411,7 +411,13 @@ const Mention = createReactInlineContentSpec(mentionConfig, {
     if (props.kind === "page") return <PageMentionChip pageId={props.pageId} blockId={props.blockId} />;
     if (props.kind === "user") return <PersonMentionChip name={props.name} />;
     if (props.kind === "group") return <GroupMentionChip groupId={props.groupId} name={props.name} />;
-    if (props.kind === "link") return <LinkMentionChip props={props} onChange={editor.isEditable ? change : null} />;
+    if (props.kind === "link") {
+      // Not in comments, whose editor has no bookmarks.
+      const bookmarks = editor.isEditable && "bookmark" in editor.schema.blockSchema;
+      const toBookmark = (element: HTMLElement) =>
+        void import("./link-bookmark").then(({ mentionToBookmark }) => mentionToBookmark(editor as unknown as PageEditor, element, props.url));
+      return <LinkMentionChip props={props} onChange={editor.isEditable ? change : null} onBookmark={bookmarks ? toBookmark : null} />;
+    }
     if (props.kind === "comment") return <CommentMentionChip pageId={props.pageId} threadId={props.threadId} />;
     return <DateMentionChip props={props} onChange={editor.isEditable ? change : null} />;
   },
