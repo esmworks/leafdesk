@@ -34,7 +34,7 @@ const { resolveAgentLevel } = await import("@/lib/agent-sharing");
 const { visibleSettingsTabs } = await import("@/lib/settings-tabs");
 const { createPage } = await import("@/server/pages");
 const { setPagePermission, setPageGroupPermission } = await import("@/server/permissions");
-const { createTeamspace } = await import("@/server/teamspaces");
+const { addTeamspaceMembers, createTeamspace, inviteToTeamspace } = await import("@/server/teamspaces");
 const { addGroupMembers, changeGroup, createGroup, deleteGroup, GroupError, removeGroupMember, renameGroup } = await import("@/server/groups");
 const { approveJoinRequest, declineJoinRequest, listJoinRequests, requestToJoinFrom, setJoinRequestMailer } = await import("@/server/join-requests");
 const { setShareMailer } = await import("@/server/share-emails");
@@ -62,6 +62,7 @@ const {
   memberInviteAccess,
   removeMember,
   renameWorkspace,
+  WorkspaceError,
   revokeInvitation,
   setJoinLink,
   setMemberRole,
@@ -224,6 +225,28 @@ try {
   const ownerInvite = ownerSees.find((i) => i.role === "owner")!;
   await revokeInvitation(ids.admin, workspaceId, ownerInvite.id);
   check((await listInvitations(ids.owner, workspaceId)).some((i) => i.id === ownerInvite.id), "a membership admin can't withdraw an invitation to become an owner");
+  const ownerInvitationCode = (error: unknown) => error instanceof WorkspaceError && error.code === "ownerInvitation";
+  const again = await addMembers(ids.admin, workspaceId, [`future-owner@${RUN}.test`], "member");
+  check(again[0]?.kind === "error" && again[0].code === "ownerInvitation", "inviting that address again can't turn it into a member's invitation", again);
+  check(
+    (await listInvitations(ids.owner, workspaceId)).some((i) => i.id === ownerInvite.id && i.role === "owner"),
+    "…which stays an invitation to become an owner",
+  );
+  // Inviting by email into a teamspace the admin runs: members' invitations carry the teamspace,
+  // and an invitation to become an owner is just as out of reach there.
+  const inviteTs = await createTeamspace(ids.owner, workspaceId, { name: `${RUN} Invites`, access: "closed" });
+  await addTeamspaceMembers(ids.owner, inviteTs.id, [ids.admin], "owner");
+  const intoTs = await inviteToTeamspace(ids.admin, inviteTs.id, `ts-new@${RUN}.test`);
+  const [tsInvitation] = await db
+    .select({ role: workspaceInvitation.role, teamspaces: workspaceInvitation.teamspaces })
+    .from(workspaceInvitation)
+    .where(and(eq(workspaceInvitation.workspaceId, workspaceId), eq(workspaceInvitation.email, `ts-new@${RUN}.test`)));
+  check(
+    intoTs.kind === "invited" && tsInvitation?.role === "member" && JSON.stringify(tsInvitation.teamspaces).includes(inviteTs.id),
+    "a membership admin invites someone into a teamspace they run, as a member carrying it",
+    { intoTs, tsInvitation },
+  );
+  await rejects(() => inviteToTeamspace(ids.admin, inviteTs.id, `future-owner@${RUN}.test`), ownerInvitationCode, "…but not over an invitation to become an owner");
   const memberInvite = adminSees.find((i) => i.email === `new-m@${RUN}.test`)!;
   await revokeInvitation(ids.admin, workspaceId, memberInvite.id);
   check(!(await listInvitations(ids.admin, workspaceId)).some((i) => i.id === memberInvite.id), "…and withdraws a member's");
@@ -263,6 +286,9 @@ try {
   // ------------------------------------------------------------------ removing
   const leaversPage = await createPage({ userId: ids.leaver }, { workspaceId, teamspaceId: null, title: `${RUN} leaver's own` });
   check((await pageAccessOf(ids.admin, leaversPage.id)).level === "none", "a member's private page is theirs alone");
+  await rejects(() => removeMember(ids.admin, workspaceId, ids.leaver, { heirId: ids.twin }), isAccessError, "a membership admin can't pick who takes over");
+  await rejects(() => removeMember(ids.admin, workspaceId, ids.leaver, { heirId: ids.admin }), isAccessError, "…nor take it over themselves");
+  check((await roleOf(ids.leaver)) === "member", "…and the member stays until removed without one");
   await removeMember(ids.admin, workspaceId, ids.leaver);
   check((await roleOf(ids.leaver)) === null, "a membership admin removes a member");
   check((await pageAccessOf(ids.admin, leaversPage.id)).level === "none", "…without taking over the pages only they managed");

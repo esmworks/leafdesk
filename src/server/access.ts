@@ -26,7 +26,7 @@ import { actingFor } from "@/server/acting-for";
  * goes through `requirePageAccess` (one page) or `pageVisibleTo` (lists, as a SQL condition).
  *
  * The rule itself is the SQL function `page_access_level` (drizzle/0003_page_permission.sql, last
- * redefined in drizzle/0136_membership_admin.sql): workspace members (membership admins among
+ * redefined in drizzle/0140_membership_admin.sql): workspace members (membership admins among
  * them) get full access unless a page permission on the page or its nearest ancestor says otherwise, and anyone in the workspace can be given access to a page and its subpages.
  * A database's row access (server/row-access.ts) adds what its rows give the people they name, and
  * may keep its rows from everyone else (last redefined in drizzle/0118_row_access.sql).

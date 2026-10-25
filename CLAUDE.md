@@ -50,7 +50,7 @@ BlockNote on Yjs; Tailwind v4; next-intl. Node 24, pnpm 11. A separate Electron 
 - **Access.** `src/server/access.ts` is the one place that decides who may see or change a page:
   `requirePageAccess(userId, pageId, level)` for one page, `pageVisibleTo(userId)` as the SQL
   condition for lists. The rule is the SQL function `page_access_level`, last redefined in
-  `drizzle/0136_membership_admin.sql`. For a database's rows, `childVisibleTo(userId, databaseId)` works it
+  `drizzle/0140_membership_admin.sql`. For a database's rows, `childVisibleTo(userId, databaseId)` works it
   out once per database instead of once per row; Postgres JIT can add about 200 ms to such queries,
   so `server/assigned.ts` runs them with `set local jit = off`. Roles: `src/lib/workspace-roles.ts` (`contentRole`: a membership admin
   is a member on content; `managesPeople`, `mayChangeRole`, `mayRemove`); people management checks
