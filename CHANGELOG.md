@@ -469,6 +469,8 @@
 
 ### Changed
 
+- **Client bundle budgets** go to 771 kB for a page's first load and 1174 kB for all first loads
+  together, for typed dates, tags in the search box, named versions and page dictation.
 - **One player at a time.** Starting an audio or video block on a page pauses the one playing.
 - **`/grey`** finds the gray text and background colors, like `/gray`.
 

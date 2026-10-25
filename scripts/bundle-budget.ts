@@ -42,8 +42,12 @@ import { gzipSync } from "node:zlib";
  * and then (automations, import, PDF export, QR codes) load when opened. The editor loads only the
  * dictionary of the language in use, after itself: ours (Turkish, Indonesian, Thai) about 3 kB
  * each, BlockNote's (one module) about 30 kB together, English none.
+ *
+ * Typed dates, tags in the search box, named versions and dictation's shortcut cost a page's first
+ * load about 3 kB and all first loads together about 4 kB; the grammar, the tag list, the version
+ * prompt and the recorder load when used.
  */
-const BUDGET = { routeFirstLoad: 767, firstLoadShared: 1169, onDemandChunk: 450 };
+const BUDGET = { routeFirstLoad: 771, firstLoadShared: 1174, onDemandChunk: 450 };
 
 const NEXT = ".next";
 const kB = (bytes: number) => bytes / 1024;
