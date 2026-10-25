@@ -228,7 +228,7 @@ export function ViewLayoutMenu({
               )}
               <Heading>{t("openRows")}</Heading>
               {OPEN_ROWS.map((where) => (
-                <Choice key={where} active={openRowsOf(config) === where} onClick={() => set({ openRows: where === "page" ? "page" : undefined })}>
+                <Choice key={where} active={openRowsOf(config) === where} onClick={() => set({ openRows: where === "panel" ? undefined : where })}>
                   {t(`openRowsIn.${where}`)}
                 </Choice>
               ))}

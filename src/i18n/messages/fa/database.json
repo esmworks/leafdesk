@@ -281,6 +281,7 @@
     "editProperty": "ویرایش ویژگی",
     "openIn": "باز کردن در",
     "sidePanel": "پنل کناری",
+    "centerPanel": "پنجره در وسط",
     "fullPage": "صفحهٔ کامل",
     "newTab": "زبانهٔ جدید",
     "comment": "نظر دادن",
@@ -801,6 +802,7 @@
     "openRows": "باز کردن ردیف‌ها در",
     "openRowsIn": {
       "panel": "پنل کناری",
+      "center": "پنجره در وسط",
       "page": "صفحه کامل"
     },
     "showOutdated": "نمایش ردیف‌های بایگانی‌شده",

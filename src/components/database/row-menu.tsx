@@ -1,6 +1,7 @@
 "use client";
 
 import {
+  AppWindow,
   ArrowLeft,
   ArrowUpRight,
   Bell,
@@ -392,8 +393,11 @@ export function RowMenu({
               t("rowMenu.openIn"),
               <>
                 {opener.inPanel && (
-                  <MenuItem icon={<PanelRight className="h-3.5 w-3.5 rtl:-scale-x-100" />} onClick={then(() => opener.open(row.id))}>
-                    {t("rowMenu.sidePanel")}
+                  <MenuItem
+                    icon={opener.centered ? icon(AppWindow) : <PanelRight className="h-3.5 w-3.5 rtl:-scale-x-100" />}
+                    onClick={then(() => opener.open(row.id))}
+                  >
+                    {t(opener.centered ? "rowMenu.centerPanel" : "rowMenu.sidePanel")}
                   </MenuItem>
                 )}
                 <MenuItem icon={icon(Maximize2)} onClick={then(() => opener.openPage(row.id))}>

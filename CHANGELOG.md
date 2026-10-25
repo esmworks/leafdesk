@@ -4,6 +4,11 @@
 
 ### Added
 
+- **Open rows in a centered window.** *Open rows in → Centered window* in a view's layout menu
+  opens its rows in a window in the middle of the screen, over the view, with everything the side
+  panel has (properties, body, comments, next and previous row). Esc or a click beside it closes
+  it. MCP's `create_database_view` and `update_database_view` take `open_rows: "center"`; the MCP
+  tool list's size budget goes from 276,000 to 276,500 bytes for it.
 - **Duplicate a view, and hide a linked view's title.** *Duplicate view* in a view's tab menu
   makes a copy of the view with its layout, filters, sorts and shown properties, named "… (copy)",
   right after it, and opens it. A linked view on a page can leave out the database's name above it

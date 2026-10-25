@@ -460,7 +460,7 @@ const viewLayoutInputs = {
     .enum(OPEN_ROWS)
     .optional()
     .describe(
-      'Every view but forms and charts: "panel" opens rows beside the view (default), "page" as pages (always on phones).',
+      'Not forms or charts: "panel" opens rows beside the view (default), "center" over it, "page" as pages (phones: always).',
     ),
 };
 
@@ -724,7 +724,7 @@ function viewConfigPatch(
   }
   if (input.open_rows !== undefined) {
     only("open_rows", ...ROW_VIEW_TYPES);
-    patch.openRows = input.open_rows === "page" ? "page" : undefined;
+    patch.openRows = input.open_rows === "panel" ? undefined : input.open_rows;
   }
   if (input.filters) patch.filters = toFilterEntries(props, input.filters, lookups);
   // New filters replace the old ones together with how they combine ("and" unless given).

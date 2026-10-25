@@ -281,6 +281,7 @@
     "editProperty": "Modifica proprietà",
     "openIn": "Apri in",
     "sidePanel": "Pannello laterale",
+    "centerPanel": "Finestra centrata",
     "fullPage": "Pagina intera",
     "newTab": "Nuova scheda",
     "comment": "Commenta",
@@ -801,6 +802,7 @@
     "openRows": "Apri le righe in",
     "openRowsIn": {
       "panel": "Pannello laterale",
+      "center": "Finestra centrata",
       "page": "Pagina intera"
     },
     "showOutdated": "Mostra righe archiviate",
