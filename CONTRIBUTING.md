@@ -21,7 +21,9 @@ fixed before anything new is added:
    (`UPGRADE_FROM` in the workflow), fills it with a workspace through that release's own code,
    upgrades the database to the branch and checks that everything is still there and the same,
    that the schema matches a fresh install, and that a set of the end-to-end scripts passes on it.
-   Green on `main`.
+   Green on `main`. A migration in `drizzle/` is never edited once it has been released, not even
+   its whitespace: upgraded databases record its hash, and this job fails when the file changes.
+   Change the schema with a new migration instead.
 4. **Large workspaces are tested.** CI's *Large workspace* job seeds a database with 50,000 rows
    and a workspace with 5,000 pages and times opening, filtering and sorting the table, searching,
    opening a page and connecting to its live document against the limits in
