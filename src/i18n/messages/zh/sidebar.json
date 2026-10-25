@@ -100,7 +100,16 @@
       "findPerson": "查找成员…",
       "noPeople": "未找到任何人",
       "remove": "移除筛选",
-      "clear": "清除筛选条件"
+      "clear": "清除筛选条件",
+      "sort": "排序",
+      "sortReset": "按最佳匹配排序",
+      "sorts": {
+        "relevance": "最佳匹配",
+        "editedNewest": "最后编辑：最新优先",
+        "editedOldest": "最后编辑：最早优先",
+        "createdNewest": "创建时间：最新优先",
+        "createdOldest": "创建时间：最早优先"
+      }
     }
   },
   "trash": {
@@ -257,6 +266,7 @@
     "members": "成员与设置",
     "leave": "离开团队空间",
     "confirmLeave": "要离开 {name} 吗？其页面将从你的侧边栏中移除。除非该团队空间是开放的，否则你也将失去对这些页面的访问权限。",
+    "confirmWideAdd": "{name} 中的所有人（{count} 人）都会在团队空间顶层看到这个新页面。要添加到那里吗？",
     "empty": "还没有页面。添加一个",
     "another": "另一个团队空间",
     "watch": "关注所有页面",

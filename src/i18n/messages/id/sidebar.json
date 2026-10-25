@@ -100,7 +100,16 @@
       "findPerson": "Cari orang…",
       "noPeople": "Tidak ada yang ditemukan",
       "remove": "Hapus filter",
-      "clear": "Hapus semua filter"
+      "clear": "Hapus semua filter",
+      "sort": "Urutkan",
+      "sortReset": "Urutkan menurut paling cocok",
+      "sorts": {
+        "relevance": "Paling cocok",
+        "editedNewest": "Terakhir diedit: terbaru dulu",
+        "editedOldest": "Terakhir diedit: terlama dulu",
+        "createdNewest": "Dibuat: terbaru dulu",
+        "createdOldest": "Dibuat: terlama dulu"
+      }
     }
   },
   "trash": {
@@ -257,6 +266,7 @@
     "members": "Anggota dan pengaturan",
     "leave": "Keluar dari ruang tim",
     "confirmLeave": "Keluar dari {name}? Halamannya akan hilang dari bilah samping Anda. Kecuali ruang tim ini terbuka, Anda juga kehilangan akses ke halaman tersebut.",
+    "confirmWideAdd": "Semua orang di {name} ({count} orang) akan melihat halaman baru ini di bagian atas ruang tim. Tambahkan di sana?",
     "empty": "Belum ada halaman. Tambahkan satu",
     "another": "ruang tim lain",
     "watch": "Pantau semua halaman",

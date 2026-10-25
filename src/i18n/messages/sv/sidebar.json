@@ -100,7 +100,16 @@
       "findPerson": "Hitta en person…",
       "noPeople": "Ingen hittades",
       "remove": "Ta bort filter",
-      "clear": "Rensa filter"
+      "clear": "Rensa filter",
+      "sort": "Sortera",
+      "sortReset": "Sortera efter bästa träff",
+      "sorts": {
+        "relevance": "Bästa träff",
+        "editedNewest": "Senast redigerad: nyaste först",
+        "editedOldest": "Senast redigerad: äldsta först",
+        "createdNewest": "Skapad: nyaste först",
+        "createdOldest": "Skapad: äldsta först"
+      }
     }
   },
   "trash": {
@@ -257,6 +266,7 @@
     "members": "Medlemmar och inställningar",
     "leave": "Lämna teamytan",
     "confirmLeave": "Lämna {name}? Dess sidor försvinner från ditt sidofält. Om teamytan inte är öppen förlorar du också åtkomsten till dem.",
+    "confirmWideAdd": "Alla i {name} ({count} personer) ser den här nya sidan överst i teamytan. Vill du lägga till den där?",
     "empty": "Inga sidor än. Lägg till en",
     "another": "en annan teamyta",
     "watch": "Bevaka alla sidor",

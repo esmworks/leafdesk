@@ -56,7 +56,7 @@ import {
 } from "@/server/databases";
 import { PAGE_HEADER_EVENT } from "@/lib/collab-constants";
 import { searchFold } from "@/lib/search-fold";
-import { NO_SEARCH_FILTERS, searchDateRange, type SearchFilters } from "@/lib/search-filters";
+import { NO_SEARCH_FILTERS, searchDateRange, type SearchFilters, type SearchSort } from "@/lib/search-filters";
 import { parseSearchQuery } from "@/lib/search-query";
 import { uniqueIdQuery } from "@/lib/unique-id";
 import { pageChanged } from "@/server/page-events";
@@ -898,6 +898,7 @@ export type SearchHit = {
   icon: string | null;
   snippet: string;
   updatedAt: Date;
+  createdAt: Date;
   /** "semantic": found by meaning only (its words don't match the query). */
   match?: "semantic";
   /** With semantic search: the passage that matched best, and the block it starts at. */
@@ -925,6 +926,8 @@ export type SearchOptions = SearchScope & {
    * search by meaning only adds its passages to what full-text found, never pages of its own.
    */
   phrases?: string[];
+  /** Best match first (the default), or by when pages were last edited or created (lib/search-filter-state). */
+  sort?: SearchSort;
 };
 
 /** Whether a search has a scope of its own, which lists pages even without words to search for. */
@@ -982,6 +985,7 @@ export async function searchPages(userId: string, query: string, options: Search
             icon: m.icon,
             snippet,
             updatedAt: m.updatedAt,
+            createdAt: m.createdAt,
             outdated: m.outdated,
             verified: m.verified,
             match: "semantic",
@@ -990,12 +994,29 @@ export async function searchPages(userId: string, query: string, options: Search
           },
     );
   }
+  const { sort = "relevance" } = options;
+  if (sort !== "relevance") return [...byId.values()].sort(bySearchSort(sort)).slice(0, limit);
   // Equal fused scores: a verified page first (sort is stable, so the fusion's order stays otherwise).
   return reciprocalRankFusion([text.map((h) => h.id), meaning.filter((m) => byId.has(m.id)).map((m) => m.id)])
     .map((r) => ({ ...r, verified: byId.get(r.id)!.verified }))
     .sort((a, b) => b.score - a.score || Number(b.verified) - Number(a.verified))
     .slice(0, limit)
     .map(({ id }) => byId.get(id)!);
+}
+
+/** Hits in a date order of the search box; ties newest edit first, then by id, so the order is stable. */
+const bySearchSort = (sort: Exclude<SearchSort, "relevance">) => {
+  const key = sort.startsWith("created") ? "createdAt" : "updatedAt";
+  const sign = sort.endsWith("Newest") ? -1 : 1;
+  return (a: SearchHit, b: SearchHit) =>
+    sign * (a[key].getTime() - b[key].getTime()) || b.updatedAt.getTime() - a.updatedAt.getTime() || (a.id < b.id ? -1 : a.id > b.id ? 1 : 0);
+};
+
+/** The SQL order of bySearchSort, over columns `updated_at`, `created_at` and `id` of `alias`. */
+function searchSortOrder(sort: Exclude<SearchSort, "relevance">, alias: string) {
+  const col = (name: string) => sql.raw(`${alias}.${name}`);
+  const key = col(sort.startsWith("created") ? "created_at" : "updated_at");
+  return sql`${key} ${sql.raw(sort.endsWith("Newest") ? "desc" : "asc")}, ${col("updated_at")} desc, ${col("id")}`;
 }
 
 /**
@@ -1013,7 +1034,7 @@ export async function searchPages(userId: string, query: string, options: Search
 export async function fullTextSearch(
   userId: string,
   query: string,
-  { workspaceId, limit = 20, anyWord = false, phrases = [], ...scope }: SearchOptions = {},
+  { workspaceId, limit = 20, anyWord = false, phrases = [], sort = "relevance", ...scope }: SearchOptions = {},
 ): Promise<SearchHit[]> {
   const { includeOutdated = false } = scope;
   const q = query.trim();
@@ -1110,6 +1131,7 @@ export async function fullTextSearch(
     icon: string | null;
     content_text: string;
     updated_at: Date;
+    created_at: Date;
     file_id: string | null;
     file_name: string | null;
     file_text: string | null;
@@ -1141,11 +1163,11 @@ export async function fullTextSearch(
       -- per page, which a common word (or the first letters of one) would make for most pages.
       -- "offset 0" keeps the check out of the ranked set, and the ranked set in its order.
       -- A verified page goes above an otherwise equal one (server/verification).
-      select r.id, r.rank, r.verified, r.updated_at, r.file_id from (
-        select s.id, s.rank, ${activeVerification("p")} as verified, p.updated_at, s.file_id
+      select r.id, r.rank, r.verified, r.updated_at, r.created_at, r.file_id from (
+        select s.id, s.rank, ${activeVerification("p")} as verified, p.updated_at, p.created_at, s.file_id
         from scored s
         join ${page} p on p.id = s.id
-        order by s.rank desc, verified desc, p.updated_at desc
+        order by ${sort === "relevance" ? sql`s.rank desc, verified desc, p.updated_at desc` : searchSortOrder(sort, "p")}
         offset 0
       ) r
       where ${pageVisibleTo(userId, "r")}
@@ -1154,7 +1176,7 @@ export async function fullTextSearch(
     select p.id, p.workspace_id, p.teamspace_id,
       -- A parent they can't see isn't named, not even by id.
       case when p.parent_id is not null and ${pageVisibleTo(userId, "parent")} then p.parent_id end as parent_id,
-      p.kind, p.title, p.icon, p.content_text, p.updated_at,
+      p.kind, p.title, p.icon, p.content_text, p.updated_at, p.created_at,
       h.file_id, f.name as file_name, left(ft.text, 80000) as file_text,
       ${includeOutdated ? isOutdated(workspaces, "p") : sql`false`} as outdated,
       h.verified
@@ -1163,7 +1185,7 @@ export async function fullTextSearch(
     left join ${page} parent on parent.id = p.parent_id
     left join ${file} f on f.id = h.file_id
     left join ${fileText} ft on ft.file_id = h.file_id
-    order by h.rank desc, h.verified desc, h.updated_at desc
+    order by ${sort === "relevance" ? sql`h.rank desc, h.verified desc, h.updated_at desc` : searchSortOrder(sort, "h")}
   `);
   const needles = anyWord ? terms : [...phrases, q, ...q.split(/\s+/)];
   return rows.map((r) => ({
@@ -1176,6 +1198,7 @@ export async function fullTextSearch(
     icon: r.icon,
     snippet: makeSnippet(r.file_id ? (r.file_text ?? "") : r.content_text, needles),
     updatedAt: new Date(r.updated_at),
+    createdAt: new Date(r.created_at),
     outdated: Boolean(r.outdated),
     verified: Boolean(r.verified),
     ...(r.file_id ? { file: { id: r.file_id, name: r.file_name ?? "" } } : {}),
@@ -1328,7 +1351,8 @@ export async function searchWithQuery(
     filters = NO_SEARCH_FILTERS,
     timeZone = "UTC",
     now = new Date(),
-  }: { includeOutdated?: boolean; filters?: SearchFilters; timeZone?: string; now?: Date } = {},
+    sort = "relevance",
+  }: { includeOutdated?: boolean; filters?: SearchFilters; timeZone?: string; now?: Date; sort?: SearchSort } = {},
 ): Promise<SearchHit[]> {
   const { text, within, kinds, verified, phrases } = parseSearchQuery(query);
   const withinPageIds = within.length ? await pagesTitled(userId, workspaceId, within, 20, { includeOutdated }) : undefined;
@@ -1346,6 +1370,7 @@ export async function searchWithQuery(
     teamspaceIds,
     createdBy,
     editedBy,
+    sort,
     ...(date?.field === "created" ? { createdIn: range } : date?.field === "edited" ? { editedIn: range } : {}),
   });
 }

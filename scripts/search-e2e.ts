@@ -356,6 +356,42 @@ try {
   check((await recentlyViewedPages(ids.guest, workspaceId, 8)) === null, "a guest, whose views aren't recorded, has no list");
   await db.update(workspace).set({ settings: {} }).where(eq(workspace.id, workspaceId));
 
+  // The box's order: best match, or by when pages were last edited or created.
+  const dated = async (title: string, markdown: string, created: string, edited: string) => {
+    const made = await createPage(owner, { workspaceId, parentId: null, title, markdown });
+    await db.execute(sql`update ${page} set created_at = ${created}::timestamptz, updated_at = ${edited}::timestamptz where id = ${made.id}`);
+    return made;
+  };
+  // Made in one order, edited in another; "Quokka quokka quokka" is the best match for "quokka".
+  await dated("Quokka quokka quokka", "Quokka, quokka.", "2025-01-03T00:00:00Z", "2025-02-01T00:00:00Z");
+  await dated("Notes on a quokka", "Seen once.", "2025-01-01T00:00:00Z", "2025-02-03T00:00:00Z");
+  await dated("Island trip", "A quokka at last.", "2025-01-02T00:00:00Z", "2025-02-02T00:00:00Z");
+  const sorted = async (sort: import("@/lib/search-filters").SearchSort) =>
+    (await searchWithQuery(ids.owner, workspaceId, "quokka", 20, { sort })).map((h) => h.title);
+  check((await sorted("relevance"))[0] === "Quokka quokka quokka", "best match comes first by default", await sorted("relevance"));
+  check(
+    JSON.stringify(await sorted("editedNewest")) === JSON.stringify(["Notes on a quokka", "Island trip", "Quokka quokka quokka"]),
+    "sorted by last edited, newest first",
+    await sorted("editedNewest"),
+  );
+  check(
+    JSON.stringify(await sorted("editedOldest")) === JSON.stringify(["Quokka quokka quokka", "Island trip", "Notes on a quokka"]),
+    "…oldest first",
+    await sorted("editedOldest"),
+  );
+  check(
+    JSON.stringify(await sorted("createdNewest")) === JSON.stringify(["Quokka quokka quokka", "Island trip", "Notes on a quokka"]),
+    "sorted by created, newest first",
+    await sorted("createdNewest"),
+  );
+  check(
+    JSON.stringify(await sorted("createdOldest")) === JSON.stringify(["Notes on a quokka", "Island trip", "Quokka quokka quokka"]),
+    "…oldest first",
+    await sorted("createdOldest"),
+  );
+  const firstOldest = await searchWithQuery(ids.owner, workspaceId, "quokka", 1, { sort: "createdOldest" });
+  check(firstOldest.length === 1 && firstOldest[0].title === "Notes on a quokka", "a date order picks from every match, not only the best few", firstOldest);
+
   const recent = await recentPages(ids.owner, workspaceId, 3);
   check(recent.length === 3 && recent[0].updatedAt >= recent[2].updatedAt, "the pages last edited come newest first", recent);
 

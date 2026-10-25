@@ -42,6 +42,7 @@ export type SemanticHit = {
   title: string;
   icon: string | null;
   updatedAt: Date;
+  createdAt: Date;
   /** Cosine similarity of the best chunk. */
   score: number;
   /** The best chunk's passage (without the title it was embedded with) and where it starts. */
@@ -293,6 +294,7 @@ async function rankGroup(
     title: string;
     icon: string | null;
     updated_at: Date;
+    created_at: Date;
     outdated: boolean;
     verified: boolean;
   }>(sql`
@@ -321,7 +323,7 @@ async function rankGroup(
     select b.page_id, b.block_id, b.text, b.score, p.workspace_id, p.teamspace_id,
       -- A parent they can't see isn't named, not even by id.
       case when p.parent_id is not null and ${pageVisibleTo(userId, "parent")} then p.parent_id end as parent_id,
-      p.kind, p.title, p.icon, p.updated_at,
+      p.kind, p.title, p.icon, p.updated_at, p.created_at,
       ${scope.includeOutdated ? isOutdated(workspaces, "p") : sql`false`} as outdated,
       ${activeVerification("p")} as verified
     from best b
@@ -340,6 +342,7 @@ async function rankGroup(
     title: r.title,
     icon: r.icon,
     updatedAt: new Date(r.updated_at),
+    createdAt: new Date(r.created_at),
     score: Number(r.score),
     passage: passageOf(r.text, r.title),
     blockId: r.block_id,

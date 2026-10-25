@@ -1192,6 +1192,15 @@ input.leafdesk-callout-title-input {
 :root .bn-container .bn-editor [data-content-type="table"] th {
   text-align: start;
 }
+/* A toggle with nothing in it shows a fainter arrow, so it reads as empty without opening it. */
+:root .bn-container .bn-block:not(:has(> .bn-block-group)) > .bn-block-content .bn-toggle-button,
+:root .bn-container .bn-block:not(:has(> .bn-block-group)) > .react-renderer > .bn-block-content .bn-toggle-button {
+  opacity: 0.4;
+}
+:root .bn-container .bn-block:not(:has(> .bn-block-group)) > .bn-block-content .bn-toggle-button:hover,
+:root .bn-container .bn-block:not(:has(> .bn-block-group)) > .react-renderer > .bn-block-content .bn-toggle-button:hover {
+  opacity: 0.8;
+}
 /* A closed toggle's arrow points along the line, so right to left it points left. */
 :root .bn-container .bn-toggle-wrapper[data-show-children="false"] .bn-toggle-button:dir(rtl) {
   transform: scaleX(-1);

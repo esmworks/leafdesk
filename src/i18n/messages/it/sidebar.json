@@ -100,7 +100,16 @@
       "findPerson": "Cerca una persona…",
       "noPeople": "Nessuno trovato",
       "remove": "Rimuovi filtro",
-      "clear": "Cancella filtri"
+      "clear": "Cancella filtri",
+      "sort": "Ordina",
+      "sortReset": "Ordina per migliore corrispondenza",
+      "sorts": {
+        "relevance": "Migliore corrispondenza",
+        "editedNewest": "Ultima modifica: più recenti prima",
+        "editedOldest": "Ultima modifica: meno recenti prima",
+        "createdNewest": "Creazione: più recenti prima",
+        "createdOldest": "Creazione: meno recenti prima"
+      }
     }
   },
   "trash": {
@@ -257,6 +266,7 @@
     "members": "Membri e impostazioni",
     "leave": "Lascia lo spazio del team",
     "confirmLeave": "Lasciare {name}? Le sue pagine spariscono dalla tua barra laterale. Se lo spazio del team non è aperto, perdi anche l’accesso alle pagine.",
+    "confirmWideAdd": "Tutti in {name} ({count} persone) vedranno questa nuova pagina in cima allo spazio del team. Aggiungerla lì?",
     "empty": "Ancora nessuna pagina. Aggiungine una",
     "another": "un altro spazio del team",
     "watch": "Osserva tutte le pagine",

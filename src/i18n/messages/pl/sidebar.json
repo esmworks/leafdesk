@@ -100,7 +100,16 @@
       "findPerson": "Znajdź osobę…",
       "noPeople": "Nikogo nie znaleziono",
       "remove": "Usuń filtr",
-      "clear": "Wyczyść filtry"
+      "clear": "Wyczyść filtry",
+      "sort": "Sortuj",
+      "sortReset": "Sortuj według najlepszego dopasowania",
+      "sorts": {
+        "relevance": "Najlepsze dopasowanie",
+        "editedNewest": "Ostatnia edycja: od najnowszych",
+        "editedOldest": "Ostatnia edycja: od najstarszych",
+        "createdNewest": "Utworzenie: od najnowszych",
+        "createdOldest": "Utworzenie: od najstarszych"
+      }
     }
   },
   "trash": {
@@ -257,6 +266,7 @@
     "members": "Członkowie i ustawienia",
     "leave": "Opuść przestrzeń zespołu",
     "confirmLeave": "Opuścić {name}? Jej strony znikną z twojego paska bocznego. Jeśli przestrzeń zespołu nie jest otwarta, stracisz też do nich dostęp.",
+    "confirmWideAdd": "Wszyscy w {name} ({count} osób) zobaczą tę nową stronę na górze przestrzeni zespołu. Dodać ją tam?",
     "empty": "Brak stron. Dodaj stronę",
     "another": "inna przestrzeń zespołu",
     "watch": "Obserwuj wszystkie strony",

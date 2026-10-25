@@ -21,6 +21,17 @@ export type SearchFilters = {
 
 export const NO_SEARCH_FILTERS: SearchFilters = { teamspaceIds: [], createdBy: [], editedBy: [], date: null };
 
+/**
+ * How the box orders what it found: best match first (verified pages above otherwise equal ones),
+ * or by when a page was last edited or created. A date order applies to every page that matches,
+ * not only to the best few.
+ */
+export const SEARCH_SORTS = ["relevance", "editedNewest", "editedOldest", "createdNewest", "createdOldest"] as const;
+export type SearchSort = (typeof SEARCH_SORTS)[number];
+
+export const readSearchSort = (input: unknown): SearchSort =>
+  SEARCH_SORTS.includes(input as SearchSort) ? (input as SearchSort) : "relevance";
+
 /** A span of time: `from` included, `to` left out; either may be open. */
 export type TimeRange = { from?: Date; to?: Date };
 

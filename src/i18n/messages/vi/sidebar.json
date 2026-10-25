@@ -100,7 +100,16 @@
       "findPerson": "Tìm một người…",
       "noPeople": "Không tìm thấy ai",
       "remove": "Gỡ bộ lọc",
-      "clear": "Xóa bộ lọc"
+      "clear": "Xóa bộ lọc",
+      "sort": "Sắp xếp",
+      "sortReset": "Sắp xếp theo phù hợp nhất",
+      "sorts": {
+        "relevance": "Phù hợp nhất",
+        "editedNewest": "Sửa lần cuối: mới nhất trước",
+        "editedOldest": "Sửa lần cuối: cũ nhất trước",
+        "createdNewest": "Ngày tạo: mới nhất trước",
+        "createdOldest": "Ngày tạo: cũ nhất trước"
+      }
     }
   },
   "trash": {
@@ -257,6 +266,7 @@
     "members": "Thành viên và cài đặt",
     "leave": "Rời không gian nhóm",
     "confirmLeave": "Rời {name}? Các trang của không gian nhóm sẽ biến mất khỏi thanh bên của bạn. Nếu không gian nhóm không mở cho mọi người, bạn cũng mất quyền truy cập các trang đó.",
+    "confirmWideAdd": "Mọi người trong {name} ({count} người) sẽ thấy trang mới này ở cấp trên cùng của không gian nhóm. Thêm vào đó?",
     "empty": "Chưa có trang nào. Thêm một trang",
     "another": "một không gian nhóm khác",
     "watch": "Theo dõi tất cả các trang",

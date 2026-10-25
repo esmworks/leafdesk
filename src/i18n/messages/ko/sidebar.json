@@ -100,7 +100,16 @@
       "findPerson": "사람 찾기…",
       "noPeople": "찾은 사람이 없습니다",
       "remove": "필터 제거",
-      "clear": "필터 지우기"
+      "clear": "필터 지우기",
+      "sort": "정렬",
+      "sortReset": "관련도순으로 정렬",
+      "sorts": {
+        "relevance": "관련도순",
+        "editedNewest": "마지막 편집: 최신순",
+        "editedOldest": "마지막 편집: 오래된순",
+        "createdNewest": "생성: 최신순",
+        "createdOldest": "생성: 오래된순"
+      }
     }
   },
   "trash": {
@@ -257,6 +266,7 @@
     "members": "멤버 및 설정",
     "leave": "팀스페이스 나가기",
     "confirmLeave": "{name}에서 나갈까요? 해당 페이지가 사이드바에서 사라집니다. 공개 팀스페이스가 아니면 페이지에 대한 액세스 권한도 잃게 됩니다.",
+    "confirmWideAdd": "{name}의 모든 사람({count}명)이 이 새 페이지를 팀스페이스 최상위에서 보게 됩니다. 추가할까요?",
     "empty": "아직 페이지가 없습니다. 페이지 추가",
     "another": "다른 팀스페이스",
     "watch": "모든 페이지 지켜보기",

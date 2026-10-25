@@ -122,6 +122,9 @@ const FAVORITES_SECTION: SidebarSection = "favorites";
 const PAGES_SECTION: SidebarSection = "pages";
 /** Top-level pages "Private" and "Shared" show before a "More" row. */
 const SECTION_LIMIT = 10;
+/** A teamspace this many people are in asks before a page is added at its top, once per browser (WIDE_ADD_KEY). */
+const WIDE_TEAMSPACE = 10;
+const WIDE_ADD_KEY = "leafdesk:wide-add-ok";
 
 const canEdit = (node: TreeNode) => node.level === "edit" || node.level === "full";
 
@@ -590,6 +593,7 @@ export function Sidebar({
   }, [activeId, byId]);
 
   function create(parentId: string | null, kind: PageKind = "page", target?: Target) {
+    if (!parentId && target && !confirmWideAdd(target)) return;
     setActionError(null);
     startTransition(async () => {
       try {
@@ -606,6 +610,20 @@ export function Sidebar({
         refresh();
       }
     });
+  }
+
+  /**
+   * A new page at the top of a teamspace of WIDE_TEAMSPACE people or more is in front of all of
+   * them: asked once per teamspace in this browser.
+   */
+  function confirmWideAdd(teamspaceId: string) {
+    const ts = teamspaces.find((s) => s.id === teamspaceId);
+    if (!ts || ts.memberCount < WIDE_TEAMSPACE) return true;
+    const asked = loadSet(WIDE_ADD_KEY);
+    if (asked.has(ts.id)) return true;
+    if (!confirm(t("teamspaces.confirmWideAdd", { name: ts.name, count: ts.memberCount }))) return false;
+    saveSet(WIDE_ADD_KEY, asked.add(ts.id));
+    return true;
   }
 
   function archive(id: string) {

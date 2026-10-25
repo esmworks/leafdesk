@@ -672,10 +672,10 @@
     "embed": {
       "title": "Innebygging",
       "subtext": "YouTube, Figma, Google Docs, Maps med mer",
-      "aliases": "embed iframe youtube vimeo loom figma google docs sheets slides codepen replit excalidraw framer sketch miro spotify maps video bygg inn innebygging hex deepnote pitch website",
+      "aliases": "embed iframe youtube vimeo loom figma google docs sheets slides codepen replit excalidraw framer sketch miro whimsical spotify maps video bygg inn innebygging hex deepnote pitch website",
       "placeholder": "Lim inn en lenke å bygge inn",
       "submit": "Bygg inn",
-      "providers": "YouTube, Vimeo, Loom, Figma, publiserte Google Docs, Sheets og Slides, CodePen, Replit, Excalidraw, Framer, Sketch, Miro, Spotify og Google Maps. Andre https-sider (Hex, Deepnote, Pitch …) vises som de er der de tillater det.",
+      "providers": "YouTube, Vimeo, Loom, Figma, publiserte Google Docs, Sheets og Slides, CodePen, Replit, Excalidraw, Framer, Sketch, Miro, Whimsical, Spotify og Google Maps. Andre https-sider (Hex, Deepnote, Pitch …) vises som de er der de tillater det.",
       "frameTitle": "Innebygd innhold fra {host}",
       "label": "Innebygging",
       "resize": "Dra for å endre bredden på innbyggingen"

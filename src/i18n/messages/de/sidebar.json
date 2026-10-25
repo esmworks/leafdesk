@@ -100,7 +100,16 @@
       "findPerson": "Person suchen…",
       "noPeople": "Niemand gefunden",
       "remove": "Filter entfernen",
-      "clear": "Filter zurücksetzen"
+      "clear": "Filter zurücksetzen",
+      "sort": "Sortieren",
+      "sortReset": "Nach besten Treffern sortieren",
+      "sorts": {
+        "relevance": "Beste Treffer",
+        "editedNewest": "Zuletzt bearbeitet: neueste zuerst",
+        "editedOldest": "Zuletzt bearbeitet: älteste zuerst",
+        "createdNewest": "Erstellt: neueste zuerst",
+        "createdOldest": "Erstellt: älteste zuerst"
+      }
     }
   },
   "trash": {
@@ -257,6 +266,7 @@
     "members": "Mitglieder und Einstellungen",
     "leave": "Teamspace verlassen",
     "confirmLeave": "{name} verlassen? Die Seiten verschwinden aus deiner Seitenleiste. Sofern der Teamspace nicht offen ist, verlierst du auch den Zugriff darauf.",
+    "confirmWideAdd": "Alle in {name} ({count} Personen) sehen diese neue Seite oben im Teamspace. Dort hinzufügen?",
     "empty": "Noch keine Seiten. Füge eine hinzu",
     "another": "einem anderen Teamspace",
     "watch": "Alle Seiten beobachten",

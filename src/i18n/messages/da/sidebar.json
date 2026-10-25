@@ -100,7 +100,16 @@
       "findPerson": "Find en person…",
       "noPeople": "Ingen fundet",
       "remove": "Fjern filter",
-      "clear": "Ryd filtre"
+      "clear": "Ryd filtre",
+      "sort": "Sortér",
+      "sortReset": "Sortér efter bedste match",
+      "sorts": {
+        "relevance": "Bedste match",
+        "editedNewest": "Senest redigeret: nyeste først",
+        "editedOldest": "Senest redigeret: ældste først",
+        "createdNewest": "Oprettet: nyeste først",
+        "createdOldest": "Oprettet: ældste først"
+      }
     }
   },
   "trash": {
@@ -257,6 +266,7 @@
     "members": "Medlemmer og indstillinger",
     "leave": "Forlad teamområde",
     "confirmLeave": "Vil du forlade {name}? Dets sider forsvinder fra dit sidepanel. Medmindre teamområdet er åbent, mister du også adgangen til dem.",
+    "confirmWideAdd": "Alle i {name} ({count} personer) vil se denne nye side øverst i teamområdet. Vil du tilføje den der?",
     "empty": "Ingen sider endnu. Tilføj en",
     "another": "et andet teamområde",
     "watch": "Følg alle sider",

@@ -53,7 +53,8 @@
   while your page views aren't recorded or you haven't opened any yet). The menus under the query
   narrow it by teamspace, by who created a page or edited it last, and by when it was last edited
   or created (today, the last 7 or 30 days, or days you pick, in your time zone); they list pages
-  without words too. Narrow a search with
+  without words too. *Sort* orders the results by best match (the default) or by when pages were
+  last edited or created, newest or oldest first, over every page that matches. Narrow a search with
   `in:Projects` or `in:"Launch plan"` (that page and everything under it; several pages of that
   title, or several `in:`, search under any of them; a title nobody can see finds nothing) and
   `type:page`, `type:database`, `type:row` (database rows) or `type:journal` (your daily notes),
@@ -74,7 +75,8 @@
   stays at 16px, so the phone doesn't zoom in when you start typing. Restoring an older version
   keeps the current style. Databases always use the full width. With the comments panel open, a
   page moves left of it (and narrows when the window is too small) instead of running under it.
-- **Rich blocks**: callouts (one can be hidden when printing: it stays on screen and is left out
+- **Rich blocks**: toggles (an empty one shows a fainter arrow, so it reads as empty without
+  opening it), callouts (one can be hidden when printing: it stays on screen and is left out
   of PDFs), LaTeX equations (block and inline, KaTeX, with `\ce{…}` and `\pu{…}` for chemical equations and units), footnotes (`/footnote` puts a number in the
   text and the note in a popup; the page lists its notes at the end, on published pages and in PDFs
   too, and hovering a number shows its note), Mermaid diagrams with a live preview, a table of contents, a breadcrumb, a list of the page's subpages (live, each reader
@@ -138,8 +140,8 @@
   (`<!-- leafdesk:button <id> "Label" -->`), so it can't be made or changed there.
 - **Web bookmarks and embeds**: link cards with the page's title, description and image (fetched
   once on the server behind an SSRF guard), and YouTube, Vimeo, Loom, Figma, Google Docs, CodePen,
-  Replit, Excalidraw, Framer, Sketch, Miro, Spotify and Google Maps embeds in sandboxed iframes (a pasted
-  link of one of them offers *Embed*, and `/replit`, `/excalidraw`, `/framer`, `/sketch` and `/miro` find the
+  Replit, Excalidraw, Framer, Sketch, Miro, Whimsical, Spotify and Google Maps embeds in sandboxed iframes (a pasted
+  link of one of them offers *Embed*, and `/replit`, `/excalidraw`, `/framer`, `/sketch`, `/miro` and `/whimsical` find the
   block). The Embed block also shows any other https
   site as it is (Hex apps, Deepnote blocks, Pitch presentations…) in the same sandbox, in the
   site's own origin and without a referrer; sites that refuse to be framed (many do, with
@@ -638,7 +640,8 @@
   whoever adds a page at its top. Below full access, members are held to the database property
   access rules too. Those who manage a teamspace can *Lock top-level pages* in its settings: then
   only they add, move, reorder, trash or restore the pages at its top, while members keep working
-  in and under them as their access allows.
+  in and under them as their access allows. Adding a page at the top of a teamspace of ten people
+  or more asks first, once per teamspace in each browser, since it is in front of all of them.
 - **Sharing and permissions**: give people, or everyone in the page's teamspace (the workspace
   for a private page), full, edit, edit content, comment, view or no access to a page. *Can edit
   content* writes the body, title and icon, adds and fills in rows and moves them to the trash, but

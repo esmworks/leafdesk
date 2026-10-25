@@ -1,11 +1,19 @@
 "use client";
 
-import { Calendar, Check, ChevronDown, LayoutGrid, PenLine, UserRound, X } from "lucide-react";
+import { ArrowDownUp, Calendar, Check, ChevronDown, LayoutGrid, PenLine, UserRound, X } from "lucide-react";
 import { useFormatter, useTranslations } from "next-intl";
 import { useEffect, useMemo, useState, type ReactNode } from "react";
 import { searchFilterOptionsAction } from "@/app/actions/pages";
 import { cn, MenuItem, MenuSeparator, menuFieldClass, PageIcon, Popover } from "@/components/ui";
-import { MAX_FILTER_VALUES, SEARCH_DATE_PRESETS, type SearchDateFilter, type SearchDateField, type SearchFilters } from "@/lib/search-filter-state";
+import {
+  MAX_FILTER_VALUES,
+  SEARCH_DATE_PRESETS,
+  SEARCH_SORTS,
+  type SearchDateFilter,
+  type SearchDateField,
+  type SearchFilters,
+  type SearchSort,
+} from "@/lib/search-filter-state";
 import { searchFold } from "@/lib/search-fold";
 import type { SearchFilterOptions } from "@/server/search-filter-options";
 
@@ -15,16 +23,20 @@ type PersonKey = "createdBy" | "editedBy";
  * The search box's filters as menus under the query (loaded with the box, lazily): teamspaces,
  * who created a page, who last edited it, and when it was last edited or created. A filter in use
  * shows what it holds and can be cleared on its own; they narrow the typed query and list pages
- * without one.
+ * without one. Last, how the results are ordered.
  */
 export function SearchFilterBar({
   workspaceId,
   filters,
   onChange,
+  sort,
+  onSortChange,
 }: {
   workspaceId: string;
   filters: SearchFilters;
   onChange: (filters: SearchFilters) => void;
+  sort: SearchSort;
+  onSortChange: (sort: SearchSort) => void;
 }) {
   const t = useTranslations("sidebar.search.filters");
   const [options, setOptions] = useState<SearchFilterOptions | null>(null);
@@ -93,11 +105,27 @@ export function SearchFilterBar({
         <button
           type="button"
           onClick={() => onChange({ teamspaceIds: [], createdBy: [], editedBy: [], date: null })}
-          className="ms-auto rounded-md px-1.5 py-1 text-xs text-fg-muted hover:bg-bg-hover hover:text-fg"
+          className="rounded-md px-1.5 py-1 text-xs text-fg-muted hover:bg-bg-hover hover:text-fg"
         >
           {t("clear")}
         </button>
       )}
+      <span className="ms-auto">
+        <FilterMenu
+          icon={<ArrowDownUp className="h-3.5 w-3.5" />}
+          label={t("sort")}
+          value={sort === "relevance" ? null : t(`sorts.${sort}`)}
+          onClear={() => onSortChange("relevance")}
+          clearLabel={t("sortReset")}
+          className="w-56"
+        >
+          {SEARCH_SORTS.map((s) => (
+            <MenuItem key={s} pressed={sort === s} trailing={sort === s ? <Check className="h-3.5 w-3.5" /> : undefined} onClick={() => onSortChange(s)}>
+              {t(`sorts.${s}`)}
+            </MenuItem>
+          ))}
+        </FilterMenu>
+      </span>
     </div>
   );
 }

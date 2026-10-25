@@ -100,7 +100,16 @@
       "findPerson": "Find a person…",
       "noPeople": "No one found",
       "remove": "Remove filter",
-      "clear": "Clear filters"
+      "clear": "Clear filters",
+      "sort": "Sort",
+      "sortReset": "Sort by best match",
+      "sorts": {
+        "relevance": "Best match",
+        "editedNewest": "Last edited: newest first",
+        "editedOldest": "Last edited: oldest first",
+        "createdNewest": "Created: newest first",
+        "createdOldest": "Created: oldest first"
+      }
     }
   },
   "trash": {
@@ -257,6 +266,7 @@
     "members": "Members and settings",
     "leave": "Leave teamspace",
     "confirmLeave": "Leave {name}? Its pages leave your sidebar. Unless the teamspace is open, you also lose access to them.",
+    "confirmWideAdd": "Everyone in {name} ({count} people) will see this new page at the top of the teamspace. Add it there?",
     "empty": "No pages yet. Add one",
     "another": "another teamspace",
     "watch": "Watch all pages",

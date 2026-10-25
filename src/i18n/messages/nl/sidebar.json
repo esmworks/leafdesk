@@ -100,7 +100,16 @@
       "findPerson": "Zoek een persoon…",
       "noPeople": "Niemand gevonden",
       "remove": "Filter verwijderen",
-      "clear": "Filters wissen"
+      "clear": "Filters wissen",
+      "sort": "Sorteren",
+      "sortReset": "Sorteren op beste overeenkomst",
+      "sorts": {
+        "relevance": "Beste overeenkomst",
+        "editedNewest": "Laatst bewerkt: nieuwste eerst",
+        "editedOldest": "Laatst bewerkt: oudste eerst",
+        "createdNewest": "Gemaakt: nieuwste eerst",
+        "createdOldest": "Gemaakt: oudste eerst"
+      }
     }
   },
   "trash": {
@@ -257,6 +266,7 @@
     "members": "Leden en instellingen",
     "leave": "Teamruimte verlaten",
     "confirmLeave": "{name} verlaten? De pagina’s verdwijnen uit je zijbalk. Tenzij de teamruimte open is, verlies je ook de toegang ertoe.",
+    "confirmWideAdd": "Iedereen in {name} ({count} personen) ziet deze nieuwe pagina bovenaan de teamruimte. Daar toevoegen?",
     "empty": "Nog geen pagina’s. Voeg er een toe",
     "another": "een andere teamruimte",
     "watch": "Alle pagina’s volgen",

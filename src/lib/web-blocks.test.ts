@@ -105,6 +105,11 @@ describe("embedFor", () => {
     expect(src("https://www.sketch.com/s/1b2c3d4e-aaaa/a/Abc123")).toBe("https://www.sketch.com/embed/s/1b2c3d4e-aaaa/a/Abc123");
     expect(src("https://www.sketch.com/s/1b2c3d4e-aaaa/p/Abc123/play")).toBe("https://www.sketch.com/embed/s/1b2c3d4e-aaaa/p/Abc123/play");
     expect(src("https://miro.com/app/board/uXjVO1aBcDe=/?share_link_id=123")).toBe("https://miro.com/app/live-embed/uXjVO1aBcDe=/");
+    expect(src("https://whimsical.com/product-flow-NsQ7ZbbRLbZ9BcgxmhBzUj")).toBe("https://whimsical.com/embed/NsQ7ZbbRLbZ9BcgxmhBzUj");
+    expect(src("https://whimsical.com/acme/onboarding-wireframes-8YcRbt3rD7nKkZ1LwJQpVf@2Ux7TurymMtyr4o9Hu6R")).toBeNull();
+    expect(src("https://whimsical.com/acme/onboarding-8YcRbt3rD7nKkZ1LwJQpVf")).toBe("https://whimsical.com/embed/8YcRbt3rD7nKkZ1LwJQpVf");
+    expect(src("https://whimsical.com/embed/NsQ7ZbbRLbZ9BcgxmhBzUj")).toBe("https://whimsical.com/embed/NsQ7ZbbRLbZ9BcgxmhBzUj");
+    expect(embedFor("https://whimsical.com/NsQ7ZbbRLbZ9BcgxmhBzUj")?.height).toBe(600);
     expect(src("https://open.spotify.com/track/4uLU6hMCjMI75M1A2tKUQC?si=x")).toBe(
       "https://open.spotify.com/embed/track/4uLU6hMCjMI75M1A2tKUQC",
     );
@@ -134,6 +139,9 @@ describe("embedFor", () => {
       "https://framer.com/projects/Site--abc",
       "https://www.sketch.com/s/abc/x/y",
       "https://miro.com/app/dashboard/",
+      "https://whimsical.com/",
+      "https://whimsical.com/pricing",
+      "https://whimsical.com/a/b/c-NsQ7ZbbRLbZ9BcgxmhBzUj",
       "https://open.spotify.com/user/abc",
       "https://www.figma.com/community/file/123",
       "http://loom.com.attacker.example/share/0281766fa2d04bb788eaf19e65135184",
@@ -156,6 +164,7 @@ describe("embedFor", () => {
       "https://framer.com/share/a",
       "https://www.sketch.com/s/abc",
       "https://miro.com/app/board/uXjVO1aBcDe=/",
+      "https://whimsical.com/NsQ7ZbbRLbZ9BcgxmhBzUj",
       "https://open.spotify.com/show/4uLU6hMCjMI75M1A2tKUQC",
       "https://maps.google.com/?q=x",
     ];

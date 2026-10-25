@@ -4,6 +4,16 @@
 
 ### Added
 
+- **Sort search results.** The search box has a *Sort* menu beside its filters: best match (the
+  default), or last edited or created, newest or oldest first. A date order takes every page that
+  matches into account, not only the best few.
+- **Whimsical embeds.** A link to a Whimsical board, flowchart, wireframe or doc embeds it in a
+  tall frame, a pasted one offers *Embed*, and `/whimsical` finds the Embed block.
+- **Empty toggles look empty.** A toggle with nothing in it shows a fainter arrow, so you can tell
+  without opening it.
+- **A heads-up before adding to a large teamspace.** A new page or database at the top of a
+  teamspace of ten people or more asks first, once per teamspace in each browser.
+
 - **More over MCP: comment changes, meeting notes, chats with agents and moving many pages.**
   `change_comment` edits or deletes a comment, deletes a thread, resolves or reopens it, reacts to
   a comment or marks the thread *Come back later*; `add_comment` also starts a thread about the

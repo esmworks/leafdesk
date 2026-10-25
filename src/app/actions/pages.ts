@@ -5,7 +5,7 @@ import { getTimeZone, getTranslations } from "next-intl/server";
 import type { PageKind } from "@/db/schema";
 import { LegalHoldError } from "@/lib/legal-hold";
 import type { PageBackground } from "@/lib/page-background";
-import { readSearchFilters } from "@/lib/search-filters";
+import { readSearchFilters, readSearchSort } from "@/lib/search-filters";
 import { hasLevel } from "@/server/access";
 import * as pages from "@/server/pages";
 import { getPageSiblings } from "@/server/page-siblings";
@@ -143,12 +143,16 @@ export async function listTrashAction(workspaceId: string) {
 }
 
 /** `includeOutdated`: archived pages too (server/page-outdated), marked as such. */
-/** The search box's query, with its filters (lib/search-filters); a date filter counts in the person's days. */
-export async function searchAction(workspaceId: string, query: string, includeOutdated = false, filters?: unknown) {
+/**
+ * The search box's query, with its filters (lib/search-filters) and order; a date filter counts in
+ * the person's days.
+ */
+export async function searchAction(workspaceId: string, query: string, includeOutdated = false, filters?: unknown, sort?: unknown) {
   const userId = await requireUserId();
   return pages.searchWithQuery(userId, workspaceId, String(query), 20, {
     includeOutdated: includeOutdated === true,
     filters: readSearchFilters(filters),
+    sort: readSearchSort(sort),
     timeZone: await getTimeZone(),
   });
 }

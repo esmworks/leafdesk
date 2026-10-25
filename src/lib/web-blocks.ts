@@ -101,6 +101,7 @@ export type EmbedProvider =
   | "framer"
   | "sketch"
   | "miro"
+  | "whimsical"
   | "spotify"
   | "maps"
   | "web";
@@ -126,6 +127,7 @@ export const EMBED_FRAME_ORIGINS = [
   "https://framer.com",
   "https://www.sketch.com",
   "https://miro.com",
+  "https://whimsical.com",
   "https://open.spotify.com",
   "https://www.google.com",
 ] as const;
@@ -337,6 +339,19 @@ function miro(url: URL): EmbedTarget | null {
   return { provider: "miro", src: `https://miro.com/app/live-embed/${parts[2]}/`, height: 500 };
 }
 
+/**
+ * A Whimsical board, flowchart, wireframe or doc: `whimsical.com/<name>-<id>` (also under a
+ * workspace's path) or `whimsical.com/embed/<id>`, in Whimsical's own frame, taller than most.
+ */
+function whimsical(url: URL): EmbedTarget | null {
+  if (!hostIs(url, "whimsical.com", "www.whimsical.com")) return null;
+  const parts = segments(url);
+  if (!parts.length || parts.length > 2 || (parts.length === 2 && parts[0] !== "embed" && !/^[\w-]+$/.test(parts[0]))) return null;
+  const id = parts[parts.length - 1].split("-").pop() ?? "";
+  if (!/^[A-Za-z0-9]{16,32}$/.test(id)) return null;
+  return { provider: "whimsical", src: `https://whimsical.com/embed/${id}`, height: 600 };
+}
+
 const SPOTIFY_KINDS = new Set(["track", "album", "playlist", "episode", "show", "artist"]);
 
 function spotify(url: URL): EmbedTarget | null {
@@ -388,7 +403,7 @@ function maps(url: URL): EmbedTarget | null {
   return { provider: "maps", src: `https://www.google.com/maps?${params}`, height: 450 };
 }
 
-const PROVIDERS = [youtube, vimeo, loom, figma, google, codepen, replit, excalidraw, framer, sketch, miro, spotify, maps];
+const PROVIDERS = [youtube, vimeo, loom, figma, google, codepen, replit, excalidraw, framer, sketch, miro, whimsical, spotify, maps];
 
 /** The iframe for a pasted URL when it belongs to a named provider, else null (a pasted link then offers a bookmark). */
 export function embedFor(input: unknown): EmbedTarget | null {

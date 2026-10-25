@@ -100,7 +100,16 @@
       "findPerson": "Kişi bul…",
       "noPeople": "Kimse bulunamadı",
       "remove": "Filtreyi kaldır",
-      "clear": "Filtreleri temizle"
+      "clear": "Filtreleri temizle",
+      "sort": "Sırala",
+      "sortReset": "En iyi eşleşmeye göre sırala",
+      "sorts": {
+        "relevance": "En iyi eşleşme",
+        "editedNewest": "Son düzenleme: en yeni önce",
+        "editedOldest": "Son düzenleme: en eski önce",
+        "createdNewest": "Oluşturma: en yeni önce",
+        "createdOldest": "Oluşturma: en eski önce"
+      }
     }
   },
   "trash": {
@@ -257,6 +266,7 @@
     "members": "Üyeler ve ayarlar",
     "leave": "Ekip alanından ayrıl",
     "confirmLeave": "{name} ekip alanından ayrılınsın mı? Sayfaları kenar çubuğunuzdan kalkar. Ekip alanı açık değilse onlara erişiminizi de kaybedersiniz.",
+    "confirmWideAdd": "{name} içindeki herkes ({count} kişi) bu yeni sayfayı ekip alanının en üstünde görecek. Oraya eklensin mi?",
     "empty": "Henüz sayfa yok. Bir tane ekleyin",
     "another": "başka bir ekip alanı",
     "watch": "Tüm sayfaları izle",

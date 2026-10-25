@@ -100,7 +100,16 @@
       "findPerson": "Etsi henkilö…",
       "noPeople": "Ketään ei löytynyt",
       "remove": "Poista suodatin",
-      "clear": "Tyhjennä suodattimet"
+      "clear": "Tyhjennä suodattimet",
+      "sort": "Järjestä",
+      "sortReset": "Järjestä parhaan osuman mukaan",
+      "sorts": {
+        "relevance": "Paras osuma",
+        "editedNewest": "Viimeksi muokattu: uusimmat ensin",
+        "editedOldest": "Viimeksi muokattu: vanhimmat ensin",
+        "createdNewest": "Luotu: uusimmat ensin",
+        "createdOldest": "Luotu: vanhimmat ensin"
+      }
     }
   },
   "trash": {
@@ -257,6 +266,7 @@
     "members": "Jäsenet ja asetukset",
     "leave": "Poistu tiimitilasta",
     "confirmLeave": "Poistutaanko tiimitilasta {name}? Sen sivut poistuvat sivupalkistasi. Ellei tiimitila ole avoin, menetät myös pääsyn niihin.",
+    "confirmWideAdd": "Kaikki tiimitilassa {name} ({count} henkilöä) näkevät tämän uuden sivun sen ylimmällä tasolla. Lisätäänkö se sinne?",
     "empty": "Ei vielä sivuja. Lisää sivu",
     "another": "toinen tiimitila",
     "watch": "Seuraa kaikkia sivuja",

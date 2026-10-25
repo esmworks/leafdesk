@@ -12,7 +12,7 @@ import type { PageKind } from "@/db/schema";
 import { pageOrBlockPath } from "@/lib/mentions";
 import { searchFold } from "@/lib/search-fold";
 import { highlightParts } from "@/lib/search-highlight";
-import { hasFilterValues, NO_SEARCH_FILTERS, type SearchFilters } from "@/lib/search-filter-state";
+import { hasFilterValues, NO_SEARCH_FILTERS, type SearchFilters, type SearchSort } from "@/lib/search-filter-state";
 import { parseSearchQuery } from "@/lib/search-query";
 import type { SearchHit } from "@/server/pages";
 
@@ -79,6 +79,7 @@ export function SearchDialog({
   const [hits, setHits] = useState<SearchHit[]>([]);
   const [recent, setRecent] = useState<{ source: "viewed" | "edited"; pages: PageItem[] }>({ source: "edited", pages: [] });
   const [filters, setFilters] = useState<SearchFilters>(NO_SEARCH_FILTERS);
+  const [sort, setSort] = useState<SearchSort>("relevance");
   const [active, setActive] = useState(0);
   const [loading, setLoading] = useState(false);
   const [includeOutdated, setIncludeOutdated] = useState(false);
@@ -102,6 +103,7 @@ export function SearchDialog({
       setHits([]);
       setActive(0);
       setFilters(NO_SEARCH_FILTERS);
+      setSort("relevance");
       return;
     }
     let live = true;
@@ -125,14 +127,14 @@ export function SearchDialog({
     }
     setLoading(true);
     const timer = setTimeout(async () => {
-      const result = await searchAction(workspaceId, trimmed, includeOutdated, filtered ? filters : undefined).catch(() => []);
+      const result = await searchAction(workspaceId, trimmed, includeOutdated, filtered ? filters : undefined, sort).catch(() => []);
       if (id !== requestId.current) return; // a newer query is in flight
       setHits(result);
       setActive(0);
       setLoading(false);
     }, 150);
     return () => clearTimeout(timer);
-  }, [trimmed, commandMode, workspaceId, includeOutdated, filters, filtered]);
+  }, [trimmed, commandMode, workspaceId, includeOutdated, filters, filtered, sort]);
 
   const items = useMemo<Item[]>(() => {
     if (commandMode) {
@@ -197,7 +199,7 @@ export function SearchDialog({
           className="h-12 flex-1 bg-transparent text-base outline-none placeholder:text-fg-faint sm:text-sm"
         />
       </div>
-      {!commandMode && <SearchFilterBar workspaceId={workspaceId} filters={filters} onChange={setFilters} />}
+      {!commandMode && <SearchFilterBar workspaceId={workspaceId} filters={filters} onChange={setFilters} sort={sort} onSortChange={setSort} />}
       <ul ref={list} id="search-results" role="listbox" aria-label={t("label")} className="max-h-[50vh] overflow-y-auto p-1">
         {heading && (
           <li role="presentation" className="px-3 pt-2 pb-1 text-xs font-medium text-fg-muted">
