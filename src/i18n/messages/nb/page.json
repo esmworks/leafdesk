@@ -1003,6 +1003,19 @@
       "followed": "Talenotater som lagres her, følger skriveinstruksjonene til denne databasen."
     }
   },
+  "dictation": {
+    "slashTitle": "Diktér",
+    "slashSubtext": "Snakk, så skrives ordene dine her slik du sier dem",
+    "slashAliases": "diktér diktat dictate tale stemme mikrofon transkriber",
+    "starting": "Starter…",
+    "listening": "Lytter",
+    "writing": "Skriver…",
+    "finish": "Avslutt diktering og skriv teksten",
+    "hint": "Trykk {shortcut} eller Enter for å avslutte, Esc for å avbryte",
+    "autoStopped": "Dikteringen stoppet ved grensen på {minutes} min. Det du sa frem til da, ble skrevet.",
+    "copied": "Den dikterte teksten kunne ikke settes inn på siden, så den ble kopiert til utklippstavlen.",
+    "notPlaced": "Den dikterte teksten kunne verken settes inn på siden eller kopieres: {text}"
+  },
   "review": {
     "bar": "{count, plural, one {# KI-endring å gjennomgå} other {# KI-endringer å gjennomgå}}",
     "by": "av {names}",

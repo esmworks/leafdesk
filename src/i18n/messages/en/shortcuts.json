@@ -46,6 +46,7 @@
     "moveDown": "Move the block down",
     "copyBlockLink": "Copy a link to the block",
     "codeLanguage": "Pick a code block's language",
+    "dictate": "Dictate at the cursor (press again or Enter to finish, or hold while you talk)",
     "undo": "Undo",
     "redo": "Redo",
     "openRow": "Open the focused row or card",

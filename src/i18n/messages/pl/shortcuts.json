@@ -46,6 +46,7 @@
     "moveDown": "Przenieś blok w dół",
     "copyBlockLink": "Kopiuj link do bloku",
     "codeLanguage": "Wybierz język bloku kodu",
+    "dictate": "Dyktuj w miejscu kursora (naciśnij ponownie lub Enter, aby zakończyć, albo przytrzymaj podczas mówienia)",
     "undo": "Cofnij",
     "redo": "Ponów",
     "openRow": "Otwórz zaznaczony wiersz lub kartę",

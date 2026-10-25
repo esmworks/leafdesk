@@ -1003,6 +1003,19 @@
       "followed": "Hier gespeicherte Sprachnotizen folgen den Schreibanweisungen dieser Datenbank."
     }
   },
+  "dictation": {
+    "slashTitle": "Diktieren",
+    "slashSubtext": "Sprich, und deine Worte werden hier so geschrieben, wie du sie sagst",
+    "slashAliases": "diktieren diktat dictate sprache stimme mikrofon transkribieren",
+    "starting": "Wird gestartet…",
+    "listening": "Hört zu",
+    "writing": "Wird geschrieben…",
+    "finish": "Diktat beenden und Text schreiben",
+    "hint": "{shortcut} oder Enter zum Beenden, Esc zum Abbrechen",
+    "autoStopped": "Das Diktat wurde beim Limit von {minutes} Min. beendet. Was du bis dahin gesagt hast, wurde geschrieben.",
+    "copied": "Der diktierte Text konnte nicht in die Seite eingefügt werden und wurde deshalb in die Zwischenablage kopiert.",
+    "notPlaced": "Der diktierte Text konnte weder in die Seite eingefügt noch kopiert werden: {text}"
+  },
   "review": {
     "bar": "{count, plural, one {# KI-Änderung zu prüfen} other {# KI-Änderungen zu prüfen}}",
     "by": "von {names}",

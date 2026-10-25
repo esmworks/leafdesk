@@ -1003,6 +1003,19 @@
       "followed": "Buraya kaydedilen sesli notlar bu veritabanının yazım talimatlarına uyar."
     }
   },
+  "dictation": {
+    "slashTitle": "Dikte et",
+    "slashSubtext": "Konuşun, sözleriniz söylediğiniz gibi buraya yazılsın",
+    "slashAliases": "dikte dictate konuşma ses mikrofon yazıya dökme",
+    "starting": "Başlatılıyor…",
+    "listening": "Dinleniyor",
+    "writing": "Yazılıyor…",
+    "finish": "Dikteyi bitir ve metni yaz",
+    "hint": "Bitirmek için {shortcut} veya Enter, iptal için Esc tuşuna basın",
+    "autoStopped": "Dikte {minutes} dk sınırında durdu. O ana kadar söyledikleriniz yazıldı.",
+    "copied": "Dikte edilen metin sayfaya yerleştirilemedi, bu yüzden panoya kopyalandı.",
+    "notPlaced": "Dikte edilen metin sayfaya yerleştirilemedi ve kopyalanamadı: {text}"
+  },
   "review": {
     "bar": "{count, plural, other {İncelenecek # yapay zekâ değişikliği}}",
     "by": "yapan: {names}",

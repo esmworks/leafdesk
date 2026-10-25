@@ -1003,6 +1003,19 @@
       "followed": "Spraaknotities die hier worden opgeslagen, volgen de schrijfinstructies van deze database."
     }
   },
+  "dictation": {
+    "slashTitle": "Dicteren",
+    "slashSubtext": "Spreek, en je woorden worden hier geschreven zoals je ze zegt",
+    "slashAliases": "dicteren dictaat dictate spraak stem microfoon transcriberen",
+    "starting": "Starten…",
+    "listening": "Luistert",
+    "writing": "Schrijven…",
+    "finish": "Dicteren beëindigen en de tekst schrijven",
+    "hint": "Druk op {shortcut} of Enter om te beëindigen, Esc om te annuleren",
+    "autoStopped": "Het dicteren stopte bij de limiet van {minutes} min. Wat je tot dan zei, is geschreven.",
+    "copied": "De gedicteerde tekst kon niet in de pagina worden geplaatst en is daarom naar het klembord gekopieerd.",
+    "notPlaced": "De gedicteerde tekst kon niet in de pagina worden geplaatst of gekopieerd: {text}"
+  },
   "review": {
     "bar": "{count, plural, one {# AI-wijziging om te beoordelen} other {# AI-wijzigingen om te beoordelen}}",
     "by": "door {names}",

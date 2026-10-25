@@ -34,6 +34,7 @@ import { EditorFiles } from "./editor-files";
 import { useColorScheme } from "@/components/theme/theme-provider";
 import { AskAiToolbarButton, useAiAssist, useAiSlashItems, type AiAssist } from "./ai-assist";
 import { useVoiceNote, useVoiceSlashItems, type VoiceNote } from "@/components/voice/voice-note-dialog";
+import { useDictateSlashItems, useDictation, type Dictation } from "./dictation";
 import type { VoiceNoteLimits } from "@/lib/voice-notes";
 import { yUndoPluginKey } from "y-prosemirror";
 import type * as Y from "yjs";
@@ -365,6 +366,8 @@ export default function CollabEditor({
   const commentsOpen = commentsWanted && !nested;
   const assistant = useAiAssist(editor, pageId, workspaceId, ai && editable && !offline);
   const voiceNote = useVoiceNote(editor, pageId, voice && editable && !offline ? voice : null);
+  // Cmd/Ctrl+Shift+D or `/` Dictate writes what is said at the caret (dictation.tsx).
+  const dictation = useDictation(editor, workspaceId, voice && editable && !offline ? voice : null);
   // Links to a passage (the AI chat's citations) scroll to its block: the page's own blocks.
   useBlockFocus(!nested);
   // Someone picked in the header's list of who is here: to their cursor (follow-presence.ts).
@@ -443,6 +446,7 @@ export default function CollabEditor({
                 doc={pageDoc.doc}
                 assistant={ai && editable && !offline ? assistant : null}
                 voiceNote={voice && editable && !offline ? voiceNote : null}
+                dictation={dictation.available ? dictation : null}
                 snippets={snippets.menu}
               />
               )}
@@ -490,6 +494,7 @@ export default function CollabEditor({
           </DirectionProvider>
           {assistant.panel}
           {voiceNote.dialog}
+          {dictation.chip}
         </PageTrailProvider>
         {snippets.dialog}
         {embedError && (
@@ -575,6 +580,7 @@ function SlashMenu({
   doc,
   assistant,
   voiceNote,
+  dictation,
   snippets,
 }: {
   editor: PageEditor;
@@ -592,6 +598,8 @@ function SlashMenu({
   assistant: AiAssist | null;
   /** Voice notes, when available: "Voice note" joins the AI entries. */
   voiceNote: VoiceNote | null;
+  /** Dictation, when available: "Dictate" joins them too. */
+  dictation: Dictation | null;
   /** Inserting snippets: their group lists every one the person can use. */
   snippets: Parameters<typeof useSnippetSlashItems>[0];
 }) {
@@ -609,6 +617,7 @@ function SlashMenu({
   const colorItems = useColorSlashItems(editor);
   const aiItems = useAiSlashItems(assistant?.open ?? noop, assistant !== null);
   const voiceItems = useVoiceSlashItems(voiceNote?.open ?? noop, voiceNote !== null);
+  const dictateItems = useDictateSlashItems(dictation?.start ?? noop, dictation !== null);
   const snippetItems = useSnippetSlashItems(snippets);
   const suggestionMenu = useExtension(SuggestionMenu, { editor });
   return (
@@ -636,6 +645,7 @@ function SlashMenu({
             ...snippetItems,
             ...aiItems,
             ...voiceItems,
+            ...dictateItems,
           ]),
           query,
         );

@@ -138,5 +138,6 @@ describe("other single-file web pages", () => {
   it("refuses HTML too large for one page", async () => {
     const big = `<p>${"word ".repeat(2_200_000)}</p>`;
     await expect(read("big.mht", mhtml([{ type: "text/html", encoding: "8bit", body: big }]))).rejects.toMatchObject({ code: "docxTooComplex" });
-  });
+    // Building and reading an 11 MB file takes seconds on a busy machine.
+  }, 30_000);
 });

@@ -1003,6 +1003,19 @@
       "followed": "Stemmenoter, der gemmes her, følger denne databases skriveinstruktioner."
     }
   },
+  "dictation": {
+    "slashTitle": "Diktér",
+    "slashSubtext": "Tal, og dine ord skrives her, som du siger dem",
+    "slashAliases": "diktér diktat dictate tale stemme mikrofon transskriber",
+    "starting": "Starter…",
+    "listening": "Lytter",
+    "writing": "Skriver…",
+    "finish": "Afslut diktat og skriv teksten",
+    "hint": "Tryk {shortcut} eller Enter for at afslutte, Esc for at annullere",
+    "autoStopped": "Diktatet stoppede ved grænsen på {minutes} min. Det, du sagde indtil da, blev skrevet.",
+    "copied": "Den dikterede tekst kunne ikke indsættes på siden, så den blev kopieret til udklipsholderen.",
+    "notPlaced": "Den dikterede tekst kunne hverken indsættes på siden eller kopieres: {text}"
+  },
   "review": {
     "bar": "{count, plural, one {# AI-ændring til gennemgang} other {# AI-ændringer til gennemgang}}",
     "by": "af {names}",

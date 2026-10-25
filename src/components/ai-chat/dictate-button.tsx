@@ -5,30 +5,18 @@
  * writes down what was said (POST /api/ai/transcribe) and the text goes into the box, not sent, so
  * the person can fix it first. The same button starts and stops; while recording, the time and a
  * way to cancel (or Escape) show beside it. Only where the workspace can transcribe and the browser
- * can record.
+ * can record. What it shares with dictating into a page is in voice/dictation.ts.
  */
 import { Loader2, Mic, Square, X } from "lucide-react";
 import { useTranslations } from "next-intl";
-import { useCallback, useEffect, useRef, useState, useSyncExternalStore } from "react";
-import { canRecord, useVoiceRecorder, type Recording } from "@/components/voice/use-voice-recorder";
+import { useCallback, useEffect, useRef, useState } from "react";
+import { claimDictation, transcribeRecording, useDictationError } from "@/components/voice/dictation";
+import { useVoiceRecorder, type Recording } from "@/components/voice/use-voice-recorder";
 import { IconButton } from "@/components/ui";
-import { isAiErrorCode } from "@/lib/ai";
-import { formatBytes } from "@/lib/files";
-import { formatDuration, voiceFileName, type VoiceNoteLimits } from "@/lib/voice-notes";
+import { formatDuration, type VoiceNoteLimits } from "@/lib/voice-notes";
 
 /** What the box shows above itself about the last recording: a failure, or a note. */
 export type DictationNotice = { message: string; error: boolean } | null;
-
-/** Codes with their own message here; the AI's other failures have ai.errors'. */
-const OWN_ERRORS = ["unsupported", "denied", "noDevice", "failed", "disabled", "tooLarge", "timeout", "provider", "empty"] as const;
-const ownError = (code: string): code is (typeof OWN_ERRORS)[number] => (OWN_ERRORS as readonly string[]).includes(code);
-
-const noSubscription = () => () => {};
-
-/** Whether this browser can record; false during the server render and hydration. */
-export function useCanRecord() {
-  return useSyncExternalStore(noSubscription, canRecord, () => false);
-}
 
 export function DictateButton({
   workspaceId,
@@ -45,18 +33,9 @@ export function DictateButton({
   onNotice: (notice: DictationNotice) => void;
 }) {
   const t = useTranslations("ai.chat.dictation");
-  const tAi = useTranslations("ai.errors");
   const [sending, setSending] = useState(false);
   const abort = useRef<AbortController | null>(null);
-
-  const message = useCallback(
-    (code: string) => {
-      const key = code === "insecure" ? "unsupported" : code === "noAccess" ? "disabled" : code;
-      if (ownError(key)) return t(`errors.${key}`, { max: formatBytes(limits.maxBytes) });
-      return tAi(isAiErrorCode(key) ? key : "provider", { seconds: 0 });
-    },
-    [limits.maxBytes, t, tAi],
-  );
+  const message = useDictationError(limits.maxBytes);
 
   const send = useCallback(
     async (recording: Recording) => {
@@ -64,14 +43,8 @@ export function DictateButton({
       const controller = new AbortController();
       abort.current = controller;
       setSending(true);
-      const form = new FormData();
-      form.append("audio", new File([recording.blob], voiceFileName(recording.type), { type: recording.type }));
-      form.append("workspaceId", workspaceId);
       try {
-        const res = await fetch("/api/ai/transcribe", { method: "POST", body: form, signal: controller.signal });
-        const body = (await res.json().catch(() => null)) as { text?: unknown; error?: { code?: string } } | null;
-        if (!res.ok || typeof body?.text !== "string") throw new Error(body?.error?.code ?? "provider");
-        onText(body.text);
+        onText(await transcribeRecording(recording, workspaceId, { signal: controller.signal }));
         onNotice(recording.limited ? { message: t("autoStopped", { minutes: Math.round(limits.maxSeconds / 60) }), error: false } : null);
       } catch (caught) {
         if (controller.signal.aborted) return;
@@ -104,6 +77,11 @@ export function DictateButton({
   }, []);
   // Closing the chat stops waiting for the server; the recorder lets go of the microphone itself.
   useEffect(() => () => abort.current?.abort(), []);
+
+  // One dictation at a time: starting one in a page cancels this recording, and this one cancels it.
+  useEffect(() => {
+    if (recording || starting) return claimDictation(cancel);
+  }, [recording, starting, cancel]);
 
   // Escape cancels a recording rather than closing the panel around it.
   useEffect(() => {

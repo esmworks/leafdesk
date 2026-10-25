@@ -1003,6 +1003,19 @@
       "followed": "Catatan suara yang disimpan di sini mengikuti instruksi penulisan basis data ini."
     }
   },
+  "dictation": {
+    "slashTitle": "Dikte",
+    "slashSubtext": "Bicaralah, dan kata-kata Anda ditulis di sini persis seperti yang Anda ucapkan",
+    "slashAliases": "dikte dictate ucapan suara bicara mikrofon transkripsi",
+    "starting": "Memulai…",
+    "listening": "Mendengarkan",
+    "writing": "Menulis…",
+    "finish": "Selesaikan dikte dan tulis teksnya",
+    "hint": "Tekan {shortcut} atau Enter untuk selesai, Esc untuk membatalkan",
+    "autoStopped": "Dikte berhenti di batas {minutes} menit. Apa yang Anda ucapkan sampai saat itu sudah ditulis.",
+    "copied": "Teks dikte tidak dapat ditempatkan di halaman, jadi disalin ke papan klip.",
+    "notPlaced": "Teks dikte tidak dapat ditempatkan di halaman atau disalin: {text}"
+  },
   "review": {
     "bar": "{count, plural, other {# perubahan AI untuk ditinjau}}",
     "by": "oleh {names}",

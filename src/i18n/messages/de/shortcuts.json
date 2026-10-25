@@ -46,6 +46,7 @@
     "moveDown": "Block nach unten verschieben",
     "copyBlockLink": "Link zum Block kopieren",
     "codeLanguage": "Sprache des Codeblocks wählen",
+    "dictate": "An der Cursorposition diktieren (erneut drücken oder Enter zum Beenden, oder beim Sprechen gedrückt halten)",
     "undo": "Rückgängig",
     "redo": "Wiederholen",
     "openRow": "Fokussierte Zeile oder Karte öffnen",

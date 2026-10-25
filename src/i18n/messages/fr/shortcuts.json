@@ -46,6 +46,7 @@
     "moveDown": "Descendre le bloc",
     "copyBlockLink": "Copier un lien vers le bloc",
     "codeLanguage": "Choisir le langage du bloc de code",
+    "dictate": "Dicter au curseur (appuyez à nouveau ou sur Entrée pour terminer, ou maintenez pendant que vous parlez)",
     "undo": "Annuler",
     "redo": "Rétablir",
     "openRow": "Ouvrir la ligne ou la carte sélectionnée",

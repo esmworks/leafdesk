@@ -1003,6 +1003,19 @@
       "followed": "Le note vocali salvate qui seguono le istruzioni di scrittura di questo database."
     }
   },
+  "dictation": {
+    "slashTitle": "Detta",
+    "slashSubtext": "Parla e le tue parole vengono scritte qui così come le dici",
+    "slashAliases": "dettare dettatura dictate voce parlare microfono trascrivere",
+    "starting": "Avvio…",
+    "listening": "In ascolto",
+    "writing": "Scrittura…",
+    "finish": "Termina la dettatura e scrivi il testo",
+    "hint": "Premi {shortcut} o Invio per terminare, Esc per annullare",
+    "autoStopped": "La dettatura si è fermata al limite di {minutes} min. Quello che hai detto fino ad allora è stato scritto.",
+    "copied": "Non è stato possibile inserire il testo dettato nella pagina, quindi è stato copiato negli appunti.",
+    "notPlaced": "Non è stato possibile inserire il testo dettato nella pagina né copiarlo: {text}"
+  },
   "review": {
     "bar": "{count, plural, one {# modifica dell’IA da rivedere} other {# modifiche dell’IA da rivedere}}",
     "by": "di {names}",
