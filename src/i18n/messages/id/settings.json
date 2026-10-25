@@ -1684,7 +1684,9 @@
       "notion": "Notion",
       "obsidian": "Obsidian",
       "enex": "Evernote",
-      "web": "Halaman web"
+      "web": "Halaman web",
+      "jira": "Jira",
+      "github": "GitHub"
     },
     "settingNames": {
       "guestInvites": "Siapa yang dapat mengundang tamu",

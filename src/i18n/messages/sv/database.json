@@ -1897,6 +1897,18 @@
     "reporter": "Rapportör",
     "reporterNone": "Synkas inte"
   },
+  "githubPulls": {
+    "button": "Synkad från GitHub",
+    "buttonPaused": "GitHub-synk pausad",
+    "title": "GitHub-synk",
+    "lastRun": "Senast synkad {when}, {count, plural, one {# pull request} other {# pull requests}}",
+    "withToken": "Med token",
+    "withoutToken": "Utan token",
+    "overwrite": "GitHub är källan: de synkade egenskaperna och radtitlarna skrivs över vid varje synk, så ändra dem på GitHub. Egenskaper du själv lägger till förblir som de är, och rader för pull requests som synken inte längre hämtar lämnas i fred.",
+    "changeToken": "Byt token",
+    "tokenEmpty": "Lämna tomt för att synka utan token.",
+    "stopConfirm": "Sluta synka den här databasen? Raderna förblir som de är och token glöms bort."
+  },
   "sprints": {
     "menuItem": "Sprintar",
     "menuHint": "Planera uppgifter i sprintar och för över de oavslutade",

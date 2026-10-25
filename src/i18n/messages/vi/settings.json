@@ -1684,7 +1684,9 @@
       "notion": "Notion",
       "obsidian": "Obsidian",
       "enex": "Evernote",
-      "web": "Trang web"
+      "web": "Trang web",
+      "jira": "Jira",
+      "github": "GitHub"
     },
     "settingNames": {
       "guestInvites": "Ai có thể mời khách",

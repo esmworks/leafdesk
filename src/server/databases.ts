@@ -3498,6 +3498,7 @@ export async function getDatabaseSnapshot(
     listRowTemplateSummaries(userId, databaseId),
     db
       .select({
+        source: databaseSync.source,
         siteUrl: databaseSync.siteUrl,
         lastRunAt: databaseSync.lastRunAt,
         lastError: databaseSync.lastError,
@@ -3527,9 +3528,9 @@ export async function getDatabaseSnapshot(
     rows,
     /** Row templates, for the menu next to "New". */
     templates,
-    /** Where the rows are kept in step from (server/jira-sync), when they are. */
+    /** Where the rows are kept in step from (Jira, GitHub; server/jira-sync/run), when they are. */
     sync: synced
-      ? ({ source: "jira", ...synced, lastRunAt: synced.lastRunAt?.toISOString() ?? null } satisfies DatabaseSyncSummary)
+      ? ({ ...synced, lastRunAt: synced.lastRunAt?.toISOString() ?? null } satisfies DatabaseSyncSummary)
       : null,
     relations,
     people,

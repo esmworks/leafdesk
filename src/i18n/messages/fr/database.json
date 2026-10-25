@@ -1897,6 +1897,18 @@
     "reporter": "Rapporteur",
     "reporterNone": "Non synchronisé"
   },
+  "githubPulls": {
+    "button": "Synchronisée avec GitHub",
+    "buttonPaused": "Synchronisation GitHub en pause",
+    "title": "Synchronisation GitHub",
+    "lastRun": "Dernière synchronisation {when}, {count, plural, one {# pull request} other {# pull requests}}",
+    "withToken": "Avec un jeton",
+    "withoutToken": "Sans jeton",
+    "overwrite": "GitHub est la source : les propriétés synchronisées et les titres des lignes sont réécrits à chaque synchronisation, modifiez-les donc sur GitHub. Les propriétés que vous ajoutez vous-même restent telles quelles, et les lignes des pull requests que la synchronisation ne prend plus ne sont pas touchées.",
+    "changeToken": "Changer le jeton",
+    "tokenEmpty": "Laissez vide pour synchroniser sans jeton.",
+    "stopConfirm": "Arrêter la synchronisation de cette base de données ? Ses lignes restent telles quelles et le jeton est oublié."
+  },
   "sprints": {
     "menuItem": "Sprints",
     "menuHint": "Planifier les tâches en sprints et reporter celles qui restent",

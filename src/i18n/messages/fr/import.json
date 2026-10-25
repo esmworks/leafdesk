@@ -12,6 +12,7 @@
     "asana": "Asana",
     "monday": "Monday.com",
     "jira": "Jira",
+    "github": "GitHub",
     "googleDocs": "Google Docs",
     "web": "Page web"
   },
@@ -157,6 +158,53 @@
       "failed": "La synchronisation a échoué. Elle réessaiera la prochaine fois.",
       "invalidSite": "Leafdesk ne peut pas joindre cette adresse.",
       "invalidInput": "Renseignez l’adresse e-mail, le jeton d’API et ce qu’il faut synchroniser.",
+      "alreadyRunning": "Une synchronisation est en cours. Réessayez dans un instant."
+    }
+  },
+  "githubPulls": {
+    "help": "Obtenez une base de données des pull requests d’un dépôt GitHub qui reste à jour : chaque pull request devient une ligne avec son numéro, son état (brouillon, ouverte, fusionnée ou fermée), son auteur, ses assignés, ses étiquettes, ses branches, ses dates et un lien vers elle. Les changements vont dans un seul sens, de GitHub vers Leafdesk. Les personnes sont reconnues au compte GitHub avec lequel elles se connectent.",
+    "repo": "Dépôt",
+    "repoPlaceholder": "propriétaire/nom ou l’adresse du dépôt",
+    "token": "Jeton (facultatif)",
+    "tokenHelp": "Nécessaire pour les dépôts privés, et il relève la limite de requêtes de GitHub. Un accès en lecture aux pull requests suffit. Il est conservé scellé sur le serveur.",
+    "tokenLink": "Créer un jeton",
+    "server": "GitHub Enterprise Server (facultatif)",
+    "serverPlaceholder": "github.example.com",
+    "pulls": "Pull requests",
+    "states": {
+      "open": "Les ouvertes",
+      "all": "Toutes (les {limit} mises à jour le plus récemment)"
+    },
+    "names": {
+      "number": "Numéro",
+      "state": "État",
+      "author": "Auteur",
+      "assignees": "Assignés",
+      "others": "{column} (autres)",
+      "labels": "Étiquettes",
+      "branch": "Branche",
+      "base": "Branche de base",
+      "created": "Créée",
+      "merged": "Fusionnée",
+      "link": "Lien GitHub",
+      "stages": {
+        "draft": "Brouillon",
+        "open": "Ouverte",
+        "merged": "Fusionnée",
+        "closed": "Fermée"
+      }
+    },
+    "errors": {
+      "unauthorized": "GitHub a refusé le jeton.",
+      "forbidden": "Le jeton ne peut pas lire les pull requests de ce dépôt.",
+      "notFound": "Ce dépôt n’existe pas, ou il est privé et le jeton n’y a pas accès.",
+      "unreachable": "GitHub est injoignable, ou sa limite de requêtes est atteinte. La synchronisation réessaiera la prochaine fois.",
+      "runAsGone": "La personne qui a configuré la synchronisation n’a plus de compte.",
+      "accessLost": "La personne au nom de qui la synchronisation s’exécute ne peut plus modifier cette base de données.",
+      "keyGone": "La propriété Numéro a été supprimée ou a changé de type : les pull requests ne peuvent plus être associées aux lignes.",
+      "failed": "La synchronisation a échoué. Elle réessaiera la prochaine fois.",
+      "invalidSite": "Leafdesk ne peut pas joindre cette adresse.",
+      "invalidInput": "Indiquez le dépôt sous la forme propriétaire/nom.",
       "alreadyRunning": "Une synchronisation est en cours. Réessayez dans un instant."
     }
   },

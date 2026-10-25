@@ -1684,7 +1684,9 @@
       "notion": "Notion",
       "obsidian": "Obsidian",
       "enex": "Evernote",
-      "web": "Веб-страница"
+      "web": "Веб-страница",
+      "jira": "Jira",
+      "github": "GitHub"
     },
     "settingNames": {
       "guestInvites": "Кто может приглашать гостей",

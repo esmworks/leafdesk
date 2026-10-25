@@ -1684,7 +1684,9 @@
       "notion": "Notion",
       "obsidian": "Obsidian",
       "enex": "Evernote",
-      "web": "网页"
+      "web": "网页",
+      "jira": "Jira",
+      "github": "GitHub"
     },
     "settingNames": {
       "guestInvites": "谁可以邀请访客",

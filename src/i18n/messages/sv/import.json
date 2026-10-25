@@ -12,6 +12,7 @@
     "asana": "Asana",
     "monday": "Monday.com",
     "jira": "Jira",
+    "github": "GitHub",
     "googleDocs": "Google Dokument",
     "web": "Webbsida"
   },
@@ -158,6 +159,53 @@
       "invalidSite": "Det är ingen adress som Leafdesk kan nå.",
       "invalidInput": "Fyll i e-postadressen, API-token och vad som ska synkas.",
       "alreadyRunning": "En synkning pågår. Försök igen om en stund."
+    }
+  },
+  "githubPulls": {
+    "help": "Få en databas med ett GitHub-repositorys pull requests som hålls i takt: varje pull request är en rad med nummer, läge (utkast, öppen, sammanfogad eller stängd), författare, tilldelade, etiketter, grenar, datum och en länk tillbaka. Ändringar går en väg, från GitHub till Leafdesk. Personer känns igen på GitHub-kontot de loggar in med.",
+    "repo": "Repository",
+    "repoPlaceholder": "ägare/namn eller repositoryts adress",
+    "token": "Token (valfritt)",
+    "tokenHelp": "Behövs för privata repositoryn, och det höjer GitHubs gräns för anrop. Läsbehörighet till pull requests räcker. Den förvaras förseglad på servern.",
+    "tokenLink": "Skapa en token",
+    "server": "GitHub Enterprise Server (valfritt)",
+    "serverPlaceholder": "github.example.com",
+    "pulls": "Pull requests",
+    "states": {
+      "open": "De öppna",
+      "all": "Alla (de {limit} senast uppdaterade)"
+    },
+    "names": {
+      "number": "Nummer",
+      "state": "Läge",
+      "author": "Författare",
+      "assignees": "Tilldelade",
+      "others": "{column} (andra)",
+      "labels": "Etiketter",
+      "branch": "Gren",
+      "base": "Basgren",
+      "created": "Skapad",
+      "merged": "Sammanfogad",
+      "link": "GitHub-länk",
+      "stages": {
+        "draft": "Utkast",
+        "open": "Öppen",
+        "merged": "Sammanfogad",
+        "closed": "Stängd"
+      }
+    },
+    "errors": {
+      "unauthorized": "GitHub nekade token.",
+      "forbidden": "Token får inte läsa det här repositoryts pull requests.",
+      "notFound": "Repositoryt finns inte, eller så är det privat och token når det inte.",
+      "unreachable": "GitHub gick inte att nå, eller så är gränsen för anrop förbrukad. Synken försöker igen nästa gång.",
+      "runAsGone": "Personen som satte upp synken har inte längre något konto.",
+      "accessLost": "Personen som synken körs som kan inte längre redigera den här databasen.",
+      "keyGone": "Egenskapen Nummer har raderats eller bytt typ, så pull requests kan inte matchas mot rader.",
+      "failed": "Synken misslyckades. Den försöker igen nästa gång.",
+      "invalidSite": "Det är ingen adress som Leafdesk kan nå.",
+      "invalidInput": "Ange repositoryt som ägare/namn.",
+      "alreadyRunning": "En synk pågår. Försök igen om en stund."
     }
   },
   "board": {

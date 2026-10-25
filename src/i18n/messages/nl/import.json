@@ -12,6 +12,7 @@
     "asana": "Asana",
     "monday": "Monday.com",
     "jira": "Jira",
+    "github": "GitHub",
     "googleDocs": "Google Docs",
     "web": "Webpagina"
   },
@@ -158,6 +159,53 @@
       "invalidSite": "Dat is geen adres dat Leafdesk kan bereiken.",
       "invalidInput": "Vul het e-mailadres, het API-token en wat er gesynchroniseerd moet worden in.",
       "alreadyRunning": "Er loopt een synchronisatie. Probeer het zo meteen opnieuw."
+    }
+  },
+  "githubPulls": {
+    "help": "Krijg een database met de pull requests van een GitHub-repository die gelijk blijft lopen: elke pull request is een rij met nummer, status (concept, open, gemerged of gesloten), auteur, toegewezen personen, labels, branches, datums en een link terug. Wijzigingen gaan één kant op, van GitHub naar Leafdesk. Mensen worden herkend aan het GitHub-account waarmee ze inloggen.",
+    "repo": "Repository",
+    "repoPlaceholder": "eigenaar/naam of het adres van de repository",
+    "token": "Token (optioneel)",
+    "tokenHelp": "Nodig voor privérepository’s, en het verhoogt de limiet van GitHub. Leestoegang tot pull requests is genoeg. Het wordt verzegeld op de server bewaard.",
+    "tokenLink": "Token maken",
+    "server": "GitHub Enterprise Server (optioneel)",
+    "serverPlaceholder": "github.example.com",
+    "pulls": "Pull requests",
+    "states": {
+      "open": "De open",
+      "all": "Alle (de {limit} laatst bijgewerkte)"
+    },
+    "names": {
+      "number": "Nummer",
+      "state": "Status",
+      "author": "Auteur",
+      "assignees": "Toegewezen",
+      "others": "{column} (anderen)",
+      "labels": "Labels",
+      "branch": "Branch",
+      "base": "Basisbranch",
+      "created": "Gemaakt",
+      "merged": "Gemerged",
+      "link": "GitHub-link",
+      "stages": {
+        "draft": "Concept",
+        "open": "Open",
+        "merged": "Gemerged",
+        "closed": "Gesloten"
+      }
+    },
+    "errors": {
+      "unauthorized": "GitHub heeft het token geweigerd.",
+      "forbidden": "Het token mag de pull requests van deze repository niet lezen.",
+      "notFound": "Deze repository bestaat niet, of is privé en het token kan er niet bij.",
+      "unreachable": "GitHub was niet bereikbaar of de limiet is op. De synchronisatie probeert het de volgende keer opnieuw.",
+      "runAsGone": "De persoon die de synchronisatie heeft ingesteld, heeft geen account meer.",
+      "accessLost": "De persoon als wie de synchronisatie draait, kan deze database niet meer bewerken.",
+      "keyGone": "De eigenschap Nummer is verwijderd of van type veranderd, dus pull requests kunnen niet aan rijen worden gekoppeld.",
+      "failed": "De synchronisatie is mislukt. Ze probeert het de volgende keer opnieuw.",
+      "invalidSite": "Dat is geen adres dat Leafdesk kan bereiken.",
+      "invalidInput": "Geef de repository op als eigenaar/naam.",
+      "alreadyRunning": "Er loopt een synchronisatie. Probeer het zo opnieuw."
     }
   },
   "board": {

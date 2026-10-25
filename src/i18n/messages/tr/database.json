@@ -1897,6 +1897,18 @@
     "reporter": "Bildiren",
     "reporterNone": "Eşitlenmiyor"
   },
+  "githubPulls": {
+    "button": "GitHub'dan eşitleniyor",
+    "buttonPaused": "GitHub eşitlemesi duraklatıldı",
+    "title": "GitHub eşitlemesi",
+    "lastRun": "Son eşitleme {when}, {count, plural, one {# pull request} other {# pull request}}",
+    "withToken": "Anahtarla",
+    "withoutToken": "Anahtarsız",
+    "overwrite": "Kaynak GitHub'dır: eşitlenen özellikler ve satır başlıkları her eşitlemede üzerine yazılır, bu yüzden onları GitHub'da değiştirin. Kendi eklediğiniz özellikler olduğu gibi kalır, eşitlemenin artık almadığı pull request'lerin satırlarına dokunulmaz.",
+    "changeToken": "Anahtarı değiştir",
+    "tokenEmpty": "Anahtarsız eşitlemek için boş bırakın.",
+    "stopConfirm": "Bu veritabanının eşitlemesi durdurulsun mu? Satırları olduğu gibi kalır ve anahtar unutulur."
+  },
   "sprints": {
     "menuItem": "Sprintler",
     "menuHint": "Görevleri sprintlere planlayın, bitmeyenleri sonrakine taşıyın",

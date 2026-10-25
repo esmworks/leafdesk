@@ -1897,6 +1897,18 @@
     "reporter": "Rapportør",
     "reporterNone": "Ikke synkronisert"
   },
+  "githubPulls": {
+    "button": "Synkronisert fra GitHub",
+    "buttonPaused": "GitHub-synkronisering satt på pause",
+    "title": "GitHub-synkronisering",
+    "lastRun": "Sist synkronisert {when}, {count, plural, one {# pull request} other {# pull requests}}",
+    "withToken": "Med token",
+    "withoutToken": "Uten token",
+    "overwrite": "GitHub er kilden: de synkroniserte egenskapene og radtitlene overskrives ved hver synkronisering, så endre dem på GitHub. Egenskaper du legger til selv, forblir som de er, og rader for pull requests som synkroniseringen ikke lenger henter, røres ikke.",
+    "changeToken": "Bytt token",
+    "tokenEmpty": "La feltet stå tomt for å synkronisere uten token.",
+    "stopConfirm": "Slutte å synkronisere denne databasen? Radene forblir som de er, og tokenet glemmes."
+  },
   "sprints": {
     "menuItem": "Sprinter",
     "menuHint": "Planlegg oppgaver i sprinter og overfør uferdige oppgaver",

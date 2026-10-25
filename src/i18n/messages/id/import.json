@@ -12,6 +12,7 @@
     "asana": "Asana",
     "monday": "Monday.com",
     "jira": "Jira",
+    "github": "GitHub",
     "googleDocs": "Google Docs",
     "web": "Halaman web"
   },
@@ -157,6 +158,53 @@
       "failed": "Sinkronisasi gagal. Akan dicoba lagi lain kali.",
       "invalidSite": "Itu bukan alamat yang dapat dijangkau Leafdesk.",
       "invalidInput": "Isi alamat email, token API, dan apa yang akan disinkronkan.",
+      "alreadyRunning": "Sinkronisasi sedang berjalan. Coba lagi sebentar lagi."
+    }
+  },
+  "githubPulls": {
+    "help": "Dapatkan basis data pull request sebuah repositori GitHub yang selalu mengikuti perubahan: setiap pull request menjadi baris dengan nomor, status (draf, terbuka, digabung, atau ditutup), penulis, penerima tugas, label, cabang, tanggal, dan tautan kembali. Perubahan berjalan satu arah, dari GitHub ke Leafdesk. Orang dikenali dari akun GitHub yang mereka gunakan untuk masuk.",
+    "repo": "Repositori",
+    "repoPlaceholder": "pemilik/nama atau alamat repositori",
+    "token": "Token (opsional)",
+    "tokenHelp": "Diperlukan untuk repositori pribadi, dan menaikkan batas permintaan GitHub. Akses baca ke pull request sudah cukup. Token disimpan tersegel di server.",
+    "tokenLink": "Buat token",
+    "server": "GitHub Enterprise Server (opsional)",
+    "serverPlaceholder": "github.example.com",
+    "pulls": "Pull request",
+    "states": {
+      "open": "Yang terbuka",
+      "all": "Semua ({limit} yang terakhir diperbarui)"
+    },
+    "names": {
+      "number": "Nomor",
+      "state": "Status",
+      "author": "Penulis",
+      "assignees": "Penerima tugas",
+      "others": "{column} (lainnya)",
+      "labels": "Label",
+      "branch": "Cabang",
+      "base": "Cabang dasar",
+      "created": "Dibuat",
+      "merged": "Digabung",
+      "link": "Tautan GitHub",
+      "stages": {
+        "draft": "Draf",
+        "open": "Terbuka",
+        "merged": "Digabung",
+        "closed": "Ditutup"
+      }
+    },
+    "errors": {
+      "unauthorized": "GitHub menolak token.",
+      "forbidden": "Token tidak boleh membaca pull request repositori ini.",
+      "notFound": "Repositori itu tidak ada, atau bersifat pribadi dan token tidak menjangkaunya.",
+      "unreachable": "GitHub tidak dapat dihubungi, atau batas permintaannya habis. Sinkronisasi akan mencoba lagi lain kali.",
+      "runAsGone": "Orang yang menyiapkan sinkronisasi tidak lagi memiliki akun.",
+      "accessLost": "Orang yang menjalankan sinkronisasi tidak dapat lagi mengedit basis data ini.",
+      "keyGone": "Properti Nomor dihapus atau tipenya diubah, jadi pull request tidak dapat dicocokkan dengan baris.",
+      "failed": "Sinkronisasi gagal. Akan dicoba lagi lain kali.",
+      "invalidSite": "Itu bukan alamat yang dapat dijangkau Leafdesk.",
+      "invalidInput": "Tulis repositori sebagai pemilik/nama.",
       "alreadyRunning": "Sinkronisasi sedang berjalan. Coba lagi sebentar lagi."
     }
   },

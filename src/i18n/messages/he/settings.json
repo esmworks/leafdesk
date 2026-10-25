@@ -1684,7 +1684,9 @@
       "notion": "Notion",
       "obsidian": "Obsidian",
       "enex": "Evernote",
-      "web": "דף אינטרנט"
+      "web": "דף אינטרנט",
+      "jira": "Jira",
+      "github": "GitHub"
     },
     "settingNames": {
       "guestInvites": "מי יכול להזמין אורחים",

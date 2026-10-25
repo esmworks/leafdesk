@@ -12,6 +12,7 @@
     "asana": "Asana",
     "monday": "Monday.com",
     "jira": "Jira",
+    "github": "GitHub",
     "googleDocs": "Google Docs",
     "web": "Trang web"
   },
@@ -158,6 +159,53 @@
       "invalidSite": "Đó không phải là địa chỉ Leafdesk có thể truy cập.",
       "invalidInput": "Hãy điền địa chỉ email, token API và nội dung cần đồng bộ.",
       "alreadyRunning": "Đang có một lần đồng bộ chạy. Hãy thử lại sau giây lát."
+    }
+  },
+  "githubPulls": {
+    "help": "Có một cơ sở dữ liệu các pull request của một kho GitHub luôn bắt kịp thay đổi: mỗi pull request là một hàng với số, trạng thái (bản nháp, đang mở, đã hợp nhất hoặc đã đóng), tác giả, người được giao, nhãn, nhánh, ngày tháng và một liên kết quay lại. Thay đổi chỉ đi một chiều, từ GitHub sang Leafdesk. Mọi người được nhận ra qua tài khoản GitHub họ dùng để đăng nhập.",
+    "repo": "Kho",
+    "repoPlaceholder": "chủ sở hữu/tên hoặc địa chỉ của kho",
+    "token": "Token (không bắt buộc)",
+    "tokenHelp": "Cần cho kho riêng tư, và nâng giới hạn yêu cầu của GitHub. Chỉ cần quyền đọc pull request. Token được niêm phong trên máy chủ.",
+    "tokenLink": "Tạo token",
+    "server": "GitHub Enterprise Server (không bắt buộc)",
+    "serverPlaceholder": "github.example.com",
+    "pulls": "Pull request",
+    "states": {
+      "open": "Những cái đang mở",
+      "all": "Tất cả ({limit} cái được cập nhật gần nhất)"
+    },
+    "names": {
+      "number": "Số",
+      "state": "Trạng thái",
+      "author": "Tác giả",
+      "assignees": "Người được giao",
+      "others": "{column} (khác)",
+      "labels": "Nhãn",
+      "branch": "Nhánh",
+      "base": "Nhánh gốc",
+      "created": "Ngày tạo",
+      "merged": "Ngày hợp nhất",
+      "link": "Liên kết GitHub",
+      "stages": {
+        "draft": "Bản nháp",
+        "open": "Đang mở",
+        "merged": "Đã hợp nhất",
+        "closed": "Đã đóng"
+      }
+    },
+    "errors": {
+      "unauthorized": "GitHub đã từ chối token.",
+      "forbidden": "Token không được phép đọc pull request của kho này.",
+      "notFound": "Không có kho này, hoặc kho riêng tư mà token không truy cập được.",
+      "unreachable": "Không kết nối được GitHub, hoặc đã hết giới hạn yêu cầu. Lần đồng bộ sau sẽ thử lại.",
+      "runAsGone": "Người thiết lập đồng bộ không còn tài khoản.",
+      "accessLost": "Người mà đồng bộ chạy dưới danh nghĩa không còn sửa được cơ sở dữ liệu này.",
+      "keyGone": "Thuộc tính Số đã bị xóa hoặc đổi loại, nên không thể khớp pull request với hàng.",
+      "failed": "Đồng bộ thất bại. Lần sau sẽ thử lại.",
+      "invalidSite": "Đó không phải địa chỉ Leafdesk có thể truy cập.",
+      "invalidInput": "Ghi kho theo dạng chủ sở hữu/tên.",
+      "alreadyRunning": "Đang có một lần đồng bộ. Hãy thử lại sau giây lát."
     }
   },
   "board": {

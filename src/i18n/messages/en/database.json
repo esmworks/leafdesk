@@ -1897,6 +1897,18 @@
     "reporter": "Reporter",
     "reporterNone": "Not synced"
   },
+  "githubPulls": {
+    "button": "Synced from GitHub",
+    "buttonPaused": "GitHub sync paused",
+    "title": "GitHub sync",
+    "lastRun": "Last synced {when}, {count, plural, one {# pull request} other {# pull requests}}",
+    "withToken": "With a token",
+    "withoutToken": "Without a token",
+    "overwrite": "GitHub is the source: the synced properties and row titles are written over on each sync, so change them on GitHub. Properties you add yourself stay as they are, and rows of pull requests the sync no longer takes are left alone.",
+    "changeToken": "Change the token",
+    "tokenEmpty": "Leave it empty to sync without a token.",
+    "stopConfirm": "Stop syncing this database? Its rows stay as they are, and the token is forgotten."
+  },
   "sprints": {
     "menuItem": "Sprints",
     "menuHint": "Plan tasks in sprints and carry unfinished ones over",

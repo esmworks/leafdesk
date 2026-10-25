@@ -4,6 +4,13 @@
 
 ### Added
 
+- **Sync GitHub pull requests.** Import has a GitHub tab: a repository (and a token for a private
+  one, or a GitHub Enterprise Server's address) becomes a database of its pull requests that stays
+  in step one way, with number, state (Draft, Open, Merged, Closed), author and assignees (people
+  who sign in with that GitHub account, others by login), labels, branches, dates and a link, and a
+  board by state. It takes the open pull requests, finishing the rows of those merged or closed
+  since, or all of them (the 1,000 most recently updated); the database's sync dialog changes it,
+  syncs now or stops it. Runs alongside Jira syncs in `database_sync` (no migration).
 - **Only approved apps.** Owners can let in only the MCP apps they approved: *Only approved apps*
   in Settings → Security, with *Approve* and *Withdraw approval* on each app in *Apps that reach
   this workspace*. To an app not approved the workspace is hidden, as when connected apps are off;

@@ -1897,6 +1897,18 @@
     "reporter": "報告者",
     "reporterNone": "同期しない"
   },
+  "githubPulls": {
+    "button": "GitHubと同期中",
+    "buttonPaused": "GitHub同期は一時停止中",
+    "title": "GitHub同期",
+    "lastRun": "最終同期 {when}、{count, plural, other {#件のプルリクエスト}}",
+    "withToken": "トークンあり",
+    "withoutToken": "トークンなし",
+    "overwrite": "GitHubが元データです。同期されるプロパティと行のタイトルは同期のたびに上書きされるため、GitHubで変更してください。自分で追加したプロパティはそのまま残り、同期の対象から外れたプルリクエストの行もそのままにされます。",
+    "changeToken": "トークンを変更",
+    "tokenEmpty": "空のままにすると、トークンなしで同期します。",
+    "stopConfirm": "このデータベースの同期を停止しますか？行はそのまま残り、トークンは破棄されます。"
+  },
   "sprints": {
     "menuItem": "スプリント",
     "menuHint": "タスクをスプリントで計画し、未完了のものを次へ持ち越します",

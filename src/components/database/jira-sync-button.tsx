@@ -8,15 +8,19 @@ import { createPortal } from "react-dom";
 import type { DatabaseSyncSummary } from "@/lib/jira-sync";
 
 const JiraSyncDialog = dynamic(() => import("./jira-sync-dialog"));
+const GithubPullsSyncDialog = dynamic(() => import("./github-pulls-sync-dialog"));
 
 /**
- * Shows that a database is synced from Jira (with a mark when the sync is paused or its last run
- * failed), and opens the sync's dialog.
+ * Shows that a database is synced from Jira or GitHub (with a mark when the sync is paused or its
+ * last run failed), and opens the sync's dialog.
  */
 export function JiraSyncButton({ databaseId, sync, onChanged }: { databaseId: string; sync: DatabaseSyncSummary; onChanged: () => void }) {
   const t = useTranslations("database.jiraSync");
+  const tg = useTranslations("database.githubPulls");
   const [open, setOpen] = useState(false);
-  const label = sync.enabled ? t("button") : t("buttonPaused");
+  const github = sync.source === "github";
+  const label = sync.enabled ? (github ? tg("button") : t("button")) : github ? tg("buttonPaused") : t("buttonPaused");
+  const Sync = github ? GithubPullsSyncDialog : JiraSyncDialog;
   return (
     <>
       <button
@@ -32,7 +36,7 @@ export function JiraSyncButton({ databaseId, sync, onChanged }: { databaseId: st
       </button>
       {open &&
         typeof document !== "undefined" &&
-        createPortal(<JiraSyncDialog databaseId={databaseId} onClose={() => setOpen(false)} onChanged={onChanged} />, document.body)}
+        createPortal(<Sync databaseId={databaseId} onClose={() => setOpen(false)} onChanged={onChanged} />, document.body)}
     </>
   );
 }

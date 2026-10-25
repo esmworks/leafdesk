@@ -1897,6 +1897,18 @@
     "reporter": "Pelapor",
     "reporterNone": "Tidak disinkronkan"
   },
+  "githubPulls": {
+    "button": "Disinkronkan dari GitHub",
+    "buttonPaused": "Sinkronisasi GitHub dijeda",
+    "title": "Sinkronisasi GitHub",
+    "lastRun": "Terakhir disinkronkan {when}, {count, plural, other {# pull request}}",
+    "withToken": "Dengan token",
+    "withoutToken": "Tanpa token",
+    "overwrite": "GitHub adalah sumbernya: properti yang disinkronkan dan judul baris ditimpa pada setiap sinkronisasi, jadi ubahlah di GitHub. Properti yang Anda tambahkan sendiri tetap seperti adanya, dan baris pull request yang tidak lagi diambil sinkronisasi dibiarkan.",
+    "changeToken": "Ganti token",
+    "tokenEmpty": "Biarkan kosong untuk menyinkronkan tanpa token.",
+    "stopConfirm": "Hentikan sinkronisasi basis data ini? Barisnya tetap seperti adanya, dan tokennya dilupakan."
+  },
   "sprints": {
     "menuItem": "Sprint",
     "menuHint": "Rencanakan tugas dalam sprint dan bawa yang belum selesai ke sprint berikutnya",

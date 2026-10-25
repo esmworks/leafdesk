@@ -12,6 +12,7 @@
     "asana": "Asana",
     "monday": "Monday.com",
     "jira": "Jira",
+    "github": "GitHub",
     "googleDocs": "Google Docs",
     "web": "Pagina web"
   },
@@ -157,6 +158,53 @@
       "failed": "La sincronizzazione non è riuscita. Riproverà la prossima volta.",
       "invalidSite": "Leafdesk non può raggiungere questo indirizzo.",
       "invalidInput": "Compila l'indirizzo email, il token API e cosa sincronizzare.",
+      "alreadyRunning": "È in corso una sincronizzazione. Riprova tra un momento."
+    }
+  },
+  "githubPulls": {
+    "help": "Ottieni un database delle pull request di un repository GitHub che resta allineato: ogni pull request è una riga con numero, stato (bozza, aperta, unita o chiusa), autore, assegnatari, etichette, branch, date e un link. Le modifiche vanno in una sola direzione, da GitHub a Leafdesk. Le persone vengono riconosciute dall’account GitHub con cui accedono.",
+    "repo": "Repository",
+    "repoPlaceholder": "proprietario/nome o l’indirizzo del repository",
+    "token": "Token (facoltativo)",
+    "tokenHelp": "Serve per i repository privati e alza il limite di richieste di GitHub. Basta l’accesso in lettura alle pull request. Viene conservato sigillato sul server.",
+    "tokenLink": "Crea un token",
+    "server": "GitHub Enterprise Server (facoltativo)",
+    "serverPlaceholder": "github.example.com",
+    "pulls": "Pull request",
+    "states": {
+      "open": "Quelle aperte",
+      "all": "Tutte (le {limit} aggiornate più di recente)"
+    },
+    "names": {
+      "number": "Numero",
+      "state": "Stato",
+      "author": "Autore",
+      "assignees": "Assegnatari",
+      "others": "{column} (altri)",
+      "labels": "Etichette",
+      "branch": "Branch",
+      "base": "Branch di base",
+      "created": "Creata",
+      "merged": "Unita",
+      "link": "Link GitHub",
+      "stages": {
+        "draft": "Bozza",
+        "open": "Aperta",
+        "merged": "Unita",
+        "closed": "Chiusa"
+      }
+    },
+    "errors": {
+      "unauthorized": "GitHub ha rifiutato il token.",
+      "forbidden": "Il token non può leggere le pull request di questo repository.",
+      "notFound": "Questo repository non esiste, oppure è privato e il token non vi accede.",
+      "unreachable": "GitHub non è raggiungibile o il suo limite di richieste è esaurito. La sincronizzazione riproverà la prossima volta.",
+      "runAsGone": "La persona che ha configurato la sincronizzazione non ha più un account.",
+      "accessLost": "La persona con cui viene eseguita la sincronizzazione non può più modificare questo database.",
+      "keyGone": "La proprietà Numero è stata eliminata o ha cambiato tipo, quindi le pull request non possono essere abbinate alle righe.",
+      "failed": "La sincronizzazione non è riuscita. Riproverà la prossima volta.",
+      "invalidSite": "Leafdesk non può raggiungere questo indirizzo.",
+      "invalidInput": "Indica il repository come proprietario/nome.",
       "alreadyRunning": "È in corso una sincronizzazione. Riprova tra un momento."
     }
   },

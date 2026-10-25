@@ -1,14 +1,16 @@
 import { sql } from "drizzle-orm";
 import { boolean, index, integer, jsonb, pgTable, text, timestamp, uniqueIndex } from "drizzle-orm/pg-core";
+import type { GithubPullsMapping, GithubPullsQuery } from "@/lib/github-pulls-sync";
 import type { GithubDeliveryError, GithubDeliveryRow, GithubDeliveryStatus, GithubMapping } from "@/lib/github-sync";
 import type { JiraMapping, JiraQuery, JiraSyncError } from "@/lib/jira-sync";
 import { page, workspace } from "./app";
 import { user } from "./auth";
 
 /**
- * A database kept in step with a service outside Leafdesk, one way: for now the issues of a Jira
- * Cloud project or JQL query (lib/jira-sync, server/jira-sync). Its sign-in (`secrets`: the email
- * address and API token) is sealed (server/secret-box) and never leaves the server.
+ * A database kept in step with a service outside Leafdesk, one way: the issues of a Jira Cloud
+ * project or JQL query (`source` "jira": lib/jira-sync, server/jira-sync) or a GitHub repository's
+ * pull requests ("github": lib/github-pulls-sync, server/github-pulls). Its sign-in (`secrets`) is
+ * sealed (server/secret-box) and never leaves the server.
  */
 export const databaseSync = pgTable(
   "database_sync",
@@ -22,13 +24,13 @@ export const databaseSync = pgTable(
     databaseId: text("database_id")
       .notNull()
       .references(() => page.id, { onDelete: "cascade" }),
-    source: text("source").$type<"jira">().notNull(),
-    /** The Jira site's origin, "https://acme.atlassian.net". */
+    source: text("source").$type<"jira" | "github">().notNull(),
+    /** The Jira site's origin, "https://acme.atlassian.net"; for GitHub its API's address. */
     siteUrl: text("site_url").notNull(),
-    query: jsonb("query").$type<JiraQuery>().notNull(),
+    query: jsonb("query").$type<JiraQuery | GithubPullsQuery>().notNull(),
     /** The properties it writes, by what each holds. */
-    mapping: jsonb("mapping").$type<JiraMapping>().notNull(),
-    /** Sealed JSON: `{ email, token }`. */
+    mapping: jsonb("mapping").$type<JiraMapping | GithubPullsMapping>().notNull(),
+    /** Sealed JSON: Jira's `{ email, token }`, GitHub's `{ token }` (null without one). */
     secrets: text("secrets").notNull(),
     /** How often it runs on its own, in minutes; 0 for only when asked. */
     intervalMinutes: integer("interval_minutes").notNull(),
@@ -38,7 +40,7 @@ export const databaseSync = pgTable(
     /** Held while a run is going (a crash lets it go after a while), so two never run at once. */
     runningUntil: timestamp("running_until", { withTimezone: true }),
     lastRunAt: timestamp("last_run_at", { withTimezone: true }),
-    /** Issues the last run that went through found. */
+    /** Issues (pull requests) the last run that went through found. */
     lastCount: integer("last_count"),
     lastError: text("last_error").$type<JiraSyncError>(),
     /** Jira's own words about a refused query, for "badQuery". */

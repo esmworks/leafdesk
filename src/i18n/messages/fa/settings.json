@@ -1684,7 +1684,9 @@
       "notion": "Notion",
       "obsidian": "Obsidian",
       "enex": "Evernote",
-      "web": "صفحهٔ وب"
+      "web": "صفحهٔ وب",
+      "jira": "Jira",
+      "github": "GitHub"
     },
     "settingNames": {
       "guestInvites": "چه کسی می‌تواند مهمان دعوت کند",

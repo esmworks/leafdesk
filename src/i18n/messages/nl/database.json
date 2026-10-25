@@ -1897,6 +1897,18 @@
     "reporter": "Melder",
     "reporterNone": "Niet gesynchroniseerd"
   },
+  "githubPulls": {
+    "button": "Gesynchroniseerd vanuit GitHub",
+    "buttonPaused": "GitHub-synchronisatie gepauzeerd",
+    "title": "GitHub-synchronisatie",
+    "lastRun": "Laatst gesynchroniseerd {when}, {count, plural, one {# pull request} other {# pull requests}}",
+    "withToken": "Met een token",
+    "withoutToken": "Zonder token",
+    "overwrite": "GitHub is de bron: de gesynchroniseerde eigenschappen en rijtitels worden bij elke synchronisatie overschreven, dus wijzig ze op GitHub. Eigenschappen die je zelf toevoegt blijven zoals ze zijn, en rijen van pull requests die de synchronisatie niet meer ophaalt, blijven ongemoeid.",
+    "changeToken": "Token wijzigen",
+    "tokenEmpty": "Laat leeg om zonder token te synchroniseren.",
+    "stopConfirm": "Synchronisatie van deze database stoppen? De rijen blijven zoals ze zijn en het token wordt vergeten."
+  },
   "sprints": {
     "menuItem": "Sprints",
     "menuHint": "Taken in sprints plannen en onafgemaakte taken meenemen",

@@ -12,6 +12,7 @@
     "asana": "Asana",
     "monday": "Monday.com",
     "jira": "Jira",
+    "github": "GitHub",
     "googleDocs": "Google Docs",
     "web": "Verkkosivu"
   },
@@ -158,6 +159,53 @@
       "invalidSite": "Leafdesk ei tavoita tätä osoitetta.",
       "invalidInput": "Täytä sähköpostiosoite, API-tunnus ja synkronoitava kohde.",
       "alreadyRunning": "Synkronointi on käynnissä. Yritä hetken kuluttua uudelleen."
+    }
+  },
+  "githubPulls": {
+    "help": "Saat GitHub-repositorion pull requesteista tietokannan, joka pysyy ajan tasalla: jokainen pull request on rivi, jossa on sen numero, tila (luonnos, avoin, yhdistetty tai suljettu), tekijä, vastuuhenkilöt, tunnisteet, haarat, päivämäärät ja linkki takaisin. Muutokset kulkevat yhteen suuntaan, GitHubista Leafdeskiin. Henkilöt tunnistetaan GitHub-tilistä, jolla he kirjautuvat.",
+    "repo": "Repositorio",
+    "repoPlaceholder": "omistaja/nimi tai repositorion osoite",
+    "token": "Tunnus (valinnainen)",
+    "tokenHelp": "Tarvitaan yksityisille repositorioille, ja se nostaa GitHubin pyyntörajaa. Lukuoikeus pull requesteihin riittää. Se säilytetään sinetöitynä palvelimella.",
+    "tokenLink": "Luo tunnus",
+    "server": "GitHub Enterprise Server (valinnainen)",
+    "serverPlaceholder": "github.example.com",
+    "pulls": "Pull requestit",
+    "states": {
+      "open": "Avoimet",
+      "all": "Kaikki ({limit} viimeksi päivitettyä)"
+    },
+    "names": {
+      "number": "Numero",
+      "state": "Tila",
+      "author": "Tekijä",
+      "assignees": "Vastuuhenkilöt",
+      "others": "{column} (muut)",
+      "labels": "Tunnisteet",
+      "branch": "Haara",
+      "base": "Kohdehaara",
+      "created": "Luotu",
+      "merged": "Yhdistetty",
+      "link": "GitHub-linkki",
+      "stages": {
+        "draft": "Luonnos",
+        "open": "Avoin",
+        "merged": "Yhdistetty",
+        "closed": "Suljettu"
+      }
+    },
+    "errors": {
+      "unauthorized": "GitHub hylkäsi tunnuksen.",
+      "forbidden": "Tunnus ei saa lukea tämän repositorion pull requesteja.",
+      "notFound": "Repositoriota ei ole, tai se on yksityinen eikä tunnus ulotu siihen.",
+      "unreachable": "GitHubiin ei saatu yhteyttä, tai sen pyyntöraja on käytetty. Synkronointi yrittää uudelleen ensi kerralla.",
+      "runAsGone": "Synkronoinnin määrittäneellä henkilöllä ei ole enää tiliä.",
+      "accessLost": "Henkilö, jona synkronointi suoritetaan, ei voi enää muokata tätä tietokantaa.",
+      "keyGone": "Numero-ominaisuus poistettiin tai sen tyyppiä muutettiin, joten pull requesteja ei voi yhdistää riveihin.",
+      "failed": "Synkronointi epäonnistui. Se yrittää uudelleen ensi kerralla.",
+      "invalidSite": "Leafdesk ei tavoita tätä osoitetta.",
+      "invalidInput": "Anna repositorio muodossa omistaja/nimi.",
+      "alreadyRunning": "Synkronointi on käynnissä. Yritä hetken päästä uudelleen."
     }
   },
   "board": {

@@ -12,6 +12,7 @@
     "asana": "Asana",
     "monday": "Monday.com",
     "jira": "Jira",
+    "github": "GitHub",
     "googleDocs": "Google Docs",
     "web": "Webside"
   },
@@ -157,6 +158,53 @@
       "failed": "Synkroniseringen mislykkedes. Den prøver igen næste gang.",
       "invalidSite": "Det er ikke en adresse, Leafdesk kan nå.",
       "invalidInput": "Udfyld e-mailadressen, API-tokenet og hvad der skal synkroniseres.",
+      "alreadyRunning": "En synkronisering kører. Prøv igen om et øjeblik."
+    }
+  },
+  "githubPulls": {
+    "help": "Få en database med et GitHub-repositorys pull requests, der holdes ajour: hver pull request er en række med nummer, tilstand (kladde, åben, merget eller lukket), forfatter, ansvarlige, etiketter, branches, datoer og et link tilbage. Ændringer går én vej, fra GitHub til Leafdesk. Personer genkendes på den GitHub-konto, de logger ind med.",
+    "repo": "Repository",
+    "repoPlaceholder": "ejer/navn eller repositoryets adresse",
+    "token": "Token (valgfrit)",
+    "tokenHelp": "Nødvendigt for private repositories, og det hæver GitHubs grænse for forespørgsler. Læseadgang til pull requests er nok. Det opbevares forseglet på serveren.",
+    "tokenLink": "Opret et token",
+    "server": "GitHub Enterprise Server (valgfrit)",
+    "serverPlaceholder": "github.example.com",
+    "pulls": "Pull requests",
+    "states": {
+      "open": "De åbne",
+      "all": "Alle (de {limit} senest opdaterede)"
+    },
+    "names": {
+      "number": "Nummer",
+      "state": "Tilstand",
+      "author": "Forfatter",
+      "assignees": "Ansvarlige",
+      "others": "{column} (andre)",
+      "labels": "Etiketter",
+      "branch": "Branch",
+      "base": "Basisbranch",
+      "created": "Oprettet",
+      "merged": "Merget",
+      "link": "GitHub-link",
+      "stages": {
+        "draft": "Kladde",
+        "open": "Åben",
+        "merged": "Merget",
+        "closed": "Lukket"
+      }
+    },
+    "errors": {
+      "unauthorized": "GitHub afviste tokenet.",
+      "forbidden": "Tokenet må ikke læse dette repositorys pull requests.",
+      "notFound": "Repositoryet findes ikke, eller det er privat, og tokenet når det ikke.",
+      "unreachable": "GitHub kunne ikke nås, eller grænsen for forespørgsler er brugt op. Synkroniseringen prøver igen næste gang.",
+      "runAsGone": "Personen, der satte synkroniseringen op, har ikke længere en konto.",
+      "accessLost": "Personen, synkroniseringen kører som, kan ikke længere redigere denne database.",
+      "keyGone": "Egenskaben Nummer er slettet eller har skiftet type, så pull requests kan ikke matches med rækker.",
+      "failed": "Synkroniseringen mislykkedes. Den prøver igen næste gang.",
+      "invalidSite": "Det er ikke en adresse, Leafdesk kan nå.",
+      "invalidInput": "Angiv repositoryet som ejer/navn.",
       "alreadyRunning": "En synkronisering kører. Prøv igen om et øjeblik."
     }
   },

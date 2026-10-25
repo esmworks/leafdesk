@@ -1897,6 +1897,18 @@
     "reporter": "보고자",
     "reporterNone": "동기화 안 함"
   },
+  "githubPulls": {
+    "button": "GitHub에서 동기화됨",
+    "buttonPaused": "GitHub 동기화 일시 중지됨",
+    "title": "GitHub 동기화",
+    "lastRun": "마지막 동기화 {when}, {count, plural, other {풀 리퀘스트 #개}}",
+    "withToken": "토큰 사용",
+    "withoutToken": "토큰 없음",
+    "overwrite": "GitHub가 원본입니다. 동기화되는 속성과 행 제목은 동기화할 때마다 덮어쓰이므로 GitHub에서 변경하세요. 직접 추가한 속성은 그대로 유지되고, 동기화가 더 이상 가져오지 않는 풀 리퀘스트의 행도 건드리지 않습니다.",
+    "changeToken": "토큰 변경",
+    "tokenEmpty": "비워 두면 토큰 없이 동기화합니다.",
+    "stopConfirm": "이 데이터베이스의 동기화를 중지할까요? 행은 그대로 남고 토큰은 삭제됩니다."
+  },
   "sprints": {
     "menuItem": "스프린트",
     "menuHint": "작업을 스프린트로 계획하고 끝나지 않은 작업은 다음으로 넘깁니다",

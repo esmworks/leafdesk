@@ -12,6 +12,7 @@
     "asana": "Asana",
     "monday": "Monday.com",
     "jira": "Jira",
+    "github": "GitHub",
     "googleDocs": "Google 文档",
     "web": "网页"
   },
@@ -158,6 +159,53 @@
       "invalidSite": "Leafdesk 无法访问该地址。",
       "invalidInput": "请填写电子邮件地址、API 令牌和要同步的内容。",
       "alreadyRunning": "同步正在进行中。请稍后再试。"
+    }
+  },
+  "githubPulls": {
+    "help": "得到一个与 GitHub 仓库的拉取请求保持同步的数据库：每个拉取请求成为一行，包含编号、状态（草稿、打开、已合并或已关闭）、作者、负责人、标签、分支、日期和回到它的链接。更改只单向流动，从 GitHub 到 Leafdesk。人员按其登录所用的 GitHub 账号对应。",
+    "repo": "仓库",
+    "repoPlaceholder": "所有者/名称或仓库地址",
+    "token": "令牌（可选）",
+    "tokenHelp": "私有仓库需要它，它还能提高 GitHub 的请求限额。有拉取请求的读取权限就够了。令牌在服务器上密封保存。",
+    "tokenLink": "创建令牌",
+    "server": "GitHub Enterprise Server（可选）",
+    "serverPlaceholder": "github.example.com",
+    "pulls": "拉取请求",
+    "states": {
+      "open": "打开的",
+      "all": "全部（最近更新的 {limit} 个）"
+    },
+    "names": {
+      "number": "编号",
+      "state": "状态",
+      "author": "作者",
+      "assignees": "负责人",
+      "others": "{column}（其他）",
+      "labels": "标签",
+      "branch": "分支",
+      "base": "基础分支",
+      "created": "创建时间",
+      "merged": "合并时间",
+      "link": "GitHub 链接",
+      "stages": {
+        "draft": "草稿",
+        "open": "打开",
+        "merged": "已合并",
+        "closed": "已关闭"
+      }
+    },
+    "errors": {
+      "unauthorized": "GitHub 拒绝了该令牌。",
+      "forbidden": "该令牌无权读取此仓库的拉取请求。",
+      "notFound": "没有这个仓库，或它是令牌无法访问的私有仓库。",
+      "unreachable": "无法连接 GitHub，或请求限额已用完。同步会在下次重试。",
+      "runAsGone": "设置同步的人已没有账号。",
+      "accessLost": "同步所代表的人已无法编辑此数据库。",
+      "keyGone": "“编号”属性已被删除或更改了类型，因此无法将拉取请求与行对应。",
+      "failed": "同步失败。下次会重试。",
+      "invalidSite": "这不是 Leafdesk 能访问的地址。",
+      "invalidInput": "请以 所有者/名称 的形式填写仓库。",
+      "alreadyRunning": "正在同步。请稍后再试。"
     }
   },
   "board": {

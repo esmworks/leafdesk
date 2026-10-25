@@ -26,7 +26,7 @@ after you approve them over OAuth.
   or a local model.
 - **Bring your pages**: import a Notion *Markdown & CSV* export, an Obsidian vault, Evernote notebooks, a Trello board,
   an Asana project, a Monday.com board, Markdown files, Word documents, Google documents, PDFs, a folder or CSV, and keep a
-  database of Jira issues in sync.
+  database of Jira issues or GitHub pull requests in sync.
 - **Ready for a team**: teamspaces, page permissions, guests, single sign-on (OIDC, SAML), SCIM,
   two-step verification, passkeys and an audit log.
 - **Yours to run**: one `docker compose up` on your own server, data in your PostgreSQL,
@@ -224,7 +224,7 @@ published under the Apache License 2.0 and stay available under it.
 
 Notion is a trademark of Notion Labs, Inc. Leafdesk is an independent project, not affiliated with,
 endorsed by or sponsored by Notion Labs, Inc. The name appears only to describe what Leafdesk is an
-alternative to and what it imports from. Obsidian, Evernote, Trello, Asana, Monday.com, Jira and Atlassian are trademarks of their owners;
+alternative to and what it imports from. Obsidian, Evernote, Trello, Asana, Monday.com, Jira, Atlassian and GitHub are trademarks of their owners;
 Leafdesk is not affiliated with them either, and names them only to describe what it imports or syncs. The names and logos of
 the services in the connection catalog are trademarks of their owners; Leafdesk shows them only to
 identify the service a connection reaches, and is not affiliated with or endorsed by them.

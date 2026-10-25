@@ -12,6 +12,7 @@
     "asana": "Asana",
     "monday": "Monday.com",
     "jira": "Jira",
+    "github": "GitHub",
     "googleDocs": "Google Docs",
     "web": "Webseite"
   },
@@ -158,6 +159,53 @@
       "invalidSite": "Diese Adresse kann Leafdesk nicht erreichen.",
       "invalidInput": "Gib die E-Mail-Adresse, das API-Token und an, was synchronisiert werden soll.",
       "alreadyRunning": "Eine Synchronisierung läuft gerade. Versuche es gleich noch einmal."
+    }
+  },
+  "githubPulls": {
+    "help": "Erhalte eine Datenbank der Pull Requests eines GitHub-Repositorys, die auf dem gleichen Stand bleibt: Jeder Pull Request wird eine Zeile mit Nummer, Zustand (Entwurf, offen, gemergt oder geschlossen), Autor, zugewiesenen Personen, Labels, Branches, Daten und einem Link zurück. Änderungen fließen nur in eine Richtung, von GitHub zu Leafdesk. Personen werden über das GitHub-Konto zugeordnet, mit dem sie sich anmelden.",
+    "repo": "Repository",
+    "repoPlaceholder": "inhaber/name oder die Adresse des Repositorys",
+    "token": "Token (optional)",
+    "tokenHelp": "Nötig für private Repositorys, und es erhöht GitHubs Ratenlimit. Lesezugriff auf Pull Requests genügt. Es wird versiegelt auf dem Server aufbewahrt.",
+    "tokenLink": "Token erstellen",
+    "server": "GitHub Enterprise Server (optional)",
+    "serverPlaceholder": "github.example.com",
+    "pulls": "Pull Requests",
+    "states": {
+      "open": "Die offenen",
+      "all": "Alle (die {limit} zuletzt aktualisierten)"
+    },
+    "names": {
+      "number": "Nummer",
+      "state": "Zustand",
+      "author": "Autor",
+      "assignees": "Zugewiesen",
+      "others": "{column} (andere)",
+      "labels": "Labels",
+      "branch": "Branch",
+      "base": "Basis-Branch",
+      "created": "Erstellt",
+      "merged": "Gemergt",
+      "link": "GitHub-Link",
+      "stages": {
+        "draft": "Entwurf",
+        "open": "Offen",
+        "merged": "Gemergt",
+        "closed": "Geschlossen"
+      }
+    },
+    "errors": {
+      "unauthorized": "GitHub hat das Token abgelehnt.",
+      "forbidden": "Das Token darf die Pull Requests dieses Repositorys nicht lesen.",
+      "notFound": "Dieses Repository gibt es nicht, oder es ist privat und das Token erreicht es nicht.",
+      "unreachable": "GitHub war nicht erreichbar oder das Ratenlimit ist aufgebraucht. Die Synchronisierung versucht es beim nächsten Mal erneut.",
+      "runAsGone": "Die Person, die die Synchronisierung eingerichtet hat, hat kein Konto mehr.",
+      "accessLost": "Die Person, als die die Synchronisierung läuft, kann diese Datenbank nicht mehr bearbeiten.",
+      "keyGone": "Die Eigenschaft Nummer wurde gelöscht oder ihr Typ geändert, daher lassen sich Pull Requests keinen Zeilen mehr zuordnen.",
+      "failed": "Die Synchronisierung ist fehlgeschlagen. Sie versucht es beim nächsten Mal erneut.",
+      "invalidSite": "Diese Adresse kann Leafdesk nicht erreichen.",
+      "invalidInput": "Gib das Repository als inhaber/name an.",
+      "alreadyRunning": "Eine Synchronisierung läuft. Versuche es gleich noch einmal."
     }
   },
   "board": {

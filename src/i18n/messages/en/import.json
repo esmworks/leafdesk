@@ -12,6 +12,7 @@
     "asana": "Asana",
     "monday": "Monday.com",
     "jira": "Jira",
+    "github": "GitHub",
     "googleDocs": "Google Docs",
     "web": "Web page"
   },
@@ -157,6 +158,53 @@
       "failed": "The sync failed. It tries again next time.",
       "invalidSite": "That isn't an address Leafdesk can reach.",
       "invalidInput": "Fill in the email address, the API token and what to sync.",
+      "alreadyRunning": "A sync is running. Try again in a moment."
+    }
+  },
+  "githubPulls": {
+    "help": "Get a database of a GitHub repository's pull requests that stays in step: each pull request is a row with its number, state (draft, open, merged or closed), author, assignees, labels, branches, dates and a link back. Changes go one way, from GitHub to Leafdesk. People are matched by the GitHub account they sign in with.",
+    "repo": "Repository",
+    "repoPlaceholder": "owner/name or the repository's address",
+    "token": "Token (optional)",
+    "tokenHelp": "Needed for private repositories, and it raises GitHub's rate limit. Read access to pull requests is enough. It is kept sealed on the server.",
+    "tokenLink": "Create a token",
+    "server": "GitHub Enterprise Server (optional)",
+    "serverPlaceholder": "github.example.com",
+    "pulls": "Pull requests",
+    "states": {
+      "open": "Open ones",
+      "all": "All (the {limit} most recently updated)"
+    },
+    "names": {
+      "number": "Number",
+      "state": "State",
+      "author": "Author",
+      "assignees": "Assignees",
+      "others": "{column} (others)",
+      "labels": "Labels",
+      "branch": "Branch",
+      "base": "Base branch",
+      "created": "Created",
+      "merged": "Merged",
+      "link": "GitHub link",
+      "stages": {
+        "draft": "Draft",
+        "open": "Open",
+        "merged": "Merged",
+        "closed": "Closed"
+      }
+    },
+    "errors": {
+      "unauthorized": "GitHub refused the token.",
+      "forbidden": "The token may not read this repository's pull requests.",
+      "notFound": "No such repository, or a private one the token doesn't reach.",
+      "unreachable": "GitHub couldn't be reached, or its rate limit is spent. The sync tries again next time.",
+      "runAsGone": "The person who set the sync up no longer has an account.",
+      "accessLost": "The person the sync runs as can no longer edit this database.",
+      "keyGone": "The Number property was deleted or changed type, so pull requests can't be matched to rows.",
+      "failed": "The sync failed. It tries again next time.",
+      "invalidSite": "That isn't an address Leafdesk can reach.",
+      "invalidInput": "Name the repository as owner/name.",
       "alreadyRunning": "A sync is running. Try again in a moment."
     }
   },

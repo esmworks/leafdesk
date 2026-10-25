@@ -876,6 +876,19 @@
   full access can also sync now, change the query or sign-in, pick the person property the
   reporter goes to (or none), or stop syncing (the rows stay).
   Tested against a stand-in Jira (`scripts/jira-sync-e2e.ts`), not yet a real site.
+- **Sync GitHub pull requests**: Import's GitHub tab takes a repository (`owner/name` or its
+  address), a token for a private one (read access to pull requests is enough; it also raises
+  GitHub's rate limit, and is kept sealed) and, for GitHub Enterprise Server, its address, and makes
+  a database whose rows are the pull requests: number, title, state (*Draft*, *Open*, *Merged*,
+  *Closed*, grouped to do, in progress and done), author and assignees as persons when they sign in
+  to Leafdesk with that GitHub account (others by login in *Author (others)* and *Assignees
+  (others)*), labels, branch, base branch, created and merged dates and a link back, opening on a
+  board by state. It takes the open pull requests (and, on each run, the last 100 closed ones, to
+  finish the rows of those merged or closed since) or all of them, the 1,000 most recently updated,
+  and syncs as often and as one-way as a Jira sync. A spent rate limit waits for the next run; a
+  refused token or a deleted *Number* property pauses it. In the database's sync dialog people with
+  full access can change which pull requests it takes, how often, the token, sync now or stop.
+  Tested against a stand-in GitHub (`scripts/github-pulls-sync-e2e.ts`), not yet the real API.
 - **GitHub pull requests update tasks**: *GitHub pull requests* in the ••• menu of a database with
   an ID property with a prefix gives a payload URL and a secret to add as a repository webhook
   (JSON, *Pull requests* events). A pull request that names rows by their ID (`TASK-12`, in any

@@ -6,6 +6,7 @@ import { useLocale, useTranslations } from "next-intl";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { importTargetAction, type ImportTarget } from "@/app/actions/import";
 import { importGoogleDocsAction } from "@/app/actions/google-docs-import";
+import { createGithubPullsSyncAction } from "@/app/actions/github-pulls-sync";
 import { createJiraSyncAction } from "@/app/actions/jira-sync";
 import { saveWebPageAction } from "@/app/actions/web-clip";
 import { usePropertyTypeLabel } from "@/components/database/property-icons";
@@ -32,6 +33,7 @@ import { isWorkbook, readWorkbook } from "@/lib/import/xlsx";
 import { iconPrefix } from "@/lib/icon-value";
 import type { TreeNode } from "@/server/pages";
 import { GoogleDocsTab, type GoogleDocsSetup } from "./google-docs-import";
+import { GithubPullsTab, type GithubPullsSetup } from "./github-pulls-import";
 import { JiraTab, type JiraSetup } from "./jira-import";
 import { flattenTree, WebClipTab, type WebClipSetupChoice } from "./web-clip";
 
@@ -112,7 +114,7 @@ export function ImportDialog({
   const databases = flat.filter(({ node }) => node.kind === "database" && canEdit(node));
   const activeNode = tree.find((n) => n.id === activeId);
 
-  const [tab, setTab] = useState<"pages" | "docx" | "googleDocs" | "pdf" | "evernote" | "csv" | "trello" | BoardSource | "jira" | "web">("pages");
+  const [tab, setTab] = useState<"pages" | "docx" | "googleDocs" | "pdf" | "evernote" | "csv" | "trello" | BoardSource | "jira" | "github" | "web">("pages");
   const [destination, setDestination] = useState("");
   const [picked, setPicked] = useState<Picked[]>([]);
   // A folder that came with an Obsidian vault's settings folder (which isn't sent).
@@ -130,6 +132,8 @@ export function ImportDialog({
   const [boardTypes, setBoardTypes] = useState<(BoardColumnType | null)[]>([]);
   // The Jira tab's sync, once it is filled in.
   const [jira, setJira] = useState<JiraSetup | null>(null);
+  // The GitHub tab's sync, once a repository is named.
+  const [github, setGithub] = useState<GithubPullsSetup | null>(null);
   // The Google Docs tab's connection and documents, once some are chosen.
   const [googleDocs, setGoogleDocs] = useState<GoogleDocsSetup | null>(null);
   const [web, setWeb] = useState<WebClipSetupChoice | null>(null);
@@ -171,6 +175,7 @@ export function ImportDialog({
     setTrello(null);
     setBoard(null);
     setJira(null);
+    setGithub(null);
     setGoogleDocs(null);
     setWeb(null);
     setCsvMode(activeEditable && activeNode.kind === "database" ? "existing" : "new");
@@ -369,6 +374,7 @@ export function ImportDialog({
   async function submit() {
     setError(null);
     if (tab === "jira") return submitJira();
+    if (tab === "github") return submitGithub();
     if (tab === "googleDocs") return submitGoogleDocs();
     if (tab === "web") return submitWeb();
     const form = new FormData();
@@ -460,6 +466,26 @@ export function ImportDialog({
     }
   }
 
+  /** Sets a GitHub pull request sync up: a server action, as nothing is uploaded. */
+  async function submitGithub() {
+    if (!github) return;
+    setBusy(true);
+    try {
+      const response = await createGithubPullsSyncAction({
+        ...github,
+        workspaceId,
+        parentId: destination || null,
+        teamspaceId: teamspaceId === undefined ? undefined : (teamspaceId ?? "private"),
+      });
+      if (!response.ok) setError(response.error);
+      else setResult(response.data);
+    } catch {
+      setError(tc("genericError"));
+    } finally {
+      setBusy(false);
+    }
+  }
+
   /** Imports Google documents through a connection: a server action, as nothing is uploaded. */
   async function submitGoogleDocs() {
     if (!googleDocs) return;
@@ -536,6 +562,8 @@ export function ImportDialog({
             ? board?.board.source === tab && destinationValid
             : tab === "jira"
               ? jira !== null && destinationValid
+              : tab === "github"
+                ? github !== null && destinationValid
               : csv !== null &&
         (csvMode === "new"
           ? destinationValid && types.some((type, i) => type !== null || i === titleColumn)
@@ -604,7 +632,7 @@ export function ImportDialog({
       ) : (
         <div className="max-h-[70vh] space-y-4 overflow-y-auto p-4" aria-busy={busy}>
           <div role="tablist" aria-label={t("title")} className="inline-flex flex-wrap gap-0.5 rounded-lg bg-bg-hover p-0.5">
-            {(["pages", "docx", "googleDocs", "pdf", "evernote", "csv", "trello", "asana", "monday", "jira", "web"] as const).map((key) => (
+            {(["pages", "docx", "googleDocs", "pdf", "evernote", "csv", "trello", "asana", "monday", "jira", "github", "web"] as const).map((key) => (
               <button
                 key={key}
                 type="button"
@@ -936,6 +964,8 @@ export function ImportDialog({
             <WebClipTab workspaceId={workspaceId} tree={tree} busy={busy} onSetup={setWeb} />
           ) : tab === "jira" ? (
             <JiraTab busy={busy} destinationPicker={destinationPicker} onSetup={setJira} />
+          ) : tab === "github" ? (
+            <GithubPullsTab busy={busy} destinationPicker={destinationPicker} onSetup={setGithub} />
           ) : tab === "asana" || tab === "monday" ? (
             <BoardTab
               source={tab}
@@ -1145,7 +1175,7 @@ export function ImportDialog({
               {tc("cancel")}
             </Button>
             <Button variant="primary" disabled={!ready} onClick={() => void submit()}>
-              {tab === "jira"
+              {tab === "jira" || tab === "github"
                 ? busy
                   ? t("jira.submitting")
                   : t("jira.submit")

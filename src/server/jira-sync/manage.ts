@@ -164,9 +164,13 @@ export async function createJiraSync(actor: WriteActor, input: JiraSyncInput): P
   }
 }
 
-async function syncOf(databaseId: string): Promise<SyncRow | null> {
+/** A sync from Jira: its query and mapping are Jira's. */
+type JiraSyncRow = SyncRow & { source: "jira"; query: JiraQuery; mapping: JiraMapping };
+
+/** The database's Jira sync; null when it has none, or one from elsewhere (server/github-pulls). */
+async function syncOf(databaseId: string): Promise<JiraSyncRow | null> {
   const [row] = await db.select().from(databaseSync).where(eq(databaseSync.databaseId, databaseId));
-  return row ?? null;
+  return row?.source === "jira" ? (row as JiraSyncRow) : null;
 }
 
 async function canManage(userId: string, databaseId: string) {
@@ -184,7 +188,7 @@ async function personProperties(databaseId: string) {
   return (await getProperties(databaseId)).filter((p) => p.type === "person").map(({ id, name }) => ({ id, name }));
 }
 
-async function view(row: SyncRow, manage: boolean, now = new Date()): Promise<JiraSyncView> {
+async function view(row: JiraSyncRow, manage: boolean, now = new Date()): Promise<JiraSyncView> {
   const people = manage ? await personProperties(row.databaseId) : [];
   return {
     siteUrl: row.siteUrl,
@@ -257,7 +261,7 @@ export async function updateJiraSync(userId: string, databaseId: string, patch: 
   }
   await db.update(databaseSync).set(changes).where(eq(databaseSync.id, row.id));
   // A new query, sign-in or reporter property syncs at once (the reporters are filled in).
-  if (changes.query || changes.secrets || changes.mapping?.reporter) return syncJiraNow(userId, databaseId);
+  if (changes.query || changes.secrets || (changes.mapping as JiraMapping | undefined)?.reporter) return syncJiraNow(userId, databaseId);
   return { ...(await view((await syncOf(databaseId))!, true)), outcome: null };
 }
 

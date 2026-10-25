@@ -1897,6 +1897,18 @@
     "reporter": "Informador",
     "reporterNone": "Sin sincronizar"
   },
+  "githubPulls": {
+    "button": "Sincronizada desde GitHub",
+    "buttonPaused": "Sincronización con GitHub en pausa",
+    "title": "Sincronización con GitHub",
+    "lastRun": "Última sincronización {when}, {count, plural, one {# pull request} other {# pull requests}}",
+    "withToken": "Con un token",
+    "withoutToken": "Sin token",
+    "overwrite": "GitHub es la fuente: las propiedades sincronizadas y los títulos de las filas se sobrescriben en cada sincronización, así que cámbialos en GitHub. Las propiedades que añadas tú se quedan como están, y las filas de pull requests que la sincronización ya no toma no se tocan.",
+    "changeToken": "Cambiar el token",
+    "tokenEmpty": "Déjalo vacío para sincronizar sin token.",
+    "stopConfirm": "¿Dejar de sincronizar esta base de datos? Sus filas se quedan como están y el token se olvida."
+  },
   "sprints": {
     "menuItem": "Sprints",
     "menuHint": "Planifica tareas en sprints y pasa las pendientes al siguiente",

@@ -1897,6 +1897,18 @@
     "reporter": "报告人",
     "reporterNone": "不同步"
   },
+  "githubPulls": {
+    "button": "已从 GitHub 同步",
+    "buttonPaused": "GitHub 同步已暂停",
+    "title": "GitHub 同步",
+    "lastRun": "上次同步：{when}，{count, plural, other {# 个拉取请求}}",
+    "withToken": "使用令牌",
+    "withoutToken": "不使用令牌",
+    "overwrite": "GitHub 是数据来源：同步的属性和行标题会在每次同步时被覆盖，所以请在 GitHub 上更改它们。你自己添加的属性保持不变，同步不再获取的拉取请求所在的行也不会被改动。",
+    "changeToken": "更换令牌",
+    "tokenEmpty": "留空即可不使用令牌同步。",
+    "stopConfirm": "停止同步此数据库？其中的行保持不变，令牌将被遗忘。"
+  },
   "sprints": {
     "menuItem": "冲刺",
     "menuHint": "按冲刺规划任务，并把未完成的带到下一个冲刺",
