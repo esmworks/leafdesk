@@ -22,6 +22,7 @@ import {
   addMembers,
   createWorkspace,
   joinWithLink,
+  pagesOnlyTheyManage,
   removeMember,
   renameWorkspace,
   revokeInvitation,
@@ -147,11 +148,22 @@ export async function setMemberRoleAction(workspaceId: string, targetId: string,
   return result;
 }
 
-export async function removeMemberAction(workspaceId: string, targetId: string) {
+/**
+ * Removes someone (or leaves). `heirId`: when an owner removes someone, who takes over the pages
+ * only they could manage (the owner by default).
+ */
+export async function removeMemberAction(workspaceId: string, targetId: string, heirId: string | null = null) {
   const userId = await requireUserId();
-  const result = await run(() => removeMember(userId, workspaceId, targetId));
+  if (heirId !== null && typeof heirId !== "string") return fail("heirInvalid");
+  const result = await run(() => removeMember(userId, workspaceId, targetId, { heirId }));
   refresh(workspaceId);
   return result;
+}
+
+/** How many pages only `targetId` can manage, for the dialog removing them. Owners only. */
+export async function pagesOnlyTheyManageAction(workspaceId: string, targetId: string) {
+  const userId = await requireUserId();
+  return run(() => pagesOnlyTheyManage(userId, workspaceId, targetId));
 }
 
 export async function revokeInvitationAction(workspaceId: string, invitationId: string) {

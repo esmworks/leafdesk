@@ -139,7 +139,8 @@
       "type": "Typ",
       "labels": "Etiketter",
       "due": "Förfallodatum",
-      "link": "Jira-länk"
+      "link": "Jira-länk",
+      "reporter": "Rapportör"
     },
     "errors": {
       "unauthorized": "Jira avvisade e-postadressen och API-token.",

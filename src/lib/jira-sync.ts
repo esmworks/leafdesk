@@ -11,7 +11,7 @@ import type { StatusGroup } from "./property-types";
  */
 
 /** The issue fields a run asks Jira for. */
-export const JIRA_FIELDS = ["summary", "status", "assignee", "priority", "labels", "duedate", "issuetype"] as const;
+export const JIRA_FIELDS = ["summary", "status", "assignee", "reporter", "priority", "labels", "duedate", "issuetype"] as const;
 
 /** Issues fetched per request (Jira's ceiling when fields are asked for). */
 export const JIRA_PAGE_SIZE = 100;
@@ -34,6 +34,8 @@ export type JiraMapping = {
   assignee?: string;
   /** Text: the assignee's name when no one in the workspace is them. */
   assigneeOthers?: string;
+  /** Person: who reported the issue, found by email address like the assignee (none when not one of the workspace's). */
+  reporter?: string;
   priority?: string;
   type?: string;
   labels?: string;
@@ -47,6 +49,7 @@ export type JiraNames = {
   key: string;
   status: string;
   assignee: string;
+  reporter: string;
   others: (column: string) => string;
   priority: string;
   type: string;
@@ -60,6 +63,7 @@ export const ENGLISH_JIRA_NAMES: JiraNames = {
   key: "Key",
   status: "Status",
   assignee: "Assignee",
+  reporter: "Reporter",
   others: (column) => `${column} (others)`,
   priority: "Priority",
   type: "Type",
@@ -114,6 +118,10 @@ export type JiraSyncView = {
   lastErrorDetail: string | null;
   /** Full access to the database: may change it, sync it or stop it. */
   canManage: boolean;
+  /** The person property issues' reporters go to; null when they go nowhere. */
+  reporter: string | null;
+  /** With full access: the database's person properties, which the reporter can go to. */
+  personProperties: { id: string; name: string }[];
 };
 
 /** What every viewer of a synced database is told (the snapshot's `sync`). */
@@ -134,6 +142,7 @@ export type JiraRow = {
   title: string;
   status: { name: string; group: StatusGroup } | null;
   assignee: { name: string; email: string | null } | null;
+  reporter: { name: string; email: string | null } | null;
   priority: string | null;
   type: string | null;
   labels: string[];
@@ -221,6 +230,8 @@ export function issueRow(issue: unknown, siteUrl: string): JiraRow | null {
   const statusName = text(status?.name);
   const assignee = record(fields.assignee);
   const assigneeName = text(assignee?.displayName) ?? text(assignee?.emailAddress);
+  const reporter = record(fields.reporter);
+  const reporterName = text(reporter?.displayName) ?? text(reporter?.emailAddress);
   const labels = Array.isArray(fields.labels) ? fields.labels.map(text).filter((l): l is string => l !== null) : [];
   const due = typeof fields.duedate === "string" && DAY.test(fields.duedate) ? fields.duedate : null;
   return {
@@ -228,6 +239,7 @@ export function issueRow(issue: unknown, siteUrl: string): JiraRow | null {
     title: (text(fields.summary) ?? key).slice(0, 2000),
     status: statusName ? { name: statusName, group: statusGroupOf(record(status?.statusCategory)?.key) } : null,
     assignee: assigneeName ? { name: assigneeName, email: text(assignee?.emailAddress) } : null,
+    reporter: reporterName ? { name: reporterName, email: text(reporter?.emailAddress) } : null,
     priority: nameOf(fields.priority),
     type: nameOf(fields.issuetype),
     labels: [...new Set(labels)],
@@ -288,7 +300,7 @@ function distinct(values: string[]) {
 /**
  * The values a row gets from its issue, keyed by property id, as normalizeRowProperties takes them
  * (option names, a day, ids of people). Every mapped property gets a value, null to clear it: the
- * issue is the source. `person` finds the workspace's person an assignee is (null for none).
+ * issue is the source. `person` finds the workspace's person an assignee or reporter is (null for none).
  */
 export function rowValues(row: JiraRow, mapping: Partial<JiraMapping>, person: (assignee: { name: string; email: string | null }) => string | null) {
   const values: Record<string, unknown> = {};
@@ -302,6 +314,8 @@ export function rowValues(row: JiraRow, mapping: Partial<JiraMapping>, person: (
   set("assignee", assigned ? [assigned] : null);
   // Someone the workspace doesn't have goes in the text beside; without that text, nowhere.
   set("assigneeOthers", row.assignee && !(assigned && mapping.assignee) ? row.assignee.name : null);
+  const reporter = row.reporter ? person(row.reporter) : null;
+  set("reporter", reporter ? [reporter] : null);
   set("priority", row.priority);
   set("type", row.type);
   set("labels", row.labels.length ? row.labels : null);

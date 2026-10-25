@@ -139,7 +139,8 @@
       "type": "סוג",
       "labels": "תוויות",
       "due": "תאריך יעד",
-      "link": "קישור ל־Jira"
+      "link": "קישור ל־Jira",
+      "reporter": "מדווח"
     },
     "errors": {
       "unauthorized": "Jira דחה את כתובת האימייל ואת אסימון ה־API.",

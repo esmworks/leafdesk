@@ -58,7 +58,7 @@
       "workspaceName": "name rename icon",
       "ai": "artificial intelligence chat model provider memory",
       "workspaceMail": "email rows mail send",
-      "export": "backup download zip markdown",
+      "export": "backup download zip markdown pdf",
       "members": "people invite users roles remove",
       "agents": "ai assistant automation bot",
       "snippets": "text expansion shortcuts",
@@ -108,7 +108,11 @@
     "description": "Download every page you can see as a ZIP: pages as Markdown, databases as CSV, and the files they show. Pages in the trash are left out; templates are kept in a Templates folder.",
     "button": "Export",
     "preparing": "Preparing…",
-    "disabled": "Export is turned off for this workspace in Settings → Security."
+    "disabled": "Export is turned off for this workspace in Settings → Security.",
+    "format": "Export format",
+    "formatMarkdown": "Markdown and CSV",
+    "formatPdf": "PDF",
+    "descriptionPdf": "Download every page you can see as a ZIP of PDFs, in folders that follow the page tree: databases as tables of their rows, and rows with text of their own as PDFs of their own. Pages in the trash and templates are left out; at most {limit, number} PDFs."
   },
   "members": {
     "heading": "Members",
@@ -210,7 +214,13 @@
       "someone": "A member",
       "approve": "Approve",
       "decline": "Decline"
-    }
+    },
+    "removeBodyChoose": "{name} loses access to this workspace right away, including in open pages and connected apps.",
+    "removeBodyToOwner": "{name} loses access to this workspace right away, including in open pages and connected apps. Pages only they could manage, and teamspaces nobody else runs, pass to the workspace's oldest owner.",
+    "heirLabel": "Hand their pages over to",
+    "heirHint": "Pages only {name} could manage, and teamspaces nobody else runs, go to the person you pick.",
+    "heirCount": "{count, plural, =0 {{name} manages no pages alone right now. Teamspaces nobody else runs go to the person you pick.} one {# page only {name} could manage goes to the person you pick, with teamspaces nobody else runs.} other {# pages only {name} could manage go to the person you pick, with teamspaces nobody else runs.}}",
+    "heirYou": "{name} (you)"
   },
   "guests": {
     "heading": "Guests",
@@ -736,7 +746,7 @@
       "accessDenied": "You don’t have permission to do this.",
       "reasons": {
         "name": "Give the agent a name.",
-        "icon": "An agent’s icon is an emoji.",
+        "icon": "An agent’s icon is an emoji or a built-in icon.",
         "level": "An agent can view, comment on or edit a page.",
         "template": "This template doesn’t exist.",
         "database": "Choose a database of this workspace.",
@@ -1195,6 +1205,7 @@
     "invalidSetting": "That setting isn't available.",
     "nameRequired": "Give the workspace a name.",
     "alreadyMember": "This person is already a member.",
+    "ownerInvitation": "This address has an invitation to become an owner. Only an owner can change it.",
     "notMember": "This person is not a member.",
     "lastOwner": "A workspace needs at least one owner.",
     "lastOwnerRemove": "A workspace needs at least one owner. Make someone else an owner first.",
@@ -1224,7 +1235,8 @@
     "invalidNetworkLabel": "The label of {detail} is too long: at most 100 characters.",
     "tooManyNetworks": "A workspace can have at most 100 approved networks.",
     "ipLocksYouOut": "This list leaves out your current address, {detail}, so saving it would shut you out of the workspace. Add your address, or a range that covers it, first.",
-    "ipUnknown": "The server can't tell your address, so it can't make sure this list keeps you in. Save it from a connection whose address the server sees, or clear the list."
+    "ipUnknown": "The server can't tell your address, so it can't make sure this list keeps you in. Save it from a connection whose address the server sees, or clear the list.",
+    "heirInvalid": "Pick an owner or member who stays in the workspace."
   },
   "security": {
     "description": "Decide how people sign in, who can bring people into this workspace, what guests can do, what can leave it (exports, connected apps) and who can publish pages to the web. Only owners can change these settings.",
@@ -1271,7 +1283,9 @@
       "unpublish": "Unpublish",
       "confirm": "Unpublish this page? The link stops working for everyone.",
       "indexable": "Search engines allowed",
-      "off": "Publishing is turned off: none of these pages are on the web right now. They come back when publishing is turned on again, unless you unpublish them."
+      "off": "Publishing is turned off: none of these pages are on the web right now. They come back when publishing is turned on again, unless you unpublish them.",
+      "expiresOn": "Expires {date}",
+      "expiredOn": "Expired {date}"
     },
     "forms": {
       "title": "Public forms",
@@ -1710,7 +1724,8 @@
         "removed": "Removed {target} ({role})",
         "left": "Left the workspace",
         "role_changed": "Changed the role of {target} from {from} to {to}",
-        "ownership_transferred": "Made {target} an owner and stepped down to member"
+        "ownership_transferred": "Made {target} an owner and stepped down to member",
+        "content_handed_over": "Handed {count, plural, one {# page} other {# pages}} that only {target} could manage over to {subject}"
       },
       "invitation": {
         "sent": "Invited {target} as {role}",
@@ -1742,7 +1757,8 @@
         "published": "Published {target} to the web",
         "unpublished": "Unpublished {target}",
         "publication_revoked": "Took {target} off the web (published by {subject})",
-        "rows_merged": "Merged {count, plural, one {# row} other {# rows}} into {target}"
+        "rows_merged": "Merged {count, plural, one {# row} other {# rows}} into {target}",
+        "publication_expiry_changed": "{change, select, removed {Removed the expiry of the web link of {target}} other {Set the web link of {target} to stop working on {to}}}"
       },
       "property": {
         "access_changed": "Changed who can access “{property}” in {target}",
@@ -1912,6 +1928,15 @@
       "slack_token": "a Slack token",
       "api_key": "an API key",
       "jwt": "a JSON Web Token"
+    },
+    "audienceLine": "Audience: {audience}",
+    "audience": {
+      "web": "Published to the web",
+      "workspace": "Whole workspace",
+      "workspaceTeamspace": "Whole workspace (teamspace {name})",
+      "teamspace": "Teamspace {name}",
+      "people": "Specific people ({count})",
+      "private": "Private"
     }
   },
   "notifications": {
@@ -2658,7 +2683,7 @@
       "reservedKey": "This key is taken by a built-in kind (note, tip, important, warning, caution, info, danger, details, frame, card, panel).",
       "duplicateKey": "Another style already has this key.",
       "name": "Enter a name of up to 60 characters.",
-      "icon": "Choose one emoji, or no icon.",
+      "icon": "Choose one emoji or built-in icon, or no icon.",
       "color": "Choose a color.",
       "border": "Choose a border.",
       "title": "Keep the title to 120 characters."

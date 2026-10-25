@@ -29,5 +29,14 @@
     "busy": "Hai già un’esportazione in corso. Attendi che il download sia terminato.",
     "disabled": "L’esportazione è disattivata in questo spazio di lavoro."
   },
-  "celebrate": "Ottimo lavoro!"
+  "celebrate": "Ottimo lavoro!",
+  "toast": {
+    "undo": "Annulla",
+    "dismiss": "Chiudi",
+    "movedTo": "Spostata in",
+    "movedToPlace": "Spostata in {place}",
+    "trashed": "Spostata nel cestino",
+    "rowsTrashed": "{count, plural, one {Riga spostata nel cestino} other {# righe spostate nel cestino}}",
+    "undoFailed": "Impossibile annullare."
+  }
 }

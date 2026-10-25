@@ -1,4 +1,4 @@
-import type { DateOptions, DateReminder } from "@/db/schema/app";
+import type { DateFormatKind, DateOptions, DateReminder } from "@/db/schema/app";
 import { dayNumber, isTimeZone, localDay, zonedInstant } from "@/lib/time-zone";
 
 /**
@@ -8,7 +8,11 @@ import { dayNumber, isTimeZone, localDay, zonedInstant } from "@/lib/time-zone";
  * that zone's clock. Ranges remind of their start. Pure and client-safe.
  */
 
-export type { DateOptions, DateReminder };
+export type { DateFormatKind, DateOptions, DateReminder };
+
+/** The day formats a date can show in besides the default (see lib/date-format). */
+export const DATE_FORMATS = ["full", "short", "mdy", "dmy", "ymd"] as const satisfies readonly DateFormatKind[];
+export const DATE_CLOCKS = ["12h", "24h"] as const;
 
 /** How many days before the date a reminder can go: on the day, the day before, two days, a week. */
 export const REMINDER_DAYS = [0, 1, 2, 7] as const;
@@ -17,8 +21,17 @@ const REMINDER_MINUTES = 9 * 60;
 /** Relative display: days this close to today read relatively ("in 6 days"), farther ones as dates. */
 const RELATIVE_DAYS = 6;
 
-/** What the app or MCP asks for: the display, and the reminder's days before (null: none). */
-export type DateOptionsInput = { display?: "date" | "relative"; reminderDays?: number | null; timeZone?: string };
+/**
+ * What the app or MCP asks for: the display, the day's format and the clock ("default" or null:
+ * the locale's), and the reminder's days before (null: none).
+ */
+export type DateOptionsInput = {
+  display?: "date" | "relative";
+  format?: DateFormatKind | "default" | null;
+  clock?: "12h" | "24h" | "default" | null;
+  reminderDays?: number | null;
+  timeZone?: string;
+};
 
 /**
  * Checks date options given by the app or MCP against the property's current ones and returns
@@ -42,7 +55,15 @@ export function checkDateOptions(
   if (input.timeZone !== undefined && !isTimeZone(input.timeZone)) {
     return { ok: false, message: `Unknown time zone "${input.timeZone}"; use an IANA name such as Europe/Istanbul` };
   }
+  if (input.format !== undefined && input.format !== null && input.format !== "default" && !(DATE_FORMATS as readonly string[]).includes(input.format)) {
+    return { ok: false, message: `A date format is one of: default, ${DATE_FORMATS.join(", ")}` };
+  }
+  if (input.clock !== undefined && input.clock !== null && input.clock !== "default" && !(DATE_CLOCKS as readonly string[]).includes(input.clock)) {
+    return { ok: false, message: `A clock is one of: default, ${DATE_CLOCKS.join(", ")}` };
+  }
   const display = input.display === undefined ? current?.display : input.display === "relative" ? "relative" : undefined;
+  const format = input.format === undefined ? current?.format : input.format === null || input.format === "default" ? undefined : input.format;
+  const clock = input.clock === undefined ? current?.clock : input.clock === null || input.clock === "default" ? undefined : input.clock;
   let reminder = current?.reminder;
   if (days === null) reminder = undefined;
   else if (days !== undefined) {
@@ -51,7 +72,12 @@ export function checkDateOptions(
       reminder = { daysBefore: days, timeZone, since: now.toISOString() };
     }
   }
-  const options: DateOptions = { ...(display ? { display } : {}), ...(reminder ? { reminder } : {}) };
+  const options: DateOptions = {
+    ...(display ? { display } : {}),
+    ...(format ? { format } : {}),
+    ...(clock ? { clock } : {}),
+    ...(reminder ? { reminder } : {}),
+  };
   return { ok: true, options: Object.keys(options).length ? options : null };
 }
 
@@ -83,4 +109,9 @@ export function relativeDay(day: string, today: string, locale: string): string 
   let format = relativeFormats.get(locale);
   if (!format) relativeFormats.set(locale, (format = new Intl.RelativeTimeFormat(locale, { numeric: "auto" })));
   return format.format(diff, "day");
+}
+
+/** Whether a property has date options: dates (all of them), created and last edited times (all but a reminder). */
+export function takesDateOptions(type: string) {
+  return type === "date" || type === "created_time" || type === "last_edited_time";
 }

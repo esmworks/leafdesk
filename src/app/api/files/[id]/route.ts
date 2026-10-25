@@ -11,7 +11,8 @@ import { refOf, storageOf } from "@/server/storage/workspace";
  *
  * Only raster images, video, audio and PDF are shown in the browser; everything else (SVG and
  * HTML included) is a download, never sniffed into something else, and sandboxed should a browser
- * render it anyway. Single byte ranges are served, so video and audio can seek. PDFs can be framed
+ * render it anyway; `?download=1` makes any file a download. Single byte ranges are served, so
+ * video and audio can seek. PDFs can be framed
  * by this site only (the inline viewer), with `?view=pdf` guaranteeing the frame gets a PDF.
  *
  * The bytes come from wherever the file is stored (the workspace's own storage or the instance's),
@@ -33,13 +34,16 @@ export async function GET(request: Request, { params }: { params: Promise<{ id: 
   if (!found) return notFound();
   // Inline PDF viewers (components/page/pdf-viewer.tsx) ask for `?view=pdf`: anything that isn't
   // stored as a PDF is refused there, so a frame never downloads or shows another kind of file.
-  const view = new URL(request.url).searchParams.get("view");
+  const search = new URL(request.url).searchParams;
+  const view = search.get("view");
   if (view !== null && (view !== "pdf" || found.contentType !== "application/pdf")) return notFound();
+  // "Download" in a block's menu (lib/downloads) asks for `?download=1`: saved, never shown.
+  const download = search.get("download") === "1" && view === null;
 
   const headers: Record<string, string> = {
     ...BASE_HEADERS,
     "Content-Type": found.contentType,
-    "Content-Disposition": dispositionOf(found.contentType, found.name),
+    "Content-Disposition": download ? dispositionOf("application/octet-stream", found.name) : dispositionOf(found.contentType, found.name),
     // Access can be taken away, so only the viewer's own browser keeps it, and not for long.
     "Cache-Control": "private, max-age=300",
     ETag: `"${found.id}"`,

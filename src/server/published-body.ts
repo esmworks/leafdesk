@@ -10,6 +10,7 @@ import { AGENT_CHAT_BLOCK } from "@/lib/agent-chat";
 import { DASHBOARD_BLOCK, dashboardLayout, parseDashboard, type DashboardLayout, type DashboardWidget } from "@/lib/dashboard";
 import { isEmbedBlockType, parseLinkedView, type EmbedBlockType, type LinkedView } from "@/lib/embed-blocks";
 import { pdfFileId, spreadsheetFileId } from "@/lib/files";
+import { mediaAlignment, mediaWidth, type MediaAlignment } from "@/lib/media-placement";
 import { BOOKMARK_BLOCK, bookmarkWidth, embedFor, isWebBlockType, parseWebUrl, type EmbedTarget } from "@/lib/web-blocks";
 import {
   bodyReferences,
@@ -209,13 +210,13 @@ export type BodySegment =
   | { kind: "mermaid"; source: string }
   /** An agent chat block: chats happen in the app only, so it says just that (naming no agent). */
   | { kind: "agentChat" }
-  | { kind: "bookmark"; bookmark: PublishedBookmark }
+  | { kind: "bookmark"; bookmark: PublishedBookmark; align: MediaAlignment }
   /** An embed of an allowlisted provider; any other URL comes back as a bookmark. */
-  | { kind: "webEmbed"; url: string; embed: EmbedTarget }
+  | ({ kind: "webEmbed"; url: string; embed: EmbedTarget } & MediaPlacement)
   /** A file block holding an uploaded PDF, shown in place (see components/page/pdf-viewer.tsx). */
-  | { kind: "pdf"; fileId: string; name: string; caption: string }
+  | ({ kind: "pdf"; fileId: string; name: string; caption: string } & MediaPlacement)
   /** A file block holding an uploaded Excel workbook, its cells shown in place (see components/page/spreadsheet-viewer.tsx). */
-  | { kind: "spreadsheet"; fileId: string; name: string; caption: string }
+  | ({ kind: "spreadsheet"; fileId: string; name: string; caption: string } & MediaPlacement)
   /** Columns side by side (stacked on narrow screens), each with its own segments. */
   | { kind: "columns"; columns: PublishedColumn<BodySegment>[] }
   /** The notes of the body's footnotes, in order: always the last segment, and only when there are some. */
@@ -226,6 +227,15 @@ export type BodySegment =
  * the note in the list (`anchor`), which link to each other.
  */
 export type BodyFootnote = { anchor: string; refAnchor: string; text: string };
+
+/**
+ * Where a block drawn on its own sits (lib/media-blocks): its alignment and its width in percent
+ * of the column, or null for all of it.
+ */
+export type MediaPlacement = { align: MediaAlignment; width: number | null };
+
+/** A block's placement from its props. */
+const placementOf = (props: Record<string, unknown>): MediaPlacement => ({ align: mediaAlignment(props.textAlignment), width: mediaWidth(props.width) });
 
 /** A column of a published page: its share of the row (see lib/columns) and what it shows. */
 export type PublishedColumn<S> = { width: number; segments: S[] };
@@ -274,7 +284,7 @@ function webSegment(block: PageBlock): BodySegment | null {
   if (!url) return null;
   if (block.type !== BOOKMARK_BLOCK) {
     const embed = embedFor(url);
-    if (embed) return { kind: "webEmbed", url, embed };
+    if (embed) return { kind: "webEmbed", url, embed, ...placementOf(props) };
   }
   const text = (name: string) => (typeof props[name] === "string" ? (props[name] as string) : "");
   return {
@@ -288,6 +298,7 @@ function webSegment(block: PageBlock): BodySegment | null {
       siteName: text("siteName"),
       width: bookmarkWidth(props.width),
     },
+    align: mediaAlignment(props.textAlignment),
   };
 }
 
@@ -653,6 +664,7 @@ export async function bodySegmentsFromBlocks(
         await flush();
         segments.push({
           ...inPlace,
+          ...placementOf(block.props as Record<string, unknown>),
           name: typeof props.name === "string" ? props.name : "",
           caption: typeof props.caption === "string" ? props.caption : "",
         });

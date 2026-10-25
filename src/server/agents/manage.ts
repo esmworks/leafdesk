@@ -39,7 +39,7 @@ import {
   type AgentView,
 } from "@/lib/agents";
 import { agentTargets } from "@/lib/automations";
-import { parseIcon } from "@/lib/icon";
+import { ICON_RULE, parseIcon } from "@/lib/icon";
 import type { AgentLevel, AgentShareLevel } from "@/lib/agent-sharing";
 import { pageAccessOf, pageVisibleTo, requireMember } from "@/server/access";
 import { recordAudit } from "@/server/audit";
@@ -117,9 +117,9 @@ async function checkHelpers(userId: string, workspaceId: string, agentId: string
 
 function checkIcon(value: unknown) {
   if (value === null || value === undefined) return null;
-  // An emoji (a few code points at most), like a page's icon.
+  // An emoji (a few code points at most) or a built-in icon, like a page's icon.
   const icon = parseIcon(value);
-  if (!icon) throw new AgentError("invalid", "An agent's icon is an emoji", { reason: "icon" });
+  if (!icon) throw new AgentError("invalid", `An agent's icon is ${ICON_RULE}`, { reason: "icon" });
   return icon;
 }
 

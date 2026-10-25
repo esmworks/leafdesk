@@ -1,5 +1,6 @@
 "use client";
 
+import { IconGlyph } from "@/components/builtin-icon";
 import { Eye, EyeOff, Square, SquareCheck } from "lucide-react";
 import { useFormatter, useTranslations } from "next-intl";
 import { useMemo } from "react";
@@ -110,7 +111,7 @@ export function GroupLabel({ prop, group, className }: { prop: Pick<Property, "t
     case "relation":
       return (
         <span className={cn("flex min-w-0 items-center gap-1.5 text-sm", className)}>
-          {value.row.icon && <span className="shrink-0">{value.row.icon}</span>}
+          {value.row.icon && <IconGlyph icon={value.row.icon} className="shrink-0" />}
           <span className="truncate">{name}</span>
         </span>
       );

@@ -40,6 +40,7 @@ type FakeIssue = {
     summary: string;
     status: { name: string; statusCategory: { key: string } };
     assignee: { accountId: string; displayName: string; emailAddress?: string } | null;
+    reporter?: { accountId: string; displayName: string; emailAddress?: string } | null;
     priority: { name: string } | null;
     labels: string[];
     duedate: string | null;
@@ -57,6 +58,7 @@ const issues: FakeIssue[] = [
       summary: "Fix the login page",
       status: status("In Progress", "indeterminate"),
       assignee: { accountId: "a-ada", displayName: "Ada Jira", emailAddress: adaEmail },
+      reporter: { accountId: "a-ada", displayName: "Ada Jira", emailAddress: adaEmail },
       priority: { name: "High" },
       labels: ["web", "urgent"],
       duedate: "2026-11-02",
@@ -230,12 +232,14 @@ try {
   check(result.created.rows === 3 && result.pages[0].title === "Operations", "setting up makes a database with a row per issue", result);
   const searches = requests.filter((r) => r.startsWith("/rest/api/3/search/jql"));
   check(searches.length === 2 && searches[1].includes("nextPageToken=2"), "issues are read page by page", searches);
-  check(searches[0].includes("fields=summary%2Cstatus%2Cassignee%2Cpriority%2Clabels%2Cduedate%2Cissuetype"), "asking only for the fields it writes", searches[0]);
+  check(searches[0].includes("fields=summary%2Cstatus%2Cassignee%2Creporter%2Cpriority%2Clabels%2Cduedate%2Cissuetype"), "asking only for the fields it writes", searches[0]);
 
   const props = await getProperties(databaseId);
   const byName = (name: string) => props.find((p) => p.name === name)!;
   check(
-    ["Key", "Status", "Assignee", "Assignee (others)", "Priority", "Type", "Labels", "Due date", "Jira link"].every((n) => props.some((p) => p.name === n)),
+    ["Key", "Status", "Assignee", "Assignee (others)", "Reporter", "Priority", "Type", "Labels", "Due date", "Jira link"].every((n) =>
+      props.some((p) => p.name === n),
+    ),
     "with a property for each field",
     props.map((p) => `${p.name}:${p.type}`),
   );
@@ -249,6 +253,11 @@ try {
   check(statusProp.options.options?.find((o) => o.name === "In Progress")?.group === "in_progress", "in the stage of its Jira category", statusProp.options.options);
   check(JSON.stringify(one.properties[byName("Assignee").id]) === JSON.stringify([ids.ada]), "an assignee with a member's address is that person", one.properties);
   check(rowOf("OPS-2").properties[byName("Assignee (others)").id] === "Grace Hopper", "someone else is written by name", rowOf("OPS-2").properties);
+  check(
+    JSON.stringify(one.properties[byName("Reporter").id]) === JSON.stringify([ids.ada]) && !(rowOf("OPS-2").properties[byName("Reporter").id] as unknown[] | null)?.length,
+    "a reporter with a member's address is that person; one without, nobody",
+    one.properties,
+  );
   check(optionName("Priority", one.properties[byName("Priority").id]) === "High" && optionName("Type", one.properties[byName("Type").id]) === "Bug", "priority and type are options");
   const labels = one.properties[byName("Labels").id] as string[];
   check(labels.map((id) => optionName("Labels", id)).join() === "web,urgent", "labels are a multi-select", labels);
@@ -265,6 +274,23 @@ try {
   check(snapshot.sync?.source === "jira" && snapshot.sync.siteUrl === SITE, "the database says where it syncs from", snapshot.sync);
   const shown = await manage.getJiraSync(ids.owner, databaseId);
   check(shown?.email === EMAIL && shown.canManage && !JSON.stringify(shown).includes(token), "the sync's dialog shows the email, never the token", shown);
+  check(
+    shown?.reporter === byName("Reporter").id && shown.personProperties.some((p) => p.name === "Assignee") && shown.personProperties.some((p) => p.name === "Reporter"),
+    "…and where reporters go, among the database's person properties",
+    shown,
+  );
+  // Reporters can go to another person property, or nowhere.
+  const raisedBy = await addProperty(ids.owner, databaseId, { name: "Raised by", type: "person" });
+  const moved = await manage.updateJiraSync(ids.owner, databaseId, { reporter: raisedBy.id });
+  check(moved.reporter === raisedBy.id, "the reporter can go to another person property", moved);
+  check(
+    JSON.stringify((await rowsOf(databaseId)).find((r) => r.id === one.id)!.properties[raisedBy.id]) === JSON.stringify([ids.ada]),
+    "…which the sync fills in at once",
+  );
+  check((await errorCode(() => manage.updateJiraSync(ids.owner, databaseId, { reporter: byName("Key").id }))) === "invalidInput", "…but only a person property");
+  const unmapped = await manage.updateJiraSync(ids.owner, databaseId, { reporter: null });
+  check(unmapped.reporter === null, "…or nowhere", unmapped);
+  await manage.updateJiraSync(ids.owner, databaseId, { reporter: byName("Reporter").id });
 
   // Changes in Jira
   const notes = await addProperty(ids.owner, databaseId, { name: "Notes", type: "text" });

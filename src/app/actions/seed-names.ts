@@ -90,6 +90,7 @@ export async function jiraSyncNames(): Promise<JiraNames> {
     key: t("key"),
     status: t("status"),
     assignee: t("assignee"),
+    reporter: t("reporter"),
     others: (column) => t("others", { column }),
     priority: t("priority"),
     type: t("type"),

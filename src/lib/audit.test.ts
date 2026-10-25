@@ -7,6 +7,7 @@ import {
   AUDIT_MAX_PAGE,
   auditActorName,
   auditCategoryOf,
+  auditAudience,
   auditCsvRows,
   auditDateRange,
   auditFilterQuery,
@@ -275,6 +276,7 @@ describe("audit CSV", () => {
       "ip",
       "user_agent",
       "details",
+      "audience",
     ]);
     expect(rows[1]).toEqual([
       at,
@@ -289,10 +291,17 @@ describe("audit CSV", () => {
       "203.0.113.5",
       "Mozilla/5.0",
       '{"from":"Design","to":"Product"}',
+      null,
     ]);
     const csv = toCsv(rows);
     expect(csv).toContain("2026-09-20T12:00:00.000Z,'=cmd(),ayse@example.test,user,,group.renamed,groups,");
     expect(csv).toContain('"{""from"":""Design"",""to"":""Product""}"');
+  });
+
+  it("ends with the audience of page events", () => {
+    const rows = auditCsvRows([event("page.created", { targetType: "page", details: { audience: { kind: "teamspace", teamspace: "Sales" } } })], t);
+    expect(rows[0].at(-1)).toBe("audience");
+    expect(rows[1].at(-1)).toBe("Teamspace Sales");
   });
 
   it("describes events in the viewer's language", () => {
@@ -313,5 +322,38 @@ describe("visibleSettingsTabs: audit", () => {
     expect(visibleSettingsTabs({ guest: false, managesGuests: true, owner: true })).toContain("audit");
     expect(visibleSettingsTabs({ guest: false, managesGuests: true })).not.toContain("audit");
     expect(visibleSettingsTabs({ guest: true, managesGuests: false, owner: true })).toEqual(["general", "snippets"]);
+  });
+});
+
+describe("page audience", () => {
+  const of = (audience: unknown, translate = t) => auditAudience(event("page.created", { details: { audience } }), translate);
+
+  it("reads each audience", () => {
+    expect(of({ kind: "web" })).toBe("Published to the web");
+    expect(of({ kind: "private" })).toBe("Private");
+    expect(of({ kind: "workspace" })).toBe("Whole workspace");
+    expect(of({ kind: "workspace", teamspace: "General" })).toBe("Whole workspace (teamspace General)");
+    expect(of({ kind: "teamspace", teamspace: "Sales" })).toBe("Teamspace Sales");
+    expect(of({ kind: "people", people: 2, groups: 1 })).toBe("Specific people (3)");
+    expect(of({ kind: "people", people: 2, groups: 1 }, tTr)).not.toBe("Specific people (3)");
+  });
+
+  it("is empty for events without one", () => {
+    expect(auditAudience(event("member.left"), t)).toBeNull();
+    expect(of("web")).toBeNull();
+  });
+});
+
+describe("new page and member events", () => {
+  it("reads a link's expiry in UTC, and its removal", () => {
+    const set = event("page.publication_expiry_changed", { targetLabel: "Docs", details: { from: null, to: "2026-11-02T15:30:00.000Z" } });
+    expect(describeAuditEvent(set, t)).toBe("Set the web link of Docs to stop working on 2026-11-02 15:30 UTC");
+    const removed = event("page.publication_expiry_changed", { targetLabel: "Docs", details: { from: "2026-11-02T15:30:00.000Z", to: null } });
+    expect(describeAuditEvent(removed, t)).toBe("Removed the expiry of the web link of Docs");
+  });
+
+  it("reads a hand-over", () => {
+    const handed = event("member.content_handed_over", { targetLabel: "Bob", details: { count: 3, subject: "Ayşe", subjectType: "user" } });
+    expect(describeAuditEvent(handed, t)).toBe("Handed 3 pages that only Bob could manage over to Ayşe");
   });
 });

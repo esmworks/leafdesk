@@ -110,6 +110,7 @@
       "you": "{name} (tu)"
     },
     "threadMenu": "Opzioni della discussione",
+    "copyLink": "Copia link",
     "mute": "Silenzia risposte",
     "unmute": "Riattiva risposte",
     "muteHint": "Smetti di ricevere avvisi sulle nuove risposte in questa discussione. Si riattiva se rispondi qui o se qualcuno ti menziona qui.",
@@ -201,7 +202,38 @@
   },
   "icon": {
     "add": "Aggiungi icona",
-    "remove": "Rimuovi icona"
+    "remove": "Rimuovi icona",
+    "emojiTab": "Emoji",
+    "iconsTab": "Icone",
+    "searchEmoji": "Cerca emoji",
+    "searchIcons": "Cerca icone",
+    "random": "Casuale",
+    "skinTone": "Tonalità della pelle",
+    "tones": {
+      "0": "Nessuna tonalità",
+      "1": "Carnagione chiara",
+      "2": "Carnagione abbastanza chiara",
+      "3": "Carnagione olivastra",
+      "4": "Carnagione abbastanza scura",
+      "5": "Carnagione scura"
+    },
+    "color": "Colore dell’icona",
+    "textColor": "Colore del testo",
+    "categoriesLabel": "Categorie",
+    "categories": {
+      "smileys": "Faccine ed emozioni",
+      "people": "Persone e corpo",
+      "nature": "Animali e natura",
+      "food": "Cibo e bevande",
+      "travel": "Viaggi e luoghi",
+      "activities": "Attività",
+      "objects": "Oggetti",
+      "symbols": "Simboli",
+      "flags": "Bandiere"
+    },
+    "loading": "Caricamento…",
+    "loadFailed": "Impossibile caricare le emoji.",
+    "noMatches": "Nessun risultato."
   },
   "background": {
     "add": "Aggiungi sfondo",
@@ -477,7 +509,8 @@
     "row": "Questo è un modello di riga. Le nuove righe create da esso ne ricevono le proprietà e il contenuto.",
     "inside": "Questa pagina fa parte di un modello.",
     "use": "Usa modello",
-    "confirmDelete": "Eliminare definitivamente questo modello? Le pagine già create da esso restano come sono."
+    "confirmDelete": "Eliminare definitivamente questo modello? Le pagine già create da esso restano come sono.",
+    "titleMarkers": "Scrivi @today, @now o @me nel titolo: ogni nuova riga riceve la data, l’ora o il nome di chi la aggiunge."
   },
   "blocks": {
     "callout": {
@@ -620,7 +653,8 @@
       "submit": "Incorpora",
       "providers": "YouTube, Vimeo, Loom, Figma, Google Docs, Sheets e Slides pubblicati, CodePen, Spotify e Google Maps. Gli altri link diventano un segnalibro.",
       "frameTitle": "Contenuto incorporato da {host}",
-      "label": "Contenuto incorporato"
+      "label": "Contenuto incorporato",
+      "resize": "Trascina per cambiare la larghezza del contenuto incorporato"
     },
     "paste": {
       "label": "Incolla come",
@@ -710,6 +744,11 @@
   },
   "blockMenu": {
     "copyLink": "Copia link al blocco",
+    "download": "Scarica",
+    "alignLeft": "Allinea a sinistra",
+    "alignCenter": "Allinea al centro",
+    "alignRight": "Allinea a destra",
+    "wideColumns": "Colonne larghe",
     "hideInPrint": "Nascondi in stampa",
     "calloutStyle": "Stile del riquadro",
     "turnIntoCallout": "Trasforma in riquadro",
@@ -955,7 +994,8 @@
     "markdownImage": "Immagine: {alt}",
     "markdownImageUntitled": "Immagine",
     "expand": "Apri nel visualizzatore",
-    "view": "Visualizza {name}"
+    "view": "Visualizza {name}",
+    "resize": "Trascina per cambiare la larghezza"
   },
   "presentation": {
     "previous": "Diapositiva precedente",
@@ -1117,7 +1157,7 @@
     },
     "settings": {
       "open": "Impostazioni del pulsante",
-      "icon": "Emoji",
+      "icon": "Icona",
       "label": "Etichetta",
       "color": "Colore",
       "colorDefault": "Predefinito",
@@ -1190,5 +1230,16 @@
     "reset": "Mostra l’immagine intera",
     "loading": "Caricamento dell’immagine…",
     "failed": "Impossibile caricare l’immagine."
+  },
+  "commentRef": {
+    "pasteTitle": "Incolla il link a un commento",
+    "pasteAsMention": "Incolla come menzione",
+    "pasteAsPreview": "Incolla come anteprima",
+    "pasteAsLink": "Incolla come link",
+    "noAccess": "Nessun accesso a questo commento",
+    "onPage": "Su {title}",
+    "replies": "{count, plural, =0 {Nessuna risposta} one {# risposta} other {# risposte}}",
+    "openThread": "Apri discussione",
+    "resolved": "Risolto"
   }
 }

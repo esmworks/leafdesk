@@ -1,6 +1,7 @@
 "use client";
 
 import { forwardRef, useEffect, useRef, useState, type ButtonHTMLAttributes, type InputHTMLAttributes, type ReactNode } from "react";
+import { IconGlyph } from "./builtin-icon";
 
 export function cn(...classes: (string | false | null | undefined)[]) {
   return classes.filter(Boolean).join(" ");
@@ -215,9 +216,10 @@ export function Dialog({
         role="dialog"
         aria-modal="true"
         className={cn(
-          "w-full overflow-hidden rounded-xl border border-border bg-bg shadow-2xl",
+          "w-full rounded-xl border border-border bg-bg shadow-2xl",
           // cn doesn't merge classes: with two max-w utilities the stylesheet's order would pick, not the caller.
           !className?.split(" ").some((c) => c.startsWith("max-w-")) && "max-w-xl",
+          !className?.split(" ").some((c) => c.startsWith("overflow-")) && "overflow-hidden",
           className,
         )}
       >
@@ -263,7 +265,7 @@ export function Switch({
 }
 
 export function PageIcon({ icon, kind, className }: { icon: string | null; kind?: string; className?: string }) {
-  if (icon) return <span className={cn("leading-none", className)}>{icon}</span>;
+  if (icon) return <IconGlyph icon={icon} className={className} />;
   return (
     <svg viewBox="0 0 16 16" className={cn("h-4 w-4 text-fg-faint", className)} fill="none" stroke="currentColor" strokeWidth="1.3" aria-hidden>
       {kind === "database" ? (

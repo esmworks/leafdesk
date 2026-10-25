@@ -139,7 +139,8 @@
       "type": "Type",
       "labels": "Etiketter",
       "due": "Forfaldsdato",
-      "link": "Jira-link"
+      "link": "Jira-link",
+      "reporter": "Indberetter"
     },
     "errors": {
       "unauthorized": "Jira afviste e-mailadressen og API-tokenet.",

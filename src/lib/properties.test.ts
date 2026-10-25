@@ -10,6 +10,7 @@ import {
   isGroupable,
   localDay,
   makeStatusOptions,
+  statusFromCheckbox,
   phoneHref,
   sortOptionsByName,
   sortStatusOptions,
@@ -52,6 +53,14 @@ const tags = prop("multi_select", {
 });
 
 describe("normalizeValue", () => {
+  it("keeps a person property limited to one person to one", () => {
+    const one = prop("person", { person: { single: true } });
+    expect(normalizeValue(one, ["u1"])).toEqual(["u1"]);
+    expect(normalizeValue(one, ["u1", "u1"])).toEqual(["u1"]);
+    expect(() => normalizeValue(one, ["u1", "u2"])).toThrow(expect.objectContaining({ code: "onePerson" }));
+    expect(normalizeValue(prop("person"), ["u1", "u2"])).toEqual(["u1", "u2"]);
+  });
+
   it("clears on empty input", () => {
     expect(normalizeValue(prop("text"), "")).toBeNull();
     expect(normalizeValue(prop("number"), null)).toBeNull();
@@ -473,6 +482,17 @@ describe("defaultsFromFilters", () => {
       { propertyId: "title", op: "contains", value: "x" },
     ];
     expect(defaultsFromFilters(filters, props)).toEqual({});
+  });
+
+  it("dates a new row today, or on the nearest day of a range that lies before or after it", () => {
+    const date = [prop("date")];
+    const now = new Date(2026, 8, 30, 12);
+    const within = (value: string, days?: number): FilterRule[] => [{ propertyId: "p_date", op: "is_within", value, days }];
+    expect(defaultsFromFilters(within("this_week"), date, { now })).toEqual({ p_date: "2026-09-30" });
+    expect(defaultsFromFilters(within("past_n_days", 3), date, { now })).toEqual({ p_date: "2026-09-30" });
+    expect(defaultsFromFilters(within("last_week"), date, { now })).toEqual({ p_date: "2026-09-27" });
+    expect(defaultsFromFilters(within("next_month"), date, { now })).toEqual({ p_date: "2026-10-01" });
+    expect(defaultsFromFilters(within("last_year"), date, { now })).toEqual({ p_date: "2025-12-31" });
   });
 });
 
@@ -905,5 +925,25 @@ describe("unique ID properties", () => {
     const shuffled = [rows[2], rows[0], rows[1]];
     const out = applyView(shuffled, { sorts: [{ propertyId: "p_id", direction: "desc" }] }, [id]);
     expect(out.map((r) => r.id)).toEqual(["c", "b", "a"]);
+  });
+});
+
+describe("statusFromCheckbox", () => {
+  const options = [
+    { id: "s1", name: "Not started", color: "gray", group: "todo" as const },
+    { id: "s2", name: "Doing", color: "blue", group: "in_progress" as const },
+    { id: "s3", name: "Done", color: "green", group: "done" as const },
+    { id: "s4", name: "Shipped", color: "green", group: "done" as const },
+  ];
+  const status = prop("status", { options, statusDisplay: "checkbox" });
+
+  it("ticks to the first done option and unticks to the first to-do one", () => {
+    expect(statusFromCheckbox(status, true)).toBe("s3");
+    expect(statusFromCheckbox(status, false)).toBe("s1");
+  });
+
+  it("changes nothing without a done option, and empties without a to-do one", () => {
+    expect(statusFromCheckbox(prop("status", { options: options.slice(0, 2) }), true)).toBeUndefined();
+    expect(statusFromCheckbox(prop("status", { options: options.slice(1) }), false)).toBeNull();
   });
 });

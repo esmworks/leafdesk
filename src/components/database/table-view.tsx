@@ -1,6 +1,8 @@
 "use client";
 
+import { IconGlyph } from "@/components/builtin-icon";
 import { ArrowDown, ArrowUp, Bot, ChevronRight, Ellipsis, EyeOff, Plus } from "lucide-react";
+import dynamic from "next/dynamic";
 import { useTimeZone, useTranslations } from "next-intl";
 import { useEffect, useId, useLayoutEffect, useMemo, useRef, useState } from "react";
 import { cn, MenuItem } from "@/components/ui";
@@ -17,8 +19,11 @@ import { isGroupable, isSortable, moveProperty } from "@/lib/properties";
 import { isReadOnlyType } from "@/lib/property-types";
 import { opensNewTab } from "@/lib/row-panel";
 import { MAX_COLUMN_WIDTH, MIN_COLUMN_WIDTH } from "@/lib/views";
+import { contentWidths, fittedWidth } from "./fit-column";
 import { pageLabel } from "@/lib/labels";
 import { takesNumberFormat } from "@/lib/number-format";
+import { takesNumberDisplay } from "@/lib/number-display";
+import { takesDateOptions } from "@/lib/date-options";
 import type { SubItemLine } from "@/lib/sub-items";
 import { cellText, type PasteColumn, type PastePlan } from "@/lib/table-clipboard";
 import { AiCell, useAiAutofill } from "./ai-autofill";
@@ -32,7 +37,7 @@ import { OpenLink, PropertyCell } from "./property-cell";
 import { PropertyTypeIcon } from "./property-icons";
 import { PropertyAccessDialog } from "./property-access-dialog";
 import { PropertyLock, usePropertyAccess } from "./property-access";
-import { AddPropertyPanel, PropertyMenu, type PropertyMenuActions } from "./property-menu";
+import type { PropertyMenuActions } from "./property-menu";
 import { usePropertyHint } from "./property-hint";
 import { HIDE_SCROLLBAR, StickyScrollbar } from "./scroll-x";
 import { CalculationRow } from "./table-calculations";
@@ -47,8 +52,13 @@ import { useTableWindow } from "./use-table-window";
 import { useToday } from "./use-today";
 import { AddSubItemButton, SUB_ITEM_INDENT, SubItemCount, SubItemToggle, useSubItems } from "./sub-items";
 import { inlineSign } from "@/components/direction";
+import { useToggleAllGroups } from "@/components/toggle-all";
 import { TITLE, type Property, type Row, type View } from "./types";
 import type { DatabaseApi } from "./use-database";
+
+// A column's menu and the new-property panel open on a click: loaded then.
+const PropertyMenu = dynamic(() => import("./property-menu").then((m) => m.PropertyMenu), { ssr: false });
+const AddPropertyPanel = dynamic(() => import("./property-menu").then((m) => m.AddPropertyPanel), { ssr: false });
 
 /** The Name column; narrower on phones so the next column peeks in. */
 const NAME_WIDTH = { wide: 280, phone: 180 };
@@ -145,16 +155,19 @@ export function TableView({
   const groupBy = properties.find((p) => p.id === view.config.groupBy && isGroupable(p.type));
   const groupContext = useGroupContext(groupBy);
   const groupName = useGroupName(groupBy ?? { name: "" });
-  // Viewers can't save the view, so their collapsing stays on this page.
+  // Viewers can't save the view, so their collapsing stays on this page; so does what Mod+Alt+T
+  // opens or closes (components/toggle-all.ts), for everyone, until a group is clicked.
   const [ownCollapsed, setOwnCollapsed] = useState<string[] | null>(null);
   const collapsed = useMemo(
-    () => new Set(readOnly && ownCollapsed ? ownCollapsed : (view.config.collapsedGroups ?? [])),
-    [readOnly, ownCollapsed, view.config.collapsedGroups],
+    () => new Set(ownCollapsed ?? view.config.collapsedGroups ?? []),
+    [ownCollapsed, view.config.collapsedGroups],
   );
   const grouping = useMemo(
     () => (groupBy ? arrangeGroups(groupRowsBy(rows, groupBy, view.config, groupContext), view.config) : null),
     [rows, groupBy, view.config, groupContext],
   );
+  const groupKeys = useMemo(() => grouping?.shown.map((g) => g.key) ?? null, [grouping]);
+  useToggleAllGroups(groupKeys, collapsed, setOwnCollapsed);
   // Sub-items nest under their parent within the table, or within each group.
   const subItems = useSubItems(view, properties, allRows);
   const linesOf = subItems.lines;
@@ -235,6 +248,16 @@ export function TableView({
   useEffect(() => {
     latestConfig.current = view.config;
   }, [view.config]);
+  // Double-clicking a column's edge fits it to its header and the rows shown (column `col` of the grid).
+  function fitColumn(key: string, col: number) {
+    const table = box.current?.querySelector("table");
+    if (!table) return;
+    const header = table.tHead?.rows[0]?.cells[col + 1];
+    const cells = [...table.querySelectorAll<HTMLElement>("[data-cell]")].filter((el) => el.dataset.cell?.endsWith(`:${col}`));
+    const width = fittedWidth(contentWidths(header ? [header, ...cells] : cells));
+    const config = latestConfig.current;
+    if (width !== (config.columnWidths?.[key] ?? null)) void setConfig({ ...config, columnWidths: { ...config.columnWidths, [key]: width } });
+  }
   function startResize(key: string, start: number, e: React.PointerEvent<HTMLElement>) {
     if (e.button !== 0) return;
     e.preventDefault();
@@ -360,7 +383,10 @@ export function TableView({
   const toggleCollapsed = (key: string) => {
     const next = collapsed.has(key) ? [...collapsed].filter((k) => k !== key) : [...collapsed, key];
     if (readOnly) setOwnCollapsed(next);
-    else void setConfig({ ...view.config, collapsedGroups: next });
+    else {
+      setOwnCollapsed(null);
+      void setConfig({ ...view.config, collapsedGroups: next });
+    }
   };
   const setGroupHidden = (key: string, hide: boolean) => {
     const next = (view.config.hiddenGroups ?? []).filter((k) => k !== key);
@@ -441,10 +467,15 @@ export function TableView({
           className={cn("relative border-b border-border p-0 align-top outline-none", frozen(0, selected).className, mark(TITLE))}
           style={frozen(0).style}
         >
-          <CellMark active={grid.isActive(at, 0)} selected={grid.spans && grid.isSelected(at, 0)} />
+          <CellMark
+            active={grid.isActive(at, 0)}
+            selected={grid.spans && grid.isSelected(at, 0)}
+            filling={grid.fillingEdges(at, 0)}
+            handle={grid.fillHandle(at, 0)}
+          />
           <div className="flex font-medium" style={subItems.nested ? { paddingInlineStart: line.depth * SUB_ITEM_INDENT + 4 } : undefined}>
             {subItems.nested && <SubItemToggle line={line} title={label} onToggle={() => subItems.toggle(row.id)} className="h-[33px]" />}
-            {showIcons && row.icon && <span className="flex h-[33px] shrink-0 items-center ps-2 leading-none">{row.icon}</span>}
+            {showIcons && row.icon && <span className="flex h-[33px] shrink-0 items-center ps-2 leading-none"><IconGlyph icon={row.icon} /></span>}
             <div className="min-w-0 flex-1">
               <QuickAddContext value={editTitleOf === row.id ? quick : null}>
                 <PropertyCell
@@ -492,7 +523,12 @@ export function TableView({
               className={cn("relative border-b border-s border-border p-0 align-top outline-none", frozen(i + 1, selected).className, mark(p.id))}
               style={frozen(i + 1).style}
             >
-              <CellMark active={grid.isActive(at, i + 1)} selected={grid.spans && grid.isSelected(at, i + 1)} />
+              <CellMark
+                active={grid.isActive(at, i + 1)}
+                selected={grid.spans && grid.isSelected(at, i + 1)}
+                filling={grid.fillingEdges(at, i + 1)}
+                handle={grid.fillHandle(at, i + 1)}
+              />
               {valueAccess === "hidden" ? (
                 <PropertyCell prop={p} value={undefined} hidden onChange={() => {}} onCreateOption={createOption} />
               ) : (
@@ -612,6 +648,7 @@ export function TableView({
     },
     // Rows pasted past the last one are added; a grouped table wouldn't know which group they go in.
     canAddRows: !readOnly && !grouping,
+    canFill: !readOnly,
     timeZone,
     write: (plan: PastePlan) => {
       const shown: ShownValue[] = plan.updates.flatMap((u) => [
@@ -622,6 +659,12 @@ export function TableView({
       ]);
       void api.pasteRows(plan, shown);
     },
+    duplicateRow: readOnly
+      ? undefined
+      : (r) => {
+          const row = gridRows[r]?.line.row;
+          if (row) void api.duplicateRows([row.id]);
+        },
     reveal: (r) => (gridRows[r] && bodyControls.current ? bodyControls.current.reveal(gridRows[r].item) : false),
   });
 
@@ -699,7 +742,11 @@ export function TableView({
         className={cn("page-gutter-table overflow-x-auto pb-3 outline-none [color-scheme:light_dark]", HIDE_SCROLLBAR, grid.spans && "select-none")}
         style={{ "--table-handles": `${handles + 8}px` } as React.CSSProperties}
       >
-        <table className="table-fixed border-collapse text-sm" style={{ width: totalWidth }}>
+        <table
+          // Without vertical lines (Layout → Show vertical lines), only the rows' lines remain.
+          className={cn("table-fixed border-collapse text-sm", view.config.showVerticalLines === false && "[&_td]:border-s-0 [&_th]:border-s-0")}
+          style={{ width: totalWidth }}
+        >
           <colgroup>
             <col style={{ width: handles }} />
             <col style={{ width: nameWidth }} />
@@ -729,6 +776,7 @@ export function TableView({
                 frozen={frozen(0)}
                 readOnly={readOnly}
                 onResize={!arrangeable || phone ? undefined : (e) => startResize(TITLE, nameWidth, e)}
+                onFit={() => fitColumn(TITLE, 0)}
                 resizing={resizing?.key === TITLE}
                 actions={{
                   ...viewActions(TITLE, TITLE),
@@ -750,6 +798,7 @@ export function TableView({
                     readOnly={readOnly}
                     drag={arrangeable ? columnDrag.handlers(p.id) : undefined}
                     onResize={arrangeable ? (e) => startResize(p.id, colWidth(p), e) : undefined}
+                    onFit={() => fitColumn(p.id, i + 1)}
                     resizing={resizing?.key === p.id}
                     actions={{
                       ...viewActions(p.id, valueType(p)),
@@ -767,14 +816,20 @@ export function TableView({
                       setOptions: fixed ? undefined : (options) => api.setOptions(p, options),
                       setDependsOn: fixed ? undefined : (parentId) => api.setDependsOn(p, parentId),
                       setDescription: fixed ? undefined : (description) => api.setDescription(p, description),
+                      setIcon: fixed ? undefined : (icon) => api.setPropertyIcon(p, icon),
                       setFormula: fixed ? undefined : (expression) => api.setFormula(p, expression),
                       setRollup: fixed ? undefined : (rollup) => api.setRollup(p, rollup),
                       setNumberFormat:
                         fixed || !takesNumberFormat(p.type, p.options.formula?.type) ? undefined : (format) => api.setNumberFormat(p, format),
-                      setDateOptions: fixed || p.type !== "date" ? undefined : (input) => api.setDateOptions(p, input),
+                      setDateOptions: fixed || !takesDateOptions(p.type) ? undefined : (input) => api.setDateOptions(p, input),
                       setUniqueIdPrefix: fixed || p.type !== "unique_id" ? undefined : (prefix) => api.setUniqueIdPrefix(p, prefix),
                       setUrlPreview: fixed || p.type !== "url" ? undefined : (on) => api.setUrlPreview(p, on),
-                      setNumberDisplay: fixed || p.type !== "number" ? undefined : (display) => api.setNumberDisplay(p, display),
+                      setNumberDisplay: fixed || !takesNumberDisplay(p) ? undefined : (display) => api.setNumberDisplay(p, display),
+                      setRelationOptions: fixed || p.type !== "relation" ? undefined : (input) => api.setRelationOptions(p, input),
+                      setOnePerson: fixed || p.type !== "person" ? undefined : (on) => api.setOnePerson(p, on),
+                      setOneRow: fixed || p.type !== "relation" ? undefined : (on) => api.setOneRow(p, on),
+                      setStatusCheckbox: fixed || p.type !== "status" ? undefined : (on) => api.setStatusCheckbox(p, on),
+                      makeTwoWay: fixed || p.type !== "relation" ? undefined : () => api.makeTwoWay(p),
                       setPageVisibility: fixed ? undefined : (visibility) => api.setPageVisibility(p, visibility),
                       setAutofill: fixed || !ai.enabled || !isAutofillType(p.type) ? undefined : (config) => api.setAutofill(p, config),
                       updateAllAutofill:
@@ -972,6 +1027,7 @@ function HeaderCell({
   readOnly,
   drag,
   onResize,
+  onFit,
   resizing,
   actions,
 }: {
@@ -986,6 +1042,8 @@ function HeaderCell({
   drag?: ReorderDragHandlers;
   /** Starts resizing the column from the handle on its right edge. */
   onResize?: (e: React.PointerEvent<HTMLElement>) => void;
+  /** Fits the column to what it holds: a double click on the same handle. */
+  onFit?: () => void;
   /** The column is being resized: its handle stays lit. */
   resizing?: boolean;
   actions: React.ComponentProps<typeof PropertyMenu>["actions"];
@@ -1028,7 +1086,7 @@ function HeaderCell({
         aria-describedby={description ? descriptionId : undefined}
         className="flex h-[33px] w-full items-center gap-1.5 px-2 text-sm text-fg-muted hover:bg-bg-hover disabled:hover:bg-transparent"
       >
-        <PropertyTypeIcon type={icon} className="h-3.5 w-3.5 shrink-0" />
+        <PropertyTypeIcon type={icon} icon={prop?.options.icon} className="h-3.5 w-3.5 shrink-0" />
         <span className="truncate">{label}</span>
         {prop && <PropertyLock propertyId={prop.id} />}
         {isAutofillType(prop?.type) && prop?.options.ai && <Bot className="h-3.5 w-3.5 shrink-0" aria-label={tAi("addEntry")} />}
@@ -1049,6 +1107,10 @@ function HeaderCell({
           onMouseDown={(e) => e.preventDefault()}
           onPointerDown={onResize}
           onClick={(e) => e.stopPropagation()}
+          onDoubleClick={(e) => {
+            e.stopPropagation();
+            onFit?.();
+          }}
           className="group/resize absolute inset-y-0 -inset-e-1 z-20 w-2 cursor-col-resize touch-none"
         >
           <span
@@ -1171,17 +1233,47 @@ function Spacer({ height, columns }: { height: number; columns: number }) {
   );
 }
 
-/** The active cell's outline and the selected range's tint, over a body cell. */
-function CellMark({ active, selected }: { active: boolean; selected: boolean }) {
-  if (!active && !selected) return null;
+/**
+ * The active cell's outline and the selected range's tint over a body cell, a dashed outline over
+ * the cells the fill handle is dragged across, and the handle itself at the range's bottom corner.
+ */
+function CellMark({
+  active,
+  selected,
+  filling,
+  handle,
+}: {
+  active: boolean;
+  selected: boolean;
+  /** The sides of the filled area this cell is on, while the fill handle is dragged over it. */
+  filling: { top: boolean; bottom: boolean; start: boolean; end: boolean } | null;
+  handle: { onMouseDown: (e: React.MouseEvent<HTMLElement>) => void } | null;
+}) {
+  const t = useTranslations("database.table");
+  if (!active && !selected && !filling && !handle) return null;
   return (
-    <span
-      aria-hidden
-      className={cn(
-        "pointer-events-none absolute inset-0 z-10",
-        selected && "bg-accent/10",
-        active && "shadow-[inset_0_0_0_2px_var(--accent)]",
+    <>
+      <span
+        aria-hidden
+        className={cn(
+          "pointer-events-none absolute inset-0 z-10",
+          selected && "bg-accent/10",
+          active && "shadow-[inset_0_0_0_2px_var(--accent)]",
+          filling && "border-dashed border-accent bg-accent/5",
+          filling?.top && "border-t-2",
+          filling?.bottom && "border-b-2",
+          filling?.start && "border-s-2",
+          filling?.end && "border-e-2",
+        )}
+      />
+      {handle && (
+        <span
+          role="presentation"
+          title={t("fillHandle")}
+          onMouseDown={handle.onMouseDown}
+          className="absolute -inset-e-1 -bottom-1 z-20 h-2 w-2 cursor-crosshair rounded-[1px] border border-bg bg-accent pointer-coarse:hidden"
+        />
       )}
-    />
+    </>
   );
 }

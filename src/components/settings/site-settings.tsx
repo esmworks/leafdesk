@@ -1,5 +1,7 @@
 "use client";
 
+import { iconPrefix } from "@/lib/icon-value";
+import { IconGlyph } from "@/components/builtin-icon";
 import { ExternalLink, Globe, Lock, Plus, X } from "lucide-react";
 import Link from "next/link";
 import { useTranslations } from "next-intl";
@@ -142,7 +144,7 @@ export function SiteSettings({
             <option value="">{t("homeNone")}</option>
             {homes.map((p) => (
               <option key={p.pageId} value={p.pageId}>
-                {p.icon ? `${p.icon} ` : ""}
+                {iconPrefix(p.icon)}
                 {p.title || tc("untitled")}
               </option>
             ))}
@@ -216,7 +218,7 @@ function SitePageRow({ workspaceId, publication: p, home }: { workspaceId: strin
       </span>
     ) : (
       <Link href={`/w/${workspaceId}/p/${p.pageId}`} className="inline-flex min-w-0 items-center gap-1.5 hover:underline">
-        {p.icon ? <span>{p.icon}</span> : <Globe className="h-3.5 w-3.5 shrink-0 text-fg-muted" />}
+        {p.icon ? <IconGlyph icon={p.icon} /> : <Globe className="h-3.5 w-3.5 shrink-0 text-fg-muted" />}
         <span className="truncate">{p.title || tc("untitled")}</span>
       </Link>
     );
@@ -358,7 +360,7 @@ export function SiteLook({ workspaceId, site, publications }: { workspaceId: str
                   {link.target !== WEB && !pages.some((p) => p.pageId === link.target) && <option value={link.target}>{t("linkUnlisted")}</option>}
                   {pages.map((p) => (
                     <option key={p.pageId} value={p.pageId}>
-                      {p.icon ? `${p.icon} ` : ""}
+                      {iconPrefix(p.icon)}
                       {p.title || tc("untitled")}
                     </option>
                   ))}

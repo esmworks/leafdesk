@@ -139,7 +139,8 @@
       "type": "Tipe",
       "labels": "Label",
       "due": "Tanggal jatuh tempo",
-      "link": "Tautan Jira"
+      "link": "Tautan Jira",
+      "reporter": "Pelapor"
     },
     "errors": {
       "unauthorized": "Jira menolak alamat email dan token API.",

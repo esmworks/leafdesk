@@ -1,5 +1,7 @@
 "use client";
 
+import { iconPrefix } from "@/lib/icon-value";
+import { IconGlyph } from "@/components/builtin-icon";
 import { ArrowDown, ArrowUp, Copy, FileText, X } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { useEffect, useMemo, useState } from "react";
@@ -218,7 +220,7 @@ function SettingsDialog({ editor, blockId, pageId, onClose }: { editor: PageEdit
                   aria-label={t("settings.icon")}
                   className="flex h-9 w-9 shrink-0 items-center justify-center rounded-md border border-border text-lg hover:bg-bg-hover"
                 >
-                  {icon || <span className="text-sm text-fg-faint">+</span>}
+                  {icon ? <IconGlyph icon={icon} /> : <span className="text-sm text-fg-faint">+</span>}
                 </button>
               )}
             </IconPicker>
@@ -520,7 +522,7 @@ function RowStepEditor({
           {!step.databaseId && <option value="">{ts("chooseDatabase")}</option>}
           {(list ?? []).map((d) => (
             <option key={d.id} value={d.id}>
-              {d.icon ? `${d.icon} ` : ""}
+              {iconPrefix(d.icon)}
               {pageLabel(d.title, tc("untitled"))}
             </option>
           ))}

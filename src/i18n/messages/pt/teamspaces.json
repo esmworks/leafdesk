@@ -29,8 +29,10 @@
     "everyoneIn": "Todos do espaço de trabalho já estão neste espaço de equipe.",
     "accessDenied": "Você não pode fazer isso neste espaço de equipe.",
     "invalidMemberLevel": "Escolha o que os membros recebem nas páginas do espaço de equipe.",
-    "invalidIcon": "O ícone precisa ser um emoji.",
-    "notConvertible": "Só uma página pode virar um espaço de equipe, não um banco de dados, uma linha ou um modelo."
+    "invalidIcon": "O ícone precisa ser um emoji ou um ícone integrado.",
+    "notConvertible": "Só uma página pode virar um espaço de equipe, não um banco de dados, uma linha ou um modelo.",
+    "invalidEmail": "Digite um endereço de e-mail válido.",
+    "cantInvite": "Você não pode convidar pessoas para este espaço de trabalho. Peça a um proprietário."
   },
   "dialog": {
     "createTitle": "Novo espaço de equipe",
@@ -73,7 +75,16 @@
     "chooseGroup": "Escolha um grupo",
     "addGroupButton": "Adicionar grupo",
     "removeGroup": "Remover {name}",
-    "groupMemberCount": "{count, plural, =0 {Nenhum membro} one {# membro} other {# membros}}"
+    "groupMemberCount": "{count, plural, =0 {Nenhum membro} one {# membro} other {# membros}}",
+    "searchOrInvite": "Busque pessoas ou digite um e-mail",
+    "inviteEmail": "Convidar {email}",
+    "inviteHint": "A pessoa é convidada para o espaço de trabalho e entra neste espaço de equipe quando aceitar.",
+    "inviteButton": "Convidar",
+    "invitedAdded": "{email} agora está neste espaço de equipe.",
+    "invitedRequested": "Um proprietário precisa aprovar o convite para {email}. Depois de aprovado, a pessoa entra neste espaço de equipe quando aceitar.",
+    "invitedSent": "Convite enviado para {email}. A pessoa entra neste espaço de equipe quando aceitar.",
+    "invitedLink": "Convite para {email} criado, mas nenhum e-mail foi enviado. Compartilhe o link com a pessoa.",
+    "copyInviteLink": "Copiar link"
   },
   "memberLevel": {
     "full": "Acesso total",

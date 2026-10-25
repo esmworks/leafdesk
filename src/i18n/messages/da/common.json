@@ -29,5 +29,14 @@
     "busy": "Du har allerede en eksport i gang. Vent, til den er hentet.",
     "disabled": "Eksport er slået fra i dette arbejdsområde."
   },
-  "celebrate": "Godt klaret!"
+  "celebrate": "Godt klaret!",
+  "toast": {
+    "undo": "Fortryd",
+    "dismiss": "Luk",
+    "movedTo": "Flyttet til",
+    "movedToPlace": "Flyttet til {place}",
+    "trashed": "Flyttet til papirkurven",
+    "rowsTrashed": "{count, plural, one {Rækken blev flyttet til papirkurven} other {# rækker blev flyttet til papirkurven}}",
+    "undoFailed": "Det kunne ikke fortrydes."
+  }
 }

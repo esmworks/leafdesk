@@ -139,7 +139,8 @@
       "type": "Tipo",
       "labels": "Etiquetas",
       "due": "Data de entrega",
-      "link": "Link do Jira"
+      "link": "Link do Jira",
+      "reporter": "Relator"
     },
     "errors": {
       "unauthorized": "O Jira recusou o endereço de e-mail e o token de API.",

@@ -139,7 +139,8 @@
       "type": "Type",
       "labels": "Labels",
       "due": "Deadline",
-      "link": "Jira-link"
+      "link": "Jira-link",
+      "reporter": "Melder"
     },
     "errors": {
       "unauthorized": "Jira heeft het e-mailadres en het API-token geweigerd.",

@@ -76,6 +76,10 @@
       "blank": "Fila vacía",
       "setDefault": "Usar para “Nuevo”",
       "isDefault": "Se usa para “Nuevo”",
+      "isViewDefault": "Se usa para “Nuevo” en esta vista",
+      "forThisView": "Para esta vista",
+      "forAllViews": "Para todas las vistas",
+      "followAllViews": "Usar aquí el predeterminado de todas las vistas",
       "edit": "Editar plantilla",
       "delete": "Eliminar plantilla",
       "confirmDelete": "¿Eliminar esta plantilla de fila para siempre? Las filas ya creadas a partir de ella se quedan como están.",
@@ -125,7 +129,8 @@
     "addViewHeading": "Añadir una vista",
     "rename": "Cambiar nombre",
     "viewName": "Nombre de la vista",
-    "deleteView": "Eliminar vista"
+    "deleteView": "Eliminar vista",
+    "icon": "Icono"
   },
   "deleted": {
     "properties": "Propiedades eliminadas",
@@ -225,7 +230,14 @@
     "relative": {
       "today": "Hoy",
       "thisWeek": "Esta semana",
+      "lastWeek": "La semana pasada",
+      "nextWeek": "La semana que viene",
       "thisMonth": "Este mes",
+      "lastMonth": "El mes pasado",
+      "nextMonth": "El mes que viene",
+      "thisYear": "Este año",
+      "lastYear": "El año pasado",
+      "nextYear": "El año que viene",
       "pastNDays": "Últimos N días",
       "nextNDays": "Próximos N días",
       "pastDays": "{count, plural, one {Último día} other {Últimos # días}}",
@@ -253,7 +265,8 @@
     "clickForMenu": "Haz clic para abrir el menú",
     "sortedNoDrag": "Las filas no se pueden arrastrar mientras la vista está ordenada",
     "sortedAscending": "Orden ascendente",
-    "sortedDescending": "Orden descendente"
+    "sortedDescending": "Orden descendente",
+    "fillHandle": "Arrastra hacia arriba o hacia abajo para llenar las celdas con este valor"
   },
   "rowMenu": {
     "open": "Abrir",
@@ -531,9 +544,6 @@
     "pinToTitle": "Fijar bajo el título",
     "unpinFromTitle": "Dejar de fijar bajo el título",
     "pinFull": "Se pueden fijar hasta {max} propiedades.",
-    "dateDisplay": "Mostrar como",
-    "displayDate": "Fecha",
-    "displayRelative": "Relativa",
     "relativeHint": "Las fechas a menos de una semana de hoy se leen «mañana», «dentro de 3 días», «hace 2 días».",
     "reminder": "Recordatorio",
     "reminderNone": "Sin recordatorio",
@@ -552,7 +562,32 @@
     "sortOptionsDesc": "Ordenar Z → A",
     "dragOption": "Arrastra para mover {name}",
     "urlPreview": "Mostrar como vista previa del enlace",
-    "urlPreviewHint": "Las páginas de fila muestran el icono, el título y la imagen de la página enlazada bajo el enlace."
+    "urlPreviewHint": "Las páginas de fila muestran el icono, el título y la imagen de la página enlazada bajo el enlace.",
+    "relationOptions": "Ajustes de la relación",
+    "showAs": "Mostrar como",
+    "dateFormat": "Formato de fecha",
+    "dateFormats": {
+      "default": "Predeterminado",
+      "full": "Fecha completa",
+      "short": "Fecha corta",
+      "mdy": "Mes/Día/Año",
+      "dmy": "Día/Mes/Año",
+      "ymd": "Año/Mes/Día",
+      "relative": "Relativa"
+    },
+    "timeFormat": "Formato de hora",
+    "timeFormats": {
+      "default": "Predeterminado",
+      "12h": "12 horas",
+      "24h": "24 horas"
+    },
+    "onePerson": "Limitar a una persona",
+    "onePersonHint": "Cada fila nombra como máximo a una persona. Las filas con más las conservan hasta que se cambien.",
+    "oneRow": "Limitar a una página",
+    "oneRowHint": "Cada fila enlaza como máximo una página. Las filas con más las conservan hasta que se cambien.",
+    "statusCheckbox": "Mostrar como casilla",
+    "statusCheckboxHint": "Una casilla marcada mientras el estado está completado. Al marcarla se elige el primer estado completado; al desmarcarla, el primero pendiente.",
+    "icon": "Icono"
   },
   "rowProperties": {
     "noProperties": "Sin propiedades",
@@ -694,7 +729,23 @@
     "noMatches": "Ninguna fila coincide",
     "newRow": "Nueva fila",
     "open": "Abrir {title}",
-    "unlink": "Quitar el vínculo con {title}"
+    "unlink": "Quitar el vínculo con {title}",
+    "options": "Ajustes de la relación",
+    "rowPage": "En las páginas de fila",
+    "displayInline": "En línea",
+    "displaySection": "Como sección",
+    "sectionHint": "Las filas enlazadas se muestran bajo las propiedades, con sus propiedades editables ahí.",
+    "shows": "Las filas enlazadas muestran",
+    "showsHint": "Se ve en celdas de tabla, tarjetas, páginas de fila y el selector de filas.",
+    "titlePart": "Título",
+    "addPart": "Añadir una propiedad…",
+    "moveUp": "Subir {name}",
+    "moveDown": "Bajar {name}",
+    "hidePart": "Dejar de mostrar {name}",
+    "overLimit": "Ahora enlaza una sola fila: elige la que quieres conservar.",
+    "addLink": "Añadir enlace",
+    "noLinks": "Aún no hay filas enlazadas",
+    "showMore": "Mostrar {count} más"
   },
   "person": {
     "search": "Buscar personas",
@@ -773,6 +824,7 @@
     "showTable": "Mostrar tabla",
     "showWeekends": "Mostrar fines de semana",
     "showIcons": "Mostrar iconos de página",
+    "showVerticalLines": "Mostrar líneas verticales",
     "openRows": "Abrir filas en",
     "openRowsIn": {
       "panel": "Panel lateral",
@@ -913,7 +965,7 @@
     "parentInTrash": "La página principal está en la papelera. Restáurala primero.",
     "nestedDatabase": "Una base de datos no puede contener otra base de datos.",
     "pageTooDeep": "Las páginas pueden anidarse como máximo {max} niveles.",
-    "invalidIcon": "El icono debe ser un emoji.",
+    "invalidIcon": "El icono debe ser un emoji o un icono integrado.",
     "invalidRelation": "“{property}” solo puede vincularse a filas de su base de datos relacionada.",
     "invalidRelationTarget": "Una relación debe apuntar a una base de datos del mismo espacio de trabajo.",
     "subItemLoop": "“{property}” no puede poner una fila debajo de sí misma ni de uno de sus propios subelementos.",
@@ -926,6 +978,7 @@
     "pageLocked": "Esta página está bloqueada. Desbloquéala desde su menú para cambiar su título, icono, fondo o texto.",
     "pageInTrash": "Esta página está en la papelera. Restáurala para cambiarla.",
     "invalidPerson": "“{property}” solo puede contener personas de este espacio de trabajo.",
+    "onePerson": "«{property}» admite una sola persona.",
     "readOnlyProperty": "“{property}” se rellena automáticamente y no se puede cambiar.",
     "invalidFilter": "Este filtro no se puede guardar. Recarga la página y vuelve a intentarlo.",
     "tooManyRows": "Puedes cambiar como máximo {max} filas a la vez.",
@@ -974,7 +1027,9 @@
     "noCurrentSprint": "Ningún sprint está en curso. Marca primero un sprint como actual.",
     "invalidSprints": "Los sprints no se pueden configurar así: revisa la duración del sprint, el primer día y la base de datos de sprints.",
     "sprintStateOption": "Esta opción marca el estado de un sprint. Puedes cambiarle el nombre o desactivar los sprints antes de eliminarla.",
-    "invalidSlackUrl": "No es la dirección de un webhook entrante de Slack (https://hooks.slack.com/services/…)."
+    "invalidSlackUrl": "No es la dirección de un webhook entrante de Slack (https://hooks.slack.com/services/…).",
+    "oneRow": "«{property}» enlaza una sola página. Elige una.",
+    "invalidRelationOptions": "No se pueden guardar estos ajustes de relación."
   },
   "formula": {
     "title": "Fórmula",
@@ -1818,7 +1873,9 @@
     "save": "Guardar y sincronizar",
     "stop": "Dejar de sincronizar",
     "stopConfirm": "¿Dejar de sincronizar esta base de datos? Sus filas se quedan como están y el inicio de sesión se olvida.",
-    "viewOnly": "Solo las personas con acceso completo a la base de datos pueden cambiar la sincronización."
+    "viewOnly": "Solo las personas con acceso completo a la base de datos pueden cambiar la sincronización.",
+    "reporter": "Informador",
+    "reporterNone": "Sin sincronizar"
   },
   "sprints": {
     "menuItem": "Sprints",

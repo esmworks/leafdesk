@@ -1,5 +1,6 @@
 {
   "hello": "Halo, {name}",
+  "jumpBackIn": "Lanjutkan lagi",
   "recent": "Baru diedit",
   "assignedEmpty": "Tidak ada yang ditugaskan kepada Anda. Baris basis data yang ditugaskan kepada Anda muncul di sini.",
   "empty": "Belum ada apa pun di sini. Buat halaman pertama Anda untuk memulai.",

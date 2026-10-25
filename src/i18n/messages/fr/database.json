@@ -76,6 +76,10 @@
       "blank": "Ligne vide",
       "setDefault": "Utiliser pour « Nouveau »",
       "isDefault": "Utilisé pour « Nouveau »",
+      "isViewDefault": "Utilisé pour « Nouveau » dans cette vue",
+      "forThisView": "Pour cette vue",
+      "forAllViews": "Pour toutes les vues",
+      "followAllViews": "Utiliser ici celui de toutes les vues",
       "edit": "Modifier le modèle",
       "delete": "Supprimer le modèle",
       "confirmDelete": "Supprimer définitivement ce modèle de ligne ? Les lignes déjà créées à partir de lui restent inchangées.",
@@ -125,7 +129,8 @@
     "addViewHeading": "Ajouter une vue",
     "rename": "Renommer",
     "viewName": "Nom de la vue",
-    "deleteView": "Supprimer la vue"
+    "deleteView": "Supprimer la vue",
+    "icon": "Icône"
   },
   "deleted": {
     "properties": "Propriétés supprimées",
@@ -225,7 +230,14 @@
     "relative": {
       "today": "Aujourd’hui",
       "thisWeek": "Cette semaine",
+      "lastWeek": "La semaine dernière",
+      "nextWeek": "La semaine prochaine",
       "thisMonth": "Ce mois-ci",
+      "lastMonth": "Le mois dernier",
+      "nextMonth": "Le mois prochain",
+      "thisYear": "Cette année",
+      "lastYear": "L’année dernière",
+      "nextYear": "L’année prochaine",
       "pastNDays": "N derniers jours",
       "nextNDays": "N prochains jours",
       "pastDays": "{count, plural, one {Dernier jour} other {# derniers jours}}",
@@ -253,7 +265,8 @@
     "clickForMenu": "Cliquez pour ouvrir le menu",
     "sortedNoDrag": "Les lignes ne se déplacent pas tant que la vue est triée",
     "sortedAscending": "Tri croissant",
-    "sortedDescending": "Tri décroissant"
+    "sortedDescending": "Tri décroissant",
+    "fillHandle": "Faites glisser vers le haut ou le bas pour remplir les cellules avec cette valeur"
   },
   "rowMenu": {
     "open": "Ouvrir",
@@ -531,9 +544,6 @@
     "pinToTitle": "Épingler sous le titre",
     "unpinFromTitle": "Détacher du titre",
     "pinFull": "Vous pouvez épingler jusqu'à {max} propriétés.",
-    "dateDisplay": "Afficher comme",
-    "displayDate": "Date",
-    "displayRelative": "Relative",
     "relativeHint": "Les dates à moins d’une semaine d’aujourd’hui s’affichent « demain », « dans 3 jours », « il y a 2 jours ».",
     "reminder": "Rappel",
     "reminderNone": "Aucun rappel",
@@ -552,7 +562,32 @@
     "sortOptionsDesc": "Trier de Z à A",
     "dragOption": "Faire glisser pour déplacer {name}",
     "urlPreview": "Afficher en aperçu du lien",
-    "urlPreviewHint": "Les pages de ligne affichent l’icône, le titre et l’image de la page liée sous le lien."
+    "urlPreviewHint": "Les pages de ligne affichent l’icône, le titre et l’image de la page liée sous le lien.",
+    "relationOptions": "Réglages de la relation",
+    "showAs": "Afficher comme",
+    "dateFormat": "Format de date",
+    "dateFormats": {
+      "default": "Par défaut",
+      "full": "Date complète",
+      "short": "Date courte",
+      "mdy": "Mois/Jour/Année",
+      "dmy": "Jour/Mois/Année",
+      "ymd": "Année/Mois/Jour",
+      "relative": "Relative"
+    },
+    "timeFormat": "Format de l’heure",
+    "timeFormats": {
+      "default": "Par défaut",
+      "12h": "12 heures",
+      "24h": "24 heures"
+    },
+    "onePerson": "Limiter à une personne",
+    "onePersonHint": "Chaque ligne nomme une personne au plus. Les lignes qui en nomment davantage les gardent jusqu’à ce qu’on les modifie.",
+    "oneRow": "Limiter à une page",
+    "oneRowHint": "Chaque ligne relie une page au plus. Les lignes qui en relient davantage les gardent jusqu’à ce qu’on les modifie.",
+    "statusCheckbox": "Afficher comme case à cocher",
+    "statusCheckboxHint": "Une case cochée tant que le statut est terminé. La cocher choisit le premier statut terminé, la décocher le premier statut à faire.",
+    "icon": "Icône"
   },
   "rowProperties": {
     "noProperties": "Aucune propriété",
@@ -694,7 +729,23 @@
     "noMatches": "Aucune ligne correspondante",
     "newRow": "Nouvelle ligne",
     "open": "Ouvrir {title}",
-    "unlink": "Supprimer le lien vers {title}"
+    "unlink": "Supprimer le lien vers {title}",
+    "options": "Réglages de la relation",
+    "rowPage": "Sur les pages de ligne",
+    "displayInline": "En ligne",
+    "displaySection": "En section",
+    "sectionHint": "Les lignes liées s’affichent sous les propriétés, avec leurs propriétés modifiables.",
+    "shows": "Les lignes liées affichent",
+    "showsHint": "Visible dans les cellules, les cartes, les pages de ligne et le sélecteur de lignes.",
+    "titlePart": "Titre",
+    "addPart": "Ajouter une propriété…",
+    "moveUp": "Monter {name}",
+    "moveDown": "Descendre {name}",
+    "hidePart": "Ne plus afficher {name}",
+    "overLimit": "Relie désormais une seule ligne : choisissez celle à garder.",
+    "addLink": "Ajouter un lien",
+    "noLinks": "Aucune ligne liée pour l’instant",
+    "showMore": "Afficher {count} de plus"
   },
   "person": {
     "search": "Rechercher des personnes",
@@ -773,6 +824,7 @@
     "showTable": "Afficher la table",
     "showWeekends": "Afficher les week-ends",
     "showIcons": "Afficher les icônes de page",
+    "showVerticalLines": "Afficher les lignes verticales",
     "openRows": "Ouvrir les lignes dans",
     "openRowsIn": {
       "panel": "Panneau latéral",
@@ -913,7 +965,7 @@
     "parentInTrash": "La page parente est dans la corbeille. Restaurez-la d’abord.",
     "nestedDatabase": "Une base de données ne peut pas contenir une autre base de données.",
     "pageTooDeep": "Les pages peuvent être imbriquées sur {max} niveaux au plus.",
-    "invalidIcon": "L’icône doit être un emoji.",
+    "invalidIcon": "L’icône doit être un emoji ou une icône intégrée.",
     "invalidRelation": "« {property} » ne peut être liée qu’à des lignes de sa base de données liée.",
     "invalidRelationTarget": "Une relation doit pointer vers une base de données du même espace de travail.",
     "subItemLoop": "« {property} » ne peut pas placer une ligne sous elle-même ni sous l’un de ses propres sous-éléments.",
@@ -926,6 +978,7 @@
     "pageLocked": "Cette page est verrouillée. Déverrouillez-la depuis son menu pour modifier son titre, son icône, son arrière-plan ou son texte.",
     "pageInTrash": "Cette page est dans la corbeille. Restaurez-la pour la modifier.",
     "invalidPerson": "« {property} » ne peut contenir que des personnes de cet espace de travail.",
+    "onePerson": "« {property} » ne contient qu’une personne.",
     "readOnlyProperty": "« {property} » est rempli automatiquement et ne peut pas être modifié.",
     "invalidFilter": "Ce filtre ne peut pas être enregistré. Rechargez la page et réessayez.",
     "tooManyRows": "Vous pouvez modifier au maximum {max} lignes à la fois.",
@@ -974,7 +1027,9 @@
     "noCurrentSprint": "Aucun sprint n’est en cours. Marquez d’abord un sprint comme en cours.",
     "invalidSprints": "Les sprints ne peuvent pas être configurés ainsi : vérifiez la durée du sprint, le premier jour et la base de données des sprints.",
     "sprintStateOption": "Cette option indique l’état d’un sprint. Renommez-la si vous le souhaitez, ou désactivez les sprints avant de la supprimer.",
-    "invalidSlackUrl": "Ce n’est pas l’adresse d’un webhook entrant Slack (https://hooks.slack.com/services/…)."
+    "invalidSlackUrl": "Ce n’est pas l’adresse d’un webhook entrant Slack (https://hooks.slack.com/services/…).",
+    "oneRow": "« {property} » ne relie qu’une page. Choisissez-en une.",
+    "invalidRelationOptions": "Ces réglages de relation ne peuvent pas être enregistrés."
   },
   "formula": {
     "title": "Formule",
@@ -1818,7 +1873,9 @@
     "save": "Enregistrer et synchroniser",
     "stop": "Arrêter la synchronisation",
     "stopConfirm": "Arrêter la synchronisation de cette base de données ? Ses lignes restent telles quelles, et la connexion est oubliée.",
-    "viewOnly": "Seules les personnes ayant un accès complet à la base de données peuvent modifier la synchronisation."
+    "viewOnly": "Seules les personnes ayant un accès complet à la base de données peuvent modifier la synchronisation.",
+    "reporter": "Rapporteur",
+    "reporterNone": "Non synchronisé"
   },
   "sprints": {
     "menuItem": "Sprints",

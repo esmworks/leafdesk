@@ -36,7 +36,6 @@ import { PropertyAccessProvider, PropertyLock, usePropertyAccess, type PropertyA
 import { isEmptyValue, PropertyCell } from "./property-cell";
 import { PropertyTypeIcon } from "./property-icons";
 import { usePropertyHint } from "./property-hint";
-import { AddPropertyPanel, PropertyMenu } from "./property-menu";
 import { RelationProvider, type RelationContextValue } from "./relation-context";
 import { RowActivity } from "./row-activity";
 import { RowReviewBanner } from "@/components/review/row-review-banner";
@@ -50,6 +49,11 @@ import { requestPropertyComment } from "@/lib/comments-request";
 
 // Only URL properties set to show previews need it: kept out of the row panel's first load.
 const UrlPreview = dynamic(() => import("./url-preview"), { ssr: false });
+// Only relations shown as a section of their own need it (lib/relation-options).
+const RelationSection = dynamic(() => import("./relation-section"), { ssr: false });
+// A property's menu and the new-property panel open on a click: loaded then.
+const PropertyMenu = dynamic(() => import("./property-menu").then((m) => m.PropertyMenu), { ssr: false });
+const AddPropertyPanel = dynamic(() => import("./property-menu").then((m) => m.AddPropertyPanel), { ssr: false });
 
 /**
  * Editable property list of a database row's page: the properties its database pins in a strip under
@@ -176,6 +180,14 @@ export function RowProperties({
       delete next[propertyId];
       return next;
     });
+  };
+
+  // A value of a row linked through a relation shown as a section, written to that row.
+  const setRelatedValue = async (relatedId: string, propertyId: string, value: unknown) => {
+    const res = await safe(updateRowPropertiesAction(relatedId, { [propertyId]: value }));
+    if (!res.ok) setError(res.error);
+    else setError(null);
+    await refetch();
   };
 
   const createOption = async (propertyId: string, name: string): Promise<SelectOption | null> => {
@@ -376,7 +388,11 @@ export function RowProperties({
   const valueOf = (id: string) => values[id];
   // A value the viewer may not see counts as one: its lock shows like any value.
   const { pinned, rest } = pinnedSplit(data.properties);
-  const { shown, more } = rowPageSections(rest, (p) => !data.hidden?.includes(p.id) && isEmptyValue(p, valueOf(p.id)));
+  const { shown: listed, more } = rowPageSections(rest, (p) => !data.hidden?.includes(p.id) && isEmptyValue(p, valueOf(p.id)));
+  // Relations shown as a section of their own go under the list (a value the viewer may not see stays in it, locked).
+  const isSection = (p: Property) => p.type === "relation" && p.options.relation?.display === "section" && !data.hidden?.includes(p.id);
+  const shown = listed.filter((p) => !isSection(p));
+  const sections = listed.filter(isSection);
   const canSetVisibility = !readOnly && !data.locked;
   const canSetLayout = canSetVisibility && Boolean(data.canSetLayout);
   const besideHere = data.beside && layoutHost?.aside ? layoutHost.aside : null;
@@ -438,6 +454,21 @@ export function RowProperties({
         </div>
       )}
       {error && <p className="mt-2 px-1 text-xs text-danger">{error}</p>}
+      {sections.length > 0 && (
+        <div className="mt-4">
+          {sections.map((p) => (
+            <RelationSection
+              key={p.id}
+              prop={p}
+              value={valueOf(p.id)}
+              readOnly={readOnly || Boolean(data.readOnly?.includes(p.id))}
+              onChange={(v) => void setValue(p.id, v)}
+              onRelatedChange={(relatedId, propertyId, v) => void setRelatedValue(relatedId, propertyId, v)}
+              onCreateOption={createOption}
+            />
+          ))}
+        </div>
+      )}
       {!offline && <RowEmails rowId={rowId} />}
       {!offline && <RowActivity rowId={rowId} signal={changes} />}
     </div>
@@ -517,7 +548,7 @@ function PropertyRow({
   const { hint, description } = usePropertyHint(p, labelEl, menu.open);
   const label = (
     <>
-      <PropertyTypeIcon type={p.type} className="h-3.5 w-3.5 shrink-0" />
+      <PropertyTypeIcon type={p.type} icon={p.options.icon} className="h-3.5 w-3.5 shrink-0" />
       <span className="truncate" title={description ? undefined : p.name} aria-description={description || undefined}>
         {p.name}
       </span>

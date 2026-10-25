@@ -1,3 +1,7 @@
+import { isBuiltinIcon, readBuiltinIcon } from "@/lib/icon-value";
+import { BUILTIN_ICONS } from "@/lib/builtin-icons-data";
+import { ICON_COLOR_HEX } from "@/lib/builtin-icon-svg";
+import { commentPreviewBlockConfig } from "@/lib/comment-refs";
 import { randomBytes } from "node:crypto";
 import {
   BlockNoteSchema,
@@ -41,6 +45,7 @@ import { markdownToPageBlocks } from "@/lib/page-markdown";
 import { textScriptStyleSpecs } from "@/lib/text-scripts";
 import { syncedBlockConfig } from "@/lib/synced-blocks";
 import { linkedImageSpec } from "@/lib/image-links";
+import { alignedAudioSpec, serverFileSpec } from "@/lib/media-blocks";
 import { suggestionMarks } from "@/lib/suggestion-marks";
 import { webBlockServerSpecs } from "./web-blocks";
 
@@ -89,10 +94,11 @@ const contentBlockSpecs = {
     render: (block) => {
       const dom = document.createElement("div");
       dom.setAttribute("data-leafdesk-callout", "");
-      if (block.props.icon) {
+      const drawn = iconElement(block.props.icon);
+      if (drawn) {
         const icon = document.createElement("span");
         icon.setAttribute("data-callout-icon", "");
-        icon.textContent = block.props.icon;
+        icon.append(drawn);
         dom.appendChild(icon);
       }
       const contentDOM = document.createElement("div");
@@ -145,9 +151,49 @@ function buttonElement(props: { label?: unknown; icon?: unknown; color?: unknown
   button.setAttribute("type", "button");
   button.setAttribute("disabled", "");
   if (color) button.setAttribute("class", `opt-${color}`);
-  button.textContent = [typeof props.icon === "string" ? props.icon : "", cleanButtonLabel(props.label)].filter(Boolean).join(" ");
+  const icon = iconElement(props.icon);
+  const label = cleanButtonLabel(props.label);
+  if (icon) button.append(icon, ...(label ? [" "] : []));
+  if (label) button.append(label);
   dom.appendChild(button);
   return { dom };
+}
+
+const SVG = "http://www.w3.org/2000/svg";
+
+/**
+ * An icon field's value in server HTML: an emoji as text, a built-in icon drawn as SVG in its color
+ * (the stylesheet's `--icon-*` where there is one, the light color otherwise); nothing else.
+ */
+function iconElement(value: unknown): Node | null {
+  if (typeof value !== "string" || !value) return null;
+  if (!isBuiltinIcon(value)) return document.createTextNode(value);
+  const icon = readBuiltinIcon(value);
+  const node = icon && BUILTIN_ICONS[icon.name];
+  if (!icon || !node) return null;
+  const svg = document.createElementNS(SVG, "svg");
+  for (const [name, attr] of Object.entries({
+    viewBox: "0 0 24 24",
+    width: "1em",
+    height: "1em",
+    fill: "none",
+    stroke: "currentColor",
+    "stroke-width": "2",
+    "stroke-linecap": "round",
+    "stroke-linejoin": "round",
+    "aria-hidden": "true",
+    "data-builtin-icon": icon.name,
+  })) {
+    svg.setAttribute(name, attr);
+  }
+  if (icon.color) svg.setAttribute("style", `color: var(--icon-${icon.color}, ${ICON_COLOR_HEX[icon.color]}); vertical-align: -0.125em`);
+  else svg.setAttribute("style", "vertical-align: -0.125em");
+  for (const [tag, attrs] of node) {
+    const child = document.createElementNS(SVG, tag);
+    for (const [name, attr] of Object.entries(attrs)) child.setAttribute(name, String(attr));
+    svg.appendChild(child);
+  }
+  return svg;
 }
 
 /**
@@ -230,12 +276,17 @@ export const pageSchema = BlockNoteSchema.create({
     ...defaultBlockSpecs,
     // Images may link to a web address or a page (lib/image-links).
     image: linkedImageSpec(),
+    // Files and audio may be aligned, and a file shown in place made narrower (lib/media-blocks).
+    file: serverFileSpec(),
+    audio: alignedAudioSpec(),
     database: createBlockSpec(databaseBlockConfig, marker("database"))(),
     linkedView: createBlockSpec(linkedViewBlockConfig, marker("linkedView"))(),
     dashboard: createBlockSpec(dashboardBlockConfig, marker("dashboard"))(),
     ...contentBlockSpecs,
     ...webBlockServerSpecs,
     pageLink: createBlockSpec(pageLinkBlockConfig, marker("pageLink"))(),
+    // Only its ids: what a reader sees of the thread is worked out for them (server/comment-refs).
+    commentPreview: createBlockSpec(commentPreviewBlockConfig, marker("commentPreview"))(),
     // Only the page's id: its body is never part of this page's text, Markdown or history.
     syncedPage: createBlockSpec(syncedPageBlockConfig, marker("syncedPage"))(),
     // Only its ids: its blocks are a fragment of the source page's document (lib/synced-blocks).

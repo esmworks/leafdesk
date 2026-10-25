@@ -29,8 +29,10 @@
     "everyoneIn": "Tous les membres de l’espace de travail font déjà partie de cet espace d’équipe.",
     "accessDenied": "Vous ne pouvez pas faire cela dans cet espace d’équipe.",
     "invalidMemberLevel": "Choisissez ce que les membres obtiennent sur les pages de l'espace d'équipe.",
-    "invalidIcon": "L’icône doit être un emoji.",
-    "notConvertible": "Seule une page peut devenir un espace d’équipe, pas une base de données, une ligne ni un modèle."
+    "invalidIcon": "L’icône doit être un emoji ou une icône intégrée.",
+    "notConvertible": "Seule une page peut devenir un espace d’équipe, pas une base de données, une ligne ni un modèle.",
+    "invalidEmail": "Saisissez une adresse e-mail valide.",
+    "cantInvite": "Vous ne pouvez pas inviter de personnes dans cet espace de travail. Demandez à un propriétaire."
   },
   "dialog": {
     "createTitle": "Nouvel espace d’équipe",
@@ -73,7 +75,16 @@
     "chooseGroup": "Choisir un groupe",
     "addGroupButton": "Ajouter le groupe",
     "removeGroup": "Retirer {name}",
-    "groupMemberCount": "{count, plural, =0 {Aucun membre} one {# membre} other {# membres}}"
+    "groupMemberCount": "{count, plural, =0 {Aucun membre} one {# membre} other {# membres}}",
+    "searchOrInvite": "Rechercher des personnes ou saisir un e-mail",
+    "inviteEmail": "Inviter {email}",
+    "inviteHint": "La personne est invitée dans l’espace de travail et rejoint cet espace d’équipe en acceptant.",
+    "inviteButton": "Inviter",
+    "invitedAdded": "{email} fait maintenant partie de cet espace d’équipe.",
+    "invitedRequested": "Un propriétaire doit approuver l’invitation de {email}. Une fois approuvée, la personne rejoint cet espace d’équipe en acceptant.",
+    "invitedSent": "Invitation envoyée à {email}. La personne rejoint cet espace d’équipe en acceptant.",
+    "invitedLink": "Invitation créée pour {email}, mais aucun e-mail n’a été envoyé. Partagez-lui le lien.",
+    "copyInviteLink": "Copier le lien"
   },
   "memberLevel": {
     "full": "Accès complet",

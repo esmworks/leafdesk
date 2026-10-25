@@ -2,7 +2,7 @@
  * Which model each AI feature runs on and how much it lets a model that thinks think, by the
  * request's `feature`. AI_MODEL answers everything unless the server also has AI_FAST_MODEL, which
  * then takes the short, simple jobs marked `fast`. A feature not listed runs on AI_MODEL with the
- * model's own thinking. See the README's AI section.
+ * model's own thinking. See docs/ai.md.
  */
 import type { AiThinking } from "./backend";
 

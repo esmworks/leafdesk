@@ -29,5 +29,14 @@
     "busy": "Bạn đang có một lần xuất đang chạy. Hãy đợi tải xuống hoàn tất.",
     "disabled": "Tính năng xuất đã bị tắt trong không gian làm việc này."
   },
-  "celebrate": "Làm tốt lắm!"
+  "celebrate": "Làm tốt lắm!",
+  "toast": {
+    "undo": "Hoàn tác",
+    "dismiss": "Đóng",
+    "movedTo": "Đã chuyển đến",
+    "movedToPlace": "Đã chuyển đến {place}",
+    "trashed": "Đã chuyển vào thùng rác",
+    "rowsTrashed": "{count, plural, other {Đã chuyển # hàng vào thùng rác}}",
+    "undoFailed": "Không thể hoàn tác."
+  }
 }

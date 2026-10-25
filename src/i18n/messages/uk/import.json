@@ -139,7 +139,8 @@
       "type": "Тип",
       "labels": "Мітки",
       "due": "Термін",
-      "link": "Посилання на Jira"
+      "link": "Посилання на Jira",
+      "reporter": "Автор задачі"
     },
     "errors": {
       "unauthorized": "Jira відхилила адресу ел. пошти й API-токен.",

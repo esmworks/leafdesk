@@ -1,5 +1,6 @@
 "use client";
 
+import { IconGlyph } from "@/components/builtin-icon";
 import Link from "next/link";
 import { useFormatter, useTranslations } from "next-intl";
 import { useState } from "react";
@@ -61,7 +62,7 @@ export function PublishedDatabaseView({ table, links, viewPath, className, print
                   current ? "border-fg text-fg" : "border-transparent text-fg-muted hover:text-fg",
                 )}
               >
-                <ViewIcon type={v.type} className="h-3.5 w-3.5" />
+                <ViewIcon type={v.type} icon={v.icon} className="h-3.5 w-3.5" />
                 {v.name}
               </Link>
             );
@@ -190,7 +191,7 @@ function Card({ row, table, href, cover }: { row: PublishedRow; table: Published
       )}
       <div className="min-w-0 px-3 py-2.5">
         <RowLink row={row} href={href} className={cn("flex min-w-0 gap-1.5 text-sm leading-5 font-medium", href && STRETCH)}>
-          {row.icon && (!cover || image) && <span className="shrink-0">{row.icon}</span>}
+          {row.icon && (!cover || image) && <IconGlyph icon={row.icon} className="shrink-0" />}
           <Title row={row} />
         </RowLink>
         {shown.length > 0 && (
@@ -264,7 +265,7 @@ function Table({ rows, table, href, print }: { rows: PublishedRow[]; table: Publ
   return (
     // In print the table fits the page: columns share its width and long values wrap.
     <div className={cn("pb-3", !print && "overflow-x-auto [color-scheme:light_dark]")}>
-      <table className={cn("w-full border-collapse text-sm", !print && "min-w-max")}>
+      <table className={cn("w-full border-collapse text-sm", !print && "min-w-max", table.noVerticalLines && "[&_td]:border-s-0 [&_th]:border-s-0")}>
         <thead>
           <tr>
             <th className={cn("h-[33px] border-y border-border px-2 text-start font-normal text-fg-muted", !print && "min-w-60")}>
@@ -279,7 +280,7 @@ function Table({ rows, table, href, print }: { rows: PublishedRow[]; table: Publ
                 className={cn("h-[33px] border-y border-s border-border px-2 text-start font-normal text-fg-muted", !print && "min-w-40")}
               >
                 <span className="flex items-center gap-1.5">
-                  <PropertyTypeIcon type={prop.type} className="h-3.5 w-3.5 shrink-0" />
+                  <PropertyTypeIcon type={prop.type} icon={prop.options.icon} className="h-3.5 w-3.5 shrink-0" />
                   <span className={print ? "min-w-0" : "truncate"}>{prop.name}</span>
                 </span>
               </th>

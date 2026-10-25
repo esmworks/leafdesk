@@ -58,7 +58,7 @@
       "workspaceName": "nimi nimeä uudelleen kuvake",
       "ai": "tekoäly chat malli palveluntarjoaja muisti",
       "workspaceMail": "sähköposti rivit posti lähetä",
-      "export": "varmuuskopio lataa zip markdown vienti",
+      "export": "varmuuskopio lataa zip markdown vienti pdf",
       "members": "ihmiset kutsu käyttäjät roolit poista jäsenet",
       "agents": "tekoäly avustaja automaatio botti agentit",
       "snippets": "tekstin laajennus pikakuvakkeet tekstikatkelmat",
@@ -108,7 +108,11 @@
     "description": "Lataa kaikki näkemäsi sivut ZIP-tiedostona: sivut Markdownina, tietokannat CSV-muodossa ja niissä näkyvät tiedostot. Roskakorissa olevia sivuja ei oteta mukaan; mallit tallennetaan Mallit-kansioon.",
     "button": "Vie",
     "preparing": "Valmistellaan…",
-    "disabled": "Vienti on poistettu käytöstä tässä työtilassa kohdassa Asetukset → Tietoturva."
+    "disabled": "Vienti on poistettu käytöstä tässä työtilassa kohdassa Asetukset → Tietoturva.",
+    "format": "Vientimuoto",
+    "formatMarkdown": "Markdown ja CSV",
+    "formatPdf": "PDF",
+    "descriptionPdf": "Lataa kaikki näkemäsi sivut PDF-tiedostojen ZIP-pakettina kansioissa, jotka seuraavat sivupuuta: tietokannat rivien taulukkoina ja omaa tekstiä sisältävät rivit omina PDF-tiedostoinaan. Roskakorissa olevat sivut ja mallit jätetään pois; enintään {limit, number} PDF-tiedostoa."
   },
   "members": {
     "heading": "Jäsenet",
@@ -210,7 +214,13 @@
       "someone": "Jäsen",
       "approve": "Hyväksy",
       "decline": "Hylkää"
-    }
+    },
+    "removeBodyChoose": "{name} menettää pääsyn tähän työtilaan heti, myös avoimilla sivuilla ja yhdistetyissä sovelluksissa.",
+    "removeBodyToOwner": "{name} menettää heti pääsyn tähän työtilaan, myös avoimilla sivuilla ja yhdistetyissä sovelluksissa. Sivut, joita vain hän pystyi hallitsemaan, ja tiimitilat, joita kukaan muu ei johda, siirtyvät työtilan vanhimmalle omistajalle.",
+    "heirLabel": "Siirrä sivut henkilölle",
+    "heirHint": "Sivut, joita vain {name} pystyi hallitsemaan, ja tiimitilat, joita kukaan muu ei hallitse, siirtyvät valitsemallesi henkilölle.",
+    "heirCount": "{count, plural, =0 {{name} ei tällä hetkellä hallitse yksin yhtään sivua. Tiimitilat, joita kukaan muu ei hallitse, siirtyvät valitsemallesi henkilölle.} one {# sivu, jota vain {name} pystyi hallitsemaan, siirtyy valitsemallesi henkilölle yhdessä tiimitilojen kanssa, joita kukaan muu ei hallitse.} other {# sivua, joita vain {name} pystyi hallitsemaan, siirtyy valitsemallesi henkilölle yhdessä tiimitilojen kanssa, joita kukaan muu ei hallitse.}}",
+    "heirYou": "{name} (sinä)"
   },
   "guests": {
     "heading": "Vieraat",
@@ -736,7 +746,7 @@
       "accessDenied": "Sinulla ei ole oikeutta tehdä tätä.",
       "reasons": {
         "name": "Anna agentille nimi.",
-        "icon": "Agentin kuvake on emoji.",
+        "icon": "Agentin kuvake on emoji tai sisäänrakennettu kuvake.",
         "level": "Agentti voi katsella, kommentoida tai muokata sivua.",
         "template": "Tätä mallia ei ole olemassa.",
         "database": "Valitse tämän työtilan tietokanta.",
@@ -1195,6 +1205,7 @@
     "invalidSetting": "Tämä asetus ei ole käytettävissä.",
     "nameRequired": "Anna työtilalle nimi.",
     "alreadyMember": "Tämä henkilö on jo jäsen.",
+    "ownerInvitation": "Tällä osoitteella on kutsu omistajaksi. Vain omistaja voi muuttaa sitä.",
     "notMember": "Tämä henkilö ei ole jäsen.",
     "lastOwner": "Työtilalla on oltava vähintään yksi omistaja.",
     "lastOwnerRemove": "Työtilalla on oltava vähintään yksi omistaja. Tee ensin joku toinen omistajaksi.",
@@ -1224,7 +1235,8 @@
     "invalidNetworkLabel": "Kohteen {detail} nimi on liian pitkä: enintään 100 merkkiä.",
     "tooManyNetworks": "Työtilalla voi olla enintään 100 hyväksyttyä verkkoa.",
     "ipLocksYouOut": "Tästä luettelosta puuttuu nykyinen osoitteesi {detail}, joten sen tallentaminen sulkisi sinut pois työtilasta. Lisää ensin osoitteesi tai sen kattava alue.",
-    "ipUnknown": "Palvelin ei tunnista osoitettasi, joten se ei voi varmistaa, että tämä luettelo pitää sinut sisällä. Tallenna se yhteydestä, jonka osoitteen palvelin näkee, tai tyhjennä luettelo."
+    "ipUnknown": "Palvelin ei tunnista osoitettasi, joten se ei voi varmistaa, että tämä luettelo pitää sinut sisällä. Tallenna se yhteydestä, jonka osoitteen palvelin näkee, tai tyhjennä luettelo.",
+    "heirInvalid": "Valitse omistaja tai jäsen, joka jää työtilaan."
   },
   "security": {
     "description": "Päätä, miten ihmiset kirjautuvat sisään, kuka voi tuoda ihmisiä tähän työtilaan, mitä vieraat voivat tehdä, mitä työtilasta voi viedä ulos (viennit, yhdistetyt sovellukset) ja kuka voi julkaista sivuja verkkoon. Vain omistajat voivat muuttaa näitä asetuksia.",
@@ -1271,7 +1283,9 @@
       "unpublish": "Peru julkaisu",
       "confirm": "Perutaanko tämän sivun julkaisu? Linkki lakkaa toimimasta kaikilta.",
       "indexable": "Hakukoneet sallittu",
-      "off": "Julkaiseminen on pois päältä: mikään näistä sivuista ei ole nyt verkossa. Ne palaavat, kun julkaiseminen otetaan taas käyttöön, ellet peru niiden julkaisua."
+      "off": "Julkaiseminen on pois päältä: mikään näistä sivuista ei ole nyt verkossa. Ne palaavat, kun julkaiseminen otetaan taas käyttöön, ellet peru niiden julkaisua.",
+      "expiresOn": "Vanhenee {date}",
+      "expiredOn": "Vanheni {date}"
     },
     "forms": {
       "title": "Julkiset lomakkeet",
@@ -1710,7 +1724,8 @@
         "removed": "Poisti henkilön {target} ({role})",
         "left": "Poistui työtilasta",
         "role_changed": "Muutti henkilön {target} roolin: {from} → {to}",
-        "ownership_transferred": "Teki henkilöstä {target} omistajan ja siirtyi itse jäseneksi"
+        "ownership_transferred": "Teki henkilöstä {target} omistajan ja siirtyi itse jäseneksi",
+        "content_handed_over": "Siirsi henkilölle {subject} {count, plural, one {# sivun} other {# sivua}}, joita vain {target} pystyi hallitsemaan"
       },
       "invitation": {
         "sent": "Kutsui henkilön {target} (rooli: {role})",
@@ -1742,7 +1757,8 @@
         "published": "Julkaisi sivun {target} verkkoon",
         "unpublished": "Perui sivun {target} julkaisun",
         "publication_revoked": "Poisti sivun {target} verkosta (julkaissut {subject})",
-        "rows_merged": "Yhdisti {count, plural, one {# rivin} other {# riviä}} riviin {target}"
+        "rows_merged": "Yhdisti {count, plural, one {# rivin} other {# riviä}} riviin {target}",
+        "publication_expiry_changed": "{change, select, removed {Poisti sivun {target} verkkolinkin voimassaolon päättymisen} other {Asetti sivun {target} verkkolinkin lakkaamaan toimimasta {to}}}"
       },
       "property": {
         "access_changed": "Muutti, kuka pääsee ominaisuuteen ”{property}” kohteessa {target}",
@@ -1912,6 +1928,15 @@
       "slack_token": "Slack-tunnus",
       "api_key": "API-avain",
       "jwt": "JSON Web Token"
+    },
+    "audienceLine": "Yleisö: {audience}",
+    "audience": {
+      "web": "Julkaistu verkkoon",
+      "workspace": "Koko työtila",
+      "workspaceTeamspace": "Koko työtila (tiimitila {name})",
+      "teamspace": "Tiimitila {name}",
+      "people": "Tietyt henkilöt ({count})",
+      "private": "Yksityinen"
     }
   },
   "notifications": {
@@ -2658,7 +2683,7 @@
       "reservedKey": "Tämä avain on varattu sisäänrakennetulle tyypille (note, tip, important, warning, caution, info, danger, details, frame, card, panel).",
       "duplicateKey": "Toisella tyylillä on jo tämä avain.",
       "name": "Anna enintään 60 merkin nimi.",
-      "icon": "Valitse yksi emoji tai ei kuvaketta.",
+      "icon": "Valitse yksi emoji tai sisäänrakennettu kuvake, tai ei kuvaketta.",
       "color": "Valitse väri.",
       "border": "Valitse reunus.",
       "title": "Otsikossa voi olla enintään 120 merkkiä."

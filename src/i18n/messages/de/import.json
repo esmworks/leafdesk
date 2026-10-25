@@ -139,7 +139,8 @@
       "type": "Typ",
       "labels": "Labels",
       "due": "Fälligkeitsdatum",
-      "link": "Jira-Link"
+      "link": "Jira-Link",
+      "reporter": "Melder"
     },
     "errors": {
       "unauthorized": "Jira hat die E-Mail-Adresse und das API-Token abgelehnt.",

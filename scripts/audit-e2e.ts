@@ -500,7 +500,13 @@ try {
   const listed = (await listAuditEvents(owner, ws.main, filters({ category: "pages" }))).events.find((e) => e.targetId === untitled.id);
   check(listed?.targetLabel === "Named later", "a page recorded untitled is listed under its title now", listed);
 
-  await movePage(owner, roadmap.id, untitled.id);
+  const [placed] = await db.select({ parentId: page.parentId, position: page.position, teamspaceId: page.teamspaceId }).from(page).where(eq(page.id, roadmap.id));
+  const was = await movePage(owner, roadmap.id, untitled.id);
+  check(
+    was.parentId === placed.parentId && was.position === placed.position && was.teamspaceId === placed.teamspaceId,
+    "a move answers where the page was, for an undo",
+    { was, placed },
+  );
   row = await latest(ws.main, "page.moved");
   const movedTo = (row.details as { to?: { type?: string; id?: string } }).to;
   check(
@@ -508,13 +514,16 @@ try {
     "moving a page under another is recorded with where it went",
     describe(row),
   );
-  await movePage(owner, roadmap.id, null);
+  // Undo: moved again to where it was, in its old place among its siblings.
+  await movePage(owner, roadmap.id, was.parentId, was.position, was.parentId ? undefined : was.teamspaceId);
   row = await latest(ws.main, "page.moved");
   check(
     (row.details as { from?: { type?: string } }).from?.type === "page" && describe(row).startsWith("Moved Roadmap from Named later to "),
     "…and back to the top, from where it was",
     describe(row),
   );
+  const [back] = await db.select({ parentId: page.parentId, position: page.position, teamspaceId: page.teamspaceId }).from(page).where(eq(page.id, roadmap.id));
+  check(back.parentId === placed.parentId && back.position === placed.position && back.teamspaceId === placed.teamspaceId, "…in its old place", back);
   const moves = (await events(ws.main, "page.moved")).length;
   await movePage(owner, roadmap.id, null, 1);
   check((await events(ws.main, "page.moved")).length === moves, "putting a page in another order among the same siblings isn't a move");
@@ -756,7 +765,7 @@ try {
   const csv = toCsv(auditCsvRows(csvEvents, t));
   const lines = csv.trim().split("\r\n");
   check(csvEvents.length === 40 && lines.length === 41, "the CSV holds every filtered event, not a page", lines.length);
-  check(lines[0].endsWith("time,actor,actor_email,actor_type,via,action,category,description,target,ip,user_agent,details"), "…under a header", lines[0]);
+  check(lines[0].endsWith("time,actor,actor_email,actor_type,via,action,category,description,target,ip,user_agent,details,audience"), "…under a header", lines[0]);
   check(lines[1].includes(",workspace.settings_changed,settings,"), "…with the action and its category", lines[1]);
 
   // ── Retention: a year of events, only in the workspaces of the run ───────────────────────────

@@ -10,9 +10,12 @@ import {
   asChecklist,
   checklistProgress,
   isEmailAddress,
+  isDoneStatus,
   isPhoneNumber,
+  optionOf,
   phoneHref,
   sortStatusOptions,
+  statusFromCheckbox,
   statusGroupOf,
 } from "@/lib/properties";
 import { derivedType, isErrorValue, rollupFormat } from "@/lib/derived";
@@ -38,6 +41,7 @@ import { dayNumber, dayString } from "@/lib/time-zone";
 import type { DateOptions, FormulaConfig, NumberFormat, PropertyOptions } from "@/db/schema/app";
 import { calculationFormat, numberFormatOptions, numberText, readNumber, valueFormat } from "@/lib/number-format";
 import { numberShare } from "@/lib/number-display";
+import { formatClock, formatStyledDate, isStyled, type DateStyle } from "@/lib/date-format";
 import { availableOptions, parentOf } from "@/lib/dependent-options";
 import { formatUniqueId, uniqueIdPrefix } from "@/lib/unique-id";
 import { useSchema } from "./schema-context";
@@ -99,7 +103,7 @@ export function OptionChip({
 export type ShownProperty = Pick<Property, "id" | "name" | "type"> & {
   options: Omit<PropertyOptions, "formula" | "date" | "ai"> & {
     formula?: Pick<FormulaConfig, "type">;
-    date?: Pick<DateOptions, "display">;
+    date?: Pick<DateOptions, "display" | "format" | "clock">;
   };
 };
 
@@ -119,10 +123,13 @@ function selectedOptions(prop: ShownProperty, value: unknown): SelectOption[] {
  * 2026, 14:30"), ranges with an arrow ("Oct 12 → Oct 14, 2026", "Oct 12, 2026, 14:30 → 16:00").
  * Anything else that starts with a day shows as that day.
  */
-export function useFormatDate() {
+export function useFormatDate(style?: DateStyle | null) {
   const format = useFormatter();
   const timeZone = useViewerTimeZone();
   return (value: string) => {
+    // A property's own format and clock (lib/date-format), when it sets them.
+    const styled = isStyled(style) ? formatStyledDate(value, (d, options) => format.dateTime(d, options), timeZone, style) : null;
+    if (styled !== null) return styled;
     const text = formatDateValue(value, (d, options) => format.dateTime(d, options), timeZone);
     if (text !== null) return text;
     const d = new Date(`${value.slice(0, 10)}T00:00:00Z`);
@@ -136,8 +143,9 @@ export function useFormatDate() {
  * the viewer's today ("tomorrow", "in 3 days"), with the date in the tooltip; as the date otherwise.
  */
 function DateValue({ prop, value }: { prop: ShownProperty; value: string }) {
-  const formatDate = useFormatDate();
-  if (prop.options.date?.display === "relative") return <RelativeDate value={value} />;
+  const style = prop.options.date;
+  const formatDate = useFormatDate(style);
+  if (style?.display === "relative") return <RelativeDate value={value} style={style} />;
   return <span>{formatDate(value)}</span>;
 }
 
@@ -146,14 +154,14 @@ function DateValue({ prop, value }: { prop: ShownProperty; value: string }) {
  * 16:00". An end too far away to say relatively is written as a date; a start too far away writes
  * the whole value as dates.
  */
-function RelativeDate({ value }: { value: string }) {
-  const formatDate = useFormatDate();
+function RelativeDate({ value, style }: { value: string; style?: DateStyle }) {
+  const formatDate = useFormatDate(style);
   const format = useFormatter();
   const locale = useLocale();
   const today = useToday();
   const timeZone = useViewerTimeZone();
   const parts = parseDateValue(value);
-  const clock = (iso: string) => format.dateTime(new Date(iso), { hour: "numeric", minute: "2-digit", timeZone });
+  const clock = (iso: string) => formatClock((d, options) => format.dateTime(d, options), new Date(iso), style?.clock, timeZone);
   const relative = (s: string, capital: boolean) => {
     const text = relativeDay(dateStartDay(s, timeZone) ?? "", today, locale);
     if (!text) return null;
@@ -166,6 +174,17 @@ function RelativeDate({ value }: { value: string }) {
   const sameDay = dateStartDay(parts.start, timeZone) === dateStartDay(parts.end, timeZone);
   const end = parts.time && sameDay ? clock(parts.end) : (relative(parts.end, false) ?? formatDate(parts.end));
   return <span title={formatDate(value)}>{`${start} → ${end}`}</span>;
+}
+
+/**
+ * A created or last edited time: as the property's date options say (a format, a clock, relative),
+ * else date and time in the viewer's locale.
+ */
+function StampValue({ prop, value, formatDateTime }: { prop: ShownProperty; value: string; formatDateTime: (value: string) => string }) {
+  const style = prop.options.date;
+  const formatDate = useFormatDate(style);
+  if (style?.display === "relative") return <RelativeDate value={value} style={style} />;
+  return <span className="truncate">{isStyled(style) ? formatDate(value) : formatDateTime(value)}</span>;
 }
 
 /** Formats a timestamp (created or last edited time) as date and time in the viewer's locale and time zone. */
@@ -209,6 +228,7 @@ export function isEmptyValue(prop: ShownProperty, value: unknown) {
 export function PropertyDisplay({ prop, value, wrap, style }: { prop: ShownProperty; value: unknown; wrap?: boolean; style?: FormulaStyle }) {
   const formatDateTime = useFormatDateTime();
   const formatNumber = useFormatNumber();
+  if (prop.type === "status" && prop.options.statusDisplay === "checkbox") return <CheckboxBox checked={isDoneStatus(prop, value)} />;
   if (value === null || value === undefined || value === "") return null;
   switch (prop.type) {
     case "text":
@@ -253,7 +273,7 @@ export function PropertyDisplay({ prop, value, wrap, style }: { prop: ShownPrope
     }
     case "created_time":
     case "last_edited_time":
-      return <span className="truncate">{formatDateTime(String(value))}</span>;
+      return <StampValue prop={prop} value={String(value)} formatDateTime={formatDateTime} />;
     case "checklist":
       return <ChecklistDisplay value={value} wrap={wrap} />;
     case "files":
@@ -279,7 +299,7 @@ export function PropertyDisplay({ prop, value, wrap, style }: { prop: ShownPrope
       const selected = selectedOptions(prop, value);
       if (!selected.length) return null;
       return (
-        <span className={cn("flex min-w-0 gap-1", wrap ? "flex-wrap" : "overflow-hidden")}>
+        <span data-cut-list="" className={cn("flex min-w-0 gap-1", wrap ? "flex-wrap" : "overflow-hidden")}>
           {selected.map((o) => (
             <OptionChip key={o.id} option={o} dot={prop.type === "status"} />
           ))}
@@ -289,6 +309,7 @@ export function PropertyDisplay({ prop, value, wrap, style }: { prop: ShownPrope
   }
 }
 
+/** A value of a related row beside its title in a relation's chips (lib/relation-options). */
 type RowValues = { properties: Record<string, unknown>; hidden?: string[]; styles?: Record<string, FormulaStyle> };
 
 /**
@@ -362,9 +383,14 @@ function DerivedDisplay({ prop, value, wrap, style }: { prop: ShownProperty; val
   }
   if (prop.type === "rollup" && typeof value === "number") return <RollupNumber prop={prop} value={value} />;
   switch (derivedType(prop)) {
-    case "number":
-      // A formula giving an amount or a percentage shows in its number format.
-      return <span {...styledProps(whole, "tabular-nums")}>{typeof value === "number" ? formatNumber(value, valueFormat(prop)) : String(value)}</span>;
+    case "number": {
+      // A formula giving an amount or a percentage shows in its number format; as a bar or a ring when it says so.
+      if (typeof value !== "number") return <span {...styledProps(whole, "tabular-nums")}>{String(value)}</span>;
+      const text = formatNumber(value, valueFormat(prop));
+      const display = prop.options.numberDisplay;
+      if (display) return <ProgressDisplay display={display.display} share={numberShare(value, display, valueFormat(prop))} text={text} color={display.color} />;
+      return <span {...styledProps(whole, "tabular-nums")}>{text}</span>;
+    }
     case "checkbox":
       return whole ? (
         <span {...styledProps(whole, "inline-flex")}>
@@ -402,9 +428,17 @@ function RollupNumber({ prop, value }: { prop: ShownProperty; value: number }) {
     // (filled in by the server, else from the related database when it's loaded here).
     const target = config && relations?.targets[config.relationPropertyId]?.properties.find((p) => p.id === config.targetPropertyId);
     const unit = config?.number ?? (config && target ? calculationFormat(config.function, { number: valueFormat(target) }) : undefined);
-    return <span className="tabular-nums">{formatNumber(value, unit, rounded ? 2 : undefined)}</span>;
+    const text = formatNumber(value, unit, rounded ? 2 : undefined);
+    const display = prop.options.numberDisplay;
+    if (display) return <ProgressDisplay display={display.display} share={numberShare(value, display, unit)} text={text} color={display.color} />;
+    return <span className="tabular-nums">{text}</span>;
   }
   const text = format.number(value, { style: "percent", maximumFractionDigits: 1 });
+  // A bar or a ring with its color and "divide by" (numberDisplay), else as the rollup's settings say.
+  const display = prop.options.numberDisplay;
+  if (display) {
+    return <ProgressDisplay display={display.display} share={numberShare(value, display, { format: "percent" })} text={text} color={display.color} />;
+  }
   if (config?.display === "bar" || config?.display === "ring") {
     return <ProgressDisplay display={config.display} share={Math.min(1, Math.max(0, value))} text={text} />;
   }
@@ -547,8 +581,11 @@ export function PropertyCell({
   style?: FormulaStyle;
   /** The viewer may not see this value (property access): a lock stands in for it. */
   hidden?: boolean;
-  /** "list": a compact value in a list view's line, at the size of its other values. */
-  variant?: "table" | "panel" | "list";
+  /**
+   * "list": a compact value in a list view's line, at the size of its other values. "card": a
+   * value on a board or gallery card, where it shows as it does there.
+   */
+  variant?: "table" | "panel" | "list" | "card";
   wrap?: boolean;
   /** Start in edit mode (e.g. the title of a freshly created row). */
   autoEdit?: boolean;
@@ -567,18 +604,46 @@ export function PropertyCell({
 
   const base = cn(
     "flex min-w-0 items-center",
-    variant === "list" ? "max-w-full rounded px-1 py-0.5 text-xs" : "w-full text-sm",
+    variant === "list" ? "max-w-full rounded px-1 py-0.5 text-xs" : variant !== "card" && "w-full text-sm",
+    // Lit on hover without moving the value from where the card shows it.
+    variant === "card" && "-mx-1 -my-0.5 max-w-[calc(100%+0.5rem)] rounded px-1 py-0.5 text-xs",
     variant === "table" && "min-h-[33px] px-2 py-1",
     variant === "panel" && "min-h-[30px] rounded-md px-2 py-1",
     !readOnly && "cursor-pointer",
     !readOnly && variant === "panel" && "hover:bg-bg-hover",
     !readOnly && variant === "list" && "hover:bg-bg-active",
+    !readOnly && variant === "card" && "hover:bg-fg/5",
   );
 
   if (hidden) {
     return (
       <div className={base}>
         <HiddenValue />
+      </div>
+    );
+  }
+
+  // A status shown as a checkbox ticks the first done option, or unticks to the first to-do one.
+  if (prop.type === "status" && prop.options.statusDisplay === "checkbox") {
+    const done = isDoneStatus(prop, value);
+    return (
+      <div className={cn(base, "cursor-default")}>
+        <button
+          type="button"
+          role="checkbox"
+          aria-checked={done}
+          aria-label={prop.name}
+          title={optionOf(prop, value)?.name}
+          disabled={readOnly}
+          data-cell-edit={readOnly ? undefined : ""}
+          className="inline-flex disabled:cursor-default"
+          onClick={() => {
+            const next = statusFromCheckbox(prop, !done);
+            if (next !== undefined) onChange(next);
+          }}
+        >
+          <CheckboxBox checked={done} />
+        </button>
       </div>
     );
   }

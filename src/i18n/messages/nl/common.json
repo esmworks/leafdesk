@@ -29,5 +29,14 @@
     "busy": "Je hebt al een export lopen. Wacht tot de download daarvan klaar is.",
     "disabled": "Exporteren is uitgeschakeld in deze werkruimte."
   },
-  "celebrate": "Goed gedaan!"
+  "celebrate": "Goed gedaan!",
+  "toast": {
+    "undo": "Ongedaan maken",
+    "dismiss": "Sluiten",
+    "movedTo": "Verplaatst naar",
+    "movedToPlace": "Verplaatst naar {place}",
+    "trashed": "Naar de prullenbak verplaatst",
+    "rowsTrashed": "{count, plural, one {Rij naar de prullenbak verplaatst} other {# rijen naar de prullenbak verplaatst}}",
+    "undoFailed": "Ongedaan maken is niet gelukt."
+  }
 }

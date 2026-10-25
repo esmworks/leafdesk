@@ -1,5 +1,5 @@
 {
-  "id": "f1cd7d26-5ef9-4a47-a098-1da5061d176f",
+  "id": "42a0dfbf-c2b1-4c20-8ae1-656cf0e05688",
   "prevId": "6178d523-ef9c-4389-a7e0-0a95682d99be",
   "version": "7",
   "dialect": "postgresql",
@@ -4024,12 +4024,7 @@
       },
       "uniqueConstraints": {},
       "policies": {},
-      "checkConstraints": {
-        "workspace_member_role_check": {
-          "name": "workspace_member_role_check",
-          "value": "\"workspace_member\".\"role\" in ('owner', 'membership_admin', 'member', 'guest')"
-        }
-      },
+      "checkConstraints": {},
       "isRLSEnabled": false
     },
     "public.access_request": {
@@ -7468,6 +7463,18 @@
           "primaryKey": false,
           "notNull": true,
           "default": "'off'"
+        },
+        "emoji_skin_tone": {
+          "name": "emoji_skin_tone",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "icon_color": {
+          "name": "icon_color",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
         },
         "updated_at": {
           "name": "updated_at",

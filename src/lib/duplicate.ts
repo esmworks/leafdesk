@@ -143,16 +143,13 @@ export function planDuplicate(input: DuplicateInput, newId: () => string = () =>
     return { ...prop, id: propIds.get(prop.id)!, databaseId: pageIds.get(prop.databaseId)!, options };
   });
 
-  const views = input.views.map(
-    (view): SourceView => ({
-      ...view,
-      id: viewIds.get(view.id)!,
-      databaseId: pageIds.get(view.databaseId)!,
-      config: remapViewConfig(view.config, propIds, (propertyId) =>
-        relationInside(propsById.get(propertyId)) ? pageIds : null,
-      ),
-    }),
-  );
+  const views = input.views.map((view): SourceView => {
+    const config = remapViewConfig(view.config, propIds, (propertyId) => (relationInside(propsById.get(propertyId)) ? pageIds : null));
+    // The view's own row template is the copy of it (a template left behind leaves the database's default).
+    const template = view.config.defaultTemplateId;
+    if (template && pageIds.has(template)) config.defaultTemplateId = pageIds.get(template);
+    return { ...view, id: viewIds.get(view.id)!, databaseId: pageIds.get(view.databaseId)!, config };
+  });
 
   const pages = input.pages.map((p): PlannedPage => {
     const isRoot = p.id === input.rootId;

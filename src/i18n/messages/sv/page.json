@@ -110,6 +110,7 @@
       "you": "{name} (du)"
     },
     "threadMenu": "Alternativ för tråden",
+    "copyLink": "Kopiera länk",
     "mute": "Tysta svar",
     "unmute": "Slå på svar igen",
     "muteHint": "Sluta få veta om nya svar i den här tråden. Om du svarar här, eller nämns här, slås det på igen.",
@@ -201,7 +202,38 @@
   },
   "icon": {
     "add": "Lägg till ikon",
-    "remove": "Ta bort ikon"
+    "remove": "Ta bort ikon",
+    "emojiTab": "Emoji",
+    "iconsTab": "Ikoner",
+    "searchEmoji": "Sök emoji",
+    "searchIcons": "Sök ikoner",
+    "random": "Slumpa",
+    "skinTone": "Hudton",
+    "tones": {
+      "0": "Ingen hudton",
+      "1": "Ljus hudton",
+      "2": "Mellanljus hudton",
+      "3": "Mellanfärgad hudton",
+      "4": "Mellanmörk hudton",
+      "5": "Mörk hudton"
+    },
+    "color": "Ikonfärg",
+    "textColor": "Textfärg",
+    "categoriesLabel": "Kategorier",
+    "categories": {
+      "smileys": "Smileys och känslor",
+      "people": "Människor och kropp",
+      "nature": "Djur och natur",
+      "food": "Mat och dryck",
+      "travel": "Resor och platser",
+      "activities": "Aktiviteter",
+      "objects": "Föremål",
+      "symbols": "Symboler",
+      "flags": "Flaggor"
+    },
+    "loading": "Läser in …",
+    "loadFailed": "Det gick inte att läsa in emojierna.",
+    "noMatches": "Inga träffar."
   },
   "background": {
     "add": "Lägg till bakgrund",
@@ -477,7 +509,8 @@
     "row": "Det här är en radmall. Nya rader som skapas från den får dess egenskaper och innehåll.",
     "inside": "Den här sidan är en del av en mall.",
     "use": "Använd mallen",
-    "confirmDelete": "Radera den här mallen för gott? Sidor som redan skapats från den förblir som de är."
+    "confirmDelete": "Radera den här mallen för gott? Sidor som redan skapats från den förblir som de är.",
+    "titleMarkers": "Skriv @today, @now eller @me i titeln: varje ny rad får datumet, tiden eller namnet på den som lägger till den."
   },
   "blocks": {
     "callout": {
@@ -620,7 +653,8 @@
       "submit": "Bädda in",
       "providers": "YouTube, Vimeo, Loom, Figma, publicerade Google Dokument, Kalkylark och Presentationer, CodePen, Spotify och Google Maps. Andra länkar blir ett bokmärke.",
       "frameTitle": "Inbäddat innehåll från {host}",
-      "label": "Inbäddning"
+      "label": "Inbäddning",
+      "resize": "Dra för att ändra inbäddningens bredd"
     },
     "paste": {
       "label": "Klistra in som",
@@ -710,6 +744,11 @@
   },
   "blockMenu": {
     "copyLink": "Kopiera länk till blocket",
+    "download": "Ladda ned",
+    "alignLeft": "Vänsterjustera",
+    "alignCenter": "Centrera",
+    "alignRight": "Högerjustera",
+    "wideColumns": "Breda kolumner",
     "hideInPrint": "Dölj vid utskrift",
     "calloutStyle": "Inforutestil",
     "turnIntoCallout": "Gör om till inforuta",
@@ -955,7 +994,8 @@
     "markdownImage": "Bild: {alt}",
     "markdownImageUntitled": "Bild",
     "expand": "Öppna i visaren",
-    "view": "Visa {name}"
+    "view": "Visa {name}",
+    "resize": "Dra för att ändra bredden"
   },
   "presentation": {
     "previous": "Föregående bild",
@@ -1117,7 +1157,7 @@
     },
     "settings": {
       "open": "Knappinställningar",
-      "icon": "Emoji",
+      "icon": "Ikon",
       "label": "Etikett",
       "color": "Färg",
       "colorDefault": "Standard",
@@ -1190,5 +1230,16 @@
     "reset": "Visa hela bilden",
     "loading": "Läser in bilden…",
     "failed": "Bilden kunde inte läsas in."
+  },
+  "commentRef": {
+    "pasteTitle": "Klistra in länk till en kommentar",
+    "pasteAsMention": "Klistra in som omnämnande",
+    "pasteAsPreview": "Klistra in som förhandsvisning",
+    "pasteAsLink": "Klistra in som länk",
+    "noAccess": "Ingen åtkomst till den här kommentaren",
+    "onPage": "På {title}",
+    "replies": "{count, plural, =0 {Inga svar} one {# svar} other {# svar}}",
+    "openThread": "Öppna tråd",
+    "resolved": "Löst"
   }
 }

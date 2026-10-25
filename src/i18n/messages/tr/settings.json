@@ -58,7 +58,7 @@
       "workspaceName": "ad yeniden adlandır simge",
       "ai": "yapay zekâ sohbet model sağlayıcı bellek",
       "workspaceMail": "e-posta satırlar posta gönder",
-      "export": "yedek indir zip markdown dışa aktar",
+      "export": "yedek indir zip markdown dışa aktar pdf",
       "members": "kişiler davet kullanıcılar roller çıkar",
       "agents": "yapay zekâ asistan otomasyon bot",
       "snippets": "metin kısayollar parçacık",
@@ -108,7 +108,11 @@
     "description": "Görebildiğiniz tüm sayfaları ZIP olarak indirin: sayfalar Markdown, veritabanları CSV olarak, gösterdikleri dosyalarla birlikte. Çöp kutusundaki sayfalar dahil edilmez; şablonlar Templates klasöründe tutulur.",
     "button": "Dışa aktar",
     "preparing": "Hazırlanıyor…",
-    "disabled": "Bu çalışma alanında dışa aktarma Ayarlar → Güvenlik bölümünden kapatılmış."
+    "disabled": "Bu çalışma alanında dışa aktarma Ayarlar → Güvenlik bölümünden kapatılmış.",
+    "format": "Dışa aktarma biçimi",
+    "formatMarkdown": "Markdown ve CSV",
+    "formatPdf": "PDF",
+    "descriptionPdf": "Görebildiğiniz tüm sayfaları, sayfa ağacını izleyen klasörlerde PDF'lerden oluşan bir ZIP olarak indirin: veritabanları satırlarının tablosu olarak, kendi metni olan satırlar da ayrı PDF'ler olarak. Çöp kutusundaki sayfalar ve şablonlar dahil edilmez; en fazla {limit, number} PDF."
   },
   "members": {
     "heading": "Üyeler",
@@ -210,7 +214,13 @@
       "someone": "Bir üye",
       "approve": "Onayla",
       "decline": "Reddet"
-    }
+    },
+    "removeBodyChoose": "{name}, açık sayfalar ve bağlı uygulamalar dahil bu çalışma alanına erişimini hemen kaybeder.",
+    "removeBodyToOwner": "{name} bu çalışma alanına erişimini hemen kaybeder; açık sayfalar ve bağlı uygulamalar da dahil. Yalnızca onun yönetebildiği sayfalar ve başka kimsenin yönetmediği ekip alanları çalışma alanının en eski sahibine geçer.",
+    "heirLabel": "Sayfalarını devralacak kişi",
+    "heirHint": "Yalnızca {name} kişisinin yönetebildiği sayfalar ve başka kimsenin yönetmediği ekip alanları seçtiğiniz kişiye geçer.",
+    "heirCount": "{count, plural, =0 {{name} şu anda tek başına yönettiği bir sayfaya sahip değil. Başka kimsenin yönetmediği ekip alanları seçtiğiniz kişiye geçer.} one {Yalnızca {name} kişisinin yönetebildiği # sayfa, başka kimsenin yönetmediği ekip alanlarıyla birlikte seçtiğiniz kişiye geçer.} other {Yalnızca {name} kişisinin yönetebildiği # sayfa, başka kimsenin yönetmediği ekip alanlarıyla birlikte seçtiğiniz kişiye geçer.}}",
+    "heirYou": "{name} (siz)"
   },
   "guests": {
     "heading": "Misafirler",
@@ -736,7 +746,7 @@
       "accessDenied": "Bunu yapma iznin yok.",
       "reasons": {
         "name": "Ajana bir ad verin.",
-        "icon": "Ajanın simgesi bir emoji olmalı.",
+        "icon": "Bir ajanın simgesi bir emoji ya da yerleşik bir simgedir.",
         "level": "Bir ajan sayfayı görüntüleyebilir, yorum yapabilir ya da düzenleyebilir.",
         "template": "Bu şablon yok.",
         "database": "Bu çalışma alanından bir veritabanı seçin.",
@@ -1195,6 +1205,7 @@
     "invalidSetting": "Bu ayar kullanılamıyor.",
     "nameRequired": "Çalışma alanına bir ad verin.",
     "alreadyMember": "Bu kişi zaten üye.",
+    "ownerInvitation": "Bu adresin sahip olmak için bir daveti var. Bunu yalnızca bir sahip değiştirebilir.",
     "notMember": "Bu kişi üye değil.",
     "lastOwner": "Bir çalışma alanının en az bir sahibi olmalı.",
     "lastOwnerRemove": "Bir çalışma alanının en az bir sahibi olmalı. Önce başka birini sahip yapın.",
@@ -1224,7 +1235,8 @@
     "invalidNetworkLabel": "{detail} için yazılan etiket çok uzun: en fazla 100 karakter olabilir.",
     "tooManyNetworks": "Bir çalışma alanında en fazla 100 onaylı ağ olabilir.",
     "ipLocksYouOut": "Bu listede şu anki adresiniz ({detail}) yok; kaydederseniz çalışma alanının dışında kalırsınız. Önce adresinizi ya da onu kapsayan bir aralığı ekleyin.",
-    "ipUnknown": "Sunucu adresinizi göremiyor, bu yüzden listenin sizi dışarıda bırakmayacağından emin olamıyor. Listeyi, adresini sunucunun görebildiği bir bağlantıdan kaydedin ya da listeyi boşaltın."
+    "ipUnknown": "Sunucu adresinizi göremiyor, bu yüzden listenin sizi dışarıda bırakmayacağından emin olamıyor. Listeyi, adresini sunucunun görebildiği bir bağlantıdan kaydedin ya da listeyi boşaltın.",
+    "heirInvalid": "Çalışma alanında kalan bir sahip ya da üye seçin."
   },
   "security": {
     "description": "İnsanların nasıl giriş yapacağını, bu çalışma alanına kimlerin kişi getirebileceğini, misafirlerin neler yapabileceğini, nelerin dışarı çıkabileceğini (dışa aktarma, bağlı uygulamalar) ve kimlerin sayfaları web'de yayınlayabileceğini belirleyin. Bu ayarları yalnızca sahipler değiştirebilir.",
@@ -1271,7 +1283,9 @@
       "unpublish": "Yayından kaldır",
       "confirm": "Bu sayfa yayından kaldırılsın mı? Bağlantı herkes için çalışmayı bırakır.",
       "indexable": "Arama motorlarına açık",
-      "off": "Yayınlama kapalı: bu sayfaların hiçbiri şu anda web'de değil. Siz yayından kaldırmadıkça yayınlama yeniden açıldığında geri gelirler."
+      "off": "Yayınlama kapalı: bu sayfaların hiçbiri şu anda web'de değil. Siz yayından kaldırmadıkça yayınlama yeniden açıldığında geri gelirler.",
+      "expiresOn": "Süresi {date} tarihinde doluyor",
+      "expiredOn": "Süresi {date} tarihinde doldu"
     },
     "forms": {
       "title": "Herkese açık formlar",
@@ -1710,7 +1724,8 @@
         "removed": "Üye çıkarıldı: {target} (rol: {role})",
         "left": "Çalışma alanından ayrıldı",
         "role_changed": "Rol değiştirildi: {target}, {from} → {to}",
-        "ownership_transferred": "Sahipliği devretti: {target} sahip oldu, kendisi üye oldu"
+        "ownership_transferred": "Sahipliği devretti: {target} sahip oldu, kendisi üye oldu",
+        "content_handed_over": "Yalnızca {target} kişisinin yönetebildiği {count, plural, one {# sayfayı} other {# sayfayı}} {subject} kişisine devretti"
       },
       "invitation": {
         "sent": "Davet gönderildi: {target} (rol: {role})",
@@ -1742,7 +1757,8 @@
         "published": "Web’de yayınlandı: {target}",
         "unpublished": "Yayından kaldırıldı: {target}",
         "publication_revoked": "Web’den kaldırıldı: {target} (yayınlayan: {subject})",
-        "rows_merged": "{count, plural, one {# satırı} other {# satırı}} {target} satırında birleştirdi"
+        "rows_merged": "{count, plural, one {# satırı} other {# satırı}} {target} satırında birleştirdi",
+        "publication_expiry_changed": "{change, select, removed {{target} sayfasının web bağlantısındaki süreyi kaldırdı} other {{target} sayfasının web bağlantısını {to} tarihinde çalışmayı bırakacak şekilde ayarladı}}"
       },
       "property": {
         "access_changed": "{target} içindeki “{property}” özelliğinin erişimi değiştirildi",
@@ -1912,6 +1928,15 @@
       "slack_token": "bir Slack belirteci",
       "api_key": "bir API anahtarı",
       "jwt": "bir JSON Web Token"
+    },
+    "audienceLine": "Erişebilenler: {audience}",
+    "audience": {
+      "web": "Web'de yayında",
+      "workspace": "Tüm çalışma alanı",
+      "workspaceTeamspace": "Tüm çalışma alanı ({name} ekip alanı)",
+      "teamspace": "{name} ekip alanı",
+      "people": "Belirli kişiler ({count})",
+      "private": "Özel"
     }
   },
   "notifications": {
@@ -2658,7 +2683,7 @@
       "reservedKey": "Bu anahtar yerleşik bir türe ait (note, tip, important, warning, caution, info, danger, details, frame, card, panel).",
       "duplicateKey": "Bu anahtarı başka bir stil kullanıyor.",
       "name": "En fazla 60 karakterlik bir ad girin.",
-      "icon": "Bir emoji seçin ya da simgesiz bırakın.",
+      "icon": "Bir emoji ya da yerleşik simge seçin veya simgesiz bırakın.",
       "color": "Bir renk seçin.",
       "border": "Bir kenarlık seçin.",
       "title": "Başlık en fazla 120 karakter olabilir."

@@ -110,6 +110,7 @@
       "you": "{name} (tú)"
     },
     "threadMenu": "Opciones del hilo",
+    "copyLink": "Copiar enlace",
     "mute": "Silenciar respuestas",
     "unmute": "Dejar de silenciar respuestas",
     "muteHint": "Deja de recibir avisos de nuevas respuestas en este hilo. Se vuelve a activar si respondes aquí o si alguien te menciona aquí.",
@@ -201,7 +202,38 @@
   },
   "icon": {
     "add": "Añadir icono",
-    "remove": "Quitar icono"
+    "remove": "Quitar icono",
+    "emojiTab": "Emoji",
+    "iconsTab": "Iconos",
+    "searchEmoji": "Buscar emoji",
+    "searchIcons": "Buscar iconos",
+    "random": "Aleatorio",
+    "skinTone": "Tono de piel",
+    "tones": {
+      "0": "Sin tono de piel",
+      "1": "Tono de piel claro",
+      "2": "Tono de piel claro medio",
+      "3": "Tono de piel medio",
+      "4": "Tono de piel oscuro medio",
+      "5": "Tono de piel oscuro"
+    },
+    "color": "Color del icono",
+    "textColor": "Color del texto",
+    "categoriesLabel": "Categorías",
+    "categories": {
+      "smileys": "Caras y emociones",
+      "people": "Personas y cuerpo",
+      "nature": "Animales y naturaleza",
+      "food": "Comida y bebida",
+      "travel": "Viajes y lugares",
+      "activities": "Actividades",
+      "objects": "Objetos",
+      "symbols": "Símbolos",
+      "flags": "Banderas"
+    },
+    "loading": "Cargando…",
+    "loadFailed": "No se pudieron cargar los emoji.",
+    "noMatches": "No hay coincidencias."
   },
   "background": {
     "add": "Añadir fondo",
@@ -477,7 +509,8 @@
     "row": "Esta es una plantilla de fila. Las filas nuevas creadas a partir de ella reciben sus propiedades y su contenido.",
     "inside": "Esta página forma parte de una plantilla.",
     "use": "Usar plantilla",
-    "confirmDelete": "¿Eliminar esta plantilla para siempre? Las páginas ya creadas a partir de ella se quedan como están."
+    "confirmDelete": "¿Eliminar esta plantilla para siempre? Las páginas ya creadas a partir de ella se quedan como están.",
+    "titleMarkers": "Escribe @today, @now o @me en el título: cada fila nueva recibe la fecha, la hora o el nombre de quien la añade."
   },
   "blocks": {
     "callout": {
@@ -620,7 +653,8 @@
       "submit": "Incrustar",
       "providers": "YouTube, Vimeo, Loom, Figma, Google Docs, Sheets y Slides publicados, CodePen, Spotify y Google Maps. Los demás enlaces se convierten en un marcador.",
       "frameTitle": "Contenido incrustado de {host}",
-      "label": "Contenido incrustado"
+      "label": "Contenido incrustado",
+      "resize": "Arrastra para cambiar el ancho del contenido insertado"
     },
     "paste": {
       "label": "Pegar como",
@@ -710,6 +744,11 @@
   },
   "blockMenu": {
     "copyLink": "Copiar enlace al bloque",
+    "download": "Descargar",
+    "alignLeft": "Alinear a la izquierda",
+    "alignCenter": "Centrar",
+    "alignRight": "Alinear a la derecha",
+    "wideColumns": "Columnas anchas",
     "hideInPrint": "Ocultar al imprimir",
     "calloutStyle": "Estilo de destacado",
     "turnIntoCallout": "Convertir en destacado",
@@ -955,7 +994,8 @@
     "markdownImage": "Imagen: {alt}",
     "markdownImageUntitled": "Imagen",
     "expand": "Abrir en el visor",
-    "view": "Ver {name}"
+    "view": "Ver {name}",
+    "resize": "Arrastra para cambiar el ancho"
   },
   "presentation": {
     "previous": "Diapositiva anterior",
@@ -1117,7 +1157,7 @@
     },
     "settings": {
       "open": "Ajustes del botón",
-      "icon": "Emoji",
+      "icon": "Icono",
       "label": "Texto",
       "color": "Color",
       "colorDefault": "Predeterminado",
@@ -1190,5 +1230,16 @@
     "reset": "Mostrar la imagen entera",
     "loading": "Cargando la imagen…",
     "failed": "No se pudo cargar la imagen."
+  },
+  "commentRef": {
+    "pasteTitle": "Pegar enlace a un comentario",
+    "pasteAsMention": "Pegar como mención",
+    "pasteAsPreview": "Pegar como vista previa",
+    "pasteAsLink": "Pegar como enlace",
+    "noAccess": "Sin acceso a este comentario",
+    "onPage": "En {title}",
+    "replies": "{count, plural, =0 {Sin respuestas} one {# respuesta} other {# respuestas}}",
+    "openThread": "Abrir hilo",
+    "resolved": "Resuelto"
   }
 }

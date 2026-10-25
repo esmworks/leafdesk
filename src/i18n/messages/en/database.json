@@ -76,6 +76,10 @@
       "blank": "Empty row",
       "setDefault": "Use for “New”",
       "isDefault": "Used for “New”",
+      "isViewDefault": "Used for “New” in this view",
+      "forThisView": "For this view",
+      "forAllViews": "For all views",
+      "followAllViews": "Use the default of all views here",
       "edit": "Edit template",
       "delete": "Delete template",
       "confirmDelete": "Delete this row template for good? Rows already made from it stay as they are.",
@@ -125,7 +129,8 @@
     "addViewHeading": "Add a view",
     "rename": "Rename",
     "viewName": "View name",
-    "deleteView": "Delete view"
+    "deleteView": "Delete view",
+    "icon": "Icon"
   },
   "deleted": {
     "properties": "Deleted properties",
@@ -225,7 +230,14 @@
     "relative": {
       "today": "Today",
       "thisWeek": "This week",
+      "lastWeek": "Last week",
+      "nextWeek": "Next week",
       "thisMonth": "This month",
+      "lastMonth": "Last month",
+      "nextMonth": "Next month",
+      "thisYear": "This year",
+      "lastYear": "Last year",
+      "nextYear": "Next year",
       "pastNDays": "Past N days",
       "nextNDays": "Next N days",
       "pastDays": "{count, plural, one {Past day} other {Past # days}}",
@@ -253,7 +265,8 @@
     "clickForMenu": "Click to open menu",
     "sortedNoDrag": "Rows can't be dragged while the view is sorted",
     "sortedAscending": "Sorted ascending",
-    "sortedDescending": "Sorted descending"
+    "sortedDescending": "Sorted descending",
+    "fillHandle": "Drag up or down to fill the cells with this value"
   },
   "rowMenu": {
     "open": "Open",
@@ -531,9 +544,6 @@
     "pinToTitle": "Pin under the title",
     "unpinFromTitle": "Unpin from the title",
     "pinFull": "Up to {max} properties can be pinned.",
-    "dateDisplay": "Show as",
-    "displayDate": "Date",
-    "displayRelative": "Relative",
     "relativeHint": "Dates within a week of today read “tomorrow”, “in 3 days”, “2 days ago”.",
     "reminder": "Reminder",
     "reminderNone": "No reminder",
@@ -552,7 +562,32 @@
     "sortOptionsDesc": "Sort Z → A",
     "dragOption": "Drag to move {name}",
     "urlPreview": "Show as link preview",
-    "urlPreviewHint": "Row pages show the linked page's icon, title and image under the link."
+    "urlPreviewHint": "Row pages show the linked page's icon, title and image under the link.",
+    "relationOptions": "Relation options",
+    "showAs": "Show as",
+    "dateFormat": "Date format",
+    "dateFormats": {
+      "default": "Default",
+      "full": "Full date",
+      "short": "Short date",
+      "mdy": "Month/Day/Year",
+      "dmy": "Day/Month/Year",
+      "ymd": "Year/Month/Day",
+      "relative": "Relative"
+    },
+    "timeFormat": "Time format",
+    "timeFormats": {
+      "default": "Default",
+      "12h": "12-hour",
+      "24h": "24-hour"
+    },
+    "onePerson": "Limit to one person",
+    "onePersonHint": "Each row names one person at most. Rows naming more keep them until they're changed.",
+    "oneRow": "Limit to one page",
+    "oneRowHint": "Each row links one page at most. Rows linking more keep them until they're changed.",
+    "statusCheckbox": "Show as checkbox",
+    "statusCheckboxHint": "A box ticked while the status is done. Ticking it picks the first done status, unticking the first to-do one.",
+    "icon": "Icon"
   },
   "rowProperties": {
     "noProperties": "No properties",
@@ -694,7 +729,23 @@
     "noMatches": "No matching rows",
     "newRow": "New row",
     "open": "Open {title}",
-    "unlink": "Remove link to {title}"
+    "unlink": "Remove link to {title}",
+    "options": "Relation options",
+    "rowPage": "On row pages",
+    "displayInline": "Inline",
+    "displaySection": "As a section",
+    "sectionHint": "Linked rows show under the properties, with their properties editable there.",
+    "shows": "Linked rows show",
+    "showsHint": "Shown in table cells, cards, row pages and the row picker.",
+    "titlePart": "Title",
+    "addPart": "Add a property…",
+    "moveUp": "Move {name} up",
+    "moveDown": "Move {name} down",
+    "hidePart": "Stop showing {name}",
+    "overLimit": "Links to one row now: pick the one to keep.",
+    "addLink": "Add link",
+    "noLinks": "No linked rows yet",
+    "showMore": "Show {count} more"
   },
   "person": {
     "search": "Search people",
@@ -773,6 +824,7 @@
     "showTable": "Show table",
     "showWeekends": "Show weekends",
     "showIcons": "Show page icons",
+    "showVerticalLines": "Show vertical lines",
     "openRows": "Open rows in",
     "openRowsIn": {
       "panel": "Side panel",
@@ -913,7 +965,7 @@
     "parentInTrash": "The parent page is in the trash. Restore it first.",
     "nestedDatabase": "A database can’t contain another database.",
     "pageTooDeep": "Pages can be nested at most {max} levels deep.",
-    "invalidIcon": "The icon must be an emoji.",
+    "invalidIcon": "The icon must be an emoji or a built-in icon.",
     "invalidRelation": "“{property}” can only link to rows of its related database.",
     "invalidRelationTarget": "A relation must point to a database in the same workspace.",
     "subItemLoop": "“{property}” can’t put a row under itself or under one of its own sub-items.",
@@ -926,6 +978,7 @@
     "pageLocked": "This page is locked. Unlock it from its menu to change its title, icon, background or text.",
     "pageInTrash": "This page is in the trash. Restore it to change it.",
     "invalidPerson": "“{property}” can only hold people of this workspace.",
+    "onePerson": "“{property}” holds one person.",
     "readOnlyProperty": "“{property}” is filled in automatically and can’t be changed.",
     "invalidFilter": "This filter can’t be saved. Reload the page and try again.",
     "tooManyRows": "You can change at most {max} rows at once.",
@@ -974,7 +1027,9 @@
     "noCurrentSprint": "No sprint is current. Mark one sprint as current first.",
     "invalidSprints": "Sprints can’t be set up like this: check the sprint length, the first day and the sprints database.",
     "sprintStateOption": "This option marks a sprint’s state. Rename it if you like, or turn sprints off before deleting it.",
-    "invalidSlackUrl": "Not a Slack incoming webhook address (https://hooks.slack.com/services/…)."
+    "invalidSlackUrl": "Not a Slack incoming webhook address (https://hooks.slack.com/services/…).",
+    "oneRow": "“{property}” links one page. Pick one.",
+    "invalidRelationOptions": "These relation settings can’t be saved."
   },
   "formula": {
     "title": "Formula",
@@ -1818,7 +1873,9 @@
     "save": "Save and sync",
     "stop": "Stop syncing",
     "stopConfirm": "Stop syncing this database? Its rows stay as they are, and the sign-in is forgotten.",
-    "viewOnly": "Only people with full access to the database can change the sync."
+    "viewOnly": "Only people with full access to the database can change the sync.",
+    "reporter": "Reporter",
+    "reporterNone": "Not synced"
   },
   "sprints": {
     "menuItem": "Sprints",

@@ -1,5 +1,6 @@
 "use client";
 
+import { IconGlyph } from "@/components/builtin-icon";
 import { Archive, LayoutTemplate, Lock, Paintbrush, RotateCcw, SmilePlus } from "lucide-react";
 import dynamic from "next/dynamic";
 import { useLocale, useTranslations } from "next-intl";
@@ -13,6 +14,7 @@ import {
   setPageBackgroundAction,
   setPageIconAction,
 } from "@/app/actions/pages";
+import { showToast } from "@/components/toast";
 import { setPageLockedAction, setPageOutdatedAction } from "@/app/actions/page-menu";
 import { createRowAction } from "@/app/actions/databases";
 import { createFromTemplateAction } from "@/app/actions/templates";
@@ -47,6 +49,7 @@ import { COMMENTS_REQUEST_EVENT, takeCommentsRequest } from "@/lib/comments-requ
 import type { PageBackground } from "@/lib/page-background";
 import { DEFAULT_PAGE_STYLE, pageTextClasses, writePageStyle, type PageStyle } from "@/lib/page-style";
 import { isMac, opensPresentation } from "@/lib/shortcuts";
+import { useToggleAllShortcut } from "@/components/toggle-all";
 
 // BlockNote touches `window` during setup; render it only in the browser.
 const CollabEditor = dynamic(() => import("./collab-editor"), { ssr: false });
@@ -173,6 +176,17 @@ export function PageView({
     else router.refresh();
   }, [router]);
   const rootRef = useRef<HTMLDivElement>(null);
+  // The page's width, for wide column lists (globals.css `--page-area`). Measured rather than a
+  // size container, which would hold the page's fixed-position parts inside it.
+  useLayoutEffect(() => {
+    const el = rootRef.current;
+    if (!el || typeof ResizeObserver === "undefined") return;
+    const measure = () => el.style.setProperty("--page-area", `${el.clientWidth}px`);
+    measure();
+    const observer = new ResizeObserver(measure);
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, []);
 
   // Listed on the offline page, whose links open the copies the service worker kept.
   useEffect(() => {
@@ -263,6 +277,8 @@ export function PageView({
     void document.documentElement.requestFullscreen?.().catch(() => {});
     setPresenting(true);
   }, []);
+  // Mod+Alt+T opens or closes every toggle and grouped view's group on the page.
+  useToggleAllShortcut();
   // Mod+Alt+P presents the page. In the row panel, the panel's page answers first (a capturing
   // listener), and the page beside it then leaves the key alone.
   useEffect(() => {
@@ -350,6 +366,17 @@ export function PageView({
       // The panel closes: the row left its view.
       if (panelRef.current) panelRef.current.onGone();
       else router.refresh();
+      showToast({
+        message: tc("toast.trashed"),
+        undo: async () => {
+          try {
+            await restorePageAction(page.id);
+          } catch {
+            showToast({ message: tc("toast.undoFailed") });
+          }
+          router.refresh();
+        },
+      });
     });
   }
 
@@ -434,7 +461,7 @@ export function PageView({
               canChangeHeader ? "hover:bg-bg-hover" : "cursor-default",
             )}
           >
-            {icon}
+            <IconGlyph icon={icon} />
           </button>
         ) : (
           <Button
@@ -459,7 +486,7 @@ export function PageView({
     // The black background is dark in either theme, so the editor and diagrams draw dark on it.
     <DarkScheme dark={background?.color === "black"}>
       {/* Cmd/Ctrl+F with focus anywhere in here opens the page's find bar instead of the browser's. */}
-      <div ref={rootRef} data-find-scope className={cn("flex min-h-full flex-col", backdropClass(background))}>
+      <div ref={rootRef} data-find-scope data-page-area className={cn("flex min-h-full flex-col", backdropClass(background))}>
         {/* Above the content's own layers (frozen table columns, the title's buttons, z-30) as it scrolls under.
             The blur sits on a layer behind it: on the header itself it would hold fixed menus and dialogs inside it. */}
         <header data-window-controls-clear className="sticky top-0 z-[35] flex h-11 items-center justify-between gap-2 border-b border-transparent px-3 before:absolute before:inset-0 before:-z-10 before:bg-bg/90 before:backdrop-blur max-md:ps-1.5">
@@ -648,6 +675,10 @@ export function PageView({
                 </div>
               )}
             </div>
+            {/* A row template's title may say @today, @now and @me (lib/template-values). */}
+            {info.template === "row" && editable && !page.archived && (
+              <p className="mt-1 text-xs text-fg-faint">{t("template.titleMarkers")}</p>
+            )}
             {verifiedNow && !page.archived && (
               <VerificationBadge verification={verifiedNow} onChange={canVerify ? () => setVerifyOpen(true) : undefined} />
             )}

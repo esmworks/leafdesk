@@ -58,7 +58,7 @@
       "workspaceName": "名称 重命名 图标",
       "ai": "人工智能 聊天 模型 提供商 记忆",
       "workspaceMail": "邮件 行 发送",
-      "export": "备份 下载 zip markdown",
+      "export": "备份 下载 zip markdown pdf",
       "members": "成员 邀请 用户 角色 移除",
       "agents": "ai 助手 自动化 机器人",
       "snippets": "文本 缩写 片段",
@@ -108,7 +108,11 @@
     "description": "将你能看到的所有页面下载为 ZIP 文件：页面为 Markdown，数据库为 CSV，以及页面中显示的文件。回收站中的页面不包括在内；模板保存在“模板”文件夹中。",
     "button": "导出",
     "preparing": "正在准备…",
-    "disabled": "此工作区已在“设置 → 安全”中关闭导出功能。"
+    "disabled": "此工作区已在“设置 → 安全”中关闭导出功能。",
+    "format": "导出格式",
+    "formatMarkdown": "Markdown 和 CSV",
+    "formatPdf": "PDF",
+    "descriptionPdf": "将你能看到的所有页面下载为 PDF 的 ZIP 文件，文件夹结构与页面树一致：数据库导出为其各行的表格，有自己正文的行导出为单独的 PDF。回收站中的页面和模板不包括在内；最多 {limit, number} 个 PDF。"
   },
   "members": {
     "heading": "成员",
@@ -210,7 +214,13 @@
       "someone": "一位成员",
       "approve": "批准",
       "decline": "拒绝"
-    }
+    },
+    "removeBodyChoose": "{name} 将立即失去对此工作区的访问权限，包括已打开的页面和已连接的应用。",
+    "removeBodyToOwner": "{name} 会立即失去对此工作区的访问权限，包括已打开的页面和已连接的应用。只有此人能管理的页面，以及没有其他人负责的团队空间，将转给工作区中最早的所有者。",
+    "heirLabel": "将其页面移交给",
+    "heirHint": "只有 {name} 能管理的页面，以及没有其他人管理的团队空间，将移交给你选择的人。",
+    "heirCount": "{count, plural, =0 {{name} 目前没有独自管理的页面。没有其他人管理的团队空间将移交给你选择的人。} other {只有 {name} 能管理的 # 个页面，连同没有其他人管理的团队空间，将移交给你选择的人。}}",
+    "heirYou": "{name}（你）"
   },
   "guests": {
     "heading": "访客",
@@ -736,7 +746,7 @@
       "accessDenied": "你没有执行此操作的权限。",
       "reasons": {
         "name": "请为智能体命名。",
-        "icon": "智能体的图标必须是表情符号。",
+        "icon": "代理的图标是表情符号或内置图标。",
         "level": "智能体可以查看、评论或编辑页面。",
         "template": "此模板不存在。",
         "database": "请选择此工作区中的数据库。",
@@ -1195,6 +1205,7 @@
     "invalidSetting": "该设置不可用。",
     "nameRequired": "请为工作区命名。",
     "alreadyMember": "此人已是成员。",
+    "ownerInvitation": "该地址有一份成为所有者的邀请。只有所有者可以更改它。",
     "notMember": "此人不是成员。",
     "lastOwner": "工作区至少需要一位所有者。",
     "lastOwnerRemove": "工作区至少需要一位所有者。请先将其他人设为所有者。",
@@ -1224,7 +1235,8 @@
     "invalidNetworkLabel": "{detail} 的标签太长：最多 100 个字符。",
     "tooManyNetworks": "一个工作区最多可以有 100 个已批准的网络。",
     "ipLocksYouOut": "此列表不包含你当前的地址 {detail}，保存后你将无法进入工作区。请先添加你的地址或包含它的范围。",
-    "ipUnknown": "服务器无法识别你的地址，因此无法确认此列表不会把你挡在外面。请从服务器能识别地址的连接保存，或清空列表。"
+    "ipUnknown": "服务器无法识别你的地址，因此无法确认此列表不会把你挡在外面。请从服务器能识别地址的连接保存，或清空列表。",
+    "heirInvalid": "请选择留在工作区中的所有者或成员。"
   },
   "security": {
     "description": "决定人们如何登录、谁可以将他人带入此工作区、访客可以做什么、哪些内容可以离开工作区（导出、已连接的应用），以及谁可以将页面发布到网络。只有所有者可以更改这些设置。",
@@ -1271,7 +1283,9 @@
       "unpublish": "取消发布",
       "confirm": "要取消发布此页面吗？链接将对所有人失效。",
       "indexable": "允许搜索引擎收录",
-      "off": "发布已关闭：这些页面目前都不在网络上。重新开启发布后它们会恢复，除非你取消发布。"
+      "off": "发布已关闭：这些页面目前都不在网络上。重新开启发布后它们会恢复，除非你取消发布。",
+      "expiresOn": "{date} 过期",
+      "expiredOn": "已于 {date} 过期"
     },
     "forms": {
       "title": "公开表单",
@@ -1710,7 +1724,8 @@
         "removed": "已移除 {target}（{role}）",
         "left": "离开了工作区",
         "role_changed": "将 {target} 的角色从{from}更改为{to}",
-        "ownership_transferred": "将 {target} 设为所有者，自己卸任为成员"
+        "ownership_transferred": "将 {target} 设为所有者，自己卸任为成员",
+        "content_handed_over": "将只有 {target} 能管理的 {count, plural, other {# 个页面}}移交给了 {subject}"
       },
       "invitation": {
         "sent": "邀请 {target} 成为{role}",
@@ -1742,7 +1757,8 @@
         "published": "将 {target} 发布到了网络",
         "unpublished": "取消发布了 {target}",
         "publication_revoked": "将 {target} 从网络下线（由 {subject} 发布）",
-        "rows_merged": "将 {count} 行合并到 {target}"
+        "rows_merged": "将 {count} 行合并到 {target}",
+        "publication_expiry_changed": "{change, select, removed {移除了 {target} 网页链接的有效期} other {将 {target} 的网页链接设置为于 {to} 失效}}"
       },
       "property": {
         "access_changed": "更改了 {target} 中“{property}”的访问权限",
@@ -1912,6 +1928,15 @@
       "slack_token": "Slack 令牌",
       "api_key": "API 密钥",
       "jwt": "JSON Web Token"
+    },
+    "audienceLine": "可见范围：{audience}",
+    "audience": {
+      "web": "已发布到网络",
+      "workspace": "整个工作区",
+      "workspaceTeamspace": "整个工作区（团队空间 {name}）",
+      "teamspace": "团队空间 {name}",
+      "people": "特定人员（{count}）",
+      "private": "私人"
     }
   },
   "notifications": {
@@ -2658,7 +2683,7 @@
       "reservedKey": "此键已被内置类型占用（note、tip、important、warning、caution、info、danger、details、frame、card、panel）。",
       "duplicateKey": "其他样式已在使用此键。",
       "name": "请输入不超过 60 个字符的名称。",
-      "icon": "请选择一个表情符号，或不使用图标。",
+      "icon": "请选择一个表情符号或内置图标，或不使用图标。",
       "color": "请选择颜色。",
       "border": "请选择边框。",
       "title": "标题最多 120 个字符。"

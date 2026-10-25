@@ -5,6 +5,7 @@
  */
 
 import { auditCategoryOf, type AuditCategory, type AuditEvent } from "./audit";
+import { parseAudience, type PageAudience } from "./page-audience";
 
 /** X-Leafdesk-Event of a batch of events, and of a test (*Send test event*). */
 export const AUDIT_STREAM_EVENT = "audit.events";
@@ -50,9 +51,15 @@ export type StreamedAuditEvent = {
     ip: string | null;
     user_agent: string | null;
   };
-  target: { type: string; id: string | null; label: string } | null;
+  /** `audience`: for a page, who could reach it at the time (lib/page-audience.ts). */
+  target: { type: string; id: string | null; label: string; audience?: PageAudience } | null;
   details: Record<string, unknown>;
 };
+
+function audienceOf(event: AuditEvent): { audience?: PageAudience } {
+  const audience = parseAudience(event.details.audience);
+  return audience ? { audience } : {};
+}
 
 export function streamedAuditEvent(event: AuditEvent): StreamedAuditEvent {
   return {
@@ -69,7 +76,7 @@ export function streamedAuditEvent(event: AuditEvent): StreamedAuditEvent {
       ip: event.ip,
       user_agent: event.userAgent,
     },
-    target: event.targetType ? { type: event.targetType, id: event.targetId, label: event.targetLabel } : null,
+    target: event.targetType ? { type: event.targetType, id: event.targetId, label: event.targetLabel, ...audienceOf(event) } : null,
     details: event.details,
   };
 }

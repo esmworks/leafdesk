@@ -139,7 +139,8 @@
       "type": "Loại",
       "labels": "Nhãn",
       "due": "Ngày đến hạn",
-      "link": "Liên kết Jira"
+      "link": "Liên kết Jira",
+      "reporter": "Người báo cáo"
     },
     "errors": {
       "unauthorized": "Jira đã từ chối địa chỉ email và token API.",

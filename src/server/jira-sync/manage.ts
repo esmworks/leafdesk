@@ -20,7 +20,7 @@ import {
 } from "@/lib/jira-sync";
 import { AccessError } from "@/server/access";
 import type { WriteActor } from "@/server/collab/bridge";
-import { addProperty, addView, requireDatabase, type OptionInput } from "@/server/databases";
+import { addProperty, addView, getProperties, requireDatabase, type OptionInput } from "@/server/databases";
 import { discardDatabase, recordImport } from "@/server/import/csv";
 import { createPage, type DatabaseSeedNames } from "@/server/pages";
 import { openJson, sealJson } from "@/server/secret-box";
@@ -30,8 +30,9 @@ import { applyIssues, claimSync, runAndRecord, type SyncOutcome, type SyncRow } 
 /**
  * Setting up, changing and stopping Jira syncs (lib/jira-sync; runs in ./run). Setting one up makes
  * a database from what the query finds, like an import: Key, Status, Assignee (with a text beside
- * it for people the workspace doesn't have), Priority, Type, Labels, Due date and a link to the
- * issue, and a board by status. Changing, syncing and stopping need full access to the database;
+ * it for people the workspace doesn't have), Reporter, Priority, Type, Labels, Due date and a link
+ * to the issue, and a board by status. The reporter can go to another person property later, or
+ * nowhere. Changing, syncing and stopping need full access to the database;
  * whoever changes a sync or syncs it by hand is who it runs as from then on.
  */
 
@@ -123,6 +124,7 @@ export async function createJiraSync(actor: WriteActor, input: JiraSyncInput): P
       status,
       assignee: await add(names.assignee, "person"),
       assigneeOthers: await add(names.others(names.assignee), "text"),
+      reporter: await add(names.reporter, "person"),
       priority: await add(names.priority, "select", needed.priority),
       type: await add(names.type, "select", needed.type),
       labels: await add(names.labels, "multi_select", needed.labels),
@@ -177,7 +179,13 @@ async function canManage(userId: string, databaseId: string) {
   }
 }
 
-function view(row: SyncRow, manage: boolean, now = new Date()): JiraSyncView {
+/** The database's person properties, which a sync's reporter can go to. */
+async function personProperties(databaseId: string) {
+  return (await getProperties(databaseId)).filter((p) => p.type === "person").map(({ id, name }) => ({ id, name }));
+}
+
+async function view(row: SyncRow, manage: boolean, now = new Date()): Promise<JiraSyncView> {
+  const people = manage ? await personProperties(row.databaseId) : [];
   return {
     siteUrl: row.siteUrl,
     query: row.query,
@@ -190,6 +198,8 @@ function view(row: SyncRow, manage: boolean, now = new Date()): JiraSyncView {
     lastError: row.lastError,
     lastErrorDetail: row.lastErrorDetail,
     canManage: manage,
+    reporter: row.mapping.reporter ?? null,
+    personProperties: people,
   };
 }
 
@@ -197,7 +207,7 @@ function view(row: SyncRow, manage: boolean, now = new Date()): JiraSyncView {
 export async function getJiraSync(userId: string, databaseId: string): Promise<JiraSyncView | null> {
   await requireDatabase(userId, databaseId, "view");
   const row = await syncOf(databaseId);
-  return row ? view(row, await canManage(userId, databaseId)) : null;
+  return row ? await view(row, await canManage(userId, databaseId)) : null;
 }
 
 async function requireSync(userId: string, databaseId: string) {
@@ -214,14 +224,15 @@ export async function syncJiraNow(userId: string, databaseId: string): Promise<J
   const held = await claimSync(row.id);
   if (!held) throw new JiraError("alreadyRunning", "The sync is running");
   const outcome = await runAndRecord(held);
-  return { ...view((await syncOf(databaseId))!, true), outcome };
+  return { ...(await view((await syncOf(databaseId))!, true)), outcome };
 }
 
-export type JiraSyncPatch = JiraCredentials & { query?: unknown; intervalMinutes?: unknown };
+/** `reporter`: the person property issues' reporters go to (null: nowhere). */
+export type JiraSyncPatch = JiraCredentials & { query?: unknown; intervalMinutes?: unknown; reporter?: unknown };
 
 /**
- * Changes a sync: its query, how often it runs, or its sign-in (email and token, checked with Jira
- * first; the site stays). It runs as the person changing it from then on, and is on again if it was
+ * Changes a sync: its query, how often it runs, where reporters go, or its sign-in (email and
+ * token, checked with Jira first; the site stays). It runs as the person changing it from then on, and is on again if it was
  * paused. A new query or sign-in syncs at once.
  */
 export async function updateJiraSync(userId: string, databaseId: string, patch: JiraSyncPatch) {
@@ -232,14 +243,22 @@ export async function updateJiraSync(userId: string, databaseId: string, patch: 
     changes.intervalMinutes = interval(patch.intervalMinutes);
     changes.nextRunAt = changes.intervalMinutes > 0 ? new Date(Date.now() + changes.intervalMinutes * 60_000) : null;
   }
+  if (patch.reporter !== undefined) {
+    const { reporter: _old, ...mapping } = row.mapping;
+    if (patch.reporter === null) changes.mapping = mapping;
+    else if (typeof patch.reporter === "string" && (await personProperties(databaseId)).some((p) => p.id === patch.reporter)) {
+      changes.mapping = { ...mapping, reporter: patch.reporter };
+    } else throw new JiraError("invalidInput", "The reporter goes to a person property of the database");
+  }
   if (patch.email !== undefined || patch.token !== undefined) {
     const { auth } = credentials({ siteUrl: row.siteUrl, email: patch.email, token: patch.token });
     await jiraAccount(row.siteUrl, auth);
     changes.secrets = sealJson(auth);
   }
   await db.update(databaseSync).set(changes).where(eq(databaseSync.id, row.id));
-  if (changes.query || changes.secrets) return syncJiraNow(userId, databaseId);
-  return { ...view((await syncOf(databaseId))!, true), outcome: null };
+  // A new query, sign-in or reporter property syncs at once (the reporters are filled in).
+  if (changes.query || changes.secrets || changes.mapping?.reporter) return syncJiraNow(userId, databaseId);
+  return { ...(await view((await syncOf(databaseId))!, true)), outcome: null };
 }
 
 /** The projects the sync's sign-in can browse, to pick another. Needs full access to the database. */

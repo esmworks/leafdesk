@@ -1,7 +1,7 @@
 /**
  * The server's web search service (WEB_SEARCH_PROVIDER, WEB_SEARCH_URL, WEB_SEARCH_API_KEY), for
  * agents with web access and, where owners turn it on, the AI chat (server/agents/web.ts). Off
- * unless set; see the README's AI section.
+ * unless set; see docs/ai.md.
  *
  * - `searxng`: a self-hosted SearXNG at WEB_SEARCH_URL with its JSON output on; the provider when
  *   only WEB_SEARCH_URL is set.

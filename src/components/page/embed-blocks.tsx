@@ -26,6 +26,7 @@ import { CodeBlock } from "./code-block";
 import { columnEditorBlockSpecs } from "./columns";
 import { contentBlockSpecs, contentInlineSpecs } from "./content-blocks";
 import { mentionBlockSpecs, mentionInlineSpecs } from "./mentions";
+import { commentPreviewBlockSpecs } from "./comment-refs";
 import { DashboardBlock } from "./dashboard-block";
 import { SyncedPageBlock } from "./synced-page";
 import { SyncedBlockSpec } from "./synced-block";
@@ -37,6 +38,7 @@ import { FileBlock } from "./file-block";
 import { webBlockSpecs } from "./web-blocks";
 import { textScriptStyleSpecs } from "@/lib/text-scripts";
 import { linkedImageSpec } from "@/lib/image-links";
+import { alignedAudioSpec } from "@/lib/media-blocks";
 
 export { DatabasePicker } from "./database-picker";
 
@@ -97,6 +99,8 @@ export const pageEditorSchema = BlockNoteSchema.create({
     ...contentBlockSpecs,
     ...webBlockSpecs,
     ...mentionBlockSpecs,
+    // A comment thread of the workspace, as its reader may see it (see comment-refs.tsx).
+    ...commentPreviewBlockSpecs,
     // Another page's body, live (see synced-page.tsx).
     syncedPage: SyncedPageBlock(),
     // Blocks kept on one page and shown live on others (see synced-block.tsx).
@@ -107,8 +111,9 @@ export const pageEditorSchema = BlockNoteSchema.create({
     button: ButtonBlock(),
     // A meeting recorded, transcribed and written up (see meeting-block.tsx).
     meeting: MeetingBlock(),
-    // Uploaded PDFs show in place (see file-block.tsx).
+    // Uploaded PDFs show in place (see file-block.tsx); files and audio may be aligned (lib/media-blocks).
     file: FileBlock(),
+    audio: alignedAudioSpec(),
     // Blocks side by side (see columns.tsx).
     ...columnEditorBlockSpecs,
   },

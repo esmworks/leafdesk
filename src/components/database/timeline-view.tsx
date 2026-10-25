@@ -17,6 +17,7 @@ import { Button, cn, PageIcon } from "@/components/ui";
 import { useMediaQuery } from "@/components/use-media-query";
 import type { TimelineZoom } from "@/db/schema/app";
 import { pageLabel } from "@/lib/labels";
+import { useToggleAllGroups } from "@/components/toggle-all";
 import { canAddToGroup, groupDefaults, groupRowsBy, type Group } from "@/lib/grouping";
 import { isHiddenInView, statusColor } from "@/lib/properties";
 import { isComputed } from "@/lib/property-types";
@@ -185,6 +186,9 @@ export function TimelineView({
       .filter((g) => g.rows.length)
       .map((g) => ({ key: g.key, group: g as Group<Row> | null, rows: g.rows, lines: lines(g.rows) }));
   }, [groupBy, dated, view.config, groupContext, linesOf, showTable]);
+  // Mod+Alt+T opens or closes every lane (components/toggle-all.ts).
+  const laneKeys = useMemo(() => (groupBy ? lanes.map((lane) => lane.key) : null), [groupBy, lanes]);
+  useToggleAllGroups(laneKeys, collapsed, (keys) => setCollapsed(new Set(keys)));
 
   const trackWidth = () => (scroller.current?.clientWidth ?? 0) - panelWidth;
   const focusOn = (day: number, at: number) => {

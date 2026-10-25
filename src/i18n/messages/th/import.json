@@ -139,7 +139,8 @@
       "type": "ประเภท",
       "labels": "ป้ายกำกับ",
       "due": "วันครบกำหนด",
-      "link": "ลิงก์ Jira"
+      "link": "ลิงก์ Jira",
+      "reporter": "ผู้รายงาน"
     },
     "errors": {
       "unauthorized": "Jira ปฏิเสธที่อยู่อีเมลและโทเค็น API",

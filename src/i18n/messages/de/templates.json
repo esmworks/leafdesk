@@ -231,6 +231,79 @@
       }
     }
   },
+  "sprints": {
+    "title": "Sprints",
+    "description": "Aufgaben in zweiwöchigen Sprints geplant: der aktuelle Sprint auf einem Board, Sprintplanung und ein Backlog.",
+    "page": "Team-Sprints",
+    "markdown": "Plane die Arbeit des Teams in zweiwöchigen Sprints. **Aktueller Sprint** zeigt die Aufgaben dieses Sprints nach Status, **Sprintplanung** die Aufgaben jedes kommenden Sprints und **Backlog** die Aufgaben, die noch keinem Sprint zugeordnet sind. Wenn ein Sprint endet, öffne **Sprints** im Menü der Datenbank und wähle **Sprint abschließen**: Der nächste Sprint beginnt, und unerledigte Aufgaben werden in ihn verschoben.",
+    "database": "Aufgaben",
+    "table": "Alle Aufgaben",
+    "board": "Board",
+    "properties": {
+      "assignee": "Zuständig",
+      "priority": "Priorität",
+      "points": "Punkte"
+    },
+    "options": {
+      "high": "Hoch",
+      "medium": "Mittel",
+      "low": "Niedrig"
+    },
+    "rowTemplate": {
+      "title": "Neue Aufgabe",
+      "markdown": "## Was\n\n\n\n## Erledigt, wenn\n\n- [ ] \n\n## Notizen\n\n"
+    },
+    "rows": {
+      "goal": "Sprintziel vereinbaren",
+      "signup": "Neues Registrierungsformular bauen",
+      "emails": "Willkommens-E-Mails schreiben",
+      "tests": "Registrierung auf Smartphones testen",
+      "pricing": "Preisseite aktualisieren",
+      "feedback": "Kundenfeedback des letzten Monats sortieren"
+    }
+  },
+  "docs": {
+    "title": "Dokumentation",
+    "description": "Anleitungen, Referenzen und Richtlinien an einem Ort, jeweils mit Kategorie, verantwortlicher Person und Datum der letzten Bearbeitung.",
+    "markdown": "Jedes Dokument ist eine Seite in der Bibliothek unten, mit Kategorie und verantwortlicher Person. Wenn du geprüft hast, dass ein Dokument stimmt, wähle **Seite verifizieren** in seinem Menü: Die Suche zeigt verifizierte Dokumente zuerst und markiert sie, `is:verified` findet nur sie, und der KI-Chat bevorzugt sie.",
+    "database": "Dokumentbibliothek",
+    "table": "Alle Dokumente",
+    "board": "Nach Kategorie",
+    "recent": "Zuletzt bearbeitet",
+    "properties": {
+      "category": "Kategorie",
+      "owner": "Verantwortlich",
+      "edited": "Zuletzt bearbeitet"
+    },
+    "categories": {
+      "guide": "Anleitung",
+      "reference": "Referenz",
+      "policy": "Richtlinie",
+      "onboarding": "Einarbeitung"
+    },
+    "rowTemplate": {
+      "title": "Neues Dokument",
+      "markdown": "## Zusammenfassung\n\n\n\n## Details\n\n\n\n## Verwandt\n\n- "
+    },
+    "rows": {
+      "writing": {
+        "title": "Wie wir Dokumente schreiben",
+        "markdown": "## Zusammenfassung\n\nEin Dokument pro Thema, geschrieben für jemanden, der neu darin ist.\n\n## Details\n\n- Beginne mit dem, was die Lesenden tun müssen.\n- Halte die Schritte kurz und in der richtigen Reihenfolge.\n- Benenne eine verantwortliche Person und verifiziere das Dokument, wenn du es geprüft hast."
+      },
+      "onboarding": {
+        "title": "Checkliste für die erste Woche",
+        "markdown": "## Zusammenfassung\n\nWas neue Teammitglieder in ihrer ersten Woche tun.\n\n## Details\n\n- [ ] Richte deine Konten ein\n- [ ] Lerne dein Team kennen\n- [ ] Lies die Dokumente deines Bereichs"
+      },
+      "release": {
+        "title": "Release-Prozess",
+        "markdown": "## Zusammenfassung\n\nWie eine Änderung vom Review zu den Kunden kommt.\n\n## Details\n\n1. Änderung prüfen und mergen.\n2. Auf dem Staging-Server testen.\n3. Veröffentlichen und dem Team Bescheid geben."
+      },
+      "expenses": {
+        "title": "Spesenrichtlinie",
+        "markdown": "## Zusammenfassung\n\nWofür das Unternehmen zahlt und wie du es abrechnest.\n\n## Details\n\n- Bewahre den Beleg auf.\n- Reiche ihn innerhalb von 30 Tagen ein.\n- Frag deine Führungskraft, bevor du mehr als üblich ausgibst."
+      }
+    }
+  },
   "journal": {
     "title": "Journal",
     "markdown": "## Fokus\n\n- [ ] \n\n## Notizen\n\n## Heute erledigt\n"

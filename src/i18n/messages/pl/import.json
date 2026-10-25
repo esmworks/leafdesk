@@ -139,7 +139,8 @@
       "type": "Typ",
       "labels": "Etykiety",
       "due": "Termin",
-      "link": "Link do Jiry"
+      "link": "Link do Jiry",
+      "reporter": "Zgłaszający"
     },
     "errors": {
       "unauthorized": "Jira odrzuciła adres e-mail i token API.",
