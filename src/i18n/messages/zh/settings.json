@@ -92,7 +92,8 @@
       "eventStream": "siem 安全 日志 流式 导出 webhook 转发 事件",
       "sensitiveContent": "dlp 数据防泄漏 信用卡 银行卡 iban 机密 令牌 密钥 扫描",
       "sensitiveFindings": "dlp 发现 泄露 机密 卡号 忽略",
-      "domainPeople": "域名 账户 用户 公司 邮箱 未管理"
+      "domainPeople": "域名 账户 用户 公司 邮箱 未管理",
+      "pageReports": "举报 滥用 投诉 撤下 已发布 公开 网络 页面"
     }
   },
   "workspace": {
@@ -1519,6 +1520,18 @@
       "yourAddressMissing": "你的地址 {ip} 不在列表中：保存后你将被挡在外面，请先添加它。",
       "lockoutHelp": "如果列表把所有人都挡在外面，实例管理员可以在管理页面清空它。",
       "memberView": "{count, plural, =0 {关闭：可从任何网络打开工作区。} other {开启：只能从 # 个已批准的网络打开工作区。}}"
+    },
+    "pageReports": {
+      "title": "对已发布页面的举报",
+      "description": "访问者通过已发布页面底部的链接举报页面。可将页面从网络上撤下，或忽略举报。",
+      "none": "没有待处理的举报。",
+      "reportedAt": "举报于 {when}",
+      "from": "来自 {email}",
+      "offline": "已不在网络上",
+      "unpublish": "从网络撤下",
+      "dismiss": "忽略",
+      "more": "{count, plural, other {还有 # 条举报}}",
+      "gone": "此举报已处理。"
     }
   },
   "legalHolds": {
@@ -1760,7 +1773,9 @@
         "unpublished": "取消发布了 {target}",
         "publication_revoked": "将 {target} 从网络下线（由 {subject} 发布）",
         "rows_merged": "将 {count} 行合并到 {target}",
-        "publication_expiry_changed": "{change, select, removed {移除了 {target} 网页链接的有效期} other {将 {target} 的网页链接设置为于 {to} 失效}}"
+        "publication_expiry_changed": "{change, select, removed {移除了 {target} 网页链接的有效期} other {将 {target} 的网页链接设置为于 {to} 失效}}",
+        "reported": "有访问者举报了 {target}：{reason, select, spam {垃圾信息或诈骗} harmful {仇恨、暴力或骚扰内容} illegal {违法内容} privacy {个人信息} copyright {版权} other {其他}}",
+        "report_dismissed": "忽略了一条关于 {target} 的举报"
       },
       "property": {
         "access_changed": "更改了 {target} 中“{property}”的访问权限",

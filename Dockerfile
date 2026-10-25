@@ -20,6 +20,8 @@ RUN DATABASE_URL=postgres://build:build@localhost:5432/build BETTER_AUTH_SECRET=
 
 FROM base AS runner
 ENV NODE_ENV=production HOSTNAME=0.0.0.0 PORT=3000 PATH=/app/node_modules/.bin:$PATH
+# Chinese, Japanese and Korean letters for PDFs made on the server (server/pdf.ts).
+RUN apt-get update && apt-get install -y --no-install-recommends fonts-noto-cjk && rm -rf /var/lib/apt/lists/*
 COPY --from=prod-deps /app/node_modules ./node_modules
 COPY --from=build --chown=node:node /app/.next ./.next
 COPY next.config.ts tsconfig.json server.ts ./

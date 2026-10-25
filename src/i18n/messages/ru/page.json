@@ -769,7 +769,10 @@
     "turnIntoCallout": "Превратить в выноску",
     "plainCallout": "Обычная выноска",
     "addTitle": "Добавить заголовок",
-    "removeTitle": "Убрать заголовок"
+    "removeTitle": "Убрать заголовок",
+    "quoteSize": "Размер цитаты",
+    "quoteSizeDefault": "Обычный",
+    "quoteSizeLarge": "Крупный"
   },
   "imageLink": {
     "menuItem": "Ссылка…",

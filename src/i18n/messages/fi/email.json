@@ -280,7 +280,8 @@
     "aiAccountDetached": "Työtilan tekoäly ei enää käytä käyttäjän {actor} avainta.",
     "reviewTitle": "Tarkistettavat",
     "review": "{count, plural, one {{agent} ehdotti muutosta tarkistettavaksesi} other {# muutosta odottaa tarkistustasi, uusin agentilta {agent}}}",
-    "sensitiveContent": "Tältä sivulta löytyi {kind, select, card {maksukortin numero} iban {IBAN-tilinumero} national_id {henkilötunnus} private_key {yksityinen avain} aws_key {AWS-käyttöavain} github_token {GitHub-tunnus} slack_token {Slack-tunnus} api_key {API-avain} jwt {JSON Web Token} other {arkaluonteista sisältöä}}."
+    "sensitiveContent": "Tältä sivulta löytyi {kind, select, card {maksukortin numero} iban {IBAN-tilinumero} national_id {henkilötunnus} private_key {yksityinen avain} aws_key {AWS-käyttöavain} github_token {GitHub-tunnus} slack_token {Slack-tunnus} api_key {API-avain} jwt {JSON Web Token} other {arkaluonteista sisältöä}}.",
+    "pageReported": "Vierailija ilmoitti tästä sivusta: {reason, select, spam {roskapostia tai huijaus} harmful {vihamielistä, väkivaltaista tai häiritsevää sisältöä} illegal {laitonta sisältöä} privacy {henkilötietoja} copyright {tekijänoikeus} other {jotain muuta}}."
   },
   "agentReply": {
     "aiOff": "En voi vastata: tekoäly on poistettu käytöstä tässä työtilassa.",

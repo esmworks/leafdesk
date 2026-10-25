@@ -769,7 +769,10 @@
     "turnIntoCallout": "Zamień na wyróżnienie",
     "plainCallout": "Zwykłe wyróżnienie",
     "addTitle": "Dodaj tytuł",
-    "removeTitle": "Usuń tytuł"
+    "removeTitle": "Usuń tytuł",
+    "quoteSize": "Rozmiar cytatu",
+    "quoteSizeDefault": "Domyślny",
+    "quoteSizeLarge": "Duży"
   },
   "imageLink": {
     "menuItem": "Link…",

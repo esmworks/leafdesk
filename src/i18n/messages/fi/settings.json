@@ -92,7 +92,8 @@
       "eventStream": "siem tietoturva loki virta vienti webhook välitä tapahtumat tapahtumavirta",
       "sensitiveContent": "dlp tietovuotojen esto luottokortti iban salaisuudet tunnukset avaimet skannaus arkaluonteinen",
       "sensitiveFindings": "dlp löydökset vuotaneet salaisuudet korttinumerot ohita",
-      "domainPeople": "verkkotunnus tilit käyttäjät yritys sähköposti varjo hallitsemattomat"
+      "domainPeople": "verkkotunnus tilit käyttäjät yritys sähköposti varjo hallitsemattomat",
+      "pageReports": "ilmoita ilmoitus väärinkäyttö valitus poisto julkaistu julkinen verkko sivut"
     }
   },
   "workspace": {
@@ -1519,6 +1520,18 @@
       "yourAddressMissing": "Osoitteesi {ip} ei ole luettelossa: tallentaminen sulkisi sinut ulos, joten lisää se ensin.",
       "lockoutHelp": "Jos luettelo joskus sulkee kaikki ulos, palvelimen ylläpitäjä voi tyhjentää sen ylläpitosivulla.",
       "memberView": "{count, plural, =0 {Pois päältä: työtilan voi avata mistä tahansa verkosta.} one {Käytössä: työtilan voi avata vain # hyväksytystä verkosta.} other {Käytössä: työtilan voi avata vain # hyväksytystä verkosta.}}"
+    },
+    "pageReports": {
+      "title": "Ilmoitukset julkaistuista sivuista",
+      "description": "Vierailijat ilmoittavat julkaistuista sivuista sivun alareunan linkistä. Poista sivu verkosta tai hylkää ilmoitus.",
+      "none": "Ei avoimia ilmoituksia.",
+      "reportedAt": "Ilmoitettu {when}",
+      "from": "Lähettäjä {email}",
+      "offline": "Ei enää verkossa",
+      "unpublish": "Poista verkosta",
+      "dismiss": "Hylkää",
+      "more": "{count, plural, one {# ilmoitus lisää} other {# ilmoitusta lisää}}",
+      "gone": "Tämä ilmoitus on jo käsitelty."
     }
   },
   "legalHolds": {
@@ -1760,7 +1773,9 @@
         "unpublished": "Perui sivun {target} julkaisun",
         "publication_revoked": "Poisti sivun {target} verkosta (julkaissut {subject})",
         "rows_merged": "Yhdisti {count, plural, one {# rivin} other {# riviä}} riviin {target}",
-        "publication_expiry_changed": "{change, select, removed {Poisti sivun {target} verkkolinkin voimassaolon päättymisen} other {Asetti sivun {target} verkkolinkin lakkaamaan toimimasta {to}}}"
+        "publication_expiry_changed": "{change, select, removed {Poisti sivun {target} verkkolinkin voimassaolon päättymisen} other {Asetti sivun {target} verkkolinkin lakkaamaan toimimasta {to}}}",
+        "reported": "Vierailija ilmoitti sivusta {target}: {reason, select, spam {roskapostia tai huijaus} harmful {vihamielistä, väkivaltaista tai häiritsevää sisältöä} illegal {laitonta sisältöä} privacy {henkilötietoja} copyright {tekijänoikeus} other {jotain muuta}}",
+        "report_dismissed": "Hylkäsi ilmoituksen sivusta {target}"
       },
       "property": {
         "access_changed": "Muutti, kuka pääsee ominaisuuteen ”{property}” kohteessa {target}",

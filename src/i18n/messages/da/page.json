@@ -769,7 +769,10 @@
     "turnIntoCallout": "Lav om til infoboks",
     "plainCallout": "Almindelig infoboks",
     "addTitle": "Tilføj titel",
-    "removeTitle": "Fjern titel"
+    "removeTitle": "Fjern titel",
+    "quoteSize": "Citatstørrelse",
+    "quoteSizeDefault": "Standard",
+    "quoteSizeLarge": "Stor"
   },
   "imageLink": {
     "menuItem": "Link…",

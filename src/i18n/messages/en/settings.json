@@ -92,7 +92,8 @@
       "eventStream": "siem security log stream export webhook forward events",
       "sensitiveContent": "dlp data loss prevention credit card iban secrets tokens keys scan",
       "sensitiveFindings": "dlp findings leaked secrets card numbers dismiss",
-      "domainPeople": "domain accounts users company email shadow unmanaged"
+      "domainPeople": "domain accounts users company email shadow unmanaged",
+      "pageReports": "report abuse flag complaint takedown published public web pages"
     }
   },
   "workspace": {
@@ -1519,6 +1520,18 @@
       "yourAddressMissing": "Your address, {ip}, isn't on the list: saving it would shut you out, so add it first.",
       "lockoutHelp": "If a list ever shuts everyone out, an instance administrator can clear it on the admin page.",
       "memberView": "{count, plural, =0 {Off: the workspace opens from any network.} one {On: the workspace opens only from # approved network.} other {On: the workspace opens only from # approved networks.}}"
+    },
+    "pageReports": {
+      "title": "Reports about published pages",
+      "description": "Visitors report published pages from the link at their foot. Take the page off the web, or dismiss the report.",
+      "none": "No open reports.",
+      "reportedAt": "Reported {when}",
+      "from": "From {email}",
+      "offline": "No longer on the web",
+      "unpublish": "Take off the web",
+      "dismiss": "Dismiss",
+      "more": "{count, plural, one {# more report} other {# more reports}}",
+      "gone": "This report was already handled."
     }
   },
   "legalHolds": {
@@ -1760,7 +1773,9 @@
         "unpublished": "Unpublished {target}",
         "publication_revoked": "Took {target} off the web (published by {subject})",
         "rows_merged": "Merged {count, plural, one {# row} other {# rows}} into {target}",
-        "publication_expiry_changed": "{change, select, removed {Removed the expiry of the web link of {target}} other {Set the web link of {target} to stop working on {to}}}"
+        "publication_expiry_changed": "{change, select, removed {Removed the expiry of the web link of {target}} other {Set the web link of {target} to stop working on {to}}}",
+        "reported": "A visitor reported {target}: {reason, select, spam {spam or a scam} harmful {hateful, violent or harassing content} illegal {illegal content} privacy {personal information} copyright {copyright} other {something else}}",
+        "report_dismissed": "Dismissed a report about {target}"
       },
       "property": {
         "access_changed": "Changed who can access “{property}” in {target}",

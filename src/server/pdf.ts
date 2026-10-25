@@ -1,7 +1,10 @@
+import { existsSync } from "node:fs";
+import { join } from "node:path";
 import { eq } from "drizzle-orm";
 import { getLocale, getTranslations } from "next-intl/server";
 import pdfmake from "pdfmake";
 import roboto from "pdfmake/fonts/Roboto.js";
+import type { TFontDictionary } from "pdfmake/interfaces";
 import { db } from "@/db";
 import { page, type PropertyOptions } from "@/db/schema";
 import { isEmbedBlockType, parseLinkedView } from "@/lib/embed-blocks";
@@ -41,9 +44,49 @@ import { expandSyncedBlocks, readerStates, syncedNotice } from "@/server/synced-
  */
 
 const FONT_DIR = /[\\/]pdfmake[\\/]fonts[\\/]Roboto[\\/][^\\/]+\.ttf$/;
-pdfmake.setFonts(roboto);
+
+/**
+ * Noto Sans CJK, for Chinese, Japanese and Korean text, where the system has it: the Docker image
+ * installs Debian's fonts-noto-cjk; Fedora and Alpine keep it elsewhere. Without it, such text
+ * prints as empty boxes, as before.
+ */
+const CJK_FONT_DIRS = ["/usr/share/fonts/opentype/noto", "/usr/share/fonts/google-noto-sans-cjk-fonts", "/usr/share/fonts/noto"];
+const CJK_FONT = (() => {
+  for (const dir of CJK_FONT_DIRS) {
+    const regular = join(dir, "NotoSansCJK-Regular.ttc");
+    const bold = join(dir, "NotoSansCJK-Bold.ttc");
+    if (existsSync(regular)) return { regular, bold: existsSync(bold) ? bold : regular };
+  }
+  return null;
+})();
+
+/** The collection's faces by the reader's language: the shapes of Han characters differ between them. */
+const CJK_VARIANTS = { zh: "sc", ja: "jp", ko: "kr" } as const;
+type CjkVariant = (typeof CJK_VARIANTS)[keyof typeof CJK_VARIANTS];
+const cjkFamily = (variant: CjkVariant) => `NotoSansCJK${variant}`;
+
+// A font collection's face is [file, PostScript name], which pdfmake reads though its types leave it out.
+pdfmake.setFonts({
+  ...roboto,
+  ...(CJK_FONT
+    ? Object.fromEntries(
+        Object.values(CJK_VARIANTS).map((v) => {
+          const normal = [CJK_FONT.regular, `NotoSansCJK${v}-Regular`];
+          const bold = [CJK_FONT.bold, `NotoSansCJK${v}-Bold`];
+          return [cjkFamily(v), { normal, bold, italics: normal, bolditalics: bold }];
+        }),
+      )
+    : {}),
+} as unknown as TFontDictionary);
 pdfmake.setUrlAccessPolicy(() => false);
-pdfmake.setLocalAccessPolicy((path) => FONT_DIR.test(path));
+pdfmake.setLocalAccessPolicy((path) => FONT_DIR.test(path) || (!!CJK_FONT && (path === CJK_FONT.regular || path === CJK_FONT.bold)));
+
+/** The font family for CJK text in a PDF read in `locale`, or null when the system has none. */
+export function cjkFont(locale: string): string | null {
+  if (!CJK_FONT) return null;
+  const language = locale.split("-")[0] as keyof typeof CJK_VARIANTS;
+  return cjkFamily(CJK_VARIANTS[language] ?? "sc");
+}
 
 /** Images a PDF embeds: at most this many, each at most this big. */
 const MAX_IMAGES = 30;
@@ -51,9 +94,10 @@ const MAX_IMAGE_BYTES = 10 * 1024 * 1024;
 
 export type PagePdf = { bytes: Buffer; title: string; workspaceId: string };
 
-/** Lays out and draws a PDF. */
+/** Lays out and draws a PDF, CJK text in the face of the reader's language unless `input` names one. */
 export async function renderPdf(input: Parameters<typeof pdfDocument>[0]): Promise<Buffer> {
-  return pdfmake.createPdf(pdfDocument(input)).getBuffer();
+  const font = input.cjkFont !== undefined ? input.cjkFont : cjkFont(await readerLocale());
+  return pdfmake.createPdf(pdfDocument({ ...input, cjkFont: font })).getBuffer();
 }
 
 /**

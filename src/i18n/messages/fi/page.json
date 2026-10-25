@@ -769,7 +769,10 @@
     "turnIntoCallout": "Muunna huomiolaatikoksi",
     "plainCallout": "Tavallinen huomiolaatikko",
     "addTitle": "Lisää otsikko",
-    "removeTitle": "Poista otsikko"
+    "removeTitle": "Poista otsikko",
+    "quoteSize": "Lainauksen koko",
+    "quoteSizeDefault": "Oletus",
+    "quoteSizeLarge": "Suuri"
   },
   "imageLink": {
     "menuItem": "Linkki…",

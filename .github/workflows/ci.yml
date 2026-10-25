@@ -176,6 +176,9 @@ jobs:
       - name: Publishing options end-to-end
         run: pnpm tsx scripts/publish-e2e.ts
 
+      - name: Reports about published pages end-to-end
+        run: pnpm tsx scripts/page-reports-e2e.ts
+
       - name: Comments end-to-end
         run: pnpm tsx scripts/comments-e2e.ts
 

@@ -92,7 +92,8 @@
       "eventStream": "SIEM sikkerhed log strøm eksport webhook videresend hændelser",
       "sensitiveContent": "DLP datatabsforebyggelse kreditkort IBAN hemmeligheder tokens nøgler scan",
       "sensitiveFindings": "DLP fund lækkede hemmeligheder kortnumre afvis",
-      "domainPeople": "domæne konti brugere firma e-mail skygge-it ikke-administreret"
+      "domainPeople": "domæne konti brugere firma e-mail skygge-it ikke-administreret",
+      "pageReports": "anmeld anmeldelse misbrug klage fjern publiceret offentlig web sider"
     }
   },
   "workspace": {
@@ -1519,6 +1520,18 @@
       "yourAddressMissing": "Din adresse, {ip}, er ikke på listen: hvis du gemmer den, bliver du lukket ude, så tilføj den først.",
       "lockoutHelp": "Hvis en liste nogensinde lukker alle ude, kan en instansadministrator rydde den på administrationssiden.",
       "memberView": "{count, plural, =0 {Fra: arbejdsområdet kan åbnes fra ethvert netværk.} one {Til: arbejdsområdet kan kun åbnes fra # godkendt netværk.} other {Til: arbejdsområdet kan kun åbnes fra # godkendte netværk.}}"
+    },
+    "pageReports": {
+      "title": "Anmeldelser af publicerede sider",
+      "description": "Besøgende anmelder publicerede sider via linket nederst. Tag siden af nettet, eller afvis anmeldelsen.",
+      "none": "Ingen åbne anmeldelser.",
+      "reportedAt": "Anmeldt {when}",
+      "from": "Fra {email}",
+      "offline": "Ikke længere på nettet",
+      "unpublish": "Tag af nettet",
+      "dismiss": "Afvis",
+      "more": "{count, plural, one {# anmeldelse mere} other {# anmeldelser mere}}",
+      "gone": "Denne anmeldelse er allerede behandlet."
     }
   },
   "legalHolds": {
@@ -1760,7 +1773,9 @@
         "unpublished": "Fjernede udgivelsen af {target}",
         "publication_revoked": "Tog {target} af nettet (udgivet af {subject})",
         "rows_merged": "Flettede {count, plural, one {# række} other {# rækker}} ind i {target}",
-        "publication_expiry_changed": "{change, select, removed {Fjernede udløbet af weblinket til {target}} other {Satte weblinket til {target} til at udløbe {to}}}"
+        "publication_expiry_changed": "{change, select, removed {Fjernede udløbet af weblinket til {target}} other {Satte weblinket til {target} til at udløbe {to}}}",
+        "reported": "En besøgende anmeldte {target}: {reason, select, spam {spam eller svindel} harmful {hadsk, voldeligt eller chikanerende indhold} illegal {ulovligt indhold} privacy {personoplysninger} copyright {ophavsret} other {noget andet}}",
+        "report_dismissed": "Afviste en anmeldelse af {target}"
       },
       "property": {
         "access_changed": "Ændrede, hvem der har adgang til “{property}” i {target}",

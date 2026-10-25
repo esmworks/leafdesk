@@ -228,7 +228,8 @@
     "reviewTitle": "Tarkistettavat",
     "review": "{count, plural, one {{agent} ehdotti muutosta tarkistettavaksesi} other {# muutosta odottaa tarkistustasi, viimeisin: {agent}}}",
     "automationRun": "Automaatio ”{name}”",
-    "sensitiveContent": "Täältä löytyi {kind, select, card {maksukortin numero} iban {IBAN-tilinumero} national_id {henkilötunnus} private_key {yksityinen avain} aws_key {AWS-käyttöavain} github_token {GitHub-tunnus} slack_token {Slack-tunnus} api_key {API-avain} jwt {JSON Web Token} other {arkaluonteista sisältöä}}. Tarkista se kohdassa Asetukset > Tietoturva."
+    "sensitiveContent": "Täältä löytyi {kind, select, card {maksukortin numero} iban {IBAN-tilinumero} national_id {henkilötunnus} private_key {yksityinen avain} aws_key {AWS-käyttöavain} github_token {GitHub-tunnus} slack_token {Slack-tunnus} api_key {API-avain} jwt {JSON Web Token} other {arkaluonteista sisältöä}}. Tarkista se kohdassa Asetukset > Tietoturva.",
+    "pageReported": "Vierailija ilmoitti tästä sivusta: {reason, select, spam {roskapostia tai huijaus} harmful {vihamielistä, väkivaltaista tai häiritsevää sisältöä} illegal {laitonta sisältöä} privacy {henkilötietoja} copyright {tekijänoikeus} other {jotain muuta}}. Tarkista se kohdassa Asetukset > Tietoturva."
   },
   "templates": {
     "title": "Mallit",

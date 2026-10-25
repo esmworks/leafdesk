@@ -140,6 +140,12 @@
   padding-inline-start: 0.9em;
 }
 
+/* A large quote (lib/quote-block). */
+.body blockquote[data-size="large"] {
+  font-size: 1.3em;
+  line-height: 1.45;
+}
+
 .body code {
   font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
   font-size: 0.875em;

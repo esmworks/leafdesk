@@ -61,7 +61,41 @@ export type PdfInput = {
   letterhead?: PdfLetterhead | null;
   /** How big the body's text is, 1 as it is (lib/pdf-text-scale); the letterhead keeps its size. */
   textScale?: number;
+  /** The font Chinese, Japanese and Korean text is set in (pdf.ts cjkFont), which Roboto has no letters for; null leaves it in Roboto. */
+  cjkFont?: string | null;
 };
+
+/** Han, kana, Hangul, CJK punctuation and full-width forms: what Roboto can't draw and the CJK font can. */
+const CJK_TEXT = /([\u1100-\u11ff\u2e80-\u9fff\ua960-\ua97f\uac00-\ud7ff\uf900-\ufaff\ufe30-\ufe4f\uff00-\uffef\u{20000}-\u{3134f}]+)/u;
+
+/** `value` cut into runs, the CJK ones in `font`; the string itself when it has none. */
+function cjkRuns(value: string, font: string): string | ContentText[] {
+  if (!CJK_TEXT.test(value)) return value;
+  return value
+    .split(CJK_TEXT)
+    .filter(Boolean)
+    .map((part) => (CJK_TEXT.test(part) ? { text: part, font } : { text: part }));
+}
+
+/** `content` with its Chinese, Japanese and Korean text set in `font` (other text, images and data left as they are). */
+export function withCjkFont<T>(content: T, font: string | null | undefined): T {
+  if (!font) return content;
+  const walk = (node: unknown, inArray: boolean): unknown => {
+    if (typeof node === "string") {
+      if (!inArray) return node;
+      const runs = cjkRuns(node, font);
+      return typeof runs === "string" ? runs : { text: runs };
+    }
+    if (Array.isArray(node)) return node.map((item) => walk(item, true));
+    if (!node || typeof node !== "object") return node;
+    const out: Record<string, unknown> = {};
+    for (const [k, v] of Object.entries(node)) {
+      out[k] = k === "text" && typeof v === "string" ? cjkRuns(v, font) : k === "image" || k === "svg" || k === "qr" || k === "link" ? v : walk(v, false);
+    }
+    return out;
+  };
+  return walk(content, false) as T;
+}
 
 /** `content` with every font size in it times `factor` (images and other data left as they are). */
 function scaleFonts<T>(content: T, factor: number): T {
@@ -259,8 +293,11 @@ function blockContent(block: MdBlock, walk: Walk, width: number): Content[] {
       ];
     case "toggleListItem":
       return [{ ...paragraph(block, walk), margin: [0, 0, 0, 4] }, ...nested(block, walk, width)];
-    case "quote":
-      return [boxed([paragraph(block, walk), ...nested(block, walk, width - 12)], { edge: BORDER })];
+    case "quote": {
+      // A large quote (lib/quote-block) in bigger text; what is nested in it in the usual size.
+      const text = prop(block, "size") === "large" ? { ...paragraph(block, walk), fontSize: 14, lineHeight: 1.25 } : paragraph(block, walk);
+      return [boxed([text, ...nested(block, walk, width - 12)], { edge: BORDER })];
+    }
     case "codeBlock":
     case MERMAID_BLOCK:
       return [boxed([{ text: plainText(block.content) || " ", fontSize: 9, preserveLeadingSpaces: true, lineHeight: 1.2 }], { fill: SUBTLE })];
@@ -649,7 +686,7 @@ export function pdfDocument(input: PdfInput): TDocumentDefinitions {
   const footLines = letterhead ? linesOf(letterhead.footer).length : 0;
   const top = head ? HEAD_TOP + head + 8 + HEAD_BELOW : PAGE_MARGIN;
   const bottom = footLines ? Math.max(PAGE_MARGIN + 8, FOOT_TOP + 6 + footLines * FOOT_LINE + 20) : PAGE_MARGIN + 8;
-  const headContent = letterhead ? letterheadTop(letterhead) : null;
+  const headContent = letterhead ? withCjkFont(letterheadTop(letterhead), input.cjkFont) : null;
   const scale = input.textScale ?? 1;
   return {
     pageSize: "A4",
@@ -659,13 +696,16 @@ export function pdfDocument(input: PdfInput): TDocumentDefinitions {
     ...(headContent ? { header: () => headContent } : {}),
     footer: (current: number, total: number) =>
       letterhead
-        ? letterheadFoot(letterhead, current, total)
+        ? withCjkFont(letterheadFoot(letterhead, current, total), input.cjkFont)
         : total > 1
           ? { text: `${current} / ${total}`, alignment: "right", fontSize: 8, color: FAINT, margin: [PAGE_MARGIN, 16, PAGE_MARGIN, 0] }
           : null,
-    content: scaleFonts(
-      input.sections.flatMap((section, i) => sectionContent(section, i, input)),
-      scale,
+    content: withCjkFont(
+      scaleFonts(
+        input.sections.flatMap((section, i) => sectionContent(section, i, input)),
+        scale,
+      ),
+      input.cjkFont,
     ),
     // A heading at the foot of a page moves to the next one, with what follows it.
     pageBreakBefore: (node, pages) => typeof node.headlineLevel === "number" && pages.getFollowingNodesOnPage().length === 0,

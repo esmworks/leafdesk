@@ -4,6 +4,20 @@
 
 ### Added
 
+- **Report a published page.** Published pages and site pages have *Report page* at their foot,
+  for visitors without an account too: a reason, a few words and, if they like, an email address.
+  The workspace's owners hear about it in their inbox (once a day per page) and handle the open
+  reports in Settings → Security: *Take off the web* unpublishes the page, *Dismiss* closes the
+  report; reports and what was done with them are in the audit log (`page.reported`,
+  `page.report_dismissed`). Five reports an hour per address, thirty a day per public address.
+  Migration `0141_page_reports`.
+- **Large quotes.** A quote's block menu has *Quote size*: the size of the text around it, or large
+  for a pull quote, in the editor, on published pages, in the print view and in PDFs. Markdown and
+  MCP write `<!-- leafdesk:large-quote -->` before a large one.
+- **Chinese, Japanese and Korean text in PDFs.** *Export as PDF* sets CJK text in Noto Sans CJK, in
+  the face of the reader's language, where the server has the font. The Docker image now installs
+  Debian's `fonts-noto-cjk` (about 90 MB more); other installs add that package or its
+  equivalent, or keep printing such text as empty boxes as before.
 - **Replit, Excalidraw, Framer and Sketch embeds.** Links to a repl, an Excalidraw drawing (shared
   or live), a Framer prototype or a Sketch document, artboard or prototype embed in their own
   players, a pasted one offers *Embed*, and `/replit`, `/excalidraw`, `/framer` and `/sketch` find

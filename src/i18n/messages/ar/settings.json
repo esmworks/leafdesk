@@ -92,7 +92,8 @@
       "eventStream": "siem أمان سجل بث تصدير webhook ويب هوك إعادة توجيه أحداث",
       "sensitiveContent": "dlp منع فقدان البيانات بيانات حساسة بطاقة ائتمان iban أسرار رموز مفاتيح فحص",
       "sensitiveFindings": "dlp نتائج أسرار مسربة تسريب أرقام بطاقات تجاهل",
-      "domainPeople": "نطاق حسابات مستخدمون شركة بريد إلكتروني غير مُدار shadow it"
+      "domainPeople": "نطاق حسابات مستخدمون شركة بريد إلكتروني غير مُدار shadow it",
+      "pageReports": "إبلاغ بلاغ إساءة شكوى إزالة منشورة عامة ويب صفحات"
     }
   },
   "workspace": {
@@ -1519,6 +1520,18 @@
       "yourAddressMissing": "عنوانك، {ip}، ليس في القائمة: حفظها سيمنعك من الدخول، لذا أضفه أولًا.",
       "lockoutHelp": "إذا منعت قائمة الجميع من الدخول يومًا، فيمكن لمسؤول الخادم إفراغها من صفحة الإدارة.",
       "memberView": "{count, plural, =0 {متوقف: تُفتح مساحة العمل من أي شبكة.} one {مفعّل: تُفتح مساحة العمل من شبكة معتمدة واحدة فقط.} two {مفعّل: تُفتح مساحة العمل من شبكتين معتمدتين فقط.} few {مفعّل: تُفتح مساحة العمل من # شبكات معتمدة فقط.} many {مفعّل: تُفتح مساحة العمل من # شبكة معتمدة فقط.} other {مفعّل: تُفتح مساحة العمل من # شبكة معتمدة فقط.}}"
+    },
+    "pageReports": {
+      "title": "البلاغات عن الصفحات المنشورة",
+      "description": "يُبلغ الزوار عن الصفحات المنشورة من الرابط أسفلها. أزل الصفحة من الويب أو تجاهل البلاغ.",
+      "none": "لا توجد بلاغات مفتوحة.",
+      "reportedAt": "أُبلغ عنها {when}",
+      "from": "من {email}",
+      "offline": "لم تعد على الويب",
+      "unpublish": "إزالة من الويب",
+      "dismiss": "تجاهل",
+      "more": "{count, plural, zero {لا مزيد} one {بلاغ آخر} two {بلاغان آخران} few {# بلاغات أخرى} many {# بلاغًا آخر} other {# بلاغ آخر}}",
+      "gone": "عولج هذا البلاغ بالفعل."
     }
   },
   "legalHolds": {
@@ -1760,7 +1773,9 @@
         "unpublished": "ألغى نشر {target}",
         "publication_revoked": "أزال {target} من الويب (نشرها {subject})",
         "rows_merged": "دمج {count, plural, zero {# صف} one {صفًا واحدًا} two {صفين} few {# صفوف} many {# صفًا} other {# صف}} في {target}",
-        "publication_expiry_changed": "{change, select, removed {أزال صلاحية رابط الويب للصفحة {target}} other {جعل رابط الويب للصفحة {target} يتوقف عن العمل في {to}}}"
+        "publication_expiry_changed": "{change, select, removed {أزال صلاحية رابط الويب للصفحة {target}} other {جعل رابط الويب للصفحة {target} يتوقف عن العمل في {to}}}",
+        "reported": "أبلغ زائر عن {target}: {reason, select, spam {رسائل مزعجة أو احتيال} harmful {محتوى يحض على الكراهية أو العنف أو التحرش} illegal {محتوى غير قانوني} privacy {معلومات شخصية} copyright {حقوق النشر} other {شيء آخر}}",
+        "report_dismissed": "تجاهل بلاغًا عن {target}"
       },
       "property": {
         "access_changed": "غيّر من يمكنه الوصول إلى «{property}» في {target}",

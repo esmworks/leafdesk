@@ -228,7 +228,8 @@
     "reviewTitle": "На перевірку",
     "review": "{count, plural, =1 {{agent} пропонує зміну на вашу перевірку} one {# зміна чекає на вашу перевірку, остання — від {agent}} few {# зміни чекають на вашу перевірку, остання — від {agent}} many {# змін чекають на вашу перевірку, остання — від {agent}} other {# зміни чекають на вашу перевірку, остання — від {agent}}}",
     "automationRun": "Автоматизація «{name}»",
-    "sensitiveContent": "Тут виявлено: {kind, select, card {номер платіжної картки} iban {номер IBAN} national_id {національний ідентифікаційний номер} private_key {приватний ключ} aws_key {ключ доступу AWS} github_token {токен GitHub} slack_token {токен Slack} api_key {API-ключ} jwt {токен JSON Web Token} other {конфіденційні дані}}. Перегляньте в розділі Налаштування › Безпека."
+    "sensitiveContent": "Тут виявлено: {kind, select, card {номер платіжної картки} iban {номер IBAN} national_id {національний ідентифікаційний номер} private_key {приватний ключ} aws_key {ключ доступу AWS} github_token {токен GitHub} slack_token {токен Slack} api_key {API-ключ} jwt {токен JSON Web Token} other {конфіденційні дані}}. Перегляньте в розділі Налаштування › Безпека.",
+    "pageReported": "Відвідувач поскаржився на цю сторінку: {reason, select, spam {спам або шахрайство} harmful {ненависть, насильство чи цькування} illegal {незаконний вміст} privacy {персональні дані} copyright {авторське право} other {інше}}. Перегляньте в Налаштування > Безпека."
   },
   "templates": {
     "title": "Шаблони",

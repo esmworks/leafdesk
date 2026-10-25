@@ -92,7 +92,8 @@
       "eventStream": "siem keamanan log aliran ekspor webhook teruskan peristiwa",
       "sensitiveContent": "dlp pencegahan kebocoran data kartu kredit iban rahasia token kunci pindai",
       "sensitiveFindings": "dlp temuan rahasia bocor nomor kartu abaikan",
-      "domainPeople": "domain akun pengguna perusahaan email tidak dikelola"
+      "domainPeople": "domain akun pengguna perusahaan email tidak dikelola",
+      "pageReports": "laporkan laporan penyalahgunaan keluhan turunkan diterbitkan publik web halaman"
     }
   },
   "workspace": {
@@ -1519,6 +1520,18 @@
       "yourAddressMissing": "Alamat Anda, {ip}, tidak ada dalam daftar: menyimpannya akan mengunci Anda, jadi tambahkan terlebih dahulu.",
       "lockoutHelp": "Jika suatu daftar mengunci semua orang, administrator instans dapat mengosongkannya di halaman admin.",
       "memberView": "{count, plural, =0 {Mati: ruang kerja terbuka dari jaringan apa pun.} other {Hidup: ruang kerja hanya terbuka dari # jaringan yang disetujui.}}"
+    },
+    "pageReports": {
+      "title": "Laporan tentang halaman yang diterbitkan",
+      "description": "Pengunjung melaporkan halaman yang diterbitkan dari tautan di bagian bawahnya. Turunkan halaman dari web, atau abaikan laporan.",
+      "none": "Tidak ada laporan terbuka.",
+      "reportedAt": "Dilaporkan {when}",
+      "from": "Dari {email}",
+      "offline": "Tidak lagi di web",
+      "unpublish": "Turunkan dari web",
+      "dismiss": "Abaikan",
+      "more": "{count, plural, other {# laporan lagi}}",
+      "gone": "Laporan ini sudah ditangani."
     }
   },
   "legalHolds": {
@@ -1760,7 +1773,9 @@
         "unpublished": "Membatalkan penerbitan {target}",
         "publication_revoked": "Menurunkan {target} dari web (diterbitkan oleh {subject})",
         "rows_merged": "Menggabungkan {count, plural, other {# baris}} ke {target}",
-        "publication_expiry_changed": "{change, select, removed {Menghapus masa berlaku tautan web {target}} other {Mengatur tautan web {target} berhenti berfungsi pada {to}}}"
+        "publication_expiry_changed": "{change, select, removed {Menghapus masa berlaku tautan web {target}} other {Mengatur tautan web {target} berhenti berfungsi pada {to}}}",
+        "reported": "Seorang pengunjung melaporkan {target}: {reason, select, spam {spam atau penipuan} harmful {konten kebencian, kekerasan, atau pelecehan} illegal {konten ilegal} privacy {informasi pribadi} copyright {hak cipta} other {hal lain}}",
+        "report_dismissed": "Mengabaikan laporan tentang {target}"
       },
       "property": {
         "access_changed": "Mengubah siapa yang dapat mengakses “{property}” di {target}",

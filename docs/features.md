@@ -77,7 +77,9 @@
   side goes beside it, and *Turn into* in a block's menu puts the selected blocks one to a column),
   also on published pages and in Markdown. Numbered lists nested in numbered lists count in
   letters, then roman numerals, then numbers again (1, a, i), in the editor, on published pages and
-  in PDFs; inline code isn't marked by the browser's spelling check. *Turn into* also changes the kind of the selected text
+  in PDFs; inline code isn't marked by the browser's spelling check. A quote's block menu sets its
+  *Quote size*: the size of the text around it, or large for a pull quote (in Markdown, the line
+  `<!-- leafdesk:large-quote -->` before it). *Turn into* also changes the kind of the selected text
   blocks (heading, list, quote, code …), and a space typed right after `/` closes the slash menu.
   Table cells merge across columns and rows from the formatting toolbar (Markdown writes
   the full grid, the covered places empty). Code blocks take their language from a menu (plain text

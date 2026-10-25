@@ -92,7 +92,8 @@
       "eventStream": "siem bezpieczeństwo dziennik log strumień eksport webhook przekazywanie zdarzenia",
       "sensitiveContent": "dlp zapobieganie wyciekom danych karta kredytowa iban sekrety tokeny klucze skanowanie",
       "sensitiveFindings": "dlp wykrycia wyciek sekretów numery kart odrzuć",
-      "domainPeople": "domena konta użytkownicy firma e-mail shadow niezarządzane"
+      "domainPeople": "domena konta użytkownicy firma e-mail shadow niezarządzane",
+      "pageReports": "zgłoś zgłoszenie nadużycie skarga usunięcie opublikowana publiczna sieć strony"
     }
   },
   "workspace": {
@@ -1519,6 +1520,18 @@
       "yourAddressMissing": "Twojego adresu, {ip}, nie ma na liście: po zapisaniu stracisz dostęp, więc najpierw go dodaj.",
       "lockoutHelp": "Jeśli lista kiedyś odetnie wszystkich, administrator instancji może ją wyczyścić na stronie administracji.",
       "memberView": "{count, plural, =0 {Wyłączone: obszar roboczy otwiera się z każdej sieci.} one {Włączone: obszar roboczy otwiera się tylko z # zatwierdzonej sieci.} few {Włączone: obszar roboczy otwiera się tylko z # zatwierdzonych sieci.} many {Włączone: obszar roboczy otwiera się tylko z # zatwierdzonych sieci.} other {Włączone: obszar roboczy otwiera się tylko z # zatwierdzonych sieci.}}"
+    },
+    "pageReports": {
+      "title": "Zgłoszenia opublikowanych stron",
+      "description": "Odwiedzający zgłaszają opublikowane strony linkiem na ich dole. Wycofaj stronę z sieci lub odrzuć zgłoszenie.",
+      "none": "Brak otwartych zgłoszeń.",
+      "reportedAt": "Zgłoszono {when}",
+      "from": "Od {email}",
+      "offline": "Już nie w sieci",
+      "unpublish": "Wycofaj z sieci",
+      "dismiss": "Odrzuć",
+      "more": "{count, plural, one {Jeszcze # zgłoszenie} few {Jeszcze # zgłoszenia} many {Jeszcze # zgłoszeń} other {Jeszcze # zgłoszenia}}",
+      "gone": "To zgłoszenie zostało już rozpatrzone."
     }
   },
   "legalHolds": {
@@ -1760,7 +1773,9 @@
         "unpublished": "Cofnięto publikację {target}",
         "publication_revoked": "Wycofano {target} z internetu (opublikowane przez: {subject})",
         "rows_merged": "Scalono {count, plural, one {# wiersz} few {# wiersze} many {# wierszy} other {# wiersza}} z {target}",
-        "publication_expiry_changed": "{change, select, removed {Usunięto wygaśnięcie linku internetowego {target}} other {Ustawiono wygaśnięcie linku internetowego {target} na {to}}}"
+        "publication_expiry_changed": "{change, select, removed {Usunięto wygaśnięcie linku internetowego {target}} other {Ustawiono wygaśnięcie linku internetowego {target} na {to}}}",
+        "reported": "Odwiedzający zgłosił {target}: {reason, select, spam {spam lub oszustwo} harmful {treści nienawistne, brutalne lub nękające} illegal {treści nielegalne} privacy {dane osobowe} copyright {prawa autorskie} other {coś innego}}",
+        "report_dismissed": "Odrzucono zgłoszenie dotyczące {target}"
       },
       "property": {
         "access_changed": "Zmieniono, kto ma dostęp do „{property}” w {target}",

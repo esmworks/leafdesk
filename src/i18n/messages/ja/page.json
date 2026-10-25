@@ -769,7 +769,10 @@
     "turnIntoCallout": "コールアウトに変換",
     "plainCallout": "通常のコールアウト",
     "addTitle": "タイトルを追加",
-    "removeTitle": "タイトルを削除"
+    "removeTitle": "タイトルを削除",
+    "quoteSize": "引用のサイズ",
+    "quoteSizeDefault": "標準",
+    "quoteSizeLarge": "大"
   },
   "imageLink": {
     "menuItem": "リンク…",

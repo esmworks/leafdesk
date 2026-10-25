@@ -139,7 +139,8 @@ BlockNote on Yjs; Tailwind v4; next-intl. Node 24, pnpm 11. A separate Electron 
   `web-clip-extract.ts`, recipes by `src/lib/recipe.ts`), export `export.ts`, server-made PDFs `pdf.ts` (reads a page like `print.ts`; `export-pdf.ts` zips one per page for the workspace export)
   and `pdf-document.ts` (pure pdfmake layout; pdfmake must stay in `serverExternalPackages` in
   `next.config.ts`, bundled it loses its font files, and its fonts in the standalone build's
-  `outputFileTracingIncludes`), PDF letterheads `letterheads.ts` (pure part in `src/lib/letterheads.ts`;
+  `outputFileTracingIncludes`; CJK text goes to the system's Noto Sans CJK, found in `pdf.ts` and
+  installed by the Dockerfile, through `withCjkFont`), PDF letterheads `letterheads.ts` (pure part in `src/lib/letterheads.ts`;
   the logo is document content kept in `pdf_letterhead`, not page decoration), backup `backup/`, SSO `sso.ts`, SCIM
   `scim.ts`, sealed secrets `secret-box.ts`.
 - **Editor odds and ends.** Media alignment and in-place width: `lib/media-blocks.ts` (file and
@@ -152,6 +153,8 @@ BlockNote on Yjs; Tailwind v4; next-intl. Node 24, pnpm 11. A separate Electron 
   Nested numbered lists count 1, a, i by depth (`lib/list-markers.ts`): the editor adds
   `data-marker` beside BlockNote's `data-index` (`components/page/list-markers.ts`), published pages
   style nested `<ol>`, `pdf-document.ts` passes the depth down.
+  Quotes have a `size` prop (`lib/quote-block.ts`, in both schemas); a large one is written with
+  `<!-- leafdesk:large-quote -->` before it, like a callout's `no-print` marker.
 - **Icons.** A stored icon is an emoji or `icon:<name>[:<color>]` (`src/lib/icon-value.ts`, tiny and
   safe anywhere; checked by `lib/icon.ts` `parseIcon` against `lib/builtin-icon-names.ts`). Show one
   with `IconGlyph` (`components/builtin-icon.tsx`), never as raw text; text output strips it with
@@ -159,6 +162,10 @@ BlockNote on Yjs; Tailwind v4; next-intl. Node 24, pnpm 11. A separate Electron 
   server SVG for favicons and PDF is `lib/builtin-icon-svg.ts`. Emoji data and names per locale are
   static files in `public/emoji/` written by `scripts/emoji-data.ts`, fetched by the picker and the
   editor's ":" menu, never imported.
+- **Reports about published pages** (`server/page-reports.ts`, table `page_report`): the form is
+  its own route, `s/[token]/report`, on the app's address like `duplicate` (a site's domain
+  redirects there, `routeOnSiteHost`); `servedPublication` decides whether the page is served.
+  Owners get the `page_reported` inbox kind (an OWNER_KIND) and the list in Settings → Security.
 - **Published links can expire** (`page_publication.expires_at`): every query that serves or
   lists a publication to visitors adds `livePublication()` (`src/server/publication-live.ts`, its own
   module so `mentions.ts` can use it without an import cycle); there is no job that unpublishes.

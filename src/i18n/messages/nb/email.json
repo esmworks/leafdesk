@@ -280,7 +280,8 @@
     "aiAccountDetached": "Arbeidsområdets KI bruker ikke lenger nøkkelen til {actor}.",
     "reviewTitle": "Til gjennomgang",
     "review": "{count, plural, one {{agent} har foreslått en endring som du må se gjennom} other {# endringer venter på gjennomgang, den nyeste fra {agent}}}",
-    "sensitiveContent": "Fant {kind, select, card {et betalingskortnummer} iban {et IBAN-nummer} national_id {et nasjonalt ID-nummer} private_key {en privat nøkkel} aws_key {en AWS-tilgangsnøkkel} github_token {et GitHub-token} slack_token {et Slack-token} api_key {en API-nøkkel} jwt {et JSON Web Token} other {sensitivt innhold}} på denne siden."
+    "sensitiveContent": "Fant {kind, select, card {et betalingskortnummer} iban {et IBAN-nummer} national_id {et nasjonalt ID-nummer} private_key {en privat nøkkel} aws_key {en AWS-tilgangsnøkkel} github_token {et GitHub-token} slack_token {et Slack-token} api_key {en API-nøkkel} jwt {et JSON Web Token} other {sensitivt innhold}} på denne siden.",
+    "pageReported": "En besøkende rapporterte denne siden: {reason, select, spam {spam eller svindel} harmful {hatefullt, voldelig eller trakasserende innhold} illegal {ulovlig innhold} privacy {personopplysninger} copyright {opphavsrett} other {noe annet}}."
   },
   "agentReply": {
     "aiOff": "Jeg kan ikke svare: KI er slått av i dette arbeidsområdet.",

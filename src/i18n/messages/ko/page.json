@@ -769,7 +769,10 @@
     "turnIntoCallout": "콜아웃으로 전환",
     "plainCallout": "기본 콜아웃",
     "addTitle": "제목 추가",
-    "removeTitle": "제목 제거"
+    "removeTitle": "제목 제거",
+    "quoteSize": "인용 크기",
+    "quoteSizeDefault": "기본",
+    "quoteSizeLarge": "크게"
   },
   "imageLink": {
     "menuItem": "링크…",

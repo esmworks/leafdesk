@@ -769,7 +769,10 @@
     "turnIntoCallout": "In Hinweis umwandeln",
     "plainCallout": "Einfacher Hinweis",
     "addTitle": "Titel hinzufügen",
-    "removeTitle": "Titel entfernen"
+    "removeTitle": "Titel entfernen",
+    "quoteSize": "Zitatgröße",
+    "quoteSizeDefault": "Standard",
+    "quoteSizeLarge": "Groß"
   },
   "imageLink": {
     "menuItem": "Link…",

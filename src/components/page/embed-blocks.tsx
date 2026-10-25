@@ -15,6 +15,7 @@ import { useTranslations } from "next-intl";
 import { useMemo } from "react";
 import { createInlineDatabaseAction } from "@/app/actions/embeds";
 import { DASHBOARD_BLOCK } from "@/lib/dashboard";
+import { quoteBlockSpec } from "@/lib/quote-block";
 import {
   DATABASE_BLOCK,
   databaseBlockConfig,
@@ -99,6 +100,8 @@ const inlineCode = createStyleSpecFromTipTapMark(
 export const pageEditorSchema = BlockNoteSchema.create({
   blockSpecs: {
     ...defaultBlockSpecs,
+    // Quotes in the text's size or large (lib/quote-block).
+    quote: quoteBlockSpec(),
     // Images may link to a web address or a page (lib/image-links; editor-files.tsx opens it).
     image: linkedImageSpec(),
     // A language menu and colored code (see code-block.tsx).

@@ -280,7 +280,8 @@
     "aiAccountDetached": "工作区的 AI 不再使用 {actor} 的密钥运行。",
     "reviewTitle": "待审阅",
     "review": "{count, plural, =1 {{agent} 提议了一处更改，等待你审阅} other {# 处更改等待你审阅，最新一处来自 {agent}}}",
-    "sensitiveContent": "在此页面上发现了{kind, select, card {支付卡号} iban {IBAN} national_id {身份证号} private_key {私钥} aws_key {AWS 访问密钥} github_token {GitHub 令牌} slack_token {Slack 令牌} api_key {API 密钥} jwt {JSON Web Token} other {敏感内容}}。"
+    "sensitiveContent": "在此页面上发现了{kind, select, card {支付卡号} iban {IBAN} national_id {身份证号} private_key {私钥} aws_key {AWS 访问密钥} github_token {GitHub 令牌} slack_token {Slack 令牌} api_key {API 密钥} jwt {JSON Web Token} other {敏感内容}}。",
+    "pageReported": "有访问者举报了此页面：{reason, select, spam {垃圾信息或诈骗} harmful {仇恨、暴力或骚扰内容} illegal {违法内容} privacy {个人信息} copyright {版权} other {其他}}。"
   },
   "agentReply": {
     "aiOff": "我无法回答：此工作区已关闭 AI。",

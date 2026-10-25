@@ -769,7 +769,10 @@
     "turnIntoCallout": "Chuyển thành hộp nhấn mạnh",
     "plainCallout": "Hộp nhấn mạnh thường",
     "addTitle": "Thêm tiêu đề",
-    "removeTitle": "Xóa tiêu đề"
+    "removeTitle": "Xóa tiêu đề",
+    "quoteSize": "Cỡ trích dẫn",
+    "quoteSizeDefault": "Mặc định",
+    "quoteSizeLarge": "Lớn"
   },
   "imageLink": {
     "menuItem": "Liên kết…",

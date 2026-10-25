@@ -769,7 +769,10 @@
     "turnIntoCallout": "تبدیل به کادر",
     "plainCallout": "کادر ساده",
     "addTitle": "افزودن عنوان",
-    "removeTitle": "حذف عنوان"
+    "removeTitle": "حذف عنوان",
+    "quoteSize": "اندازهٔ نقل‌قول",
+    "quoteSizeDefault": "پیش‌فرض",
+    "quoteSizeLarge": "بزرگ"
   },
   "imageLink": {
     "menuItem": "پیوند…",

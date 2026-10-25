@@ -769,7 +769,10 @@
     "turnIntoCallout": "Перетворити на виноску",
     "plainCallout": "Звичайна виноска",
     "addTitle": "Додати заголовок",
-    "removeTitle": "Прибрати заголовок"
+    "removeTitle": "Прибрати заголовок",
+    "quoteSize": "Розмір цитати",
+    "quoteSizeDefault": "Звичайний",
+    "quoteSizeLarge": "Великий"
   },
   "imageLink": {
     "menuItem": "Посилання…",

@@ -84,5 +84,30 @@
   "cancelExpiry": "Annuller",
   "expiryPast": "Vælg et tidspunkt i fremtiden.",
   "expiryTooFar": "Vælg et tidspunkt inden for de næste ti år.",
-  "expiredDescription": "Ingen kan åbne denne side eller dens undersider via linket nu: besøgende får at vide, at den ikke blev fundet."
+  "expiredDescription": "Ingen kan åbne denne side eller dens undersider via linket nu: besøgende får at vide, at den ikke blev fundet.",
+  "report": {
+    "link": "Anmeld side",
+    "metaTitle": "Anmeld side",
+    "title": "Anmeld “{title}”",
+    "description": "Fortæl dem, der driver dette arbejdsområde, hvad der er galt med siden. De ser din anmeldelse, ikke hvem du er, medmindre du efterlader en e-mailadresse.",
+    "back": "Tilbage til siden",
+    "reason": "Hvad er galt?",
+    "reasons": {
+      "spam": "Spam eller svindel",
+      "harmful": "Hadsk, voldelig eller chikanerende",
+      "illegal": "Ulovligt indhold",
+      "privacy": "Deler nogens personoplysninger",
+      "copyright": "Krænker ophavsret",
+      "other": "Noget andet"
+    },
+    "details": "Detaljer (valgfrit)",
+    "email": "Din e-mail (valgfri)",
+    "emailHint": "Kun hvis du gerne vil have svar.",
+    "send": "Send anmeldelse",
+    "sent": "Tak. Din anmeldelse er sendt til dem, der driver dette arbejdsområde.",
+    "errors": {
+      "invalid": "Vælg hvad der er galt, og tjek e-mailadressen.",
+      "rateLimited": "Du har lige sendt flere anmeldelser. Prøv igen om lidt."
+    }
+  }
 }

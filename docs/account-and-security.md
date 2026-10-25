@@ -150,6 +150,15 @@ the REST API.
   answer "not found", and nobody can publish or duplicate them. Nothing is deleted: the
   publications and the site's settings stay listed in Settings, and come back as they were when
   publishing is turned on again.
+- **Reports about published pages:** every published page and site page has *Report page* at its
+  foot, which anyone may use without an account: a reason (spam or a scam; hateful, violent or
+  harassing; illegal; someone's personal information; copyright; something else), a few words and,
+  if they like, an email address to hear back at. The workspace's owners hear about a page in
+  their inbox (once a day per page, however many come) and see the open reports in Settings →
+  Security, where *Take off the web* unpublishes the page whose publication served it (closing its
+  other reports) and *Dismiss* closes one; both are in the audit log, as is each report. Nothing
+  goes beyond the workspace's owners. One address may send five reports an hour, and each public
+  address takes thirty a day.
 - **Export:** on by default. Off removes Markdown, CSV, ZIP and PDF export (and the print view)
   for everyone, owners included, and the export routes answer `403`. Calendar feeds stop, and
   automations can't get a webhook, HTTP request or Send to Slack step nor send one (`webhookExportOff`; one

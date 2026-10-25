@@ -192,7 +192,7 @@ export async function PublishedView({ loaded }: { loaded: LoadedPage }) {
                 </section>
               )}
             </main>
-            <SourceFooter />
+            <SourceFooter reportHref={`${app}/s/${key}/report?page=${encodeURIComponent(data.id)}`} />
           </DarkScheme>
         </div>
       </div>

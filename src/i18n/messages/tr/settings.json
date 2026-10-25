@@ -92,7 +92,8 @@
       "eventStream": "siem güvenlik kayıt günlük akış aktarım dışa aktar webhook olay yönlendir",
       "sensitiveContent": "dlp veri sızıntısı önleme kredi kartı iban gizli bilgi belirteç anahtar tarama kimlik numarası",
       "sensitiveFindings": "dlp bulgular sızan gizli bilgiler kart numaraları yok say",
-      "domainPeople": "alan adı hesaplar kullanıcılar şirket e-posta gölge yönetilmeyen"
+      "domainPeople": "alan adı hesaplar kullanıcılar şirket e-posta gölge yönetilmeyen",
+      "pageReports": "bildir bildirim şikayet kötüye kullanım yayından kaldır yayımlanan herkese açık web sayfaları"
     }
   },
   "workspace": {
@@ -1519,6 +1520,18 @@
       "yourAddressMissing": "Adresiniz ({ip}) listede değil: böyle kaydederseniz dışarıda kalırsınız, önce onu ekleyin.",
       "lockoutHelp": "Bir liste herkesi dışarıda bırakırsa sunucu yöneticisi onu yönetim sayfasından temizleyebilir.",
       "memberView": "{count, plural, =0 {Kapalı: çalışma alanı her ağdan açılabilir.} one {Açık: çalışma alanı yalnızca # onaylı ağdan açılabilir.} other {Açık: çalışma alanı yalnızca # onaylı ağdan açılabilir.}}"
+    },
+    "pageReports": {
+      "title": "Yayımlanan sayfalarla ilgili bildirimler",
+      "description": "Ziyaretçiler yayımlanan sayfaları altlarındaki bağlantıdan bildirir. Sayfayı yayından kaldırın ya da bildirimi kapatın.",
+      "none": "Açık bildirim yok.",
+      "reportedAt": "{when} tarihinde bildirildi",
+      "from": "Gönderen: {email}",
+      "offline": "Artık yayında değil",
+      "unpublish": "Yayından kaldır",
+      "dismiss": "Kapat",
+      "more": "{count, plural, one {# bildirim daha} other {# bildirim daha}}",
+      "gone": "Bu bildirim zaten ele alındı."
     }
   },
   "legalHolds": {
@@ -1760,7 +1773,9 @@
         "unpublished": "Yayından kaldırıldı: {target}",
         "publication_revoked": "Web’den kaldırıldı: {target} (yayınlayan: {subject})",
         "rows_merged": "{count, plural, one {# satırı} other {# satırı}} {target} satırında birleştirdi",
-        "publication_expiry_changed": "{change, select, removed {{target} sayfasının web bağlantısındaki süreyi kaldırdı} other {{target} sayfasının web bağlantısını {to} tarihinde çalışmayı bırakacak şekilde ayarladı}}"
+        "publication_expiry_changed": "{change, select, removed {{target} sayfasının web bağlantısındaki süreyi kaldırdı} other {{target} sayfasının web bağlantısını {to} tarihinde çalışmayı bırakacak şekilde ayarladı}}",
+        "reported": "Bir ziyaretçi {target} sayfasını bildirdi: {reason, select, spam {spam veya dolandırıcılık} harmful {nefret, şiddet veya taciz} illegal {yasa dışı içerik} privacy {kişisel bilgiler} copyright {telif hakkı} other {başka bir şey}}",
+        "report_dismissed": "{target} hakkındaki bir bildirimi kapattı"
       },
       "property": {
         "access_changed": "{target} içindeki “{property}” özelliğinin erişimi değiştirildi",

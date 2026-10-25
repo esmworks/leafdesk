@@ -1121,6 +1121,11 @@ input.leafdesk-callout-title-input {
   border-inline-start: 2px solid #7d797a;
   padding-inline-start: 1em;
 }
+/* A large quote (lib/quote-block). */
+:root .bn-container [data-content-type="quote"][data-size="large"] blockquote {
+  font-size: 1.3em;
+  line-height: 1.45;
+}
 :root .bn-container .bn-toggle-add-block-button {
   margin-left: 0;
   margin-inline-start: 22px;

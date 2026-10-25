@@ -152,6 +152,7 @@ export const LEFT_OUT: Record<string, string> = {
   audit_stream_outbox: "audit events waiting to be streamed, like the audit log itself",
   sensitive_finding: "what the sensitive content scan found; it reads the restored pages again",
   sensitive_scan: "which pages the sensitive content scan has read; it reads the restored pages again",
+  page_report: "visitors' reports about published pages; the restored pages are not published",
   agent_run: "agent runs, kept a few weeks only",
   pending_change: "changes agents proposed for review, kept a few weeks only; the runs that proposed them aren't backed up",
   automation_run: "automation runs; pending ones would run again",

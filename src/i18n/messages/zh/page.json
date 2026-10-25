@@ -769,7 +769,10 @@
     "turnIntoCallout": "转换为标注",
     "plainCallout": "普通标注",
     "addTitle": "添加标题",
-    "removeTitle": "移除标题"
+    "removeTitle": "移除标题",
+    "quoteSize": "引用大小",
+    "quoteSizeDefault": "默认",
+    "quoteSizeLarge": "大"
   },
   "imageLink": {
     "menuItem": "链接…",

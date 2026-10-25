@@ -769,7 +769,10 @@
     "turnIntoCallout": "Transformer en encadré",
     "plainCallout": "Encadré simple",
     "addTitle": "Ajouter un titre",
-    "removeTitle": "Retirer le titre"
+    "removeTitle": "Retirer le titre",
+    "quoteSize": "Taille de la citation",
+    "quoteSizeDefault": "Par défaut",
+    "quoteSizeLarge": "Grande"
   },
   "imageLink": {
     "menuItem": "Lien…",

@@ -1,3 +1,4 @@
+import { existsSync } from "node:fs";
 import { describe, expect, it } from "vitest";
 import pdfmake from "pdfmake";
 import roboto from "pdfmake/fonts/Roboto.js";
@@ -244,5 +245,29 @@ describe("pdfDocument", () => {
     expect(JSON.stringify(typeof big.header === "function" ? big.header(1, 1, { width: 0, height: 0, orientation: "portrait" }) : null)).toBe(
       JSON.stringify(typeof plain.header === "function" ? plain.header(1, 1, { width: 0, height: 0, orientation: "portrait" }) : null),
     );
+  });
+
+  it("sets Chinese, Japanese and Korean text in the CJK font, the rest in Roboto", () => {
+    const content = contentOf({ ...input([block("paragraph", [text("Offer 見積書 for 한국")])]), cjkFont: "CJK" });
+    expect(content[1]).toMatchObject({
+      text: [{ text: [{ text: "Offer " }, { text: "見積書", font: "CJK" }, { text: " for " }, { text: "한국", font: "CJK" }] }],
+    });
+    // Without a CJK font nothing changes.
+    expect(JSON.stringify(contentOf(input([block("paragraph", [text("見積書")])])))).not.toContain('"font"');
+  });
+
+  const NOTO = "/usr/share/fonts/opentype/noto/NotoSansCJK-Regular.ttc";
+  it.skipIf(!existsSync(NOTO))("renders CJK text that reads back where Noto Sans CJK is installed", async () => {
+    const face = [NOTO, "NotoSansCJKjp-Regular"] as unknown as string;
+    pdfmake.setFonts({ ...roboto, CJK: { normal: face, bold: face } });
+    pdfmake.setLocalAccessPolicy(() => true);
+    const bytes = await pdfmake
+      .createPdf(pdfDocument({ ...input([block("paragraph", [text("見積書 — 한국어, 中文 and English")])]), cjkFont: "CJK" }))
+      .getBuffer();
+    const { extractText, getDocumentProxy } = await import("unpdf");
+    const { text: read } = await extractText(await getDocumentProxy(new Uint8Array(bytes)), { mergePages: true });
+    expect(read).toContain("見積書");
+    expect(read).toContain("한국어");
+    expect(read).toContain("English");
   });
 });

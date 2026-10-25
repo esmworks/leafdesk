@@ -769,7 +769,10 @@
     "turnIntoCallout": "Turn into callout",
     "plainCallout": "Plain callout",
     "addTitle": "Add title",
-    "removeTitle": "Remove title"
+    "removeTitle": "Remove title",
+    "quoteSize": "Quote size",
+    "quoteSizeDefault": "Default",
+    "quoteSizeLarge": "Large"
   },
   "imageLink": {
     "menuItem": "Link…",

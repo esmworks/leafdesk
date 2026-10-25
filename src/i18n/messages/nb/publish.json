@@ -84,5 +84,30 @@
   "cancelExpiry": "Avbryt",
   "expiryPast": "Velg et tidspunkt i fremtiden.",
   "expiryTooFar": "Velg et tidspunkt innen de neste ti årene.",
-  "expiredDescription": "Ingen kan åpne denne siden eller undersidene via lenken nå: besøkende får vite at den ikke ble funnet."
+  "expiredDescription": "Ingen kan åpne denne siden eller undersidene via lenken nå: besøkende får vite at den ikke ble funnet.",
+  "report": {
+    "link": "Rapporter side",
+    "metaTitle": "Rapporter side",
+    "title": "Rapporter «{title}»",
+    "description": "Fortell dem som driver dette arbeidsområdet hva som er galt med siden. De ser rapporten din, ikke hvem du er, med mindre du legger igjen en e-postadresse.",
+    "back": "Tilbake til siden",
+    "reason": "Hva er galt?",
+    "reasons": {
+      "spam": "Spam eller svindel",
+      "harmful": "Hatefullt, voldelig eller trakasserende",
+      "illegal": "Ulovlig innhold",
+      "privacy": "Deler noens personopplysninger",
+      "copyright": "Bryter opphavsretten",
+      "other": "Noe annet"
+    },
+    "details": "Detaljer (valgfritt)",
+    "email": "E-postadressen din (valgfritt)",
+    "emailHint": "Bare hvis du vil ha svar.",
+    "send": "Send rapport",
+    "sent": "Takk. Rapporten din er sendt til dem som driver dette arbeidsområdet.",
+    "errors": {
+      "invalid": "Velg hva som er galt, og sjekk e-postadressen.",
+      "rateLimited": "Du har nettopp sendt flere rapporter. Prøv igjen om litt."
+    }
+  }
 }

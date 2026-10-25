@@ -769,7 +769,10 @@
     "turnIntoCallout": "تحويل إلى تنبيه",
     "plainCallout": "تنبيه عادي",
     "addTitle": "إضافة عنوان",
-    "removeTitle": "إزالة العنوان"
+    "removeTitle": "إزالة العنوان",
+    "quoteSize": "حجم الاقتباس",
+    "quoteSizeDefault": "افتراضي",
+    "quoteSizeLarge": "كبير"
   },
   "imageLink": {
     "menuItem": "رابط…",

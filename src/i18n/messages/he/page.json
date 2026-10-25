@@ -769,7 +769,10 @@
     "turnIntoCallout": "המרה להדגשה",
     "plainCallout": "הדגשה רגילה",
     "addTitle": "הוספת כותרת",
-    "removeTitle": "הסרת הכותרת"
+    "removeTitle": "הסרת הכותרת",
+    "quoteSize": "גודל ציטוט",
+    "quoteSizeDefault": "ברירת מחדל",
+    "quoteSizeLarge": "גדול"
   },
   "imageLink": {
     "menuItem": "קישור…",

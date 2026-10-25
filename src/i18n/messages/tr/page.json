@@ -769,7 +769,10 @@
     "turnIntoCallout": "Kutuya dönüştür",
     "plainCallout": "Düz kutu",
     "addTitle": "Başlık ekle",
-    "removeTitle": "Başlığı kaldır"
+    "removeTitle": "Başlığı kaldır",
+    "quoteSize": "Alıntı boyutu",
+    "quoteSizeDefault": "Varsayılan",
+    "quoteSizeLarge": "Büyük"
   },
   "imageLink": {
     "menuItem": "Bağlantı…",

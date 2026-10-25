@@ -116,7 +116,10 @@ at 75 to 150 percent of the usual size (*Text size*; the letterhead keeps its si
 page as the person exporting can see it (database blocks, synced blocks, mentions, footnotes;
 images if they are PNG or JPEG uploads), is an export (off while export is off, in the audit log)
 and lays tables out with amounts on the right. Diagrams and equations print as their text. The
-server's font (Roboto) covers Latin, Greek and Cyrillic letters, not Arabic, Hebrew or CJK text.
+server's font (Roboto) covers Latin, Greek and Cyrillic letters; Chinese, Japanese and Korean text
+is set in Noto Sans CJK (in the face of the reader's language) where the server has it, as the Docker
+image does (`fonts-noto-cjk`; on other systems install that package or its equivalent). Arabic and
+Hebrew text isn't covered.
 
 "Print" in the same menu opens the page's print view (`/print/<page id>`) in a new tab and, once
 its images and diagrams have loaded, the browser's print dialog, where "Save as PDF" keeps the page

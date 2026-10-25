@@ -280,7 +280,8 @@
     "aiAccountDetached": "ИИ рабочего пространства больше не работает на ключе пользователя {actor}.",
     "reviewTitle": "На проверку",
     "review": "{count, plural, =1 {{agent} предлагает изменение на вашу проверку} one {# изменение ждёт вашей проверки, последнее — от {agent}} few {# изменения ждут вашей проверки, последнее — от {agent}} many {# изменений ждут вашей проверки, последнее — от {agent}} other {# изменения ждут вашей проверки, последнее — от {agent}}}",
-    "sensitiveContent": "На этой странице обнаружено: {kind, select, card {номер платёжной карты} iban {номер IBAN} national_id {национальный идентификационный номер} private_key {закрытый ключ} aws_key {ключ доступа AWS} github_token {токен GitHub} slack_token {токен Slack} api_key {API-ключ} jwt {токен JSON Web Token} other {конфиденциальные данные}}."
+    "sensitiveContent": "На этой странице обнаружено: {kind, select, card {номер платёжной карты} iban {номер IBAN} national_id {национальный идентификационный номер} private_key {закрытый ключ} aws_key {ключ доступа AWS} github_token {токен GitHub} slack_token {токен Slack} api_key {API-ключ} jwt {токен JSON Web Token} other {конфиденциальные данные}}.",
+    "pageReported": "Посетитель пожаловался на эту страницу: {reason, select, spam {спам или мошенничество} harmful {ненависть, насилие или травля} illegal {незаконный контент} privacy {личные данные} copyright {авторские права} other {другое}}."
   },
   "agentReply": {
     "aiOff": "Не могу ответить: ИИ отключён в этом рабочем пространстве.",

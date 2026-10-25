@@ -92,7 +92,8 @@
       "eventStream": "siem sécurité journal flux export webhook transférer événements",
       "sensitiveContent": "dlp prévention perte de données carte bancaire carte de crédit iban secrets jetons clés analyse données sensibles",
       "sensitiveFindings": "dlp résultats fuite secrets divulgués numéros de carte écarter",
-      "domainPeople": "domaine comptes utilisateurs entreprise e-mail shadow it non gérés"
+      "domainPeople": "domaine comptes utilisateurs entreprise e-mail shadow it non gérés",
+      "pageReports": "signaler signalement abus plainte retrait publié public web pages"
     }
   },
   "workspace": {
@@ -1519,6 +1520,18 @@
       "yourAddressMissing": "Votre adresse, {ip}, ne figure pas dans la liste : l’enregistrer vous fermerait l’accès, ajoutez-la d’abord.",
       "lockoutHelp": "Si une liste ferme un jour l’accès à tout le monde, un administrateur de l’instance peut la vider sur la page d’administration.",
       "memberView": "{count, plural, =0 {Désactivé : l’espace de travail s’ouvre depuis n’importe quel réseau.} one {Activé : l’espace de travail ne s’ouvre que depuis # réseau approuvé.} other {Activé : l’espace de travail ne s’ouvre que depuis # réseaux approuvés.}}"
+    },
+    "pageReports": {
+      "title": "Signalements de pages publiées",
+      "description": "Les visiteurs signalent les pages publiées depuis le lien en bas de page. Retirez la page du web ou ignorez le signalement.",
+      "none": "Aucun signalement ouvert.",
+      "reportedAt": "Signalé {when}",
+      "from": "De {email}",
+      "offline": "N'est plus sur le web",
+      "unpublish": "Retirer du web",
+      "dismiss": "Ignorer",
+      "more": "{count, plural, one {# autre signalement} other {# autres signalements}}",
+      "gone": "Ce signalement a déjà été traité."
     }
   },
   "legalHolds": {
@@ -1760,7 +1773,9 @@
         "unpublished": "A dépublié {target}",
         "publication_revoked": "A retiré {target} du Web (publiée par {subject})",
         "rows_merged": "A fusionné {count, plural, one {# ligne} other {# lignes}} dans {target}",
-        "publication_expiry_changed": "{change, select, removed {A retiré l’expiration du lien web de {target}} other {A fait expirer le lien web de {target} le {to}}}"
+        "publication_expiry_changed": "{change, select, removed {A retiré l’expiration du lien web de {target}} other {A fait expirer le lien web de {target} le {to}}}",
+        "reported": "Un visiteur a signalé {target} : {reason, select, spam {spam ou arnaque} harmful {contenu haineux, violent ou harcelant} illegal {contenu illégal} privacy {informations personnelles} copyright {droit d'auteur} other {autre chose}}",
+        "report_dismissed": "A ignoré un signalement concernant {target}"
       },
       "property": {
         "access_changed": "A modifié l’accès à « {property} » dans {target}",

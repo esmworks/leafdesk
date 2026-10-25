@@ -769,7 +769,10 @@
     "turnIntoCallout": "Trasforma in riquadro",
     "plainCallout": "Riquadro semplice",
     "addTitle": "Aggiungi titolo",
-    "removeTitle": "Rimuovi titolo"
+    "removeTitle": "Rimuovi titolo",
+    "quoteSize": "Dimensione della citazione",
+    "quoteSizeDefault": "Predefinita",
+    "quoteSizeLarge": "Grande"
   },
   "imageLink": {
     "menuItem": "Link…",

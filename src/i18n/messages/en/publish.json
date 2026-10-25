@@ -84,5 +84,30 @@
   "cancelExpiry": "Cancel",
   "expiryPast": "Pick a time in the future.",
   "expiryTooFar": "Pick a time within the next ten years.",
-  "expiredDescription": "Nobody can open this page or its subpages through the link now: visitors are told it wasn't found."
+  "expiredDescription": "Nobody can open this page or its subpages through the link now: visitors are told it wasn't found.",
+  "report": {
+    "link": "Report page",
+    "metaTitle": "Report page",
+    "title": "Report “{title}”",
+    "description": "Tell the people who run this workspace what is wrong with this page. They see your report, not who you are, unless you leave an email address.",
+    "back": "Back to the page",
+    "reason": "What is wrong?",
+    "reasons": {
+      "spam": "Spam or a scam",
+      "harmful": "Hateful, violent or harassing",
+      "illegal": "Illegal content",
+      "privacy": "Shares someone's personal information",
+      "copyright": "Infringes copyright",
+      "other": "Something else"
+    },
+    "details": "Details (optional)",
+    "email": "Your email (optional)",
+    "emailHint": "Only if you'd like to hear back.",
+    "send": "Send report",
+    "sent": "Thank you. Your report was sent to the people who run this workspace.",
+    "errors": {
+      "invalid": "Pick what is wrong, and check the email address.",
+      "rateLimited": "You've sent several reports just now. Try again in a little while."
+    }
+  }
 }

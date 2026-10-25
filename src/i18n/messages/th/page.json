@@ -769,7 +769,10 @@
     "turnIntoCallout": "แปลงเป็นกล่องเน้นข้อความ",
     "plainCallout": "กล่องเน้นข้อความแบบเรียบ",
     "addTitle": "เพิ่มชื่อ",
-    "removeTitle": "นำชื่อออก"
+    "removeTitle": "นำชื่อออก",
+    "quoteSize": "ขนาดคำพูดอ้างอิง",
+    "quoteSizeDefault": "ค่าเริ่มต้น",
+    "quoteSizeLarge": "ใหญ่"
   },
   "imageLink": {
     "menuItem": "ลิงก์…",

@@ -769,7 +769,10 @@
     "turnIntoCallout": "Ubah menjadi callout",
     "plainCallout": "Callout polos",
     "addTitle": "Tambahkan judul",
-    "removeTitle": "Hapus judul"
+    "removeTitle": "Hapus judul",
+    "quoteSize": "Ukuran kutipan",
+    "quoteSizeDefault": "Bawaan",
+    "quoteSizeLarge": "Besar"
   },
   "imageLink": {
     "menuItem": "Tautan…",

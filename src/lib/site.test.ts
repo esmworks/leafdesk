@@ -151,6 +151,7 @@ describe("routeOnSiteHost", () => {
 
   it("sends Duplicate to the app and the app's site address to the root", () => {
     expect(route("/duplicate?page=x")).toEqual({ kind: "redirect", location: "https://app.example.com/s/acme/duplicate?page=x" });
+    expect(route("/report?page=x")).toEqual({ kind: "redirect", location: "https://app.example.com/s/acme/report?page=x" });
     expect(route("/s/acme")).toEqual({ kind: "redirect", location: "/" });
     expect(route(`/s/acme/road-map-${ID}?view=v`)).toEqual({ kind: "redirect", location: `/road-map-${ID}?view=v` });
   });
@@ -165,6 +166,7 @@ describe("routeOnSiteHost", () => {
       "/mcp",
       "/s/other-site",
       "/s/acme/duplicate",
+      "/s/acme/report",
       "/s/acme/a/b",
       "/sw.js",
       "/manifest.webmanifest",

@@ -262,6 +262,8 @@ export function InboxDialog({
                 ? t("aiAccountDetached", { actor: item.actorName || t("someone") })
                 : item.kind === "sensitive_content"
                 ? t("sensitiveContent", { kind: item.automationMessage ?? "" })
+                : item.kind === "page_reported"
+                ? t("pageReported", { reason: item.automationMessage ?? "" })
                 : item.kind === "access_request"
                 ? item.accessRequest && item.accessRequest.level !== "view"
                   ? t("accessRequestMore", { actor: item.actorName || item.accessRequest.requesterEmail || t("someone"), level: item.accessRequest.level })

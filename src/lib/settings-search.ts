@@ -107,6 +107,7 @@ export const SETTINGS_SEARCH_ENTRIES: readonly SettingsSearchEntry[] = [
   { id: "workspaceApps", tab: "security", label: "settings:security.workspaceApps.title", when: owner },
   { id: "publishing", tab: "security", label: "settings:security.publishingHeading", keywords: true, when: online },
   { id: "publications", tab: "security", label: "settings:security.publications.title", when: ownerOnline },
+  { id: "pageReports", tab: "security", label: "settings:security.pageReports.title", keywords: true, when: ownerOnline },
   { id: "forms", tab: "security", label: "settings:security.forms.title", when: ownerOnline },
   { id: "retention", tab: "security", label: "settings:security.retentionHeading", keywords: true },
   { id: "legalHolds", tab: "security", label: "settings:legalHolds.title", keywords: true, when: owner },

@@ -84,5 +84,30 @@
   "cancelExpiry": "Vazgeç",
   "expiryPast": "İleri bir zaman seçin.",
   "expiryTooFar": "Önümüzdeki on yıl içinde bir zaman seçin.",
-  "expiredDescription": "Şu anda kimse bu sayfayı ya da alt sayfalarını bağlantıyla açamaz: ziyaretçiler sayfanın bulunamadığını görür."
+  "expiredDescription": "Şu anda kimse bu sayfayı ya da alt sayfalarını bağlantıyla açamaz: ziyaretçiler sayfanın bulunamadığını görür.",
+  "report": {
+    "link": "Sayfayı bildir",
+    "metaTitle": "Sayfayı bildir",
+    "title": "“{title}” sayfasını bildir",
+    "description": "Bu çalışma alanını yönetenlere bu sayfada neyin yanlış olduğunu anlatın. Bir e-posta adresi bırakmadıkça bildiriminizi görürler, kim olduğunuzu görmezler.",
+    "back": "Sayfaya dön",
+    "reason": "Sorun ne?",
+    "reasons": {
+      "spam": "Spam veya dolandırıcılık",
+      "harmful": "Nefret, şiddet veya taciz",
+      "illegal": "Yasa dışı içerik",
+      "privacy": "Birinin kişisel bilgilerini paylaşıyor",
+      "copyright": "Telif hakkını ihlal ediyor",
+      "other": "Başka bir şey"
+    },
+    "details": "Ayrıntılar (isteğe bağlı)",
+    "email": "E-posta adresiniz (isteğe bağlı)",
+    "emailHint": "Yalnızca yanıt almak isterseniz.",
+    "send": "Bildirimi gönder",
+    "sent": "Teşekkürler. Bildiriminiz bu çalışma alanını yönetenlere gönderildi.",
+    "errors": {
+      "invalid": "Sorunu seçin ve e-posta adresini kontrol edin.",
+      "rateLimited": "Az önce birkaç bildirim gönderdiniz. Biraz sonra yeniden deneyin."
+    }
+  }
 }

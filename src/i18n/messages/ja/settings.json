@@ -92,7 +92,8 @@
       "eventStream": "siem セキュリティ ログ ストリーム エクスポート webhook 転送 イベント",
       "sensitiveContent": "dlp 情報漏えい 防止 クレジットカード iban シークレット トークン キー スキャン",
       "sensitiveFindings": "dlp 検出結果 漏えい シークレット カード番号 却下",
-      "domainPeople": "ドメイン アカウント ユーザー 会社 メール シャドー 管理外"
+      "domainPeople": "ドメイン アカウント ユーザー 会社 メール シャドー 管理外",
+      "pageReports": "報告 通報 不正利用 苦情 取り下げ 公開 ウェブ ページ"
     }
   },
   "workspace": {
@@ -1519,6 +1520,18 @@
       "yourAddressMissing": "あなたのアドレス（{ip}）はリストにありません。保存すると締め出されるので、先に追加してください。",
       "lockoutHelp": "リストのせいで誰も入れなくなった場合は、インスタンス管理者が管理ページでリストを空にできます。",
       "memberView": "{count, plural, =0 {オフ：どのネットワークからでもワークスペースを開けます。} other {オン：ワークスペースは # 件の承認済みネットワークからのみ開けます。}}"
+    },
+    "pageReports": {
+      "title": "公開ページへの報告",
+      "description": "訪問者は公開ページ下部のリンクからページを報告します。ページをウェブから取り下げるか、報告を却下してください。",
+      "none": "未対応の報告はありません。",
+      "reportedAt": "{when} に報告",
+      "from": "送信者: {email}",
+      "offline": "公開終了",
+      "unpublish": "ウェブから取り下げる",
+      "dismiss": "却下",
+      "more": "{count, plural, other {ほか # 件の報告}}",
+      "gone": "この報告はすでに対応済みです。"
     }
   },
   "legalHolds": {
@@ -1760,7 +1773,9 @@
         "unpublished": "{target}の公開を停止しました",
         "publication_revoked": "{target}をWebから取り下げました（公開者：{subject}）",
         "rows_merged": "{count}行を{target}に統合しました",
-        "publication_expiry_changed": "{change, select, removed {{target}のWebリンクの有効期限を削除しました} other {{target}のWebリンクが{to}に無効になるよう設定しました}}"
+        "publication_expiry_changed": "{change, select, removed {{target}のWebリンクの有効期限を削除しました} other {{target}のWebリンクが{to}に無効になるよう設定しました}}",
+        "reported": "訪問者が {target} を報告しました：{reason, select, spam {スパムまたは詐欺} harmful {憎悪・暴力・嫌がらせ} illegal {違法なコンテンツ} privacy {個人情報} copyright {著作権} other {その他}}",
+        "report_dismissed": "{target} への報告を却下しました"
       },
       "property": {
         "access_changed": "{target}の「{property}」にアクセスできる人を変更しました",

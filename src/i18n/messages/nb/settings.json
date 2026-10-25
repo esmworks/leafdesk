@@ -92,7 +92,8 @@
       "eventStream": "siem sikkerhet logg strøm eksport webhook videresend hendelser",
       "sensitiveContent": "dlp tap av data kredittkort iban hemmeligheter token nøkler skann",
       "sensitiveFindings": "dlp funn lekkede hemmeligheter kortnumre avvis",
-      "domainPeople": "domene kontoer brukere firma e-post skygge uadministrert"
+      "domainPeople": "domene kontoer brukere firma e-post skygge uadministrert",
+      "pageReports": "rapporter rapport misbruk klage fjern publisert offentlig nett sider"
     }
   },
   "workspace": {
@@ -1519,6 +1520,18 @@
       "yourAddressMissing": "Adressen din, {ip}, står ikke på listen: hvis du lagrer, stenges du ute, så legg den til først.",
       "lockoutHelp": "Hvis en liste noen gang stenger alle ute, kan en instansadministrator tømme den på administrasjonssiden.",
       "memberView": "{count, plural, =0 {Av: arbeidsområdet kan åpnes fra alle nettverk.} one {På: arbeidsområdet kan bare åpnes fra # godkjent nettverk.} other {På: arbeidsområdet kan bare åpnes fra # godkjente nettverk.}}"
+    },
+    "pageReports": {
+      "title": "Rapporter om publiserte sider",
+      "description": "Besøkende rapporterer publiserte sider fra lenken nederst. Ta siden av nettet, eller avvis rapporten.",
+      "none": "Ingen åpne rapporter.",
+      "reportedAt": "Rapportert {when}",
+      "from": "Fra {email}",
+      "offline": "Ikke lenger på nettet",
+      "unpublish": "Ta av nettet",
+      "dismiss": "Avvis",
+      "more": "{count, plural, one {# rapport til} other {# rapporter til}}",
+      "gone": "Denne rapporten er allerede behandlet."
     }
   },
   "legalHolds": {
@@ -1760,7 +1773,9 @@
         "unpublished": "Avpubliserte {target}",
         "publication_revoked": "Tok {target} av nettet (publisert av {subject})",
         "rows_merged": "Slo sammen {count, plural, one {# rad} other {# rader}} med {target}",
-        "publication_expiry_changed": "{change, select, removed {Fjernet utløpet for nettlenken til {target}} other {Satte nettlenken til {target} til å slutte å virke {to}}}"
+        "publication_expiry_changed": "{change, select, removed {Fjernet utløpet for nettlenken til {target}} other {Satte nettlenken til {target} til å slutte å virke {to}}}",
+        "reported": "En besøkende rapporterte {target}: {reason, select, spam {spam eller svindel} harmful {hatefullt, voldelig eller trakasserende innhold} illegal {ulovlig innhold} privacy {personopplysninger} copyright {opphavsrett} other {noe annet}}",
+        "report_dismissed": "Avviste en rapport om {target}"
       },
       "property": {
         "access_changed": "Endret hvem som har tilgang til «{property}» i {target}",
