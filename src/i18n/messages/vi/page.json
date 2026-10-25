@@ -151,7 +151,13 @@
       "quote": "“{quote}”",
       "removed": "Về đoạn văn bản đã bị xóa",
       "unknown": "Một người nào đó"
-    }
+    },
+    "attachImages": "Đính kèm hình ảnh",
+    "removeImage": "Xóa hình ảnh",
+    "imageAlt": "Hình ảnh {number}",
+    "moreImages": "+{count}",
+    "fewerImages": "Ẩn bớt",
+    "tooManyImages": "Mỗi bình luận có tối đa {count} hình ảnh."
   },
   "archived": {
     "banner": "Trang này đang ở trong thùng rác.",

@@ -151,7 +151,13 @@
       "quote": "„{quote}”",
       "removed": "על טקסט שהוסר",
       "unknown": "מישהו"
-    }
+    },
+    "attachImages": "צירוף תמונות",
+    "removeImage": "הסרת התמונה",
+    "imageAlt": "תמונה {number}",
+    "moreImages": "+{count}",
+    "fewerImages": "הצגת פחות",
+    "tooManyImages": "תגובה יכולה לכלול עד {count} תמונות."
   },
   "archived": {
     "banner": "הדף הזה נמצא באשפה.",

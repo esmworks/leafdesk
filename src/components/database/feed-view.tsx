@@ -6,10 +6,11 @@ import { memo, useCallback, useEffect, useMemo, useRef, useState, type FormEvent
 import { changeCommentsAction } from "@/app/actions/comments";
 import { feedBodyAction, feedPostsAction, setReactionAction } from "@/app/actions/feed";
 import { useChannel } from "@/components/collab/use-channel";
+import { CommentImageGallery } from "@/components/comment-images";
 import { UserAvatar } from "@/components/user-avatar";
 import { Button, cn, PageIcon, Popover, textareaClass } from "@/components/ui";
 import { cellMarkClass, colorMarkClass, type RowColors } from "@/lib/color-rules";
-import type { CommentBody } from "@/lib/comments";
+import { commentImages, type CommentBody } from "@/lib/comments";
 import { FEED_PAGE_SIZE, REACTION_EMOJIS, type PostReaction } from "@/lib/feed";
 import { pageLabel } from "@/lib/labels";
 import { isHiddenInView } from "@/lib/properties";
@@ -516,38 +517,42 @@ function FeedCommentView({ comment, person }: { comment: FeedComment; person?: C
   );
 }
 
-/** A comment's paragraphs with their styles and links (see lib/comments CommentBody). */
+/** A comment's paragraphs with their styles and links, and its images (see lib/comments CommentBody). */
 function CommentText({ body }: { body: CommentBody | null }) {
   if (!body) return null;
   return (
     <div className="break-words whitespace-pre-wrap">
-      {body.map((paragraph, i) => (
-        <p key={i}>
-          {paragraph.content.map((node, j): ReactNode => {
-            if (node.type === "link") {
+      {body.map((paragraph, i) =>
+        paragraph.type === "images" ? (
+          <CommentImageGallery key={i} urls={commentImages([paragraph])} />
+        ) : (
+          <p key={i}>
+            {paragraph.content.map((node, j): ReactNode => {
+              if (node.type === "link") {
+                return (
+                  <a key={j} href={node.href} target="_blank" rel="noopener noreferrer nofollow" className="underline">
+                    {node.content.map((text) => text.text).join("")}
+                  </a>
+                );
+              }
+              const s = node.styles;
               return (
-                <a key={j} href={node.href} target="_blank" rel="noopener noreferrer nofollow" className="underline">
-                  {node.content.map((text) => text.text).join("")}
-                </a>
+                <span
+                  key={j}
+                  className={cn(
+                    s.bold && "font-semibold",
+                    s.italic && "italic",
+                    (s.underline || s.strike) && [s.underline && "underline", s.strike && "line-through"].filter(Boolean).join(" "),
+                    s.code && "rounded bg-bg-subtle px-1 font-mono text-[0.9em]",
+                  )}
+                >
+                  {node.text}
+                </span>
               );
-            }
-            const s = node.styles;
-            return (
-              <span
-                key={j}
-                className={cn(
-                  s.bold && "font-semibold",
-                  s.italic && "italic",
-                  (s.underline || s.strike) && [s.underline && "underline", s.strike && "line-through"].filter(Boolean).join(" "),
-                  s.code && "rounded bg-bg-subtle px-1 font-mono text-[0.9em]",
-                )}
-              >
-                {node.text}
-              </span>
-            );
-          })}
-        </p>
-      ))}
+            })}
+          </p>
+        ),
+      )}
     </div>
   );
 }

@@ -151,7 +151,13 @@
       "quote": "«{quote}»",
       "removed": "К тексту, который был удалён",
       "unknown": "Кто-то"
-    }
+    },
+    "attachImages": "Прикрепить изображения",
+    "removeImage": "Удалить изображение",
+    "imageAlt": "Изображение {number}",
+    "moreImages": "+{count}",
+    "fewerImages": "Показать меньше",
+    "tooManyImages": "В комментарии может быть не больше {count} изображений."
   },
   "archived": {
     "banner": "Эта страница в корзине.",

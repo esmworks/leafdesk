@@ -151,7 +151,13 @@
       "quote": "“{quote}”",
       "removed": "เกี่ยวกับข้อความที่ถูกลบไปแล้ว",
       "unknown": "ผู้ใช้ที่ไม่ทราบชื่อ"
-    }
+    },
+    "attachImages": "แนบรูปภาพ",
+    "removeImage": "นำรูปภาพออก",
+    "imageAlt": "รูปภาพ {number}",
+    "moreImages": "+{count}",
+    "fewerImages": "แสดงน้อยลง",
+    "tooManyImages": "ความคิดเห็นหนึ่งมีรูปภาพได้สูงสุด {count} รูป"
   },
   "archived": {
     "banner": "หน้านี้อยู่ในถังขยะ",

@@ -40,6 +40,12 @@
   bar copies the selected rows' links, one per line. Pasting several links to pages of the
   workspace into a page makes a mention of each, one block per line (list items when pasted into a
   list).
+- **Images in comments, and emoji shown large.** The image button under a comment box (or pasting or
+  dropping images into it) attaches up to ten PNG, JPEG, GIF, WebP or AVIF images to the comment,
+  which can then be posted without text. People who may only comment can attach them too. One
+  image shows larger, several as thumbnails, and past four the rest fold into a *+N* tile. A
+  comment of only one to three emoji shows them large. Exports list a comment's images after its
+  text.
 
 ### Changed
 

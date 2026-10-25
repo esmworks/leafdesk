@@ -151,7 +151,13 @@
       "quote": "„{quote}“",
       "removed": "Zu Text, der entfernt wurde",
       "unknown": "Jemand"
-    }
+    },
+    "attachImages": "Bilder anhängen",
+    "removeImage": "Bild entfernen",
+    "imageAlt": "Bild {number}",
+    "moreImages": "+{count}",
+    "fewerImages": "Weniger anzeigen",
+    "tooManyImages": "Ein Kommentar kann höchstens {count} Bilder enthalten."
   },
   "archived": {
     "banner": "Diese Seite liegt im Papierkorb.",

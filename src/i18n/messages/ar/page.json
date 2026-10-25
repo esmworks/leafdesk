@@ -151,7 +151,13 @@
       "quote": "«{quote}»",
       "removed": "على نص تمت إزالته",
       "unknown": "شخص ما"
-    }
+    },
+    "attachImages": "إرفاق صور",
+    "removeImage": "إزالة الصورة",
+    "imageAlt": "الصورة {number}",
+    "moreImages": "+{count}",
+    "fewerImages": "عرض أقل",
+    "tooManyImages": "يمكن أن يحتوي التعليق على {count} صور كحد أقصى."
   },
   "archived": {
     "banner": "هذه الصفحة في سلة المهملات.",

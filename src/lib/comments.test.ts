@@ -3,8 +3,12 @@ import {
   cleanCommentBody,
   CommentError,
   commentGroupMentions,
+  commentImages,
   commentMentions,
   commentText,
+  isEmojiOnly,
+  keepCommentImages,
+  MAX_COMMENT_IMAGES,
   MAX_COMMENT_LENGTH,
   mentionsAsText,
   replyAudience,
@@ -55,6 +59,60 @@ describe("cleanCommentBody", () => {
     expect(() => cleanCommentBody([{ type: "paragraph", content: "  " }])).toThrow(CommentError);
     expect(() => cleanCommentBody(null)).toThrow(CommentError);
     expect(() => cleanCommentBody("x".repeat(MAX_COMMENT_LENGTH + 1))).toThrow(CommentError);
+  });
+
+  const A = "/api/files/" + "a".repeat(24);
+  const B = "https://app.example/api/files/" + "b".repeat(24);
+
+  it("keeps the uploaded files images blocks show, as one block after the text", () => {
+    const body = cleanCommentBody([
+      { type: "images", props: { urls: `${A}\nhttps://evil.example/x.png\n${A}` } },
+      { type: "paragraph", content: "Look" },
+      { type: "paragraph", content: [] },
+      { type: "images", props: { urls: B } },
+    ]);
+    expect(body).toEqual([
+      { type: "paragraph", content: [{ type: "text", text: "Look", styles: {} }] },
+      { type: "images", props: { urls: `${A}\n/api/files/${"b".repeat(24)}` } },
+    ]);
+    expect(commentText(body)).toBe("Look");
+    expect(commentImages(body)).toEqual([A, `/api/files/${"b".repeat(24)}`]);
+  });
+
+  it("takes a comment of only images, but not too many", () => {
+    expect(cleanCommentBody([{ type: "paragraph", content: [] }, { type: "images", props: { urls: A } }])).toEqual([
+      { type: "images", props: { urls: A } },
+    ]);
+    const many = Array.from({ length: MAX_COMMENT_IMAGES + 1 }, (_, i) => `/api/files/${String(i).padStart(24, "c")}`).join("\n");
+    expect(() => cleanCommentBody([{ type: "images", props: { urls: many } }])).toThrow(CommentError);
+    expect(() => cleanCommentBody([{ type: "images", props: { urls: "https://evil.example/x.png" } }])).toThrow(CommentError);
+  });
+
+  it("keeps only the images the page holds", () => {
+    const body = cleanCommentBody([{ type: "paragraph", content: "Hi" }, { type: "images", props: { urls: `${A}\n${B}` } }]);
+    expect(commentImages(keepCommentImages(body, new Set(["a".repeat(24)])))).toEqual([A]);
+    expect(keepCommentImages(body, new Set())).toEqual([{ type: "paragraph", content: [{ type: "text", text: "Hi", styles: {} }] }]);
+    const onlyImages = cleanCommentBody([{ type: "images", props: { urls: A } }]);
+    expect(() => keepCommentImages(onlyImages, new Set())).toThrow(CommentError);
+  });
+});
+
+describe("isEmojiOnly", () => {
+  it("is one to three emoji, spaces aside", () => {
+    expect(isEmojiOnly("👍")).toBe(true);
+    expect(isEmojiOnly(" 🎉 🎉🎉 ")).toBe(true);
+    expect(isEmojiOnly("👩‍💻")).toBe(true);
+    expect(isEmojiOnly("👍🏽")).toBe(true);
+    expect(isEmojiOnly("🇹🇷")).toBe(true);
+    expect(isEmojiOnly("❤️")).toBe(true);
+  });
+
+  it("is not text, numbers or more emoji", () => {
+    expect(isEmojiOnly("")).toBe(false);
+    expect(isEmojiOnly("ok 👍")).toBe(false);
+    expect(isEmojiOnly("1")).toBe(false);
+    expect(isEmojiOnly("#")).toBe(false);
+    expect(isEmojiOnly("👍👍👍👍")).toBe(false);
   });
 });
 

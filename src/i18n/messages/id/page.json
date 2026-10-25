@@ -151,7 +151,13 @@
       "quote": "“{quote}”",
       "removed": "Tentang teks yang sudah dihapus",
       "unknown": "Seseorang"
-    }
+    },
+    "attachImages": "Lampirkan gambar",
+    "removeImage": "Hapus gambar",
+    "imageAlt": "Gambar {number}",
+    "moreImages": "+{count}",
+    "fewerImages": "Tampilkan lebih sedikit",
+    "tooManyImages": "Komentar dapat berisi paling banyak {count} gambar."
   },
   "archived": {
     "banner": "Halaman ini ada di sampah.",

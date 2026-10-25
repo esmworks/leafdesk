@@ -1,4 +1,4 @@
-import { commentText, type CommentBody, type PlainThread } from "@/lib/comments";
+import { commentImages, commentText, type CommentBody, type CommentParagraph, type PlainThread } from "@/lib/comments";
 
 /**
  * A page's comment threads in an export (Markdown, the ZIP's page files, the PDF), after the page:
@@ -70,7 +70,7 @@ export function exportedThreads(threads: PlainThread[], nameOf: (userId: string)
     .sort((a, b) => a.createdAt.localeCompare(b.createdAt))
     .flatMap((thread) => {
       const comments = thread.comments.flatMap((c): ExportedComment[] =>
-        c.deletedAt || !c.body || !commentText(c.body).trim() ? [] : [{ author: nameOf(c.userId) || labels.unknown, date: commentDate(c.createdAt), body: c.body }],
+        c.deletedAt || !c.body || (!commentText(c.body).trim() && !commentImages(c.body).length) ? [] : [{ author: nameOf(c.userId) || labels.unknown, date: commentDate(c.createdAt), body: c.body }],
       );
       return comments.length ? [{ about: aboutOf(thread, labels), resolved: thread.resolved, comments }] : [];
     });
@@ -113,7 +113,7 @@ export function commentMarkdown(body: CommentBody): string[] {
       })
       .join("\n");
   };
-  return body.map((paragraph) =>
+  const paragraphMarkdown = (paragraph: CommentParagraph) =>
     (Array.isArray(paragraph.content) ? paragraph.content : [])
       .map((node) => {
         if (node.type === "link") return `[${node.content.map(styled).join("").replace(/\n/g, " ")}](${linkTarget(node.href)})`;
@@ -122,7 +122,14 @@ export function commentMarkdown(body: CommentBody): string[] {
       .join("")
       .split("\n")
       .map((line) => line.replace(BLOCK_START, (_, space: string, mark: string) => `${space}${/\d/.test(mark) ? `${mark.slice(0, -1)}\\${mark.slice(-1)}` : `\\${mark}`}`))
-      .join("\n"),
+      .join("\n");
+  // Images a line each, numbered.
+  return body.map((block) =>
+    block.type === "images"
+      ? commentImages([block])
+          .map((url, i) => `![${i + 1}](${url})`)
+          .join("\n")
+      : paragraphMarkdown(block),
   );
 }
 

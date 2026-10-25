@@ -396,7 +396,8 @@
   wrote in since you looked, and with its person picker only those someone started or replied in.
   A thread's menu has *Come back later*, a mark only you see that the *Marked* filter lists, and
   *Mute replies*, which keeps its new comments from reaching you until you reply or are mentioned
-  there.
+  there. A comment can carry up to ten images (the image button under the box, or paste or drop
+  them), shown as thumbnails that fold past four; a comment of just a few emoji shows them large.
 - **Suggested edits**: switch the page header from *Editing* to *Suggesting* and changes show as
   suggestions instead: inserted text underlined, deleted text struck through but kept, new
   formatting marked, live for everyone. Each is a thread in the comments panel, in its author's

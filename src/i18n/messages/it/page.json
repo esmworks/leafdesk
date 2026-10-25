@@ -151,7 +151,13 @@
       "quote": "«{quote}»",
       "removed": "Su un testo che è stato rimosso",
       "unknown": "Qualcuno"
-    }
+    },
+    "attachImages": "Allega immagini",
+    "removeImage": "Rimuovi immagine",
+    "imageAlt": "Immagine {number}",
+    "moreImages": "+{count}",
+    "fewerImages": "Mostra meno",
+    "tooManyImages": "Un commento può contenere al massimo {count} immagini."
   },
   "archived": {
     "banner": "Questa pagina è nel cestino.",
