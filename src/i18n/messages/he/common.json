@@ -38,5 +38,11 @@
     "trashed": "הועבר לאשפה",
     "rowsTrashed": "{count, plural, one {השורה הועברה לאשפה} two {שתי שורות הועברו לאשפה} other {# שורות הועברו לאשפה}}",
     "undoFailed": "לא ניתן היה לבטל."
+  },
+  "datePhrase": {
+    "label": "הקלדת תאריך",
+    "placeholder": "הקלדת תאריך: מחר 17:00, +2w",
+    "preview": "{when} · Enter לקביעה",
+    "unreadable": "זה לא תאריך. אפשר לנסות „מחר 9:00” או „2w”."
   }
 }

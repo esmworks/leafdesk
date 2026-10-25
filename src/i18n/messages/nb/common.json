@@ -38,5 +38,11 @@
     "trashed": "Flyttet til papirkurven",
     "rowsTrashed": "{count, plural, one {Raden ble flyttet til papirkurven} other {# rader ble flyttet til papirkurven}}",
     "undoFailed": "Kunne ikke angre."
+  },
+  "datePhrase": {
+    "label": "Skriv en dato",
+    "placeholder": "Skriv en dato: i morgen 17:00, 31 aug, +2w",
+    "preview": "{when} · Enter for å velge",
+    "unreadable": "Ikke en dato. Prøv «i morgen 9:00», «31 august» eller «2w»."
   }
 }

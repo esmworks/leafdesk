@@ -30,6 +30,7 @@ import { useLocale, useTranslations } from "next-intl";
 import { Fragment, useEffect, useRef, useState } from "react";
 import { Button, cn, Input, MenuItem, MenuSeparator } from "@/components/ui";
 import { useReorderDrag, type ReorderDragHandlers } from "@/components/use-reorder-drag";
+import { DatePhraseInput } from "@/components/date-phrase-input";
 import type {
   FilterCombinator,
   FilterEntry,
@@ -1468,15 +1469,21 @@ function FilterValue({
     );
   }
   // Created and last edited times are filtered by day, like dates.
+  // A day, picked or typed in words ("fri", "aug 31", "+2w" from the day chosen); times count as their day.
   if (col.type === "date" || holdsTimestamp(col.type)) {
+    const day = typeof value === "string" ? value : "";
+    const format = col.prop?.options.date?.format;
     return (
-      <Input
-        type="date"
-        aria-label={t("value")}
-        value={typeof value === "string" ? value : ""}
-        onChange={(e) => onChange(e.target.value || undefined)}
-        className="h-7"
-      />
+      <div className="flex flex-col gap-1">
+        <Input type="date" aria-label={t("value")} value={day} onChange={(e) => onChange(e.target.value || undefined)} className="h-7" />
+        <DatePhraseInput
+          onPick={(found) => onChange(found.day)}
+          reference={day || null}
+          order={format === "mdy" || format === "dmy" || format === "ymd" ? format : undefined}
+          time={false}
+          inputClassName="h-7"
+        />
+      </div>
     );
   }
   return (

@@ -38,5 +38,11 @@
     "trashed": "Naar de prullenbak verplaatst",
     "rowsTrashed": "{count, plural, one {Rij naar de prullenbak verplaatst} other {# rijen naar de prullenbak verplaatst}}",
     "undoFailed": "Ongedaan maken is niet gelukt."
+  },
+  "datePhrase": {
+    "label": "Typ een datum",
+    "placeholder": "Typ een datum: morgen 17:00, 31 aug, +2w",
+    "preview": "{when} · Enter om in te stellen",
+    "unreadable": "Geen datum. Probeer ‘morgen 9:00’, ‘31 augustus’ of ‘2w’."
   }
 }

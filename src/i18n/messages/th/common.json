@@ -38,5 +38,11 @@
     "trashed": "ย้ายไปถังขยะแล้ว",
     "rowsTrashed": "{count, plural, other {ย้าย # แถวไปถังขยะแล้ว}}",
     "undoFailed": "เลิกทำไม่ได้"
+  },
+  "datePhrase": {
+    "label": "พิมพ์วันที่",
+    "placeholder": "พิมพ์วันที่: พรุ่งนี้ 17:00, +2w",
+    "preview": "{when} · กด Enter เพื่อตั้ง",
+    "unreadable": "ไม่ใช่วันที่ ลอง “พรุ่งนี้ 9:00” หรือ “2w”"
   }
 }

@@ -156,6 +156,11 @@ BlockNote on Yjs; Tailwind v4; next-intl. Node 24, pnpm 11. A separate Electron 
   server SVG for favicons and PDF is `lib/builtin-icon-svg.ts`. Emoji data and names per locale are
   static files in `public/emoji/` written by `scripts/emoji-data.ts`, fetched by the picker and the
   editor's ":" menu, never imported.
+- **Dates typed in words.** `src/lib/date-words.ts` holds each language's date words and reads
+  dates in tokens (quick add, `lib/quick-add.ts`, finds them inside a row's title);
+  `lib/date-phrase.ts` `parseDatePhrase` reads a whole phrase (times, durations, `+2w` from the
+  day shown) for `@`, the date property editor, date mentions and date filters. A new place where
+  a date is typed uses `components/date-phrase-input.tsx`, which loads the grammar on the first keystroke.
 - **Published links can expire** (`page_publication.expires_at`): every query that serves or
   lists a publication to visitors adds `livePublication()` (`src/server/publication-live.ts`, its own
   module so `mentions.ts` can use it without an import cycle); there is no job that unpublishes.

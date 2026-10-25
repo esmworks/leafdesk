@@ -724,6 +724,8 @@
     "reminderSet": "Recordatorio: {when}",
     "reminderHint": "Lo recibirás en tu bandeja de entrada y por correo.",
     "reminderPast": "Esa hora ya ha pasado; elige una fecha o un recordatorio posterior.",
+    "remindAt": "Recordar a las",
+    "remindAtPlaceholder": "O escribe cuándo: viernes 17:00, -1d",
     "done": "Listo"
   },
   "preview": {

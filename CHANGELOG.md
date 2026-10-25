@@ -4,6 +4,19 @@
 
 ### Added
 
+- **Type dates in words, everywhere a date is typed.** One grammar reads dates after `@` in a page,
+  in a new box on top of a date property's picker, in a date mention's menu (for its date and for
+  a reminder at any time) and under a date filter's value; the box shows what the words name and
+  Enter sets it. Besides what `@` read before (today, next friday, in 3 days, 3 days ago, ISO
+  dates, in the interface language and English) it takes weekday abbreviations (`fri`, always the
+  next one), months by three letters or more (`aug 31`, `31 sept`, `aug 31, 2027`), slash dates
+  read in the language's or the date property's order unless only one number can be the month,
+  times (`fri 5pm`, `aug 31 at 9 pm`, `17:30`, or a time alone: today, or tomorrow once passed),
+  durations from now (`30m`, `4h`, `3d`, `2w`, `2mo`, with or without `in`) and `+2w` / `-3d`
+  counted from the date shown. A time sets a date property's time only with *Include time* on; in
+  `@` (`@fri 5pm`) it gives the date mention a reminder then. Bare numbers, two-digit years, days
+  that don't exist and `in +2w` are refused rather than guessed. `next friday` and `next week`
+  now count weeks from the first day of the week in the interface language there.
 - **Embed any website.** The Embed block shows any https site as it is, not only the named
   providers: Hex apps, Deepnote blocks, Pitch presentations and the like, in the same sandboxed
   frame, without a referrer. Sites that refuse to be framed show an empty frame with their link,

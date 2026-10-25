@@ -724,6 +724,8 @@
     "reminderSet": "Rappel : {when}",
     "reminderHint": "Vous le recevrez dans votre boîte de réception et par e-mail.",
     "reminderPast": "Cette heure est passée ; choisissez une date ou un rappel plus tardif.",
+    "remindAt": "Rappel à",
+    "remindAtPlaceholder": "Ou saisissez quand : vendredi 17:00, -1d",
     "done": "Terminé"
   },
   "preview": {

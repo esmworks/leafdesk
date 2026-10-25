@@ -38,5 +38,11 @@
     "trashed": "In den Papierkorb verschoben",
     "rowsTrashed": "{count, plural, one {Zeile in den Papierkorb verschoben} other {# Zeilen in den Papierkorb verschoben}}",
     "undoFailed": "Das ließ sich nicht rückgängig machen."
+  },
+  "datePhrase": {
+    "label": "Datum eingeben",
+    "placeholder": "Datum eingeben: morgen 17:00, 31. Aug, +2w",
+    "preview": "{when} · Enter zum Übernehmen",
+    "unreadable": "Kein Datum. Versuch „morgen 9:00“, „31. August“ oder „2w“."
   }
 }

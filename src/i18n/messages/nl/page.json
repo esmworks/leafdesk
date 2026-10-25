@@ -724,6 +724,8 @@
     "reminderSet": "Herinnering: {when}",
     "reminderHint": "Je krijgt hem in je inbox en per e-mail.",
     "reminderPast": "Dat tijdstip is voorbij; kies een latere datum of herinnering.",
+    "remindAt": "Herinneren om",
+    "remindAtPlaceholder": "Of typ wanneer: vrijdag 17:00, -1d",
     "done": "Klaar"
   },
   "preview": {

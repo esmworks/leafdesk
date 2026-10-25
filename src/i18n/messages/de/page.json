@@ -724,6 +724,8 @@
     "reminderSet": "Erinnerung: {when}",
     "reminderHint": "Du erhältst sie in deinem Posteingang und per E-Mail.",
     "reminderPast": "Dieser Zeitpunkt ist bereits vorbei; wähle ein späteres Datum oder eine andere Erinnerung.",
+    "remindAt": "Erinnern um",
+    "remindAtPlaceholder": "Oder Zeitpunkt eingeben: Freitag 17:00, -1d",
     "done": "Fertig"
   },
   "preview": {

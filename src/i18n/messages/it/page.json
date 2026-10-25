@@ -724,6 +724,8 @@
     "reminderSet": "Promemoria: {when}",
     "reminderHint": "Lo riceverai nella Posta in arrivo e via email.",
     "reminderPast": "Quel momento è già passato; scegli una data o un promemoria successivi.",
+    "remindAt": "Promemoria alle",
+    "remindAtPlaceholder": "Oppure scrivi quando: venerdì 17:00, -1d",
     "done": "Fine"
   },
   "preview": {

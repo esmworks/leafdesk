@@ -38,5 +38,11 @@
     "trashed": "已移到回收站",
     "rowsTrashed": "已将 {count} 行移到回收站",
     "undoFailed": "无法撤销。"
+  },
+  "datePhrase": {
+    "label": "输入日期",
+    "placeholder": "输入日期：明天 17:00、8/31、+2w",
+    "preview": "{when} · 按 Enter 设置",
+    "unreadable": "不是日期。试试“明天 9:00”“8/31”或“2w”。"
   }
 }
