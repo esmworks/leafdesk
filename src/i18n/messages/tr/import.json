@@ -7,6 +7,7 @@
     "docx": "Word",
     "pdf": "PDF",
     "evernote": "Evernote",
+    "confluence": "Confluence",
     "csv": "CSV ve Excel",
     "trello": "Trello",
     "asana": "Asana",
@@ -52,6 +53,11 @@
       "sourceUrl": "Kaynak URL",
       "encrypted": "Şifreli metin içe aktarıma alınmadı."
     }
+  },
+  "confluence": {
+    "help": "Confluence alanının her sayfası, alandaki gibi iç içe bir sayfa olur. Başlıklar, listeler, tablolar, kod blokları, bilgi panelleri (vurgu kutusu olarak), açılır bölümler (açılır liste olarak), görev listeleri, görseller ve ekli dosyalar gelir; sayfalar arası bağlantılar sayfa bahsetmesine dönüşür.",
+    "export": "Confluence'ta alanın ayarlarını açıp Alanı dışa aktar → HTML'i seçin, sonra indirilen ZIP'i seçin.",
+    "choose": "Dışa aktarımı seç (.zip)"
   },
   "csv": {
     "choose": "CSV veya Excel dosyası seç",
@@ -291,6 +297,7 @@
     "badTrello": "Dosya bir Trello panosu dışa aktarımı değil. Trello'da panonun menüsünden JSON olarak dışa aktar'ı seçip o dosyayı seçin.",
     "badAsana": "Dosya bir Asana projesi dışa aktarımı değil. Asana'da projenin menüsünden Dışa aktar → CSV veya JSON'u seçip o dosyayı seçin.",
     "badMonday": "Dosya bir Monday.com panosu dışa aktarımı değil. Monday.com'da panonun menüsünden Panoyu Excel'e aktar'ı seçip o dosyayı seçin.",
+    "badConfluence": "Dosya, HTML olarak dışa aktarılmış bir Confluence alanı değil. Confluence'ta alanın ayarlarında Alanı dışa aktar → HTML'i seçin ve indirdiği ZIP'i seçin.",
     "badMapping": "En az bir sütunun hedefini seçin; her özellik yalnızca bir kez kullanılabilir.",
     "noAccess": "Oraya sayfa ekleyemezsiniz ya da artık mevcut değil.",
     "notADatabase": "Satırlar yalnızca bir veritabanına eklenebilir.",

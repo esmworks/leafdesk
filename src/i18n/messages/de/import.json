@@ -7,6 +7,7 @@
     "docx": "Word",
     "pdf": "PDF",
     "evernote": "Evernote",
+    "confluence": "Confluence",
     "csv": "CSV & Excel",
     "trello": "Trello",
     "asana": "Asana",
@@ -52,6 +53,11 @@
       "sourceUrl": "Quell-URL",
       "encrypted": "Verschlüsselter Text wurde beim Import ausgelassen."
     }
+  },
+  "confluence": {
+    "help": "Jede Seite eines Confluence-Bereichs wird eine Seite, verschachtelt wie im Bereich. Überschriften, Listen, Tabellen, Codeblöcke, Infopanels (als Hinweisboxen), aufklappbare Abschnitte (als Umschaltlisten), Aufgabenlisten, Bilder und angehängte Dateien kommen mit, und Links zwischen Seiten werden Seitenerwähnungen.",
+    "export": "Öffne in Confluence die Einstellungen des Bereichs, wähle Bereich exportieren → HTML und dann die heruntergeladene ZIP-Datei.",
+    "choose": "Export auswählen (.zip)"
   },
   "csv": {
     "choose": "CSV- oder Excel-Datei auswählen",
@@ -291,6 +297,7 @@
     "badTrello": "Die Datei ist kein Trello-Board-Export. Wähle in Trello im Menü des Boards Als JSON exportieren und dann diese Datei.",
     "badAsana": "Die Datei ist kein Asana-Projektexport. Wähle in Asana im Menü des Projekts Exportieren → CSV oder JSON und dann diese Datei.",
     "badMonday": "Die Datei ist kein Monday.com-Board-Export. Wähle in Monday.com im Menü des Boards Board nach Excel exportieren und dann diese Datei.",
+    "badConfluence": "Die Datei ist kein als HTML exportierter Confluence-Bereich. Wähle in Confluence in den Bereichseinstellungen Bereich exportieren → HTML und dann die heruntergeladene ZIP-Datei.",
     "badMapping": "Lege für mindestens eine Spalte ein Ziel fest und verwende jede Eigenschaft nur einmal.",
     "noAccess": "Du kannst dort keine Seiten hinzufügen, oder das Ziel existiert nicht mehr.",
     "notADatabase": "Zeilen können nur einer Datenbank hinzugefügt werden.",

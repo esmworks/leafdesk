@@ -52,6 +52,7 @@ const PDF_ACCEPT = ".pdf,application/pdf";
 const isPdf = (file: File) => /\.pdf$/i.test(file.name);
 /** What the Evernote tab's file picker offers (exports, and ZIPs of them), and what it takes from a drop. */
 const ENEX_ACCEPT = ".enex,.zip,application/zip";
+const CONFLUENCE_ACCEPT = ".zip,application/zip";
 const isEnexUpload = (file: File) => /\.(enex|zip)$/i.test(file.name);
 /** What the Trello tab's file picker offers. */
 const TRELLO_ACCEPT = ".json,application/json";
@@ -114,7 +115,7 @@ export function ImportDialog({
   const databases = flat.filter(({ node }) => node.kind === "database" && canEdit(node));
   const activeNode = tree.find((n) => n.id === activeId);
 
-  const [tab, setTab] = useState<"pages" | "docx" | "googleDocs" | "pdf" | "evernote" | "csv" | "trello" | BoardSource | "jira" | "github" | "web">("pages");
+  const [tab, setTab] = useState<"pages" | "docx" | "googleDocs" | "pdf" | "evernote" | "confluence" | "csv" | "trello" | BoardSource | "jira" | "github" | "web">("pages");
   const [destination, setDestination] = useState("");
   const [picked, setPicked] = useState<Picked[]>([]);
   // A folder that came with an Obsidian vault's settings folder (which isn't sent).
@@ -122,6 +123,8 @@ export function ImportDialog({
   const [documents, setDocuments] = useState<File[]>([]);
   const [pdfs, setPdfs] = useState<File[]>([]);
   const [notebooks, setNotebooks] = useState<File[]>([]);
+  // A Confluence space exported as HTML: one ZIP.
+  const [confluence, setConfluence] = useState<File | null>(null);
   // Each PDF is uploaded to its page too, for its pictures, tables and layout.
   const [attachPdf, setAttachPdf] = useState(true);
   const [csv, setCsv] = useState<CsvState | null>(null);
@@ -154,6 +157,7 @@ export function ImportDialog({
   const docxInput = useRef<HTMLInputElement>(null);
   const pdfInput = useRef<HTMLInputElement>(null);
   const enexInput = useRef<HTMLInputElement>(null);
+  const confluenceInput = useRef<HTMLInputElement>(null);
   const trelloInput = useRef<HTMLInputElement>(null);
   const boardInput = useRef<HTMLInputElement>(null);
 
@@ -170,6 +174,7 @@ export function ImportDialog({
     setDocuments([]);
     setPdfs([]);
     setNotebooks([]);
+    setConfluence(null);
     setAttachPdf(true);
     setCsv(null);
     setTrello(null);
@@ -405,6 +410,12 @@ export function ImportDialog({
       form.append("mode", "enex");
       form.append("parentId", destination);
       for (const file of notebooks) form.append("file", file, file.name);
+    } else if (tab === "confluence") {
+      if (!confluence) return;
+      if (confluence.size > IMPORT_LIMITS.uploadBytes) return setError(t("errors.tooLarge", { limit: formatBytes(IMPORT_LIMITS.uploadBytes) }));
+      form.append("mode", "confluence");
+      form.append("parentId", destination);
+      form.append("file", confluence, confluence.name);
     } else if (tab === "trello") {
       if (!trello) return;
       form.append("mode", "trello");
@@ -556,6 +567,8 @@ export function ImportDialog({
           ? pdfs.length > 0 && destinationValid
         : tab === "evernote"
           ? notebooks.length > 0 && destinationValid
+        : tab === "confluence"
+          ? confluence !== null && destinationValid
         : tab === "trello"
           ? trello !== null && destinationValid
           : tab === "asana" || tab === "monday"
@@ -624,6 +637,7 @@ export function ImportDialog({
             setDocuments([]);
             setPdfs([]);
             setNotebooks([]);
+            setConfluence(null);
             setCsv(null);
             setTrello(null);
             setBoard(null);
@@ -632,7 +646,7 @@ export function ImportDialog({
       ) : (
         <div className="max-h-[70vh] space-y-4 overflow-y-auto p-4" aria-busy={busy}>
           <div role="tablist" aria-label={t("title")} className="inline-flex flex-wrap gap-0.5 rounded-lg bg-bg-hover p-0.5">
-            {(["pages", "docx", "googleDocs", "pdf", "evernote", "csv", "trello", "asana", "monday", "jira", "github", "web"] as const).map((key) => (
+            {(["pages", "docx", "googleDocs", "pdf", "evernote", "confluence", "csv", "trello", "asana", "monday", "jira", "github", "web"] as const).map((key) => (
               <button
                 key={key}
                 type="button"
@@ -915,6 +929,48 @@ export function ImportDialog({
                   </ul>
                 </div>
               )}
+              {destinationPicker}
+            </>
+          ) : tab === "confluence" ? (
+            <>
+              <p className="text-sm text-fg-muted">{t("confluence.help")}</p>
+              <p className="text-sm text-fg-muted">{t("confluence.export")}</p>
+              <div
+                onDragOver={(e) => {
+                  e.preventDefault();
+                  setDragOver(true);
+                }}
+                onDragLeave={() => setDragOver(false)}
+                onDrop={(e) => {
+                  e.preventDefault();
+                  setDragOver(false);
+                  const file = [...e.dataTransfer.files].find((f) => /\.zip$/i.test(f.name));
+                  if (file) setConfluence(file);
+                  setError(null);
+                }}
+                className={cn(
+                  "flex flex-wrap items-center gap-2 rounded-lg border border-dashed border-border px-3 py-3",
+                  dragOver && "border-accent bg-accent/5",
+                )}
+              >
+                <Button disabled={busy} onClick={() => confluenceInput.current?.click()}>
+                  <FileUp className="h-4 w-4" />
+                  {t("confluence.choose")}
+                </Button>
+                <span className="text-xs text-fg-faint">{confluence ? `${confluence.name}, ${formatBytes(confluence.size)}` : t("pages.drop")}</span>
+                <input
+                  ref={confluenceInput}
+                  type="file"
+                  hidden
+                  accept={CONFLUENCE_ACCEPT}
+                  data-import="confluence"
+                  onChange={(e) => {
+                    setConfluence(e.target.files?.[0] ?? null);
+                    setError(null);
+                    e.target.value = "";
+                  }}
+                />
+              </div>
               {destinationPicker}
             </>
           ) : tab === "trello" ? (

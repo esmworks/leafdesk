@@ -7,6 +7,7 @@
     "docx": "Word",
     "pdf": "PDF",
     "evernote": "Evernote",
+    "confluence": "Confluence",
     "csv": "CSV 및 Excel",
     "trello": "Trello",
     "asana": "Asana",
@@ -52,6 +53,11 @@
       "sourceUrl": "원본 URL",
       "encrypted": "암호화된 텍스트는 가져오지 않았습니다."
     }
+  },
+  "confluence": {
+    "help": "Confluence 스페이스의 각 페이지가 스페이스와 같은 구조의 페이지가 됩니다. 제목, 목록, 표, 코드 블록, 정보 패널(콜아웃으로), 펼치기 섹션(토글로), 작업 목록, 이미지와 첨부 파일이 함께 들어오고, 페이지 사이의 링크는 페이지 멘션이 됩니다.",
+    "export": "Confluence에서 스페이스 설정을 열고 스페이스 내보내기 → HTML을 선택한 다음 다운로드한 ZIP을 선택하세요.",
+    "choose": "내보내기 선택 (.zip)"
   },
   "csv": {
     "choose": "CSV 또는 Excel 파일 선택",
@@ -291,6 +297,7 @@
     "badTrello": "이 파일은 Trello 보드 내보내기가 아닙니다. Trello의 보드 메뉴에서 JSON으로 내보내기를 선택한 후 그 파일을 고르세요.",
     "badAsana": "이 파일은 Asana 프로젝트 내보내기가 아닙니다. Asana에서 프로젝트 메뉴의 내보내기 → CSV 또는 JSON을 선택하고 그 파일을 고르세요.",
     "badMonday": "이 파일은 Monday.com 보드 내보내기가 아닙니다. Monday.com에서 보드 메뉴의 보드를 Excel로 내보내기를 선택하고 그 파일을 고르세요.",
+    "badConfluence": "이 파일은 HTML로 내보낸 Confluence 스페이스가 아닙니다. Confluence의 스페이스 설정에서 스페이스 내보내기 → HTML을 선택하고 다운로드한 ZIP을 선택하세요.",
     "badMapping": "적어도 한 열의 대상을 선택하고, 각 속성은 한 번만 선택하세요.",
     "noAccess": "그곳에 페이지를 추가할 수 없거나 더 이상 존재하지 않습니다.",
     "notADatabase": "행은 데이터베이스에만 추가할 수 있습니다.",

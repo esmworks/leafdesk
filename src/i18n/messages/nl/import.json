@@ -7,6 +7,7 @@
     "docx": "Word",
     "pdf": "PDF",
     "evernote": "Evernote",
+    "confluence": "Confluence",
     "csv": "CSV en Excel",
     "trello": "Trello",
     "asana": "Asana",
@@ -52,6 +53,11 @@
       "sourceUrl": "Bron-URL",
       "encrypted": "Versleutelde tekst is bij de import weggelaten."
     }
+  },
+  "confluence": {
+    "help": "Elke pagina van een Confluence-ruimte wordt een pagina, genest zoals in de ruimte. Koppen, lijsten, tabellen, codeblokken, infopanelen (als callouts), uitklapsecties (als uitklaplijsten), takenlijsten, afbeeldingen en bijgevoegde bestanden komen mee, en links tussen pagina’s worden paginavermeldingen.",
+    "export": "Open in Confluence de instellingen van de ruimte en kies Ruimte exporteren → HTML, en kies dan de gedownloade ZIP.",
+    "choose": "Export kiezen (.zip)"
   },
   "csv": {
     "choose": "Een CSV- of Excel-bestand kiezen",
@@ -291,6 +297,7 @@
     "badTrello": "Het bestand is geen export van een Trello-bord. Kies in Trello Exporteren als JSON in het menu van het bord en kies dat bestand.",
     "badAsana": "Het bestand is geen export van een Asana-project. Kies in Asana Exporteren → CSV of JSON in het menu van het project en kies dat bestand.",
     "badMonday": "Het bestand is geen export van een Monday.com-bord. Kies in Monday.com Bord exporteren naar Excel in het menu van het bord en kies dat bestand.",
+    "badConfluence": "Het bestand is geen als HTML geëxporteerde Confluence-ruimte. Kies in Confluence Ruimte exporteren → HTML in de instellingen van de ruimte en kies de gedownloade ZIP.",
     "badMapping": "Kies waar minstens één kolom naartoe gaat, en elke eigenschap maar één keer.",
     "noAccess": "Je kunt daar geen pagina’s toevoegen, of het bestaat niet meer.",
     "notADatabase": "Rijen kunnen alleen aan een database worden toegevoegd.",

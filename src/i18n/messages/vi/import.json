@@ -7,6 +7,7 @@
     "docx": "Word",
     "pdf": "PDF",
     "evernote": "Evernote",
+    "confluence": "Confluence",
     "csv": "CSV & Excel",
     "trello": "Trello",
     "asana": "Asana",
@@ -52,6 +53,11 @@
       "sourceUrl": "URL nguồn",
       "encrypted": "Văn bản mã hóa đã không được nhập."
     }
+  },
+  "confluence": {
+    "help": "Mỗi trang của một không gian Confluence trở thành một trang, lồng nhau như trong không gian. Tiêu đề, danh sách, bảng, khối mã, bảng thông tin (thành khung chú thích), phần mở rộng (thành danh sách thu gọn), danh sách việc, hình ảnh và tệp đính kèm đều được mang theo, và liên kết giữa các trang trở thành nhắc đến trang.",
+    "export": "Trong Confluence, mở cài đặt không gian và chọn Xuất không gian → HTML, rồi chọn tệp ZIP đã tải xuống.",
+    "choose": "Chọn tệp xuất (.zip)"
   },
   "csv": {
     "choose": "Chọn một tệp CSV hoặc Excel",
@@ -291,6 +297,7 @@
     "badTrello": "Tệp này không phải là tệp xuất của bảng Trello. Trong Trello, hãy chọn Xuất dưới dạng JSON từ menu của bảng và chọn tệp đó.",
     "badAsana": "Tệp này không phải là tệp xuất của một dự án Asana. Trong Asana, hãy chọn Xuất → CSV hoặc JSON từ menu của dự án và chọn tệp đó.",
     "badMonday": "Tệp này không phải là tệp xuất của một bảng Monday.com. Trong Monday.com, hãy chọn Xuất bảng sang Excel từ menu của bảng và chọn tệp đó.",
+    "badConfluence": "Tệp này không phải là không gian Confluence được xuất dưới dạng HTML. Trong Confluence, chọn Xuất không gian → HTML trong cài đặt không gian rồi chọn tệp ZIP đã tải xuống.",
     "badMapping": "Hãy chọn nơi đưa ít nhất một cột, và mỗi thuộc tính chỉ dùng một lần.",
     "noAccess": "Bạn không thể thêm trang vào đó, hoặc nó không còn tồn tại.",
     "notADatabase": "Chỉ có thể thêm hàng vào một cơ sở dữ liệu.",

@@ -1686,7 +1686,8 @@
       "enex": "Evernote",
       "web": "ウェブページ",
       "jira": "Jira",
-      "github": "GitHub"
+      "github": "GitHub",
+      "confluence": "Confluence"
     },
     "settingNames": {
       "guestInvites": "ゲストを招待できる人",

@@ -4,6 +4,11 @@
 
 ### Added
 
+- **Import a Confluence space.** Import has a Confluence tab: a space exported as HTML (a ZIP)
+  becomes pages nested as in the space, with info panels as callouts, code macros as code blocks
+  in their language, expand sections as toggles, task lists as to-dos, links between pages as page
+  links, and pictures and linked attachments uploaded under their own names (`POST /api/import`
+  `mode=confluence`).
 - **Load limit for boards and galleries.** A board column and a gallery show 50 cards, then *Load
   more* adds as many again; Layout → *Load limit* sets 10, 25, 50 or 100 per view (MCP
   `update_database_view` `load_limit`). Filters, sorts and counts still take every row. List views

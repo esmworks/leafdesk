@@ -7,6 +7,7 @@
     "docx": "Word",
     "pdf": "PDF",
     "evernote": "Evernote",
+    "confluence": "Confluence",
     "csv": "CSV og Excel",
     "trello": "Trello",
     "asana": "Asana",
@@ -52,6 +53,11 @@
       "sourceUrl": "Kilde-URL",
       "encrypted": "Kryptert tekst ble utelatt fra importen."
     }
+  },
+  "confluence": {
+    "help": "Hver side i et Confluence-område blir en side, nestet som i området. Overskrifter, lister, tabeller, kodeblokker, infopaneler (som merknadsbokser), utvidbare seksjoner (som vekslelister), oppgavelister, bilder og vedlagte filer blir med, og lenker mellom sider blir sidenevnelser.",
+    "export": "Åpne områdets innstillinger i Confluence, velg Eksporter område → HTML, og velg deretter den nedlastede ZIP-filen.",
+    "choose": "Velg eksporten (.zip)"
   },
   "csv": {
     "choose": "Velg en CSV- eller Excel-fil",
@@ -291,6 +297,7 @@
     "badTrello": "Filen er ikke en eksport av en Trello-tavle. Velg Eksporter som JSON fra menyen til tavlen i Trello og velg den filen.",
     "badAsana": "Filen er ikke en eksport av et Asana-prosjekt. Velg Eksporter → CSV eller JSON fra menyen til prosjektet i Asana og velg den filen.",
     "badMonday": "Filen er ikke en eksport av en Monday.com-tavle. Velg Eksporter tavle til Excel fra menyen til tavlen i Monday.com og velg den filen.",
+    "badConfluence": "Filen er ikke et Confluence-område eksportert som HTML. Velg Eksporter område → HTML i områdets innstillinger i Confluence, og velg ZIP-filen som lastes ned.",
     "badMapping": "Velg hvor minst én kolonne skal, og hver egenskap bare én gang.",
     "noAccess": "Du kan ikke legge til sider der, eller stedet finnes ikke lenger.",
     "notADatabase": "Rader kan bare legges til i en database.",

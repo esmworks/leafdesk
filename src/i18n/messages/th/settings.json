@@ -1686,7 +1686,8 @@
       "enex": "Evernote",
       "web": "หน้าเว็บ",
       "jira": "Jira",
-      "github": "GitHub"
+      "github": "GitHub",
+      "confluence": "Confluence"
     },
     "settingNames": {
       "guestInvites": "ใครเชิญผู้เยี่ยมชมได้",

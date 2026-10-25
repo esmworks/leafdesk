@@ -7,6 +7,7 @@
     "docx": "Word",
     "pdf": "PDF",
     "evernote": "Evernote",
+    "confluence": "Confluence",
     "csv": "CSV i Excel",
     "trello": "Trello",
     "asana": "Asana",
@@ -52,6 +53,11 @@
       "sourceUrl": "Źródłowy URL",
       "encrypted": "Zaszyfrowany tekst został pominięty przy imporcie."
     }
+  },
+  "confluence": {
+    "help": "Każda strona przestrzeni Confluence staje się stroną, zagnieżdżoną jak w przestrzeni. Nagłówki, listy, tabele, bloki kodu, panele informacyjne (jako wyróżnienia), sekcje rozwijane (jako listy rozwijane), listy zadań, obrazy i załączone pliki zostaną przeniesione, a linki między stronami staną się wzmiankami o stronach.",
+    "export": "W Confluence otwórz ustawienia przestrzeni i wybierz Eksportuj przestrzeń → HTML, a następnie wybierz pobrany plik ZIP.",
+    "choose": "Wybierz eksport (.zip)"
   },
   "csv": {
     "choose": "Wybierz plik CSV lub Excel",
@@ -291,6 +297,7 @@
     "badTrello": "Ten plik nie jest eksportem tablicy Trello. W Trello wybierz Eksportuj jako JSON z menu tablicy i wskaż ten plik.",
     "badAsana": "Ten plik nie jest eksportem projektu z Asany. W Asanie wybierz Eksportuj → CSV lub JSON z menu projektu i wybierz ten plik.",
     "badMonday": "Ten plik nie jest eksportem tablicy z Monday.com. W Monday.com wybierz Eksportuj tablicę do Excela z menu tablicy i wybierz ten plik.",
+    "badConfluence": "Plik nie jest przestrzenią Confluence wyeksportowaną jako HTML. W Confluence wybierz Eksportuj przestrzeń → HTML w ustawieniach przestrzeni i wybierz pobrany plik ZIP.",
     "badMapping": "Wybierz miejsce docelowe dla co najmniej jednej kolumny, a każdą właściwość tylko raz.",
     "noAccess": "Nie możesz tam dodawać stron lub to miejsce już nie istnieje.",
     "notADatabase": "Wiersze można dodawać tylko do bazy danych.",

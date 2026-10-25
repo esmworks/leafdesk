@@ -796,6 +796,17 @@
   wikilink or its ZIP holds the `.obsidian` folder; other Markdown keeps `%%`, `^` and `==` as
   written. A note whose first line is a heading other than its file name takes the heading as its
   title (links still find it by file name).
+- **Import from Confluence**: in Confluence, open a space's settings and choose *Export space →
+  HTML*, then pick the downloaded ZIP on Import's Confluence tab. Each page of the space becomes a
+  page, nested as the space's index lists them (a page it leaves out goes under the parent its
+  breadcrumbs name); a space with one top page comes in as that page, otherwise a page named after
+  the space holds the top pages. Headings, formatting, lists, tables, links and quotes come along;
+  info, note, tip and warning panels become callouts in their colors (with their titles), the code
+  macro a code block in its language, expand sections toggles, task lists to-dos, the table of
+  contents a table of contents and emoticons emoji. Links between the space's pages become page
+  links, pictures and linked attachments are uploaded to the page under their own names, and a
+  link to a page the export doesn't hold keeps its text and is reported. Other macros keep the
+  text they show. The export's HTML is read without running its scripts or loading anything.
 - **Import from Evernote**: in Evernote, select notes or a notebook and choose *Export → ENEX*,
   then pick the .enex files (or a ZIP of them) on Import's Evernote tab. Each export becomes a
   database named after its file, with a row per note: tags become a multi-select, the creation and

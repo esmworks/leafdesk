@@ -7,6 +7,7 @@
     "docx": "Word",
     "pdf": "PDF",
     "evernote": "Evernote",
+    "confluence": "Confluence",
     "csv": "CSV ed Excel",
     "trello": "Trello",
     "asana": "Asana",
@@ -52,6 +53,11 @@
       "sourceUrl": "URL di origine",
       "encrypted": "Il testo cifrato è stato escluso dall’importazione."
     }
+  },
+  "confluence": {
+    "help": "Ogni pagina di uno spazio Confluence diventa una pagina, annidata come nello spazio. Titoli, elenchi, tabelle, blocchi di codice, pannelli informativi (come riquadri), sezioni espandibili (come elenchi a scomparsa), elenchi di attività, immagini e file allegati vengono importati, e i link tra le pagine diventano menzioni di pagina.",
+    "export": "In Confluence apri le impostazioni dello spazio e scegli Esporta spazio → HTML, poi scegli lo ZIP scaricato.",
+    "choose": "Scegli l’esportazione (.zip)"
   },
   "csv": {
     "choose": "Scegli un file CSV o Excel",
@@ -291,6 +297,7 @@
     "badTrello": "Il file non è un’esportazione di una bacheca Trello. In Trello, scegli Esporta come JSON dal menu della bacheca e scegli quel file.",
     "badAsana": "Il file non è un'esportazione di un progetto Asana. In Asana, scegli Esporta → CSV o JSON dal menu del progetto e scegli quel file.",
     "badMonday": "Il file non è un'esportazione di una bacheca Monday.com. In Monday.com, scegli Esporta bacheca in Excel dal menu della bacheca e scegli quel file.",
+    "badConfluence": "Il file non è uno spazio Confluence esportato in HTML. In Confluence scegli Esporta spazio → HTML nelle impostazioni dello spazio e scegli lo ZIP scaricato.",
     "badMapping": "Scegli la destinazione di almeno una colonna, e usa ogni proprietà una sola volta.",
     "noAccess": "Non puoi aggiungere pagine lì, oppure non esiste più.",
     "notADatabase": "Le righe si possono aggiungere solo a un database.",

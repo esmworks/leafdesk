@@ -7,6 +7,7 @@
     "docx": "Word",
     "pdf": "PDF",
     "evernote": "Evernote",
+    "confluence": "Confluence",
     "csv": "CSV ja Excel",
     "trello": "Trello",
     "asana": "Asana",
@@ -52,6 +53,11 @@
       "sourceUrl": "Lähde-URL",
       "encrypted": "Salattu teksti jätettiin pois tuonnista."
     }
+  },
+  "confluence": {
+    "help": "Jokaisesta Confluence-tilan sivusta tulee sivu, sisäkkäin kuten tilassa. Otsikot, luettelot, taulukot, koodilohkot, tietopaneelit (huomiolaatikkoina), laajennettavat osiot (avattavina luetteloina), tehtävälistat, kuvat ja liitetiedostot tulevat mukaan, ja sivujen väliset linkit muuttuvat sivumaininnoiksi.",
+    "export": "Avaa Confluencessa tilan asetukset ja valitse Vie tila → HTML, ja valitse sitten ladattu ZIP-tiedosto.",
+    "choose": "Valitse vienti (.zip)"
   },
   "csv": {
     "choose": "Valitse CSV- tai Excel-tiedosto",
@@ -291,6 +297,7 @@
     "badTrello": "Tiedosto ei ole Trello-taulun vienti. Valitse Trellossa taulun valikosta Vie JSON-muodossa ja valitse se tiedosto.",
     "badAsana": "Tiedosto ei ole Asana-projektin vienti. Valitse Asanassa projektin valikosta Vie → CSV tai JSON ja valitse se tiedosto.",
     "badMonday": "Tiedosto ei ole Monday.com-taulun vienti. Valitse Monday.comissa taulun valikosta Export board to Excel ja valitse se tiedosto.",
+    "badConfluence": "Tiedosto ei ole HTML-muodossa viety Confluence-tila. Valitse Confluencessa tilan asetuksista Vie tila → HTML ja valitse ladattu ZIP-tiedosto.",
     "badMapping": "Valitse kohde vähintään yhdelle sarakkeelle ja kukin ominaisuus vain kerran.",
     "noAccess": "Et voi lisätä sivuja sinne, tai sitä ei enää ole.",
     "notADatabase": "Rivejä voi lisätä vain tietokantaan.",

@@ -1686,7 +1686,8 @@
       "enex": "Evernote",
       "web": "Webseite",
       "jira": "Jira",
-      "github": "GitHub"
+      "github": "GitHub",
+      "confluence": "Confluence"
     },
     "settingNames": {
       "guestInvites": "Wer Gäste einladen darf",

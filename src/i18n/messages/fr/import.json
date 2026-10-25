@@ -7,6 +7,7 @@
     "docx": "Word",
     "pdf": "PDF",
     "evernote": "Evernote",
+    "confluence": "Confluence",
     "csv": "CSV et Excel",
     "trello": "Trello",
     "asana": "Asana",
@@ -52,6 +53,11 @@
       "sourceUrl": "URL source",
       "encrypted": "Le texte chiffré n’a pas été importé."
     }
+  },
+  "confluence": {
+    "help": "Chaque page d’un espace Confluence devient une page, imbriquée comme dans l’espace. Titres, listes, tableaux, blocs de code, panneaux d’information (en encadrés), sections dépliables (en listes dépliantes), listes de tâches, images et fichiers joints suivent, et les liens entre pages deviennent des mentions de page.",
+    "export": "Dans Confluence, ouvrez les paramètres de l’espace et choisissez Exporter l’espace → HTML, puis choisissez le ZIP téléchargé.",
+    "choose": "Choisir l’export (.zip)"
   },
   "csv": {
     "choose": "Choisir un fichier CSV ou Excel",
@@ -291,6 +297,7 @@
     "badTrello": "Ce fichier n’est pas un export de tableau Trello. Dans Trello, choisissez Exporter au format JSON dans le menu du tableau, puis ce fichier.",
     "badAsana": "Le fichier n’est pas un export de projet Asana. Dans Asana, choisissez Exporter → CSV ou JSON dans le menu du projet, puis ce fichier.",
     "badMonday": "Le fichier n’est pas un export de tableau Monday.com. Dans Monday.com, choisissez Exporter le tableau vers Excel dans le menu du tableau, puis ce fichier.",
+    "badConfluence": "Le fichier n’est pas un espace Confluence exporté en HTML. Dans Confluence, choisissez Exporter l’espace → HTML dans les paramètres de l’espace et choisissez le ZIP téléchargé.",
     "badMapping": "Choisissez la destination d’au moins une colonne, et utilisez chaque propriété une seule fois.",
     "noAccess": "Vous ne pouvez pas ajouter de pages à cet endroit, ou il n’existe plus.",
     "notADatabase": "Les lignes ne peuvent être ajoutées qu’à une base de données.",

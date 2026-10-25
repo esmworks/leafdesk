@@ -7,6 +7,7 @@
     "docx": "Word",
     "pdf": "PDF",
     "evernote": "Evernote",
+    "confluence": "Confluence",
     "csv": "CSV och Excel",
     "trello": "Trello",
     "asana": "Asana",
@@ -52,6 +53,11 @@
       "sourceUrl": "Käll-URL",
       "encrypted": "Krypterad text utelämnades från importen."
     }
+  },
+  "confluence": {
+    "help": "Varje sida i ett Confluence-utrymme blir en sida, kapslad som i utrymmet. Rubriker, listor, tabeller, kodblock, infopaneler (som inforutor), expanderbara avsnitt (som växlingslistor), uppgiftslistor, bilder och bifogade filer följer med, och länkar mellan sidor blir sidomnämnanden.",
+    "export": "Öppna utrymmets inställningar i Confluence, välj Exportera utrymme → HTML och välj sedan den nedladdade ZIP-filen.",
+    "choose": "Välj exporten (.zip)"
   },
   "csv": {
     "choose": "Välj en CSV- eller Excel-fil",
@@ -291,6 +297,7 @@
     "badTrello": "Filen är ingen export av en Trello-tavla. Välj Export as JSON i tavlans meny i Trello och välj den filen.",
     "badAsana": "Filen är ingen export av ett Asana-projekt. Välj Export → CSV eller JSON i projektets meny i Asana och välj den filen.",
     "badMonday": "Filen är ingen export av en Monday.com-tavla. Välj Export board to Excel i tavlans meny i Monday.com och välj den filen.",
+    "badConfluence": "Filen är inte ett Confluence-utrymme exporterat som HTML. Välj Exportera utrymme → HTML i utrymmets inställningar i Confluence och välj ZIP-filen som laddas ned.",
     "badMapping": "Välj vart minst en kolumn ska, och varje egenskap bara en gång.",
     "noAccess": "Du kan inte lägga till sidor där, eller så finns den inte längre.",
     "notADatabase": "Rader kan bara läggas till i en databas.",

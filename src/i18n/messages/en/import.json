@@ -7,6 +7,7 @@
     "docx": "Word",
     "pdf": "PDF",
     "evernote": "Evernote",
+    "confluence": "Confluence",
     "csv": "CSV & Excel",
     "trello": "Trello",
     "asana": "Asana",
@@ -52,6 +53,11 @@
       "sourceUrl": "Source URL",
       "encrypted": "Encrypted text was left out of the import."
     }
+  },
+  "confluence": {
+    "help": "Each page of a Confluence space becomes a page, nested as in the space. Headings, lists, tables, code blocks, info panels (as callouts), expand sections (as toggles), task lists, pictures and attached files come along, and links between pages become page mentions.",
+    "export": "In Confluence, open the space's settings and choose Export space → HTML, then pick the downloaded ZIP.",
+    "choose": "Choose the export (.zip)"
   },
   "csv": {
     "choose": "Choose a CSV or Excel file",
@@ -291,6 +297,7 @@
     "badTrello": "The file isn't a Trello board export. In Trello, choose Export as JSON from the board's menu and pick that file.",
     "badAsana": "The file isn't an Asana project export. In Asana, choose Export → CSV or JSON from the project's menu and pick that file.",
     "badMonday": "The file isn't a Monday.com board export. In Monday.com, choose Export board to Excel from the board's menu and pick that file.",
+    "badConfluence": "The file isn't a Confluence space exported as HTML. In Confluence, choose Export space → HTML in the space's settings and pick the ZIP it downloads.",
     "badMapping": "Choose where at least one column goes, and each property only once.",
     "noAccess": "You can't add pages there, or it no longer exists.",
     "notADatabase": "Rows can only be added to a database.",

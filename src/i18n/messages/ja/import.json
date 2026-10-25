@@ -7,6 +7,7 @@
     "docx": "Word",
     "pdf": "PDF",
     "evernote": "Evernote",
+    "confluence": "Confluence",
     "csv": "CSVとExcel",
     "trello": "Trello",
     "asana": "Asana",
@@ -52,6 +53,11 @@
       "sourceUrl": "ソースURL",
       "encrypted": "暗号化されたテキストは取り込まれませんでした。"
     }
+  },
+  "confluence": {
+    "help": "Confluence スペースの各ページが、スペースと同じ階層のページになります。見出し、リスト、表、コードブロック、情報パネル（コールアウトとして）、展開セクション（トグルとして）、タスクリスト、画像、添付ファイルが取り込まれ、ページ間のリンクはページメンションになります。",
+    "export": "Confluence でスペースの設定を開き、［スペースをエクスポート］→［HTML］を選んで、ダウンロードした ZIP を選びます。",
+    "choose": "エクスポートを選択 (.zip)"
   },
   "csv": {
     "choose": "CSVまたはExcelファイルを選択",
@@ -291,6 +297,7 @@
     "badTrello": "このファイルはTrelloのボードのエクスポートではありません。Trelloでボードのメニューから「JSONとしてエクスポート」を選び、そのファイルを選択してください。",
     "badAsana": "このファイルはAsanaのプロジェクトのエクスポートではありません。Asanaでプロジェクトのメニューからエクスポート → CSV または JSON を選び、そのファイルを選んでください。",
     "badMonday": "このファイルはMonday.comのボードのエクスポートではありません。Monday.comでボードのメニューからボードをExcelにエクスポートを選び、そのファイルを選んでください。",
+    "badConfluence": "このファイルは HTML でエクスポートされた Confluence スペースではありません。Confluence のスペース設定で［スペースをエクスポート］→［HTML］を選び、ダウンロードした ZIP を選んでください。",
     "badMapping": "少なくとも1つの列の取り込み先を選択し、各プロパティは1回だけ使ってください。",
     "noAccess": "そこにはページを追加できないか、すでに存在しません。",
     "notADatabase": "行はデータベースにしか追加できません。",

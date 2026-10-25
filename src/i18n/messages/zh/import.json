@@ -7,6 +7,7 @@
     "docx": "Word",
     "pdf": "PDF",
     "evernote": "Evernote",
+    "confluence": "Confluence",
     "csv": "CSV 和 Excel",
     "trello": "Trello",
     "asana": "Asana",
@@ -52,6 +53,11 @@
       "sourceUrl": "来源 URL",
       "encrypted": "加密文本未被导入。"
     }
+  },
+  "confluence": {
+    "help": "Confluence 空间中的每个页面都会成为一个页面，层级与空间中相同。标题、列表、表格、代码块、信息面板（作为标注）、展开部分（作为折叠列表）、任务列表、图片和附件都会一并导入，页面之间的链接会变成页面提及。",
+    "export": "在 Confluence 中打开空间设置，选择“导出空间”→“HTML”，然后选择下载的 ZIP。",
+    "choose": "选择导出文件 (.zip)"
   },
   "csv": {
     "choose": "选择 CSV 或 Excel 文件",
@@ -291,6 +297,7 @@
     "badTrello": "该文件不是 Trello 看板的导出文件。请在 Trello 的看板菜单中选择“导出为 JSON”，然后选择该文件。",
     "badAsana": "该文件不是 Asana 项目导出。请在 Asana 的项目菜单中选择“导出 → CSV”或 JSON，然后选择该文件。",
     "badMonday": "该文件不是 Monday.com 看板导出。请在 Monday.com 的看板菜单中选择“将看板导出到 Excel”，然后选择该文件。",
+    "badConfluence": "该文件不是以 HTML 导出的 Confluence 空间。请在 Confluence 的空间设置中选择“导出空间”→“HTML”，然后选择下载的 ZIP。",
     "badMapping": "请至少为一列选择导入位置，且每个属性只能使用一次。",
     "noAccess": "你无法在那里添加页面，或它已不存在。",
     "notADatabase": "只能向数据库添加行。",
