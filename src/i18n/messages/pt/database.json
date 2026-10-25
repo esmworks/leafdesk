@@ -863,6 +863,12 @@
     "loadMore": "Carregar mais",
     "moreCards": "{count, plural, one {mais # cartão} other {mais # cartões}}"
   },
+  "viewMenu": {
+    "label": "Configurações da visualização",
+    "back": "Voltar",
+    "layoutHint": "A visualização mantém seus filtros, ordenações e propriedades.",
+    "shown": "{count} visíveis"
+  },
   "gallery": {
     "new": "Novo",
     "empty": "Nenhuma linha para mostrar.",

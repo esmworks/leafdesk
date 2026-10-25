@@ -863,6 +863,12 @@
     "loadMore": "Lataa lisää",
     "moreCards": "{count, plural, one {# kortti lisää} other {# korttia lisää}}"
   },
+  "viewMenu": {
+    "label": "Näkymän asetukset",
+    "back": "Takaisin",
+    "layoutHint": "Näkymä säilyttää suodattimensa, lajittelunsa ja ominaisuutensa.",
+    "shown": "{count} näkyvissä"
+  },
   "gallery": {
     "new": "Uusi",
     "empty": "Ei näytettäviä rivejä.",

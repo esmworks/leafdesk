@@ -863,6 +863,12 @@
     "loadMore": "加载更多",
     "moreCards": "{count, plural, other {还有 # 张卡片}}"
   },
+  "viewMenu": {
+    "label": "视图设置",
+    "back": "返回",
+    "layoutHint": "视图会保留其筛选、排序和属性。",
+    "shown": "显示 {count} 个"
+  },
   "gallery": {
     "new": "新建",
     "empty": "没有可显示的行。",

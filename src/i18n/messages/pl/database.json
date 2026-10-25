@@ -863,6 +863,12 @@
     "loadMore": "Wczytaj więcej",
     "moreCards": "{count, plural, one {jeszcze # karta} few {jeszcze # karty} many {jeszcze # kart} other {jeszcze # karty}}"
   },
+  "viewMenu": {
+    "label": "Ustawienia widoku",
+    "back": "Wstecz",
+    "layoutHint": "Widok zachowuje swoje filtry, sortowania i właściwości.",
+    "shown": "Widoczne: {count}"
+  },
   "gallery": {
     "new": "Nowy",
     "empty": "Brak wierszy do wyświetlenia.",

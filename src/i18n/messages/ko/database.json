@@ -863,6 +863,12 @@
     "loadMore": "더 불러오기",
     "moreCards": "{count, plural, other {카드 #개 더}}"
   },
+  "viewMenu": {
+    "label": "보기 설정",
+    "back": "뒤로",
+    "layoutHint": "보기의 필터, 정렬, 속성은 그대로 유지됩니다.",
+    "shown": "{count}개 표시"
+  },
   "gallery": {
     "new": "새로 만들기",
     "empty": "표시할 행이 없습니다.",

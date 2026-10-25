@@ -863,6 +863,12 @@
     "loadMore": "Indlæs flere",
     "moreCards": "{count, plural, one {# kort mere} other {# kort mere}}"
   },
+  "viewMenu": {
+    "label": "Visningsindstillinger",
+    "back": "Tilbage",
+    "layoutHint": "Visningen beholder sine filtre, sorteringer og egenskaber.",
+    "shown": "{count} vist"
+  },
   "gallery": {
     "new": "Ny",
     "empty": "Ingen rækker at vise.",

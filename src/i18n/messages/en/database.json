@@ -863,6 +863,12 @@
     "loadMore": "Load more",
     "moreCards": "{count, plural, one {# more card} other {# more cards}}"
   },
+  "viewMenu": {
+    "label": "View settings",
+    "back": "Back",
+    "layoutHint": "The view keeps its filters, sorts and properties.",
+    "shown": "{count} shown"
+  },
   "gallery": {
     "new": "New",
     "empty": "No rows to show.",

@@ -863,6 +863,12 @@
     "loadMore": "טען עוד",
     "moreCards": "{count, plural, one {כרטיס נוסף אחד} other {# כרטיסים נוספים}}"
   },
+  "viewMenu": {
+    "label": "הגדרות תצוגה",
+    "back": "חזרה",
+    "layoutHint": "התצוגה שומרת את המסננים, המיונים והמאפיינים שלה.",
+    "shown": "{count} מוצגים"
+  },
   "gallery": {
     "new": "חדש",
     "empty": "אין שורות להצגה.",

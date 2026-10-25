@@ -863,6 +863,12 @@
     "loadMore": "Charger plus",
     "moreCards": "{count, plural, one {# carte de plus} other {# cartes de plus}}"
   },
+  "viewMenu": {
+    "label": "Paramètres de la vue",
+    "back": "Retour",
+    "layoutHint": "La vue garde ses filtres, ses tris et ses propriétés.",
+    "shown": "{count} affichées"
+  },
   "gallery": {
     "new": "Nouveau",
     "empty": "Aucune ligne à afficher.",

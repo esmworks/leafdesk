@@ -863,6 +863,12 @@
     "loadMore": "Cargar más",
     "moreCards": "{count, plural, one {# tarjeta más} other {# tarjetas más}}"
   },
+  "viewMenu": {
+    "label": "Configuración de la vista",
+    "back": "Atrás",
+    "layoutHint": "La vista conserva sus filtros, ordenaciones y propiedades.",
+    "shown": "{count} visibles"
+  },
   "gallery": {
     "new": "Nuevo",
     "empty": "No hay filas que mostrar.",

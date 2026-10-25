@@ -58,6 +58,7 @@ import { holdsOptions, holdsTimestamp, STATUS_GROUPS } from "@/lib/property-type
 import { cleanUniqueIdPrefix } from "@/lib/unique-id";
 import { MAX_PROPERTY_DESCRIPTION } from "@/lib/property-description";
 import { CALENDAR_MODES, CARD_SIZES, OPEN_ROWS, ROW_VIEW_TYPES, TIMELINE_ZOOMS, VIEW_TYPES } from "@/lib/views";
+import { canSwitchLayout, SWITCHABLE_VIEW_TYPES } from "@/lib/view-layouts";
 import { DEFAULT_LOAD_LIMIT, LOAD_LIMITS } from "@/lib/load-limit";
 import { getCollab, type WriteActor } from "@/server/collab/bridge";
 import { asWrite } from "@/server/connected-app";
@@ -3046,11 +3047,14 @@ export function createMcpServer(principal: McpPrincipal) {
     {
       title: "Update a database view",
       description:
-        "Rename a saved view or change its filters, sorts, grouping (boards and tables, see create_database_view) or timeline swimlanes, calendar or timeline dates, calendar month or week, timeline zoom and table, gallery cards, a form's questions, texts, default values and public link, or a dashboard's widgets (view ids from get_database). before_view_id or after_view_id moves the view's tab next to another view of the database; the first tab is the one a published database shows. filters and sorts replace the view's current ones (filters with filter_combinator, \"and\" unless given); pass an empty array to clear them. filter_combinator alone switches how the current filters combine. Settings you leave out keep their values.",
+        "Rename a saved view, switch its layout (type) or change its filters, sorts, grouping (boards and tables, see create_database_view) or timeline swimlanes, calendar or timeline dates, calendar month or week, timeline zoom and table, gallery cards, a form's questions, texts, default values and public link, or a dashboard's widgets (view ids from get_database). before_view_id or after_view_id moves the view's tab next to another view of the database; the first tab is the one a published database shows. filters and sorts replace the view's current ones (filters with filter_combinator, \"and\" unless given); pass an empty array to clear them. filter_combinator alone switches how the current filters combine. Settings you leave out keep their values.",
       inputSchema: z.object({
         database_id: id("database"),
         view_id: id("view"),
         name: z.string().min(1).max(100).optional().describe("New view name."),
+        type: z
+          .enum(SWITCHABLE_VIEW_TYPES as [ViewType, ...ViewType[]])
+          .optional(),
         before_view_id: z.string().optional().describe("Move this view's tab right before the view with this id."),
         after_view_id: z.string().optional().describe("Move this view's tab right after the view with this id."),
         group_by: z
@@ -3075,12 +3079,18 @@ export function createMcpServer(principal: McpPrincipal) {
       annotations: { readOnlyHint: false, destructiveHint: true, idempotentHint: true, openWorldHint: false },
       scopeChallenge: requireWrite,
     },
-    ({ database_id, view_id, name, before_view_id, after_view_id, filters, filter_combinator, sorts, widgets, ...input }) =>
+    ({ database_id, view_id, name, type, before_view_id, after_view_id, filters, filter_combinator, sorts, widgets, ...input }) =>
       runTool(async () => {
         assertWrite();
         const { database, properties, views } = await databases.getDatabase(userId, database_id);
-        const view = views.find((v) => v.id === view_id);
-        if (!view) throw new ToolInputError(`No view with id "${view_id}" in this database. Call get_database for view ids.`);
+        const found = views.find((v) => v.id === view_id);
+        if (!found) throw new ToolInputError(`No view with id "${view_id}" in this database. Call get_database for view ids.`);
+        const retype = type !== undefined && type !== found.type;
+        if (retype && !canSwitchLayout(found.type, type)) {
+          throw new ToolInputError(`A ${found.type} view can't switch layouts; ${SWITCHABLE_VIEW_TYPES.join(", ")} views switch between each other.`);
+        }
+        // The settings given are checked against the layout the view switches to.
+        const view = retype ? { ...found, type } : found;
         if (view.type === "dashboard") dashboardOnly({ ...input, filters, filter_combinator, sorts });
         else if (widgets !== undefined) throw new ToolInputError("widgets only applies to dashboard views.");
         const built = widgets && (await dashboardWidgets(database_id, widgets, viewWidgets(view.config, database_id)));
@@ -3103,17 +3113,18 @@ export function createMcpServer(principal: McpPrincipal) {
           ...(built ? { widgets: viewWidgetsConfig(built) } : {}),
         };
         const linkChange = isPublic !== undefined || anonymous !== undefined;
-        if (name === undefined && !Object.keys(patch).length && !linkChange && target === undefined) {
+        if (name === undefined && !retype && !Object.keys(patch).length && !linkChange && target === undefined) {
           throw new ToolInputError(
-            "Nothing to change: provide name, before_view_id or after_view_id, a view setting, filters, filter_combinator, sorts or a dashboard's widgets.",
+            "Nothing to change: provide name, type, before_view_id or after_view_id, a view setting, filters, filter_combinator, sorts or a dashboard's widgets.",
           );
         }
         // Moved first: on a locked database the call is refused before anything else is saved.
         if (target !== undefined) await databases.moveView(userId, view_id, target, before_view_id !== undefined ? "before" : "after");
         let config = { ...view.config, ...patch };
-        if (name !== undefined || Object.keys(patch).length) {
+        if (name !== undefined || retype || Object.keys(patch).length) {
           const stored = await databases.updateView(userId, view_id, {
             ...(name !== undefined ? { name } : {}),
+            ...(retype ? { type } : {}),
             ...(Object.keys(patch).length ? { config } : {}),
           });
           config = stored?.config ?? config;

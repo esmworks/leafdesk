@@ -863,6 +863,12 @@
     "loadMore": "Läs in fler",
     "moreCards": "{count, plural, one {# kort till} other {# kort till}}"
   },
+  "viewMenu": {
+    "label": "Vyinställningar",
+    "back": "Tillbaka",
+    "layoutHint": "Vyn behåller sina filter, sorteringar och egenskaper.",
+    "shown": "{count} visas"
+  },
   "gallery": {
     "new": "Ny",
     "empty": "Inga rader att visa.",

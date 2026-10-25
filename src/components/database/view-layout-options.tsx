@@ -1,10 +1,32 @@
 "use client";
 
-// The layout menu's settings, loaded when the menu first opens (see ViewLayoutMenu).
+// The view settings menu, loaded when the menu first opens (see ViewLayoutMenu).
 
-import { ChartBarBig, ChartColumnBig, ChartLine, ChartPie, Check, Hash, IterationCw, ListTree, Palette, Plus, Waypoints } from "lucide-react";
+import {
+  ArrowLeft,
+  ArrowUpDown,
+  CalendarDays,
+  ChartBarBig,
+  ChartColumnBig,
+  ChartLine,
+  ChartPie,
+  Check,
+  ChevronRight,
+  Copy,
+  EyeOff,
+  Hash,
+  IterationCw,
+  ListFilter,
+  ListTree,
+  Palette,
+  Plus,
+  Rows3,
+  Trash2,
+  Waypoints,
+  X,
+} from "lucide-react";
 import { useTranslations } from "next-intl";
-import type { ReactNode } from "react";
+import { useState, type ReactNode } from "react";
 import { cn, MenuItem, MenuSeparator } from "@/components/ui";
 import type { ChartAccumulate, ChartSort, GroupDateBy, ViewConfig } from "@/db/schema/app";
 import type { AggregateFn } from "@/lib/aggregate";
@@ -24,10 +46,12 @@ import {
   chartTypeOf,
 } from "@/lib/chart";
 import { GROUP_DATE_BY, groupDateByOf } from "@/lib/grouping";
-import { isGroupable } from "@/lib/properties";
+import { filterRules } from "@/lib/filters";
+import { boardGroupProperty, isGroupable, isHiddenInView, isSortable } from "@/lib/properties";
 import { holdsTimestamp } from "@/lib/property-types";
 import { DEFAULT_LOAD_LIMIT, LOAD_LIMITS, loadLimitOf } from "@/lib/load-limit";
-import { CARD_SIZES, coverProperty, galleryCover, OPEN_ROWS, openRowsOf, opensRows, viewPlaceProperty } from "@/lib/views";
+import { CARD_SIZES, coverProperty, galleryCover, OPEN_ROWS, openRowsOf, opensRows, viewDateProperty, viewPlaceProperty } from "@/lib/views";
+import { SWITCHABLE_VIEW_TYPES } from "@/lib/view-layouts";
 import { parentProperty, SUB_ITEMS_DISPLAYS, subItemsDisplay, subItemsProperty } from "@/lib/sub-items";
 import {
   blockedByProperty,
@@ -36,17 +60,307 @@ import {
   dependencySettings,
   type DependencyInput,
 } from "@/lib/dependencies";
-import { PropertyTypeIcon } from "./property-icons";
+import { PropertyTypeIcon, ViewIcon } from "./property-icons";
 import type { Property, View } from "./types";
-import { NativeSelect } from "./view-bar";
+import { columnsOf, FilterEditor, NativeSelect, PropertiesPanel, SortEditor } from "./view-bar";
 
 import { mapColorProperty, timelineDates, timelineGroupProperty, timelineStartProps, type DependenciesHandler, type ViewLayoutMenuProps } from "./view-settings";
 
 /** Views that can show sub-items nested under their parent (see lib/sub-items). */
 const NESTING_VIEWS = new Set<View["type"]>(["table", "list", "timeline"]);
 
-/** What the layout menu shows for the view (see ViewLayoutMenu); `close` closes the menu. */
-export function ViewLayoutOptions({
+type MenuPage = "main" | "layout" | "properties" | "filter" | "sort" | "group" | "date";
+type OptionsProps = Omit<ViewLayoutMenuProps, "readOnly"> & { close: () => void; onColorRules: () => void };
+
+/**
+ * What the view settings menu shows (see ViewLayoutMenu): a row for each of the view's layout,
+ * properties, filters, sorts and grouping, opening its own page of the menu, then the layout's
+ * settings and the view's actions. `close` closes the menu.
+ */
+export function ViewLayoutOptions(props: OptionsProps) {
+  const { view, viewProperties, onConfig, onType, onCreateGroupProperty, onCreateDateProperty, deleted, onDuplicate, onDelete, locked, close } =
+    props;
+  const t = useTranslations("database");
+  const [page, setPage] = useState<MenuPage>("main");
+  const config = view.config;
+  const columns = columnsOf(viewProperties, t("nameColumn"));
+  const filterCount = filterRules(config.filters ?? []).length;
+  const sorts = config.sorts ?? [];
+  const shown = viewProperties.filter((p) => !isHiddenInView(view, p)).length;
+  const groups = view.type === "board" || view.type === "table";
+  // Boards always group (by the first fitting property until one is picked); tables only on request.
+  const groupBy =
+    view.type === "board"
+      ? boardGroupProperty(viewProperties, config.groupBy)
+      : viewProperties.find((p) => p.id === config.groupBy && isGroupable(p.type));
+  const dateBy = view.type === "calendar" ? viewDateProperty(config, viewProperties) : undefined;
+
+  const subPage = (title: string, children: ReactNode) => (
+    <div className="max-h-[70vh] overflow-y-auto">
+      <div className="flex items-center gap-1 px-1 pb-1">
+        <button
+          type="button"
+          aria-label={t("viewMenu.back")}
+          title={t("viewMenu.back")}
+          onClick={() => setPage("main")}
+          className="inline-flex h-6 w-6 items-center justify-center rounded text-fg-muted hover:bg-bg-hover hover:text-fg"
+        >
+          <ArrowLeft className="h-3.5 w-3.5 rtl:-scale-x-100" />
+        </button>
+        <span className="text-sm font-medium">{title}</span>
+      </div>
+      {children}
+    </div>
+  );
+
+  if (page === "layout" && onType) {
+    return subPage(
+      t("layout.label"),
+      <div className="w-60">
+        <p className="px-2 pb-1.5 text-xs text-fg-faint">{t("viewMenu.layoutHint")}</p>
+        {SWITCHABLE_VIEW_TYPES.map((type) => (
+          <MenuItem
+            key={type}
+            active={type === view.type}
+            icon={<ViewIcon type={type} className="h-3.5 w-3.5" />}
+            trailing={type === view.type ? <Check className="h-3.5 w-3.5 text-accent" /> : undefined}
+            onClick={() => {
+              if (type !== view.type) onType(type);
+            }}
+          >
+            {t(`views.${type}`)}
+          </MenuItem>
+        ))}
+      </div>,
+    );
+  }
+  if (page === "properties") {
+    return subPage(t("toolbar.properties"), <PropertiesPanel view={view} properties={viewProperties} onConfig={onConfig} deleted={deleted} />);
+  }
+  if (page === "filter") {
+    return subPage(
+      t("toolbar.filter"),
+      <FilterEditor
+        columns={columns}
+        filters={config.filters ?? []}
+        combinator={config.filterCombinator ?? "and"}
+        onChange={(f, combinator) => onConfig({ ...config, filters: f, filterCombinator: combinator === "or" ? "or" : undefined })}
+      />,
+    );
+  }
+  if (page === "sort") {
+    return subPage(
+      t("toolbar.sort"),
+      <SortEditor columns={columns.filter((c) => isSortable(c.type))} sorts={sorts} onChange={(s) => onConfig({ ...config, sorts: s })} />,
+    );
+  }
+  if (page === "group" && groups) {
+    return subPage(
+      t("toolbar.groupBy"),
+      <GroupChoices
+        view={view}
+        properties={viewProperties}
+        groupBy={groupBy}
+        onConfig={onConfig}
+        onCreate={
+          locked
+            ? undefined
+            : () => {
+                close();
+                onCreateGroupProperty();
+              }
+        }
+      />,
+    );
+  }
+  if (page === "date" && view.type === "calendar") {
+    const dateProps = viewProperties.filter((p) => p.type === "date");
+    return subPage(
+      t("toolbar.calendarBy"),
+      <div className="w-60">
+        {dateProps.map((p) => (
+          <MenuItem
+            key={p.id}
+            active={p.id === dateBy?.id}
+            icon={<PropertyTypeIcon type={p.type} icon={p.options.icon} />}
+            onClick={() => onConfig({ ...config, dateBy: p.id })}
+          >
+            {p.name}
+          </MenuItem>
+        ))}
+        {!dateProps.length && <div className="px-2 pb-1 text-xs text-fg-faint">{t("toolbar.calendarNeedsDate")}</div>}
+        {!locked && (
+          <>
+            <MenuSeparator />
+            <MenuItem
+              icon={<Plus className="h-3.5 w-3.5" />}
+              onClick={() => {
+                close();
+                onCreateDateProperty();
+              }}
+            >
+              {t("toolbar.newDateProperty")}
+            </MenuItem>
+          </>
+        )}
+      </div>,
+    );
+  }
+
+  const row = (to: MenuPage, icon: ReactNode, label: string, value: ReactNode) => (
+    <MenuItem
+      icon={icon}
+      trailing={
+        <span className="flex min-w-0 items-center gap-1 text-xs text-fg-muted">
+          <span className="max-w-28 truncate">{value}</span>
+          <ChevronRight className="h-3.5 w-3.5 shrink-0 rtl:-scale-x-100" />
+        </span>
+      }
+      onClick={() => setPage(to)}
+    >
+      {label}
+    </MenuItem>
+  );
+  return (
+    <div className={cn("max-h-[70vh] overflow-y-auto", view.type === "chart" ? "w-72 max-w-[calc(100vw-2rem)]" : "w-64")}>
+      {onType && SWITCHABLE_VIEW_TYPES.includes(view.type) && row("layout", <ViewIcon type={view.type} className="h-3.5 w-3.5" />, t("layout.label"), t(`views.${view.type}`))}
+      {row("properties", <EyeOff className="h-3.5 w-3.5" />, t("toolbar.properties"), t("viewMenu.shown", { count: shown }))}
+      {row("filter", <ListFilter className="h-3.5 w-3.5" />, t("toolbar.filter"), filterCount || "")}
+      {row("sort", <ArrowUpDown className="h-3.5 w-3.5" />, t("toolbar.sort"), sorts.length || "")}
+      {groups && row("group", <Rows3 className="h-3.5 w-3.5" />, t("toolbar.group"), groupBy?.name ?? t("toolbar.noGrouping"))}
+      {view.type === "calendar" && row("date", <CalendarDays className="h-3.5 w-3.5" />, t("toolbar.calendarBy"), dateBy?.name ?? "")}
+      <MenuSeparator />
+      <LayoutSettings {...props} />
+      {(onDuplicate || onDelete) && <MenuSeparator />}
+      {onDuplicate && (
+        <MenuItem
+          icon={<Copy className="h-3.5 w-3.5" />}
+          title={t("viewTabs.duplicateHint")}
+          onClick={() => {
+            close();
+            onDuplicate();
+          }}
+        >
+          {t("viewTabs.duplicate")}
+        </MenuItem>
+      )}
+      {onDelete && (
+        <MenuItem
+          danger
+          icon={<Trash2 className="h-3.5 w-3.5" />}
+          onClick={() => {
+            close();
+            onDelete();
+          }}
+        >
+          {t("viewTabs.deleteView")}
+        </MenuItem>
+      )}
+    </div>
+  );
+}
+
+/** What the view groups by, and how (dates, status, empty groups): the menu's Group page. */
+function GroupChoices({
+  view,
+  properties,
+  groupBy,
+  onConfig,
+  onCreate,
+}: {
+  view: View;
+  properties: Property[];
+  groupBy: Property | undefined;
+  onConfig: (config: ViewConfig) => void;
+  /** Creates a select property to group by; missing on a locked database. */
+  onCreate?: () => void;
+}) {
+  const t = useTranslations("database.toolbar");
+  const config = view.config;
+  const groupProps = properties.filter((p) => isGroupable(p.type));
+  return (
+    <div className="w-60">
+      {view.type === "table" && (
+        <MenuItem active={!groupBy} icon={<X className="h-3.5 w-3.5" />} onClick={() => groupBy && onConfig({ ...config, groupBy: undefined })}>
+          {t("noGrouping")}
+        </MenuItem>
+      )}
+      {groupProps.map((p) => (
+        <MenuItem
+          key={p.id}
+          active={p.id === groupBy?.id}
+          icon={<PropertyTypeIcon type={p.type} icon={p.options.icon} />}
+          onClick={() => onConfig({ ...config, groupBy: p.id })}
+        >
+          {p.name}
+        </MenuItem>
+      ))}
+      {!groupProps.length && <div className="max-w-60 px-2 pb-1 text-xs text-fg-faint">{t("groupNeedsSelect")}</div>}
+      {groupBy && <GroupSettings prop={groupBy} config={config} onConfig={onConfig} />}
+      {onCreate && (
+        <>
+          <MenuSeparator />
+          <MenuItem icon={<Plus className="h-3.5 w-3.5" />} onClick={onCreate}>
+            {t("newSelectProperty")}
+          </MenuItem>
+        </>
+      )}
+    </div>
+  );
+}
+
+/** How the view groups by `prop`: date bucket size, status by option or stage, and empty groups. */
+function GroupSettings({
+  prop,
+  config,
+  onConfig,
+}: {
+  prop: Property;
+  config: ViewConfig;
+  onConfig: (config: ViewConfig) => void;
+}) {
+  const t = useTranslations("database.group");
+  const dates = prop.type === "date" || holdsTimestamp(prop.type);
+  return (
+    <>
+      <MenuSeparator />
+      {dates && (
+        <label className="flex items-center justify-between gap-3 px-2 py-1 text-sm">
+          <span className="text-fg-muted">{t("dateBy")}</span>
+          <NativeSelect
+            label={t("dateBy")}
+            value={groupDateByOf(config)}
+            onChange={(v) => onConfig({ ...config, groupDateBy: v as ViewConfig["groupDateBy"] })}
+            options={GROUP_DATE_BY.map((by) => ({ value: by, label: t(`dateByOptions.${by}`) }))}
+          />
+        </label>
+      )}
+      {prop.type === "status" && (
+        <label className="flex items-center justify-between gap-3 px-2 py-1 text-sm">
+          <span className="text-fg-muted">{t("statusBy")}</span>
+          <NativeSelect
+            label={t("statusBy")}
+            value={config.groupStatusBy === "group" ? "group" : "option"}
+            onChange={(v) => onConfig({ ...config, groupStatusBy: v === "group" ? "group" : undefined })}
+            options={[
+              { value: "option", label: t("statusByOptions.option") },
+              { value: "group", label: t("statusByOptions.group") },
+            ]}
+          />
+        </label>
+      )}
+      <MenuItem
+        icon={config.hideEmptyGroups ? <Check className="h-3.5 w-3.5" /> : <span />}
+        onClick={() => onConfig({ ...config, hideEmptyGroups: config.hideEmptyGroups ? undefined : true })}
+      >
+        {t("hideEmpty")}
+      </MenuItem>
+    </>
+  );
+}
+
+/** The layout's own settings, under the menu's rows (see ViewLayoutOptions). */
+function LayoutSettings({
   view,
   properties,
   onConfig,
@@ -58,7 +372,7 @@ export function ViewLayoutOptions({
   locked,
   close,
   onColorRules,
-}: Omit<ViewLayoutMenuProps, "readOnly"> & { close: () => void; onColorRules: () => void }) {
+}: OptionsProps) {
   const t = useTranslations("database.layout");
   const tSprints = useTranslations("database.sprints");
   const rows = opensRows(view.type);
@@ -68,7 +382,7 @@ export function ViewLayoutOptions({
   const set = (patch: ViewConfig) => onConfig({ ...config, ...patch });
 
   return (
-    <div className={cn("max-h-[70vh] overflow-y-auto", view.type === "chart" ? "w-72 max-w-[calc(100vw-2rem)]" : "w-64")}>
+    <>
       {view.type === "chart" ? (
         <ChartSettings view={view} properties={properties} onSet={set} />
       ) : view.type === "gallery" ? (
@@ -230,7 +544,7 @@ export function ViewLayoutOptions({
           {tSprints("menuItem")}
         </MenuItem>
       )}
-    </div>
+    </>
   );
 }
 

@@ -863,6 +863,12 @@
     "loadMore": "Mehr laden",
     "moreCards": "{count, plural, one {# weitere Karte} other {# weitere Karten}}"
   },
+  "viewMenu": {
+    "label": "Ansichtseinstellungen",
+    "back": "Zurück",
+    "layoutHint": "Die Ansicht behält ihre Filter, Sortierungen und Eigenschaften.",
+    "shown": "{count} sichtbar"
+  },
   "gallery": {
     "new": "Neu",
     "empty": "Keine Zeilen zum Anzeigen.",

@@ -525,6 +525,14 @@ export function DatabasePage({
     if (created) selectView(created.id);
   };
 
+  const deleteView = async (v: View) => {
+    if (v.id === view?.id) {
+      const next = views.find((x) => x.id !== v.id);
+      if (next) selectView(next.id);
+    }
+    await api.deleteView(v.id);
+  };
+
   /**
    * "New": from the default row template when there is one, the view's own before the database's
    * (a linked view has none of its own); the menu beside it picks another or none.
@@ -570,13 +578,7 @@ export function DatabasePage({
                         deleted={deletedSchema}
                         onExport={exportable && exportsRows && !offline ? exportView : undefined}
                         onDuplicate={duplicateView}
-                        onDelete={async (v) => {
-                          if (v.id === view?.id) {
-                            const next = views.find((x) => x.id !== v.id);
-                            if (next) selectView(next.id);
-                          }
-                          await api.deleteView(v.id);
-                        }}
+                        onDelete={deleteView}
                       />
                       {view?.type === "dashboard" && canManageAutomations && (
                         <div className="flex shrink-0 items-center gap-1 self-end md:pb-1.5">
@@ -612,20 +614,23 @@ export function DatabasePage({
                             properties={viewProperties}
                             readOnly={configReadOnly}
                             personal={personalRules}
-                            locked={locked}
                             onConfig={(config) => setConfig(view, config)}
                             filterRequest={filterRequest}
-                            onCreateGroupProperty={createGroupProperty}
-                            onCreateDateProperty={createDateProperty}
                             deleted={deletedSchema}
                           />
                           <ViewLayoutMenu
                             view={view}
                             properties={snapshot.properties}
+                            viewProperties={viewProperties}
                             readOnly={configReadOnly}
                             locked={locked}
                             onConfig={(config) => setConfig(view, config)}
+                            onType={linked ? undefined : (type) => void api.updateView(view, { type })}
+                            onCreateGroupProperty={createGroupProperty}
                             onCreateDateProperty={createDateProperty}
+                            deleted={deletedSchema}
+                            onDuplicate={readOnly || locked || linked ? undefined : () => void duplicateView(view)}
+                            onDelete={readOnly || locked || linked || views.length < 2 ? undefined : () => void deleteView(view)}
                             onCreatePlaceProperty={structureReadOnly ? undefined : createPlaceProperty}
                             onSubItems={structureReadOnly ? undefined : (on, propertyId) => void api.setSubItems(on, propertyId)}
                             onDependencies={structureReadOnly ? undefined : (on, input) => void api.setDependencies(on, input)}

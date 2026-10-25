@@ -2,7 +2,8 @@
  * End-to-end check of gallery, list and timeline views against the database: the settings new
  * views start with, config validation, gallery covers in the database snapshot (read from row
  * bodies, only while a gallery shows them, and only for rows the viewer can see), timeline edits
- * writing start and end together, creating and updating these views over MCP, calendars without
+ * writing start and end together, creating and updating these views over MCP, switching a view to
+ * another layout (in the app and over MCP), calendars without
  * weekends and views without page icons (published ones too), cards wrapping long values, and
  * duplicating a database without its rows (in the app and over MCP).
  * Creates its own users and workspace and deletes them afterwards.
@@ -147,6 +148,53 @@ try {
     await rejects(() => addView(ids.owner, tasks.id, { name: "X", type: "kanban" as never }), "unsupportedViewType"),
     "an unknown view type is refused",
   );
+
+  // Switching a view to another layout
+  const switching = await addView(ids.owner, tasks.id, { name: "Switching", type: "list" });
+  const filters = [{ propertyId: status.id, op: "is_not_empty" as const }];
+  await updateView(ids.owner, switching.id, { config: { filters } });
+  const toBoard = await updateView(ids.owner, switching.id, { type: "board" });
+  const storedView = async () => (await db.select().from(databaseView).where(eq(databaseView.id, switching.id)))[0];
+  let stored = await storedView();
+  check(
+    toBoard.type === "board" && stored.type === "board" && stored.config.groupBy === status.id && stored.config.filters?.length === 1,
+    "a list switched to a board groups by the first select and keeps its filters",
+    stored,
+  );
+  await updateView(ids.owner, switching.id, { type: "calendar", config: { ...stored.config, groupBy: undefined } });
+  stored = await storedView();
+  check(stored.type === "calendar" && stored.config.dateBy === due.id && !stored.config.groupBy, "…a calendar goes by the first date, with the settings sent along", stored.config);
+  await updateView(ids.owner, switching.id, { config: { ...stored.config, dateBy: ends.id } });
+  await updateView(ids.owner, switching.id, { type: "timeline" });
+  stored = await storedView();
+  check(stored.type === "timeline" && stored.config.dateBy === ends.id, "…and a date it already has stays", stored.config);
+  const snapshotType = (await getDatabaseSnapshot(ids.owner, tasks.id)).views.find((v) => v.id === switching.id)?.type;
+  check(snapshotType === "timeline", "the database shows the view in its new layout", snapshotType);
+  for (const wrong of ["form", "dashboard", "chart", "kanban"]) {
+    check(
+      (await rejects(() => updateView(ids.owner, switching.id, { type: wrong as never }), "unsupportedViewType")) &&
+        (await storedView()).type === "timeline",
+      `switching to ${wrong} is refused`,
+    );
+  }
+  const formView = await addView(ids.owner, tasks.id, { name: "Ask", type: "form" });
+  check(await rejects(() => updateView(ids.owner, formView.id, { type: "table" }), "unsupportedViewType"), "a form stays a form");
+  await deleteView(ids.owner, formView.id);
+  check(await deniedAccess(() => updateView(ids.guest, switching.id, { type: "table" })), "a guest without access can't switch a view");
+  await db.update(page).set({ lockedAt: new Date() }).where(eq(page.id, tasks.id));
+  await updateView(ids.owner, switching.id, { type: "table" });
+  check((await storedView()).type === "table", "a locked database's views still switch layouts, like their other settings");
+  await db.update(page).set({ lockedAt: null }).where(eq(page.id, tasks.id));
+  const switchedOverMcp = await callTool(ids.owner, "update_database_view", { database_id: tasks.id, view_id: switching.id, type: "board", hide_empty_groups: true });
+  stored = await storedView();
+  check(
+    !switchedOverMcp.isError && switchedOverMcp.data?.type === "board" && stored.type === "board" && stored.config.groupBy === status.id && stored.config.hideEmptyGroups === true,
+    "MCP switches a view to a board, with a board's settings in the same call",
+    switchedOverMcp.text,
+  );
+  const mcpForm = await callTool(ids.owner, "update_database_view", { database_id: tasks.id, view_id: switching.id, type: "form" });
+  check(mcpForm.isError && (await storedView()).type === "board", "…and refuses a form", mcpForm.text);
+  await deleteView(ids.owner, switching.id);
 
   // Config validation
   const bad: [string, object][] = [

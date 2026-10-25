@@ -863,6 +863,12 @@
     "loadMore": "さらに読み込む",
     "moreCards": "{count, plural, other {残り # 件のカード}}"
   },
+  "viewMenu": {
+    "label": "ビューの設定",
+    "back": "戻る",
+    "layoutHint": "フィルター、並べ替え、プロパティはそのまま残ります。",
+    "shown": "{count} 件表示"
+  },
   "gallery": {
     "new": "新規",
     "empty": "表示する行がありません。",

@@ -863,6 +863,12 @@
     "loadMore": "Carica altro",
     "moreCards": "{count, plural, one {# altra scheda} other {altre # schede}}"
   },
+  "viewMenu": {
+    "label": "Impostazioni della vista",
+    "back": "Indietro",
+    "layoutHint": "La vista mantiene filtri, ordinamenti e proprietà.",
+    "shown": "{count} visibili"
+  },
   "gallery": {
     "new": "Nuovo",
     "empty": "Nessuna riga da mostrare.",

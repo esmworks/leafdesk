@@ -44,12 +44,12 @@ import { dropPropertyReferences } from "@/lib/duplicate";
 import { keepDeleted, livePropertyValues, uniqueName, withoutDeleted, type DeletedProperty, type DeletedView } from "@/lib/deleted-schema";
 import { colorRuleFilters } from "@/lib/color-rules";
 import { filterConfigError, filterRules, mapFilterRules } from "@/lib/filters";
-import { chartGroupProperty } from "@/lib/chart";
 import { defaultDashboardWidgets } from "@/lib/dashboard";
 import { defaultFormConfig, formSchemaError } from "@/lib/forms";
 import { readPlaceInput } from "@/lib/place";
 import { GeocoderError, geocodeAddress } from "./geocoder";
 import { configsOf, DEFAULT_VIEW_NAMES, galleryCover, isViewType, layoutConfigError } from "@/lib/views";
+import { canSwitchLayout, layoutDefaults, SWITCHABLE_VIEW_TYPES } from "@/lib/view-layouts";
 import {
   holdsOptions,
   holdsPeople,
@@ -2996,20 +2996,13 @@ export async function addView(userId: string, databaseId: string, input: { name:
   const props = access.visible(all);
   const formError = input.config?.form && formSchemaError(input.config.form, props);
   if (formError) throw new PropertyValueError(formError, "invalidViewConfig");
-  const config: ViewConfig = {};
-  if (input.type === "board") config.groupBy = props.find((p) => p.type === "select" || p.type === "status")?.id;
-  if (input.type === "calendar") {
-    config.dateBy = props.find((p) => p.type === "date")?.id;
-    // Calendar entries are small: show only titles until the user picks properties to show.
-    config.hidden = all.map((p) => p.id);
-  }
-  // Timelines start without swimlanes and with a week per column; list rows and timeline bars show
-  // only titles until the user picks properties (see hiddenByDefault).
-  if (input.type === "timeline") config.dateBy = props.find((p) => p.type === "date")?.id;
-  // Maps put rows on the first place property.
-  if (input.type === "map") config.placeBy = props.find((p) => p.type === "place")?.id;
-  // Charts count rows per option of the property a board would group by, in columns.
-  if (input.type === "chart") config.groupBy = chartGroupProperty(props, {})?.id;
+  // Boards group by the first select or status, calendars and timelines go by the first date, maps
+  // by the first place, and charts count rows per option of what a board would group by (see
+  // lib/view-layouts). Timelines start without swimlanes and with a week per column; list rows and
+  // timeline bars show only titles until the user picks properties (see hiddenByDefault).
+  const config: ViewConfig = layoutDefaults(input.type, props, {});
+  // Calendar entries are small: show only titles until the user picks properties to show.
+  if (input.type === "calendar") config.hidden = all.map((p) => p.id);
   // Forms start out asking for the name and every property a form can ask for.
   if (input.type === "form") config.form = defaultFormConfig(props);
   // Dashboards start with a few widgets over what the maker may see (see lib/dashboard).
@@ -3058,7 +3051,7 @@ async function requireView(userId: string, viewId: string, { deleted = false } =
 }
 
 /** Returns the view's config as stored (a form's defaults normalized to ids). */
-export async function updateView(userId: string, viewId: string, patch: { name?: string; config?: ViewConfig }) {
+export async function updateView(userId: string, viewId: string, patch: { name?: string; config?: ViewConfig; type?: ViewType }) {
   // Configs come from the client and from MCP; a malformed filter tree would break every viewer.
   const filterError = patch.config && filterConfigError(patch.config);
   if (filterError) throw new PropertyValueError(filterError, "invalidFilter");
@@ -3075,6 +3068,18 @@ export async function updateView(userId: string, viewId: string, patch: { name?:
   // Filters, sorts and layout stay adjustable on a locked database; renaming (and its icon) doesn't.
   if (patch.name !== undefined || (patch.config && patch.config.icon !== view.config.icon)) assertUnlocked(view);
   const access = await propertyAccessFor(userId, view.databaseId);
+  // Another layout keeps the view's settings and gets what it is placed by when it has none yet
+  // (lib/view-layouts). Like the rest of the layout, it may change on a locked database.
+  const type = patch.type !== undefined && patch.type !== view.type ? patch.type : undefined;
+  if (type !== undefined) {
+    if (!isViewType(type) || !canSwitchLayout(view.type, type)) {
+      throw new PropertyValueError(`A view can switch only between ${SWITCHABLE_VIEW_TYPES.join(", ")}`, "unsupportedViewType", {
+        type: String(type),
+      });
+    }
+    const config = patch.config ?? view.config;
+    patch = { ...patch, config: { ...config, ...layoutDefaults(type, access.visible(await getProperties(view.databaseId)), config) } };
+  }
   // A form's conditions and choice limits must fit the properties the editor knows of.
   if (patch.config?.form) {
     const formError = formSchemaError(patch.config.form, access.visible(await getProperties(view.databaseId)), view.config.form);
@@ -3112,11 +3117,12 @@ export async function updateView(userId: string, viewId: string, patch: { name?:
     .set({
       ...(patch.name !== undefined ? { name: patch.name.trim() || view.name } : {}),
       ...(patch.config !== undefined ? { config: patch.config } : {}),
+      ...(type !== undefined ? { type } : {}),
     })
     .where(eq(databaseView.id, viewId));
   notifySchema(view.databaseId);
   if (patch.name !== undefined) notifyTree(view.workspaceId);
-  return { config: access.viewConfig(withoutDeleted(patch.config ?? view.config, deleted)) };
+  return { type: type ?? view.type, config: access.viewConfig(withoutDeleted(patch.config ?? view.config, deleted)) };
 }
 
 /**

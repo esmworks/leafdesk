@@ -863,6 +863,12 @@
     "loadMore": "Meer laden",
     "moreCards": "{count, plural, one {nog # kaart} other {nog # kaarten}}"
   },
+  "viewMenu": {
+    "label": "Weergave-instellingen",
+    "back": "Terug",
+    "layoutHint": "De weergave houdt haar filters, sorteringen en eigenschappen.",
+    "shown": "{count} zichtbaar"
+  },
   "gallery": {
     "new": "Nieuw",
     "empty": "Geen rijen om te tonen.",

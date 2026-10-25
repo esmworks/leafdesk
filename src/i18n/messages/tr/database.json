@@ -863,6 +863,12 @@
     "loadMore": "Daha fazla yükle",
     "moreCards": "{count, plural, other {# kart daha}}"
   },
+  "viewMenu": {
+    "label": "Görünüm ayarları",
+    "back": "Geri",
+    "layoutHint": "Görünüm filtrelerini, sıralamalarını ve özelliklerini korur.",
+    "shown": "{count} gösteriliyor"
+  },
   "gallery": {
     "new": "Yeni",
     "empty": "Gösterilecek satır yok.",

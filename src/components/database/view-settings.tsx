@@ -4,11 +4,12 @@ import { SlidersHorizontal } from "lucide-react";
 import dynamic from "next/dynamic";
 import { useTranslations } from "next-intl";
 import { useState } from "react";
-import type { ViewConfig } from "@/db/schema/app";
+import type { ViewConfig, ViewType } from "@/db/schema/app";
 import { isGroupable } from "@/lib/properties";
 import { holdsTimestamp } from "@/lib/property-types";
 import { opensRows, viewDateProperty } from "@/lib/views";
 import type { DependencyInput } from "@/lib/dependencies";
+import type { DeletedSchemaProps } from "./view-bar";
 import { Floating, useFloating } from "./floating";
 import type { Property, View } from "./types";
 
@@ -47,8 +48,18 @@ export type DependenciesHandler = (on: boolean, input?: { propertyId?: string; s
 export type ViewLayoutMenuProps = {
   view: View;
   properties: Property[];
+  /** The properties the view may show, in its order: for its properties, filters, sorts and groups. */
+  viewProperties: Property[];
   onConfig: (config: ViewConfig) => void;
+  /** Switches the view to another layout (lib/view-layouts); missing when it can't be. */
+  onType?: (type: ViewType) => void;
+  onCreateGroupProperty: () => void;
   onCreateDateProperty: () => void;
+  /** Set for people who may change the database's schema: the properties list offers deleted ones. */
+  deleted?: DeletedSchemaProps;
+  onDuplicate?: () => void;
+  /** Missing for the database's last view. */
+  onDelete?: () => void;
   /** Map views: adds a place property for the map to put rows on; missing when the user can't. */
   onCreatePlaceProperty?: () => void;
   /** Turns sub-items on (new properties, or the given relation) or off; missing when the user can't. */
@@ -62,14 +73,15 @@ export type ViewLayoutMenuProps = {
 };
 
 /**
- * Layout settings of gallery, timeline and chart views (card size and cover; dates, swimlanes and
- * table; the chart), sub-items in table, list and timeline views, dependencies in timelines, and
- * where every view with rows opens them. The settings load when the menu is first opened
- * (view-layout-options), being changed now and then: the button is on every database page.
+ * The view settings menu: every setting of the view in one place. Its layout (switching to another
+ * one), properties, filters, sorts and grouping, each a page of the menu, then the layout's own
+ * settings (card size and cover; dates, swimlanes and table; the chart; sub-items, dependencies,
+ * where rows open) and duplicating or deleting the view. The menu loads when it is first opened
+ * (view-layout-options), being used now and then: the button is on every database page.
  */
 export function ViewLayoutMenu(props: ViewLayoutMenuProps) {
   const { view, properties, onConfig, readOnly } = props;
-  const t = useTranslations("database.layout");
+  const t = useTranslations("database.viewMenu");
   const menu = useFloating<HTMLButtonElement>();
   const [colorRules, setColorRules] = useState(false);
   if (readOnly || (!opensRows(view.type) && view.type !== "chart")) return null;

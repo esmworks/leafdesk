@@ -4,6 +4,12 @@
 
 ### Added
 
+- **All of a view's settings in one menu.** The layout button beside a database's toolbar is now
+  *View settings*: its layout, properties, filters, sorts and grouping, each a page of the menu,
+  then the layout's own settings and *Duplicate* and *Delete*. The calendar date and grouping
+  moved there from the toolbar. A table, board, calendar, gallery, list, feed, timeline or map view
+  can now switch to any of the others, keeping its filters, sorts, properties and grouping; MCP's
+  `update_database_view` takes the new layout as `type`.
 - **Page covers.** The background picker has a *Cover* row: a band across the top of the page in one
   of eight gradients, shown on the published page too. Like colors and patterns, covers are drawn by
   the app's stylesheet and load no image; MCP and the REST API read and write them as

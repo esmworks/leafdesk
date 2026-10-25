@@ -863,6 +863,12 @@
     "loadMore": "Tải thêm",
     "moreCards": "{count, plural, other {thêm # thẻ}}"
   },
+  "viewMenu": {
+    "label": "Cài đặt chế độ xem",
+    "back": "Quay lại",
+    "layoutHint": "Chế độ xem giữ nguyên bộ lọc, sắp xếp và thuộc tính.",
+    "shown": "Hiển thị {count}"
+  },
   "gallery": {
     "new": "Mới",
     "empty": "Không có hàng nào để hiển thị.",

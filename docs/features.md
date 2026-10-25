@@ -203,7 +203,13 @@
   - Views: table, board, calendar, gallery, list, feed (rows as posts, newest first, with the
     start of their bodies, emoji reactions and their comments), timeline, map (rows as pins at a place
     property), chart and dashboard (widgets over the database, see Dashboards), each with its own filters,
-    sorting, grouping and shown properties (one by one, or all hidden or shown at once). Filters
+    sorting, grouping and shown properties (one by one, or all hidden or shown at once). The *View
+    settings* menu beside the toolbar holds all of a view's settings in one place: its layout
+    (a table, board, calendar, gallery, list, feed, timeline or map switches to any of the others,
+    keeping its filters, sorts, properties and grouping, which a board shows as columns, a timeline
+    as swimlanes and a map as pin colors; a board, calendar or map without one picks what it goes by),
+    properties, filters, sorts and grouping, each a page of the menu, then the layout's own
+    settings, *Duplicate* and *Delete*. Filters
     combine with "and"/"or" in groups (nested up to three levels) and take relative dates: today,
     this, last or next week (Monday to Sunday), month or year, and the past or next few days. The
     filters in use show as chips under the view's toolbar: clicking one changes just that filter,
@@ -211,7 +217,7 @@
     filtered on what it does or does not contain, numbers with =, ≠, <, ≤, > and ≥, dates on,
     before, after, on or before and on or after a day, and selects, statuses, tags, relations and
     people on any of several values or none of them in one rule. A "Me" filter (also inside such a
-    list) shows each viewer their own rows. *Color rules* in the layout menu (tables, boards,
+    list) shows each viewer their own rows. *Color rules* in the view settings menu (tables, boards,
     galleries, lists, calendars, timelines) color the whole row or card, or one property's value,
     for the rows that match filters of the same kind; the first matching rule wins.
   - People who can only view a database (or a view whose settings they can't change) still filter
