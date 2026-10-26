@@ -34,6 +34,115 @@
   out. Postgres keeps the rule, so imports, the API, automations and syncs are held to it too.
   Migration 0149 adds the `unique_value` table and its triggers.
 
+### Changed
+
+- **A bare host name in an allowed-hosts list reaches only the usual ports.** In
+  `CONNECTOR_ALLOWED_HOSTS`, `AUTOMATION_WEBHOOK_ALLOWED_HOSTS` and the new
+  `WEB_FETCH_ALLOWED_HOSTS`, a name without a port allows ports 80, 443, 8080 and 8443 (and 5432
+  for PostgreSQL syncs); name any other port, as in `n8n:5678`. An entry such as `n8n` for a
+  service on port 5678 stops working until its port is added.
+- **Addresses members give no longer reach hosts in `CONNECTOR_ALLOWED_HOSTS`.** Saving a web
+  page, downloading a file a page shows from another site and web link checks reach public
+  addresses only; the new `WEB_FETCH_ALLOWED_HOSTS` lets them reach hosts on your own network.
+  Connections, their sign-ins and synced databases keep using `CONNECTOR_ALLOWED_HOSTS`.
+- **One import per person at a time.** A second import while one is reading its files (or while
+  the server runs three) is answered "Another import is still running".
+- **MCP `invite_member` invites only members and guests.** Owners and membership admins are made
+  in Settings → Members.
+- **The AI chat asks before every web search and page read.** What a call carries leaves the
+  workspace, so text planted in a page could make the chat send what it read to any address. Each
+  `search_web` and `read_web_page` now waits for the person's approval in every mode (Auto, Read
+  only and research too), showing the exact words or address in the app and in the Telegram bot. A
+  page whose address the person wrote in the conversation is still read without asking.
+- **Agents' runs asked for in words wait for an owner before web calls they weren't given.** On a
+  chat, mention or request run, a page read or search whose address or words aren't in the
+  person's message waits for an owner (and is refused at once where no owner can answer); a
+  helper's run for such a run waits before every web call.
+- **Pastes, imports and synced databases leave out a repeated unique value instead of stopping.**
+  A value another row holds, or an earlier row of the same paste, file or run takes, is counted
+  with the other values that couldn't go in.
+- **A Jira sync's sign-in reads only what its owner set it to read.** Others with full access give
+  their own email and token to change the query or list projects. Syncs set up before this need
+  the sign-in given again for that.
+- **The desktop app keeps tabs on your server.** Pages that lead to other sites open in the
+  system's browser; single sign-on started from the sign-in page still happens in the tab, which
+  shows the identity provider's host until it is back. The connect screen asks before using plain
+  HTTP or following a server to another host, certificate trust warns when a server's good
+  certificate is replaced (*Forget Trusted Certificates* drops trusted ones), pages ask once per
+  server before using the microphone and no longer read the clipboard, and the packaged app sets
+  Electron's fuses (no `NODE_OPTIONS` or `--inspect`, asar only with integrity checks, encrypted
+  cookies).
+- **Client bundle budgets** go to 774 kB for a page's first load and 1179 kB for all first loads
+  together, for the web-call approvals, the invitation limit note and the sign-in policy gate.
+
+### Fixed
+
+- **Turning a page into a teamspace keeps closed sub-pages closed.** Sub-pages the person turning
+  it has no full access to move with it but keep their own sharing; before, a sub-page closed to
+  everyone else opened up to the new teamspace, that person first. The dialog counts only the
+  sub-pages they can see, and a top-level page of a teamspace whose top level is locked can only
+  be turned by those who may arrange it.
+- **Crafted import files no longer freeze the server.** Readers of web archives, Markdown, Notion
+  and Obsidian exports, Evernote notes, CSV and Excel files, Asana, Monday and Trello boards and
+  Confluence exports read in time growing with the file's length; files whose path is longer than
+  2,048 characters or 100 folders deep are left out with a warning. Imports check where they go
+  before reading any file, so someone who can't add pages there, or isn't in the workspace, is
+  refused before the upload is parsed.
+- **Calendar syncs no longer stall the server on long-running repeating events.** Rules are worked
+  out from the window instead of from their first occurrence (fifty weekday meetings since 2015
+  took ten seconds a run), and daily rules older than about 55 years now sync.
+- **Workspace sign-in policies cover the review queue, email on rows, follow-ups, watched pages
+  and the row panel.** A session held back by approved networks, required two-step verification
+  or SSO only could still list and answer changes for review, read and send a row's email, and
+  start or stop follow-ups. Such a session can no longer link Telegram or change an API token's
+  scopes either, as it already couldn't make a token; it is sent to meet the policy first.
+- **Turning two-step verification on signs out your other devices.** Sessions signed in earlier
+  with the password alone kept working and counted as two-step. Every session that ends, by
+  signing out, revoking sessions, turning two-step on or claiming an account, now also closes its
+  live collaboration connections.
+- **Claiming an account by its address removes the earlier holder's other logins.** The earlier
+  GitHub, Google and single sign-on logins now go too, not only the password, passkeys and
+  two-step setup, so someone who signed in through an identity provider that doesn't vouch for
+  addresses (`OIDC_ISSUER` without `OIDC_DOMAINS`) can't sign in again. Resets of verified accounts
+  leave their logins alone.
+- **Invitation emails are rate limited:** 100 an hour per person inviting, 200 per workspace and 3
+  per invited address. Past a limit the invitation is still made and its link shown to share, and
+  MCP's `invite_member` answers `email_sent: false` with a note.
+- **What a connection's tool returns makes the AI chat ask before changes.** Once a service
+  answered (mail, issues written by outsiders), Auto asks before every change and note for the
+  rest of the answer, as it already did after reading the web.
+- **PostgreSQL syncs hang up after a minute whatever the server does, and read bounded, exact
+  values.** Each value is cut at 10,000 characters and a run reads at most 50 million characters;
+  keys past 2^53 keep every digit instead of collapsing into one row. A stalled synced database no
+  longer holds up the others: a run gets eight minutes before the sweep moves on.
+- **Setting up a sync checks access before reaching out.** Jira, GitHub, calendar and PostgreSQL
+  setups check that you may make the database there before contacting the other server; checking
+  a Jira sign-in needs workspace membership; setups and checks are limited to 10 a minute and 60
+  an hour per person. Jira and GitHub answers are read up to 10 MB and 20 MB, and a connection's
+  server can send at most 20 MB in one answer.
+- **Unique values no longer stop a batch partway.** Before, rows a paste had already written lost
+  their follow-ups (two-way relations, activity, automations), a synced database failed at the
+  same row on every run, and large imports took back rows whose links and automations had already
+  gone out. Values longer than about 2.7 KB no longer fail either: the unique index holds each
+  value's hash (migration 0151).
+- **Duplicating a page, or saving or using a template, copies the edits still on screen,** not
+  only what was last saved.
+- **Uploads to public forms are limited in size:** 256 MB an hour per address and 1 GB waiting per
+  database; uploads whose answer never came go after two hours. Public form answers also follow
+  dependent selects.
+- **Duplicating a published page copies only the rows its database views show on the web.**
+- **Published pages show unpublished pages they mention as "No access".**
+- **MCP `list_automations` no longer returns webhook secrets or incoming webhook addresses** where
+  the workspace lets connected apps only read.
+- **Server fetches refuse Azure's platform address 168.63.129.16, and `attach_file` downloads keep
+  to the usual web ports.**
+- **A restored backup's site settings are checked as saving them is.**
+- **GitHub pull request deliveries are remembered for 30 days, so a resent one is refused.**
+- **Only the person who began a connection's sign-in can finish it.**
+- **The desktop app signs in to Leafdesk on this computer only once its own server holds the
+  port.** The server reports it over its IPC channel, and in local mode answers only to
+  `127.0.0.1` and `localhost`.
+
 ## 0.6.4 — 2026-10-26
 
 ### Upgrading from 0.6.3

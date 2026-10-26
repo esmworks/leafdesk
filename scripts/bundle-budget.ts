@@ -51,8 +51,12 @@ import { gzipSync } from "node:zlib";
  * Rating stars, durations, unique values and personal views in database cells and the view bar
  * cost a page's first load about 2 kB and all first loads together about 3 kB; the number format
  * menu and the sync dialogs load when opened.
+ *
+ * The AI chat's approval of each web call (its address shown), the invitation email limit's note
+ * and the sign-in policy gate for Telegram links and API token scopes add under 1 kB to a page's
+ * first load and to all first loads together.
  */
-const BUDGET = { routeFirstLoad: 773, firstLoadShared: 1177, onDemandChunk: 450 };
+const BUDGET = { routeFirstLoad: 774, firstLoadShared: 1179, onDemandChunk: 450 };
 
 const NEXT = ".next";
 const kB = (bytes: number) => bytes / 1024;

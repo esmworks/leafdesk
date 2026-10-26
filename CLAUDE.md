@@ -60,7 +60,11 @@ BlockNote on Yjs; Tailwind v4; next-intl. Node 24, pnpm 11. A separate Electron 
   membership: `teamspaces.ts` (a locked teamspace's top level: `requireArrangeTopLevel`, checked in
   `pages.ts` moves, trash, restore and delete and in `requireTeamspaceForPages`); guests: `guests.ts`. Sign-in policies (approved networks, two-step,
   SSO only) are `policyHold` there; the request's address comes from `CLIENT_IP_HEADER`, which
-  `server.ts` sets on requests and on websocket upgrades alike.
+  `server.ts` sets on requests and on websocket upgrades alike. A person-facing check through a
+  helper that skips them (`pageAccessOf`, `findMembership`, `rowMailAccess`) asks `sessionHeldBack`
+  too; row email has `requestRowMailAccess`. Every session Better Auth deletes closes its collab
+  connections (`session.delete.after` in `lib/auth.ts`); one deleted with raw SQL needs
+  `disconnectEndedSessions`.
 - **Page content.** The Yjs document is the source of truth. Writes from the server go through
   `getCollab()` (`src/server/collab/bridge.ts`: `replaceContent`, `editBlocks`, `setTitle` …), which
   only exists when the app runs through `server.ts`. A block whose data is all in its props, written
@@ -86,8 +90,10 @@ BlockNote on Yjs; Tailwind v4; next-intl. Node 24, pnpm 11. A separate Electron 
   backup) insert the rows before the property; `server/unique-ids.ts` checks prefixes.
   Unique values (`options.unique`) are kept by Postgres too (`drizzle/0149_unique_values.sql`,
   table `unique_value`): a write repeating another live row's value fails with 23505 on
-  `unique_value_key_idx`, which `withUniqueValues` (`server/unique-values.ts`) turns into a
-  `PropertyValueError`; wrap a new row write in it.
+  `unique_value_key_idx` (on `md5(key)` since 0151; the triggers raise the readable detail first),
+  which `withUniqueValues` (`server/unique-values.ts`) turns into a `PropertyValueError`; wrap a new
+  row write in it. A batch (paste, import, sync) calls `dropRepeatedValues` before writing
+  (`checkRows` does), so it never stops partway.
   Grouped lists and galleries share `components/database/view-sections.tsx` (the header is
   `GroupHeader` in `group-label.tsx`, also a board's sub-group); a board's sub-groups
   (`subGroupBy`) use the default date and status grouping. A new property-id field of `ViewConfig`
@@ -123,7 +129,9 @@ BlockNote on Yjs; Tailwind v4; next-intl. Node 24, pnpm 11. A separate Electron 
   `chat-attachment-table.ts` (the parser, loaded by the box only when a file comes); AI property values: `ai-properties.ts`; notes it keeps: `ai-memory.ts`; semantic
   index and search: `semantic-index.ts`, `semantic-search.ts`; related pages under a page rank the
   stored chunks against the page's mean embedding (`related-pages.ts`, no model call). Test doubles: `ai/testing.ts`
-  (`installFauxAi`, unit tests) and `ai/fake-openai.ts` (`startFakeOpenAi`, e2e scripts).
+  (`installFauxAi`, unit tests) and `ai/fake-openai.ts` (`startFakeOpenAi`, e2e scripts). Web
+  calls carry data out: the chat asks before each, and agents' chat, mention and request runs
+  before each the person didn't write (`lib/web-calls.ts`); a new outbound tool goes through it.
 - **Search.** `src/server/pages.ts` `searchPages` merges `fullTextSearch` with semantic search;
   `semantic-search.ts` `searchScope` is the one place a search's scope and filters become SQL, used
   by full-text, document and ID hits and by search by meaning alike, so a new filter goes there (and
@@ -137,7 +145,12 @@ BlockNote on Yjs; Tailwind v4; next-intl. Node 24, pnpm 11. A separate Electron 
   `src/lib/agents.ts`) and holds the tool lists; runs are queued from `requests.ts`, `chat.ts`,
   `mentions.ts`, `handoff.ts` and the `agent` schedule kind. Each agent is its own user.
 - **Connections** (outbound MCP): `src/server/connections/` (`manage.ts`, `client.ts`, `fetch.ts`
-  for the address checks, `events.ts` for inbound events, `approvals.ts`). The catalog of
+  for the address checks, `events.ts` for inbound events, `approvals.ts`). A fetch of an address a
+  member or visitor gives passes `{ untrusted: true }`: only `WEB_FETCH_ALLOWED_HOSTS` applies to
+  it, never `CONNECTOR_ALLOWED_HOSTS`. Allowed-host lists match through `ssrf.ts` `onHostList` (a
+  bare name allows the web's ports only). A synced database's setup checks
+  `pages.ts` `requireDatabasePlace` and `sync-setup.ts` limits before any network call, and reads
+  other servers' answers through `readBodyLimited`. The catalog of
   ready-made services is `src/lib/connection-catalog.ts`; `pnpm catalog:check` probes it live.
 - **Automations and schedules.** `src/server/automations/` (queued from `databases.ts` after row
   writes; `asAutomation` keeps an automation's writes from firing more automations) and
@@ -172,7 +185,10 @@ BlockNote on Yjs; Tailwind v4; next-intl. Node 24, pnpm 11. A separate Electron 
   page versions `page-versions.ts` (`page_snapshot.name`; `retention.ts` `pruneSnapshots` never
   deletes a named one; listing, preview and restore stay in `pages.ts`), SMTP
   `mail/`, inbox `notifications.ts`, push `push.ts`, files `files.ts` + `storage/` (local, S3,
-  workspace drives), import `import/` (TextBundles: `lib/import/textbundle.ts` turns each into a Markdown file of the upload;
+  workspace drives), import `import/` (readers in `src/lib/import/` take untrusted files of up to
+  100 MB on the one process: no regex that retries a quantified run against what follows, as
+  `\s+X$` or adjacent `\s*`; scan by hand (`link-scan.ts`) and add a `fast()` test from
+  `linear-fixtures.ts`; an import checks its place first, `server/import/place.ts`; TextBundles: `lib/import/textbundle.ts` turns each into a Markdown file of the upload;
   OneNote and other `.mht` files: `lib/import/mhtml.ts` reads the MIME parts, `mhtml-convert.ts` the HTML; a web page: `web-clip.ts`, fetched through `connections/fetch.ts` with `{ web: true }`, read by
   `web-clip-extract.ts`, recipes by `src/lib/recipe.ts`), export `export.ts`, server-made PDFs `pdf.ts` (reads a page like `print.ts`; `export-pdf.ts` zips one per page for the workspace export)
   and `pdf-document.ts` (pure pdfmake layout; pdfmake must stay in `serverExternalPackages` in
@@ -350,7 +366,10 @@ plus the `scripts/*-e2e.ts` of the area you touched (`pnpm tsx scripts/<name>-e2
 - On macOS, `HOSTNAME=localhost` binds only `::1`, while the server fetches its own JWKS from
   `127.0.0.1` (`internalUrl()` in `src/lib/env.ts`): MCP then answers 401 "no token payload". Leave
   `HOSTNAME` unset or use `127.0.0.1`.
-- `desktop/` is its own pnpm project with its own lockfile: `cd desktop && pnpm install`.
+- `desktop/` is its own pnpm project with its own lockfile: `cd desktop && pnpm install`. A tab leaves the server
+  only on a sign-in trip started from one of its sign-in pages (`desktop/src/navigation.ts`); local
+  mode signs in only after the server's `{ ready: port }` over IPC; desktop texts go in every
+  locale of `desktop/src/strings.ts`.
 
 **Releases.** The version is in `package.json`, `site/index.html`, `extension/manifest.json` and example strings in
 `.env.example`, `README.md` and `.github/workflows/{docker,desktop}.yml`; find them with
