@@ -1,6 +1,6 @@
 "use client";
 
-import { forwardRef, useEffect, useRef, useState, type ButtonHTMLAttributes, type InputHTMLAttributes, type ReactNode } from "react";
+import { forwardRef, useEffect, useLayoutEffect, useRef, useState, type ButtonHTMLAttributes, type InputHTMLAttributes, type ReactNode } from "react";
 import { IconGlyph } from "./builtin-icon";
 
 export function cn(...classes: (string | false | null | undefined)[]) {
@@ -111,6 +111,7 @@ export function Popover({
   wrapperClassName,
   open: controlledOpen,
   onOpenChange,
+  at,
 }: {
   trigger: (props: { open: boolean; toggle: () => void }) => ReactNode;
   children: ReactNode | ((close: () => void) => ReactNode);
@@ -122,22 +123,40 @@ export function Popover({
   wrapperClassName?: string;
   open?: boolean;
   onOpenChange?: (open: boolean) => void;
+  /** Opens at this point of the window instead (a right click), kept inside the window. */
+  at?: { x: number; y: number } | null;
 }) {
   const [uncontrolled, setUncontrolled] = useState(false);
   const open = controlledOpen ?? uncontrolled;
   const setOpen = (v: boolean) => (onOpenChange ? onOpenChange(v) : setUncontrolled(v));
   const close = () => setOpen(false);
   const ref = useDismiss<HTMLDivElement>(open, close);
+  const panel = useRef<HTMLDivElement>(null);
+  useLayoutEffect(() => {
+    const element = panel.current;
+    if (!open || !at || !element) return;
+    const { width, height } = element.getBoundingClientRect();
+    const x = Math.max(4, Math.min(at.x, window.innerWidth - width - 4));
+    const y = Math.max(4, Math.min(at.y, window.innerHeight - height - 4));
+    element.style.left = `${x}px`;
+    element.style.top = `${y}px`;
+    // Inside something moved with a transform (a sliding sidebar) "fixed" counts from it instead.
+    const placed = element.getBoundingClientRect();
+    element.style.left = `${2 * x - placed.left}px`;
+    element.style.top = `${2 * y - placed.top}px`;
+  }, [open, at]);
   return (
     // data-open lets hover-only toolbars stay shown while their menu is open (`has-[[data-open]]:flex`).
     <div ref={ref} data-open={open || undefined} className={cn("relative inline-flex", wrapperClassName)}>
       {trigger({ open, toggle: () => setOpen(!open) })}
       {open && (
         <div
+          ref={panel}
           className={cn(
-            "absolute z-50 min-w-48 rounded-lg border border-border bg-bg p-1 shadow-lg",
-            side === "top" ? "bottom-full mb-1" : "top-full mt-1",
-            align === "end" ? "inset-e-0" : "inset-s-0",
+            "z-50 min-w-48 rounded-lg border border-border bg-bg p-1 shadow-lg",
+            at ? "fixed" : "absolute",
+            !at && (side === "top" ? "bottom-full mb-1" : "top-full mt-1"),
+            !at && (align === "end" ? "inset-e-0" : "inset-s-0"),
             className,
           )}
         >

@@ -16,12 +16,14 @@ import {
   CloudOff,
   BookOpen,
   Database,
+  ExternalLink,
   FileText,
   Globe,
   House,
   Inbox,
   Keyboard,
   LayoutTemplate,
+  Link2,
   ListTodo,
   LogOut,
   LogOut as LeaveIcon,
@@ -198,6 +200,7 @@ export function Sidebar({
   const activeViewId = searchParams.get("view");
   const sidebar = useSidebar();
   const [tree, setTree] = useState(initialTree);
+  const [linkMenu, setLinkMenu] = useState<LinkMenuAt | null>(null);
   const [teamspaces, setTeamspaces] = useState(initialTeamspaces);
   const [journalPageId, setJournalPageId] = useState(initialJournalPageId);
   const [layout, setLayout] = useState(initialLayout);
@@ -1081,13 +1084,21 @@ export function Sidebar({
       <aside
         data-sidebar
         data-sidebar-open={(sidebar && !sidebar.collapsed) || undefined}
+        // A right click on a link opens the app's own menu for it; a page's row opens its actions instead.
+        onContextMenu={(e) => {
+          if (e.defaultPrevented) return;
+          const href = (e.target as Element).closest("a[href]")?.getAttribute("href");
+          if (!href?.startsWith("/")) return;
+          e.preventDefault();
+          setLinkMenu({ href, x: e.clientX, y: e.clientY });
+        }}
         // Desktop: an in-flow column the user can resize, or — when hidden — a panel that slides out
         // over the page while hovered. Phones: a drawer over the page.
         style={{ "--sidebar-w": `${sidebar?.width ?? 256}px` } as React.CSSProperties}
         onMouseEnter={sidebar?.collapsed ? sidebar.showPeek : undefined}
         onMouseLeave={sidebar?.collapsed ? sidebar.hidePeek : undefined}
         className={cn(
-          "relative flex shrink-0 flex-col border-e border-border bg-bg-subtle text-sm",
+          "relative flex shrink-0 flex-col border-e border-border bg-bg-subtle text-sm select-none",
           "max-md:fixed max-md:inset-y-0 max-md:inset-s-0 max-md:z-50 max-md:w-[min(18rem,85vw)] max-md:shadow-xl md:w-[var(--sidebar-w)]",
           sidebar?.collapsed &&
             "md:fixed md:top-12 md:bottom-3 md:inset-s-0 md:z-50 md:rounded-e-xl md:border md:border-s-0 md:shadow-2xl md:transition-[translate,visibility] md:duration-200 md:ease-out",
@@ -1098,6 +1109,7 @@ export function Sidebar({
         )}
       >
         {sidebar && !sidebar.collapsed && <ResizeHandle />}
+        <LinkMenu menu={linkMenu} onClose={() => setLinkMenu(null)} />
         <div className="p-2">
           <div className="group/head flex items-center gap-1">
             <Popover
@@ -2210,6 +2222,9 @@ function TreeItem({
   const isOpen = expanded.has(node.id);
   const [drop, setDrop] = useState<DropTarget>(null);
   const [renaming, setRenaming] = useState(false);
+  // The actions menu opens below its button or where the row was right-clicked.
+  const [menuOpen, setMenuOpen] = useState(false);
+  const [menuAt, setMenuAt] = useState<{ x: number; y: number } | null>(null);
   // Escape closes the field without saving: the blur that follows must not save it.
   const renameCancelled = useRef(false);
   // Database rows are not shown in the tree; dropping into a database would turn a page into a row.
@@ -2270,6 +2285,13 @@ function TreeItem({
         }}
         onDragLeave={() => setDrop(null)}
         onDrop={onDrop}
+        onContextMenu={(e) => {
+          // While renaming, the field keeps the system's menu for cutting and pasting.
+          if (props.offline || renaming) return;
+          e.preventDefault();
+          setMenuAt({ x: e.clientX, y: e.clientY });
+          setMenuOpen(true);
+        }}
         className={cn(
           "group relative flex h-7 items-center gap-0.5 rounded-md pe-1 hover:bg-bg-hover has-[[data-open]]:bg-bg-hover",
           // An open database highlights its current view row instead.
@@ -2349,14 +2371,44 @@ function TreeItem({
           <div className="hidden items-center group-hover:flex focus-within:flex has-[[data-open]]:flex pointer-coarse:flex">
             <Popover
               align="end"
+              open={menuOpen}
+              onOpenChange={setMenuOpen}
+              at={menuAt}
               trigger={({ toggle }) => (
-                <IconButton label={t("pages.actions")} onClick={toggle}>
+                <IconButton
+                  label={t("pages.actions")}
+                  onClick={(e) => {
+                    // Placed in the window rather than in the scrolling list, which would cut it off.
+                    const box = e.currentTarget.getBoundingClientRect();
+                    setMenuAt({ x: box.left, y: box.bottom + 4 });
+                    toggle();
+                  }}
+                >
                   <MoreHorizontal className="h-3.5 w-3.5" />
                 </IconButton>
               )}
             >
               {(close) => (
                 <div className="w-56">
+                  <MenuItem
+                    icon={<ExternalLink className="h-4 w-4" />}
+                    onClick={() => {
+                      close();
+                      window.open(`/w/${workspaceId}/p/${node.id}`, "_blank", "noopener");
+                    }}
+                  >
+                    {t("pages.openInNewTab")}
+                  </MenuItem>
+                  <MenuItem
+                    icon={<Link2 className="h-4 w-4" />}
+                    onClick={() => {
+                      close();
+                      copyLink(`/w/${workspaceId}/p/${node.id}`);
+                    }}
+                  >
+                    {t("pages.copyLink")}
+                  </MenuItem>
+                  <MenuSeparator />
                   {editable && (
                     <>
                       <MenuItem
@@ -2429,6 +2481,46 @@ function TreeItem({
         )
       )}
     </li>
+  );
+}
+
+type LinkMenuAt = { href: string; x: number; y: number };
+
+function copyLink(href: string) {
+  void navigator.clipboard.writeText(new URL(href, window.location.origin).href).catch(() => undefined);
+}
+
+/** What a right click on a link in the sidebar offers, where it was clicked. */
+function LinkMenu({ menu, onClose }: { menu: LinkMenuAt | null; onClose: () => void }) {
+  const t = useTranslations("sidebar");
+  return (
+    <Popover open={menu !== null} onOpenChange={(open) => !open && onClose()} at={menu} trigger={() => null} wrapperClassName="absolute">
+      {(close) =>
+        menu && (
+          <div className="w-52">
+            {/* The desktop app opens it in a tab of its own window, a browser in one of its tabs. */}
+            <MenuItem
+              icon={<ExternalLink className="h-4 w-4" />}
+              onClick={() => {
+                close();
+                window.open(menu.href, "_blank", "noopener");
+              }}
+            >
+              {t("pages.openInNewTab")}
+            </MenuItem>
+            <MenuItem
+              icon={<Link2 className="h-4 w-4" />}
+              onClick={() => {
+                close();
+                copyLink(menu.href);
+              }}
+            >
+              {t("pages.copyLink")}
+            </MenuItem>
+          </div>
+        )
+      }
+    </Popover>
   );
 }
 
