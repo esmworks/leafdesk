@@ -85,6 +85,7 @@
     "exportDisabledBody": "Ägarna av den här arbetsytan har stängt av export och utskrift av dess sidor.",
     "showInGraph": "Visa i grafen",
     "present": "Presentera",
+    "readAloud": "Läs upp",
     "watch": "Bevaka",
     "watchHint": "Få veta i din inkorg när någon annan redigerar den här sidan eller startar en kommentarstråd på den.",
     "mute": "Tysta",
@@ -807,6 +808,24 @@
     "morePlaces": "{count, plural, one {# ställe till} other {# ställen till}}",
     "fewerPlaces": "Visa färre",
     "morePages": "{count, plural, one {Visa # sida till} other {Visa # sidor till}}"
+  },
+  "related": {
+    "title": "Relaterade sidor",
+    "hint": "Sidor som liknar den här i betydelse och som den inte länkar till ännu",
+    "edited": "redigerad {time}"
+  },
+  "readAloud": {
+    "label": "Uppläsning",
+    "play": "Läs",
+    "pause": "Pausa",
+    "previous": "Föregående block",
+    "next": "Nästa block",
+    "close": "Sluta läsa upp",
+    "progress": "{current} av {total}",
+    "speed": "Hastighet",
+    "voice": "Röst",
+    "unsupported": "Den här webbläsaren kan inte läsa upp sidor.",
+    "nothing": "Det finns inget att läsa upp på den här sidan."
   },
   "blockMenu": {
     "copyLink": "Kopiera länk till blocket",

@@ -84,7 +84,7 @@
       "ownPageViews": "visningar spårning integritet avstå analys",
       "aiUsageLimit": "budget kostnad utgifter tak gräns",
       "aiUsagePeople": "per person medlem kostnad token",
-      "health": "trasiga länkar föräldralösa dubbletter tomma sidor hälsa",
+      "health": "trasiga länkar föräldralösa dubbletter tomma sidor hälsa webblänkar url 404",
       "audit": "logg historik händelser vem ändrade granskning",
       "siteHeader": "navigering meny länkar toppfält sidhuvud",
       "siteDescription": "seo metabeskrivning sökmotorer förhandsvisning open graph",
@@ -1079,6 +1079,19 @@
       "title": "Trasiga länkar",
       "description": "Länkar och omnämnanden på en sida till en sida i papperskorgen eller som raderats permanent.",
       "none": "Inga trasiga länkar."
+    },
+    "brokenWebLinks": {
+      "title": "Trasiga webblänkar",
+      "description": "Webbadresser i sidor och URL-egenskaper som har slutat fungera. Servern kontrollerar varje adress ungefär en gång i veckan och visar en webbplats som ligger nere först när den har misslyckats i några dagar.",
+      "none": "Inga trasiga webblänkar.",
+      "pending": "{count, plural, one {# adress kontrolleras fortfarande.} other {# adresser kontrolleras fortfarande.}} Öppna den här fliken igen senare.",
+      "skipped": "Inte kontrollerat: den här servern kontrollerar inte webblänkar.",
+      "notFound": "Hittades inte ({status})",
+      "gone": "Borttagen av webbplatsen ({status})",
+      "noHost": "Webbplatsens adress finns inte längre",
+      "serverError": "Webbplatsen svarar med ett fel ({status})",
+      "unreachable": "Webbplatsen går inte att nå",
+      "inProperty": "I {property}"
     },
     "orphans": {
       "title": "Sidor som inget leder till",

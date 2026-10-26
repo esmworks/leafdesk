@@ -2,6 +2,7 @@ import { sql } from "drizzle-orm";
 import { boolean, date, index, integer, jsonb, pgTable, primaryKey, text, timestamp } from "drizzle-orm/pg-core";
 import type { Attendee } from "@/lib/meetings";
 import type { SiteHeaderLink, SiteTheme } from "@/lib/site";
+import type { WebLinkStatus } from "@/lib/web-links";
 import { databaseView, page, workspace } from "./app";
 import { user } from "./auth";
 
@@ -293,4 +294,32 @@ export const formSubmission = pgTable(
     createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
   },
   (t) => [index("form_submission_view_user_idx").on(t.viewId, t.userId, t.createdAt.desc())],
+);
+
+/**
+ * Web addresses in a workspace's pages and URL properties and whether they still answer (see
+ * server/web-links.ts): the workspace check asks about the addresses of the pages it looks at, and a
+ * background job fetches the ones not checked lately. A cache: which page holds an address is read
+ * from the pages each time, and an address no check asked about for a while is forgotten.
+ */
+export const webLinkCheck = pgTable(
+  "web_link_check",
+  {
+    workspaceId: text("workspace_id")
+      .notNull()
+      .references(() => workspace.id, { onDelete: "cascade" }),
+    url: text("url").notNull(),
+    /** pending (not fetched yet), ok, broken, unreachable or skipped (an address the server doesn't fetch). */
+    status: text("status").$type<WebLinkStatus>().notNull().default("pending"),
+    /** The HTTP status of the last answer, when there was one. */
+    httpStatus: integer("http_status"),
+    /** Why it is broken or unreachable (lib/web-links WebLinkReason). */
+    reason: text("reason"),
+    /** Checks in a row that found it broken or unreachable. */
+    failures: integer("failures").notNull().default(0),
+    checkedAt: timestamp("checked_at", { withTimezone: true }),
+    /** The last time a workspace check asked about it. */
+    wantedAt: timestamp("wanted_at", { withTimezone: true }).notNull().defaultNow(),
+  },
+  (t) => [primaryKey({ columns: [t.workspaceId, t.url] }), index("web_link_check_due_idx").on(t.checkedAt)],
 );

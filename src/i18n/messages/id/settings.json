@@ -84,7 +84,7 @@
       "ownPageViews": "tampilan pelacakan privasi keluar analitik",
       "aiUsageLimit": "anggaran biaya pengeluaran batas",
       "aiUsagePeople": "per orang anggota biaya token",
-      "health": "tautan rusak yatim duplikat halaman kosong",
+      "health": "tautan rusak yatim duplikat halaman kosong tautan web url 404",
       "audit": "log riwayat peristiwa siapa mengubah",
       "siteHeader": "navigasi menu tautan bilah atas",
       "siteDescription": "seo meta deskripsi mesin pencari pratinjau open graph",
@@ -1079,6 +1079,19 @@
       "title": "Tautan rusak",
       "description": "Tautan dan sebutan dalam halaman ke halaman yang ada di sampah atau dihapus permanen.",
       "none": "Tidak ada tautan rusak."
+    },
+    "brokenWebLinks": {
+      "title": "Tautan web rusak",
+      "description": "Alamat web di halaman dan properti URL yang tidak berfungsi lagi. Server memeriksa setiap alamat kira-kira seminggu sekali, dan hanya mencantumkan situs yang tidak dapat dijangkau setelah gagal selama beberapa hari.",
+      "none": "Tidak ada tautan web rusak.",
+      "pending": "{count, plural, other {# alamat masih diperiksa.}} Buka tab ini lagi nanti.",
+      "skipped": "Tidak diperiksa: server ini tidak memeriksa tautan web.",
+      "notFound": "Tidak ditemukan ({status})",
+      "gone": "Dihapus oleh situs ({status})",
+      "noHost": "Alamat situs sudah tidak ada",
+      "serverError": "Situs menjawab dengan galat ({status})",
+      "unreachable": "Situs tidak dapat dijangkau",
+      "inProperty": "Di {property}"
     },
     "orphans": {
       "title": "Halaman yang tidak dituju apa pun",

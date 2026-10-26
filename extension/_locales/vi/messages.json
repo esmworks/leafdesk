@@ -1,0 +1,50 @@
+{
+  "extName": {
+    "message": "Lưu vào Leafdesk"
+  },
+  "extDescription": {
+    "message": "Lưu trang bạn đang xem, một liên kết hoặc đoạn văn bản đã chọn vào không gian làm việc Leafdesk của bạn."
+  },
+  "actionTitle": {
+    "message": "Lưu trang này vào Leafdesk"
+  },
+  "menuPage": {
+    "message": "Lưu trang vào Leafdesk"
+  },
+  "menuLink": {
+    "message": "Lưu liên kết vào Leafdesk"
+  },
+  "menuSelection": {
+    "message": "Lưu phần đã chọn vào Leafdesk"
+  },
+  "optionsTitle": {
+    "message": "Lưu vào Leafdesk"
+  },
+  "optionsAddress": {
+    "message": "Địa chỉ Leafdesk của bạn"
+  },
+  "optionsHelp": {
+    "message": "Địa chỉ bạn dùng để mở Leafdesk, ví dụ https://leafdesk.example.com."
+  },
+  "optionsSave": {
+    "message": "Lưu"
+  },
+  "optionsSaved": {
+    "message": "Đã lưu. Các trang bạn lưu sẽ mở trong ghi chú nhanh của Leafdesk."
+  },
+  "optionsInvalid": {
+    "message": "Nhập một địa chỉ web, ví dụ https://leafdesk.example.com."
+  },
+  "optionsHowTitle": {
+    "message": "Cách lưu"
+  },
+  "optionsHowButton": {
+    "message": "Bấm nút của tiện ích (hoặc nhấn Alt+Shift+S) để lưu trang bạn đang xem, kèm đoạn văn bản đã chọn trên đó làm trích dẫn."
+  },
+  "optionsHowMenu": {
+    "message": "Bấm chuột phải vào trang, liên kết hoặc văn bản đã chọn rồi chọn Lưu vào Leafdesk."
+  },
+  "optionsHowSignIn": {
+    "message": "Leafdesk mở trong thẻ mới: chọn nơi lưu, hoặc lưu toàn bộ trang. Hãy đăng nhập ở đó nếu bạn chưa đăng nhập."
+  }
+}

@@ -84,7 +84,7 @@
       "ownPageViews": "görüntüleme izleme gizlilik vazgeç analiz",
       "aiUsageLimit": "bütçe maliyet harcama sınır",
       "aiUsagePeople": "kişi başı üye maliyet token",
-      "health": "kırık bağlantılar sahipsiz yinelenen boş sayfalar",
+      "health": "kırık bağlantılar sahipsiz yinelenen boş sayfalar web bağlantıları url 404",
       "audit": "kayıt geçmiş olaylar kim değiştirdi",
       "siteHeader": "gezinme menü bağlantılar üst çubuk",
       "siteDescription": "seo meta açıklama arama motorları önizleme open graph",
@@ -1079,6 +1079,19 @@
       "title": "Kopuk bağlantılar",
       "description": "Bir sayfadaki, çöpteki ya da kalıcı olarak silinmiş bir sayfaya giden bağlantılar ve anmalar.",
       "none": "Kopuk bağlantı yok."
+    },
+    "brokenWebLinks": {
+      "title": "Kopuk web bağlantıları",
+      "description": "Sayfalarda ve URL özelliklerinde artık çalışmayan web adresleri. Sunucu her adresi haftada bir kez denetler; erişilemeyen bir siteyi ancak birkaç gün boyunca yanıt vermezse listeler.",
+      "none": "Kopuk web bağlantısı yok.",
+      "pending": "{count, plural, one {# adres hâlâ denetleniyor.} other {# adres hâlâ denetleniyor.}} Bu sekmeyi daha sonra yeniden açın.",
+      "skipped": "Denetlenmedi: bu sunucu web bağlantılarını denetlemiyor.",
+      "notFound": "Bulunamadı ({status})",
+      "gone": "Site tarafından kaldırıldı ({status})",
+      "noHost": "Sitenin adresi artık yok",
+      "serverError": "Site hata veriyor ({status})",
+      "unreachable": "Siteye ulaşılamıyor",
+      "inProperty": "{property} özelliğinde"
     },
     "orphans": {
       "title": "Hiçbir yerden ulaşılmayan sayfalar",

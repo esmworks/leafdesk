@@ -85,6 +85,7 @@
     "exportDisabledBody": "Die Inhaber dieses Workspace haben das Exportieren und Drucken seiner Seiten ausgeschaltet.",
     "showInGraph": "Im Graphen zeigen",
     "present": "Präsentieren",
+    "readAloud": "Vorlesen",
     "watch": "Beobachten",
     "watchHint": "Erfahre in deinem Posteingang, wenn jemand anderes diese Seite bearbeitet oder einen Kommentar-Thread darauf beginnt.",
     "mute": "Stummschalten",
@@ -807,6 +808,24 @@
     "morePlaces": "{count, plural, one {# weitere Stelle} other {# weitere Stellen}}",
     "fewerPlaces": "Weniger anzeigen",
     "morePages": "{count, plural, one {# weitere Seite anzeigen} other {# weitere Seiten anzeigen}}"
+  },
+  "related": {
+    "title": "Verwandte Seiten",
+    "hint": "Seiten mit ähnlicher Bedeutung, auf die diese Seite noch nicht verlinkt",
+    "edited": "bearbeitet {time}"
+  },
+  "readAloud": {
+    "label": "Vorlesen",
+    "play": "Vorlesen",
+    "pause": "Pause",
+    "previous": "Vorheriger Block",
+    "next": "Nächster Block",
+    "close": "Vorlesen beenden",
+    "progress": "{current} von {total}",
+    "speed": "Tempo",
+    "voice": "Stimme",
+    "unsupported": "Dieser Browser kann Seiten nicht vorlesen.",
+    "nothing": "Auf dieser Seite gibt es nichts vorzulesen."
   },
   "blockMenu": {
     "copyLink": "Link zum Block kopieren",

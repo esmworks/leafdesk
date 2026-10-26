@@ -928,6 +928,13 @@
   line-height: 1.25;
 }
 
+/* Read aloud (read-aloud.tsx): the block being read. */
+.bn-block-content[data-reading] {
+  background: rgba(250, 204, 21, 0.22);
+  border-radius: 4px;
+  box-shadow: 0 0 0 3px rgba(250, 204, 21, 0.22);
+}
+
 /* Find in page: every match is tinted, the current one stronger and outlined. */
 .leafdesk-find-match {
   background: rgba(250, 204, 21, 0.35);

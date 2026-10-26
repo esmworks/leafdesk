@@ -84,7 +84,7 @@
       "ownPageViews": "wyświetlenia śledzenie prywatność rezygnacja statystyki",
       "aiUsageLimit": "budżet koszt wydatki limit",
       "aiUsagePeople": "na osobę członek koszt tokeny",
-      "health": "zepsute linki osierocone duplikaty puste strony",
+      "health": "zepsute linki osierocone duplikaty puste strony linki internetowe adresy url 404",
       "audit": "dziennik historia zdarzenia kto zmienił",
       "siteHeader": "nawigacja menu linki górny pasek",
       "siteDescription": "seo meta opis wyszukiwarki podgląd open graph",
@@ -1079,6 +1079,19 @@
       "title": "Uszkodzone linki",
       "description": "Linki i wzmianki na stronie prowadzące do strony w koszu lub trwale usuniętej.",
       "none": "Brak uszkodzonych linków."
+    },
+    "brokenWebLinks": {
+      "title": "Uszkodzone linki internetowe",
+      "description": "Adresy internetowe na stronach i we właściwościach URL, które przestały działać. Serwer sprawdza każdy adres mniej więcej raz w tygodniu, a niedostępną witrynę pokazuje dopiero wtedy, gdy nie działa przez kilka dni.",
+      "none": "Brak uszkodzonych linków internetowych.",
+      "pending": "{count, plural, one {# adres jest jeszcze sprawdzany.} few {# adresy są jeszcze sprawdzane.} many {# adresów jest jeszcze sprawdzanych.} other {# adresów jest jeszcze sprawdzanych.}} Otwórz tę kartę ponownie później.",
+      "skipped": "Nie sprawdzono: ten serwer nie sprawdza linków internetowych.",
+      "notFound": "Nie znaleziono ({status})",
+      "gone": "Usunięta przez witrynę ({status})",
+      "noHost": "Adres witryny już nie istnieje",
+      "serverError": "Witryna odpowiada błędem ({status})",
+      "unreachable": "Nie można połączyć się z witryną",
+      "inProperty": "We właściwości {property}"
     },
     "orphans": {
       "title": "Strony, do których nic nie prowadzi",

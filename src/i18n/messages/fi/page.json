@@ -85,6 +85,7 @@
     "exportDisabledBody": "Tämän työtilan omistajat ovat poistaneet sen sivujen viennin ja tulostamisen käytöstä.",
     "showInGraph": "Näytä graafissa",
     "present": "Esitä",
+    "readAloud": "Lue ääneen",
     "watch": "Tarkkaile",
     "watchHint": "Saat ilmoituksen saapuneisiin, kun joku muu muokkaa tätä sivua tai aloittaa siinä kommenttiketjun.",
     "mute": "Mykistä",
@@ -807,6 +808,24 @@
     "morePlaces": "{count, plural, one {# kohta lisää} other {# kohtaa lisää}}",
     "fewerPlaces": "Näytä vähemmän",
     "morePages": "{count, plural, one {Näytä # sivu lisää} other {Näytä # sivua lisää}}"
+  },
+  "related": {
+    "title": "Liittyvät sivut",
+    "hint": "Merkitykseltään tätä lähellä olevat sivut, joihin tämä sivu ei vielä linkitä",
+    "edited": "muokattu {time}"
+  },
+  "readAloud": {
+    "label": "Ääneen lukeminen",
+    "play": "Lue",
+    "pause": "Tauko",
+    "previous": "Edellinen lohko",
+    "next": "Seuraava lohko",
+    "close": "Lopeta lukeminen",
+    "progress": "{current}/{total}",
+    "speed": "Nopeus",
+    "voice": "Ääni",
+    "unsupported": "Tämä selain ei osaa lukea sivuja ääneen.",
+    "nothing": "Tällä sivulla ei ole luettavaa."
   },
   "blockMenu": {
     "copyLink": "Kopioi linkki lohkoon",

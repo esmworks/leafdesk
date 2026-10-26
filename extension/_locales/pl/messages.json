@@ -1,0 +1,50 @@
+{
+  "extName": {
+    "message": "Zapisz w Leafdesk"
+  },
+  "extDescription": {
+    "message": "Zapisz stronę, na której jesteś, link lub zaznaczony tekst w swoim obszarze roboczym Leafdesk."
+  },
+  "actionTitle": {
+    "message": "Zapisz tę stronę w Leafdesk"
+  },
+  "menuPage": {
+    "message": "Zapisz stronę w Leafdesk"
+  },
+  "menuLink": {
+    "message": "Zapisz link w Leafdesk"
+  },
+  "menuSelection": {
+    "message": "Zapisz zaznaczenie w Leafdesk"
+  },
+  "optionsTitle": {
+    "message": "Zapisz w Leafdesk"
+  },
+  "optionsAddress": {
+    "message": "Twój adres Leafdesk"
+  },
+  "optionsHelp": {
+    "message": "Adres, pod którym otwierasz Leafdesk, np. https://leafdesk.example.com."
+  },
+  "optionsSave": {
+    "message": "Zapisz"
+  },
+  "optionsSaved": {
+    "message": "Zapisano. Zapisane strony otwierają się w szybkiej notatce Leafdesk."
+  },
+  "optionsInvalid": {
+    "message": "Wpisz adres internetowy, np. https://leafdesk.example.com."
+  },
+  "optionsHowTitle": {
+    "message": "Jak zapisywać"
+  },
+  "optionsHowButton": {
+    "message": "Kliknij przycisk rozszerzenia (lub naciśnij Alt+Shift+S), aby zapisać bieżącą stronę wraz z zaznaczonym na niej tekstem jako cytatem."
+  },
+  "optionsHowMenu": {
+    "message": "Kliknij prawym przyciskiem stronę, link lub zaznaczony tekst i wybierz Zapisz w Leafdesk."
+  },
+  "optionsHowSignIn": {
+    "message": "Leafdesk otworzy się w nowej karcie: wybierz, gdzie zapisać, albo zapisz całą stronę. Zaloguj się tam, jeśli jeszcze tego nie zrobiono."
+  }
+}

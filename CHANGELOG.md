@@ -22,7 +22,7 @@
   date, grouped by date like rows (or under its page when grouped by database). Clicking one opens
   the page at the to-do; ticking it ticks the to-do in the page, for people who may edit it. The
   calendar feed of assigned rows includes the dated ones. Group and agent mentions don't count.
-  Migration 0146 adds the index (`page_task`), kept in line on every save, and queues the pages
+  Migration 0147 adds the index (`page_task`), kept in line on every save, and queues the pages
   written before it, which the server indexes in the background after the upgrade.
 - **`#tags` in page text.** Write `#tag` anywhere in a page (letters, digits, `_` and `-`, at
   least one letter, `/` for a hierarchy such as `#home/renovation`) and find every page carrying
@@ -32,7 +32,7 @@
   search box or in a page offers the tags of pages you can open, most used first with how many
   pages carry each; pages mark tags in the accent color, and clicking one (with Ctrl or Cmd where
   the page can be edited) searches for it. MCP's `search` and the REST API's `GET /search` take a
-  `tag`. Migration 0147 adds the index of tags, kept in line on every save, and queues pages
+  `tag`. Migration 0148 adds the index of tags, kept in line on every save, and queues pages
   written before it, which a background job reads once; a restored workspace's pages are read
   again the same way.
 - **Type dates in words, everywhere a date is typed.** One grammar reads dates after `@` in a page,
@@ -55,7 +55,7 @@
   the history, which shows a named version's name in place of its kind and can list named
   versions only. The daily history cleanup never removes named versions, and they don't count
   toward its 200 versions per page; legal holds work as before. MCP's `get_page_history` and the AI
-  chat's page history give a version's `name`. Migration 0145 adds
+  chat's page history give a version's `name`. Migration 0146 adds
   the column.
 - **Import TextBundles, TextPacks and OneNote exports.** Import's Markdown tab takes `.textpack`
   files, ZIPs of them and folders of `.textbundle` folders: each bundle becomes a page titled by its
@@ -66,6 +66,23 @@
   (`.mht`, `.mhtml`) comes in on that tab as one page. Nothing outside the file is fetched. The
   import route takes `mode=mhtml`, and the audit log names the formats.
 
+- **Save to Leafdesk browser extension.** A new extension for Chrome, Edge and Firefox
+  (`extension/`, a zip in every release) saves the page you are on from its toolbar button
+  (Alt+Shift+S), and a page, a link or selected text from the context menu. It opens Leafdesk's
+  quick note on your own server, where you choose where it goes or save the whole page, and sends
+  nothing anywhere else.
+- **Read aloud.** A page's ••• menu has *Read aloud*: the browser's own speech reads the page
+  block by block, marking the block being read, with pause, previous and next block, speed and
+  voice. Nothing leaves the device.
+- **Related pages.** Under a page's backlinks, up to five pages close to it in meaning that it
+  doesn't link to yet, with when each was last edited and its closest passage. They come from the
+  embeddings semantic search already keeps, so no model is called; the list shows only where the
+  server has an embeddings model and the workspace has AI on.
+- **Broken web links in Settings → Health.** Web addresses in pages and URL properties that stopped
+  working: the server fetches them in the background about once a week, lists 404 and 410 at once
+  and a site that is down only after three failed checks a day apart. `check_workspace` over MCP
+  reports them too. Migration 0145 adds the `web_link_check` table; the new `WEB_LINK_CHECKS=off`
+  stops the server from fetching them.
 - **Sort search results.** The search box has a *Sort* menu beside its filters: best match (the
   default), or last edited or created, newest or oldest first. A date order takes every page that
   matches into account, not only the best few.

@@ -85,6 +85,7 @@
     "exportDisabledBody": "Chủ sở hữu của không gian làm việc này đã tắt việc xuất và in các trang của nó.",
     "showInGraph": "Hiện trong đồ thị",
     "present": "Trình chiếu",
+    "readAloud": "Đọc to",
     "watch": "Theo dõi",
     "watchHint": "Nhận thông báo trong hộp thư đến khi người khác chỉnh sửa trang này hoặc bắt đầu một chuỗi bình luận trên đó.",
     "mute": "Tắt thông báo",
@@ -807,6 +808,24 @@
     "morePlaces": "{count, plural, other {# vị trí nữa}}",
     "fewerPlaces": "Hiện ít hơn",
     "morePages": "{count, plural, other {Hiện thêm # trang}}"
+  },
+  "related": {
+    "title": "Trang liên quan",
+    "hint": "Các trang có ý nghĩa gần với trang này mà trang này chưa liên kết tới",
+    "edited": "sửa {time}"
+  },
+  "readAloud": {
+    "label": "Đọc to",
+    "play": "Đọc",
+    "pause": "Tạm dừng",
+    "previous": "Khối trước",
+    "next": "Khối sau",
+    "close": "Dừng đọc",
+    "progress": "{current}/{total}",
+    "speed": "Tốc độ",
+    "voice": "Giọng đọc",
+    "unsupported": "Trình duyệt này không đọc to trang được.",
+    "nothing": "Trang này không có gì để đọc."
   },
   "blockMenu": {
     "copyLink": "Sao chép liên kết đến khối",

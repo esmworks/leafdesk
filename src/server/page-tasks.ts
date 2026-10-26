@@ -128,7 +128,7 @@ export function mayHoldPageTasks(alias?: string) {
 }
 
 /**
- * Indexes a batch of the pages waiting in `page_task_backfill` (filled by migration 0146 and by
+ * Indexes a batch of the pages waiting in `page_task_backfill` (filled by migration 0147 and by
  * restores of backups made before it). Each page is taken off once tried, read or not. Returns how
  * many pages it looked at.
  */

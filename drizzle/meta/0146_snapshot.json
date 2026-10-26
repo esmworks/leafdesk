@@ -1,6 +1,6 @@
 {
-  "id": "03f6273b-ca7d-4fdb-a3c8-bb20e71c2995",
-  "prevId": "276dfe4d-7da3-4bcd-86cc-3ae09bce2ab4",
+  "id": "f127a68c-08ea-4abb-bf2f-7be3a96375e2",
+  "prevId": "dd65f2dd-dfe0-4119-bead-692ac1fe956d",
   "version": "7",
   "dialect": "postgresql",
   "tables": {
@@ -5187,155 +5187,6 @@
       "checkConstraints": {},
       "isRLSEnabled": false
     },
-    "public.page_task": {
-      "name": "page_task",
-      "schema": "",
-      "columns": {
-        "page_id": {
-          "name": "page_id",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "block_id": {
-          "name": "block_id",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "user_id": {
-          "name": "user_id",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "text": {
-          "name": "text",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true,
-          "default": "''"
-        },
-        "date": {
-          "name": "date",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "created_at": {
-          "name": "created_at",
-          "type": "timestamp with time zone",
-          "primaryKey": false,
-          "notNull": true,
-          "default": "now()"
-        },
-        "updated_at": {
-          "name": "updated_at",
-          "type": "timestamp with time zone",
-          "primaryKey": false,
-          "notNull": true,
-          "default": "now()"
-        }
-      },
-      "indexes": {
-        "page_task_user_idx": {
-          "name": "page_task_user_idx",
-          "columns": [
-            {
-              "expression": "user_id",
-              "isExpression": false,
-              "asc": true,
-              "nulls": "last"
-            },
-            {
-              "expression": "updated_at",
-              "isExpression": false,
-              "asc": true,
-              "nulls": "last"
-            }
-          ],
-          "isUnique": false,
-          "concurrently": false,
-          "method": "btree",
-          "with": {}
-        }
-      },
-      "foreignKeys": {
-        "page_task_page_id_page_id_fk": {
-          "name": "page_task_page_id_page_id_fk",
-          "tableFrom": "page_task",
-          "tableTo": "page",
-          "columnsFrom": [
-            "page_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
-          "onDelete": "cascade",
-          "onUpdate": "no action"
-        },
-        "page_task_user_id_user_id_fk": {
-          "name": "page_task_user_id_user_id_fk",
-          "tableFrom": "page_task",
-          "tableTo": "user",
-          "columnsFrom": [
-            "user_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
-          "onDelete": "cascade",
-          "onUpdate": "no action"
-        }
-      },
-      "compositePrimaryKeys": {
-        "page_task_page_id_block_id_user_id_pk": {
-          "name": "page_task_page_id_block_id_user_id_pk",
-          "columns": [
-            "page_id",
-            "block_id",
-            "user_id"
-          ]
-        }
-      },
-      "uniqueConstraints": {},
-      "policies": {},
-      "checkConstraints": {},
-      "isRLSEnabled": false
-    },
-    "public.page_task_backfill": {
-      "name": "page_task_backfill",
-      "schema": "",
-      "columns": {
-        "page_id": {
-          "name": "page_id",
-          "type": "text",
-          "primaryKey": true,
-          "notNull": true
-        }
-      },
-      "indexes": {},
-      "foreignKeys": {
-        "page_task_backfill_page_id_page_id_fk": {
-          "name": "page_task_backfill_page_id_page_id_fk",
-          "tableFrom": "page_task_backfill",
-          "tableTo": "page",
-          "columnsFrom": [
-            "page_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
-          "onDelete": "cascade",
-          "onUpdate": "no action"
-        }
-      },
-      "compositePrimaryKeys": {},
-      "uniqueConstraints": {},
-      "policies": {},
-      "checkConstraints": {},
-      "isRLSEnabled": false
-    },
     "public.page_verification": {
       "name": "page_verification",
       "schema": "",
@@ -5568,6 +5419,108 @@
             "page_id",
             "user_id",
             "day"
+          ]
+        }
+      },
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.web_link_check": {
+      "name": "web_link_check",
+      "schema": "",
+      "columns": {
+        "workspace_id": {
+          "name": "workspace_id",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "url": {
+          "name": "url",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "status": {
+          "name": "status",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "'pending'"
+        },
+        "http_status": {
+          "name": "http_status",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "reason": {
+          "name": "reason",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "failures": {
+          "name": "failures",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "default": 0
+        },
+        "checked_at": {
+          "name": "checked_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "wanted_at": {
+          "name": "wanted_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        }
+      },
+      "indexes": {
+        "web_link_check_due_idx": {
+          "name": "web_link_check_due_idx",
+          "columns": [
+            {
+              "expression": "checked_at",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        }
+      },
+      "foreignKeys": {
+        "web_link_check_workspace_id_workspace_id_fk": {
+          "name": "web_link_check_workspace_id_workspace_id_fk",
+          "tableFrom": "web_link_check",
+          "tableTo": "workspace",
+          "columnsFrom": [
+            "workspace_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {
+        "web_link_check_workspace_id_url_pk": {
+          "name": "web_link_check_workspace_id_url_pk",
+          "columns": [
+            "workspace_id",
+            "url"
           ]
         }
       },

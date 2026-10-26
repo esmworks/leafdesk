@@ -84,7 +84,7 @@
       "ownPageViews": "lượt xem theo dõi quyền riêng tư từ chối phân tích",
       "aiUsageLimit": "ngân sách chi phí chi tiêu giới hạn",
       "aiUsagePeople": "theo người thành viên chi phí token",
-      "health": "liên kết hỏng mồ côi trùng lặp trang trống",
+      "health": "liên kết hỏng mồ côi trùng lặp trang trống liên kết web url 404",
       "audit": "nhật ký lịch sử sự kiện ai đã thay đổi",
       "siteHeader": "điều hướng menu liên kết thanh trên cùng",
       "siteDescription": "seo meta mô tả công cụ tìm kiếm xem trước open graph",
@@ -1079,6 +1079,19 @@
       "title": "Liên kết bị hỏng",
       "description": "Các liên kết và lượt nhắc đến trong một trang trỏ tới một trang đã vào thùng rác hoặc đã bị xóa vĩnh viễn.",
       "none": "Không có liên kết nào bị hỏng."
+    },
+    "brokenWebLinks": {
+      "title": "Liên kết web hỏng",
+      "description": "Các địa chỉ web trong trang và thuộc tính URL không còn hoạt động. Máy chủ kiểm tra mỗi địa chỉ khoảng một lần mỗi tuần và chỉ liệt kê một trang web không truy cập được sau khi nó lỗi trong vài ngày.",
+      "none": "Không có liên kết web hỏng.",
+      "pending": "{count, plural, other {Còn # địa chỉ đang được kiểm tra.}} Hãy mở lại thẻ này sau.",
+      "skipped": "Chưa kiểm tra: máy chủ này không kiểm tra liên kết web.",
+      "notFound": "Không tìm thấy ({status})",
+      "gone": "Trang web đã gỡ bỏ ({status})",
+      "noHost": "Địa chỉ của trang web không còn tồn tại",
+      "serverError": "Trang web trả về lỗi ({status})",
+      "unreachable": "Không truy cập được trang web",
+      "inProperty": "Trong {property}"
     },
     "orphans": {
       "title": "Các trang không có gì dẫn đến",

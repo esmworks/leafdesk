@@ -1,0 +1,50 @@
+{
+  "extName": {
+    "message": "Leafdesk에 저장"
+  },
+  "extDescription": {
+    "message": "보고 있는 페이지, 링크 또는 선택한 텍스트를 Leafdesk 워크스페이스에 저장합니다."
+  },
+  "actionTitle": {
+    "message": "이 페이지를 Leafdesk에 저장"
+  },
+  "menuPage": {
+    "message": "페이지를 Leafdesk에 저장"
+  },
+  "menuLink": {
+    "message": "링크를 Leafdesk에 저장"
+  },
+  "menuSelection": {
+    "message": "선택 영역을 Leafdesk에 저장"
+  },
+  "optionsTitle": {
+    "message": "Leafdesk에 저장"
+  },
+  "optionsAddress": {
+    "message": "Leafdesk 주소"
+  },
+  "optionsHelp": {
+    "message": "Leafdesk를 여는 주소입니다(예: https://leafdesk.example.com)."
+  },
+  "optionsSave": {
+    "message": "저장"
+  },
+  "optionsSaved": {
+    "message": "저장했습니다. 저장한 페이지는 Leafdesk의 빠른 메모에서 열립니다."
+  },
+  "optionsInvalid": {
+    "message": "https://leafdesk.example.com 같은 웹 주소를 입력하세요."
+  },
+  "optionsHowTitle": {
+    "message": "저장 방법"
+  },
+  "optionsHowButton": {
+    "message": "확장 프로그램 버튼을 클릭하거나 Alt+Shift+S를 누르면 보고 있는 페이지를 선택한 텍스트와 함께 인용으로 저장합니다."
+  },
+  "optionsHowMenu": {
+    "message": "페이지, 링크 또는 선택한 텍스트를 마우스 오른쪽 버튼으로 클릭하고 'Leafdesk에 저장'을 선택하세요."
+  },
+  "optionsHowSignIn": {
+    "message": "Leafdesk가 새 탭에서 열립니다. 저장할 위치를 고르거나 페이지 전체를 저장하세요. 아직 로그인하지 않았다면 그곳에서 로그인하세요."
+  }
+}

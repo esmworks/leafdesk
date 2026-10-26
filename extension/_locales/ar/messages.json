@@ -1,0 +1,50 @@
+{
+  "extName": {
+    "message": "حفظ في Leafdesk"
+  },
+  "extDescription": {
+    "message": "احفظ الصفحة التي أنت فيها أو رابطًا أو النص الذي حددته في مساحة عمل Leafdesk."
+  },
+  "actionTitle": {
+    "message": "حفظ هذه الصفحة في Leafdesk"
+  },
+  "menuPage": {
+    "message": "حفظ الصفحة في Leafdesk"
+  },
+  "menuLink": {
+    "message": "حفظ الرابط في Leafdesk"
+  },
+  "menuSelection": {
+    "message": "حفظ التحديد في Leafdesk"
+  },
+  "optionsTitle": {
+    "message": "حفظ في Leafdesk"
+  },
+  "optionsAddress": {
+    "message": "عنوان Leafdesk الخاص بك"
+  },
+  "optionsHelp": {
+    "message": "العنوان الذي تفتح عليه Leafdesk، مثل https://leafdesk.example.com."
+  },
+  "optionsSave": {
+    "message": "حفظ"
+  },
+  "optionsSaved": {
+    "message": "تم الحفظ. تُفتح الصفحات التي تحفظها في الملاحظة السريعة في Leafdesk."
+  },
+  "optionsInvalid": {
+    "message": "أدخل عنوان ويب، مثل https://leafdesk.example.com."
+  },
+  "optionsHowTitle": {
+    "message": "طريقة الحفظ"
+  },
+  "optionsHowButton": {
+    "message": "انقر زر الإضافة (أو اضغط Alt+Shift+S) لحفظ الصفحة التي أنت فيها، مع النص الذي حددته فيها كاقتباس."
+  },
+  "optionsHowMenu": {
+    "message": "انقر بزر الفأرة الأيمن على صفحة أو رابط أو نص محدد واختر «حفظ في Leafdesk»."
+  },
+  "optionsHowSignIn": {
+    "message": "يُفتح Leafdesk في علامة تبويب جديدة: اختر أين يُحفظ، أو احفظ الصفحة كاملة. سجّل الدخول هناك إن لم تكن قد فعلت."
+  }
+}

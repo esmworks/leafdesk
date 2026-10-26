@@ -1,0 +1,50 @@
+{
+  "extName": {
+    "message": "Opslaan in Leafdesk"
+  },
+  "extDescription": {
+    "message": "Sla de pagina waarop je bent, een link of de tekst die je selecteerde op in je Leafdesk-werkruimte."
+  },
+  "actionTitle": {
+    "message": "Deze pagina opslaan in Leafdesk"
+  },
+  "menuPage": {
+    "message": "Pagina opslaan in Leafdesk"
+  },
+  "menuLink": {
+    "message": "Link opslaan in Leafdesk"
+  },
+  "menuSelection": {
+    "message": "Selectie opslaan in Leafdesk"
+  },
+  "optionsTitle": {
+    "message": "Opslaan in Leafdesk"
+  },
+  "optionsAddress": {
+    "message": "Je Leafdesk-adres"
+  },
+  "optionsHelp": {
+    "message": "Het adres waarop je Leafdesk opent, zoals https://leafdesk.example.com."
+  },
+  "optionsSave": {
+    "message": "Opslaan"
+  },
+  "optionsSaved": {
+    "message": "Opgeslagen. Pagina’s die je opslaat, openen in de snelle notitie van Leafdesk."
+  },
+  "optionsInvalid": {
+    "message": "Voer een webadres in, zoals https://leafdesk.example.com."
+  },
+  "optionsHowTitle": {
+    "message": "Zo sla je op"
+  },
+  "optionsHowButton": {
+    "message": "Klik op de knop van de extensie (of druk op Alt+Shift+S) om de pagina waarop je bent op te slaan, met de tekst die je erop selecteerde als citaat."
+  },
+  "optionsHowMenu": {
+    "message": "Klik met de rechtermuisknop op een pagina, een link of geselecteerde tekst en kies Opslaan in Leafdesk."
+  },
+  "optionsHowSignIn": {
+    "message": "Leafdesk opent in een nieuw tabblad: kies waar het heen gaat, of sla de hele pagina op. Log daar in als je dat nog niet hebt gedaan."
+  }
+}

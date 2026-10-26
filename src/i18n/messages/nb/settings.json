@@ -84,7 +84,7 @@
       "ownPageViews": "visninger sporing personvern reservasjon analyse",
       "aiUsageLimit": "budsjett kostnad forbruk tak grense",
       "aiUsagePeople": "per person medlem kostnad token",
-      "health": "brutte lenker foreldreløse duplikater tomme sider",
+      "health": "brutte lenker foreldreløse duplikater tomme sider nettlenker url 404",
       "audit": "logg historikk hendelser hvem endret revisjon",
       "siteHeader": "navigasjon meny lenker topplinje",
       "siteDescription": "seo meta beskrivelse søkemotorer forhåndsvisning open graph",
@@ -1079,6 +1079,19 @@
       "title": "Brutte lenker",
       "description": "Lenker og omtaler på en side som peker til en side i papirkurven eller en som er slettet permanent.",
       "none": "Ingen brutte lenker."
+    },
+    "brokenWebLinks": {
+      "title": "Brutte nettlenker",
+      "description": "Nettadresser i sider og URL-egenskaper som ikke virker lenger. Serveren sjekker hver adresse omtrent én gang i uken, og viser et nettsted som er nede først når det har feilet i noen dager.",
+      "none": "Ingen brutte nettlenker.",
+      "pending": "{count, plural, one {# adresse sjekkes fortsatt.} other {# adresser sjekkes fortsatt.}} Åpne denne fanen igjen senere.",
+      "skipped": "Ikke sjekket: Denne serveren sjekker ikke nettlenker.",
+      "notFound": "Ikke funnet ({status})",
+      "gone": "Fjernet av nettstedet ({status})",
+      "noHost": "Nettstedets adresse finnes ikke lenger",
+      "serverError": "Nettstedet svarer med en feil ({status})",
+      "unreachable": "Nettstedet kan ikke nås",
+      "inProperty": "I {property}"
     },
     "orphans": {
       "title": "Sider ingenting fører til",

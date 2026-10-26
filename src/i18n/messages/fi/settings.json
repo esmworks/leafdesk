@@ -84,7 +84,7 @@
       "ownPageViews": "katselut seuranta yksityisyys kieltäydy analytiikka",
       "aiUsageLimit": "budjetti kustannus kulut katto raja",
       "aiUsagePeople": "henkilöittäin jäsen kustannus tokenit",
-      "health": "rikkinäiset linkit orvot kaksoiskappaleet tyhjät sivut kunto",
+      "health": "rikkinäiset linkit orvot kaksoiskappaleet tyhjät sivut kunto verkkolinkit url 404",
       "audit": "loki historia tapahtumat kuka muutti tarkastus",
       "siteHeader": "navigointi valikko linkit yläpalkki",
       "siteDescription": "seo meta kuvaus hakukoneet esikatselu open graph",
@@ -1079,6 +1079,19 @@
       "title": "Rikkinäiset linkit",
       "description": "Sivun linkit ja maininnat, jotka osoittavat roskakorissa olevaan tai pysyvästi poistettuun sivuun.",
       "none": "Ei rikkinäisiä linkkejä."
+    },
+    "brokenWebLinks": {
+      "title": "Rikkinäiset verkkolinkit",
+      "description": "Sivujen ja URL-ominaisuuksien verkko-osoitteet, jotka eivät enää toimi. Palvelin tarkistaa jokaisen osoitteen noin kerran viikossa ja näyttää tavoittamattoman sivuston vasta, kun se on epäonnistunut muutaman päivän ajan.",
+      "none": "Ei rikkinäisiä verkkolinkkejä.",
+      "pending": "{count, plural, one {# osoite tarkistetaan vielä.} other {# osoitetta tarkistetaan vielä.}} Avaa tämä välilehti myöhemmin uudelleen.",
+      "skipped": "Ei tarkistettu: tämä palvelin ei tarkista verkkolinkkejä.",
+      "notFound": "Ei löytynyt ({status})",
+      "gone": "Sivusto on poistanut sen ({status})",
+      "noHost": "Sivuston osoitetta ei enää ole",
+      "serverError": "Sivusto vastaa virheellä ({status})",
+      "unreachable": "Sivustoa ei tavoiteta",
+      "inProperty": "Ominaisuudessa {property}"
     },
     "orphans": {
       "title": "Sivut, joihin mikään ei johda",

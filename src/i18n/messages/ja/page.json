@@ -85,6 +85,7 @@
     "exportDisabledBody": "このワークスペースのオーナーが、ページのエクスポートと印刷をオフにしています。",
     "showInGraph": "グラフで表示",
     "present": "プレゼンテーション",
+    "readAloud": "読み上げ",
     "watch": "ウォッチ",
     "watchHint": "ほかの人がこのページを編集したり、コメントスレッドを始めたりすると受信トレイに通知します。",
     "mute": "ミュート",
@@ -807,6 +808,24 @@
     "morePlaces": "ほか{count}か所",
     "fewerPlaces": "表示を減らす",
     "morePages": "さらに{count}ページを表示"
+  },
+  "related": {
+    "title": "関連ページ",
+    "hint": "このページと意味が近く、まだリンクしていないページ",
+    "edited": "{time}に編集"
+  },
+  "readAloud": {
+    "label": "読み上げ",
+    "play": "読み上げる",
+    "pause": "一時停止",
+    "previous": "前のブロック",
+    "next": "次のブロック",
+    "close": "読み上げを終了",
+    "progress": "{current} / {total}",
+    "speed": "速度",
+    "voice": "音声",
+    "unsupported": "このブラウザはページを読み上げられません。",
+    "nothing": "このページには読み上げる内容がありません。"
   },
   "blockMenu": {
     "copyLink": "ブロックへのリンクをコピー",

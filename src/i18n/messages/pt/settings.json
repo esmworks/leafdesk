@@ -84,7 +84,7 @@
       "ownPageViews": "visualizações rastreamento privacidade sair estatísticas",
       "aiUsageLimit": "orçamento custo gasto teto",
       "aiUsagePeople": "por pessoa membro custo tokens",
-      "health": "links quebrados órfãs duplicadas páginas vazias",
+      "health": "links quebrados órfãs duplicadas páginas vazias links da web urls 404",
       "audit": "registro histórico eventos quem alterou",
       "siteHeader": "navegação menu links barra superior",
       "siteDescription": "seo meta descrição buscadores prévia open graph",
@@ -1079,6 +1079,19 @@
       "title": "Links quebrados",
       "description": "Links e menções em uma página para uma página que está na lixeira ou foi excluída permanentemente.",
       "none": "Nenhum link quebrado."
+    },
+    "brokenWebLinks": {
+      "title": "Links da web quebrados",
+      "description": "Endereços da web em páginas e propriedades de URL que pararam de funcionar. O servidor verifica cada endereço cerca de uma vez por semana e só lista um site fora do ar depois que ele falha por alguns dias.",
+      "none": "Nenhum link da web quebrado.",
+      "pending": "{count, plural, one {# endereço ainda está sendo verificado.} other {# endereços ainda estão sendo verificados.}} Abra esta aba de novo mais tarde.",
+      "skipped": "Não verificado: este servidor não verifica links da web.",
+      "notFound": "Não encontrada ({status})",
+      "gone": "Removida pelo site ({status})",
+      "noHost": "O endereço do site não existe mais",
+      "serverError": "O site responde com um erro ({status})",
+      "unreachable": "Não é possível acessar o site",
+      "inProperty": "Em {property}"
     },
     "orphans": {
       "title": "Páginas sem nenhum caminho até elas",

@@ -156,6 +156,7 @@ export const LEFT_OUT: Record<string, string> = {
   sensitive_finding: "what the sensitive content scan found; it reads the restored pages again",
   sensitive_scan: "which pages the sensitive content scan has read; it reads the restored pages again",
   page_task_backfill: "pages waiting for the old server to index their to-dos; a restore queues its own",
+  web_link_check: "which web links in pages work; Settings > Health checks the restored pages again",
   page_report: "visitors' reports about published pages; the restored pages are not published",
   page_tag: "the #tags in pages' text, read from the restored pages again (server/page-tags.ts)",
   page_tag_queue: "pages waiting for their #tags to be read; a restore queues its own pages",

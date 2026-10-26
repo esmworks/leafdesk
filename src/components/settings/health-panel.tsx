@@ -1,4 +1,4 @@
-import { ArrowRight, CircleCheck, Trash2 } from "lucide-react";
+import { ArrowRight, CircleCheck, ExternalLink, Trash2 } from "lucide-react";
 import Link from "next/link";
 import { getFormatter, getTranslations } from "next-intl/server";
 import type { ReactNode } from "react";
@@ -60,7 +60,9 @@ export async function HealthPanel({ workspaceId, check }: { workspaceId: string;
     expiredVerifications: check.expiredVerifications.total,
     duplicates: check.duplicates.status === "done" ? check.duplicates.total : null,
     brokenRelations: check.brokenRelations.total,
+    brokenWebLinks: check.brokenWebLinks.status === "done" ? check.brokenWebLinks.total : null,
   };
+  const webLinks = check.brokenWebLinks;
 
   return (
     <div>
@@ -98,6 +100,50 @@ export async function HealthPanel({ workspaceId, check }: { workspaceId: string;
             </Row>
           ))}
         </Section>
+
+        {webLinks.status === "done" ? (
+          <Section
+            id="brokenWebLinks"
+            t={t}
+            section={webLinks}
+            description={
+              webLinks.pending > 0
+                ? `${t("brokenWebLinks.description")} ${t("brokenWebLinks.pending", { count: webLinks.pending })}`
+                : undefined
+            }
+          >
+            {webLinks.items.map((f) => (
+              <Row
+                key={`${f.source.id}:${f.property?.id ?? ""}:${f.url}`}
+                detail={[
+                  t(`brokenWebLinks.${f.reason}`, { status: f.httpStatus ?? 0 }),
+                  f.property && t("brokenWebLinks.inProperty", { property: f.property.name }),
+                ]
+                  .filter(Boolean)
+                  .join(" · ")}
+              >
+                {pageLink(f.source)}
+                <ArrowRight className="h-3.5 w-3.5 shrink-0 text-fg-faint rtl:-scale-x-100" aria-label={t("linksTo")} />
+                <a
+                  href={f.url}
+                  target="_blank"
+                  rel="noopener noreferrer nofollow"
+                  dir="ltr"
+                  className="inline-flex min-w-0 max-w-full items-center gap-1 text-fg-muted hover:text-fg hover:underline"
+                >
+                  <span className="truncate">{f.url.replace(/^https?:\/\//, "")}</span>
+                  <ExternalLink className="h-3 w-3 shrink-0" aria-hidden />
+                </a>
+              </Row>
+            ))}
+          </Section>
+        ) : (
+          <div id={anchor("brokenWebLinks")} className="scroll-mt-6">
+            <SettingsGroup title={t("brokenWebLinks.title")} description={t("brokenWebLinks.description")} bare>
+              <p className="rounded-xl border border-dashed border-border px-4 py-4 text-sm text-fg-muted">{t("brokenWebLinks.skipped")}</p>
+            </SettingsGroup>
+          </div>
+        )}
 
         <Section id="orphans" t={t} section={check.orphans}>
           {check.orphans.items.map((p) => (

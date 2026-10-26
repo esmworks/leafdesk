@@ -84,7 +84,7 @@
       "ownPageViews": "vues suivi confidentialité désactiver statistiques",
       "aiUsageLimit": "budget coût dépenses plafond",
       "aiUsagePeople": "par personne membre coût jetons",
-      "health": "liens cassés orphelines doublons pages vides",
+      "health": "liens cassés orphelines doublons pages vides liens web urls 404",
       "audit": "journal historique événements qui a modifié",
       "siteHeader": "navigation menu liens barre du haut",
       "siteDescription": "seo meta description moteurs de recherche aperçu open graph",
@@ -1079,6 +1079,19 @@
       "title": "Liens cassés",
       "description": "Liens et mentions d’une page vers une page dans la corbeille ou supprimée définitivement.",
       "none": "Aucun lien cassé."
+    },
+    "brokenWebLinks": {
+      "title": "Liens web cassés",
+      "description": "Adresses web des pages et des propriétés URL qui ne fonctionnent plus. Le serveur vérifie chaque adresse environ une fois par semaine et ne signale un site injoignable qu’après plusieurs jours d’échec.",
+      "none": "Aucun lien web cassé.",
+      "pending": "{count, plural, one {# adresse est encore en cours de vérification.} other {# adresses sont encore en cours de vérification.}} Rouvrez cet onglet plus tard.",
+      "skipped": "Non vérifié : ce serveur ne vérifie pas les liens web.",
+      "notFound": "Introuvable ({status})",
+      "gone": "Retirée par le site ({status})",
+      "noHost": "L’adresse du site n’existe plus",
+      "serverError": "Le site répond par une erreur ({status})",
+      "unreachable": "Le site est injoignable",
+      "inProperty": "Dans {property}"
     },
     "orphans": {
       "title": "Pages auxquelles rien ne mène",

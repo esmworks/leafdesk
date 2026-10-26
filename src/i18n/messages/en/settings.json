@@ -84,7 +84,7 @@
       "ownPageViews": "views tracking privacy opt out analytics",
       "aiUsageLimit": "budget cost spending cap",
       "aiUsagePeople": "per person member cost tokens",
-      "health": "broken links orphans duplicates empty pages",
+      "health": "broken links orphans duplicates empty pages web links urls 404",
       "audit": "log history events who changed",
       "siteHeader": "navigation menu links top bar",
       "siteDescription": "seo meta description search engines preview open graph",
@@ -1079,6 +1079,19 @@
       "title": "Broken links",
       "description": "Links and mentions in a page to a page in the trash or deleted for good.",
       "none": "No broken links."
+    },
+    "brokenWebLinks": {
+      "title": "Broken web links",
+      "description": "Web addresses in pages and URL properties that stopped working. The server checks each address about once a week, and lists a site that is down only after it failed for a few days.",
+      "none": "No broken web links.",
+      "pending": "{count, plural, one {# address is still being checked.} other {# addresses are still being checked.}} Open this tab again later.",
+      "skipped": "Not checked: this server doesn't check web links.",
+      "notFound": "Not found ({status})",
+      "gone": "Removed by the site ({status})",
+      "noHost": "The site's address doesn't exist any more",
+      "serverError": "The site answers with an error ({status})",
+      "unreachable": "The site can't be reached",
+      "inProperty": "In {property}"
     },
     "orphans": {
       "title": "Pages nothing leads to",

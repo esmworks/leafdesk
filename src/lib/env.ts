@@ -81,6 +81,14 @@ export const env = {
       .filter(Boolean);
   },
   /**
+   * WEB_LINK_CHECKS=off stops the server from fetching the web addresses in pages to find links
+   * that stopped working (server/web-links.ts; Settings > Health then says they aren't checked).
+   * On by default. CONNECTOR_ALLOWED_HOSTS lets it reach hosts on your own network too.
+   */
+  get webLinkChecks() {
+    return !/^(off|false|0|no)$/i.test(process.env.WEB_LINK_CHECKS?.trim() ?? "");
+  },
+  /**
    * MAIL_ALLOWED_HOSTS: mail servers (host names, or host:port) members' mailboxes may be on even
    * though they are on a private network or a local name, and may talk to without TLS (a mail
    * server on the same machine or in the office, say); comma-separated. Every other mailbox is

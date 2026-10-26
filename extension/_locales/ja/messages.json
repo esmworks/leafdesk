@@ -1,0 +1,50 @@
+{
+  "extName": {
+    "message": "Leafdesk に保存"
+  },
+  "extDescription": {
+    "message": "開いているページ、リンク、選択したテキストを Leafdesk のワークスペースに保存します。"
+  },
+  "actionTitle": {
+    "message": "このページを Leafdesk に保存"
+  },
+  "menuPage": {
+    "message": "ページを Leafdesk に保存"
+  },
+  "menuLink": {
+    "message": "リンクを Leafdesk に保存"
+  },
+  "menuSelection": {
+    "message": "選択範囲を Leafdesk に保存"
+  },
+  "optionsTitle": {
+    "message": "Leafdesk に保存"
+  },
+  "optionsAddress": {
+    "message": "Leafdesk のアドレス"
+  },
+  "optionsHelp": {
+    "message": "Leafdesk を開くときのアドレスです（例：https://leafdesk.example.com）。"
+  },
+  "optionsSave": {
+    "message": "保存"
+  },
+  "optionsSaved": {
+    "message": "保存しました。保存したページは Leafdesk のクイックノートで開きます。"
+  },
+  "optionsInvalid": {
+    "message": "https://leafdesk.example.com のようなウェブアドレスを入力してください。"
+  },
+  "optionsHowTitle": {
+    "message": "保存のしかた"
+  },
+  "optionsHowButton": {
+    "message": "拡張機能のボタンをクリック（または Alt+Shift+S を押す）すると、開いているページを、選択したテキストを引用として添えて保存します。"
+  },
+  "optionsHowMenu": {
+    "message": "ページ、リンク、選択したテキストを右クリックし、「Leafdesk に保存」を選びます。"
+  },
+  "optionsHowSignIn": {
+    "message": "Leafdesk が新しいタブで開きます。保存先を選ぶか、ページ全体を保存してください。まだサインインしていない場合は、そこでサインインします。"
+  }
+}

@@ -340,6 +340,12 @@ jobs:
       - name: Semantic search end-to-end
         run: pnpm tsx scripts/semantic-search-e2e.ts
 
+      - name: Related pages end-to-end
+        run: pnpm tsx scripts/related-pages-e2e.ts
+
+      - name: Broken web links end-to-end
+        run: pnpm tsx scripts/web-links-e2e.ts
+
       - name: Voice notes over the REST API end-to-end
         run: pnpm tsx scripts/voice-api-e2e.ts
 

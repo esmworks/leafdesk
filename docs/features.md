@@ -30,7 +30,10 @@
   and a scan without a text layer has no words to find. The sidebar's new button asks what to make
   (a page, a chat, a database or a page from a template). A page's `⋯` menu counts its words and
   characters, and *Present* (⌘⌥P, Ctrl+Alt+P) shows it full screen as read-only slides: a new
-  slide at each divider, or else at each heading of level 1 or 2. Resting on a page in the
+  slide at each divider, or else at each heading of level 1 or 2. *Read aloud* reads the page with
+  the browser's own speech, nothing sent anywhere: block by block from the title, marking and
+  scrolling to the block being read, with pause, the previous and next block, the speed and the
+  voice (both remembered in the browser); code blocks are skipped. Resting on a page in the
   breadcrumb (or ↓ on it) lists the pages beside it, its parent's other subpages or a row's
   database's other rows, to jump to; clicking the page's own crumb while it is scrolled down goes
   back to its top. Quotes typed in a page become typographic ones (“ ” ‘ ’, ’ in "don’t"), except in
@@ -593,6 +596,12 @@
   mention (a Japanese or Chinese title is found inside a sentence too, never inside a longer word).
   The page's ••• menu sets where its backlinks show: below the page, in a popup under the title, or
   hidden (for everyone, like the page's typeface).
+  Under them, *Related pages* lists up to five pages close in meaning to this one that it doesn't
+  link to and isn't linked from (nor its parent or subpages), each with when it was last edited and
+  its closest passage, opening the page there: an old page on the same subject comes back where it
+  is useful. They come from the embeddings semantic search already keeps, so nothing is sent to a
+  model; without an embeddings model, or with AI off for the workspace, the list doesn't show
+  (see [Semantic search](ai.md#semantic-search)).
   "Copy link to block" in a block's menu gives a link that opens the page at that block,
   highlighted, in the editor, on published pages and in the print view; pasted into a page it
   becomes a mention of that block, a backlink like any other, and Markdown over MCP and the API
@@ -774,8 +783,18 @@
   can open for what is worth tidying: links and mentions to pages in the trash or deleted, top-level
   pages nothing links to, pages with a title and no body, pages nobody edited for 3, 6, 12 or 24
   months, pages whose verification expired, pages that say nearly the same thing (compared by
-  their embeddings, when the server has an embeddings model and the workspace has AI on), and
-  relations to rows in the trash or deleted.
+  their embeddings, when the server has an embeddings model and the workspace has AI on),
+  relations to rows in the trash or deleted, and web links that stopped working.
+  *Broken web links* are the web addresses in pages' bodies (links, bookmarks, embeds, bare
+  addresses; not images or code) and in rows' URL properties: each check asks about the addresses
+  of the pages it looks at (up to 2,000), and the server fetches them in the background (HEAD, then
+  GET if that gets an error), a few at a time and at most three of one site a minute, through the
+  same guard as saving a web page. A 404 or 410 answer is listed at once; a site with no address,
+  no answer or a server error only after three checks in a row a day or more apart, and answers
+  that just refuse the checker (401, 403, 429) count as working. Working addresses are checked
+  again after a week, broken ones after three days; addresses no check asked about for 60 days are
+  forgotten. The first check says how many are still waiting. `WEB_LINK_CHECKS=off` stops the
+  server from fetching them (see [Self-hosting](self-hosting.md)).
   Where it can, a finding has a one-click fix: restore the page, link the orphan where another page
   writes its title, move the empty page to the trash, take the dead row out of the relation. The
   MCP tool `check_workspace` returns the same report.
@@ -1017,7 +1036,10 @@
   private page at the top; the form starts where you saved the last time. The *Save to Leafdesk*
   bookmarklet in that dialog opens the quick note with the page you are on (address, title and the
   text you selected, as a quote); there, as for links shared to the installed app, *Save full page*
-  saves the whole page. The server fetches only public addresses (http or https on the usual web
+  saves the whole page. The *Save to Leafdesk* browser extension (Chrome, Edge, Firefox; a zip in
+  every release, see [`extension/`](../extension/README.md)) does the same from its toolbar button
+  (Alt+Shift+S) and from the context menu of a page, a link or selected text: it opens the quick
+  note on the Leafdesk address set in its settings, and sends nothing anywhere else. The server fetches only public addresses (http or https on the usual web
   ports, every redirect checked again; `CONNECTOR_ALLOWED_HOSTS` lets hosts on your own network
   through, as for [connections](connections.md)), at most 5 MB of page in 15 seconds. REST:
   `POST /api/v1/pages/from-web` (see [REST API](rest-api.md)).

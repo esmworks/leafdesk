@@ -85,6 +85,7 @@
     "exportDisabledBody": "De eigenaren van deze werkruimte hebben het exporteren en afdrukken van de pagina’s uitgeschakeld.",
     "showInGraph": "Tonen in netwerk",
     "present": "Presenteren",
+    "readAloud": "Voorlezen",
     "watch": "Volgen",
     "watchHint": "Krijg een melding in je inbox als iemand anders deze pagina bewerkt of er een discussie op begint.",
     "mute": "Dempen",
@@ -807,6 +808,24 @@
     "morePlaces": "{count, plural, one {Nog # plek} other {Nog # plekken}}",
     "fewerPlaces": "Minder tonen",
     "morePages": "{count, plural, one {Nog # pagina tonen} other {Nog # pagina’s tonen}}"
+  },
+  "related": {
+    "title": "Gerelateerde pagina’s",
+    "hint": "Pagina’s die qua betekenis dicht bij deze liggen en waar deze pagina nog niet naar linkt",
+    "edited": "bewerkt {time}"
+  },
+  "readAloud": {
+    "label": "Voorlezen",
+    "play": "Lezen",
+    "pause": "Pauzeren",
+    "previous": "Vorig blok",
+    "next": "Volgend blok",
+    "close": "Stoppen met voorlezen",
+    "progress": "{current} van {total}",
+    "speed": "Snelheid",
+    "voice": "Stem",
+    "unsupported": "Deze browser kan pagina’s niet voorlezen.",
+    "nothing": "Er is niets om voor te lezen op deze pagina."
   },
   "blockMenu": {
     "copyLink": "Link naar blok kopiëren",

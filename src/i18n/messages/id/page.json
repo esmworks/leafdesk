@@ -85,6 +85,7 @@
     "exportDisabledBody": "Pemilik ruang kerja ini telah menonaktifkan ekspor dan pencetakan halamannya.",
     "showInGraph": "Tampilkan di grafik",
     "present": "Presentasikan",
+    "readAloud": "Bacakan",
     "watch": "Pantau",
     "watchHint": "Dapatkan kabar di kotak masuk saat orang lain mengedit halaman ini atau memulai utas komentar di dalamnya.",
     "mute": "Bisukan",
@@ -807,6 +808,24 @@
     "morePlaces": "{count, plural, other {# tempat lagi}}",
     "fewerPlaces": "Tampilkan lebih sedikit",
     "morePages": "{count, plural, other {Tampilkan # halaman lagi}}"
+  },
+  "related": {
+    "title": "Halaman terkait",
+    "hint": "Halaman yang maknanya dekat dengan halaman ini dan belum ditautkan dari sini",
+    "edited": "diedit {time}"
+  },
+  "readAloud": {
+    "label": "Bacakan",
+    "play": "Baca",
+    "pause": "Jeda",
+    "previous": "Blok sebelumnya",
+    "next": "Blok berikutnya",
+    "close": "Berhenti membaca",
+    "progress": "{current} dari {total}",
+    "speed": "Kecepatan",
+    "voice": "Suara",
+    "unsupported": "Browser ini tidak dapat membacakan halaman.",
+    "nothing": "Tidak ada yang bisa dibacakan di halaman ini."
   },
   "blockMenu": {
     "copyLink": "Salin tautan ke blok",

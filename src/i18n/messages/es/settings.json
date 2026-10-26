@@ -84,7 +84,7 @@
       "ownPageViews": "visitas seguimiento privacidad excluirme analíticas",
       "aiUsageLimit": "presupuesto coste gasto límite",
       "aiUsagePeople": "por persona miembro coste tokens",
-      "health": "enlaces rotos huérfanas duplicadas páginas vacías",
+      "health": "enlaces rotos huérfanas duplicadas páginas vacías enlaces web urls 404",
       "audit": "registro historial eventos quién cambió",
       "siteHeader": "navegación menú enlaces barra superior",
       "siteDescription": "seo meta descripción buscadores vista previa open graph",
@@ -1079,6 +1079,19 @@
       "title": "Enlaces rotos",
       "description": "Enlaces y menciones de una página a una página en la papelera o eliminada para siempre.",
       "none": "No hay enlaces rotos."
+    },
+    "brokenWebLinks": {
+      "title": "Enlaces web rotos",
+      "description": "Direcciones web en páginas y propiedades URL que dejaron de funcionar. El servidor comprueba cada dirección más o menos una vez por semana y solo muestra un sitio caído después de que falle durante varios días.",
+      "none": "No hay enlaces web rotos.",
+      "pending": "{count, plural, one {Aún se está comprobando # dirección.} other {Aún se están comprobando # direcciones.}} Vuelve a abrir esta pestaña más tarde.",
+      "skipped": "Sin comprobar: este servidor no comprueba los enlaces web.",
+      "notFound": "No encontrada ({status})",
+      "gone": "Retirada por el sitio ({status})",
+      "noHost": "La dirección del sitio ya no existe",
+      "serverError": "El sitio responde con un error ({status})",
+      "unreachable": "No se puede acceder al sitio",
+      "inProperty": "En {property}"
     },
     "orphans": {
       "title": "Páginas a las que nada lleva",

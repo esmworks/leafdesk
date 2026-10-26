@@ -85,6 +85,7 @@
     "exportDisabledBody": "Los propietarios de este espacio de trabajo han desactivado la exportación y la impresión de sus páginas.",
     "showInGraph": "Mostrar en el grafo",
     "present": "Presentar",
+    "readAloud": "Leer en voz alta",
     "watch": "Observar",
     "watchHint": "Entérate en tu bandeja de entrada cuando otra persona edite esta página o inicie un hilo de comentarios en ella.",
     "mute": "Silenciar",
@@ -807,6 +808,24 @@
     "morePlaces": "{count, plural, one {# lugar más} other {# lugares más}}",
     "fewerPlaces": "Mostrar menos",
     "morePages": "{count, plural, one {Mostrar # página más} other {Mostrar # páginas más}}"
+  },
+  "related": {
+    "title": "Páginas relacionadas",
+    "hint": "Páginas de significado parecido a esta que aún no enlaza",
+    "edited": "editada {time}"
+  },
+  "readAloud": {
+    "label": "Lectura en voz alta",
+    "play": "Leer",
+    "pause": "Pausa",
+    "previous": "Bloque anterior",
+    "next": "Bloque siguiente",
+    "close": "Dejar de leer",
+    "progress": "{current} de {total}",
+    "speed": "Velocidad",
+    "voice": "Voz",
+    "unsupported": "Este navegador no puede leer páginas en voz alta.",
+    "nothing": "No hay nada que leer en esta página."
   },
   "blockMenu": {
     "copyLink": "Copiar enlace al bloque",

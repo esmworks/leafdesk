@@ -3721,6 +3721,23 @@ describe("check_workspace", () => {
       ],
       total: 1,
     },
+    brokenWebLinks: {
+      status: "done",
+      links: 12,
+      pending: 3,
+      items: [
+        { source: page("page-1", "Plan"), url: "https://old.example/a", reason: "notFound", httpStatus: 404, checkedAt: "2026-10-16T00:00:00.000Z" },
+        {
+          source: page("row-1", "Task", { kind: "row" }),
+          url: "https://down.example/",
+          reason: "noHost",
+          httpStatus: null,
+          checkedAt: "2026-10-16T00:00:00.000Z",
+          property: { id: "prop-url", name: "Link" },
+        },
+      ],
+      total: 2,
+    },
   };
 
   it("checks with read-only access, passing a pasted link's workspace and the defaults", async () => {
@@ -3748,6 +3765,7 @@ describe("check_workspace", () => {
       expired_verifications: 1,
       possible_duplicates: "not checked",
       broken_relations: 1,
+      broken_web_links: 2,
     });
     expect(data.broken_links.items[0]).toEqual({
       page: { id: "page-1", title: "Plan", url: expect.stringContaining("/w/ws-1/p/page-1"), kind: "page", can_edit: true },
@@ -3761,6 +3779,12 @@ describe("check_workspace", () => {
     expect(data.expired_verifications.items[0]).toMatchObject({ title: "Handbook", verified_by: "Ada", ended: "2026-09-01T00:00:00.000Z" });
     expect(data.possible_duplicates.description).toMatch(/no embeddings model/);
     expect(data.broken_relations.items[0]).toMatchObject({ property: "Blocked by", database: { title: "Tasks" }, can_fix: true });
+    expect(data.broken_web_links.items).toEqual([
+      expect.objectContaining({ page: expect.objectContaining({ id: "page-1" }), url: "https://old.example/a", reason: "not_found", http_status: 404 }),
+      expect.objectContaining({ url: "https://down.example/", reason: "no_host", property: "Link" }),
+    ]);
+    expect(data.broken_web_links.items[1]).not.toHaveProperty("http_status");
+    expect(data.broken_web_links.description).toMatch(/12 addresses, 3 not checked yet/);
     expect(data.how_to_fix).toMatch(/restore_page/);
   });
 

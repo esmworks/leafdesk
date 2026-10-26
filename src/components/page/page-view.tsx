@@ -63,6 +63,9 @@ const MarkdownSourceView = dynamic(() => import("./markdown-source").then((m) =>
 // Loaded when it opens, likewise.
 const Presentation = dynamic(() => import("./presentation"), { ssr: false });
 const VerifyDialog = dynamic(() => import("./verify-dialog").then((m) => m.VerifyDialog), { ssr: false });
+const ReadAloud = dynamic(() => import("./read-aloud").then((m) => m.ReadAloud), { ssr: false });
+// Loaded with the page, after it: the list asks for itself once it scrolls into view.
+const RelatedPages = dynamic(() => import("./related-pages").then((m) => m.RelatedPages), { ssr: false });
 
 type Crumb = { id: string; title: string; icon: string | null; kind: PageKind };
 
@@ -131,6 +134,7 @@ export function PageView({
   const [savingVersion, setSavingVersion] = useState(false);
   const [markdownOpen, setMarkdownOpen] = useState(false);
   const [presenting, setPresenting] = useState(false);
+  const [reading, setReading] = useState(false);
   const [commentsOpen, setCommentsOpen] = useState(false);
   // A row whose database shows its properties beside the body (lib/row-layout): the column they go in.
   const [propertiesBeside, setPropertiesBeside] = useState(false);
@@ -585,6 +589,16 @@ export function PageView({
               onHistory={() => setHistoryOpen(true)}
               onMarkdown={showBody && pageDoc && canEdit && !locked && !page.archived ? () => setMarkdownOpen(true) : undefined}
               onPresent={canPresent ? present : undefined}
+              onReadAloud={
+                showBody && pageDoc && synced
+                  ? () => {
+                      // Some browsers (Safari on iPhone and iPad) speak only once a click has
+                      // started speech, and the player starts reading after it loads.
+                      if ("speechSynthesis" in window) window.speechSynthesis.speak(new SpeechSynthesisUtterance(""));
+                      setReading(true);
+                    }
+                  : undefined
+              }
               commentsOpen={commentsOpen}
               onComments={
                 showBody
@@ -795,6 +809,7 @@ export function PageView({
           {pageStyle.backlinks === "expanded" && (
             <Backlinks workspaceId={workspaceId} pageId={page.id} title={page.title} canLink={!offline && !page.archived} />
           )}
+          {showBody && !wide && !offline && !page.archived && !info.template && <RelatedPages pageId={page.id} />}
         </div>
 
         {graphOpen && !offline && !page.archived && (
@@ -836,6 +851,7 @@ export function PageView({
             }}
           />
         )}
+        {reading && showBody && <ReadAloud root={rootRef.current} title={title} onClose={() => setReading(false)} />}
         {presenting && canPresent && pageDoc && (
           <Presentation
             pageDoc={pageDoc}

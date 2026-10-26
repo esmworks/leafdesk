@@ -11,7 +11,8 @@ A workspace of pages and databases with real-time collaborative editing, AI chat
 MCP server, a REST API and outbound connections. One Node process (`server.ts`) runs Next.js 16
 (App Router) and the Hocuspocus collaboration server; PostgreSQL 18 through Drizzle; Better Auth;
 BlockNote on Yjs; Tailwind v4; next-intl. Node 24, pnpm 11. A separate Electron app lives in
-`desktop/`, the static website in `site/`.
+`desktop/`, the static website in `site/`, the browser extension (plain JS, no build; it only opens
+`/share`) in `extension/`.
 
 ## Layout
 
@@ -114,7 +115,8 @@ BlockNote on Yjs; Tailwind v4; next-intl. Node 24, pnpm 11. A separate Electron 
   `ai-tools.ts` (writes reuse MCP's checks: form settings in `mcp/form-settings.ts`); CSV files
   attached to questions: `src/lib/chat-attachments.ts` (limits, names) and
   `chat-attachment-table.ts` (the parser, loaded by the box only when a file comes); AI property values: `ai-properties.ts`; notes it keeps: `ai-memory.ts`; semantic
-  index and search: `semantic-index.ts`, `semantic-search.ts`. Test doubles: `ai/testing.ts`
+  index and search: `semantic-index.ts`, `semantic-search.ts`; related pages under a page rank the
+  stored chunks against the page's mean embedding (`related-pages.ts`, no model call). Test doubles: `ai/testing.ts`
   (`installFauxAi`, unit tests) and `ai/fake-openai.ts` (`startFakeOpenAi`, e2e scripts).
 - **Search.** `src/server/pages.ts` `searchPages` merges `fullTextSearch` with semantic search;
   `semantic-search.ts` `searchScope` is the one place a search's scope and filters become SQL, used
@@ -152,7 +154,9 @@ BlockNote on Yjs; Tailwind v4; next-intl. Node 24, pnpm 11. A separate Electron 
   a round as of any moment, which `scripts/follow-ups-e2e.ts` uses), page webhooks
   `page-webhooks/` (queued from `pages.ts`, `collab/service.ts` and `comments.ts`, sent as the owner
   who last saved the webhook; `runPageWebhooks(now)`), audit log streaming `audit-stream.ts` (an outbox a trigger on `audit_event` fills, so
-  events committed out of order still go; `runAuditStreams(now)`), sensitive content scans
+  events committed out of order still go; `runAuditStreams(now)`), broken web links `web-links.ts` (the workspace check asks
+  about addresses, a one-minute job fetches the due ones through `connections/fetch.ts` with
+  `{ web: true }`; pure rules in `src/lib/web-links.ts`; `runWebLinkChecks(now)`), sensitive content scans
   `sensitive-content.ts` (detectors and masking pure in `src/lib/sensitive-content.ts`; a sweep
   reads pages whose `updated_at` moved past `sensitive_scan`), verified pages `verification.ts`
   (`activeVerification` is the SQL for search and lists; `runVerificationReminders(now)`), named
@@ -179,6 +183,7 @@ BlockNote on Yjs; Tailwind v4; next-intl. Node 24, pnpm 11. A separate Electron 
   the transcribe request and one-dictation-at-a-time shared with the chat in `voice/dictation.ts`).
   A place kept across async work is a Yjs relative position (`ai-assist.tsx` does the same): others'
   edits reach ProseMirror as whole-document replacements, so a ProseMirror mapping doesn't follow them.
+  Read aloud (`components/page/read-aloud.tsx`) reads the editor's DOM blocks with `speechSynthesis`.
   Nested numbered lists count 1, a, i by depth (`lib/list-markers.ts`): the editor adds
   `data-marker` beside BlockNote's `data-index` (`components/page/list-markers.ts`), published pages
   style nested `<ol>`, `pdf-document.ts` passes the depth down.
@@ -326,7 +331,7 @@ plus the `scripts/*-e2e.ts` of the area you touched (`pnpm tsx scripts/<name>-e2
 - **Needs no server on the same database**, because a server's workers would take the queued work:
   agents, agent-api, agent-approvers, agent-chat, agent-handoff, agent-memory, agent-mention,
   agent-schedule, agent-sharing, agent-skills, automation, button, timed-automation, schedule,
-  row-activity, row-follow, row-mail, discussions, follow-ups (starts its own GreenMail container
+  row-activity, row-follow, row-mail, web-links, discussions, follow-ups (starts its own GreenMail container
   unless given ports), page-watch, page-webhooks, verify, wins-log, jira-sync, github-pulls-sync, sprints. `connector-e2e` starts its own `next dev` against
   `<database>_peer`, which must exist; no other dev server may run in the same checkout.
 - Each script's header says what it needs. `.github/workflows/ci.yml` shows the env each step gets;
@@ -336,7 +341,7 @@ plus the `scripts/*-e2e.ts` of the area you touched (`pnpm tsx scripts/<name>-e2
   `HOSTNAME` unset or use `127.0.0.1`.
 - `desktop/` is its own pnpm project with its own lockfile: `cd desktop && pnpm install`.
 
-**Releases.** The version is in `package.json`, `site/index.html` and example strings in
+**Releases.** The version is in `package.json`, `site/index.html`, `extension/manifest.json` and example strings in
 `.env.example`, `README.md` and `.github/workflows/{docker,desktop}.yml`; find them with
 `git grep -n '<old version>' -- ':!CHANGELOG.md' ':!pnpm-lock.yaml' ':!drizzle'`. A release heading
 `## X.Y.Z — date` starts with `### Upgrading from <previous>` (migration range, compose changes,
