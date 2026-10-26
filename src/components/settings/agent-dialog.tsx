@@ -843,7 +843,7 @@ export function AgentStepLine({
   onOpenRun?: OpenAgentRun;
 }) {
   const t = useTranslations("settings.agents.runs");
-  if (step.kind === "tool" && step.connectionId === null && (step.outcome === "done" || step.outcome === "failed") && webTool(step.tool)) {
+  if (step.kind === "tool" && step.connectionId === null && (step.outcome === "done" || step.outcome === "failed" || step.outcome === "refused") && webTool(step.tool)) {
     return <WebStepLine step={step} />;
   }
   if (step.kind === "handoff") return <HandoffStepLine step={step} onOpenRun={onOpenRun} />;
@@ -938,7 +938,8 @@ const webTool = (name: string) => name === WEB_TOOL_NAMES.read || name === WEB_T
 /** A page the run read from the web, or a search it made: the address or the query, and whether it worked. */
 function WebStepLine({ step }: { step: AgentToolRecord }) {
   const t = useTranslations("settings.agents.runs.web");
-  const failed = step.outcome === "failed";
+  const refused = step.outcome === "refused";
+  const failed = step.outcome === "failed" || refused;
   const search = step.tool === WEB_TOOL_NAMES.search;
   // The input is the call's arguments as JSON, cut to fit: the address or the query when it parses.
   let target = step.input;
@@ -951,7 +952,7 @@ function WebStepLine({ step }: { step: AgentToolRecord }) {
     <>
       <Globe className={cn("mt-[3px] h-3.5 w-3.5 shrink-0", failed && "text-danger")} />
       <span className="min-w-0 break-words">
-        {t(search ? (failed ? "searchFailed" : "search") : failed ? "readFailed" : "read")}
+        {t(search ? (failed ? "searchFailed" : "search") : refused ? "readRefused" : failed ? "readFailed" : "read")}
         {step.decidedBy && <span className="text-fg-faint"> · {t("approved")}</span>}
         <code className="mt-0.5 block truncate text-xs text-fg-faint" title={target}>
           {target}

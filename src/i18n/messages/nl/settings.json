@@ -623,6 +623,7 @@
       "web": {
         "read": "Een webpagina gelezen",
         "readFailed": "Kon een webpagina niet lezen",
+        "readRefused": "Las geen webpagina buiten zijn taak en zoekopdrachten",
         "search": "Op het web gezocht",
         "searchFailed": "Kon niet op het web zoeken",
         "approved": "goedgekeurd"
@@ -633,6 +634,7 @@
         "declined": "Zijn aanroep van “{tool}” op {connection} is afgewezen; er is niets verstuurd",
         "redo": "Zijn aanroep van “{tool}” op {connection} is teruggestuurd; er is niets verstuurd",
         "expired": "De tijd voor zijn aanroep van “{tool}” op {connection} is verstreken; er is niets verstuurd",
+        "refused": "Zijn aanroep van “{tool}” op {connection} is geweigerd, omdat niemand die kon goedkeuren; er is niets verstuurd",
         "approved": "goedgekeurd",
         "answered": "beantwoord door een eigenaar",
         "note": "Notitie: {note}"

@@ -623,6 +623,7 @@
       "web": {
         "read": "Read a web page",
         "readFailed": "Couldn’t read a web page",
+        "readRefused": "Didn’t read a web page outside its task and searches",
         "search": "Searched the web",
         "searchFailed": "Couldn’t search the web",
         "approved": "approved"
@@ -633,6 +634,7 @@
         "declined": "Its call of “{tool}” on {connection} was declined; nothing was sent",
         "redo": "Its call of “{tool}” on {connection} was sent back; nothing was sent",
         "expired": "Its call of “{tool}” on {connection} ran out of time; nothing was sent",
+        "refused": "Its call of “{tool}” on {connection} was refused, as no one could approve it; nothing was sent",
         "approved": "approved",
         "answered": "answered by an owner",
         "note": "Note: {note}"

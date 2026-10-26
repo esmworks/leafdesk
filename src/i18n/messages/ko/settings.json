@@ -620,6 +620,7 @@
       "web": {
         "read": "웹 페이지를 읽음",
         "readFailed": "웹 페이지를 읽지 못함",
+        "readRefused": "작업과 검색 결과에 없는 웹 페이지를 읽지 않음",
         "search": "웹을 검색함",
         "searchFailed": "웹을 검색하지 못함",
         "approved": "승인됨"
@@ -630,6 +631,7 @@
         "declined": "{connection}에서 “{tool}” 호출이 거절되어 아무것도 전송되지 않음",
         "redo": "{connection}에서 “{tool}” 호출이 반려되어 아무것도 전송되지 않음",
         "expired": "{connection}에서 “{tool}” 호출 시간이 초과되어 아무것도 전송되지 않음",
+        "refused": "{connection}에서 “{tool}” 호출을 승인할 사람이 없어 거부되었고 아무것도 전송되지 않음",
         "approved": "승인됨",
         "answered": "소유자가 응답함",
         "note": "메모: {note}"

@@ -620,6 +620,7 @@
       "web": {
         "read": "已读取网页",
         "readFailed": "无法读取网页",
+        "readRefused": "未读取其任务和搜索结果之外的网页",
         "search": "已搜索网络",
         "searchFailed": "无法搜索网络",
         "approved": "已批准"
@@ -630,6 +631,7 @@
         "declined": "它对 {connection} 上“{tool}”的调用被拒绝；没有发送任何内容",
         "redo": "它对 {connection} 上“{tool}”的调用被退回；没有发送任何内容",
         "expired": "它对 {connection} 上“{tool}”的调用已超时；没有发送任何内容",
+        "refused": "它对 {connection} 上“{tool}”的调用因无人可批准而被拒绝；没有发送任何内容",
         "approved": "已批准",
         "answered": "已由所有者答复",
         "note": "备注：{note}"

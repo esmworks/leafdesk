@@ -22,7 +22,8 @@ import { memberGroup } from "./groups";
 /**
  * A paused run's conversation and counters. `messages` are the model's conversation as sent
  * (server/ai's AiMessage); `queue` the tool calls of the last turn not yet answered, the first
- * one waiting for approval; `decision` an owner's answer to it, set when the run is taken again.
+ * one waiting for approval; `decision` an owner's answer to it, set when the run is taken again;
+ * `webFound` the addresses its web searches returned.
  */
 export type AgentRunState = {
   messages: unknown[];
@@ -30,6 +31,7 @@ export type AgentRunState = {
   rounds: number;
   writes: number;
   externalChars: number;
+  webFound?: string[];
   decision?: { decision: ApprovalDecision; userId: string; note?: string };
 };
 

@@ -221,6 +221,7 @@ describe("searchWeb", () => {
     expect(out.content.match(/EXTERNAL DATA>>>/g)).toHaveLength(1);
     expect(out.content).toContain("1. Leafdesk\nhttps://leafdesk.app/\n");
     expect(out.step).toEqual({ kind: "tool", connectionId: null, tool: "search_web", input: '{"query":"leafdesk"}', outcome: "done" });
+    expect(out.found).toEqual(["https://leafdesk.app/"]);
   });
 
   const recording = (body: unknown) => {

