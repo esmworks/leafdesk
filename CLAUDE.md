@@ -292,7 +292,9 @@ because they are separate module graphs.
 - **Styling.** Use the tokens in `src/app/globals.css` (`bg-bg`, `text-fg-muted`, `border-border`,
   `bg-accent` …) and the `dark:`, `rtl:` and `high-contrast:` variants. `src/components/ui.tsx` is a
   client module: server components may render its components but must not call `cn()` from it
-  (they keep a local `cn`).
+  (they keep a local `cn`). Something fixed to the window's top edge (a side panel, a full-window
+  view) starts at `top-(--app-top)`: on macOS the desktop app lays its tab strip over the page
+  beside the sidebar, where `components/desktop-tab-strip.tsx` tells it (`desktop/src/windows.ts`).
 - **Rendering cost.** Per-row and per-card components don't call `useRouter`, `useSearchParams` or
   `usePathname`: in Next 16 they re-render on every URL change, `?row=` included. The router is
   read once in `database-page.tsx` and handed down; a card asks `useIsOpenRow`

@@ -548,7 +548,7 @@ function RowPanel({
       tabIndex={-1}
       // The row's comments open beside the panel (components/page/comments-panel.tsx).
       style={{ width, "--comments-right": `${width}px` } as CSSProperties}
-      className="fixed inset-y-0 inset-e-0 z-40 flex flex-col border-s border-border bg-bg shadow-xl outline-none"
+      className="fixed top-(--app-top) bottom-0 inset-e-0 z-40 flex flex-col border-s border-border bg-bg shadow-xl outline-none"
     >
       <ResizeHandle width={width} onResize={onResize} />
       <div className="min-h-0 flex-1 overflow-y-auto">{body}</div>
