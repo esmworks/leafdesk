@@ -1013,8 +1013,8 @@ function ModelPicker({ models, model, onChange }: { models: { id: string; images
 
 const DECISIONS: ChangeDecision[] = ["approve", "always", "decline"];
 /**
- * A note about the person, and a call to a connection's tool that changes something, are asked
- * about each time: no "don't ask again" (it would turn on Auto, which doesn't cover them).
+ * A note about the person, a call to a connection's tool that changes something and a web call
+ * are asked about each time: no "don't ask again" (it would turn on Auto, which doesn't cover them).
  */
 const EACH_TIME_DECISIONS: ChangeDecision[] = ["approve", "decline"];
 const isMemory = (action: PendingChange["action"]) => action.action === "remember" || action.action === "forget";
@@ -1039,7 +1039,9 @@ function ChangePrompt({
   const comment = action.action === "addComment";
   const memory = isMemory(action);
   const call = action.action === "connection";
-  const decisions = memory || call ? EACH_TIME_DECISIONS : DECISIONS;
+  // A web call: the address or the words, exactly as they would leave the workspace.
+  const web = action.action === "readWeb" || action.action === "searchWeb";
+  const decisions = memory || call || web ? EACH_TIME_DECISIONS : DECISIONS;
   const question = action.action === "connection" ? t("question.connection", { connection: action.connection?.name ?? "" }) : t(`question.${action.action}`);
   useEffect(() => {
     first.current?.focus();
@@ -1062,7 +1064,8 @@ function ChangePrompt({
         {action.title && comment && (
           <p className="border-s-2 border-border ps-2 text-xs break-words text-fg-muted">“{action.title}”</p>
         )}
-        {action.title && !comment && (
+        {action.title && web && <p className="rounded bg-bg-subtle px-2 py-1 font-mono text-xs break-all whitespace-pre-wrap text-fg">{action.title}</p>}
+        {action.title && !comment && !web && (
           <p className="font-medium break-words text-fg">
             {memory ? (
               `“${action.title}”`
@@ -1082,6 +1085,8 @@ function ChangePrompt({
             t("memoryHint")
           ) : call ? (
             t("connectionHint", { connection: action.connection?.name ?? "" })
+          ) : web ? (
+            t(action.action === "readWeb" ? "readWebHint" : "searchWebHint")
           ) : action.target ? (
             <>
               {t(action.action === "updateRow" ? "row" : action.action === "editPage" || action.action === "createPdf" || comment ? "page" : "in")}

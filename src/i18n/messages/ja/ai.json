@@ -326,6 +326,8 @@
         "editPage": "このページのテキストを変更しますか？",
         "createPdf": "このページの PDF を作成して添付しますか？",
         "connection": "これを {connection} に送信しますか？",
+        "readWeb": "このウェブページを読みますか？",
+        "searchWeb": "これをウェブで検索しますか？",
         "addComment": "このコメントを追加しますか？",
         "createDatabase": "このデータベースを追加しますか？",
         "createForm": "このフォームを追加しますか？"
@@ -342,6 +344,8 @@
       "page": "ページ",
       "empty": "（空）",
       "connectionHint": "ワークスペースの接続で送信されます：{connection} で何かが変更される場合があります",
+      "readWebHint": "アドレスに含まれる内容はすべてそのサイトに届きます",
+      "searchWebHint": "語句はウェブ検索サービスに届きます",
       "fromFile": "{name} から {rows, plural, other {# 行}}",
       "titleColumn": "タイトル",
       "publicForm": {

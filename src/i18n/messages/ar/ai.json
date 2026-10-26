@@ -326,6 +326,8 @@
         "editPage": "تغيير نص هذه الصفحة؟",
         "createPdf": "إنشاء ملف PDF لهذه الصفحة وإرفاقه؟",
         "connection": "هل تريد إرسال هذا إلى {connection}؟",
+        "readWeb": "هل تريد قراءة صفحة الويب هذه؟",
+        "searchWeb": "هل تريد البحث في الويب عن هذا؟",
         "addComment": "إضافة هذا التعليق؟",
         "createDatabase": "إضافة قاعدة البيانات هذه؟",
         "createForm": "إضافة هذا النموذج؟"
@@ -342,6 +344,8 @@
       "page": "الصفحة",
       "empty": "(فارغ)",
       "connectionHint": "يُرسل عبر اتصال مساحة العمل: قد يغيّر شيئًا في {connection}",
+      "readWebHint": "كل ما في العنوان يصل إلى ذلك الموقع",
+      "searchWebHint": "تصل الكلمات إلى خدمة البحث في الويب",
       "fromFile": "{rows, plural, zero {# صف} one {صف واحد} two {صفان} few {# صفوف} many {# صفًا} other {# صف}} من {name}",
       "titleColumn": "العنوان",
       "publicForm": {

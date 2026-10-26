@@ -326,6 +326,8 @@
         "editPage": "Vil du endre teksten på denne siden?",
         "createPdf": "Vil du lage en PDF av denne siden og legge den ved?",
         "connection": "Vil du sende dette til {connection}?",
+        "readWeb": "Vil du lese denne nettsiden?",
+        "searchWeb": "Vil du søke på nettet etter dette?",
         "addComment": "Vil du legge til denne kommentaren?",
         "createDatabase": "Vil du legge til denne databasen?",
         "createForm": "Vil du legge til dette skjemaet?"
@@ -342,6 +344,8 @@
       "page": "Side",
       "empty": "(tom)",
       "connectionHint": "Sendes med arbeidsområdets tilkobling: det kan endre noe hos {connection}",
+      "readWebHint": "Alt i adressen når fram til det nettstedet",
+      "searchWebHint": "Ordene når fram til søketjenesten på nettet",
       "fromFile": "{rows, plural, one {# rad} other {# rader}} fra {name}",
       "titleColumn": "Tittel",
       "publicForm": {

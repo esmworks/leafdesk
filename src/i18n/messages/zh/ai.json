@@ -326,6 +326,8 @@
         "editPage": "要更改此页面的文本吗？",
         "createPdf": "生成此页面的 PDF 并附加到页面？",
         "connection": "要将此发送到 {connection} 吗？",
+        "readWeb": "要读取此网页吗？",
+        "searchWeb": "要在网上搜索这个吗？",
         "addComment": "添加这条评论？",
         "createDatabase": "添加这个数据库？",
         "createForm": "添加这个表单？"
@@ -342,6 +344,8 @@
       "page": "页面",
       "empty": "（空）",
       "connectionHint": "通过工作区的连接发送：可能会更改 {connection} 中的内容",
+      "readWebHint": "地址中的所有内容都会发送到该网站",
+      "searchWebHint": "这些词语会发送到网页搜索服务",
       "fromFile": "来自 {name} 的 {rows, plural, other {# 行}}",
       "titleColumn": "标题",
       "publicForm": {
