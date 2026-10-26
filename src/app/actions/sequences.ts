@@ -18,7 +18,7 @@ import {
   type EnrollOutcome,
   type SequenceInput,
 } from "@/server/sequences/manage";
-import { rowMailAccess } from "@/server/row-mail/access";
+import { requestRowMailAccess } from "@/server/row-mail/access";
 import { requireUserId } from "@/server/session";
 
 // Follow-up sequences (server/sequences): owners write them where the workspace's email settings
@@ -100,7 +100,7 @@ export type RowFollowUps = {
 /** The row's follow-ups, and the sequences the viewer may start on it; null when they may not read its email. */
 export async function rowFollowUpsAction(rowId: string): Promise<ActionResult<RowFollowUps | null>> {
   return run(async (userId) => {
-    const access = await rowMailAccess(userId, rowId);
+    const access = await requestRowMailAccess(userId, rowId);
     if (!access) return null;
     const writes = access.level === "edit" || access.level === "full";
     const [enrollments, sequences] = await Promise.all([

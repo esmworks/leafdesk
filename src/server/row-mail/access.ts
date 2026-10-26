@@ -2,7 +2,7 @@ import { and, eq, isNull } from "drizzle-orm";
 import { db } from "@/db";
 import { databaseProperty, mailDatabase } from "@/db/schema";
 import { atLeast } from "@/lib/property-access";
-import { pageAccessOf } from "@/server/access";
+import { enforceWorkspacePolicy, pageAccessOf } from "@/server/access";
 import { propertyAccessFor } from "@/server/property-access";
 
 /**
@@ -40,6 +40,17 @@ export async function rowMailAccess(userId: string, rowId: string): Promise<RowM
   }
   const database = await pageAccessOf(userId, databaseId);
   return { rowId, databaseId, workspaceId: row.workspaceId, level, databaseFull: database.level === "full" };
+}
+
+/**
+ * rowMailAccess for the person of this request: throws the policy error when a policy of the
+ * row's workspace holds back their session (see enforceWorkspacePolicy). What the person reads and
+ * writes goes through here; checks on behalf of others and background work use rowMailAccess.
+ */
+export async function requestRowMailAccess(userId: string, rowId: string): Promise<RowMailAccess | null> {
+  const access = await rowMailAccess(userId, rowId);
+  if (access) await enforceWorkspacePolicy(userId, access.workspaceId);
+  return access;
 }
 
 /** Of `userIds`, those who see the row's email. */

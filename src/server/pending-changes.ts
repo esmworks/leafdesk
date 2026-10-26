@@ -42,7 +42,17 @@ import { atLeast } from "@/lib/property-access";
 import { PropertyValueError } from "@/lib/properties";
 import { redactError } from "@/lib/redact";
 import { referencedIds, resolveValue, sameValue, type ActivityValue } from "@/lib/row-activity";
-import { AccessError, accessRank, findMembership, levelFromRank, hasLevel, pageAccessOf, workspaceOwnerIds } from "@/server/access";
+import {
+  AccessError,
+  accessRank,
+  enforceWorkspacePolicy,
+  findMembership,
+  getMembership,
+  levelFromRank,
+  hasLevel,
+  pageAccessOf,
+  workspaceOwnerIds,
+} from "@/server/access";
 import { loadLookups } from "@/server/activity-lookups";
 import { recordAudit } from "@/server/audit";
 import { isAgentUser } from "@/server/agents/users";
@@ -243,7 +253,8 @@ export async function listPendingChanges(
   workspaceId: string,
   { filter = {}, status = "open", limit = MAX_PENDING_PAGE }: { filter?: PendingChangeFilter; status?: "open" | "decided"; limit?: number } = {},
 ): Promise<PendingChangeView[]> {
-  const membership = await findMembership(userId, workspaceId);
+  // With the workspace's policies: the list below is filtered in SQL only.
+  const membership = await getMembership(userId, workspaceId);
   if (!membership) throw new AccessError();
   const where = and(
     eq(pendingChange.workspaceId, workspaceId),
@@ -256,9 +267,13 @@ export async function listPendingChanges(
   return viewsOf(userId, where, Math.min(Math.max(1, limit), MAX_PENDING_PAGE));
 }
 
-/** One proposal as the viewer sees it; null when they may not see it. */
+/**
+ * One proposal as the viewer sees it; null when they may not see it. Throws the policy error when
+ * a policy of its workspace holds back this request (answering goes through here too).
+ */
 export async function getPendingChange(userId: string, changeId: string): Promise<PendingChangeView | null> {
   const [view] = await viewsOf(userId, and(eq(pendingChange.id, changeId), seenBy(userId)), 1);
+  if (view) await enforceWorkspacePolicy(userId, view.workspaceId);
   return view ?? null;
 }
 

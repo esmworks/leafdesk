@@ -5,7 +5,7 @@ import { fileUrl } from "@/lib/files";
 import { normalizeAddress, ROW_EMAIL_PAGE, type RowEmailView } from "@/lib/mail";
 import { AccessError } from "@/server/access";
 import { workspaceSettings } from "@/server/workspaces";
-import { rowMailAccess } from "./access";
+import { requestRowMailAccess } from "./access";
 
 /**
  * A row's email section: its messages, newest first, a page at a time, for whoever may read them
@@ -26,7 +26,7 @@ export type RowEmailList = {
 };
 
 export async function listRowEmails(userId: string, rowId: string, before?: string | null): Promise<RowEmailList | null> {
-  const access = await rowMailAccess(userId, rowId);
+  const access = await requestRowMailAccess(userId, rowId);
   if (!access) return null;
   const cursor = before ? new Date(before) : null;
   const rows = await db
@@ -103,7 +103,7 @@ export async function hideRowEmail(userId: string, rowEmailId: string) {
     .leftJoin(mailbox, eq(mailbox.id, rowEmail.mailboxId))
     .where(eq(rowEmail.id, rowEmailId));
   if (!found) throw new AccessError();
-  const access = await rowMailAccess(userId, found.rowId);
+  const access = await requestRowMailAccess(userId, found.rowId);
   if (!access || !(access.databaseFull || found.owner === userId || found.sentBy === userId)) throw new AccessError();
   // One still waiting to go out is held back instead: hiding it stops it.
   await db

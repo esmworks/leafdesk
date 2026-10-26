@@ -3,7 +3,7 @@
 import { getTranslations } from "next-intl/server";
 import type { ActionResult } from "@/app/actions/workspaces";
 import type { PendingChangeFilter, PendingChangeView } from "@/lib/pending-changes";
-import { AccessError } from "@/server/access";
+import { AccessError, sessionHeldBack } from "@/server/access";
 import * as review from "@/server/pending-changes";
 import { requireUserId } from "@/server/session";
 
@@ -61,6 +61,8 @@ export async function rowPendingChangesAction(workspaceId: string, rowId: string
 /** How many changes wait for the person in the workspace, for the sidebar. */
 export async function pendingCountAction(workspaceId: string): Promise<number> {
   const userId = await requireUserId();
+  // The count is SQL only: none where a policy of the workspace holds the session back.
+  if (await sessionHeldBack(userId, String(workspaceId)).catch(() => true)) return 0;
   return review.countPendingFor(userId, String(workspaceId)).catch(() => 0);
 }
 

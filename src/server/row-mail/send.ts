@@ -7,7 +7,7 @@ import { AccessError } from "@/server/access";
 import { open } from "@/server/secret-box";
 import { startSweep } from "@/server/sweep";
 import { workspaceSettings } from "@/server/workspaces";
-import { rowMailAccess } from "./access";
+import { requestRowMailAccess } from "./access";
 import { connectError, openImap, smtpTransport } from "./connect";
 import { RowMailError } from "./settings";
 
@@ -51,7 +51,7 @@ type Tx = Parameters<Parameters<typeof db.transaction>[0]>[0];
  * when it throws, the message isn't queued.
  */
 export async function queueRowEmail(userId: string, rowId: string, draft: RowEmailDraft, { within }: { within?: (tx: Tx, id: string) => Promise<void> } = {}): Promise<string> {
-  const access = await rowMailAccess(userId, rowId);
+  const access = await requestRowMailAccess(userId, rowId);
   if (!access || (access.level !== "edit" && access.level !== "full")) throw new AccessError();
   if (!(await workspaceSettings(access.workspaceId)).email) throw new RowMailError("disabled");
   const [box] = await db

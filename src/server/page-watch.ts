@@ -4,7 +4,7 @@ import { db } from "@/db";
 import { page, pageUpdateEmail, pageWatch, pendingPageUpdate, teamspace, teamspaceWatch, workspace } from "@/db/schema";
 import { redactError } from "@/lib/redact";
 import { PAGE_EMAIL_WINDOW_MS, PAGE_UPDATE_IDLE_MS, PAGE_UPDATE_MAX_WAIT_MS, pageUpdateAudience, pageWatchers } from "@/lib/page-watch";
-import { AccessError, pageVisibleTo, requirePageAccess } from "@/server/access";
+import { AccessError, pageVisibleTo, requirePageAccess, workspacesHeldBack } from "@/server/access";
 import { getCollab } from "@/server/collab/bridge";
 import { requestLocale } from "@/server/mail/locale";
 import { pageRecipients, recordPageUpdate } from "@/server/notifications";
@@ -154,7 +154,9 @@ export async function listWatches(userId: string): Promise<{ pages: WatchedPage[
       ),
     ),
   );
-  return { pages, teamspaces: teamspaces.filter((_, i) => visible[i]) };
+  // The pages are filtered in SQL only: none of a workspace whose policies hold back this session.
+  const held = await workspacesHeldBack(userId, pages.map((p) => p.workspaceId));
+  return { pages: pages.filter((p) => !held.has(p.workspaceId)), teamspaces: teamspaces.filter((_, i) => visible[i]) };
 }
 
 /**
