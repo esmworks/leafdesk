@@ -196,6 +196,7 @@
       "added": "Lisätty",
       "emailed": "Kutsu lähetetty sähköpostitse",
       "emailFailed": "Sähköposti epäonnistui, jaa linkki",
+      "emailLimited": "Liian monta kutsusähköpostia viime aikoina, jaa linkki",
       "linkOnly": "Jaa tämä kutsulinkki",
       "linkValidity": "Kutsulinkit toimivat 7 päivää ja vain kutsutulla sähköpostiosoitteella.",
       "addMore": "Lisää muita",

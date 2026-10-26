@@ -1153,7 +1153,9 @@
   Add people by email (several at once) as owners, membership admins or members, send
   an invitation link to people who don't have an account yet (or whose account's address was
   never verified: anyone can sign up with someone else's address), or turn on a join link anyone
-  can use. Owners can export the member list as CSV, hand ownership to someone else, and decide who
+  can use. Invitation emails are limited (per person inviting, 100 an hour; per workspace, 200;
+  per address invited, 3 from any workspace); past that the invitation is made all the same, and
+  its link is shown to share instead. Owners can export the member list as CSV, hand ownership to someone else, and decide who
   may invite guests and add members, which email domains may join on their own, who may ask to
   join, whether pages may be exported, and what connected apps and API tokens may do (see
   [Who can join a workspace](account-and-security.md#who-can-join-a-workspace) and

@@ -196,6 +196,7 @@
       "added": "Added",
       "emailed": "Invitation emailed",
       "emailFailed": "Email failed, share the link",
+      "emailLimited": "Too many invitation emails lately, share the link",
       "linkOnly": "Share this invitation link",
       "linkValidity": "Invitation links work for 7 days and only for the invited email address.",
       "addMore": "Add more",

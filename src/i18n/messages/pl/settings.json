@@ -196,6 +196,7 @@
       "added": "Dodano",
       "emailed": "Wysłano zaproszenie e-mailem",
       "emailFailed": "Nie udało się wysłać e-maila, udostępnij link",
+      "emailLimited": "Ostatnio wysłano zbyt wiele zaproszeń e-mail, udostępnij link",
       "linkOnly": "Udostępnij ten link z zaproszeniem",
       "linkValidity": "Linki z zaproszeniem są ważne przez 7 dni i tylko dla zaproszonego adresu e-mail.",
       "addMore": "Dodaj więcej",
