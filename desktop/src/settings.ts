@@ -15,6 +15,13 @@ export type Settings = {
   localPort?: number;
   /** Certificates trusted for a host although this computer doesn't trust them: host → SHA-256 fingerprint. */
   trustedCertificates: Record<string, string>;
+  /**
+   * The servers' hosts seen with a certificate this computer trusts: one showing an untrusted
+   * certificate later gets a stronger warning (certificates.ts, certificateChanged).
+   */
+  validCertificateHosts: string[];
+  /** Servers allowed to use the microphone, by origin (main.ts asks once for each). */
+  microphone?: Record<string, true>;
   window?: WindowState;
   /** Where Leafdesk on this computer keeps its backups; unset is the default (main.ts, backupFolder). */
   backupFolder?: string;
@@ -35,6 +42,8 @@ export function loadSettings(file: string): Settings {
       mode: value.mode === "local" ? "local" : undefined,
       localPort: Number.isInteger(value.localPort) ? value.localPort : undefined,
       trustedCertificates: value.trustedCertificates && typeof value.trustedCertificates === "object" ? value.trustedCertificates : {},
+      validCertificateHosts: Array.isArray(value.validCertificateHosts) ? value.validCertificateHosts.filter((host) => typeof host === "string") : [],
+      microphone: readAllowed(value.microphone),
       window: value.window,
       backupFolder: typeof value.backupFolder === "string" && value.backupFolder ? value.backupFolder : undefined,
       globalShortcut: readShortcut(value.globalShortcut, process.platform),
@@ -42,8 +51,15 @@ export function loadSettings(file: string): Settings {
       tabs: readSavedTabs(value.tabs),
     };
   } catch {
-    return { trustedCertificates: {} };
+    return { trustedCertificates: {}, validCertificateHosts: [] };
   }
+}
+
+/** The origins allowed something, kept as `origin: true`. */
+function readAllowed(value: unknown): Record<string, true> | undefined {
+  if (!value || typeof value !== "object") return undefined;
+  const allowed = Object.entries(value).filter(([, answer]) => answer === true);
+  return allowed.length ? Object.fromEntries(allowed.map(([origin]) => [origin, true as const])) : undefined;
 }
 
 /** Written to a temporary file first, so a crash midway leaves the old settings. */

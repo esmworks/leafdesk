@@ -16,6 +16,9 @@
   --fg-muted: #6b6d75;
   --border: #e4e4e7;
   --ring: rgba(47, 125, 79, 0.35);
+  /* A tab away from the server (signing in elsewhere): its host stands out. */
+  --away: #9a3412;
+  --away-bg: #fff1e6;
   /* The least height: a page zoomed in makes it higher (windows.ts), the tabs staying at its foot. */
   --strip-height: 44px;
   /* Room for macOS's window buttons at the strip's start (main.ts places them). */
@@ -32,6 +35,8 @@
     --fg-muted: #a1a3aa;
     --border: #2f3034;
     --ring: rgba(108, 195, 138, 0.4);
+    --away: #fdba74;
+    --away-bg: #3a2416;
   }
 }
 
@@ -262,6 +267,18 @@ body {
 /* Back and forward point the language's way. */
 :root[dir="rtl"] .go svg {
   transform: scaleX(-1);
+}
+
+.tab.away,
+.tab.away:hover,
+.tab.away[aria-selected="true"] {
+  background: var(--away-bg);
+  color: var(--away);
+  box-shadow: inset 0 0 0 1px var(--away);
+}
+
+.where {
+  font-weight: 600;
 }
 
 /* Narrow tabs keep the icon; the shown one keeps its close button. */

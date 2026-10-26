@@ -78,14 +78,17 @@ warns the first time: choose *More info*, then *Run anyway*.
 **Connecting.** On first start the app asks where your workspace is. *My own server* takes the
 server's address (`leafdesk.example.com`, or with `https://`, a port or `http://` for a server on
 your network); the app tries HTTPS first and checks that the address answers like a Leafdesk server
-(`/api/health` and the web app manifest) before it opens the sign-in page. *Leafdesk account* is
+(`/api/health` and the web app manifest) before it opens the sign-in page. When only plain HTTP
+answers (and you didn't type `http://`), or the server sends the app on to another host or from
+HTTPS down to HTTP, the app says so and connects only after *Connect anyway*. *Leafdesk account* is
 shown as coming later. *Change Server…* in the app menu (File on Windows and Linux) goes back to
 this screen; signing in again isn't needed for a server you used before.
 
 **On this computer.** *Start* runs Leafdesk inside the app, with no server to set up: a PostgreSQL
 database of its own and the Leafdesk server, reachable only from this computer (127.0.0.1). The
 first start makes the computer's one account and its workspace and signs it in, so there is no
-sign-in page and nobody else can sign up. The pages, uploaded files and the database live in the
+sign-in page and nobody else can sign up. The app signs in only once the server it started says
+it holds the port, and that server answers only to `127.0.0.1` and `localhost`. The pages, uploaded files and the database live in the
 app's profile folder, under `Local` (`~/Library/Application Support/Leafdesk` on macOS,
 `%APPDATA%\Leafdesk` on Windows, `~/.config/Leafdesk` on Linux); quitting the app stops both
 cleanly. Email, AI and other features that need settings stay off. The app is larger for it
@@ -102,9 +105,12 @@ fails is reported once as a notification.
 **Self-signed certificates.** When the server's certificate isn't trusted by the system, the app
 shows its SHA-256 fingerprint; compare it with the server's
 (`openssl x509 -noout -fingerprint -sha256 -in cert.pem`) and choose *Trust this certificate*. The
-app then trusts that one certificate for that host only, and asks again when it changes. A
-certificate from a certificate authority the computer trusts (an internal one included) needs
-nothing.
+app then trusts that one certificate for that host only, and asks again when it changes. When a
+server that had a certificate the computer trusts (or another one you trusted) shows an untrusted
+one, the screen warns that someone may be intercepting the connection. *Forget Trusted
+Certificates* in the app menu (File on Windows and Linux) drops every certificate trusted this way,
+restarting the app when the connected server's was one of them. A certificate from a certificate
+authority the computer trusts (an internal one included) needs nothing.
 
 **Tabs.** Each window holds tabs, in a strip at the top that follows Leafdesk's light or dark
 look. On macOS it sits beside the sidebar, which runs the window's full height with the window's
@@ -129,9 +135,13 @@ the front window. The setting isn't shown in Leafdesk on this computer.
 **What it does differently from a browser tab.** Links to other sites open in your browser, and
 windows the pages open become tabs in the app only when they are on your server (a file it shows,
 such as a PDF, opens in a plain window of its own). Menus follow the
-language chosen in My account, or the system's. The server's pages may use notifications, the clipboard,
-full screen and the microphone (voice notes); nothing else, and no other site. Single sign-on
-happens inside the app, so the sign-in it leads to stays with it. Signing in to a connection's
+language chosen in My account, or the system's. The server's pages may use notifications, copying
+to the clipboard, full screen and the microphone (voice notes, which the app asks you to allow once
+for each server; a *Don't Allow* holds until the app restarts); nothing else, and no other site.
+A tab has no address bar, so it stays on your server's pages: another site a page leads to opens
+in your browser. Single sign-on is the exception: started from the server's sign-in page, it
+happens inside the app, so the sign-in it leads to stays with it, and the tab shows the identity
+provider's address, highlighted, until it is back on your server. Signing in to a connection's
 service, or to Google Drive or Dropbox storage, opens the system's browser instead (where you are
 likely signed in already), which hands the answer back to the app with a `leafdesk://` link. The
 window remembers its size and place, and opens on the page it last showed (only a page of the same

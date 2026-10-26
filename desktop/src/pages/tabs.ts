@@ -4,7 +4,7 @@
  * open a tab's menu. A plain script, not a module, like app.ts; built with tsconfig.pages.json.
  */
 
-type StripTab = { id: number; title: string; icon: string | null; loading: boolean };
+type StripTab = { id: number; title: string; icon: string | null; loading: boolean; away: string | null };
 
 type StripState = {
   tabs: StripTab[];
@@ -61,6 +61,8 @@ interface Window {
   };
   /** A page without an emoji: a sheet of paper. */
   const pageGlyph = () => icon(["M4 1.75h5l3 3v9.5H4z", "M9 1.75v3h3", "M6 8.5h4M6 11h4"]);
+  /** A page of another site: a globe. */
+  const globeGlyph = () => icon(["M8 1.75a6.25 6.25 0 1 0 0 12.5 6.25 6.25 0 1 0 0-12.5z", "M1.75 8h12.5", "M8 1.75c-3.3 3.5-3.3 9 0 12.5c3.3-3.5 3.3-9 0-12.5z"]);
 
   const tabElement = (tab: StripTab, shown: boolean, t: StripState["strings"]) => {
     const element = document.createElement("div");
@@ -69,17 +71,26 @@ interface Window {
     element.setAttribute("role", "tab");
     element.setAttribute("aria-selected", String(shown));
     element.tabIndex = shown ? 0 : -1;
-    element.title = tab.title;
+    element.title = tab.away ? `${tab.away} · ${tab.title}` : tab.title;
+    // A tab off the server (signing in elsewhere) shows where it is first, as an address bar would.
+    element.classList.toggle("away", !!tab.away);
 
     const mark = document.createElement("span");
     mark.className = tab.loading ? "icon loading" : "icon";
     if (!tab.loading) {
-      if (tab.icon) mark.textContent = tab.icon;
+      if (tab.away) mark.append(globeGlyph());
+      else if (tab.icon) mark.textContent = tab.icon;
       else mark.append(pageGlyph());
     }
     const title = document.createElement("span");
     title.className = "title";
-    title.textContent = tab.title;
+    if (tab.away) {
+      const where = document.createElement("span");
+      where.className = "where";
+      where.dir = "ltr";
+      where.textContent = tab.away;
+      title.append(where, " ", tab.title);
+    } else title.textContent = tab.title;
     const close = document.createElement("button");
     close.type = "button";
     close.className = "close";

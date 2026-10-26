@@ -99,6 +99,14 @@ const en = {
   previousTab: "Show Previous Tab",
   openLinkInNewTab: "Open Link in New Tab",
   tabs: "Tabs",
+  confirmHttp: "{host} doesn’t answer over HTTPS. Over plain HTTP others on the network can read what you send, pages aren’t kept for offline use, and passkeys don’t work.",
+  confirmRedirect: "{host} sends you on to {target}. Connect only if you expected that address.",
+  certChanged: "{host} showed a certificate this computer trusts before. A different, untrusted one now may mean someone is intercepting the connection: trust it only if you changed the server’s certificate yourself.",
+  menuForgetCertificates: "Forget Trusted Certificates",
+  microphoneTitle: "Allow {host} to use your microphone?",
+  microphoneBody: "Leafdesk records voice notes and meeting notes with it. You’re asked once for each server.",
+  allow: "Allow",
+  dontAllow: "Don’t Allow",
 };
 
 export type Strings = typeof en;
@@ -197,6 +205,14 @@ const tr: Strings = {
   previousTab: "Önceki Sekmeyi Göster",
   openLinkInNewTab: "Bağlantıyı Yeni Sekmede Aç",
   tabs: "Sekmeler",
+  confirmHttp: "{host} HTTPS üzerinden yanıt vermiyor. Düz HTTP ile ağdaki başkaları gönderdiklerinizi okuyabilir, sayfalar çevrimdışı kullanım için saklanmaz ve passkey’ler çalışmaz.",
+  confirmRedirect: "{host} sizi {target} adresine yönlendiriyor. Yalnızca bu adresi bekliyorsanız bağlanın.",
+  certChanged: "{host} daha önce bu bilgisayarın güvendiği bir sertifika gösteriyordu. Şimdi farklı ve güvenilmeyen bir sertifika göstermesi, birinin bağlantıya araya girdiği anlamına gelebilir: yalnızca sunucunun sertifikasını kendiniz değiştirdiyseniz güvenin.",
+  menuForgetCertificates: "Güvenilen Sertifikaları Unut",
+  microphoneTitle: "{host} mikrofonunuzu kullanabilsin mi?",
+  microphoneBody: "Leafdesk sesli notları ve toplantı notlarını mikrofonla kaydeder. Her sunucu için bir kez sorulur.",
+  allow: "İzin ver",
+  dontAllow: "İzin verme",
 };
 
 const de: Strings = {
@@ -293,6 +309,14 @@ const de: Strings = {
   previousTab: "Vorherigen Tab zeigen",
   openLinkInNewTab: "Link in neuem Tab öffnen",
   tabs: "Tabs",
+  confirmHttp: "{host} antwortet nicht über HTTPS. Über einfaches HTTP können andere im Netzwerk mitlesen, was du sendest, Seiten werden nicht offline gespeichert, und Passkeys funktionieren nicht.",
+  confirmRedirect: "{host} leitet dich weiter zu {target}. Verbinde dich nur, wenn du diese Adresse erwartet hast.",
+  certChanged: "{host} hatte bisher ein Zertifikat, dem dieser Computer vertraut. Ein anderes, nicht vertrauenswürdiges kann bedeuten, dass jemand die Verbindung abfängt: Vertraue ihm nur, wenn du das Zertifikat des Servers selbst geändert hast.",
+  menuForgetCertificates: "Vertrauenswürdige Zertifikate vergessen",
+  microphoneTitle: "{host} den Zugriff auf dein Mikrofon erlauben?",
+  microphoneBody: "Leafdesk nimmt damit Sprachnotizen und Besprechungsnotizen auf. Du wirst für jeden Server einmal gefragt.",
+  allow: "Erlauben",
+  dontAllow: "Nicht erlauben",
 };
 
 const es: Strings = {
@@ -389,6 +413,14 @@ const es: Strings = {
   previousTab: "Mostrar pestaña anterior",
   openLinkInNewTab: "Abrir enlace en una pestaña nueva",
   tabs: "Pestañas",
+  confirmHttp: "{host} no responde por HTTPS. Con HTTP sin cifrar, otros en la red pueden leer lo que envías, las páginas no se guardan para usarlas sin conexión y las llaves de acceso no funcionan.",
+  confirmRedirect: "{host} te redirige a {target}. Conéctate solo si esperabas esa dirección.",
+  certChanged: "{host} mostraba antes un certificado en el que este equipo confía. Uno distinto y no fiable puede significar que alguien está interceptando la conexión: confía en él solo si cambiaste tú el certificado del servidor.",
+  menuForgetCertificates: "Olvidar certificados de confianza",
+  microphoneTitle: "¿Permitir que {host} use tu micrófono?",
+  microphoneBody: "Leafdesk lo usa para grabar notas de voz y notas de reuniones. Se pregunta una vez por cada servidor.",
+  allow: "Permitir",
+  dontAllow: "No permitir",
 };
 
 const fr: Strings = {
@@ -485,6 +517,14 @@ const fr: Strings = {
   previousTab: "Afficher l’onglet précédent",
   openLinkInNewTab: "Ouvrir le lien dans un nouvel onglet",
   tabs: "Onglets",
+  confirmHttp: "{host} ne répond pas en HTTPS. En HTTP simple, d’autres personnes sur le réseau peuvent lire ce que vous envoyez, les pages ne sont pas conservées hors ligne et les clés d’accès ne fonctionnent pas.",
+  confirmRedirect: "{host} vous redirige vers {target}. Ne vous connectez que si vous attendiez cette adresse.",
+  certChanged: "{host} présentait jusqu’ici un certificat auquel cet ordinateur fait confiance. Un autre certificat, non fiable, peut signifier que quelqu’un intercepte la connexion : faites-lui confiance seulement si vous avez vous-même changé le certificat du serveur.",
+  menuForgetCertificates: "Oublier les certificats approuvés",
+  microphoneTitle: "Autoriser {host} à utiliser votre micro ?",
+  microphoneBody: "Leafdesk s’en sert pour enregistrer les notes vocales et les notes de réunion. La question est posée une fois par serveur.",
+  allow: "Autoriser",
+  dontAllow: "Ne pas autoriser",
 };
 
 const it: Strings = {
@@ -581,6 +621,14 @@ const it: Strings = {
   previousTab: "Mostra scheda precedente",
   openLinkInNewTab: "Apri link in una nuova scheda",
   tabs: "Schede",
+  confirmHttp: "{host} non risponde in HTTPS. Con il semplice HTTP altri sulla rete possono leggere ciò che invii, le pagine non vengono conservate per l’uso offline e le passkey non funzionano.",
+  confirmRedirect: "{host} ti reindirizza a {target}. Collegati solo se ti aspettavi questo indirizzo.",
+  certChanged: "{host} mostrava prima un certificato considerato attendibile da questo computer. Uno diverso e non attendibile può significare che qualcuno sta intercettando la connessione: consideralo attendibile solo se hai cambiato tu il certificato del server.",
+  menuForgetCertificates: "Dimentica i certificati attendibili",
+  microphoneTitle: "Consentire a {host} di usare il microfono?",
+  microphoneBody: "Leafdesk lo usa per registrare note vocali e note delle riunioni. Viene chiesto una volta per ogni server.",
+  allow: "Consenti",
+  dontAllow: "Non consentire",
 };
 
 const pt: Strings = {
@@ -677,6 +725,14 @@ const pt: Strings = {
   previousTab: "Mostrar aba anterior",
   openLinkInNewTab: "Abrir link em nova aba",
   tabs: "Abas",
+  confirmHttp: "{host} não responde por HTTPS. Com HTTP simples, outras pessoas na rede podem ler o que você envia, as páginas não ficam guardadas para uso offline e as chaves de acesso não funcionam.",
+  confirmRedirect: "{host} redireciona você para {target}. Conecte-se só se você esperava esse endereço.",
+  certChanged: "{host} mostrava antes um certificado em que este computador confia. Um certificado diferente e não confiável pode significar que alguém está interceptando a conexão: confie nele só se você mesmo trocou o certificado do servidor.",
+  menuForgetCertificates: "Esquecer certificados confiáveis",
+  microphoneTitle: "Permitir que {host} use seu microfone?",
+  microphoneBody: "O Leafdesk grava notas de voz e notas de reunião com ele. A pergunta é feita uma vez para cada servidor.",
+  allow: "Permitir",
+  dontAllow: "Não permitir",
 };
 
 const pl: Strings = {
@@ -773,6 +829,14 @@ const pl: Strings = {
   previousTab: "Pokaż poprzednią kartę",
   openLinkInNewTab: "Otwórz link w nowej karcie",
   tabs: "Karty",
+  confirmHttp: "{host} nie odpowiada przez HTTPS. Przez zwykłe HTTP inni w sieci mogą odczytać to, co wysyłasz, strony nie są przechowywane do pracy offline, a klucze dostępu nie działają.",
+  confirmRedirect: "{host} przekierowuje Cię do {target}. Połącz się tylko, jeśli spodziewasz się tego adresu.",
+  certChanged: "{host} pokazywał wcześniej certyfikat, któremu ten komputer ufa. Inny, niezaufany certyfikat może oznaczać, że ktoś przechwytuje połączenie: zaufaj mu tylko wtedy, gdy to Ty zmieniłeś certyfikat serwera.",
+  menuForgetCertificates: "Zapomnij zaufane certyfikaty",
+  microphoneTitle: "Zezwolić {host} na używanie mikrofonu?",
+  microphoneBody: "Leafdesk nagrywa nim notatki głosowe i notatki ze spotkań. Pytanie pojawia się raz dla każdego serwera.",
+  allow: "Zezwól",
+  dontAllow: "Nie zezwalaj",
 };
 
 const ru: Strings = {
@@ -869,6 +933,14 @@ const ru: Strings = {
   previousTab: "Предыдущая вкладка",
   openLinkInNewTab: "Открыть ссылку в новой вкладке",
   tabs: "Вкладки",
+  confirmHttp: "{host} не отвечает по HTTPS. По обычному HTTP другие в сети могут прочитать то, что вы отправляете, страницы не сохраняются для работы офлайн, а ключи доступа не работают.",
+  confirmRedirect: "{host} перенаправляет вас на {target}. Подключайтесь, только если ожидали этот адрес.",
+  certChanged: "Раньше {host} показывал сертификат, которому этот компьютер доверяет. Другой, недоверенный сертификат может означать, что кто-то перехватывает соединение: доверяйте ему, только если вы сами сменили сертификат сервера.",
+  menuForgetCertificates: "Забыть доверенные сертификаты",
+  microphoneTitle: "Разрешить {host} использовать микрофон?",
+  microphoneBody: "Leafdesk записывает с его помощью голосовые заметки и заметки встреч. Вопрос задаётся один раз для каждого сервера.",
+  allow: "Разрешить",
+  dontAllow: "Не разрешать",
 };
 
 const uk: Strings = {
@@ -965,6 +1037,14 @@ const uk: Strings = {
   previousTab: "Попередня вкладка",
   openLinkInNewTab: "Відкрити посилання в новій вкладці",
   tabs: "Вкладки",
+  confirmHttp: "{host} не відповідає через HTTPS. Через звичайний HTTP інші в мережі можуть прочитати те, що ви надсилаєте, сторінки не зберігаються для роботи офлайн, а ключі доступу не працюють.",
+  confirmRedirect: "{host} перенаправляє вас на {target}. Під’єднуйтеся, лише якщо очікували цю адресу.",
+  certChanged: "Раніше {host} показував сертифікат, якому цей комп’ютер довіряє. Інший, недовірений сертифікат може означати, що хтось перехоплює з’єднання: довіряйте йому, лише якщо ви самі змінили сертифікат сервера.",
+  menuForgetCertificates: "Забути довірені сертифікати",
+  microphoneTitle: "Дозволити {host} використовувати мікрофон?",
+  microphoneBody: "Leafdesk записує ним голосові нотатки й нотатки зустрічей. Запитання ставиться один раз для кожного сервера.",
+  allow: "Дозволити",
+  dontAllow: "Не дозволяти",
 };
 
 const ar: Strings = {
@@ -1061,6 +1141,14 @@ const ar: Strings = {
   previousTab: "إظهار علامة التبويب السابقة",
   openLinkInNewTab: "فتح الرابط في علامة تبويب جديدة",
   tabs: "علامات التبويب",
+  confirmHttp: "لا يستجيب {host} عبر HTTPS. عبر HTTP العادي يمكن لغيرك على الشبكة قراءة ما ترسله، ولا تُحفَظ الصفحات للاستخدام دون اتصال، ولا تعمل مفاتيح المرور.",
+  confirmRedirect: "يحوّلك {host} إلى {target}. لا تتصل إلا إذا كنت تتوقع هذا العنوان.",
+  certChanged: "كان {host} يعرض من قبل شهادة يثق بها هذا الكمبيوتر. قد تعني شهادة مختلفة غير موثوقة أن أحدًا يعترض الاتصال: لا تثق بها إلا إذا غيّرت شهادة الخادم بنفسك.",
+  menuForgetCertificates: "نسيان الشهادات الموثوقة",
+  microphoneTitle: "هل تسمح لـ {host} باستخدام الميكروفون؟",
+  microphoneBody: "يسجّل Leafdesk به الملاحظات الصوتية وملاحظات الاجتماعات. يُطرح السؤال مرة واحدة لكل خادم.",
+  allow: "السماح",
+  dontAllow: "عدم السماح",
 };
 
 const he: Strings = {
@@ -1157,6 +1245,14 @@ const he: Strings = {
   previousTab: "הצגת הכרטיסייה הקודמת",
   openLinkInNewTab: "פתיחת הקישור בכרטיסייה חדשה",
   tabs: "כרטיסיות",
+  confirmHttp: "{host} לא עונה ב-HTTPS. ב-HTTP רגיל אחרים ברשת יכולים לקרוא את מה שנשלח, דפים לא נשמרים לשימוש במצב לא מקוון, ומפתחות גישה לא עובדים.",
+  confirmRedirect: "{host} מפנה אל {target}. כדאי להתחבר רק אם ציפית לכתובת הזו.",
+  certChanged: "{host} הציג בעבר אישור שהמחשב הזה סומך עליו. אישור אחר ולא מהימן עלול להעיד שמישהו מיירט את החיבור: כדאי לסמוך עליו רק אם החלפת בעצמך את האישור של השרת.",
+  menuForgetCertificates: "שכחת אישורים מהימנים",
+  microphoneTitle: "לאפשר ל-{host} להשתמש במיקרופון?",
+  microphoneBody: "Leafdesk מקליט בו הערות קוליות וסיכומי פגישות. השאלה נשאלת פעם אחת לכל שרת.",
+  allow: "לאפשר",
+  dontAllow: "לא לאפשר",
 };
 
 const fa: Strings = {
@@ -1253,6 +1349,14 @@ const fa: Strings = {
   previousTab: "نمایش زبانهٔ قبلی",
   openLinkInNewTab: "بازکردن پیوند در زبانهٔ جدید",
   tabs: "زبانه‌ها",
+  confirmHttp: "{host} از راه HTTPS پاسخ نمی‌دهد. با HTTP ساده دیگران در شبکه می‌توانند آنچه را می‌فرستید بخوانند، صفحه‌ها برای استفادهٔ آفلاین نگه داشته نمی‌شوند و کلیدهای عبور کار نمی‌کنند.",
+  confirmRedirect: "{host} شما را به {target} می‌فرستد. فقط اگر انتظار این نشانی را داشتید وصل شوید.",
+  certChanged: "{host} پیش‌تر گواهی‌ای نشان می‌داد که این رایانه به آن اعتماد دارد. گواهی دیگری که قابل اعتماد نیست ممکن است یعنی کسی ارتباط را شنود می‌کند: فقط اگر خودتان گواهی سرور را عوض کرده‌اید به آن اعتماد کنید.",
+  menuForgetCertificates: "فراموش کردن گواهی‌های مورد اعتماد",
+  microphoneTitle: "به {host} اجازهٔ استفاده از میکروفون داده شود؟",
+  microphoneBody: "Leafdesk با آن یادداشت‌های صوتی و یادداشت‌های جلسه را ضبط می‌کند. برای هر سرور یک بار پرسیده می‌شود.",
+  allow: "اجازه دادن",
+  dontAllow: "اجازه ندادن",
 };
 
 const ja: Strings = {
@@ -1349,6 +1453,14 @@ const ja: Strings = {
   previousTab: "前のタブを表示",
   openLinkInNewTab: "リンクを新規タブで開く",
   tabs: "タブ",
+  confirmHttp: "{host} は HTTPS で応答しません。暗号化されていない HTTP では、ネットワーク上の他の人が送信内容を読める可能性があり、ページはオフライン用に保存されず、パスキーも使えません。",
+  confirmRedirect: "{host} は {target} に転送しています。このアドレスを想定していた場合のみ接続してください。",
+  certChanged: "{host} は以前、このコンピュータが信頼する証明書を提示していました。信頼されない別の証明書は、誰かが接続を傍受していることを示している可能性があります。サーバーの証明書をご自身で変更した場合にのみ信頼してください。",
+  menuForgetCertificates: "信頼した証明書を消去",
+  microphoneTitle: "{host} にマイクの使用を許可しますか？",
+  microphoneBody: "Leafdesk はマイクで音声メモや会議メモを録音します。サーバーごとに一度だけ確認します。",
+  allow: "許可",
+  dontAllow: "許可しない",
 };
 
 const ko: Strings = {
@@ -1445,6 +1557,14 @@ const ko: Strings = {
   previousTab: "이전 탭 보기",
   openLinkInNewTab: "새 탭에서 링크 열기",
   tabs: "탭",
+  confirmHttp: "{host}이(가) HTTPS로 응답하지 않습니다. 일반 HTTP로는 네트워크의 다른 사람이 보내는 내용을 읽을 수 있고, 페이지가 오프라인용으로 저장되지 않으며 패스키도 작동하지 않습니다.",
+  confirmRedirect: "{host}이(가) {target}(으)로 보냅니다. 예상한 주소일 때만 연결하세요.",
+  certChanged: "{host}은(는) 이전에 이 컴퓨터가 신뢰하는 인증서를 사용했습니다. 신뢰할 수 없는 다른 인증서는 누군가 연결을 가로채고 있다는 뜻일 수 있습니다. 서버의 인증서를 직접 바꾼 경우에만 신뢰하세요.",
+  menuForgetCertificates: "신뢰한 인증서 지우기",
+  microphoneTitle: "{host}에서 마이크를 사용하도록 허용할까요?",
+  microphoneBody: "Leafdesk는 마이크로 음성 메모와 회의록을 녹음합니다. 서버마다 한 번만 묻습니다.",
+  allow: "허용",
+  dontAllow: "허용 안 함",
 };
 
 const zh: Strings = {
@@ -1540,6 +1660,14 @@ const zh: Strings = {
   previousTab: "显示上一个标签页",
   openLinkInNewTab: "在新标签页中打开链接",
   tabs: "标签页",
+  confirmHttp: "{host} 未通过 HTTPS 响应。使用普通 HTTP 时，网络中的其他人可以读取你发送的内容，页面不会保存以供离线使用，通行密钥也无法使用。",
+  confirmRedirect: "{host} 将你转到 {target}。仅在你预期该地址时才连接。",
+  certChanged: "{host} 之前使用的是这台电脑信任的证书。现在换成了一个不受信任的证书，可能意味着有人在拦截连接：只有在你自己更换了服务器证书时才信任它。",
+  menuForgetCertificates: "清除信任的证书",
+  microphoneTitle: "允许 {host} 使用你的麦克风吗？",
+  microphoneBody: "Leafdesk 用它录制语音笔记和会议记录。每个服务器只询问一次。",
+  allow: "允许",
+  dontAllow: "不允许",
 };
 
 const id: Strings = {
@@ -1636,6 +1764,14 @@ const id: Strings = {
   previousTab: "Tampilkan Tab Sebelumnya",
   openLinkInNewTab: "Buka Tautan di Tab Baru",
   tabs: "Tab",
+  confirmHttp: "{host} tidak menjawab lewat HTTPS. Lewat HTTP biasa, orang lain di jaringan dapat membaca apa yang Anda kirim, halaman tidak disimpan untuk penggunaan luring, dan kunci sandi tidak berfungsi.",
+  confirmRedirect: "{host} mengarahkan Anda ke {target}. Hubungkan hanya jika Anda memang mengharapkan alamat itu.",
+  certChanged: "{host} sebelumnya memakai sertifikat yang dipercaya komputer ini. Sertifikat lain yang tidak tepercaya bisa berarti seseorang sedang menyadap koneksi: percayai hanya jika Anda sendiri yang mengganti sertifikat server.",
+  menuForgetCertificates: "Lupakan Sertifikat Tepercaya",
+  microphoneTitle: "Izinkan {host} menggunakan mikrofon Anda?",
+  microphoneBody: "Leafdesk merekam catatan suara dan catatan rapat dengannya. Anda ditanya sekali untuk setiap server.",
+  allow: "Izinkan",
+  dontAllow: "Jangan Izinkan",
 };
 
 const th: Strings = {
@@ -1732,6 +1868,14 @@ const th: Strings = {
   previousTab: "แสดงแท็บก่อนหน้า",
   openLinkInNewTab: "เปิดลิงก์ในแท็บใหม่",
   tabs: "แท็บ",
+  confirmHttp: "{host} ไม่ตอบผ่าน HTTPS หากใช้ HTTP ธรรมดา ผู้อื่นในเครือข่ายอาจอ่านสิ่งที่คุณส่งได้ จะไม่เก็บหน้าไว้ใช้แบบออฟไลน์ และพาสคีย์ใช้งานไม่ได้",
+  confirmRedirect: "{host} ส่งคุณต่อไปยัง {target} เชื่อมต่อเฉพาะเมื่อคุณคาดว่าจะเป็นที่อยู่นี้",
+  certChanged: "ก่อนหน้านี้ {host} ใช้ใบรับรองที่คอมพิวเตอร์เครื่องนี้เชื่อถือ ใบรับรองอื่นที่ไม่น่าเชื่อถืออาจหมายความว่ามีคนดักการเชื่อมต่ออยู่ ให้เชื่อถือเฉพาะเมื่อคุณเปลี่ยนใบรับรองของเซิร์ฟเวอร์เอง",
+  menuForgetCertificates: "ล้างใบรับรองที่เชื่อถือ",
+  microphoneTitle: "อนุญาตให้ {host} ใช้ไมโครโฟนของคุณไหม",
+  microphoneBody: "Leafdesk ใช้ไมโครโฟนบันทึกโน้ตเสียงและบันทึกการประชุม ระบบจะถามครั้งเดียวสำหรับแต่ละเซิร์ฟเวอร์",
+  allow: "อนุญาต",
+  dontAllow: "ไม่อนุญาต",
 };
 
 const vi: Strings = {
@@ -1828,6 +1972,14 @@ const vi: Strings = {
   previousTab: "Hiện tab trước",
   openLinkInNewTab: "Mở liên kết trong tab mới",
   tabs: "Các tab",
+  confirmHttp: "{host} không trả lời qua HTTPS. Qua HTTP thường, người khác trong mạng có thể đọc những gì bạn gửi, các trang không được lưu để dùng ngoại tuyến và khóa truy cập không hoạt động.",
+  confirmRedirect: "{host} chuyển bạn đến {target}. Chỉ kết nối nếu bạn đã chờ đợi địa chỉ đó.",
+  certChanged: "Trước đây {host} dùng một chứng chỉ mà máy tính này tin cậy. Một chứng chỉ khác, không được tin cậy, có thể có nghĩa là ai đó đang chặn kết nối: chỉ tin cậy nếu chính bạn đã đổi chứng chỉ của máy chủ.",
+  menuForgetCertificates: "Quên các chứng chỉ đã tin cậy",
+  microphoneTitle: "Cho phép {host} dùng micrô của bạn?",
+  microphoneBody: "Leafdesk dùng micrô để ghi ghi chú giọng nói và ghi chú cuộc họp. Bạn chỉ được hỏi một lần cho mỗi máy chủ.",
+  allow: "Cho phép",
+  dontAllow: "Không cho phép",
 };
 
 /** Same languages as the web app (src/i18n/config.ts), English first. */
@@ -1928,6 +2080,14 @@ const da: Strings = {
   previousTab: "Vis forrige fane",
   openLinkInNewTab: "Åbn link i ny fane",
   tabs: "Faner",
+  confirmHttp: "{host} svarer ikke over HTTPS. Over almindelig HTTP kan andre på netværket læse det, du sender, sider gemmes ikke til offlinebrug, og adgangsnøgler virker ikke.",
+  confirmRedirect: "{host} sender dig videre til {target}. Forbind kun, hvis du forventede den adresse.",
+  certChanged: "{host} viste før et certifikat, som denne computer har tillid til. Et andet certifikat uden tillid kan betyde, at nogen opsnapper forbindelsen: hav kun tillid til det, hvis du selv har skiftet serverens certifikat.",
+  menuForgetCertificates: "Glem certifikater med tillid",
+  microphoneTitle: "Vil du give {host} adgang til din mikrofon?",
+  microphoneBody: "Leafdesk optager talenoter og mødenoter med den. Du bliver spurgt én gang for hver server.",
+  allow: "Tillad",
+  dontAllow: "Tillad ikke",
 };
 
 const nl: Strings = {
@@ -2024,6 +2184,14 @@ const nl: Strings = {
   previousTab: "Toon vorige tabblad",
   openLinkInNewTab: "Open link in nieuw tabblad",
   tabs: "Tabbladen",
+  confirmHttp: "{host} antwoordt niet via HTTPS. Via gewoon HTTP kunnen anderen op het netwerk meelezen wat je verstuurt, worden pagina’s niet bewaard voor offline gebruik en werken toegangssleutels niet.",
+  confirmRedirect: "{host} stuurt je door naar {target}. Maak alleen verbinding als je dat adres verwachtte.",
+  certChanged: "{host} gebruikte eerder een certificaat dat deze computer vertrouwt. Een ander, niet-vertrouwd certificaat kan betekenen dat iemand de verbinding onderschept: vertrouw het alleen als je het certificaat van de server zelf hebt vervangen.",
+  menuForgetCertificates: "Vertrouwde certificaten vergeten",
+  microphoneTitle: "{host} toegang geven tot je microfoon?",
+  microphoneBody: "Leafdesk neemt er spraaknotities en vergadernotities mee op. Dit wordt één keer per server gevraagd.",
+  allow: "Toestaan",
+  dontAllow: "Niet toestaan",
 };
 
 const nb: Strings = {
@@ -2120,6 +2288,14 @@ const nb: Strings = {
   previousTab: "Vis forrige fane",
   openLinkInNewTab: "Åpne lenke i ny fane",
   tabs: "Faner",
+  confirmHttp: "{host} svarer ikke over HTTPS. Over vanlig HTTP kan andre på nettverket lese det du sender, sider lagres ikke for bruk uten nett, og passnøkler fungerer ikke.",
+  confirmRedirect: "{host} sender deg videre til {target}. Koble til bare hvis du ventet den adressen.",
+  certChanged: "{host} viste tidligere et sertifikat denne datamaskinen stoler på. Et annet sertifikat den ikke stoler på, kan bety at noen fanger opp tilkoblingen: stol bare på det hvis du selv har byttet sertifikatet på serveren.",
+  menuForgetCertificates: "Glem klarerte sertifikater",
+  microphoneTitle: "Vil du la {host} bruke mikrofonen?",
+  microphoneBody: "Leafdesk tar opp talenotater og møtenotater med den. Du blir spurt én gang for hver server.",
+  allow: "Tillat",
+  dontAllow: "Ikke tillat",
 };
 
 const fi: Strings = {
@@ -2216,6 +2392,14 @@ const fi: Strings = {
   previousTab: "Näytä edellinen välilehti",
   openLinkInNewTab: "Avaa linkki uudessa välilehdessä",
   tabs: "Välilehdet",
+  confirmHttp: "{host} ei vastaa HTTPS:n kautta. Tavallisella HTTP:llä muut verkossa voivat lukea, mitä lähetät, sivuja ei tallenneta offline-käyttöön, eivätkä pääsyavaimet toimi.",
+  confirmRedirect: "{host} ohjaa sinut osoitteeseen {target}. Yhdistä vain, jos odotit tätä osoitetta.",
+  certChanged: "{host} käytti aiemmin varmennetta, johon tämä tietokone luottaa. Toinen, epäluotettava varmenne voi tarkoittaa, että joku sieppaa yhteyden: luota siihen vain, jos vaihdoit palvelimen varmenteen itse.",
+  menuForgetCertificates: "Unohda luotetut varmenteet",
+  microphoneTitle: "Sallitaanko {host} käyttää mikrofoniasi?",
+  microphoneBody: "Leafdesk tallentaa sillä äänimuistiinpanot ja kokousmuistiinpanot. Tätä kysytään kerran kultakin palvelimelta.",
+  allow: "Salli",
+  dontAllow: "Älä salli",
 };
 
 const sv: Strings = {
@@ -2312,6 +2496,14 @@ const sv: Strings = {
   previousTab: "Visa föregående flik",
   openLinkInNewTab: "Öppna länk i ny flik",
   tabs: "Flikar",
+  confirmHttp: "{host} svarar inte över HTTPS. Över vanlig HTTP kan andra i nätverket läsa det du skickar, sidor sparas inte för offlineanvändning, och nycklar (passkeys) fungerar inte.",
+  confirmRedirect: "{host} skickar dig vidare till {target}. Anslut bara om du väntade dig den adressen.",
+  certChanged: "{host} visade tidigare ett certifikat som den här datorn litar på. Ett annat certifikat som datorn inte litar på kan betyda att någon avlyssnar anslutningen: lita bara på det om du själv har bytt serverns certifikat.",
+  menuForgetCertificates: "Glöm betrodda certifikat",
+  microphoneTitle: "Vill du låta {host} använda mikrofonen?",
+  microphoneBody: "Leafdesk spelar in röstanteckningar och mötesanteckningar med den. Du får frågan en gång för varje server.",
+  allow: "Tillåt",
+  dontAllow: "Tillåt inte",
 };
 
 export const STRINGS = { en, tr, de, es, fr, it, pt, pl, ru, uk, ar, he, fa, ja, ko, zh, id, th, vi, da, nl, nb, fi, sv } satisfies Record<string, Strings>;
