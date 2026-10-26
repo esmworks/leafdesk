@@ -1,6 +1,6 @@
 import type { LookupAddress } from "node:dns";
 import { afterEach, describe, expect, it, vi } from "vitest";
-import { allowedConnectorHost, checkConnectionUrl, connectionFetch, ConnectionFetchError, guardedLookup } from "./fetch";
+import { allowedConnectorHost, AnswerTooLargeError, capResponse, checkConnectionUrl, connectionFetch, ConnectionFetchError, guardedLookup } from "./fetch";
 
 const undiciFetch = vi.hoisted(() => vi.fn());
 vi.mock("undici", async (original) => ({ ...(await original<typeof import("undici")>()), fetch: undiciFetch }));
@@ -84,6 +84,42 @@ describe("checkConnectionUrl", () => {
     // Another port of an allowed host:port isn't allowed.
     expect(codeOf("http://localhost:3000/mcp")).toBe("invalidUrl");
     expect(codeOf("https://localhost:3000/mcp")).toBe("blocked");
+    // A bare name opens the web's ports only, not every service on the host.
+    expect(codeOf("http://mcp.lan:8080/mcp")).toBe("ok");
+    process.env.CONNECTOR_ALLOWED_HOSTS = "mcp-gateway";
+    expect(codeOf("http://mcp-gateway:6379/")).toBe("invalidUrl");
+    expect(codeOf("https://mcp-gateway:6379/")).toBe("blocked");
+    expect(codeOf("https://mcp-gateway/mcp")).toBe("ok");
+  });
+
+  it("never lets an address members give through CONNECTOR_ALLOWED_HOSTS, only WEB_FETCH_ALLOWED_HOSTS", () => {
+    const savedWeb = process.env.WEB_FETCH_ALLOWED_HOSTS;
+    const reach = (url: string, untrusted: { web?: boolean; untrusted: true }) => {
+      try {
+        checkConnectionUrl(url, untrusted);
+        return "ok";
+      } catch (error) {
+        return error instanceof ConnectionFetchError ? error.code : "other";
+      }
+    };
+    try {
+      process.env.CONNECTOR_ALLOWED_HOSTS = "localhost:3211, mcp-gateway, 10.0.0.5";
+      delete process.env.WEB_FETCH_ALLOWED_HOSTS;
+      expect(reach("http://localhost:3211/", { web: true, untrusted: true })).toBe("blocked");
+      expect(reach("http://mcp-gateway/", { web: true, untrusted: true })).toBe("blocked");
+      expect(reach("https://10.0.0.5/file.pdf", { untrusted: true })).toBe("blocked");
+      expect(reach("http://mcp-gateway/file.pdf", { untrusted: true })).toBe("invalidUrl");
+      process.env.WEB_FETCH_ALLOWED_HOSTS = "wiki, 127.0.0.1:4000";
+      expect(reach("http://wiki/page", { web: true, untrusted: true })).toBe("ok");
+      expect(reach("http://127.0.0.1:4000/page", { web: true, untrusted: true })).toBe("ok");
+      expect(reach("http://wiki:5432/", { web: true, untrusted: true })).toBe("blocked");
+      expect(reach("http://127.0.0.1:4001/", { web: true, untrusted: true })).toBe("blocked");
+      // Connections themselves don't reach the web list.
+      expect(codeOf("https://wiki/mcp")).toBe("blocked");
+    } finally {
+      if (savedWeb === undefined) delete process.env.WEB_FETCH_ALLOWED_HOSTS;
+      else process.env.WEB_FETCH_ALLOWED_HOSTS = savedWeb;
+    }
   });
 });
 
@@ -95,6 +131,38 @@ describe("allowedConnectorHost", () => {
     expect(allowedConnectorHost(new URL("https://MCP.LAN:8443/x"), ["mcp.lan:8443"])).toBe(true);
     expect(allowedConnectorHost(new URL("https://[::1]:8443/x"), ["::1:8443"])).toBe(true);
     expect(allowedConnectorHost(new URL("https://other.lan/x"), ["mcp.lan"])).toBe(false);
+    expect(allowedConnectorHost(new URL("https://mcp.lan:9000/x"), ["mcp.lan"])).toBe(false);
+  });
+});
+
+describe("capResponse", () => {
+  const body = (chunks: number[]) =>
+    new ReadableStream<Uint8Array>({
+      start(controller) {
+        for (const size of chunks) controller.enqueue(new Uint8Array(size));
+        controller.close();
+      },
+    });
+
+  it("passes an answer within the limit through", async () => {
+    const response = capResponse(new Response(body([4, 4]), { status: 200, headers: { "content-type": "application/json" } }), 10);
+    expect(response.status).toBe(200);
+    expect(response.headers.get("content-type")).toBe("application/json");
+    expect((await response.arrayBuffer()).byteLength).toBe(8);
+  });
+
+  it("fails the body once more than the limit has come", async () => {
+    const response = capResponse(new Response(body([6, 6, 6])), 10);
+    await expect(response.arrayBuffer()).rejects.toBeInstanceOf(AnswerTooLargeError);
+  });
+
+  it("refuses an answer that says it is larger at once", () => {
+    expect(() => capResponse(new Response("x".repeat(20), { headers: { "content-length": "20" } }), 10)).toThrow(AnswerTooLargeError);
+  });
+
+  it("leaves an answer without a body as it is", () => {
+    const response = new Response(null, { status: 204 });
+    expect(capResponse(response, 10)).toBe(response);
   });
 });
 

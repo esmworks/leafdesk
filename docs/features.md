@@ -870,7 +870,8 @@
   can also have a domain of its own (see [Workspace site on its own domain](../README.md#workspace-site-on-its-own-domain)).
   A publication can also **allow duplicate**: signed-in
   visitors copy the page, as published, into one of their workspaces (or its templates), files
-  included and without comments, history, people or private properties.
+  included and without comments, history, people or private properties; of a database, only the
+  rows its views on the web show.
 - **File uploads**: drop, paste or pick images, video, audio and other files into a page. They are
   stored on disk or in S3-compatible storage, only people who can see a page showing them can open
   them, and published pages show theirs (see [File uploads](self-hosting.md#file-uploads)). Uploaded PDFs show
@@ -1070,8 +1071,8 @@
   every release, see [`extension/`](../extension/README.md)) does the same from its toolbar button
   (Alt+Shift+S) and from the context menu of a page, a link or selected text: it opens the quick
   note on the Leafdesk address set in its settings, and sends nothing anywhere else. The server fetches only public addresses (http or https on the usual web
-  ports, every redirect checked again; `CONNECTOR_ALLOWED_HOSTS` lets hosts on your own network
-  through, as for [connections](connections.md)), at most 5 MB of page in 15 seconds. REST:
+  ports, every redirect checked again; `WEB_FETCH_ALLOWED_HOSTS` lets hosts on your own network
+  through, see [Self-hosting](self-hosting.md#broken-web-links)), at most 5 MB of page in 15 seconds. REST:
   `POST /api/v1/pages/from-web` (see [REST API](rest-api.md)).
 - **Sync Jira issues**: Import's Jira tab takes a Jira Cloud site, an email address and an
   [API token](https://id.atlassian.com/manage-profile/security/api-tokens) (kept sealed like a

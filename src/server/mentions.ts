@@ -712,9 +712,9 @@ export async function mentionablePeople(pageId: string): Promise<MentionPerson[]
 
 /**
  * How a published page shows the pages it mentions (see published-body.ts): a page published with
- * it (or published on its own) is a link to its public address; any other page is plain text, its
- * title when the publisher may see it and a note otherwise, so the publication shows nothing its
- * publisher couldn't.
+ * it (or published on its own) is a link to its public address; any other page is plain text, a
+ * note that visitors have no access to it, so the publication shows no title its publisher didn't
+ * publish.
  */
 export async function publishedPageRefs(
   publisher: string,
@@ -741,14 +741,25 @@ export async function publishedPageRefs(
   );
   const out = new Map<string, { text: string; href: string | null }>();
   for (const ref of refs) {
-    if (ref.status !== "ok") {
-      out.set(ref.id, { text: ref.status === "deleted" ? labels.deleted : labels.private, href: null });
-      continue;
-    }
-    const href = (await inPublication(ref.id, ref.title)) ?? own.get(ref.id) ?? null;
-    out.set(ref.id, { text: ref.title.trim() || labels.untitled, href });
+    const href = ref.status === "ok" ? ((await inPublication(ref.id, ref.title)) ?? own.get(ref.id) ?? null) : null;
+    out.set(ref.id, publishedRef(ref, href, labels));
   }
   return out;
+}
+
+/**
+ * How a published page shows one page it mentions: by its title only when the page is published
+ * too (`href`, its public address); a page that isn't reads as one visitors have no access to,
+ * whatever its publisher may see of it.
+ */
+export function publishedRef(
+  ref: { status: string; title?: string },
+  href: string | null,
+  labels: { untitled: string; private: string; deleted: string },
+): { text: string; href: string | null } {
+  if (ref.status === "deleted") return { text: labels.deleted, href: null };
+  if (ref.status !== "ok" || !href) return { text: labels.private, href: null };
+  return { text: ref.title?.trim() || labels.untitled, href };
 }
 
 // ---------------------------------------------------------------------------------------------

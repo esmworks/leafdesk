@@ -420,8 +420,12 @@ export async function oauthReturnOf(state: string): Promise<{ workspaceId: strin
  * person, still an owner. Returns the connection, signed in and its tools listed.
  */
 export async function completeConnectionOAuth(userId: string, input: { state: string; code: string; iss?: string }): Promise<{ connection: ConnectionView; workspaceId: string }> {
-  const [pending] = await db.delete(connectionOauth).where(eq(connectionOauth.state, input.state)).returning();
-  if (!pending || pending.userId !== userId || pending.createdAt.getTime() < Date.now() - OAUTH_STATE_MS) {
+  // Only the person who began it takes the sign-in: someone else's request leaves it waiting.
+  const [pending] = await db
+    .delete(connectionOauth)
+    .where(and(eq(connectionOauth.state, input.state), eq(connectionOauth.userId, userId)))
+    .returning();
+  if (!pending || pending.createdAt.getTime() < Date.now() - OAUTH_STATE_MS) {
     throw new ConnectionError("oauthFailed", "This sign-in expired or was begun by someone else; begin it again");
   }
   const row = await ownedConnection(userId, pending.connectionId);

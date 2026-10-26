@@ -13,13 +13,14 @@ import {
 } from "@/lib/automations";
 import { env } from "@/lib/env";
 import { checkTarget, LinkPreviewError, type PreviewGuard } from "../link-preview";
+import { onHostList } from "../ssrf";
 
 /**
  * Automation webhooks: a signed JSON POST to an address someone with full access to the database
  * typed. Guarded like link previews (server/link-preview): http(s) only, no credentials in the
  * URL, the usual web ports, and every address of the host public, with the connection pinned to
- * the checked address. Hosts in AUTOMATION_WEBHOOK_ALLOWED_HOSTS skip the address and port checks,
- * for services on the server's own network. Redirects aren't followed (a webhook that moved
+ * the checked address. Hosts in AUTOMATION_WEBHOOK_ALLOWED_HOSTS skip the address check (and, named
+ * with a port, the port check), for services on the server's own network. Redirects aren't followed (a webhook that moved
  * should be changed), ten seconds in all, and only the status is read back.
  */
 
@@ -50,11 +51,12 @@ export class WebhookError extends Error {
   }
 }
 
-/** Whether `url` is on the allowed hosts list (by host name, or host and port). */
+/**
+ * Whether `url` is on the allowed hosts list: by host and port, or by host name on the web's usual
+ * ports only (see onHostList), so a bare name doesn't open every service on the host.
+ */
 export function allowedHost(url: URL, allowed = env.automationWebhookAllowedHosts) {
-  const host = url.hostname.replace(/^\[|\]$/g, "").toLowerCase();
-  const port = url.port || (url.protocol === "https:" ? "443" : "80");
-  return allowed.includes(host) || allowed.includes(`${host}:${port}`);
+  return onHostList(url, allowed);
 }
 
 /** Parses and checks a webhook address when it's saved: the shape only (DNS is checked when sending). */

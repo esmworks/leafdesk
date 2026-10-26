@@ -39,6 +39,7 @@ import { instanceStorage, uploadLimits } from "@/server/storage";
 import { attachDefaultStorage } from "@/server/storage/accounts";
 import { mayCreateWorkspace } from "@/server/workspaces";
 import { BackupError, SCHEMA_TAGS } from "./export";
+import { restoredSite } from "./site-row";
 
 export type { RestoreResult };
 import { BACKED_UP, backupTables, MEMBERSHIP_TABLES, NO_LONGER_BACKED_UP, WORKSPACE_MEMBERS, type BackupTable } from "./tables";
@@ -438,13 +439,25 @@ async function fitThisServer(manifest: BackupManifest, rows: Rows) {
   }
 
   let siteLeftOut = false;
-  const sites = rows.get("workspace_site")!;
+  // Checked as saving the site here would check it (a backup file can be edited): an address that
+  // can't be a site's leaves it out, a domain, analytics ID or header link that doesn't pass is dropped.
+  const pageIds = new Set(rows.get("page")!.map((p) => p.id as string));
+  const checked = rows.get("workspace_site")!.map((s) => restoredSite(s, { appHost: new URL(env.appUrl).hostname, pageIds }));
+  const sites = checked.filter((s): s is Row => s !== null);
+  rows.set("workspace_site", sites);
+  if (sites.length < checked.length) siteLeftOut = true;
   if (sites.length) {
     const taken = await db.select({ slug: workspaceSite.slug }).from(workspaceSite).where(inArray(workspaceSite.slug, sites.map((s) => s.slug as string)));
     if (taken.length) {
       rows.set("workspace_site", []);
       siteLeftOut = true;
     }
+  }
+  // A domain another site here has stays with that site.
+  for (const site of rows.get("workspace_site")!) {
+    if (!site.domain) continue;
+    const [other] = await db.select({ workspaceId: workspaceSite.workspaceId }).from(workspaceSite).where(eq(workspaceSite.domain, site.domain as string)).limit(1);
+    if (other) site.domain = null;
   }
 
   // Publication links keep their tokens, unless one is taken here.

@@ -26,9 +26,6 @@ try {
   process.loadEnvFile();
 } catch {}
 
-// The fake GitHub is on this machine: let the connections' fetch reach it (read when env loads).
-process.env.CONNECTOR_ALLOWED_HOSTS = "127.0.0.1";
-
 const RUN = `ghpulls-${Date.now()}`;
 let token = "token-1";
 let rateLimited = false;
@@ -108,6 +105,8 @@ function handle(req: IncomingMessage, res: ServerResponse) {
 const fake = createServer(handle);
 await new Promise<void>((resolve) => fake.listen(0, "127.0.0.1", resolve));
 const API = `http://127.0.0.1:${(fake.address() as AddressInfo).port}`;
+// The fake GitHub is on this machine: let the connections' fetch reach its port (read on each fetch).
+process.env.CONNECTOR_ALLOWED_HOSTS = `127.0.0.1:${(fake.address() as AddressInfo).port}`;
 
 // Imported after .env is loaded: the database client reads DATABASE_URL when it is created.
 const { and, eq, inArray, isNull } = await import("drizzle-orm");

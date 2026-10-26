@@ -46,7 +46,9 @@ export const env = {
   /**
    * AUTOMATION_WEBHOOK_ALLOWED_HOSTS: host names (or host:port) that automation webhooks may reach
    * even though they are on a private network or a local name (an n8n on the same server, say);
-   * comma-separated. Every other webhook goes only to public addresses on the usual web ports.
+   * comma-separated. A bare host name is allowed on the web's usual ports only (80, 443, 8080,
+   * 8443); `host:port` on that port. Every other webhook goes only to public addresses on the usual
+   * web ports.
    */
   get automationWebhookAllowedHosts() {
     return (process.env.AUTOMATION_WEBHOOK_ALLOWED_HOSTS ?? "")
@@ -71,8 +73,9 @@ export const env = {
   /**
    * CONNECTOR_ALLOWED_HOSTS: host names (or host:port) a connection's MCP server may be on even
    * though they are on a private network, a local name or plain http (a server on the same
-   * machine, say); comma-separated. Every other connection goes only to public https addresses.
-   * Saving a web page (`server/web-clip.ts`) may reach these hosts too.
+   * machine, say); comma-separated. A bare host name is allowed on the web's usual ports only
+   * (80, 443, 8080, 8443); `host:port` on that port. Every other connection goes only to public
+   * https addresses. Syncs an owner sets up reach these hosts too, addresses members give don't.
    */
   get connectorAllowedHosts() {
     return (process.env.CONNECTOR_ALLOWED_HOSTS ?? "")
@@ -81,9 +84,21 @@ export const env = {
       .filter(Boolean);
   },
   /**
+   * WEB_FETCH_ALLOWED_HOSTS: host names (or host:port, as for CONNECTOR_ALLOWED_HOSTS) on a private
+   * network that addresses anyone in a workspace gives may reach: saving a web page, downloading a
+   * file a page shows (guests too), checking web links. Comma-separated; empty by default, so these
+   * reach public addresses only.
+   */
+  get webFetchAllowedHosts() {
+    return (process.env.WEB_FETCH_ALLOWED_HOSTS ?? "")
+      .split(",")
+      .map((h) => h.trim().toLowerCase())
+      .filter(Boolean);
+  },
+  /**
    * WEB_LINK_CHECKS=off stops the server from fetching the web addresses in pages to find links
    * that stopped working (server/web-links.ts; Settings > Health then says they aren't checked).
-   * On by default. CONNECTOR_ALLOWED_HOSTS lets it reach hosts on your own network too.
+   * On by default. WEB_FETCH_ALLOWED_HOSTS lets it reach hosts on your own network too.
    */
   get webLinkChecks() {
     return !/^(off|false|0|no)$/i.test(process.env.WEB_LINK_CHECKS?.trim() ?? "");

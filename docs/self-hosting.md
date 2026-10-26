@@ -35,7 +35,9 @@ it out too. A file a row holds only in a files & media property hidden from some
 access) doesn't open for them through that row. Only raster images, video,
 audio and PDF open in the browser; everything else, SVG included, is downloaded. When a page is
 deleted for good, its files go once no other page shows them, and uploads no page ever used are
-removed after a day. When files go this way, or with a deleted workspace or account, the stored
+removed after a day (uploads for a form's answer that was never sent after two hours). Uploads to
+a public form are limited per IP address and per form, in number and in size: at most 256 MB an
+hour from one address, and 1 GB waiting to be sent in one database. When files go this way, or with a deleted workspace or account, the stored
 objects to delete are queued in the same transaction that removes their records, and what storage
 refuses is tried again by the hourly file cleanup, waiting longer after each failure (up to a
 day), so no bytes stay behind with nothing pointing at them.
@@ -273,13 +275,20 @@ provider that offers the same interfaces. In the dark scheme the tiles are dimme
 
 Settings → Health lists web links in pages that stopped working: the server fetches the web
 addresses of pages and URL properties in the background, about once a week each, from public
-addresses only (hosts in `CONNECTOR_ALLOWED_HOSTS` too, as for saving a web page). Its requests say
-`Leafdesk link check (+APP_URL)`. To never fetch them, for a server that shouldn't reach the
-internet on its own, set:
+addresses only. Its requests say `Leafdesk link check (+APP_URL)`. To never fetch them, for a
+server that shouldn't reach the internet on its own, set:
 
 ```bash
 WEB_LINK_CHECKS=off
 ```
+
+The same rule holds for every address someone in a workspace gives the server to fetch: saving a
+web page, downloading a file a page shows from another site (anyone who may view the page, guests
+too) and these link checks reach public addresses only, never the hosts in
+`CONNECTOR_ALLOWED_HOSTS` (which are for connections and syncs an owner sets up). To let them
+reach a host on your own network, an intranet wiki say, list it in `WEB_FETCH_ALLOWED_HOSTS`
+(comma-separated, a host name or `host:port`; a bare name on ports 80, 443, 8080 and 8443 only).
+Everyone in every workspace can then fetch it.
 
 Health then says the links aren't checked. See [Workspace health](features.md) for what counts as
 broken.

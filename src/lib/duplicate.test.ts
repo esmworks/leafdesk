@@ -1,5 +1,37 @@
 import { describe, expect, it } from "vitest";
-import { dropPropertyReferences, numberedCopyTitle, planDuplicate, remapViewConfig, type DuplicateInput, type SourcePage } from "./duplicate";
+import {
+  dropPropertyReferences,
+  keptUnderShownRows,
+  numberedCopyTitle,
+  planDuplicate,
+  remapViewConfig,
+  type DuplicateInput,
+  type SourcePage,
+} from "./duplicate";
+
+describe("keptUnderShownRows", () => {
+  const tree = [
+    { id: "root", parentId: "x" },
+    { id: "db", parentId: "root" },
+    { id: "shown", parentId: "db" },
+    { id: "hidden", parentId: "db" },
+    { id: "under-hidden", parentId: "hidden" },
+    { id: "under-shown", parentId: "shown" },
+    { id: "page", parentId: "root" },
+    { id: "other-db", parentId: "page" },
+    { id: "other-row", parentId: "other-db" },
+  ];
+
+  it("carries only the rows a database's views show, and leaves what lies under the others", () => {
+    const kept = keptUnderShownRows(tree, "root", new Map([["db", new Set(["shown"])]]));
+    expect([...kept].sort()).toEqual(["db", "other-db", "other-row", "page", "root", "shown", "under-shown"]);
+  });
+
+  it("carries no row of a database whose views show none", () => {
+    const kept = keptUnderShownRows(tree, "root", new Map([["db", new Set<string>()], ["other-db", new Set<string>()]]));
+    expect([...kept].sort()).toEqual(["db", "other-db", "page", "root"]);
+  });
+});
 
 const pageOf = (id: string, parentId: string | null, extra: Partial<SourcePage> = {}): SourcePage => ({
   id,

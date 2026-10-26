@@ -304,6 +304,34 @@ export function redactCopy(
   };
 }
 
+/**
+ * The pages of a tree under `rootId` that a copy of it carries when, of each database in `shown`,
+ * only the rows it names come along: a row left out goes with everything under it (as does a page
+ * whose parent isn't in the tree). Databases missing from `shown` carry all their rows.
+ */
+export function keptUnderShownRows(
+  pages: readonly { id: string; parentId: string | null }[],
+  rootId: string,
+  shown: ReadonlyMap<string, ReadonlySet<string>>,
+): Set<string> {
+  const children = new Map<string, string[]>();
+  for (const p of pages) {
+    if (p.id === rootId || !p.parentId) continue;
+    children.set(p.parentId, [...(children.get(p.parentId) ?? []), p.id]);
+  }
+  const kept = new Set<string>([rootId]);
+  const queue = [rootId];
+  for (let id = queue.shift(); id !== undefined; id = queue.shift()) {
+    const rowsShown = shown.get(id);
+    for (const child of children.get(id) ?? []) {
+      if (kept.has(child) || (rowsShown && !rowsShown.has(child))) continue;
+      kept.add(child);
+      queue.push(child);
+    }
+  }
+  return kept;
+}
+
 /** One rule of a copied database's property access (see server/property-access). */
 export type SourceRule = PropertyRule & { databaseId: string };
 
