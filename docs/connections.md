@@ -230,8 +230,9 @@ The tools cover:
   long untouched pages, likely duplicates and relations to deleted rows, with links and the tools
   that fix each (it changes nothing itself).
 - **Members:** `invite_member` adds someone to a workspace by email, as Settings → Members does
-  (owners only, and not for read-only apps): someone whose account has a verified address joins
-  right away, anyone else gets an invitation, whose link is returned too.
+  (owners only, and not for read-only apps), as a member or a guest (owners and membership admins
+  are made in Settings → Members): someone whose account has a verified address joins right away,
+  anyone else gets an invitation, whose link is returned too.
 - **Teamspaces:** `create_page`, `create_database` and `move_page` take a `teamspace_id` for
   top-level pages (`"private"` for the user's private pages). Without one, a page an AI app
   creates at the top is private to the user, so nothing an app makes is shared before they
