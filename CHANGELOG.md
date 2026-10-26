@@ -488,6 +488,9 @@
 
 - **Client bundle budgets** go to 771 kB for a page's first load and 1174 kB for all first loads
   together, for typed dates, tags in the search box, named versions and page dictation.
+- **My tasks and Meetings are laid out like a database page.** They use the same width and
+  margins, a title the size of a database's, and meeting names in the list are set at the size of
+  table rows.
 - **One player at a time.** Starting an audio or video block on a page pauses the one playing.
 - **`/grey`** finds the gray text and background colors, like `/gray`.
 

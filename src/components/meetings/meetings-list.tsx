@@ -32,10 +32,10 @@ export function MeetingsList({ workspaceId, meetings, now }: { workspaceId: stri
   };
 
   return (
-    <div className="mx-auto max-w-4xl px-4 pt-14 pb-12 md:px-6 md:pt-12">
+    <div className="page-gutter pt-[4.25rem] pb-12">
       <header className="mb-6 flex flex-wrap items-start gap-4">
         <div className="min-w-0 flex-1">
-          <h1 className="text-2xl font-semibold tracking-tight">{t("heading")}</h1>
+          <h1 className="text-2xl font-bold leading-tight md:text-3xl">{t("heading")}</h1>
           <p className="mt-2 text-sm text-fg-muted">{t("description")}</p>
         </div>
         <Button variant="primary" onClick={() => void create()} disabled={creating}>
@@ -102,7 +102,7 @@ function Row({ item, workspaceId }: { item: MeetingListItem; workspaceId: string
       <span className="mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center text-fg-muted">{item.icon ? <IconGlyph icon={item.icon} /> : <NotebookPen className="h-4 w-4" aria-hidden />}</span>
       <span className="min-w-0 flex-1">
         <span className="flex items-baseline gap-2">
-          <span className="truncate font-medium">{title}</span>
+          <span className="truncate text-sm font-medium">{title}</span>
           {status && <span className="shrink-0 text-xs text-danger">{t(status)}</span>}
         </span>
         {item.title.trim() && item.pageTitle.trim() && item.pageTitle.trim() !== item.title.trim() && (
