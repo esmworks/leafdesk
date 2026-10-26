@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 import board from "./trello-fixture.json";
+import { fast, randomTexts } from "./linear-fixtures";
 import { ImportError } from "./result";
 import { cardBody, isTrelloBoard, labelColor, parseTrelloExport, readTrelloBoard, trelloMarkdown } from "./trello";
 
@@ -194,5 +195,34 @@ describe("Trello Markdown", () => {
       "### Ekler\n\n- [wireframe.png](<https://trello.com/1/cards/6710a1f2c3d4e5f6000000c1/attachments/6710a1f2c3d4e5f6000000f9/download/wireframe.png>)",
     );
     expect(cardBody(card("Write release notes"), { attachments: "A", comments: "C" })).toBe("");
+  });
+
+  it("reads crafted descriptions in time growing with their length, as the regexes it replaces", () => {
+    const link = (short: string) => (short.includes("b") ? null : `/row/${short}`);
+    expect(fast(() => trelloMarkdown("![".repeat(500_000), link))).toBe("![".repeat(500_000));
+    expect(fast(() => trelloMarkdown(`${"[".repeat(500_000)}x](https://trello.com/c/AAAAAAAA)`, link))).toBe(`${"[".repeat(500_000)}x](/row/AAAAAAAA)`);
+    const CARD_URL = /^https?:\/\/trello\.com\/c\/([A-Za-z0-9]{8})(?:[/?#]|$)/;
+    const LINKS = /\[([^\]\n]*)\]\(([^()\s]+)(?:\s+("[^"\n]*"))?\)|<(https?:\/\/[^<>\s]+)>|(https?:\/\/trello\.com\/c\/[A-Za-z0-9]{8}(?:\/[^\s()<>\]]*)?)/g;
+    const before = (markdown: string) => {
+      const card = (url: string) => {
+        const short = CARD_URL.exec(url)?.[1];
+        return short ? link(short) : null;
+      };
+      return markdown
+        .replace(/\r\n?/g, "\n")
+        .replace(/!\[([^\]\n]*)\]\(/g, (_, alt: string) => `[${alt || "image"}](`)
+        .replace(LINKS, (match, text?: string, target?: string, title?: string, angled?: string, bare?: string) => {
+          if (target !== undefined) {
+            const to = card(target);
+            if (to) return `[${text}](${to})`;
+            return title && /^"smartCard-[a-z]+"$/.test(title) ? `[${text}](${target})` : match;
+          }
+          const url = angled ?? bare!;
+          const to = card(url);
+          return to ? `[${url}](${to})` : match;
+        });
+    };
+    const pieces = ["[", "]", "(", ")", "![", "a", " ", "\n", "<", ">", "https://trello.com/c/AAAAAAAA", "https://trello.com/c/bbbbbbbb", '"smartCard-inline"', "h"];
+    for (const text of randomTexts(pieces, 5000, 10)) expect(trelloMarkdown(text, link)).toBe(before(text));
   });
 });

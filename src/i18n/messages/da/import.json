@@ -280,6 +280,7 @@
       "tooLarge": "“{path}” er for stor til én side og blev udeladt.",
       "unused": "“{path}” blev udeladt: ingen side viser den eller linker til den.",
       "unsafePath": "“{path}” blev udeladt: dens sti fører uden for ZIP-filen.",
+      "deepPath": "“{path}” blev udeladt: stien er for lang eller har for mange mapper.",
       "otherSheet": "Arket “{path}” blev udeladt: der importeres kun ét ark ad gangen.",
       "badNote": "Noten “{path}” kan ikke læses og blev udeladt.",
       "notEnex": "“{path}” blev udeladt: det er ikke en Evernote-eksport (.enex)."
@@ -312,6 +313,7 @@
     "badMapping": "Vælg, hvor mindst én kolonne skal hen, og hver egenskab kun én gang.",
     "noAccess": "Du kan ikke tilføje sider dér, eller stedet findes ikke længere.",
     "notADatabase": "Rækker kan kun tilføjes til en database.",
+    "busy": "En anden import kører stadig. Prøv igen, når den er færdig.",
     "badRequest": "Importen gik ikke igennem. Intet blev ændret.",
     "rateLimited": "Der er oprettet eller tjekket for mange synkroniseringer herfra. Prøv igen om et par minutter."
   },

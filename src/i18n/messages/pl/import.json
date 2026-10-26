@@ -280,6 +280,7 @@
       "tooLarge": "Pominięto „{path}”: za duże na jedną stronę.",
       "unused": "Pominięto „{path}”: żadna strona go nie wyświetla ani do niego nie linkuje.",
       "unsafePath": "Pominięto „{path}”: jego ścieżka prowadzi poza archiwum ZIP.",
+      "deepPath": "Pominięto „{path}”: jego ścieżka jest za długa lub ma zbyt wiele folderów.",
       "otherSheet": "Pominięto arkusz „{path}”: importowany jest tylko jeden arkusz naraz.",
       "badNote": "Nie można odczytać notatki „{path}”, więc ją pominięto.",
       "notEnex": "Pominięto „{path}”: to nie jest eksport z Evernote (.enex)."
@@ -312,6 +313,7 @@
     "badMapping": "Wybierz miejsce docelowe dla co najmniej jednej kolumny, a każdą właściwość tylko raz.",
     "noAccess": "Nie możesz tam dodawać stron lub to miejsce już nie istnieje.",
     "notADatabase": "Wiersze można dodawać tylko do bazy danych.",
+    "busy": "Inny import wciąż trwa. Spróbuj ponownie, gdy się zakończy.",
     "badRequest": "Import się nie powiódł. Niczego nie zmieniono.",
     "rateLimited": "Stąd skonfigurowano lub sprawdzono zbyt wiele synchronizacji. Spróbuj ponownie za kilka minut."
   },

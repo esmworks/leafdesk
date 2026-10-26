@@ -60,10 +60,27 @@ export function decodeBase64(text: string): Uint8Array {
   return bytesOf(atob(clean));
 }
 
+/**
+ * `text` without the spaces and tabs that end its lines (before a CRLF or LF). Scanned back from
+ * each line break, never past the one before: a regex finding those runs starts again at every
+ * space of a long run that ends in something else, which takes time growing with its square.
+ */
+function withoutTrailingBlanks(text: string): string {
+  let out = "";
+  let from = 0;
+  for (let at = text.indexOf("\n"); at !== -1; at = text.indexOf("\n", at + 1)) {
+    const end = at > from && text[at - 1] === "\r" ? at - 1 : at;
+    let start = end;
+    while (start > from && (text[start - 1] === " " || text[start - 1] === "\t")) start--;
+    out += text.slice(from, start);
+    from = end;
+  }
+  return out + text.slice(from);
+}
+
 /** `quoted-printable` content: `=XX` is a byte, `=` at a line's end joins it to the next. */
 export function decodeQuotedPrintable(text: string): Uint8Array {
-  const binary = text
-    .replace(/[ \t]+(?=\r?\n)/g, "")
+  const binary = withoutTrailingBlanks(text)
     .replace(/=\r?\n/g, "")
     .replace(/=([0-9A-Fa-f]{2})/g, (_, hex: string) => String.fromCharCode(parseInt(hex, 16)));
   return bytesOf(binary);
@@ -75,8 +92,19 @@ export function headerParams(value: string): { value: string; params: Map<string
   const at = value.indexOf(";");
   const head = (at === -1 ? value : value.slice(0, at)).trim();
   const rest = at === -1 ? "" : value.slice(at + 1);
-  const PARAM = /\s*([^=;\s]+)\s*=\s*(?:"((?:\\.|[^"\\])*)"|([^;]*))\s*;?/g;
-  for (let m = PARAM.exec(rest); m; m = PARAM.exec(rest)) {
+  // Each `=` with a name right before it starts a parameter. The name is found by looking back
+  // from the `=`: a regex searching forward would try every character of a long run without one.
+  const PARAM = /([^=;\s]+)\s*=\s*(?:"((?:\\.|[^"\\])*)"|([^;]*))\s*;?/y;
+  let from = 0;
+  for (let eq = rest.indexOf("="); eq !== -1; eq = rest.indexOf("=", Math.max(eq + 1, from))) {
+    let start = eq;
+    while (start > from && /\s/.test(rest[start - 1])) start--;
+    const end = start;
+    while (start > from && /[^=;\s]/.test(rest[start - 1])) start--;
+    if (start === end) continue;
+    PARAM.lastIndex = start;
+    const m = PARAM.exec(rest)!;
+    from = PARAM.lastIndex;
     const raw = m[2] !== undefined ? m[2].replace(/\\(.)/g, "$1") : m[3].trim();
     if (!params.has(m[1].toLowerCase())) params.set(m[1].toLowerCase(), raw);
   }
@@ -223,40 +251,82 @@ function locationKey(value: string, base?: string | null): string | null {
   }
 }
 
+/** A path's segments from the last one back, each leading to the first part (by its index) whose path ends so. */
+type PathNode = { first: number; next: Map<string, PathNode> };
+
+/**
+ * What findPart looks parts up by, worked out once per archive (a page can have as many pictures
+ * as parts, and comparing each with each would take their product): the first part (its index)
+ * by Content-ID, by Content-Location as written and as a key, and by the segments its location's
+ * path ends with.
+ */
+type PartIndex = { ids: Map<string, number>; locations: Map<string, number>; keys: Map<string, number>; paths: PathNode };
+
+const ARCHIVE_BASE = "http://archive.invalid/";
+const partIndexes = new WeakMap<MhtmlArchive, PartIndex>();
+
+function partIndex(archive: MhtmlArchive): PartIndex {
+  const known = partIndexes.get(archive);
+  if (known) return known;
+  const index: PartIndex = { ids: new Map(), locations: new Map(), keys: new Map(), paths: { first: -1, next: new Map() } };
+  const add = (map: Map<string, number>, key: string, i: number) => {
+    if (!map.has(key)) map.set(key, i);
+  };
+  archive.parts.forEach((part, i) => {
+    if (part.id) add(index.ids, part.id.toLowerCase(), i);
+    if (part.location === null) return;
+    add(index.locations, part.location, i);
+    add(index.keys, locationKey(part.location)!, i);
+    let path: string;
+    try {
+      path = new URL(part.location, ARCHIVE_BASE).pathname.toLowerCase();
+    } catch {
+      return;
+    }
+    // "/a/b.png" is reached by "b.png", then "a": the paths that end with "/b.png" and "/a/b.png".
+    const segments = path.split("/").slice(1);
+    let node = index.paths;
+    for (let s = segments.length - 1; s >= 0; s--) {
+      let child = node.next.get(segments[s]);
+      if (!child) node.next.set(segments[s], (child = { first: i, next: new Map() }));
+      node = child;
+    }
+  });
+  partIndexes.set(archive, index);
+  return index;
+}
+
 /**
  * The part a reference in the HTML stands for: `cid:<id>` by its Content-ID, anything else by its
  * Content-Location, resolved against `base` (the HTML's own location) when relative. A relative
  * reference no location matches that way finds a part whose location ends with it (writers that
- * give no location to the HTML). Null when no part is it.
+ * give no location to the HTML). Null when no part is it. When several parts answer, the first.
  */
 export function findPart(archive: MhtmlArchive, ref: string, base: string | null): MhtmlPart | null {
   const value = ref.trim();
   if (!value) return null;
+  const index = partIndex(archive);
+  const part = (i: number | undefined) => (i !== undefined && i >= 0 && i < archive.parts.length ? archive.parts[i] : null);
   if (/^cid:/i.test(value)) {
     let id = value.slice(4);
     try {
       id = decodeURIComponent(id);
     } catch {}
     id = id.replace(/^<|>$/g, "").toLowerCase();
-    return archive.parts.find((p) => p.id?.toLowerCase() === id) ?? null;
+    return part(index.ids.get(id));
   }
-  const key = locationKey(value, base) ?? locationKey(value);
-  const exact = archive.parts.find((p) => p.location !== null && (p.location === value || locationKey(p.location) === key));
-  if (exact || /^[a-z][a-z0-9+.-]*:/i.test(value) || value.startsWith("/")) return exact ?? null;
+  const key = locationKey(value, base) ?? locationKey(value)!;
+  const exact = part(Math.min(index.locations.get(value) ?? Infinity, index.keys.get(key) ?? Infinity));
+  if (exact || /^[a-z][a-z0-9+.-]*:/i.test(value) || value.startsWith("/")) return exact;
   let tail: string;
   try {
-    tail = new URL(value, "http://archive.invalid/").pathname.toLowerCase();
+    tail = new URL(value, ARCHIVE_BASE).pathname.toLowerCase();
   } catch {
     return null;
   }
-  return (
-    archive.parts.find((p) => {
-      if (!p.location) return false;
-      try {
-        return new URL(p.location, "http://archive.invalid/").pathname.toLowerCase().endsWith(tail);
-      } catch {
-        return false;
-      }
-    }) ?? null
-  );
+  // A path ends with the tail ("/img/a.png") when its last segments are the tail's.
+  const segments = tail.split("/").slice(1);
+  let node: PathNode | undefined = index.paths;
+  for (let s = segments.length - 1; s >= 0 && node; s--) node = node.next.get(segments[s]);
+  return part(node?.first);
 }

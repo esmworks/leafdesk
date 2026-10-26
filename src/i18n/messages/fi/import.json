@@ -280,6 +280,7 @@
       "tooLarge": "”{path}” on liian suuri yhdelle sivulle, ja se jätettiin pois.",
       "unused": "”{path}” jätettiin pois: mikään sivu ei näytä sitä tai linkitä siihen.",
       "unsafePath": "”{path}” jätettiin pois: sen polku johtaa ZIP-tiedoston ulkopuolelle.",
+      "deepPath": "”{path}” jätettiin pois: sen polku on liian pitkä tai siinä on liian monta kansiota.",
       "otherSheet": "Taulukko ”{path}” jätettiin pois: kerralla tuodaan vain yksi taulukko.",
       "badNote": "Muistiinpanoa ”{path}” ei voi lukea, ja se jätettiin pois.",
       "notEnex": "”{path}” jätettiin pois: se ei ole Evernote-vienti (.enex)."
@@ -312,6 +313,7 @@
     "badMapping": "Valitse kohde vähintään yhdelle sarakkeelle ja kukin ominaisuus vain kerran.",
     "noAccess": "Et voi lisätä sivuja sinne, tai sitä ei enää ole.",
     "notADatabase": "Rivejä voi lisätä vain tietokantaan.",
+    "busy": "Toinen tuonti on vielä käynnissä. Yritä uudelleen, kun se on valmis.",
     "badRequest": "Tuonti ei onnistunut. Mitään ei muutettu.",
     "rateLimited": "Täältä on määritetty tai tarkistettu liian monta synkronointia. Yritä uudelleen muutaman minuutin kuluttua."
   },

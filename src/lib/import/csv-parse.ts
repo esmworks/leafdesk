@@ -102,10 +102,17 @@ export function recordsTable([head = [], ...body]: string[][], { guarded = true 
   const clean = guarded ? unguard : (cell: string) => cell;
   const headers: string[] = [];
   const taken = new Set<string>();
+  // The number each name's next repeat tries first: the ones below it are taken already (counting
+  // from 2 again for each repeat would take time growing with the square of the repeats).
+  const nextNumber = new Map<string, number>();
   head.forEach((raw, i) => {
     const base = clean(raw).replace(/\s+/g, " ").trim().slice(0, 100) || `Column ${i + 1}`;
     let name = base;
-    for (let n = 2; taken.has(name.toLowerCase()); n++) name = `${base} ${n}`;
+    if (taken.has(name.toLowerCase())) {
+      let n = nextNumber.get(base.toLowerCase()) ?? 2;
+      for (name = `${base} ${n}`; taken.has(name.toLowerCase()); name = `${base} ${n}`) n++;
+      nextNumber.set(base.toLowerCase(), n + 1);
+    }
     taken.add(name.toLowerCase());
     headers.push(name);
   });

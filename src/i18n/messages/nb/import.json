@@ -280,6 +280,7 @@
       "tooLarge": "«{path}» er for stor for én side og ble utelatt.",
       "unused": "«{path}» ble utelatt: ingen side viser eller lenker til den.",
       "unsafePath": "«{path}» ble utelatt: banen fører ut av ZIP-filen.",
+      "deepPath": "«{path}» ble utelatt: banen er for lang eller har for mange mapper.",
       "otherSheet": "Arket «{path}» ble utelatt: bare ett ark importeres om gangen.",
       "badNote": "Notatet «{path}» kan ikke leses og ble utelatt.",
       "notEnex": "«{path}» ble utelatt: det er ikke en Evernote-eksport (.enex)."
@@ -312,6 +313,7 @@
     "badMapping": "Velg hvor minst én kolonne skal, og hver egenskap bare én gang.",
     "noAccess": "Du kan ikke legge til sider der, eller stedet finnes ikke lenger.",
     "notADatabase": "Rader kan bare legges til i en database.",
+    "busy": "En annen import kjører fortsatt. Prøv igjen når den er ferdig.",
     "badRequest": "Importen gikk ikke gjennom. Ingenting ble endret.",
     "rateLimited": "For mange synkroniseringer er satt opp eller sjekket herfra. Prøv igjen om noen minutter."
   },

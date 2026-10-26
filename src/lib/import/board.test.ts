@@ -1,6 +1,9 @@
 import { describe, expect, it } from "vitest";
-import { boardColor, boardDate, boardPlace, boardValue, columnOptions, guessBoardColumn, itemBody, statusGroupFor } from "./board";
+import { formatCoordinates, MAX_PLACE_ADDRESS, parseCoordinates } from "../place";
+import { isEmailAddress } from "../properties";
+import { boardColor, boardDate, boardMarkdown, boardPlace, boardValue, columnOptions, guessBoardColumn, itemBody, oneLine, statusGroupFor } from "./board";
 import { INVALID } from "./csv";
+import { fast, randomTexts } from "./linear-fixtures";
 
 describe("board imports", () => {
   it("puts status options in groups by their names", () => {
@@ -100,5 +103,56 @@ describe("board imports", () => {
         "Undated",
       ].join("\n\n"),
     );
+  });
+});
+
+describe("crafted exports are read in time growing with their length", () => {
+  it("places, email addresses, dates and long cells", () => {
+    expect(fast(() => boardPlace(`a${" ".repeat(1_000_000)}x`))).toBeNull();
+    expect(fast(() => boardPlace(`a${" - ".repeat(100_000)}\nx`))).toBeNull();
+    expect(fast(() => boardPlace(`Tower${" ".repeat(300_000)}(41.0256, 28.9741)`))).toEqual({ address: "Tower", lat: 41.0256, lng: 28.9741 });
+    expect(fast(() => boardValue("email", "a".repeat(1_000_000)))).toBe(INVALID);
+    expect(fast(() => boardValue("email", `${"a@".repeat(300_000)} - ada@example.com`))).toBe("ada@example.com");
+    expect(fast(() => boardValue("email", `${"a ".repeat(300_000)} - ada@example.com`))).toBe("ada@example.com");
+    expect(fast(() => guessBoardColumn(["x".repeat(500_000)]))).toEqual({ type: "text" });
+    expect(fast(() => boardDate(`2026-10-01${" ".repeat(300_000)}x`, "iso"))).toBeNull();
+    expect(fast(() => boardMarkdown("![".repeat(500_000)))).toBe("![".repeat(500_000));
+    expect(fast(() => boardMarkdown(`${"[".repeat(500_000)}x](https://a.example/b)`, () => "/row"))).toBe(`${"[".repeat(500_000)}x](/row)`);
+  });
+
+  it("reads places, email addresses and Markdown links as the regexes they replace", () => {
+    const placeBefore = (raw: string) => {
+      const s = raw.trim();
+      const whole = parseCoordinates(s);
+      if (whole) return { address: formatCoordinates(whole.lat, whole.lng), ...whole };
+      const m = /^(.+?)\s*(?:\(([^()]+)\)|\[([^[\]]+)\]|\s-\s+(.+))$/.exec(s);
+      const coords = m && parseCoordinates(m[2] ?? m[3] ?? m[4]);
+      if (!m || !coords) return null;
+      return { address: oneLine(m[1]).slice(0, MAX_PLACE_ADDRESS) || formatCoordinates(coords.lat, coords.lng), ...coords };
+    };
+    const places = ["41.0, 28.9", " (", "(", ")", "[", "]", " - ", "-", " ", "\n", "a", "b", "\t"];
+    for (const text of randomTexts(places, 5000, 10)) expect(boardPlace(text)).toEqual(placeBefore(text));
+
+    const emailBefore = (raw: string) => {
+      const found = /[^\s@<>"(),;:]+@[^\s@<>"(),;:]+\.[^\s@<>"(),;:]+/.exec(raw.replace(/^mailto:/i, ""))?.[0];
+      return found && isEmailAddress(found) ? found : INVALID;
+    };
+    const emails = ["a", "@", ".", " ", "-", "mailto:", "b.c", ",", "<", "x@y.z", "@@", ".."];
+    for (const text of randomTexts(emails, 5000, 10)) if (text.trim()) expect(boardValue("email", text)).toEqual(emailBefore(text.trim()));
+
+    const LINKS = /\[([^\]\n]*)\]\(([^()\s]+)(?:\s+"[^"\n]*")?\)|<(https?:\/\/[^<>\s]+)>|(https?:\/\/[^\s()<>\]]+)/g;
+    const itemLink = (url: string) => (url.includes("b") ? null : `/row/${url.length}`);
+    const markdownBefore = (markdown: string) =>
+      markdown
+        .replace(/\r\n?/g, "\n")
+        .replace(/!\[([^\]\n]*)\]\(/g, (_, alt: string) => `[${alt || "image"}](`)
+        .replace(LINKS, (match, text?: string, target?: string, angled?: string, bare?: string) => {
+          const url = target ?? angled ?? bare!;
+          const to = itemLink(url);
+          if (!to) return match;
+          return target !== undefined ? `[${text}](${to})` : `[${url}](${to})`;
+        });
+    const pieces = ["[", "]", "(", ")", "!", "![", "a", " ", "\n", "<", ">", "http://x", "https://b", '"t"', "h", "](a)"];
+    for (const text of randomTexts(pieces, 5000, 12)) expect(boardMarkdown(text, itemLink)).toBe(markdownBefore(text));
   });
 });

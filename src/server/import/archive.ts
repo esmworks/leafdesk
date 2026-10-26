@@ -21,7 +21,13 @@ import { isTextPack, textPackFolder } from "@/lib/import/textbundle";
 
 export type UploadedFile = { path: string; data: Uint8Array };
 
-export type SkippedFile = { path: string; reason: "nestedZip" | "unsafePath" };
+export type SkippedFile = { path: string; reason: "nestedZip" | "unsafePath" | "deepPath" };
+
+/**
+ * Whether a normalized path is longer or deeper than an import takes (IMPORT_LIMITS): planning the
+ * pages goes through every folder of every path, which for crafted ones would take very long.
+ */
+const tooDeep = (path: string) => path.length > IMPORT_LIMITS.pathChars || path.split("/").length > IMPORT_LIMITS.pathDepth;
 
 type Budget = { files: number; bytes: number };
 
@@ -88,6 +94,10 @@ function unzip(
           if (isVaultSettingsPath(path)) seen.vault = true;
           return false;
         }
+        if (tooDeep(path)) {
+          skipped.push({ path: shown(path), reason: "deepPath" });
+          return false;
+        }
         take(budget, Math.max(entry.size, entry.originalSize));
         return true;
       },
@@ -146,6 +156,10 @@ export function collectFiles(files: UploadedFile[]): { files: Map<string, Uint8A
     }
     if (isIgnoredPath(path)) {
       if (isVaultSettingsPath(path)) seen.vault = true;
+      continue;
+    }
+    if (tooDeep(path)) {
+      skipped.push({ path: shown(path), reason: "deepPath" });
       continue;
     }
     if (importFileKind(path) === "zip") unzip(file.data, budget, 0, out, skipped, seen);

@@ -286,6 +286,18 @@ export async function importTargets(userId: string, databaseId: string) {
 /** Where a column goes when merging: the rows' titles, a property (by id), or nowhere (null). */
 export type ColumnTarget = "title" | string | null;
 
+/** The database a file's rows are added to, if the user may: edit access, and not in the trash. */
+export async function requireMergeTarget(userId: string, databaseId: string) {
+  const database = await requireDatabase(userId, databaseId, "edit").catch((error) => {
+    if (error instanceof AccessError && (error as { code?: string }).code === "notADatabase") {
+      throw new ImportError("Not a database", "notADatabase");
+    }
+    throw error;
+  });
+  if (database.archivedAt) throw new ImportError("The database is in the trash", "noAccess");
+  return database;
+}
+
 /**
  * Adds a CSV file's rows to an existing database (edit access needed): `mapping[i]` says where
  * column i goes. Options the select, multi-select and status columns name that the property lacks
@@ -297,13 +309,7 @@ export async function importCsvIntoDatabase(
   warnings = new WarningList(),
 ) {
   checkSize(table);
-  const database = await requireDatabase(actor.userId, databaseId, "edit").catch((error) => {
-    if (error instanceof AccessError && (error as { code?: string }).code === "notADatabase") {
-      throw new ImportError("Not a database", "notADatabase");
-    }
-    throw error;
-  });
-  if (database.archivedAt) throw new ImportError("The database is in the trash", "noAccess");
+  const database = await requireMergeTarget(actor.userId, databaseId);
   // Only properties the importer may fill in; any other id reads like one that doesn't exist.
   const props = await importTargets(actor.userId, databaseId);
   const byId = new Map(props.map((p) => [p.id, p]));

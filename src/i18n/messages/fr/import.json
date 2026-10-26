@@ -280,6 +280,7 @@
       "tooLarge": "« {path} » est trop volumineux pour une seule page et a été ignoré.",
       "unused": "« {path} » a été ignoré : aucune page ne l’affiche ni n’y renvoie.",
       "unsafePath": "« {path} » a été ignoré : son chemin sort du ZIP.",
+      "deepPath": "« {path} » a été ignoré : son chemin est trop long ou compte trop de dossiers.",
       "otherSheet": "La feuille « {path} » a été ignorée : une seule feuille est importée à la fois.",
       "badNote": "La note « {path} » ne peut pas être lue et a été ignorée.",
       "notEnex": "« {path} » a été ignoré : ce n’est pas un export Evernote (.enex)."
@@ -312,6 +313,7 @@
     "badMapping": "Choisissez la destination d’au moins une colonne, et utilisez chaque propriété une seule fois.",
     "noAccess": "Vous ne pouvez pas ajouter de pages à cet endroit, ou il n’existe plus.",
     "notADatabase": "Les lignes ne peuvent être ajoutées qu’à une base de données.",
+    "busy": "Une autre importation est encore en cours. Réessayez quand elle sera terminée.",
     "badRequest": "L’importation n’a pas abouti. Rien n’a été modifié.",
     "rateLimited": "Trop de synchronisations ont été configurées ou vérifiées depuis ici. Réessayez dans quelques minutes."
   },

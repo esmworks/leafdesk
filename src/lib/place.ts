@@ -39,6 +39,9 @@ export function formatCoordinates(lat: number, lng: number) {
 export function parseCoordinates(text: string): { lat: number; lng: number } | null {
   let s = text.trim().replace(/^geo:/i, "").replace(/[°º]/g, "").trim();
   if (!s) return null;
+  // Each run of white space as one character (a line break when it holds one): the patterns below
+  // allow white space in several places side by side, and would try a long run split every way.
+  s = s.replace(/\s+/g, (run) => (/[\n\r\u2028\u2029]/.test(run) ? "\n" : " "));
   // Hemisphere letters, before or after each number.
   const hemi = /^([NS])?\s*(\d+(?:\.\d+)?)\s*([NS])?\s*[,;\s]\s*([EW])?\s*(\d+(?:\.\d+)?)\s*([EW])?$/i.exec(s);
   if (hemi && (hemi[1] || hemi[3]) && (hemi[4] || hemi[6]) && !(hemi[1] && hemi[3]) && !(hemi[4] && hemi[6])) {
@@ -48,8 +51,12 @@ export function parseCoordinates(text: string): { lat: number; lng: number } | n
     const lng = Number(hemi[5]) * (ew === "W" ? -1 : 1);
     return validCoordinates(lat, lng) ? { lat, lng } : null;
   }
-  // A "geo:" URI may carry more after the coordinates (";u=35", "?z=12").
-  s = s.replace(/[;?].*[a-z=].*$/i, "");
+  // A "geo:" URI may carry more after the coordinates (";u=35", "?z=12"): from the last line's
+  // first ";" or "?" on, when a letter or "=" comes after it (`/[;?].*[a-z=].*$/i`, which would
+  // read to the end from each of a long run of them).
+  const line = s.lastIndexOf("\n") + 1;
+  const extra = s.slice(line).search(/[;?]/);
+  if (extra !== -1 && /[a-z=]/i.test(s.slice(line + extra + 1))) s = s.slice(0, line + extra);
   const plain = /^([+-]?\d+(?:\.\d+)?)\s*(?:[,;]\s*|\s+)([+-]?\d+(?:\.\d+)?)$/.exec(s.trim());
   if (!plain) return null;
   const lat = Number(plain[1]);

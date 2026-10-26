@@ -896,7 +896,9 @@
   (`[Plan](Plan.md)`) finds it elsewhere in the upload when nothing sits at that path. A Leafdesk
   export comes back as it went, templates included. Import a CSV file as a new database with its column types guessed (and
   changeable before importing), or add its rows to an existing database by matching columns to
-  properties.
+  properties. Files whose path is longer than 2,048 characters or 100 folders deep are left out
+  (and listed in the result). Each person runs one import at a time; starting another while one
+  is still reading its files asks to wait for it.
 - **Import from Word**: choose one or more `.docx` files on Import's Word tab; each becomes a
   page. A heading (or Title paragraph) at the very top becomes the page's title, otherwise the file
   name does. Headings (levels past the third as the third), bold, italic, underline,

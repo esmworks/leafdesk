@@ -271,12 +271,34 @@ for (const id of [27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 50, 51, 52, 53, 54, 55
 export type DateKind = "date" | "time" | "dateTime" | null;
 
 /**
+ * A number format without its quoted text, `[…]` and escaped characters, as
+ * `code.replace(/"[^"]*"|\[[^\]]*\]|\\.|[_*]./g, "")` leaves it. By hand: that regex would read to
+ * the end from each `[` (or `"`) that nothing closes.
+ */
+function withoutLiterals(code: string): string {
+  const lastQuote = code.lastIndexOf('"');
+  const lastClose = code.lastIndexOf("]");
+  let out = "";
+  for (let i = 0; i < code.length; ) {
+    const c = code[i];
+    if (c === '"' && i < lastQuote) i = code.indexOf('"', i + 1) + 1;
+    else if (c === "[" && i < lastClose) i = code.indexOf("]", i + 1) + 1;
+    else if ((c === "\\" || c === "_" || c === "*") && i + 1 < code.length && !/[\n\r\u2028\u2029]/.test(code[i + 1])) i += 2;
+    else {
+      out += c;
+      i++;
+    }
+  }
+  return out;
+}
+
+/**
  * Whether a number format shows a date, a time of day, both, or neither: its d, m, y, h and s
  * outside quoted text, `[…]` (colors, conditions, locales, elapsed hours) and escaped characters.
  * An m without d, y, h or s (`mmm`) is a month.
  */
 export function formatKind(code: string): DateKind {
-  const bare = code.replace(/"[^"]*"|\[[^\]]*\]|\\.|[_*]./g, "");
+  const bare = withoutLiterals(code);
   const date = /[dy]/i.test(bare) || (/m/i.test(bare) && !/[hs]/i.test(bare));
   const time = /[hs]/i.test(bare);
   // Elapsed times ("[h]:mm:ss") only show minutes and seconds outside their brackets.

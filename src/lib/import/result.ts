@@ -51,6 +51,8 @@ export const IMPORT_ERROR_CODES = [
   /** The destination is missing, in the trash or not editable, or not a database when merging. */
   "noAccess",
   "notADatabase",
+  /** Another import of theirs (or too many on the server) is still running. */
+  "busy",
   "badRequest",
 ] as const;
 export type ImportErrorCode = (typeof IMPORT_ERROR_CODES)[number];
@@ -89,6 +91,7 @@ export type ImportWarning =
    * Files left out: a ZIP inside the ZIP, a database inside a database, a duplicate CSV (or a
    * database's own Markdown file), a Markdown file over the size limit, a file no page shows or
    * links to (there's nowhere to put it), a ZIP entry whose path climbs out of the archive,
+   * a file whose path is longer or deeper than an import takes (`deepPath`, see IMPORT_LIMITS),
    * the sheets of a workbook other than the one imported (`path` is the sheet's name), a note of an
    * Evernote export whose content can't be read (`badNote`; `tooLarge` past its limit) and a file
    * of a ZIP of exports that isn't one (`notEnex`).
@@ -96,7 +99,7 @@ export type ImportWarning =
   | {
       code: "skipped";
       path: string;
-      reason: "nestedZip" | "nestedDatabase" | "duplicate" | "tooLarge" | "unused" | "unsafePath" | "otherSheet" | "badNote" | "notEnex";
+      reason: "nestedZip" | "nestedDatabase" | "duplicate" | "tooLarge" | "unused" | "unsafePath" | "deepPath" | "otherSheet" | "badNote" | "notEnex";
     };
 
 /** At most this many warnings are listed; `moreWarnings` counts the rest. */

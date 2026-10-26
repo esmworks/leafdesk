@@ -17,7 +17,7 @@
 
 import { ALERT_KINDS, type AlertKind } from "../content-blocks";
 import { PAGE_LINK_MARKER } from "../mentions";
-import { importFileKind, normalizePath } from "./markdown";
+import { importFileKind, normalizePath, withoutQuery } from "./markdown";
 
 const dirname = (path: string) => (path.includes("/") ? path.slice(0, path.lastIndexOf("/")) : "");
 const basename = (path: string) => path.slice(path.lastIndexOf("/") + 1);
@@ -91,7 +91,7 @@ export class VaultIndex {
    * link Obsidian wrote by name (`[Plan](Plan.md)`) or from the top of the vault.
    */
   href(href: string, from: string): string | null {
-    let target = href.trim().replace(/^<|>$/g, "").replace(/[?#].*$/, "");
+    let target = withoutQuery(href.trim().replace(/^<|>$/g, ""));
     try {
       target = decodeURIComponent(target);
     } catch {}
@@ -268,8 +268,34 @@ const CALLOUT_KIND: Record<string, AlertKind> = {
 };
 
 const CALLOUT = /^( {0,3}> ?)\[!([A-Za-z-]+)\][+-]?/;
-const BLOCK_ID = /\s+\^([A-Za-z0-9-]+)\s*$/;
 const BLOCK_ID_LINE = /^\s*\^([A-Za-z0-9-]+)\s*$/;
+const isSpace = (c: string) => /\s/.test(c);
+const isIdChar = (c: string) => /[A-Za-z0-9-]/.test(c);
+
+/**
+ * The `^id` a line ends with after white space (`/\s+\^([A-Za-z0-9-]+)\s*$/`), with where that
+ * white space starts; null without one. Read back from the line's end: the regex would start over
+ * at each space of a long run.
+ */
+function trailingBlockId(line: string): { id: string; start: number } | null {
+  let end = line.length;
+  while (end > 0 && isSpace(line[end - 1])) end--;
+  let caret = end;
+  while (caret > 0 && isIdChar(line[caret - 1])) caret--;
+  if (caret === end || line[--caret] !== "^") return null;
+  let start = caret;
+  while (start > 0 && isSpace(line[start - 1])) start--;
+  return start === caret ? null : { id: line.slice(caret + 1, end), start };
+}
+
+/** Finds `needle` in `line` from positions that only grow, reading each part of the line once. */
+function finder(line: string, needle: string): (from: number) => number {
+  let found = -2;
+  return (from) => {
+    if (found !== -1 && found < from) found = line.indexOf(needle, from);
+    return found;
+  };
+}
 /** A block id as Obsidian makes one when a block is linked: six lowercase letters and digits. */
 const GENERATED_BLOCK_ID = /^(?=[a-z]*\d)[a-z0-9]{6}$/;
 
@@ -289,36 +315,52 @@ export function obsidianMarkdown(markdown: string, referenced: ReadonlySet<strin
   const isBlockId = (id: string) => referenced.has(id) || GENERATED_BLOCK_ID.test(id);
   // Comments first: they may span lines, but never start in code.
   let inComment = false;
+  // The line is read once from left to right (splitting what is left of it into code spans again
+  // after each `%%` would take time growing with the square of a line full of them).
   const uncommented = outsideCode(markdown, (line) => {
+    const nextMark = finder(line, "%%");
+    const nextTick = finder(line, "`");
+    // The first `%%` from `from` on that isn't in an inline code span, the spans being those
+    // `split(/(`+[^`]*`+)/)` finds in the line from there: a run of backticks up to the next run,
+    // or a run of two or more with none after it. -1 for none.
+    const markOutsideCode = (from: number): number => {
+      for (;;) {
+        const mark = nextMark(from);
+        const tick = mark === -1 ? -1 : nextTick(from);
+        if (tick === -1 || tick > mark) return mark;
+        let run = tick + 1;
+        while (line[run] === "`") run++;
+        const close = nextTick(run);
+        if (close === -1) {
+          if (run - tick === 1) return mark;
+          from = run;
+          continue;
+        }
+        from = close + 1;
+        while (line[from] === "`") from++;
+      }
+    };
     let out = "";
-    let rest = line;
+    let at = 0;
     for (;;) {
       if (inComment) {
-        const end = rest.indexOf("%%");
+        const end = nextMark(at);
         if (end === -1) return out.trim() ? out : "";
-        rest = rest.slice(end + 2);
+        at = end + 2;
         inComment = false;
       }
-      const parts = rest.split(/(`+[^`]*`+)/);
-      let start = -1;
-      let offset = 0;
-      for (let i = 0; i < parts.length; i++) {
-        if (i % 2 === 0 && parts[i].includes("%%")) {
-          start = offset + parts[i].indexOf("%%");
-          break;
-        }
-        offset += parts[i].length;
-      }
-      if (start === -1) return out + rest;
-      out += rest.slice(0, start);
-      rest = rest.slice(start + 2);
+      const start = markOutsideCode(at);
+      if (start === -1) return out + line.slice(at);
+      out += line.slice(at, start);
+      at = start + 2;
       inComment = true;
     }
   });
   return outsideCode(uncommented, (line) => {
     const own = BLOCK_ID_LINE.exec(line);
     if (own && isBlockId(own[1])) return "";
-    let next = line.replace(BLOCK_ID, (whole, id: string) => (isBlockId(id) ? "" : whole));
+    const block = trailingBlockId(line);
+    let next = block && isBlockId(block.id) ? line.slice(0, block.start) : line;
     next = next.replace(CALLOUT, (whole, quote: string, kind: string) => {
       // Written in capitals it's one of the editor's own (as exported); Obsidian writes lowercase.
       const own = (ALERT_KINDS as readonly string[]).includes(kind.toUpperCase()) ? (kind.toUpperCase() as AlertKind) : null;

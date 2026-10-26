@@ -14,12 +14,13 @@ import { AccessError } from "@/server/access";
 import { isCrossSite } from "@/server/cross-site";
 import { importBoard } from "@/server/import/board";
 import { importConfluence } from "@/server/import/confluence";
-import { importCsvAsDatabase, importCsvIntoDatabase, recordImport, type ColumnTarget } from "@/server/import/csv";
+import { importCsvAsDatabase, importCsvIntoDatabase, recordImport, requireMergeTarget, type ColumnTarget } from "@/server/import/csv";
 import { importDocx } from "@/server/import/docx";
 import { importEnex } from "@/server/import/enex";
 import { importPages } from "@/server/import/markdown";
 import { importMhtml } from "@/server/import/mhtml";
 import { importPdf } from "@/server/import/pdf";
+import { requireImportPlace, startImport } from "@/server/import/place";
 import { importTrello } from "@/server/import/trello";
 import { TeamspaceError } from "@/server/teamspaces";
 
@@ -54,6 +55,9 @@ import { TeamspaceError } from "@/server/teamspaces";
  *
  * A workbook's sheet is `sheet` (an index into its visible worksheets); without it the first one is
  * imported and the others are reported as left out.
+ *
+ * Where the import goes is checked before any file is read, and a person's files are read one
+ * import at a time (a few at a time per server): another one is answered 429 with code `busy`.
  *
  * Requests need the `X-Leafdesk-Import` header: a cross-site form can't send it, and a cross-site
  * fetch with it needs a CORS preflight this route doesn't answer. A foreign Origin is refused too.
@@ -101,7 +105,14 @@ export async function POST(request: Request) {
   // Dates with a time but no zone (as database exports write them) are the importing person's.
   const zone = requestTimeZone(request.headers);
   const timeZone = isTimeZone(zone) ? zone : "UTC";
+  if (!mode || !MODES.has(mode)) return fail(400, "badRequest", "Unknown import mode");
+  let release: (() => void) | null = null;
   try {
+    // Before any file is read: the user may import there (reading a crafted file can take a while,
+    // and nobody else gets to make the server do it), and has no other import reading files.
+    if (mode === "csv-merge") await requireMergeTarget(actor.userId, field("databaseId") ?? "");
+    else await requireImportPlace(actor.userId, { workspaceId, parentId, teamspaceId });
+    release = startImport(actor.userId);
     let result: ImportResult;
     if (mode === "pages") {
       const files = await Promise.all(
@@ -218,7 +229,9 @@ export async function POST(request: Request) {
     }
     return Response.json(result, { status: 201, headers: { "Cache-Control": "no-store" } });
   } catch (error) {
-    if (error instanceof ImportError) return fail(error.code === "tooLarge" ? 413 : 400, error.code, error.message, error.params);
+    if (error instanceof ImportError) {
+      return fail(error.code === "tooLarge" ? 413 : error.code === "busy" ? 429 : 400, error.code, error.message, error.params);
+    }
     if (error instanceof AccessError || error instanceof TeamspaceError) return fail(404, "noAccess", error.message);
     // Guards of the pages and databases written to (a locked database, a parent in the trash).
     if (error instanceof PropertyValueError || (error instanceof Error && error.constructor === Error)) {
@@ -226,8 +239,12 @@ export async function POST(request: Request) {
     }
     console.error("[import]", error);
     return fail(500, "badRequest", "The import failed");
+  } finally {
+    release?.();
   }
 }
+
+const MODES = new Set(["pages", "docx", "confluence", "pdf", "mhtml", "enex", "trello", "asana", "monday", "csv-new", "csv-merge"]);
 
 /** Names for new databases' view in the user's language (English outside a request, e.g. in scripts). */
 const seedNames = () => databaseSeedNames().catch(() => undefined);

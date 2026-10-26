@@ -18,14 +18,17 @@
 
 import { leadingEmoji } from "../content-blocks";
 import { splitList } from "./csv";
-import { resolveLink } from "./markdown";
+import { resolveLink, withoutQuery } from "./markdown";
 
 /**
  * The Notion id a file or folder name ends with ("Tasks 1a2b….csv", "Tasks 1a2b…_all.csv",
  * "Tasks 1a2b…/"), lowercase; null for a name without one.
  */
 export function notionId(path: string): string | null {
-  const name = path.replace(/\/+$/, "").split("/").pop() ?? "";
+  // The slashes it ends with counted off by hand: `/\/+$/` would start over at each slash of a long run.
+  let end = path.length;
+  while (end > 0 && path[end - 1] === "/") end--;
+  const name = path.slice(0, end).split("/").pop() ?? "";
   const stem = name.replace(/\.(?:md|markdown|csv)$/i, "").replace(/_all$/i, "");
   return /\s([0-9a-f]{32})$/i.exec(stem)?.[1].toLowerCase() ?? null;
 }
@@ -65,7 +68,7 @@ function inlineEquations(line: string): string {
  * exports write it) joins the text after it.
  */
 function callout(inner: string[]): string[] {
-  const lines = inner.map((l) => l.replace(/\s+$/, ""));
+  const lines = inner.map((l) => l.trimEnd());
   while (lines.length && !lines[0].trim()) lines.shift();
   while (lines.length && !lines[lines.length - 1].trim()) lines.pop();
   if (lines.length && leadingEmoji(lines[0].trim()) === lines[0].trim()) {
@@ -85,6 +88,9 @@ export function notionMarkdown(markdown: string): string {
   const lines = markdown.split("\n");
   const out: string[] = [];
   let fence: string | null = null;
+  // Once an `<aside>` has been looked for its end to the last line in vain, none after it has one:
+  // they aren't looked for again, which would take time growing with the square of the lines.
+  let unclosed = false;
   for (let i = 0; i < lines.length; i++) {
     const line = lines[i];
     const marker = FENCE.exec(line)?.[1];
@@ -98,7 +104,7 @@ export function notionMarkdown(markdown: string): string {
       out.push(line);
       continue;
     }
-    const aside = /^\s*<aside>(.*)$/i.exec(line);
+    const aside = unclosed ? null : /^\s*<aside>(.*)$/i.exec(line);
     if (aside) {
       const inner: string[] = [];
       let rest = aside[1];
@@ -121,6 +127,7 @@ export function notionMarkdown(markdown: string): string {
         if (after.trim()) out.push(inlineEquations(after.trim()));
         continue;
       }
+      unclosed = true;
     }
     out.push(inlineEquations(line));
   }
@@ -165,14 +172,34 @@ export type RelationRef = {
 
 /** `Title (target)` entries: a target in parentheses right before a comma or the end. */
 const TARGET = /\s\(((?:[^\s()]|\([^\s()]*\))+)\)(?=\s*,|\s*$)/g;
-/** `[Title](target)` links, as a row page's property list writes relations. */
-const MD_LINK = /\[((?:\\.|[^\]\\\n])*)\]\(\s*<?((?:[^\s()<>]|\([^\s()<>]*\))+)>?\s*\)/g;
+/** `[Title](target)` links, as a row page's property list writes relations: the title… */
+const MD_LABEL = /\[((?:\\.|[^\]\\\n])*)/y;
+/** …and the target after it. */
+const MD_TARGET = /\]\(\s*<?((?:[^\s()<>]|\([^\s()<>]*\))+)>?\s*\)/y;
+
+/**
+ * The `[Title](target)` links of `text`, as a global regex of the two would find them, in time
+ * growing with the text's length: one regex would read the rest of a line again from each `[`
+ * of a long run of them. A title that isn't followed by a target doesn't start a link, and
+ * neither does a `[` inside it (that title ends at the same `]`), so the search goes on after it.
+ */
+function* markdownLinks(text: string): Generator<{ index: number; length: number; title: string; target: string }> {
+  for (let open = text.indexOf("["); open !== -1; ) {
+    MD_LABEL.lastIndex = open;
+    const label = MD_LABEL.exec(text)!;
+    MD_TARGET.lastIndex = MD_LABEL.lastIndex;
+    const target = MD_TARGET.exec(text);
+    const next = target ? MD_TARGET.lastIndex : MD_LABEL.lastIndex;
+    if (target) yield { index: open, length: next - open, title: label[1], target: target[1] };
+    open = text.indexOf("[", next);
+  }
+}
 
 /** Where a relation's link points; null for a link that isn't to a page (an image, a web page). */
 function refTarget(target: string, from: string): Pick<RelationRef, "path" | "id"> | null {
   const id = notionUrlId(target);
   if (id) return { path: null, id };
-  if (!/\.md$/i.test(target.replace(/[?#].*$/, ""))) return null;
+  if (!/\.md$/i.test(withoutQuery(target))) return null;
   const path = resolveLink(from, target);
   return path ? { path, id: notionId(path) } : null;
 }
@@ -189,12 +216,12 @@ export function relationRefs(cell: string, from: string): RelationRef[] {
     for (const title of splitList(text)) refs.push({ title, path: null, id: null });
   };
   if (cell.includes("](")) {
-    for (const match of cell.matchAll(MD_LINK)) {
-      const target = refTarget(match[2], from);
+    for (const link of markdownLinks(cell)) {
+      const target = refTarget(link.target, from);
       if (!target) continue;
-      rest(cell.slice(last, match.index));
-      refs.push({ title: match[1].replace(/\\(.)/g, "$1").trim(), ...target });
-      last = match.index + match[0].length;
+      rest(cell.slice(last, link.index));
+      refs.push({ title: link.title.replace(/\\(.)/g, "$1").trim(), ...target });
+      last = link.index + link.length;
     }
   } else {
     let start = 0;

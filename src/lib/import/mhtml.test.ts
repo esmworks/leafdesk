@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { decodeBase64, decodeQuotedPrintable, findPart, headerParams, partText, readMhtml, MHTML_LIMITS } from "./mhtml";
+import { fast, randomTexts } from "./linear-fixtures";
 import { mhtml, oneNoteFile, oneNoteHtml, oneNotePage, PNG_BASE64, quotedPrintable } from "./mhtml-fixtures";
 
 const bytes = (text: string) => Uint8Array.from(text, (c) => c.charCodeAt(0) & 0xff);
@@ -134,5 +135,54 @@ describe("readMhtml", () => {
   it("refuses more parts than the limit", () => {
     const parts = Array.from({ length: MHTML_LIMITS.parts + 1 }, (_, i) => ({ type: "text/html", body: `<p>${i}</p>` }));
     expect(code(() => readMhtml("many.mht", mhtml(parts)))).toBe("tooManyFiles");
+  });
+});
+
+describe("crafted files are read in time growing with their length", () => {
+  it("quoted-printable: long runs of spaces, as the regex it replaces read them", () => {
+    expect(fast(() => decodeQuotedPrintable(`${" ".repeat(1_000_000)}x`)).length).toBe(1_000_001);
+    expect(fast(() => decodeQuotedPrintable(`a${" \t".repeat(500_000)}\r\nb`))).toEqual(bytes("a\r\nb"));
+    const before = (text: string) =>
+      bytes(
+        text
+          .replace(/[ \t]+(?=\r?\n)/g, "")
+          .replace(/=\r?\n/g, "")
+          .replace(/=([0-9A-Fa-f]{2})/g, (_, hex: string) => String.fromCharCode(parseInt(hex, 16))),
+      );
+    for (const text of randomTexts([" ", "\t", "\r", "\n", "\r\n", "a", "="])) expect(decodeQuotedPrintable(text)).toEqual(before(text));
+  });
+
+  it("header parameters: a long value without `=`, and the same parameters as before", () => {
+    expect(fast(() => headerParams(`text/html; ${"a".repeat(1_000_000)}`)).params.size).toBe(0);
+    expect(fast(() => headerParams(`text/html; ${" ".repeat(500_000)}x=1`)).params.get("x")).toBe("1");
+    const before = (value: string) => {
+      const params = new Map<string, string>();
+      const PARAM = /\s*([^=;\s]+)\s*=\s*(?:"((?:\\.|[^"\\])*)"|([^;]*))\s*;?/g;
+      for (let m = PARAM.exec(value); m; m = PARAM.exec(value)) {
+        const raw = m[2] !== undefined ? m[2].replace(/\\(.)/g, "$1") : m[3].trim();
+        if (!params.has(m[1].toLowerCase())) params.set(m[1].toLowerCase(), raw);
+      }
+      return params;
+    };
+    for (const text of randomTexts(["a", "B", "=", ";", " ", '"', "\\", "x=1", "\n"], 3000, 10)) {
+      expect(headerParams(`t; ${text}`).params).toEqual(before(` ${text}`));
+    }
+  });
+
+  it("finds the parts of many pictures among many parts", () => {
+    const parts = Array.from({ length: MHTML_LIMITS.parts - 1 }, (_, i) => ({
+      type: "image/png",
+      location: `file:///C:/Notes_files/f${i}/image.png`,
+      encoding: "base64" as const,
+      body: PNG_BASE64,
+    }));
+    const archive = readMhtml("many.mht", mhtml([{ type: "text/html", body: "<p>x</p>" }, ...parts]));
+    fast(() => {
+      for (let i = 0; i < 5000; i++) findPart(archive, `other${i}/image.png`, null);
+    });
+    expect(findPart(archive, "f7/image.png", null)).toBe(archive.parts[8]);
+    expect(findPart(archive, "image.png", null)).toBe(archive.parts[1]);
+    expect(findPart(archive, "IMAGE.PNG", null)).toBe(archive.parts[1]);
+    expect(findPart(archive, "x/f7/image.png", null)).toBeNull();
   });
 });

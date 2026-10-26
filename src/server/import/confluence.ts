@@ -13,6 +13,7 @@ import { collectFiles, type UploadedFile } from "./archive";
 import { recordImport } from "./csv";
 import { DOCX_LIMITS, htmlBlocks, IMAGE_TOKEN, imageSources, isPageImage, placeImages } from "./docx-convert";
 import { discard, store } from "./markdown";
+import { requireTopLevelPlace } from "./place";
 
 /**
  * Imports a Confluence space exported as HTML (a ZIP; see lib/import/confluence for its layout) as
@@ -296,7 +297,7 @@ export async function importConfluence(actor: WriteActor, input: ConfluenceImpor
     if (parent.archivedAt) throw new ImportError("The page is in the trash", "noAccess");
     if (parent.kind !== "page") throw new ImportError("Pages can only be imported into a page", "badRequest");
     workspaceId = parent.workspaceId;
-  }
+  } else await requireTopLevelPlace(userId, workspaceId, input.teamspaceId);
 
   const warnings = new WarningList();
   const { pages, tree, space, files, numbers } = await readExport(input, warnings);
