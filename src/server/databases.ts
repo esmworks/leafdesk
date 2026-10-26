@@ -340,6 +340,14 @@ export async function knownProperties(userId: string, databaseId: string) {
 }
 
 /**
+ * The views `userId` sees: those shared with everyone who may see the database, and their own
+ * personal ones (databaseView.ownerId).
+ */
+export function viewOwnedBy(userId: string) {
+  return or(isNull(databaseView.ownerId), eq(databaseView.ownerId, userId))!;
+}
+
+/**
  * A database as `userId` sees it: the properties they may know of (see server/property-access)
  * and views without references to the others. `access` redacts rows read with them;
  * `propertyAccess` tells the client which properties are restricted and how.
@@ -351,7 +359,7 @@ export async function getDatabase(userId: string, databaseId: string) {
     db
       .select()
       .from(databaseView)
-      .where(and(eq(databaseView.databaseId, databaseId), isNull(databaseView.deletedAt)))
+      .where(and(eq(databaseView.databaseId, databaseId), isNull(databaseView.deletedAt), viewOwnedBy(userId)))
       .orderBy(asc(databaseView.position), asc(databaseView.createdAt)),
     deletedPropertyIds(databaseId),
     propertyAccessFor(userId, databaseId),
@@ -3032,7 +3040,20 @@ async function retypeProperty(
 }
 
 /** Adds a view with its type's defaults; `config`, when given, goes over them (checked as updateView checks it). */
-export async function addView(userId: string, databaseId: string, input: { name: string; type: ViewType; config?: ViewConfig }) {
+export async function addView(
+  userId: string,
+  databaseId: string,
+  input: {
+    name: string;
+    type: ViewType;
+    config?: ViewConfig;
+    /**
+     * Only `userId` sees it (databaseView.ownerId): anyone who may read the database may make one,
+     * on a locked database too. Forms are shared: their answers are the database's.
+     */
+    personal?: boolean;
+  },
+) {
   if (!isViewType(input.type)) {
     throw new PropertyValueError(`Unsupported view type "${String(input.type)}"`, "unsupportedViewType", {
       type: String(input.type),
@@ -3042,8 +3063,11 @@ export async function addView(userId: string, databaseId: string, input: { name:
   if (filterError) throw new PropertyValueError(filterError, "invalidFilter");
   const layoutError = input.config && layoutConfigError(input.config);
   if (layoutError) throw new PropertyValueError(layoutError, "invalidViewConfig");
-  const database = await requireDatabase(userId, databaseId, "edit");
-  assertUnlocked(database);
+  if (input.personal && input.type === "form") {
+    throw new PropertyValueError("A form is shared: its answers go to the database", "unsupportedViewType", { type: input.type });
+  }
+  const database = await requireDatabase(userId, databaseId, input.personal ? "view" : "edit");
+  if (!input.personal) assertUnlocked(database);
   // Defaults come from properties the user may know of (see server/property-access).
   const [all, access] = await Promise.all([getProperties(databaseId), propertyAccessFor(userId, databaseId)]);
   const props = access.visible(all);
@@ -3073,6 +3097,7 @@ export async function addView(userId: string, databaseId: string, input: { name:
       type: input.type,
       config,
       position: (Number(max) || 0) + 1,
+      ...(input.personal ? { ownerId: userId } : {}),
     })
     .returning();
   notifySchema(databaseId);
@@ -3087,30 +3112,52 @@ export async function addView(userId: string, databaseId: string, input: { name:
 export async function duplicateView(userId: string, viewId: string, name: string) {
   const view = await requireView(userId, viewId);
   assertUnlocked(view);
-  const created = await addView(userId, view.databaseId, { name: name.trim() || view.name, type: view.type, config: view.config });
+  // A copy of a personal view is personal too.
+  const created = await addView(userId, view.databaseId, {
+    name: name.trim() || view.name,
+    type: view.type,
+    config: view.config,
+    personal: view.ownerId !== null,
+  });
   await moveView(userId, created.id, view.id, "after");
   return { ...created, position: view.position + 1 };
 }
 
-/** A view the user may change (every caller edits it). */
+/**
+ * A view the user may change (every caller edits it): a shared one with edit access to its
+ * database, their own personal one with read access. Someone else's personal view reads as not
+ * there. A personal view isn't held by the database's lock, which is about what everyone shares.
+ */
 async function requireView(userId: string, viewId: string, { deleted = false } = {}) {
   const [view] = await db
     .select()
     .from(databaseView)
-    .where(and(eq(databaseView.id, viewId), deleted ? isNotNull(databaseView.deletedAt) : isNull(databaseView.deletedAt)));
+    .where(and(eq(databaseView.id, viewId), deleted ? isNotNull(databaseView.deletedAt) : isNull(databaseView.deletedAt), viewOwnedBy(userId)));
   if (!view) throw new AccessError();
-  const database = await requireDatabase(userId, view.databaseId, "edit");
-  return { ...view, workspaceId: database.workspaceId, lockedAt: database.lockedAt };
+  const database = await requireDatabase(userId, view.databaseId, view.ownerId ? "view" : "edit");
+  return { ...view, workspaceId: database.workspaceId, lockedAt: view.ownerId ? null : database.lockedAt };
 }
 
 /** Returns the view's config as stored (a form's defaults normalized to ids). */
-export async function updateView(userId: string, viewId: string, patch: { name?: string; config?: ViewConfig; type?: ViewType }) {
+export async function updateView(
+  userId: string,
+  viewId: string,
+  patch: {
+    name?: string;
+    config?: ViewConfig;
+    type?: ViewType;
+    /** false: a personal view becomes everyone's, which takes edit access to an unlocked database. */
+    personal?: false;
+  },
+) {
   // Configs come from the client and from MCP; a malformed filter tree would break every viewer.
   const filterError = patch.config && filterConfigError(patch.config);
   if (filterError) throw new PropertyValueError(filterError, "invalidFilter");
   const layoutError = patch.config && layoutConfigError(patch.config);
   if (layoutError) throw new PropertyValueError(layoutError, "invalidViewConfig");
   const view = await requireView(userId, viewId);
+  const share = patch.personal === false && view.ownerId !== null;
+  if (share) assertUnlocked(await requireDatabase(userId, view.databaseId, "edit"));
   // A view's icon is an emoji or a built-in icon (lib/icon); anything else leaves it as it was.
   if (patch.config && patch.config.icon !== view.config.icon) {
     const icon = patch.config.icon === undefined || patch.config.icon === "" ? undefined : parseIcon(patch.config.icon);
@@ -3171,10 +3218,11 @@ export async function updateView(userId: string, viewId: string, patch: { name?:
       ...(patch.name !== undefined ? { name: patch.name.trim() || view.name } : {}),
       ...(patch.config !== undefined ? { config: patch.config } : {}),
       ...(type !== undefined ? { type } : {}),
+      ...(share ? { ownerId: null } : {}),
     })
     .where(eq(databaseView.id, viewId));
   notifySchema(view.databaseId);
-  if (patch.name !== undefined) notifyTree(view.workspaceId);
+  if (patch.name !== undefined || share) notifyTree(view.workspaceId);
   return { type: type ?? view.type, config: access.viewConfig(withoutDeleted(patch.config ?? view.config, deleted)) };
 }
 
@@ -3187,11 +3235,12 @@ export async function deleteView(userId: string, viewId: string) {
   const view = await requireView(userId, viewId);
   assertUnlocked(view);
   await db.transaction(async (tx) => {
+    // A database keeps one shared view at least; personal views go as their people like.
     const [{ count }] = await tx
       .select({ count: sql<number>`count(*)::int` })
       .from(databaseView)
-      .where(and(eq(databaseView.databaseId, view.databaseId), isNull(databaseView.deletedAt)));
-    if (count <= 1) throw withCode(new Error("A database needs at least one view"), "lastView");
+      .where(and(eq(databaseView.databaseId, view.databaseId), isNull(databaseView.deletedAt), isNull(databaseView.ownerId)));
+    if (!view.ownerId && count <= 1) throw withCode(new Error("A database needs at least one view"), "lastView");
     await tx.update(databaseView).set({ deletedAt: new Date(), deletedBy: userId }).where(eq(databaseView.id, viewId));
     await auditView(tx, view.workspaceId, userId, "view.trashed", view);
   });
@@ -3281,7 +3330,7 @@ export async function listDeletedSchema(userId: string, databaseId: string) {
       .select({ view: databaseView, deletedBy: deleter.name })
       .from(databaseView)
       .leftJoin(deleter, eq(deleter.id, databaseView.deletedBy))
-      .where(and(eq(databaseView.databaseId, databaseId), isNotNull(databaseView.deletedAt)))
+      .where(and(eq(databaseView.databaseId, databaseId), isNotNull(databaseView.deletedAt), viewOwnedBy(userId)))
       .orderBy(desc(databaseView.deletedAt)),
     propertyAccessFor(userId, databaseId, { withDeleted: true }),
     workspaceSettings(database.workspaceId),

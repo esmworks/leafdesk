@@ -994,13 +994,21 @@ type StoredView = typeof databaseView.$inferSelect;
 
 /**
  * A database's views that show rows, in their order (deleted ones left out). Forms show none, and
- * dashboards are worked out for each signed-in reader (server/dashboards), so neither is published.
+ * dashboards are worked out for each signed-in reader (server/dashboards), so neither is published;
+ * nor are personal views, which are their people's own.
  */
 export function readableViews(databaseId: string): Promise<StoredView[]> {
   return db
     .select()
     .from(databaseView)
-    .where(and(eq(databaseView.databaseId, databaseId), notInArray(databaseView.type, ["form", "dashboard"]), isNull(databaseView.deletedAt)))
+    .where(
+      and(
+        eq(databaseView.databaseId, databaseId),
+        notInArray(databaseView.type, ["form", "dashboard"]),
+        isNull(databaseView.deletedAt),
+        isNull(databaseView.ownerId),
+      ),
+    )
     .orderBy(asc(databaseView.position), asc(databaseView.createdAt));
 }
 

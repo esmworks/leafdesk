@@ -1309,6 +1309,8 @@ export async function getDatabase(ctx: OperationContext, { database_id }: Args<"
       id: v.id,
       name: v.name,
       type: v.type,
+      // Only the caller sees it.
+      ...(v.ownerId ? { personal: true } : {}),
       ...describeViewConfig(properties, v.config, lookups, v.type),
       ...formLinkOutput(v.type, links.get(v.id)),
     })),

@@ -142,7 +142,11 @@ export async function copyPageTree(
     const [stored, storedViews] = databaseIds.length
       ? await Promise.all([
           tx.select().from(databaseProperty).where(inArray(databaseProperty.databaseId, databaseIds)),
-          tx.select().from(databaseView).where(and(inArray(databaseView.databaseId, databaseIds), isNull(databaseView.deletedAt))),
+          // Personal views stay with their people: the copy gets the shared ones.
+          tx
+            .select()
+            .from(databaseView)
+            .where(and(inArray(databaseView.databaseId, databaseIds), isNull(databaseView.deletedAt), isNull(databaseView.ownerId))),
         ])
       : [[], []];
     // Deleted properties and views aren't copied, nor are the values and view settings of those

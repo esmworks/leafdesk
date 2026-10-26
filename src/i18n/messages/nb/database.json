@@ -129,6 +129,12 @@
   "viewTabs": {
     "addView": "Legg til visning",
     "addViewHeading": "Legg til en visning",
+    "personal": "Bare for meg",
+    "personalHint": "En personlig visning: ingen andre ser den",
+    "personalOnly": "Du kan ikke endre databasens delte visninger, så nye visninger er personlige: bare du ser dem.",
+    "personalTab": "Personlig visning: bare du ser den",
+    "shareView": "Del med alle",
+    "shareViewHint": "Alle som ser databasen, får denne visningen",
     "rename": "Gi nytt navn",
     "viewName": "Navn på visning",
     "deleteView": "Slett visning",

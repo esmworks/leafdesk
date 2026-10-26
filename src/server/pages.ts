@@ -51,6 +51,7 @@ import {
   normalizeRowProperties,
   rowsWithAccess,
   syncPairedRelations,
+  viewOwnedBy,
   withCode,
   type BulkResult,
 } from "@/server/databases";
@@ -162,7 +163,9 @@ export async function getTree(userId: string, workspaceId: string): Promise<Tree
     })
     .from(databaseView)
     .innerJoin(page, eq(page.id, databaseView.databaseId))
-    .where(and(eq(page.workspaceId, workspaceId), isNull(page.archivedAt), isNull(databaseView.deletedAt), pageVisibleTo(userId)))
+    .where(
+      and(eq(page.workspaceId, workspaceId), isNull(page.archivedAt), isNull(databaseView.deletedAt), viewOwnedBy(userId), pageVisibleTo(userId)),
+    )
     .orderBy(asc(databaseView.position));
   const viewsOf = new Map<string, TreeView[]>();
   for (const { databaseId, icon, ...v } of views) viewsOf.set(databaseId, [...(viewsOf.get(databaseId) ?? []), { ...v, ...(icon ? { icon } : {}) }]);
@@ -208,13 +211,14 @@ export async function getPage(userId: string, pageId: string) {
 
 /**
  * The view a database page opens on, named in its tab title: the one in the address, else its
- * first (as the database itself picks). Access is the caller's to check.
+ * first (as the database itself picks), among the views `userId` sees. Access to the database is
+ * the caller's to check.
  */
-export async function openViewName(databaseId: string, viewId: string | null): Promise<string | null> {
+export async function openViewName(userId: string, databaseId: string, viewId: string | null): Promise<string | null> {
   const views = await db
     .select({ id: databaseView.id, name: databaseView.name })
     .from(databaseView)
-    .where(and(eq(databaseView.databaseId, databaseId), isNull(databaseView.deletedAt)))
+    .where(and(eq(databaseView.databaseId, databaseId), isNull(databaseView.deletedAt), viewOwnedBy(userId)))
     .orderBy(asc(databaseView.position));
   return (views.find((v) => v.id === viewId) ?? views[0])?.name || null;
 }

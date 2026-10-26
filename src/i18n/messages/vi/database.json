@@ -129,6 +129,12 @@
   "viewTabs": {
     "addView": "Thêm chế độ xem",
     "addViewHeading": "Thêm một chế độ xem",
+    "personal": "Chỉ mình tôi",
+    "personalHint": "Chế độ xem riêng: không ai khác thấy",
+    "personalOnly": "Bạn không thể thay đổi các chế độ xem chung của cơ sở dữ liệu này, nên chế độ xem mới là riêng tư: chỉ bạn thấy.",
+    "personalTab": "Chế độ xem riêng: chỉ bạn thấy",
+    "shareView": "Chia sẻ với mọi người",
+    "shareViewHint": "Mọi người xem được cơ sở dữ liệu sẽ có chế độ xem này",
     "rename": "Đổi tên",
     "viewName": "Tên chế độ xem",
     "deleteView": "Xóa chế độ xem",

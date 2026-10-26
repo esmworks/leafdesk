@@ -92,6 +92,8 @@ BlockNote on Yjs; Tailwind v4; next-intl. Node 24, pnpm 11. A separate Electron 
   (`subGroupBy`) use the default date and status grouping. A new property-id field of `ViewConfig`
   goes into `lib/duplicate.ts` (`remapViewConfig`, `dropPropertyReferences`),
   `lib/convert-property.ts` `retypeViewConfig` and `lib/views.ts` `layoutConfigError`.
+  A view with `ownerId` is that person's alone: a new read of views adds `viewOwnedBy(userId)`
+  (`databases.ts`), and published or copied views take only `ownerId is null`.
   Several linked databases at once (views, example rows, an intro page) are a plan: checked in
   `src/lib/database-plan.ts`, created all-or-nothing by `database-plan.ts` `createFromPlan`, which
   Build with AI (`ai-build.ts` drafts the plan) and the AI chat's `create_database` both use.

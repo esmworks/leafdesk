@@ -129,6 +129,12 @@
   "viewTabs": {
     "addView": "添加视图",
     "addViewHeading": "添加视图",
+    "personal": "仅自己可见",
+    "personalHint": "个人视图：其他人看不到",
+    "personalOnly": "你无法更改此数据库的共享视图，因此新视图为个人视图：只有你能看到。",
+    "personalTab": "个人视图：仅你可见",
+    "shareView": "共享给所有人",
+    "shareViewHint": "所有能看到此数据库的人都会获得此视图",
     "rename": "重命名",
     "viewName": "视图名称",
     "deleteView": "删除视图",

@@ -7,6 +7,7 @@ import {
   setSubItemsAction,
   setDependenciesAction,
   addViewAction,
+  shareViewAction,
   duplicateViewAction,
   archiveRowsAction,
   changePropertyTypeAction,
@@ -731,8 +732,17 @@ export function useDatabase(
         );
       },
 
-      addView(name: string, type: ViewType) {
-        return mutateSchema((s) => s, () => addViewAction(databaseId, { name, type }));
+      /** Adds a view; `personal`: only the viewer sees it (databaseView.ownerId). */
+      addView(name: string, type: ViewType, personal = false) {
+        return mutateSchema((s) => s, () => addViewAction(databaseId, { name, type, personal }));
+      },
+
+      /** Shares a personal view with everyone who may see the database. */
+      shareView(view: View) {
+        return mutateSchema(
+          (s) => ({ ...s, views: s.views.map((v) => (v.id === view.id ? { ...v, ownerId: null } : v)) }),
+          () => shareViewAction(view.id),
+        );
       },
 
       duplicateView(view: View, name: string) {

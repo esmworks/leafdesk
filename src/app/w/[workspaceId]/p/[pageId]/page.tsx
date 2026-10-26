@@ -42,7 +42,7 @@ export async function generateMetadata({
   // Same as the tab title the page keeps (components/page/page-view.tsx), so a refresh doesn't
   // drop the view from it.
   const { view } = await searchParams;
-  const viewName = p.kind === "database" ? await openViewName(p.id, typeof view === "string" ? view : null) : null;
+  const viewName = p.kind === "database" ? await openViewName(user.id, p.id, typeof view === "string" ? view : null) : null;
   const icon = pageIconHref(p.icon);
   return {
     title: viewName ? { absolute: t("page.documentViewTitle", { title, view: viewName }) } : title,

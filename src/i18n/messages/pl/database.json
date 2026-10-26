@@ -129,6 +129,12 @@
   "viewTabs": {
     "addView": "Dodaj widok",
     "addViewHeading": "Dodaj widok",
+    "personal": "Tylko dla mnie",
+    "personalHint": "Widok osobisty: nikt inny go nie widzi",
+    "personalOnly": "Nie możesz zmieniać wspólnych widoków tej bazy, więc nowe widoki są osobiste: widzisz je tylko ty.",
+    "personalTab": "Widok osobisty: widzisz go tylko ty",
+    "shareView": "Udostępnij wszystkim",
+    "shareViewHint": "Każdy, kto widzi bazę, dostanie ten widok",
     "rename": "Zmień nazwę",
     "viewName": "Nazwa widoku",
     "deleteView": "Usuń widok",

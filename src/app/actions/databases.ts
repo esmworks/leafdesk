@@ -386,8 +386,10 @@ export async function deletePropertyAction(propertyId: string) {
   return run((userId) => databases.deleteProperty(userId, propertyId));
 }
 
-export async function addViewAction(databaseId: string, input: { name: string; type: ViewType }) {
-  return run((userId) => databases.addView(userId, databaseId, input));
+export async function addViewAction(databaseId: string, input: { name: string; type: ViewType; personal?: boolean }) {
+  return run((userId) =>
+    databases.addView(userId, databaseId, { name: String(input.name), type: input.type, personal: input.personal === true }),
+  );
 }
 
 export async function duplicateViewAction(viewId: string, name: string) {
@@ -397,6 +399,12 @@ export async function duplicateViewAction(viewId: string, name: string) {
 
 export async function updateViewAction(viewId: string, patch: { name?: string; config?: ViewConfig; type?: ViewType }) {
   return run((userId) => databases.updateView(userId, viewId, patch));
+}
+
+/** Shares a personal view with everyone who may see the database (edit access, see databases.updateView). */
+export async function shareViewAction(viewId: string) {
+  if (typeof viewId !== "string") return { ok: false as const, error: "Invalid view" };
+  return run((userId) => databases.updateView(userId, viewId, { personal: false }));
 }
 
 export async function deleteViewAction(viewId: string) {

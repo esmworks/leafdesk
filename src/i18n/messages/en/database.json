@@ -129,6 +129,12 @@
   "viewTabs": {
     "addView": "Add view",
     "addViewHeading": "Add a view",
+    "personal": "Only for me",
+    "personalHint": "A personal view: nobody else sees it",
+    "personalOnly": "You can't change this database's shared views, so new views are personal: only you see them.",
+    "personalTab": "Personal view: only you see it",
+    "shareView": "Share with everyone",
+    "shareViewHint": "Everyone who sees the database gets this view",
     "rename": "Rename",
     "viewName": "View name",
     "deleteView": "Delete view",

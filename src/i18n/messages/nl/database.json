@@ -129,6 +129,12 @@
   "viewTabs": {
     "addView": "Weergave toevoegen",
     "addViewHeading": "Een weergave toevoegen",
+    "personal": "Alleen voor mij",
+    "personalHint": "Een persoonlijke weergave: niemand anders ziet die",
+    "personalOnly": "Je kunt de gedeelde weergaven van deze database niet wijzigen, dus nieuwe weergaven zijn persoonlijk: alleen jij ziet ze.",
+    "personalTab": "Persoonlijke weergave: alleen jij ziet die",
+    "shareView": "Delen met iedereen",
+    "shareViewHint": "Iedereen die de database ziet, krijgt deze weergave",
     "rename": "Hernoemen",
     "viewName": "Naam van de weergave",
     "deleteView": "Weergave verwijderen",

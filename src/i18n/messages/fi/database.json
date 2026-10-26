@@ -129,6 +129,12 @@
   "viewTabs": {
     "addView": "Lisää näkymä",
     "addViewHeading": "Lisää näkymä",
+    "personal": "Vain minulle",
+    "personalHint": "Henkilökohtainen näkymä: kukaan muu ei näe sitä",
+    "personalOnly": "Et voi muuttaa tämän tietokannan jaettuja näkymiä, joten uudet näkymät ovat henkilökohtaisia: vain sinä näet ne.",
+    "personalTab": "Henkilökohtainen näkymä: vain sinä näet sen",
+    "shareView": "Jaa kaikille",
+    "shareViewHint": "Kaikki, jotka näkevät tietokannan, saavat tämän näkymän",
     "rename": "Nimeä uudelleen",
     "viewName": "Näkymän nimi",
     "deleteView": "Poista näkymä",

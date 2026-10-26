@@ -239,6 +239,14 @@
     and keep the viewer's property access. *As a section* lists the linked rows under a row page's
     properties instead, ten at a time, with those properties editable in place and links added or
     removed there.
+  - Personal views: *Only for me* in the add-view menu makes a view nobody else sees, changes or
+    finds in the sidebar, marked with a person on its tab. Anyone who may read a database can make
+    them, on a locked database too, and set them up as they like; people who may only read get
+    personal views from the menu without asking. They are never published, copied with the
+    database or forms, don't count toward the database's last view, and go when their person
+    leaves the workspace. Someone who may change the database's views turns one into a shared view
+    with *Share with everyone*. MCP's `create_database_view` takes `personal`, and `get_database`
+    marks them.
   - Views: table, board, calendar, gallery, list, feed (rows as posts, newest first, with the
     start of their bodies, emoji reactions and their comments), timeline (a column per day, week,
     month, quarter or year), map (rows as pins at a place

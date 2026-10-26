@@ -992,13 +992,14 @@ function dashboardOnly(settings: Record<string, unknown>) {
 function viewOutput(
   database: { id: string; workspaceId: string },
   props: PropertyDef[],
-  view: { id: string; name: string; type: ViewType; config: ViewConfig },
+  view: { id: string; name: string; type: ViewType; config: ViewConfig; ownerId?: string | null },
   lookups: Lookups,
 ) {
   return {
     id: view.id,
     name: view.name,
     type: view.type,
+    ...(view.ownerId ? { personal: true } : {}),
     database_id: database.id,
     ...describeViewConfig(props, view.config, lookups, view.type),
     url: pageUrl(database.workspaceId, database.id),
@@ -3223,11 +3224,12 @@ export function createMcpServer(principal: McpPrincipal) {
         filter_combinator: filterCombinatorInput,
         sorts: sortsInput.optional(),
         widgets: viewWidgetsParam.optional(),
+        personal: z.boolean().optional().describe("Only you see it (read access is enough; not for forms)."),
       }),
       annotations: { readOnlyHint: false, destructiveHint: false, idempotentHint: false, openWorldHint: false },
       scopeChallenge: requireWrite,
     },
-    ({ database_id, name, type, filters, filter_combinator, sorts, widgets, ...input }) =>
+    ({ database_id, name, type, filters, filter_combinator, sorts, widgets, personal, ...input }) =>
       runTool(async () => {
         assertWrite();
         const { database, properties, access } = await databases.getDatabase(userId, database_id);
@@ -3236,7 +3238,12 @@ export function createMcpServer(principal: McpPrincipal) {
           dashboardOnly({ ...input, filters, filter_combinator, sorts });
           // Checked before the view is made, so a bad widget leaves nothing half set up behind.
           const built = widgets && (await dashboardWidgets(database_id, widgets, []));
-          const created = await databases.addView(userId, database_id, { name, type, ...(built ? { config: { widgets: viewWidgetsConfig(built) } } : {}) });
+          const created = await databases.addView(userId, database_id, {
+            name,
+            type,
+            personal,
+            ...(built ? { config: { widgets: viewWidgetsConfig(built) } } : {}),
+          });
           return viewOutput(database, properties, { ...created, config: access.viewConfig(created.config) }, await databases.getLookups(userId, properties));
         }
         if (widgets !== undefined) throw new ToolInputError("widgets only applies to dashboard views.");
@@ -3248,7 +3255,7 @@ export function createMcpServer(principal: McpPrincipal) {
         // Validate before creating so a bad filter does not leave a half-configured view behind.
         const patch = viewConfigPatch(properties, type, { ...layout, filters, filter_combinator, sorts }, lookups);
         formConfigPatch(properties, type, {}, { ...formInput, ...linkInput });
-        const created = await databases.addView(userId, database_id, { name, type });
+        const created = await databases.addView(userId, database_id, { name, type, personal });
         // A new view's defaults may name properties the user can't know of; they stay stored as they are.
         const start = access.viewConfig(created.config);
         let config = { ...start, ...patch, ...formConfigPatch(properties, type, start, formInput) };

@@ -129,6 +129,12 @@
   "viewTabs": {
     "addView": "Adicionar visualização",
     "addViewHeading": "Adicionar uma visualização",
+    "personal": "Só para mim",
+    "personalHint": "Uma vista pessoal: mais ninguém a vê",
+    "personalOnly": "Não pode alterar as vistas partilhadas desta base de dados, por isso as novas vistas são pessoais: só você as vê.",
+    "personalTab": "Vista pessoal: só você a vê",
+    "shareView": "Partilhar com todos",
+    "shareViewHint": "Todos os que veem a base de dados passam a ter esta vista",
     "rename": "Renomear",
     "viewName": "Nome da visualização",
     "deleteView": "Excluir visualização",

@@ -4,6 +4,12 @@
 
 ### Added
 
+- **Personal views.** *Only for me* when adding a view: nobody else sees, changes or finds it in
+  the sidebar. Anyone who may read a database can make them, on a locked database too, so people
+  with view access keep their own filters and layouts; *Share with everyone* turns one into a
+  shared view. They are never published or copied with the database, and go when their person
+  leaves the workspace. MCP's `create_database_view` takes `personal`. Migration 0147 adds
+  `database_view.owner_id`.
 - **Forms that ask one question at a time.** A form's builder has *One question at a time*: each
   question on a page of its own, with a progress bar, Back and Next, each answer checked before the
   next question, in the app and on public form links. The AI chat's `create_form` takes

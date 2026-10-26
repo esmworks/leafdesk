@@ -129,6 +129,12 @@
   "viewTabs": {
     "addView": "Ansicht hinzufügen",
     "addViewHeading": "Ansicht hinzufügen",
+    "personal": "Nur für mich",
+    "personalHint": "Eine persönliche Ansicht: Niemand sonst sieht sie",
+    "personalOnly": "Du kannst die gemeinsamen Ansichten dieser Datenbank nicht ändern, daher sind neue Ansichten persönlich: Nur du siehst sie.",
+    "personalTab": "Persönliche Ansicht: Nur du siehst sie",
+    "shareView": "Mit allen teilen",
+    "shareViewHint": "Alle, die die Datenbank sehen, bekommen diese Ansicht",
     "rename": "Umbenennen",
     "viewName": "Name der Ansicht",
     "deleteView": "Ansicht löschen",

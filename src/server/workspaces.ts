@@ -1094,7 +1094,7 @@ export async function transferOwnership(actorId: string, workspaceId: string, ta
  * (their entries are what tells it which pages they alone could manage): what they were given in
  * it goes, so coming back (an invitation, the join link, an access request, single sign-on, SCIM)
  * starts from what the workspace gives everyone. Their own entries on pages and properties, their
- * calendar feeds of the workspace, and API tokens that only reach it.
+ * calendar feeds and personal views of the workspace, and API tokens that only reach it.
  */
 async function forgetWorkspaceGrants(tx: Tx, workspaceId: string, userId: string) {
   await tx.delete(pagePermission).where(and(eq(pagePermission.workspaceId, workspaceId), eq(pagePermission.userId, userId)));
@@ -1109,6 +1109,8 @@ async function forgetWorkspaceGrants(tx: Tx, workspaceId: string, userId: string
   await tx
     .delete(calendarFeed)
     .where(and(eq(calendarFeed.userId, userId), or(eq(calendarFeed.workspaceId, workspaceId), inArray(calendarFeed.viewId, views))));
+  // Their personal views of the workspace's databases go with them.
+  await tx.delete(databaseView).where(and(eq(databaseView.ownerId, userId), inArray(databaseView.id, views)));
   await tx.delete(apiToken).where(and(eq(apiToken.userId, userId), eq(apiToken.workspaceId, workspaceId)));
 }
 

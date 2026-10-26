@@ -129,6 +129,12 @@
   "viewTabs": {
     "addView": "Lägg till vy",
     "addViewHeading": "Lägg till en vy",
+    "personal": "Bara för mig",
+    "personalHint": "En personlig vy: ingen annan ser den",
+    "personalOnly": "Du kan inte ändra databasens delade vyer, så nya vyer är personliga: bara du ser dem.",
+    "personalTab": "Personlig vy: bara du ser den",
+    "shareView": "Dela med alla",
+    "shareViewHint": "Alla som ser databasen får den här vyn",
     "rename": "Byt namn",
     "viewName": "Vyns namn",
     "deleteView": "Radera vyn",

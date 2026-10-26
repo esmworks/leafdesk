@@ -1190,6 +1190,13 @@ export const databaseView = pgTable(
      * no view of the database is marked, published pages show its first view (see publication.ts).
      */
     published: boolean("published").notNull().default(false),
+    /**
+     * A personal view: only this person sees it, changes it and finds it in the sidebar, and
+     * anyone who may read the database may make one (server/databases.ts viewOwnedBy). Never
+     * published, copied with the database or a form. Shared with everyone who may see the
+     * database when null.
+     */
+    ownerId: text("owner_id").references(() => user.id, { onDelete: "cascade" }),
     /** While set, the view is deleted and can be restored; like a deleted property's `deletedAt`. */
     deletedAt: timestamp("deleted_at", { withTimezone: true }),
     deletedBy: text("deleted_by").references(() => user.id, { onDelete: "set null" }),
@@ -1198,6 +1205,8 @@ export const databaseView = pgTable(
   (t) => [
     index("database_view_db_idx").on(t.databaseId),
     index("database_view_deleted_idx").on(t.deletedAt).where(sql`${t.deletedAt} is not null`),
+    // A person's views, found when their account goes.
+    index("database_view_owner_idx").on(t.ownerId).where(sql`${t.ownerId} is not null`),
   ],
 );
 

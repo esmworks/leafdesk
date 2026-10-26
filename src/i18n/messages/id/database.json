@@ -129,6 +129,12 @@
   "viewTabs": {
     "addView": "Tambah tampilan",
     "addViewHeading": "Tambahkan tampilan",
+    "personal": "Hanya untuk saya",
+    "personalHint": "Tampilan pribadi: tidak ada orang lain yang melihatnya",
+    "personalOnly": "Anda tidak bisa mengubah tampilan bersama database ini, jadi tampilan baru bersifat pribadi: hanya Anda yang melihatnya.",
+    "personalTab": "Tampilan pribadi: hanya Anda yang melihatnya",
+    "shareView": "Bagikan ke semua orang",
+    "shareViewHint": "Semua orang yang melihat database akan mendapat tampilan ini",
     "rename": "Ganti nama",
     "viewName": "Nama tampilan",
     "deleteView": "Hapus tampilan",

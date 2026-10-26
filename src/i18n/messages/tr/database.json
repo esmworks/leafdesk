@@ -129,6 +129,12 @@
   "viewTabs": {
     "addView": "Görünüm ekle",
     "addViewHeading": "Görünüm ekleyin",
+    "personal": "Yalnızca benim için",
+    "personalHint": "Kişisel görünüm: başka kimse görmez",
+    "personalOnly": "Bu veritabanının ortak görünümlerini değiştiremezsiniz; bu yüzden yeni görünümler kişiseldir, yalnızca siz görürsünüz.",
+    "personalTab": "Kişisel görünüm: yalnızca siz görürsünüz",
+    "shareView": "Herkesle paylaş",
+    "shareViewHint": "Veritabanını gören herkes bu görünümü alır",
     "rename": "Yeniden adlandır",
     "viewName": "Görünüm adı",
     "deleteView": "Görünümü sil",
