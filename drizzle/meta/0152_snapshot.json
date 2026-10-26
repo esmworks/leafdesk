@@ -1,5 +1,5 @@
 {
-  "id": "a9d25f4e-8491-4cf3-a703-e1f0e81483a8",
+  "id": "7d386935-c48f-40f4-a98d-6daeb348fbe6",
   "prevId": "c497c74a-594e-47ec-b819-3f4716cc6962",
   "version": "7",
   "dialect": "postgresql",
@@ -12724,6 +12724,58 @@
       "checkConstraints": {},
       "isRLSEnabled": false
     },
+    "public.automation_threshold": {
+      "name": "automation_threshold",
+      "schema": "",
+      "columns": {
+        "automation_id": {
+          "name": "automation_id",
+          "type": "text",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "met": {
+          "name": "met",
+          "type": "boolean",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "value": {
+          "name": "value",
+          "type": "double precision",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "checked_at": {
+          "name": "checked_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "automation_threshold_automation_id_database_automation_id_fk": {
+          "name": "automation_threshold_automation_id_database_automation_id_fk",
+          "tableFrom": "automation_threshold",
+          "tableTo": "database_automation",
+          "columnsFrom": [
+            "automation_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
     "public.automation_version": {
       "name": "automation_version",
       "schema": "",
@@ -14840,12 +14892,6 @@
           "primaryKey": false,
           "notNull": false
         },
-        "page_id": {
-          "name": "page_id",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false
-        },
         "rule": {
           "name": "rule",
           "type": "jsonb",
@@ -14978,21 +15024,6 @@
           "concurrently": false,
           "method": "btree",
           "with": {}
-        },
-        "schedule_page_idx": {
-          "name": "schedule_page_idx",
-          "columns": [
-            {
-              "expression": "page_id",
-              "isExpression": false,
-              "asc": true,
-              "nulls": "last"
-            }
-          ],
-          "isUnique": false,
-          "concurrently": false,
-          "method": "btree",
-          "with": {}
         }
       },
       "foreignKeys": {
@@ -15041,19 +15072,6 @@
           "tableTo": "workspace_agent",
           "columnsFrom": [
             "agent_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
-          "onDelete": "cascade",
-          "onUpdate": "no action"
-        },
-        "schedule_page_id_page_id_fk": {
-          "name": "schedule_page_id_page_id_fk",
-          "tableFrom": "schedule",
-          "tableTo": "page",
-          "columnsFrom": [
-            "page_id"
           ],
           "columnsTo": [
             "id"

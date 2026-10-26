@@ -1,6 +1,16 @@
 import { and, asc, count, desc, eq, inArray, isNull, or } from "drizzle-orm";
 import { db } from "@/db";
-import { automationRun, automationVersion, databaseAutomation, page, user, workspaceAgent, type AutomationDefinition } from "@/db/schema";
+import {
+  automationRun,
+  automationThreshold,
+  automationVersion,
+  databaseAutomation,
+  databaseView,
+  page,
+  user,
+  workspaceAgent,
+  type AutomationDefinition,
+} from "@/db/schema";
 import { emailSequence } from "@/db/schema/sequences";
 import { hasAgentLevel } from "@/lib/agent-sharing";
 import { MAX_AGENT_PROMPT } from "@/lib/agents";
@@ -26,11 +36,15 @@ import {
   MAX_HTTP_HEADERS,
   MAX_NOTIFY_PEOPLE,
   MAX_STEP_MESSAGE,
+  MAX_THRESHOLD,
   MAX_WAIT_MINUTES,
   MAX_WEBHOOK_URL,
   needsRow,
   runEvent,
   STEP_ID,
+  THRESHOLD_COMPARISONS,
+  THRESHOLD_FNS,
+  thresholdMet,
   TO_VALUE_TYPES,
   trashProblem,
   UNSETTABLE_TYPES,
@@ -43,7 +57,11 @@ import {
   type DatePassedTrigger,
   type HttpMethod,
   type RunOrigin,
+  type ThresholdComparison,
+  type ThresholdFn,
+  type ThresholdTrigger,
 } from "@/lib/automations";
+import { chartAggregateFunctionsOf } from "@/lib/chart";
 import { filterConfigError, filterRules } from "@/lib/filters";
 import { pageLabel } from "@/lib/labels";
 import { PropertyValueError } from "@/lib/properties";
@@ -65,6 +83,7 @@ import { hookUrl, newHookSalt } from "./incoming";
 import { kickAutomations } from "./queue";
 import { forHistory } from "./run";
 import { nextRunOf } from "./scheduled";
+import { armThreshold, readThreshold, thresholdData } from "./threshold";
 import { automationZone, countDatePassedMatches, forgetFired } from "./timed";
 import { allowedHost, newSecretSalt, parseWebhookUrl, sendWebhook, WebhookError, webhookSecret, webhookTarget } from "./webhook";
 
@@ -136,7 +155,12 @@ export type AutomationInput = {
     | { type: "date_passed"; date: string; days: number; status?: { property?: string | null; groups: string[] } | null }
     | { type: "schedule"; schedule: unknown }
     /** `example`: a body to offer in the variable picker and test runs (JSON, or JSON text). */
-    | { type: "incoming_webhook"; example?: unknown };
+    | { type: "incoming_webhook"; example?: unknown }
+    /**
+     * `view`: a shared view of the database (id or name); `calculation`: count_all (the default)
+     * or a calculation over `property`, a number (or a number formula or rollup).
+     */
+    | { type: "view_threshold"; view: string; calculation?: string; property?: string | null; comparison: string; value: number };
   actions: AutomationActionInput[];
 };
 
@@ -208,6 +232,38 @@ function checkDatePassed(props: Prop[], input: Extract<AutomationInput["trigger"
   };
 }
 
+/** A threshold trigger as typed, checked: a shared view of the database, the calculation and the line. */
+async function checkThreshold(
+  databaseId: string,
+  props: Prop[],
+  input: Extract<AutomationInput["trigger"], { type: "view_threshold" }>,
+): Promise<ThresholdTrigger> {
+  const ref = typeof input.view === "string" ? input.view.trim() : "";
+  if (!ref) throw invalid('"view" is a view of the database, by id or name');
+  const views = await db
+    .select({ id: databaseView.id, name: databaseView.name })
+    .from(databaseView)
+    // Shared views only: a personal one is gone for whoever publishes the automation next.
+    .where(and(eq(databaseView.databaseId, databaseId), isNull(databaseView.deletedAt), isNull(databaseView.ownerId)));
+  const view = views.find((v) => v.id === ref) ?? views.find((v) => v.name.trim().toLowerCase() === ref.toLowerCase());
+  if (!view) throw invalid(`No shared view "${ref}" in this database. Views: ${views.map((v) => v.name).join(", ") || "none"}`);
+  const fn = input.calculation ?? "count_all";
+  if (!(THRESHOLD_FNS as readonly string[]).includes(fn)) throw invalid(`"calculation" is one of ${THRESHOLD_FNS.join(", ")}`);
+  let propertyId: string | null = null;
+  if (fn !== "count_all") {
+    if (!input.property) throw invalid(`"${fn}" calculates over a number property: name it in "property"`);
+    const prop = findProperty(props, input.property);
+    if (!chartAggregateFunctionsOf(prop).includes(fn as ThresholdFn)) throw invalid(`"${prop.name}" holds no numbers to calculate "${fn}" over`);
+    propertyId = prop.id;
+  }
+  if (!(THRESHOLD_COMPARISONS as readonly string[]).includes(input.comparison)) throw invalid('"comparison" is "above" or "below"');
+  const value = input.value;
+  if (typeof value !== "number" || !Number.isFinite(value) || Math.abs(value) > MAX_THRESHOLD) {
+    throw invalid(`"value" is a number from -${MAX_THRESHOLD} to ${MAX_THRESHOLD}`);
+  }
+  return { type: "view_threshold", viewId: view.id, fn: fn as ThresholdFn, propertyId, comparison: input.comparison as ThresholdComparison, value };
+}
+
 /** Only a person's change has someone to set as "actor": not a date passing, a schedule or a request. */
 function checkActorFits(trigger: AutomationTrigger, actions: AutomationAction[]) {
   if (trigger.type === "row_created" || trigger.type === "property_changed") return;
@@ -250,8 +306,9 @@ async function checkTrigger(userId: string, databaseId: string, props: Prop[], i
     const example = checkExample(input.example);
     return example === undefined ? { type: "incoming_webhook" } : { type: "incoming_webhook", example };
   }
+  if (input?.type === "view_threshold") return checkThreshold(databaseId, props, input);
   if (input?.type !== "property_changed") {
-    throw invalid('The trigger is "row_created", "property_changed", "date_passed", "schedule" or "incoming_webhook"');
+    throw invalid('The trigger is "row_created", "property_changed", "date_passed", "view_threshold", "schedule" or "incoming_webhook"');
   }
   const refs = [...new Set([...(input.properties ?? []), ...(input.property ? [input.property] : [])].filter((r) => typeof r === "string" && r.trim()))];
   if (!refs.length) {
@@ -680,7 +737,7 @@ async function checkActions(
       if (at === -1 || at >= i) throw invalid(`${label} uses {{${root}…}}, which is no earlier step`);
     }
     if (!hasRow(trigger) && needsRow(step)) {
-      const kind = trigger.type === "schedule" ? "a schedule" : "an incoming webhook";
+      const kind = trigger.type === "schedule" ? "a schedule" : trigger.type === "view_threshold" ? "a threshold" : "an incoming webhook";
       if (step.type === "approval") throw invalid(`${label} asks the people a row names, and ${kind} has no row: name the people to ask`);
       throw invalid(`${label} acts on the row that started the automation, and ${kind} has none: find rows first and go "for each" of them`);
     }
@@ -778,6 +835,9 @@ function triggerAsInput(trigger: AutomationTrigger): AutomationInput["trigger"] 
   if (trigger.type === "date_passed") {
     return { type: "date_passed", date: trigger.date, days: trigger.days, status: trigger.status ? { property: trigger.status.propertyId, groups: trigger.status.groups } : null };
   }
+  if (trigger.type === "view_threshold") {
+    return { type: "view_threshold", view: trigger.viewId, calculation: trigger.fn, property: trigger.propertyId, comparison: trigger.comparison, value: trigger.value };
+  }
   return trigger as AutomationInput["trigger"];
 }
 
@@ -785,9 +845,21 @@ function triggerAsInput(trigger: AutomationTrigger): AutomationInput["trigger"] 
  * Makes `definition` the automation's next version, as `userId` (who it runs as from then on):
  * stored with the others, live for new runs, its schedule counted from now.
  */
+/** Whether two triggers watch the same calculation against the same line (stored jsonb has its keys in another order). */
+function sameThreshold(a: AutomationTrigger, b: AutomationTrigger) {
+  if (a.type !== "view_threshold" || b.type !== "view_threshold") return false;
+  return a.viewId === b.viewId && a.fn === b.fn && a.propertyId === b.propertyId && a.comparison === b.comparison && a.value === b.value;
+}
+
 async function publishDefinition(userId: string, current: Automation, definition: AutomationDefinition, extra: Partial<Automation> = {}) {
   const version = current.version + 1;
+  const threshold = current.trigger.type === "view_threshold" || definition.trigger.type === "view_threshold";
+  const enabling = extra.enabled === true && !current.enabled;
+  // A threshold notes where its value stands: only crossings from now on start it.
+  const fresh = threshold && (current.version < 1 || !sameThreshold(current.trigger, definition.trigger) || enabling);
   const updated = await db.transaction(async (tx) => {
+    // Forgotten with the save, so a check between it and armThreshold has nothing old to compare with.
+    if (fresh) await tx.delete(automationThreshold).where(eq(automationThreshold.automationId, current.id));
     await tx.insert(automationVersion).values({ automationId: current.id, version, ...definition, publishedBy: userId });
     const [row] = await tx
       .update(databaseAutomation)
@@ -811,6 +883,7 @@ async function publishDefinition(userId: string, current: Automation, definition
   if (current.trigger.type === "date_passed" && (definition.trigger.type !== "date_passed" || definition.trigger.date !== current.trigger.date)) {
     await forgetFired(current.id);
   }
+  if (threshold) await armThreshold(current.id, fresh);
   await syncAgentShares(userId, current.databaseId, definition.actions, current.version > 0 ? current.actions : []);
   return updated;
 }
@@ -903,11 +976,18 @@ export async function updateAutomation(userId: string, automationId: string, pat
     // Turned on again, a schedule counts from now rather than catching up. Saving it makes the
     // saver who it runs as, as publishing does.
     const nextRunAt = enabled && !current.enabled ? nextRunOf(current.trigger, current.timeZone) : current.nextRunAt;
-    [updated] = await db
-      .update(databaseAutomation)
-      .set({ name, enabled, nextRunAt, runAs: userId, checkError: null })
-      .where(eq(databaseAutomation.id, automationId))
-      .returning();
+    const enabling = enabled && !current.enabled;
+    updated = await db.transaction(async (tx) => {
+      // Turned on again, a threshold notes where its value stands rather than taking what it missed.
+      if (enabling) await tx.delete(automationThreshold).where(eq(automationThreshold.automationId, automationId));
+      const [row] = await tx
+        .update(databaseAutomation)
+        .set({ name, enabled, nextRunAt, runAs: userId, checkError: null })
+        .where(eq(databaseAutomation.id, automationId))
+        .returning();
+      return row;
+    });
+    if (enabling) await armThreshold(automationId, true);
   }
   await recordAudit({
     workspaceId: current.workspaceId,
@@ -985,6 +1065,12 @@ export async function testAutomation(userId: string, automationId: string, input
     origin = "incoming_webhook";
     const body = input.payload !== undefined && input.payload !== null && input.payload !== "" ? checkExample(input.payload) : (trigger.example ?? {});
     triggerData = { body: body ?? {} };
+  } else if (trigger.type === "view_threshold") {
+    // As if it crossed now, with the value the tester sees.
+    origin = "view_threshold";
+    const reading = await readThreshold(userId, automation.databaseId, trigger, { timeZone: definition.timeZone });
+    if (reading.error) throw new PropertyValueError("The automation's view or property is gone", "invalidAutomation", { reason: reading.error });
+    triggerData = thresholdData(trigger, reading, null);
   } else {
     origin = "schedule";
     triggerData = { scheduledFor: new Date().toISOString() };
@@ -1217,7 +1303,14 @@ export async function listAutomationRuns(userId: string, automationId: string, l
     version: r.version,
     test: r.test,
     draft: r.test && r.definition !== null,
-    trigger: r.origin === "incoming_webhook" ? forHistory(r.triggerData?.body ?? null) : r.origin === "schedule" ? { scheduledFor: r.triggerData?.scheduledFor ?? null } : null,
+    trigger:
+      r.origin === "incoming_webhook"
+        ? forHistory(r.triggerData?.body ?? null)
+        : r.origin === "schedule"
+          ? { scheduledFor: r.triggerData?.scheduledFor ?? null }
+          : r.origin === "view_threshold"
+            ? { value: r.triggerData?.value ?? null, previous: r.triggerData?.previous ?? null, threshold: r.triggerData?.threshold ?? null, comparison: r.triggerData?.comparison ?? null }
+            : null,
     createdAt: r.createdAt.toISOString(),
     finishedAt: r.finishedAt?.toISOString() ?? null,
   }));
@@ -1247,6 +1340,19 @@ export async function previewDatePassed(
     if (current.trigger.type === "date_passed" && current.trigger.date === trigger.date) keep = current.id;
   }
   return countDatePassedMatches(trigger, { id: databaseId, workspaceId: database.workspaceId }, keep, zone, now);
+}
+
+/**
+ * A threshold trigger's value now, as typed, for the editor: what `userId` sees of the view's rows
+ * with days in `timeZone`, and whether it is past the line (publishing notes that without a run).
+ */
+export async function previewThreshold(userId: string, databaseId: string, input: AutomationInput["trigger"], timeZone = "UTC") {
+  await requireDatabase(userId, databaseId, "full");
+  if (input?.type !== "view_threshold") return null;
+  const trigger = await checkThreshold(databaseId, await getProperties(databaseId), input);
+  const reading = await readThreshold(userId, databaseId, trigger, { timeZone: checkTimeZone(timeZone, "UTC") });
+  if (reading.error) return null;
+  return { value: reading.value, met: thresholdMet(reading.value, trigger) };
 }
 
 /** When a schedule, as typed, would run next in `timeZone`, for the editor; null when it never would. */

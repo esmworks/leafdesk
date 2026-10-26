@@ -1312,9 +1312,10 @@
     "lastRun": "Laatst uitgevoerd: {status}, {time}",
     "neverRun": "Nog niet uitgevoerd",
     "checkError": {
-      "propertyDeleted": "Gepauzeerd: de datum- of statuseigenschap is verwijderd. Zet de eigenschap terug of bewerk de automatisering.",
+      "propertyDeleted": "Gepauzeerd: een eigenschap die ze gebruikt is verwijderd. Zet de eigenschap terug of bewerk de automatisering.",
       "noAccess": "Gepauzeerd: wie haar het laatst heeft opgeslagen, heeft geen volledige toegang meer tot deze database. Sla haar op om haar als jou uit te voeren.",
-      "scheduleInvalid": "Gepauzeerd: de planning komt nooit aan de beurt. Bewerk de automatisering."
+      "scheduleInvalid": "Gepauzeerd: de planning komt nooit aan de beurt. Bewerk de automatisering.",
+      "viewDeleted": "Gepauzeerd: de weergave is verwijderd of persoonlijk gemaakt. Zet de weergave terug of bewerk de automatisering."
     },
     "tooMany": "Een database kan maximaal {max} automatiseringen hebben",
     "deletedProperty": "Verwijderde eigenschap",
@@ -1337,7 +1338,10 @@
       "weekly": "het elke {days} {time} is",
       "monthly": "het dag {days} van elke maand om {time} is",
       "cron": "de planning “{cron}” aan de beurt komt",
-      "incoming": "er een verzoek op haar adres binnenkomt"
+      "incoming": "er een verzoek op haar adres binnenkomt",
+      "thresholdCount": "het aantal rijen in “{view}” {comparison, select, above {boven} other {onder}} {value} komt",
+      "thresholdOf": "{fn, select, sum {de som} average {het gemiddelde} median {de mediaan} min {het minimum} other {het maximum}} van {property} in “{view}” {comparison, select, above {boven} other {onder}} {value} komt",
+      "deletedView": "een verwijderde weergave"
     },
     "summaryAction": {
       "set": "{properties} instellen",
@@ -1358,6 +1362,7 @@
         "row_created": "Er wordt een rij toegevoegd",
         "property_changed": "Een eigenschap verandert",
         "date_passed": "Een datum is voorbij",
+        "view_threshold": "Een totaal passeert een grens",
         "schedule": "Volgens een planning",
         "incoming_webhook": "Er komt een verzoek binnen (inkomende webhook)"
       },
@@ -1452,7 +1457,10 @@
         "exampleTooLong": "De voorbeeld-body is te lang.",
         "needApprovers": "Kies wie je wilt vragen.",
         "needTimeout": "Vul een geheel aantal dagen in van 1 tot 30.",
-        "needSlackUrl": "Vul het adres van de inkomende Slack-webhook in."
+        "needSlackUrl": "Vul het adres van de inkomende Slack-webhook in.",
+        "needView": "Kies de weergave waarvan de rijen worden geteld.",
+        "needNumber": "Kies de getaleigenschap waarover wordt berekend.",
+        "needThreshold": "Voer het getal in om mee te vergelijken."
       },
       "agent": "Agent",
       "chooseAgent": "Kies een agent…",
@@ -1596,7 +1604,9 @@
         "timedOutContinued": "Niemand antwoordde vóór {time}: de uitvoering ging door",
         "waiting": "{names} gevraagd, tot {time}",
         "closed": "{names} gevraagd; de uitvoering eindigde vóór een antwoord"
-      }
+      },
+      "thresholdCrossed": "{comparison, select, above {Boven {threshold} gekomen} other {Onder {threshold} gekomen}}: {value}",
+      "threshold": "Grens gepasseerd"
     },
     "nextRun": "Volgende uitvoering {time}",
     "lifecycle": {
@@ -1737,7 +1747,12 @@
       "agentRunId": "ID van de agentuitvoering",
       "rowId": "Rij-ID",
       "approvedBy": "Wie goedkeurde",
-      "answeredAt": "Wanneer er is geantwoord"
+      "answeredAt": "Wanneer er is geantwoord",
+      "value": "Waarde",
+      "previous": "Waarde bij de vorige controle",
+      "threshold": "Grens",
+      "viewName": "Naam van de weergave",
+      "viewUrl": "Link naar de weergave"
     },
     "test": {
       "title": "Testuitvoering",
@@ -1752,7 +1767,8 @@
       "running": "De test wordt uitgevoerd…",
       "run": "Test uitvoeren",
       "saveAndRun": "Opslaan en uitvoeren",
-      "starting": "Starten…"
+      "starting": "Starten…",
+      "threshold": "Voert de stappen nu uit, alsof de waarde de grens net had gepasseerd, met de waarde die ze nu heeft."
     },
     "approval": {
       "people": "Deze personen vragen",
@@ -1787,6 +1803,31 @@
         "name": "Afgeronde rijen vieren",
         "description": "Als een rij als klaar wordt gemarkeerd, confetti voor wie het deed."
       }
+    },
+    "threshold": {
+      "view": "Weergave",
+      "chooseView": "Kies een weergave",
+      "noViews": "Deze database heeft geen gedeelde weergaven. Voeg er een toe waarvan de filters de te tellen rijen kiezen.",
+      "calculation": "Berekening",
+      "fn": {
+        "count_all": "Aantal rijen",
+        "sum": "Som",
+        "average": "Gemiddelde",
+        "median": "Mediaan",
+        "min": "Minimum",
+        "max": "Maximum"
+      },
+      "property": "Van",
+      "chooseNumber": "Kies een getal",
+      "noNumbers": "Deze database heeft geen getaleigenschappen om over te berekenen.",
+      "comparison": "Komt",
+      "above": "Boven",
+      "below": "Onder",
+      "value": "Waarde",
+      "now": "Nu: {value}.",
+      "nowMet": "Nu: {value}, de grens is al gepasseerd. Het draait de volgende keer dat de waarde de grens passeert, nadat ze is teruggekeerd.",
+      "nowNone": "Nu: geen waarde (geen getallen in de rijen van de weergave).",
+      "help": "Draait één keer wanneer de waarde de grens passeert en pas weer nadat ze is teruggekeerd. Het wordt kort na wijzigingen in rijen gecontroleerd, en om de paar minuten bij filters op de datum van vandaag. De rijen en waarden zijn die welke de persoon van de automatisering kan zien."
     }
   },
   "subItems": {

@@ -83,6 +83,19 @@ export function useStepVariables(
         label: t("trigger"),
         items: [v(t("scheduledFor"), "trigger", ["scheduledFor"]), v(t("database"), "trigger", ["database", "title"]), v(t("databaseUrl"), "trigger", ["database", "url"])],
       });
+    } else if (trigger.type === "view_threshold") {
+      groups.push({
+        label: t("trigger"),
+        items: [
+          v(t("value"), "trigger", ["value"]),
+          v(t("threshold"), "trigger", ["threshold"]),
+          v(t("previous"), "trigger", ["previous"]),
+          v(t("viewName"), "trigger", ["view", "name"]),
+          v(t("viewUrl"), "trigger", ["view", "url"]),
+          v(t("database"), "trigger", ["database", "title"]),
+          v(t("databaseUrl"), "trigger", ["database", "url"]),
+        ],
+      });
     } else if (trigger.type === "incoming_webhook") {
       const example = parseJson(trigger.example);
       const paths = example.ok ? examplePaths(example.value) : [];

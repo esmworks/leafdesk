@@ -9,6 +9,7 @@ import {
   MAX_APPROVAL_DAYS,
   MAX_DATE_PASSED_DAYS,
   MAX_EXAMPLE_PAYLOAD,
+  MAX_THRESHOLD,
   MAX_FOUND_ROWS,
   MAX_HTTP_BODY,
   MAX_WAIT_MINUTES,
@@ -21,6 +22,8 @@ import {
   type AutomationActionType,
   type AutomationTrigger,
   type AutomationTriggerType,
+  type ThresholdComparison,
+  type ThresholdFn,
   type ApprovalTimeout,
   type HttpMethod,
 } from "@/lib/automations";
@@ -135,7 +138,9 @@ export type DraftTrigger =
   | { type: "date_passed"; date: string; days: string; status: { property: string; groups: StatusGroup[] } | null }
   | { type: "schedule"; schedule: DraftSchedule }
   /** `example`: a body as JSON text, for the variable picker and test runs. */
-  | { type: "incoming_webhook"; example: string };
+  | { type: "incoming_webhook"; example: string }
+  /** `view` and `property` by id ("" until chosen; no property for count_all); `value` as typed. */
+  | { type: "view_threshold"; view: string; fn: ThresholdFn; property: string; comparison: ThresholdComparison; value: string };
 
 export type Draft = { name: string; enabled: boolean; trigger: DraftTrigger; actions: DraftAction[] };
 
@@ -231,6 +236,16 @@ function toDraftTrigger(stored: AutomationTrigger): DraftTrigger {
   }
   if (stored.type === "incoming_webhook") {
     return { type: "incoming_webhook", example: stored.example === undefined ? "" : JSON.stringify(stored.example, null, 2) };
+  }
+  if (stored.type === "view_threshold") {
+    return {
+      type: "view_threshold",
+      view: stored.viewId,
+      fn: stored.fn,
+      property: stored.propertyId ?? "",
+      comparison: stored.comparison,
+      value: String(stored.value),
+    };
   }
   const properties = stored.propertyIds?.length ? stored.propertyIds : stored.propertyId ? [stored.propertyId] : [];
   return {
@@ -487,6 +502,11 @@ export function draftProblem(
     if (!parseAutomationSchedule(scheduleInput(s))) return whole(s.frequency === "cron" ? "badCron" : "badTime");
     if (!nextRun(s)) return whole("neverRuns");
   }
+  if (trigger.type === "view_threshold") {
+    if (!trigger.view) return whole("needView");
+    if (trigger.fn !== "count_all" && !trigger.property) return whole("needNumber");
+    if (thresholdNumber(trigger.value) === null) return whole("needThreshold");
+  }
   if (trigger.type === "incoming_webhook") {
     const example = parseJson(trigger.example);
     if (!example.ok) return whole("badExample");
@@ -609,6 +629,15 @@ export function triggerInput(trigger: DraftTrigger) {
       const example = parseJson(trigger.example);
       return { type: "incoming_webhook" as const, ...(example.ok && example.value !== undefined ? { example: example.value } : {}) };
     }
+    case "view_threshold":
+      return {
+        type: "view_threshold" as const,
+        view: trigger.view,
+        calculation: trigger.fn,
+        property: trigger.fn === "count_all" ? null : trigger.property,
+        comparison: trigger.comparison,
+        value: thresholdNumber(trigger.value) ?? 0,
+      };
     case "property_changed":
       return {
         type: "property_changed" as const,
@@ -763,4 +792,11 @@ export function triggerValueName(
 }
 
 /** Trigger types in the order the editor offers them. */
-export const TRIGGER_CHOICES: AutomationTriggerType[] = ["row_created", "property_changed", "date_passed", "schedule", "incoming_webhook"];
+export const TRIGGER_CHOICES: AutomationTriggerType[] = ["row_created", "property_changed", "date_passed", "view_threshold", "schedule", "incoming_webhook"];
+
+/** A threshold as a number field gives it, or null when it isn't a number in range. */
+export function thresholdNumber(text: string): number | null {
+  if (!text.trim()) return null;
+  const value = Number(text);
+  return Number.isFinite(value) && Math.abs(value) <= MAX_THRESHOLD ? value : null;
+}

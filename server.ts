@@ -67,6 +67,7 @@ const { startRetention } = await import("./src/server/retention");
 const { startAutomations } = await import("./src/server/automations/run");
 const { startDatePassedAutomations } = await import("./src/server/automations/timed");
 const { startScheduledAutomations } = await import("./src/server/automations/scheduled");
+const { startThresholdAutomations } = await import("./src/server/automations/threshold");
 const { startAgents } = await import("./src/server/agents/run");
 const { startSchedules } = await import("./src/server/schedules");
 // Registers what agents' schedules and dashboard emails do when they run.
@@ -233,6 +234,8 @@ server.listen(port, hostname, () => {
   startDatePassedAutomations();
   // Queues the runs of scheduled automations as their schedules come round.
   startScheduledAutomations();
+  // Queues a run when a calculation over a view's rows crosses its automation's line.
+  startThresholdAutomations();
   // Runs agents that automations queued, a few at a time, apart from the automations.
   startAgents();
   // Adds rows from repeating row templates as they fall due (and one for any missed while down).
