@@ -341,7 +341,7 @@ try {
   check(!attached.isError && attached.data.block === "image" && attached.data.appended, "attach_file stores base64 data and appends an image block", attached.text);
   await eventually(async () => (await refsOf(attached.data.id)).includes(other.id), "the MCP file's reference");
   check((await getCollab().readPage(other.id)).markdown.includes(attached.data.path), "the page body shows the new file");
-  const blocked = await callTool(ids.owner, "attach_file", { page_id: other.id, url: "http://127.0.0.1:3000/api/files/x" }, scopes);
+  const blocked = await callTool(ids.owner, "attach_file", { page_id: other.id, url: "http://127.0.0.1/api/files/x" }, scopes);
   check(blocked.isError && /isn't public/.test(blocked.text), "attach_file won't fetch loopback addresses", blocked.text);
   const metadata = await callTool(ids.owner, "attach_file", { page_id: other.id, url: "http://169.254.169.254/latest/meta-data/" }, scopes);
   check(metadata.isError && /isn't public/.test(metadata.text), "…nor cloud metadata", metadata.text);
