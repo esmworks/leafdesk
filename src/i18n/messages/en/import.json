@@ -173,7 +173,8 @@
       "failed": "The sync failed. It tries again next time.",
       "invalidSite": "That isn't an address Leafdesk can reach.",
       "invalidInput": "Fill in the email address, the API token and what to sync.",
-      "alreadyRunning": "A sync is running. Try again in a moment."
+      "alreadyRunning": "A sync is running. Try again in a moment.",
+      "needsSignIn": "The sync signs in to Jira as someone else. To change what it reads, sign in with your own email address and API token."
     }
   },
   "githubPulls": {
@@ -311,7 +312,8 @@
     "badMapping": "Choose where at least one column goes, and each property only once.",
     "noAccess": "You can't add pages there, or it no longer exists.",
     "notADatabase": "Rows can only be added to a database.",
-    "badRequest": "The import didn't go through. Nothing was changed."
+    "badRequest": "The import didn't go through. Nothing was changed.",
+    "rateLimited": "Too many syncs were set up or checked from here. Try again in a few minutes."
   },
   "googleDocs": {
     "help": "Each Google document becomes a page, read through the workspace's Google Drive connection as a Word document would be: headings, lists, tables, links, pictures and footnotes. A heading at the very top becomes the page's title; otherwise the document's name does.",

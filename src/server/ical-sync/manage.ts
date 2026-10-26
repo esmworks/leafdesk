@@ -10,8 +10,9 @@ import { addProperty, addView, requireDatabase, type OptionInput } from "@/serve
 import { discardDatabase, recordImport } from "@/server/import/csv";
 import { JiraError } from "@/server/jira-sync/client";
 import { claimSync, runAndRecord, type SyncOutcome, type SyncRow } from "@/server/jira-sync/run";
-import { createPage, type DatabaseSeedNames } from "@/server/pages";
+import { createPage, requireDatabasePlace, type DatabaseSeedNames } from "@/server/pages";
 import { sealJson } from "@/server/secret-box";
+import { takeSyncSetup } from "@/server/sync-setup";
 import { applyEvents, fetchCalendar, type IcalAuth } from "./run";
 
 /**
@@ -57,6 +58,8 @@ export async function createIcalSync(actor: WriteActor, input: IcalSyncInput): P
   const url = urlOf(input.url);
   const every = interval(input.intervalMinutes);
   const names = input.names ?? ENGLISH_ICAL_NAMES;
+  await requireDatabasePlace(userId, input);
+  takeSyncSetup(userId);
   const calendar = await fetchCalendar(url, names.untitled);
 
   const database = await createPage(

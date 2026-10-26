@@ -19,8 +19,9 @@ import type { WriteActor } from "@/server/collab/bridge";
 import { addProperty, requireDatabase } from "@/server/databases";
 import { discardDatabase, recordImport } from "@/server/import/csv";
 import { claimSync, runAndRecord, type SyncOutcome, type SyncRow } from "@/server/jira-sync/run";
-import { createPage, type DatabaseSeedNames } from "@/server/pages";
+import { createPage, requireDatabasePlace, type DatabaseSeedNames } from "@/server/pages";
 import { sealJson } from "@/server/secret-box";
+import { takeSyncSetup } from "@/server/sync-setup";
 import { describeTable, PostgresSyncError, readTable, withPostgres } from "./client";
 import { applyTableRows, readSyncedTable, type PostgresAuth } from "./run";
 
@@ -78,6 +79,8 @@ export async function createPostgresSync(actor: WriteActor, input: PostgresSyncI
   };
   if ((input.keyColumn && !asked.key) || (input.titleColumn && !asked.title)) throw new PostgresSyncError("invalidInput", "Not a column name");
 
+  await requireDatabasePlace(userId, input);
+  takeSyncSetup(userId);
   const { query, columns, rows } = await withPostgres(url, async (sql) => {
     const table = await describeTable(sql, name.schema, name.table);
     const has = (column: string | null) => column !== null && table.columns.some((c) => c.name === column);

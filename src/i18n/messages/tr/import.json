@@ -173,7 +173,8 @@
       "failed": "Eşitleme başarısız oldu. Bir sonraki seferde yeniden dener.",
       "invalidSite": "Bu, Leafdesk'in ulaşabileceği bir adres değil.",
       "invalidInput": "E-posta adresini, API anahtarını ve neyin eşitleneceğini doldurun.",
-      "alreadyRunning": "Bir eşitleme sürüyor. Birazdan yeniden deneyin."
+      "alreadyRunning": "Bir eşitleme sürüyor. Birazdan yeniden deneyin.",
+      "needsSignIn": "Eşitleme Jira'ya başka birinin hesabıyla giriş yapıyor. Neyi okuduğunu değiştirmek için kendi e-posta adresiniz ve API belirtecinizle giriş yapın."
     }
   },
   "githubPulls": {
@@ -311,7 +312,8 @@
     "badMapping": "En az bir sütunun hedefini seçin; her özellik yalnızca bir kez kullanılabilir.",
     "noAccess": "Oraya sayfa ekleyemezsiniz ya da artık mevcut değil.",
     "notADatabase": "Satırlar yalnızca bir veritabanına eklenebilir.",
-    "badRequest": "İçe aktarma gerçekleşmedi. Hiçbir şey değişmedi."
+    "badRequest": "İçe aktarma gerçekleşmedi. Hiçbir şey değişmedi.",
+    "rateLimited": "Buradan çok fazla eşitleme kuruldu veya denetlendi. Birkaç dakika sonra yeniden deneyin."
   },
   "googleDocs": {
     "help": "Her Google belgesi, çalışma alanının Google Drive bağlantısı üzerinden bir Word belgesi gibi okunup bir sayfa olur: başlıklar, listeler, tablolar, bağlantılar, resimler ve dipnotlar. En üstteki başlık sayfanın adı olur; yoksa belgenin adı kullanılır.",

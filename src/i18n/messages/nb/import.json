@@ -173,7 +173,8 @@
       "failed": "Synkroniseringen mislyktes. Den prøver igjen neste gang.",
       "invalidSite": "Det er ikke en adresse Leafdesk kan nå.",
       "invalidInput": "Fyll inn e-postadressen, API-tokenet og hva som skal synkroniseres.",
-      "alreadyRunning": "En synkronisering pågår. Prøv igjen om et øyeblikk."
+      "alreadyRunning": "En synkronisering pågår. Prøv igjen om et øyeblikk.",
+      "needsSignIn": "Synkroniseringen logger på Jira som en annen. Logg på med din egen e-postadresse og ditt eget API-token for å endre hva den leser."
     }
   },
   "githubPulls": {
@@ -311,7 +312,8 @@
     "badMapping": "Velg hvor minst én kolonne skal, og hver egenskap bare én gang.",
     "noAccess": "Du kan ikke legge til sider der, eller stedet finnes ikke lenger.",
     "notADatabase": "Rader kan bare legges til i en database.",
-    "badRequest": "Importen gikk ikke gjennom. Ingenting ble endret."
+    "badRequest": "Importen gikk ikke gjennom. Ingenting ble endret.",
+    "rateLimited": "For mange synkroniseringer er satt opp eller sjekket herfra. Prøv igjen om noen minutter."
   },
   "googleDocs": {
     "help": "Hvert Google-dokument blir en side, lest gjennom arbeidsområdets Google Disk-tilkobling slik et Word-dokument ville blitt: overskrifter, lister, tabeller, lenker, bilder og fotnoter. En overskrift helt øverst blir sidetittelen; ellers blir navnet på dokumentet det.",

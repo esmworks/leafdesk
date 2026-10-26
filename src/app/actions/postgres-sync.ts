@@ -17,6 +17,7 @@ import {
   type PostgresSyncPatch,
 } from "@/server/postgres-sync/manage";
 import { requireUserId } from "@/server/session";
+import { SyncSetupLimited } from "@/server/sync-setup";
 import { TeamspaceError } from "@/server/teamspaces";
 
 // PostgreSQL table syncs (see server/postgres-sync): set up from the import dialog, looked after
@@ -32,6 +33,10 @@ async function run<T>(fn: (userId: string) => Promise<T>): Promise<ActionResult<
       const t = await getTranslations("import.postgres.errors");
       const message = t(error.code);
       return { ok: false, error: error.code === "badQuery" && error.detail ? `${message} ${error.detail}` : message, code: error.code };
+    }
+    if (error instanceof SyncSetupLimited) {
+      const t = await getTranslations("import.errors");
+      return { ok: false, error: t("rateLimited") };
     }
     if (error instanceof AccessError || error instanceof TeamspaceError) {
       const t = await getTranslations("database.errors");

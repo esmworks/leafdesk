@@ -173,7 +173,8 @@
       "failed": "La synchronisation a échoué. Elle réessaiera la prochaine fois.",
       "invalidSite": "Leafdesk ne peut pas joindre cette adresse.",
       "invalidInput": "Renseignez l’adresse e-mail, le jeton d’API et ce qu’il faut synchroniser.",
-      "alreadyRunning": "Une synchronisation est en cours. Réessayez dans un instant."
+      "alreadyRunning": "Une synchronisation est en cours. Réessayez dans un instant.",
+      "needsSignIn": "La synchronisation se connecte à Jira au nom de quelqu’un d’autre. Pour changer ce qu’elle lit, connectez-vous avec votre propre adresse e-mail et votre propre jeton d’API."
     }
   },
   "githubPulls": {
@@ -311,7 +312,8 @@
     "badMapping": "Choisissez la destination d’au moins une colonne, et utilisez chaque propriété une seule fois.",
     "noAccess": "Vous ne pouvez pas ajouter de pages à cet endroit, ou il n’existe plus.",
     "notADatabase": "Les lignes ne peuvent être ajoutées qu’à une base de données.",
-    "badRequest": "L’importation n’a pas abouti. Rien n’a été modifié."
+    "badRequest": "L’importation n’a pas abouti. Rien n’a été modifié.",
+    "rateLimited": "Trop de synchronisations ont été configurées ou vérifiées depuis ici. Réessayez dans quelques minutes."
   },
   "googleDocs": {
     "help": "Chaque document Google devient une page, lu via la connexion Google Drive de l'espace de travail comme un document Word : titres, listes, tableaux, liens, images et notes de bas de page. Un titre tout en haut devient le titre de la page ; sinon, le nom du document.",

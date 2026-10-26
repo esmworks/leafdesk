@@ -173,7 +173,8 @@
       "failed": "Synkronointi epäonnistui. Se yrittää uudelleen seuraavalla kerralla.",
       "invalidSite": "Leafdesk ei tavoita tätä osoitetta.",
       "invalidInput": "Täytä sähköpostiosoite, API-tunnus ja synkronoitava kohde.",
-      "alreadyRunning": "Synkronointi on käynnissä. Yritä hetken kuluttua uudelleen."
+      "alreadyRunning": "Synkronointi on käynnissä. Yritä hetken kuluttua uudelleen.",
+      "needsSignIn": "Synkronointi kirjautuu Jiraan jonkun toisen tunnuksilla. Jos haluat muuttaa, mitä se lukee, kirjaudu omalla sähköpostiosoitteellasi ja API-tunnuksellasi."
     }
   },
   "githubPulls": {
@@ -311,7 +312,8 @@
     "badMapping": "Valitse kohde vähintään yhdelle sarakkeelle ja kukin ominaisuus vain kerran.",
     "noAccess": "Et voi lisätä sivuja sinne, tai sitä ei enää ole.",
     "notADatabase": "Rivejä voi lisätä vain tietokantaan.",
-    "badRequest": "Tuonti ei onnistunut. Mitään ei muutettu."
+    "badRequest": "Tuonti ei onnistunut. Mitään ei muutettu.",
+    "rateLimited": "Täältä on määritetty tai tarkistettu liian monta synkronointia. Yritä uudelleen muutaman minuutin kuluttua."
   },
   "googleDocs": {
     "help": "Jokaisesta Google-dokumentista tulee sivu, joka luetaan työtilan Google Drive -yhteyden kautta samoin kuin Word-asiakirja: otsikot, luettelot, taulukot, linkit, kuvat ja alaviitteet. Aivan alussa oleva otsikko on sivun nimi, muuten dokumentin nimi.",

@@ -1086,7 +1086,12 @@
   credentials, a refused query, a deleted *Key* property or more than 2,000 issues pause it until
   it is changed in the database's sync dialog (the ⟳ button on its toolbar), where people with
   full access can also sync now, change the query or sign-in, pick the person property the
-  reporter goes to (or none), or stop syncing (the rows stay).
+  reporter goes to (or none), or stop syncing (the rows stay). Only the person whose sign-in the
+  sync keeps changes its query or lists its projects with it; anyone else gives their own email
+  address and token to do so, which then replace it (syncs set up before this keep a sign-in of
+  no one's until it is given again). Setting up any sync, or checking a sign-in, first checks that
+  the person may make the database where they asked, and each person may do so ten times a
+  minute and sixty an hour.
   Tested against a stand-in Jira (`scripts/jira-sync-e2e.ts`), not yet a real site.
 - **Sync GitHub pull requests**: Import's GitHub tab takes a repository (`owner/name` or its
   address), a token for a private one (read access to pull requests is enough; it also raises

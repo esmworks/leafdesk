@@ -10,6 +10,7 @@ import { AccessError } from "@/server/access";
 import { createIcalSync, getIcalSync, stopIcalSync, syncIcalNow, updateIcalSync, type IcalSyncPatch } from "@/server/ical-sync/manage";
 import { JiraError } from "@/server/jira-sync/client";
 import { requireUserId } from "@/server/session";
+import { SyncSetupLimited } from "@/server/sync-setup";
 import { TeamspaceError } from "@/server/teamspaces";
 
 // Calendar syncs (see server/ical-sync): set up from the import dialog, looked after from the
@@ -24,6 +25,10 @@ async function run<T>(fn: (userId: string) => Promise<T>): Promise<ActionResult<
     if (error instanceof JiraError && error.code !== "badQuery") {
       const t = await getTranslations("import.ical.errors");
       return { ok: false, error: t(error.code), code: error.code };
+    }
+    if (error instanceof SyncSetupLimited) {
+      const t = await getTranslations("import.errors");
+      return { ok: false, error: t("rateLimited") };
     }
     if (error instanceof AccessError || error instanceof TeamspaceError) {
       const t = await getTranslations("database.errors");

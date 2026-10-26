@@ -82,8 +82,27 @@ export default function JiraSyncDialog({ databaseId, onClose, onChanged }: { dat
     setMode("project" in current ? "project" : "jql");
     setProject("project" in current ? current.project : "");
     setJql("jql" in current ? current.jql : "");
-    if (!projects) void jiraProjectsAction(databaseId).then((r) => setProjects(r.ok ? r.data : []));
+    // Someone else's sign-in lists nothing to them: their own lists the projects once given.
+    if (!projects && sync.ownSignIn) void jiraProjectsAction(databaseId).then((r) => setProjects(r.ok ? r.data : []));
   }
+
+  /** The projects the sign-in typed into the query's fields can browse. */
+  async function connect() {
+    setBusy(true);
+    setError(null);
+    try {
+      const result = await jiraProjectsAction(databaseId, { email, token });
+      if (!result.ok) return setError(result.error);
+      setProjects(result.data);
+    } catch {
+      setError(tc("genericError"));
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  /** The sign-in that goes with a new query: the person's own when the sync keeps someone else's. */
+  const ownSignIn = (s: JiraSyncView) => (s.ownSignIn ? {} : { email, token });
 
   const problem = (s: JiraSyncView) =>
     s.lastError === "badQuery" && s.lastErrorDetail
@@ -182,6 +201,24 @@ export default function JiraSyncDialog({ databaseId, onClose, onChanged }: { dat
               <>
                 {editing === "query" && (
                   <fieldset className="space-y-2" disabled={busy}>
+                    {!sync.ownSignIn && (
+                      <>
+                        <p className="text-xs text-fg-muted">{tj("errors.needsSignIn")}</p>
+                        <div className="grid gap-3 sm:grid-cols-[1fr_1fr_auto] sm:items-end">
+                          <label className="block">
+                            <span className={labelClass}>{tj("email")}</span>
+                            <Input type="email" value={email} autoComplete="email" onChange={(e) => setEmail(e.target.value)} />
+                          </label>
+                          <label className="block">
+                            <span className={labelClass}>{tj("token")}</span>
+                            <Input type="password" value={token} autoComplete="off" onChange={(e) => setToken(e.target.value)} />
+                          </label>
+                          <Button size="sm" disabled={!email.trim() || !token.trim()} onClick={() => void connect()}>
+                            {tj("connect")}
+                          </Button>
+                        </div>
+                      </>
+                    )}
                     <div className="flex flex-wrap gap-4 text-sm">
                       {(["project", "jql"] as const).map((value) => (
                         <label key={value} className="flex items-center gap-1.5">
@@ -219,11 +256,11 @@ export default function JiraSyncDialog({ databaseId, onClose, onChanged }: { dat
                       <Button
                         size="sm"
                         variant="primary"
-                        disabled={mode === "project" ? !project : !jql.trim()}
+                        disabled={(mode === "project" ? !project : !jql.trim()) || (!sync.ownSignIn && (!email.trim() || !token.trim()))}
                         onClick={() =>
                           void act(
-                            () => updateJiraSyncAction(databaseId, { query: mode === "project" ? { project } : { jql } }),
-                            (next) => (setSync(next), setEditing(null)),
+                            () => updateJiraSyncAction(databaseId, { query: mode === "project" ? { project } : { jql }, ...ownSignIn(sync) }),
+                            (next) => (setSync(next), setEditing(null), setToken("")),
                           )
                         }
                       >

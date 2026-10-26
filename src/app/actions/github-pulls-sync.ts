@@ -17,6 +17,7 @@ import {
 } from "@/server/github-pulls/manage";
 import { JiraError } from "@/server/jira-sync/client";
 import { requireUserId } from "@/server/session";
+import { SyncSetupLimited } from "@/server/sync-setup";
 import { TeamspaceError } from "@/server/teamspaces";
 
 // GitHub pull request syncs (see server/github-pulls): set up from the import dialog, looked after
@@ -31,6 +32,10 @@ async function run<T>(fn: (userId: string) => Promise<T>): Promise<ActionResult<
     if (error instanceof JiraError && error.code !== "badQuery" && error.code !== "tooManyIssues") {
       const t = await getTranslations("import.githubPulls.errors");
       return { ok: false, error: t(error.code), code: error.code };
+    }
+    if (error instanceof SyncSetupLimited) {
+      const t = await getTranslations("import.errors");
+      return { ok: false, error: t("rateLimited") };
     }
     if (error instanceof AccessError || error instanceof TeamspaceError) {
       const t = await getTranslations("database.errors");

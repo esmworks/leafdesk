@@ -173,7 +173,8 @@
       "failed": "De synchronisatie is mislukt. Ze probeert het de volgende keer opnieuw.",
       "invalidSite": "Dat is geen adres dat Leafdesk kan bereiken.",
       "invalidInput": "Vul het e-mailadres, het API-token en wat er gesynchroniseerd moet worden in.",
-      "alreadyRunning": "Er loopt een synchronisatie. Probeer het zo meteen opnieuw."
+      "alreadyRunning": "Er loopt een synchronisatie. Probeer het zo meteen opnieuw.",
+      "needsSignIn": "De synchronisatie meldt zich bij Jira aan als iemand anders. Meld je aan met je eigen e-mailadres en API-token om te wijzigen wat ze leest."
     }
   },
   "githubPulls": {
@@ -311,7 +312,8 @@
     "badMapping": "Kies waar minstens één kolom naartoe gaat, en elke eigenschap maar één keer.",
     "noAccess": "Je kunt daar geen pagina’s toevoegen, of het bestaat niet meer.",
     "notADatabase": "Rijen kunnen alleen aan een database worden toegevoegd.",
-    "badRequest": "De import is niet gelukt. Er is niets gewijzigd."
+    "badRequest": "De import is niet gelukt. Er is niets gewijzigd.",
+    "rateLimited": "Er zijn hiervandaan te veel synchronisaties ingesteld of gecontroleerd. Probeer het over een paar minuten opnieuw."
   },
   "googleDocs": {
     "help": "Elk Google-document wordt een pagina, gelezen via de Google Drive-koppeling van de werkruimte zoals een Word-document: koppen, lijsten, tabellen, links, afbeeldingen en voetnoten. Een kop helemaal bovenaan wordt de titel van de pagina; anders wordt dat de naam van het document.",
