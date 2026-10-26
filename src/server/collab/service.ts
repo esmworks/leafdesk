@@ -1367,7 +1367,7 @@ export function createCollab() {
       return [...new Set(browsersOf(pageId).map((c) => (c.context as Context).userId!))];
     },
 
-    saveOpen: () => saveOpenDocuments(hocuspocus),
+    saveOpen: (pageIds) => saveOpenDocuments(hocuspocus, pageIds ? { names: new Set(pageIds.map((id) => `page:${id}`)) } : {}),
     async disconnectWorkspace(workspaceId, pageIds) {
       const gone = new Set(pageIds);
       for (const doc of hocuspocus.documents.values()) {
