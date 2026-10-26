@@ -623,6 +623,7 @@
       "web": {
         "read": "Luki verkkosivun",
         "readFailed": "Verkkosivun lukeminen epäonnistui",
+        "readRefused": "Ei lukenut tehtävänsä ja hakujensa ulkopuolista verkkosivua",
         "search": "Haki verkosta",
         "searchFailed": "Verkkohaku epäonnistui",
         "approved": "hyväksytty"
@@ -633,6 +634,7 @@
         "declined": "Sen kutsu työkaluun ”{tool}” yhteydessä {connection} hylättiin; mitään ei lähetetty",
         "redo": "Sen kutsu työkaluun ”{tool}” yhteydessä {connection} palautettiin; mitään ei lähetetty",
         "expired": "Sen kutsu työkaluun ”{tool}” yhteydessä {connection} vanheni; mitään ei lähetetty",
+        "refused": "Sen kutsu työkaluun ”{tool}” yhteydessä {connection} torjuttiin, koska kukaan ei voinut hyväksyä sitä; mitään ei lähetetty",
         "approved": "hyväksytty",
         "answered": "omistaja vastasi",
         "note": "Huomautus: {note}"

@@ -623,6 +623,7 @@
       "web": {
         "read": "Membaca halaman web",
         "readFailed": "Tidak dapat membaca halaman web",
+        "readRefused": "Tidak membaca halaman web di luar tugas dan pencariannya",
         "search": "Mencari di web",
         "searchFailed": "Tidak dapat mencari di web",
         "approved": "disetujui"
@@ -633,6 +634,7 @@
         "declined": "Panggilannya ke “{tool}” di {connection} ditolak; tidak ada yang dikirim",
         "redo": "Panggilannya ke “{tool}” di {connection} dikembalikan; tidak ada yang dikirim",
         "expired": "Panggilannya ke “{tool}” di {connection} kehabisan waktu; tidak ada yang dikirim",
+        "refused": "Panggilannya ke “{tool}” di {connection} ditolak karena tidak ada yang bisa menyetujuinya; tidak ada yang dikirim",
         "approved": "disetujui",
         "answered": "dijawab oleh pemilik",
         "note": "Catatan: {note}"

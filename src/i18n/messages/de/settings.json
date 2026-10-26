@@ -620,6 +620,7 @@
       "web": {
         "read": "Hat eine Webseite gelesen",
         "readFailed": "Konnte eine Webseite nicht lesen",
+        "readRefused": "Hat keine Webseite außerhalb seiner Aufgabe und Suchen gelesen",
         "search": "Hat im Web gesucht",
         "searchFailed": "Konnte nicht im Web suchen",
         "approved": "freigegeben"
@@ -630,6 +631,7 @@
         "declined": "Sein Aufruf von „{tool}“ bei {connection} wurde abgelehnt; nichts wurde gesendet",
         "redo": "Sein Aufruf von „{tool}“ bei {connection} wurde zurückgeschickt; nichts wurde gesendet",
         "expired": "Sein Aufruf von „{tool}“ bei {connection} ist abgelaufen; nichts wurde gesendet",
+        "refused": "Sein Aufruf von „{tool}“ bei {connection} wurde abgelehnt, da niemand ihn genehmigen konnte; nichts wurde gesendet",
         "approved": "freigegeben",
         "answered": "von einem Inhaber beantwortet",
         "note": "Notiz: {note}"

@@ -131,7 +131,8 @@ BlockNote on Yjs; Tailwind v4; next-intl. Node 24, pnpm 11. A separate Electron 
   stored chunks against the page's mean embedding (`related-pages.ts`, no model call). Test doubles: `ai/testing.ts`
   (`installFauxAi`, unit tests) and `ai/fake-openai.ts` (`startFakeOpenAi`, e2e scripts). Web
   calls carry data out: the chat asks before each, and agents' chat, mention and request runs
-  before each the person didn't write (`lib/web-calls.ts`); a new outbound tool goes through it.
+  before each the person didn't write; schedules' runs read only pages of their task or search
+  results and refuse others (`lib/web-calls.ts`); a new outbound tool goes through it.
 - **Search.** `src/server/pages.ts` `searchPages` merges `fullTextSearch` with semantic search;
   `semantic-search.ts` `searchScope` is the one place a search's scope and filters become SQL, used
   by full-text, document and ID hits and by search by meaning alike, so a new filter goes there (and

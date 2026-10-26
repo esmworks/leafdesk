@@ -237,7 +237,8 @@ export type AgentToolRecord = {
   tool: string;
   /** The input, as sent (or as it would have been), cut to fit. */
   input: string;
-  outcome: "done" | "failed" | "declined" | "redo" | "expired";
+  /** `refused`: a page a schedule's run may not read with no one to ask (lib/web-calls.ts); nothing was sent. */
+  outcome: "done" | "failed" | "declined" | "redo" | "expired" | "refused";
   /** Who approved, declined or sent it back. */
   decidedBy?: string | null;
   note?: string;
