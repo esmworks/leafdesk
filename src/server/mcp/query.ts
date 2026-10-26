@@ -499,6 +499,7 @@ function describeForm(props: PropertyDef[], form: NonNullable<ViewConfig["form"]
     ...(form.confirmation ? { confirmation_message: form.confirmation } : {}),
     ...(form.allowAnother === false ? { allow_another: false } : {}),
     ...(form.showOwnAnswers ? { shows_own_answers: true } : {}),
+    ...(form.oneByOne ? { one_question_at_a_time: true } : {}),
   };
 }
 

@@ -301,6 +301,7 @@ export function formConfigError(form: unknown): string | null {
   }
   if (form.allowAnother !== undefined && typeof form.allowAnother !== "boolean") return "form.allowAnother must be true or false";
   if (form.showOwnAnswers !== undefined && typeof form.showOwnAnswers !== "boolean") return "form.showOwnAnswers must be true or false";
+  if (form.oneByOne !== undefined && typeof form.oneByOne !== "boolean") return "form.oneByOne must be true or false";
   if (form.questions !== undefined) {
     if (!Array.isArray(form.questions)) return "form.questions must be a list";
     if (form.questions.length > MAX_FORM_QUESTIONS) return `A form can ask at most ${MAX_FORM_QUESTIONS} questions`;

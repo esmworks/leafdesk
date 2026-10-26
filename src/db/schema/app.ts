@@ -1013,6 +1013,8 @@ export type FormConfig = {
   confirmation?: string;
   /** Whether the thank-you screen offers to fill the form in again; true when missing. */
   allowAnother?: boolean;
+  /** The questions come one at a time, each checked before the next; all on one page when missing. */
+  oneByOne?: boolean;
   /**
    * Signed-in people who answered see what they sent through this form (its questions only, see
    * server/forms ownSubmissions); off when missing. Anonymous answers are never shown.

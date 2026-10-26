@@ -4,6 +4,10 @@
 
 ### Added
 
+- **Forms that ask one question at a time.** A form's builder has *One question at a time*: each
+  question on a page of its own, with a progress bar, Back and Next, each answer checked before the
+  next question, in the app and on public form links. The AI chat's `create_form` takes
+  `one_by_one`, and MCP's `get_database` reports it.
 - **Ratings and durations.** *Rating* and *Duration* when adding a property: a rating shows 1 to
   10 stars, clicked right in the cell or a form, and a duration shows minutes as hours and minutes
   ("1:30"), typed as `1:30`, `1h 30m` or minutes. Both are number properties in new formats

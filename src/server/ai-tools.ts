@@ -417,6 +417,7 @@ export const WRITE_TOOLS: AiTool[] = [
           type: "boolean",
           description: "People who sign in to answer see what they sent through the form (only its questions); never on anonymous answers.",
         },
+        one_by_one: { type: "boolean", description: "Ask the questions one at a time, with a progress bar (for longer forms and surveys)." },
         public: { type: "boolean", description: "Also open it to anyone with its link, outside the workspace (only when the person asks for that)." },
         anonymous: { type: "boolean", description: "With public: take answers without signing in." },
       },
@@ -1320,6 +1321,7 @@ async function prepareForm(ctx: ops.OperationContext, workspaceId: string, scope
     form_description: text(args.description)?.slice(0, MAX_FORM_DESCRIPTION),
     confirmation_message: text(args.confirmation)?.slice(0, MAX_CONFIRMATION),
     ...(args.show_own_answers === true ? { show_own_answers: true } : {}),
+    ...(args.one_by_one === true ? { one_by_one: true } : {}),
   };
   const { properties } = await getDatabase(userId, target.page.id);
   // Checked now (names to ids, types a form can ask), and again on the database as it is then.

@@ -42,6 +42,8 @@
     "notPublic": "Udeladt fra det offentlige link",
     "addQuestion": "Tilføj et spørgsmål",
     "noMoreQuestions": "Alle egenskaber er allerede spørgsmål.",
+    "oneByOne": "Ét spørgsmål ad gangen",
+    "oneByOneDescription": "Hvert spørgsmål får sin egen side med en statuslinje. Hvert svar tjekkes før næste spørgsmål.",
     "empty": "Denne formular har ingen spørgsmål endnu.",
     "defaultsTitle": "Værdier for alle svar",
     "defaultsDescription": "Egenskaber, formularen ikke spørger om, kan stadig udfyldes på hver række, den tilføjer, f.eks. Status sat til Ny.",
@@ -58,6 +60,9 @@
   "fill": {
     "submit": "Send",
     "submitting": "Sender…",
+    "next": "Næste",
+    "back": "Tilbage",
+    "progress": "Spørgsmål {current} af {total}",
     "thanks": "Tak! Dit svar er sendt.",
     "another": "Send endnu et svar",
     "viewOnly": "Du kan se denne formular, men kun personer, der kan redigere denne database, kan sende den.",

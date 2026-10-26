@@ -42,6 +42,8 @@
     "notPublic": "Left out of the public link",
     "addQuestion": "Add a question",
     "noMoreQuestions": "Every property is already a question.",
+    "oneByOne": "One question at a time",
+    "oneByOneDescription": "Each question gets a page of its own, with a progress bar. Each answer is checked before the next question.",
     "empty": "This form has no questions yet.",
     "defaultsTitle": "Values for every answer",
     "defaultsDescription": "Properties the form doesn't ask for can still be filled in on every row it adds, like Status set to New.",
@@ -58,6 +60,9 @@
   "fill": {
     "submit": "Submit",
     "submitting": "Sending…",
+    "next": "Next",
+    "back": "Back",
+    "progress": "Question {current} of {total}",
     "thanks": "Thanks! Your response was sent.",
     "another": "Submit another response",
     "viewOnly": "You can view this form, but only people who can edit this database can submit it.",

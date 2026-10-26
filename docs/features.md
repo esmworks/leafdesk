@@ -443,6 +443,11 @@
     choices. A form can show people who signed in to answer what they sent through it (only its
     questions, never other rows or properties, even without access to the database); anonymous
     answers are never shown.
+  - A form with more than one question can ask them *one question at a time* (in the form's
+    builder, or `one_by_one` in the AI chat's `create_form`): each question gets a page of its own
+    with a progress bar, Next checks its answer before moving on, Back returns to earlier answers,
+    and questions asked only on some answers count once they apply. On the last page Next becomes
+    Submit, and an answer the server refuses takes the person back to its question.
   - Put a database inside any page, or show a view of an existing one there. A table block turns
     into a database from its block menu: its first row names the properties.
   - Lock a database to freeze its properties and views, and export its rows as CSV. A view's tab

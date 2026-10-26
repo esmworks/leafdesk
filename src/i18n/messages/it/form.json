@@ -42,6 +42,8 @@
     "notPublic": "Esclusa dal link pubblico",
     "addQuestion": "Aggiungi una domanda",
     "noMoreQuestions": "Ogni proprietà è già una domanda.",
+    "oneByOne": "Una domanda alla volta",
+    "oneByOneDescription": "Ogni domanda ha una pagina tutta sua, con una barra di avanzamento. Ogni risposta viene controllata prima della domanda successiva.",
     "empty": "Questo modulo non ha ancora domande.",
     "defaultsTitle": "Valori per ogni risposta",
     "defaultsDescription": "Le proprietà che il modulo non chiede possono comunque essere compilate in ogni riga che aggiunge, ad esempio Stato impostato su Nuovo.",
@@ -58,6 +60,9 @@
   "fill": {
     "submit": "Invia",
     "submitting": "Invio in corso…",
+    "next": "Avanti",
+    "back": "Indietro",
+    "progress": "Domanda {current} di {total}",
     "thanks": "Grazie! La tua risposta è stata inviata.",
     "another": "Invia un’altra risposta",
     "viewOnly": "Puoi visualizzare questo modulo, ma solo chi può modificare questo database può inviarlo.",

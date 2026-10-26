@@ -32,6 +32,7 @@ export function PublicFormFill({
         questions={form.questions}
         confirmation={form.confirmation}
         allowAnother={form.allowAnother}
+        oneByOne={form.oneByOne}
         honeypot
         note={note}
         upload={(file) => postFile(`/api/files?formToken=${encodeURIComponent(form.token)}`, file, { "X-Form-Ticket": ticket })}

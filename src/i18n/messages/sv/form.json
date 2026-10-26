@@ -42,6 +42,8 @@
     "notPublic": "Utelämnas från den offentliga länken",
     "addQuestion": "Lägg till en fråga",
     "noMoreQuestions": "Varje egenskap är redan en fråga.",
+    "oneByOne": "En fråga i taget",
+    "oneByOneDescription": "Varje fråga får en egen sida med en förloppsindikator. Varje svar kontrolleras före nästa fråga.",
     "empty": "Det här formuläret har inga frågor än.",
     "defaultsTitle": "Värden för varje svar",
     "defaultsDescription": "Egenskaper som formuläret inte frågar efter kan ändå fyllas i på varje rad det lägger till, som Status satt till Ny.",
@@ -58,6 +60,9 @@
   "fill": {
     "submit": "Skicka",
     "submitting": "Skickar…",
+    "next": "Nästa",
+    "back": "Tillbaka",
+    "progress": "Fråga {current} av {total}",
     "thanks": "Tack! Ditt svar har skickats.",
     "another": "Skicka ett svar till",
     "viewOnly": "Du kan visa det här formuläret, men bara personer som kan redigera den här databasen kan skicka in det.",

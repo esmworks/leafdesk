@@ -42,6 +42,8 @@
     "notPublic": "Weggelaten uit de openbare link",
     "addQuestion": "Een vraag toevoegen",
     "noMoreQuestions": "Elke eigenschap is al een vraag.",
+    "oneByOne": "Eén vraag tegelijk",
+    "oneByOneDescription": "Elke vraag krijgt een eigen pagina, met een voortgangsbalk. Elk antwoord wordt gecontroleerd voor de volgende vraag.",
     "empty": "Dit formulier heeft nog geen vragen.",
     "defaultsTitle": "Waarden voor elk antwoord",
     "defaultsDescription": "Eigenschappen waar het formulier niet naar vraagt, kunnen toch worden ingevuld op elke rij die het toevoegt, zoals Status op Nieuw.",
@@ -58,6 +60,9 @@
   "fill": {
     "submit": "Verzenden",
     "submitting": "Verzenden…",
+    "next": "Volgende",
+    "back": "Terug",
+    "progress": "Vraag {current} van {total}",
     "thanks": "Bedankt! Je antwoord is verzonden.",
     "another": "Nog een antwoord verzenden",
     "viewOnly": "Je kunt dit formulier bekijken, maar alleen mensen die deze database kunnen bewerken, kunnen het verzenden.",

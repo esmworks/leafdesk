@@ -592,6 +592,8 @@ export type PublicForm = {
   anonymous: boolean;
   confirmation: string;
   allowAnother: boolean;
+  /** The questions come one at a time. */
+  oneByOne: boolean;
   /** Whether people signed in see what they sent (never on an anonymous form). */
   showOwnAnswers: boolean;
 };
@@ -679,6 +681,7 @@ export async function getPublicForm(token: string): Promise<PublicForm | null> {
     anonymous: found.anonymous,
     confirmation: form?.confirmation?.trim() ?? "",
     allowAnother: form?.allowAnother !== false,
+    oneByOne: form?.oneByOne === true,
     showOwnAnswers: !found.anonymous && form?.showOwnAnswers === true,
   };
 }

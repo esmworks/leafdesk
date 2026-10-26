@@ -42,6 +42,8 @@
     "notPublic": "공개 링크에서 제외됨",
     "addQuestion": "질문 추가",
     "noMoreQuestions": "모든 속성이 이미 질문으로 추가되었습니다.",
+    "oneByOne": "한 번에 한 질문씩",
+    "oneByOneDescription": "질문마다 진행 표시줄과 함께 별도 페이지로 표시됩니다. 각 답변은 다음 질문으로 넘어가기 전에 확인됩니다.",
     "empty": "이 양식에는 아직 질문이 없습니다.",
     "defaultsTitle": "모든 응답에 적용할 값",
     "defaultsDescription": "양식에서 묻지 않는 속성도 추가되는 모든 행에 값을 채울 수 있습니다(예: 상태를 ‘신규’으로 설정).",
@@ -58,6 +60,9 @@
   "fill": {
     "submit": "제출",
     "submitting": "보내는 중…",
+    "next": "다음",
+    "back": "이전",
+    "progress": "질문 {current}/{total}",
     "thanks": "감사합니다! 응답이 전송되었습니다.",
     "another": "다른 응답 제출",
     "viewOnly": "이 양식을 볼 수는 있지만, 이 데이터베이스를 편집할 수 있는 사람만 제출할 수 있습니다.",

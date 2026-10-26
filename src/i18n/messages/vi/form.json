@@ -42,6 +42,8 @@
     "notPublic": "Không có trong liên kết công khai",
     "addQuestion": "Thêm câu hỏi",
     "noMoreQuestions": "Mọi thuộc tính đều đã là câu hỏi.",
+    "oneByOne": "Mỗi lần một câu hỏi",
+    "oneByOneDescription": "Mỗi câu hỏi có một trang riêng, kèm thanh tiến độ. Mỗi câu trả lời được kiểm tra trước câu hỏi tiếp theo.",
     "empty": "Biểu mẫu này chưa có câu hỏi nào.",
     "defaultsTitle": "Giá trị cho mọi câu trả lời",
     "defaultsDescription": "Những thuộc tính mà biểu mẫu không hỏi vẫn có thể được điền sẵn trên mỗi hàng nó thêm vào, ví dụ Trạng thái đặt là Mới.",
@@ -58,6 +60,9 @@
   "fill": {
     "submit": "Gửi",
     "submitting": "Đang gửi…",
+    "next": "Tiếp",
+    "back": "Quay lại",
+    "progress": "Câu hỏi {current}/{total}",
     "thanks": "Cảm ơn! Câu trả lời của bạn đã được gửi.",
     "another": "Gửi thêm câu trả lời khác",
     "viewOnly": "Bạn có thể xem biểu mẫu này, nhưng chỉ những người có thể chỉnh sửa cơ sở dữ liệu này mới gửi được.",

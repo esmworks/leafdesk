@@ -125,6 +125,7 @@ export function FormView({
           questions={questions}
           confirmation={form.confirmation}
           allowAnother={form.allowAnother}
+          oneByOne={form.oneByOne}
           disabled={!editable}
           note={archived ? t("fill.archived") : !editable ? t("fill.viewOnly") : undefined}
           onSubmit={async (answers) => {
@@ -612,6 +613,15 @@ function FormBuilder({
           })}
         </ol>
         {!questions.length && <p className="mt-6 text-sm text-fg-muted">{t("empty")}</p>}
+        {questions.length > 1 && (
+          <label className="mt-4 flex items-start justify-between gap-3 text-sm">
+            <span className="min-w-0">
+              {t("oneByOne")}
+              <span className="mt-0.5 block text-xs text-fg-muted">{t("oneByOneDescription")}</span>
+            </span>
+            <Switch label={t("oneByOne")} checked={form.oneByOne === true} onChange={(on) => onChange({ ...form, oneByOne: on ? true : undefined })} />
+          </label>
+        )}
 
         <Button ref={addQuestion.ref} size="sm" variant="ghost" className="mt-3" onClick={addQuestion.toggle}>
           <Plus className="h-3.5 w-3.5" />

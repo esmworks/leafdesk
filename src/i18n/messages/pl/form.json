@@ -42,6 +42,8 @@
     "notPublic": "Pominięte w linku publicznym",
     "addQuestion": "Dodaj pytanie",
     "noMoreQuestions": "Każda właściwość jest już pytaniem.",
+    "oneByOne": "Jedno pytanie naraz",
+    "oneByOneDescription": "Każde pytanie ma własną stronę z paskiem postępu. Każda odpowiedź jest sprawdzana przed kolejnym pytaniem.",
     "empty": "Ten formularz nie ma jeszcze pytań.",
     "defaultsTitle": "Wartości dla każdej odpowiedzi",
     "defaultsDescription": "Właściwości, o które formularz nie pyta, można i tak wypełniać w każdym dodawanym wierszu, np. Status ustawiony na Nowy.",
@@ -58,6 +60,9 @@
   "fill": {
     "submit": "Wyślij",
     "submitting": "Wysyłanie…",
+    "next": "Dalej",
+    "back": "Wstecz",
+    "progress": "Pytanie {current} z {total}",
     "thanks": "Dziękujemy! Twoja odpowiedź została wysłana.",
     "another": "Wyślij kolejną odpowiedź",
     "viewOnly": "Możesz wyświetlić ten formularz, ale wysłać go mogą tylko osoby, które mogą edytować tę bazę danych.",
