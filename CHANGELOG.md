@@ -24,6 +24,11 @@
 
 ### Changed
 
+- **Recordings are written down in the language people use Leafdesk in.** Dictation, voice notes
+  and meeting recordings tell the speech to text server the recorder's interface language, so a
+  few seconds of speech are no longer taken for another language.
+- **Dictating in the AI chat shows how to stop.** While recording, the microphone becomes a red
+  *Stop* button with the time in it, beside the button that cancels.
 - **The AI chat's box is tidier.** *Answer from* is a menu in the box's toolbar instead of a field
   under it (under the box in the panel), the model picker shows models by name ("Claude Opus 5.5")
   rather than id, files, skills and research sit on the left with where and how it answers on the

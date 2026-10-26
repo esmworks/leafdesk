@@ -200,6 +200,7 @@
     "dictation": {
       "start": "语音输入问题",
       "stop": "停止并插入文字",
+      "stopShort": "停止",
       "cancel": "取消录音",
       "transcribing": "正在记录你说的话…",
       "autoStopped": "录音已在 {minutes} 分钟的上限处停止。发送前请检查文字。",

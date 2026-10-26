@@ -200,6 +200,7 @@
     "dictation": {
       "start": "Een vraag dicteren",
       "stop": "Stoppen en de tekst invoegen",
+      "stopShort": "Stoppen",
       "cancel": "Opname annuleren",
       "transcribing": "Uitschrijven wat je zei…",
       "autoStopped": "De opname is gestopt bij de limiet van {minutes} min. Controleer de tekst voordat je hem verstuurt.",

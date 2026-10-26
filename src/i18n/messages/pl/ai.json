@@ -200,6 +200,7 @@
     "dictation": {
       "start": "Podyktuj pytanie",
       "stop": "Zatrzymaj i wstaw tekst",
+      "stopShort": "Zatrzymaj",
       "cancel": "Anuluj nagrywanie",
       "transcribing": "Zapisywanie tego, co mówisz…",
       "autoStopped": "Nagrywanie zatrzymało się po osiągnięciu limitu {minutes} min. Sprawdź tekst przed wysłaniem.",

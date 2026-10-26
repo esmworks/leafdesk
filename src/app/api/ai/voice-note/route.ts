@@ -3,6 +3,7 @@ import { AccessError } from "@/server/access";
 import { aiErrorStatus, isAiError, sttLimits } from "@/server/ai";
 import { audioError as fail, readAudioForm } from "@/server/audio-upload";
 import { isCrossSite } from "@/server/cross-site";
+import { statedLocale } from "@/server/mail/locale";
 import { draftVoiceNote, prepareVoiceNote, type VoiceNoteTarget } from "@/server/voice-notes";
 
 /**
@@ -57,6 +58,7 @@ export async function POST(request: Request) {
       try {
         const draft = await draftVoiceNote(session.user.id, prepared, audio, {
           signal,
+          language: statedLocale(request.headers),
           onStage: (stage) => controller.enqueue(line({ type: "stage", stage })),
         });
         controller.enqueue(line({ type: "done", draft }));

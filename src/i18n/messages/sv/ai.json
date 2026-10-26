@@ -200,6 +200,7 @@
     "dictation": {
       "start": "Diktera en fråga",
       "stop": "Stoppa och infoga texten",
+      "stopShort": "Stoppa",
       "cancel": "Avbryt inspelningen",
       "transcribing": "Skriver ned det du sa…",
       "autoStopped": "Inspelningen stoppades vid gränsen på {minutes} min. Kontrollera texten innan du skickar den.",

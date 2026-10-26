@@ -756,14 +756,15 @@ export function stream(request: AiRequest): AiStream {
 }
 
 /**
- * The text of spoken audio (`type`: a supported media type, see lib/voice-notes). Size-checked
+ * The text of spoken audio (`type`: a supported media type, see lib/voice-notes; `language`: the
+ * recorder's interface language, see transcribe.ts). Size-checked
  * (STT_MAX_MB), time-limited (STT_TIMEOUT_SECONDS) and rate-limited like any AI request; the audio
  * is only held in memory and never stored. Throws AiError: "disabled" without speech to text,
  * "tooLarge", "rateLimited", "timeout", "aborted", "provider", "empty" when nothing was heard.
  */
 export async function transcribe(
   audio: { bytes: Blob; type: string },
-  request: { feature: string; userId?: string | null; workspaceId: string; signal?: AbortSignal; skipRateLimit?: boolean },
+  request: { feature: string; userId?: string | null; workspaceId: string; language?: string | null; signal?: AbortSignal; skipRateLimit?: boolean },
 ): Promise<string> {
   if (!request.workspaceId) throw new AiError("disabled", "AI runs only for a workspace");
   const target = await aiTargetFor(request.workspaceId);
@@ -779,7 +780,7 @@ export async function transcribe(
   const ledger = await usageLedger(runtime.override);
   try {
     await holdToLimit(ledger, request.workspaceId, target.accountId !== null);
-    const { text, seconds } = testing ? { text: await testing(audio), seconds: null } : await fetchTranscription(stt, audio, signal);
+    const { text, seconds } = testing ? { text: await testing(audio), seconds: null } : await fetchTranscription(stt, audio, signal, request.language);
     if (!text) throw new AiError("empty", "Nothing was heard in the recording");
     noted(target, null);
     logUsage({

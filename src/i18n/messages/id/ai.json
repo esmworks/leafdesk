@@ -200,6 +200,7 @@
     "dictation": {
       "start": "Dikte pertanyaan",
       "stop": "Berhenti dan sisipkan teks",
+      "stopShort": "Berhenti",
       "cancel": "Batalkan rekaman",
       "transcribing": "Menuliskan apa yang Anda ucapkan…",
       "autoStopped": "Rekaman berhenti pada batas {minutes} menit. Periksa teksnya sebelum mengirim.",

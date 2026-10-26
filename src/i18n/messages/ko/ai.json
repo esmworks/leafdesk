@@ -200,6 +200,7 @@
     "dictation": {
       "start": "질문 받아쓰기",
       "stop": "중지하고 텍스트 넣기",
+      "stopShort": "중지",
       "cancel": "녹음 취소",
       "transcribing": "말한 내용을 받아 적는 중…",
       "autoStopped": "녹음이 {minutes}분 제한에 도달해 중지되었습니다. 보내기 전에 텍스트를 확인하세요.",

@@ -189,10 +189,10 @@ export async function draftVoiceNote(
   userId: string,
   target: Awaited<ReturnType<typeof prepareVoiceNote>>,
   audio: { bytes: Blob; type: string },
-  { signal, onStage }: { signal?: AbortSignal; onStage?: (stage: "writing") => void } = {},
+  { signal, onStage, language }: { signal?: AbortSignal; onStage?: (stage: "writing") => void; language?: string | null } = {},
 ): Promise<VoiceNoteDraft> {
   const { workspaceId, databaseId, instructions } = target;
-  const transcript = (await transcribe(audio, { feature: "voice.transcribe", userId, workspaceId, signal })).slice(0, MAX_TRANSCRIPT);
+  const transcript = (await transcribe(audio, { feature: "voice.transcribe", userId, workspaceId, language, signal })).slice(0, MAX_TRANSCRIPT);
   const raw: VoiceNoteDraft = { title: fallbackVoiceTitle(transcript), markdown: transcript, transcript, properties: {}, rewritten: false };
   if (!(await aiAvailable(workspaceId))) return raw;
   onStage?.("writing");
@@ -236,12 +236,12 @@ export async function transcribeDictation(
   userId: string,
   workspaceId: string,
   audio: { bytes: Blob; type: string },
-  { signal, inPage = false }: { signal?: AbortSignal; inPage?: boolean } = {},
+  { signal, inPage = false, language }: { signal?: AbortSignal; inPage?: boolean; language?: string | null } = {},
 ): Promise<string> {
   await requireMembership(userId, workspaceId).catch(noAccess);
   if (!(await voiceNoteLimits(workspaceId))) throw new AiError("disabled", "Speech to text is off for this workspace");
   const feature = inPage ? "voice.dictate" : "chat.dictate";
-  return (await transcribe(audio, { feature, userId, workspaceId, signal })).trim().slice(0, MAX_TRANSCRIPT);
+  return (await transcribe(audio, { feature, userId, workspaceId, language, signal })).trim().slice(0, MAX_TRANSCRIPT);
 }
 
 export type SaveVoiceNoteInput = {

@@ -200,6 +200,7 @@
     "dictation": {
       "start": "Đọc câu hỏi",
       "stop": "Dừng và chèn văn bản",
+      "stopShort": "Dừng",
       "cancel": "Hủy ghi âm",
       "transcribing": "Đang ghi lại những gì bạn nói…",
       "autoStopped": "Việc ghi âm đã dừng ở giới hạn {minutes} phút. Hãy kiểm tra văn bản trước khi gửi.",

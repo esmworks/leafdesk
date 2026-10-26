@@ -200,6 +200,7 @@
     "dictation": {
       "start": "質問を音声入力",
       "stop": "停止してテキストを挿入",
+      "stopShort": "停止",
       "cancel": "録音をキャンセル",
       "transcribing": "話した内容を書き起こしています…",
       "autoStopped": "録音は上限の{minutes}分で停止しました。送信する前にテキストを確認してください。",

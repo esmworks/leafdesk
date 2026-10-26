@@ -200,6 +200,7 @@
     "dictation": {
       "start": "Dikter et spørgsmål",
       "stop": "Stop, og indsæt teksten",
+      "stopShort": "Stop",
       "cancel": "Annuller optagelse",
       "transcribing": "Skriver ned, hvad du sagde…",
       "autoStopped": "Optagelsen stoppede ved grænsen på {minutes} min. Tjek teksten, før du sender den.",

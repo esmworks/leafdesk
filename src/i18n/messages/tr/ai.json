@@ -200,6 +200,7 @@
     "dictation": {
       "start": "Soruyu sesle yaz",
       "stop": "Durdur ve metni ekle",
+      "stopShort": "Durdur",
       "cancel": "Kaydı iptal et",
       "transcribing": "Söyledikleriniz yazıya dökülüyor…",
       "autoStopped": "Kayıt {minutes} dakikalık sınırda durdu. Göndermeden önce metni kontrol edin.",
