@@ -2,6 +2,13 @@
 
 ## Unreleased
 
+### Fixed
+
+- **A table's calculations sit right under its rows, and sums come out exact.** The footer row
+  with the results comes before New and is closed off like a row; a sum or range keeps to the
+  decimals its values have (19,966,877.69, not 19,966,877.689999998, also in rollups and charts);
+  a long result no longer hides the label beside it.
+
 ## 0.6.5 — 2026-10-26
 
 ### Upgrading from 0.6.4

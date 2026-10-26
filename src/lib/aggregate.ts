@@ -179,6 +179,14 @@ function items(value: unknown, kind: ValueKind, options: PropertyOptions | undef
 }
 
 const key = (item: unknown) => (typeof item === "string" ? item : JSON.stringify(item));
+
+/** How many decimals a number is written with: 2 for 32107.33, 7 for 1e-7. */
+function decimalPlaces(n: number): number {
+  const [mantissa, exponent] = String(n).split("e");
+  return Math.max(0, (mantissa.split(".")[1]?.length ?? 0) - Number(exponent ?? 0));
+}
+
+const roundTo = (n: number, places: number) => Number(n.toFixed(Math.min(places, 100)));
 const DAY = 24 * 60 * 60 * 1000;
 
 type DatePoint = { value: string; ms: number };
@@ -235,7 +243,10 @@ export function aggregateValues(values: unknown[], fn: AggregateFn, column: Aggr
 
   if (kind === "number") {
     const numbers = perRow.flat() as number[];
-    if (fn === "sum") return count(numbers.reduce((a, b) => a + b, 0));
+    // Binary fractions leave a trail when added (0.1 + 0.2): a sum or difference has no more
+    // decimals than its most precise value.
+    const exact = (value: number) => roundTo(value, Math.max(0, ...numbers.map(decimalPlaces)));
+    if (fn === "sum") return count(exact(numbers.reduce((a, b) => a + b, 0)));
     if (!numbers.length) return null;
     const sorted = [...numbers].sort((a, b) => a - b);
     switch (fn) {
@@ -250,7 +261,7 @@ export function aggregateValues(values: unknown[], fn: AggregateFn, column: Aggr
       case "max":
         return count(sorted[sorted.length - 1]);
       case "range":
-        return count(sorted[sorted.length - 1] - sorted[0]);
+        return count(exact(sorted[sorted.length - 1] - sorted[0]));
     }
   }
 

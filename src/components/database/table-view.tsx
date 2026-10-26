@@ -41,7 +41,7 @@ import { PropertyLock, usePropertyAccess } from "./property-access";
 import type { PropertyMenuActions } from "./property-menu";
 import { usePropertyHint } from "./property-hint";
 import { HIDE_SCROLLBAR, StickyScrollbar } from "./scroll-x";
-import { CalculationRow } from "./table-calculations";
+import { CalculationRow, showsCalculations } from "./table-calculations";
 import { useRelations } from "./relation-context";
 import { QuickAddContext } from "./quick-add";
 import { RowMenu, type EditableColumn } from "./row-menu";
@@ -565,6 +565,18 @@ export function TableView({
     ...visible.map((p) => ({ key: p.id, name: p.name, type: valueType(p), options: p.options, width: colWidth(p) })),
   ].map((column, i) => ({ ...column, frozen: frozen(i) }));
 
+  const footer = (
+    <CalculationRow
+      offset={handles}
+      columns={calculationColumns}
+      rows={inView}
+      calculations={view.config.calculations}
+      readOnly={readOnly}
+      onChange={setCalculation}
+    />
+  );
+  const footerFirst = showsCalculations(calculationColumns, view.config.calculations);
+
   const totalWidth = handles + nameWidth + visible.reduce((sum, p) => sum + colWidth(p), 0) + (readOnly ? 0 : 36);
 
   // The body as one list, so only the rows near the visible part of the page render, and the rows
@@ -893,6 +905,8 @@ export function TableView({
             />
           </div>
         )}
+        {/* With results, right under the rows they add up; until then New sits under the rows. */}
+        {footerFirst && footer}
         {!readOnly && !grouping && (
           <button
             type="button"
@@ -904,14 +918,7 @@ export function TableView({
             {t("table.new")}
           </button>
         )}
-        <CalculationRow
-          offset={handles}
-          columns={calculationColumns}
-          rows={inView}
-          calculations={view.config.calculations}
-          readOnly={readOnly}
-          onChange={setCalculation}
-        />
+        {!footerFirst && footer}
         <BulkActionBar
           workspaceId={workspaceId}
           databaseId={databaseId}

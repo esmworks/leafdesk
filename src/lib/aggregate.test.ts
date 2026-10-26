@@ -181,6 +181,14 @@ describe("aggregateValues: numbers", () => {
     expect(run([-2, -5], "max", "number")).toEqual(num(-2));
   });
 
+  it("keeps sums and ranges to the decimals their values have", () => {
+    expect(run([0.1, 0.2], "sum", "number")).toEqual(num(0.3));
+    expect(run([103867.6, 32107.33, 2432000, -621722], "sum", "number")).toEqual(num(1946252.93));
+    expect(run([0.3, 0.1], "range", "number")).toEqual(num(0.2));
+    expect(run([1e-7, 2e-7], "sum", "number")).toEqual(num(3e-7));
+    expect(run([1, 2.5], "sum", "number")).toEqual(num(3.5));
+  });
+
   it("treats non-numbers as empty", () => {
     expect(run(values, "count_empty", "number")).toEqual(num(3));
     expect(run([0, 0, 1], "count_unique", "number")).toEqual(num(2));
