@@ -583,7 +583,7 @@ export function followOrRefuse(
       ? `"${outcome.option.name}" is not available in "${outcome.prop.name}" while "${parent}" is ${parentValue ? `"${parentValue}"` : "empty"}; choose one of its options that goes with it`
       : `"${outcome.option.name}" is not available in "${outcome.prop.name}" for this row`,
     "optionUnavailable",
-    { value: outcome.option.name, property: outcome.prop.name, parent },
+    { value: outcome.option.name, property: outcome.prop.name, parent, propertyId: outcome.prop.id },
   );
 }
 

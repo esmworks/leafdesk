@@ -33,7 +33,7 @@ import { parentOf } from "@/lib/dependent-options";
 import { unknownToVisitors } from "@/lib/published-copy";
 import { SlidingWindowLimiter, takeAll } from "@/lib/rate-limit";
 import { AccessError, accessRank, hasLevel, pageAccessOf, requireMembership, requirePageAccess, type RequiredLevel } from "@/server/access";
-import { getProperties, insertRows, normalizeRowProperties, withCode, type DatabaseProperty } from "@/server/databases";
+import { followOrRefuse, getProperties, insertRows, normalizeRowProperties, withCode, type DatabaseProperty } from "@/server/databases";
 import { propertyAccessFor } from "@/server/property-access";
 import { publishBlocker } from "@/server/publication";
 import { storeFile, type StoredFile, type UploadInput } from "@/server/files";
@@ -114,6 +114,30 @@ async function answerRow<T>(insert: () => Promise<T>): Promise<T> {
     if (!(error instanceof PropertyValueError) || error.code !== "notUnique" || !error.params.propertyId) throw error;
     const { propertyId, ...params } = error.params;
     throw new FormError(error.message, "invalidAnswers", [{ propertyId, code: "notUnique", params }]);
+  }
+}
+
+/**
+ * What a public answer writes: the form's defaults, then the answers, with selects depending on an
+ * answered one following it (lib/dependent-options, as every row write does): a default that no
+ * longer fits is dropped, and an answer that doesn't fit the select it depends on is an answer
+ * error, its property named as its question shows it.
+ */
+export function followAnswers(
+  all: DatabaseProperty[],
+  questions: ResolvedQuestion<DatabaseProperty>[],
+  defaults: Record<string, unknown>,
+  answers: Record<string, unknown>,
+): Record<string, unknown> {
+  const asked = questions.flatMap((q) => q.prop ?? []);
+  try {
+    return { ...defaults, ...answers, ...followOrRefuse(all, asked, defaults, answers) };
+  } catch (error) {
+    if (!(error instanceof PropertyValueError) || error.code !== "optionUnavailable" || !error.params.propertyId) throw error;
+    const { propertyId, value } = error.params;
+    const question = questions.find((q) => q.propertyId === propertyId);
+    const property = question?.label.trim() || question?.prop?.name || "";
+    throw new FormError(error.message, "invalidAnswers", [{ propertyId, code: "optionUnavailable", params: { value, property } }]);
   }
 }
 
@@ -774,21 +798,22 @@ export async function submitPublicForm(
   // Bots fill in every field. They are told it worked, so they have nothing to adapt to.
   if (typeof submission.honeypot === "string" && submission.honeypot.trim()) return { id: null };
 
-  const properties = await answerable(form.publishedBy!, form.databaseId, await getProperties(form.databaseId), null);
-  const checked = checkAnswers(formQuestions(form.config.form, properties, { public: true }), submission.answers);
+  const all = await getProperties(form.databaseId);
+  const properties = await answerable(form.publishedBy!, form.databaseId, all, null);
+  const questions = formQuestions(form.config.form, properties, { public: true });
+  const checked = checkAnswers(questions, submission.answers);
   if (!checked.ok) throw invalidAnswers(checked.errors);
   // Public questions hold no links or people (isPublicAskable), so the checked values are final,
-  // but for files, which must be this form's uploads.
+  // but for files, which must be this form's uploads, and selects depending on another.
   const database = { id: form.databaseId, workspaceId: form.workspaceId };
   const { files, rest } = splitFileAnswers(properties, checked.properties);
   const claimed = await claimFormFiles(database, properties, files);
   const defaults = await liveDefaults(database, properties, form.config.form);
+  const values = followAnswers(all, questions, defaults, { ...rest, ...claimed });
   const creator = form.anonymous ? null : userId;
   // An agent this answer sets off is held to what the form's publisher may open, when no member
   // stands behind the answer: it never hands over what they couldn't.
-  const [row] = await answerRow(() =>
-    insertRows(database, creator, [{ title: checked.title, properties: { ...defaults, ...rest, ...claimed } }], { boundTo: form.publishedBy }),
-  );
+  const [row] = await answerRow(() => insertRows(database, creator, [{ title: checked.title, properties: values }], { boundTo: form.publishedBy }));
   await adoptFormFiles(database.id, row.id, claimed);
   await recordSubmission(row.id, form.viewId, creator);
   return { id: row.id };
