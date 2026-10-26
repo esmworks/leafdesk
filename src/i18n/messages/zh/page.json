@@ -85,6 +85,7 @@
     "exportDisabledBody": "此工作区的所有者已关闭其页面的导出和打印功能。",
     "showInGraph": "在关系图中显示",
     "present": "演示",
+    "readAloud": "朗读",
     "watch": "关注页面",
     "watchHint": "其他人编辑此页面或在其中发起评论串时，在收件箱中收到通知。",
     "mute": "静音",
@@ -777,6 +778,24 @@
     "morePlaces": "还有 {count} 处",
     "fewerPlaces": "收起",
     "morePages": "再显示 {count} 个页面"
+  },
+  "related": {
+    "title": "相关页面",
+    "hint": "与此页面意思相近、但尚未链接的页面",
+    "edited": "{time}编辑"
+  },
+  "readAloud": {
+    "label": "朗读",
+    "play": "朗读",
+    "pause": "暂停",
+    "previous": "上一个块",
+    "next": "下一个块",
+    "close": "停止朗读",
+    "progress": "{current} / {total}",
+    "speed": "语速",
+    "voice": "语音",
+    "unsupported": "此浏览器无法朗读页面。",
+    "nothing": "此页面没有可朗读的内容。"
   },
   "blockMenu": {
     "copyLink": "复制块链接",

@@ -1,0 +1,50 @@
+{
+  "extName": {
+    "message": "שמירה ב־Leafdesk"
+  },
+  "extDescription": {
+    "message": "שמירת הדף שבו נמצאים, קישור או טקסט שנבחר בסביבת העבודה שלך ב־Leafdesk."
+  },
+  "actionTitle": {
+    "message": "שמירת הדף הזה ב־Leafdesk"
+  },
+  "menuPage": {
+    "message": "שמירת הדף ב־Leafdesk"
+  },
+  "menuLink": {
+    "message": "שמירת הקישור ב־Leafdesk"
+  },
+  "menuSelection": {
+    "message": "שמירת הבחירה ב־Leafdesk"
+  },
+  "optionsTitle": {
+    "message": "שמירה ב־Leafdesk"
+  },
+  "optionsAddress": {
+    "message": "כתובת ה־Leafdesk שלך"
+  },
+  "optionsHelp": {
+    "message": "הכתובת שבה פותחים את Leafdesk, למשל https://leafdesk.example.com."
+  },
+  "optionsSave": {
+    "message": "שמירה"
+  },
+  "optionsSaved": {
+    "message": "נשמר. דפים שנשמרים נפתחים בפתק המהיר של Leafdesk."
+  },
+  "optionsInvalid": {
+    "message": "יש להזין כתובת אינטרנט, למשל https://leafdesk.example.com."
+  },
+  "optionsHowTitle": {
+    "message": "איך שומרים"
+  },
+  "optionsHowButton": {
+    "message": "לוחצים על כפתור התוסף (או על Alt+Shift+S) כדי לשמור את הדף הנוכחי, עם הטקסט שנבחר בו כציטוט."
+  },
+  "optionsHowMenu": {
+    "message": "לוחצים לחיצה ימנית על דף, קישור או טקסט שנבחר ובוחרים „שמירה ב־Leafdesk”."
+  },
+  "optionsHowSignIn": {
+    "message": "Leafdesk נפתח בלשונית חדשה: בוחרים לאן לשמור, או שומרים את הדף כולו. אם עוד לא התחברת, אפשר להתחבר שם."
+  }
+}

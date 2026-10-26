@@ -5,6 +5,7 @@ import {
   Archive,
   ArchiveRestore,
   ArrowRightLeft,
+  AudioLines,
   BadgeCheck,
   Bell,
   BellOff,
@@ -113,6 +114,7 @@ export function PageHeaderActions({
   onHistory,
   onMarkdown,
   onPresent,
+  onReadAloud,
   onComments,
   commentsOpen = false,
   onGraph,
@@ -143,6 +145,8 @@ export function PageHeaderActions({
   onMarkdown?: () => void;
   /** Presents the page as slides (presentation.tsx); unset where it can't be. */
   onPresent?: () => void;
+  /** Reads the page aloud (read-aloud.tsx); unset where it can't be. */
+  onReadAloud?: () => void;
   /** Opens or closes the comments beside the page; pages without a body have none. */
   onComments?: () => void;
   commentsOpen?: boolean;
@@ -323,6 +327,7 @@ export function PageHeaderActions({
         onHistory={onHistory}
         onMarkdown={onMarkdown}
         onPresent={onPresent}
+        onReadAloud={onReadAloud}
         onGraph={onGraph}
         onMoveToTrash={onMoveToTrash}
         onOpenPage={onOpenPage}
@@ -508,6 +513,7 @@ function PageMenu({
   onHistory,
   onMarkdown,
   onPresent,
+  onReadAloud,
   onGraph,
   onMoveToTrash,
   onOpenPage,
@@ -526,6 +532,7 @@ function PageMenu({
   /** Opens the body as Markdown to edit (markdown-source.tsx); unset where it can't be. */
   onMarkdown?: () => void;
   onPresent?: () => void;
+  onReadAloud?: () => void;
   onGraph?: () => void;
   onMoveToTrash: () => void;
   onOpenPage?: (workspaceId: string, pageId: string) => void;
@@ -774,6 +781,17 @@ function PageMenu({
                 }}
               >
                 {t("present")}
+              </MenuItem>
+            )}
+            {onReadAloud && page.hasBody && !isDatabase && (
+              <MenuItem
+                icon={<AudioLines className="h-4 w-4" />}
+                onClick={() => {
+                  close();
+                  onReadAloud();
+                }}
+              >
+                {t("readAloud")}
               </MenuItem>
             )}
             {/* The copy lands beside the original; at the top level that isn't open to every guest. */}

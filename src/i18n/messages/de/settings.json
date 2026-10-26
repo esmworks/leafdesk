@@ -84,7 +84,7 @@
       "ownPageViews": "aufrufe tracking datenschutz abmelden analysen",
       "aiUsageLimit": "Budget Kosten Ausgaben Obergrenze",
       "aiUsagePeople": "pro Person Mitglied Kosten Token",
-      "health": "defekte Links verwaiste Duplikate leere Seiten",
+      "health": "defekte Links verwaiste Duplikate leere Seiten weblinks urls 404",
       "audit": "Protokoll Verlauf Ereignisse wer geändert",
       "siteHeader": "navigation menü links kopfleiste",
       "siteDescription": "seo meta beschreibung suchmaschinen vorschau open graph",
@@ -1079,6 +1079,19 @@
       "title": "Defekte Links",
       "description": "Links und Erwähnungen auf einer Seite, die zu einer Seite im Papierkorb oder einer endgültig gelöschten führen.",
       "none": "Keine defekten Links."
+    },
+    "brokenWebLinks": {
+      "title": "Defekte Weblinks",
+      "description": "Webadressen in Seiten und URL-Eigenschaften, die nicht mehr funktionieren. Der Server prüft jede Adresse etwa einmal pro Woche und listet eine nicht erreichbare Website erst, wenn sie mehrere Tage lang ausfällt.",
+      "none": "Keine defekten Weblinks.",
+      "pending": "{count, plural, one {# Adresse wird noch geprüft.} other {# Adressen werden noch geprüft.}} Öffne diesen Tab später noch einmal.",
+      "skipped": "Nicht geprüft: Dieser Server prüft keine Weblinks.",
+      "notFound": "Nicht gefunden ({status})",
+      "gone": "Von der Website entfernt ({status})",
+      "noHost": "Die Adresse der Website existiert nicht mehr",
+      "serverError": "Die Website antwortet mit einem Fehler ({status})",
+      "unreachable": "Die Website ist nicht erreichbar",
+      "inProperty": "In {property}"
     },
     "orphans": {
       "title": "Seiten, zu denen nichts führt",

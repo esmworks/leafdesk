@@ -28,6 +28,7 @@ export function describeWorkspaceCheck(check: WorkspaceCheck) {
       expired_verifications: check.expiredVerifications.total,
       possible_duplicates: check.duplicates.status === "done" ? check.duplicates.total : "not checked",
       broken_relations: check.brokenRelations.total,
+      broken_web_links: check.brokenWebLinks.status === "done" ? check.brokenWebLinks.total : "not checked",
     },
     broken_links: {
       description: "Links and mentions in a page's body to a page in the trash or deleted for good.",
@@ -82,11 +83,27 @@ export function describeWorkspaceCheck(check: WorkspaceCheck) {
       })),
       ...more(check.brokenRelations.items.length, check.brokenRelations.total),
     },
+    broken_web_links:
+      check.brokenWebLinks.status === "done"
+        ? {
+            description: `Web addresses in page bodies and URL properties that stopped working: not_found (404), gone (410), or a site that failed several checks a day apart (no_host: its name has no address; server_error; unreachable). Of ${check.brokenWebLinks.links} addresses${check.brokenWebLinks.pending ? `, ${check.brokenWebLinks.pending} not checked yet (the server fetches them in the background; check again later)` : ""}.`,
+            items: check.brokenWebLinks.items.map((f) => ({
+              page: pageOut(f.source),
+              url: f.url,
+              reason: f.reason.replace(/[A-Z]/g, (c) => `_${c.toLowerCase()}`),
+              ...(f.httpStatus ? { http_status: f.httpStatus } : {}),
+              ...(f.property ? { property: f.property.name } : {}),
+              checked_at: f.checkedAt,
+            })),
+            ...more(check.brokenWebLinks.items.length, check.brokenWebLinks.total),
+          }
+        : { description: "Not checked: this Leafdesk server doesn't check web links (WEB_LINK_CHECKS=off).", items: [] },
     how_to_fix:
       "Ask the user before changing anything. A page in the trash comes back with restore_page (when can_restore). " +
       "A link to a deleted page goes by editing the page's body with update_page. An orphan page can be linked from title_written_in or moved under a page with move_page. " +
       "An empty page goes to the trash with archive_page. A stale page may be out of date: read it with get_page. " +
       "A page whose verification ended is verified again with update_page verified, after reading it. " +
-      "A relation to a row in the trash or deleted is cleared with update_database_row, setting the property to its other rows.",
+      "A relation to a row in the trash or deleted is cleared with update_database_row, setting the property to its other rows. " +
+      "A broken web link is replaced or removed with update_page (or update_database_row for a URL property), once the user says where it should point.",
   };
 }

@@ -128,7 +128,7 @@ describe("sections", () => {
     expect(section([1, 2])).toEqual({ items: [1, 2], total: 2 });
   });
 
-  it("add up to the report's findings, duplicates only when they were checked", () => {
+  it("add up to the report's findings, duplicates and web links only when they were checked", () => {
     const none = { items: [], total: 0 };
     const check: WorkspaceCheck = {
       workspaceId: "ws",
@@ -143,9 +143,11 @@ describe("sections", () => {
       expiredVerifications: { items: [], total: 5 },
       duplicates: { status: "skipped", reason: "noEmbeddings" },
       brokenRelations: { items: [], total: 4 },
+      brokenWebLinks: { status: "skipped" },
     };
     expect(findingCount(check)).toBe(15);
     expect(findingCount({ ...check, duplicates: { status: "done", minSimilarity: 0.9, compared: 5, items: [], total: 2 } })).toBe(17);
+    expect(findingCount({ ...check, brokenWebLinks: { status: "done", links: 9, pending: 1, items: [], total: 3 } })).toBe(18);
   });
 });
 

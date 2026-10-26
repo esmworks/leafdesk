@@ -1,0 +1,50 @@
+{
+  "extName": {
+    "message": "Simpan ke Leafdesk"
+  },
+  "extDescription": {
+    "message": "Simpan halaman yang sedang dibuka, tautan, atau teks yang Anda pilih ke ruang kerja Leafdesk Anda."
+  },
+  "actionTitle": {
+    "message": "Simpan halaman ini ke Leafdesk"
+  },
+  "menuPage": {
+    "message": "Simpan halaman ke Leafdesk"
+  },
+  "menuLink": {
+    "message": "Simpan tautan ke Leafdesk"
+  },
+  "menuSelection": {
+    "message": "Simpan pilihan ke Leafdesk"
+  },
+  "optionsTitle": {
+    "message": "Simpan ke Leafdesk"
+  },
+  "optionsAddress": {
+    "message": "Alamat Leafdesk Anda"
+  },
+  "optionsHelp": {
+    "message": "Alamat tempat Anda membuka Leafdesk, misalnya https://leafdesk.example.com."
+  },
+  "optionsSave": {
+    "message": "Simpan"
+  },
+  "optionsSaved": {
+    "message": "Tersimpan. Halaman yang Anda simpan terbuka di catatan cepat Leafdesk."
+  },
+  "optionsInvalid": {
+    "message": "Masukkan alamat web, misalnya https://leafdesk.example.com."
+  },
+  "optionsHowTitle": {
+    "message": "Cara menyimpan"
+  },
+  "optionsHowButton": {
+    "message": "Klik tombol ekstensi (atau tekan Alt+Shift+S) untuk menyimpan halaman yang sedang dibuka, dengan teks yang Anda pilih di sana sebagai kutipan."
+  },
+  "optionsHowMenu": {
+    "message": "Klik kanan halaman, tautan, atau teks yang dipilih, lalu pilih Simpan ke Leafdesk."
+  },
+  "optionsHowSignIn": {
+    "message": "Leafdesk terbuka di tab baru: pilih tempatnya, atau simpan seluruh halaman. Masuk di sana jika belum."
+  }
+}

@@ -53,6 +53,7 @@ const { startSnoozes } = await import("./src/server/notifications");
 const { startRowUpdates } = await import("./src/server/row-follow");
 const { startPageUpdates } = await import("./src/server/page-watch");
 const { startVerificationReminders } = await import("./src/server/verification");
+const { startWebLinkChecks } = await import("./src/server/web-links");
 const { startPageWebhooks } = await import("./src/server/page-webhooks/deliver");
 const { startAuditStreams } = await import("./src/server/audit-stream");
 const { startSensitiveContentScans } = await import("./src/server/sensitive-content");
@@ -203,6 +204,8 @@ server.listen(port, hostname, () => {
   startPageUpdates();
   // Tells verifiers a few days before their verification of a page ends, and when it ends.
   startVerificationReminders();
+  // Fetches the web addresses in pages that Settings > Health asked about, to find broken links.
+  startWebLinkChecks();
   // Sends what happens to pages to the workspaces' page webhooks, and retries them.
   startPageWebhooks();
   // Streams new audit events to the addresses workspaces' owners set, and retries them.

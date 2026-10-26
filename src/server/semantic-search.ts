@@ -155,6 +155,33 @@ export async function chunksOfPages(pageIds: string[]): Promise<Map<string, { bl
 }
 
 /**
+ * The mean of each page's chunk embeddings by `model` (one vector for its whole text), for those of
+ * `pageIds` in `workspaceId` that are indexed. No access checks: the caller has them.
+ */
+export async function meanEmbeddings(workspaceId: string, model: string, pageIds: string[]): Promise<Map<string, number[]>> {
+  const out = new Map<string, number[]>();
+  for (let i = 0; i < pageIds.length; i += 250) {
+    const part = pageIds.slice(i, i + 250);
+    const rows = await db.execute<{ page_id: string; vector: number[] | string }>(sql`
+      select m.page_id, array_agg(m.x order by m.i)::float8[] as vector from (
+        select c.page_id, u.i, avg(u.x) as x
+        from ${pageChunk} c cross join lateral unnest(c.embedding) with ordinality as u(x, i)
+        where c.workspace_id = ${workspaceId} and c.model = ${model} and c.page_id in (${sql.join(part.map((id) => sql`${id}`), sql`, `)})
+        group by c.page_id, u.i
+      ) m group by m.page_id
+    `);
+    for (const r of rows) out.set(r.page_id, parseVector(r.vector));
+  }
+  return out;
+}
+
+/** A float8[] as the driver hands it over: an array, or Postgres' text form when it doesn't parse it. */
+function parseVector(value: number[] | string): number[] {
+  if (Array.isArray(value)) return value.map(Number);
+  return value.replace(/[{}]/g, "").split(",").filter(Boolean).map(Number);
+}
+
+/**
  * The searchable workspaces grouped by what embeds their queries: one AI account (or the server's
  * settings) and model per group, with its similarity threshold.
  */

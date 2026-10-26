@@ -1,0 +1,50 @@
+{
+  "extName": {
+    "message": "Enregistrer dans Leafdesk"
+  },
+  "extDescription": {
+    "message": "Enregistrez la page où vous êtes, un lien ou le texte sélectionné dans votre espace de travail Leafdesk."
+  },
+  "actionTitle": {
+    "message": "Enregistrer cette page dans Leafdesk"
+  },
+  "menuPage": {
+    "message": "Enregistrer la page dans Leafdesk"
+  },
+  "menuLink": {
+    "message": "Enregistrer le lien dans Leafdesk"
+  },
+  "menuSelection": {
+    "message": "Enregistrer la sélection dans Leafdesk"
+  },
+  "optionsTitle": {
+    "message": "Enregistrer dans Leafdesk"
+  },
+  "optionsAddress": {
+    "message": "Votre adresse Leafdesk"
+  },
+  "optionsHelp": {
+    "message": "L’adresse à laquelle vous ouvrez Leafdesk, par exemple https://leafdesk.example.com."
+  },
+  "optionsSave": {
+    "message": "Enregistrer"
+  },
+  "optionsSaved": {
+    "message": "Enregistré. Les pages que vous enregistrez s’ouvrent dans la note rapide de Leafdesk."
+  },
+  "optionsInvalid": {
+    "message": "Saisissez une adresse web, par exemple https://leafdesk.example.com."
+  },
+  "optionsHowTitle": {
+    "message": "Comment enregistrer"
+  },
+  "optionsHowButton": {
+    "message": "Cliquez sur le bouton de l’extension (ou appuyez sur Alt+Maj+S) pour enregistrer la page où vous êtes, avec le texte que vous y avez sélectionné en citation."
+  },
+  "optionsHowMenu": {
+    "message": "Faites un clic droit sur une page, un lien ou un texte sélectionné et choisissez Enregistrer dans Leafdesk."
+  },
+  "optionsHowSignIn": {
+    "message": "Leafdesk s’ouvre dans un nouvel onglet : choisissez où l’enregistrer, ou enregistrez la page entière. Connectez-vous-y si ce n’est pas déjà fait."
+  }
+}

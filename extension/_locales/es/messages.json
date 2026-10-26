@@ -1,0 +1,50 @@
+{
+  "extName": {
+    "message": "Guardar en Leafdesk"
+  },
+  "extDescription": {
+    "message": "Guarda la página en la que estás, un enlace o el texto que seleccionaste en tu espacio de trabajo de Leafdesk."
+  },
+  "actionTitle": {
+    "message": "Guardar esta página en Leafdesk"
+  },
+  "menuPage": {
+    "message": "Guardar página en Leafdesk"
+  },
+  "menuLink": {
+    "message": "Guardar enlace en Leafdesk"
+  },
+  "menuSelection": {
+    "message": "Guardar selección en Leafdesk"
+  },
+  "optionsTitle": {
+    "message": "Guardar en Leafdesk"
+  },
+  "optionsAddress": {
+    "message": "Tu dirección de Leafdesk"
+  },
+  "optionsHelp": {
+    "message": "La dirección en la que abres Leafdesk, como https://leafdesk.example.com."
+  },
+  "optionsSave": {
+    "message": "Guardar"
+  },
+  "optionsSaved": {
+    "message": "Guardado. Las páginas que guardes se abren en la nota rápida de Leafdesk."
+  },
+  "optionsInvalid": {
+    "message": "Escribe una dirección web, como https://leafdesk.example.com."
+  },
+  "optionsHowTitle": {
+    "message": "Cómo guardar"
+  },
+  "optionsHowButton": {
+    "message": "Haz clic en el botón de la extensión (o pulsa Alt+Shift+S) para guardar la página en la que estás, con el texto que seleccionaste en ella como cita."
+  },
+  "optionsHowMenu": {
+    "message": "Haz clic derecho en una página, un enlace o un texto seleccionado y elige Guardar en Leafdesk."
+  },
+  "optionsHowSignIn": {
+    "message": "Leafdesk se abre en una pestaña nueva: elige dónde va o guarda la página completa. Inicia sesión allí si aún no lo has hecho."
+  }
+}

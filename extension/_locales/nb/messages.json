@@ -1,0 +1,50 @@
+{
+  "extName": {
+    "message": "Lagre i Leafdesk"
+  },
+  "extDescription": {
+    "message": "Lagre siden du er på, en lenke eller teksten du har merket, i Leafdesk-arbeidsområdet ditt."
+  },
+  "actionTitle": {
+    "message": "Lagre denne siden i Leafdesk"
+  },
+  "menuPage": {
+    "message": "Lagre siden i Leafdesk"
+  },
+  "menuLink": {
+    "message": "Lagre lenken i Leafdesk"
+  },
+  "menuSelection": {
+    "message": "Lagre markeringen i Leafdesk"
+  },
+  "optionsTitle": {
+    "message": "Lagre i Leafdesk"
+  },
+  "optionsAddress": {
+    "message": "Leafdesk-adressen din"
+  },
+  "optionsHelp": {
+    "message": "Adressen du åpner Leafdesk på, for eksempel https://leafdesk.example.com."
+  },
+  "optionsSave": {
+    "message": "Lagre"
+  },
+  "optionsSaved": {
+    "message": "Lagret. Sider du lagrer, åpnes i hurtignotatet i Leafdesk."
+  },
+  "optionsInvalid": {
+    "message": "Skriv inn en nettadresse, for eksempel https://leafdesk.example.com."
+  },
+  "optionsHowTitle": {
+    "message": "Slik lagrer du"
+  },
+  "optionsHowButton": {
+    "message": "Klikk på knappen til utvidelsen (eller trykk Alt+Shift+S) for å lagre siden du er på, med teksten du har merket på den som sitat."
+  },
+  "optionsHowMenu": {
+    "message": "Høyreklikk på en side, en lenke eller merket tekst og velg Lagre i Leafdesk."
+  },
+  "optionsHowSignIn": {
+    "message": "Leafdesk åpnes i en ny fane: Velg hvor det skal, eller lagre hele siden. Logg inn der hvis du ikke har gjort det ennå."
+  }
+}

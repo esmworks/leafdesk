@@ -84,7 +84,7 @@
       "ownPageViews": "visualizzazioni tracciamento privacy escludimi statistiche",
       "aiUsageLimit": "budget costo spesa tetto",
       "aiUsagePeople": "per persona membro costo token",
-      "health": "link rotti orfane duplicati pagine vuote",
+      "health": "link rotti orfane duplicati pagine vuote link web url 404",
       "audit": "registro cronologia eventi chi ha modificato",
       "siteHeader": "navigazione menu link barra superiore",
       "siteDescription": "seo meta descrizione motori di ricerca anteprima open graph",
@@ -1079,6 +1079,19 @@
       "title": "Link interrotti",
       "description": "Link e menzioni in una pagina verso una pagina nel cestino o eliminata definitivamente.",
       "none": "Nessun link interrotto."
+    },
+    "brokenWebLinks": {
+      "title": "Link web non funzionanti",
+      "description": "Indirizzi web nelle pagine e nelle proprietà URL che non funzionano più. Il server controlla ogni indirizzo circa una volta a settimana e mostra un sito irraggiungibile solo dopo che non risponde per alcuni giorni.",
+      "none": "Nessun link web non funzionante.",
+      "pending": "{count, plural, one {# indirizzo è ancora in fase di controllo.} other {# indirizzi sono ancora in fase di controllo.}} Riapri questa scheda più tardi.",
+      "skipped": "Non controllati: questo server non controlla i link web.",
+      "notFound": "Non trovata ({status})",
+      "gone": "Rimossa dal sito ({status})",
+      "noHost": "L’indirizzo del sito non esiste più",
+      "serverError": "Il sito risponde con un errore ({status})",
+      "unreachable": "Il sito non è raggiungibile",
+      "inProperty": "In {property}"
     },
     "orphans": {
       "title": "Pagine a cui non porta nulla",

@@ -84,7 +84,7 @@
       "ownPageViews": "visninger sporing privatliv fravælg statistik",
       "aiUsageLimit": "budget omkostning forbrug loft grænse",
       "aiUsagePeople": "pr. person medlem omkostning tokens",
-      "health": "brudte links forældreløse dubletter tomme sider",
+      "health": "brudte links forældreløse dubletter tomme sider weblinks url 404",
       "audit": "log historik hændelser hvem ændrede revision",
       "siteHeader": "navigation menu links topbjælke",
       "siteDescription": "SEO metabeskrivelse søgemaskiner forhåndsvisning open graph",
@@ -1079,6 +1079,19 @@
       "title": "Brudte links",
       "description": "Links og omtaler på en side til en side i papirkurven eller slettet permanent.",
       "none": "Ingen brudte links."
+    },
+    "brokenWebLinks": {
+      "title": "Ødelagte weblinks",
+      "description": "Webadresser i sider og URL-egenskaber, der ikke virker længere. Serveren tjekker hver adresse cirka en gang om ugen og viser først et websted, der er nede, når det har fejlet i nogle dage.",
+      "none": "Ingen ødelagte weblinks.",
+      "pending": "{count, plural, one {# adresse bliver stadig tjekket.} other {# adresser bliver stadig tjekket.}} Åbn denne fane igen senere.",
+      "skipped": "Ikke tjekket: Denne server tjekker ikke weblinks.",
+      "notFound": "Ikke fundet ({status})",
+      "gone": "Fjernet af webstedet ({status})",
+      "noHost": "Webstedets adresse findes ikke længere",
+      "serverError": "Webstedet svarer med en fejl ({status})",
+      "unreachable": "Webstedet kan ikke nås",
+      "inProperty": "I {property}"
     },
     "orphans": {
       "title": "Sider, intet fører til",

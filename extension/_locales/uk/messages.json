@@ -1,0 +1,50 @@
+{
+  "extName": {
+    "message": "Зберегти в Leafdesk"
+  },
+  "extDescription": {
+    "message": "Зберігайте відкриту сторінку, посилання або виділений текст у своєму робочому просторі Leafdesk."
+  },
+  "actionTitle": {
+    "message": "Зберегти цю сторінку в Leafdesk"
+  },
+  "menuPage": {
+    "message": "Зберегти сторінку в Leafdesk"
+  },
+  "menuLink": {
+    "message": "Зберегти посилання в Leafdesk"
+  },
+  "menuSelection": {
+    "message": "Зберегти виділене в Leafdesk"
+  },
+  "optionsTitle": {
+    "message": "Зберегти в Leafdesk"
+  },
+  "optionsAddress": {
+    "message": "Ваша адреса Leafdesk"
+  },
+  "optionsHelp": {
+    "message": "Адреса, за якою ви відкриваєте Leafdesk, наприклад https://leafdesk.example.com."
+  },
+  "optionsSave": {
+    "message": "Зберегти"
+  },
+  "optionsSaved": {
+    "message": "Збережено. Сторінки, які ви зберігаєте, відкриваються у швидкій нотатці Leafdesk."
+  },
+  "optionsInvalid": {
+    "message": "Введіть вебадресу, наприклад https://leafdesk.example.com."
+  },
+  "optionsHowTitle": {
+    "message": "Як зберігати"
+  },
+  "optionsHowButton": {
+    "message": "Натисніть кнопку розширення (або Alt+Shift+S), щоб зберегти відкриту сторінку разом із виділеним на ній текстом як цитатою."
+  },
+  "optionsHowMenu": {
+    "message": "Клацніть правою кнопкою на сторінці, посиланні або виділеному тексті й виберіть «Зберегти в Leafdesk»."
+  },
+  "optionsHowSignIn": {
+    "message": "Leafdesk відкриється в новій вкладці: виберіть, куди зберегти, або збережіть сторінку повністю. Увійдіть там, якщо ще не ввійшли."
+  }
+}

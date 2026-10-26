@@ -1,0 +1,50 @@
+{
+  "extName": {
+    "message": "Tallenna Leafdeskiin"
+  },
+  "extDescription": {
+    "message": "Tallenna avoinna oleva sivu, linkki tai valitsemasi teksti Leafdesk-työtilaasi."
+  },
+  "actionTitle": {
+    "message": "Tallenna tämä sivu Leafdeskiin"
+  },
+  "menuPage": {
+    "message": "Tallenna sivu Leafdeskiin"
+  },
+  "menuLink": {
+    "message": "Tallenna linkki Leafdeskiin"
+  },
+  "menuSelection": {
+    "message": "Tallenna valinta Leafdeskiin"
+  },
+  "optionsTitle": {
+    "message": "Tallenna Leafdeskiin"
+  },
+  "optionsAddress": {
+    "message": "Leafdesk-osoitteesi"
+  },
+  "optionsHelp": {
+    "message": "Osoite, josta avaat Leafdeskin, esimerkiksi https://leafdesk.example.com."
+  },
+  "optionsSave": {
+    "message": "Tallenna"
+  },
+  "optionsSaved": {
+    "message": "Tallennettu. Tallentamasi sivut avautuvat Leafdeskin pikamuistiinpanoon."
+  },
+  "optionsInvalid": {
+    "message": "Kirjoita verkko-osoite, esimerkiksi https://leafdesk.example.com."
+  },
+  "optionsHowTitle": {
+    "message": "Näin tallennat"
+  },
+  "optionsHowButton": {
+    "message": "Tallenna avoinna oleva sivu napsauttamalla laajennuksen painiketta (tai painamalla Alt+Shift+S). Sivulla valitsemasi teksti tallentuu lainauksena."
+  },
+  "optionsHowMenu": {
+    "message": "Napsauta sivua, linkkiä tai valittua tekstiä hiiren oikealla painikkeella ja valitse Tallenna Leafdeskiin."
+  },
+  "optionsHowSignIn": {
+    "message": "Leafdesk avautuu uudelle välilehdelle: valitse, minne se tallennetaan, tai tallenna koko sivu. Kirjaudu siellä sisään, jos et ole vielä kirjautunut."
+  }
+}

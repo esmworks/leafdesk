@@ -1,0 +1,50 @@
+{
+  "extName": {
+    "message": "Leafdesk'e kaydet"
+  },
+  "extDescription": {
+    "message": "Bulunduğunuz sayfayı, bir bağlantıyı ya da seçtiğiniz metni Leafdesk çalışma alanınıza kaydedin."
+  },
+  "actionTitle": {
+    "message": "Bu sayfayı Leafdesk'e kaydet"
+  },
+  "menuPage": {
+    "message": "Sayfayı Leafdesk'e kaydet"
+  },
+  "menuLink": {
+    "message": "Bağlantıyı Leafdesk'e kaydet"
+  },
+  "menuSelection": {
+    "message": "Seçimi Leafdesk'e kaydet"
+  },
+  "optionsTitle": {
+    "message": "Leafdesk'e kaydet"
+  },
+  "optionsAddress": {
+    "message": "Leafdesk adresiniz"
+  },
+  "optionsHelp": {
+    "message": "Leafdesk'i açtığınız adres, örneğin https://leafdesk.example.com."
+  },
+  "optionsSave": {
+    "message": "Kaydet"
+  },
+  "optionsSaved": {
+    "message": "Kaydedildi. Kaydettiğiniz sayfalar Leafdesk'in hızlı notunda açılır."
+  },
+  "optionsInvalid": {
+    "message": "https://leafdesk.example.com gibi bir web adresi girin."
+  },
+  "optionsHowTitle": {
+    "message": "Nasıl kaydedilir"
+  },
+  "optionsHowButton": {
+    "message": "Bulunduğunuz sayfayı, üzerinde seçtiğiniz metinle birlikte alıntı olarak kaydetmek için eklentinin düğmesine tıklayın (ya da Alt+Shift+S'ye basın)."
+  },
+  "optionsHowMenu": {
+    "message": "Bir sayfaya, bağlantıya ya da seçili metne sağ tıklayıp Leafdesk'e kaydet'i seçin."
+  },
+  "optionsHowSignIn": {
+    "message": "Leafdesk yeni bir sekmede açılır: nereye gideceğini seçin ya da sayfanın tamamını kaydedin. Henüz giriş yapmadıysanız orada giriş yapın."
+  }
+}

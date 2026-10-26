@@ -1,0 +1,50 @@
+{
+  "extName": {
+    "message": "บันทึกลง Leafdesk"
+  },
+  "extDescription": {
+    "message": "บันทึกหน้าที่คุณเปิดอยู่ ลิงก์ หรือข้อความที่เลือกไว้ลงในพื้นที่ทำงาน Leafdesk ของคุณ"
+  },
+  "actionTitle": {
+    "message": "บันทึกหน้านี้ลง Leafdesk"
+  },
+  "menuPage": {
+    "message": "บันทึกหน้าลง Leafdesk"
+  },
+  "menuLink": {
+    "message": "บันทึกลิงก์ลง Leafdesk"
+  },
+  "menuSelection": {
+    "message": "บันทึกส่วนที่เลือกลง Leafdesk"
+  },
+  "optionsTitle": {
+    "message": "บันทึกลง Leafdesk"
+  },
+  "optionsAddress": {
+    "message": "ที่อยู่ Leafdesk ของคุณ"
+  },
+  "optionsHelp": {
+    "message": "ที่อยู่ที่คุณใช้เปิด Leafdesk เช่น https://leafdesk.example.com"
+  },
+  "optionsSave": {
+    "message": "บันทึก"
+  },
+  "optionsSaved": {
+    "message": "บันทึกแล้ว หน้าที่คุณบันทึกจะเปิดในโน้ตด่วนของ Leafdesk"
+  },
+  "optionsInvalid": {
+    "message": "ป้อนที่อยู่เว็บ เช่น https://leafdesk.example.com"
+  },
+  "optionsHowTitle": {
+    "message": "วิธีบันทึก"
+  },
+  "optionsHowButton": {
+    "message": "คลิกปุ่มของส่วนขยาย (หรือกด Alt+Shift+S) เพื่อบันทึกหน้าที่เปิดอยู่ พร้อมข้อความที่คุณเลือกไว้เป็นคำพูดอ้างอิง"
+  },
+  "optionsHowMenu": {
+    "message": "คลิกขวาที่หน้า ลิงก์ หรือข้อความที่เลือก แล้วเลือก บันทึกลง Leafdesk"
+  },
+  "optionsHowSignIn": {
+    "message": "Leafdesk จะเปิดในแท็บใหม่ เลือกที่เก็บ หรือบันทึกทั้งหน้า หากยังไม่ได้ลงชื่อเข้าใช้ ให้ลงชื่อเข้าใช้ที่นั่น"
+  }
+}

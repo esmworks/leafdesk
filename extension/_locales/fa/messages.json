@@ -1,0 +1,50 @@
+{
+  "extName": {
+    "message": "ذخیره در Leafdesk"
+  },
+  "extDescription": {
+    "message": "صفحه‌ای که در آن هستید، یک پیوند یا متنی را که انتخاب کرده‌اید در فضای کاری Leafdesk خود ذخیره کنید."
+  },
+  "actionTitle": {
+    "message": "ذخیرهٔ این صفحه در Leafdesk"
+  },
+  "menuPage": {
+    "message": "ذخیرهٔ صفحه در Leafdesk"
+  },
+  "menuLink": {
+    "message": "ذخیرهٔ پیوند در Leafdesk"
+  },
+  "menuSelection": {
+    "message": "ذخیرهٔ متن انتخاب‌شده در Leafdesk"
+  },
+  "optionsTitle": {
+    "message": "ذخیره در Leafdesk"
+  },
+  "optionsAddress": {
+    "message": "نشانی Leafdesk شما"
+  },
+  "optionsHelp": {
+    "message": "نشانی‌ای که Leafdesk را با آن باز می‌کنید، مثلاً https://leafdesk.example.com."
+  },
+  "optionsSave": {
+    "message": "ذخیره"
+  },
+  "optionsSaved": {
+    "message": "ذخیره شد. صفحه‌هایی که ذخیره می‌کنید در یادداشت سریع Leafdesk باز می‌شوند."
+  },
+  "optionsInvalid": {
+    "message": "یک نشانی وب وارد کنید، مثلاً https://leafdesk.example.com."
+  },
+  "optionsHowTitle": {
+    "message": "روش ذخیره"
+  },
+  "optionsHowButton": {
+    "message": "برای ذخیرهٔ صفحه‌ای که در آن هستید، همراه با متنی که در آن انتخاب کرده‌اید به‌صورت نقل‌قول، روی دکمهٔ افزونه کلیک کنید (یا Alt+Shift+S را بزنید)."
+  },
+  "optionsHowMenu": {
+    "message": "روی یک صفحه، پیوند یا متن انتخاب‌شده راست‌کلیک کنید و «ذخیره در Leafdesk» را انتخاب کنید."
+  },
+  "optionsHowSignIn": {
+    "message": "Leafdesk در زبانه‌ای تازه باز می‌شود: جای ذخیره را انتخاب کنید یا کل صفحه را ذخیره کنید. اگر هنوز وارد نشده‌اید، آنجا وارد شوید."
+  }
+}

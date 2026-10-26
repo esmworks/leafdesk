@@ -85,6 +85,7 @@
     "exportDisabledBody": "Eierne av dette arbeidsområdet har slått av eksport og utskrift av sidene.",
     "showInGraph": "Vis i grafen",
     "present": "Presenter",
+    "readAloud": "Les høyt",
     "watch": "Følg med",
     "watchHint": "Få beskjed i innboksen når noen andre redigerer denne siden eller starter en kommentartråd på den.",
     "mute": "Demp",
@@ -777,6 +778,24 @@
     "morePlaces": "{count, plural, one {# sted til} other {# steder til}}",
     "fewerPlaces": "Vis færre",
     "morePages": "{count, plural, one {Vis # side til} other {Vis # sider til}}"
+  },
+  "related": {
+    "title": "Relaterte sider",
+    "hint": "Sider som ligner denne i betydning, og som den ikke lenker til ennå",
+    "edited": "redigert {time}"
+  },
+  "readAloud": {
+    "label": "Opplesning",
+    "play": "Les",
+    "pause": "Pause",
+    "previous": "Forrige blokk",
+    "next": "Neste blokk",
+    "close": "Stopp opplesningen",
+    "progress": "{current} av {total}",
+    "speed": "Hastighet",
+    "voice": "Stemme",
+    "unsupported": "Denne nettleseren kan ikke lese sider høyt.",
+    "nothing": "Det er ingenting å lese på denne siden."
   },
   "blockMenu": {
     "copyLink": "Kopier lenke til blokken",

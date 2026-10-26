@@ -84,7 +84,7 @@
       "ownPageViews": "조회 추적 개인정보 제외 분석",
       "aiUsageLimit": "예산 비용 지출 한도",
       "aiUsagePeople": "사람별 멤버 비용 토큰",
-      "health": "깨진 링크 고아 중복 빈 페이지",
+      "health": "깨진 링크 고아 중복 빈 페이지 웹 링크 URL 404",
       "audit": "로그 기록 이벤트 변경한 사람",
       "siteHeader": "내비게이션 메뉴 링크 상단 바",
       "siteDescription": "seo 메타 설명 검색 엔진 미리보기 open graph",
@@ -1079,6 +1079,19 @@
       "title": "끊어진 링크",
       "description": "휴지통에 있거나 영구 삭제된 페이지를 가리키는 페이지 안의 링크와 멘션입니다.",
       "none": "끊어진 링크가 없습니다."
+    },
+    "brokenWebLinks": {
+      "title": "끊어진 웹 링크",
+      "description": "페이지와 URL 속성에 있는 웹 주소 중 더 이상 작동하지 않는 주소입니다. 서버는 각 주소를 대략 일주일에 한 번 확인하며, 접속되지 않는 사이트는 며칠 동안 계속 실패한 뒤에만 표시합니다.",
+      "none": "끊어진 웹 링크가 없습니다.",
+      "pending": "{count, plural, other {주소 #개를 아직 확인하고 있습니다.}} 나중에 이 탭을 다시 열어 보세요.",
+      "skipped": "확인 안 함: 이 서버는 웹 링크를 확인하지 않습니다.",
+      "notFound": "찾을 수 없음({status})",
+      "gone": "사이트에서 삭제됨({status})",
+      "noHost": "사이트 주소가 더 이상 존재하지 않음",
+      "serverError": "사이트가 오류로 응답함({status})",
+      "unreachable": "사이트에 연결할 수 없음",
+      "inProperty": "{property} 속성"
     },
     "orphans": {
       "title": "연결된 곳이 없는 페이지",

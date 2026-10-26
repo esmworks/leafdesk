@@ -549,6 +549,11 @@ Embeddings use an OpenAI-compatible `/embeddings` endpoint: the chat provider's 
 `AI_EMBEDDINGS_BASE_URL`). A good `AI_EMBEDDINGS_MIN_SIMILARITY` depends on the model; raise it if
 unrelated pages show up, lower it if too few do.
 
+**Related pages.** Under a page's backlinks, the pages closest in meaning to it that it doesn't
+link to and isn't linked from are listed (the mean of the page's chunk embeddings, ranked against
+the chunks of the pages the reader can open, above `AI_EMBEDDINGS_MIN_SIMILARITY`). Nothing is
+embedded for it: a page not indexed yet shows none until the index catches up.
+
 **Indexing.** Each page's title and text (a database row's values too) is cut into chunks of
 about 900 characters along its blocks, a heading starting a new one, and each chunk's embedding
 is stored in `page_chunk` with its model, dimensions and a hash of its text. Each chunk starts with
