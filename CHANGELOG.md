@@ -27,6 +27,10 @@
   back, forward and the tabs themselves moved the window instead (pressing New Tab twice zoomed
   it), because the page's own region for moving the window ran on under the strip. That region now
   ends at the sidebar.
+- **A table's calculations sit right under its rows, and sums come out exact.** The footer row
+  with the results comes before New and is closed off like a row; a sum or range keeps to the
+  decimals its values have (19,966,877.69, not 19,966,877.689999998, also in rollups and charts);
+  a long result no longer hides the label beside it.
 
 ## 0.6.5 — 2026-10-26
 

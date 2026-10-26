@@ -47,6 +47,14 @@ export function useFormatResult() {
   };
 }
 
+/** Whether any column has a calculation it still offers, so the footer shows a result. */
+export function showsCalculations(columns: CalculationColumn[], calculations: Record<string, string> | undefined) {
+  return columns.some((c) => {
+    const fn = calculations?.[c.key];
+    return isAggregateFn(fn) && aggregateFunctions(c.type).includes(fn);
+  });
+}
+
 /**
  * The table footer: one calculation cell per column, lined up with the table's columns (`offset`
  * is the width of the row-controls column before the first one). Hidden for viewers when the view
@@ -68,7 +76,8 @@ export function CalculationRow({
   readOnly?: boolean;
   onChange: (key: string, fn: AggregateFn | null) => void;
 }) {
-  if (readOnly && !columns.some((c) => calculations?.[c.key])) return null;
+  const shown = showsCalculations(columns, calculations);
+  if (readOnly && !shown) return null;
   // With frozen columns the space before them stays put too, so nothing shows through it.
   const frozen = columns.some((c) => c.frozen?.className);
   return (
@@ -78,7 +87,8 @@ export function CalculationRow({
       {columns.map((column) => (
         <div
           key={column.key}
-          className={cn("shrink-0", column.frozen?.className)}
+          // Closed off like a row once it shows results; an editor's empty footer stays unlined.
+          className={cn("shrink-0", shown && "border-b border-border", column.frozen?.className)}
           style={{ width: column.width, ...column.frozen?.style }}
         >
           <CalculationCell
@@ -141,7 +151,8 @@ export function CalculationCell({
       >
         {fn ? (
           <>
-            <span className="truncate text-fg-faint">{t(`label.${fn}`)}</span>
+            {/* A long result never squeezes the label away entirely. */}
+            <span className="min-w-6 truncate text-fg-faint" title={t(`label.${fn}`)}>{t(`label.${fn}`)}</span>
             <span className="shrink-0 tabular-nums text-fg">{result ? formatResult(fn, result, column.options) : "–"}</span>
           </>
         ) : (
