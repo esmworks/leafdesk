@@ -33,6 +33,7 @@ import {
 } from "@/server/databases";
 import { createPage, removeOrphanFiles, type DatabaseSeedNames } from "@/server/pages";
 import { propertyAccessFor, type PropertyAccess } from "@/server/property-access";
+import { dropRepeatedValues } from "@/server/unique-values";
 
 /**
  * CSV imports: a CSV file as a new database, or its rows added to an existing one.
@@ -89,11 +90,13 @@ function rowValues(
 /**
  * Checks each row's values the way every row write does (normalizeRowProperties: options, people,
  * relations by name). A value it refuses is dropped from the row and counted, and the row checked
- * again. Returns the stored values.
+ * again. So is a value a unique property would refuse (another row's, or one an earlier row takes),
+ * so that writing the rows doesn't stop partway. Returns the stored values.
  */
 export async function checkRows(userId: string, databaseId: string, rows: PendingRow[], props: DatabaseProperty[], invalid: Map<string, number>) {
   const checked: { title: string; properties: Record<string, unknown> }[] = [];
   for (const row of rows) checked.push({ title: row.title, properties: await checkValues(userId, databaseId, row.values, props, invalid) });
+  await dropRepeatedValues(databaseId, checked, invalid);
   return checked;
 }
 
