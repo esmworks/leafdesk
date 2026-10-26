@@ -14,6 +14,8 @@
     "monday": "Monday.com",
     "jira": "Jira",
     "github": "GitHub",
+    "ical": "Calendrier",
+    "postgres": "PostgreSQL",
     "googleDocs": "Google Docs",
     "web": "Page web"
   },
@@ -362,6 +364,69 @@
       "totalTime": "Total",
       "ingredients": "Ingrédients",
       "steps": "Étapes"
+    }
+  },
+  "ical": {
+    "help": "Obtenez une base de données des événements d'un calendrier qui reste à jour : chaque événement est une ligne avec sa date, son lieu, ses notes, son statut, son organisateur et son lien, et chaque occurrence d'un événement récurrent est une ligne à part. Les événements de {before} jours en arrière à {after} jours en avant sont pris. Les changements vont dans un sens, du calendrier vers Leafdesk.",
+    "url": "Adresse du calendrier",
+    "urlPlaceholder": "https://… .ics · webcal://…",
+    "urlHelp": "Utilisez l'adresse iCal du calendrier : dans Google Agenda, l'adresse secrète au format iCal de ses paramètres ; dans Outlook, le lien ICS d'un calendrier publié. Elle est gardée scellée sur le serveur et n'est plus jamais affichée.",
+    "namePlaceholder": "Nom du calendrier",
+    "names": {
+      "key": "ID de l'événement",
+      "when": "Quand",
+      "location": "Lieu",
+      "description": "Description",
+      "status": "Statut",
+      "organizer": "Organisateur",
+      "link": "Lien",
+      "untitled": "Événement sans titre",
+      "statuses": {
+        "confirmed": "Confirmé",
+        "tentative": "Provisoire",
+        "cancelled": "Annulé"
+      }
+    },
+    "errors": {
+      "unauthorized": "Le calendrier demande une connexion. Utilisez son adresse iCal secrète.",
+      "forbidden": "Le calendrier refuse d'être lu.",
+      "notFound": "Il n'y a pas de calendrier à cette adresse.",
+      "tooManyIssues": "Le calendrier a trop d'événements, ou est trop grand, pour être synchronisé.",
+      "unreachable": "Le calendrier est injoignable. La synchronisation réessaiera la prochaine fois.",
+      "runAsGone": "La personne qui a configuré la synchronisation n'a plus de compte.",
+      "accessLost": "La personne au nom de laquelle la synchronisation s'exécute ne peut plus modifier cette base.",
+      "keyGone": "La propriété ID de l'événement a été supprimée ou a changé de type : les événements ne peuvent plus être associés aux lignes.",
+      "failed": "La synchronisation a échoué. Elle réessaiera la prochaine fois.",
+      "invalidSite": "Leafdesk ne peut pas joindre cette adresse.",
+      "invalidInput": "Utilisez l'adresse https ou webcal du calendrier.",
+      "alreadyRunning": "Une synchronisation est en cours. Réessayez dans un instant."
+    }
+  },
+  "postgres": {
+    "help": "Obtenez une base de données d'une table (ou vue) PostgreSQL qui reste à jour : chaque ligne de la table est une ligne ici, retrouvée par sa colonne clé et nommée par sa colonne de titre, avec une propriété pour chaque autre colonne (texte, nombres, cases à cocher, dates et heures). Jusqu'à {limit} lignes. Les changements vont dans un sens, de la table vers Leafdesk.",
+    "url": "Adresse de connexion",
+    "urlPlaceholder": "postgres://user:password@host:5432/database",
+    "urlHelp": "Utilisez un utilisateur qui peut seulement lire cette table. Leafdesk lit dans une transaction en lecture seule, ne joint que des adresses publiques (ou des serveurs autorisés par votre administrateur dans CONNECTOR_ALLOWED_HOSTS) et garde l'adresse scellée sur le serveur.",
+    "table": "Table",
+    "tablePlaceholder": "schema.table",
+    "key": "Colonne clé",
+    "keyPlaceholder": "La clé primaire",
+    "titleColumn": "Colonne de titre",
+    "titlePlaceholder": "La première colonne de texte",
+    "errors": {
+      "unauthorized": "Le serveur a refusé l'utilisateur ou le mot de passe.",
+      "forbidden": "L'utilisateur ne peut pas lire cette table.",
+      "notFound": "Cette base ou cette table n'existe pas.",
+      "badQuery": "Le serveur a refusé la requête :",
+      "tooManyIssues": "La table a trop de lignes pour être synchronisée. Synchronisez une vue des lignes utiles.",
+      "unreachable": "Le serveur est injoignable ou la requête a pris trop de temps. La synchronisation réessaiera la prochaine fois.",
+      "runAsGone": "La personne qui a configuré la synchronisation n'a plus de compte.",
+      "accessLost": "La personne au nom de laquelle la synchronisation s'exécute ne peut plus modifier cette base.",
+      "keyGone": "La propriété clé a été supprimée ou a changé de type : les lignes de la table ne peuvent plus être associées.",
+      "failed": "La synchronisation a échoué. Elle réessaiera la prochaine fois.",
+      "invalidSite": "Leafdesk ne peut pas joindre ce serveur : une adresse privée doit être autorisée par votre administrateur dans CONNECTOR_ALLOWED_HOSTS.",
+      "invalidInput": "Vérifiez l'adresse de connexion, la table et les noms de colonnes.",
+      "alreadyRunning": "Une synchronisation est en cours. Réessayez dans un instant."
     }
   }
 }

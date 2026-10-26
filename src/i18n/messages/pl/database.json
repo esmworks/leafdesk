@@ -2111,5 +2111,25 @@
     "hint": "Uzupełniane, gdy wiersz zostanie dodany z tego szablonu",
     "dateWhen": "Ustawiane przy dodaniu wiersza",
     "meOption": "Osoba dodająca wiersz"
+  },
+  "icalSync": {
+    "button": "Synchronizowane z kalendarza",
+    "buttonPaused": "Synchronizacja kalendarza wstrzymana",
+    "title": "Synchronizacja kalendarza",
+    "calendar": "Kalendarz",
+    "lastRun": "Ostatnia synchronizacja {when}, {count, plural, one {# wydarzenie} few {# wydarzenia} many {# wydarzeń} other {# wydarzenia}}",
+    "overwrite": "Kalendarz jest źródłem: synchronizowane właściwości i tytuły wierszy są nadpisywane przy każdej synchronizacji, więc zmieniaj wydarzenia w kalendarzu. Właściwości dodane przez Ciebie pozostają, a wiersze wydarzeń, które znikną z kalendarza, nie są ruszane.",
+    "changeUrl": "Zmień adres",
+    "stopConfirm": "Zatrzymać synchronizację tej bazy? Wiersze pozostaną bez zmian, a adres kalendarza zostanie zapomniany."
+  },
+  "postgresSync": {
+    "button": "Synchronizowane z PostgreSQL",
+    "buttonPaused": "Synchronizacja PostgreSQL wstrzymana",
+    "title": "Synchronizacja PostgreSQL",
+    "server": "Serwer",
+    "lastRun": "Ostatnia synchronizacja {when}, {count, plural, one {# wiersz} few {# wiersze} many {# wierszy} other {# wiersza}}",
+    "overwrite": "Tabela jest źródłem: synchronizowane właściwości i tytuły wierszy są nadpisywane przy każdej synchronizacji, więc zmieniaj dane w tabeli. Właściwości dodane przez Ciebie pozostają, a wiersze, które znikną z tabeli, nie są ruszane.",
+    "changeUrl": "Zmień połączenie",
+    "stopConfirm": "Zatrzymać synchronizację tej bazy? Wiersze pozostaną bez zmian, a adres połączenia zostanie zapomniany."
   }
 }

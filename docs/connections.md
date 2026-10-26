@@ -84,7 +84,9 @@ A connection only reaches public `https` addresses; local names, private and loo
 and plain `http` are refused, checked again on connecting (so a name can't resolve to a private
 address) and on every redirect (at most five).
 For a server on the same machine or network, list its host (or `host:port`) in
-`CONNECTOR_ALLOWED_HOSTS`.
+`CONNECTOR_ALLOWED_HOSTS`. The same list lets calendar syncs reach a calendar on your network and
+PostgreSQL syncs reach a database server there (`db.internal` or `10.0.0.5:5432`); see
+[Features](features.md).
 
 **Tools and approval.** Once signed in, Leafdesk lists the server's tools (at most 200) and classes
 each as *read* or *write*: a tool the server marks read-only (`readOnlyHint`) is *read*, every

@@ -2111,5 +2111,25 @@
     "hint": "Filled in when a row is added from this template",
     "dateWhen": "Set when a row is added",
     "meOption": "Whoever adds the row"
+  },
+  "icalSync": {
+    "button": "Synced from a calendar",
+    "buttonPaused": "Calendar sync paused",
+    "title": "Calendar sync",
+    "calendar": "Calendar",
+    "lastRun": "Last synced {when}, {count, plural, one {# event} other {# events}}",
+    "overwrite": "The calendar is the source: the synced properties and row titles are written over on each sync, so change events in the calendar. Properties you add yourself stay as they are, and rows of events that leave the calendar are left alone.",
+    "changeUrl": "Change the address",
+    "stopConfirm": "Stop syncing this database? Its rows stay as they are, and the calendar's address is forgotten."
+  },
+  "postgresSync": {
+    "button": "Synced from PostgreSQL",
+    "buttonPaused": "PostgreSQL sync paused",
+    "title": "PostgreSQL sync",
+    "server": "Server",
+    "lastRun": "Last synced {when}, {count, plural, one {# row} other {# rows}}",
+    "overwrite": "The table is the source: the synced properties and row titles are written over on each sync, so change the data in the table. Properties you add yourself stay as they are, and rows that leave the table are left alone.",
+    "changeUrl": "Change the connection",
+    "stopConfirm": "Stop syncing this database? Its rows stay as they are, and the connection address is forgotten."
   }
 }

@@ -2111,5 +2111,25 @@
     "hint": "Rempli lorsqu’une ligne est ajoutée depuis ce modèle",
     "dateWhen": "Défini à l’ajout d’une ligne",
     "meOption": "La personne qui ajoute la ligne"
+  },
+  "icalSync": {
+    "button": "Synchronisé depuis un calendrier",
+    "buttonPaused": "Synchronisation du calendrier en pause",
+    "title": "Synchronisation du calendrier",
+    "calendar": "Calendrier",
+    "lastRun": "Dernière synchronisation {when}, {count, plural, one {# événement} other {# événements}}",
+    "overwrite": "Le calendrier est la source : les propriétés synchronisées et les titres des lignes sont réécrits à chaque synchronisation, modifiez donc les événements dans le calendrier. Les propriétés que vous ajoutez restent telles quelles, et les lignes des événements qui quittent le calendrier ne sont pas touchées.",
+    "changeUrl": "Changer l'adresse",
+    "stopConfirm": "Arrêter de synchroniser cette base ? Ses lignes restent telles quelles et l'adresse du calendrier est oubliée."
+  },
+  "postgresSync": {
+    "button": "Synchronisé depuis PostgreSQL",
+    "buttonPaused": "Synchronisation PostgreSQL en pause",
+    "title": "Synchronisation PostgreSQL",
+    "server": "Serveur",
+    "lastRun": "Dernière synchronisation {when}, {count, plural, one {# ligne} other {# lignes}}",
+    "overwrite": "La table est la source : les propriétés synchronisées et les titres des lignes sont réécrits à chaque synchronisation, modifiez donc les données dans la table. Les propriétés que vous ajoutez restent telles quelles, et les lignes qui quittent la table ne sont pas touchées.",
+    "changeUrl": "Changer la connexion",
+    "stopConfirm": "Arrêter de synchroniser cette base ? Ses lignes restent telles quelles et l'adresse de connexion est oubliée."
   }
 }

@@ -2111,5 +2111,25 @@
     "hint": "Được điền khi thêm hàng từ mẫu này",
     "dateWhen": "Đặt khi thêm hàng",
     "meOption": "Người thêm hàng"
+  },
+  "icalSync": {
+    "button": "Đồng bộ từ lịch",
+    "buttonPaused": "Đã tạm dừng đồng bộ lịch",
+    "title": "Đồng bộ lịch",
+    "calendar": "Lịch",
+    "lastRun": "Đồng bộ lần cuối {when}, {count, plural, other {# sự kiện}}",
+    "overwrite": "Lịch là nguồn: các thuộc tính đồng bộ và tiêu đề hàng bị ghi đè mỗi lần đồng bộ, nên hãy sửa sự kiện trong lịch. Thuộc tính bạn tự thêm vẫn giữ nguyên, và hàng của sự kiện đã rời khỏi lịch không bị động tới.",
+    "changeUrl": "Đổi địa chỉ",
+    "stopConfirm": "Dừng đồng bộ cơ sở dữ liệu này? Các hàng giữ nguyên và địa chỉ lịch bị xóa."
+  },
+  "postgresSync": {
+    "button": "Đồng bộ từ PostgreSQL",
+    "buttonPaused": "Đã tạm dừng đồng bộ PostgreSQL",
+    "title": "Đồng bộ PostgreSQL",
+    "server": "Máy chủ",
+    "lastRun": "Đồng bộ lần cuối {when}, {count, plural, other {# hàng}}",
+    "overwrite": "Bảng là nguồn: các thuộc tính đồng bộ và tiêu đề hàng bị ghi đè mỗi lần đồng bộ, nên hãy sửa dữ liệu trong bảng. Thuộc tính bạn tự thêm vẫn giữ nguyên, và các hàng đã rời khỏi bảng không bị động tới.",
+    "changeUrl": "Đổi kết nối",
+    "stopConfirm": "Dừng đồng bộ cơ sở dữ liệu này? Các hàng giữ nguyên và địa chỉ kết nối bị xóa."
   }
 }

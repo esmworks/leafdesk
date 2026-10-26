@@ -2111,5 +2111,25 @@
     "hint": "이 템플릿으로 행을 추가할 때 채워집니다",
     "dateWhen": "행을 추가할 때 설정",
     "meOption": "행을 추가한 사람"
+  },
+  "icalSync": {
+    "button": "캘린더에서 동기화됨",
+    "buttonPaused": "캘린더 동기화 일시 중지됨",
+    "title": "캘린더 동기화",
+    "calendar": "캘린더",
+    "lastRun": "마지막 동기화 {when}, {count, plural, other {일정 #개}}",
+    "overwrite": "캘린더가 원본입니다. 동기화되는 속성과 행 제목은 동기화할 때마다 덮어쓰이므로 일정은 캘린더에서 변경하세요. 직접 추가한 속성은 그대로 유지되고, 캘린더에서 사라진 일정의 행도 그대로 둡니다.",
+    "changeUrl": "주소 변경",
+    "stopConfirm": "이 데이터베이스의 동기화를 중지할까요? 행은 그대로 남고 캘린더 주소는 삭제됩니다."
+  },
+  "postgresSync": {
+    "button": "PostgreSQL에서 동기화됨",
+    "buttonPaused": "PostgreSQL 동기화 일시 중지됨",
+    "title": "PostgreSQL 동기화",
+    "server": "서버",
+    "lastRun": "마지막 동기화 {when}, {count, plural, other {#행}}",
+    "overwrite": "테이블이 원본입니다. 동기화되는 속성과 행 제목은 동기화할 때마다 덮어쓰이므로 데이터는 테이블에서 변경하세요. 직접 추가한 속성은 그대로 유지되고, 테이블에서 사라진 행도 그대로 둡니다.",
+    "changeUrl": "연결 변경",
+    "stopConfirm": "이 데이터베이스의 동기화를 중지할까요? 행은 그대로 남고 연결 주소는 삭제됩니다."
   }
 }

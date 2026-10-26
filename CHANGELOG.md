@@ -4,6 +4,14 @@
 
 ### Added
 
+- **Calendar and PostgreSQL syncs.** Import has two more synced sources. *Calendar* takes an iCal
+  address (Google Calendar's secret address, an Outlook published calendar, any `.ics` or
+  `webcal://` feed) and keeps a database of its events from 90 days back to a year ahead, each
+  occurrence of a repeating event a row of its own, with a calendar view. *PostgreSQL* takes a
+  connection address and a table or view and keeps a database of its rows (up to 5,000), a property
+  for each column by its type, read in a read-only transaction; a server on your own network needs
+  its host in `CONNECTOR_ALLOWED_HOSTS`. Both sync every 15 minutes to once a day or on demand, one
+  way, with the address kept sealed.
 - **Personal views.** *Only for me* when adding a view: nobody else sees, changes or finds it in
   the sidebar. Anyone who may read a database can make them, on a locked database too, so people
   with view access keep their own filters and layouts; *Share with everyone* turns one into a

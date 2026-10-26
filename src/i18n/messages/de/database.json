@@ -2111,5 +2111,25 @@
     "hint": "Wird ausgefüllt, wenn eine Zeile aus dieser Vorlage hinzugefügt wird",
     "dateWhen": "Beim Hinzufügen einer Zeile setzen",
     "meOption": "Wer die Zeile hinzufügt"
+  },
+  "icalSync": {
+    "button": "Aus einem Kalender synchronisiert",
+    "buttonPaused": "Kalendersynchronisierung pausiert",
+    "title": "Kalendersynchronisierung",
+    "calendar": "Kalender",
+    "lastRun": "Zuletzt synchronisiert {when}, {count, plural, one {# Termin} other {# Termine}}",
+    "overwrite": "Der Kalender ist die Quelle: Die synchronisierten Eigenschaften und Zeilentitel werden bei jeder Synchronisierung überschrieben, ändere Termine also im Kalender. Eigenschaften, die du selbst hinzufügst, bleiben, und Zeilen von Terminen, die den Kalender verlassen, bleiben unberührt.",
+    "changeUrl": "Adresse ändern",
+    "stopConfirm": "Synchronisierung dieser Datenbank beenden? Ihre Zeilen bleiben, und die Adresse des Kalenders wird vergessen."
+  },
+  "postgresSync": {
+    "button": "Aus PostgreSQL synchronisiert",
+    "buttonPaused": "PostgreSQL-Synchronisierung pausiert",
+    "title": "PostgreSQL-Synchronisierung",
+    "server": "Server",
+    "lastRun": "Zuletzt synchronisiert {when}, {count, plural, one {# Zeile} other {# Zeilen}}",
+    "overwrite": "Die Tabelle ist die Quelle: Die synchronisierten Eigenschaften und Zeilentitel werden bei jeder Synchronisierung überschrieben, ändere die Daten also in der Tabelle. Eigenschaften, die du selbst hinzufügst, bleiben, und Zeilen, die die Tabelle verlassen, bleiben unberührt.",
+    "changeUrl": "Verbindung ändern",
+    "stopConfirm": "Synchronisierung dieser Datenbank beenden? Ihre Zeilen bleiben, und die Verbindungsadresse wird vergessen."
   }
 }

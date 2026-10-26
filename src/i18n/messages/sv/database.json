@@ -2111,5 +2111,25 @@
     "hint": "Fylls i när en rad läggs till från den här mallen",
     "dateWhen": "Anges när en rad läggs till",
     "meOption": "Den som lägger till raden"
+  },
+  "icalSync": {
+    "button": "Synkroniserad från en kalender",
+    "buttonPaused": "Kalendersynkronisering pausad",
+    "title": "Kalendersynkronisering",
+    "calendar": "Kalender",
+    "lastRun": "Senast synkroniserad {when}, {count, plural, one {# händelse} other {# händelser}}",
+    "overwrite": "Kalendern är källan: de synkroniserade egenskaperna och radtitlarna skrivs över vid varje synkronisering, så ändra händelser i kalendern. Egenskaper du lägger till själv står kvar, och rader för händelser som försvinner ur kalendern lämnas orörda.",
+    "changeUrl": "Ändra adressen",
+    "stopConfirm": "Sluta synkronisera den här databasen? Raderna står kvar och kalenderns adress glöms."
+  },
+  "postgresSync": {
+    "button": "Synkroniserad från PostgreSQL",
+    "buttonPaused": "PostgreSQL-synkronisering pausad",
+    "title": "PostgreSQL-synkronisering",
+    "server": "Server",
+    "lastRun": "Senast synkroniserad {when}, {count, plural, one {# rad} other {# rader}}",
+    "overwrite": "Tabellen är källan: de synkroniserade egenskaperna och radtitlarna skrivs över vid varje synkronisering, så ändra data i tabellen. Egenskaper du lägger till själv står kvar, och rader som försvinner ur tabellen lämnas orörda.",
+    "changeUrl": "Ändra anslutningen",
+    "stopConfirm": "Sluta synkronisera den här databasen? Raderna står kvar och anslutningsadressen glöms."
   }
 }

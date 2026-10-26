@@ -2111,5 +2111,25 @@
     "hint": "Compilato quando si aggiunge una riga da questo modello",
     "dateWhen": "Impostato quando si aggiunge una riga",
     "meOption": "Chi aggiunge la riga"
+  },
+  "icalSync": {
+    "button": "Sincronizzato da un calendario",
+    "buttonPaused": "Sincronizzazione del calendario in pausa",
+    "title": "Sincronizzazione del calendario",
+    "calendar": "Calendario",
+    "lastRun": "Ultima sincronizzazione {when}, {count, plural, one {# evento} other {# eventi}}",
+    "overwrite": "Il calendario è la fonte: le proprietà sincronizzate e i titoli delle righe vengono sovrascritti a ogni sincronizzazione, quindi modifica gli eventi nel calendario. Le proprietà che aggiungi tu restano, e le righe degli eventi che escono dal calendario non vengono toccate.",
+    "changeUrl": "Cambia l'indirizzo",
+    "stopConfirm": "Interrompere la sincronizzazione di questo database? Le righe restano e l'indirizzo del calendario viene dimenticato."
+  },
+  "postgresSync": {
+    "button": "Sincronizzato da PostgreSQL",
+    "buttonPaused": "Sincronizzazione PostgreSQL in pausa",
+    "title": "Sincronizzazione PostgreSQL",
+    "server": "Server",
+    "lastRun": "Ultima sincronizzazione {when}, {count, plural, one {# riga} other {# righe}}",
+    "overwrite": "La tabella è la fonte: le proprietà sincronizzate e i titoli delle righe vengono sovrascritti a ogni sincronizzazione, quindi modifica i dati nella tabella. Le proprietà che aggiungi tu restano, e le righe che escono dalla tabella non vengono toccate.",
+    "changeUrl": "Cambia la connessione",
+    "stopConfirm": "Interrompere la sincronizzazione di questo database? Le righe restano e l'indirizzo di connessione viene dimenticato."
   }
 }

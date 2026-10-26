@@ -14,6 +14,8 @@
     "monday": "Monday.com",
     "jira": "Jira",
     "github": "GitHub",
+    "ical": "カレンダー",
+    "postgres": "PostgreSQL",
     "googleDocs": "Google ドキュメント",
     "web": "ウェブページ"
   },
@@ -362,6 +364,69 @@
       "totalTime": "合計",
       "ingredients": "材料",
       "steps": "作り方"
+    }
+  },
+  "ical": {
+    "help": "カレンダーの予定から、常に同期されるデータベースを作ります。予定ごとに1行となり、日時、場所、メモ、ステータス、主催者、リンクが入ります。繰り返しの予定は回ごとに1行です。{before}日前から{after}日先までの予定を取り込みます。変更はカレンダーからLeafdeskへの一方向です。",
+    "url": "カレンダーのアドレス",
+    "urlPlaceholder": "https://… .ics · webcal://…",
+    "urlHelp": "カレンダーの iCal アドレスを使います。Google カレンダーでは設定にある「iCal 形式の非公開アドレス」、Outlook では公開したカレンダーの ICS リンクです。サーバーに暗号化して保存され、再び表示されることはありません。",
+    "namePlaceholder": "カレンダー名",
+    "names": {
+      "key": "予定 ID",
+      "when": "日時",
+      "location": "場所",
+      "description": "説明",
+      "status": "ステータス",
+      "organizer": "主催者",
+      "link": "リンク",
+      "untitled": "無題の予定",
+      "statuses": {
+        "confirmed": "確定",
+        "tentative": "仮",
+        "cancelled": "キャンセル"
+      }
+    },
+    "errors": {
+      "unauthorized": "カレンダーがサインインを求めています。非公開の iCal アドレスを使ってください。",
+      "forbidden": "カレンダーの読み取りが拒否されました。",
+      "notFound": "このアドレスにカレンダーはありません。",
+      "tooManyIssues": "カレンダーの予定が多すぎるか、サイズが大きすぎて同期できません。",
+      "unreachable": "カレンダーに接続できませんでした。次回再試行します。",
+      "runAsGone": "同期を設定した人のアカウントがなくなりました。",
+      "accessLost": "同期の実行者がこのデータベースを編集できなくなりました。",
+      "keyGone": "予定 ID のプロパティが削除されたか種類が変わったため、予定を行に照合できません。",
+      "failed": "同期に失敗しました。次回再試行します。",
+      "invalidSite": "Leafdesk から接続できないアドレスです。",
+      "invalidInput": "カレンダーの https または webcal アドレスを使ってください。",
+      "alreadyRunning": "同期の実行中です。少し待ってから再試行してください。"
+    }
+  },
+  "postgres": {
+    "help": "PostgreSQL のテーブル（またはビュー）から、常に同期されるデータベースを作ります。テーブルの各行がここでの1行となり、キー列で照合され、タイトル列で名前が付きます。ほかの列はそれぞれプロパティになります（テキスト、数値、チェックボックス、日付と時刻）。最大 {limit} 行。変更はテーブルから Leafdesk への一方向です。",
+    "url": "接続アドレス",
+    "urlPlaceholder": "postgres://user:password@host:5432/database",
+    "urlHelp": "このテーブルの読み取りだけができるユーザーを使ってください。Leafdesk は読み取り専用トランザクションで読み、公開アドレス（または管理者が CONNECTOR_ALLOWED_HOSTS で許可したサーバー）にのみ接続し、アドレスをサーバーに暗号化して保存します。",
+    "table": "テーブル",
+    "tablePlaceholder": "schema.table",
+    "key": "キー列",
+    "keyPlaceholder": "主キー",
+    "titleColumn": "タイトル列",
+    "titlePlaceholder": "最初のテキスト列",
+    "errors": {
+      "unauthorized": "サーバーがユーザーまたはパスワードを拒否しました。",
+      "forbidden": "このユーザーにはテーブルの読み取り権限がありません。",
+      "notFound": "そのデータベースまたはテーブルはありません。",
+      "badQuery": "サーバーがクエリを拒否しました：",
+      "tooManyIssues": "テーブルの行が多すぎて同期できません。必要な行だけのビューを同期してください。",
+      "unreachable": "サーバーに接続できないか、クエリに時間がかかりすぎました。次回再試行します。",
+      "runAsGone": "同期を設定した人のアカウントがなくなりました。",
+      "accessLost": "同期の実行者がこのデータベースを編集できなくなりました。",
+      "keyGone": "キーのプロパティが削除されたか種類が変わったため、テーブルの行を照合できません。",
+      "failed": "同期に失敗しました。次回再試行します。",
+      "invalidSite": "Leafdesk はそのサーバーに接続できません。プライベートアドレスは管理者が CONNECTOR_ALLOWED_HOSTS で許可する必要があります。",
+      "invalidInput": "接続アドレス、テーブル、列名を確認してください。",
+      "alreadyRunning": "同期の実行中です。少し待ってから再試行してください。"
     }
   }
 }

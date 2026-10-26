@@ -14,6 +14,8 @@
     "monday": "Monday.com",
     "jira": "Jira",
     "github": "GitHub",
+    "ical": "Kalender",
+    "postgres": "PostgreSQL",
     "googleDocs": "Google Dokumenter",
     "web": "Nettside"
   },
@@ -362,6 +364,69 @@
       "totalTime": "Totalt",
       "ingredients": "Ingredienser",
       "steps": "Fremgangsmåte"
+    }
+  },
+  "ical": {
+    "help": "Få en database med en kalenders hendelser som holdes oppdatert: hver hendelse er en rad med tid, sted, notater, status, arrangør og lenke, og hver forekomst av en gjentatt hendelse er sin egen rad. Hendelser fra {before} dager tilbake til {after} dager frem tas med. Endringer går én vei, fra kalenderen til Leafdesk.",
+    "url": "Kalenderadresse",
+    "urlPlaceholder": "https://… .ics · webcal://…",
+    "urlHelp": "Bruk kalenderens iCal-adresse: i Google Kalender den hemmelige adressen i iCal-format fra innstillingene, i Outlook ICS-lenken til en publisert kalender. Den lagres forseglet på serveren og vises aldri igjen.",
+    "namePlaceholder": "Kalenderens navn",
+    "names": {
+      "key": "Hendelses-ID",
+      "when": "Når",
+      "location": "Sted",
+      "description": "Beskrivelse",
+      "status": "Status",
+      "organizer": "Arrangør",
+      "link": "Lenke",
+      "untitled": "Hendelse uten tittel",
+      "statuses": {
+        "confirmed": "Bekreftet",
+        "tentative": "Foreløpig",
+        "cancelled": "Avlyst"
+      }
+    },
+    "errors": {
+      "unauthorized": "Kalenderen ber om pålogging. Bruk den hemmelige iCal-adressen.",
+      "forbidden": "Kalenderen nektet å bli lest.",
+      "notFound": "Det finnes ingen kalender på denne adressen.",
+      "tooManyIssues": "Kalenderen har for mange hendelser, eller er for stor, til å synkroniseres.",
+      "unreachable": "Kalenderen kunne ikke nås. Synkroniseringen prøver igjen neste gang.",
+      "runAsGone": "Personen som satte opp synkroniseringen, har ikke lenger en konto.",
+      "accessLost": "Personen synkroniseringen kjører som, kan ikke lenger redigere denne databasen.",
+      "keyGone": "Egenskapen Hendelses-ID ble slettet eller fikk en annen type, så hendelser kan ikke kobles til rader.",
+      "failed": "Synkroniseringen mislyktes. Den prøver igjen neste gang.",
+      "invalidSite": "Det er ikke en adresse Leafdesk kan nå.",
+      "invalidInput": "Bruk kalenderens https- eller webcal-adresse.",
+      "alreadyRunning": "En synkronisering pågår. Prøv igjen om litt."
+    }
+  },
+  "postgres": {
+    "help": "Få en database av en PostgreSQL-tabell (eller -visning) som holdes oppdatert: hver rad i tabellen er en rad her, funnet igjen via nøkkelkolonnen og navngitt av tittelkolonnen, med en egenskap for hver annen kolonne (tekst, tall, avmerkingsbokser, datoer og tider). Opptil {limit} rader. Endringer går én vei, fra tabellen til Leafdesk.",
+    "url": "Tilkoblingsadresse",
+    "urlPlaceholder": "postgres://user:password@host:5432/database",
+    "urlHelp": "Bruk en bruker som bare kan lese denne tabellen. Leafdesk leser i en skrivebeskyttet transaksjon, når bare offentlige adresser (eller servere administratoren har tillatt i CONNECTOR_ALLOWED_HOSTS) og lagrer adressen forseglet på serveren.",
+    "table": "Tabell",
+    "tablePlaceholder": "schema.table",
+    "key": "Nøkkelkolonne",
+    "keyPlaceholder": "Primærnøkkelen",
+    "titleColumn": "Tittelkolonne",
+    "titlePlaceholder": "Den første tekstkolonnen",
+    "errors": {
+      "unauthorized": "Serveren avviste brukeren eller passordet.",
+      "forbidden": "Brukeren kan ikke lese denne tabellen.",
+      "notFound": "Ingen slik database eller tabell.",
+      "badQuery": "Serveren avviste spørringen:",
+      "tooManyIssues": "Tabellen har for mange rader til å synkroniseres. Synkroniser en visning av radene du trenger.",
+      "unreachable": "Serveren kunne ikke nås, eller spørringen tok for lang tid. Synkroniseringen prøver igjen neste gang.",
+      "runAsGone": "Personen som satte opp synkroniseringen, har ikke lenger en konto.",
+      "accessLost": "Personen synkroniseringen kjører som, kan ikke lenger redigere denne databasen.",
+      "keyGone": "Nøkkelegenskapen ble slettet eller fikk en annen type, så tabellrader kan ikke kobles til rader.",
+      "failed": "Synkroniseringen mislyktes. Den prøver igjen neste gang.",
+      "invalidSite": "Leafdesk kan ikke nå den serveren: en privat adresse må tillates av administratoren i CONNECTOR_ALLOWED_HOSTS.",
+      "invalidInput": "Sjekk tilkoblingsadressen, tabellen og kolonnenavnene.",
+      "alreadyRunning": "En synkronisering pågår. Prøv igjen om litt."
     }
   }
 }

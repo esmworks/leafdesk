@@ -7,6 +7,8 @@ import { AccessError } from "@/server/access";
 import { getCollab } from "@/server/collab/bridge";
 import { getProperties, requireDatabase } from "@/server/databases";
 import { runGithubPulls } from "@/server/github-pulls/run";
+import { runIcal } from "@/server/ical-sync/run";
+import { runPostgres } from "@/server/postgres-sync/run";
 import { matcher } from "@/server/import/board";
 import { openJson } from "@/server/secret-box";
 import { startSweep } from "@/server/sweep";
@@ -14,8 +16,8 @@ import { addOptions, applyRows, liveFields, type SyncedDatabase } from "@/server
 import { JiraError, searchIssues, type JiraAuth } from "./client";
 
 /**
- * Runs of synced databases (`database_sync`: Jira issues, lib/jira-sync, and GitHub pull requests,
- * lib/github-pulls-sync): every minute the app server takes the syncs that are due with FOR UPDATE
+ * Runs of synced databases (`database_sync`: Jira issues, lib/jira-sync, GitHub pull requests,
+ * lib/github-pulls-sync, calendars, lib/ical-sync, and PostgreSQL tables, lib/postgres-sync): every minute the app server takes the syncs that are due with FOR UPDATE
  * SKIP LOCKED, moves each one's next run on and holds it while it runs (`runningUntil`, let go after
  * LEASE_MS should the server die), so a sync never runs twice at once, here or on another replica;
  * "Sync now" takes the same hold.
@@ -82,6 +84,8 @@ export async function runSync(sync: SyncRow) {
   }
   if (database.archivedAt) return null;
   if (sync.source === "github") return runGithubPulls(sync, database, sync.runAs);
+  if (sync.source === "ical") return runIcal(sync, database, sync.runAs);
+  if (sync.source === "postgres") return runPostgres(sync, database, sync.runAs);
   const auth = openJson<JiraAuth>(sync.secrets);
   const issues = await searchIssues(sync.siteUrl, auth, jqlOf(sync.query as JiraQuery));
   const rows = issues.map((issue) => issueRow(issue, sync.siteUrl)).filter((row): row is JiraRow => row !== null);
@@ -170,7 +174,7 @@ export async function runDueSyncs(now = new Date()) {
   }
 }
 
-/** Server only: runs syncs (Jira, GitHub) as they fall due. */
+/** Server only: runs syncs (Jira, GitHub, calendars, PostgreSQL) as they fall due. */
 export function startDatabaseSyncs() {
   return startSweep(SWEEP_MS, () => runDueSyncs(), "could not run database syncs");
 }

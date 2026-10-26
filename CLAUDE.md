@@ -143,10 +143,13 @@ BlockNote on Yjs; Tailwind v4; next-intl. Node 24, pnpm 11. A separate Electron 
   with role `sprint`; the current sprint's views filter on a hidden rollup of the sprint state, so
   they follow a completion without changing; rollups show option names, so `updateProperty`
   rewrites such rollup filters when options are renamed), Telegram bot `src/server/telegram/`, synced databases (own
-  `database_sync` table, `source` jira or github; the runs and the one-minute sweep are
-  `jira-sync/run.ts` for both, rows written by `synced-rows.ts`; Jira in `jira-sync/` and
-  `src/lib/jira-sync.ts`, GitHub pull requests in `github-pulls/` and `src/lib/github-pulls-sync.ts`,
-  people matched by their `account` with provider github), GitHub pull requests moving tasks `github-sync/` (deliveries handled in the request at `api/github/[syncId]`; pure
+  `database_sync` table, `source` jira, github, ical or postgres; the runs and the one-minute sweep
+  are `jira-sync/run.ts` for all, rows written by `synced-rows.ts`, errors are `JiraError` codes;
+  Jira in `jira-sync/` and `src/lib/jira-sync.ts`, GitHub pull requests in `github-pulls/` and
+  `src/lib/github-pulls-sync.ts`, people matched by their `account` with provider github;
+  calendars in `ical-sync/` and `src/lib/ical-sync.ts` (the pure .ics reader and repeat rules);
+  PostgreSQL tables in `postgres-sync/` (`client.ts` checks the host like `connections/fetch.ts`
+  and reads in a read-only transaction) and `src/lib/postgres-sync.ts`), GitHub pull requests moving tasks `github-sync/` (deliveries handled in the request at `api/github/[syncId]`; pure
   ID matching and the status rule in `src/lib/github-sync.ts`), the Send to Slack step's address
   check and message in `src/lib/slack.ts`, mail to and from rows `row-mail/`, follow-up
   sequences on rows `sequences/` (sent by a 30-second `startSequences` job; `runSequences(now)` runs

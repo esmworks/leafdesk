@@ -14,6 +14,8 @@
     "monday": "Monday.com",
     "jira": "Jira",
     "github": "GitHub",
+    "ical": "Kalender",
+    "postgres": "PostgreSQL",
     "googleDocs": "Google Docs",
     "web": "Halaman web"
   },
@@ -362,6 +364,69 @@
       "totalTime": "Total",
       "ingredients": "Bahan",
       "steps": "Langkah"
+    }
+  },
+  "ical": {
+    "help": "Dapatkan database acara kalender yang selalu selaras: setiap acara menjadi baris berisi waktu, tempat, catatan, status, penyelenggara, dan tautannya, dan setiap kemunculan acara berulang menjadi baris tersendiri. Acara dari {before} hari lalu hingga {after} hari ke depan akan masuk. Perubahan berjalan satu arah, dari kalender ke Leafdesk.",
+    "url": "Alamat kalender",
+    "urlPlaceholder": "https://… .ics · webcal://…",
+    "urlHelp": "Gunakan alamat iCal kalender: di Google Kalender, alamat rahasia format iCal dari pengaturannya; di Outlook, tautan ICS kalender yang diterbitkan. Alamat disimpan tersegel di server dan tidak ditampilkan lagi.",
+    "namePlaceholder": "Nama kalender",
+    "names": {
+      "key": "ID acara",
+      "when": "Waktu",
+      "location": "Lokasi",
+      "description": "Deskripsi",
+      "status": "Status",
+      "organizer": "Penyelenggara",
+      "link": "Tautan",
+      "untitled": "Acara tanpa judul",
+      "statuses": {
+        "confirmed": "Dikonfirmasi",
+        "tentative": "Tentatif",
+        "cancelled": "Dibatalkan"
+      }
+    },
+    "errors": {
+      "unauthorized": "Kalender meminta masuk. Gunakan alamat iCal rahasianya.",
+      "forbidden": "Kalender menolak untuk dibaca.",
+      "notFound": "Tidak ada kalender di alamat ini.",
+      "tooManyIssues": "Kalender memiliki terlalu banyak acara atau terlalu besar untuk disinkronkan.",
+      "unreachable": "Kalender tidak dapat dijangkau. Sinkronisasi akan mencoba lagi lain kali.",
+      "runAsGone": "Orang yang menyiapkan sinkronisasi tidak lagi memiliki akun.",
+      "accessLost": "Orang yang menjalankan sinkronisasi tidak lagi bisa mengedit database ini.",
+      "keyGone": "Properti ID acara dihapus atau berubah jenis, sehingga acara tidak bisa dicocokkan dengan baris.",
+      "failed": "Sinkronisasi gagal. Akan dicoba lagi lain kali.",
+      "invalidSite": "Itu bukan alamat yang bisa dijangkau Leafdesk.",
+      "invalidInput": "Gunakan alamat https atau webcal kalender.",
+      "alreadyRunning": "Sinkronisasi sedang berjalan. Coba lagi sebentar lagi."
+    }
+  },
+  "postgres": {
+    "help": "Dapatkan database dari tabel (atau view) PostgreSQL yang selalu selaras: setiap baris tabel menjadi baris di sini, ditemukan lewat kolom kunci dan dinamai dengan kolom judul, dengan properti untuk setiap kolom lain (teks, angka, kotak centang, tanggal, dan waktu). Hingga {limit} baris. Perubahan berjalan satu arah, dari tabel ke Leafdesk.",
+    "url": "Alamat koneksi",
+    "urlPlaceholder": "postgres://user:password@host:5432/database",
+    "urlHelp": "Gunakan pengguna yang hanya boleh membaca tabel ini. Leafdesk membaca dalam transaksi hanya-baca, hanya menjangkau alamat publik (atau server yang diizinkan administrator di CONNECTOR_ALLOWED_HOSTS), dan menyimpan alamat tersegel di server.",
+    "table": "Tabel",
+    "tablePlaceholder": "schema.table",
+    "key": "Kolom kunci",
+    "keyPlaceholder": "Kunci utama",
+    "titleColumn": "Kolom judul",
+    "titlePlaceholder": "Kolom teks pertama",
+    "errors": {
+      "unauthorized": "Server menolak pengguna atau kata sandi.",
+      "forbidden": "Pengguna tidak boleh membaca tabel ini.",
+      "notFound": "Database atau tabel tersebut tidak ada.",
+      "badQuery": "Server menolak kueri:",
+      "tooManyIssues": "Tabel memiliki terlalu banyak baris untuk disinkronkan. Sinkronkan view berisi baris yang Anda perlukan.",
+      "unreachable": "Server tidak dapat dijangkau, atau kueri terlalu lama. Sinkronisasi akan mencoba lagi lain kali.",
+      "runAsGone": "Orang yang menyiapkan sinkronisasi tidak lagi memiliki akun.",
+      "accessLost": "Orang yang menjalankan sinkronisasi tidak lagi bisa mengedit database ini.",
+      "keyGone": "Properti kunci dihapus atau berubah jenis, sehingga baris tabel tidak bisa dicocokkan.",
+      "failed": "Sinkronisasi gagal. Akan dicoba lagi lain kali.",
+      "invalidSite": "Leafdesk tidak bisa menjangkau server itu: alamat privat perlu diizinkan administrator di CONNECTOR_ALLOWED_HOSTS.",
+      "invalidInput": "Periksa alamat koneksi, tabel, dan nama kolom.",
+      "alreadyRunning": "Sinkronisasi sedang berjalan. Coba lagi sebentar lagi."
     }
   }
 }

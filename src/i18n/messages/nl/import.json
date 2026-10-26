@@ -14,6 +14,8 @@
     "monday": "Monday.com",
     "jira": "Jira",
     "github": "GitHub",
+    "ical": "Agenda",
+    "postgres": "PostgreSQL",
     "googleDocs": "Google Docs",
     "web": "Webpagina"
   },
@@ -362,6 +364,69 @@
       "totalTime": "Totaal",
       "ingredients": "Ingrediënten",
       "steps": "Bereiding"
+    }
+  },
+  "ical": {
+    "help": "Krijg een database van de afspraken in een agenda die bijgewerkt blijft: elke afspraak is een rij met tijd, plaats, notities, status, organisator en link, en elk voorkomen van een terugkerende afspraak is een eigen rij. Afspraken van {before} dagen terug tot {after} dagen vooruit komen binnen. Wijzigingen gaan één kant op, van de agenda naar Leafdesk.",
+    "url": "Agenda-adres",
+    "urlPlaceholder": "https://… .ics · webcal://…",
+    "urlHelp": "Gebruik het iCal-adres van de agenda: in Google Agenda het geheime adres in iCal-indeling uit de instellingen, in Outlook de ICS-link van een gepubliceerde agenda. Het wordt verzegeld op de server bewaard en nooit meer getoond.",
+    "namePlaceholder": "Naam van de agenda",
+    "names": {
+      "key": "Afspraak-ID",
+      "when": "Wanneer",
+      "location": "Locatie",
+      "description": "Beschrijving",
+      "status": "Status",
+      "organizer": "Organisator",
+      "link": "Link",
+      "untitled": "Afspraak zonder titel",
+      "statuses": {
+        "confirmed": "Bevestigd",
+        "tentative": "Voorlopig",
+        "cancelled": "Geannuleerd"
+      }
+    },
+    "errors": {
+      "unauthorized": "De agenda vraagt om aan te melden. Gebruik het geheime iCal-adres.",
+      "forbidden": "De agenda weigert gelezen te worden.",
+      "notFound": "Op dit adres staat geen agenda.",
+      "tooManyIssues": "De agenda heeft te veel afspraken of is te groot om te synchroniseren.",
+      "unreachable": "De agenda was niet bereikbaar. De synchronisatie probeert het de volgende keer opnieuw.",
+      "runAsGone": "De persoon die de synchronisatie instelde, heeft geen account meer.",
+      "accessLost": "De persoon namens wie de synchronisatie draait, kan deze database niet meer bewerken.",
+      "keyGone": "De eigenschap Afspraak-ID is verwijderd of van type veranderd, dus afspraken kunnen niet aan rijen worden gekoppeld.",
+      "failed": "De synchronisatie is mislukt. Ze probeert het de volgende keer opnieuw.",
+      "invalidSite": "Leafdesk kan dat adres niet bereiken.",
+      "invalidInput": "Gebruik het https- of webcal-adres van de agenda.",
+      "alreadyRunning": "Er loopt een synchronisatie. Probeer het zo opnieuw."
+    }
+  },
+  "postgres": {
+    "help": "Krijg een database van een PostgreSQL-tabel (of -weergave) die bijgewerkt blijft: elke rij van de tabel is hier een rij, teruggevonden via de sleutelkolom en genoemd naar de titelkolom, met een eigenschap voor elke andere kolom (tekst, getallen, selectievakjes, datums en tijden). Tot {limit} rijen. Wijzigingen gaan één kant op, van de tabel naar Leafdesk.",
+    "url": "Verbindingsadres",
+    "urlPlaceholder": "postgres://user:password@host:5432/database",
+    "urlHelp": "Gebruik een gebruiker die deze tabel alleen mag lezen. Leafdesk leest in een alleen-lezen-transactie, bereikt alleen openbare adressen (of servers die je beheerder in CONNECTOR_ALLOWED_HOSTS toestond) en bewaart het adres verzegeld op de server.",
+    "table": "Tabel",
+    "tablePlaceholder": "schema.table",
+    "key": "Sleutelkolom",
+    "keyPlaceholder": "De primaire sleutel",
+    "titleColumn": "Titelkolom",
+    "titlePlaceholder": "De eerste tekstkolom",
+    "errors": {
+      "unauthorized": "De server weigerde de gebruiker of het wachtwoord.",
+      "forbidden": "De gebruiker mag deze tabel niet lezen.",
+      "notFound": "Die database of tabel bestaat niet.",
+      "badQuery": "De server weigerde de query:",
+      "tooManyIssues": "De tabel heeft te veel rijen om te synchroniseren. Synchroniseer een weergave van de rijen die je nodig hebt.",
+      "unreachable": "De server was niet bereikbaar of de query duurde te lang. De synchronisatie probeert het de volgende keer opnieuw.",
+      "runAsGone": "De persoon die de synchronisatie instelde, heeft geen account meer.",
+      "accessLost": "De persoon namens wie de synchronisatie draait, kan deze database niet meer bewerken.",
+      "keyGone": "De sleuteleigenschap is verwijderd of van type veranderd, dus tabelrijen kunnen niet worden gekoppeld.",
+      "failed": "De synchronisatie is mislukt. Ze probeert het de volgende keer opnieuw.",
+      "invalidSite": "Leafdesk kan die server niet bereiken: een privéadres moet je beheerder toestaan in CONNECTOR_ALLOWED_HOSTS.",
+      "invalidInput": "Controleer het verbindingsadres, de tabel en de kolomnamen.",
+      "alreadyRunning": "Er loopt een synchronisatie. Probeer het zo opnieuw."
     }
   }
 }

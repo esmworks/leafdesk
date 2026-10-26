@@ -161,6 +161,12 @@ jobs:
       - name: Personal views end-to-end
         run: pnpm tsx scripts/personal-views-e2e.ts
 
+      - name: Calendar sync end-to-end
+        run: pnpm tsx scripts/ical-sync-e2e.ts
+
+      - name: PostgreSQL sync end-to-end
+        run: pnpm tsx scripts/postgres-sync-e2e.ts
+
       - name: Grouping end-to-end
         run: pnpm tsx scripts/grouping-e2e.ts
 
@@ -627,6 +633,12 @@ jobs:
 
       - name: Personal views end-to-end
         run: pnpm tsx scripts/personal-views-e2e.ts
+
+      - name: Calendar sync end-to-end
+        run: pnpm tsx scripts/ical-sync-e2e.ts
+
+      - name: PostgreSQL sync end-to-end
+        run: pnpm tsx scripts/postgres-sync-e2e.ts
 
       - name: Formula and rollup end-to-end
         run: pnpm tsx scripts/formula-e2e.ts

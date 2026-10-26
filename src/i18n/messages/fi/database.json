@@ -2111,5 +2111,25 @@
     "hint": "Täytetään, kun rivi lisätään tästä mallista",
     "dateWhen": "Asetetaan, kun rivi lisätään",
     "meOption": "Rivin lisääjä"
+  },
+  "icalSync": {
+    "button": "Synkronoitu kalenterista",
+    "buttonPaused": "Kalenterin synkronointi tauolla",
+    "title": "Kalenterin synkronointi",
+    "calendar": "Kalenteri",
+    "lastRun": "Viimeksi synkronoitu {when}, {count, plural, one {# tapahtuma} other {# tapahtumaa}}",
+    "overwrite": "Kalenteri on lähde: synkronoidut ominaisuudet ja rivien otsikot kirjoitetaan yli jokaisessa synkronoinnissa, joten muuta tapahtumia kalenterissa. Itse lisäämäsi ominaisuudet säilyvät, ja kalenterista poistuneiden tapahtumien rivit jätetään ennalleen.",
+    "changeUrl": "Vaihda osoite",
+    "stopConfirm": "Lopetetaanko tämän tietokannan synkronointi? Rivit säilyvät ennallaan ja kalenterin osoite unohdetaan."
+  },
+  "postgresSync": {
+    "button": "Synkronoitu PostgreSQL:stä",
+    "buttonPaused": "PostgreSQL-synkronointi tauolla",
+    "title": "PostgreSQL-synkronointi",
+    "server": "Palvelin",
+    "lastRun": "Viimeksi synkronoitu {when}, {count, plural, one {# rivi} other {# riviä}}",
+    "overwrite": "Taulu on lähde: synkronoidut ominaisuudet ja rivien otsikot kirjoitetaan yli jokaisessa synkronoinnissa, joten muuta tietoja taulussa. Itse lisäämäsi ominaisuudet säilyvät, ja taulusta poistuneet rivit jätetään ennalleen.",
+    "changeUrl": "Vaihda yhteys",
+    "stopConfirm": "Lopetetaanko tämän tietokannan synkronointi? Rivit säilyvät ennallaan ja yhteysosoite unohdetaan."
   }
 }

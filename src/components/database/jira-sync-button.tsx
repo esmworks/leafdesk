@@ -9,18 +9,23 @@ import type { DatabaseSyncSummary } from "@/lib/jira-sync";
 
 const JiraSyncDialog = dynamic(() => import("./jira-sync-dialog"));
 const GithubPullsSyncDialog = dynamic(() => import("./github-pulls-sync-dialog"));
+const IcalSyncDialog = dynamic(() => import("./ical-sync-dialog"));
+const PostgresSyncDialog = dynamic(() => import("./postgres-sync-dialog"));
+
+const DIALOGS = { jira: JiraSyncDialog, github: GithubPullsSyncDialog, ical: IcalSyncDialog, postgres: PostgresSyncDialog };
+/** The texts of each source's button, under `database`. */
+const SOURCE_TEXTS = { jira: "jiraSync", github: "githubPulls", ical: "icalSync", postgres: "postgresSync" } as const;
 
 /**
- * Shows that a database is synced from Jira or GitHub (with a mark when the sync is paused or its
- * last run failed), and opens the sync's dialog.
+ * Shows that a database is synced from Jira, GitHub, a calendar or PostgreSQL (with a mark when the
+ * sync is paused or its last run failed), and opens the sync's dialog.
  */
 export function JiraSyncButton({ databaseId, sync, onChanged }: { databaseId: string; sync: DatabaseSyncSummary; onChanged: () => void }) {
-  const t = useTranslations("database.jiraSync");
-  const tg = useTranslations("database.githubPulls");
+  const t = useTranslations("database");
   const [open, setOpen] = useState(false);
-  const github = sync.source === "github";
-  const label = sync.enabled ? (github ? tg("button") : t("button")) : github ? tg("buttonPaused") : t("buttonPaused");
-  const Sync = github ? GithubPullsSyncDialog : JiraSyncDialog;
+  const texts = SOURCE_TEXTS[sync.source];
+  const label = sync.enabled ? t(`${texts}.button`) : t(`${texts}.buttonPaused`);
+  const Sync = DIALOGS[sync.source];
   return (
     <>
       <button

@@ -2111,5 +2111,25 @@
     "hint": "从此模板添加行时填入",
     "dateWhen": "添加行时设定",
     "meOption": "添加该行的人"
+  },
+  "icalSync": {
+    "button": "从日历同步",
+    "buttonPaused": "日历同步已暂停",
+    "title": "日历同步",
+    "calendar": "日历",
+    "lastRun": "上次同步 {when}，{count, plural, other {# 个事件}}",
+    "overwrite": "日历是数据源：同步的属性和行标题每次同步都会被覆盖，请在日历中修改事件。你自己添加的属性保持不变，已从日历移除的事件对应的行也保持不动。",
+    "changeUrl": "更改地址",
+    "stopConfirm": "停止同步此数据库？行保持不变，日历地址将被删除。"
+  },
+  "postgresSync": {
+    "button": "从 PostgreSQL 同步",
+    "buttonPaused": "PostgreSQL 同步已暂停",
+    "title": "PostgreSQL 同步",
+    "server": "服务器",
+    "lastRun": "上次同步 {when}，{count, plural, other {# 行}}",
+    "overwrite": "表是数据源：同步的属性和行标题每次同步都会被覆盖，请在表中修改数据。你自己添加的属性保持不变，已从表中移除的行也保持不动。",
+    "changeUrl": "更改连接",
+    "stopConfirm": "停止同步此数据库？行保持不变，连接地址将被删除。"
   }
 }

@@ -2111,5 +2111,25 @@
     "hint": "Diisi saat baris ditambahkan dari templat ini",
     "dateWhen": "Diatur saat baris ditambahkan",
     "meOption": "Siapa pun yang menambahkan baris"
+  },
+  "icalSync": {
+    "button": "Disinkronkan dari kalender",
+    "buttonPaused": "Sinkronisasi kalender dijeda",
+    "title": "Sinkronisasi kalender",
+    "calendar": "Kalender",
+    "lastRun": "Terakhir disinkronkan {when}, {count, plural, other {# acara}}",
+    "overwrite": "Kalender adalah sumbernya: properti yang disinkronkan dan judul baris ditimpa setiap sinkronisasi, jadi ubah acara di kalender. Properti yang Anda tambahkan sendiri tetap, dan baris acara yang keluar dari kalender dibiarkan.",
+    "changeUrl": "Ubah alamat",
+    "stopConfirm": "Hentikan sinkronisasi database ini? Barisnya tetap dan alamat kalender dilupakan."
+  },
+  "postgresSync": {
+    "button": "Disinkronkan dari PostgreSQL",
+    "buttonPaused": "Sinkronisasi PostgreSQL dijeda",
+    "title": "Sinkronisasi PostgreSQL",
+    "server": "Server",
+    "lastRun": "Terakhir disinkronkan {when}, {count, plural, other {# baris}}",
+    "overwrite": "Tabel adalah sumbernya: properti yang disinkronkan dan judul baris ditimpa setiap sinkronisasi, jadi ubah data di tabel. Properti yang Anda tambahkan sendiri tetap, dan baris yang keluar dari tabel dibiarkan.",
+    "changeUrl": "Ubah koneksi",
+    "stopConfirm": "Hentikan sinkronisasi database ini? Barisnya tetap dan alamat koneksi dilupakan."
   }
 }

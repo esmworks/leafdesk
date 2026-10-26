@@ -2111,5 +2111,25 @@
     "hint": "Se rellena al añadir una fila desde esta plantilla",
     "dateWhen": "Fijar al añadir una fila",
     "meOption": "Quien añada la fila"
+  },
+  "icalSync": {
+    "button": "Sincronizado desde un calendario",
+    "buttonPaused": "Sincronización del calendario en pausa",
+    "title": "Sincronización del calendario",
+    "calendar": "Calendario",
+    "lastRun": "Última sincronización {when}, {count, plural, one {# evento} other {# eventos}}",
+    "overwrite": "El calendario es la fuente: las propiedades sincronizadas y los títulos de las filas se sobrescriben en cada sincronización, así que cambia los eventos en el calendario. Las propiedades que añadas tú se mantienen, y las filas de eventos que salen del calendario se dejan como están.",
+    "changeUrl": "Cambiar la dirección",
+    "stopConfirm": "¿Dejar de sincronizar esta base de datos? Sus filas se quedan como están y se olvida la dirección del calendario."
+  },
+  "postgresSync": {
+    "button": "Sincronizado desde PostgreSQL",
+    "buttonPaused": "Sincronización de PostgreSQL en pausa",
+    "title": "Sincronización de PostgreSQL",
+    "server": "Servidor",
+    "lastRun": "Última sincronización {when}, {count, plural, one {# fila} other {# filas}}",
+    "overwrite": "La tabla es la fuente: las propiedades sincronizadas y los títulos de las filas se sobrescriben en cada sincronización, así que cambia los datos en la tabla. Las propiedades que añadas tú se mantienen, y las filas que salen de la tabla se dejan como están.",
+    "changeUrl": "Cambiar la conexión",
+    "stopConfirm": "¿Dejar de sincronizar esta base de datos? Sus filas se quedan como están y se olvida la dirección de conexión."
   }
 }

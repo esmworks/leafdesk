@@ -14,6 +14,8 @@
     "monday": "Monday.com",
     "jira": "Jira",
     "github": "GitHub",
+    "ical": "Calendario",
+    "postgres": "PostgreSQL",
     "googleDocs": "Google Docs",
     "web": "Página web"
   },
@@ -362,6 +364,69 @@
       "totalTime": "Total",
       "ingredients": "Ingredientes",
       "steps": "Pasos"
+    }
+  },
+  "ical": {
+    "help": "Obtén una base de datos con los eventos de un calendario que se mantiene al día: cada evento es una fila con su hora, lugar, notas, estado, organizador y enlace, y cada repetición de un evento periódico es una fila propia. Entran los eventos desde {before} días atrás hasta {after} días adelante. Los cambios van en un sentido, del calendario a Leafdesk.",
+    "url": "Dirección del calendario",
+    "urlPlaceholder": "https://… .ics · webcal://…",
+    "urlHelp": "Usa la dirección iCal del calendario: en Google Calendar, la dirección secreta en formato iCal de su configuración; en Outlook, el enlace ICS de un calendario publicado. Se guarda sellada en el servidor y no vuelve a mostrarse.",
+    "namePlaceholder": "Nombre del calendario",
+    "names": {
+      "key": "ID del evento",
+      "when": "Cuándo",
+      "location": "Lugar",
+      "description": "Descripción",
+      "status": "Estado",
+      "organizer": "Organizador",
+      "link": "Enlace",
+      "untitled": "Evento sin título",
+      "statuses": {
+        "confirmed": "Confirmado",
+        "tentative": "Provisional",
+        "cancelled": "Cancelado"
+      }
+    },
+    "errors": {
+      "unauthorized": "El calendario pide iniciar sesión. Usa su dirección iCal secreta.",
+      "forbidden": "El calendario no permite leerlo.",
+      "notFound": "No hay ningún calendario en esta dirección.",
+      "tooManyIssues": "El calendario tiene demasiados eventos o es demasiado grande para sincronizarlo.",
+      "unreachable": "No se pudo acceder al calendario. La sincronización lo intentará de nuevo la próxima vez.",
+      "runAsGone": "La persona que configuró la sincronización ya no tiene cuenta.",
+      "accessLost": "La persona con la que se ejecuta la sincronización ya no puede editar esta base de datos.",
+      "keyGone": "La propiedad ID del evento se eliminó o cambió de tipo, así que los eventos no se pueden emparejar con filas.",
+      "failed": "La sincronización falló. Lo intentará de nuevo la próxima vez.",
+      "invalidSite": "Esa no es una dirección a la que Leafdesk pueda llegar.",
+      "invalidInput": "Usa la dirección https o webcal del calendario.",
+      "alreadyRunning": "Hay una sincronización en curso. Inténtalo de nuevo en un momento."
+    }
+  },
+  "postgres": {
+    "help": "Obtén una base de datos de una tabla (o vista) de PostgreSQL que se mantiene al día: cada fila de la tabla es una fila aquí, encontrada de nuevo por su columna clave y nombrada por su columna de título, con una propiedad por cada otra columna (texto, números, casillas, fechas y horas). Hasta {limit} filas. Los cambios van en un sentido, de la tabla a Leafdesk.",
+    "url": "Dirección de conexión",
+    "urlPlaceholder": "postgres://user:password@host:5432/database",
+    "urlHelp": "Usa un usuario que solo pueda leer esta tabla. Leafdesk lee en una transacción de solo lectura, solo llega a direcciones públicas (o a servidores que tu administrador permitió en CONNECTOR_ALLOWED_HOSTS) y guarda la dirección sellada en el servidor.",
+    "table": "Tabla",
+    "tablePlaceholder": "schema.table",
+    "key": "Columna clave",
+    "keyPlaceholder": "La clave primaria",
+    "titleColumn": "Columna de título",
+    "titlePlaceholder": "La primera columna de texto",
+    "errors": {
+      "unauthorized": "El servidor rechazó el usuario o la contraseña.",
+      "forbidden": "El usuario no puede leer esta tabla.",
+      "notFound": "No existe esa base de datos o tabla.",
+      "badQuery": "El servidor rechazó la consulta:",
+      "tooManyIssues": "La tabla tiene demasiadas filas para sincronizarla. Sincroniza una vista con las filas que necesitas.",
+      "unreachable": "No se pudo acceder al servidor o la consulta tardó demasiado. La sincronización lo intentará de nuevo la próxima vez.",
+      "runAsGone": "La persona que configuró la sincronización ya no tiene cuenta.",
+      "accessLost": "La persona con la que se ejecuta la sincronización ya no puede editar esta base de datos.",
+      "keyGone": "La propiedad clave se eliminó o cambió de tipo, así que las filas de la tabla no se pueden emparejar.",
+      "failed": "La sincronización falló. Lo intentará de nuevo la próxima vez.",
+      "invalidSite": "Leafdesk no puede llegar a ese servidor: una dirección privada necesita que tu administrador la permita en CONNECTOR_ALLOWED_HOSTS.",
+      "invalidInput": "Revisa la dirección de conexión, la tabla y los nombres de columna.",
+      "alreadyRunning": "Hay una sincronización en curso. Inténtalo de nuevo en un momento."
     }
   }
 }

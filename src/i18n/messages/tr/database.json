@@ -2111,5 +2111,25 @@
     "hint": "Bu şablondan satır eklendiğinde doldurulur",
     "dateWhen": "Satır eklendiğinde ayarlanır",
     "meOption": "Satırı ekleyen kişi"
+  },
+  "icalSync": {
+    "button": "Takvimden eşitleniyor",
+    "buttonPaused": "Takvim eşitlemesi duraklatıldı",
+    "title": "Takvim eşitlemesi",
+    "calendar": "Takvim",
+    "lastRun": "Son eşitleme {when}, {count, plural, one {# etkinlik} other {# etkinlik}}",
+    "overwrite": "Kaynak takvimdir: eşitlenen özellikler ve satır başlıkları her eşitlemede yeniden yazılır; bu yüzden etkinlikleri takvimde değiştirin. Kendi eklediğiniz özellikler olduğu gibi kalır, takvimden çıkan etkinliklerin satırlarına dokunulmaz.",
+    "changeUrl": "Adresi değiştir",
+    "stopConfirm": "Bu veritabanının eşitlemesi durdurulsun mu? Satırlar olduğu gibi kalır, takvimin adresi unutulur."
+  },
+  "postgresSync": {
+    "button": "PostgreSQL'den eşitleniyor",
+    "buttonPaused": "PostgreSQL eşitlemesi duraklatıldı",
+    "title": "PostgreSQL eşitlemesi",
+    "server": "Sunucu",
+    "lastRun": "Son eşitleme {when}, {count, plural, one {# satır} other {# satır}}",
+    "overwrite": "Kaynak tablodur: eşitlenen özellikler ve satır başlıkları her eşitlemede yeniden yazılır; bu yüzden verileri tabloda değiştirin. Kendi eklediğiniz özellikler olduğu gibi kalır, tablodan çıkan satırlara dokunulmaz.",
+    "changeUrl": "Bağlantıyı değiştir",
+    "stopConfirm": "Bu veritabanının eşitlemesi durdurulsun mu? Satırlar olduğu gibi kalır, bağlantı adresi unutulur."
   }
 }

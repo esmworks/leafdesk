@@ -14,6 +14,8 @@
     "monday": "Monday.com",
     "jira": "Jira",
     "github": "GitHub",
+    "ical": "Kalender",
+    "postgres": "PostgreSQL",
     "googleDocs": "Google Docs",
     "web": "Webseite"
   },
@@ -362,6 +364,69 @@
       "totalTime": "Gesamt",
       "ingredients": "Zutaten",
       "steps": "Zubereitung"
+    }
+  },
+  "ical": {
+    "help": "Eine Datenbank aus den Terminen eines Kalenders, die aktuell bleibt: Jeder Termin ist eine Zeile mit Zeit, Ort, Notizen, Status, Organisator und Link, und jedes Vorkommen eines Serientermins ist eine eigene Zeile. Termine von {before} Tagen zurück bis {after} Tage voraus kommen herein. Änderungen gehen in eine Richtung, vom Kalender zu Leafdesk.",
+    "url": "Kalenderadresse",
+    "urlPlaceholder": "https://… .ics · webcal://…",
+    "urlHelp": "Nutze die iCal-Adresse des Kalenders: in Google Kalender die geheime Adresse im iCal-Format aus seinen Einstellungen, in Outlook den ICS-Link eines veröffentlichten Kalenders. Sie wird versiegelt auf dem Server gespeichert und nie wieder angezeigt.",
+    "namePlaceholder": "Name des Kalenders",
+    "names": {
+      "key": "Termin-ID",
+      "when": "Wann",
+      "location": "Ort",
+      "description": "Beschreibung",
+      "status": "Status",
+      "organizer": "Organisator",
+      "link": "Link",
+      "untitled": "Termin ohne Titel",
+      "statuses": {
+        "confirmed": "Bestätigt",
+        "tentative": "Vorläufig",
+        "cancelled": "Abgesagt"
+      }
+    },
+    "errors": {
+      "unauthorized": "Der Kalender verlangt eine Anmeldung. Nutze seine geheime iCal-Adresse.",
+      "forbidden": "Der Kalender verweigert das Lesen.",
+      "notFound": "Unter dieser Adresse gibt es keinen Kalender.",
+      "tooManyIssues": "Der Kalender hat zu viele Termine oder ist zu groß zum Synchronisieren.",
+      "unreachable": "Der Kalender war nicht erreichbar. Die Synchronisierung versucht es beim nächsten Mal erneut.",
+      "runAsGone": "Die Person, die die Synchronisierung eingerichtet hat, hat kein Konto mehr.",
+      "accessLost": "Die Person, als die die Synchronisierung läuft, kann diese Datenbank nicht mehr bearbeiten.",
+      "keyGone": "Die Eigenschaft Termin-ID wurde gelöscht oder ihr Typ geändert, daher können Termine keinen Zeilen zugeordnet werden.",
+      "failed": "Die Synchronisierung ist fehlgeschlagen. Sie versucht es beim nächsten Mal erneut.",
+      "invalidSite": "Diese Adresse kann Leafdesk nicht erreichen.",
+      "invalidInput": "Nutze die https- oder webcal-Adresse des Kalenders.",
+      "alreadyRunning": "Eine Synchronisierung läuft. Versuche es gleich noch einmal."
+    }
+  },
+  "postgres": {
+    "help": "Eine Datenbank aus einer PostgreSQL-Tabelle (oder -Ansicht), die aktuell bleibt: Jede Zeile der Tabelle ist hier eine Zeile, über die Schlüsselspalte wiedergefunden und nach der Titelspalte benannt, mit einer Eigenschaft für jede weitere Spalte (Text, Zahlen, Kontrollkästchen, Daten und Zeiten). Bis zu {limit} Zeilen. Änderungen gehen in eine Richtung, von der Tabelle zu Leafdesk.",
+    "url": "Verbindungsadresse",
+    "urlPlaceholder": "postgres://user:password@host:5432/database",
+    "urlHelp": "Nutze einen Benutzer, der diese Tabelle nur lesen darf. Leafdesk liest in einer schreibgeschützten Transaktion, erreicht nur öffentliche Adressen (oder Server, die deine Administration in CONNECTOR_ALLOWED_HOSTS erlaubt hat) und speichert die Adresse versiegelt auf dem Server.",
+    "table": "Tabelle",
+    "tablePlaceholder": "schema.table",
+    "key": "Schlüsselspalte",
+    "keyPlaceholder": "Der Primärschlüssel",
+    "titleColumn": "Titelspalte",
+    "titlePlaceholder": "Die erste Textspalte",
+    "errors": {
+      "unauthorized": "Der Server hat Benutzer oder Passwort abgelehnt.",
+      "forbidden": "Der Benutzer darf diese Tabelle nicht lesen.",
+      "notFound": "Diese Datenbank oder Tabelle gibt es nicht.",
+      "badQuery": "Der Server hat die Abfrage abgelehnt:",
+      "tooManyIssues": "Die Tabelle hat zu viele Zeilen zum Synchronisieren. Synchronisiere eine Ansicht der Zeilen, die du brauchst.",
+      "unreachable": "Der Server war nicht erreichbar oder die Abfrage dauerte zu lange. Die Synchronisierung versucht es beim nächsten Mal erneut.",
+      "runAsGone": "Die Person, die die Synchronisierung eingerichtet hat, hat kein Konto mehr.",
+      "accessLost": "Die Person, als die die Synchronisierung läuft, kann diese Datenbank nicht mehr bearbeiten.",
+      "keyGone": "Die Schlüsseleigenschaft wurde gelöscht oder ihr Typ geändert, daher können Tabellenzeilen keinen Zeilen zugeordnet werden.",
+      "failed": "Die Synchronisierung ist fehlgeschlagen. Sie versucht es beim nächsten Mal erneut.",
+      "invalidSite": "Leafdesk kann diesen Server nicht erreichen: Eine private Adresse muss deine Administration in CONNECTOR_ALLOWED_HOSTS erlauben.",
+      "invalidInput": "Prüfe die Verbindungsadresse, die Tabelle und die Spaltennamen.",
+      "alreadyRunning": "Eine Synchronisierung läuft. Versuche es gleich noch einmal."
     }
   }
 }

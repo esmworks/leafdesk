@@ -1016,6 +1016,30 @@
   refused token or a deleted *Number* property pauses it. In the database's sync dialog people with
   full access can change which pull requests it takes, how often, the token, sync now or stop.
   Tested against a stand-in GitHub (`scripts/github-pulls-sync-e2e.ts`), not yet the real API.
+- **Sync a calendar**: Import's Calendar tab takes a calendar's iCal address (an `.ics` or `webcal://`
+  link: Google Calendar's secret address in iCal format, an Outlook published calendar, a booking
+  tool's feed; kept sealed and never shown again, only its host) and makes a database whose rows
+  are the events from 90 days back to a year ahead: summary as the title, *When* (a day, days, a
+  time or a time range, in the event's own time zone, Windows zone names included), location,
+  description, status (*Confirmed*, *Tentative*, *Cancelled*), organizer and a link, opening
+  beside a calendar view by *When*. Each occurrence of a repeating event is a row of its own
+  (daily, weekly, monthly and yearly rules with their intervals, counts, end dates, weekdays and
+  days of the month; excluded dates; moved and cancelled occurrences). It syncs as often and as
+  one-way as a Jira sync; rows of events that leave the calendar stay. A calendar that asks for a
+  sign-in, refuses or is gone pauses it until its address is changed in the sync dialog. Up to
+  5,000 events and 10 MB. Tested against a calendar the e2e serves (`scripts/ical-sync-e2e.ts`).
+- **Sync a PostgreSQL table**: Import's PostgreSQL tab takes a connection address
+  (`postgres://user:password@host:5432/database`, kept sealed), a table or view (`schema.table`),
+  the column that finds each row again (the primary key when left empty) and the one that names
+  it (the first text column), and makes a database with the key as text and a property for each
+  other column by its type: text, numbers, checkboxes, dates, times and JSON (as text). Runs read
+  up to 5,000 rows ordered by the key in a read-only transaction with a 30-second limit, write the
+  table's values over and add new rows; rows that leave the table stay. The server is reached on
+  public addresses only, with TLS unless the address's `sslmode` says otherwise; a database on
+  your own network needs its host in `CONNECTOR_ALLOWED_HOSTS`. A refused password, a missing
+  table, a dropped column (with the server's words in the sync dialog) or a deleted key property
+  pauses it. Use a user that may only read the table. Tested against a table of the e2e's own
+  database (`scripts/postgres-sync-e2e.ts`).
 - **GitHub pull requests update tasks**: *GitHub pull requests* in the ••• menu of a database with
   an ID property with a prefix gives a payload URL and a secret to add as a repository webhook
   (JSON, *Pull requests* events). A pull request that names rows by their ID (`TASK-12`, in any

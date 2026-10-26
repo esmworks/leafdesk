@@ -2111,5 +2111,25 @@
     "hint": "Udfyldes, når en række tilføjes fra denne skabelon",
     "dateWhen": "Sættes, når en række tilføjes",
     "meOption": "Den, der tilføjer rækken"
+  },
+  "icalSync": {
+    "button": "Synkroniseret fra en kalender",
+    "buttonPaused": "Kalendersynkronisering sat på pause",
+    "title": "Kalendersynkronisering",
+    "calendar": "Kalender",
+    "lastRun": "Sidst synkroniseret {when}, {count, plural, one {# begivenhed} other {# begivenheder}}",
+    "overwrite": "Kalenderen er kilden: de synkroniserede egenskaber og rækketitler overskrives ved hver synkronisering, så ret begivenheder i kalenderen. Egenskaber, du selv tilføjer, forbliver, og rækker for begivenheder, der forsvinder fra kalenderen, lades i fred.",
+    "changeUrl": "Skift adressen",
+    "stopConfirm": "Stop med at synkronisere denne database? Dens rækker forbliver, og kalenderens adresse glemmes."
+  },
+  "postgresSync": {
+    "button": "Synkroniseret fra PostgreSQL",
+    "buttonPaused": "PostgreSQL-synkronisering sat på pause",
+    "title": "PostgreSQL-synkronisering",
+    "server": "Server",
+    "lastRun": "Sidst synkroniseret {when}, {count, plural, one {# række} other {# rækker}}",
+    "overwrite": "Tabellen er kilden: de synkroniserede egenskaber og rækketitler overskrives ved hver synkronisering, så ret dataene i tabellen. Egenskaber, du selv tilføjer, forbliver, og rækker, der forsvinder fra tabellen, lades i fred.",
+    "changeUrl": "Skift forbindelsen",
+    "stopConfirm": "Stop med at synkronisere denne database? Dens rækker forbliver, og forbindelsesadressen glemmes."
   }
 }

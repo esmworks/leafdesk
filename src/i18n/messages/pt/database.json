@@ -2111,5 +2111,25 @@
     "hint": "Preenchido quando uma linha é adicionada a partir deste modelo",
     "dateWhen": "Definido ao adicionar uma linha",
     "meOption": "Quem adicionar a linha"
+  },
+  "icalSync": {
+    "button": "Sincronizado a partir de um calendário",
+    "buttonPaused": "Sincronização do calendário em pausa",
+    "title": "Sincronização do calendário",
+    "calendar": "Calendário",
+    "lastRun": "Última sincronização {when}, {count, plural, one {# evento} other {# eventos}}",
+    "overwrite": "O calendário é a fonte: as propriedades sincronizadas e os títulos das linhas são reescritos em cada sincronização, por isso altere os eventos no calendário. As propriedades que acrescentar ficam como estão, e as linhas de eventos que saem do calendário não são tocadas.",
+    "changeUrl": "Alterar o endereço",
+    "stopConfirm": "Parar de sincronizar esta base de dados? As linhas ficam como estão e o endereço do calendário é esquecido."
+  },
+  "postgresSync": {
+    "button": "Sincronizado a partir do PostgreSQL",
+    "buttonPaused": "Sincronização do PostgreSQL em pausa",
+    "title": "Sincronização do PostgreSQL",
+    "server": "Servidor",
+    "lastRun": "Última sincronização {when}, {count, plural, one {# linha} other {# linhas}}",
+    "overwrite": "A tabela é a fonte: as propriedades sincronizadas e os títulos das linhas são reescritos em cada sincronização, por isso altere os dados na tabela. As propriedades que acrescentar ficam como estão, e as linhas que saem da tabela não são tocadas.",
+    "changeUrl": "Alterar a ligação",
+    "stopConfirm": "Parar de sincronizar esta base de dados? As linhas ficam como estão e o endereço de ligação é esquecido."
   }
 }

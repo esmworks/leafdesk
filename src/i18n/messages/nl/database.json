@@ -2111,5 +2111,25 @@
     "hint": "Wordt ingevuld als er een rij met dit sjabloon wordt toegevoegd",
     "dateWhen": "Ingesteld als er een rij wordt toegevoegd",
     "meOption": "Wie de rij toevoegt"
+  },
+  "icalSync": {
+    "button": "Gesynchroniseerd vanuit een agenda",
+    "buttonPaused": "Agendasynchronisatie gepauzeerd",
+    "title": "Agendasynchronisatie",
+    "calendar": "Agenda",
+    "lastRun": "Laatst gesynchroniseerd {when}, {count, plural, one {# afspraak} other {# afspraken}}",
+    "overwrite": "De agenda is de bron: de gesynchroniseerde eigenschappen en rijtitels worden bij elke synchronisatie overschreven, dus wijzig afspraken in de agenda. Eigenschappen die je zelf toevoegt blijven staan, en rijen van afspraken die uit de agenda verdwijnen, blijven ongemoeid.",
+    "changeUrl": "Adres wijzigen",
+    "stopConfirm": "Stoppen met synchroniseren van deze database? De rijen blijven staan en het adres van de agenda wordt vergeten."
+  },
+  "postgresSync": {
+    "button": "Gesynchroniseerd vanuit PostgreSQL",
+    "buttonPaused": "PostgreSQL-synchronisatie gepauzeerd",
+    "title": "PostgreSQL-synchronisatie",
+    "server": "Server",
+    "lastRun": "Laatst gesynchroniseerd {when}, {count, plural, one {# rij} other {# rijen}}",
+    "overwrite": "De tabel is de bron: de gesynchroniseerde eigenschappen en rijtitels worden bij elke synchronisatie overschreven, dus wijzig de gegevens in de tabel. Eigenschappen die je zelf toevoegt blijven staan, en rijen die uit de tabel verdwijnen, blijven ongemoeid.",
+    "changeUrl": "Verbinding wijzigen",
+    "stopConfirm": "Stoppen met synchroniseren van deze database? De rijen blijven staan en het verbindingsadres wordt vergeten."
   }
 }
