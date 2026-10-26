@@ -63,11 +63,18 @@ export type SiteGate =
 
 const appHost = () => new URL(env.appUrl).hostname.toLowerCase();
 
+/**
+ * The desktop app's server (local mode) listens on 127.0.0.1 and is reached by that address only:
+ * another name pointing there (a web page rebinding its own domain to this computer) is turned away.
+ */
+const LOCAL_HOSTS = new Set(["127.0.0.1", "localhost"]);
+
 /** What server.ts does with a request: see SiteGate. */
 export async function siteGate(method: string, url: string, hostHeader: string | undefined): Promise<SiteGate> {
   const host = requestHost(hostHeader);
+  if (env.localMode) return LOCAL_HOSTS.has(host) ? { kind: "app" } : { kind: "notFound" };
   // The app's own address never serves a site at its root, whatever is stored.
-  if (env.localMode || host === appHost()) return { kind: "app" };
+  if (host === appHost()) return { kind: "app" };
   const site = (await snapshot()).byDomain.get(host);
   if (!site) return { kind: "app" };
   const route = routeOnSiteHost(method, url, site.slug, env.appUrl);
@@ -77,7 +84,8 @@ export async function siteGate(method: string, url: string, hostHeader: string |
 /** Whether a websocket upgrade may go ahead on this host: on a site's domain, only Next's own (development). */
 export async function upgradeAllowed(url: string, hostHeader: string | undefined): Promise<boolean> {
   const host = requestHost(hostHeader);
-  if (env.localMode || host === appHost()) return true;
+  if (env.localMode) return LOCAL_HOSTS.has(host);
+  if (host === appHost()) return true;
   const site = (await snapshot()).byDomain.get(host);
   return !site || url.startsWith("/_next/");
 }
