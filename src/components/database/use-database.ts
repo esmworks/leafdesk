@@ -630,6 +630,14 @@ export function useDatabase(
         );
       },
 
+      /** Keeps a property's values unique across rows, or lets rows share them (lib/unique-values); the server checks the rows first. */
+      setUnique(prop: Property, on: boolean) {
+        const { unique: _old, ...rest } = prop.options;
+        return mutateSchema(patchProperty(prop.id, { options: on ? { ...rest, unique: true } : rest }), () =>
+          updatePropertyAction(prop.id, { unique: on }),
+        );
+      },
+
       /** Limits a relation to one linked row a row, or lifts the limit (as setOnePerson does for people). */
       setOneRow(prop: Property, on: boolean) {
         const relation = prop.options.relation;

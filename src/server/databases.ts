@@ -141,6 +141,7 @@ import { workspacePeople, workspaceSettings, type WorkspacePerson } from "@/serv
 import { agentMarks, isAgentUser } from "@/server/agents/users";
 import { recordAudit } from "@/server/audit";
 import { heldPageIds, refuseHeldPages } from "@/server/legal-hold";
+import { requireNoDuplicates, sharedValue, withUniqueValues } from "@/server/unique-values";
 import {
   assignmentsTheySee,
   propertyAccessFor,
@@ -975,11 +976,13 @@ export async function updateRowProperties(userId: string, rowId: string, patch: 
   for (const k of cleared) delete next[k];
   // Merged in SQL, so a write to another property of this row since it was read here (another
   // person, an agent or an automation) is kept rather than overwritten with what was read.
-  const [written] = await db
-    .update(page)
-    .set({ properties: mergedProperties(set, cleared), updatedBy: userId })
-    .where(eq(page.id, rowId))
-    .returning({ properties: page.properties });
+  const [written] = await withUniqueValues(() =>
+    db
+      .update(page)
+      .set({ properties: mergedProperties(set, cleared), updatedBy: userId })
+      .where(eq(page.id, rowId))
+      .returning({ properties: page.properties }),
+  );
   // Templates link one way and assign nobody: their values only seed the rows made from them.
   if (!row.inTemplate) {
     await syncPairedRelations(rowId, row.parentId, row.properties, next);
@@ -1112,15 +1115,17 @@ export async function updateRowsProperties(
     groups.set(key, group);
   }
   // Merged in SQL, so a concurrent edit of another property of the same row isn't overwritten.
-  await db.transaction(async (tx) => {
-    for (const { values, ids: groupIds } of groups.values()) {
-      const { set, cleared } = splitPatch(values);
-      await tx
-        .update(page)
-        .set({ properties: mergedProperties(set, cleared), updatedBy: userId })
-        .where(inArray(page.id, groupIds));
-    }
-  });
+  await withUniqueValues(() =>
+    db.transaction(async (tx) => {
+      for (const { values, ids: groupIds } of groups.values()) {
+        const { set, cleared } = splitPatch(values);
+        await tx
+          .update(page)
+          .set({ properties: mergedProperties(set, cleared), updatedBy: userId })
+          .where(inArray(page.id, groupIds));
+      }
+    }),
+  );
 
   // Rows of a database kept as a template link one way and assign nobody (see updateRowProperties).
   const changeOf = (row: (typeof rows)[number]) => {
@@ -1344,7 +1349,7 @@ export async function insertRows(
     createdBy: actorId,
     updatedBy: actorId,
   }));
-  await db.insert(page).values(created);
+  await withUniqueValues(() => db.insert(page).values(created));
 
   for (const row of created) await syncPairedRelations(row.id, databaseId, {}, row.properties);
   await afterRowWrites(
@@ -2113,6 +2118,11 @@ export async function updateProperty(
     oneRow?: boolean;
     /** Statuses: shown as a checkbox ticked for done options, or as the option. */
     statusDisplay?: "checkbox" | "option";
+    /**
+     * Text, numbers, emails, URLs and phone numbers: no two rows may hold the same value
+     * (lib/unique-values). Refused while two rows do.
+     */
+    unique?: boolean;
   },
 ) {
   const prop = await requireProperty(userId, propertyId);
@@ -2133,6 +2143,8 @@ export async function updateProperty(
       type: prop.type,
     });
   }
+  // Turned on, the rows must hold no value twice; Postgres counts them again as it stores the rule.
+  if (patch.unique === true && !prop.options.unique) await requireNoDuplicates(prop);
   if (patch.urlPreview !== undefined && prop.type !== "url") {
     throw new PropertyValueError(`"${prop.name}" is a ${prop.type} property; only URLs show link previews`, "unsupportedType", {
       type: prop.type,
@@ -2244,12 +2256,13 @@ export async function updateProperty(
     change((o) => (patch.statusDisplay === "checkbox" ? { ...o, statusDisplay: "checkbox" } : without(o, "statusDisplay")));
   }
   if (patch.onePerson !== undefined) change((o) => (patch.onePerson === true ? { ...o, person: { single: true } } : without(o, "person")));
+  if (patch.unique !== undefined) change((o) => (patch.unique === true ? { ...o, unique: true } : without(o, "unique")));
   if (icon !== undefined) change((o) => (icon ? { ...o, icon } : without(o, "icon")));
   // Options of this property others depend on that go away leave their lists (lib/dependent-options).
   const dependents = removed.length ? dependentsOf(prop.id, siblings) : [];
   const workspaceId = prefix ? await workspaceOf(prop.databaseId) : null;
   let followed: string[] = [];
-  await db.transaction(async (tx) => {
+  await withUniqueValues(() => db.transaction(async (tx) => {
     if (prefix && workspaceId) await claimPrefix(tx, workspaceId, prefix, prop.id);
     if (renamed.size) followed = await followRenamedOptions(tx, prop.id, renamed);
     for (const child of dependents) {
@@ -2289,7 +2302,7 @@ export async function updateProperty(
         })
         .where(and(eq(page.parentId, prop.databaseId), sql`${current} ?| ${ids}`));
     }
-  });
+  }));
   notifySchema(prop.databaseId);
   for (const databaseId of followed) if (databaseId !== prop.databaseId) notifySchema(databaseId);
   // A new prefix changes how every row's ID shows.
@@ -2563,6 +2576,11 @@ export async function restoreProperty(userId: string, propertyId: string) {
           const { role: _role, dependencies: _dependencies, sprints: _sprints, ...relation } = options.relation!;
           options = { ...options, relation };
         }
+      }
+      // Rows that came to share a value while it was deleted: it comes back without the rule.
+      if (options.unique && (await sharedValue(p, tx))) {
+        const { unique: _unique, ...rest } = options;
+        options = rest;
       }
       const [row] = await tx
         .update(databaseProperty)

@@ -763,6 +763,8 @@ export function describeProperty(
     ...(prop.type === "unique_id" ? { prefix: uniqueIdPrefix(prop) } : {}),
     // Each row names one person at most: a write naming more is refused.
     ...(prop.type === "person" && prop.options.person?.single ? { one_person: true } : {}),
+    // No two rows hold the same value: a write repeating another row's is refused.
+    ...(prop.options.unique ? { unique: true } : {}),
     ...(holdsOptions(prop.type) ? { options: (prop.options.options ?? []).map((o) => o.name) } : {}),
     ...describeDependency(prop, props),
     ...(prop.type === "status" ? { status_groups: statusGroups(prop) } : {}),

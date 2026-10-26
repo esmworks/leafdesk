@@ -88,6 +88,8 @@ export const DATABASE_ERROR_CODES = [
   "invalidDependencySettings",
   "invalidPerson",
   "onePerson",
+  "notUnique",
+  "duplicateValues",
   "readOnlyProperty",
   "relationTargetReadOnly",
   "databaseLocked",

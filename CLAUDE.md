@@ -83,6 +83,10 @@ BlockNote on Yjs; Tailwind v4; next-intl. Node 24, pnpm 11. A separate Electron 
   code: an inserted row always gets the next number (the value it brings is dropped) and an
   update keeps the old one. Copies that must keep their numbers (a duplicated database, a restored
   backup) insert the rows before the property; `server/unique-ids.ts` checks prefixes.
+  Unique values (`options.unique`) are kept by Postgres too (`drizzle/0146_unique_values.sql`,
+  table `unique_value`): a write repeating another live row's value fails with 23505 on
+  `unique_value_key_idx`, which `withUniqueValues` (`server/unique-values.ts`) turns into a
+  `PropertyValueError`; wrap a new row write in it.
   Grouped lists and galleries share `components/database/view-sections.tsx` (the header is
   `GroupHeader` in `group-label.tsx`, also a board's sub-group); a board's sub-groups
   (`subGroupBy`) use the default date and status grouping. A new property-id field of `ViewConfig`

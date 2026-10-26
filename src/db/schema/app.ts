@@ -801,6 +801,11 @@ export type PropertyOptions = {
    * times: all but the reminder. Plain dates when missing.
    */
   date?: DateOptions;
+  /**
+   * Text, number, email, URL and phone properties: no two rows may hold the same value (case and
+   * spaces aside; lib/unique-values). Empty values don't count. Kept by Postgres (uniqueValue).
+   */
+  unique?: true;
   /** Unique ID properties: the prefix IDs show with ("TASK" for TASK-12); plain numbers when missing. */
   uniqueId?: UniqueIdOptions;
   /**
@@ -865,6 +870,27 @@ export const databaseProperty = pgTable(
       .on(t.id)
       .where(sql`${t.type} = 'date' and ${t.options} -> 'date' -> 'reminder' is not null`),
   ],
+);
+
+/**
+ * The values of a property that keeps them unique (`options.unique`, lib/unique-values): one entry
+ * per live row with a value, its `key` the value folded so equal values meet (case and spaces
+ * aside; numbers by amount). Written only by Postgres (drizzle/0146_unique_values.sql), on every
+ * row write and when the rule is turned on, so the unique index refuses a second row with the same
+ * value whichever way it is written. Rows in the trash and row templates have none.
+ */
+export const uniqueValue = pgTable(
+  "unique_value",
+  {
+    rowId: text("row_id")
+      .notNull()
+      .references(() => page.id, { onDelete: "cascade" }),
+    propertyId: text("property_id")
+      .notNull()
+      .references(() => databaseProperty.id, { onDelete: "cascade" }),
+    key: text("key").notNull(),
+  },
+  (t) => [primaryKey({ columns: [t.rowId, t.propertyId] }), uniqueIndex("unique_value_key_idx").on(t.propertyId, t.key)],
 );
 
 export type ViewType = "table" | "board" | "calendar" | "gallery" | "list" | "feed" | "timeline" | "map" | "chart" | "dashboard" | "form";

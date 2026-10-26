@@ -74,6 +74,7 @@ import { placeTopLevel, requireArrangeTopLevel, requireTeamspaceForPages, sideba
 import { listWorkspaces, requireTopLevel, workspaceSettings } from "@/server/workspaces";
 
 import { placeInSections, PRIVATE_SECTION, SHARED_SECTION, type TreeSection } from "@/lib/tree-sections";
+import { withUniqueValues } from "@/server/unique-values";
 
 // Where a page shows in the sidebar: the section of a teamspace the user is in (its id), their
 // private pages, or pages shared with them from elsewhere.
@@ -641,16 +642,19 @@ export async function restorePage(userId: string, pageId: string) {
   if (!parentId) await requireArrangeTopLevel(userId, p.teamspaceId);
   // Only what was trashed together with it: subpages trashed earlier stay in the trash as their own
   // entries (archivePage stamps just the pages that weren't archived yet).
-  const restored = await db
-    .update(page)
-    .set({ archivedAt: null })
-    .where(
-      and(
-        sql`${page.id} in ${subtreeIds(pageId)}`,
-        sql`${page.archivedAt} = (select root.archived_at from ${page} root where root.id = ${pageId})`,
-      ),
-    )
-    .returning({ id: page.id });
+  // A row whose value another row took meanwhile, in a property that keeps them unique, stays.
+  const restored = await withUniqueValues(() =>
+    db
+      .update(page)
+      .set({ archivedAt: null })
+      .where(
+        and(
+          sql`${page.id} in ${subtreeIds(pageId)}`,
+          sql`${page.archivedAt} = (select root.archived_at from ${page} root where root.id = ${pageId})`,
+        ),
+      )
+      .returning({ id: page.id }),
+  );
   // A row merged into another one comes back as a row of its own; what moved stays moved (server/merge-rows.ts).
   if (p.mergedIntoId) await db.update(page).set({ mergedIntoId: null }).where(eq(page.id, pageId));
   await getCollab().pagesTrashed(restored.map((r) => r.id), false);

@@ -11,6 +11,7 @@ import { useReorderDrag, type ReorderDragHandlers } from "@/components/use-reord
 import type { ViewConfig } from "@/db/schema/app";
 import type { AggregateFn } from "@/lib/aggregate";
 import { isAutofillType } from "@/lib/ai";
+import { canBeUnique } from "@/lib/unique-values";
 import type { RowColors } from "@/lib/color-rules";
 import { valueType } from "@/lib/derived";
 import { arrangeGroups, canAddToGroup, groupDefaults, groupRowsBy, type Group } from "@/lib/grouping";
@@ -827,6 +828,7 @@ export function TableView({
                       setNumberDisplay: fixed || !takesNumberDisplay(p) ? undefined : (display) => api.setNumberDisplay(p, display),
                       setRelationOptions: fixed || p.type !== "relation" ? undefined : (input) => api.setRelationOptions(p, input),
                       setOnePerson: fixed || p.type !== "person" ? undefined : (on) => api.setOnePerson(p, on),
+                      setUnique: fixed || !canBeUnique(p.type) ? undefined : (on) => api.setUnique(p, on),
                       setOneRow: fixed || p.type !== "relation" ? undefined : (on) => api.setOneRow(p, on),
                       setStatusCheckbox: fixed || p.type !== "status" ? undefined : (on) => api.setStatusCheckbox(p, on),
                       makeTwoWay: fixed || p.type !== "relation" ? undefined : () => api.makeTwoWay(p),

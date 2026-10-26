@@ -47,6 +47,7 @@ import { copyRowAccess } from "@/server/row-access";
 import { placeTopLevel, TeamspaceError } from "@/server/teamspaces";
 import { freeCopiedPrefixes } from "@/server/unique-ids";
 import { requireTopLevel } from "@/server/workspaces";
+import { uniquePropertyIds } from "@/server/unique-values";
 
 /** Larger subtrees are refused rather than copied in one long transaction. */
 export const MAX_DUPLICATE_PAGES = 2000;
@@ -216,6 +217,12 @@ export async function copyPageTree(
       : [{ teamspaceId: target.teamspaceId }];
     const space = landing?.teamspaceId ?? null;
 
+    // A row copied into its own database leaves out the values its database keeps unique
+    // (lib/unique-values): the original holds them.
+    const unique = target.parentId ? await uniquePropertyIds(target.parentId, tx) : [];
+    const withoutUnique = (properties: RowProperties) =>
+      unique.some((id) => id in properties) ? Object.fromEntries(Object.entries(properties).filter(([id]) => !unique.includes(id))) : properties;
+
     // One statement for all pages, so the bodies (ydoc can be large) are copied inside Postgres
     // and foreign keys to parents are checked once every page exists.
     const rows = plan.pages.map((p) => {
@@ -226,7 +233,7 @@ export async function copyPageTree(
         parent_id: p.id === plan.rootId ? target.parentId : p.parentId,
         title: p.title,
         position: p.position,
-        properties: p.properties,
+        properties: p.id === plan.rootId ? withoutUnique(p.properties) : p.properties,
         is_template: isTemplate(p),
         in_template: inTemplateOf(p),
         // A database's default row template, when it was copied along (the user could see it).

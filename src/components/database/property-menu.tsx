@@ -19,6 +19,7 @@ import {
   ChevronRight,
   Combine,
   Copy,
+  CopyX,
   Eye,
   EyeOff,
   Fingerprint,
@@ -64,6 +65,7 @@ import { takesNumberFormat, type NumberFormat } from "@/lib/number-format";
 import { PAGE_VISIBILITIES, pageVisibilityOf, type PageVisibility } from "@/lib/page-visibility";
 import { isPinned, MAX_PINNED } from "@/lib/row-layout";
 import { cleanUniqueIdPrefix, formatUniqueId, MAX_UNIQUE_ID_PREFIX, uniqueIdPrefix } from "@/lib/unique-id";
+import { canBeUnique } from "@/lib/unique-values";
 import { AutofillEditor } from "./ai-autofill";
 import { DateOptionsEditor } from "./date-options-menu";
 import { FormulaEditor } from "./formula-editor";
@@ -300,6 +302,8 @@ export type PropertyMenuActions = {
   setUrlPreview?: (on: boolean) => void;
   /** People: whether a row names one person at most. */
   setOnePerson?: (on: boolean) => void;
+  /** Text, numbers, emails, URLs and phone numbers: whether no two rows may hold the same value (lib/unique-values). */
+  setUnique?: (on: boolean) => void;
   /** Statuses: whether they show as a checkbox ticked for done options. */
   setStatusCheckbox?: (on: boolean) => void;
   /** Relations: whether a row links one row at most. */
@@ -743,6 +747,18 @@ export function PropertyMenu({
         onClick={run(() => actions.setOneRow?.(!prop.options.relation?.single))}
       >
         {t("oneRow")}
+      </MenuItem>
+    ),
+    prop && canBeUnique(prop.type) && actions.setUnique && (
+      <MenuItem
+        key="unique"
+        icon={icon(CopyX)}
+        pressed={Boolean(prop.options.unique)}
+        trailing={prop.options.unique ? icon(Check) : undefined}
+        title={t("uniqueValuesHint")}
+        onClick={run(() => actions.setUnique?.(!prop.options.unique))}
+      >
+        {t("uniqueValues")}
       </MenuItem>
     ),
     prop?.type === "person" && actions.setOnePerson && (

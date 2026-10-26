@@ -209,6 +209,13 @@
   - A person property can be limited to one person (*Limit to one person* in its menu): picking
     someone replaces whoever was there, and writes naming more are refused. Rows naming more when
     it is turned on keep them until they're changed.
+  - A text, number, email, URL or phone property can keep its values unique (*Unique values* in
+    its menu): no two rows may hold the same value, case and spaces aside, numbers by amount and
+    phone numbers by their digits. Empty values don't count. It can't be turned on while two rows
+    share a value (the error names one), and once on, every way a value is written is held to it:
+    edits, new rows, bulk edits, pastes, imports, forms, the API, MCP, automations and syncs. A row
+    in the trash frees its value and can't be restored while another row holds it; a duplicated
+    row leaves the value out. Changing the property's type turns it off.
   - A status can *Show as checkbox* (in its menu): a box ticked while the status is done; ticking
     it picks the first done status and unticking it the first to-do one. Filters, groups and the
     API still see the status.

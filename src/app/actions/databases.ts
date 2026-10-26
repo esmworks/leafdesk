@@ -347,6 +347,7 @@ export async function updatePropertyAction(
     onePerson?: boolean;
     oneRow?: boolean;
     statusDisplay?: "checkbox" | "option";
+    unique?: boolean;
   },
 ) {
   return run((userId) => databases.updateProperty(userId, propertyId, patch));

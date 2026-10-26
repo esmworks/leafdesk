@@ -4,6 +4,12 @@
 
 ### Added
 
+- **Unique values.** A text, number, email, URL or phone property can keep its values unique
+  (*Unique values* in its menu, `unique` in MCP's `update_database_property`): a value another row
+  already holds is refused, case and spaces aside, however it is written. It can't be turned on
+  while two rows share a value, a row in the trash frees its value, and a duplicated row leaves it
+  out. Postgres keeps the rule, so imports, the API, automations and syncs are held to it too.
+  Migration 0146 adds the `unique_value` table and its triggers.
 - **Save to Leafdesk browser extension.** A new extension for Chrome, Edge and Firefox
   (`extension/`, a zip in every release) saves the page you are on from its toolbar button
   (Alt+Shift+S), and a page, a link or selected text from the context menu. It opens Leafdesk's
