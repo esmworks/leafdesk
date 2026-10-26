@@ -196,6 +196,7 @@
       "added": "Tillagd",
       "emailed": "Inbjudan skickad via e-post",
       "emailFailed": "E-posten misslyckades, dela länken",
+      "emailLimited": "För många inbjudningsmejl på sistone, dela länken",
       "linkOnly": "Dela den här inbjudningslänken",
       "linkValidity": "Inbjudningslänkar fungerar i 7 dagar och bara för den inbjudna e-postadressen.",
       "addMore": "Lägg till fler",

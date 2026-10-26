@@ -118,16 +118,25 @@ export function closedSignUpGuard(check?: InvitationCheck) {
 }
 
 /**
- * `databaseHooks.account.create.after`. Anyone could have created a password account with someone
- * else's unverified email beforehand (pre-account-takeover). When a sign-in links a provider
- * account to such a user by email, the provider has just proven who owns the address, so the
- * earlier password and sessions go, and `forgetEarlierHolder` removes the rest of what they could
- * have set up (passkeys, two-step verification, API tokens, app grants); the owner can set a
- * password by resetting it by email. Better Auth links the account before it creates the new
- * session, so only sessions from before the link go: single sign-on runs this hook after its
- * transaction, when the new session already exists.
+ * What happens to an account claimed by the owner of its address (server/account-security.ts
+ * `forgetUnprovenHolder`); injected so this file needs no database. `keepAccountId` is the
+ * provider login that proved the address, which stays.
  */
-export function claimOnEmailLink(forgetEarlierHolder?: (userId: string) => Promise<void>) {
+export type ForgetEarlierHolder = (userId: string, keepAccountId?: string) => Promise<void>;
+
+/**
+ * `databaseHooks.account.create.after`. Anyone could have created a password account with someone
+ * else's unverified email beforehand (pre-account-takeover), or signed in with it through a
+ * provider that doesn't vouch for the address (the instance's SSO without OIDC_DOMAINS). When a
+ * sign-in links a provider account to such a user by email, the provider has just proven who owns
+ * the address, so every other login (the earlier password, other provider and SSO logins) and the
+ * earlier sessions go, and `forgetEarlierHolder` removes the rest of what they could have set up
+ * (passkeys, two-step verification, API tokens, app grants); the owner can set a password by
+ * resetting it by email. Better Auth links the account before it creates the new session, so only
+ * sessions from before the link go: single sign-on runs this hook after its transaction, when the
+ * new session already exists.
+ */
+export function claimOnEmailLink(forgetEarlierHolder?: ForgetEarlierHolder) {
   return async (
     account: { id: string; userId: string; providerId: string; createdAt?: Date | string },
     ctx: GenericEndpointContext | null,
@@ -141,12 +150,12 @@ export function claimOnEmailLink(forgetEarlierHolder?: (userId: string) => Promi
     const others = (await adapter.findAccounts(account.userId)).filter((other) => other.id !== account.id);
     // No other account: the user was created by this same sign-in, there is nothing to claim.
     if (others.length === 0) return;
-    for (const other of others) if (other.providerId === "credential") await adapter.deleteAccount(other.id);
+    for (const other of others) await adapter.deleteAccount(other.id);
     const linkedAt = account.createdAt ? new Date(account.createdAt).getTime() : Number.POSITIVE_INFINITY;
     for (const old of await adapter.listSessions(account.userId)) {
       if (new Date(old.createdAt).getTime() < linkedAt) await adapter.deleteSession(old.token);
     }
-    await forgetEarlierHolder?.(account.userId);
+    await forgetEarlierHolder?.(account.userId, account.id);
     await adapter.updateUser(account.userId, { emailVerified: true });
   };
 }
@@ -170,12 +179,12 @@ function changesAddress(token: unknown) {
  * that device), the account is the address owner's from here on. Every other session ends, the
  * password works again only once it is replaced through a reset link emailed to the address (an
  * instance admin's "choose a new password", see server/required-password.ts), and
- * `forgetEarlierHolder` removes the rest of what the earlier holder could have set up (passkeys,
- * two-step verification, API tokens, app grants). The browser that followed the link keeps its new
- * session, unless two-step verification takes it back (twoFactorPlugin goes by what the account
- * had when the link was followed).
+ * `forgetEarlierHolder` removes the rest of what the earlier holder could have set up (provider and
+ * SSO logins, passkeys, two-step verification, API tokens, app grants). The browser that followed
+ * the link keeps its new session, unless two-step verification takes it back (twoFactorPlugin goes
+ * by what the account had when the link was followed).
  */
-export function claimOnEmailVerification(forgetEarlierHolder?: (userId: string) => Promise<void>) {
+export function claimOnEmailVerification(forgetEarlierHolder?: ForgetEarlierHolder) {
   return createAuthMiddleware(async (ctx) => {
     if (ctx.path !== "/verify-email") return;
     // No new session: the address was verified already, or the link didn't work.

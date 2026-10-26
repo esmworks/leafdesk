@@ -3788,7 +3788,9 @@ export function createMcpServer(principal: McpPrincipal) {
             note:
               result.delivery === "off"
                 ? "This server doesn't send email. Share invitation_link with them."
-                : "Sending the invitation email failed. Share invitation_link with them.",
+                : result.delivery === "limited"
+                  ? "Too many invitation emails went out lately, so this one wasn't sent. Share invitation_link with them."
+                  : "Sending the invitation email failed. Share invitation_link with them.",
           }),
         };
       }),

@@ -17,6 +17,7 @@ import {
 } from "@/app/actions/workspaces";
 import { useLocalMode } from "@/components/local-mode";
 import { CopyButton } from "@/components/settings/copy-button";
+import { deliveryText } from "@/components/settings/invitation-delivery";
 import { RemoveMemberHeir } from "@/components/settings/remove-member-heir";
 import { SettingsGroup, SettingsHeader, SettingsRow } from "@/components/settings/section";
 import { useAction } from "@/components/settings/workspace-settings";
@@ -797,7 +798,7 @@ function AddMembersDialog({
                     {r.kind === "added"
                       ? t("add.added")
                       : r.kind === "invited"
-                        ? t(r.delivery === "sent" ? "add.emailed" : r.delivery === "failed" ? "add.emailFailed" : "add.linkOnly")
+                        ? t(deliveryText(r.delivery))
                         : r.kind === "requested"
                           ? t("add.requested")
                           : tErrors(r.code)}

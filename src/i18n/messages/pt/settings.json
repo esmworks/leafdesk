@@ -196,6 +196,7 @@
       "added": "Adicionado",
       "emailed": "Convite enviado por e-mail",
       "emailFailed": "O e-mail falhou, compartilhe o link",
+      "emailLimited": "Muitos e-mails de convite recentemente, compartilhe o link",
       "linkOnly": "Compartilhe este link de convite",
       "linkValidity": "Links de convite funcionam por 7 dias e só para o endereço de e-mail convidado.",
       "addMore": "Adicionar mais",

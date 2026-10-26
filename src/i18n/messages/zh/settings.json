@@ -196,6 +196,7 @@
       "added": "已添加",
       "emailed": "已通过邮件发送邀请",
       "emailFailed": "邮件发送失败，请分享链接",
+      "emailLimited": "最近发送的邀请邮件过多，请分享链接",
       "linkOnly": "分享此邀请链接",
       "linkValidity": "邀请链接在 7 天内有效，且仅适用于受邀的邮箱地址。",
       "addMore": "继续添加",

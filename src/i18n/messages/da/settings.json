@@ -196,6 +196,7 @@
       "added": "Tilføjet",
       "emailed": "Invitation sendt pr. e-mail",
       "emailFailed": "E-mailen mislykkedes, del linket",
+      "emailLimited": "For mange invitationsmails for nylig, del linket",
       "linkOnly": "Del dette invitationslink",
       "linkValidity": "Invitationslinks virker i 7 dage og kun for den inviterede e-mailadresse.",
       "addMore": "Tilføj flere",

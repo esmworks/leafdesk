@@ -20,7 +20,7 @@ import {
   withoutProviderTokens,
 } from "@/lib/auth-options";
 import { isReservedAccount } from "@/server/agents/users";
-import { forgetUnprovenHolder } from "@/server/account-security";
+import { disconnectEndedSessions, forgetUnprovenHolder } from "@/server/account-security";
 import { claimFirstAdmin } from "@/server/first-admin";
 import { connectedAppAuditPlugin } from "@/server/mcp/grants";
 import { applyDomainPolicies } from "@/server/join-requests";
@@ -220,8 +220,8 @@ function createAuth() {
         },
       },
       account: {
-        // Claiming an account by email also ends what was set up before: passkeys, two-step
-        // verification, API tokens and app grants (see forgetUnprovenHolder).
+        // Claiming an account by email also ends what was set up before: other logins, passkeys,
+        // two-step verification, API tokens and app grants (see forgetUnprovenHolder).
         create: {
           // No password or provider account for an agent's user, so nothing can ever sign it in.
           before: async (account) => {
@@ -264,6 +264,14 @@ function createAuth() {
           after: async (session, ctx) => {
             await rememberSignInLocale(session.userId, ctx);
             await domainPolicies(session.userId);
+          },
+        },
+        // Every session Better Auth ends (signing out, revoking sessions, turning two-step
+        // verification on, claiming an account by email) closes its live collab connections:
+        // they were checked when they connected, and would otherwise outlive it.
+        delete: {
+          after: async (session) => {
+            await disconnectEndedSessions(session.userId);
           },
         },
       },

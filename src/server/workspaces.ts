@@ -53,6 +53,7 @@ import { cleanSidebarLayout, type SidebarLayout } from "@/lib/sidebar-sections";
 import { env } from "@/lib/env";
 import { canCreateWorkspace } from "@/lib/instance-admin";
 import { invitationEmail, mailStatus, sendMail } from "@/server/mail";
+import { takeInvitationEmail } from "@/server/invitation-limits";
 import {
   AccessError,
   findMembership,
@@ -404,8 +405,10 @@ export const joinLink = (token: string) => `${env.appUrl}/join/${token}`;
  * - `sent`: the invitation email went out (or, in development without SMTP, to the log).
  * - `failed`: SMTP is set up but sending failed; the owner has to share the link.
  * - `off`: no email on this server; the owner shares the link.
+ * - `limited`: too many invitation emails lately (server/invitation-limits.ts); none was sent and
+ *   the owner shares the link.
  */
-export type InvitationDelivery = "sent" | "failed" | "off";
+export type InvitationDelivery = "sent" | "failed" | "off" | "limited";
 
 export type AddMemberResult =
   | { kind: "added" }
@@ -429,6 +432,7 @@ async function emailInvitation(
   invitation: { email: string; role: WorkspaceRole; link: string },
 ): Promise<InvitationDelivery> {
   if (mailStatus() === "disabled") return "off";
+  if (!takeInvitationEmail(actorId, workspaceId, invitation.email)) return "limited";
   try {
     const [[inviter], [ws], locale] = await Promise.all([
       db.select({ name: user.name }).from(user).where(eq(user.id, actorId)).limit(1),
