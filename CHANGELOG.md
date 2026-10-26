@@ -2,6 +2,22 @@
 
 ## Unreleased
 
+## 0.6.5 — 2026-10-26
+
+### Upgrading from 0.6.4
+
+- **Download the new `docker-compose.yml`.** It passes the new `WEB_FETCH_ALLOWED_HOSTS` setting
+  on to the app. An existing `.env` keeps working, with the change to allowed hosts below.
+- **Migrations 0149 to 0151** run automatically when the container starts (from source, run
+  `pnpm db:migrate`). They add the `unique_value` table with its triggers and
+  `database_view.owner_id`.
+- **Check your allowed-hosts lists.** In `CONNECTOR_ALLOWED_HOSTS` and
+  `AUTOMATION_WEBHOOK_ALLOWED_HOSTS` a name without a port now reaches only ports 80, 443, 8080
+  and 8443: write a service on another port with it, as in `n8n:5678`. Saving web pages,
+  downloading files pages show and web link checks no longer use `CONNECTOR_ALLOWED_HOSTS`; list
+  hosts on your own network they should reach in `WEB_FETCH_ALLOWED_HOSTS`.
+- **The AI chat asks before every web search and page read,** in every mode, research included.
+
 ### Added
 
 - **Calendar and PostgreSQL syncs.** Import has two more synced sources. *Calendar* takes an iCal
@@ -10,8 +26,10 @@
   occurrence of a repeating event a row of its own, with a calendar view. *PostgreSQL* takes a
   connection address and a table or view and keeps a database of its rows (up to 5,000), a property
   for each column by its type, read in a read-only transaction; a server on your own network needs
-  its host in `CONNECTOR_ALLOWED_HOSTS`. Both sync every 15 minutes to once a day or on demand, one
-  way, with the address kept sealed.
+  its host in `CONNECTOR_ALLOWED_HOSTS` (with its port unless it is 5432). Both sync every 15
+  minutes to once a day or on demand, one way, with the address kept sealed. A PostgreSQL run hangs
+  up after a minute and reads at most 50 million characters, each value cut at 10,000; keys past
+  2^53 keep every digit.
 - **Personal views.** *Only for me* when adding a view: nobody else sees, changes or finds it in
   the sidebar. Anyone who may read a database can make them, on a locked database too, so people
   with view access keep their own filters and layouts; *Share with everyone* turns one into a
@@ -31,8 +49,10 @@
   (*Unique values* in its menu, `unique` in MCP's `update_database_property`): a value another row
   already holds is refused, case and spaces aside, however it is written. It can't be turned on
   while two rows share a value, a row in the trash frees its value, and a duplicated row leaves it
-  out. Postgres keeps the rule, so imports, the API, automations and syncs are held to it too.
-  Migration 0149 adds the `unique_value` table and its triggers.
+  out. Postgres keeps the rule, so imports, the API, automations and syncs are held to it too;
+  pastes, imports and synced databases leave out a repeated value and count it with the other
+  values that couldn't go in. Migration 0149 adds the `unique_value` table and its triggers, 0151
+  indexes each value's hash so long values fit.
 
 ### Changed
 
@@ -58,9 +78,6 @@
   chat, mention or request run, a page read or search whose address or words aren't in the
   person's message waits for an owner (and is refused at once where no owner can answer); a
   helper's run for such a run waits before every web call.
-- **Pastes, imports and synced databases leave out a repeated unique value instead of stopping.**
-  A value another row holds, or an earlier row of the same paste, file or run takes, is counted
-  with the other values that couldn't go in.
 - **A Jira sync's sign-in reads only what its owner set it to read.** Others with full access give
   their own email and token to change the query or list projects. Syncs set up before this need
   the sign-in given again for that.
@@ -88,9 +105,6 @@
   2,048 characters or 100 folders deep are left out with a warning. Imports check where they go
   before reading any file, so someone who can't add pages there, or isn't in the workspace, is
   refused before the upload is parsed.
-- **Calendar syncs no longer stall the server on long-running repeating events.** Rules are worked
-  out from the window instead of from their first occurrence (fifty weekday meetings since 2015
-  took ten seconds a run), and daily rules older than about 55 years now sync.
 - **Workspace sign-in policies cover the review queue, email on rows, follow-ups, watched pages
   and the row panel.** A session held back by approved networks, required two-step verification
   or SSO only could still list and answer changes for review, read and send a row's email, and
@@ -111,20 +125,13 @@
 - **What a connection's tool returns makes the AI chat ask before changes.** Once a service
   answered (mail, issues written by outsiders), Auto asks before every change and note for the
   rest of the answer, as it already did after reading the web.
-- **PostgreSQL syncs hang up after a minute whatever the server does, and read bounded, exact
-  values.** Each value is cut at 10,000 characters and a run reads at most 50 million characters;
-  keys past 2^53 keep every digit instead of collapsing into one row. A stalled synced database no
-  longer holds up the others: a run gets eight minutes before the sweep moves on.
+- **A stalled synced database no longer holds up the others:** a run gets eight minutes before
+  the sweep moves on.
 - **Setting up a sync checks access before reaching out.** Jira, GitHub, calendar and PostgreSQL
   setups check that you may make the database there before contacting the other server; checking
   a Jira sign-in needs workspace membership; setups and checks are limited to 10 a minute and 60
   an hour per person. Jira and GitHub answers are read up to 10 MB and 20 MB, and a connection's
   server can send at most 20 MB in one answer.
-- **Unique values no longer stop a batch partway.** Before, rows a paste had already written lost
-  their follow-ups (two-way relations, activity, automations), a synced database failed at the
-  same row on every run, and large imports took back rows whose links and automations had already
-  gone out. Values longer than about 2.7 KB no longer fail either: the unique index holds each
-  value's hash (migration 0151).
 - **Duplicating a page, or saving or using a template, copies the edits still on screen,** not
   only what was last saved.
 - **Uploads to public forms are limited in size:** 256 MB an hour per address and 1 GB waiting per
