@@ -738,8 +738,10 @@
   right under it become its top-level pages; whoever turns it and those with full access to the page
   own it, those who could edit join as members (and groups that could edit, as groups), members
   can edit its pages, and everyone else named on the page (viewers, commenters, guests) keeps what
-  they had. It is private when the page was private or in a private teamspace, closed when it was in
-  a closed one, open otherwise. Guests are never in teamspaces: they get single pages. Those who
+  they had. A sub-page whoever turns it may not manage (no full access) moves too but keeps its own
+  sharing: one closed to everyone else stays closed in the teamspace. A top-level page of a teamspace
+  whose top level is locked can only be turned by those who may arrange it. It is private when the
+  page was private or in a private teamspace, closed when it was in a closed one, open otherwise. Guests are never in teamspaces: they get single pages. Those who
   manage a teamspace that isn't default can type an email into its *Add members* field: someone
   already in the workspace is added, anyone else is invited to the workspace as a member with the
   teamspace (and the role picked) in the invitation, and joins both on accepting. It goes through
