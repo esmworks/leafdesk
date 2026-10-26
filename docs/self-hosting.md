@@ -4,7 +4,7 @@
 
 Settings for running Leafdesk on your own server, beyond the [quick start](../README.md#quick-start-docker).
 
-Contents: [File uploads](#file-uploads), [Email](#email), [Push notifications](#push-notifications), [Social login](#social-login), [Maps and places](#maps-and-places), [Instance administrators](#instance-administrators), [Deploy on Dokploy](#deploy-on-dokploy), [Use Supabase as the database](#use-supabase-as-the-database).
+Contents: [File uploads](#file-uploads), [Email](#email), [Push notifications](#push-notifications), [Social login](#social-login), [Maps and places](#maps-and-places), [Instance administrators](#instance-administrators), [Deploy on Dokploy](#deploy-on-dokploy), [Deploy on Railway](#deploy-on-railway), [Use Supabase as the database](#use-supabase-as-the-database).
 
 ## File uploads
 
@@ -360,6 +360,34 @@ handles database backups on its own. No compose file is involved.
 5. Deploy. Migrations run when the container starts. Turn on auto deploy to redeploy on every
    push. For a health check, use path `/api/health` on port `3000` (see
    [Quick start](../README.md#quick-start-docker) for `/api/health/ready`).
+
+## Deploy on Railway
+
+Run the published Docker image beside a Railway PostgreSQL; nothing is built on Railway.
+
+1. In a new project, add a **PostgreSQL** database (*Create* → *Database*).
+2. Add a service from the Docker image `ghcr.io/esmworks/leafdesk:latest` (*Create* → *Docker
+   Image*), or a version's tag such as `ghcr.io/esmworks/leafdesk:0.6.5`.
+3. Give it these variables:
+
+   | Variable | Value |
+   | --- | --- |
+   | `DATABASE_URL` | `${{Postgres.DATABASE_URL}}` |
+   | `BETTER_AUTH_SECRET` | `${{secret(64)}}`, a random value made once |
+   | `APP_URL` | `https://${{RAILWAY_PUBLIC_DOMAIN}}` |
+   | `PORT` | `3000` |
+   | `TRUSTED_PROXIES` | `1`: visitors' addresses come from Railway's proxy |
+   | `RAILWAY_RUN_UID` | `0`: see the volume below |
+
+4. Attach a **volume** to the service at `/app/data/uploads` for uploaded files. Railway mounts
+   volumes owned by root while the image runs as the `node` user, so `RAILWAY_RUN_UID=0` lets the
+   server write there. With S3-compatible storage instead ([File uploads](#file-uploads)), leave
+   out the volume and `RAILWAY_RUN_UID`.
+5. Under *Settings* → *Networking*, generate a domain for port `3000` (or add your own and set
+   `APP_URL` to it), and under *Deploy* set the healthcheck path to `/api/health/ready`.
+
+Migrations run when the container starts. To update, redeploy the service: it pulls the image's
+tag again. Leafdesk runs on the PostgreSQL versions Railway offers: it is checked on 15, 17 and 18.
 
 ## Use Supabase as the database
 
