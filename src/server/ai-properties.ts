@@ -51,6 +51,7 @@ import { loadProperties, relatedSchemasFor } from "@/server/derived";
 import { loadPropertyRules, propertyAccessFor, type AccessRow, type PropertyAccess } from "@/server/property-access";
 import { asAutomation, outsideAutomation, runningAutomation } from "@/server/automations/queue";
 import { onRowChanged, rowChanged, type RowChange } from "@/server/row-events";
+import { withUniqueValues } from "@/server/unique-values";
 
 type Property = databases.DatabaseProperty;
 
@@ -506,7 +507,7 @@ async function runJob(job: Job): Promise<number> {
 export async function saveValue(job: Pick<Job, "rowId" | "databaseId" | "userId" | "chain">, propertyId: string, value: unknown) {
   const empty = value === null || value === undefined || value === "";
   const props = await databases.getProperties(job.databaseId);
-  const written = await db.transaction(async (tx) => {
+  const written = await withUniqueValues(() => db.transaction(async (tx) => {
     const [row] = await tx
       .select({ properties: page.properties, inTemplate: page.inTemplate })
       .from(page)
@@ -526,7 +527,7 @@ export async function saveValue(job: Pick<Job, "rowId" | "databaseId" | "userId"
     }
     await tx.update(page).set({ properties: after, updatedBy: job.userId }).where(eq(page.id, job.rowId));
     return { before: row.properties, after, inTemplate: row.inTemplate };
-  });
+  }));
   if (!written) return false;
   // Rows of a database kept as a template set nothing off (see databases.updateRowProperties).
   if (!written.inTemplate) {

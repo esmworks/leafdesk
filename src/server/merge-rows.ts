@@ -423,10 +423,6 @@ export async function mergeRows(
     const mergedIds = plan.merged.map((r) => r.id);
     const moved = await movedCounts(mergedIds, tx);
 
-    await tx
-      .update(page)
-      .set({ properties: sql`${JSON.stringify(plan.values.properties)}::jsonb`, updatedBy: userId })
-      .where(eq(page.id, keptId));
     for (const change of plan.changes) {
       await tx.update(page).set({ properties: sql`${JSON.stringify(change.after)}::jsonb`, updatedBy: userId }).where(eq(page.id, change.rowId));
     }
@@ -455,6 +451,12 @@ export async function mergeRows(
         ),
       )
       .returning({ id: page.id });
+    // The kept row's values once the merged rows are in the trash: a value kept unique
+    // (lib/unique-values) may come from one of them.
+    await tx
+      .update(page)
+      .set({ properties: sql`${JSON.stringify(plan.values.properties)}::jsonb`, updatedBy: userId })
+      .where(eq(page.id, keptId));
 
     await moveMergedActivity(tx, {
       workspaceId: plan.database.workspaceId,

@@ -15,6 +15,8 @@
     "monday": "Monday.com",
     "jira": "Jira",
     "github": "GitHub",
+    "ical": "Kalendarz",
+    "postgres": "PostgreSQL",
     "googleDocs": "Google Docs",
     "web": "Strona WWW"
   },
@@ -370,6 +372,69 @@
       "totalTime": "Razem",
       "ingredients": "Składniki",
       "steps": "Przygotowanie krok po kroku"
+    }
+  },
+  "ical": {
+    "help": "Utwórz bazę z wydarzeń kalendarza, która pozostaje zsynchronizowana: każde wydarzenie to wiersz z czasem, miejscem, notatkami, statusem, organizatorem i linkiem, a każde wystąpienie wydarzenia cyklicznego to osobny wiersz. Trafiają tu wydarzenia od {before} dni wstecz do {after} dni naprzód. Zmiany płyną w jedną stronę, z kalendarza do Leafdesk.",
+    "url": "Adres kalendarza",
+    "urlPlaceholder": "https://… .ics · webcal://…",
+    "urlHelp": "Użyj adresu iCal kalendarza: w Kalendarzu Google tajnego adresu w formacie iCal z jego ustawień, w Outlooku linku ICS opublikowanego kalendarza. Jest przechowywany zaszyfrowany na serwerze i nigdy więcej nie jest pokazywany.",
+    "namePlaceholder": "Nazwa kalendarza",
+    "names": {
+      "key": "ID wydarzenia",
+      "when": "Kiedy",
+      "location": "Miejsce",
+      "description": "Opis",
+      "status": "Status",
+      "organizer": "Organizator",
+      "link": "Link",
+      "untitled": "Wydarzenie bez tytułu",
+      "statuses": {
+        "confirmed": "Potwierdzone",
+        "tentative": "Wstępne",
+        "cancelled": "Odwołane"
+      }
+    },
+    "errors": {
+      "unauthorized": "Kalendarz wymaga logowania. Użyj jego tajnego adresu iCal.",
+      "forbidden": "Kalendarz odmówił odczytu.",
+      "notFound": "Pod tym adresem nie ma kalendarza.",
+      "tooManyIssues": "Kalendarz ma zbyt wiele wydarzeń lub jest zbyt duży, by go synchronizować.",
+      "unreachable": "Nie udało się połączyć z kalendarzem. Synchronizacja spróbuje ponownie następnym razem.",
+      "runAsGone": "Osoba, która skonfigurowała synchronizację, nie ma już konta.",
+      "accessLost": "Osoba, jako która działa synchronizacja, nie może już edytować tej bazy.",
+      "keyGone": "Właściwość ID wydarzenia została usunięta lub zmieniła typ, więc wydarzeń nie da się dopasować do wierszy.",
+      "failed": "Synchronizacja nie powiodła się. Spróbuje ponownie następnym razem.",
+      "invalidSite": "Leafdesk nie może połączyć się z tym adresem.",
+      "invalidInput": "Użyj adresu https lub webcal kalendarza.",
+      "alreadyRunning": "Trwa synchronizacja. Spróbuj ponownie za chwilę."
+    }
+  },
+  "postgres": {
+    "help": "Utwórz bazę z tabeli (lub widoku) PostgreSQL, która pozostaje zsynchronizowana: każdy wiersz tabeli to wiersz tutaj, odnajdywany po kolumnie klucza i nazywany kolumną tytułu, z właściwością dla każdej innej kolumny (tekst, liczby, pola wyboru, daty i godziny). Do {limit} wierszy. Zmiany płyną w jedną stronę, z tabeli do Leafdesk.",
+    "url": "Adres połączenia",
+    "urlPlaceholder": "postgres://user:password@host:5432/database",
+    "urlHelp": "Użyj użytkownika, który może tylko czytać tę tabelę. Leafdesk czyta w transakcji tylko do odczytu, łączy się tylko z adresami publicznymi (lub serwerami dopuszczonymi przez administratora w CONNECTOR_ALLOWED_HOSTS) i przechowuje adres zaszyfrowany na serwerze.",
+    "table": "Tabela",
+    "tablePlaceholder": "schema.table",
+    "key": "Kolumna klucza",
+    "keyPlaceholder": "Klucz główny",
+    "titleColumn": "Kolumna tytułu",
+    "titlePlaceholder": "Pierwsza kolumna tekstowa",
+    "errors": {
+      "unauthorized": "Serwer odrzucił użytkownika lub hasło.",
+      "forbidden": "Użytkownik nie może czytać tej tabeli.",
+      "notFound": "Nie ma takiej bazy ani tabeli.",
+      "badQuery": "Serwer odrzucił zapytanie:",
+      "tooManyIssues": "Tabela ma zbyt wiele wierszy do synchronizacji. Synchronizuj widok z potrzebnymi wierszami.",
+      "unreachable": "Nie udało się połączyć z serwerem albo zapytanie trwało zbyt długo. Synchronizacja spróbuje ponownie następnym razem.",
+      "runAsGone": "Osoba, która skonfigurowała synchronizację, nie ma już konta.",
+      "accessLost": "Osoba, jako która działa synchronizacja, nie może już edytować tej bazy.",
+      "keyGone": "Właściwość klucza została usunięta lub zmieniła typ, więc wierszy tabeli nie da się dopasować.",
+      "failed": "Synchronizacja nie powiodła się. Spróbuje ponownie następnym razem.",
+      "invalidSite": "Leafdesk nie może połączyć się z tym serwerem: adres prywatny musi dopuścić administrator w CONNECTOR_ALLOWED_HOSTS.",
+      "invalidInput": "Sprawdź adres połączenia, tabelę i nazwy kolumn.",
+      "alreadyRunning": "Trwa synchronizacja. Spróbuj ponownie za chwilę."
     }
   }
 }

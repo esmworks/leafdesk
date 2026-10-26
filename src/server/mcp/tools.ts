@@ -41,12 +41,13 @@ import {
   isStackable,
 } from "@/lib/chart";
 import { formulaForStorage } from "@/lib/derived";
+import { canBeUnique } from "@/lib/unique-values";
 import { formulaReferences } from "@/lib/property-access";
 import { withAllFormulaTypes } from "@/server/derived";
 import { SUB_ITEMS_DISPLAYS } from "@/lib/sub-items";
 import { DEPENDENCY_SHIFTS, dependencySettings } from "@/lib/dependencies";
 import { MAX_FORMULA_LENGTH } from "@/lib/formula";
-import { checkNumberFormat, MAX_DECIMALS, NUMBER_FORMATS } from "@/lib/number-format";
+import { checkNumberFormat, MAX_DECIMALS, MAX_RATING, NUMBER_FORMATS } from "@/lib/number-format";
 import { REMINDER_DAYS, type DateOptionsInput } from "@/lib/date-options";
 import { GROUP_DATE_BY } from "@/lib/grouping";
 import { pageLabel } from "@/lib/labels";
@@ -217,7 +218,7 @@ const MARKDOWN_DOC = `Beyond plain Markdown, page bodies know a few block forms:
 Mentions: a link to a page of this app (\`[Roadmap](/w/<workspace_id>/p/<page_id>)\`) is a page mention, which shows the page's live title (the link text you write is ignored; get_page shows the current title, or "No access" / "Deleted page"), and \`#block-<block_id>\` after it mentions one block of the page (get_page with with_block_ids shows the ids), which opens the page there; \`[[Page title]]\` also becomes a mention of the page of that title in the page's workspace when you can open one (otherwise it stays text); that link alone on its line followed by \`<!-- leafdesk:page-link -->\` is a "Link to page" block, and followed by \`<!-- leafdesk:synced-page -->\` a synced page (the page's body shown live inside this one; its text is not part of this page's Markdown, read the page itself for it). \`@Name\` with a person's name as list_users shows it mentions them (they are notified if they can open the page), and \`@YYYY-MM-DD\` is a date. Keep mentions as they are when you rewrite a page: people aren't notified twice and reminders set on dates stay. get_page lists the pages linking to a page under linked_from, with the text around the first link (context) when there is any, and around each link (contexts) when a page links more than once; linked_from_truncated says how many pages link there when not all are listed.`;
 
 /** What the property types hold and how restricted properties read (leafdesk://docs/properties). */
-const PROPERTIES_DOC = `Pages form a tree inside a workspace. A database is a special page whose children are rows; rows are pages with typed properties (text, number, select, multi_select, status, date, checkbox, url, email, phone, checklist, files, place, relation, person, created_by, created_time, last_edited_by, last_edited_time, formula, rollup, unique_id). A relation links rows to rows of another database in the same workspace; two-way relations show the links on both databases. A person property assigns rows to people of the workspace; "me" stands for the signed-in user. A status is a select whose options belong to the groups todo, in_progress and done. A property may have a description saying what it holds and how to fill it (see get_database): follow it when writing values. A select may depend on another select ("City" on "Country"): a row may hold only the options that go with its value of that one. A checklist holds items that can be ticked off. A place holds where something is, read as {address, name?, lat, lng}; write an address to look up, coordinates ("41.04, 29.01") or {lat, lng, address?, name?}. A files property holds files uploaded to the workspace (images show as thumbnails); its values read as [{name, url}]. created_by, created_time, last_edited_by and last_edited_time show who created or last edited each row and when; they are filled in automatically and can't be written. A formula property computes its value from the row's other properties, and a rollup calculates over the rows a relation links to (see add_database_property); neither can be written. A unique_id numbers a database's rows 1, 2, 3… as they are created and reads as its prefix and number ("TASK-12", or "12" without a prefix); it can't be written, its filters take "TASK-12" or 12, and search finds a row by "TASK-12". A number property's number_format (see get_database), which a formula giving a number can have too, only changes how the app shows it: a percent property holds fractions (0.15 is 15%) and filters on it compare percent points (15). A date property holds a day (YYYY-MM-DD), a time (an ISO timestamp, returned in UTC: 2026-10-12T11:30:00.000Z), or a range of either written \"start/end\" (2026-10-12/2026-10-14; start and end both days or both times, the end not before the start). Write times with Z or an offset (2026-10-12T14:30+03:00); {\"start\", \"end\"} objects are accepted too. Its date_options can show it relatively and remind the row's people before it (a range: before its start; a time: at its time of day).
+const PROPERTIES_DOC = `Pages form a tree inside a workspace. A database is a special page whose children are rows; rows are pages with typed properties (text, number, select, multi_select, status, date, checkbox, url, email, phone, checklist, files, place, relation, person, created_by, created_time, last_edited_by, last_edited_time, formula, rollup, unique_id). A relation links rows to rows of another database in the same workspace; two-way relations show the links on both databases. A person property assigns rows to people of the workspace; "me" stands for the signed-in user. A status is a select whose options belong to the groups todo, in_progress and done. A property may have a description saying what it holds and how to fill it (see get_database): follow it when writing values. A select may depend on another select ("City" on "Country"): a row may hold only the options that go with its value of that one. A text, number, email, url or phone property may keep its values unique (unique: true in get_database): a write giving a value another live row already holds (case and spaces aside) is refused, and duplicating a row leaves such values out. A checklist holds items that can be ticked off. A place holds where something is, read as {address, name?, lat, lng}; write an address to look up, coordinates ("41.04, 29.01") or {lat, lng, address?, name?}. A files property holds files uploaded to the workspace (images show as thumbnails); its values read as [{name, url}]. created_by, created_time, last_edited_by and last_edited_time show who created or last edited each row and when; they are filled in automatically and can't be written. A formula property computes its value from the row's other properties, and a rollup calculates over the rows a relation links to (see add_database_property); neither can be written. A unique_id numbers a database's rows 1, 2, 3… as they are created and reads as its prefix and number ("TASK-12", or "12" without a prefix); it can't be written, its filters take "TASK-12" or 12, and search finds a row by "TASK-12". A number property's number_format (see get_database), which a formula giving a number can have too, only changes how the app shows it: a percent property holds fractions (0.15 is 15%) and filters on it compare percent points (15); a duration holds minutes (90 shows as 1:30; write 90, "1:30" or "1h 30m"); a rating holds whole stars from 0 to its max. A date property holds a day (YYYY-MM-DD), a time (an ISO timestamp, returned in UTC: 2026-10-12T11:30:00.000Z), or a range of either written \"start/end\" (2026-10-12/2026-10-14; start and end both days or both times, the end not before the start). Write times with Z or an offset (2026-10-12T14:30+03:00); {\"start\", \"end\"} objects are accepted too. Its date_options can show it relatively and remind the row's people before it (a range: before its start; a time: at its time of day).
 
 Some database properties are restricted: get_database shows the user's access on each ("none" properties aren't shown at all; "view_property": the property shows, its values don't; "view": values are read-only; "edit_values": values can be changed but not the property itself). Rows list the properties whose values are kept from the user under hidden_properties (they aren't empty, just not shown) and read-only ones under read_only_properties. People with full access to a database change who may see and edit a property with set_property_access.`;
 
@@ -253,11 +254,13 @@ const rollupInput = z.object({
 
 /** How number formats work, for tool descriptions. */
 const NUMBER_FORMAT_HELP =
-  'number_format sets how a number property, or a formula whose result is a number, shows its values in the app: {format: "number" | "percent" | "currency", currency (ISO 4217 code such as TRY, EUR, USD; currency only), decimals (0-8; left out, they follow the value or the currency)}. Calculations, board totals, charts, dashboard widgets and rollups summing it show it too. Values stay plain numbers everywhere else: a percent property stores fractions (0.15 shows as 15%) and filters compare percent points (15), as for rollup percentages. A formula giving text, a date or a checkbox has no number format: one is refused, and changing a formula so it no longer gives a number drops its format.';
+  'number_format sets how a number property, or a formula whose result is a number, shows its values in the app: {format: "number" | "percent" | "currency" | "duration" | "rating", currency (ISO 4217 code such as TRY, EUR, USD; currency only), decimals (0-8; left out, they follow the value or the currency; not for durations and ratings), seconds (duration only: shows 1:30:15), max (rating only: 1-10 stars, 5 when left out)}. A duration stores minutes and a rating whole stars from 0 to max; writes outside that are refused. Calculations, board totals, charts, dashboard widgets and rollups summing it show it too. Values stay plain numbers everywhere else: a percent property stores fractions (0.15 shows as 15%) and filters compare percent points (15), as for rollup percentages. A formula giving text, a date or a checkbox has no number format: one is refused, and changing a formula so it no longer gives a number drops its format.';
 const numberFormatInput = z.object({
-  format: z.enum(NUMBER_FORMATS),
+  format: z.enum(NUMBER_FORMATS).describe("duration: minutes (90, \"1:30\" or \"1h 30m\"). rating: whole stars, 0 to max."),
   currency: z.string().length(3).optional().describe("Currency only: an ISO 4217 code such as TRY, EUR or USD."),
   decimals: z.number().int().min(0).max(MAX_DECIMALS).optional().describe("Decimal places; left out, they follow the value (a currency's own)."),
+  seconds: z.boolean().optional().describe("Duration only: show seconds too (1:30:15)."),
+  max: z.number().int().min(1).max(MAX_RATING).optional().describe("Rating only: how many stars (5 when left out)."),
 });
 
 /** How date options work, for tool descriptions. */
@@ -989,13 +992,14 @@ function dashboardOnly(settings: Record<string, unknown>) {
 function viewOutput(
   database: { id: string; workspaceId: string },
   props: PropertyDef[],
-  view: { id: string; name: string; type: ViewType; config: ViewConfig },
+  view: { id: string; name: string; type: ViewType; config: ViewConfig; ownerId?: string | null },
   lookups: Lookups,
 ) {
   return {
     id: view.id,
     name: view.name,
     type: view.type,
+    ...(view.ownerId ? { personal: true } : {}),
     database_id: database.id,
     ...describeViewConfig(props, view.config, lookups, view.type),
     url: pageUrl(database.workspaceId, database.id),
@@ -2178,7 +2182,7 @@ export function createMcpServer(principal: McpPrincipal) {
     {
       title: "Update a database property",
       description:
-        `Change a database property: its name, options (add, rename or remove by name; status options also move between groups), formula, rollup, number_format, date_options, prefix, description, depends_on with option_parents, or one_row (see ${docUri("properties")}). Renaming an option keeps it on the rows that use it and removing one clears it from them; renaming a property keeps the formulas using it working; a number format never changes stored values. Left-out fields stay as they are.`,
+        `Change a database property: its name, options (add, rename or remove by name; status options also move between groups), formula, rollup, number_format, date_options, prefix, description, depends_on with option_parents, one_row or unique (see ${docUri("properties")}). Renaming an option keeps it on the rows that use it and removing one clears it from them; renaming a property keeps the formulas using it working; a number format never changes stored values. Left-out fields stay as they are.`,
       inputSchema: z.object({
         database_id: id("database"),
         property: z.string().min(1).describe("Current property name or id."),
@@ -2212,6 +2216,10 @@ export function createMcpServer(principal: McpPrincipal) {
         depends_on: dependsOnInput.nullable().optional().describe(`${dependsOnInput.description} null: depend on nothing. Changing it forgets the options' lists.`),
         option_parents: optionParentsInput.optional(),
         one_row: z.boolean().optional().describe("Relation: each row links one row at most (true) or any."),
+        unique: z
+          .boolean()
+          .optional()
+          .describe("Text, number, email, url or phone: no two rows may hold the same value (true; refused while two do) or any."),
       }),
       annotations: { readOnlyHint: false, destructiveHint: true, idempotentHint: false, openWorldHint: false },
       scopeChallenge: requireWrite,
@@ -2233,6 +2241,7 @@ export function createMcpServer(principal: McpPrincipal) {
       depends_on,
       option_parents,
       one_row,
+      unique,
     }) =>
       runTool(async () => {
         assertWrite();
@@ -2249,7 +2258,14 @@ export function createMcpServer(principal: McpPrincipal) {
           dependsOn?: string | null;
           prefix?: string | null;
           oneRow?: boolean;
+          unique?: boolean;
         } = {};
+        if (unique !== undefined) {
+          if (!canBeUnique(prop.type)) {
+            throw new ToolInputError(`"${prop.name}" is a ${prop.type} property; only text, number, email, url and phone keep their values unique.`);
+          }
+          patch.unique = unique;
+        }
         if (one_row !== undefined) {
           if (prop.type !== "relation") throw new ToolInputError(`"${prop.name}" is a ${prop.type} property; only relations link one row.`);
           patch.oneRow = one_row;
@@ -2333,10 +2349,11 @@ export function createMcpServer(principal: McpPrincipal) {
           patch.description === undefined &&
           patch.dependsOn === undefined &&
           patch.prefix === undefined &&
-          patch.oneRow === undefined
+          patch.oneRow === undefined &&
+          patch.unique === undefined
         ) {
           throw new ToolInputError(
-            "Nothing to change: provide name, option changes, formula, rollup, number_format, date_options, prefix, description, depends_on, option_parents or one_row.",
+            "Nothing to change: provide name, option changes, formula, rollup, number_format, date_options, prefix, description, depends_on, option_parents, one_row or unique.",
           );
         }
         const { date: storedDate } = await databases.updateProperty(userId, prop.id, patch);
@@ -2359,7 +2376,8 @@ export function createMcpServer(principal: McpPrincipal) {
           ),
         );
         // Descriptions and dependencies as stored (cleaned there).
-        const stored = patch.description !== undefined || patch.dependsOn !== undefined || option_parents?.length || patch.oneRow !== undefined
+        const stored =
+          patch.description !== undefined || patch.dependsOn !== undefined || option_parents?.length || patch.oneRow !== undefined || patch.unique !== undefined
           ? (await databases.getProperties(database_id)).find((p) => p.id === prop.id)
           : undefined;
         const found = after.find((p) => p.id === prop.id)!;
@@ -3206,11 +3224,12 @@ export function createMcpServer(principal: McpPrincipal) {
         filter_combinator: filterCombinatorInput,
         sorts: sortsInput.optional(),
         widgets: viewWidgetsParam.optional(),
+        personal: z.boolean().optional().describe("Only you see it (read access is enough; not for forms)."),
       }),
       annotations: { readOnlyHint: false, destructiveHint: false, idempotentHint: false, openWorldHint: false },
       scopeChallenge: requireWrite,
     },
-    ({ database_id, name, type, filters, filter_combinator, sorts, widgets, ...input }) =>
+    ({ database_id, name, type, filters, filter_combinator, sorts, widgets, personal, ...input }) =>
       runTool(async () => {
         assertWrite();
         const { database, properties, access } = await databases.getDatabase(userId, database_id);
@@ -3219,7 +3238,12 @@ export function createMcpServer(principal: McpPrincipal) {
           dashboardOnly({ ...input, filters, filter_combinator, sorts });
           // Checked before the view is made, so a bad widget leaves nothing half set up behind.
           const built = widgets && (await dashboardWidgets(database_id, widgets, []));
-          const created = await databases.addView(userId, database_id, { name, type, ...(built ? { config: { widgets: viewWidgetsConfig(built) } } : {}) });
+          const created = await databases.addView(userId, database_id, {
+            name,
+            type,
+            personal,
+            ...(built ? { config: { widgets: viewWidgetsConfig(built) } } : {}),
+          });
           return viewOutput(database, properties, { ...created, config: access.viewConfig(created.config) }, await databases.getLookups(userId, properties));
         }
         if (widgets !== undefined) throw new ToolInputError("widgets only applies to dashboard views.");
@@ -3231,7 +3255,7 @@ export function createMcpServer(principal: McpPrincipal) {
         // Validate before creating so a bad filter does not leave a half-configured view behind.
         const patch = viewConfigPatch(properties, type, { ...layout, filters, filter_combinator, sorts }, lookups);
         formConfigPatch(properties, type, {}, { ...formInput, ...linkInput });
-        const created = await databases.addView(userId, database_id, { name, type });
+        const created = await databases.addView(userId, database_id, { name, type, personal });
         // A new view's defaults may name properties the user can't know of; they stay stored as they are.
         const start = access.viewConfig(created.config);
         let config = { ...start, ...patch, ...formConfigPatch(properties, type, start, formInput) };

@@ -42,6 +42,8 @@
     "notPublic": "Jätetty pois julkisesta linkistä",
     "addQuestion": "Lisää kysymys",
     "noMoreQuestions": "Jokainen ominaisuus on jo kysymys.",
+    "oneByOne": "Yksi kysymys kerrallaan",
+    "oneByOneDescription": "Jokainen kysymys saa oman sivunsa ja edistymispalkin. Jokainen vastaus tarkistetaan ennen seuraavaa kysymystä.",
     "empty": "Tässä lomakkeessa ei ole vielä kysymyksiä.",
     "defaultsTitle": "Arvot jokaiseen vastaukseen",
     "defaultsDescription": "Ominaisuudet, joita lomake ei kysy, voidaan silti täyttää jokaiselle sen lisäämälle riville, esimerkiksi Tila arvoon Uusi.",
@@ -58,6 +60,9 @@
   "fill": {
     "submit": "Lähetä",
     "submitting": "Lähetetään…",
+    "next": "Seuraava",
+    "back": "Takaisin",
+    "progress": "Kysymys {current}/{total}",
     "thanks": "Kiitos! Vastauksesi lähetettiin.",
     "another": "Lähetä toinen vastaus",
     "viewOnly": "Voit katsella tätä lomaketta, mutta vain tietokantaa muokkaamaan oikeutetut voivat lähettää sen.",

@@ -1,5 +1,6 @@
 import { getTranslations } from "next-intl/server";
 import type { GithubPullsNames } from "@/lib/github-pulls-sync";
+import type { IcalNames } from "@/lib/ical-sync";
 import type { JiraNames } from "@/lib/jira-sync";
 import type { BoardNames } from "@/server/import/board";
 import type { EnexNames } from "@/server/import/enex";
@@ -118,5 +119,22 @@ export async function githubPullsNames(): Promise<GithubPullsNames> {
     link: t("link"),
     board: td("views.board"),
     stages: { draft: t("stages.draft"), open: t("stages.open"), merged: t("stages.merged"), closed: t("stages.closed") },
+  };
+}
+
+/** Names of what a calendar sync creates (properties, status options, the calendar view), in the user's language. */
+export async function icalNames(): Promise<IcalNames> {
+  const [t, td] = await Promise.all([getTranslations("import.ical.names"), getTranslations("database")]);
+  return {
+    key: t("key"),
+    when: t("when"),
+    location: t("location"),
+    description: t("description"),
+    status: t("status"),
+    organizer: t("organizer"),
+    link: t("link"),
+    untitled: t("untitled"),
+    calendar: td("views.calendar"),
+    statuses: { confirmed: t("statuses.confirmed"), tentative: t("statuses.tentative"), cancelled: t("statuses.cancelled") },
   };
 }

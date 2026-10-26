@@ -336,6 +336,7 @@ describe("form settings for conditions and limits", () => {
     [{ questions: [{ propertyId: "a", minChoices: 0 }] }, "minChoices"],
     [{ questions: [{ propertyId: "a", minChoices: 3, maxChoices: 2 }] }, "more than"],
     [{ showOwnAnswers: "yes" }, "showOwnAnswers"],
+    [{ oneByOne: 1 }, "oneByOne"],
   ])("refuses %j", (form, message) => {
     expect(formConfigError(form)).toContain(message);
   });
@@ -345,6 +346,7 @@ describe("form settings for conditions and limits", () => {
       formConfigError({
         questions: [{ propertyId: "a" }, { propertyId: "b", showIf: { propertyId: "a", op: "is", values: ["x"] }, maxChoices: 3 }],
         showOwnAnswers: true,
+        oneByOne: true,
       }),
     ).toBeNull();
   });

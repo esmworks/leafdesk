@@ -14,7 +14,7 @@ import { AccessError, requireMembership } from "@/server/access";
 import { generateTokenSecret, hashToken, TOKEN_PREFIX } from "@/server/api/tokens";
 import { openAssignedRows } from "@/server/assigned";
 import { runAsConnectedApp } from "@/server/connected-app";
-import { getProperties, requireDatabase, viewedRows, withCode } from "@/server/databases";
+import { getProperties, requireDatabase, viewedRows, viewOwnedBy, withCode } from "@/server/databases";
 import { pickLocale, savedLocale } from "@/server/mail/locale";
 import { openPageTasks } from "@/server/page-tasks";
 import { exportAllowed, listWorkspaces } from "@/server/workspaces";
@@ -49,7 +49,7 @@ async function requireCalendarView(userId: string, viewId: string) {
   const [view] = await db
     .select()
     .from(databaseView)
-    .where(and(eq(databaseView.id, viewId), isNull(databaseView.deletedAt)))
+    .where(and(eq(databaseView.id, viewId), isNull(databaseView.deletedAt), viewOwnedBy(userId)))
     .limit(1);
   if (!view) throw new AccessError();
   const database = await requireDatabase(userId, view.databaseId, "view");

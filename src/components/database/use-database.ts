@@ -7,6 +7,7 @@ import {
   setSubItemsAction,
   setDependenciesAction,
   addViewAction,
+  shareViewAction,
   duplicateViewAction,
   archiveRowsAction,
   changePropertyTypeAction,
@@ -630,6 +631,14 @@ export function useDatabase(
         );
       },
 
+      /** Keeps a property's values unique across rows, or lets rows share them (lib/unique-values); the server checks the rows first. */
+      setUnique(prop: Property, on: boolean) {
+        const { unique: _old, ...rest } = prop.options;
+        return mutateSchema(patchProperty(prop.id, { options: on ? { ...rest, unique: true } : rest }), () =>
+          updatePropertyAction(prop.id, { unique: on }),
+        );
+      },
+
       /** Limits a relation to one linked row a row, or lifts the limit (as setOnePerson does for people). */
       setOneRow(prop: Property, on: boolean) {
         const relation = prop.options.relation;
@@ -723,8 +732,17 @@ export function useDatabase(
         );
       },
 
-      addView(name: string, type: ViewType) {
-        return mutateSchema((s) => s, () => addViewAction(databaseId, { name, type }));
+      /** Adds a view; `personal`: only the viewer sees it (databaseView.ownerId). */
+      addView(name: string, type: ViewType, personal = false) {
+        return mutateSchema((s) => s, () => addViewAction(databaseId, { name, type, personal }));
+      },
+
+      /** Shares a personal view with everyone who may see the database. */
+      shareView(view: View) {
+        return mutateSchema(
+          (s) => ({ ...s, views: s.views.map((v) => (v.id === view.id ? { ...v, ownerId: null } : v)) }),
+          () => shareViewAction(view.id),
+        );
       },
 
       duplicateView(view: View, name: string) {

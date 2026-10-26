@@ -22,11 +22,12 @@ import {
   Search,
   Trash2,
   UserRound,
+  Users,
   X,
 } from "lucide-react";
 import { useLocale, useTranslations } from "next-intl";
 import { Fragment, useEffect, useRef, useState } from "react";
-import { Button, cn, Input, MenuItem, MenuSeparator } from "@/components/ui";
+import { Button, cn, Input, MenuItem, MenuSeparator, Switch } from "@/components/ui";
 import { useReorderDrag, type ReorderDragHandlers } from "@/components/use-reorder-drag";
 import { DatePhraseInput } from "@/components/date-phrase-input";
 import type {
@@ -96,11 +97,15 @@ export function ViewTabs({
   deleted,
   onExport,
   onDuplicate,
+  viewerId,
+  canAddPersonal,
+  onShare,
 }: {
   views: View[];
   activeId: string;
   onSelect: (id: string) => void;
-  onAdd: (type: ViewType) => void;
+  /** `personal`: only the viewer sees the new view. */
+  onAdd: (type: ViewType, personal: boolean) => void;
   onRename: (view: View, name: string) => void;
   /** Sets a view's icon (null for its type's). */
   onIcon?: (view: View, icon: string | null) => void;
@@ -113,10 +118,21 @@ export function ViewTabs({
   onExport?: (format: ViewExportFormat) => void;
   /** Makes a copy of the view with its settings, beside it. */
   onDuplicate?: (view: View) => void;
+  /** Who is looking: their personal views are theirs to change even where the others aren't. */
+  viewerId?: string | null;
+  /** Set where the viewer may add personal views (anyone who may read the database). */
+  canAddPersonal?: boolean;
+  /** Shares a personal view with everyone; set for those who may change the database's views. */
+  onShare?: (view: View) => void;
 }) {
   const t = useTranslations("database");
   const add = useFloating<HTMLButtonElement>();
   const [showDeleted, setShowDeleted] = useState(false);
+  // Those who may add shared views choose; others add views only they see.
+  const [personal, setPersonal] = useState(false);
+  const addsPersonal = readOnly ? true : personal;
+  const mine = (view: View) => Boolean(view.ownerId) && view.ownerId === viewerId;
+  const shared = views.filter((v) => !v.ownerId).length;
   const closeAdd = () => {
     add.close();
     setShowDeleted(false);
@@ -125,23 +141,29 @@ export function ViewTabs({
   const movable = !readOnly && views.length > 1;
   return (
     <div className="flex min-w-0 flex-1 items-center gap-0.5 overflow-x-auto [scrollbar-width:none]">
-      {views.map((view) => (
-        <ViewTab
-          key={view.id}
-          view={view}
-          active={view.id === activeId}
-          canDelete={views.length > 1}
-          readOnly={readOnly}
-          drag={movable ? drag.handlers(view.id) : undefined}
-          onSelect={() => onSelect(view.id)}
-          onRename={(name) => onRename(view, name)}
-          onIcon={onIcon && ((icon) => onIcon(view, icon))}
-          onDelete={() => onDelete(view)}
-          onExport={view.id === activeId ? onExport : undefined}
-          onDuplicate={onDuplicate && !readOnly ? () => onDuplicate(view) : undefined}
-        />
-      ))}
-      {!readOnly && (
+      {views.map((view) => {
+        // A personal view is its person's to rename, copy and delete, whatever they may do to the others.
+        const own = mine(view) && canAddPersonal;
+        const tabReadOnly = readOnly && !own;
+        return (
+          <ViewTab
+            key={view.id}
+            view={view}
+            active={view.id === activeId}
+            canDelete={view.ownerId ? true : shared > 1}
+            readOnly={tabReadOnly}
+            drag={movable ? drag.handlers(view.id) : undefined}
+            onSelect={() => onSelect(view.id)}
+            onRename={(name) => onRename(view, name)}
+            onIcon={onIcon && ((icon) => onIcon(view, icon))}
+            onDelete={() => onDelete(view)}
+            onExport={view.id === activeId ? onExport : undefined}
+            onDuplicate={onDuplicate && !tabReadOnly ? () => onDuplicate(view) : undefined}
+            onShare={onShare && own ? () => onShare(view) : undefined}
+          />
+        );
+      })}
+      {(!readOnly || canAddPersonal) && (
         <>
           <button
             ref={add.ref}
@@ -159,18 +181,35 @@ export function ViewTabs({
             ) : (
               <>
                 <div className="px-2 pt-1 pb-1.5 text-xs text-fg-muted">{t("viewTabs.addViewHeading")}</div>
-                {VIEW_TYPES.map((type) => (
+                {/* Forms are shared: their answers are the database's. */}
+                {VIEW_TYPES.filter((type) => !addsPersonal || type !== "form").map((type) => (
                   <MenuItem
                     key={type}
                     icon={<ViewIcon type={type} />}
                     onClick={() => {
                       closeAdd();
-                      onAdd(type);
+                      onAdd(type, addsPersonal);
                     }}
                   >
                     {t(`views.${type}`)}
                   </MenuItem>
                 ))}
+                {canAddPersonal && (
+                  <>
+                    <MenuSeparator />
+                    {readOnly ? (
+                      <p className="max-w-56 px-2 py-1.5 text-xs text-fg-muted">{t("viewTabs.personalOnly")}</p>
+                    ) : (
+                      <label className="flex items-center justify-between gap-3 px-2 py-1.5 text-sm">
+                        <span className="min-w-0">
+                          {t("viewTabs.personal")}
+                          <span className="block text-xs text-fg-muted">{t("viewTabs.personalHint")}</span>
+                        </span>
+                        <Switch label={t("viewTabs.personal")} checked={personal} onChange={setPersonal} />
+                      </label>
+                    )}
+                  </>
+                )}
                 {deleted && (
                   <>
                     <MenuSeparator />
@@ -204,6 +243,7 @@ function ViewTab({
   onDelete,
   onExport,
   onDuplicate,
+  onShare,
 }: {
   view: View;
   active: boolean;
@@ -217,6 +257,8 @@ function ViewTab({
   onDelete: () => void;
   onExport?: (format: ViewExportFormat) => void;
   onDuplicate?: () => void;
+  /** Shares this personal view with everyone. */
+  onShare?: () => void;
 }) {
   const t = useTranslations("database.viewTabs");
   // Viewers open the menu just to export.
@@ -258,6 +300,11 @@ function ViewTab({
       >
         <ViewIcon type={view.type} icon={view.config.icon} />
         <span className="max-w-40 truncate">{view.name}</span>
+        {view.ownerId && (
+          <span title={t("personalTab")} aria-label={t("personalTab")} className="inline-flex text-fg-faint">
+            <UserRound className="h-3 w-3" aria-hidden />
+          </span>
+        )}
         {active && hasMenu && <ChevronDown className="h-3 w-3 text-fg-faint" />}
       </button>
       <Floating
@@ -299,6 +346,18 @@ function ViewTab({
               </MenuItem>
             )}
             {!readOnly && onIcon && <ViewIconMenuItem view={view} onIcon={onIcon} onDone={menu.close} />}
+            {onShare && (
+              <MenuItem
+                icon={<Users className="h-3.5 w-3.5" />}
+                title={t("shareViewHint")}
+                onClick={() => {
+                  menu.close();
+                  onShare();
+                }}
+              >
+                {t("shareView")}
+              </MenuItem>
+            )}
             {onDuplicate && (
               <MenuItem
                 icon={<Copy className="h-3.5 w-3.5" />}
@@ -654,7 +713,7 @@ export function PropertiesPanel({
               aria-hidden
               className="-ms-1.5 h-3.5 w-3.5 shrink-0 cursor-grab text-fg-faint opacity-0 group-hover/prop:opacity-100"
             />
-            <PropertyTypeIcon type={p.type} icon={p.options.icon} className="-ms-1 h-3.5 w-3.5 text-fg-muted" />
+            <PropertyTypeIcon type={p.type} icon={p.options.icon} number={p.options.number} className="-ms-1 h-3.5 w-3.5 text-fg-muted" />
             <span className={cn("flex-1 truncate", isHidden && "text-fg-faint")}>{p.name}</span>
             <PropertyLock propertyId={p.id} />
             {isHidden ? (

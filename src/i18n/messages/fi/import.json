@@ -15,6 +15,8 @@
     "monday": "Monday.com",
     "jira": "Jira",
     "github": "GitHub",
+    "ical": "Kalenteri",
+    "postgres": "PostgreSQL",
     "googleDocs": "Google Docs",
     "web": "Verkkosivu"
   },
@@ -370,6 +372,69 @@
       "totalTime": "Yhteensä",
       "ingredients": "Ainekset",
       "steps": "Valmistus"
+    }
+  },
+  "ical": {
+    "help": "Hae tietokanta kalenterin tapahtumista, joka pysyy ajan tasalla: jokainen tapahtuma on rivi, jossa on aika, paikka, muistiinpanot, tila, järjestäjä ja linkki, ja toistuvan tapahtuman jokainen kerta on oma rivinsä. Mukaan tulevat tapahtumat {before} päivää taaksepäin ja {after} päivää eteenpäin. Muutokset kulkevat yhteen suuntaan, kalenterista Leafdeskiin.",
+    "url": "Kalenterin osoite",
+    "urlPlaceholder": "https://… .ics · webcal://…",
+    "urlHelp": "Käytä kalenterin iCal-osoitetta: Google-kalenterissa asetusten salainen iCal-muotoinen osoite, Outlookissa julkaistun kalenterin ICS-linkki. Se säilytetään sinetöitynä palvelimella eikä sitä näytetä enää.",
+    "namePlaceholder": "Kalenterin nimi",
+    "names": {
+      "key": "Tapahtuman tunnus",
+      "when": "Milloin",
+      "location": "Paikka",
+      "description": "Kuvaus",
+      "status": "Tila",
+      "organizer": "Järjestäjä",
+      "link": "Linkki",
+      "untitled": "Nimetön tapahtuma",
+      "statuses": {
+        "confirmed": "Vahvistettu",
+        "tentative": "Alustava",
+        "cancelled": "Peruttu"
+      }
+    },
+    "errors": {
+      "unauthorized": "Kalenteri vaatii kirjautumisen. Käytä sen salaista iCal-osoitetta.",
+      "forbidden": "Kalenteri esti lukemisen.",
+      "notFound": "Tässä osoitteessa ei ole kalenteria.",
+      "tooManyIssues": "Kalenterissa on liikaa tapahtumia tai se on liian suuri synkronoitavaksi.",
+      "unreachable": "Kalenteriin ei saatu yhteyttä. Synkronointi yrittää uudelleen seuraavalla kerralla.",
+      "runAsGone": "Synkronoinnin määrittäneellä henkilöllä ei ole enää tiliä.",
+      "accessLost": "Henkilö, jonka nimissä synkronointi toimii, ei voi enää muokata tätä tietokantaa.",
+      "keyGone": "Tapahtuman tunnus -ominaisuus poistettiin tai sen tyyppi muuttui, joten tapahtumia ei voi yhdistää riveihin.",
+      "failed": "Synkronointi epäonnistui. Se yrittää uudelleen seuraavalla kerralla.",
+      "invalidSite": "Leafdesk ei voi tavoittaa tätä osoitetta.",
+      "invalidInput": "Käytä kalenterin https- tai webcal-osoitetta.",
+      "alreadyRunning": "Synkronointi on käynnissä. Yritä hetken päästä uudelleen."
+    }
+  },
+  "postgres": {
+    "help": "Hae PostgreSQL-taulusta (tai -näkymästä) tietokanta, joka pysyy ajan tasalla: taulun jokainen rivi on rivi täällä, löydetään avainsarakkeen avulla ja nimetään otsikkosarakkeen mukaan, ja jokaisesta muusta sarakkeesta tulee ominaisuus (teksti, luvut, valintaruudut, päivämäärät ja ajat). Enintään {limit} riviä. Muutokset kulkevat yhteen suuntaan, taulusta Leafdeskiin.",
+    "url": "Yhteysosoite",
+    "urlPlaceholder": "postgres://user:password@host:5432/database",
+    "urlHelp": "Käytä käyttäjää, joka saa vain lukea tämän taulun. Leafdesk lukee vain luku -transaktiossa, tavoittaa vain julkisia osoitteita (tai palvelimia, jotka ylläpitäjä on sallinut CONNECTOR_ALLOWED_HOSTS-asetuksessa) ja säilyttää osoitteen sinetöitynä palvelimella.",
+    "table": "Taulu",
+    "tablePlaceholder": "schema.table",
+    "key": "Avainsarake",
+    "keyPlaceholder": "Pääavain",
+    "titleColumn": "Otsikkosarake",
+    "titlePlaceholder": "Ensimmäinen tekstisarake",
+    "errors": {
+      "unauthorized": "Palvelin hylkäsi käyttäjän tai salasanan.",
+      "forbidden": "Käyttäjä ei saa lukea tätä taulua.",
+      "notFound": "Tällaista tietokantaa tai taulua ei ole.",
+      "badQuery": "Palvelin hylkäsi kyselyn:",
+      "tooManyIssues": "Taulussa on liikaa rivejä synkronoitavaksi. Synkronoi näkymä tarvitsemistasi riveistä.",
+      "unreachable": "Palvelimeen ei saatu yhteyttä tai kysely kesti liian kauan. Synkronointi yrittää uudelleen seuraavalla kerralla.",
+      "runAsGone": "Synkronoinnin määrittäneellä henkilöllä ei ole enää tiliä.",
+      "accessLost": "Henkilö, jonka nimissä synkronointi toimii, ei voi enää muokata tätä tietokantaa.",
+      "keyGone": "Avainominaisuus poistettiin tai sen tyyppi muuttui, joten taulun rivejä ei voi yhdistää riveihin.",
+      "failed": "Synkronointi epäonnistui. Se yrittää uudelleen seuraavalla kerralla.",
+      "invalidSite": "Leafdesk ei tavoita palvelinta: yksityinen osoite on sallittava ylläpitäjän CONNECTOR_ALLOWED_HOSTS-asetuksessa.",
+      "invalidInput": "Tarkista yhteysosoite, taulu ja sarakkeiden nimet.",
+      "alreadyRunning": "Synkronointi on käynnissä. Yritä hetken päästä uudelleen."
     }
   }
 }

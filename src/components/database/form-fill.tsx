@@ -17,7 +17,9 @@ import {
 import { isDatabaseErrorCode, sortStatusOptions } from "@/lib/properties";
 import { availableOptions, followDependencies, parentOf } from "@/lib/dependent-options";
 import { FilesEditor, type UploadFile } from "./files-cell";
-import { CheckboxBox, INPUT_MODE, OptionChip, parseInput } from "./property-cell";
+import { CheckboxBox, inputModeOf, OptionChip, parseInput } from "./property-cell";
+import { RatingStars } from "./rating-stars";
+import { isDuration, isRating, ratingMax } from "@/lib/number-format";
 import type { PropertyType } from "./types";
 
 /** What a question needs to know about its property: enough for a public page, too. */
@@ -39,7 +41,8 @@ const inputClass =
  * A form to fill in: the questions with an input each, checked in the browser the way the server
  * checks them, then sent through `onSubmit`. Used in the app and on public form pages. Questions
  * whose condition the answers so far don't meet aren't shown or sent (the server works that out
- * again); what was typed into them comes back if they show again.
+ * again); what was typed into them comes back if they show again. With `oneByOne` the questions
+ * come one at a time, each checked before the next, with a progress bar and a way back.
  */
 export function FormFill<P extends FormProperty>({
   title,
@@ -53,6 +56,7 @@ export function FormFill<P extends FormProperty>({
   honeypot,
   renderPicker,
   upload,
+  oneByOne,
 }: {
   title: string;
   description?: string;
@@ -70,6 +74,8 @@ export function FormFill<P extends FormProperty>({
   renderPicker?: (question: FormFillQuestion<P>, value: unknown, onChange: (value: unknown) => void) => ReactNode;
   /** Stores a file picked for a files question (see server/forms); without it they can't be answered. */
   upload?: UploadFile;
+  /** One question at a time (FormConfig `oneByOne`), with Back and Next. */
+  oneByOne?: boolean;
 }) {
   const t = useTranslations();
   const tFill = useTranslations("form.fill");
@@ -80,6 +86,8 @@ export function FormFill<P extends FormProperty>({
   const [trap, setTrap] = useState("");
   const [busy, setBusy] = useState(false);
   const [done, setDone] = useState(false);
+  /** One question at a time: where in the questions shown the person is. */
+  const [step, setStep] = useState(0);
   const formId = useId();
 
   const message = (e: AnswerError) => {
@@ -106,6 +114,10 @@ export function FormFill<P extends FormProperty>({
 
   const hidden = hiddenQuestions(questions, values);
   const shown = questions.filter((q) => !hidden.has(q.propertyId));
+  // Answers can hide questions after this one, so the step stays within the questions left.
+  const at = Math.min(step, Math.max(0, shown.length - 1));
+  const paged = Boolean(oneByOne) && shown.length > 0;
+  const last = !paged || at === shown.length - 1;
 
   /** Typed text as values the server stores; text it can't read goes as typed, to be refused with a reason. */
   const answers = () => {
@@ -123,15 +135,43 @@ export function FormFill<P extends FormProperty>({
     return out;
   };
 
+  /** Back to the first question with an error, when they come one at a time, and into its input. */
+  const showError = (propertyId: string) => {
+    const index = shown.findIndex((q) => q.propertyId === propertyId);
+    if (paged && index !== -1) setStep(index);
+    // After the step shows it.
+    requestAnimationFrame(() => document.getElementById(`${formId}-${propertyId}`)?.focus());
+  };
+
+  /** One question at a time: the next one, once this one's answer is fine. */
+  const next = () => {
+    const current = shown[at];
+    if (!current) return;
+    const checked = checkAnswers(questions, answers());
+    const problem = checked.ok ? undefined : checked.errors.find((e) => e.propertyId === current.propertyId);
+    if (problem) {
+      setErrors((e) => ({ ...e, [current.propertyId]: message(problem) }));
+      showError(current.propertyId);
+      return;
+    }
+    setFormError(null);
+    setStep(at + 1);
+    requestAnimationFrame(() => {
+      const following = shown[at + 1];
+      if (following) document.getElementById(`${formId}-${following.propertyId}`)?.focus();
+    });
+  };
+
   const submit = async () => {
     if (disabled || busy) return;
+    if (!last) return next();
     setFormError(null);
     const input = answers();
     const checked = checkAnswers(questions, input);
     if (!checked.ok) {
       setErrors(Object.fromEntries(checked.errors.map((e) => [e.propertyId, message(e)])));
       setFormError(t("form.errors.invalidAnswers"));
-      document.getElementById(`${formId}-${checked.errors[0].propertyId}`)?.focus();
+      showError(checked.errors[0].propertyId);
       return;
     }
     setBusy(true);
@@ -141,9 +181,12 @@ export function FormFill<P extends FormProperty>({
         setDone(true);
         setValues({});
         setErrors({});
+        setStep(0);
       } else {
         setErrors(result.fields ?? {});
         setFormError(result.error);
+        const first = shown.find((q) => result.fields?.[q.propertyId]);
+        if (first) showError(first.propertyId);
       }
     } catch {
       setFormError(t("common.genericError"));
@@ -158,7 +201,13 @@ export function FormFill<P extends FormProperty>({
         <CircleCheck className="mx-auto h-8 w-8 text-accent" strokeWidth={1.5} />
         <p className="mt-3 text-base font-medium whitespace-pre-wrap">{confirmation?.trim() || t("form.fill.thanks")}</p>
         {allowAnother !== false && (
-          <Button className="mt-5" onClick={() => setDone(false)}>
+          <Button
+            className="mt-5"
+            onClick={() => {
+              setDone(false);
+              setStep(0);
+            }}
+          >
             {t("form.fill.another")}
           </Button>
         )}
@@ -174,11 +223,28 @@ export function FormFill<P extends FormProperty>({
         void submit();
       }}
     >
-      <h1 className="text-3xl font-bold leading-tight break-words">{title}</h1>
-      {description && <p className="mt-2 text-sm whitespace-pre-wrap text-fg-muted">{description}</p>}
+      <h1 className={cn("font-bold leading-tight break-words", paged && at > 0 ? "text-xl" : "text-3xl")}>{title}</h1>
+      {description && (!paged || at === 0) && <p className="mt-2 text-sm whitespace-pre-wrap text-fg-muted">{description}</p>}
+      {paged && (
+        <div className="mt-6">
+          <p className="text-xs text-fg-muted tabular-nums" aria-live="polite">
+            {tFill("progress", { current: at + 1, total: shown.length })}
+          </p>
+          <div
+            className="mt-1.5 h-1 overflow-hidden rounded-full bg-bg-active"
+            role="progressbar"
+            aria-label={tFill("progress", { current: at + 1, total: shown.length })}
+            aria-valuemin={1}
+            aria-valuemax={shown.length}
+            aria-valuenow={at + 1}
+          >
+            <div className="h-full rounded-full bg-accent transition-[width]" style={{ width: `${((at + 1) / shown.length) * 100}%` }} />
+          </div>
+        </div>
+      )}
 
       <div className="mt-8 flex flex-col gap-7">
-        {shown.map((q) => {
+        {(paged ? shown.slice(at, at + 1) : shown).map((q) => {
           const inputId = `${formId}-${q.propertyId}`;
           const error = errors[q.propertyId];
           const label = q.label || q.prop?.name || t("form.nameQuestion");
@@ -270,10 +336,21 @@ export function FormFill<P extends FormProperty>({
           {formError}
         </p>
       )}
-      <div className={cn(note || formError ? "mt-3" : "mt-8")}>
-        <Button type="submit" variant="primary" disabled={disabled || busy || !questions.length}>
-          {busy ? t("form.fill.submitting") : t("form.fill.submit")}
-        </Button>
+      <div className={cn("flex items-center gap-2", note || formError ? "mt-3" : "mt-8")}>
+        {paged && at > 0 && (
+          <Button type="button" disabled={busy} onClick={() => setStep(at - 1)}>
+            {tFill("back")}
+          </Button>
+        )}
+        {last ? (
+          <Button type="submit" variant="primary" disabled={disabled || busy || !questions.length}>
+            {busy ? t("form.fill.submitting") : t("form.fill.submit")}
+          </Button>
+        ) : (
+          <Button type="submit" variant="primary">
+            {tFill("next")}
+          </Button>
+        )}
       </div>
     </form>
   );
@@ -370,11 +447,26 @@ function AnswerInput<P extends FormProperty>({
     case "url":
     case "email":
     case "phone":
+      // A rating is answered with its stars.
+      if (prop.type === "number" && isRating(prop.options.number)) {
+        return (
+          <div id={a11y.id} className="py-1">
+            <RatingStars
+              value={typeof value === "number" ? value : null}
+              max={ratingMax(prop.options.number)}
+              label={label}
+              onChange={disabled ? undefined : (next) => onChange(next ?? undefined)}
+            />
+          </div>
+        );
+      }
       return (
         <input
           {...a11y}
           type={prop.type === "email" ? "email" : prop.type === "url" ? "url" : prop.type === "phone" ? "tel" : "text"}
-          inputMode={INPUT_MODE[prop.type]}
+          // A duration takes "1:30" and "1h 30m" besides minutes.
+          inputMode={inputModeOf(prop)}
+          placeholder={prop.type === "number" && isDuration(prop.options.number) ? "1:30" : undefined}
           autoComplete={prop.type === "email" ? "email" : prop.type === "phone" ? "tel" : "off"}
           value={text}
           disabled={disabled}

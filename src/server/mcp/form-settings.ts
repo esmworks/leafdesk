@@ -78,7 +78,7 @@ export const formInputs = {
 export type ConditionInput = { question: string; check: string; values?: string[] };
 
 /**
- * `show_when`, `min_choices`, `max_choices` and `show_own_answers` aren't MCP inputs (its tool
+ * `show_when`, `min_choices`, `max_choices`, `show_own_answers` and `one_by_one` aren't MCP inputs (its tool
  * list has no room for them): the AI chat's create_form sets them, and MCP keeps what the app set.
  */
 export type FormInput = {
@@ -96,6 +96,7 @@ export type FormInput = {
   confirmation_message?: string;
   allow_another?: boolean;
   show_own_answers?: boolean;
+  one_by_one?: boolean;
   defaults?: Record<string, unknown>;
   public?: boolean;
   anonymous?: boolean;
@@ -108,6 +109,7 @@ const FORM_SETTINGS = [
   "confirmation_message",
   "allow_another",
   "show_own_answers",
+  "one_by_one",
   "defaults",
   "public",
   "anonymous",
@@ -171,6 +173,7 @@ export function formConfigPatch(props: PropertyDef[], type: ViewType, current: V
     });
   }
   if (input.show_own_answers !== undefined) form.showOwnAnswers = input.show_own_answers ? true : undefined;
+  if (input.one_by_one !== undefined) form.oneByOne = input.one_by_one ? true : undefined;
   if (input.form_title !== undefined) form.title = input.form_title.trim() || undefined;
   if (input.form_description !== undefined) form.description = input.form_description.trim() || undefined;
   if (input.confirmation_message !== undefined) form.confirmation = input.confirmation_message.trim() || undefined;

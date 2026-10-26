@@ -725,11 +725,15 @@ export type RollupConfig = {
  * A percentage stores the fraction (0.15 shows as 15 %); `currency` is an ISO 4217 code, set only
  * for "currency".
  * `decimals` (0–8) fixes the decimal places; without it they follow the value (a currency's own).
+ * A duration stores minutes and shows as hours and minutes ("1:30"), with seconds when `seconds`
+ * is set ("1:30:15"). A rating stores whole stars, 0 to `max` (1–10, 5 when missing), and shows them.
  */
 export type NumberFormat = {
-  format: "number" | "percent" | "currency";
+  format: "number" | "percent" | "currency" | "duration" | "rating";
   currency?: string;
   decimals?: number;
+  seconds?: boolean;
+  max?: number;
 };
 /**
  * A number property shown as a bar or a ring (see lib/number-display): filled by the value divided by
@@ -801,6 +805,11 @@ export type PropertyOptions = {
    * times: all but the reminder. Plain dates when missing.
    */
   date?: DateOptions;
+  /**
+   * Text, number, email, URL and phone properties: no two rows may hold the same value (case and
+   * spaces aside; lib/unique-values). Empty values don't count. Kept by Postgres (uniqueValue).
+   */
+  unique?: true;
   /** Unique ID properties: the prefix IDs show with ("TASK" for TASK-12); plain numbers when missing. */
   uniqueId?: UniqueIdOptions;
   /**
@@ -865,6 +874,27 @@ export const databaseProperty = pgTable(
       .on(t.id)
       .where(sql`${t.type} = 'date' and ${t.options} -> 'date' -> 'reminder' is not null`),
   ],
+);
+
+/**
+ * The values of a property that keeps them unique (`options.unique`, lib/unique-values): one entry
+ * per live row with a value, its `key` the value folded so equal values meet (case and spaces
+ * aside; numbers by amount). Written only by Postgres (drizzle/0149_unique_values.sql), on every
+ * row write and when the rule is turned on, so the unique index refuses a second row with the same
+ * value whichever way it is written. Rows in the trash and row templates have none.
+ */
+export const uniqueValue = pgTable(
+  "unique_value",
+  {
+    rowId: text("row_id")
+      .notNull()
+      .references(() => page.id, { onDelete: "cascade" }),
+    propertyId: text("property_id")
+      .notNull()
+      .references(() => databaseProperty.id, { onDelete: "cascade" }),
+    key: text("key").notNull(),
+  },
+  (t) => [primaryKey({ columns: [t.rowId, t.propertyId] }), uniqueIndex("unique_value_key_idx").on(t.propertyId, t.key)],
 );
 
 export type ViewType = "table" | "board" | "calendar" | "gallery" | "list" | "feed" | "timeline" | "map" | "chart" | "dashboard" | "form";
@@ -983,6 +1013,8 @@ export type FormConfig = {
   confirmation?: string;
   /** Whether the thank-you screen offers to fill the form in again; true when missing. */
   allowAnother?: boolean;
+  /** The questions come one at a time, each checked before the next; all on one page when missing. */
+  oneByOne?: boolean;
   /**
    * Signed-in people who answered see what they sent through this form (its questions only, see
    * server/forms ownSubmissions); off when missing. Anonymous answers are never shown.
@@ -1158,6 +1190,13 @@ export const databaseView = pgTable(
      * no view of the database is marked, published pages show its first view (see publication.ts).
      */
     published: boolean("published").notNull().default(false),
+    /**
+     * A personal view: only this person sees it, changes it and finds it in the sidebar, and
+     * anyone who may read the database may make one (server/databases.ts viewOwnedBy). Never
+     * published, copied with the database or a form. Shared with everyone who may see the
+     * database when null.
+     */
+    ownerId: text("owner_id").references(() => user.id, { onDelete: "cascade" }),
     /** While set, the view is deleted and can be restored; like a deleted property's `deletedAt`. */
     deletedAt: timestamp("deleted_at", { withTimezone: true }),
     deletedBy: text("deleted_by").references(() => user.id, { onDelete: "set null" }),
@@ -1166,6 +1205,8 @@ export const databaseView = pgTable(
   (t) => [
     index("database_view_db_idx").on(t.databaseId),
     index("database_view_deleted_idx").on(t.deletedAt).where(sql`${t.deletedAt} is not null`),
+    // A person's views, found when their account goes.
+    index("database_view_owner_idx").on(t.ownerId).where(sql`${t.ownerId} is not null`),
   ],
 );
 

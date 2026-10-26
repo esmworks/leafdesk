@@ -233,6 +233,13 @@
   - A person property can be limited to one person (*Limit to one person* in its menu): picking
     someone replaces whoever was there, and writes naming more are refused. Rows naming more when
     it is turned on keep them until they're changed.
+  - A text, number, email, URL or phone property can keep its values unique (*Unique values* in
+    its menu): no two rows may hold the same value, case and spaces aside, numbers by amount and
+    phone numbers by their digits. Empty values don't count. It can't be turned on while two rows
+    share a value (the error names one), and once on, every way a value is written is held to it:
+    edits, new rows, bulk edits, pastes, imports, forms, the API, MCP, automations and syncs. A row
+    in the trash frees its value and can't be restored while another row holds it; a duplicated
+    row leaves the value out. Changing the property's type turns it off.
   - A status can *Show as checkbox* (in its menu): a box ticked while the status is done; ticking
     it picks the first done status and unticking it the first to-do one. Filters, groups and the
     API still see the status.
@@ -256,6 +263,14 @@
     and keep the viewer's property access. *As a section* lists the linked rows under a row page's
     properties instead, ten at a time, with those properties editable in place and links added or
     removed there.
+  - Personal views: *Only for me* in the add-view menu makes a view nobody else sees, changes or
+    finds in the sidebar, marked with a person on its tab. Anyone who may read a database can make
+    them, on a locked database too, and set them up as they like; people who may only read get
+    personal views from the menu without asking. They are never published, copied with the
+    database or forms, don't count toward the database's last view, and go when their person
+    leaves the workspace. Someone who may change the database's views turns one into a shared view
+    with *Share with everyone*. MCP's `create_database_view` takes `personal`, and `get_database`
+    marks them.
   - Views: table, board, calendar, gallery, list, feed (rows as posts, newest first, with the
     start of their bodies, emoji reactions and their comments), timeline (a column per day, week,
     month, quarter or year), map (rows as pins at a place
@@ -354,6 +369,14 @@
     of money (over 40 currencies in the menu, the one you last picked first and taken by the next
     new amount; MCP takes any ISO 4217 code), or as a colored bar or ring filled by the value
     divided by a number of your choice.
+  - Ratings and durations are number properties in their own formats, offered as *Rating* and
+    *Duration* when a property is added (or picked in a number's format menu). A rating shows 1 to
+    10 stars (5 by default), clicked right in the cell, a form question or a row page (clicking the
+    current star clears it); it holds a whole number from 0 to its stars, and averages show as
+    "3.5/5". A duration holds minutes and shows as hours and minutes ("1:30", or "1:30:15" with
+    seconds); type `1:30`, `1h 30m`, `1 saat 30 dk` or a number of minutes. Both filter, sort and
+    add up as numbers, sums and rollups of durations show as durations, and CSV exports and MCP
+    give the plain number (stars, or minutes).
   - Row pages show every property, or leave some out (always, or while they are empty) behind
     "N more properties"; the choice is the database's, for everyone, and while one property hides
     when empty, new ones start that way too. Text, number, URL, email, phone, ID and created or
@@ -475,6 +498,11 @@
     choices. A form can show people who signed in to answer what they sent through it (only its
     questions, never other rows or properties, even without access to the database); anonymous
     answers are never shown.
+  - A form with more than one question can ask them *one question at a time* (in the form's
+    builder, or `one_by_one` in the AI chat's `create_form`): each question gets a page of its own
+    with a progress bar, Next checks its answer before moving on, Back returns to earlier answers,
+    and questions asked only on some answers count once they apply. On the last page Next becomes
+    Submit, and an answer the server refuses takes the person back to its question.
   - Put a database inside any page, or show a view of an existing one there. A table block turns
     into a database from its block menu: its first row names the properties.
   - Lock a database to freeze its properties and views, and export its rows as CSV. A view's tab
@@ -1073,6 +1101,30 @@
   refused token or a deleted *Number* property pauses it. In the database's sync dialog people with
   full access can change which pull requests it takes, how often, the token, sync now or stop.
   Tested against a stand-in GitHub (`scripts/github-pulls-sync-e2e.ts`), not yet the real API.
+- **Sync a calendar**: Import's Calendar tab takes a calendar's iCal address (an `.ics` or `webcal://`
+  link: Google Calendar's secret address in iCal format, an Outlook published calendar, a booking
+  tool's feed; kept sealed and never shown again, only its host) and makes a database whose rows
+  are the events from 90 days back to a year ahead: summary as the title, *When* (a day, days, a
+  time or a time range, in the event's own time zone, Windows zone names included), location,
+  description, status (*Confirmed*, *Tentative*, *Cancelled*), organizer and a link, opening
+  beside a calendar view by *When*. Each occurrence of a repeating event is a row of its own
+  (daily, weekly, monthly and yearly rules with their intervals, counts, end dates, weekdays and
+  days of the month; excluded dates; moved and cancelled occurrences). It syncs as often and as
+  one-way as a Jira sync; rows of events that leave the calendar stay. A calendar that asks for a
+  sign-in, refuses or is gone pauses it until its address is changed in the sync dialog. Up to
+  5,000 events and 10 MB. Tested against a calendar the e2e serves (`scripts/ical-sync-e2e.ts`).
+- **Sync a PostgreSQL table**: Import's PostgreSQL tab takes a connection address
+  (`postgres://user:password@host:5432/database`, kept sealed), a table or view (`schema.table`),
+  the column that finds each row again (the primary key when left empty) and the one that names
+  it (the first text column), and makes a database with the key as text and a property for each
+  other column by its type: text, numbers, checkboxes, dates, times and JSON (as text). Runs read
+  up to 5,000 rows ordered by the key in a read-only transaction with a 30-second limit, write the
+  table's values over and add new rows; rows that leave the table stay. The server is reached on
+  public addresses only, with TLS unless the address's `sslmode` says otherwise; a database on
+  your own network needs its host in `CONNECTOR_ALLOWED_HOSTS`. A refused password, a missing
+  table, a dropped column (with the server's words in the sync dialog) or a deleted key property
+  pauses it. Use a user that may only read the table. Tested against a table of the e2e's own
+  database (`scripts/postgres-sync-e2e.ts`).
 - **GitHub pull requests update tasks**: *GitHub pull requests* in the ••• menu of a database with
   an ID property with a prefix gives a payload URL and a secret to add as a repository webhook
   (JSON, *Pull requests* events). A pull request that names rows by their ID (`TASK-12`, in any

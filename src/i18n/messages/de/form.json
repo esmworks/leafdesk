@@ -42,6 +42,8 @@
     "notPublic": "Nicht im öffentlichen Link enthalten",
     "addQuestion": "Frage hinzufügen",
     "noMoreQuestions": "Jede Eigenschaft ist bereits eine Frage.",
+    "oneByOne": "Eine Frage nach der anderen",
+    "oneByOneDescription": "Jede Frage bekommt eine eigene Seite mit Fortschrittsbalken. Jede Antwort wird vor der nächsten Frage geprüft.",
     "empty": "Dieses Formular hat noch keine Fragen.",
     "defaultsTitle": "Werte für jede Antwort",
     "defaultsDescription": "Eigenschaften, nach denen das Formular nicht fragt, können trotzdem in jeder neuen Zeile ausgefüllt werden, zum Beispiel Status auf Neu.",
@@ -58,6 +60,9 @@
   "fill": {
     "submit": "Absenden",
     "submitting": "Wird gesendet…",
+    "next": "Weiter",
+    "back": "Zurück",
+    "progress": "Frage {current} von {total}",
     "thanks": "Danke! Deine Antwort wurde gesendet.",
     "another": "Weitere Antwort senden",
     "viewOnly": "Du kannst dieses Formular ansehen, aber nur Personen, die diese Datenbank bearbeiten können, dürfen es absenden.",

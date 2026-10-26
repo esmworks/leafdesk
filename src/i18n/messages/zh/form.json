@@ -42,6 +42,8 @@
     "notPublic": "不包含在公开链接中",
     "addQuestion": "添加问题",
     "noMoreQuestions": "所有属性都已是问题。",
+    "oneByOne": "一次一题",
+    "oneByOneDescription": "每道题单独一页，并显示进度条。进入下一题前会检查当前答案。",
     "empty": "此表单还没有问题。",
     "defaultsTitle": "每份答复的默认值",
     "defaultsDescription": "表单未询问的属性仍可在其添加的每一行中自动填写，例如将“状态”设为“新建”。",
@@ -58,6 +60,9 @@
   "fill": {
     "submit": "提交",
     "submitting": "正在发送…",
+    "next": "下一步",
+    "back": "上一步",
+    "progress": "第 {current} 题，共 {total} 题",
     "thanks": "谢谢！你的答复已发送。",
     "another": "再提交一份答复",
     "viewOnly": "你可以查看此表单，但只有能编辑此数据库的人才能提交。",

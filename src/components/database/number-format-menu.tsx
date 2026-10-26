@@ -13,7 +13,10 @@ import {
 } from "@/lib/number-display";
 import {
   COMMON_CURRENCIES,
+  DEFAULT_RATING_MAX,
+  MAX_RATING,
   NUMBER_FORMATS,
+  ratingMax,
   numberText,
   readNumber,
   type NumberFormat,
@@ -48,7 +51,16 @@ function rememberCurrency(code: string) {
   } catch {}
 }
 
-const FORMAT_LABELS = { number: "formatNumber", percent: "formatPercent", currency: "formatCurrency" } as const;
+const FORMAT_LABELS = {
+  number: "formatNumber",
+  percent: "formatPercent",
+  currency: "formatCurrency",
+  duration: "formatDuration",
+  rating: "formatRating",
+} as const;
+
+/** Formats whose values aren't shown with decimal places, or as a bar or a ring. */
+const WHOLE_FORMATS: ReadonlySet<NumberFormatKind> = new Set(["duration", "rating"]);
 
 /** "TRY · Turkish lira" in the viewer's language, or the code alone where the browser can't name it. */
 function useCurrencyName() {
@@ -98,14 +110,16 @@ export function NumberFormatEditor({
   };
   const choose = (kind: NumberFormatKind) => {
     if (kind === format.format) return;
-    const { decimals } = format;
+    if (kind === "duration") return save({ format: "duration" });
+    if (kind === "rating") return save({ format: "rating", max: DEFAULT_RATING_MAX });
+    const decimals = WHOLE_FORMATS.has(format.format) ? undefined : format.decimals;
     const currency = kind === "currency" ? (format.currency ?? recent ?? LOCALE_CURRENCY[locale] ?? "USD") : undefined;
     save({ format: kind, ...(currency ? { currency } : {}), ...(decimals !== undefined ? { decimals } : {}) });
   };
   // The one last picked comes first, and the property's own is listed even when it isn't a common one.
   const currencies = [...new Set([...(recent ? [recent] : []), ...(format.currency ? [format.currency] : []), ...COMMON_CURRENCIES])];
   const decimals = format.decimals !== undefined && !DECIMALS.includes(format.decimals) ? [...DECIMALS, format.decimals] : DECIMALS;
-  const example = format.format === "percent" ? 0.155 : 1234.5;
+  const example = format.format === "percent" ? 0.155 : format.format === "duration" ? 95.5 : format.format === "rating" ? 4 : 1234.5;
 
   return (
     <div className="w-64">
@@ -158,30 +172,55 @@ export function NumberFormatEditor({
             </select>
           </label>
         )}
-        <label className="block">
-          <span className="mb-1 block text-xs text-fg-muted">{t("decimals")}</span>
-          <select
-            className={menuFieldClass}
-            value={format.decimals ?? ""}
-            onChange={(e) => {
-              const { decimals: _old, ...rest } = format;
-              save(e.target.value === "" ? rest : { ...rest, decimals: Number(e.target.value) });
-            }}
-          >
-            <option value="">{t("decimalsAuto")}</option>
-            {decimals.map((n) => (
-              <option key={n} value={n}>
-                {n}
-              </option>
-            ))}
-          </select>
-        </label>
+        {format.format === "rating" && (
+          <label className="block">
+            <span className="mb-1 block text-xs text-fg-muted">{t("ratingMax")}</span>
+            <select className={menuFieldClass} value={ratingMax(format)} onChange={(e) => save({ format: "rating", max: Number(e.target.value) })}>
+              {Array.from({ length: MAX_RATING }, (_, i) => i + 1).map((n) => (
+                <option key={n} value={n}>
+                  {n}
+                </option>
+              ))}
+            </select>
+          </label>
+        )}
+        {format.format === "duration" && (
+          <label className="flex items-center gap-2 text-xs text-fg-muted">
+            <input
+              type="checkbox"
+              checked={Boolean(format.seconds)}
+              onChange={(e) => save(e.target.checked ? { format: "duration", seconds: true } : { format: "duration" })}
+            />
+            {t("durationSeconds")}
+          </label>
+        )}
+        {!WHOLE_FORMATS.has(format.format) && (
+          <label className="block">
+            <span className="mb-1 block text-xs text-fg-muted">{t("decimals")}</span>
+            <select
+              className={menuFieldClass}
+              value={format.decimals ?? ""}
+              onChange={(e) => {
+                const { decimals: _old, ...rest } = format;
+                save(e.target.value === "" ? rest : { ...rest, decimals: Number(e.target.value) });
+              }}
+            >
+              <option value="">{t("decimalsAuto")}</option>
+              {decimals.map((n) => (
+                <option key={n} value={n}>
+                  {n}
+                </option>
+              ))}
+            </select>
+          </label>
+        )}
         <p className="text-xs text-fg-faint tabular-nums" aria-live="polite">
           {formatNumber(example, format)}
           {format.format === "percent" && ` · ${t("percentHint", { percent: formatNumber(0.15, { format: "percent" }) })}`}
+          {format.format === "duration" && ` · ${t("durationHint")}`}
         </p>
       </div>
-      {onDisplayChange && (
+      {onDisplayChange && format.format !== "rating" && (
         // A new format reads "divide by" in its own terms (percent points for a percentage).
         <DisplayEditor key={format.format} initial={prop.options.numberDisplay} format={format} onChange={onDisplayChange} />
       )}

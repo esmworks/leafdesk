@@ -301,7 +301,7 @@ function Table({ rows, table, href, print }: { rows: PublishedRow[]; table: Publ
                 className={cn("h-[33px] border-y border-s border-border px-2 text-start font-normal text-fg-muted", !print && "min-w-40")}
               >
                 <span className="flex items-center gap-1.5">
-                  <PropertyTypeIcon type={prop.type} icon={prop.options.icon} className="h-3.5 w-3.5 shrink-0" />
+                  <PropertyTypeIcon type={prop.type} icon={prop.options.icon} number={prop.options.number} className="h-3.5 w-3.5 shrink-0" />
                   <span className={print ? "min-w-0" : "truncate"}>{prop.name}</span>
                 </span>
               </th>

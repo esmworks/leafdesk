@@ -15,6 +15,8 @@
     "monday": "Monday.com",
     "jira": "Jira",
     "github": "GitHub",
+    "ical": "캘린더",
+    "postgres": "PostgreSQL",
     "googleDocs": "Google 문서",
     "web": "웹페이지"
   },
@@ -370,6 +372,69 @@
       "totalTime": "총 시간",
       "ingredients": "재료",
       "steps": "만드는 법"
+    }
+  },
+  "ical": {
+    "help": "캘린더 일정으로 계속 동기화되는 데이터베이스를 만듭니다. 각 일정은 시간, 장소, 메모, 상태, 주최자, 링크가 담긴 행이 되고, 반복 일정은 회차마다 별도의 행이 됩니다. {before}일 전부터 {after}일 후까지의 일정을 가져옵니다. 변경은 캘린더에서 Leafdesk로 한 방향으로만 반영됩니다.",
+    "url": "캘린더 주소",
+    "urlPlaceholder": "https://… .ics · webcal://…",
+    "urlHelp": "캘린더의 iCal 주소를 사용하세요. Google 캘린더는 설정의 iCal 형식 비밀 주소, Outlook은 게시된 캘린더의 ICS 링크입니다. 서버에 봉인되어 저장되며 다시 표시되지 않습니다.",
+    "namePlaceholder": "캘린더 이름",
+    "names": {
+      "key": "일정 ID",
+      "when": "일시",
+      "location": "장소",
+      "description": "설명",
+      "status": "상태",
+      "organizer": "주최자",
+      "link": "링크",
+      "untitled": "제목 없는 일정",
+      "statuses": {
+        "confirmed": "확정",
+        "tentative": "미정",
+        "cancelled": "취소됨"
+      }
+    },
+    "errors": {
+      "unauthorized": "캘린더가 로그인을 요구합니다. 비밀 iCal 주소를 사용하세요.",
+      "forbidden": "캘린더가 읽기를 거부했습니다.",
+      "notFound": "이 주소에 캘린더가 없습니다.",
+      "tooManyIssues": "캘린더의 일정이 너무 많거나 너무 커서 동기화할 수 없습니다.",
+      "unreachable": "캘린더에 연결할 수 없습니다. 다음에 다시 시도합니다.",
+      "runAsGone": "동기화를 설정한 사람의 계정이 더 이상 없습니다.",
+      "accessLost": "동기화를 실행하는 사람이 더 이상 이 데이터베이스를 편집할 수 없습니다.",
+      "keyGone": "일정 ID 속성이 삭제되었거나 유형이 바뀌어 일정을 행과 맞출 수 없습니다.",
+      "failed": "동기화에 실패했습니다. 다음에 다시 시도합니다.",
+      "invalidSite": "Leafdesk가 접근할 수 없는 주소입니다.",
+      "invalidInput": "캘린더의 https 또는 webcal 주소를 사용하세요.",
+      "alreadyRunning": "동기화가 실행 중입니다. 잠시 후 다시 시도하세요."
+    }
+  },
+  "postgres": {
+    "help": "PostgreSQL 테이블(또는 뷰)로 계속 동기화되는 데이터베이스를 만듭니다. 테이블의 각 행은 여기서 하나의 행이 되며, 키 열로 다시 찾고 제목 열로 이름을 붙입니다. 나머지 열은 각각 속성이 됩니다(텍스트, 숫자, 체크박스, 날짜와 시간). 최대 {limit}행. 변경은 테이블에서 Leafdesk로 한 방향으로만 반영됩니다.",
+    "url": "연결 주소",
+    "urlPlaceholder": "postgres://user:password@host:5432/database",
+    "urlHelp": "이 테이블만 읽을 수 있는 사용자를 쓰세요. Leafdesk는 읽기 전용 트랜잭션으로 읽고, 공개 주소(또는 관리자가 CONNECTOR_ALLOWED_HOSTS에서 허용한 서버)에만 접속하며, 주소를 서버에 봉인해 보관합니다.",
+    "table": "테이블",
+    "tablePlaceholder": "schema.table",
+    "key": "키 열",
+    "keyPlaceholder": "기본 키",
+    "titleColumn": "제목 열",
+    "titlePlaceholder": "첫 번째 텍스트 열",
+    "errors": {
+      "unauthorized": "서버가 사용자 또는 비밀번호를 거부했습니다.",
+      "forbidden": "사용자에게 이 테이블을 읽을 권한이 없습니다.",
+      "notFound": "해당 데이터베이스 또는 테이블이 없습니다.",
+      "badQuery": "서버가 쿼리를 거부했습니다:",
+      "tooManyIssues": "테이블의 행이 너무 많아 동기화할 수 없습니다. 필요한 행만 담은 뷰를 동기화하세요.",
+      "unreachable": "서버에 연결할 수 없거나 쿼리가 너무 오래 걸렸습니다. 다음에 다시 시도합니다.",
+      "runAsGone": "동기화를 설정한 사람의 계정이 더 이상 없습니다.",
+      "accessLost": "동기화를 실행하는 사람이 더 이상 이 데이터베이스를 편집할 수 없습니다.",
+      "keyGone": "키 속성이 삭제되었거나 유형이 바뀌어 테이블 행을 맞출 수 없습니다.",
+      "failed": "동기화에 실패했습니다. 다음에 다시 시도합니다.",
+      "invalidSite": "Leafdesk가 그 서버에 접근할 수 없습니다. 사설 주소는 관리자가 CONNECTOR_ALLOWED_HOSTS에서 허용해야 합니다.",
+      "invalidInput": "연결 주소, 테이블, 열 이름을 확인하세요.",
+      "alreadyRunning": "동기화가 실행 중입니다. 잠시 후 다시 시도하세요."
     }
   }
 }

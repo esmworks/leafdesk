@@ -152,6 +152,21 @@ jobs:
       - name: Status, checklist and system properties end-to-end
         run: pnpm tsx scripts/property-types-e2e.ts
 
+      - name: Unique values end-to-end
+        run: pnpm tsx scripts/unique-values-e2e.ts
+
+      - name: Ratings and durations end-to-end
+        run: pnpm tsx scripts/rating-duration-e2e.ts
+
+      - name: Personal views end-to-end
+        run: pnpm tsx scripts/personal-views-e2e.ts
+
+      - name: Calendar sync end-to-end
+        run: pnpm tsx scripts/ical-sync-e2e.ts
+
+      - name: PostgreSQL sync end-to-end
+        run: pnpm tsx scripts/postgres-sync-e2e.ts
+
       - name: Grouping end-to-end
         run: pnpm tsx scripts/grouping-e2e.ts
 
@@ -612,6 +627,21 @@ jobs:
 
       - name: Status, checklist and system properties end-to-end
         run: pnpm tsx scripts/property-types-e2e.ts
+
+      - name: Unique values end-to-end
+        run: pnpm tsx scripts/unique-values-e2e.ts
+
+      - name: Ratings and durations end-to-end
+        run: pnpm tsx scripts/rating-duration-e2e.ts
+
+      - name: Personal views end-to-end
+        run: pnpm tsx scripts/personal-views-e2e.ts
+
+      - name: Calendar sync end-to-end
+        run: pnpm tsx scripts/ical-sync-e2e.ts
+
+      - name: PostgreSQL sync end-to-end
+        run: pnpm tsx scripts/postgres-sync-e2e.ts
 
       - name: Formula and rollup end-to-end
         run: pnpm tsx scripts/formula-e2e.ts

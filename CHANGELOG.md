@@ -2,6 +2,38 @@
 
 ## Unreleased
 
+### Added
+
+- **Calendar and PostgreSQL syncs.** Import has two more synced sources. *Calendar* takes an iCal
+  address (Google Calendar's secret address, an Outlook published calendar, any `.ics` or
+  `webcal://` feed) and keeps a database of its events from 90 days back to a year ahead, each
+  occurrence of a repeating event a row of its own, with a calendar view. *PostgreSQL* takes a
+  connection address and a table or view and keeps a database of its rows (up to 5,000), a property
+  for each column by its type, read in a read-only transaction; a server on your own network needs
+  its host in `CONNECTOR_ALLOWED_HOSTS`. Both sync every 15 minutes to once a day or on demand, one
+  way, with the address kept sealed.
+- **Personal views.** *Only for me* when adding a view: nobody else sees, changes or finds it in
+  the sidebar. Anyone who may read a database can make them, on a locked database too, so people
+  with view access keep their own filters and layouts; *Share with everyone* turns one into a
+  shared view. They are never published or copied with the database, and go when their person
+  leaves the workspace. MCP's `create_database_view` takes `personal`. Migration 0150 adds
+  `database_view.owner_id`.
+- **Forms that ask one question at a time.** A form's builder has *One question at a time*: each
+  question on a page of its own, with a progress bar, Back and Next, each answer checked before the
+  next question, in the app and on public form links. The AI chat's `create_form` takes
+  `one_by_one`, and MCP's `get_database` reports it.
+- **Ratings and durations.** *Rating* and *Duration* when adding a property: a rating shows 1 to
+  10 stars, clicked right in the cell or a form, and a duration shows minutes as hours and minutes
+  ("1:30"), typed as `1:30`, `1h 30m` or minutes. Both are number properties in new formats
+  (`rating` with `max`, `duration` with `seconds` in MCP's `number_format`), so filters, sorts,
+  calculations, charts and rollups work on them as numbers; values a rating can't hold are refused.
+- **Unique values.** A text, number, email, URL or phone property can keep its values unique
+  (*Unique values* in its menu, `unique` in MCP's `update_database_property`): a value another row
+  already holds is refused, case and spaces aside, however it is written. It can't be turned on
+  while two rows share a value, a row in the trash frees its value, and a duplicated row leaves it
+  out. Postgres keeps the rule, so imports, the API, automations and syncs are held to it too.
+  Migration 0149 adds the `unique_value` table and its triggers.
+
 ## 0.6.4 — 2026-10-26
 
 ### Upgrading from 0.6.3

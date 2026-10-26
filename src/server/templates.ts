@@ -46,6 +46,7 @@ import { setSprints } from "@/server/sprints";
 import { placeTopLevel, TeamspaceError } from "@/server/teamspaces";
 import { setPageVerification } from "@/server/verification";
 import { createWorkspace, requireTopLevel } from "@/server/workspaces";
+import { withUniqueValues } from "@/server/unique-values";
 
 /**
  * Templates are pages flagged `isTemplate`:
@@ -294,7 +295,7 @@ export async function createFromTemplate(
         else values[id] = value;
       }
     }
-    if (values !== before) await db.update(page).set({ properties: values }).where(eq(page.id, root.id));
+    if (values !== before) await withUniqueValues(() => db.update(page).set({ properties: values }).where(eq(page.id, root.id)));
     if (!root.inTemplate) {
       await syncPairedRelations(root.id, parentId!, {}, values);
       await afterRowWrites(userId, parentId!, [{ rowId: root.id, before: {}, after: values }], { created: true });

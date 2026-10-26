@@ -15,6 +15,8 @@
     "monday": "Monday.com",
     "jira": "Jira",
     "github": "GitHub",
+    "ical": "Takvim",
+    "postgres": "PostgreSQL",
     "googleDocs": "Google Docs",
     "web": "Web sayfası"
   },
@@ -370,6 +372,69 @@
       "totalTime": "Toplam",
       "ingredients": "Malzemeler",
       "steps": "Yapılışı"
+    }
+  },
+  "ical": {
+    "help": "Bir takvimin etkinliklerinden, güncel kalan bir veritabanı oluşturun: her etkinlik zamanı, yeri, notları, durumu, düzenleyeni ve bağlantısıyla bir satırdır; yinelenen bir etkinliğin her tekrarı ayrı bir satırdır. {before} gün öncesinden {after} gün sonrasına kadarki etkinlikler gelir. Değişiklikler tek yönlüdür: takvimden Leafdesk'e.",
+    "url": "Takvim adresi",
+    "urlPlaceholder": "https://… .ics · webcal://…",
+    "urlHelp": "Takvimin iCal adresini kullanın: Google Takvim'de ayarlarındaki iCal biçimindeki gizli adres, Outlook'ta yayımlanmış bir takvimin ICS bağlantısı. Adres sunucuda mühürlü saklanır ve bir daha gösterilmez.",
+    "namePlaceholder": "Takvimin adı",
+    "names": {
+      "key": "Etkinlik kimliği",
+      "when": "Zaman",
+      "location": "Konum",
+      "description": "Açıklama",
+      "status": "Durum",
+      "organizer": "Düzenleyen",
+      "link": "Bağlantı",
+      "untitled": "Başlıksız etkinlik",
+      "statuses": {
+        "confirmed": "Onaylandı",
+        "tentative": "Belirsiz",
+        "cancelled": "İptal edildi"
+      }
+    },
+    "errors": {
+      "unauthorized": "Takvim oturum açılmasını istiyor. Takvimin gizli iCal adresini kullanın.",
+      "forbidden": "Takvim okunmayı reddetti.",
+      "notFound": "Bu adreste bir takvim yok.",
+      "tooManyIssues": "Takvimde eşitlenemeyecek kadar çok etkinlik var ya da takvim çok büyük.",
+      "unreachable": "Takvime ulaşılamadı. Eşitleme bir dahaki sefere yeniden denenecek.",
+      "runAsGone": "Eşitlemeyi kuran kişinin artık hesabı yok.",
+      "accessLost": "Eşitlemenin adına çalıştığı kişi artık bu veritabanını düzenleyemiyor.",
+      "keyGone": "Etkinlik kimliği özelliği silindi ya da türü değişti; bu yüzden etkinlikler satırlarla eşleştirilemiyor.",
+      "failed": "Eşitleme başarısız oldu. Bir dahaki sefere yeniden denenecek.",
+      "invalidSite": "Leafdesk bu adrese ulaşamaz.",
+      "invalidInput": "Takvimin https ya da webcal adresini kullanın.",
+      "alreadyRunning": "Bir eşitleme sürüyor. Biraz sonra yeniden deneyin."
+    }
+  },
+  "postgres": {
+    "help": "Bir PostgreSQL tablosundan (ya da görünümünden) güncel kalan bir veritabanı oluşturun: tablonun her satırı burada bir satırdır; anahtar sütunuyla yeniden bulunur, başlık sütunuyla adlandırılır ve diğer her sütun bir özellik olur (metin, sayı, onay kutusu, tarih ve saat). En fazla {limit} satır. Değişiklikler tek yönlüdür: tablodan Leafdesk'e.",
+    "url": "Bağlantı adresi",
+    "urlPlaceholder": "postgres://user:password@host:5432/database",
+    "urlHelp": "Yalnızca bu tabloyu okuyabilen bir kullanıcı kullanın. Leafdesk salt okunur bir işlemde okur, yalnızca herkese açık adreslere (ya da yöneticinizin CONNECTOR_ALLOWED_HOSTS ile izin verdiği sunuculara) ulaşır ve adresi sunucuda mühürlü saklar.",
+    "table": "Tablo",
+    "tablePlaceholder": "schema.table",
+    "key": "Anahtar sütunu",
+    "keyPlaceholder": "Birincil anahtar",
+    "titleColumn": "Başlık sütunu",
+    "titlePlaceholder": "İlk metin sütunu",
+    "errors": {
+      "unauthorized": "Sunucu kullanıcıyı ya da parolayı reddetti.",
+      "forbidden": "Kullanıcının bu tabloyu okuma izni yok.",
+      "notFound": "Böyle bir veritabanı ya da tablo yok.",
+      "badQuery": "Sunucu sorguyu reddetti:",
+      "tooManyIssues": "Tabloda eşitlenemeyecek kadar çok satır var. İhtiyacınız olan satırları içeren bir görünümü eşitleyin.",
+      "unreachable": "Sunucuya ulaşılamadı ya da sorgu çok uzun sürdü. Eşitleme bir dahaki sefere yeniden denenecek.",
+      "runAsGone": "Eşitlemeyi kuran kişinin artık hesabı yok.",
+      "accessLost": "Eşitlemenin adına çalıştığı kişi artık bu veritabanını düzenleyemiyor.",
+      "keyGone": "Anahtar özelliği silindi ya da türü değişti; bu yüzden tablo satırları eşleştirilemiyor.",
+      "failed": "Eşitleme başarısız oldu. Bir dahaki sefere yeniden denenecek.",
+      "invalidSite": "Leafdesk bu sunucuya ulaşamaz: özel bir adres için yöneticinizin CONNECTOR_ALLOWED_HOSTS ile izin vermesi gerekir.",
+      "invalidInput": "Bağlantı adresini, tabloyu ve sütun adlarını kontrol edin.",
+      "alreadyRunning": "Bir eşitleme sürüyor. Biraz sonra yeniden deneyin."
     }
   }
 }

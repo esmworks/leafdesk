@@ -42,6 +42,8 @@
     "notPublic": "Tidak disertakan di tautan publik",
     "addQuestion": "Tambahkan pertanyaan",
     "noMoreQuestions": "Setiap properti sudah menjadi pertanyaan.",
+    "oneByOne": "Satu pertanyaan sekaligus",
+    "oneByOneDescription": "Setiap pertanyaan mendapat halamannya sendiri, dengan bilah kemajuan. Setiap jawaban diperiksa sebelum pertanyaan berikutnya.",
     "empty": "Formulir ini belum memiliki pertanyaan.",
     "defaultsTitle": "Nilai untuk setiap jawaban",
     "defaultsDescription": "Properti yang tidak ditanyakan formulir tetap dapat diisi pada setiap baris yang ditambahkannya, misalnya Status diatur ke Baru.",
@@ -58,6 +60,9 @@
   "fill": {
     "submit": "Kirim",
     "submitting": "Mengirim…",
+    "next": "Berikutnya",
+    "back": "Kembali",
+    "progress": "Pertanyaan {current} dari {total}",
     "thanks": "Terima kasih! Jawaban Anda telah terkirim.",
     "another": "Kirim jawaban lain",
     "viewOnly": "Anda dapat melihat formulir ini, tetapi hanya orang yang dapat mengedit basis data ini yang dapat mengirimkannya.",

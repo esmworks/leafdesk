@@ -51,6 +51,7 @@ import {
   normalizeRowProperties,
   rowsWithAccess,
   syncPairedRelations,
+  viewOwnedBy,
   withCode,
   type BulkResult,
 } from "@/server/databases";
@@ -74,6 +75,7 @@ import { placeTopLevel, requireArrangeTopLevel, requireTeamspaceForPages, sideba
 import { listWorkspaces, requireTopLevel, workspaceSettings } from "@/server/workspaces";
 
 import { placeInSections, PRIVATE_SECTION, SHARED_SECTION, type TreeSection } from "@/lib/tree-sections";
+import { withUniqueValues } from "@/server/unique-values";
 
 // Where a page shows in the sidebar: the section of a teamspace the user is in (its id), their
 // private pages, or pages shared with them from elsewhere.
@@ -161,7 +163,9 @@ export async function getTree(userId: string, workspaceId: string): Promise<Tree
     })
     .from(databaseView)
     .innerJoin(page, eq(page.id, databaseView.databaseId))
-    .where(and(eq(page.workspaceId, workspaceId), isNull(page.archivedAt), isNull(databaseView.deletedAt), pageVisibleTo(userId)))
+    .where(
+      and(eq(page.workspaceId, workspaceId), isNull(page.archivedAt), isNull(databaseView.deletedAt), viewOwnedBy(userId), pageVisibleTo(userId)),
+    )
     .orderBy(asc(databaseView.position));
   const viewsOf = new Map<string, TreeView[]>();
   for (const { databaseId, icon, ...v } of views) viewsOf.set(databaseId, [...(viewsOf.get(databaseId) ?? []), { ...v, ...(icon ? { icon } : {}) }]);
@@ -207,13 +211,14 @@ export async function getPage(userId: string, pageId: string) {
 
 /**
  * The view a database page opens on, named in its tab title: the one in the address, else its
- * first (as the database itself picks). Access is the caller's to check.
+ * first (as the database itself picks), among the views `userId` sees. Access to the database is
+ * the caller's to check.
  */
-export async function openViewName(databaseId: string, viewId: string | null): Promise<string | null> {
+export async function openViewName(userId: string, databaseId: string, viewId: string | null): Promise<string | null> {
   const views = await db
     .select({ id: databaseView.id, name: databaseView.name })
     .from(databaseView)
-    .where(and(eq(databaseView.databaseId, databaseId), isNull(databaseView.deletedAt)))
+    .where(and(eq(databaseView.databaseId, databaseId), isNull(databaseView.deletedAt), viewOwnedBy(userId)))
     .orderBy(asc(databaseView.position));
   return (views.find((v) => v.id === viewId) ?? views[0])?.name || null;
 }
@@ -641,16 +646,19 @@ export async function restorePage(userId: string, pageId: string) {
   if (!parentId) await requireArrangeTopLevel(userId, p.teamspaceId);
   // Only what was trashed together with it: subpages trashed earlier stay in the trash as their own
   // entries (archivePage stamps just the pages that weren't archived yet).
-  const restored = await db
-    .update(page)
-    .set({ archivedAt: null })
-    .where(
-      and(
-        sql`${page.id} in ${subtreeIds(pageId)}`,
-        sql`${page.archivedAt} = (select root.archived_at from ${page} root where root.id = ${pageId})`,
-      ),
-    )
-    .returning({ id: page.id });
+  // A row whose value another row took meanwhile, in a property that keeps them unique, stays.
+  const restored = await withUniqueValues(() =>
+    db
+      .update(page)
+      .set({ archivedAt: null })
+      .where(
+        and(
+          sql`${page.id} in ${subtreeIds(pageId)}`,
+          sql`${page.archivedAt} = (select root.archived_at from ${page} root where root.id = ${pageId})`,
+        ),
+      )
+      .returning({ id: page.id }),
+  );
   // A row merged into another one comes back as a row of its own; what moved stays moved (server/merge-rows.ts).
   if (p.mergedIntoId) await db.update(page).set({ mergedIntoId: null }).where(eq(page.id, pageId));
   await getCollab().pagesTrashed(restored.map((r) => r.id), false);

@@ -15,6 +15,8 @@
     "monday": "Monday.com",
     "jira": "Jira",
     "github": "GitHub",
+    "ical": "Lịch",
+    "postgres": "PostgreSQL",
     "googleDocs": "Google Docs",
     "web": "Trang web"
   },
@@ -370,6 +372,69 @@
       "totalTime": "Tổng",
       "ingredients": "Nguyên liệu",
       "steps": "Các bước"
+    }
+  },
+  "ical": {
+    "help": "Tạo một cơ sở dữ liệu từ các sự kiện của lịch, luôn được đồng bộ: mỗi sự kiện là một hàng với thời gian, địa điểm, ghi chú, trạng thái, người tổ chức và liên kết, và mỗi lần lặp của sự kiện định kỳ là một hàng riêng. Các sự kiện từ {before} ngày trước đến {after} ngày tới được đưa vào. Thay đổi đi một chiều, từ lịch sang Leafdesk.",
+    "url": "Địa chỉ lịch",
+    "urlPlaceholder": "https://… .ics · webcal://…",
+    "urlHelp": "Dùng địa chỉ iCal của lịch: trong Google Lịch là địa chỉ bí mật định dạng iCal trong phần cài đặt; trong Outlook là liên kết ICS của lịch đã xuất bản. Địa chỉ được niêm phong trên máy chủ và không hiển thị lại.",
+    "namePlaceholder": "Tên lịch",
+    "names": {
+      "key": "Mã sự kiện",
+      "when": "Thời gian",
+      "location": "Địa điểm",
+      "description": "Mô tả",
+      "status": "Trạng thái",
+      "organizer": "Người tổ chức",
+      "link": "Liên kết",
+      "untitled": "Sự kiện không tiêu đề",
+      "statuses": {
+        "confirmed": "Đã xác nhận",
+        "tentative": "Tạm thời",
+        "cancelled": "Đã hủy"
+      }
+    },
+    "errors": {
+      "unauthorized": "Lịch yêu cầu đăng nhập. Hãy dùng địa chỉ iCal bí mật của lịch.",
+      "forbidden": "Lịch từ chối cho đọc.",
+      "notFound": "Không có lịch ở địa chỉ này.",
+      "tooManyIssues": "Lịch có quá nhiều sự kiện hoặc quá lớn để đồng bộ.",
+      "unreachable": "Không kết nối được tới lịch. Lần sau sẽ thử lại.",
+      "runAsGone": "Người thiết lập đồng bộ không còn tài khoản.",
+      "accessLost": "Người mà đồng bộ chạy dưới tên không còn chỉnh sửa được cơ sở dữ liệu này.",
+      "keyGone": "Thuộc tính Mã sự kiện đã bị xóa hoặc đổi loại nên không thể ghép sự kiện với hàng.",
+      "failed": "Đồng bộ thất bại. Lần sau sẽ thử lại.",
+      "invalidSite": "Leafdesk không truy cập được địa chỉ này.",
+      "invalidInput": "Hãy dùng địa chỉ https hoặc webcal của lịch.",
+      "alreadyRunning": "Đang đồng bộ. Hãy thử lại sau giây lát."
+    }
+  },
+  "postgres": {
+    "help": "Tạo một cơ sở dữ liệu từ bảng (hoặc view) PostgreSQL, luôn được đồng bộ: mỗi hàng của bảng là một hàng ở đây, được tìm lại bằng cột khóa và đặt tên bằng cột tiêu đề, mỗi cột khác thành một thuộc tính (văn bản, số, hộp kiểm, ngày và giờ). Tối đa {limit} hàng. Thay đổi đi một chiều, từ bảng sang Leafdesk.",
+    "url": "Địa chỉ kết nối",
+    "urlPlaceholder": "postgres://user:password@host:5432/database",
+    "urlHelp": "Hãy dùng người dùng chỉ được đọc bảng này. Leafdesk đọc trong giao dịch chỉ đọc, chỉ kết nối tới địa chỉ công khai (hoặc máy chủ quản trị viên cho phép trong CONNECTOR_ALLOWED_HOSTS) và niêm phong địa chỉ trên máy chủ.",
+    "table": "Bảng",
+    "tablePlaceholder": "schema.table",
+    "key": "Cột khóa",
+    "keyPlaceholder": "Khóa chính",
+    "titleColumn": "Cột tiêu đề",
+    "titlePlaceholder": "Cột văn bản đầu tiên",
+    "errors": {
+      "unauthorized": "Máy chủ từ chối người dùng hoặc mật khẩu.",
+      "forbidden": "Người dùng không được đọc bảng này.",
+      "notFound": "Không có cơ sở dữ liệu hoặc bảng này.",
+      "badQuery": "Máy chủ từ chối truy vấn:",
+      "tooManyIssues": "Bảng có quá nhiều hàng để đồng bộ. Hãy đồng bộ một view chỉ gồm các hàng bạn cần.",
+      "unreachable": "Không kết nối được máy chủ hoặc truy vấn quá lâu. Lần sau sẽ thử lại.",
+      "runAsGone": "Người thiết lập đồng bộ không còn tài khoản.",
+      "accessLost": "Người mà đồng bộ chạy dưới tên không còn chỉnh sửa được cơ sở dữ liệu này.",
+      "keyGone": "Thuộc tính khóa đã bị xóa hoặc đổi loại nên không thể ghép các hàng của bảng.",
+      "failed": "Đồng bộ thất bại. Lần sau sẽ thử lại.",
+      "invalidSite": "Leafdesk không truy cập được máy chủ đó: địa chỉ riêng cần quản trị viên cho phép trong CONNECTOR_ALLOWED_HOSTS.",
+      "invalidInput": "Kiểm tra địa chỉ kết nối, bảng và tên cột.",
+      "alreadyRunning": "Đang đồng bộ. Hãy thử lại sau giây lát."
     }
   }
 }

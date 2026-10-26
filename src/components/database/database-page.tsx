@@ -181,8 +181,11 @@ export function DatabasePage({
   const readOnly = (snapshot?.database.archived ?? false) || !canEdit || offline;
   const structureReadOnly = readOnly || !canEditStructure;
   const locked = (snapshot?.database.locked ?? false) || !canEditStructure;
+  // A personal view is its person's to set up, even where they may change nothing else.
+  const ownView = !linked && Boolean(savedView?.ownerId) && savedView?.ownerId === snapshot?.viewerId;
+  const archivedOrOffline = (snapshot?.database.archived ?? false) || offline;
   // A linked view's settings belong to the page showing it, not to the database.
-  const configReadOnly = linked ? !linked.onChange : structureReadOnly;
+  const configReadOnly = linked ? !linked.onChange : ownView ? archivedOrOffline : structureReadOnly;
   // Whoever may not change the view still filters and sorts it for themselves: their rules stay
   // here, per view, until the page closes, and replace the view's own for them alone. For those who
   // may change it (but a linked view's, which belong to the page showing it), new filters and sorts
@@ -507,13 +510,13 @@ export function DatabasePage({
   // Automations belong to the database, not to a page showing one of its views; full access only.
   const canManageAutomations = Boolean(snapshot.canManageAccess) && !structureReadOnly && !linked;
 
-  const addView = async (type: ViewType) => {
+  const addView = async (type: ViewType, personal = false) => {
     // Names for new views follow the UI language; existing names are stored data and stay as-is.
     const base = t(`views.${type}`);
     const taken = new Set(views.map((v) => v.name));
     let name = base;
     for (let i = 2; taken.has(name); i++) name = `${base} ${i}`;
-    const created = await api.addView(name, type);
+    const created = await api.addView(name, type, personal);
     if (created) selectView(created.id);
   };
 
@@ -579,6 +582,9 @@ export function DatabasePage({
                         onExport={exportable && exportsRows && !offline ? exportView : undefined}
                         onDuplicate={duplicateView}
                         onDelete={deleteView}
+                        viewerId={snapshot.viewerId}
+                        canAddPersonal={!linked && !archivedOrOffline}
+                        onShare={readOnly || locked || linked ? undefined : (v) => void api.shareView(v)}
                       />
                       {view?.type === "dashboard" && canManageAutomations && (
                         <div className="flex shrink-0 items-center gap-1 self-end md:pb-1.5">

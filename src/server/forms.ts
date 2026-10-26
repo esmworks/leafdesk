@@ -103,6 +103,20 @@ export class FormError extends Error {
   }
 }
 
+/**
+ * Adds an answer's row; a value another row already holds in a property that keeps them unique
+ * (lib/unique-values) is that question's error, as the browser's own checks give.
+ */
+async function answerRow<T>(insert: () => Promise<T>): Promise<T> {
+  try {
+    return await insert();
+  } catch (error) {
+    if (!(error instanceof PropertyValueError) || error.code !== "notUnique" || !error.params.propertyId) throw error;
+    const { propertyId, ...params } = error.params;
+    throw new FormError(error.message, "invalidAnswers", [{ propertyId, code: "notUnique", params }]);
+  }
+}
+
 /** Site path of a public form; the client prefixes its own origin for copying. */
 export const publicFormPath = (token: string) => `/f/${token}`;
 
@@ -320,7 +334,7 @@ export async function submitForm(userId: string, viewId: string, answers: Record
   const values = await normalizeRowProperties(userId, database.id, rest, {}, { createdBy: userId });
   const claimed = await claimFormFiles(database, properties, files);
   const defaults = await liveDefaults(database, properties, view.config.form);
-  const [row] = await insertRows(database, userId, [{ title: checked.title, properties: { ...defaults, ...values, ...claimed } }]);
+  const [row] = await answerRow(() => insertRows(database, userId, [{ title: checked.title, properties: { ...defaults, ...values, ...claimed } }]));
   await adoptFormFiles(database.id, row.id, claimed);
   await recordSubmission(row.id, view.id, userId);
   return { id: row.id };
@@ -592,6 +606,8 @@ export type PublicForm = {
   anonymous: boolean;
   confirmation: string;
   allowAnother: boolean;
+  /** The questions come one at a time. */
+  oneByOne: boolean;
   /** Whether people signed in see what they sent (never on an anonymous form). */
   showOwnAnswers: boolean;
 };
@@ -679,6 +695,7 @@ export async function getPublicForm(token: string): Promise<PublicForm | null> {
     anonymous: found.anonymous,
     confirmation: form?.confirmation?.trim() ?? "",
     allowAnother: form?.allowAnother !== false,
+    oneByOne: form?.oneByOne === true,
     showOwnAnswers: !found.anonymous && form?.showOwnAnswers === true,
   };
 }
@@ -769,7 +786,9 @@ export async function submitPublicForm(
   const creator = form.anonymous ? null : userId;
   // An agent this answer sets off is held to what the form's publisher may open, when no member
   // stands behind the answer: it never hands over what they couldn't.
-  const [row] = await insertRows(database, creator, [{ title: checked.title, properties: { ...defaults, ...rest, ...claimed } }], { boundTo: form.publishedBy });
+  const [row] = await answerRow(() =>
+    insertRows(database, creator, [{ title: checked.title, properties: { ...defaults, ...rest, ...claimed } }], { boundTo: form.publishedBy }),
+  );
   await adoptFormFiles(database.id, row.id, claimed);
   await recordSubmission(row.id, form.viewId, creator);
   return { id: row.id };

@@ -10,6 +10,7 @@ import { checkValues, writeRows } from "@/server/import/csv";
 import { JiraError } from "@/server/jira-sync/client";
 import { renamePage } from "@/server/pages";
 import { rowChanged } from "@/server/row-events";
+import { withUniqueValues } from "@/server/unique-values";
 
 /**
  * Writing what a synced database's source has (Jira issues, GitHub pull requests; see
@@ -147,7 +148,7 @@ export async function applyRows(
     const set = Object.fromEntries(Object.entries(patch).filter(([, v]) => v !== null));
     const cleared = Object.keys(patch).filter((k) => patch[k] === null);
     // Merged in SQL: a value someone else wrote meanwhile to a property the sync doesn't touch stays.
-    await db.update(page).set({ properties: mergedProperties(set, cleared), updatedBy: runAs }).where(eq(page.id, rowId));
+    await withUniqueValues(() => db.update(page).set({ properties: mergedProperties(set, cleared), updatedBy: runAs }).where(eq(page.id, rowId)));
   }
   if (changes.length) await afterRowWrites(runAs, database.id, changes.map(({ rowId, before, after }) => ({ rowId, before, after })));
   for (const { id, title } of renames) {

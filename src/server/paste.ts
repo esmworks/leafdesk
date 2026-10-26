@@ -21,6 +21,7 @@ import {
 import { addMissingOptions, checkRows, checkValues, importTargets, writeRows } from "@/server/import/csv";
 import { renamePage } from "@/server/pages";
 import { rowChanged } from "@/server/row-events";
+import { withUniqueValues } from "@/server/unique-values";
 
 /**
  * Cells pasted into a database table (see lib/table-clipboard): different values for each row in
@@ -98,13 +99,15 @@ export async function pasteRows(
           sql`, `,
         )}]::text[]`
       : sql``;
-    await db.execute(sql`
-      update ${page} set
-        properties = (properties || ${JSON.stringify(set)}::jsonb)${minus},
-        updated_by = ${userId},
-        updated_at = now()
-      where ${page.id} = ${row.id}
-    `);
+    await withUniqueValues(() =>
+      db.execute(sql`
+        update ${page} set
+          properties = (properties || ${JSON.stringify(set)}::jsonb)${minus},
+          updated_by = ${userId},
+          updated_at = now()
+        where ${page.id} = ${row.id}
+      `),
+    );
     const after: Record<string, unknown> = { ...row.properties, ...set };
     for (const k of cleared) delete after[k];
     // Rows of a database kept as a template link one way and assign nobody (see updateRowProperties).

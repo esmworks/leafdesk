@@ -42,6 +42,8 @@
     "notPublic": "Fora do link público",
     "addQuestion": "Adicionar uma pergunta",
     "noMoreQuestions": "Todas as propriedades já são perguntas.",
+    "oneByOne": "Uma pergunta de cada vez",
+    "oneByOneDescription": "Cada pergunta tem uma página própria, com uma barra de progresso. Cada resposta é verificada antes da pergunta seguinte.",
     "empty": "Este formulário ainda não tem perguntas.",
     "defaultsTitle": "Valores para todas as respostas",
     "defaultsDescription": "As propriedades que o formulário não pergunta ainda podem ser preenchidas em cada linha que ele adiciona, como Status definido como Novo.",
@@ -58,6 +60,9 @@
   "fill": {
     "submit": "Enviar",
     "submitting": "Enviando…",
+    "next": "Seguinte",
+    "back": "Anterior",
+    "progress": "Pergunta {current} de {total}",
     "thanks": "Obrigado! Sua resposta foi enviada.",
     "another": "Enviar outra resposta",
     "viewOnly": "Você pode ver este formulário, mas só quem pode editar este banco de dados pode enviá-lo.",

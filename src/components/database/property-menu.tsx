@@ -19,6 +19,7 @@ import {
   ChevronRight,
   Combine,
   Copy,
+  CopyX,
   Eye,
   EyeOff,
   Fingerprint,
@@ -44,6 +45,7 @@ import {
   UserRound,
   WrapText,
 } from "lucide-react";
+import dynamic from "next/dynamic";
 import { useLocale, useTranslations } from "next-intl";
 import { Fragment, useEffect, useId, useRef, useState } from "react";
 import { useReorderDrag, type ReorderDragHandlers } from "@/components/use-reorder-drag";
@@ -64,20 +66,24 @@ import { takesNumberFormat, type NumberFormat } from "@/lib/number-format";
 import { PAGE_VISIBILITIES, pageVisibilityOf, type PageVisibility } from "@/lib/page-visibility";
 import { isPinned, MAX_PINNED } from "@/lib/row-layout";
 import { cleanUniqueIdPrefix, formatUniqueId, MAX_UNIQUE_ID_PREFIX, uniqueIdPrefix } from "@/lib/unique-id";
+import { canBeUnique } from "@/lib/unique-values";
 import { AutofillEditor } from "./ai-autofill";
 import { DateOptionsEditor } from "./date-options-menu";
 import { FormulaEditor } from "./formula-editor";
-import { NumberDisplayEditor, NumberFormatEditor } from "./number-format-menu";
 import { RelationOptionsEditor } from "./relation-options-menu";
 import { RollupEditor } from "./rollup-editor";
 import { CalculationOptions } from "./table-calculations";
 import { OptionChip } from "./property-cell";
-import { PropertyTypeIcon, usePropertyTypeLabel } from "./property-icons";
+import { isNumberKind, NEW_PROPERTY_KINDS, NUMBER_KINDS, PropertyTypeIcon, useNewPropertyKindLabel, usePropertyTypeLabel, type NewPropertyKind } from "./property-icons";
 import { RelationSetup } from "./relation-cell";
 import { useRelations } from "./relation-context";
 import { useSchema } from "./schema-context";
 import { newPropertyName, typesMatching } from "@/lib/property-type-search";
 import type { DerivedInput, Property, PropertyType, RelationInput, RollupInput, SelectOption } from "./types";
+
+// The number format submenu loads when it opens: most menus never show it.
+const NumberFormatEditor = dynamic(() => import("./number-format-menu").then((m) => m.NumberFormatEditor));
+const NumberDisplayEditor = dynamic(() => import("./number-format-menu").then((m) => m.NumberDisplayEditor));
 
 /**
  * Name + type picker used by the table "+" header and the row page "Add property". The name also
@@ -97,14 +103,14 @@ export function AddPropertyPanel({
 }) {
   const t = useTranslations("database.propertyMenu");
   const ta = useTranslations("ai.autofill");
-  const typeLabel = usePropertyTypeLabel();
+  const typeLabel = useNewPropertyKindLabel();
   const [name, setName] = useState("");
   const [step, setStep] = useState<"type" | "relation" | "formula" | "rollup" | "unique_id" | "autofill">("type");
   const input = useRef<HTMLInputElement>(null);
   const listId = useId();
   useEffect(() => input.current?.focus(), []);
-  const matching = typesMatching(PROPERTY_TYPES, typeLabel, name);
-  const listed = matching.length ? matching : PROPERTY_TYPES;
+  const matching = typesMatching(NEW_PROPERTY_KINDS, typeLabel, name);
+  const listed = matching.length ? matching : NEW_PROPERTY_KINDS;
   // The type Enter makes: the one moved to with the arrows, else the first found, else text.
   const [moved, setMoved] = useState<number | null>(null);
   const marked = moved ?? (matching.length ? 0 : Math.max(0, listed.indexOf("text")));
@@ -114,13 +120,15 @@ export function AddPropertyPanel({
     types.current?.querySelector("[data-marked]")?.scrollIntoView({ block: "nearest" });
   }, [marked]);
   // A new property without a name, or named just as a type is, is named after its type in the user's language.
-  const nameFor = (type: PropertyType) => newPropertyName(type, typeLabel, name);
-  const create = (type: PropertyType) => {
+  const nameFor = (type: NewPropertyKind) => newPropertyName(type, typeLabel, name);
+  const create = (type: NewPropertyKind) => {
     if (type === "relation" || type === "formula" || type === "rollup" || type === "unique_id") {
       setStep(type);
       return;
     }
-    void onCreate(nameFor(type), type);
+    // A rating or a duration is a number in that format.
+    if (isNumberKind(type)) void onCreate(nameFor(type), "number", undefined, { number: NUMBER_KINDS[type].format });
+    else void onCreate(nameFor(type), type);
     onDone();
   };
   if (step === "autofill" && onCreateAutofill) {
@@ -300,6 +308,8 @@ export type PropertyMenuActions = {
   setUrlPreview?: (on: boolean) => void;
   /** People: whether a row names one person at most. */
   setOnePerson?: (on: boolean) => void;
+  /** Text, numbers, emails, URLs and phone numbers: whether no two rows may hold the same value (lib/unique-values). */
+  setUnique?: (on: boolean) => void;
   /** Statuses: whether they show as a checkbox ticked for done options. */
   setStatusCheckbox?: (on: boolean) => void;
   /** Relations: whether a row links one row at most. */
@@ -743,6 +753,18 @@ export function PropertyMenu({
         onClick={run(() => actions.setOneRow?.(!prop.options.relation?.single))}
       >
         {t("oneRow")}
+      </MenuItem>
+    ),
+    prop && canBeUnique(prop.type) && actions.setUnique && (
+      <MenuItem
+        key="unique"
+        icon={icon(CopyX)}
+        pressed={Boolean(prop.options.unique)}
+        trailing={prop.options.unique ? icon(Check) : undefined}
+        title={t("uniqueValuesHint")}
+        onClick={run(() => actions.setUnique?.(!prop.options.unique))}
+      >
+        {t("uniqueValues")}
       </MenuItem>
     ),
     prop?.type === "person" && actions.setOnePerson && (

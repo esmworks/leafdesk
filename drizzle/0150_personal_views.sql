@@ -1,0 +1,3 @@
+ALTER TABLE "database_view" ADD COLUMN "owner_id" text;--> statement-breakpoint
+ALTER TABLE "database_view" ADD CONSTRAINT "database_view_owner_id_user_id_fk" FOREIGN KEY ("owner_id") REFERENCES "public"."user"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
+CREATE INDEX "database_view_owner_idx" ON "database_view" USING btree ("owner_id") WHERE "database_view"."owner_id" is not null;

@@ -15,6 +15,8 @@
     "monday": "Monday.com",
     "jira": "Jira",
     "github": "GitHub",
+    "ical": "Calendar",
+    "postgres": "PostgreSQL",
     "googleDocs": "Google Docs",
     "web": "Web page"
   },
@@ -370,6 +372,69 @@
       "totalTime": "Total",
       "ingredients": "Ingredients",
       "steps": "Steps"
+    }
+  },
+  "ical": {
+    "help": "Get a database of a calendar's events that stays in step: each event is a row with when it is, where, its notes, status, organizer and link, and each occurrence of a repeating event is a row of its own. Events from {before} days back to {after} days ahead come in. Changes go one way, from the calendar to Leafdesk.",
+    "url": "Calendar address",
+    "urlPlaceholder": "https://… .ics · webcal://…",
+    "urlHelp": "Use the calendar's iCal address: in Google Calendar, its settings' secret address in iCal format; in Outlook, a published calendar's ICS link. It is kept sealed on the server and never shown again.",
+    "namePlaceholder": "The calendar's name",
+    "names": {
+      "key": "Event ID",
+      "when": "When",
+      "location": "Location",
+      "description": "Description",
+      "status": "Status",
+      "organizer": "Organizer",
+      "link": "Link",
+      "untitled": "Untitled event",
+      "statuses": {
+        "confirmed": "Confirmed",
+        "tentative": "Tentative",
+        "cancelled": "Cancelled"
+      }
+    },
+    "errors": {
+      "unauthorized": "The calendar asks for a sign-in. Use its secret iCal address.",
+      "forbidden": "The calendar refused to be read.",
+      "notFound": "There is no calendar at this address.",
+      "tooManyIssues": "The calendar has too many events, or is too big, to sync.",
+      "unreachable": "The calendar couldn't be reached. The sync tries again next time.",
+      "runAsGone": "The person who set the sync up no longer has an account.",
+      "accessLost": "The person the sync runs as can no longer edit this database.",
+      "keyGone": "The Event ID property was deleted or changed type, so events can't be matched to rows.",
+      "failed": "The sync failed. It tries again next time.",
+      "invalidSite": "That isn't an address Leafdesk can reach.",
+      "invalidInput": "Use the calendar's https or webcal address.",
+      "alreadyRunning": "A sync is running. Try again in a moment."
+    }
+  },
+  "postgres": {
+    "help": "Get a database of a PostgreSQL table (or view) that stays in step: each row of the table is a row here, found again by its key column and named by its title column, with a property for each other column (text, numbers, checkboxes, dates and times). Up to {limit} rows. Changes go one way, from the table to Leafdesk.",
+    "url": "Connection address",
+    "urlPlaceholder": "postgres://user:password@host:5432/database",
+    "urlHelp": "Use a user that may only read this table. Leafdesk reads in a read-only transaction, reaches only public addresses (or servers your administrator allowed in CONNECTOR_ALLOWED_HOSTS), and keeps the address sealed on the server.",
+    "table": "Table",
+    "tablePlaceholder": "schema.table",
+    "key": "Key column",
+    "keyPlaceholder": "The primary key",
+    "titleColumn": "Title column",
+    "titlePlaceholder": "The first text column",
+    "errors": {
+      "unauthorized": "The server refused the user or password.",
+      "forbidden": "The user may not read this table.",
+      "notFound": "No such database or table.",
+      "badQuery": "The server refused the query:",
+      "tooManyIssues": "The table has too many rows to sync. Sync a view of the rows you need.",
+      "unreachable": "The server couldn't be reached, or the query took too long. The sync tries again next time.",
+      "runAsGone": "The person who set the sync up no longer has an account.",
+      "accessLost": "The person the sync runs as can no longer edit this database.",
+      "keyGone": "The key property was deleted or changed type, so table rows can't be matched to rows.",
+      "failed": "The sync failed. It tries again next time.",
+      "invalidSite": "Leafdesk can't reach that server: a private address needs your administrator to allow it in CONNECTOR_ALLOWED_HOSTS.",
+      "invalidInput": "Check the connection address, the table and the column names.",
+      "alreadyRunning": "A sync is running. Try again in a moment."
     }
   }
 }

@@ -42,6 +42,8 @@
     "notPublic": "Utelatt fra den offentlige lenken",
     "addQuestion": "Legg til et spørsmål",
     "noMoreQuestions": "Alle egenskaper er allerede spørsmål.",
+    "oneByOne": "Ett spørsmål om gangen",
+    "oneByOneDescription": "Hvert spørsmål får sin egen side med en fremdriftslinje. Hvert svar sjekkes før neste spørsmål.",
     "empty": "Dette skjemaet har ingen spørsmål ennå.",
     "defaultsTitle": "Verdier for alle svar",
     "defaultsDescription": "Egenskaper skjemaet ikke spør om, kan likevel fylles ut på hver rad det legger til, for eksempel Status satt til Ny.",
@@ -58,6 +60,9 @@
   "fill": {
     "submit": "Send inn",
     "submitting": "Sender…",
+    "next": "Neste",
+    "back": "Tilbake",
+    "progress": "Spørsmål {current} av {total}",
     "thanks": "Takk! Svaret ditt er sendt.",
     "another": "Send inn et nytt svar",
     "viewOnly": "Du kan se dette skjemaet, men bare de som kan redigere denne databasen, kan sende det inn.",

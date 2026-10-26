@@ -15,6 +15,8 @@
     "monday": "Monday.com",
     "jira": "Jira",
     "github": "GitHub",
+    "ical": "日历",
+    "postgres": "PostgreSQL",
     "googleDocs": "Google 文档",
     "web": "网页"
   },
@@ -370,6 +372,69 @@
       "totalTime": "总计",
       "ingredients": "配料",
       "steps": "步骤"
+    }
+  },
+  "ical": {
+    "help": "用日历中的事件生成一个保持同步的数据库：每个事件是一行，包含时间、地点、备注、状态、组织者和链接；重复事件的每次发生都是单独一行。导入从 {before} 天前到 {after} 天后的事件。更改单向同步，从日历到 Leafdesk。",
+    "url": "日历地址",
+    "urlPlaceholder": "https://… .ics · webcal://…",
+    "urlHelp": "使用日历的 iCal 地址：Google 日历中为设置里的“iCal 格式的私密地址”，Outlook 中为已发布日历的 ICS 链接。地址会加密保存在服务器上，不会再次显示。",
+    "namePlaceholder": "日历名称",
+    "names": {
+      "key": "事件 ID",
+      "when": "时间",
+      "location": "地点",
+      "description": "描述",
+      "status": "状态",
+      "organizer": "组织者",
+      "link": "链接",
+      "untitled": "无标题事件",
+      "statuses": {
+        "confirmed": "已确认",
+        "tentative": "暂定",
+        "cancelled": "已取消"
+      }
+    },
+    "errors": {
+      "unauthorized": "该日历需要登录。请使用其私密 iCal 地址。",
+      "forbidden": "日历拒绝读取。",
+      "notFound": "此地址没有日历。",
+      "tooManyIssues": "日历事件过多或文件过大，无法同步。",
+      "unreachable": "无法连接日历，下次同步时会重试。",
+      "runAsGone": "设置同步的人已没有账户。",
+      "accessLost": "同步的运行者已无法编辑此数据库。",
+      "keyGone": "“事件 ID”属性已删除或更改了类型，事件无法与行对应。",
+      "failed": "同步失败，下次会重试。",
+      "invalidSite": "Leafdesk 无法访问该地址。",
+      "invalidInput": "请使用日历的 https 或 webcal 地址。",
+      "alreadyRunning": "正在同步，请稍后再试。"
+    }
+  },
+  "postgres": {
+    "help": "用 PostgreSQL 表（或视图）生成一个保持同步的数据库：表中每一行都是这里的一行，通过键列找回、用标题列命名，其余每列各成为一个属性（文本、数字、复选框、日期和时间）。最多 {limit} 行。更改单向同步，从表到 Leafdesk。",
+    "url": "连接地址",
+    "urlPlaceholder": "postgres://user:password@host:5432/database",
+    "urlHelp": "请使用只能读取此表的用户。Leafdesk 在只读事务中读取，只连接公网地址（或管理员在 CONNECTOR_ALLOWED_HOSTS 中允许的服务器），并将地址加密保存在服务器上。",
+    "table": "表",
+    "tablePlaceholder": "schema.table",
+    "key": "键列",
+    "keyPlaceholder": "主键",
+    "titleColumn": "标题列",
+    "titlePlaceholder": "第一个文本列",
+    "errors": {
+      "unauthorized": "服务器拒绝了用户名或密码。",
+      "forbidden": "该用户无权读取此表。",
+      "notFound": "没有这个数据库或表。",
+      "badQuery": "服务器拒绝了查询：",
+      "tooManyIssues": "表中行数过多，无法同步。请同步只包含所需行的视图。",
+      "unreachable": "无法连接服务器，或查询耗时过长。下次同步时会重试。",
+      "runAsGone": "设置同步的人已没有账户。",
+      "accessLost": "同步的运行者已无法编辑此数据库。",
+      "keyGone": "键属性已删除或更改了类型，无法对应表中的行。",
+      "failed": "同步失败，下次会重试。",
+      "invalidSite": "Leafdesk 无法访问该服务器：私有地址需要管理员在 CONNECTOR_ALLOWED_HOSTS 中允许。",
+      "invalidInput": "请检查连接地址、表名和列名。",
+      "alreadyRunning": "正在同步，请稍后再试。"
     }
   }
 }

@@ -30,6 +30,7 @@ import { useFormulaErrorMessage } from "./formula-editor";
 import { PersonChips, PersonPicker } from "./person-cell";
 import { QuickAddContext, QuickAddParts } from "./quick-add";
 import { HiddenValue } from "./property-access";
+import { RatingStars } from "./rating-stars";
 import { RelationChips, RelationPicker } from "./relation-cell";
 import { useRelations } from "./relation-context";
 import type { ChecklistItem, Property, SelectOption } from "./types";
@@ -41,7 +42,7 @@ import { dayNumber, dayString } from "@/lib/time-zone";
 import type { DateFormatKind, DateOptions, FormulaConfig, NumberFormat, PropertyOptions } from "@/db/schema/app";
 import { DatePhraseInput } from "@/components/date-phrase-input";
 import type { DatePhrase } from "@/lib/date-phrase";
-import { calculationFormat, numberFormatOptions, numberText, readNumber, valueFormat } from "@/lib/number-format";
+import { calculationFormat, formatInFormat, isDuration, isRating, numberText, ratingMax, readNumber, valueFormat } from "@/lib/number-format";
 import { numberShare } from "@/lib/number-display";
 import { formatClock, formatStyledDate, isStyled, type DateStyle } from "@/lib/date-format";
 import { availableOptions, parentOf } from "@/lib/dependent-options";
@@ -206,7 +207,8 @@ export function useFormatDateTime() {
  */
 export function useFormatNumber() {
   const format = useFormatter();
-  return (value: number, numberFormat?: NumberFormat | null, auto?: number) => format.number(value, numberFormatOptions(numberFormat, auto));
+  return (value: number, numberFormat?: NumberFormat | null, auto?: number) =>
+    formatInFormat(value, numberFormat, (n, options) => format.number(n, options), auto);
 }
 
 export function isEmptyValue(prop: ShownProperty, value: unknown) {
@@ -237,6 +239,7 @@ export function PropertyDisplay({ prop, value, wrap, style }: { prop: ShownPrope
       return <span className={cn(wrap ? "whitespace-pre-wrap break-words" : "truncate")}>{String(value)}</span>;
     case "number": {
       if (typeof value !== "number") return <span className="tabular-nums">{String(value)}</span>;
+      if (isRating(prop.options.number)) return <RatingStars value={value} max={ratingMax(prop.options.number)} label={prop.name} />;
       const text = formatNumber(value, prop.options.number);
       const display = prop.options.numberDisplay;
       if (display) {
@@ -390,6 +393,7 @@ function DerivedDisplay({ prop, value, wrap, style }: { prop: ShownProperty; val
     case "number": {
       // A formula giving an amount or a percentage shows in its number format; as a bar or a ring when it says so.
       if (typeof value !== "number") return <span {...styledProps(whole, "tabular-nums")}>{String(value)}</span>;
+      if (isRating(valueFormat(prop))) return <RatingStars value={value} max={ratingMax(valueFormat(prop))} label={prop.name} />;
       const text = formatNumber(value, valueFormat(prop));
       const display = prop.options.numberDisplay;
       if (display) return <ProgressDisplay display={display.display} share={numberShare(value, display, valueFormat(prop))} text={text} color={display.color} />;
@@ -683,6 +687,20 @@ export function PropertyCell({
     );
   }
 
+  // A rating's stars are clicked right in the cell.
+  if (prop.type === "number" && isRating(prop.options.number)) {
+    return (
+      <div className={cn(base, "cursor-default")}>
+        <RatingStars
+          value={typeof value === "number" ? value : null}
+          max={ratingMax(prop.options.number)}
+          label={prop.name}
+          onChange={readOnly ? undefined : (next) => onChange(next)}
+        />
+      </div>
+    );
+  }
+
   if (prop.type === "checkbox") {
     return (
       <div className={cn(base, "cursor-default")}>
@@ -879,6 +897,17 @@ export const INVALID_INPUT: Partial<Record<Property["type"], "enterNumber" | "en
   phone: "enterPhone",
 };
 
+/** The hint for a property's draft that can't be saved: a duration says how one is typed. */
+export function invalidInputHint(prop: Pick<Property, "type"> & { options?: PropertyOptions }) {
+  if (prop.type === "number" && isDuration(prop.options?.number)) return "enterDuration";
+  return INVALID_INPUT[prop.type] ?? "enterUrl";
+}
+
+/** The keyboard a property's editor asks touch devices for: a duration takes "1:30" and "1h". */
+export function inputModeOf(prop: Pick<Property, "type"> & { options?: PropertyOptions }) {
+  return prop.type === "number" && isDuration(prop.options?.number) ? "text" : INPUT_MODE[prop.type];
+}
+
 /** Keyboard hints for touch devices. */
 export const INPUT_MODE: Partial<Record<Property["type"], "decimal" | "email" | "tel">> = {
   number: "decimal",
@@ -948,7 +977,7 @@ function TextEditor({
         ref={input}
         rows={1}
         value={draft}
-        inputMode={INPUT_MODE[prop.type]}
+        inputMode={inputModeOf(prop)}
         aria-label={prop.name}
         onChange={(e) => {
           setDraft(prop.type === "text" ? e.target.value : e.target.value.replace(/\n/g, ""));
@@ -970,7 +999,7 @@ function TextEditor({
       />
       {invalid && (
         <div className="border-t border-border px-2 py-1 text-xs text-danger">
-          {t(INVALID_INPUT[prop.type] ?? "enterUrl")}
+          {t(invalidInputHint(prop))}
         </div>
       )}
       {quickAdd && (

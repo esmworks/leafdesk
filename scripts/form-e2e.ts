@@ -171,6 +171,7 @@ try {
         defaults: { Stage: "New", [assignee.id]: [ids.owner], [notes.id]: "" },
         confirmation: "Thanks, we got it.",
         allowAnother: false,
+        oneByOne: true,
       },
     },
   });
@@ -246,6 +247,7 @@ try {
   check(published.token.length >= 40 && published.url === `/f/${published.token}` && !published.anonymous, "publishing makes a signed-in link", published);
   const publicForm = await forms.getPublicForm(published.token);
   check(publicForm?.title === "Contact us" && publicForm.description === "We answer within a day.", "the public form shows its texts", publicForm);
+  check(publicForm?.oneByOne === true && publicForm.allowAnother === false, "the public form asks one question at a time when set to", publicForm);
   check(
     publicForm?.questions.map((q) => q.propertyId).join() === [FORM_TITLE, email.id, priority.id, notes.id].join(),
     "person questions are left out of the public form",

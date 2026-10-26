@@ -26,8 +26,8 @@ after you approve them over OAuth.
   or a local model.
 - **Bring your pages**: import a Notion *Markdown & CSV* export, an Obsidian vault, a Confluence space, Evernote notebooks,
   OneNote pages and sections, a Trello board, an Asana project, a Monday.com board, Markdown files, TextBundles, Word
-  documents, Google documents, PDFs, web pages saved as one file, a folder or CSV, and keep a database of Jira issues or
-  GitHub pull requests in sync.
+  documents, Google documents, PDFs, web pages saved as one file, a folder or CSV, and keep a database of Jira issues,
+  GitHub pull requests, a calendar's events or a PostgreSQL table in sync.
 - **Ready for a team**: teamspaces, page permissions, guests, single sign-on (OIDC, SAML), SCIM,
   two-step verification, passkeys and an audit log.
 - **Yours to run**: one `docker compose up` on your own server, data in your PostgreSQL,

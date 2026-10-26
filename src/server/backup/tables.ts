@@ -187,6 +187,7 @@ export const LEFT_OUT: Record<string, string> = {
   ai_account: "people's own AI provider keys; the workspace uses the new server's AI until an owner attaches one again",
   ai_usage_person: "AI usage by person, which names people of the old server; the workspace's own totals (ai_usage) are backed up",
   page_view: "who opened which page when, for analytics only: not content, and it names people of the old server",
+  unique_value: "the values of properties kept unique, which Postgres counts again as the restored rows and properties go in",
 };
 
 export type BackupColumn = {

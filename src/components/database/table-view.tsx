@@ -11,6 +11,7 @@ import { useReorderDrag, type ReorderDragHandlers } from "@/components/use-reord
 import type { ViewConfig } from "@/db/schema/app";
 import type { AggregateFn } from "@/lib/aggregate";
 import { isAutofillType } from "@/lib/ai";
+import { canBeUnique } from "@/lib/unique-values";
 import type { RowColors } from "@/lib/color-rules";
 import { valueType } from "@/lib/derived";
 import { arrangeGroups, canAddToGroup, groupDefaults, groupRowsBy, type Group } from "@/lib/grouping";
@@ -827,6 +828,7 @@ export function TableView({
                       setNumberDisplay: fixed || !takesNumberDisplay(p) ? undefined : (display) => api.setNumberDisplay(p, display),
                       setRelationOptions: fixed || p.type !== "relation" ? undefined : (input) => api.setRelationOptions(p, input),
                       setOnePerson: fixed || p.type !== "person" ? undefined : (on) => api.setOnePerson(p, on),
+                      setUnique: fixed || !canBeUnique(p.type) ? undefined : (on) => api.setUnique(p, on),
                       setOneRow: fixed || p.type !== "relation" ? undefined : (on) => api.setOneRow(p, on),
                       setStatusCheckbox: fixed || p.type !== "status" ? undefined : (on) => api.setStatusCheckbox(p, on),
                       makeTwoWay: fixed || p.type !== "relation" ? undefined : () => api.makeTwoWay(p),
@@ -995,7 +997,7 @@ function HeaderCell({
         aria-describedby={description ? descriptionId : undefined}
         className="flex h-[33px] w-full items-center gap-1.5 px-2 text-sm text-fg-muted hover:bg-bg-hover disabled:hover:bg-transparent"
       >
-        <PropertyTypeIcon type={icon} icon={prop?.options.icon} className="h-3.5 w-3.5 shrink-0" />
+        <PropertyTypeIcon type={icon} icon={prop?.options.icon} number={prop?.options.number} className="h-3.5 w-3.5 shrink-0" />
         <span className="truncate">{label}</span>
         {prop && <PropertyLock propertyId={prop.id} />}
         {isAutofillType(prop?.type) && prop?.options.ai && <Bot className="h-3.5 w-3.5 shrink-0" aria-label={tAi("addEntry")} />}

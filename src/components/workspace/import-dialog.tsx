@@ -7,6 +7,8 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { importTargetAction, type ImportTarget } from "@/app/actions/import";
 import { importGoogleDocsAction } from "@/app/actions/google-docs-import";
 import { createGithubPullsSyncAction } from "@/app/actions/github-pulls-sync";
+import { createIcalSyncAction } from "@/app/actions/ical-sync";
+import { createPostgresSyncAction } from "@/app/actions/postgres-sync";
 import { createJiraSyncAction } from "@/app/actions/jira-sync";
 import { saveWebPageAction } from "@/app/actions/web-clip";
 import { usePropertyTypeLabel } from "@/components/database/property-icons";
@@ -34,6 +36,8 @@ import { iconPrefix } from "@/lib/icon-value";
 import type { TreeNode } from "@/server/pages";
 import { GoogleDocsTab, type GoogleDocsSetup } from "./google-docs-import";
 import { GithubPullsTab, type GithubPullsSetup } from "./github-pulls-import";
+import { IcalTab, type IcalSetup } from "./ical-import";
+import { PostgresTab, type PostgresSetup } from "./postgres-import";
 import { JiraTab, type JiraSetup } from "./jira-import";
 import { flattenTree, WebClipTab, type WebClipSetupChoice } from "./web-clip";
 
@@ -119,7 +123,7 @@ export function ImportDialog({
   const databases = flat.filter(({ node }) => node.kind === "database" && canEdit(node));
   const activeNode = tree.find((n) => n.id === activeId);
 
-  const [tab, setTab] = useState<"pages" | "docx" | "googleDocs" | "pdf" | "evernote" | "onenote" | "confluence" | "csv" | "trello" | BoardSource | "jira" | "github" | "web">("pages");
+  const [tab, setTab] = useState<"pages" | "docx" | "googleDocs" | "pdf" | "evernote" | "onenote" | "confluence" | "csv" | "trello" | BoardSource | "jira" | "github" | "ical" | "postgres" | "web">("pages");
   const [destination, setDestination] = useState("");
   const [picked, setPicked] = useState<Picked[]>([]);
   // A folder that came with an Obsidian vault's settings folder (which isn't sent).
@@ -142,6 +146,8 @@ export function ImportDialog({
   const [jira, setJira] = useState<JiraSetup | null>(null);
   // The GitHub tab's sync, once a repository is named.
   const [github, setGithub] = useState<GithubPullsSetup | null>(null);
+  const [ical, setIcal] = useState<IcalSetup | null>(null);
+  const [postgresSetup, setPostgresSetup] = useState<PostgresSetup | null>(null);
   // The Google Docs tab's connection and documents, once some are chosen.
   const [googleDocs, setGoogleDocs] = useState<GoogleDocsSetup | null>(null);
   const [web, setWeb] = useState<WebClipSetupChoice | null>(null);
@@ -188,6 +194,8 @@ export function ImportDialog({
     setBoard(null);
     setJira(null);
     setGithub(null);
+    setIcal(null);
+    setPostgresSetup(null);
     setGoogleDocs(null);
     setWeb(null);
     setCsvMode(activeEditable && activeNode.kind === "database" ? "existing" : "new");
@@ -397,6 +405,8 @@ export function ImportDialog({
     setError(null);
     if (tab === "jira") return submitJira();
     if (tab === "github") return submitGithub();
+    if (tab === "ical") return submitIcal();
+    if (tab === "postgres") return submitPostgres();
     if (tab === "googleDocs") return submitGoogleDocs();
     if (tab === "web") return submitWeb();
     const form = new FormData();
@@ -519,6 +529,46 @@ export function ImportDialog({
     }
   }
 
+  /** Sets a calendar sync up: a server action, as nothing is uploaded. */
+  async function submitIcal() {
+    if (!ical) return;
+    setBusy(true);
+    try {
+      const response = await createIcalSyncAction({
+        ...ical,
+        workspaceId,
+        parentId: destination || null,
+        teamspaceId: teamspaceId === undefined ? undefined : (teamspaceId ?? "private"),
+      });
+      if (!response.ok) setError(response.error);
+      else setResult(response.data);
+    } catch {
+      setError(tc("genericError"));
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  /** Sets a PostgreSQL table sync up: a server action, as nothing is uploaded. */
+  async function submitPostgres() {
+    if (!postgresSetup) return;
+    setBusy(true);
+    try {
+      const response = await createPostgresSyncAction({
+        ...postgresSetup,
+        workspaceId,
+        parentId: destination || null,
+        teamspaceId: teamspaceId === undefined ? undefined : (teamspaceId ?? "private"),
+      });
+      if (!response.ok) setError(response.error);
+      else setResult(response.data);
+    } catch {
+      setError(tc("genericError"));
+    } finally {
+      setBusy(false);
+    }
+  }
+
   /** Imports Google documents through a connection: a server action, as nothing is uploaded. */
   async function submitGoogleDocs() {
     if (!googleDocs) return;
@@ -601,6 +651,10 @@ export function ImportDialog({
               ? jira !== null && destinationValid
               : tab === "github"
                 ? github !== null && destinationValid
+              : tab === "ical"
+                ? ical !== null && destinationValid
+              : tab === "postgres"
+                ? postgresSetup !== null && destinationValid
               : csv !== null &&
         (csvMode === "new"
           ? destinationValid && types.some((type, i) => type !== null || i === titleColumn)
@@ -671,7 +725,7 @@ export function ImportDialog({
       ) : (
         <div className="max-h-[70vh] space-y-4 overflow-y-auto p-4" aria-busy={busy}>
           <div role="tablist" aria-label={t("title")} className="inline-flex flex-wrap gap-0.5 rounded-lg bg-bg-hover p-0.5">
-            {(["pages", "docx", "googleDocs", "pdf", "evernote", "onenote", "confluence", "csv", "trello", "asana", "monday", "jira", "github", "web"] as const).map((key) => (
+            {(["pages", "docx", "googleDocs", "pdf", "evernote", "onenote", "confluence", "csv", "trello", "asana", "monday", "jira", "github", "ical", "postgres", "web"] as const).map((key) => (
               <button
                 key={key}
                 type="button"
@@ -1106,6 +1160,10 @@ export function ImportDialog({
             <JiraTab busy={busy} destinationPicker={destinationPicker} onSetup={setJira} />
           ) : tab === "github" ? (
             <GithubPullsTab busy={busy} destinationPicker={destinationPicker} onSetup={setGithub} />
+          ) : tab === "ical" ? (
+            <IcalTab busy={busy} destinationPicker={destinationPicker} onSetup={setIcal} />
+          ) : tab === "postgres" ? (
+            <PostgresTab busy={busy} destinationPicker={destinationPicker} onSetup={setPostgresSetup} />
           ) : tab === "asana" || tab === "monday" ? (
             <BoardTab
               source={tab}
@@ -1315,7 +1373,7 @@ export function ImportDialog({
               {tc("cancel")}
             </Button>
             <Button variant="primary" disabled={!ready} onClick={() => void submit()}>
-              {tab === "jira" || tab === "github"
+              {tab === "jira" || tab === "github" || tab === "ical" || tab === "postgres"
                 ? busy
                   ? t("jira.submitting")
                   : t("jira.submit")

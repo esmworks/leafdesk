@@ -42,6 +42,8 @@
     "notPublic": "Herkese açık bağlantıda sorulmaz",
     "addQuestion": "Soru ekle",
     "noMoreQuestions": "Tüm özellikler zaten soruluyor.",
+    "oneByOne": "Soruları tek tek sor",
+    "oneByOneDescription": "Her soru ilerleme çubuğuyla kendi sayfasında gösterilir. Her yanıt bir sonraki sorudan önce denetlenir.",
     "empty": "Bu formda henüz soru yok.",
     "defaultsTitle": "Her yanıta eklenecek değerler",
     "defaultsDescription": "Formun sormadığı özellikler de formdan gelen her satırda doldurulabilir; örneğin Durum: Yeni.",
@@ -58,6 +60,9 @@
   "fill": {
     "submit": "Gönder",
     "submitting": "Gönderiliyor…",
+    "next": "İleri",
+    "back": "Geri",
+    "progress": "Soru {current}/{total}",
     "thanks": "Teşekkürler! Yanıtınız gönderildi.",
     "another": "Başka bir yanıt gönder",
     "viewOnly": "Bu formu görüntüleyebilirsiniz, ancak yalnızca bu veritabanını düzenleyebilenler gönderebilir.",

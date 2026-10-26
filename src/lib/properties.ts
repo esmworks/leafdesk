@@ -39,7 +39,7 @@ import {
   STATUS_GROUPS,
   type StatusGroup,
 } from "./property-types";
-import { isPercent, toPercentPoints, valueFormat } from "./number-format";
+import { isDuration, isPercent, isRating, parseDuration, ratingMax, toPercentPoints, valueFormat } from "./number-format";
 import { moveBeside } from "./reorder";
 import { asPlace, placeText, readPlaceInput, type PlaceValue } from "./place";
 import { formatUniqueId, parseUniqueId, uniqueIdPrefix } from "./unique-id";
@@ -61,6 +61,8 @@ export const DATABASE_ERROR_CODES = [
   "geocoderBusy",
   "invalidFile",
   "invalidNumber",
+  "invalidDuration",
+  "invalidRating",
   "invalidCheckbox",
   "invalidDate",
   "unknownOption",
@@ -88,6 +90,8 @@ export const DATABASE_ERROR_CODES = [
   "invalidDependencySettings",
   "invalidPerson",
   "onePerson",
+  "notUnique",
+  "duplicateValues",
   "readOnlyProperty",
   "relationTargetReadOnly",
   "databaseLocked",
@@ -435,8 +439,26 @@ export function normalizeValue(prop: PropertyDef, value: unknown): unknown {
       return url;
     }
     case "number": {
-      const n = typeof value === "number" ? value : Number(String(value).replace(",", "."));
-      if (!Number.isFinite(n)) throw new PropertyValueError(`"${prop.name}" must be a number`, "invalidNumber", { property: prop.name });
+      const format = prop.options.number;
+      // A duration also takes what people type ("1:30", "1h 30m"); its numbers are minutes.
+      const n =
+        typeof value === "number"
+          ? value
+          : isDuration(format)
+            ? (parseDuration(String(value)) ?? NaN)
+            : Number(String(value).replace(",", "."));
+      if (!Number.isFinite(n)) {
+        if (isDuration(format)) {
+          throw new PropertyValueError(`"${prop.name}" must be a duration: minutes, "1:30" or "1h 30m"`, "invalidDuration", { property: prop.name });
+        }
+        throw new PropertyValueError(`"${prop.name}" must be a number`, "invalidNumber", { property: prop.name });
+      }
+      if (isRating(format) && !(Number.isInteger(n) && n >= 0 && n <= ratingMax(format))) {
+        throw new PropertyValueError(`"${prop.name}" is a rating: a whole number from 0 to ${ratingMax(format)}`, "invalidRating", {
+          property: prop.name,
+          max: String(ratingMax(format)),
+        });
+      }
       return n;
     }
     case "checkbox":
