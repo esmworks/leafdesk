@@ -350,6 +350,21 @@ export async function lockLiveParent(tx: Tx, parentId: string) {
   if (!row || row.archived_at) throw withCode(new AccessError("Parent page is in the trash"), "parentInTrash");
 }
 
+/**
+ * createPage's checks for a new database at `input`'s place, without making anything: for synced
+ * databases, whose setup reaches out to another server before the database is made, so only
+ * people who could make it there make this server reach out.
+ */
+export async function requireDatabasePlace(userId: string, input: Pick<CreatePageInput, "workspaceId" | "parentId" | "teamspaceId">) {
+  if (input.parentId) {
+    const parent = await requirePageAccess(userId, input.parentId, "edit");
+    if (parent.archivedAt) throw withCode(new AccessError("Parent page is in the trash"), "parentInTrash");
+    if (parent.kind === "database") throw withCode(new Error("A database can't contain another database"), "nestedDatabase");
+    return;
+  }
+  await placeTopLevel(userId, input.workspaceId, await requireTopLevel(userId, input.workspaceId), input.teamspaceId);
+}
+
 export async function createPage(actor: WriteActor, input: CreatePageInput, { audit = true }: { audit?: boolean } = {}) {
   const { userId } = actor;
   const kind = input.kind ?? "page";

@@ -217,8 +217,9 @@ conversation (also when the answer itself didn't come), and later questions know
 **Connections' tools.** Tools of a [connection](connections.md#connections) an owner ticked *In chat* are
 offered to members' chats (never guests'). Reading tools run at once and show as a step; a tool
 that changes something at the service asks before every call, in *Auto* too, and isn't offered in
-*Read only*. What the service returns reaches the model as outside data, and the audit log
-records each call as the person's.
+*Read only*. What the service returns (mail, issues, anything people outside the workspace wrote)
+reaches the model as outside data, and once an answer called a service, every change and note it
+wants is asked about, also in *Auto*. The audit log records each call as the person's.
 
 **Files in the chat.** The paperclip under the question box attaches files to a question, and so
 does dropping them on the box or pasting them: images (PNG, JPEG, GIF, WebP), PDF, Word and Excel
@@ -327,10 +328,15 @@ For `brave` and `tavily`, `WEB_SEARCH_URL` overrides their address. A search wai
 most. The service is the server's own, so it may be on a private network; the pages read from the
 web may not (the same checks as for links to files, with size and time limits). Unset, agents with
 web access read only the pages whose links they are given or find in the workspace, and the chat
-has no web tools. In the chat, web search only reads (`search_web`, `read_web_page`): web pages
-are written by anyone, so what they say reaches the model framed as outside data, and once an
-answer read from the web every change and note it wants is asked about, also in *Auto*. The words
-it searches with leave the workspace for the search service.
+has no web tools. In the chat, web search only reads (`search_web`, `read_web_page`), but what a
+call carries leaves the workspace: the words go to the search service, the whole address to the
+site that serves it. Text the model read in the workspace could tell it to put what it read there,
+so every search and every page read is asked about first, in every mode (*Auto* and *Read only*
+included, and in research mode), showing the exact words or address, with *Yes* and *No* only.
+The exception is reading a page whose address you wrote in the conversation yourself (as written,
+or without its `?query` and `#fragment`): that runs without asking. Web pages are written by anyone,
+so what they say reaches the model framed as outside data, and once an answer read from the web
+every change and note it wants is asked about, also in *Auto*.
 
 **Limits.**
 
@@ -662,7 +668,8 @@ phone can open). Conversations are the person's AI chat conversations: they show
 chat history and follow its limits.
 
 **Changes.** In *Ask* mode, each change (a row, a page, a page's text, a note to remember, a call
-to a connection's tool that changes something) comes as a message saying what and where, with
+to a connection's tool that changes something) and, in every mode, each web search or page read
+(with its words or address) comes as a message saying what and where, with
 *Yes* and *No* buttons (and *Yes, don't ask again* for changes in the workspace). Only the linked
 person can press them; the answer waits up to 15 minutes, then goes on without the change, and
 the message's buttons go once the answer ends.

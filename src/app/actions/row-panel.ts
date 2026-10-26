@@ -7,7 +7,7 @@ import type { PageBackground } from "@/lib/page-background";
 import { parsePageBackground } from "@/lib/page-background";
 import { pageStyleFromYdoc, type PageStyle } from "@/lib/page-style";
 import { rowPanelStamp } from "@/lib/row-panel";
-import { AccessError, pageVisibleTo } from "@/server/access";
+import { AccessError, pageVisibleTo, workspacesHeldBack } from "@/server/access";
 import { getPageHeaderInfo, type PageHeaderInfo } from "@/server/page-meta";
 import { getBreadcrumbs, getPage } from "@/server/pages";
 import { requireUserId } from "@/server/session";
@@ -87,8 +87,10 @@ export async function loadRowPanelAction(
 export async function rowPanelStampAction(rowId: string): Promise<string> {
   const userId = await requireUserId();
   const [row] = await db
-    .select({ parentId: page.parentId, archivedAt: page.archivedAt })
+    .select({ parentId: page.parentId, archivedAt: page.archivedAt, workspaceId: page.workspaceId })
     .from(page)
     .where(and(eq(page.id, String(rowId)), pageVisibleTo(userId)));
-  return rowPanelStamp(row ? { parentId: row.parentId, archived: Boolean(row.archivedAt) } : null);
+  // Unavailable, like loadRowPanelAction says, where a policy of the workspace holds the session back.
+  const shown = row && (await workspacesHeldBack(userId, [row.workspaceId])).size === 0;
+  return rowPanelStamp(shown ? { parentId: row.parentId, archived: Boolean(row.archivedAt) } : null);
 }

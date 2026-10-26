@@ -326,6 +326,8 @@
         "editPage": "Modificare il testo di questa pagina?",
         "createPdf": "Creare un PDF di questa pagina e allegarlo?",
         "connection": "Inviare questo a {connection}?",
+        "readWeb": "Leggere questa pagina web?",
+        "searchWeb": "Cercare questo sul web?",
         "addComment": "Aggiungere questo commento?",
         "createDatabase": "Aggiungere questo database?",
         "createForm": "Aggiungere questo modulo?"
@@ -342,6 +344,8 @@
       "page": "Pagina",
       "empty": "(vuoto)",
       "connectionHint": "Inviato con la connessione dello spazio di lavoro: può cambiare qualcosa su {connection}",
+      "readWebHint": "Tutto ciò che c'è nell'indirizzo arriva a quel sito",
+      "searchWebHint": "Le parole arrivano al servizio di ricerca web",
       "fromFile": "{rows, plural, one {# riga} other {# righe}} da {name}",
       "titleColumn": "Titolo",
       "publicForm": {

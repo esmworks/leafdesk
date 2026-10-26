@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import { test } from "node:test";
-import { addressCandidates, hostOf, isLeafdeskManifest, isSecureOrigin, warnsInsecure } from "./server-address.ts";
+import { addressCandidates, followsRedirect, hostOf, isLeafdeskManifest, isSecureOrigin, needsHttpConfirmation, warnsInsecure } from "./server-address.ts";
 
 test("an address without a scheme tries HTTPS first, then plain HTTP", () => {
   assert.deepEqual(addressCandidates("leafdesk.example.com"), ["https://leafdesk.example.com", "http://leafdesk.example.com"]);
@@ -31,6 +31,28 @@ test("plain HTTP away from this computer is warned about", () => {
   assert.equal(warnsInsecure("http://[::1]:3000"), false);
   assert.equal(warnsInsecure("leafdesk.example.com"), false);
   assert.equal(warnsInsecure("https://leafdesk.example.com"), false);
+});
+
+test("plain HTTP the app tried by itself is confirmed first, away from this computer", () => {
+  assert.equal(needsHttpConfirmation("leafdesk.example.com", "http://leafdesk.example.com"), true);
+  assert.equal(needsHttpConfirmation("192.168.1.20:3000", "http://192.168.1.20:3000"), true);
+  // Typed with its scheme: the page warned already.
+  assert.equal(needsHttpConfirmation("  HTTP://leafdesk.example.com", "http://leafdesk.example.com"), false);
+  assert.equal(needsHttpConfirmation("leafdesk.example.com", "https://leafdesk.example.com"), false);
+  assert.equal(needsHttpConfirmation("localhost:3000", "http://localhost:3000"), false);
+  assert.equal(needsHttpConfirmation("127.0.0.1:3000", "http://127.0.0.1:3000"), false);
+});
+
+test("redirects the app follows by itself while it looks for the server", () => {
+  assert.equal(followsRedirect("http://leafdesk.example.com", "https://leafdesk.example.com"), true);
+  assert.equal(followsRedirect("https://leafdesk.example.com", "https://leafdesk.example.com:8443"), true);
+  assert.equal(followsRedirect("http://192.168.1.20", "http://192.168.1.20:3000"), true);
+  assert.equal(followsRedirect("https://localhost:3443", "http://localhost:3000"), true);
+  // Another host, or down to plain HTTP: the person confirms it.
+  assert.equal(followsRedirect("https://leafdesk.example.com", "https://evil.example.org"), false);
+  assert.equal(followsRedirect("http://leafdesk.example.com", "https://www.leafdesk.example.com"), false);
+  assert.equal(followsRedirect("https://leafdesk.example.com", "http://leafdesk.example.com"), false);
+  assert.equal(followsRedirect("https://leafdesk.example.com", "ftp://leafdesk.example.com"), false);
 });
 
 test("secure origins", () => {

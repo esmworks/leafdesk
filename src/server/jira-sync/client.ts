@@ -9,6 +9,7 @@ import {
   type JiraProject,
 } from "@/lib/jira-sync";
 import { checkConnectionUrl, ConnectionFetchError, connectionFetch } from "@/server/connections/fetch";
+import { BodyTooLargeError, readBodyLimited } from "@/server/request-body";
 
 /**
  * Leafdesk's calls to Jira Cloud's REST API (v3), signed in with an email address and API token
@@ -30,6 +31,28 @@ export class JiraError extends Error {
 }
 
 const TIMEOUT_MS = 30_000;
+/** The biggest answer read from Jira, in bytes (a page of issues with the fields a sync asks for is far smaller). */
+const MAX_ANSWER_BYTES = 10_000_000;
+
+/**
+ * An answer's JSON, read up to `maxBytes` (readBodyLimited, so a site can't fill the server's
+ * memory): undefined when it isn't JSON or stops coming, a JiraError "failed" when it is bigger.
+ * Shared with GitHub's calls.
+ */
+export async function answerJson(response: Response, maxBytes: number): Promise<unknown> {
+  let bytes: Uint8Array;
+  try {
+    bytes = await readBodyLimited(response, maxBytes);
+  } catch (error) {
+    if (error instanceof BodyTooLargeError) throw new JiraError("failed", "The answer is too big");
+    return undefined;
+  }
+  try {
+    return JSON.parse(new TextDecoder().decode(bytes));
+  } catch {
+    return undefined;
+  }
+}
 
 /** Checks a site's address before anything is sent there. */
 export function checkJiraSite(siteUrl: string) {
@@ -56,7 +79,7 @@ async function call(siteUrl: string, auth: JiraAuth, path: string): Promise<unkn
     if (error instanceof ConnectionFetchError) throw new JiraError("invalidSite", error.message);
     throw new JiraError("unreachable", "Jira could not be reached");
   }
-  const body: unknown = await response.json().catch(() => undefined);
+  const body = await answerJson(response, MAX_ANSWER_BYTES);
   if (response.ok) {
     // Something answered that isn't Jira's API (a sign-in page, another app).
     if (body === undefined) throw new JiraError("notFound", "No Jira answered at this address");

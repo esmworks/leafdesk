@@ -196,6 +196,7 @@
       "added": "Ajouté",
       "emailed": "Invitation envoyée par e-mail",
       "emailFailed": "Échec de l’envoi de l’e-mail, partagez le lien",
+      "emailLimited": "Trop d’e-mails d’invitation récemment, partagez le lien",
       "linkOnly": "Partagez ce lien d’invitation",
       "linkValidity": "Les liens d’invitation sont valables 7 jours et uniquement pour l’adresse e-mail invitée.",
       "addMore": "Ajouter d’autres personnes",

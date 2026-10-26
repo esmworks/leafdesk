@@ -8,7 +8,7 @@ import { databaseProperty, databaseView, file, fileReference, page, type PageKin
 import { blocksToPlainText } from "@/lib/blocks";
 import { COLLAB_FRAGMENT } from "@/lib/collab-constants";
 import { writeDocTitle } from "@/lib/collab-title";
-import { copyAccess, dropPropertyReferences, planDuplicate, redactCopy, type CopyAccess, type SourcePage } from "@/lib/duplicate";
+import { copyAccess, dropPropertyReferences, keptUnderShownRows, planDuplicate, redactCopy, type CopyAccess, type SourcePage } from "@/lib/duplicate";
 import { fileIdsIn, fileIdsInProperties } from "@/lib/files";
 import { parsePageBackground } from "@/lib/page-background";
 import { MAX_PAGE_DEPTH, treeHeight } from "@/lib/page-depth";
@@ -25,7 +25,7 @@ import { authorizedPairs, removeStored, workspaceFiles, workspaceUsage } from "@
 import { publishedPageRefs, syncPageReferences } from "@/server/mentions";
 import { syncPageTags } from "@/server/page-tags";
 import { makePagePrivate } from "@/server/permissions";
-import { chainTo, readableViews, readerAccess, webViews } from "@/server/publication";
+import { chainTo, readableViews, readerAccess, webShownRowIds, webViews } from "@/server/publication";
 import { servedPublication } from "@/server/site";
 import { fragmentBlocks } from "@/server/synced-body";
 import { freeCopiedPrefixes } from "@/server/unique-ids";
@@ -37,7 +37,8 @@ import { topLevelAccess } from "@/server/workspaces";
  * top of a workspace where they may add pages (optionally as a template of that workspace).
  *
  * Only what the publication shows is copied: the page and the live subpages and rows its publisher
- * can see, outside templates; databases with their public properties (no relations, rollups or
+ * can see, outside templates, of a database only the rows one of its web views shows (webShownRowIds);
+ * databases with their public properties (no relations, rollups or
  * people, nor what property access keeps from anonymous visitors) and the views on the web. Bodies are rebuilt from their blocks (lib/published-copy.ts),
  * so no edit history, comments, people's ids or reminders come along. Uploaded files the pages show
  * are copied into the new workspace, within its storage quota. Nothing is written until everything
@@ -113,7 +114,7 @@ export async function duplicatePublishedPage(
   const { publisher } = served;
 
   // What the publication shows under the page: live pages the publisher can see, outside templates.
-  const rows = [
+  let rows = [
     ...(await db.execute<SourceRow>(sql`
       with recursive sub as (
         select id from ${page} where id = ${served.pageId}
@@ -131,6 +132,18 @@ export async function duplicatePublishedPage(
   }
   const root = rows.find((r) => r.id === served.pageId);
   if (!root) throw new DuplicateError("This page isn't published", "notFound");
+  // Of a database's rows, only the ones its web views show come along (with what lies under them).
+  const shownRows = new Map(
+    await Promise.all(
+      rows.filter((r) => r.kind === "database").map(async (r) => [r.id, await webShownRowIds(publisher, r.id)] as const),
+    ),
+  );
+  const kept = keptUnderShownRows(
+    rows.map((r) => ({ id: r.id, parentId: r.parent_id })),
+    root.id,
+    shownRows,
+  );
+  rows = rows.filter((r) => kept.has(r.id));
   // The copy starts at the top level, so its deepest page lies as far down as under the original.
   if (treeHeight(rows.map((r) => ({ id: r.id, parentId: r.parent_id })), root.id) > MAX_PAGE_DEPTH) {
     throw new DuplicateError(`Can't duplicate pages nested more than ${MAX_PAGE_DEPTH} levels deep`, "tooDeep");

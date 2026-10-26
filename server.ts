@@ -186,6 +186,9 @@ server.listen(port, hostname, () => {
   console.log(`leafdesk ready on http://localhost:${port} (${dev ? "dev" : "production"})`);
   console.log(describeMailSetup());
   console.log(describeTrustedProxies(trustedProxies));
+  // The desktop app signs in to its account only once this says the port is this server's
+  // (desktop/src/local-server.ts): another program may have taken it since the app found it free.
+  if (env.localMode) process.send?.({ ready: port });
   // Next answers dev websocket upgrades (HMR) only after it has served a request. Browsers open one
   // websocket per host at a time, so an open tab reconnecting to HMR after a restart would otherwise
   // hang there and hold back its collab connection.

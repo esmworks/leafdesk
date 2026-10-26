@@ -25,8 +25,23 @@ export const EMPTY_GITHUB_MAPPING: GithubMapping = { linkPropertyId: null, statu
 
 /** Rows one pull request may name; IDs past these are left out. */
 export const MAX_GITHUB_ROWS = 20;
-/** Deliveries a setup keeps to show, newest first. */
-export const GITHUB_DELIVERIES_KEPT = 50;
+/**
+ * Days a setup keeps a delivery: to show how it went and to know it again. GitHub's signatures
+ * carry no time, so a delivery forgotten could be sent again and taken; a month is longer than
+ * GitHub retries one.
+ */
+export const GITHUB_DELIVERY_DAYS = 30;
+/** Deliveries a setup keeps at most, the newest, however recent the older ones are. */
+export const GITHUB_DELIVERIES_MAX = 20_000;
+
+/**
+ * Deliveries received before this are forgotten: GITHUB_DELIVERY_DAYS before `now`, or later when
+ * the setup holds GITHUB_DELIVERIES_MAX newer ones (`oldestKept`: when the last of those came).
+ */
+export function deliveriesForgottenBefore(now: Date, oldestKept: Date | null): Date {
+  const cutoff = new Date(now.getTime() - GITHUB_DELIVERY_DAYS * 24 * 60 * 60_000);
+  return oldestKept && oldestKept > cutoff ? oldestKept : cutoff;
+}
 /** Links a text property keeps, the latest ones. */
 export const MAX_GITHUB_LINKS = 30;
 /** A delivery's body at most (GitHub's pull request events are far smaller). */

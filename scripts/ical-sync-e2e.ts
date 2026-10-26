@@ -21,9 +21,6 @@ try {
   process.loadEnvFile();
 } catch {}
 
-// The calendar is on this machine: let the connections' fetch reach it (read when env loads).
-process.env.CONNECTOR_ALLOWED_HOSTS = "127.0.0.1";
-
 const RUN = `ical-${Date.now()}`;
 const day = (offset: number) => new Date(Date.now() + offset * 86_400_000).toISOString().slice(0, 10).replace(/-/g, "");
 
@@ -45,6 +42,8 @@ const server = createServer((req, res) => {
 });
 await new Promise<void>((resolve) => server.listen(0, "127.0.0.1", resolve));
 const base = `http://127.0.0.1:${(server.address() as AddressInfo).port}`;
+// The calendar is on this machine: let the connections' fetch reach its port (read on each fetch).
+process.env.CONNECTOR_ALLOWED_HOSTS = `127.0.0.1:${(server.address() as AddressInfo).port}`;
 
 // Imported after .env is loaded: the database client reads DATABASE_URL when it is created.
 const { eq, inArray } = await import("drizzle-orm");

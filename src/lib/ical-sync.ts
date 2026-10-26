@@ -1,5 +1,5 @@
 import type { JiraSyncError } from "./jira-sync";
-import { dayNumber, dayString, isTimeZone, weekdayOf, zonedInstant } from "./time-zone";
+import { dayNumber, dayString, isTimeZone, weekdayOf, zonedInstant, zoneOffset } from "./time-zone";
 
 /**
  * Keeping a database in step with a calendar published as iCalendar (an .ics address: Google
@@ -218,18 +218,49 @@ const WINDOWS_ZONES: Record<string, string> = {
   "E. South America Standard Time": "America/Sao_Paulo",
 };
 
+/** Whether each zone name seen is one this runtime knows (asking takes a while; calendars repeat a few names). */
+const knownZones = new Map<string, boolean>();
+
 function zoneOf(tzid: string | undefined, fallback: string): string {
   if (!tzid) return fallback;
   const name = tzid.replace(/^\//, "").trim();
-  if (isTimeZone(name)) return name;
+  let known = knownZones.get(name);
+  if (known === undefined) {
+    known = isTimeZone(name);
+    if (knownZones.size < 1000) knownZones.set(name, known);
+  }
+  if (known) return name;
   return WINDOWS_ZONES[name] ?? fallback;
 }
 
 /** A point in an event: a whole day (a day number), or an instant (ms) with the zone its wall time is in. */
 type When = { kind: "day"; day: number } | { kind: "time"; instant: number; zone: string; day: number; minutes: number };
 
+/** The instant of a wall time in a zone, as zonedInstant works it out. */
+type Zoned = (day: number, minutes: number, zone: string) => number;
+
+/**
+ * zonedInstant for one reading of a calendar, with each zone's offset looked up once a day: a
+ * calendar's repeating events ask for the same days again and again, and every lookup is slow.
+ * On a day whose zone keeps one offset from the day before to the day after (so the clocks don't
+ * change near any time of it) the instant follows from that offset; around a change, zonedInstant.
+ */
+function zonedMemo(): Zoned {
+  const steady = new Map<string, number | null>();
+  return (day, minutes, zone) => {
+    const key = `${zone} ${day}`;
+    let offset = steady.get(key);
+    if (offset === undefined) {
+      const offsets = [day - 1, day, day + 1, day + 2].map((d) => zoneOffset(d * DAY_MS, zone));
+      offset = offsets.every((o) => o === offsets[0]) ? offsets[0] : null;
+      steady.set(key, offset);
+    }
+    return offset === null ? zonedInstant(day, minutes, zone) : day * DAY_MS + minutes * 60_000 - offset;
+  };
+}
+
 /** A DATE or DATE-TIME value (RFC 5545 3.3.4, 3.3.5) in `zone` when it names none. */
-function parseWhen(line: ContentLine | undefined, zone: string): When | null {
+function parseWhen(line: ContentLine | undefined, zone: string, zoned: Zoned = zonedInstant): When | null {
   if (!line) return null;
   const value = line.value.trim();
   const day = /^(\d{4})(\d{2})(\d{2})$/.exec(value);
@@ -244,7 +275,7 @@ function parseWhen(line: ContentLine | undefined, zone: string): When | null {
   const seconds = Number(time[6]);
   if (time[7]) return { kind: "time", instant: d * DAY_MS + minutes * 60_000 + seconds * 1000, zone: "UTC", day: d, minutes };
   const in_ = zoneOf(line.params.TZID, zone);
-  return { kind: "time", instant: zonedInstant(d, minutes, in_) + seconds * 1000, zone: in_, day: d, minutes };
+  return { kind: "time", instant: zoned(d, minutes, in_) + seconds * 1000, zone: in_, day: d, minutes };
 }
 
 /** A DURATION value (RFC 5545 3.3.6) in ms; null when it isn't one. */
@@ -256,11 +287,11 @@ function parseDuration(value: string | undefined): number | null {
 }
 
 /** Where a time is on its zone's clock: shifted by whole days, the same wall time (DST aside). */
-function shift(start: When, day: number): When {
+function shift(start: When, day: number, zoned: Zoned): When {
   if (start.kind === "day") return { kind: "day", day };
   if (start.zone === "UTC") return { ...start, day, instant: start.instant + (day - start.day) * DAY_MS };
   const seconds = Math.round(start.instant / 1000) % 60;
-  return { ...start, day, instant: zonedInstant(day, start.minutes, start.zone) + seconds * 1000 };
+  return { ...start, day, instant: zoned(day, start.minutes, start.zone) + seconds * 1000 };
 }
 
 const startMs = (w: When) => (w.kind === "day" ? w.day * DAY_MS : w.instant);
@@ -279,7 +310,7 @@ type Rule = {
   byMonth: number[];
 };
 
-function parseRule(value: string, zone: string): Rule | null {
+function parseRule(value: string, zone: string, zoned: Zoned): Rule | null {
   const parts = Object.fromEntries(
     value
       .split(";")
@@ -289,7 +320,7 @@ function parseRule(value: string, zone: string): Rule | null {
   );
   const freq = parts.FREQ?.toUpperCase();
   if (freq !== "DAILY" && freq !== "WEEKLY" && freq !== "MONTHLY" && freq !== "YEARLY") return null;
-  const until = parts.UNTIL ? parseWhen({ name: "UNTIL", params: {}, value: parts.UNTIL }, zone) : null;
+  const until = parts.UNTIL ? parseWhen({ name: "UNTIL", params: {}, value: parts.UNTIL }, zone, zoned) : null;
   const byDay = (parts.BYDAY ?? "")
     .split(",")
     .filter(Boolean)
@@ -338,46 +369,83 @@ function daysInMonth(year: number, month: number, rule: Rule, startDay: number):
   return [...out].sort((a, b) => a - b);
 }
 
+/** Periods a rule's COUNT is counted through before the days asked for; a rule still running after more has ended. */
+const MAX_COUNTED_PERIODS = 10_000;
+
 /**
- * The days a rule repeats on from `start` (its first occurrence included), in order, until `end`
- * (a day number), its COUNT or its UNTIL: at most `limit`.
+ * The days from `from` to `to` (day numbers) a rule repeats on, its first occurrence being
+ * `start`, in order, until its COUNT or its UNTIL: at most `limit`, only those `wanted` when it is
+ * given. The periods (days, weeks, months, years) that end before `from` are jumped over, and
+ * counted for COUNT without any time zone lookup, so a rule that started years ago costs no more
+ * than a new one.
  */
-function ruleDays(rule: Rule, start: When, end: number, limit: number): number[] {
+function ruleDays(rule: Rule, start: When, from: number, to: number, limit: number, zoned: Zoned, wanted?: Set<number>): number[] {
   const out: number[] = [];
-  const from = start.day;
-  let counted = 0;
-  const take = (day: number) => {
-    if (day < from) return true;
-    if (rule.count !== null && counted >= rule.count) return false;
-    const when = shift(start, day);
-    if (rule.until !== null && startMs(when) > rule.until) return false;
-    if (day > end) return false;
-    counted++;
-    out.push(day);
-    return out.length < limit;
-  };
-  const date = new Date(from * DAY_MS);
+  const first = start.day;
+  const date = new Date(first * DAY_MS);
   const year = date.getUTCFullYear();
   const month = date.getUTCMonth();
-  // Generous bounds on the steps a rule can take before `end`, so a rule that never matches stops.
-  for (let step = 0; step < 20_000; step++) {
-    let days: number[];
-    if (rule.freq === "DAILY") days = [from + step * rule.interval];
-    else if (rule.freq === "WEEKLY") {
-      // Weeks start on Monday (WKST's default).
-      const monday = from - ((weekdayOf(from) + 6) % 7) + step * 7 * rule.interval;
-      const weekdays = rule.byDay.length ? rule.byDay.map((d) => d.weekday) : [weekdayOf(from)];
-      days = [...new Set(weekdays.map((w) => monday + ((w + 6) % 7)))].sort((a, b) => a - b);
-    } else if (rule.freq === "MONTHLY") {
+  // Weeks start on Monday (WKST's default).
+  const monday = first - ((weekdayOf(first) + 6) % 7);
+  const weekdays = [...new Set(rule.byDay.length ? rule.byDay.map((d) => d.weekday) : [weekdayOf(first)])];
+  /** The days of the rule's `step`th period, the one of its start being the 0th. */
+  const period = (step: number): number[] => {
+    if (rule.freq === "DAILY") return [first + step * rule.interval];
+    if (rule.freq === "WEEKLY") return weekdays.map((w) => monday + step * 7 * rule.interval + ((w + 6) % 7)).sort((a, b) => a - b);
+    if (rule.freq === "MONTHLY") {
       const index = month + step * rule.interval;
-      days = rule.byMonth.length && !rule.byMonth.includes((index % 12) + 1) ? [] : daysInMonth(year + Math.floor(index / 12), index % 12, rule, from);
-    } else {
-      const y = year + step * rule.interval;
-      const months = rule.byMonth.length ? rule.byMonth.map((m) => m - 1) : [month];
-      days = months.flatMap((m) => daysInMonth(y, m, rule, from));
+      return rule.byMonth.length && !rule.byMonth.includes((index % 12) + 1) ? [] : daysInMonth(year + Math.floor(index / 12), index % 12, rule, first);
     }
-    if (days.length && days[0] > end) break;
-    for (const day of days) if (!take(day)) return out;
+    const months = rule.byMonth.length ? rule.byMonth.map((m) => m - 1) : [month];
+    return months.flatMap((m) => daysInMonth(year + step * rule.interval, m, rule, first));
+  };
+  /** The first day of the `step`th period. */
+  const periodStart = (step: number): number => {
+    if (rule.freq === "DAILY") return first + step * rule.interval;
+    if (rule.freq === "WEEKLY") return monday + step * 7 * rule.interval;
+    if (rule.freq === "MONTHLY") {
+      const index = month + step * rule.interval;
+      return Date.UTC(year + Math.floor(index / 12), index % 12, 1) / DAY_MS;
+    }
+    return Date.UTC(year + step * rule.interval, 0, 1) / DAY_MS;
+  };
+
+  // The first period that can hold `from`: every one before it ends before `from`.
+  let step = 0;
+  if (from > first) {
+    const target = new Date(from * DAY_MS);
+    const span =
+      rule.freq === "DAILY"
+        ? from - first
+        : rule.freq === "WEEKLY"
+          ? Math.floor((from - monday) / 7)
+          : rule.freq === "MONTHLY"
+            ? (target.getUTCFullYear() - year) * 12 + target.getUTCMonth() - month
+            : target.getUTCFullYear() - year;
+    step = Math.floor(span / rule.interval);
+  }
+  // COUNT counts the occurrences in the periods jumped over too.
+  let counted = 0;
+  if (rule.count !== null && step > 0) {
+    if (rule.freq === "DAILY") counted = step;
+    else if (rule.freq === "WEEKLY") counted = period(0).filter((d) => d >= first).length + (step - 1) * weekdays.length;
+    else {
+      if (step > MAX_COUNTED_PERIODS) return out;
+      for (let s = 0; s < step && counted < rule.count; s++) counted += period(s).filter((d) => d >= first).length;
+    }
+  }
+  for (; periodStart(step) <= to; step++) {
+    for (const day of period(step)) {
+      if (day < first) continue;
+      if (rule.count !== null && counted >= rule.count) return out;
+      if (day > to) return out;
+      counted++;
+      if (day < from || (wanted && !wanted.has(day))) continue;
+      // Only the days asked for are put on their zone's clock (to compare with UNTIL).
+      if (rule.until !== null && startMs(shift(start, day, zoned)) > rule.until) return out;
+      out.push(day);
+      if (out.length >= limit) return out;
+    }
   }
   return out;
 }
@@ -448,11 +516,26 @@ export function readCalendar(source: string, now: number, untitled = ENGLISH_ICA
   const windowStart = now - ICAL_DAYS_BEFORE * DAY_MS;
   const windowEnd = now + ICAL_DAYS_AFTER * DAY_MS;
   const events = calendar.children.filter((c) => c.type === "VEVENT");
-  // Moved or cancelled occurrences, by UID and the time they were planned for.
+  const zoned = zonedMemo();
+  // Moved or cancelled occurrences, by UID and the time they were planned for; and, by UID, the
+  // days of occurrences moved to a time that may be in the window (planned for any day).
   const overrides = new Map<string, Component>();
+  const movedIn = new Map<string, Set<number>>();
   for (const event of events) {
-    const recurrence = parseWhen(first(event, "RECURRENCE-ID"), zone);
-    if (recurrence) overrides.set(`${text(event, "UID")}/${plannedKey(recurrence)}`, event);
+    const recurrence = parseWhen(first(event, "RECURRENCE-ID"), zone, zoned);
+    if (!recurrence) continue;
+    const uid = text(event, "UID");
+    overrides.set(`${uid}/${plannedKey(recurrence)}`, event);
+    const moved = parseWhen(first(event, "DTSTART"), zone, zoned);
+    if (!moved || startMs(moved) > windowEnd) continue;
+    const movedEnd = parseWhen(first(event, "DTEND"), zone, zoned);
+    // Without an end of its own it lasts as long as the event, not known yet.
+    const length = movedEnd ? startMs(movedEnd) - startMs(moved) : parseDuration(first(event, "DURATION")?.value);
+    if (length !== null && startMs(moved) + Math.max(0, length) < windowStart) continue;
+    // A day either side: the planned time may be written in another zone than the event's.
+    const days = movedIn.get(uid) ?? new Set<number>();
+    for (const day of [recurrence.day - 1, recurrence.day, recurrence.day + 1]) days.add(day);
+    movedIn.set(uid, days);
   }
 
   const rows: IcalRow[] = [];
@@ -469,15 +552,17 @@ export function readCalendar(source: string, now: number, untitled = ENGLISH_ICA
   });
   const inWindow = (start: When, finish: number) => finish >= windowStart && startMs(start) <= windowEnd;
 
-  for (const event of events) {
+  events: for (const event of events) {
+    // Past MAX_ICAL_EVENTS the run stops anyway: the rest needn't be worked out.
+    if (rows.length > MAX_ICAL_EVENTS) break;
     if (first(event, "RECURRENCE-ID")) continue;
     const uid = text(event, "UID");
-    const start = parseWhen(first(event, "DTSTART"), zone);
+    const start = parseWhen(first(event, "DTSTART"), zone, zoned);
     if (!uid || !start) continue;
-    const end = parseWhen(first(event, "DTEND"), zone);
+    const end = parseWhen(first(event, "DTEND"), zone, zoned);
     const length = end ? startMs(end) - startMs(start) : parseDuration(first(event, "DURATION")?.value);
     const rruleLine = first(event, "RRULE");
-    const rule = rruleLine ? parseRule(rruleLine.value, zone) : null;
+    const rule = rruleLine ? parseRule(rruleLine.value, zone, zoned) : null;
     if (!rule) {
       if (inWindow(start, startMs(start) + Math.max(0, length ?? 0))) rows.push(row(event, uid, start, end, length));
       continue;
@@ -485,20 +570,29 @@ export function readCalendar(source: string, now: number, untitled = ENGLISH_ICA
     const excluded = new Set(
       event.lines
         .filter((l) => l.name === "EXDATE")
-        .flatMap((l) => l.value.split(",").map((value) => parseWhen({ ...l, value }, zone)))
+        .flatMap((l) => l.value.split(",").map((value) => parseWhen({ ...l, value }, zone, zoned)))
         .flatMap((w) => (w ? [plannedKey(w)] : [])),
     );
+    // The days whose occurrences can reach into the window (with a day either side for the zones),
+    // and those around each occurrence planned before them but moved into it.
+    const firstDay = Math.floor((windowStart - Math.max(0, length ?? 0)) / DAY_MS) - 2;
     const lastDay = Math.floor(windowEnd / DAY_MS);
-    for (const day of ruleDays(rule, start, lastDay, MAX_ICAL_EVENTS * 4)) {
-      const planned = shift(start, day);
+    const days = new Set(ruleDays(rule, start, firstDay, lastDay, MAX_ICAL_EVENTS * 4, zoned));
+    const movedDays = movedIn.get(uid);
+    let movedFrom = firstDay;
+    for (const day of movedDays ?? []) movedFrom = Math.min(movedFrom, day);
+    if (movedDays && movedFrom < firstDay) for (const day of ruleDays(rule, start, movedFrom, firstDay - 1, movedDays.size, zoned, movedDays)) days.add(day);
+    for (const day of [...days].sort((a, b) => a - b)) {
+      if (rows.length > MAX_ICAL_EVENTS) break events;
+      const planned = shift(start, day, zoned);
       const plannedAt = plannedKey(planned);
       if (excluded.has(plannedAt)) continue;
       const key = `${uid}/${plannedAt}`;
       const moved = overrides.get(key);
       if (moved) {
         if (statusOf(text(moved, "STATUS")) === "cancelled") continue;
-        const movedStart = parseWhen(first(moved, "DTSTART"), zone) ?? planned;
-        const movedEnd = parseWhen(first(moved, "DTEND"), zone);
+        const movedStart = parseWhen(first(moved, "DTSTART"), zone, zoned) ?? planned;
+        const movedEnd = parseWhen(first(moved, "DTEND"), zone, zoned);
         const movedLength = movedEnd ? startMs(movedEnd) - startMs(movedStart) : (parseDuration(first(moved, "DURATION")?.value) ?? length);
         if (inWindow(movedStart, startMs(movedStart) + Math.max(0, movedLength ?? 0))) rows.push(row(moved, key, movedStart, movedEnd, movedLength));
         continue;

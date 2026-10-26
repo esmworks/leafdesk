@@ -196,6 +196,7 @@
       "added": "Lagt til",
       "emailed": "Invitasjon sendt på e-post",
       "emailFailed": "E-posten feilet, del lenken",
+      "emailLimited": "For mange invitasjonseposter i det siste, del lenken",
       "linkOnly": "Del denne invitasjonslenken",
       "linkValidity": "Invitasjonslenker virker i 7 dager og bare for den inviterte e-postadressen.",
       "addMore": "Legg til flere",

@@ -83,6 +83,8 @@
     "remember": "Retenir ceci à votre sujet ?",
     "forget": "Oublier cette note ?",
     "connection": "Envoyer ceci à {connection} ({tool}) ?",
+    "readWeb": "Lire cette page web ? Tout ce que contient son adresse parvient à ce site :",
+    "searchWeb": "Rechercher ceci sur le web ? Les mots parviennent au service de recherche :",
     "aPage": "une page",
     "yes": "Oui",
     "always": "Oui, ne plus demander",

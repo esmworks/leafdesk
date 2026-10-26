@@ -1,5 +1,5 @@
 import { JSDOM, VirtualConsole } from "jsdom";
-import { cleanTitle } from "@/lib/import/markdown";
+import { cleanTitle, withoutQuery } from "@/lib/import/markdown";
 import { findPart, partText, type MhtmlArchive, type MhtmlPart } from "@/lib/import/mhtml";
 import { ImportError } from "@/lib/import/result";
 import type { PageBlock } from "@/server/blocknote";
@@ -60,7 +60,7 @@ function linkTarget(href: string, base: string | null): string | null {
 /** A picture's file name: the last part of its location, else one by its number and `type`. No slashes. */
 function pictureName(part: MhtmlPart | null, ref: string, index: number, type: string): string {
   const from = part?.location ?? ref;
-  let name = from.replace(/[?#].*$/, "").split(/[/\\]/).pop() ?? "";
+  let name = withoutQuery(from).split(/[/\\]/).pop() ?? "";
   try {
     name = decodeURIComponent(name);
   } catch {}
@@ -92,7 +92,7 @@ const MAGIC: [string, number[]][] = [
  */
 function pictureType(part: MhtmlPart | null, ref: string): string {
   if (!part || part.type.startsWith("image/")) return part?.type ?? "";
-  const ext = /\.([a-z0-9]+)$/i.exec((part.location ?? ref).replace(/[?#].*$/, ""))?.[1]?.toLowerCase();
+  const ext = /\.([a-z0-9]+)$/i.exec(withoutQuery(part.location ?? ref))?.[1]?.toLowerCase();
   if (ext && IMAGE_TYPES[ext]) return IMAGE_TYPES[ext];
   return MAGIC.find(([, bytes]) => bytes.every((b, i) => part.data[i] === b))?.[0] ?? part.type;
 }

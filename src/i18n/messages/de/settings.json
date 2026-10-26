@@ -196,6 +196,7 @@
       "added": "Hinzugefügt",
       "emailed": "Einladung per E-Mail gesendet",
       "emailFailed": "E-Mail fehlgeschlagen, teile den Link",
+      "emailLimited": "Zuletzt zu viele Einladungs-E-Mails, teile den Link",
       "linkOnly": "Teile diesen Einladungslink",
       "linkValidity": "Einladungslinks sind 7 Tage gültig und nur für die eingeladene E-Mail-Adresse.",
       "addMore": "Weitere hinzufügen",

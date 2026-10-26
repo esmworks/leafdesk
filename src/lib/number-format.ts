@@ -242,12 +242,17 @@ const CURRENCY_WORDS: Record<string, string[]> = { TRY: ["TL"] };
 export function stripNumberDecor(raw: string, currency?: string): { text: string; percent: boolean } {
   let text = raw.trim();
   const percent = /^%|%$/.test(text);
-  text = text.replace(/^%\s*|\s*%$/g, "");
+  // What ends the text is found without the white space before it, which is then trimmed off:
+  // `/\s*%$/` would read on from each space of a long run that ends in something else.
+  text = text.replace(/^%\s*/, "");
+  if (text.endsWith("%")) text = text.slice(0, -1).trimEnd();
   const words = currency ? [currency, ...(CURRENCY_WORDS[currency] ?? [])].join("|") : null;
   const unit = words ? `\\p{Sc}|(?:${words})(?![\\p{L}])` : "\\p{Sc}";
   const before = new RegExp(`^([+-]?)\\s*(?:${unit})\\s*`, "iu");
-  const after = new RegExp(`\\s*(?:\\p{Sc}|${words ? `(?<![\\p{L}])(?:${words})` : "\\p{Sc}"})$`, "iu");
-  text = text.replace(before, "$1").replace(after, "");
+  const after = new RegExp(`(?:\\p{Sc}|${words ? `(?<![\\p{L}])(?:${words})` : "\\p{Sc}"})$`, "iu");
+  text = text.replace(before, "$1");
+  const end = after.exec(text);
+  if (end) text = text.slice(0, end.index).trimEnd();
   return { text: text.trim(), percent };
 }
 

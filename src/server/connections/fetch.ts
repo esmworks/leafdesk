@@ -3,7 +3,7 @@ import { isIP } from "node:net";
 import { Agent, fetch as undiciFetch, type RequestInit as UndiciRequestInit } from "undici";
 import { MAX_CONNECTION_URL } from "@/lib/connections";
 import { env } from "@/lib/env";
-import { ALLOWED_PORTS, isBlockedAddress } from "../ssrf";
+import { ALLOWED_PORTS, isBlockedAddress, onHostList } from "../ssrf";
 
 /**
  * The fetch a connection's MCP client, and its sign-in to the service, go through. A connection's
@@ -11,15 +11,19 @@ import { ALLOWED_PORTS, isBlockedAddress } from "../ssrf";
  * checked when it is made (so a host can't answer a check with a public address and the connection
  * with a private one). Redirects are followed by hand, each checked the same way, at most five; one
  * to another origin drops the request's credentials (Authorization, Cookie).
- * Hosts in CONNECTOR_ALLOWED_HOSTS (by name, or name and port) skip these checks, http included,
- * for servers on the same machine or network.
+ * Hosts in CONNECTOR_ALLOWED_HOSTS skip these checks, http included, for servers on the same
+ * machine or network: a `host:port` entry on that port, a bare host on the web's usual ports only
+ * (ssrf.ts onHostList). The list is for what owners set up: connections, their sign-in, syncs.
  *
  * `web` is for fetching a web page someone asked to save (server/web-clip.ts): http is allowed too,
  * on the usual web ports only (the ones link previews allow), with every other check the same.
+ * `untrusted` is for an address anyone in a workspace gives (saving a web page, downloading a file
+ * a page shows, checking its links): CONNECTOR_ALLOWED_HOSTS never applies to it, only
+ * WEB_FETCH_ALLOWED_HOSTS, which an administrator sets for exactly that.
  */
 
 /** What a fetch may reach beyond a connection's https servers. */
-export type FetchReach = { web?: boolean };
+export type FetchReach = { web?: boolean; untrusted?: boolean };
 
 export class ConnectionFetchError extends Error {
   constructor(
@@ -35,18 +39,20 @@ const MAX_REDIRECTS = 5;
 /** Headers that carry credentials, left out when a redirect leads to another origin. */
 const CREDENTIAL_HEADERS = ["authorization", "cookie", "proxy-authorization"];
 
-/** Whether `url` is on CONNECTOR_ALLOWED_HOSTS (by host name, or host and port). */
+/** Whether `url` is on CONNECTOR_ALLOWED_HOSTS (see onHostList for how entries match). */
 export function allowedConnectorHost(url: URL, allowed = env.connectorAllowedHosts) {
-  const host = url.hostname.replace(/^\[|\]$/g, "").toLowerCase();
-  const port = url.port || (url.protocol === "https:" ? "443" : "80");
-  return allowed.includes(host) || allowed.includes(`${host}:${port}`);
+  return onHostList(url, allowed);
 }
+
+/** The hosts a fetch of `reach` may reach on a private network or over plain http. */
+const allowedHostsFor = ({ untrusted = false }: FetchReach) => (untrusted ? env.webFetchAllowedHosts : env.connectorAllowedHosts);
 
 /**
  * Checks the shape of an address a connection reaches (no DNS: that is checked on connecting):
- * https, no credentials, and no private address or local name, unless the host is allowed.
+ * https, no credentials, and no private address or local name, unless the host is allowed (above).
  */
-export function checkConnectionUrl(value: string | URL, { web = false }: FetchReach = {}): URL {
+export function checkConnectionUrl(value: string | URL, reach: FetchReach = {}): URL {
+  const { web = false } = reach;
   let url: URL;
   try {
     url = new URL(value);
@@ -56,7 +62,7 @@ export function checkConnectionUrl(value: string | URL, { web = false }: FetchRe
   if (url.href.length > MAX_CONNECTION_URL) throw new ConnectionFetchError("invalidUrl", "The address is too long");
   if (url.username || url.password) throw new ConnectionFetchError("invalidUrl", "Credentials in the address");
   if (url.protocol !== "https:" && url.protocol !== "http:") throw new ConnectionFetchError("invalidUrl", "Only https addresses");
-  if (allowedConnectorHost(url)) return url;
+  if (allowedConnectorHost(url, allowedHostsFor(reach))) return url;
   if (url.protocol !== "https:" && !web) throw new ConnectionFetchError("invalidUrl", "Only https addresses");
   if (web && !ALLOWED_PORTS.has(url.port)) throw new ConnectionFetchError("blocked", `Port ${url.port} is not allowed`);
   const host = url.hostname.replace(/^\[|\]$/g, "");
@@ -103,7 +109,7 @@ export async function connectionFetch(input: string | URL | Request, init: Reque
   let request = new Request(input, init);
   for (let hop = 0; ; hop++) {
     const url = checkConnectionUrl(request.url, reach);
-    const dispatcher = allowedConnectorHost(url) ? agents().plain : agents().guarded;
+    const dispatcher = allowedConnectorHost(url, allowedHostsFor(reach)) ? agents().plain : agents().guarded;
     const response = (await undiciFetch(url, {
       method: request.method,
       headers: request.headers,
@@ -125,4 +131,43 @@ export async function connectionFetch(input: string | URL | Request, init: Reque
     if (next.origin !== url.origin) for (const name of CREDENTIAL_HEADERS) headers.delete(name);
     request = new Request(next, { method: keepBody ? request.method : "GET", headers, signal: request.signal });
   }
+}
+
+/** Bytes a connection's server may send in one answer (a tool's result, its list of tools...). */
+export const MAX_CONNECTION_RESPONSE_BYTES = 20 * 1024 * 1024;
+
+/** An answer over MAX_CONNECTION_RESPONSE_BYTES (see capResponse). */
+export class AnswerTooLargeError extends Error {
+  constructor() {
+    super("The server's answer is too large");
+    this.name = "AnswerTooLargeError";
+  }
+}
+
+/** Statuses whose answer has no body. */
+const NULL_BODY = new Set([101, 103, 204, 205, 304]);
+
+/**
+ * `response` with a body that fails once more than `maxBytes` have come (or at once, when the
+ * server says it sends more), so a server that answers without end can't fill this server's memory.
+ */
+export function capResponse(response: Response, maxBytes = MAX_CONNECTION_RESPONSE_BYTES): Response {
+  if (!response.body || NULL_BODY.has(response.status)) return response;
+  const tooLarge = () => new AnswerTooLargeError();
+  const declared = Number(response.headers.get("content-length") ?? NaN);
+  if (declared > maxBytes) {
+    void response.body.cancel().catch(() => undefined);
+    throw tooLarge();
+  }
+  let seen = 0;
+  const body = response.body.pipeThrough(
+    new TransformStream<Uint8Array, Uint8Array>({
+      transform(chunk, controller) {
+        seen += chunk.byteLength;
+        if (seen > maxBytes) controller.error(tooLarge());
+        else controller.enqueue(chunk);
+      },
+    }),
+  );
+  return new Response(body, { status: response.status, statusText: response.statusText, headers: response.headers });
 }

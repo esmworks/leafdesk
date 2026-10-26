@@ -12,6 +12,7 @@ import {
   checkJira,
   createJiraSync,
   getJiraSync,
+  JiraSignInNeeded,
   jiraProjectsOf,
   stopJiraSync,
   syncJiraNow,
@@ -20,6 +21,7 @@ import {
   type JiraSyncPatch,
 } from "@/server/jira-sync/manage";
 import { requireUserId } from "@/server/session";
+import { SyncSetupLimited } from "@/server/sync-setup";
 import { TeamspaceError } from "@/server/teamspaces";
 
 // Jira syncs (see server/jira-sync): set up from the import dialog, looked after from the
@@ -38,6 +40,14 @@ async function run<T>(fn: (userId: string) => Promise<T>): Promise<ActionResult<
           : t(error.code, { limit: MAX_JIRA_ISSUES });
       return { ok: false, error: text, code: error.code };
     }
+    if (error instanceof JiraSignInNeeded) {
+      const t = await getTranslations("import.jira.errors");
+      return { ok: false, error: t("needsSignIn"), code: "needsSignIn" };
+    }
+    if (error instanceof SyncSetupLimited) {
+      const t = await getTranslations("import.errors");
+      return { ok: false, error: t("rateLimited") };
+    }
     if (error instanceof AccessError || error instanceof TeamspaceError) {
       const t = await getTranslations("database.errors");
       return { ok: false, error: t("accessDenied") };
@@ -50,9 +60,15 @@ async function run<T>(fn: (userId: string) => Promise<T>): Promise<ActionResult<
 
 const credentials = (value: JiraCredentials): JiraCredentials => ({ siteUrl: value?.siteUrl, email: value?.email, token: value?.token });
 
-/** Signs in to a Jira site to check what was typed: whose account it is, and the projects it sees. */
-export async function checkJiraAction(value: JiraCredentials): Promise<ActionResult<{ account: string; projects: JiraProject[] }>> {
-  return run(() => checkJira(credentials(value)));
+/**
+ * Signs in to a Jira site to check what was typed: whose account it is, and the projects it sees.
+ * For members of the workspace the sync is set up in.
+ */
+export async function checkJiraAction(
+  workspaceId: string,
+  value: JiraCredentials,
+): Promise<ActionResult<{ account: string; projects: JiraProject[] }>> {
+  return run((userId) => checkJira(userId, String(workspaceId ?? ""), credentials(value)));
 }
 
 export type JiraSyncSetup = JiraCredentials & {
@@ -108,8 +124,9 @@ export async function updateJiraSyncAction(databaseId: string, patch: JiraSyncPa
   );
 }
 
-export async function jiraProjectsAction(databaseId: string): Promise<ActionResult<JiraProject[]>> {
-  return run((userId) => jiraProjectsOf(userId, String(databaseId)));
+/** The projects the sync's sign-in (the asker's own), or the one given, can browse. */
+export async function jiraProjectsAction(databaseId: string, signIn?: { email?: unknown; token?: unknown }): Promise<ActionResult<JiraProject[]>> {
+  return run((userId) => jiraProjectsOf(userId, String(databaseId), signIn ? { email: signIn.email, token: signIn.token } : {}));
 }
 
 export async function stopJiraSyncAction(databaseId: string): Promise<ActionResult> {

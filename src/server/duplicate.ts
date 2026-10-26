@@ -53,6 +53,33 @@ import { uniquePropertyIds } from "@/server/unique-values";
 /** Larger subtrees are refused rather than copied in one long transaction. */
 export const MAX_DUPLICATE_PAGES = 2000;
 
+/** Saves the pending edits of the pages open on this server that are `pageId` or lie under it. */
+async function saveOpenUnder(pageId: string) {
+  let collab: ReturnType<typeof getCollab>;
+  let open: string[];
+  try {
+    collab = getCollab();
+    open = collab.openPageIds();
+  } catch {
+    // No collab service, or a script's stand-in without one: the database holds every page as it is.
+    return;
+  }
+  if (!open.length) return;
+  // From each open page up to the top: those that pass the page are in the copy.
+  const under = await db.execute<{ id: string }>(sql`
+    with recursive up as (
+      select id as start, id, parent_id from ${page} where id in (${sql.join(
+        open.map((id) => sql`${id}`),
+        sql`, `,
+      )})
+      union all
+      select up.start, p.id, p.parent_id from ${page} p join up on p.id = up.parent_id
+    )
+    select distinct start as id from up where id = ${pageId}
+  `);
+  if (under.length) await collab.saveOpen(under.map((r) => r.id));
+}
+
 /** Where `copyPageTree` puts the copy, and what it carries over from the source. */
 export type CopyTarget = {
   parentId: string | null;
@@ -107,6 +134,9 @@ export async function copyPageTree(
   // Read before the transaction: it goes through the pool, which a transaction waiting on it
   // would hold a connection of.
   const accessOf = await accessForCopy(userId, source);
+  // The bodies are copied as the database holds them, and saves of open pages wait a few seconds
+  // (collab/service): those pages are saved first, so the copy has what is on screen.
+  await saveOpenUnder(pageId);
 
   const copied = await db.transaction(async (tx) => {
     if (target.parentId) await lockLiveParent(tx, target.parentId);

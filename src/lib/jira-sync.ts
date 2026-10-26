@@ -109,6 +109,8 @@ export type JiraSyncView = {
   siteUrl: string;
   query: JiraQuery;
   email: string;
+  /** The sign-in is the viewer's own: they may point the sync at other issues without giving theirs. */
+  ownSignIn: boolean;
   intervalMinutes: number;
   enabled: boolean;
   running: boolean;

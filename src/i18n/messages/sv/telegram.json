@@ -83,6 +83,8 @@
     "remember": "Komma ihåg det här om dig?",
     "forget": "Glömma den här anteckningen?",
     "connection": "Skicka det här till {connection} ({tool})?",
+    "readWeb": "Läsa den här webbsidan? Allt i adressen når fram till den webbplatsen:",
+    "searchWeb": "Söka efter det här på webben? Orden når fram till söktjänsten:",
     "aPage": "en sida",
     "yes": "Ja",
     "always": "Ja, fråga inte igen",

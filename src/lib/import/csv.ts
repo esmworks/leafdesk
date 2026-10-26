@@ -55,7 +55,8 @@ export function parseNumber(raw: string): number | null {
   if (/^[+-]?\d{1,3}(,\d{3})+(\.\d+)?$/.test(s)) s = s.replace(/,/g, "");
   else if (/^[+-]?\d{1,3}(\.\d{3})+,\d+$/.test(s)) s = s.replace(/\./g, "").replace(",", ".");
   else if (/^[+-]?\d+,\d+$/.test(s)) s = s.replace(",", ".");
-  if (!/^[+-]?(\d+\.?\d*|\.\d+)(e[+-]?\d+)?$/i.test(s)) return null;
+  // `\d+(\.\d*)?`, not `\d+\.?\d*`: two runs of digits side by side backtrack through every split of a long one.
+  if (!/^[+-]?(\d+(?:\.\d*)?|\.\d+)(e[+-]?\d+)?$/i.test(s)) return null;
   const n = Number(s);
   if (!Number.isFinite(n)) return null;
   return percent ? fromPercentPoints(n) : n;
@@ -154,8 +155,13 @@ function parseDay(s: string, format: DateFormat): string | null {
   }
 }
 
-/** A time of day written after a date ("14:30", "2:30 PM", "T10:00:00.000Z", "10:00 (GMT+3)"). */
-const TIME = /(?:[T\s]+(?:at\s+)?|^)(\d{1,2}):(\d{2})(?::(\d{2})(?:\.\d+)?)?\s*([AP]M)?\s*(Z|[+-]\d{2}:?\d{2}|\((?:GMT|UTC)(?:([+-])(\d{1,2})(?::?(\d{2}))?)?\))?$/i;
+/**
+ * A time of day written after a date ("14:30", "2:30 PM", "T10:00:00.000Z", "10:00 (GMT+3)").
+ * It is only looked for from the start of a run of spaces (or Ts), and the spaces around AM/PM
+ * are one run: tried from every space of a long run, or split between two `\s*` every way, it
+ * would take time growing with the square (or cube) of the run.
+ */
+export const TIME = /(?:(?<![T\s])[T\s]+(?:at\s+)?|^)(\d{1,2}):(\d{2})(?::(\d{2})(?:\.\d+)?)?(?:\s*([AP]M))?\s*(Z|[+-]\d{2}:?\d{2}|\((?:GMT|UTC)(?:([+-])(\d{1,2})(?::?(\d{2}))?)?\))?$/i;
 
 type CellTime = { minutes: number; offset: number | null };
 
@@ -174,7 +180,10 @@ function splitTime(s: string): { rest: string; time: CellTime | null } | null {
     const [, sign, h, mm] = /^([+-])(\d{2}):?(\d{2})$/.exec(zone)!;
     offset = (sign === "-" ? -1 : 1) * (Number(h) * 60 + Number(mm));
   } else if (zone) offset = m[6] ? (m[6] === "-" ? -1 : 1) * (Number(m[7]) * 60 + Number(m[8] ?? 0)) : 0;
-  return { rest: s.slice(0, m.index).replace(/[,\s]+$/, ""), time: { minutes: hours * 60 + minutes, offset } };
+  // The date before it, without the commas and spaces it ends with (counted off from its end).
+  let end = m.index;
+  while (end > 0 && /[,\s]/.test(s[end - 1])) end--;
+  return { rest: s.slice(0, end), time: { minutes: hours * 60 + minutes, offset } };
 }
 
 /** The instant of `day` at `time`: its own offset when it was written with one, else `timeZone`'s. */
@@ -194,7 +203,8 @@ function cellInstant(day: string, time: CellTime, timeZone: string): string {
  * whose ends don't fit together keeps its start. Null when the cell isn't a date.
  */
 export function parseDate(raw: string, format: DateFormat, timeZone = "UTC"): string | null {
-  const [first, second] = raw.split(/\s+(?:→|->)\s+/).map((s) => s.trim());
+  // The arrow is looked for from the start of a run of spaces only (from each of its spaces would take its square).
+  const [first, second] = raw.split(/(?<!\s)\s+(?:→|->)\s+/).map((s) => s.trim());
   const start = splitTime(first);
   const day = start && parseDay(start.rest, format);
   if (!start || !day) return null;
@@ -220,9 +230,13 @@ export function detectDateFormat(values: string[]): DateFormat | null {
 /** A multi-value cell's values: split at commas (and semicolons), blanks and repeats dropped. */
 export function splitList(raw: string): string[] {
   const out: string[] = [];
+  const seen = new Set<string>();
   for (const part of raw.split(/[,;]/)) {
     const v = part.trim();
-    if (v && !out.some((o) => o.toLowerCase() === v.toLowerCase())) out.push(v);
+    if (v && !seen.has(v.toLowerCase())) {
+      seen.add(v.toLowerCase());
+      out.push(v);
+    }
   }
   return out;
 }
@@ -285,7 +299,8 @@ function distinct(values: string[]): string[] {
 export function parseChecklist(raw: string): { text: string; checked: boolean }[] {
   return raw
     .split(/\r?\n/)
-    .map((line) => /^\s*(?:[-*]\s+)?(?:\[([ xX])\]\s*)?(.*)$/.exec(line)!)
+    // `s`: the text runs to the line's end whatever it holds (a lone CR among it too), so nothing backtracks.
+    .map((line) => /^\s*(?:[-*]\s+)?(?:\[([ xX])\]\s*)?(.*)$/s.exec(line)!)
     .filter((m) => m[2].trim())
     .map((m) => ({ text: m[2].trim(), checked: (m[1] ?? " ").toLowerCase() === "x" }));
 }

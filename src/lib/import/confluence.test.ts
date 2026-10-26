@@ -85,3 +85,12 @@ describe("orderPages", () => {
     expect(out[0].parent).toBeNull();
   });
 });
+
+describe("crafted exports", () => {
+  it("read links with many question marks before a line break quickly", () => {
+    const started = performance.now();
+    expect(exportPath("space/a.html", `${"?".repeat(1_000_000)}\nb.png`)).toBe(`space/${"?".repeat(1_000_000)}\nb.png`);
+    expect(exportPath("space/a.html", "b.png?x=1#y")).toBe("space/b.png");
+    expect(performance.now() - started).toBeLessThan(500);
+  });
+});

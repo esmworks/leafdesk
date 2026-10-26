@@ -196,6 +196,7 @@
       "added": "Đã thêm",
       "emailed": "Đã gửi email lời mời",
       "emailFailed": "Gửi email thất bại, hãy chia sẻ liên kết",
+      "emailLimited": "Gần đây có quá nhiều email mời, hãy chia sẻ liên kết",
       "linkOnly": "Chia sẻ liên kết lời mời này",
       "linkValidity": "Liên kết lời mời có hiệu lực trong 7 ngày và chỉ dùng được cho địa chỉ email được mời.",
       "addMore": "Thêm nữa",

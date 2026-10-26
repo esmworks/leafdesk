@@ -326,6 +326,8 @@
         "editPage": "Ubah teks halaman ini?",
         "createPdf": "Buat PDF halaman ini dan lampirkan?",
         "connection": "Kirim ini ke {connection}?",
+        "readWeb": "Baca halaman web ini?",
+        "searchWeb": "Cari ini di web?",
         "addComment": "Tambahkan komentar ini?",
         "createDatabase": "Tambahkan basis data ini?",
         "createForm": "Tambahkan formulir ini?"
@@ -342,6 +344,8 @@
       "page": "Halaman",
       "empty": "(kosong)",
       "connectionHint": "Dikirim lewat koneksi ruang kerja: dapat mengubah sesuatu di {connection}",
+      "readWebHint": "Semua isi alamat sampai ke situs tersebut",
+      "searchWebHint": "Kata-katanya sampai ke layanan pencarian web",
       "fromFile": "{rows, plural, other {# baris}} dari {name}",
       "titleColumn": "Judul",
       "publicForm": {

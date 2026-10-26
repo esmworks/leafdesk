@@ -1,11 +1,12 @@
-import { and, desc, eq, inArray, isNull, notInArray, sql } from "drizzle-orm";
+import { and, desc, eq, inArray, isNull, lt, sql } from "drizzle-orm";
 import { db } from "@/db";
 import { githubDelivery, githubSync, page } from "@/db/schema";
 import {
   GITHUB_ACTIONS,
-  GITHUB_DELIVERIES_KEPT,
+  GITHUB_DELIVERIES_MAX,
   GITHUB_PER_MINUTE,
   MAX_GITHUB_BODY_BYTES,
+  deliveriesForgottenBefore,
   nextStatus,
   pullRequestIds,
   pullRequestOf,
@@ -122,15 +123,20 @@ export async function receiveGithub(syncId: string, request: Request): Promise<G
   return { status: 200, body: { ok: !outcome.error, rows: outcome.rows.filter((r) => r.outcome === "updated").length } };
 }
 
-/** Keeps the latest GITHUB_DELIVERIES_KEPT deliveries of a setup. */
-async function prune(syncId: string) {
-  const keep = db
-    .select({ id: githubDelivery.id })
+/**
+ * Forgets a setup's deliveries older than GITHUB_DELIVERY_DAYS (and past the newest
+ * GITHUB_DELIVERIES_MAX): a delivery is known again, and refused, as long as one sent again could be.
+ */
+async function prune(syncId: string, now = new Date()) {
+  const [oldestKept] = await db
+    .select({ at: githubDelivery.receivedAt })
     .from(githubDelivery)
     .where(eq(githubDelivery.syncId, syncId))
     .orderBy(desc(githubDelivery.receivedAt))
-    .limit(GITHUB_DELIVERIES_KEPT);
-  await db.delete(githubDelivery).where(and(eq(githubDelivery.syncId, syncId), notInArray(githubDelivery.id, keep)));
+    .offset(GITHUB_DELIVERIES_MAX - 1)
+    .limit(1);
+  const before = deliveriesForgottenBefore(now, oldestKept?.at ?? null);
+  await db.delete(githubDelivery).where(and(eq(githubDelivery.syncId, syncId), lt(githubDelivery.receivedAt, before)));
 }
 
 /** Writes a pull request to the rows it names, as the setup's person. */

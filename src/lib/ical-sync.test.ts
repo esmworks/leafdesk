@@ -126,6 +126,94 @@ describe("readCalendar", () => {
     expect(days("l")).toEqual(["2026-10-31", "2026-11-30"]);
   });
 
+  describe("rules that started long ago", () => {
+    // The window: 2026-07-28 12:00 UTC to 2027-10-26 12:00 UTC.
+    const starts = (...lines: string[]) => readCalendar(calendar(event("UID:r", ...lines)), NOW)!.rows.map((r) => r.when.split("/")[0]);
+
+    it("repeats weekly on weekdays, and every other week, in the event's zone", () => {
+      const weekly = starts("DTSTART;TZID=America/New_York:20150105T090000", "DTEND;TZID=America/New_York:20150105T093000", "RRULE:FREQ=WEEKLY;BYDAY=MO,WE");
+      expect(weekly).toHaveLength(130);
+      expect(weekly.slice(0, 2)).toEqual(["2026-07-29T13:00:00.000Z", "2026-08-03T13:00:00.000Z"]);
+      expect(weekly.at(-1)).toBe("2027-10-25T13:00:00.000Z");
+      expect(weekly).toContain("2026-11-02T14:00:00.000Z"); // after New York leaves summer time
+      const fortnightly = starts("DTSTART;TZID=America/New_York:20150105T090000", "RRULE:FREQ=WEEKLY;INTERVAL=2;BYDAY=TU");
+      expect(fortnightly).toHaveLength(32);
+      expect([fortnightly[0], fortnightly.at(-1)]).toEqual(["2026-08-04T13:00:00.000Z", "2027-10-12T13:00:00.000Z"]);
+    });
+
+    it("repeats daily from decades back", () => {
+      const daily = starts("DTSTART;VALUE=DATE:19600101", "RRULE:FREQ=DAILY");
+      expect(daily).toHaveLength(455);
+      expect([daily[0], daily.at(-1)]).toEqual(["2026-07-29", "2027-10-26"]);
+      const third = starts("DTSTART:19600101T080000Z", "RRULE:FREQ=DAILY;INTERVAL=3");
+      expect(third).toHaveLength(151);
+      expect([third[0], third.at(-1)]).toEqual(["2026-07-31T08:00:00.000Z", "2027-10-24T08:00:00.000Z"]);
+    });
+
+    it("repeats monthly and yearly", () => {
+      expect(starts("DTSTART;VALUE=DATE:20010115", "RRULE:FREQ=MONTHLY;BYMONTHDAY=15;INTERVAL=3")).toEqual([
+        "2026-10-15",
+        "2027-01-15",
+        "2027-04-15",
+        "2027-07-15",
+        "2027-10-15",
+      ]);
+      expect(starts("DTSTART;VALUE=DATE:19901122", "RRULE:FREQ=YEARLY;BYMONTH=11;BYDAY=4TH")).toEqual(["2026-11-26"]);
+    });
+
+    it("counts COUNT from the first occurrence", () => {
+      const daily = starts("DTSTART:20240101T090000Z", "RRULE:FREQ=DAILY;COUNT=1030");
+      expect([daily.length, daily.at(-1)]).toEqual([90, "2026-10-26T09:00:00.000Z"]);
+      const weekly = starts("DTSTART;TZID=Europe/Berlin:20200106T100000", "RRULE:FREQ=WEEKLY;BYDAY=MO,WE,FR;COUNT=1050");
+      expect([weekly.length, weekly[0], weekly.at(-1)]).toEqual([23, "2026-07-29T08:00:00.000Z", "2026-09-18T08:00:00.000Z"]);
+      expect(starts("DTSTART;VALUE=DATE:20100112", "RRULE:FREQ=MONTHLY;BYDAY=2TU;COUNT=200")).toEqual(["2026-08-11"]);
+      expect(starts("DTSTART;VALUE=DATE:20000229", "RRULE:FREQ=YEARLY;BYMONTH=2;BYMONTHDAY=-1;COUNT=28")).toEqual(["2027-02-28"]);
+    });
+
+    it("stops at UNTIL and skips excluded dates", () => {
+      const until = starts("DTSTART;TZID=America/New_York:20150105T090000", "RRULE:FREQ=WEEKLY;UNTIL=20261116T140000Z");
+      expect([until.length, until[0], until.at(-1)]).toEqual([16, "2026-08-03T13:00:00.000Z", "2026-11-16T14:00:00.000Z"]);
+      const excluded = starts(
+        "DTSTART;TZID=America/New_York:20150105T090000",
+        "RRULE:FREQ=WEEKLY;UNTIL=20261116T140000Z",
+        "EXDATE;TZID=America/New_York:20261102T090000,20261109T090000",
+      );
+      expect(excluded).toHaveLength(14);
+      expect(excluded.slice(-2)).toEqual(["2026-10-26T13:00:00.000Z", "2026-11-16T14:00:00.000Z"]);
+    });
+
+    it("follows an occurrence planned years ago and moved into the window", () => {
+      const read = readCalendar(
+        calendar(
+          event("UID:w", "DTSTART:20200106T090000Z", "DTEND:20200106T093000Z", "RRULE:FREQ=WEEKLY;UNTIL=20261020T000000Z"),
+          event("UID:w", "RECURRENCE-ID:20200113T090000Z", "SUMMARY:Moved", "DTSTART:20261101T120000Z", "DTEND:20261101T130000Z"),
+          event("UID:w", "RECURRENCE-ID:20200120T090000Z", "SUMMARY:Moved, still old", "DTSTART:20200121T120000Z", "DTEND:20200121T130000Z"),
+        ),
+        NOW,
+      )!;
+      expect(read.rows.filter((r) => r.title !== "Untitled event").map((r) => [r.key, r.title, r.when])).toEqual([
+        ["w/2020-01-13T09:00:00.000Z", "Moved", "2026-11-01T12:00:00.000Z/2026-11-01T13:00:00.000Z"],
+      ]);
+      expect(read.rows).toHaveLength(13);
+    });
+
+    it("works out 50 weekly events from 2015 quickly", () => {
+      const events = Array.from({ length: 50 }, (_, i) =>
+        event(
+          `UID:e${i}`,
+          `DTSTART;TZID=America/New_York:20150105T${String(8 + Math.floor(i / 10)).padStart(2, "0")}${String((i % 10) * 5).padStart(2, "0")}00`,
+          "DURATION:PT15M",
+          "RRULE:FREQ=WEEKLY;BYDAY=MO",
+        ),
+      );
+      const started = performance.now();
+      const read = readCalendar(calendar(...events), NOW)!;
+      expect(performance.now() - started).toBeLessThan(300);
+      expect(read.rows).toHaveLength(50 * 65);
+      expect(read.tooMany).toBe(false);
+    });
+  });
+
   it("is null for what isn't a calendar", () => {
     expect(readCalendar("<html></html>", NOW)).toBeNull();
   });

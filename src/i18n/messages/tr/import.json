@@ -173,7 +173,8 @@
       "failed": "Eşitleme başarısız oldu. Bir sonraki seferde yeniden dener.",
       "invalidSite": "Bu, Leafdesk'in ulaşabileceği bir adres değil.",
       "invalidInput": "E-posta adresini, API anahtarını ve neyin eşitleneceğini doldurun.",
-      "alreadyRunning": "Bir eşitleme sürüyor. Birazdan yeniden deneyin."
+      "alreadyRunning": "Bir eşitleme sürüyor. Birazdan yeniden deneyin.",
+      "needsSignIn": "Eşitleme Jira'ya başka birinin hesabıyla giriş yapıyor. Neyi okuduğunu değiştirmek için kendi e-posta adresiniz ve API belirtecinizle giriş yapın."
     }
   },
   "githubPulls": {
@@ -279,6 +280,7 @@
       "tooLarge": "“{path}” tek bir sayfa için çok büyük olduğu için dışarıda bırakıldı.",
       "unused": "“{path}” hiçbir sayfada gösterilmediği ya da bağlantı verilmediği için dışarıda bırakıldı.",
       "unsafePath": "“{path}” ZIP'in dışını gösteren bir yolu olduğu için dışarıda bırakıldı.",
+      "deepPath": "“{path}” yolu çok uzun olduğu ya da çok fazla klasör içerdiği için dışarıda bırakıldı.",
       "otherSheet": "“{path}” sayfası dışarıda bırakıldı: her seferinde tek bir sayfa aktarılır.",
       "badNote": "“{path}” notu okunamadığı için dışarıda bırakıldı.",
       "notEnex": "“{path}” bir Evernote dışa aktarımı (.enex) olmadığı için dışarıda bırakıldı."
@@ -311,7 +313,9 @@
     "badMapping": "En az bir sütunun hedefini seçin; her özellik yalnızca bir kez kullanılabilir.",
     "noAccess": "Oraya sayfa ekleyemezsiniz ya da artık mevcut değil.",
     "notADatabase": "Satırlar yalnızca bir veritabanına eklenebilir.",
-    "badRequest": "İçe aktarma gerçekleşmedi. Hiçbir şey değişmedi."
+    "busy": "Başka bir içe aktarma hâlâ sürüyor. Bittiğinde yeniden deneyin.",
+    "badRequest": "İçe aktarma gerçekleşmedi. Hiçbir şey değişmedi.",
+    "rateLimited": "Buradan çok fazla eşitleme kuruldu veya denetlendi. Birkaç dakika sonra yeniden deneyin."
   },
   "googleDocs": {
     "help": "Her Google belgesi, çalışma alanının Google Drive bağlantısı üzerinden bir Word belgesi gibi okunup bir sayfa olur: başlıklar, listeler, tablolar, bağlantılar, resimler ve dipnotlar. En üstteki başlık sayfanın adı olur; yoksa belgenin adı kullanılır.",
@@ -426,7 +430,7 @@
       "forbidden": "Kullanıcının bu tabloyu okuma izni yok.",
       "notFound": "Böyle bir veritabanı ya da tablo yok.",
       "badQuery": "Sunucu sorguyu reddetti:",
-      "tooManyIssues": "Tabloda eşitlenemeyecek kadar çok satır var. İhtiyacınız olan satırları içeren bir görünümü eşitleyin.",
+      "tooManyIssues": "Tabloda eşitlenemeyecek kadar çok satır veya metin var. İhtiyacınız olan satır ve sütunları içeren bir görünümü eşitleyin.",
       "unreachable": "Sunucuya ulaşılamadı ya da sorgu çok uzun sürdü. Eşitleme bir dahaki sefere yeniden denenecek.",
       "runAsGone": "Eşitlemeyi kuran kişinin artık hesabı yok.",
       "accessLost": "Eşitlemenin adına çalıştığı kişi artık bu veritabanını düzenleyemiyor.",

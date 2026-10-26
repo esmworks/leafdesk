@@ -27,10 +27,12 @@ export type JiraSetup = { siteUrl: string; email: string; token: string; query: 
  * Tells the dialog the setup (or null while it isn't complete) as it changes.
  */
 export function JiraTab({
+  workspaceId,
   busy,
   destinationPicker,
   onSetup,
 }: {
+  workspaceId: string;
   busy: boolean;
   destinationPicker: React.ReactNode;
   onSetup: (setup: JiraSetup | null) => void;
@@ -60,7 +62,7 @@ export function JiraTab({
     setChecking(true);
     setError(null);
     try {
-      const result = await checkJiraAction({ siteUrl, email, token });
+      const result = await checkJiraAction(workspaceId, { siteUrl, email, token });
       if (!result.ok) return setError(result.error);
       setConnected(result.data);
       if (!result.data.projects.length) setMode("jql");

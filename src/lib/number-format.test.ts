@@ -135,6 +135,29 @@ describe("stripNumberDecor", () => {
     expect(stripNumberDecor("12 abc", "USD").text).toBe("12 abc");
     expect(stripNumberDecor("12 EUR").text).toBe("12 EUR");
   });
+
+  it("reads long runs of spaces quickly (an imported cell can be one), as before", () => {
+    const started = performance.now();
+    expect(stripNumberDecor(`1${" ".repeat(1_000_000)}x`).text).toBe(`1${" ".repeat(1_000_000)}x`);
+    expect(stripNumberDecor(`1${" ".repeat(1_000_000)}%`)).toEqual({ text: "1", percent: true });
+    expect(stripNumberDecor(`1${" ".repeat(1_000_000)}x`, "EUR").text).toBe(`1${" ".repeat(1_000_000)}x`);
+    expect(performance.now() - started).toBeLessThan(500);
+    for (const raw of ["%", "%%", "% 5 %", "5 % %", " € 5 €", "5 EUR", "5EUR", "5 xEUR", "€", "- $ 5", "5 $ %"]) {
+      const before = (text: string, currency?: string) => {
+        let s = text.trim();
+        const percent = /^%|%$/.test(s);
+        s = s.replace(/^%\s*|\s*%$/g, "");
+        const words = currency ? [currency, ...(currency === "TRY" ? ["TL"] : [])].join("|") : null;
+        const unit = words ? `\\p{Sc}|(?:${words})(?![\\p{L}])` : "\\p{Sc}";
+        s = s
+          .replace(new RegExp(`^([+-]?)\\s*(?:${unit})\\s*`, "iu"), "$1")
+          .replace(new RegExp(`\\s*(?:\\p{Sc}|${words ? `(?<![\\p{L}])(?:${words})` : "\\p{Sc}"})$`, "iu"), "");
+        return { text: s.trim(), percent };
+      };
+      expect(stripNumberDecor(raw)).toEqual(before(raw));
+      expect(stripNumberDecor(raw, "EUR")).toEqual(before(raw, "EUR"));
+    }
+  });
 });
 
 describe("typed numbers", () => {

@@ -83,6 +83,8 @@
     "remember": "¿Recuerdo esto sobre ti?",
     "forget": "¿Olvidar esta nota?",
     "connection": "¿Enviar esto a {connection} ({tool})?",
+    "readWeb": "¿Leer esta página web? Todo lo que hay en su dirección llega a ese sitio:",
+    "searchWeb": "¿Buscar esto en la web? Las palabras llegan al servicio de búsqueda:",
     "aPage": "una página",
     "yes": "Sí",
     "always": "Sí, no volver a preguntar",

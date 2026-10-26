@@ -6,12 +6,13 @@
 // what that app ships: its built server, run by its Electron, on its PostgreSQL. CI does both on
 // macOS, Windows and Linux (.github/workflows/ci.yml).
 import assert from "node:assert/strict";
+import { EventEmitter } from "node:events";
 import fs from "node:fs";
 import os from "node:os";
 import path from "node:path";
 import { after, test } from "node:test";
 import { binariesIn } from "./local-db.ts";
-import { hasSession, parseSetCookie, signIn, startLocalServer, type LocalServer, type LocalServerOptions } from "./local-server.ts";
+import { hasSession, isReadyMessage, parseSetCookie, signIn, startLocalServer, untilListening, type LocalServer, type LocalServerOptions } from "./local-server.ts";
 
 const root = fs.mkdtempSync(path.join(os.tmpdir(), "leafdesk local server "));
 const backups = path.join(root, "backups");
@@ -69,6 +70,29 @@ test("Set-Cookie headers, as the app's browser takes them", () => {
     secure: true,
     sameSite: "no_restriction",
   });
+});
+
+test("the server is trusted with the port only once it says it listens there", async () => {
+  assert.equal(isReadyMessage({ ready: 4100 }, 4100), true);
+  assert.equal(isReadyMessage({ ready: 4101 }, 4100), false);
+  assert.equal(isReadyMessage({ ready: "4100" }, 4100), false);
+  assert.equal(isReadyMessage({ backup: {} }, 4100), false);
+  assert.equal(isReadyMessage("shutdown", 4100), false);
+  assert.equal(isReadyMessage(null, 4100), false);
+
+  const never = new Promise<number | null>(() => {});
+  const child = new EventEmitter();
+  const listening = untilListening(child, 4100, never, 5_000, "server.log");
+  child.emit("message", { ready: 4101 });
+  child.emit("message", { backup: {} });
+  child.emit("message", { ready: 4100 });
+  await listening;
+  assert.equal(child.listenerCount("message"), 0, "stops listening");
+
+  const crashed = untilListening(new EventEmitter(), 4100, Promise.resolve(1), 5_000, "server.log");
+  await assert.rejects(crashed, /stopped with 1; see server\.log/);
+  const silent = untilListening(new EventEmitter(), 4100, never, 10, "server.log");
+  await assert.rejects(silent, /didn't start/);
 });
 
 test("Leafdesk runs on this computer, signs its account in, keeps it across a restart and backs it up", { timeout: 900_000 }, () =>

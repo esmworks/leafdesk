@@ -18,12 +18,13 @@ import {
   type JiraRow,
   type JiraSyncView,
 } from "@/lib/jira-sync";
-import { AccessError } from "@/server/access";
+import { AccessError, requireMembership } from "@/server/access";
 import type { WriteActor } from "@/server/collab/bridge";
 import { addProperty, addView, getProperties, requireDatabase, type OptionInput } from "@/server/databases";
 import { discardDatabase, recordImport } from "@/server/import/csv";
-import { createPage, type DatabaseSeedNames } from "@/server/pages";
+import { createPage, requireDatabasePlace, type DatabaseSeedNames } from "@/server/pages";
 import { openJson, sealJson } from "@/server/secret-box";
+import { takeSyncSetup } from "@/server/sync-setup";
 import { checkJiraSite, JiraError, jiraAccount, jiraProjects, searchIssues, type JiraAuth } from "./client";
 import { applyIssues, claimSync, runAndRecord, type SyncOutcome, type SyncRow } from "./run";
 
@@ -33,13 +34,24 @@ import { applyIssues, claimSync, runAndRecord, type SyncOutcome, type SyncRow } 
  * it for people the workspace doesn't have), Reporter, Priority, Type, Labels, Due date and a link
  * to the issue, and a board by status. The reporter can go to another person property later, or
  * nowhere. Changing, syncing and stopping need full access to the database;
- * whoever changes a sync or syncs it by hand is who it runs as from then on.
+ * whoever changes a sync or syncs it by hand is who it runs as from then on. The sign-in is the
+ * person's who gave it: anyone else who points the sync at other issues, or lists the projects it
+ * can see, gives their own.
  */
 
 const MAX_EMAIL = 320;
 const MAX_TOKEN = 1000;
 
 export type JiraCredentials = { siteUrl?: unknown; email?: unknown; token?: unknown };
+
+/** What a sync keeps sealed: the sign-in, and who gave it (unknown for syncs set up before it was kept). */
+type SealedAuth = JiraAuth & { owner?: string };
+
+/** Changing what a sync reads, or listing the projects its sign-in sees, by someone whose sign-in it isn't. */
+export class JiraSignInNeeded extends Error {}
+
+const signInOf = (row: SyncRow) => openJson<SealedAuth>(row.secrets);
+const ownsSignIn = (row: SyncRow, userId: string) => signInOf(row).owner === userId;
 
 /** Checked credentials, or JiraError "invalidSite" / "invalidInput". */
 function credentials(input: JiraCredentials): { siteUrl: string; auth: JiraAuth } {
@@ -66,9 +78,14 @@ function interval(value: unknown): number {
   return value;
 }
 
-/** Signs in to a Jira site to check the credentials: whose they are, and the projects they see. */
-export async function checkJira(input: JiraCredentials): Promise<{ account: string; projects: JiraProject[] }> {
+/**
+ * Signs in to a Jira site to check the credentials: whose they are, and the projects they see.
+ * For members of the workspace a sync is being set up in only (within their setup budget).
+ */
+export async function checkJira(userId: string, workspaceId: string, input: JiraCredentials): Promise<{ account: string; projects: JiraProject[] }> {
   const { siteUrl, auth } = credentials(input);
+  await requireMembership(userId, workspaceId);
+  takeSyncSetup(userId);
   const { name } = await jiraAccount(siteUrl, auth);
   return { account: name, projects: await jiraProjects(siteUrl, auth) };
 }
@@ -99,6 +116,8 @@ export async function createJiraSync(actor: WriteActor, input: JiraSyncInput): P
   const q = query(input.query);
   const every = interval(input.intervalMinutes);
   const names = input.names ?? ENGLISH_JIRA_NAMES;
+  await requireDatabasePlace(userId, input);
+  takeSyncSetup(userId);
   const rows = await fetchRows(siteUrl, auth, q);
 
   const database = await createPage(
@@ -142,7 +161,7 @@ export async function createJiraSync(actor: WriteActor, input: JiraSyncInput): P
       siteUrl,
       query: q,
       mapping,
-      secrets: sealJson(auth),
+      secrets: sealJson({ ...auth, owner: userId } satisfies SealedAuth),
       intervalMinutes: every,
       nextRunAt: every > 0 ? new Date(now.getTime() + every * 60_000) : null,
       lastRunAt: now,
@@ -188,12 +207,13 @@ async function personProperties(databaseId: string) {
   return (await getProperties(databaseId)).filter((p) => p.type === "person").map(({ id, name }) => ({ id, name }));
 }
 
-async function view(row: JiraSyncRow, manage: boolean, now = new Date()): Promise<JiraSyncView> {
+async function view(row: JiraSyncRow, userId: string, manage: boolean, now = new Date()): Promise<JiraSyncView> {
   const people = manage ? await personProperties(row.databaseId) : [];
   return {
     siteUrl: row.siteUrl,
     query: row.query,
-    email: openJson<JiraAuth>(row.secrets).email,
+    email: signInOf(row).email,
+    ownSignIn: ownsSignIn(row, userId),
     intervalMinutes: row.intervalMinutes,
     enabled: row.enabled,
     running: Boolean(row.runningUntil && row.runningUntil > now),
@@ -211,7 +231,7 @@ async function view(row: JiraSyncRow, manage: boolean, now = new Date()): Promis
 export async function getJiraSync(userId: string, databaseId: string): Promise<JiraSyncView | null> {
   await requireDatabase(userId, databaseId, "view");
   const row = await syncOf(databaseId);
-  return row ? await view(row, await canManage(userId, databaseId)) : null;
+  return row ? await view(row, userId, await canManage(userId, databaseId)) : null;
 }
 
 async function requireSync(userId: string, databaseId: string) {
@@ -228,7 +248,7 @@ export async function syncJiraNow(userId: string, databaseId: string): Promise<J
   const held = await claimSync(row.id);
   if (!held) throw new JiraError("alreadyRunning", "The sync is running");
   const outcome = await runAndRecord(held);
-  return { ...(await view((await syncOf(databaseId))!, true)), outcome };
+  return { ...(await view((await syncOf(databaseId))!, userId, true)), outcome };
 }
 
 /** `reporter`: the person property issues' reporters go to (null: nowhere). */
@@ -237,12 +257,21 @@ export type JiraSyncPatch = JiraCredentials & { query?: unknown; intervalMinutes
 /**
  * Changes a sync: its query, how often it runs, where reporters go, or its sign-in (email and
  * token, checked with Jira first; the site stays). It runs as the person changing it from then on, and is on again if it was
- * paused. A new query or sign-in syncs at once.
+ * paused. A new query or sign-in syncs at once. A new query from someone whose sign-in the sync
+ * doesn't keep comes with theirs (JiraSignInNeeded otherwise): another's token reads only what
+ * they set it to read.
  */
 export async function updateJiraSync(userId: string, databaseId: string, patch: JiraSyncPatch) {
   const row = await requireSync(userId, databaseId);
   const changes: Partial<typeof databaseSync.$inferInsert> = { runAs: userId, enabled: true };
-  if (patch.query !== undefined) changes.query = query(patch.query);
+  const signingIn = patch.email !== undefined || patch.token !== undefined;
+  if (patch.query !== undefined) {
+    const next = query(patch.query);
+    if (jqlOf(next) !== jqlOf(row.query) && !signingIn && !ownsSignIn(row, userId)) {
+      throw new JiraSignInNeeded("Changing what the sync reads needs your own sign-in");
+    }
+    changes.query = next;
+  }
   if (patch.intervalMinutes !== undefined) {
     changes.intervalMinutes = interval(patch.intervalMinutes);
     changes.nextRunAt = changes.intervalMinutes > 0 ? new Date(Date.now() + changes.intervalMinutes * 60_000) : null;
@@ -254,21 +283,31 @@ export async function updateJiraSync(userId: string, databaseId: string, patch: 
       changes.mapping = { ...mapping, reporter: patch.reporter };
     } else throw new JiraError("invalidInput", "The reporter goes to a person property of the database");
   }
-  if (patch.email !== undefined || patch.token !== undefined) {
+  if (signingIn) {
     const { auth } = credentials({ siteUrl: row.siteUrl, email: patch.email, token: patch.token });
+    takeSyncSetup(userId);
     await jiraAccount(row.siteUrl, auth);
-    changes.secrets = sealJson(auth);
+    changes.secrets = sealJson({ ...auth, owner: userId } satisfies SealedAuth);
   }
   await db.update(databaseSync).set(changes).where(eq(databaseSync.id, row.id));
   // A new query, sign-in or reporter property syncs at once (the reporters are filled in).
   if (changes.query || changes.secrets || (changes.mapping as JiraMapping | undefined)?.reporter) return syncJiraNow(userId, databaseId);
-  return { ...(await view((await syncOf(databaseId))!, true)), outcome: null };
+  return { ...(await view((await syncOf(databaseId))!, userId, true)), outcome: null };
 }
 
-/** The projects the sync's sign-in can browse, to pick another. Needs full access to the database. */
-export async function jiraProjectsOf(userId: string, databaseId: string): Promise<JiraProject[]> {
+/**
+ * The projects a sign-in can browse on the sync's site, to pick another: the sync's own, for the
+ * person who gave it, else the one given (JiraSignInNeeded without). Needs full access to the database.
+ */
+export async function jiraProjectsOf(userId: string, databaseId: string, signIn: JiraCredentials = {}): Promise<JiraProject[]> {
   const row = await requireSync(userId, databaseId);
-  return jiraProjects(row.siteUrl, openJson<JiraAuth>(row.secrets));
+  if (signIn.email !== undefined || signIn.token !== undefined) {
+    const { auth } = credentials({ siteUrl: row.siteUrl, email: signIn.email, token: signIn.token });
+    takeSyncSetup(userId);
+    return jiraProjects(row.siteUrl, auth);
+  }
+  if (!ownsSignIn(row, userId)) throw new JiraSignInNeeded("Listing projects needs your own sign-in");
+  return jiraProjects(row.siteUrl, signInOf(row));
 }
 
 /** Stops syncing: the database and its rows stay as they are, and its sign-in is forgotten. */

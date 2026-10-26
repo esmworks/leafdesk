@@ -51,7 +51,7 @@ process.env.CONNECTOR_ALLOWED_HOSTS = `localhost:${PEER_PORT}`;
 const { and, eq, inArray } = await import("drizzle-orm");
 const { default: postgres } = await import("postgres");
 const { db } = await import("@/db");
-const { agentRun, auditEvent, connection, connectionEvent, notification, user, workspace, workspaceAgent, workspaceMember } = await import("@/db/schema");
+const { agentRun, auditEvent, connection, connectionEvent, notification, page, user, workspace, workspaceAgent, workspaceMember } = await import("@/db/schema");
 const { setAiEnv } = await import("@/server/ai/testing");
 const { startFakeOpenAi, textOf } = await import("@/server/ai/fake-openai");
 type FakeChatRequest = import("@/server/ai/fake-openai").FakeChatRequest;
@@ -833,6 +833,24 @@ try {
   });
   check(answerOf(takenAway).includes("Gone."), "a call approved after its tool was taken from the chat isn't sent", takenAway.filter((e) => e.type === "text"));
   check(!(await rowsAtPeer()).includes(takenTitle), "…and nothing reaches the peer");
+
+  // What a reading call returns can be anyone's words: in Auto, a change after it is asked about.
+  const afterRead = `After a read ${RUN}`;
+  fake.setChat((request): FakeReply =>
+    assistantCalls(request) === 0
+      ? { toolCalls: [{ name: listTool, arguments: {} }] }
+      : assistantCalls(request) === 1
+        ? { toolCalls: [{ name: "create_row", arguments: { database_id: leads.id, title: afterRead } }] }
+        : { text: "Done." },
+  );
+  const askedAfterRead: string[] = [];
+  await chat(ids.owner, "Copy the peer's workspaces into my leads", "auto", (e) => {
+    askedAfterRead.push(e.action.action);
+    return "decline";
+  });
+  check(askedAfterRead.join() === "createRow", "after a reading call, a change is asked about also in Auto", askedAfterRead);
+  const madeAfterRead = await db.select({ id: page.id }).from(page).where(and(eq(page.parentId, leads.id), eq(page.title, afterRead)));
+  check(madeAfterRead.length === 0, "…and, declined, isn't made", madeAfterRead);
 
   // A read-only chat isn't offered writing tools; guests aren't offered any.
   fake.setChat((): FakeReply => ({ text: "Read only." }));

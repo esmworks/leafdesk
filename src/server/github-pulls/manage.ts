@@ -20,8 +20,9 @@ import type { WriteActor } from "@/server/collab/bridge";
 import { addProperty, addView, requireDatabase, type OptionInput } from "@/server/databases";
 import { discardDatabase, recordImport } from "@/server/import/csv";
 import { claimSync, runAndRecord, type SyncOutcome, type SyncRow } from "@/server/jira-sync/run";
-import { createPage, type DatabaseSeedNames } from "@/server/pages";
+import { createPage, requireDatabasePlace, type DatabaseSeedNames } from "@/server/pages";
 import { openJson, sealJson } from "@/server/secret-box";
+import { takeSyncSetup } from "@/server/sync-setup";
 import { checkGithubApi, fetchPulls, GithubPullsError, githubRepository } from "./client";
 import { applyPulls, type GithubAuth } from "./run";
 
@@ -89,6 +90,8 @@ export async function createGithubPullsSync(actor: WriteActor, input: GithubPull
   const q = query(input.query);
   const every = interval(input.intervalMinutes);
   const names = input.names ?? ENGLISH_GITHUB_NAMES;
+  await requireDatabasePlace(userId, input);
+  takeSyncSetup(userId);
   const { fullName } = await githubRepository(apiUrl, q.repo, token);
   const fetched = await fetchPulls(apiUrl, q, token);
 

@@ -16,6 +16,7 @@ const BLOCKED_V4: Range[] = [
   ["100.64.0.0", 10], // shared address space (CGNAT)
   ["127.0.0.0", 8], // loopback
   ["169.254.0.0", 16], // link-local (cloud metadata lives here)
+  ["168.63.129.16", 32], // Azure's platform endpoint (WireServer), reachable from every Azure VM
   ["172.16.0.0", 12], // private
   ["192.0.0.0", 24], // IETF protocol assignments
   ["192.0.2.0", 24], // documentation
@@ -125,3 +126,14 @@ export function isBlockedAddress(ip: string): boolean {
 
 /** Ports a link preview may fetch from: the web's usual ones, not every service on a host. */
 export const ALLOWED_PORTS = new Set(["", "80", "443", "8080", "8443"]);
+
+/**
+ * Whether `url` is on an allowed-hosts list an administrator set (CONNECTOR_ALLOWED_HOSTS and the
+ * like): an entry `host:port` lets that port through, a bare `host` only the web's usual ports
+ * (ALLOWED_PORTS), never every service on the host.
+ */
+export function onHostList(url: URL, allowed: readonly string[]): boolean {
+  const host = url.hostname.replace(/^\[|\]$/g, "").toLowerCase();
+  const port = url.port || (url.protocol === "https:" ? "443" : "80");
+  return allowed.includes(`${host}:${port}`) || (ALLOWED_PORTS.has(url.port) && allowed.includes(host));
+}

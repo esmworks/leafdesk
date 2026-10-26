@@ -6,6 +6,7 @@ import { createPage } from "@/server/pages";
 import { recordImport } from "./csv";
 import { docxBlocks, docxToHtml, imageName, imageSources, isPageImage, placeImages } from "./docx-convert";
 import { discard, store } from "./markdown";
+import { requireTopLevelPlace } from "./place";
 
 /**
  * Imports Word documents (.docx) as pages under a page (or at the top level of a workspace): one
@@ -46,7 +47,7 @@ export async function importDocx(actor: WriteActor, input: DocxImportInput): Pro
     if (parent.archivedAt) throw new ImportError("The page is in the trash", "noAccess");
     if (parent.kind !== "page") throw new ImportError("Pages can only be imported into a page", "badRequest");
     workspaceId = parent.workspaceId;
-  }
+  } else await requireTopLevelPlace(userId, workspaceId, input.teamspaceId);
 
   // Read every document first: one that can't be read stops the import before anything is created.
   const documents = [];

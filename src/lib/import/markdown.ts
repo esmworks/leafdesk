@@ -39,6 +39,9 @@ export const IMPORT_LIMITS = {
   pages: 500,
   /** One Markdown file. */
   markdownBytes: 5 * MB,
+  /** A file's path in the upload, in characters and in folders: deeper ones are left out. */
+  pathChars: 2048,
+  pathDepth: 100,
 };
 
 export type ImportFileKind = "markdown" | "csv" | "zip" | "asset";
@@ -78,11 +81,16 @@ const dirname = (path: string) => (path.includes("/") ? path.slice(0, path.lastI
 const basename = (path: string) => path.slice(path.lastIndexOf("/") + 1);
 const stem = (name: string) => name.replace(/\.[^.]+$/, "");
 
+/** `name` without the Notion id it ends with (white space and 32 hex digits). */
+function withoutNotionId(name: string): string {
+  // Checked from the end: `/\s+[0-9a-f]{32}$/` would start over at each space of a long run.
+  const id = name.length - 32;
+  return id > 0 && /^[0-9a-f]{32}$/i.test(name.slice(id)) && /\s/.test(name[id - 1]) ? name.slice(0, id).trimEnd() : name;
+}
+
 /** A file or folder name as a title: no extension, no Notion id, no stray whitespace. */
 export function cleanTitle(name: string): string {
-  return stem(basename(name))
-    .replace(/_all$/i, "")
-    .replace(/\s+[0-9a-f]{32}$/i, "")
+  return withoutNotionId(stem(basename(name)).replace(/_all$/i, ""))
     .replace(/\s+/g, " ")
     .trim()
     .slice(0, 200);
@@ -106,20 +114,78 @@ export function splitTitle(markdown: string, fallback: string): { title: string;
   let title: string | null = null;
   const front = FRONT_MATTER.exec(text);
   if (front) {
-    const line = /^title:\s*(.+?)\s*$/m.exec(front[1]);
-    if (line) title = line[1].replace(/^(["'])(.*)\1$/, "$2").trim() || null;
+    const value = frontMatterTitle(front[1]);
+    if (value !== null) title = value.replace(/^(["'])(.*)\1$/, "$2").trim() || null;
     text = text.slice(front[0].length);
   }
-  const heading = /^\s*#[ \t]+(.+?)[ \t]*#*[ \t]*(?:\n|$)/.exec(text);
-  if (heading && (title === null || heading[1].trim() === title)) {
-    title ??= heading[1].trim();
-    text = text.slice(heading[0].length);
+  const heading = leadingHeading(text);
+  if (heading && (title === null || heading.text.trim() === title)) {
+    title ??= heading.text.trim();
+    text = text.slice(heading.end);
   }
   return { title: (title ?? fallback).slice(0, 200), body: text.replace(/^\s*\n/, "") };
 }
 
+// The two readers below go through the text once, by hand. The regexes they stand for,
+// `/^title:\s*(.+?)\s*$/m` and `/^\s*#[ \t]+(.+?)[ \t]*#*[ \t]*(?:\n|$)/`, try every end of the
+// value against the white space after it, which takes time growing with the square (or the
+// cube) of a long run of spaces.
+
+const LINE_BREAK = /[\n\r\u2028\u2029]/g;
+const isBlank = (c: string) => c === " " || c === "\t";
+
+/** The value of front matter's first `title:` line, as `/^title:\s*(.+?)\s*$/m` captures it; null without one. */
+function frontMatterTitle(front: string): string | null {
+  for (let at = 0; at < front.length; ) {
+    if (front.startsWith("title:", at)) {
+      // The value starts at the first character that isn't white space (on a later line when the
+      // line has none) and ends with the last one of its line.
+      let start = at + 6;
+      while (start < front.length && /\s/.test(front[start])) start++;
+      if (start === front.length) return null;
+      LINE_BREAK.lastIndex = start;
+      const end = LINE_BREAK.exec(front)?.index ?? front.length;
+      return front.slice(start, end).trimEnd();
+    }
+    LINE_BREAK.lastIndex = at;
+    const next = LINE_BREAK.exec(front);
+    if (!next) return null;
+    at = next.index + 1;
+  }
+  return null;
+}
+
+/**
+ * A `# Heading` the text starts with (after blank lines), as the regex above reads it: its text
+ * (closing `#`s and the blanks around it left out) and where the text after its line starts. Null
+ * without one.
+ */
+function leadingHeading(text: string): { text: string; end: number } | null {
+  const lead = /^\s*#[ \t]/.exec(text);
+  if (!lead) return null;
+  const from = lead[0].length - 1;
+  const newline = text.indexOf("\n", from);
+  const line = text.slice(from, newline === -1 ? text.length : newline);
+  // The heading's text can't run past another line break.
+  if (/[\r\u2028\u2029]/.test(line)) return null;
+  let start = 0;
+  while (start < line.length && isBlank(line[start])) start++;
+  if (start === line.length) {
+    // Nothing but blanks: the last of them is the text (at least one goes before it).
+    if (line.length < 2) return null;
+    start = line.length - 1;
+  }
+  let end = line.length;
+  while (end > start && isBlank(line[end - 1])) end--;
+  while (end > start && line[end - 1] === "#") end--;
+  while (end > start && isBlank(line[end - 1])) end--;
+  return { text: line.slice(start, Math.max(end, start + 1)), end: newline === -1 ? text.length : newline + 1 };
+}
+
 /** A cell as the export writes it in a row page's property list: on one line. */
-const oneLine = (value: string) => value.replace(/\s*\n\s*/g, ", ").trim();
+const oneLine = (value: string) =>
+  // Each run of white space with a line break in it is a ", " (`/\s*\n\s*/g` would start over at each space of a long run without one).
+  value.replace(/\s+/g, (run) => (run.includes("\n") ? ", " : run)).trim();
 
 /**
  * A row page's body without the property list Leafdesk's export puts at its top (`- Status: Done`,
@@ -223,9 +289,17 @@ export function planImport(paths: string[], { topLevel = false }: { topLevel?: b
   // A folder without one may hold its body instead: index.md, README.md or a file named like it.
   const indexOf = new Map<string, string>();
   const siblings = new Set(siblingOf.values());
+  // Each folder's Markdown files, gathered once (not by going through every file for each folder).
+  const markdownIn = new Map<string, string[]>();
+  for (const p of content) {
+    if (importFileKind(p) !== "markdown" || siblings.has(p)) continue;
+    const list = markdownIn.get(dirname(p));
+    if (list) list.push(p);
+    else markdownIn.set(dirname(p), [p]);
+  }
   for (const folder of folders) {
     if (siblingOf.has(folder)) continue;
-    const own = content.filter((p) => dirname(p) === folder && importFileKind(p) === "markdown" && !siblings.has(p));
+    const own = markdownIn.get(folder) ?? [];
     const pick =
       INDEX_NAMES.map((n) => own.find((p) => stem(basename(p)).toLowerCase() === n)).find(Boolean) ??
       own.find((p) => cleanTitle(p).toLowerCase() === cleanTitle(folder).toLowerCase());
@@ -317,31 +391,111 @@ export function planImport(paths: string[], { topLevel = false }: { topLevel?: b
 }
 
 /**
+ * `href` without its query and fragment, as `href.replace(/[?#].*$/, "")` leaves it: from the
+ * first `?` or `#` after its last line break on. Found without that regex, which would read to the
+ * end from each `?` before a line break.
+ */
+export function withoutQuery(href: string): string {
+  const line = Math.max(href.lastIndexOf("\n"), href.lastIndexOf("\r"), href.lastIndexOf("\u2028"), href.lastIndexOf("\u2029")) + 1;
+  const at = href.slice(line).search(/[?#]/);
+  return at === -1 ? href : href.slice(0, line + at);
+}
+
+/**
  * Where a link in the file at `from` points inside the upload, as a normalized path; null for
  * links elsewhere (a URL, an absolute path, an anchor on the same page) or out of the upload.
  */
 export function resolveLink(from: string, href: string): string | null {
   let target = href.trim().replace(/^<|>$/g, "");
   if (!target || target.startsWith("#") || target.startsWith("/") || /^[a-z][a-z0-9+.-]*:/i.test(target)) return null;
-  target = target.replace(/[?#].*$/, "");
+  target = withoutQuery(target);
   try {
     target = decodeURIComponent(target);
   } catch {}
   return normalizePath(`${dirname(from)}/${target}`);
 }
 
-/** Markdown links and images, `[text](target "title")` / `![alt](<target with spaces>)`. */
-const LINK = /(!?)\[((?:\\.|[^\]\\\n])*)\]\(\s*(<[^<>\n]*>|(?:[^\s()]|\([^\s()]*\))+)(\s+(?:"[^"\n]*"|'[^'\n]*'))?\s*\)/g;
+/** Markdown links and images, `[text](target "title")` / `![alt](<target with spaces>)`: the text… */
+const LINK_TEXT = /\[((?:\\.|[^\]\\\n])*)/y;
+/** …then the target, and its title. */
+const LINK_TARGET = /\]\(\s*(<[^<>\n]*>|(?:[^\s()]|\([^\s()]*\))+)(\s+(?:"[^"\n]*"|'[^'\n]*'))?\s*\)/y;
 /** Reference definitions, `[id]: target`. */
 const DEFINITION = /^( {0,3}\[[^\]\n]+\]:[ \t]*)(<[^<>\n]*>|\S+)/;
-/** Images written as HTML. */
-const IMG_TAG = /(<img\b[^>]*?\bsrc\s*=\s*)(["'])([^"'\n]*)\2/gi;
+/** Images written as HTML: where one starts… */
+const IMG_START = /<img\b/gi;
+/** …and its source. */
+const IMG_SRC = /(<img\b[^>]*?\bsrc\s*=\s*)(["'])([^"'\n]*)\2/iy;
 const FENCE = /^ {0,3}(`{3,}|~{3,})/;
 
 /** Where a link points (`path`, see resolveLink), whether it's an image, and its href as written. */
 export type LinkTarget = { path: string; image: boolean; href: string };
 
-const IMAGE = /!\[(?:\\.|[^\]\\\n])*\]\(\s*(?:<[^<>\n]*>|(?:[^\s()]|\([^\s()]*\))+)(?:\s+(?:"[^"\n]*"|'[^'\n]*'))?\s*\)/g;
+type Found = { start: number; end: number };
+type MarkdownLink = Found & { image: boolean; text: string; href: string; title: string | undefined };
+
+/**
+ * The links (or only the images) of a line, as a global regex of LINK_TEXT and LINK_TARGET would
+ * find them, `!` before an image's `[` included. By hand, in time growing with the line's length:
+ * the regex would read the rest of the line again from each `[` of a long run. A text no target
+ * follows starts no link, and neither does a `[` inside it (its text ends at the same `]`), so the
+ * search goes on after it.
+ */
+function markdownLinks(line: string, { images = false }: { images?: boolean } = {}): MarkdownLink[] {
+  const links: MarkdownLink[] = [];
+  let from = 0;
+  for (let open = line.indexOf("["); open !== -1; open = line.indexOf("[", from)) {
+    const image = open > from && line[open - 1] === "!";
+    if (images && !image) {
+      from = open + 1;
+      continue;
+    }
+    LINK_TEXT.lastIndex = open;
+    const text = LINK_TEXT.exec(line)![1];
+    LINK_TARGET.lastIndex = LINK_TEXT.lastIndex;
+    const target = LINK_TARGET.exec(line);
+    if (!target) {
+      from = LINK_TEXT.lastIndex;
+      continue;
+    }
+    from = LINK_TARGET.lastIndex;
+    links.push({ start: image ? open - 1 : open, end: from, image, text, href: target[1], title: target[2] });
+  }
+  return links;
+}
+
+/**
+ * The `<img … src="…">` tags of a line, as a global IMG_SRC would find them. One that has no
+ * source before its `>` leaves none to the tags starting before that `>`, so the search goes on
+ * from there (the regex would read up to it again from each of them).
+ */
+function imgTags(line: string): (Found & { head: string; quote: string; src: string })[] {
+  const tags: (Found & { head: string; quote: string; src: string })[] = [];
+  IMG_START.lastIndex = 0;
+  for (let start = IMG_START.exec(line); start; start = IMG_START.exec(line)) {
+    IMG_SRC.lastIndex = start.index;
+    const tag = IMG_SRC.exec(line);
+    if (tag) {
+      tags.push({ start: start.index, end: IMG_SRC.lastIndex, head: tag[1], quote: tag[2], src: tag[3] });
+      IMG_START.lastIndex = IMG_SRC.lastIndex;
+    } else {
+      const close = line.indexOf(">", start.index);
+      if (close === -1) break;
+      IMG_START.lastIndex = close;
+    }
+  }
+  return tags;
+}
+
+/** `text` with each of `found` (in order, not overlapping) replaced by what `fn` returns for it. */
+function replaceFound<T extends Found>(text: string, found: T[], fn: (item: T) => string): string {
+  let out = "";
+  let last = 0;
+  for (const item of found) {
+    out += text.slice(last, item.start) + fn(item);
+    last = item.end;
+  }
+  return out + text.slice(last);
+}
 
 /**
  * Images in a line of text moved to lines of their own after it: images are blocks in the editor,
@@ -362,9 +516,10 @@ export function liftImages(markdown: string): string {
         return line;
       }
       if (/^\s*\|/.test(line)) return line;
-      const images = line.match(IMAGE);
-      if (!images) return line;
-      const rest = line.replace(IMAGE, "").trimEnd();
+      const found = markdownLinks(line, { images: true });
+      if (!found.length) return line;
+      const images = found.map((image) => line.slice(image.start, image.end));
+      const rest = replaceFound(line, found, () => "").trimEnd();
       // A line of nothing but images (after its list marker or quote, if any) is fine as it is.
       if (!rest.replace(/^\s*(?:[-*+]|\d+[.)]|>)?\s*/, "").trim()) return images.length === 1 ? line : images.join("\n\n");
       return [rest, ...images].join("\n\n");
@@ -382,16 +537,16 @@ export function rewriteLinks(markdown: string, from: string, replace: (target: L
     const path = resolveLink(from, href);
     return path ? replace({ path, image, href }) : null;
   };
-  const inline = (text: string) =>
-    text
-      .replace(LINK, (whole, bang: string, label: string, href: string, title: string | undefined) => {
-        const next = swap(href, bang === "!");
-        return next === null ? whole : `${bang}[${label}](${next}${title ?? ""})`;
-      })
-      .replace(IMG_TAG, (whole, head: string, quote: string, src: string) => {
-        const next = swap(src, true);
-        return next === null ? whole : `${head}${quote}${next}${quote}`;
-      });
+  const inline = (text: string) => {
+    const linked = replaceFound(text, markdownLinks(text), ({ start, end, image, text: label, href, title }) => {
+      const next = swap(href, image);
+      return next === null ? text.slice(start, end) : `${image ? "!" : ""}[${label}](${next}${title ?? ""})`;
+    });
+    return replaceFound(linked, imgTags(linked), ({ start, end, head, quote, src }) => {
+      const next = swap(src, true);
+      return next === null ? linked.slice(start, end) : `${head}${quote}${next}${quote}`;
+    });
+  };
 
   let fence: string | null = null;
   return markdown

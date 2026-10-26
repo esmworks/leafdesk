@@ -431,17 +431,20 @@ try {
   );
   const rest = await ops.listWorkspaces({ userId: ids.admin } as never);
   check(rest.workspaces.some((w) => w.id === workspaceId && w.role === "membership_admin"), "…and so does the REST API's workspace list", rest);
-  const mcpInvite = await callTool(ids.admin, "invite_member", { workspace_id: workspaceId, email: `mcp-ma@${RUN}.test`, role: "membership_admin" });
-  check(!mcpInvite.isError && mcpInvite.data.status === "invited" && mcpInvite.data.role === "membership_admin", "MCP invite_member invites a membership admin", mcpInvite.text);
+  // MCP invites members and guests only: other roles are given in Settings > Members.
+  const mcpAdmin = await callTool(ids.admin, "invite_member", { workspace_id: workspaceId, email: `mcp-ma@${RUN}.test`, role: "membership_admin" });
+  check(mcpAdmin.isError, "MCP invite_member doesn't make membership admins", mcpAdmin.text);
+  const mcpInvite = await callTool(ids.admin, "invite_member", { workspace_id: workspaceId, email: `mcp-ma@${RUN}.test` });
+  check(!mcpInvite.isError && mcpInvite.data.status === "invited" && mcpInvite.data.role === "member", "…but a membership admin invites a member through it", mcpInvite.text);
   const mcpOwner = await callTool(ids.admin, "invite_member", { workspace_id: workspaceId, email: `mcp-o@${RUN}.test`, role: "owner" });
-  check(mcpOwner.isError, "…but a membership admin can't invite an owner through it", mcpOwner.text);
+  check(mcpOwner.isError, "…and can't invite an owner through it", mcpOwner.text);
   const mcpMember = await callTool(ids.member, "invite_member", { workspace_id: workspaceId, email: `mcp-m@${RUN}.test`, role: "member" });
   check(mcpMember.isError, "…nor a member while only owners may add people", mcpMember.text);
   const stored = await db
     .select({ role: workspaceInvitation.role })
     .from(workspaceInvitation)
     .where(and(eq(workspaceInvitation.workspaceId, workspaceId), eq(workspaceInvitation.email, `mcp-ma@${RUN}.test`)));
-  check(stored[0]?.role === "membership_admin", "…the invitation holds the role");
+  check(stored[0]?.role === "member", "…the invitation holds the role");
 
   console.log(`\n${passed} checks passed`);
 } finally {

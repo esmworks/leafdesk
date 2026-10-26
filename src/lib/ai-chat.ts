@@ -108,11 +108,12 @@ export type ChatWriteView = {
  * A change the chat asks to make (mode `ask`): what (`action`), where (`target` as in
  * ChatWriteView), the title of the row or page, the values it sets and the start of the text it
  * writes, if any. A call to a connection's tool that changes something (asked in every mode):
- * the connection, the tool as title and what it sends as content.
+ * the connection, the tool as title and what it sends as content. A web page to read or a web
+ * search (asked in every mode, see lib/web-calls.ts): the address or the words as title.
  */
 export type ChatActionView = {
-  /** A change to the workspace, a note about the person to keep or drop (title: its text), or a call to a connection's tool. */
-  action: ChatWriteAction | "remember" | "forget" | "connection";
+  /** A change to the workspace, a note about the person to keep or drop (title: its text), a call to a connection's tool, or a web call. */
+  action: ChatWriteAction | "remember" | "forget" | "connection" | "readWeb" | "searchWeb";
   /** A call to a connection's tool: the connection. */
   connection?: { name: string; icon: string | null };
   target: ChatPageView;

@@ -894,7 +894,8 @@ export const uniqueValue = pgTable(
       .references(() => databaseProperty.id, { onDelete: "cascade" }),
     key: text("key").notNull(),
   },
-  (t) => [primaryKey({ columns: [t.rowId, t.propertyId] }), uniqueIndex("unique_value_key_idx").on(t.propertyId, t.key)],
+  // By the key's hash: a btree entry holds at most about 2.7 KB, and a value may be longer.
+  (t) => [primaryKey({ columns: [t.rowId, t.propertyId] }), uniqueIndex("unique_value_key_idx").on(t.propertyId, sql`md5(${t.key})`)],
 );
 
 export type ViewType = "table" | "board" | "calendar" | "gallery" | "list" | "feed" | "timeline" | "map" | "chart" | "dashboard" | "form";

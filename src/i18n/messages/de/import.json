@@ -173,7 +173,8 @@
       "failed": "Die Synchronisierung ist fehlgeschlagen. Sie versucht es beim nächsten Mal erneut.",
       "invalidSite": "Diese Adresse kann Leafdesk nicht erreichen.",
       "invalidInput": "Gib die E-Mail-Adresse, das API-Token und an, was synchronisiert werden soll.",
-      "alreadyRunning": "Eine Synchronisierung läuft gerade. Versuche es gleich noch einmal."
+      "alreadyRunning": "Eine Synchronisierung läuft gerade. Versuche es gleich noch einmal.",
+      "needsSignIn": "Die Synchronisierung meldet sich als jemand anderes bei Jira an. Um zu ändern, was sie liest, melde dich mit deiner eigenen E-Mail-Adresse und deinem eigenen API-Token an."
     }
   },
   "githubPulls": {
@@ -279,6 +280,7 @@
       "tooLarge": "„{path}“ ist zu groß für eine Seite und wurde ausgelassen.",
       "unused": "„{path}“ wurde ausgelassen: Keine Seite zeigt die Datei an oder verlinkt darauf.",
       "unsafePath": "„{path}“ wurde ausgelassen: Der Pfad führt aus der ZIP-Datei heraus.",
+      "deepPath": "„{path}“ wurde ausgelassen: Der Pfad ist zu lang oder hat zu viele Ordner.",
       "otherSheet": "Das Tabellenblatt „{path}“ wurde ausgelassen: Es wird jeweils nur ein Blatt importiert.",
       "badNote": "Die Notiz „{path}“ kann nicht gelesen werden und wurde ausgelassen.",
       "notEnex": "„{path}“ wurde ausgelassen: Die Datei ist kein Evernote-Export (.enex)."
@@ -311,7 +313,9 @@
     "badMapping": "Lege für mindestens eine Spalte ein Ziel fest und verwende jede Eigenschaft nur einmal.",
     "noAccess": "Du kannst dort keine Seiten hinzufügen, oder das Ziel existiert nicht mehr.",
     "notADatabase": "Zeilen können nur einer Datenbank hinzugefügt werden.",
-    "badRequest": "Der Import ist fehlgeschlagen. Es wurde nichts geändert."
+    "busy": "Ein anderer Import läuft noch. Versuche es erneut, wenn er fertig ist.",
+    "badRequest": "Der Import ist fehlgeschlagen. Es wurde nichts geändert.",
+    "rateLimited": "Von hier wurden zu viele Synchronisierungen eingerichtet oder geprüft. Versuche es in ein paar Minuten noch einmal."
   },
   "googleDocs": {
     "help": "Jedes Google-Dokument wird zu einer Seite, gelesen über die Google-Drive-Verbindung des Arbeitsbereichs wie ein Word-Dokument: Überschriften, Listen, Tabellen, Links, Bilder und Fußnoten. Eine Überschrift ganz oben wird zum Seitentitel, sonst der Name des Dokuments.",
@@ -426,7 +430,7 @@
       "forbidden": "Der Benutzer darf diese Tabelle nicht lesen.",
       "notFound": "Diese Datenbank oder Tabelle gibt es nicht.",
       "badQuery": "Der Server hat die Abfrage abgelehnt:",
-      "tooManyIssues": "Die Tabelle hat zu viele Zeilen zum Synchronisieren. Synchronisiere eine Ansicht der Zeilen, die du brauchst.",
+      "tooManyIssues": "Die Tabelle hat zu viele Zeilen oder zu viel Text zum Synchronisieren. Synchronisiere eine Ansicht der Zeilen und Spalten, die du brauchst.",
       "unreachable": "Der Server war nicht erreichbar oder die Abfrage dauerte zu lange. Die Synchronisierung versucht es beim nächsten Mal erneut.",
       "runAsGone": "Die Person, die die Synchronisierung eingerichtet hat, hat kein Konto mehr.",
       "accessLost": "Die Person, als die die Synchronisierung läuft, kann diese Datenbank nicht mehr bearbeiten.",

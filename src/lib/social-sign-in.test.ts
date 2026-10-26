@@ -17,6 +17,7 @@ function setup({ invitedEmail = "invited@example.com" } = {}) {
   const check = async (token: string, email: string) => token === INVITE && email === invitedEmail;
   const signUps: { email: string; invite: string | null; join: string | null }[] = [];
   const revokedApps: string[] = [];
+  const kept: (string | undefined)[] = [];
   const auth = betterAuth({
     baseURL: BASE,
     secret: "test-secret-that-is-long-enough-for-better-auth",
@@ -38,11 +39,16 @@ function setup({ invitedEmail = "invited@example.com" } = {}) {
         },
       },
       account: {
-        create: { after: claimOnEmailLink(async (userId) => void revokedApps.push(userId)) },
+        create: {
+          after: claimOnEmailLink(async (userId, keepAccountId) => {
+            revokedApps.push(userId);
+            kept.push(keepAccountId);
+          }),
+        },
       },
     },
   });
-  return { auth, db, signUps, revokedApps };
+  return { auth, db, signUps, revokedApps, kept };
 }
 
 /** The session cookie a response set, as a request `cookie` header. */
@@ -196,6 +202,21 @@ describe("social sign-in", () => {
     expect(db.user[0].emailVerified).toBe(true);
     expect(db.account.map((a) => a.providerId)).toEqual(["github"]);
     expect(revokedApps).toEqual([userId]);
+  });
+
+  it("also drops another provider's login of the earlier holder, keeping the one that proved the address", async () => {
+    const { auth, db, revokedApps, kept } = setup();
+    await signUpWithPassword(auth, "victim@example.com");
+    const userId = db.user[0].id;
+    // Signed in through an identity provider that doesn't vouch for addresses (SSO without domains).
+    db.account.push({ id: "sso-1", userId, providerId: "oidc", accountId: "attacker-sub", createdAt: new Date(), updatedAt: new Date() });
+
+    stubGitHub("victim@example.com");
+    await gitHubSignIn(auth);
+
+    expect(db.account.map((a) => a.providerId)).toEqual(["github"]);
+    expect(revokedApps).toEqual([userId]);
+    expect(kept).toEqual([db.account[0].id]);
   });
 
   it("leaves the password and sessions of an account whose email is verified", async () => {

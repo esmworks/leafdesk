@@ -237,7 +237,10 @@
     its menu): no two rows may hold the same value, case and spaces aside, numbers by amount and
     phone numbers by their digits. Empty values don't count. It can't be turned on while two rows
     share a value (the error names one), and once on, every way a value is written is held to it:
-    edits, new rows, bulk edits, pastes, imports, forms, the API, MCP, automations and syncs. A row
+    edits, new rows, bulk edits, pastes, imports, forms, the API, MCP, automations and syncs. A
+    paste, an import or a sync run leaves out a value another row holds (or an earlier row of the
+    same paste, file or run takes) and counts it with the other values that couldn't go in, rather
+    than stopping; a synced item whose key is left out that way isn't added. A row
     in the trash frees its value and can't be restored while another row holds it; a duplicated
     row leaves the value out. Changing the property's type turns it off.
   - A status can *Show as checkbox* (in its menu): a box ticked while the status is done; ticking
@@ -738,8 +741,10 @@
   right under it become its top-level pages; whoever turns it and those with full access to the page
   own it, those who could edit join as members (and groups that could edit, as groups), members
   can edit its pages, and everyone else named on the page (viewers, commenters, guests) keeps what
-  they had. It is private when the page was private or in a private teamspace, closed when it was in
-  a closed one, open otherwise. Guests are never in teamspaces: they get single pages. Those who
+  they had. A sub-page whoever turns it may not manage (no full access) moves too but keeps its own
+  sharing: one closed to everyone else stays closed in the teamspace. A top-level page of a teamspace
+  whose top level is locked can only be turned by those who may arrange it. It is private when the
+  page was private or in a private teamspace, closed when it was in a closed one, open otherwise. Guests are never in teamspaces: they get single pages. Those who
   manage a teamspace that isn't default can type an email into its *Add members* field: someone
   already in the workspace is added, anyone else is invited to the workspace as a member with the
   teamspace (and the role picked) in the invitation, and joins both on accepting. It goes through
@@ -868,7 +873,8 @@
   can also have a domain of its own (see [Workspace site on its own domain](../README.md#workspace-site-on-its-own-domain)).
   A publication can also **allow duplicate**: signed-in
   visitors copy the page, as published, into one of their workspaces (or its templates), files
-  included and without comments, history, people or private properties.
+  included and without comments, history, people or private properties; of a database, only the
+  rows its views on the web show.
 - **File uploads**: drop, paste or pick images, video, audio and other files into a page. They are
   stored on disk or in S3-compatible storage, only people who can see a page showing them can open
   them, and published pages show theirs (see [File uploads](self-hosting.md#file-uploads)). Uploaded PDFs show
@@ -890,7 +896,9 @@
   (`[Plan](Plan.md)`) finds it elsewhere in the upload when nothing sits at that path. A Leafdesk
   export comes back as it went, templates included. Import a CSV file as a new database with its column types guessed (and
   changeable before importing), or add its rows to an existing database by matching columns to
-  properties.
+  properties. Files whose path is longer than 2,048 characters or 100 folders deep are left out
+  (and listed in the result). Each person runs one import at a time; starting another while one
+  is still reading its files asks to wait for it.
 - **Import from Word**: choose one or more `.docx` files on Import's Word tab; each becomes a
   page. A heading (or Title paragraph) at the very top becomes the page's title, otherwise the file
   name does. Headings (levels past the third as the third), bold, italic, underline,
@@ -1068,8 +1076,8 @@
   every release, see [`extension/`](../extension/README.md)) does the same from its toolbar button
   (Alt+Shift+S) and from the context menu of a page, a link or selected text: it opens the quick
   note on the Leafdesk address set in its settings, and sends nothing anywhere else. The server fetches only public addresses (http or https on the usual web
-  ports, every redirect checked again; `CONNECTOR_ALLOWED_HOSTS` lets hosts on your own network
-  through, as for [connections](connections.md)), at most 5 MB of page in 15 seconds. REST:
+  ports, every redirect checked again; `WEB_FETCH_ALLOWED_HOSTS` lets hosts on your own network
+  through, see [Self-hosting](self-hosting.md#broken-web-links)), at most 5 MB of page in 15 seconds. REST:
   `POST /api/v1/pages/from-web` (see [REST API](rest-api.md)).
 - **Sync Jira issues**: Import's Jira tab takes a Jira Cloud site, an email address and an
   [API token](https://id.atlassian.com/manage-profile/security/api-tokens) (kept sealed like a
@@ -1086,7 +1094,12 @@
   credentials, a refused query, a deleted *Key* property or more than 2,000 issues pause it until
   it is changed in the database's sync dialog (the ⟳ button on its toolbar), where people with
   full access can also sync now, change the query or sign-in, pick the person property the
-  reporter goes to (or none), or stop syncing (the rows stay).
+  reporter goes to (or none), or stop syncing (the rows stay). Only the person whose sign-in the
+  sync keeps changes its query or lists its projects with it; anyone else gives their own email
+  address and token to do so, which then replace it (syncs set up before this keep a sign-in of
+  no one's until it is given again). Setting up any sync, or checking a sign-in, first checks that
+  the person may make the database where they asked, and each person may do so ten times a
+  minute and sixty an hour.
   Tested against a stand-in Jira (`scripts/jira-sync-e2e.ts`), not yet a real site.
 - **Sync GitHub pull requests**: Import's GitHub tab takes a repository (`owner/name` or its
   address), a token for a private one (read access to pull requests is enough; it also raises
@@ -1118,10 +1131,13 @@
   the column that finds each row again (the primary key when left empty) and the one that names
   it (the first text column), and makes a database with the key as text and a property for each
   other column by its type: text, numbers, checkboxes, dates, times and JSON (as text). Runs read
-  up to 5,000 rows ordered by the key in a read-only transaction with a 30-second limit, write the
-  table's values over and add new rows; rows that leave the table stay. The server is reached on
+  up to 5,000 rows and 50 million characters (each value cut at 10,000) ordered by the key in a
+  read-only transaction with a 30-second limit, and Leafdesk hangs up after a minute whatever the
+  server does; they write the table's values over and add new rows; rows that leave the table
+  stay. Keys keep every digit, however big the number. The server is reached on
   public addresses only, with TLS unless the address's `sslmode` says otherwise; a database on
-  your own network needs its host in `CONNECTOR_ALLOWED_HOSTS`. A refused password, a missing
+  your own network needs its host in `CONNECTOR_ALLOWED_HOSTS` (a bare name allows port 5432; name
+  any other port, `db:6543`). A refused password, a missing
   table, a dropped column (with the server's words in the sync dialog) or a deleted key property
   pauses it. Use a user that may only read the table. Tested against a table of the e2e's own
   database (`scripts/postgres-sync-e2e.ts`).
@@ -1153,7 +1169,9 @@
   Add people by email (several at once) as owners, membership admins or members, send
   an invitation link to people who don't have an account yet (or whose account's address was
   never verified: anyone can sign up with someone else's address), or turn on a join link anyone
-  can use. Owners can export the member list as CSV, hand ownership to someone else, and decide who
+  can use. Invitation emails are limited (per person inviting, 100 an hour; per workspace, 200;
+  per address invited, 3 from any workspace); past that the invitation is made all the same, and
+  its link is shown to share instead. Owners can export the member list as CSV, hand ownership to someone else, and decide who
   may invite guests and add members, which email domains may join on their own, who may ask to
   join, whether pages may be exported, and what connected apps and API tokens may do (see
   [Who can join a workspace](account-and-security.md#who-can-join-a-workspace) and

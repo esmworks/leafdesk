@@ -1,25 +1,68 @@
 import assert from "node:assert/strict";
 import { test } from "node:test";
-import { decideNavigation, decideNewWindow, isServerPage, openLinkTarget, showsFile, signInReturn } from "./navigation.ts";
+import { allowsFrameRedirect, awayHost, decideNavigation, decideNewWindow, isServerPage, openLinkTarget, showsFile, signInReturn } from "./navigation.ts";
 
 const PAGES = "file:///Applications/Leafdesk.app/Contents/Resources/app.asar/pages/";
 const SERVER = "https://leafdesk.example.com";
 
-test("the window follows web pages, single sign-on included", () => {
-  assert.equal(decideNavigation(`${SERVER}/w/abc`, PAGES), "allow");
-  assert.equal(decideNavigation("https://accounts.google.com/o/oauth2/auth?x=1", PAGES), "allow");
-  assert.equal(decideNavigation("http://192.168.1.20:3000/", PAGES), "allow");
+const signIn = (back: string) => `https://accounts.google.com/o/oauth2/v2/auth?client_id=x&redirect_uri=${encodeURIComponent(back)}&state=s`;
+
+test("the window keeps the server's pages; other web pages go to the system's browser", () => {
+  assert.equal(decideNavigation(`${SERVER}/w/abc`, PAGES, SERVER), "allow");
+  assert.equal(decideNavigation(`${SERVER}/w/abc`, PAGES, SERVER, { from: `${SERVER}/w/def` }), "allow");
+  for (const from of [`${SERVER}/w/abc/p/def`, `${SERVER}/s/token`, undefined]) {
+    assert.equal(decideNavigation("https://evil.example.org/sign-in", PAGES, SERVER, { from }), "external", String(from));
+  }
+  assert.equal(decideNavigation("http://leafdesk.example.com/w/abc", PAGES, SERVER), "external");
+  assert.equal(decideNavigation("https://leafdesk.example.com.evil.test/w/abc", PAGES, SERVER), "external");
+  // Without a server (the app's own screens) nothing on the web opens in the window.
+  assert.equal(decideNavigation("http://192.168.1.20:3000/", PAGES), "external");
+});
+
+test("signing in to Leafdesk at an identity provider stays in the window", () => {
+  const from = `${SERVER}/sign-in?next=%2Fw%2Fabc`;
+  assert.equal(decideNavigation(signIn(`${SERVER}/api/auth/callback/google`), PAGES, SERVER, { from }), "sign-in");
+  assert.equal(decideNavigation(signIn(`${SERVER}/api/auth/sso/callback/acme`), PAGES, SERVER, { from: `${SERVER}/sso-required/ws1` }), "sign-in");
+  assert.equal(decideNavigation(signIn(`${SERVER}/api/auth/callback/github`), PAGES, SERVER, { from: `${SERVER}/invite/token1` }), "sign-in");
+  assert.equal(decideNavigation("https://idp.acme.example/sso/saml?SAMLRequest=fZJNT&RelayState=r", PAGES, SERVER, { from: `${SERVER}/sign-up` }), "sign-in");
+  // Once on its way, the provider's own pages and redirects follow, until the tab is back (main.ts).
+  assert.equal(decideNavigation("https://login.microsoftonline.com/common/login", PAGES, SERVER, { from: "https://accounts.google.com/x", signingIn: true }), "sign-in");
+  assert.equal(decideNavigation(`${SERVER}/api/auth/callback/google?code=c`, PAGES, SERVER, { signingIn: true }), "allow");
+
+  // Not from a sign-in page (a link in a page, which anyone writing pages can make), or not
+  // answering at the server's auth API: the system's browser.
+  assert.equal(decideNavigation(signIn(`${SERVER}/api/auth/callback/google`), PAGES, SERVER, { from: `${SERVER}/w/abc/p/def` }), "external");
+  assert.equal(decideNavigation(signIn(`${SERVER}/api/auth/callback/google`), PAGES, SERVER, { from: `${SERVER}/sign-in/../w/abc` }), "external");
+  assert.equal(decideNavigation(signIn(`${SERVER}/api/auth/callback/google`), PAGES, SERVER, { from: "https://evil.example.org/sign-in" }), "external");
+  assert.equal(decideNavigation(signIn(`${SERVER}/w/abc`), PAGES, SERVER, { from }), "external");
+  assert.equal(decideNavigation(signIn("https://evil.example.org/api/auth/callback/google"), PAGES, SERVER, { from }), "external");
+  assert.equal(decideNavigation("https://evil.example.org/", PAGES, SERVER, { from }), "external");
+  assert.equal(decideNavigation(signIn(`${SERVER}/api/auth/callback/google`), PAGES, undefined, { from }), "external");
 });
 
 test("signing in to a service for a connection or storage goes to the system's browser", () => {
-  const signIn = (back: string) => `https://accounts.google.com/o/oauth2/v2/auth?client_id=x&redirect_uri=${encodeURIComponent(back)}&state=s`;
-  assert.equal(decideNavigation(signIn(`${SERVER}/api/connections/oauth/callback`), PAGES, SERVER), "external");
-  assert.equal(decideNavigation(signIn(`${SERVER}/api/storage/oauth/callback`), PAGES, SERVER), "external");
-  // Signing in to Leafdesk itself, or a sign-in that returns elsewhere, stays in the window.
-  assert.equal(decideNavigation(signIn(`${SERVER}/api/auth/callback/google`), PAGES, SERVER), "allow");
-  assert.equal(decideNavigation(signIn("https://elsewhere.example.org/api/connections/oauth/callback"), PAGES, SERVER), "allow");
-  assert.equal(decideNavigation(signIn(`${SERVER}/api/connections/oauth/callback`), PAGES, undefined), "allow");
+  const from = `${SERVER}/w/abc/settings`;
+  assert.equal(decideNavigation(signIn(`${SERVER}/api/connections/oauth/callback`), PAGES, SERVER, { from }), "external");
+  assert.equal(decideNavigation(signIn(`${SERVER}/api/storage/oauth/callback`), PAGES, SERVER, { from, signingIn: true }), "external");
   assert.equal(decideNavigation(`${SERVER}/w/abc?redirect_uri=${encodeURIComponent(`${SERVER}/api/connections/oauth/callback`)}`, PAGES, SERVER), "allow");
+});
+
+test("the strip shows where a tab away from the server is", () => {
+  assert.equal(awayHost(`${SERVER}/w/abc`, SERVER), null);
+  assert.equal(awayHost(`${PAGES}app.html`, SERVER), null);
+  assert.equal(awayHost("", SERVER), null);
+  assert.equal(awayHost(undefined, SERVER), null);
+  assert.equal(awayHost("https://accounts.google.com/o/oauth2/v2/auth?x=1", SERVER), "accounts.google.com");
+  assert.equal(awayHost("https://idp.acme.example:8443/login", SERVER), "idp.acme.example:8443");
+  assert.equal(awayHost("http://leafdesk.example.com/w/abc", SERVER), "http://leafdesk.example.com");
+  assert.equal(awayHost("https://accounts.google.com/", undefined), "accounts.google.com");
+});
+
+test("frames inside a page are redirected only to web pages", () => {
+  assert.equal(allowsFrameRedirect("https://www.youtube.com/embed/x"), true);
+  assert.equal(allowsFrameRedirect("file:///etc/passwd"), false);
+  assert.equal(allowsFrameRedirect("leafdesk://open?url=x"), false);
+  assert.equal(allowsFrameRedirect("not a url"), false);
 });
 
 test("the server's hand-over link brings the answer back to the server the app is on", () => {

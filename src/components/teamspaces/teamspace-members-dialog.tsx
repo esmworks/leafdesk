@@ -322,7 +322,7 @@ function Groups({
 /** What inviting someone by email did, for the line under the field. */
 type InviteOutcome =
   | { kind: "added"; email: string }
-  | { kind: "invited"; email: string; link: string; delivery: "sent" | "failed" | "off" }
+  | { kind: "invited"; email: string; link: string; delivery: "sent" | "failed" | "off" | "limited" }
   | { kind: "requested"; email: string };
 
 function AddPeople({

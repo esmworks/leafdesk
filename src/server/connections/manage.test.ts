@@ -43,7 +43,14 @@ const insert = () => ({
     },
   }),
 });
-const remove = () => ({ where: () => Object.assign(Promise.resolve(), { returning: async () => [] }) });
+/** The conditions deletes were made with. */
+const deletedWhere: unknown[] = [];
+const remove = () => ({
+  where: (condition: unknown) => {
+    deletedWhere.push(condition);
+    return Object.assign(Promise.resolve(), { returning: async () => [] });
+  },
+});
 const tx = { select, update, insert, delete: remove };
 
 vi.mock("@/db", () => ({ db: { ...tx, transaction: (fn: (t: typeof tx) => unknown) => fn(tx) } }));
@@ -55,7 +62,7 @@ vi.mock("@/server/access", async () => {
 const startOAuth = vi.fn();
 vi.mock("./client", async () => ({ ...(await vi.importActual<typeof import("./client")>("./client")), startOAuth: (...args: unknown[]) => startOAuth(...args) }));
 
-const { beginConnectionOAuth, createConnection, signOutConnection, updateConnection } = await import("./manage");
+const { beginConnectionOAuth, completeConnectionOAuth, createConnection, signOutConnection, updateConnection } = await import("./manage");
 const { oauthRedirectUrl, secretsOf } = await import("./client");
 const { RegistrationRejectedError } = await import("@modelcontextprotocol/client");
 
@@ -70,6 +77,18 @@ beforeEach(() => {
   current = null;
   delete process.env.CONNECTION_OAUTH_CLIENTS;
   startOAuth.mockReset();
+});
+
+describe("finishing a sign-in", () => {
+  it("takes the waiting sign-in only for the person who began it, so another's request leaves it", async () => {
+    const { PgDialect } = await import("drizzle-orm/pg-core");
+    deletedWhere.length = 0;
+    expect(await codeOf(completeConnectionOAuth("intruder", { state: "state-1", code: "c" }))).toBe("oauthFailed");
+    const { sql, params } = new PgDialect().sqlToQuery(deletedWhere[0] as never);
+    expect(sql).toContain('"state" = $1');
+    expect(sql).toContain('"user_id" = $2');
+    expect(params).toEqual(["state-1", "intruder"]);
+  });
 });
 
 describe("a connection's own OAuth app", () => {

@@ -2,7 +2,7 @@ import { InMemoryTransport, type JSONRPCMessage } from "@modelcontextprotocol/se
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { today } from "@/lib/journal";
 import { PropertyValueError } from "@/lib/properties";
-import { AccessError } from "@/server/access";
+import { AccessError, ConnectedAppReadOnlyError, requirePageAccess } from "@/server/access";
 import { AiError } from "@/server/ai";
 import { MAX_MARKDOWN_CHARS } from "./format";
 import type { McpPrincipal } from "./principal";
@@ -1869,6 +1869,11 @@ describe("invite_member", () => {
     expect(readOnly.text).toMatch(/read-only/);
     const badRole = await callTool(writer, "invite_member", { workspace_id: "ws-1", email: "x@example.com", role: "admin" });
     expect(badRole.isError).toBe(true);
+    // Owners and membership admins are made in the members settings, not by a connected app.
+    for (const role of ["owner", "membership_admin"]) {
+      const refused = await callTool(writer, "invite_member", { workspace_id: "ws-1", email: "x@example.com", role });
+      expect(refused.isError).toBe(true);
+    }
     expect(workspaces.addMembers).not.toHaveBeenCalled();
   });
 });
@@ -2509,6 +2514,19 @@ describe("automations", () => {
     const missing = await callTool(writer, "delete_automation", { automation_id: "nope" });
     expect(missing.isError).toBe(true);
     expect(missing.text).toMatch(/list_automations/);
+  });
+
+  it("gives the webhook secret and address only where the connection may write", async () => {
+    const hookUrl = "https://leafdesk.example/api/automations/auto-1/webhook/tok";
+    automations.listAutomations.mockResolvedValue([{ ...view, trigger: { type: "incoming_webhook" }, hookUrl }]);
+    const mayWrite = await callTool(writer, "list_automations", { database_id: "db-1" });
+    expect(mayWrite.data.automations[0]).toMatchObject({ webhook_secret: "whsec_abc", hook_url: hookUrl });
+    // The workspace lets connected apps only read: its write check refuses, so neither comes along.
+    vi.mocked(requirePageAccess).mockRejectedValueOnce(new ConnectedAppReadOnlyError("ws-1"));
+    const readOnly = await callTool(writer, "list_automations", { database_id: "db-1" });
+    expect(readOnly.isError).toBe(false);
+    expect(readOnly.data.automations[0]).not.toHaveProperty("webhook_secret");
+    expect(readOnly.data.automations[0]).not.toHaveProperty("hook_url");
   });
 
   it("lists automations and their runs on read-only connections", async () => {

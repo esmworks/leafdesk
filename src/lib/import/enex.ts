@@ -246,7 +246,16 @@ const isBlankText = (text: string) => !text.replace(NBSP, "").trim();
 const isBlank = (nodes: Child[]) => nodes.every((n) => (isElement(n) ? n.tag === "br" : isBlankText(n)));
 /** The first child that isn't only white space. */
 const firstShown = (nodes: Child[]) => nodes.findIndex((n) => isElement(n) || !isBlankText(n));
-const trimBreaks = (html: string) => html.replace(/^(\s|<br>)+|(<br>)+$/g, "");
+/**
+ * `html` without the `unit`s it ends with, counted off from its end: `/(unit)+$/` would start over
+ * at each one of a long run that ends in something else.
+ */
+function withoutTrailing(html: string, unit: string): string {
+  let end = html.length;
+  while (end >= unit.length && html.startsWith(unit, end - unit.length)) end -= unit.length;
+  return html.slice(0, end);
+}
+const trimBreaks = (html: string) => withoutTrailing(html.replace(/^(\s|<br>)+/, ""), "<br>");
 
 /** A code block's text: a line per block inside it. */
 function textContent(node: Child): string {
@@ -266,6 +275,16 @@ export type EnmlReport = {
 
 type Context = { encrypted: string; report: EnmlReport };
 
+/**
+ * Whether a declaration of the style (between semicolons) has `text-decoration` and `line` after
+ * it, as `/text-decoration[^;]*line/` would find, without reading on from every `text-decoration`.
+ */
+const decorated = (style: string, line: string) =>
+  style.split(";").some((part) => {
+    const at = part.indexOf("text-decoration");
+    return at !== -1 && part.includes(line, at + "text-decoration".length);
+  });
+
 /** A span's or font's styles as the tags the editor reads. */
 function styleTags(node: Node): [string, string] {
   const s = style(node);
@@ -277,8 +296,8 @@ function styleTags(node: Node): [string, string] {
   };
   if (/font-weight:(bold|[6-9]00)/.test(s)) wrap("strong");
   if (s.includes("font-style:italic")) wrap("em");
-  if (/text-decoration[^;]*underline/.test(s)) wrap("u");
-  if (/text-decoration[^;]*line-through/.test(s)) wrap("s");
+  if (decorated(s, "underline")) wrap("u");
+  if (decorated(s, "line-through")) wrap("s");
   if (s.includes("--en-highlight:") || s.includes("-evernote-highlight:true")) wrap("span", ' data-style-type="backgroundColor" data-value="yellow"');
   return [open, close];
 }
@@ -369,7 +388,7 @@ function inline(nodes: Child[], ctx: Context): string {
   return out;
 }
 
-const paragraph = (html: string) => `<p>${html.replace(/(<br>)+$/, "")}</p>`;
+const paragraph = (html: string) => `<p>${withoutTrailing(html, "<br>")}</p>`;
 const checkbox = (isChecked: boolean) => `<input type="checkbox"${isChecked ? " checked" : ""}>`;
 
 /**
@@ -516,6 +535,6 @@ export function enmlToHtml(enml: string, { encrypted }: { encrypted: string }): 
   if (!enml.trim()) return { html: "", report };
   const root = parseEnml(enml);
   // Empty lines at the start and end of a note are only spacing.
-  const html = blocks(root.children, { encrypted, report }).replace(/^(<p><\/p>)+|(<p><\/p>)+$/g, "");
+  const html = withoutTrailing(blocks(root.children, { encrypted, report }).replace(/^(<p><\/p>)+/, ""), "<p></p>");
   return { html, report };
 }

@@ -92,7 +92,13 @@ query. It changes nothing, so it isn't one of the run's changes, but it counts w
 tools toward the 40,000 characters a run may read from outside. A run no member stands behind (an
 anonymous or outside form answer, an event from a trigger no owner marked trusted) asks an owner
 before each call, as it does before each connection tool: otherwise what it read could be sent to
-an address a stranger chose. Leave web access off for agents that only work with the workspace.
+an address a stranger chose. A run someone asked for in words (a chat message, a mention, a
+request) reads what that person may open, some of it written by others, so it asks an owner before
+each page read whose address isn't in the message (as written, or without its `?query` and
+`#fragment`) and each search whose words aren't, as they stand, in the message; a helper's run for
+such a run asks before every call. Where no owner can answer (the chat or request of someone who
+isn't an owner of the workspace), such a call is refused at once and nothing is sent. Leave web access off for
+agents that only work with the workspace.
 
 **Mentioning an agent in a comment.** Typing `@` in a page's comments offers, below the people,
 the agents that may comment on the page (shared with them at comment or edit), marked with their

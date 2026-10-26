@@ -196,6 +196,7 @@
       "added": "Añadido",
       "emailed": "Invitación enviada por correo",
       "emailFailed": "Falló el correo, comparte el enlace",
+      "emailLimited": "Demasiados correos de invitación últimamente, comparte el enlace",
       "linkOnly": "Comparte este enlace de invitación",
       "linkValidity": "Los enlaces de invitación son válidos durante 7 días y solo para la dirección de correo invitada.",
       "addMore": "Añadir más",

@@ -13,7 +13,7 @@
  *   pnpm tsx scripts/web-clip-e2e.ts
  *
  * Env: DATABASE_URL and BETTER_AUTH_SECRET (read from .env when present). Migrations must be applied.
- * The fixture server is let through the address checks with CONNECTOR_ALLOWED_HOSTS=127.0.0.1:<its
+ * The fixture server is let through the address checks with WEB_FETCH_ALLOWED_HOSTS=127.0.0.1:<its
  * port>, set here: only that host and port. Every other local address stays refused.
  */
 export {};
@@ -33,7 +33,7 @@ process.env.UPLOAD_DIR = uploadDir;
 
 const PORT = 30_000 + Math.floor(Math.random() * 20_000);
 const OTHER_PORT = PORT + 1;
-process.env.CONNECTOR_ALLOWED_HOSTS = `127.0.0.1:${PORT}`;
+process.env.WEB_FETCH_ALLOWED_HOSTS = `127.0.0.1:${PORT}`;
 const SITE = `http://127.0.0.1:${PORT}`;
 
 // Imported after .env is loaded: the database client reads DATABASE_URL when it is created.

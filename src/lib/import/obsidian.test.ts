@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { PAGE_LINK_MARKER } from "../mentions";
+import { fast, randomTexts } from "./linear-fixtures";
 import { resolveLink } from "./markdown";
 import { blockReferences, frontMatterAliases, hasWikilink, hrefTo, obsidianMarkdown, rewriteWikilinks, VaultIndex } from "./obsidian";
 
@@ -153,5 +154,73 @@ describe("obsidianMarkdown", () => {
   it("doesn't touch code", () => {
     const code = "```\n%% x %% ==y== ^id\n> [!info]\n```\n`==z==` and `%%`";
     expect(obsidianMarkdown(code)).toBe(code);
+  });
+});
+
+describe("crafted notes are read in time growing with their length", () => {
+  // Comments and block ids as they were read before (by splitting what is left of a line into code
+  // spans again after each `%%`, and with `/\s+\^([A-Za-z0-9-]+)\s*$/`), to check notes come out the same.
+  function before(markdown: string, referenced: ReadonlySet<string>) {
+    const outsideCode = (text: string, fn: (line: string) => string) => {
+      let fence: string | null = null;
+      return text
+        .split("\n")
+        .map((line) => {
+          const marker = /^ {0,3}(`{3,}|~{3,})/.exec(line)?.[1];
+          if (fence) {
+            if (marker && marker[0] === fence[0] && marker.length >= fence.length && line.trim() === marker) fence = null;
+            return line;
+          }
+          if (marker) {
+            fence = marker;
+            return line;
+          }
+          return fn(line);
+        })
+        .join("\n");
+    };
+    let inComment = false;
+    const uncommented = outsideCode(markdown, (line) => {
+      let out = "";
+      let rest = line;
+      for (;;) {
+        if (inComment) {
+          const end = rest.indexOf("%%");
+          if (end === -1) return out.trim() ? out : "";
+          rest = rest.slice(end + 2);
+          inComment = false;
+        }
+        const parts = rest.split(/(`+[^`]*`+)/);
+        let start = -1;
+        let offset = 0;
+        for (let i = 0; i < parts.length; i++) {
+          if (i % 2 === 0 && parts[i].includes("%%")) {
+            start = offset + parts[i].indexOf("%%");
+            break;
+          }
+          offset += parts[i].length;
+        }
+        if (start === -1) return out + rest;
+        out += rest.slice(0, start);
+        rest = rest.slice(start + 2);
+        inComment = true;
+      }
+    });
+    const isBlockId = (id: string) => referenced.has(id) || /^(?=[a-z]*\d)[a-z0-9]{6}$/.test(id);
+    return outsideCode(uncommented, (line) => {
+      const own = /^\s*\^([A-Za-z0-9-]+)\s*$/.exec(line);
+      if (own && isBlockId(own[1])) return "";
+      return line.replace(/\s+\^([A-Za-z0-9-]+)\s*$/, (whole, id: string) => (isBlockId(id) ? "" : whole));
+    });
+  }
+
+  it("comments, code spans and block ids: long runs, and the same notes as before", () => {
+    expect(fast(() => obsidianMarkdown("%%".repeat(500_000)))).toBe("");
+    expect(fast(() => obsidianMarkdown(`${"%%a".repeat(300_000)}\`x`))).toBe(`${"a".repeat(150_000)}\`x`);
+    expect(fast(() => obsidianMarkdown(`a${" ".repeat(1_000_000)}x`))).toBe(`a${" ".repeat(1_000_000)}x`);
+    expect(fast(() => obsidianMarkdown(`a${" ".repeat(1_000_000)}^abc123`))).toBe("a");
+    const referenced = new Set(["id", "x-1"]);
+    const pieces = ["%%", "%", "`", "``", "a", " ", "\t", "^id", "^abc123", "^x-1", "^", "-", "\n", "```\n", "b"];
+    for (const text of randomTexts(pieces, 5000, 16)) expect(obsidianMarkdown(text, referenced)).toBe(before(text, referenced));
   });
 });

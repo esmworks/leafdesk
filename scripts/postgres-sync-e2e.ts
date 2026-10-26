@@ -21,9 +21,10 @@ try {
   process.loadEnvFile();
 } catch {}
 
-// The "other" server is this one: let the sync reach its host (read when env loads).
+// The "other" server is this one: let the sync reach its host and port (read when env loads; a
+// bare name would allow only 5432).
 const target = new URL(process.env.DATABASE_URL!);
-process.env.CONNECTOR_ALLOWED_HOSTS = target.hostname;
+process.env.CONNECTOR_ALLOWED_HOSTS = `${target.hostname}:${target.port || "5432"}`;
 
 const RUN = `pgsync_${Date.now()}`;
 const schema = RUN;

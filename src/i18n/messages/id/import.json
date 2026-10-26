@@ -173,7 +173,8 @@
       "failed": "Sinkronisasi gagal. Akan dicoba lagi lain kali.",
       "invalidSite": "Itu bukan alamat yang dapat dijangkau Leafdesk.",
       "invalidInput": "Isi alamat email, token API, dan apa yang akan disinkronkan.",
-      "alreadyRunning": "Sinkronisasi sedang berjalan. Coba lagi sebentar lagi."
+      "alreadyRunning": "Sinkronisasi sedang berjalan. Coba lagi sebentar lagi.",
+      "needsSignIn": "Sinkronisasi masuk ke Jira sebagai orang lain. Untuk mengubah yang dibacanya, masuk dengan alamat email dan token API Anda sendiri."
     }
   },
   "githubPulls": {
@@ -279,6 +280,7 @@
       "tooLarge": "“{path}” terlalu besar untuk satu halaman dan dilewati.",
       "unused": "“{path}” dilewati: tidak ada halaman yang menampilkan atau menautkannya.",
       "unsafePath": "“{path}” dilewati: jalurnya mengarah ke luar ZIP.",
+      "deepPath": "“{path}” dilewati: jalurnya terlalu panjang atau memiliki terlalu banyak folder.",
       "otherSheet": "Lembar “{path}” dilewati: hanya satu lembar yang diimpor sekali waktu.",
       "badNote": "Catatan “{path}” tidak dapat dibaca dan dilewati.",
       "notEnex": "“{path}” dilewati: bukan ekspor Evernote (.enex)."
@@ -311,7 +313,9 @@
     "badMapping": "Pilih tujuan setidaknya satu kolom, dan setiap properti hanya sekali.",
     "noAccess": "Anda tidak dapat menambahkan halaman di sana, atau tempat itu sudah tidak ada.",
     "notADatabase": "Baris hanya dapat ditambahkan ke basis data.",
-    "badRequest": "Impor tidak berhasil. Tidak ada yang diubah."
+    "busy": "Impor lain masih berjalan. Coba lagi setelah selesai.",
+    "badRequest": "Impor tidak berhasil. Tidak ada yang diubah.",
+    "rateLimited": "Terlalu banyak sinkronisasi yang disiapkan atau diperiksa dari sini. Coba lagi dalam beberapa menit."
   },
   "googleDocs": {
     "help": "Setiap dokumen Google menjadi halaman, dibaca melalui koneksi Google Drive ruang kerja seperti dokumen Word: judul, daftar, tabel, tautan, gambar, dan catatan kaki. Judul di paling atas menjadi judul halaman; jika tidak ada, nama dokumen.",
@@ -426,7 +430,7 @@
       "forbidden": "Pengguna tidak boleh membaca tabel ini.",
       "notFound": "Database atau tabel tersebut tidak ada.",
       "badQuery": "Server menolak kueri:",
-      "tooManyIssues": "Tabel memiliki terlalu banyak baris untuk disinkronkan. Sinkronkan view berisi baris yang Anda perlukan.",
+      "tooManyIssues": "Tabel memiliki terlalu banyak baris atau teks untuk disinkronkan. Sinkronkan view berisi baris dan kolom yang Anda perlukan.",
       "unreachable": "Server tidak dapat dijangkau, atau kueri terlalu lama. Sinkronisasi akan mencoba lagi lain kali.",
       "runAsGone": "Orang yang menyiapkan sinkronisasi tidak lagi memiliki akun.",
       "accessLost": "Orang yang menjalankan sinkronisasi tidak lagi bisa mengedit database ini.",

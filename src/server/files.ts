@@ -17,6 +17,7 @@ import { uploadUnderHold } from "@/server/legal-hold";
 import { propertyAccessFor } from "@/server/property-access";
 import { anyPagePublished } from "@/server/publication";
 import { fetchRemoteFile, RemoteFetchError, type RemoteFetchOptions } from "@/server/remote-fetch";
+import { ALLOWED_PORTS } from "@/server/ssrf";
 import { StorageError, uploadLimits } from "@/server/storage";
 import { loadTargets, refOf, removeRetiredStorage, storageFor, storageOf, storageResolver, targetLocation, type StoredObject } from "@/server/storage/workspace";
 
@@ -239,7 +240,8 @@ export async function storeFile<P extends string | null = string>(
 
 /**
  * Downloads a file from a URL someone gave (MCP) and stores it on the page. The download refuses
- * private and loopback addresses (see remote-fetch.ts) and stops at the upload limit.
+ * private and loopback addresses (see remote-fetch.ts) and ports other than the web's usual ones,
+ * and stops at the upload limit.
  */
 export async function uploadFromUrl(
   userId: string,
@@ -252,7 +254,7 @@ export async function uploadFromUrl(
   const { maxFileBytes } = uploadLimits();
   let remote;
   try {
-    remote = await fetchRemoteFile(url, { maxBytes: maxFileBytes, timeoutMs: 30_000, ...fetchOptions });
+    remote = await fetchRemoteFile(url, { maxBytes: maxFileBytes, timeoutMs: 30_000, ports: ALLOWED_PORTS, ...fetchOptions });
   } catch (error) {
     if (error instanceof RemoteFetchError) {
       if (error.code === "tooLarge") throw new FileError(`Files can be at most ${formatBytes(maxFileBytes)}`, "tooLarge", maxFileBytes);
@@ -668,8 +670,14 @@ export async function purgeOrphanFiles(workspaceId?: string): Promise<number> {
  * Removes uploads no page ever showed, `olderThanMs` (a day by default) after they were uploaded
  * (in `workspaceId`, or everywhere), but for those of people under a legal hold: files attached
  * to an AI chat's question that was never sent too, but not those of a question kept in a conversation.
+ * Uploads waiting in a database for a form's answer (forms.ts) go sooner, `formOlderThanMs` (two
+ * hours) after: anyone may upload to a public form, and what nobody sends shouldn't fill the storage.
  */
-export async function purgeUnusedUploads({ olderThanMs = 24 * 60 * 60 * 1000, workspaceId }: { olderThanMs?: number; workspaceId?: string } = {}): Promise<number> {
+export async function purgeUnusedUploads({
+  olderThanMs = 24 * 60 * 60 * 1000,
+  formOlderThanMs = 2 * 60 * 60 * 1000,
+  workspaceId,
+}: { olderThanMs?: number; formOlderThanMs?: number; workspaceId?: string } = {}): Promise<number> {
   const keys = await db.transaction(async (tx) => {
     const gone = await tx
       .delete(file)
@@ -677,7 +685,9 @@ export async function purgeUnusedUploads({ olderThanMs = 24 * 60 * 60 * 1000, wo
         and(
           workspaceId ? eq(file.workspaceId, workspaceId) : undefined,
           isNull(file.referencedAt),
-          sql`${file.createdAt} < now() - make_interval(secs => ${olderThanMs / 1000})`,
+          sql`(${file.createdAt} < now() - make_interval(secs => ${olderThanMs / 1000})
+            or (${file.createdAt} < now() - make_interval(secs => ${formOlderThanMs / 1000})
+              and exists (select 1 from ${page} p where p.id = ${file.pageId} and p.kind = 'database')))`,
           sql`not exists (select 1 from ${fileReference} r where r.file_id = ${file.id})`,
           sql`not ${uploadUnderHold()}`,
           sql`not exists (select 1 from ${aiChatFile} c where c.file_id = ${file.id} and c.conversation_id is not null)`,

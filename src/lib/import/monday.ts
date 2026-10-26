@@ -162,7 +162,7 @@ export function readMondayRows(rows: string[][], { fileName = "", updates }: { f
       group,
       parent,
       values,
-      subitemNames: cell(isSubitemsHeader) ? cell(isSubitemsHeader).split(/\s*,\s*/).filter(Boolean) : [],
+      subitemNames: cell(isSubitemsHeader) ? cell(isSubitemsHeader).split(",").map((name) => name.trim()).filter(Boolean) : [],
       dependsOn: cell(isDependencyHeader),
     };
   };

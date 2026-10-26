@@ -192,6 +192,12 @@ input:focus {
   color: var(--danger);
 }
 
+/* An untrusted certificate where a good one was: said before anything else. */
+#certificate-changed {
+  margin: 0 0 8px;
+  font-weight: 600;
+}
+
 .actions {
   display: flex;
   justify-content: flex-end;

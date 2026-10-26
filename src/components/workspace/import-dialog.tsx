@@ -397,6 +397,7 @@ export function ImportDialog({
       "badMapping",
       "noAccess",
       "notADatabase",
+      "busy",
     ];
     return known.includes(code) ? t(`errors.${code}` as "errors.badRequest", params) : t("errors.badRequest");
   }
@@ -1157,7 +1158,7 @@ export function ImportDialog({
           ) : tab === "web" ? (
             <WebClipTab workspaceId={workspaceId} tree={tree} busy={busy} onSetup={setWeb} />
           ) : tab === "jira" ? (
-            <JiraTab busy={busy} destinationPicker={destinationPicker} onSetup={setJira} />
+            <JiraTab workspaceId={workspaceId} busy={busy} destinationPicker={destinationPicker} onSetup={setJira} />
           ) : tab === "github" ? (
             <GithubPullsTab busy={busy} destinationPicker={destinationPicker} onSetup={setGithub} />
           ) : tab === "ical" ? (

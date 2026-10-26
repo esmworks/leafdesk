@@ -25,9 +25,6 @@ try {
   process.loadEnvFile();
 } catch {}
 
-// The fake Jira is on this machine: let the connections' fetch reach it (read when env loads).
-process.env.CONNECTOR_ALLOWED_HOSTS = "127.0.0.1";
-
 const RUN = `jira-${Date.now()}`;
 const EMAIL = "admin@acme.test";
 let token = "token-1";
@@ -136,6 +133,8 @@ function handle(req: IncomingMessage, res: ServerResponse) {
 const fake = createServer(handle);
 await new Promise<void>((resolve) => fake.listen(0, "127.0.0.1", resolve));
 const SITE = `http://127.0.0.1:${(fake.address() as AddressInfo).port}`;
+// The fake Jira is on this machine: let the connections' fetch reach its port (read on each fetch).
+process.env.CONNECTOR_ALLOWED_HOSTS = `127.0.0.1:${(fake.address() as AddressInfo).port}`;
 
 // Imported after .env is loaded: the database client reads DATABASE_URL when it is created.
 const { and, eq, inArray, isNull } = await import("drizzle-orm");
@@ -215,11 +214,11 @@ try {
   ]);
 
   // Checking the sign-in
-  check((await errorCode(() => manage.checkJira({ siteUrl: SITE, email: EMAIL, token: "wrong" }))) === "unauthorized", "a wrong token is refused");
-  check((await errorCode(() => manage.checkJira({ siteUrl: "http://10.1.2.3", email: EMAIL, token }))) === "invalidSite", "a private address is refused");
-  check((await errorCode(() => manage.checkJira({ siteUrl: "https://localhost", email: EMAIL, token }))) === "invalidSite", "a local name is refused");
-  check((await errorCode(() => manage.checkJira({ siteUrl: SITE, email: EMAIL, token: " " }))) === "invalidInput", "a missing token is refused");
-  const checked = await manage.checkJira({ siteUrl: SITE, email: EMAIL, token });
+  check((await errorCode(() => manage.checkJira(ids.owner, workspaceId, { siteUrl: SITE, email: EMAIL, token: "wrong" }))) === "unauthorized", "a wrong token is refused");
+  check((await errorCode(() => manage.checkJira(ids.owner, workspaceId, { siteUrl: "http://10.1.2.3", email: EMAIL, token }))) === "invalidSite", "a private address is refused");
+  check((await errorCode(() => manage.checkJira(ids.owner, workspaceId, { siteUrl: "https://localhost", email: EMAIL, token }))) === "invalidSite", "a local name is refused");
+  check((await errorCode(() => manage.checkJira(ids.owner, workspaceId, { siteUrl: SITE, email: EMAIL, token: " " }))) === "invalidInput", "a missing token is refused");
+  const checked = await manage.checkJira(ids.owner, workspaceId, { siteUrl: SITE, email: EMAIL, token });
   check(checked.account === "Fake Admin" && checked.projects.some((p) => p.key === "OPS"), "the right token says whose it is and lists projects", checked);
 
   // Setting up

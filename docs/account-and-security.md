@@ -25,8 +25,9 @@ workspace and isn't held back by a workspace's two-step policy. The old addresse
 - **Password:** change it with the current one, optionally signing out every other device. People
   who only sign in with GitHub or Google can set one instead. Both send a notice by email.
 - **Sessions:** every signed-in device with its browser, system, IP address and last activity
-  (refreshed about once a day), with "Sign out" per device and "Sign out all other devices",
-  which also closes their live collaboration connections. A session ends after
+  (refreshed about once a day), with "Sign out" per device and "Sign out all other devices".
+  Every session that ends (signed out here or on the device, or ended by turning two-step
+  verification on or by a password reset) also closes its live collaboration connections. A session ends after
   `SESSION_MAX_AGE_DAYS` without use (see below).
 - **Security, connected apps, language and notifications:** as before, moved here from the
   workspace settings.
@@ -98,7 +99,8 @@ Everyone manages these in **My account → Security**:
   or Google Authenticator and confirm with a code. Ten recovery codes are shown once, to copy or
   download; each signs in once, and "New codes" replaces them. From then on, signing in with the
   password *or* with GitHub/Google asks for a code; "Don't ask again on this device" skips it for
-  30 days. Turning it off asks for the password, or, for accounts without one, a code.
+  30 days. Turning it on signs out every other device, as those were signed in without a code.
+  Turning it off asks for the password, or, for accounts without one, a code.
 - **Passkeys:** add, rename and remove them; "Sign in with a passkey" is on the sign-in page.
   Passkeys are bound to the host name of `APP_URL`, so changing that host makes existing
   passkeys stop working. Adding one needs a sign-in from the last 24 hours.
@@ -112,7 +114,9 @@ server actions, API routes (files, import) and the live collaboration connection
 checked when it connects; turning the policy on closes the open connections of sessions that
 don't pass. Apps connected over MCP and REST API tokens are not affected: they use OAuth or
 personal access tokens, not sign-in sessions, and keep working until someone revokes them under
-Connected apps.
+Connected apps. Which is why a session the policy holds back can't open such a way in: it can't
+make an API token that reaches the workspace or change one's scopes, connect an app, or link
+Telegram.
 
 **Approved networks** (Settings → Security) limit where a workspace opens from: a list of IPv4 and
 IPv6 addresses and CIDR ranges (`203.0.113.0/24`, `2001:db8::/32`), each with an optional label, at

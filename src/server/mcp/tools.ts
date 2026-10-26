@@ -2493,8 +2493,14 @@ export function createMcpServer(principal: McpPrincipal) {
       runTool(async () => {
         const list = await automations.listAutomations(userId, database_id);
         const context = await automationContext(userId, database_id, list);
-        // The secret signs what receivers trust, and the address starts runs: a read-only connection gets neither.
-        const canWrite = principal.scopes.includes(WRITE_SCOPE);
+        // The secret signs what receivers trust, and the address starts runs: a read-only connection gets
+        // neither, nor one in a workspace that lets connected apps only read (checked as a write would be).
+        const canWrite =
+          principal.scopes.includes(WRITE_SCOPE) &&
+          (await asWrite(() => requirePageAccess(userId, database_id, "full")).then(
+            () => true,
+            () => false,
+          ));
         return { database_id, automations: list.map((a) => describeAutomation(context, canWrite ? a : { ...a, secret: null, hookUrl: null })) };
       }),
   );
@@ -3731,11 +3737,11 @@ export function createMcpServer(principal: McpPrincipal) {
       {
         title: "Invite someone to a workspace",
         description:
-          'Add a person to a workspace by email, as Settings > Members does, under the workspace\'s "Who can add members" setting: owners always can; members only when the workspace lets them, and only as members; guests never. Someone whose account has a verified address joins right away (status "added"). Anyone else (no account, or one whose address was never verified) gets an invitation (status "invited"): an email with a link that works for 7 days, when the server can send email (email_sent says whether it went out), and the link is returned so the user can share it themselves. Inviting the same address again renews the invitation. When the workspace wants members\' invitations approved, a member\'s invitation becomes a request an owner approves or declines (status "requested"); nothing is sent until then. role is member (default), owner or guest.',
+          'Add a person to a workspace by email, as Settings > Members does, under the workspace\'s "Who can add members" setting: owners always can; members only when the workspace lets them, and only as members; guests never. Someone whose account has a verified address joins right away (status "added"). Anyone else (no account, or one whose address was never verified) gets an invitation (status "invited"): an email with a link that works for 7 days, when the server can send email (email_sent says whether it went out), and the link is returned so the user can share it themselves. Inviting the same address again renews the invitation. When the workspace wants members\' invitations approved, a member\'s invitation becomes a request an owner approves or declines (status "requested"); nothing is sent until then. role is member (default) or guest: owners and membership admins are made only in Settings > Members.',
         inputSchema: z.object({
           workspace_id: id("workspace"),
           email: z.string().max(254).describe("The person's email address."),
-          role: z.enum(["member", "owner", "membership_admin", "guest"]).default("member").describe("Their role in the workspace (default member)."),
+          role: z.enum(["member", "guest"]).default("member").describe("Their role in the workspace (default member)."),
         }),
         annotations: { readOnlyHint: false, destructiveHint: false, idempotentHint: false, openWorldHint: true },
         scopeChallenge: requireWrite,
@@ -3749,7 +3755,7 @@ export function createMcpServer(principal: McpPrincipal) {
         } catch (error) {
           if (error instanceof AccessError) {
             throw new ToolInputError(
-              "The user can't add people to this workspace with that role: owners can; membership admins as anything but owner; members only when the workspace's \"Who can add members\" setting lets them, and only as members; guests never. Check the workspace id and the user's role with list_workspaces.",
+              "The user can't add people to this workspace with that role: owners and membership admins can; members only when the workspace's \"Who can add members\" setting lets them, and only as members; guests never. Check the workspace id and the user's role with list_workspaces.",
             );
           }
           if (error instanceof workspaces.WorkspaceError) throw new ToolInputError(`${error.message}`);
@@ -3782,7 +3788,9 @@ export function createMcpServer(principal: McpPrincipal) {
             note:
               result.delivery === "off"
                 ? "This server doesn't send email. Share invitation_link with them."
-                : "Sending the invitation email failed. Share invitation_link with them.",
+                : result.delivery === "limited"
+                  ? "Too many invitation emails went out lately, so this one wasn't sent. Share invitation_link with them."
+                  : "Sending the invitation email failed. Share invitation_link with them.",
           }),
         };
       }),

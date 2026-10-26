@@ -8,6 +8,7 @@ import { recordImport } from "./csv";
 import { imageSources, isPageImage, placeImages } from "./docx-convert";
 import { discard, store } from "./markdown";
 import { mhtmlDocument, type MhtmlDocument } from "./mhtml-convert";
+import { requireTopLevelPlace } from "./place";
 
 /**
  * Imports single-file web pages (.mht, .mhtml) as pages under a page (or at the top level of a
@@ -45,7 +46,7 @@ export async function importMhtml(actor: WriteActor, input: MhtmlImportInput): P
     if (parent.archivedAt) throw new ImportError("The page is in the trash", "noAccess");
     if (parent.kind !== "page") throw new ImportError("Pages can only be imported into a page", "badRequest");
     workspaceId = parent.workspaceId;
-  }
+  } else await requireTopLevelPlace(userId, workspaceId, input.teamspaceId);
 
   // Read every file first: one that can't be read stops the import before anything is created.
   const documents: { name: string; document: MhtmlDocument }[] = [];

@@ -4,20 +4,29 @@ import { page, teamspace, type TeamspaceAccess } from "@/db/schema";
 import type { PageLevel } from "@/db/schema/permissions";
 import type { AuditPagePlace } from "@/lib/audit";
 import { accessFromPlace, MEMBER_LEVEL_FROM_PAGE, teamspaceFromShares } from "@/lib/teamspace-from-page";
-import { requirePageAccess } from "@/server/access";
+import { accessRank, FULL_RANK, pageVisibleTo, requirePageAccess } from "@/server/access";
 import { recordAudit } from "@/server/audit";
 import { getCollab } from "@/server/collab/bridge";
 import { pageChanged } from "@/server/page-events";
 import { queuePageMoved } from "@/server/page-webhooks/queue";
 import { followNewSpace, freezeInheritedEntries } from "@/server/permissions";
-import { canCreateTeamspace, createTeamspaceFromPage, TeamspaceError, teamspaceEligible } from "@/server/teamspaces";
+import {
+  canCreateTeamspace,
+  createTeamspaceFromPage,
+  mayArrangeTopLevel,
+  requireArrangeTopLevel,
+  TeamspaceError,
+  teamspaceEligible,
+} from "@/server/teamspaces";
 
 /**
  * Turns a page into a teamspace: a new teamspace named after the page takes the page and the pages
  * right under it as its top-level pages (the page first), so its own content stays and its
  * sub-pages become the teamspace's sections in the sidebar. The people the page is shared with
  * join it by how much they could do there (lib/teamspace-from-page.ts), and every page that moves
- * keeps the entries it inherited, so nobody named on it loses access by the move. One transaction.
+ * keeps the entries it inherited, so nobody named on it loses access by the move. Sub-pages the
+ * user has no full access to move too but keep every entry they have: one closed to everyone
+ * else stays closed in the teamspace. One transaction.
  */
 
 type Reader = Pick<typeof db, "execute">;
@@ -26,19 +35,27 @@ type LoadedPage = Awaited<ReturnType<typeof requirePageAccess>>;
 /**
  * Whether the user may turn the page into a teamspace: they have full access to it, may create
  * teamspaces in its workspace, and it is a page (not a database, a row, a template or a page in the
- * trash).
+ * trash). A top-level page leaves its teamspace's top level, so one whose top level is locked takes
+ * someone who may arrange it (mayArrangeTopLevel).
  */
-export async function canTurnIntoTeamspace(userId: string, found: Pick<LoadedPage, "workspaceId" | "kind" | "parentId" | "isTemplate" | "inTemplate" | "archivedAt">, level: PageLevel) {
+export async function canTurnIntoTeamspace(
+  userId: string,
+  found: Pick<LoadedPage, "workspaceId" | "teamspaceId" | "kind" | "parentId" | "isTemplate" | "inTemplate" | "archivedAt">,
+  level: PageLevel,
+) {
   if (level !== "full" || found.kind !== "page" || found.isTemplate || found.inTemplate || found.archivedAt) return false;
   if (found.parentId) {
     const [parent] = await db.select({ kind: page.kind }).from(page).where(eq(page.id, found.parentId));
     if (parent?.kind === "database") return false;
+  } else if (found.teamspaceId && !(await mayArrangeTopLevel(userId, found.teamspaceId))) {
+    return false;
   }
   return canCreateTeamspace(userId, found.workspaceId);
 }
 
 async function convertiblePage(userId: string, pageId: string) {
   const found = await requirePageAccess(userId, pageId, "full");
+  if (!found.parentId) await requireArrangeTopLevel(userId, found.teamspaceId);
   if (!(await canTurnIntoTeamspace(userId, found, "full"))) {
     if (!(await canCreateTeamspace(userId, found.workspaceId))) {
       throw new TeamspaceError("creationRestricted", "Only workspace owners can create teamspaces here.");
@@ -86,7 +103,7 @@ export type TeamspaceFromPagePreview = {
   name: string;
   icon: string | null;
   access: TeamspaceAccess;
-  /** The pages that become its top-level pages: the page and those right under it. */
+  /** The pages that become its top-level pages: the page and those right under it the user can see. */
   pages: number;
   owners: string[];
   members: string[];
@@ -101,7 +118,8 @@ export async function previewTeamspaceFromPage(userId: string, pageId: string): 
   const [shares, access, [children]] = await Promise.all([
     sharesOf(db, pageId),
     placeAccess(found.teamspaceId),
-    db.select({ count: sql<number>`count(*)::int` }).from(page).where(childrenOf(pageId)),
+    // The others move too, but the dialog doesn't tell them they are there.
+    db.select({ count: sql<number>`count(*)::int` }).from(page).where(and(childrenOf(pageId), pageVisibleTo(userId))),
   ]);
   const eligible = await teamspaceEligible(db, found.workspaceId, [userId, ...shares.people.map((p) => p.userId)]);
   const plan = teamspaceFromShares(
@@ -142,7 +160,14 @@ export async function turnPageIntoTeamspace(userId: string, pageId: string, name
     // Nothing moves in or out from under the page meanwhile.
     await tx.execute(sql`select 1 from ${page} where ${page.id} = ${pageId} for update`);
     const children = await tx
-      .select({ id: page.id, title: page.title, kind: page.kind, position: page.position })
+      .select({
+        id: page.id,
+        title: page.title,
+        kind: page.kind,
+        position: page.position,
+        // Read before anything changes, like the shares: what they may do there now.
+        full: sql<boolean>`${accessRank(userId, sql`${page.id}`)} >= ${FULL_RANK}`,
+      })
       .from(page)
       .where(childrenOf(pageId));
     // Who joins is read before anything changes: the entries on the page and above it.
@@ -178,8 +203,11 @@ export async function turnPageIntoTeamspace(userId: string, pageId: string, name
         .where(inArray(page.id, children.map((c) => c.id)));
     }
     // As any page moved into another teamspace: its "everyone" entry goes, so it takes the
-    // teamspace's access (its members', and reading for everyone when it is open).
-    for (const id of moved) await followNewSpace(tx, workspaceId, id, userId, { changedSpace: true, toPrivate: false, privateTop: false });
+    // teamspace's access (its members', and reading for everyone when it is open). Not on a
+    // sub-page the user has no full access to: whoever closed it ("everyone: none", say) decided
+    // that, and it would open up to the teamspace's members, the user first.
+    const following = [pageId, ...children.filter((c) => c.full).map((c) => c.id)];
+    for (const id of following) await followNewSpace(tx, workspaceId, id, userId, { changedSpace: true, toPrivate: false, privateTop: false });
     const to: AuditPagePlace = { type: "teamspace", id: created.id, label: created.name };
     await recordAudit(
       [

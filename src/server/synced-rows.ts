@@ -10,7 +10,7 @@ import { checkValues, writeRows } from "@/server/import/csv";
 import { JiraError } from "@/server/jira-sync/client";
 import { renamePage } from "@/server/pages";
 import { rowChanged } from "@/server/row-events";
-import { withUniqueValues } from "@/server/unique-values";
+import { dropRepeatedValues, withUniqueValues } from "@/server/unique-values";
 
 /**
  * Writing what a synced database's source has (Jira issues, GitHub pull requests; see
@@ -103,7 +103,10 @@ export async function applyRows(
   }
 
   const invalid = new Map<string, number>();
-  const fresh: { title: string; properties: Record<string, unknown>; people: Record<string, string[]> }[] = [];
+  const fresh: { title: string; properties: Record<string, unknown>; people: Record<string, string[]>; keyed: boolean }[] = [];
+  const known: { existing: (typeof stored)[number]; properties: Record<string, unknown> }[] = [];
+  // Every value written, in the items' order, for the unique properties' check below.
+  const batch: { rowId?: string; properties: Record<string, unknown> }[] = [];
   const changes: { rowId: string; before: Record<string, unknown>; after: Record<string, unknown>; patch: Record<string, unknown> }[] = [];
   const renames: { id: string; title: string }[] = [];
   const done = new Set<string>();
@@ -121,10 +124,22 @@ export async function applyRows(
         people[id] = normalized[id] as string[];
         delete normalized[id];
       }
-      fresh.push({ title: item.title, properties: normalized, people });
+      fresh.push({ title: item.title, properties: normalized, people, keyed: keyId in normalized });
+      batch.push({ properties: normalized });
       continue;
     }
     const normalized = await checkValues(runAs, database.id, item.values, props, invalid, existing);
+    known.push({ existing, properties: normalized });
+    batch.push({ rowId: existing.id, properties: normalized });
+    if (existing.title.trim() !== item.title.trim()) renames.push({ id: existing.id, title: item.title });
+  }
+  // A value a unique property would refuse (another row's, or one an earlier item takes: two
+  // emails differing only in case) is left out like any other before anything is written, so one
+  // such item doesn't stop every run at the same row.
+  await dropRepeatedValues(database.id, batch, invalid);
+  // A new row whose key was refused couldn't be found again, and every run would add it anew.
+  const added = fresh.filter((row) => !row.keyed || keyId in row.properties);
+  for (const { existing, properties: normalized } of known) {
     const patch = Object.fromEntries(Object.entries(normalized).filter(([id, value]) => !same(existing.properties[id], value)));
     if (Object.keys(patch).length) {
       const after = { ...existing.properties };
@@ -134,21 +149,27 @@ export async function applyRows(
       }
       changes.push({ rowId: existing.id, before: existing.properties, after, patch });
     }
-    if (existing.title.trim() !== item.title.trim()) renames.push({ id: existing.id, title: item.title });
   }
 
-  if (fresh.length) {
-    const created = await writeRows(database, runAs, fresh.map(({ title, properties }) => ({ title, properties })));
+  if (added.length) {
+    const created = await writeRows(database, runAs, added.map(({ title, properties }) => ({ title, properties })));
     for (const propertyId of deferred) {
-      const assigned = fresh.flatMap((row, i) => (row.people[propertyId] ? [{ id: created[i].id, ids: row.people[propertyId] }] : []));
+      const assigned = added.flatMap((row, i) => (row.people[propertyId] ? [{ id: created[i].id, ids: row.people[propertyId] }] : []));
       if (assigned.length) await writeIds(propertyId, assigned);
     }
   }
-  for (const { rowId, patch } of changes) {
-    const set = Object.fromEntries(Object.entries(patch).filter(([, v]) => v !== null));
-    const cleared = Object.keys(patch).filter((k) => patch[k] === null);
-    // Merged in SQL: a value someone else wrote meanwhile to a property the sync doesn't touch stays.
-    await withUniqueValues(() => db.update(page).set({ properties: mergedProperties(set, cleared), updatedBy: runAs }).where(eq(page.id, rowId)));
+  // The changed rows together: all written, or (another write taking a unique value meanwhile) none.
+  if (changes.length) {
+    await withUniqueValues(() =>
+      db.transaction(async (tx) => {
+        for (const { rowId, patch } of changes) {
+          const set = Object.fromEntries(Object.entries(patch).filter(([, v]) => v !== null));
+          const cleared = Object.keys(patch).filter((k) => patch[k] === null);
+          // Merged in SQL: a value someone else wrote meanwhile to a property the sync doesn't touch stays.
+          await tx.update(page).set({ properties: mergedProperties(set, cleared), updatedBy: runAs }).where(eq(page.id, rowId));
+        }
+      }),
+    );
   }
   if (changes.length) await afterRowWrites(runAs, database.id, changes.map(({ rowId, before, after }) => ({ rowId, before, after })));
   for (const { id, title } of renames) {
@@ -159,7 +180,7 @@ export async function applyRows(
       if (!(error instanceof AccessError) && !(error instanceof Error && error.constructor === Error)) throw error;
     }
   }
-  if (fresh.length || changes.length) notifyRows(database.id);
+  if (added.length || changes.length) notifyRows(database.id);
   for (const { rowId } of changes) rowChanged({ rowId, databaseId: database.id, userId: runAs });
-  return { created: fresh.length, updated: new Set([...changes.map((c) => c.rowId), ...renames.map((r) => r.id)]).size };
+  return { created: added.length, updated: new Set([...changes.map((c) => c.rowId), ...renames.map((r) => r.id)]).size };
 }

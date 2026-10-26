@@ -33,6 +33,7 @@ import {
 } from "@/server/databases";
 import { createPage, removeOrphanFiles, type DatabaseSeedNames } from "@/server/pages";
 import { propertyAccessFor, type PropertyAccess } from "@/server/property-access";
+import { dropRepeatedValues } from "@/server/unique-values";
 
 /**
  * CSV imports: a CSV file as a new database, or its rows added to an existing one.
@@ -89,11 +90,13 @@ function rowValues(
 /**
  * Checks each row's values the way every row write does (normalizeRowProperties: options, people,
  * relations by name). A value it refuses is dropped from the row and counted, and the row checked
- * again. Returns the stored values.
+ * again. So is a value a unique property would refuse (another row's, or one an earlier row takes),
+ * so that writing the rows doesn't stop partway. Returns the stored values.
  */
 export async function checkRows(userId: string, databaseId: string, rows: PendingRow[], props: DatabaseProperty[], invalid: Map<string, number>) {
   const checked: { title: string; properties: Record<string, unknown> }[] = [];
   for (const row of rows) checked.push({ title: row.title, properties: await checkValues(userId, databaseId, row.values, props, invalid) });
+  await dropRepeatedValues(databaseId, checked, invalid);
   return checked;
 }
 
@@ -283,6 +286,18 @@ export async function importTargets(userId: string, databaseId: string) {
 /** Where a column goes when merging: the rows' titles, a property (by id), or nowhere (null). */
 export type ColumnTarget = "title" | string | null;
 
+/** The database a file's rows are added to, if the user may: edit access, and not in the trash. */
+export async function requireMergeTarget(userId: string, databaseId: string) {
+  const database = await requireDatabase(userId, databaseId, "edit").catch((error) => {
+    if (error instanceof AccessError && (error as { code?: string }).code === "notADatabase") {
+      throw new ImportError("Not a database", "notADatabase");
+    }
+    throw error;
+  });
+  if (database.archivedAt) throw new ImportError("The database is in the trash", "noAccess");
+  return database;
+}
+
 /**
  * Adds a CSV file's rows to an existing database (edit access needed): `mapping[i]` says where
  * column i goes. Options the select, multi-select and status columns name that the property lacks
@@ -294,13 +309,7 @@ export async function importCsvIntoDatabase(
   warnings = new WarningList(),
 ) {
   checkSize(table);
-  const database = await requireDatabase(actor.userId, databaseId, "edit").catch((error) => {
-    if (error instanceof AccessError && (error as { code?: string }).code === "notADatabase") {
-      throw new ImportError("Not a database", "notADatabase");
-    }
-    throw error;
-  });
-  if (database.archivedAt) throw new ImportError("The database is in the trash", "noAccess");
+  const database = await requireMergeTarget(actor.userId, databaseId);
   // Only properties the importer may fill in; any other id reads like one that doesn't exist.
   const props = await importTargets(actor.userId, databaseId);
   const byId = new Map(props.map((p) => [p.id, p]));

@@ -38,8 +38,13 @@ describe("parseWebhookUrl", () => {
 });
 
 describe("allowedHost", () => {
-  it("matches a host, or a host and port", () => {
-    expect(allowedHost(new URL("http://n8n.internal:5678/x"), ["n8n.internal"])).toBe(true);
+  it("matches a host on the web's ports, or a host and port", () => {
+    expect(allowedHost(new URL("http://n8n.internal/x"), ["n8n.internal"])).toBe(true);
+    expect(allowedHost(new URL("https://n8n.internal:8443/x"), ["n8n.internal"])).toBe(true);
+    // A bare name doesn't open every service on the host.
+    expect(allowedHost(new URL("http://n8n.internal:5678/x"), ["n8n.internal"])).toBe(false);
+    expect(allowedHost(new URL("http://n8n.internal:6379/x"), ["n8n.internal"])).toBe(false);
+    expect(allowedHost(new URL("http://n8n.internal:5678/x"), ["n8n.internal:5678"])).toBe(true);
     expect(allowedHost(new URL("http://localhost:4000/x"), ["localhost:4000"])).toBe(true);
     expect(allowedHost(new URL("http://localhost:4001/x"), ["localhost:4000"])).toBe(false);
     expect(allowedHost(new URL("https://localhost/x"), ["localhost:443"])).toBe(true);

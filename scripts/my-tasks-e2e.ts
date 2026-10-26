@@ -33,7 +33,7 @@ const { createPage, getSidebar } = await import("@/server/pages");
 const { addProperty, createRows, getProperties, updateRowProperties } = await import("@/server/databases");
 const { setPagePermission, setPageGroupPermission } = await import("@/server/permissions");
 const { createGroup } = await import("@/server/groups");
-const { createTeamspace, TeamspaceError } = await import("@/server/teamspaces");
+const { createTeamspace, TeamspaceError, updateTeamspace } = await import("@/server/teamspaces");
 const { updateWorkspaceSettings } = await import("@/server/workspaces");
 const { getPageHeaderInfo } = await import("@/server/page-meta");
 const { AssignedRowError, assignedRows, markAssignedDone, MY_TASKS_LIMIT } = await import("@/server/assigned");
@@ -302,6 +302,32 @@ try {
   const [openSpace] = await db.select().from(teamspace).where(eq(teamspace.id, fromOpen.id));
   check(openSpace.access === "open" && openSpace.name === "Handbook", "a page of an open teamspace makes an open one, under the name given");
   check((await levels(wikiChild.id, alice, owner)) === "comment,full", "…and those not in it still read it");
+
+  // Sub-pages someone else closed stay closed: the new teamspace doesn't open them, not even to
+  // whoever turns the page, and the dialog doesn't count those they can't see.
+  const memo = await createPage({ userId: owner }, { workspaceId, title: `${RUN} Memo`, teamspaceId: open.id });
+  const closed = await createPage({ userId: owner }, { workspaceId, parentId: memo.id, title: `${RUN} Closed` });
+  const sealed = await createPage({ userId: owner }, { workspaceId, parentId: memo.id, title: `${RUN} Sealed` });
+  await setPagePermission(owner, memo.id, bob, "full");
+  for (const [id, bobLevel] of [[closed.id, "view"], [sealed.id, "none"]] as const) {
+    await setPagePermission(owner, id, owner, "full");
+    await setPagePermission(owner, id, bob, bobLevel);
+    await setPagePermission(owner, id, null, "none");
+  }
+  const closedBefore = await levels(closed.id, owner, bob, alice);
+  check(closedBefore === "full,view,none" && (await levels(sealed.id, bob)) === "none", "sub-pages closed to all but their owner, bob viewing one", closedBefore);
+  check((await previewTeamspaceFromPage(bob, memo.id)).pages === 2, "the dialog counts the page and the sub-page bob sees, not the one he doesn't");
+  await turnPageIntoTeamspace(bob, memo.id);
+  check((await levels(closed.id, owner, bob, alice)) === closedBefore, "a closed sub-page stays closed: bob doesn't get more, nor those not in it", await levels(closed.id, owner, bob, alice));
+  check((await levels(sealed.id, owner, bob, alice)) === "full,none,none", "…and one he couldn't open stays out of his reach");
+
+  // A teamspace whose top level is locked: only who may arrange it turns one of its top-level pages.
+  const pinned = await createPage({ userId: owner }, { workspaceId, title: `${RUN} Pinned`, teamspaceId: open.id });
+  await setPagePermission(owner, pinned.id, bob, "full");
+  await updateTeamspace(owner, open.id, { topLevelLocked: true });
+  check(!(await getPageHeaderInfo(bob, pinned.id)).teamspace, "the menu doesn't offer it on a locked top level");
+  await rejects(() => turnPageIntoTeamspace(bob, pinned.id), isCode("topLevelLocked"), "…and turning it is refused");
+  check(Boolean((await getPageHeaderInfo(owner, pinned.id)).teamspace), "the teamspace's owner still can");
 
   console.log(`\n${passed} checks passed`);
 } finally {

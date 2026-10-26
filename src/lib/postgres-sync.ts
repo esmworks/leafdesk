@@ -21,6 +21,10 @@ export const MAX_POSTGRES_COLUMNS = 50;
 export const MAX_POSTGRES_TEXT = 10_000;
 /** How long a run's query may take, in ms. */
 export const POSTGRES_STATEMENT_TIMEOUT = 30_000;
+/** How long a run may stay connected at all, in ms, whatever the server makes of the query's time limit. */
+export const POSTGRES_DEADLINE = 60_000;
+/** The most text a run reads from the table in all (each value counted up to MAX_POSTGRES_TEXT): more stops it. */
+export const MAX_POSTGRES_READ = 50_000_000;
 
 /** What a sync reads: one table (or view) and the columns that find and name its rows. */
 export type PostgresQuery = { schema: string; table: string; keyColumn: string; titleColumn: string };
@@ -50,7 +54,8 @@ export const KIND_TYPES: Record<PostgresKind, PropertyType> = {
  * "unauthorized" (the server refused the user or password), "forbidden" (the user may not read
  * the table), "notFound" (no such database, table or column), "badQuery" (the server refused the
  * query; lastErrorDetail says why), "tooManyIssues" (the table has more than MAX_POSTGRES_ROWS
- * rows), "unreachable" and "failed" (passing), and "runAsGone", "accessLost", "keyGone" as for Jira.
+ * rows, or more than MAX_POSTGRES_READ characters), "unreachable" (also past POSTGRES_DEADLINE) and
+ * "failed" (passing), and "runAsGone", "accessLost", "keyGone" as for Jira.
  */
 export type PostgresSyncError = JiraSyncError;
 export type PostgresErrorCode = PostgresSyncError | "invalidSite" | "invalidInput" | "alreadyRunning";
@@ -145,9 +150,46 @@ export function kindOf(dataType: string): PostgresKind | null {
   return null;
 }
 
+/** The start of a value too long to read whole (past MAX_POSTGRES_TEXT), as a run reads it. */
+export class CutText {
+  constructor(readonly text: string) {}
+}
+
+/**
+ * A number as the server writes it: a JavaScript number when that is the same number (what JSON
+ * gave before), else the server's own digits, so big keys (bigint ids past 2^53, long numerics)
+ * stay exact. Money, NaN and the like stay text.
+ */
+export function numberFromText(text: string): number | string {
+  const n = Number(text);
+  if (!Number.isFinite(n)) return text;
+  if (/^-?\d+$/.test(text)) return Number.isSafeInteger(n) ? n : text;
+  if (/^-?\d+\.\d+$/.test(text)) return String(n) === text.replace(/0+$/, "").replace(/\.$/, "") ? n : text;
+  return /^-?\d+(\.\d+)?[eE][+-]?\d+$/.test(text) ? n : text;
+}
+
+/**
+ * A value as a run reads it from the server's text (server/postgres-sync/client: numbers and text
+ * as text, other columns as their JSON), in row_to_json's form: numbers (numberFromText),
+ * booleans, ISO times in UTC, JSON as itself. A value longer than MAX_POSTGRES_TEXT is a CutText.
+ */
+export function readColumnValue(kind: PostgresKind | null, text: string | null): unknown {
+  if (text === null) return null;
+  // In characters, as the server counts them; only a long text can have too many.
+  if (text.length > MAX_POSTGRES_TEXT && [...text].length > MAX_POSTGRES_TEXT) return new CutText(text.slice(0, MAX_POSTGRES_TEXT));
+  if (kind === "number") return numberFromText(text);
+  if (kind === "text" || kind === null) return text;
+  try {
+    return JSON.parse(text);
+  } catch {
+    return null;
+  }
+}
+
 /** A column's value as its property takes it (row_to_json's form); null when empty or not readable. */
 export function columnValue(kind: PostgresKind, value: unknown): unknown {
   if (value === null || value === undefined) return null;
+  if (value instanceof CutText) return kind === "number" || !value.text.trim() ? null : value.text;
   switch (kind) {
     case "number": {
       const n = typeof value === "number" ? value : typeof value === "string" ? Number(value.replace(/[^0-9eE.+-]/g, "")) : NaN;
@@ -178,6 +220,7 @@ export function columnValue(kind: PostgresKind, value: unknown): unknown {
 /** A table row as text: what finds it again (its key) and its title. */
 export function keyText(value: unknown): string {
   if (value === null || value === undefined) return "";
+  if (value instanceof CutText) return value.text;
   return typeof value === "object" ? JSON.stringify(value) : String(value);
 }
 

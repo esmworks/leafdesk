@@ -196,6 +196,7 @@
       "added": "Aggiunto",
       "emailed": "Invito inviato via email",
       "emailFailed": "Email non riuscita, condividi il link",
+      "emailLimited": "Troppe email di invito di recente, condividi il link",
       "linkOnly": "Condividi questo link di invito",
       "linkValidity": "I link di invito valgono 7 giorni e solo per l’indirizzo email invitato.",
       "addMore": "Aggiungi altri",

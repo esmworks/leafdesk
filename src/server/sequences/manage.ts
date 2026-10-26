@@ -26,11 +26,11 @@ import {
   type SequenceView,
   type StopReason,
 } from "@/lib/sequences";
-import { AccessError, pageAccessOf, requireMembership } from "@/server/access";
+import { AccessError, requireMembership, resolvePageAccess } from "@/server/access";
 import { recordAudit } from "@/server/audit";
 import { getProperties } from "@/server/databases";
 import { signalInbox } from "@/server/notifications";
-import { rowMailAccess } from "@/server/row-mail/access";
+import { requestRowMailAccess } from "@/server/row-mail/access";
 import { workspaceSettings } from "@/server/workspaces";
 
 /**
@@ -149,7 +149,7 @@ async function openCounts(sequenceIds: string[]) {
 
 /** The sequences of a database, for whoever may open it. */
 export async function listSequences(userId: string, databaseId: string): Promise<SequenceView[]> {
-  const { page: database, level } = await pageAccessOf(userId, databaseId);
+  const { page: database, level } = await resolvePageAccess(userId, databaseId);
   if (!database || level === "none" || database.kind !== "database") throw new SequenceError("notFound");
   const rows = await db.select().from(emailSequence).where(eq(emailSequence.databaseId, databaseId)).orderBy(asc(emailSequence.name), asc(emailSequence.createdAt));
   const open = await openCounts(rows.map((r) => r.id));
@@ -168,7 +168,7 @@ export async function listWorkspaceSequences(userId: string, workspaceId: string
 export async function getSequence(userId: string, sequenceId: string): Promise<SequenceView> {
   const [row] = await db.select().from(emailSequence).where(eq(emailSequence.id, sequenceId));
   if (!row) throw new SequenceError("notFound");
-  const { level } = await pageAccessOf(userId, row.databaseId);
+  const { level } = await resolvePageAccess(userId, row.databaseId);
   if (level === "none") throw new SequenceError("notFound");
   return sequenceView(row, (await openCounts([row.id])).get(row.id) ?? 0);
 }
@@ -304,7 +304,7 @@ export type EnrollOutcome = { rowId: string; ok: true; enrollment: EnrollmentVie
  */
 export async function enrollRows(userId: string, sequenceId: string, rowIds: string[], source: EnrollmentSource): Promise<EnrollOutcome[]> {
   const [sequence] = await db.select().from(emailSequence).where(eq(emailSequence.id, sequenceId));
-  if (!sequence || (await pageAccessOf(userId, sequence.databaseId)).level === "none") throw new SequenceError("notFound");
+  if (!sequence || (await resolvePageAccess(userId, sequence.databaseId)).level === "none") throw new SequenceError("notFound");
   if (new Set(rowIds).size > MAX_BULK_ENROLL) throw new SequenceError("tooManyRows");
   if (!(await workspaceSettings(sequence.workspaceId)).email) throw new SequenceError("emailOff");
   const [box] = await db
@@ -316,7 +316,7 @@ export async function enrollRows(userId: string, sequenceId: string, rowIds: str
   const audits: Parameters<typeof recordAudit>[0] = [];
   const skip = (rowId: string, code: SequenceErrorCode) => out.push({ rowId, ok: false, code, error: sequenceErrorMessage(code, {}) });
   for (const rowId of new Set(rowIds)) {
-    const access = typeof rowId === "string" ? await rowMailAccess(userId, rowId) : null;
+    const access = typeof rowId === "string" ? await requestRowMailAccess(userId, rowId) : null;
     if (!access || access.databaseId !== sequence.databaseId) {
       skip(rowId, access ? "notFound" : "noAccess");
       continue;
@@ -368,7 +368,7 @@ export async function enrollRows(userId: string, sequenceId: string, rowIds: str
 /** The enrollment, for someone who sees its row's email. */
 async function enrollmentFor(userId: string, enrollmentId: string) {
   const [found] = await db.select().from(sequenceEnrollment).where(eq(sequenceEnrollment.id, enrollmentId));
-  const access = found ? await rowMailAccess(userId, found.rowId) : null;
+  const access = found ? await requestRowMailAccess(userId, found.rowId) : null;
   if (!found || !access) throw new SequenceError("notFound");
   return { enrollment: found, access };
 }
@@ -467,9 +467,9 @@ async function viewsOf(viewer: string, where: SQL | undefined, limit = 1): Promi
     .where(where)
     .orderBy(desc(sequenceEnrollment.startedAt), desc(sequenceEnrollment.id))
     .limit(limit);
-  const access = new Map<string, Promise<Awaited<ReturnType<typeof rowMailAccess>>>>();
+  const access = new Map<string, Promise<Awaited<ReturnType<typeof requestRowMailAccess>>>>();
   const accessOf = (rowId: string) => {
-    if (!access.has(rowId)) access.set(rowId, rowMailAccess(viewer, rowId));
+    if (!access.has(rowId)) access.set(rowId, requestRowMailAccess(viewer, rowId));
     return access.get(rowId)!;
   };
   const out: EnrollmentView[] = [];

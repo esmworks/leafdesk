@@ -34,10 +34,10 @@ import { activeShortcut, aiChatPath, defaultShortcut, SHORTCUT_OFF, shortcutChoi
 import { pageToRemember, startPath } from "./last-page.ts";
 import { hasSession, signIn, startLocalServer, type BackupResult, type LocalServer } from "./local-server.ts";
 import { buildMenu, WEBSITE } from "./menu.ts";
-import { APP_SCHEME, decideNavigation, decideNewWindow, isServerPage, openLinkTarget, showsFile, signInReturn } from "./navigation.ts";
-import { addressCandidates, hostOf, isLeafdeskManifest } from "./server-address.ts";
+import { allowsFrameRedirect, APP_SCHEME, awayHost, decideNavigation, decideNewWindow, isServerPage, openLinkTarget, showsFile, signInReturn } from "./navigation.ts";
+import { addressCandidates, followsRedirect, hostOf, isLeafdeskManifest, needsHttpConfirmation } from "./server-address.ts";
 import { loadSettings, saveSettings, type Settings } from "./settings.ts";
-import { direction, isLocale, pickLocale, STRINGS, type Locale } from "./strings.ts";
+import { direction, fill, isLocale, pickLocale, STRINGS, type Locale } from "./strings.ts";
 import { ClosedTabs, readIcon, readStripRoom, tabPath, windowsToRestore, type SavedWindow } from "./tabs.ts";
 import { startUpdates } from "./updates.ts";
 import { STRIP_HEIGHT, TabbedWindow } from "./windows.ts";
@@ -61,8 +61,14 @@ const PROBE_TIMEOUT_MS = 10_000;
 const LOCALE_COOKIE = "NEXT_LOCALE";
 /** The theme picked in Leafdesk (src/lib/theme.ts); the tab strip and the app's menus follow it. */
 const THEME_COOKIE = "theme";
-/** What the server's pages may ask for: notifications, the clipboard, full screen and the microphone (voice notes). */
-const PERMISSIONS = new Set(["notifications", "clipboard-read", "clipboard-sanitized-write", "fullscreen", "media"]);
+/**
+ * What the server's pages may ask for: notifications, writing to the clipboard (never reading it:
+ * pasting is the person's own doing), full screen and the microphone (voice notes), which the
+ * person allows for each server (allowMicrophone).
+ */
+const PERMISSIONS = new Set(["notifications", "clipboard-sanitized-write", "fullscreen", "media"]);
+/** How long a tab may stay away from the server signing in at an identity provider (navigation.ts). */
+const SIGN_IN_TRIP_MS = 15 * 60_000;
 /**
  * macOS: no title bar of its own; the window's buttons sit at the window's top-left corner,
  * centered on the strip's height: over the first row of a page's sidebar, which the strip lies
@@ -82,17 +88,25 @@ type View =
 type Probe =
   | { kind: "ok"; origin: string }
   | { kind: "not-leafdesk"; origin: string }
+  /** It sends the app on to another host, or down to plain HTTP (`target`): the person says yes first. */
+  | { kind: "redirect"; origin: string; target: string }
   | { kind: "certificate"; certificate: CertificateProblem }
   | { kind: "unreachable" };
 
+/**
+ * What connecting came to. `target` is an origin the page offers to connect to anyway: it comes
+ * back in `accepted` when the person says yes (`confirm`: plain HTTP the app tried on its own, or a
+ * redirect to another host).
+ */
 export type ConnectReply =
   | { ok: true }
   | { error: "invalid" }
   | { error: "unreachable"; host: string }
-  | { error: "not-leafdesk"; host: string }
+  | { error: "not-leafdesk"; host: string; target: string }
+  | { error: "confirm"; reason: "http" | "redirect"; host: string; target: string }
   | { error: "certificate"; host: string; certificate: CertificateProblem };
 
-let settings: Settings = { trustedCertificates: {} };
+let settings: Settings = { trustedCertificates: {}, validCertificateHosts: [] };
 let locale: Locale = "en";
 /** The window last in front: the global shortcut and `leafdesk://` links go to it. */
 let lastWindow: TabbedWindow | null = null;
@@ -107,8 +121,19 @@ let appQuitting = false;
 let waitingLink: string | undefined;
 let started = false;
 const views = new WeakMap<WebContents, View>();
-const certificates = new CertificateTrust(() => settings.trustedCertificates);
+/** The origins being tried by the connect screen now: their hosts' good certificates are remembered too. */
+let connecting: string[] = [];
+const certificates = new CertificateTrust({
+  trusted: () => settings.trustedCertificates,
+  validHosts: () => settings.validCertificateHosts,
+  seenValid: rememberValidCertificate,
+});
 const closedTabs = new ClosedTabs();
+/** Tabs signing in at an identity provider, away from the server: until when they may (navigation.ts). */
+const signInTrips = new WeakMap<WebContents, number>();
+/** The servers whose pages were refused the microphone in this run: asked again at the next start. */
+const microphoneRefused = new Set<string>();
+const microphoneAsked = new Map<string, Promise<boolean>>();
 
 const settingsFile = () => path.join(app.getPath("userData"), "settings.json");
 const save = () => saveSettings(settingsFile(), settings);
@@ -210,6 +235,7 @@ function refreshMenu() {
         if (contents) showView(contents, { view: "connect", address: settings.server });
         bringForward(window);
       },
+      forgetCertificates: Object.keys(settings.trustedCertificates).length ? forgetCertificates : undefined,
       goHome: (window) => {
         const contents = tabbed(window)?.activeContents();
         if (contents && (isLocal() || settings.server)) openCurrent(contents);
@@ -442,6 +468,7 @@ function openWindow(saved: SavedWindow = { tabs: [{ path: "/" }], active: 0 }, b
         const t = strings();
         return { strings: { newTab: t.newTab, closeTab: t.closeTab, tabs: t.tabs, back: t.goBack, forward: t.goForward }, dir: direction(locale) };
       },
+      away: (url) => awayHost(url, currentOrigin()),
       changed: rememberTabs,
       closed: (url, index) => closedTabs.push({ url, index }),
       menu: showTabMenu,
@@ -679,16 +706,27 @@ function showView(contents: WebContents, view: View) {
   contents.loadFile(PAGE).catch(() => undefined);
 }
 
+/**
+ * Where a tab's page may go (navigation.ts): the server's pages, and other sites only while it
+ * signs in at an identity provider, a trip that ends back on the server or after SIGN_IN_TRIP_MS.
+ * Anything else opens in the system's browser instead.
+ */
+function followNavigation(contents: WebContents, event: Electron.Event<{ url: string }>) {
+  const trip = signInTrips.get(contents);
+  const signingIn = trip !== undefined && trip > Date.now();
+  const decision = decideNavigation(event.url, PAGES_URL, currentOrigin(), { from: contents.getURL(), signingIn });
+  if (decision === "sign-in" && !signingIn) signInTrips.set(contents, Date.now() + SIGN_IN_TRIP_MS);
+  if (decision === "allow" || decision === "sign-in") return;
+  event.preventDefault();
+  if (decision === "external") void shell.openExternal(event.url);
+}
+
 /** Navigation, new windows and tabs, failed loads and the context menu of a tab's page. */
 function guard(contents: WebContents) {
-  contents.on("will-navigate", (event) => {
-    const decision = decideNavigation(event.url, PAGES_URL, currentOrigin());
-    if (decision === "allow") return;
-    event.preventDefault();
-    if (decision === "external") void shell.openExternal(event.url);
-  });
+  contents.on("will-navigate", (event) => followNavigation(contents, event));
   contents.on("will-redirect", (event) => {
-    if (decideNavigation(event.url, PAGES_URL) !== "allow") event.preventDefault();
+    if (event.isMainFrame) followNavigation(contents, event);
+    else if (!allowsFrameRedirect(event.url)) event.preventDefault();
   });
   // Leafdesk's own pages open in a tab: Cmd/Ctrl+click and a middle click in one behind the shown
   // tab, Shift+click in a window of its own, anything else in a tab in front.
@@ -718,6 +756,8 @@ function guard(contents: WebContents) {
   contents.on("did-create-window", (child) => guard(child.webContents));
   // Signing out of Leafdesk on this computer leads to its sign-in page: the app signs in again.
   contents.on("did-navigate", (_event, url) => {
+    // Back on the server (or on the app's own screen): a sign-in trip is over.
+    if (!awayHost(url, currentOrigin())) signInTrips.delete(contents);
     if (isLocal() && localOrigin && isServerPage(url, localOrigin) && new URL(url).pathname === "/sign-in") void openLocal(contents, true);
   });
   contents.on("did-fail-load", (_event, code, description, url, isMainFrame) => {
@@ -743,15 +783,59 @@ function guard(contents: WebContents) {
 
 /** Only the connected server's pages get permissions, and only those it uses. */
 function guardPermissions(ses: Session) {
-  ses.setPermissionRequestHandler((_contents, permission, callback, details) => {
-    if (!isServerPage(details.requestingUrl, currentOrigin()) || !PERMISSIONS.has(permission)) return callback(false);
+  ses.setPermissionRequestHandler((contents, permission, callback, details) => {
+    const origin = currentOrigin();
+    if (!origin || !isServerPage(details.requestingUrl, origin) || !PERMISSIONS.has(permission)) return callback(false);
     if (permission !== "media") return callback(true);
     const types = "mediaTypes" in details ? (details.mediaTypes ?? []) : [];
     if (types.includes("video")) return callback(false);
-    if (process.platform !== "darwin") return callback(true);
-    systemPreferences.askForMediaAccess("microphone").then(callback, () => callback(false));
+    allowMicrophone(origin, contents).then(callback, () => callback(false));
   });
-  ses.setPermissionCheckHandler((_contents, permission, origin) => isServerPage(origin, currentOrigin()) && PERMISSIONS.has(permission));
+  // Checks only tell a page what it may do; the microphone itself is given by the request above.
+  ses.setPermissionCheckHandler((_contents, permission, requesting) => {
+    const origin = currentOrigin();
+    if (!origin || !isServerPage(requesting, origin) || !PERMISSIONS.has(permission)) return false;
+    return permission !== "media" || !microphoneRefused.has(origin);
+  });
+}
+
+/**
+ * Whether a server's pages may record from the microphone: the person is asked once for each
+ * server (Leafdesk on this computer is the app's own), and on macOS the system asks for the app
+ * too. A yes is kept; a no holds until the app starts again.
+ */
+async function allowMicrophone(origin: string, contents: WebContents) {
+  if (!isLocal() && !settings.microphone?.[origin]) {
+    if (microphoneRefused.has(origin)) return false;
+    let asking = microphoneAsked.get(origin);
+    if (!asking) {
+      asking = askMicrophone(origin, contents).finally(() => microphoneAsked.delete(origin));
+      microphoneAsked.set(origin, asking);
+    }
+    if (!(await asking)) return false;
+  }
+  return process.platform === "darwin" ? systemPreferences.askForMediaAccess("microphone") : true;
+}
+
+async function askMicrophone(origin: string, contents: WebContents) {
+  const t = strings();
+  const box = {
+    type: "question" as const,
+    message: fill(t.microphoneTitle, { host: hostOf(origin) }),
+    detail: t.microphoneBody,
+    buttons: [t.allow, t.dontAllow],
+    defaultId: 0,
+    cancelId: 1,
+  };
+  const window = TabbedWindow.of(contents)?.window ?? BrowserWindow.fromWebContents(contents);
+  const { response } = window ? await dialog.showMessageBox(window, box) : await dialog.showMessageBox(box);
+  if (response !== 0) {
+    microphoneRefused.add(origin);
+    return false;
+  }
+  settings.microphone = { ...settings.microphone, [origin]: true };
+  save();
+  return true;
 }
 
 /** macOS and Windows check spelling in the system's languages; elsewhere the session needs them. */
@@ -831,16 +915,23 @@ function applyTheme(value: string | undefined) {
   if (nativeTheme.themeSource !== source) nativeTheme.themeSource = source;
 }
 
-/** Whether a server answers at an origin, and whether it is Leafdesk: its health check and manifest. */
-async function probe(origin: string, redirects = 1): Promise<Probe> {
+/**
+ * Whether a server answers at an origin, and whether it is Leafdesk: its health check and manifest.
+ * `accepted`: origins the person said yes to on the connect screen.
+ */
+async function probe(origin: string, accepted: readonly string[], redirects = 1): Promise<Probe> {
   const ses = session.defaultSession;
   const get = (url: string) => ses.fetch(url, { redirect: "manual", signal: AbortSignal.timeout(PROBE_TIMEOUT_MS) });
   try {
     const health = await get(`${origin}/api/health`);
     const location = health.headers.get("location");
-    // A server that sends plain HTTP on to HTTPS (or to another host) is kept by where it sends.
+    // A server that sends plain HTTP on to HTTPS is kept by where it sends; another host, or plain
+    // HTTP from HTTPS, only once the person said yes to it.
     if (health.status >= 300 && health.status < 400 && location && redirects > 0) {
-      return probe(new URL(location, `${origin}/`).origin, redirects - 1);
+      const target = new URL(location, `${origin}/`);
+      if (target.protocol !== "https:" && target.protocol !== "http:") return { kind: "not-leafdesk", origin };
+      if (!followsRedirect(origin, target.origin) && !accepted.includes(target.origin)) return { kind: "redirect", origin, target: target.origin };
+      return probe(target.origin, accepted, redirects - 1);
     }
     const healthy = health.ok && ((await health.json().catch(() => null)) as { status?: unknown } | null)?.status === "ok";
     if (!healthy) return { kind: "not-leafdesk", origin };
@@ -857,23 +948,69 @@ async function probe(origin: string, redirects = 1): Promise<Probe> {
   }
 }
 
-async function connect(address: string, force: boolean): Promise<{ reply: ConnectReply; origin?: string }> {
+/**
+ * Looks for the server at an address typed on the connect screen. Returns the origin to keep only
+ * when it is one the person typed, or said yes to (`accepted`): plain HTTP the app tried by itself
+ * away from this computer, a redirect to another host, or a server that doesn't look like Leafdesk.
+ */
+async function connect(address: string, accepted: readonly string[]): Promise<{ reply: ConnectReply; origin?: string }> {
   const candidates = addressCandidates(address);
   if (!candidates) return { reply: { error: "invalid" } };
   let reply: ConnectReply = { error: "unreachable", host: hostOf(candidates[0]) };
-  for (const origin of candidates) {
-    const untrusted = await certificates.inspect(origin);
-    if (untrusted) return { reply: { error: "certificate", host: untrusted.host, certificate: untrusted } };
-    const result = await probe(origin);
-    if (result.kind === "ok") return { reply: { ok: true }, origin: result.origin };
-    // Never falls back to plain HTTP past a certificate it couldn't check.
-    if (result.kind === "certificate") return { reply: { error: "certificate", host: result.certificate.host, certificate: result.certificate } };
-    if (result.kind === "not-leafdesk") {
-      if (force) return { reply: { ok: true }, origin: result.origin };
-      reply = { error: "not-leafdesk", host: hostOf(result.origin) };
+  connecting = candidates;
+  try {
+    for (const origin of candidates) {
+      const untrusted = await certificates.inspect(origin);
+      if (untrusted) return { reply: { error: "certificate", host: untrusted.host, certificate: untrusted } };
+      const result = await probe(origin, accepted);
+      if (result.kind === "redirect") return { reply: { error: "confirm", reason: "redirect", host: hostOf(result.origin), target: result.target } };
+      // Never falls back to plain HTTP past a certificate it couldn't check.
+      if (result.kind === "certificate") return { reply: { error: "certificate", host: result.certificate.host, certificate: result.certificate } };
+      if (result.kind === "unreachable") continue;
+      const plain = needsHttpConfirmation(address, result.origin);
+      if (result.kind === "ok") {
+        if (plain && !accepted.includes(result.origin)) return { reply: { error: "confirm", reason: "http", host: hostOf(result.origin), target: result.origin } };
+        return { reply: { ok: true }, origin: result.origin };
+      }
+      // Something else over plain HTTP the app tried by itself isn't offered: the HTTPS answer stands.
+      if (plain) continue;
+      if (accepted.includes(result.origin)) return { reply: { ok: true }, origin: result.origin };
+      reply = { error: "not-leafdesk", host: hostOf(result.origin), target: result.origin };
     }
+    return { reply };
+  } finally {
+    connecting = [];
   }
-  return { reply };
+}
+
+/** Remembers that the server (or one being connected to) had a certificate this computer trusts. */
+function rememberValidCertificate(host: string) {
+  const hosts = [settings.server, ...connecting].flatMap((origin) => (origin ? [new URL(origin).hostname] : []));
+  if (!hosts.includes(host) || settings.validCertificateHosts.includes(host)) return;
+  settings.validCertificateHosts.push(host);
+  save();
+}
+
+/** Forgets every certificate trusted on the trust screen; the server's is checked again at once. */
+function forgetCertificates() {
+  const hosts = Object.keys(settings.trustedCertificates);
+  settings.trustedCertificates = {};
+  certificates.problems.clear();
+  save();
+  refreshMenu();
+  const server = !isLocal() && settings.server ? new URL(settings.server).hostname : undefined;
+  // Chromium keeps a certificate it was told to accept until the app restarts.
+  if (server && hosts.includes(server)) relaunch();
+  else void session.defaultSession.closeAllConnections();
+}
+
+/** Starts the app again, with its tabs as they are. */
+function relaunch() {
+  rememberTabsNow();
+  save();
+  app.relaunch();
+  // Leaving without "before-quit": Leafdesk on this computer is stopped here.
+  void stopLocal().finally(() => app.exit(0));
 }
 
 /** The bridge pages/app.html talks to (preload.cts); nothing else may call it. */
@@ -908,9 +1045,10 @@ function registerPageBridge() {
     void openLocal(event.sender);
   });
 
-  handle("leafdesk:connect", async (event, address, force) => {
+  handle("leafdesk:connect", async (event, address, accepted) => {
     if (typeof address !== "string") return { error: "invalid" } satisfies ConnectReply;
-    const { reply, origin } = await connect(address, force === true);
+    const yes = Array.isArray(accepted) ? accepted.filter((origin): origin is string => typeof origin === "string") : [];
+    const { reply, origin } = await connect(address, yes);
     if (origin && TabbedWindow.of(event.sender)) {
       settings.server = origin;
       settings.mode = undefined;
@@ -933,6 +1071,7 @@ function registerPageBridge() {
     certificates.problems.delete(problem.host);
     if (!problem.seenByChromium) {
       save();
+      refreshMenu();
       return { ok: true };
     }
     // Chromium already turned this certificate down and keeps that until the app restarts.
@@ -940,11 +1079,7 @@ function registerPageBridge() {
       settings.server = problem.origin;
       settings.mode = undefined;
     }
-    rememberTabsNow();
-    save();
-    app.relaunch();
-    // Leaving without "before-quit": Leafdesk on this computer is stopped here.
-    void stopLocal().finally(() => app.exit(0));
+    relaunch();
     return { ok: true };
   });
 

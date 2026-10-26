@@ -326,6 +326,8 @@
         "editPage": "Ändra den här sidans text?",
         "createPdf": "Skapa en PDF av den här sidan och bifoga den?",
         "connection": "Skicka det här till {connection}?",
+        "readWeb": "Läsa den här webbsidan?",
+        "searchWeb": "Söka efter det här på webben?",
         "addComment": "Lägga till den här kommentaren?",
         "createDatabase": "Lägga till den här databasen?",
         "createForm": "Lägga till det här formuläret?"
@@ -342,6 +344,8 @@
       "page": "Sida",
       "empty": "(tomt)",
       "connectionHint": "Skickas med arbetsytans anslutning: det kan ändra något hos {connection}",
+      "readWebHint": "Allt i adressen når fram till den webbplatsen",
+      "searchWebHint": "Orden når fram till söktjänsten på webben",
       "fromFile": "{rows, plural, one {# rad} other {# rader}} från {name}",
       "titleColumn": "Titel",
       "publicForm": {

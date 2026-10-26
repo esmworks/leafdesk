@@ -13,6 +13,7 @@ import { Button, cn, Input, selectClass } from "@/components/ui";
 import { UserAvatar } from "@/components/user-avatar";
 import type { WorkspaceRole } from "@/db/schema";
 import { ConfirmButton } from "./confirm-button";
+import { deliveryText } from "./invitation-delivery";
 import { useAction } from "./workspace-settings";
 
 export type DomainPersonView = {
@@ -159,7 +160,7 @@ function PersonRow({ workspaceId, person, self, now }: { workspaceId: string; pe
                       : r.kind === "added"
                         ? tm("add.added")
                         : r.kind === "invited"
-                          ? tm(r.delivery === "sent" ? "add.emailed" : r.delivery === "failed" ? "add.emailFailed" : "add.linkOnly")
+                          ? tm(deliveryText(r.delivery))
                           : r.kind === "requested"
                             ? tm("add.requested")
                             : tErrors(r.code),

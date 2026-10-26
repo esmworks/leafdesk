@@ -24,7 +24,7 @@ if (location.protocol === "file:" && location.pathname.endsWith("/tabs.html")) {
 } else if (location.protocol === "file:") {
   contextBridge.exposeInMainWorld("leafdesk", {
     state: () => ipcRenderer.invoke("leafdesk:state"),
-    connect: (address: string, force: boolean) => ipcRenderer.invoke("leafdesk:connect", address, force),
+    connect: (address: string, accepted: string[]) => ipcRenderer.invoke("leafdesk:connect", address, accepted),
     trust: (host: string, fingerprint: string) => ipcRenderer.invoke("leafdesk:trust", host, fingerprint),
     retry: () => ipcRenderer.invoke("leafdesk:retry"),
     startLocal: () => ipcRenderer.invoke("leafdesk:local"),

@@ -326,6 +326,8 @@
         "editPage": "לשנות את הטקסט של הדף הזה?",
         "createPdf": "ליצור PDF של הדף הזה ולצרף אותו?",
         "connection": "לשלוח את זה אל {connection}?",
+        "readWeb": "לקרוא את דף האינטרנט הזה?",
+        "searchWeb": "לחפש את זה באינטרנט?",
         "addComment": "להוסיף את התגובה הזו?",
         "createDatabase": "להוסיף את מסד הנתונים הזה?",
         "createForm": "להוסיף את הטופס הזה?"
@@ -342,6 +344,8 @@
       "page": "דף",
       "empty": "(ריק)",
       "connectionHint": "נשלח דרך החיבור של סביבת העבודה: עשוי לשנות משהו ב־{connection}",
+      "readWebHint": "כל מה שבכתובת מגיע לאתר הזה",
+      "searchWebHint": "המילים מגיעות לשירות החיפוש באינטרנט",
       "fromFile": "{rows, plural, one {שורה אחת} other {# שורות}} מתוך {name}",
       "titleColumn": "כותרת",
       "publicForm": {

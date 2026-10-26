@@ -1102,6 +1102,27 @@ function loadValues(
 }
 
 /**
+ * The rows of a published database that one of its web views shows anonymous visitors (its live
+ * rows when it has no view): what copying the published page carries (server/published-duplicate.ts),
+ * so a row the views filter out isn't copied.
+ */
+export async function webShownRowIds(publisher: string, databaseId: string): Promise<Set<string>> {
+  const loads = publishedLoads();
+  const [schema, views] = await Promise.all([loadSchema(loads, databaseId, null), readableViews(databaseId).then(webViews)]);
+  const stored = await loadRows(loads, publisher, databaseId, false);
+  if (!views.length) return new Set(stored.filter((row) => !row.outdated).map((row) => row.id));
+  const rows = await loadValues(loads, publisher, databaseId, null, false, schema, stored);
+  const allProperties = schema.access.known(schema.storedProperties);
+  const shown = new Set<string>();
+  for (const view of views) {
+    const config = schema.access.config(withoutDeleted(view.config, schema.deleted));
+    // Only which rows pass: no sorting.
+    for (const row of applyView(rows, { ...config, sorts: [] }, allProperties)) shown.add(row.id);
+  }
+  return shown;
+}
+
+/**
  * A published database's rows as one of its web views shows them (`viewId`, else the first), or as
  * `linked` (a linked view's own settings) does. Only rows `publisher` can see are listed; the
  * print view (server/print.ts) passes the person printing.

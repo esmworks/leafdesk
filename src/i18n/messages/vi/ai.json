@@ -326,6 +326,8 @@
         "editPage": "Thay đổi nội dung của trang này?",
         "createPdf": "Tạo PDF của trang này và đính kèm?",
         "connection": "Gửi nội dung này đến {connection}?",
+        "readWeb": "Đọc trang web này?",
+        "searchWeb": "Tìm nội dung này trên web?",
         "addComment": "Thêm bình luận này?",
         "createDatabase": "Thêm cơ sở dữ liệu này?",
         "createForm": "Thêm biểu mẫu này?"
@@ -342,6 +344,8 @@
       "page": "Trang",
       "empty": "(trống)",
       "connectionHint": "Gửi qua kết nối của không gian làm việc: nó có thể thay đổi điều gì đó tại {connection}",
+      "readWebHint": "Mọi thứ trong địa chỉ đều đến trang web đó",
+      "searchWebHint": "Các từ khóa đến dịch vụ tìm kiếm web",
       "fromFile": "{rows, plural, other {# hàng}} từ {name}",
       "titleColumn": "Tiêu đề",
       "publicForm": {

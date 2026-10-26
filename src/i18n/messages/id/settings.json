@@ -196,6 +196,7 @@
       "added": "Ditambahkan",
       "emailed": "Undangan dikirim lewat email",
       "emailFailed": "Email gagal, bagikan tautannya",
+      "emailLimited": "Terlalu banyak email undangan akhir-akhir ini, bagikan tautannya",
       "linkOnly": "Bagikan tautan undangan ini",
       "linkValidity": "Tautan undangan berlaku selama 7 hari dan hanya untuk alamat email yang diundang.",
       "addMore": "Tambah lagi",

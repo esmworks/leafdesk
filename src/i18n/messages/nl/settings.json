@@ -196,6 +196,7 @@
       "added": "Toegevoegd",
       "emailed": "Uitnodiging gemaild",
       "emailFailed": "E-mail mislukt, deel de link",
+      "emailLimited": "Te veel uitnodigingsmails de laatste tijd, deel de link",
       "linkOnly": "Deel deze uitnodigingslink",
       "linkValidity": "Uitnodigingslinks werken 7 dagen en alleen voor het uitgenodigde e-mailadres.",
       "addMore": "Meer toevoegen",

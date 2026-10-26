@@ -13,6 +13,7 @@ import { checkRows, discardDatabase, recordImport, reportInvalid, writeRows } fr
 import { isPageImage } from "./docx-convert";
 import { mediaHashes, noteBlocks, placedBlock, placeMedia, resourceFiles, type Placed } from "./enex-convert";
 import { store } from "./markdown";
+import { requireTopLevelPlace } from "./place";
 
 /**
  * Imports Evernote exports (.enex, loose or in ZIPs) as databases under a page (or at the top level
@@ -148,7 +149,7 @@ export async function importEnex(actor: WriteActor, input: EnexImportInput): Pro
     if (parent.archivedAt) throw new ImportError("The page is in the trash", "noAccess");
     if (parent.kind !== "page") throw new ImportError("Notebooks can only be imported into a page", "badRequest");
     workspaceId = parent.workspaceId;
-  }
+  } else await requireTopLevelPlace(userId, workspaceId, input.teamspaceId);
 
   // Read every export first: one that can't be read stops the import before anything is created.
   const warnings = new WarningList();

@@ -196,6 +196,7 @@
       "added": "Eklendi",
       "emailed": "Davet e-postası gönderildi",
       "emailFailed": "E-posta gönderilemedi, bağlantıyı paylaşın",
+      "emailLimited": "Son zamanlarda çok fazla davet e-postası gönderildi, bağlantıyı paylaşın",
       "linkOnly": "Bu davet bağlantısını paylaşın",
       "linkValidity": "Davet bağlantıları 7 gün ve yalnızca davet edilen e-posta adresi için geçerlidir.",
       "addMore": "Başka ekle",
