@@ -16,8 +16,19 @@ import {
   type ChartData,
 } from "@/lib/chart";
 import { isComputedWidget, LIST_WIDGET_ROWS, MAX_WIDGETS, WIDGET_DRILL_ROWS, widgetStamp } from "@/lib/dashboard";
+import {
+  comparisonOf,
+  isPeriodPropertyType,
+  periodProperty,
+  periodRange,
+  previousRange,
+  withPeriod,
+  type DashboardPeriod,
+  type DayRange,
+} from "@/lib/dashboard-period";
 import type { LinkedView } from "@/lib/embed-blocks";
 import type { GroupContext } from "@/lib/grouping";
+import { applyView } from "@/lib/properties";
 import { holdsPeople } from "@/lib/property-types";
 import { timestampDay } from "@/lib/time-zone";
 import { AccessError, pageVisibleTo } from "@/server/access";
@@ -42,7 +53,18 @@ export type WidgetOptions = {
    * times (dates, created and edited times) filter and group by their day there. UTC when left out.
    */
   timeZone?: string;
+  /** The dashboard's period (lib/dashboard-period): rows are cut to its days in the time zone. All time when left out. */
+  period?: DashboardPeriod;
+  /** When the period is counted from; now when left out. */
+  now?: Date;
 };
+
+/**
+ * How the dashboard's period applied to a widget: the property and days its rows were cut to, or
+ * `property` null when the widget leaves the period aside (it shows every row, or its database has
+ * no date the reader can see). Missing for all time.
+ */
+export type WidgetPeriod = { property: { id: string; name: string } | null; range: DayRange };
 
 /** A property a widget draws with: what it groups or stacks by, or what it measures. */
 export type WidgetProperty = { id: string; name: string; type: PropertyType; options: PropertyOptions };
@@ -58,8 +80,16 @@ export type WidgetData =
       rowCount: number;
       /** What the browser needs to name and format what it gets (lib/chart chartMeasure and labels). */
       properties: WidgetProperty[];
+      period?: WidgetPeriod;
+      /** The properties a period can cut this widget's rows on, for its settings. */
+      dateProperties: { id: string; name: string; type: PropertyType }[];
     } & (
-      | { kind: "number"; result: AggregateResult | null }
+      | {
+          kind: "number";
+          result: AggregateResult | null;
+          /** The same figure over the period before (lib/dashboard-period previousRange), when the widget compares. */
+          previous?: { result: AggregateResult | null; range: DayRange };
+        }
       /** `chart` is null when the database has nothing to group by. */
       | { kind: "chart"; chart: ChartData<never> | null; groupById: string | null; stackById: string | null }
       | { kind: "list"; rows: WidgetRow[] }
@@ -96,17 +126,31 @@ async function worked(viewer: WidgetViewer, source: WidgetSource, options: Widge
   if (!found) return null;
   const { database, properties } = found;
   const config = source.view.config;
-  // Days are the viewer's: "today" in a filter, and the day a time falls on.
+  // Days are the viewer's: "today" in a filter, the dashboard's period, and the day a time falls on.
   const timeZone = validTimeZone(options.timeZone) ?? "UTC";
-  const rows = await databases.viewedRows(
-    viewer.userId,
-    database.id,
-    { filters: config.filters, filterCombinator: config.filterCombinator, sorts: config.sorts },
-    undefined,
-    { timeZone },
-  );
+  const now = options.now ?? new Date();
   const measure = chartMeasure(config, properties);
   const chartType = chartTypeOf(config);
+  const range = options.period ? periodRange(options.period, now, timeZone) : null;
+  const by = range ? periodProperty(properties, config.periodBy) : null;
+  // A number compares with the period before: both are read at once (the one comes right before
+  // the other) and told apart here.
+  const before =
+    by && options.period && source.view.type === "chart" && chartType === "number" && comparisonOf(config) !== "off"
+      ? previousRange(options.period, now, timeZone)
+      : null;
+  const read = { filters: config.filters, filterCombinator: config.filterCombinator, sorts: config.sorts };
+  const all = await databases.viewedRows(
+    viewer.userId,
+    database.id,
+    range && by ? withPeriod(read, by.id, before ? { start: before.start, end: range.end } : range) : read,
+    undefined,
+    { timeZone, now },
+  );
+  const within = (days: DayRange) => applyView(all, { ...withPeriod({}, by!.id, days), showOutdated: true }, properties, { timeZone, now });
+  const rows = before && range ? within(range) : all;
+  const period: WidgetPeriod | undefined = range ? { property: by && { id: by.id, name: by.name }, range } : undefined;
+  const previous = before ? { rows: within(before), range: before } : undefined;
   const groupBy = chartType === "number" ? null : chartGroupProperty(properties, config);
   const stackBy =
     (groupBy &&
@@ -132,14 +176,20 @@ async function worked(viewer: WidgetViewer, source: WidgetSource, options: Widge
   return {
     database,
     rows,
+    period,
+    previous,
     measure,
     chartType,
     chart,
     groupBy,
     stackBy,
     properties: properties.filter((p) => used.has(p.id)).map(({ id, name, type, options }) => ({ id, name, type, options })),
+    dateProperties: dateProperties(properties),
   };
 }
+
+const dateProperties = (properties: { id: string; name: string; type: PropertyType }[]) =>
+  properties.filter((p) => isPeriodPropertyType(p.type)).map(({ id, name, type }) => ({ id, name, type }));
 
 const rowRef = (r: { id: string; title: string; icon: string | null }): WidgetRow => ({ id: r.id, title: r.title, icon: r.icon });
 
@@ -148,15 +198,37 @@ export async function widgetData(viewer: WidgetViewer, source: WidgetSource, opt
   const type = source.view.type;
   if (!isComputedWidget(type)) {
     // Shown as a linked view, which loads and checks access on its own: only say whether it may.
+    // It shows the dashboard's period through the rules this says (lib/dashboard-period withPeriod).
     const found = await load(viewer, source.databaseId);
     if (!found) return { state: "unavailable" };
-    return { state: "ok", database: header(found.database), rowCount: 0, properties: [], kind: "view" };
+    const timeZone = validTimeZone(options.timeZone) ?? "UTC";
+    const range = options.period ? periodRange(options.period, options.now ?? new Date(), timeZone) : null;
+    const by = range && periodProperty(found.properties, source.view.config.periodBy);
+    return {
+      state: "ok",
+      database: header(found.database),
+      rowCount: 0,
+      properties: [],
+      dateProperties: dateProperties(found.properties),
+      ...(range ? { period: { property: by ? { id: by.id, name: by.name } : null, range } } : {}),
+      kind: "view",
+    };
   }
   const work = await worked(viewer, source, options);
   if (!work) return { state: "unavailable" };
-  const base = { state: "ok" as const, database: header(work.database), rowCount: work.rows.length, properties: work.properties };
+  const base = {
+    state: "ok" as const,
+    database: header(work.database),
+    rowCount: work.rows.length,
+    properties: work.properties,
+    dateProperties: work.dateProperties,
+    ...(work.period ? { period: work.period } : {}),
+  };
   if (type === "list") return { ...base, kind: "list", rows: work.rows.slice(0, LIST_WIDGET_ROWS).map(rowRef) };
-  if (work.chartType === "number") return { ...base, kind: "number", result: measureRows(work.rows, work.measure) };
+  if (work.chartType === "number") {
+    const previous = work.previous && { result: measureRows(work.previous.rows, work.measure), range: work.previous.range };
+    return { ...base, kind: "number", result: measureRows(work.rows, work.measure), ...(previous ? { previous } : {}) };
+  }
   return {
     ...base,
     kind: "chart",

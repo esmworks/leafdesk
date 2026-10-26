@@ -55,9 +55,26 @@ export default function DashboardView({
     [save],
   );
 
+  // The period is saved at once, with widget changes still pending.
+  const onPeriod = useCallback((period: string) => {
+    if (timer.current) clearTimeout(timer.current);
+    timer.current = null;
+    const { config, onConfig, draft } = latest.current;
+    const { period: _, ...rest } = config;
+    onConfig({ ...rest, ...(draft ? { widgets: viewWidgetsConfig(draft) } : {}), ...(period ? { period } : {}) });
+    setDraft(null);
+  }, []);
+
   return (
     <div className="page-gutter">
-      <Dashboard widgets={draft ?? stored} onChange={readOnly ? undefined : onChange} workspaceId={workspaceId} databaseId={view.databaseId} />
+      <Dashboard
+        widgets={draft ?? stored}
+        onChange={readOnly ? undefined : onChange}
+        workspaceId={workspaceId}
+        databaseId={view.databaseId}
+        period={view.config.period}
+        onPeriod={readOnly ? undefined : onPeriod}
+      />
     </div>
   );
 }

@@ -4,6 +4,21 @@
 
 ### Added
 
+- **Dashboards show a period, and numbers their change from the period before.** A period above
+  the grid (this week, month, quarter or year, last week, month, quarter or year, a range of days,
+  or all time) cuts every widget's rows at once, on each widget's date property (the first date
+  property by default, else the first created time; a widget without one shows every row and says
+  so). Anyone may switch the period for themselves; editors can save it for everyone. A number
+  widget shows the change from the period before of the same length, as "▲ 12 % vs Sep 2026",
+  green or red as the widget says a rise is good or bad, or not at all; an earlier period without
+  a figure shows none. Published pages and print show the saved period's figures and name it.
+  Dashboard views of a database have the same period. Over MCP, `add_dashboard`,
+  `update_dashboard_widget` and the dashboard views of `create_database_view` /
+  `update_database_view` take `period`, and widgets `period_by` and `comparison`; the MCP tool list
+  budget goes from 165,000 to 165,500 bytes for these settings. View filters gain *this quarter*,
+  *last quarter* and *next quarter*, and a page's first-load JavaScript budget goes from 774 to
+  775 kB for them. No migration.
+
 - **Right-click in the sidebar for Leafdesk's own menus, with Open in new tab and Copy link.** A
   page's row opens its actions (rename, move to trash, keep offline) where it was right-clicked,
   now starting with Open in new tab and Copy link; other links there (My tasks, Meetings, Home …)

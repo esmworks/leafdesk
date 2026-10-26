@@ -11,7 +11,7 @@ import { Floating, useFloating } from "@/components/database/floating";
 import { useFormatResult } from "@/components/database/table-calculations";
 import { useViewerTimeZone } from "@/components/database/use-today";
 import { useReorderDrag, type ReorderDragHandlers } from "@/components/use-reorder-drag";
-import { Button, cn, IconButton, Input, MenuItem, MenuSeparator, PageIcon, pageLabel } from "@/components/ui";
+import { Button, cn, IconButton, Input, MenuItem, MenuSeparator, PageIcon, pageLabel, selectClass } from "@/components/ui";
 import type { FilterEntry } from "@/db/schema/app";
 import type { AggregateFn } from "@/lib/aggregate";
 import { chartMeasure } from "@/lib/chart";
@@ -37,8 +37,19 @@ import {
   DASHBOARD_GRID_CLASS,
   WIDGET_SPAN_CLASS,
 } from "@/lib/dashboard";
+import {
+  COMPARISONS,
+  comparisonOf,
+  figureChange,
+  PERIOD_NONE,
+  periodProperty,
+  serializeDashboardPeriod,
+  withPeriod,
+  type Comparison,
+} from "@/lib/dashboard-period";
 import type { LinkedView } from "@/lib/embed-blocks";
 import type { WidgetData, WidgetRow, WidgetTarget } from "@/server/dashboards";
+import { ChangeLine, PeriodBar, useDashboardPeriod, useRangeName } from "./dashboard-period";
 import { DatabaseEmbed } from "./database-embed";
 import { DatabasePicker } from "./database-picker";
 
@@ -60,6 +71,8 @@ export function Dashboard({
   onChange,
   workspaceId,
   databaseId,
+  period: storedPeriod,
+  onPeriod,
 }: {
   widgets: DashboardWidget[];
   /** Only for those who may change the widgets. */
@@ -67,6 +80,10 @@ export function Dashboard({
   workspaceId: string | null;
   /** A dashboard view's database: every widget shows it, so new ones need no picking and none is named. */
   databaseId?: string;
+  /** The period every widget shows, as stored (lib/dashboard-period); readers may pick another for themselves. */
+  period?: string;
+  /** Only for those who may change the widgets: store the period. */
+  onPeriod?: (period: string) => void;
 }) {
   const t = useTranslations("page.dashboard");
   const td = useTranslations("database.dashboardView");
@@ -75,6 +92,8 @@ export function Dashboard({
   const full = widgets.length >= MAX_WIDGETS;
   const shown = useRef(new Map<string, ShownWidget>());
   useTreeRefresh(workspaceId, shown);
+  const chosen = useDashboardPeriod(storedPeriod);
+  const period = serializeDashboardPeriod(chosen.period);
   const drag = useReorderDrag("grid", (moved, target, side) => onChange?.(placeWidget(widgets, moved, target, side)), WIDGET_DRAG_TYPE);
 
   const add = (databaseId: string) => {
@@ -104,11 +123,26 @@ export function Dashboard({
         </div>
       ) : (
         <>
+          <PeriodBar
+            period={chosen.period}
+            onPick={chosen.pick}
+            changed={chosen.picked}
+            onReset={chosen.reset}
+            onSave={
+              onChange && onPeriod
+                ? () => {
+                    onPeriod(period);
+                    chosen.reset();
+                  }
+                : undefined
+            }
+          />
           <div className={DASHBOARD_GRID_CLASS}>
             {widgets.map((widget, index) => (
               <Widget
                 key={widget.id}
                 widget={widget}
+                period={period}
                 shown={shown}
                 fixed={!!databaseId}
                 editing={editing === widget.id}
@@ -181,7 +215,7 @@ function useTreeRefresh(workspaceId: string | null, shown: RefObject<Map<string,
  * A widget's data, asked for again (shortly after) whenever its database's rows or schema change,
  * or the dashboard finds the database changed for the reader (useTreeRefresh).
  */
-function useWidgetData(widget: DashboardWidget, shown: RefObject<Map<string, ShownWidget>>) {
+function useWidgetData(widget: DashboardWidget, period: string, shown: RefObject<Map<string, ShownWidget>>) {
   const timeZone = useViewerTimeZone();
   const [data, setData] = useState<WidgetData | null>(null);
   const [failed, setFailed] = useState(false);
@@ -193,7 +227,7 @@ function useWidgetData(widget: DashboardWidget, shown: RefObject<Map<string, Sho
   const load = useCallback(async () => {
     const n = ++asked.current;
     try {
-      const next = await widgetDataAction(JSON.parse(key) as { databaseId: string; view: LinkedView }, timeZone);
+      const next = await widgetDataAction(JSON.parse(key) as { databaseId: string; view: LinkedView }, timeZone, period);
       if (n !== asked.current) return;
       setData(next);
       setFailed(false);
@@ -201,7 +235,7 @@ function useWidgetData(widget: DashboardWidget, shown: RefObject<Map<string, Sho
     } catch {
       if (n === asked.current) setFailed(true);
     }
-  }, [key, timeZone]);
+  }, [key, timeZone, period]);
   useEffect(() => {
     void load();
   }, [load]);
@@ -228,6 +262,7 @@ function useWidgetData(widget: DashboardWidget, shown: RefObject<Map<string, Sho
 
 function Widget({
   widget,
+  period,
   shown,
   fixed,
   editing,
@@ -235,6 +270,8 @@ function Widget({
   actions,
 }: {
   widget: DashboardWidget;
+  /** The dashboard's period, as stored (lib/dashboard-period). */
+  period: string;
   shown: RefObject<Map<string, ShownWidget>>;
   /** Of a dashboard view: the database goes without saying, and the widget is named after what it shows. */
   fixed: boolean;
@@ -245,14 +282,14 @@ function Widget({
 }) {
   const t = useTranslations("page.dashboard");
   const tc = useTranslations("common");
-  const { data, failed, fetchedAt, retry } = useWidgetData(widget, shown);
+  const { data, failed, fetchedAt, retry } = useWidgetData(widget, period, shown);
   const ok = data?.state === "ok" ? data : null;
   const shows = useWidgetName(widget, ok);
   const title = widget.title || (fixed ? shows : ok ? pageLabel(ok.database.title, tc("untitled")) : "");
   const href = ok && !fixed ? `/w/${ok.database.workspaceId}/p/${ok.database.id}` : null;
 
   let body: ReactNode;
-  if (editing && actions) body = <WidgetEditor widget={widget} actions={actions} fixed={fixed} />;
+  if (editing && actions) body = <WidgetEditor widget={widget} actions={actions} fixed={fixed} data={ok} />;
   else if (!data && failed) {
     body = (
       <Notice>
@@ -277,7 +314,7 @@ function Widget({
         {t("inTrash")}
       </Notice>
     );
-  } else body = <WidgetBody widget={widget} data={data} title={title} />;
+  } else body = <WidgetBody widget={widget} data={data} title={title} period={period} />;
 
   const box = useRef<HTMLElement>(null);
   return (
@@ -366,17 +403,24 @@ function useWidgetName(widget: DashboardWidget, data: OkData | null): string {
   return td(`views.${widget.view.type}`);
 }
 
-function WidgetBody({ widget, data, title }: { widget: DashboardWidget; data: OkData; title: string }) {
+function WidgetBody({ widget, data, title, period }: { widget: DashboardWidget; data: OkData; title: string; period: string }) {
   const t = useTranslations("page.dashboard");
   const td = useTranslations("database");
   const formatResult = useFormatResult();
+  const rangeName = useRangeName();
   const config = widget.view.config;
-  const readOnlyView = useMemo(() => ({ view: widget.view }), [widget.view]);
+  // A layout shown as a linked view gets the period as two more filter rules, the days the server worked out.
+  const cut = data.period?.property ? { id: data.period.property.id, range: data.period.range } : null;
+  const readOnlyView = useMemo(
+    () => ({ view: cut ? { ...widget.view, config: withPeriod(widget.view.config, cut.id, cut.range) } : widget.view }),
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- the cut changes with its id and days only
+    [widget.view, cut?.id, cut?.range.start, cut?.range.end],
+  );
   const measure = useMemo(() => chartMeasure(config, data.properties), [config, data.properties]);
   const measureName = useMeasureName(measure, data.properties);
   const [drill, setDrill] = useState<(OpenedMark & { target: WidgetTarget }) | null>(null);
   const workspaceId = data.database.workspaceId;
-  const rowsPopover = drill && <DrillRows widget={widget} workspaceId={workspaceId} {...drill} />;
+  const rowsPopover = drill && <DrillRows widget={widget} period={period} workspaceId={workspaceId} {...drill} />;
 
   switch (data.kind) {
     case "number": {
@@ -391,6 +435,9 @@ function WidgetBody({ widget, data, title }: { widget: DashboardWidget; data: Ok
             openLabel={td("chart.openRows", { group: measureName, value })}
             onOpen={(anchor) => setDrill({ groupKey: "", title: measureName, value, anchor, target: {}, onClose: () => setDrill(null) })}
           />
+          {data.previous && (
+            <ChangeLine change={figureChange(data.result, data.previous.result)} comparison={comparisonOf(config)} versus={rangeName(data.previous.range)} />
+          )}
           {rowsPopover}
         </>
       );
@@ -413,6 +460,7 @@ function WidgetBody({ widget, data, title }: { widget: DashboardWidget; data: Ok
             renderRows={(opened) => (
               <DrillRows
                 widget={widget}
+                period={period}
                 workspaceId={workspaceId}
                 {...opened}
                 target={{ groupKey: opened.groupKey, ...(opened.seriesKey !== undefined ? { seriesKey: opened.seriesKey } : {}) }}
@@ -470,13 +518,14 @@ function RowLinks({ rows, workspaceId, onClick }: { rows: WidgetRow[]; workspace
 /** The rows behind a number, bar, point or slice, asked for when it is clicked. */
 function DrillRows({
   widget,
+  period,
   workspaceId,
   target,
   title,
   value,
   anchor,
   onClose,
-}: OpenedMark & { widget: DashboardWidget; workspaceId: string; target: WidgetTarget }) {
+}: OpenedMark & { widget: DashboardWidget; period: string; workspaceId: string; target: WidgetTarget }) {
   const t = useTranslations("database.chart");
   const td = useTranslations("page.dashboard");
   const timeZone = useViewerTimeZone();
@@ -485,13 +534,13 @@ function DrillRows({
   useEffect(() => {
     let live = true;
     const { databaseId, view, target } = JSON.parse(key) as { databaseId: string; view: LinkedView; target: WidgetTarget };
-    widgetRowsAction({ databaseId, view }, target, timeZone)
+    widgetRowsAction({ databaseId, view }, target, timeZone, period)
       .then((res) => live && setResult(res ?? "failed"))
       .catch(() => live && setResult("failed"));
     return () => {
       live = false;
     };
-  }, [key, timeZone]);
+  }, [key, timeZone, period]);
   return (
     <Floating open anchor={anchor} onClose={onClose}>
       <div className="w-72 max-w-[calc(100vw-2rem)]" aria-label={t("rowsIn", { group: title })} role="dialog">
@@ -545,6 +594,7 @@ function WidgetFooter({ widget, data, fetchedAt }: { widget: DashboardWidget; da
   if (data.kind === "view") parts.push(td(`views.${widget.view.type}`));
   const filters = countRules(config.filters);
   if (filters) parts.push(t("filters", { count: filters }));
+  if (data.period) parts.push(data.period.property ? t("period.by", { property: data.period.property.name }) : t("period.ignored"));
   if (fetchedAt) {
     const ago = now.getTime() - fetchedAt;
     parts.push(ago < 45_000 ? t("updatedNow") : t("updated", { time: format.relativeTime(fetchedAt, now) }));
@@ -652,7 +702,7 @@ function ColorPicker({ color, onPick }: { color: WidgetColor | undefined; onPick
 }
 
 /** Setting a widget up in place: its title and width, and its view with the linked view's own toolbar. */
-function WidgetEditor({ widget, actions, fixed }: { widget: DashboardWidget; actions: WidgetActions; fixed: boolean }) {
+function WidgetEditor({ widget, actions, fixed, data }: { widget: DashboardWidget; actions: WidgetActions; fixed: boolean; data: OkData | null }) {
   const t = useTranslations("page.dashboard");
   const tv = useTranslations("database.dashboardView");
   const { change } = actions;
@@ -681,7 +731,63 @@ function WidgetEditor({ widget, actions, fixed }: { widget: DashboardWidget; act
           {t("done")}
         </Button>
       </div>
+      {data && <PeriodSettings widget={widget} dateProperties={data.dateProperties} onChange={change} />}
       <DatabaseEmbed databaseId={widget.databaseId} linked={linked} />
+    </div>
+  );
+}
+
+/** Which date the dashboard's period cuts a widget's rows on, and how a number compares with the period before. */
+function PeriodSettings({
+  widget,
+  dateProperties,
+  onChange,
+}: {
+  widget: DashboardWidget;
+  dateProperties: OkData["dateProperties"];
+  onChange: (widget: DashboardWidget) => void;
+}) {
+  const t = useTranslations("page.dashboard.period");
+  const config = widget.view.config;
+  const fallback = periodProperty(dateProperties, undefined);
+  const set = (key: "periodBy" | "comparison", value: string | undefined) => {
+    const { [key]: _, ...rest } = config;
+    onChange({ ...widget, view: { ...widget.view, config: value === undefined ? rest : { ...rest, [key]: value } } });
+  };
+  const isNumber = widget.view.type === "chart" && config.chartType === "number";
+  return (
+    <div className="flex flex-wrap items-center gap-x-4 gap-y-2 text-sm">
+      <label className="flex items-center gap-2 text-fg-muted">
+        {t("periodBy")}
+        <select className={selectClass} value={config.periodBy ?? ""} onChange={(e) => set("periodBy", e.target.value || undefined)}>
+          <option value="">{fallback ? t("byDefault", { property: fallback.name }) : t("noDate")}</option>
+          {dateProperties.map((p) => (
+            <option key={p.id} value={p.id}>
+              {p.name}
+            </option>
+          ))}
+          {config.periodBy && config.periodBy !== PERIOD_NONE && !dateProperties.some((p) => p.id === config.periodBy) && (
+            <option value={config.periodBy}>{t("unknownProperty")}</option>
+          )}
+          <option value={PERIOD_NONE}>{t("none")}</option>
+        </select>
+      </label>
+      {isNumber && (
+        <label className="flex items-center gap-2 text-fg-muted">
+          {t("comparison")}
+          <select
+            className={selectClass}
+            value={comparisonOf(config)}
+            onChange={(e) => set("comparison", e.target.value === "higher" ? undefined : (e.target.value as Comparison))}
+          >
+            {COMPARISONS.map((c) => (
+              <option key={c} value={c}>
+                {t(`comparisons.${c}`)}
+              </option>
+            ))}
+          </select>
+        </label>
+      )}
     </div>
   );
 }

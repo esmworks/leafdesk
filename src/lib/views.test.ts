@@ -102,3 +102,13 @@ describe("wrapping card values", () => {
     expect(layoutConfigError({ widgets: [widget] } as unknown as ViewConfig)).toBe('Widget "w1": wrapProperties must be true or false');
   });
 });
+
+describe("dashboard periods in view settings", () => {
+  it("takes a dashboard's period and a widget's period property and comparison", () => {
+    expect(layoutConfigError({ period: "this_quarter", periodBy: "p1", comparison: "lower" })).toBeNull();
+    expect(layoutConfigError({ period: "2026-01-01/2026-03-31" })).toBeNull();
+    expect(layoutConfigError({ period: "next_month" } as ViewConfig)).toMatch(/period/);
+    expect(layoutConfigError({ comparison: "sideways" } as unknown as ViewConfig)).toMatch(/comparison/);
+    expect(layoutConfigError({ periodBy: 5 } as unknown as ViewConfig)).toMatch(/periodBy/);
+  });
+});

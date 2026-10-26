@@ -42,7 +42,7 @@ beforeEach(() => {
 describe("dashboard widgets", () => {
   it("filter on the viewer's day", async () => {
     await widgetData({ userId: "u1" }, { databaseId: "db1", view: { type: "list", config: today } as never }, { timeZone: "Europe/Istanbul" });
-    expect(vi.mocked(viewedRows).mock.calls[0]?.[4]).toEqual({ timeZone: "Europe/Istanbul" });
+    expect(vi.mocked(viewedRows).mock.calls[0]?.[4]).toEqual({ timeZone: "Europe/Istanbul", now: expect.any(Date) });
   });
 });
 

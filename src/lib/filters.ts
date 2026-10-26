@@ -54,6 +54,9 @@ export const RELATIVE_DATE_RANGES = [
   "this_month",
   "last_month",
   "next_month",
+  "this_quarter",
+  "last_quarter",
+  "next_quarter",
   "this_year",
   "last_year",
   "next_year",
@@ -200,6 +203,9 @@ const SHIFT = {
   this_month: 0,
   last_month: -1,
   next_month: 1,
+  this_quarter: 0,
+  last_quarter: -1,
+  next_quarter: 1,
   this_year: 0,
   last_year: -1,
   next_year: 1,
@@ -227,8 +233,9 @@ export function valueDay(value: unknown, timeZone?: string): string | null {
 /**
  * First and last day (inclusive, YYYY-MM-DD) of a relative range as seen on `now`'s day in
  * `timeZone` (the runtime's when left out), or null for an unknown range or a missing day count.
- * Weeks start on Monday (ISO 8601, as in Turkey and most of Europe); last and next week, month and
- * year are the whole ones before and after the current one. "Past N days" runs from N days ago
+ * Weeks start on Monday (ISO 8601, as in Turkey and most of Europe); quarters on January, April,
+ * July and October; last and next week, month, quarter and year are the whole ones before and after
+ * the current one. "Past N days" runs from N days ago
  * through today and "next N days" from today through N days ahead, so both include today.
  */
 export function relativeDateRange(
@@ -255,6 +262,13 @@ export function relativeDateRange(
       const [y, m] = day(0).split("-").map(Number);
       const month = y * 12 + m - 1 + SHIFT[range];
       return { start: dayOfNumber(monthDay(month, 1)), end: dayOfNumber(monthDay(month + 1, 1) - 1) };
+    }
+    case "this_quarter":
+    case "last_quarter":
+    case "next_quarter": {
+      const [y, m] = day(0).split("-").map(Number);
+      const month = y * 12 + (m - 1) - ((m - 1) % 3) + 3 * SHIFT[range];
+      return { start: dayOfNumber(monthDay(month, 1)), end: dayOfNumber(monthDay(month + 3, 1) - 1) };
     }
     case "this_year":
     case "last_year":

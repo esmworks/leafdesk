@@ -130,7 +130,7 @@ const filterRule = (described: boolean) => {
     op: z.enum(FILTER_OPS),
     value: text(
       z.union([z.string(), z.number(), z.boolean(), z.array(z.string()).min(1)]).optional(),
-      "Value to compare; omit for is_empty / is_not_empty. is_within: today, {this,last,next}_{week,month,year}, {past,next}_n_days. is_any_of / is_none_of: option names, people or related rows.",
+      "Value to compare; omit for is_empty / is_not_empty. is_within: today, {this,last,next}_{week,month,quarter,year}, {past,next}_n_days. is_any_of / is_none_of: option names, people or related rows.",
     ),
     days: text(
       z.number().int().min(1).max(MAX_RELATIVE_DAYS).optional(),

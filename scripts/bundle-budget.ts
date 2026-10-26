@@ -56,7 +56,7 @@ import { gzipSync } from "node:zlib";
  * and the sign-in policy gate for Telegram links and API token scopes add under 1 kB to a page's
  * first load and to all first loads together.
  */
-const BUDGET = { routeFirstLoad: 774, firstLoadShared: 1179, onDemandChunk: 450 };
+const BUDGET = { routeFirstLoad: 775, firstLoadShared: 1179, onDemandChunk: 450 };
 
 const NEXT = ".next";
 const kB = (bytes: number) => bytes / 1024;

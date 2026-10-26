@@ -2,6 +2,7 @@ import { and, asc, eq, isNull, sql } from "drizzle-orm";
 import { getTranslations } from "next-intl/server";
 import { db } from "@/db";
 import { page, type PageKind } from "@/db/schema";
+import { periodRange } from "@/lib/dashboard-period";
 import { DEFAULT_PAGE_STYLE, pageStyleFromYdoc, type PageStyle } from "@/lib/page-style";
 import { printOrder } from "@/lib/print";
 import { pageVisibleTo, requirePageAccess } from "@/server/access";
@@ -186,7 +187,11 @@ async function printSection(userId: string, pageId: string, depth: number, index
           return {
             kind: "dashboard",
             layout: segment.layout,
-            widgets: await Promise.all(segment.widgets.map(async (w) => widgetShowing(w, await printedEmbed(userId, w.databaseId, { linked: w.view }, loads)))),
+            period: segment.period,
+            range: periodRange(segment.period, new Date()),
+            widgets: await Promise.all(
+              segment.widgets.map(async (w) => widgetShowing(w, await printedEmbed(userId, w.databaseId, { linked: w.view, period: segment.period }, loads))),
+            ),
           };
         }
         if (segment.kind !== "embed") return segment;

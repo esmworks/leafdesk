@@ -15,7 +15,7 @@ const DashboardTabs = dynamic(() => import("./dashboard-tabs").then((module) => 
 /**
  * The dashboard block (see lib/dashboard): widgets in a grid (components/page/dashboard-grid) or
  * as tabs (components/page/dashboard-tabs), each a view of a database the reader may see, kept in
- * the block's props.
+ * the block's props. The grid shows a period (lib/dashboard-period) saved with the block too.
  */
 export const DashboardBlock = createReactBlockSpec(dashboardBlockConfig, {
   meta: { selectable: false },
@@ -34,9 +34,18 @@ export const DashboardBlock = createReactBlockSpec(dashboardBlockConfig, {
           : undefined,
       [editable, editor, block.id],
     );
+    const onPeriod = useMemo(
+      () =>
+        editable
+          ? (period: string) => {
+              if (editor.getBlock(block.id)) editor.updateBlock(block.id, { props: { period } });
+            }
+          : undefined,
+      [editable, editor, block.id],
+    );
     const workspaceId = host?.workspaceId ?? null;
     if (dashboardLayout(block.props.layout) === "tabs") return <DashboardTabs widgets={widgets} onChange={onChange} workspaceId={workspaceId} />;
-    return <Dashboard widgets={widgets} onChange={onChange} workspaceId={workspaceId} />;
+    return <Dashboard widgets={widgets} onChange={onChange} workspaceId={workspaceId} period={block.props.period} onPeriod={onPeriod} />;
   },
   toExternalHTML: () => <div />,
 });
