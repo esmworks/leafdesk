@@ -1,6 +1,6 @@
 import { and, eq, inArray, lte, sql } from "drizzle-orm";
 import { db } from "@/db";
-import { automationRun, automationVersion, databaseAutomation, notification, page, user, type AutomationDefinition } from "@/db/schema";
+import { automationRun, automationVersion, databaseAutomation, databaseView, notification, page, user, type AutomationDefinition } from "@/db/schema";
 import {
   APPROVAL_TEST_CODE,
   FINISHED_RUN_STATUSES,
@@ -36,6 +36,7 @@ import {
   getLookups,
   getProperties,
   getRow,
+  knownProperties,
   requireDatabase,
   updateRowProperties,
   viewedRows,
@@ -611,13 +612,14 @@ function rowScope(workspaceId: string, row: { id: string; title: string; propert
  * What `{{trigger.…}}` is. A row's run: the row as the automation's person sees it (its values by
  * property name, its id, title and link), with `changes.<Property>.before/after` for a change,
  * `actor` and `event`, and `date` for "date passed". An incoming webhook's: its JSON body. A
- * schedule's: when it was due.
+ * schedule's: when it was due. A threshold's: the value, the line, the view (see thresholdScope).
  */
 async function triggerScope(automation: Automation, run: Run, definition: AutomationDefinition, row: Row | null, runAs: string): Promise<unknown> {
   const data = run.triggerData ?? {};
   if (run.origin === "incoming_webhook") return data.body ?? {};
   const [database] = await db.select({ title: page.title }).from(page).where(eq(page.id, automation.databaseId));
   const databaseInfo = { id: automation.databaseId, title: pageLabel(database?.title ?? ""), url: rowUrl(automation.workspaceId, automation.databaseId) };
+  if (run.origin === "view_threshold") return thresholdScope(run, data, databaseInfo, runAs);
   if (run.origin === "schedule" || !hasRow(definition.trigger) || !row) {
     return { event: runEvent(run), scheduledFor: data.scheduledFor ?? null, database: databaseInfo };
   }
@@ -639,6 +641,34 @@ async function triggerScope(automation: Automation, run: Run, definition: Automa
     changes,
     actor: actor ?? null,
     ...(run.basis !== null ? { date: run.basis } : {}),
+  };
+}
+
+/**
+ * `{{trigger.…}}` of a threshold's run: the value that crossed the line and the one before it,
+ * the line (`threshold`) and which way (`comparison`), the calculation (`calculation`, and
+ * `property` by name for one over a property) and the view (id, name, link), as the automation's
+ * person sees them now.
+ */
+async function thresholdScope(run: Run, data: Record<string, unknown>, database: { id: string; title: string; url: string }, runAs: string) {
+  const viewId = typeof data.viewId === "string" ? data.viewId : null;
+  const propertyId = typeof data.propertyId === "string" ? data.propertyId : null;
+  const [[view], properties] = await Promise.all([
+    viewId
+      ? db.select({ id: databaseView.id, name: databaseView.name }).from(databaseView).where(eq(databaseView.id, viewId))
+      : Promise.resolve([] as { id: string; name: string }[]),
+    propertyId ? knownProperties(runAs, database.id) : Promise.resolve([]),
+  ]);
+  return {
+    event: runEvent(run),
+    value: data.value ?? null,
+    previous: data.previous ?? null,
+    threshold: data.threshold ?? null,
+    comparison: data.comparison ?? null,
+    calculation: data.fn ?? null,
+    property: properties.find((p) => p.id === propertyId)?.name ?? null,
+    view: view ? { id: view.id, name: view.name, url: `${database.url}?view=${view.id}` } : null,
+    database,
   };
 }
 

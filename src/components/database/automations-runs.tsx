@@ -8,6 +8,7 @@ import {
   CircleDashed,
   CircleMinus,
   CircleSlash,
+  Gauge,
   RefreshCw,
   Search,
   Webhook,
@@ -210,9 +211,14 @@ function RunItem({
     basis.length === 10 ? format.dateTime(new Date(`${basis}T00:00:00`), { dateStyle: "medium" }) : time(basis);
   const took = run.finishedAt ? Date.parse(run.finishedAt) - Date.parse(run.createdAt) : null;
   const scheduledFor = run.event === "schedule" ? (run.trigger as { scheduledFor?: string | null } | null)?.scheduledFor : null;
+  const crossed = run.event === "threshold.crossed" ? (run.trigger as { value?: number | null; threshold?: number | null; comparison?: string | null } | null) : null;
   const what =
     run.event === "schedule"
       ? t("schedule")
+      : crossed
+        ? typeof crossed.value === "number" && typeof crossed.threshold === "number"
+          ? t("thresholdCrossed", { comparison: crossed.comparison ?? "above", threshold: format.number(crossed.threshold), value: format.number(crossed.value) })
+          : t("threshold")
       : run.event === "webhook.received"
         ? t("webhookReceived")
         : run.basis !== null
@@ -243,6 +249,8 @@ function RunItem({
               <span className="flex min-w-0 flex-1 items-center gap-1.5 text-sm">
                 {run.event === "schedule" ? (
                   <CalendarClock aria-hidden className="h-3.5 w-3.5 shrink-0 text-fg-muted" />
+                ) : crossed ? (
+                  <Gauge aria-hidden className="h-3.5 w-3.5 shrink-0 text-fg-muted" />
                 ) : (
                   <Webhook aria-hidden className="h-3.5 w-3.5 shrink-0 text-fg-muted" />
                 )}
@@ -615,7 +623,7 @@ export function TestRunPanel({
           {!body.ok && <span className="mt-1 block text-xs text-danger">{t("payloadInvalid")}</span>}
         </label>
       ) : (
-        <p className="text-xs text-fg-muted">{t("schedule")}</p>
+        <p className="text-xs text-fg-muted">{t(trigger.type === "view_threshold" ? "threshold" : "schedule")}</p>
       )}
       <p className="flex items-start gap-1.5 text-xs text-fg-muted">
         <CircleAlert className="mt-px h-3.5 w-3.5 shrink-0" aria-hidden />

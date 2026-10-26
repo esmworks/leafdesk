@@ -154,7 +154,9 @@ BlockNote on Yjs; Tailwind v4; next-intl. Node 24, pnpm 11. A separate Electron 
   other servers' answers through `readBodyLimited`. The catalog of
   ready-made services is `src/lib/connection-catalog.ts`; `pnpm catalog:check` probes it live.
 - **Automations and schedules.** `src/server/automations/` (queued from `databases.ts` after row
-  writes; `asAutomation` keeps an automation's writes from firing more automations) and
+  writes; `asAutomation` keeps an automation's writes from firing more automations; a total over a
+  view crossing a line is `threshold.ts`, its last state in `automation_threshold`, asked to look
+  by `queue.ts` `thresholdRowsChanged` after writes and from `pages.ts` trash and restore) and
   `src/server/schedules.ts` (`registerScheduleHandler`).
 - **Other areas:** meeting notes `meetings.ts` (the block's props, `src/lib/meetings.ts`; its list
   table synced in `persistPage` by `meeting-notes.ts`), to-dos in pages for My tasks `page-tasks.ts`

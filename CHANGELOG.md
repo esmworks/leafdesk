@@ -4,6 +4,14 @@
 
 ### Added
 
+- **Automations that run when a total crosses a line.** A new trigger, *A total crosses a line*,
+  watches a calculation over the rows a shared view shows: their number, or the sum, average,
+  median, smallest or largest value of a number property. "When the sum of Amount in Cash and bank
+  goes below 50,000" notifies once when the balance drops under it, and again only after it went
+  back up and dropped once more. The total is worked out as the automation's person sees the
+  view, a moment after rows change and every few minutes for filters on today; its steps get the
+  value and the line as `{{trigger.value}}` and `{{trigger.threshold}}`. Over MCP the trigger is
+  `view_threshold`. Migration 0152.
 - **Dashboards show a period, and numbers their change from the period before.** A period above
   the grid (this week, month, quarter or year, last week, month, quarter or year, a range of days,
   or all time) cuts every widget's rows at once, on each widget's date property (the first date
@@ -18,7 +26,6 @@
   budget goes from 165,000 to 165,500 bytes for these settings. View filters gain *this quarter*,
   *last quarter* and *next quarter*, and a page's first-load JavaScript budget goes from 774 to
   775 kB for them. No migration.
-
 - **Right-click in the sidebar for Leafdesk's own menus, with Open in new tab and Copy link.** A
   page's row opens its actions (rename, move to trash, keep offline) where it was right-clicked,
   now starting with Open in new tab and Copy link; other links there (My tasks, Meetings, Home …)

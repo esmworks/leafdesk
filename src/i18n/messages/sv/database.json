@@ -1312,9 +1312,10 @@
     "lastRun": "Senaste körning: {status}, {time}",
     "neverRun": "Har inte körts än",
     "checkError": {
-      "propertyDeleted": "Pausad: dess datum- eller statusegenskap har raderats. Återställ egenskapen eller redigera automatiseringen.",
+      "propertyDeleted": "Pausad: en egenskap den använder har raderats. Återställ egenskapen eller redigera automatiseringen.",
       "noAccess": "Pausad: den som sparade den senast har inte längre full åtkomst till den här databasen. Spara den för att köra den som dig.",
-      "scheduleInvalid": "Pausad: dess schema inträffar aldrig. Redigera automatiseringen."
+      "scheduleInvalid": "Pausad: dess schema inträffar aldrig. Redigera automatiseringen.",
+      "viewDeleted": "Pausad: dess vy har raderats eller gjorts personlig. Återställ vyn eller redigera automatiseringen."
     },
     "tooMany": "En databas kan ha högst {max} automatiseringar",
     "deletedProperty": "Raderad egenskap",
@@ -1337,7 +1338,10 @@
       "weekly": "varje {days} kl. {time}",
       "monthly": "dag {days} i varje månad kl. {time}",
       "cron": "schemat ”{cron}” inträffar",
-      "incoming": "en förfrågan kommer in till dess adress"
+      "incoming": "en förfrågan kommer in till dess adress",
+      "thresholdCount": "antalet rader i ”{view}” går {comparison, select, above {över} other {under}} {value}",
+      "thresholdOf": "{fn, select, sum {summan} average {medelvärdet} median {medianen} min {minimivärdet} other {maxvärdet}} av {property} i ”{view}” går {comparison, select, above {över} other {under}} {value}",
+      "deletedView": "en raderad vy"
     },
     "summaryAction": {
       "set": "Ange {properties}",
@@ -1358,6 +1362,7 @@
         "row_created": "En rad läggs till",
         "property_changed": "En egenskap ändras",
         "date_passed": "Ett datum passeras",
+        "view_threshold": "En summa korsar en gräns",
         "schedule": "Enligt ett schema",
         "incoming_webhook": "En förfrågan kommer in (inkommande webhook)"
       },
@@ -1452,7 +1457,10 @@
         "exampleTooLong": "Exempelinnehållet är för långt.",
         "needApprovers": "Välj vem som ska tillfrågas.",
         "needTimeout": "Ange ett helt antal dagar från 1 till 30.",
-        "needSlackUrl": "Ange adressen till Slacks inkommande webhook."
+        "needSlackUrl": "Ange adressen till Slacks inkommande webhook.",
+        "needView": "Välj vyn vars rader räknas.",
+        "needNumber": "Välj talegenskapen som ska beräknas.",
+        "needThreshold": "Ange talet att jämföra med."
       },
       "agent": "Agent",
       "chooseAgent": "Välj en agent…",
@@ -1596,7 +1604,9 @@
         "timedOutContinued": "Ingen svarade senast {time}: körningen fortsatte",
         "waiting": "Frågade {names}, till {time}",
         "closed": "Frågade {names}; körningen avslutades innan något svar kom"
-      }
+      },
+      "thresholdCrossed": "{comparison, select, above {Gick över {threshold}} other {Gick under {threshold}}}: {value}",
+      "threshold": "Gräns korsad"
     },
     "nextRun": "Nästa körning {time}",
     "lifecycle": {
@@ -1737,7 +1747,12 @@
       "agentRunId": "Agentkörningens ID",
       "rowId": "Radens ID",
       "approvedBy": "Vem som godkände",
-      "answeredAt": "När den besvarades"
+      "answeredAt": "När den besvarades",
+      "value": "Värde",
+      "previous": "Värde vid föregående kontroll",
+      "threshold": "Gräns",
+      "viewName": "Vyns namn",
+      "viewUrl": "Länk till vyn"
     },
     "test": {
       "title": "Testkörning",
@@ -1752,7 +1767,8 @@
       "running": "Kör testet…",
       "run": "Kör test",
       "saveAndRun": "Spara och kör",
-      "starting": "Startar…"
+      "starting": "Startar…",
+      "threshold": "Kör stegen nu, som om värdet nyss hade korsat gränsen, med det värde det har nu."
     },
     "approval": {
       "people": "Fråga de här personerna",
@@ -1787,6 +1803,31 @@
         "name": "Fira färdiga rader",
         "description": "När en rad markeras som klar, konfetti för den som gjorde det."
       }
+    },
+    "threshold": {
+      "view": "Vy",
+      "chooseView": "Välj en vy",
+      "noViews": "Den här databasen har inga delade vyer. Lägg till en vars filter väljer raderna som ska räknas.",
+      "calculation": "Beräkning",
+      "fn": {
+        "count_all": "Antal rader",
+        "sum": "Summa",
+        "average": "Medelvärde",
+        "median": "Median",
+        "min": "Minsta",
+        "max": "Största"
+      },
+      "property": "Av",
+      "chooseNumber": "Välj ett tal",
+      "noNumbers": "Den här databasen har inga talegenskaper att beräkna på.",
+      "comparison": "Går",
+      "above": "Över",
+      "below": "Under",
+      "value": "Värde",
+      "now": "Nu: {value}.",
+      "nowMet": "Nu: {value}, redan förbi gränsen. Den körs nästa gång värdet korsar den, efter att ha gått tillbaka.",
+      "nowNone": "Nu: inget värde (inga tal i vyns rader).",
+      "help": "Körs en gång när värdet korsar gränsen, och igen först efter att det har gått tillbaka. Kontrollen sker en stund efter att rader ändrats, och med några minuters mellanrum för filter på dagens datum. Raderna och värdena är de som automatiseringens person kan se."
     }
   },
   "subItems": {

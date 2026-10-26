@@ -16,9 +16,12 @@ import {
   MAX_HTTP_HEADERS,
   MAX_NOTIFY_PEOPLE,
   MAX_STEP_MESSAGE,
+  MAX_THRESHOLD,
   MAX_WAIT_MINUTES,
   MAX_WEBHOOK_URL,
   STEP_ID,
+  THRESHOLD_COMPARISONS,
+  THRESHOLD_FNS,
   watchedProperties,
   stepIds,
   type AutomationAction,
@@ -131,6 +134,17 @@ export const triggerInput = z
         .optional()
         .describe('Only rows whose status is in these groups, e.g. {"groups": ["todo", "in_progress"]} for rows that are not done.'),
     }),
+    z.object({
+      type: z.literal("view_threshold"),
+      view: z.string().min(1).describe("A shared view of this database, by name or id: its filters pick the rows (personal views can't be used)."),
+      calculation: z
+        .enum(THRESHOLD_FNS)
+        .optional()
+        .describe("count_all (default) counts the view's rows; sum, average, median, min and max calculate over property."),
+      property: z.string().min(1).nullable().optional().describe("The number property (or number formula or rollup) to calculate over, by name or id. Not for count_all."),
+      comparison: z.enum(THRESHOLD_COMPARISONS).describe("above: more than value; below: less than value. The value itself is neither."),
+      value: z.number().min(-MAX_THRESHOLD).max(MAX_THRESHOLD).describe("The line."),
+    }),
     z.object({ type: z.literal("schedule"), schedule: scheduleInput }),
     z.object({
       type: z.literal("incoming_webhook"),
@@ -141,7 +155,7 @@ export const triggerInput = z
     }),
   ])
   .describe(
-    'What starts the automation. Row triggers: {"type": "row_created"} when a row is added; {"type": "property_changed", "property": "Status", "to": "Done"} when a value changes; {"type": "date_passed", "date": "last_edited_time", "days": 30, "status": {"groups": ["todo", "in_progress"]}} that many days past (checked every few minutes; once per value, again after the date changes and is past again; matching rows run at the next check, at most 100 per check). Triggers without a row: {"type": "schedule", "schedule": {"frequency": "weekly", "time": "09:00", "weekdays": [1]}} runs at those times in time_zone (missed times run once); {"type": "incoming_webhook"} runs when a JSON POST arrives at the automation\'s secret address (hook_url in the result), with the body as {{trigger}} (at most 64 KB, 60/min; answers 202 with the run_id).',
+    'What starts the automation. Row triggers: {"type": "row_created"} when a row is added; {"type": "property_changed", "property": "Status", "to": "Done"} when a value changes; {"type": "date_passed", "date": "last_edited_time", "days": 30, "status": {"groups": ["todo", "in_progress"]}} that many days past (checked every few minutes; once per value, again after the date changes and is past again; matching rows run at the next check, at most 100 per check). Triggers without a row: {"type": "view_threshold", "view": "Cash and bank", "calculation": "sum", "property": "Amount", "comparison": "below", "value": 50000} runs once when the calculation over the view\'s rows (as the automation\'s person sees them) crosses the line, and again only after it came back; checked a moment after rows change and every few minutes (for "today" filters); what is already past the line when it is published or turned on doesn\'t run it; {"type": "schedule", "schedule": {"frequency": "weekly", "time": "09:00", "weekdays": [1]}} runs at those times in time_zone (missed times run once); {"type": "incoming_webhook"} runs when a JSON POST arrives at the automation\'s secret address (hook_url in the result), with the body as {{trigger}} (at most 64 KB, 60/min; answers 202 with the run_id).',
   );
 
 // Described once, in set_properties' values: the union is sent again inside every values field.
@@ -321,14 +335,14 @@ const actionInput = z.discriminatedUnion("type", [
 ]);
 
 const TEMPLATE_NOTE =
-  'Text in steps may hold templates: {{trigger.X}} is what started the run (a row trigger: the row\'s values by property name, and id, title, url, event, database, actor and changes.<Property>.before / .after; date_passed adds date; incoming_webhook: the JSON body; schedule: event, scheduledFor and database), {{item.X}} the found row of a for_each step, and {{<step id>.X}} what an earlier step gave: find_rows {rows, count, first} (rows by property name, id, title, url), http_request {status, headers, body}, create_row and upsert_row {id, title, url, created}, log {message}, wait {until}, approval {approved, approved_by: {id, name}, answered_at}, set_properties {id, values}, notify {notified}, run_agent {agentRunId}, start_sequence {enrollmentId}, and a for_each step {count, items}. Paths use dots, list positions and quotes: {{find.rows.0.title}}, {{http.body.customer["e-mail"]}}; names match exactly, then regardless of case. In text a missing path is empty and a list is joined with ", "; a value that is only a template keeps its type (null if missing). A step that uses a failed or skipped step is skipped (dependencyFailed).';
+  'Text in steps may hold templates: {{trigger.X}} is what started the run (a row trigger: the row\'s values by property name, and id, title, url, event, database, actor and changes.<Property>.before / .after; date_passed adds date; incoming_webhook: the JSON body; schedule: event, scheduledFor and database; view_threshold: value, previous, threshold, comparison, calculation, property, view {id, name, url} and database), {{item.X}} the found row of a for_each step, and {{<step id>.X}} what an earlier step gave: find_rows {rows, count, first} (rows by property name, id, title, url), http_request {status, headers, body}, create_row and upsert_row {id, title, url, created}, log {message}, wait {until}, approval {approved, approved_by: {id, name}, answered_at}, set_properties {id, values}, notify {notified}, run_agent {agentRunId}, start_sequence {enrollmentId}, and a for_each step {count, items}. Paths use dots, list positions and quotes: {{find.rows.0.title}}, {{http.body.customer["e-mail"]}}; names match exactly, then regardless of case. In text a missing path is empty and a list is joined with ", "; a value that is only a template keeps its type (null if missing). A step that uses a failed or skipped step is skipped (dependencyFailed).';
 
 export const actionsInput = z
   .array(actionInput)
   .min(1)
   .max(MAX_AUTOMATION_ACTIONS)
   .describe(
-    `What the automation does, in order (at most ${MAX_AUTOMATION_ACTIONS} steps; each works or fails on its own): set_properties, notify (inbox, and email as each person chooses, to people who can open the row), webhook, run_agent (queues a run of an agent on the row), move_to_trash (the last step; not with run_agent), http_request (2xx within 15 s, no redirects; network errors, timeouts and 502-504 retried up to 5 times), find_rows, create_row, upsert_row, wait, log, celebrate (confetti for whoever made the change), approval (asks the people named and in the row's person properties, in "For review"; the run waits: rejected stops it, see on_timeout; noApprovers if nobody is found; not for_each; a test run skips it), start_sequence (a follow-up of the database on the row, from the runner's mailbox; rows in it already: alreadyEnrolled) or slack (posts the message, Slack mrkdwn, and the row's link to a Slack incoming webhook; list_automations shows a hint of its url). A schedule or incoming_webhook automation has no row: set_properties, run_agent and notify with properties need for_each over an earlier find_rows step ({{item}}: that row by name, id, title, url); webhook and move_to_trash are impossible. A run_agent step gives the agent edit access to the database while an automation runs it; only workspace owners and agent editors add or change one. A step's optional id names its output in later templates ({{find.rows}}): a-z, 0-9, _, a letter first, at most 32, not "trigger" or "item"; default its type (find, find_2 …). ${TEMPLATE_NOTE}`,
+    `What the automation does, in order (at most ${MAX_AUTOMATION_ACTIONS} steps; each works or fails on its own): set_properties, notify (inbox, and email as each person chooses, to people who can open the row), webhook, run_agent (queues a run of an agent on the row), move_to_trash (the last step; not with run_agent), http_request (2xx within 15 s, no redirects; network errors, timeouts and 502-504 retried up to 5 times), find_rows, create_row, upsert_row, wait, log, celebrate (confetti for whoever made the change), approval (asks the people named and in the row's person properties, in "For review"; the run waits: rejected stops it, see on_timeout; noApprovers if nobody is found; not for_each; a test run skips it), start_sequence (a follow-up of the database on the row, from the runner's mailbox; rows in it already: alreadyEnrolled) or slack (posts the message, Slack mrkdwn, and the row's link to a Slack incoming webhook; list_automations shows a hint of its url). A schedule, view_threshold or incoming_webhook automation has no row: set_properties, run_agent and notify with properties need for_each over an earlier find_rows step ({{item}}: that row by name, id, title, url); webhook and move_to_trash are impossible. A run_agent step gives the agent edit access to the database while an automation runs it; only workspace owners and agent editors add or change one. A step's optional id names its output in later templates ({{find.rows}}): a-z, 0-9, _, a letter first, at most 32, not "trigger" or "item"; default its type (find, find_2 …). ${TEMPLATE_NOTE}`,
   );
 
 const nameInput = z.string().min(1).max(MAX_AUTOMATION_NAME);
@@ -355,7 +369,7 @@ const publishInput = (what: string) =>
 const triggerParam = checked(
   triggerInput,
   "object",
-  `When it runs: {type: "row_created" | "property_changed" | "date_passed" | "schedule" | "incoming_webhook", …}. ${see("automations")}`,
+  `When it runs: {type: "row_created" | "property_changed" | "date_passed" | "view_threshold" | "schedule" | "incoming_webhook", …}. ${see("automations")}`,
 );
 const actionsParam = checked(
   actionsInput,
@@ -424,6 +438,15 @@ const toTrigger = (trigger: TriggerArg): AutomationInput["trigger"] => {
       return { type: "schedule", schedule: toSchedule(trigger.schedule) };
     case "incoming_webhook":
       return { type: "incoming_webhook", ...(trigger.example !== undefined ? { example: trigger.example } : {}) };
+    case "view_threshold":
+      return {
+        type: "view_threshold",
+        view: trigger.view,
+        calculation: trigger.calculation,
+        property: trigger.property ?? null,
+        comparison: trigger.comparison,
+        value: trigger.value,
+      };
     default:
       return {
         type: "property_changed",
@@ -632,6 +655,8 @@ export type AutomationContext = {
   databases: Map<string, DatabaseInfo>;
   /** The database's follow-up sequences, for naming them. */
   sequences: { id: string; name: string }[];
+  /** The database's views the user sees, for naming a threshold's. */
+  views: { id: string; name: string }[];
 };
 
 /** The workspace's agents, archived ones too, for naming them; none for those who can't list them (guests). */
@@ -649,7 +674,7 @@ const usedDatabases = (actions: AutomationAction[]) =>
 
 /** `automations`: those to be described, whose steps may use other databases. */
 export async function automationContext(userId: string, databaseId: string, automations: AutomationView[] = []): Promise<AutomationContext> {
-  const { database, properties } = await databases.getDatabase(userId, databaseId);
+  const { database, properties, views } = await databases.getDatabase(userId, databaseId);
   const [lookups, members, agentRefs, sequences] = await Promise.all([
     databases.getLookups(userId, properties),
     workspaces.workspacePeople(database.workspaceId),
@@ -681,6 +706,7 @@ export async function automationContext(userId: string, databaseId: string, auto
     agents: agentRefs,
     databases: loaded,
     sequences: sequences.map((s) => ({ id: s.id, name: s.name })),
+    views: views.map((v) => ({ id: v.id, name: v.name })),
   };
 }
 
@@ -732,6 +758,24 @@ function describeTrigger(ctx: AutomationContext, trigger: AutomationTrigger, tim
       type: "incoming_webhook",
       ...(trigger.example !== undefined ? { example: trigger.example } : {}),
       summary: "When a JSON POST arrives at the automation's address",
+    };
+  }
+  if (trigger.type === "view_threshold") {
+    const name = ctx.views.find((v) => v.id === trigger.viewId)?.name ?? null;
+    const view = { id: trigger.viewId, name };
+    const property = trigger.propertyId ? propertyRef(ctx.props, trigger.propertyId) : null;
+    const what =
+      trigger.fn === "count_all"
+        ? "the number of rows"
+        : `the ${trigger.fn} of ${property?.name !== null && property ? quote(property.name) : "a deleted property"}`;
+    return {
+      type: "view_threshold",
+      view,
+      calculation: trigger.fn,
+      ...(property ? { property } : {}),
+      comparison: trigger.comparison,
+      value: trigger.value,
+      summary: `When ${what} in ${name !== null ? `view ${quote(name)}` : "a deleted view"} goes ${trigger.comparison} ${trigger.value}`,
     };
   }
   if (trigger.type === "date_passed") {
