@@ -167,8 +167,11 @@ production without SMTP no link is sent, and only accounts whose provider vouche
 Anyone can sign up with someone else's address, so following the verification link in a browser
 that isn't signed in to the account also takes the account over from whoever signed up: its other
 sessions end, its password has to be replaced through a reset link emailed to the address before
-it signs in again, and its passkeys, two-step verification, API tokens and connected apps go.
-Following the link where you signed up (still signed in) changes nothing.
+it signs in again, and its GitHub, Google and single sign-on logins, passkeys, two-step
+verification, API tokens and connected apps go. Following the link where you signed up (still
+signed in) changes nothing. Resetting the password of an unverified account through the emailed
+link, or signing in to it with a provider that vouches for the address, takes it over the same
+way (the provider's login stays); on a verified account a reset leaves its other logins alone.
 
 ## Push notifications
 

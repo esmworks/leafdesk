@@ -1,5 +1,5 @@
 import { getAuthenticatorName } from "@better-auth/passkey";
-import { and, asc, eq, gt, isNotNull } from "drizzle-orm";
+import { and, asc, eq, gt, isNotNull, ne } from "drizzle-orm";
 import { db } from "@/db";
 import { account, passkey, session, twoFactor, user } from "@/db/schema";
 import { isStrongSession } from "@/lib/auth-security";
@@ -89,12 +89,24 @@ export async function collabSessionFacts(
  * a provider that vouches for the address linked to it (claimOnEmailLink), the reset link emailed
  * to it was used (afterPasswordReset), or its verification link was followed in another browser
  * (claimOnEmailVerification). Whatever the earlier holder could have set up goes, so none of it
- * signs them back in or reaches the workspaces: passkeys, two-step verification (a code only they
- * have would also lock the owner out), API tokens and connected apps. Each way of claiming ends the
- * earlier sessions itself.
+ * signs them back in or reaches the workspaces: provider and SSO logins (an identity provider that
+ * doesn't vouch for the address let anyone sign in with it), passkeys, two-step verification (a
+ * code only they have would also lock the owner out), API tokens and connected apps. The password
+ * stays, as each way of claiming deals with it (replaced by the reset, removed by the provider
+ * link, to be replaced after the verification link); so does `keepAccountId`, the provider login
+ * that proved the address. Each way of claiming ends the earlier sessions itself.
  */
-export async function forgetUnprovenHolder(userId: string) {
+export async function forgetUnprovenHolder(userId: string, keepAccountId?: string) {
   await db.transaction(async (tx) => {
+    await tx
+      .delete(account)
+      .where(
+        and(
+          eq(account.userId, userId),
+          ne(account.providerId, "credential"),
+          keepAccountId ? ne(account.id, keepAccountId) : undefined,
+        ),
+      );
     await tx.delete(passkey).where(eq(passkey.userId, userId));
     await tx.delete(twoFactor).where(eq(twoFactor.userId, userId));
     await tx.update(user).set({ twoFactorEnabled: false }).where(eq(user.id, userId));
