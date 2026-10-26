@@ -623,6 +623,7 @@
       "web": {
         "read": "Læste en webside",
         "readFailed": "Kunne ikke læse en webside",
+        "readRefused": "Læste ikke en webside uden for sin opgave og sine søgninger",
         "search": "Søgte på nettet",
         "searchFailed": "Kunne ikke søge på nettet",
         "approved": "godkendt"
@@ -633,6 +634,7 @@
         "declined": "Dens kald af “{tool}” på {connection} blev afvist; intet blev sendt",
         "redo": "Dens kald af “{tool}” på {connection} blev sendt tilbage; intet blev sendt",
         "expired": "Dens kald af “{tool}” på {connection} løb tør for tid; intet blev sendt",
+        "refused": "Dens kald af “{tool}” på {connection} blev afvist, da ingen kunne godkende det; intet blev sendt",
         "approved": "godkendt",
         "answered": "besvaret af en ejer",
         "note": "Note: {note}"

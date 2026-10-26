@@ -620,6 +620,7 @@
       "web": {
         "read": "ウェブページを読みました",
         "readFailed": "ウェブページを読めませんでした",
+        "readRefused": "タスクと検索結果にないウェブページは読みませんでした",
         "search": "ウェブを検索しました",
         "searchFailed": "ウェブを検索できませんでした",
         "approved": "承認済み"
@@ -630,6 +631,7 @@
         "declined": "{connection}での「{tool}」の呼び出しは拒否されたため、何も送信されませんでした",
         "redo": "{connection}での「{tool}」の呼び出しは差し戻されたため、何も送信されませんでした",
         "expired": "{connection}での「{tool}」の呼び出しは期限切れになったため、何も送信されませんでした",
+        "refused": "{connection}での「{tool}」の呼び出しは承認できる人がいないため拒否され、何も送信されませんでした",
         "approved": "承認済み",
         "answered": "オーナーが応答",
         "note": "メモ：{note}"

@@ -97,8 +97,13 @@ request) reads what that person may open, some of it written by others, so it as
 each page read whose address isn't in the message (as written, or without its `?query` and
 `#fragment`) and each search whose words aren't, as they stand, in the message; a helper's run for
 such a run asks before every call. Where no owner can answer (the chat or request of someone who
-isn't an owner of the workspace), such a call is refused at once and nothing is sent. Leave web access off for
-agents that only work with the workspace.
+isn't an owner of the workspace), such a call is refused at once and nothing is sent. A schedule's
+run, which no one watches, asks no one: it searches freely (the words reach only the server's search
+service) and reads pages whose address is in the schedule's task or among the results of its own
+searches; any other page read is refused at once, nothing is sent, and the run's steps show the
+address it didn't read. A helper's run for a schedule's run reads only its searches' results. Over a
+database with rows no member stands behind, each call still waits for an owner. Leave web access
+off for agents that only work with the workspace.
 
 **Mentioning an agent in a comment.** Typing `@` in a page's comments offers, below the people,
 the agents that may comment on the page (shared with them at comment or edit), marked with their

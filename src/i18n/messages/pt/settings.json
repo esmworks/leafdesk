@@ -620,6 +620,7 @@
       "web": {
         "read": "Leu uma página web",
         "readFailed": "Não conseguiu ler uma página web",
+        "readRefused": "Não leu uma página web fora da tarefa e das suas pesquisas",
         "search": "Pesquisou na web",
         "searchFailed": "Não conseguiu pesquisar na web",
         "approved": "aprovada"
@@ -630,6 +631,7 @@
         "declined": "A chamada de “{tool}” em {connection} foi recusada; nada foi enviado",
         "redo": "A chamada de “{tool}” em {connection} foi devolvida; nada foi enviado",
         "expired": "A chamada de “{tool}” em {connection} esgotou o tempo; nada foi enviado",
+        "refused": "A chamada de “{tool}” em {connection} foi recusada, pois ninguém podia aprová-la; nada foi enviado",
         "approved": "aprovada",
         "answered": "respondida por um proprietário",
         "note": "Nota: {note}"

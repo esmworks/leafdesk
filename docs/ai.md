@@ -327,8 +327,8 @@ web there too). The service is set with `WEB_SEARCH_PROVIDER`:
 For `brave` and `tavily`, `WEB_SEARCH_URL` overrides their address. A search waits 10 seconds at
 most. The service is the server's own, so it may be on a private network; the pages read from the
 web may not (the same checks as for links to files, with size and time limits). Unset, agents with
-web access read only the pages whose links they are given or find in the workspace, and the chat
-has no web tools. In the chat, web search only reads (`search_web`, `read_web_page`), but what a
+web access read only the pages whose links they are given or find in the workspace (a schedule's
+run only those of its task), and the chat has no web tools. In the chat, web search only reads (`search_web`, `read_web_page`), but what a
 call carries leaves the workspace: the words go to the search service, the whole address to the
 site that serves it. Text the model read in the workspace could tell it to put what it read there,
 so every search and every page read is asked about first, in every mode (*Auto* and *Read only*

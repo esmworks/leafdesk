@@ -620,6 +620,7 @@
       "web": {
         "read": "Bir web sayfası okundu",
         "readFailed": "Bir web sayfası okunamadı",
+        "readRefused": "Görevinde ve aramalarında olmayan bir web sayfasını okumadı",
         "search": "Web’de arama yapıldı",
         "searchFailed": "Web’de arama yapılamadı",
         "approved": "onaylandı"
@@ -630,6 +631,7 @@
         "declined": "{connection} üzerindeki “{tool}” çağrısı reddedildi; hiçbir şey gönderilmedi",
         "redo": "{connection} üzerindeki “{tool}” çağrısı geri gönderildi; hiçbir şey gönderilmedi",
         "expired": "{connection} üzerindeki “{tool}” çağrısının süresi doldu; hiçbir şey gönderilmedi",
+        "refused": "{connection} üzerindeki “{tool}” çağrısı, onaylayacak kimse olmadığından reddedildi; hiçbir şey gönderilmedi",
         "approved": "onaylandı",
         "answered": "bir sahip yanıtladı",
         "note": "Not: {note}"

@@ -728,7 +728,14 @@ export function describeAgentStep(step: AgentStepRecord) {
       };
     }
     case "tool": {
-      const how = { done: "Used", failed: "Failed to use", declined: "Declined (not sent):", redo: "Sent back to redo (not sent):", expired: "No one answered (not sent):" }[step.outcome];
+      const how = {
+        done: "Used",
+        failed: "Failed to use",
+        declined: "Declined (not sent):",
+        redo: "Sent back to redo (not sent):",
+        expired: "No one answered (not sent):",
+        refused: "Refused, its address being in neither the schedule's task nor the run's searches (not sent):",
+      }[step.outcome];
       return {
         kind: "tool",
         outcome: step.outcome,
