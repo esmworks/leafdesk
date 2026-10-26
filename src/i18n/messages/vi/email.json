@@ -299,5 +299,28 @@
     "heading": "{workspace} đã bị xóa",
     "body": "Xin chào {name}, {by} đã xóa không gian làm việc Leafdesk {workspace}, cùng toàn bộ trang, cơ sở dữ liệu và tệp của nó. Bạn không thể mở nó nữa.",
     "note": "Không thể khôi phục không gian làm việc đã xóa. Nếu bạn không ngờ tới việc này, hãy trao đổi với {by} hoặc một chủ sở hữu khác của không gian làm việc."
+  },
+  "dashboard": {
+    "subject": "{dashboard}: {period}",
+    "intro": "{period} trong “{workspace}”.",
+    "action": "Mở bảng điều khiển",
+    "versus": "so với {period}",
+    "noComparison": "Không có gì để so sánh trong {period}",
+    "points": "{value} điểm",
+    "yesterday": "Hôm qua",
+    "periodDays": "{period} ({days})",
+    "asOf": "Mọi lúc, tính đến {date}",
+    "unavailable": "Bạn không có quyền truy cập dữ liệu này.",
+    "inTrash": "Cơ sở dữ liệu này đang ở trong thùng rác.",
+    "noGroup": "Cơ sở dữ liệu chưa có gì để nhóm theo.",
+    "empty": "Không có hàng nào trong khoảng thời gian này.",
+    "allEmpty": "Không có hàng nào.",
+    "viewOnly": "Hãy mở bảng điều khiển để xem chế độ xem này.",
+    "more": "{count, plural, other {# hàng nữa}}",
+    "other": "Khác",
+    "why": "{name} đã đăng ký email này cho bạn · {schedule}.",
+    "whyOwn": "Bạn đã đăng ký email này · {schedule}.",
+    "unsubscribe": "Hủy đăng ký",
+    "untitled": "Chưa đặt tên"
   }
 }

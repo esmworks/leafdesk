@@ -990,6 +990,75 @@
         "lower": "Más bajo es mejor",
         "off": "No mostrar"
       }
+    },
+    "emails": {
+      "button": "Correo",
+      "buttonHint": "Enviar este panel por correo según una programación",
+      "title": "Enviar este panel por correo",
+      "description": "Envía las cifras de este panel por correo según una programación, por ejemplo cada lunes por la mañana. Cada persona recibe solo las cifras que puede ver.",
+      "noMail": "El correo no está configurado en este servidor, así que los paneles no se pueden enviar por correo. Un administrador puede configurar SMTP.",
+      "none": "Nadie recibe todavía este panel por correo.",
+      "add": "Nuevo correo",
+      "edit": "Editar",
+      "stop": "Detener",
+      "leave": "Cancelar suscripción",
+      "you": "Tú",
+      "summary": "{schedule} · {period}",
+      "to": "Para {names}",
+      "setBy": "Configurado por {name}",
+      "next": "Próximo: {date}",
+      "lastSent": "último envío {date}",
+      "nextSend": "El primer correo se envía {date}.",
+      "period": "Cifras de",
+      "periodHint": "Se cuenta desde el momento en que se envía el correo, en su zona horaria: un correo del lunes sobre la semana pasada muestra la semana de lunes a domingo que acaba de terminar, junto a la anterior.",
+      "periods": {
+        "yesterday": "Ayer",
+        "last_week": "La semana pasada",
+        "last_month": "El mes pasado",
+        "last_quarter": "El trimestre pasado",
+        "last_year": "El año pasado",
+        "this_week": "Esta semana hasta ahora",
+        "this_month": "Este mes hasta ahora",
+        "this_quarter": "Este trimestre hasta ahora",
+        "this_year": "Este año hasta ahora",
+        "dashboard": "El periodo propio del panel"
+      },
+      "recipients": "Enviar a",
+      "recipientsHint": "Solo aparecen las personas que pueden abrir esta página. Cada una recibe las cifras que puede ver.",
+      "recipientsSelf": "Para ti ({email}). Enviar correos a otras personas requiere acceso de edición a esta página.",
+      "search": "Buscar personas",
+      "sendTest": "Enviarme una prueba",
+      "testSent": "Se envió una prueba a {email}.",
+      "paused": {
+        "runAsGone": "En pausa: la cuenta de quien lo configuró ya no existe. Guárdalo de nuevo para reactivarlo.",
+        "accessLost": "En pausa: quien lo configuró ya no puede abrir ni editar esta página. Guárdalo de nuevo para reactivarlo.",
+        "dashboardGone": "En pausa: el panel se quitó de la página.",
+        "templateGone": "En pausa.",
+        "agentGone": "En pausa.",
+        "failed": "no se pudo enviar el último correo; se volverá a intentar la próxima vez"
+      },
+      "errors": {
+        "notFound": "Este panel no está disponible.",
+        "needsEdit": "Enviar correos a otras personas requiere acceso de edición a esta página.",
+        "noRecipients": "Elige al menos una persona.",
+        "recipientNoAccess": "Alguien que elegiste no puede abrir este panel.",
+        "tooManyRecipients": "Un correo se envía a 50 personas como máximo.",
+        "tooMany": "Este panel, o el espacio de trabajo, ya tiene el máximo de correos programados.",
+        "invalidRepeat": "Revisa con qué frecuencia y cuándo se envía el correo.",
+        "invalidPeriod": "Elige el periodo que muestra el correo.",
+        "mailDisabled": "El correo no está configurado en este servidor.",
+        "generic": "Algo salió mal. Inténtalo de nuevo."
+      },
+      "unsubscribePage": {
+        "metaTitle": "Cancelar suscripción",
+        "title": "¿Dejar de recibir estos correos?",
+        "body": "Recibes el panel «{title}» por correo. Dejarás de recibirlo y nada más cambia.",
+        "action": "Cancelar suscripción",
+        "doneTitle": "Has cancelado la suscripción",
+        "done": "Ya no recibirás el panel «{title}» por correo.",
+        "doneGone": "Ya no recibirás este panel por correo.",
+        "invalid": "Este enlace no funciona. Vuelve a abrir el correo y usa su enlace, o detén el correo en Ajustes."
+      }
     }
   },
   "databaseTabs": {

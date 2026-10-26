@@ -95,7 +95,8 @@
       "sensitiveFindings": "dlp rilevamenti segreti esposti numeri di carta ignora",
       "domainPeople": "dominio account utenti azienda email shadow non gestiti",
       "openOnStart": "avvio apertura prima pagina ultima visitata recente",
-      "pageReports": "segnala segnalazione abuso reclamo rimozione pubblicata pubblica web pagine"
+      "pageReports": "segnala segnalazione abuso reclamo rimozione pubblicata pubblica web pagine",
+      "dashboardEmails": "iscrizione report programmazione settimanale riepilogo email dashboard"
     }
   },
   "workspace": {
@@ -1957,6 +1958,11 @@
         "created": "Ha configurato le pull request di GitHub in {target}",
         "updated": "Ha modificato la configurazione di GitHub di {target}",
         "deleted": "Ha rimosso la configurazione di GitHub di {target}"
+      },
+      "dashboard_email": {
+        "set": "Ha impostato l’invio via email di {target} a {count, plural, one {# persona} other {# persone}}",
+        "removed": "Ha interrotto l’invio via email di {target}",
+        "sent": "Ha inviato {target} via email a {count, plural, one {# persona} other {# persone}}"
       }
     },
     "decisions": {
@@ -2061,7 +2067,11 @@
     "reactionChannel": "Reazioni: {channel}",
     "verificationTitle": "Pagine che hai verificato",
     "verificationDescription": "Una pagina che hai verificato sta per perdere la verifica: qualche giorno prima e quando succede.",
-    "verificationChannel": "Pagine che hai verificato: {channel}"
+    "verificationChannel": "Pagine che hai verificato: {channel}",
+    "dashboardEmailsHeading": "Email delle dashboard",
+    "dashboardEmailsDescription": "Le dashboard che ricevi via email a intervalli programmati e quelle che hai configurato per altri.",
+    "dashboardEmailsNone": "Nessuna email di dashboard",
+    "dashboardEmailsNoneDescription": "Per ricevere una dashboard via email, aprila e scegli Email sopra i suoi widget."
   },
   "site": {
     "description": "Dai alle pagine pubblicate di questo spazio di lavoro un unico indirizzo leggibile, una home page e la navigazione tra di loro.",

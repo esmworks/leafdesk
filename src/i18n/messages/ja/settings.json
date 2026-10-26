@@ -95,7 +95,8 @@
       "sensitiveFindings": "dlp 検出結果 漏えい シークレット カード番号 却下",
       "domainPeople": "ドメイン アカウント ユーザー 会社 メール シャドー 管理外",
       "openOnStart": "起動 スタート 最初のページ 最後に開いた 最近",
-      "pageReports": "報告 通報 不正利用 苦情 取り下げ 公開 ウェブ ページ"
+      "pageReports": "報告 通報 不正利用 苦情 取り下げ 公開 ウェブ ページ",
+      "dashboardEmails": "購読 レポート スケジュール 毎週 サマリー メール ダッシュボード"
     }
   },
   "workspace": {
@@ -1957,6 +1958,11 @@
         "created": "{target}に GitHub のプルリクエストを設定しました",
         "updated": "{target}の GitHub 設定を変更しました",
         "deleted": "{target}の GitHub 設定を削除しました"
+      },
+      "dashboard_email": {
+        "set": "{target}を{count, plural, other {#人}}にメール送信するよう設定しました",
+        "removed": "{target}のメール送信を停止しました",
+        "sent": "{target}を{count, plural, other {#人}}にメール送信しました"
       }
     },
     "decisions": {
@@ -2061,7 +2067,11 @@
     "reactionChannel": "リアクション: {channel}",
     "verificationTitle": "検証したページ",
     "verificationDescription": "検証したページの検証期限が近づいたとき（数日前）と、期限が切れたときにお知らせします。",
-    "verificationChannel": "検証したページ：{channel}"
+    "verificationChannel": "検証したページ：{channel}",
+    "dashboardEmailsHeading": "ダッシュボードのメール",
+    "dashboardEmailsDescription": "定期的にメールで届くダッシュボードと、ほかの人向けに設定したダッシュボードです。",
+    "dashboardEmailsNone": "ダッシュボードのメールはありません",
+    "dashboardEmailsNoneDescription": "ダッシュボードをメールで受け取るには、ダッシュボードを開いてウィジェットの上にある「メール」を選びます。"
   },
   "site": {
     "description": "このワークスペースの公開ページに、わかりやすい1つのアドレス、ホームページ、ページ間のナビゲーションを用意します。",

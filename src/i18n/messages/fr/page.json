@@ -990,6 +990,75 @@
         "lower": "Plus bas, c’est mieux",
         "off": "Ne pas afficher"
       }
+    },
+    "emails": {
+      "button": "E-mail",
+      "buttonHint": "Envoyer ce tableau de bord par e-mail selon un calendrier",
+      "title": "Envoyer ce tableau de bord par e-mail",
+      "description": "Envoyez les chiffres de ce tableau de bord par e-mail selon un calendrier, par exemple chaque lundi matin. Chacun ne reçoit que les chiffres qu’il peut voir.",
+      "noMail": "L’e-mail n’est pas configuré sur ce serveur, les tableaux de bord ne peuvent donc pas être envoyés par e-mail. Un administrateur peut configurer SMTP.",
+      "none": "Personne ne reçoit encore ce tableau de bord par e-mail.",
+      "add": "Nouvel e-mail",
+      "edit": "Modifier",
+      "stop": "Arrêter",
+      "leave": "Se désabonner",
+      "you": "Vous",
+      "summary": "{schedule} · {period}",
+      "to": "À {names}",
+      "setBy": "Configuré par {name}",
+      "next": "Prochain : {date}",
+      "lastSent": "dernier envoi {date}",
+      "nextSend": "Le premier e-mail part {date}.",
+      "period": "Chiffres de",
+      "periodHint": "Calculé à partir de l’envoi de l’e-mail, dans son fuseau horaire : un e-mail du lundi pour la semaine dernière montre la semaine du lundi au dimanche qui vient de s’achever, à côté de la précédente.",
+      "periods": {
+        "yesterday": "Hier",
+        "last_week": "La semaine dernière",
+        "last_month": "Le mois dernier",
+        "last_quarter": "Le trimestre dernier",
+        "last_year": "L’année dernière",
+        "this_week": "Cette semaine jusqu’ici",
+        "this_month": "Ce mois-ci jusqu’ici",
+        "this_quarter": "Ce trimestre jusqu’ici",
+        "this_year": "Cette année jusqu’ici",
+        "dashboard": "La période propre au tableau de bord"
+      },
+      "recipients": "Envoyer à",
+      "recipientsHint": "Seules les personnes qui peuvent ouvrir cette page sont listées. Chacune reçoit les chiffres qu’elle peut voir.",
+      "recipientsSelf": "À vous ({email}). Envoyer des e-mails à d’autres personnes demande un accès en modification à cette page.",
+      "search": "Rechercher des personnes",
+      "sendTest": "M’envoyer un test",
+      "testSent": "Un test a été envoyé à {email}.",
+      "paused": {
+        "runAsGone": "En pause : le compte de la personne qui l’a configuré n’existe plus. Enregistrez-le à nouveau pour le réactiver.",
+        "accessLost": "En pause : la personne qui l’a configuré ne peut plus ouvrir ni modifier cette page. Enregistrez-le à nouveau pour le réactiver.",
+        "dashboardGone": "En pause : le tableau de bord a été retiré de la page.",
+        "templateGone": "En pause.",
+        "agentGone": "En pause.",
+        "failed": "le dernier e-mail n’a pas pu être envoyé ; une nouvelle tentative aura lieu au prochain envoi"
+      },
+      "errors": {
+        "notFound": "Ce tableau de bord n’est pas disponible.",
+        "needsEdit": "Envoyer des e-mails à d’autres personnes demande un accès en modification à cette page.",
+        "noRecipients": "Choisissez au moins une personne.",
+        "recipientNoAccess": "Une personne choisie ne peut pas ouvrir ce tableau de bord.",
+        "tooManyRecipients": "Un e-mail est envoyé à 50 personnes au maximum.",
+        "tooMany": "Ce tableau de bord, ou l’espace de travail, a atteint le nombre maximal d’e-mails planifiés.",
+        "invalidRepeat": "Vérifiez la fréquence et le moment d’envoi de l’e-mail.",
+        "invalidPeriod": "Choisissez la période que l’e-mail affiche.",
+        "mailDisabled": "L’e-mail n’est pas configuré sur ce serveur.",
+        "generic": "Une erreur s’est produite. Réessayez."
+      },
+      "unsubscribePage": {
+        "metaTitle": "Se désabonner",
+        "title": "Arrêter ces e-mails ?",
+        "body": "Vous recevez le tableau de bord « {title} » par e-mail. Vous ne le recevrez plus, et rien d’autre ne change.",
+        "action": "Se désabonner",
+        "doneTitle": "Vous êtes désabonné",
+        "done": "Vous ne recevrez plus le tableau de bord « {title} » par e-mail.",
+        "doneGone": "Vous ne recevrez plus ce tableau de bord par e-mail.",
+        "invalid": "Ce lien ne fonctionne pas. Rouvrez l’e-mail et utilisez son lien, ou arrêtez l’e-mail dans les Paramètres."
+      }
     }
   },
   "databaseTabs": {

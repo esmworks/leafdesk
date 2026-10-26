@@ -95,7 +95,8 @@
       "sensitiveFindings": "dlp wykrycia wyciek sekretów numery kart odrzuć",
       "domainPeople": "domena konta użytkownicy firma e-mail shadow niezarządzane",
       "openOnStart": "start uruchomienie pierwsza strona ostatnio odwiedzona",
-      "pageReports": "zgłoś zgłoszenie nadużycie skarga usunięcie opublikowana publiczna sieć strony"
+      "pageReports": "zgłoś zgłoszenie nadużycie skarga usunięcie opublikowana publiczna sieć strony",
+      "dashboardEmails": "subskrypcja raport harmonogram cotygodniowe podsumowanie e-mail"
     }
   },
   "workspace": {
@@ -1957,6 +1958,11 @@
         "created": "Skonfigurowano pull requesty z GitHuba w {target}",
         "updated": "Zmieniono konfigurację GitHuba w {target}",
         "deleted": "Usunięto konfigurację GitHuba w {target}"
+      },
+      "dashboard_email": {
+        "set": "Ustawiono wysyłkę {target} e-mailem do {count, plural, one {# osoby} few {# osób} many {# osób} other {# osoby}}",
+        "removed": "Zatrzymano wysyłkę {target} e-mailem",
+        "sent": "Wysłano {target} e-mailem do {count, plural, one {# osoby} few {# osób} many {# osób} other {# osoby}}"
       }
     },
     "decisions": {
@@ -2061,7 +2067,11 @@
     "reactionChannel": "Reakcje: {channel}",
     "verificationTitle": "Zweryfikowane przez ciebie strony",
     "verificationDescription": "Kończy się weryfikacja strony zweryfikowanej przez ciebie: kilka dni wcześniej i w chwili, gdy wygasa.",
-    "verificationChannel": "Zweryfikowane przez ciebie strony: {channel}"
+    "verificationChannel": "Zweryfikowane przez ciebie strony: {channel}",
+    "dashboardEmailsHeading": "E-maile z pulpitami",
+    "dashboardEmailsDescription": "Pulpity wysyłane do Ciebie e-mailem według harmonogramu oraz te, które skonfigurowano dla innych.",
+    "dashboardEmailsNone": "Brak e-maili z pulpitami",
+    "dashboardEmailsNoneDescription": "Aby dostawać pulpit e-mailem, otwórz go i wybierz E-mail nad widżetami."
   },
   "site": {
     "description": "Nadaj opublikowanym stronom tego obszaru roboczego jeden czytelny adres, stronę główną i nawigację między nimi.",

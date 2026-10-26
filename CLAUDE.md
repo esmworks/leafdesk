@@ -185,7 +185,10 @@ BlockNote on Yjs; Tailwind v4; next-intl. Node 24, pnpm 11. A separate Electron 
   (`activeVerification` is the SQL for search and lists; `runVerificationReminders(now)`), named
   page versions `page-versions.ts` (`page_snapshot.name`; `retention.ts` `pruneSnapshots` never
   deletes a named one; listing, preview and restore stay in `pages.ts`), SMTP
-  `mail/`, inbox `notifications.ts`, push `push.ts`, files `files.ts` + `storage/` (local, S3,
+  `mail/`, dashboard emails `dashboard-emails.ts` (schedules of kind `dashboard_email` on
+  `schedule.page_id`, figures per recipient through `widgetData`; its number, group and rule
+  wording mirrors the dashboard's client hooks, so a change there goes in both; template
+  `dashboardEmail` in `mail/templates.ts`), inbox `notifications.ts`, push `push.ts`, files `files.ts` + `storage/` (local, S3,
   workspace drives), import `import/` (readers in `src/lib/import/` take untrusted files of up to
   100 MB on the one process: no regex that retries a quantified run against what follows, as
   `\s+X$` or adjacent `\s*`; scan by hand (`link-scan.ts`) and add a `fast()` test from

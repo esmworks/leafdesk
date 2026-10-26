@@ -69,8 +69,9 @@ const { startDatePassedAutomations } = await import("./src/server/automations/ti
 const { startScheduledAutomations } = await import("./src/server/automations/scheduled");
 const { startAgents } = await import("./src/server/agents/run");
 const { startSchedules } = await import("./src/server/schedules");
-// Registers what agents' schedules do when they run.
+// Registers what agents' schedules and dashboard emails do when they run.
 await import("./src/server/agents/schedules");
+await import("./src/server/dashboard-emails");
 const { retentionJobEnabled } = await import("./src/lib/retention");
 const { startLocalBackups } = await import("./src/server/local-backups");
 const { startRowMailSync } = await import("./src/server/row-mail/sync");

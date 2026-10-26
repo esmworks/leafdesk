@@ -95,7 +95,8 @@
       "sensitiveFindings": "dlp löydökset vuotaneet salaisuudet korttinumerot ohita",
       "domainPeople": "verkkotunnus tilit käyttäjät yritys sähköposti varjo hallitsemattomat",
       "openOnStart": "käynnistys aloitus ensimmäinen sivu viimeksi avattu viimeisin",
-      "pageReports": "ilmoita ilmoitus väärinkäyttö valitus poisto julkaistu julkinen verkko sivut"
+      "pageReports": "ilmoita ilmoitus väärinkäyttö valitus poisto julkaistu julkinen verkko sivut",
+      "dashboardEmails": "tilaus raportti aikataulu viikoittain yhteenveto sähköposti"
     }
   },
   "workspace": {
@@ -1957,6 +1958,11 @@
         "created": "Otti GitHubin pull requestit käyttöön kohteessa {target}",
         "updated": "Muutti kohteen {target} GitHub-asetuksia",
         "deleted": "Poisti kohteen {target} GitHub-asetukset"
+      },
+      "dashboard_email": {
+        "set": "Asetti kohteen {target} lähetettäväksi sähköpostilla {count, plural, one {# henkilölle} other {# henkilölle}}",
+        "removed": "Lopetti kohteen {target} lähettämisen sähköpostilla",
+        "sent": "Lähetti kohteen {target} sähköpostilla {count, plural, one {# henkilölle} other {# henkilölle}}"
       }
     },
     "decisions": {
@@ -2061,7 +2067,11 @@
     "reactionChannel": "Reaktiot: {channel}",
     "verificationTitle": "Vahvistamasi sivut",
     "verificationDescription": "Vahvistamasi sivun vahvistus on päättymässä: muutamaa päivää ennen ja silloin, kun se päättyy.",
-    "verificationChannel": "Vahvistamasi sivut: {channel}"
+    "verificationChannel": "Vahvistamasi sivut: {channel}",
+    "dashboardEmailsHeading": "Koontinäyttöjen sähköpostit",
+    "dashboardEmailsDescription": "Sinulle aikataulun mukaan sähköpostilla lähetettävät koontinäytöt ja ne, jotka olet määrittänyt muille.",
+    "dashboardEmailsNone": "Ei koontinäyttöjen sähköposteja",
+    "dashboardEmailsNoneDescription": "Saadaksesi koontinäytön sähköpostilla avaa se ja valitse Sähköposti pienoisohjelmien yläpuolelta."
   },
   "site": {
     "description": "Anna tämän työtilan julkaistuille sivuille yksi helppolukuinen osoite, etusivu ja navigointi niiden välillä.",

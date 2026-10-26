@@ -243,12 +243,14 @@ describe("repeatSummary", () => {
     expect(repeatSummary({ enabled: false, nextRunAt: at, lastError: "accessLost" })).toEqual({ enabled: false, nextRunAt: null, lastError: "accessLost" });
   });
 
-  it("keeps a row template's reasons, and drops an agent's or an unknown one", () => {
-    for (const reason of SCHEDULE_ERRORS.filter((e) => e !== "agentGone")) {
+  it("keeps a row template's reasons, and drops an agent's, a dashboard's or an unknown one", () => {
+    for (const reason of SCHEDULE_ERRORS.filter((e) => e !== "agentGone" && e !== "dashboardGone")) {
       expect(repeatSummary({ enabled: false, nextRunAt: null, lastError: reason }).lastError).toBe(reason);
     }
     expect(SCHEDULE_ERRORS).toContain("agentGone");
+    expect(SCHEDULE_ERRORS).toContain("dashboardGone");
     expect(repeatSummary({ enabled: false, nextRunAt: null, lastError: "agentGone" }).lastError).toBeNull();
+    expect(repeatSummary({ enabled: false, nextRunAt: null, lastError: "dashboardGone" }).lastError).toBeNull();
     expect(repeatSummary({ enabled: false, nextRunAt: null, lastError: "somethingElse" }).lastError).toBeNull();
   });
 });

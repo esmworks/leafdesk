@@ -95,7 +95,8 @@
       "sensitiveFindings": "dlp نتائج أسرار مسربة تسريب أرقام بطاقات تجاهل",
       "domainPeople": "نطاق حسابات مستخدمون شركة بريد إلكتروني غير مُدار shadow it",
       "openOnStart": "بدء تشغيل الصفحة الأولى آخر زيارة الأخيرة",
-      "pageReports": "إبلاغ بلاغ إساءة شكوى إزالة منشورة عامة ويب صفحات"
+      "pageReports": "إبلاغ بلاغ إساءة شكوى إزالة منشورة عامة ويب صفحات",
+      "dashboardEmails": "اشتراك تقرير جدول زمني أسبوعي ملخص بريد نشرة"
     }
   },
   "workspace": {
@@ -1957,6 +1958,11 @@
         "created": "أعدّ طلبات السحب في GitHub في {target}",
         "updated": "غيّر إعداد GitHub في {target}",
         "deleted": "أزال إعداد GitHub من {target}"
+      },
+      "dashboard_email": {
+        "set": "ضبط إرسال {target} بالبريد إلى {count, plural, zero {لا أحد} one {شخص واحد} two {شخصين} few {# أشخاص} many {# شخصًا} other {# شخص}}",
+        "removed": "أوقف إرسال {target} بالبريد",
+        "sent": "أرسل {target} بالبريد إلى {count, plural, zero {لا أحد} one {شخص واحد} two {شخصين} few {# أشخاص} many {# شخصًا} other {# شخص}}"
       }
     },
     "decisions": {
@@ -2061,7 +2067,11 @@
     "reactionChannel": "التفاعلات: {channel}",
     "verificationTitle": "الصفحات التي وثّقتها",
     "verificationDescription": "يوشك توثيق صفحة وثّقتها على الانتهاء: قبل ذلك ببضعة أيام، وعند انتهائه.",
-    "verificationChannel": "الصفحات التي وثّقتها: {channel}"
+    "verificationChannel": "الصفحات التي وثّقتها: {channel}",
+    "dashboardEmailsHeading": "رسائل لوحات المعلومات",
+    "dashboardEmailsDescription": "لوحات المعلومات التي تصلك بالبريد وفق جدول زمني، وتلك التي أعددتها للآخرين.",
+    "dashboardEmailsNone": "لا رسائل للوحات المعلومات",
+    "dashboardEmailsNoneDescription": "للحصول على لوحة معلومات بالبريد، افتحها واختر «بريد» فوق أدواتها."
   },
   "site": {
     "description": "امنح الصفحات المنشورة لمساحة العمل هذه عنوانًا واحدًا سهل القراءة، وصفحة رئيسية، وتنقلًا بينها.",

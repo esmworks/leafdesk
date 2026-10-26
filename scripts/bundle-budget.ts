@@ -55,8 +55,11 @@ import { gzipSync } from "node:zlib";
  * The AI chat's approval of each web call (its address shown), the invitation email limit's note
  * and the sign-in policy gate for Telegram links and API token scopes add under 1 kB to a page's
  * first load and to all first loads together.
+ *
+ * Dashboard emails (the Email button above a dashboard, the list in Settings → Preferences and the
+ * unsubscribe page) add about 2 kB to all first loads together; the dialog loads when opened.
  */
-const BUDGET = { routeFirstLoad: 775, firstLoadShared: 1179, onDemandChunk: 450 };
+const BUDGET = { routeFirstLoad: 775, firstLoadShared: 1182, onDemandChunk: 450 };
 
 const NEXT = ".next";
 const kB = (bytes: number) => bytes / 1024;

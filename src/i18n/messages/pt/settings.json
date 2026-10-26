@@ -95,7 +95,8 @@
       "sensitiveFindings": "dlp ocorrências segredos vazados números de cartão dispensar",
       "domainPeople": "domínio contas usuários empresa e-mail shadow não gerenciadas",
       "openOnStart": "início inicialização primeira página última visitada recente",
-      "pageReports": "denunciar denúncia abuso reclamação remover publicada pública web páginas"
+      "pageReports": "denunciar denúncia abuso reclamação remover publicada pública web páginas",
+      "dashboardEmails": "inscrição relatório programação semanal resumo e-mail painel"
     }
   },
   "workspace": {
@@ -1957,6 +1958,11 @@
         "created": "Configurou as pull requests do GitHub em {target}",
         "updated": "Alterou a configuração do GitHub de {target}",
         "deleted": "Removeu a configuração do GitHub de {target}"
+      },
+      "dashboard_email": {
+        "set": "Configurou o envio por e-mail de {target} para {count, plural, one {# pessoa} other {# pessoas}}",
+        "removed": "Parou de enviar {target} por e-mail",
+        "sent": "Enviou {target} por e-mail para {count, plural, one {# pessoa} other {# pessoas}}"
       }
     },
     "decisions": {
@@ -2061,7 +2067,11 @@
     "reactionChannel": "Reações: {channel}",
     "verificationTitle": "Páginas que você verificou",
     "verificationDescription": "Uma página que você verificou está para deixar de ser verificada: alguns dias antes e quando isso acontece.",
-    "verificationChannel": "Páginas que você verificou: {channel}"
+    "verificationChannel": "Páginas que você verificou: {channel}",
+    "dashboardEmailsHeading": "E-mails de painéis",
+    "dashboardEmailsDescription": "Painéis enviados a você por e-mail em uma programação e os que você configurou para outras pessoas.",
+    "dashboardEmailsNone": "Nenhum e-mail de painel",
+    "dashboardEmailsNoneDescription": "Para receber um painel por e-mail, abra-o e escolha E-mail acima dos widgets."
   },
   "site": {
     "description": "Dê às páginas publicadas deste espaço de trabalho um endereço legível, uma página inicial e navegação entre elas.",

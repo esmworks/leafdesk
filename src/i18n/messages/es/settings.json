@@ -95,7 +95,8 @@
       "sensitiveFindings": "dlp hallazgos secretos filtrados números de tarjeta descartar",
       "domainPeople": "dominio cuentas usuarios empresa correo shadow it no gestionadas",
       "openOnStart": "inicio arranque primera página última visitada reciente",
-      "pageReports": "denunciar denuncia abuso queja retirar publicada pública web páginas"
+      "pageReports": "denunciar denuncia abuso queja retirar publicada pública web páginas",
+      "dashboardEmails": "suscripción informe programación semanal resumen correo panel"
     }
   },
   "workspace": {
@@ -1957,6 +1958,11 @@
         "created": "Configuró las pull requests de GitHub en {target}",
         "updated": "Cambió la configuración de GitHub de {target}",
         "deleted": "Quitó la configuración de GitHub de {target}"
+      },
+      "dashboard_email": {
+        "set": "Programó el envío por correo de {target} a {count, plural, one {# persona} other {# personas}}",
+        "removed": "Dejó de enviar {target} por correo",
+        "sent": "Envió {target} por correo a {count, plural, one {# persona} other {# personas}}"
       }
     },
     "decisions": {
@@ -2061,7 +2067,11 @@
     "reactionChannel": "Reacciones: {channel}",
     "verificationTitle": "Páginas que verificaste",
     "verificationDescription": "Una página que verificaste está a punto de dejar de estar verificada: unos días antes y cuando ocurre.",
-    "verificationChannel": "Páginas que verificaste: {channel}"
+    "verificationChannel": "Páginas que verificaste: {channel}",
+    "dashboardEmailsHeading": "Correos de paneles",
+    "dashboardEmailsDescription": "Los paneles que se te envían por correo según una programación y los que configuraste para otras personas.",
+    "dashboardEmailsNone": "Sin correos de paneles",
+    "dashboardEmailsNoneDescription": "Para recibir un panel por correo, ábrelo y elige Correo sobre sus widgets."
   },
   "site": {
     "description": "Dale a las páginas publicadas de este espacio de trabajo una dirección legible, una página de inicio y navegación entre ellas.",

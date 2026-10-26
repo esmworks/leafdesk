@@ -990,6 +990,75 @@
         "lower": "Lavere er bedre",
         "off": "Vis ikke"
       }
+    },
+    "emails": {
+      "button": "E-mail",
+      "buttonHint": "Send dette dashboard som e-mail efter en tidsplan",
+      "title": "Send dette dashboard som e-mail",
+      "description": "Send dette dashboards tal som e-mail efter en tidsplan, for eksempel hver mandag morgen. Hver person får kun de tal, vedkommende kan se.",
+      "noMail": "E-mail er ikke sat op på denne server, så dashboards kan ikke sendes som e-mail. En administrator kan sætte SMTP op.",
+      "none": "Ingen får endnu dette dashboard som e-mail.",
+      "add": "Ny e-mail",
+      "edit": "Rediger",
+      "stop": "Stop",
+      "leave": "Afmeld",
+      "you": "Dig",
+      "summary": "{schedule} · {period}",
+      "to": "Til {names}",
+      "setBy": "Sat op af {name}",
+      "next": "Næste: {date}",
+      "lastSent": "sidst sendt {date}",
+      "nextSend": "Den første e-mail sendes {date}.",
+      "period": "Tal for",
+      "periodHint": "Regnet fra det tidspunkt, e-mailen sendes, i dens tidszone: en mandags-e-mail for sidste uge viser den netop afsluttede uge fra mandag til søndag ved siden af ugen før.",
+      "periods": {
+        "yesterday": "I går",
+        "last_week": "Sidste uge",
+        "last_month": "Sidste måned",
+        "last_quarter": "Sidste kvartal",
+        "last_year": "Sidste år",
+        "this_week": "Denne uge indtil nu",
+        "this_month": "Denne måned indtil nu",
+        "this_quarter": "Dette kvartal indtil nu",
+        "this_year": "Dette år indtil nu",
+        "dashboard": "Dashboardets egen periode"
+      },
+      "recipients": "Send til",
+      "recipientsHint": "Kun personer, der kan åbne denne side, vises. Hver person får de tal, vedkommende kan se.",
+      "recipientsSelf": "Til dig ({email}). At sende e-mails til andre kræver redigeringsadgang til denne side.",
+      "search": "Søg efter personer",
+      "sendTest": "Send mig en test",
+      "testSent": "En test er sendt til {email}.",
+      "paused": {
+        "runAsGone": "Sat på pause: kontoen tilhørende den, der satte den op, findes ikke mere. Gem den igen for at slå den til igen.",
+        "accessLost": "Sat på pause: den, der satte den op, kan ikke længere åbne eller redigere denne side. Gem den igen for at slå den til igen.",
+        "dashboardGone": "Sat på pause: dashboardet blev fjernet fra siden.",
+        "templateGone": "Sat på pause.",
+        "agentGone": "Sat på pause.",
+        "failed": "den seneste e-mail kunne ikke sendes; der prøves igen næste gang"
+      },
+      "errors": {
+        "notFound": "Dette dashboard er ikke tilgængeligt.",
+        "needsEdit": "At sende e-mails til andre kræver redigeringsadgang til denne side.",
+        "noRecipients": "Vælg mindst én person.",
+        "recipientNoAccess": "En person, du valgte, kan ikke åbne dette dashboard.",
+        "tooManyRecipients": "En e-mail sendes til højst 50 personer.",
+        "tooMany": "Dette dashboard eller arbejdsområdet har det maksimale antal planlagte e-mails.",
+        "invalidRepeat": "Tjek, hvor ofte og hvornår e-mailen sendes.",
+        "invalidPeriod": "Vælg den periode, e-mailen viser.",
+        "mailDisabled": "E-mail er ikke sat op på denne server.",
+        "generic": "Noget gik galt. Prøv igen."
+      },
+      "unsubscribePage": {
+        "metaTitle": "Afmeld",
+        "title": "Stop disse e-mails?",
+        "body": "Du får dashboardet “{title}” som e-mail. Du får det ikke længere, og intet andet ændres.",
+        "action": "Afmeld",
+        "doneTitle": "Du er afmeldt",
+        "done": "Du får ikke længere dashboardet “{title}” som e-mail.",
+        "doneGone": "Du får ikke længere dette dashboard som e-mail.",
+        "invalid": "Dette link virker ikke. Åbn e-mailen igen og brug dens link, eller stop e-mailen i Indstillinger."
+      }
     }
   },
   "databaseTabs": {

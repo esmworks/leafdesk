@@ -95,7 +95,8 @@
       "sensitiveFindings": "dlp ממצאים סודות שדלפו דליפה מספרי כרטיסים דחייה",
       "domainPeople": "דומיין חשבונות משתמשים חברה אימייל לא מנוהלים shadow it",
       "openOnStart": "הפעלה פתיחה דף ראשון ביקור אחרון אחרונים",
-      "pageReports": "דיווח תלונה שימוש לרעה הסרה פורסם ציבורי רשת דפים"
+      "pageReports": "דיווח תלונה שימוש לרעה הסרה פורסם ציבורי רשת דפים",
+      "dashboardEmails": "מנוי דוח לוח זמנים שבועי סיכום דוא״ל ניוזלטר"
     }
   },
   "workspace": {
@@ -1957,6 +1958,11 @@
         "created": "הגדרת בקשות משיכה של GitHub ב־{target}",
         "updated": "שינוי הגדרת GitHub של {target}",
         "deleted": "הסרת הגדרת GitHub של {target}"
+      },
+      "dashboard_email": {
+        "set": "הגדרת שליחה בדוא״ל של {target} אל {count, plural, one {אדם אחד} two {שני אנשים} other {# אנשים}}",
+        "removed": "הפסקת שליחה בדוא״ל של {target}",
+        "sent": "שליחה בדוא״ל של {target} אל {count, plural, one {אדם אחד} two {שני אנשים} other {# אנשים}}"
       }
     },
     "decisions": {
@@ -2061,7 +2067,11 @@
     "reactionChannel": "תגובות אמוג׳י: {channel}",
     "verificationTitle": "דפים שאימתת",
     "verificationDescription": "האימות של דף שאימתת עומד להסתיים: כמה ימים לפני כן, וכשהוא מסתיים.",
-    "verificationChannel": "דפים שאימתת: {channel}"
+    "verificationChannel": "דפים שאימתת: {channel}",
+    "dashboardEmailsHeading": "דוא״לים של לוחות בקרה",
+    "dashboardEmailsDescription": "לוחות בקרה שנשלחים אליך בדוא״ל לפי לוח זמנים, ואלה שהגדרת עבור אחרים.",
+    "dashboardEmailsNone": "אין דוא״לים של לוחות בקרה",
+    "dashboardEmailsNoneDescription": "כדי לקבל לוח בקרה בדוא״ל, פתחו אותו ובחרו דוא״ל מעל הווידג׳טים."
   },
   "site": {
     "description": "כתובת קריאה אחת לדפים המפורסמים של סביבת העבודה הזו, עם דף בית וניווט ביניהם.",

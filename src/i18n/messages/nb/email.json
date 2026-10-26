@@ -299,5 +299,28 @@
     "heading": "{workspace} er slettet",
     "body": "Hei, {name}! {by} har slettet Leafdesk-arbeidsområdet {workspace} med alle sidene, databasene og filene. Du kan ikke lenger åpne det.",
     "note": "Slettede arbeidsområder kan ikke gjenopprettes. Hvis du ikke ventet dette, kan du snakke med {by} eller en annen eier av arbeidsområdet."
+  },
+  "dashboard": {
+    "subject": "{dashboard}: {period}",
+    "intro": "{period} i «{workspace}».",
+    "action": "Åpne dashbordet",
+    "versus": "mot {period}",
+    "noComparison": "Ingenting å sammenligne med i {period}",
+    "points": "{value} poeng",
+    "yesterday": "I går",
+    "periodDays": "{period} ({days})",
+    "asOf": "Hele tiden, per {date}",
+    "unavailable": "Du har ikke tilgang til disse dataene.",
+    "inTrash": "Databasen ligger i papirkurven.",
+    "noGroup": "Databasen har ikke noe å gruppere etter ennå.",
+    "empty": "Ingen rader i denne perioden.",
+    "allEmpty": "Ingen rader.",
+    "viewOnly": "Åpne dashbordet for å se denne visningen.",
+    "more": "{count, plural, one {# rad til} other {# rader til}}",
+    "other": "Annet",
+    "why": "{name} abonnerte deg på denne e-posten · {schedule}.",
+    "whyOwn": "Du abonnerer på denne e-posten · {schedule}.",
+    "unsubscribe": "Avslutt abonnementet",
+    "untitled": "Uten tittel"
   }
 }

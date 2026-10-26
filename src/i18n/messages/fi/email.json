@@ -299,5 +299,28 @@
     "heading": "{workspace} poistettiin",
     "body": "Hei {name}, {by} poisti Leafdesk-työtilan {workspace} kaikkine sivuineen, tietokantoineen ja tiedostoineen. Et voi enää avata sitä.",
     "note": "Poistettuja työtiloja ei voi palauttaa. Jos et odottanut tätä, keskustele käyttäjän {by} tai työtilan muun omistajan kanssa."
+  },
+  "dashboard": {
+    "subject": "{dashboard}: {period}",
+    "intro": "{period} työtilassa ”{workspace}”.",
+    "action": "Avaa koontinäyttö",
+    "versus": "vs. {period}",
+    "noComparison": "Ei vertailtavaa jaksolla {period}",
+    "points": "{value} %-yks.",
+    "yesterday": "Eilen",
+    "periodDays": "{period} ({days})",
+    "asOf": "Koko aika, {date} mennessä",
+    "unavailable": "Sinulla ei ole pääsyä näihin tietoihin.",
+    "inTrash": "Tämä tietokanta on roskakorissa.",
+    "noGroup": "Tietokannassa ei ole vielä mitään, minkä mukaan ryhmitellä.",
+    "empty": "Ei rivejä tällä jaksolla.",
+    "allEmpty": "Ei rivejä.",
+    "viewOnly": "Avaa koontinäyttö nähdäksesi tämän näkymän.",
+    "more": "{count, plural, one {# rivi lisää} other {# riviä lisää}}",
+    "other": "Muut",
+    "why": "{name} tilasi sinulle tämän sähköpostin · {schedule}.",
+    "whyOwn": "Olet tilannut tämän sähköpostin · {schedule}.",
+    "unsubscribe": "Peruuta tilaus",
+    "untitled": "Nimetön"
   }
 }

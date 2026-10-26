@@ -299,5 +299,28 @@
     "heading": "{workspace} è stato eliminato",
     "body": "Ciao {name}, {by} ha eliminato lo spazio di lavoro Leafdesk {workspace}, con tutte le sue pagine, i database e i file. Non puoi più aprirlo.",
     "note": "Gli spazi di lavoro eliminati non possono essere ripristinati. Se non te lo aspettavi, parlane con {by} o con un altro proprietario dello spazio di lavoro."
+  },
+  "dashboard": {
+    "subject": "{dashboard}: {period}",
+    "intro": "{period} in «{workspace}».",
+    "action": "Apri la dashboard",
+    "versus": "vs {period}",
+    "noComparison": "Niente da confrontare in {period}",
+    "points": "{value} pt",
+    "yesterday": "Ieri",
+    "periodDays": "{period} ({days})",
+    "asOf": "Sempre, al {date}",
+    "unavailable": "Non hai accesso a questi dati.",
+    "inTrash": "Questo database è nel cestino.",
+    "noGroup": "Il database non ha ancora nulla per cui raggruppare.",
+    "empty": "Nessuna riga in questo periodo.",
+    "allEmpty": "Nessuna riga.",
+    "viewOnly": "Apri la dashboard per vedere questa vista.",
+    "more": "{count, plural, one {# riga in più} other {# righe in più}}",
+    "other": "Altro",
+    "why": "{name} ti ha iscritto a questa email · {schedule}.",
+    "whyOwn": "Ti sei iscritto a questa email · {schedule}.",
+    "unsubscribe": "Annulla l’iscrizione",
+    "untitled": "Senza titolo"
   }
 }

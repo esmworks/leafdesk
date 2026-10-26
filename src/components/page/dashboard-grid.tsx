@@ -1,6 +1,7 @@
 "use client";
 
-import { ArrowLeft, ArrowRight, Lock, MoreHorizontal, Pencil, Plus, Trash2 } from "lucide-react";
+import { ArrowLeft, ArrowRight, Lock, Mail, MoreHorizontal, Pencil, Plus, Trash2 } from "lucide-react";
+import dynamic from "next/dynamic";
 import Link from "next/link";
 import { useFormatter, useNow, useTranslations } from "next-intl";
 import { useCallback, useEffect, useMemo, useRef, useState, type ReactNode, type RefObject } from "react";
@@ -47,6 +48,7 @@ import {
   withPeriod,
   type Comparison,
 } from "@/lib/dashboard-period";
+import type { DashboardEmailTarget } from "@/lib/dashboard-emails";
 import type { LinkedView } from "@/lib/embed-blocks";
 import type { WidgetData, WidgetRow, WidgetTarget } from "@/server/dashboards";
 import { ChangeLine, PeriodBar, useDashboardPeriod, useRangeName } from "./dashboard-period";
@@ -63,6 +65,9 @@ import { DatabasePicker } from "./database-picker";
  * database of the workspace, and a database's dashboard views (components/database/dashboard-view),
  * whose widgets all show that database.
  */
+// Loaded when someone opens a dashboard's emails.
+const DashboardEmailsDialog = dynamic(() => import("./dashboard-emails-dialog"), { ssr: false });
+
 /** What a dragged widget carries: not text, so the editor around the dashboard leaves the drop alone. */
 const WIDGET_DRAG_TYPE = "application/x-leafdesk-widget";
 
@@ -73,6 +78,7 @@ export function Dashboard({
   databaseId,
   period: storedPeriod,
   onPeriod,
+  emailTarget,
 }: {
   widgets: DashboardWidget[];
   /** Only for those who may change the widgets. */
@@ -84,11 +90,14 @@ export function Dashboard({
   period?: string;
   /** Only for those who may change the widgets: store the period. */
   onPeriod?: (period: string) => void;
+  /** The page and dashboard its emails are about (components/page/dashboard-emails-dialog); none offers no emails. */
+  emailTarget?: { pageId: string; target: DashboardEmailTarget };
 }) {
   const t = useTranslations("page.dashboard");
   const td = useTranslations("database.dashboardView");
   const [editing, setEditing] = useState<string | null>(null);
   const [picking, setPicking] = useState(false);
+  const [emailing, setEmailing] = useState(false);
   const full = widgets.length >= MAX_WIDGETS;
   const shown = useRef(new Map<string, ShownWidget>());
   useTreeRefresh(workspaceId, shown);
@@ -128,6 +137,14 @@ export function Dashboard({
             onPick={chosen.pick}
             changed={chosen.picked}
             onReset={chosen.reset}
+            trailing={
+              emailTarget && (
+                <Button size="sm" variant="ghost" onClick={() => setEmailing(true)} title={t("emails.buttonHint")}>
+                  <Mail className="h-3.5 w-3.5" />
+                  {t("emails.button")}
+                </Button>
+              )
+            }
             onSave={
               onChange && onPeriod
                 ? () => {
@@ -170,6 +187,7 @@ export function Dashboard({
       {workspaceId && onChange && !databaseId && (
         <DatabasePicker open={picking} workspaceId={workspaceId} onPick={add} onClose={() => setPicking(false)} />
       )}
+      {emailTarget && emailing && <DashboardEmailsDialog open onClose={() => setEmailing(false)} {...emailTarget} />}
     </div>
   );
 }

@@ -95,7 +95,8 @@
       "sensitiveFindings": "dlp bevindingen gelekte geheimen kaartnummers negeren",
       "domainPeople": "domein accounts gebruikers bedrijf e-mail schaduw onbeheerd",
       "openOnStart": "start opstarten eerste pagina laatst bezocht recent",
-      "pageReports": "melden melding misbruik klacht verwijderen gepubliceerd openbaar web pagina's"
+      "pageReports": "melden melding misbruik klacht verwijderen gepubliceerd openbaar web pagina's",
+      "dashboardEmails": "abonnement rapport schema planning wekelijks samenvatting e-mail dashboard"
     }
   },
   "workspace": {
@@ -1957,6 +1958,11 @@
         "created": "GitHub-pullrequests ingesteld in {target}",
         "updated": "De GitHub-instelling van {target} gewijzigd",
         "deleted": "De GitHub-instelling van {target} verwijderd"
+      },
+      "dashboard_email": {
+        "set": "{target} ingesteld om te worden gemaild naar {count, plural, one {# persoon} other {# personen}}",
+        "removed": "Is gestopt met het mailen van {target}",
+        "sent": "{target} gemaild naar {count, plural, one {# persoon} other {# personen}}"
       }
     },
     "decisions": {
@@ -2061,7 +2067,11 @@
     "reactionChannel": "Reacties: {channel}",
     "verificationTitle": "Pagina’s die je hebt geverifieerd",
     "verificationDescription": "Een pagina die je hebt geverifieerd, is binnenkort niet meer geverifieerd: een paar dagen ervoor, en op het moment zelf.",
-    "verificationChannel": "Pagina’s die je hebt geverifieerd: {channel}"
+    "verificationChannel": "Pagina’s die je hebt geverifieerd: {channel}",
+    "dashboardEmailsHeading": "Dashboard-e-mails",
+    "dashboardEmailsDescription": "Dashboards die je volgens een schema per e-mail krijgt, en die je voor anderen hebt ingesteld.",
+    "dashboardEmailsNone": "Geen dashboard-e-mails",
+    "dashboardEmailsNoneDescription": "Om een dashboard per e-mail te krijgen, open je het en kies je E-mail boven de widgets."
   },
   "site": {
     "description": "Geef de gepubliceerde pagina’s van deze werkruimte één leesbaar adres, een startpagina en navigatie ertussen.",

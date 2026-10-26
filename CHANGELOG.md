@@ -4,6 +4,18 @@
 
 ### Added
 
+- **Email a dashboard on a schedule.** *Email* above a dashboard (a `/dashboard` block or a
+  dashboard view) sends its figures to chosen people every day, week, month or year at a time in a
+  time zone, by default every Monday at 08:00 for last week. The email shows the period that just
+  ended (or this week so far, or the dashboard's own period), each number with its change from the
+  period before, lists and charts as short tables of figures, and a link back to the dashboard.
+  Each recipient gets what they may see, worked out when it is sent; emailing others takes edit
+  access to the page, and the email runs as whoever set it up, pausing when they lose access or
+  the dashboard is removed. A link in the email (with one-click unsubscribe headers) and Settings →
+  Preferences → Dashboard emails stop it; a test can be sent to yourself first. Setting up,
+  stopping and sending are audit events. Needs SMTP. Migration 0152 adds `schedule.page_id`. The
+  budget for all routes' first-load JavaScript goes from 1,179 to 1,182 kB.
+
 - **Dashboards show a period, and numbers their change from the period before.** A period above
   the grid (this week, month, quarter or year, last week, month, quarter or year, a range of days,
   or all time) cuts every widget's rows at once, on each widget's date property (the first date

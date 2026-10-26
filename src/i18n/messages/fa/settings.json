@@ -95,7 +95,8 @@
       "sensitiveFindings": "dlp یافته‌ها اسرار افشاشده نشت شماره کارت نادیده گرفتن",
       "domainPeople": "دامنه حساب‌ها کاربران شرکت ایمیل مدیریت‌نشده shadow it",
       "openOnStart": "شروع راه‌اندازی صفحهٔ اول آخرین بازدید اخیر",
-      "pageReports": "گزارش سوءاستفاده شکایت برداشتن منتشرشده عمومی وب صفحه‌ها"
+      "pageReports": "گزارش سوءاستفاده شکایت برداشتن منتشرشده عمومی وب صفحه‌ها",
+      "dashboardEmails": "اشتراک گزارش زمان‌بندی هفتگی خلاصه ایمیل داشبورد"
     }
   },
   "workspace": {
@@ -1957,6 +1958,11 @@
         "created": "درخواست‌های ادغام GitHub را در {target} راه‌اندازی کرد",
         "updated": "راه‌اندازی GitHub در {target} را تغییر داد",
         "deleted": "راه‌اندازی GitHub را از {target} برداشت"
+      },
+      "dashboard_email": {
+        "set": "{target} را برای ارسال با ایمیل به {count, plural, one {# نفر} other {# نفر}} تنظیم کرد",
+        "removed": "ارسال ایمیل {target} را متوقف کرد",
+        "sent": "{target} را با ایمیل به {count, plural, one {# نفر} other {# نفر}} ارسال کرد"
       }
     },
     "decisions": {
@@ -2061,7 +2067,11 @@
     "reactionChannel": "واکنش‌ها: {channel}",
     "verificationTitle": "صفحه‌هایی که تأیید کرده‌اید",
     "verificationDescription": "تأیید صفحه‌ای که تأیید کرده‌اید رو به پایان است: چند روز پیش از آن، و هنگامی که به پایان می‌رسد.",
-    "verificationChannel": "صفحه‌هایی که تأیید کرده‌اید: {channel}"
+    "verificationChannel": "صفحه‌هایی که تأیید کرده‌اید: {channel}",
+    "dashboardEmailsHeading": "ایمیل‌های داشبورد",
+    "dashboardEmailsDescription": "داشبوردهایی که طبق زمان‌بندی برای شما ایمیل می‌شوند و آن‌هایی که برای دیگران تنظیم کرده‌اید.",
+    "dashboardEmailsNone": "ایمیل داشبوردی نیست",
+    "dashboardEmailsNoneDescription": "برای دریافت داشبورد با ایمیل، آن را باز کنید و بالای ویجت‌ها «ایمیل» را انتخاب کنید."
   },
   "site": {
     "description": "به صفحه‌های منتشرشده این فضای کاری یک نشانی خوانا، یک صفحه اصلی و ناوبری بین آن‌ها بدهید.",

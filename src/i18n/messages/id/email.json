@@ -299,5 +299,28 @@
     "heading": "{workspace} telah dihapus",
     "body": "Halo {name}, {by} menghapus ruang kerja Leafdesk {workspace}, beserta semua halaman, basis data, dan berkasnya. Anda tidak dapat lagi membukanya.",
     "note": "Ruang kerja yang dihapus tidak dapat dipulihkan. Jika Anda tidak menduga ini, bicaralah dengan {by} atau pemilik ruang kerja lainnya."
+  },
+  "dashboard": {
+    "subject": "{dashboard}: {period}",
+    "intro": "{period} di “{workspace}”.",
+    "action": "Buka dasbor",
+    "versus": "vs {period}",
+    "noComparison": "Tidak ada pembanding di {period}",
+    "points": "{value} poin",
+    "yesterday": "Kemarin",
+    "periodDays": "{period} ({days})",
+    "asOf": "Sepanjang waktu, per {date}",
+    "unavailable": "Anda tidak memiliki akses ke data ini.",
+    "inTrash": "Basis data ini ada di sampah.",
+    "noGroup": "Basis data belum memiliki yang dapat dipakai untuk mengelompokkan.",
+    "empty": "Tidak ada baris pada periode ini.",
+    "allEmpty": "Tidak ada baris.",
+    "viewOnly": "Buka dasbor untuk melihat tampilan ini.",
+    "more": "{count, plural, other {# baris lagi}}",
+    "other": "Lainnya",
+    "why": "{name} mendaftarkan Anda ke email ini · {schedule}.",
+    "whyOwn": "Anda berlangganan email ini · {schedule}.",
+    "unsubscribe": "Berhenti berlangganan",
+    "untitled": "Tanpa judul"
   }
 }

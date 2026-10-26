@@ -477,7 +477,7 @@ export type AgentScheduleView = {
   enabled: boolean;
   nextRunAt: string | null;
   lastRunAt: string | null;
-  lastError: ScheduleError | null;
+  lastError: Exclude<ScheduleError, "dashboardGone"> | null;
   /** The owner who set it last: its runs are held to their access. */
   setBy: { id: string; name: string } | null;
 };

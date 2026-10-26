@@ -95,7 +95,8 @@
       "sensitiveFindings": "dlp สิ่งที่พบ ความลับรั่วไหล หมายเลขบัตร ละเว้น",
       "domainPeople": "โดเมน บัญชี ผู้ใช้ บริษัท อีเมล ไม่ได้จัดการ",
       "openOnStart": "เริ่มต้น เปิดแอป หน้าแรก เข้าชมล่าสุด ล่าสุด",
-      "pageReports": "รายงาน การละเมิด ร้องเรียน นำออก เผยแพร่ สาธารณะ เว็บ หน้า"
+      "pageReports": "รายงาน การละเมิด ร้องเรียน นำออก เผยแพร่ สาธารณะ เว็บ หน้า",
+      "dashboardEmails": "สมัครรับ รายงาน กำหนดเวลา รายสัปดาห์ สรุป อีเมล แดชบอร์ด"
     }
   },
   "workspace": {
@@ -1957,6 +1958,11 @@
         "created": "ตั้งค่า pull request ของ GitHub ใน {target}",
         "updated": "เปลี่ยนการตั้งค่า GitHub ของ {target}",
         "deleted": "นำการตั้งค่า GitHub ของ {target} ออก"
+      },
+      "dashboard_email": {
+        "set": "ตั้งให้ส่ง {target} ทางอีเมลถึง {count, plural, other {# คน}}",
+        "removed": "หยุดส่ง {target} ทางอีเมล",
+        "sent": "ส่ง {target} ทางอีเมลถึง {count, plural, other {# คน}}"
       }
     },
     "decisions": {
@@ -2061,7 +2067,11 @@
     "reactionChannel": "ปฏิกิริยา: {channel}",
     "verificationTitle": "หน้าที่คุณยืนยัน",
     "verificationDescription": "หน้าที่คุณยืนยันกำลังจะหมดสถานะยืนยัน: แจ้งล่วงหน้าสองสามวัน และแจ้งอีกครั้งเมื่อหมดแล้ว",
-    "verificationChannel": "หน้าที่คุณยืนยัน: {channel}"
+    "verificationChannel": "หน้าที่คุณยืนยัน: {channel}",
+    "dashboardEmailsHeading": "อีเมลแดชบอร์ด",
+    "dashboardEmailsDescription": "แดชบอร์ดที่ส่งถึงคุณทางอีเมลตามกำหนดเวลา และแดชบอร์ดที่คุณตั้งค่าให้คนอื่น",
+    "dashboardEmailsNone": "ไม่มีอีเมลแดชบอร์ด",
+    "dashboardEmailsNoneDescription": "หากต้องการรับแดชบอร์ดทางอีเมล ให้เปิดแดชบอร์ดแล้วเลือก อีเมล เหนือวิดเจ็ต"
   },
   "site": {
     "description": "ให้หน้าที่เผยแพร่ของพื้นที่ทำงานนี้มีที่อยู่ที่อ่านง่ายหนึ่งที่อยู่ หน้าแรก และการนำทางระหว่างหน้า",
