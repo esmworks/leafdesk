@@ -38,5 +38,11 @@
     "trashed": "휴지통으로 이동했습니다",
     "rowsTrashed": "{count}개 행을 휴지통으로 이동했습니다",
     "undoFailed": "실행 취소하지 못했습니다."
+  },
+  "datePhrase": {
+    "label": "날짜 입력",
+    "placeholder": "날짜 입력: 내일 17:00, 8/31, +2w",
+    "preview": "{when} · Enter로 설정",
+    "unreadable": "날짜가 아닙니다. “내일 9:00”, “8/31” 또는 “2w”를 입력해 보세요."
   }
 }

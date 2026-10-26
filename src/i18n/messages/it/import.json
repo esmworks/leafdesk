@@ -7,6 +7,7 @@
     "docx": "Word",
     "pdf": "PDF",
     "evernote": "Evernote",
+    "onenote": "OneNote (.mht)",
     "confluence": "Confluence",
     "csv": "CSV ed Excel",
     "trello": "Trello",
@@ -25,6 +26,7 @@
     "help": "I file Markdown diventano pagine e le cartelle mantengono la loro struttura. I file CSV diventano database e le immagini a cui le pagine rimandano vengono caricate.",
     "notion": "Da Notion: esporta come “Markdown & CSV” includendo le sottopagine e scegli lo ZIP così come è stato scaricato (funzionano anche le esportazioni suddivise). Sottopagine, database, relazioni, riquadri, elenchi espandibili e immagini vengono importati.",
     "obsidian": "Da Obsidian: scegli la cartella del vault o uno ZIP che la contiene. Vengono importati i link tra le note (anche i [[wikilink]]), le immagini e i file incorporati e i callout.",
+    "textbundle": "I file TextBundle e TextPack (da Bear, Ulysses, iA Writer e altre app Markdown) diventano una pagina ciascuno, con le loro immagini e i loro allegati: scegli file .textpack, uno ZIP che li contiene o una cartella con cartelle .textbundle.",
     "chooseFiles": "Scegli file",
     "chooseFolder": "Scegli una cartella",
     "drop": "oppure trascina qui i file",
@@ -53,6 +55,11 @@
       "sourceUrl": "URL di origine",
       "encrypted": "Il testo cifrato è stato escluso dall’importazione."
     }
+  },
+  "onenote": {
+    "help": "Ogni file diventa una pagina con il suo testo, i titoli, gli elenchi, le tabelle, i link e le immagini. Il file di una sezione diventa una pagina con il nome della sezione e, sotto, una pagina per ciascuna delle sue pagine. Si può importare anche qualsiasi pagina web salvata come file unico (.mht o .mhtml).",
+    "export": "In OneNote per Windows scegli File → Esporta, poi Pagina o Sezione e Pagina Web in un file unico (*.mht), e scegli qui i file salvati. Le esportazioni di OneNote in Word (.docx) e PDF si importano nelle schede Word e PDF.",
+    "choose": "Scegli file .mht"
   },
   "confluence": {
     "help": "Ogni pagina di uno spazio Confluence diventa una pagina, annidata come nello spazio. Titoli, elenchi, tabelle, blocchi di codice, pannelli informativi (come riquadri), sezioni espandibili (come elenchi a scomparsa), elenchi di attività, immagini e file allegati vengono importati, e i link tra le pagine diventano menzioni di pagina.",
@@ -294,6 +301,7 @@
     "pdfNoText": "«{name}» non ha testo da importare: sembra una scansione. Esegui prima il riconoscimento del testo (OCR) oppure caricalo in una pagina come file.",
     "pdfTooComplex": "«{name}» è troppo grande per essere importato come una sola pagina.",
     "badEnex": "“{name}” non può essere letto come esportazione di Evernote. In Evernote esporta le note come ENEX (.enex) e scegli quel file.",
+    "badMhtml": "“{name}” non può essere letto come pagina web in un file unico. In OneNote esporta come Pagina Web in un file unico (*.mht) e scegli quel file.",
     "badTrello": "Il file non è un’esportazione di una bacheca Trello. In Trello, scegli Esporta come JSON dal menu della bacheca e scegli quel file.",
     "badAsana": "Il file non è un'esportazione di un progetto Asana. In Asana, scegli Esporta → CSV o JSON dal menu del progetto e scegli quel file.",
     "badMonday": "Il file non è un'esportazione di una bacheca Monday.com. In Monday.com, scegli Esporta bacheca in Excel dal menu della bacheca e scegli quel file.",

@@ -1,6 +1,16 @@
 import { describe, expect, it } from "vitest";
 import texts from "@/i18n/messages/en/shortcuts.json";
-import { cellGridShortcut, comboText, keyLabels, opensPresentation, opensShortcuts, opensToggleAll, rowMenuShortcut, SHORTCUT_GROUPS } from "./shortcuts";
+import {
+  cellGridShortcut,
+  comboText,
+  keyLabels,
+  opensPresentation,
+  opensShortcuts,
+  opensToggleAll,
+  rowMenuShortcut,
+  savesVersion,
+  SHORTCUT_GROUPS,
+} from "./shortcuts";
 import { SUBSCRIPT, SUPERSCRIPT, TEXT_SCRIPT_SHORTCUTS } from "./text-scripts";
 
 const press = (key: string, init: Partial<KeyboardEvent> = {}, target: unknown = null) =>
@@ -87,6 +97,24 @@ describe("opensPresentation", () => {
   it("leaves keys something else handled, and text being composed", () => {
     expect(opensPresentation(press("π", { code: "KeyP", metaKey: true, altKey: true, defaultPrevented: true }), true)).toBe(false);
     expect(opensPresentation(press("π", { code: "KeyP", metaKey: true, altKey: true, isComposing: true }), true)).toBe(false);
+  });
+});
+
+describe("savesVersion", () => {
+  it("saves on Mod+S with the system's Mod key, by the key's place", () => {
+    expect(savesVersion(press("s", { code: "KeyS", metaKey: true }), true)).toBe(true);
+    expect(savesVersion(press("s", { code: "KeyS", ctrlKey: true }), false)).toBe(true);
+    expect(savesVersion(press("ы", { code: "KeyS", ctrlKey: true }), false)).toBe(true);
+    expect(savesVersion(press("s", { code: "KeyS", ctrlKey: true }), true)).toBe(false);
+    expect(savesVersion(press("s", { code: "KeyS", metaKey: true }), false)).toBe(false);
+  });
+
+  it("leaves strikethrough's Mod+Shift+S, Alt, other keys and keys something else handled", () => {
+    expect(savesVersion(press("S", { code: "KeyS", metaKey: true, shiftKey: true }), true)).toBe(false);
+    expect(savesVersion(press("ß", { code: "KeyS", metaKey: true, altKey: true }), true)).toBe(false);
+    expect(savesVersion(press("d", { code: "KeyD", metaKey: true }), true)).toBe(false);
+    expect(savesVersion(press("s", { code: "KeyS", metaKey: true, defaultPrevented: true }), true)).toBe(false);
+    expect(savesVersion(press("s", { code: "KeyS", metaKey: true, isComposing: true }), true)).toBe(false);
   });
 });
 

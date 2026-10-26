@@ -2,7 +2,7 @@
   "hello": "Halo, {name}",
   "jumpBackIn": "Lanjutkan lagi",
   "recent": "Baru diedit",
-  "assignedEmpty": "Tidak ada yang ditugaskan kepada Anda. Baris basis data yang ditugaskan kepada Anda muncul di sini.",
+  "assignedEmpty": "Tidak ada yang ditugaskan kepada Anda. Baris basis data yang ditugaskan kepada Anda, dan tugas di halaman yang menyebut Anda, muncul di sini.",
   "empty": "Belum ada apa pun di sini. Buat halaman pertama Anda untuk memulai.",
   "emptyGuest": "Belum ada yang dibagikan kepada Anda di sini. Halaman akan muncul setelah seseorang membagikannya kepada Anda.",
   "newPage": "Halaman baru",
@@ -22,16 +22,20 @@
   "assignedAll": "Lihat semua",
   "myTasks": {
     "title": "Tugas saya",
-    "description": "Baris dari database yang bisa Anda buka, yang ditugaskan kepada Anda dan belum selesai, di seluruh ruang kerja.",
+    "description": "Baris dari database yang bisa Anda buka, yang ditugaskan kepada Anda dan belum selesai, serta tugas yang belum dicentang di halaman yang menyebut Anda, di seluruh ruang kerja.",
     "grouping": "Kelompokkan menurut",
     "byDue": "Menurut tenggat",
-    "byDatabase": "Menurut database",
+    "byDatabase": "Menurut database atau halaman",
     "sharedRows": "Baris yang dibagikan kepada Anda",
     "shown": "Menampilkan {shown} dengan tenggat terdekat dari {total}.",
     "markDone": "Tandai “{title}” selesai",
     "undoLabel": "Tandai “{title}” belum selesai",
     "undo": "Urungkan",
     "markFailed": "Tidak dapat menandai baris sebagai selesai.",
-    "undoFailed": "Tidak dapat mengembalikan status baris. Ubah di dalam baris."
+    "undoFailed": "Tidak dapat mengembalikan status baris. Ubah di dalam baris.",
+    "untitledTask": "Tugas",
+    "onPage": "di <page>{title}</page>",
+    "tickFailed": "Tidak dapat mencentang tugas.",
+    "untickFailed": "Tidak dapat menghapus centang. Hapus di halaman."
   }
 }

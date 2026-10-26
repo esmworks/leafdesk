@@ -1435,7 +1435,7 @@
     },
     "historyRetention": {
       "title": "Versiohistoria",
-      "description": "Sivun aiemmat versiot säilytetään {days} päivää, enintään {count} sivua kohden. Tallennetut versiot ja ennen palautusta otetut versiot säilytetään {keptDays} päivää, ja sivun uusin versio säilyy aina."
+      "description": "Sivun aiemmat versiot säilytetään {days} päivää, enintään {count} sivua kohden. Tallennetut versiot ja palautusta edeltävät versiot säilytetään {keptDays} päivää, nimetyt versiot niin kauan kuin sivu, ja sivun uusin versio säilyy aina."
     },
     "membersHeading": "Jäsenet",
     "memberInvites": {
@@ -1712,6 +1712,9 @@
       "notion": "Notion",
       "obsidian": "Obsidian",
       "enex": "Evernote",
+      "textbundle": "TextBundle",
+      "onenote": "OneNote",
+      "mhtml": "Verkkoarkisto (.mht)",
       "web": "Verkkosivu",
       "jira": "Jira",
       "github": "GitHub",

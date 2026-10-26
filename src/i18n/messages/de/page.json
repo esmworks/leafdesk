@@ -323,9 +323,37 @@
       "beforeMerge": "Vor dem Zusammenführen von Zeilen"
     },
     "empty": "Noch keine Versionen. Versionen werden beim Bearbeiten automatisch gespeichert und bevor eine KI-App diese Seite ändert.",
+    "saveVersion": "Version speichern",
+    "namedOnly": "Nur benannte Versionen",
+    "emptyNamed": "Noch keine benannten Versionen. Speichere eine Version mit Namen oder benenne eine aus der Liste.",
+    "name": "Diese Version benennen",
+    "rename": "Diese Version umbenennen",
     "restore": "Diese Version wiederherstellen",
     "restoring": "Wird wiederhergestellt…",
     "restoreHint": "Der aktuelle Inhalt wird vorher als Version gespeichert.",
+    "versionName": {
+      "saveTitle": "Version speichern",
+      "saveHint": "Speichert die Seite, wie sie jetzt ist. Gib ihr einen Namen, um sie wiederzufinden: Benannte Versionen bleiben so lange wie die Seite.",
+      "renameTitle": "Version benennen",
+      "renameHint": "Die Version vom {date}. Benannte Versionen bleiben so lange wie die Seite; lass den Namen leer, um ihn zu entfernen.",
+      "unchangedTitle": "Nichts geändert",
+      "unchangedHint": "Die Seite ist dieselbe wie die Version vom {date}, deshalb bekommt diese Version den Namen, statt eine Kopie zu speichern. Lass den Namen leer, um ihn zu entfernen.",
+      "nameLabel": "Name",
+      "namePlaceholder": "Optional, z. B. Zur Prüfung geschickt",
+      "save": "Version speichern",
+      "saveName": "Namen speichern",
+      "saving": "Wird gespeichert…",
+      "saved": "Version gespeichert",
+      "savedNamed": "Version „{name}“ gespeichert",
+      "named": "Version „{name}“ benannt",
+      "nameCleared": "Name der Version entfernt",
+      "errors": {
+        "invalidName": "Ein Name darf höchstens {max} Zeichen haben.",
+        "inTrash": "Diese Seite ist im Papierkorb. Stelle sie zuerst wieder her.",
+        "failed": "Speichern fehlgeschlagen. Versuche es erneut.",
+        "state": "Änderungen seit der letzten Version konnten nicht geprüft werden."
+      }
+    },
     "diff": {
       "rangeCurrent": "Änderungen zwischen der Version vom {from} und der aktuellen Seite",
       "rangePrevious": "Änderungen zwischen {from} und {to}",
@@ -746,6 +774,8 @@
     "reminderSet": "Erinnerung: {when}",
     "reminderHint": "Du erhältst sie in deinem Posteingang und per E-Mail.",
     "reminderPast": "Dieser Zeitpunkt ist bereits vorbei; wähle ein späteres Datum oder eine andere Erinnerung.",
+    "remindAt": "Erinnern um",
+    "remindAtPlaceholder": "Oder Zeitpunkt eingeben: Freitag 17:00, -1d",
     "done": "Fertig"
   },
   "preview": {
@@ -991,6 +1021,19 @@
       "placeholder": "Zum Beispiel: Notiz zum Kundenbesuch. Firma, Ansprechpartner, besprochene Themen, Stand des Angebots und nächster Schritt.",
       "followed": "Hier gespeicherte Sprachnotizen folgen den Schreibanweisungen dieser Datenbank."
     }
+  },
+  "dictation": {
+    "slashTitle": "Diktieren",
+    "slashSubtext": "Sprich, und deine Worte werden hier so geschrieben, wie du sie sagst",
+    "slashAliases": "diktieren diktat dictate sprache stimme mikrofon transkribieren",
+    "starting": "Wird gestartet…",
+    "listening": "Hört zu",
+    "writing": "Wird geschrieben…",
+    "finish": "Diktat beenden und Text schreiben",
+    "hint": "{shortcut} oder Enter zum Beenden, Esc zum Abbrechen",
+    "autoStopped": "Das Diktat wurde beim Limit von {minutes} Min. beendet. Was du bis dahin gesagt hast, wurde geschrieben.",
+    "copied": "Der diktierte Text konnte nicht in die Seite eingefügt werden und wurde deshalb in die Zwischenablage kopiert.",
+    "notPlaced": "Der diktierte Text konnte weder in die Seite eingefügt noch kopiert werden: {text}"
   },
   "review": {
     "bar": "{count, plural, one {# KI-Änderung zu prüfen} other {# KI-Änderungen zu prüfen}}",
@@ -1324,5 +1367,10 @@
     "title": "In Seite umwandeln in",
     "here": "In dieser Seite",
     "failed": "Die Blöcke konnten nicht auf eine neue Seite verschoben werden."
+  },
+  "tags": {
+    "label": "Tags",
+    "pages": "{count, plural, one {# Seite} other {# Seiten}}",
+    "find": "Seiten mit #{tag} finden"
   }
 }

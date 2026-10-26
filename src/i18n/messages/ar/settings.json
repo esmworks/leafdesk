@@ -1435,7 +1435,7 @@
     },
     "historyRetention": {
       "title": "سجل الصفحة",
-      "description": "يُحتفظ بالنسخ السابقة من الصفحة لمدة {days, plural, one {يوم واحد} two {يومين} few {# أيام} many {# يومًا} other {# يوم}}، بحد أقصى {count, plural, one {نسخة واحدة} two {نسختين} few {# نسخ} many {# نسخة} other {# نسخة}} لكل صفحة. ويُحتفظ بالنسخ المحفوظة والنسخ السابقة للاستعادة لمدة {keptDays, plural, one {يوم واحد} two {يومين} few {# أيام} many {# يومًا} other {# يوم}}، وتبقى أحدث نسخة من الصفحة دائمًا."
+      "description": "تُحفظ النسخ السابقة من الصفحة لمدة {days} يومًا، حتى {count} نسخة لكل صفحة. تُحفظ النسخ المحفوظة والنسخ السابقة للاستعادة لمدة {keptDays} يومًا، والنسخ المسماة ما دامت الصفحة موجودة، وتبقى أحدث نسخة من الصفحة دائمًا."
     },
     "membersHeading": "الأعضاء",
     "memberInvites": {
@@ -1712,6 +1712,9 @@
       "notion": "Notion",
       "obsidian": "Obsidian",
       "enex": "Evernote",
+      "textbundle": "TextBundle",
+      "onenote": "OneNote",
+      "mhtml": "أرشيف ويب (‎.mht)",
       "web": "صفحة ويب",
       "jira": "Jira",
       "github": "GitHub",

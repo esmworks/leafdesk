@@ -1435,7 +1435,7 @@
     },
     "historyRetention": {
       "title": "ページ履歴",
-      "description": "ページの以前のバージョンは、ページごとに最大{count}件、{days}日間保持されます。保存したバージョンと復元前のバージョンは{keptDays}日間保持され、ページの最新バージョンは常に残ります。"
+      "description": "ページの以前のバージョンは {days} 日間、ページごとに最大 {count} 件保持されます。保存したバージョンと復元前のバージョンは {keptDays} 日間、名前付きのバージョンはページがある限り保持され、ページの最新バージョンは常に残ります。"
     },
     "membersHeading": "メンバー",
     "memberInvites": {
@@ -1712,6 +1712,9 @@
       "notion": "Notion",
       "obsidian": "Obsidian",
       "enex": "Evernote",
+      "textbundle": "TextBundle",
+      "onenote": "OneNote",
+      "mhtml": "ウェブアーカイブ（.mht）",
       "web": "ウェブページ",
       "jira": "Jira",
       "github": "GitHub",

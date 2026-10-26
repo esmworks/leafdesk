@@ -323,9 +323,37 @@
       "beforeMerge": "Før fletning af rækker"
     },
     "empty": "Ingen versioner endnu. Versioner gemmes automatisk, mens du redigerer, og før en AI-app ændrer denne side.",
+    "saveVersion": "Gem version",
+    "namedOnly": "Kun navngivne versioner",
+    "emptyNamed": "Ingen navngivne versioner endnu. Gem en version med et navn, eller navngiv en fra listen.",
+    "name": "Navngiv denne version",
+    "rename": "Omdøb denne version",
     "restore": "Gendan denne version",
     "restoring": "Gendanner…",
     "restoreHint": "Det nuværende indhold gemmes først som en version.",
+    "versionName": {
+      "saveTitle": "Gem version",
+      "saveHint": "Gemmer siden, som den er nu. Giv den et navn for at finde den igen: navngivne versioner gemmes, så længe siden findes.",
+      "renameTitle": "Navngiv version",
+      "renameHint": "Versionen fra {date}. Navngivne versioner gemmes, så længe siden findes; lad navnet være tomt for at fjerne det.",
+      "unchangedTitle": "Intet er ændret",
+      "unchangedHint": "Siden er den samme som versionen fra {date}, så den version får navnet i stedet for at gemme en kopi. Lad navnet være tomt for at fjerne det.",
+      "nameLabel": "Navn",
+      "namePlaceholder": "Valgfrit, f.eks. Sendt til gennemsyn",
+      "save": "Gem version",
+      "saveName": "Gem navn",
+      "saving": "Gemmer…",
+      "saved": "Version gemt",
+      "savedNamed": "Versionen “{name}” er gemt",
+      "named": "Versionen fik navnet “{name}”",
+      "nameCleared": "Versionens navn er fjernet",
+      "errors": {
+        "invalidName": "Et navn kan højst have {max} tegn.",
+        "inTrash": "Denne side er i papirkurven. Gendan den først.",
+        "failed": "Kunne ikke gemme. Prøv igen.",
+        "state": "Kunne ikke tjekke for ændringer siden den seneste version."
+      }
+    },
     "diff": {
       "rangeCurrent": "Ændringer fra versionen fra {from} til den nuværende side",
       "rangePrevious": "Ændringer fra {from} til {to}",
@@ -746,6 +774,8 @@
     "reminderSet": "Påmindelse: {when}",
     "reminderHint": "Du får den i din indbakke og via e-mail.",
     "reminderPast": "Det tidspunkt er passeret; vælg en senere dato eller påmindelse.",
+    "remindAt": "Påmind kl.",
+    "remindAtPlaceholder": "Eller skriv hvornår: fredag 17:00, -1d",
     "done": "Færdig"
   },
   "preview": {
@@ -991,6 +1021,19 @@
       "placeholder": "For eksempel: Note fra kundebesøg. Dæk virksomheden, den person, du mødte, hvad der blev drøftet, status på tilbuddet og næste skridt.",
       "followed": "Stemmenoter, der gemmes her, følger denne databases skriveinstruktioner."
     }
+  },
+  "dictation": {
+    "slashTitle": "Diktér",
+    "slashSubtext": "Tal, og dine ord skrives her, som du siger dem",
+    "slashAliases": "diktér diktat dictate tale stemme mikrofon transskriber",
+    "starting": "Starter…",
+    "listening": "Lytter",
+    "writing": "Skriver…",
+    "finish": "Afslut diktat og skriv teksten",
+    "hint": "Tryk {shortcut} eller Enter for at afslutte, Esc for at annullere",
+    "autoStopped": "Diktatet stoppede ved grænsen på {minutes} min. Det, du sagde indtil da, blev skrevet.",
+    "copied": "Den dikterede tekst kunne ikke indsættes på siden, så den blev kopieret til udklipsholderen.",
+    "notPlaced": "Den dikterede tekst kunne hverken indsættes på siden eller kopieres: {text}"
   },
   "review": {
     "bar": "{count, plural, one {# AI-ændring til gennemgang} other {# AI-ændringer til gennemgang}}",
@@ -1324,5 +1367,10 @@
     "title": "Lav om til side i",
     "here": "Inde i denne side",
     "failed": "Blokkene kunne ikke flyttes til en ny side."
+  },
+  "tags": {
+    "label": "Tags",
+    "pages": "{count, plural, one {# side} other {# sider}}",
+    "find": "Find sider med #{tag}"
   }
 }

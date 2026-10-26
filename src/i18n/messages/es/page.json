@@ -323,9 +323,37 @@
       "beforeMerge": "Antes de combinar filas"
     },
     "empty": "Todavía no hay versiones. Las versiones se guardan automáticamente mientras editas y antes de que una app de IA cambie esta página.",
+    "saveVersion": "Guardar versión",
+    "namedOnly": "Solo versiones con nombre",
+    "emptyNamed": "Aún no hay versiones con nombre. Guarda una versión con un nombre o pon nombre a una de la lista.",
+    "name": "Poner nombre a esta versión",
+    "rename": "Cambiar el nombre de esta versión",
     "restore": "Restaurar esta versión",
     "restoring": "Restaurando…",
     "restoreHint": "Antes se guarda el contenido actual como una versión.",
+    "versionName": {
+      "saveTitle": "Guardar versión",
+      "saveHint": "Guarda la página tal como está ahora. Ponle un nombre para encontrarla de nuevo: las versiones con nombre se conservan mientras exista la página.",
+      "renameTitle": "Poner nombre a la versión",
+      "renameHint": "La versión del {date}. Las versiones con nombre se conservan mientras exista la página; deja el nombre vacío para quitarlo.",
+      "unchangedTitle": "No ha cambiado nada",
+      "unchangedHint": "La página es igual que la versión del {date}, así que esa versión recibe el nombre en lugar de guardar una copia. Deja el nombre vacío para quitarlo.",
+      "nameLabel": "Nombre",
+      "namePlaceholder": "Opcional, p. ej. Enviada a revisión",
+      "save": "Guardar versión",
+      "saveName": "Guardar nombre",
+      "saving": "Guardando…",
+      "saved": "Versión guardada",
+      "savedNamed": "Versión «{name}» guardada",
+      "named": "Versión llamada «{name}»",
+      "nameCleared": "Nombre de la versión quitado",
+      "errors": {
+        "invalidName": "Un nombre puede tener como máximo {max} caracteres.",
+        "inTrash": "Esta página está en la papelera. Restáurala primero.",
+        "failed": "No se pudo guardar. Inténtalo de nuevo.",
+        "state": "No se pudo comprobar si hubo cambios desde la última versión."
+      }
+    },
     "diff": {
       "rangeCurrent": "Cambios desde la versión de {from} hasta la página actual",
       "rangePrevious": "Cambios desde {from} hasta {to}",
@@ -746,6 +774,8 @@
     "reminderSet": "Recordatorio: {when}",
     "reminderHint": "Lo recibirás en tu bandeja de entrada y por correo.",
     "reminderPast": "Esa hora ya ha pasado; elige una fecha o un recordatorio posterior.",
+    "remindAt": "Recordar a las",
+    "remindAtPlaceholder": "O escribe cuándo: viernes 17:00, -1d",
     "done": "Listo"
   },
   "preview": {
@@ -991,6 +1021,19 @@
       "placeholder": "Por ejemplo: Nota de visita a cliente. Incluye la empresa, la persona con la que te reuniste, lo que se habló, el estado del presupuesto y el siguiente paso.",
       "followed": "Las notas de voz que se guardan aquí siguen las instrucciones de redacción de esta base de datos."
     }
+  },
+  "dictation": {
+    "slashTitle": "Dictar",
+    "slashSubtext": "Habla y tus palabras se escriben aquí tal como las dices",
+    "slashAliases": "dictar dictado dictate voz hablar micrófono transcribir",
+    "starting": "Iniciando…",
+    "listening": "Escuchando",
+    "writing": "Escribiendo…",
+    "finish": "Terminar el dictado y escribir el texto",
+    "hint": "Pulsa {shortcut} o Intro para terminar, Esc para cancelar",
+    "autoStopped": "El dictado se detuvo en el límite de {minutes} min. Se escribió lo que dijiste hasta entonces.",
+    "copied": "No se pudo colocar el texto dictado en la página, así que se copió al portapapeles.",
+    "notPlaced": "No se pudo colocar el texto dictado en la página ni copiarlo: {text}"
   },
   "review": {
     "bar": "{count, plural, one {# cambio de la IA por revisar} other {# cambios de la IA por revisar}}",
@@ -1324,5 +1367,10 @@
     "title": "Convertir en página en",
     "here": "Dentro de esta página",
     "failed": "No se pudieron mover los bloques a una página nueva."
+  },
+  "tags": {
+    "label": "Etiquetas",
+    "pages": "{count, plural, one {# página} other {# páginas}}",
+    "find": "Buscar páginas con #{tag}"
   }
 }

@@ -55,6 +55,36 @@ describe("collectFiles", () => {
     );
   });
 
+  it("unpacks TextPacks into their bundle folders, loose or in a ZIP, beside Notion-style files", () => {
+    // Zipped with its bundle folder, and zipped from inside the bundle.
+    const withFolder = zip({ "Trip.textbundle/text.md": "# Trip", "Trip.textbundle/assets/a.png": "png" });
+    const flat = zip({ "text.md": "# Plan", "info.json": "{}", "assets/b.png": "png" });
+    const loose = collectFiles([
+      { path: "Trip.textpack", data: withFolder },
+      { path: "Notes/Plan.textpack", data: flat },
+    ]);
+    expect([...loose.files.keys()].sort()).toEqual([
+      "Notes/Plan.textbundle/assets/b.png",
+      "Notes/Plan.textbundle/info.json",
+      "Notes/Plan.textbundle/text.md",
+      "Trip.textbundle/assets/a.png",
+      "Trip.textbundle/text.md",
+    ]);
+    const outer = zip({ "Export/Plan.textpack": flat, "Export/Loose.textbundle/text.md": "x", [`Home ${ID}.md`]: "# Home" });
+    const zipped = collectFiles([{ path: "notes.zip", data: outer }]);
+    expect([...zipped.files.keys()].sort()).toEqual([
+      "Export/Loose.textbundle/text.md",
+      "Export/Plan.textbundle/assets/b.png",
+      "Export/Plan.textbundle/info.json",
+      "Export/Plan.textbundle/text.md",
+      `Home ${ID}.md`,
+    ]);
+    // A pack in a ZIP in a ZIP is nested too deep, like a ZIP would be.
+    const deep = collectFiles([{ path: "a.zip", data: zip({ "b.zip": zip({ "Deep.textpack": flat }) }) }]);
+    expect(deep.skipped).toEqual([{ path: "Deep.textpack", reason: "nestedZip" }]);
+    expect(() => collectFiles([{ path: "Broken.textpack", data: strToU8("not a zip") }])).toThrow(expect.objectContaining({ code: "badZip" }));
+  });
+
   it("refuses more unpacked bytes than the limit before unpacking them", () => {
     // 301 MB of zeros packs into a few hundred KB; the directory's sizes give it away.
     const big = new Uint8Array(301 * 1024 * 1024);

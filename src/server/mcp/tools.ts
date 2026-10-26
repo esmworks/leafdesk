@@ -3820,7 +3820,7 @@ export function createMcpServer(principal: McpPrincipal) {
     "get_page_history",
     {
       title: "Read a page's history",
-      description: `Read a page's saved versions. With page_id: the versions of its body, newest first, with who made each change (a user, or a user through an MCP client). With version_id: that version's title and Markdown body (cut at ${MAX_MARKDOWN_CHARS} characters; pass offset to continue). With version_id and compare: what changed between it and the page now ("current") or the version before it ("previous"), one line per block: "+" added, "-" removed, "~" changed with [-removed-] and {+added+} words inside; unchanged stretches are folded, and changed_by names who made the changes, as far as the history records it. Bring a version back with restore_page_version.`,
+      description: `Read a page's saved versions. With page_id: the versions of its body, newest first, with who made each change (a user, or a user through an MCP client) and the name people gave it, if any. With version_id: that version's title and Markdown body (cut at ${MAX_MARKDOWN_CHARS} characters; pass offset to continue). With version_id and compare: what changed between it and the page now ("current") or the version before it ("previous"), one line per block: "+" added, "-" removed, "~" changed with [-removed-] and {+added+} words inside; unchanged stretches are folded, and changed_by names who made the changes, as far as the history records it. Bring a version back with restore_page_version.`,
       inputSchema: z.object({
         page_id: id("page").optional().describe("List this page's versions."),
         version_id: id("version").optional().describe("Read or compare this version, from the list."),

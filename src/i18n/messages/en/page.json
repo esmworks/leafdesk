@@ -323,9 +323,37 @@
       "beforeMerge": "Before merging rows"
     },
     "empty": "No versions yet. Versions are saved automatically while you edit and before any AI app changes this page.",
+    "saveVersion": "Save version",
+    "namedOnly": "Named versions only",
+    "emptyNamed": "No named versions yet. Save a version with a name, or name one from the list.",
+    "name": "Name this version",
+    "rename": "Rename this version",
     "restore": "Restore this version",
     "restoring": "Restoring…",
     "restoreHint": "The current content is saved as a version first.",
+    "versionName": {
+      "saveTitle": "Save version",
+      "saveHint": "Saves the page as it is now. Give it a name to find it again: named versions are kept as long as the page.",
+      "renameTitle": "Name version",
+      "renameHint": "The version of {date}. Named versions are kept as long as the page; leave the name empty to remove it.",
+      "unchangedTitle": "Nothing changed",
+      "unchangedHint": "The page is the same as the version of {date}, so that version gets the name instead of saving a copy. Leave the name empty to remove it.",
+      "nameLabel": "Name",
+      "namePlaceholder": "Optional, e.g. Sent for review",
+      "save": "Save version",
+      "saveName": "Save name",
+      "saving": "Saving…",
+      "saved": "Version saved",
+      "savedNamed": "Version “{name}” saved",
+      "named": "Version named “{name}”",
+      "nameCleared": "Version name removed",
+      "errors": {
+        "invalidName": "A name can have at most {max} characters.",
+        "inTrash": "This page is in the trash. Restore it first.",
+        "failed": "Could not save. Try again.",
+        "state": "Could not check for changes since the last version."
+      }
+    },
     "diff": {
       "rangeCurrent": "Changes from the version of {from} to the current page",
       "rangePrevious": "Changes from {from} to {to}",
@@ -746,6 +774,8 @@
     "reminderSet": "Reminder: {when}",
     "reminderHint": "You'll get it in your inbox and by email.",
     "reminderPast": "That time has passed; pick a later date or reminder.",
+    "remindAt": "Remind at",
+    "remindAtPlaceholder": "Or type when: fri 5pm, -1d",
     "done": "Done"
   },
   "preview": {
@@ -991,6 +1021,19 @@
       "placeholder": "For example: Customer visit note. Cover the company, the person met, what was discussed, the quote status and the next step.",
       "followed": "Voice notes saved here follow this database's writing instructions."
     }
+  },
+  "dictation": {
+    "slashTitle": "Dictate",
+    "slashSubtext": "Speak, and your words are written here as you say them",
+    "slashAliases": "dictate dictation speech voice talk microphone transcribe",
+    "starting": "Starting…",
+    "listening": "Listening",
+    "writing": "Writing…",
+    "finish": "Finish dictating and write the text",
+    "hint": "Press {shortcut} or Enter to finish, Esc to cancel",
+    "autoStopped": "Dictation stopped at the {minutes} min limit. What you said until then was written.",
+    "copied": "The dictated text couldn't be placed in the page, so it was copied to the clipboard.",
+    "notPlaced": "The dictated text couldn't be placed in the page or copied: {text}"
   },
   "review": {
     "bar": "{count, plural, one {# AI change to review} other {# AI changes to review}}",
@@ -1324,5 +1367,10 @@
     "title": "Turn into page in",
     "here": "Inside this page",
     "failed": "Couldn't move the blocks to a new page."
+  },
+  "tags": {
+    "label": "Tags",
+    "pages": "{count, plural, one {# page} other {# pages}}",
+    "find": "Find pages tagged #{tag}"
   }
 }

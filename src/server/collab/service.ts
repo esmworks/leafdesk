@@ -46,6 +46,8 @@ import { serverBuildId } from "@/server/build-id";
 import { blocksToMarkdown, markdownToBlocks, serverEditor as editor, type PageBlock } from "@/server/blocknote";
 import { authorizeFileReferences, referencedFileIds, unauthorizedFileIds } from "@/server/files";
 import { syncMeetingNotes } from "@/server/meeting-notes";
+import { syncPageTasks } from "@/server/page-tasks";
+import { syncPageTags } from "@/server/page-tags";
 import { labelPageLinks, mentionablePeople, pagesNamed, syncPageReferences } from "@/server/mentions";
 import { announceSuggestions } from "@/server/suggested-edits";
 import { bodyBlocks, fragmentBlocks, syncedBlocksOf } from "@/server/synced-body";
@@ -203,6 +205,7 @@ async function insertSnapshot(
   reason: SnapshotReason,
   actor: { userId?: string | null; oauthClientId?: string | null },
   fallbackTitle: string,
+  name: string | null = null,
 ) {
   const { markdown } = await deriveContent(doc, await workspaceOf(pageId), pageId);
   const [row] = await db.insert(pageSnapshot).values({
@@ -211,6 +214,7 @@ async function insertSnapshot(
     ydoc: Y.encodeStateAsUpdate(doc),
     contentMarkdown: markdown,
     reason,
+    name,
     createdBy: actor.userId ?? null,
     oauthClientId: actor.oauthClientId ?? null,
   }).returning({ id: pageSnapshot.id });
@@ -395,6 +399,10 @@ export function createCollab() {
     await syncPageReferences(pageId, row.workspaceId, blocks, userId ?? null, context?.locale ?? null);
     // The Meetings page's rows follow the body's meeting blocks (catches its own errors).
     await syncMeetingNotes(pageId, blocks);
+    // My tasks lists the page's unticked to-dos that mention people (catches its own errors).
+    await syncPageTasks(pageId, blocks);
+    // The page's `#tags`, which search finds it by, follow its text (catches its own errors).
+    await syncPageTags(pageId, blocks);
     // New suggestions reach the page's watchers like new threads do (catches its own errors).
     if (suggestionThreads.opened.length) await announceSuggestions(row.workspaceId, pageId, suggestionThreads.opened);
     if (!edited) return;
@@ -580,9 +588,9 @@ export function createCollab() {
     return result;
   };
 
-  const snapshotBefore = async (pageId: string, doc: Y.Doc, reason: SnapshotReason, actor: WriteActor) => {
+  const snapshotBefore = async (pageId: string, doc: Y.Doc, reason: SnapshotReason, actor: WriteActor, name: string | null = null) => {
     const [row] = await db.select({ title: page.title }).from(page).where(eq(page.id, pageId)).limit(1);
-    return insertSnapshot(pageId, doc, reason, actor, row?.title ?? "");
+    return insertSnapshot(pageId, doc, reason, actor, row?.title ?? "", name);
   };
 
   const writeBlocks = async (
@@ -1132,15 +1140,21 @@ export function createCollab() {
       return transactPage(pageId, actor, (doc) => {
         // Read and written in one synchronous run: nothing else changes the document in between.
         const search = (parent: Y.XmlFragment | Y.XmlElement): Y.XmlElement | null => {
+          // A block's props sit on the element inside its blockContainer, which holds its id.
+          const blockId = parent instanceof Y.XmlElement && parent.nodeName === "blockContainer" ? (parent.getAttribute("id") ?? null) : null;
           for (const child of parent.toArray()) {
             if (!(child instanceof Y.XmlElement)) continue;
-            if (child.nodeName === type && find(child.getAttributes())) return child;
+            if (child.nodeName === type && find(child.getAttributes(), typeof blockId === "string" ? blockId : null)) return child;
             const inner = search(child);
             if (inner) return inner;
           }
           return null;
         };
-        const element = search(doc.getXmlFragment(COLLAB_FRAGMENT));
+        // The page's own blocks, then those of the synced blocks it is the source of.
+        const syncedPrefix = syncedFragmentName("");
+        const synced = [...doc.share.keys()].filter((name) => name.startsWith(syncedPrefix)).sort();
+        let element = search(doc.getXmlFragment(COLLAB_FRAGMENT));
+        for (const name of synced) element ??= search(doc.getXmlFragment(name));
         if (!element) return null;
         const next = update(element.getAttributes());
         if (next) {
@@ -1201,8 +1215,8 @@ export function createCollab() {
       old.destroy();
     },
 
-    async snapshot(pageId, reason, actor) {
-      await transactPage(pageId, actor, (doc) => snapshotBefore(pageId, doc, reason, actor));
+    async snapshot(pageId, reason, actor, name = null) {
+      return transactPage(pageId, actor, (doc) => snapshotBefore(pageId, doc, reason, actor, name));
     },
 
     broadcast,

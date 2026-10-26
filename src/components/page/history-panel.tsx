@@ -5,19 +5,21 @@ import "@blocknote/mantine/style.css";
 import { BlockNoteSchema, defaultStyleSpecs } from "@blocknote/core";
 import { BlockNoteView } from "@blocknote/mantine";
 import { useCreateBlockNote } from "@blocknote/react";
-import { History, X } from "lucide-react";
+import { BookmarkPlus, History, X } from "lucide-react";
 import { useFormatter, useLocale, useTranslations } from "next-intl";
-import { useEffect, useMemo, useState, useTransition } from "react";
+import { useEffect, useMemo, useRef, useState, useTransition } from "react";
 import { diffSnapshotAction, getSnapshotAction, listSnapshotsAction, restoreSnapshotAction } from "@/app/actions/pages";
-import { Button, cn, IconButton, pageLabel } from "@/components/ui";
+import { Button, cn, IconButton, pageLabel, Switch } from "@/components/ui";
 import { useColorScheme } from "@/components/theme/theme-provider";
 import { useEditorDictionary } from "@/i18n/blocknote";
 import { parseDashboardLine } from "@/lib/dashboard";
 import { DATABASE_BLOCK, mapReferenceLines } from "@/lib/embed-blocks";
 import { relativeTime } from "@/lib/relative-time";
+import { isMac, savesVersion } from "@/lib/shortcuts";
 import { textScriptStyleSpecs } from "@/lib/text-scripts";
 import { BlockDirection } from "./block-direction";
 import { HistoryDiff, type VersionDiff } from "./history-diff";
+import { VersionNameDialog, type VersionNameTarget } from "./version-name-dialog";
 
 type SnapshotItem = Awaited<ReturnType<typeof listSnapshotsAction>>[number];
 /** What the preview shows: the version itself, or its changes against the current page or the version before it. */
@@ -65,9 +67,27 @@ function Preview({ markdown }: { markdown: string }) {
   );
 }
 
-export function HistoryPanel({ pageId, onClose, readOnly }: { pageId: string; onClose: () => void; readOnly: boolean }) {
+export function HistoryPanel({
+  pageId,
+  onClose,
+  readOnly,
+  canName,
+}: {
+  pageId: string;
+  onClose: () => void;
+  /** Versions can't be restored (no edit access, a locked page or one in the trash). */
+  readOnly: boolean;
+  /** Versions can be saved and named (edit access, outside the trash; a locked page too). */
+  canName: boolean;
+}) {
   const [items, setItems] = useState<SnapshotItem[] | null>(null);
   const [selected, setSelected] = useState<string | null>(null);
+  // Only named versions (lib/page-versions); the list is loaded again when this or `reload` changes.
+  const [namedOnly, setNamedOnly] = useState(false);
+  const [reload, setReload] = useState(0);
+  // The version to select once the list comes back (one just saved or named).
+  const selectNext = useRef<string | null>(null);
+  const [naming, setNaming] = useState<VersionNameTarget | null>(null);
   const [preview, setPreview] = useState<{ title: string; markdown: string } | null>(null);
   const [mode, setMode] = useState<Mode>("version");
   // Keyed by version and mode, so a late answer for an earlier choice is not shown.
@@ -102,11 +122,16 @@ export function HistoryPanel({ pageId, onClose, readOnly }: { pageId: string; on
 
   useEffect(() => {
     let cancelled = false;
-    listSnapshotsAction(pageId)
+    listSnapshotsAction(pageId, namedOnly)
       .then((list) => {
         if (cancelled) return;
         setItems(list);
-        if (list[0]) setSelected(list[0].id);
+        const wanted = selectNext.current;
+        selectNext.current = null;
+        setSelected((current) => {
+          const keep = [wanted, current].find((id) => id && list.some((s) => s.id === id));
+          return keep ?? list[0]?.id ?? null;
+        });
       })
       .catch(() => {
         if (cancelled) return;
@@ -116,10 +141,25 @@ export function HistoryPanel({ pageId, onClose, readOnly }: { pageId: string; on
     return () => {
       cancelled = true;
     };
-  }, [pageId]);
+  }, [pageId, namedOnly, reload]);
+
+  // Mod+S saves a version here too (the page's own shortcut leaves the key to the open history).
+  useEffect(() => {
+    if (!canName || naming) return;
+    const onKey = (e: KeyboardEvent) => {
+      if (!savesVersion(e, isMac())) return;
+      e.preventDefault();
+      setNaming({ kind: "save", pageId });
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [canName, naming, pageId]);
 
   useEffect(() => {
-    if (!selected) return;
+    if (!selected) {
+      setPreview(null);
+      return;
+    }
     let cancelled = false;
     setPreview(null);
     setError((e) => (e === "version" ? null : e));
@@ -144,6 +184,7 @@ export function HistoryPanel({ pageId, onClose, readOnly }: { pageId: string; on
     };
   }, [selected, mode]);
 
+  const selectedItem = selected ? items?.find((s) => s.id === selected) : undefined;
   // A version of the last week reads as "2 hours ago" or "yesterday", an older one as its date
   // written out; the exact time shows on hover.
   const when = (at: Date | string) => {
@@ -225,10 +266,28 @@ export function HistoryPanel({ pageId, onClose, readOnly }: { pageId: string; on
               <X className="h-4 w-4" />
             </IconButton>
           </div>
+          <div className="space-y-2 px-4 pb-2">
+            {canName && (
+              <Button size="sm" className="w-full" onClick={() => setNaming({ kind: "save", pageId })}>
+                <BookmarkPlus className="h-4 w-4" aria-hidden /> {t("saveVersion")}
+              </Button>
+            )}
+            <label className="flex items-center justify-between gap-2 text-xs text-fg-muted">
+              <span>{t("namedOnly")}</span>
+              <Switch
+                checked={namedOnly}
+                label={t("namedOnly")}
+                onChange={(on) => {
+                  setItems(null);
+                  setNamedOnly(on);
+                }}
+              />
+            </label>
+          </div>
           <div className="flex-1 overflow-y-auto px-2">
             {items === null && <p className="px-2 text-sm text-fg-muted">{tc("loading")}</p>}
             {items?.length === 0 && !error && (
-              <p className="px-2 text-sm text-fg-muted">{t("empty")}</p>
+              <p className="px-2 text-sm text-fg-muted">{namedOnly ? t("emptyNamed") : t("empty")}</p>
             )}
             {items?.map((s) => (
               <button
@@ -244,7 +303,7 @@ export function HistoryPanel({ pageId, onClose, readOnly }: { pageId: string; on
                   {when(s.createdAt)}
                 </time>
                 <div className="truncate text-xs text-fg-muted">
-                  {describe(s)}
+                  {s.name ? <span className="font-medium text-fg">{s.name}</span> : describe(s)}
                   {s.authorName ? ` · ${s.authorIsAgent ? tc("agentName", { name: s.authorName }) : s.authorName}` : ""}
                 </div>
               </button>
@@ -255,10 +314,30 @@ export function HistoryPanel({ pageId, onClose, readOnly }: { pageId: string; on
             <Button variant="primary" className="w-full" disabled={!selected || restoring || readOnly} onClick={restore}>
               {restoring ? t("restoring") : t("restore")}
             </Button>
+            {canName && selectedItem && (
+              <Button
+                className="mt-2 w-full"
+                onClick={() => setNaming({ kind: "rename", versionId: selectedItem.id, name: selectedItem.name, savedAt: selectedItem.createdAt })}
+              >
+                {selectedItem.name ? t("rename") : t("name")}
+              </Button>
+            )}
             <p className="mt-2 text-xs text-fg-muted">{t("restoreHint")}</p>
           </div>
         </aside>
       </div>
+      {naming && (
+        <VersionNameDialog
+          target={naming}
+          onClose={() => setNaming(null)}
+          onDone={(result) => {
+            setNaming(null);
+            // Selected when the list has it (with Named only on, an unnamed one isn't listed).
+            selectNext.current = result.id;
+            setReload((n) => n + 1);
+          }}
+        />
+      )}
     </div>
   );
 }

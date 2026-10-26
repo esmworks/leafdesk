@@ -41,7 +41,8 @@
   straight quote.
 - **Home page**: quick buttons for a new page, database or template; today's daily note (or a
   button that starts it) and the few before it; the database rows assigned to you that aren't done
-  and that you can open, grouped as overdue, today, the next 7 days, later and no date; *Jump back
+  and that you can open, with the unticked to-dos in pages that mention you (see *My tasks*),
+  grouped as overdue, today, the next 7 days, later and no date; *Jump back
   in*, the pages you opened last (while the workspace and you record page views, see *People directory and analytics*;
   only pages you can still open); and the pages edited last. My account → Preferences → *Start page*
   opens Leafdesk on the home page or on the page you opened last on any device (while your page
@@ -52,6 +53,13 @@
   open, by due date or by database, with its status and first date; the first 200, the ones due
   soonest. A row opens beside the list. Tick a row with a status to set it to the first option of
   its *Done* group, and untick it to put the status back; the home page's list works the same way.
+  To-dos written in pages are listed too: an unticked to-do that mentions you (`@` and your name)
+  shows its text without the mentions, "on" its page with the page's icon, and the first date
+  mentioned in it as its due date; it goes under its page when grouped by database. Only pages you
+  can open count, not those in the trash or templates. Clicking one opens its page at the to-do;
+  ticking it ticks the to-do in the page (with edit access to the page), and it leaves the list
+  once the page is saved. Mentioning a group or an agent in a to-do doesn't put it in anyone's
+  list; mention the people themselves.
 - **Search box** (Cmd/Ctrl+K or Cmd/Ctrl+P; with text selected in a page, Cmd/Ctrl+K links it instead): before you type, the pages you opened last (the pages last edited
   while your page views aren't recorded or you haven't opened any yet). The menus under the query
   narrow it by teamspace, by who created a page or edited it last, and by when it was last edited
@@ -61,12 +69,28 @@
   `in:Projects` or `in:"Launch plan"` (that page and everything under it; several pages of that
   title, or several `in:`, search under any of them; a title nobody can see finds nothing) and
   `type:page`, `type:database`, `type:row` (database rows) or `type:journal` (your daily notes),
-  and `is:verified` (pages verified right now, see *Verified pages*); filters work without words too,
-  listing the pages they match, last edited first. Type `>` for commands: new page or database,
+  and `is:verified` (pages verified right now, see *Verified pages*), and `#home` or `tag:home`
+  (pages carrying that tag or one under it, see *Tags*; with several tags, pages carrying each);
+  filters work without words too, listing the pages they match, last edited first. While you type
+  `#` and a letter, the tags of pages you can open that start so come first, most used first with
+  how many pages carry each; `/` narrows to a branch and picking one completes it. Type `>` for commands: new page or database,
   from a template, import, trash, inbox, settings and keyboard shortcuts, and, once you type
   after `>`, each setting you can see (*Settings: Security → Legal holds*). The line under the
   results puts each of these into the box. The words you typed show in bold in the text under each
   result.
+- **Tags**: write `#tag` anywhere in a page's text, at its start or after a space or an opening
+  bracket or quote, and find everything carrying it with `#tag` in the search box. A tag is
+  letters, digits, `_` and `-` with at least one letter (`#1` isn't one, nor a color like
+  `#ff0000`), in any script, and `/` makes a hierarchy: `#home/renovation` is found by `#home` too.
+  Case and accents don't count (`#Café` is `#cafe`); the spelling met first is the one shown. Tags
+  stay plain text, so Markdown, copies, history, exports, imports (an Obsidian vault's tags among
+  them) and MCP read them as written; text in code, equations, diagram sources, links and
+  mentions isn't a tag, nor `# ` at the start of a line, which still makes a heading. In a page
+  tags show in the accent color; clicking one (with Ctrl or Cmd where you can edit) opens the
+  search box with it. Typing `#` and a letter offers the tags of pages you can open, most used
+  first: Enter or Tab completes one (Enter on a tag typed out in full starts a new line), Escape
+  or a space leaves the text as typed. MCP's `search` and the REST API's `GET /search` take a
+  `tag`. Published pages show tags as plain text.
 - **Settings search**: the box at the top of Settings' navigation finds a setting on any tab you
   have, by its name, its tab or other words ("dark mode", "2fa", "ip"), opens the tab, scrolls to
   the setting and highlights it.
@@ -354,6 +378,28 @@
   - Dates can have an end and a time of day ("Oct 12 → Oct 14", "Oct 12, 14:30 → 16:00"), shown in
     each viewer's time zone; filters match a range on every day it covers. In the date picker's
     month, Shift-clicking a second day makes the date a range.
+  - Dates can be typed in words, the same way everywhere a date is typed: after `@` in a page, in
+    the box on top of a date property's picker, a date mention's menu (its date and its reminder)
+    and under a date filter's value. The box says what the words name as you type; Enter sets it.
+    Words are read in the interface language and in English; case, spaces and commas don't matter.
+    Without a clock the words name a **day** (the same day for everyone); with one, or as minutes
+    or hours from now, a **time** in your time zone, which a date property keeps only with
+    *Include time* on (else its day) and a date mention keeps as its reminder.
+    - Days: `today`, `tomorrow`, `yesterday`, `next week`, `next month`, `friday` or `fri` (always
+      the next one, a week on when it's today), `next friday` (in next week, counted from the
+      week's first day in your language), `3 days ago`.
+    - Dates: `aug 31`, `31 august`, `sept 10` (any first three letters or more of a month), with
+      a year `aug 31, 2027`; `2026-08-31`; slash dates `10/28`, `28/10`, `10/28/2027`, read in
+      the order of your language or of the date property's format (month/day/year or
+      day/month/year), except when only one of the numbers can be a month; `15.10.2026`.
+    - Times: `5pm`, `9:30 am`, `17:30`, after a date (`fri 5pm`, `aug 31 at 9 pm`, `yarın saat
+      17:30`) or alone: today at that time, or tomorrow once it has passed.
+    - From now: `30m`, `4h`, `in 3d`, `2 weeks`, `2mo` (minutes and hours give a time, days and
+      longer a day; 31 January and a month is 28 February).
+    - From the day shown: `+2w`, `-3d` count from the date the picker shows (the date mention's own
+      date for its reminder: `-1d` is the day before), so `+1w` and then `-2d` step through days.
+    - Refused rather than guessed: a bare number (`31`, `9`), a two-digit year (`10/28/27`), a day
+      that doesn't exist (`feb 29 2027`), `in +2w`.
   - Calendar views show a month, with dates over several days as bars across them, or a week with
     its hours; a row is added on a day or at an hour, and dragging it moves its whole date.
   - Date, created time and last edited time properties show dates in the viewer's language as a
@@ -374,7 +420,8 @@
     switch rather than its sign-in policies: it stops while export or connected apps are off.
     The home page's "Assigned to you" section has the same kind of address for the rows assigned
     to you across the workspace's databases (those with a date you may see, done ones left out,
-    at most the 1,000 assigned rows edited last), named after the workspace. Settings → Email and
+    at most the 1,000 assigned rows edited last) and the dated to-dos in pages that mention you,
+    named after the workspace. Settings → Email and
     calendar lists every address you made, in every workspace, and turns any of them off.
   - Sub-items: turned on in a table, list or timeline view's settings, a row can go under another
     row of the same database (a "Parent item" property holds its one parent, "Sub-items" lists the
@@ -530,7 +577,8 @@
 - **Mentions and page links**: `@` mentions people (those with your email domain first), groups of the workspace (each member who can
   open the page is notified as if mentioned by name; hovering the mention lists them; Markdown
   writes it `@Group name`), pages (with their live title, or "No access")
-  and dates with optional reminders. Resting the pointer on a page mention or a link to a page, in
+  and dates with optional reminders, typed in words (`@next friday`, `@aug 31`; with a time,
+  `@fri 5pm`, the date gets a reminder then; see the dates under *Databases*). Resting the pointer on a page mention or a link to a page, in
   the editor or a comment, shows a card with its place, last edit and first lines (a row's first
   values), only to people who may open it; `[[` links to a page, or to a new page inside this one with
   the title typed, and `[[Title]]` typed, pasted or written through MCP and the API links to the
@@ -637,7 +685,15 @@
 - **Page history**: versions are saved automatically while you edit and before every AI edit.
   You can preview and restore any version (those of the last week listed as "2 hours ago" or
   "yesterday", older ones by their date, the exact time on hover), and see what changed since it or
-  since the version before, and who (or which AI app) changed it. Changes an AI app, the chat or an agent writes to a
+  since the version before, and who (or which AI app) changed it. People who can edit a page save a
+  version themselves with *Save version* in the history or Cmd/Ctrl+S on the page, giving it a name
+  if they like ("Sent to legal"); when nothing changed since the newest version, that one gets the
+  name instead of a copy being saved. Any version can be named, renamed or have its name cleared
+  (an empty name) from the history, where a named version shows its name and *Named versions only*
+  lists just those. Named versions are kept as long as the page: the daily history cleanup leaves
+  them, and they don't count toward its limit of versions per page. Pages in the trash can't be
+  saved or named; locked pages can. MCP's `get_page_history` and the AI chat give a version's
+  `name`. Changes an AI app, the chat or an agent writes to a
   page's body can be kept or undone block by block (see
   [Reviewing AI changes](ai.md#ai-features)).
 - **Teamspaces**: group pages and people. Every workspace starts with a *General* teamspace
@@ -884,6 +940,35 @@
   links, pictures and linked attachments are uploaded to the page under their own names, and a
   link to a page the export doesn't hold keeps its text and is reported. Other macros keep the
   text they show. The export's HTML is read without running its scripts or loading anything.
+- **Import TextBundles and TextPacks**: Bear, Ulysses, iA Writer and other Markdown apps export a
+  note as a TextBundle (a `Name.textbundle` folder holding `info.json`, the text as `text.md`,
+  `text.markdown` or `text.txt`, and an `assets/` folder) or a TextPack (the same, zipped). Choose
+  `.textpack` files, a ZIP of them (alongside other Markdown, as in any ZIP), or a folder holding
+  `.textbundle` folders on Import's Markdown tab. Each bundle becomes a page beside the upload's
+  other files, titled by the heading its text starts with (which then leaves the body), else by the
+  bundle's name; its text is read as Markdown, and the pictures and files of its `assets/` folder
+  that the text shows are uploaded to the page, as for any Markdown note. Assets the text doesn't
+  show are listed in the result; `info.json` is left out. A link from one bundle to another leads
+  to that bundle's page.
+- **Import from OneNote**: OneNote's own `.one` and `.onepkg` files can't be read outside OneNote,
+  so export first: in OneNote for Windows, choose *File → Export*, then *Page* or *Section* and
+  *Single File Web Page (\*.mht)*, and pick the saved files on Import's *OneNote (.mht)* tab. A
+  page's file becomes a page titled by the page's title, with its date and time as the first line;
+  a section's file becomes a page named after the file (OneNote names it after the section) with a
+  page under it for each OneNote page, in order. Headings, bold, italic, underline, lists, tables,
+  web and mail links and pictures come along; pictures are uploaded once each, and a picture shown
+  on several pages points at the one upload. OneNote's tag icons (to-do boxes and the like, exported
+  as tiny pictures), its "Created with OneNote" line and links between OneNote pages are left out.
+  A file whose pages don't have the shape OneNote writes comes in as one page. OneNote's *Word
+  Document (.docx)* and *PDF* exports can be imported on the Word and PDF tabs instead. Any other
+  web page saved as one file (`.mht` or `.mhtml`, by a browser or Word) is imported on the same tab
+  as one page, titled by a first-level heading at its very top, else its `<title>`, else its file
+  name, with all of its body (menus included: it isn't trimmed to its article as *Save from web*
+  does). The file is read as a MIME message (`base64` and quoted-printable parts, each text in its
+  character set) and its pictures are found by `Content-Location` or `cid:`; nothing it links to
+  outside the file is fetched (such pictures are left out and reported), its HTML is read without
+  running scripts or loading anything, and only what pages can hold survives. Tested against files
+  written by hand in the shape OneNote's export has, not yet a real export.
 - **Import from Evernote**: in Evernote, select notes or a notebook and choose *Export → ENEX*,
   then pick the .enex files (or a ZIP of them) on Import's Evernote tab. Each export becomes a
   database named after its file, with a row per note: tags become a multi-select, the creation and
@@ -1048,8 +1133,10 @@
 - **Voice notes** (optional, off until speech to text is set up): speak in the quick note or with
   `/` *Voice note* in a page, and AI writes what you said up as a clean note with a title, lists
   kept, the transcript in a toggle under it. From the quick note it is saved as a private page or a
-  database row whose select and multi-select properties it fills from their options. OpenAI or any
-  server with an OpenAI-compatible transcription API, such as a local Whisper server (see
+  database row whose select and multi-select properties it fills from their options. In a page,
+  Cmd/Ctrl+Shift+D (or `/` *Dictate*) writes what you say at the caret as you said it, without AI;
+  press again, press Enter or hold the keys while you talk. OpenAI or any server with an
+  OpenAI-compatible transcription API, such as a local Whisper server (see
   [Voice notes](ai.md#voice-notes)).
 - **Meeting notes** (with speech to text): `/` *Meeting notes* in a page records a meeting of up to
   three hours, the transcript filling in as you talk, and AI writes the summary, decisions and

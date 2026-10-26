@@ -38,7 +38,9 @@ import { dateDraft, dateStartDay, draftValue, extendDraft, formatDateValue, pars
 import { searchFold } from "@/lib/search-fold";
 import { relativeDay } from "@/lib/date-options";
 import { dayNumber, dayString } from "@/lib/time-zone";
-import type { DateOptions, FormulaConfig, NumberFormat, PropertyOptions } from "@/db/schema/app";
+import type { DateFormatKind, DateOptions, FormulaConfig, NumberFormat, PropertyOptions } from "@/db/schema/app";
+import { DatePhraseInput } from "@/components/date-phrase-input";
+import type { DatePhrase } from "@/lib/date-phrase";
 import { calculationFormat, numberFormatOptions, numberText, readNumber, valueFormat } from "@/lib/number-format";
 import { numberShare } from "@/lib/number-display";
 import { formatClock, formatStyledDate, isStyled, type DateStyle } from "@/lib/date-format";
@@ -804,7 +806,7 @@ function CellEditor({
         </Floating>
       );
     case "date":
-      return <DateEditor value={value} anchor={anchor} onChange={onChange} onClose={onClose} />;
+      return <DateEditor value={value} anchor={anchor} onChange={onChange} onClose={onClose} format={prop.options.date?.format} />;
     case "select":
     case "multi_select":
     case "status":
@@ -996,18 +998,22 @@ function clockMinutes(text: string): number | null {
  * Edits a date: its day (or a range of days with "End date") and, with "Include time", its time
  * of day on the viewer's clock. Every change is saved right away. A new start moves the end
  * along, so a range keeps its length; an end can't go before the start. Days are typed or picked
- * from a month; Shift-clicking a second day there makes the date a range up to it.
+ * from a month; Shift-clicking a second day there makes the date a range up to it. The phrase box
+ * on top takes a date in words ("fri 5pm", "+2w" from the start shown), its time only with
+ * "Include time" on; slash dates follow the property's format when it sets an order.
  */
 function DateEditor({
   value,
   anchor,
   onChange,
   onClose,
+  format,
 }: {
   value: unknown;
   anchor: HTMLElement | null;
   onChange: (value: unknown) => void;
   onClose: () => void;
+  format?: DateFormatKind;
 }) {
   const t = useTranslations("database.cell");
   const tm = useTranslations("database.templateValues");
@@ -1045,6 +1051,20 @@ function DateEditor({
     const minutes = clockMinutes(text);
     if (minutes !== null) save({ ...base, endMinutes: minutes });
   };
+  const pick = (found: DatePhrase) => {
+    if (found.kind === "day" || !base.time) return setStart(found.day);
+    // A moment moves the start to its day and time; the end moves along, as with setStart and setStartTime.
+    const shift = dayNumber(found.day) - dayNumber(base.start);
+    const sameDay = base.end === base.start;
+    const endMinutes = sameDay ? Math.min(base.endMinutes + found.minutes - base.startMinutes, MINUTES_PER_DAY - 1) : base.endMinutes;
+    save({
+      ...base,
+      start: found.day,
+      end: base.end && dayString(dayNumber(base.end) + shift),
+      startMinutes: found.minutes,
+      endMinutes: sameDay ? Math.max(endMinutes, found.minutes) : endMinutes,
+    });
+  };
   const field = "h-8 min-w-0 rounded-md border border-border bg-bg px-2 text-sm outline-none focus:border-accent";
   const hasEnd = draft?.end != null;
   const time = draft?.time === true;
@@ -1075,10 +1095,18 @@ function DateEditor({
           </div>
         </div>
       )}
+      <DatePhraseInput
+        ref={input}
+        onPick={pick}
+        onDone={onClose}
+        reference={draft?.start ?? today}
+        order={format === "mdy" || format === "dmy" || format === "ymd" ? format : undefined}
+        time={time}
+        className="mb-1.5"
+      />
       <div className="flex flex-col gap-1.5">
         <div className="flex gap-1.5">
           <input
-            ref={input}
             type="date"
             value={draft?.start ?? ""}
             aria-label={hasEnd ? t("startDate") : t("date")}

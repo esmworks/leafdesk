@@ -49,7 +49,7 @@ import { COMMENTS_REQUEST_EVENT, takeCommentsRequest } from "@/lib/comments-requ
 import type { PageBackground } from "@/lib/page-background";
 import { pageIconHref } from "@/lib/page-icon-href";
 import { DEFAULT_PAGE_STYLE, pageTextClasses, writePageStyle, type PageStyle } from "@/lib/page-style";
-import { isMac, opensPresentation } from "@/lib/shortcuts";
+import { isMac, opensPresentation, savesVersion } from "@/lib/shortcuts";
 import { useToggleAllShortcut } from "@/components/toggle-all";
 
 // BlockNote touches `window` during setup; render it only in the browser.
@@ -58,6 +58,7 @@ const CollabEditor = dynamic(() => import("./collab-editor"), { ssr: false });
 const LocalGraphPanel = dynamic(() => import("@/components/graph/local-graph-panel").then((m) => m.LocalGraphPanel), { ssr: false });
 // Loaded when it opens: its preview brings the editor and the editor's dictionaries.
 const HistoryPanel = dynamic(() => import("./history-panel").then((m) => m.HistoryPanel), { ssr: false });
+const VersionNameDialog = dynamic(() => import("./version-name-dialog").then((m) => m.VersionNameDialog), { ssr: false });
 const MarkdownSourceView = dynamic(() => import("./markdown-source").then((m) => m.MarkdownSourceView), { ssr: false });
 // Loaded when it opens, likewise.
 const Presentation = dynamic(() => import("./presentation"), { ssr: false });
@@ -129,6 +130,8 @@ export function PageView({
   const [icon, setIcon] = useState(page.icon);
   const [background, setBackground] = useState(page.background);
   const [historyOpen, setHistoryOpen] = useState(false);
+  // The prompt Mod+S opens to save the page as a version (version-name-dialog.tsx).
+  const [savingVersion, setSavingVersion] = useState(false);
   const [markdownOpen, setMarkdownOpen] = useState(false);
   const [presenting, setPresenting] = useState(false);
   const [reading, setReading] = useState(false);
@@ -306,6 +309,23 @@ export function PageView({
     window.addEventListener("keydown", onKey, inPanel);
     return () => window.removeEventListener("keydown", onKey, inPanel);
   }, [canPresent, present, inPanel]);
+
+  // Mod+S saves the page as a version, asking for a name first, on a page with a body the person
+  // can edit (a locked one too: saving doesn't change it). The Markdown source view keeps the key
+  // for saving its text, the history panel handles it itself, and the row panel's page answers
+  // first, as for presenting.
+  const canSaveVersion = showBody && canEdit && !page.archived && !offline;
+  const shortcutBusy = markdownOpen || historyOpen || presenting || savingVersion;
+  useEffect(() => {
+    if (!canSaveVersion || shortcutBusy) return;
+    const onKey = (e: KeyboardEvent) => {
+      if (!savesVersion(e, isMac())) return;
+      e.preventDefault();
+      setSavingVersion(true);
+    };
+    window.addEventListener("keydown", onKey, inPanel);
+    return () => window.removeEventListener("keydown", onKey, inPanel);
+  }, [canSaveVersion, shortcutBusy, inPanel]);
 
   /** Runs a page action; a failure shows a message instead of reaching the error boundary. */
   function run(action: () => Promise<void>, onError?: () => void) {
@@ -806,7 +826,30 @@ export function PageView({
           />
         )}
         {historyOpen && (
-          <HistoryPanel pageId={page.id} readOnly={page.archived || !canEdit || locked} onClose={() => setHistoryOpen(false)} />
+          <HistoryPanel
+            pageId={page.id}
+            readOnly={page.archived || !canEdit || locked}
+            canName={canSaveVersion}
+            onClose={() => setHistoryOpen(false)}
+          />
+        )}
+        {savingVersion && canSaveVersion && (
+          <VersionNameDialog
+            target={{ kind: "save", pageId: page.id }}
+            onClose={() => setSavingVersion(false)}
+            onDone={(result) => {
+              setSavingVersion(false);
+              showToast({
+                message: result.saved
+                  ? result.name
+                    ? t("history.versionName.savedNamed", { name: result.name })
+                    : t("history.versionName.saved")
+                  : result.name
+                    ? t("history.versionName.named", { name: result.name })
+                    : t("history.versionName.nameCleared"),
+              });
+            }}
+          />
         )}
         {reading && showBody && <ReadAloud root={rootRef.current} title={title} onClose={() => setReading(false)} />}
         {presenting && canPresent && pageDoc && (

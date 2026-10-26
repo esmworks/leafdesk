@@ -1435,7 +1435,7 @@
     },
     "historyRetention": {
       "title": "Sidehistorik",
-      "description": "Tidligere versioner af en side gemmes i {days} dage, op til {count} pr. side. Gemte versioner og versioner fra før en gendannelse gemmes i {keptDays} dage, og den seneste version af en side bevares altid."
+      "description": "Tidligere versioner af en side gemmes i {days} dage, op til {count} pr. side. Gemte versioner og versioner fra før en gendannelse gemmes i {keptDays} dage, navngivne versioner så længe siden findes, og den nyeste version af en side bliver altid."
     },
     "membersHeading": "Medlemmer",
     "memberInvites": {
@@ -1712,6 +1712,9 @@
       "notion": "Notion",
       "obsidian": "Obsidian",
       "enex": "Evernote",
+      "textbundle": "TextBundle",
+      "onenote": "OneNote",
+      "mhtml": "Webarkiv (.mht)",
       "web": "Webside",
       "jira": "Jira",
       "github": "GitHub",

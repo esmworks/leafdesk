@@ -38,5 +38,11 @@
     "trashed": "ゴミ箱に移動しました",
     "rowsTrashed": "{count}行をゴミ箱に移動しました",
     "undoFailed": "元に戻せませんでした。"
+  },
+  "datePhrase": {
+    "label": "日付を入力",
+    "placeholder": "日付を入力: 明日 17:00, 8/31, +2w",
+    "preview": "{when} · Enterで設定",
+    "unreadable": "日付として読めません。「明日 9:00」「8/31」「2w」などと入力してください。"
   }
 }

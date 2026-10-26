@@ -147,14 +147,16 @@ export interface CollabService {
    * wherever it sits, in place: only the props `update` returns are set, so edits people make to
    * the rest of the page (or to the block's other props) at the same time are never undone.
    * `update` gets the block's current props and returns the props to set, or null to set none.
+   * `find` also gets the block's id (BlockNote keeps it on the block around the props). The blocks
+   * of the synced blocks the page holds are looked through after the page's own.
    * Resolves to the block's props after the change, or null when the page has no such block.
    * Refuses a locked page or one in the trash, like the other writes.
    */
   updateBlockAttributes(
     pageId: string,
     type: string,
-    find: (props: Record<string, unknown>) => boolean,
-    update: (props: Record<string, unknown>) => Record<string, string | number> | null,
+    find: (props: Record<string, unknown>, blockId: string | null) => boolean,
+    update: (props: Record<string, unknown>) => Record<string, string | number | boolean> | null,
     actor: WriteActor,
   ): Promise<Record<string, unknown> | null>;
   /**
@@ -168,9 +170,10 @@ export interface CollabService {
   restoreSnapshot(snapshotId: string, actor: WriteActor): Promise<void>;
   /**
    * Saves the page as it is now (the live document when it is open) as a history version, e.g.
-   * before the editor's AI assistant applies a suggestion in the browser.
+   * before the editor's AI assistant applies a suggestion in the browser, or a version someone
+   * saves (`manual`, with the name they gave it: lib/page-versions). Returns the version's id.
    */
-  snapshot(pageId: string, reason: "before_ai_edit" | "manual", actor: WriteActor): Promise<void>;
+  snapshot(pageId: string, reason: "before_ai_edit" | "manual", actor: WriteActor, name?: string | null): Promise<string>;
   /**
    * Brings what database rows merged into this one hold (server/merge-rows.ts): each source's body,
    * when it isn't empty, goes after the page's own under a heading (`heading`), its blocks with ids

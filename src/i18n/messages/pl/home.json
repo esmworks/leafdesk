@@ -2,7 +2,7 @@
   "hello": "Cześć, {name}",
   "jumpBackIn": "Wróć do pracy",
   "recent": "Ostatnio edytowane",
-  "assignedEmpty": "Nic nie jest do ciebie przypisane. Tutaj pojawią się wiersze baz danych, do których cię przypisano.",
+  "assignedEmpty": "Nic nie jest do ciebie przypisane. Tutaj pojawią się wiersze baz danych, do których cię przypisano, i zadania na stronach, które cię wspominają.",
   "empty": "Na razie nic tu nie ma. Utwórz pierwszą stronę, aby zacząć.",
   "emptyGuest": "Nikt jeszcze niczego ci tu nie udostępnił. Strony pojawią się, gdy ktoś ci je udostępni.",
   "newPage": "Nowa strona",
@@ -22,16 +22,20 @@
   "assignedAll": "Zobacz wszystkie",
   "myTasks": {
     "title": "Moje zadania",
-    "description": "Wiersze baz danych, które możesz otworzyć, przypisane do ciebie i niezakończone, w całej przestrzeni roboczej.",
+    "description": "Wiersze baz danych, które możesz otworzyć, przypisane do ciebie i niezakończone, oraz nieodhaczone zadania na stronach, które cię wspominają, w całej przestrzeni roboczej.",
     "grouping": "Grupuj według",
     "byDue": "Według terminu",
-    "byDatabase": "Według bazy danych",
+    "byDatabase": "Według bazy danych lub strony",
     "sharedRows": "Wiersze udostępnione tobie",
     "shown": "Wyświetlono {shown} z {total} o najbliższym terminie.",
     "markDone": "Oznacz „{title}” jako zakończone",
     "undoLabel": "Oznacz „{title}” jako niezakończone",
     "undo": "Cofnij",
     "markFailed": "Nie udało się oznaczyć wiersza jako zakończonego.",
-    "undoFailed": "Nie udało się przywrócić statusu wiersza. Zmień go w wierszu."
+    "undoFailed": "Nie udało się przywrócić statusu wiersza. Zmień go w wierszu.",
+    "untitledTask": "Zadanie",
+    "onPage": "na stronie <page>{title}</page>",
+    "tickFailed": "Nie udało się odhaczyć zadania.",
+    "untickFailed": "Nie udało się cofnąć odhaczenia. Zrób to na stronie."
   }
 }

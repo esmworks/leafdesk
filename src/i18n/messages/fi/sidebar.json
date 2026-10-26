@@ -79,7 +79,8 @@
       "in": "sivun sisältä",
       "type": "vain tietokannat (tai sivu, rivi)",
       "commands": "komennot",
-      "phrase": "tarkka ilmaus"
+      "phrase": "tarkka ilmaus",
+      "tag": "tunniste"
     },
     "filters": {
       "label": "Suodattimet",
@@ -110,7 +111,9 @@
         "createdNewest": "Luotu: uusimmat ensin",
         "createdOldest": "Luotu: vanhimmat ensin"
       }
-    }
+    },
+    "tags": "Tunnisteet",
+    "tagPages": "{count, plural, one {# sivu} other {# sivua}}"
   },
   "trash": {
     "title": "Roskakori",

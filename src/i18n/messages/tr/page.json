@@ -323,9 +323,37 @@
       "beforeMerge": "Satırlar birleştirilmeden önce"
     },
     "empty": "Henüz sürüm yok. Siz düzenlerken ve bir yapay zekâ uygulaması bu sayfayı değiştirmeden önce sürümler otomatik olarak kaydedilir.",
+    "saveVersion": "Sürümü kaydet",
+    "namedOnly": "Yalnızca adlandırılmış sürümler",
+    "emptyNamed": "Henüz adlandırılmış sürüm yok. Bir sürümü adıyla kaydedin ya da listeden birine ad verin.",
+    "name": "Bu sürüme ad ver",
+    "rename": "Bu sürümü yeniden adlandır",
     "restore": "Bu sürümü geri yükle",
     "restoring": "Geri yükleniyor…",
     "restoreHint": "Mevcut içerik önce bir sürüm olarak kaydedilir.",
+    "versionName": {
+      "saveTitle": "Sürümü kaydet",
+      "saveHint": "Sayfayı şu anki hâliyle kaydeder. Yeniden bulmak için bir ad verin: adlandırılmış sürümler sayfa durdukça saklanır.",
+      "renameTitle": "Sürüme ad ver",
+      "renameHint": "{date} tarihli sürüm. Adlandırılmış sürümler sayfa durdukça saklanır; adı kaldırmak için alanı boş bırakın.",
+      "unchangedTitle": "Hiçbir şey değişmedi",
+      "unchangedHint": "Sayfa {date} tarihli sürümle aynı; bu yüzden bir kopya kaydetmek yerine o sürüme ad verilir. Adı kaldırmak için alanı boş bırakın.",
+      "nameLabel": "Ad",
+      "namePlaceholder": "İsteğe bağlı, ör. İncelemeye gönderildi",
+      "save": "Sürümü kaydet",
+      "saveName": "Adı kaydet",
+      "saving": "Kaydediliyor…",
+      "saved": "Sürüm kaydedildi",
+      "savedNamed": "“{name}” sürümü kaydedildi",
+      "named": "Sürüme “{name}” adı verildi",
+      "nameCleared": "Sürümün adı kaldırıldı",
+      "errors": {
+        "invalidName": "Bir ad en fazla {max} karakter olabilir.",
+        "inTrash": "Bu sayfa çöp kutusunda. Önce geri yükleyin.",
+        "failed": "Kaydedilemedi. Yeniden deneyin.",
+        "state": "Son sürümden bu yana değişiklik olup olmadığı denetlenemedi."
+      }
+    },
     "diff": {
       "rangeCurrent": "{from} sürümünden güncel sayfaya kadar yapılan değişiklikler",
       "rangePrevious": "{from} ile {to} arasındaki değişiklikler",
@@ -746,6 +774,8 @@
     "reminderSet": "Hatırlatma: {when}",
     "reminderHint": "Gelen kutunuza ve e-postanıza gelir.",
     "reminderPast": "Bu zaman geçti; daha ileri bir tarih ya da hatırlatma seçin.",
+    "remindAt": "Hatırlatma zamanı",
+    "remindAtPlaceholder": "Ya da zamanı yazın: cuma 17:00, -1d",
     "done": "Tamam"
   },
   "preview": {
@@ -991,6 +1021,19 @@
       "placeholder": "Örneğin: Müşteri ziyaret notu. Firma, görüşülen kişi, konuşulanlar, teklif durumu ve sonraki adım yer alsın.",
       "followed": "Buraya kaydedilen sesli notlar bu veritabanının yazım talimatlarına uyar."
     }
+  },
+  "dictation": {
+    "slashTitle": "Dikte et",
+    "slashSubtext": "Konuşun, sözleriniz söylediğiniz gibi buraya yazılsın",
+    "slashAliases": "dikte dictate konuşma ses mikrofon yazıya dökme",
+    "starting": "Başlatılıyor…",
+    "listening": "Dinleniyor",
+    "writing": "Yazılıyor…",
+    "finish": "Dikteyi bitir ve metni yaz",
+    "hint": "Bitirmek için {shortcut} veya Enter, iptal için Esc tuşuna basın",
+    "autoStopped": "Dikte {minutes} dk sınırında durdu. O ana kadar söyledikleriniz yazıldı.",
+    "copied": "Dikte edilen metin sayfaya yerleştirilemedi, bu yüzden panoya kopyalandı.",
+    "notPlaced": "Dikte edilen metin sayfaya yerleştirilemedi ve kopyalanamadı: {text}"
   },
   "review": {
     "bar": "{count, plural, other {İncelenecek # yapay zekâ değişikliği}}",
@@ -1324,5 +1367,10 @@
     "title": "Şurada sayfaya dönüştür",
     "here": "Bu sayfanın içinde",
     "failed": "Bloklar yeni bir sayfaya taşınamadı."
+  },
+  "tags": {
+    "label": "Etiketler",
+    "pages": "{count, plural, one {# sayfa} other {# sayfa}}",
+    "find": "#{tag} etiketli sayfaları bul"
   }
 }

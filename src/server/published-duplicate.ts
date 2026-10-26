@@ -23,6 +23,7 @@ import { blocksToMarkdown, serverEditor, type PageBlock } from "@/server/blockno
 import { getCollab, type WriteActor } from "@/server/collab/bridge";
 import { authorizedPairs, removeStored, workspaceFiles, workspaceUsage } from "@/server/files";
 import { publishedPageRefs, syncPageReferences } from "@/server/mentions";
+import { syncPageTags } from "@/server/page-tags";
 import { makePagePrivate } from "@/server/permissions";
 import { chainTo, readableViews, readerAccess, webViews } from "@/server/publication";
 import { servedPublication } from "@/server/site";
@@ -398,6 +399,8 @@ export async function duplicatePublishedPage(
     // Links between the copied pages, for backlinks. No people are mentioned any more.
     for (const [id, body] of bodies) {
       if (mentionedPageIds(body.blocks).length) await syncPageReferences(id, target, body.blocks, userId);
+      // Their `#tags`, for search (catches its own errors).
+      await syncPageTags(id, body.blocks);
     }
   } catch (error) {
     // Queued, so copies storage refuses to delete now are deleted later.

@@ -1435,7 +1435,7 @@
     },
     "historyRetention": {
       "title": "Історія сторінки",
-      "description": "Попередні версії сторінки зберігаються {days, plural, one {# день} few {# дні} many {# днів} other {# дня}}, до {count} на сторінку. Збережені версії та версії перед відновленням зберігаються {keptDays, plural, one {# день} few {# дні} many {# днів} other {# дня}}, а остання версія сторінки залишається завжди."
+      "description": "Попередні версії сторінки зберігаються {days} дн., не більше {count} на сторінку. Збережені версії та версії перед відновленням зберігаються {keptDays} дн., версії з назвою — доки існує сторінка, а найновіша версія сторінки лишається завжди."
     },
     "membersHeading": "Учасники",
     "memberInvites": {
@@ -1712,6 +1712,9 @@
       "notion": "Notion",
       "obsidian": "Obsidian",
       "enex": "Evernote",
+      "textbundle": "TextBundle",
+      "onenote": "OneNote",
+      "mhtml": "Веб-архів (.mht)",
       "web": "Вебсторінка",
       "jira": "Jira",
       "github": "GitHub",

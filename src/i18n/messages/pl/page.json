@@ -323,9 +323,37 @@
       "beforeMerge": "Przed scaleniem wierszy"
     },
     "empty": "Brak wersji. Wersje są zapisywane automatycznie podczas edycji i zanim jakakolwiek aplikacja AI zmieni tę stronę.",
+    "saveVersion": "Zapisz wersję",
+    "namedOnly": "Tylko nazwane wersje",
+    "emptyNamed": "Nie ma jeszcze nazwanych wersji. Zapisz wersję z nazwą albo nazwij jedną z listy.",
+    "name": "Nazwij tę wersję",
+    "rename": "Zmień nazwę tej wersji",
     "restore": "Przywróć tę wersję",
     "restoring": "Przywracanie…",
     "restoreHint": "Bieżąca treść zostanie najpierw zapisana jako wersja.",
+    "versionName": {
+      "saveTitle": "Zapisz wersję",
+      "saveHint": "Zapisuje stronę w obecnym stanie. Nadaj jej nazwę, aby ją potem odnaleźć: nazwane wersje są przechowywane tak długo jak strona.",
+      "renameTitle": "Nazwij wersję",
+      "renameHint": "Wersja z {date}. Nazwane wersje są przechowywane tak długo jak strona; zostaw nazwę pustą, aby ją usunąć.",
+      "unchangedTitle": "Nic się nie zmieniło",
+      "unchangedHint": "Strona jest taka sama jak wersja z {date}, więc to ta wersja dostaje nazwę zamiast zapisywania kopii. Zostaw nazwę pustą, aby ją usunąć.",
+      "nameLabel": "Nazwa",
+      "namePlaceholder": "Opcjonalnie, np. Wysłano do przeglądu",
+      "save": "Zapisz wersję",
+      "saveName": "Zapisz nazwę",
+      "saving": "Zapisywanie…",
+      "saved": "Wersja zapisana",
+      "savedNamed": "Zapisano wersję „{name}”",
+      "named": "Wersja nazwana „{name}”",
+      "nameCleared": "Usunięto nazwę wersji",
+      "errors": {
+        "invalidName": "Nazwa może mieć najwyżej {max} znaków.",
+        "inTrash": "Ta strona jest w koszu. Najpierw ją przywróć.",
+        "failed": "Nie udało się zapisać. Spróbuj ponownie.",
+        "state": "Nie udało się sprawdzić zmian od ostatniej wersji."
+      }
+    },
     "diff": {
       "rangeCurrent": "Zmiany od wersji z {from} do bieżącej strony",
       "rangePrevious": "Zmiany od {from} do {to}",
@@ -746,6 +774,8 @@
     "reminderSet": "Przypomnienie: {when}",
     "reminderHint": "Otrzymasz je w skrzynce odbiorczej i e-mailem.",
     "reminderPast": "Ten termin już minął; wybierz późniejszą datę lub przypomnienie.",
+    "remindAt": "Przypomnij o",
+    "remindAtPlaceholder": "Albo wpisz kiedy: piątek 17:00, -1d",
     "done": "Gotowe"
   },
   "preview": {
@@ -991,6 +1021,19 @@
       "placeholder": "Na przykład: Notatka z wizyty u klienta. Uwzględnij firmę, osobę, z którą była rozmowa, omówione sprawy, status oferty i następny krok.",
       "followed": "Notatki głosowe zapisywane tutaj są pisane według instrukcji tej bazy danych."
     }
+  },
+  "dictation": {
+    "slashTitle": "Dyktuj",
+    "slashSubtext": "Mów, a Twoje słowa zostaną zapisane tutaj tak, jak je mówisz",
+    "slashAliases": "dyktuj dyktowanie dictate mowa głos mikrofon transkrypcja",
+    "starting": "Uruchamianie…",
+    "listening": "Słucham",
+    "writing": "Zapisywanie…",
+    "finish": "Zakończ dyktowanie i wpisz tekst",
+    "hint": "Naciśnij {shortcut} lub Enter, aby zakończyć, Esc, aby anulować",
+    "autoStopped": "Dyktowanie zatrzymało się na limicie {minutes} min. To, co powiedziano do tej pory, zostało zapisane.",
+    "copied": "Nie udało się wstawić podyktowanego tekstu na stronę, więc skopiowano go do schowka.",
+    "notPlaced": "Nie udało się wstawić podyktowanego tekstu na stronę ani go skopiować: {text}"
   },
   "review": {
     "bar": "{count, plural, one {# zmiana AI do przejrzenia} few {# zmiany AI do przejrzenia} many {# zmian AI do przejrzenia} other {# zmiany AI do przejrzenia}}",
@@ -1324,5 +1367,10 @@
     "title": "Zamień na stronę w",
     "here": "Wewnątrz tej strony",
     "failed": "Nie udało się przenieść bloków na nową stronę."
+  },
+  "tags": {
+    "label": "Tagi",
+    "pages": "{count, plural, one {# strona} few {# strony} many {# stron} other {# strony}}",
+    "find": "Znajdź strony z #{tag}"
   }
 }

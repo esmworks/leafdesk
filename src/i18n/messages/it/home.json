@@ -2,7 +2,7 @@
   "hello": "Ciao, {name}",
   "jumpBackIn": "Riprendi da dove eri rimasto",
   "recent": "Modificate di recente",
-  "assignedEmpty": "Non hai nulla di assegnato. Le righe dei database assegnate a te compaiono qui.",
+  "assignedEmpty": "Non hai nulla di assegnato. Le righe dei database assegnate a te, e le cose da fare nelle pagine che ti menzionano, compaiono qui.",
   "empty": "Non c’è ancora niente qui. Crea la tua prima pagina per iniziare.",
   "emptyGuest": "Qui non è ancora stato condiviso niente con te. Le pagine compaiono quando qualcuno le condivide con te.",
   "newPage": "Nuova pagina",
@@ -22,16 +22,20 @@
   "assignedAll": "Vedi tutto",
   "myTasks": {
     "title": "Le mie attività",
-    "description": "Le righe dei database che puoi aprire, assegnate a te e non completate, in tutto lo spazio di lavoro.",
+    "description": "Le righe dei database che puoi aprire, assegnate a te e non completate, e le cose da fare non spuntate nelle pagine che ti menzionano, in tutto lo spazio di lavoro.",
     "grouping": "Raggruppa per",
     "byDue": "Per scadenza",
-    "byDatabase": "Per database",
+    "byDatabase": "Per database o pagina",
     "sharedRows": "Righe condivise con te",
     "shown": "Visualizzate le {shown} con la scadenza più vicina su {total}.",
     "markDone": "Segna “{title}” come completata",
     "undoLabel": "Segna “{title}” come non completata",
     "undo": "Annulla",
     "markFailed": "Impossibile segnare la riga come completata.",
-    "undoFailed": "Impossibile ripristinare lo stato della riga. Cambialo nella riga."
+    "undoFailed": "Impossibile ripristinare lo stato della riga. Cambialo nella riga.",
+    "untitledTask": "Da fare",
+    "onPage": "in <page>{title}</page>",
+    "tickFailed": "Impossibile spuntare la cosa da fare.",
+    "untickFailed": "Impossibile togliere la spunta. Toglila nella pagina."
   }
 }

@@ -1435,7 +1435,7 @@
     },
     "historyRetention": {
       "title": "页面历史",
-      "description": "页面的早期版本保留 {days} 天，每个页面最多 {count} 个。手动保存的版本和恢复前的版本保留 {keptDays} 天，页面的最新版本始终保留。"
+      "description": "页面的早期版本保留 {days} 天，每个页面最多 {count} 个。保存的版本和恢复前的版本保留 {keptDays} 天，已命名的版本与页面一同保留，页面的最新版本始终保留。"
     },
     "membersHeading": "成员",
     "memberInvites": {
@@ -1712,6 +1712,9 @@
       "notion": "Notion",
       "obsidian": "Obsidian",
       "enex": "Evernote",
+      "textbundle": "TextBundle",
+      "onenote": "OneNote",
+      "mhtml": "网页存档（.mht）",
       "web": "网页",
       "jira": "Jira",
       "github": "GitHub",

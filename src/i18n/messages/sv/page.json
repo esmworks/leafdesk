@@ -323,9 +323,37 @@
       "beforeMerge": "Före sammanfogning av rader"
     },
     "empty": "Inga versioner än. Versioner sparas automatiskt medan du redigerar och innan någon AI-app ändrar den här sidan.",
+    "saveVersion": "Spara version",
+    "namedOnly": "Endast namngivna versioner",
+    "emptyNamed": "Inga namngivna versioner än. Spara en version med ett namn, eller namnge en i listan.",
+    "name": "Namnge den här versionen",
+    "rename": "Byt namn på den här versionen",
     "restore": "Återställ den här versionen",
     "restoring": "Återställer…",
     "restoreHint": "Det nuvarande innehållet sparas först som en version.",
+    "versionName": {
+      "saveTitle": "Spara version",
+      "saveHint": "Sparar sidan som den är nu. Ge den ett namn så hittar du den igen: namngivna versioner sparas så länge sidan finns.",
+      "renameTitle": "Namnge version",
+      "renameHint": "Versionen från {date}. Namngivna versioner sparas så länge sidan finns; lämna namnet tomt för att ta bort det.",
+      "unchangedTitle": "Inget har ändrats",
+      "unchangedHint": "Sidan är densamma som versionen från {date}, så den versionen får namnet i stället för att en kopia sparas. Lämna namnet tomt för att ta bort det.",
+      "nameLabel": "Namn",
+      "namePlaceholder": "Valfritt, t.ex. Skickad för granskning",
+      "save": "Spara version",
+      "saveName": "Spara namn",
+      "saving": "Sparar…",
+      "saved": "Versionen sparades",
+      "savedNamed": "Versionen ”{name}” sparades",
+      "named": "Versionen heter nu ”{name}”",
+      "nameCleared": "Versionens namn togs bort",
+      "errors": {
+        "invalidName": "Ett namn får ha högst {max} tecken.",
+        "inTrash": "Den här sidan ligger i papperskorgen. Återställ den först.",
+        "failed": "Det gick inte att spara. Försök igen.",
+        "state": "Det gick inte att kontrollera ändringar sedan den senaste versionen."
+      }
+    },
     "diff": {
       "rangeCurrent": "Ändringar från versionen från {from} till den nuvarande sidan",
       "rangePrevious": "Ändringar från {from} till {to}",
@@ -746,6 +774,8 @@
     "reminderSet": "Påminnelse: {when}",
     "reminderHint": "Du får den i din inkorg och via e-post.",
     "reminderPast": "Den tiden har passerat; välj ett senare datum eller en senare påminnelse.",
+    "remindAt": "Påminn kl.",
+    "remindAtPlaceholder": "Eller skriv när: fredag 17:00, -1d",
     "done": "Klar"
   },
   "preview": {
@@ -991,6 +1021,19 @@
       "placeholder": "Till exempel: Anteckning från kundbesök. Ta upp företaget, personen vi träffade, vad som diskuterades, offertens status och nästa steg.",
       "followed": "Röstanteckningar som sparas här följer den här databasens skrivinstruktioner."
     }
+  },
+  "dictation": {
+    "slashTitle": "Diktera",
+    "slashSubtext": "Prata, så skrivs dina ord här precis som du säger dem",
+    "slashAliases": "diktera diktat dictate tal röst mikrofon transkribera",
+    "starting": "Startar…",
+    "listening": "Lyssnar",
+    "writing": "Skriver…",
+    "finish": "Avsluta dikteringen och skriv texten",
+    "hint": "Tryck på {shortcut} eller Enter för att avsluta, Esc för att avbryta",
+    "autoStopped": "Dikteringen stoppade vid gränsen på {minutes} min. Det du sa fram till dess skrevs.",
+    "copied": "Den dikterade texten kunde inte placeras på sidan, så den kopierades till urklipp.",
+    "notPlaced": "Den dikterade texten kunde varken placeras på sidan eller kopieras: {text}"
   },
   "review": {
     "bar": "{count, plural, one {# AI-ändring att granska} other {# AI-ändringar att granska}}",
@@ -1324,5 +1367,10 @@
     "title": "Gör om till sida i",
     "here": "Inuti den här sidan",
     "failed": "Det gick inte att flytta blocken till en ny sida."
+  },
+  "tags": {
+    "label": "Taggar",
+    "pages": "{count, plural, one {# sida} other {# sidor}}",
+    "find": "Hitta sidor med #{tag}"
   }
 }

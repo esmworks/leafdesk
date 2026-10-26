@@ -7,6 +7,7 @@
     "docx": "Word",
     "pdf": "PDF",
     "evernote": "Evernote",
+    "onenote": "OneNote (.mht)",
     "confluence": "Confluence",
     "csv": "CSV og Excel",
     "trello": "Trello",
@@ -25,6 +26,7 @@
     "help": "Markdown-filer bliver til sider, og mapper bevarer deres struktur. CSV-filer bliver til databaser, og billeder, som sider linker til, uploades.",
     "notion": "Fra Notion: eksportér som “Markdown & CSV” med undersider, og vælg ZIP-filen, som den blev hentet (opdelte eksporter virker også). Undersider, databaser, relationer, infobokse, fold-ud-blokke og billeder kommer med.",
     "obsidian": "Fra Obsidian: vælg boksens mappe eller en ZIP-fil af den. Links mellem noter (også [[wikilinks]]), indlejrede billeder og filer samt infobokse kommer med.",
+    "textbundle": "TextBundle- og TextPack-filer (fra Bear, Ulysses, iA Writer og andre Markdown-apps) bliver hver til en side med deres billeder og vedhæftede filer: vælg .textpack-filer, en ZIP-fil af dem eller en mappe med .textbundle-mapper.",
     "chooseFiles": "Vælg filer",
     "chooseFolder": "Vælg en mappe",
     "drop": "eller slip filer her",
@@ -53,6 +55,11 @@
       "sourceUrl": "Kilde-URL",
       "encrypted": "Krypteret tekst blev udeladt fra importen."
     }
+  },
+  "onenote": {
+    "help": "Hver fil bliver til en side med dens tekst, overskrifter, lister, tabeller, links og billeder. En sektions fil bliver til en side med sektionens navn og en underside for hver af dens sider. Enhver webside gemt som én fil (.mht eller .mhtml) kan også importeres.",
+    "export": "I OneNote til Windows skal du vælge Filer → Eksportér, derefter Side eller Sektion og Enkeltfil-webside (*.mht), og vælge de gemte filer her. OneNotes Word- (.docx) og PDF-eksporter kan importeres under fanerne Word og PDF.",
+    "choose": "Vælg .mht-filer"
   },
   "confluence": {
     "help": "Hver side i et Confluence-område bliver en side, indlejret som i området. Overskrifter, lister, tabeller, kodeblokke, infopaneler (som fremhævninger), udvidelige afsnit (som foldelister), opgavelister, billeder og vedhæftede filer kommer med, og links mellem sider bliver sidehenvisninger.",
@@ -294,6 +301,7 @@
     "pdfNoText": "“{name}” har ingen tekst at importere: den ligner en scanning. Kør først tekstgenkendelse (OCR) på den, eller upload den til en side som en fil.",
     "pdfTooComplex": "“{name}” er for stor til at blive importeret som én side.",
     "badEnex": "“{name}” kan ikke læses som en Evernote-eksport. Eksportér noterne som ENEX (.enex) i Evernote, og vælg den fil.",
+    "badMhtml": "“{name}” kan ikke læses som en webside i én fil. Eksportér som Enkeltfil-webside (*.mht) i OneNote, og vælg den fil.",
     "badTrello": "Filen er ikke en eksport af en Trello-tavle. Vælg Eksportér som JSON i tavlens menu i Trello, og vælg den fil.",
     "badAsana": "Filen er ikke en eksport af et Asana-projekt. Vælg Eksportér → CSV eller JSON i projektets menu i Asana, og vælg den fil.",
     "badMonday": "Filen er ikke en eksport af en Monday.com-tavle. Vælg Eksportér tavle til Excel i tavlens menu i Monday.com, og vælg den fil.",

@@ -1435,7 +1435,7 @@
     },
     "historyRetention": {
       "title": "Historial de páginas",
-      "description": "Las versiones anteriores de una página se conservan {days} días, hasta {count} por página. Las versiones guardadas y las anteriores a una restauración se conservan {keptDays} días, y la versión más reciente de una página siempre se mantiene."
+      "description": "Las versiones anteriores de una página se conservan {days} días, hasta {count} por página. Las versiones guardadas y las de antes de una restauración se conservan {keptDays} días, las versiones con nombre mientras exista la página, y la versión más reciente de una página siempre se queda."
     },
     "membersHeading": "Miembros",
     "memberInvites": {
@@ -1712,6 +1712,9 @@
       "notion": "Notion",
       "obsidian": "Obsidian",
       "enex": "Evernote",
+      "textbundle": "TextBundle",
+      "onenote": "OneNote",
+      "mhtml": "Archivo web (.mht)",
       "web": "Página web",
       "jira": "Jira",
       "github": "GitHub",

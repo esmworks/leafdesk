@@ -323,9 +323,37 @@
       "beforeMerge": "Avant la fusion de lignes"
     },
     "empty": "Aucune version pour l’instant. Des versions sont enregistrées automatiquement pendant que vous modifiez la page et avant qu’une application d’IA ne la modifie.",
+    "saveVersion": "Enregistrer une version",
+    "namedOnly": "Versions nommées uniquement",
+    "emptyNamed": "Aucune version nommée pour l’instant. Enregistrez une version avec un nom, ou nommez-en une de la liste.",
+    "name": "Nommer cette version",
+    "rename": "Renommer cette version",
     "restore": "Restaurer cette version",
     "restoring": "Restauration…",
     "restoreHint": "Le contenu actuel est d’abord enregistré comme version.",
+    "versionName": {
+      "saveTitle": "Enregistrer une version",
+      "saveHint": "Enregistre la page telle qu’elle est maintenant. Donnez-lui un nom pour la retrouver : les versions nommées sont conservées aussi longtemps que la page.",
+      "renameTitle": "Nommer la version",
+      "renameHint": "La version du {date}. Les versions nommées sont conservées aussi longtemps que la page ; laissez le nom vide pour le retirer.",
+      "unchangedTitle": "Rien n’a changé",
+      "unchangedHint": "La page est identique à la version du {date} : c’est donc cette version qui reçoit le nom, au lieu d’en enregistrer une copie. Laissez le nom vide pour le retirer.",
+      "nameLabel": "Nom",
+      "namePlaceholder": "Facultatif, p. ex. Envoyée pour relecture",
+      "save": "Enregistrer la version",
+      "saveName": "Enregistrer le nom",
+      "saving": "Enregistrement…",
+      "saved": "Version enregistrée",
+      "savedNamed": "Version « {name} » enregistrée",
+      "named": "Version nommée « {name} »",
+      "nameCleared": "Nom de la version retiré",
+      "errors": {
+        "invalidName": "Un nom peut comporter au plus {max} caractères.",
+        "inTrash": "Cette page est dans la corbeille. Restaurez-la d’abord.",
+        "failed": "Impossible d’enregistrer. Réessayez.",
+        "state": "Impossible de vérifier les modifications depuis la dernière version."
+      }
+    },
     "diff": {
       "rangeCurrent": "Modifications entre la version du {from} et la page actuelle",
       "rangePrevious": "Modifications entre {from} et {to}",
@@ -746,6 +774,8 @@
     "reminderSet": "Rappel : {when}",
     "reminderHint": "Vous le recevrez dans votre boîte de réception et par e-mail.",
     "reminderPast": "Cette heure est passée ; choisissez une date ou un rappel plus tardif.",
+    "remindAt": "Rappel à",
+    "remindAtPlaceholder": "Ou saisissez quand : vendredi 17:00, -1d",
     "done": "Terminé"
   },
   "preview": {
@@ -991,6 +1021,19 @@
       "placeholder": "Par exemple : Compte rendu de visite client. Indiquer l'entreprise, la personne rencontrée, ce qui a été discuté, l'état du devis et la prochaine étape.",
       "followed": "Les notes vocales enregistrées ici suivent les consignes de rédaction de cette base de données."
     }
+  },
+  "dictation": {
+    "slashTitle": "Dicter",
+    "slashSubtext": "Parlez, et vos mots sont écrits ici tels que vous les dites",
+    "slashAliases": "dicter dictée dictate parole voix micro transcrire",
+    "starting": "Démarrage…",
+    "listening": "Écoute",
+    "writing": "Écriture…",
+    "finish": "Terminer la dictée et écrire le texte",
+    "hint": "Appuyez sur {shortcut} ou Entrée pour terminer, Échap pour annuler",
+    "autoStopped": "La dictée s'est arrêtée à la limite de {minutes} min. Ce que vous avez dit jusque-là a été écrit.",
+    "copied": "Le texte dicté n'a pas pu être placé dans la page, il a donc été copié dans le presse-papiers.",
+    "notPlaced": "Le texte dicté n'a pu être ni placé dans la page ni copié : {text}"
   },
   "review": {
     "bar": "{count, plural, one {# modification de l’IA à vérifier} other {# modifications de l’IA à vérifier}}",
@@ -1324,5 +1367,10 @@
     "title": "Transformer en page dans",
     "here": "Dans cette page",
     "failed": "Impossible de déplacer les blocs vers une nouvelle page."
+  },
+  "tags": {
+    "label": "Étiquettes",
+    "pages": "{count, plural, one {# page} other {# pages}}",
+    "find": "Trouver les pages avec #{tag}"
   }
 }

@@ -54,6 +54,9 @@ const isPdf = (file: File) => /\.pdf$/i.test(file.name);
 const ENEX_ACCEPT = ".enex,.zip,application/zip";
 const CONFLUENCE_ACCEPT = ".zip,application/zip";
 const isEnexUpload = (file: File) => /\.(enex|zip)$/i.test(file.name);
+/** What the OneNote tab's file picker offers (single-file web pages), and what it takes from a drop. */
+const MHTML_ACCEPT = ".mht,.mhtml,multipart/related,message/rfc822,application/x-mimearchive";
+const isMhtml = (file: File) => /\.(mht|mhtml)$/i.test(file.name);
 /** What the Trello tab's file picker offers. */
 const TRELLO_ACCEPT = ".json,application/json";
 /** What the Asana and Monday.com tabs' file pickers offer. */
@@ -66,7 +69,8 @@ type BoardSource = keyof typeof BOARD_ACCEPT;
 type CsvState = { file: File; table: CsvTable; guesses: CsvColumnType[]; sheets: string[]; sheet: number };
 
 /**
- * Imports Markdown files, folders and ZIPs as pages, Word documents and PDFs as a page each, a CSV file
+ * Imports Markdown files, folders, TextBundles and ZIPs as pages, Word documents, PDFs and single-file
+ * web pages (OneNote's export) as a page each, a CSV file
  * or Excel workbook (one of its sheets) as a new database or as rows of an existing one (with a
  * column → property mapping), or a Trello board's JSON export, an Asana project's export or a
  * Monday.com board's as a new database; a web page by its address (a server action: see
@@ -115,7 +119,7 @@ export function ImportDialog({
   const databases = flat.filter(({ node }) => node.kind === "database" && canEdit(node));
   const activeNode = tree.find((n) => n.id === activeId);
 
-  const [tab, setTab] = useState<"pages" | "docx" | "googleDocs" | "pdf" | "evernote" | "confluence" | "csv" | "trello" | BoardSource | "jira" | "github" | "web">("pages");
+  const [tab, setTab] = useState<"pages" | "docx" | "googleDocs" | "pdf" | "evernote" | "onenote" | "confluence" | "csv" | "trello" | BoardSource | "jira" | "github" | "web">("pages");
   const [destination, setDestination] = useState("");
   const [picked, setPicked] = useState<Picked[]>([]);
   // A folder that came with an Obsidian vault's settings folder (which isn't sent).
@@ -123,6 +127,7 @@ export function ImportDialog({
   const [documents, setDocuments] = useState<File[]>([]);
   const [pdfs, setPdfs] = useState<File[]>([]);
   const [notebooks, setNotebooks] = useState<File[]>([]);
+  const [archives, setArchives] = useState<File[]>([]);
   // A Confluence space exported as HTML: one ZIP.
   const [confluence, setConfluence] = useState<File | null>(null);
   // Each PDF is uploaded to its page too, for its pictures, tables and layout.
@@ -157,6 +162,7 @@ export function ImportDialog({
   const docxInput = useRef<HTMLInputElement>(null);
   const pdfInput = useRef<HTMLInputElement>(null);
   const enexInput = useRef<HTMLInputElement>(null);
+  const mhtmlInput = useRef<HTMLInputElement>(null);
   const confluenceInput = useRef<HTMLInputElement>(null);
   const trelloInput = useRef<HTMLInputElement>(null);
   const boardInput = useRef<HTMLInputElement>(null);
@@ -175,6 +181,7 @@ export function ImportDialog({
     setPdfs([]);
     setNotebooks([]);
     setConfluence(null);
+    setArchives([]);
     setAttachPdf(true);
     setCsv(null);
     setTrello(null);
@@ -237,6 +244,7 @@ export function ImportDialog({
   const documentsSize = documents.reduce((sum, f) => sum + f.size, 0);
   const pdfsSize = pdfs.reduce((sum, f) => sum + f.size, 0);
   const notebooksSize = notebooks.reduce((sum, f) => sum + f.size, 0);
+  const archivesSize = archives.reduce((sum, f) => sum + f.size, 0);
 
   function addFiles(list: FileList | File[] | null) {
     if (!list) return;
@@ -270,6 +278,14 @@ export function ImportDialog({
     if (!list) return;
     const next = [...list].filter(isEnexUpload);
     setNotebooks((prev) => [...prev.filter((f) => !next.some((n) => n.name === f.name)), ...next]);
+    setError(null);
+  }
+
+  /** Adds single-file web pages to the list (by name: choosing one again replaces it); other files are passed over. */
+  function addArchives(list: FileList | File[] | null) {
+    if (!list) return;
+    const next = [...list].filter(isMhtml);
+    setArchives((prev) => [...prev.filter((f) => !next.some((n) => n.name === f.name)), ...next]);
     setError(null);
   }
 
@@ -366,6 +382,7 @@ export function ImportDialog({
       "pdfNoText",
       "pdfTooComplex",
       "badEnex",
+      "badMhtml",
       "badTrello",
       "badAsana",
       "badMonday",
@@ -410,6 +427,11 @@ export function ImportDialog({
       form.append("mode", "enex");
       form.append("parentId", destination);
       for (const file of notebooks) form.append("file", file, file.name);
+    } else if (tab === "onenote") {
+      if (archivesSize > IMPORT_LIMITS.uploadBytes) return setError(t("errors.tooLarge", { limit: formatBytes(IMPORT_LIMITS.uploadBytes) }));
+      form.append("mode", "mhtml");
+      form.append("parentId", destination);
+      for (const file of archives) form.append("file", file, file.name);
     } else if (tab === "confluence") {
       if (!confluence) return;
       if (confluence.size > IMPORT_LIMITS.uploadBytes) return setError(t("errors.tooLarge", { limit: formatBytes(IMPORT_LIMITS.uploadBytes) }));
@@ -567,6 +589,8 @@ export function ImportDialog({
           ? pdfs.length > 0 && destinationValid
         : tab === "evernote"
           ? notebooks.length > 0 && destinationValid
+        : tab === "onenote"
+          ? archives.length > 0 && destinationValid
         : tab === "confluence"
           ? confluence !== null && destinationValid
         : tab === "trello"
@@ -638,6 +662,7 @@ export function ImportDialog({
             setPdfs([]);
             setNotebooks([]);
             setConfluence(null);
+            setArchives([]);
             setCsv(null);
             setTrello(null);
             setBoard(null);
@@ -646,7 +671,7 @@ export function ImportDialog({
       ) : (
         <div className="max-h-[70vh] space-y-4 overflow-y-auto p-4" aria-busy={busy}>
           <div role="tablist" aria-label={t("title")} className="inline-flex flex-wrap gap-0.5 rounded-lg bg-bg-hover p-0.5">
-            {(["pages", "docx", "googleDocs", "pdf", "evernote", "confluence", "csv", "trello", "asana", "monday", "jira", "github", "web"] as const).map((key) => (
+            {(["pages", "docx", "googleDocs", "pdf", "evernote", "onenote", "confluence", "csv", "trello", "asana", "monday", "jira", "github", "web"] as const).map((key) => (
               <button
                 key={key}
                 type="button"
@@ -672,6 +697,7 @@ export function ImportDialog({
               <p className="text-sm text-fg-muted">{t("pages.help")}</p>
               <p className="text-sm text-fg-muted">{t("pages.notion")}</p>
               <p className="text-sm text-fg-muted">{t("pages.obsidian")}</p>
+              <p className="text-sm text-fg-muted">{t("pages.textbundle")}</p>
               <div
                 onDragOver={(e) => {
                   e.preventDefault();
@@ -971,6 +997,64 @@ export function ImportDialog({
                   }}
                 />
               </div>
+              {destinationPicker}
+            </>
+          ) : tab === "onenote" ? (
+            <>
+              <p className="text-sm text-fg-muted">{t("onenote.help")}</p>
+              <p className="text-sm text-fg-muted">{t("onenote.export")}</p>
+              <div
+                onDragOver={(e) => {
+                  e.preventDefault();
+                  setDragOver(true);
+                }}
+                onDragLeave={() => setDragOver(false)}
+                onDrop={(e) => {
+                  e.preventDefault();
+                  setDragOver(false);
+                  addArchives(e.dataTransfer.files);
+                }}
+                className={cn(
+                  "flex flex-wrap items-center gap-2 rounded-lg border border-dashed border-border px-3 py-3",
+                  dragOver && "border-accent bg-accent/5",
+                )}
+              >
+                <Button disabled={busy} onClick={() => mhtmlInput.current?.click()}>
+                  <FileUp className="h-4 w-4" />
+                  {t("onenote.choose")}
+                </Button>
+                <span className="text-xs text-fg-faint">{t("pages.drop")}</span>
+                <input
+                  ref={mhtmlInput}
+                  type="file"
+                  multiple
+                  hidden
+                  accept={MHTML_ACCEPT}
+                  data-import="mhtml"
+                  onChange={(e) => {
+                    addArchives(e.target.files);
+                    e.target.value = "";
+                  }}
+                />
+              </div>
+              {archives.length > 0 && (
+                <div className="rounded-lg border border-border">
+                  <div className="flex items-center justify-between border-b border-border px-3 py-1.5 text-xs text-fg-muted">
+                    <span>{t("pages.selected", { count: archives.length, size: formatBytes(archivesSize) })}</span>
+                    <Button size="sm" variant="ghost" disabled={busy} onClick={() => setArchives([])}>
+                      {t("pages.clear")}
+                    </Button>
+                  </div>
+                  <ul className="max-h-32 overflow-y-auto px-3 py-1.5 text-xs text-fg-muted">
+                    {archives.slice(0, 50).map((file) => (
+                      <li key={file.name} className="truncate">
+                        {file.name}
+                      </li>
+                    ))}
+                    {archives.length > 50 && <li>…</li>}
+                  </ul>
+                </div>
+              )}
               {destinationPicker}
             </>
           ) : tab === "trello" ? (

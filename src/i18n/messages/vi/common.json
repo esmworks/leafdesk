@@ -38,5 +38,11 @@
     "trashed": "Đã chuyển vào thùng rác",
     "rowsTrashed": "{count, plural, other {Đã chuyển # hàng vào thùng rác}}",
     "undoFailed": "Không thể hoàn tác."
+  },
+  "datePhrase": {
+    "label": "Nhập ngày",
+    "placeholder": "Nhập ngày: ngày mai 17:00, 31/8, +2w",
+    "preview": "{when} · Enter để đặt",
+    "unreadable": "Không phải ngày. Thử “ngày mai 9:00”, “31/8” hoặc “2w”."
   }
 }

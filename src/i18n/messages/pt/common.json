@@ -38,5 +38,11 @@
     "trashed": "Movida para a lixeira",
     "rowsTrashed": "{count, plural, one {Linha movida para a lixeira} other {# linhas movidas para a lixeira}}",
     "undoFailed": "Não foi possível desfazer."
+  },
+  "datePhrase": {
+    "label": "Digite uma data",
+    "placeholder": "Digite uma data: amanhã 17:00, 31 ago, +2w",
+    "preview": "{when} · Enter para definir",
+    "unreadable": "Não é uma data. Tente “amanhã 9:00”, “31 agosto” ou “2w”."
   }
 }

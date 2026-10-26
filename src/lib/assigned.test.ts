@@ -52,6 +52,24 @@ describe("groupAssigned", () => {
     ]);
   });
 
+  it("places rows and to-dos in pages together, by date", () => {
+    const groups = groupAssigned(
+      [
+        { type: "row", id: "row", date: "2026-10-09", endDate: null, updatedAt: at("2026-10-01T00:00:00Z") },
+        { type: "pageTask", id: "todo-today", date: "2026-10-09", endDate: null, updatedAt: at("2026-10-02T00:00:00Z") },
+        { type: "pageTask", id: "todo-late", date: "2026-10-01", endDate: null, updatedAt: at("2026-10-02T00:00:00Z") },
+        { type: "pageTask", id: "todo-undated", date: null, endDate: null, updatedAt: at("2026-10-03T00:00:00Z") },
+        { type: "row", id: "undated", date: null, endDate: null, updatedAt: at("2026-10-01T00:00:00Z") },
+      ],
+      "2026-10-09",
+    );
+    expect(groups.map((g) => [g.key, g.rows.map((r) => r.id)])).toEqual([
+      ["overdue", ["todo-late"]],
+      ["today", ["todo-today", "row"]],
+      ["none", ["todo-undated", "undated"]],
+    ]);
+  });
+
   it("returns nothing for no rows", () => {
     expect(groupAssigned([], "2026-10-09")).toEqual([]);
   });
@@ -80,6 +98,32 @@ describe("groupByDatabase", () => {
       ["d1", "Bugs", ["e", "b"]],
       ["d2", "Tasks", ["d", "a"]],
       [null, null, ["c", "f"]],
+    ]);
+  });
+
+  it("puts to-dos in pages under their page, sorted by its title among the databases", () => {
+    const task = (id: string, pageId: string, pageTitle: string, date: string | null) => ({
+      type: "pageTask" as const,
+      id,
+      pageId,
+      pageTitle,
+      date,
+      updatedAt: at("2026-10-01T00:00:00Z"),
+    });
+    const groups = groupByDatabase<ReturnType<typeof row> | ReturnType<typeof task>>([
+      row("a", "d2", "Tasks", "2026-10-12"),
+      task("t1", "p1", "Launch plan", null),
+      row("c", "d3", null, "2026-10-01"),
+      task("t2", "p1", "Launch plan", "2026-10-02"),
+      task("t3", "p2", "Bugs and more", null),
+      row("b", "d1", "Bugs", null),
+    ]);
+    expect(groups.map((g) => [g.databaseId, g.databaseTitle, g.rows.map((r) => r.id)])).toEqual([
+      ["d1", "Bugs", ["b"]],
+      ["p2", "Bugs and more", ["t3"]],
+      ["p1", "Launch plan", ["t2", "t1"]],
+      ["d2", "Tasks", ["a"]],
+      [null, null, ["c"]],
     ]);
   });
 

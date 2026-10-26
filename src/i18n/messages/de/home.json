@@ -2,7 +2,7 @@
   "hello": "Hallo, {name}",
   "jumpBackIn": "Weitermachen",
   "recent": "Zuletzt bearbeitet",
-  "assignedEmpty": "Ihnen ist nichts zugewiesen. Ihnen zugewiesene Zeilen aus Datenbanken erscheinen hier.",
+  "assignedEmpty": "Ihnen ist nichts zugewiesen. Ihnen zugewiesene Zeilen aus Datenbanken und To-dos in Seiten, die Sie erwähnen, erscheinen hier.",
   "empty": "Hier ist noch nichts. Erstelle deine erste Seite, um loszulegen.",
   "emptyGuest": "Hier wurde noch nichts mit dir geteilt. Seiten erscheinen, sobald jemand sie mit dir teilt.",
   "newPage": "Neue Seite",
@@ -22,16 +22,20 @@
   "assignedAll": "Alle ansehen",
   "myTasks": {
     "title": "Meine Aufgaben",
-    "description": "Zeilen der Datenbanken, die du öffnen kannst, die dir zugewiesen und nicht erledigt sind, im ganzen Workspace.",
+    "description": "Zeilen der Datenbanken, die du öffnen kannst, die dir zugewiesen und nicht erledigt sind, und nicht abgehakte To-dos in Seiten, die dich erwähnen, im ganzen Workspace.",
     "grouping": "Gruppieren nach",
     "byDue": "Nach Fälligkeit",
-    "byDatabase": "Nach Datenbank",
+    "byDatabase": "Nach Datenbank oder Seite",
     "sharedRows": "Mit dir geteilte Zeilen",
     "shown": "Die {shown} am frühesten fälligen von {total} werden angezeigt.",
     "markDone": "„{title}“ als erledigt markieren",
     "undoLabel": "„{title}“ als nicht erledigt markieren",
     "undo": "Rückgängig",
     "markFailed": "Die Zeile konnte nicht als erledigt markiert werden.",
-    "undoFailed": "Der Status der Zeile konnte nicht zurückgesetzt werden. Ändere ihn in der Zeile."
+    "undoFailed": "Der Status der Zeile konnte nicht zurückgesetzt werden. Ändere ihn in der Zeile.",
+    "untitledTask": "To-do",
+    "onPage": "auf <page>{title}</page>",
+    "tickFailed": "Das To-do konnte nicht abgehakt werden.",
+    "untickFailed": "Das Häkchen konnte nicht entfernt werden. Entferne es in der Seite."
   }
 }

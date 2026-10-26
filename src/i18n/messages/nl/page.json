@@ -323,9 +323,37 @@
       "beforeMerge": "Vóór samenvoegen van rijen"
     },
     "empty": "Nog geen versies. Versies worden automatisch opgeslagen terwijl je bewerkt en voordat een AI-app deze pagina wijzigt.",
+    "saveVersion": "Versie opslaan",
+    "namedOnly": "Alleen versies met een naam",
+    "emptyNamed": "Nog geen versies met een naam. Sla een versie op met een naam, of geef er een uit de lijst een naam.",
+    "name": "Deze versie een naam geven",
+    "rename": "Deze versie hernoemen",
     "restore": "Deze versie herstellen",
     "restoring": "Herstellen…",
     "restoreHint": "De huidige inhoud wordt eerst als versie opgeslagen.",
+    "versionName": {
+      "saveTitle": "Versie opslaan",
+      "saveHint": "Slaat de pagina op zoals hij nu is. Geef hem een naam om hem terug te vinden: versies met een naam blijven zo lang als de pagina.",
+      "renameTitle": "Versie een naam geven",
+      "renameHint": "De versie van {date}. Versies met een naam blijven zo lang als de pagina; laat de naam leeg om hem te verwijderen.",
+      "unchangedTitle": "Er is niets veranderd",
+      "unchangedHint": "De pagina is hetzelfde als de versie van {date}, dus die versie krijgt de naam in plaats van dat er een kopie wordt opgeslagen. Laat de naam leeg om hem te verwijderen.",
+      "nameLabel": "Naam",
+      "namePlaceholder": "Optioneel, bijv. Ter beoordeling gestuurd",
+      "save": "Versie opslaan",
+      "saveName": "Naam opslaan",
+      "saving": "Opslaan…",
+      "saved": "Versie opgeslagen",
+      "savedNamed": "Versie ‘{name}’ opgeslagen",
+      "named": "Versie heet nu ‘{name}’",
+      "nameCleared": "Naam van de versie verwijderd",
+      "errors": {
+        "invalidName": "Een naam mag hoogstens {max} tekens hebben.",
+        "inTrash": "Deze pagina staat in de prullenbak. Zet hem eerst terug.",
+        "failed": "Opslaan is mislukt. Probeer het opnieuw.",
+        "state": "Kon niet nagaan of er iets veranderd is sinds de laatste versie."
+      }
+    },
     "diff": {
       "rangeCurrent": "Wijzigingen van de versie van {from} tot de huidige pagina",
       "rangePrevious": "Wijzigingen van {from} tot {to}",
@@ -746,6 +774,8 @@
     "reminderSet": "Herinnering: {when}",
     "reminderHint": "Je krijgt hem in je inbox en per e-mail.",
     "reminderPast": "Dat tijdstip is voorbij; kies een latere datum of herinnering.",
+    "remindAt": "Herinneren om",
+    "remindAtPlaceholder": "Of typ wanneer: vrijdag 17:00, -1d",
     "done": "Klaar"
   },
   "preview": {
@@ -991,6 +1021,19 @@
       "placeholder": "Bijvoorbeeld: Notitie van een klantbezoek. Behandel het bedrijf, de persoon die je sprak, wat er is besproken, de status van de offerte en de volgende stap.",
       "followed": "Spraaknotities die hier worden opgeslagen, volgen de schrijfinstructies van deze database."
     }
+  },
+  "dictation": {
+    "slashTitle": "Dicteren",
+    "slashSubtext": "Spreek, en je woorden worden hier geschreven zoals je ze zegt",
+    "slashAliases": "dicteren dictaat dictate spraak stem microfoon transcriberen",
+    "starting": "Starten…",
+    "listening": "Luistert",
+    "writing": "Schrijven…",
+    "finish": "Dicteren beëindigen en de tekst schrijven",
+    "hint": "Druk op {shortcut} of Enter om te beëindigen, Esc om te annuleren",
+    "autoStopped": "Het dicteren stopte bij de limiet van {minutes} min. Wat je tot dan zei, is geschreven.",
+    "copied": "De gedicteerde tekst kon niet in de pagina worden geplaatst en is daarom naar het klembord gekopieerd.",
+    "notPlaced": "De gedicteerde tekst kon niet in de pagina worden geplaatst of gekopieerd: {text}"
   },
   "review": {
     "bar": "{count, plural, one {# AI-wijziging om te beoordelen} other {# AI-wijzigingen om te beoordelen}}",
@@ -1324,5 +1367,10 @@
     "title": "Omzetten naar pagina in",
     "here": "In deze pagina",
     "failed": "De blokken konden niet naar een nieuwe pagina worden verplaatst."
+  },
+  "tags": {
+    "label": "Tags",
+    "pages": "{count, plural, one {# pagina} other {# pagina's}}",
+    "find": "Pagina's met #{tag} zoeken"
   }
 }

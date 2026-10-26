@@ -189,6 +189,9 @@ jobs:
       - name: Locked pages end-to-end
         run: pnpm tsx scripts/page-lock-e2e.ts
 
+      - name: Named page versions end-to-end
+        run: pnpm tsx scripts/page-versions-e2e.ts
+
       - name: Archived pages end-to-end
         run: pnpm tsx scripts/page-archive-e2e.ts
 
