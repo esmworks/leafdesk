@@ -740,7 +740,9 @@ async function readAround(
   if (call.name === "page_history") {
     const { versions } = await ops.listPageHistory(ctx, { page_id: pageId });
     if (!versions.length) return { content: `"${pageLabel(target.title)}" has no saved versions yet.`, step: { kind: "read", pageId } };
-    const lines = versions.map((v) => `- version_id ${v.id} · saved ${v.saved_at}${v.by ? ` by ${v.by}` : ""}${v.reason ? ` (${v.reason})` : ""}`);
+    const lines = versions.map(
+      (v) => `- version_id ${v.id}${v.name ? ` · named ${JSON.stringify(v.name)}` : ""} · saved ${v.saved_at}${v.by ? ` by ${v.by}` : ""}${v.reason ? ` (${v.reason})` : ""}`,
+    );
     return { content: truncateText(`Saved versions of "${pageLabel(target.title)}" (page_id ${pageId}), newest first:\n${lines.join("\n")}`, maxChars), step: { kind: "read", pageId } };
   }
   const { threads } = await ops.listComments(ctx, { page_id: pageId, include_resolved: true });

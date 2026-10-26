@@ -9,12 +9,16 @@
  *   type:row               database rows
  *   type:journal           the user's daily notes
  *   is:verified            pages verified right now (server/verification), not those whose verification expired
+ *   #home  tag:home        pages whose text carries the tag (lib/tags) or one under it (#home/renovation);
+ *                          with several tags, pages carrying each of them
  *
  * A filter's key and value are case-insensitive; an unknown key (`foo:bar`) or value
  * (`type:foo`) is searched as text. Text in double quotes ("launch plan") must appear as written,
  * its words whole and next to each other in that order (`phrases`); a quote not yet closed is searched as
  * words, so results don't vanish while the phrase is being typed.
  */
+
+import { searchedTag } from "./tags";
 
 export type SearchKind = "page" | "database" | "row" | "journal";
 
@@ -28,6 +32,8 @@ export type SearchQuery = {
   verified: boolean;
   /** Text in closed double quotes: each must match as a phrase. Its words are in `text` too. */
   phrases: string[];
+  /** Tags from `#tag` and `tag:` filters, as tags compare (lib/tags tagKey). */
+  tags: string[];
 };
 
 /** A piece of a query: `key:"quoted value"`, `"a phrase"` or a bare word. */
@@ -107,14 +113,24 @@ function applyFilter(parsed: SearchQuery, key: string, rawValue: string): boolea
       if (value.toLowerCase() !== "verified") return false;
       parsed.verified = true;
       return true;
+    case "tag":
+      return addTag(parsed, value.replace(/^#/, ""));
     default:
       return false;
   }
 }
 
+/** Adds the tag `value` (without its `#`) to `parsed`; false when it isn't one. */
+function addTag(parsed: SearchQuery, value: string): boolean {
+  const tag = searchedTag(value);
+  if (!tag) return false;
+  if (!parsed.tags.includes(tag.key)) parsed.tags.push(tag.key);
+  return true;
+}
+
 /** Splits a query into its free text and its filters. */
 export function parseSearchQuery(query: string): SearchQuery {
-  const parsed: SearchQuery = { text: "", within: [], kinds: [], verified: false, phrases: [] };
+  const parsed: SearchQuery = { text: "", within: [], kinds: [], verified: false, phrases: [], tags: [] };
   const words: string[] = [];
   for (const token of tokenize(query)) {
     if (token.kind === "quoted") {
@@ -125,6 +141,7 @@ export function parseSearchQuery(query: string): SearchQuery {
       // One quoted word is a phrase too: found whole, not as the start of a longer word.
       if (token.closed && /[\p{L}\p{N}]/u.test(phrase) && !parsed.phrases.includes(phrase)) parsed.phrases.push(phrase);
     } else {
+      if (token.text.startsWith("#") && addTag(parsed, token.text.slice(1))) continue;
       const colon = token.text.indexOf(":");
       if (colon > 0 && applyFilter(parsed, token.text.slice(0, colon), token.text.slice(colon + 1))) continue;
       words.push(token.text);
@@ -135,4 +152,5 @@ export function parseSearchQuery(query: string): SearchQuery {
 }
 
 /** Whether the query has a filter (then it lists pages even without text). */
-export const hasSearchFilters = (parsed: SearchQuery) => parsed.within.length > 0 || parsed.kinds.length > 0 || parsed.verified;
+export const hasSearchFilters = (parsed: SearchQuery) =>
+  parsed.within.length > 0 || parsed.kinds.length > 0 || parsed.verified || parsed.tags.length > 0;

@@ -38,5 +38,11 @@
     "trashed": "Dipindahkan ke sampah",
     "rowsTrashed": "{count, plural, other {# baris dipindahkan ke sampah}}",
     "undoFailed": "Tidak dapat diurungkan."
+  },
+  "datePhrase": {
+    "label": "Ketik tanggal",
+    "placeholder": "Ketik tanggal: besok 17:00, 31 agu, +2w",
+    "preview": "{when} · Enter untuk mengatur",
+    "unreadable": "Bukan tanggal. Coba “besok 9:00”, “31 agustus”, atau “2w”."
   }
 }

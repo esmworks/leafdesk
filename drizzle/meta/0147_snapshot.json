@@ -1,6 +1,6 @@
 {
-  "id": "acd2b8c0-e676-4363-9007-563ecb20095c",
-  "prevId": "48282f0a-ef43-44ea-badd-c9cfa72a4b59",
+  "id": "ea324b56-4fb3-4fd9-849f-e3f901e502a7",
+  "prevId": "f127a68c-08ea-4abb-bf2f-7be3a96375e2",
   "version": "7",
   "dialect": "postgresql",
   "tables": {
@@ -2090,12 +2090,6 @@
           "notNull": true,
           "default": false
         },
-        "owner_id": {
-          "name": "owner_id",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false
-        },
         "deleted_at": {
           "name": "deleted_at",
           "type": "timestamp with time zone",
@@ -2154,22 +2148,6 @@
           "concurrently": false,
           "method": "btree",
           "with": {}
-        },
-        "database_view_owner_idx": {
-          "name": "database_view_owner_idx",
-          "columns": [
-            {
-              "expression": "owner_id",
-              "isExpression": false,
-              "asc": true,
-              "nulls": "last"
-            }
-          ],
-          "isUnique": false,
-          "where": "\"database_view\".\"owner_id\" is not null",
-          "concurrently": false,
-          "method": "btree",
-          "with": {}
         }
       },
       "foreignKeys": {
@@ -2179,19 +2157,6 @@
           "tableTo": "page",
           "columnsFrom": [
             "database_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
-          "onDelete": "cascade",
-          "onUpdate": "no action"
-        },
-        "database_view_owner_id_user_id_fk": {
-          "name": "database_view_owner_id_user_id_fk",
-          "tableFrom": "database_view",
-          "tableTo": "user",
-          "columnsFrom": [
-            "owner_id"
           ],
           "columnsTo": [
             "id"
@@ -2718,6 +2683,12 @@
           "type": "text",
           "primaryKey": false,
           "notNull": true
+        },
+        "name": {
+          "name": "name",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
         },
         "created_by": {
           "name": "created_by",
@@ -3498,94 +3469,6 @@
           "value": "\"teamspace_member\".\"role\" in ('owner', 'member')"
         }
       },
-      "isRLSEnabled": false
-    },
-    "public.unique_value": {
-      "name": "unique_value",
-      "schema": "",
-      "columns": {
-        "row_id": {
-          "name": "row_id",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "property_id": {
-          "name": "property_id",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "key": {
-          "name": "key",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true
-        }
-      },
-      "indexes": {
-        "unique_value_key_idx": {
-          "name": "unique_value_key_idx",
-          "columns": [
-            {
-              "expression": "property_id",
-              "isExpression": false,
-              "asc": true,
-              "nulls": "last"
-            },
-            {
-              "expression": "key",
-              "isExpression": false,
-              "asc": true,
-              "nulls": "last"
-            }
-          ],
-          "isUnique": true,
-          "concurrently": false,
-          "method": "btree",
-          "with": {}
-        }
-      },
-      "foreignKeys": {
-        "unique_value_row_id_page_id_fk": {
-          "name": "unique_value_row_id_page_id_fk",
-          "tableFrom": "unique_value",
-          "tableTo": "page",
-          "columnsFrom": [
-            "row_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
-          "onDelete": "cascade",
-          "onUpdate": "no action"
-        },
-        "unique_value_property_id_database_property_id_fk": {
-          "name": "unique_value_property_id_database_property_id_fk",
-          "tableFrom": "unique_value",
-          "tableTo": "database_property",
-          "columnsFrom": [
-            "property_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
-          "onDelete": "cascade",
-          "onUpdate": "no action"
-        }
-      },
-      "compositePrimaryKeys": {
-        "unique_value_row_id_property_id_pk": {
-          "name": "unique_value_row_id_property_id_pk",
-          "columns": [
-            "row_id",
-            "property_id"
-          ]
-        }
-      },
-      "uniqueConstraints": {},
-      "policies": {},
-      "checkConstraints": {},
       "isRLSEnabled": false
     },
     "public.workspace": {
@@ -5299,6 +5182,155 @@
           ]
         }
       },
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.page_task": {
+      "name": "page_task",
+      "schema": "",
+      "columns": {
+        "page_id": {
+          "name": "page_id",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "block_id": {
+          "name": "block_id",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "user_id": {
+          "name": "user_id",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "text": {
+          "name": "text",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "''"
+        },
+        "date": {
+          "name": "date",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        }
+      },
+      "indexes": {
+        "page_task_user_idx": {
+          "name": "page_task_user_idx",
+          "columns": [
+            {
+              "expression": "user_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            },
+            {
+              "expression": "updated_at",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        }
+      },
+      "foreignKeys": {
+        "page_task_page_id_page_id_fk": {
+          "name": "page_task_page_id_page_id_fk",
+          "tableFrom": "page_task",
+          "tableTo": "page",
+          "columnsFrom": [
+            "page_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        },
+        "page_task_user_id_user_id_fk": {
+          "name": "page_task_user_id_user_id_fk",
+          "tableFrom": "page_task",
+          "tableTo": "user",
+          "columnsFrom": [
+            "user_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {
+        "page_task_page_id_block_id_user_id_pk": {
+          "name": "page_task_page_id_block_id_user_id_pk",
+          "columns": [
+            "page_id",
+            "block_id",
+            "user_id"
+          ]
+        }
+      },
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.page_task_backfill": {
+      "name": "page_task_backfill",
+      "schema": "",
+      "columns": {
+        "page_id": {
+          "name": "page_id",
+          "type": "text",
+          "primaryKey": true,
+          "notNull": true
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "page_task_backfill_page_id_page_id_fk": {
+          "name": "page_task_backfill_page_id_page_id_fk",
+          "tableFrom": "page_task_backfill",
+          "tableTo": "page",
+          "columnsFrom": [
+            "page_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
       "uniqueConstraints": {},
       "policies": {},
       "checkConstraints": {},

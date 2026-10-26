@@ -31,6 +31,7 @@ import {
   type RelationRef,
 } from "@/lib/import/notion";
 import { ImportError, WarningList, type ImportResult } from "@/lib/import/result";
+import { unpackTextBundles } from "@/lib/import/textbundle";
 import { PAGE_LINK_MARKER, pagePath } from "@/lib/mentions";
 import { AccessError, requirePageAccess } from "@/server/access";
 import { getCollab, type WriteActor } from "@/server/collab/bridge";
@@ -63,6 +64,10 @@ import { importCsvAsDatabase, recordImport } from "./csv";
  * whose links lead to rows of the upload as relations (linked once every row exists), links to
  * notion.so pages of the upload pointed at the imported pages, and a line linking to a subpage as
  * a link-to-page block where it was.
+ *
+ * TextBundles (`Name.textbundle/` folders, and TextPacks, the same zipped) come in as a page each,
+ * titled by the heading their text starts with or else by the bundle's name, with the pictures and
+ * files of their `assets/` folder that the text shows uploaded (see lib/import/textbundle).
  *
  * All or nothing: limits are checked before anything is created, and if creating or writing fails
  * midway, what the import created so far is deleted again (uploads with it). What an import that
@@ -108,7 +113,8 @@ export async function importPages(actor: WriteActor, input: MarkdownImportInput)
 
   const warnings = new WarningList();
   const collected = collectFiles(input.files);
-  const files = collected.files;
+  const bundled = unpackTextBundles(collected.files);
+  const files = bundled.files;
   for (const s of collected.skipped) warnings.add({ code: "skipped", path: s.path, reason: s.reason });
   // Markdown files over the limit are left out rather than read.
   for (const [path, bytes] of files) {
@@ -389,7 +395,8 @@ export async function importPages(actor: WriteActor, input: MarkdownImportInput)
     moreWarnings: warnings.more,
   };
   const fromNotion = plan.nodes.some((n) => n.source && notionId(n.source));
-  await recordImport(userId, workspaceId, result, isVault ? "obsidian" : fromNotion ? "notion" : "markdown");
+  const format = bundled.bundles ? "textbundle" : isVault ? "obsidian" : fromNotion ? "notion" : "markdown";
+  await recordImport(userId, workspaceId, result, format);
   return result;
 }
 

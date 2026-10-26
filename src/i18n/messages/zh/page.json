@@ -323,9 +323,37 @@
       "beforeMerge": "合并行之前"
     },
     "empty": "还没有版本。编辑时以及任何 AI 应用更改此页面之前，都会自动保存版本。",
+    "saveVersion": "保存版本",
+    "namedOnly": "仅显示已命名的版本",
+    "emptyNamed": "还没有已命名的版本。保存一个带名称的版本，或在列表中为某个版本命名。",
+    "name": "为此版本命名",
+    "rename": "重命名此版本",
     "restore": "恢复此版本",
     "restoring": "正在恢复…",
     "restoreHint": "当前内容会先保存为一个版本。",
+    "versionName": {
+      "saveTitle": "保存版本",
+      "saveHint": "按页面现在的样子保存。起个名字便于以后找到：已命名的版本会一直保留，直到页面被删除。",
+      "renameTitle": "为版本命名",
+      "renameHint": "{date} 的版本。已命名的版本会一直保留，直到页面被删除；名称留空即可移除名称。",
+      "unchangedTitle": "没有任何更改",
+      "unchangedHint": "页面与 {date} 的版本相同，因此会为该版本命名，而不是再保存一份副本。名称留空即可移除名称。",
+      "nameLabel": "名称",
+      "namePlaceholder": "可选，例如：已送审",
+      "save": "保存版本",
+      "saveName": "保存名称",
+      "saving": "正在保存…",
+      "saved": "已保存版本",
+      "savedNamed": "已保存版本“{name}”",
+      "named": "已将版本命名为“{name}”",
+      "nameCleared": "已移除版本名称",
+      "errors": {
+        "invalidName": "名称最多 {max} 个字符。",
+        "inTrash": "此页面在回收站中。请先恢复它。",
+        "failed": "无法保存。请重试。",
+        "state": "无法检查自上一个版本以来的更改。"
+      }
+    },
     "diff": {
       "rangeCurrent": "从 {from} 的版本到当前页面的更改",
       "rangePrevious": "从 {from} 到 {to} 的更改",
@@ -746,6 +774,8 @@
     "reminderSet": "提醒：{when}",
     "reminderHint": "你会在收件箱中和通过邮件收到提醒。",
     "reminderPast": "该时间已过；请选择更晚的日期或提醒时间。",
+    "remindAt": "提醒时间",
+    "remindAtPlaceholder": "或输入时间：周五 17:00、-1d",
     "done": "完成"
   },
   "preview": {
@@ -991,6 +1021,19 @@
       "placeholder": "例如：客户拜访记录。写明公司、见面的人、讨论的内容、报价状态和下一步。",
       "followed": "保存到这里的语音笔记会遵循此数据库的写作说明。"
     }
+  },
+  "dictation": {
+    "slashTitle": "听写",
+    "slashSubtext": "说话即可，你说的话会原样写在这里",
+    "slashAliases": "听写 语音输入 dictate 语音 说话 麦克风 转写",
+    "starting": "正在启动…",
+    "listening": "正在听",
+    "writing": "正在写入…",
+    "finish": "结束听写并写入文字",
+    "hint": "按 {shortcut} 或 Enter 结束，按 Esc 取消",
+    "autoStopped": "听写已在 {minutes} 分钟的上限处停止。此前说的内容已写入。",
+    "copied": "听写的文字无法放入页面，已复制到剪贴板。",
+    "notPlaced": "听写的文字既无法放入页面，也无法复制：{text}"
   },
   "review": {
     "bar": "{count} 处 AI 更改待审阅",
@@ -1324,5 +1367,10 @@
     "title": "转为页面并放到",
     "here": "在此页面内",
     "failed": "无法将这些块移到新页面。"
+  },
+  "tags": {
+    "label": "标签",
+    "pages": "{count, plural, other {# 个页面}}",
+    "find": "查找带有 #{tag} 的页面"
   }
 }

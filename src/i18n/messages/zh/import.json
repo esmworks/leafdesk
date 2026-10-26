@@ -7,6 +7,7 @@
     "docx": "Word",
     "pdf": "PDF",
     "evernote": "Evernote",
+    "onenote": "OneNote（.mht）",
     "confluence": "Confluence",
     "csv": "CSV 和 Excel",
     "trello": "Trello",
@@ -27,6 +28,7 @@
     "help": "Markdown 文件会成为页面，文件夹会保留其结构。CSV 文件会成为数据库，页面中链接的图片会被上传。",
     "notion": "从 Notion 导入：以“Markdown & CSV”格式导出（包含子页面），然后直接选择下载的 ZIP 文件（拆分的导出包也可以）。子页面、数据库、关联、标注、折叠块和图片都会一并导入。",
     "obsidian": "从 Obsidian 导入：选择库所在的文件夹，或其 ZIP 压缩包。笔记之间的链接（包括 [[wikilinks]]）、嵌入的图片和文件以及标注都会一并导入。",
+    "textbundle": "TextBundle 和 TextPack 文件（来自 Bear、Ulysses、iA Writer 等 Markdown 应用）各成为一个页面，并带上其中的图片和附件：选择 .textpack 文件、它们的 ZIP，或包含 .textbundle 文件夹的文件夹。",
     "chooseFiles": "选择文件",
     "chooseFolder": "选择文件夹",
     "drop": "或将文件拖放到这里",
@@ -55,6 +57,11 @@
       "sourceUrl": "来源 URL",
       "encrypted": "加密文本未被导入。"
     }
+  },
+  "onenote": {
+    "help": "每个文件成为一个页面，包含其文本、标题、列表、表格、链接和图片。分区的文件会成为以分区命名的页面，其下为分区中的每个页面各建一个页面。任何保存为单个文件的网页（.mht 或 .mhtml）也都可以导入。",
+    "export": "在 Windows 版 OneNote 中选择“文件”→“导出”，然后选择“页”或“分区”以及“单个文件网页 (*.mht)”，再在这里选择保存的文件。OneNote 导出的 Word（.docx）和 PDF 文件可在 Word 和 PDF 标签页中导入。",
+    "choose": "选择 .mht 文件"
   },
   "confluence": {
     "help": "Confluence 空间中的每个页面都会成为一个页面，层级与空间中相同。标题、列表、表格、代码块、信息面板（作为标注）、展开部分（作为折叠列表）、任务列表、图片和附件都会一并导入，页面之间的链接会变成页面提及。",
@@ -296,6 +303,7 @@
     "pdfNoText": "“{name}”没有可导入的文字：它看起来是扫描件。请先对其进行文字识别（OCR），或将其作为文件上传到页面。",
     "pdfTooComplex": "“{name}”太大，无法作为一个页面导入。",
     "badEnex": "无法将“{name}”读取为 Evernote 导出文件。请在 Evernote 中将笔记导出为 ENEX（.enex），然后选择该文件。",
+    "badMhtml": "无法将“{name}”读取为单个文件网页。请在 OneNote 中导出为“单个文件网页 (*.mht)”，然后选择该文件。",
     "badTrello": "该文件不是 Trello 看板的导出文件。请在 Trello 的看板菜单中选择“导出为 JSON”，然后选择该文件。",
     "badAsana": "该文件不是 Asana 项目导出。请在 Asana 的项目菜单中选择“导出 → CSV”或 JSON，然后选择该文件。",
     "badMonday": "该文件不是 Monday.com 看板导出。请在 Monday.com 的看板菜单中选择“将看板导出到 Excel”，然后选择该文件。",

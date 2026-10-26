@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import { test } from "node:test";
-import { ClosedTabs, readIcon, readSavedTabs, TabList, tabKey, tabPath, tabShortcuts, tabTitle, windowsToRestore, type KeyInput } from "./tabs.ts";
+import { ClosedTabs, placeStrip, readIcon, readSavedTabs, readStripRoom, TabList, tabKey, tabPath, tabShortcuts, tabTitle, windowsToRestore, type KeyInput } from "./tabs.ts";
 
 const SERVER = "https://leafdesk.example.com";
 
@@ -199,4 +199,32 @@ test("titles lose Leafdesk's name; icons are short emoji", () => {
   assert.equal(readIcon(""), null);
   assert.equal(readIcon("a longer text than an icon"), null);
   assert.equal(readIcon(42), null);
+});
+
+test("a page's room for the tab strip is read strictly", () => {
+  assert.deepEqual(readStripRoom("256 0"), { left: 256, right: 0 });
+  assert.deepEqual(readStripRoom("0 0"), { left: 0, right: 0 });
+  assert.equal(readStripRoom("none"), "none");
+  for (const value of ["", "256", "-1 0", "1.5 0", " 0 0", "123456 0", null, 3]) assert.equal(readStripRoom(value), null);
+});
+
+test("the strip lies over the page beside its sidebar, else above the page", () => {
+  assert.deepEqual(placeStrip(null, 1200, 800, 44, 1), {
+    strip: { x: 0, y: 0, width: 1200, height: 44 },
+    page: { x: 0, y: 44, width: 1200, height: 756 },
+    clearOfControls: false,
+  });
+  assert.deepEqual(placeStrip({ left: 256, right: 0 }, 1200, 800, 44, 1), {
+    strip: { x: 256, y: 0, width: 944, height: 44 },
+    page: { x: 0, y: 0, width: 1200, height: 800 },
+    clearOfControls: true,
+  });
+  // The sidebar hidden: the strip starts at the window's edge, beside the window's buttons.
+  assert.equal(placeStrip({ left: 0, right: 0 }, 1200, 800, 44, 1).clearOfControls, false);
+  // Right to left, the sidebar on the right.
+  assert.deepEqual(placeStrip({ left: 0, right: 256 }, 1200, 800, 44, 1).strip, { x: 0, y: 0, width: 944, height: 44 });
+  // Zoomed in, the page's pixels are larger.
+  assert.deepEqual(placeStrip({ left: 205, right: 0 }, 1200, 800, 44, 1.25).strip, { x: 256, y: 0, width: 944, height: 55 });
+  // A window narrower than the sidebar leaves the strip no width rather than less than none.
+  assert.equal(placeStrip({ left: 256, right: 0 }, 200, 800, 44, 1).strip.width, 0);
 });

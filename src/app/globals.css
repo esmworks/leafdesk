@@ -1428,6 +1428,26 @@ body:has(.leafdesk-column-drop) .prosemirror-dropcursor-block {
 }
 
 /*
+ * #tags in a page (components/page/tags.ts): plain text marked as a quiet chip in the accent color.
+ * Clicking one finds the pages carrying it (with Ctrl or Cmd where the page can be edited).
+ */
+.leafdesk-tag {
+  color: var(--accent);
+  background: color-mix(in srgb, var(--accent) 10%, transparent);
+  border-radius: 3px;
+  padding: 0 2px;
+  margin: 0 -1px;
+  box-decoration-break: clone;
+  -webkit-box-decoration-break: clone;
+}
+.ProseMirror[contenteditable="false"] .leafdesk-tag {
+  cursor: pointer;
+}
+.ProseMirror[contenteditable="false"] .leafdesk-tag:hover {
+  background: color-mix(in srgb, var(--accent) 18%, transparent);
+}
+
+/*
  * Mentions: inline text with a small icon, no chip background until hovered. Page mentions are
  * underlined like links; ones that can't be opened (no access, deleted) are muted.
  */
@@ -1574,7 +1594,8 @@ body:has(.leafdesk-column-drop) .prosemirror-dropcursor-block {
  * Desktop app versions before tabs, on macOS, have no title bar: the window's buttons sit over the
  * page's top-left corner, centered on the 44px header row, and that row moves the window (their
  * preload sets <html data-window-controls>; data-full-screen when macOS hides the buttons). Newer
- * versions put the buttons in their own tab strip above the page and mark it data-desktop-app.
+ * versions put the buttons in their own tab strip and mark it data-desktop-app (and, on macOS,
+ * data-tab-strip: below).
  * The sidebar, and the navigation that takes its place in settings and admin, starts below them;
  * a header the buttons would cover (no sidebar beside it, or the sidebar on the right) leaves
  * their width free. The region dragging the window is a strip over the whole width (the root
@@ -1640,6 +1661,58 @@ body:has(.leafdesk-column-drop) .prosemirror-dropcursor-block {
   /* Phone-sized windows show the sidebar as a drawer, so a header always starts at the left edge. */
   :root[data-window-controls]:not([data-full-screen]) [data-window-controls-clear] {
     padding-left: var(--window-controls-width);
+  }
+}
+
+/*
+ * Desktop app versions with tabs, on macOS (<html data-tab-strip>, data-full-screen as above), in
+ * windows wide enough for the sidebar: the sidebar, or the navigation in its place, runs the
+ * window's full height, and the tab strip, a view of the app's own, lies over the top of the rest
+ * of the page, where it was told (components/desktop-tab-strip.tsx). What sits beside the sidebar
+ * starts below the strip, panels fixed to the window's edge too (their top is --app-top). The
+ * window's buttons sit over the open sidebar's first row, its inbox, new page and hide buttons
+ * beside them at its end, and that row moves the window, as in the versions before tabs above.
+ * Pages without a sidebar, and phone-sized windows, have the strip above them.
+ */
+:root {
+  --app-top: 0px;
+}
+@media (min-width: 768px) {
+  :root[data-tab-strip]:has([data-sidebar]) {
+    --app-top: var(--window-controls-height);
+    /* The workspace's sidebar, then dialogs, then its page; settings, the account and administration put theirs right after their navigation. */
+    aside[data-sidebar] ~ main,
+    nav[data-sidebar] + * {
+      margin-top: var(--app-top);
+    }
+  }
+  :root[data-tab-strip]:not([data-full-screen], [dir="rtl"]):has([data-sidebar-open]) {
+    [data-window-drag] {
+      display: block;
+      position: fixed;
+      inset-inline: 0;
+      top: 0;
+      height: var(--window-controls-height);
+      pointer-events: none;
+      -webkit-app-region: drag;
+    }
+    :is([role="dialog"], [role="menu"], [role="listbox"]),
+    [data-sidebar]
+      :is(button, a[href], input, textarea, select, label, summary, [contenteditable="true"], [role="button"], [role="link"], [role="menuitem"], [role="tab"], [role="separator"]) {
+      -webkit-app-region: no-drag;
+    }
+    [data-sidebar][data-sidebar-open] {
+      padding-top: var(--window-controls-height);
+    }
+    [data-sidebar][data-sidebar-open] [data-sidebar-head-actions] {
+      position: absolute;
+      top: 0;
+      inset-inline-end: 0.5rem;
+      height: var(--window-controls-height);
+    }
+    [data-sidebar][data-sidebar-open] [data-sidebar-hide] {
+      display: inline-flex;
+    }
   }
 }
 

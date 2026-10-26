@@ -36,6 +36,8 @@ export const IMPORT_ERROR_CODES = [
   "pdfTooComplex",
   /** A file (`name`) that isn't an Evernote export (.enex), can't be read as one, or a ZIP holding none. */
   "badEnex",
+  /** A file (`name`) that isn't a single-file web page (.mht, .mhtml) or holds no HTML. */
+  "badMhtml",
   /** The file isn't a Trello board's JSON export. */
   "badTrello",
   /** The file isn't an Asana project's CSV or JSON export. */

@@ -1,26 +1,41 @@
 /**
- * A window with tabs. The window's own page is the tab strip (pages/tabs.html, with the window's
- * buttons in it); each tab is a view of its own below the strip, showing a page of the server or
- * one of the app's own screens. Every tab shares the app's one session, so a sign-in holds in all
- * of them. What decides where a tab may go, and what it loads, stays in main.ts (TabHooks); the
- * order of the tabs and the keys that switch them are tabs.ts.
+ * A window with tabs. The tab strip (pages/tabs.html, with the window's buttons in it) runs across
+ * the top; each tab is a view of its own below it, showing a page of the server or one of the app's
+ * own screens. On macOS (`stripOverPage`) the strip is a view of its own over the shown tab
+ * instead: a page of the server with a sidebar fills the window and tells where its sidebar ends
+ * (setRoom), the strip lies over the rest of its top and the sidebar runs the window's full height,
+ * the window's buttons over its first row. Elsewhere the strip is the window's own page, where the
+ * system's buttons are drawn over its end. Every tab shares the app's one session, so a sign-in
+ * holds in all of them. What decides where a tab may go, and what it loads, stays in main.ts
+ * (TabHooks); the order of the tabs and the keys that switch them are tabs.ts.
  */
 import path from "node:path";
 import { BrowserWindow, WebContentsView, type BrowserWindowConstructorOptions, type Rectangle, type WebContents, type WebPreferences } from "electron";
-import { TabList, tabKey, tabTitle, type SavedTab, type SavedWindow } from "./tabs.ts";
+import { placeStrip, TabList, tabKey, tabTitle, type SavedTab, type SavedWindow, type StripRoom } from "./tabs.ts";
 
-/** The strip's height: room for the tabs, and for macOS's window buttons centered beside them. */
-export const STRIP_HEIGHT = 40;
+/**
+ * The strip's height: room for the tabs, and for macOS's window buttons centered beside them; the
+ * web app's header row (`--window-controls-height` in its globals.css) is as high.
+ */
+export const STRIP_HEIGHT = 44;
 
-/** A tab: its view, what the strip shows of it, and, until it is first shown, the path it opens (a restored tab). */
-type Tab = { id: number; view: WebContentsView; title: string; icon: string | null; loading: boolean; pending?: string };
+/**
+ * A tab: its view, what the strip shows of it, until it is first shown the path it opens (a
+ * restored tab), and the room its page leaves the strip (undefined: not told since it loaded).
+ */
+type Tab = { id: number; view: WebContentsView; title: string; icon: string | null; loading: boolean; pending?: string; room?: StripRoom | null };
 
 /** What the strip draws: pages/tabs.html reads it (src/pages/tabs.ts mirrors the shape). */
 export type StripState = {
   tabs: { id: number; title: string; icon: string | null; loading: boolean }[];
   active: number | null;
-  strings: { newTab: string; closeTab: string; tabs: string };
+  strings: { newTab: string; closeTab: string; tabs: string; back: string; forward: string };
   dir: "ltr" | "rtl";
+  /** The shown tab can go back or forward in its history. */
+  canGoBack: boolean;
+  canGoForward: boolean;
+  /** The strip starts past macOS's window buttons (beside the page's sidebar) and leaves them no room. */
+  clearOfControls: boolean;
 };
 
 export type TabHooks = {
@@ -51,13 +66,23 @@ const STRIP_PAGE = path.join(import.meta.dirname, "..", "pages", "tabs.html");
 let nextId = 1;
 const windows = new Set<TabbedWindow>();
 const owners = new Map<WebContents, TabbedWindow>();
+/**
+ * The room the last page with a sidebar left the strip: a page loading meanwhile is laid out so
+ * until it tells its own, rather than jumping as it does. Forgotten with the server (forgetRoom).
+ */
+let lastRoom: StripRoom | null = null;
 
 export class TabbedWindow {
   readonly window: BrowserWindow;
+  /** The tab strip's page. */
+  readonly strip: WebContents;
   readonly list = new TabList();
   private readonly tabs = new Map<number, Tab>();
   private readonly hooks: TabHooks;
+  /** The strip's own view, over the shown tab (stripOverPage); else the strip is the window's page. */
+  private readonly stripView: WebContentsView | null;
   private stripReady = false;
+  private clearOfControls = false;
 
   /** Every window with tabs, in the order they opened. */
   static all() {
@@ -73,9 +98,14 @@ export class TabbedWindow {
     return [...windows].find((each) => each.window === window);
   }
 
+  /** Another server: the room its pages leave the strip is not known yet. */
+  static forgetRoom() {
+    lastRoom = null;
+  }
+
   constructor(
     hooks: TabHooks,
-    options: { bounds?: Partial<Rectangle>; stripPreferences: WebPreferences; minWidth: number; minHeight: number; icon?: string },
+    options: { bounds?: Partial<Rectangle>; stripPreferences: WebPreferences; stripOverPage: boolean; minWidth: number; minHeight: number; icon?: string },
   ) {
     this.hooks = hooks;
     this.window = new BrowserWindow({
@@ -89,10 +119,15 @@ export class TabbedWindow {
       backgroundColor: hooks.background(),
       icon: options.icon,
       ...hooks.titleBar(),
-      webPreferences: options.stripPreferences,
+      webPreferences: options.stripOverPage ? hooks.webPreferences() : options.stripPreferences,
     });
     windows.add(this);
-    const strip = this.window.webContents;
+    this.stripView = options.stripOverPage ? new WebContentsView({ webPreferences: options.stripPreferences }) : null;
+    if (this.stripView) {
+      this.stripView.setBackgroundColor(hooks.background());
+      this.window.contentView.addChildView(this.stripView);
+    }
+    const strip = (this.strip = this.stripView?.webContents ?? this.window.webContents);
     owners.set(strip, this);
     strip.on("before-input-event", (event, input) => {
       if (this.handleKey(input)) event.preventDefault();
@@ -100,13 +135,15 @@ export class TabbedWindow {
     strip.on("did-finish-load", () => {
       this.stripReady = true;
       this.sendStrip();
+      // The window's own page shows nothing when the strip is a view of its own.
+      if (this.stripView && !this.window.isDestroyed() && !this.window.isVisible()) this.window.show();
     });
     // The strip's own page never goes anywhere else.
     strip.on("will-navigate", (event) => event.preventDefault());
     strip.setWindowOpenHandler(() => ({ action: "deny" }));
-    void this.window.loadFile(STRIP_PAGE).catch(() => undefined);
+    void strip.loadFile(STRIP_PAGE).catch(() => undefined);
 
-    this.window.once("ready-to-show", () => this.window.show());
+    if (!this.stripView) this.window.once("ready-to-show", () => this.window.show());
     // A page that never paints (a server that holds the connection open) still gets its window.
     setTimeout(() => {
       if (!this.window.isDestroyed() && !this.window.isVisible()) this.window.show();
@@ -121,6 +158,7 @@ export class TabbedWindow {
     this.window.on("closed", () => {
       windows.delete(this);
       owners.delete(strip);
+      if (this.stripView && !strip.isDestroyed()) strip.close();
       for (const tab of this.tabs.values()) this.destroy(tab);
       this.tabs.clear();
     });
@@ -143,6 +181,8 @@ export class TabbedWindow {
     this.watch(tab);
     this.hooks.prepare(contents);
     this.window.contentView.addChildView(view);
+    // Adding it again keeps the strip over every tab.
+    if (this.stripView) this.window.contentView.addChildView(this.stripView);
 
     const show = options.show ?? true;
     this.list.open(id, { fromActive: options.fromActive, show });
@@ -264,8 +304,23 @@ export class TabbedWindow {
     this.sendStrip();
   }
 
+  /** Where a tab's page leaves the strip room beside its sidebar (null: none, the strip goes above it). */
+  setRoom(contents: WebContents, room: StripRoom | null) {
+    const tab = [...this.tabs.values()].find((each) => each.view.webContents === contents);
+    if (!tab || !this.stripView) return;
+    tab.room = room;
+    if (room) lastRoom = room;
+    if (tab.id === this.list.active) this.layout();
+  }
+
+  /** The strip's page, and every tab's page: told when the window enters or leaves full screen. */
+  allPages() {
+    return [this.strip, ...this.allContents()];
+  }
+
   setBackground(color: string) {
     this.window.setBackgroundColor(color);
+    this.stripView?.setBackgroundColor(color);
     for (const tab of this.tabs.values()) tab.view.setBackgroundColor(color);
   }
 
@@ -284,14 +339,18 @@ export class TabbedWindow {
       tab.loading = false;
       this.sendStrip();
     });
-    // A page loaded anew reports its icon again; the old one is gone with it.
+    // A page loaded anew reports its icon, and its room for the strip, again; the old ones are gone with it.
     contents.on("did-navigate", () => {
       tab.icon = null;
+      tab.room = undefined;
+      this.layout();
       this.sendStrip();
       this.hooks.changed();
     });
     contents.on("did-navigate-in-page", (_event, _url, isMainFrame) => {
-      if (isMainFrame) this.hooks.changed();
+      if (!isMainFrame) return;
+      this.sendStrip();
+      this.hooks.changed();
     });
     contents.on("before-input-event", (event, input) => {
       if (this.handleKey(input)) event.preventDefault();
@@ -305,20 +364,39 @@ export class TabbedWindow {
     if (!contents.isDestroyed()) contents.close();
   }
 
-  /** The shown tab fills the window below the strip; the others are hidden. */
+  /**
+   * The shown tab fills the window below the strip, or, when its page leaves the strip room beside
+   * its sidebar, the whole window under the strip; the others are hidden.
+   */
   private layout() {
     if (this.window.isDestroyed()) return;
     const [width, height] = this.window.getContentSize();
-    const bounds = { x: 0, y: STRIP_HEIGHT, width, height: Math.max(0, height - STRIP_HEIGHT) };
+    const shown = this.list.active === null ? undefined : this.tabs.get(this.list.active);
+    const place = placeStrip(this.stripView && shown ? this.roomOf(shown) : null, width, height, STRIP_HEIGHT, shown?.view.webContents.getZoomFactor() ?? 1);
+    this.stripView?.setBounds(place.strip);
     for (const tab of this.tabs.values()) {
-      const shown = tab.id === this.list.active;
-      if (shown) tab.view.setBounds(bounds);
-      tab.view.setVisible(shown);
+      if (tab === shown) tab.view.setBounds(place.page);
+      tab.view.setVisible(tab === shown);
     }
+    if (place.clearOfControls !== this.clearOfControls) {
+      this.clearOfControls = place.clearOfControls;
+      this.sendStrip();
+    }
+  }
+
+  /**
+   * The room a tab's page leaves the strip: as it told, else, while a page of the server loads, as
+   * the last page with a sidebar did. The app's own pages have none.
+   */
+  private roomOf(tab: Tab): StripRoom | null {
+    if (tab.room !== undefined) return tab.room;
+    const url = tab.pending === undefined ? tab.view.webContents.getURL() : "";
+    return url.startsWith("file:") ? null : lastRoom;
   }
 
   private sendStrip() {
     if (!this.stripReady || this.window.isDestroyed()) return;
+    const history = this.activeContents()?.navigationHistory;
     const state: StripState = {
       tabs: this.list.ids.map((id) => {
         const { title, icon, loading } = this.tabs.get(id)!;
@@ -326,7 +404,10 @@ export class TabbedWindow {
       }),
       active: this.list.active,
       ...this.hooks.strings(),
+      canGoBack: history?.canGoBack() ?? false,
+      canGoForward: history?.canGoForward() ?? false,
+      clearOfControls: this.clearOfControls,
     };
-    this.window.webContents.send("leafdesk:tabs", state);
+    this.strip.send("leafdesk:tabs", state);
   }
 }

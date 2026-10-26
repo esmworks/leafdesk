@@ -323,9 +323,37 @@
       "beforeMerge": "Trước khi gộp các hàng"
     },
     "empty": "Chưa có phiên bản nào. Các phiên bản được lưu tự động khi bạn chỉnh sửa và trước khi bất kỳ ứng dụng AI nào thay đổi trang này.",
+    "saveVersion": "Lưu phiên bản",
+    "namedOnly": "Chỉ phiên bản có tên",
+    "emptyNamed": "Chưa có phiên bản nào có tên. Hãy lưu một phiên bản kèm tên, hoặc đặt tên cho một phiên bản trong danh sách.",
+    "name": "Đặt tên cho phiên bản này",
+    "rename": "Đổi tên phiên bản này",
     "restore": "Khôi phục phiên bản này",
     "restoring": "Đang khôi phục…",
     "restoreHint": "Nội dung hiện tại được lưu thành một phiên bản trước.",
+    "versionName": {
+      "saveTitle": "Lưu phiên bản",
+      "saveHint": "Lưu trang như hiện tại. Đặt tên để tìm lại sau: phiên bản có tên được giữ lại chừng nào trang còn.",
+      "renameTitle": "Đặt tên phiên bản",
+      "renameHint": "Phiên bản lúc {date}. Phiên bản có tên được giữ lại chừng nào trang còn; để trống tên để xóa tên.",
+      "unchangedTitle": "Không có gì thay đổi",
+      "unchangedHint": "Trang giống phiên bản lúc {date}, nên phiên bản đó được đặt tên thay vì lưu một bản sao. Để trống tên để xóa tên.",
+      "nameLabel": "Tên",
+      "namePlaceholder": "Không bắt buộc, vd: Đã gửi duyệt",
+      "save": "Lưu phiên bản",
+      "saveName": "Lưu tên",
+      "saving": "Đang lưu…",
+      "saved": "Đã lưu phiên bản",
+      "savedNamed": "Đã lưu phiên bản “{name}”",
+      "named": "Đã đặt tên phiên bản là “{name}”",
+      "nameCleared": "Đã xóa tên phiên bản",
+      "errors": {
+        "invalidName": "Tên chỉ được dài tối đa {max} ký tự.",
+        "inTrash": "Trang này đang ở thùng rác. Hãy khôi phục trước.",
+        "failed": "Không lưu được. Hãy thử lại.",
+        "state": "Không kiểm tra được thay đổi kể từ phiên bản gần nhất."
+      }
+    },
     "diff": {
       "rangeCurrent": "Các thay đổi từ phiên bản {from} đến trang hiện tại",
       "rangePrevious": "Các thay đổi từ {from} đến {to}",
@@ -746,6 +774,8 @@
     "reminderSet": "Lời nhắc: {when}",
     "reminderHint": "Bạn sẽ nhận được trong hộp thư đến và qua email.",
     "reminderPast": "Thời điểm đó đã qua; hãy chọn ngày hoặc lời nhắc muộn hơn.",
+    "remindAt": "Nhắc lúc",
+    "remindAtPlaceholder": "Hoặc nhập thời gian: thứ Sáu 17:00, -1d",
     "done": "Xong"
   },
   "preview": {
@@ -991,6 +1021,19 @@
       "placeholder": "Ví dụ: Ghi chú thăm khách hàng. Nêu công ty, người đã gặp, nội dung đã bàn, tình trạng báo giá và bước tiếp theo.",
       "followed": "Các ghi chú giọng nói được lưu ở đây tuân theo hướng dẫn viết của cơ sở dữ liệu này."
     }
+  },
+  "dictation": {
+    "slashTitle": "Đọc chính tả",
+    "slashSubtext": "Hãy nói, lời của bạn sẽ được viết ở đây đúng như bạn nói",
+    "slashAliases": "đọc chính tả dictate giọng nói nói micrô chép lời",
+    "starting": "Đang bắt đầu…",
+    "listening": "Đang nghe",
+    "writing": "Đang viết…",
+    "finish": "Kết thúc đọc chính tả và viết văn bản",
+    "hint": "Nhấn {shortcut} hoặc Enter để kết thúc, Esc để hủy",
+    "autoStopped": "Đọc chính tả đã dừng ở giới hạn {minutes} phút. Những gì bạn nói đến lúc đó đã được viết.",
+    "copied": "Không thể đặt văn bản đọc chính tả vào trang, nên văn bản đã được sao chép vào bộ nhớ tạm.",
+    "notPlaced": "Không thể đặt văn bản đọc chính tả vào trang hoặc sao chép: {text}"
   },
   "review": {
     "bar": "{count, plural, other {# thay đổi của AI cần xem xét}}",
@@ -1324,5 +1367,10 @@
     "title": "Chuyển thành trang trong",
     "here": "Bên trong trang này",
     "failed": "Không thể chuyển các khối sang trang mới."
+  },
+  "tags": {
+    "label": "Thẻ",
+    "pages": "{count, plural, other {# trang}}",
+    "find": "Tìm các trang có #{tag}"
   }
 }

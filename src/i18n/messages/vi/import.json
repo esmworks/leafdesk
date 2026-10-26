@@ -7,6 +7,7 @@
     "docx": "Word",
     "pdf": "PDF",
     "evernote": "Evernote",
+    "onenote": "OneNote (.mht)",
     "confluence": "Confluence",
     "csv": "CSV & Excel",
     "trello": "Trello",
@@ -27,6 +28,7 @@
     "help": "Các tệp Markdown trở thành trang và thư mục giữ nguyên cấu trúc. Các tệp CSV trở thành cơ sở dữ liệu, và ảnh mà các trang liên kết đến sẽ được tải lên.",
     "notion": "Từ Notion: xuất dưới dạng “Markdown & CSV” kèm trang con, rồi chọn tệp ZIP đúng như khi tải về (bản xuất bị chia nhỏ cũng dùng được). Trang con, cơ sở dữ liệu, quan hệ, hộp chú thích, mục thu gọn và ảnh đều được nhập kèm.",
     "obsidian": "Từ Obsidian: chọn thư mục của vault, hoặc một tệp ZIP của nó. Liên kết giữa các ghi chú (cả [[wikilinks]]), ảnh và tệp nhúng, cùng hộp chú thích đều được nhập kèm.",
+    "textbundle": "Tệp TextBundle và TextPack (từ Bear, Ulysses, iA Writer và các ứng dụng Markdown khác) mỗi tệp thành một trang, kèm ảnh và tệp đính kèm: chọn các tệp .textpack, một tệp ZIP chứa chúng, hoặc một thư mục chứa các thư mục .textbundle.",
     "chooseFiles": "Chọn tệp",
     "chooseFolder": "Chọn một thư mục",
     "drop": "hoặc thả tệp vào đây",
@@ -55,6 +57,11 @@
       "sourceUrl": "URL nguồn",
       "encrypted": "Văn bản mã hóa đã không được nhập."
     }
+  },
+  "onenote": {
+    "help": "Mỗi tệp thành một trang với văn bản, tiêu đề, danh sách, bảng, liên kết và ảnh của nó. Tệp của một phần thành một trang mang tên phần đó, bên dưới là một trang cho mỗi trang của phần. Mọi trang web được lưu thành một tệp duy nhất (.mht hoặc .mhtml) cũng nhập được.",
+    "export": "Trong OneNote cho Windows, chọn Tệp → Xuất, rồi Trang hoặc Phần và Trang Web Một Tệp (*.mht), sau đó chọn các tệp đã lưu ở đây. Bản xuất Word (.docx) và PDF của OneNote có thể nhập ở thẻ Word và PDF.",
+    "choose": "Chọn tệp .mht"
   },
   "confluence": {
     "help": "Mỗi trang của một không gian Confluence trở thành một trang, lồng nhau như trong không gian. Tiêu đề, danh sách, bảng, khối mã, bảng thông tin (thành khung chú thích), phần mở rộng (thành danh sách thu gọn), danh sách việc, hình ảnh và tệp đính kèm đều được mang theo, và liên kết giữa các trang trở thành nhắc đến trang.",
@@ -296,6 +303,7 @@
     "pdfNoText": "“{name}” không có văn bản để nhập: có vẻ là bản quét. Hãy chạy nhận dạng văn bản (OCR) trước, hoặc tải nó lên một trang dưới dạng tệp.",
     "pdfTooComplex": "“{name}” quá lớn để nhập thành một trang.",
     "badEnex": "Không đọc được “{name}” như một tệp xuất Evernote. Trong Evernote, hãy xuất ghi chú dưới dạng ENEX (.enex) rồi chọn tệp đó.",
+    "badMhtml": "Không đọc được “{name}” như một trang web một tệp. Trong OneNote, hãy xuất dưới dạng Trang Web Một Tệp (*.mht) rồi chọn tệp đó.",
     "badTrello": "Tệp này không phải là tệp xuất của bảng Trello. Trong Trello, hãy chọn Xuất dưới dạng JSON từ menu của bảng và chọn tệp đó.",
     "badAsana": "Tệp này không phải là tệp xuất của một dự án Asana. Trong Asana, hãy chọn Xuất → CSV hoặc JSON từ menu của dự án và chọn tệp đó.",
     "badMonday": "Tệp này không phải là tệp xuất của một bảng Monday.com. Trong Monday.com, hãy chọn Xuất bảng sang Excel từ menu của bảng và chọn tệp đó.",

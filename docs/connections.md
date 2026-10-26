@@ -240,7 +240,8 @@ The tools cover:
   everything under it, beside the original; `without_rows` copies databases without their rows), `archive_page`, `list_trash`, `restore_page` (the
   trash), `set_page_archived` (archive an outdated page or unarchive it; `search`, `list_pages`
   and `query_database` leave archived pages and rows out unless `include_archived` is true).
-  `list_pages` with `favorites: true` lists the user's starred pages, and `get_page` says whether a
+  `search` takes a `tag` for the pages whose text carries that `#tag` or one under it (the query
+  may then be empty). `list_pages` with `favorites: true` lists the user's starred pages, and `get_page` says whether a
   page is starred. `update_page` sets the cover: an uploaded file's URL, an https image link or
   `gradient:<name>`, with `cover_position` for the band of an image that shows. Besides replacing
   or appending to the body, `update_page` changes single blocks: `get_page` with `with_block_ids`

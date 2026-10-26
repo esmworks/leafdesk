@@ -163,7 +163,7 @@ export default function FileViewer({ files, start, onClose }: { files: ViewerFil
       onDoubleClick={stop}
       onContextMenu={stop}
       onDragStart={stop}
-      className="fixed inset-0 z-[100] flex flex-col bg-neutral-950 text-white outline-none"
+      className="fixed inset-x-0 top-(--app-top) bottom-0 z-[100] flex flex-col bg-neutral-950 text-white outline-none"
       data-file-viewer=""
     >
       <div className="flex h-14 shrink-0 items-center gap-1 ps-4 pe-2 sm:gap-2">

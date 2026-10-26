@@ -7,6 +7,7 @@
     "docx": "Word",
     "pdf": "PDF",
     "evernote": "Evernote",
+    "onenote": "OneNote (.mht)",
     "confluence": "Confluence",
     "csv": "CSV en Excel",
     "trello": "Trello",
@@ -27,6 +28,7 @@
     "help": "Markdown-bestanden worden pagina’s en mappen behouden hun structuur. CSV-bestanden worden databases, en afbeeldingen waarnaar pagina’s linken, worden geüpload.",
     "notion": "Vanuit Notion: exporteer als “Markdown & CSV” met subpagina’s, en kies de ZIP zoals die is gedownload (gesplitste exports werken ook). Subpagina’s, databases, relaties, callouts, uitklapblokken en afbeeldingen komen mee.",
     "obsidian": "Vanuit Obsidian: kies de map van de vault, of een ZIP ervan. Links tussen notities (ook [[wikilinks]]), ingesloten afbeeldingen en bestanden, en callouts komen mee.",
+    "textbundle": "TextBundle- en TextPack-bestanden (uit Bear, Ulysses, iA Writer en andere Markdown-apps) worden elk een pagina, met hun afbeeldingen en bijlagen: kies .textpack-bestanden, een ZIP ervan of een map met .textbundle-mappen.",
     "chooseFiles": "Bestanden kiezen",
     "chooseFolder": "Een map kiezen",
     "drop": "of sleep bestanden hierheen",
@@ -55,6 +57,11 @@
       "sourceUrl": "Bron-URL",
       "encrypted": "Versleutelde tekst is bij de import weggelaten."
     }
+  },
+  "onenote": {
+    "help": "Elk bestand wordt een pagina met zijn tekst, koppen, lijsten, tabellen, links en afbeeldingen. Het bestand van een sectie wordt een pagina met de naam van de sectie, met daaronder een pagina voor elk van zijn pagina's. Elke webpagina die als één bestand is opgeslagen (.mht of .mhtml) kan ook worden geïmporteerd.",
+    "export": "Kies in OneNote voor Windows Bestand → Exporteren, dan Pagina of Sectie en Webpagina met één bestand (*.mht), en kies hier de opgeslagen bestanden. De Word- (.docx) en PDF-exports van OneNote importeer je op de tabbladen Word en PDF.",
+    "choose": ".mht-bestanden kiezen"
   },
   "confluence": {
     "help": "Elke pagina van een Confluence-ruimte wordt een pagina, genest zoals in de ruimte. Koppen, lijsten, tabellen, codeblokken, infopanelen (als callouts), uitklapsecties (als uitklaplijsten), takenlijsten, afbeeldingen en bijgevoegde bestanden komen mee, en links tussen pagina’s worden paginavermeldingen.",
@@ -296,6 +303,7 @@
     "pdfNoText": "“{name}” heeft geen tekst om te importeren: het lijkt een scan. Laat er eerst tekstherkenning (OCR) op los, of upload het als bestand naar een pagina.",
     "pdfTooComplex": "“{name}” is te groot om als één pagina te importeren.",
     "badEnex": "“{name}” kan niet als Evernote-export worden gelezen. Exporteer de notities in Evernote als ENEX (.enex) en kies dat bestand.",
+    "badMhtml": "“{name}” kan niet als webpagina in één bestand worden gelezen. Exporteer in OneNote als Webpagina met één bestand (*.mht) en kies dat bestand.",
     "badTrello": "Het bestand is geen export van een Trello-bord. Kies in Trello Exporteren als JSON in het menu van het bord en kies dat bestand.",
     "badAsana": "Het bestand is geen export van een Asana-project. Kies in Asana Exporteren → CSV of JSON in het menu van het project en kies dat bestand.",
     "badMonday": "Het bestand is geen export van een Monday.com-bord. Kies in Monday.com Bord exporteren naar Excel in het menu van het bord en kies dat bestand.",

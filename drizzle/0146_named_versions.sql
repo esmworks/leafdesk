@@ -1,0 +1,1 @@
+ALTER TABLE "page_snapshot" ADD COLUMN "name" text;

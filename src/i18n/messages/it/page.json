@@ -323,9 +323,37 @@
       "beforeMerge": "Prima di unire righe"
     },
     "empty": "Ancora nessuna versione. Le versioni vengono salvate automaticamente mentre modifichi e prima che un’app di IA cambi questa pagina.",
+    "saveVersion": "Salva versione",
+    "namedOnly": "Solo versioni con nome",
+    "emptyNamed": "Ancora nessuna versione con nome. Salva una versione con un nome o dai un nome a una della lista.",
+    "name": "Dai un nome a questa versione",
+    "rename": "Rinomina questa versione",
     "restore": "Ripristina questa versione",
     "restoring": "Ripristino…",
     "restoreHint": "Il contenuto attuale viene prima salvato come versione.",
+    "versionName": {
+      "saveTitle": "Salva versione",
+      "saveHint": "Salva la pagina com’è adesso. Dalle un nome per ritrovarla: le versioni con nome vengono conservate finché esiste la pagina.",
+      "renameTitle": "Dai un nome alla versione",
+      "renameHint": "La versione del {date}. Le versioni con nome vengono conservate finché esiste la pagina; lascia il nome vuoto per toglierlo.",
+      "unchangedTitle": "Non è cambiato nulla",
+      "unchangedHint": "La pagina è uguale alla versione del {date}, quindi il nome va a quella versione invece di salvarne una copia. Lascia il nome vuoto per toglierlo.",
+      "nameLabel": "Nome",
+      "namePlaceholder": "Facoltativo, ad es. Inviata per revisione",
+      "save": "Salva versione",
+      "saveName": "Salva nome",
+      "saving": "Salvataggio…",
+      "saved": "Versione salvata",
+      "savedNamed": "Versione “{name}” salvata",
+      "named": "Versione chiamata “{name}”",
+      "nameCleared": "Nome della versione tolto",
+      "errors": {
+        "invalidName": "Un nome può avere al massimo {max} caratteri.",
+        "inTrash": "Questa pagina è nel cestino. Ripristinala prima.",
+        "failed": "Impossibile salvare. Riprova.",
+        "state": "Impossibile controllare le modifiche dall’ultima versione."
+      }
+    },
     "diff": {
       "rangeCurrent": "Modifiche dalla versione del {from} alla pagina attuale",
       "rangePrevious": "Modifiche da {from} a {to}",
@@ -746,6 +774,8 @@
     "reminderSet": "Promemoria: {when}",
     "reminderHint": "Lo riceverai nella Posta in arrivo e via email.",
     "reminderPast": "Quel momento è già passato; scegli una data o un promemoria successivi.",
+    "remindAt": "Promemoria alle",
+    "remindAtPlaceholder": "Oppure scrivi quando: venerdì 17:00, -1d",
     "done": "Fine"
   },
   "preview": {
@@ -991,6 +1021,19 @@
       "placeholder": "Ad esempio: Nota di visita cliente. Indica l’azienda, la persona incontrata, di cosa si è parlato, lo stato del preventivo e il passo successivo.",
       "followed": "Le note vocali salvate qui seguono le istruzioni di scrittura di questo database."
     }
+  },
+  "dictation": {
+    "slashTitle": "Detta",
+    "slashSubtext": "Parla e le tue parole vengono scritte qui così come le dici",
+    "slashAliases": "dettare dettatura dictate voce parlare microfono trascrivere",
+    "starting": "Avvio…",
+    "listening": "In ascolto",
+    "writing": "Scrittura…",
+    "finish": "Termina la dettatura e scrivi il testo",
+    "hint": "Premi {shortcut} o Invio per terminare, Esc per annullare",
+    "autoStopped": "La dettatura si è fermata al limite di {minutes} min. Quello che hai detto fino ad allora è stato scritto.",
+    "copied": "Non è stato possibile inserire il testo dettato nella pagina, quindi è stato copiato negli appunti.",
+    "notPlaced": "Non è stato possibile inserire il testo dettato nella pagina né copiarlo: {text}"
   },
   "review": {
     "bar": "{count, plural, one {# modifica dell’IA da rivedere} other {# modifiche dell’IA da rivedere}}",
@@ -1324,5 +1367,10 @@
     "title": "Trasforma in pagina in",
     "here": "Dentro questa pagina",
     "failed": "Impossibile spostare i blocchi in una nuova pagina."
+  },
+  "tags": {
+    "label": "Tag",
+    "pages": "{count, plural, one {# pagina} other {# pagine}}",
+    "find": "Trova le pagine con #{tag}"
   }
 }

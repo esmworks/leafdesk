@@ -1,5 +1,5 @@
 /**
- * Dictation in the AI chat's box: who may dictate where, and that it counts as the chat's AI usage.
+ * Dictation in the AI chat's box and in a page: who may dictate where, and what AI usage it counts as.
  */
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { aiUsageGroup } from "@/lib/ai-usage";
@@ -60,6 +60,12 @@ describe("transcribeDictation", () => {
     expect(heard).toEqual(["audio/webm"]);
     expect(ledger.rows).toMatchObject([{ workspaceId: "w1", feature: "chat.dictate", model: "faux-listener", requests: 1 }]);
     expect(aiUsageGroup("chat.dictate")).toBe("chat");
+  });
+
+  it("counts dictation into a page as voice usage", async () => {
+    expect(await transcribeDictation("member", "w1", audio, { inPage: true })).toBe("What did we decide about the launch?");
+    expect(ledger.rows).toMatchObject([{ workspaceId: "w1", feature: "voice.dictate", requests: 1 }]);
+    expect(aiUsageGroup("voice.dictate")).toBe("voice");
   });
 
   it("is only for the workspace's members", async () => {

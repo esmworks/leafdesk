@@ -6,7 +6,7 @@ import { canBeUnique } from "@/lib/unique-values";
 
 /**
  * Properties that keep their values unique (lib/unique-values): Postgres refuses a second row with
- * the same value (drizzle/0146_unique_values.sql), whichever way it is written. This turns that
+ * the same value (drizzle/0149_unique_values.sql), whichever way it is written. This turns that
  * refusal into a PropertyValueError naming the property, and checks a property's rows before the
  * rule is turned on.
  */

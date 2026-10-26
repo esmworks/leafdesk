@@ -13,7 +13,7 @@
  */
 import { and, eq, inArray, sql, type SQL } from "drizzle-orm";
 import { db } from "@/db";
-import { dailyNote, page, pageChunk } from "@/db/schema";
+import { dailyNote, page, pageChunk, pageTag } from "@/db/schema";
 import type { PageKind } from "@/db/schema";
 import { sharedLimiter } from "@/lib/rate-limit";
 import type { TimeRange } from "@/lib/search-filters";
@@ -219,6 +219,8 @@ export type SearchScope = {
   /** Only pages created, or last edited, in this time. */
   createdIn?: TimeRange;
   editedIn?: TimeRange;
+  /** Only pages whose text carries each of these tags or one under it (lib/tags keys, server/page-tags). */
+  tags?: string[];
 };
 
 /**
@@ -226,8 +228,8 @@ export type SearchScope = {
  * inside one of `withinPageIds` (each the page itself or under it), in `withinTeamspaceId`, of one of `kinds` (a row is a
  * page whose parent is a database, a journal page one of `userId`'s daily notes), and verified
  * right now with `verifiedOnly` (server/verification), in one of `teamspaceIds`, created or last
- * edited by one of `createdBy` / `editedBy`, and created or last edited in `createdIn` / `editedIn`.
- * Empty for no scope.
+ * edited by one of `createdBy` / `editedBy`, created or last edited in `createdIn` / `editedIn`, and
+ * carrying each of `tags` (`home` or one under it, `home/renovation`). Empty for no scope.
  */
 export function searchScope(
   {
@@ -241,6 +243,7 @@ export function searchScope(
     editedBy = [],
     createdIn,
     editedIn,
+    tags = [],
   }: SearchScope,
   userId: string,
   alias = "p",
@@ -270,6 +273,10 @@ export function searchScope(
   for (const [name, range] of [["created_at", createdIn], ["updated_at", editedIn]] as const) {
     if (range?.from) parts.push(sql`${column(name)} >= ${range.from.toISOString()}::timestamptz`);
     if (range?.to) parts.push(sql`${column(name)} < ${range.to.toISOString()}::timestamptz`);
+  }
+  for (const tag of tags) {
+    const under = `${tag.replace(/[\\%_]/g, (c) => `\\${c}`)}/%`;
+    parts.push(sql`exists (select 1 from ${pageTag} pt where pt.page_id = ${column("id")} and (pt.key = ${tag} or pt.key like ${under}))`);
   }
   return parts.length ? sql`and ${sql.join(parts, sql` and `)}` : sql``;
 }

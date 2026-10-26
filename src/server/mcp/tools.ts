@@ -256,7 +256,7 @@ const rollupInput = z.object({
 const NUMBER_FORMAT_HELP =
   'number_format sets how a number property, or a formula whose result is a number, shows its values in the app: {format: "number" | "percent" | "currency" | "duration" | "rating", currency (ISO 4217 code such as TRY, EUR, USD; currency only), decimals (0-8; left out, they follow the value or the currency; not for durations and ratings), seconds (duration only: shows 1:30:15), max (rating only: 1-10 stars, 5 when left out)}. A duration stores minutes and a rating whole stars from 0 to max; writes outside that are refused. Calculations, board totals, charts, dashboard widgets and rollups summing it show it too. Values stay plain numbers everywhere else: a percent property stores fractions (0.15 shows as 15%) and filters compare percent points (15), as for rollup percentages. A formula giving text, a date or a checkbox has no number format: one is refused, and changing a formula so it no longer gives a number drops its format.';
 const numberFormatInput = z.object({
-  format: z.enum(NUMBER_FORMATS).describe("duration: values are minutes, shown as 1:30, written as minutes, \"1:30\" or \"1h 30m\". rating: whole stars from 0 to max."),
+  format: z.enum(NUMBER_FORMATS).describe("duration: minutes (90, \"1:30\" or \"1h 30m\"). rating: whole stars, 0 to max."),
   currency: z.string().length(3).optional().describe("Currency only: an ISO 4217 code such as TRY, EUR or USD."),
   decimals: z.number().int().min(0).max(MAX_DECIMALS).optional().describe("Decimal places; left out, they follow the value (a currency's own)."),
   seconds: z.boolean().optional().describe("Duration only: show seconds too (1:30:15)."),
@@ -3844,7 +3844,7 @@ export function createMcpServer(principal: McpPrincipal) {
     "get_page_history",
     {
       title: "Read a page's history",
-      description: `Read a page's saved versions. With page_id: the versions of its body, newest first, with who made each change (a user, or a user through an MCP client). With version_id: that version's title and Markdown body (cut at ${MAX_MARKDOWN_CHARS} characters; pass offset to continue). With version_id and compare: what changed between it and the page now ("current") or the version before it ("previous"), one line per block: "+" added, "-" removed, "~" changed with [-removed-] and {+added+} words inside; unchanged stretches are folded, and changed_by names who made the changes, as far as the history records it. Bring a version back with restore_page_version.`,
+      description: `Read a page's saved versions. With page_id: the versions of its body, newest first, with who made each change (a user, or a user through an MCP client) and the name people gave it, if any. With version_id: that version's title and Markdown body (cut at ${MAX_MARKDOWN_CHARS} characters; pass offset to continue). With version_id and compare: what changed between it and the page now ("current") or the version before it ("previous"), one line per block: "+" added, "-" removed, "~" changed with [-removed-] and {+added+} words inside; unchanged stretches are folded, and changed_by names who made the changes, as far as the history records it. Bring a version back with restore_page_version.`,
       inputSchema: z.object({
         page_id: id("page").optional().describe("List this page's versions."),
         version_id: id("version").optional().describe("Read or compare this version, from the list."),

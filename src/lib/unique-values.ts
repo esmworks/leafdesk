@@ -3,7 +3,7 @@ import type { PropertyType } from "./property-types";
 
 /**
  * Properties that can keep their values unique (options.unique): no two live rows of the database
- * hold the same value. Postgres keeps the rule (drizzle/0146_unique_values.sql, table
+ * hold the same value. Postgres keeps the rule (drizzle/0149_unique_values.sql, table
  * unique_value), so every way a row is written is held to it.
  */
 export const UNIQUE_VALUE_TYPES = ["text", "number", "email", "url", "phone"] as const satisfies readonly PropertyType[];

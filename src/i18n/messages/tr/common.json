@@ -38,5 +38,11 @@
     "trashed": "Çöp kutusuna taşındı",
     "rowsTrashed": "{count, plural, one {Satır çöp kutusuna taşındı} other {# satır çöp kutusuna taşındı}}",
     "undoFailed": "Geri alınamadı."
+  },
+  "datePhrase": {
+    "label": "Tarih yazın",
+    "placeholder": "Tarih yazın: yarın 17:00, 31 ağu, +2w",
+    "preview": "{when} · ayarlamak için Enter",
+    "unreadable": "Tarih değil. “yarın 9:00”, “31 ağustos” ya da “2w” deneyin."
   }
 }

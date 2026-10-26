@@ -38,5 +38,11 @@
     "trashed": "Moved to the trash",
     "rowsTrashed": "{count, plural, one {Row moved to the trash} other {# rows moved to the trash}}",
     "undoFailed": "Couldn't undo that."
+  },
+  "datePhrase": {
+    "label": "Type a date",
+    "placeholder": "Type a date: fri 5pm, aug 31, +2w",
+    "preview": "{when} · Enter to set",
+    "unreadable": "Not a date. Try “tomorrow 9am”, “aug 31” or “in 2w”."
   }
 }

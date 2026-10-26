@@ -38,7 +38,7 @@ import { APP_SCHEME, decideNavigation, decideNewWindow, isServerPage, openLinkTa
 import { addressCandidates, hostOf, isLeafdeskManifest } from "./server-address.ts";
 import { loadSettings, saveSettings, type Settings } from "./settings.ts";
 import { direction, isLocale, pickLocale, STRINGS, type Locale } from "./strings.ts";
-import { ClosedTabs, readIcon, tabPath, windowsToRestore, type SavedWindow } from "./tabs.ts";
+import { ClosedTabs, readIcon, readStripRoom, tabPath, windowsToRestore, type SavedWindow } from "./tabs.ts";
 import { startUpdates } from "./updates.ts";
 import { STRIP_HEIGHT, TabbedWindow } from "./windows.ts";
 
@@ -54,8 +54,8 @@ const ICON = path.join(APP_DIR, "build", "icon.png");
 const SERVER_DIR = app.isPackaged ? path.join(process.resourcesPath, "server") : path.join(APP_DIR, "..");
 /** The web app's own background (src/lib/theme.ts), so a tab doesn't flash before it paints. */
 const BACKGROUND = { light: "#ffffff", dark: "#18191b" };
-/** The tab strip's background and text (the web app's bg-subtle and fg), for the window's buttons outside macOS. */
-const STRIP = { light: { color: "#f7f7f8", symbolColor: "#1f2023" }, dark: { color: "#202124", symbolColor: "#e8e8ea" } };
+/** The tab strip's background and text (the web app's bg and fg), for the window's buttons outside macOS. */
+const STRIP = { light: { color: "#ffffff", symbolColor: "#1f2023" }, dark: { color: "#18191b", symbolColor: "#e8e8ea" } };
 const PROBE_TIMEOUT_MS = 10_000;
 /** The language picked in Leafdesk (src/i18n/config.ts); the app's own words follow it. */
 const LOCALE_COOKIE = "NEXT_LOCALE";
@@ -64,11 +64,13 @@ const THEME_COOKIE = "theme";
 /** What the server's pages may ask for: notifications, the clipboard, full screen and the microphone (voice notes). */
 const PERMISSIONS = new Set(["notifications", "clipboard-read", "clipboard-sanitized-write", "fullscreen", "media"]);
 /**
- * macOS: no title bar of its own; the window's buttons sit at the tab strip's start, centered on
- * it. The preload marks the strip's page (`<html data-window-controls>`) so it keeps that room.
+ * macOS: no title bar of its own; the window's buttons sit at the window's top-left corner,
+ * centered on the strip's height: over the first row of a page's sidebar, which the strip lies
+ * beside (windows.ts), else at the strip's start. The preload marks the strip's page
+ * (`<html data-window-controls>`) and the server's (`<html data-tab-strip>`) so they keep that room.
  */
 const INSET_WINDOW_CONTROLS = process.platform === "darwin";
-const TRAFFIC_LIGHTS = { x: 16, y: 13 };
+const TRAFFIC_LIGHTS = { x: 16, y: 16 };
 const SAVE_DELAY_MS = 500;
 
 /** What the app's own page shows. */
@@ -371,17 +373,17 @@ function reportBackup(result: BackupResult) {
 }
 
 /**
- * A page's settings: the tab strip's (`strip`, told where the window's buttons are), a tab's, or a
+ * A page's settings: the tab strip's or a tab's (both told where the window's buttons are), or a
  * window's of its own that shows one of the server's files.
  */
-function webPreferences(strip = false): WebPreferences {
+function webPreferences(page: "strip" | "tab" | "file"): WebPreferences {
   return {
     preload: PRELOAD,
     contextIsolation: true,
     sandbox: true,
     nodeIntegration: false,
-    spellcheck: !strip,
-    additionalArguments: strip && INSET_WINDOW_CONTROLS ? ["--leafdesk-window-controls=inset"] : [],
+    spellcheck: page !== "strip",
+    additionalArguments: page !== "file" && INSET_WINDOW_CONTROLS ? ["--leafdesk-window-controls=inset"] : [],
   };
 }
 
@@ -397,13 +399,16 @@ function titleBar(): BrowserWindowConstructorOptions {
 }
 
 /**
- * Tells the strip when the window enters or leaves full screen, where macOS hides the window's
- * buttons; the strip asks when it loads (registerPageBridge), so it doesn't first draw room for them.
+ * Tells the strip and the tabs' pages when the window enters or leaves full screen, where macOS
+ * hides the window's buttons; a page asks when it loads (registerPageBridge), so it doesn't first
+ * draw room for them.
  */
-function reportFullScreen(window: BrowserWindow) {
+function reportFullScreen(owner: TabbedWindow) {
   if (!INSET_WINDOW_CONTROLS) return;
+  const { window } = owner;
   const send = () => {
-    if (!window.isDestroyed()) window.webContents.send("leafdesk:full-screen", window.isFullScreen());
+    if (window.isDestroyed()) return;
+    for (const page of owner.allPages()) page.send("leafdesk:full-screen", window.isFullScreen());
   };
   window.on("enter-full-screen", send);
   window.on("leave-full-screen", send);
@@ -428,12 +433,15 @@ function openWindow(saved: SavedWindow = { tabs: [{ path: "/" }], active: 0 }, b
   const place = bounds ?? (front ? cascade(front.window.getBounds()) : restoredBounds());
   const window = new TabbedWindow(
     {
-      webPreferences: () => webPreferences(),
+      webPreferences: () => webPreferences("tab"),
       background: () => BACKGROUND[dark() ? "dark" : "light"],
       titleBar,
       prepare: guard,
       open: (contents, page) => openCurrent(contents, page),
-      strings: () => ({ strings: { newTab: strings().newTab, closeTab: strings().closeTab, tabs: strings().tabs }, dir: direction(locale) }),
+      strings: () => {
+        const t = strings();
+        return { strings: { newTab: t.newTab, closeTab: t.closeTab, tabs: t.tabs, back: t.goBack, forward: t.goForward }, dir: direction(locale) };
+      },
       changed: rememberTabs,
       closed: (url, index) => closedTabs.push({ url, index }),
       menu: showTabMenu,
@@ -441,10 +449,10 @@ function openWindow(saved: SavedWindow = { tabs: [{ path: "/" }], active: 0 }, b
         lastWindow = focused;
       },
     },
-    { bounds: place, stripPreferences: webPreferences(true), minWidth: 420, minHeight: 480, icon: process.platform === "linux" ? ICON : undefined },
+    { bounds: place, stripPreferences: webPreferences("strip"), stripOverPage: INSET_WINDOW_CONTROLS, minWidth: 420, minHeight: 480, icon: process.platform === "linux" ? ICON : undefined },
   );
   lastWindow = window;
-  reportFullScreen(window.window);
+  reportFullScreen(window);
   if (!bounds && !front && settings.window?.maximized) window.window.maximize();
   window.window.on("close", () => {
     settings.window = { ...window.window.getNormalBounds(), maximized: window.window.isMaximized() };
@@ -695,7 +703,7 @@ function guard(contents: WebContents) {
           width: 1100,
           height: 800,
           backgroundColor: dark() ? BACKGROUND.dark : BACKGROUND.light,
-          webPreferences: webPreferences(),
+          webPreferences: webPreferences("file"),
         },
       };
     }
@@ -876,9 +884,10 @@ function registerPageBridge() {
       return listener(event, ...args);
     });
 
-  // The tab strip's preload asks this: it tells nothing but the window's state.
+  // The preload of the tab strip and of the tabs' pages asks this: it tells nothing but the window's state.
   ipcMain.on("leafdesk:full-screen", (event) => {
-    event.returnValue = BrowserWindow.fromWebContents(event.sender)?.isFullScreen() ?? false;
+    const window = TabbedWindow.of(event.sender)?.window ?? BrowserWindow.fromWebContents(event.sender);
+    event.returnValue = window?.isFullScreen() ?? false;
   });
 
   handle("leafdesk:state", (event) => ({
@@ -893,6 +902,7 @@ function registerPageBridge() {
   handle("leafdesk:local", (event) => {
     if (!localAvailable() || !TabbedWindow.of(event.sender)) return;
     settings.mode = "local";
+    TabbedWindow.forgetRoom();
     save();
     applyShortcut();
     void openLocal(event.sender);
@@ -904,6 +914,7 @@ function registerPageBridge() {
     if (origin && TabbedWindow.of(event.sender)) {
       settings.server = origin;
       settings.mode = undefined;
+      TabbedWindow.forgetRoom();
       save();
       void stopLocal();
       readLeafdeskLanguage(session.defaultSession);
@@ -944,18 +955,24 @@ function registerPageBridge() {
 
 /**
  * What the tab strip (pages/tabs.html) asks for, and the icon a server's page reports for its tab
- * (preload.cts). Only a window's own strip is heard for the first.
+ * and the room it leaves the strip (preload.cts). Only a window's own strip is heard for the first.
  */
 function registerTabBridge() {
   ipcMain.on("leafdesk:tab", (event, action: unknown, id: unknown, index: unknown) => {
     const owner = TabbedWindow.of(event.sender);
-    if (!owner || owner.window.webContents !== event.sender || !event.senderFrame?.url.startsWith(PAGES_URL)) return;
+    if (!owner || owner.strip !== event.sender || !event.senderFrame?.url.startsWith(PAGES_URL)) return;
     if (action === "add") {
       owner.addTab({ path: newTabPath(owner) });
       return;
     }
     if (action === "focus") {
       owner.activeContents()?.focus();
+      return;
+    }
+    if (action === "back" || action === "forward") {
+      const history = owner.activeContents()?.navigationHistory;
+      if (action === "back" && history?.canGoBack()) history.goBack();
+      if (action === "forward" && history?.canGoForward()) history.goForward();
       return;
     }
     if (typeof id !== "number" || !owner.contentsOf(id)) return;
@@ -967,7 +984,14 @@ function registerTabBridge() {
 
   ipcMain.on("leafdesk:page-icon", (event, icon: unknown) => {
     const owner = TabbedWindow.of(event.sender);
-    if (!owner || owner.window.webContents === event.sender) return;
+    if (!owner || owner.strip === event.sender) return;
     owner.setIcon(event.sender, isServerPage(event.sender.getURL(), currentOrigin()) ? readIcon(icon) : null);
+  });
+
+  ipcMain.on("leafdesk:strip-room", (event, value: unknown) => {
+    const owner = TabbedWindow.of(event.sender);
+    if (!owner || owner.strip === event.sender || !isServerPage(event.sender.getURL(), currentOrigin())) return;
+    const room = readStripRoom(value);
+    if (room) owner.setRoom(event.sender, room === "none" ? null : room);
   });
 }

@@ -79,7 +79,8 @@
       "in": "inde i en side",
       "type": "kun databaser (eller page, row)",
       "commands": "kommandoer",
-      "phrase": "præcis frase"
+      "phrase": "præcis frase",
+      "tag": "tag"
     },
     "filters": {
       "label": "Filtre",
@@ -110,7 +111,9 @@
         "createdNewest": "Oprettet: nyeste først",
         "createdOldest": "Oprettet: ældste først"
       }
-    }
+    },
+    "tags": "Tags",
+    "tagPages": "{count, plural, one {# side} other {# sider}}"
   },
   "trash": {
     "title": "Papirkurv",

@@ -29,9 +29,11 @@ import { fileIdOf, isFileId } from "@/lib/files";
 import { isReservedEmail, isRestoredEmail, restoredEmail } from "@/lib/reserved-emails";
 import { readAiConfig } from "@/server/ai/config";
 import { recordAudit } from "@/server/audit";
+import { queueWorkspaceTags } from "@/server/page-tags";
 import { newHookSalt } from "@/server/automations/incoming";
 import { newSecretSalt } from "@/server/automations/webhook";
 import { newEventSecret } from "@/server/connections/manage";
+import { mayHoldPageTasks } from "@/server/page-tasks";
 import { seal } from "@/server/secret-box";
 import { instanceStorage, uploadLimits } from "@/server/storage";
 import { attachDefaultStorage } from "@/server/storage/accounts";
@@ -90,6 +92,8 @@ export async function restoreBackup(actorId: string, archive: string): Promise<R
     applyPeople(actorId, workspaceId, rows, people);
     const notes = await fitThisServer(manifest, rows);
     await storeAndInsert(actorId, archive, manifest, rows, people, byName);
+    // The index of the pages' #tags isn't in the backup: they are read from the pages again.
+    await queueWorkspaceTags(workspaceId);
     // New uploads go to the restorer's default storage account, if they have one; the restored
     // files stay in the server's storage, where an owner can move them from.
     await attachDefaultStorage(actorId, workspaceId);
@@ -519,6 +523,13 @@ async function storeAndInsert(actorId: string, archive: string, manifest: Backup
         }
         // The workspace's own "General" teamspace comes with the backup; drop the one made for it.
         if (t.name === "workspace") await tx.execute(sql`delete from teamspace where workspace_id = ${manifest.workspace.id}`);
+      }
+      // A backup made before the index of to-dos in pages holds none of it: the pages that may have
+      // some are indexed by the backfill (server/page-tasks.ts).
+      if (!rows.get("page_task")!.length) {
+        await tx.execute(
+          sql`insert into page_task_backfill (page_id) select id from page where workspace_id = ${manifest.workspace.id} and ${mayHoldPageTasks()} on conflict do nothing`,
+        );
       }
       // A top-level page outside any teamspace is put in the default one when it's made (a deferred
       // trigger, page_home_teamspace); one restored that way stays where it was.

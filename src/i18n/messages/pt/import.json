@@ -7,6 +7,7 @@
     "docx": "Word",
     "pdf": "PDF",
     "evernote": "Evernote",
+    "onenote": "OneNote (.mht)",
     "confluence": "Confluence",
     "csv": "CSV e Excel",
     "trello": "Trello",
@@ -27,6 +28,7 @@
     "help": "Arquivos Markdown viram páginas e as pastas mantêm sua estrutura. Arquivos CSV viram bancos de dados, e as imagens vinculadas nas páginas são enviadas.",
     "notion": "Do Notion: exporte como “Markdown & CSV” com subpáginas e escolha o ZIP como ele foi baixado (exportações divididas também funcionam). Subpáginas, bancos de dados, relações, destaques, blocos expansíveis e imagens vêm junto.",
     "obsidian": "Do Obsidian: escolha a pasta do cofre, ou um ZIP dela. Links entre notas ([[wikilinks]] também), imagens e arquivos incorporados e destaques vêm junto.",
+    "textbundle": "Arquivos TextBundle e TextPack (do Bear, Ulysses, iA Writer e outros apps de Markdown) viram uma página cada, com suas imagens e anexos: escolha arquivos .textpack, um ZIP deles ou uma pasta com pastas .textbundle.",
     "chooseFiles": "Escolher arquivos",
     "chooseFolder": "Escolher uma pasta",
     "drop": "ou solte os arquivos aqui",
@@ -55,6 +57,11 @@
       "sourceUrl": "URL de origem",
       "encrypted": "O texto criptografado foi deixado de fora da importação."
     }
+  },
+  "onenote": {
+    "help": "Cada arquivo vira uma página com seu texto, títulos, listas, tabelas, links e imagens. O arquivo de uma seção vira uma página com o nome da seção, com uma página abaixo dela para cada uma de suas páginas. Qualquer página web salva como um único arquivo (.mht ou .mhtml) também pode ser importada.",
+    "export": "No OneNote para Windows, escolha Arquivo → Exportar, depois Página ou Seção e Página da Web de Arquivo Único (*.mht), e escolha aqui os arquivos salvos. As exportações do OneNote para Word (.docx) e PDF podem ser importadas nas abas Word e PDF.",
+    "choose": "Escolher arquivos .mht"
   },
   "confluence": {
     "help": "Cada página de um espaço do Confluence vira uma página, aninhada como no espaço. Títulos, listas, tabelas, blocos de código, painéis de informação (como destaques), seções expansíveis (como listas recolhíveis), listas de tarefas, imagens e arquivos anexados vêm junto, e os links entre páginas viram menções de página.",
@@ -296,6 +303,7 @@
     "pdfNoText": "“{name}” não tem texto para importar: parece uma digitalização. Rode primeiro um reconhecimento de texto (OCR) nele ou envie-o para uma página como arquivo.",
     "pdfTooComplex": "“{name}” é grande demais para importar como uma só página.",
     "badEnex": "“{name}” não pode ser lido como uma exportação do Evernote. No Evernote, exporte as notas como ENEX (.enex) e escolha esse arquivo.",
+    "badMhtml": "“{name}” não pode ser lido como uma página web de arquivo único. No OneNote, exporte como Página da Web de Arquivo Único (*.mht) e escolha esse arquivo.",
     "badTrello": "O arquivo não é uma exportação de quadro do Trello. No Trello, escolha Exportar como JSON no menu do quadro e escolha esse arquivo.",
     "badAsana": "O arquivo não é uma exportação de projeto do Asana. No Asana, escolha Exportar → CSV ou JSON no menu do projeto e escolha esse arquivo.",
     "badMonday": "O arquivo não é uma exportação de quadro do Monday.com. No Monday.com, escolha Exportar quadro para Excel no menu do quadro e escolha esse arquivo.",

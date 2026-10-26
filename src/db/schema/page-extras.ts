@@ -33,6 +33,72 @@ export const meetingNote = pgTable(
 );
 
 /**
+ * An unticked to-do of a page body that mentions a person (lib/page-tasks), for their My tasks and
+ * home page: one row per to-do block and person, derived from the body on every save
+ * (server/page-tasks.ts syncPageTasks), so the block stays the source of truth. `updatedAt` is
+ * when its text or date last changed. Who may see one, and whether its page is in the trash, is
+ * worked out from its page when it is listed.
+ */
+export const pageTask = pgTable(
+  "page_task",
+  {
+    pageId: text("page_id")
+      .notNull()
+      .references(() => page.id, { onDelete: "cascade" }),
+    blockId: text("block_id").notNull(),
+    userId: text("user_id")
+      .notNull()
+      .references(() => user.id, { onDelete: "cascade" }),
+    /** The to-do's text without its mentions, short (PAGE_TASK_TEXT_MAX). */
+    text: text("text").notNull().default(""),
+    /** The first date mentioned in it, as the mention stores it (a day or a time), or null. */
+    date: text("date"),
+    createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+    updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
+  },
+  (t) => [primaryKey({ columns: [t.pageId, t.blockId, t.userId] }), index("page_task_user_idx").on(t.userId, t.updatedAt)],
+);
+
+/**
+ * Pages whose to-dos are still to be indexed (server/page-tasks.ts backfillPageTasks): the pages
+ * written before the index, and those of a workspace restored from a backup made before it. Each
+ * is read once, then taken off.
+ */
+export const pageTaskBackfill = pgTable("page_task_backfill", {
+  pageId: text("page_id")
+    .primaryKey()
+    .references(() => page.id, { onDelete: "cascade" }),
+});
+
+/**
+ * A `#tag` written in a page's text (lib/tags), for search: derived from the body on every save
+ * (server/page-tags.ts syncPageTags). `key` is the tag folded for comparing, `label` its first
+ * spelling on the page, `count` how often it appears there. Who may see one is its page's matter.
+ */
+export const pageTag = pgTable(
+  "page_tag",
+  {
+    pageId: text("page_id")
+      .notNull()
+      .references(() => page.id, { onDelete: "cascade" }),
+    key: text("key").notNull(),
+    label: text("label").notNull(),
+    count: integer("count").notNull().default(1),
+  },
+  (t) => [primaryKey({ columns: [t.pageId, t.key] }), index("page_tag_key_idx").on(t.key.op("text_pattern_ops"))],
+);
+
+/**
+ * Pages whose tags are still to be read from their body (server/page-tags.ts): those written before
+ * tags were indexed (filled by the migration) and those of a restored workspace. Each is read once.
+ */
+export const pageTagQueue = pgTable("page_tag_queue", {
+  pageId: text("page_id")
+    .primaryKey()
+    .references(() => page.id, { onDelete: "cascade" }),
+});
+
+/**
  * Someone opened a page, database or row in the app (server/page-views.ts): one row per page,
  * person and UTC day, with how many times (a reopening within VIEW_REPEAT_MS doesn't count again)
  * and when last. For analytics only, never content; kept a year (PAGE_VIEW_RETENTION_DAYS).

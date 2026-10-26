@@ -16,7 +16,7 @@
   the sidebar. Anyone who may read a database can make them, on a locked database too, so people
   with view access keep their own filters and layouts; *Share with everyone* turns one into a
   shared view. They are never published or copied with the database, and go when their person
-  leaves the workspace. MCP's `create_database_view` takes `personal`. Migration 0147 adds
+  leaves the workspace. MCP's `create_database_view` takes `personal`. Migration 0150 adds
   `database_view.owner_id`.
 - **Forms that ask one question at a time.** A form's builder has *One question at a time*: each
   question on a page of its own, with a progress bar, Back and Next, each answer checked before the
@@ -32,7 +32,91 @@
   already holds is refused, case and spaces aside, however it is written. It can't be turned on
   while two rows share a value, a row in the trash frees its value, and a duplicated row leaves it
   out. Postgres keeps the rule, so imports, the API, automations and syncs are held to it too.
-  Migration 0146 adds the `unique_value` table and its triggers.
+  Migration 0149 adds the `unique_value` table and its triggers.
+
+## 0.6.4 — 2026-10-26
+
+### Upgrading from 0.6.3
+
+- **Download the new `docker-compose.yml`.** It passes the new settings on to the app:
+  `APPLE_CLIENT_ID`, `APPLE_CLIENT_SECRET`, `APPLE_TEAM_ID`, `APPLE_KEY_ID`, `APPLE_PRIVATE_KEY`
+  (Sign in with Apple) and `WEB_LINK_CHECKS`. An existing `.env` keeps working unchanged.
+- **Migrations 0136 to 0148** run automatically when the container starts (from source, run
+  `pnpm db:migrate`). They add tables and columns; 0141 redefines the page access rule. 0147 and
+  0148 queue the existing pages, whose to-dos and `#tags` the server then indexes in the
+  background after the upgrade.
+- **The image installs the Noto CJK fonts**, for Chinese, Japanese and Korean text in PDFs made on
+  the server, which makes it larger.
+- **Broken web links are looked for once a week:** the server fetches the web addresses in pages
+  (as for bookmarks) to list the ones that stopped working in Settings → Health. Set
+  `WEB_LINK_CHECKS=off` to keep it from fetching them.
+- **The desktop app's new tab layout on macOS needs this server:** with an older one it keeps the
+  tab strip across the top.
+
+### Added
+
+- **Dictate into a page at the caret.** Where voice notes work, Cmd/Ctrl+Shift+D in a page you can
+  edit, or `/` *Dictate*, records and writes what you said where the caret was, as you said it (no
+  AI rewrite), replacing what was selected then. Press the keys again, Enter or the chip beside the
+  caret to finish, or hold the keys while you talk and let go; the chip shows *Starting*,
+  *Listening* with a level meter, and *Writing…*. Esc, clicking elsewhere in the page, leaving it or
+  starting another dictation cancels without writing. The text goes in as one undo step, spaced
+  from the words around it, follows edits made around its spot meanwhile, and goes to the caret or,
+  failing that, the clipboard when the spot is gone. Not in code blocks or read-only pages; the
+  recording limits, usage limits and the workspace's AI setting apply as for voice notes, and the
+  transcription counts as voice usage (`voice.dictate`; the transcribe route takes `use=page`). The
+  shortcut is in the keyboard shortcuts list. Dictating in the AI chat's box and in a page now
+  cancel each other.
+- **To-dos written in pages show up in My tasks.** An unticked to-do that mentions someone is
+  listed in their My tasks and on the home page beside the rows assigned to them: its text without
+  the mentions, the page it is on with its icon, and the first date mentioned in it as its due
+  date, grouped by date like rows (or under its page when grouped by database). Clicking one opens
+  the page at the to-do; ticking it ticks the to-do in the page, for people who may edit it. The
+  calendar feed of assigned rows includes the dated ones. Group and agent mentions don't count.
+  Migration 0147 adds the index (`page_task`), kept in line on every save, and queues the pages
+  written before it, which the server indexes in the background after the upgrade.
+- **`#tags` in page text.** Write `#tag` anywhere in a page (letters, digits, `_` and `-`, at
+  least one letter, `/` for a hierarchy such as `#home/renovation`) and find every page carrying
+  it with `#tag` or `tag:tag` in the search box; a tag also finds the tags under it, and case and
+  accents don't count. Tags stay plain text: code, equations, diagram sources, links and mentions
+  hold none, and `# ` at the start of a line still makes a heading. Typing `#` and a letter in the
+  search box or in a page offers the tags of pages you can open, most used first with how many
+  pages carry each; pages mark tags in the accent color, and clicking one (with Ctrl or Cmd where
+  the page can be edited) searches for it. MCP's `search` and the REST API's `GET /search` take a
+  `tag`. Migration 0148 adds the index of tags, kept in line on every save, and queues pages
+  written before it, which a background job reads once; a restored workspace's pages are read
+  again the same way.
+- **Type dates in words, everywhere a date is typed.** One grammar reads dates after `@` in a page,
+  in a new box on top of a date property's picker, in a date mention's menu (for its date and for
+  a reminder at any time) and under a date filter's value; the box shows what the words name and
+  Enter sets it. Besides what `@` read before (today, next friday, in 3 days, 3 days ago, ISO
+  dates, in the interface language and English) it takes weekday abbreviations (`fri`, always the
+  next one), months by three letters or more (`aug 31`, `31 sept`, `aug 31, 2027`), slash dates
+  read in the language's or the date property's order unless only one number can be the month,
+  times (`fri 5pm`, `aug 31 at 9 pm`, `17:30`, or a time alone: today, or tomorrow once passed),
+  durations from now (`30m`, `4h`, `3d`, `2w`, `2mo`, with or without `in`) and `+2w` / `-3d`
+  counted from the date shown. A time sets a date property's time only with *Include time* on; in
+  `@` (`@fri 5pm`) it gives the date mention a reminder then. Bare numbers, two-digit years, days
+  that don't exist and `in +2w` are refused rather than guessed. `next friday` and `next week`
+  now count weeks from the first day of the week in the interface language there.
+- **Named versions in page history.** People who can edit a page save a version with *Save
+  version* in the page history or Cmd/Ctrl+S on the page (listed in the keyboard shortcuts), and
+  can give it a name. When nothing changed since the newest version, that version gets the name
+  instead of a copy being saved. Any version can be named, renamed or have its name cleared from
+  the history, which shows a named version's name in place of its kind and can list named
+  versions only. The daily history cleanup never removes named versions, and they don't count
+  toward its 200 versions per page; legal holds work as before. MCP's `get_page_history` and the AI
+  chat's page history give a version's `name`. Migration 0146 adds
+  the column.
+- **Import TextBundles, TextPacks and OneNote exports.** Import's Markdown tab takes `.textpack`
+  files, ZIPs of them and folders of `.textbundle` folders: each bundle becomes a page titled by its
+  heading (else its name), with the pictures and files of its `assets/` folder that the text shows
+  uploaded. A new *OneNote (.mht)* tab takes OneNote's *Single File Web Page* export: a page's file
+  becomes a page, a section's file a page named after it with one page under it per OneNote page,
+  their pictures uploaded and OneNote's tag icons left out. Any other web page saved as one file
+  (`.mht`, `.mhtml`) comes in on that tab as one page. Nothing outside the file is fetched. The
+  import route takes `mode=mhtml`, and the audit log names the formats.
+
 - **Save to Leafdesk browser extension.** A new extension for Chrome, Edge and Firefox
   (`extension/`, a zip in every release) saves the page you are on from its toolbar button
   (Alt+Shift+S), and a page, a link or selected text from the context menu. It opens Leafdesk's
@@ -453,6 +537,20 @@
 
 ### Changed
 
+- **On macOS the desktop app's tabs sit beside the sidebar.** The sidebar runs the window's full
+  height again, the window's buttons over its first row with the inbox, new page and hide buttons
+  beside them, and the tab strip lies over the top of the page next to it, following the sidebar
+  as it is resized, hidden or shown. Panels at the window's edge (a row's side peek, AI chat) and
+  full-window views (the Markdown source, presentations, the file viewer) start below the strip.
+  Pages without a sidebar, windows too narrow for one, and servers older than this keep the strip
+  across the top, as Windows and Linux do. On every system the strip now takes the page's
+  background, its tabs are rounded chips (the shown one highlighted) instead of joining the page
+  below, and back and forward buttons for the shown tab come before them.
+- **Client bundle budgets** go to 771 kB for a page's first load and 1174 kB for all first loads
+  together, for typed dates, tags in the search box, named versions and page dictation.
+- **Home, My tasks and Meetings are laid out like a database page.** They use the same width and
+  margins, a title the size of a database's, and meeting names in the list are set at the size of
+  table rows.
 - **One player at a time.** Starting an audio or video block on a page pauses the one playing.
 - **`/grey`** finds the gray text and background colors, like `/gray`.
 

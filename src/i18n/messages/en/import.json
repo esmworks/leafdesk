@@ -7,6 +7,7 @@
     "docx": "Word",
     "pdf": "PDF",
     "evernote": "Evernote",
+    "onenote": "OneNote (.mht)",
     "confluence": "Confluence",
     "csv": "CSV & Excel",
     "trello": "Trello",
@@ -27,6 +28,7 @@
     "help": "Markdown files become pages and folders keep their structure. CSV files become databases, and images that pages link to are uploaded.",
     "notion": "From Notion: export as “Markdown & CSV” with subpages, and choose the ZIP as it downloaded (split exports work too). Subpages, databases, relations, callouts, toggles and images come along.",
     "obsidian": "From Obsidian: choose the vault's folder, or a ZIP of it. Links between notes ([[wikilinks]] too), embedded images and files, and callouts come along.",
+    "textbundle": "TextBundle and TextPack files (from Bear, Ulysses, iA Writer and other Markdown apps) become a page each, with their pictures and attachments: choose .textpack files, a ZIP of them, or a folder holding .textbundle folders.",
     "chooseFiles": "Choose files",
     "chooseFolder": "Choose a folder",
     "drop": "or drop files here",
@@ -55,6 +57,11 @@
       "sourceUrl": "Source URL",
       "encrypted": "Encrypted text was left out of the import."
     }
+  },
+  "onenote": {
+    "help": "Each file becomes a page with its text, headings, lists, tables, links and pictures. A section's file becomes a page named after the section, with a page under it for each of its pages. Any web page saved as a single file (.mht or .mhtml) can be imported too.",
+    "export": "In OneNote for Windows, choose File → Export, then Page or Section and Single File Web Page (*.mht), and pick the saved files here. OneNote's Word (.docx) and PDF exports can be imported on the Word and PDF tabs.",
+    "choose": "Choose .mht files"
   },
   "confluence": {
     "help": "Each page of a Confluence space becomes a page, nested as in the space. Headings, lists, tables, code blocks, info panels (as callouts), expand sections (as toggles), task lists, pictures and attached files come along, and links between pages become page mentions.",
@@ -296,6 +303,7 @@
     "pdfNoText": "“{name}” has no text to import: it looks like a scan. Run text recognition (OCR) on it first, or upload it to a page as a file.",
     "pdfTooComplex": "“{name}” is too large to import as one page.",
     "badEnex": "“{name}” can't be read as an Evernote export. In Evernote, export the notes as ENEX (.enex) and pick that file.",
+    "badMhtml": "“{name}” can't be read as a single-file web page. In OneNote, export as Single File Web Page (*.mht) and pick that file.",
     "badTrello": "The file isn't a Trello board export. In Trello, choose Export as JSON from the board's menu and pick that file.",
     "badAsana": "The file isn't an Asana project export. In Asana, choose Export → CSV or JSON from the project's menu and pick that file.",
     "badMonday": "The file isn't a Monday.com board export. In Monday.com, choose Export board to Excel from the board's menu and pick that file.",

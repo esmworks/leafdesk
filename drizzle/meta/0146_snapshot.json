@@ -1,5 +1,5 @@
 {
-  "id": "48282f0a-ef43-44ea-badd-c9cfa72a4b59",
+  "id": "f127a68c-08ea-4abb-bf2f-7be3a96375e2",
   "prevId": "dd65f2dd-dfe0-4119-bead-692ac1fe956d",
   "version": "7",
   "dialect": "postgresql",
@@ -2684,6 +2684,12 @@
           "primaryKey": false,
           "notNull": true
         },
+        "name": {
+          "name": "name",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
         "created_by": {
           "name": "created_by",
           "type": "text",
@@ -3463,94 +3469,6 @@
           "value": "\"teamspace_member\".\"role\" in ('owner', 'member')"
         }
       },
-      "isRLSEnabled": false
-    },
-    "public.unique_value": {
-      "name": "unique_value",
-      "schema": "",
-      "columns": {
-        "row_id": {
-          "name": "row_id",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "property_id": {
-          "name": "property_id",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "key": {
-          "name": "key",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true
-        }
-      },
-      "indexes": {
-        "unique_value_key_idx": {
-          "name": "unique_value_key_idx",
-          "columns": [
-            {
-              "expression": "property_id",
-              "isExpression": false,
-              "asc": true,
-              "nulls": "last"
-            },
-            {
-              "expression": "key",
-              "isExpression": false,
-              "asc": true,
-              "nulls": "last"
-            }
-          ],
-          "isUnique": true,
-          "concurrently": false,
-          "method": "btree",
-          "with": {}
-        }
-      },
-      "foreignKeys": {
-        "unique_value_row_id_page_id_fk": {
-          "name": "unique_value_row_id_page_id_fk",
-          "tableFrom": "unique_value",
-          "tableTo": "page",
-          "columnsFrom": [
-            "row_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
-          "onDelete": "cascade",
-          "onUpdate": "no action"
-        },
-        "unique_value_property_id_database_property_id_fk": {
-          "name": "unique_value_property_id_database_property_id_fk",
-          "tableFrom": "unique_value",
-          "tableTo": "database_property",
-          "columnsFrom": [
-            "property_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
-          "onDelete": "cascade",
-          "onUpdate": "no action"
-        }
-      },
-      "compositePrimaryKeys": {
-        "unique_value_row_id_property_id_pk": {
-          "name": "unique_value_row_id_property_id_pk",
-          "columns": [
-            "row_id",
-            "property_id"
-          ]
-        }
-      },
-      "uniqueConstraints": {},
-      "policies": {},
-      "checkConstraints": {},
       "isRLSEnabled": false
     },
     "public.workspace": {

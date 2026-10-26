@@ -7,6 +7,7 @@
     "docx": "Word",
     "pdf": "PDF",
     "evernote": "Evernote",
+    "onenote": "OneNote (.mht)",
     "confluence": "Confluence",
     "csv": "CSV i Excel",
     "trello": "Trello",
@@ -27,6 +28,7 @@
     "help": "Pliki Markdown stają się stronami, a foldery zachowują swoją strukturę. Pliki CSV stają się bazami danych, a obrazy, do których linkują strony, są przesyłane.",
     "notion": "Z Notion: wyeksportuj jako „Markdown & CSV” z podstronami i wybierz pobrany plik ZIP bez zmian (eksporty podzielone na części też działają). Przeniesione zostaną podstrony, bazy danych, relacje, wyróżnienia, listy rozwijane i obrazy.",
     "obsidian": "Z Obsidian: wybierz folder sejfu lub jego archiwum ZIP. Przeniesione zostaną linki między notatkami (również [[wikilinki]]), osadzone obrazy i pliki oraz wyróżnienia.",
+    "textbundle": "Pliki TextBundle i TextPack (z Bear, Ulysses, iA Writer i innych aplikacji Markdown) stają się osobnymi stronami, razem z obrazami i załącznikami: wybierz pliki .textpack, ich archiwum ZIP lub folder z folderami .textbundle.",
     "chooseFiles": "Wybierz pliki",
     "chooseFolder": "Wybierz folder",
     "drop": "lub upuść pliki tutaj",
@@ -55,6 +57,11 @@
       "sourceUrl": "Źródłowy URL",
       "encrypted": "Zaszyfrowany tekst został pominięty przy imporcie."
     }
+  },
+  "onenote": {
+    "help": "Każdy plik staje się stroną z tekstem, nagłówkami, listami, tabelami, linkami i obrazami. Plik sekcji staje się stroną o nazwie sekcji, a pod nią powstaje strona dla każdej z jej stron. Można też zaimportować dowolną stronę WWW zapisaną jako jeden plik (.mht lub .mhtml).",
+    "export": "W OneNote dla Windows wybierz Plik → Eksportuj, następnie Strona lub Sekcja i Jednoplikowa strona sieci Web (*.mht), a potem wybierz tutaj zapisane pliki. Eksporty z OneNote do Worda (.docx) i PDF zaimportujesz na kartach Word i PDF.",
+    "choose": "Wybierz pliki .mht"
   },
   "confluence": {
     "help": "Każda strona przestrzeni Confluence staje się stroną, zagnieżdżoną jak w przestrzeni. Nagłówki, listy, tabele, bloki kodu, panele informacyjne (jako wyróżnienia), sekcje rozwijane (jako listy rozwijane), listy zadań, obrazy i załączone pliki zostaną przeniesione, a linki między stronami staną się wzmiankami o stronach.",
@@ -296,6 +303,7 @@
     "pdfNoText": "„{name}” nie ma tekstu do zaimportowania: wygląda na skan. Najpierw uruchom na nim rozpoznawanie tekstu (OCR) albo prześlij go na stronę jako plik.",
     "pdfTooComplex": "„{name}” jest za duży, by zaimportować go jako jedną stronę.",
     "badEnex": "Nie można odczytać „{name}” jako eksportu z Evernote. W Evernote wyeksportuj notatki jako ENEX (.enex) i wybierz ten plik.",
+    "badMhtml": "Nie można odczytać „{name}” jako jednoplikowej strony WWW. W OneNote wyeksportuj jako Jednoplikowa strona sieci Web (*.mht) i wybierz ten plik.",
     "badTrello": "Ten plik nie jest eksportem tablicy Trello. W Trello wybierz Eksportuj jako JSON z menu tablicy i wskaż ten plik.",
     "badAsana": "Ten plik nie jest eksportem projektu z Asany. W Asanie wybierz Eksportuj → CSV lub JSON z menu projektu i wybierz ten plik.",
     "badMonday": "Ten plik nie jest eksportem tablicy z Monday.com. W Monday.com wybierz Eksportuj tablicę do Excela z menu tablicy i wybierz ten plik.",

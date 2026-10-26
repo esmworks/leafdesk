@@ -176,7 +176,7 @@ function ChatPanel({
   return (
     <aside
       aria-label={t("title")}
-      className="fixed inset-y-0 inset-e-0 z-40 flex w-full flex-col border-s border-border bg-bg shadow-xl md:w-[400px]"
+      className="fixed top-(--app-top) bottom-0 inset-e-0 z-40 flex w-full flex-col border-s border-border bg-bg shadow-xl md:w-[400px]"
     >
       <div className="flex h-11 shrink-0 items-center gap-1 border-b border-border px-3">
         <h2 className="flex-1 truncate text-sm font-semibold">{t("title")}</h2>

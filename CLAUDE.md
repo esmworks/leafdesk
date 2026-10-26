@@ -64,7 +64,8 @@ BlockNote on Yjs; Tailwind v4; next-intl. Node 24, pnpm 11. A separate Electron 
 - **Page content.** The Yjs document is the source of truth. Writes from the server go through
   `getCollab()` (`src/server/collab/bridge.ts`: `replaceContent`, `editBlocks`, `setTitle` …), which
   only exists when the app runs through `server.ts`. A block whose data is all in its props, written
-  while people may be editing (meeting notes), changes them in place with `updateBlockAttributes`:
+  while people may be editing (meeting notes, ticking a to-do), changes them in place with
+  `updateBlockAttributes` (its `find` gets the block's id, which sits on the `blockContainer`):
   `editBlocks` and other `writeBlocks` callers read, await, then rewrite, and can lose edits made
   in between. Editor-side rewrites that must ride along with the change that caused them (toggle headings
   taking their section, `components/page/toggle-headings.ts`; column cleanup) are ProseMirror
@@ -83,7 +84,7 @@ BlockNote on Yjs; Tailwind v4; next-intl. Node 24, pnpm 11. A separate Electron 
   code: an inserted row always gets the next number (the value it brings is dropped) and an
   update keeps the old one. Copies that must keep their numbers (a duplicated database, a restored
   backup) insert the rows before the property; `server/unique-ids.ts` checks prefixes.
-  Unique values (`options.unique`) are kept by Postgres too (`drizzle/0146_unique_values.sql`,
+  Unique values (`options.unique`) are kept by Postgres too (`drizzle/0149_unique_values.sql`,
   table `unique_value`): a write repeating another live row's value fails with 23505 on
   `unique_value_key_idx`, which `withUniqueValues` (`server/unique-values.ts`) turns into a
   `PropertyValueError`; wrap a new row write in it.
@@ -128,7 +129,10 @@ BlockNote on Yjs; Tailwind v4; next-intl. Node 24, pnpm 11. A separate Electron 
   by full-text, document and ID hits and by search by meaning alike, so a new filter goes there (and
   into `scoped()` in pages.ts, or it won't list pages without text). The box's typed syntax and
   quoted phrases: `src/lib/search-query.ts`; its filter menus: `src/lib/search-filters.ts` (server),
-  `search-filter-state.ts` (import-free, for the box in every first load).
+  `search-filter-state.ts` (import-free, for the box in every first load). `#tags` are plain text:
+  grammar `src/lib/tags.ts` (in the first load too), read from blocks by `lib/tag-blocks.ts`, indexed
+  in `page_tag` by `server/page-tags.ts` (persistPage, copies, backfill queue), marked and suggested
+  in the editor by `components/page/tags.ts` and `tag-menu.tsx`.
 - **Agents.** `src/server/agents/run.ts` is the worker (`agent_run`, its `source` typed in
   `src/lib/agents.ts`) and holds the tool lists; runs are queued from `requests.ts`, `chat.ts`,
   `mentions.ts`, `handoff.ts` and the `agent` schedule kind. Each agent is its own user.
@@ -139,7 +143,10 @@ BlockNote on Yjs; Tailwind v4; next-intl. Node 24, pnpm 11. A separate Electron 
   writes; `asAutomation` keeps an automation's writes from firing more automations) and
   `src/server/schedules.ts` (`registerScheduleHandler`).
 - **Other areas:** meeting notes `meetings.ts` (the block's props, `src/lib/meetings.ts`; its list
-  table synced in `persistPage` by `meeting-notes.ts`), sprints `sprints.ts` (no table: the setup is the `sprints` config on the task database's relation
+  table synced in `persistPage` by `meeting-notes.ts`), to-dos in pages for My tasks `page-tasks.ts`
+  (index `page_task` synced in `persistPage`, extraction pure in `src/lib/page-tasks.ts`, merged
+  into `assigned.ts` lists as items with `type: "pageTask"`; pages to index later go in
+  `page_task_backfill`, which a restore of an older backup fills too), sprints `sprints.ts` (no table: the setup is the `sprints` config on the task database's relation
   with role `sprint`; the current sprint's views filter on a hidden rollup of the sprint state, so
   they follow a completion without changing; rollups show option names, so `updateProperty`
   rewrites such rollup filters when options are renamed), Telegram bot `src/server/telegram/`, synced databases (own
@@ -161,9 +168,12 @@ BlockNote on Yjs; Tailwind v4; next-intl. Node 24, pnpm 11. A separate Electron 
   `{ web: true }`; pure rules in `src/lib/web-links.ts`; `runWebLinkChecks(now)`), sensitive content scans
   `sensitive-content.ts` (detectors and masking pure in `src/lib/sensitive-content.ts`; a sweep
   reads pages whose `updated_at` moved past `sensitive_scan`), verified pages `verification.ts`
-  (`activeVerification` is the SQL for search and lists; `runVerificationReminders(now)`), SMTP
+  (`activeVerification` is the SQL for search and lists; `runVerificationReminders(now)`), named
+  page versions `page-versions.ts` (`page_snapshot.name`; `retention.ts` `pruneSnapshots` never
+  deletes a named one; listing, preview and restore stay in `pages.ts`), SMTP
   `mail/`, inbox `notifications.ts`, push `push.ts`, files `files.ts` + `storage/` (local, S3,
-  workspace drives), import `import/` (a web page: `web-clip.ts`, fetched through `connections/fetch.ts` with `{ web: true }`, read by
+  workspace drives), import `import/` (TextBundles: `lib/import/textbundle.ts` turns each into a Markdown file of the upload;
+  OneNote and other `.mht` files: `lib/import/mhtml.ts` reads the MIME parts, `mhtml-convert.ts` the HTML; a web page: `web-clip.ts`, fetched through `connections/fetch.ts` with `{ web: true }`, read by
   `web-clip-extract.ts`, recipes by `src/lib/recipe.ts`), export `export.ts`, server-made PDFs `pdf.ts` (reads a page like `print.ts`; `export-pdf.ts` zips one per page for the workspace export)
   and `pdf-document.ts` (pure pdfmake layout; pdfmake must stay in `serverExternalPackages` in
   `next.config.ts`, bundled it loses its font files, and its fonts in the standalone build's
@@ -178,6 +188,10 @@ BlockNote on Yjs; Tailwind v4; next-intl. Node 24, pnpm 11. A separate Electron 
   on other sites go through `app/api/files/external` (connections' address checks only). Comment
   mentions and previews: `lib/comment-refs.ts`, resolved per reader by `server/comment-refs.ts`.
   Cmd/Ctrl+Alt+T: `components/toggle-all.ts` (views with groups join through `useToggleAllGroups`).
+  Dictation at the caret: `components/page/dictation.tsx` (phases in `lib/dictation.ts`; recording,
+  the transcribe request and one-dictation-at-a-time shared with the chat in `voice/dictation.ts`).
+  A place kept across async work is a Yjs relative position (`ai-assist.tsx` does the same): others'
+  edits reach ProseMirror as whole-document replacements, so a ProseMirror mapping doesn't follow them.
   Read aloud (`components/page/read-aloud.tsx`) reads the editor's DOM blocks with `speechSynthesis`.
   Nested numbered lists count 1, a, i by depth (`lib/list-markers.ts`): the editor adds
   `data-marker` beside BlockNote's `data-index` (`components/page/list-markers.ts`), published pages
@@ -203,6 +217,11 @@ BlockNote on Yjs; Tailwind v4; next-intl. Node 24, pnpm 11. A separate Electron 
   its own route, `s/[token]/report`, on the app's address like `duplicate` (a site's domain
   redirects there, `routeOnSiteHost`); `servedPublication` decides whether the page is served.
   Owners get the `page_reported` inbox kind (an OWNER_KIND) and the list in Settings → Security.
+- **Dates typed in words.** `src/lib/date-words.ts` holds each language's date words and reads
+  dates in tokens (quick add, `lib/quick-add.ts`, finds them inside a row's title);
+  `lib/date-phrase.ts` `parseDatePhrase` reads a whole phrase (times, durations, `+2w` from the
+  day shown) for `@`, the date property editor, date mentions and date filters. A new place where
+  a date is typed uses `components/date-phrase-input.tsx`, which loads the grammar on the first keystroke.
 - **Published links can expire** (`page_publication.expires_at`): every query that serves or
   lists a publication to visitors adds `livePublication()` (`src/server/publication-live.ts`, its own
   module so `mentions.ts` can use it without an import cycle); there is no job that unpublishes.
@@ -282,7 +301,9 @@ because they are separate module graphs.
 - **Styling.** Use the tokens in `src/app/globals.css` (`bg-bg`, `text-fg-muted`, `border-border`,
   `bg-accent` …) and the `dark:`, `rtl:` and `high-contrast:` variants. `src/components/ui.tsx` is a
   client module: server components may render its components but must not call `cn()` from it
-  (they keep a local `cn`).
+  (they keep a local `cn`). Something fixed to the window's top edge (a side panel, a full-window
+  view) starts at `top-(--app-top)`: on macOS the desktop app lays its tab strip over the page
+  beside the sidebar, where `components/desktop-tab-strip.tsx` tells it (`desktop/src/windows.ts`).
 - **Rendering cost.** Per-row and per-card components don't call `useRouter`, `useSearchParams` or
   `usePathname`: in Next 16 they re-render on every URL change, `?row=` included. The router is
   read once in `database-page.tsx` and handed down; a card asks `useIsOpenRow`

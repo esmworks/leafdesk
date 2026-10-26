@@ -38,6 +38,7 @@ import { getCollab, type WriteActor } from "@/server/collab/bridge";
 import { bulkRowIds, dropCopiedSubItems, rowsWithAccess, syncPairedRelations, withCode, type BulkResult } from "@/server/databases";
 import { inheritFileReferences } from "@/server/files";
 import { copyReferences } from "@/server/mentions";
+import { copyPageTags } from "@/server/page-tags";
 import { assertNestable } from "@/server/page-depth";
 import { lockLiveParent } from "@/server/pages";
 import { freezeInheritedEntries, keepFullAccess, makePagePrivate } from "@/server/permissions";
@@ -290,6 +291,7 @@ export async function copyPageTree(
     await pointAtCopiedSyncedBlocks(tx, plan);
     if (target.stripComments) await stripCopiedComments(tx, plan);
     await copyReferences(tx, rows);
+    await copyPageTags(tx, rows);
     await stripCopiedReminders(tx, plan);
     // The copies show the files their sources showed (the bodies are final by now).
     await inheritFileReferences(tx, rows.map((r) => ({ id: r.id, sourceId: r.source_id })));

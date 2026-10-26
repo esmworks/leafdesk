@@ -1435,7 +1435,7 @@
     },
     "historyRetention": {
       "title": "Historia strony",
-      "description": "Wcześniejsze wersje strony są przechowywane przez {days, plural, one {# dzień} few {# dni} many {# dni} other {# dnia}}, najwyżej {count} na stronę. Zapisane wersje i wersje sprzed przywrócenia są przechowywane przez {keptDays, plural, one {# dzień} few {# dni} many {# dni} other {# dnia}}, a najnowsza wersja strony zawsze pozostaje."
+      "description": "Wcześniejsze wersje strony są przechowywane przez {days} dni, do {count} na stronę. Zapisane wersje i wersje sprzed przywrócenia są przechowywane przez {keptDays} dni, nazwane wersje tak długo jak strona, a najnowsza wersja strony zawsze zostaje."
     },
     "membersHeading": "Członkowie",
     "memberInvites": {
@@ -1712,6 +1712,9 @@
       "notion": "Notion",
       "obsidian": "Obsidian",
       "enex": "Evernote",
+      "textbundle": "TextBundle",
+      "onenote": "OneNote",
+      "mhtml": "Archiwum WWW (.mht)",
       "web": "Strona WWW",
       "jira": "Jira",
       "github": "GitHub",

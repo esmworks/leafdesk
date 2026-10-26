@@ -84,6 +84,7 @@ import { dropPushSubscription } from "@/components/settings/push-device";
 import { CELEBRATE_EVENT } from "@/lib/celebrate-event";
 import { FAVORITES_EVENT } from "@/lib/favorites-event";
 import { IMPORT_SPREADSHEET_EVENT, type ImportSpreadsheetDetail } from "@/lib/import-spreadsheet-event";
+import { OPEN_SEARCH_EVENT } from "@/lib/search-open";
 import { comboText, isMac, opensShortcuts } from "@/lib/shortcuts";
 import { ShortcutsDialog } from "@/components/shortcuts-dialog";
 import { INBOX_PREFERENCES_EVENT } from "@/lib/inbox-event";
@@ -214,6 +215,8 @@ export function Sidebar({
   const [favorites, setFavorites] = useState(initialFavorites);
   const [expanded, setExpanded] = useState<Set<string>>(() => new Set());
   const [searchOpen, setSearchOpen] = useState(false);
+  // What the search box opens with: a tag clicked in a page (OPEN_SEARCH_EVENT), else nothing.
+  const [searchQuery, setSearchQuery] = useState("");
   // The settings the command list finds, asked for the first time the search opens.
   const [settingsFound, setSettingsFound] = useState<{ workspaceId: string; items: SettingsSearchItem[] } | null>(null);
   const [shortcutsOpen, setShortcutsOpen] = useState(false);
@@ -399,6 +402,16 @@ export function Sidebar({
     };
     window.addEventListener(IMPORT_SPREADSHEET_EVENT, onImport);
     return () => window.removeEventListener(IMPORT_SPREADSHEET_EVENT, onImport);
+  }, []);
+
+  useEffect(() => {
+    const onOpenSearch = (event: Event) => {
+      const query = (event as CustomEvent<unknown>).detail;
+      setSearchQuery(typeof query === "string" ? query : "");
+      setSearchOpen(true);
+    };
+    window.addEventListener(OPEN_SEARCH_EVENT, onOpenSearch);
+    return () => window.removeEventListener(OPEN_SEARCH_EVENT, onOpenSearch);
   }, []);
 
   useEffect(() => {
@@ -1559,7 +1572,11 @@ export function Sidebar({
       <SearchDialog
         workspaceId={workspaceId}
         open={searchOpen}
-        onClose={() => setSearchOpen(false)}
+        initialQuery={searchQuery}
+        onClose={() => {
+          setSearchOpen(false);
+          setSearchQuery("");
+        }}
         commands={[
           // What the sidebar itself offers here; making pages, importing and the trash need the server.
           ...(topLevel && !offline

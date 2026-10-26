@@ -404,7 +404,7 @@ export function MarkdownSourceView({
   const showPreview = !narrow || tab === "preview";
 
   return (
-    <div role="dialog" aria-modal="true" aria-label={t("title")} className="fixed inset-0 z-50 flex flex-col bg-bg text-fg" data-markdown-source="">
+    <div role="dialog" aria-modal="true" aria-label={t("title")} className="fixed inset-x-0 top-(--app-top) bottom-0 z-50 flex flex-col bg-bg text-fg" data-markdown-source="">
       <header className="flex h-12 shrink-0 items-center gap-2 border-b border-border px-3">
         {/* On a narrow screen the tabs name what is shown, and the title would push Save away. */}
         <h2 className={cn("min-w-0 truncate text-sm font-semibold", narrow && source && "sr-only")}>{t("title")}</h2>

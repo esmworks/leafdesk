@@ -2,7 +2,7 @@
   "hello": "Xin chào, {name}",
   "jumpBackIn": "Tiếp tục công việc",
   "recent": "Chỉnh sửa gần đây",
-  "assignedEmpty": "Chưa có gì được giao cho bạn. Các hàng được giao cho bạn trong cơ sở dữ liệu sẽ xuất hiện ở đây.",
+  "assignedEmpty": "Chưa có gì được giao cho bạn. Các hàng được giao cho bạn trong cơ sở dữ liệu, và việc cần làm trong các trang nhắc đến bạn, sẽ xuất hiện ở đây.",
   "empty": "Chưa có gì ở đây. Hãy tạo trang đầu tiên để bắt đầu.",
   "emptyGuest": "Chưa có gì được chia sẻ với bạn ở đây. Các trang sẽ xuất hiện khi có người chia sẻ chúng với bạn.",
   "newPage": "Trang mới",
@@ -22,16 +22,20 @@
   "assignedAll": "Xem tất cả",
   "myTasks": {
     "title": "Việc của tôi",
-    "description": "Các hàng trong những cơ sở dữ liệu bạn mở được, được giao cho bạn và chưa xong, trong toàn bộ không gian làm việc.",
+    "description": "Các hàng trong những cơ sở dữ liệu bạn mở được, được giao cho bạn và chưa xong, cùng việc cần làm chưa đánh dấu trong các trang nhắc đến bạn, trong toàn bộ không gian làm việc.",
     "grouping": "Nhóm theo",
     "byDue": "Theo hạn",
-    "byDatabase": "Theo cơ sở dữ liệu",
+    "byDatabase": "Theo cơ sở dữ liệu hoặc trang",
     "sharedRows": "Hàng được chia sẻ với bạn",
     "shown": "Đang hiển thị {shown} hàng gần hạn nhất trên {total}.",
     "markDone": "Đánh dấu “{title}” là xong",
     "undoLabel": "Đánh dấu “{title}” là chưa xong",
     "undo": "Hoàn tác",
     "markFailed": "Không thể đánh dấu hàng là xong.",
-    "undoFailed": "Không thể khôi phục trạng thái của hàng. Hãy đổi nó trong hàng."
+    "undoFailed": "Không thể khôi phục trạng thái của hàng. Hãy đổi nó trong hàng.",
+    "untitledTask": "Việc cần làm",
+    "onPage": "trong <page>{title}</page>",
+    "tickFailed": "Không thể đánh dấu việc cần làm.",
+    "untickFailed": "Không thể bỏ đánh dấu. Hãy bỏ trong trang."
   }
 }

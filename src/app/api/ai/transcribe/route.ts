@@ -5,10 +5,12 @@ import { isCrossSite } from "@/server/cross-site";
 import { transcribeDictation } from "@/server/voice-notes";
 
 /**
- * Dictation in the AI chat's box (see server/voice-notes.ts): `POST /api/ai/transcribe` with
- * multipart form data: `audio` (the recording) and `workspaceId`. Answers `{"text":"…"}`, what was
- * said, which the box takes in for the person to check before sending; or a status and
- * `{"error":{"code","message"}}` (codes of lib/ai AI_ERROR_CODES). Closing the request cancels it.
+ * Dictation in the AI chat's box and in a page (see server/voice-notes.ts): `POST /api/ai/transcribe`
+ * with multipart form data: `audio` (the recording), `workspaceId` and, from a page, `use=page`
+ * (counted as voice rather than chat usage). Answers `{"text":"…"}`, what was said, which the box
+ * takes in for the person to check before sending and the page editor writes at the caret; or a
+ * status and `{"error":{"code","message"}}` (codes of lib/ai AI_ERROR_CODES). Closing the request
+ * cancels it.
  *
  * Signed-in browsers only (the session cookie); the cross-site check keeps other sites' pages from
  * posting here, as on the voice note route.
@@ -25,7 +27,8 @@ export async function POST(request: Request) {
   if (typeof workspaceId !== "string" || !workspaceId.trim()) return fail("invalid", "Say which workspace: workspaceId", 400);
 
   try {
-    const text = await transcribeDictation(session.user.id, workspaceId.trim().slice(0, 100), read.audio, { signal: request.signal });
+    const inPage = read.form.get("use") === "page";
+    const text = await transcribeDictation(session.user.id, workspaceId.trim().slice(0, 100), read.audio, { signal: request.signal, inPage });
     return Response.json({ text }, { headers: { "Cache-Control": "no-store" } });
   } catch (error) {
     if (!isAiError(error)) console.error("[dictation]", error);

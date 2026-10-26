@@ -1435,7 +1435,7 @@
     },
     "historyRetention": {
       "title": "Lịch sử trang",
-      "description": "Các phiên bản trước của một trang được giữ trong {days} ngày, tối đa {count} phiên bản mỗi trang. Các phiên bản đã lưu và phiên bản từ trước một lần khôi phục được giữ trong {keptDays} ngày, và phiên bản mới nhất của một trang luôn được giữ lại."
+      "description": "Các phiên bản trước của một trang được giữ {days} ngày, tối đa {count} phiên bản mỗi trang. Phiên bản đã lưu và phiên bản trước khi khôi phục được giữ {keptDays} ngày, phiên bản có tên được giữ chừng nào trang còn, và phiên bản mới nhất của trang luôn được giữ."
     },
     "membersHeading": "Thành viên",
     "memberInvites": {
@@ -1712,6 +1712,9 @@
       "notion": "Notion",
       "obsidian": "Obsidian",
       "enex": "Evernote",
+      "textbundle": "TextBundle",
+      "onenote": "OneNote",
+      "mhtml": "Kho lưu trữ web (.mht)",
       "web": "Trang web",
       "jira": "Jira",
       "github": "GitHub",

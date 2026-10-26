@@ -5,7 +5,9 @@
  * Turkish words written with I, ı, İ or i found by each other, a page too large for the whole of it
  * to be indexed, and the pages last edited before anything is typed. Also "quoted phrases" (in the
  * box and through the shared search operation), the box's teamspace, people and date filters, and
- * the pages the person opened last (falling back while views aren't recorded).
+ * the pages the person opened last (falling back while views aren't recorded). And `#tags` in page
+ * text: indexed on save, edit, copy and backfill, found with `#tag` and `tag:` (a tag's children
+ * too), and suggested from the pages the person can open.
  * Creates its own users and workspace and deletes them afterwards.
  *
  *   pnpm tsx scripts/search-e2e.ts
@@ -21,12 +23,14 @@ try {
 // Imported after .env is loaded: the database client reads DATABASE_URL when it is created.
 const { eq, inArray, sql } = await import("drizzle-orm");
 const { db } = await import("@/db");
-const { page, user, workspace, workspaceMember } = await import("@/db/schema");
+const { page, pageTag, pageTagQueue, user, workspace, workspaceMember } = await import("@/db/schema");
+const { backfillPageTags, tagSuggestions } = await import("@/server/page-tags");
+const { duplicatePage } = await import("@/server/duplicate");
 const { search: searchOperation } = await import("@/server/operations");
 const { recentlyViewedPages, recordPageView } = await import("@/server/page-views");
 const { removePagePermission } = await import("@/server/permissions");
 const { createTeamspace, joinTeamspace } = await import("@/server/teamspaces");
-const { registerCollab } = await import("@/server/collab/bridge");
+const { getCollab, registerCollab } = await import("@/server/collab/bridge");
 const { createCollab } = await import("@/server/collab/service");
 const { createPage, fullTextSearch, recentPages, searchWithQuery } = await import("@/server/pages");
 const { setPagePermission } = await import("@/server/permissions");
@@ -394,6 +398,71 @@ try {
 
   const recent = await recentPages(ids.owner, workspaceId, 3);
   check(recent.length === 3 && recent[0].updatedAt >= recent[2].updatedAt, "the pages last edited come newest first", recent);
+
+  // #tags written in page text (lib/tags), indexed on save (server/page-tags.ts).
+  const renovation = await body("Kitchen", "Quotes for the #Home/Renovation, see #Budget.\n\nAnd #home/renovation again.");
+  const chores = await body("Chores", "Weekly #home list, #ŞEHİR errands.");
+  const notTagged = await body(
+    "Not tagged",
+    "Inline `#home` code, a [link](https://x.test/#home), C#home and #123.\n\n```\n#home\n```\n\n# Heading\n\n$$\n#home\n$$",
+  );
+  const tagsOf = async (pageId: string) =>
+    (await db.select({ key: pageTag.key, label: pageTag.label, count: pageTag.count }).from(pageTag).where(eq(pageTag.pageId, pageId))).sort((a, b) =>
+      a.key.localeCompare(b.key),
+    );
+  check(
+    JSON.stringify(await tagsOf(renovation.id)) ===
+      JSON.stringify([
+        { key: "budget", label: "Budget", count: 1 },
+        { key: "home/renovation", label: "Home/Renovation", count: 2 },
+      ]),
+    "a save indexes the page's tags: folded, first spelling kept, counted",
+    await tagsOf(renovation.id),
+  );
+  check((await tagsOf(notTagged.id)).length === 0, "code, links, equations, C# and #123 aren't tags", await tagsOf(notTagged.id));
+  check(
+    JSON.stringify(titlesOf(await search("#home"))) === JSON.stringify(["Chores", "Kitchen"]),
+    "#home alone lists the pages carrying it or a tag under it",
+    titlesOf(await search("#home")),
+  );
+  check(
+    JSON.stringify(titlesOf(await search("#HOME/renovation"))) === JSON.stringify(["Kitchen"]) &&
+      JSON.stringify(titlesOf(await search("tag:budget"))) === JSON.stringify(["Kitchen"]) &&
+      JSON.stringify(titlesOf(await search("#sehir"))) === JSON.stringify(["Chores"]),
+    "a child tag, tag: and accents and case aside",
+    [titlesOf(await search("#HOME/renovation")), titlesOf(await search("#sehir"))],
+  );
+  check(
+    JSON.stringify(titlesOf(await search("weekly #home"))) === JSON.stringify(["Chores"]) && (await search("#home #budget")).length === 1,
+    "a tag with words, and several tags (each needed)",
+    titlesOf(await search("weekly #home")),
+  );
+  check((await search("#home"))[0]?.snippet.toLowerCase().includes("#home"), "the snippet shows the tag", (await search("#home"))[0]);
+  const suggested = await tagSuggestions(ids.owner, workspaceId, "ho");
+  check(
+    JSON.stringify(suggested.map((s) => [s.label, s.pages])) === JSON.stringify([["home", 1], ["Home/Renovation", 1]]),
+    "suggestions: the tags starting so, of pages the person can open",
+    suggested,
+  );
+  check(
+    JSON.stringify((await tagSuggestions(ids.owner, workspaceId, "#HOME/")).map((s) => s.key)) === JSON.stringify(["home/renovation"]) &&
+      (await tagSuggestions(ids.owner, workspaceId, "zz")).length === 0,
+    "…a slash narrows to a branch",
+  );
+  check((await tagSuggestions(ids.guest, workspaceId, "ho")).length === 0, "…a guest who can open none of them gets none");
+  const viaTag = await searchOperation({ userId: ids.owner } as never, { query: "", workspace_id: workspaceId, limit: 20, tag: "#home/renovation" });
+  check(JSON.stringify(viaTag.results.map((r) => r.title)) === JSON.stringify(["Kitchen"]), "the shared search operation takes a tag", viaTag.results);
+  await getCollab().replaceContent(chores.id, "Weekly list, no tags now.", owner);
+  check((await tagsOf(chores.id)).length === 0 && JSON.stringify(titlesOf(await search("#home"))) === JSON.stringify(["Kitchen"]), "an edit removes what is gone");
+  const copy = await duplicatePage(owner, renovation.id);
+  check((await tagsOf(copy.id)).length === 2, "a copy carries the tags", await tagsOf(copy.id));
+  await db.delete(pageTag).where(eq(pageTag.pageId, renovation.id));
+  await db.insert(pageTagQueue).values({ pageId: renovation.id });
+  while ((await backfillPageTags(500)) > 0);
+  check(
+    (await tagsOf(renovation.id)).length === 2 && (await db.select().from(pageTagQueue).where(eq(pageTagQueue.pageId, renovation.id))).length === 0,
+    "the backfill reads a queued page's tags once",
+  );
 
   console.log(`\n${passed} checks passed`);
 } finally {

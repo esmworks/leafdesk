@@ -2,12 +2,15 @@ import { strToU8, unzipSync } from "fflate";
 import { IMPORT_LIMITS, importFileKind, isIgnoredPath, normalizePath } from "@/lib/import/markdown";
 import { isVaultSettingsPath } from "@/lib/import/obsidian";
 import { ImportError } from "@/lib/import/result";
+import { isTextPack, textPackFolder } from "@/lib/import/textbundle";
 
 /**
  * The files of an upload by path: loose files as they came (a folder picked in the browser keeps
  * its relative paths), and ZIP files unpacked in place of themselves. Several ZIPs (Notion splits
  * large exports into parts) merge into one tree, and ZIPs inside a ZIP are unpacked once more
- * (Notion's `Export-<id>.zip` holding `Export-<id>-Part-1.zip`, `…-Part-2.zip`).
+ * (Notion's `Export-<id>.zip` holding `Export-<id>-Part-1.zip`, `…-Part-2.zip`). A TextPack (a
+ * zipped TextBundle, see lib/import/textbundle) is unpacked into its bundle folder where it was,
+ * counting as a ZIP for the nesting.
  *
  * Unpacking is bounded before it starts: entry sizes come from the ZIP's directory and the
  * decompressor never writes past them, so a ZIP bomb can't take more memory than the limits. An
@@ -95,11 +98,29 @@ function unzip(
   }
   for (const [name, bytes] of Object.entries(entries)) {
     const path = normalizePath(entryName(name))!;
-    if (importFileKind(path) === "zip") {
-      if (depth < 1) unzip(bytes, budget, depth + 1, out, skipped, seen);
-      else skipped.push({ path, reason: "nestedZip" });
+    const pack = isTextPack(path);
+    if (importFileKind(path) === "zip" || pack) {
+      if (depth >= 1) skipped.push({ path, reason: "nestedZip" });
+      else if (pack) unpackTextPack(path, bytes, budget, depth + 1, out, skipped, seen);
+      else unzip(bytes, budget, depth + 1, out, skipped, seen);
     } else out.set(path, bytes);
   }
+}
+
+/** Unpacks the TextPack at `path` into its bundle folder (see textPackFolder). */
+function unpackTextPack(
+  path: string,
+  data: Uint8Array,
+  budget: Budget,
+  depth: number,
+  out: Map<string, Uint8Array>,
+  skipped: SkippedFile[],
+  seen: Seen,
+) {
+  const inner = new Map<string, Uint8Array>();
+  unzip(data, budget, depth, inner, skipped, seen);
+  const folder = textPackFolder(path, [...inner.keys()]);
+  for (const [entry, bytes] of inner) out.set(`${folder}${entry}`, bytes);
 }
 
 /**
@@ -128,6 +149,7 @@ export function collectFiles(files: UploadedFile[]): { files: Map<string, Uint8A
       continue;
     }
     if (importFileKind(path) === "zip") unzip(file.data, budget, 0, out, skipped, seen);
+    else if (isTextPack(path)) unpackTextPack(path, file.data, budget, 0, out, skipped, seen);
     else {
       take(budget, file.data.byteLength);
       out.set(path, file.data);
