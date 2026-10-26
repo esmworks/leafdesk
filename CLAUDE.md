@@ -132,7 +132,12 @@ BlockNote on Yjs; Tailwind v4; next-intl. Node 24, pnpm 11. A separate Electron 
   (`installFauxAi`, unit tests) and `ai/fake-openai.ts` (`startFakeOpenAi`, e2e scripts). Web
   calls carry data out: the chat asks before each, and agents' chat, mention and request runs
   before each the person didn't write; schedules' runs read only pages of their task or search
-  results and refuse others (`lib/web-calls.ts`); a new outbound tool goes through it.
+  results and refuse others (`lib/web-calls.ts`); a new outbound tool goes through it. Page writes
+  carry data out too: a write of the model's (agent runs, the chat, approved proposals) sets
+  `WriteActor.model`, and `writeBlocks` turns its media that would load another site into links
+  (`lib/model-media.ts`); a new place a model writes a page sets it. Outside text goes to the model
+  through `connections/tools.ts` `externalData`/`frameData` (a frame with a new id each time);
+  `ai/index.ts` strips invisible characters from all of it (`lib/invisible-text.ts`).
 - **Search.** `src/server/pages.ts` `searchPages` merges `fullTextSearch` with semantic search;
   `semantic-search.ts` `searchScope` is the one place a search's scope and filters become SQL, used
   by full-text, document and ID hits and by search by meaning alike, so a new filter goes there (and

@@ -23,6 +23,7 @@ import { randomUUID } from "node:crypto";
 import { isContextOverflow, Type, type Api, type AssistantMessage, type Context, type Message, type Model, type Tool } from "@earendil-works/pi-ai";
 import { sharedLimiter, takeAll, type SlidingWindowLimiter } from "@/lib/rate-limit";
 import { env } from "@/lib/env";
+import { stripInvisible } from "@/lib/invisible-text";
 import { redactText } from "@/lib/redact";
 import { createBackend, streamTurn, type AiBackend, type AiThinking } from "./backend";
 import { accountAiConfig, contentChars, DEFAULT_MIN_SIMILARITY, describeAiConfig, readAiConfig, readSttLimits, type AiConfig } from "./config";
@@ -491,15 +492,16 @@ function toContext(request: AiRequest, model: Model<Api>): Context {
     if (m.role === "user") {
       // Images go only to a model that takes them (the chat refuses them for others first).
       const images = model.input.includes("image") ? (m.images ?? []) : [];
-      if (!images.length) return { role: "user", content: m.content, timestamp: now };
-      return { role: "user", content: [{ type: "text", text: m.content }, ...images.map((i) => ({ type: "image" as const, data: i.data, mimeType: i.mimeType }))], timestamp: now };
+      const text = stripInvisible(m.content);
+      if (!images.length) return { role: "user", content: text, timestamp: now };
+      return { role: "user", content: [{ type: "text", text }, ...images.map((i) => ({ type: "image" as const, data: i.data, mimeType: i.mimeType }))], timestamp: now };
     }
     if (m.role === "tool") {
       return {
         role: "toolResult",
         toolCallId: m.toolCallId,
         toolName: m.name,
-        content: [{ type: "text", text: m.content }],
+        content: [{ type: "text", text: stripInvisible(m.content) }],
         isError: m.isError ?? false,
         timestamp: now,
       } as Message;
@@ -524,7 +526,7 @@ function toContext(request: AiRequest, model: Model<Api>): Context {
     description: t.description,
     parameters: Type.Unsafe(t.parameters),
   }));
-  return { systemPrompt: request.system, messages, ...(tools?.length ? { tools } : {}) };
+  return { systemPrompt: request.system === undefined ? undefined : stripInvisible(request.system), messages, ...(tools?.length ? { tools } : {}) };
 }
 
 function toResult(message: AssistantMessage, model: string): AiResult {

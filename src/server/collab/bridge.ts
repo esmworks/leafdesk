@@ -27,6 +27,11 @@ export type WriteActor = {
    * edits (collab/suggestion-doc writeBlocksAsSuggestions): they wait for an answer like theirs.
    */
   asSuggestions?: boolean;
+  /**
+   * Leafdesk's own model wrote it (an agent's run, the AI chat, a row an agent proposed): media
+   * that would load a web address the page didn't load before become links (lib/model-media).
+   */
+  model?: boolean;
 };
 
 /** A suggested edit that was accepted or rejected, with the thread it had (null when none). */
