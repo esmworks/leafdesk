@@ -4,7 +4,7 @@
 
 - [Features](features.md): everything Leafdesk does, area by area.
 - [Install and offline use](desktop-and-offline.md): installing Leafdesk as an app, working offline, the desktop app.
-- [Running a server](self-hosting.md): file storage, email, push notifications, social login, maps, administrators, Dokploy.
+- [Running a server](self-hosting.md): file storage, email, push notifications, social login, maps, administrators, Dokploy, Supabase.
 - [Export](export.md): Markdown, CSV, PDF and whole-workspace exports, backups, editing a page as Markdown.
 - [Email on rows](email-on-rows.md): members' mailboxes, mail on database rows, follow-ups.
 - [Accounts and security](account-and-security.md): accounts, who can join, two-step verification, SSO and SCIM, security switches, audit log streaming, sensitive content.
