@@ -1,8 +1,8 @@
 "use client";
 
 /**
- * The sidebar's chat tab: the person's conversations in place of the page tree, newest first, under
- * a new chat.
+ * The sidebar's chat tab: the person's conversations in place of the page tree, newest first under
+ * how recent they are (today, yesterday, …), below a new chat.
  * Deleting one or all is in a ⋯ menu so a stray click doesn't lose a conversation. Several are
  * picked with the box that takes a row's dot on hover (shift-click for a range), or all from the
  * heading's menu (where a touch screen starts); the heading then counts them and deletes them
@@ -19,6 +19,7 @@ import { SelectBox, useSelection } from "@/components/selection";
 import { useSidebar } from "@/components/sidebar/sidebar-context";
 import { cn, IconButton, MenuItem, Popover } from "@/components/ui";
 import { chatPath } from "@/lib/ai-chat";
+import { byRecency } from "@/lib/chat-recency";
 import { useAnswering } from "./answering";
 import { useAiChat } from "./chat-panel";
 
@@ -155,50 +156,57 @@ export function ConversationList() {
         ) : conversations.length === 0 ? (
           <p className="px-2 py-1 text-xs text-fg-faint">{t("noHistory")}</p>
         ) : (
-          <ul className="space-y-px">
-            {conversations.map((c) => {
-              const title = c.title || t("untitled");
-              const picked = selection.isSelected(c.id);
-              return (
-                <li key={c.id} className="group group/heading relative">
-                  <Link
-                    href={chatPath(workspaceId, c.id)}
-                    onClick={closeDrawer}
-                    aria-current={c.id === current ? "page" : undefined}
-                    title={title}
-                    className={cn(row, "pe-8", c.id === current && "bg-bg-active font-medium hover:bg-bg-active", picked && "bg-accent/10 hover:bg-accent/15")}
-                  >
-                    {/* The dot gives way to the selection box (laid over it, outside the link) on hover. A touch
-                        screen keeps the dot until a selection starts (⋯ › Select all). */}
-                    <span
-                      aria-hidden
-                      className={cn(
-                        "flex h-6 w-6 shrink-0 items-center justify-center",
-                        selection.some ? "opacity-0" : "group-hover:opacity-0 group-has-[input:focus-visible]:opacity-0",
+          byRecency(conversations).map((group) => (
+            <div key={group.recency} role="group" aria-labelledby={`conversations-${group.recency}`}>
+              <h3 id={`conversations-${group.recency}`} className="truncate px-2 pt-2.5 pb-1 text-[11px] font-medium text-fg-faint">
+                {t(`when.${group.recency}`)}
+              </h3>
+              <ul className="space-y-px">
+                {group.items.map((c) => {
+                  const title = c.title || t("untitled");
+                  const picked = selection.isSelected(c.id);
+                  return (
+                    <li key={c.id} className="group group/heading relative">
+                      <Link
+                        href={chatPath(workspaceId, c.id)}
+                        onClick={closeDrawer}
+                        aria-current={c.id === current ? "page" : undefined}
+                        title={title}
+                        className={cn(row, "pe-8", c.id === current && "bg-bg-active font-medium hover:bg-bg-active", picked && "bg-accent/10 hover:bg-accent/15")}
+                      >
+                        {/* The dot gives way to the selection box (laid over it, outside the link) on hover. A touch
+                            screen keeps the dot until a selection starts (⋯ › Select all). */}
+                        <span
+                          aria-hidden
+                          className={cn(
+                            "flex h-6 w-6 shrink-0 items-center justify-center",
+                            selection.some ? "opacity-0" : "group-hover:opacity-0 group-has-[input:focus-visible]:opacity-0",
+                          )}
+                        >
+                          {/* Faint; full, fading in and out, while an answer is being written for it. */}
+                          <span className={cn("h-1.5 w-1.5 rounded-full", answering.has(c.id) ? "animate-pulse bg-fg motion-reduce:animate-none" : "bg-fg-faint")} />
+                        </span>
+                        <span className="flex-1 truncate ps-0.5">{title}</span>
+                      </Link>
+                      <span className={cn("absolute inset-y-0 inset-s-1 flex items-center", !selection.some && "pointer-coarse:hidden")}>
+                        <SelectBox
+                          checked={picked}
+                          label={t("selectConversation", { name: title })}
+                          visible={selection.some}
+                          onToggle={(range) => selection.toggle(c.id, range)}
+                        />
+                      </span>
+                      {menu(
+                        t("actionsFor", { name: title }),
+                        (close) => deleteItem(close, t("deleteConversation"), () => void remove([c.id], false)),
+                        cn("absolute top-0 inset-e-0", onHover),
                       )}
-                    >
-                      {/* Fades in and out while an answer is being written for it. */}
-                      <span className={cn("h-1.5 w-1.5 rounded-full bg-fg", answering.has(c.id) && "animate-pulse motion-reduce:animate-none")} />
-                    </span>
-                    <span className="flex-1 truncate ps-0.5">{title}</span>
-                  </Link>
-                  <span className={cn("absolute inset-y-0 inset-s-1 flex items-center", !selection.some && "pointer-coarse:hidden")}>
-                    <SelectBox
-                      checked={picked}
-                      label={t("selectConversation", { name: title })}
-                      visible={selection.some}
-                      onToggle={(range) => selection.toggle(c.id, range)}
-                    />
-                  </span>
-                  {menu(
-                    t("actionsFor", { name: title }),
-                    (close) => deleteItem(close, t("deleteConversation"), () => void remove([c.id], false)),
-                    cn("absolute top-0 inset-e-0", onHover),
-                  )}
-                </li>
-              );
-            })}
-          </ul>
+                    </li>
+                  );
+                })}
+              </ul>
+            </div>
+          ))
         )}
       </section>
     </div>

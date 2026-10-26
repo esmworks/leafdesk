@@ -405,6 +405,22 @@
       "save": "另存为页面",
       "openPage": "打开页面",
       "saveFailed": "无法将报告另存为页面。"
+    },
+    "starters": {
+      "label": "建议",
+      "summarize": "总结“{title}”",
+      "database": "“{title}”里有什么？",
+      "find": "查找关于……的页面",
+      "findText": "查找关于以下内容的页面：",
+      "write": "写一篇关于……的页面",
+      "writeText": "写一篇关于以下内容的页面："
+    },
+    "when": {
+      "today": "今天",
+      "yesterday": "昨天",
+      "week": "过去 7 天",
+      "month": "过去 30 天",
+      "older": "更早"
     }
   },
   "memory": {

@@ -405,6 +405,22 @@
       "save": "Opslaan als pagina",
       "openPage": "De pagina openen",
       "saveFailed": "Het rapport kon niet als pagina worden opgeslagen."
+    },
+    "starters": {
+      "label": "Suggesties",
+      "summarize": "Vat ‘{title}’ samen",
+      "database": "Wat staat er in ‘{title}’?",
+      "find": "Zoek pagina’s over…",
+      "findText": "Zoek pagina’s over ",
+      "write": "Schrijf een pagina over…",
+      "writeText": "Schrijf een pagina over "
+    },
+    "when": {
+      "today": "Vandaag",
+      "yesterday": "Gisteren",
+      "week": "Afgelopen 7 dagen",
+      "month": "Afgelopen 30 dagen",
+      "older": "Ouder"
     }
   },
   "memory": {

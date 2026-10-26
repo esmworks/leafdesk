@@ -405,6 +405,22 @@
       "save": "Lagre som side",
       "openPage": "Åpne siden",
       "saveFailed": "Rapporten kunne ikke lagres som en side."
+    },
+    "starters": {
+      "label": "Forslag",
+      "summarize": "Oppsummer «{title}»",
+      "database": "Hva er i «{title}»?",
+      "find": "Finn sider om…",
+      "findText": "Finn sider om ",
+      "write": "Skriv en side om…",
+      "writeText": "Skriv en side om "
+    },
+    "when": {
+      "today": "I dag",
+      "yesterday": "I går",
+      "week": "Siste 7 dager",
+      "month": "Siste 30 dager",
+      "older": "Eldre"
     }
   },
   "memory": {

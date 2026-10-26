@@ -176,8 +176,9 @@ the same way), not just a line around the first of them. While an answer is writ
 takes are listed above it (searches with how many pages they found, pages read, databases
 queried, what the model says before them) with a running clock, then folded into how long it took; they are kept with the
 conversation. Answers cite their sources as numbered
-links to the page, and to the block the passage starts at when it is known. *Answer from* → *This
-page and its subpages* keeps questions to the page you are on, and picking one of your teamspaces
+links to the page, and to the block the passage starts at when it is known. *Answer from* (in the
+box's toolbar on the full-page chat, under the box in the panel) → *This page and its subpages*
+keeps questions to the page you are on, and picking one of your teamspaces
 (in the panel and the full-page chat) keeps them to that teamspace's pages: search, semantic
 search, reading pages and comments, querying databases and the workspace map the model gets all
 keep to it on the server, with your access checked as always. Each question shows what it was
@@ -240,8 +241,9 @@ with their conversation; one attached but never sent goes after a day.
 
 **Picking the model.** `AI_CHAT_MODELS` lists more models at the same provider (same key and
 endpoint), comma-separated, that the chat's box offers next to `AI_MODEL` and `AI_FAST_MODEL`.
-Where there is more than one, a model picker sits under the box: a conversation keeps the model it
-was last asked with, and a new one starts with the model of your latest. Usage and cost are counted
+Where there is more than one, a model picker sits in the box's toolbar, showing each model by its
+name (with its id under it in the menu): a conversation keeps the model it was last asked with, and
+a new one starts with the model of your latest. Usage and cost are counted
 per model (see *Usage and cost limits*). A workspace on its own AI account answers with that
 account's model, without a picker.
 
@@ -251,7 +253,7 @@ AI_FAST_MODEL=claude-haiku-5-5
 AI_CHAT_MODELS=claude-opus-5-5
 ```
 
-**Research.** The telescope button under the box turns on research mode for the questions that
+**Research.** The telescope button in the box's toolbar (named *Research* while on) turns on research mode for the questions that
 follow. The model first plans the sub-questions that together answer the question (shown as a
 step), then searches the workspace (full text and by meaning, as you), reads the best pages and
 databases, reads attached files and, where web search is on, searches the web and reads the best
@@ -731,10 +733,10 @@ list until it is restored.
   language and with its description, as a row of their skills database, theirs to change from then
   on. They need no setup: each works on whatever page, row or text it is pointed at. The texts are
   in `src/i18n/messages/<locale>/skillTemplates.json`.
-- **AI chat**: `/` at the start of the empty question box (or the skills button under it) lists
+- **AI chat**: `/` at the start of the empty question box (or the skills button in its toolbar) lists
   the skills; the one picked shows above the box and the next question goes to the model with its
   instructions, which the model is told to follow for that question only. They don't widen what the
-  chat may change: the mode under the box still decides. The question keeps the skill it used
+  chat may change: the mode in the box's toolbar still decides. The question keeps the skill it used
   (shown above it), *Answer again* and *Edit* use it again, and later questions go without it.
   A skill longer than 20,000 characters can't be used in the chat.
 - **MCP**: `list_skills`, `get_skill` (by name, title, page id or link; a title several skills

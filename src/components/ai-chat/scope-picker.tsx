@@ -1,15 +1,17 @@
 "use client";
 
+import { Check, ChevronDown, FileText, Layers, Users } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { useEffect, useState } from "react";
 import { listTeamspacesAction } from "@/app/actions/teamspaces";
+import { MenuItem, Popover } from "@/components/ui";
 import type { ChatScopeView } from "@/lib/ai-chat";
 
 /**
- * Where the chat answers from, under its box: the whole workspace, the page open now with the
- * pages under it (in the panel beside a page), or one of the person's teamspaces (those in their
- * sidebar, loaded when the picker is first shown). The server checks the scope again on every
- * question (ai-chat.ts chatScope).
+ * Where the chat answers from, a menu in the question box's toolbar (under the box in the panel):
+ * the whole workspace, the page open now with the pages under it (in the panel beside a page), or
+ * one of the person's teamspaces (those in their sidebar, loaded when the picker is first shown).
+ * The server checks the scope again on every question (ai-chat.ts chatScope).
  */
 export function ScopePicker({
   workspaceId,
@@ -40,39 +42,74 @@ export function ScopePicker({
 
   // The page scope follows the page open now (the whole workspace where none is); a picked teamspace
   // stays listed while the list loads.
-  const selected = value?.kind === "page" ? (pageId ? "page" : "workspace") : value?.kind === "teamspace" ? `teamspace:${value.id}` : "workspace";
+  const kind = value?.kind === "page" ? (pageId ? "page" : "workspace") : (value?.kind ?? "workspace");
+  const Icon = kind === "page" ? FileText : kind === "teamspace" ? Users : Layers;
+  const shown = value?.kind === "teamspace" ? (value.title ?? t("scopeTeamspace")) : kind === "page" ? t("scopePage") : t("scopeWorkspace");
+  const listed =
+    value?.kind === "teamspace" && !teamspaces.some((s) => s.id === value.id) ? [{ id: value.id, name: value.title ?? t("scopeTeamspace") }, ...teamspaces] : teamspaces;
+  const tick = <Check className="h-3.5 w-3.5" />;
+
   return (
-    <div className="mt-2 flex items-center gap-2 text-xs text-fg-muted">
-      <label htmlFor="ai-chat-scope">{t("scope")}</label>
-      <select
-        id="ai-chat-scope"
-        value={selected}
-        onChange={(e) => {
-          const picked = e.target.value;
-          if (picked === "page" && pageId) onChange({ kind: "page", id: pageId, title: null });
-          else if (picked.startsWith("teamspace:")) {
-            const space = teamspaces.find((s) => `teamspace:${s.id}` === picked);
-            onChange(space ? { kind: "teamspace", id: space.id, title: space.name } : null);
-          } else onChange(null);
-        }}
-        disabled={disabled}
-        className="h-6 min-w-0 flex-1 rounded border border-border bg-bg px-1 text-xs text-fg"
-      >
-        <option value="workspace">{t("scopeWorkspace")}</option>
-        {pageId && <option value="page">{t("scopePage")}</option>}
-        {value?.kind === "teamspace" && !teamspaces.some((s) => s.id === value.id) && (
-          <option value={`teamspace:${value.id}`}>{value.title ?? t("scopeTeamspace")}</option>
-        )}
-        {teamspaces.length > 0 && (
-          <optgroup label={t("scopeTeamspace")}>
-            {teamspaces.map((space) => (
-              <option key={space.id} value={`teamspace:${space.id}`}>
-                {space.name}
-              </option>
-            ))}
-          </optgroup>
-        )}
-      </select>
-    </div>
+    <Popover
+      side="top"
+      className="w-64"
+      wrapperClassName="relative inline-flex min-w-0"
+      trigger={({ open, toggle }) => (
+        <button
+          type="button"
+          onClick={toggle}
+          disabled={disabled}
+          aria-expanded={open}
+          aria-haspopup="menu"
+          aria-label={`${t("scope")}: ${shown}`}
+          title={t("scope")}
+          className="flex h-7 min-w-0 items-center gap-1 rounded px-1.5 text-xs text-fg-muted hover:bg-bg-hover hover:text-fg disabled:opacity-50 disabled:hover:bg-transparent"
+        >
+          <Icon className="h-3.5 w-3.5 shrink-0" />
+          <span className="max-w-44 min-w-0 truncate">{shown}</span>
+          <ChevronDown className="h-3 w-3 shrink-0" />
+        </button>
+      )}
+    >
+      {(close) => {
+        const pick = (scope: ChatScopeView | null) => {
+          onChange(scope);
+          close();
+        };
+        return (
+          <div role="menu" aria-label={t("scope")}>
+            <p className="px-2 pt-1 pb-1.5 text-xs font-medium text-fg-muted">{t("scope")}</p>
+            <MenuItem icon={<Layers className="h-4 w-4" />} active={kind === "workspace"} trailing={kind === "workspace" && tick} onClick={() => pick(null)}>
+              {t("scopeWorkspace")}
+            </MenuItem>
+            {pageId && (
+              <MenuItem
+                icon={<FileText className="h-4 w-4" />}
+                active={kind === "page"}
+                trailing={kind === "page" && tick}
+                onClick={() => pick({ kind: "page", id: pageId, title: null })}
+              >
+                {t("scopePage")}
+              </MenuItem>
+            )}
+            {listed.length > 0 && <p className="px-2 pt-2 pb-1 text-xs font-medium text-fg-muted">{t("scopeTeamspace")}</p>}
+            {listed.map((space) => {
+              const on = value?.kind === "teamspace" && value.id === space.id;
+              return (
+                <MenuItem
+                  key={space.id}
+                  icon={<Users className="h-4 w-4" />}
+                  active={on}
+                  trailing={on && tick}
+                  onClick={() => pick({ kind: "teamspace", id: space.id, title: space.name })}
+                >
+                  {space.name}
+                </MenuItem>
+              );
+            })}
+          </div>
+        );
+      }}
+    </Popover>
   );
 }

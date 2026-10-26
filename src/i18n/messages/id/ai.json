@@ -405,6 +405,22 @@
       "save": "Simpan sebagai halaman",
       "openPage": "Buka halaman",
       "saveFailed": "Laporan tidak dapat disimpan sebagai halaman."
+    },
+    "starters": {
+      "label": "Saran",
+      "summarize": "Ringkas “{title}”",
+      "database": "Apa isi “{title}”?",
+      "find": "Cari halaman tentang…",
+      "findText": "Cari halaman tentang ",
+      "write": "Tulis halaman tentang…",
+      "writeText": "Tulis halaman tentang "
+    },
+    "when": {
+      "today": "Hari ini",
+      "yesterday": "Kemarin",
+      "week": "7 hari terakhir",
+      "month": "30 hari terakhir",
+      "older": "Lebih lama"
     }
   },
   "memory": {

@@ -405,6 +405,22 @@
       "save": "Tallenna sivuna",
       "openPage": "Avaa sivu",
       "saveFailed": "Raporttia ei voitu tallentaa sivuna."
+    },
+    "starters": {
+      "label": "Ehdotuksia",
+      "summarize": "Tiivistä ”{title}”",
+      "database": "Mitä ”{title}” sisältää?",
+      "find": "Etsi sivuja aiheesta…",
+      "findText": "Etsi sivuja aiheesta ",
+      "write": "Kirjoita sivu aiheesta…",
+      "writeText": "Kirjoita sivu aiheesta "
+    },
+    "when": {
+      "today": "Tänään",
+      "yesterday": "Eilen",
+      "week": "Edelliset 7 päivää",
+      "month": "Edelliset 30 päivää",
+      "older": "Vanhemmat"
     }
   },
   "memory": {

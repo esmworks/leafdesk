@@ -24,8 +24,11 @@
   `update_dashboard_widget` and the dashboard views of `create_database_view` /
   `update_database_view` take `period`, and widgets `period_by` and `comparison`; the MCP tool list
   budget goes from 165,000 to 165,500 bytes for these settings. View filters gain *this quarter*,
-  *last quarter* and *next quarter*, and a page's first-load JavaScript budget goes from 774 to
-  775 kB for them. No migration.
+  *last quarter* and *next quarter*, and the first-load JavaScript budgets go up by 1 kB for
+  them (a page to 776 kB, all routes together to 1,181 kB). No migration.
+- **A new chat suggests questions to start from.** Under the empty full-page chat's box are
+  questions about the pages you opened last (summarize a page, what's in a database) and the start
+  of a search and of a new page; picking one fills the box without sending it.
 - **Right-click in the sidebar for Leafdesk's own menus, with Open in new tab and Copy link.** A
   page's row opens its actions (rename, move to trash, keep offline) where it was right-clicked,
   now starting with Open in new tab and Copy link; other links there (My tasks, Meetings, Home …)
@@ -34,6 +37,12 @@
   runs off a narrow sidebar's edge.
 
 ### Changed
+
+- **The AI chat's box is tidier.** *Answer from* is a menu in the box's toolbar instead of a field
+  under it (under the box in the panel), the model picker shows models by name ("Claude Opus 5.5")
+  rather than id, files, skills and research sit on the left with where and how it answers on the
+  right, research mode is named while on, and the conversations in the sidebar are grouped by today,
+  yesterday, the previous 7 and 30 days and older.
 
 - **Scheduled agents read only the web pages of their task and their searches.** A schedule's
   run used to read any address without asking, so text planted in a page or a row it read could

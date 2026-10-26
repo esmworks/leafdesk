@@ -405,6 +405,22 @@
       "save": "שמירה כדף",
       "openPage": "פתיחת הדף",
       "saveFailed": "לא ניתן היה לשמור את הדוח כדף."
+    },
+    "starters": {
+      "label": "הצעות",
+      "summarize": "סכם את „{title}“",
+      "database": "מה יש ב„{title}“?",
+      "find": "מצא דפים על…",
+      "findText": "מצא דפים על ",
+      "write": "כתוב דף על…",
+      "writeText": "כתוב דף על "
+    },
+    "when": {
+      "today": "היום",
+      "yesterday": "אתמול",
+      "week": "7 הימים האחרונים",
+      "month": "30 הימים האחרונים",
+      "older": "ישנות יותר"
     }
   },
   "memory": {

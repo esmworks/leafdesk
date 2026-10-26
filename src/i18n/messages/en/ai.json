@@ -405,6 +405,22 @@
       "save": "Save as page",
       "openPage": "Open the page",
       "saveFailed": "The report couldn't be saved as a page."
+    },
+    "starters": {
+      "label": "Suggestions",
+      "summarize": "Summarize “{title}”",
+      "database": "What’s in “{title}”?",
+      "find": "Find pages about…",
+      "findText": "Find pages about ",
+      "write": "Write a page about…",
+      "writeText": "Write a page about "
+    },
+    "when": {
+      "today": "Today",
+      "yesterday": "Yesterday",
+      "week": "Previous 7 days",
+      "month": "Previous 30 days",
+      "older": "Older"
     }
   },
   "memory": {
