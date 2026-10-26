@@ -12,7 +12,8 @@
  * question (their text in the prompt, images only to models that take them, only their owner may
  * open or attach them, deleted with the conversation), research mode (read-only tools, a plan, a
  * report saved as a page) and web search against a stand-in SearXNG server (the workspace's switch,
- * results as cited sources, a loopback page refused, changes asked about after reading the web).
+ * results as cited sources, a loopback page refused, changes asked about after reading the web), and
+ * media of another site the chat writes into a page written as links.
  * Creates its own users and workspaces and deletes them afterwards.
  *
  *   pnpm tsx scripts/ai-chat-e2e.ts

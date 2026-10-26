@@ -30,18 +30,21 @@ describe("mediaAsLinks", () => {
     expect(out[0]).toMatchObject({ id: "img-https://evil.example/p.png?d=secret", props: { textAlignment: "left" }, children: [] });
   });
 
-  it("keeps this app's files, data and media the page already loaded", () => {
+  it("keeps this app's files, data, addresses no site serves and media the page already loaded", () => {
     const blocks = [
       image("/api/files/abc"),
       image(`${APP}/api/files/def`),
       image("data:image/png;base64,AAAA"),
+      image("javascript:alert(1)"),
       image("https://cdn.example/logo.png"),
+      image("https://cdn.example/icon.png"),
       { type: "bookmark", props: { url: "https://docs.example/", title: "Docs" }, children: [] },
       { type: "paragraph", content: [{ type: "text", text: "plain", styles: {} }], children: [] },
     ];
     const existing = [
       { type: "paragraph", children: [{ type: "image", props: { url: "https://cdn.example/logo.png" } }] },
       { type: "bookmark", props: { url: "https://docs.example/" } },
+      { type: "image", props: { url: "cdn.example/icon.png" } },
     ];
     expect(mediaAsLinks(blocks, existing, APP)).toBe(blocks);
   });

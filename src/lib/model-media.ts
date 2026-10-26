@@ -29,17 +29,21 @@ function elsewhere(url: unknown, appOrigin: string): URL | null {
   if (web) return web.origin === appOrigin ? null : web;
   try {
     // Resolved as the browser resolves it: `//host/x` is another site, `/api/files/x` this one.
+    // Other schemes load nothing over the web and never become a link's address.
     const resolved = new URL(value, appOrigin);
-    return resolved.origin === appOrigin ? null : resolved;
+    return /^https?:$/.test(resolved.protocol) && resolved.origin !== appOrigin ? resolved : null;
   } catch {
     return null;
   }
 }
 
+/** An address as `elsewhere` reads it, for telling whether the page already loaded it. */
+const urlKey = (url: string) => parseWebUrl(url.trim())?.href ?? url.trim();
+
 function loadedUrls(blocks: readonly AnyBlock[], out = new Set<string>()): Set<string> {
   for (const block of blocks) {
     const url = block.props?.url;
-    if (LOADING.has(block.type) && typeof url === "string" && url.trim()) out.add(url.trim());
+    if (LOADING.has(block.type) && typeof url === "string" && url.trim()) out.add(urlKey(url));
     if (block.children?.length) loadedUrls(block.children, out);
   }
   return out;
@@ -66,7 +70,7 @@ export function mediaAsLinks<B extends AnyBlock>(blocks: B[], existing: readonly
     list.map((block) => {
       const children = block.children?.length ? walk(block.children as B[]) : block.children;
       const url = block.props?.url;
-      const target = LOADING.has(block.type) && !(typeof url === "string" && kept.has(url.trim())) ? elsewhere(url, appOrigin) : null;
+      const target = LOADING.has(block.type) && !(typeof url === "string" && kept.has(urlKey(url))) ? elsewhere(url, appOrigin) : null;
       if (!target) return children === block.children ? block : ({ ...block, children } as B);
       changed = true;
       return {
