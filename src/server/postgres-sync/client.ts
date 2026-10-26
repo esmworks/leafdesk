@@ -4,9 +4,13 @@ import postgres from "postgres";
 import { env } from "@/lib/env";
 import {
   kindOf,
+  MAX_POSTGRES_READ,
   MAX_POSTGRES_ROWS,
+  MAX_POSTGRES_TEXT,
   parsePostgresUrl,
+  POSTGRES_DEADLINE,
   POSTGRES_STATEMENT_TIMEOUT,
+  readColumnValue,
   type PostgresConnection,
   type PostgresErrorCode,
   type PostgresKind,
@@ -98,11 +102,21 @@ export async function withPostgres<T>(url: string, fn: (sql: Sql) => Promise<T>)
     onnotice: () => {},
     connection: { application_name: "Leafdesk sync" },
   });
+  // The server enforces the query's time limit itself, and a server that doesn't would hold the run
+  // (and every sync after it) for good: past the deadline the connection is cut here.
+  let timer: NodeJS.Timeout | undefined;
+  const deadline = new Promise<never>((_, reject) => {
+    timer = setTimeout(() => {
+      reject(new PostgresSyncError("unreachable", "The server took too long"));
+      void sql.end({ timeout: 0 }).catch(() => undefined);
+    }, POSTGRES_DEADLINE);
+  });
   try {
-    return await fn(sql);
+    return await Promise.race([fn(sql), deadline]);
   } catch (error) {
     throw syncError(error);
   } finally {
+    clearTimeout(timer);
     await sql.end({ timeout: 5 }).catch(() => undefined);
   }
 }
@@ -130,20 +144,54 @@ export async function describeTable(sql: Sql, schema: string, table: string) {
 const quote = (name: string) => `"${name.replace(/"/g, '""')}"`;
 
 /**
- * The table's rows (row_to_json's form: numbers, booleans, ISO times in UTC, JSON as itself), only
- * `columns`, ordered by `key`, in a read-only transaction with a time limit. More than
- * MAX_POSTGRES_ROWS stops the read.
+ * The select list that reads `columns` as text, each cut on the server one character past
+ * MAX_POSTGRES_TEXT (lib/postgres-sync readColumnValue reads them): numbers as the server writes
+ * them (JSON would round big ones), text as itself, other kinds as their JSON. Each is named by its
+ * place ("c0", "c1" …), since a column's own name may be anything.
+ */
+export function selectList(columns: { name: string; kind: PostgresKind | null }[]): string {
+  return columns
+    .map(({ name, kind }, i) => {
+      const column = `t.${quote(name)}`;
+      const text = kind === "number" || kind === "text" || kind === null ? `${column}::text` : `to_json(${column})::text`;
+      return `left(${text}, ${MAX_POSTGRES_TEXT + 1}) as c${i}`;
+    })
+    .join(", ");
+}
+
+/**
+ * The table's rows (lib/postgres-sync readColumnValue's form), only `columns`, ordered by `key`, in
+ * a read-only transaction with a time limit, read a few rows at a time. More than
+ * MAX_POSTGRES_ROWS rows, or more than MAX_POSTGRES_READ characters, stops the read.
  */
 export async function readTable(sql: Sql, schema: string, table: string, key: string, columns: string[]) {
-  const names = [...new Set([key, ...columns])];
-  const rows = await sql.begin("read only", async (tx) => {
+  const { columns: described } = await describeTable(sql, schema, table);
+  // A column that is gone is still asked for: the server's refusal says which ("badQuery").
+  const read = [...new Set([key, ...columns])].map((name) => ({ name, kind: described.find((c) => c.name === name)?.kind ?? null }));
+  const rows: Record<string, unknown>[] = [];
+  let size = 0;
+  let tooMuch: string | null = null;
+  await sql.begin("read only", async (tx) => {
     await tx.unsafe(`set local statement_timeout = ${POSTGRES_STATEMENT_TIMEOUT}`);
     await tx.unsafe("set local time zone 'UTC'");
     // Identifiers are quoted here (lib/postgres-sync refuses names with quotes); nothing else is put in.
-    return tx.unsafe<{ row: string }[]>(
-      `select row_to_json(t)::text as row from (select ${names.map(quote).join(", ")} from ${quote(schema)}.${quote(table)} order by ${quote(key)} limit ${MAX_POSTGRES_ROWS + 1}) t`,
-    );
+    const query = `select ${selectList(read)} from ${quote(schema)}.${quote(table)} as t order by t.${quote(key)} limit ${MAX_POSTGRES_ROWS + 1}`;
+    // The read stops (CLOSE) rather than throws here: postgres.js lets a throw from the last
+    // batch's callback break the connection instead of rejecting the query.
+    await tx.unsafe<Record<string, string | null>[]>(query).cursor(50, (batch) => {
+      for (const found of batch) {
+        if (rows.length >= MAX_POSTGRES_ROWS) return ((tooMuch = "The table has too many rows"), sql.CLOSE);
+        const row: Record<string, unknown> = {};
+        read.forEach(({ name, kind }, i) => {
+          const text = found[`c${i}`] ?? null;
+          size += text?.length ?? 0;
+          row[name] = readColumnValue(kind, text);
+        });
+        if (size > MAX_POSTGRES_READ) return ((tooMuch = "The table holds too much to read"), sql.CLOSE);
+        rows.push(row);
+      }
+    });
+    if (tooMuch) throw new PostgresSyncError("tooManyIssues", tooMuch);
   });
-  if (rows.length > MAX_POSTGRES_ROWS) throw new PostgresSyncError("tooManyIssues", "The table has too many rows");
-  return rows.map((r) => JSON.parse(r.row) as Record<string, unknown>);
+  return rows;
 }

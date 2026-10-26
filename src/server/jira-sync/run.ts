@@ -29,6 +29,23 @@ import { JiraError, searchIssues, type JiraAuth } from "./client";
 const SWEEP_MS = 60_000;
 const BATCH = 10;
 const LEASE_MS = 10 * 60_000;
+/**
+ * How long the sweep waits for one run before it records the run as failed and goes on to the
+ * next sync (each source's requests have shorter limits of their own). The run left behind keeps
+ * its hold until LEASE_MS, so the sync doesn't start again while it may still be writing.
+ */
+export const RUN_TIMEOUT_MS = 8 * 60_000;
+
+class RunTimeout extends Error {}
+
+/** `work`, or a RunTimeout after `ms`. */
+function within<T>(work: Promise<T>, ms: number): Promise<T> {
+  let timer: NodeJS.Timeout | undefined;
+  const timeout = new Promise<never>((_, reject) => {
+    timer = setTimeout(() => reject(new RunTimeout()), ms);
+  });
+  return Promise.race([work, timeout]).finally(() => clearTimeout(timer));
+}
 
 export type SyncRow = typeof databaseSync.$inferSelect;
 
@@ -100,10 +117,15 @@ export async function runAndRecord(sync: SyncRow, now = new Date()): Promise<Syn
   let error: JiraSyncError | null = null;
   let detail: string | null = null;
   let result: Awaited<ReturnType<typeof runSync>> = null;
+  let timedOut = false;
   try {
-    result = await runSync(sync);
+    result = await within(runSync(sync), RUN_TIMEOUT_MS);
   } catch (e) {
-    if (e instanceof JiraError) {
+    if (e instanceof RunTimeout) {
+      timedOut = true;
+      error = "unreachable";
+      console.error(`[${sync.source} sync] run took too long`, sync.id);
+    } else if (e instanceof JiraError) {
       // An address that can't be reached any more (CONNECTOR_ALLOWED_HOSTS changed) is no Jira (or GitHub) to it.
       error = e.code === "invalidSite" || e.code === "invalidInput" || e.code === "alreadyRunning" ? "notFound" : e.code;
       detail = e.detail;
@@ -116,7 +138,7 @@ export async function runAndRecord(sync: SyncRow, now = new Date()): Promise<Syn
   await db
     .update(databaseSync)
     .set({
-      runningUntil: null,
+      ...(timedOut ? {} : { runningUntil: null }),
       lastError: error,
       lastErrorDetail: detail,
       ...(pause ? { enabled: false, nextRunAt: null } : {}),

@@ -173,7 +173,8 @@
       "failed": "Synkningen misslyckades. Den försöker igen nästa gång.",
       "invalidSite": "Det är ingen adress som Leafdesk kan nå.",
       "invalidInput": "Fyll i e-postadressen, API-token och vad som ska synkas.",
-      "alreadyRunning": "En synkning pågår. Försök igen om en stund."
+      "alreadyRunning": "En synkning pågår. Försök igen om en stund.",
+      "needsSignIn": "Synkroniseringen loggar in i Jira som någon annan. Logga in med din egen e-postadress och din egen API-token för att ändra vad den läser."
     }
   },
   "githubPulls": {
@@ -311,7 +312,8 @@
     "badMapping": "Välj vart minst en kolumn ska, och varje egenskap bara en gång.",
     "noAccess": "Du kan inte lägga till sidor där, eller så finns den inte längre.",
     "notADatabase": "Rader kan bara läggas till i en databas.",
-    "badRequest": "Importen gick inte igenom. Inget har ändrats."
+    "badRequest": "Importen gick inte igenom. Inget har ändrats.",
+    "rateLimited": "För många synkroniseringar har konfigurerats eller kontrollerats härifrån. Försök igen om några minuter."
   },
   "googleDocs": {
     "help": "Varje Google-dokument blir en sida, inläst via arbetsytans Google Drive-anslutning på samma sätt som ett Word-dokument: rubriker, listor, tabeller, länkar, bilder och fotnoter. En rubrik allra överst blir sidans titel; annars blir dokumentets namn det.",
@@ -426,7 +428,7 @@
       "forbidden": "Användaren får inte läsa den här tabellen.",
       "notFound": "Ingen sådan databas eller tabell.",
       "badQuery": "Servern avvisade frågan:",
-      "tooManyIssues": "Tabellen har för många rader för att synkroniseras. Synkronisera en vy med de rader du behöver.",
+      "tooManyIssues": "Tabellen har för många rader eller för mycket text för att synkroniseras. Synkronisera en vy med de rader och kolumner du behöver.",
       "unreachable": "Servern gick inte att nå, eller frågan tog för lång tid. Synkroniseringen försöker igen nästa gång.",
       "runAsGone": "Personen som konfigurerade synkroniseringen har inte längre något konto.",
       "accessLost": "Personen som synkroniseringen körs som kan inte längre redigera databasen.",

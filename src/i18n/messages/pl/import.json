@@ -173,7 +173,8 @@
       "failed": "Synchronizacja się nie powiodła. Spróbuje ponownie następnym razem.",
       "invalidSite": "Leafdesk nie może połączyć się z tym adresem.",
       "invalidInput": "Podaj adres e-mail, token API i to, co ma być synchronizowane.",
-      "alreadyRunning": "Trwa synchronizacja. Spróbuj ponownie za chwilę."
+      "alreadyRunning": "Trwa synchronizacja. Spróbuj ponownie za chwilę.",
+      "needsSignIn": "Synchronizacja loguje się do Jira jako ktoś inny. Aby zmienić, co odczytuje, zaloguj się własnym adresem e-mail i tokenem API."
     }
   },
   "githubPulls": {
@@ -311,7 +312,8 @@
     "badMapping": "Wybierz miejsce docelowe dla co najmniej jednej kolumny, a każdą właściwość tylko raz.",
     "noAccess": "Nie możesz tam dodawać stron lub to miejsce już nie istnieje.",
     "notADatabase": "Wiersze można dodawać tylko do bazy danych.",
-    "badRequest": "Import się nie powiódł. Niczego nie zmieniono."
+    "badRequest": "Import się nie powiódł. Niczego nie zmieniono.",
+    "rateLimited": "Stąd skonfigurowano lub sprawdzono zbyt wiele synchronizacji. Spróbuj ponownie za kilka minut."
   },
   "googleDocs": {
     "help": "Każdy dokument Google staje się stroną, odczytaną przez połączenie Google Drive obszaru roboczego jak dokument Word: nagłówki, listy, tabele, linki, obrazy i przypisy. Nagłówek na samej górze staje się tytułem strony; w przeciwnym razie nazwa dokumentu.",
@@ -426,7 +428,7 @@
       "forbidden": "Użytkownik nie może czytać tej tabeli.",
       "notFound": "Nie ma takiej bazy ani tabeli.",
       "badQuery": "Serwer odrzucił zapytanie:",
-      "tooManyIssues": "Tabela ma zbyt wiele wierszy do synchronizacji. Synchronizuj widok z potrzebnymi wierszami.",
+      "tooManyIssues": "Tabela ma zbyt wiele wierszy lub zbyt dużo tekstu do synchronizacji. Synchronizuj widok z potrzebnymi wierszami i kolumnami.",
       "unreachable": "Nie udało się połączyć z serwerem albo zapytanie trwało zbyt długo. Synchronizacja spróbuje ponownie następnym razem.",
       "runAsGone": "Osoba, która skonfigurowała synchronizację, nie ma już konta.",
       "accessLost": "Osoba, jako która działa synchronizacja, nie może już edytować tej bazy.",

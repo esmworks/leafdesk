@@ -173,7 +173,8 @@
       "failed": "Đồng bộ thất bại. Lần sau sẽ thử lại.",
       "invalidSite": "Đó không phải là địa chỉ Leafdesk có thể truy cập.",
       "invalidInput": "Hãy điền địa chỉ email, token API và nội dung cần đồng bộ.",
-      "alreadyRunning": "Đang có một lần đồng bộ chạy. Hãy thử lại sau giây lát."
+      "alreadyRunning": "Đang có một lần đồng bộ chạy. Hãy thử lại sau giây lát.",
+      "needsSignIn": "Đồng bộ đăng nhập vào Jira bằng tài khoản của người khác. Để thay đổi nội dung nó đọc, hãy đăng nhập bằng địa chỉ email và mã API của riêng bạn."
     }
   },
   "githubPulls": {
@@ -311,7 +312,8 @@
     "badMapping": "Hãy chọn nơi đưa ít nhất một cột, và mỗi thuộc tính chỉ dùng một lần.",
     "noAccess": "Bạn không thể thêm trang vào đó, hoặc nó không còn tồn tại.",
     "notADatabase": "Chỉ có thể thêm hàng vào một cơ sở dữ liệu.",
-    "badRequest": "Việc nhập không thành công. Không có gì bị thay đổi."
+    "badRequest": "Việc nhập không thành công. Không có gì bị thay đổi.",
+    "rateLimited": "Đã thiết lập hoặc kiểm tra quá nhiều lần đồng bộ từ đây. Hãy thử lại sau vài phút."
   },
   "googleDocs": {
     "help": "Mỗi tài liệu Google trở thành một trang, được đọc qua kết nối Google Drive của không gian làm việc như một tài liệu Word: tiêu đề, danh sách, bảng, liên kết, hình ảnh và chú thích cuối trang. Tiêu đề ở trên cùng trở thành tên trang; nếu không thì dùng tên tài liệu.",
@@ -426,7 +428,7 @@
       "forbidden": "Người dùng không được đọc bảng này.",
       "notFound": "Không có cơ sở dữ liệu hoặc bảng này.",
       "badQuery": "Máy chủ từ chối truy vấn:",
-      "tooManyIssues": "Bảng có quá nhiều hàng để đồng bộ. Hãy đồng bộ một view chỉ gồm các hàng bạn cần.",
+      "tooManyIssues": "Bảng có quá nhiều hàng hoặc văn bản để đồng bộ. Hãy đồng bộ một view chỉ gồm các hàng và cột bạn cần.",
       "unreachable": "Không kết nối được máy chủ hoặc truy vấn quá lâu. Lần sau sẽ thử lại.",
       "runAsGone": "Người thiết lập đồng bộ không còn tài khoản.",
       "accessLost": "Người mà đồng bộ chạy dưới tên không còn chỉnh sửa được cơ sở dữ liệu này.",

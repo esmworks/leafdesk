@@ -1089,7 +1089,12 @@
   credentials, a refused query, a deleted *Key* property or more than 2,000 issues pause it until
   it is changed in the database's sync dialog (the ⟳ button on its toolbar), where people with
   full access can also sync now, change the query or sign-in, pick the person property the
-  reporter goes to (or none), or stop syncing (the rows stay).
+  reporter goes to (or none), or stop syncing (the rows stay). Only the person whose sign-in the
+  sync keeps changes its query or lists its projects with it; anyone else gives their own email
+  address and token to do so, which then replace it (syncs set up before this keep a sign-in of
+  no one's until it is given again). Setting up any sync, or checking a sign-in, first checks that
+  the person may make the database where they asked, and each person may do so ten times a
+  minute and sixty an hour.
   Tested against a stand-in Jira (`scripts/jira-sync-e2e.ts`), not yet a real site.
 - **Sync GitHub pull requests**: Import's GitHub tab takes a repository (`owner/name` or its
   address), a token for a private one (read access to pull requests is enough; it also raises
@@ -1121,8 +1126,10 @@
   the column that finds each row again (the primary key when left empty) and the one that names
   it (the first text column), and makes a database with the key as text and a property for each
   other column by its type: text, numbers, checkboxes, dates, times and JSON (as text). Runs read
-  up to 5,000 rows ordered by the key in a read-only transaction with a 30-second limit, write the
-  table's values over and add new rows; rows that leave the table stay. The server is reached on
+  up to 5,000 rows and 50 million characters (each value cut at 10,000) ordered by the key in a
+  read-only transaction with a 30-second limit, and Leafdesk hangs up after a minute whatever the
+  server does; they write the table's values over and add new rows; rows that leave the table
+  stay. Keys keep every digit, however big the number. The server is reached on
   public addresses only, with TLS unless the address's `sslmode` says otherwise; a database on
   your own network needs its host in `CONNECTOR_ALLOWED_HOSTS`. A refused password, a missing
   table, a dropped column (with the server's words in the sync dialog) or a deleted key property

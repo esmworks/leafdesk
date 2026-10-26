@@ -173,7 +173,8 @@
       "failed": "同步失败。将在下次重试。",
       "invalidSite": "Leafdesk 无法访问该地址。",
       "invalidInput": "请填写电子邮件地址、API 令牌和要同步的内容。",
-      "alreadyRunning": "同步正在进行中。请稍后再试。"
+      "alreadyRunning": "同步正在进行中。请稍后再试。",
+      "needsSignIn": "此同步以其他人的身份登录 Jira。要更改它读取的内容，请使用你自己的邮箱地址和 API 令牌登录。"
     }
   },
   "githubPulls": {
@@ -311,7 +312,8 @@
     "badMapping": "请至少为一列选择导入位置，且每个属性只能使用一次。",
     "noAccess": "你无法在那里添加页面，或它已不存在。",
     "notADatabase": "只能向数据库添加行。",
-    "badRequest": "导入未成功。没有任何更改。"
+    "badRequest": "导入未成功。没有任何更改。",
+    "rateLimited": "从这里设置或检查的同步过多。请几分钟后再试。"
   },
   "googleDocs": {
     "help": "每个 Google 文档都会成为一个页面，通过工作区的 Google Drive 连接像 Word 文档一样读取：标题、列表、表格、链接、图片和脚注。最顶部的标题成为页面标题，否则使用文档名称。",
@@ -426,7 +428,7 @@
       "forbidden": "该用户无权读取此表。",
       "notFound": "没有这个数据库或表。",
       "badQuery": "服务器拒绝了查询：",
-      "tooManyIssues": "表中行数过多，无法同步。请同步只包含所需行的视图。",
+      "tooManyIssues": "表中行数或文本过多，无法同步。请同步只包含所需行和列的视图。",
       "unreachable": "无法连接服务器，或查询耗时过长。下次同步时会重试。",
       "runAsGone": "设置同步的人已没有账户。",
       "accessLost": "同步的运行者已无法编辑此数据库。",

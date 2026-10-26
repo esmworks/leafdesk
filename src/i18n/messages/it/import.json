@@ -173,7 +173,8 @@
       "failed": "La sincronizzazione non è riuscita. Riproverà la prossima volta.",
       "invalidSite": "Leafdesk non può raggiungere questo indirizzo.",
       "invalidInput": "Compila l'indirizzo email, il token API e cosa sincronizzare.",
-      "alreadyRunning": "È in corso una sincronizzazione. Riprova tra un momento."
+      "alreadyRunning": "È in corso una sincronizzazione. Riprova tra un momento.",
+      "needsSignIn": "La sincronizzazione accede a Jira come un’altra persona. Per cambiare ciò che legge, accedi con il tuo indirizzo email e il tuo token API."
     }
   },
   "githubPulls": {
@@ -311,7 +312,8 @@
     "badMapping": "Scegli la destinazione di almeno una colonna, e usa ogni proprietà una sola volta.",
     "noAccess": "Non puoi aggiungere pagine lì, oppure non esiste più.",
     "notADatabase": "Le righe si possono aggiungere solo a un database.",
-    "badRequest": "L’importazione non è riuscita. Non è stato modificato nulla."
+    "badRequest": "L’importazione non è riuscita. Non è stato modificato nulla.",
+    "rateLimited": "Da qui sono state configurate o verificate troppe sincronizzazioni. Riprova tra qualche minuto."
   },
   "googleDocs": {
     "help": "Ogni documento Google diventa una pagina, letto tramite la connessione Google Drive dello spazio di lavoro come un documento Word: titoli, elenchi, tabelle, link, immagini e note a piè di pagina. Un titolo in cima diventa il titolo della pagina; altrimenti il nome del documento.",
@@ -426,7 +428,7 @@
       "forbidden": "L'utente non può leggere questa tabella.",
       "notFound": "Il database o la tabella non esiste.",
       "badQuery": "Il server ha rifiutato la query:",
-      "tooManyIssues": "La tabella ha troppe righe da sincronizzare. Sincronizza una vista delle righe che ti servono.",
+      "tooManyIssues": "La tabella ha troppe righe o troppo testo da sincronizzare. Sincronizza una vista delle righe e colonne che ti servono.",
       "unreachable": "Il server non è raggiungibile o la query ha impiegato troppo. La sincronizzazione riproverà la prossima volta.",
       "runAsGone": "La persona che ha impostato la sincronizzazione non ha più un account.",
       "accessLost": "La persona per cui gira la sincronizzazione non può più modificare questo database.",

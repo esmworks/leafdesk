@@ -173,7 +173,8 @@
       "failed": "La sincronización falló. Lo intentará de nuevo la próxima vez.",
       "invalidSite": "Esa no es una dirección a la que Leafdesk pueda llegar.",
       "invalidInput": "Completa el correo electrónico, el token de API y qué sincronizar.",
-      "alreadyRunning": "Hay una sincronización en curso. Vuelve a intentarlo en un momento."
+      "alreadyRunning": "Hay una sincronización en curso. Vuelve a intentarlo en un momento.",
+      "needsSignIn": "La sincronización inicia sesión en Jira como otra persona. Para cambiar lo que lee, inicia sesión con tu propia dirección de correo y tu token de API."
     }
   },
   "githubPulls": {
@@ -311,7 +312,8 @@
     "badMapping": "Elige el destino de al menos una columna, y usa cada propiedad una sola vez.",
     "noAccess": "No puedes añadir páginas ahí o ya no existe.",
     "notADatabase": "Solo se pueden añadir filas a una base de datos.",
-    "badRequest": "La importación no se completó. No se cambió nada."
+    "badRequest": "La importación no se completó. No se cambió nada.",
+    "rateLimited": "Se configuraron o comprobaron demasiadas sincronizaciones desde aquí. Inténtalo de nuevo en unos minutos."
   },
   "googleDocs": {
     "help": "Cada documento de Google se convierte en una página, leído a través de la conexión de Google Drive del espacio de trabajo como un documento de Word: encabezados, listas, tablas, enlaces, imágenes y notas al pie. Un encabezado al principio pasa a ser el título de la página; si no, el nombre del documento.",
@@ -426,7 +428,7 @@
       "forbidden": "El usuario no puede leer esta tabla.",
       "notFound": "No existe esa base de datos o tabla.",
       "badQuery": "El servidor rechazó la consulta:",
-      "tooManyIssues": "La tabla tiene demasiadas filas para sincronizarla. Sincroniza una vista con las filas que necesitas.",
+      "tooManyIssues": "La tabla tiene demasiadas filas o demasiado texto para sincronizarla. Sincroniza una vista con las filas y columnas que necesitas.",
       "unreachable": "No se pudo acceder al servidor o la consulta tardó demasiado. La sincronización lo intentará de nuevo la próxima vez.",
       "runAsGone": "La persona que configuró la sincronización ya no tiene cuenta.",
       "accessLost": "La persona con la que se ejecuta la sincronización ya no puede editar esta base de datos.",

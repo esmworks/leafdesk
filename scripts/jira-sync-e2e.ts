@@ -214,11 +214,11 @@ try {
   ]);
 
   // Checking the sign-in
-  check((await errorCode(() => manage.checkJira({ siteUrl: SITE, email: EMAIL, token: "wrong" }))) === "unauthorized", "a wrong token is refused");
-  check((await errorCode(() => manage.checkJira({ siteUrl: "http://10.1.2.3", email: EMAIL, token }))) === "invalidSite", "a private address is refused");
-  check((await errorCode(() => manage.checkJira({ siteUrl: "https://localhost", email: EMAIL, token }))) === "invalidSite", "a local name is refused");
-  check((await errorCode(() => manage.checkJira({ siteUrl: SITE, email: EMAIL, token: " " }))) === "invalidInput", "a missing token is refused");
-  const checked = await manage.checkJira({ siteUrl: SITE, email: EMAIL, token });
+  check((await errorCode(() => manage.checkJira(ids.owner, workspaceId, { siteUrl: SITE, email: EMAIL, token: "wrong" }))) === "unauthorized", "a wrong token is refused");
+  check((await errorCode(() => manage.checkJira(ids.owner, workspaceId, { siteUrl: "http://10.1.2.3", email: EMAIL, token }))) === "invalidSite", "a private address is refused");
+  check((await errorCode(() => manage.checkJira(ids.owner, workspaceId, { siteUrl: "https://localhost", email: EMAIL, token }))) === "invalidSite", "a local name is refused");
+  check((await errorCode(() => manage.checkJira(ids.owner, workspaceId, { siteUrl: SITE, email: EMAIL, token: " " }))) === "invalidInput", "a missing token is refused");
+  const checked = await manage.checkJira(ids.owner, workspaceId, { siteUrl: SITE, email: EMAIL, token });
   check(checked.account === "Fake Admin" && checked.projects.some((p) => p.key === "OPS"), "the right token says whose it is and lists projects", checked);
 
   // Setting up

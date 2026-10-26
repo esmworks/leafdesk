@@ -173,7 +173,8 @@
       "failed": "The sync failed. It tries again next time.",
       "invalidSite": "That isn't an address Leafdesk can reach.",
       "invalidInput": "Fill in the email address, the API token and what to sync.",
-      "alreadyRunning": "A sync is running. Try again in a moment."
+      "alreadyRunning": "A sync is running. Try again in a moment.",
+      "needsSignIn": "The sync signs in to Jira as someone else. To change what it reads, sign in with your own email address and API token."
     }
   },
   "githubPulls": {
@@ -311,7 +312,8 @@
     "badMapping": "Choose where at least one column goes, and each property only once.",
     "noAccess": "You can't add pages there, or it no longer exists.",
     "notADatabase": "Rows can only be added to a database.",
-    "badRequest": "The import didn't go through. Nothing was changed."
+    "badRequest": "The import didn't go through. Nothing was changed.",
+    "rateLimited": "Too many syncs were set up or checked from here. Try again in a few minutes."
   },
   "googleDocs": {
     "help": "Each Google document becomes a page, read through the workspace's Google Drive connection as a Word document would be: headings, lists, tables, links, pictures and footnotes. A heading at the very top becomes the page's title; otherwise the document's name does.",
@@ -426,7 +428,7 @@
       "forbidden": "The user may not read this table.",
       "notFound": "No such database or table.",
       "badQuery": "The server refused the query:",
-      "tooManyIssues": "The table has too many rows to sync. Sync a view of the rows you need.",
+      "tooManyIssues": "The table has too many rows, or too much text, to sync. Sync a view of the rows and columns you need.",
       "unreachable": "The server couldn't be reached, or the query took too long. The sync tries again next time.",
       "runAsGone": "The person who set the sync up no longer has an account.",
       "accessLost": "The person the sync runs as can no longer edit this database.",
