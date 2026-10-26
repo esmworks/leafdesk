@@ -53,10 +53,10 @@ export default async function WorkspaceHome({
   const guest = !membership || isGuest(membership.role);
 
   return (
-    <div className="mx-auto max-w-3xl space-y-10 px-4 pt-14 pb-12 md:px-6 md:pt-12">
+    <div className="page-gutter space-y-10 pt-[4.25rem] pb-12">
       <header className="space-y-5">
         <div className="space-y-1">
-          <h1 className="text-2xl font-semibold">{t("hello", { name: user.name.split(/\s+/)[0] })}</h1>
+          <h1 className="text-2xl font-bold leading-tight md:text-3xl">{t("hello", { name: user.name.split(/\s+/)[0] })}</h1>
           <p className="text-sm text-fg-muted">
             {format.dateTime(now, { weekday: "long", day: "numeric", month: "long", year: "numeric", timeZone })}
           </p>
