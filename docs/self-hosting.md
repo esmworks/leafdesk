@@ -366,12 +366,13 @@ handles database backups on its own. No compose file is involved.
 Leafdesk can keep its data in a [Supabase](https://supabase.com) project's PostgreSQL. Only the
 database moves there: the app still runs as one long-lived container (the Docker image, on a
 server, Dokploy, Railway, Render, Fly.io and the like), because it holds the live editing
-connections and runs background jobs. Serverless hosts such as Vercel can't run it.
+connections and runs background jobs. Serverless hosts such as Vercel can't run it. Leafdesk is
+built on PostgreSQL 18 and runs on the 15 and 17 that Supabase projects use as well.
 
 1. **Turn off the Data API** (Project Settings → Data API), or take `public` out of its exposed
-   schemas there. Leafdesk keeps its tables in
-   `public` and checks access itself, without row level security, so with the Data API on anyone
-   holding the project's public anon key could read and change them past the app.
+   schemas there. Leafdesk keeps its tables in `public` and checks access itself, without row
+   level security, so with the Data API on anyone holding the project's public anon key could read
+   and change them past the app.
 2. **Copy the session pooler's connection string** (*Connect* → *Session pooler*, port 5432), or
    the direct connection's if the app's host reaches IPv6 addresses. Don't use the transaction
    pooler on port 6543: the server holds session locks, which it doesn't keep. Add
