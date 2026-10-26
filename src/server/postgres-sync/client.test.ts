@@ -17,6 +17,9 @@ const server = {
   stall: false,
 };
 
+/** postgres.js's token for stopping a cursor. */
+const CLOSE = {};
+
 function fakeSql() {
   const sql = Object.assign(
     async (strings: TemplateStringsArray) => (strings.join("?").includes("information_schema.columns") ? server.columns : [{ name: "id" }]),
@@ -26,14 +29,15 @@ function fakeSql() {
           unsafe: (query: string) => {
             server.queries.push(query);
             return Object.assign(Promise.resolve([]), {
-              cursor: async (_rows: number, each: (batch: Batch) => void) => {
+              cursor: async (_rows: number, each: (batch: Batch) => unknown) => {
                 if (server.stall) return new Promise(() => {});
-                for (const batch of server.batches) each(batch);
+                for (const batch of server.batches) if (each(batch) === CLOSE) return;
               },
             });
           },
         }),
       end: vi.fn(async (options: unknown) => void server.ended.push(options)),
+      CLOSE,
     },
   );
   return sql;

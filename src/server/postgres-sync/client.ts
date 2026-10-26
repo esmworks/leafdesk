@@ -170,24 +170,28 @@ export async function readTable(sql: Sql, schema: string, table: string, key: st
   const read = [...new Set([key, ...columns])].map((name) => ({ name, kind: described.find((c) => c.name === name)?.kind ?? null }));
   const rows: Record<string, unknown>[] = [];
   let size = 0;
+  let tooMuch: string | null = null;
   await sql.begin("read only", async (tx) => {
     await tx.unsafe(`set local statement_timeout = ${POSTGRES_STATEMENT_TIMEOUT}`);
     await tx.unsafe("set local time zone 'UTC'");
     // Identifiers are quoted here (lib/postgres-sync refuses names with quotes); nothing else is put in.
     const query = `select ${selectList(read)} from ${quote(schema)}.${quote(table)} as t order by t.${quote(key)} limit ${MAX_POSTGRES_ROWS + 1}`;
+    // The read stops (CLOSE) rather than throws here: postgres.js lets a throw from the last
+    // batch's callback break the connection instead of rejecting the query.
     await tx.unsafe<Record<string, string | null>[]>(query).cursor(50, (batch) => {
       for (const found of batch) {
-        if (rows.length >= MAX_POSTGRES_ROWS) throw new PostgresSyncError("tooManyIssues", "The table has too many rows");
+        if (rows.length >= MAX_POSTGRES_ROWS) return ((tooMuch = "The table has too many rows"), sql.CLOSE);
         const row: Record<string, unknown> = {};
         read.forEach(({ name, kind }, i) => {
           const text = found[`c${i}`] ?? null;
           size += text?.length ?? 0;
           row[name] = readColumnValue(kind, text);
         });
-        if (size > MAX_POSTGRES_READ) throw new PostgresSyncError("tooManyIssues", "The table holds too much to read");
+        if (size > MAX_POSTGRES_READ) return ((tooMuch = "The table holds too much to read"), sql.CLOSE);
         rows.push(row);
       }
     });
+    if (tooMuch) throw new PostgresSyncError("tooManyIssues", tooMuch);
   });
   return rows;
 }
