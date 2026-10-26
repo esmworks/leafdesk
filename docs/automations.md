@@ -274,7 +274,7 @@ link-local and similar addresses are refused when the automation is saved and ag
 delivery (the connection goes to the address that was checked). To reach a service on the
 server's own network, such as an n8n container next to Leafdesk, list its host in
 `AUTOMATION_WEBHOOK_ALLOWED_HOSTS`, comma-separated, as a host name or `host:port`
-(`AUTOMATION_WEBHOOK_ALLOWED_HOSTS=n8n,localhost:5678`). Listed hosts skip the address check; a
+(`AUTOMATION_WEBHOOK_ALLOWED_HOSTS=n8n:5678,localhost:5678`). Listed hosts skip the address check; a
 bare host name is still reached on ports 80, 443, 8080 and 8443 only, so a service on another
 port is listed with it (`n8n:5678`).
 

@@ -1134,7 +1134,8 @@
   server does; they write the table's values over and add new rows; rows that leave the table
   stay. Keys keep every digit, however big the number. The server is reached on
   public addresses only, with TLS unless the address's `sslmode` says otherwise; a database on
-  your own network needs its host in `CONNECTOR_ALLOWED_HOSTS`. A refused password, a missing
+  your own network needs its host in `CONNECTOR_ALLOWED_HOSTS` (a bare name allows port 5432; name
+  any other port, `db:6543`). A refused password, a missing
   table, a dropped column (with the server's words in the sync dialog) or a deleted key property
   pauses it. Use a user that may only read the table. Tested against a table of the e2e's own
   database (`scripts/postgres-sync-e2e.ts`).

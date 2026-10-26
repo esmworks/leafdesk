@@ -124,3 +124,22 @@ describe("selectList", () => {
     ).toBe(`left(to_json(t."done")::text, ${MAX_POSTGRES_TEXT + 1}) as c0, left(t."odd""name"::text, ${MAX_POSTGRES_TEXT + 1}) as c1`);
   });
 });
+
+describe("allowedHost", () => {
+  afterEach(async () => {
+    const { env } = await import("@/lib/env");
+    env.connectorAllowedHosts.length = 0;
+  });
+
+  it("lets a bare name reach PostgreSQL's own port only, and a named port that port", async () => {
+    const { env } = await import("@/lib/env");
+    const { allowedHost } = await import("./client");
+    env.connectorAllowedHosts.push("db", "warehouse:6543");
+    expect(allowedHost({ host: "db", port: 5432 })).toBe(true);
+    expect(allowedHost({ host: "DB", port: 5432 })).toBe(true);
+    expect(allowedHost({ host: "db", port: 6379 })).toBe(false);
+    expect(allowedHost({ host: "warehouse", port: 6543 })).toBe(true);
+    expect(allowedHost({ host: "warehouse", port: 5432 })).toBe(false);
+    expect(allowedHost({ host: "other", port: 5432 })).toBe(false);
+  });
+});

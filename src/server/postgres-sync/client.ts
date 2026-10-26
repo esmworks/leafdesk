@@ -22,8 +22,9 @@ import { isBlockedAddress } from "@/server/ssrf";
  * Leafdesk's reads of a PostgreSQL database for synced tables (lib/postgres-sync). The server is
  * reached like a connection's: on a public address only, connected to the address checked (so a
  * host can't answer the check with a public address and the connection with a private one), unless
- * the host is in CONNECTOR_ALLOWED_HOSTS (by name, or name and port), for databases on the same
- * machine or network. TLS is required on public addresses unless the address's sslmode says
+ * the host is in CONNECTOR_ALLOWED_HOSTS, for databases on the same machine or network: a bare
+ * name there allows PostgreSQL's own port 5432 only (as a bare name allows only the web's ports for
+ * other fetches, ssrf.ts onHostList), and "name:port" that port. TLS is required on public addresses unless the address's sslmode says
  * otherwise. Every read is one read-only transaction with a time limit, and the connection closes
  * after it. An error is a JiraError (the runs record every source alike) with a code; it carries
  * the server's own words only for a refused query.
@@ -31,15 +32,19 @@ import { isBlockedAddress } from "@/server/ssrf";
 
 type Sql = ReturnType<typeof postgres>;
 
+/** PostgreSQL's own port: the one a bare host name in CONNECTOR_ALLOWED_HOSTS allows. */
+const POSTGRES_PORT = 5432;
+
 export class PostgresSyncError extends JiraError {
   constructor(code: PostgresErrorCode, message: string = code, detail: string | null = null) {
     super(code, message, detail);
   }
 }
 
-function allowedHost(connection: PostgresConnection) {
+export function allowedHost(connection: Pick<PostgresConnection, "host" | "port">) {
   const host = connection.host.toLowerCase();
-  return env.connectorAllowedHosts.includes(host) || env.connectorAllowedHosts.includes(`${host}:${connection.port}`);
+  const allowed = env.connectorAllowedHosts;
+  return allowed.includes(`${host}:${connection.port}`) || (connection.port === POSTGRES_PORT && allowed.includes(host));
 }
 
 /** The address to connect to: the host itself when allowed, else a public address it resolves to. */
