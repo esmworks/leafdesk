@@ -112,7 +112,9 @@ server actions, API routes (files, import) and the live collaboration connection
 checked when it connects; turning the policy on closes the open connections of sessions that
 don't pass. Apps connected over MCP and REST API tokens are not affected: they use OAuth or
 personal access tokens, not sign-in sessions, and keep working until someone revokes them under
-Connected apps.
+Connected apps. Which is why a session the policy holds back can't open such a way in: it can't
+make an API token that reaches the workspace or change one's scopes, connect an app, or link
+Telegram.
 
 **Approved networks** (Settings → Security) limit where a workspace opens from: a list of IPv4 and
 IPv6 addresses and CIDR ranges (`203.0.113.0/24`, `2001:db8::/32`), each with an optional label, at

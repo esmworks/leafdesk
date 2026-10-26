@@ -36,7 +36,11 @@ export async function createApiTokenAction(input: {
   }
 }
 
-export type UpdateApiTokenResult = { ok: true } | { ok: false; error: "scopes" | "ownerScope" | "notFound" | "generic" };
+export type UpdateApiTokenResult =
+  | { ok: true }
+  | { ok: false; error: "scopes" | "ownerScope" | "notFound" | "generic" }
+  /** A workspace's sign-in policy holds the session back: `gate` is where it meets the policy. */
+  | { ok: false; error: "policy"; gate: string };
 
 /** Changes what one of the user's tokens may do; its secret stays the same. */
 export async function updateApiTokenScopesAction(tokenId: string, scopes: string[]): Promise<UpdateApiTokenResult> {
@@ -49,6 +53,7 @@ export async function updateApiTokenScopesAction(tokenId: string, scopes: string
     if (error instanceof ApiTokenError && (error.code === "scopes" || error.code === "ownerScope" || error.code === "notFound")) {
       return { ok: false, error: error.code };
     }
+    if (error instanceof WorkspacePolicyError) return { ok: false, error: "policy", gate: policyGatePath(error.workspaceId, error.hold) };
     console.error("could not change an API token's scopes", error);
     return { ok: false, error: "generic" };
   }

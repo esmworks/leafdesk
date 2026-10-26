@@ -2,6 +2,7 @@
 
 import { Send } from "lucide-react";
 import { useFormatter, useNow, useTranslations } from "next-intl";
+import { useRouter } from "next/navigation";
 import { useEffect, useState, useTransition } from "react";
 import { createTelegramLinkAction, getTelegramStatusAction, setTelegramNotificationsAction, unlinkTelegramAction } from "@/app/actions/telegram";
 import { QrCode } from "@/components/security/qr-code";
@@ -25,6 +26,7 @@ export function TelegramLink({ initial }: { initial: TelegramStatus }) {
   const [confirming, setConfirming] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [working, startTransition] = useTransition();
+  const router = useRouter();
 
   // While a link is open, check for it being used, until it runs out.
   useEffect(() => {
@@ -57,6 +59,8 @@ export function TelegramLink({ initial }: { initial: TelegramStatus }) {
     act(async () => {
       const result = await createTelegramLinkAction();
       if (result.ok) setPending(result.data);
+      // A workspace's sign-in policy holds this session back: meet it first.
+      else if ("gate" in result) router.push(result.gate);
       else setError(result.error);
     });
 

@@ -4,6 +4,7 @@ import { db } from "@/db";
 import { telegramLink, telegramLinkCode } from "@/db/schema";
 import { CHAT_MODES, type ChatMode } from "@/lib/ai-chat";
 import { env } from "@/lib/env";
+import { memberWorkspaceIds, signInPolicyRefusal } from "@/server/access";
 import { callApi, sendMessage, type TelegramUser } from "./api";
 
 /**
@@ -70,10 +71,13 @@ export async function setTelegramNotifications(userId: string, on: boolean) {
 
 /**
  * A new link code for the person (replacing one they had), and the address that opens the bot
- * with it.
+ * with it. The linked chat reaches all their workspaces outside the sign-in policies (as a connected
+ * app), so a session one of them holds back can't make one: throws its WorkspacePolicyError.
  */
 export async function createLinkCode(userId: string): Promise<{ url: string; expiresAt: Date }> {
   if (!env.telegramBotToken) throw new Error("Telegram is not set up on this server");
+  const refusal = await signInPolicyRefusal(userId, await memberWorkspaceIds(userId));
+  if (refusal) throw refusal;
   const bot = await botUsername();
   // Telegram takes up to 64 of A-Z, a-z, 0-9, _ and - after /start.
   const code = randomBytes(24).toString("base64url");

@@ -213,7 +213,7 @@ export function EditApiTokenScopes({
   const router = useRouter();
   const [open, setOpen] = useState(false);
   const [scopes, setScopes] = useState<ApiTokenScope[]>(current);
-  const [error, setError] = useState<Exclude<UpdateApiTokenResult, { ok: true }>["error"] | null>(null);
+  const [error, setError] = useState<Exclude<UpdateApiTokenResult, { ok: true } | { error: "policy" }>["error"] | null>(null);
   const [pending, startTransition] = useTransition();
   const unchanged = !legacy && scopes.length === current.length && scopes.every((s) => current.includes(s));
 
@@ -242,6 +242,8 @@ export function EditApiTokenScopes({
             startTransition(async () => {
               try {
                 const result = await updateApiTokenScopesAction(tokenId, scopes);
+                // A workspace's sign-in policy holds this session back: meet it first.
+                if (!result.ok && result.error === "policy") return router.push(result.gate);
                 if (!result.ok) return setError(result.error);
                 setOpen(false);
                 router.refresh();

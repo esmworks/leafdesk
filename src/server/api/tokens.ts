@@ -3,7 +3,7 @@ import { and, count, desc, eq, inArray } from "drizzle-orm";
 import { db } from "@/db";
 import { apiToken, workspace } from "@/db/schema";
 import { ALL_API_SCOPES, effectiveScopes, isApiTokenScope, isOwnerScope, normalizeScopes, type ApiTokenScope } from "@/lib/api-scopes";
-import { findMembership, memberWorkspaceIds, signInPolicyRefusal } from "@/server/access";
+import { findMembership, getMembership, memberWorkspaceIds, signInPolicyRefusal } from "@/server/access";
 import { recordAudit } from "@/server/audit";
 import { forgetApiTokenUse } from "@/server/connected-app-use";
 
@@ -89,7 +89,8 @@ function checkedScopes(scopes: readonly string[]) {
  */
 async function checkOwnerScopes(userId: string, workspaceId: string | null, scopes: readonly string[]) {
   if (!scopes.some(isOwnerScope)) return;
-  const membership = workspaceId ? await findMembership(userId, workspaceId) : null;
+  // As the request's session may act: a workspace's policy holding it back throws its error.
+  const membership = workspaceId ? await getMembership(userId, workspaceId) : null;
   if (membership?.role !== "owner") {
     throw new ApiTokenError("Only a workspace's owners can let a token read its audit log, and only a token for that workspace", "ownerScope");
   }
@@ -182,9 +183,18 @@ export async function listApiTokens(userId: string): Promise<ApiTokenInfo[]> {
 /**
  * Changes what one of the user's tokens may do, keeping its secret: it gets exactly these scopes,
  * a legacy token too (it stops standing for "everything" then). Takes effect on its next request.
+ * Refused, as making one is, to a session a policy of a workspace it reaches holds back.
  */
 export async function updateApiTokenScopes(userId: string, tokenId: string, scopes: readonly string[]) {
   const next = checkedScopes(scopes);
+  // A token's workspace never changes: read before the transaction, not to hold its row meanwhile.
+  const [owned] = await db
+    .select({ workspaceId: apiToken.workspaceId })
+    .from(apiToken)
+    .where(and(eq(apiToken.id, tokenId), eq(apiToken.userId, userId)));
+  if (!owned) throw new ApiTokenError("You have no such token", "notFound");
+  const refusal = await signInPolicyRefusal(userId, owned.workspaceId ? [owned.workspaceId] : await memberWorkspaceIds(userId));
+  if (refusal) throw refusal;
   const updated = await db.transaction(async (tx) => {
     const [before] = await tx
       .select({ scopes: apiToken.scopes, legacyScopes: apiToken.legacyScopes, workspaceId: apiToken.workspaceId })
