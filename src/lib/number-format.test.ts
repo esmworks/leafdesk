@@ -2,10 +2,14 @@ import { describe, expect, it } from "vitest";
 import {
   calculationFormat,
   checkNumberFormat,
+  durationText,
+  formatInFormat,
   fromPercentPoints,
   numberFormatOptions,
   numberText,
+  parseDuration,
   parseTypedNumber,
+  ratingMax,
   readNumber,
   stripNumberDecor,
   takesNumberFormat,
@@ -169,5 +173,56 @@ describe("typed numbers", () => {
     expect(numberText(0.125, "tr", percent)).toBe("12,5");
     expect(numberText(1234.5, "tr", lira)).toBe("1234,5");
     expect(readNumber(numberText(0.155, "de", percent), percent, "de")).toBe(0.155);
+  });
+});
+
+describe("durations", () => {
+  it("are checked without decimals or a currency", () => {
+    expect(checkNumberFormat({ format: "duration" })).toEqual({ ok: true, format: { format: "duration" } });
+    expect(checkNumberFormat({ format: "duration", seconds: true })).toEqual({ ok: true, format: { format: "duration", seconds: true } });
+    expect(checkNumberFormat({ format: "duration", decimals: 2 }).ok).toBe(false);
+  });
+
+  it("show minutes as hours and minutes", () => {
+    expect(durationText(90)).toBe("1:30");
+    expect(durationText(5)).toBe("0:05");
+    expect(durationText(1500)).toBe("25:00");
+    expect(durationText(-30)).toBe("-0:30");
+    expect(durationText(90.25, { format: "duration", seconds: true })).toBe("1:30:15");
+  });
+
+  it("read what people type", () => {
+    expect(parseDuration("1:30")).toBe(90);
+    expect(parseDuration("1:30:30")).toBe(90.5);
+    expect(parseDuration("1h 30m")).toBe(90);
+    expect(parseDuration("1h30m")).toBe(90);
+    expect(parseDuration("1.5h")).toBe(90);
+    expect(parseDuration("2d")).toBe(2880);
+    expect(parseDuration("1 saat 15 dk")).toBe(75);
+    expect(parseDuration("45")).toBe(45);
+    expect(parseDuration("-0:30")).toBe(-30);
+    expect(parseDuration("1 parsec")).toBeUndefined();
+    expect(parseDuration("soon")).toBeUndefined();
+  });
+
+  it("go back and forth through the editor", () => {
+    expect(readNumber(numberText(135, "en", { format: "duration" }), { format: "duration" }, "en")).toBe(135);
+  });
+});
+
+describe("ratings", () => {
+  it("are checked with their number of stars", () => {
+    expect(checkNumberFormat({ format: "rating" })).toEqual({ ok: true, format: { format: "rating", max: 5 } });
+    expect(checkNumberFormat({ format: "rating", max: 10 })).toEqual({ ok: true, format: { format: "rating", max: 10 } });
+    expect(checkNumberFormat({ format: "rating", max: 11 }).ok).toBe(false);
+    expect(ratingMax({ format: "rating" })).toBe(5);
+  });
+
+  it("show as stars out of the most, and averages stay ratings while sums don't", () => {
+    const number = (n: number, o: Intl.NumberFormatOptions) => new Intl.NumberFormat("en", o).format(n);
+    expect(formatInFormat(3.45, { format: "rating", max: 5 }, number)).toBe("3.5/5");
+    expect(calculationFormat("average", { number: { format: "rating", max: 5 } })).toEqual({ format: "rating", max: 5 });
+    expect(calculationFormat("sum", { number: { format: "rating", max: 5 } })).toBeUndefined();
+    expect(calculationFormat("sum", { number: { format: "duration" } })).toEqual({ format: "duration" });
   });
 });

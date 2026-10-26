@@ -725,11 +725,15 @@ export type RollupConfig = {
  * A percentage stores the fraction (0.15 shows as 15 %); `currency` is an ISO 4217 code, set only
  * for "currency".
  * `decimals` (0–8) fixes the decimal places; without it they follow the value (a currency's own).
+ * A duration stores minutes and shows as hours and minutes ("1:30"), with seconds when `seconds`
+ * is set ("1:30:15"). A rating stores whole stars, 0 to `max` (1–10, 5 when missing), and shows them.
  */
 export type NumberFormat = {
-  format: "number" | "percent" | "currency";
+  format: "number" | "percent" | "currency" | "duration" | "rating";
   currency?: string;
   decimals?: number;
+  seconds?: boolean;
+  max?: number;
 };
 /**
  * A number property shown as a bar or a ring (see lib/number-display): filled by the value divided by

@@ -653,7 +653,7 @@ export function PropertiesPanel({
               aria-hidden
               className="-ms-1.5 h-3.5 w-3.5 shrink-0 cursor-grab text-fg-faint opacity-0 group-hover/prop:opacity-100"
             />
-            <PropertyTypeIcon type={p.type} icon={p.options.icon} className="-ms-1 h-3.5 w-3.5 text-fg-muted" />
+            <PropertyTypeIcon type={p.type} icon={p.options.icon} number={p.options.number} className="-ms-1 h-3.5 w-3.5 text-fg-muted" />
             <span className={cn("flex-1 truncate", isHidden && "text-fg-faint")}>{p.name}</span>
             <PropertyLock propertyId={p.id} />
             {isHidden ? (

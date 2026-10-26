@@ -337,6 +337,14 @@
     of money (over 40 currencies in the menu, the one you last picked first and taken by the next
     new amount; MCP takes any ISO 4217 code), or as a colored bar or ring filled by the value
     divided by a number of your choice.
+  - Ratings and durations are number properties in their own formats, offered as *Rating* and
+    *Duration* when a property is added (or picked in a number's format menu). A rating shows 1 to
+    10 stars (5 by default), clicked right in the cell, a form question or a row page (clicking the
+    current star clears it); it holds a whole number from 0 to its stars, and averages show as
+    "3.5/5". A duration holds minutes and shows as hours and minutes ("1:30", or "1:30:15" with
+    seconds); type `1:30`, `1h 30m`, `1 saat 30 dk` or a number of minutes. Both filter, sort and
+    add up as numbers, sums and rollups of durations show as durations, and CSV exports and MCP
+    give the plain number (stars, or minutes).
   - Row pages show every property, or leave some out (always, or while they are empty) behind
     "N more properties"; the choice is the database's, for everyone, and while one property hides
     when empty, new ones start that way too. Text, number, URL, email, phone, ID and created or

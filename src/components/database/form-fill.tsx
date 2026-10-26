@@ -18,6 +18,8 @@ import { isDatabaseErrorCode, sortStatusOptions } from "@/lib/properties";
 import { availableOptions, followDependencies, parentOf } from "@/lib/dependent-options";
 import { FilesEditor, type UploadFile } from "./files-cell";
 import { CheckboxBox, INPUT_MODE, OptionChip, parseInput } from "./property-cell";
+import { RatingStars } from "./rating-stars";
+import { isDuration, isRating, ratingMax } from "@/lib/number-format";
 import type { PropertyType } from "./types";
 
 /** What a question needs to know about its property: enough for a public page, too. */
@@ -370,11 +372,26 @@ function AnswerInput<P extends FormProperty>({
     case "url":
     case "email":
     case "phone":
+      // A rating is answered with its stars.
+      if (prop.type === "number" && isRating(prop.options.number)) {
+        return (
+          <div id={a11y.id} className="py-1">
+            <RatingStars
+              value={typeof value === "number" ? value : null}
+              max={ratingMax(prop.options.number)}
+              label={label}
+              onChange={disabled ? undefined : (next) => onChange(next ?? undefined)}
+            />
+          </div>
+        );
+      }
       return (
         <input
           {...a11y}
           type={prop.type === "email" ? "email" : prop.type === "url" ? "url" : prop.type === "phone" ? "tel" : "text"}
-          inputMode={INPUT_MODE[prop.type]}
+          // A duration takes "1:30" and "1h 30m" besides minutes.
+          inputMode={prop.type === "number" && isDuration(prop.options.number) ? "text" : INPUT_MODE[prop.type]}
+          placeholder={prop.type === "number" && isDuration(prop.options.number) ? "1:30" : undefined}
           autoComplete={prop.type === "email" ? "email" : prop.type === "phone" ? "tel" : "off"}
           value={text}
           disabled={disabled}

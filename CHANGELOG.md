@@ -4,6 +4,11 @@
 
 ### Added
 
+- **Ratings and durations.** *Rating* and *Duration* when adding a property: a rating shows 1 to
+  10 stars, clicked right in the cell or a form, and a duration shows minutes as hours and minutes
+  ("1:30"), typed as `1:30`, `1h 30m` or minutes. Both are number properties in new formats
+  (`rating` with `max`, `duration` with `seconds` in MCP's `number_format`), so filters, sorts,
+  calculations, charts and rollups work on them as numbers; values a rating can't hold are refused.
 - **Unique values.** A text, number, email, URL or phone property can keep its values unique
   (*Unique values* in its menu, `unique` in MCP's `update_database_property`): a value another row
   already holds is refused, case and spaces aside, however it is written. It can't be turned on

@@ -44,7 +44,7 @@ export function PublishedRowProperties({ row, print = false }: { row: NonNullabl
       {shown.map((prop) => (
         <div key={prop.id} className="contents">
           <dt className="flex h-8 items-center gap-1.5 text-fg-muted">
-            <PropertyTypeIcon type={prop.type} icon={prop.options.icon} className="h-3.5 w-3.5 shrink-0" />
+            <PropertyTypeIcon type={prop.type} icon={prop.options.icon} number={prop.options.number} className="h-3.5 w-3.5 shrink-0" />
             <span className="truncate">{prop.name}</span>
           </dt>
           <dd className="flex min-h-8 min-w-0 items-center py-1">

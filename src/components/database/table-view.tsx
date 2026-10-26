@@ -997,7 +997,7 @@ function HeaderCell({
         aria-describedby={description ? descriptionId : undefined}
         className="flex h-[33px] w-full items-center gap-1.5 px-2 text-sm text-fg-muted hover:bg-bg-hover disabled:hover:bg-transparent"
       >
-        <PropertyTypeIcon type={icon} icon={prop?.options.icon} className="h-3.5 w-3.5 shrink-0" />
+        <PropertyTypeIcon type={icon} icon={prop?.options.icon} number={prop?.options.number} className="h-3.5 w-3.5 shrink-0" />
         <span className="truncate">{label}</span>
         {prop && <PropertyLock propertyId={prop.id} />}
         {isAutofillType(prop?.type) && prop?.options.ai && <Bot className="h-3.5 w-3.5 shrink-0" aria-label={tAi("addEntry")} />}

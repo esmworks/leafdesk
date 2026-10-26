@@ -1,4 +1,4 @@
-import type { ChecklistItem, PropertyType, SelectOption } from "@/db/schema/app";
+import type { ChecklistItem, NumberFormat, PropertyType, SelectOption } from "@/db/schema/app";
 import type { AiCellState } from "@/lib/ai";
 import type { DatabaseSyncSummary } from "@/lib/jira-sync";
 import type { MapTiles } from "@/lib/place";
@@ -33,7 +33,8 @@ export type {
  * Settings of a property being added that its type needs: a formula's expression (with property
  * ids), a rollup's settings, a unique ID's prefix.
  */
-export type DerivedInput = { formula?: { expression: string }; rollup?: RollupInput; prefix?: string | null };
+/** Settings a new property starts with: a formula, a rollup, a unique ID's prefix, a number's format. */
+export type DerivedInput = { formula?: { expression: string }; rollup?: RollupInput; prefix?: string | null; number?: NumberFormat };
 
 export type DatabaseSnapshot = {
   database: {

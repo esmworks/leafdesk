@@ -717,7 +717,7 @@ function ColumnFigure({
             <MenuItem
               key={p.id}
               active={measure.kind === "aggregate" && measure.prop.id === p.id}
-              icon={<PropertyTypeIcon type={p.type} icon={p.options.icon} />}
+              icon={<PropertyTypeIcon type={p.type} icon={p.options.icon} number={p.options.number} />}
               onClick={() => (measure.kind === "aggregate" && measure.prop.id === p.id ? menu.close() : pickProperty(p))}
             >
               {p.name}

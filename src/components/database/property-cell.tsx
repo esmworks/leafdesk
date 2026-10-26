@@ -30,6 +30,7 @@ import { useFormulaErrorMessage } from "./formula-editor";
 import { PersonChips, PersonPicker } from "./person-cell";
 import { QuickAddContext, QuickAddParts } from "./quick-add";
 import { HiddenValue } from "./property-access";
+import { RatingStars } from "./rating-stars";
 import { RelationChips, RelationPicker } from "./relation-cell";
 import { useRelations } from "./relation-context";
 import type { ChecklistItem, Property, SelectOption } from "./types";
@@ -39,7 +40,7 @@ import { searchFold } from "@/lib/search-fold";
 import { relativeDay } from "@/lib/date-options";
 import { dayNumber, dayString } from "@/lib/time-zone";
 import type { DateOptions, FormulaConfig, NumberFormat, PropertyOptions } from "@/db/schema/app";
-import { calculationFormat, numberFormatOptions, numberText, readNumber, valueFormat } from "@/lib/number-format";
+import { calculationFormat, formatInFormat, isRating, numberText, ratingMax, readNumber, valueFormat } from "@/lib/number-format";
 import { numberShare } from "@/lib/number-display";
 import { formatClock, formatStyledDate, isStyled, type DateStyle } from "@/lib/date-format";
 import { availableOptions, parentOf } from "@/lib/dependent-options";
@@ -204,7 +205,8 @@ export function useFormatDateTime() {
  */
 export function useFormatNumber() {
   const format = useFormatter();
-  return (value: number, numberFormat?: NumberFormat | null, auto?: number) => format.number(value, numberFormatOptions(numberFormat, auto));
+  return (value: number, numberFormat?: NumberFormat | null, auto?: number) =>
+    formatInFormat(value, numberFormat, (n, options) => format.number(n, options), auto);
 }
 
 export function isEmptyValue(prop: ShownProperty, value: unknown) {
@@ -235,6 +237,7 @@ export function PropertyDisplay({ prop, value, wrap, style }: { prop: ShownPrope
       return <span className={cn(wrap ? "whitespace-pre-wrap break-words" : "truncate")}>{String(value)}</span>;
     case "number": {
       if (typeof value !== "number") return <span className="tabular-nums">{String(value)}</span>;
+      if (isRating(prop.options.number)) return <RatingStars value={value} max={ratingMax(prop.options.number)} label={prop.name} />;
       const text = formatNumber(value, prop.options.number);
       const display = prop.options.numberDisplay;
       if (display) {
@@ -388,6 +391,7 @@ function DerivedDisplay({ prop, value, wrap, style }: { prop: ShownProperty; val
     case "number": {
       // A formula giving an amount or a percentage shows in its number format; as a bar or a ring when it says so.
       if (typeof value !== "number") return <span {...styledProps(whole, "tabular-nums")}>{String(value)}</span>;
+      if (isRating(valueFormat(prop))) return <RatingStars value={value} max={ratingMax(valueFormat(prop))} label={prop.name} />;
       const text = formatNumber(value, valueFormat(prop));
       const display = prop.options.numberDisplay;
       if (display) return <ProgressDisplay display={display.display} share={numberShare(value, display, valueFormat(prop))} text={text} color={display.color} />;
@@ -677,6 +681,20 @@ export function PropertyCell({
         >
           <CheckboxBox checked={done} />
         </button>
+      </div>
+    );
+  }
+
+  // A rating's stars are clicked right in the cell.
+  if (prop.type === "number" && isRating(prop.options.number)) {
+    return (
+      <div className={cn(base, "cursor-default")}>
+        <RatingStars
+          value={typeof value === "number" ? value : null}
+          max={ratingMax(prop.options.number)}
+          label={prop.name}
+          onChange={readOnly ? undefined : (next) => onChange(next)}
+        />
       </div>
     );
   }

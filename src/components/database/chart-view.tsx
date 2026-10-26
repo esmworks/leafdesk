@@ -32,7 +32,7 @@ import { Floating } from "./floating";
 import { useGroupContext, useGroupName } from "./group-label";
 import { RowValue, shownValues } from "./property-cell";
 import { useFormatResult } from "./table-calculations";
-import { calculationFormat, numberFormatOptions } from "@/lib/number-format";
+import { calculationFormat, durationText, isDuration, isRating, numberFormatOptions } from "@/lib/number-format";
 import type { Property, Row, View } from "./types";
 
 /**
@@ -277,6 +277,9 @@ export function Chart<R>({
   const tick = (value: number) => {
     if (data.format === "percent") return format.number(value, { style: "percent", maximumFractionDigits: 1 });
     const notation = Math.abs(value) >= 10000 ? "compact" : "standard";
+    // Durations as hours and minutes, ratings as the number of stars.
+    if (isDuration(unit)) return durationText(value, unit);
+    if (isRating(unit)) return format.number(value, { maximumFractionDigits: 1 });
     // Axis labels drop the fixed decimals: "₺1.000", not "₺1.000,00".
     if (unit) return format.number(value, { ...numberFormatOptions(unit, 2), minimumFractionDigits: 0, notation });
     return format.number(value, { notation, maximumFractionDigits: 2 });

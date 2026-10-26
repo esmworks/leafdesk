@@ -47,7 +47,7 @@ export function PropertyIconButton({ prop, onIcon }: { prop: Property; onIcon?: 
   if (!onIcon) {
     return (
       <span className="flex h-7 w-7 shrink-0 items-center justify-center text-fg-muted">
-        <PropertyTypeIcon type={prop.type} icon={prop.options.icon} />
+        <PropertyTypeIcon type={prop.type} icon={prop.options.icon} number={prop.options.number} />
       </span>
     );
   }
@@ -61,7 +61,7 @@ export function PropertyIconButton({ prop, onIcon }: { prop: Property; onIcon?: 
         onClick={picker.toggle}
         className="flex h-7 w-7 shrink-0 items-center justify-center rounded-md border border-border text-fg-muted hover:bg-bg-hover hover:text-fg"
       >
-        <PropertyTypeIcon type={prop.type} icon={prop.options.icon} />
+        <PropertyTypeIcon type={prop.type} icon={prop.options.icon} number={prop.options.number} />
       </button>
       <Floating open={picker.open} anchor={picker.el} onClose={picker.close} className="p-0">
         <IconGrid
