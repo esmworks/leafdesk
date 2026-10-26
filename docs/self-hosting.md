@@ -270,13 +270,20 @@ provider that offers the same interfaces. In the dark scheme the tiles are dimme
 
 Settings → Health lists web links in pages that stopped working: the server fetches the web
 addresses of pages and URL properties in the background, about once a week each, from public
-addresses only (hosts in `CONNECTOR_ALLOWED_HOSTS` too, as for saving a web page). Its requests say
-`Leafdesk link check (+APP_URL)`. To never fetch them, for a server that shouldn't reach the
-internet on its own, set:
+addresses only. Its requests say `Leafdesk link check (+APP_URL)`. To never fetch them, for a
+server that shouldn't reach the internet on its own, set:
 
 ```bash
 WEB_LINK_CHECKS=off
 ```
+
+The same rule holds for every address someone in a workspace gives the server to fetch: saving a
+web page, downloading a file a page shows from another site (anyone who may view the page, guests
+too) and these link checks reach public addresses only, never the hosts in
+`CONNECTOR_ALLOWED_HOSTS` (which are for connections and syncs an owner sets up). To let them
+reach a host on your own network, an intranet wiki say, list it in `WEB_FETCH_ALLOWED_HOSTS`
+(comma-separated, a host name or `host:port`; a bare name on ports 80, 443, 8080 and 8443 only).
+Everyone in every workspace can then fetch it.
 
 Health then says the links aren't checked. See [Workspace health](features.md) for what counts as
 broken.

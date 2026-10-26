@@ -31,7 +31,7 @@ const site = createServer((req, res) => {
 await new Promise<void>((resolve) => site.listen(0, "127.0.0.1", resolve));
 const origin = `http://127.0.0.1:${(site.address() as AddressInfo).port}`;
 // The checks fetch public addresses only; this test's server is let through like a host on your own network.
-process.env.CONNECTOR_ALLOWED_HOSTS = `127.0.0.1:${(site.address() as AddressInfo).port}`;
+process.env.WEB_FETCH_ALLOWED_HOSTS = `127.0.0.1:${(site.address() as AddressInfo).port}`;
 
 // Imported after .env is loaded: the database client reads DATABASE_URL when it is created.
 const { eq, inArray } = await import("drizzle-orm");

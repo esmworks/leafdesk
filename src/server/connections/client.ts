@@ -22,7 +22,7 @@ import { catalogEntryFor, instanceClientKey } from "@/lib/connection-catalog";
 import { CONNECTION_CALL_TIMEOUT_MS, MAX_CONNECTION_TOOLS, type ConnectionTool, type ToolKind } from "@/lib/connections";
 import { env } from "@/lib/env";
 import { openJson, sealJson } from "../secret-box";
-import { connectionFetch } from "./fetch";
+import { capResponse, connectionFetch } from "./fetch";
 
 /**
  * Leafdesk as an MCP client of a connection's server: one client per connection and process,
@@ -225,6 +225,9 @@ export class ConnectionOAuthProvider implements OAuthClientProvider {
   }
 }
 
+/** The fetch a connection's client and its sign-in use: connectionFetch, each answer capped in size. */
+const cappedFetch = async (input: string | URL | Request, init?: RequestInit) => capResponse(await connectionFetch(input, init));
+
 /**
  * Begins an OAuth sign-in to a connection's service: the address to send the browser to, or null
  * when already signed in. It asks for the scopes the catalog names for the service, else for all
@@ -233,7 +236,7 @@ export class ConnectionOAuthProvider implements OAuthClientProvider {
 export async function startOAuth(row: ConnectionRow) {
   const provider = new ConnectionOAuthProvider(row.id, secretsOf(row), null, ownClientOf(row)?.client);
   const scope = catalogEntryFor(row.url)?.scope;
-  const result = await serialized(row.id, () => auth(provider, { serverUrl: row.url, scope, fetchFn: connectionFetch }));
+  const result = await serialized(row.id, () => auth(provider, { serverUrl: row.url, scope, fetchFn: cappedFetch }));
   if (result === "AUTHORIZED") return null;
   if (!provider.authorizationUrl || !provider.startedState || !provider.codeVerifierValue) {
     throw new ConnectionClientError("unauthorized", "The service didn't start a sign-in");
@@ -244,7 +247,7 @@ export async function startOAuth(row: ConnectionRow) {
 /** Finishes an OAuth sign-in with the code the service sent back. */
 export async function finishOAuth(row: ConnectionRow, verifier: string, code: string, iss: string | undefined) {
   const provider = new ConnectionOAuthProvider(row.id, secretsOf(row), verifier, ownClientOf(row)?.client);
-  const result = await serialized(row.id, () => auth(provider, { serverUrl: row.url, authorizationCode: code, iss, fetchFn: connectionFetch }));
+  const result = await serialized(row.id, () => auth(provider, { serverUrl: row.url, authorizationCode: code, iss, fetchFn: cappedFetch }));
   if (result !== "AUTHORIZED") throw new ConnectionClientError("unauthorized", "The service didn't accept the sign-in");
   dropClient(row.id);
 }
@@ -283,7 +286,7 @@ function authProviderOf(row: ConnectionRow): AuthProvider | OAuthClientProvider 
 
 async function connect(row: ConnectionRow): Promise<Client> {
   const client = new Client({ name: "Leafdesk", version: "1.0.0" });
-  const transport = new StreamableHTTPClientTransport(new URL(row.url), { authProvider: authProviderOf(row), fetch: connectionFetch });
+  const transport = new StreamableHTTPClientTransport(new URL(row.url), { authProvider: authProviderOf(row), fetch: cappedFetch });
   try {
     await client.connect(transport, { timeout: CONNECT_TIMEOUT_MS });
   } catch (error) {
@@ -309,6 +312,8 @@ export function classify(error: unknown): ConnectionClientError {
     return new ConnectionClientError("unauthorized", message);
   }
   if (/timed? ?out|timeout/i.test(message) || name === "TimeoutError") return new ConnectionClientError("timeout", message);
+  // An answer over the size limit (capResponse): the server is up; the call failed.
+  if (name === "AnswerTooLargeError" || /answer is too large/i.test(message)) return new ConnectionClientError("tool", message);
   if (/fetch failed|ENOTFOUND|ECONNREFUSED|EBLOCKED|private address|blocked|redirect/i.test(message) || name === "ConnectionFetchError") {
     return new ConnectionClientError("unreachable", message);
   }

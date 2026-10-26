@@ -27,7 +27,8 @@ export { WebClipError } from "./web-clip-error";
  * to the address), or at the top of the workspace as a private page.
  *
  * The address is typed by a person, so the server fetches it only the way it reaches connections
- * (connections/fetch, in its `web` reach): public addresses only, every redirect checked again, the
+ * (connections/fetch, in its `web` and `untrusted` reach): public addresses only (or hosts in
+ * WEB_FETCH_ALLOWED_HOSTS, never CONNECTOR_ALLOWED_HOSTS), every redirect checked again, the
  * connection pinned to the checked address; http and https on the usual web ports. On top of that
  * a time limit for the whole save, a size limit for the page, and a count and size limit for its
  * pictures, which are copied into the workspace (a saved page doesn't load pictures from the site:
@@ -92,7 +93,7 @@ async function fetchBody(
 ): Promise<{ bytes: Buffer; contentType: string; url: string } | null> {
   let response: Response;
   try {
-    response = await connectionFetch(url, { headers: { "user-agent": USER_AGENT, accept, "accept-language": "*" }, signal }, { web: true });
+    response = await connectionFetch(url, { headers: { "user-agent": USER_AGENT, accept, "accept-language": "*" }, signal }, { web: true, untrusted: true });
   } catch (error) {
     throw fetchError(error, signal);
   }

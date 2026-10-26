@@ -8,7 +8,8 @@ import { checkConnectionUrl, ConnectionFetchError, connectionFetch } from "@/ser
  * Downloads a file a page shows from another site (an image, video, audio or file block with a web
  * address, see lib/downloads): `GET /api/files/external?url=…&pageId=…&name=…`, for someone signed
  * in who may view the page. The server fetches it the way connections reach their servers
- * (server/connections/fetch.ts: https on a public address only, each redirect checked again) with
+ * (server/connections/fetch.ts: https on a public address only, each redirect checked again; its
+ * `untrusted` reach, so only WEB_FETCH_ALLOWED_HOSTS, never CONNECTOR_ALLOWED_HOSTS, opens a private host) with
  * nothing of the request it was asked with (no cookies), at most MAX_EXTERNAL_DOWNLOAD bytes within
  * EXTERNAL_DOWNLOAD_MS, and streams it back as an attachment, never shown as a page of this site.
  */
@@ -55,7 +56,7 @@ export async function GET(request: Request) {
   }
   let target: URL;
   try {
-    target = checkConnectionUrl(params.get("url") ?? "");
+    target = checkConnectionUrl(params.get("url") ?? "", { untrusted: true });
   } catch (error) {
     if (error instanceof ConnectionFetchError) return fail(400, "This address can't be downloaded");
     throw error;
@@ -65,7 +66,7 @@ export async function GET(request: Request) {
   const timer = setTimeout(() => controller.abort(), EXTERNAL_DOWNLOAD_MS);
   let response: Response;
   try {
-    response = await connectionFetch(target, { headers: { Accept: "*/*" }, signal: controller.signal });
+    response = await connectionFetch(target, { headers: { Accept: "*/*" }, signal: controller.signal }, { untrusted: true });
   } catch (error) {
     clearTimeout(timer);
     if (error instanceof ConnectionFetchError) return fail(400, "This address can't be downloaded");

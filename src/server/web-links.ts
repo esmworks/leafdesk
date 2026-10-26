@@ -2,8 +2,8 @@
  * Web links that stopped working (lib/web-links). The workspace check asks about the addresses of
  * the pages it looks at (`wantWebLinks`) and reads what is known of them (`webLinkStates`); a
  * background job fetches the addresses not checked lately (`runWebLinkChecks`), a few at a time and
- * few per site, through the same guard as saving a web page (connections/fetch.ts with `web`):
- * public addresses only, unless CONNECTOR_ALLOWED_HOSTS lets a host through. Nothing of an answer is
+ * few per site, through the same guard as saving a web page (connections/fetch.ts with `web` and
+ * `untrusted`): public addresses only, unless WEB_FETCH_ALLOWED_HOSTS lets a host through. Nothing of an answer is
  * kept but its status. WEB_LINK_CHECKS=off stops it all.
  */
 import { and, eq, inArray, lt, sql } from "drizzle-orm";
@@ -85,7 +85,7 @@ export async function checkWebLink(url: string, fetcher: typeof connectionFetch 
   let last: WebLinkResult | null = null;
   for (const method of ["HEAD", "GET"] as const) {
     try {
-      const response = await fetcher(url, { method, headers, signal: AbortSignal.timeout(TIMEOUT_MS) }, { web: true });
+      const response = await fetcher(url, { method, headers, signal: AbortSignal.timeout(TIMEOUT_MS) }, { web: true, untrusted: true });
       await response.body?.cancel().catch(() => undefined);
       last = classifyAnswer(response.status);
       if (response.status < 400) return last;

@@ -1068,8 +1068,8 @@
   every release, see [`extension/`](../extension/README.md)) does the same from its toolbar button
   (Alt+Shift+S) and from the context menu of a page, a link or selected text: it opens the quick
   note on the Leafdesk address set in its settings, and sends nothing anywhere else. The server fetches only public addresses (http or https on the usual web
-  ports, every redirect checked again; `CONNECTOR_ALLOWED_HOSTS` lets hosts on your own network
-  through, as for [connections](connections.md)), at most 5 MB of page in 15 seconds. REST:
+  ports, every redirect checked again; `WEB_FETCH_ALLOWED_HOSTS` lets hosts on your own network
+  through, see [Self-hosting](self-hosting.md#broken-web-links)), at most 5 MB of page in 15 seconds. REST:
   `POST /api/v1/pages/from-web` (see [REST API](rest-api.md)).
 - **Sync Jira issues**: Import's Jira tab takes a Jira Cloud site, an email address and an
   [API token](https://id.atlassian.com/manage-profile/security/api-tokens) (kept sealed like a

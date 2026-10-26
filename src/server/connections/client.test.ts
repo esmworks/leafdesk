@@ -103,7 +103,10 @@ async function fakeFetch(input: string | URL | Request, init: RequestInit = {}):
   return new Response("not found", { status: 404 });
 }
 
-vi.mock("./fetch", () => ({ connectionFetch: (input: string | URL | Request, init?: RequestInit) => fakeFetch(input, init) }));
+vi.mock("./fetch", async (importOriginal) => ({
+  ...(await importOriginal<typeof import("./fetch")>()),
+  connectionFetch: (input: string | URL | Request, init?: RequestInit) => fakeFetch(input, init),
+}));
 
 const { sealJson } = await import("../secret-box");
 const { catalogEntryFor } = await import("@/lib/connection-catalog");
