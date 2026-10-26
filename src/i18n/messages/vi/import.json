@@ -279,6 +279,7 @@
       "tooLarge": "“{path}” quá lớn cho một trang và đã bị bỏ qua.",
       "unused": "“{path}” đã bị bỏ qua: không có trang nào hiển thị hoặc liên kết đến nó.",
       "unsafePath": "“{path}” đã bị bỏ qua: đường dẫn của nó dẫn ra ngoài tệp ZIP.",
+      "deepPath": "“{path}” đã bị bỏ qua: đường dẫn của nó quá dài hoặc có quá nhiều thư mục.",
       "otherSheet": "Trang tính “{path}” đã bị bỏ qua: mỗi lần chỉ nhập một trang tính.",
       "badNote": "Không đọc được ghi chú “{path}” nên đã bỏ qua.",
       "notEnex": "“{path}” đã bị bỏ qua: không phải tệp xuất Evernote (.enex)."
@@ -311,6 +312,7 @@
     "badMapping": "Hãy chọn nơi đưa ít nhất một cột, và mỗi thuộc tính chỉ dùng một lần.",
     "noAccess": "Bạn không thể thêm trang vào đó, hoặc nó không còn tồn tại.",
     "notADatabase": "Chỉ có thể thêm hàng vào một cơ sở dữ liệu.",
+    "busy": "Một lần nhập khác vẫn đang chạy. Hãy thử lại khi nó hoàn tất.",
     "badRequest": "Việc nhập không thành công. Không có gì bị thay đổi."
   },
   "googleDocs": {

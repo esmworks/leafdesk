@@ -2,6 +2,7 @@ import { strToU8, zipSync } from "fflate";
 import { describe, expect, it } from "vitest";
 import { toXlsx } from "../xlsx";
 import { guessColumn } from "./csv";
+import { fast, randomTexts } from "./linear-fixtures";
 import { ImportError, WarningList } from "./result";
 import { cellColumn, decodeXml, formatKind, readWorkbook, scanXml, serialText, spreadsheetTable, workbookTable } from "./xlsx";
 
@@ -309,6 +310,21 @@ describe("formatKind", () => {
     expect(formatKind("[h]:mm:ss")).toBe("time");
     expect(formatKind("[mm]")).toBe("time");
     expect(formatKind("yyyy-mm-dd hh:mm")).toBe("dateTime");
+  });
+
+  it("reads crafted formats in time growing with their length, as the regex it replaces", () => {
+    expect(fast(() => formatKind("[".repeat(200_000)))).toBeNull();
+    expect(fast(() => formatKind(`${'"'.repeat(200_001)}d`))).toBe("date");
+    const kind = (code: string) => {
+      const bare = code.replace(/"[^"]*"|\[[^\]]*\]|\\.|[_*]./g, "");
+      const date = /[dy]/i.test(bare) || (/m/i.test(bare) && !/[hs]/i.test(bare));
+      const time = /[hs]/i.test(bare);
+      const elapsed = /\[(h+|m+|s+)\]/i.test(code);
+      return date && (time || elapsed) ? "dateTime" : date ? "date" : time || elapsed ? "time" : null;
+    };
+    for (const code of randomTexts(['"', "[", "]", "\\", "_", "*", "d", "h", "m", "s", "y", "0", "\n", "[h]"], 5000, 10)) {
+      expect(formatKind(code)).toBe(kind(code));
+    }
   });
 });
 

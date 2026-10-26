@@ -1,15 +1,19 @@
 // The pure part of Markdown, CSV and ZIP imports: paths, titles, the page plan and links.
 import { describe, expect, it } from "vitest";
+import { fast, randomTexts } from "./linear-fixtures";
 import {
   cleanTitle,
   importFileKind,
   isIgnoredPath,
+  liftImages,
   normalizePath,
   planImport,
   resolveLink,
   rewriteLinks,
   splitTitle,
   stripRowProperties,
+  withoutQuery,
+  type LinkTarget,
 } from "./markdown";
 
 describe("paths", () => {
@@ -249,5 +253,98 @@ describe("stripRowProperties", () => {
     }
     // A row without values has no list to drop.
     expect(stripRowProperties("- Status: Done", headers, ["x", "", "", "", ""], 0)).toBe("- Status: Done");
+  });
+});
+
+describe("crafted files are read in time growing with their length", () => {
+  // The regexes the readers stood for, to check they read ordinary text the same way.
+  const FRONT_MATTER = /^---\n([\s\S]*?)\n---[ \t]*(?:\n|$)/;
+  const FENCE = /^ {0,3}(`{3,}|~{3,})/;
+  function splitTitleBefore(markdown: string, fallback: string) {
+    let text = markdown.replace(/^﻿/, "").replace(/\r\n?/g, "\n");
+    let title: string | null = null;
+    const front = FRONT_MATTER.exec(text);
+    if (front) {
+      const line = /^title:\s*(.+?)\s*$/m.exec(front[1]);
+      if (line) title = line[1].replace(/^(["'])(.*)\1$/, "$2").trim() || null;
+      text = text.slice(front[0].length);
+    }
+    const heading = /^\s*#[ \t]+(.+?)[ \t]*#*[ \t]*(?:\n|$)/.exec(text);
+    if (heading && (title === null || heading[1].trim() === title)) {
+      title ??= heading[1].trim();
+      text = text.slice(heading[0].length);
+    }
+    return { title: (title ?? fallback).slice(0, 200), body: text.replace(/^\s*\n/, "") };
+  }
+  const IMAGE = /!\[(?:\\.|[^\]\\\n])*\]\(\s*(?:<[^<>\n]*>|(?:[^\s()]|\([^\s()]*\))+)(?:\s+(?:"[^"\n]*"|'[^'\n]*'))?\s*\)/g;
+  const liftImagesBefore = (markdown: string) =>
+    markdown
+      .split("\n")
+      .map((line) => {
+        if (FENCE.test(line) || /^\s*\|/.test(line)) return line;
+        const images = line.match(IMAGE);
+        if (!images) return line;
+        const rest = line.replace(IMAGE, "").trimEnd();
+        if (!rest.replace(/^\s*(?:[-*+]|\d+[.)]|>)?\s*/, "").trim()) return images.length === 1 ? line : images.join("\n\n");
+        return [rest, ...images].join("\n\n");
+      })
+      .join("\n");
+  const LINK = /(!?)\[((?:\\.|[^\]\\\n])*)\]\(\s*(<[^<>\n]*>|(?:[^\s()]|\([^\s()]*\))+)(\s+(?:"[^"\n]*"|'[^'\n]*'))?\s*\)/g;
+  const IMG_TAG = /(<img\b[^>]*?\bsrc\s*=\s*)(["'])([^"'\n]*)\2/gi;
+  const inlineBefore = (text: string, swap: (href: string, image: boolean) => string | null) =>
+    text
+      .replace(LINK, (whole, bang: string, label: string, href: string, title: string | undefined) => {
+        const next = swap(href, bang === "!");
+        return next === null ? whole : `${bang}[${label}](${next}${title ?? ""})`;
+      })
+      .replace(IMG_TAG, (whole, head: string, quote: string, src: string) => {
+        const next = swap(src, true);
+        return next === null ? whole : `${head}${quote}${next}${quote}`;
+      });
+  // Links to a file named with a "b" are left alone.
+  const replace = ({ path, image, href }: LinkTarget) => (path.includes("b") ? null : `${image ? "I" : "L"}:${path}:${href.length}`);
+
+  it("names and titles: long runs of spaces", () => {
+    expect(fast(() => cleanTitle(`${" ".repeat(1_000_000)}x`))).toBe("x");
+    expect(cleanTitle(`Tasks \t ${"0123456789abcdef".repeat(2)}.md`)).toBe("Tasks");
+    const spaces = " ".repeat(300_000);
+    expect(fast(() => splitTitle(`---\ntitle: a${spaces}b\n---\nbody`, "f")).title).toBe(`a${spaces}b`.slice(0, 200));
+    expect(fast(() => splitTitle(`# a${spaces}b`, "f")).title).toBe(`a${spaces}b`.slice(0, 200));
+    expect(fast(() => splitTitle(`# a${" \t".repeat(300_000)}#`, "f")).title).toBe("a");
+    for (const text of randomTexts(["#", "# ", " ", "\t", "a", "\n", "---\n", "title:", "title: ", '"', "'", "b", "\u2028", "\r"], 5000, 14)) {
+      expect(splitTitle(text, "f")).toEqual(splitTitleBefore(text, "f"));
+      expect(splitTitle(`---\n${text}\n---\n${text}`, "f")).toEqual(splitTitleBefore(`---\n${text}\n---\n${text}`, "f"));
+    }
+  });
+
+  it("links and images: long runs of brackets and unclosed tags", () => {
+    expect(fast(() => liftImages(`x ${"![".repeat(500_000)}`))).toBe(`x ${"![".repeat(500_000)}`);
+    expect(fast(() => rewriteLinks("[".repeat(1_000_000), "a.md", replace))).toBe("[".repeat(1_000_000));
+    expect(fast(() => rewriteLinks(`${"[".repeat(500_000)}x](c.md)`, "a.md", replace))).toBe(`${"[".repeat(500_000)}x](L:c.md:4)`);
+    expect(fast(() => rewriteLinks("<img ".repeat(200_000), "a.md", replace))).toBe("<img ".repeat(200_000));
+    expect(fast(() => rewriteLinks(`${"<img ".repeat(200_000)}src="c.png">`, "a.md", replace))).toBe(`${"<img ".repeat(200_000)}src="I:c.png:5">`);
+    expect(fast(() => resolveLink("a.md", `${"?".repeat(1_000_000)}\nx`))).toBe(`${"?".repeat(1_000_000)}\nx`);
+    const pieces = ["[", "]", "(", ")", "!", "a", " ", "<", ">", "\\", '"', "'", "c.png", "b.md", "](a.md)", "<img src='x.png'>", "<IMG ", "src=", "\t"];
+    for (const line of randomTexts(pieces, 5000, 12)) {
+      expect(liftImages(line)).toBe(liftImagesBefore(line));
+      const swap = (href: string, image: boolean) => {
+        const path = resolveLink("d/a.md", href);
+        return path ? replace({ path, image, href }) : null;
+      };
+      expect(rewriteLinks(line, "d/a.md", replace)).toBe(line.split(/(`+[^`]*`+)/).map((part, i) => (i % 2 ? part : inlineBefore(part, swap))).join(""));
+    }
+  });
+
+  it("queries and fragments are cut as before", () => {
+    expect(fast(() => withoutQuery(`${"?".repeat(1_000_000)}\na?b`))).toBe(`${"?".repeat(1_000_000)}\na`);
+    for (const text of randomTexts(["?", "#", "a", "\n", "\r", "\u2028", "b"])) expect(withoutQuery(text)).toBe(text.replace(/[?#].*$/, ""));
+  });
+
+  it("cells with long runs of spaces, and deep folders", () => {
+    const cell = `a${" ".repeat(1_000_000)}b`;
+    expect(fast(() => stripRowProperties(`- Name: x\n\nbody`, ["Name", "Other"], ["x", cell], null))).toBe("- Name: x\n\nbody");
+    // Each folder's files are gathered once, not looked for among all the files for each folder.
+    const paths = Array.from({ length: 2000 }, (_, i) => `${i}/${"d/".repeat(20)}page.md`);
+    expect(fast(() => planImport(paths), 2000).nodes.length).toBe(2000 * 22);
   });
 });

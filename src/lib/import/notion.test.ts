@@ -1,5 +1,7 @@
 import { describe, expect, it } from "vitest";
-import { planImport } from "./markdown";
+import { splitList } from "./csv";
+import { fast, randomTexts } from "./linear-fixtures";
+import { planImport, resolveLink } from "./markdown";
 import {
   isNotionExport,
   notionId,
@@ -197,5 +199,50 @@ describe("planImport with Notion's layout", () => {
       ]),
     );
     expect(plan.nodeOf.get(`Tasks ${A}.md`)).toBe(`Tasks ${A}_all.csv`);
+  });
+});
+
+describe("crafted exports are read in time growing with their length", () => {
+  it("callouts that never close", () => {
+    const open = "<aside>\nnote\n".repeat(50_000);
+    expect(fast(() => notionMarkdown(open))).toBe(open);
+    const closed = "<aside>\n💡\nText\n</aside>\n";
+    expect(fast(() => notionMarkdown(closed + open))).toBe(`> [!NOTE]\n> 💡 Text\n\n${open}`);
+  });
+
+  it("names ending in many slashes, and cells full of brackets", () => {
+    expect(fast(() => notionId(`Tasks ${A}${"/".repeat(1_000_000)}`))).toBe(A);
+    expect(fast(() => notionId(`${"/".repeat(1_000_000)}x`))).toBeNull();
+    expect(fast(() => relationRefs(`](${"[".repeat(1_000_000)}`, "Tasks.csv"))).toEqual([]);
+    expect(fast(() => relationRefs(`${"[".repeat(500_000)}Row](Row%20${A}.md)`, "Tasks.csv"))).toEqual([
+      { title: `${"[".repeat(499_999)}Row`, path: `Row ${A}.md`, id: A },
+    ]);
+  });
+
+  it("finds the same relation links as the regex it replaces", () => {
+    const MD_LINK = /\[((?:\\.|[^\]\\\n])*)\]\(\s*<?((?:[^\s()<>]|\([^\s()<>]*\))+)>?\s*\)/g;
+    const target = (href: string, from: string) => {
+      const id = notionUrlId(href);
+      if (id) return { path: null, id };
+      if (!/\.md$/i.test(href.replace(/[?#].*$/, ""))) return null;
+      const path = resolveLink(from, href);
+      return path ? { path, id: notionId(path) } : null;
+    };
+    const before = (cell: string) => {
+      const refs: { title: string; path: string | null; id: string | null }[] = [];
+      let last = 0;
+      for (const match of cell.matchAll(MD_LINK)) {
+        const found = target(match[2], "Tasks.csv");
+        if (!found) continue;
+        for (const title of splitList(cell.slice(last, match.index))) refs.push({ title, path: null, id: null });
+        refs.push({ title: match[1].replace(/\\(.)/g, "$1").trim(), ...found });
+        last = match.index + match[0].length;
+      }
+      if (!refs.length) return [];
+      for (const title of splitList(cell.slice(last))) refs.push({ title, path: null, id: null });
+      return refs;
+    };
+    const pieces = ["[", "]", "](", "a", "\\", "(", ")", " ", ",", "\n", "<", ">", "b.md", "](a.md)", "?"];
+    for (const text of randomTexts(pieces, 5000, 14)) expect(relationRefs(`](${text}`, "Tasks.csv")).toEqual(before(`](${text}`));
   });
 });

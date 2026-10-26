@@ -279,6 +279,7 @@
       "tooLarge": "“{path}” is too large for one page and was left out.",
       "unused": "“{path}” was left out: no page shows it or links to it.",
       "unsafePath": "“{path}” was left out: its path leads outside the ZIP.",
+      "deepPath": "“{path}” was left out: its path is too long or has too many folders.",
       "otherSheet": "The sheet “{path}” was left out: only one sheet is imported at a time.",
       "badNote": "The note “{path}” can't be read and was left out.",
       "notEnex": "“{path}” was left out: it isn't an Evernote export (.enex)."
@@ -311,6 +312,7 @@
     "badMapping": "Choose where at least one column goes, and each property only once.",
     "noAccess": "You can't add pages there, or it no longer exists.",
     "notADatabase": "Rows can only be added to a database.",
+    "busy": "Another import is still running. Try again when it's done.",
     "badRequest": "The import didn't go through. Nothing was changed."
   },
   "googleDocs": {

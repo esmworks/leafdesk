@@ -279,6 +279,7 @@
       "tooLarge": "“{path}” é grande demais para uma página e foi deixado de fora.",
       "unused": "“{path}” foi deixado de fora: nenhuma página o mostra ou tem link para ele.",
       "unsafePath": "“{path}” foi deixado de fora: o caminho dele leva para fora do ZIP.",
+      "deepPath": "“{path}” foi deixado de fora: o caminho é longo demais ou tem pastas demais.",
       "otherSheet": "A planilha “{path}” foi deixada de fora: só uma planilha é importada por vez.",
       "badNote": "A nota “{path}” não pode ser lida e foi deixada de fora.",
       "notEnex": "“{path}” foi deixado de fora: não é uma exportação do Evernote (.enex)."
@@ -311,6 +312,7 @@
     "badMapping": "Escolha para onde vai pelo menos uma coluna, e cada propriedade só uma vez.",
     "noAccess": "Você não pode adicionar páginas ali, ou o local não existe mais.",
     "notADatabase": "Linhas só podem ser adicionadas a um banco de dados.",
+    "busy": "Outra importação ainda está em andamento. Tente novamente quando ela terminar.",
     "badRequest": "A importação não foi concluída. Nada foi alterado."
   },
   "googleDocs": {

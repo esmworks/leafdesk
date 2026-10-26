@@ -279,6 +279,7 @@
       "tooLarge": "”{path}” är för stor för en sida och utelämnades.",
       "unused": "”{path}” utelämnades: ingen sida visar den eller länkar till den.",
       "unsafePath": "”{path}” utelämnades: dess sökväg leder utanför ZIP-filen.",
+      "deepPath": "”{path}” utelämnades: sökvägen är för lång eller har för många mappar.",
       "otherSheet": "Bladet ”{path}” utelämnades: bara ett blad importeras åt gången.",
       "badNote": "Anteckningen ”{path}” kan inte läsas och utelämnades.",
       "notEnex": "”{path}” utelämnades: det är ingen Evernote-export (.enex)."
@@ -311,6 +312,7 @@
     "badMapping": "Välj vart minst en kolumn ska, och varje egenskap bara en gång.",
     "noAccess": "Du kan inte lägga till sidor där, eller så finns den inte längre.",
     "notADatabase": "Rader kan bara läggas till i en databas.",
+    "busy": "En annan import pågår fortfarande. Försök igen när den är klar.",
     "badRequest": "Importen gick inte igenom. Inget har ändrats."
   },
   "googleDocs": {

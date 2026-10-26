@@ -7,6 +7,8 @@
  * falls back rather than insisting on one shape.
  */
 
+import { withoutQuery } from "./markdown";
+
 /** A page file of the export: `Page-Title_123456.html` or `123456.html`; not the space's index. */
 export function isPageFile(path: string): boolean {
   const name = path.slice(path.lastIndexOf("/") + 1);
@@ -40,7 +42,7 @@ export function spaceName(documentTitle: string | null | undefined): string {
 export function exportPath(from: string, href: string | null | undefined): string | null {
   const value = (href ?? "").trim();
   if (!value || value.startsWith("#") || /^[a-z][a-z0-9+.-]*:/i.test(value) || value.startsWith("//")) return null;
-  let path = value.replace(/[?#].*$/, "");
+  let path = withoutQuery(value);
   try {
     path = decodeURIComponent(path);
   } catch {}

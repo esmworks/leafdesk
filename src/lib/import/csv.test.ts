@@ -16,7 +16,47 @@ import {
   parseNumber,
   percentColumn,
   splitList,
+  TIME,
 } from "./csv";
+import { fast, randomTexts } from "./linear-fixtures";
+
+describe("crafted cells are read in time growing with their length", () => {
+  it("numbers, dates and lists", () => {
+    expect(fast(() => parseNumber(`${"1".repeat(200_000)}x`))).toBeNull();
+    expect(fast(() => parseNumber(`a${" ".repeat(1_000_000)}x`))).toBeNull();
+    expect(fast(() => parseNumber(`5${" ".repeat(1_000_000)}%`))).toBe(0.05);
+    for (const format of ["iso", "mdy", "text"] as const) {
+      expect(fast(() => parseDate(`${" ".repeat(300_000)}x`, format))).toBeNull();
+      expect(fast(() => parseDate(`${"T".repeat(300_000)}x`, format))).toBeNull();
+      expect(fast(() => parseDate(`1:00${" ".repeat(300_000)}x`, format))).toBeNull();
+      expect(fast(() => parseDate(`${",".repeat(300_000)}x 10:00`, format))).toBeNull();
+    }
+    expect(fast(() => parseDate(`2026-10-01${" ".repeat(300_000)}10:00`, "iso"))).toBe("2026-10-01T10:00:00.000Z");
+    const list = Array.from({ length: 50_000 }, (_, i) => `v${i}`).join(",");
+    expect(fast(() => splitList(list)).length).toBe(50_000);
+    expect(fast(() => parseChecklist(`[x] ${" ".repeat(1_000_000)}a\u2028b`))).toEqual([{ text: "a\u2028b", checked: true }]);
+  });
+
+  it("a header of one name repeated many times", () => {
+    const { headers } = fast(() => csvTable(`${"a;".repeat(100_000)}a\n1`));
+    expect(headers.slice(0, 3)).toEqual(["a", "a 2", "a 3"]);
+    expect(headers.at(-1)).toBe("a 100001");
+    expect(csvTable("A,a,a 2,a\n1").headers).toEqual(["A", "a 2", "a 2 2", "a 3"]);
+  });
+
+  it("finds times of day as the regex it replaces", () => {
+    const BEFORE =
+      /(?:[T\s]+(?:at\s+)?|^)(\d{1,2}):(\d{2})(?::(\d{2})(?:\.\d+)?)?\s*([AP]M)?\s*(Z|[+-]\d{2}:?\d{2}|\((?:GMT|UTC)(?:([+-])(\d{1,2})(?::?(\d{2}))?)?\))?$/i;
+    const pieces = ["T", "t", " ", "\t", "at ", "1", "10", ":", "00", ".5", "AM", "pm", "Z", "+03:00", "(GMT+3)", "a", ","];
+    for (const text of randomTexts(pieces, 5000, 10)) {
+      const [now, then] = [TIME.exec(text), BEFORE.exec(text)];
+      expect(now && [now.index, ...now]).toEqual(then && [then.index, ...then]);
+    }
+    for (const text of randomTexts(["a", " ", "-", ">", "→", "\t"], 3000, 12)) {
+      expect(text.split(/(?<!\s)\s+(?:→|->)\s+/)).toEqual(text.split(/\s+(?:→|->)\s+/));
+    }
+  });
+});
 
 describe("parseCsv", () => {
   it("reads quoted fields with separators, quotes and line breaks", () => {

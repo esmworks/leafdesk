@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { enexDate, ENEX_LIMITS, enmlToHtml, MEDIA_TOKEN, readEnex, withoutDoctype } from "./enex";
 import { enexFile, enml, PNG_BASE64 } from "./enex-fixtures";
+import { fast } from "./linear-fixtures";
 import { ImportError } from "./result";
 
 const code = (fn: () => unknown) => {
@@ -169,5 +170,23 @@ describe("ENML as HTML", () => {
   it("leaves nothing for an empty note", () => {
     expect(enmlToHtml("", { encrypted: "" }).html).toBe("");
     expect(html(`<div><br/></div>`).html).toBe("");
+  });
+});
+
+describe("crafted notes are read in time growing with their length", () => {
+  it("runs of line breaks and empty paragraphs", () => {
+    // Looking for the breaks a text ends with from each of 50,000 took minutes.
+    expect(fast(() => html(`<div>a${"<br/>".repeat(50_000)}b</div>`)).html).toBe(`<p>a${"<br>".repeat(50_000)}b</p>`);
+    expect(fast(() => html(`<div>a${"<br/>".repeat(50_000)}</div>`)).html).toBe("<p>a</p>");
+    expect(fast(() => html(`<ul><li>a${"<br/>".repeat(50_000)}b</li></ul>`)).html).toBe(`<ul><li>a${"<br>".repeat(50_000)}b</li></ul>`);
+    expect(fast(() => html(`<div>a</div>${"<div></div>".repeat(30_000)}<div>b</div>`)).html).toContain("<p>b</p>");
+  });
+
+  it("styles naming text-decoration again and again", () => {
+    const style = "text-decoration:".repeat(50_000);
+    expect(fast(() => html(`<div><span style="${style}">a</span></div>`)).html).toBe("<p>a</p>");
+    expect(html(`<div><span style="${style}underline">a</span></div>`).html).toBe("<p><u>a</u></p>");
+    expect(html(`<div><span style="text-decoration: underline line-through">a</span></div>`).html).toBe("<p><u><s>a</s></u></p>");
+    expect(html(`<div><span style="text-decoration: none; color: underline">a</span></div>`).html).toBe("<p>a</p>");
   });
 });

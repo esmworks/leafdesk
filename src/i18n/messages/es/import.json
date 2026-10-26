@@ -279,6 +279,7 @@
       "tooLarge": "“{path}” es demasiado grande para una sola página y se excluyó.",
       "unused": "“{path}” se excluyó: ninguna página lo muestra ni enlaza a él.",
       "unsafePath": "“{path}” se excluyó: su ruta sale del ZIP.",
+      "deepPath": "“{path}” se excluyó: su ruta es demasiado larga o tiene demasiadas carpetas.",
       "otherSheet": "La hoja “{path}” se excluyó: solo se importa una hoja cada vez.",
       "badNote": "La nota “{path}” no se puede leer y se excluyó.",
       "notEnex": "“{path}” se excluyó: no es una exportación de Evernote (.enex)."
@@ -311,6 +312,7 @@
     "badMapping": "Elige el destino de al menos una columna, y usa cada propiedad una sola vez.",
     "noAccess": "No puedes añadir páginas ahí o ya no existe.",
     "notADatabase": "Solo se pueden añadir filas a una base de datos.",
+    "busy": "Todavía hay otra importación en curso. Inténtalo de nuevo cuando termine.",
     "badRequest": "La importación no se completó. No se cambió nada."
   },
   "googleDocs": {

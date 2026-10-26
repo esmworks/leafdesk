@@ -279,6 +279,7 @@
       "tooLarge": "“{path}”对于单个页面来说过大，已省略。",
       "unused": "“{path}”已省略：没有页面显示或链接到它。",
       "unsafePath": "“{path}”已省略：其路径指向 ZIP 之外。",
+      "deepPath": "“{path}”已省略：其路径太长或文件夹层级太多。",
       "otherSheet": "工作表“{path}”已省略：每次只导入一个工作表。",
       "badNote": "无法读取笔记“{path}”，已省略。",
       "notEnex": "“{path}”已省略：它不是 Evernote 导出文件（.enex）。"
@@ -311,6 +312,7 @@
     "badMapping": "请至少为一列选择导入位置，且每个属性只能使用一次。",
     "noAccess": "你无法在那里添加页面，或它已不存在。",
     "notADatabase": "只能向数据库添加行。",
+    "busy": "另一项导入仍在进行中。请在它完成后再试。",
     "badRequest": "导入未成功。没有任何更改。"
   },
   "googleDocs": {

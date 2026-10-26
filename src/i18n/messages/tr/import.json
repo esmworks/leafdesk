@@ -279,6 +279,7 @@
       "tooLarge": "“{path}” tek bir sayfa için çok büyük olduğu için dışarıda bırakıldı.",
       "unused": "“{path}” hiçbir sayfada gösterilmediği ya da bağlantı verilmediği için dışarıda bırakıldı.",
       "unsafePath": "“{path}” ZIP'in dışını gösteren bir yolu olduğu için dışarıda bırakıldı.",
+      "deepPath": "“{path}” yolu çok uzun olduğu ya da çok fazla klasör içerdiği için dışarıda bırakıldı.",
       "otherSheet": "“{path}” sayfası dışarıda bırakıldı: her seferinde tek bir sayfa aktarılır.",
       "badNote": "“{path}” notu okunamadığı için dışarıda bırakıldı.",
       "notEnex": "“{path}” bir Evernote dışa aktarımı (.enex) olmadığı için dışarıda bırakıldı."
@@ -311,6 +312,7 @@
     "badMapping": "En az bir sütunun hedefini seçin; her özellik yalnızca bir kez kullanılabilir.",
     "noAccess": "Oraya sayfa ekleyemezsiniz ya da artık mevcut değil.",
     "notADatabase": "Satırlar yalnızca bir veritabanına eklenebilir.",
+    "busy": "Başka bir içe aktarma hâlâ sürüyor. Bittiğinde yeniden deneyin.",
     "badRequest": "İçe aktarma gerçekleşmedi. Hiçbir şey değişmedi."
   },
   "googleDocs": {

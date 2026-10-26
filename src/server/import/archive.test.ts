@@ -1,5 +1,6 @@
 import { strToU8, zipSync } from "fflate";
 import { describe, expect, it } from "vitest";
+import { IMPORT_LIMITS } from "@/lib/import/markdown";
 import { collectFiles, entryName } from "./archive";
 
 const ID = "0123456789abcdef0123456789abcdef";
@@ -53,6 +54,18 @@ describe("collectFiles", () => {
         { path: "two.zip", reason: "nestedZip" },
       ]),
     );
+  });
+
+  it("leaves out files whose paths are too long or too deep, and says so", () => {
+    const deep = `${"d/".repeat(IMPORT_LIMITS.pathDepth)}deep.md`;
+    const long = `${"x".repeat(IMPORT_LIMITS.pathChars)}.md`;
+    const { files, skipped } = collectFiles([
+      { path: "upload.zip", data: zip({ "ok.md": "fine", [deep]: "deep" }) },
+      { path: long, data: strToU8("long") },
+      { path: `${"d/".repeat(IMPORT_LIMITS.pathDepth - 1)}fine.md`, data: strToU8("fine") },
+    ]);
+    expect([...files.keys()].sort()).toEqual([`${"d/".repeat(IMPORT_LIMITS.pathDepth - 1)}fine.md`, "ok.md"]);
+    expect(skipped.map((s) => s.reason)).toEqual(["deepPath", "deepPath"]);
   });
 
   it("unpacks TextPacks into their bundle folders, loose or in a ZIP, beside Notion-style files", () => {

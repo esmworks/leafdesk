@@ -1,6 +1,7 @@
 import { SELECT_COLORS } from "../properties";
 import { isTimeZone, zoneOffset } from "../time-zone";
 import { CSV_MAX_ROWS } from "./csv";
+import { imagesAsLinks, replaceLinks } from "./link-scan";
 import { ImportError } from "./result";
 
 /**
@@ -141,19 +142,16 @@ export function trelloMarkdown(markdown: string, cardLink: (shortLink: string) =
     const short = CARD_URL.exec(url)?.[1];
     return short ? cardLink(short) : null;
   };
-  return markdown
-    .replace(/\r\n?/g, "\n")
-    .replace(/!\[([^\]\n]*)\]\(/g, (_, alt: string) => `[${alt || "image"}](`)
-    .replace(TRELLO_LINKS, (match, text?: string, target?: string, title?: string, angled?: string, bare?: string) => {
-      if (target !== undefined) {
-        const to = card(target);
-        if (to) return `[${text}](${to})`;
-        return title && /^"smartCard-[a-z]+"$/.test(title) ? `[${text}](${target})` : match;
-      }
-      const url = angled ?? bare!;
-      const to = card(url);
-      return to ? `[${url}](${to})` : match;
-    });
+  return replaceLinks(imagesAsLinks(markdown.replace(/\r\n?/g, "\n")), TRELLO_LINKS, ([match, text, target, title, angled, bare]) => {
+    if (target !== undefined) {
+      const to = card(target);
+      if (to) return `[${text}](${to})`;
+      return title && /^"smartCard-[a-z]+"$/.test(title) ? `[${text}](${target})` : match;
+    }
+    const url = angled ?? bare;
+    const to = card(url);
+    return to ? `[${url}](${to})` : match;
+  });
 }
 
 /** A link to a Trello card; the short link is group 1. */
@@ -165,7 +163,7 @@ const CARD_URL = /^https?:\/\/trello\.com\/c\/([A-Za-z0-9]{8})(?:[/?#]|$)/;
  * rewritten on its own.
  */
 const TRELLO_LINKS =
-  /\[([^\]\n]*)\]\(([^()\s]+)(?:\s+("[^"\n]*"))?\)|<(https?:\/\/[^<>\s]+)>|(https?:\/\/trello\.com\/c\/[A-Za-z0-9]{8}(?:\/[^\s()<>\]]*)?)/g;
+  /\[([^\]\n]*)\]\(([^()\s]+)(?:\s+("[^"\n]*"))?\)|<(https?:\/\/[^<>\s]+)>|(https?:\/\/trello\.com\/c\/[A-Za-z0-9]{8}(?:\/[^\s()<>\]]*)?)/y;
 
 /**
  * The board's cards and what their properties need. Throws ImportError when there are more cards

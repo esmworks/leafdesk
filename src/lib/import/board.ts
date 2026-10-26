@@ -16,6 +16,7 @@ import {
   splitList,
   type DateFormat,
 } from "./csv";
+import { imagesAsLinks, replaceLinks } from "./link-scan";
 import { ImportError } from "./result";
 
 /**
@@ -157,7 +158,8 @@ function dateSides(raw: string): string[] {
   const s = raw.trim();
   const iso = /^(\d{4}-\d{2}-\d{2}(?:T[\d:.]+(?:Z|[+-]\d{2}:?\d{2})?)?)\/(\d{4}-\d{2}-\d{2}(?:T[\d:.]+(?:Z|[+-]\d{2}:?\d{2})?)?)$/.exec(s);
   if (iso) return [iso[1], iso[2]];
-  return s.split(/\s+(?:-|–|→|->)\s+/).map((side) => side.trim());
+  // The dash is looked for from the start of a run of spaces only (from each of its spaces would take its square).
+  return s.split(/(?<!\s)\s+(?:-|–|→|->)\s+/).map((side) => side.trim());
 }
 
 /** How a date column writes its dates, both sides of ranges counted; null when some cell isn't a date. */
@@ -189,10 +191,64 @@ function webAddress(raw: string): string | null {
   return /https?:\/\/[^\s<>"]+/i.exec(raw)?.[0] ?? null;
 }
 
-/** An email address in a cell ("Ada - ada@example.com", "mailto:ada@example.com"). */
+const isSpace = (c: string) => /\s/.test(c);
+/** A character an address part can't be: white space, `@`, `<>"(),;:`. */
+const isAddressChar = (c: string) => !/[\s@<>"(),;:]/.test(c);
+
+/**
+ * An email address in a cell ("Ada - ada@example.com", "mailto:ada@example.com"): the first
+ * `name@domain.tld` in it, as `/[^\s@<>"(),;:]+@[^\s@<>"(),;:]+\.[^\s@<>"(),;:]+/` finds it. Read
+ * from each `@` instead: that regex reads on from every character of a long cell without one.
+ */
 function emailAddress(raw: string): string | null {
-  const found = /[^\s@<>"(),;:]+@[^\s@<>"(),;:]+\.[^\s@<>"(),;:]+/.exec(raw.replace(/^mailto:/i, ""))?.[0];
-  return found && isEmailAddress(found) ? found : null;
+  const s = raw.replace(/^mailto:/i, "");
+  for (let at = s.indexOf("@"); at !== -1; at = s.indexOf("@", at + 1)) {
+    let start = at;
+    while (start > 0 && isAddressChar(s[start - 1])) start--;
+    let end = at + 1;
+    while (end < s.length && isAddressChar(s[end])) end++;
+    // A dot in the domain with something before and after it.
+    const domain = s.slice(at + 1, end);
+    if (start === at || domain.lastIndexOf(".", domain.length - 2) < 1) continue;
+    const found = s.slice(start, end);
+    return isEmailAddress(found) ? found : null;
+  }
+  return null;
+}
+
+/**
+ * A trimmed place cell split as `/^(.+?)\s*(?:\(([^()]+)\)|\[([^[\]]+)\]|\s-\s+(.+))$/` splits
+ * it: the address, and the coordinates at its end in parentheses, in brackets or after " - ".
+ * Read by hand: that regex tries every end of the address against the rest, which takes time
+ * growing with the square of a long run of spaces (or of " - "). Null when it has no such end.
+ */
+function placeParts(s: string): { address: string; coordinates: string } | null {
+  const firstBreak = s.search(/[\n\r\u2028\u2029]/);
+  const lastBreak = Math.max(s.lastIndexOf("\n"), s.lastIndexOf("\r"), s.lastIndexOf("\u2028"), s.lastIndexOf("\u2029"));
+  // The address ends where the white space before what follows it starts; it has a character at
+  // least, and no line break. Of the ends that work, the first.
+  let best: { end: number; coordinates: string } | null = null;
+  const consider = (before: number, coordinates: string) => {
+    let end = before;
+    while (end > 0 && isSpace(s[end - 1])) end--;
+    if (end >= 1 && (firstBreak === -1 || end <= firstBreak) && (!best || end < best.end)) best = { end, coordinates };
+  };
+  for (const [open, close] of [
+    ["(", ")"],
+    ["[", "]"],
+  ]) {
+    const at = s.lastIndexOf(open);
+    if (s.endsWith(close) && at !== -1 && at < s.length - 2 && s.indexOf(close, at + 1) === s.length - 1) consider(at, s.slice(at + 1, -1));
+  }
+  // " - " and the rest of the line after it (the spaces after the dash leave it a character at least).
+  for (let dash = s.indexOf("-", 1); dash !== -1 && dash < s.length - 1; dash = s.indexOf("-", dash + 1)) {
+    if (!isSpace(s[dash - 1]) || !isSpace(s[dash + 1])) continue;
+    let after = dash + 1;
+    while (after < s.length - 1 && isSpace(s[after])) after++;
+    if (after > lastBreak) consider(dash - 1, s.slice(after));
+  }
+  const found = best as { end: number; coordinates: string } | null;
+  return found && { address: s.slice(0, found.end), coordinates: found.coordinates };
 }
 
 /**
@@ -204,10 +260,10 @@ export function boardPlace(raw: string): PlaceValue | null {
   const s = raw.trim();
   const whole = parseCoordinates(s);
   if (whole) return { address: formatCoordinates(whole.lat, whole.lng), ...whole };
-  const m = /^(.+?)\s*(?:\(([^()]+)\)|\[([^[\]]+)\]|\s-\s+(.+))$/.exec(s);
-  const coords = m && parseCoordinates(m[2] ?? m[3] ?? m[4]);
-  if (!m || !coords) return null;
-  return { address: oneLine(m[1]).slice(0, MAX_PLACE_ADDRESS) || formatCoordinates(coords.lat, coords.lng), ...coords };
+  const parts = placeParts(s);
+  const coords = parts && parseCoordinates(parts.coordinates);
+  if (!parts || !coords) return null;
+  return { address: oneLine(parts.address).slice(0, MAX_PLACE_ADDRESS) || formatCoordinates(coords.lat, coords.lng), ...coords };
 }
 
 /** Checkbox cells: Monday writes a checked one as "v". */
@@ -404,22 +460,19 @@ function commentTime(iso: string, timeZone: string) {
  * Links in Markdown: `[text](target)` (groups 1–2), `<address>` (3), or a bare address (4). Taking
  * whole links first keeps an address in a link's text from being rewritten on its own.
  */
-const LINKS = /\[([^\]\n]*)\]\(([^()\s]+)(?:\s+"[^"\n]*")?\)|<(https?:\/\/[^<>\s]+)>|(https?:\/\/[^\s()<>\]]+)/g;
+const LINKS = /\[([^\]\n]*)\]\(([^()\s]+)(?:\s+"[^"\n]*")?\)|<(https?:\/\/[^<>\s]+)>|(https?:\/\/[^\s()<>\]]+)/y;
 
 /**
  * Markdown with its links to items sent through `itemLink` (an address to the address of the
  * item's row, or null to leave it), and images made links (nothing is loaded from elsewhere).
  */
 export function boardMarkdown(markdown: string, itemLink: (url: string) => string | null = () => null): string {
-  return markdown
-    .replace(/\r\n?/g, "\n")
-    .replace(/!\[([^\]\n]*)\]\(/g, (_, alt: string) => `[${alt || "image"}](`)
-    .replace(LINKS, (match, text?: string, target?: string, angled?: string, bare?: string) => {
-      const url = target ?? angled ?? bare!;
-      const to = itemLink(url);
-      if (!to) return match;
-      return target !== undefined ? `[${text}](${to})` : `[${url}](${to})`;
-    });
+  return replaceLinks(imagesAsLinks(markdown.replace(/\r\n?/g, "\n")), LINKS, ([match, text, target, angled, bare]) => {
+    const url = target ?? angled ?? bare;
+    const to = itemLink(url);
+    if (!to) return match;
+    return target !== undefined ? `[${text}](${to})` : `[${url}](${to})`;
+  });
 }
 
 /**

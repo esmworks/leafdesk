@@ -32,6 +32,37 @@ describe("parseCoordinates", () => {
     expect(formatCoordinates(41.0412345678, 29.0098765432)).toBe("41.041235, 29.009877");
     expect(formatCoordinates(41, -8.5)).toBe("41, -8.5");
   });
+
+  it("reads long runs of spaces and semicolons quickly (an imported cell can be one), as before", () => {
+    const started = performance.now();
+    expect(parseCoordinates(`41${" ".repeat(100_000)}x`)).toBeNull();
+    expect(parseCoordinates(`41${" ".repeat(100_000)}29`)).toEqual({ lat: 41, lng: 29 });
+    expect(parseCoordinates(`41,29${";".repeat(1_000_000)}`)).toBeNull();
+    expect(parseCoordinates(`41,29${";".repeat(1_000_000)}u`)).toEqual({ lat: 41, lng: 29 });
+    expect(performance.now() - started).toBeLessThan(500);
+    const before = (text: string) => {
+      let s = text.trim().replace(/^geo:/i, "").replace(/[°º]/g, "").trim();
+      if (!s) return null;
+      const hemi = /^([NS])?\s*(\d+(?:\.\d+)?)\s*([NS])?\s*[,;\s]\s*([EW])?\s*(\d+(?:\.\d+)?)\s*([EW])?$/i.exec(s);
+      if (hemi && (hemi[1] || hemi[3]) && (hemi[4] || hemi[6]) && !(hemi[1] && hemi[3]) && !(hemi[4] && hemi[6])) {
+        const lat = Number(hemi[2]) * ((hemi[1] ?? hemi[3]).toUpperCase() === "S" ? -1 : 1);
+        const lng = Number(hemi[5]) * ((hemi[4] ?? hemi[6]).toUpperCase() === "W" ? -1 : 1);
+        return Math.abs(lat) <= 90 && Math.abs(lng) <= 180 ? { lat, lng } : null;
+      }
+      s = s.replace(/[;?].*[a-z=].*$/i, "");
+      const plain = /^([+-]?\d+(?:\.\d+)?)\s*(?:[,;]\s*|\s+)([+-]?\d+(?:\.\d+)?)$/.exec(s.trim());
+      if (!plain) return null;
+      const [lat, lng] = [Number(plain[1]), Number(plain[2])];
+      return Math.abs(lat) <= 90 && Math.abs(lng) <= 180 ? { lat, lng } : null;
+    };
+    const pieces = ["41", "29.5", " ", "  ", ",", ";", "?", "u=3", "N", "e", "\n", "-", "geo:", "\t"];
+    let seed = 7;
+    for (let n = 0; n < 5000; n++) {
+      let text = "";
+      for (let i = (seed = (seed * 48271) % 2147483647) % 9; i > 0; i--) text += pieces[(seed = (seed * 48271) % 2147483647) % pieces.length];
+      expect(parseCoordinates(text)).toEqual(before(text));
+    }
+  });
 });
 
 describe("place values", () => {
