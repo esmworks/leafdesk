@@ -259,10 +259,11 @@ export interface CollabService {
    */
   disconnectWorkspace(workspaceId: string, pageIds: string[]): Promise<void>;
   /**
-   * Saves every open document's pending edits now (collab/shutdown.ts saveOpenDocuments), so the
-   * database holds them; false when that took too long. Connections stay open.
+   * Saves every open document's pending edits now (collab/shutdown.ts saveOpenDocuments), or only
+   * those of `pageIds`, so the database holds them; false when that took too long. Connections
+   * stay open.
    */
-  saveOpen(): Promise<boolean>;
+  saveOpen(pageIds?: string[]): Promise<boolean>;
 }
 
 const KEY = "__leafdeskCollab";

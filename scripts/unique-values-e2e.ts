@@ -1,8 +1,8 @@
 /**
  * End-to-end check of properties that keep their values unique (lib/unique-values) against the
  * database: the rule can't be turned on while two rows share a value; once on, a value another row
- * holds is refused whichever way it is written (one row, new rows, a bulk edit, a paste, two writes
- * at once), case and spaces aside and numbers by amount; empty values don't count; a row in the
+ * holds is refused whichever way it is written (one row, new rows, a bulk edit, two writes
+ * at once; a paste leaves it out and counts it), case and spaces aside and numbers by amount; empty values don't count; a row in the
  * trash frees its value and can't come back while another row holds it; a duplicated row leaves
  * the value out; a merge moves a value to the row kept; turning the rule off or changing the property's type lets rows share values again. Creates its own user and workspace and deletes them afterwards.
  *
@@ -106,12 +106,19 @@ try {
     "a bulk edit giving two rows one value is refused",
   );
   check((await stored(cem.id))[email.id] === undefined && (await stored(fen.id))[email.id] === undefined, "the refused bulk edit wrote nothing");
-  check(
-    (await outcome(() =>
-      pasteRows(actor, people.id, { updates: [{ rowId: cem.id, values: { [email.id]: "bob@example.test" } }], newRows: [] }),
-    )) === "notUnique",
-    "a paste repeating another row's value is refused",
-  );
+  // A paste leaves out what it can't keep, counted, instead of stopping partway.
+  const pasted = await pasteRows(actor, people.id, {
+    updates: [{ rowId: cem.id, values: { [email.id]: "bob@example.test" } }],
+    newRows: [
+      { title: "Hal", values: { [email.id]: "hal@example.test" } },
+      { title: "Ivy", values: { [email.id]: " HAL@example.test" } },
+    ],
+  });
+  check(pasted.invalid === 2 && pasted.created.length === 2, "a paste leaves out values another row holds or an earlier one takes", pasted);
+  check((await stored(cem.id))[email.id] === undefined, "the left-out value wasn't written");
+  const [hal, ivy] = await Promise.all(pasted.created.map(stored));
+  check(hal[email.id] === "hal@example.test" && ivy[email.id] === undefined, "the first pasted row keeps the value", { hal, ivy });
+  await db.delete(page).where(inArray(page.id, pasted.created));
   const both = await Promise.allSettled([
     databases.updateRowProperties(owner, cem.id, { Email: "race@example.test" }),
     databases.updateRowProperties(owner, fen.id, { Email: "race@example.test" }),

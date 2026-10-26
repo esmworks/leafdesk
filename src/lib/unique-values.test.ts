@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { canBeUnique, uniqueValueKey } from "./unique-values";
+import { canBeUnique, repeatedValues, uniqueValueKey } from "./unique-values";
 
 describe("uniqueValueKey", () => {
   it("folds text, emails and links by case and outer spaces", () => {
@@ -22,6 +22,34 @@ describe("uniqueValueKey", () => {
     expect(uniqueValueKey("text", null)).toBeNull();
     expect(uniqueValueKey("phone", "-")).toBeNull();
     expect(uniqueValueKey("number", "x")).toBeNull();
+  });
+});
+
+describe("repeatedValues", () => {
+  const value = (row: number, key: string | null, rowId?: string, propertyId = "email") => ({ row, rowId, propertyId, key });
+
+  it("refuses a value an earlier row of the batch takes", () => {
+    expect(repeatedValues([value(0, "a@x.test"), value(1, "b@x.test"), value(2, "a@x.test")], [])).toEqual([{ row: 2, propertyId: "email" }]);
+  });
+
+  it("refuses a value another row holds, and lets a row keep its own", () => {
+    const taken = [
+      { rowId: "r1", propertyId: "email", key: "a@x.test" },
+      { rowId: "r9", propertyId: "email", key: "b@x.test" },
+    ];
+    expect(repeatedValues([value(0, "a@x.test", "r1"), value(1, "b@x.test", "r2"), value(2, "b@x.test")], taken)).toEqual([
+      { row: 1, propertyId: "email" },
+      { row: 2, propertyId: "email" },
+    ]);
+  });
+
+  it("refuses a row's own value to the rows after it", () => {
+    const taken = [{ rowId: "r1", propertyId: "email", key: "a@x.test" }];
+    expect(repeatedValues([value(1, "a@x.test", "r1"), value(0, "a@x.test")], taken)).toEqual([{ row: 0, propertyId: "email" }]);
+  });
+
+  it("compares each property on its own and lets empty values be", () => {
+    expect(repeatedValues([value(0, "7", undefined, "code"), value(0, "7"), value(1, null), value(2, null)], [])).toEqual([]);
   });
 });
 

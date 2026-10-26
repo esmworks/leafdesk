@@ -19,26 +19,38 @@ export async function flushCollab(
 }
 
 /**
- * Starts the pending saves of every open document and waits until none is pending or running, or
- * `timeoutMs` passed (false then). Connections stay open, so edits made meanwhile are saved later;
- * a workspace backup (server/backup) calls it so its pages are read as they were a moment before.
+ * Starts the pending saves of every open document (or only those `names`) and waits until none is
+ * pending or running, or `timeoutMs` passed (false then). Connections stay open, so edits made
+ * meanwhile are saved later; a workspace backup (server/backup) calls it so its pages are read as
+ * they were a moment before, a copy (server/duplicate) for the pages it copies.
  */
 export async function saveOpenDocuments(
   hocuspocus: Hocuspocus,
-  { timeoutMs = 8000, pollMs = 25 }: { timeoutMs?: number; pollMs?: number } = {},
+  { timeoutMs = 8000, pollMs = 25, names }: { timeoutMs?: number; pollMs?: number; names?: ReadonlySet<string> } = {},
 ): Promise<boolean> {
   const deadline = Date.now() + timeoutMs;
   for (;;) {
     // Again on each round: closing a connection, or a direct write finishing, can queue another save.
-    hocuspocus.flushPendingStores();
-    if (!savesPending(hocuspocus)) return true;
+    if (names) flushStores(hocuspocus, names);
+    else hocuspocus.flushPendingStores();
+    if (!savesPending(hocuspocus, names)) return true;
     if (Date.now() >= deadline) return false;
     await new Promise((resolve) => setTimeout(resolve, pollMs));
   }
 }
 
-function savesPending(hocuspocus: Hocuspocus) {
+/** hocuspocus.flushPendingStores for some documents only. */
+function flushStores(hocuspocus: Hocuspocus, names: ReadonlySet<string>) {
+  for (const name of names) {
+    const document = hocuspocus.documents.get(name);
+    const id = `onStoreDocument-${name}`;
+    if (document && !document.isLoading && hocuspocus.debouncer.isDebounced(id)) hocuspocus.debouncer.executeNow(id);
+  }
+}
+
+function savesPending(hocuspocus: Hocuspocus, names?: ReadonlySet<string>) {
   for (const document of hocuspocus.documents.values()) {
+    if (names && !names.has(document.name)) continue;
     const id = `onStoreDocument-${document.name}`;
     if (hocuspocus.debouncer.isDebounced(id) || hocuspocus.debouncer.isCurrentlyExecuting(id) || document.saveMutex.isLocked()) {
       return true;

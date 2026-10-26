@@ -21,7 +21,7 @@ import {
 import { addMissingOptions, checkRows, checkValues, importTargets, writeRows } from "@/server/import/csv";
 import { renamePage } from "@/server/pages";
 import { rowChanged } from "@/server/row-events";
-import { withUniqueValues } from "@/server/unique-values";
+import { dropRepeatedValues, withUniqueValues } from "@/server/unique-values";
 
 /**
  * Cells pasted into a database table (see lib/table-clipboard): different values for each row in
@@ -86,28 +86,42 @@ export async function pasteRows(
     writes.push({ row, values, title: update.title });
   }
   await checkLoops(databaseId, writes.map((w) => ({ rowId: w.row.id, values: w.values })));
+  // Rows below the last one: checked as an import checks them, and added at the end.
+  const fresh = added.length ? await checkRows(userId, databaseId, added, props, invalid) : [];
+  // A value a unique property would refuse (another row's, or one a row pasted above takes) is left
+  // out like any other before anything is written, so the paste doesn't stop partway.
+  await dropRepeatedValues(databaseId, [...writes.map((w) => ({ rowId: w.row.id, properties: w.values })), ...fresh], invalid);
+
+  // All rows' values in one transaction: written together, or (another write taking a unique value
+  // meanwhile) not at all.
+  const written = writes.filter((w) => Object.keys(w.values).length);
+  await withUniqueValues(() =>
+    db.transaction(async (tx) => {
+      for (const { row, values } of written) {
+        const set = Object.fromEntries(Object.entries(values).filter(([, v]) => v !== null));
+        const cleared = Object.keys(values).filter((k) => values[k] === null);
+        // Merged in SQL, so a concurrent edit of another property of the same row isn't overwritten.
+        const minus = cleared.length
+          ? sql` - ARRAY[${sql.join(
+              cleared.map((k) => sql`${k}::text`),
+              sql`, `,
+            )}]::text[]`
+          : sql``;
+        await tx.execute(sql`
+          update ${page} set
+            properties = (properties || ${JSON.stringify(set)}::jsonb)${minus},
+            updated_by = ${userId},
+            updated_at = now()
+          where ${page.id} = ${row.id}
+        `);
+      }
+    }),
+  );
 
   const changes: { rowId: string; before: Record<string, unknown>; after: Record<string, unknown> }[] = [];
-  for (const { row, values } of writes) {
-    if (!Object.keys(values).length) continue;
+  for (const { row, values } of written) {
     const set = Object.fromEntries(Object.entries(values).filter(([, v]) => v !== null));
     const cleared = Object.keys(values).filter((k) => values[k] === null);
-    // Merged in SQL, so a concurrent edit of another property of the same row isn't overwritten.
-    const minus = cleared.length
-      ? sql` - ARRAY[${sql.join(
-          cleared.map((k) => sql`${k}::text`),
-          sql`, `,
-        )}]::text[]`
-      : sql``;
-    await withUniqueValues(() =>
-      db.execute(sql`
-        update ${page} set
-          properties = (properties || ${JSON.stringify(set)}::jsonb)${minus},
-          updated_by = ${userId},
-          updated_at = now()
-        where ${page.id} = ${row.id}
-      `),
-    );
     const after: Record<string, unknown> = { ...row.properties, ...set };
     for (const k of cleared) delete after[k];
     // Rows of a database kept as a template link one way and assign nobody (see updateRowProperties).
@@ -134,8 +148,8 @@ export async function pasteRows(
       skippedRows++;
     }
   }
-  // Rows below the last one: checked and added together, as an import adds them.
-  const created = added.length ? await writeRows(database, userId, await checkRows(userId, databaseId, added, props, invalid)) : [];
+  // Rows below the last one, added together as an import adds them.
+  const created = fresh.length ? await writeRows(database, userId, fresh) : [];
 
   return {
     updated: writes.map((w) => w.row.id),
