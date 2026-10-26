@@ -231,3 +231,48 @@ export function readIcon(value: unknown): string | null {
   const icon = value.trim();
   return icon && [...icon].length <= 8 ? icon : null;
 }
+
+/**
+ * Where the tab strip lies over a page: all its width but what its sidebar takes at the left and
+ * right edges, in the page's CSS pixels.
+ */
+export type StripRoom = { left: number; right: number };
+
+/**
+ * What a page of the server reports through `<html data-tab-strip-room>` (src/components/desktop-tab-strip.tsx
+ * in the web app): "left right", or "none" for the strip above the page; null: anything else.
+ */
+export function readStripRoom(value: unknown): StripRoom | "none" | null {
+  if (value === "none") return "none";
+  if (typeof value !== "string") return null;
+  const match = /^(\d{1,5}) (\d{1,5})$/.exec(value);
+  return match ? { left: Number(match[1]), right: Number(match[2]) } : null;
+}
+
+/** macOS's window buttons at the window's left edge: a strip that starts before this leaves them room. */
+export const CONTROLS_WIDTH = 78;
+
+type Box = { x: number; y: number; width: number; height: number };
+
+/**
+ * Where the tab strip and the shown tab go in a window of `width` × `height`: the strip over the
+ * page beside its sidebar (`room`, at the page's `zoom`), the page filling the window; without
+ * room, the strip across the top and the page below it. `clearOfControls`: the strip starts past
+ * macOS's window buttons, so it needn't leave them room.
+ */
+export function placeStrip(room: StripRoom | null, width: number, height: number, stripHeight: number, zoom: number): { strip: Box; page: Box; clearOfControls: boolean } {
+  if (!room) {
+    return {
+      strip: { x: 0, y: 0, width, height: stripHeight },
+      page: { x: 0, y: stripHeight, width, height: Math.max(0, height - stripHeight) },
+      clearOfControls: false,
+    };
+  }
+  const x = Math.min(width, Math.round(room.left * zoom));
+  const end = Math.max(x, width - Math.round(room.right * zoom));
+  return {
+    strip: { x, y: 0, width: end - x, height: Math.round(stripHeight * zoom) },
+    page: { x: 0, y: 0, width, height },
+    clearOfControls: x >= CONTROLS_WIDTH,
+  };
+}

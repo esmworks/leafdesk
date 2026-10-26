@@ -315,7 +315,7 @@ function Slides({
       onClick={(e) => e.stopPropagation()}
       onPointerDown={(e) => e.stopPropagation()}
       onPointerMove={wake}
-      className={cn("fixed inset-0 z-[90] flex flex-col bg-bg text-fg outline-none", idle && "cursor-none")}
+      className={cn("fixed inset-x-0 top-(--app-top) bottom-0 z-[90] flex flex-col bg-bg text-fg outline-none", idle && "cursor-none")}
       data-presentation=""
     >
       {/* The page's background and typeface; its pattern needs an element of its own to sit behind. */}

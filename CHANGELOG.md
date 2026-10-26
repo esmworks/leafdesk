@@ -486,6 +486,15 @@
 
 ### Changed
 
+- **On macOS the desktop app's tabs sit beside the sidebar.** The sidebar runs the window's full
+  height again, the window's buttons over its first row with the inbox, new page and hide buttons
+  beside them, and the tab strip lies over the top of the page next to it, following the sidebar
+  as it is resized, hidden or shown. Panels at the window's edge (a row's side peek, AI chat) and
+  full-window views (the Markdown source, presentations, the file viewer) start below the strip.
+  Pages without a sidebar, windows too narrow for one, and servers older than this keep the strip
+  across the top, as Windows and Linux do. On every system the strip now takes the page's
+  background, its tabs are rounded chips (the shown one highlighted) instead of joining the page
+  below, and back and forward buttons for the shown tab come before them.
 - **Client bundle budgets** go to 771 kB for a page's first load and 1174 kB for all first loads
   together, for typed dates, tags in the search box, named versions and page dictation.
 - **Home, My tasks and Meetings are laid out like a database page.** They use the same width and

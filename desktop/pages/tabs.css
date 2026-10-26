@@ -1,7 +1,8 @@
 /*
  * The tab strip at the top of every window (src/windows.ts), in the web app's colors
- * (src/app/globals.css). The shown tab takes the page's background, so it runs on into the page
- * below. The window moves by the strip's background; the tabs and buttons are cut out of it.
+ * (src/app/globals.css); on macOS beside the page's sidebar when it has one. It takes the page's
+ * background; the tabs are rounded chips in it, after the shown tab's back and forward buttons.
+ * The window moves by the strip's background; the tabs and buttons are cut out of it.
  * Electron works out those regions in the document's order, not by what is drawn on top, so
  * nothing that moves the window comes after a tab.
  */
@@ -10,11 +11,13 @@
   --bg: #ffffff;
   --bg-subtle: #f7f7f8;
   --bg-hover: #efeff1;
+  --bg-selected: #e9e9ec;
   --fg: #1f2023;
   --fg-muted: #6b6d75;
   --border: #e4e4e7;
   --ring: rgba(47, 125, 79, 0.35);
-  --strip-height: 40px;
+  /* The least height: a page zoomed in makes it higher (windows.ts), the tabs staying at its foot. */
+  --strip-height: 44px;
   /* Room for macOS's window buttons at the strip's start (main.ts places them). */
   --controls-width: 0px;
 }
@@ -24,6 +27,7 @@
     --bg: #18191b;
     --bg-subtle: #202124;
     --bg-hover: #2a2b2f;
+    --bg-selected: #2f3034;
     --fg: #e8e8ea;
     --fg-muted: #a1a3aa;
     --border: #2f3034;
@@ -31,7 +35,7 @@
   }
 }
 
-:root[data-window-controls]:not([data-full-screen]) {
+:root[data-window-controls]:not([data-full-screen], [data-clear-of-controls]) {
   --controls-width: 78px;
 }
 
@@ -42,12 +46,13 @@
 html,
 body {
   margin: 0;
-  height: var(--strip-height);
+  height: 100%;
+  min-height: var(--strip-height);
   overflow: hidden;
 }
 
 body {
-  background: var(--bg-subtle);
+  background: var(--bg);
   color: var(--fg);
   font: 12.5px/1 ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
   -webkit-font-smoothing: antialiased;
@@ -58,20 +63,30 @@ body {
 .strip {
   display: flex;
   align-items: flex-end;
-  height: var(--strip-height);
+  height: 100%;
   /* macOS's buttons on the left whatever the language; elsewhere the system's on the right (env: the window controls overlay). */
   padding-left: calc(var(--controls-width) + 8px);
   padding-right: calc(100vw - env(titlebar-area-x, 0px) - env(titlebar-area-width, 100vw) + 8px);
-  border-bottom: 1px solid var(--border);
   -webkit-app-region: drag;
 }
 
+/* Back and forward, then the tabs, then New Tab: centered on the strip's own height at its foot. */
+.history,
 .tabs {
   display: flex;
-  align-items: flex-end;
+  align-items: center;
+  height: var(--strip-height);
+}
+
+.history {
+  flex: none;
+  gap: 2px;
+  margin-inline-end: 6px;
+}
+
+.tabs {
+  gap: 2px;
   min-width: 0;
-  height: 100%;
-  padding-top: 6px;
 }
 
 .tab {
@@ -81,12 +96,9 @@ body {
   gap: 6px;
   flex: 0 1 200px;
   min-width: 40px;
-  height: 100%;
-  margin-bottom: -1px;
+  height: 30px;
   padding: 0 6px 0 10px;
-  border: 1px solid transparent;
-  border-bottom: 0;
-  border-radius: 8px 8px 0 0;
+  border-radius: 8px;
   color: var(--fg-muted);
   -webkit-app-region: no-drag;
 }
@@ -95,9 +107,9 @@ body {
 .tab + .tab::before {
   content: "";
   position: absolute;
-  left: -1px;
-  top: 9px;
-  bottom: 9px;
+  left: -2px;
+  top: 8px;
+  bottom: 8px;
   width: 1px;
   background: var(--border);
 }
@@ -114,18 +126,17 @@ body {
 
 .tab[aria-selected="true"] {
   z-index: 1;
-  background: var(--bg);
-  border-color: var(--border);
+  background: var(--bg-selected);
   color: var(--fg);
 }
 
 .tab.dragging {
   z-index: 2;
-  background: var(--bg);
-  border-color: var(--border);
+  background: var(--bg-selected);
 }
 
 .tab:focus-visible,
+.go:focus-visible,
 .new-tab:focus-visible,
 .close:focus-visible {
   outline: 2px solid var(--ring);
@@ -178,6 +189,7 @@ body {
 }
 
 .close,
+.go,
 .new-tab {
   flex: none;
   display: grid;
@@ -202,16 +214,22 @@ body {
 }
 
 .close:hover,
+.go:hover:not(:disabled),
 .new-tab:hover {
   background: var(--bg-hover);
   color: var(--fg);
 }
 
+.go:disabled {
+  opacity: 0.4;
+}
+
 .tab[aria-selected="true"] .close:hover {
-  background: var(--bg-subtle);
+  background: var(--bg-hover);
 }
 
 .close svg,
+.go svg,
 .new-tab svg {
   fill: none;
   stroke: currentColor;
@@ -224,15 +242,26 @@ body {
   height: 10px;
 }
 
+.go,
 .new-tab {
   width: 26px;
   height: 26px;
-  margin: 0 0 4px 4px;
 }
 
+.new-tab {
+  margin-bottom: 9px;
+  margin-inline-start: 4px;
+}
+
+.go svg,
 .new-tab svg {
   width: 14px;
   height: 14px;
+}
+
+/* Back and forward point the language's way. */
+:root[dir="rtl"] .go svg {
+  transform: scaleX(-1);
 }
 
 /* Narrow tabs keep the icon; the shown one keeps its close button. */

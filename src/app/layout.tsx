@@ -3,6 +3,7 @@ import { cookies, headers } from "next/headers";
 import { cache } from "react";
 import { NextIntlClientProvider } from "next-intl";
 import { getLocale, getMessages, getTranslations } from "next-intl/server";
+import { DesktopTabStrip } from "@/components/desktop-tab-strip";
 import { LocalModeProvider } from "@/components/local-mode";
 import { AppShellSetup } from "@/components/offline/install-app";
 import { StaleDeploymentReload } from "@/components/stale-deployment";
@@ -72,6 +73,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
             <TimeZoneCookie />
             <StaleDeploymentReload />
             <AppShellSetup />
+            <DesktopTabStrip />
           </ThemeProvider>
         </NextIntlClientProvider>
       </body>
