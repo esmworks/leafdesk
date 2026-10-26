@@ -42,7 +42,8 @@ jobs:
             runner: ubuntu-24.04
             platform: --linux
     runs-on: ${{ matrix.runner }}
-    timeout-minutes: 45
+    # macOS signs and notarizes two apps, waiting on Apple for each; a slow runner took 45 minutes.
+    timeout-minutes: 90
     defaults:
       run:
         shell: bash
