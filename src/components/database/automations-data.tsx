@@ -20,6 +20,8 @@ export type DatabaseInfo = {
   people: PersonRef[];
   viewerId: string;
   rows: { id: string; title: string }[];
+  /** Its shared views (personal ones can't start an automation): a threshold's choice. */
+  views: { id: string; name: string; type: string }[];
   /** Row templates a step that adds a row can start from, and the database's default one. */
   templates: { id: string; title: string; icon: string | null }[];
   defaultTemplateId: string | null;
@@ -66,6 +68,7 @@ export function DatabasesProvider({ workspaceId, children }: { workspaceId: stri
                 people: res.data.people,
                 viewerId: res.data.viewerId,
                 rows: res.data.rows.map((r) => ({ id: r.id, title: r.title })),
+                views: res.data.views.filter((v) => v.ownerId === null).map((v) => ({ id: v.id, name: v.name, type: v.type })),
                 templates: res.data.templates.map((r) => ({ id: r.id, title: r.title, icon: r.icon })),
                 defaultTemplateId: res.data.database.defaultTemplateId,
               }

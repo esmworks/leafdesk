@@ -84,6 +84,7 @@ export const BACKED_UP: Record<string, Scope> = {
   database_automation: own,
   page_webhook: own,
   automation_fire: (ws) => sql`automation_id in (select id from database_automation where workspace_id = ${ws})`,
+  automation_threshold: (ws) => sql`automation_id in (select id from database_automation where workspace_id = ${ws})`,
   automation_version: (ws) => sql`automation_id in (select id from database_automation where workspace_id = ${ws})`,
   schedule: own,
   database_sync: own,

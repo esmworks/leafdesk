@@ -5,7 +5,8 @@
  * automation, an automation's own changes); setting values (including "now" and "who made the
  * change"), notifying people who can open the row, and signed webhooks with retries; runs as the
  * saver, stopping when they lose full access; Send to Slack (addresses checked, sealed, kept on
- * save, the message escaped with the row's link); run history and the audit log.
+ * save, the message escaped with the row's link); run history and the audit log; a threshold over
+ * a view's rows (once per crossing: down, staying down, back up, down again).
  * Creates its own users and workspace and deletes them afterwards.
  *
  *   pnpm tsx scripts/automation-e2e.ts
@@ -41,16 +42,18 @@ const hook = `http://127.0.0.1:${port}/hook`;
 // Imported after .env is loaded: the database client reads DATABASE_URL when it is created.
 const { and, eq, inArray, sql } = await import("drizzle-orm");
 const { db } = await import("@/db");
-const { auditEvent, databaseAutomation: automationTable, automationRun, notification, page, user, workspace, workspaceMember } = await import("@/db/schema");
+const { auditEvent, databaseAutomation: automationTable, automationRun, automationThreshold, notification, page, user, workspace, workspaceMember } = await import("@/db/schema");
+const { runEvent } = await import("@/lib/automations");
 const { registerCollab } = await import("@/server/collab/bridge");
-const { addProperty, createRows, moveRow, updateRowProperties, updateRowsProperties } = await import("@/server/databases");
-const { createPage } = await import("@/server/pages");
+const { addProperty, addView, createRows, moveRow, updateRowProperties, updateRowsProperties } = await import("@/server/databases");
+const { archiveRows, createPage } = await import("@/server/pages");
 const { duplicatePage } = await import("@/server/duplicate");
 const { setPagePermission } = await import("@/server/permissions");
 const manage = await import("@/server/automations/manage");
 const quick = await import("@/server/automations/slack-setup");
 const { flushAutomations } = await import("@/server/automations/run");
-const { MAX_WAITING_RUNS } = await import("@/server/automations/queue");
+const { MAX_WAITING_RUNS, onThresholdRows } = await import("@/server/automations/queue");
+const { runThresholdAutomations } = await import("@/server/automations/threshold");
 const { webhookSecret } = await import("@/server/automations/webhook");
 const { listInbox } = await import("@/server/notifications");
 const { flushShareEmails, setShareMailer } = await import("@/server/share-emails");
@@ -587,6 +590,92 @@ try {
   const [overRow] = await db.select({ id: page.id }).from(page).where(and(eq(page.parentId, busy.database.id), eq(page.title, "over 4")));
   check(!!overRow, "the write itself goes through");
   await db.delete(automationRun).where(and(eq(automationRun.automationId, busy.automation.id), eq(automationRun.status, "pending")));
+
+  // ------------------------------------------------------------------ threshold
+  const ledger = await createPage(owner, { workspaceId, kind: "database", title: "Ledger" });
+  const amount = await addProperty(ids.owner, ledger.id, { name: "Amount", type: "number" });
+  const category = await addProperty(ids.owner, ledger.id, { name: "Category", type: "select", options: ["Cash", "Stock"] });
+  const cashOption = category.options.options!.find((o) => o.name === "Cash")!.id;
+  const stockOption = category.options.options!.find((o) => o.name === "Stock")!.id;
+  const cashView = await addView(ids.owner, ledger.id, {
+    name: "Cash and bank",
+    type: "table",
+    config: { filters: [{ propertyId: category.id, op: "equals", value: cashOption }] },
+  });
+  await addView(ids.owner, ledger.id, { name: "Mine", type: "table", personal: true });
+  const [till, bank, stock] = await createRows(ids.owner, ledger.id, [
+    { title: "Till", properties: { [amount.id]: 30_000, [category.id]: cashOption } },
+    { title: "Bank", properties: { [amount.id]: 30_000, [category.id]: cashOption } },
+    { title: "Stock", properties: { [amount.id]: 100_000, [category.id]: stockOption } },
+  ]);
+  const lowCash = (input: Partial<{ view: string; calculation: string; property: string | null }> = {}) =>
+    manage.createAutomation(ids.owner, ledger.id, {
+      name: "Low cash",
+      trigger: { type: "view_threshold", view: "Cash and bank", calculation: "sum", property: "Amount", comparison: "below", value: 50_000, ...input },
+      actions: [{ type: "notify", people: [ids.owner], message: "Cash is {{trigger.value}}, under {{trigger.threshold}} in {{trigger.view.name}}" }],
+    });
+  check(await failsWith(lowCash({ view: "Mine" }), "invalidAutomation"), "a threshold can't watch a personal view");
+  check(await failsWith(lowCash({ property: null }), "invalidAutomation"), "…and a sum needs a number property");
+  check(await failsWith(lowCash({ property: "Category" }), "invalidAutomation"), "…that holds numbers");
+  const asked: string[] = [];
+  onThresholdRows((databaseId) => asked.push(databaseId));
+  const threshold = await lowCash();
+  check(threshold.trigger.type === "view_threshold" && threshold.trigger.viewId === cashView.id, "a threshold names its view by id", threshold.trigger);
+  const crossings = async () => {
+    await runThresholdAutomations({ automationIds: [threshold.id] });
+    await flushAutomations();
+    return db
+      .select({ message: notification.message })
+      .from(notification)
+      .where(and(eq(notification.automationId, threshold.id), eq(notification.userId, ids.owner)));
+  };
+  check((await crossings()).length === 0, "a value above the line runs nothing");
+  await updateRowProperties(ids.owner, till.id, { [amount.id]: 15_000 });
+  check(asked.includes(ledger.id), "a write asks for a check of its database's thresholds", asked);
+  let alerts = await crossings();
+  check(alerts.length === 1 && alerts[0].message === "Cash is 45000, under 50000 in Cash and bank", "going below the line notifies once, with the value", alerts);
+  await updateRowProperties(ids.owner, bank.id, { [amount.id]: 10_000 });
+  check((await crossings()).length === 1, "staying below runs nothing more");
+  await updateRowProperties(ids.owner, stock.id, { [amount.id]: 1 });
+  check((await crossings()).length === 1, "rows outside the view don't count");
+  await updateRowProperties(ids.owner, till.id, { [amount.id]: 60_000 });
+  check((await crossings()).length === 1, "coming back above the line runs nothing");
+  await archiveRows(ids.owner, ledger.id, [till.id]);
+  alerts = await crossings();
+  check(alerts.length === 2 && alerts.some((n) => n.message === "Cash is 10000, under 50000 in Cash and bank"), "…and going below again (a row trashed) notifies again", alerts);
+  const [state] = await db.select().from(automationThreshold).where(eq(automationThreshold.automationId, threshold.id));
+  check(state?.met === true && state.value === 10_000, "the last check's value is kept", state);
+  const thresholdRuns = await runsOf(threshold.id);
+  check(
+    thresholdRuns.length === 2 && thresholdRuns.every((r) => r.rowId === null && r.status === "done" && runEvent(r) === "threshold.crossed"),
+    "each crossing is one run without a row",
+    thresholdRuns,
+  );
+  // Published (or turned on) while past the line: that is where it starts, not a crossing.
+  await manage.updateAutomation(ids.owner, threshold.id, { enabled: false });
+  await updateRowProperties(ids.owner, bank.id, { [amount.id]: 90_000 });
+  await updateRowProperties(ids.owner, bank.id, { [amount.id]: 5_000 });
+  await manage.updateAutomation(ids.owner, threshold.id, { enabled: true });
+  check((await crossings()).length === 2, "a crossing while it was off doesn't run when it is turned on again");
+  const stateOf = async () => (await db.select().from(automationThreshold).where(eq(automationThreshold.automationId, threshold.id)))[0];
+  const armed = await stateOf();
+  await manage.updateAutomation(ids.owner, threshold.id, { name: "Low cash", actions: [{ type: "log", message: "{{trigger.value}}" }] });
+  const afterSteps = await stateOf();
+  check(!!armed && afterSteps?.checkedAt.getTime() === armed.checkedAt.getTime(), "publishing other steps keeps where the value stood", { armed, afterSteps });
+  await manage.updateAutomation(ids.owner, threshold.id, {
+    name: "Low cash",
+    trigger: { type: "view_threshold", view: cashView.id, calculation: "sum", property: amount.id, comparison: "below", value: 4_000 },
+  });
+  const afterLine = await stateOf();
+  check(afterLine?.met === false && afterLine.checkedAt > armed!.checkedAt, "another line notes the value afresh", afterLine);
+  const counting = await manage.createAutomation(ids.owner, ledger.id, {
+    name: "Any cash",
+    trigger: { type: "view_threshold", view: cashView.id, comparison: "above", value: 1 },
+    actions: [{ type: "log", message: "{{trigger.value}}" }],
+  });
+  check(counting.trigger.type === "view_threshold" && counting.trigger.fn === "count_all", "counting rows is the default calculation");
+  const preview = await manage.previewThreshold(ids.owner, ledger.id, { type: "view_threshold", view: "Cash and bank", comparison: "below", value: 2 });
+  check(preview?.value === 1 && preview.met, "the editor's preview counts the view's rows now", preview);
 
   console.log(`\n${passed} checks passed`);
 } finally {

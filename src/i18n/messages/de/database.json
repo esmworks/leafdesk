@@ -1309,9 +1309,10 @@
     "lastRun": "Zuletzt ausgeführt: {status}, {time}",
     "neverRun": "Noch nicht ausgeführt",
     "checkError": {
-      "propertyDeleted": "Pausiert: Ihre Datums- oder Statuseigenschaft wurde gelöscht. Stelle die Eigenschaft wieder her oder bearbeite die Automatisierung.",
+      "propertyDeleted": "Pausiert: eine Eigenschaft, die sie verwendet, wurde gelöscht. Stelle die Eigenschaft wieder her oder bearbeite die Automatisierung.",
       "noAccess": "Pausiert: Wer sie zuletzt gespeichert hat, hat keinen vollen Zugriff mehr auf diese Datenbank. Speichere sie, damit sie mit deinem Zugriff läuft.",
-      "scheduleInvalid": "Pausiert: Ihr Zeitplan wird nie fällig. Bearbeite die Automatisierung."
+      "scheduleInvalid": "Pausiert: Ihr Zeitplan wird nie fällig. Bearbeite die Automatisierung.",
+      "viewDeleted": "Pausiert: ihre Ansicht wurde gelöscht oder privat gemacht. Stelle die Ansicht wieder her oder bearbeite die Automatisierung."
     },
     "tooMany": "Eine Datenbank kann höchstens {max} Automatisierungen haben",
     "deletedProperty": "Gelöschte Eigenschaft",
@@ -1334,7 +1335,10 @@
       "weekly": "es {days} {time} Uhr ist",
       "monthly": "es am {days}. eines jeden Monats {time} Uhr ist",
       "cron": "der Zeitplan „{cron}“ fällig ist",
-      "incoming": "eine Anfrage an ihrer Adresse eingeht"
+      "incoming": "eine Anfrage an ihrer Adresse eingeht",
+      "thresholdCount": "die Zeilenanzahl in „{view}“ {comparison, select, above {über} other {unter}} {value} liegt",
+      "thresholdOf": "{fn, select, sum {die Summe} average {der Durchschnitt} median {der Median} min {das Minimum} other {das Maximum}} von {property} in „{view}“ {comparison, select, above {über} other {unter}} {value} liegt",
+      "deletedView": "eine gelöschte Ansicht"
     },
     "summaryAction": {
       "set": "{properties} setzen",
@@ -1355,6 +1359,7 @@
         "row_created": "Eine Zeile hinzugefügt wird",
         "property_changed": "Sich eine Eigenschaft ändert",
         "date_passed": "Ein Datum erreicht ist",
+        "view_threshold": "Eine Summe überschreitet eine Grenze",
         "schedule": "Ein Zeitplan fällig ist",
         "incoming_webhook": "Eine Anfrage eingeht (eingehender Webhook)"
       },
@@ -1449,7 +1454,10 @@
         "exampleTooLong": "Der Beispiel-Body ist zu lang.",
         "needApprovers": "Wähle, wen du fragen willst.",
         "needTimeout": "Gib eine ganze Zahl von Tagen zwischen 1 und 30 ein.",
-        "needSlackUrl": "Gib die Adresse des eingehenden Slack-Webhooks ein."
+        "needSlackUrl": "Gib die Adresse des eingehenden Slack-Webhooks ein.",
+        "needView": "Wähle die Ansicht, deren Zeilen gezählt werden.",
+        "needNumber": "Wähle die Zahleneigenschaft, über die berechnet wird.",
+        "needThreshold": "Gib die Zahl zum Vergleichen ein."
       },
       "agent": "Agent",
       "chooseAgent": "Agenten wählen…",
@@ -1593,7 +1601,9 @@
         "timedOutContinued": "Niemand hat bis {time} geantwortet: die Ausführung ging weiter",
         "waiting": "{names} gefragt, bis {time}",
         "closed": "{names} gefragt; die Ausführung endete vor einer Antwort"
-      }
+      },
+      "thresholdCrossed": "{comparison, select, above {Über {threshold} gestiegen} other {Unter {threshold} gefallen}}: {value}",
+      "threshold": "Grenze überschritten"
     },
     "nextRun": "Nächste Ausführung {time}",
     "lifecycle": {
@@ -1734,7 +1744,12 @@
       "agentRunId": "ID der Agentenausführung",
       "rowId": "Zeilen-ID",
       "approvedBy": "Wer freigegeben hat",
-      "answeredAt": "Wann geantwortet wurde"
+      "answeredAt": "Wann geantwortet wurde",
+      "value": "Wert",
+      "previous": "Wert bei der vorherigen Prüfung",
+      "threshold": "Grenzwert",
+      "viewName": "Name der Ansicht",
+      "viewUrl": "Link zur Ansicht"
     },
     "test": {
       "title": "Testlauf",
@@ -1749,7 +1764,8 @@
       "running": "Test läuft…",
       "run": "Test ausführen",
       "saveAndRun": "Speichern und ausführen",
-      "starting": "Wird gestartet…"
+      "starting": "Wird gestartet…",
+      "threshold": "Führt die Schritte jetzt aus, als hätte der Wert die Grenze gerade überschritten, mit dem aktuellen Wert."
     },
     "approval": {
       "people": "Diese Personen fragen",
@@ -1784,6 +1800,31 @@
         "name": "Erledigte Zeilen feiern",
         "description": "Wird eine Zeile als erledigt markiert, gibt es Konfetti für die Person, die das getan hat."
       }
+    },
+    "threshold": {
+      "view": "Ansicht",
+      "chooseView": "Ansicht wählen",
+      "noViews": "Diese Datenbank hat keine geteilten Ansichten. Füge eine hinzu, deren Filter die zu zählenden Zeilen auswählen.",
+      "calculation": "Berechnung",
+      "fn": {
+        "count_all": "Anzahl der Zeilen",
+        "sum": "Summe",
+        "average": "Durchschnitt",
+        "median": "Median",
+        "min": "Minimum",
+        "max": "Maximum"
+      },
+      "property": "Von",
+      "chooseNumber": "Zahl wählen",
+      "noNumbers": "Diese Datenbank hat keine Zahleneigenschaften, über die berechnet werden kann.",
+      "comparison": "Liegt",
+      "above": "Über",
+      "below": "Unter",
+      "value": "Wert",
+      "now": "Aktuell: {value}.",
+      "nowMet": "Aktuell: {value}, die Grenze ist schon überschritten. Die Automatisierung läuft, sobald der Wert sie nach einer Rückkehr erneut überschreitet.",
+      "nowNone": "Aktuell: kein Wert (keine Zahlen in den Zeilen der Ansicht).",
+      "help": "Läuft einmal, wenn der Wert die Grenze überschreitet, und erst wieder, nachdem er zurückgekehrt ist. Geprüft wird kurz nach Änderungen an Zeilen und alle paar Minuten bei Filtern auf das heutige Datum. Zeilen und Werte sind die, die die Person der Automatisierung sehen kann."
     }
   },
   "subItems": {
