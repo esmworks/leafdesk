@@ -56,13 +56,14 @@ export const MAX_DUPLICATE_PAGES = 2000;
 /** Saves the pending edits of the pages open on this server that are `pageId` or lie under it. */
 async function saveOpenUnder(pageId: string) {
   let collab: ReturnType<typeof getCollab>;
+  let open: string[];
   try {
     collab = getCollab();
+    open = collab.openPageIds();
   } catch {
-    // No collab service (scripts): the database holds every page as it is.
+    // No collab service, or a script's stand-in without one: the database holds every page as it is.
     return;
   }
-  const open = collab.openPageIds();
   if (!open.length) return;
   // From each open page up to the top: those that pass the page are in the copy.
   const under = await db.execute<{ id: string }>(sql`
