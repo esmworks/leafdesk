@@ -442,6 +442,7 @@
     "empty": "비어 있음",
     "removeOption": "{name} 제거",
     "enterNumber": "숫자를 입력하세요",
+    "enterDuration": "90, 1:30, 1h 30m 같은 기간을 입력하세요",
     "enterUrl": "올바른 URL(https://…) 또는 이메일을 입력하세요",
     "enterEmail": "이메일 주소를 입력하세요",
     "enterPhone": "전화번호를 입력하세요",

@@ -442,6 +442,7 @@
     "empty": "Leeg",
     "removeOption": "{name} verwijderen",
     "enterNumber": "Voer een getal in",
+    "enterDuration": "Voer een duur in, zoals 90, 1:30 of 1h 30m",
     "enterUrl": "Voer een geldige URL (https://…) of e-mailadres in",
     "enterEmail": "Voer een e-mailadres in",
     "enterPhone": "Voer een telefoonnummer in",

@@ -442,6 +442,7 @@
     "empty": "Tyhjä",
     "removeOption": "Poista {name}",
     "enterNumber": "Anna numero",
+    "enterDuration": "Kirjoita kesto, esimerkiksi 90, 1:30 tai 1h 30m",
     "enterUrl": "Anna kelvollinen URL (https://…) tai sähköpostiosoite",
     "enterEmail": "Anna sähköpostiosoite",
     "enterPhone": "Anna puhelinnumero",

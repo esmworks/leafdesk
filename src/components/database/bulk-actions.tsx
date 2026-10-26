@@ -13,7 +13,7 @@ import { MergeRowsDialog } from "./merge-rows-dialog";
 import { MAX_MERGE_ROWS, MIN_MERGE_ROWS } from "@/lib/merge-rows";
 import { PersonPicker } from "./person-cell";
 import { usePropertyAccess } from "./property-access";
-import { editText, INPUT_MODE, INVALID_INPUT, OptionPicker, parseInput } from "./property-cell";
+import { editText, inputModeOf, invalidInputHint, OptionPicker, parseInput } from "./property-cell";
 import { PropertyTypeIcon } from "./property-icons";
 import { RelationPicker } from "./relation-cell";
 import type { Property, Row } from "./types";
@@ -365,7 +365,7 @@ function TextValueEditor({
       <Input
         autoFocus
         type={date ? "date" : "text"}
-        inputMode={INPUT_MODE[prop.type]}
+        inputMode={inputModeOf(prop)}
         value={draft}
         aria-label={prop.name}
         onChange={(e) => {
@@ -375,7 +375,7 @@ function TextValueEditor({
         className="h-8"
       />
       {invalid && (
-        <div className="mt-1 text-xs text-danger">{tc(INVALID_INPUT[prop.type] ?? "enterUrl")}</div>
+        <div className="mt-1 text-xs text-danger">{tc(invalidInputHint(prop))}</div>
       )}
       <div className="mt-2 flex justify-end gap-1">
         <Button

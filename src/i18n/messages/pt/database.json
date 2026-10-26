@@ -442,6 +442,7 @@
     "empty": "Vazio",
     "removeOption": "Remover {name}",
     "enterNumber": "Digite um número",
+    "enterDuration": "Escreva uma duração, como 90, 1:30 ou 1h 30m",
     "enterUrl": "Digite uma URL válida (https://…) ou um e-mail",
     "enterEmail": "Digite um endereço de e-mail",
     "enterPhone": "Digite um número de telefone",

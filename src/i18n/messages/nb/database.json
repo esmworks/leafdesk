@@ -442,6 +442,7 @@
     "empty": "Tom",
     "removeOption": "Fjern {name}",
     "enterNumber": "Skriv inn et tall",
+    "enterDuration": "Skriv inn en varighet, for eksempel 90, 1:30 eller 1h 30m",
     "enterUrl": "Skriv inn en gyldig URL (https://…) eller e-postadresse",
     "enterEmail": "Skriv inn en e-postadresse",
     "enterPhone": "Skriv inn et telefonnummer",

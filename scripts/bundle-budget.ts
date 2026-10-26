@@ -13,9 +13,9 @@ import { gzipSync } from "node:zlib";
  * Gzipped kB, for what a person waits for rather than what the build holds:
  *
  * - `routeFirstLoad`: the largest first load of any route, what opening that page downloads: a
- *   page or database (about 766 kB, the editor and the table view among it), then Settings (about
+ *   page or database (about 768 kB, the editor and the table view among it), then Settings (about
  *   470 kB) and the workspace's other routes (about 365 kB).
- * - `firstLoadShared`: every chunk any route loads first, together (about 1168 kB); it grows when
+ * - `firstLoadShared`: every chunk any route loads first, together (about 1172 kB); it grows when
  *   code moves into first loads, even into a route the largest doesn't show. Of that, about 80 kB
  *   are what pages and databases do on their own: views' color rules, the "Available offline"
  *   switch, the meeting block's editor spec, reactions and the discussions panel, form
@@ -25,8 +25,9 @@ import { gzipSync } from "node:zlib";
  *   swipes, link mentions, button colors, the floating outline's loader, the comments panel's
  *   person filter and personal filters on views people can't change, then editing values on cards, the fill
  *   handle, date formats, comment links and mentions, the view's default template and vertical
- *   lines, the link button's page search, `+` for new pages, code captions and the backlinks
- *   popup; their dialogs (row access,
+ *   lines, the link button's page search, `+` for new pages, code captions, the backlinks
+ *   popup, ratings' stars and durations in cells, personal views' tabs and the unique values
+ *   switch; their dialogs (row access,
  *   color rules, Build with AI, import, verifying a page, page webhooks, button settings, image
  *   crop, turning blocks into a page) and the feed view load when opened.
  * - `onDemandChunk`: the largest chunk loaded on demand. Lazy code is free until it is used, so
@@ -43,7 +44,7 @@ import { gzipSync } from "node:zlib";
  * dictionary of the language in use, after itself: ours (Turkish, Indonesian, Thai) about 3 kB
  * each, BlockNote's (one module) about 30 kB together, English none.
  */
-const BUDGET = { routeFirstLoad: 767, firstLoadShared: 1169, onDemandChunk: 450 };
+const BUDGET = { routeFirstLoad: 769, firstLoadShared: 1173, onDemandChunk: 450 };
 
 const NEXT = ".next";
 const kB = (bytes: number) => bytes / 1024;

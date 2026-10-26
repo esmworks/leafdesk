@@ -442,6 +442,7 @@
     "empty": "ว่าง",
     "removeOption": "นำ {name} ออก",
     "enterNumber": "ป้อนตัวเลข",
+    "enterDuration": "ใส่ระยะเวลา เช่น 90, 1:30 หรือ 1h 30m",
     "enterUrl": "ป้อน URL ที่ถูกต้อง (https://…) หรืออีเมล",
     "enterEmail": "ป้อนที่อยู่อีเมล",
     "enterPhone": "ป้อนหมายเลขโทรศัพท์",

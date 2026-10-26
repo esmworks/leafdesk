@@ -442,6 +442,7 @@
     "empty": "فارغ",
     "removeOption": "إزالة {name}",
     "enterNumber": "أدخل رقمًا",
+    "enterDuration": "أدخل مدة، مثل 90 أو 1:30 أو 1h 30m",
     "enterUrl": "أدخل URL صالحًا (https://…) أو بريدًا إلكترونيًا",
     "enterEmail": "أدخل عنوان بريد إلكتروني",
     "enterPhone": "أدخل رقم هاتف",

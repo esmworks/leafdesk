@@ -442,6 +442,7 @@
     "empty": "خالی",
     "removeOption": "حذف {name}",
     "enterNumber": "یک عدد وارد کنید",
+    "enterDuration": "یک مدت وارد کنید، مثل 90، 1:30 یا 1h 30m",
     "enterUrl": "یک URL معتبر (https://…) یا ایمیل وارد کنید",
     "enterEmail": "یک نشانی ایمیل وارد کنید",
     "enterPhone": "یک شماره تلفن وارد کنید",

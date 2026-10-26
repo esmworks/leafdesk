@@ -45,6 +45,7 @@ import {
   UserRound,
   WrapText,
 } from "lucide-react";
+import dynamic from "next/dynamic";
 import { useLocale, useTranslations } from "next-intl";
 import { Fragment, useEffect, useId, useRef, useState } from "react";
 import { useReorderDrag, type ReorderDragHandlers } from "@/components/use-reorder-drag";
@@ -69,7 +70,6 @@ import { canBeUnique } from "@/lib/unique-values";
 import { AutofillEditor } from "./ai-autofill";
 import { DateOptionsEditor } from "./date-options-menu";
 import { FormulaEditor } from "./formula-editor";
-import { NumberDisplayEditor, NumberFormatEditor } from "./number-format-menu";
 import { RelationOptionsEditor } from "./relation-options-menu";
 import { RollupEditor } from "./rollup-editor";
 import { CalculationOptions } from "./table-calculations";
@@ -80,6 +80,10 @@ import { useRelations } from "./relation-context";
 import { useSchema } from "./schema-context";
 import { newPropertyName, typesMatching } from "@/lib/property-type-search";
 import type { DerivedInput, Property, PropertyType, RelationInput, RollupInput, SelectOption } from "./types";
+
+// The number format submenu loads when it opens: most menus never show it.
+const NumberFormatEditor = dynamic(() => import("./number-format-menu").then((m) => m.NumberFormatEditor));
+const NumberDisplayEditor = dynamic(() => import("./number-format-menu").then((m) => m.NumberDisplayEditor));
 
 /**
  * Name + type picker used by the table "+" header and the row page "Add property". The name also

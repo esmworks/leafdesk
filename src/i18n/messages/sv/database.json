@@ -442,6 +442,7 @@
     "empty": "Tom",
     "removeOption": "Ta bort {name}",
     "enterNumber": "Ange ett tal",
+    "enterDuration": "Ange en varaktighet, till exempel 90, 1:30 eller 1h 30m",
     "enterUrl": "Ange en giltig URL (https://…) eller e-postadress",
     "enterEmail": "Ange en e-postadress",
     "enterPhone": "Ange ett telefonnummer",

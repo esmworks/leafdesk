@@ -442,6 +442,7 @@
     "empty": "Puste",
     "removeOption": "Usuń {name}",
     "enterNumber": "Wpisz liczbę",
+    "enterDuration": "Wpisz czas trwania, np. 90, 1:30 lub 1h 30m",
     "enterUrl": "Wpisz prawidłowy URL (https://…) lub e-mail",
     "enterEmail": "Wpisz adres e-mail",
     "enterPhone": "Wpisz numer telefonu",

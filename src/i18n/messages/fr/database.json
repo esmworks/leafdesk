@@ -442,6 +442,7 @@
     "empty": "Vide",
     "removeOption": "Retirer {name}",
     "enterNumber": "Saisissez un nombre",
+    "enterDuration": "Saisissez une durée, comme 90, 1:30 ou 1h 30m",
     "enterUrl": "Saisissez une URL valide (https://…) ou une adresse e-mail",
     "enterEmail": "Saisissez une adresse e-mail",
     "enterPhone": "Saisissez un numéro de téléphone",

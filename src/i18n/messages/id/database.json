@@ -442,6 +442,7 @@
     "empty": "Kosong",
     "removeOption": "Hapus {name}",
     "enterNumber": "Masukkan angka",
+    "enterDuration": "Masukkan durasi, seperti 90, 1:30, atau 1h 30m",
     "enterUrl": "Masukkan URL yang valid (https://…) atau email",
     "enterEmail": "Masukkan alamat email",
     "enterPhone": "Masukkan nomor telepon",

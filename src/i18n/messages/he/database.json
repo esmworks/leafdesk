@@ -442,6 +442,7 @@
     "empty": "ריק",
     "removeOption": "הסרת {name}",
     "enterNumber": "יש להזין מספר",
+    "enterDuration": "הזינו משך, למשל 90, ‏1:30 או 1h 30m",
     "enterUrl": "יש להזין כתובת URL תקינה (https://…) או אימייל",
     "enterEmail": "יש להזין כתובת אימייל",
     "enterPhone": "יש להזין מספר טלפון",

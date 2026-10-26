@@ -442,6 +442,7 @@
     "empty": "Empty",
     "removeOption": "Remove {name}",
     "enterNumber": "Enter a number",
+    "enterDuration": "Enter a duration, such as 90, 1:30 or 1h 30m",
     "enterUrl": "Enter a valid URL (https://…) or email",
     "enterEmail": "Enter an email address",
     "enterPhone": "Enter a phone number",

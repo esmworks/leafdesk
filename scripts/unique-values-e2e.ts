@@ -27,6 +27,8 @@ const { archivePage, createPage, restorePage } = await import("@/server/pages");
 const { duplicatePage } = await import("@/server/duplicate");
 const { pasteRows } = await import("@/server/paste");
 const { mergeRows } = await import("@/server/merge-rows");
+const { FormError, submitForm } = await import("@/server/forms");
+const { FORM_TITLE } = await import("@/lib/forms");
 const { PropertyValueError } = await import("@/lib/properties");
 
 const RUN = `unique-e2e-${Date.now().toString(36)}`;
@@ -137,6 +139,18 @@ try {
   const copy = await duplicatePage(actor, ada.id);
   const copied = await stored(copy.id);
   check(copied[email.id] === undefined && copied[code.id] === undefined, "a duplicated row leaves unique values out", copied);
+
+  // A form's answer repeating another row's value is that question's error.
+  const form = await databases.addView(owner, people.id, { name: "Ask", type: "form" });
+  const answered = await submitForm(owner, form.id, { [FORM_TITLE]: "Hal", [email.id]: "ADA@example.test" }).then(
+    () => null,
+    (error: unknown) => error,
+  );
+  check(
+    answered instanceof FormError && answered.code === "invalidAnswers" && answered.answers[0]?.propertyId === email.id && answered.answers[0]?.code === "notUnique",
+    "a form's answer repeating another row's value is refused at its question",
+    answered,
+  );
 
   // Merging rows: the kept row may take a value from the row merged into it.
   const gus = await row("Gus", { Email: "gus@example.test" });

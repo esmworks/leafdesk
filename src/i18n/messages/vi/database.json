@@ -442,6 +442,7 @@
     "empty": "Trống",
     "removeOption": "Xóa {name}",
     "enterNumber": "Nhập một số",
+    "enterDuration": "Nhập thời lượng, chẳng hạn 90, 1:30 hoặc 1h 30m",
     "enterUrl": "Nhập URL hợp lệ (https://…) hoặc email",
     "enterEmail": "Nhập địa chỉ email",
     "enterPhone": "Nhập số điện thoại",

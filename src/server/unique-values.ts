@@ -33,7 +33,7 @@ export async function notUniqueError(violation: { propertyId: string; key: strin
   return new PropertyValueError(
     `"${name}" keeps its values unique: another row already has "${violation.key}"`,
     "notUnique",
-    { property: name, value: violation.key },
+    { property: name, value: violation.key, propertyId: violation.propertyId },
   );
 }
 

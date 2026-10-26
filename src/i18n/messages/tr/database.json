@@ -442,6 +442,7 @@
     "empty": "Boş",
     "removeOption": "{name} seçeneğini kaldır",
     "enterNumber": "Bir sayı girin",
+    "enterDuration": "Bir süre girin; örneğin 90, 1:30 ya da 1 saat 30 dk",
     "enterUrl": "Geçerli bir URL (https://…) veya e-posta adresi girin",
     "enterEmail": "Bir e-posta adresi girin",
     "enterPhone": "Bir telefon numarası girin",

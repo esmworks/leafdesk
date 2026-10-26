@@ -17,7 +17,7 @@ import {
 import { isDatabaseErrorCode, sortStatusOptions } from "@/lib/properties";
 import { availableOptions, followDependencies, parentOf } from "@/lib/dependent-options";
 import { FilesEditor, type UploadFile } from "./files-cell";
-import { CheckboxBox, INPUT_MODE, OptionChip, parseInput } from "./property-cell";
+import { CheckboxBox, inputModeOf, OptionChip, parseInput } from "./property-cell";
 import { RatingStars } from "./rating-stars";
 import { isDuration, isRating, ratingMax } from "@/lib/number-format";
 import type { PropertyType } from "./types";
@@ -465,7 +465,7 @@ function AnswerInput<P extends FormProperty>({
           {...a11y}
           type={prop.type === "email" ? "email" : prop.type === "url" ? "url" : prop.type === "phone" ? "tel" : "text"}
           // A duration takes "1:30" and "1h 30m" besides minutes.
-          inputMode={prop.type === "number" && isDuration(prop.options.number) ? "text" : INPUT_MODE[prop.type]}
+          inputMode={inputModeOf(prop)}
           placeholder={prop.type === "number" && isDuration(prop.options.number) ? "1:30" : undefined}
           autoComplete={prop.type === "email" ? "email" : prop.type === "phone" ? "tel" : "off"}
           value={text}

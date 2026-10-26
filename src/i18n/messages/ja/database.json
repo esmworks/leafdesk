@@ -442,6 +442,7 @@
     "empty": "空",
     "removeOption": "{name}を削除",
     "enterNumber": "数値を入力してください",
+    "enterDuration": "90、1:30、1h 30m のように時間を入力してください",
     "enterUrl": "有効なURL（https://…）またはメールアドレスを入力してください",
     "enterEmail": "メールアドレスを入力してください",
     "enterPhone": "電話番号を入力してください",

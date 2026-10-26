@@ -19,6 +19,8 @@ vi.mock("@/server/databases", () => ({
   getProperties: vi.fn(async () => [date]),
   requireDatabase: vi.fn(async () => ({ id: "db1", workspaceId: "ws1", title: "Tasks" })),
   viewedRows: vi.fn(async () => []),
+  // The views a person sees (shared ones and their own); the query is mocked, so it adds nothing.
+  viewOwnedBy: vi.fn(() => undefined),
   withCode: (error: Error) => error,
   getPeople: vi.fn(async () => []),
   getLookups: vi.fn(async () => null),

@@ -40,7 +40,7 @@ import { searchFold } from "@/lib/search-fold";
 import { relativeDay } from "@/lib/date-options";
 import { dayNumber, dayString } from "@/lib/time-zone";
 import type { DateOptions, FormulaConfig, NumberFormat, PropertyOptions } from "@/db/schema/app";
-import { calculationFormat, formatInFormat, isRating, numberText, ratingMax, readNumber, valueFormat } from "@/lib/number-format";
+import { calculationFormat, formatInFormat, isDuration, isRating, numberText, ratingMax, readNumber, valueFormat } from "@/lib/number-format";
 import { numberShare } from "@/lib/number-display";
 import { formatClock, formatStyledDate, isStyled, type DateStyle } from "@/lib/date-format";
 import { availableOptions, parentOf } from "@/lib/dependent-options";
@@ -895,6 +895,17 @@ export const INVALID_INPUT: Partial<Record<Property["type"], "enterNumber" | "en
   phone: "enterPhone",
 };
 
+/** The hint for a property's draft that can't be saved: a duration says how one is typed. */
+export function invalidInputHint(prop: Pick<Property, "type"> & { options?: PropertyOptions }) {
+  if (prop.type === "number" && isDuration(prop.options?.number)) return "enterDuration";
+  return INVALID_INPUT[prop.type] ?? "enterUrl";
+}
+
+/** The keyboard a property's editor asks touch devices for: a duration takes "1:30" and "1h". */
+export function inputModeOf(prop: Pick<Property, "type"> & { options?: PropertyOptions }) {
+  return prop.type === "number" && isDuration(prop.options?.number) ? "text" : INPUT_MODE[prop.type];
+}
+
 /** Keyboard hints for touch devices. */
 export const INPUT_MODE: Partial<Record<Property["type"], "decimal" | "email" | "tel">> = {
   number: "decimal",
@@ -964,7 +975,7 @@ function TextEditor({
         ref={input}
         rows={1}
         value={draft}
-        inputMode={INPUT_MODE[prop.type]}
+        inputMode={inputModeOf(prop)}
         aria-label={prop.name}
         onChange={(e) => {
           setDraft(prop.type === "text" ? e.target.value : e.target.value.replace(/\n/g, ""));
@@ -986,7 +997,7 @@ function TextEditor({
       />
       {invalid && (
         <div className="border-t border-border px-2 py-1 text-xs text-danger">
-          {t(INVALID_INPUT[prop.type] ?? "enterUrl")}
+          {t(invalidInputHint(prop))}
         </div>
       )}
       {quickAdd && (

@@ -442,6 +442,7 @@
     "empty": "空",
     "removeOption": "移除 {name}",
     "enterNumber": "输入数字",
+    "enterDuration": "请输入时长，例如 90、1:30 或 1h 30m",
     "enterUrl": "输入有效的 URL（https://…）或邮箱",
     "enterEmail": "输入邮箱地址",
     "enterPhone": "输入电话号码",
