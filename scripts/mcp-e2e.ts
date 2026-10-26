@@ -527,7 +527,8 @@ async function main() {
   );
   check(served.headers.get("x-content-type-options") === "nosniff", "…with nosniff");
   check((await fetch(attached.url)).status === 404, "…and not to anyone else");
-  const ssrf = await mcp.call("attach_file", { page_id: root.id, url: `${BASE}/` });
+  // On the web's port, so the private address is what's refused rather than the port.
+  const ssrf = await mcp.call("attach_file", { page_id: root.id, url: `http://${new URL(BASE).hostname}/` });
   check(ssrf.isError && /isn't public/.test(ssrf.text), "attach_file refuses URLs on private addresses", ssrf.text);
   const upload = await fetch(`${BASE}/api/files?pageId=${root.id}`, {
     method: "POST",
