@@ -426,7 +426,7 @@
       "forbidden": "Användaren får inte läsa den här tabellen.",
       "notFound": "Ingen sådan databas eller tabell.",
       "badQuery": "Servern avvisade frågan:",
-      "tooManyIssues": "Tabellen har för många rader för att synkroniseras. Synkronisera en vy med de rader du behöver.",
+      "tooManyIssues": "Tabellen har för många rader eller för mycket text för att synkroniseras. Synkronisera en vy med de rader och kolumner du behöver.",
       "unreachable": "Servern gick inte att nå, eller frågan tog för lång tid. Synkroniseringen försöker igen nästa gång.",
       "runAsGone": "Personen som konfigurerade synkroniseringen har inte längre något konto.",
       "accessLost": "Personen som synkroniseringen körs som kan inte längre redigera databasen.",

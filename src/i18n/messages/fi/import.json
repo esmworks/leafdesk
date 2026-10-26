@@ -426,7 +426,7 @@
       "forbidden": "Käyttäjä ei saa lukea tätä taulua.",
       "notFound": "Tällaista tietokantaa tai taulua ei ole.",
       "badQuery": "Palvelin hylkäsi kyselyn:",
-      "tooManyIssues": "Taulussa on liikaa rivejä synkronoitavaksi. Synkronoi näkymä tarvitsemistasi riveistä.",
+      "tooManyIssues": "Taulussa on liikaa rivejä tai tekstiä synkronoitavaksi. Synkronoi näkymä tarvitsemistasi riveistä ja sarakkeista.",
       "unreachable": "Palvelimeen ei saatu yhteyttä tai kysely kesti liian kauan. Synkronointi yrittää uudelleen seuraavalla kerralla.",
       "runAsGone": "Synkronoinnin määrittäneellä henkilöllä ei ole enää tiliä.",
       "accessLost": "Henkilö, jonka nimissä synkronointi toimii, ei voi enää muokata tätä tietokantaa.",

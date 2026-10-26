@@ -426,7 +426,7 @@
       "forbidden": "De gebruiker mag deze tabel niet lezen.",
       "notFound": "Die database of tabel bestaat niet.",
       "badQuery": "De server weigerde de query:",
-      "tooManyIssues": "De tabel heeft te veel rijen om te synchroniseren. Synchroniseer een weergave van de rijen die je nodig hebt.",
+      "tooManyIssues": "De tabel heeft te veel rijen of te veel tekst om te synchroniseren. Synchroniseer een weergave van de rijen en kolommen die je nodig hebt.",
       "unreachable": "De server was niet bereikbaar of de query duurde te lang. De synchronisatie probeert het de volgende keer opnieuw.",
       "runAsGone": "De persoon die de synchronisatie instelde, heeft geen account meer.",
       "accessLost": "De persoon namens wie de synchronisatie draait, kan deze database niet meer bewerken.",

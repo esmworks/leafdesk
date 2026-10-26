@@ -1,4 +1,4 @@
-import { KIND_TYPES, keyText, postgresValues, type PostgresMapping, type PostgresQuery } from "@/lib/postgres-sync";
+import { CutText, KIND_TYPES, keyText, postgresValues, type PostgresMapping, type PostgresQuery } from "@/lib/postgres-sync";
 import { getProperties } from "@/server/databases";
 import type { SyncRow } from "@/server/jira-sync/run";
 import { openJson } from "@/server/secret-box";
@@ -29,7 +29,8 @@ export async function applyTableRows(database: SyncedDatabase, runAs: string, qu
   const live = await liveMapping(database.id, mapping);
   const items = rows.flatMap((row) => {
     const key = keyText(row[query.keyColumn]);
-    if (!key) return [];
+    // A key too long to read whole can't find its row again.
+    if (!key || row[query.keyColumn] instanceof CutText) return [];
     return [{ key, title: keyText(row[query.titleColumn]).slice(0, 2000) || key, values: postgresValues(row, query, live) }];
   });
   return applyRows(database, runAs, live.key, items, await getProperties(database.id), []);

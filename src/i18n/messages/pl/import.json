@@ -426,7 +426,7 @@
       "forbidden": "Użytkownik nie może czytać tej tabeli.",
       "notFound": "Nie ma takiej bazy ani tabeli.",
       "badQuery": "Serwer odrzucił zapytanie:",
-      "tooManyIssues": "Tabela ma zbyt wiele wierszy do synchronizacji. Synchronizuj widok z potrzebnymi wierszami.",
+      "tooManyIssues": "Tabela ma zbyt wiele wierszy lub zbyt dużo tekstu do synchronizacji. Synchronizuj widok z potrzebnymi wierszami i kolumnami.",
       "unreachable": "Nie udało się połączyć z serwerem albo zapytanie trwało zbyt długo. Synchronizacja spróbuje ponownie następnym razem.",
       "runAsGone": "Osoba, która skonfigurowała synchronizację, nie ma już konta.",
       "accessLost": "Osoba, jako która działa synchronizacja, nie może już edytować tej bazy.",

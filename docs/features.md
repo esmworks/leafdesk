@@ -1118,8 +1118,10 @@
   the column that finds each row again (the primary key when left empty) and the one that names
   it (the first text column), and makes a database with the key as text and a property for each
   other column by its type: text, numbers, checkboxes, dates, times and JSON (as text). Runs read
-  up to 5,000 rows ordered by the key in a read-only transaction with a 30-second limit, write the
-  table's values over and add new rows; rows that leave the table stay. The server is reached on
+  up to 5,000 rows and 50 million characters (each value cut at 10,000) ordered by the key in a
+  read-only transaction with a 30-second limit, and Leafdesk hangs up after a minute whatever the
+  server does; they write the table's values over and add new rows; rows that leave the table
+  stay. Keys keep every digit, however big the number. The server is reached on
   public addresses only, with TLS unless the address's `sslmode` says otherwise; a database on
   your own network needs its host in `CONNECTOR_ALLOWED_HOSTS`. A refused password, a missing
   table, a dropped column (with the server's words in the sync dialog) or a deleted key property

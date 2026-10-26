@@ -426,7 +426,7 @@
       "forbidden": "Pengguna tidak boleh membaca tabel ini.",
       "notFound": "Database atau tabel tersebut tidak ada.",
       "badQuery": "Server menolak kueri:",
-      "tooManyIssues": "Tabel memiliki terlalu banyak baris untuk disinkronkan. Sinkronkan view berisi baris yang Anda perlukan.",
+      "tooManyIssues": "Tabel memiliki terlalu banyak baris atau teks untuk disinkronkan. Sinkronkan view berisi baris dan kolom yang Anda perlukan.",
       "unreachable": "Server tidak dapat dijangkau, atau kueri terlalu lama. Sinkronisasi akan mencoba lagi lain kali.",
       "runAsGone": "Orang yang menyiapkan sinkronisasi tidak lagi memiliki akun.",
       "accessLost": "Orang yang menjalankan sinkronisasi tidak lagi bisa mengedit database ini.",

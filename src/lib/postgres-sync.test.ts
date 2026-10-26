@@ -1,5 +1,17 @@
 import { describe, expect, it } from "vitest";
-import { columnValue, kindOf, parsePostgresUrl, parseTableName, postgresSite, postgresValues } from "./postgres-sync";
+import {
+  columnValue,
+  CutText,
+  keyText,
+  kindOf,
+  MAX_POSTGRES_TEXT,
+  numberFromText,
+  parsePostgresUrl,
+  parseTableName,
+  postgresSite,
+  postgresValues,
+  readColumnValue,
+} from "./postgres-sync";
 
 describe("parsePostgresUrl", () => {
   it("reads a connection address", () => {
@@ -63,5 +75,43 @@ describe("columns", () => {
     const query = { schema: "public", table: "orders", keyColumn: "id", titleColumn: "name" };
     const mapping = { key: "k", columns: [{ column: "total", property: "t", kind: "number" as const }] };
     expect(postgresValues({ id: 7, name: "A", total: "9.5" }, query, mapping)).toEqual({ k: "7", t: 9.5 });
+  });
+});
+
+describe("values read as text", () => {
+  it("are numbers when JavaScript holds them exactly, else the server's digits", () => {
+    expect(["42", "-7", "12.50", "0.0", "1e+21", "9007199254740991"].map(numberFromText)).toEqual([42, -7, 12.5, 0, 1e21, 9007199254740991]);
+    expect(["9007199254740993", "-12345678901234567890", "0.12345678901234567890123", "NaN", "$1,234.50"].map(numberFromText)).toEqual([
+      "9007199254740993",
+      "-12345678901234567890",
+      "0.12345678901234567890123",
+      "NaN",
+      "$1,234.50",
+    ]);
+  });
+
+  it("keep big keys apart, written as JSON wrote them before", () => {
+    expect(keyText(readColumnValue("number", "1272869543094706176"))).toBe("1272869543094706176");
+    expect(keyText(readColumnValue("number", "1272869543094706177"))).toBe("1272869543094706177");
+    expect(keyText(readColumnValue("number", "1.50"))).toBe("1.5");
+    expect(columnValue("number", readColumnValue("number", "9007199254740993"))).toBe(9007199254740992);
+  });
+
+  it("read other kinds from their JSON", () => {
+    expect(readColumnValue("checkbox", "true")).toBe(true);
+    expect(readColumnValue("date", '"2026-10-26"')).toBe("2026-10-26");
+    expect(readColumnValue("json", '{"a": 1}')).toEqual({ a: 1 });
+    expect(readColumnValue("text", '{"a": 1}')).toBe('{"a": 1}');
+    expect(readColumnValue("json", null)).toBeNull();
+  });
+
+  it("are cut past MAX_POSTGRES_TEXT characters", () => {
+    const long = readColumnValue("json", `"${"x".repeat(MAX_POSTGRES_TEXT)}`);
+    expect(long).toBeInstanceOf(CutText);
+    expect(columnValue("json", long)).toBe(`"${"x".repeat(MAX_POSTGRES_TEXT - 1)}`);
+    expect(columnValue("number", long)).toBeNull();
+    expect(keyText(long)).toHaveLength(MAX_POSTGRES_TEXT);
+    // Characters, not UTF-16 units: a text of MAX_POSTGRES_TEXT emoji is whole.
+    expect(readColumnValue("text", "😀".repeat(MAX_POSTGRES_TEXT))).toBe("😀".repeat(MAX_POSTGRES_TEXT));
   });
 });

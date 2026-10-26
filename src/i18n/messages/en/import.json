@@ -426,7 +426,7 @@
       "forbidden": "The user may not read this table.",
       "notFound": "No such database or table.",
       "badQuery": "The server refused the query:",
-      "tooManyIssues": "The table has too many rows to sync. Sync a view of the rows you need.",
+      "tooManyIssues": "The table has too many rows, or too much text, to sync. Sync a view of the rows and columns you need.",
       "unreachable": "The server couldn't be reached, or the query took too long. The sync tries again next time.",
       "runAsGone": "The person who set the sync up no longer has an account.",
       "accessLost": "The person the sync runs as can no longer edit this database.",

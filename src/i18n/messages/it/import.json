@@ -426,7 +426,7 @@
       "forbidden": "L'utente non può leggere questa tabella.",
       "notFound": "Il database o la tabella non esiste.",
       "badQuery": "Il server ha rifiutato la query:",
-      "tooManyIssues": "La tabella ha troppe righe da sincronizzare. Sincronizza una vista delle righe che ti servono.",
+      "tooManyIssues": "La tabella ha troppe righe o troppo testo da sincronizzare. Sincronizza una vista delle righe e colonne che ti servono.",
       "unreachable": "Il server non è raggiungibile o la query ha impiegato troppo. La sincronizzazione riproverà la prossima volta.",
       "runAsGone": "La persona che ha impostato la sincronizzazione non ha più un account.",
       "accessLost": "La persona per cui gira la sincronizzazione non può più modificare questo database.",

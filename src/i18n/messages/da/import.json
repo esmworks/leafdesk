@@ -426,7 +426,7 @@
       "forbidden": "Brugeren må ikke læse denne tabel.",
       "notFound": "Ingen sådan database eller tabel.",
       "badQuery": "Serveren afviste forespørgslen:",
-      "tooManyIssues": "Tabellen har for mange rækker til at synkronisere. Synkroniser en visning af de rækker, du har brug for.",
+      "tooManyIssues": "Tabellen har for mange rækker eller for meget tekst til at synkronisere. Synkroniser en visning af de rækker og kolonner, du har brug for.",
       "unreachable": "Serveren kunne ikke nås, eller forespørgslen tog for lang tid. Synkroniseringen prøver igen næste gang.",
       "runAsGone": "Personen, der satte synkroniseringen op, har ikke længere en konto.",
       "accessLost": "Personen, synkroniseringen kører som, kan ikke længere redigere denne database.",

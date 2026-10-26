@@ -426,7 +426,7 @@
       "forbidden": "Người dùng không được đọc bảng này.",
       "notFound": "Không có cơ sở dữ liệu hoặc bảng này.",
       "badQuery": "Máy chủ từ chối truy vấn:",
-      "tooManyIssues": "Bảng có quá nhiều hàng để đồng bộ. Hãy đồng bộ một view chỉ gồm các hàng bạn cần.",
+      "tooManyIssues": "Bảng có quá nhiều hàng hoặc văn bản để đồng bộ. Hãy đồng bộ một view chỉ gồm các hàng và cột bạn cần.",
       "unreachable": "Không kết nối được máy chủ hoặc truy vấn quá lâu. Lần sau sẽ thử lại.",
       "runAsGone": "Người thiết lập đồng bộ không còn tài khoản.",
       "accessLost": "Người mà đồng bộ chạy dưới tên không còn chỉnh sửa được cơ sở dữ liệu này.",
