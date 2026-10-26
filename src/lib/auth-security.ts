@@ -111,7 +111,8 @@ export async function recordAuthMethod<S extends Record<string, unknown>>(sessio
 /**
  * Whether a session passes a workspace's "require two-step verification" policy. With two-step
  * verification on, every way of signing in asks for a code (password, and social sign-in via
- * `socialTwoFactorChallenge`), so all of that user's sessions count. A passkey is two factors
+ * `socialTwoFactorChallenge`), and turning it on ends every other session (see
+ * TWO_FACTOR_TURN_ON_PATHS), so all of that user's sessions count. A passkey is two factors
  * in one (the device and its unlock), so a session signed in with one counts too; a passkey
  * registered on an account that signs in with a password alone does not.
  */
@@ -152,6 +153,40 @@ const OAUTH_QUERY_KEY = "leafdeskOAuthQuery";
 type AfterHook = NonNullable<NonNullable<BetterAuthPlugin["hooks"]>["after"]>[number];
 
 /**
+ * Where a signed-in session turns two-step verification on: confirming the authenticator app's
+ * first code (`/two-factor/verify-totp`), or `/two-factor/enable` and `/two-factor/verify-otp`
+ * for methods Leafdesk doesn't offer. The plugin then replaces the current session only.
+ */
+export const TWO_FACTOR_TURN_ON_PATHS: ReadonlySet<string> = new Set([
+  "/two-factor/enable",
+  "/two-factor/verify-totp",
+  "/two-factor/verify-otp",
+]);
+
+/**
+ * Whether this request turned two-step verification on: it came with a session of an account that
+ * had it off, and the endpoint replaced that session with one of the account that has it on (a
+ * sign-in's code step comes without a session, and a code checked while it was on already
+ * replaces nothing).
+ */
+export function turnedTwoFactorOn(ctx: {
+  path?: string;
+  context: {
+    session?: { user: { twoFactorEnabled?: boolean | null } } | null;
+    newSession?: { user: { twoFactorEnabled?: boolean | null } } | null;
+  };
+}) {
+  const before = ctx.context.session;
+  const created = ctx.context.newSession;
+  return (
+    TWO_FACTOR_TURN_ON_PATHS.has(ctx.path ?? "") &&
+    !!before &&
+    before.user.twoFactorEnabled !== true &&
+    created?.user.twoFactorEnabled === true
+  );
+}
+
+/**
  * Better Auth's two-factor plugin, with its sign-in challenge extended from password sign-in to
  * social sign-in (the provider callback, and `/sign-in/social` with an ID token). Without that,
  * "Continue with Google" would skip the code. The challenge itself (trusted devices, the pending
@@ -161,6 +196,11 @@ type AfterHook = NonNullable<NonNullable<BetterAuthPlugin["hooks"]>["after"]>[nu
  * wasn't; with two-step verification on, that sign-in is undone, so the link alone (whoever
  * reads the mailbox) never stands in for the code. The address is verified or changed all the
  * same, and signing in asks for the code as usual.
+ *
+ * Turning two-step verification on ends every other session of the account: they were signed in
+ * without a code (a stolen password could have made one), and would otherwise count as two-step
+ * from then on (isStrongSession). The session that turned it on, which just confirmed a code,
+ * stays. Ending a session also closes its collab connections (`session.delete.after` in auth.ts).
  */
 export function twoFactorPlugin() {
   const plugin = twoFactor({
@@ -194,6 +234,17 @@ export function twoFactorPlugin() {
             if (presented === created.session.token) return;
             await ctx.context.internalAdapter.deleteSession(created.session.token);
             deleteSessionCookie(ctx);
+          }),
+        },
+        {
+          matcher: (ctx) => TWO_FACTOR_TURN_ON_PATHS.has(ctx.path ?? ""),
+          handler: createAuthMiddleware(async (ctx) => {
+            const created = ctx.context.newSession;
+            if (!created || !turnedTwoFactorOn(ctx)) return;
+            const adapter = ctx.context.internalAdapter;
+            for (const old of await adapter.listSessions(created.user.id)) {
+              if (old.token !== created.session.token) await adapter.deleteSession(old.token);
+            }
           }),
         },
       ],

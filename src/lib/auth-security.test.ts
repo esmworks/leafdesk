@@ -18,6 +18,7 @@ import {
   ssoPendingProvider,
   twoFactorPlugin,
   twoFactorStepUrl,
+  turnedTwoFactorOn,
 } from "./auth-security";
 import { totpCode, totpKeyFromUri } from "./totp";
 
@@ -113,6 +114,24 @@ describe("isStrongSession", () => {
     expect(isStrongSession({ user: { twoFactorEnabled: false }, session: { authMethod: "password" } })).toBe(false);
     expect(isStrongSession({ user: { twoFactorEnabled: null }, session: { authMethod: "social" } })).toBe(false);
     expect(isStrongSession({ user: {}, session: { authMethod: null } })).toBe(false);
+  });
+});
+
+describe("turnedTwoFactorOn", () => {
+  const off = { user: { twoFactorEnabled: false } };
+  const on = { user: { twoFactorEnabled: true } };
+
+  it("sees a signed-in session replaced by one with two-step verification on", () => {
+    expect(turnedTwoFactorOn({ path: "/two-factor/verify-totp", context: { session: off, newSession: on } })).toBe(true);
+    expect(turnedTwoFactorOn({ path: "/two-factor/enable", context: { session: off, newSession: on } })).toBe(true);
+  });
+
+  it("ignores a sign-in's code step, a code checked while it was on, and other endpoints", () => {
+    expect(turnedTwoFactorOn({ path: "/two-factor/verify-totp", context: { session: null, newSession: on } })).toBe(false);
+    expect(turnedTwoFactorOn({ path: "/two-factor/verify-totp", context: { session: on, newSession: null } })).toBe(false);
+    expect(turnedTwoFactorOn({ path: "/two-factor/verify-totp", context: { session: on, newSession: on } })).toBe(false);
+    expect(turnedTwoFactorOn({ path: "/two-factor/disable", context: { session: on, newSession: off } })).toBe(false);
+    expect(turnedTwoFactorOn({ path: "/sign-in/email", context: { session: off, newSession: on } })).toBe(false);
   });
 });
 
@@ -322,6 +341,31 @@ describe("Better Auth with our two-step setup", () => {
     expect((await call(second, "/two-factor/disable", { body: { code: "zzzzz-zzzzz" } })).status).toBe(401);
     expect((await call(second, "/two-factor/disable", { body: { code: backupCodes[1] } })).status).toBe(200);
     expect((await session(second))?.user.twoFactorEnabled).toBe(false);
+  });
+
+  it("signs out the other devices when two-step verification is turned on, but not at a later sign-in's code", async () => {
+    const mine = new Jar();
+    await googleSignIn(mine);
+    // A session signed in without a code, as a stolen password or cookie would give someone.
+    const elsewhere = new Jar();
+    await googleSignIn(elsewhere);
+    expect(await session(elsewhere)).not.toBeNull();
+
+    const { totpURI } = (await (await call(mine, "/two-factor/enable", { body: {} })).json()) as { totpURI: string };
+    const key = totpKeyFromUri(totpURI);
+    // Asking for the setup alone changes nothing yet.
+    expect(await session(elsewhere)).not.toBeNull();
+    expect((await call(mine, "/two-factor/verify-totp", { body: { code: totpCode(key) } })).status).toBe(200);
+
+    expect(await session(elsewhere)).toBeNull();
+    expect((await session(mine))?.user.twoFactorEnabled).toBe(true);
+
+    // Signing in on another device with the code leaves this one signed in.
+    const later = new Jar();
+    await googleSignIn(later);
+    expect((await call(later, "/two-factor/verify-totp", { body: { code: totpCode(key) } })).status).toBe(200);
+    expect((await session(later))?.session.authMethod).toBe("totp");
+    expect((await session(mine))?.user.twoFactorEnabled).toBe(true);
   });
 
   it("offers passkey ceremonies for this origin only", async () => {
