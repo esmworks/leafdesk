@@ -447,8 +447,8 @@ function planFor(backend: AiBackend, feature: string, chosen?: string | null) {
   return { model: backend.model, plan: plan.orElse ? featurePlan(plan.orElse) : plan };
 }
 
-/** A model people may pick in the AI chat: its id, and whether it takes images. */
-export type ChatModelOption = { id: string; images: boolean };
+/** A model people may pick in the AI chat: its id, the name it is shown by, and whether it takes images. */
+export type ChatModelOption = { id: string; name: string; images: boolean };
 
 /**
  * The models the workspace's AI offers the chat, its main model first: the server's AI_MODEL,
@@ -458,7 +458,7 @@ export async function chatModelsFor(workspaceId: string): Promise<ChatModelOptio
   const target = await aiTargetFor(workspaceId);
   const backend = target && chatOn(target) ? await backendFor(target).catch(() => null) : null;
   if (!backend) return [];
-  return (backend.choices ?? [backend.model]).map((m) => ({ id: m.id, images: m.input.includes("image") }));
+  return (backend.choices ?? [backend.model]).map((m) => ({ id: m.id, name: m.name || m.id, images: m.input.includes("image") }));
 }
 
 /**

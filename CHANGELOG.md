@@ -12,6 +12,9 @@
   view, a moment after rows change and every few minutes for filters on today; its steps get the
   value and the line as `{{trigger.value}}` and `{{trigger.threshold}}`. Over MCP the trigger is
   `view_threshold`. Migration 0152.
+- **A new chat suggests questions to start from.** Under the empty full-page chat's box are
+  questions about the pages you opened last (summarize a page, what's in a database) and the start
+  of a search and of a new page; picking one fills the box without sending it.
 - **Right-click in the sidebar for Leafdesk's own menus, with Open in new tab and Copy link.** A
   page's row opens its actions (rename, move to trash, keep offline) where it was right-clicked,
   now starting with Open in new tab and Copy link; other links there (My tasks, Meetings, Home …)
@@ -20,6 +23,12 @@
   runs off a narrow sidebar's edge.
 
 ### Changed
+
+- **The AI chat's box is tidier.** *Answer from* is a menu in the box's toolbar instead of a field
+  under it (under the box in the panel), the model picker shows models by name ("Claude Opus 5.5")
+  rather than id, files, skills and research sit on the left with where and how it answers on the
+  right, research mode is named while on, and the conversations in the sidebar are grouped by today,
+  yesterday, the previous 7 and 30 days and older.
 
 - **Scheduled agents read only the web pages of their task and their searches.** A schedule's
   run used to read any address without asking, so text planted in a page or a row it read could

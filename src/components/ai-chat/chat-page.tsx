@@ -13,10 +13,11 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { useRowPanel } from "@/components/database/row-panel-context";
 import { useIsOffline } from "@/components/offline/offline-context";
 import { SidebarOpenButton } from "@/components/sidebar/sidebar-context";
-import { IconButton } from "@/components/ui";
+import { cn, IconButton } from "@/components/ui";
 import { chatPath, sourceHref, type ChatScopeView, type ChatSourceView } from "@/lib/ai-chat";
 import { rowFromSearch, withRow } from "@/lib/row-panel";
 import { useAiChat } from "./chat-panel";
+import { ChatStarters } from "./chat-starters";
 import { ChatThread } from "./chat-thread";
 import { MemoryButton } from "./memory-dialog";
 import { ScopePicker } from "./scope-picker";
@@ -90,7 +91,10 @@ export function ChatPage({ workspaceId, available, memory }: { workspaceId: stri
     <div data-row-source className="flex h-full flex-col">
       <div data-window-controls-clear className="flex h-11 shrink-0 items-center gap-1 px-3 max-md:ps-1.5">
         <SidebarOpenButton className="me-1 max-md:me-0" />
-        <h1 className="min-w-0 flex-1 truncate text-sm font-medium">{title || t("title")}</h1>
+        {/* A new chat's greeting says what this is; the heading stays for screen readers. */}
+        <h1 className="min-w-0 flex-1 truncate text-sm font-medium">
+          <span className={cn(!title && !chat.messages.length && "sr-only")}>{title || t("title")}</span>
+        </h1>
         {memory && <MemoryButton workspaceId={workspaceId} className="h-7 w-7" />}
         <IconButton label={t("newChat")} className="h-7 w-7" onClick={() => router.push(chatPath(workspaceId))} disabled={!chat.messages.length && !conversationId}>
           <SquarePen className="h-4 w-4" />
@@ -103,7 +107,20 @@ export function ChatPage({ workspaceId, available, memory }: { workspaceId: stri
         onSource={openSource}
         variant="page"
         voice={context?.voice ?? null}
-        footer={<ScopePicker workspaceId={workspaceId} pageId={null} value={scope} onChange={setScope} disabled={chat.running} />}
+        scope={<ScopePicker workspaceId={workspaceId} pageId={null} value={scope} onChange={setScope} disabled={chat.running} />}
+        starters={
+          !blocked && (
+            <ChatStarters
+              workspaceId={workspaceId}
+              onPick={(text) => {
+                chat.setInput(text);
+                const box = chat.inputRef.current;
+                box?.focus();
+                requestAnimationFrame(() => box?.setSelectionRange(text.length, text.length));
+              }}
+            />
+          )
+        }
       />
     </div>
   );

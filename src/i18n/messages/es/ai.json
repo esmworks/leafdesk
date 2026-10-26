@@ -405,6 +405,22 @@
       "save": "Guardar como página",
       "openPage": "Abrir la página",
       "saveFailed": "No se pudo guardar el informe como página."
+    },
+    "starters": {
+      "label": "Sugerencias",
+      "summarize": "Resume «{title}»",
+      "database": "¿Qué hay en «{title}»?",
+      "find": "Buscar páginas sobre…",
+      "findText": "Buscar páginas sobre ",
+      "write": "Escribir una página sobre…",
+      "writeText": "Escribir una página sobre "
+    },
+    "when": {
+      "today": "Hoy",
+      "yesterday": "Ayer",
+      "week": "Últimos 7 días",
+      "month": "Últimos 30 días",
+      "older": "Más antiguas"
     }
   },
   "memory": {

@@ -405,6 +405,22 @@
       "save": "Spara som sida",
       "openPage": "Öppna sidan",
       "saveFailed": "Rapporten kunde inte sparas som en sida."
+    },
+    "starters": {
+      "label": "Förslag",
+      "summarize": "Sammanfatta ”{title}”",
+      "database": "Vad finns i ”{title}”?",
+      "find": "Hitta sidor om…",
+      "findText": "Hitta sidor om ",
+      "write": "Skriv en sida om…",
+      "writeText": "Skriv en sida om "
+    },
+    "when": {
+      "today": "I dag",
+      "yesterday": "I går",
+      "week": "Senaste 7 dagarna",
+      "month": "Senaste 30 dagarna",
+      "older": "Äldre"
     }
   },
   "memory": {

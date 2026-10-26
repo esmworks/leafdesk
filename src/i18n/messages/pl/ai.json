@@ -405,6 +405,22 @@
       "save": "Zapisz jako stronę",
       "openPage": "Otwórz stronę",
       "saveFailed": "Nie udało się zapisać raportu jako strony."
+    },
+    "starters": {
+      "label": "Sugestie",
+      "summarize": "Podsumuj „{title}”",
+      "database": "Co jest w „{title}”?",
+      "find": "Znajdź strony o…",
+      "findText": "Znajdź strony o ",
+      "write": "Napisz stronę o…",
+      "writeText": "Napisz stronę o "
+    },
+    "when": {
+      "today": "Dzisiaj",
+      "yesterday": "Wczoraj",
+      "week": "Ostatnie 7 dni",
+      "month": "Ostatnie 30 dni",
+      "older": "Starsze"
     }
   },
   "memory": {

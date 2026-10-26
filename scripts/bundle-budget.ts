@@ -55,8 +55,12 @@ import { gzipSync } from "node:zlib";
  * The AI chat's approval of each web call (its address shown), the invitation email limit's note
  * and the sign-in policy gate for Telegram links and API token scopes add under 1 kB to a page's
  * first load and to all first loads together.
+ *
+ * The chat box's toolbar menu for where answers come from, models' names and the sidebar's
+ * conversations grouped by day add about 0.5 kB to both; the full-page chat's suggestions load
+ * with its own route.
  */
-const BUDGET = { routeFirstLoad: 774, firstLoadShared: 1179, onDemandChunk: 450 };
+const BUDGET = { routeFirstLoad: 775, firstLoadShared: 1180, onDemandChunk: 450 };
 
 const NEXT = ".next";
 const kB = (bytes: number) => bytes / 1024;
