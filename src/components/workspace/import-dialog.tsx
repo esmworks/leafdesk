@@ -397,6 +397,7 @@ export function ImportDialog({
       "badMapping",
       "noAccess",
       "notADatabase",
+      "busy",
     ];
     return known.includes(code) ? t(`errors.${code}` as "errors.badRequest", params) : t("errors.badRequest");
   }

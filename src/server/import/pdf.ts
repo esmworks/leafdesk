@@ -8,6 +8,7 @@ import { createPage } from "@/server/pages";
 import { recordImport } from "./csv";
 import { DOCX_LIMITS, htmlBlocks } from "./docx-convert";
 import { discard, store } from "./markdown";
+import { requireTopLevelPlace } from "./place";
 
 /**
  * Imports PDFs as pages under a page (or at the top level of a workspace): one page per PDF, made
@@ -118,7 +119,7 @@ export async function importPdf(actor: WriteActor, input: PdfImportInput): Promi
     if (parent.archivedAt) throw new ImportError("The page is in the trash", "noAccess");
     if (parent.kind !== "page") throw new ImportError("Pages can only be imported into a page", "badRequest");
     workspaceId = parent.workspaceId;
-  }
+  } else await requireTopLevelPlace(userId, workspaceId, input.teamspaceId);
 
   // Read every PDF first: one that can't be read (or a scan) stops the import before anything is created.
   const documents = [];

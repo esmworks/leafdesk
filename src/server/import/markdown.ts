@@ -40,6 +40,7 @@ import { FileError, uploadFile } from "@/server/files";
 import { createPage, removeOrphanFiles, type DatabaseSeedNames } from "@/server/pages";
 import { collectFiles, type UploadedFile } from "./archive";
 import { importCsvAsDatabase, recordImport } from "./csv";
+import { requireTopLevelPlace } from "./place";
 
 /**
  * Imports Markdown files, CSV files and ZIPs of them as pages under a page (or at the top level of
@@ -109,7 +110,7 @@ export async function importPages(actor: WriteActor, input: MarkdownImportInput)
     if (parent.archivedAt) throw new ImportError("The page is in the trash", "noAccess");
     if (parent.kind !== "page") throw new ImportError("Pages can only be imported into a page", "badRequest");
     workspaceId = parent.workspaceId;
-  }
+  } else await requireTopLevelPlace(userId, workspaceId, input.teamspaceId);
 
   const warnings = new WarningList();
   const collected = collectFiles(input.files);
