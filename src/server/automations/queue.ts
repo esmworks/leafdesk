@@ -17,7 +17,7 @@ import { redactError } from "@/lib/redact";
  * Kept on globalThis, like server/row-events, so Next's bundle and the custom server share it.
  */
 
-type State = { als: AsyncLocalStorage<true>; kick?: () => void };
+type State = { als: AsyncLocalStorage<true>; kick?: () => void; thresholds?: (databaseId: string) => void };
 const g = globalThis as typeof globalThis & { __leafdeskAutomations?: State };
 const state: State = (g.__leafdeskAutomations ??= { als: new AsyncLocalStorage<true>() });
 
@@ -37,6 +37,20 @@ export function onAutomationsQueued(kick: () => void) {
 
 /** Wakes the worker for runs queued some other way (the "date passed" check). */
 export const kickAutomations = () => state.kick?.();
+
+/** The threshold check (threshold.ts) asks to hear of databases whose rows changed. */
+export function onThresholdRows(listener: (databaseId: string) => void) {
+  state.thresholds = listener;
+}
+
+/**
+ * Rows of a database were written, moved to the trash or restored: its threshold automations look
+ * at their values again shortly. An automation's own changes don't ask, as they start no
+ * automations; the periodic check sees them.
+ */
+export function thresholdRowsChanged(databaseId: string) {
+  if (!runningAutomation()) state.thresholds?.(databaseId);
+}
 
 /**
  * Makes a waiting run due now and wakes the worker: an approval it waits for was answered. Taken
@@ -68,6 +82,7 @@ export async function queueAutomations(
   boundTo: string | null = null,
 ) {
   if (!changes.length || runningAutomation()) return;
+  thresholdRowsChanged(databaseId);
   try {
     const automations = await db
       .select({ id: databaseAutomation.id, trigger: databaseAutomation.trigger, version: databaseAutomation.version })

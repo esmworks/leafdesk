@@ -13,6 +13,7 @@ import {
   listAutomationRuns,
   listAutomations,
   previewDatePassed,
+  previewThreshold,
   publishAutomation,
   rotateAutomationHook,
   rotateAutomationSecret,
@@ -158,4 +159,9 @@ export async function listAutomationRunsAction(automationId: string, limit = 20)
 /** How many rows a "date passed" trigger being edited would run for at the next check, days in `timeZone`. */
 export async function previewDatePassedAction(databaseId: string, trigger: AutomationInput["trigger"], automationId: string | null, timeZone: string) {
   return run((userId) => previewDatePassed(userId, databaseId, trigger, automationId, timeZone));
+}
+
+/** A threshold trigger's value now, as typed (null when its view or property is gone). */
+export async function previewThresholdAction(databaseId: string, trigger: AutomationInput["trigger"], timeZone: string) {
+  return run((userId) => previewThreshold(userId, databaseId, trigger, timeZone));
 }

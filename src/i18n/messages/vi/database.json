@@ -1309,9 +1309,10 @@
     "lastRun": "Lần chạy gần nhất: {status}, {time}",
     "neverRun": "Chưa chạy lần nào",
     "checkError": {
-      "propertyDeleted": "Đã tạm dừng: thuộc tính ngày hoặc trạng thái của nó đã bị xóa. Hãy khôi phục thuộc tính hoặc chỉnh sửa tự động hóa.",
+      "propertyDeleted": "Đã tạm dừng: một thuộc tính mà nó dùng đã bị xóa. Hãy khôi phục thuộc tính hoặc chỉnh sửa tự động hóa.",
       "noAccess": "Đã tạm dừng: người lưu nó gần nhất không còn toàn quyền với cơ sở dữ liệu này. Hãy lưu lại để chạy nó với tư cách bạn.",
-      "scheduleInvalid": "Đã tạm dừng: lịch của nó không bao giờ đến hạn. Hãy chỉnh sửa tự động hóa."
+      "scheduleInvalid": "Đã tạm dừng: lịch của nó không bao giờ đến hạn. Hãy chỉnh sửa tự động hóa.",
+      "viewDeleted": "Đã tạm dừng: chế độ xem của nó đã bị xóa hoặc chuyển thành riêng tư. Hãy khôi phục chế độ xem hoặc chỉnh sửa tự động hóa."
     },
     "tooMany": "Một cơ sở dữ liệu có thể có tối đa {max} tự động hóa",
     "deletedProperty": "Thuộc tính đã xóa",
@@ -1334,7 +1335,10 @@
       "weekly": "mỗi {days} lúc {time}",
       "monthly": "vào ngày {days} hằng tháng lúc {time}",
       "cron": "đến hạn theo lịch “{cron}”",
-      "incoming": "một yêu cầu đến địa chỉ của nó"
+      "incoming": "một yêu cầu đến địa chỉ của nó",
+      "thresholdCount": "số hàng trong “{view}” {comparison, select, above {vượt quá} other {giảm xuống dưới}} {value}",
+      "thresholdOf": "{fn, select, sum {tổng} average {giá trị trung bình} median {trung vị} min {giá trị nhỏ nhất} other {giá trị lớn nhất}} của {property} trong “{view}” {comparison, select, above {vượt quá} other {giảm xuống dưới}} {value}",
+      "deletedView": "một chế độ xem đã xóa"
     },
     "summaryAction": {
       "set": "Đặt {properties}",
@@ -1355,6 +1359,7 @@
         "row_created": "Một hàng được thêm",
         "property_changed": "Một thuộc tính thay đổi",
         "date_passed": "Một ngày đến",
+        "view_threshold": "Một tổng vượt qua ngưỡng",
         "schedule": "Theo lịch",
         "incoming_webhook": "Một yêu cầu đến (webhook đến)"
       },
@@ -1449,7 +1454,10 @@
         "exampleTooLong": "Nội dung ví dụ quá dài.",
         "needApprovers": "Hãy chọn người cần hỏi.",
         "needTimeout": "Hãy nhập một số ngày nguyên từ 1 đến 30.",
-        "needSlackUrl": "Nhập địa chỉ webhook đến của Slack."
+        "needSlackUrl": "Nhập địa chỉ webhook đến của Slack.",
+        "needView": "Hãy chọn chế độ xem có các hàng được đếm.",
+        "needNumber": "Hãy chọn thuộc tính số để tính.",
+        "needThreshold": "Hãy nhập số để so sánh."
       },
       "agent": "Tác tử",
       "chooseAgent": "Chọn một tác tử…",
@@ -1593,7 +1601,9 @@
         "timedOutContinued": "Không ai trả lời trước {time}: lần chạy đã tiếp tục",
         "waiting": "Đã hỏi {names}, đến {time}",
         "closed": "Đã hỏi {names}; lần chạy kết thúc trước khi có câu trả lời"
-      }
+      },
+      "thresholdCrossed": "{comparison, select, above {Đã vượt quá {threshold}} other {Đã giảm xuống dưới {threshold}}}: {value}",
+      "threshold": "Đã vượt ngưỡng"
     },
     "nextRun": "Lần chạy tiếp theo {time}",
     "lifecycle": {
@@ -1734,7 +1744,12 @@
       "agentRunId": "ID lần chạy của tác tử",
       "rowId": "ID hàng",
       "approvedBy": "Người đã phê duyệt",
-      "answeredAt": "Thời điểm được trả lời"
+      "answeredAt": "Thời điểm được trả lời",
+      "value": "Giá trị",
+      "previous": "Giá trị ở lần kiểm tra trước",
+      "threshold": "Ngưỡng",
+      "viewName": "Tên chế độ xem",
+      "viewUrl": "Liên kết chế độ xem"
     },
     "test": {
       "title": "Chạy thử",
@@ -1749,7 +1764,8 @@
       "running": "Đang chạy thử…",
       "run": "Chạy thử",
       "saveAndRun": "Lưu và chạy",
-      "starting": "Đang bắt đầu…"
+      "starting": "Đang bắt đầu…",
+      "threshold": "Chạy các bước ngay bây giờ, như thể giá trị vừa vượt qua ngưỡng, với giá trị hiện tại."
     },
     "approval": {
       "people": "Hỏi những người này",
@@ -1784,6 +1800,31 @@
         "name": "Ăn mừng các hàng đã hoàn thành",
         "description": "Khi một hàng được đánh dấu là xong, pháo giấy cho người đã làm điều đó."
       }
+    },
+    "threshold": {
+      "view": "Chế độ xem",
+      "chooseView": "Chọn một chế độ xem",
+      "noViews": "Cơ sở dữ liệu này chưa có chế độ xem dùng chung. Hãy thêm một chế độ xem có bộ lọc chọn ra các hàng cần đếm.",
+      "calculation": "Phép tính",
+      "fn": {
+        "count_all": "Số hàng",
+        "sum": "Tổng",
+        "average": "Trung bình",
+        "median": "Trung vị",
+        "min": "Nhỏ nhất",
+        "max": "Lớn nhất"
+      },
+      "property": "Của",
+      "chooseNumber": "Chọn một số",
+      "noNumbers": "Cơ sở dữ liệu này không có thuộc tính số nào để tính.",
+      "comparison": "Khi giá trị",
+      "above": "Vượt quá",
+      "below": "Giảm xuống dưới",
+      "value": "Giá trị",
+      "now": "Hiện tại: {value}.",
+      "nowMet": "Hiện tại: {value}, đã vượt qua ngưỡng. Nó chạy vào lần tới khi giá trị vượt qua ngưỡng, sau khi đã quay lại.",
+      "nowNone": "Hiện tại: không có giá trị (các hàng của chế độ xem không có số).",
+      "help": "Chạy một lần khi giá trị vượt qua ngưỡng, và chỉ chạy lại sau khi giá trị đã quay lại. Hệ thống kiểm tra ngay sau khi các hàng thay đổi, và vài phút một lần với bộ lọc theo ngày hôm nay. Các hàng và giá trị là những gì người phụ trách tự động hóa có thể thấy."
     }
   },
   "subItems": {

@@ -1309,9 +1309,10 @@
     "lastRun": "마지막 실행: {status}, {time}",
     "neverRun": "아직 실행되지 않음",
     "checkError": {
-      "propertyDeleted": "일시 중지됨: 날짜 또는 상태 속성이 삭제되었습니다. 속성을 복원하거나 자동화를 편집하세요.",
+      "propertyDeleted": "일시 중지됨: 사용하는 속성이 삭제되었습니다. 속성을 복원하거나 자동화를 편집하세요.",
       "noAccess": "일시 중지됨: 마지막으로 저장한 사람에게 더 이상 이 데이터베이스에 대한 전체 액세스 권한이 없습니다. 내 권한으로 실행하려면 저장하세요.",
-      "scheduleInvalid": "일시 중지됨: 일정이 한 번도 돌아오지 않습니다. 자동화를 편집하세요."
+      "scheduleInvalid": "일시 중지됨: 일정이 한 번도 돌아오지 않습니다. 자동화를 편집하세요.",
+      "viewDeleted": "일시 중지됨: 보기가 삭제되었거나 개인용으로 바뀌었습니다. 보기를 복원하거나 자동화를 편집하세요."
     },
     "tooMany": "데이터베이스에는 자동화를 최대 {max}개까지 만들 수 있습니다",
     "deletedProperty": "삭제된 속성",
@@ -1334,7 +1335,10 @@
       "weekly": "매주 {days} {time}이 되면",
       "monthly": "매월 {days}일 {time}이 되면",
       "cron": "일정 “{cron}”이 돌아오면",
-      "incoming": "주소로 요청이 도착하면"
+      "incoming": "주소로 요청이 도착하면",
+      "thresholdCount": "“{view}”의 행 수가 {value}{comparison, select, above { 위로 올라가면} other { 아래로 내려가면}}",
+      "thresholdOf": "“{view}”의 {property} {fn, select, sum {합계} average {평균} median {중앙값} min {최솟값} other {최댓값}}이(가) {value}{comparison, select, above { 위로 올라가면} other { 아래로 내려가면}}",
+      "deletedView": "삭제된 보기"
     },
     "summaryAction": {
       "set": "{properties} 설정",
@@ -1355,6 +1359,7 @@
         "row_created": "행이 추가됨",
         "property_changed": "속성이 변경됨",
         "date_passed": "날짜가 지남",
+        "view_threshold": "합계가 기준선을 넘으면",
         "schedule": "일정에 따라",
         "incoming_webhook": "요청이 도착함(수신 웹훅)"
       },
@@ -1449,7 +1454,10 @@
         "exampleTooLong": "예시 본문이 너무 깁니다.",
         "needApprovers": "요청할 사람을 선택하세요.",
         "needTimeout": "1에서 30 사이의 정수로 일수를 입력하세요.",
-        "needSlackUrl": "Slack 수신 웹후크 주소를 입력하세요."
+        "needSlackUrl": "Slack 수신 웹후크 주소를 입력하세요.",
+        "needView": "행을 셀 보기를 선택하세요.",
+        "needNumber": "계산할 숫자 속성을 선택하세요.",
+        "needThreshold": "비교할 숫자를 입력하세요."
       },
       "agent": "에이전트",
       "chooseAgent": "에이전트 선택…",
@@ -1593,7 +1601,9 @@
         "timedOutContinued": "{time}까지 아무도 응답하지 않아 실행이 계속됨",
         "waiting": "{names}에게 요청함, {time}까지",
         "closed": "{names}에게 요청했지만 응답 전에 실행이 끝남"
-      }
+      },
+      "thresholdCrossed": "{comparison, select, above {{threshold} 위로 올라감} other {{threshold} 아래로 내려감}}: {value}",
+      "threshold": "기준선 넘음"
     },
     "nextRun": "다음 실행 {time}",
     "lifecycle": {
@@ -1734,7 +1744,12 @@
       "agentRunId": "에이전트 실행 ID",
       "rowId": "행 ID",
       "approvedBy": "승인한 사람",
-      "answeredAt": "응답한 시각"
+      "answeredAt": "응답한 시각",
+      "value": "값",
+      "previous": "이전 확인 시점의 값",
+      "threshold": "기준값",
+      "viewName": "보기 이름",
+      "viewUrl": "보기 링크"
     },
     "test": {
       "title": "테스트 실행",
@@ -1749,7 +1764,8 @@
       "running": "테스트 실행 중…",
       "run": "테스트 실행",
       "saveAndRun": "저장 후 실행",
-      "starting": "시작 중…"
+      "starting": "시작 중…",
+      "threshold": "값이 방금 기준선을 넘은 것처럼, 현재 값으로 지금 단계를 실행합니다."
     },
     "approval": {
       "people": "다음 사람에게 요청",
@@ -1784,6 +1800,31 @@
         "name": "완료된 행 축하하기",
         "description": "행이 완료로 표시되면 표시한 사람에게 색종이를 날립니다."
       }
+    },
+    "threshold": {
+      "view": "보기",
+      "chooseView": "보기 선택",
+      "noViews": "이 데이터베이스에는 공유된 보기가 없습니다. 셀 행을 필터로 고르는 보기를 추가하세요.",
+      "calculation": "계산",
+      "fn": {
+        "count_all": "행 수",
+        "sum": "합계",
+        "average": "평균",
+        "median": "중앙값",
+        "min": "최솟값",
+        "max": "최댓값"
+      },
+      "property": "대상",
+      "chooseNumber": "숫자 선택",
+      "noNumbers": "이 데이터베이스에는 계산할 숫자 속성이 없습니다.",
+      "comparison": "조건",
+      "above": "위로 올라감",
+      "below": "아래로 내려감",
+      "value": "값",
+      "now": "현재: {value}.",
+      "nowMet": "현재: {value}, 이미 기준선을 넘었습니다. 값이 되돌아간 뒤 다시 기준선을 넘을 때 실행됩니다.",
+      "nowNone": "현재: 값 없음(보기의 행에 숫자가 없음).",
+      "help": "값이 기준선을 넘을 때 한 번 실행되고, 값이 되돌아간 뒤에야 다시 실행됩니다. 행이 바뀐 직후와, 오늘 날짜를 쓰는 필터는 몇 분마다 확인합니다. 행과 값은 자동화의 담당자가 볼 수 있는 것입니다."
     }
   },
   "subItems": {

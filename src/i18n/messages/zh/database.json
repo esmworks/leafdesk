@@ -1309,9 +1309,10 @@
     "lastRun": "上次运行：{status}，{time}",
     "neverRun": "尚未运行",
     "checkError": {
-      "propertyDeleted": "已暂停：其日期或状态属性已被删除。请恢复该属性或编辑此自动化。",
+      "propertyDeleted": "已暂停：它使用的属性已被删除。请恢复该属性或编辑此自动化。",
       "noAccess": "已暂停：最后保存它的人已不再拥有此数据库的完全访问权限。保存即可以你的身份运行。",
-      "scheduleInvalid": "已暂停：其计划永远不会到来。请编辑此自动化。"
+      "scheduleInvalid": "已暂停：其计划永远不会到来。请编辑此自动化。",
+      "viewDeleted": "已暂停：其视图已被删除或改为个人视图。请恢复该视图或编辑此自动化。"
     },
     "tooMany": "一个数据库最多可以有 {max} 个自动化",
     "deletedProperty": "已删除的属性",
@@ -1334,7 +1335,10 @@
       "weekly": "每{days} {time} 时",
       "monthly": "每月 {days} 日 {time} 时",
       "cron": "计划“{cron}”到来时",
-      "incoming": "其地址收到请求时"
+      "incoming": "其地址收到请求时",
+      "thresholdCount": "“{view}”中的行数{comparison, select, above {高于} other {低于}} {value} 时",
+      "thresholdOf": "“{view}”中{property}的{fn, select, sum {总和} average {平均值} median {中位数} min {最小值} other {最大值}}{comparison, select, above {高于} other {低于}} {value} 时",
+      "deletedView": "已删除的视图"
     },
     "summaryAction": {
       "set": "设置 {properties}",
@@ -1355,6 +1359,7 @@
         "row_created": "添加一行",
         "property_changed": "属性更改",
         "date_passed": "日期已过",
+        "view_threshold": "合计越过某条线时",
         "schedule": "按计划",
         "incoming_webhook": "收到请求（传入 Webhook）"
       },
@@ -1449,7 +1454,10 @@
         "exampleTooLong": "示例正文太长。",
         "needApprovers": "选择要询问的人。",
         "needTimeout": "输入 1 到 30 之间的整数天数。",
-        "needSlackUrl": "请输入 Slack 传入 Webhook 的地址。"
+        "needSlackUrl": "请输入 Slack 传入 Webhook 的地址。",
+        "needView": "请选择要统计行数的视图。",
+        "needNumber": "请选择要计算的数字属性。",
+        "needThreshold": "请输入要比较的数字。"
       },
       "agent": "智能体",
       "chooseAgent": "选择智能体…",
@@ -1593,7 +1601,9 @@
         "timedOutContinued": "截至 {time} 无人回复：运行已继续",
         "waiting": "已询问 {names}，截至 {time}",
         "closed": "已询问 {names}；运行在回复前已结束"
-      }
+      },
+      "thresholdCrossed": "{comparison, select, above {高于 {threshold}} other {低于 {threshold}}}：{value}",
+      "threshold": "越过阈值"
     },
     "nextRun": "下次运行 {time}",
     "lifecycle": {
@@ -1734,7 +1744,12 @@
       "agentRunId": "智能体运行 ID",
       "rowId": "行 ID",
       "approvedBy": "批准人",
-      "answeredAt": "回复时间"
+      "answeredAt": "回复时间",
+      "value": "值",
+      "previous": "上一次检查时的值",
+      "threshold": "阈值",
+      "viewName": "视图名称",
+      "viewUrl": "视图链接"
     },
     "test": {
       "title": "测试运行",
@@ -1749,7 +1764,8 @@
       "running": "正在运行测试…",
       "run": "运行测试",
       "saveAndRun": "保存并运行",
-      "starting": "正在启动…"
+      "starting": "正在启动…",
+      "threshold": "现在就运行各步骤，就像值刚刚越过该线一样，使用它当前的值。"
     },
     "approval": {
       "people": "询问这些人",
@@ -1784,6 +1800,31 @@
         "name": "庆祝完成的行",
         "description": "当某行被标记为完成时，为标记的人撒彩纸。"
       }
+    },
+    "threshold": {
+      "view": "视图",
+      "chooseView": "选择视图",
+      "noViews": "此数据库没有共享视图。请添加一个用筛选条件选出要统计行的视图。",
+      "calculation": "计算",
+      "fn": {
+        "count_all": "行数",
+        "sum": "求和",
+        "average": "平均值",
+        "median": "中位数",
+        "min": "最小值",
+        "max": "最大值"
+      },
+      "property": "属性",
+      "chooseNumber": "选择数字",
+      "noNumbers": "此数据库没有可供计算的数字属性。",
+      "comparison": "变为",
+      "above": "高于",
+      "below": "低于",
+      "value": "值",
+      "now": "当前：{value}。",
+      "nowMet": "当前：{value}，已越过该线。值回落后再次越过时才会运行。",
+      "nowNone": "当前：无值（视图的行中没有数字）。",
+      "help": "值越过该线时运行一次，只有在回落之后才会再次运行。行变化后稍候检查，使用今天日期的筛选条件每隔几分钟检查一次。行和值是此自动化的所属人能看到的。"
     }
   },
   "subItems": {

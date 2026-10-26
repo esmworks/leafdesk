@@ -62,6 +62,7 @@ import { parseSearchQuery } from "@/lib/search-query";
 import { uniqueIdQuery } from "@/lib/unique-id";
 import { pageChanged } from "@/server/page-events";
 import { heldPageIds, refuseHeldPages } from "@/server/legal-hold";
+import { thresholdRowsChanged } from "@/server/automations/queue";
 import { beforePagesDeleted, queuePageCreated, queuePageMoved, queuePagesDeleted, queuePageTrashed } from "@/server/page-webhooks/queue";
 import { searchFoldSql } from "@/server/search-fold-sql";
 import { sweepDocuments } from "@/server/file-text";
@@ -607,7 +608,10 @@ export async function archivePage(userId: string, pageId: string) {
     });
   }
   getCollab().broadcast(`ws:${p.workspaceId}`, "tree");
-  if (p.parentId) getCollab().broadcast(`db:${p.parentId}`, "rows");
+  if (p.parentId) {
+    getCollab().broadcast(`db:${p.parentId}`, "rows");
+    thresholdRowsChanged(p.parentId);
+  }
   return p;
 }
 
@@ -646,6 +650,7 @@ export async function archiveRows(userId: string, databaseId: string, rowIds: st
   await getCollab().pagesTrashed(trashed.map((t) => t.id), true);
   getCollab().broadcast(`ws:${database.workspaceId}`, "tree");
   getCollab().broadcast(`db:${databaseId}`, "rows");
+  thresholdRowsChanged(databaseId);
   return { done: roots, skipped };
 }
 
@@ -700,7 +705,10 @@ export async function restorePage(userId: string, pageId: string) {
   // when it was lifted to the top: their chunks name the pages above).
   pageChanged({ pageId, subtree: parentId !== p.parentId });
   getCollab().broadcast(`ws:${p.workspaceId}`, "tree");
-  if (parentId) getCollab().broadcast(`db:${parentId}`, "rows");
+  if (parentId) {
+    getCollab().broadcast(`db:${parentId}`, "rows");
+    thresholdRowsChanged(parentId);
+  }
 }
 
 export async function deletePagePermanently(userId: string, pageId: string) {

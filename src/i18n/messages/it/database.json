@@ -1309,9 +1309,10 @@
     "lastRun": "Ultima esecuzione: {status}, {time}",
     "neverRun": "Non ancora eseguita",
     "checkError": {
-      "propertyDeleted": "In pausa: la sua proprietà data o stato è stata eliminata. Ripristina la proprietà o modifica l’automazione.",
+      "propertyDeleted": "In pausa: una proprietà che usa è stata eliminata. Ripristina la proprietà o modifica l’automazione.",
       "noAccess": "In pausa: chi l’ha salvata per ultimo non ha più accesso completo a questo database. Salvala per eseguirla a tuo nome.",
-      "scheduleInvalid": "In pausa: la sua pianificazione non arriva mai. Modifica l’automazione."
+      "scheduleInvalid": "In pausa: la sua pianificazione non arriva mai. Modifica l’automazione.",
+      "viewDeleted": "In pausa: la sua vista è stata eliminata o resa personale. Ripristina la vista o modifica l’automazione."
     },
     "tooMany": "Un database può avere al massimo {max} automazioni",
     "deletedProperty": "Proprietà eliminata",
@@ -1334,7 +1335,10 @@
       "weekly": "sono le {time} di ogni {days}",
       "monthly": "sono le {time} del giorno {days} di ogni mese",
       "cron": "arriva la pianificazione “{cron}”",
-      "incoming": "arriva una richiesta al suo indirizzo"
+      "incoming": "arriva una richiesta al suo indirizzo",
+      "thresholdCount": "il numero di righe in “{view}” va {comparison, select, above {sopra} other {sotto}} {value}",
+      "thresholdOf": "{fn, select, sum {la somma} average {la media} median {la mediana} min {il minimo} other {il massimo}} di {property} in “{view}” va {comparison, select, above {sopra} other {sotto}} {value}",
+      "deletedView": "una vista eliminata"
     },
     "summaryAction": {
       "set": "Imposta {properties}",
@@ -1355,6 +1359,7 @@
         "row_created": "Viene aggiunta una riga",
         "property_changed": "Cambia una proprietà",
         "date_passed": "Passa una data",
+        "view_threshold": "Un totale supera una soglia",
         "schedule": "Secondo una pianificazione",
         "incoming_webhook": "Arriva una richiesta (webhook in entrata)"
       },
@@ -1449,7 +1454,10 @@
         "exampleTooLong": "Il corpo di esempio è troppo lungo.",
         "needApprovers": "Scegli a chi chiedere.",
         "needTimeout": "Inserisci un numero intero di giorni tra 1 e 30.",
-        "needSlackUrl": "Inserisci l’indirizzo del webhook in entrata di Slack."
+        "needSlackUrl": "Inserisci l’indirizzo del webhook in entrata di Slack.",
+        "needView": "Scegli la vista le cui righe vengono contate.",
+        "needNumber": "Scegli la proprietà numerica su cui calcolare.",
+        "needThreshold": "Inserisci il numero con cui confrontare."
       },
       "agent": "Agente",
       "chooseAgent": "Scegli un agente…",
@@ -1593,7 +1601,9 @@
         "timedOutContinued": "Nessuno ha risposto entro {time}: l’esecuzione è proseguita",
         "waiting": "Chiesto a {names}, fino a {time}",
         "closed": "Chiesto a {names}; l’esecuzione è finita prima di una risposta"
-      }
+      },
+      "thresholdCrossed": "{comparison, select, above {Salito sopra {threshold}} other {Sceso sotto {threshold}}}: {value}",
+      "threshold": "Soglia superata"
     },
     "nextRun": "Prossima esecuzione {time}",
     "lifecycle": {
@@ -1734,7 +1744,12 @@
       "agentRunId": "ID dell’esecuzione dell’agente",
       "rowId": "ID della riga",
       "approvedBy": "Chi ha approvato",
-      "answeredAt": "Quando è stata data la risposta"
+      "answeredAt": "Quando è stata data la risposta",
+      "value": "Valore",
+      "previous": "Valore al controllo precedente",
+      "threshold": "Soglia",
+      "viewName": "Nome della vista",
+      "viewUrl": "Link della vista"
     },
     "test": {
       "title": "Esecuzione di prova",
@@ -1749,7 +1764,8 @@
       "running": "Prova in corso…",
       "run": "Esegui prova",
       "saveAndRun": "Salva ed esegui",
-      "starting": "Avvio…"
+      "starting": "Avvio…",
+      "threshold": "Esegue i passaggi ora, come se il valore avesse appena superato la soglia, con il valore attuale."
     },
     "approval": {
       "people": "Chiedi a queste persone",
@@ -1784,6 +1800,31 @@
         "name": "Festeggia le righe completate",
         "description": "Quando una riga viene segnata come fatta, coriandoli per chi l’ha segnata."
       }
+    },
+    "threshold": {
+      "view": "Vista",
+      "chooseView": "Scegli una vista",
+      "noViews": "Questo database non ha viste condivise. Aggiungine una i cui filtri scelgano le righe da contare.",
+      "calculation": "Calcolo",
+      "fn": {
+        "count_all": "Numero di righe",
+        "sum": "Somma",
+        "average": "Media",
+        "median": "Mediana",
+        "min": "Minimo",
+        "max": "Massimo"
+      },
+      "property": "Di",
+      "chooseNumber": "Scegli un numero",
+      "noNumbers": "Questo database non ha proprietà numeriche su cui calcolare.",
+      "comparison": "Va",
+      "above": "Sopra",
+      "below": "Sotto",
+      "value": "Valore",
+      "now": "Ora: {value}.",
+      "nowMet": "Ora: {value}, ha già superato la soglia. Viene eseguita la prossima volta che il valore la supera, dopo essere tornato indietro.",
+      "nowNone": "Ora: nessun valore (nessun numero nelle righe della vista).",
+      "help": "Viene eseguita una volta quando il valore supera la soglia, e di nuovo solo dopo che è tornato indietro. Il controllo avviene poco dopo la modifica delle righe e ogni pochi minuti per i filtri sulla data di oggi. Righe e valori sono quelli che la persona dell’automazione può vedere."
     }
   },
   "subItems": {

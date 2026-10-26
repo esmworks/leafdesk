@@ -267,7 +267,7 @@ export function AutomationEditor({
         </Field>
 
         <Section title={t("form.when")}>
-          <TriggerEditor trigger={draft.trigger} people={people} saved={saved} onChange={setTrigger} onUpdated={onUpdated} />
+          <TriggerEditor databaseId={databaseId} trigger={draft.trigger} people={people} saved={saved} onChange={setTrigger} onUpdated={onUpdated} />
           {draft.trigger.type === "date_passed" && (
             <DatePassedPreview databaseId={databaseId} automationId={saved?.id ?? null} trigger={draft.trigger} />
           )}

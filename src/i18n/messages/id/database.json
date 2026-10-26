@@ -1309,9 +1309,10 @@
     "lastRun": "Eksekusi terakhir: {status}, {time}",
     "neverRun": "Belum pernah dijalankan",
     "checkError": {
-      "propertyDeleted": "Dijeda: properti tanggal atau statusnya dihapus. Pulihkan properti atau edit otomatisasi.",
+      "propertyDeleted": "Dijeda: properti yang digunakannya dihapus. Pulihkan properti atau edit otomatisasi.",
       "noAccess": "Dijeda: orang yang terakhir menyimpannya tidak lagi memiliki akses penuh ke basis data ini. Simpan untuk menjalankannya atas nama Anda.",
-      "scheduleInvalid": "Dijeda: jadwalnya tidak pernah tiba. Edit otomatisasi."
+      "scheduleInvalid": "Dijeda: jadwalnya tidak pernah tiba. Edit otomatisasi.",
+      "viewDeleted": "Dijeda: tampilannya dihapus atau dijadikan pribadi. Pulihkan tampilan atau edit otomatisasi."
     },
     "tooMany": "Basis data dapat memiliki paling banyak {max} otomatisasi",
     "deletedProperty": "Properti yang dihapus",
@@ -1334,7 +1335,10 @@
       "weekly": "setiap {days} pukul {time}",
       "monthly": "pada tanggal {days} setiap bulan pukul {time}",
       "cron": "jadwal “{cron}” tiba",
-      "incoming": "permintaan masuk ke alamatnya"
+      "incoming": "permintaan masuk ke alamatnya",
+      "thresholdCount": "jumlah baris di “{view}” {comparison, select, above {melebihi} other {turun di bawah}} {value}",
+      "thresholdOf": "{fn, select, sum {jumlah} average {rata-rata} median {median} min {nilai terkecil} other {nilai terbesar}} {property} di “{view}” {comparison, select, above {melebihi} other {turun di bawah}} {value}",
+      "deletedView": "tampilan yang dihapus"
     },
     "summaryAction": {
       "set": "Atur {properties}",
@@ -1355,6 +1359,7 @@
         "row_created": "Baris ditambahkan",
         "property_changed": "Properti berubah",
         "date_passed": "Tanggal terlewati",
+        "view_threshold": "Total melewati batas",
         "schedule": "Sesuai jadwal",
         "incoming_webhook": "Permintaan masuk (webhook masuk)"
       },
@@ -1449,7 +1454,10 @@
         "exampleTooLong": "Isi contoh terlalu panjang.",
         "needApprovers": "Pilih siapa yang dimintai.",
         "needTimeout": "Masukkan jumlah hari bulat dari 1 sampai 30.",
-        "needSlackUrl": "Masukkan alamat webhook masuk Slack."
+        "needSlackUrl": "Masukkan alamat webhook masuk Slack.",
+        "needView": "Pilih tampilan yang barisnya dihitung.",
+        "needNumber": "Pilih properti angka yang akan dihitung.",
+        "needThreshold": "Masukkan angka pembanding."
       },
       "agent": "Agen",
       "chooseAgent": "Pilih agen…",
@@ -1593,7 +1601,9 @@
         "timedOutContinued": "Tidak ada yang menjawab hingga {time}: eksekusi dilanjutkan",
         "waiting": "Meminta {names}, hingga {time}",
         "closed": "Meminta {names}; eksekusi berakhir sebelum ada jawaban"
-      }
+      },
+      "thresholdCrossed": "{comparison, select, above {Naik melewati {threshold}} other {Turun di bawah {threshold}}}: {value}",
+      "threshold": "Batas terlewati"
     },
     "nextRun": "Eksekusi berikutnya {time}",
     "lifecycle": {
@@ -1734,7 +1744,12 @@
       "agentRunId": "ID eksekusi agen",
       "rowId": "ID baris",
       "approvedBy": "Siapa yang menyetujui",
-      "answeredAt": "Kapan dijawab"
+      "answeredAt": "Kapan dijawab",
+      "value": "Nilai",
+      "previous": "Nilai pada pengecekan sebelumnya",
+      "threshold": "Batas",
+      "viewName": "Nama tampilan",
+      "viewUrl": "Tautan tampilan"
     },
     "test": {
       "title": "Eksekusi uji",
@@ -1749,7 +1764,8 @@
       "running": "Menjalankan uji…",
       "run": "Jalankan uji",
       "saveAndRun": "Simpan dan jalankan",
-      "starting": "Memulai…"
+      "starting": "Memulai…",
+      "threshold": "Menjalankan langkah sekarang, seolah-olah nilai baru saja melewati batas, dengan nilainya saat ini."
     },
     "approval": {
       "people": "Minta orang-orang ini",
@@ -1784,6 +1800,31 @@
         "name": "Rayakan baris yang selesai",
         "description": "Saat baris ditandai selesai, konfeti untuk orang yang menyelesaikannya."
       }
+    },
+    "threshold": {
+      "view": "Tampilan",
+      "chooseView": "Pilih tampilan",
+      "noViews": "Database ini tidak punya tampilan bersama. Tambahkan satu yang filternya memilih baris yang dihitung.",
+      "calculation": "Perhitungan",
+      "fn": {
+        "count_all": "Jumlah baris",
+        "sum": "Jumlah",
+        "average": "Rata-rata",
+        "median": "Median",
+        "min": "Min",
+        "max": "Maks"
+      },
+      "property": "Dari",
+      "chooseNumber": "Pilih angka",
+      "noNumbers": "Database ini tidak punya properti angka untuk dihitung.",
+      "comparison": "Menjadi",
+      "above": "Di atas",
+      "below": "Di bawah",
+      "value": "Nilai",
+      "now": "Sekarang: {value}.",
+      "nowMet": "Sekarang: {value}, sudah melewati batas. Berjalan saat nilai melewatinya lagi setelah kembali.",
+      "nowNone": "Sekarang: tidak ada nilai (tidak ada angka di baris tampilan).",
+      "help": "Berjalan sekali saat nilai melewati batas, dan baru berjalan lagi setelah nilai kembali. Dicek sesaat setelah baris berubah, dan setiap beberapa menit untuk filter berdasarkan tanggal hari ini. Baris dan nilainya adalah yang bisa dilihat oleh orang pemilik otomatisasi."
     }
   },
   "subItems": {

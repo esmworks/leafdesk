@@ -1309,9 +1309,10 @@
     "lastRun": "Siste kjøring: {status}, {time}",
     "neverRun": "Har ikke kjørt ennå",
     "checkError": {
-      "propertyDeleted": "Satt på pause: dato- eller statusegenskapen ble slettet. Gjenopprett egenskapen eller rediger automatiseringen.",
+      "propertyDeleted": "Satt på pause: en egenskap den bruker, ble slettet. Gjenopprett egenskapen eller rediger automatiseringen.",
       "noAccess": "Satt på pause: den som lagret den sist, har ikke lenger full tilgang til denne databasen. Lagre den for å kjøre den som deg.",
-      "scheduleInvalid": "Satt på pause: tidsplanen inntreffer aldri. Rediger automatiseringen."
+      "scheduleInvalid": "Satt på pause: tidsplanen inntreffer aldri. Rediger automatiseringen.",
+      "viewDeleted": "Satt på pause: visningen ble slettet eller gjort personlig. Gjenopprett visningen eller rediger automatiseringen."
     },
     "tooMany": "En database kan ha høyst {max} automatiseringer",
     "deletedProperty": "Slettet egenskap",
@@ -1334,7 +1335,10 @@
       "weekly": "hver {days} klokken {time}",
       "monthly": "på dag {days} i hver måned klokken {time}",
       "cron": "tidsplanen «{cron}» inntreffer",
-      "incoming": "en forespørsel kommer til adressen"
+      "incoming": "en forespørsel kommer til adressen",
+      "thresholdCount": "antall rader i «{view}» går {comparison, select, above {over} other {under}} {value}",
+      "thresholdOf": "{fn, select, sum {summen} average {gjennomsnittet} median {medianen} min {minimum} other {maksimum}} av {property} i «{view}» går {comparison, select, above {over} other {under}} {value}",
+      "deletedView": "en slettet visning"
     },
     "summaryAction": {
       "set": "Angi {properties}",
@@ -1355,6 +1359,7 @@
         "row_created": "En rad legges til",
         "property_changed": "En egenskap endres",
         "date_passed": "En dato passeres",
+        "view_threshold": "En sum krysser en grense",
         "schedule": "Etter en tidsplan",
         "incoming_webhook": "En forespørsel kommer inn (innkommende webhook)"
       },
@@ -1449,7 +1454,10 @@
         "exampleTooLong": "Eksempelbrødteksten er for lang.",
         "needApprovers": "Velg hvem som skal spørres.",
         "needTimeout": "Skriv inn et helt antall dager fra 1 til 30.",
-        "needSlackUrl": "Skriv inn adressen til den innkommende webhooken i Slack."
+        "needSlackUrl": "Skriv inn adressen til den innkommende webhooken i Slack.",
+        "needView": "Velg visningen som radene telles i.",
+        "needNumber": "Velg tallegenskapen det skal beregnes på.",
+        "needThreshold": "Skriv inn tallet det skal sammenlignes med."
       },
       "agent": "Agent",
       "chooseAgent": "Velg en agent…",
@@ -1593,7 +1601,9 @@
         "timedOutContinued": "Ingen svarte innen {time}: kjøringen fortsatte",
         "waiting": "Spurte {names}, frist {time}",
         "closed": "Spurte {names}; kjøringen ble avsluttet før noen svarte"
-      }
+      },
+      "thresholdCrossed": "{comparison, select, above {Gikk over {threshold}} other {Gikk under {threshold}}}: {value}",
+      "threshold": "Grense krysset"
     },
     "nextRun": "Neste kjøring {time}",
     "lifecycle": {
@@ -1734,7 +1744,12 @@
       "agentRunId": "ID for agentkjøring",
       "rowId": "Rad-ID",
       "approvedBy": "Hvem som godkjente",
-      "answeredAt": "Når det ble svart"
+      "answeredAt": "Når det ble svart",
+      "value": "Verdi",
+      "previous": "Verdi ved forrige sjekk",
+      "threshold": "Grense",
+      "viewName": "Visningens navn",
+      "viewUrl": "Lenke til visningen"
     },
     "test": {
       "title": "Testkjøring",
@@ -1749,7 +1764,8 @@
       "running": "Kjører testen…",
       "run": "Kjør test",
       "saveAndRun": "Lagre og kjør",
-      "starting": "Starter…"
+      "starting": "Starter…",
+      "threshold": "Kjører trinnene nå, som om verdien nettopp hadde krysset grensen, med verdien den har nå."
     },
     "approval": {
       "people": "Spør disse personene",
@@ -1784,6 +1800,31 @@
         "name": "Feir ferdige rader",
         "description": "Når en rad merkes som ferdig, får den som gjorde det, konfetti."
       }
+    },
+    "threshold": {
+      "view": "Visning",
+      "chooseView": "Velg en visning",
+      "noViews": "Denne databasen har ingen delte visninger. Legg til en der filtrene velger radene som skal telles.",
+      "calculation": "Beregning",
+      "fn": {
+        "count_all": "Antall rader",
+        "sum": "Sum",
+        "average": "Gjennomsnitt",
+        "median": "Median",
+        "min": "Minste",
+        "max": "Største"
+      },
+      "property": "Av",
+      "chooseNumber": "Velg et tall",
+      "noNumbers": "Denne databasen har ingen tallegenskaper å beregne på.",
+      "comparison": "Går",
+      "above": "Over",
+      "below": "Under",
+      "value": "Verdi",
+      "now": "Nå: {value}.",
+      "nowMet": "Nå: {value}, allerede forbi grensen. Den kjører neste gang verdien krysser den, etter å ha gått tilbake.",
+      "nowNone": "Nå: ingen verdi (ingen tall i radene i visningen).",
+      "help": "Kjører én gang når verdien krysser grensen, og igjen først etter at den har gått tilbake. Det sjekkes kort tid etter at rader endres, og hvert par minutter for filtre på dagens dato. Radene og verdiene er de automatiseringens person kan se."
     }
   },
   "subItems": {

@@ -3,11 +3,23 @@
 import { Check, Copy, RefreshCw, X } from "lucide-react";
 import { useFormatter, useLocale, useTranslations } from "next-intl";
 import { useEffect, useState } from "react";
-import { previewDatePassedAction, rotateAutomationHookAction } from "@/app/actions/automations";
+import { previewDatePassedAction, previewThresholdAction, rotateAutomationHookAction } from "@/app/actions/automations";
 import { copyText } from "@/components/settings/copy-button";
 import { Button, cn, IconButton, Input, textareaClass } from "@/components/ui";
 import { MAX_CRON_LENGTH } from "@/lib/automation-schedule";
-import { DATE_PASSED_BATCH, INCOMING_PER_MINUTE, MAX_DATE_PASSED_DAYS, MAX_EXAMPLE_PAYLOAD, TO_VALUE_TYPES } from "@/lib/automations";
+import {
+  DATE_PASSED_BATCH,
+  INCOMING_PER_MINUTE,
+  MAX_DATE_PASSED_DAYS,
+  MAX_EXAMPLE_PAYLOAD,
+  MAX_THRESHOLD,
+  THRESHOLD_COMPARISONS,
+  THRESHOLD_FNS,
+  TO_VALUE_TYPES,
+  type ThresholdComparison,
+  type ThresholdFn,
+} from "@/lib/automations";
+import { chartAggregateFunctionsOf } from "@/lib/chart";
 import { STATUS_GROUPS } from "@/lib/property-types";
 import { browserTimeZone, timeZoneLabel } from "@/lib/time-zone";
 import {
@@ -17,6 +29,7 @@ import {
   nextRun,
   optionsOf,
   parseJson,
+  thresholdNumber,
   TRIGGER_CHOICES,
   triggerInput,
   type Automation,
@@ -24,22 +37,26 @@ import {
   type DraftTrigger,
   type Person,
 } from "./automations-shared";
+import { useDatabaseInfo } from "./automations-data";
 import { selectClass } from "./automations-values";
 import { PropertyTypeIcon } from "./property-icons";
 import { useSchema } from "./schema-context";
+import { useFormatResult } from "./table-calculations";
 import type { Property } from "./types";
 
 /**
  * What starts an automation: a row added, properties changing (to a value), a date passing, a
- * schedule, or a request to the automation's own address.
+ * calculation over a view crossing a line, a schedule, or a request to the automation's own address.
  */
 export function TriggerEditor({
+  databaseId,
   trigger,
   people,
   saved,
   onChange,
   onUpdated,
 }: {
+  databaseId: string;
   trigger: DraftTrigger;
   people: Person[];
   /** The automation as saved, for an incoming webhook's address. */
@@ -51,6 +68,7 @@ export function TriggerEditor({
   const properties = useSchema();
   const dates = properties.filter((p) => p.type === "date");
   const statuses = properties.filter((p) => p.type === "status");
+  const views = useDatabaseInfo(databaseId)?.views ?? [];
 
   return (
     <div className="space-y-2">
@@ -68,7 +86,9 @@ export function TriggerEditor({
                   ? { type, schedule: defaultSchedule() }
                   : type === "incoming_webhook"
                     ? { type, example: "" }
-                    : { type: "property_changed", properties: [] },
+                    : type === "view_threshold"
+                      ? { type, view: views[0]?.id ?? "", fn: "count_all", property: "", comparison: "above", value: "0" }
+                      : { type: "property_changed", properties: [] },
           );
         }}
         className={selectClass}
@@ -85,7 +105,148 @@ export function TriggerEditor({
       {trigger.type === "incoming_webhook" && (
         <IncomingWebhookEditor trigger={trigger} saved={saved} onChange={onChange} onUpdated={onUpdated} />
       )}
+      {trigger.type === "view_threshold" && <ThresholdEditor databaseId={databaseId} trigger={trigger} views={views} onChange={onChange} />}
     </div>
+  );
+}
+
+type ThresholdDraft = Extract<DraftTrigger, { type: "view_threshold" }>;
+
+/**
+ * "A total crosses a line": the view whose rows count, what is calculated over them (their number,
+ * or the sum, average… of a number property), above or below which number, and the value now.
+ */
+function ThresholdEditor({
+  databaseId,
+  trigger,
+  views,
+  onChange,
+}: {
+  databaseId: string;
+  trigger: ThresholdDraft;
+  views: { id: string; name: string }[];
+  onChange: (trigger: DraftTrigger) => void;
+}) {
+  const t = useTranslations("database.automations");
+  const tt = useTranslations("database.automations.threshold");
+  const properties = useSchema();
+  const set = (patch: Partial<ThresholdDraft>) => onChange({ ...trigger, ...patch });
+  // Numbers, and formulas and rollups that give one.
+  const numbers = properties.filter((p) => chartAggregateFunctionsOf(p).includes("sum"));
+  const viewKnown = views.some((v) => v.id === trigger.view);
+  const numberKnown = numbers.some((p) => p.id === trigger.property);
+  return (
+    <div className="space-y-2 rounded-lg border border-border p-3">
+      <label className="block">
+        <span className="mb-1 block text-xs text-fg-muted">{tt("view")}</span>
+        <select value={trigger.view} onChange={(e) => set({ view: e.target.value })} className={selectClass}>
+          {!trigger.view && <option value="">{tt("chooseView")}</option>}
+          {views.map((v) => (
+            <option key={v.id} value={v.id}>
+              {v.name}
+            </option>
+          ))}
+          {trigger.view && !viewKnown && <option value={trigger.view}>{t("summaryTrigger.deletedView")}</option>}
+        </select>
+        {!views.length && <span className="mt-1 block text-xs text-fg-faint">{tt("noViews")}</span>}
+      </label>
+      <div className="flex flex-col gap-2 sm:flex-row">
+        <label className="block min-w-0 flex-1">
+          <span className="mb-1 block text-xs text-fg-muted">{tt("calculation")}</span>
+          <select
+            value={trigger.fn}
+            onChange={(e) => {
+              const fn = e.target.value as ThresholdFn;
+              set({ fn, property: fn === "count_all" ? "" : trigger.property || (numbers[0]?.id ?? "") });
+            }}
+            className={selectClass}
+          >
+            {THRESHOLD_FNS.map((fn) => (
+              <option key={fn} value={fn} disabled={fn !== "count_all" && !numbers.length}>
+                {tt(`fn.${fn}`)}
+              </option>
+            ))}
+          </select>
+        </label>
+        {trigger.fn !== "count_all" && (
+          <label className="block min-w-0 flex-1">
+            <span className="mb-1 block text-xs text-fg-muted">{tt("property")}</span>
+            <select value={trigger.property} onChange={(e) => set({ property: e.target.value })} className={selectClass}>
+              {!trigger.property && <option value="">{tt("chooseNumber")}</option>}
+              {numbers.map((p) => (
+                <option key={p.id} value={p.id}>
+                  {p.name}
+                </option>
+              ))}
+              {trigger.property && !numberKnown && <option value={trigger.property}>{t("deletedProperty")}</option>}
+            </select>
+          </label>
+        )}
+      </div>
+      {trigger.fn !== "count_all" && !numbers.length && <p className="text-xs text-fg-faint">{tt("noNumbers")}</p>}
+      <div className="flex flex-col gap-2 sm:flex-row">
+        <label className="block sm:w-40">
+          <span className="mb-1 block text-xs text-fg-muted">{tt("comparison")}</span>
+          <select value={trigger.comparison} onChange={(e) => set({ comparison: e.target.value as ThresholdComparison })} className={selectClass}>
+            {THRESHOLD_COMPARISONS.map((c) => (
+              <option key={c} value={c}>
+                {tt(c)}
+              </option>
+            ))}
+          </select>
+        </label>
+        <label className="block min-w-0 flex-1">
+          <span className="mb-1 block text-xs text-fg-muted">{tt("value")}</span>
+          <Input
+            type="number"
+            inputMode="decimal"
+            min={-MAX_THRESHOLD}
+            max={MAX_THRESHOLD}
+            step="any"
+            value={trigger.value}
+            onChange={(e) => set({ value: e.target.value })}
+          />
+        </label>
+      </div>
+      <ThresholdPreview databaseId={databaseId} trigger={trigger} format={numbers.find((p) => p.id === trigger.property)?.options} />
+      <p className="text-xs text-fg-faint">{tt("help")}</p>
+    </div>
+  );
+}
+
+/** The trigger's value now, as the editor's person sees it, so the line can be set against it. */
+function ThresholdPreview({ databaseId, trigger, format }: { databaseId: string; trigger: ThresholdDraft; format: Property["options"] | undefined }) {
+  const tt = useTranslations("database.automations.threshold");
+  const formatResult = useFormatResult();
+  const [now, setNow] = useState<{ value: number | null; met: boolean } | null>(null);
+  const ready = !!trigger.view && (trigger.fn === "count_all" || !!trigger.property) && thresholdNumber(trigger.value) !== null;
+  const key = JSON.stringify(triggerInput(trigger));
+  useEffect(() => {
+    if (!ready) return;
+    let live = true;
+    const timer = setTimeout(() => {
+      previewThresholdAction(databaseId, JSON.parse(key), browserTimeZone())
+        .then((res) => live && setNow(res.ok ? res.data : null))
+        .catch(() => live && setNow(null));
+    }, 300);
+    return () => {
+      live = false;
+      clearTimeout(timer);
+    };
+  }, [databaseId, key, ready]);
+  if (!ready || !now) return null;
+  if (now.value === null) {
+    return (
+      <p className="text-xs text-fg-muted" role="status">
+        {tt("nowNone")}
+      </p>
+    );
+  }
+  const value = formatResult(trigger.fn, { format: "number", value: now.value }, trigger.fn === "count_all" ? undefined : format);
+  return (
+    <p className="text-xs text-fg-muted" role="status">
+      {now.met ? tt("nowMet", { value }) : tt("now", { value })}
+    </p>
   );
 }
 
