@@ -868,7 +868,8 @@
   can also have a domain of its own (see [Workspace site on its own domain](../README.md#workspace-site-on-its-own-domain)).
   A publication can also **allow duplicate**: signed-in
   visitors copy the page, as published, into one of their workspaces (or its templates), files
-  included and without comments, history, people or private properties.
+  included and without comments, history, people or private properties; of a database, only the
+  rows its views on the web show.
 - **File uploads**: drop, paste or pick images, video, audio and other files into a page. They are
   stored on disk or in S3-compatible storage, only people who can see a page showing them can open
   them, and published pages show theirs (see [File uploads](self-hosting.md#file-uploads)). Uploaded PDFs show
