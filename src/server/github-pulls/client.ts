@@ -1,6 +1,6 @@
 import { GITHUB_PAGE_SIZE, MAX_GITHUB_PULLS, pullRow, type GithubErrorCode, type GithubPullRow, type GithubPullsQuery } from "@/lib/github-pulls-sync";
 import { checkConnectionUrl, ConnectionFetchError, connectionFetch } from "@/server/connections/fetch";
-import { JiraError } from "@/server/jira-sync/client";
+import { answerJson, JiraError } from "@/server/jira-sync/client";
 
 /**
  * Leafdesk's calls to GitHub's REST API for synced pull requests (lib/github-pulls-sync), with a
@@ -16,6 +16,8 @@ export class GithubPullsError extends JiraError {
 }
 
 const TIMEOUT_MS = 30_000;
+/** The biggest answer read from GitHub, in bytes: a page of a hundred pull requests with long descriptions fits. */
+const MAX_ANSWER_BYTES = 20_000_000;
 
 /** Checks an API address before anything is sent there. */
 export function checkGithubApi(apiUrl: string) {
@@ -44,7 +46,7 @@ async function call(apiUrl: string, token: string | null, path: string): Promise
     if (error instanceof ConnectionFetchError) throw new GithubPullsError("invalidSite", error.message);
     throw new GithubPullsError("unreachable", "GitHub could not be reached");
   }
-  const body: unknown = await response.json().catch(() => undefined);
+  const body = await answerJson(response, MAX_ANSWER_BYTES);
   if (response.ok) {
     if (body === undefined) throw new GithubPullsError("notFound", "No GitHub answered at this address");
     return body;
