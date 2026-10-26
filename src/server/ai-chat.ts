@@ -22,10 +22,14 @@
  * 6. for members (not guests), may make it call the tools of the workspace's connections that its
  *    owners allowed the chat (server/connections): they run with the connection's credentials,
  *    their answers reach the model framed as outside data, and one that changes something there
- *    waits for the person's approval each time, in every mode (and isn't offered in `read`);
+ *    waits for the person's approval each time, in every mode (and isn't offered in `read`); once
+ *    a service answered, every change and note is asked about for the rest of the answer, also in
+ *    `auto`, as after reading the web;
  * 7. where the workspace's owners turned web search on, may make it search the web and read web
- *    pages (ai-chat-web.ts), read-only; once it read from the web, every change and note is asked
- *    about for the rest of the answer, also in `auto`;
+ *    pages (ai-chat-web.ts), read-only: what a call carries leaves the workspace, so each waits for
+ *    the person's approval, in every mode, showing the address or the words (lib/web-calls.ts),
+ *    except a read of an address they wrote in the conversation; once it read from the web, every
+ *    change and note is asked about for the rest of the answer, also in `auto`;
  * 8. carries the files attached to its questions (ai-chat-files.ts) with the conversation: every
  *    later question sends their text again (a CSV file as a table), cut to fit, with
  *    `read_attachment` to read further and `create_database_from_csv` to import a CSV file; images
@@ -96,6 +100,7 @@ import { browserTimeZone, isTimeZone } from "@/lib/time-zone";
 import { attachmentBlock, chatHistory, chatQuestionPrompt, chatSystemPrompt, researchSystemPrompt } from "@/server/ai/prompts";
 import { attachmentRecords, deleteConversationFiles, keepQuestionFiles, questionFiles, readConversationFiles, type ChatFileContent } from "@/server/ai-chat-files";
 import { chatWebOn, chatWebToolset, isChatWebTool, PLAN_TOOL, runChatWebTool, runPlan } from "@/server/ai-chat-web";
+import { chatWebCallAsks, webCallAction } from "@/lib/web-calls";
 import type { FileRow } from "@/server/files";
 import { getSkillContent, SkillError } from "@/server/skills";
 import { teamspaceLabel } from "@/server/teamspaces";
@@ -470,7 +475,7 @@ async function* runChat(
     steps.push(record);
     return { type: "step", step: await viewStep(userId, record) };
   };
-  /** Asks the person about a change or note, pinging while the answer waits; their decision. */
+  /** Asks the person about a change, a note or a web call, pinging while the answer waits; their decision. */
   async function* decide(action: ChatActionView): AsyncGenerator<ChatEvent, ChatDecision | "timeout"> {
     const waiting = awaitDecision(userId, signal);
     yield { type: "approval", id: waiting.id, action };
@@ -528,8 +533,11 @@ async function* runChat(
   // The model that answered, and the tokens a research answer's turns used.
   let answeredBy: string | null = null;
   let spent = 0;
-  // Something from the web is in the conversation: from then on every change and note is asked about.
-  let fromWeb = false;
+  // Something from outside (the web, a connection's tool) is in the conversation: from then on every
+  // change and note is asked about.
+  let untrusted = false;
+  // What the person wrote in the conversation: a web page whose address they gave is read without asking.
+  const typed = [message, ...(existing?.messages.slice(0, existing.messages.length - replaced) ?? []).filter((m) => m.role === "user").map((m) => m.content)];
   try {
     // ---------------------------------------------------------------------------- the question
     // Nothing is searched for the model: it gets the map of what there is and decides itself.
@@ -626,13 +634,32 @@ async function* runChat(
         const left = room() - sizeOf(messages) - 300;
         let out: ToolOutcome;
         const entry = external?.byName.get(call.name);
-        if (entry) out = yield* callConnection(entry, call.arguments, left);
-        else if (research && call.name === PLAN_TOOL.name) out = runPlan(call);
+        if (entry) {
+          out = yield* callConnection(entry, call.arguments, left);
+          // What a service returns (mail, issues) can be anyone's words: what follows is asked about.
+          if (out.step?.kind === "connection" && out.step.outcome !== "declined") {
+            untrusted = true;
+            if (mode === "auto") mode = "ask";
+          }
+        } else if (research && call.name === PLAN_TOOL.name) out = runPlan(call);
         else if (webTools.length && isChatWebTool(call.name)) {
-          out = await runChatWebTool(call, registry, left);
-          // Web text could pass itself off as the person's wish: what follows is asked about.
-          fromWeb = true;
-          if (mode === "auto") mode = "ask";
+          // What a web call carries leaves the workspace, and what the model read could have put it
+          // there: each is asked about, in every mode, unless it reads an address the person wrote.
+          let decision: ChatDecision | "timeout" = "approve";
+          if (chatWebCallAsks(call, typed)) decision = yield* decide(webCallAction(call));
+          if (decision === "decline" || decision === "timeout") {
+            out = {
+              content:
+                decision === "timeout"
+                  ? "The person didn't answer in time, so nothing was sent to the web. Answer with what you have."
+                  : "The person declined this web call: nothing was sent. Don't try it again; answer with what you have, or ask them what to look up.",
+            };
+          } else {
+            out = await runChatWebTool(call, registry, left);
+            // Web text could pass itself off as the person's wish: what follows is asked about.
+            untrusted = true;
+            if (mode === "auto") mode = "ask";
+          }
         }
         // With the memory off, remember and forget aren't offered: called anyway, they're unknown.
         else if (remembers && MEMORY_TOOL_NAMES.has(call.name)) {
@@ -648,7 +675,7 @@ async function* runChat(
           let decision: ChatDecision | "timeout" = "approve";
           if ("action" in prepared && mode === "ask") {
             decision = yield* decide(prepared.action);
-            if (decision === "always" && !fromWeb) mode = "auto";
+            if (decision === "always" && !untrusted) mode = "auto";
           }
           out = "action" in prepared ? await applyWrite(prepared, decision, registry) : prepared;
         }

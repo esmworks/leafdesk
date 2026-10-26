@@ -5,12 +5,17 @@
  * addresses only, checked on every redirect, within a time and size limit. Results come back
  * framed as data from outside and are numbered sources the answer cites by their address.
  *
- * Web text is anyone's: once an answer read from the web, ai-chat.ts asks the person before every
- * change and note for the rest of it, even in Auto; research mode has no tools that change anything.
+ * What a call carries leaves the workspace (the address for the site, the words for the search
+ * service), and text the model read could have put what it read there: ai-chat.ts asks the person
+ * before each call, in every mode, showing the address or words (lib/web-calls.ts), except a read
+ * of an address they wrote in the conversation. Web text is anyone's: once an answer read from the
+ * web, ai-chat.ts asks the person before every change and note for the rest of it, even in Auto;
+ * research mode has no tools that change anything.
  *
  * Also the research mode's plan (`plan_research`), the sub-questions a report sets out to answer.
  */
 import { WEB_TOOL_NAMES } from "@/lib/agents";
+import { webCallTarget } from "@/lib/web-calls";
 import type { AiTool } from "@/server/ai";
 import { chatWebTools, readWebPage, searchWeb, WEB_PAGE_CHARS, WebPageError, webSearchService, type WebFetchGuard } from "@/server/agents/web";
 import { formatSources } from "@/server/ai/prompts";
@@ -68,7 +73,7 @@ export async function runChatWebTool(
 ): Promise<ToolOutcome> {
   if (room < 1_000) return { content: "There is no room left in this request to read more from the web. Answer with what you have.", isError: true };
   if (call.name === WEB_TOOL_NAMES.search) {
-    const query = typeof call.arguments.query === "string" ? call.arguments.query.replace(/\s+/g, " ").trim().slice(0, 500) : "";
+    const query = webCallTarget(call);
     if (!query) return { content: `${WEB_TOOL_NAMES.search} needs a query.`, isError: true };
     try {
       const results = await searchWeb(query, { env, fetcher });
@@ -83,7 +88,7 @@ export async function runChatWebTool(
       return { content: `${error.message}. Don't search the web again for this question.`, isError: true, step: { kind: "web", action: "search", query, results: 0 } };
     }
   }
-  const url = typeof call.arguments.url === "string" ? call.arguments.url.trim().slice(0, 2_000) : "";
+  const url = webCallTarget(call);
   if (!url) return { content: `${WEB_TOOL_NAMES.read} needs a url.`, isError: true };
   try {
     const page = await readWebPage(url, { maxChars: Math.max(0, Math.min(WEB_PAGE_CHARS, room - 500)), guard });

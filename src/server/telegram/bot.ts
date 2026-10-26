@@ -364,6 +364,9 @@ export function approvalText(t: Translator, action: ChatActionView): string {
     lines.push(html(t, "approval.connection", { connection: escapeHtml(action.connection?.name ?? ""), tool: escapeHtml(action.title ?? "") }));
   } else if (action.action === "remember" || action.action === "forget") {
     lines.push(escapeHtml(t(`approval.${action.action}`)), `<blockquote>${escapeHtml(action.title ?? "")}</blockquote>`);
+  } else if (action.action === "readWeb" || action.action === "searchWeb") {
+    // The address or the words, whole, as they would leave the workspace.
+    lines.push(escapeHtml(t(`approval.${action.action}`)), `<pre>${escapeHtml(action.title ?? "")}</pre>`);
   } else if (action.action === "createPage" && !action.target) {
     lines.push(html(t, "approval.createPageTop", { title: name(action.title) }));
   } else if (action.action === "createDatabase" && !action.target) {
@@ -387,7 +390,7 @@ export function approvalText(t: Translator, action: ChatActionView): string {
 async function askApproval(link: TelegramLinkRow, t: Translator, id: string, action: ChatActionView, mode: ChatMode) {
   const text = approvalText(t, action);
   // "Don't ask again" makes the rest of the answer `auto`, which covers changes to the workspace only.
-  const always = mode === "ask" && action.action !== "connection" && action.action !== "remember" && action.action !== "forget";
+  const always = mode === "ask" && !["connection", "remember", "forget", "readWeb", "searchWeb"].includes(action.action);
   const keyboard = {
     inline_keyboard: [
       [

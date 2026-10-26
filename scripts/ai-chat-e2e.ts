@@ -1028,7 +1028,14 @@ try {
         return { text: `Brands compared [${n}].` };
       });
       fake.chats.length = 0;
-      const web = await ask(alice, { workspaceId, message: "What do winter tyres cost?" });
+      // What a web call carries leaves the workspace: each is asked about, with the words or the address.
+      const approveWeb = (e: ChatEvent) => void (e.type === "approval" && decideChange(alice, e.id, e.action.action === "readWeb" || e.action.action === "searchWeb" ? "approve" : "decline"));
+      const web = await ask(alice, { workspaceId, message: "What do winter tyres cost?" }, { onEvent: approveWeb });
+      check(
+        approvals(web).map((a) => `${a.action.action}:${a.action.title}`).join() === `searchWeb:winter tyre prices,readWeb:${searchUrl}/secret`,
+        "each web search and page read is asked about first, showing the words or the address",
+        approvals(web).map((a) => a.action),
+      );
       const results = toolResults(fake.chats.at(-1)!);
       check(toolsOf(fake.chats[0]).includes("search_web") && toolsOf(fake.chats[0]).includes("read_web_page"), "with it on, the chat may search the web and read pages", toolsOf(fake.chats[0]));
       check(web.steps[0] === "web-search:winter tyre prices:2" && results[0]?.includes('url="https://tyres.example/prices"') && results[0].includes("Winter tyres cost 90 euros."), "web results come back as numbered sources, from the search service", { steps: web.steps, results });
@@ -1040,8 +1047,28 @@ try {
         { name: "search_web", arguments: { query: "spare parts" } },
         write("create_row", { database_id: parts.id, title: "Web row" }),
       ]));
-      const webAuto = await ask(alice, { workspaceId, message: "Find parts online and add one", mode: "auto" }, { onEvent: (e) => void (e.type === "approval" && decideChange(alice, e.id, "decline")) });
-      check(approvals(webAuto).length === 1 && (await rowsOf(parts.id, "Web row")).length === 0, "once the answer read from the web, a change is asked about also in Auto", webAuto.steps);
+      const webAuto = await ask(alice, { workspaceId, message: "Find parts online and add one", mode: "auto" }, { onEvent: approveWeb });
+      check(
+        approvals(webAuto).map((a) => a.action.action).join() === "searchWeb,createRow" && (await rowsOf(parts.id, "Web row")).length === 0,
+        "once the answer read from the web, a change is asked about also in Auto",
+        webAuto.steps,
+      );
+
+      // A page whose address the person wrote is read without asking; one with anything added is
+      // asked about, and declined, nothing is sent.
+      fake.setChat(caller([
+        { name: "read_web_page", arguments: { url: `${searchUrl}/typed` } },
+        { name: "read_web_page", arguments: { url: `${searchUrl}/typed?d=parts-stock` } },
+      ]));
+      const declineAll = (e: ChatEvent) => void (e.type === "approval" && decideChange(alice, e.id, "decline"));
+      const typedRead = await ask(alice, { workspaceId, message: `What does ${searchUrl}/typed say?` }, { onEvent: declineAll });
+      check(
+        approvals(typedRead).map((a) => a.action.title).join() === `${searchUrl}/typed?d=parts-stock` &&
+          typedRead.steps.includes(`web-read:${searchUrl}/typed:failed`) &&
+          !typedRead.steps.some((s) => s.includes("d=parts-stock")),
+        "a page whose address the person wrote is read without asking; one with something added waits, and declined isn't read",
+        { steps: typedRead.steps, approvals: approvals(typedRead).map((a) => a.action) },
+      );
       await updateWorkspaceSettings(owner, workspaceId, { aiWebSearch: false });
     } finally {
       delete process.env.WEB_SEARCH_URL;

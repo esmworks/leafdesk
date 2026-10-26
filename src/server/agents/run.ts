@@ -26,7 +26,9 @@
  * sending nothing, after APPROVAL_TIMEOUT_MS. An event's run waits the same way before each row it
  * adds, trusted or not: trust lets it read. An agent an owner gave web access reads public pages
  * (and searches, where the server has a search service; web.ts) as it reads from a connection:
- * within the same limit, and waiting for an owner before each call where every connection tool does.
+ * within the same limit, and waiting for an owner before each call where every connection tool does,
+ * and on a run a person asked for in words (a chat, a mention, a request) before each call whose
+ * address or search words aren't in their message: what it read could otherwise leave in one.
  *
  * A person's message in a chat with the agent (lib/agent-chat.ts) is a run too, held to that
  * person's access: the run of someone who can edit the agent (an owner, or someone it is shared
@@ -76,6 +78,7 @@ import { APPROVAL_TIMEOUT_MS, CONNECTION_EVENT_DAYS, MAX_RUN_EXTERNAL_CHARS } fr
 import { pageLabel } from "@/lib/labels";
 import { redactError, redactText, redactValue } from "@/lib/redact";
 import { threadBefore } from "@/lib/comments";
+import { agentWebCallAsks } from "@/lib/web-calls";
 import { AccessError, findMembership, hasLevel, inWorkspace, pageAccessOf } from "@/server/access";
 import { runActingFor } from "@/server/acting-for";
 import { aiConfig, AiError, complete, isAiError, promptRoomFor, takeWorkspaceCapacity, type AiMessage, type AiResult, type AiTool, type AiToolCall } from "@/server/ai";
@@ -576,13 +579,20 @@ async function converse(
   // address.
   const webTools = webToolsFor(agent);
   const webNames = new Set(webTools.map((t) => t.name));
+  // A run a person asked for in words (a chat message, a mention, a request, or a helper's run for
+  // one) reads what they may open, some of it written by others, who could steer it into sending
+  // that out: a web call carrying an address or search words the person didn't write (or any, on a
+  // helper's run, whose task an agent wrote) waits for an owner too (lib/web-calls.ts).
+  const askedFor = accessSource(run.source);
+  const askedInWords = askedFor.kind === "chat" || askedFor.kind === "request" || isMentionRun(askedFor);
+  const webAsks = { askEveryTool, typed: askedInWords ? (run.source.kind === "handoff" ? [] : [run.prompt]) : null };
   const chat = run.source.kind === "chat";
   // Its owners chose that its changes to rows wait for review: create_row and update_row propose
   // them (pending-changes.ts). A chat's changes are still made at once: the person is there, and asked.
   const proposes = agent.rowChanges === "review" && !chat;
   // Leafdesk's own tools this run makes only once an owner approves (none on a row's run). A row an
   // event's run proposes waits for review instead: nothing to approve before then.
-  const ownApproved: ReadonlySet<string> = new Set([...(eventRun && !proposes ? EVENT_APPROVED_TOOLS : []), ...(askEveryTool ? webNames : [])]);
+  const ownApproved: ReadonlySet<string> = new Set([...(eventRun && !proposes ? EVENT_APPROVED_TOOLS : []), ...(askEveryTool || askedInWords ? webNames : [])]);
   // The run's own time, from now: the wait for an answer doesn't count, nor (up to a point) the
   // wait for agents it asks.
   const clock = runClock(databaseId ? SCHEDULED_RUN_TIMEOUT_MS : AGENT_RUN_TIMEOUT_MS);
@@ -638,7 +648,9 @@ async function converse(
     mentioned: mentionEdits ?? undefined,
     connections,
     askEveryTool,
-    web: webTools.length ? { search: webNames.has(WEB_TOOL_NAMES.search) } : undefined,
+    web: webTools.length
+      ? { search: webNames.has(WEB_TOOL_NAMES.search), asks: webAsks.typed ? (webAsks.typed.length ? "untyped" : "each") : undefined }
+      : undefined,
     skills: skillSet.skills,
     remembers,
     reviews,
@@ -766,7 +778,16 @@ async function converse(
     }
     // Reading the web changes nothing: it counts as reading from outside, not as a change.
     if (webNames.has(call.name)) {
-      if (askEveryTool && !approved) return null;
+      if (!approved && agentWebCallAsks(call, webAsks)) {
+        // No owner answers for this run: waiting would only run out of time.
+        if (unanswered && !askEveryTool) {
+          return {
+            content: "This address or search isn't in the message you were given, and no one can approve it on this run: nothing was sent. Use only the addresses and search words of the message, or finish without it.",
+            isError: true,
+          };
+        }
+        return null;
+      }
       const left = Math.min(MAX_RUN_EXTERNAL_CHARS - externalChars, room(messages));
       if (left <= 200) return { content: "You have read as much from outside as one run may. Finish with what you have.", isError: true };
       const out = await runWebTool(call, { room: left, decidedBy: approved?.userId ?? null });

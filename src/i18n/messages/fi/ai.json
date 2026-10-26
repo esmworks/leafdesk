@@ -326,6 +326,8 @@
         "editPage": "Muutetaanko tämän sivun tekstiä?",
         "createPdf": "Luodaanko tästä sivusta PDF ja liitetäänkö se?",
         "connection": "Lähetetäänkö tämä yhteyteen {connection}?",
+        "readWeb": "Luetaanko tämä verkkosivu?",
+        "searchWeb": "Haetaanko tätä verkosta?",
         "addComment": "Lisätäänkö tämä kommentti?",
         "createDatabase": "Lisätäänkö tämä tietokanta?",
         "createForm": "Lisätäänkö tämä lomake?"
@@ -342,6 +344,8 @@
       "page": "Sivu",
       "empty": "(tyhjä)",
       "connectionHint": "Lähetetään työtilan yhteydellä: se voi muuttaa jotain palvelussa {connection}",
+      "readWebHint": "Kaikki osoitteessa oleva päätyy sille sivustolle",
+      "searchWebHint": "Sanat päätyvät verkkohakupalveluun",
       "fromFile": "{rows, plural, one {# rivi} other {# riviä}} tiedostosta {name}",
       "titleColumn": "Otsikko",
       "publicForm": {

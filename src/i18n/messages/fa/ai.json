@@ -326,6 +326,8 @@
         "editPage": "متن این صفحه تغییر کند؟",
         "createPdf": "از این صفحه PDF ساخته و پیوست شود؟",
         "connection": "این به {connection} فرستاده شود؟",
+        "readWeb": "این صفحهٔ وب خوانده شود؟",
+        "searchWeb": "این در وب جست‌وجو شود؟",
         "addComment": "این نظر افزوده شود؟",
         "createDatabase": "این پایگاه داده افزوده شود؟",
         "createForm": "این فرم افزوده شود؟"
@@ -342,6 +344,8 @@
       "page": "صفحه",
       "empty": "(خالی)",
       "connectionHint": "با اتصال فضای کار فرستاده می‌شود: ممکن است چیزی را در {connection} تغییر دهد",
+      "readWebHint": "هر چه در نشانی است به آن سایت می‌رسد",
+      "searchWebHint": "واژه‌ها به سرویس جست‌وجوی وب می‌رسند",
       "fromFile": "{rows, plural, one {# ردیف} other {# ردیف}} از {name}",
       "titleColumn": "عنوان",
       "publicForm": {

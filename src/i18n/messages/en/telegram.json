@@ -83,6 +83,8 @@
     "remember": "Remember this about you?",
     "forget": "Forget this note?",
     "connection": "Send this to {connection} ({tool})?",
+    "readWeb": "Read this web page? Everything in its address reaches that site:",
+    "searchWeb": "Search the web for this? The words reach the search service:",
     "aPage": "a page",
     "yes": "Yes",
     "always": "Yes, don't ask again",

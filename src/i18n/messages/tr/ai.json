@@ -326,6 +326,8 @@
         "editPage": "Bu sayfanın metni değiştirilsin mi?",
         "createPdf": "Bu sayfanın PDF'i oluşturulup eklensin mi?",
         "connection": "Bu, {connection} hizmetine gönderilsin mi?",
+        "readWeb": "Bu web sayfası okunsun mu?",
+        "searchWeb": "Bu, web'de aransın mı?",
         "addComment": "Bu yorum eklensin mi?",
         "createDatabase": "Bu veritabanı eklensin mi?",
         "createForm": "Bu form eklensin mi?"
@@ -342,6 +344,8 @@
       "page": "Sayfa:",
       "empty": "(boş)",
       "connectionHint": "Çalışma alanının bağlantısıyla gönderilir: {connection} tarafında bir şeyi değiştirebilir",
+      "readWebHint": "Adresteki her şey o siteye ulaşır",
+      "searchWebHint": "Sözcükler web arama hizmetine ulaşır",
       "fromFile": "{name} dosyasından {rows, plural, one {# satır} other {# satır}}",
       "titleColumn": "Başlık",
       "publicForm": {

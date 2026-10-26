@@ -83,6 +83,8 @@
     "remember": "Soll ich mir das über dich merken?",
     "forget": "Diese Notiz vergessen?",
     "connection": "Das an {connection} ({tool}) senden?",
+    "readWeb": "Diese Webseite lesen? Alles in ihrer Adresse erreicht diese Website:",
+    "searchWeb": "Im Web danach suchen? Die Wörter erreichen den Suchdienst:",
     "aPage": "eine Seite",
     "yes": "Ja",
     "always": "Ja, nicht mehr fragen",
