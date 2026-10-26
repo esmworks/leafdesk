@@ -670,8 +670,14 @@ export async function purgeOrphanFiles(workspaceId?: string): Promise<number> {
  * Removes uploads no page ever showed, `olderThanMs` (a day by default) after they were uploaded
  * (in `workspaceId`, or everywhere), but for those of people under a legal hold: files attached
  * to an AI chat's question that was never sent too, but not those of a question kept in a conversation.
+ * Uploads waiting in a database for a form's answer (forms.ts) go sooner, `formOlderThanMs` (two
+ * hours) after: anyone may upload to a public form, and what nobody sends shouldn't fill the storage.
  */
-export async function purgeUnusedUploads({ olderThanMs = 24 * 60 * 60 * 1000, workspaceId }: { olderThanMs?: number; workspaceId?: string } = {}): Promise<number> {
+export async function purgeUnusedUploads({
+  olderThanMs = 24 * 60 * 60 * 1000,
+  formOlderThanMs = 2 * 60 * 60 * 1000,
+  workspaceId,
+}: { olderThanMs?: number; formOlderThanMs?: number; workspaceId?: string } = {}): Promise<number> {
   const keys = await db.transaction(async (tx) => {
     const gone = await tx
       .delete(file)
@@ -679,7 +685,9 @@ export async function purgeUnusedUploads({ olderThanMs = 24 * 60 * 60 * 1000, wo
         and(
           workspaceId ? eq(file.workspaceId, workspaceId) : undefined,
           isNull(file.referencedAt),
-          sql`${file.createdAt} < now() - make_interval(secs => ${olderThanMs / 1000})`,
+          sql`(${file.createdAt} < now() - make_interval(secs => ${olderThanMs / 1000})
+            or (${file.createdAt} < now() - make_interval(secs => ${formOlderThanMs / 1000})
+              and exists (select 1 from ${page} p where p.id = ${file.pageId} and p.kind = 'database')))`,
           sql`not exists (select 1 from ${fileReference} r where r.file_id = ${file.id})`,
           sql`not ${uploadUnderHold()}`,
           sql`not exists (select 1 from ${aiChatFile} c where c.file_id = ${file.id} and c.conversation_id is not null)`,

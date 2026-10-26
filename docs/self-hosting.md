@@ -35,7 +35,9 @@ it out too. A file a row holds only in a files & media property hidden from some
 access) doesn't open for them through that row. Only raster images, video,
 audio and PDF open in the browser; everything else, SVG included, is downloaded. When a page is
 deleted for good, its files go once no other page shows them, and uploads no page ever used are
-removed after a day. When files go this way, or with a deleted workspace or account, the stored
+removed after a day (uploads for a form's answer that was never sent after two hours). Uploads to
+a public form are limited per IP address and per form, in number and in size: at most 256 MB an
+hour from one address, and 1 GB waiting to be sent in one database. When files go this way, or with a deleted workspace or account, the stored
 objects to delete are queued in the same transaction that removes their records, and what storage
 refuses is tried again by the hourly file cleanup, waiting longer after each failure (up to a
 day), so no bytes stay behind with nothing pointing at them.

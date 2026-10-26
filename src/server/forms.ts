@@ -4,6 +4,7 @@ import { db } from "@/db";
 import {
   databaseView,
   file,
+  fileReference,
   formPublication,
   formSubmission,
   page,
@@ -31,12 +32,13 @@ import { normalizeValue, PropertyValueError, sortStatusOptions } from "@/lib/pro
 import { holdsOptions } from "@/lib/property-types";
 import { parentOf } from "@/lib/dependent-options";
 import { unknownToVisitors } from "@/lib/published-copy";
-import { SlidingWindowLimiter, takeAll } from "@/lib/rate-limit";
+import { sharedLimiter, takeAll, type SlidingWindowLimiter } from "@/lib/rate-limit";
 import { AccessError, accessRank, hasLevel, pageAccessOf, requireMembership, requirePageAccess, type RequiredLevel } from "@/server/access";
 import { followOrRefuse, getProperties, insertRows, normalizeRowProperties, withCode, type DatabaseProperty } from "@/server/databases";
 import { propertyAccessFor } from "@/server/property-access";
 import { publishBlocker } from "@/server/publication";
 import { storeFile, type StoredFile, type UploadInput } from "@/server/files";
+import { uploadLimits } from "@/server/storage";
 import { canPublish, publishingOn, workspacePeople } from "@/server/workspaces";
 import { refuseInLocalMode } from "@/server/local-mode";
 
@@ -219,8 +221,8 @@ function invalidAnswers(errors: AnswerError[]) {
 // database (uploadFormFile, uploadPublicFormFile), which holds it, unused, until the answer creates
 // its row. The answer then names the uploads (their paths), claimFormFiles checks they are uploads
 // to this database that no row uses yet, and the new row takes them over (adoptFormFiles), so they
-// belong to it exactly as if they had been uploaded to the row. Uploads nobody sends go away with
-// the other unused uploads after a day (files.purgeUnusedUploads).
+// belong to it exactly as if they had been uploaded to the row. Uploads nobody sends go away two
+// hours after they came (files.purgeUnusedUploads).
 
 /** Answers to files questions, apart from the others (which are checked as row values). */
 function splitFileAnswers(properties: DatabaseProperty[], values: Record<string, unknown>) {
@@ -308,15 +310,41 @@ export const FORM_FILE_RATE_LIMITS = {
   perIp: { limit: 30, windowMs: 10 * 60_000 },
   perForm: { limit: 300, windowMs: 60 * 60_000 },
 };
-const fileIpLimiter = new SlidingWindowLimiter(FORM_FILE_RATE_LIMITS.perIp.limit, FORM_FILE_RATE_LIMITS.perIp.windowMs);
-const fileFormLimiter = new SlidingWindowLimiter(FORM_FILE_RATE_LIMITS.perForm.limit, FORM_FILE_RATE_LIMITS.perForm.windowMs);
+const MIB = 1024 * 1024;
+/**
+ * Bytes of uploads to public forms: waiting in a form's database for their answers (all its
+ * forms', and the app's, together), and uploaded from one IP address in a window. Each at least
+ * one file of the largest size the server takes.
+ */
+export const FORM_FILE_BYTE_LIMITS = {
+  pendingPerForm: 1024 * MIB,
+  perIp: { bytes: 256 * MIB, windowMs: 60 * 60_000 },
+};
+// Kept on globalThis (sharedLimiter): route handlers and server actions are bundled apart.
+const fileIpLimiter = () => sharedLimiter("form-file:ip", FORM_FILE_RATE_LIMITS.perIp.limit, FORM_FILE_RATE_LIMITS.perIp.windowMs);
+const fileFormLimiter = () => sharedLimiter("form-file:form", FORM_FILE_RATE_LIMITS.perForm.limit, FORM_FILE_RATE_LIMITS.perForm.windowMs);
+/** Counts mebibytes, not uploads (see takeBytes). */
+const fileIpBytes = () =>
+  sharedLimiter("form-file:ip-bytes", Math.ceil(Math.max(FORM_FILE_BYTE_LIMITS.perIp.bytes, uploadLimits().maxFileBytes) / MIB), FORM_FILE_BYTE_LIMITS.perIp.windowMs);
+
+/**
+ * Takes `bytes` (counted in whole mebibytes, at least one) from `key`'s budget in `limiter` when
+ * they fit in it; whether they did.
+ */
+export function takeBytes(limiter: SlidingWindowLimiter, key: string, bytes: number, now = Date.now()): boolean {
+  const units = Math.max(1, Math.ceil(bytes / MIB));
+  if (limiter.count(key, now) + units > limiter.limit) return false;
+  for (let i = 0; i < units; i++) limiter.hit(key, now);
+  return true;
+}
 
 /**
  * Stores a file for an answer to a public form, held by the form's database until the answer is
  * sent (see above). Like answering: the link must be open, the form must be loaded (its ticket),
  * sign-in is needed unless the form is anonymous, and uploads are rate limited per IP address and
- * per form. The uploader can't read the file back (they can't see the database); the form shows
- * what they picked from their own device.
+ * per form, in count and in bytes (FORM_FILE_BYTE_LIMITS), so visitors can't fill the workspace's
+ * storage with uploads they never send. The uploader can't read the file back (they can't see the
+ * database); the form shows what they picked from their own device.
  */
 export async function uploadPublicFormFile(
   token: string,
@@ -332,11 +360,34 @@ export async function uploadPublicFormFile(
   if (!asksForFiles(form.config.form, await answerable(publishedBy, form.databaseId, await getProperties(form.databaseId), null), { public: true })) {
     throw new FormError("This form doesn't ask for files", "notAllowed");
   }
-  if (takeAll([[fileIpLimiter, ip], [fileFormLimiter, form.viewId]], now) > 0) {
+  if (takeAll([[fileIpLimiter(), ip], [fileFormLimiter(), form.viewId]], now) > 0) {
     throw new FormError("Too many uploads; try again later", "rateLimited");
   }
+  const tooMuch = () => new FormError("Too many files are waiting to be sent; try again later", "rateLimited");
+  const pendingLimit = Math.max(FORM_FILE_BYTE_LIMITS.pendingPerForm, uploadLimits().maxFileBytes);
   return storeFile(
-    { workspaceId: form.workspaceId, pageId: form.databaseId, uploadedBy: form.anonymous ? null : userId },
+    {
+      workspaceId: form.workspaceId,
+      pageId: form.databaseId,
+      uploadedBy: form.anonymous ? null : userId,
+      // Counted with the file in, one upload of the database at a time, so the sum is current.
+      record: async (tx, fileId) => {
+        await tx.execute(sql`select pg_advisory_xact_lock(hashtext(${`leafdesk:form-uploads:${form.databaseId}`}))`);
+        const [pending] = await tx
+          .select({ bytes: sql<string>`coalesce(sum(${file.size}), 0)` })
+          .from(file)
+          .where(
+            and(
+              eq(file.pageId, form.databaseId),
+              isNull(file.referencedAt),
+              sql`not exists (select 1 from ${fileReference} r where r.file_id = ${file.id})`,
+            ),
+          );
+        if (Number(pending?.bytes ?? 0) > pendingLimit) throw tooMuch();
+        const [stored] = await tx.select({ size: file.size }).from(file).where(eq(file.id, fileId));
+        if (!takeBytes(fileIpBytes(), ip, Number(stored?.size ?? 0), now)) throw tooMuch();
+      },
+    },
     input,
   );
 }
@@ -729,15 +780,12 @@ export const FORM_RATE_LIMITS = {
   perIp: { limit: 20, windowMs: 10 * 60_000 },
   perForm: { limit: 300, windowMs: 60 * 60_000 },
 };
-const ipLimiter = new SlidingWindowLimiter(FORM_RATE_LIMITS.perIp.limit, FORM_RATE_LIMITS.perIp.windowMs);
-const formLimiter = new SlidingWindowLimiter(FORM_RATE_LIMITS.perForm.limit, FORM_RATE_LIMITS.perForm.windowMs);
+const ipLimiter = () => sharedLimiter("form:ip", FORM_RATE_LIMITS.perIp.limit, FORM_RATE_LIMITS.perIp.windowMs);
+const formLimiter = () => sharedLimiter("form:form", FORM_RATE_LIMITS.perForm.limit, FORM_RATE_LIMITS.perForm.windowMs);
 
 /** Scripts and tests: start counting again. */
 export function resetFormRateLimits() {
-  ipLimiter.reset();
-  formLimiter.reset();
-  fileIpLimiter.reset();
-  fileFormLimiter.reset();
+  for (const limiter of [ipLimiter, formLimiter, fileIpLimiter, fileFormLimiter, fileIpBytes]) limiter().reset();
 }
 
 /** People take at least this long to fill in a form; scripts that post right away don't. */
@@ -792,7 +840,7 @@ export async function submitPublicForm(
   const age = ticketAge(token, submission.ticket, now);
   if (age === null || age > MAX_TICKET_AGE_MS) throw new FormError("The form has expired; reload it", "expired");
   if (age < MIN_FILL_MS) throw new FormError("The form was sent too quickly", "tooFast");
-  if (takeAll([[ipLimiter, ip], [formLimiter, form.viewId]], now) > 0) {
+  if (takeAll([[ipLimiter(), ip], [formLimiter(), form.viewId]], now) > 0) {
     throw new FormError("Too many answers; try again later", "rateLimited");
   }
   // Bots fill in every field. They are told it worked, so they have nothing to adapt to.

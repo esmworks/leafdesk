@@ -3,7 +3,28 @@ import type { ResolvedQuestion } from "@/lib/forms";
 
 vi.mock("@/db", () => ({ db: {} }));
 
-const { followAnswers, FormError } = await import("./forms");
+const { followAnswers, FormError, takeBytes } = await import("./forms");
+const { SlidingWindowLimiter } = await import("@/lib/rate-limit");
+
+describe("takeBytes (public form uploads per IP address)", () => {
+  const MIB = 1024 * 1024;
+
+  it("takes uploads while their mebibytes fit the budget, and refuses one that doesn't without taking it", () => {
+    const limiter = new SlidingWindowLimiter(10, 60_000);
+    expect(takeBytes(limiter, "1.2.3.4", 6 * MIB, 0)).toBe(true);
+    expect(takeBytes(limiter, "1.2.3.4", 5 * MIB, 0)).toBe(false);
+    expect(limiter.count("1.2.3.4", 0)).toBe(6);
+    expect(takeBytes(limiter, "1.2.3.4", 4 * MIB, 0)).toBe(true);
+    expect(takeBytes(limiter, "5.6.7.8", 10 * MIB, 0)).toBe(true);
+  });
+
+  it("counts a small file as a whole mebibyte, and gives the budget back after the window", () => {
+    const limiter = new SlidingWindowLimiter(2, 60_000);
+    expect(takeBytes(limiter, "ip", 10, 0)).toBe(true);
+    expect(takeBytes(limiter, "ip", MIB + 1, 0)).toBe(false);
+    expect(takeBytes(limiter, "ip", MIB + 1, 60_001)).toBe(true);
+  });
+});
 type Property = import("@/server/databases").DatabaseProperty;
 
 const country = {
