@@ -107,7 +107,7 @@ export const githubSync = pgTable(
 );
 
 /**
- * Deliveries a GitHub setup took, the latest GITHUB_DELIVERIES_KEPT: to show how each went, and to
+ * Deliveries a GitHub setup took, for GITHUB_DELIVERY_DAYS: to show how each went, and to
  * take each delivery (by GitHub's delivery id, or its signature for a replay under another id) once.
  */
 export const githubDelivery = pgTable(

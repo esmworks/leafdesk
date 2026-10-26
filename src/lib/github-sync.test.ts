@@ -1,7 +1,9 @@
 import { describe, expect, it } from "vitest";
 import {
+  deliveriesForgottenBefore,
   EMPTY_GITHUB_MAPPING,
   findIds,
+  GITHUB_DELIVERY_DAYS,
   MAX_GITHUB_LINKS,
   MAX_GITHUB_ROWS,
   nextStatus,
@@ -134,5 +136,20 @@ describe("adding a pull request's link", () => {
   it("keeps the latest in a url property", () => {
     expect(withLink("https://github.com/acme/app/pull/3", url, "url")).toBe(url);
     expect(withLink(url, url, "url")).toBeNull();
+  });
+});
+
+describe("deliveriesForgottenBefore", () => {
+  const now = new Date("2026-10-26T12:00:00Z");
+  const monthAgo = new Date(now.getTime() - GITHUB_DELIVERY_DAYS * 24 * 60 * 60_000);
+
+  it("keeps deliveries for GITHUB_DELIVERY_DAYS, not for a count, so one sent again later is still known", () => {
+    expect(deliveriesForgottenBefore(now, null)).toEqual(monthAgo);
+    expect(deliveriesForgottenBefore(now, new Date("2026-09-01T00:00:00Z"))).toEqual(monthAgo);
+  });
+
+  it("forgets earlier when the setup holds the most deliveries it keeps", () => {
+    const busy = new Date("2026-10-20T00:00:00Z");
+    expect(deliveriesForgottenBefore(now, busy)).toEqual(busy);
   });
 });
