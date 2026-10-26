@@ -1672,7 +1672,10 @@ body:has(.leafdesk-column-drop) .prosemirror-dropcursor-block {
  * starts below the strip, panels fixed to the window's edge too (their top is --app-top). The
  * window's buttons sit over the open sidebar's first row, its inbox, new page and hide buttons
  * beside them at its end, and that row moves the window, as in the versions before tabs above.
- * Pages without a sidebar, and phone-sized windows, have the strip above them.
+ * That row alone: the strip moves the window over the rest, and Electron on macOS gathers every
+ * view's regions, so one of the page's under the strip would take the strip's buttons' clicks
+ * (--tab-strip-start, from desktop-tab-strip.tsx). Pages without a sidebar, and phone-sized
+ * windows, have the strip above them.
  */
 :root {
   --app-top: 0px;
@@ -1690,8 +1693,9 @@ body:has(.leafdesk-column-drop) .prosemirror-dropcursor-block {
     [data-window-drag] {
       display: block;
       position: fixed;
-      inset-inline: 0;
+      left: 0;
       top: 0;
+      width: var(--tab-strip-start, 0px);
       height: var(--window-controls-height);
       pointer-events: none;
       -webkit-app-region: drag;

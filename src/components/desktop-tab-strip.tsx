@@ -29,15 +29,18 @@ export function DesktopTabStrip() {
         observed = sidebar;
       }
       let room = "none";
+      let left = 0;
       if (sidebar && wide.matches) {
         // Hidden, the sidebar floats over the page and the strip runs the whole width.
         const box = sidebar.hasAttribute("data-sidebar-open") && getComputedStyle(sidebar).position !== "fixed" ? sidebar.getBoundingClientRect() : null;
         const rtl = root.dir === "rtl";
-        const left = box && !rtl ? box.right : 0;
+        left = Math.max(0, Math.round(box && !rtl ? box.right : 0));
         const right = box && rtl ? window.innerWidth - box.left : 0;
-        room = `${Math.max(0, Math.round(left))} ${Math.max(0, Math.round(right))}`;
+        room = `${left} ${Math.max(0, Math.round(right))}`;
       }
       if (root.getAttribute("data-tab-strip-room") !== room) root.setAttribute("data-tab-strip-room", room);
+      // The page's own region moving the window stops where the strip starts (globals.css).
+      root.style.setProperty("--tab-strip-start", `${left}px`);
     };
     // The sidebar comes and goes with the route, and is hidden or shown.
     const mutations = new MutationObserver(schedule);

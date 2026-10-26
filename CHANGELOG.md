@@ -2,6 +2,15 @@
 
 ## Unreleased
 
+### Added
+
+- **Right-click in the sidebar for Leafdesk's own menus, with Open in new tab and Copy link.** A
+  page's row opens its actions (rename, move to trash, keep offline) where it was right-clicked,
+  now starting with Open in new tab and Copy link; other links there (My tasks, Meetings, Home …)
+  get those two. Open in new tab opens a tab of the desktop app's window, or the browser's. A right
+  click no longer selects the sidebar's text, and the page menu, from its button too, no longer
+  runs off a narrow sidebar's edge.
+
 ### Changed
 
 - **Scheduled agents read only the web pages of their task and their searches.** A schedule's
@@ -11,6 +20,13 @@
   search results; any other page read is refused at once, without holding the run, and its steps
   show the address it didn't read. A helper's run for a scheduled run reads only its search
   results.
+
+### Fixed
+
+- **The desktop app's tab strip takes clicks again on macOS.** Beside a page's sidebar, New Tab,
+  back, forward and the tabs themselves moved the window instead (pressing New Tab twice zoomed
+  it), because the page's own region for moving the window ran on under the strip. That region now
+  ends at the sidebar.
 
 ## 0.6.5 — 2026-10-26
 
