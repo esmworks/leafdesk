@@ -189,13 +189,13 @@ without a domain the ID has no effect.
 
 The compose file runs PostgreSQL 18 as its `db` service. To use a database you already run, set
 `EXTERNAL_DATABASE_URL` to its connection URL and `BUNDLED_DB=0` in `.env`; the `db` service is then
-not started.
+not started. For a Supabase project, see [Use Supabase as the database](docs/self-hosting.md#use-supabase-as-the-database).
 
 ## Documentation
 
 - [Features](docs/features.md): everything Leafdesk does, area by area.
 - [Install and offline use](docs/desktop-and-offline.md): installing Leafdesk as an app, working offline, the desktop app.
-- [Running a server](docs/self-hosting.md): file storage, email, push notifications, social login, maps, administrators, Dokploy.
+- [Running a server](docs/self-hosting.md): file storage, email, push notifications, social login, maps, administrators, Dokploy, Supabase.
 - [Export](docs/export.md): Markdown, CSV, PDF and whole-workspace exports, backups, editing a page as Markdown.
 - [Email on rows](docs/email-on-rows.md): members' mailboxes, mail on database rows, follow-ups.
 - [Accounts and security](docs/account-and-security.md): accounts, who can join, two-step verification, SSO and SCIM, security switches, audit log streaming, sensitive content.

@@ -4,7 +4,7 @@
 
 Settings for running Leafdesk on your own server, beyond the [quick start](../README.md#quick-start-docker).
 
-Contents: [File uploads](#file-uploads), [Email](#email), [Push notifications](#push-notifications), [Social login](#social-login), [Maps and places](#maps-and-places), [Instance administrators](#instance-administrators), [Deploy on Dokploy](#deploy-on-dokploy).
+Contents: [File uploads](#file-uploads), [Email](#email), [Push notifications](#push-notifications), [Social login](#social-login), [Maps and places](#maps-and-places), [Instance administrators](#instance-administrators), [Deploy on Dokploy](#deploy-on-dokploy), [Use Supabase as the database](#use-supabase-as-the-database).
 
 ## File uploads
 
@@ -360,3 +360,30 @@ handles database backups on its own. No compose file is involved.
 5. Deploy. Migrations run when the container starts. Turn on auto deploy to redeploy on every
    push. For a health check, use path `/api/health` on port `3000` (see
    [Quick start](../README.md#quick-start-docker) for `/api/health/ready`).
+
+## Use Supabase as the database
+
+Leafdesk can keep its data in a [Supabase](https://supabase.com) project's PostgreSQL. Only the
+database moves there: the app still runs as one long-lived container (the Docker image, on a
+server, Dokploy, Railway, Render, Fly.io and the like), because it holds the live editing
+connections and runs background jobs. Serverless hosts such as Vercel can't run it. Leafdesk is
+built on PostgreSQL 18 and runs on the 15 and 17 that Supabase projects use as well.
+
+1. **Turn off the Data API** (Project Settings → Data API), or take `public` out of its exposed
+   schemas there. Leafdesk keeps its tables in `public` and checks access itself, without row
+   level security, so with the Data API on anyone holding the project's public anon key could read
+   and change them past the app.
+2. **Copy the session pooler's connection string** (*Connect* → *Session pooler*, port 5432), or
+   the direct connection's if the app's host reaches IPv6 addresses. Don't use the transaction
+   pooler on port 6543: the server holds session locks, which it doesn't keep. Add
+   `?sslmode=require` to encrypt the connection.
+3. **Give the app the connection string:** with Docker Compose, `EXTERNAL_DATABASE_URL` and
+   `BUNDLED_DB=0` in `.env`; elsewhere, `DATABASE_URL`. For example
+   `postgres://postgres.<project-ref>:<password>@aws-0-<region>.pooler.supabase.com:5432/postgres?sslmode=require`.
+4. **Start the app.** Migrations run when the container starts and create the tables (from
+   source, run `pnpm db:migrate`); later versions apply theirs the same way. They need no superuser
+   rights, so the project's `postgres` user runs them.
+
+The server opens up to 10 connections, plus one while migrations run; the session pooler's pool
+size must allow them (Database settings). Supabase's backups cover the database only: files stay
+in `UPLOAD_DIR` or your S3 bucket ([File uploads](#file-uploads)), so back them up as well.
