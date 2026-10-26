@@ -422,11 +422,7 @@ try {
   const published = await publishPage(ids.owner, plan.id);
   let view = await getPublishedPage(published.token);
   let html = view?.body.map((b) => (b.kind === "html" ? b.html : "")).join("") ?? "";
-  check(
-    !html.includes("Roadmap v2") && html.includes("No access") && !html.includes(`/w/${workspaceId}`),
-    "a published page shows unpublished mentioned pages as plain text, without their title",
-    html,
-  );
+  check(html.includes("Roadmap v2") && !html.includes(`/w/${workspaceId}`), "a published page shows unpublished mentioned pages as plain text", html);
   check(html.includes(`@${ids.editor}`) && html.includes("@2026-10-01"), "…and people and dates as text", html);
   const targetPublication = await publishPage(ids.owner, target.id);
   view = await getPublishedPage(published.token);

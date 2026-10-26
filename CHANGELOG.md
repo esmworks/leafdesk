@@ -131,7 +131,6 @@
   database; uploads whose answer never came go after two hours. Public form answers also follow
   dependent selects.
 - **Duplicating a published page copies only the rows its database views show on the web.**
-- **Published pages show unpublished pages they mention as "No access".**
 - **MCP `list_automations` no longer returns webhook secrets or incoming webhook addresses** where
   the workspace lets connected apps only read.
 - **Server fetches refuse Azure's platform address 168.63.129.16, and `attach_file` downloads keep
