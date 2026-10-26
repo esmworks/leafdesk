@@ -623,6 +623,7 @@
       "web": {
         "read": "Läste en webbsida",
         "readFailed": "Kunde inte läsa en webbsida",
+        "readRefused": "Läste inte en webbsida utanför sin uppgift och sina sökningar",
         "search": "Sökte på webben",
         "searchFailed": "Kunde inte söka på webben",
         "approved": "godkänt"
@@ -633,6 +634,7 @@
         "declined": "Dess anrop av ”{tool}” på {connection} avböjdes; inget skickades",
         "redo": "Dess anrop av ”{tool}” på {connection} skickades tillbaka; inget skickades",
         "expired": "Dess anrop av ”{tool}” på {connection} hann inte besvaras; inget skickades",
+        "refused": "Dess anrop av ”{tool}” på {connection} avvisades, eftersom ingen kunde godkänna det; inget skickades",
         "approved": "godkänt",
         "answered": "besvarat av en ägare",
         "note": "Anteckning: {note}"

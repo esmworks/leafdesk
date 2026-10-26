@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { addressTyped, agentWebCallAsks, chatWebCallAsks, queryTyped, typedAddresses, webCallAction, webCallTarget } from "./web-calls";
+import { addressFound, addressTyped, agentWebCallAsks, chatWebCallAsks, queryTyped, scheduledWebCallGoes, typedAddresses, webCallAction, webCallTarget } from "./web-calls";
 
 const read = (url: unknown) => ({ name: "read_web_page", arguments: { url } });
 const search = (query: unknown) => ({ name: "search_web", arguments: { query } });
@@ -114,5 +114,48 @@ describe("agentWebCallAsks", () => {
 
   it("asks for every call where the person wrote nothing (a helper's run)", () => {
     expect(agentWebCallAsks(read("https://acme.example/"), { askEveryTool: false, typed: [] })).toBe(true);
+  });
+});
+
+describe("addressFound", () => {
+  const found = ["https://news.example.com/story?id=7#top", "https://acme.example/"];
+
+  it("lets a result's address through, in either scheme, or without its query and fragment", () => {
+    expect(addressFound("https://news.example.com/story?id=7#top", found)).toBe(true);
+    expect(addressFound("http://NEWS.example.com/story?id=7#top", found)).toBe(true);
+    expect(addressFound("https://news.example.com/story", found)).toBe(true);
+    expect(addressFound("https://acme.example", found)).toBe(true);
+  });
+
+  it("refuses an address with anything added, and anything when no search found it", () => {
+    expect(addressFound("https://news.example.com/story?id=7&d=secret", found)).toBe(false);
+    expect(addressFound("https://acme.example/?d=secret", found)).toBe(false);
+    expect(addressFound("https://acme.example/secret", found)).toBe(false);
+    expect(addressFound("https://secret@acme.example/", found)).toBe(false);
+    expect(addressFound("https://mallory.example/", found)).toBe(false);
+    expect(addressFound("https://acme.example/", ["not a url"])).toBe(false);
+    expect(addressFound("https://acme.example/", [])).toBe(false);
+  });
+});
+
+describe("scheduledWebCallGoes", () => {
+  const run = { typed: ["Every morning, read acme.example/news and search for news about Acme Bakery."], found: ["https://press.example/acme-opens"] };
+
+  it("lets every search go: its words reach only the server's search service", () => {
+    expect(scheduledWebCallGoes(search("acme bakery revenue 2025"), run)).toBe(true);
+    expect(scheduledWebCallGoes(search("anything at all"), { typed: [], found: [] })).toBe(true);
+  });
+
+  it("reads pages of the task and of the run's own search results", () => {
+    expect(scheduledWebCallGoes(read("https://acme.example/news"), run)).toBe(true);
+    expect(scheduledWebCallGoes(read("https://press.example/acme-opens"), run)).toBe(true);
+  });
+
+  it("refuses any other read, and every one not found on a helper's run, whose task an agent wrote", () => {
+    expect(scheduledWebCallGoes(read("https://mallory.example/?d=x"), run)).toBe(false);
+    expect(scheduledWebCallGoes(read("https://press.example/acme-opens?d=x"), run)).toBe(false);
+    expect(scheduledWebCallGoes(read(undefined), run)).toBe(false);
+    expect(scheduledWebCallGoes(read("https://acme.example/news"), { typed: [], found: [] })).toBe(false);
+    expect(scheduledWebCallGoes(read("https://press.example/acme-opens"), { typed: [], found: run.found })).toBe(true);
   });
 });

@@ -5,7 +5,8 @@
  * steer it into putting what it read there, so the AI chat asks the person before each web call
  * (ai-chat.ts), and an agent's run a person asked for in words waits for an owner (agents/run.ts),
  * except where the call carries nothing the person didn't write: a page whose address they typed,
- * or (agents) a search with words of their message.
+ * or (agents) a search with words of their message. A schedule's run, which no one watches, reads
+ * only pages of its task or its own searches, and refuses others at once.
  */
 import { WEB_TOOL_NAMES } from "@/lib/agents";
 import type { ChatActionView } from "@/lib/ai-chat";
@@ -52,15 +53,30 @@ export function typedAddresses(text: string): URL[] {
 export function addressTyped(address: string, typed: readonly string[]): boolean {
   const url = parse(address.trim());
   if (!url || url.username || url.password) return false;
+  return typed.some((text) => typedAddresses(text).some((own) => sameOrShorter(url, own)));
+}
+
+/** Whether `url` is `own` (either scheme), or `own` without its query and fragment. */
+function sameOrShorter(url: URL, own: URL): boolean {
   const key = addressKey(url);
-  return typed.some((text) =>
-    typedAddresses(text).some((own) => {
-      if (addressKey(own) === key) return true;
-      own.search = "";
-      own.hash = "";
-      return addressKey(own) === key;
-    }),
-  );
+  if (addressKey(own) === key) return true;
+  const bare = new URL(own.href);
+  bare.search = "";
+  bare.hash = "";
+  return addressKey(bare) === key;
+}
+
+/**
+ * Whether `address` is one of the `found` addresses (a search's results) as addressTyped matches
+ * them: the search service chose those before the run read anything, so they carry nothing it read.
+ */
+export function addressFound(address: string, found: readonly string[]): boolean {
+  const url = parse(address.trim());
+  if (!url || url.username || url.password) return false;
+  return found.some((text) => {
+    const own = parse(text);
+    return own !== null && sameOrShorter(url, own);
+  });
 }
 
 /** Text folded for comparing search words: lower case, one space between words. */
@@ -119,4 +135,17 @@ export function agentWebCallAsks(call: WebCall, run: { askEveryTool: boolean; ty
   if (!run.typed) return false;
   if (call.name === WEB_TOOL_NAMES.search) return !(typeof call.arguments.query === "string" && queryTyped(call.arguments.query, run.typed));
   return !(typeof call.arguments.url === "string" && addressTyped(call.arguments.url, run.typed));
+}
+
+/**
+ * A schedule's run, or a helper's run for one (no one watches either): whether a web call may go.
+ * A search may: its words reach only the server's search service, which its operators chose. A
+ * page read may when its address is in the schedule's task (`typed`: none on a helper's run, whose
+ * task an agent wrote) or among the results of the run's own searches (`found`). Any other read is
+ * refused at once: waiting for an owner would hold the run until its next time is due.
+ */
+export function scheduledWebCallGoes(call: WebCall, run: { typed: readonly string[]; found: readonly string[] }): boolean {
+  if (call.name === WEB_TOOL_NAMES.search) return true;
+  const address = typeof call.arguments.url === "string" ? call.arguments.url : "";
+  return addressTyped(address, run.typed) || addressFound(address, run.found);
 }

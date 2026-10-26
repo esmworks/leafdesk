@@ -2,6 +2,16 @@
 
 ## Unreleased
 
+### Changed
+
+- **Scheduled agents read only the web pages of their task and their searches.** A schedule's
+  run used to read any address without asking, so text planted in a page or a row it read could
+  make it send what it read to any site. It still searches freely, as its words reach only the
+  server's search service, and reads pages whose address is in the schedule's task or among its own
+  search results; any other page read is refused at once, without holding the run, and its steps
+  show the address it didn't read. A helper's run for a scheduled run reads only its search
+  results.
+
 ### Fixed
 
 - **A table's calculations sit right under its rows, and sums come out exact.** The footer row

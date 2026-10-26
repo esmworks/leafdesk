@@ -623,6 +623,7 @@
       "web": {
         "read": "Đã đọc một trang web",
         "readFailed": "Không thể đọc một trang web",
+        "readRefused": "Không đọc một trang web ngoài nhiệm vụ và các lần tìm kiếm của mình",
         "search": "Đã tìm kiếm trên web",
         "searchFailed": "Không thể tìm kiếm trên web",
         "approved": "đã chấp thuận"
@@ -633,6 +634,7 @@
         "declined": "Lệnh gọi “{tool}” trên {connection} của nó đã bị từ chối; không có gì được gửi đi",
         "redo": "Lệnh gọi “{tool}” trên {connection} của nó đã bị trả lại; không có gì được gửi đi",
         "expired": "Lệnh gọi “{tool}” trên {connection} của nó đã hết thời gian; không có gì được gửi đi",
+        "refused": "Lệnh gọi “{tool}” trên {connection} của nó bị từ chối vì không ai có thể phê duyệt; không có gì được gửi đi",
         "approved": "đã chấp thuận",
         "answered": "được một chủ sở hữu trả lời",
         "note": "Ghi chú: {note}"

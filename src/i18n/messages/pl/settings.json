@@ -620,6 +620,7 @@
       "web": {
         "read": "Odczytano stronę internetową",
         "readFailed": "Nie udało się odczytać strony internetowej",
+        "readRefused": "Nie odczytał strony internetowej spoza zadania i swoich wyszukiwań",
         "search": "Wyszukano w internecie",
         "searchFailed": "Nie udało się wyszukać w internecie",
         "approved": "zatwierdzone"
@@ -630,6 +631,7 @@
         "declined": "Wywołanie „{tool}” w połączeniu {connection} zostało odrzucone; nic nie wysłano",
         "redo": "Wywołanie „{tool}” w połączeniu {connection} zostało odesłane do poprawy; nic nie wysłano",
         "expired": "Czas na wywołanie „{tool}” w połączeniu {connection} upłynął; nic nie wysłano",
+        "refused": "Wywołanie „{tool}” w połączeniu {connection} odrzucono, bo nikt nie mógł go zatwierdzić; nic nie wysłano",
         "approved": "zatwierdzone",
         "answered": "odpowiedź właściciela",
         "note": "Uwaga: {note}"

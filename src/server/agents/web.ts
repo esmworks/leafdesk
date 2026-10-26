@@ -329,7 +329,8 @@ export async function searchWeb(query: string, { env = process.env, fetcher = fe
 
 export const isWebTool = (name: string) => name === WEB_TOOL_NAMES.read || name === WEB_TOOL_NAMES.search;
 
-export type WebToolOutcome = { content: string; isError?: boolean; chars: number; step: AgentToolRecord };
+/** `found`: the addresses a search returned, which a schedule's run may then read (lib/web-calls.ts). */
+export type WebToolOutcome = { content: string; isError?: boolean; chars: number; step: AgentToolRecord; found?: string[] };
 
 /** What the agent hears when a page or search failed: what happened, and that nothing more will come of trying again. */
 function failureText(tool: string, error: WebPageError) {
@@ -378,7 +379,12 @@ export async function runWebTool(
     const results = await searchWeb(query, { env, fetcher });
     const text = results.length ? results.map((r, i) => `${i + 1}. ${r.title || r.url}\n${r.url}${r.snippet ? `\n${r.snippet}` : ""}`).join("\n\n") : "No results.";
     const cut = text.slice(0, Math.max(room, 0));
-    return { content: externalData(`The web search results for "${query.replace(/"/g, "'")}" follow.`, cut), chars: cut.length, step: step("done") };
+    return {
+      content: externalData(`The web search results for "${query.replace(/"/g, "'")}" follow.`, cut),
+      chars: cut.length,
+      step: step("done"),
+      found: results.map((r) => r.url),
+    };
   } catch (error) {
     if (error instanceof WebPageError) return fail(failureText(call.name, error));
     throw error;

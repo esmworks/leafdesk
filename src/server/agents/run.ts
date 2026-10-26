@@ -78,7 +78,7 @@ import { APPROVAL_TIMEOUT_MS, CONNECTION_EVENT_DAYS, MAX_RUN_EXTERNAL_CHARS } fr
 import { pageLabel } from "@/lib/labels";
 import { redactError, redactText, redactValue } from "@/lib/redact";
 import { threadBefore } from "@/lib/comments";
-import { agentWebCallAsks } from "@/lib/web-calls";
+import { agentWebCallAsks, scheduledWebCallGoes } from "@/lib/web-calls";
 import { AccessError, findMembership, hasLevel, inWorkspace, pageAccessOf } from "@/server/access";
 import { runActingFor } from "@/server/acting-for";
 import { aiConfig, AiError, complete, isAiError, promptRoomFor, takeWorkspaceCapacity, type AiMessage, type AiResult, type AiTool, type AiToolCall } from "@/server/ai";
@@ -586,6 +586,11 @@ async function converse(
   const askedFor = accessSource(run.source);
   const askedInWords = askedFor.kind === "chat" || askedFor.kind === "request" || isMentionRun(askedFor);
   const webAsks = { askEveryTool, typed: askedInWords ? (run.source.kind === "handoff" ? [] : [run.prompt]) : null };
+  // A schedule's run (or a helper's run for one) has no one watching and is due again later: it
+  // searches, and reads the pages of its task or of its own searches' results, and any other read
+  // is refused at once (lib/web-calls.ts). Over rows no member stands behind each call still waits.
+  const unattended = isScheduleRun(askedFor) && !askEveryTool;
+  const webTask = run.source.kind === "handoff" ? [] : [run.prompt];
   const chat = run.source.kind === "chat";
   // Its owners chose that its changes to rows wait for review: create_row and update_row propose
   // them (pending-changes.ts). A chat's changes are still made at once: the person is there, and asked.
@@ -649,7 +654,11 @@ async function converse(
     connections,
     askEveryTool,
     web: webTools.length
-      ? { search: webNames.has(WEB_TOOL_NAMES.search), asks: webAsks.typed ? (webAsks.typed.length ? "untyped" : "each") : undefined }
+      ? {
+          search: webNames.has(WEB_TOOL_NAMES.search),
+          asks: unattended ? undefined : webAsks.typed ? (webAsks.typed.length ? "untyped" : "each") : undefined,
+          reads: unattended ? "taskOrFound" : undefined,
+        }
       : undefined,
     skills: skillSet.skills,
     remembers,
@@ -669,6 +678,8 @@ async function converse(
   let messages: AiMessage[];
   let writes = 0;
   let externalChars = 0;
+  // The addresses this run's searches returned: a schedule's run may read them.
+  let webFound: string[] = [];
   let firstRound = 0;
   let queue: AiToolCall[] = [];
 
@@ -677,6 +688,7 @@ async function converse(
     messages = saved.messages as AiMessage[];
     writes = saved.writes;
     externalChars = saved.externalChars;
+    webFound = saved.webFound ?? [];
     firstRound = saved.rounds;
     queue = saved.queue;
   } else if (isRowRun(run.source)) {
@@ -778,7 +790,15 @@ async function converse(
     }
     // Reading the web changes nothing: it counts as reading from outside, not as a change.
     if (webNames.has(call.name)) {
-      if (!approved && agentWebCallAsks(call, webAsks)) {
+      if (unattended && !approved && !scheduledWebCallGoes(call, { typed: webTask, found: webFound })) {
+        return {
+          content:
+            "This address is neither in your task nor among the results of your searches, and no one can approve it on this run: nothing was sent. Read only those addresses, or finish without it.",
+          isError: true,
+          step: { kind: "tool", connectionId: null, tool: call.name, input: inputSummary(call.arguments), outcome: "refused" },
+        };
+      }
+      if (!unattended && !approved && agentWebCallAsks(call, webAsks)) {
         // No owner answers for this run: waiting would only run out of time.
         if (unanswered && !askEveryTool) {
           return {
@@ -792,6 +812,7 @@ async function converse(
       if (left <= 200) return { content: "You have read as much from outside as one run may. Finish with what you have.", isError: true };
       const out = await runWebTool(call, { room: left, decidedBy: approved?.userId ?? null });
       externalChars += out.chars;
+      if (out.found) webFound = [...webFound, ...out.found];
       return out;
     }
     // An owner's chat changes what they ask for at once: they are there, and asked.
@@ -870,7 +891,7 @@ async function converse(
   const checkpoint = () =>
     db
       .update(agentRun)
-      .set({ state: { messages, queue, rounds: usage.rounds, writes, externalChars }, steps: redactValue(steps), usage })
+      .set({ state: { messages, queue, rounds: usage.rounds, writes, externalChars, webFound }, steps: redactValue(steps), usage })
       .where(eq(agentRun.id, run.id));
 
   /** Answers the calls waiting in `queue`, in order; the run pauses at the first that needs approval. */
@@ -890,7 +911,7 @@ async function converse(
         const external = toolset.byName.get(call.name);
         return {
           status: "awaiting",
-          state: { messages, queue, rounds: usage.rounds, writes, externalChars },
+          state: { messages, queue, rounds: usage.rounds, writes, externalChars, webFound },
           pending: {
             callId: call.id,
             connectionId: external?.connection.id ?? null,
