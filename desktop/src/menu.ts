@@ -11,6 +11,8 @@ type WindowAction = (window: BrowserWindow | undefined) => void;
 
 type Actions = {
   changeServer: () => void;
+  /** Forgets the certificates trusted on the trust screen; undefined while there are none. */
+  forgetCertificates?: () => void;
   goHome: (window: BrowserWindow) => void;
   /** The page of the shown tab of a window. */
   tab: (window: BrowserWindow) => WebContents | undefined;
@@ -48,6 +50,8 @@ export function buildMenu(t: Strings, actions: Actions) {
     { role: "close", label: t.menuCloseWindow, accelerator: keys.closeWindow },
   ];
   const changeServer: MenuItemConstructorOptions = { label: t.menuChangeServer, click: () => actions.changeServer() };
+  const { forgetCertificates } = actions;
+  const forgetItem: MenuItemConstructorOptions = { label: t.menuForgetCertificates, enabled: !!forgetCertificates, click: () => forgetCertificates?.() };
   const { backups } = actions;
   const backupItems: MenuItemConstructorOptions[] = backups
     ? [
@@ -81,6 +85,7 @@ export function buildMenu(t: Strings, actions: Actions) {
               { role: "about", label: t.menuAbout },
               { type: "separator" },
               changeServer,
+              forgetItem,
               { type: "separator" },
               { role: "services", label: t.menuServices },
               { type: "separator" },
@@ -97,7 +102,7 @@ export function buildMenu(t: Strings, actions: Actions) {
       label: t.menuFile,
       submenu: mac
         ? [...tabItems, ...backupItems, ...closeItems]
-        : [...tabItems, changeServer, { type: "separator" }, ...backupItems, ...closeItems, { role: "quit", label: t.menuQuit }],
+        : [...tabItems, changeServer, forgetItem, { type: "separator" }, ...backupItems, ...closeItems, { role: "quit", label: t.menuQuit }],
     },
     {
       label: t.menuEdit,

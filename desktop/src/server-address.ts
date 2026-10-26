@@ -57,6 +57,29 @@ export function warnsInsecure(input: string) {
   return !!url && !isLoopback(url.hostname);
 }
 
+/**
+ * Whether connecting to `origin` for the address typed takes the person's yes first: plain HTTP
+ * away from this computer that they didn't type themselves (HTTPS didn't answer, and the app tried
+ * HTTP next).
+ */
+export function needsHttpConfirmation(input: string, origin: string) {
+  const url = parse(origin);
+  return !!url && url.protocol === "http:" && !isLoopback(url.hostname) && !/^http:\/\//i.test(input.trim());
+}
+
+/**
+ * Whether the app follows a redirect from `from` to `to` on its own while it looks for the server:
+ * on the same host, to HTTPS, or to plain HTTP when it was on HTTP already or on this computer.
+ * Another host, or HTTPS down to HTTP, the person confirms first.
+ */
+export function followsRedirect(from: string, to: string) {
+  const source = parse(from);
+  const target = parse(to);
+  if (!source || !target || source.hostname !== target.hostname) return false;
+  if (target.protocol === "https:") return true;
+  return target.protocol === "http:" && (source.protocol === "http:" || isLoopback(target.hostname));
+}
+
 /** The host shown to people: name and port, without the scheme. */
 export function hostOf(origin: string) {
   return parse(origin)?.host ?? origin;

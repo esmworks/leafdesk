@@ -91,6 +91,33 @@ function openLog(file: string) {
 
 const delay = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
 
+/** Whether a message of the server's process says it listens on `port` (server.ts sends it in local mode). */
+export function isReadyMessage(message: unknown, port: number) {
+  return typeof message === "object" && message !== null && (message as { ready?: unknown }).ready === port;
+}
+
+/**
+ * Waits for the server, through its IPC channel, to say it listens on `port`. Until then whatever
+ * answers there may be another program that took the port after freePort found it free; once the
+ * server holds the port on 127.0.0.1, nothing else can answer on it.
+ */
+export function untilListening(child: { on(event: "message", listener: (message: unknown) => void): unknown; off(event: "message", listener: (message: unknown) => void): unknown }, port: number, exit: Promise<number | null>, timeoutMs: number, log: string) {
+  return new Promise<void>((resolve, reject) => {
+    const done = (error?: Error) => {
+      clearTimeout(timer);
+      child.off("message", listen);
+      if (error) reject(error);
+      else resolve();
+    };
+    const listen = (message: unknown) => {
+      if (isReadyMessage(message, port)) done();
+    };
+    const timer = setTimeout(() => done(new Error(`Leafdesk's server didn't start in ${timeoutMs / 1000} seconds; see ${log}`)), timeoutMs);
+    child.on("message", listen);
+    void exit.then((code) => done(new Error(`Leafdesk's server stopped with ${code}; see ${log}`)));
+  });
+}
+
 export async function startLocalServer(options: LocalServerOptions): Promise<LocalServer> {
   const { root, serverDir } = options;
   fs.mkdirSync(root, { recursive: true });
@@ -157,6 +184,8 @@ export async function startLocalServer(options: LocalServerOptions): Promise<Loc
     });
     const serverExit = exited(server);
     const deadline = Date.now() + READY_TIMEOUT_MS;
+    // Nothing is asked of the port (the password least of all) before the server says it listens there.
+    await untilListening(server, port, serverExit, READY_TIMEOUT_MS, log);
     for (;;) {
       const ready = await fetch(`${origin}/api/health`, { signal: AbortSignal.timeout(10_000) }).then(
         (response) => response.ok,

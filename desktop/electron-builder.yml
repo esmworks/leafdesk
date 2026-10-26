@@ -20,6 +20,21 @@ asarUnpack:
 # platform's PostgreSQL.
 afterPack: scripts/after-pack.ts
 artifactName: Leafdesk-${version}-${arch}.${ext}
+# Electron's fuses, set in the packaged app's executable before it is signed: NODE_OPTIONS (and
+# NODE_EXTRA_CA_CERTS) and --inspect are ignored, the app loads only from app.asar, checked against
+# the hash electron-builder embeds (macOS and Windows), and cookies are encrypted on disk.
+# ELECTRON_RUN_AS_NODE stays on: local mode runs its server, outside the archive, with the app's own
+# Node (src/main.ts, startLocal); the server gets neither NODE_OPTIONS nor --inspect. Flipping them
+# changes Electron's binaries, so a Mac app is signed ad hoc again right after (an unsigned build, as
+# in CI, otherwise doesn't start on Apple silicon); a release is then signed as usual.
+electronFuses:
+  resetAdHocDarwinSignature: true
+  runAsNode: true
+  enableNodeOptionsEnvironmentVariable: false
+  enableNodeCliInspectArguments: false
+  enableEmbeddedAsarIntegrityValidation: true
+  onlyLoadAppFromAsar: true
+  enableCookieEncryption: true
 # `leafdesk://` links bring a sign-in done in the system's browser back to the app (src/navigation.ts).
 protocols:
   - name: Leafdesk

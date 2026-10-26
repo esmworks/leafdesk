@@ -4,7 +4,7 @@
  * imports nothing; the shapes below mirror main.ts. Built with tsconfig.pages.json.
  */
 
-type PageCertificate = { host: string; fingerprint: string; subject: string; issuer: string; validUntil: string; error: string };
+type PageCertificate = { host: string; fingerprint: string; subject: string; issuer: string; validUntil: string; error: string; changed: boolean };
 
 type PageState = {
   locale: string;
@@ -22,13 +22,14 @@ type PageConnectReply =
   | { ok: true }
   | { error: "invalid" }
   | { error: "unreachable"; host: string }
-  | { error: "not-leafdesk"; host: string }
+  | { error: "not-leafdesk"; host: string; target: string }
+  | { error: "confirm"; reason: "http" | "redirect"; host: string; target: string }
   | { error: "certificate"; host: string; certificate: PageCertificate };
 
 interface Window {
   leafdesk: {
     state(): Promise<PageState>;
-    connect(address: string, force: boolean): Promise<PageConnectReply>;
+    connect(address: string, accepted: string[]): Promise<PageConnectReply>;
     trust(host: string, fingerprint: string): Promise<{ ok: boolean }>;
     retry(): Promise<void>;
     startLocal(): Promise<void>;
@@ -49,6 +50,9 @@ interface Window {
   let t: Record<string, string> = {};
   let current: string | undefined;
   let busy = false;
+  /** The origins the person said yes to for the address typed ("Connect anyway"), and the one offered now. */
+  let accepted: string[] = [];
+  let offered: string | null = null;
 
   const fill = (text: string, values: Record<string, string>) => text.replace(/\{(\w+)\}/g, (match, key: string) => values[key] ?? match);
   const host = (origin: string) => {
@@ -71,13 +75,16 @@ interface Window {
     return !!match && !/^(localhost|.+\.localhost|127(?:\.\d{1,3}){3}|\[::1\])$/i.test(match[1]);
   }
 
-  function setError(message: string | null, offerAnyway = false) {
+  /** Shows a problem; `offer`: an origin "Connect anyway" connects to. */
+  function setError(message: string | null, offer: string | null = null) {
     error.hidden = !message;
     error.textContent = message ?? "";
-    anyway.hidden = !offerAnyway;
+    offered = offer;
+    anyway.hidden = !offer;
   }
 
   function showConnect(address?: string) {
+    accepted = [];
     input.value = address ?? "";
     insecure.hidden = !warnsInsecure(input.value);
     back.hidden = !current;
@@ -88,6 +95,10 @@ interface Window {
 
   function showCertificate(certificate: PageCertificate, afterTrust: () => void, onBack: () => void) {
     byId("certificate-body").textContent = fill(t.certBody, { host: certificate.host });
+    // It had a good certificate before: someone may be in between.
+    const changed = byId("certificate-changed");
+    changed.hidden = !certificate.changed;
+    changed.textContent = certificate.changed ? fill(t.certChanged, { host: certificate.host }) : "";
     byId("certificate-fingerprint").textContent = certificate.fingerprint;
     byId("certificate-detail").textContent = [certificate.subject, certificate.issuer, certificate.validUntil.slice(0, 10), certificate.error]
       .filter(Boolean)
@@ -101,7 +112,7 @@ interface Window {
     show("certificate");
   }
 
-  async function submit(force: boolean) {
+  async function submit() {
     if (busy) return;
     const address = input.value;
     busy = true;
@@ -109,17 +120,20 @@ interface Window {
     connectButton.textContent = t.connecting;
     setError(null);
     try {
-      const reply = await bridge.connect(address, force);
+      const reply = await bridge.connect(address, accepted);
       if ("ok" in reply) return; // The window moves on to the server.
       if (reply.error === "invalid") setError(t.errorInvalid);
       else if (reply.error === "unreachable") setError(fill(t.errorUnreachable, { host: reply.host }));
-      else if (reply.error === "not-leafdesk") setError(fill(t.errorNotLeafdesk, { host: reply.host }), true);
-      else
+      else if (reply.error === "not-leafdesk") setError(fill(t.errorNotLeafdesk, { host: reply.host }), reply.target);
+      else if (reply.error === "confirm") {
+        const message = reply.reason === "http" ? fill(t.confirmHttp, { host: reply.host }) : fill(t.confirmRedirect, { host: reply.host, target: reply.target });
+        setError(message, reply.target);
+      } else
         showCertificate(
           reply.certificate,
           () => {
             show("connect");
-            void submit(force);
+            void submit();
           },
           () => showConnect(address),
         );
@@ -132,12 +146,16 @@ interface Window {
 
   form.addEventListener("submit", (event) => {
     event.preventDefault();
-    void submit(false);
+    void submit();
   });
-  anyway.addEventListener("click", () => void submit(true));
+  anyway.addEventListener("click", () => {
+    if (offered && !accepted.includes(offered)) accepted.push(offered);
+    void submit();
+  });
   back.addEventListener("click", () => void bridge.retry());
   input.addEventListener("input", () => {
     insecure.hidden = !warnsInsecure(input.value);
+    accepted = [];
     setError(null);
   });
   byId("problem-retry").addEventListener("click", () => void bridge.retry());

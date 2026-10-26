@@ -1,14 +1,23 @@
 /**
- * Where the window may go. Leafdesk's own pages stay in it, and so do other web pages it moves to
- * on its own (single sign-on): their cookies have to land in this app, not in the system's browser.
- * Signing in to a service for a connection or for storage is the exception: it happens in the
- * system's browser, where the person is likely signed in to the service already, and the server
- * hands the answer back to the app with a `leafdesk://` link (see `signInReturn`). Links Leafdesk
- * opens in a new tab go to the system's browser, unless they lead back into Leafdesk, which opens
- * them in a tab of its own (as it does a `leafdesk://open` link, see `openLinkTarget`).
+ * Where the window may go. Leafdesk's own pages stay in it. A tab has no address bar, so other web
+ * pages go to the system's browser, with one exception: signing in to Leafdesk at an identity
+ * provider (single sign-on), whose cookies have to land in this app. Such a trip starts on one of
+ * the server's sign-in pages and lasts until the tab is back on the server (main.ts); the strip
+ * shows the host meanwhile (`awayHost`). Signing in to a service for a connection or for storage
+ * happens in the system's browser, where the person is likely signed in to the service already,
+ * and the server hands the answer back to the app with a `leafdesk://` link (see `signInReturn`).
+ * Links Leafdesk opens in a new tab go to the system's browser too, unless they lead back into
+ * Leafdesk, which opens them in a tab of its own (as it does a `leafdesk://open` link, see
+ * `openLinkTarget`).
  */
 
-export type NavigationDecision = "allow" | "external" | "deny";
+/** "sign-in": allowed, as part of signing in elsewhere (the tab is, or now is, on a sign-in trip). */
+export type NavigationDecision = "allow" | "sign-in" | "external" | "deny";
+/**
+ * Where a tab is: `from`, the address it shows, and `signingIn`, whether it is on a sign-in trip
+ * (one an earlier "sign-in" decision started, and that hasn't ended).
+ */
+export type NavigationContext = { from?: string; signingIn?: boolean };
 export type NewWindowDecision = "tab" | "external" | "deny";
 
 const EXTERNAL_SCHEMES = new Set(["mailto:", "tel:"]);
@@ -26,6 +35,14 @@ const SIGN_IN_RETURNS = new Map([
 ]);
 /** What a service's answer carries back (RFC 6749 4.1.2, RFC 9207). */
 const ANSWER_PARAMS = ["state", "code", "iss", "error"];
+/**
+ * The server's pages that send people to sign in at an identity provider (src/app/(auth) and the
+ * workspace's single sign-on gate). None of them shows what people wrote, so no link on them is
+ * someone else's.
+ */
+const SIGN_IN_PAGES = /^\/(?:sign-in|sign-up|(?:invite|join|sso-required)\/[^/]+)\/?$/;
+/** Where identity providers answer on the server: its auth API (`/api/auth/callback/…`, `/api/auth/sso/…`). */
+const AUTH_API = "/api/auth/";
 
 function parse(url: string): URL | null {
   try {
@@ -40,15 +57,47 @@ function isWeb(url: URL) {
 }
 
 /**
- * A navigation of the window itself; `localPages` is the file URL its own pages start with, `server`
- * the origin of the pages the window shows.
+ * A navigation of a tab's page itself (or a redirect on its way); `localPages` is the file URL the
+ * app's own pages start with, `server` the origin of the pages the window shows.
  */
-export function decideNavigation(target: string, localPages: string, server?: string): NavigationDecision {
+export function decideNavigation(target: string, localPages: string, server?: string, context: NavigationContext = {}): NavigationDecision {
   const url = parse(target);
   if (!url) return "deny";
-  if (isWeb(url)) return isServiceSignIn(url, server) ? "external" : "allow";
+  if (isWeb(url)) {
+    if (server && url.origin === server) return "allow";
+    if (isServiceSignIn(url, server)) return "external";
+    return context.signingIn || startsSignIn(url, server, context.from) ? "sign-in" : "external";
+  }
   if (url.protocol === "file:") return target.startsWith(localPages) ? "allow" : "deny";
   return EXTERNAL_SCHEMES.has(url.protocol) ? "external" : "deny";
+}
+
+/**
+ * Whether a navigation away from the server starts signing in to Leafdesk at an identity provider:
+ * it leaves one of the server's sign-in pages, and asks the provider to answer at the server's auth
+ * API (an OAuth or OpenID Connect `redirect_uri`) or is a SAML request.
+ */
+function startsSignIn(url: URL, server: string | undefined, from: string | undefined) {
+  const page = parse(from ?? "");
+  if (!server || page?.origin !== server || !SIGN_IN_PAGES.test(page.pathname)) return false;
+  const back = parse(url.searchParams.get("redirect_uri") ?? "");
+  return (back?.origin === server && back.pathname.startsWith(AUTH_API)) || url.searchParams.has("SAMLRequest");
+}
+
+/**
+ * The address a tab shows when it is away from the server (signing in elsewhere), as an address
+ * bar would: the host, or the whole origin for plain HTTP. Null on the server and on the app's own pages.
+ */
+export function awayHost(url: string | undefined, server: string | undefined): string | null {
+  const parsed = parse(url ?? "");
+  if (!parsed || !isWeb(parsed) || parsed.origin === server) return null;
+  return parsed.protocol === "https:" ? parsed.host : parsed.origin;
+}
+
+/** Whether a frame inside a page (an embed) may be redirected there: web pages only. */
+export function allowsFrameRedirect(target: string) {
+  const url = parse(target);
+  return !!url && isWeb(url);
 }
 
 /** A page asking for a new window (`window.open`, a link with `target="_blank"`). */

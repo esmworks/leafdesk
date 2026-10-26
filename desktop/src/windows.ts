@@ -27,7 +27,8 @@ type Tab = { id: number; view: WebContentsView; title: string; icon: string | nu
 
 /** What the strip draws: pages/tabs.html reads it (src/pages/tabs.ts mirrors the shape). */
 export type StripState = {
-  tabs: { id: number; title: string; icon: string | null; loading: boolean }[];
+  /** `away`: where a tab off the server is (navigation.ts, awayHost), shown as an address bar would. */
+  tabs: { id: number; title: string; icon: string | null; loading: boolean; away: string | null }[];
   active: number | null;
   strings: { newTab: string; closeTab: string; tabs: string; back: string; forward: string };
   dir: "ltr" | "rtl";
@@ -51,6 +52,8 @@ export type TabHooks = {
   open: (contents: WebContents, path: string) => void;
   /** The strip's words and direction. */
   strings: () => Pick<StripState, "strings" | "dir">;
+  /** Where a tab's page is when it is off the server (null on it, or on the app's own screens). */
+  away: (url: string) => string | null;
   /** The window's tabs, their order, the one shown or a title changed: what is kept for the next start. */
   changed: () => void;
   /** A tab closed (not its window): for Reopen Closed Tab. */
@@ -399,8 +402,8 @@ export class TabbedWindow {
     const history = this.activeContents()?.navigationHistory;
     const state: StripState = {
       tabs: this.list.ids.map((id) => {
-        const { title, icon, loading } = this.tabs.get(id)!;
-        return { id, title, icon, loading };
+        const { title, icon, loading, pending, view } = this.tabs.get(id)!;
+        return { id, title, icon, loading, away: pending === undefined ? this.hooks.away(view.webContents.getURL()) : null };
       }),
       active: this.list.active,
       ...this.hooks.strings(),
