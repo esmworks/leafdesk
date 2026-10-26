@@ -2,6 +2,25 @@
 
 ## Unreleased
 
+## 0.6.4 — 2026-10-26
+
+### Upgrading from 0.6.3
+
+- **Download the new `docker-compose.yml`.** It passes the new settings on to the app:
+  `APPLE_CLIENT_ID`, `APPLE_CLIENT_SECRET`, `APPLE_TEAM_ID`, `APPLE_KEY_ID`, `APPLE_PRIVATE_KEY`
+  (Sign in with Apple) and `WEB_LINK_CHECKS`. An existing `.env` keeps working unchanged.
+- **Migrations 0136 to 0148** run automatically when the container starts (from source, run
+  `pnpm db:migrate`). They add tables and columns; 0141 redefines the page access rule. 0147 and
+  0148 queue the existing pages, whose to-dos and `#tags` the server then indexes in the
+  background after the upgrade.
+- **The image installs the Noto CJK fonts**, for Chinese, Japanese and Korean text in PDFs made on
+  the server, which makes it larger.
+- **Broken web links are looked for once a week:** the server fetches the web addresses in pages
+  (as for bookmarks) to list the ones that stopped working in Settings → Health. Set
+  `WEB_LINK_CHECKS=off` to keep it from fetching them.
+- **The desktop app's new tab layout on macOS needs this server:** with an older one it keeps the
+  tab strip across the top.
+
 ### Added
 
 - **Dictate into a page at the caret.** Where voice notes work, Cmd/Ctrl+Shift+D in a page you can
