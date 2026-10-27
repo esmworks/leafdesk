@@ -2,6 +2,21 @@
 
 ## Unreleased
 
+## 0.6.6 — 2026-10-28
+
+### Upgrading from 0.6.5
+
+- **Download the new `docker-compose.yml`.** It passes the new `AI_RUN_LIMIT_USD`,
+  `MAIL_GOOGLE_CLIENT_ID` and `MAIL_GOOGLE_CLIENT_SECRET` settings on to the app. An existing
+  `.env` keeps working.
+- **Migrations 0152 to 0156** run automatically when the container starts (from source, run
+  `pnpm db:migrate`). They add the `automation_threshold`, `mailbox_oauth` and `sheets_write`
+  tables and the columns `mailbox.auth`, `schedule.page_id` and `pdf_letterhead.theme`.
+- **AI work is limited by what it costs.** A chat question, research answer or agent run may now
+  spend up to `AI_RUN_LIMIT_USD` (10 US dollars by default) before it must answer; set it lower to
+  spend less per question. `AI_TIMEOUT_SECONDS` now counts only the time the provider stays silent,
+  not a whole answer.
+
 ### Added
 
 - **PDF themes: lay a template's PDFs out as you like, and have the AI change them.** A PDF
@@ -91,6 +106,9 @@
   get those two. Open in new tab opens a tab of the desktop app's window, or the browser's. A right
   click no longer selects the sidebar's text, and the page menu, from its button too, no longer
   runs off a narrow sidebar's edge.
+- **Guides for running on Railway and keeping the data in Supabase.** docs/self-hosting.md
+  describes running the published image beside a Railway PostgreSQL, and using a Supabase
+  project's PostgreSQL as the database. Leafdesk is checked on PostgreSQL 15 and 17 as well as 18.
 
 ### Changed
 
