@@ -9,17 +9,33 @@ import { AiError } from "./errors";
 
 type TranscriptionResponse = { text?: unknown; duration?: unknown };
 
-/** The audio's text. Throws AiError ("provider"), or the fetch's own error when `signal` aborted it. */
+/**
+ * The ISO 639-1 code a transcription request names for an interface language: Whisper calls
+ * Norwegian "no", not "nb". Null for anything that isn't a plain two-letter code.
+ */
+export function speechLanguage(locale: string | null | undefined): string | null {
+  if (!locale || !/^[a-z]{2}$/.test(locale)) return null;
+  return locale === "nb" ? "no" : locale;
+}
+
+/**
+ * The audio's text. `language`, the interface language of whoever recorded it, tells the server
+ * what is spoken: guessed from a few seconds of speech, the language often comes out wrong.
+ * Throws AiError ("provider"), or the fetch's own error when `signal` aborted it.
+ */
 export async function fetchTranscription(
   config: AiSttConfig,
   audio: { bytes: Blob; type: string },
   signal: AbortSignal,
+  language?: string | null,
 ): Promise<{ text: string; seconds: number | null }> {
   const form = new FormData();
   // Servers decide the format from the file name, so it carries the right extension.
   form.append("file", new File([audio.bytes], voiceFileName(audio.type), { type: audio.type }));
   form.append("model", config.model);
   form.append("response_format", "json");
+  const spoken = speechLanguage(language);
+  if (spoken) form.append("language", spoken);
   // Encoded up front: fetch streaming a FormData body can fail outside the request's promise when
   // the request is cancelled, which would surface as an unhandled rejection.
   const encoded = new Response(form);

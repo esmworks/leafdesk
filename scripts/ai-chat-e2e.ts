@@ -928,6 +928,7 @@ try {
     setAiEnv(MODELS, { usage: ledger });
     const options = await chatOptionsFor(alice, workspaceId);
     check(options.models.map((m) => m.id).join() === "fake-chat,fake-big,fake-vision" && options.models.every((m) => !m.images), "the chat offers the main model and the others named, without images unless said", options);
+    check(options.models.every((m) => m.name === m.id), "a model the catalog doesn't know is shown by its id", options.models);
 
     fake.setChat(() => ({ text: "Big answer." }));
     fake.chats.length = 0;

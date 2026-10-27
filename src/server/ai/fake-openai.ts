@@ -72,8 +72,8 @@ export type FakeOpenAi = {
   chats: FakeChatRequest[];
   /** Every text sent for embedding, in order. */
   embedded: string[];
-  /** Every recording sent to be transcribed: its file name, size and model. */
-  transcribed: { name: string; size: number; model: string }[];
+  /** Every recording sent to be transcribed: its file name, size, model and the language it named. */
+  transcribed: { name: string; size: number; model: string; language?: string }[];
   /** What a recording reads as (a function of its size and file name). */
   setTranscript(text: (audio: { name: string; size: number }) => string): void;
   /** Milliseconds between streamed pieces (for cancelling mid-answer). */
@@ -137,7 +137,8 @@ export async function startFakeOpenAi(
           return;
         }
         const audio = { name: file.name, size: file.size };
-        state.transcribed.push({ ...audio, model: String(form.get("model")) });
+        const language = form.get("language");
+        state.transcribed.push({ ...audio, model: String(form.get("model")), ...(typeof language === "string" ? { language } : {}) });
         res.writeHead(200, { "Content-Type": "application/json" });
         res.end(JSON.stringify({ text: transcript(audio) }));
         return;

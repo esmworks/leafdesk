@@ -5,8 +5,8 @@
  * Answers render as markdown with their citations (numbered links to the pages, no list of sources
  * below), under the steps taken to them
  * (searches, pages read, changes made): listed as they happen, then folded into how long it took.
- * Under the box, what the chat may change (ask, auto, read only), the model (where there is a
- * choice) and research mode; a change it asks about takes the box's place until the person decides.
+ * In the box's toolbar, files, skills and research mode, then where answers come from, what the
+ * chat may change (ask, auto, read only) and the model (where there is a choice); a change it asks about takes the box's place until the person decides.
  * A research report can be saved as a page. Questions asked while an answer is on its way wait in a
  * strip above the box.
  */
@@ -41,7 +41,7 @@ import { usePropertyTypeLabel } from "@/components/database/property-icons";
 import { BlockChanges } from "@/components/page/history-diff";
 import { copyText } from "@/components/settings/copy-button";
 import { Button, cn, IconButton, MenuItem, Popover } from "@/components/ui";
-import { CHAT_MODES, changedMemory, changedThings, type ChatMode, type ChatSourceView, stripCitations } from "@/lib/ai-chat";
+import { CHAT_MODES, changedMemory, changedThings, type ChatMode, type ChatOptions, type ChatSourceView, stripCitations } from "@/lib/ai-chat";
 import { CHAT_FILE_ACCEPT, chatFileKind } from "@/lib/chat-attachments";
 import { PROPERTY_TYPES, type PropertyType } from "@/lib/property-types";
 import { caretOutsideLabels, deleteLabel, insertDictation, normalizePaste, shouldCollapsePaste, type PastePart } from "@/lib/chat-paste";
@@ -59,7 +59,8 @@ export function ChatThread({
   blocked,
   onSend,
   onSource,
-  footer,
+  scope,
+  starters,
   variant,
   voice,
 }: {
@@ -69,8 +70,10 @@ export function ChatThread({
   /** Asks the typed question; with `again`, its question (and skill) in place of the last question and answer. */
   onSend: (again?: { question: string; skill?: ChatSkillPick }) => void;
   onSource: (source: ChatSourceView) => void;
-  /** Under the box, before the note (the panel's scope picker). */
-  footer?: ReactNode;
+  /** Where answers come from (ScopePicker): in the box's toolbar on the page, under the box in the panel. */
+  scope?: ReactNode;
+  /** Under the empty page's box: questions to start from (ChatStarters). */
+  starters?: ReactNode;
   variant: "panel" | "page";
   /** The recording limits when questions can be dictated here, else null. */
   voice: VoiceNoteLimits | null;
@@ -362,37 +365,9 @@ export function ChatThread({
                   {skills.shown[Math.min(skills.active, skills.shown.length - 1)]?.title}
                 </span>
               )}
+              {/* What goes in with the question on the left; where and how it is answered, and Send, on the right. */}
               <div className={cn("flex items-center justify-between gap-2", page && "mt-1")}>
-                <div className="flex items-center gap-0.5">
-                  <ModePicker
-                    mode={chat.mode}
-                    onChange={chat.setMode}
-                    research={chat.research}
-                    asSuggestions={chat.asSuggestions}
-                    onSuggestions={chat.setAsSuggestions}
-                  />
-                  {chat.options.models.length > 1 && <ModelPicker models={chat.options.models} model={chat.model ?? chat.options.models[0].id} onChange={chat.setModel} />}
-                  <IconButton
-                    label={t("research.toggle")}
-                    title={t("research.toggleHint")}
-                    aria-pressed={chat.research}
-                    className={cn("h-7 w-7", chat.research && "bg-bg-active text-fg")}
-                    onClick={() => chat.setResearch(!chat.research)}
-                  >
-                    <Telescope className="h-4 w-4" />
-                  </IconButton>
-                  <IconButton
-                    label={tSkills("pick")}
-                    title={tSkills("pickHint")}
-                    className="h-7 w-7 disabled:opacity-40 disabled:hover:bg-transparent"
-                    disabled={Boolean(blocked) || chat.skill !== null}
-                    onClick={() => {
-                      if (!input) setInput("/");
-                      inputRef.current?.focus();
-                    }}
-                  >
-                    <ScrollText className="h-4 w-4" />
-                  </IconButton>
+                <div className="flex shrink-0 items-center gap-0.5">
                   <IconButton
                     label={t("files.attach")}
                     title={t("files.attachHint")}
@@ -414,50 +389,85 @@ export function ChatThread({
                       if (picked.length) void chat.attachFiles(picked);
                     }}
                   />
+                  <IconButton
+                    label={tSkills("pick")}
+                    title={tSkills("pickHint")}
+                    className="h-7 w-7 disabled:opacity-40 disabled:hover:bg-transparent"
+                    disabled={Boolean(blocked) || chat.skill !== null}
+                    onClick={() => {
+                      if (!input) setInput("/");
+                      inputRef.current?.focus();
+                    }}
+                  >
+                    <ScrollText className="h-4 w-4" />
+                  </IconButton>
+                  {/* Named while on, so the mode the next question goes in is plain to see. */}
+                  <IconButton
+                    label={t("research.toggle")}
+                    title={t("research.toggleHint")}
+                    aria-pressed={chat.research}
+                    className={cn("h-7 w-7", chat.research && "w-auto gap-1 bg-bg-active px-1.5 text-fg")}
+                    onClick={() => chat.setResearch(!chat.research)}
+                  >
+                    <Telescope className="h-4 w-4" />
+                    {chat.research && <span className="text-xs">{t("research.toggle")}</span>}
+                  </IconButton>
                   {voice && canRecord && (
                     <DictateButton workspaceId={chat.workspaceId} limits={voice} disabled={Boolean(blocked)} onText={dictated} onNotice={setDictation} />
                   )}
                 </div>
-                {/* Filled while there is something to send, quiet otherwise. While an answer is on its
-                    way, Stop is a ring, and a typed question can be queued beside it. */}
-                {running ? (
-                  <div className="flex items-center gap-1.5">
-                    {(input.trim() || hasFiles) && (
+                <div className="flex min-w-0 items-center gap-0.5">
+                  {page && scope}
+                  <ModePicker
+                    mode={chat.mode}
+                    onChange={chat.setMode}
+                    research={chat.research}
+                    asSuggestions={chat.asSuggestions}
+                    onSuggestions={chat.setAsSuggestions}
+                  />
+                  {chat.options.models.length > 1 && <ModelPicker models={chat.options.models} model={chat.model ?? chat.options.models[0].id} onChange={chat.setModel} />}
+                  {/* Filled while there is something to send, quiet otherwise. While an answer is on its
+                      way, Stop is a ring, and a typed question can be queued beside it. */}
+                  {running ? (
+                    <div className="flex items-center gap-1.5">
+                      {(input.trim() || hasFiles) && (
+                        <button
+                          type="submit"
+                          aria-label={t("queue.add")}
+                          title={t("queue.add")}
+                          className={cn(round, "text-fg-muted hover:bg-bg-hover hover:text-fg disabled:opacity-40")}
+                          disabled={Boolean(blocked) || uploading || skills.open}
+                        >
+                          <ArrowUp className="h-3.5 w-3.5" />
+                        </button>
+                      )}
                       <button
-                        type="submit"
-                        aria-label={t("queue.add")}
-                        title={t("queue.add")}
-                        className={cn(round, "text-fg-muted hover:bg-bg-hover hover:text-fg disabled:opacity-40")}
-                        disabled={Boolean(blocked) || uploading || skills.open}
+                        type="button"
+                        aria-label={t("stop")}
+                        title={t("stop")}
+                        className={cn(round, "border-[1.5px] border-fg text-fg hover:bg-bg-hover")}
+                        onClick={chat.stop}
                       >
-                        <ArrowUp className="h-3.5 w-3.5" />
+                        <Square className="h-2.5 w-2.5 fill-current" />
                       </button>
-                    )}
+                    </div>
+                  ) : (
                     <button
-                      type="button"
-                      aria-label={t("stop")}
-                      title={t("stop")}
-                      className={cn(round, "border-[1.5px] border-fg text-fg hover:bg-bg-hover")}
-                      onClick={chat.stop}
+                      type="submit"
+                      aria-label={t("send")}
+                      title={t("send")}
+                      className={sendButton}
+                      disabled={Boolean(blocked) || uploading || (!input.trim() && !hasFiles) || skills.open}
                     >
-                      <Square className="h-2.5 w-2.5 fill-current" />
+                      <ArrowUp className="h-3.5 w-3.5" />
                     </button>
-                  </div>
-                ) : (
-                  <button
-                    type="submit"
-                    aria-label={t("send")}
-                    title={t("send")}
-                    className={sendButton}
-                    disabled={Boolean(blocked) || uploading || (!input.trim() && !hasFiles) || skills.open}
-                  >
-                    <ArrowUp className="h-3.5 w-3.5" />
-                  </button>
-                )}
+                  )}
+                </div>
               </div>
             </form>
           )}
-          {footer}
+          {!page && scope && <div className="mt-1 flex">{scope}</div>}
+          {empty && starters}
           <p className={cn("mt-1.5 text-xs text-fg-faint", page && "text-center")}>{t("note")}</p>
         </div>
       </div>
@@ -888,7 +898,7 @@ function ModePicker({
   // Research only reads, whatever the mode.
   if (research) {
     return (
-      <span title={tResearch("readOnly")} className="-ms-1 flex h-7 items-center gap-1 rounded px-1.5 text-xs text-fg-muted">
+      <span title={tResearch("readOnly")} className="flex h-7 items-center gap-1 rounded px-1.5 text-xs text-fg-muted">
         <Eye className="h-3.5 w-3.5" />
         <span>{t("read")}</span>
       </span>
@@ -906,7 +916,7 @@ function ModePicker({
           aria-haspopup="menu"
           aria-label={`${t("label")}: ${t(mode)}`}
           title={t(`${mode}Hint`)}
-          className="-ms-1 flex h-7 items-center gap-1 rounded px-1.5 text-xs text-fg-muted hover:bg-bg-hover hover:text-fg"
+          className="flex h-7 items-center gap-1 rounded px-1.5 text-xs text-fg-muted hover:bg-bg-hover hover:text-fg"
         >
           <Icon className="h-3.5 w-3.5" />
           <span>{t(mode)}</span>
@@ -962,8 +972,9 @@ function ModePicker({
 }
 
 /** The model questions go to, where the workspace's AI offers more than one. */
-function ModelPicker({ models, model, onChange }: { models: { id: string; images: boolean }[]; model: string; onChange: (model: string) => void }) {
+function ModelPicker({ models, model, onChange }: { models: ChatOptions["models"]; model: string; onChange: (model: string) => void }) {
   const t = useTranslations("ai.chat.model");
+  const name = models.find((m) => m.id === model)?.name ?? model;
   return (
     <Popover
       side="top"
@@ -974,12 +985,12 @@ function ModelPicker({ models, model, onChange }: { models: { id: string; images
           onClick={toggle}
           aria-expanded={open}
           aria-haspopup="menu"
-          aria-label={`${t("label")}: ${model}`}
+          aria-label={`${t("label")}: ${name}`}
           title={t("hint")}
           className="flex h-7 max-w-40 min-w-0 items-center gap-1 rounded px-1.5 text-xs text-fg-muted hover:bg-bg-hover hover:text-fg"
         >
           <Cpu className="h-3.5 w-3.5 shrink-0" />
-          <span className="min-w-0 truncate">{model}</span>
+          <span className="min-w-0 truncate">{name}</span>
           <ChevronDown className="h-3 w-3 shrink-0" />
         </button>
       )}
@@ -998,9 +1009,11 @@ function ModelPicker({ models, model, onChange }: { models: { id: string; images
             >
               <span className="flex min-w-0 flex-1 flex-col">
                 <span className="flex items-center justify-between gap-2">
-                  <span className="min-w-0 truncate">{m.id}</span>
+                  <span className="min-w-0 truncate">{m.name}</span>
                   {m.id === model && <Check className="h-3.5 w-3.5 shrink-0 text-fg-muted" />}
                 </span>
+                {/* The id is what AI_CHAT_MODELS and the provider's console call it. */}
+                {m.name !== m.id && <span className="truncate text-xs text-fg-faint">{m.id}</span>}
                 {m.images && <span className="text-xs text-fg-muted">{t("images")}</span>}
               </span>
             </MenuItem>

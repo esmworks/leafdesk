@@ -169,14 +169,19 @@ async function writeChunk(userId: string, place: ChunkPlace, chunk: TranscriptCh
  * MeetingError, or AiError when transcribing fails (the browser tries again, then calls
  * markMeetingGap).
  */
-export async function addMeetingChunk(userId: string, place: ChunkPlace, audio: { bytes: Blob; type: string }, { signal }: { signal?: AbortSignal } = {}) {
+export async function addMeetingChunk(
+  userId: string,
+  place: ChunkPlace,
+  audio: { bytes: Blob; type: string },
+  { signal, language }: { signal?: AbortSignal; language?: string | null } = {},
+) {
   checkPlace(place);
   const found = await meetingPage(userId, place.pageId);
   const before = await readMeeting(place.pageId, place.meetingId);
   if (before.status !== "recording" || before.recorder !== userId) throw new MeetingError("notRecording", "This meeting isn't being recorded by you");
   let text = "";
   try {
-    text = await transcribe(audio, { feature: "voice.meeting", userId, workspaceId: found.workspaceId, signal });
+    text = await transcribe(audio, { feature: "voice.meeting", userId, workspaceId: found.workspaceId, language, signal });
   } catch (error) {
     // Nothing said in these seconds: not a failure.
     if (!(error instanceof AiError && error.code === "empty")) throw error;

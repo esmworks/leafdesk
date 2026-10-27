@@ -7,6 +7,7 @@ import { describeAiConfig, readAiConfig } from "./config";
 import { startFakeOpenAi, type FakeOpenAi } from "./fake-openai";
 import { sttEnabled, sttLimitsFor, transcribe } from "./index";
 import { fallbackVoiceTitle, parseVoiceNote, voiceNotePrompt } from "./prompts";
+import { speechLanguage } from "./transcribe";
 import { installFauxAi, resetAi, setAiEnv } from "./testing";
 
 describe("speech to text settings", () => {
@@ -68,6 +69,15 @@ describe("transcribe", () => {
     expect(await sttLimitsFor("w1")).toEqual({ maxSeconds: 600, maxBytes: 25 * 1024 * 1024 });
     expect(await transcribe(audio(2048, "audio/mp4"), { feature: "test", workspaceId: "w1" })).toBe("This is a test recording.");
     expect(fake.transcribed).toEqual([{ name: "voice-note.m4a", size: 2048, model: "base" }]);
+  });
+
+  it("names the recorder's language, as Whisper spells it", async () => {
+    setAiEnv({ STT_PROVIDER: "openai-compatible", STT_MODEL: "base", STT_BASE_URL: fake.baseUrl });
+    await transcribe(audio(), { feature: "test", workspaceId: "w1", language: "tr" });
+    await transcribe(audio(), { feature: "test", workspaceId: "w1", language: "nb" });
+    await transcribe(audio(), { feature: "test", workspaceId: "w1", language: null });
+    expect(fake.transcribed.map((t) => t.language)).toEqual(["tr", "no", undefined]);
+    expect([speechLanguage("pt"), speechLanguage("pt-BR"), speechLanguage("")]).toEqual(["pt", null, null]);
   });
 
   it("refuses what it can't send, and says when nothing was heard", async () => {

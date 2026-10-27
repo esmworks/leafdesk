@@ -24,8 +24,8 @@
   `update_dashboard_widget` and the dashboard views of `create_database_view` /
   `update_database_view` take `period`, and widgets `period_by` and `comparison`; the MCP tool list
   budget goes from 165,000 to 165,500 bytes for these settings. View filters gain *this quarter*,
-  *last quarter* and *next quarter*, and a page's first-load JavaScript budget goes from 774 to
-  775 kB for them. No migration.
+  *last quarter* and *next quarter*, and the first-load JavaScript budgets go up by 1 kB for
+  them (a page to 776 kB, all routes together to 1,181 kB). No migration.
 - **Email a dashboard on a schedule.** *Email* above a dashboard (a `/dashboard` block or a
   dashboard view) sends its figures to chosen people every day, week, month or year at a time in a
   time zone, by default every Monday at 08:00 for last week. The email shows the period that just
@@ -36,7 +36,10 @@
   the dashboard is removed. A link in the email (with one-click unsubscribe headers) and Settings →
   Preferences → Dashboard emails stop it; a test can be sent to yourself first. Setting up,
   stopping and sending are audit events. Needs SMTP. Migration 0153 adds `schedule.page_id`. The
-  budget for all routes' first-load JavaScript goes from 1,179 to 1,182 kB.
+  budget for all routes' first-load JavaScript goes from 1,181 to 1,182 kB.
+- **A new chat suggests questions to start from.** Under the empty full-page chat's box are
+  questions about the pages you opened last (summarize a page, what's in a database) and the start
+  of a search and of a new page; picking one fills the box without sending it.
 - **Right-click in the sidebar for Leafdesk's own menus, with Open in new tab and Copy link.** A
   page's row opens its actions (rename, move to trash, keep offline) where it was right-clicked,
   now starting with Open in new tab and Copy link; other links there (My tasks, Meetings, Home …)
@@ -45,6 +48,17 @@
   runs off a narrow sidebar's edge.
 
 ### Changed
+
+- **Recordings are written down in the language people use Leafdesk in.** Dictation, voice notes
+  and meeting recordings tell the speech to text server the recorder's interface language, so a
+  few seconds of speech are no longer taken for another language.
+- **Dictating in the AI chat shows how to stop.** While recording, the microphone becomes a red
+  *Stop* button with the time in it, beside the button that cancels.
+- **The AI chat's box is tidier.** *Answer from* is a menu in the box's toolbar instead of a field
+  under it (under the box in the panel), the model picker shows models by name ("Claude Opus 5.5")
+  rather than id, files, skills and research sit on the left with where and how it answers on the
+  right, research mode is named while on, and the conversations in the sidebar are grouped by today,
+  yesterday, the previous 7 and 30 days and older.
 
 - **Scheduled agents read only the web pages of their task and their searches.** A schedule's
   run used to read any address without asking, so text planted in a page or a row it read could

@@ -200,6 +200,7 @@
     "dictation": {
       "start": "Dicter une question",
       "stop": "Arrêter et insérer le texte",
+      "stopShort": "Arrêter",
       "cancel": "Annuler l'enregistrement",
       "transcribing": "Transcription de ce que vous avez dit…",
       "autoStopped": "L'enregistrement s'est arrêté à la limite de {minutes} min. Vérifiez le texte avant de l'envoyer.",
@@ -405,6 +406,22 @@
       "save": "Enregistrer comme page",
       "openPage": "Ouvrir la page",
       "saveFailed": "Impossible d’enregistrer le rapport comme page."
+    },
+    "starters": {
+      "label": "Suggestions",
+      "summarize": "Résumer « {title} »",
+      "database": "Que contient « {title} » ?",
+      "find": "Trouver des pages sur…",
+      "findText": "Trouver des pages sur ",
+      "write": "Rédiger une page sur…",
+      "writeText": "Rédiger une page sur "
+    },
+    "when": {
+      "today": "Aujourd’hui",
+      "yesterday": "Hier",
+      "week": "7 derniers jours",
+      "month": "30 derniers jours",
+      "older": "Plus anciennes"
     }
   },
   "memory": {

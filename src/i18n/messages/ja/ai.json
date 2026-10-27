@@ -200,6 +200,7 @@
     "dictation": {
       "start": "質問を音声入力",
       "stop": "停止してテキストを挿入",
+      "stopShort": "停止",
       "cancel": "録音をキャンセル",
       "transcribing": "話した内容を書き起こしています…",
       "autoStopped": "録音は上限の{minutes}分で停止しました。送信する前にテキストを確認してください。",
@@ -405,6 +406,22 @@
       "save": "ページとして保存",
       "openPage": "ページを開く",
       "saveFailed": "レポートをページとして保存できませんでした。"
+    },
+    "starters": {
+      "label": "候補",
+      "summarize": "「{title}」を要約して",
+      "database": "「{title}」には何がある？",
+      "find": "次に関するページを探す…",
+      "findText": "次に関するページを探す：",
+      "write": "次についてページを書く…",
+      "writeText": "次についてページを書く："
+    },
+    "when": {
+      "today": "今日",
+      "yesterday": "昨日",
+      "week": "過去7日間",
+      "month": "過去30日間",
+      "older": "それ以前"
     }
   },
   "memory": {

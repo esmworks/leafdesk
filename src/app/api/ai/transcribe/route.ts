@@ -2,6 +2,7 @@ import { auth } from "@/lib/auth";
 import { aiErrorStatus, isAiError, sttLimits } from "@/server/ai";
 import { audioError as fail, readAudioForm } from "@/server/audio-upload";
 import { isCrossSite } from "@/server/cross-site";
+import { statedLocale } from "@/server/mail/locale";
 import { transcribeDictation } from "@/server/voice-notes";
 
 /**
@@ -28,7 +29,11 @@ export async function POST(request: Request) {
 
   try {
     const inPage = read.form.get("use") === "page";
-    const text = await transcribeDictation(session.user.id, workspaceId.trim().slice(0, 100), read.audio, { signal: request.signal, inPage });
+    const text = await transcribeDictation(session.user.id, workspaceId.trim().slice(0, 100), read.audio, {
+      signal: request.signal,
+      inPage,
+      language: statedLocale(request.headers),
+    });
     return Response.json({ text }, { headers: { "Cache-Control": "no-store" } });
   } catch (error) {
     if (!isAiError(error)) console.error("[dictation]", error);

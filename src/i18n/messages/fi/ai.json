@@ -200,6 +200,7 @@
     "dictation": {
       "start": "Sanele kysymys",
       "stop": "Pysäytä ja lisää teksti",
+      "stopShort": "Lopeta",
       "cancel": "Peruuta nauhoitus",
       "transcribing": "Kirjoitetaan puhettasi tekstiksi…",
       "autoStopped": "Nauhoitus pysähtyi {minutes} minuutin rajaan. Tarkista teksti ennen lähettämistä.",
@@ -405,6 +406,22 @@
       "save": "Tallenna sivuna",
       "openPage": "Avaa sivu",
       "saveFailed": "Raporttia ei voitu tallentaa sivuna."
+    },
+    "starters": {
+      "label": "Ehdotuksia",
+      "summarize": "Tiivistä ”{title}”",
+      "database": "Mitä ”{title}” sisältää?",
+      "find": "Etsi sivuja aiheesta…",
+      "findText": "Etsi sivuja aiheesta ",
+      "write": "Kirjoita sivu aiheesta…",
+      "writeText": "Kirjoita sivu aiheesta "
+    },
+    "when": {
+      "today": "Tänään",
+      "yesterday": "Eilen",
+      "week": "Edelliset 7 päivää",
+      "month": "Edelliset 30 päivää",
+      "older": "Vanhemmat"
     }
   },
   "memory": {

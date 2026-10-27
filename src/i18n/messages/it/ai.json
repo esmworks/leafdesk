@@ -200,6 +200,7 @@
     "dictation": {
       "start": "Detta una domanda",
       "stop": "Interrompi e inserisci il testo",
+      "stopShort": "Ferma",
       "cancel": "Annulla la registrazione",
       "transcribing": "Trascrizione di quello che hai detto…",
       "autoStopped": "La registrazione si è fermata al limite di {minutes} min. Controlla il testo prima di inviarlo.",
@@ -405,6 +406,22 @@
       "save": "Salva come pagina",
       "openPage": "Apri la pagina",
       "saveFailed": "Impossibile salvare il rapporto come pagina."
+    },
+    "starters": {
+      "label": "Suggerimenti",
+      "summarize": "Riassumi «{title}»",
+      "database": "Cosa c’è in «{title}»?",
+      "find": "Trova pagine su…",
+      "findText": "Trova pagine su ",
+      "write": "Scrivi una pagina su…",
+      "writeText": "Scrivi una pagina su "
+    },
+    "when": {
+      "today": "Oggi",
+      "yesterday": "Ieri",
+      "week": "Ultimi 7 giorni",
+      "month": "Ultimi 30 giorni",
+      "older": "Meno recenti"
     }
   },
   "memory": {
