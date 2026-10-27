@@ -128,12 +128,6 @@ import {
 } from "@/server/ai-tools";
 
 /**
- * Model turns per question (searches, reads, queries and changes, then the answer), and the tokens
- * its turns may use in all: past them it answers with what it has.
- */
-export const MAX_ROUNDS = 20;
-export const CHAT_TOKENS = 400_000;
-/**
  * A research answer's turns, and the tokens its turns may use in all (the input each turn sends
  * again included): past them it writes its report with what it has. Each turn also counts against
  * the workspace's rate and cost limits like any other.
@@ -455,8 +449,6 @@ async function* runChat(
   // share the rest.
   const budget = await promptRoomFor(workspaceId, feature, model);
   const room = () => Math.max(0, budget - system.length - toolsSize - 200);
-  const maxRounds = research ? RESEARCH_ROUNDS : MAX_ROUNDS;
-  const maxTokens = research ? RESEARCH_TOKENS : CHAT_TOKENS;
 
   const conversation =
     existing ??
@@ -535,7 +527,7 @@ async function* runChat(
   let answer = "";
   let stopReason: "stop" | "length" = "stop";
   let failure: AiErrorCode | null = null;
-  // The model that answered, and the tokens the answer's turns used.
+  // The model that answered, and the tokens a research answer's turns used.
   let answeredBy: string | null = null;
   let spent = 0;
   // Something from outside (the web, a connection's tool) is in the conversation: from then on every
@@ -570,9 +562,11 @@ async function* runChat(
       return earlier > 0;
     };
     let roomMade = 0;
-    // The turn that must answer: the last one, or the one after the turns used their tokens.
-    let finalRound = maxRounds - 1;
-    // The last turn called tools instead of answering: it's asked once more, with none run.
+    // The turn that must answer: research's last one, or the one after it used its tokens. A chat
+    // question has none: it takes the turns it needs until the model answers or the person stops it
+    // (the workspace's rate and cost limits still count each turn).
+    let finalRound = research ? RESEARCH_ROUNDS - 1 : Infinity;
+    // Research's last turn called tools instead of answering: it's asked once more, with none run.
     let closing = false;
 
     // ------------------------------------------------------------------------------ model turns
@@ -638,8 +632,8 @@ async function* runChat(
         stopReason = result.stopReason === "length" ? "length" : "stop";
         break;
       }
-      // Turns that used their tokens answer (research: write the report) on the next turn.
-      if (spent >= maxTokens) finalRound = Math.min(finalRound, round + 1);
+      // Research that used its tokens writes its report on the next turn.
+      if (research && spent >= RESEARCH_TOKENS) finalRound = Math.min(finalRound, round + 1);
       // Text before a tool call is the model thinking aloud, not the answer: it's kept as a step.
       if (streamed) yield { type: "reset" };
       const thought = thoughtText(streamed);

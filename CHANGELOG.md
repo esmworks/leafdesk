@@ -126,8 +126,9 @@
 - **The AI chat no longer ends with "The AI gave no answer" after a few steps.** A question took
   at most six turns, so a task that searched and read a few pages before changing one ran out of
   turns, and a last turn that still called a tool left no answer, although the change was made. A
-  question now takes up to 20 turns and 400,000 tokens, and a last turn that calls tools instead of
-  answering is asked once more to answer with what it has.
+  question now takes as many turns as it needs, until the model answers or you stop it; the
+  workspace's rate and cost limits still count each turn. A research answer whose last turn calls
+  tools instead of writing the report is asked once more to write it.
 - **Text is drawn in the system's own typeface again** where Inter isn't installed. Since 0.6.4
   Latin letters fell to a Chinese typeface on macOS, whose faces came before the system's.
 - **Recordings no longer end in lines nobody said.** Over silence or a mumbled stretch, Whisper
