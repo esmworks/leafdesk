@@ -5,6 +5,8 @@
  */
 
 export type MailboxStatus = "connecting" | "ok" | "error";
+/** How a mailbox signs in: a password (an app password, mostly), or a Google sign-in. */
+export type MailboxAuth = "password" | "google";
 export type RowEmailDirection = "in" | "out";
 export type RowEmailStatus = "received" | "hidden" | "queued" | "sent" | "failed";
 
@@ -134,6 +136,7 @@ export type MailboxView = {
   displayName: string | null;
   servers: MailboxServers;
   username: string;
+  auth: MailboxAuth;
   /** The folders read, as the server names them; no sent folder means only incoming mail is read. */
   folders: { inbox: string | null; sent: string | null };
   status: MailboxStatus;
@@ -164,6 +167,8 @@ export type OwnMailbox = {
   workspaceName: string;
   /** Whether the workspace has email on rows on: only then can a mailbox be connected or changed. */
   enabled: boolean;
+  /** Whether the server can connect a Gmail or Google Workspace mailbox by signing in with Google. */
+  google: boolean;
   mailbox: MailboxView | null;
 };
 

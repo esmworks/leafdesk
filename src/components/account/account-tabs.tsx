@@ -70,7 +70,7 @@ export async function AccountTabContent({ tab, session, query = {} }: { tab: Acc
   if (tab === "profile") return <ProfileTab session={session} />;
   if (tab === "security") return <SecurityTab session={session} />;
   if (tab === "preferences") return <PreferencesTab userId={session.user.id} />;
-  if (tab === "mail") return <MailTab userId={session.user.id} />;
+  if (tab === "mail") return <MailTab userId={session.user.id} query={query} />;
   if (tab === "offline") return <OfflineTab userId={session.user.id} />;
   if (tab === "about") return <AboutLeafdesk />;
   if (tab === "snippets") return <SnippetsTab userId={session.user.id} name={session.user.name} />;
@@ -101,15 +101,19 @@ async function OfflineTab({ userId }: { userId: string }) {
   );
 }
 
-/** The person's mailboxes, one per workspace (server/row-mail), and their calendar addresses (server/calendar-feeds). */
-async function MailTab({ userId }: { userId: string }) {
+/**
+ * The person's mailboxes, one per workspace (server/row-mail), and their calendar addresses
+ * (server/calendar-feeds); `mailConnected` or `mailError` say how a sign-in with Google went.
+ */
+async function MailTab({ userId, query }: { userId: string; query: Record<string, string | string[] | undefined> }) {
   const [mailboxes, t] = await Promise.all([listOwnMailboxes(userId), getTranslations("account")]);
+  const notice = query.mailConnected === "1" ? "connected" : typeof query.mailError === "string" ? query.mailError : undefined;
   return (
     <>
       <SettingsHeader title={t("nav.mail")} description={t("mail.description")} />
       <div className="space-y-10">
         <div id={settingAnchor("mailboxes")} className="space-y-10">
-          <OwnMailboxes initial={mailboxes} />
+          <OwnMailboxes initial={mailboxes} notice={notice} />
         </div>
         <CalendarFeeds userId={userId} />
       </div>

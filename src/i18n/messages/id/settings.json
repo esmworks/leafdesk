@@ -2471,7 +2471,8 @@
         "auth": "Server email menolak nama pengguna atau kata sandi. Periksa kata sandi aplikasi.",
         "tls": "Koneksi aman ke server email tidak dapat dibuat.",
         "unreachable": "Server email tidak dapat dijangkau saat ini.",
-        "noInbox": "Server email tidak menampilkan kotak masuk."
+        "noInbox": "Server email tidak menampilkan kotak masuk.",
+        "signIn": "Login Google tidak lagi berfungsi. Login dengan Google lagi."
       }
     },
     "fields": {
@@ -2489,7 +2490,8 @@
       "usernamePlaceholder": "Biasanya alamat email",
       "password": "Kata sandi aplikasi",
       "passwordKeep": "Biarkan kosong untuk mempertahankan yang sekarang",
-      "passwordHelp": "Kata sandi aplikasi yang dibuat untuk Leafdesk, bukan kata sandi yang Anda pakai untuk masuk. Disimpan terenkripsi dan tidak pernah ditampilkan lagi."
+      "passwordHelp": "Kata sandi aplikasi yang dibuat untuk Leafdesk, bukan kata sandi yang Anda pakai untuk masuk. Disimpan terenkripsi dan tidak pernah ditampilkan lagi.",
+      "method": "Hubungkan dengan"
     },
     "providerHelp": {
       "google": "Juga untuk alamat Google Workspace di domain Anda sendiri. Buat kata sandi aplikasi di akun Google Anda di bawah Keamanan (Verifikasi 2 Langkah harus aktif).",
@@ -2516,8 +2518,21 @@
       "unreachable": "Server email tidak dapat dijangkau. Periksa nama server dan port.",
       "noInbox": "Server email tidak menampilkan kotak masuk.",
       "accessDenied": "Anda tidak memiliki akses untuk melakukan ini.",
-      "gone": "Pesan itu tidak lagi ada pada baris ini."
-    }
+      "gone": "Pesan itu tidak lagi ada pada baris ini.",
+      "signIn": "Login Google tidak lagi berfungsi. Login dengan Google lagi.",
+      "googleFailed": "Login dengan Google tidak menghubungkan kotak surat. Coba lagi.",
+      "googleScope": "Google tidak diizinkan memberi Leafdesk akses ke email Anda. Login lagi dan izinkan."
+    },
+    "methods": {
+      "google": "Akun Google (Gmail atau Google Workspace)",
+      "password": "Kata sandi aplikasi (penyedia apa pun, lewat IMAP dan SMTP)"
+    },
+    "googleHint": "Anda login di Google dan mengizinkan Leafdesk membaca dan mengirim email Anda. Kata sandi aplikasi tidak diperlukan, dan Anda bisa mencabut aksesnya di akun Google kapan saja.",
+    "googleConnect": "Login dengan Google",
+    "googleLeaving": "Membuka Google…",
+    "googleSignedIn": "login dengan Google",
+    "googleConnected": "Kotak surat Anda terhubung.",
+    "dismiss": "Tutup"
   },
   "followUps": {
     "heading": "Tindak lanjut pada {database}",

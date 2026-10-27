@@ -2471,7 +2471,8 @@
         "auth": "E-postserveren avviste brukernavnet eller passordet. Kontroller app-passordet.",
         "tls": "Kunne ikke opprette en sikker tilkobling til e-postserveren.",
         "unreachable": "E-postserveren kan ikke nås akkurat nå.",
-        "noInbox": "E-postserveren viser ingen innboks."
+        "noInbox": "E-postserveren viser ingen innboks.",
+        "signIn": "Google-påloggingen virker ikke lenger. Logg på med Google igjen."
       }
     },
     "fields": {
@@ -2489,7 +2490,8 @@
       "usernamePlaceholder": "Vanligvis e-postadressen",
       "password": "App-passord",
       "passwordKeep": "La stå tomt for å beholde det nåværende",
-      "passwordHelp": "Et app-passord laget for Leafdesk, ikke passordet du logger på med. Det lagres kryptert og vises aldri igjen."
+      "passwordHelp": "Et app-passord laget for Leafdesk, ikke passordet du logger på med. Det lagres kryptert og vises aldri igjen.",
+      "method": "Koble til med"
     },
     "providerHelp": {
       "google": "Gjelder også Google Workspace-adresser på ditt eget domene. Lag et app-passord i Google-kontoen din under Sikkerhet (totrinnsbekreftelse må være slått på).",
@@ -2516,8 +2518,21 @@
       "unreachable": "E-postserveren kunne ikke nås. Kontroller servernavnene og portene.",
       "noInbox": "E-postserveren viser ingen innboks.",
       "accessDenied": "Du har ikke tilgang til å gjøre dette.",
-      "gone": "Den meldingen er ikke lenger på denne raden."
-    }
+      "gone": "Den meldingen er ikke lenger på denne raden.",
+      "signIn": "Google-påloggingen virker ikke lenger. Logg på med Google igjen.",
+      "googleFailed": "Pålogging med Google koblet ikke til postkassen. Prøv igjen.",
+      "googleScope": "Google fikk ikke lov til å gi Leafdesk tilgang til e-posten din. Logg på igjen og tillat det."
+    },
+    "methods": {
+      "google": "Google-konto (Gmail eller Google Workspace)",
+      "password": "App-passord (alle leverandører, via IMAP og SMTP)"
+    },
+    "googleHint": "Du logger på hos Google og lar Leafdesk lese og sende e-posten din. Du trenger ikke app-passord, og du kan trekke tilbake tilgangen i Google-kontoen din når som helst.",
+    "googleConnect": "Logg på med Google",
+    "googleLeaving": "Åpner Google…",
+    "googleSignedIn": "pålogget med Google",
+    "googleConnected": "Postkassen din er tilkoblet.",
+    "dismiss": "Lukk"
   },
   "followUps": {
     "heading": "Oppfølginger på {database}",

@@ -116,6 +116,16 @@ export const env = {
       .filter(Boolean);
   },
   /**
+   * MAIL_GOOGLE_CLIENT_ID/SECRET: the OAuth client the instance registered with Google, which
+   * members sign in to when they connect a Gmail or Google Workspace mailbox without an app
+   * password (server/row-mail/google.ts). Null unless both are set.
+   */
+  get mailGoogleApp(): { clientId: string; clientSecret: string } | null {
+    const clientId = process.env.MAIL_GOOGLE_CLIENT_ID?.trim();
+    const clientSecret = process.env.MAIL_GOOGLE_CLIENT_SECRET?.trim();
+    return clientId && clientSecret ? { clientId, clientSecret } : null;
+  },
+  /**
    * OWN_STORAGE_ENABLED=true lets people connect storage of their own (an S3-compatible bucket,
    * Google Drive, Dropbox) and keep workspaces' uploads there instead of the server's storage. Off
    * by default: every upload goes to the server's storage (S3_* or UPLOAD_DIR). Turned off later,

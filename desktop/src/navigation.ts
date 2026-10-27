@@ -3,8 +3,8 @@
  * pages go to the system's browser, with one exception: signing in to Leafdesk at an identity
  * provider (single sign-on), whose cookies have to land in this app. Such a trip starts on one of
  * the server's sign-in pages and lasts until the tab is back on the server (main.ts); the strip
- * shows the host meanwhile (`awayHost`). Signing in to a service for a connection or for storage
- * happens in the system's browser, where the person is likely signed in to the service already,
+ * shows the host meanwhile (`awayHost`). Signing in to a service for a connection, for storage or
+ * for a mailbox happens in the system's browser, where the person is likely signed in to the service already,
  * and the server hands the answer back to the app with a `leafdesk://` link (see `signInReturn`).
  * Links Leafdesk opens in a new tab go to the system's browser too, unless they lead back into
  * Leafdesk, which opens them in a tab of its own (as it does a `leafdesk://open` link, see
@@ -32,6 +32,7 @@ export const APP_SCHEME = "leafdesk";
 const SIGN_IN_RETURNS = new Map([
   ["connections", "/api/connections/oauth/callback"],
   ["storage", "/api/storage/oauth/callback"],
+  ["mail", "/api/mail/oauth/callback"],
 ]);
 /** What a service's answer carries back (RFC 6749 4.1.2, RFC 9207). */
 const ANSWER_PARAMS = ["state", "code", "iss", "error"];
@@ -124,7 +125,7 @@ export function isServerPage(url: string | undefined, server: string | undefined
   return parse(url)?.origin === server;
 }
 
-/** A service's sign-in page that sends the browser back to the server's address for a connection or storage. */
+/** A service's sign-in page that sends the browser back to the server's address for a connection, storage or a mailbox. */
 function isServiceSignIn(url: URL, server: string | undefined) {
   if (!server || url.origin === server) return false;
   const back = parse(url.searchParams.get("redirect_uri") ?? "");
