@@ -89,6 +89,14 @@ describe("transcribe", () => {
     expect(fake.transcribed).toHaveLength(1);
   });
 
+  it("drops a video's sign-off the model wrote over silence", async () => {
+    setAiEnv({ STT_PROVIDER: "openai-compatible", STT_MODEL: "base", STT_BASE_URL: fake.baseUrl });
+    fake.setTranscript(() => "Merhaba, abone olmayı ve videoyu beğenmeyi unutmayın.");
+    expect(await transcribe(audio(), { feature: "test", workspaceId: "w1", language: "tr" })).toBe("Merhaba");
+    fake.setTranscript(() => "Altyazı M.K.");
+    await expect(transcribe(audio(), { feature: "test", workspaceId: "w1", language: "tr" })).rejects.toMatchObject({ code: "empty" });
+  });
+
   it("is off without settings, and reports the server's failures as provider errors", async () => {
     setAiEnv({});
     expect(sttEnabled()).toBe(false);

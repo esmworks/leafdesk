@@ -25,6 +25,7 @@ import { sharedLimiter, takeAll, type SlidingWindowLimiter } from "@/lib/rate-li
 import { env } from "@/lib/env";
 import { stripInvisible } from "@/lib/invisible-text";
 import { redactText } from "@/lib/redact";
+import { dropSpeechArtifacts } from "@/lib/speech-artifacts";
 import { createBackend, streamTurn, type AiBackend, type AiThinking } from "./backend";
 import { accountAiConfig, contentChars, DEFAULT_MIN_SIMILARITY, describeAiConfig, readAiConfig, readSttLimits, type AiConfig } from "./config";
 import { fetchEmbeddings } from "./embeddings";
@@ -630,7 +631,7 @@ function failure(
     const detail = message?.errorMessage ?? (error instanceof Error ? error.message : String(error));
     result = new AiError("provider", `The AI provider failed: ${detail}`);
   }
-  logUsage({ ...entry, status: result.code, detail: result.code === "provider" ? result.message : undefined });
+  logUsage({ ...entry, status: result.code, detail: result.code === "provider" ? result.message : entry.detail });
   return result;
 }
 
@@ -780,9 +781,14 @@ export async function transcribe(
   const started = performance.now();
   const testing = testBackend(target)?.transcribe;
   const ledger = await usageLedger(runtime.override);
+  let detail = `bytes=${audio.bytes.size}`;
   try {
     await holdToLimit(ledger, request.workspaceId, target.accountId !== null);
-    const { text, seconds } = testing ? { text: await testing(audio), seconds: null } : await fetchTranscription(stt, audio, signal, request.language);
+    const { text: heard, seconds } = testing ? { text: await testing(audio), seconds: null } : await fetchTranscription(stt, audio, signal, request.language);
+    if (seconds) detail += ` seconds=${Math.round(seconds)}`;
+    // A subtitler's credit or a video's sign-off, written over silence (lib/speech-artifacts).
+    const { text, dropped } = dropSpeechArtifacts(heard);
+    if (dropped.length) detail += ` artifacts=${dropped.length}`;
     if (!text) throw new AiError("empty", "Nothing was heard in the recording");
     noted(target, null);
     logUsage({
@@ -793,7 +799,7 @@ export async function transcribe(
       status: "ok",
       ms: performance.now() - started,
       model: stt.model,
-      detail: `bytes=${audio.bytes.size}${seconds ? ` seconds=${Math.round(seconds)}` : ""}`,
+      detail,
     });
     // Speech to text is priced by the minute, which the provider doesn't say: counted, at no cost.
     await recordUsage(ledger, { workspaceId: request.workspaceId, userId: request.userId ?? null, feature: request.feature, model: stt.model, ownAccount: target.accountId !== null, inputTokens: 0, cacheReadTokens: 0, cacheWriteTokens: 0, outputTokens: 0, costUsd: 0 });
@@ -806,6 +812,7 @@ export async function transcribe(
       accountId: target.accountId,
       ms: performance.now() - started,
       model: stt.model,
+      detail,
     });
     noted(target, failed);
     throw failed;

@@ -92,6 +92,11 @@
 
 ### Fixed
 
+- **Recordings no longer end in lines nobody said.** Over silence or a mumbled stretch, Whisper
+  models can write a subtitler's credit or a video's sign-off ("Altyazı M.K.", "don't forget to
+  subscribe", "Thanks for watching") in the recording's language. Dictation, voice notes and
+  meeting recordings now leave these out, and a recording that was only such a line counts as
+  nothing heard.
 - **The desktop app's tab strip takes clicks again on macOS.** Beside a page's sidebar, New Tab,
   back, forward and the tabs themselves moved the window instead (pressing New Tab twice zoomed
   it), because the page's own region for moving the window ran on under the strip. That region now
