@@ -68,18 +68,16 @@
   beside it as chips, the model shown by name ("Claude Opus 5.5") rather than id; dictation is next
   to *Send*, which fills in once there is something to send. The conversations in the sidebar are
   grouped by today, yesterday, the previous 7 and 30 days and older.
-- **A crisper look across the app.** In wider windows the sidebar sits on a gray shell and the
-  page on a card raised from it, with the open page's row in the sidebar raised the same way.
-  Grays lean slightly warm, with white surfaces edged by fine lines in the light scheme and a
-  deeper black in the dark one; buttons are lifted by a soft shadow. A database's views sit on a
-  track with the open one raised. Board cards show their values side by side, each in a small
-  chip of its own; a table's header row is gray with smaller text. Database titles are smaller and
-  semibold, pages keep their large titles, and the sidebar's section labels are quieter.
-  A row opened from a database, the AI chat and comments lie over the card's right side instead of
-  pushing the page aside. While a row is open, boards and tables keep room at their end, and the
-  opened card scrolls into view beside the panel when the panel would cover it. The desktop app's
-  tab strip takes the shell's gray, its shown tab white like the card below it; until the desktop
-  app is updated, the card lies flat under the old white strip.
+- **A crisper look across the app.** Grays lean slightly warm, with white surfaces edged by fine
+  lines in the light scheme and a deeper black in the dark one; buttons are lifted by a soft
+  shadow. A database's views sit on a track with the open one raised, and the line under the
+  page's top bar and a database's views is gone. Board cards show their values side by side, each
+  in a small chip of its own; a table's header row is gray with smaller text. Database titles are
+  smaller and semibold, pages keep their large titles, and the sidebar's section labels are
+  quieter.
+- **A row opened from a database lies over the page's right side** instead of pushing the page
+  aside. While it is open, boards and tables keep room at their end, and the opened card scrolls
+  into view beside the panel when the panel would cover it.
 
 - **Scheduled agents read only the web pages of their task and their searches.** A schedule's
   run used to read any address without asking, so text planted in a page or a row it read could
@@ -104,6 +102,8 @@
 
 ### Fixed
 
+- **Text is drawn in the system's own typeface again** where Inter isn't installed. Since 0.6.4
+  Latin letters fell to a Chinese typeface on macOS, whose faces came before the system's.
 - **Recordings no longer end in lines nobody said.** Over silence or a mumbled stretch, Whisper
   models can write a subtitler's credit or a video's sign-off ("Altyazı M.K.", "don't forget to
   subscribe", "Thanks for watching") in the recording's language. Dictation, voice notes and

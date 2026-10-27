@@ -79,8 +79,7 @@ export default async function WorkspaceLayout({
       {/* Meetings keep recording while the person moves around the workspace (meeting-recorder.tsx). */}
       <MeetingRecorderProvider workspaceId={workspaceId} limits={voice}>
       <RowPanelProvider workspaceId={workspaceId} user={{ id: user.id, name: user.name }}>
-        {/* Wider windows: the sidebar on a gray shell, the page on a card raised from it. */}
-        <div className="flex h-full md:bg-bg-shell">
+        <div className="flex h-full">
           <Sidebar
             workspaceId={workspaceId}
             workspaces={workspaces}
@@ -96,7 +95,7 @@ export default async function WorkspaceLayout({
             initialLayout={sidebarLayout}
             user={{ id: user.id, name: user.name, email: user.email, image: user.image ?? null }}
           />
-          <main className="min-w-0 flex-1 overflow-y-auto md:m-2 md:rounded-md md:border md:border-border md:bg-bg md:shadow-[0_1px_3px_rgb(0_0_0/0.05)]">
+          <main className="min-w-0 flex-1 overflow-y-auto">
             <FloatingSidebarButton />
             {children}
           </main>

@@ -65,16 +65,15 @@ function viewOrder(source: Element | null): string[] {
 }
 
 /**
- * In wider windows the panel lies over the page's right side (the left, right to left), 0.5rem in
- * from the window's edge: scrolls the view an open row's `el` is in sideways until the row is
- * clear of the panel, when it isn't. Never so far that the row's start leaves the view: a table's
+ * In wider windows the panel lies over the page's right side (the left, right to left): scrolls
+ * the view an open row's `el` is in sideways until the row is clear of the panel, when it isn't. Never so far that the row's start leaves the view: a table's
  * row, wider than the room beside the panel, stays where it is.
  */
 function revealBesidePanel(el: HTMLElement, panelWidth: number) {
   if (!window.matchMedia("(min-width: 768px)").matches) return;
   const rtl = getComputedStyle(el).direction === "rtl";
   const box = el.getBoundingClientRect();
-  const clear = 8 + panelWidth + 16;
+  const clear = panelWidth + 16;
   for (let scroller = el.parentElement; scroller; scroller = scroller.parentElement) {
     if (scroller.scrollWidth <= scroller.clientWidth || !/auto|scroll/.test(getComputedStyle(scroller).overflowX)) continue;
     const view = scroller.getBoundingClientRect();
@@ -580,10 +579,9 @@ function RowPanel({
       aria-modal="false"
       aria-label={label}
       tabIndex={-1}
-      // The row's comments open beside the panel (components/page/comments-panel.tsx). Wider
-      // windows lay it over the page's card, as tall as the card and inside its edge.
+      // The row's comments open beside the panel (components/page/comments-panel.tsx).
       style={{ width, "--comments-right": `${width}px` } as CSSProperties}
-      className="fixed top-(--app-top) bottom-0 inset-e-0 z-40 flex flex-col border-s border-border bg-bg shadow-xl outline-none md:top-(--card-top) md:bottom-2 md:inset-e-2 md:overflow-hidden md:rounded-md md:border"
+      className="fixed top-(--app-top) bottom-0 inset-e-0 z-40 flex flex-col border-s border-border bg-bg shadow-xl outline-none"
     >
       <ResizeHandle width={width} onResize={onResize} />
       <div className="min-h-0 flex-1 overflow-y-auto">{body}</div>

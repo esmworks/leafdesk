@@ -125,8 +125,6 @@ const FAVORITES_SECTION: SidebarSection = "favorites";
 const PAGES_SECTION: SidebarSection = "pages";
 /** Top-level pages "Private" and "Shared" show before a "More" row. */
 const SECTION_LIMIT = 10;
-/** The open page's row: raised off the sidebar like the page beside it. */
-const ACTIVE_ROW = "bg-bg font-medium text-fg shadow-[0_0_0_1px_var(--color-border),0_1px_2px_rgb(0_0_0/0.05)] hover:bg-bg";
 /** A teamspace this many people are in asks before a page is added at its top, once per browser (WIDE_ADD_KEY). */
 const WIDE_TEAMSPACE = 10;
 const WIDE_ADD_KEY = "leafdesk:wide-add-ok";
@@ -871,7 +869,7 @@ export function Sidebar({
                 href={`/w/${workspaceId}/p/${f.id}`}
                 className={cn(
                   "flex h-7 items-center gap-0.5 rounded-md ps-1 hover:bg-bg-hover",
-                  activeId === f.id && ACTIVE_ROW,
+                  activeId === f.id && "bg-bg-active font-medium",
                 )}
               >
                 <span className="flex h-6 w-6 shrink-0 items-center justify-center">
@@ -1100,9 +1098,7 @@ export function Sidebar({
         onMouseEnter={sidebar?.collapsed ? sidebar.showPeek : undefined}
         onMouseLeave={sidebar?.collapsed ? sidebar.hidePeek : undefined}
         className={cn(
-          // Open beside the page it lies on the shell, unedged; phones and the hidden panel keep their edge.
-          "relative flex shrink-0 flex-col border-e border-border bg-bg-subtle text-sm select-none md:bg-bg-shell",
-          !sidebar?.collapsed && "md:border-e-0",
+          "relative flex shrink-0 flex-col border-e border-border bg-bg-subtle text-sm select-none",
           "max-md:fixed max-md:inset-y-0 max-md:inset-s-0 max-md:z-50 max-md:w-[min(18rem,85vw)] max-md:shadow-xl md:w-[var(--sidebar-w)]",
           sidebar?.collapsed &&
             "md:fixed md:top-12 md:bottom-3 md:inset-s-0 md:z-50 md:rounded-e-xl md:border md:border-s-0 md:shadow-2xl md:transition-[translate,visibility] md:duration-200 md:ease-out",
@@ -2101,7 +2097,7 @@ function SidebarButton({
   const className = cn(
     "flex h-7 w-full items-center gap-2 rounded-md px-2 text-start text-fg-muted hover:bg-bg-hover hover:text-fg",
     "disabled:cursor-default disabled:opacity-50 disabled:hover:bg-transparent disabled:hover:text-fg-muted",
-    active && ACTIVE_ROW,
+    active && "bg-bg-active font-medium text-fg hover:bg-bg-active",
   );
   const content = (
     <>
@@ -2152,7 +2148,7 @@ function FooterButton({
   const className = cn(
     "flex h-8 min-w-0 items-center gap-2 rounded-md px-2 text-fg-muted hover:bg-bg-hover hover:text-fg",
     "disabled:cursor-default disabled:opacity-50 disabled:hover:bg-transparent disabled:hover:text-fg-muted",
-    active && ACTIVE_ROW,
+    active && "bg-bg-active text-fg hover:bg-bg-active",
   );
   const content = (
     <>
@@ -2299,7 +2295,7 @@ function TreeItem({
         className={cn(
           "group relative flex h-7 items-center gap-0.5 rounded-md pe-1 hover:bg-bg-hover has-[[data-open]]:bg-bg-hover",
           // An open database highlights its current view row instead.
-          active && !(isOpen && currentViewId) && cn(ACTIVE_ROW, "has-[[data-open]]:bg-bg"),
+          active && !(isOpen && currentViewId) && "bg-bg-active font-medium hover:bg-bg-active has-[[data-open]]:bg-bg-active",
           drop?.zone === "inside" && "bg-accent/15",
         )}
         style={{ paddingInlineStart: 4 + depth * 14 }}
@@ -2462,7 +2458,7 @@ function TreeItem({
                 aria-current={v.id === currentViewId ? "page" : undefined}
                 className={cn(
                   "flex h-7 items-center gap-1.5 rounded-md pe-2 text-fg-muted hover:bg-bg-hover hover:text-fg",
-                  v.id === currentViewId && ACTIVE_ROW,
+                  v.id === currentViewId && "bg-bg-active font-medium text-fg hover:bg-bg-active",
                 )}
                 style={{ paddingInlineStart: 4 + (depth + 1) * 14 }}
               >

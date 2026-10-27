@@ -176,8 +176,7 @@ function ChatPanel({
   return (
     <aside
       aria-label={t("title")}
-      // Wider windows lay it over the page's card, as tall as the card, like the row panel.
-      className="fixed top-(--app-top) bottom-0 inset-e-0 z-40 flex w-full flex-col border-s border-border bg-bg shadow-xl md:top-(--card-top) md:bottom-2 md:inset-e-2 md:w-[400px] md:overflow-hidden md:rounded-md md:border"
+      className="fixed top-(--app-top) bottom-0 inset-e-0 z-40 flex w-full flex-col border-s border-border bg-bg shadow-xl md:w-[400px]"
     >
       <div className="flex h-11 shrink-0 items-center gap-1 border-b border-border px-3">
         <h2 className="flex-1 truncate text-sm font-semibold">{t("title")}</h2>

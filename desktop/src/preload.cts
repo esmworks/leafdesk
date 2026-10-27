@@ -70,8 +70,7 @@ if (location.protocol === "file:" && location.pathname.endsWith("/tabs.html")) {
  * their `<html>`: macOS, no title bar, the buttons at the window's top-left corner (main.ts). The
  * strip gets `data-window-controls="inset"` and keeps room for them when it starts there; a page
  * gets `data-tab-strip`: the strip lies over it beside its sidebar, the buttons over the sidebar's
- * first row (the web app's globals.css), and `data-tab-strip-shell`: the strip is drawn in the
- * shell's gray, so the page may sit on a card below it. `data-full-screen`: the buttons are hidden.
+ * first row (the web app's globals.css). `data-full-screen`: the buttons are hidden.
  */
 const controls = process.argv.find((arg) => arg.startsWith("--leafdesk-window-controls="))?.split("=")[1];
 const marked = location.protocol !== "file:" ? "data-tab-strip" : location.pathname.endsWith("/tabs.html") ? "data-window-controls" : null;
@@ -81,11 +80,10 @@ if (controls && marked) {
     const root = document.documentElement;
     if (!root) return;
     if (root.getAttribute(marked) !== controls) root.setAttribute(marked, controls);
-    if (marked === "data-tab-strip" && !root.hasAttribute("data-tab-strip-shell")) root.setAttribute("data-tab-strip-shell", "");
     if (root.hasAttribute("data-full-screen") !== fullScreen) root.toggleAttribute("data-full-screen", fullScreen);
   };
   new MutationObserver(mark).observe(document, { childList: true });
-  new MutationObserver(mark).observe(document, { subtree: true, attributeFilter: [marked, "data-tab-strip-shell", "data-full-screen"] });
+  new MutationObserver(mark).observe(document, { subtree: true, attributeFilter: [marked, "data-full-screen"] });
   mark();
   ipcRenderer.on("leafdesk:full-screen", (_event, value: unknown) => {
     fullScreen = value === true;

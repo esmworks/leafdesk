@@ -54,8 +54,8 @@ const ICON = path.join(APP_DIR, "build", "icon.png");
 const SERVER_DIR = app.isPackaged ? path.join(process.resourcesPath, "server") : path.join(APP_DIR, "..");
 /** The web app's own background (src/lib/theme.ts), so a tab doesn't flash before it paints. */
 const BACKGROUND = { light: "#ffffff", dark: "#18191b" };
-/** The tab strip's background and text (the web app's shell and fg), for the window's buttons outside macOS. */
-const STRIP = { light: { color: "#f0f0ee", symbolColor: "#1d1d1d" }, dark: { color: "#0f0f0f", symbolColor: "#ededed" } };
+/** The tab strip's background and text (the web app's bg and fg), for the window's buttons outside macOS. */
+const STRIP = { light: { color: "#ffffff", symbolColor: "#1f2023" }, dark: { color: "#18191b", symbolColor: "#e8e8ea" } };
 const PROBE_TIMEOUT_MS = 10_000;
 /** The language picked in Leafdesk (src/i18n/config.ts); the app's own words follow it. */
 const LOCALE_COOKIE = "NEXT_LOCALE";
