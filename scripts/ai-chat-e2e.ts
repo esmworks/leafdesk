@@ -469,16 +469,16 @@ try {
   check((await listConversations(dave, workspaceId)).length === before, "…and leaves no empty conversation behind");
 
   // The fake model has no price, so AI_RUN_LIMIT_USD never stops it: RUN_ROUNDS does. Its last turn
-  // only calls tools, so it's asked once more, and that text is the answer.
+  // still calls tools (thinking aloud beside them), so it's asked once more, and that text is the answer.
   let rounds = 0;
   fake.setChat(() => {
     rounds++;
     if (rounds > RUN_ROUNDS) return { text: "Done what I could: see [1]." };
-    return { text: "", toolCalls: [{ name: "search_pages", arguments: { query: `tyres ${rounds}` } }] };
+    return { text: rounds === RUN_ROUNDS ? "Let me look once more." : "", toolCalls: [{ name: "search_pages", arguments: { query: `tyres ${rounds}` } }] };
   });
   fake.chats.length = 0;
   const looping = await ask(dave, { workspaceId, message: "Search forever about tyres, never answer" });
-  check(looping.done && fake.chats.length === RUN_ROUNDS + 1 && looping.text === "Done what I could: see [1].", `a model without a price gets ${RUN_ROUNDS} turns, then one more to answer when its last only calls tools`, {
+  check(looping.done && fake.chats.length === RUN_ROUNDS + 1 && looping.text === "Done what I could: see [1].", `a model without a price gets ${RUN_ROUNDS} turns, then one more to answer when its last calls tools`, {
     turns: fake.chats.length,
     text: looping.text,
     error: looping.error,

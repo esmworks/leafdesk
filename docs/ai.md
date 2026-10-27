@@ -195,7 +195,8 @@ conversation as its context window takes (see `AI_MAX_INPUT_CHARS`); when the mo
 too long, older tool results and then the earlier turns are left out and the question is asked
 again. They are deleted when you leave the workspace or delete your account. The
 chat is off while offline and when AI is off for the workspace. Every question counts against
-`AI_RATE_LIMIT`; the model's extra turns count against `AI_WORKSPACE_RATE_LIMIT`.
+`AI_RATE_LIMIT`; the model's extra turns count against `AI_WORKSPACE_RATE_LIMIT`, and wait for
+it when it is used up rather than ending the answer.
 
 **Changes from the chat.** The chat can add a database row (`create_row`, with its values and
 text), change a row's values or title (`update_row`), add a page under a page, or a private one

@@ -11,7 +11,7 @@
  *
  * A run is a short conversation with the model: the agent's instructions, what happened (a row
  * changed, or an event came in), a map of what the agent can open, then turns of tools until it
- * answers or has spent AI_RUN_LIMIT_USD (RUN_ROUNDS for a model without a price). Leafdesk's own tools are narrow: reading what is shared with the agent; on a
+ * answers or has spent AI_RUN_LIMIT_USD (turns.ts). Leafdesk's own tools are narrow: reading what is shared with the agent; on a
  * row's run, changing or commenting on that row; on an event's run, adding rows to databases
  * shared with it to edit (a log of what came in); at most MAX_AGENT_WRITES changes in all. A
  * schedule's run on a database may change and comment on that database's rows instead, at most
@@ -79,7 +79,7 @@ import { threadBefore } from "@/lib/comments";
 import { agentWebCallAsks, scheduledWebCallGoes } from "@/lib/web-calls";
 import { AccessError, findMembership, hasLevel, inWorkspace, pageAccessOf } from "@/server/access";
 import { runActingFor } from "@/server/acting-for";
-import { aiConfig, AiError, complete, isAiError, promptRoomFor, RUN_ROUNDS, takeWorkspaceCapacity, type AiMessage, type AiResult, type AiTool, type AiToolCall } from "@/server/ai";
+import { aiConfig, AiError, complete, isAiError, promptRoomFor, takeWorkspaceCapacity, type AiMessage, type AiResult, type AiTool, type AiToolCall } from "@/server/ai";
 import { agentChatPrompt, agentEventPrompt, agentMentionPrompt, agentRequestPrompt, agentSchedulePrompt, agentSystemPrompt, agentTaskPrompt } from "@/server/ai/prompts";
 import { aiAvailable } from "@/server/ai-writing";
 import { memoryAvailable, memoryForPrompt } from "@/server/ai-memory";
@@ -113,10 +113,13 @@ import { agentLevel } from "./sharing";
 import { addAgentUsage, overMonthlyLimit, pruneAgentUsage } from "./usage";
 import { pruneAiUsage } from "@/server/ai/usage-store";
 import { dropOldToolResults } from "@/server/ai/compact";
+import { ANSWER_NOW, isLastTurn, refuseLastCalls } from "@/server/ai/turns";
 
 const SWEEP_INTERVAL_MS = 5_000;
 /** A run taken (or last gone on with, see converse) this long ago and not finished belongs to a worker that stopped: it's taken again. */
 const STALE_MS = 10 * 60_000;
+/** How often a run under way says so, well within STALE_MS, however long a turn or a tool takes. */
+const HEARTBEAT_MS = 60_000;
 /** A run taken this many times (waiting for the AI allowance, or stopping the worker) fails. */
 const MAX_CLAIMS = 40;
 /** The most of the prompt the map of the workspace may take. */
@@ -489,7 +492,18 @@ export async function processRun(run: Run): Promise<void> {
   const wait = takeWorkspaceCapacity(run.workspaceId);
   if (wait > 0) return later(run, new Date(Date.now() + wait));
 
-  const outcome = await withinMember(agent, bound, () => converse(agent, run, { member, bound, trusted, chatWrites })).catch((error: unknown) => ({ error }));
+  // A run has no time limit: while it goes on (slow tools, waits for the agents it asks), it isn't
+  // taken again as stale.
+  const heartbeat = setInterval(() => {
+    db.update(agentRun)
+      .set({ nextAt: new Date() })
+      .where(and(eq(agentRun.id, run.id), eq(agentRun.status, "running")))
+      .catch((error: unknown) => console.error("[agents] could not mark a run as under way", redactError(error)));
+  }, HEARTBEAT_MS);
+  heartbeat.unref?.();
+  const outcome = await withinMember(agent, bound, () => converse(agent, run, { member, bound, trusted, chatWrites }))
+    .catch((error: unknown) => ({ error }))
+    .finally(() => clearInterval(heartbeat));
   if ("error" in outcome) {
     const error = outcome.error;
     if (isAiError(error) && error.code === "rateLimited") return later(run, new Date(Date.now() + (error.retryAfterMs ?? 30_000)));
@@ -929,23 +943,19 @@ async function converse(
     if (paused) return paused;
   }
 
-  // Still under way: a run that takes long isn't taken again as stale.
-  const stillRunning = () => db.update(agentRun).set({ nextAt: new Date() }).where(and(eq(agentRun.id, run.id), eq(agentRun.status, "running")));
   const limitUsd = aiConfig().limits.runLimitUsd;
   let finalAnswer = "";
   // The last turn called tools instead of answering: it's asked once more, with none run.
   let closing = false;
-  for (let round = Math.max(firstRound, usage.rounds); round < RUN_ROUNDS; round++) {
+  for (let round = Math.max(firstRound, usage.rounds); ; round++) {
     if (round > firstRound) {
       const wait = takeWorkspaceCapacity(run.workspaceId);
       if (wait > 0) await new Promise((resolve) => setTimeout(resolve, Math.min(wait, 15_000)));
-      await stillRunning();
     }
     // The month's tokens may have run out since the run started or was taken again (other runs of
     // the agent use them too); a new run's first turn was checked in processRun.
     if ((round > firstRound || saved) && (await overMonthlyLimit(agent))) return { status: "failed", code: "limitReached", steps, usage };
-    // Past AI_RUN_LIMIT_USD (or RUN_ROUNDS' last turn, for a model without a price), it answers.
-    const last = round === RUN_ROUNDS - 1 || usage.costUsd >= limitUsd;
+    const last = isLastTurn(round, usage.costUsd, limitUsd);
     let result: AiResult;
     try {
       result = await complete({
@@ -977,13 +987,9 @@ async function converse(
     usage.outputTokens += result.usage.outputTokens;
     usage.costUsd += result.usage.costUsd;
     usage.model = result.model;
-    await stillRunning();
-    if (last && result.toolCalls.length && !result.text.trim() && !closing) {
+    if (last && result.toolCalls.length && !closing) {
       closing = true;
-      messages.push(result.message);
-      for (const call of result.toolCalls) {
-        messages.push({ role: "tool", toolCallId: call.id, name: call.name, content: "Not run: this run has no turns left for tools. Answer now with what you have, and say what is left to do.", isError: true });
-      }
+      refuseLastCalls(messages, result);
       round -= 1;
       continue;
     }
@@ -997,6 +1003,11 @@ async function converse(
     queue = result.toolCalls;
     const paused = await drain(undefined);
     if (paused) return paused;
+    // The next turn is the last: the model reads that with the results.
+    const lastResult = messages.at(-1);
+    if (isLastTurn(round + 1, usage.costUsd, limitUsd) && lastResult?.role === "tool") {
+      messages[messages.length - 1] = { ...lastResult, content: `${lastResult.content}\n\n${ANSWER_NOW}` };
+    }
   }
   return { status: "done", steps, answer: finalAnswer, usage };
 }

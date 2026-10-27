@@ -359,8 +359,9 @@ because they are separate module graphs.
   (`src/lib/page-background.ts`). File and image blocks are content, not decoration.
 - **Better Auth hooks** (`src/lib/auth-options.ts`): a `before` hook's returned `body` is merged
   into the request body, so leaving a key out doesn't remove it; `delete` it from `ctx.body`.
-- **New server env var:** add it to `src/lib/env.ts`, `.env.example` and the `app.environment` list
-  in `docker-compose.yml`. Desktop local mode passes only the variables in
+- **New server env var:** add it to `src/lib/env.ts` (AI model settings and limits, `AI_*`:
+  `src/server/ai/config.ts` `readAiConfig`), `.env.example` and the `app.environment` list in
+  `docker-compose.yml`. Desktop local mode passes only the variables in
   `desktop/src/local-server.ts`. A new runtime CLI script must be added to the `COPY scripts/…`
   line in `Dockerfile`.
 - **Tests.** Unit tests are `foo.test.ts` next to `foo.ts` (Vitest, node environment, no database:

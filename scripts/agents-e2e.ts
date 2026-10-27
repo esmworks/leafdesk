@@ -435,13 +435,14 @@ try {
   // Later checks count the agent's runs from here.
   await db.delete(agentRun).where(sql`${agentRun.agentId} = ${router.id} and ${agentRun.source}->>'rowId' = ${row2.id}`);
 
-  // The fake model has no price, so AI_RUN_LIMIT_USD never stops a run: RUN_ROUNDS does, and a last
-  // turn that only calls tools is asked once more, its calls not run.
+  // The fake model has no price, so AI_RUN_LIMIT_USD never stops a run: RUN_ROUNDS does. It's told
+  // before its last turn; that turn still calls tools (thinking aloud beside them), so it's asked
+  // once more, its calls not run.
   let looped = 0;
   fake.setChat(() => {
     looped++;
     if (looped > RUN_ROUNDS) return { text: "Looked as far as I could." };
-    return { text: "", toolCalls: [{ name: "search_pages", arguments: { query: `refund ${looped}` } }] };
+    return { text: looped === RUN_ROUNDS ? "Let me check one more row." : "", toolCalls: [{ name: "search_pages", arguments: { query: `refund ${looped}` } }] };
   });
   fake.chats.length = 0;
   const [row3] = await createRows(ids.owner, tickets.id, [{ title: "Search forever" }]);
@@ -449,9 +450,10 @@ try {
   const [longRun] = await db.select().from(agentRun).where(sql`${agentRun.agentId} = ${router.id} and ${agentRun.source}->>'rowId' = ${row3.id}`);
   check(
     longRun?.status === "done" && longRun.answer === "Looked as far as I could." && longRun.usage?.rounds === RUN_ROUNDS + 1,
-    `a run of a model without a price takes ${RUN_ROUNDS} turns, then one more to answer when its last only calls tools`,
+    `a run of a model without a price takes ${RUN_ROUNDS} turns, then one more to answer when its last calls tools`,
     { status: longRun?.status, answer: longRun?.answer, usage: longRun?.usage },
   );
+  check(toolResults(fake.chats[RUN_ROUNDS - 1]).at(-1)?.includes("answer now"), "…it's told to answer before its last turn");
   check(toolResults(fake.chats.at(-1)!).at(-1)?.startsWith("Not run"), "…the last turn's tool calls aren't run");
   await db.delete(agentRun).where(eq(agentRun.id, longRun.id));
 

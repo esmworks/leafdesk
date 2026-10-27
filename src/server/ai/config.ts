@@ -143,7 +143,8 @@ const clean = (value: string | undefined) => {
   return v ? v : null;
 };
 
-function positive(env: Env, name: string, fallback: number, problems: string[]) {
+/** A positive number from `name`, else `fallback`; a whole one unless `fractions` (dollars). */
+function positive(env: Env, name: string, fallback: number, problems: string[], fractions = false) {
   const raw = clean(env[name]);
   if (raw === null) return fallback;
   const n = Number(raw);
@@ -151,7 +152,7 @@ function positive(env: Env, name: string, fallback: number, problems: string[]) 
     problems.push(`${name} must be a positive number (using ${fallback})`);
     return fallback;
   }
-  return Math.floor(n);
+  return fractions ? n : Math.floor(n);
 }
 
 /**
@@ -159,18 +160,6 @@ function positive(env: Env, name: string, fallback: number, problems: string[]) 
  * isn't known (local and openai-compatible ones): AI_RUN_LIMIT_USD never stops them.
  */
 export const RUN_ROUNDS = 100;
-
-/** Like `positive`, keeping fractions (dollars). */
-function amount(env: Env, name: string, fallback: number, problems: string[]) {
-  const raw = clean(env[name]);
-  if (raw === null) return fallback;
-  const n = Number(raw);
-  if (!Number.isFinite(n) || n <= 0) {
-    problems.push(`${name} must be a positive number (using ${fallback})`);
-    return fallback;
-  }
-  return n;
-}
 
 function url(raw: string | null, name: string, problems: string[]) {
   if (raw === null) return null;
@@ -192,7 +181,7 @@ export function readAiConfig(env: Env = process.env): AiConfig {
     workspacePerMinute: positive(env, "AI_WORKSPACE_RATE_LIMIT", 120, problems),
     concurrency: positive(env, "AI_CONCURRENCY", 2, problems),
     contextWindow: positive(env, "AI_CONTEXT_WINDOW", 32_768, problems),
-    runLimitUsd: amount(env, "AI_RUN_LIMIT_USD", 10, problems),
+    runLimitUsd: positive(env, "AI_RUN_LIMIT_USD", 10, problems, true),
   };
 
   const providerRaw = clean(env.AI_PROVIDER)?.toLowerCase() ?? null;
