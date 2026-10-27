@@ -2,6 +2,12 @@
 
 ## Unreleased
 
+### Fixed
+
+- **A PDF template's theme names related rows and writes days the reader's way.** Related rows
+  (a quote's customer) and people printed empty, and dates came out as `2026-10-24` instead of
+  in the reader's language (`24.10.2026` in Turkish).
+
 ## 0.6.6 — 2026-10-28
 
 ### Upgrading from 0.6.5

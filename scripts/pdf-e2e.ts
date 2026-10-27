@@ -5,7 +5,8 @@
  * page, after the person agrees (and not when they decline); letterheads (server/letterheads.ts):
  * owners only, the first the default, logos PNG or JPEG only, printed at the top and foot of PDFs
  * (the default, another by id or name, or none; never for guests), picked by name in the chat; themes
- * (lib/pdf-themes) set by owners only, checked, printed with the row's values filled in, and previewed; and
+ * (lib/pdf-themes) set by owners only, checked, printed with the row's values filled in (related rows by
+ * their titles, days in the reader's language), and previewed; and
  * the refusals: someone who may only view the page, a locked page, a database, and a workspace
  * whose owners turned export off. The PDFs' text is read back with unpdf. A fake OpenAI-compatible server plays the model.
  * Creates its own users and workspace, stores files in a temporary directory, and deletes all of
@@ -169,10 +170,14 @@ try {
   const pdfs = await databases.addProperty(owner, offers.id, { name: "Offer PDF", type: "files" });
   await databases.addProperty(owner, offers.id, { name: "List price", type: "number" });
   const notes = await databases.addProperty(owner, offers.id, { name: "Notes", type: "text" });
+  const customers = await createPage(ctx.actor, { workspaceId, teamspaceId: general.id, kind: "database", title: "Customers" });
+  await databases.addProperty(owner, offers.id, { name: "Customer", type: "relation", relation: { databaseId: customers.id } });
+  await databases.addProperty(owner, offers.id, { name: "Valid until", type: "date" });
+  const customer = await ops.createDatabaseRow(ctx, { database_id: customers.id, title: "ESM Soğutma", properties: {} });
   const row = await ops.createDatabaseRow(ctx, {
     database_id: offers.id,
     title: "3E-20261023-ESM",
-    properties: { "List price": 548, Notes: "INTERNAL-NOTE" },
+    properties: { "List price": 548, Notes: "INTERNAL-NOTE", Customer: [customer.id], "Valid until": "2026-11-08" },
     markdown: OFFER,
   });
   const logo = await files.uploadFile(owner, row.id, { name: "logo.png", contentType: "image/png", body: Readable.from([PNG]), declaredSize: PNG.length });
@@ -292,7 +297,7 @@ try {
   check((await failure(letterheads.setLetterheadTheme(alice, letterPaper.id, {}))) instanceof letterheads.LetterheadError, "only owners set a theme");
   const withTheme = await letterheads.setLetterheadTheme(owner, letterPaper.id, {
     title: false,
-    content: [{ type: "text", text: "TEKLIF {{title}} / {{property:notes}}", caps: true }, { type: "body" }, { type: "fields", rows: [{ label: "Liste", value: "{{property:List price}}" }, { label: "Boş", value: "{{property:Missing}}" }] }],
+    content: [{ type: "text", text: "TEKLIF {{title}} / {{property:notes}}", caps: true }, { type: "body" }, { type: "fields", rows: [{ label: "Liste", value: "{{property:List price}}" }, { label: "Boş", value: "{{property:Missing}}" }, { label: "Müşteri", value: "{{property:Customer}}" }, { label: "Geçerlilik", value: "{{property:Valid until}}" }] }],
     footer: [{ type: "text", text: "Sayfa {{page}}/{{pages}}" }],
   });
   check(withTheme.theme?.title === false, "an owner's theme is saved");
@@ -300,6 +305,11 @@ try {
   check(
     themed.includes("TEKLIF 3E-20261023-ESM / INTERNAL-NOTE") && themed.includes("548") && themed.includes("Sayfa 1/1") && !themed.includes("Boş") && !themed.includes("3E Mektup Antedi"),
     "a PDF in a theme prints its elements, filled with the row's values, in place of the letterhead's lines",
+    themed,
+  );
+  check(
+    themed.includes("ESM Soğutma") && themed.includes("11/08/2026") && !themed.includes("2026-11-08"),
+    "a theme names related rows by their titles and writes days in the reader's language",
     themed,
   );
   const preview = await textOfPdf(

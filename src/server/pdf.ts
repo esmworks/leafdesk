@@ -9,6 +9,7 @@ import { db } from "@/db";
 import { page, workspace, type PropertyOptions } from "@/db/schema";
 import { isEmbedBlockType, parseLinkedView } from "@/lib/embed-blocks";
 import type { MdBlock } from "@/lib/content-markdown";
+import { formatDateValue } from "@/lib/date-value";
 import { env } from "@/lib/env";
 import { ENGLISH_COMMENT_LABELS } from "@/lib/export-comments";
 import { fileIdOf } from "@/lib/files";
@@ -25,6 +26,7 @@ import { assertExportAllowed, databaseViewTable, pageThreads, recordExport, type
 import { commentExportLabels } from "@/server/export-labels";
 import { fileForViewer, readStored } from "@/server/files";
 import { letterheadForPdf, ownedLetterheadWorkspace } from "@/server/letterheads";
+import { getRow } from "@/server/databases";
 import { getBreadcrumbs } from "@/server/pages";
 import { pdfDocument, type PdfEmbed, type PdfLetterhead, type PdfSection, type PdfTable, type PdfThemeInput } from "@/server/pdf-document";
 import { liveChildren, printedEmbed, printRefs, syncedLabels } from "@/server/print";
@@ -133,8 +135,9 @@ export async function pagePdf(
     getBreadcrumbs(userId, target.id),
     isDatabase ? Promise.resolve([]) : liveChildren(userId, target.id),
     isDatabase ? publishedDatabase(userId, target.id, { reader: userId }) : Promise.resolve(null),
-    (properties || letterhead?.theme) && parent?.kind === "database" && target.parentId ? publishedRow(target, target.parentId, userId) : Promise.resolve(null),
+    properties && parent?.kind === "database" && target.parentId ? publishedRow(target, target.parentId, userId) : Promise.resolve(null),
   ]);
+  const inDatabase = parent?.kind === "database" && Boolean(target.parentId);
   const synced = content ? await syncedLabels() : null;
   const blocks = content
     ? ((await printableBlocks(content.blocks as PageBlock[], {
@@ -164,7 +167,7 @@ export async function pagePdf(
       ? { heading: commentLabels.heading, resolved: commentLabels.resolved, threads: await pageThreads(userId, target.id, commentLabels) }
       : null,
   };
-  const values = row ? row.properties.map((p) => ({ name: p.name, value: valueText(p, row.values[p.id], locale) })) : [];
+  const values = letterhead?.theme && inDatabase ? await rowValueTexts(userId, target.id, locale) : [];
   const bytes = await renderPdf({
     title: section.title,
     sections: [section],
@@ -284,6 +287,26 @@ async function readerLocale(): Promise<string> {
 }
 
 /** A value as text, numbers in their format and the reader's locale; "" when empty. */
+/**
+ * A row's values as text for a theme's placeholders, as `userId` sees them: related rows by their
+ * titles and people by their names (which published rows leave out), days as the reader writes
+ * them (24.10.2026; times in UTC, like emails), numbers in the property's format.
+ */
+async function rowValueTexts(userId: string, rowId: string, locale: string): Promise<{ name: string; value: string }[]> {
+  const { properties, row, relations, people } = await getRow(userId, rowId);
+  const titleOf = new Map(Object.values(relations).flatMap((r) => r.rows.map((related) => [related.id, related.title] as const)));
+  const nameOf = new Map(people.map((p) => [p.id, p.name] as const));
+  const day = new Intl.DateTimeFormat(locale, { day: "2-digit", month: "2-digit", year: "numeric", timeZone: "UTC" });
+  const dateText = (value: unknown) =>
+    formatDateValue(value, (date, options) => (options.hour ? new Intl.DateTimeFormat(locale, options).format(date) : day.format(date)), "UTC") ?? "";
+  return properties.map((p) => {
+    const value = row.properties[p.id];
+    if (p.type === "date") return { name: p.name, value: dateText(value) };
+    const shown = cellText(p, value, { titleOf, nameOf, fileText: (f) => f.name });
+    return { name: p.name, value: shown === null ? "" : typeof shown === "number" ? numberText(shown, locale, valueFormat(p)) : shown };
+  });
+}
+
 function valueText(property: PublishedProperty, value: unknown, locale: string): string {
   const shown = cellText({ ...property, options: property.options as PropertyOptions }, value, {
     titleOf: new Map(),
