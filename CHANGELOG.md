@@ -16,6 +16,9 @@
   spend up to `AI_RUN_LIMIT_USD` (10 US dollars by default) before it must answer; set it lower to
   spend less per question. `AI_TIMEOUT_SECONDS` now counts only the time the provider stays silent,
   not a whole answer.
+- **Optional: Google sign-in for mailboxes.** Set `MAIL_GOOGLE_CLIENT_ID` and
+  `MAIL_GOOGLE_CLIENT_SECRET` to let members connect Gmail without an app password
+  (docs/email-on-rows.md).
 
 ### Added
 
@@ -64,7 +67,6 @@
   Offered once the server sets `MAIL_GOOGLE_CLIENT_ID` and `MAIL_GOOGLE_CLIENT_SECRET`, a Google
   OAuth client with the redirect URI `<APP_URL>/api/mail/oauth/callback` (docs/email-on-rows.md).
   Migration 0153.
-
 - **Automations that run when a total crosses a line.** A new trigger, *A total crosses a line*,
   watches a calculation over the rows a shared view shows: their number, or the sum, average,
   median, smallest or largest value of a number property. "When the sum of Amount in Cash and bank
@@ -138,7 +140,6 @@
 - **A row opened from a database lies over the page's right side** instead of pushing the page
   aside. While it is open, boards and tables keep room at their end, and the opened card scrolls
   into view beside the panel when the panel would cover it.
-
 - **Scheduled agents read only the web pages of their task and their searches.** A schedule's
   run used to read any address without asking, so text planted in a page or a row it read could
   make it send what it read to any site. It still searches freely, as its words reach only the

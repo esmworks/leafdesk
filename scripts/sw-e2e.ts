@@ -115,15 +115,19 @@ const chrome = spawn(CHROME, [
   "about:blank",
 ]);
 const wsUrl = await new Promise<string>((resolve, reject) => {
-  const timer = setTimeout(() => reject(new Error("Chrome did not start")), 15000);
+  // A busy CI runner can take well over 15 s to start Chrome, and the line may arrive split
+  // across chunks, so read the whole stderr so far.
+  let stderr = "";
+  const timer = setTimeout(() => reject(new Error(`Chrome did not start:\n${stderr.slice(-2000)}`)), 60000);
   chrome.stderr.on("data", (chunk: Buffer) => {
-    const match = /DevTools listening on (ws:\/\/\S+)/.exec(chunk.toString());
+    stderr += chunk.toString();
+    const match = /DevTools listening on (ws:\/\/\S+)\n/.exec(stderr);
     if (match) {
       clearTimeout(timer);
       resolve(match[1]);
     }
   });
-  chrome.on("exit", () => reject(new Error("Chrome exited")));
+  chrome.on("exit", () => reject(new Error(`Chrome exited:\n${stderr.slice(-2000)}`)));
 });
 
 const socket = new WebSocket(wsUrl);
