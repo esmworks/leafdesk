@@ -2185,6 +2185,10 @@
     "connectionGone": "Verwijderde koppeling",
     "lastRun": "Laatst gesynchroniseerd {when}, {count, plural, one {# rij} other {# rijen}}",
     "overwrite": "Het tabblad is de bron: de gesynchroniseerde eigenschappen en rijtitels worden bij elke synchronisatie overschreven, dus wijzig de gegevens in het tabblad. Eigenschappen die je zelf toevoegt blijven staan, en rijen die uit het tabblad verdwijnen blijven ongemoeid.",
+    "formulaColumns": "Niet teruggeschreven (formules): {columns}",
+    "pending": "Rijen die nog naar het tabblad geschreven moeten worden: {count, number}",
+    "writeFailed": "Kon niet naar het tabblad schrijven:",
+    "writeForbidden": "Het Google-account van de koppeling mag de spreadsheet niet bewerken, of de persoon als wie de synchronisatie loopt mag niet via de koppeling schrijven. Wijzigingen die je hier maakt wachten tot het kan.",
     "stopConfirm": "Stoppen met synchroniseren van deze database? De rijen blijven staan."
   }
 }

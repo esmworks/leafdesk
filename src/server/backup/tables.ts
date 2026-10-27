@@ -166,6 +166,7 @@ export const LEFT_OUT: Record<string, string> = {
   automation_run: "automation runs; pending ones would run again",
   connection_event: "events received from connected services",
   github_delivery: "deliveries GitHub sent, kept to show how they went",
+  sheets_write: "changes waiting to be written to a Google spreadsheet; a restored database reads its sheet again",
   connection_oauth: "connection sign-ins in progress",
   storage_deletion: "the old server's queue of files to delete",
   ai_chat_file: "files attached to AI chats, private to their people like the chats (their files are left out too)",

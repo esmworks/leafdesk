@@ -2185,6 +2185,10 @@
     "connectionGone": "Conexión eliminada",
     "lastRun": "Última sincronización {when}, {count, plural, one {# fila} other {# filas}}",
     "overwrite": "La hoja es la fuente: las propiedades sincronizadas y los títulos de fila se sobrescriben en cada sincronización, así que cambia los datos en la hoja. Las propiedades que añadas tú se quedan como están, y las filas que salen de la hoja no se tocan.",
+    "formulaColumns": "No se escriben de vuelta (fórmulas): {columns}",
+    "pending": "Filas pendientes de escribir en la hoja: {count, number}",
+    "writeFailed": "No se pudo escribir en la hoja:",
+    "writeForbidden": "La cuenta de Google de la conexión no puede editar la hoja de cálculo, o la persona con la que se ejecuta la sincronización no puede escribir a través de la conexión. Los cambios hechos aquí esperan hasta que pueda.",
     "stopConfirm": "¿Dejar de sincronizar esta base de datos? Sus filas se quedan como están."
   }
 }

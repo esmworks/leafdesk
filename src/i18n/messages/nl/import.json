@@ -443,7 +443,7 @@
     }
   },
   "sheets": {
-    "help": "Maak een database van één tabblad van een Google-spreadsheet die bijgewerkt blijft: elke rij onder de koprij is hier een rij, wordt teruggevonden via de sleutelkolom en genoemd naar de titelkolom, met een eigenschap voor elke andere benoemde kolom (tekst, getallen, selectievakjes, datums en tijden, naargelang wat de kolom bevat). Maximaal {limit, number} cellen. Wijzigingen gaan één kant op, van het tabblad naar Leafdesk.",
+    "help": "Maak een database van één tabblad van een Google-spreadsheet die bijgewerkt blijft: elke rij onder de koprij is hier een rij, wordt teruggevonden via de sleutelkolom en genoemd naar de titelkolom, met een eigenschap voor elke andere benoemde kolom (tekst, getallen, selectievakjes, datums en tijden, naargelang wat de kolom bevat). Maximaal {limit, number} cellen. Wijzigingen komen van het tabblad, en gaan er ook naar terug als je “Beide kanten op” kiest.",
     "loading": "Google Sheets-koppelingen zoeken…",
     "noConnection": "Er is geen Google Sheets-koppeling waarlangs je kunt synchroniseren. Een eigenaar voegt Google Sheets toe via Instellingen → Koppelingen; leden kunnen haar gebruiken zodra een eigenaar “In chat” aanvinkt voor de tool get_spreadsheet.",
     "connection": "Google Sheets-koppeling",
@@ -456,6 +456,12 @@
     "keyPlaceholder": "De eerste kolom",
     "titlePlaceholder": "De sleutelkolom",
     "namePlaceholder": "De naam van het tabblad",
+    "direction": "Richting",
+    "directionRead": "Alleen van het tabblad",
+    "directionBoth": "Beide kanten op",
+    "directionBothHelp": "Wijzigingen die je hier maakt, worden bij de volgende synchronisatie naar het tabblad geschreven, binnen een minuut of zo. Is een cel ook in het tabblad gewijzigd, dan blijft de waarde van het tabblad. De sleutelkolom en kolommen met formules worden niet geschreven; nieuwe rijen komen onder de laatste rij; een rij verwijderen verwijdert niets in het tabblad.",
+    "directionNoWrite": "Om terug te schrijven heeft de koppeling de tools update_values en insert_dimension nodig: eigenaren kunnen ze gebruiken, leden zodra een eigenaar voor beide “In chat” aanvinkt.",
+    "bothNeedsSchedule": "Om terug te schrijven moet de synchronisatie volgens een schema lopen.",
     "errors": {
       "unauthorized": "De Google Sheets-koppeling moet opnieuw bij Google inloggen: een eigenaar doet dat via Instellingen → Koppelingen.",
       "forbidden": "De koppeling kan hiervoor niet worden gebruikt: haar Google-account kan de spreadsheet misschien niet openen, ze zit in een andere werkruimte, of je mag er niet via lezen.",

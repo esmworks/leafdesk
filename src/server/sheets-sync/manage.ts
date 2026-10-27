@@ -1,6 +1,6 @@
-import { eq } from "drizzle-orm";
+import { count, eq } from "drizzle-orm";
 import { db } from "@/db";
-import { connection, databaseSync, databaseView } from "@/db/schema";
+import { connection, databaseSync, databaseView, sheetsWrite } from "@/db/schema";
 import type { ImportResult } from "@/lib/import/result";
 import { DEFAULT_JIRA_INTERVAL, isJiraInterval } from "@/lib/jira-sync";
 import {
@@ -12,6 +12,9 @@ import {
   sheetHeaders,
   sheetLink,
   sheetsAccess,
+  sheetsWriteAccess,
+  SHEETS_DIRECTIONS,
+  type SheetsDirection,
   type SheetsMapping,
   type SheetsQuery,
   type SheetsSource,
@@ -26,7 +29,8 @@ import { claimSync, runAndRecord, type SyncOutcome, type SyncRow } from "@/serve
 import { createPage, requireDatabasePlace, type DatabaseSeedNames } from "@/server/pages";
 import { sealJson } from "@/server/secret-box";
 import { takeSyncSetup } from "@/server/sync-setup";
-import { applySheetRows, readSheet, sheetsConnection } from "./run";
+import { dropSheetWrites, forgetTwoWaySyncs } from "./outbox";
+import { applySheetRows, readSheet, sheetsConnection, type SheetsConnection } from "./run";
 
 /**
  * Setting up, changing and stopping Google Sheets syncs (lib/sheets-sync; runs in ./run, held and
@@ -37,6 +41,10 @@ import { applySheetRows, readSheet, sheetsConnection } from "./run";
  * need full access to the database; whoever changes a sync or syncs it by hand is who it runs as
  * from then on, and they must be allowed to read through the connection. Nothing secret is kept:
  * the connection holds the Google sign-in.
+ *
+ * Writing back (`direction` "both") needs the connection's write tools for whoever turns it on and
+ * whoever it runs as (lib/sheets-sync sheetsWriteAccess), and a schedule: changes are written by the
+ * sync's runs, which the changes bring forward (./outbox).
  */
 
 function interval(value: unknown): number {
@@ -45,13 +53,28 @@ function interval(value: unknown): number {
   return value;
 }
 
+function direction(value: unknown): SheetsDirection {
+  if (value === undefined) return "read";
+  if (!SHEETS_DIRECTIONS.includes(value as SheetsDirection)) throw new JiraError("invalidInput", "Not a direction");
+  return value as SheetsDirection;
+}
+
+/** Writing back runs with the sync's runs: it needs a schedule. */
+function requireSchedule(direction: SheetsDirection, intervalMinutes: number) {
+  if (direction === "both" && intervalMinutes <= 0) throw new JiraError("invalidInput", "Writing back needs the sync to run on a schedule");
+}
+
+/** Whether `userId` may write spreadsheets through the connection. */
+
+const mayWrite = (row: SheetsConnection) => sheetsWriteAccess(row, row.role);
+
 const header = (value: unknown) => (typeof value === "string" ? value.replace(/\s+/g, " ").trim() : "");
 
 /** The connections the person may sync spreadsheets through, in the order they were added. */
 export async function sheetsSources(userId: string, workspaceId: string): Promise<SheetsSource[]> {
   const { role } = await requireMembership(userId, workspaceId);
   const rows = await db.select().from(connection).where(eq(connection.workspaceId, workspaceId)).orderBy(connection.createdAt);
-  return rows.flatMap((row) => (sheetsAccess(row, role) ? [{ id: row.id, name: row.name }] : []));
+  return rows.flatMap((row) => (sheetsAccess(row, role) ? [{ id: row.id, name: row.name, canWrite: sheetsWriteAccess(row, role) }] : []));
 }
 
 /** The connection, if the person may sync through it into `workspaceId`. */
@@ -80,6 +103,8 @@ export type SheetsSyncInput = {
   /** The column that names each row; the key column when left out. */
   titleColumn?: unknown;
   intervalMinutes?: unknown;
+  /** "both" to write changes made in Leafdesk back to the sheet; "read" when left out. */
+  direction?: unknown;
   seedNames?: DatabaseSeedNames;
 };
 
@@ -92,6 +117,8 @@ export async function createSheetsSync(actor: WriteActor, input: SheetsSyncInput
   const target = parseSheetLink(input.link);
   if (!target) throw new JiraError("invalidInput", "Not a link to a Google spreadsheet");
   const every = interval(input.intervalMinutes);
+  const way = direction(input.direction);
+  requireSchedule(way, every);
   const headerRow = input.headerRow === undefined || input.headerRow === null || input.headerRow === "" ? null : Number(input.headerRow);
   if (headerRow !== null && (!Number.isInteger(headerRow) || headerRow < 1 || headerRow > MAX_HEADER_ROW)) throw new JiraError("invalidInput", "Not a header row");
   const asked = { key: header(input.keyColumn), title: header(input.titleColumn) };
@@ -100,6 +127,7 @@ export async function createSheetsSync(actor: WriteActor, input: SheetsSyncInput
   const workspaceId = input.parentId ? (await requirePageAccess(userId, input.parentId, "edit")).workspaceId : input.workspaceId;
   takeSyncSetup(userId);
   const row = await usableConnection(userId, input.connectionId, workspaceId);
+  if (way === "both" && !mayWrite(row)) throw new JiraError("forbidden", "The connection may not be used to write");
   const read = await readSheet(userId, row, target.spreadsheetId, target.sheetId, headerRow);
   const headers = sheetHeaders(read.grid[0] ?? []);
   const has = (name: string) => headers.some((h) => h.name === name);
@@ -115,6 +143,7 @@ export async function createSheetsSync(actor: WriteActor, input: SheetsSyncInput
     headerRow: read.headerRow,
     keyColumn,
     titleColumn,
+    direction: way,
   };
   const below = read.grid.slice(1);
   const columns = headers
@@ -165,6 +194,7 @@ export async function createSheetsSync(actor: WriteActor, input: SheetsSyncInput
       runAs: userId,
       createdBy: userId,
     });
+    forgetTwoWaySyncs();
     const result: ImportResult = {
       pages: [{ id: database.id, title: database.title, kind: "database" }],
       created: { pages: 0, databases: 1, rows: written.created, templates: 0, files: 0 },
@@ -201,14 +231,16 @@ async function canManage(userId: string, databaseId: string) {
 /** `viewer`: who may manage it, to list the connections they may switch to; null for others. */
 async function view(row: SheetsSyncRow, viewer: string | null, now = new Date()): Promise<SheetsSyncView> {
   const manage = viewer !== null;
-  const [through] = await db.select({ name: connection.name }).from(connection).where(eq(connection.id, row.query.connectionId)).limit(1);
+  const [through] = await db.select().from(connection).where(eq(connection.id, row.query.connectionId)).limit(1);
+  const [waiting] = await db.select({ n: count() }).from(sheetsWrite).where(eq(sheetsWrite.syncId, row.id));
+  const choices = viewer ? await sheetsSources(viewer, row.workspaceId) : [];
   return {
     spreadsheetId: row.query.spreadsheetId,
     sheetId: row.query.sheetId,
     sheetTitle: row.query.sheetTitle,
     connectionId: row.query.connectionId,
     connection: through?.name ?? null,
-    choices: viewer ? await sheetsSources(viewer, row.workspaceId) : [],
+    choices,
     headerRow: row.query.headerRow,
     keyColumn: row.query.keyColumn,
     titleColumn: row.query.titleColumn,
@@ -221,6 +253,12 @@ async function view(row: SheetsSyncRow, viewer: string | null, now = new Date())
     // Google's own words about a refused read, for those who may change the sync.
     lastErrorDetail: manage ? row.lastErrorDetail : null,
     canManage: manage,
+    direction: row.query.direction ?? "read",
+    canWrite: choices.some((c) => c.id === through?.id && c.canWrite),
+    writeError: row.query.writeError ?? null,
+    writeErrorDetail: manage ? (row.query.writeErrorDetail ?? null) : null,
+    formulaColumns: row.query.formulaColumns ?? [],
+    pendingWrites: waiting?.n ?? 0,
   };
 }
 
@@ -238,9 +276,15 @@ async function requireSync(userId: string, databaseId: string) {
   return row;
 }
 
-/** Runs a sync now, as the person asking from now on. Needs full access to the database. */
+/**
+ * Runs a sync now, as the person asking from now on. Needs full access to the database, and, while
+ * it writes back, leave to write through the connection.
+ */
 export async function syncSheetsNow(userId: string, databaseId: string): Promise<SheetsSyncView & { outcome: SyncOutcome }> {
   const row = await requireSync(userId, databaseId);
+  if (row.query.direction === "both" && !mayWrite(await sheetsConnection(userId, row.query.connectionId))) {
+    throw new JiraError("forbidden", "The connection may not be used to write");
+  }
   await db.update(databaseSync).set({ runAs: userId, enabled: true }).where(eq(databaseSync.id, row.id));
   const held = await claimSync(row.id);
   if (!held) throw new JiraError("alreadyRunning", "The sync is running");
@@ -249,12 +293,13 @@ export async function syncSheetsNow(userId: string, databaseId: string): Promise
 }
 
 /** `connectionId`: another connection to read through (one added again after the first was removed), checked by reading the sheet. */
-export type SheetsSyncPatch = { intervalMinutes?: unknown; connectionId?: unknown };
+export type SheetsSyncPatch = { intervalMinutes?: unknown; connectionId?: unknown; direction?: unknown };
 
 /**
- * Changes a sync: how often it runs, or the connection it reads through (the sheet stays). It
- * runs as the person changing it from then on, and is on again if it was paused. A new connection
- * syncs at once.
+ * Changes a sync: how often it runs, the connection it reads through (the sheet stays), or whether
+ * it writes back. It runs as the person changing it from then on (who must be allowed to write
+ * through the connection while it writes back), and is on again if it was paused. A new connection
+ * syncs at once. Stopping writing back drops the changes waiting: the next run reads them over.
  */
 export async function updateSheetsSync(userId: string, databaseId: string, patch: SheetsSyncPatch) {
   const row = await requireSync(userId, databaseId);
@@ -263,14 +308,28 @@ export async function updateSheetsSync(userId: string, databaseId: string, patch
     changes.intervalMinutes = interval(patch.intervalMinutes);
     changes.nextRunAt = changes.intervalMinutes > 0 ? new Date(Date.now() + changes.intervalMinutes * 60_000) : null;
   }
+  const way = patch.direction === undefined ? (row.query.direction ?? "read") : direction(patch.direction);
+  requireSchedule(way, changes.intervalMinutes ?? row.intervalMinutes);
+  let through = null;
   if (patch.connectionId !== undefined && patch.connectionId !== row.query.connectionId) {
     takeSyncSetup(userId);
-    const through = await usableConnection(userId, patch.connectionId, row.workspaceId);
+    through = await usableConnection(userId, patch.connectionId, row.workspaceId);
     await readSheet(userId, through, row.query.spreadsheetId, row.query.sheetId, row.query.headerRow);
     changes.query = { ...row.query, connectionId: through.id };
   }
+  if (way === "both") {
+    // Whoever it runs as from now on writes through it.
+    through ??= await sheetsConnection(userId, row.query.connectionId);
+    if (!mayWrite(through)) throw new JiraError("forbidden", "The connection may not be used to write");
+  }
+  if (way !== (row.query.direction ?? "read")) {
+    const query: SheetsQuery = { ...((changes.query as SheetsQuery | undefined) ?? row.query), direction: way, writeError: null, writeErrorDetail: null };
+    changes.query = query;
+  }
   await db.update(databaseSync).set(changes).where(eq(databaseSync.id, row.id));
-  if (changes.query) return syncSheetsNow(userId, databaseId);
+  forgetTwoWaySyncs();
+  if (way === "read") await dropSheetWrites(row.id);
+  if (through && through.id !== row.query.connectionId) return syncSheetsNow(userId, databaseId);
   return { ...(await view((await syncOf(databaseId))!, userId)), outcome: null };
 }
 
@@ -278,4 +337,5 @@ export async function updateSheetsSync(userId: string, databaseId: string, patch
 export async function stopSheetsSync(userId: string, databaseId: string) {
   const row = await requireSync(userId, databaseId);
   await db.delete(databaseSync).where(eq(databaseSync.id, row.id));
+  forgetTwoWaySyncs();
 }

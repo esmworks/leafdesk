@@ -179,7 +179,11 @@ BlockNote on Yjs; Tailwind v4; next-intl. Node 24, pnpm 11. A separate Electron 
   PostgreSQL tables in `postgres-sync/` (`client.ts` checks the host like `connections/fetch.ts`
   and reads in a read-only transaction) and `src/lib/postgres-sync.ts`; Google Sheets in
   `sheets-sync/` and `src/lib/sheets-sync.ts`, read typed through a workspace's Sheets connection
-  (`get_spreadsheet`) as the person the sync runs as, checked by `sheetsAccess` on every run),
+  (`get_spreadsheet`) as the person the sync runs as, checked by `sheetsAccess` on every run;
+  writing back keeps row changes in `sheets_write` (`sheets-sync/outbox.ts`, fed by
+  `afterRowWrites` and title saves in `collab/service.ts`; the run's own writes go inside
+  `fromSheet`) and the run writes them before reading (`planWrites`), leaving fields still waiting
+  out of what it reads),
   GitHub pull requests moving tasks `github-sync/` (deliveries handled in the request at `api/github/[syncId]`; pure
   ID matching and the status rule in `src/lib/github-sync.ts`), the Send to Slack step's address
   check and message in `src/lib/slack.ts`, mail to and from rows `row-mail/`

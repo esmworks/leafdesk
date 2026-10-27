@@ -2185,6 +2185,10 @@
     "connectionGone": "Kaldırılmış bağlantı",
     "lastRun": "Son eşitleme {when}, {count, plural, one {# satır} other {# satır}}",
     "overwrite": "Kaynak sayfadır: eşitlenen özellikler ve satır başlıkları her eşitlemede yeniden yazılır; bu yüzden verileri sayfada değiştirin. Kendi eklediğiniz özellikler olduğu gibi kalır, sayfadan çıkan satırlara dokunulmaz.",
+    "formulaColumns": "Sayfaya yazılmayanlar (formül): {columns}",
+    "pending": "Sayfaya yazılmayı bekleyen satırlar: {count, number}",
+    "writeFailed": "Sayfaya yazılamadı:",
+    "writeForbidden": "Bağlantının Google hesabı e-tabloyu düzenleyemiyor ya da eşitlemenin adına çalıştığı kişi bağlantı üzerinden yazamıyor. Buradaki değişiklikler yazılabilene kadar bekler.",
     "stopConfirm": "Bu veritabanının eşitlemesi durdurulsun mu? Satırlar olduğu gibi kalır."
   }
 }

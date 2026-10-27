@@ -443,7 +443,7 @@
     }
   },
   "sheets": {
-    "help": "Obtén una base de datos de una hoja de una hoja de cálculo de Google que se mantiene al día: cada fila bajo la fila de encabezado es una fila aquí, se vuelve a encontrar por su columna clave y se nombra con su columna de título, con una propiedad por cada otra columna con nombre (texto, números, casillas, fechas y horas, según lo que contenga la columna). Hasta {limit, number} celdas. Los cambios van en una sola dirección, de la hoja a Leafdesk.",
+    "help": "Obtén una base de datos de una hoja de una hoja de cálculo de Google que se mantiene al día: cada fila bajo la fila de encabezado es una fila aquí, se vuelve a encontrar por su columna clave y se nombra con su columna de título, con una propiedad por cada otra columna con nombre (texto, números, casillas, fechas y horas, según lo que contenga la columna). Hasta {limit, number} celdas. Los cambios vienen de la hoja, y vuelven a ella si eliges «En ambos sentidos».",
     "loading": "Buscando conexiones de Google Sheets…",
     "noConnection": "No hay ninguna conexión de Google Sheets a través de la que puedas sincronizar. Un propietario añade Google Sheets en Configuración → Conexiones; los miembros pueden usarla cuando un propietario marca «En el chat» para su herramienta get_spreadsheet.",
     "connection": "Conexión de Google Sheets",
@@ -456,6 +456,12 @@
     "keyPlaceholder": "La primera columna",
     "titlePlaceholder": "La columna clave",
     "namePlaceholder": "El nombre de la hoja",
+    "direction": "Dirección",
+    "directionRead": "Solo desde la hoja",
+    "directionBoth": "En ambos sentidos",
+    "directionBothHelp": "Los cambios que hagas aquí se escriben en la hoja en la siguiente sincronización, en un minuto más o menos. Si una celda también cambió en la hoja, se queda el valor de la hoja. La columna clave y las columnas con fórmulas no se escriben; las filas nuevas se añaden debajo de la última; eliminar una fila no elimina nada en la hoja.",
+    "directionNoWrite": "Para escribir de vuelta, la conexión necesita las herramientas update_values y insert_dimension: los propietarios pueden usarlas, y los miembros cuando un propietario marca «En el chat» para ambas.",
+    "bothNeedsSchedule": "Para escribir de vuelta, la sincronización debe tener una frecuencia.",
     "errors": {
       "unauthorized": "La conexión de Google Sheets necesita volver a iniciar sesión en Google: un propietario lo hace en Configuración → Conexiones.",
       "forbidden": "La conexión no se puede usar para esto: puede que su cuenta de Google no pueda abrir la hoja de cálculo, que esté en otro espacio de trabajo o que no puedas leer a través de ella.",

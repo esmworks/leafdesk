@@ -6,13 +6,15 @@ import { useEffect, useState } from "react";
 import { getSheetsSyncAction, stopSheetsSyncAction, syncSheetsNowAction, updateSheetsSyncAction } from "@/app/actions/sheets-sync";
 import { Button, Dialog, IconButton, selectClass } from "@/components/ui";
 import { JIRA_INTERVALS, jiraIntervalKey } from "@/lib/jira-sync";
-import { sheetLink, type SheetsSyncView } from "@/lib/sheets-sync";
+import { sheetLink, type SheetsDirection, type SheetsSyncView } from "@/lib/sheets-sync";
 
 /**
  * A synced database's Google Sheets sync: the sheet it reads (with a link to open it), the
  * connection it reads through, the header row, key and title columns, when it last synced and what
- * went wrong (with Google's words for a refused read, for those who may change it), and, for
- * people with full access to the database, how often, syncing now, another connection, and
+ * went wrong (with Google's words for a refused read, for those who may change it), whether it
+ * writes back (with the columns it doesn't write, the changes waiting and why writing failed), and,
+ * for people with full access to the database, how often, the direction (both ways when they may
+ * write through the connection, and only on a schedule), syncing now, another connection, and
  * stopping it. Loaded the first time it opens.
  */
 export default function SheetsSyncDialog({ databaseId, onClose, onChanged }: { databaseId: string; onClose: () => void; onChanged: () => void }) {
@@ -122,13 +124,32 @@ export default function SheetsSyncDialog({ databaseId, onClose, onChanged }: { d
                     onChange={(e) => void act(() => updateSheetsSyncAction(databaseId, { intervalMinutes: Number(e.target.value) }), setSync)}
                   >
                     {JIRA_INTERVALS.map((minutes) => (
-                      <option key={minutes} value={minutes}>
+                      <option key={minutes} value={minutes} disabled={sync.direction === "both" && minutes === 0}>
                         {ti(`jira.intervals.${jiraIntervalKey(minutes)}`)}
                       </option>
                     ))}
                   </select>
                 ) : (
                   ti(`jira.intervals.${jiraIntervalKey(sync.intervalMinutes)}`)
+                )}
+              </dd>
+              <dt className="text-fg-muted">{ti("sheets.direction")}</dt>
+              <dd>
+                {sync.canManage && (sync.canWrite || sync.direction === "both") ? (
+                  <select
+                    className={`${selectClass} h-7`}
+                    aria-label={ti("sheets.direction")}
+                    value={sync.direction}
+                    disabled={busy}
+                    onChange={(e) => void act(() => updateSheetsSyncAction(databaseId, { direction: e.target.value as SheetsDirection }), setSync)}
+                  >
+                    <option value="read">{ti("sheets.directionRead")}</option>
+                    <option value="both" disabled={!sync.canWrite || sync.intervalMinutes === 0}>
+                      {ti("sheets.directionBoth")}
+                    </option>
+                  </select>
+                ) : (
+                  ti(sync.direction === "both" ? "sheets.directionBoth" : "sheets.directionRead")
                 )}
               </dd>
             </dl>
@@ -139,6 +160,14 @@ export default function SheetsSyncDialog({ databaseId, onClose, onChanged }: { d
                   ? t("lastRun", { when: format.relativeTime(new Date(sync.lastRunAt), new Date()), count: sync.lastCount ?? 0 })
                   : tj("never")}
             </p>
+            {sync.direction === "both" && sync.pendingWrites > 0 && <p className="text-sm">{t("pending", { count: sync.pendingWrites })}</p>}
+            {sync.direction === "both" && sync.writeError && (
+              <p role="status" className="rounded-md border border-border bg-bg-subtle px-3 py-2 text-sm">
+                <span className="me-1.5 font-medium text-danger">{t("writeFailed")}</span>
+                {sync.writeError === "forbidden" ? t("writeForbidden") : ti(`sheets.errors.${sync.writeError}`)}
+                {sync.writeErrorDetail && <span className="mt-1 block text-xs break-words text-fg-muted">{sync.writeErrorDetail}</span>}
+              </p>
+            )}
             {sync.lastError && (
               <p role="status" className="rounded-md border border-border bg-bg-subtle px-3 py-2 text-sm">
                 {!sync.enabled && <span className="me-1.5 font-medium text-danger">{tj("paused")}:</span>}
@@ -146,7 +175,18 @@ export default function SheetsSyncDialog({ databaseId, onClose, onChanged }: { d
                 {sync.lastErrorDetail && <span className="mt-1 block text-xs break-words text-fg-muted">{sync.lastErrorDetail}</span>}
               </p>
             )}
-            <p className="text-xs text-fg-muted">{t("overwrite")}</p>
+            {sync.direction === "both" ? (
+              <div className="space-y-1 text-xs text-fg-muted">
+                <p>{ti("sheets.directionBothHelp")}</p>
+                {sync.formulaColumns.length > 0 && <p>{t("formulaColumns", { columns: sync.formulaColumns.join(", ") })}</p>}
+              </div>
+            ) : (
+              <p className="text-xs text-fg-muted">{t("overwrite")}</p>
+            )}
+            {sync.canManage && sync.direction === "read" && !sync.canWrite && <p className="text-xs text-fg-muted">{ti("sheets.directionNoWrite")}</p>}
+            {sync.canManage && sync.direction === "read" && sync.canWrite && sync.intervalMinutes === 0 && (
+              <p className="text-xs text-fg-muted">{ti("sheets.bothNeedsSchedule")}</p>
+            )}
 
             {sync.canManage ? (
               <>

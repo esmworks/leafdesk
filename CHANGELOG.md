@@ -11,10 +11,15 @@
   day, or when asked. The header is the sheet's last frozen row unless you name another, so totals
   above it stay out; every other named column becomes a property by what its cells hold (numbers,
   dates, dates with times, checkboxes, else text as the sheet shows it), read typed so the
-  spreadsheet's language doesn't change a number. Changes go one way, from the sheet; rows that
-  leave it stay. Owners can sync through the connection, members once an owner allows the AI chat
-  its `get_spreadsheet` tool, checked again on every run; each read is in the audit log. Up to
-  100,000 cells. No migration.
+  spreadsheet's language doesn't change a number. Rows that leave the sheet stay. Changes come from
+  the sheet, and with *Direction: Both ways* go back to it too: a change made in Leafdesk waits
+  (migration 0155, table `sheets_write`) and is written to its cell at the next run, within about a
+  minute, where the cell still holds the value from before it; where both changed, the sheet's value
+  stays. The key column and columns of formulas are never written, new rows are added below the
+  last row, and deleting a row deletes nothing in the sheet. Owners can sync through the
+  connection, members once an owner allows the AI chat its `get_spreadsheet` tool (and
+  `update_values` and `insert_dimension` to write back), checked again on every run; each read and
+  write is in the audit log. Up to 100,000 cells.
 - **Connect a Gmail or Google Workspace mailbox by signing in with Google.** Settings → Email and
   calendar offers *Google account* beside the app password: the member signs in at Google, allows
   Leafdesk to read and send their mail, and comes back with the mailbox tried and connected. No app

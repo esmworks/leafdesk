@@ -2185,6 +2185,10 @@
     "connectionGone": "Entfernte Verbindung",
     "lastRun": "Zuletzt synchronisiert {when}, {count, plural, one {# Zeile} other {# Zeilen}}",
     "overwrite": "Das Tabellenblatt ist die Quelle: Die synchronisierten Eigenschaften und Zeilentitel werden bei jeder Synchronisierung überschrieben, ändere die Daten also im Tabellenblatt. Eigenschaften, die du selbst hinzufügst, bleiben, und Zeilen, die das Tabellenblatt verlassen, bleiben unberührt.",
+    "formulaColumns": "Nicht zurückgeschrieben (Formeln): {columns}",
+    "pending": "Zeilen, die ins Tabellenblatt geschrieben werden sollen: {count, number}",
+    "writeFailed": "Konnte nicht ins Tabellenblatt schreiben:",
+    "writeForbidden": "Das Google-Konto der Verbindung darf die Tabelle nicht bearbeiten, oder die Person, als die die Synchronisierung läuft, darf über die Verbindung nicht schreiben. Hier gemachte Änderungen warten, bis es geht.",
     "stopConfirm": "Synchronisierung dieser Datenbank beenden? Ihre Zeilen bleiben."
   }
 }

@@ -443,7 +443,7 @@
     }
   },
   "sheets": {
-    "help": "Get a database of one sheet of a Google spreadsheet that stays in step: each row below the header row is a row here, found again by its key column and named by its title column, with a property for each other named column (text, numbers, checkboxes, dates and times, by what the column holds). Up to {limit, number} cells. Changes go one way, from the sheet to Leafdesk.",
+    "help": "Get a database of one sheet of a Google spreadsheet that stays in step: each row below the header row is a row here, found again by its key column and named by its title column, with a property for each other named column (text, numbers, checkboxes, dates and times, by what the column holds). Up to {limit, number} cells. Changes come from the sheet, and go back to it too if you choose “Both ways”.",
     "loading": "Looking for Google Sheets connections…",
     "noConnection": "There is no Google Sheets connection you can sync through. An owner adds Google Sheets in Settings → Connections; members can use it once an owner ticks “In chat” for its get_spreadsheet tool.",
     "connection": "Google Sheets connection",
@@ -456,6 +456,12 @@
     "keyPlaceholder": "The first column",
     "titlePlaceholder": "The key column",
     "namePlaceholder": "The sheet's name",
+    "direction": "Direction",
+    "directionRead": "From the sheet only",
+    "directionBoth": "Both ways",
+    "directionBothHelp": "Changes made here are written to the sheet at the next sync, within a minute or so. Where a cell changed in the sheet too, the sheet's value stays. The key column and columns of formulas aren't written; new rows are added below the last row; deleting a row deletes nothing in the sheet.",
+    "directionNoWrite": "Writing back needs the connection's update_values and insert_dimension tools: owners can use them, members once an owner ticks “In chat” for both.",
+    "bothNeedsSchedule": "Writing back needs a sync on a schedule.",
     "errors": {
       "unauthorized": "The Google Sheets connection needs signing in to Google again: an owner does that in Settings → Connections.",
       "forbidden": "The connection can't be used for this: its Google account may not open the spreadsheet, it is in another workspace, or you may not read through it.",

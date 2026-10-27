@@ -443,7 +443,7 @@
     }
   },
   "sheets": {
-    "help": "Ottieni un database da un foglio di un foglio di lavoro Google che resta aggiornato: ogni riga sotto la riga di intestazione è una riga qui, ritrovata tramite la colonna chiave e denominata dalla colonna titolo, con una proprietà per ogni altra colonna con nome (testo, numeri, caselle di controllo, date e orari, in base a ciò che contiene la colonna). Fino a {limit, number} celle. Le modifiche vanno in una sola direzione, dal foglio a Leafdesk.",
+    "help": "Ottieni un database da un foglio di un foglio di lavoro Google che resta aggiornato: ogni riga sotto la riga di intestazione è una riga qui, ritrovata tramite la colonna chiave e denominata dalla colonna titolo, con una proprietà per ogni altra colonna con nome (testo, numeri, caselle di controllo, date e orari, in base a ciò che contiene la colonna). Fino a {limit, number} celle. Le modifiche arrivano dal foglio, e ci tornano anche se scegli «In entrambe le direzioni».",
     "loading": "Ricerca delle connessioni Google Sheets…",
     "noConnection": "Non c'è nessuna connessione Google Sheets tramite cui puoi sincronizzare. Un proprietario aggiunge Google Sheets in Impostazioni → Connessioni; i membri possono usarla quando un proprietario spunta «Nella chat» per il suo strumento get_spreadsheet.",
     "connection": "Connessione Google Sheets",
@@ -456,6 +456,12 @@
     "keyPlaceholder": "La prima colonna",
     "titlePlaceholder": "La colonna chiave",
     "namePlaceholder": "Il nome del foglio",
+    "direction": "Direzione",
+    "directionRead": "Solo dal foglio",
+    "directionBoth": "In entrambe le direzioni",
+    "directionBothHelp": "Le modifiche fatte qui vengono scritte nel foglio alla sincronizzazione successiva, entro un minuto circa. Se una cella è cambiata anche nel foglio, resta il valore del foglio. La colonna chiave e le colonne con formule non vengono scritte; le nuove righe vengono aggiunte sotto l'ultima; eliminare una riga non elimina nulla nel foglio.",
+    "directionNoWrite": "Per riscrivere, la connessione ha bisogno degli strumenti update_values e insert_dimension: i proprietari possono usarli, i membri quando un proprietario spunta «Nella chat» per entrambi.",
+    "bothNeedsSchedule": "Per riscrivere, la sincronizzazione deve avere una frequenza.",
     "errors": {
       "unauthorized": "La connessione Google Sheets deve accedere di nuovo a Google: lo fa un proprietario in Impostazioni → Connessioni.",
       "forbidden": "La connessione non può essere usata per questo: il suo account Google potrebbe non poter aprire il foglio di lavoro, si trova in un altro spazio di lavoro, o non puoi leggere tramite essa.",

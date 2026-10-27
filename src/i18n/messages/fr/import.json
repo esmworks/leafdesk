@@ -443,7 +443,7 @@
     }
   },
   "sheets": {
-    "help": "Obtenez une base de données à partir d'une feuille d'un tableur Google, qui reste à jour : chaque ligne sous la ligne d'en-tête devient une ligne ici, retrouvée par sa colonne clé et nommée par sa colonne de titre, avec une propriété pour chaque autre colonne nommée (texte, nombres, cases à cocher, dates et heures, selon ce que contient la colonne). Jusqu'à {limit, number} cellules. Les modifications vont dans un seul sens, de la feuille vers Leafdesk.",
+    "help": "Obtenez une base de données à partir d'une feuille d'un tableur Google, qui reste à jour : chaque ligne sous la ligne d'en-tête devient une ligne ici, retrouvée par sa colonne clé et nommée par sa colonne de titre, avec une propriété pour chaque autre colonne nommée (texte, nombres, cases à cocher, dates et heures, selon ce que contient la colonne). Jusqu'à {limit, number} cellules. Les modifications viennent de la feuille, et y retournent aussi si vous choisissez « Dans les deux sens ».",
     "loading": "Recherche des connexions Google Sheets…",
     "noConnection": "Aucune connexion Google Sheets ne vous permet de synchroniser. Un propriétaire ajoute Google Sheets dans Paramètres → Connexions ; les membres peuvent l'utiliser dès qu'un propriétaire coche « Dans le chat » pour son outil get_spreadsheet.",
     "connection": "Connexion Google Sheets",
@@ -456,6 +456,12 @@
     "keyPlaceholder": "La première colonne",
     "titlePlaceholder": "La colonne clé",
     "namePlaceholder": "Le nom de la feuille",
+    "direction": "Sens",
+    "directionRead": "Depuis la feuille uniquement",
+    "directionBoth": "Dans les deux sens",
+    "directionBothHelp": "Les modifications faites ici sont écrites dans la feuille à la synchronisation suivante, en une minute environ. Si une cellule a aussi changé dans la feuille, la valeur de la feuille est conservée. La colonne clé et les colonnes de formules ne sont pas écrites ; les nouvelles lignes sont ajoutées sous la dernière ; supprimer une ligne ne supprime rien dans la feuille.",
+    "directionNoWrite": "Pour écrire en retour, la connexion a besoin des outils update_values et insert_dimension : les propriétaires peuvent les utiliser, les membres dès qu'un propriétaire coche « Dans le chat » pour les deux.",
+    "bothNeedsSchedule": "Pour écrire en retour, la synchronisation doit suivre une fréquence.",
     "errors": {
       "unauthorized": "La connexion Google Sheets doit se reconnecter à Google : un propriétaire le fait dans Paramètres → Connexions.",
       "forbidden": "La connexion ne peut pas servir ici : son compte Google ne peut peut-être pas ouvrir le tableur, elle se trouve dans un autre espace de travail, ou vous n'avez pas le droit de lire à travers elle.",

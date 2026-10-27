@@ -443,7 +443,7 @@
     }
   },
   "sheets": {
-    "help": "用 Google 电子表格的一个工作表创建一个保持同步的数据库：标题行下方的每一行在这里都是一行，通过键列重新找到，由标题列命名，其他每个有名称的列都成为一个属性（按列的内容为文本、数字、复选框、日期和时间）。最多 {limit, number} 个单元格。变更是单向的，从工作表到 Leafdesk。",
+    "help": "用 Google 电子表格的一个工作表创建一个保持同步的数据库：标题行下方的每一行在这里都是一行，通过键列重新找到，由标题列命名，其他每个有名称的列都成为一个属性（按列的内容为文本、数字、复选框、日期和时间）。最多 {limit, number} 个单元格。变更来自工作表；选择“双向”后，这里的变更也会写回工作表。",
     "loading": "正在查找 Google Sheets 连接…",
     "noConnection": "没有可供你同步的 Google Sheets 连接。所有者在 设置 → 连接 中添加 Google Sheets；所有者为其 get_spreadsheet 工具勾选“在聊天中”后，成员也可以使用。",
     "connection": "Google Sheets 连接",
@@ -456,6 +456,12 @@
     "keyPlaceholder": "第一列",
     "titlePlaceholder": "键列",
     "namePlaceholder": "工作表的名称",
+    "direction": "方向",
+    "directionRead": "仅从工作表",
+    "directionBoth": "双向",
+    "directionBothHelp": "在这里所做的变更会在下次同步时写入工作表，大约一分钟内。如果某个单元格在工作表中也被改动，则保留工作表的值。键列和含公式的列不会被写入；新行添加在最后一行下方；删除一行不会删除工作表中的任何内容。",
+    "directionNoWrite": "写回需要连接的 update_values 和 insert_dimension 工具：所有者可以使用，成员需在所有者为两者都勾选“在聊天中”后才能使用。",
+    "bothNeedsSchedule": "写回需要按计划同步。",
     "errors": {
       "unauthorized": "Google Sheets 连接需要重新登录 Google：由所有者在 设置 → 连接 中操作。",
       "forbidden": "此连接无法用于这里：它的 Google 账户可能无法打开该电子表格，它在另一个工作区中，或者你无权通过它读取。",

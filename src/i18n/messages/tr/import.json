@@ -443,7 +443,7 @@
     }
   },
   "sheets": {
-    "help": "Bir Google e-tablosunun tek bir sayfasından güncel kalan bir veritabanı oluşturun: başlık satırının altındaki her satır burada bir satırdır; anahtar sütunuyla yeniden bulunur, başlık sütunuyla adlandırılır ve adı olan diğer her sütun bir özellik olur (sütunun içeriğine göre metin, sayı, onay kutusu, tarih ve saat). En fazla {limit, number} hücre. Değişiklikler tek yönlüdür: sayfadan Leafdesk'e.",
+    "help": "Bir Google e-tablosunun tek bir sayfasından güncel kalan bir veritabanı oluşturun: başlık satırının altındaki her satır burada bir satırdır; anahtar sütunuyla yeniden bulunur, başlık sütunuyla adlandırılır ve adı olan diğer her sütun bir özellik olur (sütunun içeriğine göre metin, sayı, onay kutusu, tarih ve saat). En fazla {limit, number} hücre. Değişiklikler sayfadan gelir; “İki yönlü”yü seçerseniz buradaki değişiklikler de sayfaya yazılır.",
     "loading": "Google Sheets bağlantıları aranıyor…",
     "noConnection": "Eşitleme yapabileceğiniz bir Google Sheets bağlantısı yok. Bir sahip, Ayarlar → Bağlantılar'dan Google Sheets ekler; üyeler, bir sahip get_spreadsheet aracı için “Sohbette” seçeneğini işaretledikten sonra kullanabilir.",
     "connection": "Google Sheets bağlantısı",
@@ -456,6 +456,12 @@
     "keyPlaceholder": "İlk sütun",
     "titlePlaceholder": "Anahtar sütunu",
     "namePlaceholder": "E-tablo sayfasının adı",
+    "direction": "Yön",
+    "directionRead": "Yalnız sayfadan",
+    "directionBoth": "İki yönlü",
+    "directionBothHelp": "Burada yapılan değişiklikler bir dakika kadar içinde, bir sonraki eşitlemede sayfaya yazılır. Bir hücre sayfada da değiştiyse sayfadaki değer kalır. Anahtar sütunu ve formül sütunları yazılmaz; yeni satırlar son satırın altına eklenir; bir satırı silmek sayfada hiçbir şeyi silmez.",
+    "directionNoWrite": "Sayfaya yazmak için bağlantının update_values ve insert_dimension araçları gerekir: sahipler bunları kullanabilir, üyeler ise bir sahip ikisi için de “Sohbette”yi işaretledikten sonra.",
+    "bothNeedsSchedule": "Sayfaya yazmak için eşitlemenin bir zamanlamayla çalışması gerekir.",
     "errors": {
       "unauthorized": "Google Sheets bağlantısının Google'a yeniden oturum açması gerekiyor: bunu bir sahip Ayarlar → Bağlantılar'dan yapar.",
       "forbidden": "Bağlantı bunun için kullanılamıyor: Google hesabı e-tabloyu açamıyor, bağlantı başka bir çalışma alanında ya da sizin onun üzerinden okuma izniniz yok.",

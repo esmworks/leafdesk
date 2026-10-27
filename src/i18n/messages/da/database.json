@@ -2185,6 +2185,10 @@
     "connectionGone": "Fjernet forbindelse",
     "lastRun": "Sidst synkroniseret {when}, {count, plural, one {# række} other {# rækker}}",
     "overwrite": "Arket er kilden: De synkroniserede egenskaber og rækketitler overskrives ved hver synkronisering, så ret dataene i arket. Egenskaber, du selv tilføjer, forbliver, og rækker, der forsvinder fra arket, bliver urørt.",
+    "formulaColumns": "Skrives ikke tilbage (formler): {columns}",
+    "pending": "Rækker, der venter på at blive skrevet til arket: {count, number}",
+    "writeFailed": "Kunne ikke skrive til arket:",
+    "writeForbidden": "Forbindelsens Google-konto må ikke redigere regnearket, eller den person, synkroniseringen kører som, må ikke skrive gennem forbindelsen. Ændringer lavet her venter, til det kan lade sig gøre.",
     "stopConfirm": "Stop med at synkronisere denne database? Dens rækker forbliver."
   }
 }

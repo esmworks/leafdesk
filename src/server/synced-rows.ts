@@ -32,6 +32,8 @@ export type SyncedItem = {
   values: Record<string, unknown>;
   /** Only keeps a row it has in step, never adds one (closed pull requests of an open-only sync). */
   onlyUpdate?: boolean;
+  /** Leaves a known row's title as it is (a change made in Leafdesk waits to be written to the sheet). */
+  keepTitle?: boolean;
 };
 
 /**
@@ -131,7 +133,7 @@ export async function applyRows(
     const normalized = await checkValues(runAs, database.id, item.values, props, invalid, existing);
     known.push({ existing, properties: normalized });
     batch.push({ rowId: existing.id, properties: normalized });
-    if (existing.title.trim() !== item.title.trim()) renames.push({ id: existing.id, title: item.title });
+    if (!item.keepTitle && existing.title.trim() !== item.title.trim()) renames.push({ id: existing.id, title: item.title });
   }
   // A value a unique property would refuse (another row's, or one an earlier item takes: two
   // emails differing only in case) is left out like any other before anything is written, so one

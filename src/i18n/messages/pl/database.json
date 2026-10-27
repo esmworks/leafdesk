@@ -2185,6 +2185,10 @@
     "connectionGone": "Usunięte połączenie",
     "lastRun": "Ostatnia synchronizacja {when}, {count, plural, one {# wiersz} few {# wiersze} many {# wierszy} other {# wiersza}}",
     "overwrite": "Karta jest źródłem: zsynchronizowane właściwości i tytuły wierszy są nadpisywane przy każdej synchronizacji, więc zmieniaj dane w karcie. Właściwości dodane przez ciebie pozostają bez zmian, a wiersze, które znikają z karty, nie są ruszane.",
+    "formulaColumns": "Bez zapisu zwrotnego (formuły): {columns}",
+    "pending": "Wiersze czekające na zapis w karcie: {count, number}",
+    "writeFailed": "Nie udało się zapisać w karcie:",
+    "writeForbidden": "Konto Google połączenia nie może edytować arkusza albo osoba, jako która działa synchronizacja, nie może zapisywać przez połączenie. Zmiany wprowadzone tutaj czekają, aż będzie to możliwe.",
     "stopConfirm": "Zatrzymać synchronizację tej bazy? Jej wiersze pozostaną bez zmian."
   }
 }

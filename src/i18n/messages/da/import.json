@@ -443,7 +443,7 @@
     }
   },
   "sheets": {
-    "help": "Få en database af ét ark i et Google-regneark, der holdes ajour: hver række under overskriftsrækken er en række her, genfindes via nøglekolonnen og navngives af titelkolonnen, med en egenskab for hver anden navngiven kolonne (tekst, tal, afkrydsningsfelter, datoer og tidspunkter, alt efter hvad kolonnen indeholder). Op til {limit, number} celler. Ændringer går kun én vej, fra arket til Leafdesk.",
+    "help": "Få en database af ét ark i et Google-regneark, der holdes ajour: hver række under overskriftsrækken er en række her, genfindes via nøglekolonnen og navngives af titelkolonnen, med en egenskab for hver anden navngiven kolonne (tekst, tal, afkrydsningsfelter, datoer og tidspunkter, alt efter hvad kolonnen indeholder). Op til {limit, number} celler. Ændringer kommer fra arket, og går også tilbage til det, hvis du vælger “Begge veje”.",
     "loading": "Leder efter Google Sheets-forbindelser…",
     "noConnection": "Der er ingen Google Sheets-forbindelse, du kan synkronisere gennem. En ejer tilføjer Google Sheets under Indstillinger → Forbindelser; medlemmer kan bruge den, når en ejer har sat flueben ved “I chat” for dens værktøj get_spreadsheet.",
     "connection": "Google Sheets-forbindelse",
@@ -456,6 +456,12 @@
     "keyPlaceholder": "Den første kolonne",
     "titlePlaceholder": "Nøglekolonnen",
     "namePlaceholder": "Arkets navn",
+    "direction": "Retning",
+    "directionRead": "Kun fra arket",
+    "directionBoth": "Begge veje",
+    "directionBothHelp": "Ændringer, du laver her, skrives til arket ved næste synkronisering, inden for et minut eller så. Hvis en celle også er ændret i arket, bevares arkets værdi. Nøglekolonnen og kolonner med formler skrives ikke; nye rækker tilføjes under den sidste række; at slette en række sletter intet i arket.",
+    "directionNoWrite": "For at skrive tilbage skal forbindelsen have værktøjerne update_values og insert_dimension: ejere kan bruge dem, medlemmer når en ejer har sat flueben ved “I chat” for begge.",
+    "bothNeedsSchedule": "For at skrive tilbage skal synkroniseringen køre efter en tidsplan.",
     "errors": {
       "unauthorized": "Google Sheets-forbindelsen skal logges ind på Google igen: Det gør en ejer under Indstillinger → Forbindelser.",
       "forbidden": "Forbindelsen kan ikke bruges til dette: Dens Google-konto kan muligvis ikke åbne regnearket, den er i et andet arbejdsområde, eller du må ikke læse gennem den.",

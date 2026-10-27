@@ -443,7 +443,7 @@
     }
   },
   "sheets": {
-    "help": "Luo tietokanta Google-taulukon yhdestä välilehdestä, joka pysyy ajan tasalla: jokainen otsikkorivin alapuolinen rivi on tässä rivi, joka löytyy uudelleen avainsarakkeen avulla ja saa nimensä otsikkosarakkeesta, ja jokaisesta muusta nimetystä sarakkeesta tulee ominaisuus (teksti, luvut, valintaruudut, päivämäärät ja kellonajat sen mukaan, mitä sarake sisältää). Enintään {limit, number} solua. Muutokset kulkevat yhteen suuntaan, välilehdeltä Leafdeskiin.",
+    "help": "Luo tietokanta Google-taulukon yhdestä välilehdestä, joka pysyy ajan tasalla: jokainen otsikkorivin alapuolinen rivi on tässä rivi, joka löytyy uudelleen avainsarakkeen avulla ja saa nimensä otsikkosarakkeesta, ja jokaisesta muusta nimetystä sarakkeesta tulee ominaisuus (teksti, luvut, valintaruudut, päivämäärät ja kellonajat sen mukaan, mitä sarake sisältää). Enintään {limit, number} solua. Muutokset tulevat välilehdeltä, ja palaavat sinne myös, jos valitset ”Molempiin suuntiin”.",
     "loading": "Etsitään Google Sheets -yhteyksiä…",
     "noConnection": "Ei Google Sheets -yhteyttä, jonka kautta voisit synkronoida. Omistaja lisää Google Sheetsin kohdassa Asetukset → Yhteydet; jäsenet voivat käyttää sitä, kun omistaja valitsee sen get_spreadsheet-työkalulle ”Chatissa”.",
     "connection": "Google Sheets -yhteys",
@@ -456,6 +456,12 @@
     "keyPlaceholder": "Ensimmäinen sarake",
     "titlePlaceholder": "Avainsarake",
     "namePlaceholder": "Välilehden nimi",
+    "direction": "Suunta",
+    "directionRead": "Vain välilehdeltä",
+    "directionBoth": "Molempiin suuntiin",
+    "directionBothHelp": "Täällä tehdyt muutokset kirjoitetaan välilehdelle seuraavassa synkronoinnissa, noin minuutin kuluessa. Jos solu on muuttunut myös välilehdellä, välilehden arvo jää. Avainsaraketta ja kaavoja sisältäviä sarakkeita ei kirjoiteta; uudet rivit lisätään viimeisen rivin alle; rivin poistaminen ei poista välilehdeltä mitään.",
+    "directionNoWrite": "Takaisin kirjoittaminen vaatii yhteydeltä työkalut update_values ja insert_dimension: omistajat voivat käyttää niitä, jäsenet, kun omistaja valitsee molemmille ”Chatissa”.",
+    "bothNeedsSchedule": "Takaisin kirjoittaminen vaatii aikataulun mukaan toimivan synkronoinnin.",
     "errors": {
       "unauthorized": "Google Sheets -yhteys täytyy kirjata uudelleen Googleen: omistaja tekee sen kohdassa Asetukset → Yhteydet.",
       "forbidden": "Yhteyttä ei voi käyttää tähän: sen Google-tili ei ehkä pääse avaamaan taulukkoa, se on toisessa työtilassa tai sinulla ei ole oikeutta lukea sen kautta.",

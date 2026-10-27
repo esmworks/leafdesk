@@ -2185,6 +2185,10 @@
     "connectionGone": "Conexão removida",
     "lastRun": "Última sincronização {when}, {count, plural, one {# linha} other {# linhas}}",
     "overwrite": "A aba é a fonte: as propriedades sincronizadas e os títulos das linhas são sobrescritos a cada sincronização, então altere os dados na aba. As propriedades que você adiciona ficam como estão, e as linhas que saem da aba não são tocadas.",
+    "formulaColumns": "Não escritas de volta (fórmulas): {columns}",
+    "pending": "Linhas aguardando para serem escritas na aba: {count, number}",
+    "writeFailed": "Não foi possível escrever na aba:",
+    "writeForbidden": "A conta do Google da conexão não pode editar a planilha, ou a pessoa com quem a sincronização é executada não pode escrever pela conexão. As alterações feitas aqui aguardam até que seja possível.",
     "stopConfirm": "Parar de sincronizar este banco de dados? As linhas continuam como estão."
   }
 }

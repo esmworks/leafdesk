@@ -2185,6 +2185,10 @@
     "connectionGone": "Connessione rimossa",
     "lastRun": "Ultima sincronizzazione {when}, {count, plural, one {# riga} other {# righe}}",
     "overwrite": "Il foglio è la fonte: le proprietà sincronizzate e i titoli delle righe vengono sovrascritti a ogni sincronizzazione, quindi modifica i dati nel foglio. Le proprietà che aggiungi tu restano come sono, e le righe che escono dal foglio non vengono toccate.",
+    "formulaColumns": "Non riscritte (formule): {columns}",
+    "pending": "Righe in attesa di essere scritte nel foglio: {count, number}",
+    "writeFailed": "Impossibile scrivere nel foglio:",
+    "writeForbidden": "L'account Google della connessione non può modificare il foglio di calcolo, oppure la persona con cui gira la sincronizzazione non può scrivere tramite la connessione. Le modifiche fatte qui aspettano finché sarà possibile.",
     "stopConfirm": "Interrompere la sincronizzazione di questo database? Le righe restano."
   }
 }

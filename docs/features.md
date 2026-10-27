@@ -1183,8 +1183,22 @@
   sheet's values over and add new rows; rows that leave the sheet stay. A connection signed out of
   Google, one the sync's person may no longer read through, a missing spreadsheet or sheet, or a
   renamed key column pauses it; the sync dialog can switch it to another connection. Each read is
-  in the audit log as a call of the connection. Tested against a fake Sheets server the e2e runs
-  (`scripts/sheets-sync-e2e.ts`).
+  in the audit log as a call of the connection. **Direction** (in the Import tab and the sync
+  dialog, for people with full access to the database) is *From the sheet only* or *Both ways*.
+  Both ways needs the connection's `update_values` and `insert_dimension` tools (owners; members once
+  an owner ticks *In chat* for both) and a sync on a schedule: a change made to a synced property
+  or, where another column than the key names rows, a title waits and brings the next run to
+  within about a minute, which writes it to its cell before it reads, as the person the sync runs
+  as. It is written only where the cell still holds the row's value from before the change; where
+  the sheet changed too, the sheet's value stays and comes back to the row. The key column and
+  columns with formulas are never written (the dialog lists them), dates go as the start of a
+  range and times to the minute, and text starting with `=` stays out. A row made in Leafdesk is
+  added below the sheet's last row once it has a key (its title, where the key names rows; one
+  titled like another row's key stays in Leafdesk alone), and a sheet without room gets rows at
+  its end first; deleting a row deletes nothing in the sheet. A write the sheet refuses (the connection's Google
+  account may only view it) shows in the dialog without pausing the sync: the change waits, and
+  the row keeps it, until writing works or the sync goes back to reading only, which drops what
+  waits. Tested against a fake Sheets server the e2e runs (`scripts/sheets-sync-e2e.ts`).
 - **GitHub pull requests update tasks**: *GitHub pull requests* in the ••• menu of a database with
   an ID property with a prefix gives a payload URL and a secret to add as a repository webhook
   (JSON, *Pull requests* events). A pull request that names rows by their ID (`TASK-12`, in any

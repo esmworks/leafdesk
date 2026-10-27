@@ -443,7 +443,7 @@
     }
   },
   "sheets": {
-    "help": "Utwórz bazę danych z jednej karty arkusza kalkulacyjnego Google, która pozostaje aktualna: każdy wiersz pod wierszem nagłówka jest tu wierszem, odnajdywanym po kolumnie klucza i nazywanym według kolumny tytułu, z właściwością dla każdej innej nazwanej kolumny (tekst, liczby, pola wyboru, daty i godziny, zależnie od zawartości kolumny). Do {limit, number} komórek. Zmiany idą w jedną stronę, z karty do Leafdesk.",
+    "help": "Utwórz bazę danych z jednej karty arkusza kalkulacyjnego Google, która pozostaje aktualna: każdy wiersz pod wierszem nagłówka jest tu wierszem, odnajdywanym po kolumnie klucza i nazywanym według kolumny tytułu, z właściwością dla każdej innej nazwanej kolumny (tekst, liczby, pola wyboru, daty i godziny, zależnie od zawartości kolumny). Do {limit, number} komórek. Zmiany przychodzą z karty i wracają do niej, jeśli wybierzesz „W obie strony”.",
     "loading": "Szukanie połączeń Google Sheets…",
     "noConnection": "Nie ma połączenia Google Sheets, przez które możesz synchronizować. Właściciel dodaje Google Sheets w Ustawienia → Połączenia; członkowie mogą z niego korzystać, gdy właściciel zaznaczy „W czacie” dla narzędzia get_spreadsheet.",
     "connection": "Połączenie Google Sheets",
@@ -456,6 +456,12 @@
     "keyPlaceholder": "Pierwsza kolumna",
     "titlePlaceholder": "Kolumna klucza",
     "namePlaceholder": "Nazwa karty",
+    "direction": "Kierunek",
+    "directionRead": "Tylko z karty",
+    "directionBoth": "W obie strony",
+    "directionBothHelp": "Zmiany wprowadzone tutaj są zapisywane w karcie przy następnej synchronizacji, w ciągu mniej więcej minuty. Jeśli komórka zmieniła się także w karcie, zostaje wartość z karty. Kolumna klucza i kolumny z formułami nie są zapisywane; nowe wiersze są dodawane pod ostatnim wierszem; usunięcie wiersza niczego nie usuwa w karcie.",
+    "directionNoWrite": "Do zapisu zwrotnego połączenie potrzebuje narzędzi update_values i insert_dimension: właściciele mogą z nich korzystać, członkowie, gdy właściciel zaznaczy „W czacie” dla obu.",
+    "bothNeedsSchedule": "Zapis zwrotny wymaga synchronizacji według harmonogramu.",
     "errors": {
       "unauthorized": "Połączenie Google Sheets wymaga ponownego zalogowania do Google: robi to właściciel w Ustawienia → Połączenia.",
       "forbidden": "Tego połączenia nie można użyć: jego konto Google może nie mieć dostępu do arkusza kalkulacyjnego, połączenie jest w innej przestrzeni roboczej albo nie możesz czytać przez nie.",

@@ -2185,6 +2185,10 @@
     "connectionGone": "Poistettu yhteys",
     "lastRun": "Viimeksi synkronoitu {when}, {count, plural, one {# rivi} other {# riviä}}",
     "overwrite": "Välilehti on lähde: synkronoidut ominaisuudet ja rivien otsikot ylikirjoitetaan jokaisella synkronoinnilla, joten muuta tietoja välilehdellä. Itse lisäämäsi ominaisuudet säilyvät, ja välilehdeltä poistuvat rivit jätetään rauhaan.",
+    "formulaColumns": "Ei kirjoiteta takaisin (kaavat): {columns}",
+    "pending": "Välilehdelle kirjoittamista odottavat rivit: {count, number}",
+    "writeFailed": "Välilehdelle ei voitu kirjoittaa:",
+    "writeForbidden": "Yhteyden Google-tili ei saa muokata laskentataulukkoa, tai henkilö, jonka nimissä synkronointi toimii, ei saa kirjoittaa yhteyden kautta. Täällä tehdyt muutokset odottavat, kunnes se onnistuu.",
     "stopConfirm": "Lopetetaanko tämän tietokannan synkronointi? Rivit säilyvät ennallaan."
   }
 }

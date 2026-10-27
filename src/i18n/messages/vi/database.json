@@ -2185,6 +2185,10 @@
     "connectionGone": "Kết nối đã xóa",
     "lastRun": "Đồng bộ lần cuối {when}, {count, plural, other {# hàng}}",
     "overwrite": "Trang tính là nguồn: các thuộc tính đã đồng bộ và tiêu đề hàng bị ghi đè trong mỗi lần đồng bộ, nên hãy đổi dữ liệu trong trang tính. Thuộc tính bạn tự thêm vẫn giữ nguyên, và các hàng rời khỏi trang tính không bị động tới.",
+    "formulaColumns": "Không ghi ngược lại (công thức): {columns}",
+    "pending": "Số hàng đang chờ ghi vào trang tính: {count, number}",
+    "writeFailed": "Không thể ghi vào trang tính:",
+    "writeForbidden": "Tài khoản Google của kết nối không được sửa bảng tính, hoặc người mà đồng bộ chạy dưới tên không được ghi qua kết nối. Thay đổi làm ở đây sẽ chờ đến khi ghi được.",
     "stopConfirm": "Dừng đồng bộ cơ sở dữ liệu này? Các hàng giữ nguyên."
   }
 }

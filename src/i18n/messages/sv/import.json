@@ -443,7 +443,7 @@
     }
   },
   "sheets": {
-    "help": "Få en databas av ett blad i ett Google-kalkylark som hålls uppdaterad: varje rad under rubrikraden blir en rad här, återfinns via nyckelkolumnen och får sitt namn från titelkolumnen, med en egenskap för varje annan namngiven kolumn (text, tal, kryssrutor, datum och tider, efter vad kolumnen innehåller). Upp till {limit, number} celler. Ändringar går åt ett håll, från bladet till Leafdesk.",
+    "help": "Få en databas av ett blad i ett Google-kalkylark som hålls uppdaterad: varje rad under rubrikraden blir en rad här, återfinns via nyckelkolumnen och får sitt namn från titelkolumnen, med en egenskap för varje annan namngiven kolumn (text, tal, kryssrutor, datum och tider, efter vad kolumnen innehåller). Upp till {limit, number} celler. Ändringar kommer från bladet, och går tillbaka till det också om du väljer ”Åt båda hållen”.",
     "loading": "Letar efter Google Sheets-anslutningar…",
     "noConnection": "Det finns ingen Google Sheets-anslutning som du kan synkronisera via. En ägare lägger till Google Sheets i Inställningar → Anslutningar; medlemmar kan använda den när en ägare har kryssat i ”I chatten” för dess verktyg get_spreadsheet.",
     "connection": "Google Sheets-anslutning",
@@ -456,6 +456,12 @@
     "keyPlaceholder": "Den första kolumnen",
     "titlePlaceholder": "Nyckelkolumnen",
     "namePlaceholder": "Bladets namn",
+    "direction": "Riktning",
+    "directionRead": "Bara från bladet",
+    "directionBoth": "Åt båda hållen",
+    "directionBothHelp": "Ändringar du gör här skrivs till bladet vid nästa synkning, inom ungefär en minut. Om en cell också ändrats i bladet behålls bladets värde. Nyckelkolumnen och kolumner med formler skrivs inte; nya rader läggs till under den sista raden; att ta bort en rad tar inte bort något i bladet.",
+    "directionNoWrite": "För att skriva tillbaka behöver anslutningen verktygen update_values och insert_dimension: ägare kan använda dem, medlemmar när en ägare har kryssat i ”I chatten” för båda.",
+    "bothNeedsSchedule": "För att skriva tillbaka måste synkningen köras enligt ett schema.",
     "errors": {
       "unauthorized": "Google Sheets-anslutningen måste logga in på Google igen: En ägare gör det i Inställningar → Anslutningar.",
       "forbidden": "Anslutningen kan inte användas till detta: Dess Google-konto kanske inte kan öppna kalkylarket, den finns i en annan arbetsyta, eller så får du inte läsa via den.",

@@ -2185,6 +2185,10 @@
     "connectionGone": "Fjernet tilkobling",
     "lastRun": "Sist synkronisert {when}, {count, plural, one {# rad} other {# rader}}",
     "overwrite": "Arket er kilden: De synkroniserte egenskapene og radtitlene skrives over ved hver synkronisering, så endre dataene i arket. Egenskaper du legger til selv, blir stående, og rader som forsvinner fra arket, blir latt være.",
+    "formulaColumns": "Skrives ikke tilbake (formler): {columns}",
+    "pending": "Rader som venter på å bli skrevet til arket: {count, number}",
+    "writeFailed": "Kunne ikke skrive til arket:",
+    "writeForbidden": "Google-kontoen til tilkoblingen kan ikke redigere regnearket, eller personen synkroniseringen kjører som, kan ikke skrive gjennom tilkoblingen. Endringer gjort her venter til det går.",
     "stopConfirm": "Slutte å synkronisere denne databasen? Radene blir stående."
   }
 }

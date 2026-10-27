@@ -58,6 +58,7 @@ export type SheetsSyncSetup = {
   keyColumn?: string;
   titleColumn?: string;
   intervalMinutes: unknown;
+  direction?: unknown;
 };
 
 /** Makes a database from a sheet's rows and keeps it in step (answered like an import). */
@@ -77,6 +78,7 @@ export async function createSheetsSyncAction(value: SheetsSyncSetup): Promise<Ac
         keyColumn: typeof value?.keyColumn === "string" ? value.keyColumn : undefined,
         titleColumn: typeof value?.titleColumn === "string" ? value.titleColumn : undefined,
         intervalMinutes: value?.intervalMinutes,
+        direction: value?.direction,
         seedNames: await databaseSeedNames().catch(() => undefined),
       },
     );
@@ -94,7 +96,9 @@ export async function syncSheetsNowAction(databaseId: string): Promise<ActionRes
 }
 
 export async function updateSheetsSyncAction(databaseId: string, patch: SheetsSyncPatch): Promise<ActionResult<SheetsSyncView>> {
-  return run((userId) => updateSheetsSync(userId, String(databaseId), { intervalMinutes: patch?.intervalMinutes, connectionId: patch?.connectionId }));
+  return run((userId) =>
+    updateSheetsSync(userId, String(databaseId), { intervalMinutes: patch?.intervalMinutes, connectionId: patch?.connectionId, direction: patch?.direction }),
+  );
 }
 
 export async function stopSheetsSyncAction(databaseId: string): Promise<ActionResult> {

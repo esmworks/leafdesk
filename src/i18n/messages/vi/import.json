@@ -443,7 +443,7 @@
     }
   },
   "sheets": {
-    "help": "Tạo một cơ sở dữ liệu từ một trang tính của bảng tính Google luôn được đồng bộ: mỗi hàng bên dưới hàng tiêu đề là một hàng ở đây, được tìm lại bằng cột khóa và được đặt tên theo cột tiêu đề, với một thuộc tính cho mỗi cột có tên khác (văn bản, số, hộp kiểm, ngày và giờ, tùy nội dung của cột). Tối đa {limit, number} ô. Thay đổi chỉ đi một chiều, từ trang tính sang Leafdesk.",
+    "help": "Tạo một cơ sở dữ liệu từ một trang tính của bảng tính Google luôn được đồng bộ: mỗi hàng bên dưới hàng tiêu đề là một hàng ở đây, được tìm lại bằng cột khóa và được đặt tên theo cột tiêu đề, với một thuộc tính cho mỗi cột có tên khác (văn bản, số, hộp kiểm, ngày và giờ, tùy nội dung của cột). Tối đa {limit, number} ô. Thay đổi đến từ trang tính, và cũng quay lại đó nếu bạn chọn “Hai chiều”.",
     "loading": "Đang tìm kết nối Google Sheets…",
     "noConnection": "Không có kết nối Google Sheets nào bạn có thể dùng để đồng bộ. Chủ sở hữu thêm Google Sheets trong Cài đặt → Kết nối; thành viên dùng được khi chủ sở hữu đánh dấu “Trong trò chuyện” cho công cụ get_spreadsheet.",
     "connection": "Kết nối Google Sheets",
@@ -456,6 +456,12 @@
     "keyPlaceholder": "Cột đầu tiên",
     "titlePlaceholder": "Cột khóa",
     "namePlaceholder": "Tên của trang tính",
+    "direction": "Chiều",
+    "directionRead": "Chỉ từ trang tính",
+    "directionBoth": "Hai chiều",
+    "directionBothHelp": "Thay đổi bạn làm ở đây được ghi vào trang tính trong lần đồng bộ kế tiếp, trong khoảng một phút. Nếu một ô cũng đã đổi trong trang tính, giá trị của trang tính được giữ. Cột khóa và các cột có công thức không được ghi; hàng mới được thêm dưới hàng cuối; xóa một hàng không xóa gì trong trang tính.",
+    "directionNoWrite": "Để ghi ngược lại, kết nối cần công cụ update_values và insert_dimension: chủ sở hữu dùng được, thành viên dùng được khi chủ sở hữu đánh dấu “Trong trò chuyện” cho cả hai.",
+    "bothNeedsSchedule": "Ghi ngược lại cần đồng bộ theo lịch.",
     "errors": {
       "unauthorized": "Kết nối Google Sheets cần đăng nhập lại Google: chủ sở hữu thực hiện việc này trong Cài đặt → Kết nối.",
       "forbidden": "Không thể dùng kết nối này: tài khoản Google của nó có thể không mở được bảng tính, nó thuộc không gian làm việc khác, hoặc bạn không được đọc qua nó.",

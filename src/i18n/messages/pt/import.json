@@ -443,7 +443,7 @@
     }
   },
   "sheets": {
-    "help": "Obtenha um banco de dados de uma aba de uma planilha do Google que se mantém atualizado: cada linha abaixo da linha de cabeçalho é uma linha aqui, reencontrada pela coluna chave e nomeada pela coluna de título, com uma propriedade para cada outra coluna com nome (texto, números, caixas de seleção, datas e horas, conforme o que a coluna contém). Até {limit, number} células. As alterações vão em uma só direção, da aba para o Leafdesk.",
+    "help": "Obtenha um banco de dados de uma aba de uma planilha do Google que se mantém atualizado: cada linha abaixo da linha de cabeçalho é uma linha aqui, reencontrada pela coluna chave e nomeada pela coluna de título, com uma propriedade para cada outra coluna com nome (texto, números, caixas de seleção, datas e horas, conforme o que a coluna contém). Até {limit, number} células. As alterações vêm da aba, e voltam para ela também se você escolher “Nos dois sentidos”.",
     "loading": "Procurando conexões do Google Sheets…",
     "noConnection": "Não há nenhuma conexão do Google Sheets pela qual você possa sincronizar. Um proprietário adiciona o Google Sheets em Configurações → Conexões; os membros podem usá-la quando um proprietário marca “No chat” para a ferramenta get_spreadsheet.",
     "connection": "Conexão do Google Sheets",
@@ -456,6 +456,12 @@
     "keyPlaceholder": "A primeira coluna",
     "titlePlaceholder": "A coluna chave",
     "namePlaceholder": "O nome da aba",
+    "direction": "Direção",
+    "directionRead": "Só da aba",
+    "directionBoth": "Nos dois sentidos",
+    "directionBothHelp": "As alterações feitas aqui são escritas na aba na próxima sincronização, em cerca de um minuto. Se uma célula também mudou na aba, o valor da aba permanece. A coluna-chave e as colunas com fórmulas não são escritas; novas linhas são adicionadas abaixo da última; excluir uma linha não exclui nada na aba.",
+    "directionNoWrite": "Para escrever de volta, a conexão precisa das ferramentas update_values e insert_dimension: proprietários podem usá-las, e membros quando um proprietário marca “No chat” para as duas.",
+    "bothNeedsSchedule": "Para escrever de volta, a sincronização precisa de uma frequência.",
     "errors": {
       "unauthorized": "A conexão do Google Sheets precisa entrar no Google de novo: um proprietário faz isso em Configurações → Conexões.",
       "forbidden": "A conexão não pode ser usada para isso: a conta Google dela talvez não consiga abrir a planilha, ela está em outro espaço de trabalho ou você não pode ler por meio dela.",

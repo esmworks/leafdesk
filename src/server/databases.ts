@@ -141,6 +141,7 @@ import { workspacePeople, workspaceSettings, type WorkspacePerson } from "@/serv
 import { agentMarks, isAgentUser } from "@/server/agents/users";
 import { recordAudit } from "@/server/audit";
 import { heldPageIds, refuseHeldPages } from "@/server/legal-hold";
+import { queueSheetWrites } from "@/server/sheets-sync/outbox";
 import { requireNoDuplicates, sharedValue, withUniqueValues } from "@/server/unique-values";
 import {
   assignmentsTheySee,
@@ -1173,7 +1174,8 @@ export async function announceAssignments(
  * What every saved row write sets off: the rows' activity (server/row-activity), authorizing the
  * files its values gained, assignment notices, the database's automations
  * (server/automations/queue), telling the rows' followers (server/row-follow) and moving the rows
- * waiting for rows whose dates moved. `created` for
+ * waiting for rows whose dates moved, and the changes a Google Sheets sync writes back
+ * (server/sheets-sync/outbox). `created` for
  * new rows, whose `before` is empty; `shifted` for the moves themselves, which don't move more;
  * `ai` for AI values written for the actor, which read as the AI's in the activity.
  */
@@ -1194,6 +1196,7 @@ export async function afterRowWrites(
   await announceAssignments(actorId, databaseId, changes);
   await queueAutomations(actorId, databaseId, changes, created, boundTo);
   if (!created && !ai) await queueRowWrites(actorId, databaseId, changes);
+  await queueSheetWrites(actorId, databaseId, changes, created);
   if (!shifted && actorId) await shiftWaitingRows(actorId, databaseId, changes);
   await recording;
 }

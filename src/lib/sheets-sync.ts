@@ -1,12 +1,13 @@
 import type { WorkspaceRole } from "@/db/schema/app";
 import type { JiraSyncError } from "./jira-sync";
 import type { PropertyType } from "./property-types";
-import { zonedInstant } from "./time-zone";
+import { isDay } from "./date-value";
+import { dayNumber, localDay, zonedInstant, zoneOffset } from "./time-zone";
 import { contentRole } from "./workspace-roles";
 
 /**
- * Keeping a database in step with one sheet of a Google spreadsheet, one way (server/sheets-sync
- * for setting it up and reading, server/jira-sync/run for the runs every synced database shares).
+ * Keeping a database in step with one sheet of a Google spreadsheet (server/sheets-sync for setting
+ * it up, reading and writing, server/jira-sync/run for the runs every synced database shares).
  * The sheet is read through a workspace's Google Sheets connection (an outbound MCP connection,
  * see server/connections) with its `get_spreadsheet` tool, as typed cells, so numbers and dates
  * don't depend on how the spreadsheet's language writes them. Pure, shared by the server, the
@@ -16,10 +17,28 @@ import { contentRole } from "./workspace-roles";
  * its key column's text, named by its title column, with a property for each other named column
  * (SheetsMapping, by header). Rows above the header are left out, as are columns without a
  * header. Rows that leave the sheet stay as they are.
+ *
+ * A sync reads only, or writes back too (`direction` "both"): then changes made to its rows in
+ * Leafdesk wait in `sheets_write` and the next run writes them to the sheet with the connection's
+ * `update_values` (planWrites) before it reads. A change is written only where the sheet's cell
+ * still holds what the row had before it; where both changed, the sheet's value stays. The key
+ * column and columns of formulas are never written; rows made in Leafdesk are added below the
+ * sheet's last row once they have a key; deleting a row deletes nothing in the sheet.
  */
 
 /** The connection's tool a sync reads with. */
 export const SHEETS_TOOL = "get_spreadsheet";
+/** The connection's tools a sync writes back with: cells of a range, and rows added to a sheet with no room left. */
+export const WRITE_TOOLS = ["update_values", "insert_dimension"] as const;
+export type SheetsWriteTool = (typeof WRITE_TOOLS)[number];
+
+/** Whether a sync only reads the sheet, or writes changes made in Leafdesk back to it too. */
+export const SHEETS_DIRECTIONS = ["read", "both"] as const;
+export type SheetsDirection = (typeof SHEETS_DIRECTIONS)[number];
+/** Rows a run writes to the sheet at most; the rest wait for the next one. */
+export const MAX_SHEET_WRITES = 200;
+/** The field of `sheets_write.before` that holds the title (the others are property ids). */
+export const TITLE_FIELD = "title";
 
 /** Cells (rows below the header times columns) a sheet may have: a bigger one stops the run. */
 export const MAX_SHEET_CELLS = 100_000;
@@ -42,6 +61,13 @@ export type SheetsQuery = {
   headerRow: number;
   keyColumn: string;
   titleColumn: string;
+  /** "read" when left out. */
+  direction?: SheetsDirection;
+  /** Why the last run couldn't write to the sheet (its reading went on), with Google's words. */
+  writeError?: SheetsSyncError | null;
+  writeErrorDetail?: string | null;
+  /** The columns the last run found formulas in: never written. */
+  formulaColumns?: string[];
 };
 
 /** How a column's values are written: the kind of property it became. */
@@ -95,16 +121,30 @@ export type SheetsSyncView = {
   lastError: SheetsSyncError | null;
   lastErrorDetail: string | null;
   canManage: boolean;
+  direction: SheetsDirection;
+  /** Whether the viewer may have the sync write back (sheetsWriteAccess). */
+  canWrite: boolean;
+  writeError: SheetsSyncError | null;
+  writeErrorDetail: string | null;
+  formulaColumns: string[];
+  /** Rows whose changes wait to be written. */
+  pendingWrites: number;
 };
 
 /** A connection the person may sync through, as the import dialog shows it (never its secrets). */
-export type SheetsSource = { id: string; name: string };
+export type SheetsSource = { id: string; name: string; canWrite: boolean };
 
 /** Whether a person may read spreadsheets through a connection, given their role. */
 export function sheetsAccess(row: { status: string; tools: { name: string }[]; chatTools: string[] }, role: WorkspaceRole): boolean {
   if (row.status !== "ready" || !row.tools.some((t) => t.name === SHEETS_TOOL)) return false;
   // Owners manage the connection; members read through it only what an owner lets their AI chat read.
   return role === "owner" || (contentRole(role) === "member" && row.chatTools.includes(SHEETS_TOOL));
+}
+
+/** Whether a person may also write spreadsheets through a connection: its write tools, as sheetsAccess has its read tool. */
+export function sheetsWriteAccess(row: { status: string; tools: { name: string }[]; chatTools: string[] }, role: WorkspaceRole): boolean {
+  if (!sheetsAccess(row, role) || !WRITE_TOOLS.every((tool) => row.tools.some((t) => t.name === tool))) return false;
+  return role === "owner" || WRITE_TOOLS.every((tool) => row.chatTools.includes(tool));
 }
 
 const ID = /^[A-Za-z0-9_-]{20,200}$/;
@@ -142,8 +182,13 @@ export type SheetsMeta = {
 
 /** What a run asks for first: the spreadsheet's name and zone, and its sheets. */
 export const META_FIELDS = ["properties.title", "properties.timeZone", "sheets.properties.sheetId", "sheets.properties.title", "sheets.properties.gridProperties"];
-/** What it asks for then: each cell's typed value, its text as shown, and its number format. */
-export const GRID_FIELDS = ["sheets.data.rowData.values.effectiveValue", "sheets.data.rowData.values.formattedValue", "sheets.data.rowData.values.effectiveFormat.numberFormat.type"];
+/** What it asks for then: each cell's typed value, its text as shown, its number format and its formula. */
+export const GRID_FIELDS = [
+  "sheets.data.rowData.values.effectiveValue",
+  "sheets.data.rowData.values.formattedValue",
+  "sheets.data.rowData.values.effectiveFormat.numberFormat.type",
+  "sheets.data.rowData.values.userEnteredValue.formulaValue",
+];
 
 const isObject = (value: unknown): value is Record<string, unknown> => !!value && typeof value === "object" && !Array.isArray(value);
 const count = (value: unknown) => (typeof value === "number" && Number.isInteger(value) && value >= 0 ? value : 0);
@@ -194,6 +239,7 @@ export type SheetCell = {
   effectiveValue?: { stringValue?: string; numberValue?: number; boolValue?: boolean; errorValue?: unknown };
   formattedValue?: string;
   effectiveFormat?: { numberFormat?: { type?: string } };
+  userEnteredValue?: { formulaValue?: string };
 };
 
 /** The rows of cells in the tool's answer for one range (an empty row is []). */
@@ -271,17 +317,21 @@ export function serialDay(serial: number): string | null {
   return Number.isNaN(at.getTime()) ? null : at.toISOString().slice(0, 10);
 }
 
+/** The spreadsheet's zone, or UTC when it is none Leafdesk knows. */
+function zoneOr(timeZone: string) {
+  try {
+    new Intl.DateTimeFormat("en-US", { timeZone });
+    return timeZone;
+  } catch {
+    return "UTC";
+  }
+}
+
 /** A date-time serial as the instant it names in the spreadsheet's zone (ISO, UTC), to the minute. */
 export function serialTime(serial: number, timeZone: string): string | null {
   const day = Math.floor(serial);
   const minutes = Math.round((serial - day) * 1440);
-  let zone = timeZone;
-  try {
-    new Intl.DateTimeFormat("en-US", { timeZone: zone });
-  } catch {
-    zone = "UTC";
-  }
-  const at = new Date(zonedInstant(day - SERIAL_EPOCH, minutes, zone));
+  const at = new Date(zonedInstant(day - SERIAL_EPOCH, minutes, zoneOr(timeZone)));
   return Number.isNaN(at.getTime()) ? null : at.toISOString();
 }
 
@@ -325,4 +375,196 @@ export function sheetItems(grid: SheetCell[][], query: Pick<SheetsQuery, "keyCol
     for (const c of columns) values[c.property] = cellValue(c.kind, row[c.index], timeZone);
     return [{ key: keyText, title: cellText(row[title]).trim().slice(0, 2000) || keyText, values }];
   });
+}
+
+/** Whether a cell holds a formula. */
+const isFormula = (cell: SheetCell | undefined) => typeof cell?.userEnteredValue?.formulaValue === "string";
+
+/** The columns (by index) with a formula in a cell below the header: a sync never writes them. */
+export function formulaColumns(grid: SheetCell[][]): Set<number> {
+  const found = new Set<number>();
+  for (const row of grid.slice(1)) row.forEach((cell, index) => isFormula(cell) && found.add(index));
+  return found;
+}
+
+/** A value as a cell takes it: what `update_values` writes. */
+export type CellInput = string | number | boolean;
+
+/**
+ * A row's value as its column's cell takes it ("" to empty it, false for an unticked box), the
+ * start of a range of dates, to the minute; undefined for what isn't written: text starting with
+ * "=", which a sheet could take for a formula.
+ */
+export function sheetInput(kind: SheetsKind, value: unknown, timeZone: string): CellInput | undefined {
+  if (value === null || value === undefined || value === "") return kind === "checkbox" ? false : "";
+  switch (kind) {
+    case "number":
+      return typeof value === "number" && Number.isFinite(value) ? value : undefined;
+    case "checkbox":
+      return value === true;
+    case "date":
+    case "time": {
+      const start = String(value).split("/")[0];
+      if (isDay(start)) return dayNumber(start) + SERIAL_EPOCH;
+      const at = Date.parse(start);
+      if (Number.isNaN(at)) return undefined;
+      const zone = zoneOr(timeZone);
+      if (kind === "date") return localDay(at, zone) + SERIAL_EPOCH;
+      return Math.round(((at + zoneOffset(at, zone)) / 86_400_000 + SERIAL_EPOCH) * 1440) / 1440;
+    }
+    default: {
+      const text = typeof value === "string" ? value : String(value);
+      return /^\s*=/.test(text) ? undefined : text;
+    }
+  }
+}
+
+/** Whether two values of a column's kind are the same (a missing value, "" and an unticked box alike; times to the minute). */
+export function sameValue(kind: SheetsKind, a: unknown, b: unknown): boolean {
+  const empty = (v: unknown) => v === null || v === undefined || v === "" || v === false;
+  if (empty(a) || empty(b)) return empty(a) && empty(b);
+  switch (kind) {
+    case "number":
+      return Number(a) === Number(b);
+    case "checkbox":
+      return true;
+    case "date":
+      return String(a).split("/")[0] === String(b).split("/")[0];
+    case "time": {
+      const minute = (v: unknown) => Math.round(Date.parse(String(v).split("/")[0]) / 60_000);
+      return minute(a) === minute(b);
+    }
+    default:
+      return String(a).trim() === String(b).trim();
+  }
+}
+
+/** A change waiting to be written (a `sheets_write` row). */
+export type PendingWrite = { id: string; rowId: string; created: boolean; before: Record<string, unknown> };
+
+/** What a run writes: cells of rows the sheet has, rows to add after its last, and the changes it is done with. */
+export type WritePlan = {
+  /** One per sheet row: its number (from 1), the first column (from 0) and the cells from there (null leaves one as it is). */
+  updates: { row: number; column: number; values: (CellInput | null)[] }[];
+  /** Rows to add, from column A, at sheet row `appendAt` on (right below the last row with anything in it). */
+  appends: (CellInput | null)[][];
+  appendAt: number;
+  /** The entries written, already the same, given up (the sheet changed too, the row is gone) or left out. */
+  done: string[];
+  /** New rows that take their key from their title (the key column names rows): their key property gets it first. */
+  keyed: { rowId: string; key: string }[];
+  /**
+   * By entry, of rows the sheet has (or gets): what each field it looked at holds in the sheet once
+   * written, which an entry changed again meanwhile takes as its `before`.
+   */
+  settled: Record<string, Record<string, unknown>>;
+};
+
+/**
+ * What to write for the changes waiting (lib/sheets-sync explains the rules), given the sheet as
+ * just read (`grid` from the header row down) and the rows as they are now (missing once gone or
+ * in the trash). Entries left out of `done` wait: new rows without a key yet. `taken`: the keys rows
+ * of the database already have: a new row titled like one of them stays in Leafdesk alone, so two
+ * rows never share a key.
+ */
+export function planWrites(
+  grid: SheetCell[][],
+  query: Pick<SheetsQuery, "keyColumn" | "titleColumn" | "headerRow">,
+  mapping: SheetsMapping,
+  timeZone: string,
+  pending: PendingWrite[],
+  rows: Map<string, { title: string; properties: Record<string, unknown> }>,
+  taken: Set<string> = new Set(),
+): WritePlan {
+  const lastData = grid.findLastIndex((cells) => cells.some((cell) => cellText(cell).trim() !== ""));
+  const plan: WritePlan = { updates: [], appends: [], appendAt: query.headerRow + Math.max(lastData, 0) + 1, done: [], keyed: [], settled: {} };
+  const headers = sheetHeaders(grid[0] ?? []);
+  const at = (name: string) => headers.find((h) => h.name === name)?.index;
+  const keyIndex = at(query.keyColumn);
+  if (keyIndex === undefined) return plan;
+  const formulas = formulaColumns(grid);
+  const fields = new Map<string, { index: number; kind: SheetsKind }>();
+  for (const c of mapping.columns) {
+    const index = at(c.column);
+    if (index !== undefined && index !== keyIndex && !formulas.has(index)) fields.set(c.property, { index, kind: c.kind });
+  }
+  const titleIndex = query.titleColumn === query.keyColumn ? undefined : at(query.titleColumn);
+  if (titleIndex !== undefined && !formulas.has(titleIndex)) fields.set(TITLE_FIELD, { index: titleIndex, kind: "text" });
+
+  // A key's sheet row, the first with it (as a run reads them).
+  const byKey = new Map<string, number>();
+  grid.forEach((cells, i) => {
+    const key = cellText(cells[keyIndex]).trim();
+    if (i > 0 && key && !byKey.has(key)) byKey.set(key, i);
+  });
+  const valueOf = (row: { title: string; properties: Record<string, unknown> }, field: string) =>
+    field === TITLE_FIELD ? row.title.trim() || null : row.properties[field];
+
+  for (const entry of pending) {
+    const row = rows.get(entry.rowId);
+    if (!row) {
+      plan.done.push(entry.id);
+      continue;
+    }
+    const own = row.properties[mapping.key];
+    let key = typeof own === "string" ? own.trim() : "";
+    // A new row in a sheet whose key column names rows is found by its title.
+    const fromTitle = !key && entry.created && query.titleColumn === query.keyColumn ? row.title.trim() : "";
+    key ||= fromTitle;
+    if (!key) {
+      if (!entry.created) plan.done.push(entry.id);
+      continue;
+    }
+    plan.done.push(entry.id);
+    if (fromTitle && taken.has(key)) continue;
+    if (fromTitle) plan.keyed.push({ rowId: entry.rowId, key });
+    const index = byKey.get(key);
+    if (index === undefined) {
+      // A row that left the sheet stays out of it; one made in Leafdesk is added.
+      if (!entry.created) continue;
+      const cells: (CellInput | null)[] = Array(Math.max(keyIndex, ...[...fields.values()].map((f) => f.index)) + 1).fill(null);
+      cells[keyIndex] = key;
+      const settled: Record<string, unknown> = {};
+      for (const [field, { index: column, kind }] of fields) {
+        const input = sheetInput(kind, valueOf(row, field), timeZone);
+        if (input !== undefined && input !== "" && input !== false) cells[column] = input;
+        settled[field] = input === undefined ? null : valueOf(row, field);
+      }
+      plan.settled[entry.id] = settled;
+      plan.appends.push(cells);
+      byKey.set(key, -1);
+      continue;
+    }
+    if (index < 0) continue;
+    const cells = grid[index];
+    const changed = new Map<number, CellInput>();
+    const settled: Record<string, unknown> = {};
+    plan.settled[entry.id] = settled;
+    for (const field of entry.created ? fields.keys() : Object.keys(entry.before)) {
+      const target = fields.get(field);
+      if (!target || isFormula(cells[target.index])) continue;
+      const cell = cells[target.index];
+      const now = field === TITLE_FIELD ? cellText(cell).trim() || null : cellValue(target.kind, cell, timeZone);
+      const current = valueOf(row, field);
+      settled[field] = now;
+      if (sameValue(target.kind, current, now)) continue;
+      // Changed in the sheet too: the sheet's value stays (and comes back to the row).
+      if (!sameValue(target.kind, now, entry.created ? null : entry.before[field])) continue;
+      const input = sheetInput(target.kind, current, timeZone);
+      if (input === undefined) continue;
+      changed.set(target.index, input);
+      settled[field] = current;
+    }
+    if (!changed.size) continue;
+    const columns = [...changed.keys()].sort((a, b) => a - b);
+    const first = columns[0];
+    const values = Array.from({ length: columns.at(-1)! - first + 1 }, (_, i) => changed.get(first + i) ?? null);
+    plan.updates.push({ row: query.headerRow + index, column: first, values });
+  }
+  return plan;
+}
+
+/** The A1 range of `rows` × `columns` cells from sheet row `row` and column `column` (both from the sheet's start: 1 and 0). */
+export function cellRange(sheetTitle: string, row: number, column: number, columns: number, rows = 1) {
+  return `'${sheetTitle.replace(/'/g, "''")}'!${columnLetter(column)}${row}:${columnLetter(column + columns - 1)}${row + rows - 1}`;
 }

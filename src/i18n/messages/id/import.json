@@ -443,7 +443,7 @@
     }
   },
   "sheets": {
-    "help": "Buat database dari satu lembar spreadsheet Google yang tetap sinkron: setiap baris di bawah baris header menjadi satu baris di sini, ditemukan kembali lewat kolom kunci dan dinamai oleh kolom judul, dengan satu properti untuk setiap kolom bernama lainnya (teks, angka, kotak centang, tanggal dan waktu, sesuai isi kolom). Hingga {limit, number} sel. Perubahan hanya berjalan satu arah, dari lembar ke Leafdesk.",
+    "help": "Buat database dari satu lembar spreadsheet Google yang tetap sinkron: setiap baris di bawah baris header menjadi satu baris di sini, ditemukan kembali lewat kolom kunci dan dinamai oleh kolom judul, dengan satu properti untuk setiap kolom bernama lainnya (teks, angka, kotak centang, tanggal dan waktu, sesuai isi kolom). Hingga {limit, number} sel. Perubahan datang dari lembar, dan kembali ke sana juga jika Anda memilih “Dua arah”.",
     "loading": "Mencari koneksi Google Sheets…",
     "noConnection": "Tidak ada koneksi Google Sheets yang dapat Anda gunakan untuk sinkronisasi. Pemilik menambahkan Google Sheets di Pengaturan → Koneksi; anggota dapat memakainya setelah pemilik mencentang “Di obrolan” untuk alat get_spreadsheet.",
     "connection": "Koneksi Google Sheets",
@@ -456,6 +456,12 @@
     "keyPlaceholder": "Kolom pertama",
     "titlePlaceholder": "Kolom kunci",
     "namePlaceholder": "Nama lembar",
+    "direction": "Arah",
+    "directionRead": "Hanya dari lembar",
+    "directionBoth": "Dua arah",
+    "directionBothHelp": "Perubahan yang dibuat di sini ditulis ke lembar pada sinkronisasi berikutnya, dalam sekitar satu menit. Jika sel juga berubah di lembar, nilai lembar yang dipakai. Kolom kunci dan kolom berisi rumus tidak ditulis; baris baru ditambahkan di bawah baris terakhir; menghapus baris tidak menghapus apa pun di lembar.",
+    "directionNoWrite": "Untuk menulis balik, koneksi memerlukan alat update_values dan insert_dimension: pemilik dapat memakainya, anggota setelah pemilik mencentang “Di obrolan” untuk keduanya.",
+    "bothNeedsSchedule": "Menulis balik memerlukan sinkronisasi terjadwal.",
     "errors": {
       "unauthorized": "Koneksi Google Sheets perlu masuk ke Google lagi: pemilik melakukannya di Pengaturan → Koneksi.",
       "forbidden": "Koneksi tidak dapat dipakai untuk ini: akun Google-nya mungkin tidak bisa membuka spreadsheet, koneksi berada di ruang kerja lain, atau Anda tidak boleh membaca lewatnya.",

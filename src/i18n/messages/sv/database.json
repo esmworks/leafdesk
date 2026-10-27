@@ -2185,6 +2185,10 @@
     "connectionGone": "Borttagen anslutning",
     "lastRun": "Senast synkroniserad {when}, {count, plural, one {# rad} other {# rader}}",
     "overwrite": "Bladet är källan: De synkroniserade egenskaperna och radtitlarna skrivs över vid varje synkronisering, så ändra uppgifterna i bladet. Egenskaper du lägger till själv står kvar, och rader som lämnar bladet lämnas orörda.",
+    "formulaColumns": "Skrivs inte tillbaka (formler): {columns}",
+    "pending": "Rader som väntar på att skrivas till bladet: {count, number}",
+    "writeFailed": "Kunde inte skriva till bladet:",
+    "writeForbidden": "Anslutningens Google-konto får inte redigera kalkylarket, eller personen som synkningen körs som får inte skriva via anslutningen. Ändringar gjorda här väntar tills det går.",
     "stopConfirm": "Sluta synkronisera den här databasen? Raderna står kvar."
   }
 }

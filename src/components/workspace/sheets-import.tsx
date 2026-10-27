@@ -5,7 +5,7 @@ import { useEffect, useState } from "react";
 import { sheetsSourcesAction } from "@/app/actions/sheets-sync";
 import { Input } from "@/components/ui";
 import { DEFAULT_JIRA_INTERVAL, JIRA_INTERVALS, jiraIntervalKey } from "@/lib/jira-sync";
-import { MAX_HEADER_ROW, MAX_SHEET_CELLS, parseSheetLink, type SheetsSource } from "@/lib/sheets-sync";
+import { MAX_HEADER_ROW, MAX_SHEET_CELLS, parseSheetLink, type SheetsDirection, type SheetsSource } from "@/lib/sheets-sync";
 
 const selectClass = "h-8 w-full rounded-md border border-border bg-bg px-2 text-sm outline-none focus:border-accent disabled:opacity-60";
 const labelClass = "mb-1 block text-xs font-medium text-fg-muted";
@@ -18,14 +18,16 @@ export type SheetsSetup = {
   keyColumn: string;
   titleColumn: string;
   intervalMinutes: number;
+  direction: SheetsDirection;
   title: string;
 };
 
 /**
  * The import dialog's Google Sheets tab: the Google Sheets connection to read through (the ones
  * the person may use), a link to the sheet, the header row and the columns that find and name rows
- * (the sheet's own layout and its first column when left empty), how often to sync, and the
- * database's name and place. The sheet is read when the dialog submits. Tells the dialog the setup
+ * (the sheet's own layout and its first column when left empty), how often to sync, whether
+ * changes made in Leafdesk go back to the sheet (when the person may write through the connection,
+ * and only on a schedule), and the database's name and place. The sheet is read when the dialog submits. Tells the dialog the setup
  * (or null while it is incomplete) as it changes.
  */
 export function SheetsTab({
@@ -50,6 +52,7 @@ export function SheetsTab({
   const [titleColumn, setTitleColumn] = useState("");
   const [intervalMinutes, setIntervalMinutes] = useState<number>(DEFAULT_JIRA_INTERVAL);
   const [name, setName] = useState("");
+  const [direction, setDirection] = useState<SheetsDirection>("read");
 
   useEffect(() => {
     let live = true;
@@ -69,14 +72,17 @@ export function SheetsTab({
   const header = headerRow.trim() ? Number(headerRow) : null;
   const headerValid = header === null || (Number.isInteger(header) && header >= 1 && header <= MAX_HEADER_ROW);
   const linkValid = parseSheetLink(link) !== null;
-  const valid = Boolean(connectionId) && linkValid && headerValid;
+  const canWrite = sources?.find((s) => s.id === connectionId)?.canWrite ?? false;
+  // Writing back needs a connection the person may write through, and a schedule.
+  const way: SheetsDirection = canWrite ? direction : "read";
+  const valid = Boolean(connectionId) && linkValid && headerValid && (way === "read" || intervalMinutes > 0);
   useEffect(() => {
     onSetup(
       valid
-        ? { connectionId, link: link.trim(), headerRow: header, keyColumn: keyColumn.trim(), titleColumn: titleColumn.trim(), intervalMinutes, title: name }
+        ? { connectionId, link: link.trim(), headerRow: header, keyColumn: keyColumn.trim(), titleColumn: titleColumn.trim(), intervalMinutes, direction: way, title: name }
         : null,
     );
-  }, [valid, connectionId, link, header, keyColumn, titleColumn, intervalMinutes, name, onSetup]);
+  }, [valid, connectionId, link, header, keyColumn, titleColumn, intervalMinutes, way, name, onSetup]);
 
   if (sources === null) {
     return error ? (
@@ -155,14 +161,35 @@ export function SheetsTab({
           <span className={labelClass}>{t("jira.every")}</span>
           <select className={selectClass} value={intervalMinutes} disabled={busy} onChange={(e) => setIntervalMinutes(Number(e.target.value))}>
             {JIRA_INTERVALS.map((minutes) => (
-              <option key={minutes} value={minutes}>
+              <option key={minutes} value={minutes} disabled={way === "both" && minutes === 0}>
                 {t(`jira.intervals.${jiraIntervalKey(minutes)}`)}
               </option>
             ))}
           </select>
         </label>
+        <label className="block">
+          <span className={labelClass}>{t("sheets.direction")}</span>
+          <select
+            className={selectClass}
+            value={way}
+            disabled={busy || !canWrite}
+            onChange={(e) => {
+              const next = e.target.value as SheetsDirection;
+              setDirection(next);
+              if (next === "both" && intervalMinutes === 0) setIntervalMinutes(DEFAULT_JIRA_INTERVAL);
+            }}
+          >
+            <option value="read">{t("sheets.directionRead")}</option>
+            <option value="both">{t("sheets.directionBoth")}</option>
+          </select>
+        </label>
         {destinationPicker}
       </div>
+      {way === "both" ? (
+        <p className="text-xs text-fg-muted">{t("sheets.directionBothHelp")}</p>
+      ) : (
+        !canWrite && <p className="text-xs text-fg-muted">{t("sheets.directionNoWrite")}</p>
+      )}
     </>
   );
 }
