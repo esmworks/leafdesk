@@ -108,6 +108,12 @@ export type AiLimits = {
   concurrency: number;
   /** For openai-compatible servers, whose context size we can't look up. */
   contextWindow: number;
+  /**
+   * US dollars one chat question, research answer or agent run may spend on the model
+   * (AI_RUN_LIMIT_USD): past it, the model answers with what it has. Models without a known price
+   * cost nothing here; RUN_ROUNDS bounds them.
+   */
+  runLimitUsd: number;
 };
 
 export type AiConfig = {
@@ -148,6 +154,24 @@ function positive(env: Env, name: string, fallback: number, problems: string[]) 
   return Math.floor(n);
 }
 
+/**
+ * Model turns one chat question, research answer or agent run may take, for models whose price
+ * isn't known (local and openai-compatible ones): AI_RUN_LIMIT_USD never stops them.
+ */
+export const RUN_ROUNDS = 100;
+
+/** Like `positive`, keeping fractions (dollars). */
+function amount(env: Env, name: string, fallback: number, problems: string[]) {
+  const raw = clean(env[name]);
+  if (raw === null) return fallback;
+  const n = Number(raw);
+  if (!Number.isFinite(n) || n <= 0) {
+    problems.push(`${name} must be a positive number (using ${fallback})`);
+    return fallback;
+  }
+  return n;
+}
+
 function url(raw: string | null, name: string, problems: string[]) {
   if (raw === null) return null;
   const parsed = URL.parse(raw);
@@ -168,6 +192,7 @@ export function readAiConfig(env: Env = process.env): AiConfig {
     workspacePerMinute: positive(env, "AI_WORKSPACE_RATE_LIMIT", 120, problems),
     concurrency: positive(env, "AI_CONCURRENCY", 2, problems),
     contextWindow: positive(env, "AI_CONTEXT_WINDOW", 32_768, problems),
+    runLimitUsd: amount(env, "AI_RUN_LIMIT_USD", 10, problems),
   };
 
   const providerRaw = clean(env.AI_PROVIDER)?.toLowerCase() ?? null;

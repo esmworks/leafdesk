@@ -33,8 +33,9 @@ themselves. When an answer to a public form started it and no member stands behi
 (it was anonymous, or came from someone outside the workspace), the agent is held the same way to
 what the member who published the form may; if they have left the workspace, the run ends as
 `noAccess`. Bear in mind that whoever answers may be able to read the row afterwards: the publisher's
-access is the bound, not the answerer's. A run takes at most 8 model turns,
-makes at most 5 changes and comments, and lasts at most 2 minutes. Runs are queued and done a few at
+access is the bound, not the answerer's. A run takes model turns until it answers or has spent
+`AI_RUN_LIMIT_USD` (10 US dollars by default; then it answers with what it has), and makes at most
+5 changes and comments. Runs are queued and done a few at
 a time (`AI_CONCURRENCY`), each turn within the workspace's AI allowance
 (`AI_WORKSPACE_RATE_LIMIT`): a run waits for its turn rather than failing. Each run is kept for
 30 days after it finishes, with what the agent did step by step, its final answer, the tokens it
@@ -227,8 +228,8 @@ uses its connections' tools and answers), proposes no notes, and never asks furt
 held to whose access holds the asking run (the member whose change started it, the owner who asked
 for it), and when no one stands behind what the asking run read (an anonymous form answer, an
 untrusted trigger's event), each of its connection calls waits for an owner as well. Who sees what
-it did is who sees the asking run. A run asks at most 3 times; its own time stands still while it
-waits, for up to 4 minutes of waiting in all (so a 2-minute run lasts at most 6). A helper that is
+it did is who sees the asking run. A run asks at most 3 times, and waits for up to 4 minutes in
+all. A helper that is
 paused, archived or over its monthly token limit isn't run: the asking run hears why and goes on
 without it, as it does when a helper waits for an owner's approval or isn't done in time (its run
 finishes on its own). The asking run's history shows "Asked *agent*: *task*", opening the helper's

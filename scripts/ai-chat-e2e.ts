@@ -4,7 +4,7 @@
  * provider, and scripted per test: the question's search, the model's search_pages and read_page
  * calls, the streamed answer and its citations; conversations (kept, continued with their history,
  * listed, shown, deleted, only ever to their owner, gone when the person leaves the workspace);
- * stopping an answer; a chat that takes many turns, research's turn limit, input and rate limits and a failing provider; the page
+ * stopping an answer; the turns of a model without a price, input and rate limits and a failing provider; the page
  * and teamspace scopes (kept with each question); the workspace switch and a server without AI; and access, checked on every tool call: a
  * private page shared with nobody, a private teamspace, a page shared with a group, a guest, another
  * workspace, and a page whose access is taken back between two questions. Also the model picked
@@ -39,13 +39,13 @@ const { createGroup } = await import("@/server/groups");
 const { createTeamspace, joinTeamspace } = await import("@/server/teamspaces");
 const { removeMember, updateWorkspaceSettings } = await import("@/server/workspaces");
 const { AccessError } = await import("@/server/access");
-const { isAiError, promptRoomFor } = await import("@/server/ai");
+const { isAiError, promptRoomFor, RUN_ROUNDS } = await import("@/server/ai");
 const { resetAi, setAiEnv } = await import("@/server/ai/testing");
 const { startFakeOpenAi, textOf } = await import("@/server/ai/fake-openai");
 type FakeChatRequest = import("@/server/ai/fake-openai").FakeChatRequest;
 type FakeReply = import("@/server/ai/fake-openai").FakeReply;
 const index = await import("@/server/semantic-index");
-const { deleteConversations, getConversation, listConversations, RESEARCH_ROUNDS, startChat } = await import("@/server/ai-chat");
+const { deleteConversations, getConversation, listConversations, startChat } = await import("@/server/ai-chat");
 const { setMemoryUse } = await import("@/server/ai-memory");
 const { decideChange } = await import("@/server/ai-chat-approvals");
 const { decidePageReview, getPageReview } = await import("@/server/page-review");
@@ -468,37 +468,23 @@ try {
   check(failed.error !== null && !failed.done, "a failing provider ends the answer with an error", failed.events);
   check((await listConversations(dave, workspaceId)).length === before, "…and leaves no empty conversation behind");
 
-  // A chat question has no turn limit: it runs until the model answers.
+  // The fake model has no price, so AI_RUN_LIMIT_USD never stops it: RUN_ROUNDS does. Its last turn
+  // only calls tools, so it's asked once more, and that text is the answer.
   let rounds = 0;
   fake.setChat(() => {
     rounds++;
-    if (rounds > 30) return { text: "Enough: see [1]." };
+    if (rounds > RUN_ROUNDS) return { text: "Done what I could: see [1]." };
     return { text: "", toolCalls: [{ name: "search_pages", arguments: { query: `tyres ${rounds}` } }] };
   });
   fake.chats.length = 0;
-  const looping = await ask(dave, { workspaceId, message: "Search a long while about tyres" });
-  check(looping.done && fake.chats.length === 31 && looping.text === "Enough: see [1].", "a chat question takes as many turns as the model needs", {
+  const looping = await ask(dave, { workspaceId, message: "Search forever about tyres, never answer" });
+  check(looping.done && fake.chats.length === RUN_ROUNDS + 1 && looping.text === "Done what I could: see [1].", `a model without a price gets ${RUN_ROUNDS} turns, then one more to answer when its last only calls tools`, {
     turns: fake.chats.length,
     text: looping.text,
     error: looping.error,
   });
-
-  // Research has a last turn: one that only calls tools is asked once more, and that text is the report.
-  rounds = 0;
-  fake.setChat(() => {
-    rounds++;
-    if (rounds > RESEARCH_ROUNDS) return { text: "Done what I could: see [1]." };
-    return { text: "", toolCalls: [{ name: "search_pages", arguments: { query: `tyres ${rounds}` } }] };
-  });
-  fake.chats.length = 0;
-  const closing = await ask(dave, { workspaceId, message: "Research tyres forever, never answer", research: true });
-  check(closing.done && fake.chats.length === RESEARCH_ROUNDS + 1 && closing.text.startsWith("Done what I could"), "research whose last turn only calls tools is asked once more, and that text is the report", {
-    turns: fake.chats.length,
-    text: closing.text,
-    error: closing.error,
-  });
-  check(toolResults(fake.chats[RESEARCH_ROUNDS - 1]).at(-1)?.includes("answer now"), "…it's told to answer before its last turn");
-  check(toolResults(fake.chats[RESEARCH_ROUNDS]).at(-1)?.includes("Not run"), "…and the last turn's tool calls aren't run");
+  check(toolResults(fake.chats[RUN_ROUNDS - 1]).at(-1)?.includes("answer now"), "…it's told to answer before its last turn");
+  check(toolResults(fake.chats[RUN_ROUNDS]).at(-1)?.includes("Not run"), "…and the last turn's tool calls aren't run");
 
   const room = await promptRoomFor(workspaceId);
   check((await refusal(() => startChat(dave, { workspaceId, message: "x".repeat(room + 1) }))) === "tooLarge", "a question longer than the model takes is refused");

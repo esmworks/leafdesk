@@ -126,12 +126,15 @@
   "The AI took too long to answer" while it was still coming. It now counts only silence: every
   part the provider sends starts it again, and the answer's length stays bounded by
   `AI_MAX_OUTPUT_TOKENS`.
-- **The AI chat no longer ends with "The AI gave no answer" after a few steps.** A question took
-  at most six turns, so a task that searched and read a few pages before changing one ran out of
-  turns, and a last turn that still called a tool left no answer, although the change was made. A
-  question now takes as many turns as it needs, until the model answers or you stop it; the
-  workspace's rate and cost limits still count each turn. A research answer whose last turn calls
-  tools instead of writing the report is asked once more to write it.
+- **AI work is limited by what it costs, not by turns or minutes.** A chat question took at most
+  six turns, so a task that searched and read a few pages before changing one ran out of them and
+  ended in "The AI gave no answer", although the change was made; agents stopped after 8 turns
+  (16 on a schedule's run over a database) or 2 minutes (6), and research after 14 turns and
+  400,000 tokens. Each chat question, research answer and agent run now goes on until it answers or
+  has spent the new `AI_RUN_LIMIT_USD` (10 US dollars by default), and then answers with what it
+  has; a last turn that still calls tools is asked once more, its calls not run, instead of
+  failing. Models without a known price (local and OpenAI-compatible ones) take at most 100 turns.
+  The workspace's rate and cost limits still count each turn.
 - **Text is drawn in the system's own typeface again** where Inter isn't installed. Since 0.6.4
   Latin letters fell to a Chinese typeface on macOS, whose faces came before the system's.
 - **Recordings no longer end in lines nobody said.** Over silence or a mumbled stretch, Whisper

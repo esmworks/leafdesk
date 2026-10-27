@@ -165,8 +165,9 @@ pages, up to 8,000 characters), and the model decides what to look at. It can se
 (`search_pages`, full-text and, with embeddings, by meaning), read a whole page (`read_page`; a
 database reads as its properties and its first 200 rows with their values) and list the rows of a
 database that match filters on its properties (`query_database`, the same filters and sorts as
-the MCP tool, each row a source to cite), as many turns as the question needs (each one counts
-against the workspace's rate and cost limits, and *Stop* ends it); greetings are answered
+the MCP tool, each row a source to cite), as many turns as the question needs until it has spent
+`AI_RUN_LIMIT_USD` (then it answers with what it has; each turn also counts against the workspace's
+rate and cost limits, and *Stop* ends it); greetings are answered
 without tools. A database row found by a search comes with its database and its values (those the
 person may see). The chat's full-text search finds pages with any of the search's words (as
 prefixes, so "ekstreleri" finds "ekstresi"; question words such as "what" or "nedir" left out;
@@ -261,8 +262,8 @@ databases, reads attached files and, where web search is on, searches the web an
 results, and finally writes a long report in Markdown with a summary, a section per sub-question
 and what remains open, citing every source by number (web sources as links). It only reads:
 nothing is changed, no note is kept and no other service is called, whatever the mode under the
-box. It takes up to 14 turns and 400,000 tokens (each turn also counts against the rate and cost
-limits like any other); past them it writes the report with what it has. *Save as page* under a
+box. It takes turns until it has spent `AI_RUN_LIMIT_USD` (each turn also counts against the rate and
+cost limits like any other); past it, it writes the report with what it has. *Save as page* under a
 report makes it a private page at the top of the workspace, its citations links to the sources
 with a list of them at the end.
 
@@ -352,6 +353,7 @@ every change and note it wants is asked about, also in *Auto*.
 | `AI_WORKSPACE_RATE_LIMIT` | 120 | Requests per workspace per minute, AI property values included (they wait for their turn) |
 | `AI_CONCURRENCY` | 2 | AI property values worked out at the same time |
 | `AI_CONTEXT_WINDOW` | 32768 | Context size, in tokens, assumed for OpenAI-compatible and local models (the chat and agents fit their prompt in it) |
+| `AI_RUN_LIMIT_USD` | 10 | US dollars one chat question, research answer or agent run may spend on the model. Past it, the next turn answers with what it has (a turn that still calls tools instead is asked once more, its calls not run). Models without a known price (local and OpenAI-compatible ones) cost nothing here and take at most 100 turns instead |
 | `AI_CHAT_MODELS` | none | More models the chat's box offers to pick from, comma-separated (see *Picking the model*) |
 | `AI_IMAGE_INPUT` | false | Models the catalog doesn't know (OpenAI-compatible and local ones) take images attached to a chat question |
 | `AI_MONTHLY_LIMIT_USD` | none | The most each workspace's AI may cost the server's `AI_*` key in a calendar month, in US dollars (see below) |

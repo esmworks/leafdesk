@@ -156,10 +156,8 @@ import { connectionInputs, describeConnection, withConnectionErrors } from "./co
 import { MAX_MEMORIES, MAX_MEMORY_CHARS } from "@/lib/ai-chat";
 import {
   AGENT_RUN_HISTORY_DAYS,
-  AGENT_RUN_TIMEOUT_MS,
   agentMemoryPath,
   agentRunPath,
-  MAX_AGENT_ROUNDS,
   MAX_AGENT_SCHEDULES,
   MAX_AGENT_SKILLS,
   MAX_AGENT_WRITES,
@@ -2700,7 +2698,7 @@ export function createMcpServer(principal: McpPrincipal) {
       ),
   );
 
-  const RUN_NOTE = `An automation's run_agent action starts a run on the row that changed: the agent reads its instructions and the task, may read what is shared with it (on a run a member's change started, only what that member can open as well; on one an anonymous or outside answer to a public form started, only what the form's publisher can open as well), and may change or comment on that row only, in at most ${MAX_AGENT_ROUNDS} model turns, ${MAX_AGENT_WRITES} changes and ${AGENT_RUN_TIMEOUT_MS / 60_000} minutes. Runs need AI set up on the server and on for the workspace; otherwise they end with code aiOff.`;
+  const RUN_NOTE = `An automation's run_agent action starts a run on the row that changed: the agent reads its instructions and the task, may read what is shared with it (on a run a member's change started, only what that member can open as well; on one an anonymous or outside answer to a public form started, only what the form's publisher can open as well), and may change or comment on that row only, with at most ${MAX_AGENT_WRITES} changes. Runs need AI set up on the server and on for the workspace; otherwise they end with code aiOff.`;
 
   /** The agents an agent can ask, as get_agent and the write tools add them. */
   const helpersOf = async (agentId: string) => ({ helper_agent_ids: (await helperIdsOf([agentId])).get(agentId) ?? [] });

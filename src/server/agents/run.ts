@@ -10,12 +10,12 @@
  * from the automations' worker, so a long run never holds up a webhook.
  *
  * A run is a short conversation with the model: the agent's instructions, what happened (a row
- * changed, or an event came in), a map of what the agent can open, then up to MAX_AGENT_ROUNDS
- * turns of tools. Leafdesk's own tools are narrow: reading what is shared with the agent; on a
+ * changed, or an event came in), a map of what the agent can open, then turns of tools until it
+ * answers or has spent AI_RUN_LIMIT_USD (RUN_ROUNDS for a model without a price). Leafdesk's own tools are narrow: reading what is shared with the agent; on a
  * row's run, changing or commenting on that row; on an event's run, adding rows to databases
  * shared with it to edit (a log of what came in); at most MAX_AGENT_WRITES changes in all. A
  * schedule's run on a database may change and comment on that database's rows instead, at most
- * MAX_SCHEDULED_WRITES times, over more turns (MAX_SCHEDULED_ROUNDS), and tells the owner who set
+ * MAX_SCHEDULED_WRITES times, and tells the owner who set
  * the schedule how it went (`agent_report`). Changes it makes start no automations
  * (`asAutomation`), so agents can't set each other off. On top of those come the tools of
  * connections an owner allowed it: one that only reads runs at once, except where what the run
@@ -53,13 +53,11 @@ import { agentRun, connection, connectionEvent, connectionTrigger, notification,
 import {
   accessSource,
   AGENT_RUN_HISTORY_DAYS,
-  AGENT_RUN_TIMEOUT_MS,
   isEventRun,
   isMentionRun,
   isRowRun,
   isScheduleRun,
   MAX_AGENT_PROMPT,
-  MAX_AGENT_ROUNDS,
   MAX_AGENT_WRITES,
   MAX_SCHEDULED_WRITES,
   MENTION_THREAD_CHARS,
@@ -81,7 +79,7 @@ import { threadBefore } from "@/lib/comments";
 import { agentWebCallAsks, scheduledWebCallGoes } from "@/lib/web-calls";
 import { AccessError, findMembership, hasLevel, inWorkspace, pageAccessOf } from "@/server/access";
 import { runActingFor } from "@/server/acting-for";
-import { aiConfig, AiError, complete, isAiError, promptRoomFor, takeWorkspaceCapacity, type AiMessage, type AiResult, type AiTool, type AiToolCall } from "@/server/ai";
+import { aiConfig, AiError, complete, isAiError, promptRoomFor, RUN_ROUNDS, takeWorkspaceCapacity, type AiMessage, type AiResult, type AiTool, type AiToolCall } from "@/server/ai";
 import { agentChatPrompt, agentEventPrompt, agentMentionPrompt, agentRequestPrompt, agentSchedulePrompt, agentSystemPrompt, agentTaskPrompt } from "@/server/ai/prompts";
 import { aiAvailable } from "@/server/ai-writing";
 import { memoryAvailable, memoryForPrompt } from "@/server/ai-memory";
@@ -131,9 +129,6 @@ const THOUGHT_CHARS = 300;
 const EVENT_CHARS = 8_000;
 /** The most of the prompt the agent's memory may take. */
 const MEMORY_CHARS = 6_000;
-/** A schedule's run on a database goes through the whole of it: more turns, and more time, than a row's. */
-const MAX_SCHEDULED_ROUNDS = 16;
-const SCHEDULED_RUN_TIMEOUT_MS = 6 * 60_000;
 /** The most of the database a schedule's run reads before its first turn. */
 const DATABASE_CHARS = 16_000;
 /** The share of the prompt a chat's earlier messages may take. */
@@ -563,9 +558,8 @@ async function converse(
   const rowRun = isRowRun(run.source);
   const scheduled = isScheduleRun(run.source);
   const databaseId = scheduledDatabase(run.source);
-  // Changes it may make in all, and turns with the model it may take.
+  // Changes it may make in all.
   const maxWrites = databaseId ? MAX_SCHEDULED_WRITES : MAX_AGENT_WRITES;
-  const maxRounds = databaseId ? MAX_SCHEDULED_ROUNDS : MAX_AGENT_ROUNDS;
   const eventRun = isEventRun(run.source);
   const mention = isMentionRun(run.source) ? run.source : null;
   // A mention's run may change the page its comment is on where the agent (and the member) may
@@ -598,10 +592,8 @@ async function converse(
   // Leafdesk's own tools this run makes only once an owner approves (none on a row's run). A row an
   // event's run proposes waits for review instead: nothing to approve before then.
   const ownApproved: ReadonlySet<string> = new Set([...(eventRun && !proposes ? EVENT_APPROVED_TOOLS : []), ...(askEveryTool || askedInWords ? webNames : [])]);
-  // The run's own time, from now: the wait for an answer doesn't count, nor (up to a point) the
-  // wait for agents it asks.
-  const clock = runClock(databaseId ? SCHEDULED_RUN_TIMEOUT_MS : AGENT_RUN_TIMEOUT_MS);
-  const signal = clock.signal;
+  // What the run may still wait for the agents it asks.
+  const clock = runClock();
   // A read-only chat isn't offered connections' tools that change something. Nor is a run held to
   // someone no owner answers for (one someone who isn't an owner asked for, set or chats in,
   // approvers.ts): each such call waits for an owner, and would only run out of time.
@@ -778,7 +770,7 @@ async function converse(
       if ((external.tool.kind === "write" || askEveryTool) && !approved) return null;
       const left = MAX_RUN_EXTERNAL_CHARS - externalChars;
       if (left <= 200) return { content: "You have read as much from connected services as one run may. Finish with what you have.", isError: true };
-      const out = await runConnectionTool({ entry: external, args: call.arguments, actorId: agent.userId, approvedBy: approved?.userId ?? null, room: left, signal });
+      const out = await runConnectionTool({ entry: external, args: call.arguments, actorId: agent.userId, approvedBy: approved?.userId ?? null, room: left });
       externalChars += out.chars;
       if (external.tool.kind === "write") writes += 1;
       return out;
@@ -937,18 +929,23 @@ async function converse(
     if (paused) return paused;
   }
 
+  // Still under way: a run that takes long isn't taken again as stale.
+  const stillRunning = () => db.update(agentRun).set({ nextAt: new Date() }).where(and(eq(agentRun.id, run.id), eq(agentRun.status, "running")));
+  const limitUsd = aiConfig().limits.runLimitUsd;
   let finalAnswer = "";
-  for (let round = Math.max(firstRound, usage.rounds); round < maxRounds; round++) {
+  // The last turn called tools instead of answering: it's asked once more, with none run.
+  let closing = false;
+  for (let round = Math.max(firstRound, usage.rounds); round < RUN_ROUNDS; round++) {
     if (round > firstRound) {
       const wait = takeWorkspaceCapacity(run.workspaceId);
       if (wait > 0) await new Promise((resolve) => setTimeout(resolve, Math.min(wait, 15_000)));
-      // Still under way: a run that takes long (a schedule's, over a database) isn't taken again as stale.
-      await db.update(agentRun).set({ nextAt: new Date() }).where(and(eq(agentRun.id, run.id), eq(agentRun.status, "running")));
+      await stillRunning();
     }
     // The month's tokens may have run out since the run started or was taken again (other runs of
     // the agent use them too); a new run's first turn was checked in processRun.
     if ((round > firstRound || saved) && (await overMonthlyLimit(agent))) return { status: "failed", code: "limitReached", steps, usage };
-    const last = round === maxRounds - 1;
+    // Past AI_RUN_LIMIT_USD (or RUN_ROUNDS' last turn, for a model without a price), it answers.
+    const last = round === RUN_ROUNDS - 1 || usage.costUsd >= limitUsd;
     let result: AiResult;
     try {
       result = await complete({
@@ -959,7 +956,6 @@ async function converse(
         system,
         messages,
         tools,
-        signal,
         sessionId: run.id,
       });
     } catch (error) {
@@ -981,6 +977,16 @@ async function converse(
     usage.outputTokens += result.usage.outputTokens;
     usage.costUsd += result.usage.costUsd;
     usage.model = result.model;
+    await stillRunning();
+    if (last && result.toolCalls.length && !result.text.trim() && !closing) {
+      closing = true;
+      messages.push(result.message);
+      for (const call of result.toolCalls) {
+        messages.push({ role: "tool", toolCallId: call.id, name: call.name, content: "Not run: this run has no turns left for tools. Answer now with what you have, and say what is left to do.", isError: true });
+      }
+      round -= 1;
+      continue;
+    }
     if (!result.toolCalls.length || last) {
       finalAnswer = result.text;
       break;

@@ -37,7 +37,7 @@ import { holdToLimit, recordUsage, usageLedger, usageNumbers, type AiUsageLedger
 
 export { AiError, aiErrorStatus, isAiError } from "./errors";
 export type { AiConfig, AiLimits } from "./config";
-export { CONTENT_CHARS, contentChars } from "./config";
+export { CONTENT_CHARS, contentChars, RUN_ROUNDS } from "./config";
 export type { AiThinking } from "./backend";
 export type { AiUsageLedger } from "./usage";
 

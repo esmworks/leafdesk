@@ -186,6 +186,7 @@ services:
       AI_WORKSPACE_RATE_LIMIT: ${AI_WORKSPACE_RATE_LIMIT:-}
       AI_CONCURRENCY: ${AI_CONCURRENCY:-}
       AI_CONTEXT_WINDOW: ${AI_CONTEXT_WINDOW:-}
+      AI_RUN_LIMIT_USD: ${AI_RUN_LIMIT_USD:-}
       AI_MONTHLY_LIMIT_USD: ${AI_MONTHLY_LIMIT_USD:-}
       # Voice notes stay off unless STT_PROVIDER and STT_MODEL are set (see .env.example).
       STT_PROVIDER: ${STT_PROVIDER:-}

@@ -87,6 +87,10 @@ describe("AI settings", () => {
     expect(config.limits.timeoutMs).toBe(5000);
     expect(config.limits.userPerMinute).toBe(20);
     expect(config.problems).toEqual(["AI_RATE_LIMIT must be a positive number (using 20)"]);
+    // A run's dollars keep their cents, and default to 10.
+    expect(config.limits.runLimitUsd).toBe(10);
+    expect(readAiConfig({ AI_RUN_LIMIT_USD: "2.5" }).limits.runLimitUsd).toBe(2.5);
+    expect(readAiConfig({ AI_RUN_LIMIT_USD: "0" }).problems).toEqual(["AI_RUN_LIMIT_USD must be a positive number (using 10)"]);
   });
 
   it("describes itself without the key", () => {
