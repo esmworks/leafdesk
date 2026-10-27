@@ -422,6 +422,12 @@
       "week": "Ultimi 7 giorni",
       "month": "Ultimi 30 giorni",
       "older": "Meno recenti"
+    },
+    "add": "Aggiungi",
+    "kind": {
+      "label": "Cosa fare",
+      "chat": "Chat",
+      "chatHint": "Risponde dallo spazio di lavoro e fa le modifiche che chiedi"
     }
   },
   "memory": {

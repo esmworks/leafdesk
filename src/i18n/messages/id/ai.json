@@ -422,6 +422,12 @@
       "week": "7 hari terakhir",
       "month": "30 hari terakhir",
       "older": "Lebih lama"
+    },
+    "add": "Tambah",
+    "kind": {
+      "label": "Apa yang dilakukan",
+      "chat": "Obrolan",
+      "chatHint": "Menjawab dari ruang kerja dan membuat perubahan yang kamu minta"
     }
   },
   "memory": {

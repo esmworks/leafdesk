@@ -63,11 +63,11 @@
   few seconds of speech are no longer taken for another language.
 - **Dictating in the AI chat shows how to stop.** While recording, the microphone becomes a red
   *Stop* button with the time in it, beside the button that cancels.
-- **The AI chat's box is tidier.** *Answer from* is a menu in the box's toolbar instead of a field
-  under it (under the box in the panel), the model picker shows models by name ("Claude Opus 5.5")
-  rather than id, files, skills and research sit on the left with where and how it answers on the
-  right, research mode is named while on, and the conversations in the sidebar are grouped by today,
-  yesterday, the previous 7 and 30 days and older.
+- **The AI chat's box is tidier.** *Chat* and *Research* are two tabs above the box; files and
+  skills are in a *+* menu; *Answer from* (under the box in the panel), the mode and the model sit
+  beside it as chips, the model shown by name ("Claude Opus 5.5") rather than id; dictation is next
+  to *Send*, which fills in once there is something to send. The conversations in the sidebar are
+  grouped by today, yesterday, the previous 7 and 30 days and older.
 
 - **Scheduled agents read only the web pages of their task and their searches.** A schedule's
   run used to read any address without asking, so text planted in a page or a row it read could

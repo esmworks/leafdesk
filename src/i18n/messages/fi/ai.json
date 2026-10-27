@@ -422,6 +422,12 @@
       "week": "Edelliset 7 päivää",
       "month": "Edelliset 30 päivää",
       "older": "Vanhemmat"
+    },
+    "add": "Lisää",
+    "kind": {
+      "label": "Mitä tehdään",
+      "chat": "Keskustelu",
+      "chatHint": "Vastaa työtilan pohjalta ja tekee pyytämäsi muutokset"
     }
   },
   "memory": {

@@ -422,6 +422,12 @@
       "week": "Senaste 7 dagarna",
       "month": "Senaste 30 dagarna",
       "older": "Äldre"
+    },
+    "add": "Lägg till",
+    "kind": {
+      "label": "Vad den ska göra",
+      "chat": "Chatt",
+      "chatHint": "Svarar utifrån arbetsytan och gör de ändringar du ber om"
     }
   },
   "memory": {

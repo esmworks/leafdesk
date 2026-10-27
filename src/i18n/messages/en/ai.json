@@ -422,6 +422,12 @@
       "week": "Previous 7 days",
       "month": "Previous 30 days",
       "older": "Older"
+    },
+    "add": "Add",
+    "kind": {
+      "label": "What to do",
+      "chat": "Chat",
+      "chatHint": "Answers from the workspace and makes the changes you ask for"
     }
   },
   "memory": {

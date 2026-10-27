@@ -222,7 +222,7 @@ that changes something at the service asks before every call, in *Auto* too, and
 reaches the model as outside data, and once an answer called a service, every change and note it
 wants is asked about, also in *Auto*. The audit log records each call as the person's.
 
-**Files in the chat.** The paperclip under the question box attaches files to a question, and so
+**Files in the chat.** *Attach files* in the box's *+* menu attaches files to a question, and so
 does dropping them on the box or pasting them: images (PNG, JPEG, GIF, WebP), PDF, Word and Excel
 documents, CSV, Markdown and text files, up to 5 per question, 20 MB each (images 5 MB). Each is
 uploaded as it is attached and shows as a chip with its name and size (a CSV file's rows and
@@ -253,7 +253,7 @@ AI_FAST_MODEL=claude-haiku-5-5
 AI_CHAT_MODELS=claude-opus-5-5
 ```
 
-**Research.** The telescope button in the box's toolbar (named *Research* while on) turns on research mode for the questions that
+**Research.** The *Research* tab above the question box turns on research mode for the questions that
 follow. The model first plans the sub-questions that together answer the question (shown as a
 step), then searches the workspace (full text and by meaning, as you), reads the best pages and
 databases, reads attached files and, where web search is on, searches the web and reads the best
@@ -733,7 +733,7 @@ list until it is restored.
   language and with its description, as a row of their skills database, theirs to change from then
   on. They need no setup: each works on whatever page, row or text it is pointed at. The texts are
   in `src/i18n/messages/<locale>/skillTemplates.json`.
-- **AI chat**: `/` at the start of the empty question box (or the skills button in its toolbar) lists
+- **AI chat**: `/` at the start of the empty question box (or *Use a skill* in its *+* menu) lists
   the skills; the one picked shows above the box and the next question goes to the model with its
   instructions, which the model is told to follow for that question only. They don't widen what the
   chat may change: the mode in the box's toolbar still decides. The question keeps the skill it used

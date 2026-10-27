@@ -422,6 +422,12 @@
       "week": "Önceki 7 gün",
       "month": "Önceki 30 gün",
       "older": "Daha eski"
+    },
+    "add": "Ekle",
+    "kind": {
+      "label": "Ne yapsın",
+      "chat": "Sohbet",
+      "chatHint": "Çalışma alanından yanıtlar ve istediğin değişiklikleri yapar"
     }
   },
   "memory": {

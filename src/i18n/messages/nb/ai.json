@@ -422,6 +422,12 @@
       "week": "Siste 7 dager",
       "month": "Siste 30 dager",
       "older": "Eldre"
+    },
+    "add": "Legg til",
+    "kind": {
+      "label": "Hva skal den gjøre",
+      "chat": "Chat",
+      "chatHint": "Svarer ut fra arbeidsområdet og gjør endringene du ber om"
     }
   },
   "memory": {

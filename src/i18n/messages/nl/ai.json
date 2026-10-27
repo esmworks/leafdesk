@@ -422,6 +422,12 @@
       "week": "Afgelopen 7 dagen",
       "month": "Afgelopen 30 dagen",
       "older": "Ouder"
+    },
+    "add": "Toevoegen",
+    "kind": {
+      "label": "Wat te doen",
+      "chat": "Chat",
+      "chatHint": "Antwoordt vanuit de werkruimte en maakt de wijzigingen waar je om vraagt"
     }
   },
   "memory": {

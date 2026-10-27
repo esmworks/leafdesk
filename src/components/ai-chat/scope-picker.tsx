@@ -6,6 +6,7 @@ import { useEffect, useState } from "react";
 import { listTeamspacesAction } from "@/app/actions/teamspaces";
 import { MenuItem, Popover } from "@/components/ui";
 import type { ChatScopeView } from "@/lib/ai-chat";
+import { chipTrigger } from "./composer-chip";
 
 /**
  * Where the chat answers from, a menu in the question box's toolbar (under the box in the panel):
@@ -63,7 +64,7 @@ export function ScopePicker({
           aria-haspopup="menu"
           aria-label={`${t("scope")}: ${shown}`}
           title={t("scope")}
-          className="flex h-7 min-w-0 items-center gap-1 rounded px-1.5 text-xs text-fg-muted hover:bg-bg-hover hover:text-fg disabled:opacity-50 disabled:hover:bg-transparent"
+          className={chipTrigger}
         >
           <Icon className="h-3.5 w-3.5 shrink-0" />
           <span className="max-w-44 min-w-0 truncate">{shown}</span>
