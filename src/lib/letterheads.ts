@@ -1,3 +1,5 @@
+import type { PdfTheme } from "@/lib/pdf-themes";
+
 /**
  * Letterheads: what a workspace's PDF files (server/pdf.ts) print around a page, set up by its
  * owners in Settings > PDF templates. A letterhead has a name (what the page menu and the AI chat
@@ -5,6 +7,8 @@
  * every page beside the logo (the first in bold: the company's name, then its address, tax number
  * …), lines at the foot, an accent color for the rules and table headers, and page numbers. One of
  * a workspace's letterheads may be its default, which PDFs use unless another (or none) is picked.
+ * A letterhead may have a theme (lib/pdf-themes) instead of its lines and accent: then the theme
+ * lays the paper out, the logo where its elements put it.
  *
  * Pure and client-safe.
  */
@@ -34,6 +38,8 @@ export type Letterhead = LetterheadFields & {
   hasLogo: boolean;
   /** Changes with the logo, so its URL can be cached. */
   logoVersion: string | null;
+  /** Its theme, set on its own (server/letterheads.ts setLetterheadTheme); null for none. */
+  theme: PdfTheme | null;
 };
 
 export const MAX_LETTERHEADS = 20;

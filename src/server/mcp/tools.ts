@@ -114,6 +114,10 @@ import * as workspaces from "@/server/workspaces";
 import * as ops from "@/server/operations";
 import * as skills from "@/server/skills";
 import { filterCombinatorInput, filtersInput, id, sortsInput } from "@/server/operations";
+import { sameLetterheadName } from "@/lib/letterheads";
+import { pdfThemeSchema } from "@/lib/pdf-themes";
+import { checkedTheme, createLetterhead, listLetterheads, setDefaultLetterhead, setLetterheadTheme } from "@/server/letterheads";
+import { pdfThemeDoc } from "@/server/pdf-theme-docs";
 import { briefly, checked, DOC_TOPICS, docTopicOf, docUri, schemaText, see, type Doc, type DocTopic } from "./docs";
 import { idsFromLinks, jsonResult, MAX_MARKDOWN_CHARS, pageUrl, runTool, sliceText, ToolInputError, toolErrorFor } from "./format";
 import * as automations from "@/server/automations/manage";
@@ -1290,6 +1294,11 @@ function allDocs(): Record<DocTopic, Doc> {
       description: "Every trigger and step of database automations with its fields, templates, retries and limits.",
       text: [AUTOMATIONS_DOC, AUTOMATION_STEPS_DOC, schemaText("trigger", triggerInput), schemaText("actions", actionsInput)].join("\n\n"),
     },
+    "pdf-themes": {
+      title: "PDF themes",
+      description: "How a PDF template's theme is written: colors, margins, tables, and the logo, texts, fields, boxes and columns laid out around the page's text.",
+      text: pdfThemeDoc(),
+    },
   };
   return docs;
 }
@@ -1729,6 +1738,62 @@ export function createMcpServer(principal: McpPrincipal) {
           built_in: (await builtinTemplates("en")).map((t) => ({ id: `builtin:${t.key}`, title: t.title, kind: t.kind, description: t.description })),
         };
       }),
+  );
+
+  server.registerTool(
+    "get_pdf_template",
+    {
+      title: "Get a PDF template",
+      description: `List a workspace's PDF templates (the logo, lines and theme its PDF files print in), or with name read one, its theme as JSON. ${see("pdf-themes")}`,
+      inputSchema: z.object({ workspace_id: z.string(), name: z.string().optional().describe("A template's name; leave out to list them.") }),
+      annotations: READ,
+    },
+    ({ workspace_id, name }: { workspace_id: string; name?: string }) =>
+      runTool(async () => {
+        const list = await listLetterheads(userId, workspace_id);
+        if (!name) return { templates: list.map((l) => ({ name: l.name, default: l.isDefault, has_logo: l.hasLogo, has_theme: !!l.theme })) };
+        const found = list.find((l) => sameLetterheadName(l.name, name));
+        if (!found) throw new ToolInputError(`No PDF template is named "${name}"; the workspace has ${list.map((l) => `"${l.name}"`).join(", ") || "none"}.`);
+        return { name: found.name, default: found.isDefault, has_logo: found.hasLogo, theme: found.theme, header: found.header, footer: found.footer, accent: found.accent };
+      }),
+  );
+
+  server.registerTool(
+    "set_pdf_template",
+    {
+      title: "Set a PDF template's theme",
+      description: `Give a workspace's PDF template a theme (made when no template has the name), or with theme null take it off; owners only. Read the template first with get_pdf_template and send the whole theme. ${see("pdf-themes")}`,
+      inputSchema: z.object({
+        workspace_id: z.string(),
+        name: z.string(),
+        theme: checked(pdfThemeSchema, "object", `The whole theme, or null for none. ${see("pdf-themes")}`).nullable(),
+        default: z.boolean().optional().describe("Make it the template PDFs print in unless another is picked."),
+      }),
+      annotations: { readOnlyHint: false, destructiveHint: false, idempotentHint: true, openWorldHint: false },
+      scopeChallenge: requireWrite,
+    },
+    write(async ({ workspace_id, name, theme, default: isDefault }: { workspace_id: string; name: string; theme: unknown; default?: boolean }) => {
+      const list = await listLetterheads(userId, workspace_id);
+      const found = list.find((l) => sameLetterheadName(l.name, name));
+      if (!found && theme === null) throw new ToolInputError(`No PDF template is named "${name}".`);
+      // Checked before a missing template is made, so a refused theme leaves nothing behind.
+      checkedTheme(theme);
+      const target = found ?? (await createLetterhead(userId, workspace_id, { name }));
+      const saved = await setLetterheadTheme(userId, target.id, theme);
+      if (isDefault !== undefined) await setDefaultLetterhead(userId, saved.id, isDefault);
+      return {
+        name: saved.name,
+        created: !list.some((l) => l.id === saved.id),
+        default: isDefault ?? saved.isDefault,
+        has_logo: saved.hasLogo,
+        has_theme: !!saved.theme,
+        note: !saved.theme
+          ? "PDFs made in this template print its logo and lines again, without a theme."
+          : saved.hasLogo
+            ? "PDFs made in this template now print in its theme."
+            : "PDFs made in this template now print in its theme. Its logo is added in Settings → PDF templates.",
+      };
+    }),
   );
 
   server.registerTool(

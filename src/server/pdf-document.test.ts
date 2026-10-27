@@ -5,6 +5,8 @@ import roboto from "pdfmake/fonts/Roboto.js";
 import type { ContentTable, ContentText, ContentUnorderedList } from "pdfmake/interfaces";
 import type { MdBlock } from "@/lib/content-markdown";
 import { tint } from "@/lib/letterheads";
+import { ENGLISH_STARTER_LABELS, starterTheme } from "@/lib/pdf-theme-starter";
+import type { PdfTheme } from "@/lib/pdf-themes";
 import { pdfDocument, type PdfInput, type PdfSection } from "./pdf-document";
 
 const text = (value: string, styles: Record<string, unknown> = {}) => ({ type: "text", text: value, styles });
@@ -276,5 +278,104 @@ describe("pdfDocument", () => {
     expect(read).toContain("見積書");
     expect(read).toContain("한국어");
     expect(read).toContain("English");
+  });
+});
+
+describe("pdfDocument in a theme", () => {
+  const values = {
+    title: "Cold room offer",
+    date: "27.10.2026",
+    locale: "tr",
+    workspace: "Acme",
+    properties: [
+      { name: "Customer", value: "Akdeniz Gıda" },
+      { name: "Quote no", value: "Q-42" },
+      { name: "Contact", value: "" },
+    ],
+  };
+  const themed = (theme: PdfTheme, blocks: MdBlock[] = [block("paragraph", [text("Body")])]): PdfInput => ({
+    ...input(blocks),
+    theme: { theme, logo: null, values },
+  });
+
+  it("lays its elements out around the body, placeholders filled, the title left to them", () => {
+    const content = contentOf(
+      themed({
+        title: false,
+        content: [{ type: "text", text: "Offer {{property:Quote no}} for {{property:customer}}" }, { type: "body" }, { type: "text", text: "Thanks, {{workspace}}" }],
+      }),
+    );
+    const json = JSON.stringify(content);
+    expect(json.indexOf("Offer Q-42 for Akdeniz Gıda")).toBeGreaterThanOrEqual(0);
+    expect(json.indexOf("Offer Q-42")).toBeLessThan(json.indexOf("Body"));
+    expect(json.indexOf("Body")).toBeLessThan(json.indexOf("Thanks, Acme"));
+    expect(json).not.toContain('"text":"Offer"');
+  });
+
+  it("puts the body at the end when no element stands for it, after the title", () => {
+    const json = JSON.stringify(contentOf(themed({ content: [{ type: "text", text: "Top" }] })));
+    expect(json.indexOf("Top")).toBeLessThan(json.indexOf("Offer"));
+    expect(json.indexOf("Offer")).toBeLessThan(json.indexOf("Body"));
+  });
+
+  it("leaves out fields whose value is empty, and writes capitals the reader's way", () => {
+    const json = JSON.stringify(
+      contentOf(
+        themed({
+          content: [
+            {
+              type: "fields",
+              label_caps: true,
+              rows: [
+                { label: "Firma", value: "{{property:Customer}}" },
+                { label: "Yetkili", value: "{{property:Contact}}" },
+              ],
+            },
+          ],
+        }),
+      ),
+    );
+    expect(json).toContain("FİRMA");
+    expect(json).not.toContain("YETKİLİ");
+  });
+
+  it("takes its margins, colors, tables and page numbers from the theme", () => {
+    const table = block("table", { type: "tableContent", headerRows: 1, rows: [{ cells: [cell("Item"), cell("Price")] }, { cells: [cell("Fan"), cell("10")] }] });
+    const doc = pdfDocument(
+      themed(
+        {
+          colors: { accent: "#003399" },
+          margins: { top: 30, left: 36 },
+          tables: { header_fill: "accent", header_color: "white" },
+          footer: [{ type: "text", text: "{{page}} / {{pages}}" }],
+        },
+        [table],
+      ),
+    );
+    expect(doc.pageMargins).toEqual([36, 30, 48, 56]);
+    const json = JSON.stringify(doc.content);
+    expect(json).toContain('"fillColor":"#003399"');
+    expect(json).toContain('"color":"#ffffff"');
+    const footer = (doc.footer as (current: number, total: number) => unknown)(2, 3);
+    expect(JSON.stringify(footer)).toContain("2 / 3");
+  });
+
+  it("prints the starter quote on one page, its values read back", async () => {
+    pdfmake.setFonts(roboto);
+    pdfmake.setUrlAccessPolicy(() => false);
+    pdfmake.setLocalAccessPolicy(() => true);
+    const theme = starterTheme(ENGLISH_STARTER_LABELS);
+    const table = block("table", {
+      type: "tableContent",
+      headerRows: 1,
+      rows: [["Item", "Qty", "Price"], ...Array.from({ length: 6 }, (_, i) => [`Evaporator ${i + 1}`, "2", "1.840,00"])].map((r) => ({ cells: r.map(cell) })),
+    });
+    const doc = pdfDocument({ ...input([block("paragraph", [text("Thank you for asking.")]), table]), theme: { theme, logo: null, values } });
+    const bytes = await pdfmake.createPdf(doc).getBuffer();
+    const { extractText, getDocumentProxy } = await import("unpdf");
+    const pdf = await getDocumentProxy(new Uint8Array(bytes));
+    expect(pdf.numPages).toBe(1);
+    const { text: read } = await extractText(pdf, { mergePages: true });
+    for (const expected of ["Quote", "Q-42", "Akdeniz Gıda", "Evaporator 6", "Signature", "1 / 1"]) expect(read).toContain(expected);
   });
 });

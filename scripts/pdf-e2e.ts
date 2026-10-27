@@ -4,7 +4,8 @@
  * asked for; a cropped image drawn clipped to its part; the chat making the PDF and attaching it to a row's files property or to the end of a
  * page, after the person agrees (and not when they decline); letterheads (server/letterheads.ts):
  * owners only, the first the default, logos PNG or JPEG only, printed at the top and foot of PDFs
- * (the default, another by id or name, or none; never for guests), picked by name in the chat; and
+ * (the default, another by id or name, or none; never for guests), picked by name in the chat; themes
+ * (lib/pdf-themes) set by owners only, checked, printed with the row's values filled in, and previewed; and
  * the refusals: someone who may only view the page, a locked page, a database, and a workspace
  * whose owners turned export off. The PDFs' text is read back with unpdf. A fake OpenAI-compatible server plays the model.
  * Creates its own users and workspace, stores files in a temporary directory, and deletes all of
@@ -43,7 +44,7 @@ const files = await import("@/server/files");
 const ops = await import("@/server/operations");
 const { setPagePermission } = await import("@/server/permissions");
 const { updateWorkspaceSettings } = await import("@/server/workspaces");
-const { pagePdf } = await import("@/server/pdf");
+const { letterheadPreviewPdf, pagePdf } = await import("@/server/pdf");
 const letterheads = await import("@/server/letterheads");
 const { AccessError } = await import("@/server/access");
 const { ExportError } = await import("@/server/export");
@@ -280,6 +281,34 @@ try {
   await setPagePermission(owner, letter.id, guest, "view");
   const byGuest = await textOfPdf((await pagePdf(guest, letter.id)).bytes);
   check(byGuest.includes("Dear customer") && !byGuest.includes("3E Soğutma A.Ş."), "a guest's PDF has no letterhead", byGuest);
+
+  // A theme lays the paper out instead: its elements around the body, the row's values filled in.
+  const badTheme = await failure(letterheads.setLetterheadTheme(owner, letterPaper.id, { content: [{ type: "text" }], colors: { accent: "blue" } }));
+  check(
+    badTheme instanceof letterheads.LetterheadError && badTheme.code === "theme" && badTheme.problems.some((p) => p.startsWith("colors.accent")),
+    "a theme that doesn't pass the checks is refused, saying what's wrong",
+    badTheme instanceof letterheads.LetterheadError ? badTheme.problems : String(badTheme),
+  );
+  check((await failure(letterheads.setLetterheadTheme(alice, letterPaper.id, {}))) instanceof letterheads.LetterheadError, "only owners set a theme");
+  const withTheme = await letterheads.setLetterheadTheme(owner, letterPaper.id, {
+    title: false,
+    content: [{ type: "text", text: "TEKLIF {{title}} / {{property:notes}}", caps: true }, { type: "body" }, { type: "fields", rows: [{ label: "Liste", value: "{{property:List price}}" }, { label: "Boş", value: "{{property:Missing}}" }] }],
+    footer: [{ type: "text", text: "Sayfa {{page}}/{{pages}}" }],
+  });
+  check(withTheme.theme?.title === false, "an owner's theme is saved");
+  const themed = await textOfPdf((await pagePdf(alice, row.id, { letterhead: letterPaper.id })).bytes);
+  check(
+    themed.includes("TEKLIF 3E-20261023-ESM / INTERNAL-NOTE") && themed.includes("548") && themed.includes("Sayfa 1/1") && !themed.includes("Boş") && !themed.includes("3E Mektup Antedi"),
+    "a PDF in a theme prints its elements, filled with the row's values, in place of the letterhead's lines",
+    themed,
+  );
+  const preview = await textOfPdf(
+    await letterheadPreviewPdf(owner, letterPaper.id, { title: "Örnek", text: "Örnek metin", item: "Ürün", quantity: "Adet", price: "Fiyat", amount: "Tutar", rows: ["A", "B", "C"] }),
+  );
+  check(preview.includes("[NOTES]") && preview.includes("[List price]") && preview.includes("Örnek metin"), "the preview fills a sample page, values shown by their names", preview);
+  check((await failure(letterheadPreviewPdf(alice, letterPaper.id, { title: "", text: "", item: "", quantity: "", price: "", amount: "", rows: [] }))) instanceof letterheads.LetterheadError, "only owners preview a template");
+  await letterheads.setLetterheadTheme(owner, letterPaper.id, null);
+  check((await textOfPdf((await pagePdf(alice, row.id, { letterhead: letterPaper.id })).bytes)).includes("3E Mektup Antedi"), "without its theme the letterhead prints its lines again");
 
   fake.setChat(pdfMaker({ page_id: letter.id, letterhead: "teklif", file_name: "Letter in Teklif" }));
   const named = await ask(alice, { workspaceId, message: "PDF of the letter on the offer paper", mode: "ask" }, "approve");

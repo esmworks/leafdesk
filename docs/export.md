@@ -143,9 +143,22 @@ the default, which "Export as PDF" picks first and the AI chat uses unless asked
 none; the first one added becomes the default. Members print in them; guests make PDFs without
 one.
 
+**Themes.** A letterhead can have a theme instead of its lines and accent (the palette button
+beside it): JSON that sets the paper's colors, margins, text size, headings and tables, and lays
+out the page around its own text: the logo, texts, label and value fields, boxes, columns, rules,
+lists, a signature line and empty boxes to sign or stamp in, in a header and footer on every page
+too. Texts fill in `{{title}}`, `{{date}}`, `{{workspace}}`, a row's values by property name
+(`{{property:Customer}}`; a field whose value is empty is left out) and `{{page}}` / `{{pages}}`, so
+a row of a quotes database prints as a one-page quote. *Start from a quote* fills in such a theme in
+the reader's language. Tell the AI what to change ("make the top smaller", "use dark red") and it
+rewrites the theme, checked before it is saved; *Undo* puts the one before back. A preview beside it
+shows the saved theme on a sample page. Over MCP, `get_pdf_template` reads a template's theme and
+`set_pdf_template` sets one (owners only); the docs topic `pdf-themes` describes every element. A
+theme never loads a link: its only image is the template's own logo.
+
 The AI chat (and an agent in its owner's chat) can also make a page's or row's PDF (`create_pdf`),
 for a quote, a letter or a report it has just written into a page, in a letterhead it names or the
-default. The file is attached where the page's people find it: at the end of the page's text, or
+default (and that letterhead's theme, when it has one). The file is attached where the page's people find it: at the end of the page's text, or
 in a row's files property the chat names, and the answer links to it. It is a change too (asked
 for in *Ask* mode, refused without edit access or on a locked page). A row's values are left out
 unless asked for, since a document made for a customer rarely means to show them.

@@ -70,7 +70,7 @@ import { gzipSync } from "node:zlib";
  * settings' checks, quarter grouping, the icon and text group names); the view, its settings page
  * and the published table load when shown.
  */
-const BUDGET = { routeFirstLoad: 778, firstLoadShared: 1183, onDemandChunk: 450 };
+const BUDGET = { routeFirstLoad: 778, firstLoadShared: 1184, onDemandChunk: 450 };
 
 const NEXT = ".next";
 const kB = (bytes: number) => bytes / 1024;

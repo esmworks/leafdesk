@@ -12,7 +12,7 @@ import * as z from "zod";
 
 export const DOCS_PREFIX = "leafdesk://docs/";
 
-export const DOC_TOPICS = ["markdown", "properties", "filters", "views", "pivots", "dashboards", "automations"] as const;
+export const DOC_TOPICS = ["markdown", "properties", "filters", "views", "pivots", "dashboards", "automations", "pdf-themes"] as const;
 export type DocTopic = (typeof DOC_TOPICS)[number];
 
 export const docUri = (topic: DocTopic) => `${DOCS_PREFIX}${topic}`;

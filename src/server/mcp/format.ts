@@ -6,6 +6,7 @@ import { PropertyValueError } from "@/lib/properties";
 import { AccessError, ConnectedAppReadOnlyError } from "@/server/access";
 import { GroupError } from "@/lib/groups";
 import { TeamspaceError } from "@/lib/teamspace-error";
+import { LetterheadError } from "@/server/letterheads";
 import { SkillError } from "@/server/skills";
 import { isPageSaveFailed } from "@/server/collab/bridge";
 
@@ -100,6 +101,13 @@ export function toolErrorFor(error: unknown): CallToolResult {
     );
   }
   if (error instanceof CommentError) return errorResult(`${error.message}.`);
+  if (error instanceof LetterheadError) {
+    return errorResult(
+      error.code === "theme"
+        ? `The theme doesn't pass the checks:\n${error.problems.join("\n")}\nSee leafdesk://docs/pdf-themes.`
+        : `${error.message}. Call get_pdf_template to see the workspace's PDF templates.`,
+    );
+  }
   if (error instanceof SkillError) {
     return errorResult(error.code === "notASkill" ? `${error.message}. Call list_skills to see the user's skills.` : `${error.message}.`);
   }

@@ -8,8 +8,8 @@ import { createMcpServer } from "./tools";
 // needs only now and then goes into the docs topics (docs.ts), which cost nothing until read.
 vi.mock("@/db", () => ({ db: {} }));
 
-const MAX_TOOLS = 90;
-const MAX_TOTAL_BYTES = 165_500;
+const MAX_TOOLS = 92;
+const MAX_TOTAL_BYTES = 167_000;
 const MAX_TOOL_BYTES = 12_000;
 
 type Tool = { name: string; description?: string; inputSchema?: unknown };
@@ -83,7 +83,7 @@ describe("the tool list a client sends to its model", () => {
 
   it("points only at docs topics there are", async () => {
     const text = JSON.stringify(await listTools());
-    const named = new Set([...text.matchAll(/leafdesk:\/\/docs\/([a-z]+)/g)].map((m) => m[1]));
+    const named = new Set([...text.matchAll(/leafdesk:\/\/docs\/([a-z-]+)/g)].map((m) => m[1]));
     expect(named.size).toBeGreaterThan(0);
     for (const topic of named) expect(DOC_TOPICS, `leafdesk://docs/${topic}`).toContain(topic);
   });
@@ -108,6 +108,7 @@ describe("the docs topics", () => {
     expect(text.dashboards).toContain("database_id");
     expect(text.automations).toContain("row_created");
     expect(text.automations).toContain("for_each");
+    expect(text["pdf-themes"]).toContain('{"type":"body"}');
   });
 
   it("refuses an address that names no topic", async () => {

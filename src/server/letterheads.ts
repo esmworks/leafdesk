@@ -4,6 +4,7 @@ import { pdfLetterhead } from "@/db/schema";
 import { LegalHoldError } from "@/lib/legal-hold";
 import { isGuest, requireMembership } from "@/server/access";
 import { heldUserIds } from "@/server/legal-hold";
+import { parsePdfTheme, type PdfTheme } from "@/lib/pdf-themes";
 import type { PdfLetterhead } from "@/server/pdf-document";
 import { imageType, MAX_LETTERHEADS, MAX_LOGO_BYTES, parseLetterhead, sameLetterheadName, type Letterhead, type LetterheadProblem } from "@/lib/letterheads";
 
@@ -13,12 +14,14 @@ import { imageType, MAX_LETTERHEADS, MAX_LOGO_BYTES, parseLetterhead, sameLetter
  * letterhead, so nobody outside the workspace makes papers in its name.
  */
 
-export type LetterheadErrorCode = LetterheadProblem | "duplicateName" | "tooMany" | "logoType" | "logoSize" | "notFound";
+export type LetterheadErrorCode = LetterheadProblem | "duplicateName" | "tooMany" | "logoType" | "logoSize" | "notFound" | "theme";
 
 export class LetterheadError extends Error {
   constructor(
     readonly code: LetterheadErrorCode,
     message: string,
+    /** For "theme": what's wrong with it, one line each (lib/pdf-themes parsePdfTheme). */
+    readonly problems: string[] = [],
   ) {
     super(message);
     this.name = "LetterheadError";
@@ -34,6 +37,7 @@ const listed = {
   logoPlace: pdfLetterhead.logoPlace,
   accent: pdfLetterhead.accent,
   pageNumbers: pdfLetterhead.pageNumbers,
+  theme: pdfLetterhead.theme,
   isDefault: pdfLetterhead.isDefault,
   logoType: pdfLetterhead.logoType,
   logoUpdatedAt: pdfLetterhead.logoUpdatedAt,
@@ -53,7 +57,15 @@ function shown(row: Listed): Letterhead {
     isDefault: row.isDefault,
     hasLogo: !!row.logoType,
     logoVersion: row.logoUpdatedAt ? String(row.logoUpdatedAt.getTime()) : null,
+    theme: storedTheme(row.theme),
   };
+}
+
+/** A stored theme as it reads now; null when there is none, or when it no longer passes the checks (it then prints as a letterhead). */
+function storedTheme(value: unknown): PdfTheme | null {
+  if (value === null || value === undefined) return null;
+  const parsed = parsePdfTheme(value);
+  return parsed.ok ? parsed.theme : null;
 }
 
 async function rowsOf(workspaceId: string): Promise<Listed[]> {
@@ -89,6 +101,11 @@ function nameTaken(rows: Listed[], name: string, except?: string) {
   if (rows.some((row) => row.id !== except && sameLetterheadName(row.name, name))) {
     throw new LetterheadError("duplicateName", "Another letterhead has that name");
   }
+}
+
+/** The workspace of a letterhead `userId` owns (else LetterheadError("notFound")). */
+export async function ownedLetterheadWorkspace(userId: string, letterheadId: string): Promise<string> {
+  return (await ownedLetterhead(userId, letterheadId)).workspaceId;
 }
 
 /** Adds a letterhead; owners only. The workspace's first becomes its default. */
@@ -143,6 +160,25 @@ export async function setDefaultLetterhead(userId: string, letterheadId: string,
   });
 }
 
+/** A theme checked (lib/pdf-themes), or null for none; a LetterheadError "theme" lists what's wrong. */
+export function checkedTheme(theme: unknown): PdfTheme | null {
+  if (theme === null) return null;
+  const parsed = parsePdfTheme(theme);
+  if (!parsed.ok) throw new LetterheadError("theme", `The theme isn't valid: ${parsed.problems.join("; ")}`, parsed.problems);
+  return parsed.theme;
+}
+
+/**
+ * Gives a letterhead a theme (lib/pdf-themes), or with null takes it off, leaving its lines and
+ * accent; owners only. Throws LetterheadError("theme") with what's wrong when it doesn't pass.
+ */
+export async function setLetterheadTheme(userId: string, letterheadId: string, theme: unknown): Promise<Letterhead> {
+  await ownedLetterhead(userId, letterheadId);
+  const value = checkedTheme(theme);
+  const [row] = await db.update(pdfLetterhead).set({ theme: value }).where(eq(pdfLetterhead.id, letterheadId)).returning(listed);
+  return shown(row);
+}
+
 /** Puts a logo on a letterhead (PNG or JPEG, at most MAX_LOGO_BYTES), or with null takes it off; owners only. */
 export async function setLetterheadLogo(userId: string, letterheadId: string, bytes: Buffer | null): Promise<Letterhead> {
   await ownedLetterhead(userId, letterheadId);
@@ -195,5 +231,6 @@ export async function letterheadForPdf(userId: string, workspaceId: string, choi
     footer: row.footer,
     accent: row.accent,
     pageNumbers: row.pageNumbers,
+    theme: storedTheme(row.theme),
   };
 }

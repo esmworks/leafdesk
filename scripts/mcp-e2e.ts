@@ -593,6 +593,27 @@ async function main() {
   const starred = await mcp.ok("list_pages", { workspace_id: ws, favorites: true });
   check(Array.isArray(starred.pages) && starred.pages.length === 0, "list_pages lists no favorites before any star", starred);
 
+  // ---- PDF templates and their themes
+  const badTheme = await mcp.call("set_pdf_template", { workspace_id: ws, name: "Quote", theme: { content: [{ type: "text" }] } });
+  check(badTheme.isError && badTheme.text.includes("content") && badTheme.text.includes("text"), "a bad theme names the field that's wrong", badTheme.text);
+  const twoBodies = await mcp.call("set_pdf_template", { workspace_id: ws, name: "Quote", theme: { content: [{ type: "body" }, { type: "body" }] } });
+  check(twoBodies.isError && twoBodies.text.includes("at most one") && twoBodies.text.includes("leafdesk://docs/pdf-themes"), "a theme with two bodies is refused, pointing at the docs topic", twoBodies.text);
+  const noTemplates = await mcp.ok("get_pdf_template", { workspace_id: ws });
+  check(noTemplates.templates.length === 0, "a refused theme leaves no template behind", noTemplates);
+  const noSuch = await mcp.call("set_pdf_template", { workspace_id: ws, name: "Quote", theme: null });
+  check(noSuch.isError && noSuch.text.includes("No PDF template"), "taking the theme off a template that isn't there is refused", noSuch.text);
+  const quoteTheme = { colors: { accent: "#003399" }, title: false, content: [{ type: "text", text: "{{title}}", size: 15, bold: true }, { type: "body" }] };
+  const setTheme = await mcp.ok("set_pdf_template", { workspace_id: ws, name: "Quote", theme: quoteTheme, default: true });
+  check(setTheme.name === "Quote" && setTheme.default === true, "set_pdf_template makes the template and its default", setTheme);
+  const templates = await mcp.ok("get_pdf_template", { workspace_id: ws });
+  check(templates.templates.some((t: { name: string; has_theme: boolean }) => t.name === "Quote" && t.has_theme), "get_pdf_template lists the themed template", templates);
+  const quote = await mcp.ok("get_pdf_template", { workspace_id: ws, name: "quote" });
+  check(quote.theme?.colors?.accent === "#003399" && quote.theme.content.length === 2, "get_pdf_template reads its theme back by name", quote);
+  check(setTheme.has_theme === true && setTheme.created === true, "set_pdf_template says it made a themed template", setTheme);
+  const untheme = await mcp.ok("set_pdf_template", { workspace_id: ws, name: "Quote", theme: null });
+  const plain = await mcp.ok("get_pdf_template", { workspace_id: ws, name: "Quote" });
+  check(untheme.has_theme === false && untheme.created === false && plain.theme === null, "set_pdf_template takes a theme off with null", { untheme, plain });
+
   // ---- databases
   const dbPage = await mcp.ok("create_database", { parent_id: root.id, title: "Tasks" });
   check(dbPage.properties.some((p: { name: string }) => p.name === "Status"), "create_database has default Status", dbPage);
@@ -877,7 +898,7 @@ async function main() {
   const groupedTable = await mcp.ok("create_database_view", { database_id: dbPage.id, name: "Grouped", group_by: "Status", hide_empty_groups: true });
   check(groupedTable.type === "table" && groupedTable.group_by === "Status" && groupedTable.hide_empty_groups === true, "tables group by a property", groupedTable);
   const calendarGroup = await mcp.call("create_database_view", { database_id: dbPage.id, name: "Bad", type: "calendar", group_by: "Tags" });
-  check(calendarGroup.isError && calendarGroup.text.includes("only applies to board, table, list, gallery, timeline, map and chart views"), "calendars refuse grouping", calendarGroup.text);
+  check(calendarGroup.isError && calendarGroup.text.includes("only applies to board, table, list, gallery, timeline, map, chart and pivot views"), "calendars refuse grouping", calendarGroup.text);
 
   // ---- "created by": filled in with each row's creator, filterable on "me", read-only
   await mcp.ok("add_database_property", { database_id: dbPage.id, name: "Created by", type: "created_by" });

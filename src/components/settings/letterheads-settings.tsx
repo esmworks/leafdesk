@@ -1,6 +1,7 @@
 "use client";
 
-import { ImageUp, Pencil, Plus, Star, StarOff, Trash2, X } from "lucide-react";
+import { ImageUp, Palette, Pencil, Plus, Star, StarOff, Trash2, X } from "lucide-react";
+import dynamic from "next/dynamic";
 import { useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { useEffect, useId, useMemo, useRef, useState } from "react";
@@ -100,17 +101,34 @@ function LetterheadPreview({ fields, logo, zoom, className }: { fields: Letterhe
   );
 }
 
+// The theme editor (with the theme checks and the starter) comes with opening it, not with the settings page.
+const PdfThemeEditor = dynamic(() => import("./pdf-theme-editor").then((m) => m.PdfThemeEditor), {
+  ssr: false,
+  loading: () => <div aria-busy="true" className="m-5 h-24 animate-pulse rounded-md bg-bg-subtle" />,
+});
+
 /**
  * Settings > PDF templates > Letterheads (lib/letterheads): owners add, change and remove them and
  * pick the default; everyone else sees the list. The logo goes up through its own route once the
  * letterhead is saved.
  */
-export function LetterheadsSettings({ workspaceId, letterheads, canEdit }: { workspaceId: string; letterheads: Letterhead[]; canEdit: boolean }) {
+export function LetterheadsSettings({
+  workspaceId,
+  letterheads,
+  canEdit,
+  ai,
+}: {
+  workspaceId: string;
+  letterheads: Letterhead[];
+  canEdit: boolean;
+  /** Whether the theme editor offers changing a theme with the AI. */
+  ai: boolean;
+}) {
   const t = useTranslations("settings.letterheads");
   const router = useRouter();
   const [pending, setPending] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  // The letterhead being edited: its id, "new", or none.
+  // The letterhead being edited: its id, "theme:<id>" for its theme, "new", or none.
   const [editing, setEditing] = useState<string | null>(null);
 
   async function act(fn: () => Promise<{ ok: boolean; error?: string }>, done?: () => void) {
@@ -136,6 +154,8 @@ export function LetterheadsSettings({ workspaceId, letterheads, canEdit }: { wor
       {letterheads.map((l) =>
         editing === l.id ? (
           <LetterheadForm key={l.id} initial={l} onCancel={() => setEditing(null)} onSaved={() => (setEditing(null), router.refresh())} />
+        ) : editing === `theme:${l.id}` ? (
+          <PdfThemeEditor key={l.id} letterhead={l} ai={ai} onClose={() => setEditing(null)} />
         ) : (
           <div key={l.id} className="flex items-center gap-4 px-5 py-3">
             <LetterheadPreview fields={l} logo={logoUrl(l)} zoom={0.4} />
@@ -143,8 +163,9 @@ export function LetterheadsSettings({ workspaceId, letterheads, canEdit }: { wor
               <div className="flex items-center gap-2">
                 <span className="truncate font-medium">{l.name}</span>
                 {l.isDefault && <span className="shrink-0 text-xs text-fg-muted">{t("default")}</span>}
+                {l.theme && <span className="shrink-0 text-xs text-fg-muted">{t("themeBadge")}</span>}
               </div>
-              <div className="truncate text-fg-muted">{l.header.split("\n")[0] || t("noLines")}</div>
+              <div className="truncate text-fg-muted">{l.theme ? t("themed") : l.header.split("\n")[0] || t("noLines")}</div>
             </div>
             {canEdit && (
               <div className="flex shrink-0 gap-1">
@@ -154,6 +175,9 @@ export function LetterheadsSettings({ workspaceId, letterheads, canEdit }: { wor
                   onClick={() => void act(() => setDefaultLetterheadAction(l.id, !l.isDefault))}
                 >
                   {l.isDefault ? <StarOff className="h-3.5 w-3.5" /> : <Star className="h-3.5 w-3.5" />}
+                </IconButton>
+                <IconButton label={t("theme")} onClick={() => setEditing(`theme:${l.id}`)} disabled={pending}>
+                  <Palette className="h-3.5 w-3.5" />
                 </IconButton>
                 <IconButton label={t("edit")} onClick={() => setEditing(l.id)} disabled={pending}>
                   <Pencil className="h-3.5 w-3.5" />

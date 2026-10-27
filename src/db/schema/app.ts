@@ -1,5 +1,6 @@
 import type { CalloutStyle } from "@/lib/callout-styles";
 import type { LogoPlace } from "@/lib/letterheads";
+import type { PdfTheme } from "@/lib/pdf-themes";
 import { getTableColumns, sql } from "drizzle-orm";
 import {
   boolean,
@@ -263,6 +264,8 @@ export const pdfLetterhead = pgTable(
     /** `#rrggbb`, or "" for the usual gray. */
     accent: text("accent").notNull().default(""),
     pageNumbers: boolean("page_numbers").notNull().default(true),
+    /** A theme (lib/pdf-themes): how the paper looks and what prints around the body, in place of the lines and accent above; null for none. */
+    theme: jsonb("theme").$type<PdfTheme>(),
     isDefault: boolean("is_default").notNull().default(false),
     logo: bytea("logo"),
     logoType: text("logo_type"),

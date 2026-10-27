@@ -4,6 +4,16 @@
 
 ### Added
 
+- **PDF themes: lay a template's PDFs out as you like, and have the AI change them.** A PDF
+  template (Settings → PDF templates) can have a theme in place of its lines and accent: its colors,
+  margins, text size, headings and tables, and the logo, texts, fields, boxes, columns, signature
+  and sign-here boxes around the page's own text, filled in with the page's title, today's date,
+  the workspace's name and a row's values by property name. A row of a quotes database then prints
+  as a one-page quote; *Start from a quote* fills one in. Say what to change and the AI rewrites the
+  theme, checked before it is saved, beside a preview on a sample page; or edit its JSON. MCP gets
+  `get_pdf_template` and `set_pdf_template` and the docs topic `pdf-themes`; for them the MCP tool
+  list's budget goes from 90 to 92 tools and from 165.5 to 167 KB. Migration 0156 (column
+  `pdf_letterhead.theme`).
 - **Pivot views: a table of figures by two properties, with totals.** A new view layout groups
   the rows by one property down and another across, each cell a count or the sum, average,
   median, smallest or largest of a number (also a number formula or rollup) in its number format;

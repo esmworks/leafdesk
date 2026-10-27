@@ -1,0 +1,1 @@
+ALTER TABLE "pdf_letterhead" ADD COLUMN "theme" jsonb;

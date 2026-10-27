@@ -224,7 +224,9 @@ BlockNote on Yjs; Tailwind v4; next-intl. Node 24, pnpm 11. A separate Electron 
   `next.config.ts`, bundled it loses its font files, and its fonts in the standalone build's
   `outputFileTracingIncludes`; CJK text goes to the system's Noto Sans CJK, found in `pdf.ts` and
   installed by the Dockerfile, through `withCjkFont`), PDF letterheads `letterheads.ts` (pure part in `src/lib/letterheads.ts`;
-  the logo is document content kept in `pdf_letterhead`, not page decoration), backup `backup/`, SSO `sso.ts`, SCIM
+  the logo is document content kept in `pdf_letterhead`, not page decoration; a letterhead's
+  `theme` is JSON checked by `lib/pdf-themes.ts`, drawn by `pdf-theme-layout.ts`, described for
+  models by `pdf-theme-docs.ts`, changed by the AI in `pdf-theme-ai.ts`), backup `backup/`, SSO `sso.ts`, SCIM
   `scim.ts`, sealed secrets `secret-box.ts`.
 - **Editor odds and ends.** Media alignment and in-place width: `lib/media-blocks.ts` (file and
   audio specs shared with the server) and `lib/media-placement.ts` (pure; published pages use it).
@@ -313,7 +315,7 @@ because they are separate module graphs.
   names English texts that exist and a group or row marked `anchor="<id>"`, and every settings tab
   has one. A new setting gets an entry there, with the condition the page shows it under.
 - `src/server/mcp/tools-context.test.ts`: the MCP tool list every client sends its model stays
-  under 90 tools, 165 KB in all and 12 KB per tool. Raise a number only on purpose, in the same
+  under 92 tools, 167 KB in all and 12 KB per tool. Raise a number only on purpose, in the same
   commit; first move what a model needs only now and then into a docs topic.
 - `scripts/bundle-budget.ts` (CI, after `pnpm build`): gzipped client JS budgets for the largest
   route's first load, all routes' first-load chunks together and the largest on-demand chunk. Lazy

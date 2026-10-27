@@ -1,6 +1,6 @@
 import { cleanCodeCaption } from "@/lib/code-caption";
 import { builtinIconSvg } from "@/lib/builtin-icon-svg";
-import type { Alignment, Column, Content, ContentImage, ContentTable, ContentText, TableCell, TDocumentDefinitions } from "pdfmake/interfaces";
+import type { Alignment, Column, Content, ContentImage, ContentTable, ContentText, TableCell, TableLayout, TDocumentDefinitions } from "pdfmake/interfaces";
 import { CALLOUT_BLOCK, MATH_BLOCK, MERMAID_BLOCK, BREADCRUMB_BLOCK, FOOTNOTE, INLINE_MATH, SUBPAGES_BLOCK, TOC_BLOCK } from "@/lib/content-blocks";
 import { plainText, type MdBlock } from "@/lib/content-markdown";
 import { COLUMN_BLOCK, COLUMN_LIST_BLOCK, columnWidth } from "@/lib/columns";
@@ -12,6 +12,8 @@ import { listStyleAt } from "@/lib/list-markers";
 import { SUBSCRIPT, SUPERSCRIPT } from "@/lib/text-scripts";
 import { BOOKMARK_BLOCK, WEB_EMBED_BLOCK } from "@/lib/web-blocks";
 import { tint, type LogoPlace } from "@/lib/letterheads";
+import type { PdfTheme, ThemeValues } from "@/lib/pdf-themes";
+import { elements, themeColor, themeContent, themePalette, type ThemePalette } from "@/server/pdf-theme-layout";
 
 /**
  * A page as a PDF file's layout (pdfmake's document definition), drawn by server/pdf.ts. Pure: the
@@ -47,8 +49,11 @@ export type PdfSection = {
   comments?: { heading: string; resolved: string; threads: ExportedThread[] } | null;
 };
 
+/** A theme as the layout draws it (lib/pdf-themes): its logo already read, as a data URL, and what its placeholders stand for. */
+export type PdfThemeInput = { theme: PdfTheme; logo: string | null; values: Omit<ThemeValues, "page" | "pages"> };
+
 /** A letterhead as the layout draws it: the logo already read, as a data URL. */
-export type PdfLetterhead = { logo: string | null; logoPlace: LogoPlace; header: string; footer: string; accent: string; pageNumbers: boolean };
+export type PdfLetterhead = { logo: string | null; logoPlace: LogoPlace; header: string; footer: string; accent: string; pageNumbers: boolean; theme?: PdfTheme | null };
 
 export type PdfInput = {
   title: string;
@@ -60,6 +65,8 @@ export type PdfInput = {
   labels: { untitled: string; unavailable: string };
   /** What every page prints around the body; without one, page numbers when there are several pages. */
   letterhead?: PdfLetterhead | null;
+  /** How the paper looks and what prints around the body; takes the letterhead's place. */
+  theme?: PdfThemeInput | null;
   /** How big the body's text is, 1 as it is (lib/pdf-text-scale); the letterhead keeps its size. */
   textScale?: number;
   /** The font Chinese, Japanese and Korean text is set in (pdf.ts cjkFont), which Roboto has no letters for; null leaves it in Roboto. */
@@ -283,7 +290,11 @@ function blockContent(block: MdBlock, walk: Walk, width: number): Content[] {
       return [{ ...paragraph(block, walk), margin: [0, 0, 0, 6] }, ...nested(block, walk, width)];
     case "heading": {
       const level = Number(prop(block, "level")) || 1;
-      const heading = paragraph(block, walk, { fontSize: HEADING_SIZES[level] ?? 11.5, bold: true, margin: [0, level === 1 ? 10 : 8, 0, 4] });
+      const headings = input.theme?.theme.headings;
+      const size = headings?.sizes?.[level - 1] ?? HEADING_SIZES[level] ?? 11.5;
+      const color = headings?.color ? themeColor(headings.color, paletteOf(input), FG) : undefined;
+      const heading = paragraph(block, walk, { fontSize: size, bold: true, margin: [0, level === 1 ? 10 : 8, 0, 4], ...(color ? { color } : {}) });
+      if (headings?.caps) heading.text = upper(heading.text, input.theme?.values.locale);
       // Headings stay with what follows them.
       return [{ ...heading, headlineLevel: level }, ...nested(block, walk, width)];
     }
@@ -484,6 +495,8 @@ function table(block: MdBlock, walk: Walk): Content {
       if (header) {
         out.bold = true;
         out.fillColor = headerFill(walk.input);
+        const color = headerColor(walk.input);
+        if (color) out.color = color;
       }
       const fill = backgroundColor(cell.props.backgroundColor);
       if (fill) out.fillColor = fill;
@@ -509,7 +522,13 @@ function table(block: MdBlock, walk: Walk): Content {
     if (!values.length || !values.every((v) => AMOUNT.test(v))) continue;
     for (const row of body) if (row[c] && "text" in row[c] && !(row[c] as ContentText).alignment) (row[c] as ContentText).alignment = "right";
   }
-  return { table: { headerRows, widths: widthsOf(content.columnWidths, texts, columns), body, dontBreakRows: true }, layout: gridLayout, margin: [0, 2, 0, 8] };
+  const size = walk.input.theme?.theme.tables?.size;
+  return {
+    table: { headerRows, widths: widthsOf(content.columnWidths, texts, columns), body, dontBreakRows: true },
+    layout: tableLayout(walk.input, headerRows),
+    margin: [0, 2, 0, 8],
+    ...(size ? { fontSize: size } : {}),
+  };
 }
 
 /**
@@ -528,31 +547,60 @@ function widthsOf(given: unknown, texts: string[][], columns: number): (number |
   return longest.map((_, c) => (c === widest ? "*" : "auto"));
 }
 
-const gridLayout = {
-  hLineWidth: () => 0.6,
-  vLineWidth: () => 0.6,
-  hLineColor: () => BORDER,
-  vLineColor: () => BORDER,
-  paddingLeft: () => 6,
-  paddingRight: () => 6,
-  paddingTop: () => 4,
-  paddingBottom: () => 4,
-};
+/** The theme's colors, or the light theme's without one. */
+function paletteOf(input: PdfInput): ThemePalette {
+  return input.theme ? themePalette(input.theme.theme) : { accent: input.letterhead?.accent || BORDER, text: FG, muted: MUTED, border: BORDER, fill: SUBTLE };
+}
 
-/** A table header's fill: a light tint of the letterhead's accent, or the usual gray. */
+/** Text runs (or a string) in upper case. */
+function upper(text: ContentText["text"], locale?: string): ContentText["text"] {
+  if (typeof text === "string") return text.toLocaleUpperCase(locale);
+  if (Array.isArray(text)) return text.map((run) => (typeof run === "string" ? run.toLocaleUpperCase(locale) : isObject(run) ? { ...(run as ContentText), text: upper((run as ContentText).text, locale) } : run)) as ContentText["text"];
+  return text;
+}
+
+/** A table's lines and fills: a grid in the border color, or as the theme draws tables (lines between rows only, stripes). */
+function tableLayout(input: PdfInput, headerRows: number): TableLayout {
+  const tables = input.theme?.theme.tables;
+  const palette = paletteOf(input);
+  const lines = tables?.lines ?? "grid";
+  const stripes = tables?.stripes ? themeColor(tables.stripes, palette, SUBTLE) : null;
+  return {
+    hLineWidth: () => (lines === "none" ? 0 : 0.6),
+    vLineWidth: () => (lines === "grid" ? 0.6 : 0),
+    hLineColor: () => palette.border,
+    vLineColor: () => palette.border,
+    paddingLeft: () => 6,
+    paddingRight: () => 6,
+    paddingTop: () => (input.theme ? 5 : 4),
+    paddingBottom: () => (input.theme ? 5 : 4),
+    ...(stripes ? { fillColor: (row: number) => (row >= headerRows && (row - headerRows) % 2 === 1 ? stripes : null) } : {}),
+  };
+}
+
+/** A table header's fill: the theme's, a light tint of the letterhead's accent, or the usual gray. */
 function headerFill(input: PdfInput): string {
+  const fill = input.theme?.theme.tables?.header_fill;
+  if (fill) return themeColor(fill, paletteOf(input), SUBTLE);
+  if (input.theme) return tint(paletteOf(input).accent, 0.86);
   return input.letterhead?.accent ? tint(input.letterhead.accent, 0.86) : SUBTLE;
+}
+
+/** A table header's text color: the theme's, else the body's. */
+function headerColor(input: PdfInput): string | undefined {
+  const color = input.theme?.theme.tables?.header_color;
+  return color ? themeColor(color, paletteOf(input), FG) : undefined;
 }
 
 /** A database's rows as a table, its header shaded. */
 function dataTable(data: PdfTable, input: PdfInput): ContentTable {
   const columns = data.header.length;
   const body: TableCell[][] = [
-    data.header.map((name) => ({ text: name, bold: true, fillColor: headerFill(input) })),
+    data.header.map((name) => ({ text: name, bold: true, fillColor: headerFill(input), ...(headerColor(input) ? { color: headerColor(input) } : {}) })),
     ...data.rows.map((row) => Array.from({ length: columns }, (_, c) => ({ text: row[c] || " " }))),
   ];
   const texts = [data.header, ...data.rows];
-  return { table: { headerRows: 1, widths: widthsOf(null, texts, columns), body, dontBreakRows: true }, layout: gridLayout, fontSize: 9 };
+  return { table: { headerRows: 1, widths: widthsOf(null, texts, columns), body, dontBreakRows: true }, layout: tableLayout(input, 1), fontSize: input.theme?.theme.tables?.size ?? 9 };
 }
 
 function sectionContent(section: PdfSection, index: number, input: PdfInput): Content[] {
@@ -564,13 +612,18 @@ function sectionContent(section: PdfSection, index: number, input: PdfInput): Co
     first?.type === "heading" && plainText(first.content).trim().toLowerCase() === title.toLowerCase() ? section.blocks.slice(1) : section.blocks;
   const heading: Content = { text: title, fontSize: 22, bold: true };
   const icon = builtinIconSvg(section.icon, { size: 22, fallbackColor: TEXT });
-  const out: Content[] = [
-    {
-      ...(icon ? { columns: [{ svg: icon, width: 22, margin: [0, 3, 0, 0] }, { ...heading, width: "*" }], columnGap: 10 } : heading),
-      margin: [0, 0, 0, 12],
-      ...(index > 0 ? { pageBreak: "before" as const } : {}),
-    } as Content,
-  ];
+  const titled = input.theme?.theme.title !== false;
+  const out: Content[] = titled
+    ? [
+        {
+          ...(icon ? { columns: [{ svg: icon, width: 22, margin: [0, 3, 0, 0] }, { ...heading, width: "*" }], columnGap: 10 } : heading),
+          margin: [0, 0, 0, 12],
+          ...(index > 0 ? { pageBreak: "before" as const } : {}),
+        } as Content,
+      ]
+    : index > 0
+      ? [{ text: "", pageBreak: "before" }]
+      : [];
   if (section.properties.length) {
     out.push({
       table: { widths: ["auto", "*"], body: section.properties.map((p) => [{ text: p.name, color: MUTED }, { text: p.value || " " }]) },
@@ -684,8 +737,39 @@ function letterheadFoot(letterhead: PdfLetterhead, current: number, total: numbe
   return { stack: lines.length ? [rule, columns] : [columns], margin: [PAGE_MARGIN, FOOT_TOP, PAGE_MARGIN, 0] };
 }
 
-/** The document definition of `input` on A4: in its letterhead, or with page numbers at the foot of every page when there are several. */
+/** The document definition of `input` on A4 in its theme: its margins, colors and text size, its elements around the body, its header and footer on every page. */
+function themedDocument(input: PdfInput, { theme, logo, values }: PdfThemeInput): TDocumentDefinitions {
+  const palette = themePalette(theme);
+  const scale = input.textScale ?? 1;
+  const fontSize = Math.round((theme.font_size ?? 10.5) * scale * 10) / 10;
+  const m = theme.margins ?? {};
+  const [left, top, right, bottom] = [m.left ?? PAGE_MARGIN, m.top ?? PAGE_MARGIN, m.right ?? PAGE_MARGIN, m.bottom ?? PAGE_MARGIN + 8];
+  const layoutInput = (current?: number, total?: number, body: Content[] = []) => ({ palette, logo, fontSize, body, values: { ...values, page: current, pages: total } });
+  const around = (list: PdfTheme["header"], current: number, total: number, margin: [number, number, number, number]): Content | null => {
+    if (!list?.length) return null;
+    const content = elements(list, layoutInput(current, total));
+    return content.length ? withCjkFont({ stack: content, margin, fontSize: Math.max(6, fontSize - 2), color: palette.muted }, input.cjkFont) : null;
+  };
+  const body = scaleFonts(
+    input.sections.flatMap((section, i) => sectionContent(section, i, input)),
+    scale,
+  );
+  return {
+    pageSize: "A4",
+    pageMargins: [left, top, right, bottom],
+    info: { title: input.title || input.labels.untitled, creator: "Leafdesk", producer: "Leafdesk" },
+    defaultStyle: { font: "Roboto", fontSize, lineHeight: 1.3, color: palette.text },
+    header: (current: number, total: number) =>
+      current === 1 && theme.header_first_page === false ? null : around(theme.header, current, total, [left, Math.min(24, top / 2), right, 0]),
+    footer: (current: number, total: number) => around(theme.footer, current, total, [left, Math.max(8, bottom / 2 - 14), right, 0]),
+    content: withCjkFont(themeContent(theme, layoutInput(undefined, undefined, body)), input.cjkFont),
+    pageBreakBefore: (node, pages) => typeof node.headlineLevel === "number" && pages.getFollowingNodesOnPage().length === 0,
+  };
+}
+
+/** The document definition of `input` on A4: in its theme, in its letterhead, or with page numbers at the foot of every page when there are several. */
 export function pdfDocument(input: PdfInput): TDocumentDefinitions {
+  if (input.theme) return themedDocument(input, input.theme);
   const letterhead = input.letterhead ?? null;
   const head = letterhead ? headHeight(letterhead) : 0;
   const footLines = letterhead ? linesOf(letterhead.footer).length : 0;

@@ -114,6 +114,7 @@ import { listPageWebhookDeliveries, listPageWebhooks } from "@/server/page-webho
 import { oauthRedirectUrl } from "@/server/connections/client";
 import { env } from "@/lib/env";
 import { aiInfoFor } from "@/server/ai";
+import { aiAvailable } from "@/server/ai-writing";
 import { workspaceAiUsage } from "@/server/ai-usage";
 import { workspaceAiView } from "@/server/ai-accounts";
 import { workspaceAnalytics } from "@/server/analytics";
@@ -440,10 +441,10 @@ async function CalloutStylesGroup({ workspaceId, userId, isOwner }: { workspaceI
 
 /** Settings > PDF templates > Letterheads (lib/letterheads); owners change them. */
 async function LetterheadsGroup({ workspaceId, userId, isOwner }: { workspaceId: string; userId: string; isOwner: boolean }) {
-  const [letterheads, t] = await Promise.all([listLetterheads(userId, workspaceId), getTranslations("settings.letterheads")]);
+  const [letterheads, t, ai] = await Promise.all([listLetterheads(userId, workspaceId), getTranslations("settings.letterheads"), aiAvailable(workspaceId)]);
   return (
     <SettingsGroup anchor="letterheads" title={t("heading")}>
-      <LetterheadsSettings workspaceId={workspaceId} letterheads={letterheads} canEdit={isOwner} />
+      <LetterheadsSettings workspaceId={workspaceId} letterheads={letterheads} canEdit={isOwner} ai={ai} />
     </SettingsGroup>
   );
 }

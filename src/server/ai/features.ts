@@ -35,6 +35,9 @@ const PLANS: [feature: string, plan: AiFeaturePlan][] = [
   // A formula from a description, checked before it is offered: the main model (the language is
   // its own and the check sends failures back), with a little thinking while the person waits.
   ["formula.", { thinking: "low" }],
+  // A PDF theme changed as the owner asks: a whole JSON document checked before it is offered,
+  // while they wait, so the main model with a little thinking.
+  ["pdf.theme", { thinking: "low" }],
   // Questions over the workspace's pages, often with figures, while the person waits.
   ["chat", { thinking: "medium" }],
   // A report from many sources, written once while the person watches its steps: the model's own

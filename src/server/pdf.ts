@@ -6,7 +6,7 @@ import pdfmake from "pdfmake";
 import roboto from "pdfmake/fonts/Roboto.js";
 import type { TFontDictionary } from "pdfmake/interfaces";
 import { db } from "@/db";
-import { page, type PropertyOptions } from "@/db/schema";
+import { page, workspace, type PropertyOptions } from "@/db/schema";
 import { isEmbedBlockType, parseLinkedView } from "@/lib/embed-blocks";
 import type { MdBlock } from "@/lib/content-markdown";
 import { env } from "@/lib/env";
@@ -24,9 +24,9 @@ import { pivotCells, pivotTexts, type PivotTexts } from "@/server/pivot-text";
 import { assertExportAllowed, databaseViewTable, pageThreads, recordExport, type ViewExport } from "@/server/export";
 import { commentExportLabels } from "@/server/export-labels";
 import { fileForViewer, readStored } from "@/server/files";
-import { letterheadForPdf } from "@/server/letterheads";
+import { letterheadForPdf, ownedLetterheadWorkspace } from "@/server/letterheads";
 import { getBreadcrumbs } from "@/server/pages";
-import { pdfDocument, type PdfEmbed, type PdfSection, type PdfTable } from "@/server/pdf-document";
+import { pdfDocument, type PdfEmbed, type PdfLetterhead, type PdfSection, type PdfTable, type PdfThemeInput } from "@/server/pdf-document";
 import { liveChildren, printedEmbed, printRefs, syncedLabels } from "@/server/print";
 import { publishedDatabase, publishedLoads, publishedRow, type PublishedDatabase, type PublishedProperty } from "@/server/publication";
 import { printableBlocks } from "@/server/published-body";
@@ -133,7 +133,7 @@ export async function pagePdf(
     getBreadcrumbs(userId, target.id),
     isDatabase ? Promise.resolve([]) : liveChildren(userId, target.id),
     isDatabase ? publishedDatabase(userId, target.id, { reader: userId }) : Promise.resolve(null),
-    properties && parent?.kind === "database" && target.parentId ? publishedRow(target, target.parentId, userId) : Promise.resolve(null),
+    (properties || letterhead?.theme) && parent?.kind === "database" && target.parentId ? publishedRow(target, target.parentId, userId) : Promise.resolve(null),
   ]);
   const synced = content ? await syncedLabels() : null;
   const blocks = content
@@ -150,7 +150,7 @@ export async function pagePdf(
     title: pageLabel(title, labels.untitled),
     icon: target.icon,
     blocks,
-    properties: row
+    properties: row && properties
       ? row.properties.flatMap((p) => {
           const value = valueText(p, row.values[p.id], locale);
           return value ? [{ name: p.name, value }] : [];
@@ -164,13 +164,14 @@ export async function pagePdf(
       ? { heading: commentLabels.heading, resolved: commentLabels.resolved, threads: await pageThreads(userId, target.id, commentLabels) }
       : null,
   };
+  const values = row ? row.properties.map((p) => ({ name: p.name, value: valueText(p, row.values[p.id], locale) })) : [];
   const bytes = await renderPdf({
     title: section.title,
     sections: [section],
     images: await imagesOf(userId, blocks),
     link: (url) => (url.startsWith("/") ? `${env.appUrl}${url}` : url),
     labels,
-    letterhead,
+    ...(await framing(letterhead, { workspaceId: target.workspaceId, title: section.title, locale, properties: values })),
     textScale,
   });
   if (record) {
@@ -179,13 +180,43 @@ export async function pagePdf(
   return { bytes, title: section.title, workspaceId: target.workspaceId };
 }
 
+/** What a template's preview fills its page with, in the reader's language (settings.letterheads.preview). */
+export type PreviewTexts = { title: string; text: string; item: string; quantity: string; price: string; amount: string; rows: string[] };
+
+/**
+ * A letterhead's PDF as Settings previews it, for an owner: a sample page (a paragraph and a table of
+ * three lines) in it, each `{{property:Name}}` of its theme filled with "[Name]". Throws
+ * LetterheadError("notFound") when `userId` doesn't own it.
+ */
+export async function letterheadPreviewPdf(userId: string, letterheadId: string, texts: PreviewTexts): Promise<Buffer> {
+  const workspaceId = await ownedLetterheadWorkspace(userId, letterheadId);
+  const [letterhead, labels, locale] = await Promise.all([letterheadForPdf(userId, workspaceId, letterheadId), pdfLabels(), readerLocale()]);
+  const named = new Set([...JSON.stringify(letterhead?.theme ?? {}).matchAll(/\{\{\s*property:([^}]*)\}\}/gi)].map((m) => m[1].trim()));
+  const run = (text: string) => [{ type: "text", text, styles: {} }];
+  const cell = (text: string) => ({ type: "tableCell", content: run(text), props: {} });
+  const amount = (n: number) => new Intl.NumberFormat(locale, { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(n);
+  const rows = texts.rows.map((name, i) => [name, String(i + 1), amount(100 * (i + 2)), amount(100 * (i + 2) * (i + 1))]);
+  const blocks = [
+    { type: "paragraph", content: run(texts.text), props: {} },
+    { type: "table", content: { type: "tableContent", headerRows: 1, rows: [[texts.item, texts.quantity, texts.price, texts.amount], ...rows].map((r) => ({ cells: r.map(cell) })) }, props: {} },
+  ] as unknown as MdBlock[];
+  return renderPdf({
+    title: texts.title,
+    sections: [{ title: texts.title, blocks, properties: [], database: null, embeds: new Map(), crumbs: [], children: [] }],
+    images: new Map(),
+    link: (url) => url,
+    labels,
+    ...(await framing(letterhead, { workspaceId, title: texts.title, locale, properties: [...named].map((name) => ({ name, value: `[${name}]` })) })),
+  });
+}
+
 /**
  * What a view of the database `databaseId` shows (see ViewExport) as a PDF: its title, then the
  * rows as a table, in the workspace's default letterhead. Recorded as an export like the others.
  */
 export async function viewPdf(userId: string, databaseId: string, view: ViewExport): Promise<PagePdf> {
   const table = await databaseViewTable(userId, databaseId, view, "pdf");
-  const [letterhead, labels] = await Promise.all([letterheadForPdf(userId, table.workspaceId, undefined), pdfLabels()]);
+  const [letterhead, labels, locale] = await Promise.all([letterheadForPdf(userId, table.workspaceId, undefined), pdfLabels(), readerLocale()]);
   const title = pageLabel(table.title, labels.untitled);
   const bytes = await renderPdf({
     title,
@@ -203,9 +234,31 @@ export async function viewPdf(userId: string, databaseId: string, view: ViewExpo
     images: new Map(),
     link: (url) => (url.startsWith("/") ? `${env.appUrl}${url}` : url),
     labels,
-    letterhead,
+    ...(await framing(letterhead, { workspaceId: table.workspaceId, title, locale, properties: [] })),
   });
   return { bytes, title, workspaceId: table.workspaceId };
+}
+
+/** A date as a theme's `{{date}}` prints it: day, month and year in figures, in the reader's way (27.10.2026). */
+export function themeDate(date: Date, locale: string): string {
+  return new Intl.DateTimeFormat(locale, { day: "2-digit", month: "2-digit", year: "numeric" }).format(date);
+}
+
+/**
+ * What a PDF prints around its body: a letterhead with a theme becomes the theme, its
+ * placeholders standing for the page's title, today's date, the workspace's name and the row's
+ * values (`properties`, by name); one without prints as a letterhead.
+ */
+async function framing(
+  letterhead: PdfLetterhead | null,
+  { workspaceId, title, locale, properties }: { workspaceId: string; title: string; locale: string; properties: { name: string; value: string }[] },
+): Promise<{ letterhead: PdfLetterhead | null; theme: PdfThemeInput | null }> {
+  if (!letterhead?.theme) return { letterhead, theme: null };
+  const [ws] = await db.select({ name: workspace.name }).from(workspace).where(eq(workspace.id, workspaceId)).limit(1);
+  return {
+    letterhead: null,
+    theme: { theme: letterhead.theme, logo: letterhead.logo, values: { title, date: themeDate(new Date(), locale), locale, workspace: ws?.name ?? "", properties } },
+  };
 }
 
 /** The texts a PDF prints, in the reader's language (English outside a request). */
