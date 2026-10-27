@@ -164,6 +164,10 @@
 
 ### Fixed
 
+- **Numbers in PDF files show in their property's number format.** A database table in a PDF and
+  a PDF theme's row values printed numbers as typed (465,1) instead of as the app shows them, so
+  fixed decimals, currencies, percentages and thousands separators were lost. They now print as
+  the cell does (465,10, $558,12, %15).
 - **Long AI answers are no longer cut off after a minute.** `AI_TIMEOUT_SECONDS` used to limit a
   whole answer, so a chat or agent turn writing many rows at once (a large tool call) failed with
   "The AI took too long to answer" while it was still coming. It now counts only silence: every

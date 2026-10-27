@@ -15,7 +15,7 @@ import { ENGLISH_COMMENT_LABELS } from "@/lib/export-comments";
 import { fileIdOf } from "@/lib/files";
 import { imageType } from "@/lib/letterheads";
 import { pageLabel } from "@/lib/labels";
-import { numberText, valueFormat } from "@/lib/number-format";
+import { formatInFormat, type NumberFormat, valueFormat } from "@/lib/number-format";
 import { cellText } from "@/lib/table-clipboard";
 import { requirePageAccess } from "@/server/access";
 import type { PageBlock } from "@/server/blocknote";
@@ -303,7 +303,7 @@ async function rowValueTexts(userId: string, rowId: string, locale: string): Pro
     const value = row.properties[p.id];
     if (p.type === "date") return { name: p.name, value: dateText(value) };
     const shown = cellText(p, value, { titleOf, nameOf, fileText: (f) => f.name });
-    return { name: p.name, value: shown === null ? "" : typeof shown === "number" ? numberText(shown, locale, valueFormat(p)) : shown };
+    return { name: p.name, value: shown === null ? "" : typeof shown === "number" ? numberShown(shown, locale, valueFormat(p)) : shown };
   });
 }
 
@@ -314,7 +314,12 @@ function valueText(property: PublishedProperty, value: unknown, locale: string):
     fileText: (f) => f.name,
   });
   if (shown === null) return "";
-  return typeof shown === "number" ? numberText(shown, locale, valueFormat(property)) : shown;
+  return typeof shown === "number" ? numberShown(shown, locale, valueFormat(property)) : shown;
+}
+
+/** A number as its cell shows it in the app: the format's decimals, currency and percent, grouped. */
+function numberShown(value: number, locale: string, format: NumberFormat | undefined): string {
+  return formatInFormat(value, format, (n, options) => new Intl.NumberFormat(locale, options).format(n));
 }
 
 /** A database as the PDF's table: its rows with their values, or a pivot's table (empty for a chart). */
