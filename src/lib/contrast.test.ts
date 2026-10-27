@@ -36,7 +36,7 @@ describe.each([
   ["light", { ...light, ...hcLight }],
   ["dark", { ...light, ...dark, ...hcDark }],
 ])("high contrast, %s theme", (theme, c) => {
-  const surfaces = ["bg", "bg-subtle", "bg-hover", "bg-active"];
+  const surfaces = ["bg", "bg-subtle", "bg-hover", "bg-active", "bg-shell"];
 
   it("has every color it is checked with", () => {
     for (const name of [...surfaces, "fg", "fg-muted", "fg-faint", "border", "accent", "accent-fg", "danger"]) {
@@ -96,7 +96,7 @@ describe.each([
   ["light", light, { ...light, ...hcLight }],
   ["dark", { ...light, ...dark }, { ...light, ...dark, ...hcDark }],
 ])("icon colors, %s theme", (_theme, standard, high) => {
-  const surfaces = ["bg", "bg-subtle", "bg-hover", "bg-active"];
+  const surfaces = ["bg", "bg-subtle", "bg-hover", "bg-active", "bg-shell"];
 
   it("has every color, readable on every surface", () => {
     for (const color of ICON_COLORS) {

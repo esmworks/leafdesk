@@ -68,12 +68,13 @@
   beside it as chips, the model shown by name ("Claude Opus 5.5") rather than id; dictation is next
   to *Send*, which fills in once there is something to send. The conversations in the sidebar are
   grouped by today, yesterday, the previous 7 and 30 days and older.
-- **A crisper look across the app.** Grays lean slightly warm, with white surfaces edged by fine
-  lines in the light scheme and a deeper black in the dark one; buttons are lifted by a soft shadow.
-  A database's views sit on a track with the open one raised, and a line runs under its toolbar and
-  under the page's top bar. Board cards show their values side by side, each in a small chip of its
-  own; a table's header row is gray with smaller text. Database titles are smaller and semibold,
-  pages keep their large titles, and the sidebar's section labels are quieter.
+- **A crisper look across the app.** In wider windows the sidebar sits on a gray shell and the
+  page on a card raised from it, with the open page's row in the sidebar raised the same way.
+  Grays lean slightly warm, with white surfaces edged by fine lines in the light scheme and a
+  deeper black in the dark one; buttons are lifted by a soft shadow. A database's views sit on a
+  track with the open one raised. Board cards show their values side by side, each in a small
+  chip of its own; a table's header row is gray with smaller text. Database titles are smaller and
+  semibold, pages keep their large titles, and the sidebar's section labels are quieter.
 
 - **Scheduled agents read only the web pages of their task and their searches.** A schedule's
   run used to read any address without asking, so text planted in a page or a row it read could

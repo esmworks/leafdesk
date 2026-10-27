@@ -524,7 +524,7 @@ export function PageView({
       <div ref={rootRef} data-find-scope data-page-area className={cn("flex min-h-full flex-col", backdropClass(background))}>
         {/* Above the content's own layers (frozen table columns, the title's buttons, z-30) as it scrolls under.
             The blur sits on a layer behind it: on the header itself it would hold fixed menus and dialogs inside it. */}
-        <header data-window-controls-clear className="sticky top-0 z-[35] flex h-11 items-center justify-between gap-2 border-b border-border px-3 before:absolute before:inset-0 before:-z-10 before:bg-bg/90 before:backdrop-blur max-md:ps-1.5">
+        <header data-window-controls-clear className="sticky top-0 z-[35] flex h-11 items-center justify-between gap-2 px-3 before:absolute before:inset-0 before:-z-10 before:bg-bg/90 before:backdrop-blur max-md:ps-1.5">
           {panel ? (
             <div className="flex min-w-0 items-center gap-0.5">{panel.controls}</div>
           ) : (

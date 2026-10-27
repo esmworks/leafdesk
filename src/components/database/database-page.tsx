@@ -568,7 +568,7 @@ export function DatabasePage({
                     {embed?.header?.(snapshot)}
                     {offline && <OfflineNotice savedAt={offlineCopyFrom} />}
                     {/* Phones stack the toolbar above the tabs so the tabs get the whole row. */}
-                    <div className="flex flex-col-reverse gap-1 border-b border-border pb-2 md:flex-row md:items-end md:justify-between md:gap-2">
+                    <div className="flex flex-col-reverse gap-1 md:flex-row md:items-end md:justify-between md:gap-2">
                       <ViewTabs
                         views={views}
                         activeId={view?.id ?? ""}
