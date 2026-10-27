@@ -112,7 +112,7 @@ import { runWebTool, webToolsFor } from "./web";
 import { agentLevel } from "./sharing";
 import { addAgentUsage, overMonthlyLimit, pruneAgentUsage } from "./usage";
 import { pruneAiUsage } from "@/server/ai/usage-store";
-import { dropOldToolResults } from "@/server/ai/compact";
+import { dropOldToolResults, roomToRead } from "@/server/ai/compact";
 import { ANSWER_NOW, isLastTurn, refuseLastCalls } from "@/server/ai/turns";
 
 const SWEEP_INTERVAL_MS = 5_000;
@@ -675,7 +675,7 @@ async function converse(
   // The model its owners chose: every turn of every run of the agent's goes to it (features.ts).
   const feature = agent.model === "fast" ? "agent.fast" : "agent";
   const budget = await promptRoomFor(run.workspaceId, feature);
-  const room = (messages: AiMessage[]) => budget - system.length - toolsSize - messages.reduce((n, m) => n + m.content.length, 0) - 300;
+  const room = (messages: AiMessage[]) => roomToRead(messages, () => budget - system.length - toolsSize - messages.reduce((n, m) => n + m.content.length, 0) - 300);
 
   const registry: Registry = { sources: [], byKey: new Map() };
   const steps: AgentStepRecord[] = [...run.steps];

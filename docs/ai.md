@@ -163,7 +163,9 @@ you can read. Nothing is searched for the model: each question goes to it with a
 can open (the databases with their properties, types and options, statuses by group, and the
 pages, up to 8,000 characters), and the model decides what to look at. It can search
 (`search_pages`, full-text and, with embeddings, by meaning), read a whole page (`read_page`; a
-database reads as its properties and its first 200 rows with their values) and list the rows of a
+database reads as its properties and its first 200 rows with their values, and a long page in parts
+of up to 50,000 characters, each saying where to read on, as `page_version` reads a long version or
+comparison) and list the rows of a
 database that match filters on its properties (`query_database`, the same filters and sorts as
 the MCP tool, each row a source to cite), as many turns as the question needs until it has spent
 `AI_RUN_LIMIT_USD` (then it answers with what it has; each turn also counts against the workspace's

@@ -29,3 +29,16 @@ export function dropOldToolResults(messages: AiMessage[], keep = KEEP_RECENT_TOO
   }
   return saved;
 }
+
+/** Room under which a tool call first makes some by dropping older results. */
+export const READ_ROOM = 10_000;
+
+/**
+ * The room a tool call's result may take (`left`, worked out from `messages`): with less than
+ * READ_ROOM, every tool result but the newest is dropped first, so a long read goes on part after
+ * part instead of running out of room.
+ */
+export function roomToRead(messages: AiMessage[], left: () => number): number {
+  if (left() < READ_ROOM) dropOldToolResults(messages, 1);
+  return left();
+}

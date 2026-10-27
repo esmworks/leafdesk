@@ -56,8 +56,10 @@ const MAP_SCHEMAS = 20;
 /** Passages sent with a question, and results of one search. */
 const PASSAGES = 6;
 export const PASSAGE_CHARS = 1_200;
-/** The most of a page one read_page call returns. */
-const PAGE_CHARS = 12_000;
+/** The most of a page one read_page call returns: a longer one reads on with `offset`. */
+const PAGE_CHARS = 50_000;
+/** Room a page read keeps for its path, values and properties beside its text. */
+const PAGE_HEAD_CHARS = 4_000;
 /** Rows a database read lists (then cut to PAGE_CHARS like any page). */
 const DATABASE_ROWS = 200;
 /** Rows one query_database call returns by default, and at most. */
@@ -85,11 +87,12 @@ export const CHAT_TOOLS: AiTool[] = [
   {
     name: "read_page",
     description:
-      "Reads a whole page by the page_id of a source: its text, a database row's values, or a database's properties (with their types and options) and rows with their values. Returns it as a numbered source.",
+      "Reads a whole page by the page_id of a source: its text, a database row's values, or a database's properties (with their types and options) and rows with their values. Returns it as a numbered source. A long page comes in parts: its note gives the offset to read on from.",
     parameters: {
       type: "object",
       properties: {
         page_id: { type: "string", description: "The page_id attribute of a source." },
+        offset: { type: "integer", description: "Where in the page's text to start, from the note of a read that didn't fit (default 0)." },
         with_block_ids: { type: "boolean", description: 'Put a line "<!-- block <id> -->" before each block of the text, to change single blocks with edit_page.' },
       },
       required: ["page_id"],
@@ -177,6 +180,7 @@ export const CHAT_TOOLS: AiTool[] = [
       properties: {
         version_id: { type: "string", description: "A version_id from page_history." },
         compare: { type: "string", enum: ["none", "current", "previous"], description: 'Default "current"; "none" reads the version\'s text.' },
+        offset: { type: "integer", description: "Where in the text or the comparison to start, from the note of a read that didn't fit (default 0)." },
       },
       required: ["version_id"],
       additionalProperties: false,
@@ -636,7 +640,7 @@ export async function runTool(
     if (!pageId || pageId.length > 100) return missing;
     // Checked on every call, with the access the person has now.
     const withBlockIds = call.arguments.with_block_ids === true;
-    const read = await readPage(ctx, workspaceId, scope, pageId, Math.min(PAGE_CHARS, room - 500), withBlockIds).catch((error) => {
+    const read = await readPage(ctx, workspaceId, scope, pageId, Math.min(PAGE_CHARS, room - 500), withBlockIds, offsetOf(call.arguments)).catch((error) => {
       if (error instanceof AccessError || (error as Error)?.name === "ToolInputError") return null;
       throw error;
     });
@@ -715,20 +719,23 @@ async function readAround(
     if (!versionId || versionId.length > 100) return missing;
     const compare = call.arguments.compare === "none" || call.arguments.compare === "previous" ? call.arguments.compare : "current";
     // The version's page first: nothing of it is read unless the page is one to read here.
-    const version = await ops.getPageVersion(ctx, { version_id: versionId, offset: 0 }, { maxChars });
+    const offset = offsetOf(call.arguments);
+    // Room for what's said around the text, so the note's offset reads on where it stops.
+    const textChars = Math.max(1_000, maxChars - 1_000);
+    const version = await ops.getPageVersion(ctx, { version_id: versionId, offset: compare === "none" ? offset : 0 }, { maxChars: textChars });
     const target = await readTarget(ctx.userId, workspaceId, scope, version.page_id);
     if (!target) return missing;
     const saved = `the version saved ${version.saved_at} (version_id ${versionId})`;
     let body: string;
-    if (compare === "none") body = `The text of ${saved}, titled "${version.title}"${version.markdown_truncated ? " (only its start fits)" : ""}:\n${version.markdown}`;
+    if (compare === "none") body = `The text of ${saved}, titled "${version.title}"${version.markdown_truncated ? ` (${version.note ?? "only part of it fits"})` : ""}:\n${version.markdown}`;
     else {
-      const diff = await ops.diffPageVersion(ctx, { version_id: versionId, against: compare, offset: 0 }, { maxChars });
+      const diff = await ops.diffPageVersion(ctx, { version_id: versionId, against: compare, offset }, { maxChars: textChars });
       if (!("changed" in diff)) body = `${saved}: ${diff.note}`;
       else {
         const between = compare === "current" ? `from ${saved} to the page now` : `by ${saved}, from the version before it`;
         const by = diff.changed_by.filter(Boolean).length ? ` Changed by: ${diff.changed_by.filter(Boolean).join(", ")}.` : "";
         body = diff.changed
-          ? `What changed ${between}:${by}${diff.title ? `\nTitle: ${diff.title}` : ""}\n${diff.diff}${diff.diff_truncated ? "\n(The rest doesn't fit.)" : ""}`
+          ? `What changed ${between}:${by}${diff.title ? `\nTitle: ${diff.title}` : ""}\n${diff.diff}${diff.diff_truncated ? `\n(${diff.note ?? "The rest doesn't fit."})` : ""}`
           : `Nothing changed ${between}.`;
       }
     }
@@ -1508,13 +1515,23 @@ export async function applyWrite(prepared: PreparedWrite, decision: ChatDecision
   }
 }
 
-/** A page's text as the person may read it now, or null when it's out of reach or scope. */
-async function readPage(ctx: ops.OperationContext, workspaceId: string, scope: ChatScopeRef | null | undefined, pageId: string, maxChars: number, withBlockIds = false) {
+/** Where a read starts in a page's text or a version: the `offset` a cut read's note gave. */
+function offsetOf(args: Record<string, unknown>) {
+  const n = Number(args.offset);
+  return Number.isFinite(n) && n > 0 ? Math.floor(n) : 0;
+}
+
+/**
+ * A page's text as the person may read it now, from `offset`, or null when it's out of reach or
+ * scope. A text longer than `maxChars` is cut, with a note on where to read on.
+ */
+async function readPage(ctx: ops.OperationContext, workspaceId: string, scope: ChatScopeRef | null | undefined, pageId: string, maxChars: number, withBlockIds = false, offset = 0) {
   if (scope) {
     const [inside] = await db.execute<{ one: number }>(sql`select 1 as one from ${page} p where p.id = ${pageId} and ${inScope(scope)}`);
     if (!inside) return null;
   }
-  const out = (await ops.getPage(ctx, { page_id: pageId, offset: 0, with_block_ids: withBlockIds }, { maxMarkdownChars: maxChars })) as Record<string, unknown>;
+  const textChars = Math.max(1_000, maxChars - PAGE_HEAD_CHARS);
+  const out = (await ops.getPage(ctx, { page_id: pageId, offset, with_block_ids: withBlockIds }, { maxMarkdownChars: textChars })) as Record<string, unknown>;
   if (out.workspace_id !== workspaceId || out.in_trash || out.template) return null;
   const parts: string[] = [];
   if (typeof out.path === "string") parts.push(`Path: ${out.path}`);
@@ -1530,11 +1547,13 @@ async function readPage(ctx: ops.OperationContext, workspaceId: string, scope: C
     const schema = await rowSchema(ctx, out.database_id);
     if (schema) parts.push(`A row of the database database_id ${out.database_id}, whose properties are:\n${schema}`);
   }
-  if (typeof out.markdown === "string" && out.markdown.trim()) parts.push(out.markdown);
+  // The text is kept whole, so the note's offset reads on exactly where it stops.
+  const head = truncateText(parts.join("\n\n"), Math.max(0, maxChars - textChars));
+  const body = typeof out.markdown === "string" && out.markdown.trim() ? out.markdown : "";
   return {
     title: String(out.title ?? ""),
-    text: truncateText(parts.join("\n\n"), maxChars),
-    note: out.markdown_truncated ? "Only the start of the page fits." : undefined,
+    text: [head, body].filter(Boolean).join("\n\n"),
+    note: out.markdown_truncated ? (typeof out.note === "string" ? out.note : "Only part of the page fits.") : undefined,
   };
 }
 

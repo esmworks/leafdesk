@@ -97,7 +97,7 @@ import {
   type ChatModelOption,
 } from "@/server/ai";
 import { setTimeout as sleep } from "node:timers/promises";
-import { dropOldToolResults } from "@/server/ai/compact";
+import { dropOldToolResults, roomToRead } from "@/server/ai/compact";
 import { browserTimeZone, isTimeZone } from "@/lib/time-zone";
 import { attachmentBlock, chatHistory, chatQuestionPrompt, chatSystemPrompt, researchSystemPrompt } from "@/server/ai/prompts";
 import { ANSWER_NOW, isLastTurn, refuseLastCalls } from "@/server/ai/turns";
@@ -638,7 +638,7 @@ async function* runChat(
       messages.push(result.message);
       const answerNext = isLastTurn(round + 1, spentUsd, limitUsd);
       for (const call of result.toolCalls) {
-        const left = room() - sizeOf(messages) - 300;
+        const left = roomToRead(messages, () => room() - sizeOf(messages) - 300);
         let out: ToolOutcome;
         const entry = external?.byName.get(call.name);
         if (entry) {

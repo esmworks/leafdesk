@@ -486,6 +486,24 @@ try {
   check(toolResults(fake.chats[RUN_ROUNDS - 1]).at(-1)?.includes("answer now"), "…it's told to answer before its last turn");
   check(toolResults(fake.chats[RUN_ROUNDS]).at(-1)?.includes("Not run"), "…and the last turn's tool calls aren't run");
 
+  // A page longer than one read comes in parts: the note says where to read on, to its end.
+  const handbook = await createPage(actor, { workspaceId, teamspaceId: general.id, title: "Long handbook", markdown: `HANDBOOK-START ${"rule ".repeat(30_000)}HANDBOOK-END` });
+  fake.setChat((request) => {
+    const last = toolResults(request).at(-1);
+    if (last?.includes("HANDBOOK-END")) return { text: "Read it to the end." };
+    const offset = last ? Number(/offset=(\d+)/.exec(last)?.[1] ?? NaN) : 0;
+    if (Number.isNaN(offset)) return { text: "Couldn't read on." };
+    return { toolCalls: [{ name: "read_page", arguments: { page_id: handbook.id, offset } }] };
+  });
+  fake.chats.length = 0;
+  const longRead = await ask(dave, { workspaceId, message: "Read the long handbook to the end" });
+  const handbookParts = fake.chats.flatMap(toolResults);
+  check(
+    longRead.text === "Read it to the end." && handbookParts.length >= 3 && handbookParts[0].includes("HANDBOOK-START") && !handbookParts[0].includes("HANDBOOK-END"),
+    "a long page is read in parts, on from the offset each part's note gives, to its end",
+    { text: longRead.text, parts: handbookParts.length, error: longRead.error },
+  );
+
   const room = await promptRoomFor(workspaceId);
   check((await refusal(() => startChat(dave, { workspaceId, message: "x".repeat(room + 1) }))) === "tooLarge", "a question longer than the model takes is refused");
   // A model with a larger window takes a longer question: nothing else bounds it.
