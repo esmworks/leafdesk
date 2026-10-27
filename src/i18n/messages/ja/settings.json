@@ -2481,7 +2481,8 @@
         "auth": "メールサーバーがユーザー名またはパスワードを拒否しました。アプリパスワードを確認してください。",
         "tls": "メールサーバーとの安全な接続を確立できませんでした。",
         "unreachable": "現在メールサーバーにアクセスできません。",
-        "noInbox": "メールサーバーに受信トレイが表示されません。"
+        "noInbox": "メールサーバーに受信トレイが表示されません。",
+        "signIn": "Google のサインインが使えなくなりました。もう一度 Google でサインインしてください。"
       }
     },
     "fields": {
@@ -2499,7 +2500,8 @@
       "usernamePlaceholder": "通常はメールアドレス",
       "password": "アプリパスワード",
       "passwordKeep": "現在のものを使い続けるには空欄のままにします",
-      "passwordHelp": "ログインに使うパスワードではなく、Leafdesk用に作成したアプリパスワードです。暗号化して保存され、二度と表示されません。"
+      "passwordHelp": "ログインに使うパスワードではなく、Leafdesk用に作成したアプリパスワードです。暗号化して保存され、二度と表示されません。",
+      "method": "接続方法"
     },
     "providerHelp": {
       "google": "独自ドメインのGoogle Workspaceアドレスにも使えます。Googleアカウントの「セキュリティ」でアプリパスワードを作成してください（2段階認証プロセスを有効にしておく必要があります）。",
@@ -2526,8 +2528,21 @@
       "unreachable": "メールサーバーにアクセスできませんでした。サーバー名とポートを確認してください。",
       "noInbox": "メールサーバーに受信トレイが表示されません。",
       "accessDenied": "この操作を行うアクセス権がありません。",
-      "gone": "このメッセージはもうこの行にありません。"
-    }
+      "gone": "このメッセージはもうこの行にありません。",
+      "signIn": "Google のサインインが使えなくなりました。もう一度 Google でサインインしてください。",
+      "googleFailed": "Google でのサインインでメールボックスを接続できませんでした。もう一度お試しください。",
+      "googleScope": "Leafdesk にメールへのアクセスを与えることが Google で許可されませんでした。もう一度サインインして許可してください。"
+    },
+    "methods": {
+      "google": "Google アカウント（Gmail または Google Workspace）",
+      "password": "アプリパスワード（任意のプロバイダー、IMAP と SMTP）"
+    },
+    "googleHint": "Google でサインインし、Leafdesk がメールを読んで送ることを許可します。アプリパスワードは不要で、アクセスはいつでも Google アカウントで取り消せます。",
+    "googleConnect": "Google でサインイン",
+    "googleLeaving": "Google を開いています…",
+    "googleSignedIn": "Google でサインイン済み",
+    "googleConnected": "メールボックスを接続しました。",
+    "dismiss": "閉じる"
   },
   "followUps": {
     "heading": "{database}のフォローアップ",

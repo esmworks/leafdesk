@@ -2481,7 +2481,8 @@
         "auth": "메일 서버가 사용자 이름 또는 비밀번호를 거부했습니다. 앱 비밀번호를 확인하세요.",
         "tls": "메일 서버와 보안 연결을 만들 수 없습니다.",
         "unreachable": "지금은 메일 서버에 연결할 수 없습니다.",
-        "noInbox": "메일 서버에 받은편지함이 없습니다."
+        "noInbox": "메일 서버에 받은편지함이 없습니다.",
+        "signIn": "Google 로그인이 더 이상 작동하지 않습니다. Google로 다시 로그인하세요."
       }
     },
     "fields": {
@@ -2499,7 +2500,8 @@
       "usernamePlaceholder": "보통 이메일 주소",
       "password": "앱 비밀번호",
       "passwordKeep": "현재 비밀번호를 유지하려면 비워 두세요",
-      "passwordHelp": "로그인할 때 쓰는 비밀번호가 아니라 Leafdesk용으로 만든 앱 비밀번호입니다. 암호화되어 저장되며 다시 표시되지 않습니다."
+      "passwordHelp": "로그인할 때 쓰는 비밀번호가 아니라 Leafdesk용으로 만든 앱 비밀번호입니다. 암호화되어 저장되며 다시 표시되지 않습니다.",
+      "method": "연결 방법"
     },
     "providerHelp": {
       "google": "자체 도메인의 Google Workspace 주소에도 사용할 수 있습니다. Google 계정의 보안에서 앱 비밀번호를 만드세요(2단계 인증이 켜져 있어야 합니다).",
@@ -2526,8 +2528,21 @@
       "unreachable": "메일 서버에 연결할 수 없습니다. 서버 이름과 포트를 확인하세요.",
       "noInbox": "메일 서버에 받은편지함이 없습니다.",
       "accessDenied": "이 작업을 할 수 있는 권한이 없습니다.",
-      "gone": "이 메시지는 더 이상 이 행에 없습니다."
-    }
+      "gone": "이 메시지는 더 이상 이 행에 없습니다.",
+      "signIn": "Google 로그인이 더 이상 작동하지 않습니다. Google로 다시 로그인하세요.",
+      "googleFailed": "Google 로그인으로 메일함을 연결하지 못했습니다. 다시 시도하세요.",
+      "googleScope": "Google에서 Leafdesk가 메일에 접근하도록 허용되지 않았습니다. 다시 로그인해 허용하세요."
+    },
+    "methods": {
+      "google": "Google 계정(Gmail 또는 Google Workspace)",
+      "password": "앱 비밀번호(모든 제공업체, IMAP 및 SMTP)"
+    },
+    "googleHint": "Google에서 로그인하고 Leafdesk가 메일을 읽고 보내도록 허용합니다. 앱 비밀번호는 필요 없으며, 언제든 Google 계정에서 접근 권한을 취소할 수 있습니다.",
+    "googleConnect": "Google로 로그인",
+    "googleLeaving": "Google 여는 중…",
+    "googleSignedIn": "Google로 로그인됨",
+    "googleConnected": "메일함이 연결되었습니다.",
+    "dismiss": "닫기"
   },
   "followUps": {
     "heading": "{database}의 팔로업",

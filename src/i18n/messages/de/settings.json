@@ -2481,7 +2481,8 @@
         "auth": "Der Mailserver hat den Benutzernamen oder das Passwort abgelehnt. Prüfe das App-Passwort.",
         "tls": "Es konnte keine sichere Verbindung zum Mailserver hergestellt werden.",
         "unreachable": "Der Mailserver ist gerade nicht erreichbar.",
-        "noInbox": "Der Mailserver zeigt keinen Posteingang."
+        "noInbox": "Der Mailserver zeigt keinen Posteingang.",
+        "signIn": "Die Google-Anmeldung funktioniert nicht mehr. Melden Sie sich erneut mit Google an."
       }
     },
     "fields": {
@@ -2499,7 +2500,8 @@
       "usernamePlaceholder": "Meist die E-Mail-Adresse",
       "password": "App-Passwort",
       "passwordKeep": "Leer lassen, um das aktuelle zu behalten",
-      "passwordHelp": "Ein App-Passwort, das du für Leafdesk erstellt hast, nicht das Passwort, mit dem du dich anmeldest. Es wird verschlüsselt gespeichert und nie wieder angezeigt."
+      "passwordHelp": "Ein App-Passwort, das du für Leafdesk erstellt hast, nicht das Passwort, mit dem du dich anmeldest. Es wird verschlüsselt gespeichert und nie wieder angezeigt.",
+      "method": "Verbinden mit"
     },
     "providerHelp": {
       "google": "Auch für Adressen von Google Workspace mit eigener Domain. Erstelle in deinem Google-Konto unter Sicherheit ein App-Passwort (die Bestätigung in zwei Schritten muss aktiviert sein).",
@@ -2526,8 +2528,21 @@
       "unreachable": "Der Mailserver war nicht erreichbar. Prüfe die Servernamen und Ports.",
       "noInbox": "Der Mailserver zeigt keinen Posteingang.",
       "accessDenied": "Du hast keinen Zugriff, um das zu tun.",
-      "gone": "Diese Nachricht ist nicht mehr in dieser Zeile."
-    }
+      "gone": "Diese Nachricht ist nicht mehr in dieser Zeile.",
+      "signIn": "Die Google-Anmeldung funktioniert nicht mehr. Melden Sie sich erneut mit Google an.",
+      "googleFailed": "Die Anmeldung mit Google hat das Postfach nicht verbunden. Versuchen Sie es erneut.",
+      "googleScope": "Google durfte Leafdesk keinen Zugriff auf Ihre E-Mails geben. Melden Sie sich erneut an und erlauben Sie es."
+    },
+    "methods": {
+      "google": "Google-Konto (Gmail oder Google Workspace)",
+      "password": "App-Passwort (jeder Anbieter, über IMAP und SMTP)"
+    },
+    "googleHint": "Sie melden sich bei Google an und erlauben Leafdesk, Ihre E-Mails zu lesen und zu senden. Ein App-Passwort ist nicht nötig, und Sie können den Zugriff jederzeit in Ihrem Google-Konto zurücknehmen.",
+    "googleConnect": "Mit Google anmelden",
+    "googleLeaving": "Google wird geöffnet…",
+    "googleSignedIn": "mit Google angemeldet",
+    "googleConnected": "Ihr Postfach ist verbunden.",
+    "dismiss": "Schließen"
   },
   "followUps": {
     "heading": "Follow-ups in {database}",

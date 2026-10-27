@@ -1,22 +1,35 @@
-import { and, asc, eq, inArray, isNull, notInArray } from "drizzle-orm";
+import { randomBytes } from "node:crypto";
+import { and, asc, eq, inArray, isNull, lt, notInArray } from "drizzle-orm";
 import { db } from "@/db";
-import { databaseProperty, mailbox, mailDatabase, page, user } from "@/db/schema";
+import { databaseProperty, mailbox, mailboxOauth, mailDatabase, page, user } from "@/db/schema";
+import { env } from "@/lib/env";
 import { MAX_DAILY_LIMIT } from "@/lib/sequences";
 import { isTimeZone } from "@/lib/time-zone";
-import { normalizeAddress, type MailboxFolders, type MailboxServers, type MailboxView, type MailSettingsView, type OwnMailbox } from "@/lib/mail";
+import { normalizeAddress, type MailboxAuth, type MailboxFolders, type MailboxServers, type MailboxView, type MailSettingsView, type OwnMailbox } from "@/lib/mail";
 import { isGuest, requireMembership } from "@/server/access";
 import { recordAudit } from "@/server/audit";
-import { open, seal } from "@/server/secret-box";
+import { open, openJson, seal, sealJson } from "@/server/secret-box";
 import { listWorkspaces, workspaceSettings } from "@/server/workspaces";
-import { MailConnectError, testMailbox } from "./connect";
+import { MailConnectError, testMailbox, type MailCredentials } from "./connect";
+import { exchangeGoogleCode, GOOGLE_MAIL, googleAuthorizationUrl, GoogleSignInError, pkce } from "./google";
 
 /**
  * Settings > General > Email: owners choose the databases mail lands on, in order, and which of their email
  * properties hold the other party's address; every member (not guests) connects their own mailbox
- * in the workspace from their account (Account > Email and calendar), which is tried before it is kept.
+ * in the workspace from their account (Account > Email and calendar), which is tried before it is kept:
+ * with a password, or by signing in with Google (beginGoogleMailbox, then completeGoogleMailbox).
  */
 
-export type RowMailErrorCode = "disabled" | "invalid" | "consent" | "noMailbox" | "rateLimited" | "gone" | MailConnectError["code"];
+export type RowMailErrorCode =
+  | "disabled"
+  | "invalid"
+  | "consent"
+  | "noMailbox"
+  | "rateLimited"
+  | "gone"
+  | "googleFailed"
+  | "googleScope"
+  | MailConnectError["code"];
 
 export class RowMailError extends Error {
   constructor(readonly code: RowMailErrorCode) {
@@ -41,6 +54,7 @@ function mailboxView(m: typeof mailbox.$inferSelect): MailboxView {
       smtpSecure: m.smtpSecure,
     },
     username: m.username,
+    auth: m.auth,
     folders: { inbox: m.folders.inbox?.path ?? null, sent: m.folders.sent?.path ?? null },
     status: m.status,
     statusError: m.statusError,
@@ -126,7 +140,7 @@ export async function listOwnMailboxes(userId: string): Promise<OwnMailbox[]> {
   return members.flatMap((w, i) => {
     const own = boxes.find((b) => b.workspaceId === w.id);
     const enabled = settings[i].email;
-    return enabled || own ? [{ workspaceId: w.id, workspaceName: w.name, enabled, mailbox: own ? mailboxView(own) : null }] : [];
+    return enabled || own ? [{ workspaceId: w.id, workspaceName: w.name, enabled, google: !!env.mailGoogleApp, mailbox: own ? mailboxView(own) : null }] : [];
   });
 }
 
@@ -214,9 +228,7 @@ function cleanServers(servers: MailboxServers): MailboxServers {
  * keeps it only when that works. Reading starts from now; on the same account, from where it was.
  */
 export async function connectMailbox(userId: string, workspaceId: string, input: MailboxInput): Promise<MailboxView> {
-  const membership = await requireMembership(userId, workspaceId);
-  if (isGuest(membership.role)) throw new RowMailError("invalid");
-  if (!(await workspaceSettings(workspaceId)).email) throw new RowMailError("disabled");
+  await requireMailboxPlace(userId, workspaceId);
   if (input?.consent !== true) throw new RowMailError("consent");
   const address = normalizeAddress(input.address);
   const username = typeof input.username === "string" ? input.username.trim() : "";
@@ -228,16 +240,56 @@ export async function connectMailbox(userId: string, workspaceId: string, input:
     .select()
     .from(mailbox)
     .where(and(eq(mailbox.workspaceId, workspaceId), eq(mailbox.userId, userId)));
-  const secret = password ? password : existing ? open(existing.secret) : "";
+  // A Google mailbox changed to a password gives one; its sealed tokens are no password.
+  const secret = password ? password : existing?.auth === "password" ? open(existing.secret) : "";
   if (!secret) throw new RowMailError("invalid");
+  return saveMailbox(existing, {
+    workspaceId,
+    userId,
+    address,
+    displayName,
+    credentials: { servers, username, password: secret },
+    auth: "password",
+    secret: seal(secret),
+    timeZone: input.timeZone,
+  });
+}
+
+/** Members (not guests) of a workspace with email on rows on may connect a mailbox there. */
+async function requireMailboxPlace(userId: string, workspaceId: string) {
+  const membership = await requireMembership(userId, workspaceId);
+  if (isGuest(membership.role)) throw new RowMailError("invalid");
+  if (!(await workspaceSettings(workspaceId)).email) throw new RowMailError("disabled");
+}
+
+/**
+ * Tries a mailbox and keeps it, in place of the member's mailbox in the workspace (`existing`).
+ * Reading starts from now; on the same account, from where it was.
+ */
+async function saveMailbox(
+  existing: typeof mailbox.$inferSelect | undefined,
+  input: {
+    workspaceId: string;
+    userId: string;
+    address: string;
+    displayName: string | null;
+    credentials: MailCredentials;
+    auth: MailboxAuth;
+    /** The password or the tokens, sealed. */
+    secret: string;
+    timeZone?: string | null;
+  },
+): Promise<MailboxView> {
+  const { workspaceId, userId, address, credentials } = input;
+  const { servers, username } = credentials;
   let folders: MailboxFolders;
   try {
-    folders = await testMailbox({ servers, username, password: secret });
+    folders = await testMailbox(credentials);
   } catch (error) {
     throw new RowMailError(error instanceof MailConnectError ? error.code : "unreachable");
   }
   // The same account again: carry on from where reading stopped, so nothing in between is missed.
-  if (existing && existing.imapHost === servers.imapHost && existing.username === username) {
+  if (existing && existing.imapHost === servers.imapHost && existing.username.toLowerCase() === username.toLowerCase()) {
     for (const key of ["inbox", "sent"] as const) {
       const before = existing.folders[key];
       const now = folders[key];
@@ -248,10 +300,11 @@ export async function connectMailbox(userId: string, workspaceId: string, input:
     workspaceId,
     userId,
     address,
-    displayName,
+    displayName: input.displayName,
     ...servers,
     username,
-    secret: seal(secret),
+    auth: input.auth,
+    secret: input.secret,
     folders,
     status: "ok" as const,
     statusError: null,
@@ -268,8 +321,94 @@ export async function connectMailbox(userId: string, workspaceId: string, input:
     actorId: userId,
     action: "mail.mailbox_connected",
     target: { type: "mailbox", id: saved.id, label: address },
+    details: { auth: input.auth },
   });
   return mailboxView(saved);
+}
+
+/** A Google sign-in begun is void after this long. */
+const GOOGLE_STATE_MS = 15 * 60_000;
+
+export const mailOAuthRedirectUrl = () => `${env.appUrl}/api/mail/oauth/callback`;
+
+/**
+ * Begins connecting the member's mailbox in the workspace by signing in with Google: returns the
+ * address to send the browser to. The consent, time zone and name on outgoing mail are kept with
+ * the sign-in until it comes back; `address`, when typed, picks the Google account.
+ */
+export async function beginGoogleMailbox(
+  userId: string,
+  workspaceId: string,
+  input: { consent: boolean; timeZone?: string | null; displayName?: string | null; address?: string | null },
+): Promise<{ url: string }> {
+  await requireMailboxPlace(userId, workspaceId);
+  if (input?.consent !== true) throw new RowMailError("consent");
+  const app = env.mailGoogleApp;
+  if (!app) throw new RowMailError("invalid");
+  const state = randomBytes(24).toString("base64url");
+  const { verifier, challenge } = pkce();
+  const timeZone = isTimeZone(input.timeZone) ? input.timeZone : null;
+  const displayName = typeof input.displayName === "string" ? input.displayName.trim().slice(0, 200) || null : null;
+  await db.delete(mailboxOauth).where(lt(mailboxOauth.createdAt, new Date(Date.now() - GOOGLE_STATE_MS)));
+  await db.insert(mailboxOauth).values({ state, userId, workspaceId, data: sealJson({ verifier, consent: true, timeZone, displayName }) });
+  return { url: googleAuthorizationUrl(app, { state, challenge, redirectUri: mailOAuthRedirectUrl(), loginHint: normalizeAddress(input.address) }) };
+}
+
+/** The workspace a Google sign-in begun with `state` (by `userId`, when given) came from, to send the browser back to. */
+export async function googleMailReturnOf(state: string, userId?: string): Promise<{ workspaceId: string } | null> {
+  const [pending] = await db
+    .select({ workspaceId: mailboxOauth.workspaceId })
+    .from(mailboxOauth)
+    .where(and(eq(mailboxOauth.state, state), userId === undefined ? undefined : eq(mailboxOauth.userId, userId)));
+  return pending ?? null;
+}
+
+/**
+ * The browser came back from Google: finishes the sign-in begun with `state` by the same person,
+ * tries the mailbox with it (Gmail's servers, XOAUTH2) and keeps it in place of their mailbox in
+ * that workspace. The sign-in is used up whether or not this works.
+ */
+export async function completeGoogleMailbox(userId: string, input: { state: string; code: string }): Promise<{ workspaceId: string; mailbox: MailboxView }> {
+  const [pending] = await db
+    .delete(mailboxOauth)
+    .where(and(eq(mailboxOauth.state, input.state), eq(mailboxOauth.userId, userId)))
+    .returning();
+  if (!pending || pending.createdAt.getTime() < Date.now() - GOOGLE_STATE_MS) throw new RowMailError("googleFailed");
+  const { verifier, consent, timeZone, displayName } = openJson<{ verifier: string; consent?: boolean; timeZone?: string | null; displayName?: string | null }>(
+    pending.data,
+  );
+  if (consent !== true) throw new RowMailError("consent");
+  const { workspaceId } = pending;
+  await requireMailboxPlace(userId, workspaceId);
+  const app = env.mailGoogleApp;
+  if (!app) throw new RowMailError("invalid");
+  let signedIn: Awaited<ReturnType<typeof exchangeGoogleCode>>;
+  try {
+    signedIn = await exchangeGoogleCode(app, { code: input.code, verifier, redirectUri: mailOAuthRedirectUrl() });
+  } catch (error) {
+    if (error instanceof GoogleSignInError) {
+      console.warn("[row-mail] Google sign-in didn't connect a mailbox:", error.message);
+      throw new RowMailError(error.reason === "scope" ? "googleScope" : "googleFailed");
+    }
+    throw error;
+  }
+  const address = normalizeAddress(signedIn.email);
+  if (!address) throw new RowMailError("googleFailed");
+  const [existing] = await db
+    .select()
+    .from(mailbox)
+    .where(and(eq(mailbox.workspaceId, workspaceId), eq(mailbox.userId, userId)));
+  const saved = await saveMailbox(existing, {
+    workspaceId,
+    userId,
+    address,
+    displayName: displayName || (existing?.address === address ? existing.displayName : null),
+    credentials: { servers: GOOGLE_MAIL.servers, username: address, accessToken: signedIn.tokens.accessToken },
+    auth: "google",
+    secret: sealJson(signedIn.tokens),
+    timeZone,
+  });
+  return { workspaceId, mailbox: saved };
 }
 
 /**

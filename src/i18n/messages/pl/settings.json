@@ -2481,7 +2481,8 @@
         "auth": "Serwer poczty odrzucił nazwę użytkownika lub hasło. Sprawdź hasło aplikacji.",
         "tls": "Nie udało się nawiązać bezpiecznego połączenia z serwerem poczty.",
         "unreachable": "Serwer poczty jest teraz nieosiągalny.",
-        "noInbox": "Serwer poczty nie pokazuje żadnej skrzynki odbiorczej."
+        "noInbox": "Serwer poczty nie pokazuje żadnej skrzynki odbiorczej.",
+        "signIn": "Logowanie przez Google już nie działa. Zaloguj się ponownie przez Google."
       }
     },
     "fields": {
@@ -2499,7 +2500,8 @@
       "usernamePlaceholder": "Zwykle adres e-mail",
       "password": "Hasło aplikacji",
       "passwordKeep": "Zostaw puste, aby zachować obecne",
-      "passwordHelp": "Hasło aplikacji utworzone dla Leafdesk, a nie hasło, którym się logujesz. Jest przechowywane w postaci zaszyfrowanej i nigdy więcej nie jest wyświetlane."
+      "passwordHelp": "Hasło aplikacji utworzone dla Leafdesk, a nie hasło, którym się logujesz. Jest przechowywane w postaci zaszyfrowanej i nigdy więcej nie jest wyświetlane.",
+      "method": "Połącz przez"
     },
     "providerHelp": {
       "google": "Również dla adresów Google Workspace we własnej domenie. Utwórz hasło aplikacji w swoim koncie Google w sekcji Bezpieczeństwo (weryfikacja dwuetapowa musi być włączona).",
@@ -2526,8 +2528,21 @@
       "unreachable": "Nie udało się połączyć z serwerem poczty. Sprawdź nazwy serwerów i porty.",
       "noInbox": "Serwer poczty nie pokazuje żadnej skrzynki odbiorczej.",
       "accessDenied": "Nie masz dostępu, aby to zrobić.",
-      "gone": "Tej wiadomości nie ma już w tym wierszu."
-    }
+      "gone": "Tej wiadomości nie ma już w tym wierszu.",
+      "signIn": "Logowanie przez Google już nie działa. Zaloguj się ponownie przez Google.",
+      "googleFailed": "Logowanie przez Google nie podłączyło skrzynki. Spróbuj ponownie.",
+      "googleScope": "Google nie mógł dać Leafdesk dostępu do Twojej poczty. Zaloguj się ponownie i zezwól na to."
+    },
+    "methods": {
+      "google": "Konto Google (Gmail lub Google Workspace)",
+      "password": "Hasło aplikacji (dowolny dostawca, przez IMAP i SMTP)"
+    },
+    "googleHint": "Logujesz się w Google i pozwalasz Leafdesk czytać i wysyłać Twoją pocztę. Hasło aplikacji nie jest potrzebne, a dostęp możesz w każdej chwili cofnąć na swoim koncie Google.",
+    "googleConnect": "Zaloguj się przez Google",
+    "googleLeaving": "Otwieranie Google…",
+    "googleSignedIn": "zalogowano przez Google",
+    "googleConnected": "Twoja skrzynka jest podłączona.",
+    "dismiss": "Zamknij"
   },
   "followUps": {
     "heading": "Follow-upy w {database}",

@@ -9,6 +9,27 @@ account, in Settings → Email and calendar, for that workspace only: the addres
 IMAP and SMTP server) and an app password made for Leafdesk. The mailbox is tried before it is
 kept, and its password is sealed like a connection's secrets (`LEAFDESK_ENCRYPTION_KEY`).
 
+A Gmail or Google Workspace mailbox can be connected by signing in with Google instead, once the
+server has a Google OAuth client for it (below): *Google account* in the form sends the browser to
+Google, where the member allows Leafdesk to read and send their mail, and back to the settings,
+with the mailbox tried and kept. No app password is needed, so this works where a Workspace
+organization turned app passwords off. IMAP and SMTP then sign in with XOAUTH2. The sign-in's
+tokens are sealed like a password; the access token is renewed as it runs out. When the member
+takes the access back in their Google account (or the client changes), the mailbox says so and
+mail to send from it fails at once; signing in with Google again connects it again, and reading
+carries on from where it stopped. A mailbox changes between Google and an app password the same
+way, on the same account without missing mail.
+
+To offer it, the server's administrator creates an OAuth client of type *Web application* in the
+Google Cloud console with `<APP_URL>/api/mail/oauth/callback` as a redirect URI, adds the scope
+`https://mail.google.com/` (with `openid` and `email`) to the consent screen, and sets
+`MAIL_GOOGLE_CLIENT_ID` and `MAIL_GOOGLE_CLIENT_SECRET`. The client the server signs people in
+with Google through can serve, with that redirect URI added. Gmail's IMAP and SMTP take only this
+full mail scope, which Google counts as restricted: a consent screen of type *Internal* (people of
+one Google Workspace organization) needs nothing more, while an *External* one signs in only its
+test users until Google has verified the app. In the desktop app the sign-in happens in the
+system's browser, as for connections and storage.
+
 Every minute the server reads the inbox and the sent folder of each mailbox, from where it last
 stopped, headers first. A message goes on a row when an earlier message of its thread is on one,
 or else when the other party's address is in a matched email property of exactly one row of a

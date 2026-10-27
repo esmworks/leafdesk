@@ -2481,7 +2481,8 @@
         "auth": "De mailserver weigerde de gebruikersnaam of het wachtwoord. Controleer het app-wachtwoord.",
         "tls": "Er kon geen beveiligde verbinding met de mailserver worden gemaakt.",
         "unreachable": "De mailserver is nu niet bereikbaar.",
-        "noInbox": "De mailserver toont geen inbox."
+        "noInbox": "De mailserver toont geen inbox.",
+        "signIn": "De Google-aanmelding werkt niet meer. Meld je opnieuw aan met Google."
       }
     },
     "fields": {
@@ -2499,7 +2500,8 @@
       "usernamePlaceholder": "Meestal het e-mailadres",
       "password": "App-wachtwoord",
       "passwordKeep": "Laat leeg om het huidige te behouden",
-      "passwordHelp": "Een app-wachtwoord dat voor Leafdesk is gemaakt, niet het wachtwoord waarmee je inlogt. Het wordt versleuteld bewaard en nooit meer getoond."
+      "passwordHelp": "Een app-wachtwoord dat voor Leafdesk is gemaakt, niet het wachtwoord waarmee je inlogt. Het wordt versleuteld bewaard en nooit meer getoond.",
+      "method": "Koppelen met"
     },
     "providerHelp": {
       "google": "Ook voor Google Workspace-adressen op je eigen domein. Maak een app-wachtwoord in je Google-account onder Beveiliging (verificatie in twee stappen moet aan staan).",
@@ -2526,8 +2528,21 @@
       "unreachable": "De mailserver kon niet worden bereikt. Controleer de servernamen en poorten.",
       "noInbox": "De mailserver toont geen inbox.",
       "accessDenied": "Je hebt geen toegang om dit te doen.",
-      "gone": "Dat bericht staat niet meer op deze rij."
-    }
+      "gone": "Dat bericht staat niet meer op deze rij.",
+      "signIn": "De Google-aanmelding werkt niet meer. Meld je opnieuw aan met Google.",
+      "googleFailed": "Aanmelden met Google heeft de mailbox niet gekoppeld. Probeer het opnieuw.",
+      "googleScope": "Google mocht Leafdesk geen toegang tot je mail geven. Meld je opnieuw aan en sta het toe."
+    },
+    "methods": {
+      "google": "Google-account (Gmail of Google Workspace)",
+      "password": "App-wachtwoord (elke provider, via IMAP en SMTP)"
+    },
+    "googleHint": "Je meldt je aan bij Google en staat Leafdesk toe je mail te lezen en te versturen. Een app-wachtwoord is niet nodig, en je kunt de toegang altijd intrekken in je Google-account.",
+    "googleConnect": "Aanmelden met Google",
+    "googleLeaving": "Google openen…",
+    "googleSignedIn": "aangemeld met Google",
+    "googleConnected": "Je mailbox is gekoppeld.",
+    "dismiss": "Sluiten"
   },
   "followUps": {
     "heading": "Opvolgreeksen op {database}",

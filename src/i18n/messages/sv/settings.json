@@ -2481,7 +2481,8 @@
         "auth": "E-postservern avvisade användarnamnet eller lösenordet. Kontrollera applösenordet.",
         "tls": "Det gick inte att upprätta en säker anslutning till e-postservern.",
         "unreachable": "E-postservern kan inte nås just nu.",
-        "noInbox": "E-postservern visar ingen inkorg."
+        "noInbox": "E-postservern visar ingen inkorg.",
+        "signIn": "Google-inloggningen fungerar inte längre. Logga in med Google igen."
       }
     },
     "fields": {
@@ -2499,7 +2500,8 @@
       "usernamePlaceholder": "Oftast e-postadressen",
       "password": "Applösenord",
       "passwordKeep": "Lämna tomt för att behålla det nuvarande",
-      "passwordHelp": "Ett applösenord som skapats för Leafdesk, inte lösenordet du loggar in med. Det sparas krypterat och visas aldrig igen."
+      "passwordHelp": "Ett applösenord som skapats för Leafdesk, inte lösenordet du loggar in med. Det sparas krypterat och visas aldrig igen.",
+      "method": "Anslut med"
     },
     "providerHelp": {
       "google": "Även för Google Workspace-adresser på din egen domän. Skapa ett applösenord i ditt Google-konto under Säkerhet (tvåstegsverifiering måste vara på).",
@@ -2526,8 +2528,21 @@
       "unreachable": "E-postservern kunde inte nås. Kontrollera servernamnen och portarna.",
       "noInbox": "E-postservern visar ingen inkorg.",
       "accessDenied": "Du har inte åtkomst att göra detta.",
-      "gone": "Det meddelandet finns inte längre på den här raden."
-    }
+      "gone": "Det meddelandet finns inte längre på den här raden.",
+      "signIn": "Google-inloggningen fungerar inte längre. Logga in med Google igen.",
+      "googleFailed": "Inloggningen med Google anslöt inte brevlådan. Försök igen.",
+      "googleScope": "Google fick inte ge Leafdesk åtkomst till din e-post. Logga in igen och tillåt det."
+    },
+    "methods": {
+      "google": "Google-konto (Gmail eller Google Workspace)",
+      "password": "Applösenord (alla leverantörer, via IMAP och SMTP)"
+    },
+    "googleHint": "Du loggar in hos Google och låter Leafdesk läsa och skicka din e-post. Inget applösenord behövs, och du kan när som helst ta tillbaka åtkomsten i ditt Google-konto.",
+    "googleConnect": "Logga in med Google",
+    "googleLeaving": "Öppnar Google…",
+    "googleSignedIn": "inloggad med Google",
+    "googleConnected": "Din brevlåda är ansluten.",
+    "dismiss": "Stäng"
   },
   "followUps": {
     "heading": "Uppföljningar på {database}",

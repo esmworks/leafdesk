@@ -47,5 +47,6 @@ export async function createFromPlanAction(workspaceId: string, plan: DatabasePl
     place && "parentId" in place && typeof place.parentId === "string"
       ? { parentId: place.parentId }
       : { teamspaceId: place && "teamspaceId" in place && (typeof place.teamspaceId === "string" || place.teamspaceId === null) ? place.teamspaceId : undefined };
-  return run((userId) => createFromPlan({ userId }, String(workspaceId), plan, where));
+  // The plan's pages were drafted by the model: written as its writes are (lib/model-media).
+  return run((userId) => createFromPlan({ userId, model: true }, String(workspaceId), plan, where));
 }

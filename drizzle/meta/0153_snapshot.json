@@ -1,5 +1,5 @@
 {
-  "id": "56345dcc-6323-4484-b136-12f74d6ac5d8",
+  "id": "66f6ca64-48b7-46c8-8b6f-ec5c707f6b6d",
   "prevId": "7d386935-c48f-40f4-a98d-6daeb348fbe6",
   "version": "7",
   "dialect": "postgresql",
@@ -14892,12 +14892,6 @@
           "primaryKey": false,
           "notNull": false
         },
-        "page_id": {
-          "name": "page_id",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false
-        },
         "rule": {
           "name": "rule",
           "type": "jsonb",
@@ -15030,21 +15024,6 @@
           "concurrently": false,
           "method": "btree",
           "with": {}
-        },
-        "schedule_page_idx": {
-          "name": "schedule_page_idx",
-          "columns": [
-            {
-              "expression": "page_id",
-              "isExpression": false,
-              "asc": true,
-              "nulls": "last"
-            }
-          ],
-          "isUnique": false,
-          "concurrently": false,
-          "method": "btree",
-          "with": {}
         }
       },
       "foreignKeys": {
@@ -15093,19 +15072,6 @@
           "tableTo": "workspace_agent",
           "columnsFrom": [
             "agent_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
-          "onDelete": "cascade",
-          "onUpdate": "no action"
-        },
-        "schedule_page_id_page_id_fk": {
-          "name": "schedule_page_id_page_id_fk",
-          "tableFrom": "schedule",
-          "tableTo": "page",
-          "columnsFrom": [
-            "page_id"
           ],
           "columnsTo": [
             "id"
@@ -15855,6 +15821,13 @@
           "primaryKey": false,
           "notNull": true
         },
+        "auth": {
+          "name": "auth",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "'password'"
+        },
         "secret": {
           "name": "secret",
           "type": "text",
@@ -15986,8 +15959,83 @@
         "mailbox_status_check": {
           "name": "mailbox_status_check",
           "value": "\"mailbox\".\"status\" in ('connecting', 'ok', 'error')"
+        },
+        "mailbox_auth_check": {
+          "name": "mailbox_auth_check",
+          "value": "\"mailbox\".\"auth\" in ('password', 'google')"
         }
       },
+      "isRLSEnabled": false
+    },
+    "public.mailbox_oauth": {
+      "name": "mailbox_oauth",
+      "schema": "",
+      "columns": {
+        "state": {
+          "name": "state",
+          "type": "text",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "user_id": {
+          "name": "user_id",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "workspace_id": {
+          "name": "workspace_id",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "data": {
+          "name": "data",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "mailbox_oauth_user_id_user_id_fk": {
+          "name": "mailbox_oauth_user_id_user_id_fk",
+          "tableFrom": "mailbox_oauth",
+          "tableTo": "user",
+          "columnsFrom": [
+            "user_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        },
+        "mailbox_oauth_workspace_id_workspace_id_fk": {
+          "name": "mailbox_oauth_workspace_id_workspace_id_fk",
+          "tableFrom": "mailbox_oauth",
+          "tableTo": "workspace",
+          "columnsFrom": [
+            "workspace_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
       "isRLSEnabled": false
     },
     "public.row_email": {

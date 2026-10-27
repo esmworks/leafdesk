@@ -8,8 +8,11 @@
  * row goes out from the member's mailbox in its thread, and an answer to it lands on the row by
  * its thread even from another address; the copy in the sent folder isn't taken twice; a sent
  * folder the server doesn't mark is found by its name, and a mailbox without one still connects
- * and says so; hiding a message takes it off the row and out of the inbox; a member who leaves
- * loses their mailbox.
+ * and says so; hiding a message takes it off the row and out of the inbox; a mailbox connected by
+ * signing in with Google (a stand-in token endpoint, XOAUTH2 at the test server) is begun only with
+ * consent, finished once and only by whoever began it, reads and sends with its access token,
+ * renews it when it runs out and says so when the sign-in is taken back, and changes back to a
+ * password; a member who leaves loses their mailbox.
  * Creates its own users and workspace and deletes them afterwards.
  *
  *   docker run -d --name leafdesk-greenmail -p 3025:3025 -p 3143:3143 \
@@ -32,6 +35,8 @@ const HOST = process.env.GREENMAIL_HOST ?? "127.0.0.1";
 const SMTP_PORT = Number(process.env.GREENMAIL_SMTP_PORT ?? 3025);
 const IMAP_PORT = Number(process.env.GREENMAIL_IMAP_PORT ?? 3143);
 process.env.MAIL_ALLOWED_HOSTS ||= HOST;
+process.env.MAIL_GOOGLE_CLIENT_ID = "e2e-client";
+process.env.MAIL_GOOGLE_CLIENT_SECRET = "e2e-secret";
 
 // Imported after .env is loaded: the database client reads DATABASE_URL when it is created.
 const { and, eq, inArray } = await import("drizzle-orm");
@@ -46,7 +51,13 @@ const { setPropertyAccess } = await import("@/server/property-access");
 const { listInbox } = await import("@/server/notifications");
 const { setFollowing } = await import("@/server/row-follow");
 const { removeMember, updateWorkspaceSettings } = await import("@/server/workspaces");
-const { connectMailbox, getMailSettings, listOwnMailboxes, RowMailError, setMailDatabases } = await import("@/server/row-mail/settings");
+const { beginGoogleMailbox, completeGoogleMailbox, connectMailbox, getMailSettings, listOwnMailboxes, RowMailError, setMailDatabases } = await import(
+  "@/server/row-mail/settings"
+);
+const { GOOGLE_MAIL, GOOGLE_MAIL_SCOPE } = await import("@/server/row-mail/google");
+const { openJson, sealJson } = await import("@/server/secret-box");
+const { createHash } = await import("node:crypto");
+const { createServer } = await import("node:http");
 const { syncDue } = await import("@/server/row-mail/sync");
 const { queueRowEmail, sendDue } = await import("@/server/row-mail/send");
 const { hideRowEmail, listRowEmails } = await import("@/server/row-mail/list");
@@ -90,6 +101,25 @@ const stranger = `someone.${RUN}@elsewhere.test`;
 const servers = { imapHost: HOST, imapPort: IMAP_PORT, imapSecure: false, smtpHost: HOST, smtpPort: SMTP_PORT, smtpSecure: false };
 
 const outside = nodemailer.createTransport({ host: HOST, port: SMTP_PORT, secure: false, ignoreTLS: true });
+
+// Google's token endpoint, stood in for: answers as `tokenAnswer` says and keeps the forms it was sent.
+const tokenForms: URLSearchParams[] = [];
+let tokenAnswer: (form: URLSearchParams) => { status: number; body: unknown } = () => ({ status: 500, body: {} });
+const tokenServer = createServer((req, res) => {
+  const chunks: Buffer[] = [];
+  req.on("data", (c: Buffer) => chunks.push(c));
+  req.on("end", () => {
+    const form = new URLSearchParams(Buffer.concat(chunks).toString("utf8"));
+    tokenForms.push(form);
+    const { status, body } = tokenAnswer(form);
+    res.writeHead(status, { "content-type": "application/json" }).end(JSON.stringify(body));
+  });
+});
+await new Promise<void>((resolve) => tokenServer.listen(0, "127.0.0.1", resolve));
+GOOGLE_MAIL.tokenUrl = `http://127.0.0.1:${(tokenServer.address() as { port: number }).port}/token`;
+// Gmail's servers are the test server here.
+GOOGLE_MAIL.servers = { imapHost: HOST, imapPort: IMAP_PORT, imapSecure: false, smtpHost: HOST, smtpPort: SMTP_PORT, smtpSecure: false };
+const idToken = (claims: Record<string, unknown>) => `e30.${Buffer.from(JSON.stringify(claims)).toString("base64url")}.sig`;
 
 /** Sends a message to the test server as someone outside the workspace. */
 async function deliver(mail: { from: string; to: string; subject: string; text: string; inReplyTo?: string; references?: string[]; attachments?: { filename: string; content: string }[] }) {
@@ -306,6 +336,85 @@ try {
   const noSent = await connect(ids.follower, can);
   check(noSent.status === "ok" && noSent.folders.inbox === "INBOX" && noSent.folders.sent === null, "a mailbox without a sent folder still connects, and says it has none", noSent);
 
+  // Signing in with Google
+  const gul = `gul.${RUN}@leafdesk.test`;
+  check(await failsWith("consent", () => beginGoogleMailbox(ids.owner, workspaceId, { consent: false })), "a sign-in with Google begins only with consent");
+  const begun = new URL((await beginGoogleMailbox(ids.owner, workspaceId, { consent: true, displayName: "Gül", timeZone: "Europe/Istanbul", address: gul })).url);
+  const state = begun.searchParams.get("state")!;
+  check(
+    begun.searchParams.get("login_hint") === gul && begun.searchParams.get("scope")!.split(" ").includes(GOOGLE_MAIL_SCOPE) && begun.searchParams.has("code_challenge"),
+    "it asks Google for mail, for the account typed, with PKCE",
+    Object.fromEntries(begun.searchParams),
+  );
+  tokenAnswer = () => ({
+    status: 200,
+    body: { access_token: "g-access-1", refresh_token: "g-refresh-1", expires_in: 3599, scope: `openid ${GOOGLE_MAIL_SCOPE}`, id_token: idToken({ email: gul, email_verified: true }) },
+  });
+  check(await failsWith("googleFailed", () => completeGoogleMailbox(ids.follower, { state, code: "code-1" })), "it finishes only for whoever began it");
+  const signedIn = await completeGoogleMailbox(ids.owner, { state, code: "code-1" });
+  const exchange = tokenForms.at(-1)!;
+  check(
+    exchange.get("grant_type") === "authorization_code" &&
+      createHash("sha256").update(exchange.get("code_verifier")!).digest("base64url") === begun.searchParams.get("code_challenge"),
+    "the code is traded with its PKCE verifier",
+  );
+  check(
+    signedIn.workspaceId === workspaceId && signedIn.mailbox.auth === "google" && signedIn.mailbox.address === gul && signedIn.mailbox.status === "ok",
+    "the mailbox is tried with the access token (XOAUTH2) and kept",
+    signedIn,
+  );
+  check(signedIn.mailbox.displayName === "Gül" && signedIn.mailbox.timeZone === "Europe/Istanbul", "with the name and time zone given when it began");
+  check(await failsWith("googleFailed", () => completeGoogleMailbox(ids.owner, { state, code: "code-1" })), "a sign-in finishes once");
+  const googleBox = async () => (await db.select().from(mailbox).where(eq(mailbox.id, signedIn.mailbox.id)))[0];
+  const googleKept = await googleBox();
+  check(!googleKept.secret.includes("g-refresh-1") && openJson<{ refreshToken: string }>(googleKept.secret).refreshToken === "g-refresh-1", "its tokens are kept sealed");
+  check(!JSON.stringify(await listOwnMailboxes(ids.owner)).includes("g-access-1"), "and never come back out");
+  check((await listOwnMailboxes(ids.owner)).find((m) => m.workspaceId === workspaceId)?.google === true, "the account offers signing in with Google");
+
+  // The access token runs out: reading renews it first.
+  await db
+    .update(mailbox)
+    .set({ secret: sealJson({ ...openJson<object>(googleKept.secret), expiresAt: 0 }) })
+    .where(eq(mailbox.id, googleKept.id));
+  tokenAnswer = (form) => (form.get("grant_type") === "refresh_token" ? { status: 200, body: { access_token: "g-access-2", expires_in: 3599 } } : { status: 400, body: {} });
+  const forGul = await deliver({ from: customer, to: gul, subject: "Through Google", text: "Hello Gül" });
+  await settle();
+  await readMailboxes();
+  const renewed = await googleBox();
+  check(tokenForms.at(-1)!.get("refresh_token") === "g-refresh-1", "a run-out access token is renewed with the refresh token");
+  check(openJson<{ accessToken: string }>(renewed.secret).accessToken === "g-access-2" && renewed.status === "ok", "the new one is kept and the mailbox read", renewed.status);
+  const throughGoogle = (await db.select().from(rowEmail).where(eq(rowEmail.workspaceId, workspaceId))).find((e) => e.messageId === forGul);
+  check(throughGoogle?.rowId === acme.id && throughGoogle.mailboxId === googleKept.id, "mail to it lands on the row", throughGoogle);
+
+  const fromGoogle = await queueRowEmail(ids.owner, acme.id, { to: [customer], subject: "Sent through Google", text: "Hi" });
+  await sendDue();
+  const sentThroughGoogle = (await db.select().from(rowEmail).where(eq(rowEmail.id, fromGoogle)))[0];
+  check(sentThroughGoogle.status === "sent", "and mail written on the row goes out from it (XOAUTH2)", sentThroughGoogle);
+  await settle();
+  check((await inboxOf(customer)).some((m) => m.subject === "Sent through Google"), "the customer gets it");
+
+  // Google takes the sign-in back.
+  await db
+    .update(mailbox)
+    .set({ secret: sealJson({ ...openJson<object>(renewed.secret), expiresAt: 0 }) })
+    .where(eq(mailbox.id, googleKept.id));
+  tokenAnswer = () => ({ status: 400, body: { error: "invalid_grant", error_description: "Token has been expired or revoked." } });
+  await readMailboxes();
+  const revoked = await googleBox();
+  check(revoked.status === "error" && revoked.statusError === "signIn", "a sign-in Google took back says to sign in again", revoked.statusError);
+  const failedId = await queueRowEmail(ids.owner, acme.id, { to: [customer], subject: "Not going out", text: "Hi" });
+  await sendDue();
+  const failed = (await db.select().from(rowEmail).where(eq(rowEmail.id, failedId)))[0];
+  check(failed.status === "failed" && failed.error?.startsWith("signIn") && !failed.error.includes("g-refresh-1"), "mail to send from it fails at once, saying why", failed.error);
+
+  check(await failsWith("invalid", () => connect(ids.owner, gul, { password: "" })), "changing it to a password asks for one");
+  const backToPassword = await connect(ids.owner, gul);
+  check(backToPassword.auth === "password" && backToPassword.folders.inbox === "INBOX", "it changes back to a password", backToPassword);
+  check(
+    (await googleBox()).folders.inbox?.lastUid === revoked.folders.inbox?.lastUid,
+    "reading the same account carries on from where it stopped",
+  );
+
   // Leaving
   await removeMember(ids.owner, workspaceId, ids.member);
   check((await db.select().from(mailbox).where(eq(mailbox.id, box.id))).length === 0, "a member who leaves takes their mailbox with them");
@@ -314,6 +423,7 @@ try {
   console.log(`\n${passed} checks passed`);
 } finally {
   outside.close();
+  tokenServer.close();
   await db.delete(notification).where(eq(notification.workspaceId, workspaceId));
   await db.delete(workspace).where(inArray(workspace.id, [workspaceId]));
   await db.delete(user).where(inArray(user.id, userIds));

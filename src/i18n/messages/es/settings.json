@@ -2481,7 +2481,8 @@
         "auth": "El servidor de correo rechazó el nombre de usuario o la contraseña. Revisa la contraseña de aplicación.",
         "tls": "No se pudo establecer una conexión segura con el servidor de correo.",
         "unreachable": "No se puede contactar con el servidor de correo en este momento.",
-        "noInbox": "El servidor de correo no muestra ninguna bandeja de entrada."
+        "noInbox": "El servidor de correo no muestra ninguna bandeja de entrada.",
+        "signIn": "El inicio de sesión de Google ya no funciona. Vuelve a iniciar sesión con Google."
       }
     },
     "fields": {
@@ -2499,7 +2500,8 @@
       "usernamePlaceholder": "Normalmente, la dirección de correo",
       "password": "Contraseña de aplicación",
       "passwordKeep": "Déjalo vacío para mantener la actual",
-      "passwordHelp": "Una contraseña de aplicación creada para Leafdesk, no la contraseña con la que inicias sesión. Se guarda cifrada y no se vuelve a mostrar."
+      "passwordHelp": "Una contraseña de aplicación creada para Leafdesk, no la contraseña con la que inicias sesión. Se guarda cifrada y no se vuelve a mostrar.",
+      "method": "Conectar con"
     },
     "providerHelp": {
       "google": "También para direcciones de Google Workspace en tu propio dominio. Crea una contraseña de aplicación en tu cuenta de Google, en Seguridad (la verificación en dos pasos debe estar activada).",
@@ -2526,8 +2528,21 @@
       "unreachable": "No se pudo contactar con el servidor de correo. Revisa los nombres de los servidores y los puertos.",
       "noInbox": "El servidor de correo no muestra ninguna bandeja de entrada.",
       "accessDenied": "No tienes acceso para hacer esto.",
-      "gone": "Ese mensaje ya no está en esta fila."
-    }
+      "gone": "Ese mensaje ya no está en esta fila.",
+      "signIn": "El inicio de sesión de Google ya no funciona. Vuelve a iniciar sesión con Google.",
+      "googleFailed": "Iniciar sesión con Google no conectó el buzón. Inténtalo de nuevo.",
+      "googleScope": "No se permitió que Google diera a Leafdesk acceso a tu correo. Vuelve a iniciar sesión y permítelo."
+    },
+    "methods": {
+      "google": "Cuenta de Google (Gmail o Google Workspace)",
+      "password": "Contraseña de aplicación (cualquier proveedor, por IMAP y SMTP)"
+    },
+    "googleHint": "Inicias sesión en Google y permites que Leafdesk lea y envíe tu correo. No hace falta una contraseña de aplicación, y puedes retirar el acceso en tu cuenta de Google cuando quieras.",
+    "googleConnect": "Iniciar sesión con Google",
+    "googleLeaving": "Abriendo Google…",
+    "googleSignedIn": "con sesión de Google",
+    "googleConnected": "Tu buzón está conectado.",
+    "dismiss": "Cerrar"
   },
   "followUps": {
     "heading": "Seguimientos en {database}",

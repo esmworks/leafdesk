@@ -2481,7 +2481,8 @@
         "auth": "O servidor de e-mail recusou o nome de usuário ou a senha. Confira a senha de app.",
         "tls": "Não foi possível estabelecer uma conexão segura com o servidor de e-mail.",
         "unreachable": "Não é possível acessar o servidor de e-mail agora.",
-        "noInbox": "O servidor de e-mail não mostra nenhuma caixa de entrada."
+        "noInbox": "O servidor de e-mail não mostra nenhuma caixa de entrada.",
+        "signIn": "O login do Google não funciona mais. Entre com o Google de novo."
       }
     },
     "fields": {
@@ -2499,7 +2500,8 @@
       "usernamePlaceholder": "Geralmente o endereço de e-mail",
       "password": "Senha de app",
       "passwordKeep": "Deixe em branco para manter a atual",
-      "passwordHelp": "Uma senha de app criada para o Leafdesk, não a senha com que você faz login. Ela é guardada criptografada e nunca mais é mostrada."
+      "passwordHelp": "Uma senha de app criada para o Leafdesk, não a senha com que você faz login. Ela é guardada criptografada e nunca mais é mostrada.",
+      "method": "Conectar com"
     },
     "providerHelp": {
       "google": "Também para endereços do Google Workspace no seu próprio domínio. Crie uma senha de app na sua Conta do Google, em Segurança (a verificação em duas etapas precisa estar ativada).",
@@ -2526,8 +2528,21 @@
       "unreachable": "Não foi possível acessar o servidor de e-mail. Confira os nomes dos servidores e as portas.",
       "noInbox": "O servidor de e-mail não mostra nenhuma caixa de entrada.",
       "accessDenied": "Você não tem acesso para fazer isso.",
-      "gone": "Essa mensagem não está mais nesta linha."
-    }
+      "gone": "Essa mensagem não está mais nesta linha.",
+      "signIn": "O login do Google não funciona mais. Entre com o Google de novo.",
+      "googleFailed": "Entrar com o Google não conectou a caixa de correio. Tente de novo.",
+      "googleScope": "O Google não teve permissão para dar ao Leafdesk acesso ao seu e-mail. Entre de novo e permita."
+    },
+    "methods": {
+      "google": "Conta do Google (Gmail ou Google Workspace)",
+      "password": "Senha de app (qualquer provedor, por IMAP e SMTP)"
+    },
+    "googleHint": "Você entra no Google e permite que o Leafdesk leia e envie seus e-mails. Não é preciso senha de app, e você pode retirar o acesso na sua conta do Google a qualquer momento.",
+    "googleConnect": "Entrar com o Google",
+    "googleLeaving": "Abrindo o Google…",
+    "googleSignedIn": "conectada com o Google",
+    "googleConnected": "Sua caixa de correio está conectada.",
+    "dismiss": "Fechar"
   },
   "followUps": {
     "heading": "Acompanhamentos em {database}",

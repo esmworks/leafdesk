@@ -4,6 +4,16 @@
 
 ### Added
 
+- **Connect a Gmail or Google Workspace mailbox by signing in with Google.** Settings → Email and
+  calendar offers *Google account* beside the app password: the member signs in at Google, allows
+  Leafdesk to read and send their mail, and comes back with the mailbox tried and connected. No app
+  password is needed, so it works where an organization turned app passwords off. IMAP and SMTP
+  sign in with XOAUTH2; the access token is renewed as it runs out, and a sign-in taken back in the
+  Google account shows on the mailbox, to sign in again. App passwords stay for every provider.
+  Offered once the server sets `MAIL_GOOGLE_CLIENT_ID` and `MAIL_GOOGLE_CLIENT_SECRET`, a Google
+  OAuth client with the redirect URI `<APP_URL>/api/mail/oauth/callback` (docs/email-on-rows.md).
+  Migration 0153.
+
 - **Automations that run when a total crosses a line.** A new trigger, *A total crosses a line*,
   watches a calculation over the rows a shared view shows: their number, or the sum, average,
   median, smallest or largest value of a number property. "When the sum of Amount in Cash and bank
@@ -35,8 +45,7 @@
   access to the page, and the email runs as whoever set it up, pausing when they lose access or
   the dashboard is removed. A link in the email (with one-click unsubscribe headers) and Settings →
   Preferences → Dashboard emails stop it; a test can be sent to yourself first. Setting up,
-  stopping and sending are audit events. Needs SMTP. Migration 0153 adds `schedule.page_id`. The
-  budget for all routes' first-load JavaScript goes from 1,181 to 1,182 kB.
+  stopping and sending are audit events. Needs SMTP. Migration 0154 adds `schedule.page_id`.
 - **A new chat suggests questions to start from.** Under the empty full-page chat's box are
   questions about the pages you opened last (summarize a page, what's in a database) and the start
   of a search and of a new page; picking one fills the box without sending it.
@@ -67,6 +76,19 @@
   search results; any other page read is refused at once, without holding the run, and its steps
   show the address it didn't read. A helper's run for a scheduled run reads only its search
   results.
+- **Images and other media an agent or the AI chat writes into a page become links when they
+  would load another site.** An image, video, audio, embed or new bookmark loads its address as
+  soon as someone opens the page (a bookmark through the server), so text planted in what the
+  model read could make it hide what it read in such an address and have it sent out without a
+  click. Those blocks are written as links to the same address instead; files uploaded to
+  Leafdesk and media the page already showed stay as they are, and a row an agent proposed is
+  written the same way once approved.
+- **What models read from outside is framed more firmly.** Web pages, search results, connected
+  services' answers and other agents' answers reach the model in a frame whose end line carries
+  an id new each time, so text can no longer end the frame early and speak outside it. Characters
+  that show nothing on screen (hidden Unicode tag characters, zero-width spaces, direction
+  controls) are taken out of everything sent to a model, so a page or an email can't hide
+  instructions in them.
 
 ### Fixed
 

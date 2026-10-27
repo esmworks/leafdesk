@@ -417,7 +417,7 @@ async function* runChat(
   },
   signal?: AbortSignal,
 ): AsyncGenerator<ChatEvent> {
-  const ctx: ops.OperationContext = { userId, actor: { userId, ...(asSuggestions ? { asSuggestions } : {}) }, timeZone };
+  const ctx: ops.OperationContext = { userId, actor: { userId, model: true, ...(asSuggestions ? { asSuggestions } : {}) }, timeZone };
   // "Don't ask again" makes the rest of this answer `auto`.
   let mode = initialMode;
   // Keeping notes about the person changes nothing in the workspace: it's offered in every mode,

@@ -4,11 +4,11 @@ import { db } from "@/db";
 import { mailbox, rowEmail, user } from "@/db/schema";
 import { MAX_MAIL_TEXT, MAX_SENDS_PER_HOUR, normalizeAddress, SEND_RETRY_MINUTES } from "@/lib/mail";
 import { AccessError } from "@/server/access";
-import { open } from "@/server/secret-box";
 import { startSweep } from "@/server/sweep";
 import { workspaceSettings } from "@/server/workspaces";
 import { requestRowMailAccess } from "./access";
 import { connectError, openImap, smtpTransport } from "./connect";
+import { withMailCredentials } from "./credentials";
 import { RowMailError } from "./settings";
 
 /**
@@ -152,16 +152,20 @@ export function composeRowEmail(email: Pick<typeof rowEmail.$inferSelect, "fromA
     .build();
 }
 
-/** Why sending failed, for the row: short and without anything the server echoed of the password. */
+/** Why sending failed, for the row: short and without anything the server echoed of the password or token. */
 const failure = (error: unknown) => {
   const e = connectError(error);
-  return `${e.code}: ${e.message}`.replace(/(pass(word)?|auth)[^\s]*\s*[:=]\s*\S+/gi, "$1 ***").slice(0, 500);
+  return `${e.code}: ${e.message}`
+    .replace(/(pass(word)?|auth)[^\s]*\s*[:=]\s*\S+/gi, "$1 ***")
+    .replace(/(bearer|xoauth2)\s+\S+/gi, "$1 ***")
+    .slice(0, 500);
 };
 
 /** Whether trying again can't help: the server refused the sign-in or the message for good. */
 function permanent(error: unknown) {
   const e = error as { responseCode?: number };
-  return connectError(error).code === "auth" || connectError(error).code === "blocked" || (typeof e?.responseCode === "number" && e.responseCode >= 500);
+  const code = connectError(error).code;
+  return code === "auth" || code === "signIn" || code === "blocked" || (typeof e?.responseCode === "number" && e.responseCode >= 500);
 }
 
 async function send(email: typeof rowEmail.$inferSelect) {
@@ -173,19 +177,16 @@ async function send(email: typeof rowEmail.$inferSelect) {
     await db.update(rowEmail).set({ status: "failed", error: "noMailbox", nextAttemptAt: null }).where(eq(rowEmail.id, email.id));
     return;
   }
-  const credentials = {
-    servers: { imapHost: box.imapHost, imapPort: box.imapPort, imapSecure: box.imapSecure, smtpHost: box.smtpHost, smtpPort: box.smtpPort, smtpSecure: box.smtpSecure },
-    username: box.username,
-    password: open(box.secret),
-  };
   const raw = await composeRowEmail(email);
   try {
-    const transport = await smtpTransport(credentials);
-    try {
-      await transport.sendMail({ envelope: { from: box.address, to: [...email.to, ...email.cc] }, raw });
-    } finally {
-      transport.close();
-    }
+    await withMailCredentials(box, async (credentials) => {
+      const transport = await smtpTransport(credentials);
+      try {
+        await transport.sendMail({ envelope: { from: box.address, to: [...email.to, ...email.cc] }, raw });
+      } finally {
+        transport.close();
+      }
+    });
   } catch (error) {
     const retry = SEND_RETRY_MINUTES[email.attempts - 1];
     const giveUp = permanent(error) || retry === undefined;
@@ -205,7 +206,7 @@ async function send(email: typeof rowEmail.$inferSelect) {
     .where(eq(rowEmail.id, email.id));
   if (box.folders.sent && !SAVES_SENT.includes(box.imapHost)) {
     try {
-      const client = await openImap(credentials);
+      const client = await withMailCredentials(box, openImap);
       try {
         await client.append(box.folders.sent.path, raw, ["\\Seen"]);
       } finally {

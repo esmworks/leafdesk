@@ -2,13 +2,13 @@
 
 import { ArrowDown, ArrowUp, X } from "lucide-react";
 import { useLocale, useTranslations } from "next-intl";
-import { useState } from "react";
-import { connectMailboxAction, disconnectMailboxAction, setMailDatabasesAction } from "@/app/actions/row-mail";
+import dynamic from "next/dynamic";
+import { useEffect, useState } from "react";
+import { disconnectMailboxAction, setMailDatabasesAction } from "@/app/actions/row-mail";
 import { updateWorkspaceSettingsAction } from "@/app/actions/workspaces";
-import { Button, cn, IconButton, Input, PageIcon, pageLabel, selectClass, Switch } from "@/components/ui";
-import { MAIL_PROVIDERS, providerFor, type MailboxServers, type MailboxView, type MailSettingsView, type OwnMailbox } from "@/lib/mail";
+import { Button, cn, IconButton, PageIcon, pageLabel, selectClass, Switch } from "@/components/ui";
+import type { MailboxView, MailSettingsView, OwnMailbox } from "@/lib/mail";
 import { relativeTime } from "@/lib/relative-time";
-import { browserTimeZone } from "@/lib/time-zone";
 import { MailboxSending, SequencesGroups } from "./follow-up-settings";
 import { SettingsGroup, SettingsRow } from "./section";
 import { useAction } from "./workspace-settings";
@@ -160,18 +160,50 @@ function DatabasesGroup({ workspaceId, view, onChange }: { workspaceId: string; 
   );
 }
 
-const STATUS_ERRORS = ["blocked", "notFound", "auth", "tls", "unreachable", "noInbox"] as const;
-const statusError = (code: string | null) => STATUS_ERRORS.find((c) => c === code) ?? "unreachable";
+// The forms come with opening one, not with the settings page.
+const MailboxConnect = dynamic(() => import("./mail-connect").then((m) => m.MailboxConnect), {
+  ssr: false,
+  loading: () => <div aria-busy="true" className="m-5 h-24 animate-pulse rounded-md bg-bg-subtle" />,
+});
 
-const DEFAULT_SERVERS: MailboxServers = { imapHost: "", imapPort: 993, imapSecure: true, smtpHost: "", smtpPort: 465, smtpSecure: true };
+const STATUS_ERRORS = ["blocked", "notFound", "auth", "signIn", "tls", "unreachable", "noInbox"] as const;
+/** What went wrong reading a mailbox; for a Google one, a refused sign-in always means signing in again. */
+const statusError = (mailbox: MailboxView) => {
+  const code = STATUS_ERRORS.find((c) => c === mailbox.statusError) ?? "unreachable";
+  return mailbox.auth === "google" && code === "auth" ? "signIn" : code;
+};
+/** What the browser came back from Google with (mailError), as an error text's key. */
+const NOTICE_ERRORS = ["googleFailed", "googleScope", "consent", "disabled", "invalid", "blocked", "notFound", "auth", "signIn", "tls", "unreachable", "noInbox"] as const;
+
 
 /**
  * Account > Email and calendar: the person's mailbox in each workspace where email on rows is on
  * (server/row-mail/settings.ts listOwnMailboxes), each connected, changed or disconnected there.
+ * A mailbox connected by signing in with Google comes back here with a `notice` of how it went
+ * ("connected", or what went wrong).
  */
-export function OwnMailboxes({ initial }: { initial: OwnMailbox[] }) {
+export function OwnMailboxes({ initial, notice }: { initial: OwnMailbox[]; notice?: string }) {
   const t = useTranslations("account.mail");
+  const te = useTranslations("settings.email");
   const [list, setList] = useState(initial);
+  const [shownNotice, setShownNotice] = useState(notice);
+  // Shown once: reloading the page shouldn't say it again.
+  useEffect(() => {
+    if (notice) window.history.replaceState(null, "", `${window.location.pathname}?tab=mail`);
+  }, [notice]);
+  const noticeBox = shownNotice && (
+    <p
+      role="status"
+      className={cn("flex items-start gap-2 rounded-md border px-3 py-2 text-sm", shownNotice === "connected" ? "border-border text-fg-muted" : "border-danger/40 text-danger")}
+    >
+      <span className="flex-1">
+        {shownNotice === "connected" ? te("googleConnected") : te(`errors.${NOTICE_ERRORS.find((c) => c === shownNotice) ?? "googleFailed"}`)}
+      </span>
+      <button type="button" className="text-fg-faint hover:text-fg" aria-label={te("dismiss")} onClick={() => setShownNotice(undefined)}>
+        <X className="h-3.5 w-3.5" />
+      </button>
+    </p>
+  );
   if (!list.length) {
     return (
       <SettingsGroup title={t("mailboxHeading")}>
@@ -179,19 +211,25 @@ export function OwnMailboxes({ initial }: { initial: OwnMailbox[] }) {
       </SettingsGroup>
     );
   }
-  return list.map((entry) => (
-    <MailboxGroup
-      key={entry.workspaceId}
+  return (
+    <>
+      {noticeBox}
+      {list.map((entry) => (
+        <MailboxGroup
+          key={entry.workspaceId}
       // With one workspace there is nothing to tell apart.
-      title={list.length > 1 ? t("mailboxIn", { workspace: entry.workspaceName }) : t("mailboxHeading")}
-      workspaceId={entry.workspaceId}
-      enabled={entry.enabled}
-      mailbox={entry.mailbox}
-      onChange={(mailbox) =>
-        setList((all) => all.flatMap((e) => (e.workspaceId !== entry.workspaceId ? [e] : e.enabled || mailbox ? [{ ...e, mailbox }] : [])))
-      }
-    />
-  ));
+          title={list.length > 1 ? t("mailboxIn", { workspace: entry.workspaceName }) : t("mailboxHeading")}
+          workspaceId={entry.workspaceId}
+          enabled={entry.enabled}
+          google={entry.google}
+          mailbox={entry.mailbox}
+          onChange={(mailbox) =>
+            setList((all) => all.flatMap((e) => (e.workspaceId !== entry.workspaceId ? [e] : e.enabled || mailbox ? [{ ...e, mailbox }] : [])))
+          }
+        />
+      ))}
+    </>
+  );
 }
 
 /** The member's own mailbox in a workspace: how it is doing, or the form that connects it (and changes it). */
@@ -199,6 +237,7 @@ function MailboxGroup({
   title,
   workspaceId,
   enabled,
+  google,
   mailbox,
   onChange,
 }: {
@@ -206,6 +245,8 @@ function MailboxGroup({
   workspaceId: string;
   /** Off: the workspace turned email on rows off; a mailbox still connected can only be disconnected. */
   enabled: boolean;
+  /** Whether a mailbox can be connected by signing in with Google. */
+  google: boolean;
   mailbox: MailboxView | null;
   onChange: (mailbox: MailboxView | null) => void;
 }) {
@@ -217,7 +258,7 @@ function MailboxGroup({
 
   if (mailbox && (!editing || !enabled)) {
     const status =
-      mailbox.status === "error" ? t(`status.error.${statusError(mailbox.statusError)}`) : mailbox.status === "ok" ? t("status.ok") : t("status.connecting");
+      mailbox.status === "error" ? t(`status.error.${statusError(mailbox)}`) : mailbox.status === "ok" ? t("status.ok") : t("status.connecting");
     return (
       <SettingsGroup title={title} description={enabled ? t("mailboxDescription") : ta("mailboxOff")}>
         <SettingsRow
@@ -225,6 +266,7 @@ function MailboxGroup({
           description={
             <>
               <span className={cn(mailbox.status === "error" && "text-danger")}>{status}</span>
+              {mailbox.auth === "google" && <> · {t("googleSignedIn")}</>}
               {mailbox.syncedAt && <> · {t("syncedAt", { time: relativeTime(mailbox.syncedAt, locale) })}</>}
               {mailbox.folders.inbox && (
                 <span className="mt-1 block">
@@ -270,8 +312,9 @@ function MailboxGroup({
   }
   return (
     <SettingsGroup title={title} description={t("mailboxDescription")}>
-      <MailboxForm
+      <MailboxConnect
         workspaceId={workspaceId}
+        google={google}
         mailbox={mailbox}
         onCancel={() => setEditing(false)}
         onSaved={(saved) => {
@@ -280,182 +323,6 @@ function MailboxGroup({
         }}
       />
     </SettingsGroup>
-  );
-}
-
-function MailboxForm({
-  workspaceId,
-  mailbox,
-  onCancel,
-  onSaved,
-}: {
-  workspaceId: string;
-  mailbox: MailboxView | null;
-  onCancel?: () => void;
-  onSaved: (mailbox: MailboxView) => void;
-}) {
-  const t = useTranslations("settings.email");
-  const tc = useTranslations("common");
-  const [address, setAddress] = useState(mailbox?.address ?? "");
-  const [displayName, setDisplayName] = useState(mailbox?.displayName ?? "");
-  const [provider, setProvider] = useState(() => (mailbox ? (MAIL_PROVIDERS.find((p) => p.servers.imapHost === mailbox.servers.imapHost)?.id ?? "other") : ""));
-  const [servers, setServers] = useState<MailboxServers>(mailbox?.servers ?? DEFAULT_SERVERS);
-  const [username, setUsername] = useState(mailbox?.username ?? "");
-  const [password, setPassword] = useState("");
-  const [consent, setConsent] = useState(false);
-  const { pending, error, run } = useAction();
-  const chosen = MAIL_PROVIDERS.find((p) => p.id === provider);
-  const effective = chosen ? chosen.servers : servers;
-  const set = (patch: Partial<MailboxServers>) => setServers((s) => ({ ...s, ...patch }));
-
-  return (
-    <form
-      className="space-y-4 px-5 py-4"
-      onSubmit={(e) => {
-        e.preventDefault();
-        run(
-          () =>
-            connectMailboxAction(workspaceId, {
-              address,
-              displayName,
-              servers: effective,
-              username: username.trim() || address.trim(),
-              password,
-              consent,
-              timeZone: browserTimeZone(),
-            }),
-          onSaved,
-        );
-      }}
-    >
-      <div className="grid gap-3 sm:grid-cols-2">
-        <label className="block space-y-1">
-          <span className="text-sm font-medium">{t("fields.address")}</span>
-          <Input
-            type="email"
-            autoComplete="email"
-            value={address}
-            required
-            onChange={(e) => {
-              setAddress(e.target.value);
-              // A known provider's servers fill in from the address.
-              const known = providerFor(e.target.value.trim());
-              if (known && !provider) setProvider(known.id);
-            }}
-            placeholder="ada@example.com"
-          />
-        </label>
-        <label className="block space-y-1">
-          <span className="text-sm font-medium">{t("fields.displayName")}</span>
-          <Input value={displayName} maxLength={200} onChange={(e) => setDisplayName(e.target.value)} />
-        </label>
-      </div>
-      <label className="block space-y-1">
-        <span className="text-sm font-medium">{t("fields.provider")}</span>
-        <select className={cn(selectClass, "w-full")} value={provider} required onChange={(e) => setProvider(e.target.value)}>
-          <option value="" disabled>
-            {t("fields.chooseProvider")}
-          </option>
-          {MAIL_PROVIDERS.map((p) => (
-            <option key={p.id} value={p.id}>
-              {p.name}
-            </option>
-          ))}
-          <option value="other">{t("fields.otherProvider")}</option>
-        </select>
-        {chosen && <span className="block text-xs text-fg-muted">{t(`providerHelp.${chosen.id as "google" | "yandex" | "zoho"}`)}</span>}
-      </label>
-      {provider === "other" && (
-        <div className="grid gap-3 sm:grid-cols-2">
-          <ServerFields
-            label={t("fields.imap")}
-            host={servers.imapHost}
-            port={servers.imapPort}
-            secure={servers.imapSecure}
-            onChange={(host, port, secure) => set({ imapHost: host, imapPort: port, imapSecure: secure })}
-          />
-          <ServerFields
-            label={t("fields.smtp")}
-            host={servers.smtpHost}
-            port={servers.smtpPort}
-            secure={servers.smtpSecure}
-            onChange={(host, port, secure) => set({ smtpHost: host, smtpPort: port, smtpSecure: secure })}
-          />
-        </div>
-      )}
-      <div className="grid gap-3 sm:grid-cols-2">
-        <label className="block space-y-1">
-          <span className="text-sm font-medium">{t("fields.username")}</span>
-          <Input value={username} autoComplete="username" onChange={(e) => setUsername(e.target.value)} placeholder={address || t("fields.usernamePlaceholder")} />
-        </label>
-        <label className="block space-y-1">
-          <span className="text-sm font-medium">{t("fields.password")}</span>
-          <Input
-            type="password"
-            autoComplete="new-password"
-            value={password}
-            required={!mailbox}
-            onChange={(e) => setPassword(e.target.value)}
-            placeholder={mailbox ? t("fields.passwordKeep") : undefined}
-          />
-          <span className="block text-xs text-fg-muted">{t("fields.passwordHelp")}</span>
-        </label>
-      </div>
-      <label className="flex items-start gap-2 text-sm">
-        <input type="checkbox" className="mt-0.5" checked={consent} onChange={(e) => setConsent(e.target.checked)} />
-        <span>{t("consent")}</span>
-      </label>
-      {error && (
-        <p role="alert" className="text-sm text-danger">
-          {error}
-        </p>
-      )}
-      <div className="flex justify-end gap-2">
-        {onCancel && (
-          <Button variant="ghost" onClick={onCancel}>
-            {tc("cancel")}
-          </Button>
-        )}
-        <Button type="submit" variant="primary" disabled={pending || !consent || !address.trim() || !provider || (!mailbox && !password)}>
-          {pending ? t("testing") : t("connect")}
-        </Button>
-      </div>
-    </form>
-  );
-}
-
-function ServerFields({
-  label,
-  host,
-  port,
-  secure,
-  onChange,
-}: {
-  label: string;
-  host: string;
-  port: number;
-  secure: boolean;
-  onChange: (host: string, port: number, secure: boolean) => void;
-}) {
-  const t = useTranslations("settings.email.fields");
-  return (
-    <fieldset className="space-y-2 rounded-lg border border-border p-3">
-      <legend className="px-1 text-sm font-medium">{label}</legend>
-      <label className="block space-y-1">
-        <span className="text-xs text-fg-muted">{t("host")}</span>
-        <Input value={host} required onChange={(e) => onChange(e.target.value, port, secure)} placeholder="mail.example.com" />
-      </label>
-      <div className="flex items-end gap-3">
-        <label className="block w-24 space-y-1">
-          <span className="text-xs text-fg-muted">{t("port")}</span>
-          <Input type="number" min={1} max={65535} value={port} required onChange={(e) => onChange(host, Number(e.target.value), secure)} />
-        </label>
-        <label className="flex h-8 items-center gap-1.5 text-sm">
-          <input type="checkbox" checked={secure} onChange={(e) => onChange(host, port, e.target.checked)} />
-          {t("tls")}
-        </label>
-      </div>
-    </fieldset>
   );
 }
 

@@ -559,7 +559,7 @@ async function converse(
   run: Run,
   { member, bound, trusted, chatWrites }: { member: string | null; bound: string | null; trusted: boolean; chatWrites: boolean },
 ): Promise<Ending | Paused> {
-  const ctx: ops.OperationContext = { userId: agent.userId, actor: { userId: agent.userId } };
+  const ctx: ops.OperationContext = { userId: agent.userId, actor: { userId: agent.userId, model: true } };
   const rowRun = isRowRun(run.source);
   const scheduled = isScheduleRun(run.source);
   const databaseId = scheduledDatabase(run.source);
