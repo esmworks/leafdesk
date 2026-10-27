@@ -30,11 +30,8 @@ export type StripState = {
   /** `away`: where a tab off the server is (navigation.ts, awayHost), shown as an address bar would. */
   tabs: { id: number; title: string; icon: string | null; loading: boolean; away: string | null }[];
   active: number | null;
-  strings: { newTab: string; closeTab: string; tabs: string; back: string; forward: string };
+  strings: { newTab: string; closeTab: string; tabs: string };
   dir: "ltr" | "rtl";
-  /** The shown tab can go back or forward in its history. */
-  canGoBack: boolean;
-  canGoForward: boolean;
   /** The strip starts past macOS's window buttons (beside the page's sidebar) and leaves them no room. */
   clearOfControls: boolean;
 };
@@ -399,7 +396,6 @@ export class TabbedWindow {
 
   private sendStrip() {
     if (!this.stripReady || this.window.isDestroyed()) return;
-    const history = this.activeContents()?.navigationHistory;
     const state: StripState = {
       tabs: this.list.ids.map((id) => {
         const { title, icon, loading, pending, view } = this.tabs.get(id)!;
@@ -407,8 +403,6 @@ export class TabbedWindow {
       }),
       active: this.list.active,
       ...this.hooks.strings(),
-      canGoBack: history?.canGoBack() ?? false,
-      canGoForward: history?.canGoForward() ?? false,
       clearOfControls: this.clearOfControls,
     };
     this.strip.send("leafdesk:tabs", state);

@@ -17,8 +17,6 @@ if (location.protocol === "file:" && location.pathname.endsWith("/tabs.html")) {
     move: (id: number, index: number) => ipcRenderer.send("leafdesk:tab", "move", id, index),
     menu: (id: number) => ipcRenderer.send("leafdesk:tab", "menu", id),
     add: () => ipcRenderer.send("leafdesk:tab", "add"),
-    back: () => ipcRenderer.send("leafdesk:tab", "back"),
-    forward: () => ipcRenderer.send("leafdesk:tab", "forward"),
     focus: () => ipcRenderer.send("leafdesk:tab", "focus"),
   });
 } else if (location.protocol === "file:") {

@@ -1,7 +1,7 @@
 /*
  * The tab strip at the top of every window (src/windows.ts), in the web app's colors
  * (src/app/globals.css); on macOS beside the page's sidebar when it has one. It takes the page's
- * background; the tabs are rounded chips in it, after the shown tab's back and forward buttons.
+ * background; the tabs are rounded chips in it.
  * The window moves by the strip's background; the tabs and buttons are cut out of it.
  * Electron works out those regions in the document's order, not by what is drawn on top, so
  * nothing that moves the window comes after a tab.
@@ -75,23 +75,13 @@ body {
   -webkit-app-region: drag;
 }
 
-/* Back and forward, then the tabs, then New Tab: centered on the strip's own height at its foot. */
-.history,
+/* The tabs, then New Tab: centered on the strip's own height at its foot. */
 .tabs {
   display: flex;
   align-items: center;
-  height: var(--strip-height);
-}
-
-.history {
-  flex: none;
-  gap: 2px;
-  margin-inline-end: 6px;
-}
-
-.tabs {
   gap: 2px;
   min-width: 0;
+  height: var(--strip-height);
 }
 
 .tab {
@@ -141,7 +131,6 @@ body {
 }
 
 .tab:focus-visible,
-.go:focus-visible,
 .new-tab:focus-visible,
 .close:focus-visible {
   outline: 2px solid var(--ring);
@@ -194,7 +183,6 @@ body {
 }
 
 .close,
-.go,
 .new-tab {
   flex: none;
   display: grid;
@@ -219,14 +207,9 @@ body {
 }
 
 .close:hover,
-.go:hover:not(:disabled),
 .new-tab:hover {
   background: var(--bg-hover);
   color: var(--fg);
-}
-
-.go:disabled {
-  opacity: 0.4;
 }
 
 .tab[aria-selected="true"] .close:hover {
@@ -234,7 +217,6 @@ body {
 }
 
 .close svg,
-.go svg,
 .new-tab svg {
   fill: none;
   stroke: currentColor;
@@ -247,26 +229,16 @@ body {
   height: 10px;
 }
 
-.go,
 .new-tab {
   width: 26px;
   height: 26px;
-}
-
-.new-tab {
   margin-bottom: 9px;
   margin-inline-start: 4px;
 }
 
-.go svg,
 .new-tab svg {
   width: 14px;
   height: 14px;
-}
-
-/* Back and forward point the language's way. */
-:root[dir="rtl"] .go svg {
-  transform: scaleX(-1);
 }
 
 .tab.away,

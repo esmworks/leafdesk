@@ -115,7 +115,7 @@ authority the computer trusts (an internal one included) needs nothing.
 **Tabs.** Each window holds tabs, in a strip at the top that follows Leafdesk's light or dark
 look. On macOS it sits beside the sidebar, which runs the window's full height with the window's
 buttons over its first row; on pages without a sidebar, and elsewhere, it runs across the window.
-Its back and forward buttons go back and forward in the shown tab. Cmd+T (Ctrl+T on Windows and Linux) opens one on the workspace's home, Cmd+W closes it (the
+Go → Back and Forward (Cmd+[ and Cmd+], Alt+Left and Alt+Right elsewhere) move through the shown tab's history. Cmd+T (Ctrl+T on Windows and Linux) opens one on the workspace's home, Cmd+W closes it (the
 last one closes the window), Cmd+Shift+T brings back the last closed tab, Ctrl+Tab and
 Ctrl+Shift+Tab (also Cmd+Shift+] and Cmd+Shift+[ on macOS) go to the next and previous tab, Cmd+1
 to Cmd+8 pick one and Cmd+9 the last, and Cmd+Shift+N opens a new window. Cmd+click (Ctrl+click) or

@@ -466,7 +466,7 @@ function openWindow(saved: SavedWindow = { tabs: [{ path: "/" }], active: 0 }, b
       open: (contents, page) => openCurrent(contents, page),
       strings: () => {
         const t = strings();
-        return { strings: { newTab: t.newTab, closeTab: t.closeTab, tabs: t.tabs, back: t.goBack, forward: t.goForward }, dir: direction(locale) };
+        return { strings: { newTab: t.newTab, closeTab: t.closeTab, tabs: t.tabs }, dir: direction(locale) };
       },
       away: (url) => awayHost(url, currentOrigin()),
       changed: rememberTabs,
@@ -1102,12 +1102,6 @@ function registerTabBridge() {
     }
     if (action === "focus") {
       owner.activeContents()?.focus();
-      return;
-    }
-    if (action === "back" || action === "forward") {
-      const history = owner.activeContents()?.navigationHistory;
-      if (action === "back" && history?.canGoBack()) history.goBack();
-      if (action === "forward" && history?.canGoForward()) history.goForward();
       return;
     }
     if (typeof id !== "number" || !owner.contentsOf(id)) return;

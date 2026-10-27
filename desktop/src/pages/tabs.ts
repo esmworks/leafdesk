@@ -9,10 +9,8 @@ type StripTab = { id: number; title: string; icon: string | null; loading: boole
 type StripState = {
   tabs: StripTab[];
   active: number | null;
-  strings: { newTab: string; closeTab: string; tabs: string; back: string; forward: string };
+  strings: { newTab: string; closeTab: string; tabs: string };
   dir: "ltr" | "rtl";
-  canGoBack: boolean;
-  canGoForward: boolean;
   clearOfControls: boolean;
 };
 
@@ -24,8 +22,6 @@ interface Window {
     move(id: number, index: number): void;
     menu(id: number): void;
     add(): void;
-    back(): void;
-    forward(): void;
     focus(): void;
   };
 }
@@ -34,8 +30,6 @@ interface Window {
   const bridge = window.leafdeskTabs;
   const list = document.querySelector<HTMLElement>(".tabs")!;
   const newTab = document.getElementById("new-tab") as HTMLButtonElement;
-  const back = document.getElementById("back") as HTMLButtonElement;
-  const forward = document.getElementById("forward") as HTMLButtonElement;
   const SVG = "http://www.w3.org/2000/svg";
   /** Below this width a tab shows its icon alone. */
   const NARROW = 72;
@@ -115,14 +109,6 @@ interface Window {
     list.setAttribute("aria-label", next.strings.tabs);
     newTab.setAttribute("aria-label", next.strings.newTab);
     newTab.title = next.strings.newTab;
-    for (const [button, label, enabled] of [
-      [back, next.strings.back, next.canGoBack],
-      [forward, next.strings.forward, next.canGoForward],
-    ] as const) {
-      button.setAttribute("aria-label", label);
-      button.title = label;
-      button.disabled = !enabled;
-    }
     list.replaceChildren(...next.tabs.map((tab) => tabElement(tab, tab.id === next.active, next.strings)));
     markNarrow();
   };
@@ -221,8 +207,6 @@ interface Window {
   });
 
   newTab.addEventListener("click", () => bridge.add());
-  back.addEventListener("click", () => bridge.back());
-  forward.addEventListener("click", () => bridge.forward());
 
   new ResizeObserver(markNarrow).observe(list);
 

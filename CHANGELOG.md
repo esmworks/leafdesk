@@ -83,6 +83,9 @@
 
 ### Changed
 
+- **The desktop app's tab strip has no back and forward buttons.** They took room from the tabs;
+  Go → Back and Forward (Cmd+[ and Cmd+] on macOS, Alt+Left and Alt+Right elsewhere) still move
+  through the shown tab's history.
 - **A table's column names stay in sight as you scroll down.** On a database's own page, the view
   tabs and toolbar stay under the top bar and the table's header row stays under them, while the
   title scrolls away. A database inside a page and every table on a phone keep the header row only.
