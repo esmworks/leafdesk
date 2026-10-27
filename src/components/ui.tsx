@@ -10,8 +10,9 @@ export function cn(...classes: (string | false | null | undefined)[]) {
 type ButtonVariant = "primary" | "secondary" | "ghost" | "danger";
 
 const buttonStyles: Record<ButtonVariant, string> = {
-  primary: "bg-accent text-accent-fg hover:opacity-90",
-  secondary: "border border-border bg-bg hover:bg-bg-hover",
+  // A faint light along the top edge and a soft drop shadow lift both off the page.
+  primary: "bg-accent text-accent-fg shadow-[inset_0_1px_0_rgb(255_255_255/0.18),0_1px_2px_rgb(0_0_0/0.12)] hover:opacity-90",
+  secondary: "border border-border bg-bg shadow-[0_1px_2px_rgb(0_0_0/0.05)] hover:bg-bg-hover",
   ghost: "hover:bg-bg-hover text-fg-muted hover:text-fg",
   danger: "bg-danger text-white hover:opacity-90",
 };

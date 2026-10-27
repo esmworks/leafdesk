@@ -23,6 +23,7 @@ import { parseExpiry } from "@/lib/publication-expiry";
 import { PG_MARKDOWN_IMAGE_PATTERN } from "@/lib/cover";
 import type { FormulaStyle } from "@/lib/formula";
 import { LIST_WIDGET_ROWS, type DashboardLayout, type DashboardWidget, type WidgetColor, type WidgetSpan } from "@/lib/dashboard";
+import { periodProperty, periodRange, withPeriod, type DashboardPeriod, type DayRange } from "@/lib/dashboard-period";
 import type { EmbedBlockType, LinkedView } from "@/lib/embed-blocks";
 import { arrangeGroups, boardGroupProperty, groupRowsBy, isGroupable, SECTIONED_VIEWS, type GroupValue } from "@/lib/grouping";
 import { pivotColumnProperty, pivotData, pivotMeasure, pivotRowProperty, withoutPivotRows, type PivotData } from "@/lib/pivot";
@@ -443,6 +444,8 @@ export type PublishedDatabase = {
   chart?: PublishedChart;
   /** Pivots (layout "pivot"). */
   pivot?: PublishedPivot;
+  /** A dashboard widget that leaves the dashboard's period aside: it shows every row (lib/dashboard-period periodProperty). */
+  periodIgnored?: true;
 };
 /**
  * A part of a published page's body: text, a database block, or a block the page draws itself (a
@@ -461,7 +464,8 @@ export type PublishedBlock =
   | ({ kind: "pdf"; fileId: string; name: string; caption: string } & MediaPlacement)
   | ({ kind: "spreadsheet"; fileId: string; name: string; caption: string } & MediaPlacement)
   | { kind: "columns"; columns: PublishedColumn<PublishedBlock>[] }
-  | { kind: "dashboard"; widgets: PublishedWidget[]; layout: DashboardLayout }
+  /** `range`: the days of the dashboard's period, as of the request; null for all time. */
+  | { kind: "dashboard"; widgets: PublishedWidget[]; layout: DashboardLayout; period: DashboardPeriod; range: DayRange | null }
   | { kind: "footnotes"; notes: BodyFootnote[] }
   | {
       kind: "embed";
@@ -838,7 +842,9 @@ async function publishedBody(
           return {
             kind: "dashboard",
             layout: segment.layout,
-            widgets: await Promise.all(segment.widgets.map((w) => publishedWidget(publisher, rootId, outside, w, loads))),
+            period: segment.period,
+            range: periodRange(segment.period, new Date()),
+            widgets: await Promise.all(segment.widgets.map((w) => publishedWidget(publisher, rootId, outside, w, segment.period, loads))),
           };
         }
         if (segment.kind !== "embed") return segment;
@@ -858,9 +864,10 @@ async function publishedWidget(
   rootId: string,
   outside: readonly string[],
   widget: DashboardWidget,
+  period: DashboardPeriod,
   loads: PublishedLoads,
 ): Promise<PublishedWidget> {
-  return widgetShowing(widget, await publishedEmbed(publisher, rootId, outside, widget.databaseId, widget.view, loads));
+  return widgetShowing(widget, await publishedEmbed(publisher, rootId, outside, widget.databaseId, widget.view, loads, period));
 }
 
 /** A widget showing `database` (published or printed), a list widget's rows cut to its first ones. */
@@ -878,6 +885,7 @@ async function publishedEmbed(
   databaseId: string,
   view: LinkedView | null,
   loads?: PublishedLoads,
+  period?: DashboardPeriod,
 ): Promise<PublishedEmbed | null> {
   // Whether the database is published with the page: asked once per database, however many views show it.
   const target = await once(loads, ["embed", publisher, rootId, databaseId], async () => {
@@ -896,7 +904,7 @@ async function publishedEmbed(
     title: target.title,
     icon: target.icon,
     ...("outside" in target ? { outside: true as const } : {}),
-    table: await publishedDatabase(publisher, target.id, { linked: view, loads }),
+    table: await publishedDatabase(publisher, target.id, { linked: view, loads, period }),
   };
 }
 
@@ -1153,6 +1161,7 @@ export async function publishedDatabase(
     linked = null,
     reader = null,
     loads,
+    period,
   }: {
     viewId?: string;
     linked?: LinkedView | null;
@@ -1160,6 +1169,8 @@ export async function publishedDatabase(
     reader?: string | null;
     /** What other views of the same request read already (see PublishedLoads). */
     loads?: PublishedLoads;
+    /** A dashboard widget's: the dashboard's period, its days counted as of now on the server. */
+    period?: DashboardPeriod;
   } = {},
 ): Promise<PublishedDatabase> {
   const [schema, shownViews] = await Promise.all([
@@ -1171,7 +1182,13 @@ export async function publishedDatabase(
   // applyView needs them too; the columns are only the public ones (see publicProperties).
   const allProperties = access.known(storedProperties);
   const picked = linked ? { id: "", name: "", ...linked } : (shownViews.find((v) => v.id === viewId) ?? shownViews[0]);
-  const chosen = picked && { ...picked, config: access.config(withoutDeleted(picked.config, deleted)) };
+  const checkedConfig = picked && access.config(withoutDeleted(picked.config, deleted));
+  // A dashboard's period cuts the widget's rows to its days (lib/dashboard-period), on a property
+  // the reader may know of; without one the widget shows every row, and says so.
+  const range = picked && period ? periodRange(period, new Date()) : null;
+  const by = range && checkedConfig ? periodProperty(allProperties, checkedConfig.periodBy) : null;
+  const periodIgnored = range && !by ? { periodIgnored: true as const } : {};
+  const chosen = picked && { ...picked, config: range && by ? withPeriod(checkedConfig!, by.id, range) : checkedConfig! };
   const withCovers = chosen?.type === "gallery" && galleryCover(chosen.config) === "first_image";
   const stored = await loadRows(loads, publisher, databaseId, withCovers);
   const properties = publicProperties(allProperties);
@@ -1211,6 +1228,7 @@ export async function publishedDatabase(
       groups: null,
       cardSize: "medium",
       chart: publishedChart(chosen.config, properties, allProperties, viewed),
+      ...periodIgnored,
     };
   }
   if (chosen.type === "pivot") {
@@ -1257,6 +1275,7 @@ export async function publishedDatabase(
     ...((layout === "board" || layout === "gallery") && chosen.config.wrapProperties ? { wrap: true as const } : {}),
     // Tables without lines between their columns (see ViewConfig showVerticalLines).
     ...(layout === "table" && chosen.config.showVerticalLines === false ? { noVerticalLines: true as const } : {}),
+    ...periodIgnored,
   };
 }
 

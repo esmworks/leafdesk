@@ -95,7 +95,8 @@
       "sensitiveFindings": "dlp fynd läckta hemligheter kortnummer avfärda",
       "domainPeople": "domän konton användare företag e-post skugg-it ohanterade",
       "openOnStart": "start uppstart första sida senast besökt senaste",
-      "pageReports": "anmäl anmälan missbruk klagomål ta bort publicerad offentlig webb sidor"
+      "pageReports": "anmäl anmälan missbruk klagomål ta bort publicerad offentlig webb sidor",
+      "dashboardEmails": "prenumeration rapport schema veckovis sammanfattning e-post"
     }
   },
   "workspace": {
@@ -1957,6 +1958,11 @@
         "created": "Konfigurerade pull requests på GitHub i {target}",
         "updated": "Ändrade GitHub-konfigurationen för {target}",
         "deleted": "Tog bort GitHub-konfigurationen för {target}"
+      },
+      "dashboard_email": {
+        "set": "Ställde in att {target} skickas med e-post till {count, plural, one {# person} other {# personer}}",
+        "removed": "Slutade skicka {target} med e-post",
+        "sent": "Skickade {target} med e-post till {count, plural, one {# person} other {# personer}}"
       }
     },
     "decisions": {
@@ -2061,7 +2067,11 @@
     "reactionChannel": "Reaktioner: {channel}",
     "verificationTitle": "Sidor du har verifierat",
     "verificationDescription": "En sida som du har verifierat är på väg att sluta vara verifierad, några dagar innan, och när det sker.",
-    "verificationChannel": "Sidor du har verifierat: {channel}"
+    "verificationChannel": "Sidor du har verifierat: {channel}",
+    "dashboardEmailsHeading": "Instrumentpanelsmejl",
+    "dashboardEmailsDescription": "Instrumentpaneler som skickas till dig med e-post enligt ett schema, och de du har ställt in åt andra.",
+    "dashboardEmailsNone": "Inga instrumentpanelsmejl",
+    "dashboardEmailsNoneDescription": "För att få en instrumentpanel med e-post, öppna den och välj E-post ovanför widgetarna."
   },
   "site": {
     "description": "Ge den här arbetsytans publicerade sidor en läsbar adress, en startsida och navigering mellan dem.",
@@ -2471,7 +2481,8 @@
         "auth": "E-postservern avvisade användarnamnet eller lösenordet. Kontrollera applösenordet.",
         "tls": "Det gick inte att upprätta en säker anslutning till e-postservern.",
         "unreachable": "E-postservern kan inte nås just nu.",
-        "noInbox": "E-postservern visar ingen inkorg."
+        "noInbox": "E-postservern visar ingen inkorg.",
+        "signIn": "Google-inloggningen fungerar inte längre. Logga in med Google igen."
       }
     },
     "fields": {
@@ -2489,7 +2500,8 @@
       "usernamePlaceholder": "Oftast e-postadressen",
       "password": "Applösenord",
       "passwordKeep": "Lämna tomt för att behålla det nuvarande",
-      "passwordHelp": "Ett applösenord som skapats för Leafdesk, inte lösenordet du loggar in med. Det sparas krypterat och visas aldrig igen."
+      "passwordHelp": "Ett applösenord som skapats för Leafdesk, inte lösenordet du loggar in med. Det sparas krypterat och visas aldrig igen.",
+      "method": "Anslut med"
     },
     "providerHelp": {
       "google": "Även för Google Workspace-adresser på din egen domän. Skapa ett applösenord i ditt Google-konto under Säkerhet (tvåstegsverifiering måste vara på).",
@@ -2516,8 +2528,21 @@
       "unreachable": "E-postservern kunde inte nås. Kontrollera servernamnen och portarna.",
       "noInbox": "E-postservern visar ingen inkorg.",
       "accessDenied": "Du har inte åtkomst att göra detta.",
-      "gone": "Det meddelandet finns inte längre på den här raden."
-    }
+      "gone": "Det meddelandet finns inte längre på den här raden.",
+      "signIn": "Google-inloggningen fungerar inte längre. Logga in med Google igen.",
+      "googleFailed": "Inloggningen med Google anslöt inte brevlådan. Försök igen.",
+      "googleScope": "Google fick inte ge Leafdesk åtkomst till din e-post. Logga in igen och tillåt det."
+    },
+    "methods": {
+      "google": "Google-konto (Gmail eller Google Workspace)",
+      "password": "Applösenord (alla leverantörer, via IMAP och SMTP)"
+    },
+    "googleHint": "Du loggar in hos Google och låter Leafdesk läsa och skicka din e-post. Inget applösenord behövs, och du kan när som helst ta tillbaka åtkomsten i ditt Google-konto.",
+    "googleConnect": "Logga in med Google",
+    "googleLeaving": "Öppnar Google…",
+    "googleSignedIn": "inloggad med Google",
+    "googleConnected": "Din brevlåda är ansluten.",
+    "dismiss": "Stäng"
   },
   "followUps": {
     "heading": "Uppföljningar på {database}",

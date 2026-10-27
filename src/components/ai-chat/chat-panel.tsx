@@ -268,7 +268,7 @@ function ChatPanel({
         onSource={openSource}
         variant="panel"
         voice={context.voice}
-        footer={<ScopePicker workspaceId={workspaceId} pageId={currentPageId} value={scope} onChange={setScope} disabled={running} />}
+        scope={<ScopePicker workspaceId={workspaceId} pageId={currentPageId} value={scope} onChange={setScope} disabled={running} />}
       />
     </aside>
   );

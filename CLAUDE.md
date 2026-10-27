@@ -94,6 +94,12 @@ BlockNote on Yjs; Tailwind v4; next-intl. Node 24, pnpm 11. A separate Electron 
   which `withUniqueValues` (`server/unique-values.ts`) turns into a `PropertyValueError`; wrap a new
   row write in it. A batch (paste, import, sync) calls `dropRepeatedValues` before writing
   (`checkRows` does), so it never stops partway.
+  A table's header row is a `<table>` of its own in a sticky box above the rows' box (that box
+  scrolls sideways, so `sticky` inside it would hold to it, not the page); the two follow each
+  other's `scrollLeft`, and the rows' table keeps a zero-height header row for screen readers and
+  as `useTableWindow`'s `start`. A full page's view bar sticks too and sets `--view-bar-height`;
+  both paint a background only while stuck (`components/use-stuck-mark.ts`), so a page's pattern
+  shows through at rest.
   Grouped lists and galleries share `components/database/view-sections.tsx` (the header is
   `GroupHeader` in `group-label.tsx`, also a board's sub-group); a board's sub-groups
   (`subGroupBy`) use the default date and status grouping. A new property-id field of `ViewConfig`
@@ -135,7 +141,12 @@ BlockNote on Yjs; Tailwind v4; next-intl. Node 24, pnpm 11. A separate Electron 
   (`installFauxAi`, unit tests) and `ai/fake-openai.ts` (`startFakeOpenAi`, e2e scripts). Web
   calls carry data out: the chat asks before each, and agents' chat, mention and request runs
   before each the person didn't write; schedules' runs read only pages of their task or search
-  results and refuse others (`lib/web-calls.ts`); a new outbound tool goes through it.
+  results and refuse others (`lib/web-calls.ts`); a new outbound tool goes through it. Page writes
+  carry data out too: a write of the model's (agent runs, the chat, approved proposals) sets
+  `WriteActor.model`, and `writeBlocks` turns its media that would load another site into links
+  (`lib/model-media.ts`); a new place a model writes a page sets it. Outside text goes to the model
+  through `connections/tools.ts` `externalData`/`frameData` (a frame with a new id each time);
+  `ai/index.ts` strips invisible characters from all of it (`lib/invisible-text.ts`).
 - **Search.** `src/server/pages.ts` `searchPages` merges `fullTextSearch` with semantic search;
   `semantic-search.ts` `searchScope` is the one place a search's scope and filters become SQL, used
   by full-text, document and ID hits and by search by meaning alike, so a new filter goes there (and
@@ -157,7 +168,9 @@ BlockNote on Yjs; Tailwind v4; next-intl. Node 24, pnpm 11. A separate Electron 
   other servers' answers through `readBodyLimited`. The catalog of
   ready-made services is `src/lib/connection-catalog.ts`; `pnpm catalog:check` probes it live.
 - **Automations and schedules.** `src/server/automations/` (queued from `databases.ts` after row
-  writes; `asAutomation` keeps an automation's writes from firing more automations) and
+  writes; `asAutomation` keeps an automation's writes from firing more automations; a total over a
+  view crossing a line is `threshold.ts`, its last state in `automation_threshold`, asked to look
+  by `queue.ts` `thresholdRowsChanged` after writes and from `pages.ts` trash and restore) and
   `src/server/schedules.ts` (`registerScheduleHandler`).
 - **Other areas:** meeting notes `meetings.ts` (the block's props, `src/lib/meetings.ts`; its list
   table synced in `persistPage` by `meeting-notes.ts`), to-dos in pages for My tasks `page-tasks.ts`
@@ -167,15 +180,24 @@ BlockNote on Yjs; Tailwind v4; next-intl. Node 24, pnpm 11. A separate Electron 
   with role `sprint`; the current sprint's views filter on a hidden rollup of the sprint state, so
   they follow a completion without changing; rollups show option names, so `updateProperty`
   rewrites such rollup filters when options are renamed), Telegram bot `src/server/telegram/`, synced databases (own
-  `database_sync` table, `source` jira, github, ical or postgres; the runs and the one-minute sweep
+  `database_sync` table, `source` jira, github, ical, postgres or sheets; the runs and the one-minute sweep
   are `jira-sync/run.ts` for all, rows written by `synced-rows.ts`, errors are `JiraError` codes;
   Jira in `jira-sync/` and `src/lib/jira-sync.ts`, GitHub pull requests in `github-pulls/` and
   `src/lib/github-pulls-sync.ts`, people matched by their `account` with provider github;
   calendars in `ical-sync/` and `src/lib/ical-sync.ts` (the pure .ics reader and repeat rules);
   PostgreSQL tables in `postgres-sync/` (`client.ts` checks the host like `connections/fetch.ts`
-  and reads in a read-only transaction) and `src/lib/postgres-sync.ts`), GitHub pull requests moving tasks `github-sync/` (deliveries handled in the request at `api/github/[syncId]`; pure
+  and reads in a read-only transaction) and `src/lib/postgres-sync.ts`; Google Sheets in
+  `sheets-sync/` and `src/lib/sheets-sync.ts`, read typed through a workspace's Sheets connection
+  (`get_spreadsheet`) as the person the sync runs as, checked by `sheetsAccess` on every run;
+  writing back keeps row changes in `sheets_write` (`sheets-sync/outbox.ts`, fed by
+  `afterRowWrites` and title saves in `collab/service.ts`; the run's own writes go inside
+  `fromSheet`) and the run writes them before reading (`planWrites`), leaving fields still waiting
+  out of what it reads),
+  GitHub pull requests moving tasks `github-sync/` (deliveries handled in the request at `api/github/[syncId]`; pure
   ID matching and the status rule in `src/lib/github-sync.ts`), the Send to Slack step's address
-  check and message in `src/lib/slack.ts`, mail to and from rows `row-mail/`, follow-up
+  check and message in `src/lib/slack.ts`, mail to and from rows `row-mail/`
+  (a mailbox signs in with a password or a Google sign-in, `google.ts`; open it through
+  `credentials.ts` `withMailCredentials`, which renews the token), follow-up
   sequences on rows `sequences/` (sent by a 30-second `startSequences` job; `runSequences(now)` runs
   a round as of any moment, which `scripts/follow-ups-e2e.ts` uses), page webhooks
   `page-webhooks/` (queued from `pages.ts`, `collab/service.ts` and `comments.ts`, sent as the owner
@@ -188,7 +210,10 @@ BlockNote on Yjs; Tailwind v4; next-intl. Node 24, pnpm 11. A separate Electron 
   (`activeVerification` is the SQL for search and lists; `runVerificationReminders(now)`), named
   page versions `page-versions.ts` (`page_snapshot.name`; `retention.ts` `pruneSnapshots` never
   deletes a named one; listing, preview and restore stay in `pages.ts`), SMTP
-  `mail/`, inbox `notifications.ts`, push `push.ts`, files `files.ts` + `storage/` (local, S3,
+  `mail/`, dashboard emails `dashboard-emails.ts` (schedules of kind `dashboard_email` on
+  `schedule.page_id`, figures per recipient through `widgetData`; its number, group and rule
+  wording mirrors the dashboard's client hooks, so a change there goes in both; template
+  `dashboardEmail` in `mail/templates.ts`), inbox `notifications.ts`, push `push.ts`, files `files.ts` + `storage/` (local, S3,
   workspace drives), import `import/` (readers in `src/lib/import/` take untrusted files of up to
   100 MB on the one process: no regex that retries a quantified run against what follows, as
   `\s+X$` or adjacent `\s*`; scan by hand (`link-scan.ts`) and add a `fast()` test from

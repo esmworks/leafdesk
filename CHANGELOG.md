@@ -13,6 +13,67 @@
   show the table; MCP's `create_database_view` and `update_database_view` take `pivot` (docs topic
   `pivots`) and `query_database` returns the table. To keep the MCP tool list in its budget, a few
   view settings' short descriptions got shorter. No migration.
+- **Keep a database in step with a Google Sheets sheet.** Import's new *Google Sheets* tab reads one
+  sheet through the workspace's Google Sheets connection, so a private spreadsheet needs no public
+  link: paste the sheet's address and each row below its header becomes a row, found again by its
+  key column (the first column unless you name one) and kept up to date every 15 minutes to every
+  day, or when asked. The header is the sheet's last frozen row unless you name another, so totals
+  above it stay out; every other named column becomes a property by what its cells hold (numbers,
+  dates, dates with times, checkboxes, else text as the sheet shows it), read typed so the
+  spreadsheet's language doesn't change a number. Rows that leave the sheet stay. Changes come from
+  the sheet, and with *Direction: Both ways* go back to it too: a change made in Leafdesk waits
+  (migration 0155, table `sheets_write`) and is written to its cell at the next run, within about a
+  minute, where the cell still holds the value from before it; where both changed, the sheet's value
+  stays. The key column and columns of formulas are never written, new rows are added below the
+  last row, and deleting a row deletes nothing in the sheet. Owners can sync through the
+  connection, members once an owner allows the AI chat its `get_spreadsheet` tool (and
+  `update_values` and `insert_dimension` to write back), checked again on every run; each read and
+  write is in the audit log. Up to 100,000 cells.
+- **Connect a Gmail or Google Workspace mailbox by signing in with Google.** Settings → Email and
+  calendar offers *Google account* beside the app password: the member signs in at Google, allows
+  Leafdesk to read and send their mail, and comes back with the mailbox tried and connected. No app
+  password is needed, so it works where an organization turned app passwords off. IMAP and SMTP
+  sign in with XOAUTH2; the access token is renewed as it runs out, and a sign-in taken back in the
+  Google account shows on the mailbox, to sign in again. App passwords stay for every provider.
+  Offered once the server sets `MAIL_GOOGLE_CLIENT_ID` and `MAIL_GOOGLE_CLIENT_SECRET`, a Google
+  OAuth client with the redirect URI `<APP_URL>/api/mail/oauth/callback` (docs/email-on-rows.md).
+  Migration 0153.
+
+- **Automations that run when a total crosses a line.** A new trigger, *A total crosses a line*,
+  watches a calculation over the rows a shared view shows: their number, or the sum, average,
+  median, smallest or largest value of a number property. "When the sum of Amount in Cash and bank
+  goes below 50,000" notifies once when the balance drops under it, and again only after it went
+  back up and dropped once more. The total is worked out as the automation's person sees the
+  view, a moment after rows change and every few minutes for filters on today; its steps get the
+  value and the line as `{{trigger.value}}` and `{{trigger.threshold}}`. Over MCP the trigger is
+  `view_threshold`. Migration 0152.
+- **Dashboards show a period, and numbers their change from the period before.** A period above
+  the grid (this week, month, quarter or year, last week, month, quarter or year, a range of days,
+  or all time) cuts every widget's rows at once, on each widget's date property (the first date
+  property by default, else the first created time; a widget without one shows every row and says
+  so). Anyone may switch the period for themselves; editors can save it for everyone. A number
+  widget shows the change from the period before of the same length, as "▲ 12 % vs Sep 2026",
+  green or red as the widget says a rise is good or bad, or not at all; an earlier period without
+  a figure shows none. Published pages and print show the saved period's figures and name it.
+  Dashboard views of a database have the same period. Over MCP, `add_dashboard`,
+  `update_dashboard_widget` and the dashboard views of `create_database_view` /
+  `update_database_view` take `period`, and widgets `period_by` and `comparison`; the MCP tool list
+  budget goes from 165,000 to 165,500 bytes for these settings. View filters gain *this quarter*,
+  *last quarter* and *next quarter*, and the first-load JavaScript budgets go up by 1 kB for
+  them (a page to 776 kB, all routes together to 1,181 kB). No migration.
+- **Email a dashboard on a schedule.** *Email* above a dashboard (a `/dashboard` block or a
+  dashboard view) sends its figures to chosen people every day, week, month or year at a time in a
+  time zone, by default every Monday at 08:00 for last week. The email shows the period that just
+  ended (or this week so far, or the dashboard's own period), each number with its change from the
+  period before, lists and charts as short tables of figures, and a link back to the dashboard.
+  Each recipient gets what they may see, worked out when it is sent; emailing others takes edit
+  access to the page, and the email runs as whoever set it up, pausing when they lose access or
+  the dashboard is removed. A link in the email (with one-click unsubscribe headers) and Settings →
+  Preferences → Dashboard emails stop it; a test can be sent to yourself first. Setting up,
+  stopping and sending are audit events. Needs SMTP. Migration 0154 adds `schedule.page_id`.
+- **A new chat suggests questions to start from.** Under the empty full-page chat's box are
+  questions about the pages you opened last (summarize a page, what's in a database) and the start
+  of a search and of a new page; picking one fills the box without sending it.
 - **Right-click in the sidebar for Leafdesk's own menus, with Open in new tab and Copy link.** A
   page's row opens its actions (rename, move to trash, keep offline) where it was right-clicked,
   now starting with Open in new tab and Copy link; other links there (My tasks, Meetings, Home …)
@@ -22,6 +83,30 @@
 
 ### Changed
 
+- **A table's column names stay in sight as you scroll down.** On a database's own page, the view
+  tabs and toolbar stay under the top bar and the table's header row stays under them, while the
+  title scrolls away. A database inside a page and every table on a phone keep the header row only.
+- **Recordings are written down in the language people use Leafdesk in.** Dictation, voice notes
+  and meeting recordings tell the speech to text server the recorder's interface language, so a
+  few seconds of speech are no longer taken for another language.
+- **Dictating in the AI chat shows how to stop.** While recording, the microphone becomes a red
+  *Stop* button with the time in it, beside the button that cancels.
+- **The AI chat's box is tidier.** *Chat* and *Research* are two tabs above the box; files and
+  skills are in a *+* menu; *Answer from* (under the box in the panel), the mode and the model sit
+  beside it as chips, the model shown by name ("Claude Opus 5.5") rather than id; dictation is next
+  to *Send*, which fills in once there is something to send. The conversations in the sidebar are
+  grouped by today, yesterday, the previous 7 and 30 days and older.
+- **A crisper look across the app.** Grays lean slightly warm, with white surfaces edged by fine
+  lines in the light scheme and a deeper black in the dark one; buttons are lifted by a soft
+  shadow. A database's views sit on a track with the open one raised, and the line under the
+  page's top bar and a database's views is gone. Board cards show their values side by side, each
+  in a small chip of its own; a table's header row is gray with smaller text. Database titles are
+  smaller and semibold, pages keep their large titles, and the sidebar's section labels are
+  quieter.
+- **A row opened from a database lies over the page's right side** instead of pushing the page
+  aside. While it is open, boards and tables keep room at their end, and the opened card scrolls
+  into view beside the panel when the panel would cover it.
+
 - **Scheduled agents read only the web pages of their task and their searches.** A schedule's
   run used to read any address without asking, so text planted in a page or a row it read could
   make it send what it read to any site. It still searches freely, as its words reach only the
@@ -29,9 +114,43 @@
   search results; any other page read is refused at once, without holding the run, and its steps
   show the address it didn't read. A helper's run for a scheduled run reads only its search
   results.
+- **Images and other media an agent or the AI chat writes into a page become links when they
+  would load another site.** An image, video, audio, embed or new bookmark loads its address as
+  soon as someone opens the page (a bookmark through the server), so text planted in what the
+  model read could make it hide what it read in such an address and have it sent out without a
+  click. Those blocks are written as links to the same address instead; files uploaded to
+  Leafdesk and media the page already showed stay as they are, and a row an agent proposed is
+  written the same way once approved.
+- **What models read from outside is framed more firmly.** Web pages, search results, connected
+  services' answers and other agents' answers reach the model in a frame whose end line carries
+  an id new each time, so text can no longer end the frame early and speak outside it. Characters
+  that show nothing on screen (hidden Unicode tag characters, zero-width spaces, direction
+  controls) are taken out of everything sent to a model, so a page or an email can't hide
+  instructions in them.
 
 ### Fixed
 
+- **Long AI answers are no longer cut off after a minute.** `AI_TIMEOUT_SECONDS` used to limit a
+  whole answer, so a chat or agent turn writing many rows at once (a large tool call) failed with
+  "The AI took too long to answer" while it was still coming. It now counts only silence: every
+  part the provider sends starts it again, and the answer's length stays bounded by
+  `AI_MAX_OUTPUT_TOKENS`.
+- **AI work is limited by what it costs, not by turns or minutes.** A chat question took at most
+  six turns, so a task that searched and read a few pages before changing one ran out of them and
+  ended in "The AI gave no answer", although the change was made; agents stopped after 8 turns
+  (16 on a schedule's run over a database) or 2 minutes (6), and research after 14 turns and
+  400,000 tokens. Each chat question, research answer and agent run now goes on until it answers or
+  has spent the new `AI_RUN_LIMIT_USD` (10 US dollars by default), and then answers with what it
+  has; a last turn that still calls tools is asked once more, its calls not run, instead of
+  failing. Models without a known price (local and OpenAI-compatible ones) take at most 100 turns.
+  The workspace's rate and cost limits still count each turn.
+- **Text is drawn in the system's own typeface again** where Inter isn't installed. Since 0.6.4
+  Latin letters fell to a Chinese typeface on macOS, whose faces came before the system's.
+- **Recordings no longer end in lines nobody said.** Over silence or a mumbled stretch, Whisper
+  models can write a subtitler's credit or a video's sign-off ("Altyazı M.K.", "don't forget to
+  subscribe", "Thanks for watching") in the recording's language. Dictation, voice notes and
+  meeting recordings now leave these out, and a recording that was only such a line counts as
+  nothing heard.
 - **The desktop app's tab strip takes clicks again on macOS.** Beside a page's sidebar, New Tab,
   back, forward and the tabs themselves moved the window instead (pressing New Tab twice zoomed
   it), because the page's own region for moving the window ran on under the strip. That region now

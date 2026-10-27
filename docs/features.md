@@ -146,14 +146,41 @@
   and worked out for each reader from the rows and values they may see; a number, bar or slice
   opens the rows behind it. A widget can take one of the option colors, as board columns do, and
   editors move widgets by dragging their title bar. A page with a dashboard uses the full width.
-  Published pages show numbers and lists, and charts as a table of their figures. Over MCP,
-  `add_dashboard` and `update_dashboard_widget` build one. A database also has dashboard views:
+  A period above the grid (this week, month, quarter or year, last week, month, quarter or year, a
+  range of days, or all time) cuts every widget's rows at once, counted in each reader's time zone;
+  weeks start on Monday and quarters in January, April, July and October. Anyone may pick another
+  period for themselves without saving it; editors can save it for everyone. In a widget's settings,
+  *Period by* names the date it cuts on: by default the database's first date property, else its
+  first created time; a widget with no such date (or set to *Not by period*) shows every row and
+  says so in its footer. The period adds to a widget's own filters, so an *is within* filter and the
+  period both apply. A number with a period shows its change from the period before of the same
+  length (this month against last month, a range of days against as many days before it), green
+  when it goes the good way: *Higher is better*, or *Lower is better* for figures such as costs,
+  or off; a percentage changes by points, and an earlier period without a figure (or with zero)
+  shows no change. Published pages and print show the saved period's figures and name the period,
+  without the change. Over MCP,
+  `add_dashboard` and `update_dashboard_widget` build one (`period`, and per widget `period_by` and
+  `comparison`). A database also has dashboard views:
   the same grid as a tab of the database, its widgets all views of that database, starting with
   the row count, the sum of the first number property, a chart by the first select or status
-  property and the rows edited last. Dashboard views aren't published, printed or shown by linked
-  views. The `/tabs` block is a dashboard laid out as tabs: one view at a time, each named on its
+  property and the rows edited last, with a period of their own. Dashboard views aren't published,
+  printed or shown by linked views. The `/tabs` block is a dashboard laid out as tabs: one view at a time, each named on its
   tab, for several databases (or views of one) in little room; readers get only the tabs whose
-  database they can open, and published pages switch tabs in place.
+  database they can open, and published pages switch tabs in place. Tabs show each view whole,
+  without a period.
+  **Dashboard emails**: *Email* above a dashboard's grid (a `/dashboard` block or a dashboard
+  view) sends its figures on a schedule, such as every Monday at 08:00, every day or on a day of
+  the month, in a time zone. The email shows a period counted from when it goes out (by default
+  the whole one that just ended: yesterday, last week, last month or last year, or this week so
+  far, or the dashboard's own period) with each number's change from the period before, lists and
+  charts as short tables of their figures, and a link back. Each recipient gets the figures they
+  may see, worked out when it is sent; the list of people to pick from is everyone who can open
+  the page, and emailing others takes edit access to it. The email runs as whoever set it up and
+  pauses when they lose access or the dashboard is taken off the page. Recipients unsubscribe from
+  a link in the email (one click in mail apps that offer it) or in Settings → Preferences, which
+  lists every dashboard email a person gets or set up. A dashboard has up to 20 emails, each to up
+  to 50 people; it needs email set up ([self-hosting](self-hosting.md)). Setting up, stopping and sending are in the audit
+  log.
 - **Buttons**: the `/button` block, with a label, an emoji or built-in icon and a color from the option palette
   (light, dark and high contrast alike, on published pages and in print too), does a few things in order when
   someone clicks it: insert blocks written in Markdown below it or at the top or end of the page,
@@ -1154,6 +1181,37 @@
   table, a dropped column (with the server's words in the sync dialog) or a deleted key property
   pauses it. Use a user that may only read the table. Tested against a table of the e2e's own
   database (`scripts/postgres-sync-e2e.ts`).
+- **Sync a Google Sheets sheet**: Import's Google Sheets tab reads one sheet through the
+  workspace's Google Sheets connection (Settings → Connections; owners may use it, members once an
+  owner ticks *In chat* for its `get_spreadsheet` tool), so the spreadsheet needs no public link.
+  Paste the sheet's address (its `gid` picks the sheet, the first one without); the header row is
+  the sheet's last frozen row unless you name another, and the rows above it (totals, rates) are
+  left out. The column that finds each row again is the first named column unless you name
+  another, the one that names it the key column unless you name another; every other column with
+  a header becomes a property by what its cells hold, read typed rather than as the spreadsheet's
+  language writes them: numbers, dates, dates with times (in the spreadsheet's time zone),
+  checkboxes, and text for anything mixed (as the sheet shows it). Columns are matched by their
+  header, so moving them is fine and renaming one stops it being written; the sheet is found by
+  its id, so renaming it is fine. Runs read up to 100,000 cells from the header row down, write the
+  sheet's values over and add new rows; rows that leave the sheet stay. A connection signed out of
+  Google, one the sync's person may no longer read through, a missing spreadsheet or sheet, or a
+  renamed key column pauses it; the sync dialog can switch it to another connection. Each read is
+  in the audit log as a call of the connection. **Direction** (in the Import tab and the sync
+  dialog, for people with full access to the database) is *From the sheet only* or *Both ways*.
+  Both ways needs the connection's `update_values` and `insert_dimension` tools (owners; members once
+  an owner ticks *In chat* for both) and a sync on a schedule: a change made to a synced property
+  or, where another column than the key names rows, a title waits and brings the next run to
+  within about a minute, which writes it to its cell before it reads, as the person the sync runs
+  as. It is written only where the cell still holds the row's value from before the change; where
+  the sheet changed too, the sheet's value stays and comes back to the row. The key column and
+  columns with formulas are never written (the dialog lists them), dates go as the start of a
+  range and times to the minute, and text starting with `=` stays out. A row made in Leafdesk is
+  added below the sheet's last row once it has a key (its title, where the key names rows; one
+  titled like another row's key stays in Leafdesk alone), and a sheet without room gets rows at
+  its end first; deleting a row deletes nothing in the sheet. A write the sheet refuses (the connection's Google
+  account may only view it) shows in the dialog without pausing the sync: the change waits, and
+  the row keeps it, until writing works or the sync goes back to reading only, which drops what
+  waits. Tested against a fake Sheets server the e2e runs (`scripts/sheets-sync-e2e.ts`).
 - **GitHub pull requests update tasks**: *GitHub pull requests* in the ••• menu of a database with
   an ID property with a prefix gives a payload URL and a secret to add as a repository webhook
   (JSON, *Pull requests* events). A pull request that names rows by their ID (`TASK-12`, in any

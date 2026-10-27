@@ -5,16 +5,18 @@ import type { GithubDeliveryError, GithubDeliveryRow, GithubDeliveryStatus, Gith
 import type { IcalMapping } from "@/lib/ical-sync";
 import type { JiraMapping, JiraQuery, JiraSyncError } from "@/lib/jira-sync";
 import type { PostgresMapping, PostgresQuery } from "@/lib/postgres-sync";
+import type { SheetsMapping, SheetsQuery } from "@/lib/sheets-sync";
 import { page, workspace } from "./app";
 import { user } from "./auth";
 
 /**
- * A database kept in step with a service outside Leafdesk, one way: the issues of a Jira Cloud
+ * A database kept in step with a service outside Leafdesk: the issues of a Jira Cloud
  * project or JQL query (`source` "jira": lib/jira-sync, server/jira-sync), a GitHub repository's
  * pull requests ("github": lib/github-pulls-sync, server/github-pulls), a calendar's events ("ical":
- * lib/ical-sync, server/ical-sync) or a PostgreSQL table's rows ("postgres": lib/postgres-sync,
- * server/postgres-sync). Its sign-in (`secrets`) is sealed (server/secret-box) and never leaves the
- * server.
+ * lib/ical-sync, server/ical-sync), a PostgreSQL table's rows ("postgres": lib/postgres-sync,
+ * server/postgres-sync) or a Google spreadsheet's sheet, read through a Google Sheets connection
+ * ("sheets": lib/sheets-sync, server/sheets-sync; the only one that may also write back). Its
+ * sign-in (`secrets`) is sealed (server/secret-box) and never leaves the server.
  */
 export const databaseSync = pgTable(
   "database_sync",
@@ -28,20 +30,21 @@ export const databaseSync = pgTable(
     databaseId: text("database_id")
       .notNull()
       .references(() => page.id, { onDelete: "cascade" }),
-    source: text("source").$type<"jira" | "github" | "ical" | "postgres">().notNull(),
+    source: text("source").$type<"jira" | "github" | "ical" | "postgres" | "sheets">().notNull(),
     /**
      * The Jira site's origin, "https://acme.atlassian.net"; for GitHub its API's address; for a
      * calendar its address's origin (the rest can be its key); for PostgreSQL where it reads,
-     * without user or password (lib/postgres-sync postgresSite).
+     * without user or password (lib/postgres-sync postgresSite); for a sheet its link.
      */
     siteUrl: text("site_url").notNull(),
     /** What it reads; a calendar's is `{}` (its address is in `secrets`). */
-    query: jsonb("query").$type<JiraQuery | GithubPullsQuery | PostgresQuery | Record<string, never>>().notNull(),
+    query: jsonb("query").$type<JiraQuery | GithubPullsQuery | PostgresQuery | SheetsQuery | Record<string, never>>().notNull(),
     /** The properties it writes, by what each holds. */
-    mapping: jsonb("mapping").$type<JiraMapping | GithubPullsMapping | IcalMapping | PostgresMapping>().notNull(),
+    mapping: jsonb("mapping").$type<JiraMapping | GithubPullsMapping | IcalMapping | PostgresMapping | SheetsMapping>().notNull(),
     /**
      * Sealed JSON: Jira's `{ email, token }`, GitHub's `{ token }` (null without one), a calendar's
-     * `{ url }`, PostgreSQL's `{ url }` (the connection address with its password).
+     * `{ url }`, PostgreSQL's `{ url }` (the connection address with its password), a sheet's `{}`
+     * (its connection holds the sign-in).
      */
     secrets: text("secrets").notNull(),
     /** How often it runs on its own, in minutes; 0 for only when asked. */
@@ -71,6 +74,37 @@ export const databaseSync = pgTable(
     index("database_sync_due_idx").on(t.nextRunAt).where(sql`${t.enabled}`),
     index("database_sync_workspace_idx").on(t.workspaceId),
   ],
+);
+
+/**
+ * Changes made in Leafdesk to the rows of a Google Sheets sync that writes back (lib/sheets-sync
+ * `direction` "both"), waiting for the sync's next run to write them to the sheet
+ * (server/sheets-sync/outbox, ./write). One per row: `before` holds each changed field's value from
+ * before its first change since the last write (property ids, "title" for the title), which the
+ * sheet's cell must still have for the change to be written; `created` for rows made in Leafdesk,
+ * which are added to the sheet.
+ */
+export const sheetsWrite = pgTable(
+  "sheets_write",
+  {
+    id: text("id")
+      .primaryKey()
+      .$defaultFn(() => crypto.randomUUID()),
+    syncId: text("sync_id")
+      .notNull()
+      .references(() => databaseSync.id, { onDelete: "cascade" }),
+    rowId: text("row_id")
+      .notNull()
+      .references(() => page.id, { onDelete: "cascade" }),
+    created: boolean("created").notNull().default(false),
+    before: jsonb("before").$type<Record<string, unknown>>().notNull().default({}),
+    /** Who changed the row last, for the audit log of the write. */
+    editedBy: text("edited_by").references(() => user.id, { onDelete: "set null" }),
+    queuedAt: timestamp("queued_at", { withTimezone: true }).notNull().defaultNow(),
+    /** Counts its changes: a run removes only the entries it wrote as they were. */
+    version: integer("version").notNull().default(0),
+  },
+  (t) => [uniqueIndex("sheets_write_row_idx").on(t.syncId, t.rowId)],
 );
 
 /**

@@ -17,6 +17,7 @@
     "github": "GitHub",
     "ical": "Kalender",
     "postgres": "PostgreSQL",
+    "sheets": "Google Sheets",
     "googleDocs": "Google Docs",
     "web": "Webside"
   },
@@ -438,6 +439,42 @@
       "failed": "Synkroniseringen mislykkedes. Den prøver igen næste gang.",
       "invalidSite": "Leafdesk kan ikke nå den server: en privat adresse skal tillades af din administrator i CONNECTOR_ALLOWED_HOSTS.",
       "invalidInput": "Tjek forbindelsesadressen, tabellen og kolonnenavnene.",
+      "alreadyRunning": "En synkronisering kører. Prøv igen om lidt."
+    }
+  },
+  "sheets": {
+    "help": "Få en database af ét ark i et Google-regneark, der holdes ajour: hver række under overskriftsrækken er en række her, genfindes via nøglekolonnen og navngives af titelkolonnen, med en egenskab for hver anden navngiven kolonne (tekst, tal, afkrydsningsfelter, datoer og tidspunkter, alt efter hvad kolonnen indeholder). Op til {limit, number} celler. Ændringer kommer fra arket, og går også tilbage til det, hvis du vælger “Begge veje”.",
+    "loading": "Leder efter Google Sheets-forbindelser…",
+    "noConnection": "Der er ingen Google Sheets-forbindelse, du kan synkronisere gennem. En ejer tilføjer Google Sheets under Indstillinger → Forbindelser; medlemmer kan bruge den, når en ejer har sat flueben ved “I chat” for dens værktøj get_spreadsheet.",
+    "connection": "Google Sheets-forbindelse",
+    "link": "Link til arket",
+    "linkPlaceholder": "https://docs.google.com/spreadsheets/d/…/edit#gid=…",
+    "linkHelp": "Åbn arket (fanen nederst), og kopiér adressen: Arket findes via sit id, så det er i orden at omdøbe det senere. Forbindelsens Google-konto skal kunne åbne regnearket; det behøver ikke være delt med andre.",
+    "invalidLink": "Ikke et link til et Google-regneark.",
+    "headerRow": "Overskriftsrække",
+    "headerRowPlaceholder": "Den sidste fastfrosne række",
+    "keyPlaceholder": "Den første kolonne",
+    "titlePlaceholder": "Nøglekolonnen",
+    "namePlaceholder": "Arkets navn",
+    "direction": "Retning",
+    "directionRead": "Kun fra arket",
+    "directionBoth": "Begge veje",
+    "directionBothHelp": "Ændringer, du laver her, skrives til arket ved næste synkronisering, inden for et minut eller så. Hvis en celle også er ændret i arket, bevares arkets værdi. Nøglekolonnen og kolonner med formler skrives ikke; nye rækker tilføjes under den sidste række; at slette en række sletter intet i arket.",
+    "directionNoWrite": "For at skrive tilbage skal forbindelsen have værktøjerne update_values og insert_dimension: ejere kan bruge dem, medlemmer når en ejer har sat flueben ved “I chat” for begge.",
+    "bothNeedsSchedule": "For at skrive tilbage skal synkroniseringen køre efter en tidsplan.",
+    "errors": {
+      "unauthorized": "Google Sheets-forbindelsen skal logges ind på Google igen: Det gør en ejer under Indstillinger → Forbindelser.",
+      "forbidden": "Forbindelsen kan ikke bruges til dette: Dens Google-konto kan muligvis ikke åbne regnearket, den er i et andet arbejdsområde, eller du må ikke læse gennem den.",
+      "notFound": "Der findes intet sådant regneark eller ark, eller forbindelsen blev fjernet.",
+      "badQuery": "Google afviste at læse arket:",
+      "tooManyIssues": "Arket har for mange celler til at synkronisere. Flyt de rækker og kolonner, du har brug for, til et ark for sig.",
+      "unreachable": "Forbindelsen kunne ikke nås, eller Google tog for lang tid. Synkroniseringen prøver igen næste gang.",
+      "runAsGone": "Personen, der satte synkroniseringen op, har ikke længere en konto.",
+      "accessLost": "Personen, synkroniseringen kører som, kan ikke længere redigere denne database eller har forladt arbejdsområdet.",
+      "keyGone": "Nøgleegenskaben blev slettet eller fik en anden type, eller nøglekolonnens overskrift blev ændret, så arkets rækker kan ikke matches med rækker.",
+      "failed": "Synkroniseringen mislykkedes. Den prøver igen næste gang.",
+      "invalidSite": "Leafdesk kan ikke nå den forbindelse.",
+      "invalidInput": "Tjek linket, overskriftsrækken og kolonnenavnene: De skal stemme overens med overskriftsrækkens tekst.",
       "alreadyRunning": "En synkronisering kører. Prøv igen om lidt."
     }
   }

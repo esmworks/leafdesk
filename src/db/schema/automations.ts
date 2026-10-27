@@ -1,4 +1,4 @@
-import { boolean, index, integer, jsonb, pgTable, primaryKey, text, timestamp } from "drizzle-orm/pg-core";
+import { boolean, doublePrecision, index, integer, jsonb, pgTable, primaryKey, text, timestamp } from "drizzle-orm/pg-core";
 import type {
   AutomationAction,
   AutomationCheckError,
@@ -185,3 +185,19 @@ export const automationFire = pgTable(
   },
   (t) => [primaryKey({ columns: [t.automationId, t.rowId] }), index("automation_fire_row_idx").on(t.rowId)],
 );
+
+/**
+ * Where a threshold automation's value stood at its last check (server/automations/threshold.ts):
+ * `met` whether it was past the line, so it starts once per crossing and again only after the
+ * value came back. Written when it is published or turned on (without a run), and at every check;
+ * a new view, calculation or line starts from a fresh check. Goes with the automation.
+ */
+export const automationThreshold = pgTable("automation_threshold", {
+  automationId: text("automation_id")
+    .primaryKey()
+    .references(() => databaseAutomation.id, { onDelete: "cascade" }),
+  met: boolean("met").notNull(),
+  /** The value at that check; null when there was none (an average of no numbers). */
+  value: doublePrecision("value"),
+  checkedAt: timestamp("checked_at", { withTimezone: true }).notNull().defaultNow(),
+});

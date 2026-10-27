@@ -95,7 +95,8 @@
       "sensitiveFindings": "dlp bevindingen gelekte geheimen kaartnummers negeren",
       "domainPeople": "domein accounts gebruikers bedrijf e-mail schaduw onbeheerd",
       "openOnStart": "start opstarten eerste pagina laatst bezocht recent",
-      "pageReports": "melden melding misbruik klacht verwijderen gepubliceerd openbaar web pagina's"
+      "pageReports": "melden melding misbruik klacht verwijderen gepubliceerd openbaar web pagina's",
+      "dashboardEmails": "abonnement rapport schema planning wekelijks samenvatting e-mail dashboard"
     }
   },
   "workspace": {
@@ -1957,6 +1958,11 @@
         "created": "GitHub-pullrequests ingesteld in {target}",
         "updated": "De GitHub-instelling van {target} gewijzigd",
         "deleted": "De GitHub-instelling van {target} verwijderd"
+      },
+      "dashboard_email": {
+        "set": "{target} ingesteld om te worden gemaild naar {count, plural, one {# persoon} other {# personen}}",
+        "removed": "Is gestopt met het mailen van {target}",
+        "sent": "{target} gemaild naar {count, plural, one {# persoon} other {# personen}}"
       }
     },
     "decisions": {
@@ -2061,7 +2067,11 @@
     "reactionChannel": "Reacties: {channel}",
     "verificationTitle": "Pagina’s die je hebt geverifieerd",
     "verificationDescription": "Een pagina die je hebt geverifieerd, is binnenkort niet meer geverifieerd: een paar dagen ervoor, en op het moment zelf.",
-    "verificationChannel": "Pagina’s die je hebt geverifieerd: {channel}"
+    "verificationChannel": "Pagina’s die je hebt geverifieerd: {channel}",
+    "dashboardEmailsHeading": "Dashboard-e-mails",
+    "dashboardEmailsDescription": "Dashboards die je volgens een schema per e-mail krijgt, en die je voor anderen hebt ingesteld.",
+    "dashboardEmailsNone": "Geen dashboard-e-mails",
+    "dashboardEmailsNoneDescription": "Om een dashboard per e-mail te krijgen, open je het en kies je E-mail boven de widgets."
   },
   "site": {
     "description": "Geef de gepubliceerde pagina’s van deze werkruimte één leesbaar adres, een startpagina en navigatie ertussen.",
@@ -2471,7 +2481,8 @@
         "auth": "De mailserver weigerde de gebruikersnaam of het wachtwoord. Controleer het app-wachtwoord.",
         "tls": "Er kon geen beveiligde verbinding met de mailserver worden gemaakt.",
         "unreachable": "De mailserver is nu niet bereikbaar.",
-        "noInbox": "De mailserver toont geen inbox."
+        "noInbox": "De mailserver toont geen inbox.",
+        "signIn": "De Google-aanmelding werkt niet meer. Meld je opnieuw aan met Google."
       }
     },
     "fields": {
@@ -2489,7 +2500,8 @@
       "usernamePlaceholder": "Meestal het e-mailadres",
       "password": "App-wachtwoord",
       "passwordKeep": "Laat leeg om het huidige te behouden",
-      "passwordHelp": "Een app-wachtwoord dat voor Leafdesk is gemaakt, niet het wachtwoord waarmee je inlogt. Het wordt versleuteld bewaard en nooit meer getoond."
+      "passwordHelp": "Een app-wachtwoord dat voor Leafdesk is gemaakt, niet het wachtwoord waarmee je inlogt. Het wordt versleuteld bewaard en nooit meer getoond.",
+      "method": "Koppelen met"
     },
     "providerHelp": {
       "google": "Ook voor Google Workspace-adressen op je eigen domein. Maak een app-wachtwoord in je Google-account onder Beveiliging (verificatie in twee stappen moet aan staan).",
@@ -2516,8 +2528,21 @@
       "unreachable": "De mailserver kon niet worden bereikt. Controleer de servernamen en poorten.",
       "noInbox": "De mailserver toont geen inbox.",
       "accessDenied": "Je hebt geen toegang om dit te doen.",
-      "gone": "Dat bericht staat niet meer op deze rij."
-    }
+      "gone": "Dat bericht staat niet meer op deze rij.",
+      "signIn": "De Google-aanmelding werkt niet meer. Meld je opnieuw aan met Google.",
+      "googleFailed": "Aanmelden met Google heeft de mailbox niet gekoppeld. Probeer het opnieuw.",
+      "googleScope": "Google mocht Leafdesk geen toegang tot je mail geven. Meld je opnieuw aan en sta het toe."
+    },
+    "methods": {
+      "google": "Google-account (Gmail of Google Workspace)",
+      "password": "App-wachtwoord (elke provider, via IMAP en SMTP)"
+    },
+    "googleHint": "Je meldt je aan bij Google en staat Leafdesk toe je mail te lezen en te versturen. Een app-wachtwoord is niet nodig, en je kunt de toegang altijd intrekken in je Google-account.",
+    "googleConnect": "Aanmelden met Google",
+    "googleLeaving": "Google openen…",
+    "googleSignedIn": "aangemeld met Google",
+    "googleConnected": "Je mailbox is gekoppeld.",
+    "dismiss": "Sluiten"
   },
   "followUps": {
     "heading": "Opvolgreeksen op {database}",

@@ -5,8 +5,9 @@ import { FlagTriangleRight, Plus, TriangleAlert, X } from "lucide-react";
 import dynamic from "next/dynamic";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useLocale, useTranslations } from "next-intl";
-import { memo, useCallback, useEffect, useMemo, useRef, useState, type ReactNode } from "react";
-import { Button } from "@/components/ui";
+import { memo, useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState, type ReactNode } from "react";
+import { Button, cn } from "@/components/ui";
+import { useStuckMark } from "@/components/use-stuck-mark";
 import { useDocumentViewName } from "@/components/page/document-title";
 import { markNewPage } from "@/components/page/new-page-focus";
 import type { ViewConfig, ViewType } from "@/db/schema/app";
@@ -332,6 +333,19 @@ export function DatabasePage({
   // offline always open pages (the panel loads rows from the server).
   const rowPanel = useRowPanel();
   const sourceRef = useRef<HTMLDivElement>(null);
+  // A full page keeps its view bar (tabs, toolbar, rules) in sight as it scrolls, in wider windows;
+  // a table's header row stops under it, at --view-bar-height.
+  const [viewBar, setViewBar] = useState<HTMLDivElement | null>(null);
+  useStuckMark(viewBar);
+  useLayoutEffect(() => {
+    const source = sourceRef.current;
+    if (!viewBar || !source) return;
+    const measure = () => source.style.setProperty("--view-bar-height", `${viewBar.offsetHeight}px`);
+    measure();
+    const observer = new ResizeObserver(measure);
+    observer.observe(viewBar);
+    return () => observer.disconnect();
+  }, [viewBar]);
   const openRows = view ? openRowsOf(view.config) : "panel";
   const inPanel = Boolean(rowPanel?.available) && !!view && opensRows(view.type) && openRows !== "page" && !offline;
   const centered = inPanel && openRows === "center";
@@ -571,11 +585,16 @@ export function DatabasePage({
               {/* Wide layout: controls sit in the page gutter, the board scrolls edge to edge. */}
               <RowOpenerContext value={opener}>
                 <div ref={sourceRef} data-row-source data-open-rows={centered ? "center" : undefined} className="min-w-0">
-                  <div className="page-gutter">
+                  {/* Under the page's top bar (h-11, z-35) and over frozen columns and the header row
+                      (z-30, z-31); opaque while stuck, so rows don't show through. */}
+                  <div
+                    ref={embedded ? undefined : setViewBar}
+                    className={cn("page-gutter", !embedded && "md:sticky md:top-11 md:z-[34] md:pb-2 md:data-stuck:bg-bg")}
+                  >
                     {embed?.header?.(snapshot)}
                     {offline && <OfflineNotice savedAt={offlineCopyFrom} />}
                     {/* Phones stack the toolbar above the tabs so the tabs get the whole row. */}
-                    <div className="flex flex-col-reverse gap-1 border-b border-border md:flex-row md:items-end md:justify-between md:gap-2">
+                    <div className="flex flex-col-reverse gap-1 md:flex-row md:items-end md:justify-between md:gap-2">
                       <ViewTabs
                         views={views}
                         activeId={view?.id ?? ""}
@@ -725,7 +744,7 @@ export function DatabasePage({
                     )}
                   </div>
 
-                  <div className="pt-2">
+                  <div className={cn("pt-2", !embedded && "md:pt-0")}>
                     {!view ? (
                       <div className="page-gutter py-10 text-center text-sm text-fg-muted">
                         {t("page.noViews")}

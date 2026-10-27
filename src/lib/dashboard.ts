@@ -32,7 +32,8 @@ export const dashboardBlockConfig = {
   type: DASHBOARD_BLOCK,
   // The widgets as JSON (see parseDashboard): block props are flat strings, and keeping them in the
   // block makes them sync, undo and version with the page.
-  propSchema: { widgets: { default: "" }, layout: { default: "grid" } },
+  // The period (lib/dashboard-period) every widget shows, as stored: "" for all time.
+  propSchema: { widgets: { default: "" }, layout: { default: "grid" }, period: { default: "" } },
   content: "none",
 } as const;
 
@@ -342,7 +343,8 @@ export function restoreDashboards<B extends AnyBlock>(blocks: B[], existing: B[]
         if (!match || used.has(id)) return [];
         used.add(id);
         const layout = dashboardLayout(match.props?.layout);
-        const props = { widgets: String(match.props?.widgets ?? ""), ...(layout === "tabs" ? { layout } : {}) };
+        const period = typeof match.props?.period === "string" ? match.props.period : "";
+        const props = { widgets: String(match.props?.widgets ?? ""), ...(layout === "tabs" ? { layout } : {}), ...(period ? { period } : {}) };
         return [{ ...block, id, props, children: [] } as B];
       }
       return block.children?.length ? [{ ...block, children: walk(block.children as B[]) }] : [block];

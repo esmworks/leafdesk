@@ -12,6 +12,9 @@ import {
   startPassed,
   statusMatch,
   statusMeets,
+  thresholdFires,
+  thresholdMet,
+  thresholdValue,
   trashProblem,
   retriable,
   retryDelayMs,
@@ -293,5 +296,50 @@ describe("trashProblem", () => {
     expect(trashProblem(of("move_to_trash", "notify"))).toBe("trashNotLast");
     expect(trashProblem(of("move_to_trash", "move_to_trash"))).toBe("trashNotLast");
     expect(trashProblem(of("run_agent", "move_to_trash"))).toBe("trashWithAgent");
+  });
+});
+
+describe("thresholds", () => {
+  const below = { comparison: "below" as const, value: 50_000 };
+  const above = { comparison: "above" as const, value: 0 };
+
+  it("is past the line only strictly beyond it, and never without a value", () => {
+    expect(thresholdMet(49_999.5, below)).toBe(true);
+    expect(thresholdMet(50_000, below)).toBe(false);
+    expect(thresholdMet(60_000, below)).toBe(false);
+    expect(thresholdMet(1, above)).toBe(true);
+    expect(thresholdMet(0, above)).toBe(false);
+    expect(thresholdMet(null, below)).toBe(false);
+    expect(thresholdMet(Number.NaN, above)).toBe(false);
+  });
+
+  it("starts once per crossing: down, staying down, back up, down again", () => {
+    const values = [60_000, 40_000, 30_000, 45_000, 55_000, 52_000, 20_000, 10_000];
+    let before: boolean | null = null;
+    const fired: number[] = [];
+    for (const value of values) {
+      const met = thresholdMet(value, below);
+      if (thresholdFires(before, met)) fired.push(value);
+      before = met;
+    }
+    expect(fired).toEqual([40_000, 20_000]);
+  });
+
+  it("doesn't take the first check for a crossing", () => {
+    expect(thresholdFires(null, true)).toBe(false);
+    expect(thresholdFires(null, false)).toBe(false);
+    expect(thresholdFires(false, true)).toBe(true);
+    expect(thresholdFires(true, true)).toBe(false);
+    expect(thresholdFires(true, false)).toBe(false);
+  });
+
+  it("keeps averages and medians to two decimals", () => {
+    expect(thresholdValue("average", 10 / 3)).toBe(3.33);
+    expect(thresholdValue("median", 2.005)).toBe(2.01);
+    expect(thresholdValue("sum", 10 / 3)).toBe(10 / 3);
+  });
+
+  it("names the run's event", () => {
+    expect(runEvent({ created: false, basis: null, origin: "view_threshold" })).toBe("threshold.crossed");
   });
 });

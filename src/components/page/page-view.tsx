@@ -492,7 +492,7 @@ export function PageView({
             className={cn(
               "-ms-1 shrink-0 rounded-md p-1 leading-none",
               // The title's size, so the icon reads as part of its first line.
-              wide ? "text-2xl md:text-3xl" : "text-[1.75rem] md:text-4xl",
+              wide ? "text-xl md:text-2xl" : "text-[1.75rem] md:text-4xl",
               canChangeHeader ? "hover:bg-bg-hover" : "cursor-default",
             )}
           >
@@ -524,7 +524,7 @@ export function PageView({
       <div ref={rootRef} data-find-scope data-page-area className={cn("flex min-h-full flex-col", backdropClass(background))}>
         {/* Above the content's own layers (frozen table columns, the title's buttons, z-30) as it scrolls under.
             The blur sits on a layer behind it: on the header itself it would hold fixed menus and dialogs inside it. */}
-        <header data-window-controls-clear className="sticky top-0 z-[35] flex h-11 items-center justify-between gap-2 border-b border-transparent px-3 before:absolute before:inset-0 before:-z-10 before:bg-bg/90 before:backdrop-blur max-md:ps-1.5">
+        <header data-window-controls-clear className="sticky top-0 z-[35] flex h-11 items-center justify-between gap-2 px-3 before:absolute before:inset-0 before:-z-10 before:bg-bg/90 before:backdrop-blur max-md:ps-1.5">
           {panel ? (
             <div className="flex min-w-0 items-center gap-0.5">{panel.controls}</div>
           ) : (
@@ -907,7 +907,7 @@ function TitleField({
   // eslint-disable-next-line react-hooks/exhaustive-deps -- inputRef is a ref object; only a new value matters
   }, [value]);
   // Phones get a step smaller, so a typical title fits on one or two lines.
-  const font = cn("font-bold leading-tight", compact ? "text-2xl md:text-3xl" : "text-[1.75rem] md:text-4xl");
+  const font = cn("font-semibold leading-tight tracking-tight", compact ? "text-xl md:text-2xl" : "text-[1.75rem] md:text-4xl");
   // An invisible copy of the text sizes the box, so the field is only as wide and tall as its text
   // and a click beside the title doesn't start editing it.
   return (

@@ -299,5 +299,28 @@
     "heading": "{workspace} נמחקה",
     "body": "שלום {name}, {by} מחק את סביבת העבודה {workspace} ב־Leafdesk, עם כל הדפים, מסדי הנתונים והקבצים שבה. אין עוד אפשרות לפתוח אותה.",
     "note": "אי אפשר לשחזר סביבות עבודה שנמחקו. אם זה לא היה צפוי, אפשר לפנות אל {by} או לבעלים אחר של סביבת העבודה."
+  },
+  "dashboard": {
+    "subject": "{dashboard}: {period}",
+    "intro": "{period} ב“{workspace}”.",
+    "action": "פתיחת לוח הבקרה",
+    "versus": "לעומת {period}",
+    "noComparison": "אין למה להשוות ב-{period}",
+    "points": "{value} נק׳",
+    "yesterday": "אתמול",
+    "periodDays": "{period} ({days})",
+    "asOf": "כל הזמן, נכון ל-{date}",
+    "unavailable": "אין לך גישה לנתונים האלה.",
+    "inTrash": "מסד הנתונים הזה נמצא באשפה.",
+    "noGroup": "במסד הנתונים עדיין אין לפי מה לקבץ.",
+    "empty": "אין שורות בתקופה הזו.",
+    "allEmpty": "אין שורות.",
+    "viewOnly": "פתחו את לוח הבקרה כדי לראות את התצוגה הזו.",
+    "more": "{count, plural, one {שורה נוספת} two {שתי שורות נוספות} other {# שורות נוספות}}",
+    "other": "אחר",
+    "why": "{name} הוסיף/ה אותך לדוא״ל הזה · {schedule}.",
+    "whyOwn": "נרשמת לדוא״ל הזה · {schedule}.",
+    "unsubscribe": "ביטול מנוי",
+    "untitled": "ללא כותרת"
   }
 }

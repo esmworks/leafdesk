@@ -200,6 +200,7 @@
     "dictation": {
       "start": "질문 받아쓰기",
       "stop": "중지하고 텍스트 넣기",
+      "stopShort": "중지",
       "cancel": "녹음 취소",
       "transcribing": "말한 내용을 받아 적는 중…",
       "autoStopped": "녹음이 {minutes}분 제한에 도달해 중지되었습니다. 보내기 전에 텍스트를 확인하세요.",
@@ -405,6 +406,28 @@
       "save": "페이지로 저장",
       "openPage": "페이지 열기",
       "saveFailed": "보고서를 페이지로 저장하지 못했습니다."
+    },
+    "starters": {
+      "label": "추천",
+      "summarize": "“{title}” 요약해 줘",
+      "database": "“{title}”에는 무엇이 있어?",
+      "find": "다음에 관한 페이지 찾기…",
+      "findText": "다음에 관한 페이지 찾기: ",
+      "write": "다음에 관한 페이지 작성…",
+      "writeText": "다음에 관한 페이지 작성: "
+    },
+    "when": {
+      "today": "오늘",
+      "yesterday": "어제",
+      "week": "지난 7일",
+      "month": "지난 30일",
+      "older": "이전"
+    },
+    "add": "추가",
+    "kind": {
+      "label": "할 일",
+      "chat": "채팅",
+      "chatHint": "워크스페이스를 바탕으로 답하고 요청한 변경을 합니다"
     }
   },
   "memory": {

@@ -95,7 +95,8 @@
       "sensitiveFindings": "dlp findings leaked secrets card numbers dismiss",
       "domainPeople": "domain accounts users company email shadow unmanaged",
       "openOnStart": "startup launch first page last visited recent",
-      "pageReports": "report abuse flag complaint takedown published public web pages"
+      "pageReports": "report abuse flag complaint takedown published public web pages",
+      "dashboardEmails": "subscription report schedule weekly summary"
     }
   },
   "workspace": {
@@ -1957,6 +1958,11 @@
         "created": "Set up GitHub pull requests in {target}",
         "updated": "Changed the GitHub setup of {target}",
         "deleted": "Removed the GitHub setup of {target}"
+      },
+      "dashboard_email": {
+        "set": "Set {target} to be emailed to {count, plural, one {# person} other {# people}}",
+        "removed": "Stopped emailing {target}",
+        "sent": "Emailed {target} to {count, plural, one {# person} other {# people}}"
       }
     },
     "decisions": {
@@ -2061,7 +2067,11 @@
     "reactionChannel": "Reactions: {channel}",
     "verificationTitle": "Pages you verified",
     "verificationDescription": "A page you verified is about to stop being verified, a few days before, and when it does.",
-    "verificationChannel": "Pages you verified: {channel}"
+    "verificationChannel": "Pages you verified: {channel}",
+    "dashboardEmailsHeading": "Dashboard emails",
+    "dashboardEmailsDescription": "Dashboards emailed to you on a schedule, and the ones you set up for others.",
+    "dashboardEmailsNone": "No dashboard emails",
+    "dashboardEmailsNoneDescription": "To get a dashboard by email, open it and choose Email above its widgets."
   },
   "site": {
     "description": "Give this workspace's published pages one readable address, a home page and navigation between them.",
@@ -2471,7 +2481,8 @@
         "auth": "The mail server refused the user name or password. Check the app password.",
         "tls": "A secure connection to the mail server couldn't be made.",
         "unreachable": "The mail server can't be reached right now.",
-        "noInbox": "The mail server shows no inbox."
+        "noInbox": "The mail server shows no inbox.",
+        "signIn": "The Google sign-in no longer works. Sign in with Google again."
       }
     },
     "fields": {
@@ -2489,7 +2500,8 @@
       "usernamePlaceholder": "Usually the email address",
       "password": "App password",
       "passwordKeep": "Leave empty to keep the current one",
-      "passwordHelp": "An app password made for Leafdesk, not the password you sign in with. It is kept encrypted and never shown again."
+      "passwordHelp": "An app password made for Leafdesk, not the password you sign in with. It is kept encrypted and never shown again.",
+      "method": "Connect with"
     },
     "providerHelp": {
       "google": "Also for Google Workspace addresses on your own domain. Make an app password in your Google account under Security (2-Step Verification must be on).",
@@ -2516,8 +2528,21 @@
       "unreachable": "The mail server couldn't be reached. Check the server names and ports.",
       "noInbox": "The mail server shows no inbox.",
       "accessDenied": "You don't have access to do this.",
-      "gone": "That message isn't on this row any more."
-    }
+      "gone": "That message isn't on this row any more.",
+      "signIn": "The Google sign-in no longer works. Sign in with Google again.",
+      "googleFailed": "Signing in with Google didn't connect the mailbox. Try again.",
+      "googleScope": "Google wasn't allowed to give Leafdesk access to your mail. Sign in again and allow it."
+    },
+    "methods": {
+      "google": "Google account (Gmail or Google Workspace)",
+      "password": "App password (any provider, over IMAP and SMTP)"
+    },
+    "googleHint": "You sign in at Google and allow Leafdesk to read and send your mail. No app password is needed, and you can take the access back in your Google account at any time.",
+    "googleConnect": "Sign in with Google",
+    "googleLeaving": "Opening Google…",
+    "googleSignedIn": "signed in with Google",
+    "googleConnected": "Your mailbox is connected.",
+    "dismiss": "Dismiss"
   },
   "followUps": {
     "heading": "Follow-ups on {database}",

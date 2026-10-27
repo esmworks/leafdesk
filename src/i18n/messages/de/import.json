@@ -17,6 +17,7 @@
     "github": "GitHub",
     "ical": "Kalender",
     "postgres": "PostgreSQL",
+    "sheets": "Google Sheets",
     "googleDocs": "Google Docs",
     "web": "Webseite"
   },
@@ -438,6 +439,42 @@
       "failed": "Die Synchronisierung ist fehlgeschlagen. Sie versucht es beim nächsten Mal erneut.",
       "invalidSite": "Leafdesk kann diesen Server nicht erreichen: Eine private Adresse muss deine Administration in CONNECTOR_ALLOWED_HOSTS erlauben.",
       "invalidInput": "Prüfe die Verbindungsadresse, die Tabelle und die Spaltennamen.",
+      "alreadyRunning": "Eine Synchronisierung läuft. Versuche es gleich noch einmal."
+    }
+  },
+  "sheets": {
+    "help": "Eine Datenbank aus einem Tabellenblatt einer Google-Tabelle, die aktuell bleibt: Jede Zeile unter der Kopfzeile ist hier eine Zeile, über die Schlüsselspalte wiedergefunden und nach der Titelspalte benannt, mit einer Eigenschaft für jede weitere benannte Spalte (Text, Zahlen, Kontrollkästchen, Daten und Zeiten, je nachdem, was die Spalte enthält). Bis zu {limit, number} Zellen. Änderungen kommen vom Tabellenblatt und gehen auch dorthin zurück, wenn du „In beide Richtungen“ wählst.",
+    "loading": "Google-Sheets-Verbindungen werden gesucht…",
+    "noConnection": "Es gibt keine Google-Sheets-Verbindung, über die du synchronisieren kannst. Ein Inhaber fügt Google Sheets unter Einstellungen → Verbindungen hinzu; Mitglieder können sie nutzen, sobald ein Inhaber „Im Chat“ für das Werkzeug get_spreadsheet ankreuzt.",
+    "connection": "Google-Sheets-Verbindung",
+    "link": "Link zum Tabellenblatt",
+    "linkPlaceholder": "https://docs.google.com/spreadsheets/d/…/edit#gid=…",
+    "linkHelp": "Öffne das Tabellenblatt (den Reiter unten) und kopiere die Adresse: Das Tabellenblatt wird über seine ID gefunden, es darf also später umbenannt werden. Das Google-Konto der Verbindung muss die Tabelle öffnen können; sie muss nicht mit anderen geteilt sein.",
+    "invalidLink": "Kein Link zu einer Google-Tabelle.",
+    "headerRow": "Kopfzeile",
+    "headerRowPlaceholder": "Die letzte fixierte Zeile",
+    "keyPlaceholder": "Die erste Spalte",
+    "titlePlaceholder": "Die Schlüsselspalte",
+    "namePlaceholder": "Der Name des Tabellenblatts",
+    "direction": "Richtung",
+    "directionRead": "Nur vom Tabellenblatt",
+    "directionBoth": "In beide Richtungen",
+    "directionBothHelp": "Hier gemachte Änderungen werden beim nächsten Abgleich, nach etwa einer Minute, ins Tabellenblatt geschrieben. Hat sich eine Zelle auch im Tabellenblatt geändert, bleibt deren Wert. Die Schlüsselspalte und Spalten mit Formeln werden nicht geschrieben; neue Zeilen kommen unter die letzte Zeile; das Löschen einer Zeile löscht nichts im Tabellenblatt.",
+    "directionNoWrite": "Zum Zurückschreiben braucht die Verbindung die Werkzeuge update_values und insert_dimension: Inhaber können sie nutzen, Mitglieder, sobald ein Inhaber für beide „Im Chat“ ankreuzt.",
+    "bothNeedsSchedule": "Zum Zurückschreiben muss die Synchronisierung nach Zeitplan laufen.",
+    "errors": {
+      "unauthorized": "Die Google-Sheets-Verbindung muss erneut bei Google angemeldet werden: Ein Inhaber erledigt das unter Einstellungen → Verbindungen.",
+      "forbidden": "Die Verbindung kann dafür nicht genutzt werden: Ihr Google-Konto darf die Tabelle womöglich nicht öffnen, sie gehört zu einem anderen Arbeitsbereich, oder du darfst nicht darüber lesen.",
+      "notFound": "Diese Tabelle oder dieses Tabellenblatt gibt es nicht, oder die Verbindung wurde entfernt.",
+      "badQuery": "Google hat das Lesen des Tabellenblatts abgelehnt:",
+      "tooManyIssues": "Das Tabellenblatt hat zu viele Zellen zum Synchronisieren. Verschiebe die Zeilen und Spalten, die du brauchst, in ein eigenes Tabellenblatt.",
+      "unreachable": "Die Verbindung war nicht erreichbar oder Google brauchte zu lange. Die Synchronisierung versucht es beim nächsten Mal erneut.",
+      "runAsGone": "Die Person, die die Synchronisierung eingerichtet hat, hat kein Konto mehr.",
+      "accessLost": "Die Person, als die die Synchronisierung läuft, kann diese Datenbank nicht mehr bearbeiten oder hat den Arbeitsbereich verlassen.",
+      "keyGone": "Die Schlüsseleigenschaft wurde gelöscht oder ihr Typ geändert, oder die Überschrift der Schlüsselspalte hat sich geändert, daher können die Zeilen des Tabellenblatts keinen Zeilen zugeordnet werden.",
+      "failed": "Die Synchronisierung ist fehlgeschlagen. Sie versucht es beim nächsten Mal erneut.",
+      "invalidSite": "Leafdesk kann diese Verbindung nicht erreichen.",
+      "invalidInput": "Prüfe den Link, die Kopfzeile und die Spaltennamen: Sie müssen mit dem Text der Kopfzeile übereinstimmen.",
       "alreadyRunning": "Eine Synchronisierung läuft. Versuche es gleich noch einmal."
     }
   }

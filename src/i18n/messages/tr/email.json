@@ -299,5 +299,28 @@
     "heading": "{workspace} silindi",
     "body": "Merhaba {name}, {by} Leafdesk'teki {workspace} çalışma alanını tüm sayfaları, veritabanları ve dosyalarıyla birlikte sildi. Artık onu açamazsınız.",
     "note": "Silinen çalışma alanları geri getirilemez. Bunu beklemiyorduysanız {by} ya da çalışma alanının başka bir sahibiyle konuşun."
+  },
+  "dashboard": {
+    "subject": "{dashboard}: {period}",
+    "intro": "{period}, “{workspace}” çalışma alanı.",
+    "action": "Gösterge panelini aç",
+    "versus": "{period} dönemine göre",
+    "noComparison": "{period} döneminde karşılaştırılacak değer yok",
+    "points": "{value} puan",
+    "yesterday": "Dün",
+    "periodDays": "{period} ({days})",
+    "asOf": "Tüm zamanlar, {date} itibarıyla",
+    "unavailable": "Bu verilere erişiminiz yok.",
+    "inTrash": "Bu veritabanı çöp kutusunda.",
+    "noGroup": "Veritabanında henüz gruplanacak bir şey yok.",
+    "empty": "Bu dönemde satır yok.",
+    "allEmpty": "Satır yok.",
+    "viewOnly": "Bu görünümü görmek için gösterge panelini açın.",
+    "more": "{count, plural, one {# satır daha} other {# satır daha}}",
+    "other": "Diğer",
+    "why": "{name} sizi bu e-postaya abone yaptı · {schedule}.",
+    "whyOwn": "Bu e-postaya abone oldunuz · {schedule}.",
+    "unsubscribe": "Abonelikten çık",
+    "untitled": "Adsız"
   }
 }

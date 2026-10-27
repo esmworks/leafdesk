@@ -1,4 +1,5 @@
 import { DASHBOARD_BLOCK, dashboardLayout, parseDashboard, type DashboardLayout, type DashboardWidget } from "@/lib/dashboard";
+import { parseDashboardPeriod, serializeDashboardPeriod } from "@/lib/dashboard-period";
 import { pageLabel } from "@/lib/labels";
 import { AccessError } from "@/server/access";
 import * as databases from "@/server/databases";
@@ -7,7 +8,8 @@ import { describeViewConfig } from "./query";
 
 type Block = { id?: string; type?: string; props?: Record<string, unknown>; children?: Block[] };
 
-export type FoundDashboard = { id: string; layout: DashboardLayout; widgets: DashboardWidget[] };
+/** `period` as stored (lib/dashboard-period): "" for all time. */
+export type FoundDashboard = { id: string; layout: DashboardLayout; period: string; widgets: DashboardWidget[] };
 
 /** The dashboards of a page body (in columns too), in reading order. */
 export function dashboardsIn(blocks: unknown[]): FoundDashboard[] {
@@ -15,7 +17,12 @@ export function dashboardsIn(blocks: unknown[]): FoundDashboard[] {
   const visit = (list: Block[]) => {
     for (const block of list) {
       if (block.type === DASHBOARD_BLOCK && block.id) {
-        found.push({ id: block.id, layout: dashboardLayout(block.props?.layout), widgets: parseDashboard(block.props?.widgets) });
+        found.push({
+          id: block.id,
+          layout: dashboardLayout(block.props?.layout),
+          period: serializeDashboardPeriod(parseDashboardPeriod(block.props?.period)),
+          widgets: parseDashboard(block.props?.widgets),
+        });
       }
       if (block.children?.length) visit(block.children);
     }
@@ -62,5 +69,7 @@ export async function describeWidgets(userId: string, widgets: DashboardWidget[]
 
 /** A page's dashboards for get_page. */
 export async function dashboardsOutput(userId: string, blocks: unknown[]) {
-  return Promise.all(dashboardsIn(blocks).map(async (d) => ({ id: d.id, layout: d.layout, widgets: await describeWidgets(userId, d.widgets) })));
+  return Promise.all(
+    dashboardsIn(blocks).map(async (d) => ({ id: d.id, layout: d.layout, period: d.period || "all", widgets: await describeWidgets(userId, d.widgets) })),
+  );
 }

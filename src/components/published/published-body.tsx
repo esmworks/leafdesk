@@ -1,6 +1,6 @@
 import { Bot, FileSpreadsheet, FileText } from "lucide-react";
 import Link from "next/link";
-import { getTranslations } from "next-intl/server";
+import { getFormatter, getTranslations } from "next-intl/server";
 import { PropertyDisplay } from "@/components/database/property-cell";
 import { FileViewerArea } from "@/components/file-viewer";
 import { PropertyTypeIcon } from "@/components/database/property-icons";
@@ -11,6 +11,7 @@ import { SpreadsheetViewer } from "@/components/page/spreadsheet-viewer";
 import { BookmarkCard, EmbedFrame, MediaBox } from "@/components/page/web-card";
 import { PageIcon } from "@/components/ui";
 import { DASHBOARD_CLASS, DASHBOARD_GRID_CLASS, WIDGET_SPAN_CLASS, widgetBoxClass } from "@/lib/dashboard";
+import { nameRange, PERIOD_LABELS } from "@/lib/dashboard-period";
 import { noteParts } from "@/lib/footnotes";
 import { pageLabel } from "@/lib/labels";
 import { holdsNothing, rowPageSections } from "@/lib/page-visibility";
@@ -81,7 +82,8 @@ export async function PublishedBody({
   unavailable: string;
   print?: boolean;
 }) {
-  const [tc, tb, tw, tp, ts, td, ta, tt] = await Promise.all([
+  const [format, tc, tb, tw, tp, ts, td, ta, tt] = await Promise.all([
+    getFormatter(),
     getTranslations("common"),
     getTranslations("page.blocks"),
     getTranslations("page.web"),
@@ -151,9 +153,17 @@ export async function PublishedBody({
             </div>
           );
         }
-        // Each widget is its database as its view shows it: a number, a chart's figures, a list or a table.
+        // Each widget is its database as its view shows it: a number, a chart's figures, a list or a
+        // table, over the dashboard's period, which is named above them.
+        const { period, range } = block;
         return (
           <div key={i} className={cn("my-4", DASHBOARD_CLASS, pad)}>
+            {range && (
+              <p className="mb-2 text-sm text-fg-muted">
+                {period.kind === "custom" || period.kind === "all" ? null : <span className="font-medium text-fg">{td(`period.${PERIOD_LABELS[period.kind]}`)} · </span>}
+                {nameRange(range, format, (values) => td("period.quarter", values))}
+              </p>
+            )}
             <div className={DASHBOARD_GRID_CLASS}>
               {block.widgets.map((widget) => {
                 const { database } = widget;
@@ -181,6 +191,7 @@ export async function PublishedBody({
                           )}
                         </h2>
                         {view(widget, database)}
+                        {range && database.table.periodIgnored && <p className="mt-2 text-xs text-fg-faint">{td("period.ignoredNote")}</p>}
                       </>
                     ) : (
                       <p className="text-sm text-fg-faint">{unavailable}</p>

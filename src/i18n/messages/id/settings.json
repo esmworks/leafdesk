@@ -95,7 +95,8 @@
       "sensitiveFindings": "dlp temuan rahasia bocor nomor kartu abaikan",
       "domainPeople": "domain akun pengguna perusahaan email tidak dikelola",
       "openOnStart": "mulai buka halaman pertama terakhir dikunjungi terbaru",
-      "pageReports": "laporkan laporan penyalahgunaan keluhan turunkan diterbitkan publik web halaman"
+      "pageReports": "laporkan laporan penyalahgunaan keluhan turunkan diterbitkan publik web halaman",
+      "dashboardEmails": "langganan laporan jadwal mingguan ringkasan email dasbor"
     }
   },
   "workspace": {
@@ -1957,6 +1958,11 @@
         "created": "Menyiapkan pull request GitHub di {target}",
         "updated": "Mengubah pengaturan GitHub di {target}",
         "deleted": "Menghapus pengaturan GitHub di {target}"
+      },
+      "dashboard_email": {
+        "set": "Mengatur “{target}” untuk dikirim lewat email ke {count, plural, other {# orang}}",
+        "removed": "Menghentikan pengiriman email “{target}”",
+        "sent": "Mengirim “{target}” lewat email ke {count, plural, other {# orang}}"
       }
     },
     "decisions": {
@@ -2061,7 +2067,11 @@
     "reactionChannel": "Reaksi: {channel}",
     "verificationTitle": "Halaman yang Anda verifikasi",
     "verificationDescription": "Halaman yang Anda verifikasi akan segera tidak terverifikasi lagi: beberapa hari sebelumnya, dan saat hal itu terjadi.",
-    "verificationChannel": "Halaman yang Anda verifikasi: {channel}"
+    "verificationChannel": "Halaman yang Anda verifikasi: {channel}",
+    "dashboardEmailsHeading": "Email dasbor",
+    "dashboardEmailsDescription": "Dasbor yang dikirim ke Anda lewat email sesuai jadwal, dan yang Anda atur untuk orang lain.",
+    "dashboardEmailsNone": "Tidak ada email dasbor",
+    "dashboardEmailsNoneDescription": "Untuk menerima dasbor lewat email, buka dasbor lalu pilih Email di atas widget-nya."
   },
   "site": {
     "description": "Beri halaman terbit ruang kerja ini satu alamat yang mudah dibaca, sebuah beranda, dan navigasi di antaranya.",
@@ -2471,7 +2481,8 @@
         "auth": "Server email menolak nama pengguna atau kata sandi. Periksa kata sandi aplikasi.",
         "tls": "Koneksi aman ke server email tidak dapat dibuat.",
         "unreachable": "Server email tidak dapat dijangkau saat ini.",
-        "noInbox": "Server email tidak menampilkan kotak masuk."
+        "noInbox": "Server email tidak menampilkan kotak masuk.",
+        "signIn": "Login Google tidak lagi berfungsi. Login dengan Google lagi."
       }
     },
     "fields": {
@@ -2489,7 +2500,8 @@
       "usernamePlaceholder": "Biasanya alamat email",
       "password": "Kata sandi aplikasi",
       "passwordKeep": "Biarkan kosong untuk mempertahankan yang sekarang",
-      "passwordHelp": "Kata sandi aplikasi yang dibuat untuk Leafdesk, bukan kata sandi yang Anda pakai untuk masuk. Disimpan terenkripsi dan tidak pernah ditampilkan lagi."
+      "passwordHelp": "Kata sandi aplikasi yang dibuat untuk Leafdesk, bukan kata sandi yang Anda pakai untuk masuk. Disimpan terenkripsi dan tidak pernah ditampilkan lagi.",
+      "method": "Hubungkan dengan"
     },
     "providerHelp": {
       "google": "Juga untuk alamat Google Workspace di domain Anda sendiri. Buat kata sandi aplikasi di akun Google Anda di bawah Keamanan (Verifikasi 2 Langkah harus aktif).",
@@ -2516,8 +2528,21 @@
       "unreachable": "Server email tidak dapat dijangkau. Periksa nama server dan port.",
       "noInbox": "Server email tidak menampilkan kotak masuk.",
       "accessDenied": "Anda tidak memiliki akses untuk melakukan ini.",
-      "gone": "Pesan itu tidak lagi ada pada baris ini."
-    }
+      "gone": "Pesan itu tidak lagi ada pada baris ini.",
+      "signIn": "Login Google tidak lagi berfungsi. Login dengan Google lagi.",
+      "googleFailed": "Login dengan Google tidak menghubungkan kotak surat. Coba lagi.",
+      "googleScope": "Google tidak diizinkan memberi Leafdesk akses ke email Anda. Login lagi dan izinkan."
+    },
+    "methods": {
+      "google": "Akun Google (Gmail atau Google Workspace)",
+      "password": "Kata sandi aplikasi (penyedia apa pun, lewat IMAP dan SMTP)"
+    },
+    "googleHint": "Anda login di Google dan mengizinkan Leafdesk membaca dan mengirim email Anda. Kata sandi aplikasi tidak diperlukan, dan Anda bisa mencabut aksesnya di akun Google kapan saja.",
+    "googleConnect": "Login dengan Google",
+    "googleLeaving": "Membuka Google…",
+    "googleSignedIn": "login dengan Google",
+    "googleConnected": "Kotak surat Anda terhubung.",
+    "dismiss": "Tutup"
   },
   "followUps": {
     "heading": "Tindak lanjut pada {database}",

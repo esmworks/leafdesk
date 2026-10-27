@@ -200,6 +200,7 @@
     "dictation": {
       "start": "Đọc câu hỏi",
       "stop": "Dừng và chèn văn bản",
+      "stopShort": "Dừng",
       "cancel": "Hủy ghi âm",
       "transcribing": "Đang ghi lại những gì bạn nói…",
       "autoStopped": "Việc ghi âm đã dừng ở giới hạn {minutes} phút. Hãy kiểm tra văn bản trước khi gửi.",
@@ -405,6 +406,28 @@
       "save": "Lưu thành trang",
       "openPage": "Mở trang",
       "saveFailed": "Không thể lưu báo cáo thành trang."
+    },
+    "starters": {
+      "label": "Gợi ý",
+      "summarize": "Tóm tắt “{title}”",
+      "database": "Trong “{title}” có gì?",
+      "find": "Tìm trang về…",
+      "findText": "Tìm trang về ",
+      "write": "Viết một trang về…",
+      "writeText": "Viết một trang về "
+    },
+    "when": {
+      "today": "Hôm nay",
+      "yesterday": "Hôm qua",
+      "week": "7 ngày qua",
+      "month": "30 ngày qua",
+      "older": "Cũ hơn"
+    },
+    "add": "Thêm",
+    "kind": {
+      "label": "Làm gì",
+      "chat": "Trò chuyện",
+      "chatHint": "Trả lời từ không gian làm việc và thực hiện các thay đổi bạn yêu cầu"
     }
   },
   "memory": {

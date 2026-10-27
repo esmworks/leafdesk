@@ -95,7 +95,8 @@
       "sensitiveFindings": "dlp ocorrências segredos vazados números de cartão dispensar",
       "domainPeople": "domínio contas usuários empresa e-mail shadow não gerenciadas",
       "openOnStart": "início inicialização primeira página última visitada recente",
-      "pageReports": "denunciar denúncia abuso reclamação remover publicada pública web páginas"
+      "pageReports": "denunciar denúncia abuso reclamação remover publicada pública web páginas",
+      "dashboardEmails": "inscrição relatório programação semanal resumo e-mail painel"
     }
   },
   "workspace": {
@@ -1957,6 +1958,11 @@
         "created": "Configurou as pull requests do GitHub em {target}",
         "updated": "Alterou a configuração do GitHub de {target}",
         "deleted": "Removeu a configuração do GitHub de {target}"
+      },
+      "dashboard_email": {
+        "set": "Configurou o envio por e-mail de {target} para {count, plural, one {# pessoa} other {# pessoas}}",
+        "removed": "Parou de enviar {target} por e-mail",
+        "sent": "Enviou {target} por e-mail para {count, plural, one {# pessoa} other {# pessoas}}"
       }
     },
     "decisions": {
@@ -2061,7 +2067,11 @@
     "reactionChannel": "Reações: {channel}",
     "verificationTitle": "Páginas que você verificou",
     "verificationDescription": "Uma página que você verificou está para deixar de ser verificada: alguns dias antes e quando isso acontece.",
-    "verificationChannel": "Páginas que você verificou: {channel}"
+    "verificationChannel": "Páginas que você verificou: {channel}",
+    "dashboardEmailsHeading": "E-mails de painéis",
+    "dashboardEmailsDescription": "Painéis enviados a você por e-mail em uma programação e os que você configurou para outras pessoas.",
+    "dashboardEmailsNone": "Nenhum e-mail de painel",
+    "dashboardEmailsNoneDescription": "Para receber um painel por e-mail, abra-o e escolha E-mail acima dos widgets."
   },
   "site": {
     "description": "Dê às páginas publicadas deste espaço de trabalho um endereço legível, uma página inicial e navegação entre elas.",
@@ -2471,7 +2481,8 @@
         "auth": "O servidor de e-mail recusou o nome de usuário ou a senha. Confira a senha de app.",
         "tls": "Não foi possível estabelecer uma conexão segura com o servidor de e-mail.",
         "unreachable": "Não é possível acessar o servidor de e-mail agora.",
-        "noInbox": "O servidor de e-mail não mostra nenhuma caixa de entrada."
+        "noInbox": "O servidor de e-mail não mostra nenhuma caixa de entrada.",
+        "signIn": "O login do Google não funciona mais. Entre com o Google de novo."
       }
     },
     "fields": {
@@ -2489,7 +2500,8 @@
       "usernamePlaceholder": "Geralmente o endereço de e-mail",
       "password": "Senha de app",
       "passwordKeep": "Deixe em branco para manter a atual",
-      "passwordHelp": "Uma senha de app criada para o Leafdesk, não a senha com que você faz login. Ela é guardada criptografada e nunca mais é mostrada."
+      "passwordHelp": "Uma senha de app criada para o Leafdesk, não a senha com que você faz login. Ela é guardada criptografada e nunca mais é mostrada.",
+      "method": "Conectar com"
     },
     "providerHelp": {
       "google": "Também para endereços do Google Workspace no seu próprio domínio. Crie uma senha de app na sua Conta do Google, em Segurança (a verificação em duas etapas precisa estar ativada).",
@@ -2516,8 +2528,21 @@
       "unreachable": "Não foi possível acessar o servidor de e-mail. Confira os nomes dos servidores e as portas.",
       "noInbox": "O servidor de e-mail não mostra nenhuma caixa de entrada.",
       "accessDenied": "Você não tem acesso para fazer isso.",
-      "gone": "Essa mensagem não está mais nesta linha."
-    }
+      "gone": "Essa mensagem não está mais nesta linha.",
+      "signIn": "O login do Google não funciona mais. Entre com o Google de novo.",
+      "googleFailed": "Entrar com o Google não conectou a caixa de correio. Tente de novo.",
+      "googleScope": "O Google não teve permissão para dar ao Leafdesk acesso ao seu e-mail. Entre de novo e permita."
+    },
+    "methods": {
+      "google": "Conta do Google (Gmail ou Google Workspace)",
+      "password": "Senha de app (qualquer provedor, por IMAP e SMTP)"
+    },
+    "googleHint": "Você entra no Google e permite que o Leafdesk leia e envie seus e-mails. Não é preciso senha de app, e você pode retirar o acesso na sua conta do Google a qualquer momento.",
+    "googleConnect": "Entrar com o Google",
+    "googleLeaving": "Abrindo o Google…",
+    "googleSignedIn": "conectada com o Google",
+    "googleConnected": "Sua caixa de correio está conectada.",
+    "dismiss": "Fechar"
   },
   "followUps": {
     "heading": "Acompanhamentos em {database}",

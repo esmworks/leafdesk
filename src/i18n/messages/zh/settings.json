@@ -95,7 +95,8 @@
       "sensitiveFindings": "dlp 发现 泄露 机密 卡号 忽略",
       "domainPeople": "域名 账户 用户 公司 邮箱 未管理",
       "openOnStart": "启动 开始 首页 上次访问 最近",
-      "pageReports": "举报 滥用 投诉 撤下 已发布 公开 网络 页面"
+      "pageReports": "举报 滥用 投诉 撤下 已发布 公开 网络 页面",
+      "dashboardEmails": "订阅 报告 计划 每周 摘要 邮件 仪表板 定时"
     }
   },
   "workspace": {
@@ -1957,6 +1958,11 @@
         "created": "在 {target} 中设置了 GitHub 拉取请求",
         "updated": "更改了 {target} 的 GitHub 设置",
         "deleted": "移除了 {target} 的 GitHub 设置"
+      },
+      "dashboard_email": {
+        "set": "将 {target} 设置为通过邮件发送给 {count, plural, other {# 个人}}",
+        "removed": "停止了 {target} 的邮件发送",
+        "sent": "已将 {target} 通过邮件发送给 {count, plural, other {# 个人}}"
       }
     },
     "decisions": {
@@ -2061,7 +2067,11 @@
     "reactionChannel": "回应：{channel}",
     "verificationTitle": "你验证的页面",
     "verificationDescription": "你验证的页面即将失去验证状态时（提前几天）以及验证结束时通知你。",
-    "verificationChannel": "你验证的页面：{channel}"
+    "verificationChannel": "你验证的页面：{channel}",
+    "dashboardEmailsHeading": "仪表板邮件",
+    "dashboardEmailsDescription": "按计划发送给你的仪表板，以及你为他人设置的仪表板。",
+    "dashboardEmailsNone": "没有仪表板邮件",
+    "dashboardEmailsNoneDescription": "要通过邮件接收仪表板，请打开它并选择组件上方的“邮件”。"
   },
   "site": {
     "description": "为此工作区已发布的页面提供一个易读的地址、一个主页以及页面之间的导航。",
@@ -2471,7 +2481,8 @@
         "auth": "邮件服务器拒绝了用户名或密码。请检查应用专用密码。",
         "tls": "无法与邮件服务器建立安全连接。",
         "unreachable": "目前无法访问邮件服务器。",
-        "noInbox": "邮件服务器没有显示收件箱。"
+        "noInbox": "邮件服务器没有显示收件箱。",
+        "signIn": "Google 登录已失效。请重新使用 Google 登录。"
       }
     },
     "fields": {
@@ -2489,7 +2500,8 @@
       "usernamePlaceholder": "通常是邮箱地址",
       "password": "应用专用密码",
       "passwordKeep": "留空以保留当前密码",
-      "passwordHelp": "为 Leafdesk 创建的应用专用密码，而不是你登录时使用的密码。它会加密保存，且不会再次显示。"
+      "passwordHelp": "为 Leafdesk 创建的应用专用密码，而不是你登录时使用的密码。它会加密保存，且不会再次显示。",
+      "method": "连接方式"
     },
     "providerHelp": {
       "google": "也适用于你自有域名上的 Google Workspace 地址。在 Google 账号的“安全性”中创建应用专用密码（必须已开启两步验证）。",
@@ -2516,8 +2528,21 @@
       "unreachable": "无法访问邮件服务器。请检查服务器名称和端口。",
       "noInbox": "邮件服务器没有显示收件箱。",
       "accessDenied": "你没有执行此操作的权限。",
-      "gone": "该邮件已不在这一行中。"
-    }
+      "gone": "该邮件已不在这一行中。",
+      "signIn": "Google 登录已失效。请重新使用 Google 登录。",
+      "googleFailed": "使用 Google 登录未能连接邮箱。请重试。",
+      "googleScope": "Google 未获准让 Leafdesk 访问你的邮件。请重新登录并允许。"
+    },
+    "methods": {
+      "google": "Google 账号（Gmail 或 Google Workspace）",
+      "password": "应用专用密码（任意服务商，通过 IMAP 和 SMTP）"
+    },
+    "googleHint": "你在 Google 登录并允许 Leafdesk 读取和发送你的邮件。无需应用专用密码，并且你可以随时在 Google 账号中撤销访问权限。",
+    "googleConnect": "使用 Google 登录",
+    "googleLeaving": "正在打开 Google…",
+    "googleSignedIn": "已通过 Google 登录",
+    "googleConnected": "邮箱已连接。",
+    "dismiss": "关闭"
   },
   "followUps": {
     "heading": "{database} 的跟进",

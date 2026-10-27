@@ -1,5 +1,6 @@
 import type { FormQuestion, PageKind, PropertyOptions, PropertyType, RowProperties, ViewConfig, ViewType } from "@/db/schema/app";
 import { dropColorRules } from "./color-rules";
+import { PERIOD_NONE } from "./dashboard-period-value";
 import { mapFilterRules } from "./filters";
 import { rewriteReferences, rewriteRelatedReferences } from "./formula";
 import { atLeast, type PropertyLevel, type PropertyRule } from "./property-access";
@@ -412,6 +413,7 @@ export function remapViewConfig(
   if (config.placeBy !== undefined) out.placeBy = map(config.placeBy);
   if (config.stackBy !== undefined) out.stackBy = map(config.stackBy);
   if (config.columnBy !== undefined) out.columnBy = map(config.columnBy);
+  if (config.periodBy !== undefined && config.periodBy !== PERIOD_NONE) out.periodBy = map(config.periodBy);
   if (config.frozenThrough !== undefined) out.frozenThrough = map(config.frozenThrough);
   if (config.chartAggregate) out.chartAggregate = { ...config.chartAggregate, propertyId: map(config.chartAggregate.propertyId) };
   if (config.boardAggregate) out.boardAggregate = { ...config.boardAggregate, propertyId: map(config.boardAggregate.propertyId) };
@@ -471,6 +473,8 @@ export function dropPropertyReferences(config: ViewConfig, gone: (propertyId: st
     placeBy: c.placeBy !== undefined && gone(c.placeBy) ? undefined : c.placeBy,
     stackBy: c.stackBy !== undefined && gone(c.stackBy) ? undefined : c.stackBy,
     columnBy: c.columnBy !== undefined && gone(c.columnBy) ? undefined : c.columnBy,
+    // A widget whose period property goes leaves the period aside rather than take another one.
+    periodBy: c.periodBy !== undefined && c.periodBy !== PERIOD_NONE && gone(c.periodBy) ? PERIOD_NONE : c.periodBy,
     frozenThrough: c.frozenThrough !== undefined && gone(c.frozenThrough) ? undefined : c.frozenThrough,
     // A gallery that took covers from the property goes back to the default.
     cover: c.cover?.source === "property" && gone(c.cover.propertyId) ? undefined : c.cover,

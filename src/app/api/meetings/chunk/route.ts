@@ -2,6 +2,7 @@ import { auth } from "@/lib/auth";
 import { aiErrorStatus, isAiError, sttLimits } from "@/server/ai";
 import { audioError as fail, readAudioForm } from "@/server/audio-upload";
 import { isCrossSite } from "@/server/cross-site";
+import { statedLocale } from "@/server/mail/locale";
 import { addMeetingChunk, isMeetingError } from "@/server/meetings";
 
 const MEETING_STATUS: Record<string, number> = { noAccess: 403, notFound: 404, disabled: 403, busy: 409, tooLong: 413, notRecording: 409, invalid: 400 };
@@ -38,7 +39,7 @@ export async function POST(request: Request) {
   if (!place.pageId || !place.meetingId) return fail("invalid", "Say which meeting: pageId and meetingId", 400);
 
   try {
-    const { text } = await addMeetingChunk(session.user.id, place, read.audio, { signal: request.signal });
+    const { text } = await addMeetingChunk(session.user.id, place, read.audio, { signal: request.signal, language: statedLocale(request.headers) });
     return Response.json({ text }, { headers: { "Cache-Control": "no-store" } });
   } catch (error) {
     if (isMeetingError(error)) return fail(error.code, error.message, MEETING_STATUS[error.code] ?? 400);

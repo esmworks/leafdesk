@@ -200,6 +200,7 @@
     "dictation": {
       "start": "Een vraag dicteren",
       "stop": "Stoppen en de tekst invoegen",
+      "stopShort": "Stoppen",
       "cancel": "Opname annuleren",
       "transcribing": "Uitschrijven wat je zei…",
       "autoStopped": "De opname is gestopt bij de limiet van {minutes} min. Controleer de tekst voordat je hem verstuurt.",
@@ -405,6 +406,28 @@
       "save": "Opslaan als pagina",
       "openPage": "De pagina openen",
       "saveFailed": "Het rapport kon niet als pagina worden opgeslagen."
+    },
+    "starters": {
+      "label": "Suggesties",
+      "summarize": "Vat ‘{title}’ samen",
+      "database": "Wat staat er in ‘{title}’?",
+      "find": "Zoek pagina’s over…",
+      "findText": "Zoek pagina’s over ",
+      "write": "Schrijf een pagina over…",
+      "writeText": "Schrijf een pagina over "
+    },
+    "when": {
+      "today": "Vandaag",
+      "yesterday": "Gisteren",
+      "week": "Afgelopen 7 dagen",
+      "month": "Afgelopen 30 dagen",
+      "older": "Ouder"
+    },
+    "add": "Toevoegen",
+    "kind": {
+      "label": "Wat te doen",
+      "chat": "Chat",
+      "chatHint": "Antwoordt vanuit de werkruimte en maakt de wijzigingen waar je om vraagt"
     }
   },
   "memory": {

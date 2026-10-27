@@ -95,7 +95,8 @@
       "sensitiveFindings": "dlp phát hiện bí mật rò rỉ số thẻ bỏ qua",
       "domainPeople": "tên miền tài khoản người dùng công ty email không được quản lý",
       "openOnStart": "khởi động mở đầu trang đầu tiên truy cập gần nhất gần đây",
-      "pageReports": "báo cáo lạm dụng khiếu nại gỡ xuất bản công khai web trang"
+      "pageReports": "báo cáo lạm dụng khiếu nại gỡ xuất bản công khai web trang",
+      "dashboardEmails": "đăng ký báo cáo lịch hàng tuần tóm tắt email bảng điều khiển"
     }
   },
   "workspace": {
@@ -1957,6 +1958,11 @@
         "created": "Đã thiết lập pull request GitHub trong {target}",
         "updated": "Đã thay đổi thiết lập GitHub của {target}",
         "deleted": "Đã gỡ thiết lập GitHub của {target}"
+      },
+      "dashboard_email": {
+        "set": "Đã đặt {target} được gửi email cho {count, plural, other {# người}}",
+        "removed": "Đã dừng gửi email {target}",
+        "sent": "Đã gửi email {target} cho {count, plural, other {# người}}"
       }
     },
     "decisions": {
@@ -2061,7 +2067,11 @@
     "reactionChannel": "Cảm xúc: {channel}",
     "verificationTitle": "Các trang bạn đã xác minh",
     "verificationDescription": "Một trang bạn đã xác minh sắp hết trạng thái đã xác minh: vài ngày trước đó, và khi nó hết hạn.",
-    "verificationChannel": "Các trang bạn đã xác minh: {channel}"
+    "verificationChannel": "Các trang bạn đã xác minh: {channel}",
+    "dashboardEmailsHeading": "Email bảng điều khiển",
+    "dashboardEmailsDescription": "Các bảng điều khiển được gửi cho bạn qua email theo lịch, và những bảng bạn thiết lập cho người khác.",
+    "dashboardEmailsNone": "Không có email bảng điều khiển",
+    "dashboardEmailsNoneDescription": "Để nhận bảng điều khiển qua email, hãy mở bảng điều khiển và chọn Email phía trên các tiện ích."
   },
   "site": {
     "description": "Cho các trang đã xuất bản của không gian làm việc này một địa chỉ dễ đọc, một trang chủ và điều hướng giữa chúng.",
@@ -2471,7 +2481,8 @@
         "auth": "Máy chủ thư từ chối tên người dùng hoặc mật khẩu. Hãy kiểm tra mật khẩu ứng dụng.",
         "tls": "Không thể tạo kết nối an toàn đến máy chủ thư.",
         "unreachable": "Hiện không thể kết nối đến máy chủ thư.",
-        "noInbox": "Máy chủ thư không có hộp thư đến."
+        "noInbox": "Máy chủ thư không có hộp thư đến.",
+        "signIn": "Đăng nhập Google không còn hoạt động. Hãy đăng nhập lại bằng Google."
       }
     },
     "fields": {
@@ -2489,7 +2500,8 @@
       "usernamePlaceholder": "Thường là địa chỉ email",
       "password": "Mật khẩu ứng dụng",
       "passwordKeep": "Để trống để giữ mật khẩu hiện tại",
-      "passwordHelp": "Một mật khẩu ứng dụng được tạo riêng cho Leafdesk, không phải mật khẩu bạn dùng để đăng nhập. Nó được lưu mã hóa và không bao giờ hiển thị lại."
+      "passwordHelp": "Một mật khẩu ứng dụng được tạo riêng cho Leafdesk, không phải mật khẩu bạn dùng để đăng nhập. Nó được lưu mã hóa và không bao giờ hiển thị lại.",
+      "method": "Kết nối bằng"
     },
     "providerHelp": {
       "google": "Cũng dùng cho các địa chỉ Google Workspace trên tên miền riêng của bạn. Hãy tạo mật khẩu ứng dụng trong tài khoản Google của bạn, mục Bảo mật (phải bật Xác minh 2 bước).",
@@ -2516,8 +2528,21 @@
       "unreachable": "Không thể kết nối đến máy chủ thư. Hãy kiểm tra tên máy chủ và cổng.",
       "noInbox": "Máy chủ thư không có hộp thư đến.",
       "accessDenied": "Bạn không có quyền thực hiện việc này.",
-      "gone": "Tin nhắn đó không còn trên hàng này nữa."
-    }
+      "gone": "Tin nhắn đó không còn trên hàng này nữa.",
+      "signIn": "Đăng nhập Google không còn hoạt động. Hãy đăng nhập lại bằng Google.",
+      "googleFailed": "Đăng nhập bằng Google không kết nối được hộp thư. Hãy thử lại.",
+      "googleScope": "Google không được phép cấp cho Leafdesk quyền truy cập thư của bạn. Hãy đăng nhập lại và cho phép."
+    },
+    "methods": {
+      "google": "Tài khoản Google (Gmail hoặc Google Workspace)",
+      "password": "Mật khẩu ứng dụng (mọi nhà cung cấp, qua IMAP và SMTP)"
+    },
+    "googleHint": "Bạn đăng nhập ở Google và cho phép Leafdesk đọc và gửi thư của bạn. Không cần mật khẩu ứng dụng, và bạn có thể thu hồi quyền truy cập trong tài khoản Google bất cứ lúc nào.",
+    "googleConnect": "Đăng nhập bằng Google",
+    "googleLeaving": "Đang mở Google…",
+    "googleSignedIn": "đã đăng nhập bằng Google",
+    "googleConnected": "Hộp thư của bạn đã được kết nối.",
+    "dismiss": "Đóng"
   },
   "followUps": {
     "heading": "Chuỗi theo dõi trên {database}",

@@ -5,10 +5,10 @@ import { db } from "@/db";
 import { mailbox } from "@/db/schema";
 import { bareMessageId, dmarcFailed, isAutomated, MAX_MAIL_BYTES, normalizeAddress, parseMessageIds, type FolderState, type MailboxFolders } from "@/lib/mail";
 import { findMembership, isGuest } from "@/server/access";
-import { open } from "@/server/secret-box";
 import { startSweep } from "@/server/sweep";
 import { workspaceSettings } from "@/server/workspaces";
 import { connectError, openImap } from "./connect";
+import { withMailCredentials } from "./credentials";
 import { matchAddresses, matchThread, type RowMatch } from "./match";
 import { knownMessage, storeIncoming } from "./store";
 
@@ -137,11 +137,7 @@ export async function syncMailbox(box: Box) {
   if (!(await workspaceSettings(box.workspaceId)).email) return;
   const folders: MailboxFolders = { ...box.folders };
   try {
-    const client = await openImap({
-      servers: { imapHost: box.imapHost, imapPort: box.imapPort, imapSecure: box.imapSecure, smtpHost: box.smtpHost, smtpPort: box.smtpPort, smtpSecure: box.smtpSecure },
-      username: box.username,
-      password: open(box.secret),
-    });
+    const client = await withMailCredentials(box, openImap);
     try {
       for (const kind of ["inbox", "sent"] as const) {
         const state = folders[kind];

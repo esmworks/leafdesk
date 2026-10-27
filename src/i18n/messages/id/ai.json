@@ -200,6 +200,7 @@
     "dictation": {
       "start": "Dikte pertanyaan",
       "stop": "Berhenti dan sisipkan teks",
+      "stopShort": "Berhenti",
       "cancel": "Batalkan rekaman",
       "transcribing": "Menuliskan apa yang Anda ucapkan…",
       "autoStopped": "Rekaman berhenti pada batas {minutes} menit. Periksa teksnya sebelum mengirim.",
@@ -405,6 +406,28 @@
       "save": "Simpan sebagai halaman",
       "openPage": "Buka halaman",
       "saveFailed": "Laporan tidak dapat disimpan sebagai halaman."
+    },
+    "starters": {
+      "label": "Saran",
+      "summarize": "Ringkas “{title}”",
+      "database": "Apa isi “{title}”?",
+      "find": "Cari halaman tentang…",
+      "findText": "Cari halaman tentang ",
+      "write": "Tulis halaman tentang…",
+      "writeText": "Tulis halaman tentang "
+    },
+    "when": {
+      "today": "Hari ini",
+      "yesterday": "Kemarin",
+      "week": "7 hari terakhir",
+      "month": "30 hari terakhir",
+      "older": "Lebih lama"
+    },
+    "add": "Tambah",
+    "kind": {
+      "label": "Apa yang dilakukan",
+      "chat": "Obrolan",
+      "chatHint": "Menjawab dari ruang kerja dan membuat perubahan yang kamu minta"
     }
   },
   "memory": {

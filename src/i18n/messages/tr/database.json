@@ -259,6 +259,9 @@
       "thisMonth": "Bu ay",
       "lastMonth": "Geçen ay",
       "nextMonth": "Gelecek ay",
+      "thisQuarter": "Bu çeyrek",
+      "lastQuarter": "Geçen çeyrek",
+      "nextQuarter": "Gelecek çeyrek",
       "thisYear": "Bu yıl",
       "lastYear": "Geçen yıl",
       "nextYear": "Gelecek yıl",
@@ -1330,9 +1333,10 @@
     "lastRun": "Son çalışma: {status}, {time}",
     "neverRun": "Henüz çalışmadı",
     "checkError": {
-      "propertyDeleted": "Duraklatıldı: tarih ya da durum özelliği silindi. Özelliği geri yükleyin ya da otomasyonu düzenleyin.",
+      "propertyDeleted": "Duraklatıldı: kullandığı bir özellik silindi. Özelliği geri yükleyin ya da otomasyonu düzenleyin.",
       "noAccess": "Duraklatıldı: onu en son kaydeden kişinin bu veritabanına artık tam erişimi yok. Sizin erişiminizle çalışması için kaydedin.",
-      "scheduleInvalid": "Duraklatıldı: zamanlaması hiç gelmiyor. Otomasyonu düzenleyin."
+      "scheduleInvalid": "Duraklatıldı: zamanlaması hiç gelmiyor. Otomasyonu düzenleyin.",
+      "viewDeleted": "Duraklatıldı: görünümü silindi ya da kişisel yapıldı. Görünümü geri yükleyin ya da otomasyonu düzenleyin."
     },
     "tooMany": "Bir veritabanında en fazla {max} otomasyon olabilir",
     "deletedProperty": "Silinmiş özellik",
@@ -1355,7 +1359,10 @@
       "weekly": "Her {days} {time}",
       "monthly": "Her ayın {days}. günü {time}",
       "cron": "“{cron}” zamanlaması geldiğinde",
-      "incoming": "Adresine bir istek geldiğinde"
+      "incoming": "Adresine bir istek geldiğinde",
+      "thresholdCount": "“{view}” görünümündeki satır sayısı {value} değerinin {comparison, select, above {üzerine çıktığında} other {altına düştüğünde}}",
+      "thresholdOf": "“{view}” görünümündeki {property} özelliğinin {fn, select, sum {toplamı} average {ortalaması} median {medyanı} min {en küçük değeri} other {en büyük değeri}} {value} değerinin {comparison, select, above {üzerine çıktığında} other {altına düştüğünde}}",
+      "deletedView": "silinmiş bir görünüm"
     },
     "summaryAction": {
       "set": "Ata: {properties}",
@@ -1376,6 +1383,7 @@
         "row_created": "Bir satır eklendiğinde",
         "property_changed": "Bir özellik değiştiğinde",
         "date_passed": "Bir tarih geçtiğinde",
+        "view_threshold": "Bir toplam sınırı geçtiğinde",
         "schedule": "Zamanlamaya göre",
         "incoming_webhook": "Bir istek geldiğinde (gelen webhook)"
       },
@@ -1470,7 +1478,10 @@
         "exampleTooLong": "Örnek gövde çok uzun.",
         "needApprovers": "Kime sorulacağını seçin.",
         "needTimeout": "1 ile 30 arasında tam gün sayısı girin.",
-        "needSlackUrl": "Slack gelen webhook’unun adresini girin."
+        "needSlackUrl": "Slack gelen webhook’unun adresini girin.",
+        "needView": "Satırları sayılacak görünümü seçin.",
+        "needNumber": "Hesaplanacak sayı özelliğini seçin.",
+        "needThreshold": "Karşılaştırılacak sayıyı girin."
       },
       "agent": "Ajan",
       "chooseAgent": "Bir ajan seçin…",
@@ -1614,7 +1625,9 @@
         "timedOutContinued": "{time} tarihine kadar kimse yanıtlamadı: çalışma devam etti",
         "waiting": "{names} kişisine soruldu, {time} tarihine kadar",
         "closed": "{names} kişisine soruldu; çalışma yanıt gelmeden bitti"
-      }
+      },
+      "thresholdCrossed": "{comparison, select, above {{threshold} değerinin üzerine çıktı} other {{threshold} değerinin altına düştü}}: {value}",
+      "threshold": "Sınır aşıldı"
     },
     "nextRun": "Sonraki çalışma {time}",
     "lifecycle": {
@@ -1755,7 +1768,12 @@
       "agentRunId": "Ajan çalışması kimliği",
       "rowId": "Satır kimliği",
       "approvedBy": "Onaylayan",
-      "answeredAt": "Yanıtlandığı zaman"
+      "answeredAt": "Yanıtlandığı zaman",
+      "value": "Değer",
+      "previous": "Önceki kontroldeki değer",
+      "threshold": "Sınır",
+      "viewName": "Görünüm adı",
+      "viewUrl": "Görünüm bağlantısı"
     },
     "test": {
       "title": "Deneme çalıştırması",
@@ -1770,7 +1788,8 @@
       "running": "Deneme çalışıyor…",
       "run": "Denemeyi çalıştır",
       "saveAndRun": "Kaydet ve çalıştır",
-      "starting": "Başlatılıyor…"
+      "starting": "Başlatılıyor…",
+      "threshold": "Adımları, değer sınırı az önce geçmiş gibi, şu anki değeriyle şimdi çalıştırır."
     },
     "approval": {
       "people": "Bu kişilere sor",
@@ -1805,6 +1824,31 @@
         "name": "Biten satırları kutla",
         "description": "Bir satır tamamlandı olarak işaretlenince, işaretleyen kişiye konfeti."
       }
+    },
+    "threshold": {
+      "view": "Görünüm",
+      "chooseView": "Bir görünüm seçin",
+      "noViews": "Bu veritabanında paylaşılan görünüm yok. Sayılacak satırları filtreleriyle seçen bir görünüm ekleyin.",
+      "calculation": "Hesaplama",
+      "fn": {
+        "count_all": "Satır sayısı",
+        "sum": "Toplam",
+        "average": "Ortalama",
+        "median": "Medyan",
+        "min": "En küçük",
+        "max": "En büyük"
+      },
+      "property": "Özellik",
+      "chooseNumber": "Bir sayı özelliği seçin",
+      "noNumbers": "Bu veritabanında hesaplanabilecek sayı özelliği yok.",
+      "comparison": "Koşul",
+      "above": "Üzerine çıkınca",
+      "below": "Altına düşünce",
+      "value": "Değer",
+      "now": "Şu an: {value}.",
+      "nowMet": "Şu an: {value}, sınırı zaten geçmiş durumda. Değer geri döndükten sonra sınırı yeniden geçtiğinde çalışır.",
+      "nowNone": "Şu an: değer yok (görünümün satırlarında sayı yok).",
+      "help": "Değer sınırı geçtiğinde bir kez çalışır; geri dönene kadar yeniden çalışmaz. Satırlar değiştikten kısa süre sonra ve bugünün tarihine bağlı filtrelerde birkaç dakikada bir kontrol edilir. Satırlar ve değerler, otomasyonun kişisinin görebildikleridir."
     }
   },
   "subItems": {
@@ -2153,5 +2197,19 @@
     "overwrite": "Kaynak tablodur: eşitlenen özellikler ve satır başlıkları her eşitlemede yeniden yazılır; bu yüzden verileri tabloda değiştirin. Kendi eklediğiniz özellikler olduğu gibi kalır, tablodan çıkan satırlara dokunulmaz.",
     "changeUrl": "Bağlantıyı değiştir",
     "stopConfirm": "Bu veritabanının eşitlemesi durdurulsun mu? Satırlar olduğu gibi kalır, bağlantı adresi unutulur."
+  },
+  "sheetsSync": {
+    "button": "Google Sheets'ten eşitleniyor",
+    "buttonPaused": "Google Sheets eşitlemesi duraklatıldı",
+    "title": "Google Sheets eşitlemesi",
+    "sheet": "E-tablo sayfası",
+    "connectionGone": "Kaldırılmış bağlantı",
+    "lastRun": "Son eşitleme {when}, {count, plural, one {# satır} other {# satır}}",
+    "overwrite": "Kaynak sayfadır: eşitlenen özellikler ve satır başlıkları her eşitlemede yeniden yazılır; bu yüzden verileri sayfada değiştirin. Kendi eklediğiniz özellikler olduğu gibi kalır, sayfadan çıkan satırlara dokunulmaz.",
+    "formulaColumns": "Sayfaya yazılmayanlar (formül): {columns}",
+    "pending": "Sayfaya yazılmayı bekleyen satırlar: {count, number}",
+    "writeFailed": "Sayfaya yazılamadı:",
+    "writeForbidden": "Bağlantının Google hesabı e-tabloyu düzenleyemiyor ya da eşitlemenin adına çalıştığı kişi bağlantı üzerinden yazamıyor. Buradaki değişiklikler yazılabilene kadar bekler.",
+    "stopConfirm": "Bu veritabanının eşitlemesi durdurulsun mu? Satırlar olduğu gibi kalır."
   }
 }

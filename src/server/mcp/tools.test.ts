@@ -3576,6 +3576,7 @@ describe("dashboards", () => {
       {
         id: "dash-1",
         layout: "grid",
+        period: "all",
         widgets: [
           expect.objectContaining({ id: "w1", title: "Open", width: 1, accessible: true, type: "chart", chart_type: "number" }),
           expect.objectContaining({ id: "w2", title: null, width: 2, accessible: true, group_by: "Status", chart_type: "donut" }),

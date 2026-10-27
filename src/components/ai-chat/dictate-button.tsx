@@ -3,8 +3,8 @@
 /**
  * Dictating a question in the AI chat's box: the microphone records (components/voice), the server
  * writes down what was said (POST /api/ai/transcribe) and the text goes into the box, not sent, so
- * the person can fix it first. The same button starts and stops; while recording, the time and a
- * way to cancel (or Escape) show beside it. Only where the workspace can transcribe and the browser
+ * the person can fix it first. The same button starts and stops; while recording it turns red and
+ * says so, with the time in it, and a way to cancel (or Escape) shows beside it. Only where the workspace can transcribe and the browser
  * can record. What it shares with dictating into a page is in voice/dictation.ts.
  */
 import { Loader2, Mic, Square, X } from "lucide-react";
@@ -12,7 +12,7 @@ import { useTranslations } from "next-intl";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { claimDictation, transcribeRecording, useDictationError } from "@/components/voice/dictation";
 import { useVoiceRecorder, type Recording } from "@/components/voice/use-voice-recorder";
-import { IconButton } from "@/components/ui";
+import { cn, IconButton } from "@/components/ui";
 import { formatDuration, type VoiceNoteLimits } from "@/lib/voice-notes";
 
 /** What the box shows above itself about the last recording: a failure, or a note. */
@@ -98,12 +98,19 @@ export function DictateButton({
   const label = sending ? t("transcribing") : recording ? t("stop") : t("start");
   return (
     <>
-      {/* One button that starts and stops, so focus stays on it. */}
-      <IconButton
-        label={label}
+      {/* One button that starts and stops, so focus stays on it; its colors are its own, so not IconButton. */}
+      <button
+        type="button"
+        aria-label={label}
+        title={label}
         aria-pressed={recording}
         aria-disabled={sending || undefined}
-        className="h-7 w-7 disabled:opacity-40 disabled:hover:bg-transparent"
+        className={cn(
+          "inline-flex h-7 shrink-0 items-center justify-center rounded transition-colors disabled:opacity-40 disabled:hover:bg-transparent",
+          recording
+            ? "gap-1.5 bg-danger/10 px-2 text-xs font-medium text-danger hover:bg-danger/20"
+            : "w-7 text-fg-muted hover:bg-bg-active hover:text-fg",
+        )}
         disabled={disabled && !recording && !sending}
         onClick={() => {
           if (sending) return;
@@ -116,17 +123,18 @@ export function DictateButton({
         {sending || starting ? (
           <Loader2 className="h-4 w-4 animate-spin" />
         ) : recording ? (
-          <Square className="h-3 w-3 fill-current" />
+          <>
+            <span className="h-1.5 w-1.5 rounded-full bg-danger motion-safe:animate-pulse" aria-hidden />
+            <span role="timer" className="tabular-nums">
+              {formatDuration(state.seconds)}
+            </span>
+            <Square className="h-3 w-3 fill-current" aria-hidden />
+            <span>{t("stopShort")}</span>
+          </>
         ) : (
           <Mic className="h-4 w-4" />
         )}
-      </IconButton>
-      {recording && (
-        <span role="timer" className="flex items-center gap-1.5 px-1 text-xs tabular-nums text-fg-muted">
-          <span className="h-1.5 w-1.5 rounded-full bg-danger" aria-hidden />
-          {formatDuration(state.seconds)}
-        </span>
-      )}
+      </button>
       {(recording || sending) && (
         <IconButton label={t("cancel")} className="h-7 w-7" onClick={recording ? cancel : stopWaiting}>
           <X className="h-4 w-4" />

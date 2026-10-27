@@ -16,6 +16,7 @@ import type {
 } from "@/db/schema/app";
 import { colorRulesConfigError } from "./color-rules";
 import { CHART_ACCUMULATES, CHART_SORTS, CHART_TYPES, isBoardAggregateFn, isChartAggregateFn } from "./chart";
+import { COMPARISONS, DASHBOARD_PERIODS, readDashboardPeriod } from "./dashboard-period-value";
 import { filterConfigError } from "./filters";
 import { formConfigError } from "./forms";
 import { GROUP_DATE_BY } from "./grouping";
@@ -118,7 +119,7 @@ export function coverProperty<P extends { id: string; type: string }>(config: Pi
  */
 export function layoutConfigError(config: ViewConfig): string | null {
   const c = config as Record<string, unknown>;
-  for (const key of ["groupBy", "subGroupBy", "dateBy", "endDateBy", "stackBy", "placeBy", "columnBy"] as const) {
+  for (const key of ["groupBy", "subGroupBy", "dateBy", "endDateBy", "stackBy", "placeBy", "columnBy", "periodBy"] as const) {
     if (c[key] !== undefined && typeof c[key] !== "string") return `${key} must be a property id`;
   }
   if (c.subItems !== undefined && !SUB_ITEMS_DISPLAYS.includes(c.subItems as SubItemsDisplay)) {
@@ -169,6 +170,12 @@ export function layoutConfigError(config: ViewConfig): string | null {
   }
   if (c.columnSort !== undefined && !CHART_SORTS.includes(c.columnSort as ChartSort)) {
     return `Column sort must be one of: ${CHART_SORTS.join(", ")}`;
+  }
+  if (c.comparison !== undefined && !(COMPARISONS as readonly unknown[]).includes(c.comparison)) {
+    return `comparison must be one of: ${COMPARISONS.join(", ")}`;
+  }
+  if (c.period !== undefined && !readDashboardPeriod(c.period)) {
+    return `period must be one of ${DASHBOARD_PERIODS.join(", ")}, or two days as YYYY-MM-DD/YYYY-MM-DD`;
   }
   if (c.chartAggregate !== undefined) {
     const agg = c.chartAggregate as { fn?: unknown; propertyId?: unknown } | null;

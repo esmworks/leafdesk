@@ -17,6 +17,7 @@
     "github": "GitHub",
     "ical": "Kalenteri",
     "postgres": "PostgreSQL",
+    "sheets": "Google Sheets",
     "googleDocs": "Google Docs",
     "web": "Verkkosivu"
   },
@@ -438,6 +439,42 @@
       "failed": "Synkronointi epäonnistui. Se yrittää uudelleen seuraavalla kerralla.",
       "invalidSite": "Leafdesk ei tavoita palvelinta: yksityinen osoite on sallittava ylläpitäjän CONNECTOR_ALLOWED_HOSTS-asetuksessa.",
       "invalidInput": "Tarkista yhteysosoite, taulu ja sarakkeiden nimet.",
+      "alreadyRunning": "Synkronointi on käynnissä. Yritä hetken päästä uudelleen."
+    }
+  },
+  "sheets": {
+    "help": "Luo tietokanta Google-taulukon yhdestä välilehdestä, joka pysyy ajan tasalla: jokainen otsikkorivin alapuolinen rivi on tässä rivi, joka löytyy uudelleen avainsarakkeen avulla ja saa nimensä otsikkosarakkeesta, ja jokaisesta muusta nimetystä sarakkeesta tulee ominaisuus (teksti, luvut, valintaruudut, päivämäärät ja kellonajat sen mukaan, mitä sarake sisältää). Enintään {limit, number} solua. Muutokset tulevat välilehdeltä, ja palaavat sinne myös, jos valitset ”Molempiin suuntiin”.",
+    "loading": "Etsitään Google Sheets -yhteyksiä…",
+    "noConnection": "Ei Google Sheets -yhteyttä, jonka kautta voisit synkronoida. Omistaja lisää Google Sheetsin kohdassa Asetukset → Yhteydet; jäsenet voivat käyttää sitä, kun omistaja valitsee sen get_spreadsheet-työkalulle ”Chatissa”.",
+    "connection": "Google Sheets -yhteys",
+    "link": "Linkki välilehteen",
+    "linkPlaceholder": "https://docs.google.com/spreadsheets/d/…/edit#gid=…",
+    "linkHelp": "Avaa välilehti (alareunan välilehti) ja kopioi osoite: välilehti löytyy tunnuksensa avulla, joten sen voi nimetä myöhemmin uudelleen. Yhteyden Google-tilin täytyy päästä avaamaan taulukko; sitä ei tarvitse jakaa muille.",
+    "invalidLink": "Ei linkki Google-taulukkoon.",
+    "headerRow": "Otsikkorivi",
+    "headerRowPlaceholder": "Viimeinen kiinteä rivi",
+    "keyPlaceholder": "Ensimmäinen sarake",
+    "titlePlaceholder": "Avainsarake",
+    "namePlaceholder": "Välilehden nimi",
+    "direction": "Suunta",
+    "directionRead": "Vain välilehdeltä",
+    "directionBoth": "Molempiin suuntiin",
+    "directionBothHelp": "Täällä tehdyt muutokset kirjoitetaan välilehdelle seuraavassa synkronoinnissa, noin minuutin kuluessa. Jos solu on muuttunut myös välilehdellä, välilehden arvo jää. Avainsaraketta ja kaavoja sisältäviä sarakkeita ei kirjoiteta; uudet rivit lisätään viimeisen rivin alle; rivin poistaminen ei poista välilehdeltä mitään.",
+    "directionNoWrite": "Takaisin kirjoittaminen vaatii yhteydeltä työkalut update_values ja insert_dimension: omistajat voivat käyttää niitä, jäsenet, kun omistaja valitsee molemmille ”Chatissa”.",
+    "bothNeedsSchedule": "Takaisin kirjoittaminen vaatii aikataulun mukaan toimivan synkronoinnin.",
+    "errors": {
+      "unauthorized": "Google Sheets -yhteys täytyy kirjata uudelleen Googleen: omistaja tekee sen kohdassa Asetukset → Yhteydet.",
+      "forbidden": "Yhteyttä ei voi käyttää tähän: sen Google-tili ei ehkä pääse avaamaan taulukkoa, se on toisessa työtilassa tai sinulla ei ole oikeutta lukea sen kautta.",
+      "notFound": "Tällaista taulukkoa tai välilehteä ei ole, tai yhteys poistettiin.",
+      "badQuery": "Google kieltäytyi lukemasta välilehteä:",
+      "tooManyIssues": "Välilehdellä on liian monta solua synkronoitavaksi. Siirrä tarvitsemasi rivit ja sarakkeet omalle välilehdelleen.",
+      "unreachable": "Yhteyteen ei saatu yhteyttä tai Google kesti liian kauan. Synkronointi yrittää uudelleen seuraavalla kerralla.",
+      "runAsGone": "Synkronoinnin määrittäneellä henkilöllä ei ole enää tiliä.",
+      "accessLost": "Henkilö, jonka nimissä synkronointi toimii, ei voi enää muokata tätä tietokantaa tai on poistunut työtilasta.",
+      "keyGone": "Avainominaisuus poistettiin tai sen tyyppi muuttui, tai avainsarakkeen otsikko muuttui, joten välilehden rivejä ei voi yhdistää riveihin.",
+      "failed": "Synkronointi epäonnistui. Se yrittää uudelleen seuraavalla kerralla.",
+      "invalidSite": "Leafdesk ei saa yhteyttä tähän yhteyteen.",
+      "invalidInput": "Tarkista linkki, otsikkorivi ja sarakkeiden nimet: niiden täytyy vastata otsikkorivin tekstiä.",
       "alreadyRunning": "Synkronointi on käynnissä. Yritä hetken päästä uudelleen."
     }
   }

@@ -200,6 +200,7 @@
     "dictation": {
       "start": "Diktera en fråga",
       "stop": "Stoppa och infoga texten",
+      "stopShort": "Stoppa",
       "cancel": "Avbryt inspelningen",
       "transcribing": "Skriver ned det du sa…",
       "autoStopped": "Inspelningen stoppades vid gränsen på {minutes} min. Kontrollera texten innan du skickar den.",
@@ -405,6 +406,28 @@
       "save": "Spara som sida",
       "openPage": "Öppna sidan",
       "saveFailed": "Rapporten kunde inte sparas som en sida."
+    },
+    "starters": {
+      "label": "Förslag",
+      "summarize": "Sammanfatta ”{title}”",
+      "database": "Vad finns i ”{title}”?",
+      "find": "Hitta sidor om…",
+      "findText": "Hitta sidor om ",
+      "write": "Skriv en sida om…",
+      "writeText": "Skriv en sida om "
+    },
+    "when": {
+      "today": "I dag",
+      "yesterday": "I går",
+      "week": "Senaste 7 dagarna",
+      "month": "Senaste 30 dagarna",
+      "older": "Äldre"
+    },
+    "add": "Lägg till",
+    "kind": {
+      "label": "Vad den ska göra",
+      "chat": "Chatt",
+      "chatHint": "Svarar utifrån arbetsytan och gör de ändringar du ber om"
     }
   },
   "memory": {

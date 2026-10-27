@@ -155,6 +155,9 @@ services:
       WEB_LINK_CHECKS: ${WEB_LINK_CHECKS:-}
       # Email on rows: mail servers on a private network that mailboxes may reach (see docs/email-on-rows.md).
       MAIL_ALLOWED_HOSTS: ${MAIL_ALLOWED_HOSTS:-}
+      # Email on rows: the Google OAuth client mailboxes sign in with instead of an app password.
+      MAIL_GOOGLE_CLIENT_ID: ${MAIL_GOOGLE_CLIENT_ID:-}
+      MAIL_GOOGLE_CLIENT_SECRET: ${MAIL_GOOGLE_CLIENT_SECRET:-}
       LEAFDESK_ENCRYPTION_KEY: ${LEAFDESK_ENCRYPTION_KEY:-}
       LEAFDESK_ENCRYPTION_OLD_KEYS: ${LEAFDESK_ENCRYPTION_OLD_KEYS:-}
       # The instance's own OAuth apps for services that sign in only registered apps (see .env.example).
@@ -183,6 +186,7 @@ services:
       AI_WORKSPACE_RATE_LIMIT: ${AI_WORKSPACE_RATE_LIMIT:-}
       AI_CONCURRENCY: ${AI_CONCURRENCY:-}
       AI_CONTEXT_WINDOW: ${AI_CONTEXT_WINDOW:-}
+      AI_RUN_LIMIT_USD: ${AI_RUN_LIMIT_USD:-}
       AI_MONTHLY_LIMIT_USD: ${AI_MONTHLY_LIMIT_USD:-}
       # Voice notes stay off unless STT_PROVIDER and STT_MODEL are set (see .env.example).
       STT_PROVIDER: ${STT_PROVIDER:-}

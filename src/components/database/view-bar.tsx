@@ -140,29 +140,32 @@ export function ViewTabs({
   const drag = useReorderDrag("x", onMove);
   const movable = !readOnly && views.length > 1;
   return (
-    <div className="flex min-w-0 flex-1 items-center gap-0.5 overflow-x-auto [scrollbar-width:none]">
-      {views.map((view) => {
-        // A personal view is its person's to rename, copy and delete, whatever they may do to the others.
-        const own = mine(view) && canAddPersonal;
-        const tabReadOnly = readOnly && !own;
-        return (
-          <ViewTab
-            key={view.id}
-            view={view}
-            active={view.id === activeId}
-            canDelete={view.ownerId ? true : shared > 1}
-            readOnly={tabReadOnly}
-            drag={movable ? drag.handlers(view.id) : undefined}
-            onSelect={() => onSelect(view.id)}
-            onRename={(name) => onRename(view, name)}
-            onIcon={onIcon && ((icon) => onIcon(view, icon))}
-            onDelete={() => onDelete(view)}
-            onExport={view.id === activeId ? onExport : undefined}
-            onDuplicate={onDuplicate && !tabReadOnly ? () => onDuplicate(view) : undefined}
-            onShare={onShare && own ? () => onShare(view) : undefined}
-          />
-        );
-      })}
+    <div className="flex min-w-0 flex-1 items-center gap-1 overflow-x-auto [scrollbar-width:none]">
+      {/* The views sit on a track, the open one raised out of it. */}
+      <div className="flex shrink-0 items-center gap-0.5 rounded-lg bg-bg-subtle p-0.5 shadow-[inset_0_0_0_1px_var(--color-border)]">
+        {views.map((view) => {
+          // A personal view is its person's to rename, copy and delete, whatever they may do to the others.
+          const own = mine(view) && canAddPersonal;
+          const tabReadOnly = readOnly && !own;
+          return (
+            <ViewTab
+              key={view.id}
+              view={view}
+              active={view.id === activeId}
+              canDelete={view.ownerId ? true : shared > 1}
+              readOnly={tabReadOnly}
+              drag={movable ? drag.handlers(view.id) : undefined}
+              onSelect={() => onSelect(view.id)}
+              onRename={(name) => onRename(view, name)}
+              onIcon={onIcon && ((icon) => onIcon(view, icon))}
+              onDelete={() => onDelete(view)}
+              onExport={view.id === activeId ? onExport : undefined}
+              onDuplicate={onDuplicate && !tabReadOnly ? () => onDuplicate(view) : undefined}
+              onShare={onShare && own ? () => onShare(view) : undefined}
+            />
+          );
+        })}
+      </div>
       {(!readOnly || canAddPersonal) && (
         <>
           <button
@@ -171,7 +174,7 @@ export function ViewTabs({
             aria-label={t("viewTabs.addView")}
             title={t("viewTabs.addView")}
             onClick={add.toggle}
-            className="mb-1.5 inline-flex h-7 w-7 shrink-0 items-center justify-center rounded-md text-fg-muted hover:bg-bg-hover hover:text-fg"
+            className="inline-flex h-7 w-7 shrink-0 items-center justify-center rounded-md text-fg-muted hover:bg-bg-hover hover:text-fg"
           >
             <Plus className="h-4 w-4" />
           </button>
@@ -275,8 +278,7 @@ function ViewTab({
       onDrop={drag?.onDrop}
       onDragEnd={drag?.onDragEnd}
       className={cn(
-        "relative flex shrink-0 items-center border-b-2 pb-1",
-        active ? "border-fg" : "border-transparent",
+        "relative flex shrink-0 items-center",
         drag?.dragging && "opacity-50",
       )}
     >
@@ -284,7 +286,7 @@ function ViewTab({
         <span
           aria-hidden
           className={cn(
-            "pointer-events-none absolute top-0.5 bottom-1.5 w-0.5 bg-accent",
+            "pointer-events-none absolute inset-y-0.5 w-0.5 bg-accent",
             drag.dropSide === "before" ? "-inset-s-px" : "-inset-e-px",
           )}
         />
@@ -294,8 +296,8 @@ function ViewTab({
         type="button"
         onClick={() => (active && hasMenu ? menu.toggle() : onSelect())}
         className={cn(
-          "inline-flex h-7 items-center gap-1.5 rounded-md px-2 text-sm hover:bg-bg-hover",
-          active ? "font-medium text-fg" : "text-fg-muted",
+          "inline-flex h-7 items-center gap-1.5 rounded-md px-2 text-sm transition-colors",
+          active ? "bg-bg font-medium text-fg shadow-[0_0_0_1px_var(--color-border),0_1px_2px_rgb(0_0_0/0.05)]" : "text-fg-muted hover:text-fg",
         )}
       >
         <ViewIcon type={view.type} icon={view.config.icon} />
@@ -964,6 +966,9 @@ const RANGE_LABELS = {
   this_month: "thisMonth",
   last_month: "lastMonth",
   next_month: "nextMonth",
+  this_quarter: "thisQuarter",
+  last_quarter: "lastQuarter",
+  next_quarter: "nextQuarter",
   this_year: "thisYear",
   last_year: "lastYear",
   next_year: "nextYear",

@@ -259,6 +259,9 @@
       "thisMonth": "Ce mois-ci",
       "lastMonth": "Le mois dernier",
       "nextMonth": "Le mois prochain",
+      "thisQuarter": "Ce trimestre",
+      "lastQuarter": "Le trimestre dernier",
+      "nextQuarter": "Le trimestre prochain",
       "thisYear": "Cette année",
       "lastYear": "L’année dernière",
       "nextYear": "L’année prochaine",
@@ -1330,9 +1333,10 @@
     "lastRun": "Dernière exécution : {status}, {time}",
     "neverRun": "Pas encore exécutée",
     "checkError": {
-      "propertyDeleted": "En pause : sa propriété de date ou de statut a été supprimée. Restaurez la propriété ou modifiez l’automatisation.",
+      "propertyDeleted": "En pause : une propriété qu’elle utilise a été supprimée. Restaurez la propriété ou modifiez l’automatisation.",
       "noAccess": "En pause : la personne qui l’a enregistrée en dernier n’a plus l’accès complet à cette base de données. Enregistrez-la pour qu’elle s’exécute avec votre accès.",
-      "scheduleInvalid": "En pause : son planning n’arrive jamais. Modifiez l’automatisation."
+      "scheduleInvalid": "En pause : son planning n’arrive jamais. Modifiez l’automatisation.",
+      "viewDeleted": "En pause : sa vue a été supprimée ou rendue personnelle. Restaurez la vue ou modifiez l’automatisation."
     },
     "tooMany": "Une base de données peut avoir au plus {max} automatisations",
     "deletedProperty": "Propriété supprimée",
@@ -1355,7 +1359,10 @@
       "weekly": "il est {time}, chaque {days}",
       "monthly": "il est {time}, le {days} de chaque mois",
       "cron": "le planning « {cron} » arrive",
-      "incoming": "une requête arrive à son adresse"
+      "incoming": "une requête arrive à son adresse",
+      "thresholdCount": "le nombre de lignes de « {view} » passe {comparison, select, above {au-dessus de} other {en dessous de}} {value}",
+      "thresholdOf": "{fn, select, sum {la somme} average {la moyenne} median {la médiane} min {le minimum} other {le maximum}} de {property} dans « {view} » passe {comparison, select, above {au-dessus de} other {en dessous de}} {value}",
+      "deletedView": "une vue supprimée"
     },
     "summaryAction": {
       "set": "Définir {properties}",
@@ -1376,6 +1383,7 @@
         "row_created": "Une ligne est ajoutée",
         "property_changed": "Une propriété change",
         "date_passed": "Une date est passée",
+        "view_threshold": "Un total franchit un seuil",
         "schedule": "Selon un planning",
         "incoming_webhook": "Une requête arrive (webhook entrant)"
       },
@@ -1470,7 +1478,10 @@
         "exampleTooLong": "Le corps d’exemple est trop long.",
         "needApprovers": "Choisissez à qui demander.",
         "needTimeout": "Saisissez un nombre entier de jours entre 1 et 30.",
-        "needSlackUrl": "Saisissez l’adresse du webhook entrant Slack."
+        "needSlackUrl": "Saisissez l’adresse du webhook entrant Slack.",
+        "needView": "Choisissez la vue dont les lignes sont comptées.",
+        "needNumber": "Choisissez la propriété numérique à calculer.",
+        "needThreshold": "Saisissez le nombre à comparer."
       },
       "agent": "Agent",
       "chooseAgent": "Choisir un agent…",
@@ -1614,7 +1625,9 @@
         "timedOutContinued": "Personne n’a répondu avant {time} : l’exécution a continué",
         "waiting": "Demandé à {names}, jusqu’au {time}",
         "closed": "Demandé à {names} ; l’exécution s’est terminée avant une réponse"
-      }
+      },
+      "thresholdCrossed": "{comparison, select, above {Passé au-dessus de {threshold}} other {Passé en dessous de {threshold}}} : {value}",
+      "threshold": "Seuil franchi"
     },
     "nextRun": "Prochaine exécution {time}",
     "lifecycle": {
@@ -1755,7 +1768,12 @@
       "agentRunId": "ID de l’exécution de l’agent",
       "rowId": "ID de la ligne",
       "approvedBy": "Qui a approuvé",
-      "answeredAt": "Date de la réponse"
+      "answeredAt": "Date de la réponse",
+      "value": "Valeur",
+      "previous": "Valeur à la vérification précédente",
+      "threshold": "Seuil",
+      "viewName": "Nom de la vue",
+      "viewUrl": "Lien de la vue"
     },
     "test": {
       "title": "Exécution de test",
@@ -1770,7 +1788,8 @@
       "running": "Test en cours…",
       "run": "Lancer le test",
       "saveAndRun": "Enregistrer et lancer",
-      "starting": "Démarrage…"
+      "starting": "Démarrage…",
+      "threshold": "Exécute les étapes maintenant, comme si la valeur venait de franchir le seuil, avec sa valeur actuelle."
     },
     "approval": {
       "people": "Demander à ces personnes",
@@ -1805,6 +1824,31 @@
         "name": "Fêter les lignes terminées",
         "description": "Quand une ligne est marquée comme terminée, des confettis pour la personne qui l’a fait."
       }
+    },
+    "threshold": {
+      "view": "Vue",
+      "chooseView": "Choisir une vue",
+      "noViews": "Cette base de données n’a aucune vue partagée. Ajoutez-en une dont les filtres sélectionnent les lignes à compter.",
+      "calculation": "Calcul",
+      "fn": {
+        "count_all": "Nombre de lignes",
+        "sum": "Somme",
+        "average": "Moyenne",
+        "median": "Médiane",
+        "min": "Minimum",
+        "max": "Maximum"
+      },
+      "property": "De",
+      "chooseNumber": "Choisir un nombre",
+      "noNumbers": "Cette base de données n’a aucune propriété numérique à calculer.",
+      "comparison": "Passe",
+      "above": "Au-dessus de",
+      "below": "En dessous de",
+      "value": "Valeur",
+      "now": "Actuellement : {value}.",
+      "nowMet": "Actuellement : {value}, le seuil est déjà franchi. Elle s’exécute la prochaine fois que la valeur le franchit, après être revenue en arrière.",
+      "nowNone": "Actuellement : aucune valeur (pas de nombres dans les lignes de la vue).",
+      "help": "S’exécute une fois quand la valeur franchit le seuil, puis seulement après son retour. La vérification a lieu peu après un changement de lignes, et toutes les quelques minutes pour les filtres sur la date du jour. Les lignes et les valeurs sont celles que la personne de l’automatisation peut voir."
     }
   },
   "subItems": {
@@ -2153,5 +2197,19 @@
     "overwrite": "La table est la source : les propriétés synchronisées et les titres des lignes sont réécrits à chaque synchronisation, modifiez donc les données dans la table. Les propriétés que vous ajoutez restent telles quelles, et les lignes qui quittent la table ne sont pas touchées.",
     "changeUrl": "Changer la connexion",
     "stopConfirm": "Arrêter de synchroniser cette base ? Ses lignes restent telles quelles et l'adresse de connexion est oubliée."
+  },
+  "sheetsSync": {
+    "button": "Synchronisée depuis Google Sheets",
+    "buttonPaused": "Synchronisation Google Sheets en pause",
+    "title": "Synchronisation Google Sheets",
+    "sheet": "Feuille",
+    "connectionGone": "Connexion supprimée",
+    "lastRun": "Dernière synchronisation {when}, {count, plural, one {# ligne} other {# lignes}}",
+    "overwrite": "La feuille est la source : les propriétés synchronisées et les titres de lignes sont écrasés à chaque synchronisation, modifiez donc les données dans la feuille. Les propriétés que vous ajoutez vous-même restent telles quelles, et les lignes qui quittent la feuille ne sont pas touchées.",
+    "formulaColumns": "Non écrites en retour (formules) : {columns}",
+    "pending": "Lignes en attente d'écriture dans la feuille : {count, number}",
+    "writeFailed": "Impossible d'écrire dans la feuille :",
+    "writeForbidden": "Le compte Google de la connexion ne peut pas modifier la feuille de calcul, ou la personne pour qui la synchronisation s'exécute ne peut pas écrire via la connexion. Les modifications faites ici attendent que ce soit possible.",
+    "stopConfirm": "Arrêter de synchroniser cette base ? Ses lignes restent telles quelles."
   }
 }

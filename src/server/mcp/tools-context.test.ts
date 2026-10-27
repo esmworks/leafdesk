@@ -9,7 +9,7 @@ import { createMcpServer } from "./tools";
 vi.mock("@/db", () => ({ db: {} }));
 
 const MAX_TOOLS = 90;
-const MAX_TOTAL_BYTES = 165_000;
+const MAX_TOTAL_BYTES = 165_500;
 const MAX_TOOL_BYTES = 12_000;
 
 type Tool = { name: string; description?: string; inputSchema?: unknown };

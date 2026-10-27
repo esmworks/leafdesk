@@ -7,6 +7,7 @@ import { describeAiConfig, readAiConfig } from "./config";
 import { startFakeOpenAi, type FakeOpenAi } from "./fake-openai";
 import { sttEnabled, sttLimitsFor, transcribe } from "./index";
 import { fallbackVoiceTitle, parseVoiceNote, voiceNotePrompt } from "./prompts";
+import { speechLanguage } from "./transcribe";
 import { installFauxAi, resetAi, setAiEnv } from "./testing";
 
 describe("speech to text settings", () => {
@@ -70,6 +71,15 @@ describe("transcribe", () => {
     expect(fake.transcribed).toEqual([{ name: "voice-note.m4a", size: 2048, model: "base" }]);
   });
 
+  it("names the recorder's language, as Whisper spells it", async () => {
+    setAiEnv({ STT_PROVIDER: "openai-compatible", STT_MODEL: "base", STT_BASE_URL: fake.baseUrl });
+    await transcribe(audio(), { feature: "test", workspaceId: "w1", language: "tr" });
+    await transcribe(audio(), { feature: "test", workspaceId: "w1", language: "nb" });
+    await transcribe(audio(), { feature: "test", workspaceId: "w1", language: null });
+    expect(fake.transcribed.map((t) => t.language)).toEqual(["tr", "no", undefined]);
+    expect([speechLanguage("pt"), speechLanguage("pt-BR"), speechLanguage("")]).toEqual(["pt", null, null]);
+  });
+
   it("refuses what it can't send, and says when nothing was heard", async () => {
     setAiEnv({ STT_PROVIDER: "openai-compatible", STT_MODEL: "base", STT_BASE_URL: fake.baseUrl, STT_MAX_MB: "1" });
     await expect(transcribe(audio(2 * 1024 * 1024), { feature: "test", workspaceId: "w1" })).rejects.toMatchObject({ code: "tooLarge" });
@@ -77,6 +87,14 @@ describe("transcribe", () => {
     fake.setTranscript(() => "  ");
     await expect(transcribe(audio(), { feature: "test", workspaceId: "w1" })).rejects.toMatchObject({ code: "empty" });
     expect(fake.transcribed).toHaveLength(1);
+  });
+
+  it("drops a video's sign-off the model wrote over silence", async () => {
+    setAiEnv({ STT_PROVIDER: "openai-compatible", STT_MODEL: "base", STT_BASE_URL: fake.baseUrl });
+    fake.setTranscript(() => "Merhaba, abone olmayı ve videoyu beğenmeyi unutmayın.");
+    expect(await transcribe(audio(), { feature: "test", workspaceId: "w1", language: "tr" })).toBe("Merhaba");
+    fake.setTranscript(() => "Altyazı M.K.");
+    await expect(transcribe(audio(), { feature: "test", workspaceId: "w1", language: "tr" })).rejects.toMatchObject({ code: "empty" });
   });
 
   it("is off without settings, and reports the server's failures as provider errors", async () => {

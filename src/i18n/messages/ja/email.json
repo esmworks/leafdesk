@@ -299,5 +299,28 @@
     "heading": "{workspace}が削除されました",
     "body": "{name}様、{by}がLeafdeskのワークスペース{workspace}を、すべてのページ、データベース、ファイルとともに削除しました。今後は開くことができません。",
     "note": "削除されたワークスペースは復元できません。予期しない削除の場合は、{by}またはワークスペースのほかのオーナーにご相談ください。"
+  },
+  "dashboard": {
+    "subject": "{dashboard}：{period}",
+    "intro": "「{workspace}」の{period}。",
+    "action": "ダッシュボードを開く",
+    "versus": "{period}比",
+    "noComparison": "{period}には比較する値がありません",
+    "points": "{value}ポイント",
+    "yesterday": "昨日",
+    "periodDays": "{period}（{days}）",
+    "asOf": "全期間（{date}時点）",
+    "unavailable": "このデータにアクセスする権限がありません。",
+    "inTrash": "このデータベースはゴミ箱にあります。",
+    "noGroup": "データベースにはまだグループ化の基準がありません。",
+    "empty": "この期間の行はありません。",
+    "allEmpty": "行がありません。",
+    "viewOnly": "このビューを見るにはダッシュボードを開いてください。",
+    "more": "{count, plural, other {他#行}}",
+    "other": "その他",
+    "why": "{name}さんがこのメールにあなたを登録しました · {schedule}。",
+    "whyOwn": "あなたがこのメールを登録しました · {schedule}。",
+    "unsubscribe": "配信を停止",
+    "untitled": "無題"
   }
 }

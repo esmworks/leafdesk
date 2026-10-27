@@ -52,7 +52,8 @@ export class MailNotConfiguredError extends Error {
   }
 }
 
-export type OutgoingMail = { to: string; subject: string; text: string; html: string };
+/** `headers`: more header lines, as `List-Unsubscribe` for mail people subscribed to. */
+export type OutgoingMail = { to: string; subject: string; text: string; html: string; headers?: Record<string, string> };
 
 type Setup = { config: MailConfig | null; error: MailConfigError | null };
 

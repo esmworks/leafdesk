@@ -65,6 +65,7 @@ const { setPropertyAccess } = await import("@/server/property-access");
 const { isReservedAccount } = await import("@/server/agents/users");
 const { AccessError, pageAccessOf } = await import("@/server/access");
 const { setAiEnv } = await import("@/server/ai/testing");
+const { RUN_ROUNDS } = await import("@/server/ai");
 const { startFakeOpenAi, textOf } = await import("@/server/ai/fake-openai");
 type FakeChatRequest = import("@/server/ai/fake-openai").FakeChatRequest;
 type FakeReply = import("@/server/ai/fake-openai").FakeReply;
@@ -433,6 +434,26 @@ try {
   check(mertInbox.length === 1 && mertInbox[0].actorId === botId, "the person it assigned hears about it, from the agent", mertInbox);
   // Later checks count the agent's runs from here.
   await db.delete(agentRun).where(sql`${agentRun.agentId} = ${router.id} and ${agentRun.source}->>'rowId' = ${row2.id}`);
+
+  // The fake model has no price, so AI_RUN_LIMIT_USD never stops a run: RUN_ROUNDS does, and a last
+  // turn that only calls tools is asked once more, its calls not run.
+  let looped = 0;
+  fake.setChat(() => {
+    looped++;
+    if (looped > RUN_ROUNDS) return { text: "Looked as far as I could." };
+    return { text: "", toolCalls: [{ name: "search_pages", arguments: { query: `refund ${looped}` } }] };
+  });
+  fake.chats.length = 0;
+  const [row3] = await createRows(ids.owner, tickets.id, [{ title: "Search forever" }]);
+  await settle();
+  const [longRun] = await db.select().from(agentRun).where(sql`${agentRun.agentId} = ${router.id} and ${agentRun.source}->>'rowId' = ${row3.id}`);
+  check(
+    longRun?.status === "done" && longRun.answer === "Looked as far as I could." && longRun.usage?.rounds === RUN_ROUNDS + 1,
+    `a run of a model without a price takes ${RUN_ROUNDS} turns, then one more to answer when its last only calls tools`,
+    { status: longRun?.status, answer: longRun?.answer, usage: longRun?.usage },
+  );
+  check(toolResults(fake.chats.at(-1)!).at(-1)?.startsWith("Not run"), "…the last turn's tool calls aren't run");
+  await db.delete(agentRun).where(eq(agentRun.id, longRun.id));
 
   // ── A run a guest started: only what both the agent and the guest may ───────────────────────
   const minutes = await createPage(owner, { workspaceId, teamspaceId: null, title: "Board minutes", markdown: "BOARD-ONLY minutes" });

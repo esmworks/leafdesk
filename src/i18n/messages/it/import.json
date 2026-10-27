@@ -17,6 +17,7 @@
     "github": "GitHub",
     "ical": "Calendario",
     "postgres": "PostgreSQL",
+    "sheets": "Google Sheets",
     "googleDocs": "Google Docs",
     "web": "Pagina web"
   },
@@ -438,6 +439,42 @@
       "failed": "La sincronizzazione non è riuscita. Riproverà la prossima volta.",
       "invalidSite": "Leafdesk non raggiunge quel server: un indirizzo privato deve essere consentito dall'amministratore in CONNECTOR_ALLOWED_HOSTS.",
       "invalidInput": "Controlla l'indirizzo di connessione, la tabella e i nomi delle colonne.",
+      "alreadyRunning": "Una sincronizzazione è in corso. Riprova tra poco."
+    }
+  },
+  "sheets": {
+    "help": "Ottieni un database da un foglio di un foglio di lavoro Google che resta aggiornato: ogni riga sotto la riga di intestazione è una riga qui, ritrovata tramite la colonna chiave e denominata dalla colonna titolo, con una proprietà per ogni altra colonna con nome (testo, numeri, caselle di controllo, date e orari, in base a ciò che contiene la colonna). Fino a {limit, number} celle. Le modifiche arrivano dal foglio, e ci tornano anche se scegli «In entrambe le direzioni».",
+    "loading": "Ricerca delle connessioni Google Sheets…",
+    "noConnection": "Non c'è nessuna connessione Google Sheets tramite cui puoi sincronizzare. Un proprietario aggiunge Google Sheets in Impostazioni → Connessioni; i membri possono usarla quando un proprietario spunta «Nella chat» per il suo strumento get_spreadsheet.",
+    "connection": "Connessione Google Sheets",
+    "link": "Link al foglio",
+    "linkPlaceholder": "https://docs.google.com/spreadsheets/d/…/edit#gid=…",
+    "linkHelp": "Apri il foglio (la scheda in basso) e copia l'indirizzo: il foglio viene trovato tramite il suo id, quindi puoi rinominarlo in seguito. L'account Google della connessione deve poter aprire il foglio di lavoro; non serve condividerlo con altri.",
+    "invalidLink": "Non è un link a un foglio di lavoro Google.",
+    "headerRow": "Riga di intestazione",
+    "headerRowPlaceholder": "L'ultima riga bloccata",
+    "keyPlaceholder": "La prima colonna",
+    "titlePlaceholder": "La colonna chiave",
+    "namePlaceholder": "Il nome del foglio",
+    "direction": "Direzione",
+    "directionRead": "Solo dal foglio",
+    "directionBoth": "In entrambe le direzioni",
+    "directionBothHelp": "Le modifiche fatte qui vengono scritte nel foglio alla sincronizzazione successiva, entro un minuto circa. Se una cella è cambiata anche nel foglio, resta il valore del foglio. La colonna chiave e le colonne con formule non vengono scritte; le nuove righe vengono aggiunte sotto l'ultima; eliminare una riga non elimina nulla nel foglio.",
+    "directionNoWrite": "Per riscrivere, la connessione ha bisogno degli strumenti update_values e insert_dimension: i proprietari possono usarli, i membri quando un proprietario spunta «Nella chat» per entrambi.",
+    "bothNeedsSchedule": "Per riscrivere, la sincronizzazione deve avere una frequenza.",
+    "errors": {
+      "unauthorized": "La connessione Google Sheets deve accedere di nuovo a Google: lo fa un proprietario in Impostazioni → Connessioni.",
+      "forbidden": "La connessione non può essere usata per questo: il suo account Google potrebbe non poter aprire il foglio di lavoro, si trova in un altro spazio di lavoro, o non puoi leggere tramite essa.",
+      "notFound": "Questo foglio di lavoro o foglio non esiste, oppure la connessione è stata rimossa.",
+      "badQuery": "Google ha rifiutato di leggere il foglio:",
+      "tooManyIssues": "Il foglio ha troppe celle da sincronizzare. Sposta le righe e le colonne che ti servono in un foglio a parte.",
+      "unreachable": "La connessione non è raggiungibile o Google ha impiegato troppo. La sincronizzazione riproverà la prossima volta.",
+      "runAsGone": "La persona che ha impostato la sincronizzazione non ha più un account.",
+      "accessLost": "La persona per cui gira la sincronizzazione non può più modificare questo database o ha lasciato lo spazio di lavoro.",
+      "keyGone": "La proprietà chiave è stata eliminata o ha cambiato tipo, oppure è cambiata l'intestazione della colonna chiave, quindi le righe del foglio non si possono abbinare alle righe.",
+      "failed": "La sincronizzazione non è riuscita. Riproverà la prossima volta.",
+      "invalidSite": "Leafdesk non riesce a raggiungere quella connessione.",
+      "invalidInput": "Controlla il link, la riga di intestazione e i nomi delle colonne: devono corrispondere al testo della riga di intestazione.",
       "alreadyRunning": "Una sincronizzazione è in corso. Riprova tra poco."
     }
   }

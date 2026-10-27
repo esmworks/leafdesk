@@ -8,7 +8,7 @@ import { Button, cn, Dialog, IconButton, Switch } from "@/components/ui";
 import { galleryAutomations, type GalleryAutomation } from "@/lib/automation-gallery";
 import { MAX_AUTOMATIONS, watchedProperties } from "@/lib/automations";
 import { browserTimeZone, timeZoneLabel } from "@/lib/time-zone";
-import { DatabasesProvider } from "./automations-data";
+import { DatabasesProvider, useDatabaseInfo } from "./automations-data";
 import { AutomationEditor, Footer } from "./automations-editor";
 import { RunList } from "./automations-runs";
 import { FollowUpExampleButton, SequenceChoicesProvider } from "./automations-sequences";
@@ -325,6 +325,7 @@ function useSummary(automation: Automation, people: Person[], agents: AgentChoic
   const tGroup = useTranslations("database.statusGroups");
   const format = useFormatter();
   const { trigger, actions } = automation.version < 1 && automation.draft ? automation.draft : automation;
+  const views = useDatabaseInfo(trigger.type === "view_threshold" ? automation.databaseId : null)?.views;
   let when: string;
   if (trigger.type === "row_created") when = t("summaryTrigger.rowCreated");
   else if (trigger.type === "schedule") {
@@ -341,6 +342,14 @@ function useSummary(automation: Automation, people: Person[], agents: AgentChoic
             : t("summaryTrigger.monthly", { days: s.days.map((d) => format.number(d)).join(", "), time: s.time });
     if (automation.timeZone !== browserTimeZone()) when = t("summaryTrigger.inZone", { trigger: when, zone: timeZoneLabel(automation.timeZone) });
   } else if (trigger.type === "incoming_webhook") when = t("summaryTrigger.incoming");
+  else if (trigger.type === "view_threshold") {
+    const view = views?.find((v) => v.id === trigger.viewId)?.name ?? t("summaryTrigger.deletedView");
+    const value = format.number(trigger.value);
+    when =
+      trigger.fn === "count_all"
+        ? t("summaryTrigger.thresholdCount", { view, comparison: trigger.comparison, value })
+        : t("summaryTrigger.thresholdOf", { fn: trigger.fn, property: nameOf(trigger.propertyId ?? ""), view, comparison: trigger.comparison, value });
+  }
   else if (trigger.type === "date_passed") {
     when =
       trigger.date === "created_time" || trigger.date === "last_edited_time"

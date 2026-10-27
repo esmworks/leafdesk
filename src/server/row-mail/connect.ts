@@ -15,7 +15,8 @@ import { isBlockedAddress } from "@/server/ssrf";
 
 export class MailConnectError extends Error {
   constructor(
-    readonly code: "blocked" | "notFound" | "auth" | "tls" | "unreachable" | "noInbox",
+    /** signIn: a Google sign-in that no longer works (google.ts), to be signed in again. */
+    readonly code: "blocked" | "notFound" | "auth" | "signIn" | "tls" | "unreachable" | "noInbox",
     message: string,
   ) {
     super(message);
@@ -54,10 +55,12 @@ export async function resolveMailHost(host: string, port: number, resolve: Resol
   return { address: addresses[0].address, servername: name, allowed };
 }
 
-export type MailCredentials = { servers: MailboxServers; username: string; password: string };
+/** How to sign in to a mailbox: with its password, or with an access token of a Google sign-in (XOAUTH2). */
+export type MailCredentials = { servers: MailboxServers; username: string } & ({ password: string } | { accessToken: string });
 
 /** An IMAP client for the mailbox, connected; the caller logs out. */
-export async function openImap({ servers, username, password }: MailCredentials) {
+export async function openImap(credentials: MailCredentials) {
+  const { servers, username } = credentials;
   const target = await resolveMailHost(servers.imapHost, servers.imapPort);
   const client = new ImapFlow({
     host: target.address,
@@ -67,7 +70,7 @@ export async function openImap({ servers, username, password }: MailCredentials)
     // Never send the password in the clear: STARTTLS is required on a port without TLS.
     doSTARTTLS: !servers.imapSecure && !target.allowed ? true : undefined,
     tls: target.servername ? { servername: target.servername } : undefined,
-    auth: { user: username, pass: password },
+    auth: "accessToken" in credentials ? { user: username, accessToken: credentials.accessToken } : { user: username, pass: credentials.password },
     logger: false,
     disableAutoIdle: true,
     connectionTimeout: CONNECT_TIMEOUT,
@@ -88,7 +91,8 @@ export async function openImap({ servers, username, password }: MailCredentials)
 }
 
 /** An SMTP transport for the mailbox. */
-export async function smtpTransport({ servers, username, password }: MailCredentials) {
+export async function smtpTransport(credentials: MailCredentials) {
+  const { servers, username } = credentials;
   const target = await resolveMailHost(servers.smtpHost, servers.smtpPort);
   return nodemailer.createTransport({
     host: target.address,
@@ -96,7 +100,8 @@ export async function smtpTransport({ servers, username, password }: MailCredent
     secure: servers.smtpSecure,
     requireTLS: !servers.smtpSecure && !target.allowed,
     tls: target.servername ? { servername: target.servername } : undefined,
-    auth: { user: username, pass: password },
+    // With an access token and nothing to refresh it with, nodemailer uses it as it is.
+    auth: "accessToken" in credentials ? { type: "OAuth2", user: username, accessToken: credentials.accessToken } : { user: username, pass: credentials.password },
     connectionTimeout: CONNECT_TIMEOUT,
     greetingTimeout: CONNECT_TIMEOUT,
     socketTimeout: 60_000,

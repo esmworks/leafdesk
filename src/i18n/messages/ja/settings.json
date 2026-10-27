@@ -95,7 +95,8 @@
       "sensitiveFindings": "dlp 検出結果 漏えい シークレット カード番号 却下",
       "domainPeople": "ドメイン アカウント ユーザー 会社 メール シャドー 管理外",
       "openOnStart": "起動 スタート 最初のページ 最後に開いた 最近",
-      "pageReports": "報告 通報 不正利用 苦情 取り下げ 公開 ウェブ ページ"
+      "pageReports": "報告 通報 不正利用 苦情 取り下げ 公開 ウェブ ページ",
+      "dashboardEmails": "購読 レポート スケジュール 毎週 サマリー メール ダッシュボード"
     }
   },
   "workspace": {
@@ -1957,6 +1958,11 @@
         "created": "{target}に GitHub のプルリクエストを設定しました",
         "updated": "{target}の GitHub 設定を変更しました",
         "deleted": "{target}の GitHub 設定を削除しました"
+      },
+      "dashboard_email": {
+        "set": "{target}を{count, plural, other {#人}}にメール送信するよう設定しました",
+        "removed": "{target}のメール送信を停止しました",
+        "sent": "{target}を{count, plural, other {#人}}にメール送信しました"
       }
     },
     "decisions": {
@@ -2061,7 +2067,11 @@
     "reactionChannel": "リアクション: {channel}",
     "verificationTitle": "検証したページ",
     "verificationDescription": "検証したページの検証期限が近づいたとき（数日前）と、期限が切れたときにお知らせします。",
-    "verificationChannel": "検証したページ：{channel}"
+    "verificationChannel": "検証したページ：{channel}",
+    "dashboardEmailsHeading": "ダッシュボードのメール",
+    "dashboardEmailsDescription": "定期的にメールで届くダッシュボードと、ほかの人向けに設定したダッシュボードです。",
+    "dashboardEmailsNone": "ダッシュボードのメールはありません",
+    "dashboardEmailsNoneDescription": "ダッシュボードをメールで受け取るには、ダッシュボードを開いてウィジェットの上にある「メール」を選びます。"
   },
   "site": {
     "description": "このワークスペースの公開ページに、わかりやすい1つのアドレス、ホームページ、ページ間のナビゲーションを用意します。",
@@ -2471,7 +2481,8 @@
         "auth": "メールサーバーがユーザー名またはパスワードを拒否しました。アプリパスワードを確認してください。",
         "tls": "メールサーバーとの安全な接続を確立できませんでした。",
         "unreachable": "現在メールサーバーにアクセスできません。",
-        "noInbox": "メールサーバーに受信トレイが表示されません。"
+        "noInbox": "メールサーバーに受信トレイが表示されません。",
+        "signIn": "Google のサインインが使えなくなりました。もう一度 Google でサインインしてください。"
       }
     },
     "fields": {
@@ -2489,7 +2500,8 @@
       "usernamePlaceholder": "通常はメールアドレス",
       "password": "アプリパスワード",
       "passwordKeep": "現在のものを使い続けるには空欄のままにします",
-      "passwordHelp": "ログインに使うパスワードではなく、Leafdesk用に作成したアプリパスワードです。暗号化して保存され、二度と表示されません。"
+      "passwordHelp": "ログインに使うパスワードではなく、Leafdesk用に作成したアプリパスワードです。暗号化して保存され、二度と表示されません。",
+      "method": "接続方法"
     },
     "providerHelp": {
       "google": "独自ドメインのGoogle Workspaceアドレスにも使えます。Googleアカウントの「セキュリティ」でアプリパスワードを作成してください（2段階認証プロセスを有効にしておく必要があります）。",
@@ -2516,8 +2528,21 @@
       "unreachable": "メールサーバーにアクセスできませんでした。サーバー名とポートを確認してください。",
       "noInbox": "メールサーバーに受信トレイが表示されません。",
       "accessDenied": "この操作を行うアクセス権がありません。",
-      "gone": "このメッセージはもうこの行にありません。"
-    }
+      "gone": "このメッセージはもうこの行にありません。",
+      "signIn": "Google のサインインが使えなくなりました。もう一度 Google でサインインしてください。",
+      "googleFailed": "Google でのサインインでメールボックスを接続できませんでした。もう一度お試しください。",
+      "googleScope": "Leafdesk にメールへのアクセスを与えることが Google で許可されませんでした。もう一度サインインして許可してください。"
+    },
+    "methods": {
+      "google": "Google アカウント（Gmail または Google Workspace）",
+      "password": "アプリパスワード（任意のプロバイダー、IMAP と SMTP）"
+    },
+    "googleHint": "Google でサインインし、Leafdesk がメールを読んで送ることを許可します。アプリパスワードは不要で、アクセスはいつでも Google アカウントで取り消せます。",
+    "googleConnect": "Google でサインイン",
+    "googleLeaving": "Google を開いています…",
+    "googleSignedIn": "Google でサインイン済み",
+    "googleConnected": "メールボックスを接続しました。",
+    "dismiss": "閉じる"
   },
   "followUps": {
     "heading": "{database}のフォローアップ",

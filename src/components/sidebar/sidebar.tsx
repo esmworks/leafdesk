@@ -1803,7 +1803,7 @@ function SectionGroup({
           type="button"
           aria-expanded={open}
           onClick={onToggle}
-          className="flex h-full min-w-0 flex-1 items-center gap-1 px-2 text-start text-xs font-medium text-fg-muted"
+          className="flex h-full min-w-0 flex-1 items-center gap-1 px-2 text-start text-xs font-medium text-fg-faint hover:text-fg-muted"
         >
           <span className="truncate">{label}</span>
           {open ? (

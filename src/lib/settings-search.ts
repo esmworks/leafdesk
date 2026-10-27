@@ -52,6 +52,7 @@ export const SETTINGS_SEARCH_ENTRIES: readonly SettingsSearchEntry[] = [
   { id: "desktopLinks", tab: "preferences", label: "settings:desktopLinks.heading", keywords: true, when: online },
   { id: "notifications", tab: "preferences", label: "settings:notifications.heading", keywords: true },
   { id: "watchedPages", tab: "preferences", label: "settings:notifications.watchedHeading", keywords: true },
+  { id: "dashboardEmails", tab: "preferences", label: "settings:notifications.dashboardEmailsHeading", keywords: true, when: online },
   { id: "offlineDevice", tab: "offline", label: "offline:settings.deviceHeading", keywords: true },
   { id: "offlinePages", tab: "offline", label: "offline:settings.pagesHeading", keywords: true },
   { id: "mailboxes", tab: "mail", label: "account:mail.mailboxHeading", keywords: true },

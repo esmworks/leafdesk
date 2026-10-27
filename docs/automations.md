@@ -7,7 +7,8 @@ Contents: [Automations and webhooks](#automations-and-webhooks), [Page webhooks]
 ## Automations and webhooks
 
 A database automation does a list of steps when rows of its database are added or changed, when
-a date of a row comes, on a schedule, or when another service sends it a request. People with
+a date of a row comes, when a total over a view's rows crosses a line, on a schedule, or when
+another service sends it a request. People with
 full access to the database see and manage its automations, in the app or over MCP
 (`list_automations`, `create_automation`, `update_automation`, `publish_automation`,
 `discard_automation_draft`, `test_automation`, `delete_automation`, `list_automation_runs`). Creating, changing, publishing
@@ -27,6 +28,13 @@ and deleting one is recorded in the audit log.
   there are several) is in some of its groups: to do, in progress, done; a row without a status
   counts as to do. "Rows not edited for 30 days that aren't done", "rows whose Completed on is 14
   days past" and "the day a Due date comes, for rows not done" are each one such trigger.
+- *A total crosses a line*: a calculation over the rows a shared view of the database shows goes
+  above or below a number. The view's filters pick the rows ("Category is Cash and bank",
+  "Due date is before today and Status isn't done"); the calculation is the number of rows, or the
+  sum, average, median, smallest or largest value of a number property (or a formula or rollup
+  that gives a number). "When the sum of Amount in Cash and bank goes below 50,000" and "when the
+  number of rows in Overdue goes above 0" are each one such trigger. See
+  [When a total crosses a line](#when-a-total-crosses-a-line).
 - *On a schedule*: every day, on some weekdays or some days of the month at a time of day, or on a
   five-field cron expression (`*/30 8-18 * * MON-FRI`), in the automation's time zone. A day of the
   month the month doesn't have (the 31st, the 29th of February) runs on its last day; a time the
@@ -37,7 +45,7 @@ and deleting one is recorded in the audit log.
 - *An incoming webhook*: a JSON `POST` to the automation's own secret address starts it, with the
   body as what the steps work with (see [Incoming webhooks](#incoming-webhooks)).
 
-Schedules and incoming webhooks have no row. Their steps that act on a row (setting properties,
+Schedules, totals crossing a line and incoming webhooks have no row. Their steps that act on a row (setting properties,
 running an agent, notifying the people a person property names) go *for each* row an earlier
 *Find rows* step found; *Send a webhook* and *Move to trash* aren't offered, and a date can be set
 to the day it runs but a person can't be set to whoever made the change.
@@ -108,7 +116,10 @@ values can use what started the run and what earlier steps gave, as `{{…}}`:
   (`{{trigger.Status}}`, `{{trigger.Due date}}`) and its `id`, `title`, `url`, `event`, `database`,
   `actor` and, for a changed property, `changes.<Property>.before` and `.after`; a date passed run
   has `date` too. For an incoming webhook, the JSON body (`{{trigger.customer.email}}`). For a
-  schedule, `event`, `scheduledFor` and `database`.
+  schedule, `event`, `scheduledFor` and `database`. For a total crossing a line, `value` (the
+  total that crossed it), `previous` (the total at the check before), `threshold`, `comparison`
+  (`above` or `below`), `calculation`, `property`, `view` (`name`, `url`) and `database`:
+  "Cash is down to {{trigger.value}}, under {{trigger.threshold}}".
 - `{{item.…}}` is the found row a *for each* step is on.
 - `{{<step id>.…}}` is what an earlier step gave. Every step has an id (`find`, `http`, `create_2`
   …, or one of your own: lowercase letters, digits and `_`): *Find rows* gives `rows`, `count` and
@@ -137,7 +148,7 @@ as a draft runs only once published. Each publish makes the next version, and a 
 steps of the version it started with, so publishing doesn't change runs under way. *Test* runs the
 draft (or the published steps, without one) once, now, whether or not the automation is on: on a
 row you pick for a row trigger, with an example body for an incoming webhook, as if it came round
-for a schedule. A test run is real: rows change, people are notified, requests are sent. It runs
+for a schedule, and as if the total had just crossed the line, with its value now, for a total. A test run is real: rows change, people are notified, requests are sent. It runs
 as whoever started it, shows in the history marked as a test (of the draft, when it was), and
 doesn't count as the automation's last run. Turning an automation on or off, or renaming it,
 takes effect at once, draft or not.
@@ -174,13 +185,29 @@ the automation looks for no rows and says why in its settings until the property
 someone saves it again. Changing the date it counts from makes every row new to it; changing the
 days or the status condition doesn't.
 
+**When a total crosses a line.** The total is worked out as the person the automation runs as
+sees the view's rows: only rows and values they may see count, and filters on today's date count
+days in the automation's time zone. It runs once when the total crosses the line, and again only
+after the total has come back and crosses it once more: a balance that stays under 50,000 through
+ten more entries runs once, not ten times. The total exactly on the line counts as not past it,
+and an average of no numbers as no total at all. When the automation is published with another
+view, calculation or line, or turned on, it notes where the total stands without running: a total
+already past the line then isn't a crossing (the editor shows the total now and says so). The
+server looks again a moment after rows of the database are added, changed, moved to the trash or
+restored, and every 10 minutes for all of them (`AUTOMATION_DATE_CHECK_SECONDS`, as for dates), for
+totals that move with the day or with other databases (a rollup). Changes automations make don't
+start a look of their own (see *No chains*); the next round sees them. Only shared views can be
+used, since the automation runs as whoever publishes it next. If its view is deleted or made
+personal, its number property is deleted, or its person lost full access, it looks at nothing and
+says why in its settings.
+
 **Queue.** Runs are queued and done one database at a time in turn, so a bulk edit that starts
 thousands of runs in one database doesn't hold back the automations of others. A database's
 automations have at most 20,000 runs waiting; a write that would start more starts only the first
 ones (the write itself is saved), and the server log says how many were left out.
 
 **Run history.** Each run is kept for 30 days after it finishes, with the version it ran, what
-started it (an incoming webhook's body, a schedule's time) and how each step went: done, failed or
+started it (an incoming webhook's body, a schedule's time, a total and the line it crossed) and how each step went: done, failed or
 skipped, attempts, an error code and message, a request's HTTP status, how many people were
 notified, when it started and how long it took, when a wait goes on, what it was given and what it
 gave (with passwords, tokens and keys masked, each cut to 16 KB, an HTTP request's answer to

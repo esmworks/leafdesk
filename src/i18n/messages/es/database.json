@@ -259,6 +259,9 @@
       "thisMonth": "Este mes",
       "lastMonth": "El mes pasado",
       "nextMonth": "El mes que viene",
+      "thisQuarter": "Este trimestre",
+      "lastQuarter": "El trimestre pasado",
+      "nextQuarter": "El próximo trimestre",
       "thisYear": "Este año",
       "lastYear": "El año pasado",
       "nextYear": "El año que viene",
@@ -1330,9 +1333,10 @@
     "lastRun": "Última ejecución: {status}, {time}",
     "neverRun": "Aún no se ha ejecutado",
     "checkError": {
-      "propertyDeleted": "En pausa: se eliminó su propiedad de fecha o de estado. Restaura la propiedad o edita la automatización.",
+      "propertyDeleted": "En pausa: se eliminó una propiedad que usa. Restaura la propiedad o edita la automatización.",
       "noAccess": "En pausa: quien la guardó por última vez ya no tiene acceso completo a esta base de datos. Guárdala para que se ejecute con tu acceso.",
-      "scheduleInvalid": "En pausa: su programación nunca llega. Edita la automatización."
+      "scheduleInvalid": "En pausa: su programación nunca llega. Edita la automatización.",
+      "viewDeleted": "En pausa: su vista se eliminó o se hizo personal. Restaura la vista o edita la automatización."
     },
     "tooMany": "Una base de datos puede tener como máximo {max} automatizaciones",
     "deletedProperty": "Propiedad eliminada",
@@ -1355,7 +1359,10 @@
       "weekly": "son las {time} de cada {days}",
       "monthly": "son las {time} del día {days} de cada mes",
       "cron": "llega la programación “{cron}”",
-      "incoming": "llega una solicitud a su dirección"
+      "incoming": "llega una solicitud a su dirección",
+      "thresholdCount": "el número de filas de “{view}” pasa a estar {comparison, select, above {por encima de} other {por debajo de}} {value}",
+      "thresholdOf": "{fn, select, sum {la suma} average {el promedio} median {la mediana} min {el mínimo} other {el máximo}} de {property} en “{view}” pasa a estar {comparison, select, above {por encima de} other {por debajo de}} {value}",
+      "deletedView": "una vista eliminada"
     },
     "summaryAction": {
       "set": "Asignar {properties}",
@@ -1376,6 +1383,7 @@
         "row_created": "Se añade una fila",
         "property_changed": "Cambia una propiedad",
         "date_passed": "Pasa una fecha",
+        "view_threshold": "Un total cruza un límite",
         "schedule": "Según una programación",
         "incoming_webhook": "Llega una solicitud (webhook entrante)"
       },
@@ -1470,7 +1478,10 @@
         "exampleTooLong": "El cuerpo de ejemplo es demasiado largo.",
         "needApprovers": "Elige a quién preguntar.",
         "needTimeout": "Escribe un número entero de días entre 1 y 30.",
-        "needSlackUrl": "Escribe la dirección del webhook entrante de Slack."
+        "needSlackUrl": "Escribe la dirección del webhook entrante de Slack.",
+        "needView": "Elige la vista cuyas filas se cuentan.",
+        "needNumber": "Elige la propiedad numérica sobre la que calcular.",
+        "needThreshold": "Escribe el número con el que comparar."
       },
       "agent": "Agente",
       "chooseAgent": "Elige un agente…",
@@ -1614,7 +1625,9 @@
         "timedOutContinued": "Nadie respondió antes de {time}: la ejecución siguió",
         "waiting": "Se preguntó a {names}, hasta {time}",
         "closed": "Se preguntó a {names}; la ejecución terminó antes de una respuesta"
-      }
+      },
+      "thresholdCrossed": "{comparison, select, above {Pasó por encima de {threshold}} other {Pasó por debajo de {threshold}}}: {value}",
+      "threshold": "Límite cruzado"
     },
     "nextRun": "Próxima ejecución {time}",
     "lifecycle": {
@@ -1755,7 +1768,12 @@
       "agentRunId": "ID de la ejecución del agente",
       "rowId": "ID de la fila",
       "approvedBy": "Quién aprobó",
-      "answeredAt": "Cuándo se respondió"
+      "answeredAt": "Cuándo se respondió",
+      "value": "Valor",
+      "previous": "Valor en la comprobación anterior",
+      "threshold": "Límite",
+      "viewName": "Nombre de la vista",
+      "viewUrl": "Enlace de la vista"
     },
     "test": {
       "title": "Ejecución de prueba",
@@ -1770,7 +1788,8 @@
       "running": "Ejecutando la prueba…",
       "run": "Ejecutar prueba",
       "saveAndRun": "Guardar y ejecutar",
-      "starting": "Iniciando…"
+      "starting": "Iniciando…",
+      "threshold": "Ejecuta los pasos ahora, como si el valor acabara de cruzar el límite, con el valor que tiene ahora."
     },
     "approval": {
       "people": "Preguntar a estas personas",
@@ -1805,6 +1824,31 @@
         "name": "Celebrar filas terminadas",
         "description": "Cuando una fila se marca como hecha, confeti para quien lo hizo."
       }
+    },
+    "threshold": {
+      "view": "Vista",
+      "chooseView": "Elige una vista",
+      "noViews": "Esta base de datos no tiene vistas compartidas. Añade una cuyos filtros elijan las filas que contar.",
+      "calculation": "Cálculo",
+      "fn": {
+        "count_all": "Número de filas",
+        "sum": "Suma",
+        "average": "Promedio",
+        "median": "Mediana",
+        "min": "Mínimo",
+        "max": "Máximo"
+      },
+      "property": "De",
+      "chooseNumber": "Elige un número",
+      "noNumbers": "Esta base de datos no tiene propiedades numéricas sobre las que calcular.",
+      "comparison": "Pasa a estar",
+      "above": "Por encima de",
+      "below": "Por debajo de",
+      "value": "Valor",
+      "now": "Ahora: {value}.",
+      "nowMet": "Ahora: {value}, ya pasó el límite. Se ejecuta la próxima vez que el valor lo cruce, después de volver atrás.",
+      "nowNone": "Ahora: sin valor (no hay números en las filas de la vista).",
+      "help": "Se ejecuta una vez cuando el valor cruza el límite, y de nuevo solo después de que haya vuelto. Se comprueba poco después de que cambien las filas y cada pocos minutos en los filtros sobre la fecha de hoy. Las filas y los valores son los que puede ver la persona de la automatización."
     }
   },
   "subItems": {
@@ -2153,5 +2197,19 @@
     "overwrite": "La tabla es la fuente: las propiedades sincronizadas y los títulos de las filas se sobrescriben en cada sincronización, así que cambia los datos en la tabla. Las propiedades que añadas tú se mantienen, y las filas que salen de la tabla se dejan como están.",
     "changeUrl": "Cambiar la conexión",
     "stopConfirm": "¿Dejar de sincronizar esta base de datos? Sus filas se quedan como están y se olvida la dirección de conexión."
+  },
+  "sheetsSync": {
+    "button": "Sincronizada desde Google Sheets",
+    "buttonPaused": "Sincronización de Google Sheets en pausa",
+    "title": "Sincronización de Google Sheets",
+    "sheet": "Hoja",
+    "connectionGone": "Conexión eliminada",
+    "lastRun": "Última sincronización {when}, {count, plural, one {# fila} other {# filas}}",
+    "overwrite": "La hoja es la fuente: las propiedades sincronizadas y los títulos de fila se sobrescriben en cada sincronización, así que cambia los datos en la hoja. Las propiedades que añadas tú se quedan como están, y las filas que salen de la hoja no se tocan.",
+    "formulaColumns": "No se escriben de vuelta (fórmulas): {columns}",
+    "pending": "Filas pendientes de escribir en la hoja: {count, number}",
+    "writeFailed": "No se pudo escribir en la hoja:",
+    "writeForbidden": "La cuenta de Google de la conexión no puede editar la hoja de cálculo, o la persona con la que se ejecuta la sincronización no puede escribir a través de la conexión. Los cambios hechos aquí esperan hasta que pueda.",
+    "stopConfirm": "¿Dejar de sincronizar esta base de datos? Sus filas se quedan como están."
   }
 }

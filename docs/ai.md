@@ -165,7 +165,9 @@ pages, up to 8,000 characters), and the model decides what to look at. It can se
 (`search_pages`, full-text and, with embeddings, by meaning), read a whole page (`read_page`; a
 database reads as its properties and its first 200 rows with their values) and list the rows of a
 database that match filters on its properties (`query_database`, the same filters and sorts as
-the MCP tool, each row a source to cite), up to six turns per question; greetings are answered
+the MCP tool, each row a source to cite), as many turns as the question needs until it has spent
+`AI_RUN_LIMIT_USD` (then it answers with what it has; each turn also counts against the workspace's
+rate and cost limits, and *Stop* ends it); greetings are answered
 without tools. A database row found by a search comes with its database and its values (those the
 person may see). The chat's full-text search finds pages with any of the search's words (as
 prefixes, so "ekstreleri" finds "ekstresi"; question words such as "what" or "nedir" left out;
@@ -176,8 +178,9 @@ the same way), not just a line around the first of them. While an answer is writ
 takes are listed above it (searches with how many pages they found, pages read, databases
 queried, what the model says before them) with a running clock, then folded into how long it took; they are kept with the
 conversation. Answers cite their sources as numbered
-links to the page, and to the block the passage starts at when it is known. *Answer from* → *This
-page and its subpages* keeps questions to the page you are on, and picking one of your teamspaces
+links to the page, and to the block the passage starts at when it is known. *Answer from* (in the
+box's toolbar on the full-page chat, under the box in the panel) → *This page and its subpages*
+keeps questions to the page you are on, and picking one of your teamspaces
 (in the panel and the full-page chat) keeps them to that teamspace's pages: search, semantic
 search, reading pages and comments, querying databases and the workspace map the model gets all
 keep to it on the server, with your access checked as always. Each question shows what it was
@@ -221,7 +224,7 @@ that changes something at the service asks before every call, in *Auto* too, and
 reaches the model as outside data, and once an answer called a service, every change and note it
 wants is asked about, also in *Auto*. The audit log records each call as the person's.
 
-**Files in the chat.** The paperclip under the question box attaches files to a question, and so
+**Files in the chat.** *Attach files* in the box's *+* menu attaches files to a question, and so
 does dropping them on the box or pasting them: images (PNG, JPEG, GIF, WebP), PDF, Word and Excel
 documents, CSV, Markdown and text files, up to 5 per question, 20 MB each (images 5 MB). Each is
 uploaded as it is attached and shows as a chip with its name and size (a CSV file's rows and
@@ -240,8 +243,9 @@ with their conversation; one attached but never sent goes after a day.
 
 **Picking the model.** `AI_CHAT_MODELS` lists more models at the same provider (same key and
 endpoint), comma-separated, that the chat's box offers next to `AI_MODEL` and `AI_FAST_MODEL`.
-Where there is more than one, a model picker sits under the box: a conversation keeps the model it
-was last asked with, and a new one starts with the model of your latest. Usage and cost are counted
+Where there is more than one, a model picker sits in the box's toolbar, showing each model by its
+name (with its id under it in the menu): a conversation keeps the model it was last asked with, and
+a new one starts with the model of your latest. Usage and cost are counted
 per model (see *Usage and cost limits*). A workspace on its own AI account answers with that
 account's model, without a picker.
 
@@ -251,15 +255,15 @@ AI_FAST_MODEL=claude-haiku-5-5
 AI_CHAT_MODELS=claude-opus-5-5
 ```
 
-**Research.** The telescope button under the box turns on research mode for the questions that
+**Research.** The *Research* tab above the question box turns on research mode for the questions that
 follow. The model first plans the sub-questions that together answer the question (shown as a
 step), then searches the workspace (full text and by meaning, as you), reads the best pages and
 databases, reads attached files and, where web search is on, searches the web and reads the best
 results, and finally writes a long report in Markdown with a summary, a section per sub-question
 and what remains open, citing every source by number (web sources as links). It only reads:
 nothing is changed, no note is kept and no other service is called, whatever the mode under the
-box. It takes up to 14 turns and 400,000 tokens (each turn also counts against the rate and cost
-limits like any other); past them it writes the report with what it has. *Save as page* under a
+box. It takes turns until it has spent `AI_RUN_LIMIT_USD` (each turn also counts against the rate and
+cost limits like any other); past it, it writes the report with what it has. *Save as page* under a
 report makes it a private page at the top of the workspace, its citations links to the sources
 with a list of them at the end.
 
@@ -344,11 +348,12 @@ every change and note it wants is asked about, also in *Auto*.
 | --- | --- | --- |
 | `AI_MAX_INPUT_CHARS` | none | Unset, the chat and agents send what the model's context window takes (its size less the answer's tokens, at 3 characters a token), and the writing assistant, AI properties, voice notes and agents' skills read at most 48,000 characters (a longer selection is refused, a longer page is cut). Set, it caps every request at this many characters |
 | `AI_MAX_OUTPUT_TOKENS` | 8192 | Tokens one answer may have. A model that thinks before answering (Claude 5.5, OpenAI's and Gemini's reasoning models…) spends its thinking from the same tokens, so it always gets all of them, also where a feature caps the answer lower (AI property values: 800) |
-| `AI_TIMEOUT_SECONDS` | 60 | |
+| `AI_TIMEOUT_SECONDS` | 60 | Seconds the provider may stay silent before an answer is given up. Each part of the answer it sends (text, thinking, a tool call being written) starts the count again, so a long answer runs as long as it keeps coming; its length is bounded by `AI_MAX_OUTPUT_TOKENS`. Embeddings get this long in all |
 | `AI_RATE_LIMIT` | 20 | Requests per person per minute |
 | `AI_WORKSPACE_RATE_LIMIT` | 120 | Requests per workspace per minute, AI property values included (they wait for their turn) |
 | `AI_CONCURRENCY` | 2 | AI property values worked out at the same time |
 | `AI_CONTEXT_WINDOW` | 32768 | Context size, in tokens, assumed for OpenAI-compatible and local models (the chat and agents fit their prompt in it) |
+| `AI_RUN_LIMIT_USD` | 10 | US dollars one chat question, research answer or agent run may spend on the model. Past it, the next turn answers with what it has (a turn that still calls tools instead is asked once more, its calls not run). Models without a known price (local and OpenAI-compatible ones) cost nothing here and take at most 100 turns instead |
 | `AI_CHAT_MODELS` | none | More models the chat's box offers to pick from, comma-separated (see *Picking the model*) |
 | `AI_IMAGE_INPUT` | false | Models the catalog doesn't know (OpenAI-compatible and local ones) take images attached to a chat question |
 | `AI_MONTHLY_LIMIT_USD` | none | The most each workspace's AI may cost the server's `AI_*` key in a calendar month, in US dollars (see below) |
@@ -731,10 +736,10 @@ list until it is restored.
   language and with its description, as a row of their skills database, theirs to change from then
   on. They need no setup: each works on whatever page, row or text it is pointed at. The texts are
   in `src/i18n/messages/<locale>/skillTemplates.json`.
-- **AI chat**: `/` at the start of the empty question box (or the skills button under it) lists
+- **AI chat**: `/` at the start of the empty question box (or *Use a skill* in its *+* menu) lists
   the skills; the one picked shows above the box and the next question goes to the model with its
   instructions, which the model is told to follow for that question only. They don't widen what the
-  chat may change: the mode under the box still decides. The question keeps the skill it used
+  chat may change: the mode in the box's toolbar still decides. The question keeps the skill it used
   (shown above it), *Answer again* and *Edit* use it again, and later questions go without it.
   A skill longer than 20,000 characters can't be used in the chat.
 - **MCP**: `list_skills`, `get_skill` (by name, title, page id or link; a title several skills

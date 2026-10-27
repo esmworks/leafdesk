@@ -95,7 +95,8 @@
       "sensitiveFindings": "dlp löydökset vuotaneet salaisuudet korttinumerot ohita",
       "domainPeople": "verkkotunnus tilit käyttäjät yritys sähköposti varjo hallitsemattomat",
       "openOnStart": "käynnistys aloitus ensimmäinen sivu viimeksi avattu viimeisin",
-      "pageReports": "ilmoita ilmoitus väärinkäyttö valitus poisto julkaistu julkinen verkko sivut"
+      "pageReports": "ilmoita ilmoitus väärinkäyttö valitus poisto julkaistu julkinen verkko sivut",
+      "dashboardEmails": "tilaus raportti aikataulu viikoittain yhteenveto sähköposti"
     }
   },
   "workspace": {
@@ -1957,6 +1958,11 @@
         "created": "Otti GitHubin pull requestit käyttöön kohteessa {target}",
         "updated": "Muutti kohteen {target} GitHub-asetuksia",
         "deleted": "Poisti kohteen {target} GitHub-asetukset"
+      },
+      "dashboard_email": {
+        "set": "Asetti kohteen {target} lähetettäväksi sähköpostilla {count, plural, one {# henkilölle} other {# henkilölle}}",
+        "removed": "Lopetti kohteen {target} lähettämisen sähköpostilla",
+        "sent": "Lähetti kohteen {target} sähköpostilla {count, plural, one {# henkilölle} other {# henkilölle}}"
       }
     },
     "decisions": {
@@ -2061,7 +2067,11 @@
     "reactionChannel": "Reaktiot: {channel}",
     "verificationTitle": "Vahvistamasi sivut",
     "verificationDescription": "Vahvistamasi sivun vahvistus on päättymässä: muutamaa päivää ennen ja silloin, kun se päättyy.",
-    "verificationChannel": "Vahvistamasi sivut: {channel}"
+    "verificationChannel": "Vahvistamasi sivut: {channel}",
+    "dashboardEmailsHeading": "Koontinäyttöjen sähköpostit",
+    "dashboardEmailsDescription": "Sinulle aikataulun mukaan sähköpostilla lähetettävät koontinäytöt ja ne, jotka olet määrittänyt muille.",
+    "dashboardEmailsNone": "Ei koontinäyttöjen sähköposteja",
+    "dashboardEmailsNoneDescription": "Saadaksesi koontinäytön sähköpostilla avaa se ja valitse Sähköposti pienoisohjelmien yläpuolelta."
   },
   "site": {
     "description": "Anna tämän työtilan julkaistuille sivuille yksi helppolukuinen osoite, etusivu ja navigointi niiden välillä.",
@@ -2471,7 +2481,8 @@
         "auth": "Postipalvelin hylkäsi käyttäjänimen tai salasanan. Tarkista sovellussalasana.",
         "tls": "Suojattua yhteyttä postipalvelimeen ei voitu muodostaa.",
         "unreachable": "Postipalvelimeen ei saada juuri nyt yhteyttä.",
-        "noInbox": "Postipalvelimella ei näy saapuneiden kansiota."
+        "noInbox": "Postipalvelimella ei näy saapuneiden kansiota.",
+        "signIn": "Google-kirjautuminen ei enää toimi. Kirjaudu uudelleen Googlella."
       }
     },
     "fields": {
@@ -2489,7 +2500,8 @@
       "usernamePlaceholder": "Yleensä sähköpostiosoite",
       "password": "Sovellussalasana",
       "passwordKeep": "Jätä tyhjäksi, jos haluat säilyttää nykyisen",
-      "passwordHelp": "Leafdeskiä varten luotu sovellussalasana, ei salasana, jolla kirjaudut. Se säilytetään salattuna eikä sitä näytetä enää koskaan."
+      "passwordHelp": "Leafdeskiä varten luotu sovellussalasana, ei salasana, jolla kirjaudut. Se säilytetään salattuna eikä sitä näytetä enää koskaan.",
+      "method": "Yhdistä käyttäen"
     },
     "providerHelp": {
       "google": "Myös omaa verkkotunnusta käyttäville Google Workspace -osoitteille. Luo sovellussalasana Google-tilisi Tietoturva-osiossa (kaksivaiheisen vahvistuksen on oltava käytössä).",
@@ -2516,8 +2528,21 @@
       "unreachable": "Postipalvelimeen ei saatu yhteyttä. Tarkista palvelinten nimet ja portit.",
       "noInbox": "Postipalvelimella ei näy saapuneiden kansiota.",
       "accessDenied": "Sinulla ei ole oikeutta tehdä tätä.",
-      "gone": "Viesti ei ole enää tällä rivillä."
-    }
+      "gone": "Viesti ei ole enää tällä rivillä.",
+      "signIn": "Google-kirjautuminen ei enää toimi. Kirjaudu uudelleen Googlella.",
+      "googleFailed": "Googlella kirjautuminen ei yhdistänyt postilaatikkoa. Yritä uudelleen.",
+      "googleScope": "Google ei saanut antaa Leafdeskille pääsyä sähköpostiisi. Kirjaudu uudelleen ja salli se."
+    },
+    "methods": {
+      "google": "Google-tili (Gmail tai Google Workspace)",
+      "password": "Sovellussalasana (mikä tahansa palvelu, IMAP ja SMTP)"
+    },
+    "googleHint": "Kirjaudut Googleen ja sallit Leafdeskin lukea ja lähettää sähköpostiasi. Sovellussalasanaa ei tarvita, ja voit perua pääsyn Google-tililtäsi milloin tahansa.",
+    "googleConnect": "Kirjaudu Googlella",
+    "googleLeaving": "Avataan Googlea…",
+    "googleSignedIn": "kirjauduttu Googlella",
+    "googleConnected": "Postilaatikkosi on yhdistetty.",
+    "dismiss": "Sulje"
   },
   "followUps": {
     "heading": "Seurantasarjat: {database}",

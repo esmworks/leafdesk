@@ -1,3 +1,4 @@
+import type { DashboardEmailTarget, SubscriptionPeriod } from "./dashboard-emails";
 import { dayNumber, dayString, localDay, monthDay, weekdayOf, zonedInstant } from "./time-zone";
 
 /**
@@ -11,21 +12,31 @@ import { dayNumber, dayString, localDay, monthDay, weekdayOf, zonedInstant } fro
  */
 export type RepeatFrequency = "daily" | "weekly" | "monthly" | "yearly";
 
-/** What a schedule does when it runs: add a row from a row template, or start an agent's run. */
-export type ScheduleKind = "row_template" | "agent";
+/**
+ * What a schedule does when it runs: add a row from a row template, start an agent's run, or email
+ * a dashboard's figures (lib/dashboard-emails).
+ */
+export type ScheduleKind = "row_template" | "agent" | "dashboard_email";
 /**
  * "row_template": `dateInTitle` puts the day it runs after the template's title. "agent": `task`
- * is what the agent is asked to do each time.
+ * is what the agent is asked to do each time. "dashboard_email": which dashboard of the schedule's
+ * page, who gets it (user ids) and the period it shows.
  */
-export type ScheduleSettings = { dateInTitle?: boolean; task?: string };
+export type ScheduleSettings = {
+  dateInTitle?: boolean;
+  task?: string;
+  dashboard?: DashboardEmailTarget;
+  recipients?: string[];
+  period?: SubscriptionPeriod;
+};
 /**
  * Why a run didn't happen. Each pauses the schedule except "failed" (a passing problem; it runs
  * again next time): "runAsGone" (whoever set it has no account), "accessLost" (they can no longer
  * add rows to the database or see the template; for an agent's, they no longer own the workspace or
  * can't open the database), "templateGone" (it's no longer a template), "agentGone" (the agent was
- * archived).
+ * archived), "dashboardGone" (the dashboard an email shows was taken off its page).
  */
-export type ScheduleError = "runAsGone" | "accessLost" | "templateGone" | "agentGone" | "failed";
+export type ScheduleError = "runAsGone" | "accessLost" | "templateGone" | "agentGone" | "dashboardGone" | "failed";
 
 export type RepeatRule = {
   frequency: RepeatFrequency;
@@ -137,14 +148,14 @@ export function nextOccurrence(rule: RepeatRule, timeZone: string, after: Date):
   throw new Error("No next occurrence");
 }
 
-/** Why a row template's schedule didn't run (an agent's reasons never apply). */
-export type TemplateScheduleError = Exclude<ScheduleError, "agentGone">;
+/** Why a row template's schedule didn't run (an agent's or a dashboard's reasons never apply). */
+export type TemplateScheduleError = Exclude<ScheduleError, "agentGone" | "dashboardGone">;
 
 /** How a row template repeats, for the template menu. */
 export type TemplateRepeatSummary = { enabled: boolean; nextRunAt: string | null; lastError: TemplateScheduleError | null };
 
-export const SCHEDULE_ERRORS: readonly ScheduleError[] = ["runAsGone", "accessLost", "templateGone", "agentGone", "failed"];
-const TEMPLATE_ERRORS: readonly ScheduleError[] = SCHEDULE_ERRORS.filter((e) => e !== "agentGone");
+export const SCHEDULE_ERRORS: readonly ScheduleError[] = ["runAsGone", "accessLost", "templateGone", "agentGone", "dashboardGone", "failed"];
+const TEMPLATE_ERRORS: readonly ScheduleError[] = SCHEDULE_ERRORS.filter((e) => e !== "agentGone" && e !== "dashboardGone");
 
 export function repeatSummary(row: { enabled: boolean; nextRunAt: Date | null; lastError: string | null }): TemplateRepeatSummary {
   return {

@@ -200,6 +200,7 @@
     "dictation": {
       "start": "Frage diktieren",
       "stop": "Stoppen und Text einfügen",
+      "stopShort": "Stopp",
       "cancel": "Aufnahme abbrechen",
       "transcribing": "Das Gesagte wird verschriftlicht…",
       "autoStopped": "Die Aufnahme wurde beim Limit von {minutes} Min. beendet. Prüfe den Text, bevor du ihn sendest.",
@@ -405,6 +406,28 @@
       "save": "Als Seite speichern",
       "openPage": "Seite öffnen",
       "saveFailed": "Der Bericht konnte nicht als Seite gespeichert werden."
+    },
+    "starters": {
+      "label": "Vorschläge",
+      "summarize": "„{title}“ zusammenfassen",
+      "database": "Was steht in „{title}“?",
+      "find": "Seiten finden über…",
+      "findText": "Seiten finden über ",
+      "write": "Eine Seite schreiben über…",
+      "writeText": "Eine Seite schreiben über "
+    },
+    "when": {
+      "today": "Heute",
+      "yesterday": "Gestern",
+      "week": "Letzte 7 Tage",
+      "month": "Letzte 30 Tage",
+      "older": "Älter"
+    },
+    "add": "Hinzufügen",
+    "kind": {
+      "label": "Was tun",
+      "chat": "Chat",
+      "chatHint": "Antwortet aus dem Arbeitsbereich und nimmt die Änderungen vor, um die du bittest"
     }
   },
   "memory": {

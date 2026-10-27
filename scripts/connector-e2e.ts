@@ -530,7 +530,7 @@ try {
     firstPrompt.slice(0, 1000),
   );
   const readBack = toolMessages(fake.chats[1]).join("\n");
-  check(readBack.includes("<<<EXTERNAL DATA") && readBack.includes("EXTERNAL DATA>>>") && readBack.includes(peerWs), "the tool's answer reaches the model framed as outside data", readBack.slice(0, 600));
+  check(/<<<EXTERNAL DATA ([0-9a-f]{12})\n[\s\S]*\nEXTERNAL DATA \1>>>/.test(readBack) && readBack.includes(peerWs), "the tool's answer reaches the model framed as outside data", readBack.slice(0, 600));
 
   const asks = await approvalsFor(run.id);
   check(asks.length === 1 && asks[0].userId === ids.owner, "the owner (and only the owner) is asked", asks);

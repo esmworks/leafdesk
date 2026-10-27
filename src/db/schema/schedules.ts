@@ -9,7 +9,9 @@ import { user } from "./auth";
  * Something that happens on a repeat rule (see lib/schedule, server/schedules): `kind` says what.
  * A "row_template" schedule adds a row from a database's row template; it goes with the template.
  * An "agent" schedule starts a run of `agentId` with the task in `settings`, on `databaseId` when it
- * names one; it goes with the agent.
+ * names one; it goes with the agent. A "dashboard_email" schedule emails the figures of a dashboard
+ * on `pageId` (a dashboard block of the page, or a dashboard view of the database) to the people in
+ * `settings`; it goes with the page.
  * It runs as the person who set it last, with their access at the time, and pauses (`enabled`
  * off, with `lastError`) when they can no longer do it.
  */
@@ -28,6 +30,8 @@ export const schedule = pgTable(
     databaseId: text("database_id").references(() => page.id, { onDelete: "cascade" }),
     /** "agent": the agent it runs. */
     agentId: text("agent_id").references(() => workspaceAgent.id, { onDelete: "cascade" }),
+    /** "dashboard_email": the page holding the dashboard (a page, or a database for a dashboard view). */
+    pageId: text("page_id").references(() => page.id, { onDelete: "cascade" }),
     rule: jsonb("rule").$type<RepeatRule>().notNull(),
     /** The IANA time zone the rule's days and time are in. */
     timeZone: text("time_zone").notNull(),
@@ -53,5 +57,6 @@ export const schedule = pgTable(
     uniqueIndex("schedule_template_idx").on(t.templateId),
     index("schedule_database_idx").on(t.databaseId),
     index("schedule_agent_idx").on(t.agentId),
+    index("schedule_page_idx").on(t.pageId),
   ],
 );

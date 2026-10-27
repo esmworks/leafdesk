@@ -259,6 +259,9 @@
       "thisMonth": "This month",
       "lastMonth": "Last month",
       "nextMonth": "Next month",
+      "thisQuarter": "This quarter",
+      "lastQuarter": "Last quarter",
+      "nextQuarter": "Next quarter",
       "thisYear": "This year",
       "lastYear": "Last year",
       "nextYear": "Next year",
@@ -1330,9 +1333,10 @@
     "lastRun": "Last run: {status}, {time}",
     "neverRun": "Hasn’t run yet",
     "checkError": {
-      "propertyDeleted": "Paused: its date or status property was deleted. Restore the property or edit the automation.",
+      "propertyDeleted": "Paused: a property it uses was deleted. Restore the property or edit the automation.",
       "noAccess": "Paused: whoever saved it last no longer has full access to this database. Save it to run it as you.",
-      "scheduleInvalid": "Paused: its schedule never comes round. Edit the automation."
+      "scheduleInvalid": "Paused: its schedule never comes round. Edit the automation.",
+      "viewDeleted": "Paused: its view was deleted or made personal. Restore the view or edit the automation."
     },
     "tooMany": "A database can have at most {max} automations",
     "deletedProperty": "Deleted property",
@@ -1355,7 +1359,10 @@
       "weekly": "every {days} at {time}",
       "monthly": "on day {days} of each month at {time}",
       "cron": "the schedule “{cron}” comes round",
-      "incoming": "a request arrives at its address"
+      "incoming": "a request arrives at its address",
+      "thresholdCount": "the number of rows in “{view}” goes {comparison, select, above {above} other {below}} {value}",
+      "thresholdOf": "the {fn, select, sum {sum} average {average} median {median} min {smallest} other {largest}} of {property} in “{view}” goes {comparison, select, above {above} other {below}} {value}",
+      "deletedView": "a deleted view"
     },
     "summaryAction": {
       "set": "Set {properties}",
@@ -1376,6 +1383,7 @@
         "row_created": "A row is added",
         "property_changed": "A property changes",
         "date_passed": "A date passes",
+        "view_threshold": "A total crosses a line",
         "schedule": "On a schedule",
         "incoming_webhook": "A request arrives (incoming webhook)"
       },
@@ -1470,7 +1478,10 @@
         "exampleTooLong": "The example body is too long.",
         "needApprovers": "Choose who to ask.",
         "needTimeout": "Enter a whole number of days from 1 to 30.",
-        "needSlackUrl": "Enter the Slack incoming webhook’s address."
+        "needSlackUrl": "Enter the Slack incoming webhook’s address.",
+        "needView": "Choose the view whose rows count.",
+        "needNumber": "Choose the number property to calculate over.",
+        "needThreshold": "Enter the number to compare with."
       },
       "agent": "Agent",
       "chooseAgent": "Choose an agent…",
@@ -1614,7 +1625,9 @@
         "timedOutContinued": "Nobody answered by {time}: the run went on",
         "waiting": "Asked {names}, until {time}",
         "closed": "Asked {names}; the run ended before an answer"
-      }
+      },
+      "thresholdCrossed": "{comparison, select, above {Went above} other {Went below}} {threshold}: {value}",
+      "threshold": "Threshold crossed"
     },
     "nextRun": "Next run {time}",
     "lifecycle": {
@@ -1755,7 +1768,12 @@
       "agentRunId": "Agent run ID",
       "rowId": "Row ID",
       "approvedBy": "Who approved",
-      "answeredAt": "When it was answered"
+      "answeredAt": "When it was answered",
+      "value": "Value",
+      "previous": "Value at the check before",
+      "threshold": "Threshold",
+      "viewName": "View name",
+      "viewUrl": "View link"
     },
     "test": {
       "title": "Test run",
@@ -1770,7 +1788,8 @@
       "running": "Running the test…",
       "run": "Run test",
       "saveAndRun": "Save and run",
-      "starting": "Starting…"
+      "starting": "Starting…",
+      "threshold": "Runs the steps now, as if the value had just crossed the line, with the value it has now."
     },
     "approval": {
       "people": "Ask these people",
@@ -1805,6 +1824,31 @@
         "name": "Celebrate finished rows",
         "description": "When a row is marked done, confetti for whoever did it."
       }
+    },
+    "threshold": {
+      "view": "View",
+      "chooseView": "Choose a view",
+      "noViews": "This database has no shared views. Add one whose filters pick the rows to count.",
+      "calculation": "Calculation",
+      "fn": {
+        "count_all": "Number of rows",
+        "sum": "Sum",
+        "average": "Average",
+        "median": "Median",
+        "min": "Smallest",
+        "max": "Largest"
+      },
+      "property": "Of",
+      "chooseNumber": "Choose a number",
+      "noNumbers": "This database has no number properties to calculate over.",
+      "comparison": "Goes",
+      "above": "Above",
+      "below": "Below",
+      "value": "Value",
+      "now": "Now: {value}.",
+      "nowMet": "Now: {value}, already past the line. It runs the next time the value crosses it, after coming back.",
+      "nowNone": "Now: no value (no numbers in the view’s rows).",
+      "help": "Runs once when the value crosses the line, and again only after it has come back. It’s checked a moment after rows change, and every few minutes for filters on today’s date. The rows and values are those the automation’s person can see."
     }
   },
   "subItems": {
@@ -2153,5 +2197,19 @@
     "overwrite": "The table is the source: the synced properties and row titles are written over on each sync, so change the data in the table. Properties you add yourself stay as they are, and rows that leave the table are left alone.",
     "changeUrl": "Change the connection",
     "stopConfirm": "Stop syncing this database? Its rows stay as they are, and the connection address is forgotten."
+  },
+  "sheetsSync": {
+    "button": "Synced from Google Sheets",
+    "buttonPaused": "Google Sheets sync paused",
+    "title": "Google Sheets sync",
+    "sheet": "Sheet",
+    "connectionGone": "Removed connection",
+    "lastRun": "Last synced {when}, {count, plural, one {# row} other {# rows}}",
+    "overwrite": "The sheet is the source: the synced properties and row titles are written over on each sync, so change the data in the sheet. Properties you add yourself stay as they are, and rows that leave the sheet are left alone.",
+    "formulaColumns": "Not written back (formulas): {columns}",
+    "pending": "Rows waiting to be written to the sheet: {count, number}",
+    "writeFailed": "Couldn't write to the sheet:",
+    "writeForbidden": "The connection's Google account may not edit the spreadsheet, or the person the sync runs as may not write through the connection. Changes made here wait until it can.",
+    "stopConfirm": "Stop syncing this database? Its rows stay as they are."
   }
 }

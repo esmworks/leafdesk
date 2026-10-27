@@ -259,6 +259,9 @@
       "thisMonth": "Tässä kuussa",
       "lastMonth": "Viime kuussa",
       "nextMonth": "Ensi kuussa",
+      "thisQuarter": "Tämä neljännes",
+      "lastQuarter": "Viime neljännes",
+      "nextQuarter": "Ensi neljännes",
       "thisYear": "Tänä vuonna",
       "lastYear": "Viime vuonna",
       "nextYear": "Ensi vuonna",
@@ -1330,9 +1333,10 @@
     "lastRun": "Viimeisin ajo: {status}, {time}",
     "neverRun": "Ei ole vielä ajettu",
     "checkError": {
-      "propertyDeleted": "Keskeytetty: sen päivämäärä- tai tilaominaisuus poistettiin. Palauta ominaisuus tai muokkaa automaatiota.",
+      "propertyDeleted": "Keskeytetty: sen käyttämä ominaisuus poistettiin. Palauta ominaisuus tai muokkaa automaatiota.",
       "noAccess": "Keskeytetty: viimeksi tallentaneella ei ole enää täysiä oikeuksia tähän tietokantaan. Tallenna se, niin se suoritetaan sinuna.",
-      "scheduleInvalid": "Keskeytetty: sen aikataulu ei koskaan toteudu. Muokkaa automaatiota."
+      "scheduleInvalid": "Keskeytetty: sen aikataulu ei koskaan toteudu. Muokkaa automaatiota.",
+      "viewDeleted": "Keskeytetty: sen näkymä poistettiin tai muutettiin henkilökohtaiseksi. Palauta näkymä tai muokkaa automaatiota."
     },
     "tooMany": "Tietokannalla voi olla enintään {max} automaatiota",
     "deletedProperty": "Poistettu ominaisuus",
@@ -1355,7 +1359,10 @@
       "weekly": "joka {days} klo {time}",
       "monthly": "kuukauden päivänä {days} klo {time}",
       "cron": "aikataulu ”{cron}” toteutuu",
-      "incoming": "pyyntö saapuu sen osoitteeseen"
+      "incoming": "pyyntö saapuu sen osoitteeseen",
+      "thresholdCount": "rivien määrä näkymässä ”{view}” {comparison, select, above {ylittää} other {alittaa}} arvon {value}",
+      "thresholdOf": "{fn, select, sum {summa} average {keskiarvo} median {mediaani} min {pienin arvo} other {suurin arvo}} ominaisuudesta {property} näkymässä ”{view}” {comparison, select, above {ylittää} other {alittaa}} arvon {value}",
+      "deletedView": "poistettu näkymä"
     },
     "summaryAction": {
       "set": "Aseta {properties}",
@@ -1376,6 +1383,7 @@
         "row_created": "Rivi lisätään",
         "property_changed": "Ominaisuus muuttuu",
         "date_passed": "Päivämäärä menee ohi",
+        "view_threshold": "Summa ylittää rajan",
         "schedule": "Aikataulun mukaan",
         "incoming_webhook": "Pyyntö saapuu (saapuva webhook)"
       },
@@ -1470,7 +1478,10 @@
         "exampleTooLong": "Esimerkkirunko on liian pitkä.",
         "needApprovers": "Valitse, keneltä kysytään.",
         "needTimeout": "Anna päivien määrä kokonaislukuna väliltä 1–30.",
-        "needSlackUrl": "Anna Slackin saapuvan webhookin osoite."
+        "needSlackUrl": "Anna Slackin saapuvan webhookin osoite.",
+        "needView": "Valitse näkymä, jonka rivit lasketaan.",
+        "needNumber": "Valitse numeroominaisuus, josta lasketaan.",
+        "needThreshold": "Anna luku, johon verrataan."
       },
       "agent": "Agentti",
       "chooseAgent": "Valitse agentti…",
@@ -1614,7 +1625,9 @@
         "timedOutContinued": "Kukaan ei vastannut {time} mennessä: ajo jatkui",
         "waiting": "Kysytty henkilöiltä {names}, {time} asti",
         "closed": "Kysytty henkilöiltä {names}; ajo päättyi ennen vastausta"
-      }
+      },
+      "thresholdCrossed": "{comparison, select, above {Ylitti arvon {threshold}} other {Alitti arvon {threshold}}}: {value}",
+      "threshold": "Raja ylitetty"
     },
     "nextRun": "Seuraava ajo {time}",
     "lifecycle": {
@@ -1755,7 +1768,12 @@
       "agentRunId": "Agentin ajon tunnus",
       "rowId": "Rivin tunnus",
       "approvedBy": "Hyväksyjä",
-      "answeredAt": "Vastausaika"
+      "answeredAt": "Vastausaika",
+      "value": "Arvo",
+      "previous": "Arvo edellisessä tarkistuksessa",
+      "threshold": "Raja",
+      "viewName": "Näkymän nimi",
+      "viewUrl": "Näkymän linkki"
     },
     "test": {
       "title": "Testiajo",
@@ -1770,7 +1788,8 @@
       "running": "Testi käynnissä…",
       "run": "Suorita testi",
       "saveAndRun": "Tallenna ja suorita",
-      "starting": "Käynnistetään…"
+      "starting": "Käynnistetään…",
+      "threshold": "Suorittaa vaiheet nyt, kuin arvo olisi juuri ylittänyt rajan, nykyisellä arvollaan."
     },
     "approval": {
       "people": "Kysy näiltä henkilöiltä",
@@ -1805,6 +1824,31 @@
         "name": "Juhli valmiita rivejä",
         "description": "Kun rivi merkitään valmiiksi, konfetteja sen tekijälle."
       }
+    },
+    "threshold": {
+      "view": "Näkymä",
+      "chooseView": "Valitse näkymä",
+      "noViews": "Tässä tietokannassa ei ole jaettuja näkymiä. Lisää näkymä, jonka suodattimet valitsevat laskettavat rivit.",
+      "calculation": "Laskenta",
+      "fn": {
+        "count_all": "Rivien määrä",
+        "sum": "Summa",
+        "average": "Keskiarvo",
+        "median": "Mediaani",
+        "min": "Pienin",
+        "max": "Suurin"
+      },
+      "property": "Ominaisuus",
+      "chooseNumber": "Valitse numero",
+      "noNumbers": "Tässä tietokannassa ei ole numeroominaisuuksia, joista laskea.",
+      "comparison": "Kun arvo",
+      "above": "Ylittää",
+      "below": "Alittaa",
+      "value": "Arvo",
+      "now": "Nyt: {value}.",
+      "nowMet": "Nyt: {value}, raja on jo ylitetty. Se suoritetaan, kun arvo seuraavan kerran ylittää rajan palattuaan takaisin.",
+      "nowNone": "Nyt: ei arvoa (näkymän riveillä ei ole lukuja).",
+      "help": "Suoritetaan kerran, kun arvo ylittää rajan, ja uudelleen vasta, kun se on palannut takaisin. Tarkistus tehdään hetki rivien muuttumisen jälkeen ja muutaman minuutin välein suodattimille, jotka käyttävät tämän päivän päivämäärää. Rivit ja arvot ovat ne, jotka automaation henkilö näkee."
     }
   },
   "subItems": {
@@ -2153,5 +2197,19 @@
     "overwrite": "Taulu on lähde: synkronoidut ominaisuudet ja rivien otsikot kirjoitetaan yli jokaisessa synkronoinnissa, joten muuta tietoja taulussa. Itse lisäämäsi ominaisuudet säilyvät, ja taulusta poistuneet rivit jätetään ennalleen.",
     "changeUrl": "Vaihda yhteys",
     "stopConfirm": "Lopetetaanko tämän tietokannan synkronointi? Rivit säilyvät ennallaan ja yhteysosoite unohdetaan."
+  },
+  "sheetsSync": {
+    "button": "Synkronoitu Google Sheetsistä",
+    "buttonPaused": "Google Sheets -synkronointi keskeytetty",
+    "title": "Google Sheets -synkronointi",
+    "sheet": "Välilehti",
+    "connectionGone": "Poistettu yhteys",
+    "lastRun": "Viimeksi synkronoitu {when}, {count, plural, one {# rivi} other {# riviä}}",
+    "overwrite": "Välilehti on lähde: synkronoidut ominaisuudet ja rivien otsikot ylikirjoitetaan jokaisella synkronoinnilla, joten muuta tietoja välilehdellä. Itse lisäämäsi ominaisuudet säilyvät, ja välilehdeltä poistuvat rivit jätetään rauhaan.",
+    "formulaColumns": "Ei kirjoiteta takaisin (kaavat): {columns}",
+    "pending": "Välilehdelle kirjoittamista odottavat rivit: {count, number}",
+    "writeFailed": "Välilehdelle ei voitu kirjoittaa:",
+    "writeForbidden": "Yhteyden Google-tili ei saa muokata laskentataulukkoa, tai henkilö, jonka nimissä synkronointi toimii, ei saa kirjoittaa yhteyden kautta. Täällä tehdyt muutokset odottavat, kunnes se onnistuu.",
+    "stopConfirm": "Lopetetaanko tämän tietokannan synkronointi? Rivit säilyvät ennallaan."
   }
 }

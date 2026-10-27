@@ -624,7 +624,8 @@ function failure(error: unknown): string | null {
 
 /** Makes the change as the approver: the row changed or added, or the email queued. Returns the new row's or message's id. */
 async function make(userId: string, actor: WriteActor, change: Change): Promise<string | null> {
-  const ctx: ops.OperationContext = { userId, actor };
+  // The row's body is what an agent proposed: written as a model's (lib/model-media).
+  const ctx: ops.OperationContext = { userId, actor: { ...actor, model: true } };
   const payload = effective(change);
   if (change.kind === "automation_approval") {
     // The run goes on: it reads the answer itself (automations/approval.ts).

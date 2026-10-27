@@ -98,6 +98,16 @@ import {
   type WidgetColor,
   type WidgetSpan,
 } from "@/lib/dashboard";
+import {
+  ALL_TIME,
+  COMPARISONS,
+  DASHBOARD_PERIODS,
+  isPeriodPropertyType,
+  PERIOD_NONE,
+  readDashboardPeriod,
+  serializeDashboardPeriod,
+  type Comparison,
+} from "@/lib/dashboard-period";
 import { checkLinkedView } from "@/lib/embed-blocks";
 import { dashboardsIn, describeWidgets } from "./dashboards";
 import * as workspaces from "@/server/workspaces";
@@ -147,10 +157,8 @@ import { connectionInputs, describeConnection, withConnectionErrors } from "./co
 import { MAX_MEMORIES, MAX_MEMORY_CHARS } from "@/lib/ai-chat";
 import {
   AGENT_RUN_HISTORY_DAYS,
-  AGENT_RUN_TIMEOUT_MS,
   agentMemoryPath,
   agentRunPath,
-  MAX_AGENT_ROUNDS,
   MAX_AGENT_SCHEDULES,
   MAX_AGENT_SKILLS,
   MAX_AGENT_WRITES,
@@ -697,6 +705,12 @@ const widgetInputs = {
     .describe("Charts, boards and tables: the property to group rows by. Charts and boards default to the first select or status property."),
   ...groupSettingsParams,
   date_by: z.string().optional().describe("Calendars and timelines: the date property that places rows."),
+  period_by: z
+    .string()
+    .nullable()
+    .optional()
+    .describe('Date property the period cuts rows on; "none": all rows; null: default.'),
+  comparison: z.enum(COMPARISONS).optional().describe("Numbers: is a rise good (higher) or bad (lower)."),
   ...viewLayoutParams,
   filters: filtersParam.optional(),
   filter_combinator: filterCombinatorInput,
@@ -731,6 +745,21 @@ const dashboardWidgetsInput = z
   .max(MAX_WIDGETS)
   .describe("The widgets, in reading order (left to right, then down).");
 
+/** A dashboard's period as the tools take it: a relative period, two days, or "all". */
+const periodInput = z
+  .string()
+  .optional()
+  .describe('Period of every widget: this_month, last_quarter…, "YYYY-MM-DD/YYYY-MM-DD" or "all".');
+
+/** A period from tool input, as stored ("" for all time). */
+function periodFrom(value: string): string {
+  const period = value === "all" ? ALL_TIME : readDashboardPeriod(value);
+  if (!period) {
+    throw new ToolInputError(`period must be one of ${DASHBOARD_PERIODS.join(", ")}, "all", or two days as YYYY-MM-DD/YYYY-MM-DD (the first not after the second).`);
+  }
+  return serializeDashboardPeriod(period);
+}
+
 type WidgetInput = ViewInput & {
   database_id?: string;
   type?: Exclude<ViewType, "form" | "dashboard">;
@@ -738,6 +767,8 @@ type WidgetInput = ViewInput & {
   width?: number;
   color?: WidgetColor | "none";
   group_by?: string;
+  period_by?: string | null;
+  comparison?: Comparison;
 };
 
 /** The view settings the caller asked to change, converted from names to stored ids. */
@@ -1054,6 +1085,30 @@ function pivotConfigPatch(props: PropertyDef[], input: ViewInput, current: ViewC
   return patch;
 }
 
+/**
+ * A widget's period settings from tool input, merged into `config`: the property the dashboard's
+ * period cuts rows on (by name or id; "none"; null for the default) and how a number compares.
+ */
+function periodSettings(props: PropertyDef[], type: ViewType, input: { period_by?: string | null; comparison?: Comparison }, config: ViewConfig): ViewConfig {
+  const { periodBy, comparison, ...rest } = config;
+  let by = periodBy;
+  if (input.period_by === null) by = undefined;
+  else if (input.period_by === PERIOD_NONE) by = PERIOD_NONE;
+  else if (input.period_by !== undefined) {
+    const prop = requireProperty(props, input.period_by);
+    if (!isPeriodPropertyType(prop.type)) {
+      throw new ToolInputError(`A period cuts rows on a date, created_time or last_edited_time property; "${prop.name}" is ${prop.type}.`);
+    }
+    by = prop.id;
+  }
+  let compare = comparison;
+  if (input.comparison !== undefined) {
+    if (type !== "chart" || chartTypeOf(config) !== "number") throw new ToolInputError('comparison only applies to numbers (type "chart", chart_type "number").');
+    compare = input.comparison === "higher" ? undefined : input.comparison;
+  }
+  return { ...rest, ...(by ? { periodBy: by } : {}), ...(compare ? { comparison: compare } : {}) };
+}
+
 /** Refuses settings a dashboard view doesn't have: it shows its widgets, each with its own settings. */
 function dashboardOnly(settings: Record<string, unknown>) {
   const given = Object.entries(settings).find(([, value]) => value !== undefined)?.[0];
@@ -1157,7 +1212,7 @@ async function pdfText(bytes: Buffer): Promise<{ text: string; pages: number } |
 // Docs topics (see docs.ts): what the tool list leaves out, read on demand.
 
 const FILTERS_DOC =
-  'List rows of a database with optional filters and sorts. Filters reference properties by name (or "title", "created_at", "updated_at") and use select / status option names as values; all must match unless filter_combinator is "or", and groups ({type: "group", combinator, rules}) mix the two, e.g. Status is Done and (Assignee contains me or Priority is High). Ops: contains, does_not_contain, equals, not_equals, is_any_of, is_none_of, is_empty, is_not_empty, gt, gte, lt, lte, is_within. Text contains / does_not_contain ignore case. For a relation use contains / not_equals with a related row id or title; for a person, created_by or last_edited_by, contains / not_equals with a user id, email, name or "me". is_any_of / is_none_of take a list: option names on select and status, and on multi_select, relation and people the row holds at least one / none, e.g. {"property": "Status", "op": "is_any_of", "value": ["Todo", "In progress"]}; people lists may include "me". Numbers compare with gt, gte, lt and lte. Dates, created_time and last_edited_time use equals (that day), gt/gte/lt/lte with YYYY-MM-DD, and is_within takes today, {this,last,next}_{week,month,year} (weeks from Monday), or past_n_days / next_n_days with "days" (both include today), counted from the current date on the server. A range matches when any of its days does; times count on their day in the server time zone. Dates sort by their start. Checklists and files only support is_empty / is_not_empty. Sorting follows the grouping order of a status and the start of a date. Returns property values by name; relations as [{id, title}], people as [{id, name}], checklists as [{text, checked}], files as [{name, url}]. Values the user may not see are left out and named in hidden_properties; properties hidden in every row cannot be filtered or sorted by. Rows come a page at a time (limit, at most 200): when has_more is true, call again with cursor set to next_cursor and the same filters, sorts and view_id to read on, until next_cursor is null; total is how many rows match. properties (names) narrows each row to those values, to keep large reads small. Rows archived on their own are left out unless include_archived is true or view_id names a view that shows them.';
+  'List rows of a database with optional filters and sorts. Filters reference properties by name (or "title", "created_at", "updated_at") and use select / status option names as values; all must match unless filter_combinator is "or", and groups ({type: "group", combinator, rules}) mix the two, e.g. Status is Done and (Assignee contains me or Priority is High). Ops: contains, does_not_contain, equals, not_equals, is_any_of, is_none_of, is_empty, is_not_empty, gt, gte, lt, lte, is_within. Text contains / does_not_contain ignore case. For a relation use contains / not_equals with a related row id or title; for a person, created_by or last_edited_by, contains / not_equals with a user id, email, name or "me". is_any_of / is_none_of take a list: option names on select and status, and on multi_select, relation and people the row holds at least one / none, e.g. {"property": "Status", "op": "is_any_of", "value": ["Todo", "In progress"]}; people lists may include "me". Numbers compare with gt, gte, lt and lte. Dates, created_time and last_edited_time use equals (that day), gt/gte/lt/lte with YYYY-MM-DD, and is_within takes today, {this,last,next}_{week,month,quarter,year} (weeks from Monday), or past_n_days / next_n_days with "days" (both include today), counted from the current date on the server. A range matches when any of its days does; times count on their day in the server time zone. Dates sort by their start. Checklists and files only support is_empty / is_not_empty. Sorting follows the grouping order of a status and the start of a date. Returns property values by name; relations as [{id, title}], people as [{id, name}], checklists as [{text, checked}], files as [{name, url}]. Values the user may not see are left out and named in hidden_properties; properties hidden in every row cannot be filtered or sorted by. Rows come a page at a time (limit, at most 200): when has_more is true, call again with cursor set to next_cursor and the same filters, sorts and view_id to read on, until next_cursor is null; total is how many rows match. properties (names) narrows each row to those values, to keep large reads small. Rows archived on their own are left out unless include_archived is true or view_id names a view that shows them.';
 const VIEWS_DOC =
   'Add a saved view to a database: a "table" (optionally grouped into collapsible sections with group_by), a "board" (cards in columns by group_by), a "calendar" (rows placed on the days of a date property, across every day of a range and at their times in the week mode; see calendar_mode), a "gallery" (cards with a cover: the first image in each row\'s body, or in a files property with cover), a "list" (one compact line per row), a "feed" (posts: each row with its body, reactions and comments, newest first unless sorted), a "timeline" (bars from a start date to an optional end date, optionally in swimlanes by group_by), a "map" (pins at a place property; group_by a select colors them), a "chart" (see chart_type), a "pivot" (a table of figures by group_by and pivot.columns_by; see leafdesk://docs/pivots), a "dashboard" (a grid of widgets over the database: numbers, charts, lists and other views, each with its own settings; see widgets. Without widgets it starts with the row count, the sum of the first number property, a chart by the first select or status property and the rows edited last) or a "form" (questions people answer to add a row; see questions, defaults and public). Views group by a select, status (per option, or per todo / in_progress / done with group_status_by "group"), multi_select, person, created_by, last_edited_by, checkbox (unchecked / checked), date, created_time or last_edited_time (per day, week from Monday, month or year with group_date_by, month by default) or relation (one group per linked row); a row with several tags, people or links shows in each of their groups. Filters (with groups and filter_combinator) and sorts use the same form as query_database; a person filter on "me" shows everyone who opens the view their own rows, and is_within date filters count from the day the view is opened.';
 const VIEW_UPDATE_DOC =
@@ -1167,7 +1222,7 @@ const ADD_PROPERTY_DOC =
 const UPDATE_PROPERTY_DOC =
   `Change a database property: its name, options (add, rename or remove by name; status options also move between todo, in_progress and done), formula, rollup, number_format, date_options, prefix, description, depends_on with option_parents, or one_row. Renaming an option keeps it on every row that uses it; removing one clears it from those rows. Renaming a property keeps the formulas that use it working. A number format never changes the stored values. ${NUMBER_FORMAT_HELP} ${DATE_OPTIONS_HELP}`;
 const AUTOMATION_NOTE =
-  "Managing automations needs full access to the database. An automation runs as the person who published it last, with their access at the time, and stops if they lose full access. Each publish makes a new version; a run keeps the version it started with. With publish false, changes wait in the draft until publish_automation (discard_automation_draft drops them); test_automation runs it once, now. Changes an automation makes don't start other automations. A run_agent step names an agent by id or name (list_agents); saving gives it edit access to the database; only workspace owners and agent editors (share_agent) add or change one. The agent runs as itself; its changes start no automations. check_error explains why a date_passed or schedule automation can't run: propertyDeleted, noAccess or scheduleInvalid.";
+  "Managing automations needs full access to the database. An automation runs as the person who published it last, with their access at the time, and stops if they lose full access. Each publish makes a new version; a run keeps the version it started with. With publish false, changes wait in the draft until publish_automation (discard_automation_draft drops them); test_automation runs it once, now. Changes an automation makes don't start other automations. A run_agent step names an agent by id or name (list_agents); saving gives it edit access to the database; only workspace owners and agent editors (share_agent) add or change one. The agent runs as itself; its changes start no automations. check_error: why a date_passed, view_threshold or schedule automation can't run: propertyDeleted, viewDeleted, noAccess or scheduleInvalid.";
 const WEBHOOK_NOTE =
   'A webhook step gets a JSON POST (event row.created, row.updated or row.date_passed with the row\'s date it ran for, the row with its properties by name, the names of the properties that changed and who changed them) signed with HMAC-SHA256 in the X-Leafdesk-Signature header (t=<unix seconds>,v1=<hex HMAC of "<t>.<body>">); list_automations shows the signing secret. Network errors, timeouts, 408, 429 and 5xx are retried, up to 5 times (an http_request step: network errors, timeouts, 502, 503 and 504 only). Private network addresses and local names are refused unless the server\'s administrator allows the host with AUTOMATION_WEBHOOK_ALLOWED_HOSTS. An incoming_webhook automation has a secret address (hook_url, shown to connections that may edit) that starts a run with the JSON body POSTed to it; update_automation with new_webhook_address replaces it.';
 const AUTOMATION_STEPS_DOC =
@@ -1175,7 +1230,9 @@ const AUTOMATION_STEPS_DOC =
 const PIVOTS_DOC =
   'A "pivot" view lays the rows out as a table of figures: one line per group of group_by (as other views group: per option, person, linked row, checkbox state, date period or status stage; a pivot also groups text, url, email and phone values by their exact text), one column per group of pivot.columns_by (or a single column without it), each cell what aggregate measures over the rows in both: "count" (default) or sum, average, median, min or max of aggregate_property, a number or a number formula or rollup. A row with several tags, people or linked rows counts in each of their groups. Totals (pivot.show_totals, on by default) measure the rows they cover, each once, so an average\'s total is the average of its rows and a sum keeps to its values\' decimals. group_date_by, group_status_by, hide_empty_groups (both axes) and chart_sort shape the rows; pivot.column_date_by (day, week, month, quarter or year), column_status_by and column_sort the columns. Filters choose the rows as in any view. Up to 100 columns show; group dates by a longer period for more. query_database with a pivot view\'s view_id returns its table under pivot. Published pages, print, PDFs and the view\'s CSV download show the same table.';
 const DASHBOARDS_DOC =
-  `Add a dashboard to the end of a page: a grid of up to ${MAX_WIDGETS} widgets, each showing a database of the workspace through its own view and kept up to date as rows change. A widget is a number (type "chart" with chart_type "number": one aggregate over the rows its filters keep, such as the open deals or the sum of their amounts), a chart (type "chart", the default), a list of rows (type "list") or any other view but a form; its settings work as in create_database_view. Everyone who opens the page sees a widget only if they can open its database, and then only the rows and values they may see. In get_page's Markdown a dashboard is its own line, \`<!-- leafdesk:dashboard <id> -->\`: keep it where the dashboard should stay when you rewrite the page (leaving it out removes the dashboard, and Markdown can't create one). get_page lists the widgets under dashboards; change them with update_dashboard_widget. The page switches to its full width, which the page menu can turn off. A history snapshot is saved first.`;
+  `Add a dashboard to the end of a page: a grid of up to ${MAX_WIDGETS} widgets, each showing a database of the workspace through its own view and kept up to date as rows change. A widget is a number (type "chart" with chart_type "number": one aggregate over the rows its filters keep, such as the open deals or the sum of their amounts), a chart (type "chart", the default), a list of rows (type "list") or any other view but a form; its settings work as in create_database_view. Everyone who opens the page sees a widget only if they can open its database, and then only the rows and values they may see. In get_page's Markdown a dashboard is its own line, \`<!-- leafdesk:dashboard <id> -->\`: keep it where the dashboard should stay when you rewrite the page (leaving it out removes the dashboard, and Markdown can't create one). get_page lists the widgets under dashboards; change them with update_dashboard_widget: with widget_id, its title, width, color or view settings (settings you leave out keep their values; a new database_id or type starts its view over), move it with before_widget_id or after_widget_id, or remove it with remove; without widget_id, add a widget at the end, or next to before_widget_id / after_widget_id. The page switches to its full width, which the page menu can turn off. A history snapshot is saved first.
+
+A grid has a period (period: ${DASHBOARD_PERIODS.join(", ")}, two days as "YYYY-MM-DD/YYYY-MM-DD", or "all", the default) that cuts every widget's rows to its days, counted in each reader's time zone; readers may pick another for themselves in the app without saving it. Weeks start on Monday and quarters in January, April, July and October. Each widget cuts its rows on period_by: a date, created_time or last_edited_time property of its database (a row whose date is a range is in when any of its days is); by default the first date property, else the first created_time; "none" shows every row whatever the period. A widget whose database has no such property, or whose period_by the reader can't see, shows every row and says so. The period combines with the widget's own filters (an is_within filter and the period both apply). A number widget with a period also shows the change from the period before of the same length (this month against last month, last month against the month before, a range of days against as many days before it): a share of the earlier figure, or points for percentages; nothing when the earlier period has no figure or it was zero. comparison says whether a rise is good ("higher", the default, shown green) or bad ("lower", e.g. costs), or hides it ("off"). Tabs show each view whole, without a period. Published pages and print show the saved period's figures and name the period; they don't show the change. update_dashboard_widget with period alone changes the period; update_database_view with period changes a dashboard view's.`;
 
 /** The view settings with their full descriptions, for the views topic (the tool list shows them short). */
 const VIEW_SETTINGS_DOC = z.object({ ...groupSettingsInput, ...viewLayoutInputs, ...viewDisplayInputs, color_rules: colorRulesInput, ...formInputs });
@@ -2667,7 +2724,7 @@ export function createMcpServer(principal: McpPrincipal) {
     {
       title: "Test an automation",
       description:
-        "Run an automation's draft (or its published steps when it has no draft) once, now, as the user, whether or not it is enabled. Its effects are real (rows change, people are notified, requests are sent), so say so to the user first; the run is marked test in the history and starts no other automations. A row trigger needs row_id, a row of the database; an incoming_webhook trigger takes payload as its body (its example when left out); a schedule runs as if it came round now. It returns run_id at once: the run is queued, so call list_automation_runs to see each step's input, output and errors. Needs full access to the database.",
+        "Run an automation's draft (or its published steps when it has no draft) once, now, as the user, whether or not it is enabled. Its effects are real (rows change, people are notified, requests are sent), so say so to the user first; the run is marked test in the history and starts no other automations. A row trigger needs row_id, a row of the database; an incoming_webhook trigger takes payload as its body (its example when left out); a schedule or view_threshold runs as if due now. It returns run_id at once: the run is queued, so call list_automation_runs to see each step's input, output and errors. Needs full access to the database.",
       inputSchema: automationInputs.test,
       annotations: { readOnlyHint: false, destructiveHint: false, idempotentHint: false, openWorldHint: true },
       scopeChallenge: requireWrite,
@@ -2706,7 +2763,7 @@ export function createMcpServer(principal: McpPrincipal) {
     {
       title: "List an automation's runs",
       description:
-        "List an automation's latest runs, newest first (kept for 30 days): the row (null for a schedule's or an incoming webhook's run) and event (row.created, row.updated, row.date_passed, schedule or webhook.received) that started each, an incoming webhook's body or a schedule's time (trigger), the version it ran, whether it was a test (test, and draft for a test of unpublished changes), its status (pending, also while a step waits to be tried again, a wait step waits or an approval waits for its answer; running; done; failed; stopped, when an approval was rejected or not answered in time) and how each step went: its id, done, failed, skipped, stopped or pending, attempts, an error code (dependencyFailed when it used a step that didn't run; rowsFailed when a for_each failed on some rows) and message, a request's HTTP status, how many people were notified, the agent runs it queued, when it started and how long it took, when a wait goes on, an approval's approvers, answer (approved, rejected or timed_out), who answered and when, its input and output (credentials masked, long ones cut) and, for each found row of a for_each step, how it went. Runs on rows the user can't open are left out. Needs full access to the database.",
+        "List an automation's latest runs, newest first (kept for 30 days): the row (null for runs without one) and event (row.created, row.updated, row.date_passed, threshold.crossed, schedule or webhook.received) that started each, what started a run without a row (trigger), the version it ran, whether it was a test (test, and draft for a test of unpublished changes), its status (pending, also while a step waits to be tried again, a wait step waits or an approval waits for its answer; running; done; failed; stopped, when an approval was rejected or not answered in time) and how each step went: its id, done, failed, skipped, stopped or pending, attempts, an error code (dependencyFailed when it used a step that didn't run; rowsFailed when a for_each failed on some rows) and message, a request's HTTP status, how many people were notified, the agent runs it queued, when it started and how long it took, when a wait goes on, an approval's approvers, answer (approved, rejected or timed_out), who answered and when, its input and output (credentials masked, long ones cut) and, for each found row of a for_each step, how it went. Runs on rows the user can't open are left out. Needs full access to the database.",
       inputSchema: automationInputs.runs,
       annotations: READ,
     },
@@ -2719,7 +2776,7 @@ export function createMcpServer(principal: McpPrincipal) {
       ),
   );
 
-  const RUN_NOTE = `An automation's run_agent action starts a run on the row that changed: the agent reads its instructions and the task, may read what is shared with it (on a run a member's change started, only what that member can open as well; on one an anonymous or outside answer to a public form started, only what the form's publisher can open as well), and may change or comment on that row only, in at most ${MAX_AGENT_ROUNDS} model turns, ${MAX_AGENT_WRITES} changes and ${AGENT_RUN_TIMEOUT_MS / 60_000} minutes. Runs need AI set up on the server and on for the workspace; otherwise they end with code aiOff.`;
+  const RUN_NOTE = `An automation's run_agent action starts a run on the row that changed: the agent reads its instructions and the task, may read what is shared with it (on a run a member's change started, only what that member can open as well; on one an anonymous or outside answer to a public form started, only what the form's publisher can open as well), and may change or comment on that row only, with at most ${MAX_AGENT_WRITES} changes. Runs need AI set up on the server and on for the workspace; otherwise they end with code aiOff.`;
 
   /** The agents an agent can ask, as get_agent and the write tools add them. */
   const helpersOf = async (agentId: string) => ({ helper_agent_ids: (await helperIdsOf([agentId])).get(agentId) ?? [] });
@@ -3308,12 +3365,13 @@ export function createMcpServer(principal: McpPrincipal) {
         filter_combinator: filterCombinatorInput,
         sorts: sortsInput.optional(),
         widgets: viewWidgetsParam.optional(),
+        period: periodInput.describe("Dashboards: as in add_dashboard."),
         personal: z.boolean().optional().describe("Only you see it (read access is enough; not for forms)."),
       }),
       annotations: { readOnlyHint: false, destructiveHint: false, idempotentHint: false, openWorldHint: false },
       scopeChallenge: requireWrite,
     },
-    ({ database_id, name, type, filters, filter_combinator, sorts, widgets, personal, ...input }) =>
+    ({ database_id, name, type, filters, filter_combinator, sorts, widgets, period: askedPeriod, personal, ...input }) =>
       runTool(async () => {
         assertWrite();
         const { database, properties, access } = await databases.getDatabase(userId, database_id);
@@ -3322,15 +3380,17 @@ export function createMcpServer(principal: McpPrincipal) {
           dashboardOnly({ ...input, filters, filter_combinator, sorts });
           // Checked before the view is made, so a bad widget leaves nothing half set up behind.
           const built = widgets && (await dashboardWidgets(database_id, widgets, []));
+          const period = askedPeriod === undefined ? "" : periodFrom(askedPeriod);
           const created = await databases.addView(userId, database_id, {
             name,
             type,
             personal,
-            ...(built ? { config: { widgets: viewWidgetsConfig(built) } } : {}),
+            ...(built || period ? { config: { ...(built ? { widgets: viewWidgetsConfig(built) } : {}), ...(period ? { period } : {}) } } : {}),
           });
           return viewOutput(database, properties, { ...created, config: access.viewConfig(created.config) }, await databases.getLookups(userId, properties));
         }
         if (widgets !== undefined) throw new ToolInputError("widgets only applies to dashboard views.");
+        if (askedPeriod !== undefined) throw new ToolInputError("period only applies to dashboard views.");
         const lookups = await databases.getLookups(userId, properties);
         const { questions, form_title, form_description, confirmation_message, allow_another, defaults, ...settings } = input;
         const formInput: FormInput = { questions, form_title, form_description, confirmation_message, allow_another, defaults };
@@ -3386,11 +3446,12 @@ export function createMcpServer(principal: McpPrincipal) {
         sorts: sortsInput.optional(),
         color_rules: colorRulesInput.optional(),
         widgets: viewWidgetsParam.optional(),
+        period: periodInput.describe("Dashboards: as in add_dashboard."),
       }),
       annotations: { readOnlyHint: false, destructiveHint: true, idempotentHint: true, openWorldHint: false },
       scopeChallenge: requireWrite,
     },
-    ({ database_id, view_id, name, type, before_view_id, after_view_id, filters, filter_combinator, sorts, widgets, ...input }) =>
+    ({ database_id, view_id, name, type, before_view_id, after_view_id, filters, filter_combinator, sorts, widgets, period: askedPeriod, ...input }) =>
       runTool(async () => {
         assertWrite();
         const { database, properties, views } = await databases.getDatabase(userId, database_id);
@@ -3404,6 +3465,8 @@ export function createMcpServer(principal: McpPrincipal) {
         const view = retype ? { ...found, type } : found;
         if (view.type === "dashboard") dashboardOnly({ ...input, filters, filter_combinator, sorts });
         else if (widgets !== undefined) throw new ToolInputError("widgets only applies to dashboard views.");
+        if (askedPeriod !== undefined && view.type !== "dashboard") throw new ToolInputError("period only applies to dashboard views.");
+        const period = askedPeriod === undefined ? undefined : periodFrom(askedPeriod);
         const built = widgets && (await dashboardWidgets(database_id, widgets, viewWidgets(view.config, database_id)));
         if (before_view_id !== undefined && after_view_id !== undefined) {
           throw new ToolInputError("Give before_view_id or after_view_id, not both.");
@@ -3422,6 +3485,7 @@ export function createMcpServer(principal: McpPrincipal) {
           ...viewConfigPatch(properties, view.type, { ...layout, filters, filter_combinator, sorts }, lookups, view.config),
           ...formConfigPatch(properties, view.type, view.config, formInput),
           ...(built ? { widgets: viewWidgetsConfig(built) } : {}),
+          ...(period !== undefined ? { period: period || undefined } : {}),
         };
         const linkChange = isPublic !== undefined || anonymous !== undefined;
         if (name === undefined && !retype && !Object.keys(patch).length && !linkChange && target === undefined) {
@@ -3456,7 +3520,7 @@ export function createMcpServer(principal: McpPrincipal) {
    * database or layout starts the view over.
    */
   const widgetFrom = async (input: WidgetInput, taken: DashboardWidget[], current?: DashboardWidget): Promise<DashboardWidget> => {
-    const { database_id, type: askedType, title, width, color: askedColor, filters, filter_combinator, sorts, ...layout } = input;
+    const { database_id, type: askedType, title, width, color: askedColor, filters, filter_combinator, sorts, period_by, comparison, ...layout } = input;
     const databaseId = database_id ?? current?.databaseId;
     if (!databaseId) throw new ToolInputError("Give database_id: the database the widget shows.");
     const { database, properties } = await databases.getDatabase(userId, databaseId);
@@ -3466,7 +3530,7 @@ export function createMcpServer(principal: McpPrincipal) {
     const same = current !== undefined && current.databaseId === databaseId && current.view.type === type;
     const base = same ? current.view.config : {};
     const patch = viewConfigPatch(properties, type, { ...layout, filters, filter_combinator, sorts }, lookups, base);
-    const view = checkLinkedView({ type, config: { ...base, ...patch } });
+    const view = checkLinkedView({ type, config: periodSettings(properties, type, { period_by, comparison }, { ...base, ...patch }) });
     const color = askedColor === "none" ? undefined : (askedColor ?? current?.color);
     return {
       id: current?.id ?? newWidgetId(taken),
@@ -3507,7 +3571,7 @@ export function createMcpServer(principal: McpPrincipal) {
     "add_dashboard",
     {
       title: "Add a dashboard to a page",
-      description: `Add a dashboard to the end of a page: a grid (or tabs) of up to ${MAX_WIDGETS} widgets, each showing a database of the workspace through its own view: a number, a chart, a list or any other view but a form (${docUri("dashboards")}). Readers see a widget only if they can open its database, and then only the rows and values they may see. In get_page's Markdown a dashboard is the line \`<!-- leafdesk:dashboard <id> -->\`: keep it when you rewrite the page. A grid switches the page to its full width. A history snapshot is saved first.`,
+      description: `Add a dashboard to the end of a page: a grid (or tabs) of up to ${MAX_WIDGETS} widgets, each showing a database of the workspace through its own view: a number, a chart, a list or any other view but a form (${docUri("dashboards")}: who sees what, periods). In get_page's Markdown a dashboard is the line \`<!-- leafdesk:dashboard <id> -->\`: keep it when you rewrite the page. A history snapshot is saved first.`,
       inputSchema: z.object({
         page_id: id("page"),
         widgets: checked(
@@ -3516,18 +3580,21 @@ export function createMcpServer(principal: McpPrincipal) {
           `The widgets in reading order (left to right, then down), 1 to ${MAX_WIDGETS}: {database_id, type ("chart" by default; chart_type "number" for one value), title, width, color, group_by, aggregate, filters…}. ${see("dashboards")}`,
         ),
         layout: z.enum(DASHBOARD_LAYOUTS).optional().describe('"tabs": one widget at a time, each named on its tab. "grid" by default.'),
+        period: periodInput,
       }),
       annotations: { readOnlyHint: false, destructiveHint: false, idempotentHint: false, openWorldHint: false },
       scopeChallenge: requireWrite,
     },
-    ({ page_id, widgets, layout = "grid" }) =>
+    ({ page_id, widgets, layout = "grid", period: askedPeriod }) =>
       runTool(async () => {
         assertWrite();
         const page = await dashboardPage(page_id);
+        const period = askedPeriod === undefined ? "" : periodFrom(askedPeriod);
+        if (period && layout === "tabs") throw new ToolInputError("Tabs show each view whole: a period applies to a grid.");
         const built: DashboardWidget[] = [];
         for (const input of widgets) built.push(await widgetFrom(input, built));
         const blockId = crypto.randomUUID();
-        const props = { widgets: serializeDashboard(built), ...(layout === "tabs" ? { layout } : {}) };
+        const props = { widgets: serializeDashboard(built), ...(layout === "tabs" ? { layout } : {}), ...(period ? { period } : {}) };
         await getCollab().appendBlocks(page_id, [{ id: blockId, type: DASHBOARD_BLOCK, props }], actor, true);
         // The grid needs the room, as when a dashboard is added in the editor; tabs show one view at a time.
         if (layout === "grid") await getCollab().setPageStyle(page_id, { fullWidth: true }, actor);
@@ -3535,6 +3602,7 @@ export function createMcpServer(principal: McpPrincipal) {
           dashboard_id: blockId,
           page_id,
           layout,
+          period: period || "all",
           widgets: await describeWidgets(userId, built),
           url: pageUrl(page.workspaceId, page.id),
           snapshot: "Saved the previous version to page history before adding the dashboard.",
@@ -3546,7 +3614,7 @@ export function createMcpServer(principal: McpPrincipal) {
     "update_dashboard_widget",
     {
       title: "Add, change, move or remove a dashboard widget",
-      description: `Change a dashboard on a page (see add_dashboard; get_page lists dashboards and their widgets under dashboards). With widget_id, change that widget: its title, width, color or view settings (settings you leave out keep their values; a new database_id or type starts its view over), move it with before_widget_id or after_widget_id, or remove it with remove. Without widget_id, add a widget (database_id needed) at the end, or next to before_widget_id / after_widget_id; a dashboard holds up to ${MAX_WIDGETS}. A history snapshot is saved first.`,
+      description: `Change a dashboard on a page (get_page lists them under dashboards; ${docUri("dashboards")}). With widget_id, change that widget's settings (others keep their values; a new database_id or type starts its view over), move it (before_widget_id / after_widget_id) or remove it. Without widget_id, add a widget (database_id needed), up to ${MAX_WIDGETS}. A history snapshot is saved first.`,
       inputSchema: z.object({
         page_id: id("page"),
         dashboard_id: z.string().min(1).optional().describe("The dashboard to change; needed only when the page has more than one."),
@@ -3557,11 +3625,12 @@ export function createMcpServer(principal: McpPrincipal) {
         database_id: id("database").optional().describe("The database the widget shows: needed for a new widget."),
         type: WIDGET_TYPE.optional().describe('The widget\'s layout: "chart" (a number with chart_type "number"), "list", "feed", "table", "board", "calendar", "gallery", "timeline" or "map". New widgets are charts.'),
         ...widgetInputs,
+        period: periodInput.describe("As in add_dashboard; alone, changes only it."),
       }),
       annotations: { readOnlyHint: false, destructiveHint: true, idempotentHint: false, openWorldHint: false },
       scopeChallenge: requireWrite,
     },
-    ({ page_id, dashboard_id, widget_id, remove, before_widget_id, after_widget_id, ...input }) =>
+    ({ page_id, dashboard_id, widget_id, remove, before_widget_id, after_widget_id, period: askedPeriod, ...input }) =>
       runTool(async () => {
         assertWrite();
         const page = await dashboardPage(page_id);
@@ -3587,9 +3656,15 @@ export function createMcpServer(principal: McpPrincipal) {
           throw new ToolInputError(`No other widget with id "${target}" on this dashboard.`);
         }
         const settings = Object.values(input).some((v) => v !== undefined);
+        const period = askedPeriod === undefined ? undefined : periodFrom(askedPeriod);
+        if (period && dashboard.layout === "tabs") throw new ToolInputError("Tabs show each view whole: a period applies to a grid.");
         let change: (widgets: DashboardWidget[]) => DashboardWidget[] | null;
-        let changed: { removed: string } | { added: string } | { updated: string };
-        if (remove) {
+        let changed: { removed: string } | { added: string } | { updated: string } | { period: string };
+        if (period !== undefined && widget_id === undefined && !settings && !remove && target === undefined) {
+          // Only the period.
+          change = (list) => list;
+          changed = { period: period || "all" };
+        } else if (remove) {
           if (!current) throw new ToolInputError("Give widget_id: the widget to remove.");
           if (settings || target !== undefined) throw new ToolInputError("remove takes no other settings.");
           change = (list) => (list.some((w) => w.id === current.id) ? updateWidget(list, current.id, () => null) : null);
@@ -3622,7 +3697,7 @@ export function createMcpServer(principal: McpPrincipal) {
           (props, type) => {
             if (type !== DASHBOARD_BLOCK) return null;
             written = change(parseDashboard(props.widgets));
-            return written && { ...props, widgets: serializeDashboard(written) };
+            return written && { ...props, widgets: serializeDashboard(written), ...(period !== undefined ? { period } : {}) };
           },
           actor,
           true,
@@ -3632,6 +3707,7 @@ export function createMcpServer(principal: McpPrincipal) {
           dashboard_id: dashboard.id,
           page_id,
           ...changed,
+          ...(period !== undefined ? { period: period || "all" } : {}),
           widgets: await describeWidgets(userId, written),
           url: pageUrl(page.workspaceId, page.id),
           snapshot: "Saved the previous version to page history before changing the dashboard.",

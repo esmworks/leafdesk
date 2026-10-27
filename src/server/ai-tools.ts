@@ -106,7 +106,7 @@ export const CHAT_TOOLS: AiTool[] = [
       "Relations: contains or not_equals with a related row's title. Text: contains, does_not_contain (ignoring case), equals, not_equals.",
       "Numbers and dates: equals, gt, gte, lt, lte (gte / lte include the value: on or after, on or before); dates as YYYY-MM-DD (a range matches when it covers, starts before or ends after the day).",
       'Several values in one rule: is_any_of / is_none_of with a list, on select and status (option names), multi_select, relations and people ("me" included).',
-      'is_within on dates: today, this_week, last_week, next_week, this_month, last_month, next_month, this_year, last_year, next_year (weeks from Monday), or past_n_days / next_n_days with "days".',
+      'is_within on dates: today, this_week, last_week, next_week, this_month, last_month, next_month, this_quarter, last_quarter, next_quarter, this_year, last_year, next_year (weeks from Monday), or past_n_days / next_n_days with "days".',
       `Rules all match unless filter_combinator is "or"; a group {"type": "group", "combinator": "and" | "or", "rules": [...]} mixes them (${MAX_FILTER_DEPTH} levels at most).`,
     ].join(" "),
     parameters: {
@@ -246,7 +246,7 @@ export const WRITE_TOOLS: AiTool[] = [
         database_id: { type: "string", description: "The database's id (from the map or a source)." },
         title: { type: "string", description: "The row's title." },
         properties: { type: "object", description: PROPERTIES_HELP, additionalProperties: true },
-        content: { type: "string", description: "Optional Markdown text for the row's page." },
+        content: { type: "string", description: "Optional Markdown text for the row's page. An image, video, audio, embed or bookmark of another site is written as a link to it; files uploaded to Leafdesk show as they are." },
       },
       required: ["database_id", "title"],
       additionalProperties: false,
@@ -275,7 +275,7 @@ export const WRITE_TOOLS: AiTool[] = [
       properties: {
         parent_id: { type: "string", description: "The page_id of the page to put it under." },
         title: { type: "string", description: "The page's title." },
-        content: { type: "string", description: "The page's text, in Markdown." },
+        content: { type: "string", description: "The page's text, in Markdown. An image, video, audio, embed or bookmark of another site is written as a link to it; files uploaded to Leafdesk show as they are." },
       },
       required: ["title"],
       additionalProperties: false,
@@ -287,6 +287,7 @@ export const WRITE_TOOLS: AiTool[] = [
       "Changes the text of a page or database row, as the person, block by block: read it first with read_page with_block_ids to see each block's id.",
       'Edits, made in order: {"op": "replace", "block_id", "markdown"} puts the Markdown in place of the block; {"op": "insert_after", "block_id", "markdown"} adds it after the block; {"op": "append", "markdown"} adds it at the end; {"op": "delete", "block_id"} removes the block.',
       "Blocks not named stay as they are. The page is saved to its history first, and the person can keep or undo each change on the page.",
+      "An image, video, audio, embed or bookmark of another site is written as a link to it; files uploaded to Leafdesk show as they are.",
     ].join(" "),
     parameters: {
       type: "object",

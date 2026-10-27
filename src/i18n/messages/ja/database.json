@@ -259,6 +259,9 @@
       "thisMonth": "今月",
       "lastMonth": "先月",
       "nextMonth": "来月",
+      "thisQuarter": "今四半期",
+      "lastQuarter": "前四半期",
+      "nextQuarter": "次四半期",
       "thisYear": "今年",
       "lastYear": "昨年",
       "nextYear": "来年",
@@ -1330,9 +1333,10 @@
     "lastRun": "前回の実行：{status}、{time}",
     "neverRun": "まだ実行されていません",
     "checkError": {
-      "propertyDeleted": "一時停止中：日付またはステータスのプロパティが削除されました。プロパティを復元するか、オートメーションを編集してください。",
+      "propertyDeleted": "一時停止中：使用しているプロパティが削除されました。プロパティを復元するか、オートメーションを編集してください。",
       "noAccess": "一時停止中：最後に保存した人が、このデータベースへのフルアクセス権を失いました。保存すると、あなたとして実行されます。",
-      "scheduleInvalid": "一時停止中：スケジュールが一度も来ません。オートメーションを編集してください。"
+      "scheduleInvalid": "一時停止中：スケジュールが一度も来ません。オートメーションを編集してください。",
+      "viewDeleted": "一時停止中：ビューが削除されたか、個人用に変更されました。ビューを復元するか、オートメーションを編集してください。"
     },
     "tooMany": "1つのデータベースに設定できるオートメーションは最大{max}個です",
     "deletedProperty": "削除されたプロパティ",
@@ -1355,7 +1359,10 @@
       "weekly": "毎週 {days} {time}",
       "monthly": "毎月 {days} 日 {time}",
       "cron": "スケジュール「{cron}」の時刻",
-      "incoming": "アドレスへのリクエスト受信"
+      "incoming": "アドレスへのリクエスト受信",
+      "thresholdCount": "「{view}」の行数が{value}{comparison, select, above {を超えたとき} other {を下回ったとき}}",
+      "thresholdOf": "「{view}」の{property}の{fn, select, sum {合計} average {平均} median {中央値} min {最小値} other {最大値}}が{value}{comparison, select, above {を超えたとき} other {を下回ったとき}}",
+      "deletedView": "削除されたビュー"
     },
     "summaryAction": {
       "set": "{properties}を設定",
@@ -1376,6 +1383,7 @@
         "row_created": "行が追加されたとき",
         "property_changed": "プロパティが変更されたとき",
         "date_passed": "日付が過ぎたとき",
+        "view_threshold": "合計がしきい値を越えたとき",
         "schedule": "スケジュールどおり",
         "incoming_webhook": "リクエストが届いたとき（受信 Webhook）"
       },
@@ -1470,7 +1478,10 @@
         "exampleTooLong": "本文の例が長すぎます。",
         "needApprovers": "依頼する相手を選んでください。",
         "needTimeout": "1〜30の整数で日数を入力してください。",
-        "needSlackUrl": "Slack の Incoming Webhook のアドレスを入力してください。"
+        "needSlackUrl": "Slack の Incoming Webhook のアドレスを入力してください。",
+        "needView": "行を数えるビューを選択してください。",
+        "needNumber": "計算する数値プロパティを選択してください。",
+        "needThreshold": "比較する数値を入力してください。"
       },
       "agent": "エージェント",
       "chooseAgent": "エージェントを選択…",
@@ -1614,7 +1625,9 @@
         "timedOutContinued": "{time}までに誰も回答せず、実行は続行しました",
         "waiting": "{names}に依頼中（{time}まで）",
         "closed": "{names}に依頼しましたが、回答前に実行が終了しました"
-      }
+      },
+      "thresholdCrossed": "{comparison, select, above {{threshold}を超えました} other {{threshold}を下回りました}}：{value}",
+      "threshold": "しきい値を越えた"
     },
     "nextRun": "次回の実行 {time}",
     "lifecycle": {
@@ -1755,7 +1768,12 @@
       "agentRunId": "エージェント実行 ID",
       "rowId": "行 ID",
       "approvedBy": "承認者",
-      "answeredAt": "回答日時"
+      "answeredAt": "回答日時",
+      "value": "値",
+      "previous": "前回の確認時の値",
+      "threshold": "しきい値",
+      "viewName": "ビュー名",
+      "viewUrl": "ビューのリンク"
     },
     "test": {
       "title": "テスト実行",
@@ -1770,7 +1788,8 @@
       "running": "テストを実行中…",
       "run": "テストを実行",
       "saveAndRun": "保存して実行",
-      "starting": "開始中…"
+      "starting": "開始中…",
+      "threshold": "値がちょうどしきい値を越えたものとして、現在の値で今すぐステップを実行します。"
     },
     "approval": {
       "people": "次のユーザーに依頼",
@@ -1805,6 +1824,31 @@
         "name": "完了した行をお祝い",
         "description": "行が完了になったとき、完了にした人に紙吹雪を表示します。"
       }
+    },
+    "threshold": {
+      "view": "ビュー",
+      "chooseView": "ビューを選択",
+      "noViews": "このデータベースには共有ビューがありません。数える行をフィルターで選ぶビューを追加してください。",
+      "calculation": "計算",
+      "fn": {
+        "count_all": "行数",
+        "sum": "合計",
+        "average": "平均",
+        "median": "中央値",
+        "min": "最小",
+        "max": "最大"
+      },
+      "property": "対象",
+      "chooseNumber": "数値を選択",
+      "noNumbers": "このデータベースには計算できる数値プロパティがありません。",
+      "comparison": "条件",
+      "above": "超えたとき",
+      "below": "下回ったとき",
+      "value": "値",
+      "now": "現在：{value}。",
+      "nowMet": "現在：{value}。すでにしきい値を越えています。値が一度戻ってから再び越えたときに実行されます。",
+      "nowNone": "現在：値なし（ビューの行に数値がありません）。",
+      "help": "値がしきい値を越えたときに一度実行され、値が戻るまで再び実行されることはありません。行の変更の少し後に確認され、今日の日付を使うフィルターは数分ごとに確認されます。行と値は、オートメーションの担当者が見られるものです。"
     }
   },
   "subItems": {
@@ -2153,5 +2197,19 @@
     "overwrite": "テーブルが元データです。同期されるプロパティと行のタイトルは同期のたびに上書きされるため、データはテーブルで変更してください。自分で追加したプロパティはそのまま残り、テーブルからなくなった行もそのままです。",
     "changeUrl": "接続を変更",
     "stopConfirm": "このデータベースの同期を停止しますか？行はそのまま残り、接続アドレスは削除されます。"
+  },
+  "sheetsSync": {
+    "button": "Google Sheets から同期",
+    "buttonPaused": "Google Sheets の同期を一時停止中",
+    "title": "Google Sheets の同期",
+    "sheet": "シート",
+    "connectionGone": "削除された接続",
+    "lastRun": "最終同期 {when}、{count, plural, other {#行}}",
+    "overwrite": "シートが元データです。同期されるプロパティと行のタイトルは同期のたびに上書きされるため、データはシートで変更してください。自分で追加したプロパティはそのまま残り、シートからなくなった行もそのままです。",
+    "formulaColumns": "書き戻さない列（数式）: {columns}",
+    "pending": "シートへの書き込み待ちの行: {count, number}",
+    "writeFailed": "シートに書き込めませんでした:",
+    "writeForbidden": "接続の Google アカウントがスプレッドシートを編集できないか、同期を実行するユーザーが接続経由で書き込めません。ここでの変更は書き込めるようになるまで待機します。",
+    "stopConfirm": "このデータベースの同期を停止しますか？行はそのまま残ります。"
   }
 }

@@ -200,6 +200,7 @@
     "dictation": {
       "start": "语音输入问题",
       "stop": "停止并插入文字",
+      "stopShort": "停止",
       "cancel": "取消录音",
       "transcribing": "正在记录你说的话…",
       "autoStopped": "录音已在 {minutes} 分钟的上限处停止。发送前请检查文字。",
@@ -405,6 +406,28 @@
       "save": "另存为页面",
       "openPage": "打开页面",
       "saveFailed": "无法将报告另存为页面。"
+    },
+    "starters": {
+      "label": "建议",
+      "summarize": "总结“{title}”",
+      "database": "“{title}”里有什么？",
+      "find": "查找关于……的页面",
+      "findText": "查找关于以下内容的页面：",
+      "write": "写一篇关于……的页面",
+      "writeText": "写一篇关于以下内容的页面："
+    },
+    "when": {
+      "today": "今天",
+      "yesterday": "昨天",
+      "week": "过去 7 天",
+      "month": "过去 30 天",
+      "older": "更早"
+    },
+    "add": "添加",
+    "kind": {
+      "label": "要做什么",
+      "chat": "聊天",
+      "chatHint": "根据工作区回答，并做出你要求的更改"
     }
   },
   "memory": {

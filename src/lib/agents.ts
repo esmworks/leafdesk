@@ -48,17 +48,12 @@ export const AGENT_USAGE_MONTHS = 12;
 /** The highest monthly token limit an owner may set (a billion). */
 export const MAX_AGENT_TOKEN_LIMIT = 1_000_000_000;
 
-/** Model turns one run may take, writes it may make, and how long it may last. */
-export const MAX_AGENT_ROUNDS = 8;
+/** Writes one run may make. What it may spend is AI_RUN_LIMIT_USD; it has no turn or time limit of its own. */
 export const MAX_AGENT_WRITES = 5;
-export const AGENT_RUN_TIMEOUT_MS = 2 * 60_000;
 /** Other agents one agent may ask (its "Agents it can ask"), and times one run may ask them. */
 export const MAX_AGENT_HELPERS = 10;
 export const MAX_HANDOFFS_PER_RUN = 3;
-/**
- * The longest a run waits, in all, for the agents it asks: its own time stands still meanwhile, so a
- * run of AGENT_RUN_TIMEOUT_MS lasts at most 6 minutes.
- */
+/** The longest a run waits, in all, for the agents it asks. */
 export const MAX_HANDOFF_WAIT_MS = 4 * 60_000;
 /** Skills one agent may have, and how much of them one run reads (all of them together). */
 export const MAX_AGENT_SKILLS = 10;
@@ -477,7 +472,7 @@ export type AgentScheduleView = {
   enabled: boolean;
   nextRunAt: string | null;
   lastRunAt: string | null;
-  lastError: ScheduleError | null;
+  lastError: Exclude<ScheduleError, "dashboardGone"> | null;
   /** The owner who set it last: its runs are held to their access. */
   setBy: { id: string; name: string } | null;
 };

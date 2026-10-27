@@ -18,7 +18,7 @@ import {
   type VersionScheduleRef,
 } from "@/lib/agent-versions";
 import { editsAgent, type AgentView } from "@/lib/agents";
-import { useRuleSummary } from "./agent-schedules-tab";
+import { useRuleSummary } from "./rule-summary";
 
 const NAMED_FIELDS = ["name", "icon", "description", "instructions", "enabled", "model", "web_access", "row_changes", "monthly_token_limit", "skills", "schedules", "shares"] as const;
 type NamedField = (typeof NAMED_FIELDS)[number];

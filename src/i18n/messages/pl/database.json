@@ -259,6 +259,9 @@
       "thisMonth": "Ten miesiąc",
       "lastMonth": "Poprzedni miesiąc",
       "nextMonth": "Następny miesiąc",
+      "thisQuarter": "Ten kwartał",
+      "lastQuarter": "Zeszły kwartał",
+      "nextQuarter": "Następny kwartał",
       "thisYear": "Ten rok",
       "lastYear": "Poprzedni rok",
       "nextYear": "Następny rok",
@@ -1330,9 +1333,10 @@
     "lastRun": "Ostatnie uruchomienie: {status}, {time}",
     "neverRun": "Jeszcze nie uruchomiono",
     "checkError": {
-      "propertyDeleted": "Wstrzymano: jej właściwość daty lub statusu została usunięta. Przywróć właściwość lub edytuj automatyzację.",
+      "propertyDeleted": "Wstrzymano: właściwość, której używa, została usunięta. Przywróć właściwość lub edytuj automatyzację.",
       "noAccess": "Wstrzymano: osoba, która ostatnio ją zapisała, nie ma już pełnego dostępu do tej bazy danych. Zapisz ją, aby działała w twoim imieniu.",
-      "scheduleInvalid": "Wstrzymano: jej harmonogram nigdy nie nadchodzi. Edytuj automatyzację."
+      "scheduleInvalid": "Wstrzymano: jej harmonogram nigdy nie nadchodzi. Edytuj automatyzację.",
+      "viewDeleted": "Wstrzymano: jej widok został usunięty lub zmieniony na osobisty. Przywróć widok lub edytuj automatyzację."
     },
     "tooMany": "Baza danych może mieć najwyżej {max, plural, one {# automatyzację} few {# automatyzacje} many {# automatyzacji} other {# automatyzacji}}",
     "deletedProperty": "Usunięta właściwość",
@@ -1355,7 +1359,10 @@
       "weekly": "w każdy dzień: {days} wybije {time}",
       "monthly": "w {days}. dniu każdego miesiąca wybije {time}",
       "cron": "nadejdzie harmonogram „{cron}”",
-      "incoming": "na jej adres nadejdzie żądanie"
+      "incoming": "na jej adres nadejdzie żądanie",
+      "thresholdCount": "liczba wierszy w widoku „{view}” {comparison, select, above {przekroczy} other {spadnie poniżej}} {value}",
+      "thresholdOf": "{fn, select, sum {suma} average {średnia} median {mediana} min {minimum} other {maksimum}} właściwości {property} w widoku „{view}” {comparison, select, above {przekroczy} other {spadnie poniżej}} {value}",
+      "deletedView": "usunięty widok"
     },
     "summaryAction": {
       "set": "Ustaw: {properties}",
@@ -1376,6 +1383,7 @@
         "row_created": "Zostanie dodany wiersz",
         "property_changed": "Zmieni się właściwość",
         "date_passed": "Minie data",
+        "view_threshold": "Suma przekroczy próg",
         "schedule": "Nadejdzie termin z harmonogramu",
         "incoming_webhook": "Nadejdzie żądanie (webhook przychodzący)"
       },
@@ -1470,7 +1478,10 @@
         "exampleTooLong": "Przykładowa treść jest za długa.",
         "needApprovers": "Wybierz, kogo zapytać.",
         "needTimeout": "Wpisz całkowitą liczbę dni od 1 do 30.",
-        "needSlackUrl": "Wpisz adres przychodzącego webhooka Slacka."
+        "needSlackUrl": "Wpisz adres przychodzącego webhooka Slacka.",
+        "needView": "Wybierz widok, którego wiersze są liczone.",
+        "needNumber": "Wybierz właściwość liczbową, z której liczyć.",
+        "needThreshold": "Wpisz liczbę do porównania."
       },
       "agent": "Agent",
       "chooseAgent": "Wybierz agenta…",
@@ -1614,7 +1625,9 @@
         "timedOutContinued": "Nikt nie odpowiedział do {time}: uruchomienie poszło dalej",
         "waiting": "Zapytano: {names}, do {time}",
         "closed": "Zapytano: {names}; uruchomienie skończyło się przed odpowiedzią"
-      }
+      },
+      "thresholdCrossed": "{comparison, select, above {Przekroczono {threshold}} other {Spadło poniżej {threshold}}}: {value}",
+      "threshold": "Próg przekroczony"
     },
     "nextRun": "Następne uruchomienie {time}",
     "lifecycle": {
@@ -1755,7 +1768,12 @@
       "agentRunId": "ID uruchomienia agenta",
       "rowId": "ID wiersza",
       "approvedBy": "Kto zatwierdził",
-      "answeredAt": "Kiedy odpowiedziano"
+      "answeredAt": "Kiedy odpowiedziano",
+      "value": "Wartość",
+      "previous": "Wartość przy poprzednim sprawdzeniu",
+      "threshold": "Próg",
+      "viewName": "Nazwa widoku",
+      "viewUrl": "Link do widoku"
     },
     "test": {
       "title": "Uruchomienie testowe",
@@ -1770,7 +1788,8 @@
       "running": "Trwa test…",
       "run": "Uruchom test",
       "saveAndRun": "Zapisz i uruchom",
-      "starting": "Uruchamianie…"
+      "starting": "Uruchamianie…",
+      "threshold": "Uruchamia kroki teraz, tak jakby wartość właśnie przekroczyła próg, z jej obecną wartością."
     },
     "approval": {
       "people": "Zapytaj te osoby",
@@ -1805,6 +1824,31 @@
         "name": "Świętuj ukończone wiersze",
         "description": "Gdy wiersz zostanie oznaczony jako gotowy, konfetti dla osoby, która to zrobiła."
       }
+    },
+    "threshold": {
+      "view": "Widok",
+      "chooseView": "Wybierz widok",
+      "noViews": "Ta baza danych nie ma udostępnionych widoków. Dodaj taki, którego filtry wybierają wiersze do policzenia.",
+      "calculation": "Obliczenie",
+      "fn": {
+        "count_all": "Liczba wierszy",
+        "sum": "Suma",
+        "average": "Średnia",
+        "median": "Mediana",
+        "min": "Minimum",
+        "max": "Maksimum"
+      },
+      "property": "Z właściwości",
+      "chooseNumber": "Wybierz liczbę",
+      "noNumbers": "Ta baza danych nie ma właściwości liczbowych, z których można liczyć.",
+      "comparison": "Gdy wartość",
+      "above": "Przekroczy",
+      "below": "Spadnie poniżej",
+      "value": "Wartość",
+      "now": "Teraz: {value}.",
+      "nowMet": "Teraz: {value}, próg jest już przekroczony. Uruchomi się następnym razem, gdy wartość go przekroczy, po powrocie.",
+      "nowNone": "Teraz: brak wartości (brak liczb w wierszach widoku).",
+      "help": "Uruchamia się raz, gdy wartość przekroczy próg, a ponownie dopiero po jej powrocie. Sprawdzanie następuje chwilę po zmianie wierszy oraz co kilka minut dla filtrów opartych na dzisiejszej dacie. Wiersze i wartości to te, które widzi osoba przypisana do automatyzacji."
     }
   },
   "subItems": {
@@ -2153,5 +2197,19 @@
     "overwrite": "Tabela jest źródłem: synchronizowane właściwości i tytuły wierszy są nadpisywane przy każdej synchronizacji, więc zmieniaj dane w tabeli. Właściwości dodane przez Ciebie pozostają, a wiersze, które znikną z tabeli, nie są ruszane.",
     "changeUrl": "Zmień połączenie",
     "stopConfirm": "Zatrzymać synchronizację tej bazy? Wiersze pozostaną bez zmian, a adres połączenia zostanie zapomniany."
+  },
+  "sheetsSync": {
+    "button": "Zsynchronizowano z Google Sheets",
+    "buttonPaused": "Synchronizacja Google Sheets wstrzymana",
+    "title": "Synchronizacja Google Sheets",
+    "sheet": "Karta",
+    "connectionGone": "Usunięte połączenie",
+    "lastRun": "Ostatnia synchronizacja {when}, {count, plural, one {# wiersz} few {# wiersze} many {# wierszy} other {# wiersza}}",
+    "overwrite": "Karta jest źródłem: zsynchronizowane właściwości i tytuły wierszy są nadpisywane przy każdej synchronizacji, więc zmieniaj dane w karcie. Właściwości dodane przez ciebie pozostają bez zmian, a wiersze, które znikają z karty, nie są ruszane.",
+    "formulaColumns": "Bez zapisu zwrotnego (formuły): {columns}",
+    "pending": "Wiersze czekające na zapis w karcie: {count, number}",
+    "writeFailed": "Nie udało się zapisać w karcie:",
+    "writeForbidden": "Konto Google połączenia nie może edytować arkusza albo osoba, jako która działa synchronizacja, nie może zapisywać przez połączenie. Zmiany wprowadzone tutaj czekają, aż będzie to możliwe.",
+    "stopConfirm": "Zatrzymać synchronizację tej bazy? Jej wiersze pozostaną bez zmian."
   }
 }

@@ -17,6 +17,7 @@
     "github": "GitHub",
     "ical": "Calendario",
     "postgres": "PostgreSQL",
+    "sheets": "Google Sheets",
     "googleDocs": "Google Docs",
     "web": "Página web"
   },
@@ -438,6 +439,42 @@
       "failed": "La sincronización falló. Lo intentará de nuevo la próxima vez.",
       "invalidSite": "Leafdesk no puede llegar a ese servidor: una dirección privada necesita que tu administrador la permita en CONNECTOR_ALLOWED_HOSTS.",
       "invalidInput": "Revisa la dirección de conexión, la tabla y los nombres de columna.",
+      "alreadyRunning": "Hay una sincronización en curso. Inténtalo de nuevo en un momento."
+    }
+  },
+  "sheets": {
+    "help": "Obtén una base de datos de una hoja de una hoja de cálculo de Google que se mantiene al día: cada fila bajo la fila de encabezado es una fila aquí, se vuelve a encontrar por su columna clave y se nombra con su columna de título, con una propiedad por cada otra columna con nombre (texto, números, casillas, fechas y horas, según lo que contenga la columna). Hasta {limit, number} celdas. Los cambios vienen de la hoja, y vuelven a ella si eliges «En ambos sentidos».",
+    "loading": "Buscando conexiones de Google Sheets…",
+    "noConnection": "No hay ninguna conexión de Google Sheets a través de la que puedas sincronizar. Un propietario añade Google Sheets en Configuración → Conexiones; los miembros pueden usarla cuando un propietario marca «En el chat» para su herramienta get_spreadsheet.",
+    "connection": "Conexión de Google Sheets",
+    "link": "Enlace a la hoja",
+    "linkPlaceholder": "https://docs.google.com/spreadsheets/d/…/edit#gid=…",
+    "linkHelp": "Abre la hoja (la pestaña de abajo) y copia la dirección: la hoja se encuentra por su id, así que puedes cambiarle el nombre más adelante. La cuenta de Google de la conexión debe poder abrir la hoja de cálculo; no hace falta compartirla con nadie más.",
+    "invalidLink": "No es un enlace a una hoja de cálculo de Google.",
+    "headerRow": "Fila de encabezado",
+    "headerRowPlaceholder": "La última fila inmovilizada",
+    "keyPlaceholder": "La primera columna",
+    "titlePlaceholder": "La columna clave",
+    "namePlaceholder": "El nombre de la hoja",
+    "direction": "Dirección",
+    "directionRead": "Solo desde la hoja",
+    "directionBoth": "En ambos sentidos",
+    "directionBothHelp": "Los cambios que hagas aquí se escriben en la hoja en la siguiente sincronización, en un minuto más o menos. Si una celda también cambió en la hoja, se queda el valor de la hoja. La columna clave y las columnas con fórmulas no se escriben; las filas nuevas se añaden debajo de la última; eliminar una fila no elimina nada en la hoja.",
+    "directionNoWrite": "Para escribir de vuelta, la conexión necesita las herramientas update_values y insert_dimension: los propietarios pueden usarlas, y los miembros cuando un propietario marca «En el chat» para ambas.",
+    "bothNeedsSchedule": "Para escribir de vuelta, la sincronización debe tener una frecuencia.",
+    "errors": {
+      "unauthorized": "La conexión de Google Sheets necesita volver a iniciar sesión en Google: un propietario lo hace en Configuración → Conexiones.",
+      "forbidden": "La conexión no se puede usar para esto: puede que su cuenta de Google no pueda abrir la hoja de cálculo, que esté en otro espacio de trabajo o que no puedas leer a través de ella.",
+      "notFound": "No existe esa hoja de cálculo u hoja, o se eliminó la conexión.",
+      "badQuery": "Google rechazó leer la hoja:",
+      "tooManyIssues": "La hoja tiene demasiadas celdas para sincronizar. Mueve las filas y columnas que necesitas a una hoja aparte.",
+      "unreachable": "No se pudo acceder a la conexión o Google tardó demasiado. La sincronización lo intentará de nuevo la próxima vez.",
+      "runAsGone": "La persona que configuró la sincronización ya no tiene cuenta.",
+      "accessLost": "La persona con la que se ejecuta la sincronización ya no puede editar esta base de datos o dejó el espacio de trabajo.",
+      "keyGone": "La propiedad clave se eliminó o cambió de tipo, o cambió el encabezado de la columna clave, así que las filas de la hoja no se pueden emparejar con filas.",
+      "failed": "La sincronización falló. Lo intentará de nuevo la próxima vez.",
+      "invalidSite": "Leafdesk no puede acceder a esa conexión.",
+      "invalidInput": "Revisa el enlace, la fila de encabezado y los nombres de las columnas: deben coincidir con el texto de la fila de encabezado.",
       "alreadyRunning": "Hay una sincronización en curso. Inténtalo de nuevo en un momento."
     }
   }

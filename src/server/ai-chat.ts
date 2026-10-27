@@ -84,10 +84,12 @@ import { AccessError, connectedAppHold, isGuest, requireMembership, requirePageA
 import { asWrite } from "@/server/connected-app";
 import {
   AiError,
+  aiConfig,
   chatModelsFor,
   IMAGE_CHARS,
   isAiError,
   promptRoomFor,
+  RUN_ROUNDS,
   stream,
   takeRateLimit,
   takeWorkspaceCapacity,
@@ -127,15 +129,6 @@ import {
   type ToolOutcome,
 } from "@/server/ai-tools";
 
-/** Model turns per question: searches, reads and queries, then the answer. */
-export const MAX_ROUNDS = 6;
-/**
- * A research answer's turns, and the tokens its turns may use in all (the input each turn sends
- * again included): past them it writes its report with what it has. Each turn also counts against
- * the workspace's rate and cost limits like any other.
- */
-export const RESEARCH_ROUNDS = 14;
-export const RESEARCH_TOKENS = 400_000;
 /** The most of what the model says before a search or read that is kept as a step. */
 const THOUGHT_CHARS = 300;
 /** Share of the prompt that earlier questions and answers may take, and what the chat remembers. */
@@ -417,7 +410,7 @@ async function* runChat(
   },
   signal?: AbortSignal,
 ): AsyncGenerator<ChatEvent> {
-  const ctx: ops.OperationContext = { userId, actor: { userId, ...(asSuggestions ? { asSuggestions } : {}) }, timeZone };
+  const ctx: ops.OperationContext = { userId, actor: { userId, model: true, ...(asSuggestions ? { asSuggestions } : {}) }, timeZone };
   // "Don't ask again" makes the rest of this answer `auto`.
   let mode = initialMode;
   // Keeping notes about the person changes nothing in the workspace: it's offered in every mode,
@@ -451,7 +444,6 @@ async function* runChat(
   // share the rest.
   const budget = await promptRoomFor(workspaceId, feature, model);
   const room = () => Math.max(0, budget - system.length - toolsSize - 200);
-  const maxRounds = research ? RESEARCH_ROUNDS : MAX_ROUNDS;
 
   const conversation =
     existing ??
@@ -530,9 +522,10 @@ async function* runChat(
   let answer = "";
   let stopReason: "stop" | "length" = "stop";
   let failure: AiErrorCode | null = null;
-  // The model that answered, and the tokens a research answer's turns used.
+  // The model that answered, and what the answer's turns cost.
   let answeredBy: string | null = null;
-  let spent = 0;
+  let spentUsd = 0;
+  const limitUsd = aiConfig().limits.runLimitUsd;
   // Something from outside (the web, a connection's tool) is in the conversation: from then on every
   // change and note is asked about.
   let untrusted = false;
@@ -565,8 +558,12 @@ async function* runChat(
       return earlier > 0;
     };
     let roomMade = 0;
-    // The turn that must answer: the last one, or the one after research used its tokens.
-    let finalRound = maxRounds - 1;
+    // The turn that must answer: the one after the turns spent AI_RUN_LIMIT_USD (research writes its
+    // report then), or RUN_ROUNDS' last for a model without a price. Each turn also counts against
+    // the workspace's rate and cost limits, and the person can stop the answer.
+    let finalRound = RUN_ROUNDS - 1;
+    // The last turn called tools instead of answering: it's asked once more, with none run.
+    let closing = false;
 
     // ------------------------------------------------------------------------------ model turns
     for (let round = 0; round <= finalRound; round++) {
@@ -615,14 +612,24 @@ async function* runChat(
         throw error;
       }
       answeredBy = result.model;
-      spent += result.usage.totalTokens;
+      spentUsd += result.usage.costUsd;
+      if (last && result.toolCalls.length && !result.text.trim() && !closing) {
+        closing = true;
+        if (streamed) yield { type: "reset" };
+        messages.push(result.message);
+        for (const call of result.toolCalls) {
+          messages.push({ role: "tool", toolCallId: call.id, name: call.name, content: "Not run: there are no turns left for tools. Answer now with what you have, and say what is left to do.", isError: true });
+        }
+        round -= 1;
+        continue;
+      }
       if (!result.toolCalls.length || last) {
         answer = result.text;
         stopReason = result.stopReason === "length" ? "length" : "stop";
         break;
       }
-      // Research that used its tokens writes its report on the next turn.
-      if (research && spent >= RESEARCH_TOKENS) finalRound = Math.min(finalRound, round + 1);
+      // Past AI_RUN_LIMIT_USD, the next turn answers (research writes its report).
+      if (spentUsd >= limitUsd) finalRound = Math.min(finalRound, round + 1);
       // Text before a tool call is the model thinking aloud, not the answer: it's kept as a step.
       if (streamed) yield { type: "reset" };
       const thought = thoughtText(streamed);

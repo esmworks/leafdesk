@@ -5,8 +5,8 @@ import { dayString, localDay } from "./time-zone";
 
 /**
  * Database automations: "when a row is added, a property of a row changes (to a value), a date of
- * a row is some days past, a schedule comes round or a request arrives at the automation's own
- * address, do these steps". Types, the pure trigger matching and the limits, for the server
+ * a row is some days past, a calculation over a view's rows crosses a line, a schedule comes round
+ * or a request arrives at the automation's own address, do these steps". Types, the pure trigger matching and the limits, for the server
  * (server/automations) and the settings dialog alike.
  */
 
@@ -44,7 +44,13 @@ export type AutomationTrigger =
    * body is the run's `trigger`. `example` is a body to offer in the editor's variable picker and
    * test runs. A run has no row.
    */
-  | { type: "incoming_webhook"; example?: unknown };
+  | { type: "incoming_webhook"; example?: unknown }
+  /**
+   * A calculation over the rows a view of the database shows (its filters) goes above or below a
+   * number (server/automations/threshold.ts). It starts once when the value crosses the line and
+   * again only after it came back. A run has no row.
+   */
+  | ThresholdTrigger;
 
 export type AutomationTriggerType = AutomationTrigger["type"];
 export const AUTOMATION_TRIGGER_TYPES = [
@@ -53,6 +59,7 @@ export const AUTOMATION_TRIGGER_TYPES = [
   "date_passed",
   "schedule",
   "incoming_webhook",
+  "view_threshold",
 ] as const satisfies AutomationTriggerType[];
 
 /** Whether runs of a trigger are about a row (the `trigger` of their templates is that row). */
@@ -64,6 +71,26 @@ export const watchedProperties = (trigger: Extract<AutomationTrigger, { type: "p
   trigger.propertyIds?.length ? trigger.propertyIds : trigger.propertyId ? [trigger.propertyId] : [];
 
 export type DatePassedTrigger = { type: "date_passed"; date: DatePassedBasis; days: number; status?: StatusCondition | null };
+
+/** What a threshold trigger calculates: the view's rows counted, or a number property's values. */
+export const THRESHOLD_FNS = ["count_all", "sum", "average", "median", "min", "max"] as const;
+export type ThresholdFn = (typeof THRESHOLD_FNS)[number];
+export const THRESHOLD_COMPARISONS = ["above", "below"] as const;
+export type ThresholdComparison = (typeof THRESHOLD_COMPARISONS)[number];
+
+/**
+ * `viewId`: a shared view of the database, whose filters pick the rows. `propertyId`: the number
+ * (or number formula or rollup) the calculation is over; null for count_all. `above` is more than
+ * `value`, `below` less: the value itself is neither.
+ */
+export type ThresholdTrigger = {
+  type: "view_threshold";
+  viewId: string;
+  fn: ThresholdFn;
+  propertyId: string | null;
+  comparison: ThresholdComparison;
+  value: number;
+};
 
 /**
  * A value an automation sets that is worked out when it runs: `now` is the day it runs (a date
@@ -448,18 +475,48 @@ export function datePassedFires(
   return fired !== row.basis;
 }
 
+// ---------------------------------------------------------------------------------- threshold
+
+/** A threshold's number at most, either way: plenty for amounts, short of losing whole digits. */
+export const MAX_THRESHOLD = 1e15;
+
+/** Whether a calculation's value is past the line; no value (an average of no numbers) is not. */
+export function thresholdMet(value: number | null, trigger: Pick<ThresholdTrigger, "comparison" | "value">) {
+  if (value === null || !Number.isFinite(value)) return false;
+  return trigger.comparison === "above" ? value > trigger.value : value < trigger.value;
+}
+
+/**
+ * Whether a check starts a threshold automation: the value is past the line now and wasn't at
+ * the last check. `before` is null before the first check, which only notes where the value is
+ * (publishing does it): what is already past the line then isn't a crossing.
+ */
+export const thresholdFires = (before: boolean | null, met: boolean) => before === false && met;
+
+/** A calculated value as a run keeps it: averages and medians to 2 decimals, as table footers show them. */
+export const thresholdValue = (fn: ThresholdFn, value: number) =>
+  fn === "average" || fn === "median" ? Math.round(value * 100) / 100 : value;
+
 /** The event name a webhook's body carries. */
 export const webhookEvent = (created: boolean) => (created ? "row.created" : "row.updated");
 
 /** What started a run without a row. */
-export type RunOrigin = "schedule" | "incoming_webhook";
+export type RunOrigin = "schedule" | "incoming_webhook" | "view_threshold";
 
 /**
  * The event of a run: a row added or changed, a "date passed" run (it has the date it ran for), a
  * schedule or a request to the automation's address.
  */
 export const runEvent = (run: { created: boolean; basis: string | null; origin?: RunOrigin | null }) =>
-  run.origin === "schedule" ? "schedule" : run.origin === "incoming_webhook" ? "webhook.received" : run.basis !== null ? "row.date_passed" : webhookEvent(run.created);
+  run.origin === "schedule"
+    ? "schedule"
+    : run.origin === "incoming_webhook"
+      ? "webhook.received"
+      : run.origin === "view_threshold"
+        ? "threshold.crossed"
+        : run.basis !== null
+          ? "row.date_passed"
+          : webhookEvent(run.created);
 
 /** Header names of a webhook request. */
 export const WEBHOOK_SIGNATURE_HEADER = "X-Leafdesk-Signature";
@@ -486,11 +543,12 @@ export function httpRetriable(status: number | null) {
 }
 
 /**
- * Why a "date passed" automation's last check couldn't look for rows: its date or status
- * property is deleted (it waits for a restore), or whoever saved it lost full access to the
- * database. Cleared by the next check that can, and by saving it.
+ * Why a "date passed" or threshold automation's last check couldn't look for rows: its date,
+ * status or number property is deleted (it waits for a restore), its view is deleted or no longer
+ * shared, or whoever saved it lost full access to the database. Cleared by the next check that
+ * can, and by saving it.
  */
-export type AutomationCheckError = "propertyDeleted" | "noAccess" | "scheduleInvalid";
+export type AutomationCheckError = "propertyDeleted" | "viewDeleted" | "noAccess" | "scheduleInvalid";
 
 /**
  * What a run is: waiting (or waiting to retry, or for an approval), running, done, failed in some

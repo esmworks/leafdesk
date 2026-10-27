@@ -17,6 +17,7 @@
     "github": "GitHub",
     "ical": "Kalender",
     "postgres": "PostgreSQL",
+    "sheets": "Google Sheets",
     "googleDocs": "Google Docs",
     "web": "Halaman web"
   },
@@ -438,6 +439,42 @@
       "failed": "Sinkronisasi gagal. Akan dicoba lagi lain kali.",
       "invalidSite": "Leafdesk tidak bisa menjangkau server itu: alamat privat perlu diizinkan administrator di CONNECTOR_ALLOWED_HOSTS.",
       "invalidInput": "Periksa alamat koneksi, tabel, dan nama kolom.",
+      "alreadyRunning": "Sinkronisasi sedang berjalan. Coba lagi sebentar lagi."
+    }
+  },
+  "sheets": {
+    "help": "Buat database dari satu lembar spreadsheet Google yang tetap sinkron: setiap baris di bawah baris header menjadi satu baris di sini, ditemukan kembali lewat kolom kunci dan dinamai oleh kolom judul, dengan satu properti untuk setiap kolom bernama lainnya (teks, angka, kotak centang, tanggal dan waktu, sesuai isi kolom). Hingga {limit, number} sel. Perubahan datang dari lembar, dan kembali ke sana juga jika Anda memilih “Dua arah”.",
+    "loading": "Mencari koneksi Google Sheets…",
+    "noConnection": "Tidak ada koneksi Google Sheets yang dapat Anda gunakan untuk sinkronisasi. Pemilik menambahkan Google Sheets di Pengaturan → Koneksi; anggota dapat memakainya setelah pemilik mencentang “Di obrolan” untuk alat get_spreadsheet.",
+    "connection": "Koneksi Google Sheets",
+    "link": "Tautan ke lembar",
+    "linkPlaceholder": "https://docs.google.com/spreadsheets/d/…/edit#gid=…",
+    "linkHelp": "Buka lembar (tab di bagian bawah) dan salin alamatnya: lembar ditemukan lewat id-nya, jadi mengganti namanya nanti tidak masalah. Akun Google koneksi harus bisa membuka spreadsheet; tidak perlu dibagikan ke orang lain.",
+    "invalidLink": "Bukan tautan ke spreadsheet Google.",
+    "headerRow": "Baris header",
+    "headerRowPlaceholder": "Baris beku terakhir",
+    "keyPlaceholder": "Kolom pertama",
+    "titlePlaceholder": "Kolom kunci",
+    "namePlaceholder": "Nama lembar",
+    "direction": "Arah",
+    "directionRead": "Hanya dari lembar",
+    "directionBoth": "Dua arah",
+    "directionBothHelp": "Perubahan yang dibuat di sini ditulis ke lembar pada sinkronisasi berikutnya, dalam sekitar satu menit. Jika sel juga berubah di lembar, nilai lembar yang dipakai. Kolom kunci dan kolom berisi rumus tidak ditulis; baris baru ditambahkan di bawah baris terakhir; menghapus baris tidak menghapus apa pun di lembar.",
+    "directionNoWrite": "Untuk menulis balik, koneksi memerlukan alat update_values dan insert_dimension: pemilik dapat memakainya, anggota setelah pemilik mencentang “Di obrolan” untuk keduanya.",
+    "bothNeedsSchedule": "Menulis balik memerlukan sinkronisasi terjadwal.",
+    "errors": {
+      "unauthorized": "Koneksi Google Sheets perlu masuk ke Google lagi: pemilik melakukannya di Pengaturan → Koneksi.",
+      "forbidden": "Koneksi tidak dapat dipakai untuk ini: akun Google-nya mungkin tidak bisa membuka spreadsheet, koneksi berada di ruang kerja lain, atau Anda tidak boleh membaca lewatnya.",
+      "notFound": "Spreadsheet atau lembar tersebut tidak ada, atau koneksi telah dihapus.",
+      "badQuery": "Google menolak membaca lembar:",
+      "tooManyIssues": "Lembar memiliki terlalu banyak sel untuk disinkronkan. Pindahkan baris dan kolom yang Anda perlukan ke lembar tersendiri.",
+      "unreachable": "Koneksi tidak dapat dijangkau, atau Google terlalu lama. Sinkronisasi akan mencoba lagi lain kali.",
+      "runAsGone": "Orang yang menyiapkan sinkronisasi tidak lagi memiliki akun.",
+      "accessLost": "Orang yang menjalankan sinkronisasi tidak lagi bisa mengedit database ini, atau telah keluar dari ruang kerja.",
+      "keyGone": "Properti kunci dihapus atau berubah jenis, atau header kolom kunci berubah, sehingga baris lembar tidak bisa dicocokkan.",
+      "failed": "Sinkronisasi gagal. Akan dicoba lagi lain kali.",
+      "invalidSite": "Leafdesk tidak dapat menjangkau koneksi itu.",
+      "invalidInput": "Periksa tautan, baris header, dan nama kolom: semuanya harus cocok dengan teks baris header.",
       "alreadyRunning": "Sinkronisasi sedang berjalan. Coba lagi sebentar lagi."
     }
   }

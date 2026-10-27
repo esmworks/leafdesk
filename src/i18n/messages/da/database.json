@@ -259,6 +259,9 @@
       "thisMonth": "Denne måned",
       "lastMonth": "Sidste måned",
       "nextMonth": "Næste måned",
+      "thisQuarter": "Dette kvartal",
+      "lastQuarter": "Sidste kvartal",
+      "nextQuarter": "Næste kvartal",
       "thisYear": "I år",
       "lastYear": "Sidste år",
       "nextYear": "Næste år",
@@ -1330,9 +1333,10 @@
     "lastRun": "Seneste kørsel: {status}, {time}",
     "neverRun": "Har ikke kørt endnu",
     "checkError": {
-      "propertyDeleted": "Sat på pause: dens dato- eller statusegenskab blev slettet. Gendan egenskaben, eller redigér automatiseringen.",
+      "propertyDeleted": "Sat på pause: en egenskab, den bruger, blev slettet. Gendan egenskaben, eller redigér automatiseringen.",
       "noAccess": "Sat på pause: den, der gemte den sidst, har ikke længere fuld adgang til denne database. Gem den for at køre den som dig.",
-      "scheduleInvalid": "Sat på pause: dens tidsplan indtræffer aldrig. Redigér automatiseringen."
+      "scheduleInvalid": "Sat på pause: dens tidsplan indtræffer aldrig. Redigér automatiseringen.",
+      "viewDeleted": "Sat på pause: dens visning blev slettet eller gjort personlig. Gendan visningen, eller redigér automatiseringen."
     },
     "tooMany": "En database kan højst have {max} automatiseringer",
     "deletedProperty": "Slettet egenskab",
@@ -1355,7 +1359,10 @@
       "weekly": "hver {days} kl. {time}",
       "monthly": "på dag {days} i hver måned kl. {time}",
       "cron": "tidsplanen “{cron}” indtræffer",
-      "incoming": "en anmodning ankommer til dens adresse"
+      "incoming": "en anmodning ankommer til dens adresse",
+      "thresholdCount": "antallet af rækker i “{view}” går {comparison, select, above {over} other {under}} {value}",
+      "thresholdOf": "{fn, select, sum {summen} average {gennemsnittet} median {medianen} min {minimum} other {maksimum}} af {property} i “{view}” går {comparison, select, above {over} other {under}} {value}",
+      "deletedView": "en slettet visning"
     },
     "summaryAction": {
       "set": "Sæt {properties}",
@@ -1376,6 +1383,7 @@
         "row_created": "En række tilføjes",
         "property_changed": "En egenskab ændres",
         "date_passed": "En dato passeres",
+        "view_threshold": "En sum krydser en grænse",
         "schedule": "Efter en tidsplan",
         "incoming_webhook": "En anmodning ankommer (indgående webhook)"
       },
@@ -1470,7 +1478,10 @@
         "exampleTooLong": "Eksempelindholdet er for langt.",
         "needApprovers": "Vælg, hvem der skal spørges.",
         "needTimeout": "Angiv et helt antal dage fra 1 til 30.",
-        "needSlackUrl": "Angiv adressen på den indgående Slack-webhook."
+        "needSlackUrl": "Angiv adressen på den indgående Slack-webhook.",
+        "needView": "Vælg den visning, hvis rækker tælles.",
+        "needNumber": "Vælg den taligenskab, der skal beregnes på.",
+        "needThreshold": "Indtast tallet, der skal sammenlignes med."
       },
       "agent": "Agent",
       "chooseAgent": "Vælg en agent…",
@@ -1614,7 +1625,9 @@
         "timedOutContinued": "Ingen svarede inden {time}: kørslen fortsatte",
         "waiting": "Spurgte {names}, indtil {time}",
         "closed": "Spurgte {names}; kørslen sluttede før et svar"
-      }
+      },
+      "thresholdCrossed": "{comparison, select, above {Gik over {threshold}} other {Gik under {threshold}}}: {value}",
+      "threshold": "Grænse krydset"
     },
     "nextRun": "Næste kørsel {time}",
     "lifecycle": {
@@ -1755,7 +1768,12 @@
       "agentRunId": "Agentkørsels-ID",
       "rowId": "Række-ID",
       "approvedBy": "Hvem der godkendte",
-      "answeredAt": "Hvornår der blev svaret"
+      "answeredAt": "Hvornår der blev svaret",
+      "value": "Værdi",
+      "previous": "Værdi ved forrige tjek",
+      "threshold": "Grænse",
+      "viewName": "Visningens navn",
+      "viewUrl": "Link til visningen"
     },
     "test": {
       "title": "Testkørsel",
@@ -1770,7 +1788,8 @@
       "running": "Kører testen…",
       "run": "Kør test",
       "saveAndRun": "Gem og kør",
-      "starting": "Starter…"
+      "starting": "Starter…",
+      "threshold": "Kører trinnene nu, som om værdien netop havde krydset grænsen, med den værdi, den har nu."
     },
     "approval": {
       "people": "Spørg disse personer",
@@ -1805,6 +1824,31 @@
         "name": "Fejr færdige rækker",
         "description": "Når en række markeres som færdig, konfetti til den, der gjorde det."
       }
+    },
+    "threshold": {
+      "view": "Visning",
+      "chooseView": "Vælg en visning",
+      "noViews": "Denne database har ingen delte visninger. Tilføj en, hvis filtre vælger de rækker, der skal tælles.",
+      "calculation": "Beregning",
+      "fn": {
+        "count_all": "Antal rækker",
+        "sum": "Sum",
+        "average": "Gennemsnit",
+        "median": "Median",
+        "min": "Mindste",
+        "max": "Største"
+      },
+      "property": "Af",
+      "chooseNumber": "Vælg et tal",
+      "noNumbers": "Denne database har ingen taligenskaber at beregne på.",
+      "comparison": "Går",
+      "above": "Over",
+      "below": "Under",
+      "value": "Værdi",
+      "now": "Nu: {value}.",
+      "nowMet": "Nu: {value}, allerede forbi grænsen. Den kører næste gang værdien krydser den, efter at være gået tilbage.",
+      "nowNone": "Nu: ingen værdi (ingen tal i visningens rækker).",
+      "help": "Kører én gang, når værdien krydser grænsen, og igen først efter, at den er gået tilbage. Der tjekkes kort efter, at rækker ændres, og hvert par minutter for filtre på dagens dato. Rækkerne og værdierne er dem, automatiseringens person kan se."
     }
   },
   "subItems": {
@@ -2153,5 +2197,19 @@
     "overwrite": "Tabellen er kilden: de synkroniserede egenskaber og rækketitler overskrives ved hver synkronisering, så ret dataene i tabellen. Egenskaber, du selv tilføjer, forbliver, og rækker, der forsvinder fra tabellen, lades i fred.",
     "changeUrl": "Skift forbindelsen",
     "stopConfirm": "Stop med at synkronisere denne database? Dens rækker forbliver, og forbindelsesadressen glemmes."
+  },
+  "sheetsSync": {
+    "button": "Synkroniseret fra Google Sheets",
+    "buttonPaused": "Google Sheets-synkronisering på pause",
+    "title": "Google Sheets-synkronisering",
+    "sheet": "Ark",
+    "connectionGone": "Fjernet forbindelse",
+    "lastRun": "Sidst synkroniseret {when}, {count, plural, one {# række} other {# rækker}}",
+    "overwrite": "Arket er kilden: De synkroniserede egenskaber og rækketitler overskrives ved hver synkronisering, så ret dataene i arket. Egenskaber, du selv tilføjer, forbliver, og rækker, der forsvinder fra arket, bliver urørt.",
+    "formulaColumns": "Skrives ikke tilbage (formler): {columns}",
+    "pending": "Rækker, der venter på at blive skrevet til arket: {count, number}",
+    "writeFailed": "Kunne ikke skrive til arket:",
+    "writeForbidden": "Forbindelsens Google-konto må ikke redigere regnearket, eller den person, synkroniseringen kører som, må ikke skrive gennem forbindelsen. Ændringer lavet her venter, til det kan lade sig gøre.",
+    "stopConfirm": "Stop med at synkronisere denne database? Dens rækker forbliver."
   }
 }

@@ -1,3 +1,4 @@
+import { PERIOD_NONE } from "@/lib/dashboard-period";
 import type {
   FilterCombinator,
   FilterEntry,
@@ -445,6 +446,9 @@ export function describeViewConfig(props: PropertyDef[], config: ViewConfig, loo
     ...(config.cover ? { cover: config.cover.source === "property" ? keyName(props, config.cover.propertyId) : config.cover.source } : {}),
     ...(config.subItems ? { sub_items: config.subItems } : {}),
     ...(config.openRows === "page" || config.openRows === "center" ? { open_rows: config.openRows } : {}),
+    ...(config.periodBy ? { period_by: config.periodBy === PERIOD_NONE ? PERIOD_NONE : keyName(props, config.periodBy) } : {}),
+    ...(config.comparison ? { comparison: config.comparison } : {}),
+    ...(type === "dashboard" ? { period: config.period || "all" } : {}),
     ...(type === "chart" ? describeChart(props, config) : {}),
     ...(type === "pivot" ? describePivot(props, config) : {}),
     ...(type === "board" ? describeBoard(props, config) : {}),

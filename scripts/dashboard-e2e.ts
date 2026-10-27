@@ -103,7 +103,7 @@ async function callTool(userId: string, name: string, args: Record<string, unkno
 
 type Block = { id: string; type: string; props: Record<string, unknown>; children?: Block[] };
 const dashboardsOf = async (pageId: string) =>
-  ((await getCollab().readBlocks(pageId)).blocks as Block[]).filter((b) => b.type === DASHBOARD_BLOCK).map((b) => ({ id: b.id, widgets: parseDashboard(b.props.widgets) }));
+  ((await getCollab().readBlocks(pageId)).blocks as Block[]).filter((b) => b.type === DASHBOARD_BLOCK).map((b) => ({ id: b.id, widgets: parseDashboard(b.props.widgets), period: b.props.period }));
 
 const ids = { owner: `${RUN}-owner`, member: `${RUN}-member` };
 const userIds = Object.values(ids);
@@ -205,6 +205,105 @@ try {
   );
   const table = await widgetData(member, { databaseId: deals.id, view: { type: "table", config: {} } });
   check(table.state === "ok" && table.kind === "view", "other layouts show as linked views", table);
+
+  // Periods: every widget cut to the dashboard's days on a date property, and numbers beside the
+  // same figure over the period before.
+  const quotesPage = await createPage(actor, { workspaceId, title: "Quotes report" });
+  const quotes = await createPage(actor, { workspaceId, parentId: quotesPage.id, kind: "database", title: "Quotes" });
+  for (const prop of await getProperties(quotes.id)) await deleteProperty(ids.owner, prop.id);
+  const quoteAmount = await addProperty(ids.owner, quotes.id, { name: "Amount", type: "number" });
+  const sentOn = await addProperty(ids.owner, quotes.id, { name: "Sent", type: "date" });
+  for (const [title, sent, amount] of [
+    ["Sep A", "2026-09-10", 100],
+    ["Sep B", "2026-09-20", 50],
+    ["Oct A", "2026-10-05", 150],
+    ["Oct B", "2026-10-15", 30],
+    ["Undated", null, 999],
+  ] as const) {
+    await createPage(actor, { workspaceId, parentId: quotes.id, title, properties: { Amount: amount, ...(sent ? { Sent: sent } : {}) } });
+  }
+  const now = new Date("2026-10-20T12:00:00Z");
+  const quoteSum = { type: "chart" as const, config: { chartType: "number" as const, chartAggregate: { fn: "sum" as const, propertyId: quoteAmount.id } } };
+  const inOctober = await widgetData(owner, { databaseId: quotes.id, view: quoteSum }, { period: { kind: "this_month" }, now, timeZone: "UTC" });
+  check(
+    inOctober.state === "ok" &&
+      inOctober.kind === "number" &&
+      inOctober.result?.value === 180 &&
+      inOctober.rowCount === 2 &&
+      inOctober.period?.property?.id === sentOn.id &&
+      inOctober.previous?.result?.value === 150 &&
+      inOctober.previous.range.start === "2026-09-01",
+    "a number counts the period's rows on the first date property, beside the month before",
+    inOctober,
+  );
+  const inSeptember = await widgetData(owner, { databaseId: quotes.id, view: quoteSum }, { period: { kind: "last_month" }, now, timeZone: "UTC" });
+  check(
+    inSeptember.state === "ok" && inSeptember.kind === "number" && inSeptember.result?.value === 150 && inSeptember.previous?.range.start === "2026-08-01",
+    "last month's figure, beside the month before that",
+    inSeptember,
+  );
+  const noComparison = await widgetData(
+    owner,
+    { databaseId: quotes.id, view: { ...quoteSum, config: { ...quoteSum.config, comparison: "off" as const } } },
+    { period: { kind: "this_month" }, now },
+  );
+  check(noComparison.state === "ok" && noComparison.kind === "number" && !noComparison.previous, "a number set not to compare reads no period before", noComparison);
+  const everyRow = await widgetData(
+    owner,
+    { databaseId: quotes.id, view: { ...quoteSum, config: { ...quoteSum.config, periodBy: "none" } } },
+    { period: { kind: "this_month" }, now },
+  );
+  check(
+    everyRow.state === "ok" && everyRow.kind === "number" && everyRow.result?.value === 1329 && everyRow.period?.property === null,
+    "a widget set to no date property counts every row and says so",
+    everyRow,
+  );
+  const undatedDeals = await widgetData(owner, { databaseId: deals.id, view: wonCount }, { period: { kind: "this_month" }, now });
+  check(
+    undatedDeals.state === "ok" && undatedDeals.kind === "number" && undatedDeals.result?.value === 2 && undatedDeals.period?.property === null,
+    "a database without a date property leaves the period aside",
+    undatedDeals,
+  );
+  const octoberList = await widgetData(owner, { databaseId: quotes.id, view: { type: "list", config: {} } }, { period: { kind: "this_month" }, now });
+  check(octoberList.state === "ok" && octoberList.kind === "list" && octoberList.rowCount === 2, "a list shows the period's rows", octoberList);
+  const octoberDrill = await widgetRows(owner, { databaseId: quotes.id, view: quoteSum }, {}, { period: { kind: "this_month" }, now });
+  check(octoberDrill?.rows.map((r) => r.title).sort().join() === "Oct A,Oct B", "the rows behind a number are the period's", octoberDrill);
+  const octoberTable = await widgetData(owner, { databaseId: quotes.id, view: { type: "table", config: {} } }, { period: { kind: "this_month" }, now });
+  check(
+    octoberTable.state === "ok" && octoberTable.kind === "view" && octoberTable.period?.property?.id === sentOn.id && octoberTable.period.range.end === "2026-10-31",
+    "a linked view is told the period's property and days",
+    octoberTable,
+  );
+
+  // Over MCP, and on a published page
+  const periodBoard = await callTool(ids.owner, "add_dashboard", {
+    page_id: quotesPage.id,
+    period: "2026-10-01/2026-10-31",
+    widgets: [{ database_id: quotes.id, chart_type: "number", aggregate: "sum", aggregate_property: "Amount", period_by: "Sent", comparison: "lower" }],
+  });
+  const [periodStored] = await dashboardsOf(quotesPage.id);
+  check(
+    !periodBoard.isError &&
+      periodStored?.period === "2026-10-01/2026-10-31" &&
+      periodStored.widgets[0].view.config.periodBy === sentOn.id &&
+      periodStored.widgets[0].view.config.comparison === "lower",
+    "add_dashboard stores the period and each widget's date property and comparison",
+    { periodBoard, periodStored },
+  );
+  const badPeriod = await callTool(ids.owner, "update_dashboard_widget", { page_id: quotesPage.id, period: "2026-10-31/2026-10-01" });
+  check(badPeriod.isError, "a period ending before it starts is refused", badPeriod.text);
+  const { token: quotesToken } = await publishPage(ids.owner, quotesPage.id);
+  const publishedQuotes = (await getPublishedPage(quotesToken))?.body.find((b) => b.kind === "dashboard");
+  check(
+    publishedQuotes?.kind === "dashboard" &&
+      publishedQuotes.range?.start === "2026-10-01" &&
+      publishedQuotes.widgets[0].database?.table.chart?.result?.value === 180,
+    "a published dashboard shows its period's figures and days",
+    publishedQuotes,
+  );
+  const repointed = await callTool(ids.owner, "update_dashboard_widget", { page_id: quotesPage.id, period: "all" });
+  const [allTime] = await dashboardsOf(quotesPage.id);
+  check(!repointed.isError && allTime?.period === "" && allTime.widgets.length === 1, "update_dashboard_widget given only a period changes only that", { repointed, allTime });
 
   // Databases the viewer can't open
   for (const [label, databaseId] of [

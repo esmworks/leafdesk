@@ -37,7 +37,7 @@ export type { ChatAttachmentRecord, ChatAttachmentView, ChatChange, ChatConnecti
  * search the web (owners turned it on, and the server has a search service), and whether research
  * mode can search the web too.
  */
-export type ChatOptions = { models: { id: string; images: boolean }[]; defaultModel: string | null; webSearch: boolean };
+export type ChatOptions = { models: { id: string; name: string; images: boolean }[]; defaultModel: string | null; webSearch: boolean };
 
 /**
  * What the chat may change: `ask` asks the person before each change (the answer waits), `auto`

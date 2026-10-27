@@ -56,11 +56,21 @@ import { gzipSync } from "node:zlib";
  * and the sign-in policy gate for Telegram links and API token scopes add under 1 kB to a page's
  * first load and to all first loads together.
  *
+ * The chat box's toolbar menu for where answers come from, models' names and the sidebar's
+ * conversations grouped by day add about 0.5 kB to both; the full-page chat's suggestions load
+ * with its own route.
+ *
+ * A dashboard's period, the change on number widgets and view filters' quarters add about 0.5 kB
+ * to a page's first load and to all first loads together.
+ *
+ * A table's header row and a database page's view bar kept in sight as the page scrolls add under
+ * 1 kB to a page's first load and to all first loads together.
+ *
  * Pivot views cost a page's first load about 0.5 kB and all first loads together under 1 kB (their
  * settings' checks, quarter grouping, the icon and text group names); the view, its settings page
  * and the published table load when shown.
  */
-const BUDGET = { routeFirstLoad: 775, firstLoadShared: 1180, onDemandChunk: 450 };
+const BUDGET = { routeFirstLoad: 778, firstLoadShared: 1183, onDemandChunk: 450 };
 
 const NEXT = ".next";
 const kB = (bytes: number) => bytes / 1024;

@@ -200,6 +200,7 @@
     "dictation": {
       "start": "Soruyu sesle yaz",
       "stop": "Durdur ve metni ekle",
+      "stopShort": "Durdur",
       "cancel": "Kaydı iptal et",
       "transcribing": "Söyledikleriniz yazıya dökülüyor…",
       "autoStopped": "Kayıt {minutes} dakikalık sınırda durdu. Göndermeden önce metni kontrol edin.",
@@ -405,6 +406,28 @@
       "save": "Sayfa olarak kaydet",
       "openPage": "Sayfayı aç",
       "saveFailed": "Rapor sayfa olarak kaydedilemedi."
+    },
+    "starters": {
+      "label": "Öneriler",
+      "summarize": "“{title}” sayfasını özetle",
+      "database": "“{title}” içinde neler var?",
+      "find": "Şununla ilgili sayfaları bul…",
+      "findText": "Şununla ilgili sayfaları bul: ",
+      "write": "Şu konuda bir sayfa yaz…",
+      "writeText": "Şu konuda bir sayfa yaz: "
+    },
+    "when": {
+      "today": "Bugün",
+      "yesterday": "Dün",
+      "week": "Önceki 7 gün",
+      "month": "Önceki 30 gün",
+      "older": "Daha eski"
+    },
+    "add": "Ekle",
+    "kind": {
+      "label": "Ne yapsın",
+      "chat": "Sohbet",
+      "chatHint": "Çalışma alanından yanıtlar ve istediğin değişiklikleri yapar"
     }
   },
   "memory": {

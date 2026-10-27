@@ -81,7 +81,7 @@ async function viewSchedules(userId: string, agentUserId: string, rows: Schedule
       enabled: r.enabled,
       nextRunAt: r.enabled && r.nextRunAt ? r.nextRunAt.toISOString() : null,
       lastRunAt: r.lastRunAt?.toISOString() ?? null,
-      lastError: SCHEDULE_ERRORS.includes(r.lastError as ScheduleError) ? (r.lastError as ScheduleError) : null,
+      lastError: SCHEDULE_ERRORS.includes(r.lastError as ScheduleError) && r.lastError !== "dashboardGone" ? (r.lastError as AgentScheduleView["lastError"]) : null,
       setBy: r.runAs ? { id: r.runAs, name: setters.get(r.runAs) ?? "" } : null,
     };
   });

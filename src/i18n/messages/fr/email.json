@@ -299,5 +299,28 @@
     "heading": "{workspace} a été supprimé",
     "body": "Bonjour {name}, {by} a supprimé l’espace de travail Leafdesk {workspace}, avec toutes ses pages, bases de données et fichiers. Vous ne pouvez plus l’ouvrir.",
     "note": "Un espace de travail supprimé ne peut pas être restauré. Si vous ne vous y attendiez pas, parlez-en à {by} ou à un autre propriétaire de l’espace."
+  },
+  "dashboard": {
+    "subject": "{dashboard} : {period}",
+    "intro": "{period} dans « {workspace} ».",
+    "action": "Ouvrir le tableau de bord",
+    "versus": "vs {period}",
+    "noComparison": "Rien à comparer en {period}",
+    "points": "{value} pts",
+    "yesterday": "Hier",
+    "periodDays": "{period} ({days})",
+    "asOf": "Toute la période, au {date}",
+    "unavailable": "Vous n’avez pas accès à ces données.",
+    "inTrash": "Cette base de données est dans la corbeille.",
+    "noGroup": "La base de données n’a encore rien à regrouper.",
+    "empty": "Aucune ligne sur cette période.",
+    "allEmpty": "Aucune ligne.",
+    "viewOnly": "Ouvrez le tableau de bord pour voir cette vue.",
+    "more": "{count, plural, one {# ligne de plus} other {# lignes de plus}}",
+    "other": "Autres",
+    "why": "{name} vous a abonné à cet e-mail · {schedule}.",
+    "whyOwn": "Vous êtes abonné à cet e-mail · {schedule}.",
+    "unsubscribe": "Se désabonner",
+    "untitled": "Sans titre"
   }
 }

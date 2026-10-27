@@ -23,7 +23,9 @@ import { randomUUID } from "node:crypto";
 import { isContextOverflow, Type, type Api, type AssistantMessage, type Context, type Message, type Model, type Tool } from "@earendil-works/pi-ai";
 import { sharedLimiter, takeAll, type SlidingWindowLimiter } from "@/lib/rate-limit";
 import { env } from "@/lib/env";
+import { stripInvisible } from "@/lib/invisible-text";
 import { redactText } from "@/lib/redact";
+import { dropSpeechArtifacts } from "@/lib/speech-artifacts";
 import { createBackend, streamTurn, type AiBackend, type AiThinking } from "./backend";
 import { accountAiConfig, contentChars, DEFAULT_MIN_SIMILARITY, describeAiConfig, readAiConfig, readSttLimits, type AiConfig } from "./config";
 import { fetchEmbeddings } from "./embeddings";
@@ -35,7 +37,7 @@ import { holdToLimit, recordUsage, usageLedger, usageNumbers, type AiUsageLedger
 
 export { AiError, aiErrorStatus, isAiError } from "./errors";
 export type { AiConfig, AiLimits } from "./config";
-export { CONTENT_CHARS, contentChars } from "./config";
+export { CONTENT_CHARS, contentChars, RUN_ROUNDS } from "./config";
 export type { AiThinking } from "./backend";
 export type { AiUsageLedger } from "./usage";
 
@@ -447,8 +449,8 @@ function planFor(backend: AiBackend, feature: string, chosen?: string | null) {
   return { model: backend.model, plan: plan.orElse ? featurePlan(plan.orElse) : plan };
 }
 
-/** A model people may pick in the AI chat: its id, and whether it takes images. */
-export type ChatModelOption = { id: string; images: boolean };
+/** A model people may pick in the AI chat: its id, the name it is shown by, and whether it takes images. */
+export type ChatModelOption = { id: string; name: string; images: boolean };
 
 /**
  * The models the workspace's AI offers the chat, its main model first: the server's AI_MODEL,
@@ -458,7 +460,7 @@ export async function chatModelsFor(workspaceId: string): Promise<ChatModelOptio
   const target = await aiTargetFor(workspaceId);
   const backend = target && chatOn(target) ? await backendFor(target).catch(() => null) : null;
   if (!backend) return [];
-  return (backend.choices ?? [backend.model]).map((m) => ({ id: m.id, images: m.input.includes("image") }));
+  return (backend.choices ?? [backend.model]).map((m) => ({ id: m.id, name: m.name || m.id, images: m.input.includes("image") }));
 }
 
 /**
@@ -491,15 +493,16 @@ function toContext(request: AiRequest, model: Model<Api>): Context {
     if (m.role === "user") {
       // Images go only to a model that takes them (the chat refuses them for others first).
       const images = model.input.includes("image") ? (m.images ?? []) : [];
-      if (!images.length) return { role: "user", content: m.content, timestamp: now };
-      return { role: "user", content: [{ type: "text", text: m.content }, ...images.map((i) => ({ type: "image" as const, data: i.data, mimeType: i.mimeType }))], timestamp: now };
+      const text = stripInvisible(m.content);
+      if (!images.length) return { role: "user", content: text, timestamp: now };
+      return { role: "user", content: [{ type: "text", text }, ...images.map((i) => ({ type: "image" as const, data: i.data, mimeType: i.mimeType }))], timestamp: now };
     }
     if (m.role === "tool") {
       return {
         role: "toolResult",
         toolCallId: m.toolCallId,
         toolName: m.name,
-        content: [{ type: "text", text: m.content }],
+        content: [{ type: "text", text: stripInvisible(m.content) }],
         isError: m.isError ?? false,
         timestamp: now,
       } as Message;
@@ -524,7 +527,7 @@ function toContext(request: AiRequest, model: Model<Api>): Context {
     description: t.description,
     parameters: Type.Unsafe(t.parameters),
   }));
-  return { systemPrompt: request.system, messages, ...(tools?.length ? { tools } : {}) };
+  return { systemPrompt: request.system === undefined ? undefined : stripInvisible(request.system), messages, ...(tools?.length ? { tools } : {}) };
 }
 
 function toResult(message: AssistantMessage, model: string): AiResult {
@@ -583,7 +586,11 @@ function logUsage(entry: LogEntry) {
 
 // ------------------------------------------------------------------------------- requests
 
-/** Checks, limits and a combined abort signal (the caller's plus AI_TIMEOUT_SECONDS). */
+/**
+ * Checks, limits and a combined abort signal: the caller's, plus AI_TIMEOUT_SECONDS of silence.
+ * The timer starts again with everything the provider sends (`heard`), so a long answer that keeps
+ * coming (a large tool call) runs as long as it needs; its length is bounded by the output tokens.
+ */
 function prepare(request: AiRequest) {
   const config = aiConfig();
   if (!request.workspaceId) throw new AiError("disabled", "AI runs only for a workspace");
@@ -597,7 +604,7 @@ function prepare(request: AiRequest) {
   }
   if (!request.skipRateLimit) takeRateLimit(request);
   const timeout = new AbortController();
-  const timer = setTimeout(() => timeout.abort(), config.limits.timeoutMs);
+  let timer = setTimeout(() => timeout.abort(), config.limits.timeoutMs);
   const signal = request.signal ? AbortSignal.any([request.signal, timeout.signal]) : timeout.signal;
   const maxTokens = Math.min(request.maxOutputTokens ?? config.limits.maxOutputTokens, config.limits.maxOutputTokens);
   return {
@@ -606,6 +613,11 @@ function prepare(request: AiRequest) {
     maxTokens: (model: Model<Api>) => Math.min(model.reasoning ? config.limits.maxOutputTokens : maxTokens, model.maxTokens || Infinity),
     timedOut: () => timeout.signal.aborted,
     cancelled: () => request.signal?.aborted === true,
+    heard: () => {
+      if (timeout.signal.aborted) return;
+      clearTimeout(timer);
+      timer = setTimeout(() => timeout.abort(), config.limits.timeoutMs);
+    },
     done: () => clearTimeout(timer),
   };
 }
@@ -628,7 +640,7 @@ function failure(
     const detail = message?.errorMessage ?? (error instanceof Error ? error.message : String(error));
     result = new AiError("provider", `The AI provider failed: ${detail}`);
   }
-  logUsage({ ...entry, status: result.code, detail: result.code === "provider" ? result.message : undefined });
+  logUsage({ ...entry, status: result.code, detail: result.code === "provider" ? result.message : entry.detail });
   return result;
 }
 
@@ -683,6 +695,7 @@ export function stream(request: AiRequest): AiStream {
         request.thinking ?? plan.thinking,
       );
       for await (const event of events) {
+        prepared.heard();
         if (event.type === "text_delta" && event.delta) {
           queue.push({ type: "text", delta: event.delta });
           wake?.();
@@ -756,14 +769,15 @@ export function stream(request: AiRequest): AiStream {
 }
 
 /**
- * The text of spoken audio (`type`: a supported media type, see lib/voice-notes). Size-checked
+ * The text of spoken audio (`type`: a supported media type, see lib/voice-notes; `language`: the
+ * recorder's interface language, see transcribe.ts). Size-checked
  * (STT_MAX_MB), time-limited (STT_TIMEOUT_SECONDS) and rate-limited like any AI request; the audio
  * is only held in memory and never stored. Throws AiError: "disabled" without speech to text,
  * "tooLarge", "rateLimited", "timeout", "aborted", "provider", "empty" when nothing was heard.
  */
 export async function transcribe(
   audio: { bytes: Blob; type: string },
-  request: { feature: string; userId?: string | null; workspaceId: string; signal?: AbortSignal; skipRateLimit?: boolean },
+  request: { feature: string; userId?: string | null; workspaceId: string; language?: string | null; signal?: AbortSignal; skipRateLimit?: boolean },
 ): Promise<string> {
   if (!request.workspaceId) throw new AiError("disabled", "AI runs only for a workspace");
   const target = await aiTargetFor(request.workspaceId);
@@ -777,9 +791,14 @@ export async function transcribe(
   const started = performance.now();
   const testing = testBackend(target)?.transcribe;
   const ledger = await usageLedger(runtime.override);
+  let detail = `bytes=${audio.bytes.size}`;
   try {
     await holdToLimit(ledger, request.workspaceId, target.accountId !== null);
-    const { text, seconds } = testing ? { text: await testing(audio), seconds: null } : await fetchTranscription(stt, audio, signal);
+    const { text: heard, seconds } = testing ? { text: await testing(audio), seconds: null } : await fetchTranscription(stt, audio, signal, request.language);
+    if (seconds) detail += ` seconds=${Math.round(seconds)}`;
+    // A subtitler's credit or a video's sign-off, written over silence (lib/speech-artifacts).
+    const { text, dropped } = dropSpeechArtifacts(heard);
+    if (dropped.length) detail += ` artifacts=${dropped.length}`;
     if (!text) throw new AiError("empty", "Nothing was heard in the recording");
     noted(target, null);
     logUsage({
@@ -790,7 +809,7 @@ export async function transcribe(
       status: "ok",
       ms: performance.now() - started,
       model: stt.model,
-      detail: `bytes=${audio.bytes.size}${seconds ? ` seconds=${Math.round(seconds)}` : ""}`,
+      detail,
     });
     // Speech to text is priced by the minute, which the provider doesn't say: counted, at no cost.
     await recordUsage(ledger, { workspaceId: request.workspaceId, userId: request.userId ?? null, feature: request.feature, model: stt.model, ownAccount: target.accountId !== null, inputTokens: 0, cacheReadTokens: 0, cacheWriteTokens: 0, outputTokens: 0, costUsd: 0 });
@@ -803,6 +822,7 @@ export async function transcribe(
       accountId: target.accountId,
       ms: performance.now() - started,
       model: stt.model,
+      detail,
     });
     noted(target, failed);
     throw failed;

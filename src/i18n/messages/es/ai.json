@@ -200,6 +200,7 @@
     "dictation": {
       "start": "Dictar una pregunta",
       "stop": "Detener e insertar el texto",
+      "stopShort": "Detener",
       "cancel": "Cancelar la grabación",
       "transcribing": "Transcribiendo lo que dijiste…",
       "autoStopped": "La grabación se detuvo en el límite de {minutes} min. Revisa el texto antes de enviarlo.",
@@ -405,6 +406,28 @@
       "save": "Guardar como página",
       "openPage": "Abrir la página",
       "saveFailed": "No se pudo guardar el informe como página."
+    },
+    "starters": {
+      "label": "Sugerencias",
+      "summarize": "Resume «{title}»",
+      "database": "¿Qué hay en «{title}»?",
+      "find": "Buscar páginas sobre…",
+      "findText": "Buscar páginas sobre ",
+      "write": "Escribir una página sobre…",
+      "writeText": "Escribir una página sobre "
+    },
+    "when": {
+      "today": "Hoy",
+      "yesterday": "Ayer",
+      "week": "Últimos 7 días",
+      "month": "Últimos 30 días",
+      "older": "Más antiguas"
+    },
+    "add": "Añadir",
+    "kind": {
+      "label": "Qué hacer",
+      "chat": "Chat",
+      "chatHint": "Responde desde el espacio de trabajo y hace los cambios que pidas"
     }
   },
   "memory": {

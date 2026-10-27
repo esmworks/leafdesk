@@ -200,6 +200,7 @@
     "dictation": {
       "start": "Dikter et spørgsmål",
       "stop": "Stop, og indsæt teksten",
+      "stopShort": "Stop",
       "cancel": "Annuller optagelse",
       "transcribing": "Skriver ned, hvad du sagde…",
       "autoStopped": "Optagelsen stoppede ved grænsen på {minutes} min. Tjek teksten, før du sender den.",
@@ -405,6 +406,28 @@
       "save": "Gem som side",
       "openPage": "Åbn siden",
       "saveFailed": "Rapporten kunne ikke gemmes som en side."
+    },
+    "starters": {
+      "label": "Forslag",
+      "summarize": "Opsummer “{title}”",
+      "database": "Hvad er der i “{title}”?",
+      "find": "Find sider om…",
+      "findText": "Find sider om ",
+      "write": "Skriv en side om…",
+      "writeText": "Skriv en side om "
+    },
+    "when": {
+      "today": "I dag",
+      "yesterday": "I går",
+      "week": "Sidste 7 dage",
+      "month": "Sidste 30 dage",
+      "older": "Ældre"
+    },
+    "add": "Tilføj",
+    "kind": {
+      "label": "Hvad skal den gøre",
+      "chat": "Chat",
+      "chatHint": "Svarer ud fra arbejdsområdet og laver de ændringer, du beder om"
     }
   },
   "memory": {

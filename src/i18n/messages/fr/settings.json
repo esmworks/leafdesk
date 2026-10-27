@@ -95,7 +95,8 @@
       "sensitiveFindings": "dlp résultats fuite secrets divulgués numéros de carte écarter",
       "domainPeople": "domaine comptes utilisateurs entreprise e-mail shadow it non gérés",
       "openOnStart": "démarrage lancement première page dernière visitée récente",
-      "pageReports": "signaler signalement abus plainte retrait publié public web pages"
+      "pageReports": "signaler signalement abus plainte retrait publié public web pages",
+      "dashboardEmails": "abonnement rapport calendrier hebdomadaire résumé e-mail planification"
     }
   },
   "workspace": {
@@ -1957,6 +1958,11 @@
         "created": "A configuré les pull requests GitHub dans {target}",
         "updated": "A modifié la configuration GitHub de {target}",
         "deleted": "A supprimé la configuration GitHub de {target}"
+      },
+      "dashboard_email": {
+        "set": "A programmé l’envoi de {target} par e-mail à {count, plural, one {# personne} other {# personnes}}",
+        "removed": "A arrêté l’envoi par e-mail de {target}",
+        "sent": "A envoyé {target} par e-mail à {count, plural, one {# personne} other {# personnes}}"
       }
     },
     "decisions": {
@@ -2061,7 +2067,11 @@
     "reactionChannel": "Réactions : {channel}",
     "verificationTitle": "Pages que vous avez vérifiées",
     "verificationDescription": "Une page que vous avez vérifiée va cesser de l’être : quelques jours avant, puis au moment où cela arrive.",
-    "verificationChannel": "Pages que vous avez vérifiées : {channel}"
+    "verificationChannel": "Pages que vous avez vérifiées : {channel}",
+    "dashboardEmailsHeading": "E-mails de tableaux de bord",
+    "dashboardEmailsDescription": "Les tableaux de bord qui vous sont envoyés par e-mail selon un calendrier, et ceux que vous avez configurés pour d’autres.",
+    "dashboardEmailsNone": "Aucun e-mail de tableau de bord",
+    "dashboardEmailsNoneDescription": "Pour recevoir un tableau de bord par e-mail, ouvrez-le et choisissez E-mail au-dessus de ses widgets."
   },
   "site": {
     "description": "Donnez aux pages publiées de cet espace de travail une adresse lisible, une page d’accueil et une navigation commune.",
@@ -2471,7 +2481,8 @@
         "auth": "Le serveur de messagerie a refusé le nom d’utilisateur ou le mot de passe. Vérifiez le mot de passe d’application.",
         "tls": "Impossible d’établir une connexion sécurisée avec le serveur de messagerie.",
         "unreachable": "Le serveur de messagerie est injoignable pour le moment.",
-        "noInbox": "Le serveur de messagerie n’affiche aucune boîte de réception."
+        "noInbox": "Le serveur de messagerie n’affiche aucune boîte de réception.",
+        "signIn": "La connexion Google ne fonctionne plus. Reconnectez-vous avec Google."
       }
     },
     "fields": {
@@ -2489,7 +2500,8 @@
       "usernamePlaceholder": "Généralement l’adresse e-mail",
       "password": "Mot de passe d’application",
       "passwordKeep": "Laissez vide pour conserver l’actuel",
-      "passwordHelp": "Un mot de passe d’application créé pour Leafdesk, pas celui avec lequel vous vous connectez. Il est conservé chiffré et n’est plus jamais affiché."
+      "passwordHelp": "Un mot de passe d’application créé pour Leafdesk, pas celui avec lequel vous vous connectez. Il est conservé chiffré et n’est plus jamais affiché.",
+      "method": "Se connecter avec"
     },
     "providerHelp": {
       "google": "Aussi pour les adresses Google Workspace sur votre propre domaine. Créez un mot de passe d’application dans votre compte Google, sous Sécurité (la validation en deux étapes doit être activée).",
@@ -2516,8 +2528,21 @@
       "unreachable": "Le serveur de messagerie est injoignable. Vérifiez les noms des serveurs et les ports.",
       "noInbox": "Le serveur de messagerie n’affiche aucune boîte de réception.",
       "accessDenied": "Vous n’avez pas l’accès nécessaire pour faire cela.",
-      "gone": "Ce message n’est plus sur cette ligne."
-    }
+      "gone": "Ce message n’est plus sur cette ligne.",
+      "signIn": "La connexion Google ne fonctionne plus. Reconnectez-vous avec Google.",
+      "googleFailed": "La connexion avec Google n’a pas relié la boîte aux lettres. Réessayez.",
+      "googleScope": "Google n’a pas été autorisé à donner à Leafdesk l’accès à vos e-mails. Reconnectez-vous et autorisez-le."
+    },
+    "methods": {
+      "google": "Compte Google (Gmail ou Google Workspace)",
+      "password": "Mot de passe d’application (tout fournisseur, via IMAP et SMTP)"
+    },
+    "googleHint": "Vous vous connectez chez Google et autorisez Leafdesk à lire et envoyer vos e-mails. Aucun mot de passe d’application n’est nécessaire, et vous pouvez retirer l’accès à tout moment dans votre compte Google.",
+    "googleConnect": "Se connecter avec Google",
+    "googleLeaving": "Ouverture de Google…",
+    "googleSignedIn": "connectée avec Google",
+    "googleConnected": "Votre boîte aux lettres est connectée.",
+    "dismiss": "Fermer"
   },
   "followUps": {
     "heading": "Relances sur {database}",
