@@ -1,20 +1,21 @@
 /*
  * The tab strip at the top of every window (src/windows.ts), in the web app's colors
- * (src/app/globals.css); on macOS beside the page's sidebar when it has one. It takes the page's
- * background; the tabs are rounded chips in it, after the shown tab's back and forward buttons.
+ * (src/app/globals.css); on macOS beside the page's sidebar when it has one. It takes the gray of
+ * the shell the page's card sits on (--bg-shell); the tabs are rounded chips in it, the shown one
+ * white like the card, after the shown tab's back and forward buttons.
  * The window moves by the strip's background; the tabs and buttons are cut out of it.
  * Electron works out those regions in the document's order, not by what is drawn on top, so
  * nothing that moves the window comes after a tab.
  */
 :root {
   color-scheme: light dark;
-  --bg: #ffffff;
-  --bg-subtle: #f7f7f8;
-  --bg-hover: #efeff1;
-  --bg-selected: #e9e9ec;
-  --fg: #1f2023;
-  --fg-muted: #6b6d75;
-  --border: #e4e4e7;
+  --bg: #f0f0ee;
+  --bg-subtle: #f8f8f7;
+  --bg-hover: #e7e7e3;
+  --bg-selected: #ffffff;
+  --fg: #1d1d1d;
+  --fg-muted: #6b6b69;
+  --border: #dededa;
   --ring: rgba(47, 125, 79, 0.35);
   /* A tab away from the server (signing in elsewhere): its host stands out. */
   --away: #9a3412;
@@ -27,13 +28,13 @@
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --bg: #18191b;
-    --bg-subtle: #202124;
-    --bg-hover: #2a2b2f;
-    --bg-selected: #2f3034;
-    --fg: #e8e8ea;
-    --fg-muted: #a1a3aa;
-    --border: #2f3034;
+    --bg: #0f0f0f;
+    --bg-subtle: #1c1c1c;
+    --bg-hover: #1f1f1e;
+    --bg-selected: #252524;
+    --fg: #ededed;
+    --fg-muted: #a0a09e;
+    --border: #2a2a28;
     --ring: rgba(108, 195, 138, 0.4);
     --away: #fdba74;
     --away-bg: #3a2416;
@@ -133,6 +134,7 @@ body {
   z-index: 1;
   background: var(--bg-selected);
   color: var(--fg);
+  box-shadow: 0 0 0 1px var(--border), 0 1px 2px rgb(0 0 0 / 0.05);
 }
 
 .tab.dragging {

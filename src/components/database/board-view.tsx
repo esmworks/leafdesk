@@ -533,7 +533,7 @@ export function BoardView({
 
   return (
     <QuickAddContext value={quick}>
-      <div ref={scroller} className={cn("page-gutter overflow-x-auto pb-6", HIDE_SCROLLBAR)}>
+      <div ref={scroller} className={cn("page-gutter row-panel-room overflow-x-auto pb-6", HIDE_SCROLLBAR)}>
         {lanes && subGroupBy ? (
           // Sub-groups: the column titles once, then each sub-group with a cell per column.
           <div className="flex w-max flex-col gap-1">

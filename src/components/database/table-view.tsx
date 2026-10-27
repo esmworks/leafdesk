@@ -752,7 +752,7 @@ export function TableView({
       <div
         ref={box}
         {...grid.containerProps}
-        className={cn("page-gutter-table overflow-x-auto pb-3 outline-none [color-scheme:light_dark]", HIDE_SCROLLBAR, grid.spans && "select-none")}
+        className={cn("page-gutter-table row-panel-room overflow-x-auto pb-3 outline-none [color-scheme:light_dark]", HIDE_SCROLLBAR, grid.spans && "select-none")}
         style={{ "--table-handles": `${handles + 8}px` } as React.CSSProperties}
       >
         <table

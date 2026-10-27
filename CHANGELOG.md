@@ -75,6 +75,11 @@
   track with the open one raised. Board cards show their values side by side, each in a small
   chip of its own; a table's header row is gray with smaller text. Database titles are smaller and
   semibold, pages keep their large titles, and the sidebar's section labels are quieter.
+  A row opened from a database, the AI chat and comments lie over the card's right side instead of
+  pushing the page aside. While a row is open, boards and tables keep room at their end, and the
+  opened card scrolls into view beside the panel when the panel would cover it. The desktop app's
+  tab strip takes the shell's gray, its shown tab white like the card below it; until the desktop
+  app is updated, the card lies flat under the old white strip.
 
 - **Scheduled agents read only the web pages of their task and their searches.** A schedule's
   run used to read any address without asking, so text planted in a page or a row it read could

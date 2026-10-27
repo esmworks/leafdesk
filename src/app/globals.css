@@ -909,6 +909,20 @@
   padding-inline: 0;
 }
 
+/*
+ * The row panel lies over the page's right side in wider windows (row-panel.tsx sets
+ * --row-panel-room while it is open): boards and tables keep that much room at their end, so
+ * their last columns and cards can scroll out from under it.
+ */
+@media (min-width: 768px) {
+  .row-panel-room {
+    padding-inline-end: calc(var(--gutter) + var(--row-panel-room, 0px));
+  }
+  .database-embed .row-panel-room {
+    padding-inline-end: var(--row-panel-room, 0px);
+  }
+}
+
 /* The comments panel says so when BlockNote's thread list is empty. */
 .comments-panel .bn-threads-sidebar:not(:empty) + .comments-empty {
   display: none;
@@ -1562,12 +1576,12 @@ body:has(.leafdesk-column-drop) .prosemirror-dropcursor-block {
  */
 @keyframes leafdesk-panel-in {
   from {
-    translate: 100% 0;
+    translate: calc(100% + 1rem) 0;
   }
 }
 @keyframes leafdesk-panel-in-rtl {
   from {
-    translate: -100% 0;
+    translate: calc(-100% - 1rem) 0;
   }
 }
 [data-row-panel] {
@@ -1684,15 +1698,30 @@ body:has(.leafdesk-column-drop) .prosemirror-dropcursor-block {
  */
 :root {
   --app-top: 0px;
+  /* Where the page's card starts in wider windows; panels laid over it start there too. */
+  --card-top: calc(var(--app-top) + 0.5rem);
 }
 @media (min-width: 768px) {
   :root[data-tab-strip]:has([data-sidebar]) {
     --app-top: var(--window-controls-height);
+    /* Right under the strip, its shown tab joining the card. */
+    --card-top: var(--app-top);
     /* The workspace's sidebar, then dialogs, then its page; settings, the account and administration put theirs right after their navigation. */
     aside[data-sidebar] ~ main,
     nav[data-sidebar] + * {
       margin-top: var(--app-top);
     }
+  }
+  /*
+   * Versions whose strip is drawn in the page's own white, not the shell's gray (they don't set
+   * data-tab-strip-shell): the page fills the rest of the window unframed, so the strip and the
+   * page meet.
+   */
+  :root[data-tab-strip]:not([data-tab-strip-shell]):has([data-sidebar]) aside[data-sidebar] ~ main {
+    margin: var(--app-top) 0 0;
+    border-width: 0;
+    border-radius: 0;
+    box-shadow: none;
   }
   :root[data-tab-strip]:not([data-full-screen], [dir="rtl"]):has([data-sidebar-open]) {
     [data-window-drag] {

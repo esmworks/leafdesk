@@ -73,7 +73,7 @@ export default async function WorkspaceLayout({
   ]);
 
   const body = (
-    // Database rows open in a panel at the right; the page beside it keeps clear of it. Every
+    // Database rows open in a panel over the page's right side. Every
     // editor in the workspace draws styled callouts with its callout styles (lib/callout-styles).
     <CalloutStylesProvider styles={calloutStyles}>
       {/* Meetings keep recording while the person moves around the workspace (meeting-recorder.tsx). */}
@@ -96,7 +96,7 @@ export default async function WorkspaceLayout({
             initialLayout={sidebarLayout}
             user={{ id: user.id, name: user.name, email: user.email, image: user.image ?? null }}
           />
-          <main className="min-w-0 flex-1 overflow-y-auto md:my-2 md:ms-2 md:me-[calc(var(--row-panel-width,0px)+0.5rem)] md:rounded-md md:border md:border-border md:bg-bg md:shadow-[0_1px_3px_rgb(0_0_0/0.05)]">
+          <main className="min-w-0 flex-1 overflow-y-auto md:m-2 md:rounded-md md:border md:border-border md:bg-bg md:shadow-[0_1px_3px_rgb(0_0_0/0.05)]">
             <FloatingSidebarButton />
             {children}
           </main>

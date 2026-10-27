@@ -64,6 +64,30 @@ function viewOrder(source: Element | null): string[] {
     .map((el) => el.dataset.openRow ?? "");
 }
 
+/**
+ * In wider windows the panel lies over the page's right side (the left, right to left), 0.5rem in
+ * from the window's edge: scrolls the view an open row's `el` is in sideways until the row is
+ * clear of the panel, when it isn't. Never so far that the row's start leaves the view: a table's
+ * row, wider than the room beside the panel, stays where it is.
+ */
+function revealBesidePanel(el: HTMLElement, panelWidth: number) {
+  if (!window.matchMedia("(min-width: 768px)").matches) return;
+  const rtl = getComputedStyle(el).direction === "rtl";
+  const box = el.getBoundingClientRect();
+  const clear = 8 + panelWidth + 16;
+  for (let scroller = el.parentElement; scroller; scroller = scroller.parentElement) {
+    if (scroller.scrollWidth <= scroller.clientWidth || !/auto|scroll/.test(getComputedStyle(scroller).overflowX)) continue;
+    const view = scroller.getBoundingClientRect();
+    const over = rtl
+      ? Math.min(clear - box.left, view.right - 16 - box.right)
+      : Math.min(box.right - (window.innerWidth - clear), box.left - (view.left + 16));
+    if (over <= 0) return;
+    const behavior = window.matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth";
+    scroller.scrollBy({ left: rtl ? -over : over, behavior });
+    return;
+  }
+}
+
 /** A history entry with a row open: the page it's on and the row. */
 const entryOf = (rowId: string) => `${window.location.pathname}?${rowId}`;
 
@@ -190,13 +214,23 @@ export function RowPanelProvider({
     if (rowId) setCentered(sourceOf(rowId, origin.current.source)?.getAttribute("data-open-rows") === "center");
   }, [rowId, orderVersion]);
 
-  // The page beside the panel narrows to keep clear of it (see <main> in app/w/[workspaceId]/layout.tsx).
+  // Wide views keep room at their end while the panel lies over them (.row-panel-room in
+  // globals.css), and the open row scrolls out from under it.
   useEffect(() => {
-    const root = document.documentElement;
     if (!shown || centered) return;
-    root.style.setProperty("--row-panel-width", `${shownWidth}px`);
-    return () => void root.style.removeProperty("--row-panel-width");
+    const root = document.documentElement;
+    root.style.setProperty("--row-panel-room", `${shownWidth + 16}px`);
+    return () => void root.style.removeProperty("--row-panel-room");
   }, [shown, centered, shownWidth]);
+  useEffect(() => {
+    if (!shown || centered || !rowId) return;
+    // After the room above is laid out.
+    const frame = requestAnimationFrame(() => {
+      const el = rowElement(sourceOf(rowId, origin.current.source) ?? document, rowId);
+      if (el) revealBesidePanel(el, shownWidth);
+    });
+    return () => cancelAnimationFrame(frame);
+  }, [rowId, shown, centered, shownWidth]);
 
   const resize = useCallback((next: number, save: boolean) => {
     const w = clampPanelWidth(next, window.innerWidth);
@@ -546,9 +580,10 @@ function RowPanel({
       aria-modal="false"
       aria-label={label}
       tabIndex={-1}
-      // The row's comments open beside the panel (components/page/comments-panel.tsx).
+      // The row's comments open beside the panel (components/page/comments-panel.tsx). Wider
+      // windows lay it over the page's card, as tall as the card and inside its edge.
       style={{ width, "--comments-right": `${width}px` } as CSSProperties}
-      className="fixed top-(--app-top) bottom-0 inset-e-0 z-40 flex flex-col border-s border-border bg-bg shadow-xl outline-none"
+      className="fixed top-(--app-top) bottom-0 inset-e-0 z-40 flex flex-col border-s border-border bg-bg shadow-xl outline-none md:top-(--card-top) md:bottom-2 md:inset-e-2 md:overflow-hidden md:rounded-md md:border"
     >
       <ResizeHandle width={width} onResize={onResize} />
       <div className="min-h-0 flex-1 overflow-y-auto">{body}</div>
