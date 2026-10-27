@@ -1,6 +1,6 @@
 import { sql } from "drizzle-orm";
 import { boolean, check, index, integer, jsonb, pgTable, primaryKey, text, timestamp, uniqueIndex } from "drizzle-orm/pg-core";
-import type { MailboxFolders, MailboxStatus, RowEmailDirection, RowEmailStatus } from "../../lib/mail";
+import type { MailboxAuth, MailboxFolders, MailboxStatus, RowEmailDirection, RowEmailStatus } from "../../lib/mail";
 import { page, workspace } from "./app";
 import { user } from "./auth";
 import { file } from "./files";
@@ -28,8 +28,8 @@ export const mailDatabase = pgTable(
 
 /**
  * A member's own mailbox in a workspace, read over IMAP and sent from over SMTP. Only mail that
- * matches a row is ever fetched whole; the rest is passed over on its headers. The password is
- * sealed (server/secret-box) and never leaves the server.
+ * matches a row is ever fetched whole; the rest is passed over on its headers. The password, or the
+ * Google sign-in, is sealed (server/secret-box) and never leaves the server.
  */
 export const mailbox = pgTable(
   "mailbox",
@@ -52,7 +52,9 @@ export const mailbox = pgTable(
     smtpPort: integer("smtp_port").notNull(),
     smtpSecure: boolean("smtp_secure").notNull(),
     username: text("username").notNull(),
-    /** Sealed: the app password. */
+    /** How it signs in: with a password, or with a Google sign-in (XOAUTH2, server/row-mail/google.ts). */
+    auth: text("auth").$type<MailboxAuth>().notNull().default("password"),
+    /** Sealed: the app password, or for Google the JSON of its tokens (GoogleMailTokens). */
     secret: text("secret").notNull(),
     /** Where reading stopped in each watched folder. */
     folders: jsonb("folders").$type<MailboxFolders>().notNull().default({}),
@@ -76,8 +78,26 @@ export const mailbox = pgTable(
   (t) => [
     uniqueIndex("mailbox_member_idx").on(t.workspaceId, t.userId),
     check("mailbox_status_check", sql`${t.status} in ('connecting', 'ok', 'error')`),
+    check("mailbox_auth_check", sql`${t.auth} in ('password', 'google')`),
   ],
 );
+
+/**
+ * A Google sign-in a member began to connect their mailbox in a workspace, until the browser comes
+ * back with its `state` (server/row-mail/google.ts). Used once; ones older than fifteen minutes are
+ * void. `data` is sealed: the PKCE verifier, the consent given and the member's time zone.
+ */
+export const mailboxOauth = pgTable("mailbox_oauth", {
+  state: text("state").primaryKey(),
+  userId: text("user_id")
+    .notNull()
+    .references(() => user.id, { onDelete: "cascade" }),
+  workspaceId: text("workspace_id")
+    .notNull()
+    .references(() => workspace.id, { onDelete: "cascade" }),
+  data: text("data").notNull(),
+  createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+});
 
 /**
  * A message on a database row: received into a member's mailbox, or written from the row and sent

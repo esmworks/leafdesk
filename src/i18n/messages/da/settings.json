@@ -2471,7 +2471,8 @@
         "auth": "E-mailserveren afviste brugernavnet eller adgangskoden. Tjek app-adgangskoden.",
         "tls": "Der kunne ikke oprettes en sikker forbindelse til e-mailserveren.",
         "unreachable": "E-mailserveren kan ikke nås lige nu.",
-        "noInbox": "E-mailserveren viser ingen indbakke."
+        "noInbox": "E-mailserveren viser ingen indbakke.",
+        "signIn": "Google-logonnet virker ikke længere. Log ind med Google igen."
       }
     },
     "fields": {
@@ -2489,7 +2490,8 @@
       "usernamePlaceholder": "Som regel e-mailadressen",
       "password": "App-adgangskode",
       "passwordKeep": "Lad feltet stå tomt for at beholde den nuværende",
-      "passwordHelp": "En app-adgangskode lavet til Leafdesk, ikke den adgangskode, du logger ind med. Den opbevares krypteret og vises aldrig igen."
+      "passwordHelp": "En app-adgangskode lavet til Leafdesk, ikke den adgangskode, du logger ind med. Den opbevares krypteret og vises aldrig igen.",
+      "method": "Forbind med"
     },
     "providerHelp": {
       "google": "Også til Google Workspace-adresser på dit eget domæne. Lav en app-adgangskode i din Google-konto under Sikkerhed (totrinsbekræftelse skal være slået til).",
@@ -2516,8 +2518,21 @@
       "unreachable": "E-mailserveren kunne ikke nås. Tjek servernavnene og portene.",
       "noInbox": "E-mailserveren viser ingen indbakke.",
       "accessDenied": "Du har ikke adgang til at gøre dette.",
-      "gone": "Den besked er ikke længere på denne række."
-    }
+      "gone": "Den besked er ikke længere på denne række.",
+      "signIn": "Google-logonnet virker ikke længere. Log ind med Google igen.",
+      "googleFailed": "Log ind med Google forbandt ikke postkassen. Prøv igen.",
+      "googleScope": "Google fik ikke lov til at give Leafdesk adgang til din mail. Log ind igen, og tillad det."
+    },
+    "methods": {
+      "google": "Google-konto (Gmail eller Google Workspace)",
+      "password": "App-adgangskode (enhver udbyder, via IMAP og SMTP)"
+    },
+    "googleHint": "Du logger ind hos Google og giver Leafdesk lov til at læse og sende din mail. Der kræves ingen app-adgangskode, og du kan trække adgangen tilbage i din Google-konto når som helst.",
+    "googleConnect": "Log ind med Google",
+    "googleLeaving": "Åbner Google…",
+    "googleSignedIn": "logget ind med Google",
+    "googleConnected": "Din postkasse er forbundet.",
+    "dismiss": "Luk"
   },
   "followUps": {
     "heading": "Opfølgninger på {database}",

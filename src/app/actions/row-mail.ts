@@ -8,6 +8,7 @@ import { AccessError } from "@/server/access";
 import { hideRowEmail, listRowEmails, type RowEmailList } from "@/server/row-mail/list";
 import { queueRowEmail, sendSoon, type RowEmailDraft } from "@/server/row-mail/send";
 import {
+  beginGoogleMailbox,
   connectMailbox,
   disconnectMailbox,
   getMailSettings,
@@ -54,6 +55,14 @@ export async function setMailDatabasesAction(
 
 export async function connectMailboxAction(workspaceId: string, input: MailboxInput): Promise<ActionResult<MailboxView>> {
   return run((userId) => connectMailbox(userId, workspaceId, input));
+}
+
+/** Begins connecting the member's mailbox by signing in with Google: the address to send the browser to. */
+export async function beginGoogleMailboxAction(
+  workspaceId: string,
+  input: { consent: boolean; timeZone?: string | null; displayName?: string | null; address?: string | null },
+): Promise<ActionResult<{ url: string }>> {
+  return run((userId) => beginGoogleMailbox(userId, workspaceId, input));
 }
 
 /** How follow-ups send from the member's mailbox: a daily limit and the time zone of their send windows. */

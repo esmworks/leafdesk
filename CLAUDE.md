@@ -174,7 +174,9 @@ BlockNote on Yjs; Tailwind v4; next-intl. Node 24, pnpm 11. A separate Electron 
   PostgreSQL tables in `postgres-sync/` (`client.ts` checks the host like `connections/fetch.ts`
   and reads in a read-only transaction) and `src/lib/postgres-sync.ts`), GitHub pull requests moving tasks `github-sync/` (deliveries handled in the request at `api/github/[syncId]`; pure
   ID matching and the status rule in `src/lib/github-sync.ts`), the Send to Slack step's address
-  check and message in `src/lib/slack.ts`, mail to and from rows `row-mail/`, follow-up
+  check and message in `src/lib/slack.ts`, mail to and from rows `row-mail/`
+  (a mailbox signs in with a password or a Google sign-in, `google.ts`; open it through
+  `credentials.ts` `withMailCredentials`, which renews the token), follow-up
   sequences on rows `sequences/` (sent by a 30-second `startSequences` job; `runSequences(now)` runs
   a round as of any moment, which `scripts/follow-ups-e2e.ts` uses), page webhooks
   `page-webhooks/` (queued from `pages.ts`, `collab/service.ts` and `comments.ts`, sent as the owner

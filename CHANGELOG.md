@@ -4,6 +4,16 @@
 
 ### Added
 
+- **Connect a Gmail or Google Workspace mailbox by signing in with Google.** Settings → Email and
+  calendar offers *Google account* beside the app password: the member signs in at Google, allows
+  Leafdesk to read and send their mail, and comes back with the mailbox tried and connected. No app
+  password is needed, so it works where an organization turned app passwords off. IMAP and SMTP
+  sign in with XOAUTH2; the access token is renewed as it runs out, and a sign-in taken back in the
+  Google account shows on the mailbox, to sign in again. App passwords stay for every provider.
+  Offered once the server sets `MAIL_GOOGLE_CLIENT_ID` and `MAIL_GOOGLE_CLIENT_SECRET`, a Google
+  OAuth client with the redirect URI `<APP_URL>/api/mail/oauth/callback` (docs/email-on-rows.md).
+  Migration 0153.
+
 - **Automations that run when a total crosses a line.** A new trigger, *A total crosses a line*,
   watches a calculation over the rows a shared view shows: their number, or the sum, average,
   median, smallest or largest value of a number property. "When the sum of Amount in Cash and bank

@@ -40,10 +40,11 @@ test("signing in to Leafdesk at an identity provider stays in the window", () =>
   assert.equal(decideNavigation(signIn(`${SERVER}/api/auth/callback/google`), PAGES, undefined, { from }), "external");
 });
 
-test("signing in to a service for a connection or storage goes to the system's browser", () => {
+test("signing in to a service for a connection, storage or a mailbox goes to the system's browser", () => {
   const from = `${SERVER}/w/abc/settings`;
   assert.equal(decideNavigation(signIn(`${SERVER}/api/connections/oauth/callback`), PAGES, SERVER, { from }), "external");
   assert.equal(decideNavigation(signIn(`${SERVER}/api/storage/oauth/callback`), PAGES, SERVER, { from, signingIn: true }), "external");
+  assert.equal(decideNavigation(signIn(`${SERVER}/api/mail/oauth/callback`), PAGES, SERVER, { from }), "external");
   assert.equal(decideNavigation(`${SERVER}/w/abc?redirect_uri=${encodeURIComponent(`${SERVER}/api/connections/oauth/callback`)}`, PAGES, SERVER), "allow");
 });
 
@@ -71,6 +72,7 @@ test("the server's hand-over link brings the answer back to the server the app i
     `${SERVER}/api/connections/oauth/callback?state=s1&code=c1&iss=https%3A%2F%2Faccounts.google.com`,
   );
   assert.equal(signInReturn("leafdesk://sign-in/storage?state=s1&error=access_denied", SERVER), `${SERVER}/api/storage/oauth/callback?state=s1&error=access_denied`);
+  assert.equal(signInReturn("leafdesk://sign-in/mail?state=s1&code=c1", SERVER), `${SERVER}/api/mail/oauth/callback?state=s1&code=c1`);
   assert.equal(signInReturn("leafdesk://sign-in/connections?state=s1&code=c1", undefined), null);
   assert.equal(signInReturn("leafdesk://sign-in/elsewhere?state=s1", SERVER), null);
   assert.equal(signInReturn("leafdesk://sign-in/constructor?state=s1", SERVER), null);

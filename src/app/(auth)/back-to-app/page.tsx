@@ -10,13 +10,13 @@ export async function generateMetadata(): Promise<Metadata> {
 }
 
 /** The sign-ins the desktop app finishes (desktop/src/navigation.ts), by their return address. */
-const FLOWS = new Set(["connections", "storage"]);
+const FLOWS = new Set(["connections", "storage", "mail"]);
 /** What a service's answer carries back (RFC 6749 4.1.2, RFC 9207). */
 const ANSWER_PARAMS = ["state", "code", "iss", "error"];
 
 /**
  * Where a service's answer lands when the browser it came back to has no Leafdesk session: the
- * desktop app sends sign-ins for connections and storage to the system's browser. The answer goes
+ * desktop app sends sign-ins for connections, storage and mailboxes to the system's browser. The answer goes
  * on to the app in a `leafdesk://` link, and the app takes it to the server, which finishes the
  * sign-in under the app's session, for the person who began it.
  */
