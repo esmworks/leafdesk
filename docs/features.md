@@ -168,6 +168,19 @@
   tab, for several databases (or views of one) in little room; readers get only the tabs whose
   database they can open, and published pages switch tabs in place. Tabs show each view whole,
   without a period.
+  **Dashboard emails**: *Email* above a dashboard's grid (a `/dashboard` block or a dashboard
+  view) sends its figures on a schedule, such as every Monday at 08:00, every day or on a day of
+  the month, in a time zone. The email shows a period counted from when it goes out (by default
+  the whole one that just ended: yesterday, last week, last month or last year, or this week so
+  far, or the dashboard's own period) with each number's change from the period before, lists and
+  charts as short tables of their figures, and a link back. Each recipient gets the figures they
+  may see, worked out when it is sent; the list of people to pick from is everyone who can open
+  the page, and emailing others takes edit access to it. The email runs as whoever set it up and
+  pauses when they lose access or the dashboard is taken off the page. Recipients unsubscribe from
+  a link in the email (one click in mail apps that offer it) or in Settings → Preferences, which
+  lists every dashboard email a person gets or set up. A dashboard has up to 20 emails, each to up
+  to 50 people; it needs email set up ([self-hosting](self-hosting.md)). Setting up, stopping and sending are in the audit
+  log.
 - **Buttons**: the `/button` block, with a label, an emoji or built-in icon and a color from the option palette
   (light, dark and high contrast alike, on published pages and in print too), does a few things in order when
   someone clicks it: insert blocks written in Markdown below it or at the top or end of the page,

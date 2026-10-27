@@ -2,7 +2,7 @@
 
 import { CalendarRange, Check, ChevronDown } from "lucide-react";
 import { useFormatter, useNow, useTranslations } from "next-intl";
-import { useState } from "react";
+import { useState, type ReactNode } from "react";
 import { Floating, useFloating } from "@/components/database/floating";
 import { useViewerTimeZone } from "@/components/database/use-today";
 import { Button, cn, MenuItem, MenuSeparator, menuFieldClass } from "@/components/ui";
@@ -59,6 +59,7 @@ export function PeriodBar({
   changed,
   onSave,
   onReset,
+  trailing,
 }: {
   period: DashboardPeriod;
   onPick: (period: DashboardPeriod) => void;
@@ -67,6 +68,8 @@ export function PeriodBar({
   /** Editors: make the picked period the one everybody starts with. */
   onSave?: () => void;
   onReset: () => void;
+  /** At the bar's end: what else the dashboard offers (emailing it). */
+  trailing?: ReactNode;
 }) {
   const t = useTranslations("page.dashboard.period");
   const menu = useFloating<HTMLButtonElement>();
@@ -101,6 +104,7 @@ export function PeriodBar({
           </Button>
         </>
       )}
+      {trailing && <div className="ms-auto">{trailing}</div>}
       <Floating open={menu.open} anchor={menu.el} onClose={() => (menu.close(), setCustom(false))}>
         <div className="w-60" role="menu">
           {custom ? (

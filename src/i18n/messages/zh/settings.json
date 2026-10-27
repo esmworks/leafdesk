@@ -95,7 +95,8 @@
       "sensitiveFindings": "dlp 发现 泄露 机密 卡号 忽略",
       "domainPeople": "域名 账户 用户 公司 邮箱 未管理",
       "openOnStart": "启动 开始 首页 上次访问 最近",
-      "pageReports": "举报 滥用 投诉 撤下 已发布 公开 网络 页面"
+      "pageReports": "举报 滥用 投诉 撤下 已发布 公开 网络 页面",
+      "dashboardEmails": "订阅 报告 计划 每周 摘要 邮件 仪表板 定时"
     }
   },
   "workspace": {
@@ -1957,6 +1958,11 @@
         "created": "在 {target} 中设置了 GitHub 拉取请求",
         "updated": "更改了 {target} 的 GitHub 设置",
         "deleted": "移除了 {target} 的 GitHub 设置"
+      },
+      "dashboard_email": {
+        "set": "将 {target} 设置为通过邮件发送给 {count, plural, other {# 个人}}",
+        "removed": "停止了 {target} 的邮件发送",
+        "sent": "已将 {target} 通过邮件发送给 {count, plural, other {# 个人}}"
       }
     },
     "decisions": {
@@ -2061,7 +2067,11 @@
     "reactionChannel": "回应：{channel}",
     "verificationTitle": "你验证的页面",
     "verificationDescription": "你验证的页面即将失去验证状态时（提前几天）以及验证结束时通知你。",
-    "verificationChannel": "你验证的页面：{channel}"
+    "verificationChannel": "你验证的页面：{channel}",
+    "dashboardEmailsHeading": "仪表板邮件",
+    "dashboardEmailsDescription": "按计划发送给你的仪表板，以及你为他人设置的仪表板。",
+    "dashboardEmailsNone": "没有仪表板邮件",
+    "dashboardEmailsNoneDescription": "要通过邮件接收仪表板，请打开它并选择组件上方的“邮件”。"
   },
   "site": {
     "description": "为此工作区已发布的页面提供一个易读的地址、一个主页以及页面之间的导航。",

@@ -151,7 +151,7 @@ export const AUDIT_CATEGORIES = {
     "connection.tool_called",
     "connection.approval_decided",
   ],
-  exports: ["export.workspace", "export.page", "backup.created", "backup.restored"],
+  exports: ["export.workspace", "export.page", "backup.created", "backup.restored", "dashboard_email.set", "dashboard_email.removed", "dashboard_email.sent"],
 } as const;
 
 export type AuditCategory = keyof typeof AUDIT_CATEGORIES;

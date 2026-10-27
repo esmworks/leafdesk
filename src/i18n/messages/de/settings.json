@@ -95,7 +95,8 @@
       "sensitiveFindings": "dlp funde geleakte geheimnisse kartennummern verwerfen",
       "domainPeople": "domain konten benutzer firma e-mail schatten-it unverwaltet",
       "openOnStart": "start starten erste seite zuletzt besucht",
-      "pageReports": "melden meldung missbrauch beschwerde entfernen veröffentlicht öffentlich web seiten"
+      "pageReports": "melden meldung missbrauch beschwerde entfernen veröffentlicht öffentlich web seiten",
+      "dashboardEmails": "Abo Bericht Zeitplan wöchentlich Zusammenfassung Report E-Mail"
     }
   },
   "workspace": {
@@ -1957,6 +1958,11 @@
         "created": "GitHub-Pull-Requests in {target} eingerichtet",
         "updated": "GitHub-Einrichtung von {target} geändert",
         "deleted": "GitHub-Einrichtung von {target} entfernt"
+      },
+      "dashboard_email": {
+        "set": "Hat {target} für den E-Mail-Versand an {count, plural, one {# Person} other {# Personen}} eingerichtet",
+        "removed": "Hat den E-Mail-Versand von {target} beendet",
+        "sent": "Hat {target} per E-Mail an {count, plural, one {# Person} other {# Personen}} gesendet"
       }
     },
     "decisions": {
@@ -2061,7 +2067,11 @@
     "reactionChannel": "Reaktionen: {channel}",
     "verificationTitle": "Von dir verifizierte Seiten",
     "verificationDescription": "Die Verifizierung einer Seite, die du verifiziert hast, läuft bald ab: ein paar Tage vorher und wenn es so weit ist.",
-    "verificationChannel": "Von dir verifizierte Seiten: {channel}"
+    "verificationChannel": "Von dir verifizierte Seiten: {channel}",
+    "dashboardEmailsHeading": "Dashboard-E-Mails",
+    "dashboardEmailsDescription": "Dashboards, die dir nach Zeitplan per E-Mail gesendet werden, und die, die du für andere eingerichtet hast.",
+    "dashboardEmailsNone": "Keine Dashboard-E-Mails",
+    "dashboardEmailsNoneDescription": "Um ein Dashboard per E-Mail zu erhalten, öffne es und wähle über den Widgets E-Mail."
   },
   "site": {
     "description": "Gib den veröffentlichten Seiten dieses Workspace eine gemeinsame, gut lesbare Adresse, eine Startseite und eine Navigation zwischen ihnen.",

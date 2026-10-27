@@ -44,8 +44,12 @@ export const DashboardBlock = createReactBlockSpec(dashboardBlockConfig, {
       [editable, editor, block.id],
     );
     const workspaceId = host?.workspaceId ?? null;
+    const pageId = host?.pageId;
+    const emailTarget = useMemo(() => (pageId ? { pageId, target: { block: block.id } } : undefined), [pageId, block.id]);
     if (dashboardLayout(block.props.layout) === "tabs") return <DashboardTabs widgets={widgets} onChange={onChange} workspaceId={workspaceId} />;
-    return <Dashboard widgets={widgets} onChange={onChange} workspaceId={workspaceId} period={block.props.period} onPeriod={onPeriod} />;
+    return (
+      <Dashboard widgets={widgets} onChange={onChange} workspaceId={workspaceId} period={block.props.period} onPeriod={onPeriod} emailTarget={emailTarget} />
+    );
   },
   toExternalHTML: () => <div />,
 });

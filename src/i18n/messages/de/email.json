@@ -299,5 +299,28 @@
     "heading": "{workspace} wurde gelöscht",
     "body": "Hallo {name}, {by} hat den Leafdesk-Workspace {workspace} mit allen Seiten, Datenbanken und Dateien gelöscht. Du kannst ihn nicht mehr öffnen.",
     "note": "Gelöschte Workspaces lassen sich nicht wiederherstellen. Wenn du das nicht erwartet hast, sprich mit {by} oder einem anderen Eigentümer des Workspaces."
+  },
+  "dashboard": {
+    "subject": "{dashboard}: {period}",
+    "intro": "{period} im Workspace „{workspace}“.",
+    "action": "Dashboard öffnen",
+    "versus": "ggü. {period}",
+    "noComparison": "Kein Vergleichswert für {period}",
+    "points": "{value} Pkt.",
+    "yesterday": "Gestern",
+    "periodDays": "{period} ({days})",
+    "asOf": "Gesamter Zeitraum, Stand {date}",
+    "unavailable": "Du hast keinen Zugriff auf diese Daten.",
+    "inTrash": "Diese Datenbank liegt im Papierkorb.",
+    "noGroup": "Die Datenbank hat noch nichts zum Gruppieren.",
+    "empty": "Keine Zeilen in diesem Zeitraum.",
+    "allEmpty": "Keine Zeilen.",
+    "viewOnly": "Öffne das Dashboard, um diese Ansicht zu sehen.",
+    "more": "{count, plural, one {# weitere Zeile} other {# weitere Zeilen}}",
+    "other": "Andere",
+    "why": "{name} hat dich für diese E-Mail angemeldet · {schedule}.",
+    "whyOwn": "Du hast diese E-Mail abonniert · {schedule}.",
+    "unsubscribe": "Abmelden",
+    "untitled": "Ohne Titel"
   }
 }

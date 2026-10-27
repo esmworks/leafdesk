@@ -95,7 +95,8 @@
       "sensitiveFindings": "dlp phát hiện bí mật rò rỉ số thẻ bỏ qua",
       "domainPeople": "tên miền tài khoản người dùng công ty email không được quản lý",
       "openOnStart": "khởi động mở đầu trang đầu tiên truy cập gần nhất gần đây",
-      "pageReports": "báo cáo lạm dụng khiếu nại gỡ xuất bản công khai web trang"
+      "pageReports": "báo cáo lạm dụng khiếu nại gỡ xuất bản công khai web trang",
+      "dashboardEmails": "đăng ký báo cáo lịch hàng tuần tóm tắt email bảng điều khiển"
     }
   },
   "workspace": {
@@ -1957,6 +1958,11 @@
         "created": "Đã thiết lập pull request GitHub trong {target}",
         "updated": "Đã thay đổi thiết lập GitHub của {target}",
         "deleted": "Đã gỡ thiết lập GitHub của {target}"
+      },
+      "dashboard_email": {
+        "set": "Đã đặt {target} được gửi email cho {count, plural, other {# người}}",
+        "removed": "Đã dừng gửi email {target}",
+        "sent": "Đã gửi email {target} cho {count, plural, other {# người}}"
       }
     },
     "decisions": {
@@ -2061,7 +2067,11 @@
     "reactionChannel": "Cảm xúc: {channel}",
     "verificationTitle": "Các trang bạn đã xác minh",
     "verificationDescription": "Một trang bạn đã xác minh sắp hết trạng thái đã xác minh: vài ngày trước đó, và khi nó hết hạn.",
-    "verificationChannel": "Các trang bạn đã xác minh: {channel}"
+    "verificationChannel": "Các trang bạn đã xác minh: {channel}",
+    "dashboardEmailsHeading": "Email bảng điều khiển",
+    "dashboardEmailsDescription": "Các bảng điều khiển được gửi cho bạn qua email theo lịch, và những bảng bạn thiết lập cho người khác.",
+    "dashboardEmailsNone": "Không có email bảng điều khiển",
+    "dashboardEmailsNoneDescription": "Để nhận bảng điều khiển qua email, hãy mở bảng điều khiển và chọn Email phía trên các tiện ích."
   },
   "site": {
     "description": "Cho các trang đã xuất bản của không gian làm việc này một địa chỉ dễ đọc, một trang chủ và điều hướng giữa chúng.",

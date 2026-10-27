@@ -299,5 +299,28 @@
     "heading": "Obszar roboczy {workspace} został usunięty",
     "body": "Cześć, {name}! Obszar roboczy Leafdesk {workspace} został usunięty wraz ze wszystkimi stronami, bazami danych i plikami (usunięcie: {by}). Nie możesz go już otworzyć.",
     "note": "Usuniętych obszarów roboczych nie można przywrócić. Jeśli się tego nie spodziewasz, porozmawiaj z: {by} lub innym właścicielem obszaru roboczego."
+  },
+  "dashboard": {
+    "subject": "{dashboard}: {period}",
+    "intro": "{period} w „{workspace}”.",
+    "action": "Otwórz pulpit",
+    "versus": "wobec {period}",
+    "noComparison": "Brak danych do porównania w {period}",
+    "points": "{value} pkt",
+    "yesterday": "Wczoraj",
+    "periodDays": "{period} ({days})",
+    "asOf": "Cały czas, stan na {date}",
+    "unavailable": "Nie masz dostępu do tych danych.",
+    "inTrash": "Ta baza danych jest w koszu.",
+    "noGroup": "Baza danych nie ma jeszcze niczego, według czego można grupować.",
+    "empty": "Brak wierszy w tym okresie.",
+    "allEmpty": "Brak wierszy.",
+    "viewOnly": "Otwórz pulpit, aby zobaczyć ten widok.",
+    "more": "{count, plural, one {# wiersz więcej} few {# wiersze więcej} many {# wierszy więcej} other {# wiersza więcej}}",
+    "other": "Inne",
+    "why": "{name} zapisał(a) Cię na tę wiadomość e-mail · {schedule}.",
+    "whyOwn": "Zapisałeś(-aś) się na tę wiadomość e-mail · {schedule}.",
+    "unsubscribe": "Zrezygnuj z subskrypcji",
+    "untitled": "Bez tytułu"
   }
 }

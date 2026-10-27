@@ -13,6 +13,13 @@ export type EmailContent = {
   paragraphs: string[];
   /** Main call to action, rendered as a button with the plain link below it. */
   action?: { label: string; url: string };
+  /**
+   * What the email's own template lays out after the paragraphs (a dashboard's figures): HTML it
+   * escaped itself, and the same as plain text.
+   */
+  body?: { html: string; text: string };
+  /** Small print after the button: why the email came, and a link to stop it. */
+  fineprint?: { text: string; link?: { label: string; url: string } };
 };
 
 export type RenderedEmail = { subject: string; text: string; html: string };
@@ -54,11 +61,15 @@ export function renderEmail(locale: Locale, content: EmailContent): RenderedEmai
   const { dir, align, textAlign } = emailDirection(locale);
   const footer = t("footer", { appUrl: env.appUrl });
   const action = content.action && { label: content.action.label, url: safeUrl(content.action.url) };
+  const fineprint = content.fineprint;
+  const stop = fineprint?.link && { label: fineprint.link.label, url: safeUrl(fineprint.link.url) };
 
   const text = [
     content.heading,
     ...content.paragraphs,
+    ...(content.body ? [content.body.text] : []),
     ...(action ? [`${action.label}: ${action.url}`] : []),
+    ...(fineprint ? [[fineprint.text, ...(stop ? [`${stop.label}: ${stop.url}`] : [])].join("\n")] : []),
     `--\n${footer}`,
   ].join("\n\n");
 
@@ -73,6 +84,11 @@ export function renderEmail(locale: Locale, content: EmailContent): RenderedEmai
 </table>
 <p style="margin:0;font-size:13px;color:#6b6d75;">${escapeHtml(t("actionFallback"))}<br>
 <a href="${escapeHtml(action.url)}"${dir && ' dir="ltr"'} style="color:#2f7d4f;word-break:break-all;">${escapeHtml(action.url)}</a></p>`
+    : "";
+  const small = fineprint
+    ? `<p style="margin:24px 0 0;padding-top:16px;border-top:1px solid #e5e7eb;font-size:12px;color:#6b6d75;">${escapeHtml(fineprint.text)}${
+        stop ? ` <a href="${escapeHtml(stop.url)}" style="color:#6b6d75;">${escapeHtml(stop.label)}</a>` : ""
+      }</p>`
     : "";
 
   const html = `<!doctype html>
@@ -90,7 +106,9 @@ export function renderEmail(locale: Locale, content: EmailContent): RenderedEmai
 <p style="margin:0 0 24px;font-size:14px;font-weight:600;color:#6b6d75;">Leafdesk</p>
 <h1 style="margin:0 0 16px;font-size:20px;line-height:1.3;font-weight:600;">${escapeHtml(content.heading)}</h1>
 ${paragraphs}
+${content.body?.html ?? ""}
 ${button}
+${small}
 </td></tr>
 </table>
 <p style="margin:16px 0 0;font-family:${FONT};font-size:12px;color:#9a9ca3;">${escapeHtml(footer)}</p>
@@ -614,5 +632,130 @@ export function passwordChangedEmail(locale: Locale, change: { name: string }): 
     subject: t("passwordChanged.subject"),
     heading: t("passwordChanged.heading"),
     paragraphs: [t("passwordChanged.body", { name: change.name }), t("passwordChanged.warning")],
+  });
+}
+
+/**
+ * One widget of a dashboard email, its words already in the recipient's language (see
+ * server/dashboard-emails): a number with its change from the period before, a table (a chart's
+ * groups and their figures, or a list's rows), or a line saying why there is nothing to show.
+ */
+export type DashboardEmailWidget = { title: string; url: string | null } & (
+  | {
+      kind: "number";
+      value: string;
+      /** What the value is, when the title doesn't say it. */
+      label: string | null;
+      /** Null when the widget doesn't compare; `amount` null when there was nothing to compare with. */
+      change: { amount: string | null; tone: "good" | "bad" | "flat"; arrow: "up" | "down" | null; versus: string } | null;
+    }
+  | { kind: "table"; head: string[]; rows: { cells: string[]; url?: string }[]; more: string | null }
+  | { kind: "note"; text: string }
+);
+
+export type DashboardEmail = {
+  dashboardTitle: string;
+  /** "Last week (19–25 Oct 2026)". */
+  periodName: string;
+  workspaceName: string;
+  widgets: DashboardEmailWidget[];
+  link: string;
+  /** "every week on Mon · 08:00 (Istanbul)". */
+  schedule: string;
+  /** Who set the email up; null when the recipient did. */
+  setterName: string | null;
+  unsubscribeUrl: string;
+};
+
+const TONES = {
+  good: "background:#e6f4ea;color:#1e6b3a;",
+  bad: "background:#fce8e6;color:#a1281e;",
+  flat: "background:#f1f2f4;color:#4b4d55;",
+} as const;
+
+/** A dashboard's figures for one recipient, on the schedule they were subscribed to (see server/dashboard-emails). */
+export function dashboardEmail(locale: Locale, email: DashboardEmail): RenderedEmail {
+  const t = emailTranslator(locale);
+  const { align, textAlign } = emailDirection(locale);
+  const end = textAlign ? "left" : "right";
+  const link = (text: string, url: string | null | undefined) =>
+    url ? `<a href="${escapeHtml(safeUrl(url))}" style="color:#1f2023;text-decoration:none;">${escapeHtml(text)}</a>` : escapeHtml(text);
+  const changeText = (change: Extract<DashboardEmailWidget, { kind: "number" }>["change"]) =>
+    !change ? "" : change.amount === null ? t("dashboard.noComparison", { period: change.versus }) : `${change.arrow === "up" ? "▲ " : change.arrow === "down" ? "▼ " : ""}${change.amount} ${t("dashboard.versus", { period: change.versus })}`;
+
+  const widgetHtml = (w: DashboardEmailWidget) => {
+    const title = `<p style="margin:0 0 6px;font-size:13px;font-weight:600;color:#4b4d55;">${link(w.title, w.url)}</p>`;
+    switch (w.kind) {
+      case "number": {
+        const change = w.change
+          ? w.change.amount === null
+            ? `<p style="margin:4px 0 0;font-size:12px;color:#9a9ca3;">${escapeHtml(changeText(w.change))}</p>`
+            : `<p style="margin:4px 0 0;font-size:12px;color:#6b6d75;"><span style="padding:1px 5px;border-radius:4px;font-weight:600;${TONES[w.change.tone]}">${
+                w.change.arrow === "up" ? "▲ " : w.change.arrow === "down" ? "▼ " : ""
+              }${escapeHtml(w.change.amount)}</span> ${escapeHtml(t("dashboard.versus", { period: w.change.versus }))}</p>`
+          : "";
+        const label = w.label ? `<p style="margin:2px 0 0;font-size:12px;color:#6b6d75;">${escapeHtml(w.label)}</p>` : "";
+        return `${title}<p style="margin:0;font-size:26px;line-height:1.2;font-weight:600;">${escapeHtml(w.value)}</p>${label}${change}`;
+      }
+      case "table": {
+        const cell = (text: string, i: number, url?: string, head = false) =>
+          `<td style="padding:5px 0;${i > 0 ? `padding-${end === "right" ? "left" : "right"}:12px;text-align:${end};white-space:nowrap;` : textAlign}border-bottom:1px solid ${head ? "#d9dbe0" : "#eef0f2"};${head ? "font-size:12px;color:#6b6d75;font-weight:600;" : ""}">${
+            i === 0 ? link(text, url) : escapeHtml(text)
+          }</td>`;
+        const head = w.head.length ? `<tr>${w.head.map((h, i) => cell(h, i, undefined, true)).join("")}</tr>` : "";
+        const rows = w.rows.map((r) => `<tr>${r.cells.map((c, i) => cell(c, i, i === 0 ? r.url : undefined)).join("")}</tr>`).join("");
+        const more = w.more ? `<p style="margin:6px 0 0;font-size:12px;color:#6b6d75;">${escapeHtml(w.more)}</p>` : "";
+        return `${title}<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="font-size:14px;">${head}${rows}</table>${more}`;
+      }
+      case "note":
+        return `${title}<p style="margin:0;font-size:13px;color:#6b6d75;">${escapeHtml(w.text)}</p>`;
+    }
+  };
+
+  // Numbers side by side, two to a row; tables and notes across the whole width.
+  const rows: DashboardEmailWidget[][] = [];
+  for (const w of email.widgets) {
+    const last = rows.at(-1);
+    if (w.kind === "number" && last?.length === 1 && last[0].kind === "number") last.push(w);
+    else rows.push([w]);
+  }
+  const box = "padding:12px 14px;border:1px solid #e5e7eb;border-radius:6px;vertical-align:top;";
+  const html = rows
+    .map((row) =>
+      row.length === 2
+        ? `<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="margin:0 0 12px;"><tr><td${align} width="50%" style="${box}${textAlign}">${widgetHtml(row[0])}</td><td width="12" style="font-size:0;">&nbsp;</td><td${align} width="50%" style="${box}${textAlign}">${widgetHtml(row[1])}</td></tr></table>`
+        : `<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="margin:0 0 12px;"><tr><td${align} style="${box}${textAlign}">${widgetHtml(row[0])}</td></tr></table>`,
+    )
+    .join("\n");
+
+  const text = email.widgets
+    .map((w) => {
+      switch (w.kind) {
+        case "number":
+          return [`${w.title}: ${w.value}${w.label ? ` (${w.label})` : ""}`, ...(w.change ? [`  ${changeText(w.change)}`] : [])].join("\n");
+        case "table":
+          return [
+            w.title,
+            ...(w.head.length ? [`  ${w.head.join(" | ")}`] : []),
+            ...w.rows.map((r) => `  ${r.cells.join(" | ")}`),
+            ...(w.more ? [`  ${w.more}`] : []),
+          ].join("\n");
+        case "note":
+          return `${w.title}: ${w.text}`;
+      }
+    })
+    .join("\n\n");
+
+  const names = { dashboard: email.dashboardTitle, period: email.periodName, workspace: email.workspaceName };
+  return renderEmail(locale, {
+    subject: t("dashboard.subject", names),
+    heading: email.dashboardTitle,
+    paragraphs: [t("dashboard.intro", names)],
+    body: { html, text },
+    action: { label: t("dashboard.action"), url: email.link },
+    fineprint: {
+      text: email.setterName === null ? t("dashboard.whyOwn", { schedule: email.schedule }) : t("dashboard.why", { schedule: email.schedule, name: email.setterName }),
+      link: { label: t("dashboard.unsubscribe"), url: email.unsubscribeUrl },
+    },
   });
 }

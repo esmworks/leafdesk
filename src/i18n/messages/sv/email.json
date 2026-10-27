@@ -299,5 +299,28 @@
     "heading": "{workspace} har raderats",
     "body": "Hej {name}! {by} har raderat Leafdesk-arbetsytan {workspace}, med alla dess sidor, databaser och filer. Du kan inte längre öppna den.",
     "note": "Raderade arbetsytor kan inte återställas. Om du inte väntade dig detta kan du prata med {by} eller en annan ägare av arbetsytan."
+  },
+  "dashboard": {
+    "subject": "{dashboard}: {period}",
+    "intro": "{period} i ”{workspace}”.",
+    "action": "Öppna instrumentpanelen",
+    "versus": "mot {period}",
+    "noComparison": "Inget att jämföra med under {period}",
+    "points": "{value} p.e.",
+    "yesterday": "Igår",
+    "periodDays": "{period} ({days})",
+    "asOf": "All tid, per {date}",
+    "unavailable": "Du har inte åtkomst till den här datan.",
+    "inTrash": "Databasen ligger i papperskorgen.",
+    "noGroup": "Databasen har inget att gruppera efter än.",
+    "empty": "Inga rader under den här perioden.",
+    "allEmpty": "Inga rader.",
+    "viewOnly": "Öppna instrumentpanelen för att se den här vyn.",
+    "more": "{count, plural, one {# rad till} other {# rader till}}",
+    "other": "Övrigt",
+    "why": "{name} prenumererade dig på det här e-postmeddelandet · {schedule}.",
+    "whyOwn": "Du prenumererar på det här e-postmeddelandet · {schedule}.",
+    "unsubscribe": "Avsluta prenumerationen",
+    "untitled": "Namnlös"
   }
 }

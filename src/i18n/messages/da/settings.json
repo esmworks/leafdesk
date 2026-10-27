@@ -95,7 +95,8 @@
       "sensitiveFindings": "DLP fund lækkede hemmeligheder kortnumre afvis",
       "domainPeople": "domæne konti brugere firma e-mail skygge-it ikke-administreret",
       "openOnStart": "start opstart første side sidst besøgt seneste",
-      "pageReports": "anmeld anmeldelse misbrug klage fjern publiceret offentlig web sider"
+      "pageReports": "anmeld anmeldelse misbrug klage fjern publiceret offentlig web sider",
+      "dashboardEmails": "abonnement rapport tidsplan ugentlig oversigt e-mail dashboard"
     }
   },
   "workspace": {
@@ -1957,6 +1958,11 @@
         "created": "Satte pull requests fra GitHub op i {target}",
         "updated": "Ændrede GitHub-opsætningen for {target}",
         "deleted": "Fjernede GitHub-opsætningen for {target}"
+      },
+      "dashboard_email": {
+        "set": "Satte {target} til at blive sendt som e-mail til {count, plural, one {# person} other {# personer}}",
+        "removed": "Stoppede e-mails med {target}",
+        "sent": "Sendte {target} som e-mail til {count, plural, one {# person} other {# personer}}"
       }
     },
     "decisions": {
@@ -2061,7 +2067,11 @@
     "reactionChannel": "Reaktioner: {channel}",
     "verificationTitle": "Sider, du har verificeret",
     "verificationDescription": "En side, du har verificeret, er ved at holde op med at være verificeret, nogle dage før og når det sker.",
-    "verificationChannel": "Sider, du har verificeret: {channel}"
+    "verificationChannel": "Sider, du har verificeret: {channel}",
+    "dashboardEmailsHeading": "Dashboard-e-mails",
+    "dashboardEmailsDescription": "Dashboards, der sendes til dig som e-mail efter en tidsplan, og dem, du har sat op til andre.",
+    "dashboardEmailsNone": "Ingen dashboard-e-mails",
+    "dashboardEmailsNoneDescription": "For at få et dashboard som e-mail skal du åbne det og vælge E-mail over dets widgets."
   },
   "site": {
     "description": "Giv dette arbejdsområdes udgivne sider én læsbar adresse, en forside og navigation mellem dem.",

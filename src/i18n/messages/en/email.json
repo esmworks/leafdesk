@@ -299,5 +299,28 @@
     "heading": "{workspace} was deleted",
     "body": "Hi {name}, {by} deleted the Leafdesk workspace {workspace}, with all its pages, databases and files. You can no longer open it.",
     "note": "Deleted workspaces can't be restored. If you didn't expect this, talk to {by} or another owner of the workspace."
+  },
+  "dashboard": {
+    "subject": "{dashboard}: {period}",
+    "intro": "{period} in “{workspace}”.",
+    "action": "Open the dashboard",
+    "versus": "vs {period}",
+    "noComparison": "Nothing to compare with in {period}",
+    "points": "{value} pts",
+    "yesterday": "Yesterday",
+    "periodDays": "{period} ({days})",
+    "asOf": "All time, as of {date}",
+    "unavailable": "You don't have access to this data.",
+    "inTrash": "This database is in the trash.",
+    "noGroup": "The database has nothing to group by yet.",
+    "empty": "No rows in this period.",
+    "allEmpty": "No rows.",
+    "viewOnly": "Open the dashboard to see this view.",
+    "more": "{count, plural, one {# more row} other {# more rows}}",
+    "other": "Other",
+    "why": "{name} subscribed you to this email · {schedule}.",
+    "whyOwn": "You subscribed to this email · {schedule}.",
+    "unsubscribe": "Unsubscribe",
+    "untitled": "Untitled"
   }
 }

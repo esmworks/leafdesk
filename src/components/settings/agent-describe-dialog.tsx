@@ -10,7 +10,7 @@ import { MAX_AGENT_REQUEST, type AgentDraft, type AgentDraftAutomation, type Age
 import { AGENT_ACCESS_LEVELS, type AgentAccessLevel, type AgentView } from "@/lib/agents";
 import { browserTimeZone } from "@/lib/time-zone";
 import { AgentForm, type AgentModelNames } from "./agent-dialog";
-import { useRuleSummary } from "./agent-schedules-tab";
+import { useRuleSummary } from "./rule-summary";
 
 /**
  * Creating an agent by saying what it should do: the AI drafts it (server/agents/draft.ts), and the

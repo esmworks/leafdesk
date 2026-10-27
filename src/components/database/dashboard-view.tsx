@@ -65,6 +65,8 @@ export default function DashboardView({
     setDraft(null);
   }, []);
 
+  const emailTarget = useMemo(() => ({ pageId: view.databaseId, target: { view: view.id } }), [view.databaseId, view.id]);
+
   return (
     <div className="page-gutter">
       <Dashboard
@@ -74,6 +76,7 @@ export default function DashboardView({
         databaseId={view.databaseId}
         period={view.config.period}
         onPeriod={readOnly ? undefined : onPeriod}
+        emailTarget={emailTarget}
       />
     </div>
   );

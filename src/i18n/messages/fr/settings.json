@@ -95,7 +95,8 @@
       "sensitiveFindings": "dlp résultats fuite secrets divulgués numéros de carte écarter",
       "domainPeople": "domaine comptes utilisateurs entreprise e-mail shadow it non gérés",
       "openOnStart": "démarrage lancement première page dernière visitée récente",
-      "pageReports": "signaler signalement abus plainte retrait publié public web pages"
+      "pageReports": "signaler signalement abus plainte retrait publié public web pages",
+      "dashboardEmails": "abonnement rapport calendrier hebdomadaire résumé e-mail planification"
     }
   },
   "workspace": {
@@ -1957,6 +1958,11 @@
         "created": "A configuré les pull requests GitHub dans {target}",
         "updated": "A modifié la configuration GitHub de {target}",
         "deleted": "A supprimé la configuration GitHub de {target}"
+      },
+      "dashboard_email": {
+        "set": "A programmé l’envoi de {target} par e-mail à {count, plural, one {# personne} other {# personnes}}",
+        "removed": "A arrêté l’envoi par e-mail de {target}",
+        "sent": "A envoyé {target} par e-mail à {count, plural, one {# personne} other {# personnes}}"
       }
     },
     "decisions": {
@@ -2061,7 +2067,11 @@
     "reactionChannel": "Réactions : {channel}",
     "verificationTitle": "Pages que vous avez vérifiées",
     "verificationDescription": "Une page que vous avez vérifiée va cesser de l’être : quelques jours avant, puis au moment où cela arrive.",
-    "verificationChannel": "Pages que vous avez vérifiées : {channel}"
+    "verificationChannel": "Pages que vous avez vérifiées : {channel}",
+    "dashboardEmailsHeading": "E-mails de tableaux de bord",
+    "dashboardEmailsDescription": "Les tableaux de bord qui vous sont envoyés par e-mail selon un calendrier, et ceux que vous avez configurés pour d’autres.",
+    "dashboardEmailsNone": "Aucun e-mail de tableau de bord",
+    "dashboardEmailsNoneDescription": "Pour recevoir un tableau de bord par e-mail, ouvrez-le et choisissez E-mail au-dessus de ses widgets."
   },
   "site": {
     "description": "Donnez aux pages publiées de cet espace de travail une adresse lisible, une page d’accueil et une navigation commune.",

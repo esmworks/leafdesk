@@ -990,6 +990,75 @@
         "lower": "Lager is beter",
         "off": "Niet tonen"
       }
+    },
+    "emails": {
+      "button": "E-mail",
+      "buttonHint": "Dit dashboard volgens een schema e-mailen",
+      "title": "Dit dashboard e-mailen",
+      "description": "Stuur de cijfers van dit dashboard volgens een schema per e-mail, bijvoorbeeld elke maandagochtend. Iedereen krijgt alleen de cijfers die diegene mag zien.",
+      "noMail": "E-mail is niet ingesteld op deze server, dus dashboards kunnen niet worden gemaild. Een beheerder kan SMTP instellen.",
+      "none": "Niemand krijgt dit dashboard nog per e-mail.",
+      "add": "Nieuwe e-mail",
+      "edit": "Bewerken",
+      "stop": "Stoppen",
+      "leave": "Afmelden",
+      "you": "Jij",
+      "summary": "{schedule} · {period}",
+      "to": "Aan {names}",
+      "setBy": "Ingesteld door {name}",
+      "next": "Volgende: {date}",
+      "lastSent": "laatst verstuurd {date}",
+      "nextSend": "De eerste e-mail gaat {date} de deur uit.",
+      "period": "Cijfers van",
+      "periodHint": "Geteld vanaf het moment waarop de e-mail wordt verstuurd, in de tijdzone ervan: een maandag-e-mail over vorige week toont de zojuist afgelopen week van maandag tot zondag, naast de week ervoor.",
+      "periods": {
+        "yesterday": "Gisteren",
+        "last_week": "Vorige week",
+        "last_month": "Vorige maand",
+        "last_quarter": "Vorig kwartaal",
+        "last_year": "Vorig jaar",
+        "this_week": "Deze week tot nu toe",
+        "this_month": "Deze maand tot nu toe",
+        "this_quarter": "Dit kwartaal tot nu toe",
+        "this_year": "Dit jaar tot nu toe",
+        "dashboard": "De eigen periode van het dashboard"
+      },
+      "recipients": "Versturen naar",
+      "recipientsHint": "Alleen mensen die deze pagina kunnen openen, staan in de lijst. Iedereen krijgt de cijfers die diegene mag zien.",
+      "recipientsSelf": "Aan jou ({email}). Voor e-mails aan anderen heb je bewerktoegang tot deze pagina nodig.",
+      "search": "Mensen zoeken",
+      "sendTest": "Stuur mij een test",
+      "testSent": "Er is een test naar {email} gestuurd.",
+      "paused": {
+        "runAsGone": "Gepauzeerd: het account van degene die dit heeft ingesteld, bestaat niet meer. Sla het opnieuw op om het weer aan te zetten.",
+        "accessLost": "Gepauzeerd: degene die dit heeft ingesteld, kan deze pagina niet meer openen of bewerken. Sla het opnieuw op om het weer aan te zetten.",
+        "dashboardGone": "Gepauzeerd: het dashboard is van de pagina gehaald.",
+        "templateGone": "Gepauzeerd.",
+        "agentGone": "Gepauzeerd.",
+        "failed": "de laatste e-mail kon niet worden verstuurd; de volgende keer wordt het opnieuw geprobeerd"
+      },
+      "errors": {
+        "notFound": "Dit dashboard is niet beschikbaar.",
+        "needsEdit": "Voor e-mails aan anderen heb je bewerktoegang tot deze pagina nodig.",
+        "noRecipients": "Kies minstens één persoon.",
+        "recipientNoAccess": "Iemand die je hebt gekozen, kan dit dashboard niet openen.",
+        "tooManyRecipients": "Een e-mail gaat naar hooguit 50 mensen.",
+        "tooMany": "Dit dashboard, of de werkruimte, heeft het maximum aantal geplande e-mails bereikt.",
+        "invalidRepeat": "Controleer hoe vaak en wanneer de e-mail wordt verstuurd.",
+        "invalidPeriod": "Kies de periode die de e-mail toont.",
+        "mailDisabled": "E-mail is niet ingesteld op deze server.",
+        "generic": "Er ging iets mis. Probeer het opnieuw."
+      },
+      "unsubscribePage": {
+        "metaTitle": "Afmelden",
+        "title": "Deze e-mails stoppen?",
+        "body": "Je krijgt het dashboard “{title}” per e-mail. Je krijgt het niet meer; verder verandert er niets.",
+        "action": "Afmelden",
+        "doneTitle": "Je bent afgemeld",
+        "done": "Je krijgt het dashboard “{title}” niet meer per e-mail.",
+        "doneGone": "Je krijgt dit dashboard niet meer per e-mail.",
+        "invalid": "Deze link werkt niet. Open de e-mail opnieuw en gebruik de link erin, of stop de e-mail in Instellingen."
+      }
     }
   },
   "databaseTabs": {

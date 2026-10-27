@@ -299,5 +299,28 @@
     "heading": "{workspace} is verwijderd",
     "body": "Hallo {name}, {by} heeft de Leafdesk-werkruimte {workspace} verwijderd, met alle pagina’s, databases en bestanden. Je kunt haar niet meer openen.",
     "note": "Verwijderde werkruimtes kunnen niet worden hersteld. Had je dit niet verwacht, praat dan met {by} of een andere eigenaar van de werkruimte."
+  },
+  "dashboard": {
+    "subject": "{dashboard}: {period}",
+    "intro": "{period} in “{workspace}”.",
+    "action": "Dashboard openen",
+    "versus": "t.o.v. {period}",
+    "noComparison": "Niets om mee te vergelijken in {period}",
+    "points": "{value} ptn",
+    "yesterday": "Gisteren",
+    "periodDays": "{period} ({days})",
+    "asOf": "Alle tijd, per {date}",
+    "unavailable": "Je hebt geen toegang tot deze gegevens.",
+    "inTrash": "Deze database staat in de prullenbak.",
+    "noGroup": "De database heeft nog niets om op te groeperen.",
+    "empty": "Geen rijen in deze periode.",
+    "allEmpty": "Geen rijen.",
+    "viewOnly": "Open het dashboard om deze weergave te zien.",
+    "more": "{count, plural, one {# rij meer} other {# rijen meer}}",
+    "other": "Overig",
+    "why": "{name} heeft je op deze e-mail geabonneerd · {schedule}.",
+    "whyOwn": "Je hebt je op deze e-mail geabonneerd · {schedule}.",
+    "unsubscribe": "Afmelden",
+    "untitled": "Naamloos"
   }
 }

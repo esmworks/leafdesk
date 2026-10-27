@@ -14,6 +14,7 @@ import { CalendarFeeds } from "@/components/account/calendar-feeds";
 import { TelegramGroup } from "@/components/account/telegram-group";
 import { ApiTokens } from "@/components/settings/api-tokens";
 import { ConnectedApps } from "@/components/settings/connected-apps";
+import { DashboardEmailSettings } from "@/components/settings/dashboard-email-settings";
 import { DesktopLinkSettings } from "@/components/settings/desktop-link-settings";
 import { OpenOnStartSettings } from "@/components/settings/open-on-start-settings";
 import { LanguageSettings } from "@/components/settings/language-settings";
@@ -28,6 +29,7 @@ import { isLocale, LOCALE_COOKIE } from "@/i18n/config";
 import { CONTRAST_COOKIE, isContrast, isTheme, THEME_COOKIE } from "@/lib/theme";
 import { getAccountOverview, deletionPlanFor, emailChangeEnabled, proofSetupOf } from "@/server/account";
 import { getAccountSecurity } from "@/server/account-security";
+import { myDashboardEmails } from "@/server/dashboard-emails";
 import { getDesktopLinks } from "@/server/desktop-links";
 import { getOpenOnStart } from "@/server/open-on-start";
 import { mailStatus } from "@/server/mail";
@@ -196,12 +198,14 @@ async function SecurityTab({ session }: { session: Session }) {
 
 async function PreferencesTab({ userId }: { userId: string }) {
   const publicKey = vapidPublicKey();
-  const [cookieStore, notificationPreferences, desktopLinks, openOnStart, watches, endpoints, telegram, t, ts] = await Promise.all([
+  const [cookieStore, notificationPreferences, desktopLinks, openOnStart, watches, dashboardEmails, endpoints, telegram, t, ts] = await Promise.all([
     cookies(),
     getNotificationPreferences(userId),
     getDesktopLinks(userId),
     getOpenOnStart(userId),
     listWatches(userId),
+    // On one computer there is no email to get.
+    env.localMode ? [] : myDashboardEmails(userId),
     publicKey ? pushEndpoints(userId) : [],
     telegramNotificationsOn(userId),
     getTranslations("account"),
@@ -249,6 +253,11 @@ async function PreferencesTab({ userId }: { userId: string }) {
         <SettingsGroup anchor="watchedPages" title={ts("notifications.watchedHeading")} description={ts("notifications.watchedDescription")}>
           <WatchedPages pages={watches.pages} teamspaces={watches.teamspaces} />
         </SettingsGroup>
+        {!env.localMode && (
+          <SettingsGroup anchor="dashboardEmails" title={ts("notifications.dashboardEmailsHeading")} description={ts("notifications.dashboardEmailsDescription")}>
+            <DashboardEmailSettings emails={dashboardEmails} viewerId={userId} />
+          </SettingsGroup>
+        )}
       </div>
     </>
   );

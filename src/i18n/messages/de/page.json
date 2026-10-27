@@ -990,6 +990,75 @@
         "lower": "Niedriger ist besser",
         "off": "Nicht anzeigen"
       }
+    },
+    "emails": {
+      "button": "E-Mail",
+      "buttonHint": "Dieses Dashboard nach Zeitplan per E-Mail senden",
+      "title": "Dieses Dashboard per E-Mail senden",
+      "description": "Sende die Zahlen dieses Dashboards nach Zeitplan per E-Mail, etwa jeden Montagmorgen. Jede Person erhält nur die Zahlen, die sie sehen darf.",
+      "noMail": "Auf diesem Server ist E-Mail nicht eingerichtet, deshalb können Dashboards nicht per E-Mail gesendet werden. Ein Administrator kann SMTP einrichten.",
+      "none": "Niemand erhält dieses Dashboard bisher per E-Mail.",
+      "add": "Neue E-Mail",
+      "edit": "Bearbeiten",
+      "stop": "Beenden",
+      "leave": "Abmelden",
+      "you": "Du",
+      "summary": "{schedule} · {period}",
+      "to": "An {names}",
+      "setBy": "Eingerichtet von {name}",
+      "next": "Nächste: {date}",
+      "lastSent": "zuletzt gesendet {date}",
+      "nextSend": "Die erste E-Mail geht {date} raus.",
+      "period": "Zahlen für",
+      "periodHint": "Gezählt ab dem Versand der E-Mail, in deren Zeitzone: Eine Montags-E-Mail für die letzte Woche zeigt die gerade zu Ende gegangene Woche von Montag bis Sonntag neben der Woche davor.",
+      "periods": {
+        "yesterday": "Gestern",
+        "last_week": "Letzte Woche",
+        "last_month": "Letzter Monat",
+        "last_quarter": "Letztes Quartal",
+        "last_year": "Letztes Jahr",
+        "this_week": "Diese Woche bisher",
+        "this_month": "Dieser Monat bisher",
+        "this_quarter": "Dieses Quartal bisher",
+        "this_year": "Dieses Jahr bisher",
+        "dashboard": "Der eigene Zeitraum des Dashboards"
+      },
+      "recipients": "Senden an",
+      "recipientsHint": "Nur Personen, die diese Seite öffnen können, werden aufgeführt. Jede erhält die Zahlen, die sie sehen darf.",
+      "recipientsSelf": "An dich ({email}). Für E-Mails an andere brauchst du Bearbeitungszugriff auf diese Seite.",
+      "search": "Personen suchen",
+      "sendTest": "Test an mich senden",
+      "testSent": "Ein Test ging an {email}.",
+      "paused": {
+        "runAsGone": "Pausiert: Das Konto der Person, die sie eingerichtet hat, existiert nicht mehr. Speichere sie erneut, um sie wieder einzuschalten.",
+        "accessLost": "Pausiert: Die Person, die sie eingerichtet hat, kann diese Seite nicht mehr öffnen oder bearbeiten. Speichere sie erneut, um sie wieder einzuschalten.",
+        "dashboardGone": "Pausiert: Das Dashboard wurde von der Seite entfernt.",
+        "templateGone": "Pausiert.",
+        "agentGone": "Pausiert.",
+        "failed": "die letzte E-Mail konnte nicht gesendet werden; beim nächsten Mal wird es erneut versucht"
+      },
+      "errors": {
+        "notFound": "Dieses Dashboard ist nicht verfügbar.",
+        "needsEdit": "Für E-Mails an andere Personen brauchst du Bearbeitungszugriff auf diese Seite.",
+        "noRecipients": "Wähle mindestens eine Person aus.",
+        "recipientNoAccess": "Eine ausgewählte Person kann dieses Dashboard nicht öffnen.",
+        "tooManyRecipients": "Eine E-Mail geht an höchstens 50 Personen.",
+        "tooMany": "Dieses Dashboard oder der Workspace hat bereits die maximale Anzahl geplanter E-Mails erreicht.",
+        "invalidRepeat": "Prüfe, wie oft und wann die E-Mail versendet wird.",
+        "invalidPeriod": "Wähle den Zeitraum, den die E-Mail zeigt.",
+        "mailDisabled": "Auf diesem Server ist E-Mail nicht eingerichtet.",
+        "generic": "Etwas ist schiefgelaufen. Versuche es erneut."
+      },
+      "unsubscribePage": {
+        "metaTitle": "Abmelden",
+        "title": "Diese E-Mails beenden?",
+        "body": "Du erhältst das Dashboard „{title}“ per E-Mail. Du erhältst es nicht mehr, sonst ändert sich nichts.",
+        "action": "Abmelden",
+        "doneTitle": "Du bist abgemeldet",
+        "done": "Du erhältst das Dashboard „{title}“ nicht mehr per E-Mail.",
+        "doneGone": "Du erhältst dieses Dashboard nicht mehr per E-Mail.",
+        "invalid": "Dieser Link funktioniert nicht. Öffne die E-Mail erneut und nutze ihren Link, oder beende die E-Mail in den Einstellungen."
+      }
     }
   },
   "databaseTabs": {

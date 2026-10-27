@@ -95,7 +95,8 @@
       "sensitiveFindings": "dlp temuan rahasia bocor nomor kartu abaikan",
       "domainPeople": "domain akun pengguna perusahaan email tidak dikelola",
       "openOnStart": "mulai buka halaman pertama terakhir dikunjungi terbaru",
-      "pageReports": "laporkan laporan penyalahgunaan keluhan turunkan diterbitkan publik web halaman"
+      "pageReports": "laporkan laporan penyalahgunaan keluhan turunkan diterbitkan publik web halaman",
+      "dashboardEmails": "langganan laporan jadwal mingguan ringkasan email dasbor"
     }
   },
   "workspace": {
@@ -1957,6 +1958,11 @@
         "created": "Menyiapkan pull request GitHub di {target}",
         "updated": "Mengubah pengaturan GitHub di {target}",
         "deleted": "Menghapus pengaturan GitHub di {target}"
+      },
+      "dashboard_email": {
+        "set": "Mengatur “{target}” untuk dikirim lewat email ke {count, plural, other {# orang}}",
+        "removed": "Menghentikan pengiriman email “{target}”",
+        "sent": "Mengirim “{target}” lewat email ke {count, plural, other {# orang}}"
       }
     },
     "decisions": {
@@ -2061,7 +2067,11 @@
     "reactionChannel": "Reaksi: {channel}",
     "verificationTitle": "Halaman yang Anda verifikasi",
     "verificationDescription": "Halaman yang Anda verifikasi akan segera tidak terverifikasi lagi: beberapa hari sebelumnya, dan saat hal itu terjadi.",
-    "verificationChannel": "Halaman yang Anda verifikasi: {channel}"
+    "verificationChannel": "Halaman yang Anda verifikasi: {channel}",
+    "dashboardEmailsHeading": "Email dasbor",
+    "dashboardEmailsDescription": "Dasbor yang dikirim ke Anda lewat email sesuai jadwal, dan yang Anda atur untuk orang lain.",
+    "dashboardEmailsNone": "Tidak ada email dasbor",
+    "dashboardEmailsNoneDescription": "Untuk menerima dasbor lewat email, buka dasbor lalu pilih Email di atas widget-nya."
   },
   "site": {
     "description": "Beri halaman terbit ruang kerja ini satu alamat yang mudah dibaca, sebuah beranda, dan navigasi di antaranya.",

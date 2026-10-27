@@ -990,6 +990,75 @@
         "lower": "Più basso è meglio",
         "off": "Non mostrare"
       }
+    },
+    "emails": {
+      "button": "Email",
+      "buttonHint": "Invia questa dashboard via email a intervalli programmati",
+      "title": "Invia questa dashboard via email",
+      "description": "Invia i numeri di questa dashboard via email a intervalli programmati, per esempio ogni lunedì mattina. Ognuno riceve solo i numeri che può vedere.",
+      "noMail": "L’email non è configurata su questo server, quindi le dashboard non possono essere inviate via email. Un amministratore può configurare SMTP.",
+      "none": "Nessuno riceve ancora questa dashboard via email.",
+      "add": "Nuova email",
+      "edit": "Modifica",
+      "stop": "Interrompi",
+      "leave": "Annulla l’iscrizione",
+      "you": "Tu",
+      "summary": "{schedule} · {period}",
+      "to": "A {names}",
+      "setBy": "Configurata da {name}",
+      "next": "Prossima: {date}",
+      "lastSent": "ultimo invio {date}",
+      "nextSend": "La prima email parte {date}.",
+      "period": "Numeri di",
+      "periodHint": "Calcolato a partire dall’invio dell’email, nel suo fuso orario: un’email del lunedì per la settimana scorsa mostra la settimana da lunedì a domenica appena conclusa, accanto a quella precedente.",
+      "periods": {
+        "yesterday": "Ieri",
+        "last_week": "La settimana scorsa",
+        "last_month": "Il mese scorso",
+        "last_quarter": "Il trimestre scorso",
+        "last_year": "L’anno scorso",
+        "this_week": "Questa settimana finora",
+        "this_month": "Questo mese finora",
+        "this_quarter": "Questo trimestre finora",
+        "this_year": "Quest’anno finora",
+        "dashboard": "Il periodo proprio della dashboard"
+      },
+      "recipients": "Invia a",
+      "recipientsHint": "Sono elencate solo le persone che possono aprire questa pagina. Ognuna riceve i numeri che può vedere.",
+      "recipientsSelf": "A te ({email}). Inviare email ad altri richiede l’accesso in modifica a questa pagina.",
+      "search": "Cerca persone",
+      "sendTest": "Inviami una prova",
+      "testSent": "Una prova è stata inviata a {email}.",
+      "paused": {
+        "runAsGone": "In pausa: l’account di chi l’ha configurata non esiste più. Salvala di nuovo per riattivarla.",
+        "accessLost": "In pausa: chi l’ha configurata non può più aprire o modificare questa pagina. Salvala di nuovo per riattivarla.",
+        "dashboardGone": "In pausa: la dashboard è stata rimossa dalla pagina.",
+        "templateGone": "In pausa.",
+        "agentGone": "In pausa.",
+        "failed": "l’ultima email non è stata inviata; verrà fatto un nuovo tentativo al prossimo invio"
+      },
+      "errors": {
+        "notFound": "Questa dashboard non è disponibile.",
+        "needsEdit": "Inviare email ad altre persone richiede l’accesso in modifica a questa pagina.",
+        "noRecipients": "Scegli almeno una persona.",
+        "recipientNoAccess": "Una persona scelta non può aprire questa dashboard.",
+        "tooManyRecipients": "Un’email viene inviata al massimo a 50 persone.",
+        "tooMany": "Questa dashboard, o lo spazio di lavoro, ha già il numero massimo di email programmate.",
+        "invalidRepeat": "Controlla con quale frequenza e quando viene inviata l’email.",
+        "invalidPeriod": "Scegli il periodo che l’email mostra.",
+        "mailDisabled": "L’email non è configurata su questo server.",
+        "generic": "Qualcosa è andato storto. Riprova."
+      },
+      "unsubscribePage": {
+        "metaTitle": "Annulla l’iscrizione",
+        "title": "Interrompere queste email?",
+        "body": "Ricevi la dashboard «{title}» via email. Non la riceverai più e nient’altro cambia.",
+        "action": "Annulla l’iscrizione",
+        "doneTitle": "Iscrizione annullata",
+        "done": "Non riceverai più la dashboard «{title}» via email.",
+        "doneGone": "Non riceverai più questa dashboard via email.",
+        "invalid": "Questo link non funziona. Riapri l’email e usa il suo link, oppure interrompi l’email dalle Impostazioni."
+      }
     }
   },
   "databaseTabs": {

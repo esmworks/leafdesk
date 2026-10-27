@@ -299,5 +299,28 @@
     "heading": "{workspace} 已被删除",
     "body": "{name}，你好！{by} 删除了 Leafdesk 工作区 {workspace}，包括其所有页面、数据库和文件。你已无法再打开它。",
     "note": "已删除的工作区无法恢复。如果你没有预料到此事，请与 {by} 或该工作区的其他所有者联系。"
+  },
+  "dashboard": {
+    "subject": "{dashboard}：{period}",
+    "intro": "“{workspace}”中{period}的数据。",
+    "action": "打开仪表板",
+    "versus": "对比{period}",
+    "noComparison": "{period}没有可比较的数值",
+    "points": "{value} 个百分点",
+    "yesterday": "昨天",
+    "periodDays": "{period}（{days}）",
+    "asOf": "全部时间，截至 {date}",
+    "unavailable": "你无权访问这些数据。",
+    "inTrash": "此数据库在回收站中。",
+    "noGroup": "该数据库暂时没有可用于分组的内容。",
+    "empty": "此时间段内没有行。",
+    "allEmpty": "没有行。",
+    "viewOnly": "打开仪表板以查看此视图。",
+    "more": "{count, plural, other {还有 # 行}}",
+    "other": "其他",
+    "why": "{name} 已为你订阅此邮件 · {schedule}。",
+    "whyOwn": "你已订阅此邮件 · {schedule}。",
+    "unsubscribe": "取消订阅",
+    "untitled": "无标题"
   }
 }

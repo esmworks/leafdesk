@@ -990,6 +990,75 @@
         "lower": "Lebih rendah lebih baik",
         "off": "Jangan tampilkan"
       }
+    },
+    "emails": {
+      "button": "Email",
+      "buttonHint": "Kirim dasbor ini lewat email sesuai jadwal",
+      "title": "Kirim dasbor ini lewat email",
+      "description": "Kirim angka-angka dasbor ini lewat email sesuai jadwal, misalnya setiap Senin pagi. Setiap orang hanya menerima angka yang dapat mereka lihat.",
+      "noMail": "Email belum diatur di server ini, sehingga dasbor tidak dapat dikirim lewat email. Administrator dapat mengatur SMTP.",
+      "none": "Belum ada yang menerima dasbor ini lewat email.",
+      "add": "Email baru",
+      "edit": "Edit",
+      "stop": "Hentikan",
+      "leave": "Berhenti berlangganan",
+      "you": "Anda",
+      "summary": "{schedule} · {period}",
+      "to": "Kepada {names}",
+      "setBy": "Diatur oleh {name}",
+      "next": "Berikutnya: {date}",
+      "lastSent": "terakhir dikirim {date}",
+      "nextSend": "Email pertama dikirim {date}.",
+      "period": "Angka untuk",
+      "periodHint": "Dihitung dari saat email dikirim, dalam zona waktunya: email Senin untuk minggu lalu menampilkan Senin sampai Minggu yang baru berakhir, di samping minggu sebelumnya.",
+      "periods": {
+        "yesterday": "Kemarin",
+        "last_week": "Minggu lalu",
+        "last_month": "Bulan lalu",
+        "last_quarter": "Kuartal lalu",
+        "last_year": "Tahun lalu",
+        "this_week": "Minggu ini sejauh ini",
+        "this_month": "Bulan ini sejauh ini",
+        "this_quarter": "Kuartal ini sejauh ini",
+        "this_year": "Tahun ini sejauh ini",
+        "dashboard": "Periode milik dasbor itu sendiri"
+      },
+      "recipients": "Kirim ke",
+      "recipientsHint": "Hanya orang yang dapat membuka halaman ini yang ditampilkan. Setiap orang menerima angka yang dapat mereka lihat.",
+      "recipientsSelf": "Kepada Anda ({email}). Mengirim email ke orang lain memerlukan akses edit ke halaman ini.",
+      "search": "Cari orang",
+      "sendTest": "Kirim email uji ke saya",
+      "testSent": "Email uji telah dikirim ke {email}.",
+      "paused": {
+        "runAsGone": "Dijeda: akun orang yang mengaturnya sudah tidak ada. Simpan lagi untuk mengaktifkannya kembali.",
+        "accessLost": "Dijeda: orang yang mengaturnya tidak lagi dapat membuka atau mengedit halaman ini. Simpan lagi untuk mengaktifkannya kembali.",
+        "dashboardGone": "Dijeda: dasbor telah dihapus dari halaman.",
+        "templateGone": "Dijeda.",
+        "agentGone": "Dijeda.",
+        "failed": "email terakhir tidak dapat dikirim; akan dicoba lagi pada pengiriman berikutnya"
+      },
+      "errors": {
+        "notFound": "Dasbor ini tidak tersedia.",
+        "needsEdit": "Mengirim email ke orang lain memerlukan akses edit ke halaman ini.",
+        "noRecipients": "Pilih setidaknya satu orang.",
+        "recipientNoAccess": "Ada orang yang Anda pilih yang tidak dapat membuka dasbor ini.",
+        "tooManyRecipients": "Satu email dikirim ke maksimal 50 orang.",
+        "tooMany": "Dasbor ini, atau ruang kerja, sudah mencapai jumlah maksimum email terjadwal.",
+        "invalidRepeat": "Periksa seberapa sering dan kapan email dikirim.",
+        "invalidPeriod": "Pilih periode yang ditampilkan email.",
+        "mailDisabled": "Email belum diatur di server ini.",
+        "generic": "Terjadi kesalahan. Coba lagi."
+      },
+      "unsubscribePage": {
+        "metaTitle": "Berhenti berlangganan",
+        "title": "Hentikan email ini?",
+        "body": "Anda menerima dasbor “{title}” lewat email. Anda tidak akan menerimanya lagi, dan tidak ada hal lain yang berubah.",
+        "action": "Berhenti berlangganan",
+        "doneTitle": "Anda telah berhenti berlangganan",
+        "done": "Anda tidak akan lagi menerima dasbor “{title}” lewat email.",
+        "doneGone": "Anda tidak akan lagi menerima dasbor ini lewat email.",
+        "invalid": "Tautan ini tidak berfungsi. Buka kembali email dan gunakan tautannya, atau hentikan email di Pengaturan."
+      }
     }
   },
   "databaseTabs": {

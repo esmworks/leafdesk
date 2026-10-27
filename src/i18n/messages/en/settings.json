@@ -95,7 +95,8 @@
       "sensitiveFindings": "dlp findings leaked secrets card numbers dismiss",
       "domainPeople": "domain accounts users company email shadow unmanaged",
       "openOnStart": "startup launch first page last visited recent",
-      "pageReports": "report abuse flag complaint takedown published public web pages"
+      "pageReports": "report abuse flag complaint takedown published public web pages",
+      "dashboardEmails": "subscription report schedule weekly summary"
     }
   },
   "workspace": {
@@ -1957,6 +1958,11 @@
         "created": "Set up GitHub pull requests in {target}",
         "updated": "Changed the GitHub setup of {target}",
         "deleted": "Removed the GitHub setup of {target}"
+      },
+      "dashboard_email": {
+        "set": "Set {target} to be emailed to {count, plural, one {# person} other {# people}}",
+        "removed": "Stopped emailing {target}",
+        "sent": "Emailed {target} to {count, plural, one {# person} other {# people}}"
       }
     },
     "decisions": {
@@ -2061,7 +2067,11 @@
     "reactionChannel": "Reactions: {channel}",
     "verificationTitle": "Pages you verified",
     "verificationDescription": "A page you verified is about to stop being verified, a few days before, and when it does.",
-    "verificationChannel": "Pages you verified: {channel}"
+    "verificationChannel": "Pages you verified: {channel}",
+    "dashboardEmailsHeading": "Dashboard emails",
+    "dashboardEmailsDescription": "Dashboards emailed to you on a schedule, and the ones you set up for others.",
+    "dashboardEmailsNone": "No dashboard emails",
+    "dashboardEmailsNoneDescription": "To get a dashboard by email, open it and choose Email above its widgets."
   },
   "site": {
     "description": "Give this workspace's published pages one readable address, a home page and navigation between them.",

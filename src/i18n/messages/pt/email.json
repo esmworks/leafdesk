@@ -299,5 +299,28 @@
     "heading": "{workspace} foi excluído",
     "body": "Olá, {name}. {by} excluiu o espaço de trabalho {workspace} do Leafdesk, com todas as páginas, bancos de dados e arquivos dele. Você não pode mais abri-lo.",
     "note": "Espaços de trabalho excluídos não podem ser restaurados. Se você não esperava por isso, fale com {by} ou com outro proprietário do espaço de trabalho."
+  },
+  "dashboard": {
+    "subject": "{dashboard}: {period}",
+    "intro": "{period} em “{workspace}”.",
+    "action": "Abrir o painel",
+    "versus": "vs. {period}",
+    "noComparison": "Nada para comparar em {period}",
+    "points": "{value} p.p.",
+    "yesterday": "Ontem",
+    "periodDays": "{period} ({days})",
+    "asOf": "Todo o período, em {date}",
+    "unavailable": "Você não tem acesso a esses dados.",
+    "inTrash": "Este banco de dados está na lixeira.",
+    "noGroup": "O banco de dados ainda não tem nada para agrupar.",
+    "empty": "Nenhuma linha neste período.",
+    "allEmpty": "Nenhuma linha.",
+    "viewOnly": "Abra o painel para ver esta visualização.",
+    "more": "{count, plural, one {# linha a mais} other {# linhas a mais}}",
+    "other": "Outros",
+    "why": "{name} inscreveu você neste e-mail · {schedule}.",
+    "whyOwn": "Você se inscreveu neste e-mail · {schedule}.",
+    "unsubscribe": "Cancelar inscrição",
+    "untitled": "Sem título"
   }
 }

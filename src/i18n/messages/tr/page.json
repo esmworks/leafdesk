@@ -990,6 +990,75 @@
         "lower": "Düşük olması iyi",
         "off": "Gösterme"
       }
+    },
+    "emails": {
+      "button": "E-posta",
+      "buttonHint": "Bu gösterge panelini zamanlanmış olarak e-postayla gönder",
+      "title": "Bu gösterge panelini e-postayla gönder",
+      "description": "Bu gösterge panelinin rakamlarını, örneğin her pazartesi sabahı gibi, zamanlanmış olarak e-postayla gönderin. Herkes yalnızca görebildiği rakamları alır.",
+      "noMail": "Bu sunucuda e-posta kurulu değil, bu yüzden gösterge panelleri e-postayla gönderilemiyor. Bir yönetici SMTP'yi kurabilir.",
+      "none": "Bu gösterge panelini henüz kimse e-postayla almıyor.",
+      "add": "Yeni e-posta",
+      "edit": "Düzenle",
+      "stop": "Durdur",
+      "leave": "Abonelikten çık",
+      "you": "Siz",
+      "summary": "{schedule} · {period}",
+      "to": "Alıcılar: {names}",
+      "setBy": "Kuran: {name}",
+      "next": "Sonraki: {date}",
+      "lastSent": "son gönderim {date}",
+      "nextSend": "İlk e-posta {date} tarihinde gönderilecek.",
+      "period": "Rakamların dönemi",
+      "periodHint": "E-postanın gönderildiği andan, onun saat diliminde sayılır: geçen haftayı gösteren bir pazartesi e-postası, yeni biten pazartesi–pazar haftasını bir önceki haftanın yanında gösterir.",
+      "periods": {
+        "yesterday": "Dün",
+        "last_week": "Geçen hafta",
+        "last_month": "Geçen ay",
+        "last_quarter": "Geçen çeyrek",
+        "last_year": "Geçen yıl",
+        "this_week": "Bu hafta şimdiye kadar",
+        "this_month": "Bu ay şimdiye kadar",
+        "this_quarter": "Bu çeyrek şimdiye kadar",
+        "this_year": "Bu yıl şimdiye kadar",
+        "dashboard": "Gösterge panelinin kendi dönemi"
+      },
+      "recipients": "Alıcılar",
+      "recipientsHint": "Yalnızca bu sayfayı açabilen kişiler listelenir. Herkes görebildiği rakamları alır.",
+      "recipientsSelf": "Size ({email}). Başkalarına e-posta göndermek için bu sayfada düzenleme erişimi gerekir.",
+      "search": "Kişi ara",
+      "sendTest": "Bana test gönder",
+      "testSent": "{email} adresine bir test gönderildi.",
+      "paused": {
+        "runAsGone": "Duraklatıldı: kuran kişinin hesabı artık yok. Yeniden açmak için tekrar kaydedin.",
+        "accessLost": "Duraklatıldı: kuran kişi artık bu sayfayı açamıyor veya düzenleyemiyor. Yeniden açmak için tekrar kaydedin.",
+        "dashboardGone": "Duraklatıldı: gösterge paneli sayfadan kaldırıldı.",
+        "templateGone": "Duraklatıldı.",
+        "agentGone": "Duraklatıldı.",
+        "failed": "son e-posta gönderilemedi; bir sonraki seferde yeniden denenecek"
+      },
+      "errors": {
+        "notFound": "Bu gösterge paneli kullanılamıyor.",
+        "needsEdit": "Başkalarına e-posta göndermek için bu sayfada düzenleme erişimi gerekir.",
+        "noRecipients": "En az bir kişi seçin.",
+        "recipientNoAccess": "Seçtiğiniz bir kişi bu gösterge panelini açamıyor.",
+        "tooManyRecipients": "Bir e-posta en fazla 50 kişiye gider.",
+        "tooMany": "Bu gösterge paneli ya da çalışma alanı, alabileceği en fazla zamanlanmış e-postaya ulaştı.",
+        "invalidRepeat": "E-postanın ne sıklıkla ve ne zaman gönderileceğini kontrol edin.",
+        "invalidPeriod": "E-postanın göstereceği dönemi seçin.",
+        "mailDisabled": "Bu sunucuda e-posta kurulu değil.",
+        "generic": "Bir şeyler ters gitti. Yeniden deneyin."
+      },
+      "unsubscribePage": {
+        "metaTitle": "Abonelikten çık",
+        "title": "Bu e-postalar durdurulsun mu?",
+        "body": "“{title}” gösterge panelini e-postayla alıyorsunuz. Artık almayacaksınız; başka hiçbir şey değişmez.",
+        "action": "Abonelikten çık",
+        "doneTitle": "Abonelikten çıktınız",
+        "done": "“{title}” gösterge panelini artık e-postayla almayacaksınız.",
+        "doneGone": "Bu gösterge panelini artık e-postayla almayacaksınız.",
+        "invalid": "Bu bağlantı çalışmıyor. E-postayı yeniden açıp içindeki bağlantıyı kullanın veya e-postayı Ayarlar'dan durdurun."
+      }
     }
   },
   "databaseTabs": {
