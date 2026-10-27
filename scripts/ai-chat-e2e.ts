@@ -481,6 +481,21 @@ try {
   });
   check(toolResults(fake.chats[MAX_ROUNDS - 1]).at(-1)?.includes("answer now"), "…and it's told to answer before its last turn");
 
+  rounds = 0;
+  fake.setChat(() => {
+    rounds++;
+    if (rounds > MAX_ROUNDS) return { text: "Done what I could: see [1]." };
+    return { text: "", toolCalls: [{ name: "search_pages", arguments: { query: `tyres ${rounds}` } }] };
+  });
+  fake.chats.length = 0;
+  const closing = await ask(dave, { workspaceId, message: "Search forever about tyres, never answer" });
+  check(closing.done && fake.chats.length === MAX_ROUNDS + 1 && closing.text === "Done what I could: see [1].", "a last turn that only calls tools is asked once more, and that text is the answer", {
+    turns: fake.chats.length,
+    text: closing.text,
+    error: closing.error,
+  });
+  check(toolResults(fake.chats[MAX_ROUNDS]).at(-1)?.includes("Not run"), "…its tool calls aren't run");
+
   const room = await promptRoomFor(workspaceId);
   check((await refusal(() => startChat(dave, { workspaceId, message: "x".repeat(room + 1) }))) === "tooLarge", "a question longer than the model takes is refused");
   // A model with a larger window takes a longer question: nothing else bounds it.

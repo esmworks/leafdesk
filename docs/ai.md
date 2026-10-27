@@ -165,7 +165,8 @@ pages, up to 8,000 characters), and the model decides what to look at. It can se
 (`search_pages`, full-text and, with embeddings, by meaning), read a whole page (`read_page`; a
 database reads as its properties and its first 200 rows with their values) and list the rows of a
 database that match filters on its properties (`query_database`, the same filters and sorts as
-the MCP tool, each row a source to cite), up to six turns per question; greetings are answered
+the MCP tool, each row a source to cite), up to 20 turns and 400,000 tokens per question (a last
+turn that still calls tools is asked once more to answer); greetings are answered
 without tools. A database row found by a search comes with its database and its values (those the
 person may see). The chat's full-text search finds pages with any of the search's words (as
 prefixes, so "ekstreleri" finds "ekstresi"; question words such as "what" or "nedir" left out;
