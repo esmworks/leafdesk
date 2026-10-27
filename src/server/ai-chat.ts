@@ -89,7 +89,6 @@ import {
   IMAGE_CHARS,
   isAiError,
   promptRoomFor,
-  RUN_ROUNDS,
   stream,
   takeRateLimit,
   takeWorkspaceCapacity,
@@ -97,9 +96,11 @@ import {
   type AiResult,
   type ChatModelOption,
 } from "@/server/ai";
+import { setTimeout as sleep } from "node:timers/promises";
 import { dropOldToolResults } from "@/server/ai/compact";
 import { browserTimeZone, isTimeZone } from "@/lib/time-zone";
 import { attachmentBlock, chatHistory, chatQuestionPrompt, chatSystemPrompt, researchSystemPrompt } from "@/server/ai/prompts";
+import { ANSWER_NOW, isLastTurn, refuseLastCalls } from "@/server/ai/turns";
 import { attachmentRecords, deleteConversationFiles, keepQuestionFiles, questionFiles, readConversationFiles, type ChatFileContent } from "@/server/ai-chat-files";
 import { chatWebOn, chatWebToolset, isChatWebTool, PLAN_TOOL, runChatWebTool, runPlan } from "@/server/ai-chat-web";
 import { chatWebCallAsks, webCallAction } from "@/lib/web-calls";
@@ -558,20 +559,24 @@ async function* runChat(
       return earlier > 0;
     };
     let roomMade = 0;
-    // The turn that must answer: the one after the turns spent AI_RUN_LIMIT_USD (research writes its
-    // report then), or RUN_ROUNDS' last for a model without a price. Each turn also counts against
-    // the workspace's rate and cost limits, and the person can stop the answer.
-    let finalRound = RUN_ROUNDS - 1;
     // The last turn called tools instead of answering: it's asked once more, with none run.
     let closing = false;
 
     // ------------------------------------------------------------------------------ model turns
-    for (let round = 0; round <= finalRound; round++) {
-      if (round > 0) {
-        const wait = takeWorkspaceCapacity(workspaceId);
-        if (wait > 0) throw new AiError("rateLimited", "The workspace's AI allowance is used up for now", wait);
+    // Turns go on until the model answers; the last (turns.ts) answers with what it has (research
+    // writes its report). Each turn also counts against the workspace's rate and cost limits, and
+    // the person can stop the answer.
+    for (let round = 0; ; round++) {
+      // A long answer waits for the workspace's AI allowance rather than failing.
+      for (let wait = round > 0 ? takeWorkspaceCapacity(workspaceId) : 0; wait > 0; wait = takeWorkspaceCapacity(workspaceId)) {
+        yield { type: "ping" };
+        try {
+          await sleep(Math.min(wait, PING_MS), undefined, { signal });
+        } catch {
+          throw new AiError("aborted", "The answer was stopped");
+        }
       }
-      const last = round === finalRound;
+      const last = isLastTurn(round, spentUsd, limitUsd);
       yield { type: "thinking" };
       let streamed = "";
       let result: AiResult;
@@ -613,13 +618,10 @@ async function* runChat(
       }
       answeredBy = result.model;
       spentUsd += result.usage.costUsd;
-      if (last && result.toolCalls.length && !result.text.trim() && !closing) {
+      if (last && result.toolCalls.length && !closing) {
         closing = true;
         if (streamed) yield { type: "reset" };
-        messages.push(result.message);
-        for (const call of result.toolCalls) {
-          messages.push({ role: "tool", toolCallId: call.id, name: call.name, content: "Not run: there are no turns left for tools. Answer now with what you have, and say what is left to do.", isError: true });
-        }
+        refuseLastCalls(messages, result);
         round -= 1;
         continue;
       }
@@ -628,15 +630,13 @@ async function* runChat(
         stopReason = result.stopReason === "length" ? "length" : "stop";
         break;
       }
-      // Past AI_RUN_LIMIT_USD, the next turn answers (research writes its report).
-      if (spentUsd >= limitUsd) finalRound = Math.min(finalRound, round + 1);
       // Text before a tool call is the model thinking aloud, not the answer: it's kept as a step.
       if (streamed) yield { type: "reset" };
       const thought = thoughtText(streamed);
       if (thought) yield await step({ kind: "thought", text: thought.length > THOUGHT_CHARS ? `${thought.slice(0, THOUGHT_CHARS - 1).trimEnd()}…` : thought });
       answer = "";
       messages.push(result.message);
-      const answerNext = round === finalRound - 1;
+      const answerNext = isLastTurn(round + 1, spentUsd, limitUsd);
       for (const call of result.toolCalls) {
         const left = room() - sizeOf(messages) - 300;
         let out: ToolOutcome;
@@ -687,7 +687,7 @@ async function* runChat(
           out = "action" in prepared ? await applyWrite(prepared, decision, registry) : prepared;
         }
         if (out.step) yield await step(out.step);
-        const content = answerNext ? `${out.content}\n\n(No more searching or reading: answer now with the sources you have.)` : out.content;
+        const content = answerNext ? `${out.content}\n\n${ANSWER_NOW}` : out.content;
         messages.push({ role: "tool", toolCallId: call.id, name: call.name, content, isError: out.isError });
       }
     }

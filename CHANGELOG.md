@@ -134,7 +134,8 @@
   has spent the new `AI_RUN_LIMIT_USD` (10 US dollars by default), and then answers with what it
   has; a last turn that still calls tools is asked once more, its calls not run, instead of
   failing. Models without a known price (local and OpenAI-compatible ones) take at most 100 turns.
-  The workspace's rate and cost limits still count each turn.
+  The workspace's rate and cost limits still count each turn; a long chat answer waits for the
+  workspace's rate limit instead of ending with "Too many AI requests".
 - **Text is drawn in the system's own typeface again** where Inter isn't installed. Since 0.6.4
   Latin letters fell to a Chinese typeface on macOS, whose faces came before the system's.
 - **Recordings no longer end in lines nobody said.** Over silence or a mumbled stretch, Whisper
