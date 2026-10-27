@@ -56,6 +56,19 @@
   search results; any other page read is refused at once, without holding the run, and its steps
   show the address it didn't read. A helper's run for a scheduled run reads only its search
   results.
+- **Images and other media an agent or the AI chat writes into a page become links when they
+  would load another site.** An image, video, audio, embed or new bookmark loads its address as
+  soon as someone opens the page (a bookmark through the server), so text planted in what the
+  model read could make it hide what it read in such an address and have it sent out without a
+  click. Those blocks are written as links to the same address instead; files uploaded to
+  Leafdesk and media the page already showed stay as they are, and a row an agent proposed is
+  written the same way once approved.
+- **What models read from outside is framed more firmly.** Web pages, search results, connected
+  services' answers and other agents' answers reach the model in a frame whose end line carries
+  an id new each time, so text can no longer end the frame early and speak outside it. Characters
+  that show nothing on screen (hidden Unicode tag characters, zero-width spaces, direction
+  controls) are taken out of everything sent to a model, so a page or an email can't hide
+  instructions in them.
 
 ### Fixed
 

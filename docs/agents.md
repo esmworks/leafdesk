@@ -105,6 +105,14 @@ address it didn't read. A helper's run for a schedule's run reads only its searc
 database with rows no member stands behind, each call still waits for an owner. Leave web access
 off for agents that only work with the workspace.
 
+What reaches the model from outside (web pages, search results, connections' and other agents'
+answers) comes inside a frame whose end line carries an id new each time, so the text can't end
+the frame early, and characters that show nothing on screen are taken out of all it reads. Pages
+are also a way out: an image, video, audio, embed or new bookmark loads its address as soon as
+someone opens the page. So media an agent or the AI chat writes into a page that would load
+another site is written as a link to the same address; uploaded files and media the page already
+showed stay as they are.
+
 **Mentioning an agent in a comment.** Typing `@` in a page's comments offers, below the people,
 the agents that may comment on the page (shared with them at comment or edit), marked with their
 icon; agents that may only view it, paused and archived agents aren't offered. When a member posts

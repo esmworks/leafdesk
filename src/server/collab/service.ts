@@ -10,6 +10,7 @@ import { applyBlockEdits, listedBlocks, stripBlockMarkers, type BlockEdit } from
 import { blocksToPlainText } from "@/lib/blocks";
 import { linkTitle } from "@/lib/link-context";
 import { linkWikilinks, titleKey, wikilinkTitles } from "@/lib/wikilinks";
+import { mediaAsLinks } from "@/lib/model-media";
 import { BUILD_PARAM, isForeignBuild } from "@/lib/build-id";
 import {
   AI_EDIT_EVENT,
@@ -593,6 +594,10 @@ export function createCollab() {
     return insertSnapshot(pageId, doc, reason, actor, row?.title ?? "", name);
   };
 
+  /** What a model wrote, with media that would load an address `existing` didn't as links (lib/model-media). */
+  const modelWritten = <T extends unknown[] | null>(actor: WriteActor, blocks: T, existing: readonly unknown[]): T =>
+    actor.model && blocks ? (mediaAsLinks(blocks as never[], existing as never[], new URL(env.appUrl).origin) as unknown as T) : blocks;
+
   const writeBlocks = async (
     pageId: string,
     actor: WriteActor,
@@ -631,7 +636,7 @@ export function createCollab() {
         }
         // The page as it reads: pending suggestions are not applied (they stay where the write leaves blocks as they were).
         const existing = fragmentBlocks(fragment);
-        const next = await build(existing, { people: await mentionablePeople(pageId), appUrl: env.appUrl, pageId });
+        const next = modelWritten(actor, await build(existing, { people: await mentionablePeople(pageId), appUrl: env.appUrl, pageId }), existing);
         if (touched) return { next: null, write: { conflict: true, version: await version() } satisfies BodyWrite };
         // Only a write that changes something is saved before.
         if (snapshot && next) snapshotId = await snapshotBefore(pageId, doc, aiWrite ? "before_mcp_write" : snapshot, actor);
@@ -709,7 +714,7 @@ export function createCollab() {
           // As the blocks read now: plain, or with page links labelled as get_page gives them.
           const plain = await blocksToMarkdown(existing, { workspaceId: source.workspaceId });
           if (written === (await read(plain)) || written === (await read(await labelPageLinks(actor.userId, plain)))) continue;
-          writes.push({ syncId: ref.syncId, blocks: await linkWritten(sourceId, actor, next) });
+          writes.push({ syncId: ref.syncId, blocks: modelWritten(actor, await linkWritten(sourceId, actor, next), existing) });
         }
         if (!writes.length) return false;
         if (snapshot && sourceId !== hostPageId) await snapshotBefore(sourceId, doc, snapshot === true ? "before_mcp_write" : snapshot, actor);
@@ -1061,7 +1066,7 @@ export function createCollab() {
         const made = await buildEdits(pageId, actor, existing, { people: await mentionablePeople(pageId), appUrl: env.appUrl }, edits);
         const version = await service.pageVersion(pageId);
         if ("missing" in made) return { conflict: false, version, missing: made.missing };
-        return { conflict: false, version, missing: null, before: existing, after: made.blocks };
+        return { conflict: false, version, missing: null, before: existing, after: modelWritten(actor, made.blocks, existing) };
       }
       let missing: string | null = null;
       const { write } = await writeBlocks(
