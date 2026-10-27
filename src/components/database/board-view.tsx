@@ -925,6 +925,9 @@ function DropLine() {
   return <div className="mb-2 h-0.5 rounded bg-accent" />;
 }
 
+/** Values that show as chips of their own (an option's color, a linked row), so a card doesn't box them again. */
+const CHIPPED = new Set<Property["type"]>(["select", "multi_select", "status", "relation"]);
+
 const Card = memo(function Card({
   workspaceId,
   row,
@@ -1001,11 +1004,18 @@ const Card = memo(function Card({
         </div>
       )}
       {shown.length > 0 && (
-        <div className="mt-2 flex flex-col items-start gap-1.5 text-xs">
+        // Side by side, each value in a chip of its own (options bring their own colored chip);
+        // wrapped values keep a line each.
+        <div className={cn("mt-2 flex gap-1.5 text-xs", wrap ? "flex-col items-start" : "flex-wrap items-center")}>
           {shown.map((p) => (
             <div
               key={p.id}
-              className={cn("flex max-w-full min-w-0 text-fg-muted", wrap ? "items-start" : "items-center", cellMarkClass(color, p.id))}
+              className={cn(
+                "flex max-w-full min-w-0 text-fg-muted",
+                wrap ? "items-start" : "items-center",
+                !wrap && !CHIPPED.has(p.type) && "h-6 rounded-md border border-border bg-bg px-1.5",
+                cellMarkClass(color, p.id),
+              )}
               title={p.name}
             >
               <CardValue prop={p} row={row} wrap={wrap} readOnly={readOnly} onChange={onValue} onCreateOption={onCreateOption} />

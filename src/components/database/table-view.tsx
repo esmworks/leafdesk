@@ -768,7 +768,8 @@ export function TableView({
             ))}
             {!readOnly && <col style={{ width: 36 }} />}
           </colgroup>
-          <thead ref={setThead}>
+          {/* The header row on gray, frozen columns included (not the row handles beside it). */}
+          <thead ref={setThead} className="[&_th:not(:first-child)]:bg-bg-subtle">
             <tr className="group">
               <th className={cn("p-0 font-normal", frozen(-1).className)} style={frozen(-1).style}>
                 <div className="flex justify-end">
@@ -1002,7 +1003,7 @@ function HeaderCell({
         disabled={readOnly}
         onClick={menu.toggle}
         aria-describedby={description ? descriptionId : undefined}
-        className="flex h-[33px] w-full items-center gap-1.5 px-2 text-sm text-fg-muted hover:bg-bg-hover disabled:hover:bg-transparent"
+        className="flex h-[33px] w-full items-center gap-1.5 px-2 text-[13px] text-fg-muted hover:bg-bg-hover disabled:hover:bg-transparent"
       >
         <PropertyTypeIcon type={icon} icon={prop?.options.icon} number={prop?.options.number} className="h-3.5 w-3.5 shrink-0" />
         <span className="truncate">{label}</span>
