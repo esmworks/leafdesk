@@ -17,6 +17,7 @@
     "github": "GitHub",
     "ical": "日历",
     "postgres": "PostgreSQL",
+    "sheets": "Google Sheets",
     "googleDocs": "Google 文档",
     "web": "网页"
   },
@@ -438,6 +439,36 @@
       "failed": "同步失败，下次会重试。",
       "invalidSite": "Leafdesk 无法访问该服务器：私有地址需要管理员在 CONNECTOR_ALLOWED_HOSTS 中允许。",
       "invalidInput": "请检查连接地址、表名和列名。",
+      "alreadyRunning": "正在同步，请稍后再试。"
+    }
+  },
+  "sheets": {
+    "help": "用 Google 电子表格的一个工作表创建一个保持同步的数据库：标题行下方的每一行在这里都是一行，通过键列重新找到，由标题列命名，其他每个有名称的列都成为一个属性（按列的内容为文本、数字、复选框、日期和时间）。最多 {limit, number} 个单元格。变更是单向的，从工作表到 Leafdesk。",
+    "loading": "正在查找 Google Sheets 连接…",
+    "noConnection": "没有可供你同步的 Google Sheets 连接。所有者在 设置 → 连接 中添加 Google Sheets；所有者为其 get_spreadsheet 工具勾选“在聊天中”后，成员也可以使用。",
+    "connection": "Google Sheets 连接",
+    "link": "工作表链接",
+    "linkPlaceholder": "https://docs.google.com/spreadsheets/d/…/edit#gid=…",
+    "linkHelp": "打开工作表（底部的标签页）并复制地址：工作表通过其 ID 查找，所以之后重命名也没有问题。连接的 Google 账户必须能打开该电子表格；不需要与其他人共享。",
+    "invalidLink": "不是 Google 电子表格的链接。",
+    "headerRow": "标题行",
+    "headerRowPlaceholder": "最后一个冻结行",
+    "keyPlaceholder": "第一列",
+    "titlePlaceholder": "键列",
+    "namePlaceholder": "工作表的名称",
+    "errors": {
+      "unauthorized": "Google Sheets 连接需要重新登录 Google：由所有者在 设置 → 连接 中操作。",
+      "forbidden": "此连接无法用于这里：它的 Google 账户可能无法打开该电子表格，它在另一个工作区中，或者你无权通过它读取。",
+      "notFound": "没有这个电子表格或工作表，或者连接已被删除。",
+      "badQuery": "Google 拒绝读取该工作表：",
+      "tooManyIssues": "工作表的单元格太多，无法同步。请把需要的行和列移到单独的工作表中。",
+      "unreachable": "无法连接，或 Google 响应时间过长。下次同步时会重试。",
+      "runAsGone": "设置同步的人已没有账户。",
+      "accessLost": "同步的运行者已无法编辑此数据库，或已离开工作区。",
+      "keyGone": "键属性已删除或更改了类型，或键列的标题已更改，无法对应工作表中的行。",
+      "failed": "同步失败。下次同步时会重试。",
+      "invalidSite": "Leafdesk 无法连接到该连接。",
+      "invalidInput": "请检查链接、标题行和列名：它们必须与标题行的文本一致。",
       "alreadyRunning": "正在同步，请稍后再试。"
     }
   }

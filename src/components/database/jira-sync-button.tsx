@@ -11,13 +11,14 @@ const JiraSyncDialog = dynamic(() => import("./jira-sync-dialog"));
 const GithubPullsSyncDialog = dynamic(() => import("./github-pulls-sync-dialog"));
 const IcalSyncDialog = dynamic(() => import("./ical-sync-dialog"));
 const PostgresSyncDialog = dynamic(() => import("./postgres-sync-dialog"));
+const SheetsSyncDialog = dynamic(() => import("./sheets-sync-dialog"));
 
-const DIALOGS = { jira: JiraSyncDialog, github: GithubPullsSyncDialog, ical: IcalSyncDialog, postgres: PostgresSyncDialog };
+const DIALOGS = { jira: JiraSyncDialog, github: GithubPullsSyncDialog, ical: IcalSyncDialog, postgres: PostgresSyncDialog, sheets: SheetsSyncDialog };
 /** The texts of each source's button, under `database`. */
-const SOURCE_TEXTS = { jira: "jiraSync", github: "githubPulls", ical: "icalSync", postgres: "postgresSync" } as const;
+const SOURCE_TEXTS = { jira: "jiraSync", github: "githubPulls", ical: "icalSync", postgres: "postgresSync", sheets: "sheetsSync" } as const;
 
 /**
- * Shows that a database is synced from Jira, GitHub, a calendar or PostgreSQL (with a mark when the
+ * Shows that a database is synced from Jira, GitHub, a calendar, PostgreSQL or Google Sheets (with a mark when the
  * sync is paused or its last run failed), and opens the sync's dialog.
  */
 export function JiraSyncButton({ databaseId, sync, onChanged }: { databaseId: string; sync: DatabaseSyncSummary; onChanged: () => void }) {

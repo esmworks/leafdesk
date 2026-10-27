@@ -2176,5 +2176,15 @@
     "overwrite": "Tabellen är källan: de synkroniserade egenskaperna och radtitlarna skrivs över vid varje synkronisering, så ändra data i tabellen. Egenskaper du lägger till själv står kvar, och rader som försvinner ur tabellen lämnas orörda.",
     "changeUrl": "Ändra anslutningen",
     "stopConfirm": "Sluta synkronisera den här databasen? Raderna står kvar och anslutningsadressen glöms."
+  },
+  "sheetsSync": {
+    "button": "Synkroniserad från Google Sheets",
+    "buttonPaused": "Google Sheets-synkronisering pausad",
+    "title": "Google Sheets-synkronisering",
+    "sheet": "Blad",
+    "connectionGone": "Borttagen anslutning",
+    "lastRun": "Senast synkroniserad {when}, {count, plural, one {# rad} other {# rader}}",
+    "overwrite": "Bladet är källan: De synkroniserade egenskaperna och radtitlarna skrivs över vid varje synkronisering, så ändra uppgifterna i bladet. Egenskaper du lägger till själv står kvar, och rader som lämnar bladet lämnas orörda.",
+    "stopConfirm": "Sluta synkronisera den här databasen? Raderna står kvar."
   }
 }

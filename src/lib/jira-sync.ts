@@ -128,7 +128,7 @@ export type JiraSyncView = {
 
 /** What every viewer of a synced database is told (the snapshot's `sync`). */
 export type DatabaseSyncSummary = {
-  source: "jira" | "github" | "ical" | "postgres";
+  source: "jira" | "github" | "ical" | "postgres" | "sheets";
   siteUrl: string;
   lastRunAt: string | null;
   lastError: JiraSyncError | null;

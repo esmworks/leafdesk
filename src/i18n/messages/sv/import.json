@@ -17,6 +17,7 @@
     "github": "GitHub",
     "ical": "Kalender",
     "postgres": "PostgreSQL",
+    "sheets": "Google Sheets",
     "googleDocs": "Google Dokument",
     "web": "Webbsida"
   },
@@ -438,6 +439,36 @@
       "failed": "Synkroniseringen misslyckades. Den försöker igen nästa gång.",
       "invalidSite": "Leafdesk kan inte nå den servern: en privat adress måste tillåtas av din administratör i CONNECTOR_ALLOWED_HOSTS.",
       "invalidInput": "Kontrollera anslutningsadressen, tabellen och kolumnnamnen.",
+      "alreadyRunning": "En synkronisering pågår. Försök igen om en stund."
+    }
+  },
+  "sheets": {
+    "help": "Få en databas av ett blad i ett Google-kalkylark som hålls uppdaterad: varje rad under rubrikraden blir en rad här, återfinns via nyckelkolumnen och får sitt namn från titelkolumnen, med en egenskap för varje annan namngiven kolumn (text, tal, kryssrutor, datum och tider, efter vad kolumnen innehåller). Upp till {limit, number} celler. Ändringar går åt ett håll, från bladet till Leafdesk.",
+    "loading": "Letar efter Google Sheets-anslutningar…",
+    "noConnection": "Det finns ingen Google Sheets-anslutning som du kan synkronisera via. En ägare lägger till Google Sheets i Inställningar → Anslutningar; medlemmar kan använda den när en ägare har kryssat i ”I chatten” för dess verktyg get_spreadsheet.",
+    "connection": "Google Sheets-anslutning",
+    "link": "Länk till bladet",
+    "linkPlaceholder": "https://docs.google.com/spreadsheets/d/…/edit#gid=…",
+    "linkHelp": "Öppna bladet (fliken längst ned) och kopiera adressen: Bladet hittas via sitt id, så det går bra att byta namn på det senare. Anslutningens Google-konto måste kunna öppna kalkylarket; det behöver inte delas med någon annan.",
+    "invalidLink": "Ingen länk till ett Google-kalkylark.",
+    "headerRow": "Rubrikrad",
+    "headerRowPlaceholder": "Den sista fixerade raden",
+    "keyPlaceholder": "Den första kolumnen",
+    "titlePlaceholder": "Nyckelkolumnen",
+    "namePlaceholder": "Bladets namn",
+    "errors": {
+      "unauthorized": "Google Sheets-anslutningen måste logga in på Google igen: En ägare gör det i Inställningar → Anslutningar.",
+      "forbidden": "Anslutningen kan inte användas till detta: Dess Google-konto kanske inte kan öppna kalkylarket, den finns i en annan arbetsyta, eller så får du inte läsa via den.",
+      "notFound": "Det finns inget sådant kalkylark eller blad, eller så togs anslutningen bort.",
+      "badQuery": "Google vägrade läsa bladet:",
+      "tooManyIssues": "Bladet har för många celler för att synkroniseras. Flytta de rader och kolumner du behöver till ett eget blad.",
+      "unreachable": "Anslutningen gick inte att nå, eller så tog Google för lång tid. Synkroniseringen försöker igen nästa gång.",
+      "runAsGone": "Personen som konfigurerade synkroniseringen har inte längre något konto.",
+      "accessLost": "Personen som synkroniseringen körs som kan inte längre redigera databasen, eller har lämnat arbetsytan.",
+      "keyGone": "Nyckelegenskapen togs bort eller bytte typ, eller så ändrades nyckelkolumnens rubrik, så bladets rader kan inte matchas med rader.",
+      "failed": "Synkroniseringen misslyckades. Den försöker igen nästa gång.",
+      "invalidSite": "Leafdesk kan inte nå den anslutningen.",
+      "invalidInput": "Kontrollera länken, rubrikraden och kolumnnamnen: De måste stämma med rubrikradens text.",
       "alreadyRunning": "En synkronisering pågår. Försök igen om en stund."
     }
   }

@@ -2176,5 +2176,15 @@
     "overwrite": "The table is the source: the synced properties and row titles are written over on each sync, so change the data in the table. Properties you add yourself stay as they are, and rows that leave the table are left alone.",
     "changeUrl": "Change the connection",
     "stopConfirm": "Stop syncing this database? Its rows stay as they are, and the connection address is forgotten."
+  },
+  "sheetsSync": {
+    "button": "Synced from Google Sheets",
+    "buttonPaused": "Google Sheets sync paused",
+    "title": "Google Sheets sync",
+    "sheet": "Sheet",
+    "connectionGone": "Removed connection",
+    "lastRun": "Last synced {when}, {count, plural, one {# row} other {# rows}}",
+    "overwrite": "The sheet is the source: the synced properties and row titles are written over on each sync, so change the data in the sheet. Properties you add yourself stay as they are, and rows that leave the sheet are left alone.",
+    "stopConfirm": "Stop syncing this database? Its rows stay as they are."
   }
 }

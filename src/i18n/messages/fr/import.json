@@ -17,6 +17,7 @@
     "github": "GitHub",
     "ical": "Calendrier",
     "postgres": "PostgreSQL",
+    "sheets": "Google Sheets",
     "googleDocs": "Google Docs",
     "web": "Page web"
   },
@@ -438,6 +439,36 @@
       "failed": "La synchronisation a échoué. Elle réessaiera la prochaine fois.",
       "invalidSite": "Leafdesk ne peut pas joindre ce serveur : une adresse privée doit être autorisée par votre administrateur dans CONNECTOR_ALLOWED_HOSTS.",
       "invalidInput": "Vérifiez l'adresse de connexion, la table et les noms de colonnes.",
+      "alreadyRunning": "Une synchronisation est en cours. Réessayez dans un instant."
+    }
+  },
+  "sheets": {
+    "help": "Obtenez une base de données à partir d'une feuille d'un tableur Google, qui reste à jour : chaque ligne sous la ligne d'en-tête devient une ligne ici, retrouvée par sa colonne clé et nommée par sa colonne de titre, avec une propriété pour chaque autre colonne nommée (texte, nombres, cases à cocher, dates et heures, selon ce que contient la colonne). Jusqu'à {limit, number} cellules. Les modifications vont dans un seul sens, de la feuille vers Leafdesk.",
+    "loading": "Recherche des connexions Google Sheets…",
+    "noConnection": "Aucune connexion Google Sheets ne vous permet de synchroniser. Un propriétaire ajoute Google Sheets dans Paramètres → Connexions ; les membres peuvent l'utiliser dès qu'un propriétaire coche « Dans le chat » pour son outil get_spreadsheet.",
+    "connection": "Connexion Google Sheets",
+    "link": "Lien vers la feuille",
+    "linkPlaceholder": "https://docs.google.com/spreadsheets/d/…/edit#gid=…",
+    "linkHelp": "Ouvrez la feuille (l'onglet en bas) et copiez l'adresse : la feuille est retrouvée par son identifiant, vous pouvez donc la renommer ensuite. Le compte Google de la connexion doit pouvoir ouvrir le tableur ; il n'a pas besoin d'être partagé avec d'autres personnes.",
+    "invalidLink": "Ce n'est pas un lien vers un tableur Google.",
+    "headerRow": "Ligne d'en-tête",
+    "headerRowPlaceholder": "La dernière ligne figée",
+    "keyPlaceholder": "La première colonne",
+    "titlePlaceholder": "La colonne clé",
+    "namePlaceholder": "Le nom de la feuille",
+    "errors": {
+      "unauthorized": "La connexion Google Sheets doit se reconnecter à Google : un propriétaire le fait dans Paramètres → Connexions.",
+      "forbidden": "La connexion ne peut pas servir ici : son compte Google ne peut peut-être pas ouvrir le tableur, elle se trouve dans un autre espace de travail, ou vous n'avez pas le droit de lire à travers elle.",
+      "notFound": "Ce tableur ou cette feuille n'existe pas, ou la connexion a été supprimée.",
+      "badQuery": "Google a refusé de lire la feuille :",
+      "tooManyIssues": "La feuille contient trop de cellules pour être synchronisée. Déplacez les lignes et colonnes dont vous avez besoin vers une feuille à part.",
+      "unreachable": "La connexion est injoignable ou Google a mis trop de temps. La synchronisation réessaiera la prochaine fois.",
+      "runAsGone": "La personne qui a configuré la synchronisation n'a plus de compte.",
+      "accessLost": "La personne au nom de laquelle la synchronisation s'exécute ne peut plus modifier cette base ou a quitté l'espace de travail.",
+      "keyGone": "La propriété clé a été supprimée ou a changé de type, ou l'en-tête de la colonne clé a changé : les lignes de la feuille ne peuvent plus être associées à des lignes.",
+      "failed": "La synchronisation a échoué. Elle réessaiera la prochaine fois.",
+      "invalidSite": "Leafdesk ne peut pas joindre cette connexion.",
+      "invalidInput": "Vérifiez le lien, la ligne d'en-tête et les noms de colonnes : ils doivent correspondre au texte de la ligne d'en-tête.",
       "alreadyRunning": "Une synchronisation est en cours. Réessayez dans un instant."
     }
   }

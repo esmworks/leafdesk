@@ -2176,5 +2176,15 @@
     "overwrite": "Kaynak tablodur: eşitlenen özellikler ve satır başlıkları her eşitlemede yeniden yazılır; bu yüzden verileri tabloda değiştirin. Kendi eklediğiniz özellikler olduğu gibi kalır, tablodan çıkan satırlara dokunulmaz.",
     "changeUrl": "Bağlantıyı değiştir",
     "stopConfirm": "Bu veritabanının eşitlemesi durdurulsun mu? Satırlar olduğu gibi kalır, bağlantı adresi unutulur."
+  },
+  "sheetsSync": {
+    "button": "Google Sheets'ten eşitleniyor",
+    "buttonPaused": "Google Sheets eşitlemesi duraklatıldı",
+    "title": "Google Sheets eşitlemesi",
+    "sheet": "E-tablo sayfası",
+    "connectionGone": "Kaldırılmış bağlantı",
+    "lastRun": "Son eşitleme {when}, {count, plural, one {# satır} other {# satır}}",
+    "overwrite": "Kaynak sayfadır: eşitlenen özellikler ve satır başlıkları her eşitlemede yeniden yazılır; bu yüzden verileri sayfada değiştirin. Kendi eklediğiniz özellikler olduğu gibi kalır, sayfadan çıkan satırlara dokunulmaz.",
+    "stopConfirm": "Bu veritabanının eşitlemesi durdurulsun mu? Satırlar olduğu gibi kalır."
   }
 }

@@ -2176,5 +2176,15 @@
     "overwrite": "Tabela jest źródłem: synchronizowane właściwości i tytuły wierszy są nadpisywane przy każdej synchronizacji, więc zmieniaj dane w tabeli. Właściwości dodane przez Ciebie pozostają, a wiersze, które znikną z tabeli, nie są ruszane.",
     "changeUrl": "Zmień połączenie",
     "stopConfirm": "Zatrzymać synchronizację tej bazy? Wiersze pozostaną bez zmian, a adres połączenia zostanie zapomniany."
+  },
+  "sheetsSync": {
+    "button": "Zsynchronizowano z Google Sheets",
+    "buttonPaused": "Synchronizacja Google Sheets wstrzymana",
+    "title": "Synchronizacja Google Sheets",
+    "sheet": "Karta",
+    "connectionGone": "Usunięte połączenie",
+    "lastRun": "Ostatnia synchronizacja {when}, {count, plural, one {# wiersz} few {# wiersze} many {# wierszy} other {# wiersza}}",
+    "overwrite": "Karta jest źródłem: zsynchronizowane właściwości i tytuły wierszy są nadpisywane przy każdej synchronizacji, więc zmieniaj dane w karcie. Właściwości dodane przez ciebie pozostają bez zmian, a wiersze, które znikają z karty, nie są ruszane.",
+    "stopConfirm": "Zatrzymać synchronizację tej bazy? Jej wiersze pozostaną bez zmian."
   }
 }

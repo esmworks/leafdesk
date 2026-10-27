@@ -2176,5 +2176,15 @@
     "overwrite": "La table est la source : les propriétés synchronisées et les titres des lignes sont réécrits à chaque synchronisation, modifiez donc les données dans la table. Les propriétés que vous ajoutez restent telles quelles, et les lignes qui quittent la table ne sont pas touchées.",
     "changeUrl": "Changer la connexion",
     "stopConfirm": "Arrêter de synchroniser cette base ? Ses lignes restent telles quelles et l'adresse de connexion est oubliée."
+  },
+  "sheetsSync": {
+    "button": "Synchronisée depuis Google Sheets",
+    "buttonPaused": "Synchronisation Google Sheets en pause",
+    "title": "Synchronisation Google Sheets",
+    "sheet": "Feuille",
+    "connectionGone": "Connexion supprimée",
+    "lastRun": "Dernière synchronisation {when}, {count, plural, one {# ligne} other {# lignes}}",
+    "overwrite": "La feuille est la source : les propriétés synchronisées et les titres de lignes sont écrasés à chaque synchronisation, modifiez donc les données dans la feuille. Les propriétés que vous ajoutez vous-même restent telles quelles, et les lignes qui quittent la feuille ne sont pas touchées.",
+    "stopConfirm": "Arrêter de synchroniser cette base ? Ses lignes restent telles quelles."
   }
 }

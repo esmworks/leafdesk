@@ -2176,5 +2176,15 @@
     "overwrite": "Tabellen er kilden: de synkroniserte egenskapene og radtitlene overskrives ved hver synkronisering, så endre dataene i tabellen. Egenskaper du legger til selv, blir stående, og rader som forsvinner fra tabellen, røres ikke.",
     "changeUrl": "Endre tilkoblingen",
     "stopConfirm": "Slutte å synkronisere denne databasen? Radene blir stående, og tilkoblingsadressen glemmes."
+  },
+  "sheetsSync": {
+    "button": "Synkronisert fra Google Sheets",
+    "buttonPaused": "Google Sheets-synkronisering satt på pause",
+    "title": "Google Sheets-synkronisering",
+    "sheet": "Ark",
+    "connectionGone": "Fjernet tilkobling",
+    "lastRun": "Sist synkronisert {when}, {count, plural, one {# rad} other {# rader}}",
+    "overwrite": "Arket er kilden: De synkroniserte egenskapene og radtitlene skrives over ved hver synkronisering, så endre dataene i arket. Egenskaper du legger til selv, blir stående, og rader som forsvinner fra arket, blir latt være.",
+    "stopConfirm": "Slutte å synkronisere denne databasen? Radene blir stående."
   }
 }

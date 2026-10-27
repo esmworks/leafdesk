@@ -2176,5 +2176,15 @@
     "overwrite": "La tabla es la fuente: las propiedades sincronizadas y los títulos de las filas se sobrescriben en cada sincronización, así que cambia los datos en la tabla. Las propiedades que añadas tú se mantienen, y las filas que salen de la tabla se dejan como están.",
     "changeUrl": "Cambiar la conexión",
     "stopConfirm": "¿Dejar de sincronizar esta base de datos? Sus filas se quedan como están y se olvida la dirección de conexión."
+  },
+  "sheetsSync": {
+    "button": "Sincronizada desde Google Sheets",
+    "buttonPaused": "Sincronización de Google Sheets en pausa",
+    "title": "Sincronización de Google Sheets",
+    "sheet": "Hoja",
+    "connectionGone": "Conexión eliminada",
+    "lastRun": "Última sincronización {when}, {count, plural, one {# fila} other {# filas}}",
+    "overwrite": "La hoja es la fuente: las propiedades sincronizadas y los títulos de fila se sobrescriben en cada sincronización, así que cambia los datos en la hoja. Las propiedades que añadas tú se quedan como están, y las filas que salen de la hoja no se tocan.",
+    "stopConfirm": "¿Dejar de sincronizar esta base de datos? Sus filas se quedan como están."
   }
 }

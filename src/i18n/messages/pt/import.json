@@ -17,6 +17,7 @@
     "github": "GitHub",
     "ical": "Calendário",
     "postgres": "PostgreSQL",
+    "sheets": "Google Sheets",
     "googleDocs": "Google Docs",
     "web": "Página web"
   },
@@ -439,6 +440,36 @@
       "invalidSite": "O Leafdesk não consegue chegar a esse servidor: um endereço privado precisa de ser permitido pelo administrador em CONNECTOR_ALLOWED_HOSTS.",
       "invalidInput": "Verifique o endereço de ligação, a tabela e os nomes das colunas.",
       "alreadyRunning": "Está a decorrer uma sincronização. Tente de novo dentro de momentos."
+    }
+  },
+  "sheets": {
+    "help": "Obtenha um banco de dados de uma aba de uma planilha do Google que se mantém atualizado: cada linha abaixo da linha de cabeçalho é uma linha aqui, reencontrada pela coluna chave e nomeada pela coluna de título, com uma propriedade para cada outra coluna com nome (texto, números, caixas de seleção, datas e horas, conforme o que a coluna contém). Até {limit, number} células. As alterações vão em uma só direção, da aba para o Leafdesk.",
+    "loading": "Procurando conexões do Google Sheets…",
+    "noConnection": "Não há nenhuma conexão do Google Sheets pela qual você possa sincronizar. Um proprietário adiciona o Google Sheets em Configurações → Conexões; os membros podem usá-la quando um proprietário marca “No chat” para a ferramenta get_spreadsheet.",
+    "connection": "Conexão do Google Sheets",
+    "link": "Link para a aba",
+    "linkPlaceholder": "https://docs.google.com/spreadsheets/d/…/edit#gid=…",
+    "linkHelp": "Abra a aba (a guia na parte inferior) e copie o endereço: a aba é encontrada pelo id, então renomeá-la depois não tem problema. A conta Google da conexão precisa conseguir abrir a planilha; ela não precisa ser compartilhada com mais ninguém.",
+    "invalidLink": "Não é um link para uma planilha do Google.",
+    "headerRow": "Linha de cabeçalho",
+    "headerRowPlaceholder": "A última linha congelada",
+    "keyPlaceholder": "A primeira coluna",
+    "titlePlaceholder": "A coluna chave",
+    "namePlaceholder": "O nome da aba",
+    "errors": {
+      "unauthorized": "A conexão do Google Sheets precisa entrar no Google de novo: um proprietário faz isso em Configurações → Conexões.",
+      "forbidden": "A conexão não pode ser usada para isso: a conta Google dela talvez não consiga abrir a planilha, ela está em outro espaço de trabalho ou você não pode ler por meio dela.",
+      "notFound": "Essa planilha ou aba não existe, ou a conexão foi removida.",
+      "badQuery": "O Google se recusou a ler a aba:",
+      "tooManyIssues": "A aba tem células demais para sincronizar. Mova as linhas e colunas de que você precisa para uma aba separada.",
+      "unreachable": "Não foi possível acessar a conexão ou o Google demorou demais. A sincronização tenta de novo na próxima vez.",
+      "runAsGone": "A pessoa que configurou a sincronização não tem mais conta.",
+      "accessLost": "A pessoa em nome de quem a sincronização roda não pode mais editar este banco de dados ou saiu do espaço de trabalho.",
+      "keyGone": "A propriedade chave foi excluída ou mudou de tipo, ou o cabeçalho da coluna chave mudou, então as linhas da aba não podem ser associadas a linhas.",
+      "failed": "A sincronização falhou. Ela tenta de novo na próxima vez.",
+      "invalidSite": "O Leafdesk não consegue acessar essa conexão.",
+      "invalidInput": "Confira o link, a linha de cabeçalho e os nomes das colunas: eles precisam corresponder ao texto da linha de cabeçalho.",
+      "alreadyRunning": "Uma sincronização está em andamento. Tente de novo em instantes."
     }
   }
 }

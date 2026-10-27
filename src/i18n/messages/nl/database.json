@@ -2176,5 +2176,15 @@
     "overwrite": "De tabel is de bron: de gesynchroniseerde eigenschappen en rijtitels worden bij elke synchronisatie overschreven, dus wijzig de gegevens in de tabel. Eigenschappen die je zelf toevoegt blijven staan, en rijen die uit de tabel verdwijnen, blijven ongemoeid.",
     "changeUrl": "Verbinding wijzigen",
     "stopConfirm": "Stoppen met synchroniseren van deze database? De rijen blijven staan en het verbindingsadres wordt vergeten."
+  },
+  "sheetsSync": {
+    "button": "Gesynchroniseerd vanuit Google Sheets",
+    "buttonPaused": "Google Sheets-synchronisatie gepauzeerd",
+    "title": "Google Sheets-synchronisatie",
+    "sheet": "Tabblad",
+    "connectionGone": "Verwijderde koppeling",
+    "lastRun": "Laatst gesynchroniseerd {when}, {count, plural, one {# rij} other {# rijen}}",
+    "overwrite": "Het tabblad is de bron: de gesynchroniseerde eigenschappen en rijtitels worden bij elke synchronisatie overschreven, dus wijzig de gegevens in het tabblad. Eigenschappen die je zelf toevoegt blijven staan, en rijen die uit het tabblad verdwijnen blijven ongemoeid.",
+    "stopConfirm": "Stoppen met synchroniseren van deze database? De rijen blijven staan."
   }
 }

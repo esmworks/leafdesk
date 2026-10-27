@@ -2176,5 +2176,15 @@
     "overwrite": "Taulu on lähde: synkronoidut ominaisuudet ja rivien otsikot kirjoitetaan yli jokaisessa synkronoinnissa, joten muuta tietoja taulussa. Itse lisäämäsi ominaisuudet säilyvät, ja taulusta poistuneet rivit jätetään ennalleen.",
     "changeUrl": "Vaihda yhteys",
     "stopConfirm": "Lopetetaanko tämän tietokannan synkronointi? Rivit säilyvät ennallaan ja yhteysosoite unohdetaan."
+  },
+  "sheetsSync": {
+    "button": "Synkronoitu Google Sheetsistä",
+    "buttonPaused": "Google Sheets -synkronointi keskeytetty",
+    "title": "Google Sheets -synkronointi",
+    "sheet": "Välilehti",
+    "connectionGone": "Poistettu yhteys",
+    "lastRun": "Viimeksi synkronoitu {when}, {count, plural, one {# rivi} other {# riviä}}",
+    "overwrite": "Välilehti on lähde: synkronoidut ominaisuudet ja rivien otsikot ylikirjoitetaan jokaisella synkronoinnilla, joten muuta tietoja välilehdellä. Itse lisäämäsi ominaisuudet säilyvät, ja välilehdeltä poistuvat rivit jätetään rauhaan.",
+    "stopConfirm": "Lopetetaanko tämän tietokannan synkronointi? Rivit säilyvät ennallaan."
   }
 }

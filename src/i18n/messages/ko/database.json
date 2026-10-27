@@ -2176,5 +2176,15 @@
     "overwrite": "테이블이 원본입니다. 동기화되는 속성과 행 제목은 동기화할 때마다 덮어쓰이므로 데이터는 테이블에서 변경하세요. 직접 추가한 속성은 그대로 유지되고, 테이블에서 사라진 행도 그대로 둡니다.",
     "changeUrl": "연결 변경",
     "stopConfirm": "이 데이터베이스의 동기화를 중지할까요? 행은 그대로 남고 연결 주소는 삭제됩니다."
+  },
+  "sheetsSync": {
+    "button": "Google Sheets에서 동기화됨",
+    "buttonPaused": "Google Sheets 동기화 일시 중지됨",
+    "title": "Google Sheets 동기화",
+    "sheet": "시트",
+    "connectionGone": "삭제된 연결",
+    "lastRun": "마지막 동기화 {when}, {count, plural, other {#행}}",
+    "overwrite": "시트가 원본입니다. 동기화되는 속성과 행 제목은 동기화할 때마다 덮어쓰이므로 데이터는 시트에서 변경하세요. 직접 추가한 속성은 그대로 남고, 시트에서 사라진 행도 그대로 둡니다.",
+    "stopConfirm": "이 데이터베이스의 동기화를 중지할까요? 행은 그대로 남습니다."
   }
 }

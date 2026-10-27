@@ -2176,5 +2176,15 @@
     "overwrite": "Bảng là nguồn: các thuộc tính đồng bộ và tiêu đề hàng bị ghi đè mỗi lần đồng bộ, nên hãy sửa dữ liệu trong bảng. Thuộc tính bạn tự thêm vẫn giữ nguyên, và các hàng đã rời khỏi bảng không bị động tới.",
     "changeUrl": "Đổi kết nối",
     "stopConfirm": "Dừng đồng bộ cơ sở dữ liệu này? Các hàng giữ nguyên và địa chỉ kết nối bị xóa."
+  },
+  "sheetsSync": {
+    "button": "Đồng bộ từ Google Sheets",
+    "buttonPaused": "Đồng bộ Google Sheets đã tạm dừng",
+    "title": "Đồng bộ Google Sheets",
+    "sheet": "Trang tính",
+    "connectionGone": "Kết nối đã xóa",
+    "lastRun": "Đồng bộ lần cuối {when}, {count, plural, other {# hàng}}",
+    "overwrite": "Trang tính là nguồn: các thuộc tính đã đồng bộ và tiêu đề hàng bị ghi đè trong mỗi lần đồng bộ, nên hãy đổi dữ liệu trong trang tính. Thuộc tính bạn tự thêm vẫn giữ nguyên, và các hàng rời khỏi trang tính không bị động tới.",
+    "stopConfirm": "Dừng đồng bộ cơ sở dữ liệu này? Các hàng giữ nguyên."
   }
 }

@@ -2176,5 +2176,15 @@
     "overwrite": "Tabellen er kilden: de synkroniserede egenskaber og rækketitler overskrives ved hver synkronisering, så ret dataene i tabellen. Egenskaber, du selv tilføjer, forbliver, og rækker, der forsvinder fra tabellen, lades i fred.",
     "changeUrl": "Skift forbindelsen",
     "stopConfirm": "Stop med at synkronisere denne database? Dens rækker forbliver, og forbindelsesadressen glemmes."
+  },
+  "sheetsSync": {
+    "button": "Synkroniseret fra Google Sheets",
+    "buttonPaused": "Google Sheets-synkronisering på pause",
+    "title": "Google Sheets-synkronisering",
+    "sheet": "Ark",
+    "connectionGone": "Fjernet forbindelse",
+    "lastRun": "Sidst synkroniseret {when}, {count, plural, one {# række} other {# rækker}}",
+    "overwrite": "Arket er kilden: De synkroniserede egenskaber og rækketitler overskrives ved hver synkronisering, så ret dataene i arket. Egenskaber, du selv tilføjer, forbliver, og rækker, der forsvinder fra arket, bliver urørt.",
+    "stopConfirm": "Stop med at synkronisere denne database? Dens rækker forbliver."
   }
 }

@@ -4,6 +4,17 @@
 
 ### Added
 
+- **Keep a database in step with a Google Sheets sheet.** Import's new *Google Sheets* tab reads one
+  sheet through the workspace's Google Sheets connection, so a private spreadsheet needs no public
+  link: paste the sheet's address and each row below its header becomes a row, found again by its
+  key column (the first column unless you name one) and kept up to date every 15 minutes to every
+  day, or when asked. The header is the sheet's last frozen row unless you name another, so totals
+  above it stay out; every other named column becomes a property by what its cells hold (numbers,
+  dates, dates with times, checkboxes, else text as the sheet shows it), read typed so the
+  spreadsheet's language doesn't change a number. Changes go one way, from the sheet; rows that
+  leave it stay. Owners can sync through the connection, members once an owner allows the AI chat
+  its `get_spreadsheet` tool, checked again on every run; each read is in the audit log. Up to
+  100,000 cells. No migration.
 - **Connect a Gmail or Google Workspace mailbox by signing in with Google.** Settings → Email and
   calendar offers *Google account* beside the app password: the member signs in at Google, allows
   Leafdesk to read and send their mail, and comes back with the mailbox tried and connected. No app

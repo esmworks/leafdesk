@@ -5,6 +5,7 @@ import type { GithubDeliveryError, GithubDeliveryRow, GithubDeliveryStatus, Gith
 import type { IcalMapping } from "@/lib/ical-sync";
 import type { JiraMapping, JiraQuery, JiraSyncError } from "@/lib/jira-sync";
 import type { PostgresMapping, PostgresQuery } from "@/lib/postgres-sync";
+import type { SheetsMapping, SheetsQuery } from "@/lib/sheets-sync";
 import { page, workspace } from "./app";
 import { user } from "./auth";
 
@@ -12,9 +13,10 @@ import { user } from "./auth";
  * A database kept in step with a service outside Leafdesk, one way: the issues of a Jira Cloud
  * project or JQL query (`source` "jira": lib/jira-sync, server/jira-sync), a GitHub repository's
  * pull requests ("github": lib/github-pulls-sync, server/github-pulls), a calendar's events ("ical":
- * lib/ical-sync, server/ical-sync) or a PostgreSQL table's rows ("postgres": lib/postgres-sync,
- * server/postgres-sync). Its sign-in (`secrets`) is sealed (server/secret-box) and never leaves the
- * server.
+ * lib/ical-sync, server/ical-sync), a PostgreSQL table's rows ("postgres": lib/postgres-sync,
+ * server/postgres-sync) or a Google spreadsheet's sheet, read through a Google Sheets connection
+ * ("sheets": lib/sheets-sync, server/sheets-sync). Its sign-in (`secrets`) is sealed
+ * (server/secret-box) and never leaves the server.
  */
 export const databaseSync = pgTable(
   "database_sync",
@@ -28,20 +30,21 @@ export const databaseSync = pgTable(
     databaseId: text("database_id")
       .notNull()
       .references(() => page.id, { onDelete: "cascade" }),
-    source: text("source").$type<"jira" | "github" | "ical" | "postgres">().notNull(),
+    source: text("source").$type<"jira" | "github" | "ical" | "postgres" | "sheets">().notNull(),
     /**
      * The Jira site's origin, "https://acme.atlassian.net"; for GitHub its API's address; for a
      * calendar its address's origin (the rest can be its key); for PostgreSQL where it reads,
-     * without user or password (lib/postgres-sync postgresSite).
+     * without user or password (lib/postgres-sync postgresSite); for a sheet its link.
      */
     siteUrl: text("site_url").notNull(),
     /** What it reads; a calendar's is `{}` (its address is in `secrets`). */
-    query: jsonb("query").$type<JiraQuery | GithubPullsQuery | PostgresQuery | Record<string, never>>().notNull(),
+    query: jsonb("query").$type<JiraQuery | GithubPullsQuery | PostgresQuery | SheetsQuery | Record<string, never>>().notNull(),
     /** The properties it writes, by what each holds. */
-    mapping: jsonb("mapping").$type<JiraMapping | GithubPullsMapping | IcalMapping | PostgresMapping>().notNull(),
+    mapping: jsonb("mapping").$type<JiraMapping | GithubPullsMapping | IcalMapping | PostgresMapping | SheetsMapping>().notNull(),
     /**
      * Sealed JSON: Jira's `{ email, token }`, GitHub's `{ token }` (null without one), a calendar's
-     * `{ url }`, PostgreSQL's `{ url }` (the connection address with its password).
+     * `{ url }`, PostgreSQL's `{ url }` (the connection address with its password), a sheet's `{}`
+     * (its connection holds the sign-in).
      */
     secrets: text("secrets").notNull(),
     /** How often it runs on its own, in minutes; 0 for only when asked. */

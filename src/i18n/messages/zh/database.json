@@ -2176,5 +2176,15 @@
     "overwrite": "表是数据源：同步的属性和行标题每次同步都会被覆盖，请在表中修改数据。你自己添加的属性保持不变，已从表中移除的行也保持不动。",
     "changeUrl": "更改连接",
     "stopConfirm": "停止同步此数据库？行保持不变，连接地址将被删除。"
+  },
+  "sheetsSync": {
+    "button": "已从 Google Sheets 同步",
+    "buttonPaused": "Google Sheets 同步已暂停",
+    "title": "Google Sheets 同步",
+    "sheet": "工作表",
+    "connectionGone": "已删除的连接",
+    "lastRun": "上次同步 {when}，{count, plural, other {# 行}}",
+    "overwrite": "工作表是数据源：同步的属性和行标题在每次同步时都会被覆盖，所以请在工作表中修改数据。你自己添加的属性保持不变，从工作表中消失的行也不会被改动。",
+    "stopConfirm": "停止同步此数据库？行保持不变。"
   }
 }

@@ -17,6 +17,7 @@
     "github": "GitHub",
     "ical": "Calendar",
     "postgres": "PostgreSQL",
+    "sheets": "Google Sheets",
     "googleDocs": "Google Docs",
     "web": "Web page"
   },
@@ -438,6 +439,36 @@
       "failed": "The sync failed. It tries again next time.",
       "invalidSite": "Leafdesk can't reach that server: a private address needs your administrator to allow it in CONNECTOR_ALLOWED_HOSTS.",
       "invalidInput": "Check the connection address, the table and the column names.",
+      "alreadyRunning": "A sync is running. Try again in a moment."
+    }
+  },
+  "sheets": {
+    "help": "Get a database of one sheet of a Google spreadsheet that stays in step: each row below the header row is a row here, found again by its key column and named by its title column, with a property for each other named column (text, numbers, checkboxes, dates and times, by what the column holds). Up to {limit, number} cells. Changes go one way, from the sheet to Leafdesk.",
+    "loading": "Looking for Google Sheets connections…",
+    "noConnection": "There is no Google Sheets connection you can sync through. An owner adds Google Sheets in Settings → Connections; members can use it once an owner ticks “In chat” for its get_spreadsheet tool.",
+    "connection": "Google Sheets connection",
+    "link": "Link to the sheet",
+    "linkPlaceholder": "https://docs.google.com/spreadsheets/d/…/edit#gid=…",
+    "linkHelp": "Open the sheet (the tab at the bottom) and copy the address: the sheet is found by its id, so renaming it later is fine. The connection's Google account must be able to open the spreadsheet; it doesn't need to be shared with anyone else.",
+    "invalidLink": "Not a link to a Google spreadsheet.",
+    "headerRow": "Header row",
+    "headerRowPlaceholder": "The last frozen row",
+    "keyPlaceholder": "The first column",
+    "titlePlaceholder": "The key column",
+    "namePlaceholder": "The sheet's name",
+    "errors": {
+      "unauthorized": "The Google Sheets connection needs signing in to Google again: an owner does that in Settings → Connections.",
+      "forbidden": "The connection can't be used for this: its Google account may not open the spreadsheet, it is in another workspace, or you may not read through it.",
+      "notFound": "No such spreadsheet or sheet, or the connection was removed.",
+      "badQuery": "Google refused to read the sheet:",
+      "tooManyIssues": "The sheet has too many cells to sync. Move the rows and columns you need to a sheet of their own.",
+      "unreachable": "The connection couldn't be reached, or Google took too long. The sync tries again next time.",
+      "runAsGone": "The person who set the sync up no longer has an account.",
+      "accessLost": "The person the sync runs as can no longer edit this database, or left the workspace.",
+      "keyGone": "The key property was deleted or changed type, or the key column's header changed, so the sheet's rows can't be matched to rows.",
+      "failed": "The sync failed. It tries again next time.",
+      "invalidSite": "Leafdesk can't reach that connection.",
+      "invalidInput": "Check the link, the header row and the column names: they must match the header row's text.",
       "alreadyRunning": "A sync is running. Try again in a moment."
     }
   }

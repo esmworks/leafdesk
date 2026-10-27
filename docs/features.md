@@ -1168,6 +1168,23 @@
   table, a dropped column (with the server's words in the sync dialog) or a deleted key property
   pauses it. Use a user that may only read the table. Tested against a table of the e2e's own
   database (`scripts/postgres-sync-e2e.ts`).
+- **Sync a Google Sheets sheet**: Import's Google Sheets tab reads one sheet through the
+  workspace's Google Sheets connection (Settings → Connections; owners may use it, members once an
+  owner ticks *In chat* for its `get_spreadsheet` tool), so the spreadsheet needs no public link.
+  Paste the sheet's address (its `gid` picks the sheet, the first one without); the header row is
+  the sheet's last frozen row unless you name another, and the rows above it (totals, rates) are
+  left out. The column that finds each row again is the first named column unless you name
+  another, the one that names it the key column unless you name another; every other column with
+  a header becomes a property by what its cells hold, read typed rather than as the spreadsheet's
+  language writes them: numbers, dates, dates with times (in the spreadsheet's time zone),
+  checkboxes, and text for anything mixed (as the sheet shows it). Columns are matched by their
+  header, so moving them is fine and renaming one stops it being written; the sheet is found by
+  its id, so renaming it is fine. Runs read up to 100,000 cells from the header row down, write the
+  sheet's values over and add new rows; rows that leave the sheet stay. A connection signed out of
+  Google, one the sync's person may no longer read through, a missing spreadsheet or sheet, or a
+  renamed key column pauses it; the sync dialog can switch it to another connection. Each read is
+  in the audit log as a call of the connection. Tested against a fake Sheets server the e2e runs
+  (`scripts/sheets-sync-e2e.ts`).
 - **GitHub pull requests update tasks**: *GitHub pull requests* in the ••• menu of a database with
   an ID property with a prefix gives a payload URL and a secret to add as a repository webhook
   (JSON, *Pull requests* events). A pull request that names rows by their ID (`TASK-12`, in any

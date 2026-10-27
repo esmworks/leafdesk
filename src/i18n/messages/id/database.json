@@ -2176,5 +2176,15 @@
     "overwrite": "Tabel adalah sumbernya: properti yang disinkronkan dan judul baris ditimpa setiap sinkronisasi, jadi ubah data di tabel. Properti yang Anda tambahkan sendiri tetap, dan baris yang keluar dari tabel dibiarkan.",
     "changeUrl": "Ubah koneksi",
     "stopConfirm": "Hentikan sinkronisasi database ini? Barisnya tetap dan alamat koneksi dilupakan."
+  },
+  "sheetsSync": {
+    "button": "Disinkronkan dari Google Sheets",
+    "buttonPaused": "Sinkronisasi Google Sheets dijeda",
+    "title": "Sinkronisasi Google Sheets",
+    "sheet": "Lembar",
+    "connectionGone": "Koneksi dihapus",
+    "lastRun": "Terakhir disinkronkan {when}, {count, plural, other {# baris}}",
+    "overwrite": "Lembar adalah sumbernya: properti yang disinkronkan dan judul baris ditimpa pada setiap sinkronisasi, jadi ubah data di lembar. Properti yang Anda tambahkan sendiri tetap seperti adanya, dan baris yang keluar dari lembar dibiarkan.",
+    "stopConfirm": "Hentikan sinkronisasi database ini? Barisnya tetap."
   }
 }

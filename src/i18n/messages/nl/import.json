@@ -17,6 +17,7 @@
     "github": "GitHub",
     "ical": "Agenda",
     "postgres": "PostgreSQL",
+    "sheets": "Google Sheets",
     "googleDocs": "Google Docs",
     "web": "Webpagina"
   },
@@ -438,6 +439,36 @@
       "failed": "De synchronisatie is mislukt. Ze probeert het de volgende keer opnieuw.",
       "invalidSite": "Leafdesk kan die server niet bereiken: een privéadres moet je beheerder toestaan in CONNECTOR_ALLOWED_HOSTS.",
       "invalidInput": "Controleer het verbindingsadres, de tabel en de kolomnamen.",
+      "alreadyRunning": "Er loopt een synchronisatie. Probeer het zo opnieuw."
+    }
+  },
+  "sheets": {
+    "help": "Maak een database van één tabblad van een Google-spreadsheet die bijgewerkt blijft: elke rij onder de koprij is hier een rij, wordt teruggevonden via de sleutelkolom en genoemd naar de titelkolom, met een eigenschap voor elke andere benoemde kolom (tekst, getallen, selectievakjes, datums en tijden, naargelang wat de kolom bevat). Maximaal {limit, number} cellen. Wijzigingen gaan één kant op, van het tabblad naar Leafdesk.",
+    "loading": "Google Sheets-koppelingen zoeken…",
+    "noConnection": "Er is geen Google Sheets-koppeling waarlangs je kunt synchroniseren. Een eigenaar voegt Google Sheets toe via Instellingen → Koppelingen; leden kunnen haar gebruiken zodra een eigenaar “In chat” aanvinkt voor de tool get_spreadsheet.",
+    "connection": "Google Sheets-koppeling",
+    "link": "Link naar het tabblad",
+    "linkPlaceholder": "https://docs.google.com/spreadsheets/d/…/edit#gid=…",
+    "linkHelp": "Open het tabblad (het tabblad onderaan) en kopieer het adres: het tabblad wordt gevonden via zijn id, dus later hernoemen is geen probleem. Het Google-account van de koppeling moet de spreadsheet kunnen openen; hij hoeft met niemand anders gedeeld te zijn.",
+    "invalidLink": "Geen link naar een Google-spreadsheet.",
+    "headerRow": "Koprij",
+    "headerRowPlaceholder": "De laatste bevroren rij",
+    "keyPlaceholder": "De eerste kolom",
+    "titlePlaceholder": "De sleutelkolom",
+    "namePlaceholder": "De naam van het tabblad",
+    "errors": {
+      "unauthorized": "De Google Sheets-koppeling moet opnieuw bij Google inloggen: een eigenaar doet dat via Instellingen → Koppelingen.",
+      "forbidden": "De koppeling kan hiervoor niet worden gebruikt: haar Google-account kan de spreadsheet misschien niet openen, ze zit in een andere werkruimte, of je mag er niet via lezen.",
+      "notFound": "Zo'n spreadsheet of tabblad bestaat niet, of de koppeling is verwijderd.",
+      "badQuery": "Google weigerde het tabblad te lezen:",
+      "tooManyIssues": "Het tabblad heeft te veel cellen om te synchroniseren. Verplaats de rijen en kolommen die je nodig hebt naar een eigen tabblad.",
+      "unreachable": "De koppeling was niet bereikbaar of Google deed er te lang over. De synchronisatie probeert het de volgende keer opnieuw.",
+      "runAsGone": "De persoon die de synchronisatie instelde, heeft geen account meer.",
+      "accessLost": "De persoon namens wie de synchronisatie draait, kan deze database niet meer bewerken of heeft de werkruimte verlaten.",
+      "keyGone": "De sleuteleigenschap is verwijderd of van type veranderd, of de kop van de sleutelkolom is gewijzigd, dus de rijen van het tabblad kunnen niet worden gekoppeld.",
+      "failed": "De synchronisatie is mislukt. Ze probeert het de volgende keer opnieuw.",
+      "invalidSite": "Leafdesk kan die koppeling niet bereiken.",
+      "invalidInput": "Controleer de link, de koprij en de kolomnamen: ze moeten overeenkomen met de tekst van de koprij.",
       "alreadyRunning": "Er loopt een synchronisatie. Probeer het zo opnieuw."
     }
   }

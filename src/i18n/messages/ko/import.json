@@ -17,6 +17,7 @@
     "github": "GitHub",
     "ical": "캘린더",
     "postgres": "PostgreSQL",
+    "sheets": "Google Sheets",
     "googleDocs": "Google 문서",
     "web": "웹페이지"
   },
@@ -438,6 +439,36 @@
       "failed": "동기화에 실패했습니다. 다음에 다시 시도합니다.",
       "invalidSite": "Leafdesk가 그 서버에 접근할 수 없습니다. 사설 주소는 관리자가 CONNECTOR_ALLOWED_HOSTS에서 허용해야 합니다.",
       "invalidInput": "연결 주소, 테이블, 열 이름을 확인하세요.",
+      "alreadyRunning": "동기화가 실행 중입니다. 잠시 후 다시 시도하세요."
+    }
+  },
+  "sheets": {
+    "help": "Google 스프레드시트의 시트 하나로 항상 동기화되는 데이터베이스를 만듭니다. 헤더 행 아래의 각 행은 여기서 하나의 행이 되고, 키 열로 다시 찾으며 제목 열로 이름이 붙고, 이름이 있는 다른 열은 각각 속성이 됩니다(열의 내용에 따라 텍스트, 숫자, 체크박스, 날짜와 시간). 최대 {limit, number}개 셀. 변경은 시트에서 Leafdesk로 한 방향으로만 이루어집니다.",
+    "loading": "Google Sheets 연결을 찾는 중…",
+    "noConnection": "동기화에 쓸 수 있는 Google Sheets 연결이 없습니다. 소유자가 설정 → 연결에서 Google Sheets를 추가하고, get_spreadsheet 도구에 “채팅에서 사용”을 체크하면 멤버도 쓸 수 있습니다.",
+    "connection": "Google Sheets 연결",
+    "link": "시트 링크",
+    "linkPlaceholder": "https://docs.google.com/spreadsheets/d/…/edit#gid=…",
+    "linkHelp": "시트(아래쪽 탭)를 열고 주소를 복사하세요. 시트는 ID로 찾으므로 나중에 이름을 바꿔도 괜찮습니다. 연결의 Google 계정이 스프레드시트를 열 수 있어야 하며, 다른 사람과 공유할 필요는 없습니다.",
+    "invalidLink": "Google 스프레드시트 링크가 아닙니다.",
+    "headerRow": "헤더 행",
+    "headerRowPlaceholder": "마지막 고정 행",
+    "keyPlaceholder": "첫 번째 열",
+    "titlePlaceholder": "키 열",
+    "namePlaceholder": "시트 이름",
+    "errors": {
+      "unauthorized": "Google Sheets 연결은 Google에 다시 로그인해야 합니다. 소유자가 설정 → 연결에서 할 수 있습니다.",
+      "forbidden": "이 연결은 사용할 수 없습니다. 연결의 Google 계정이 스프레드시트를 열 수 없거나, 다른 워크스페이스에 있거나, 이 연결로 읽을 권한이 없을 수 있습니다.",
+      "notFound": "해당 스프레드시트나 시트가 없거나 연결이 삭제되었습니다.",
+      "badQuery": "Google이 시트 읽기를 거부했습니다:",
+      "tooManyIssues": "시트의 셀이 너무 많아 동기화할 수 없습니다. 필요한 행과 열을 별도의 시트로 옮기세요.",
+      "unreachable": "연결에 접속할 수 없거나 Google 응답이 너무 오래 걸렸습니다. 다음에 다시 시도합니다.",
+      "runAsGone": "동기화를 설정한 사람의 계정이 더 이상 없습니다.",
+      "accessLost": "동기화를 실행하는 사람이 더 이상 이 데이터베이스를 편집할 수 없거나 워크스페이스를 떠났습니다.",
+      "keyGone": "키 속성이 삭제되었거나 유형이 바뀌었거나 키 열의 헤더가 바뀌어 시트 행을 맞출 수 없습니다.",
+      "failed": "동기화에 실패했습니다. 다음에 다시 시도합니다.",
+      "invalidSite": "Leafdesk가 해당 연결에 접속할 수 없습니다.",
+      "invalidInput": "링크, 헤더 행, 열 이름을 확인하세요. 헤더 행의 텍스트와 일치해야 합니다.",
       "alreadyRunning": "동기화가 실행 중입니다. 잠시 후 다시 시도하세요."
     }
   }

@@ -17,6 +17,7 @@
     "github": "GitHub",
     "ical": "Kalendarz",
     "postgres": "PostgreSQL",
+    "sheets": "Google Sheets",
     "googleDocs": "Google Docs",
     "web": "Strona WWW"
   },
@@ -438,6 +439,36 @@
       "failed": "Synchronizacja nie powiodła się. Spróbuje ponownie następnym razem.",
       "invalidSite": "Leafdesk nie może połączyć się z tym serwerem: adres prywatny musi dopuścić administrator w CONNECTOR_ALLOWED_HOSTS.",
       "invalidInput": "Sprawdź adres połączenia, tabelę i nazwy kolumn.",
+      "alreadyRunning": "Trwa synchronizacja. Spróbuj ponownie za chwilę."
+    }
+  },
+  "sheets": {
+    "help": "Utwórz bazę danych z jednej karty arkusza kalkulacyjnego Google, która pozostaje aktualna: każdy wiersz pod wierszem nagłówka jest tu wierszem, odnajdywanym po kolumnie klucza i nazywanym według kolumny tytułu, z właściwością dla każdej innej nazwanej kolumny (tekst, liczby, pola wyboru, daty i godziny, zależnie od zawartości kolumny). Do {limit, number} komórek. Zmiany idą w jedną stronę, z karty do Leafdesk.",
+    "loading": "Szukanie połączeń Google Sheets…",
+    "noConnection": "Nie ma połączenia Google Sheets, przez które możesz synchronizować. Właściciel dodaje Google Sheets w Ustawienia → Połączenia; członkowie mogą z niego korzystać, gdy właściciel zaznaczy „W czacie” dla narzędzia get_spreadsheet.",
+    "connection": "Połączenie Google Sheets",
+    "link": "Link do karty",
+    "linkPlaceholder": "https://docs.google.com/spreadsheets/d/…/edit#gid=…",
+    "linkHelp": "Otwórz kartę (zakładka na dole) i skopiuj adres: karta jest odnajdywana po identyfikatorze, więc późniejsza zmiana nazwy nie szkodzi. Konto Google połączenia musi móc otworzyć arkusz kalkulacyjny; nie musi on być nikomu udostępniony.",
+    "invalidLink": "To nie jest link do arkusza kalkulacyjnego Google.",
+    "headerRow": "Wiersz nagłówka",
+    "headerRowPlaceholder": "Ostatni zablokowany wiersz",
+    "keyPlaceholder": "Pierwsza kolumna",
+    "titlePlaceholder": "Kolumna klucza",
+    "namePlaceholder": "Nazwa karty",
+    "errors": {
+      "unauthorized": "Połączenie Google Sheets wymaga ponownego zalogowania do Google: robi to właściciel w Ustawienia → Połączenia.",
+      "forbidden": "Tego połączenia nie można użyć: jego konto Google może nie mieć dostępu do arkusza kalkulacyjnego, połączenie jest w innej przestrzeni roboczej albo nie możesz czytać przez nie.",
+      "notFound": "Nie ma takiego arkusza kalkulacyjnego ani karty albo połączenie zostało usunięte.",
+      "badQuery": "Google odmówiło odczytu karty:",
+      "tooManyIssues": "Karta ma zbyt wiele komórek do synchronizacji. Przenieś potrzebne wiersze i kolumny na osobną kartę.",
+      "unreachable": "Nie udało się połączyć lub Google odpowiadało zbyt długo. Synchronizacja spróbuje ponownie następnym razem.",
+      "runAsGone": "Osoba, która skonfigurowała synchronizację, nie ma już konta.",
+      "accessLost": "Osoba, jako która działa synchronizacja, nie może już edytować tej bazy lub opuściła przestrzeń roboczą.",
+      "keyGone": "Właściwość klucza została usunięta lub zmieniła typ albo zmienił się nagłówek kolumny klucza, więc wierszy karty nie da się dopasować.",
+      "failed": "Synchronizacja nie powiodła się. Spróbuje ponownie następnym razem.",
+      "invalidSite": "Leafdesk nie może połączyć się z tym połączeniem.",
+      "invalidInput": "Sprawdź link, wiersz nagłówka i nazwy kolumn: muszą zgadzać się z tekstem wiersza nagłówka.",
       "alreadyRunning": "Trwa synchronizacja. Spróbuj ponownie za chwilę."
     }
   }

@@ -1,0 +1,180 @@
+import { describe, expect, it } from "vitest";
+import {
+  cellText,
+  cellValue,
+  columnLetter,
+  defaultHeaderRow,
+  kindOf,
+  MAX_SHEET_TEXT,
+  parseSheetLink,
+  readGrid,
+  readMeta,
+  serialDay,
+  serialTime,
+  sheetHeaders,
+  sheetItems,
+  sheetRange,
+  sheetsAccess,
+  type SheetCell,
+} from "./sheets-sync";
+
+const ID = "17AGsQSFVti7KUDNYLvq682TwnZF4N5MZKZpeNI_-lyc";
+const text = (value: string): SheetCell => ({ effectiveValue: { stringValue: value }, formattedValue: value });
+const num = (value: number, shown = String(value), type?: string): SheetCell => ({
+  effectiveValue: { numberValue: value },
+  formattedValue: shown,
+  ...(type ? { effectiveFormat: { numberFormat: { type } } } : {}),
+});
+const bool = (value: boolean): SheetCell => ({ effectiveValue: { boolValue: value }, formattedValue: value ? "TRUE" : "FALSE" });
+
+describe("parseSheetLink", () => {
+  it("reads the spreadsheet and the sheet from a link", () => {
+    expect(parseSheetLink(`https://docs.google.com/spreadsheets/d/${ID}/edit?pli=1&gid=878363657#gid=878363657`)).toEqual({ spreadsheetId: ID, sheetId: 878363657 });
+    expect(parseSheetLink(`https://docs.google.com/spreadsheets/d/${ID}/edit#gid=0`)).toEqual({ spreadsheetId: ID, sheetId: 0 });
+    expect(parseSheetLink(`https://docs.google.com/spreadsheets/u/1/d/${ID}/edit?gid=12`)).toEqual({ spreadsheetId: ID, sheetId: 12 });
+    expect(parseSheetLink(` https://docs.google.com/spreadsheets/d/${ID}/edit `)).toEqual({ spreadsheetId: ID, sheetId: null });
+    expect(parseSheetLink(ID)).toEqual({ spreadsheetId: ID, sheetId: null });
+  });
+
+  it("refuses what isn't one", () => {
+    expect(parseSheetLink(`https://docs.google.com/document/d/${ID}/edit`)).toBeNull();
+    expect(parseSheetLink(`https://docs.google.com.evil.test/spreadsheets/d/${ID}/edit`)).toBeNull();
+    expect(parseSheetLink(`http://docs.google.com/spreadsheets/d/${ID}/edit`)).toBeNull();
+    expect(parseSheetLink("short")).toBeNull();
+    expect(parseSheetLink(42)).toBeNull();
+  });
+});
+
+describe("sheetsAccess", () => {
+  const row = { status: "ready", tools: [{ name: "get_spreadsheet" }], chatTools: [] as string[] };
+  it("lets owners read through a ready connection with the tool", () => {
+    expect(sheetsAccess(row, "owner")).toBe(true);
+    expect(sheetsAccess({ ...row, status: "needsAuth" }, "owner")).toBe(false);
+    expect(sheetsAccess({ ...row, tools: [{ name: "get_values" }] }, "owner")).toBe(false);
+  });
+
+  it("lets members only when an owner allowed the chat the tool, and guests never", () => {
+    expect(sheetsAccess(row, "member")).toBe(false);
+    expect(sheetsAccess({ ...row, chatTools: ["get_spreadsheet"] }, "member")).toBe(true);
+    expect(sheetsAccess({ ...row, chatTools: ["get_spreadsheet"] }, "membership_admin")).toBe(true);
+    expect(sheetsAccess({ ...row, chatTools: ["get_spreadsheet"] }, "guest")).toBe(false);
+  });
+});
+
+describe("reading the answers", () => {
+  it("reads a spreadsheet's sheets, the first one's id included", () => {
+    const meta = readMeta({
+      properties: { title: "İzmir Canlı Stok", timeZone: "Europe/Istanbul" },
+      sheets: [
+        { properties: { title: "BATARYA STOK", gridProperties: { rowCount: 2246, columnCount: 27, frozenRowCount: 3 } } },
+        { properties: { sheetId: 1784875648, title: "EKSTRA STOK", gridProperties: { rowCount: 10, columnCount: 2 } } },
+      ],
+    });
+    expect(meta).toEqual({
+      title: "İzmir Canlı Stok",
+      timeZone: "Europe/Istanbul",
+      sheets: [
+        { sheetId: 0, title: "BATARYA STOK", rows: 2246, columns: 27, frozenRows: 3 },
+        { sheetId: 1784875648, title: "EKSTRA STOK", rows: 10, columns: 2, frozenRows: 0 },
+      ],
+    });
+    expect(defaultHeaderRow(meta!.sheets[0])).toBe(3);
+    expect(defaultHeaderRow(meta!.sheets[1])).toBe(1);
+    expect(readMeta({ error: "no" })).toBeNull();
+  });
+
+  it("reads the grid of one range, empty rows as []", () => {
+    expect(readGrid({ sheets: [{ data: [{ rowData: [{ values: [text("A")] }, {}, { values: [num(1)] }] }] }] })).toEqual([[text("A")], [], [num(1)]]);
+    expect(readGrid({ sheets: [{}] })).toEqual([]);
+    expect(readGrid({})).toBeNull();
+  });
+
+  it("names the range from the header row down, quoting the sheet's name", () => {
+    expect(columnLetter(0)).toBe("A");
+    expect(columnLetter(26)).toBe("AA");
+    expect(columnLetter(701)).toBe("ZZ");
+    expect(columnLetter(702)).toBe("AAA");
+    expect(sheetRange({ title: "BATARYA STOK", rows: 2246, columns: 27 }, 3)).toBe("'BATARYA STOK'!A3:AA2246");
+    expect(sheetRange({ title: "Joe's", rows: 1, columns: 1 }, 2)).toBe("'Joe''s'!A2:A2");
+  });
+});
+
+describe("columns", () => {
+  it("names columns by their header, leaving empty ones out and numbering repeats", () => {
+    expect(sheetHeaders([text("ÜRÜN"), text(""), text("  Liste   fiyatı "), {}, text("Durum"), text("durum"), num(2026)])).toEqual([
+      { index: 0, name: "ÜRÜN" },
+      { index: 2, name: "Liste fiyatı" },
+      { index: 4, name: "Durum" },
+      { index: 5, name: "durum (2)" },
+      { index: 6, name: "2026" },
+    ]);
+  });
+
+  it("gives a column the kind all its values share, else text", () => {
+    expect(kindOf([num(432), num(164.5, "164,5", "NUMBER"), undefined, text(" ")])).toBe("number");
+    expect(kindOf([num(-1, "-1", "NUMBER"), text("EKSİK YOK")])).toBe("text");
+    expect(kindOf([num(46322, "27.10.2026", "DATE")])).toBe("date");
+    expect(kindOf([num(46322.5, "27.10.2026 12:00", "DATE_TIME")])).toBe("time");
+    expect(kindOf([num(0.5, "12:00", "TIME")])).toBe("text");
+    expect(kindOf([bool(true), bool(false)])).toBe("checkbox");
+    expect(kindOf([num(46322, "27.10.2026", "DATE"), num(3)])).toBe("text");
+    expect(kindOf([{ effectiveValue: { errorValue: { type: "DIVIDE_BY_ZERO" } } }, num(1)])).toBe("number");
+    expect(kindOf([])).toBe("text");
+  });
+});
+
+describe("values", () => {
+  it("turns date serials into days and times in the spreadsheet's zone", () => {
+    expect(serialDay(46322)).toBe("2026-10-27");
+    expect(serialDay(25569)).toBe("1970-01-01");
+    expect(serialTime(46322.5, "Europe/Istanbul")).toBe("2026-10-27T09:00:00.000Z");
+    expect(serialTime(46322.5, "UTC")).toBe("2026-10-27T12:00:00.000Z");
+    expect(serialTime(46322.5, "Not/AZone")).toBe("2026-10-27T12:00:00.000Z");
+  });
+
+  it("writes each cell as its column's property takes it", () => {
+    expect(cellValue("number", num(164.54988000000003, "164,5"), "UTC")).toBe(164.54988);
+    expect(cellValue("number", text("x"), "UTC")).toBeNull();
+    expect(cellValue("checkbox", bool(true), "UTC")).toBe(true);
+    expect(cellValue("checkbox", undefined, "UTC")).toBeNull();
+    expect(cellValue("date", num(46322, "27.10.2026", "DATE"), "UTC")).toBe("2026-10-27");
+    expect(cellValue("time", num(46322.25, "", "DATE_TIME"), "Europe/Istanbul")).toBe("2026-10-27T03:00:00.000Z");
+    // Text shows what the sheet shows: a number as the spreadsheet's language writes it.
+    expect(cellValue("text", num(-1, "-1"), "UTC")).toBe("-1");
+    expect(cellValue("text", num(1234.5, "1.234,50 ₺"), "UTC")).toBe("1.234,50 ₺");
+    expect(cellValue("text", text("x".repeat(MAX_SHEET_TEXT + 5)), "UTC")).toHaveLength(MAX_SHEET_TEXT);
+    expect(cellValue("text", { effectiveValue: { errorValue: {} }, formattedValue: "#DIV/0!" }, "UTC")).toBeNull();
+    expect(cellText({ effectiveValue: { numberValue: 3 } })).toBe("3");
+  });
+});
+
+describe("sheetItems", () => {
+  const grid = [
+    [text("ÜRÜN"), text("LİSTE FİYATI"), text("DURUM"), text("Ad")],
+    [text("GNA 1.500-1 N"), num(432), num(-1, "-1"), text("Birinci")],
+    [text("GNA 2.000-1 N"), num(542), text("EKSİK YOK")],
+    [],
+    [text("  "), num(1)],
+    [text("GNA 2.500-1 N"), {}, num(-11, "-11"), text("")],
+  ];
+  const mapping = {
+    key: "p_key",
+    columns: [
+      { column: "LİSTE FİYATI", property: "p_price", kind: "number" as const },
+      { column: "DURUM", property: "p_state", kind: "text" as const },
+      { column: "Gone", property: "p_gone", kind: "text" as const },
+    ],
+  };
+
+  it("makes a row of each line with a key, named by the title column or else its key", () => {
+    expect(sheetItems(grid, { keyColumn: "ÜRÜN", titleColumn: "Ad" }, mapping, "UTC")).toEqual([
+      { key: "GNA 1.500-1 N", title: "Birinci", values: { p_key: "GNA 1.500-1 N", p_price: 432, p_state: "-1" } },
+      { key: "GNA 2.000-1 N", title: "GNA 2.000-1 N", values: { p_key: "GNA 2.000-1 N", p_price: 542, p_state: "EKSİK YOK" } },
+      { key: "GNA 2.500-1 N", title: "GNA 2.500-1 N", values: { p_key: "GNA 2.500-1 N", p_price: null, p_state: "-11" } },
+    ]);
+  });
+
+  it("has nothing to go on when the key column's header is gone", () => {
+    expect(sheetItems(grid, { keyColumn: "SKU", titleColumn: "Ad" }, mapping, "UTC")).toBeNull();
+  });
+});
