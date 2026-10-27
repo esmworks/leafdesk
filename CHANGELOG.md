@@ -2,12 +2,6 @@
 
 ## Unreleased
 
-### Fixed
-
-- **A PDF template's theme names related rows and writes days the reader's way.** Related rows
-  (a quote's customer) and people printed empty, and dates came out as `2026-10-24` instead of
-  in the reader's language (`24.10.2026` in Turkish).
-
 ## 0.6.6 — 2026-10-28
 
 ### Upgrading from 0.6.5
@@ -32,8 +26,9 @@
   template (Settings → PDF templates) can have a theme in place of its lines and accent: its colors,
   margins, text size, headings and tables, and the logo, texts, fields, boxes, columns, signature
   and sign-here boxes around the page's own text, filled in with the page's title, today's date,
-  the workspace's name and a row's values by property name. A row of a quotes database then prints
-  as a one-page quote; *Start from a quote* fills one in. Say what to change and the AI rewrites the
+  the workspace's name and a row's values by property name (related rows and people by their
+  names, dates in the reader's language). A row of a quotes database then prints as a one-page
+  quote; *Start from a quote* fills one in. Say what to change and the AI rewrites the
   theme, checked before it is saved, beside a preview on a sample page; or edit its JSON. MCP gets
   `get_pdf_template` and `set_pdf_template` and the docs topic `pdf-themes`; for them the MCP tool
   list's budget goes from 90 to 92 tools and from 165.5 to 167 KB. Migration 0156 (column
