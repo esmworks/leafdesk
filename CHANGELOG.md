@@ -102,6 +102,11 @@
 
 ### Fixed
 
+- **Long AI answers are no longer cut off after a minute.** `AI_TIMEOUT_SECONDS` used to limit a
+  whole answer, so a chat or agent turn writing many rows at once (a large tool call) failed with
+  "The AI took too long to answer" while it was still coming. It now counts only silence: every
+  part the provider sends starts it again, and the answer's length stays bounded by
+  `AI_MAX_OUTPUT_TOKENS`.
 - **Text is drawn in the system's own typeface again** where Inter isn't installed. Since 0.6.4
   Latin letters fell to a Chinese typeface on macOS, whose faces came before the system's.
 - **Recordings no longer end in lines nobody said.** Over silence or a mumbled stretch, Whisper

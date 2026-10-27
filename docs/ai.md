@@ -346,7 +346,7 @@ every change and note it wants is asked about, also in *Auto*.
 | --- | --- | --- |
 | `AI_MAX_INPUT_CHARS` | none | Unset, the chat and agents send what the model's context window takes (its size less the answer's tokens, at 3 characters a token), and the writing assistant, AI properties, voice notes and agents' skills read at most 48,000 characters (a longer selection is refused, a longer page is cut). Set, it caps every request at this many characters |
 | `AI_MAX_OUTPUT_TOKENS` | 8192 | Tokens one answer may have. A model that thinks before answering (Claude 5.5, OpenAI's and Gemini's reasoning models…) spends its thinking from the same tokens, so it always gets all of them, also where a feature caps the answer lower (AI property values: 800) |
-| `AI_TIMEOUT_SECONDS` | 60 | |
+| `AI_TIMEOUT_SECONDS` | 60 | Seconds the provider may stay silent before an answer is given up. Each part of the answer it sends (text, thinking, a tool call being written) starts the count again, so a long answer runs as long as it keeps coming; its length is bounded by `AI_MAX_OUTPUT_TOKENS`. Embeddings get this long in all |
 | `AI_RATE_LIMIT` | 20 | Requests per person per minute |
 | `AI_WORKSPACE_RATE_LIMIT` | 120 | Requests per workspace per minute, AI property values included (they wait for their turn) |
 | `AI_CONCURRENCY` | 2 | AI property values worked out at the same time |

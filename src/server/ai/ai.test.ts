@@ -449,6 +449,14 @@ describe("AI interface (faux provider)", () => {
     await expect(complete({ feature: "test", workspaceId: "w1", messages: [{ role: "user", content: "x" }] })).rejects.toMatchObject({ code: "timeout" });
   });
 
+  it("times out on silence only, not on a long answer that keeps coming", async () => {
+    installFauxAi(() => "steady ".repeat(40), { tokensPerSecond: 100, config: { timeoutMs: 200 } });
+    const started = performance.now();
+    const result = await complete({ feature: "test", workspaceId: "w1", messages: [{ role: "user", content: "x" }] });
+    expect(result.text).toBe("steady ".repeat(40));
+    expect(performance.now() - started).toBeGreaterThan(400);
+  });
+
   it("passes tools and returns tool calls for the caller to run", async () => {
     const { faux } = installFauxAi(() => "unused");
     const { fauxAssistantMessage, fauxToolCall, fauxText } = await import("@earendil-works/pi-ai");

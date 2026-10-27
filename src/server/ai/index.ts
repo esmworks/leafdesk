@@ -586,7 +586,11 @@ function logUsage(entry: LogEntry) {
 
 // ------------------------------------------------------------------------------- requests
 
-/** Checks, limits and a combined abort signal (the caller's plus AI_TIMEOUT_SECONDS). */
+/**
+ * Checks, limits and a combined abort signal: the caller's, plus AI_TIMEOUT_SECONDS of silence.
+ * The timer starts again with everything the provider sends (`heard`), so a long answer that keeps
+ * coming (a large tool call) runs as long as it needs; its length is bounded by the output tokens.
+ */
 function prepare(request: AiRequest) {
   const config = aiConfig();
   if (!request.workspaceId) throw new AiError("disabled", "AI runs only for a workspace");
@@ -600,7 +604,7 @@ function prepare(request: AiRequest) {
   }
   if (!request.skipRateLimit) takeRateLimit(request);
   const timeout = new AbortController();
-  const timer = setTimeout(() => timeout.abort(), config.limits.timeoutMs);
+  let timer = setTimeout(() => timeout.abort(), config.limits.timeoutMs);
   const signal = request.signal ? AbortSignal.any([request.signal, timeout.signal]) : timeout.signal;
   const maxTokens = Math.min(request.maxOutputTokens ?? config.limits.maxOutputTokens, config.limits.maxOutputTokens);
   return {
@@ -609,6 +613,11 @@ function prepare(request: AiRequest) {
     maxTokens: (model: Model<Api>) => Math.min(model.reasoning ? config.limits.maxOutputTokens : maxTokens, model.maxTokens || Infinity),
     timedOut: () => timeout.signal.aborted,
     cancelled: () => request.signal?.aborted === true,
+    heard: () => {
+      if (timeout.signal.aborted) return;
+      clearTimeout(timer);
+      timer = setTimeout(() => timeout.abort(), config.limits.timeoutMs);
+    },
     done: () => clearTimeout(timer),
   };
 }
@@ -686,6 +695,7 @@ export function stream(request: AiRequest): AiStream {
         request.thinking ?? plan.thinking,
       );
       for await (const event of events) {
+        prepared.heard();
         if (event.type === "text_delta" && event.delta) {
           queue.push({ type: "text", delta: event.delta });
           wake?.();
