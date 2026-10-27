@@ -35,6 +35,7 @@
     "feed": "Fil",
     "timeline": "Chronologie",
     "chart": "Graphique",
+    "pivot": "Tableau croisé",
     "dashboard": "Tableau de bord",
     "form": "Formulaire",
     "map": "Carte"
@@ -974,6 +975,24 @@
     "noRows": "Aucune ligne dans ce groupe.",
     "openRows": "{group} : {value}. Afficher les lignes"
   },
+  "pivot": {
+    "rows": "Lignes",
+    "columns": "Colonnes",
+    "values": "Valeurs",
+    "property": "Propriété",
+    "rowsBy": "Lignes par",
+    "columnsBy": "Colonnes par",
+    "noColumns": "Aucune",
+    "sort": "Trier",
+    "showTotals": "Afficher les totaux",
+    "total": "Total",
+    "needsGroupTitle": "Les tableaux croisés regroupent les lignes par une propriété comme une sélection, un statut, une personne, une date ou un texte",
+    "needsGroupBody": "Cette base de données n’a encore aucune propriété par laquelle un tableau croisé peut regrouper.",
+    "empty": "Aucune ligne à afficher.",
+    "moreColumns": "{count, plural, one {# colonne de plus n’est pas affichée} other {# colonnes de plus ne sont pas affichées}} : filtrez la vue ou regroupez les dates par une période plus longue.",
+    "caption": "{measure} par {rows} et {columns}",
+    "captionRows": "{measure} par {rows}"
+  },
   "timeline": {
     "needsDateTitle": "Les chronologies placent les lignes selon une propriété de date",
     "needsDateBody": "Cette base de données n’a pas encore de propriété de date.",
@@ -1183,6 +1202,7 @@
       "day": "Jour",
       "week": "Semaine",
       "month": "Mois",
+      "quarter": "Trimestre",
       "year": "Année"
     },
     "statusBy": "Regrouper les statuts par",
@@ -1197,7 +1217,8 @@
     "actions": "Actions sur le groupe",
     "addRow": "Ajouter une ligne à {name}",
     "subGroupBy": "Sous-groupe",
-    "colorColumns": "Colorer les colonnes"
+    "colorColumns": "Colorer les colonnes",
+    "quarter": "T{quarter} {year}"
   },
   "rollup": {
     "title": "Agrégation",

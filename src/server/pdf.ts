@@ -20,6 +20,7 @@ import { requirePageAccess } from "@/server/access";
 import type { PageBlock } from "@/server/blocknote";
 import { calloutStylesOf } from "@/server/callout-styles";
 import { getCollab } from "@/server/collab/bridge";
+import { pivotCells, pivotTexts, type PivotTexts } from "@/server/pivot-text";
 import { assertExportAllowed, databaseViewTable, pageThreads, recordExport, type ViewExport } from "@/server/export";
 import { commentExportLabels } from "@/server/export-labels";
 import { fileForViewer, readStored } from "@/server/files";
@@ -155,8 +156,8 @@ export async function pagePdf(
           return value ? [{ name: p.name, value }] : [];
         })
       : [],
-    database: database ? tableOf(database, labels.name, locale) : null,
-    embeds: await embedsOf(userId, blocks, labels.name, locale),
+    database: database ? tableOf(database, labels, locale) : null,
+    embeds: await embedsOf(userId, blocks, labels, locale),
     crumbs: crumbs.map((c) => pageLabel(c.title, labels.untitled)),
     children: children.map((c) => pageLabel(c.title, labels.untitled)),
     comments: commentLabels
@@ -209,13 +210,16 @@ export async function viewPdf(userId: string, databaseId: string, view: ViewExpo
 
 /** The texts a PDF prints, in the reader's language (English outside a request). */
 async function pdfLabels() {
+  const pivot = await pivotTexts();
   try {
     const [tc, tp, tpub] = await Promise.all([getTranslations("common"), getTranslations("page.print"), getTranslations("publish")]);
-    return { untitled: tc("untitled"), unavailable: tp("embedUnavailable"), name: tpub("name") };
+    return { untitled: tc("untitled"), unavailable: tp("embedUnavailable"), name: tpub("name"), pivot };
   } catch {
-    return { untitled: "Untitled", unavailable: "This database isn't available to you.", name: "Name" };
+    return { untitled: "Untitled", unavailable: "This database isn't available to you.", name: "Name", pivot };
   }
 }
+
+type TableLabels = { name: string; pivot: PivotTexts };
 
 /** The reader's language, for numbers (English outside a request). */
 async function readerLocale(): Promise<string> {
@@ -237,9 +241,29 @@ function valueText(property: PublishedProperty, value: unknown, locale: string):
   return typeof shown === "number" ? numberText(shown, locale, valueFormat(property)) : shown;
 }
 
-function tableOf(table: PublishedDatabase, nameLabel: string, locale: string): PdfTable {
+/** A database as the PDF's table: its rows with their values, or a pivot's table (empty for a chart). */
+function tableOf(table: PublishedDatabase, labels: TableLabels, locale: string): PdfTable {
+  const pivot = table.pivot;
+  const named = (id: string | null) => pivot?.properties.find((p) => p.id === id);
+  const rowBy = named(pivot?.rowById ?? null);
+  if (pivot?.data && rowBy) {
+    const { header, cells } = pivotCells(
+      {
+        data: pivot.data,
+        rowBy,
+        columnBy: named(pivot.columnById) ?? null,
+        measure: pivot.measure,
+        measured: pivot.measure.kind === "aggregate" ? named(pivot.measure.prop.id)?.name : undefined,
+        totals: pivot.totals,
+      },
+      labels.pivot,
+      locale,
+      false,
+    );
+    return { header, rows: cells.map((row) => row.map((cell) => (cell === null ? "" : String(cell)))) };
+  }
   return {
-    header: [nameLabel, ...table.properties.map((p) => p.name)],
+    header: [labels.name, ...table.properties.map((p) => p.name)],
     rows: table.rows.map((r) => [r.title, ...table.properties.map((p) => valueText(p, r.properties[p.id], locale))]),
   };
 }
@@ -253,7 +277,7 @@ function* allBlocks(blocks: MdBlock[]): Generator<MdBlock> {
 }
 
 /** The databases the body's database blocks show, as the reader may see them, by block id. */
-async function embedsOf(userId: string, blocks: MdBlock[], nameLabel: string, locale: string): Promise<Map<string, PdfEmbed>> {
+async function embedsOf(userId: string, blocks: MdBlock[], labels: TableLabels, locale: string): Promise<Map<string, PdfEmbed>> {
   const out = new Map<string, PdfEmbed>();
   const loads = publishedLoads();
   for (const block of allBlocks(blocks)) {
@@ -262,7 +286,7 @@ async function embedsOf(userId: string, blocks: MdBlock[], nameLabel: string, lo
     if (!databaseId) continue;
     const linked = block.type === "linkedView" ? parseLinkedView(block.props?.view) : undefined;
     const embed = await printedEmbed(userId, databaseId, linked ? { linked } : {}, loads);
-    if (embed) out.set(block.id, { title: linked?.hideTitle ? null : embed.title, table: tableOf(embed.table, nameLabel, locale) });
+    if (embed) out.set(block.id, { title: linked?.hideTitle ? null : embed.title, table: tableOf(embed.table, labels, locale) });
   }
   return out;
 }

@@ -36,6 +36,7 @@ export function useGroupContext(prop: Pick<Property, "id" | "type"> | undefined)
 /** A date group's name: the day, the week's first and last day, the month or the year. */
 function useDateGroupName() {
   const format = useFormatter();
+  const t = useTranslations("database.group");
   return (value: Extract<GroupValue, { kind: "date" }>) => {
     const start = new Date(`${value.start}T00:00:00Z`);
     const end = new Date(`${value.end}T00:00:00Z`);
@@ -46,6 +47,8 @@ function useDateGroupName() {
         return format.dateTimeRange(start, end, { year: "numeric", month: "short", day: "numeric", timeZone: "UTC" });
       case "month":
         return format.dateTime(start, { year: "numeric", month: "long", timeZone: "UTC" });
+      case "quarter":
+        return t("quarter", { quarter: Math.floor(start.getUTCMonth() / 3) + 1, year: format.dateTime(start, { year: "numeric", timeZone: "UTC" }) });
       case "year":
         return format.dateTime(start, { year: "numeric", timeZone: "UTC" });
     }
@@ -74,6 +77,8 @@ export function useGroupName(prop: Pick<Property, "name">) {
         return dateName(value);
       case "relation":
         return pageLabel(value.row.title, tc("untitled"));
+      case "text":
+        return value.text;
     }
   };
 }
@@ -115,6 +120,8 @@ export function GroupLabel({ prop, group, className }: { prop: Pick<Property, "t
           <span className="truncate">{name}</span>
         </span>
       );
+    case "text":
+      return <span className={cn("min-w-0 truncate text-sm", className)}>{name}</span>;
     case "date":
       // Published pages render this on the server, whose date formatting may space ranges
       // differently from the browser's.

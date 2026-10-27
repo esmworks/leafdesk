@@ -101,6 +101,9 @@ BlockNote on Yjs; Tailwind v4; next-intl. Node 24, pnpm 11. A separate Electron 
   `lib/convert-property.ts` `retypeViewConfig` and `lib/views.ts` `layoutConfigError`.
   A view with `ownerId` is that person's alone: a new read of views adds `viewOwnedBy(userId)`
   (`databases.ts`), and published or copied views take only `ownerId is null`.
+  Pivot views: `lib/pivot.ts` (pure; totals measure the rows they cover, never the cells added
+  up), one table `components/database/pivot-table.tsx` for the app, published pages and print,
+  `server/pivot-text.ts` for server-made files (PDF, the view's CSV/HTML download).
   Several linked databases at once (views, example rows, an intro page) are a plan: checked in
   `src/lib/database-plan.ts`, created all-or-nothing by `database-plan.ts` `createFromPlan`, which
   Build with AI (`ai-build.ts` drafts the plan) and the AI chat's `create_database` both use.

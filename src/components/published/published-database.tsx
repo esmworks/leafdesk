@@ -1,6 +1,7 @@
 "use client";
 
 import { IconGlyph } from "@/components/builtin-icon";
+import dynamic from "next/dynamic";
 import Link from "next/link";
 import { useFormatter, useTranslations } from "next-intl";
 import { useState } from "react";
@@ -13,6 +14,9 @@ import { pageLabel } from "@/lib/labels";
 import { publishedHref, type PublishedLinks } from "@/lib/site";
 import type { PublishedDatabase, PublishedRow } from "@/server/publication";
 import { PublishedChartFigures } from "./published-chart";
+
+// Rendered on the server like the rest; its code reaches the browser only on pages that show a pivot.
+const PublishedPivotTable = dynamic(() => import("./published-pivot").then((m) => m.PublishedPivotTable));
 
 const cn = (...classes: (string | false | null | undefined)[]) => classes.filter(Boolean).join(" ");
 
@@ -76,8 +80,9 @@ export function PublishedDatabaseView({ table, links, viewPath, className, print
 
 function Layout({ table, href, print, compact }: { table: PublishedDatabase; href: Href; print: boolean; compact: boolean }) {
   const t = useTranslations("publish");
-  // A chart brings its figures, not rows.
+  // A chart or a pivot brings its figures, not rows.
   if (table.layout === "chart") return table.chart ? <PublishedChartFigures chart={table.chart} compact={compact} print={print} /> : null;
+  if (table.layout === "pivot") return table.pivot ? <PublishedPivotTable pivot={table.pivot} print={print} /> : null;
   if (!table.rows.length) return <p className="border-y border-border px-2 py-6 text-sm text-fg-faint">{t("noRows")}</p>;
   const byId = new Map(table.rows.map((r) => [r.id, r]));
   const rowsOf = (ids: string[]) => ids.flatMap((id) => byId.get(id) ?? []);

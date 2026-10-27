@@ -35,6 +35,7 @@
     "feed": "ฟีด",
     "timeline": "ไทม์ไลน์",
     "chart": "แผนภูมิ",
+    "pivot": "Pivot",
     "dashboard": "แดชบอร์ด",
     "form": "แบบฟอร์ม",
     "map": "แผนที่"
@@ -974,6 +975,24 @@
     "noRows": "ไม่มีแถวในกลุ่มนี้",
     "openRows": "{group}: {value} แสดงแถว"
   },
+  "pivot": {
+    "rows": "แถว",
+    "columns": "คอลัมน์",
+    "values": "ค่า",
+    "property": "คุณสมบัติ",
+    "rowsBy": "แถวตาม",
+    "columnsBy": "คอลัมน์ตาม",
+    "noColumns": "ไม่มี",
+    "sort": "จัดเรียง",
+    "showTotals": "แสดงผลรวม",
+    "total": "รวม",
+    "needsGroupTitle": "Pivot จัดกลุ่มแถวตามคุณสมบัติ เช่น ตัวเลือก สถานะ บุคคล วันที่ หรือข้อความ",
+    "needsGroupBody": "ฐานข้อมูลนี้ยังไม่มีคุณสมบัติที่ Pivot ใช้จัดกลุ่มได้",
+    "empty": "ไม่มีแถวที่จะแสดง",
+    "moreColumns": "{count, plural, other {ไม่ได้แสดงอีก # คอลัมน์}}: กรองมุมมองหรือจัดกลุ่มวันที่ตามช่วงเวลาที่ยาวขึ้น",
+    "caption": "{measure} ตาม {rows} และ {columns}",
+    "captionRows": "{measure} ตาม {rows}"
+  },
   "timeline": {
     "needsDateTitle": "ไทม์ไลน์จัดวางแถวตามคุณสมบัติวันที่",
     "needsDateBody": "ฐานข้อมูลนี้ยังไม่มีคุณสมบัติวันที่",
@@ -1183,6 +1202,7 @@
       "day": "วัน",
       "week": "สัปดาห์",
       "month": "เดือน",
+      "quarter": "ไตรมาส",
       "year": "ปี"
     },
     "statusBy": "จัดกลุ่มสถานะตาม",
@@ -1197,7 +1217,8 @@
     "actions": "การดำเนินการของกลุ่ม",
     "addRow": "เพิ่มแถวใน {name}",
     "subGroupBy": "กลุ่มย่อย",
-    "colorColumns": "ใส่สีคอลัมน์"
+    "colorColumns": "ใส่สีคอลัมน์",
+    "quarter": "ไตรมาส {quarter} {year}"
   },
   "rollup": {
     "title": "โรลอัป",

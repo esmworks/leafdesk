@@ -35,6 +35,7 @@
     "feed": "Akış",
     "timeline": "Zaman çizelgesi",
     "chart": "Grafik",
+    "pivot": "Pivot",
     "dashboard": "Gösterge paneli",
     "form": "Form",
     "map": "Harita"
@@ -974,6 +975,24 @@
     "noRows": "Bu grupta satır yok.",
     "openRows": "{group}: {value}. Satırları göster"
   },
+  "pivot": {
+    "rows": "Satırlar",
+    "columns": "Sütunlar",
+    "values": "Değerler",
+    "property": "Özellik",
+    "rowsBy": "Satırlar",
+    "columnsBy": "Sütunlar",
+    "noColumns": "Yok",
+    "sort": "Sırala",
+    "showTotals": "Toplamları göster",
+    "total": "Toplam",
+    "needsGroupTitle": "Pivot tablolar satırları seçim, durum, kişi, tarih veya metin gibi bir özelliğe göre gruplar",
+    "needsGroupBody": "Bu veritabanında pivot tablonun gruplayabileceği bir özellik henüz yok.",
+    "empty": "Gösterilecek satır yok.",
+    "moreColumns": "{count, plural, one {# sütun daha gösterilmiyor} other {# sütun daha gösterilmiyor}}: görünümü filtreleyin veya tarihleri daha uzun bir döneme göre gruplayın.",
+    "caption": "{rows} ve {columns} için {measure}",
+    "captionRows": "{rows} için {measure}"
+  },
   "timeline": {
     "needsDateTitle": "Zaman çizelgeleri satırları bir tarih özelliğine göre yerleştirir",
     "needsDateBody": "Bu veritabanında henüz tarih özelliği yok.",
@@ -1183,6 +1202,7 @@
       "day": "Gün",
       "week": "Hafta",
       "month": "Ay",
+      "quarter": "Çeyrek",
       "year": "Yıl"
     },
     "statusBy": "Durumu grupla",
@@ -1197,7 +1217,8 @@
     "actions": "Grup işlemleri",
     "addRow": "{name} grubuna satır ekle",
     "subGroupBy": "Alt grup",
-    "colorColumns": "Sütunları renklendir"
+    "colorColumns": "Sütunları renklendir",
+    "quarter": "{year} Ç{quarter}"
   },
   "rollup": {
     "title": "Toplama",

@@ -1,10 +1,9 @@
 "use client";
 
 import { Plus } from "lucide-react";
-import Link from "next/link";
 import { useFormatter, useTranslations } from "next-intl";
 import { useEffect, useId, useLayoutEffect, useMemo, useRef, useState, type ReactNode } from "react";
-import { Button, cn, PageIcon } from "@/components/ui";
+import { Button, cn } from "@/components/ui";
 import type { AggregateFn, AggregateResult } from "@/lib/aggregate";
 import {
   canStack,
@@ -26,14 +25,15 @@ import {
   type ChartSeries,
 } from "@/lib/chart";
 import type { GroupValue } from "@/lib/grouping";
-import { pageLabel } from "@/lib/labels";
-import { isHiddenInView, SELECT_COLORS, statusColor } from "@/lib/properties";
-import { Floating } from "./floating";
+import { SELECT_COLORS, statusColor } from "@/lib/properties";
 import { useGroupContext, useGroupName } from "./group-label";
-import { RowValue, shownValues } from "./property-cell";
+import { GroupRows } from "./group-rows";
+import { useMeasureName } from "./measure-name";
 import { useFormatResult } from "./table-calculations";
 import { calculationFormat, durationText, isDuration, isRating, numberFormatOptions } from "@/lib/number-format";
 import type { Property, Row, View } from "./types";
+
+export { useMeasureName };
 
 /**
  * A chart of the view's rows: bars, a line or a donut over the groups of a property, each group
@@ -121,15 +121,6 @@ export function ChartView({
       )}
     </div>
   );
-}
-
-/** What a chart measures, by name: "Count", or "Sum of Estimate". */
-export function useMeasureName(measure: ChartMeasure, properties: Pick<Property, "id" | "name">[]) {
-  const t = useTranslations("database");
-  const tc = useTranslations("database.calculate");
-  return measure.kind === "count"
-    ? t("chart.countShort")
-    : t("chart.measureOf", { calculation: tc(`menu.${measure.fn}`), property: properties.find((p) => p.id === measure.prop.id)?.name ?? "" });
 }
 
 /**
@@ -920,71 +911,5 @@ function Legend({ items }: { items: { key: string; label: string; color: string 
         </li>
       ))}
     </ul>
-  );
-}
-
-/** The rows behind a bar, point or slice, as links, with the properties the view shows. */
-function GroupRows({
-  workspaceId,
-  view,
-  properties,
-  title,
-  value,
-  rows,
-  anchor,
-  onClose,
-}: {
-  workspaceId: string;
-  view: View;
-  properties: Property[];
-  title: string;
-  value: string;
-  rows: Row[];
-  anchor: HTMLElement;
-  onClose: () => void;
-}) {
-  const t = useTranslations("database.chart");
-  const tc = useTranslations("common");
-  const shown = properties.filter((p) => !isHiddenInView(view, p));
-  return (
-    <Floating open anchor={anchor} onClose={onClose}>
-      <div className="w-72 max-w-[calc(100vw-2rem)]" aria-label={t("rowsIn", { group: title })} role="dialog">
-        <div className="px-2 pt-1 pb-1.5">
-          <div className="truncate text-sm font-medium">{title}</div>
-          <div className="text-xs text-fg-muted">
-            {value} · {t("rowCount", { count: rows.length })}
-          </div>
-        </div>
-        {!rows.length && <p className="px-2 pb-2 text-xs text-fg-faint">{t("noRows")}</p>}
-        <ul className="max-h-72 overflow-y-auto">
-          {rows.map((row) => {
-            const chips = shownValues(shown, row);
-            return (
-              <li key={row.id}>
-                <Link
-                  href={`/w/${workspaceId}/p/${row.id}`}
-                  onClick={onClose}
-                  className="flex min-w-0 flex-col gap-0.5 rounded px-2 py-1.5 text-sm hover:bg-bg-hover focus-visible:bg-bg-hover focus-visible:outline-none"
-                >
-                  <span className="flex min-w-0 items-center gap-2">
-                    <PageIcon icon={row.icon} className="shrink-0" />
-                    <span className={cn("truncate", !row.title && "text-fg-faint")}>{pageLabel(row.title, tc("untitled"))}</span>
-                  </span>
-                  {chips.length > 0 && (
-                    <span className="flex min-w-0 flex-wrap items-center gap-x-3 gap-y-0.5 ps-6 text-xs text-fg-muted">
-                      {chips.map((p) => (
-                        <span key={p.id} className="flex min-w-0 items-center" title={p.name}>
-                          <RowValue prop={p} row={row} />
-                        </span>
-                      ))}
-                    </span>
-                  )}
-                </Link>
-              </li>
-            );
-          })}
-        </ul>
-      </div>
-    </Floating>
   );
 }

@@ -46,6 +46,15 @@ import {
   chartTypeOf,
 } from "@/lib/chart";
 import { GROUP_DATE_BY, groupDateByOf, SECTIONED_VIEWS, subGroupProperty } from "@/lib/grouping";
+import {
+  columnSortOf,
+  isPivotGroupable,
+  PIVOT_AGGREGATE_FNS,
+  pivotAggregateFunctionsOf,
+  pivotColumnProperty,
+  pivotMeasure,
+  pivotRowProperty,
+} from "@/lib/pivot";
 import { filterRules } from "@/lib/filters";
 import { boardGroupProperty, isGroupable, isHiddenInView, isSortable } from "@/lib/properties";
 import { holdsTimestamp } from "@/lib/property-types";
@@ -222,7 +231,7 @@ export function ViewLayoutOptions(props: OptionsProps) {
     </MenuItem>
   );
   return (
-    <div className={cn("max-h-[70vh] overflow-y-auto", view.type === "chart" ? "w-72 max-w-[calc(100vw-2rem)]" : "w-64")}>
+    <div className={cn("max-h-[70vh] overflow-y-auto", view.type === "chart" || view.type === "pivot" ? "w-72 max-w-[calc(100vw-2rem)]" : "w-64")}>
       {onType && SWITCHABLE_VIEW_TYPES.includes(view.type) && row("layout", <ViewIcon type={view.type} className="h-3.5 w-3.5" />, t("layout.label"), t(`views.${view.type}`))}
       {row("properties", <EyeOff className="h-3.5 w-3.5" />, t("toolbar.properties"), t("viewMenu.shown", { count: shown }))}
       {row("filter", <ListFilter className="h-3.5 w-3.5" />, t("toolbar.filter"), filterCount || "")}
@@ -428,6 +437,8 @@ function LayoutSettings({
     <>
       {view.type === "chart" ? (
         <ChartSettings view={view} properties={properties} onSet={set} />
+      ) : view.type === "pivot" ? (
+        <PivotSettings view={view} properties={properties} onSet={set} />
       ) : view.type === "gallery" ? (
         <>
           <Heading>{t("cardSize")}</Heading>
@@ -1049,6 +1060,126 @@ function ChartSettings({ view, properties, onSet }: { view: View; properties: Pr
           {t("chart.showLegend")}
         </Toggle>
       )}
+    </>
+  );
+}
+
+/**
+ * Pivot views: what the rows and columns stand for (and how their dates and statuses group), what
+ * each cell calculates, the order of rows and columns, and totals.
+ */
+function PivotSettings({ view, properties, onSet }: { view: View; properties: Property[]; onSet: (patch: ViewConfig) => void }) {
+  const t = useTranslations("database");
+  const config = view.config;
+  const rowBy = pivotRowProperty(properties, config);
+  const columnBy = pivotColumnProperty(properties, config, rowBy);
+  const measure = pivotMeasure(config, properties);
+  const groupable = properties.filter(isPivotGroupable);
+  const measurable = properties.filter((p) => pivotAggregateFunctionsOf(p).length > 0);
+  const datesOf = (p: Property | null) => !!p && (p.type === "date" || holdsTimestamp(p.type));
+
+  const setMeasure = (propertyId: string) => {
+    const prop = properties.find((p) => p.id === propertyId);
+    if (!prop) return onSet({ chartAggregate: undefined });
+    const fns = pivotAggregateFunctionsOf(prop);
+    onSet({ chartAggregate: { fn: fns.includes("sum") ? "sum" : fns[0], propertyId: prop.id } });
+  };
+  const dateBy = (value: GroupDateBy, onChange: (by: GroupDateBy) => void) => (
+    <SettingRow label={t("group.dateBy")}>
+      <NativeSelect
+        label={t("group.dateBy")}
+        value={value}
+        onChange={(v) => onChange(v as GroupDateBy)}
+        options={GROUP_DATE_BY.map((by) => ({ value: by, label: t(`group.dateByOptions.${by}`) }))}
+        className="w-36"
+      />
+    </SettingRow>
+  );
+  const statusBy = (value: ViewConfig["groupStatusBy"], onChange: (by: ViewConfig["groupStatusBy"]) => void) => (
+    <SettingRow label={t("group.statusBy")}>
+      <NativeSelect
+        label={t("group.statusBy")}
+        value={value === "group" ? "group" : "option"}
+        onChange={(v) => onChange(v === "group" ? "group" : undefined)}
+        options={[
+          { value: "option", label: t("group.statusByOptions.option") },
+          { value: "group", label: t("group.statusByOptions.group") },
+        ]}
+        className="w-36"
+      />
+    </SettingRow>
+  );
+  const sortBy = (label: string, value: ChartSort, onChange: (sort: ChartSort | undefined) => void) => (
+    <SettingRow label={label}>
+      <NativeSelect
+        label={label}
+        value={value}
+        onChange={(v) => onChange(v === "group" ? undefined : (v as ChartSort))}
+        options={CHART_SORTS.map((sort) => ({ value: sort, label: t(`chart.sorts.${sort}`) }))}
+        className="w-36"
+      />
+    </SettingRow>
+  );
+
+  return (
+    <>
+      <Heading>{t("pivot.rows")}</Heading>
+      <SettingRow label={t("pivot.property")}>
+        <NativeSelect
+          label={t("pivot.rowsBy")}
+          value={rowBy?.id ?? ""}
+          // Saved row order and hidden rows were group keys of the old property.
+          onChange={(id) => onSet({ groupBy: id, hiddenGroups: undefined, groupOrder: undefined, ...(id === config.columnBy ? { columnBy: undefined } : {}) })}
+          options={groupable.map((p) => ({ value: p.id, label: p.name }))}
+          className="w-36"
+        />
+      </SettingRow>
+      {datesOf(rowBy) && dateBy(groupDateByOf(config), (by) => onSet({ groupDateBy: by }))}
+      {rowBy?.type === "status" && statusBy(config.groupStatusBy, (by) => onSet({ groupStatusBy: by }))}
+      {sortBy(t("pivot.sort"), chartSortOf(config), (sort) => onSet({ chartSort: sort }))}
+      <MenuSeparator />
+      <Heading>{t("pivot.columns")}</Heading>
+      <SettingRow label={t("pivot.property")}>
+        <NativeSelect
+          label={t("pivot.columnsBy")}
+          value={columnBy?.id ?? ""}
+          onChange={(id) => onSet({ columnBy: id || undefined })}
+          options={[{ value: "", label: t("pivot.noColumns") }, ...groupable.filter((p) => p.id !== rowBy?.id).map((p) => ({ value: p.id, label: p.name }))]}
+          className="w-36"
+        />
+      </SettingRow>
+      {datesOf(columnBy) && dateBy(groupDateByOf({ groupDateBy: config.columnDateBy }), (by) => onSet({ columnDateBy: by }))}
+      {columnBy?.type === "status" && statusBy(config.columnStatusBy, (by) => onSet({ columnStatusBy: by }))}
+      {columnBy && sortBy(t("pivot.sort"), columnSortOf(config), (sort) => onSet({ columnSort: sort }))}
+      <MenuSeparator />
+      <Heading>{t("pivot.values")}</Heading>
+      <SettingRow label={t("chart.measure")}>
+        <NativeSelect
+          label={t("chart.measure")}
+          value={measure.kind === "count" ? "" : measure.prop.id}
+          onChange={setMeasure}
+          options={[{ value: "", label: t("chart.count") }, ...measurable.map((p) => ({ value: p.id, label: p.name }))]}
+          className="w-36"
+        />
+      </SettingRow>
+      {measure.kind === "aggregate" && (
+        <SettingRow label={t("chart.calculation")}>
+          <NativeSelect
+            label={t("chart.calculation")}
+            value={measure.fn}
+            onChange={(fn) => onSet({ chartAggregate: { fn: fn as AggregateFn, propertyId: measure.prop.id } })}
+            options={PIVOT_AGGREGATE_FNS.map((fn) => ({ value: fn, label: t(`calculate.menu.${fn}`) }))}
+            className="w-36"
+          />
+        </SettingRow>
+      )}
+      <MenuSeparator />
+      <Toggle on={config.showTotals !== false} onChange={(on) => onSet({ showTotals: on ? undefined : false })}>
+        {t("pivot.showTotals")}
+      </Toggle>
+      <Toggle on={!!config.hideEmptyGroups} onChange={(on) => onSet({ hideEmptyGroups: on || undefined })}>
+        {t("group.hideEmpty")}
+      </Toggle>
     </>
   );
 }

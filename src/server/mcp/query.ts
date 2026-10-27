@@ -12,6 +12,7 @@ import type {
 } from "@/db/schema/app";
 import type { AggregateResult } from "@/lib/aggregate";
 import { AUTOFILL_BODY, AUTOFILL_TITLE, isAutofillType, type AiAutofillConfig } from "@/lib/ai";
+import { columnSettings, columnSortOf, pivotColumnProperty, pivotData, pivotMeasure, pivotRowProperty } from "@/lib/pivot";
 import {
   boardMeasure,
   canStack,
@@ -445,6 +446,7 @@ export function describeViewConfig(props: PropertyDef[], config: ViewConfig, loo
     ...(config.subItems ? { sub_items: config.subItems } : {}),
     ...(config.openRows === "page" || config.openRows === "center" ? { open_rows: config.openRows } : {}),
     ...(type === "chart" ? describeChart(props, config) : {}),
+    ...(type === "pivot" ? describePivot(props, config) : {}),
     ...(type === "board" ? describeBoard(props, config) : {}),
     ...(config.filters?.length ? { filters: config.filters.map(describeEntry) } : {}),
     ...(config.filters?.length && config.filterCombinator === "or" ? { filter_combinator: "or" } : {}),
@@ -547,6 +549,74 @@ function describeChart(props: PropertyDef[], config: ViewConfig) {
   };
 }
 
+/**
+ * A pivot's settings by name, as create_database_view takes them: its rows (group_by, falling back
+ * as the pivot does), what its cells calculate (a stale calculation counts rows) and its columns.
+ */
+function describePivot(props: PropertyDef[], config: ViewConfig) {
+  const rowBy = pivotRowProperty(props, config);
+  const columnBy = pivotColumnProperty(props, config, rowBy);
+  const measure = pivotMeasure(config, props);
+  const columns = columnSettings(config);
+  return {
+    ...(rowBy ? { group_by: rowBy.name, ...describeGrouping(rowBy, config) } : {}),
+    aggregate: measure.kind === "count" ? "count" : measure.fn,
+    ...(measure.kind === "aggregate" ? { aggregate_property: keyName(props, measure.prop.id) } : {}),
+    chart_sort: chartSortOf(config),
+    pivot: {
+      columns_by: columnBy?.name ?? null,
+      ...(columnBy && (columnBy.type === "date" || holdsTimestamp(columnBy.type)) ? { column_date_by: groupDateByOf(columns) } : {}),
+      ...(columnBy?.type === "status" ? { column_status_by: columns.groupStatusBy === "group" ? "group" : "option" } : {}),
+      ...(columnBy ? { column_sort: columnSortOf(config) } : {}),
+      show_totals: config.showTotals !== false,
+    },
+  };
+}
+
+/**
+ * What a pivot view shows over `rows` (already filtered), for query_database: its columns' labels,
+ * then each row group's values in that order (null where no rows fall), its total, the columns'
+ * totals and the grand total. Plain numbers; created and edited times count by their UTC day.
+ */
+export function describePivotTable(
+  props: PropertyDef[],
+  config: ViewConfig,
+  rows: { id: string; properties: Record<string, unknown> }[],
+  lookups: Lookups = NO_LOOKUPS,
+) {
+  const rowBy = pivotRowProperty(props, config);
+  if (!rowBy) return { note: "This pivot has no property to group rows by; add a select, status, date, text or other groupable property." };
+  const columnBy = pivotColumnProperty(props, config, rowBy);
+  const contextFor = (prop: PropertyDef): GroupContext => ({
+    people: lookups.people.map((p) => ({ id: p.id, name: p.name, active: p.active !== false })),
+    relationRows: prop.type === "relation" ? (lookups.relations[prop.id]?.rows ?? []).map((r) => ({ ...r, icon: null })) : undefined,
+    dayOf: (value) => (typeof value === "string" && /^\d{4}-\d{2}-\d{2}/.test(value) ? value.slice(0, 10) : null),
+  });
+  const data = pivotData(rows, {
+    rowBy,
+    columnBy,
+    measure: pivotMeasure(config, props),
+    config,
+    rowContext: contextFor(rowBy),
+    ...(columnBy ? { columnContext: contextFor(columnBy) } : {}),
+  });
+  const valueOf = (cell: { rows: unknown[]; result: AggregateResult | null }) =>
+    cell.rows.length && cell.result && cell.result.format !== "date" ? cell.result.value : null;
+  return {
+    group_by: rowBy.name,
+    ...(columnBy ? { columns_by: columnBy.name, columns: data.columns.map((c) => chartGroupLabel(columnBy, c.value)) } : {}),
+    rows: data.rows.map((r) => ({
+      group: chartGroupLabel(rowBy, r.value),
+      ...(columnBy ? { values: r.cells.map(valueOf) } : {}),
+      total: valueOf(r.total),
+      row_count: r.total.rows.length,
+    })),
+    ...(columnBy ? { column_totals: data.columns.map((c) => valueOf(c.total)) } : {}),
+    grand_total: valueOf(data.grand),
+    ...(data.moreColumns ? { note: `${data.moreColumns} more columns aren't shown.` } : {}),
+  };
+}
+
 /** A chart group's name: an option, person, related row or status group, a date bucket, checked or not. */
 function chartGroupLabel(prop: PropertyDef, value: GroupValue): string {
   switch (value.kind) {
@@ -562,6 +632,8 @@ function chartGroupLabel(prop: PropertyDef, value: GroupValue): string {
       return value.checked ? "Checked" : "Unchecked";
     case "relation":
       return pageLabel(value.row.title);
+    case "text":
+      return value.text;
     case "date":
       switch (value.by) {
         case "day":
@@ -570,6 +642,8 @@ function chartGroupLabel(prop: PropertyDef, value: GroupValue): string {
           return `${value.start} to ${value.end}`;
         case "month":
           return value.start.slice(0, 7);
+        case "quarter":
+          return `${value.start.slice(0, 4)}-Q${Math.floor(Number(value.start.slice(5, 7)) / 3) + 1}`;
         case "year":
           return value.start.slice(0, 4);
       }

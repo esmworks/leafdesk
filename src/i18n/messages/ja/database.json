@@ -35,6 +35,7 @@
     "feed": "フィード",
     "timeline": "タイムライン",
     "chart": "グラフ",
+    "pivot": "ピボット",
     "dashboard": "ダッシュボード",
     "form": "フォーム",
     "map": "マップ"
@@ -974,6 +975,24 @@
     "noRows": "このグループに行はありません。",
     "openRows": "{group}：{value}。行を表示"
   },
+  "pivot": {
+    "rows": "行",
+    "columns": "列",
+    "values": "値",
+    "property": "プロパティ",
+    "rowsBy": "行",
+    "columnsBy": "列",
+    "noColumns": "なし",
+    "sort": "並べ替え",
+    "showTotals": "合計を表示",
+    "total": "合計",
+    "needsGroupTitle": "ピボットは、セレクト、ステータス、ユーザー、日付、テキストなどのプロパティで行をグループ化します",
+    "needsGroupBody": "このデータベースには、ピボットでグループ化できるプロパティがまだありません。",
+    "empty": "表示する行がありません。",
+    "moreColumns": "{count, plural, other {ほかに#列が表示されていません}}。ビューを絞り込むか、日付をより長い期間でグループ化してください。",
+    "caption": "{rows}と{columns}ごとの{measure}",
+    "captionRows": "{rows}ごとの{measure}"
+  },
   "timeline": {
     "needsDateTitle": "タイムラインは日付プロパティに基づいて行を配置します",
     "needsDateBody": "このデータベースにはまだ日付プロパティがありません。",
@@ -1183,6 +1202,7 @@
       "day": "日",
       "week": "週",
       "month": "月",
+      "quarter": "四半期",
       "year": "年"
     },
     "statusBy": "ステータスのグループ化方法",
@@ -1197,7 +1217,8 @@
     "actions": "グループの操作",
     "addRow": "{name}に行を追加",
     "subGroupBy": "サブグループ",
-    "colorColumns": "列に色を付ける"
+    "colorColumns": "列に色を付ける",
+    "quarter": "{year} Q{quarter}"
   },
   "rollup": {
     "title": "ロールアップ",

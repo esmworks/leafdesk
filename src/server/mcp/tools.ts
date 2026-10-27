@@ -50,6 +50,7 @@ import { MAX_FORMULA_LENGTH } from "@/lib/formula";
 import { checkNumberFormat, MAX_DECIMALS, MAX_RATING, NUMBER_FORMATS } from "@/lib/number-format";
 import { REMINDER_DAYS, type DateOptionsInput } from "@/lib/date-options";
 import { GROUP_DATE_BY } from "@/lib/grouping";
+import { isPivotGroupable, pivotAggregateFunctionsOf, pivotRowProperty } from "@/lib/pivot";
 import { pageLabel } from "@/lib/labels";
 import { valueText } from "@/lib/row-activity";
 import { isGroupable, SELECT_COLORS, sortStatusOptions, statusColor } from "@/lib/properties";
@@ -419,6 +420,22 @@ function withOptionParents(
   return options.map((o) => (lists.has(o.id) ? { ...o, parentOptionIds: lists.get(o.id) } : o));
 }
 
+/** A pivot view's columns and totals; its rows are group_by, its cells aggregate (see the pivots topic). */
+const pivotSettingsInput = z
+  .object({
+    columns_by: z
+      .string()
+      .nullable()
+      .optional()
+      .describe("The property whose groups make the columns: any property group_by takes, or a text, url, email or phone property (grouped by value); null for one column of values."),
+    column_date_by: z.enum(GROUP_DATE_BY).optional().describe("Columns by a date, created_time or last_edited_time: per day, week (Mon–Sun), month (default), quarter or year."),
+    column_status_by: z.enum(["option", "group"]).optional().describe('Columns by a status: "option" per option (default) or "group" (todo, in_progress, done).'),
+    column_sort: z.enum(CHART_SORTS).optional().describe('"group" keeps the grouping\'s order (default), "value_desc" / "value_asc" by column total.'),
+    show_totals: z.boolean().optional().describe("Row and column totals and the grand total (default true)."),
+  })
+  .strict();
+type PivotSettingsInput = z.infer<typeof pivotSettingsInput>;
+
 /** Layout settings of calendar, gallery and timeline views, shared by create_database_view and update_database_view. */
 const viewLayoutInputs = {
   end_date_by: z
@@ -451,12 +468,12 @@ const viewLayoutInputs = {
     .enum(["count", ...BOARD_AGGREGATE_FNS])
     .optional()
     .describe(
-      'Chart and board only: what each group measures, on a board shown under each column name. "count" (default) counts rows; others use aggregate_property: sum, average, median, min, max, range (numbers); count_values, count_unique, count_empty, count_not_empty, percent_empty, percent_not_empty (any); date_range in days (dates; boards also earliest_date, latest_date); count_checked, count_unchecked, percent_checked, percent_unchecked (checkboxes).',
+      'Chart, board and pivot only: what each group (pivot: each cell) measures, on a board shown under each column name. "count" (default) counts rows; others use aggregate_property (pivots: sum, average, median, min or max): sum, average, median, min, max, range (numbers); count_values, count_unique, count_empty, count_not_empty, percent_empty, percent_not_empty (any); date_range in days (dates; boards also earliest_date, latest_date); count_checked, count_unchecked, percent_checked, percent_unchecked (checkboxes).',
     ),
   aggregate_property: z
     .string()
     .optional()
-    .describe("Chart and board only: the property the aggregate calculates over (needed for every aggregate but count). Formula and rollup properties count as their result type: a number formula can be summed."),
+    .describe("Chart, board and pivot only: the property the aggregate calculates over (needed for every aggregate but count). Formula and rollup properties count as their result type: a number formula can be summed."),
   stack_by: z
     .string()
     .nullable()
@@ -467,7 +484,7 @@ const viewLayoutInputs = {
   chart_sort: z
     .enum(CHART_SORTS)
     .optional()
-    .describe('Chart only: "group" keeps the grouping\'s order (default), "value_desc" / "value_asc" by value.'),
+    .describe('Chart and pivot (its rows) only: "group" keeps the grouping\'s order (default), "value_desc" / "value_asc" by value.'),
   accumulate: z
     .enum(["none", ...CHART_ACCUMULATES])
     .optional()
@@ -476,6 +493,11 @@ const viewLayoutInputs = {
     ),
   show_values: z.boolean().optional().describe("Chart only: print values on bars or points and in a donut legend (default false)."),
   show_legend: z.boolean().optional().describe("Donut charts only: show the legend (true by default)."),
+  pivot: checked(
+    pivotSettingsInput,
+    "object",
+    `Pivot only: {columns_by, column_date_by, column_status_by, column_sort, show_totals}; rows are group_by, cells aggregate. ${see("pivots")}`,
+  ).optional(),
   sub_items: z
     .enum(SUB_ITEMS_DISPLAYS)
     .optional()
@@ -502,27 +524,28 @@ const viewDisplayInputs = {
 const viewLayoutParams = briefly(viewLayoutInputs, {
   end_date_by: "Timeline: the property where bars end (null: a day each).",
   zoom: "Timeline: a column per day, week (default) or month.",
-  calendar_mode: "Calendar: a month (default) or a week with its hours.",
+  calendar_mode: "Calendar: a month (default) or a week with hours.",
   show_table: "Timeline: row titles left of the bars (default true).",
   card_size: "Gallery: card size (default medium).",
   place_by: "Map: the place property of the pins.",
   cover: 'Gallery: "first_image" (default), "none" or a files property.',
-  chart_type: "Chart: bar (default), horizontal_bar, line, donut, or number (one value).",
-  aggregate: 'Chart and board: what each group measures, "count" (default) or a calculation over aggregate_property.',
-  aggregate_property: "Chart and board: the property aggregate calculates over.",
-  stack_by: "Bar charts: split each bar by a second property (null: none).",
-  chart_sort: "Chart: in the grouping's order (default) or by value.",
-  accumulate: "Charts by a date: cumulative or remaining (a burndown) instead of each period alone.",
-  show_values: "Chart: print the values (default false).",
+  chart_type: "Chart: bar (default), horizontal_bar, line, donut or number.",
+  aggregate: 'Chart, board, pivot: "count" (default) or a calculation over aggregate_property.',
+  aggregate_property: "Chart, board, pivot: what aggregate calculates over.",
+  stack_by: "Bar charts: split bars by a second property (null: none).",
+  chart_sort: "Chart, pivot rows: grouping order (default) or by value.",
+  pivot: `Pivot settings. ${see("pivots")}`,
+  accumulate: "Date charts: running total or what remains (burndown).",
+  show_values: "Chart: print values (default false).",
   show_legend: "Donut: show the legend (default true).",
-  sub_items: "Table, list and timeline with sub-items: nested (default), flat, or parents only.",
+  sub_items: "With sub-items: nested (default), flat or parents only.",
   open_rows: "Where rows open: panel (default), center or page.",
 });
 const viewDisplayParams = briefly(viewDisplayInputs, {
   show_weekends: "Calendar: weekends (default true).",
   show_icons: "Page icons by titles (default true).",
-  wrap_properties: "Board and gallery: wrap long card values.",
-  load_limit: "Board (per column) and gallery: cards before Load more (default 50).",
+  wrap_properties: "Board, gallery: wrap long card values.",
+  load_limit: "Board (per column), gallery: cards before Load more (default 50).",
 });
 const formParams = briefly(formInputs, {
   questions: "Form: the questions in order ({property, required, label, description}); replaces the current ones.",
@@ -617,6 +640,7 @@ type ViewInput = {
   accumulate?: "none" | ChartAccumulate;
   show_values?: boolean;
   show_legend?: boolean;
+  pivot?: PivotSettingsInput;
   sub_items?: SubItemsDisplay;
   open_rows?: OpenRows;
   filters?: FilterEntryInput[];
@@ -629,7 +653,7 @@ const groupSettingsInput = {
   group_date_by: z
     .enum(GROUP_DATE_BY)
     .optional()
-    .describe("Grouping by a date, created_time or last_edited_time: per day, week (Mon–Sun), month (default) or year."),
+    .describe("Grouping by a date, created_time or last_edited_time: per day, week (Mon–Sun), month (default), quarter or year."),
   group_status_by: z
     .enum(["option", "group"])
     .optional()
@@ -638,8 +662,8 @@ const groupSettingsInput = {
 };
 
 const groupSettingsParams = briefly(groupSettingsInput, {
-  group_date_by: "Grouping by a date: per day, week, month (default) or year.",
-  group_status_by: 'Grouping by a status: per "option" (default) or per "group" (stage).',
+  group_date_by: "By a date: per day, week, month (default), quarter or year.",
+  group_status_by: 'By a status: per "option" (default) or "group" (stage).',
 });
 
 /** A board's sub-groups and column colors, for create_database_view and update_database_view. */
@@ -730,16 +754,19 @@ function viewConfigPatch(
     const names = types.length > 1 ? `${types.slice(0, -1).join(", ")} and ${types.at(-1)}` : types[0];
     throw new ToolInputError(`${setting} only applies to ${names} views.`);
   };
-  const grouped = type === "board" || type === "table" || type === "list" || type === "gallery" || type === "chart";
+  const grouped = type === "board" || type === "table" || type === "list" || type === "gallery" || type === "chart" || type === "pivot";
   if (input.group_by !== undefined) {
-    only("group_by", "board", "table", "list", "gallery", "timeline", "map", "chart");
+    only("group_by", "board", "table", "list", "gallery", "timeline", "map", "chart", "pivot");
     if (input.group_by === null) {
       if (type === "board") throw new ToolInputError("Boards always group their cards; pass a property to group by.");
-      if (type === "chart") throw new ToolInputError("Charts always group their rows; pass a property to group by.");
+      if (type === "chart" || type === "pivot") throw new ToolInputError(`${type === "chart" ? "Charts" : "Pivots"} always group their rows; pass a property to group by.`);
       patch.groupBy = undefined;
     } else {
       const prop = requireProperty(props, input.group_by);
-      if (!isGroupable(prop.type)) {
+      if (type === "pivot" && !isPivotGroupable(prop)) {
+        throw new ToolInputError(`Pivots group rows by what other views group by, or by a text, url, email or phone property; "${prop.name}" is ${prop.type}.`);
+      }
+      if (type !== "pivot" && !isGroupable(prop.type)) {
         throw new ToolInputError(
           `Views group by a select, status, multi_select, person, created_by, last_edited_by, checkbox, date, created_time, last_edited_time or relation property; "${prop.name}" is ${prop.type}.`,
         );
@@ -758,7 +785,7 @@ function viewConfigPatch(
   }
   const groupSettings = input.group_date_by ?? input.group_status_by ?? input.hide_empty_groups;
   if (groupSettings !== undefined && !grouped) {
-    throw new ToolInputError("group_date_by, group_status_by and hide_empty_groups only apply to board, table, list, gallery and chart views.");
+    throw new ToolInputError("group_date_by, group_status_by and hide_empty_groups only apply to board, table, list, gallery, chart and pivot views.");
   }
   if (input.sub_group_by !== undefined) {
     only("sub_group_by", "board");
@@ -843,15 +870,17 @@ function viewConfigPatch(
     patch.cover = toCover(props, input.cover);
   }
   if (type === "chart") Object.assign(patch, chartConfigPatch(props, input, { ...current, ...patch }));
+  else if (type === "pivot") Object.assign(patch, pivotConfigPatch(props, input, { ...current, ...patch }));
   else {
     for (const setting of ["chart_type", "stack_by", "chart_sort", "accumulate", "show_values", "show_legend"] as const) {
       if (input[setting] !== undefined) only(setting, "chart");
     }
     if (input.aggregate !== undefined || input.aggregate_property !== undefined) {
-      only(input.aggregate !== undefined ? "aggregate" : "aggregate_property", "chart", "board");
+      only(input.aggregate !== undefined ? "aggregate" : "aggregate_property", "chart", "board", "pivot");
       patch.boardAggregate = aggregateFromInput(props, input, current.boardAggregate, "board");
     }
   }
+  if (input.pivot !== undefined && type !== "pivot") only("pivot", "pivot");
   if (input.sub_items !== undefined) {
     only("sub_items", "table", "list", "timeline");
     if (!props.some((p) => p.type === "relation" && p.options.relation?.role === "parent")) {
@@ -910,9 +939,9 @@ function aggregateFromInput(
   props: PropertyDef[],
   input: ViewInput,
   saved: ChartAggregate | undefined,
-  view: "chart" | "board",
+  view: "chart" | "board" | "pivot",
 ): ChartAggregate | undefined {
-  const counted = view === "chart" ? "rows" : "cards";
+  const counted = view === "board" ? "cards" : "rows";
   if (input.aggregate === "count") {
     if (input.aggregate_property !== undefined) throw new ToolInputError(`aggregate_property doesn't apply to "count", which counts ${counted}.`);
     return undefined;
@@ -922,10 +951,13 @@ function aggregateFromInput(
   if (!fn) throw new ToolInputError("aggregate_property needs an aggregate to calculate, such as sum or average.");
   if (!ref) throw new ToolInputError(`aggregate "${fn}" needs aggregate_property: the property to calculate over.`);
   const prop = requireProperty(props, ref);
-  const offered = view === "chart" ? chartAggregateFunctionsOf(prop) : boardAggregateFunctionsOf(prop);
+  const offered = view === "chart" ? chartAggregateFunctionsOf(prop) : view === "pivot" ? pivotAggregateFunctionsOf(prop) : boardAggregateFunctionsOf(prop);
   if (!offered.includes(fn)) {
+    const who = view === "chart" ? "Charts" : view === "pivot" ? "Pivots" : "Board columns";
     throw new ToolInputError(
-      `${view === "chart" ? "Charts" : "Board columns"} can't calculate ${fn} over "${prop.name}" (${prop.type}); it offers count, ${offered.join(", ")}.`,
+      offered.length
+        ? `${who} can't calculate ${fn} over "${prop.name}" (${prop.type}); it offers count, ${offered.join(", ")}.`
+        : `${who} calculate over numbers (and number formulas and rollups); "${prop.name}" is ${prop.type}, so use "count".`,
     );
   }
   return { fn, propertyId: prop.id };
@@ -980,6 +1012,45 @@ function chartConfigPatch(props: PropertyDef[], input: ViewInput, current: ViewC
       throw new ToolInputError(`A chart can't stack by "${stackBy.name}", the property it groups by.`);
     }
   }
+  return patch;
+}
+
+/** A pivot's settings from tool input; `current` is the saved config the patch will be merged into. */
+function pivotConfigPatch(props: PropertyDef[], input: ViewInput, current: ViewConfig): ViewConfig {
+  const patch: ViewConfig = {};
+  for (const setting of ["chart_type", "stack_by", "accumulate", "show_values", "show_legend"] as const) {
+    if (input[setting] !== undefined) throw new ToolInputError(`${setting} only applies to chart views.`);
+  }
+  if (input.chart_sort !== undefined) patch.chartSort = input.chart_sort === "group" ? undefined : input.chart_sort;
+  if (input.aggregate !== undefined || input.aggregate_property !== undefined) {
+    patch.chartAggregate = aggregateFromInput(props, input, current.chartAggregate, "pivot");
+  }
+  const settings = input.pivot;
+  if (!settings) return patch;
+  if (settings.columns_by !== undefined) {
+    if (settings.columns_by === null) patch.columnBy = undefined;
+    else {
+      const prop = requireProperty(props, settings.columns_by);
+      if (!isPivotGroupable(prop)) {
+        throw new ToolInputError(`Pivot columns group by what group_by takes, or a text, url, email or phone property; "${prop.name}" is ${prop.type}.`);
+      }
+      if (prop.id === pivotRowProperty(props, current)?.id) throw new ToolInputError(`"${prop.name}" already makes the pivot's rows.`);
+      patch.columnBy = prop.id;
+    }
+  }
+  const columnBy = props.find((p) => p.id === (settings.columns_by === undefined ? current.columnBy : patch.columnBy));
+  if (settings.column_date_by !== undefined) {
+    if (!columnBy || (columnBy.type !== "date" && !holdsTimestamp(columnBy.type))) {
+      throw new ToolInputError("column_date_by only applies when the columns are by a date, created_time or last_edited_time.");
+    }
+    patch.columnDateBy = settings.column_date_by === "month" ? undefined : settings.column_date_by;
+  }
+  if (settings.column_status_by !== undefined) {
+    if (columnBy?.type !== "status") throw new ToolInputError("column_status_by only applies when the columns are by a status.");
+    patch.columnStatusBy = settings.column_status_by === "group" ? "group" : undefined;
+  }
+  if (settings.column_sort !== undefined) patch.columnSort = settings.column_sort === "group" ? undefined : settings.column_sort;
+  if (settings.show_totals !== undefined) patch.showTotals = settings.show_totals ? undefined : false;
   return patch;
 }
 
@@ -1088,7 +1159,7 @@ async function pdfText(bytes: Buffer): Promise<{ text: string; pages: number } |
 const FILTERS_DOC =
   'List rows of a database with optional filters and sorts. Filters reference properties by name (or "title", "created_at", "updated_at") and use select / status option names as values; all must match unless filter_combinator is "or", and groups ({type: "group", combinator, rules}) mix the two, e.g. Status is Done and (Assignee contains me or Priority is High). Ops: contains, does_not_contain, equals, not_equals, is_any_of, is_none_of, is_empty, is_not_empty, gt, gte, lt, lte, is_within. Text contains / does_not_contain ignore case. For a relation use contains / not_equals with a related row id or title; for a person, created_by or last_edited_by, contains / not_equals with a user id, email, name or "me". is_any_of / is_none_of take a list: option names on select and status, and on multi_select, relation and people the row holds at least one / none, e.g. {"property": "Status", "op": "is_any_of", "value": ["Todo", "In progress"]}; people lists may include "me". Numbers compare with gt, gte, lt and lte. Dates, created_time and last_edited_time use equals (that day), gt/gte/lt/lte with YYYY-MM-DD, and is_within takes today, {this,last,next}_{week,month,year} (weeks from Monday), or past_n_days / next_n_days with "days" (both include today), counted from the current date on the server. A range matches when any of its days does; times count on their day in the server time zone. Dates sort by their start. Checklists and files only support is_empty / is_not_empty. Sorting follows the grouping order of a status and the start of a date. Returns property values by name; relations as [{id, title}], people as [{id, name}], checklists as [{text, checked}], files as [{name, url}]. Values the user may not see are left out and named in hidden_properties; properties hidden in every row cannot be filtered or sorted by. Rows come a page at a time (limit, at most 200): when has_more is true, call again with cursor set to next_cursor and the same filters, sorts and view_id to read on, until next_cursor is null; total is how many rows match. properties (names) narrows each row to those values, to keep large reads small. Rows archived on their own are left out unless include_archived is true or view_id names a view that shows them.';
 const VIEWS_DOC =
-  'Add a saved view to a database: a "table" (optionally grouped into collapsible sections with group_by), a "board" (cards in columns by group_by), a "calendar" (rows placed on the days of a date property, across every day of a range and at their times in the week mode; see calendar_mode), a "gallery" (cards with a cover: the first image in each row\'s body, or in a files property with cover), a "list" (one compact line per row), a "feed" (posts: each row with its body, reactions and comments, newest first unless sorted), a "timeline" (bars from a start date to an optional end date, optionally in swimlanes by group_by), a "map" (pins at a place property; group_by a select colors them), a "chart" (see chart_type), a "dashboard" (a grid of widgets over the database: numbers, charts, lists and other views, each with its own settings; see widgets. Without widgets it starts with the row count, the sum of the first number property, a chart by the first select or status property and the rows edited last) or a "form" (questions people answer to add a row; see questions, defaults and public). Views group by a select, status (per option, or per todo / in_progress / done with group_status_by "group"), multi_select, person, created_by, last_edited_by, checkbox (unchecked / checked), date, created_time or last_edited_time (per day, week from Monday, month or year with group_date_by, month by default) or relation (one group per linked row); a row with several tags, people or links shows in each of their groups. Filters (with groups and filter_combinator) and sorts use the same form as query_database; a person filter on "me" shows everyone who opens the view their own rows, and is_within date filters count from the day the view is opened.';
+  'Add a saved view to a database: a "table" (optionally grouped into collapsible sections with group_by), a "board" (cards in columns by group_by), a "calendar" (rows placed on the days of a date property, across every day of a range and at their times in the week mode; see calendar_mode), a "gallery" (cards with a cover: the first image in each row\'s body, or in a files property with cover), a "list" (one compact line per row), a "feed" (posts: each row with its body, reactions and comments, newest first unless sorted), a "timeline" (bars from a start date to an optional end date, optionally in swimlanes by group_by), a "map" (pins at a place property; group_by a select colors them), a "chart" (see chart_type), a "pivot" (a table of figures by group_by and pivot.columns_by; see leafdesk://docs/pivots), a "dashboard" (a grid of widgets over the database: numbers, charts, lists and other views, each with its own settings; see widgets. Without widgets it starts with the row count, the sum of the first number property, a chart by the first select or status property and the rows edited last) or a "form" (questions people answer to add a row; see questions, defaults and public). Views group by a select, status (per option, or per todo / in_progress / done with group_status_by "group"), multi_select, person, created_by, last_edited_by, checkbox (unchecked / checked), date, created_time or last_edited_time (per day, week from Monday, month or year with group_date_by, month by default) or relation (one group per linked row); a row with several tags, people or links shows in each of their groups. Filters (with groups and filter_combinator) and sorts use the same form as query_database; a person filter on "me" shows everyone who opens the view their own rows, and is_within date filters count from the day the view is opened.';
 const VIEW_UPDATE_DOC =
   "Rename a saved view, switch its layout (type) or change its filters, sorts, grouping (boards and tables, see create_database_view) or timeline swimlanes, calendar or timeline dates, calendar month or week, timeline zoom and table, gallery cards, a form's questions, texts, default values and public link, or a dashboard's widgets (view ids from get_database). before_view_id or after_view_id moves the view's tab next to another view of the database; the first tab is the one a published database shows. filters and sorts replace the view's current ones (filters with filter_combinator, \"and\" unless given); pass an empty array to clear them. filter_combinator alone switches how the current filters combine. Settings you leave out keep their values.";
 const ADD_PROPERTY_DOC =
@@ -1101,6 +1172,8 @@ const WEBHOOK_NOTE =
   'A webhook step gets a JSON POST (event row.created, row.updated or row.date_passed with the row\'s date it ran for, the row with its properties by name, the names of the properties that changed and who changed them) signed with HMAC-SHA256 in the X-Leafdesk-Signature header (t=<unix seconds>,v1=<hex HMAC of "<t>.<body>">); list_automations shows the signing secret. Network errors, timeouts, 408, 429 and 5xx are retried, up to 5 times (an http_request step: network errors, timeouts, 502, 503 and 504 only). Private network addresses and local names are refused unless the server\'s administrator allows the host with AUTOMATION_WEBHOOK_ALLOWED_HOSTS. An incoming_webhook automation has a secret address (hook_url, shown to connections that may edit) that starts a run with the JSON body POSTed to it; update_automation with new_webhook_address replaces it.';
 const AUTOMATION_STEPS_DOC =
   `Create an automation on a database: when a row is added, a property changes (optionally only to a given value), a date is N days past (optionally only for given status groups), a schedule comes round, or a JSON POST arrives at its address, do steps in order (see actions). set_properties, notify and run_agent can repeat per row an earlier find_rows found. Steps use the trigger and earlier outputs through {{templates}}; properties are named by name or id, people by id, email, name or "me". ${AUTOMATION_NOTE} ${WEBHOOK_NOTE} Call get_database first for names and options; test_automation runs it once.`;
+const PIVOTS_DOC =
+  'A "pivot" view lays the rows out as a table of figures: one line per group of group_by (as other views group: per option, person, linked row, checkbox state, date period or status stage; a pivot also groups text, url, email and phone values by their exact text), one column per group of pivot.columns_by (or a single column without it), each cell what aggregate measures over the rows in both: "count" (default) or sum, average, median, min or max of aggregate_property, a number or a number formula or rollup. A row with several tags, people or linked rows counts in each of their groups. Totals (pivot.show_totals, on by default) measure the rows they cover, each once, so an average\'s total is the average of its rows and a sum keeps to its values\' decimals. group_date_by, group_status_by, hide_empty_groups (both axes) and chart_sort shape the rows; pivot.column_date_by (day, week, month, quarter or year), column_status_by and column_sort the columns. Filters choose the rows as in any view. Up to 100 columns show; group dates by a longer period for more. query_database with a pivot view\'s view_id returns its table under pivot. Published pages, print, PDFs and the view\'s CSV download show the same table.';
 const DASHBOARDS_DOC =
   `Add a dashboard to the end of a page: a grid of up to ${MAX_WIDGETS} widgets, each showing a database of the workspace through its own view and kept up to date as rows change. A widget is a number (type "chart" with chart_type "number": one aggregate over the rows its filters keep, such as the open deals or the sum of their amounts), a chart (type "chart", the default), a list of rows (type "list") or any other view but a form; its settings work as in create_database_view. Everyone who opens the page sees a widget only if they can open its database, and then only the rows and values they may see. In get_page's Markdown a dashboard is its own line, \`<!-- leafdesk:dashboard <id> -->\`: keep it where the dashboard should stay when you rewrite the page (leaving it out removes the dashboard, and Markdown can't create one). get_page lists the widgets under dashboards; change them with update_dashboard_widget. The page switches to its full width, which the page menu can turn off. A history snapshot is saved first.`;
 
@@ -1144,6 +1217,11 @@ function allDocs(): Record<DocTopic, Doc> {
       title: "Database views",
       description: "View types and every view setting: grouping, calendars, timelines, galleries, maps, charts, forms and color rules.",
       text: [VIEWS_DOC, VIEW_UPDATE_DOC, schemaText("view settings", VIEW_SETTINGS_DOC)].join("\n\n"),
+    },
+    pivots: {
+      title: "Pivot views",
+      description: "Rows by one property, columns by another, each cell a count or a calculation, with totals.",
+      text: [PIVOTS_DOC, schemaText("pivot", pivotSettingsInput)].join("\n\n"),
     },
     dashboards: {
       title: "Dashboards",
@@ -3204,7 +3282,7 @@ export function createMcpServer(principal: McpPrincipal) {
     {
       title: "Create a database view",
       description:
-        `Add a saved view to a database: a table, board, calendar, gallery, list, feed, timeline, map, chart, dashboard or form, with its own filters, sorts, grouping and layout settings. Each type and setting: ${docUri("views")}; filters: ${docUri("filters")}; a dashboard view's widgets: ${docUri("dashboards")}.`,
+        `Add a saved view to a database: a table, board, calendar, gallery, list, feed, timeline, map, chart, pivot, dashboard or form, with its own filters, sorts, grouping and layout settings. Each type and setting: ${docUri("views")}; filters: ${docUri("filters")}; a dashboard view's widgets: ${docUri("dashboards")}.`,
       inputSchema: z.object({
         database_id: id("database"),
         name: z.string().min(1).max(100).describe("View name."),
@@ -3213,7 +3291,7 @@ export function createMcpServer(principal: McpPrincipal) {
           .string()
           .optional()
           .describe(
-            "Board, table, list, gallery, timeline or map (pin colors): the property to group rows by. Boards default to the first select or status property; the others are not grouped unless given.",
+            "Board, table, list, gallery, timeline, map (pin colors), chart, pivot: the property to group rows by. Boards, charts and pivots default to the first select or status property.",
           ),
         ...groupSettingsParams,
         ...boardGroupInputs,
@@ -3293,7 +3371,7 @@ export function createMcpServer(principal: McpPrincipal) {
           .string()
           .nullable()
           .optional()
-          .describe("Board, table, list, gallery, timeline or map: the property to group rows by; null removes a table's grouping, a timeline's swimlanes or a map's colors."),
+          .describe("Board, table, list, gallery, timeline, map, chart, pivot: the property to group rows by; null ungroups a table, timeline or map."),
         ...groupSettingsParams,
         ...boardGroupInputs,
         date_by: z

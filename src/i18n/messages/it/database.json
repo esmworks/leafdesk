@@ -35,6 +35,7 @@
     "feed": "Bacheca",
     "timeline": "Timeline",
     "chart": "Grafico",
+    "pivot": "Pivot",
     "dashboard": "Dashboard",
     "form": "Modulo",
     "map": "Mappa"
@@ -974,6 +975,24 @@
     "noRows": "Nessuna riga in questo gruppo.",
     "openRows": "{group}: {value}. Mostra righe"
   },
+  "pivot": {
+    "rows": "Righe",
+    "columns": "Colonne",
+    "values": "Valori",
+    "property": "Proprietà",
+    "rowsBy": "Righe per",
+    "columnsBy": "Colonne per",
+    "noColumns": "Nessuna",
+    "sort": "Ordina",
+    "showTotals": "Mostra totali",
+    "total": "Totale",
+    "needsGroupTitle": "Le tabelle pivot raggruppano le righe per una proprietà come selezione, stato, persona, data o testo",
+    "needsGroupBody": "Questo database non ha ancora una proprietà per cui una tabella pivot possa raggruppare.",
+    "empty": "Nessuna riga da mostrare.",
+    "moreColumns": "{count, plural, one {Altra # colonna non è mostrata} other {Altre # colonne non sono mostrate}}: filtra la vista o raggruppa le date per un periodo più lungo.",
+    "caption": "{measure} per {rows} e {columns}",
+    "captionRows": "{measure} per {rows}"
+  },
   "timeline": {
     "needsDateTitle": "Le timeline collocano le righe in base a una proprietà data",
     "needsDateBody": "Questo database non ha ancora una proprietà data.",
@@ -1183,6 +1202,7 @@
       "day": "Giorno",
       "week": "Settimana",
       "month": "Mese",
+      "quarter": "Trimestre",
       "year": "Anno"
     },
     "statusBy": "Raggruppa lo stato per",
@@ -1197,7 +1217,8 @@
     "actions": "Azioni sul gruppo",
     "addRow": "Aggiungi una riga a {name}",
     "subGroupBy": "Sottogruppo",
-    "colorColumns": "Colora le colonne"
+    "colorColumns": "Colora le colonne",
+    "quarter": "T{quarter} {year}"
   },
   "rollup": {
     "title": "Rollup",

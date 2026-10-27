@@ -1,8 +1,10 @@
 import { strToU8, zipSync } from "fflate";
 import { env } from "@/lib/env";
+import type { ViewConfig } from "@/db/schema/app";
 import { pageLabel } from "@/lib/labels";
 import { pdfTextScale } from "@/lib/pdf-text-scale";
 import { skillMarkdown, skillSlug } from "@/lib/skills";
+import { layoutConfigError } from "@/lib/views";
 import { XLSX_MIME } from "@/lib/xlsx";
 import { AccessError } from "@/server/access";
 import { MAX_BULK_ROWS } from "@/server/databases";
@@ -24,6 +26,7 @@ import {
   startExport,
   type ViewExport,
 } from "@/server/export";
+import { validTimeZone } from "@/server/dashboards";
 import { exportLabels } from "@/server/export-labels";
 import { LetterheadError } from "@/server/letterheads";
 import { getPage } from "@/server/pages";
@@ -62,7 +65,15 @@ async function requestedRows(request: Request): Promise<string[] | null> {
 async function requestedView(request: Request): Promise<ViewExport> {
   const body = ((await request.json().catch(() => null)) ?? {}) as Record<string, unknown>;
   const ids = (value: unknown, max: number) => (Array.isArray(value) ? value.filter((id): id is string => typeof id === "string").slice(0, max) : []);
-  return { rows: ids(body.rows, MAX_BULK_ROWS), properties: ids(body.properties, 500), name: typeof body.name === "string" ? body.name.slice(0, 200) : "" };
+  // A pivot's settings are checked like a saved view's; malformed ones export its rows instead.
+  const pivot = body.pivot;
+  const validPivot = !!pivot && typeof pivot === "object" && !Array.isArray(pivot) && !layoutConfigError(pivot as ViewConfig);
+  return {
+    rows: ids(body.rows, MAX_BULK_ROWS),
+    properties: ids(body.properties, 500),
+    name: typeof body.name === "string" ? body.name.slice(0, 200) : "",
+    ...(validPivot ? { pivot: pivot as ViewConfig, timeZone: validTimeZone(body.timeZone) } : {}),
+  };
 }
 
 /**

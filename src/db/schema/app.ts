@@ -898,9 +898,9 @@ export const uniqueValue = pgTable(
   (t) => [primaryKey({ columns: [t.rowId, t.propertyId] }), uniqueIndex("unique_value_key_idx").on(t.propertyId, sql`md5(${t.key})`)],
 );
 
-export type ViewType = "table" | "board" | "calendar" | "gallery" | "list" | "feed" | "timeline" | "map" | "chart" | "dashboard" | "form";
-/** Grouping by a date: one group per day, week (Monday to Sunday), month or year. */
-export type GroupDateBy = "day" | "week" | "month" | "year";
+export type ViewType = "table" | "board" | "calendar" | "gallery" | "list" | "feed" | "timeline" | "map" | "chart" | "pivot" | "dashboard" | "form";
+/** Grouping by a date: one group per day, week (Monday to Sunday), month, quarter or year. */
+export type GroupDateBy = "day" | "week" | "month" | "quarter" | "year";
 export type GroupStatusBy = "option" | "group";
 export type SortRule = { propertyId: string; direction: "asc" | "desc" };
 export type FilterOp =
@@ -1119,6 +1119,20 @@ export type ViewConfig = {
   showValues?: boolean;
   /** Donut charts: the legend beside the donut; shown when missing. */
   showLegend?: boolean;
+  /**
+   * Pivot views: the property whose groups make the columns, rows coming from `groupBy` (see
+   * lib/pivot); one column of values when missing. Charts' `chartAggregate` is what each cell shows
+   * and `chartSort` orders the rows.
+   */
+  columnBy?: string;
+  /** Pivot views: date grouping of the column property; "month" when missing. */
+  columnDateBy?: GroupDateBy;
+  /** Pivot views: status grouping of the column property; per option when missing. */
+  columnStatusBy?: GroupStatusBy;
+  /** Pivot views: column order; the grouping's own when missing. */
+  columnSort?: ChartSort;
+  /** Pivot views: row and column totals and the grand total; shown when missing. */
+  showTotals?: boolean;
   sorts?: SortRule[];
   /** Rules and groups; plain rule lists from before groups existed are still valid. */
   filters?: FilterEntry[];
@@ -1143,7 +1157,7 @@ export type ViewConfig = {
   groupStatusBy?: GroupStatusBy;
   /** Board views: what each column header shows: its card count when missing, or a calculation over one property. */
   boardAggregate?: ChartAggregate;
-  /** Grouped views (boards, tables, lists, galleries, charts): group order by group key (see lib/grouping), "" for no value. Unlisted groups follow in their natural order. */
+  /** Grouped views (boards, tables, lists, galleries, charts, pivot rows): group order by group key (see lib/grouping), "" for no value. Unlisted groups follow in their natural order. */
   groupOrder?: string[];
   /** Grouped views: groups the user hid, by group key ("" for no value). */
   hiddenGroups?: string[];

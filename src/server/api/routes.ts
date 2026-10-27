@@ -733,7 +733,7 @@ export const API_ROUTES: ApiRoute[] = [
     tag: "Databases",
     summary: "Query rows",
     description:
-      'Rows matching filters, in the order of sorts (or a saved view\'s), a page at a time: pass next_cursor as cursor with the same filters, sorts and view_id to read on. Pages follow on from the last row returned, so rows added or removed in between neither repeat nor go missing. Filters name properties (or "title", "created_at", "updated_at") and use option names as values; ops: contains, does_not_contain, equals, not_equals, is_any_of, is_none_of (with a list of values), is_empty, is_not_empty, gt, gte, lt, lte, is_within. properties limits the values each row returns. The first page of a chart view also returns what it plots.',
+      'Rows matching filters, in the order of sorts (or a saved view\'s), a page at a time: pass next_cursor as cursor with the same filters, sorts and view_id to read on. Pages follow on from the last row returned, so rows added or removed in between neither repeat nor go missing. Filters name properties (or "title", "created_at", "updated_at") and use option names as values; ops: contains, does_not_contain, equals, not_equals, is_any_of, is_none_of (with a list of values), is_empty, is_not_empty, gt, gte, lt, lte, is_within. properties limits the values each row returns. The first page of a chart view also returns what it plots, of a pivot view its table.',
     scope: "rows:read",
     body: ops.inputs.queryDatabase.omit({ database_id: true }),
     response: "QueryResult",

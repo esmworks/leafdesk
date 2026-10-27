@@ -35,6 +35,7 @@
     "feed": "Syöte",
     "timeline": "Aikajana",
     "chart": "Kaavio",
+    "pivot": "Pivot",
     "dashboard": "Koontinäyttö",
     "form": "Lomake",
     "map": "Kartta"
@@ -974,6 +975,24 @@
     "noRows": "Tässä ryhmässä ei ole rivejä.",
     "openRows": "{group}: {value}. Näytä rivit"
   },
+  "pivot": {
+    "rows": "Rivit",
+    "columns": "Sarakkeet",
+    "values": "Arvot",
+    "property": "Ominaisuus",
+    "rowsBy": "Rivit",
+    "columnsBy": "Sarakkeet",
+    "noColumns": "Ei mitään",
+    "sort": "Lajittele",
+    "showTotals": "Näytä summat",
+    "total": "Yhteensä",
+    "needsGroupTitle": "Pivot-taulukot ryhmittelevät rivit ominaisuuden, kuten valinnan, tilan, henkilön, päivämäärän tai tekstin, mukaan",
+    "needsGroupBody": "Tässä tietokannassa ei ole vielä ominaisuutta, jonka mukaan pivot-taulukko voi ryhmitellä.",
+    "empty": "Ei näytettäviä rivejä.",
+    "moreColumns": "{count, plural, one {# sarake lisää ei näy} other {# saraketta lisää ei näy}}: suodata näkymää tai ryhmittele päivämäärät pidemmän jakson mukaan.",
+    "caption": "{measure}: {rows} ja {columns}",
+    "captionRows": "{measure}: {rows}"
+  },
   "timeline": {
     "needsDateTitle": "Aikajana sijoittaa rivit päivämääräominaisuuden mukaan",
     "needsDateBody": "Tällä tietokannalla ei ole vielä päivämääräominaisuutta.",
@@ -1183,6 +1202,7 @@
       "day": "Päivä",
       "week": "Viikko",
       "month": "Kuukausi",
+      "quarter": "Neljännes",
       "year": "Vuosi"
     },
     "statusBy": "Ryhmittele tila",
@@ -1197,7 +1217,8 @@
     "actions": "Ryhmän toiminnot",
     "addRow": "Lisää rivi ryhmään {name}",
     "subGroupBy": "Alaryhmä",
-    "colorColumns": "Väritä sarakkeet"
+    "colorColumns": "Väritä sarakkeet",
+    "quarter": "Q{quarter} {year}"
   },
   "rollup": {
     "title": "Kooste",

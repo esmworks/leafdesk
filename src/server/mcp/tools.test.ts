@@ -1203,6 +1203,69 @@ describe("relations and calendars", () => {
     });
   });
 
+  it("creates a pivot with its columns, calculation and totals, and checks each setting", async () => {
+    const amount = { id: "prop-amount", name: "Amount", type: "number", options: {} };
+    const due = { id: "prop-due", name: "Due", type: "date", options: {} };
+    databases.getDatabase.mockResolvedValue({ ...database, properties: [status, notes, amount, due] });
+    const onTable = await callTool(writer, "create_database_view", { database_id: "db-1", name: "T", type: "table", pivot: { columns_by: "Due" } });
+    expect(onTable.text).toMatch(/pivot only applies to pivot views/);
+    const sameAxis = await callTool(writer, "create_database_view", {
+      database_id: "db-1",
+      name: "P",
+      type: "pivot",
+      group_by: "Status",
+      pivot: { columns_by: "Status" },
+    });
+    expect(sameAxis.text).toMatch(/"Status" already makes the pivot's rows/);
+    const notNumber = await callTool(writer, "create_database_view", {
+      database_id: "db-1",
+      name: "P",
+      type: "pivot",
+      aggregate: "count_values",
+      aggregate_property: "Amount",
+    });
+    expect(notNumber.text).toMatch(/Pivots can't calculate count_values over "Amount"/);
+    const dateByOnSelect = await callTool(writer, "create_database_view", {
+      database_id: "db-1",
+      name: "P",
+      type: "pivot",
+      group_by: "Due",
+      pivot: { columns_by: "Status", column_date_by: "quarter" },
+    });
+    expect(dateByOnSelect.text).toMatch(/column_date_by only applies when the columns are by a date/);
+    expect(databases.addView).not.toHaveBeenCalled();
+
+    databases.addView.mockResolvedValue({ id: "view-p", name: "By quarter", type: "pivot", config: { groupBy: "prop-status", columnBy: "prop-due" } });
+    const r = await callTool(writer, "create_database_view", {
+      database_id: "db-1",
+      name: "By quarter",
+      type: "pivot",
+      group_by: "Notes",
+      aggregate: "sum",
+      aggregate_property: "Amount",
+      chart_sort: "value_desc",
+      pivot: { columns_by: "Due", column_date_by: "quarter", show_totals: false },
+    });
+    expect(databases.updateView).toHaveBeenCalledWith("user-1", "view-p", {
+      config: {
+        groupBy: "prop-notes",
+        columnBy: "prop-due",
+        chartAggregate: { fn: "sum", propertyId: "prop-amount" },
+        chartSort: "value_desc",
+        columnDateBy: "quarter",
+        showTotals: false,
+      },
+    });
+    expect(r.data).toMatchObject({
+      type: "pivot",
+      group_by: "Notes",
+      aggregate: "sum",
+      aggregate_property: "Amount",
+      chart_sort: "value_desc",
+      pivot: { columns_by: "Due", column_date_by: "quarter", column_sort: "group", show_totals: false },
+    });
+  });
+
   it("updates a chart's calculation one part at a time and goes back to counting rows", async () => {
     const amount = { id: "prop-amount", name: "Amount", type: "number", options: {} };
     const views = [
@@ -1247,7 +1310,7 @@ describe("relations and calendars", () => {
     const unsummable = await callTool(writer, "update_database_view", { database_id: "db-1", view_id: "view-b", aggregate: "sum", aggregate_property: "Notes" });
     expect(unsummable.text).toMatch(/Board columns can't calculate sum over "Notes"/);
     const table = await callTool(writer, "update_database_view", { database_id: "db-1", view_id: "view-t", aggregate: "sum", aggregate_property: "Amount" });
-    expect(table.text).toMatch(/aggregate only applies to chart and board views/);
+    expect(table.text).toMatch(/aggregate only applies to chart, board and pivot views/);
   });
 
   it("returns what a chart view plots with its rows", async () => {
@@ -1536,7 +1599,7 @@ describe("database views", () => {
     const due = { id: "prop-due", name: "Due", type: "date", options: {} };
     databases.getDatabase.mockResolvedValue({ ...database, properties: [status, notes, due] });
     const onCalendar = await callTool(writer, "create_database_view", { database_id: "db-1", name: "C", type: "calendar", group_by: "Due" });
-    expect(onCalendar.text).toMatch(/only applies to board, table, list, gallery, timeline, map and chart/);
+    expect(onCalendar.text).toMatch(/only applies to board, table, list, gallery, timeline, map, chart and pivot/);
     const wrongProp = await callTool(writer, "create_database_view", {
       database_id: "db-1",
       name: "T",

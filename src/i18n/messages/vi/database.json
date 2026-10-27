@@ -35,6 +35,7 @@
     "feed": "Bảng tin",
     "timeline": "Dòng thời gian",
     "chart": "Biểu đồ",
+    "pivot": "Bảng tổng hợp",
     "dashboard": "Bảng điều khiển",
     "form": "Biểu mẫu",
     "map": "Bản đồ"
@@ -974,6 +975,24 @@
     "noRows": "Không có hàng nào trong nhóm này.",
     "openRows": "{group}: {value}. Hiện các hàng"
   },
+  "pivot": {
+    "rows": "Hàng",
+    "columns": "Cột",
+    "values": "Giá trị",
+    "property": "Thuộc tính",
+    "rowsBy": "Hàng theo",
+    "columnsBy": "Cột theo",
+    "noColumns": "Không",
+    "sort": "Sắp xếp",
+    "showTotals": "Hiện tổng",
+    "total": "Tổng",
+    "needsGroupTitle": "Bảng tổng hợp nhóm các hàng theo một thuộc tính như lựa chọn, trạng thái, người, ngày hoặc văn bản",
+    "needsGroupBody": "Cơ sở dữ liệu này chưa có thuộc tính nào để bảng tổng hợp nhóm theo.",
+    "empty": "Không có hàng nào để hiển thị.",
+    "moreColumns": "{count, plural, other {Còn # cột không được hiển thị}}: hãy lọc chế độ xem hoặc nhóm ngày theo khoảng thời gian dài hơn.",
+    "caption": "{measure} theo {rows} và {columns}",
+    "captionRows": "{measure} theo {rows}"
+  },
   "timeline": {
     "needsDateTitle": "Dòng thời gian đặt các hàng theo một thuộc tính ngày",
     "needsDateBody": "Cơ sở dữ liệu này chưa có thuộc tính ngày nào.",
@@ -1183,6 +1202,7 @@
       "day": "Ngày",
       "week": "Tuần",
       "month": "Tháng",
+      "quarter": "Quý",
       "year": "Năm"
     },
     "statusBy": "Nhóm trạng thái theo",
@@ -1197,7 +1217,8 @@
     "actions": "Thao tác nhóm",
     "addRow": "Thêm một hàng vào {name}",
     "subGroupBy": "Nhóm con",
-    "colorColumns": "Tô màu cột"
+    "colorColumns": "Tô màu cột",
+    "quarter": "Q{quarter} {year}"
   },
   "rollup": {
     "title": "Tổng hợp",

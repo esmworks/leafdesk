@@ -35,6 +35,7 @@
     "feed": "Flöde",
     "timeline": "Tidslinje",
     "chart": "Diagram",
+    "pivot": "Pivot",
     "dashboard": "Instrumentpanel",
     "form": "Formulär",
     "map": "Karta"
@@ -974,6 +975,24 @@
     "noRows": "Inga rader i den här gruppen.",
     "openRows": "{group}: {value}. Visa rader"
   },
+  "pivot": {
+    "rows": "Rader",
+    "columns": "Kolumner",
+    "values": "Värden",
+    "property": "Egenskap",
+    "rowsBy": "Rader efter",
+    "columnsBy": "Kolumner efter",
+    "noColumns": "Ingen",
+    "sort": "Sortera",
+    "showTotals": "Visa summor",
+    "total": "Totalt",
+    "needsGroupTitle": "Pivottabeller grupperar rader efter en egenskap som ett val, en status, en person, ett datum eller en text",
+    "needsGroupBody": "Den här databasen har ännu ingen egenskap som en pivottabell kan gruppera efter.",
+    "empty": "Inga rader att visa.",
+    "moreColumns": "{count, plural, one {# kolumn till visas inte} other {# kolumner till visas inte}}: filtrera vyn eller gruppera datum efter en längre period.",
+    "caption": "{measure} efter {rows} och {columns}",
+    "captionRows": "{measure} efter {rows}"
+  },
   "timeline": {
     "needsDateTitle": "Tidslinjer placerar rader efter en datumegenskap",
     "needsDateBody": "Den här databasen har ingen datumegenskap än.",
@@ -1183,6 +1202,7 @@
       "day": "Dag",
       "week": "Vecka",
       "month": "Månad",
+      "quarter": "Kvartal",
       "year": "År"
     },
     "statusBy": "Gruppera status efter",
@@ -1197,7 +1217,8 @@
     "actions": "Gruppåtgärder",
     "addRow": "Lägg till en rad i {name}",
     "subGroupBy": "Undergrupp",
-    "colorColumns": "Färglägg kolumner"
+    "colorColumns": "Färglägg kolumner",
+    "quarter": "K{quarter} {year}"
   },
   "rollup": {
     "title": "Sammanställning",

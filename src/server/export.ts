@@ -2,7 +2,12 @@ import { and, eq, inArray, or, sql } from "drizzle-orm";
 import { Zip, ZipDeflate, ZipPassThrough } from "fflate";
 import { db } from "@/db";
 import { file, fileReference, page, propertyPermission, user, type PageKind, workspace } from "@/db/schema";
+import { getLocale } from "next-intl/server";
+import type { ViewConfig } from "@/db/schema/app";
 import { toCsv } from "@/lib/csv";
+import type { GroupContext } from "@/lib/grouping";
+import { pivotColumnProperty, pivotData, pivotMeasure, pivotRowProperty } from "@/lib/pivot";
+import { timestampDay } from "@/lib/time-zone";
 import { valueType } from "@/lib/derived";
 import { mapReferenceLines, markdownReferences } from "@/lib/embed-blocks";
 import { mapAgentChatLines } from "@/lib/agent-chat";
@@ -19,6 +24,7 @@ import { recordAudit } from "@/server/audit";
 import { agentNames } from "@/server/agents/chat";
 import { getCollab } from "@/server/collab/bridge";
 import { getDatabaseSnapshot } from "@/server/databases";
+import { pivotCells, pivotTexts } from "@/server/pivot-text";
 import { resolveEmbeds } from "@/server/embeds";
 import { labelPageLinks } from "@/server/mentions";
 import { ENGLISH_SYNCED_LABELS, expandSyncedMarkdown, type SyncedLabels } from "@/server/synced-blocks";
@@ -192,21 +198,65 @@ async function exportedTable(userId: string, databaseId: string, only: string[] 
   return { snapshot, ...table };
 }
 
+/**
+ * A pivot of the rows `view` names, laid out as the app's table (server/pivot-text): plain numbers
+ * in a CSV, values written as the app shows them in HTML and PDF. Recorded like other exports.
+ */
+async function exportedPivot(userId: string, databaseId: string, view: ViewExport, config: ViewConfig, format: ExportRecord["format"]) {
+  const snapshot = await getDatabaseSnapshot(userId, databaseId);
+  await assertExportAllowed(snapshot.database.workspaceId);
+  const byId = new Map(snapshot.rows.map((row) => [row.id, row]));
+  const rows = view.rows.flatMap((id) => byId.get(id) ?? []);
+  const { properties } = snapshot;
+  const rowBy = pivotRowProperty(properties, config);
+  const columnBy = pivotColumnProperty(properties, config, rowBy);
+  const measure = pivotMeasure(config, properties);
+  const contextFor = (prop: { id: string; type: string } | null): GroupContext => ({
+    people: snapshot.people.map((p) => ({ id: p.id, name: p.name, active: p.active })),
+    relationRows: prop?.type === "relation" ? snapshot.relations[prop.id]?.rows : undefined,
+    dayOf: (value) => timestampDay(value, view.timeZone ?? "UTC"),
+  });
+  const [texts, locale] = await Promise.all([pivotTexts(), getLocale().catch(() => "en")]);
+  const table = rowBy
+    ? pivotCells(
+        {
+          data: pivotData(rows, { rowBy, columnBy, measure, config, rowContext: contextFor(rowBy), columnContext: contextFor(columnBy) }),
+          rowBy,
+          columnBy,
+          measure,
+          measured: measure.kind === "aggregate" ? properties.find((p) => p.id === measure.prop.id)?.name : undefined,
+          totals: config.showTotals !== false,
+        },
+        texts,
+        locale,
+        format === "csv",
+      )
+    : { header: [], cells: [] };
+  await recordExport(userId, { workspaceId: snapshot.database.workspaceId, page: { id: databaseId, title: snapshot.database.title }, format, rows: rows.length });
+  return { snapshot, ...table };
+}
+
 /** A database's rows (all of them, or those of `only`, in that order) as CSV, and its title. */
 export async function databaseCsv(userId: string, databaseId: string, only: string[] | null = null) {
   const { snapshot, header, cells } = await exportedTable(userId, databaseId, only, "csv");
   return { title: snapshot.database.title, csv: toCsv([header, ...cells]) };
 }
 
-/** What a view shows, for exporting just that: its rows and properties in its order, and its name. */
-export type ViewExport = { rows: string[]; properties: string[]; name: string };
+/**
+ * What a view shows, for exporting just that: its rows and properties in its order, and its name.
+ * A pivot view also sends its settings (`pivot`, checked like any view's) and the viewer's time
+ * zone, which created and edited times group by: its table is exported instead of its rows.
+ */
+export type ViewExport = { rows: string[]; properties: string[]; name: string; pivot?: ViewConfig; timeZone?: string };
 
 /**
  * The rows and properties a view of a database shows (see ViewExport) as table cells, for a CSV,
  * HTML or PDF of just that view, titled after the database and the view.
  */
 export async function databaseViewTable(userId: string, databaseId: string, view: ViewExport, format: "csv" | "html" | "pdf") {
-  const { snapshot, header, cells } = await exportedTable(userId, databaseId, view.rows, format, view.properties);
+  const { snapshot, header, cells } = view.pivot
+    ? await exportedPivot(userId, databaseId, view, view.pivot, format)
+    : await exportedTable(userId, databaseId, view.rows, format, view.properties);
   const title = [snapshot.database.title.trim(), view.name.trim()].filter(Boolean).join(" – ");
   return { title, workspaceId: snapshot.database.workspaceId, header, cells };
 }

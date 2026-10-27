@@ -35,6 +35,7 @@
     "feed": "פיד",
     "timeline": "ציר זמן",
     "chart": "תרשים",
+    "pivot": "טבלת ציר",
     "dashboard": "לוח בקרה",
     "form": "טופס",
     "map": "מפה"
@@ -974,6 +975,24 @@
     "noRows": "אין שורות בקבוצה הזו.",
     "openRows": "{group}: {value}. הצגת השורות"
   },
+  "pivot": {
+    "rows": "שורות",
+    "columns": "עמודות",
+    "values": "ערכים",
+    "property": "מאפיין",
+    "rowsBy": "שורות לפי",
+    "columnsBy": "עמודות לפי",
+    "noColumns": "ללא",
+    "sort": "מיון",
+    "showTotals": "הצגת סיכומים",
+    "total": "סה״כ",
+    "needsGroupTitle": "טבלאות ציר מקבצות שורות לפי מאפיין כמו בחירה, סטטוס, אדם, תאריך או טקסט",
+    "needsGroupBody": "למסד נתונים זה עדיין אין מאפיין שטבלת ציר יכולה לקבץ לפיו.",
+    "empty": "אין שורות להצגה.",
+    "moreColumns": "{count, plural, one {עמודה נוספת אחת אינה מוצגת} other {# עמודות נוספות אינן מוצגות}}: סננו את התצוגה או קבצו תאריכים לפי תקופה ארוכה יותר.",
+    "caption": "{measure} לפי {rows} ו{columns}",
+    "captionRows": "{measure} לפי {rows}"
+  },
   "timeline": {
     "needsDateTitle": "צירי זמן ממקמים שורות לפי מאפיין תאריך",
     "needsDateBody": "עדיין אין במסד הנתונים הזה מאפיין תאריך.",
@@ -1183,6 +1202,7 @@
       "day": "יום",
       "week": "שבוע",
       "month": "חודש",
+      "quarter": "רבעון",
       "year": "שנה"
     },
     "statusBy": "קיבוץ סטטוס לפי",
@@ -1197,7 +1217,8 @@
     "actions": "פעולות על הקבוצה",
     "addRow": "הוספת שורה אל {name}",
     "subGroupBy": "תת־קבוצה",
-    "colorColumns": "צביעת עמודות"
+    "colorColumns": "צביעת עמודות",
+    "quarter": "רבעון {quarter} {year}"
   },
   "rollup": {
     "title": "צבירה",

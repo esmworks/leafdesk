@@ -35,6 +35,7 @@
     "feed": "Tablica",
     "timeline": "Oś czasu",
     "chart": "Wykres",
+    "pivot": "Tabela przestawna",
     "dashboard": "Pulpit",
     "form": "Formularz",
     "map": "Mapa"
@@ -974,6 +975,24 @@
     "noRows": "Brak wierszy w tej grupie.",
     "openRows": "{group}: {value}. Pokaż wiersze"
   },
+  "pivot": {
+    "rows": "Wiersze",
+    "columns": "Kolumny",
+    "values": "Wartości",
+    "property": "Właściwość",
+    "rowsBy": "Wiersze według",
+    "columnsBy": "Kolumny według",
+    "noColumns": "Brak",
+    "sort": "Sortuj",
+    "showTotals": "Pokaż sumy",
+    "total": "Suma",
+    "needsGroupTitle": "Tabele przestawne grupują wiersze według właściwości, takiej jak wybór, status, osoba, data lub tekst",
+    "needsGroupBody": "Ta baza danych nie ma jeszcze właściwości, według której tabela przestawna może grupować.",
+    "empty": "Brak wierszy do pokazania.",
+    "moreColumns": "{count, plural, one {# kolejna kolumna nie jest pokazana} few {# kolejne kolumny nie są pokazane} many {# kolejnych kolumn nie jest pokazanych} other {# kolejnej kolumny nie pokazano}}: przefiltruj widok lub grupuj daty według dłuższego okresu.",
+    "caption": "{measure} według {rows} i {columns}",
+    "captionRows": "{measure} według {rows}"
+  },
   "timeline": {
     "needsDateTitle": "Osie czasu rozmieszczają wiersze według właściwości daty",
     "needsDateBody": "Ta baza danych nie ma jeszcze właściwości daty.",
@@ -1183,6 +1202,7 @@
       "day": "Dzień",
       "week": "Tydzień",
       "month": "Miesiąc",
+      "quarter": "Kwartał",
       "year": "Rok"
     },
     "statusBy": "Grupuj status według",
@@ -1197,7 +1217,8 @@
     "actions": "Działania na grupie",
     "addRow": "Dodaj wiersz do {name}",
     "subGroupBy": "Podgrupa",
-    "colorColumns": "Koloruj kolumny"
+    "colorColumns": "Koloruj kolumny",
+    "quarter": "{quarter}. kw. {year}"
   },
   "rollup": {
     "title": "Agregacja",

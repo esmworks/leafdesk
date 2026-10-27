@@ -15,7 +15,7 @@ export function canSwitchLayout(from: ViewType, to: ViewType): boolean {
 /**
  * What a view of `type` is placed by, from the properties it may use, for the settings `config`
  * doesn't have yet: a board's grouping, a calendar's or timeline's date, a map's place, a chart's
- * groups. A new view starts with these, and a view switched to another layout gets them, keeping
+ * groups, a pivot's rows and columns (the first date across, by month). A new view starts with these, and a view switched to another layout gets them, keeping
  * whatever it already says.
  */
 export function layoutDefaults(type: ViewType, properties: readonly { id: string; type: PropertyType }[], config: ViewConfig): ViewConfig {
@@ -24,5 +24,10 @@ export function layoutDefaults(type: ViewType, properties: readonly { id: string
   if ((type === "calendar" || type === "timeline") && !config.dateBy) return { dateBy: first("date") };
   if (type === "map" && !config.placeBy) return { placeBy: first("place") };
   if (type === "chart" && !config.groupBy) return { groupBy: chartGroupProperty([...properties], {})?.id };
+  if (type === "pivot" && !config.groupBy) {
+    const groupBy = chartGroupProperty([...properties], {})?.id;
+    const columnBy = first("date");
+    return { groupBy, ...(columnBy ? { columnBy } : {}) };
+  }
   return {};
 }

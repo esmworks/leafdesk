@@ -19,7 +19,7 @@ import { dayNumber } from "./time-zone";
 export { boardGroupProperty, groupRows, groupRowsByPerson, isGroupable, movePersonValue, orderGroups } from "./properties";
 export type { GroupPerson, RowGroup };
 
-export const GROUP_DATE_BY = ["day", "week", "month", "year"] as const satisfies readonly GroupDateBy[];
+export const GROUP_DATE_BY = ["day", "week", "month", "quarter", "year"] as const satisfies readonly GroupDateBy[];
 export const DEFAULT_GROUP_DATE_BY: GroupDateBy = "month";
 
 export type GroupedProperty = { id: string; type: PropertyType; options: PropertyOptions };
@@ -34,7 +34,9 @@ export type GroupValue =
   | { kind: "checkbox"; checked: boolean }
   /** `start` and `end` are the bucket's first and last day (`YYYY-MM-DD`). */
   | { kind: "date"; by: GroupDateBy; start: string; end: string }
-  | { kind: "relation"; row: GroupRelationRow };
+  | { kind: "relation"; row: GroupRelationRow }
+  /** Pivot views group text by its value (see lib/pivot). */
+  | { kind: "text"; text: string };
 
 /**
  * A group of rows. `key` is stable for as long as the grouping settings stay the same (option,
@@ -107,6 +109,10 @@ export function dateBucket(day: string, by: GroupDateBy): { start: string; end: 
     }
     case "month":
       return { start: isoDay(new Date(Date.UTC(y, m, 1))), end: isoDay(new Date(Date.UTC(y, m + 1, 0))) };
+    case "quarter": {
+      const first = m - (m % 3);
+      return { start: isoDay(new Date(Date.UTC(y, first, 1))), end: isoDay(new Date(Date.UTC(y, first + 3, 0))) };
+    }
     case "year":
       return { start: `${String(y).padStart(4, "0")}-01-01`, end: `${String(y).padStart(4, "0")}-12-31` };
   }
@@ -131,7 +137,7 @@ const ids = (value: unknown) => (Array.isArray(value) ? value.filter((v): v is s
  * - multi_select: one group per option; a row shows in the group of each of its options;
  * - person, created_by, last_edited_by: one group per person (see groupRowsByPerson);
  * - checkbox: unchecked, then checked;
- * - date, created_time, last_edited_time: one group per day, week (from Monday), month or year
+ * - date, created_time, last_edited_time: one group per day, week (from Monday), month, quarter or year
  *   that has rows, oldest first; timestamps count by `context.dayOf`;
  * - relation: one group per related row linked from any row, in the related database's order; a
  *   row shows under each row it links to. Links to rows the viewer can't see count as no value.
@@ -259,6 +265,8 @@ export function groupTarget(prop: GroupedProperty, group: Pick<Group<unknown>, "
       return value.start;
     case "relation":
       return value.row.id;
+    case "text":
+      return value.text;
   }
 }
 

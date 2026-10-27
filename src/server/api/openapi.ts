@@ -531,6 +531,7 @@ const SCHEMAS: Record<string, JsonSchema> = {
         }),
       },
       chart: { type: "object", additionalProperties: true, description: "For a chart view: its settings and the series it plots." },
+      pivot: { type: "object", additionalProperties: true, description: "For a pivot view: its columns, each row group's values and total, and the totals." },
       ...cursorFields,
     },
     ["database_id", "total", "returned", "rows", "next_cursor", "has_more"],

@@ -35,6 +35,7 @@
     "feed": "Feed",
     "timeline": "Zeitleiste",
     "chart": "Diagramm",
+    "pivot": "Pivot",
     "dashboard": "Dashboard",
     "form": "Formular",
     "map": "Karte"
@@ -974,6 +975,24 @@
     "noRows": "Keine Zeilen in dieser Gruppe.",
     "openRows": "{group}: {value}. Zeilen anzeigen"
   },
+  "pivot": {
+    "rows": "Zeilen",
+    "columns": "Spalten",
+    "values": "Werte",
+    "property": "Eigenschaft",
+    "rowsBy": "Zeilen nach",
+    "columnsBy": "Spalten nach",
+    "noColumns": "Keine",
+    "sort": "Sortieren",
+    "showTotals": "Summen anzeigen",
+    "total": "Gesamt",
+    "needsGroupTitle": "Pivots gruppieren Zeilen nach einer Eigenschaft wie Auswahl, Status, Person, Datum oder Text",
+    "needsGroupBody": "Diese Datenbank hat noch keine Eigenschaft, nach der ein Pivot gruppieren kann.",
+    "empty": "Keine Zeilen zum Anzeigen.",
+    "moreColumns": "{count, plural, one {# weitere Spalte wird nicht angezeigt} other {# weitere Spalten werden nicht angezeigt}}: Filtern Sie die Ansicht oder gruppieren Sie Daten nach einem längeren Zeitraum.",
+    "caption": "{measure} nach {rows} und {columns}",
+    "captionRows": "{measure} nach {rows}"
+  },
   "timeline": {
     "needsDateTitle": "Zeitleisten ordnen Zeilen nach einer Datums-Eigenschaft an",
     "needsDateBody": "Diese Datenbank hat noch keine Datums-Eigenschaft.",
@@ -1183,6 +1202,7 @@
       "day": "Tag",
       "week": "Woche",
       "month": "Monat",
+      "quarter": "Quartal",
       "year": "Jahr"
     },
     "statusBy": "Status gruppieren nach",
@@ -1197,7 +1217,8 @@
     "actions": "Gruppenaktionen",
     "addRow": "Zeile zu {name} hinzufügen",
     "subGroupBy": "Untergruppe",
-    "colorColumns": "Spalten einfärben"
+    "colorColumns": "Spalten einfärben",
+    "quarter": "Q{quarter} {year}"
   },
   "rollup": {
     "title": "Rollup",

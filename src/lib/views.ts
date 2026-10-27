@@ -4,6 +4,7 @@ import type {
   ChartAccumulate,
   ChartSort,
   ChartType,
+  GroupDateBy,
   OpenRows,
   SortRule,
   SubItemsDisplay,
@@ -17,6 +18,7 @@ import { colorRulesConfigError } from "./color-rules";
 import { CHART_ACCUMULATES, CHART_SORTS, CHART_TYPES, isBoardAggregateFn, isChartAggregateFn } from "./chart";
 import { filterConfigError } from "./filters";
 import { formConfigError } from "./forms";
+import { GROUP_DATE_BY } from "./grouping";
 import { isLoadLimit, LOAD_LIMITS } from "./load-limit";
 import { CREATED_KEY, SELECT_COLORS } from "./properties";
 import { SUB_ITEMS_DISPLAYS } from "./sub-items";
@@ -32,6 +34,7 @@ export const VIEW_TYPES = [
   "timeline",
   "map",
   "chart",
+  "pivot",
   "dashboard",
   "form",
 ] as const satisfies readonly ViewType[];
@@ -67,6 +70,7 @@ export const DEFAULT_VIEW_NAMES: Record<ViewType, string> = {
   timeline: "Timeline",
   map: "Map",
   chart: "Chart",
+  pivot: "Pivot",
   dashboard: "Dashboard",
   form: "Form",
 };
@@ -114,7 +118,7 @@ export function coverProperty<P extends { id: string; type: string }>(config: Pi
  */
 export function layoutConfigError(config: ViewConfig): string | null {
   const c = config as Record<string, unknown>;
-  for (const key of ["groupBy", "subGroupBy", "dateBy", "endDateBy", "stackBy", "placeBy"] as const) {
+  for (const key of ["groupBy", "subGroupBy", "dateBy", "endDateBy", "stackBy", "placeBy", "columnBy"] as const) {
     if (c[key] !== undefined && typeof c[key] !== "string") return `${key} must be a property id`;
   }
   if (c.subItems !== undefined && !SUB_ITEMS_DISPLAYS.includes(c.subItems as SubItemsDisplay)) {
@@ -129,7 +133,7 @@ export function layoutConfigError(config: ViewConfig): string | null {
   if (c.openRows !== undefined && !OPEN_ROWS.includes(c.openRows as OpenRows)) {
     return `openRows must be one of: ${OPEN_ROWS.join(", ")}`;
   }
-  for (const key of ["showTable", "showValues", "showLegend", "showWeekends", "showIcons", "wrapProperties", "showVerticalLines", "colorColumns"] as const) {
+  for (const key of ["showTable", "showValues", "showLegend", "showWeekends", "showIcons", "wrapProperties", "showVerticalLines", "colorColumns", "showTotals"] as const) {
     if (c[key] !== undefined && typeof c[key] !== "boolean") return `${key} must be true or false`;
   }
   if (c.defaultTemplateId !== undefined && c.defaultTemplateId !== null && (typeof c.defaultTemplateId !== "string" || !c.defaultTemplateId)) {
@@ -156,6 +160,15 @@ export function layoutConfigError(config: ViewConfig): string | null {
   }
   if (c.chartAccumulate !== undefined && !CHART_ACCUMULATES.includes(c.chartAccumulate as ChartAccumulate)) {
     return `Chart running totals must be one of: ${CHART_ACCUMULATES.join(", ")}`;
+  }
+  if (c.columnDateBy !== undefined && !GROUP_DATE_BY.includes(c.columnDateBy as GroupDateBy)) {
+    return `columnDateBy must be one of: ${GROUP_DATE_BY.join(", ")}`;
+  }
+  if (c.columnStatusBy !== undefined && c.columnStatusBy !== "option" && c.columnStatusBy !== "group") {
+    return "columnStatusBy must be option or group";
+  }
+  if (c.columnSort !== undefined && !CHART_SORTS.includes(c.columnSort as ChartSort)) {
+    return `Column sort must be one of: ${CHART_SORTS.join(", ")}`;
   }
   if (c.chartAggregate !== undefined) {
     const agg = c.chartAggregate as { fn?: unknown; propertyId?: unknown } | null;

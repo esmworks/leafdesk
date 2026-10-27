@@ -35,6 +35,7 @@
     "feed": "Umpan",
     "timeline": "Linimasa",
     "chart": "Bagan",
+    "pivot": "Pivot",
     "dashboard": "Dasbor",
     "form": "Formulir",
     "map": "Peta"
@@ -974,6 +975,24 @@
     "noRows": "Tidak ada baris di kelompok ini.",
     "openRows": "{group}: {value}. Tampilkan baris"
   },
+  "pivot": {
+    "rows": "Baris",
+    "columns": "Kolom",
+    "values": "Nilai",
+    "property": "Properti",
+    "rowsBy": "Baris menurut",
+    "columnsBy": "Kolom menurut",
+    "noColumns": "Tidak ada",
+    "sort": "Urutkan",
+    "showTotals": "Tampilkan total",
+    "total": "Total",
+    "needsGroupTitle": "Pivot mengelompokkan baris menurut properti seperti pilihan, status, orang, tanggal, atau teks",
+    "needsGroupBody": "Database ini belum memiliki properti yang dapat dipakai pivot untuk mengelompokkan.",
+    "empty": "Tidak ada baris untuk ditampilkan.",
+    "moreColumns": "{count, plural, other {# kolom lagi tidak ditampilkan}}: filter tampilan atau kelompokkan tanggal menurut periode yang lebih panjang.",
+    "caption": "{measure} menurut {rows} dan {columns}",
+    "captionRows": "{measure} menurut {rows}"
+  },
   "timeline": {
     "needsDateTitle": "Linimasa menempatkan baris berdasarkan properti tanggal",
     "needsDateBody": "Basis data ini belum memiliki properti tanggal.",
@@ -1183,6 +1202,7 @@
       "day": "Hari",
       "week": "Minggu",
       "month": "Bulan",
+      "quarter": "Kuartal",
       "year": "Tahun"
     },
     "statusBy": "Kelompokkan status menurut",
@@ -1197,7 +1217,8 @@
     "actions": "Tindakan kelompok",
     "addRow": "Tambahkan baris ke {name}",
     "subGroupBy": "Subgrup",
-    "colorColumns": "Warnai kolom"
+    "colorColumns": "Warnai kolom",
+    "quarter": "K{quarter} {year}"
   },
   "rollup": {
     "title": "Rollup",

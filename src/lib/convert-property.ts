@@ -4,6 +4,7 @@ import { dateValueText, parseDateValue } from "./date-value";
 import { isErrorValue, valueType } from "./derived";
 import { asFiles } from "./files";
 import { colorRuleMentions } from "./color-rules";
+import { isPivotGroupable } from "./pivot-axis";
 import { asPlace, placeText, readPlaceInput } from "./place";
 import { mapFilterRules } from "./filters";
 import { takesChoiceLimits } from "./forms";
@@ -331,7 +332,7 @@ export function lostValues(values: unknown[], { convert }: Conversion) {
 
 /**
  * A view's settings once property `id` has its new type (`to`): what was set up for the old type
- * goes. Filters on it compared old values; sorts, groups, covers, chart measures, footer and
+ * goes. Filters on it compared old values; sorts, groups, pivot columns, covers, chart measures, footer and
  * board column calculations, and form questions go when the new type can't have them, and a
  * form's default for it, an old-type value, always. Calendars and charts already fall back when their date or stack
  * property can't be one, so those stay for a later change back.
@@ -360,6 +361,7 @@ export function retypeViewConfig(
     hiddenGroups: regrouped ? undefined : c.hiddenGroups,
     collapsedGroups: regrouped ? undefined : c.collapsedGroups,
     subGroupBy: c.subGroupBy === id && !isGroupable(type) ? undefined : c.subGroupBy,
+    columnBy: c.columnBy === id && !isPivotGroupable(to) ? undefined : c.columnBy,
     collapsedSubGroups: subRegrouped ? undefined : c.collapsedSubGroups,
     dateBy: c.dateBy === id && !dates ? undefined : c.dateBy,
     endDateBy: c.endDateBy === id && !dates ? undefined : c.endDateBy,

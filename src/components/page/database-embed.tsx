@@ -199,12 +199,16 @@ function startingConfig(type: ViewType, config: ViewConfig, properties: Property
   const firstDate = properties.find((p) => p.type === "date")?.id;
   if (type === "board" && !next.groupBy) next.groupBy = properties.find((p) => p.type === "select" || p.type === "status")?.id;
   if (type === "chart" && !next.groupBy) next.groupBy = chartGroupProperty(properties, {})?.id;
+  if (type === "pivot" && !next.groupBy) {
+    next.groupBy = chartGroupProperty(properties, {})?.id;
+    next.columnBy ??= firstDate;
+  }
   if ((type === "calendar" || type === "timeline") && !next.dateBy) next.dateBy = firstDate;
   if (type === "map" && !next.placeBy) next.placeBy = properties.find((p) => p.type === "place")?.id;
   return next;
 }
 
-/** A linked view picks its own layout: table, board, calendar, gallery, list, feed, timeline, map or chart. */
+/** A linked view picks its own layout: table, board, calendar, gallery, list, feed, timeline, map, chart or pivot. */
 function LayoutMenu({
   view,
   properties,

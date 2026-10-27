@@ -35,6 +35,7 @@
     "feed": "动态",
     "timeline": "时间线",
     "chart": "图表",
+    "pivot": "数据透视",
     "dashboard": "仪表板",
     "form": "表单",
     "map": "地图"
@@ -974,6 +975,24 @@
     "noRows": "此分组中没有行。",
     "openRows": "{group}：{value}。显示行"
   },
+  "pivot": {
+    "rows": "行",
+    "columns": "列",
+    "values": "值",
+    "property": "属性",
+    "rowsBy": "行依据",
+    "columnsBy": "列依据",
+    "noColumns": "无",
+    "sort": "排序",
+    "showTotals": "显示合计",
+    "total": "合计",
+    "needsGroupTitle": "数据透视按选择、状态、人员、日期或文本等属性对行分组",
+    "needsGroupBody": "此数据库还没有可供数据透视分组的属性。",
+    "empty": "没有可显示的行。",
+    "moreColumns": "{count, plural, other {另有 # 列未显示}}：请筛选视图，或按更长的时间段对日期分组。",
+    "caption": "按{rows}和{columns}的{measure}",
+    "captionRows": "按{rows}的{measure}"
+  },
   "timeline": {
     "needsDateTitle": "时间线按日期属性排列行",
     "needsDateBody": "此数据库还没有日期属性。",
@@ -1183,6 +1202,7 @@
       "day": "日",
       "week": "周",
       "month": "月",
+      "quarter": "季度",
       "year": "年"
     },
     "statusBy": "状态分组方式",
@@ -1197,7 +1217,8 @@
     "actions": "分组操作",
     "addRow": "向 {name} 添加一行",
     "subGroupBy": "子分组",
-    "colorColumns": "为列着色"
+    "colorColumns": "为列着色",
+    "quarter": "{year} 年第 {quarter} 季度"
   },
   "rollup": {
     "title": "汇总",

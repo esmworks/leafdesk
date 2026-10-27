@@ -35,6 +35,7 @@
     "feed": "피드",
     "timeline": "타임라인",
     "chart": "차트",
+    "pivot": "피벗",
     "dashboard": "대시보드",
     "form": "양식",
     "map": "지도"
@@ -974,6 +975,24 @@
     "noRows": "이 그룹에는 행이 없습니다.",
     "openRows": "{group}: {value}. 행 보기"
   },
+  "pivot": {
+    "rows": "행",
+    "columns": "열",
+    "values": "값",
+    "property": "속성",
+    "rowsBy": "행 기준",
+    "columnsBy": "열 기준",
+    "noColumns": "없음",
+    "sort": "정렬",
+    "showTotals": "합계 표시",
+    "total": "합계",
+    "needsGroupTitle": "피벗은 선택, 상태, 사람, 날짜, 텍스트 같은 속성으로 행을 그룹화합니다",
+    "needsGroupBody": "이 데이터베이스에는 아직 피벗이 그룹화할 수 있는 속성이 없습니다.",
+    "empty": "표시할 행이 없습니다.",
+    "moreColumns": "{count, plural, other {열 #개가 더 표시되지 않습니다}}. 보기를 필터링하거나 날짜를 더 긴 기간으로 그룹화하세요.",
+    "caption": "{rows} 및 {columns}별 {measure}",
+    "captionRows": "{rows}별 {measure}"
+  },
   "timeline": {
     "needsDateTitle": "타임라인은 날짜 속성을 기준으로 행을 배치합니다",
     "needsDateBody": "이 데이터베이스에는 아직 날짜 속성이 없습니다.",
@@ -1183,6 +1202,7 @@
       "day": "일",
       "week": "주",
       "month": "월",
+      "quarter": "분기",
       "year": "연"
     },
     "statusBy": "상태 그룹화 기준",
@@ -1197,7 +1217,8 @@
     "actions": "그룹 작업",
     "addRow": "{name}에 행 추가",
     "subGroupBy": "하위 그룹",
-    "colorColumns": "열 색상 표시"
+    "colorColumns": "열 색상 표시",
+    "quarter": "{year}년 {quarter}분기"
   },
   "rollup": {
     "title": "롤업",

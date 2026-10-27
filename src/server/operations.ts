@@ -78,6 +78,7 @@ import { withViewSorts } from "@/lib/views";
 import {
   describeAccessSettings,
   describeChartSeries,
+  describePivotTable,
   describeProperty,
   describeRowAccess,
   describeViewConfig,
@@ -1378,7 +1379,8 @@ export function decodeRowCursor(cursor: string): RowCursor {
 /**
  * Rows matching the filters, a page of `limit` at a time: `next_cursor` reads on from where the
  * page ends (null after the last). `properties` narrows the values each row returns. The first
- * page of a chart view also returns what the chart plots, over every matching row.
+ * page of a chart view also returns what the chart plots, and of a pivot view its table, over
+ * every matching row.
  */
 export async function queryDatabase(
   ctx: OperationContext,
@@ -1450,6 +1452,16 @@ export async function queryDatabase(
     next_cursor,
     has_more: next_cursor !== null,
     ...(next_cursor ? { note: `${rest} more matching rows: pass next_cursor as cursor (with the same filters and sorts) to read on.` } : {}),
+    ...(view?.type === "pivot" && !cursor
+      ? {
+          pivot: describePivotTable(
+            props,
+            view.config,
+            ordered.map((r) => r.row),
+            lookups,
+          ),
+        }
+      : {}),
     ...(view?.type === "chart" && !cursor
       ? {
           chart: {

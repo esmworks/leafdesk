@@ -32,6 +32,7 @@ import { PropertyAccessProvider, type PropertyAccessContextValue } from "./prope
 import { SchemaProvider } from "./schema-context";
 import { TableView } from "./table-view";
 import type { DatabaseSnapshot, View } from "./types";
+import { useViewerTimeZone } from "./use-today";
 import { useDatabase } from "./use-database";
 import { OfflineNotice } from "@/components/offline/offline-notice";
 import { AiAutofillProvider, type AiAutofillContextValue } from "./ai-autofill";
@@ -58,6 +59,7 @@ const VIEW_LOADERS: Partial<Record<ViewType, () => Promise<unknown>>> = {
   calendar: () => import("./calendar-view"),
   chart: () => import("./chart-view"),
   form: () => import("./form-view"),
+  pivot: () => import("./pivot-view"),
   timeline: () => import("./timeline-view"),
 };
 const BoardView = dynamic(() => import("./board-view").then((module) => module.BoardView), { loading: () => <ViewSkeleton /> });
@@ -65,6 +67,7 @@ const CalendarView = dynamic(() => import("./calendar-view").then((module) => mo
 const ChartView = dynamic(() => import("./chart-view").then((module) => module.ChartView), { loading: () => <ViewSkeleton /> });
 const FormView = dynamic(() => import("./form-view").then((module) => module.FormView), { loading: () => <ViewSkeleton /> });
 const FormToolbar = dynamic(() => import("./form-view").then((module) => module.FormToolbar));
+const PivotView = dynamic(() => import("./pivot-view").then((module) => module.PivotView), { loading: () => <ViewSkeleton /> });
 const TimelineView = dynamic(() => import("./timeline-view").then((module) => module.TimelineView), { loading: () => <ViewSkeleton /> });
 const MemoBoardView = memo(BoardView);
 const MemoCalendarView = memo(CalendarView);
@@ -72,6 +75,7 @@ const MemoChartView = memo(ChartView);
 const MemoFormView = memo(FormView);
 const MemoGalleryView = memo(GalleryView);
 const MemoListView = memo(ListView);
+const MemoPivotView = memo(PivotView);
 const MemoTableView = memo(TableView);
 const MemoTimelineView = memo(TimelineView);
 // Loaded when a dashboard view opens: its grid brings the chart and linked view code along.
@@ -362,6 +366,7 @@ export function DatabasePage({
     [snapshot?.properties, view?.config.propertyOrder],
   );
 
+  const timeZone = useViewerTimeZone();
   // Just what the view shows: its rows (filtered, sorted, searched) and its shown properties, in its order.
   const exportView = useCallback(
     async (format: ViewExportFormat) => {
@@ -374,6 +379,8 @@ export function DatabasePage({
             rows: visibleRows.map((row) => row.id),
             properties: viewProperties.filter((p) => !isHiddenInView(view, p)).map((p) => p.id),
             name: view.name,
+            // A pivot exports its table, worked out on the server from these rows.
+            ...(view.type === "pivot" ? { pivot: view.config, timeZone } : {}),
           }),
         });
         await saveDownload(res, `export.${format}`);
@@ -381,9 +388,9 @@ export function DatabasePage({
         api.showError(t(error instanceof Error && error.message === "disabled" ? "bulk.exportDisabled" : "bulk.exportFailed"));
       }
     },
-    [view, workspaceId, databaseId, visibleRows, viewProperties, api, t],
+    [view, workspaceId, databaseId, visibleRows, viewProperties, timeZone, api, t],
   );
-  // Views with rows to list; a chart, a dashboard and a form show something else.
+  // Views with rows to list, and pivots' tables; a chart, a dashboard and a form show something else.
   const exportsRows = !!view && view.type !== "chart" && view.type !== "dashboard" && view.type !== "form";
 
   // What the views are given stays the same from one render of the page to the next (see MemoBoardView).
@@ -450,7 +457,7 @@ export function DatabasePage({
       t("page.defaultGroupOptions.inProgress"),
       t("page.defaultGroupOptions.done"),
     ]);
-    if (created && (view?.type === "board" || view?.type === "table" || view?.type === "chart")) {
+    if (created && (view?.type === "board" || view?.type === "table" || view?.type === "chart" || view?.type === "pivot")) {
       await setConfig(view, { ...view.config, groupBy: created.id });
     }
   }, [locale, properties, t, api, view, setConfig]);
@@ -814,6 +821,16 @@ export function DatabasePage({
                       />
                     ) : view.type === "chart" ? (
                       <MemoChartView
+                        workspaceId={workspaceId}
+                        view={view}
+                        properties={viewProperties}
+                        rows={visibleRows}
+                        readOnly={readOnly}
+                        locked={locked}
+                        onCreateGroupProperty={createGroupProperty}
+                      />
+                    ) : view.type === "pivot" ? (
+                      <MemoPivotView
                         workspaceId={workspaceId}
                         view={view}
                         properties={viewProperties}

@@ -4,6 +4,15 @@
 
 ### Added
 
+- **Pivot views: a table of figures by two properties, with totals.** A new view layout groups
+  the rows by one property down and another across, each cell a count or the sum, average,
+  median, smallest or largest of a number (also a number formula or rollup) in its number format;
+  totals per line, per column and overall measure the rows they cover, each once. Groups follow
+  the other views' grouping, plus text values and, for every view, dates by quarter. Clicking a
+  cell lists its rows. Published pages, print, PDFs, the view's CSV download and dashboard widgets
+  show the table; MCP's `create_database_view` and `update_database_view` take `pivot` (docs topic
+  `pivots`) and `query_database` returns the table. To keep the MCP tool list in its budget, a few
+  view settings' short descriptions got shorter. No migration.
 - **Right-click in the sidebar for Leafdesk's own menus, with Open in new tab and Copy link.** A
   page's row opens its actions (rename, move to trash, keep offline) where it was right-clicked,
   now starting with Open in new tab and Copy link; other links there (My tasks, Meetings, Home …)

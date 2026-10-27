@@ -277,7 +277,7 @@
   - Views: table, board, calendar, gallery, list, feed (rows as posts, newest first, with the
     start of their bodies, emoji reactions and their comments), timeline (a column per day, week,
     month, quarter or year), map (rows as pins at a place
-    property), chart and dashboard (widgets over the database, see Dashboards), each with its own filters,
+    property), chart, pivot (see below) and dashboard (widgets over the database, see Dashboards), each with its own filters,
     sorting, grouping and shown properties (one by one, or all hidden or shown at once). The *View
     settings* menu beside the toolbar holds all of a view's settings in one place: its layout
     (a table, board, calendar, gallery, list, feed, timeline or map switches to any of the others,
@@ -471,6 +471,19 @@
   - Charts over a date can show a running total, or what remains (a burndown): grouped by the day
     work was finished, each period takes its rows away from the whole, and rows without that date
     stay open. An automation that sets the date to today when a status changes to done fills it in.
+  - Pivot views lay the rows out as a table of figures: a line per group of one property, a
+    column per group of another (or one column without it), each cell a count of the rows in both
+    or the sum, average, median, smallest or largest of a number, number formula or rollup, in the
+    property's number format (a sum of amounts in lira shows in lira). Rows and columns group as
+    other views group (options, statuses or their stages, people, linked rows, checkboxes, dates
+    by day, week, month, quarter or year), and by the exact text of a text, URL, email or phone
+    property. Totals at the end of each line, under each column and in the corner count each row
+    once, so an average's total is the average of its rows and a row with two tags counts once.
+    Lines and columns sort in the grouping's order or by value, groups without rows can be left
+    out, and up to 100 columns show. Clicking a cell or a total lists the rows behind it.
+    Published pages, print, PDFs, the view's CSV, HTML or PDF download and dashboard widgets show
+    the same table; over MCP, `create_database_view` and `update_database_view` take `pivot`
+    (see `leafdesk://docs/pivots`), and `query_database` returns the table.
   - Search a view from its toolbar: the rows whose name or values (option names, people, linked
     rows, checklist items, file names, text, numbers, links, formula results) hold every word
     typed, ignoring case and accents. The search is the viewer's own and isn't saved with the

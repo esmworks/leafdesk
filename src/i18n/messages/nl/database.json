@@ -35,6 +35,7 @@
     "feed": "Feed",
     "timeline": "Tijdlijn",
     "chart": "Grafiek",
+    "pivot": "Draaitabel",
     "dashboard": "Dashboard",
     "form": "Formulier",
     "map": "Kaart"
@@ -974,6 +975,24 @@
     "noRows": "Geen rijen in deze groep.",
     "openRows": "{group}: {value}. Rijen tonen"
   },
+  "pivot": {
+    "rows": "Rijen",
+    "columns": "Kolommen",
+    "values": "Waarden",
+    "property": "Eigenschap",
+    "rowsBy": "Rijen op",
+    "columnsBy": "Kolommen op",
+    "noColumns": "Geen",
+    "sort": "Sorteren",
+    "showTotals": "Totalen tonen",
+    "total": "Totaal",
+    "needsGroupTitle": "Draaitabellen groeperen rijen op een eigenschap zoals een selectie, status, persoon, datum of tekst",
+    "needsGroupBody": "Deze database heeft nog geen eigenschap waarop een draaitabel kan groeperen.",
+    "empty": "Geen rijen om te tonen.",
+    "moreColumns": "{count, plural, one {Nog # kolom wordt niet getoond} other {Nog # kolommen worden niet getoond}}: filter de weergave of groepeer datums per een langere periode.",
+    "caption": "{measure} per {rows} en {columns}",
+    "captionRows": "{measure} per {rows}"
+  },
   "timeline": {
     "needsDateTitle": "Tijdlijnen plaatsen rijen op basis van een datumeigenschap",
     "needsDateBody": "Deze database heeft nog geen datumeigenschap.",
@@ -1183,6 +1202,7 @@
       "day": "Dag",
       "week": "Week",
       "month": "Maand",
+      "quarter": "Kwartaal",
       "year": "Jaar"
     },
     "statusBy": "Status groeperen per",
@@ -1197,7 +1217,8 @@
     "actions": "Groepsacties",
     "addRow": "Een rij toevoegen aan {name}",
     "subGroupBy": "Subgroep",
-    "colorColumns": "Kolommen kleuren"
+    "colorColumns": "Kolommen kleuren",
+    "quarter": "K{quarter} {year}"
   },
   "rollup": {
     "title": "Rollup",

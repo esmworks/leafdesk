@@ -35,6 +35,7 @@
     "feed": "Mural",
     "timeline": "Linha do tempo",
     "chart": "Gráfico",
+    "pivot": "Tabela dinâmica",
     "dashboard": "Painel",
     "form": "Formulário",
     "map": "Mapa"
@@ -974,6 +975,24 @@
     "noRows": "Nenhuma linha neste grupo.",
     "openRows": "{group}: {value}. Mostrar linhas"
   },
+  "pivot": {
+    "rows": "Linhas",
+    "columns": "Colunas",
+    "values": "Valores",
+    "property": "Propriedade",
+    "rowsBy": "Linhas por",
+    "columnsBy": "Colunas por",
+    "noColumns": "Nenhuma",
+    "sort": "Ordenar",
+    "showTotals": "Mostrar totais",
+    "total": "Total",
+    "needsGroupTitle": "Tabelas dinâmicas agrupam as linhas por uma propriedade como seleção, status, pessoa, data ou texto",
+    "needsGroupBody": "Este banco de dados ainda não tem uma propriedade pela qual uma tabela dinâmica possa agrupar.",
+    "empty": "Nenhuma linha para mostrar.",
+    "moreColumns": "{count, plural, one {Mais # coluna não é mostrada} other {Mais # colunas não são mostradas}}: filtre a visualização ou agrupe as datas por um período mais longo.",
+    "caption": "{measure} por {rows} e {columns}",
+    "captionRows": "{measure} por {rows}"
+  },
   "timeline": {
     "needsDateTitle": "As linhas do tempo posicionam as linhas por uma propriedade de data",
     "needsDateBody": "Este banco de dados ainda não tem uma propriedade de data.",
@@ -1183,6 +1202,7 @@
       "day": "Dia",
       "week": "Semana",
       "month": "Mês",
+      "quarter": "Trimestre",
       "year": "Ano"
     },
     "statusBy": "Agrupar status por",
@@ -1197,7 +1217,8 @@
     "actions": "Ações do grupo",
     "addRow": "Adicionar uma linha a {name}",
     "subGroupBy": "Subgrupo",
-    "colorColumns": "Colorir colunas"
+    "colorColumns": "Colorir colunas",
+    "quarter": "T{quarter} {year}"
   },
   "rollup": {
     "title": "Agregação",

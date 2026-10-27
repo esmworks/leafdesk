@@ -84,7 +84,7 @@ export function ViewLayoutMenu(props: ViewLayoutMenuProps) {
   const t = useTranslations("database.viewMenu");
   const menu = useFloating<HTMLButtonElement>();
   const [colorRules, setColorRules] = useState(false);
-  if (readOnly || (!opensRows(view.type) && view.type !== "chart")) return null;
+  if (readOnly || (!opensRows(view.type) && view.type !== "chart" && view.type !== "pivot")) return null;
 
   return (
     <>

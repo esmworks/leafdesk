@@ -35,6 +35,7 @@
     "feed": "Feed",
     "timeline": "Timeline",
     "chart": "Chart",
+    "pivot": "Pivot",
     "dashboard": "Dashboard",
     "form": "Form",
     "map": "Map"
@@ -974,6 +975,24 @@
     "noRows": "No rows in this group.",
     "openRows": "{group}: {value}. Show rows"
   },
+  "pivot": {
+    "rows": "Rows",
+    "columns": "Columns",
+    "values": "Values",
+    "property": "Property",
+    "rowsBy": "Rows by",
+    "columnsBy": "Columns by",
+    "noColumns": "None",
+    "sort": "Sort",
+    "showTotals": "Show totals",
+    "total": "Total",
+    "needsGroupTitle": "Pivots group rows by a property such as a select, status, person, date or text",
+    "needsGroupBody": "This database has no property a pivot can group by yet.",
+    "empty": "No rows to show.",
+    "moreColumns": "{count, plural, one {# more column isn't shown} other {# more columns aren't shown}}: filter the view or group dates by a longer period.",
+    "caption": "{measure} by {rows} and {columns}",
+    "captionRows": "{measure} by {rows}"
+  },
   "timeline": {
     "needsDateTitle": "Timelines place rows by a date property",
     "needsDateBody": "This database has no date property yet.",
@@ -1183,6 +1202,7 @@
       "day": "Day",
       "week": "Week",
       "month": "Month",
+      "quarter": "Quarter",
       "year": "Year"
     },
     "statusBy": "Group status by",
@@ -1197,7 +1217,8 @@
     "actions": "Group actions",
     "addRow": "Add a row to {name}",
     "subGroupBy": "Sub-group",
-    "colorColumns": "Color columns"
+    "colorColumns": "Color columns",
+    "quarter": "Q{quarter} {year}"
   },
   "rollup": {
     "title": "Rollup",

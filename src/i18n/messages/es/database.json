@@ -35,6 +35,7 @@
     "feed": "Muro",
     "timeline": "Cronograma",
     "chart": "Gráfico",
+    "pivot": "Tabla dinámica",
     "dashboard": "Panel",
     "form": "Formulario",
     "map": "Mapa"
@@ -974,6 +975,24 @@
     "noRows": "No hay filas en este grupo.",
     "openRows": "{group}: {value}. Mostrar filas"
   },
+  "pivot": {
+    "rows": "Filas",
+    "columns": "Columnas",
+    "values": "Valores",
+    "property": "Propiedad",
+    "rowsBy": "Filas por",
+    "columnsBy": "Columnas por",
+    "noColumns": "Ninguna",
+    "sort": "Ordenar",
+    "showTotals": "Mostrar totales",
+    "total": "Total",
+    "needsGroupTitle": "Las tablas dinámicas agrupan las filas por una propiedad como una selección, un estado, una persona, una fecha o un texto",
+    "needsGroupBody": "Esta base de datos aún no tiene ninguna propiedad por la que una tabla dinámica pueda agrupar.",
+    "empty": "No hay filas que mostrar.",
+    "moreColumns": "{count, plural, one {# columna más no se muestra} other {# columnas más no se muestran}}: filtra la vista o agrupa las fechas por un periodo más largo.",
+    "caption": "{measure} por {rows} y {columns}",
+    "captionRows": "{measure} por {rows}"
+  },
   "timeline": {
     "needsDateTitle": "Los cronogramas colocan las filas según una propiedad de fecha",
     "needsDateBody": "Esta base de datos todavía no tiene ninguna propiedad de fecha.",
@@ -1183,6 +1202,7 @@
       "day": "Día",
       "week": "Semana",
       "month": "Mes",
+      "quarter": "Trimestre",
       "year": "Año"
     },
     "statusBy": "Agrupar estado por",
@@ -1197,7 +1217,8 @@
     "actions": "Acciones de grupo",
     "addRow": "Añadir una fila a {name}",
     "subGroupBy": "Subgrupo",
-    "colorColumns": "Colorear columnas"
+    "colorColumns": "Colorear columnas",
+    "quarter": "T{quarter} {year}"
   },
   "rollup": {
     "title": "Agregación",

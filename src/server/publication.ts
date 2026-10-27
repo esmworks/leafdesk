@@ -25,6 +25,7 @@ import type { FormulaStyle } from "@/lib/formula";
 import { LIST_WIDGET_ROWS, type DashboardLayout, type DashboardWidget, type WidgetColor, type WidgetSpan } from "@/lib/dashboard";
 import type { EmbedBlockType, LinkedView } from "@/lib/embed-blocks";
 import { arrangeGroups, boardGroupProperty, groupRowsBy, isGroupable, SECTIONED_VIEWS, type GroupValue } from "@/lib/grouping";
+import { pivotColumnProperty, pivotData, pivotMeasure, pivotRowProperty, withoutPivotRows, type PivotData } from "@/lib/pivot";
 import { parsePageBackground, type PageBackground } from "@/lib/page-background";
 import { DEFAULT_PAGE_STYLE, pageStyleFromYdoc, type PageStyle } from "@/lib/page-style";
 import { applyView, computedValues, isHiddenInView, orderProperties } from "@/lib/properties";
@@ -370,8 +371,8 @@ export type PublishedRow = {
 };
 /** A published view's tab: its name, type and the icon chosen for it (its config's), if any. */
 export type PublishedViewTab = { id: string; name: string; type: ViewType; icon?: string };
-/** How a published view is drawn; calendars and timelines show as tables, charts as their numbers. */
-export type PublishedLayout = "table" | "board" | "list" | "gallery" | "feed" | "chart";
+/** How a published view is drawn; calendars and timelines show as tables, charts and pivots as their numbers. */
+export type PublishedLayout = "table" | "board" | "list" | "gallery" | "feed" | "chart" | "pivot";
 /**
  * A chart view's numbers, worked out on the server from the rows the page publishes and only its
  * public properties: one value for a number chart, else each group's (and stack segment's) value.
@@ -390,6 +391,21 @@ export type PublishedChart = {
   result: AggregateResult | null;
   /** Other charts: the groups, or null when there is nothing public to group by. */
   data: ChartData<never> | null;
+};
+/**
+ * A pivot view's table, worked out on the server like a chart's numbers (see PublishedChart):
+ * grouped and measured by public properties only, each cell's rows left behind.
+ */
+export type PublishedPivot = {
+  measure: ChartMeasure;
+  /** The properties the pivot names: its rows', columns' and what it measures. */
+  properties: { id: string; name: string; type: PropertyType }[];
+  rowById: string | null;
+  columnById: string | null;
+  totals: boolean;
+  rowCount: number;
+  /** Null when there is nothing public to group the rows by. */
+  data: PivotData<never> | null;
 };
 /**
  * A property as a published page sends it to the visitor's browser (see publishedProperty): what
@@ -425,6 +441,8 @@ export type PublishedDatabase = {
   noVerticalLines?: true;
   /** Charts (layout "chart"). */
   chart?: PublishedChart;
+  /** Pivots (layout "pivot"). */
+  pivot?: PublishedPivot;
 };
 /**
  * A part of a published page's body: text, a database block, or a block the page draws itself (a
@@ -1195,6 +1213,18 @@ export async function publishedDatabase(
       chart: publishedChart(chosen.config, properties, allProperties, viewed),
     };
   }
+  if (chosen.type === "pivot") {
+    return {
+      properties: [],
+      view: { id: chosen.id, name: chosen.name, type: chosen.type },
+      views: tabs,
+      layout: "pivot",
+      rows: [],
+      groups: null,
+      cardSize: "medium",
+      pivot: publishedPivot(chosen.config, properties, allProperties, viewed),
+    };
+  }
   const covers = withCovers ? await rowCovers(stored) : null;
   // A gallery taking covers from a files property shows each row's first image there.
   const coverFrom = chosen.type === "gallery" ? coverProperty(chosen.config, properties) : null;
@@ -1271,6 +1301,30 @@ function publishedChart(config: ViewConfig, properties: DatabaseProperty[], know
     stackById: stackBy?.id ?? null,
     rowCount: rows.length,
     result: chartType === "number" ? measureRows(rows, measure) : null,
+    data,
+  };
+}
+
+/**
+ * A pivot's table over `rows`, grouped and measured by public properties only (see publishedChart):
+ * rows grouped by a property kept from visitors leave nothing to show, columns grouped by one leave
+ * the rows' totals.
+ */
+function publishedPivot(config: ViewConfig, properties: DatabaseProperty[], known: DatabaseProperty[], rows: PublishedRow[]): PublishedPivot {
+  const kept = (id: string | undefined) => !!id && !properties.some((p) => p.id === id) && known.some((p) => p.id === id);
+  const measure = pivotMeasure(config, properties);
+  const rowBy = kept(config.groupBy) ? null : pivotRowProperty(properties, config);
+  const columnBy = rowBy && !kept(config.columnBy) ? pivotColumnProperty(properties, config, rowBy) : null;
+  const context = { people: [], dayOf: (value: unknown) => timestampDay(value, "UTC") };
+  const data = rowBy ? withoutPivotRows(pivotData(rows, { rowBy, columnBy, measure, config, rowContext: context, columnContext: context })) : null;
+  const named = new Set([rowBy?.id, columnBy?.id, measure.kind === "aggregate" ? measure.prop.id : undefined]);
+  return {
+    measure,
+    properties: properties.filter((p) => named.has(p.id)).map(({ id, name, type }) => ({ id, name, type })),
+    rowById: rowBy?.id ?? null,
+    columnById: columnBy?.id ?? null,
+    totals: config.showTotals !== false,
+    rowCount: rows.length,
     data,
   };
 }

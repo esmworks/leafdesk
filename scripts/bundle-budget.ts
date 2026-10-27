@@ -55,8 +55,12 @@ import { gzipSync } from "node:zlib";
  * The AI chat's approval of each web call (its address shown), the invitation email limit's note
  * and the sign-in policy gate for Telegram links and API token scopes add under 1 kB to a page's
  * first load and to all first loads together.
+ *
+ * Pivot views cost a page's first load about 0.5 kB and all first loads together under 1 kB (their
+ * settings' checks, quarter grouping, the icon and text group names); the view, its settings page
+ * and the published table load when shown.
  */
-const BUDGET = { routeFirstLoad: 774, firstLoadShared: 1179, onDemandChunk: 450 };
+const BUDGET = { routeFirstLoad: 775, firstLoadShared: 1180, onDemandChunk: 450 };
 
 const NEXT = ".next";
 const kB = (bytes: number) => bytes / 1024;

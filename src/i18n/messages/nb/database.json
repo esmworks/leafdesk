@@ -35,6 +35,7 @@
     "feed": "Strøm",
     "timeline": "Tidslinje",
     "chart": "Diagram",
+    "pivot": "Pivot",
     "dashboard": "Dashbord",
     "form": "Skjema",
     "map": "Kart"
@@ -974,6 +975,24 @@
     "noRows": "Ingen rader i denne gruppen.",
     "openRows": "{group}: {value}. Vis rader"
   },
+  "pivot": {
+    "rows": "Rader",
+    "columns": "Kolonner",
+    "values": "Verdier",
+    "property": "Egenskap",
+    "rowsBy": "Rader etter",
+    "columnsBy": "Kolonner etter",
+    "noColumns": "Ingen",
+    "sort": "Sorter",
+    "showTotals": "Vis totaler",
+    "total": "Totalt",
+    "needsGroupTitle": "Pivottabeller grupperer rader etter en egenskap som et valg, en status, en person, en dato eller en tekst",
+    "needsGroupBody": "Denne databasen har ennå ingen egenskap som en pivottabell kan gruppere etter.",
+    "empty": "Ingen rader å vise.",
+    "moreColumns": "{count, plural, one {# kolonne til vises ikke} other {# kolonner til vises ikke}}: filtrer visningen eller grupper datoer etter en lengre periode.",
+    "caption": "{measure} etter {rows} og {columns}",
+    "captionRows": "{measure} etter {rows}"
+  },
   "timeline": {
     "needsDateTitle": "Tidslinjer plasserer rader etter en datoegenskap",
     "needsDateBody": "Denne databasen har ingen datoegenskap ennå.",
@@ -1183,6 +1202,7 @@
       "day": "Dag",
       "week": "Uke",
       "month": "Måned",
+      "quarter": "Kvartal",
       "year": "År"
     },
     "statusBy": "Grupper status etter",
@@ -1197,7 +1217,8 @@
     "actions": "Gruppehandlinger",
     "addRow": "Legg til en rad i {name}",
     "subGroupBy": "Undergruppe",
-    "colorColumns": "Fargelegg kolonner"
+    "colorColumns": "Fargelegg kolonner",
+    "quarter": "K{quarter} {year}"
   },
   "rollup": {
     "title": "Aggregering",
