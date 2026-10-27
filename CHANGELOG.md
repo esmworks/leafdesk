@@ -74,6 +74,9 @@
 
 ### Changed
 
+- **A table's column names stay in sight as you scroll down.** On a database's own page, the view
+  tabs and toolbar stay under the top bar and the table's header row stays under them, while the
+  title scrolls away. A database inside a page and every table on a phone keep the header row only.
 - **Recordings are written down in the language people use Leafdesk in.** Dictation, voice notes
   and meeting recordings tell the speech to text server the recorder's interface language, so a
   few seconds of speech are no longer taken for another language.

@@ -8,6 +8,7 @@ import { useEffect, useId, useLayoutEffect, useMemo, useRef, useState } from "re
 import { cn } from "@/components/ui";
 import { PHONE_QUERY, useMediaQuery } from "@/components/use-media-query";
 import { useReorderDrag, type ReorderDragHandlers } from "@/components/use-reorder-drag";
+import { useStuckMark } from "@/components/use-stuck-mark";
 import type { ViewConfig } from "@/db/schema/app";
 import type { AggregateFn } from "@/lib/aggregate";
 import { isAutofillType } from "@/lib/ai";
@@ -219,6 +220,28 @@ export function TableView({
     observer.observe(el);
     return () => observer.disconnect();
   }, []);
+  // The header row is a table of its own above the box (see the render), so it can stay in sight as
+  // the page scrolls down; sideways, each follows the other.
+  const headBox = useRef<HTMLDivElement>(null);
+  const [headStrip, setHeadStrip] = useState<HTMLDivElement | null>(null);
+  useStuckMark(headStrip);
+  useEffect(() => {
+    const rows = box.current;
+    const head = headBox.current;
+    if (!rows || !head) return;
+    const follow = (from: HTMLElement, to: HTMLElement) => () => {
+      if (to.scrollLeft !== from.scrollLeft) to.scrollLeft = from.scrollLeft;
+    };
+    const fromRows = follow(rows, head);
+    const fromHead = follow(head, rows);
+    fromRows();
+    rows.addEventListener("scroll", fromRows, { passive: true });
+    head.addEventListener("scroll", fromHead, { passive: true });
+    return () => {
+      rows.removeEventListener("scroll", fromRows);
+      head.removeEventListener("scroll", fromHead);
+    };
+  }, []);
   const columnKeys = [TITLE, ...visible.map((p) => p.id)];
   const columnWidths = [nameWidth, ...visible.map(colWidth)];
   const allKeys = [TITLE, ...properties.map((p) => p.id)];
@@ -253,7 +276,7 @@ export function TableView({
   function fitColumn(key: string, col: number) {
     const table = box.current?.querySelector("table");
     if (!table) return;
-    const header = table.tHead?.rows[0]?.cells[col + 1];
+    const header = headBox.current?.querySelector("thead")?.rows[0]?.cells[col + 1];
     const cells = [...table.querySelectorAll<HTMLElement>("[data-cell]")].filter((el) => el.dataset.cell?.endsWith(`:${col}`));
     const width = fittedWidth(contentWidths(header ? [header, ...cells] : cells));
     const config = latestConfig.current;
@@ -747,136 +770,169 @@ export function TableView({
     );
   };
 
+  // Without vertical lines (Layout → Show vertical lines), only the rows' lines remain.
+  const tableClass = cn("table-fixed border-collapse text-sm", view.config.showVerticalLines === false && "[&_td]:border-s-0 [&_th]:border-s-0");
+  const colgroup = (
+    <colgroup>
+      <col style={{ width: handles }} />
+      <col style={{ width: nameWidth }} />
+      {visible.map((p) => (
+        <col key={p.id} style={{ width: colWidth(p) }} />
+      ))}
+      {!readOnly && <col style={{ width: 36 }} />}
+    </colgroup>
+  );
+
   return (
-    <>
+    // The header row stays under the page's top bar (and a full page's view bar, which
+    // database-page.tsx measures into --view-bar-height) until the table's end scrolls past it.
+    <div
+      className="[--table-head-top:2.75rem] md:[--table-head-top:calc(2.75rem+var(--view-bar-height,0px))]"
+      style={{ "--table-handles": `${handles + 8}px` } as React.CSSProperties}
+    >
+      {/* A box of its own: inside the rows' box, which scrolls sideways, sticky would hold to that box
+          instead of the page. Above frozen columns (z-30), under the page's top bar (z-35). */}
+      <div ref={setHeadStrip} className="sticky top-(--table-head-top) z-[31] data-stuck:bg-bg">
+        <div ref={headBox} className={cn("page-gutter-table row-panel-room overflow-x-auto [color-scheme:light_dark]", HIDE_SCROLLBAR)}>
+          <table role="presentation" className={tableClass} style={{ width: totalWidth }}>
+            {colgroup}
+            {/* The header row on gray, frozen columns included (not the row handles beside it). */}
+            <thead className="[&_th:not(:first-child)]:bg-bg-subtle">
+              <tr className="group">
+                <th className={cn("p-0 font-normal", frozen(-1).className)} style={frozen(-1).style}>
+                  <div className="flex justify-end">
+                    <SelectBox
+                      checked={selection.all}
+                      indeterminate={selection.some && !selection.all}
+                      label={t("bulk.selectAll")}
+                      visible={selection.some}
+                      onToggle={selection.toggleAll}
+                    />
+                  </div>
+                </th>
+                <HeaderCell
+                  prop={null}
+                  label={t("nameColumn")}
+                  icon="title"
+                  sort={sortOf(TITLE)}
+                  frozen={frozen(0)}
+                  readOnly={readOnly}
+                  onResize={!arrangeable || phone ? undefined : (e) => startResize(TITLE, nameWidth, e)}
+                  onFit={() => fitColumn(TITLE, 0)}
+                  resizing={resizing?.key === TITLE}
+                  actions={{
+                    ...viewActions(TITLE, TITLE),
+                    sort: (direction) => setConfig({ ...view.config, sorts: [{ propertyId: TITLE, direction }] }),
+                    insert: insertBeside(TITLE, ["after"]),
+                  }}
+                />
+                {visible.map((p, i) => {
+                  // Property access: changing the property itself needs "edit" on it.
+                  const fixed = locked || !access.canEditSchema(p.id);
+                  return (
+                    <HeaderCell
+                      key={p.id}
+                      prop={p}
+                      label={p.name}
+                      icon={p.type}
+                      sort={sortOf(p.id)}
+                      frozen={frozen(i + 1)}
+                      readOnly={readOnly}
+                      drag={arrangeable ? columnDrag.handlers(p.id) : undefined}
+                      onResize={arrangeable ? (e) => startResize(p.id, colWidth(p), e) : undefined}
+                      onFit={() => fitColumn(p.id, i + 1)}
+                      resizing={resizing?.key === p.id}
+                      actions={{
+                        ...viewActions(p.id, valueType(p)),
+                        group:
+                          settingsReadOnly || !isGroupable(p.type) || groupBy?.id === p.id
+                            ? undefined
+                            : () => setConfig({ ...view.config, groupBy: p.id }),
+                        ungroup: settingsReadOnly || groupBy?.id !== p.id ? undefined : () => setConfig({ ...view.config, groupBy: undefined }),
+                        insert: insertBeside(p.id, ["before", "after"]),
+                        rename: fixed ? undefined : (name) => api.renameProperty(p.id, name),
+                        sort: isSortable(p.type)
+                          ? (direction) => setConfig({ ...view.config, sorts: [{ propertyId: p.id, direction }] })
+                          : undefined,
+                        hide: settingsReadOnly ? undefined : () => setConfig({ ...view.config, hidden: [...(view.config.hidden ?? []), p.id] }),
+                        setOptions: fixed ? undefined : (options) => api.setOptions(p, options),
+                        setDependsOn: fixed ? undefined : (parentId) => api.setDependsOn(p, parentId),
+                        setDescription: fixed ? undefined : (description) => api.setDescription(p, description),
+                        setIcon: fixed ? undefined : (icon) => api.setPropertyIcon(p, icon),
+                        setFormula: fixed ? undefined : (expression) => api.setFormula(p, expression),
+                        setRollup: fixed ? undefined : (rollup) => api.setRollup(p, rollup),
+                        setNumberFormat:
+                          fixed || !takesNumberFormat(p.type, p.options.formula?.type) ? undefined : (format) => api.setNumberFormat(p, format),
+                        setDateOptions: fixed || !takesDateOptions(p.type) ? undefined : (input) => api.setDateOptions(p, input),
+                        setUniqueIdPrefix: fixed || p.type !== "unique_id" ? undefined : (prefix) => api.setUniqueIdPrefix(p, prefix),
+                        setUrlPreview: fixed || p.type !== "url" ? undefined : (on) => api.setUrlPreview(p, on),
+                        setNumberDisplay: fixed || !takesNumberDisplay(p) ? undefined : (display) => api.setNumberDisplay(p, display),
+                        setRelationOptions: fixed || p.type !== "relation" ? undefined : (input) => api.setRelationOptions(p, input),
+                        setOnePerson: fixed || p.type !== "person" ? undefined : (on) => api.setOnePerson(p, on),
+                        setUnique: fixed || !canBeUnique(p.type) ? undefined : (on) => api.setUnique(p, on),
+                        setOneRow: fixed || p.type !== "relation" ? undefined : (on) => api.setOneRow(p, on),
+                        setStatusCheckbox: fixed || p.type !== "status" ? undefined : (on) => api.setStatusCheckbox(p, on),
+                        makeTwoWay: fixed || p.type !== "relation" ? undefined : () => api.makeTwoWay(p),
+                        setPageVisibility: fixed ? undefined : (visibility) => api.setPageVisibility(p, visibility),
+                        setAutofill: fixed || !ai.enabled || !isAutofillType(p.type) ? undefined : (config) => api.setAutofill(p, config),
+                        updateAllAutofill:
+                          !ai.enabled || !ai.refresh || !p.options.ai || !access.canEditValues(p.id)
+                            ? undefined
+                            : () => ai.refresh?.(p.id, inView.map((r) => r.id)),
+                        duplicate: fixed
+                          ? undefined
+                          : async () =>
+                              placeBeside(
+                                (await api.duplicateProperty(p.id, t("propertyMenu.copyName", { name: p.name })))?.id,
+                                p.id,
+                                "after",
+                              ),
+                        changeType: fixed ? undefined : typeChange(p),
+                        remove: fixed ? undefined : () => api.deleteProperty(p.id),
+                      }}
+                    />
+                  );
+                })}
+                {!readOnly && (
+                  <th className="border-y border-border p-0 text-start font-normal">
+                    {!locked && (
+                      <AddPropertyButton
+                        onCreate={(name, type, relation, derived) => api.addProperty(name, type, undefined, relation, derived)}
+                        onCreateAutofill={
+                          ai.enabled ? (name, config) => api.addAutofillProperty(name, config, inView.map((r) => r.id)) : undefined
+                        }
+                      />
+                    )}
+                  </th>
+                )}
+              </tr>
+            </thead>
+          </table>
+        </div>
+      </div>
       <div
         ref={box}
         {...grid.containerProps}
-        className={cn("page-gutter-table row-panel-room overflow-x-auto pb-3 outline-none [color-scheme:light_dark]", HIDE_SCROLLBAR, grid.spans && "select-none")}
-        style={{ "--table-handles": `${handles + 8}px` } as React.CSSProperties}
+        className={cn(
+          "page-gutter-table row-panel-room overflow-x-auto pb-3 outline-none [color-scheme:light_dark]",
+          // Brought into view from the keyboard, a cell stops below the header row, not under it.
+          "[&_[data-cell]]:scroll-mt-[calc(var(--table-head-top)+2.25rem)]",
+          HIDE_SCROLLBAR,
+          grid.spans && "select-none",
+        )}
       >
-        <table
-          // Without vertical lines (Layout → Show vertical lines), only the rows' lines remain.
-          className={cn("table-fixed border-collapse text-sm", view.config.showVerticalLines === false && "[&_td]:border-s-0 [&_th]:border-s-0")}
-          style={{ width: totalWidth }}
-        >
-          <colgroup>
-            <col style={{ width: handles }} />
-            <col style={{ width: nameWidth }} />
-            {visible.map((p) => (
-              <col key={p.id} style={{ width: colWidth(p) }} />
-            ))}
-            {!readOnly && <col style={{ width: 36 }} />}
-          </colgroup>
-          {/* The header row on gray, frozen columns included (not the row handles beside it). */}
-          <thead ref={setThead} className="[&_th:not(:first-child)]:bg-bg-subtle">
-            <tr className="group">
-              <th className={cn("p-0 font-normal", frozen(-1).className)} style={frozen(-1).style}>
-                <div className="flex justify-end">
-                  <SelectBox
-                    checked={selection.all}
-                    indeterminate={selection.some && !selection.all}
-                    label={t("bulk.selectAll")}
-                    visible={selection.some}
-                    onToggle={selection.toggleAll}
-                  />
-                </div>
-              </th>
-              <HeaderCell
-                prop={null}
-                label={t("nameColumn")}
-                icon="title"
-                sort={sortOf(TITLE)}
-                frozen={frozen(0)}
-                readOnly={readOnly}
-                onResize={!arrangeable || phone ? undefined : (e) => startResize(TITLE, nameWidth, e)}
-                onFit={() => fitColumn(TITLE, 0)}
-                resizing={resizing?.key === TITLE}
-                actions={{
-                  ...viewActions(TITLE, TITLE),
-                  sort: (direction) => setConfig({ ...view.config, sorts: [{ propertyId: TITLE, direction }] }),
-                  insert: insertBeside(TITLE, ["after"]),
-                }}
-              />
-              {visible.map((p, i) => {
-                // Property access: changing the property itself needs "edit" on it.
-                const fixed = locked || !access.canEditSchema(p.id);
-                return (
-                  <HeaderCell
-                    key={p.id}
-                    prop={p}
-                    label={p.name}
-                    icon={p.type}
-                    sort={sortOf(p.id)}
-                    frozen={frozen(i + 1)}
-                    readOnly={readOnly}
-                    drag={arrangeable ? columnDrag.handlers(p.id) : undefined}
-                    onResize={arrangeable ? (e) => startResize(p.id, colWidth(p), e) : undefined}
-                    onFit={() => fitColumn(p.id, i + 1)}
-                    resizing={resizing?.key === p.id}
-                    actions={{
-                      ...viewActions(p.id, valueType(p)),
-                      group:
-                        settingsReadOnly || !isGroupable(p.type) || groupBy?.id === p.id
-                          ? undefined
-                          : () => setConfig({ ...view.config, groupBy: p.id }),
-                      ungroup: settingsReadOnly || groupBy?.id !== p.id ? undefined : () => setConfig({ ...view.config, groupBy: undefined }),
-                      insert: insertBeside(p.id, ["before", "after"]),
-                      rename: fixed ? undefined : (name) => api.renameProperty(p.id, name),
-                      sort: isSortable(p.type)
-                        ? (direction) => setConfig({ ...view.config, sorts: [{ propertyId: p.id, direction }] })
-                        : undefined,
-                      hide: settingsReadOnly ? undefined : () => setConfig({ ...view.config, hidden: [...(view.config.hidden ?? []), p.id] }),
-                      setOptions: fixed ? undefined : (options) => api.setOptions(p, options),
-                      setDependsOn: fixed ? undefined : (parentId) => api.setDependsOn(p, parentId),
-                      setDescription: fixed ? undefined : (description) => api.setDescription(p, description),
-                      setIcon: fixed ? undefined : (icon) => api.setPropertyIcon(p, icon),
-                      setFormula: fixed ? undefined : (expression) => api.setFormula(p, expression),
-                      setRollup: fixed ? undefined : (rollup) => api.setRollup(p, rollup),
-                      setNumberFormat:
-                        fixed || !takesNumberFormat(p.type, p.options.formula?.type) ? undefined : (format) => api.setNumberFormat(p, format),
-                      setDateOptions: fixed || !takesDateOptions(p.type) ? undefined : (input) => api.setDateOptions(p, input),
-                      setUniqueIdPrefix: fixed || p.type !== "unique_id" ? undefined : (prefix) => api.setUniqueIdPrefix(p, prefix),
-                      setUrlPreview: fixed || p.type !== "url" ? undefined : (on) => api.setUrlPreview(p, on),
-                      setNumberDisplay: fixed || !takesNumberDisplay(p) ? undefined : (display) => api.setNumberDisplay(p, display),
-                      setRelationOptions: fixed || p.type !== "relation" ? undefined : (input) => api.setRelationOptions(p, input),
-                      setOnePerson: fixed || p.type !== "person" ? undefined : (on) => api.setOnePerson(p, on),
-                      setUnique: fixed || !canBeUnique(p.type) ? undefined : (on) => api.setUnique(p, on),
-                      setOneRow: fixed || p.type !== "relation" ? undefined : (on) => api.setOneRow(p, on),
-                      setStatusCheckbox: fixed || p.type !== "status" ? undefined : (on) => api.setStatusCheckbox(p, on),
-                      makeTwoWay: fixed || p.type !== "relation" ? undefined : () => api.makeTwoWay(p),
-                      setPageVisibility: fixed ? undefined : (visibility) => api.setPageVisibility(p, visibility),
-                      setAutofill: fixed || !ai.enabled || !isAutofillType(p.type) ? undefined : (config) => api.setAutofill(p, config),
-                      updateAllAutofill:
-                        !ai.enabled || !ai.refresh || !p.options.ai || !access.canEditValues(p.id)
-                          ? undefined
-                          : () => ai.refresh?.(p.id, inView.map((r) => r.id)),
-                      duplicate: fixed
-                        ? undefined
-                        : async () =>
-                            placeBeside(
-                              (await api.duplicateProperty(p.id, t("propertyMenu.copyName", { name: p.name })))?.id,
-                              p.id,
-                              "after",
-                            ),
-                      changeType: fixed ? undefined : typeChange(p),
-                      remove: fixed ? undefined : () => api.deleteProperty(p.id),
-                    }}
-                  />
-                );
-              })}
-              {!readOnly && (
-                <th className="border-y border-border p-0 text-start font-normal">
-                  {!locked && (
-                    <AddPropertyButton
-                      onCreate={(name, type, relation, derived) => api.addProperty(name, type, undefined, relation, derived)}
-                      onCreateAutofill={
-                        ai.enabled ? (name, config) => api.addAutofillProperty(name, config, inView.map((r) => r.id)) : undefined
-                      }
-                    />
-                  )}
+        <table className={tableClass} style={{ width: totalWidth }}>
+          {colgroup}
+          {/* The column names again for screen readers, with no height; where the rows start (TableBody). */}
+          <thead ref={setThead}>
+            <tr>
+              <th className="h-0 p-0" />
+              {[t("nameColumn"), ...visible.map((p) => p.name)].map((name, i) => (
+                <th key={i} className="h-0 p-0">
+                  <span className="sr-only">{name}</span>
                 </th>
-              )}
+              ))}
+              {!readOnly && <th className="h-0 p-0" />}
             </tr>
           </thead>
           <TableBody
@@ -933,7 +989,7 @@ export function TableView({
         />
       </div>
       <StickyScrollbar target={box} />
-    </>
+    </div>
   );
 }
 

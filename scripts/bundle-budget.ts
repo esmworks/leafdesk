@@ -62,8 +62,11 @@ import { gzipSync } from "node:zlib";
  *
  * A dashboard's period, the change on number widgets and view filters' quarters add about 0.5 kB
  * to a page's first load and to all first loads together.
+ *
+ * A table's header row and a database page's view bar kept in sight as the page scrolls add under
+ * 1 kB to a page's first load and to all first loads together.
  */
-const BUDGET = { routeFirstLoad: 777, firstLoadShared: 1181, onDemandChunk: 450 };
+const BUDGET = { routeFirstLoad: 777, firstLoadShared: 1182, onDemandChunk: 450 };
 
 const NEXT = ".next";
 const kB = (bytes: number) => bytes / 1024;
