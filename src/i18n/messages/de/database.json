@@ -2210,6 +2210,12 @@
     "pending": "Zeilen, die ins Tabellenblatt geschrieben werden sollen: {count, number}",
     "writeFailed": "Konnte nicht ins Tabellenblatt schreiben:",
     "writeForbidden": "Das Google-Konto der Verbindung darf die Tabelle nicht bearbeiten, oder die Person, als die die Synchronisierung läuft, darf über die Verbindung nicht schreiben. Hier gemachte Änderungen warten, bis es geht.",
+    "waiting": "{count, plural, one {# Zeile wartet} other {# Zeilen warten}} auf das Tabellenblatt",
+    "waitingHelp": "Änderungen hier gehen innerhalb von Sekunden ins Tabellenblatt.",
+    "writeNow": "Jetzt schreiben",
+    "writingNow": "Wird geschrieben…",
+    "writeStuck": "Nicht ins Tabellenblatt geschrieben",
+    "writeStuckHelp": "Schreiben ins Tabellenblatt fehlgeschlagen: Die Änderungen warten. Öffne die Synchronisierung, um den Grund zu sehen.",
     "stopConfirm": "Synchronisierung dieser Datenbank beenden? Ihre Zeilen bleiben."
   }
 }

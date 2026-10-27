@@ -8,6 +8,7 @@ import type { ImportResult } from "@/lib/import/result";
 import type { SheetsSource, SheetsSyncView } from "@/lib/sheets-sync";
 import { AccessError } from "@/server/access";
 import { JiraError } from "@/server/jira-sync/client";
+import type { SyncOutcome } from "@/server/jira-sync/run";
 import { createSheetsSync, getSheetsSync, sheetsSources, stopSheetsSync, syncSheetsNow, updateSheetsSync, type SheetsSyncPatch } from "@/server/sheets-sync/manage";
 import { requireUserId } from "@/server/session";
 import { SyncSetupLimited } from "@/server/sync-setup";
@@ -91,7 +92,7 @@ export async function getSheetsSyncAction(databaseId: string): Promise<ActionRes
   return run((userId) => getSheetsSync(userId, String(databaseId)));
 }
 
-export async function syncSheetsNowAction(databaseId: string): Promise<ActionResult<SheetsSyncView>> {
+export async function syncSheetsNowAction(databaseId: string): Promise<ActionResult<SheetsSyncView & { outcome: SyncOutcome }>> {
   return run((userId) => syncSheetsNow(userId, String(databaseId)));
 }
 

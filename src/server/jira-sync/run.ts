@@ -199,7 +199,28 @@ export async function runDueSyncs(now = new Date()) {
   }
 }
 
-/** Server only: runs syncs (Jira, GitHub, calendars, PostgreSQL, Google Sheets) as they fall due. */
+const runner = globalThis as unknown as { __leafdeskSyncsSoon?: (ms: number) => void };
+
+/**
+ * Server only: runs syncs (Jira, GitHub, calendars, PostgreSQL, Google Sheets) as they fall due,
+ * and, asked by sheets-sync/outbox, those due within `ms` once that time is up, without waiting
+ * for the sweep. Both claim their syncs (claimDue), so they never run one twice.
+ */
 export function startDatabaseSyncs() {
-  return startSweep(SWEEP_MS, () => runDueSyncs(), "could not run database syncs");
+  let timer: ReturnType<typeof setTimeout> | null = null;
+  // One wait at a time: a change made meanwhile is due by then too.
+  runner.__leafdeskSyncsSoon = (ms) => {
+    if (timer) return;
+    timer = setTimeout(() => {
+      timer = null;
+      runDueSyncs().catch((error) => console.error("could not run database syncs", error));
+    }, ms + 500);
+    timer.unref?.();
+  };
+  const stop = startSweep(SWEEP_MS, () => runDueSyncs(), "could not run database syncs");
+  return () => {
+    stop();
+    if (timer) clearTimeout(timer);
+    delete runner.__leafdeskSyncsSoon;
+  };
 }

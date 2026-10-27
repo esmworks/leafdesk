@@ -2210,6 +2210,12 @@
     "pending": "Righe in attesa di essere scritte nel foglio: {count, number}",
     "writeFailed": "Impossibile scrivere nel foglio:",
     "writeForbidden": "L'account Google della connessione non può modificare il foglio di calcolo, oppure la persona con cui gira la sincronizzazione non può scrivere tramite la connessione. Le modifiche fatte qui aspettano finché sarà possibile.",
+    "waiting": "{count, plural, one {# riga attende} other {# righe attendono}} il foglio",
+    "waitingHelp": "Le modifiche fatte qui arrivano al foglio in pochi secondi.",
+    "writeNow": "Scrivi ora",
+    "writingNow": "Scrittura…",
+    "writeStuck": "Non scritto nel foglio",
+    "writeStuckHelp": "Scrittura nel foglio non riuscita: le modifiche restano in attesa. Apri la sincronizzazione per vedere perché.",
     "stopConfirm": "Interrompere la sincronizzazione di questo database? Le righe restano."
   }
 }

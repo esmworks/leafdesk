@@ -2210,6 +2210,12 @@
     "pending": "시트에 기록을 기다리는 행: {count, number}",
     "writeFailed": "시트에 기록하지 못했습니다:",
     "writeForbidden": "연결의 Google 계정이 스프레드시트를 편집할 수 없거나, 동기화를 실행하는 사람이 연결을 통해 쓸 수 없습니다. 여기서 한 변경은 쓸 수 있을 때까지 기다립니다.",
+    "waiting": "{count, plural, other {#개 행}}이 시트에 쓰기를 기다리는 중",
+    "waitingHelp": "여기서 한 변경은 몇 초 안에 시트에 기록됩니다.",
+    "writeNow": "지금 쓰기",
+    "writingNow": "쓰는 중…",
+    "writeStuck": "시트에 쓰지 못함",
+    "writeStuckHelp": "시트에 쓰지 못했습니다. 변경 사항은 대기 중입니다. 이유를 보려면 동기화를 여세요.",
     "stopConfirm": "이 데이터베이스의 동기화를 중지할까요? 행은 그대로 남습니다."
   }
 }

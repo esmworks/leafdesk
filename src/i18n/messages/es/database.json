@@ -2210,6 +2210,12 @@
     "pending": "Filas pendientes de escribir en la hoja: {count, number}",
     "writeFailed": "No se pudo escribir en la hoja:",
     "writeForbidden": "La cuenta de Google de la conexión no puede editar la hoja de cálculo, o la persona con la que se ejecuta la sincronización no puede escribir a través de la conexión. Los cambios hechos aquí esperan hasta que pueda.",
+    "waiting": "{count, plural, one {# fila espera} other {# filas esperan}} a la hoja",
+    "waitingHelp": "Los cambios hechos aquí pasan a la hoja en segundos.",
+    "writeNow": "Escribir ahora",
+    "writingNow": "Escribiendo…",
+    "writeStuck": "No escrito en la hoja",
+    "writeStuckHelp": "No se pudo escribir en la hoja: los cambios esperan. Abre la sincronización para ver por qué.",
     "stopConfirm": "¿Dejar de sincronizar esta base de datos? Sus filas se quedan como están."
   }
 }

@@ -142,6 +142,7 @@ import { agentMarks, isAgentUser } from "@/server/agents/users";
 import { recordAudit } from "@/server/audit";
 import { heldPageIds, refuseHeldPages } from "@/server/legal-hold";
 import { queueSheetWrites } from "@/server/sheets-sync/outbox";
+import { sheetsWriteStatus } from "@/server/sheets-sync/status";
 import { requireNoDuplicates, sharedValue, withUniqueValues } from "@/server/unique-values";
 import {
   assignmentsTheySee,
@@ -3602,7 +3603,7 @@ export async function getDatabaseSnapshot(
       ),
     )
     .orderBy(asc(page.position), asc(page.createdAt), asc(page.id));
-  const [relations, people, covers, templates, [synced]] = await Promise.all([
+  const [relations, people, covers, templates, [synced], writing] = await Promise.all([
     getRelationTargets(userId, properties),
     getPeople(userId, properties),
     withCovers ? rowCovers(stored) : null,
@@ -3617,6 +3618,7 @@ export async function getDatabaseSnapshot(
       })
       .from(databaseSync)
       .where(eq(databaseSync.databaseId, databaseId)),
+    sheetsWriteStatus(userId, databaseId),
   ]);
   const rows: DatabaseRowWithPosition[] = (await withValues(userId, databaseId, stored, properties, { relations, people }, access)).map(
     ({ hasImage: _, ...row }) => (covers ? { ...row, cover: covers.get(row.id) ?? null } : row),
@@ -3641,7 +3643,7 @@ export async function getDatabaseSnapshot(
     templates,
     /** Where the rows are kept in step from (Jira, GitHub; server/jira-sync/run), when they are. */
     sync: synced
-      ? ({ ...synced, lastRunAt: synced.lastRunAt?.toISOString() ?? null } satisfies DatabaseSyncSummary)
+      ? ({ ...synced, lastRunAt: synced.lastRunAt?.toISOString() ?? null, writing } satisfies DatabaseSyncSummary)
       : null,
     relations,
     people,

@@ -2210,6 +2210,12 @@
     "pending": "Số hàng đang chờ ghi vào trang tính: {count, number}",
     "writeFailed": "Không thể ghi vào trang tính:",
     "writeForbidden": "Tài khoản Google của kết nối không được sửa bảng tính, hoặc người mà đồng bộ chạy dưới tên không được ghi qua kết nối. Thay đổi làm ở đây sẽ chờ đến khi ghi được.",
+    "waiting": "{count, plural, other {# hàng}} đang chờ ghi vào trang tính",
+    "waitingHelp": "Thay đổi tại đây được ghi vào trang tính trong vài giây.",
+    "writeNow": "Ghi ngay",
+    "writingNow": "Đang ghi…",
+    "writeStuck": "Chưa ghi vào trang tính",
+    "writeStuckHelp": "Ghi vào trang tính thất bại: các thay đổi đang chờ. Mở đồng bộ để xem lý do.",
     "stopConfirm": "Dừng đồng bộ cơ sở dữ liệu này? Các hàng giữ nguyên."
   }
 }

@@ -2210,6 +2210,12 @@
     "pending": "等待写入工作表的行：{count, number}",
     "writeFailed": "无法写入工作表：",
     "writeForbidden": "连接的 Google 帐号无法编辑该电子表格，或同步所代表的用户无法通过该连接写入。这里的变更会等待，直到可以写入。",
+    "waiting": "{count, plural, other {# 行}}等待写入表格",
+    "waitingHelp": "在这里所做的更改会在几秒内写入表格。",
+    "writeNow": "立即写入",
+    "writingNow": "正在写入…",
+    "writeStuck": "未写入表格",
+    "writeStuckHelp": "写入表格失败：更改仍在等待。打开同步查看原因。",
     "stopConfirm": "停止同步此数据库？行保持不变。"
   }
 }

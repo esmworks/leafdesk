@@ -6,15 +6,16 @@ import { TITLE_FIELD, type SheetsMapping, type SheetsQuery } from "@/lib/sheets-
 
 /**
  * Changes to the rows of a Google Sheets sync that writes back (lib/sheets-sync `direction`
- * "both"), kept in `sheets_write` until the sync's next run writes them (./write): row writes from
+ * "both"), kept in `sheets_write` until the sync's next run writes them (./run): row writes from
  * databases.afterRowWrites, titles from collab/service when a row's title is saved. Each change
- * brings the sync's next run to within WRITE_DELAY_MS, which the one-minute sweep then takes. The
+ * brings the sync's next run to within WRITE_DELAY_MS and asks the server's syncs to run then
+ * (jira-sync/run startDatabaseSyncs), rather than at the one-minute sweep. The
  * run's own writes (its reading the sheet into the rows) are no changes: it runs inside fromSheet.
  * Imports nothing of server/databases, which calls it.
  */
 
-/** How soon after a change the sync runs to write it. */
-const WRITE_DELAY_MS = 20_000;
+/** How soon after a change the sync runs to write it: changes made together go in one run. */
+const WRITE_DELAY_MS = 8_000;
 
 const sheetRun = new AsyncLocalStorage<true>();
 
@@ -53,6 +54,9 @@ export function forgetTwoWaySyncs() {
   delete store.__leafdeskSheetsTwoWay;
 }
 
+/** Whether the database's sync may write back (as of at most TWO_WAY_TTL_MS ago). */
+export const mayWriteBack = async (databaseId: string) => (await twoWayDatabases()).has(databaseId);
+
 /** The database's sync, if it writes back: its id and the properties it writes. */
 async function writingSync(databaseId: string) {
   if (!(await twoWayDatabases()).has(databaseId)) return null;
@@ -86,12 +90,16 @@ async function queue(syncId: string, entries: { rowId: string; created: boolean;
   await soon(syncId);
 }
 
+// Set by jira-sync/run startDatabaseSyncs where the server runs syncs (server.ts), shared with Next's bundle.
+const runner = globalThis as unknown as { __leafdeskSyncsSoon?: (ms: number) => void };
+
 /** Brings the sync's next run to within WRITE_DELAY_MS. It writes back, so runs on a schedule (manage.ts): its next run is never null. */
 async function soon(syncId: string) {
   await db
     .update(databaseSync)
     .set({ nextRunAt: sql`least(${databaseSync.nextRunAt}, now() + ${`${WRITE_DELAY_MS} milliseconds`}::interval)` })
     .where(eq(databaseSync.id, syncId));
+  runner.__leafdeskSyncsSoon?.(WRITE_DELAY_MS);
 }
 
 /** Row writes (afterRowWrites): the synced properties that changed, or every one of a new row. */

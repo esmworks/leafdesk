@@ -1,4 +1,5 @@
 import type { StatusGroup } from "./property-types";
+import type { SheetsWriteStatus } from "./sheets-sync";
 
 /**
  * Keeping a database in step with a Jira Cloud project or JQL query, one way (server/jira-sync for
@@ -133,6 +134,8 @@ export type DatabaseSyncSummary = {
   lastRunAt: string | null;
   lastError: JiraSyncError | null;
   enabled: boolean;
+  /** A Google Sheets sync that writes back: what waits to be written (server/sheets-sync/status). */
+  writing: SheetsWriteStatus | null;
 };
 
 /** A Jira Cloud project, as the project picker lists it. */

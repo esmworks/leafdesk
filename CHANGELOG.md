@@ -32,9 +32,10 @@
   dates, dates with times, checkboxes, else text as the sheet shows it), read typed so the
   spreadsheet's language doesn't change a number. Rows that leave the sheet stay. Changes come from
   the sheet, and with *Direction: Both ways* go back to it too: a change made in Leafdesk waits
-  (migration 0155, table `sheets_write`) and is written to its cell at the next run, within about a
-  minute, where the cell still holds the value from before it; where both changed, the sheet's value
-  stays. The key column and columns of formulas are never written, new rows are added below the
+  (migration 0155, table `sheets_write`) and is written to its cell within seconds, where the cell
+  still holds the value from before it; where both changed, the sheet's value stays. The database's
+  toolbar shows the rows waiting, with *Write now* for those who may run the sync, or that writing
+  failed. The key column and columns of formulas are never written, new rows are added below the
   last row, and deleting a row deletes nothing in the sheet. Owners can sync through the
   connection, members once an owner allows the AI chat its `get_spreadsheet` tool (and
   `update_values` and `insert_dimension` to write back), checked again on every run; each read and

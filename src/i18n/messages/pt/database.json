@@ -2210,6 +2210,12 @@
     "pending": "Linhas aguardando para serem escritas na aba: {count, number}",
     "writeFailed": "Não foi possível escrever na aba:",
     "writeForbidden": "A conta do Google da conexão não pode editar a planilha, ou a pessoa com quem a sincronização é executada não pode escrever pela conexão. As alterações feitas aqui aguardam até que seja possível.",
+    "waiting": "{count, plural, one {# linha aguarda} other {# linhas aguardam}} a planilha",
+    "waitingHelp": "As alterações feitas aqui vão para a planilha em segundos.",
+    "writeNow": "Escrever agora",
+    "writingNow": "Escrevendo…",
+    "writeStuck": "Não escrito na planilha",
+    "writeStuckHelp": "Falha ao escrever na planilha: as alterações aguardam. Abra a sincronização para ver o motivo.",
     "stopConfirm": "Parar de sincronizar este banco de dados? As linhas continuam como estão."
   }
 }

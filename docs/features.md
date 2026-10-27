@@ -1201,8 +1201,9 @@
   Both ways needs the connection's `update_values` and `insert_dimension` tools (owners; members once
   an owner ticks *In chat* for both) and a sync on a schedule: a change made to a synced property
   or, where another column than the key names rows, a title waits and brings the next run to
-  within about a minute, which writes it to its cell before it reads, as the person the sync runs
-  as. It is written only where the cell still holds the row's value from before the change; where
+  within seconds, which writes it to its cell before it reads, as the person the sync runs as.
+  Meanwhile the database's toolbar shows how many rows wait, with *Write now* for people with full
+  access who may write through the connection, or *Not written to the sheet* when writing failed. It is written only where the cell still holds the row's value from before the change; where
   the sheet changed too, the sheet's value stays and comes back to the row. The key column and
   columns with formulas are never written (the dialog lists them), dates go as the start of a
   range and times to the minute, and text starting with `=` stays out. A row made in Leafdesk is

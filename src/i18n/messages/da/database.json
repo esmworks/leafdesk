@@ -2210,6 +2210,12 @@
     "pending": "Rækker, der venter på at blive skrevet til arket: {count, number}",
     "writeFailed": "Kunne ikke skrive til arket:",
     "writeForbidden": "Forbindelsens Google-konto må ikke redigere regnearket, eller den person, synkroniseringen kører som, må ikke skrive gennem forbindelsen. Ændringer lavet her venter, til det kan lade sig gøre.",
+    "waiting": "{count, plural, one {# række venter} other {# rækker venter}} på arket",
+    "waitingHelp": "Ændringer her sendes til arket inden for få sekunder.",
+    "writeNow": "Skriv nu",
+    "writingNow": "Skriver…",
+    "writeStuck": "Ikke skrevet til arket",
+    "writeStuckHelp": "Kunne ikke skrive til arket: ændringerne venter. Åbn synkroniseringen for at se hvorfor.",
     "stopConfirm": "Stop med at synkronisere denne database? Dens rækker forbliver."
   }
 }

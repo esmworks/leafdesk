@@ -2210,6 +2210,12 @@
     "pending": "Rijen die nog naar het tabblad geschreven moeten worden: {count, number}",
     "writeFailed": "Kon niet naar het tabblad schrijven:",
     "writeForbidden": "Het Google-account van de koppeling mag de spreadsheet niet bewerken, of de persoon als wie de synchronisatie loopt mag niet via de koppeling schrijven. Wijzigingen die je hier maakt wachten tot het kan.",
+    "waiting": "{count, plural, one {# rij wacht} other {# rijen wachten}} op het blad",
+    "waitingHelp": "Wijzigingen hier gaan binnen enkele seconden naar het blad.",
+    "writeNow": "Nu schrijven",
+    "writingNow": "Bezig met schrijven…",
+    "writeStuck": "Niet naar het blad geschreven",
+    "writeStuckHelp": "Schrijven naar het blad mislukt: de wijzigingen wachten. Open de synchronisatie om te zien waarom.",
     "stopConfirm": "Stoppen met synchroniseren van deze database? De rijen blijven staan."
   }
 }

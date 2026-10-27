@@ -2210,6 +2210,12 @@
     "pending": "Lignes en attente d'écriture dans la feuille : {count, number}",
     "writeFailed": "Impossible d'écrire dans la feuille :",
     "writeForbidden": "Le compte Google de la connexion ne peut pas modifier la feuille de calcul, ou la personne pour qui la synchronisation s'exécute ne peut pas écrire via la connexion. Les modifications faites ici attendent que ce soit possible.",
+    "waiting": "{count, plural, one {# ligne attend} other {# lignes attendent}} la feuille",
+    "waitingHelp": "Les modifications faites ici partent vers la feuille en quelques secondes.",
+    "writeNow": "Écrire maintenant",
+    "writingNow": "Écriture…",
+    "writeStuck": "Non écrit dans la feuille",
+    "writeStuckHelp": "L’écriture dans la feuille a échoué : les modifications attendent. Ouvrez la synchronisation pour voir pourquoi.",
     "stopConfirm": "Arrêter de synchroniser cette base ? Ses lignes restent telles quelles."
   }
 }

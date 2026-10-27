@@ -2210,6 +2210,12 @@
     "pending": "Rader som venter på å bli skrevet til arket: {count, number}",
     "writeFailed": "Kunne ikke skrive til arket:",
     "writeForbidden": "Google-kontoen til tilkoblingen kan ikke redigere regnearket, eller personen synkroniseringen kjører som, kan ikke skrive gjennom tilkoblingen. Endringer gjort her venter til det går.",
+    "waiting": "{count, plural, one {# rad venter} other {# rader venter}} på arket",
+    "waitingHelp": "Endringer her går til arket i løpet av sekunder.",
+    "writeNow": "Skriv nå",
+    "writingNow": "Skriver…",
+    "writeStuck": "Ikke skrevet til arket",
+    "writeStuckHelp": "Kunne ikke skrive til arket: endringene venter. Åpne synkroniseringen for å se hvorfor.",
     "stopConfirm": "Slutte å synkronisere denne databasen? Radene blir stående."
   }
 }

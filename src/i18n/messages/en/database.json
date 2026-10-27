@@ -2210,6 +2210,12 @@
     "pending": "Rows waiting to be written to the sheet: {count, number}",
     "writeFailed": "Couldn't write to the sheet:",
     "writeForbidden": "The connection's Google account may not edit the spreadsheet, or the person the sync runs as may not write through the connection. Changes made here wait until it can.",
+    "waiting": "{count, plural, one {# row waits} other {# rows wait}} for the sheet",
+    "waitingHelp": "Changes made here go to the sheet within seconds.",
+    "writeNow": "Write now",
+    "writingNow": "Writing…",
+    "writeStuck": "Not written to the sheet",
+    "writeStuckHelp": "Writing to the sheet failed: the changes wait. Open the sync to see why.",
     "stopConfirm": "Stop syncing this database? Its rows stay as they are."
   }
 }

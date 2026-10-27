@@ -2210,6 +2210,12 @@
     "pending": "Baris yang menunggu ditulis ke lembar: {count, number}",
     "writeFailed": "Tidak dapat menulis ke lembar:",
     "writeForbidden": "Akun Google koneksi tidak boleh mengedit spreadsheet, atau orang yang menjalankan sinkronisasi tidak boleh menulis melalui koneksi. Perubahan yang dibuat di sini menunggu sampai bisa.",
+    "waiting": "{count, plural, other {# baris}} menunggu ditulis ke sheet",
+    "waitingHelp": "Perubahan di sini masuk ke sheet dalam hitungan detik.",
+    "writeNow": "Tulis sekarang",
+    "writingNow": "Menulis…",
+    "writeStuck": "Tidak tertulis ke sheet",
+    "writeStuckHelp": "Gagal menulis ke sheet: perubahan menunggu. Buka sinkronisasi untuk melihat alasannya.",
     "stopConfirm": "Hentikan sinkronisasi database ini? Barisnya tetap."
   }
 }

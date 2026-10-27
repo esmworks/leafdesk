@@ -2210,6 +2210,12 @@
     "pending": "Wiersze czekające na zapis w karcie: {count, number}",
     "writeFailed": "Nie udało się zapisać w karcie:",
     "writeForbidden": "Konto Google połączenia nie może edytować arkusza albo osoba, jako która działa synchronizacja, nie może zapisywać przez połączenie. Zmiany wprowadzone tutaj czekają, aż będzie to możliwe.",
+    "waiting": "{count, plural, one {# wiersz czeka} few {# wiersze czekają} many {# wierszy czeka} other {# wiersza czeka}} na zapis w arkuszu",
+    "waitingHelp": "Zmiany wprowadzone tutaj trafiają do arkusza w ciągu kilku sekund.",
+    "writeNow": "Zapisz teraz",
+    "writingNow": "Zapisywanie…",
+    "writeStuck": "Nie zapisano w arkuszu",
+    "writeStuckHelp": "Zapis w arkuszu nie powiódł się: zmiany czekają. Otwórz synchronizację, aby zobaczyć dlaczego.",
     "stopConfirm": "Zatrzymać synchronizację tej bazy? Jej wiersze pozostaną bez zmian."
   }
 }

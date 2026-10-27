@@ -2210,6 +2210,12 @@
     "pending": "Välilehdelle kirjoittamista odottavat rivit: {count, number}",
     "writeFailed": "Välilehdelle ei voitu kirjoittaa:",
     "writeForbidden": "Yhteyden Google-tili ei saa muokata laskentataulukkoa, tai henkilö, jonka nimissä synkronointi toimii, ei saa kirjoittaa yhteyden kautta. Täällä tehdyt muutokset odottavat, kunnes se onnistuu.",
+    "waiting": "{count, plural, one {# rivi odottaa} other {# riviä odottaa}} taulukkoon kirjoittamista",
+    "waitingHelp": "Täällä tehdyt muutokset menevät taulukkoon sekunneissa.",
+    "writeNow": "Kirjoita nyt",
+    "writingNow": "Kirjoitetaan…",
+    "writeStuck": "Ei kirjoitettu taulukkoon",
+    "writeStuckHelp": "Taulukkoon kirjoittaminen epäonnistui: muutokset odottavat. Avaa synkronointi nähdäksesi syyn.",
     "stopConfirm": "Lopetetaanko tämän tietokannan synkronointi? Rivit säilyvät ennallaan."
   }
 }

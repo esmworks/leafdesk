@@ -45,6 +45,7 @@ const { archivePage, createPage } = await import("@/server/pages");
 const { dropClient } = await import("@/server/connections/client");
 const { JiraError } = await import("@/server/jira-sync/client");
 const { createSheetsSync, getSheetsSync, sheetsSources, stopSheetsSync, syncSheetsNow, updateSheetsSync } = await import("@/server/sheets-sync/manage");
+const { sheetsWriteStatus } = await import("@/server/sheets-sync/status");
 
 const RUN = `sheets-e2e-${Date.now().toString(36)}`;
 const { hocuspocus, service } = createCollab();
@@ -374,13 +375,24 @@ try {
 
   const price = prop("LİSTE FİYATI")!.id;
   const runNow = () => syncSheetsNow(ids.owner, databaseId);
+  // Stands in for the server's syncs (jira-sync/run startDatabaseSyncs), which the change asks to run soon.
+  const soon: number[] = [];
+  (globalThis as { __leafdeskSyncsSoon?: (ms: number) => void }).__leafdeskSyncsSoon = (ms) => void soon.push(ms);
   await updateRowProperties(ids.owner, (await rowOf("GNA 2.000-1 N")).id, { [price]: 210 });
   const [queued] = await outbox();
   const [timing] = await db.select({ nextRunAt: databaseSync.nextRunAt }).from(databaseSync).where(eq(databaseSync.id, stored.id));
   check(
-    queued?.before[price] === 206.449155 && !queued.created && timing.nextRunAt!.getTime() < Date.now() + 60_000,
-    "a change waits with the value from before it, and brings the next run forward",
-    { queued, timing },
+    queued?.before[price] === 206.449155 && !queued.created && timing.nextRunAt!.getTime() < Date.now() + 10_000 && soon.length === 1 && soon[0] <= 10_000,
+    "a change waits with the value from before it, and asks for a run within seconds",
+    { queued, timing, soon },
+  );
+  delete (globalThis as { __leafdeskSyncsSoon?: unknown }).__leafdeskSyncsSoon;
+  const ownerSees = await sheetsWriteStatus(ids.owner, databaseId);
+  const memberSees = await sheetsWriteStatus(ids.member, databaseId);
+  check(
+    ownerSees?.pending === 1 && !ownerSees.failed && ownerSees.canWriteNow && memberSees?.pending === 1 && !memberSees.canWriteNow,
+    "the database shows the row waiting, with Write now for those who may run the sync",
+    { ownerSees, memberSees },
   );
   const wroteOne = await runNow();
   check(wroteOne.outcome.error === null && cell("GNA 2.000-1 N", 1)?.effectiveValue?.numberValue === 210, "a run writes it to its cell", written.at(-1));
@@ -475,6 +487,7 @@ try {
     refused,
   );
   check((await value("GNA 3.000-1 N", "LİSTE FİYATI")) === 710 && cell("GNA 3.000-1 N", 1)?.effectiveValue?.numberValue === 700, "…and the row keeps its change while it waits");
+  check((await sheetsWriteStatus(ids.owner, databaseId))?.failed === true, "…and the database shows it wasn't written");
   refuseWrites = false;
   const retried = await runNow();
   check(retried.writeError === null && retried.pendingWrites === 0 && cell("GNA 3.000-1 N", 1)?.effectiveValue?.numberValue === 710, "it is written once the sheet takes it");

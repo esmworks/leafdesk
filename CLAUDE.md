@@ -192,7 +192,8 @@ BlockNote on Yjs; Tailwind v4; next-intl. Node 24, pnpm 11. A separate Electron 
   writing back keeps row changes in `sheets_write` (`sheets-sync/outbox.ts`, fed by
   `afterRowWrites` and title saves in `collab/service.ts`; the run's own writes go inside
   `fromSheet`) and the run writes them before reading (`planWrites`), leaving fields still waiting
-  out of what it reads),
+  out of what it reads; a change asks `startDatabaseSyncs` through `globalThis.__leafdeskSyncsSoon`
+  to run within seconds, and `sheets-sync/status.ts` is what the database's toolbar shows),
   GitHub pull requests moving tasks `github-sync/` (deliveries handled in the request at `api/github/[syncId]`; pure
   ID matching and the status rule in `src/lib/github-sync.ts`), the Send to Slack step's address
   check and message in `src/lib/slack.ts`, mail to and from rows `row-mail/`
@@ -391,7 +392,7 @@ plus the `scripts/*-e2e.ts` of the area you touched (`pnpm tsx scripts/<name>-e2
   agents, agent-api, agent-approvers, agent-chat, agent-handoff, agent-memory, agent-mention,
   agent-schedule, agent-sharing, agent-skills, automation, button, timed-automation, schedule,
   row-activity, row-follow, row-mail, web-links, discussions, follow-ups (starts its own GreenMail container
-  unless given ports), page-watch, page-webhooks, verify, wins-log, jira-sync, github-pulls-sync, sprints. `connector-e2e` starts its own `next dev` against
+  unless given ports), page-watch, page-webhooks, verify, wins-log, jira-sync, github-pulls-sync, sheets-sync, sprints. `connector-e2e` starts its own `next dev` against
   `<database>_peer`, which must exist; no other dev server may run in the same checkout.
 - Each script's header says what it needs. `.github/workflows/ci.yml` shows the env each step gets;
   not every e2e script is in CI.

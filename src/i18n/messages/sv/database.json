@@ -2210,6 +2210,12 @@
     "pending": "Rader som väntar på att skrivas till bladet: {count, number}",
     "writeFailed": "Kunde inte skriva till bladet:",
     "writeForbidden": "Anslutningens Google-konto får inte redigera kalkylarket, eller personen som synkningen körs som får inte skriva via anslutningen. Ändringar gjorda här väntar tills det går.",
+    "waiting": "{count, plural, one {# rad väntar} other {# rader väntar}} på bladet",
+    "waitingHelp": "Ändringar här går till bladet inom några sekunder.",
+    "writeNow": "Skriv nu",
+    "writingNow": "Skriver…",
+    "writeStuck": "Inte skrivet till bladet",
+    "writeStuckHelp": "Det gick inte att skriva till bladet: ändringarna väntar. Öppna synkroniseringen för att se varför.",
     "stopConfirm": "Sluta synkronisera den här databasen? Raderna står kvar."
   }
 }
