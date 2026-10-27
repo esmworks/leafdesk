@@ -106,7 +106,7 @@ export const CHAT_TOOLS: AiTool[] = [
       "Relations: contains or not_equals with a related row's title. Text: contains, does_not_contain (ignoring case), equals, not_equals.",
       "Numbers and dates: equals, gt, gte, lt, lte (gte / lte include the value: on or after, on or before); dates as YYYY-MM-DD (a range matches when it covers, starts before or ends after the day).",
       'Several values in one rule: is_any_of / is_none_of with a list, on select and status (option names), multi_select, relations and people ("me" included).',
-      'is_within on dates: today, this_week, last_week, next_week, this_month, last_month, next_month, this_year, last_year, next_year (weeks from Monday), or past_n_days / next_n_days with "days".',
+      'is_within on dates: today, this_week, last_week, next_week, this_month, last_month, next_month, this_quarter, last_quarter, next_quarter, this_year, last_year, next_year (weeks from Monday), or past_n_days / next_n_days with "days".',
       `Rules all match unless filter_combinator is "or"; a group {"type": "group", "combinator": "and" | "or", "rules": [...]} mixes them (${MAX_FILTER_DEPTH} levels at most).`,
     ].join(" "),
     parameters: {

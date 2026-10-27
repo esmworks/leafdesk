@@ -8,6 +8,7 @@ import { BREADCRUMB_BLOCK, CALLOUT_BLOCK, MERMAID_BLOCK, SUBPAGES_BLOCK, TOC_BLO
 import { plainText } from "@/lib/content-markdown";
 import { AGENT_CHAT_BLOCK } from "@/lib/agent-chat";
 import { DASHBOARD_BLOCK, dashboardLayout, parseDashboard, type DashboardLayout, type DashboardWidget } from "@/lib/dashboard";
+import { ALL_TIME, parseDashboardPeriod, type DashboardPeriod } from "@/lib/dashboard-period";
 import { isEmbedBlockType, parseLinkedView, type EmbedBlockType, type LinkedView } from "@/lib/embed-blocks";
 import { pdfFileId, spreadsheetFileId } from "@/lib/files";
 import { mediaAlignment, mediaWidth, type MediaAlignment } from "@/lib/media-placement";
@@ -204,7 +205,7 @@ export type BodySegment =
   | { kind: "html"; html: string }
   | { kind: "embed"; type: EmbedBlockType; databaseId: string; view: LinkedView | null }
   /** A dashboard's widgets, each a database seen through its own view, in a grid or as tabs. */
-  | { kind: "dashboard"; widgets: DashboardWidget[]; layout: DashboardLayout }
+  | { kind: "dashboard"; widgets: DashboardWidget[]; layout: DashboardLayout; period: DashboardPeriod }
   | { kind: "toc"; headings: BodyHeading[] }
   | { kind: "breadcrumb" }
   | { kind: "subpages" }
@@ -675,11 +676,13 @@ export async function bodySegmentsFromBlocks(
         return;
       }
       if (block.type === DASHBOARD_BLOCK) {
-        const props = block.props as { widgets?: unknown; layout?: unknown };
+        const props = block.props as { widgets?: unknown; layout?: unknown; period?: unknown };
         const widgets = parseDashboard(props.widgets);
         if (!widgets.length) return;
         await flush();
-        segments.push({ kind: "dashboard", widgets, layout: dashboardLayout(props.layout) });
+        // Tabs show each view whole; the period is the grid's.
+        const layout = dashboardLayout(props.layout);
+        segments.push({ kind: "dashboard", widgets, layout, period: layout === "grid" ? parseDashboardPeriod(props.period) : ALL_TIME });
         return;
       }
       if (block.type === AGENT_CHAT_BLOCK) {

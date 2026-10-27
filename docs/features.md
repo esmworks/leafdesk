@@ -146,14 +146,28 @@
   and worked out for each reader from the rows and values they may see; a number, bar or slice
   opens the rows behind it. A widget can take one of the option colors, as board columns do, and
   editors move widgets by dragging their title bar. A page with a dashboard uses the full width.
-  Published pages show numbers and lists, and charts as a table of their figures. Over MCP,
-  `add_dashboard` and `update_dashboard_widget` build one. A database also has dashboard views:
+  A period above the grid (this week, month, quarter or year, last week, month, quarter or year, a
+  range of days, or all time) cuts every widget's rows at once, counted in each reader's time zone;
+  weeks start on Monday and quarters in January, April, July and October. Anyone may pick another
+  period for themselves without saving it; editors can save it for everyone. In a widget's settings,
+  *Period by* names the date it cuts on: by default the database's first date property, else its
+  first created time; a widget with no such date (or set to *Not by period*) shows every row and
+  says so in its footer. The period adds to a widget's own filters, so an *is within* filter and the
+  period both apply. A number with a period shows its change from the period before of the same
+  length (this month against last month, a range of days against as many days before it), green
+  when it goes the good way: *Higher is better*, or *Lower is better* for figures such as costs,
+  or off; a percentage changes by points, and an earlier period without a figure (or with zero)
+  shows no change. Published pages and print show the saved period's figures and name the period,
+  without the change. Over MCP,
+  `add_dashboard` and `update_dashboard_widget` build one (`period`, and per widget `period_by` and
+  `comparison`). A database also has dashboard views:
   the same grid as a tab of the database, its widgets all views of that database, starting with
   the row count, the sum of the first number property, a chart by the first select or status
-  property and the rows edited last. Dashboard views aren't published, printed or shown by linked
-  views. The `/tabs` block is a dashboard laid out as tabs: one view at a time, each named on its
+  property and the rows edited last, with a period of their own. Dashboard views aren't published,
+  printed or shown by linked views. The `/tabs` block is a dashboard laid out as tabs: one view at a time, each named on its
   tab, for several databases (or views of one) in little room; readers get only the tabs whose
-  database they can open, and published pages switch tabs in place.
+  database they can open, and published pages switch tabs in place. Tabs show each view whole,
+  without a period.
 - **Buttons**: the `/button` block, with a label, an emoji or built-in icon and a color from the option palette
   (light, dark and high contrast alike, on published pages and in print too), does a few things in order when
   someone clicks it: insert blocks written in Markdown below it or at the top or end of the page,

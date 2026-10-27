@@ -501,3 +501,12 @@ describe("remapViewConfig", () => {
     expect(config.form?.questions).toEqual([{ propertyId: "tags", required: true }]);
   });
 });
+
+describe("a widget's period property", () => {
+  it("follows a copy, and leaves the period aside when the property goes", () => {
+    expect(remapViewConfig({ periodBy: "a" }, new Map([["a", "b"]]), () => null).periodBy).toBe("b");
+    expect(remapViewConfig({ periodBy: "none" }, new Map([["none", "x"]]), () => null).periodBy).toBe("none");
+    expect(dropPropertyReferences({ periodBy: "a" }, (id) => id === "a").periodBy).toBe("none");
+    expect(dropPropertyReferences({ periodBy: "a" }, () => false).periodBy).toBe("a");
+  });
+});

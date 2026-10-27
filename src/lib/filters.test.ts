@@ -143,6 +143,15 @@ describe("relative date filters", () => {
     expect(relativeDateRange("this_year", undefined, WEDNESDAY)).toEqual({ start: "2026-01-01", end: "2026-12-31" });
     expect(relativeDateRange("last_year", undefined, WEDNESDAY)).toEqual({ start: "2025-01-01", end: "2025-12-31" });
     expect(relativeDateRange("next_year", undefined, WEDNESDAY)).toEqual({ start: "2027-01-01", end: "2027-12-31" });
+    expect(relativeDateRange("this_quarter", undefined, WEDNESDAY)).toEqual({ start: "2026-07-01", end: "2026-09-30" });
+    expect(relativeDateRange("last_quarter", undefined, WEDNESDAY)).toEqual({ start: "2026-04-01", end: "2026-06-30" });
+    expect(relativeDateRange("next_quarter", undefined, WEDNESDAY)).toEqual({ start: "2026-10-01", end: "2026-12-31" });
+  });
+
+  it("keeps quarters across year edges", () => {
+    expect(relativeDateRange("last_quarter", undefined, new Date(2027, 1, 10))).toEqual({ start: "2026-10-01", end: "2026-12-31" });
+    expect(relativeDateRange("next_quarter", undefined, new Date(2026, 11, 31))).toEqual({ start: "2027-01-01", end: "2027-03-31" });
+    expect(relativeDateRange("this_quarter", undefined, new Date(2027, 2, 31))).toEqual({ start: "2027-01-01", end: "2027-03-31" });
   });
 
   it("keeps whole weeks, months and years across their edges", () => {

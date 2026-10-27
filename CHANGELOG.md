@@ -12,6 +12,20 @@
   view, a moment after rows change and every few minutes for filters on today; its steps get the
   value and the line as `{{trigger.value}}` and `{{trigger.threshold}}`. Over MCP the trigger is
   `view_threshold`. Migration 0152.
+- **Dashboards show a period, and numbers their change from the period before.** A period above
+  the grid (this week, month, quarter or year, last week, month, quarter or year, a range of days,
+  or all time) cuts every widget's rows at once, on each widget's date property (the first date
+  property by default, else the first created time; a widget without one shows every row and says
+  so). Anyone may switch the period for themselves; editors can save it for everyone. A number
+  widget shows the change from the period before of the same length, as "▲ 12 % vs Sep 2026",
+  green or red as the widget says a rise is good or bad, or not at all; an earlier period without
+  a figure shows none. Published pages and print show the saved period's figures and name it.
+  Dashboard views of a database have the same period. Over MCP, `add_dashboard`,
+  `update_dashboard_widget` and the dashboard views of `create_database_view` /
+  `update_database_view` take `period`, and widgets `period_by` and `comparison`; the MCP tool list
+  budget goes from 165,000 to 165,500 bytes for these settings. View filters gain *this quarter*,
+  *last quarter* and *next quarter*, and the first-load JavaScript budgets go up by 1 kB for
+  them (a page to 776 kB, all routes together to 1,181 kB). No migration.
 - **A new chat suggests questions to start from.** Under the empty full-page chat's box are
   questions about the pages you opened last (summarize a page, what's in a database) and the start
   of a search and of a new page; picking one fills the box without sending it.

@@ -926,6 +926,9 @@ export type RelativeDateRange =
   | "this_month"
   | "last_month"
   | "next_month"
+  | "this_quarter"
+  | "last_quarter"
+  | "next_quarter"
   | "this_year"
   | "last_year"
   | "next_year"
@@ -1173,6 +1176,22 @@ export type ViewConfig = {
   showOutdated?: boolean;
   /** Dashboard views: the widgets, in reading order. */
   widgets?: ViewWidget[];
+  /**
+   * Dashboard views: the period their widgets show, stored as lib/dashboard-period reads it
+   * ("this_month", "2026-01-01/2026-03-31"); every row when missing.
+   */
+  period?: string;
+  /**
+   * Dashboard widgets: the date, created time or edited time property the dashboard's period cuts
+   * rows on; when missing the first date property, else the first created time; "none" to show
+   * every row whatever the period.
+   */
+  periodBy?: string;
+  /**
+   * Dashboard number widgets with a period: the change from the period before, which is good when
+   * it goes up ("higher", when missing) or down ("lower"), or not shown ("off").
+   */
+  comparison?: "higher" | "lower" | "off";
 };
 
 export const databaseView = pgTable(
