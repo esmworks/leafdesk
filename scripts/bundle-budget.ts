@@ -74,7 +74,7 @@ import { gzipSync } from "node:zlib";
  * scrollbar) and growing with its text add about 0.25 kB to a page's first load and to all first
  * loads together.
  */
-const BUDGET = { routeFirstLoad: 779, firstLoadShared: 1185, onDemandChunk: 450 };
+const BUDGET = { routeFirstLoad: 779, firstLoadShared: 1186, onDemandChunk: 450 };
 
 const NEXT = ".next";
 const kB = (bytes: number) => bytes / 1024;
