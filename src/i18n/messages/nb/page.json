@@ -1307,7 +1307,8 @@
     },
     "empty": {
       "full": "Spør {name} om noe, eller gi den en oppgave. Den arbeider med sin egen tilgang, sine egne ferdigheter og sitt eget minne, og hvert svar er én av kjøringene dens.",
-      "readOnly": "Still {name} et spørsmål. Svarene kommer bare fra sider dere begge kan se, og den kan ikke endre noe."
+      "readOnly": "Still {name} et spørsmål. Svarene kommer bare fra sider dere begge kan se, og den kan ikke endre noe.",
+      "thread": "Spør {name} om noe, eller gi den en oppgave. Det den gjør etter tidsplanene du setter og oppgavene du gir den, vises også her."
     },
     "readOnly": "Skrivebeskyttet",
     "readOnlyHint": "Svarene kommer bare fra sider både du og agenten kan se.",
@@ -1360,7 +1361,16 @@
       "hint": "Lim inn lenken til denne agenten på en side for å legge en chat med den der. Medlemmer kan chatte i den med skrivebeskyttet tilgang.",
       "copyLink": "Kopier lenke"
     },
-    "awaitingOwner": "Venter på at en eier av arbeidsområdet godkjenner et kall…"
+    "awaitingOwner": "Venter på at en eier av arbeidsområdet godkjenner et kall…",
+    "from": {
+      "schedule": "Etter tidsplan",
+      "scheduleOn": "Etter tidsplan · {place}",
+      "request": "En oppgave du ba om",
+      "requestOn": "En oppgave du ba om · {place}",
+      "mention": "Du nevnte den i en kommentar",
+      "mentionOn": "Du nevnte den på {place}"
+    },
+    "doneQuietly": "Ferdig."
   },
   "button": {
     "untitled": "Knapp",

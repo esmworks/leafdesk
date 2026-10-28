@@ -160,7 +160,14 @@ isn't available to them. Each person's
 conversations are their own, per block (a copy of the block, on a duplicated page or one made from a
 template, shows the same ones) or in the *Chat* tab: nobody else sees them, owners included, and the agent's run history
 shows another person's chat messages without what was said. The 20 most recent conversations are
-kept per person and place; **New conversation** starts another and each can be deleted. A message
+kept per person and block; in a block **New conversation** starts another and each can be deleted.
+On the agent's page and in its *Chat* tab the chat is one that goes on (its 200 most recent
+messages show), and what the agent does on its own for you comes into it at the time it starts:
+runs of schedules you set last, tasks you asked for (through the API or the AI assistant) and
+comments of yours that mention it, each marked with what started it, its steps folded, the call it
+waits on for an owner to approve in place. The chat asks for them again every 30 seconds, every 3
+while one goes on. Those finished since the conversation's earliest message that goes to the model
+(at most 5) go with each new message, so you can ask about what it did. A message
 has at most 4000 characters; the agent answers one at a time per conversation, within the
 workspace's AI allowance. A paused or archived agent, AI turned off, or an agent past its monthly
 limit leaves the chat saying so. Exported Markdown and HTML show the block as a line naming the

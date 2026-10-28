@@ -1307,7 +1307,8 @@
     },
     "empty": {
       "full": "Posez une question à {name} ou confiez-lui une tâche. Il travaille avec ses propres accès, compétences et mémoire, et chaque réponse est l’une de ses exécutions.",
-      "readOnly": "Posez une question à {name}. Les réponses ne viennent que des pages que vous pouvez voir tous les deux, et il ne peut rien modifier."
+      "readOnly": "Posez une question à {name}. Les réponses ne viennent que des pages que vous pouvez voir tous les deux, et il ne peut rien modifier.",
+      "thread": "Pose une question à {name} ou confie-lui une tâche. Ce qu’il fait selon les programmations que tu définis et les tâches que tu lui confies s’affiche aussi ici."
     },
     "readOnly": "Lecture seule",
     "readOnlyHint": "Les réponses ne viennent que des pages que vous et l’agent pouvez voir.",
@@ -1360,7 +1361,16 @@
       "hint": "Collez le lien de cet agent dans une page pour y placer un chat avec lui. Les membres peuvent y discuter en lecture seule.",
       "copyLink": "Copier le lien"
     },
-    "awaitingOwner": "En attente de l’approbation d’un appel par un propriétaire de l’espace de travail…"
+    "awaitingOwner": "En attente de l’approbation d’un appel par un propriétaire de l’espace de travail…",
+    "from": {
+      "schedule": "Programmé",
+      "scheduleOn": "Programmé · {place}",
+      "request": "Une tâche que tu as demandée",
+      "requestOn": "Une tâche que tu as demandée · {place}",
+      "mention": "Tu l’as mentionné dans un commentaire",
+      "mentionOn": "Tu l’as mentionné sur {place}"
+    },
+    "doneQuietly": "Terminé."
   },
   "button": {
     "untitled": "Bouton",

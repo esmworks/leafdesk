@@ -19,11 +19,15 @@ import {
   agentChatLine,
   MAX_AGENT_CHAT_MESSAGE,
   MAX_AGENT_CONVERSATIONS,
+  MAX_THREAD_MESSAGES,
+  THREAD_RUNS,
   type AgentChatError,
   type AgentChatInfo,
   type AgentChatMessageView,
+  type AgentChatRunView,
   type AgentChatState,
   type AgentChatStepView,
+  type AgentChatThread,
   type AgentChatTurn,
   type AgentConversationSummary,
   type ChatPlace,
@@ -36,8 +40,10 @@ import { isAiError, takeRateLimit } from "@/server/ai";
 import { viewStep } from "@/server/ai-chat";
 import { aiAvailable } from "@/server/ai-writing";
 import { approversOf } from "./approvers";
+import { AgentError } from "./errors";
 import { kickAgents } from "./kick";
-import { agentLevel, agentLevels } from "./sharing";
+import { startedBy, viewRuns } from "./manage";
+import { agentLevel, agentLevels, agentWithLevel } from "./sharing";
 import { overMonthlyLimit } from "./usage";
 
 /** Why a message wasn't taken, or a conversation not shown. */
@@ -49,6 +55,9 @@ export class AgentChatRefusal extends Error {
     super(message);
   }
 }
+
+/** Messages a conversation keeps, its newest. */
+const MAX_KEPT_MESSAGES = 400;
 
 const refuse = (code: AgentChatError, message: string): never => {
   throw new AgentChatRefusal(code, message);
@@ -196,7 +205,11 @@ export async function sendAgentChat(
     const record = { role: "user" as const, content: message, runId: run.id, at: now.toISOString() };
     const [saved] = await tx
       .update(agentConversation)
-      .set({ messages: sql`${agentConversation.messages} || ${JSON.stringify([record])}::jsonb`, updatedAt: now })
+      // The agent's own chat is one conversation that goes on: its oldest messages go at MAX_KEPT_MESSAGES.
+      .set({
+        messages: sql`(select coalesce(jsonb_agg(e order by i), '[]'::jsonb) from jsonb_array_elements(${agentConversation.messages} || ${JSON.stringify([record])}::jsonb) with ordinality as t(e, i) where i > jsonb_array_length(${agentConversation.messages}) + 1 - ${MAX_KEPT_MESSAGES})`,
+        updatedAt: now,
+      })
       .where(eq(agentConversation.id, conversation.id))
       .returning({ id: agentConversation.id, title: agentConversation.title, updatedAt: agentConversation.updatedAt });
     return { conversation: saved, runId: run.id };
@@ -262,6 +275,83 @@ export async function getAgentConversation(userId: string, workspaceId: string, 
   const last = found.messages.at(-1);
   const connections = await connectionNames(found.messages.flatMap((m) => m.steps ?? []));
   return { id: found.id, title: found.title, messages, running: last?.role === "user" ? last.runId : null, connections };
+}
+
+/**
+ * The agent's own chat with the person (its page and dialog, no chat id): their conversations there
+ * read as one, oldest first (the newest MAX_THREAD_MESSAGES), a new message joining the latest; and
+ * among them, the runs they started otherwise (threadRuns).
+ */
+export async function agentThread(userId: string, workspaceId: string, agentId: string): Promise<AgentChatThread> {
+  await standing(userId, workspaceId, agentId);
+  const conversations = await db
+    .select({ id: agentConversation.id, messages: agentConversation.messages, updatedAt: agentConversation.updatedAt })
+    .from(agentConversation)
+    .where(and(eq(agentConversation.userId, userId), eq(agentConversation.agentId, agentId), placeIs(null)))
+    .orderBy(desc(agentConversation.updatedAt));
+  const latest = conversations[0] ?? null;
+  const records = conversations
+    .flatMap((c) => c.messages)
+    .sort((a, b) => a.at.localeCompare(b.at))
+    .slice(-MAX_THREAD_MESSAGES);
+  const messages: AgentChatMessageView[] = await Promise.all(
+    records.map(async (m) => ({ role: m.role, content: m.content, runId: m.runId, code: m.code ?? null, steps: await stepsFor(userId, m.steps ?? []), at: m.at })),
+  );
+  const last = latest?.messages.at(-1);
+  const { runs, connections } = await threadRuns(userId, workspaceId, agentId);
+  return {
+    conversationId: latest?.id ?? null,
+    messages,
+    running: last?.role === "user" ? last.runId : null,
+    runs,
+    connections: { ...(await connectionNames(records.flatMap((m) => m.steps ?? []))), ...connections },
+  };
+}
+
+/**
+ * The agent's latest runs the person started other than by chatting (schedules they set last,
+ * tasks they asked for, comments of theirs that mentioned it), oldest first, for their chat with it
+ * to show as the agent speaking up: what each did as the agent's history shows it to them
+ * (manage.ts viewRuns), and the call one waits on only for an owner who answers it.
+ */
+export async function threadRuns(userId: string, workspaceId: string, agentId: string): Promise<{ runs: AgentChatRunView[]; connections: Record<string, string> }> {
+  const { owner } = await agentWithLevel(userId, agentId, "interact").catch((error) => {
+    if (error instanceof AgentError) refuse("noAccess", "Agent not found");
+    throw error;
+  });
+  const rows = await db
+    .select()
+    .from(agentRun)
+    .where(and(eq(agentRun.agentId, agentId), eq(agentRun.workspaceId, workspaceId), startedBy(userId), sql`${agentRun.source}->>'kind' <> 'chat'`))
+    .orderBy(desc(agentRun.createdAt))
+    .limit(THREAD_RUNS);
+  const views = await viewRuns(userId, rows, { exact: owner, owner });
+  const connections: Record<string, string> = {};
+  const runs = await Promise.all(
+    rows.map(async (row, i): Promise<AgentChatRunView | null> => {
+      const view = views[i];
+      Object.assign(connections, view.connections);
+      const kind = row.source.kind;
+      if (kind !== "schedule" && kind !== "request" && kind !== "mention") return null;
+      const answers = view.pending && row.status === "awaiting_approval" && (await approversOf(row)).includes(userId);
+      return {
+        id: view.id,
+        kind,
+        status: view.status,
+        code: view.code,
+        label: view.schedule ? view.schedule.databaseTitle || null : view.mention ? view.mention.pageTitle : view.rowTitle,
+        task: view.schedule?.task ?? view.mention?.task ?? view.request?.task ?? "",
+        answer: view.answer,
+        steps: await stepsFor(userId, view.steps),
+        pending:
+          answers && view.pending
+            ? { callId: view.pending.callId, tool: view.pending.tool, connectionName: view.pending.connectionName, input: JSON.stringify(view.pending.arguments, null, 2) }
+            : null,
+        at: view.createdAt,
+      };
+    }),
+  );
+  return { runs: runs.filter((r) => r !== null).reverse(), connections };
 }
 
 /** Deletes one of the person's conversations with the agent in this place. */

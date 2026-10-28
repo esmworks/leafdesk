@@ -1307,7 +1307,8 @@
     },
     "empty": {
       "full": "Fråga {name} något eller ge den en uppgift. Den arbetar med sin egen åtkomst, sina färdigheter och sitt minne, och varje svar är en av dess körningar.",
-      "readOnly": "Ställ en fråga till {name}. Svaren kommer bara från sidor som ni båda kan se, och den kan inte ändra något."
+      "readOnly": "Ställ en fråga till {name}. Svaren kommer bara från sidor som ni båda kan se, och den kan inte ändra något.",
+      "thread": "Fråga {name} något eller ge den en uppgift. Det den gör enligt scheman du ställer in och uppgifter du ger den visas också här."
     },
     "readOnly": "Skrivskyddad",
     "readOnlyHint": "Svaren kommer bara från sidor som både du och agenten kan se.",
@@ -1360,7 +1361,16 @@
       "hint": "Klistra in den här agentens länk på en sida för att lägga en chatt med den där. Medlemmar kan chatta i den skrivskyddat.",
       "copyLink": "Kopiera länk"
     },
-    "awaitingOwner": "Väntar på att en ägare av arbetsytan ska godkänna ett anrop…"
+    "awaitingOwner": "Väntar på att en ägare av arbetsytan ska godkänna ett anrop…",
+    "from": {
+      "schedule": "Enligt schema",
+      "scheduleOn": "Enligt schema · {place}",
+      "request": "En uppgift du bad om",
+      "requestOn": "En uppgift du bad om · {place}",
+      "mention": "Du nämnde den i en kommentar",
+      "mentionOn": "Du nämnde den på {place}"
+    },
+    "doneQuietly": "Klart."
   },
   "button": {
     "untitled": "Knapp",

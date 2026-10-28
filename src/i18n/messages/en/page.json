@@ -1307,7 +1307,8 @@
     },
     "empty": {
       "full": "Ask {name} something, or give it a job. It works with its own access, skills and memory, and each answer is one of its runs.",
-      "readOnly": "Ask {name} a question. Answers come only from pages you can both see, and it can’t change anything."
+      "readOnly": "Ask {name} a question. Answers come only from pages you can both see, and it can’t change anything.",
+      "thread": "Ask {name} something, or give it a job. What it does on the schedules you set and the tasks you give it shows here too."
     },
     "readOnly": "Read-only",
     "readOnlyHint": "Answers come only from pages you and the agent can both see.",
@@ -1360,7 +1361,16 @@
       "hint": "Paste this agent’s link into a page to put a chat with it there. Members can chat in it read-only.",
       "copyLink": "Copy link"
     },
-    "awaitingOwner": "Waiting for a workspace owner to approve a call…"
+    "awaitingOwner": "Waiting for a workspace owner to approve a call…",
+    "from": {
+      "schedule": "On a schedule",
+      "scheduleOn": "On a schedule · {place}",
+      "request": "A task you asked for",
+      "requestOn": "A task you asked for · {place}",
+      "mention": "You mentioned it in a comment",
+      "mentionOn": "You mentioned it on {place}"
+    },
+    "doneQuietly": "Done."
   },
   "button": {
     "untitled": "Button",

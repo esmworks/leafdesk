@@ -1307,7 +1307,8 @@
     },
     "empty": {
       "full": "Hãy hỏi {name} điều gì đó, hoặc giao việc cho nó. Nó làm việc với quyền truy cập, kỹ năng và bộ nhớ của riêng mình, và mỗi câu trả lời là một lần chạy của nó.",
-      "readOnly": "Hãy hỏi {name} một câu hỏi. Câu trả lời chỉ lấy từ các trang mà cả hai cùng thấy, và nó không thể thay đổi gì."
+      "readOnly": "Hãy hỏi {name} một câu hỏi. Câu trả lời chỉ lấy từ các trang mà cả hai cùng thấy, và nó không thể thay đổi gì.",
+      "thread": "Hỏi {name} điều gì đó hoặc giao cho nó một việc. Những gì nó làm theo lịch bạn đặt và việc bạn giao cũng hiện ở đây."
     },
     "readOnly": "Chỉ đọc",
     "readOnlyHint": "Câu trả lời chỉ lấy từ các trang mà bạn và tác tử cùng thấy.",
@@ -1360,7 +1361,16 @@
       "hint": "Dán liên kết của tác tử này vào một trang để đặt cuộc trò chuyện với nó ở đó. Các thành viên có thể trò chuyện ở đó ở chế độ chỉ đọc.",
       "copyLink": "Sao chép liên kết"
     },
-    "awaitingOwner": "Đang chờ chủ sở hữu không gian làm việc phê duyệt một lệnh gọi…"
+    "awaitingOwner": "Đang chờ chủ sở hữu không gian làm việc phê duyệt một lệnh gọi…",
+    "from": {
+      "schedule": "Theo lịch",
+      "scheduleOn": "Theo lịch · {place}",
+      "request": "Việc bạn đã nhờ",
+      "requestOn": "Việc bạn đã nhờ · {place}",
+      "mention": "Bạn đã nhắc đến nó trong một bình luận",
+      "mentionOn": "Bạn đã nhắc đến nó trên {place}"
+    },
+    "doneQuietly": "Xong."
   },
   "button": {
     "untitled": "Nút",

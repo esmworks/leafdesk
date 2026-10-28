@@ -7,11 +7,13 @@ import { AccessError } from "@/server/access";
 import {
   AgentChatRefusal,
   agentChatInfo,
+  agentThread,
   chatAgents,
   chatTurn,
   deleteAgentConversation,
   getAgentConversation,
   sendAgentChat,
+  threadRuns,
   type ChatPlace,
 } from "@/server/agents/chat";
 import { requireUserId } from "@/server/session";
@@ -61,6 +63,16 @@ export async function agentChatTurnAction(workspaceId: string, runId: string) {
 
 export async function getAgentConversationAction(workspaceId: string, agentId: string, conversationId: string, place: ChatPlace) {
   return run((userId) => getAgentConversation(userId, workspaceId, agentId, conversationId, placeOf(place)));
+}
+
+/** The agent's own chat with the person (its page and dialog): their messages there, and their runs among them. */
+export async function agentThreadAction(workspaceId: string, agentId: string) {
+  return run((userId) => agentThread(userId, String(workspaceId), String(agentId)));
+}
+
+/** The runs of the agent's own chat again, as they go on and new ones start. */
+export async function agentThreadRunsAction(workspaceId: string, agentId: string) {
+  return run((userId) => threadRuns(userId, String(workspaceId), String(agentId)));
 }
 
 export async function deleteAgentConversationAction(workspaceId: string, agentId: string, conversationId: string, place: ChatPlace) {

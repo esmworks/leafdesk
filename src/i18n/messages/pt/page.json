@@ -1307,7 +1307,8 @@
     },
     "empty": {
       "full": "Pergunte algo a {name} ou dê uma tarefa a ele. Ele trabalha com o próprio acesso, as próprias habilidades e a própria memória, e cada resposta é uma das execuções dele.",
-      "readOnly": "Faça uma pergunta a {name}. As respostas vêm só de páginas que vocês dois podem ver, e ele não pode alterar nada."
+      "readOnly": "Faça uma pergunta a {name}. As respostas vêm só de páginas que vocês dois podem ver, e ele não pode alterar nada.",
+      "thread": "Pergunte algo a {name} ou dê-lhe uma tarefa. O que ele faz nos agendamentos que você define e nas tarefas que você dá também aparece aqui."
     },
     "readOnly": "Somente leitura",
     "readOnlyHint": "As respostas vêm só de páginas que você e o agente podem ver.",
@@ -1360,7 +1361,16 @@
       "hint": "Cole o link deste agente em uma página para colocar ali um chat com ele. Os membros podem conversar nele no modo somente leitura.",
       "copyLink": "Copiar link"
     },
-    "awaitingOwner": "Aguardando um proprietário do espaço de trabalho aprovar uma chamada…"
+    "awaitingOwner": "Aguardando um proprietário do espaço de trabalho aprovar uma chamada…",
+    "from": {
+      "schedule": "Agendado",
+      "scheduleOn": "Agendado · {place}",
+      "request": "Uma tarefa que você pediu",
+      "requestOn": "Uma tarefa que você pediu · {place}",
+      "mention": "Você o mencionou em um comentário",
+      "mentionOn": "Você o mencionou em {place}"
+    },
+    "doneQuietly": "Concluído."
   },
   "button": {
     "untitled": "Botão",

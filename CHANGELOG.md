@@ -10,6 +10,13 @@
   decisions and action items are written when it is done. The audio is still never kept. A piece
   the AI limits hold back now waits as long as the server says instead of being left as a gap, for
   live recordings too.
+- **An agent's page is one chat that goes on, where it also speaks up on its own.** What the agent
+  does for you without being chatted with comes into its chat at the time it starts: runs of the
+  schedules you set, the tasks you asked for and the comments that mention it, each marked with
+  what started it, with its steps folded and its answer; one that waits for a call to be approved
+  asks an owner in place. Ask about what it did in the same chat: those runs go with your next
+  message. Conversations had on the page or in the Chat tab before show there as one; page blocks
+  keep their separate conversations.
 - **Agents in the sidebar, each with a page of its own.** The agents you may talk to have a section
   of their own under your private pages. Each opens the agent's page: its icon, name and
   description, a chat with it, and a Settings button for the rest. The section's menu goes to

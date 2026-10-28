@@ -1307,7 +1307,8 @@
     },
     "empty": {
       "full": "Zapytaj o coś agenta {name} lub zleć mu zadanie. Działa z własnym dostępem, umiejętnościami i pamięcią, a każda odpowiedź to jedno z jego uruchomień.",
-      "readOnly": "Zadaj pytanie agentowi {name}. Odpowiedzi pochodzą tylko ze stron, które widzicie oboje, a agent nie może niczego zmienić."
+      "readOnly": "Zadaj pytanie agentowi {name}. Odpowiedzi pochodzą tylko ze stron, które widzicie oboje, a agent nie może niczego zmienić.",
+      "thread": "Zapytaj {name} o coś albo zleć mu zadanie. To, co robi według ustawionych przez ciebie harmonogramów i zleconych zadań, też pojawia się tutaj."
     },
     "readOnly": "Tylko do odczytu",
     "readOnlyHint": "Odpowiedzi pochodzą tylko ze stron widocznych zarówno dla ciebie, jak i dla agenta.",
@@ -1360,7 +1361,16 @@
       "hint": "Wklej link tego agenta na stronę, aby umieścić tam czat z nim. Członkowie mogą w nim czatować w trybie tylko do odczytu.",
       "copyLink": "Kopiuj link"
     },
-    "awaitingOwner": "Czeka, aż właściciel obszaru roboczego zatwierdzi wywołanie…"
+    "awaitingOwner": "Czeka, aż właściciel obszaru roboczego zatwierdzi wywołanie…",
+    "from": {
+      "schedule": "Według harmonogramu",
+      "scheduleOn": "Według harmonogramu · {place}",
+      "request": "Zadanie, o które prosiłeś",
+      "requestOn": "Zadanie, o które prosiłeś · {place}",
+      "mention": "Wspomniałeś o nim w komentarzu",
+      "mentionOn": "Wspomniałeś o nim na {place}"
+    },
+    "doneQuietly": "Gotowe."
   },
   "button": {
     "untitled": "Przycisk",

@@ -1307,7 +1307,8 @@
     },
     "empty": {
       "full": "Vraag {name} iets, of geef een opdracht. De agent werkt met zijn eigen toegang, vaardigheden en geheugen, en elk antwoord is een van zijn runs.",
-      "readOnly": "Stel {name} een vraag. Antwoorden komen alleen uit pagina’s die jullie allebei kunnen zien, en de agent kan niets wijzigen."
+      "readOnly": "Stel {name} een vraag. Antwoorden komen alleen uit pagina’s die jullie allebei kunnen zien, en de agent kan niets wijzigen.",
+      "thread": "Vraag {name} iets of geef het een taak. Wat het doet volgens de schema’s die je instelt en de taken die je geeft, zie je hier ook."
     },
     "readOnly": "Alleen-lezen",
     "readOnlyHint": "Antwoorden komen alleen uit pagina’s die jij en de agent allebei kunnen zien.",
@@ -1360,7 +1361,16 @@
       "hint": "Plak de link van deze agent in een pagina om daar een chat met hem te plaatsen. Leden kunnen er alleen-lezend in chatten.",
       "copyLink": "Link kopiëren"
     },
-    "awaitingOwner": "Wachten tot een eigenaar van de werkruimte een aanroep goedkeurt…"
+    "awaitingOwner": "Wachten tot een eigenaar van de werkruimte een aanroep goedkeurt…",
+    "from": {
+      "schedule": "Volgens schema",
+      "scheduleOn": "Volgens schema · {place}",
+      "request": "Een taak die je vroeg",
+      "requestOn": "Een taak die je vroeg · {place}",
+      "mention": "Je noemde het in een opmerking",
+      "mentionOn": "Je noemde het op {place}"
+    },
+    "doneQuietly": "Klaar."
   },
   "button": {
     "untitled": "Knop",

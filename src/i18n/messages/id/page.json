@@ -1307,7 +1307,8 @@
     },
     "empty": {
       "full": "Tanyakan sesuatu kepada {name}, atau beri tugas. Agen bekerja dengan akses, keterampilan, dan memorinya sendiri, dan setiap jawaban adalah salah satu eksekusinya.",
-      "readOnly": "Ajukan pertanyaan kepada {name}. Jawaban hanya berasal dari halaman yang dapat dilihat kalian berdua, dan agen tidak dapat mengubah apa pun."
+      "readOnly": "Ajukan pertanyaan kepada {name}. Jawaban hanya berasal dari halaman yang dapat dilihat kalian berdua, dan agen tidak dapat mengubah apa pun.",
+      "thread": "Tanyakan sesuatu kepada {name}, atau beri dia tugas. Apa yang dikerjakannya sesuai jadwal yang Anda atur dan tugas yang Anda berikan juga muncul di sini."
     },
     "readOnly": "Hanya baca",
     "readOnlyHint": "Jawaban hanya berasal dari halaman yang dapat dilihat oleh Anda dan agen.",
@@ -1360,7 +1361,16 @@
       "hint": "Tempel tautan agen ini ke halaman untuk menaruh obrolan dengannya di sana. Anggota dapat mengobrol di dalamnya secara hanya-baca.",
       "copyLink": "Salin tautan"
     },
-    "awaitingOwner": "Menunggu pemilik ruang kerja menyetujui sebuah panggilan…"
+    "awaitingOwner": "Menunggu pemilik ruang kerja menyetujui sebuah panggilan…",
+    "from": {
+      "schedule": "Sesuai jadwal",
+      "scheduleOn": "Sesuai jadwal · {place}",
+      "request": "Tugas yang Anda minta",
+      "requestOn": "Tugas yang Anda minta · {place}",
+      "mention": "Anda menyebutnya dalam komentar",
+      "mentionOn": "Anda menyebutnya di {place}"
+    },
+    "doneQuietly": "Selesai."
   },
   "button": {
     "untitled": "Tombol",

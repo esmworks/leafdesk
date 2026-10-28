@@ -2,18 +2,22 @@
 
 /**
  * A chat with an agent (see lib/agent-chat.ts), on its own page, in its dialog's Chat tab and in a
- * page's block: the person's conversations with it there, the messages of the open one and the box
- * to write in. Each message is one of the agent's runs, done by its worker: the chat follows the
- * run (its steps as they come, then its answer) by asking for it again every second, and for the
- * owner whose turn it is, shows the call it waits on to approve. Loaded only where a chat is shown.
+ * page's block, with the box to write in. Each message is one of the agent's runs, done by its
+ * worker: the chat follows the run (its steps as they come, then its answer) by asking for it again
+ * every second, and for the owner whose turn it is, shows the call it waits on to approve. On the
+ * agent's page and in its dialog it is one chat that goes on (`AgentChatThread`), where the runs
+ * the person started otherwise (schedules, tasks, mentions) come in as the agent speaking up, asked
+ * for again as they go on; a block keeps conversations to pick from. Loaded only where a chat is shown.
  */
-import { ArrowUp, ChevronRight, Loader2, Plus, Trash2 } from "lucide-react";
+import { ArrowUp, AtSign, ChevronRight, Clock, ListChecks, Loader2, Plus, Trash2 } from "lucide-react";
 import { useRouter } from "next/navigation";
-import { useTranslations } from "next-intl";
+import { useFormatter, useTranslations } from "next-intl";
 import { lazy, Suspense, useCallback, useEffect, useRef, useState } from "react";
 import {
   agentChatInfoAction,
   agentChatTurnAction,
+  agentThreadAction,
+  agentThreadRunsAction,
   deleteAgentConversationAction,
   getAgentConversationAction,
   sendAgentChatAction,
@@ -26,6 +30,7 @@ import {
   MAX_AGENT_CHAT_MESSAGE,
   type AgentChatInfo,
   type AgentChatMessageView,
+  type AgentChatRunView,
   type AgentChatStepView,
   type AgentChatTurn,
   type ChatPlace,
@@ -37,6 +42,10 @@ const NO_SOURCES = new Map();
 const noop = () => {};
 /** How often a turn under way is asked for. */
 const POLL_MS = 1_000;
+/** How often the agent's own chat asks for its runs again: while one goes on, and otherwise. */
+const RUNS_BUSY_MS = 3_000;
+const RUNS_IDLE_MS = 30_000;
+const runGoesOn = (r: AgentChatRunView) => r.status === "pending" || r.status === "running" || r.status === "awaiting_approval";
 
 export function AgentChat({ workspaceId, agentId, place, variant }: { workspaceId: string; agentId: string; place: ChatPlace; variant: "page" | "dialog" | "block" }) {
   const t = useTranslations("page.agentChat");
@@ -47,6 +56,8 @@ export function AgentChat({ workspaceId, agentId, place, variant }: { workspaceI
   const [conversationId, setConversationId] = useState<string | null>(null);
   const [messages, setMessages] = useState<AgentChatMessageView[]>([]);
   const [connections, setConnections] = useState<Record<string, string>>({});
+  // The agent's own chat (no place): the person's runs other than chats, among the messages.
+  const [runs, setRuns] = useState<AgentChatRunView[]>([]);
   // The run answering the last message, and how it stands, while it is under way.
   const [running, setRunning] = useState<string | null>(null);
   const [turn, setTurn] = useState<AgentChatTurn | null>(null);
@@ -59,6 +70,29 @@ export function AgentChat({ workspaceId, agentId, place, variant }: { workspaceI
   // The place as a stable value for the effects (a new object on every render of the block).
   const placeRef = useRef(place);
   placeRef.current = place;
+  const thread = place === null;
+
+  const openThread = useCallback(async () => {
+    setError(null);
+    setTurn(null);
+    const res = await agentThreadAction(workspaceId, agentId);
+    if (!res.ok) {
+      setError(res.error);
+      return;
+    }
+    setConversationId(res.data.conversationId);
+    setMessages(res.data.messages);
+    setRuns(res.data.runs);
+    setConnections(res.data.connections);
+    setRunning(res.data.running);
+  }, [workspaceId, agentId]);
+
+  const refreshRuns = useCallback(async () => {
+    const res = await agentThreadRunsAction(workspaceId, agentId).catch(() => null);
+    if (!res?.ok) return;
+    setRuns(res.data.runs);
+    setConnections((c) => ({ ...c, ...res.data.connections }));
+  }, [workspaceId, agentId]);
 
   const open = useCallback(
     async (id: string | null) => {
@@ -92,12 +126,14 @@ export function AgentChat({ workspaceId, agentId, place, variant }: { workspaceI
         return;
       }
       setInfo(res.data);
-      // Back where they were: the latest conversation.
-      await open(res.data.conversations[0]?.id ?? null);
+      // Back where they were: the agent's own chat, or a block's latest conversation.
+      if (placeRef.current === null) {
+        if (res.data.agent) await openThread();
+      } else await open(res.data.conversations[0]?.id ?? null);
     } catch {
       setLoadFailed(true);
     }
-  }, [workspaceId, agentId, open]);
+  }, [workspaceId, agentId, open, openThread]);
 
   useEffect(() => {
     void load();
@@ -135,6 +171,26 @@ export function AgentChat({ workspaceId, agentId, place, variant }: { workspaceI
     };
   }, [running, workspaceId]);
 
+  // The agent's own chat asks for its runs again: often while one goes on, now and then for new ones.
+  const runsRef = useRef(runs);
+  runsRef.current = runs;
+  const hasAgent = Boolean(info?.agent);
+  useEffect(() => {
+    if (!thread || !hasAgent) return;
+    let timer: ReturnType<typeof setTimeout>;
+    const next = () => {
+      timer = setTimeout(
+        () => {
+          if (document.visibilityState === "visible") void refreshRuns().finally(next);
+          else next();
+        },
+        runsRef.current.some(runGoesOn) ? RUNS_BUSY_MS : RUNS_IDLE_MS,
+      );
+    };
+    next();
+    return () => clearTimeout(timer);
+  }, [thread, hasAgent, refreshRuns]);
+
   // Follows the conversation as it grows.
   useEffect(() => {
     const el = listRef.current;
@@ -143,7 +199,7 @@ export function AgentChat({ workspaceId, agentId, place, variant }: { workspaceI
     // the others scroll on their own.
     if (variant === "page") el.scrollIntoView({ block: "end" });
     else el.scrollTop = el.scrollHeight;
-  }, [messages, turn?.steps.length, running, variant]);
+  }, [messages, runs.length, turn?.steps.length, running, variant]);
 
   const state = info?.state;
   const canChat = state === "full" || state === "readOnly";
@@ -226,8 +282,8 @@ export function AgentChat({ workspaceId, agentId, place, variant }: { workspaceI
 
   return (
     <Frame block={block}>
-      {/* The block always names its agent; elsewhere the row waits for a conversation to pick or leave. */}
-      {(block || state === "readOnly" || conversationId || info.conversations.length > 0) && (
+      {/* The block always names its agent and keeps conversations; the agent's own chat is one, its row only says it's read-only. */}
+      {(block || state === "readOnly") && (
         <div className={cn("flex items-center gap-2", block ? "border-b border-border px-3 py-2" : "pb-2")}>
           {block && (
             <>
@@ -242,51 +298,63 @@ export function AgentChat({ workspaceId, agentId, place, variant }: { workspaceI
               {t("readOnly")}
             </span>
           )}
-          <div className="ms-auto flex min-w-0 items-center gap-0.5">
-            {info.conversations.length > 0 && (
-              <select
-                aria-label={t("conversations")}
-                className={cn(selectClass, "h-7 max-w-44 min-w-0 truncate text-xs")}
-                value={conversationId ?? ""}
-                disabled={Boolean(running)}
-                onChange={(e) => void open(e.target.value || null)}
-              >
-                {!conversationId && <option value="">{t("newConversation")}</option>}
-                {info.conversations.map((c) => (
-                  <option key={c.id} value={c.id}>
-                    {c.title}
-                  </option>
-                ))}
-              </select>
-            )}
-            <IconButton label={t("newConversation")} title={t("newConversation")} className="h-7 w-7" disabled={Boolean(running) || !conversationId} onClick={() => void open(null)}>
-              <Plus className="h-3.5 w-3.5" />
-            </IconButton>
-            {conversationId && (
-              <IconButton label={t("deleteConversation")} title={t("deleteConversation")} className="h-7 w-7" disabled={Boolean(running)} onClick={() => void remove()}>
-                <Trash2 className="h-3.5 w-3.5" />
+          {block && (
+            <div className="ms-auto flex min-w-0 items-center gap-0.5">
+              {info.conversations.length > 0 && (
+                <select
+                  aria-label={t("conversations")}
+                  className={cn(selectClass, "h-7 max-w-44 min-w-0 truncate text-xs")}
+                  value={conversationId ?? ""}
+                  disabled={Boolean(running)}
+                  onChange={(e) => void open(e.target.value || null)}
+                >
+                  {!conversationId && <option value="">{t("newConversation")}</option>}
+                  {info.conversations.map((c) => (
+                    <option key={c.id} value={c.id}>
+                      {c.title}
+                    </option>
+                  ))}
+                </select>
+              )}
+              <IconButton label={t("newConversation")} title={t("newConversation")} className="h-7 w-7" disabled={Boolean(running) || !conversationId} onClick={() => void open(null)}>
+                <Plus className="h-3.5 w-3.5" />
               </IconButton>
-            )}
-          </div>
+              {conversationId && (
+                <IconButton label={t("deleteConversation")} title={t("deleteConversation")} className="h-7 w-7" disabled={Boolean(running)} onClick={() => void remove()}>
+                  <Trash2 className="h-3.5 w-3.5" />
+                </IconButton>
+              )}
+            </div>
+          )}
         </div>
       )}
 
       <div ref={listRef} className={cn(page ? "min-h-24 scroll-mb-28 py-4" : "overflow-y-auto", block ? "max-h-[28rem] px-3 py-3" : !page && "max-h-[45vh] py-2")} aria-live="polite">
-        {messages.length === 0 ? (
-          <p className="text-sm text-fg-muted">{t(`empty.${state === "full" ? "full" : "readOnly"}`, { name: agent.name })}</p>
+        {messages.length === 0 && runs.length === 0 ? (
+          <p className="text-sm text-fg-muted">{t(`empty.${state === "full" ? (thread ? "thread" : "full") : "readOnly"}`, { name: agent.name })}</p>
         ) : (
           <ol className="space-y-3">
-            {messages.map((m) => (
-              <li key={`${m.role}-${m.runId}`}>
-                {m.role === "user" ? (
-                  <div className="flex justify-end">
-                    <p className="max-w-[85%] rounded-xl bg-bg-hover px-3 py-1.5 text-sm break-words whitespace-pre-wrap">{m.content}</p>
-                  </div>
-                ) : (
-                  <Answer message={m} connections={connections} onOpen={openPage} />
-                )}
-              </li>
-            ))}
+            {timeline(messages, runs, thread).map((item) =>
+              item.day ? (
+                <li key={`day-${item.at}`} className="pt-2 text-center text-xs text-fg-muted">
+                  <DayLabel at={item.at} />
+                </li>
+              ) : item.run ? (
+                <li key={`run-${item.run.id}`}>
+                  <RunMessage workspaceId={workspaceId} run={item.run} connections={connections} onOpen={openPage} onAnswered={() => void refreshRuns()} />
+                </li>
+              ) : (
+                <li key={`${item.message.role}-${item.message.runId}`}>
+                  {item.message.role === "user" ? (
+                    <div className="flex justify-end">
+                      <p className="max-w-[85%] rounded-xl bg-bg-hover px-3 py-1.5 text-sm break-words whitespace-pre-wrap">{item.message.content}</p>
+                    </div>
+                  ) : (
+                    <Answer message={item.message} connections={connections} onOpen={openPage} />
+                  )}
+                </li>
+              ),
+            )}
             {running && (
               <li className="space-y-1.5">
                 {turn && turn.steps.length > 0 && <StepList steps={turn.steps} connections={connections} onOpen={openPage} />}
@@ -401,5 +469,92 @@ function StepList({ steps, connections, onOpen }: { steps: AgentChatStepView[]; 
         </li>
       ))}
     </ol>
+  );
+}
+
+/**
+ * Messages and runs in the order they happened (a run when it started); a question keeps its
+ * answer next to it. The agent's own chat (`days`) marks where each day starts.
+ */
+function timeline(messages: AgentChatMessageView[], runs: AgentChatRunView[], days: boolean) {
+  type Item =
+    | { at: string; message: AgentChatMessageView; run?: undefined; day?: undefined }
+    | { at: string; run: AgentChatRunView; message?: undefined; day?: undefined }
+    | { at: string; day: true; message?: undefined; run?: undefined };
+  const units: Item[][] = [];
+  for (const message of messages) {
+    if (message.role === "user" || !units.length) units.push([{ at: message.at, message }]);
+    else units.at(-1)!.push({ at: message.at, message });
+  }
+  for (const run of runs) units.push([{ at: run.at, run }]);
+  const items = units.sort((a, b) => a[0].at.localeCompare(b[0].at)).flat();
+  if (!days) return items;
+  let last = "";
+  return items.flatMap((item): Item[] => {
+    const day = new Date(item.at).toDateString();
+    if (day === last) return [item];
+    last = day;
+    return [{ at: item.at, day: true }, item];
+  });
+}
+
+function DayLabel({ at }: { at: string }) {
+  const format = useFormatter();
+  const date = new Date(at);
+  const thisYear = date.getFullYear() === new Date().getFullYear();
+  return <time dateTime={at}>{format.dateTime(date, thisYear ? { weekday: "long", day: "numeric", month: "long" } : { day: "numeric", month: "long", year: "numeric" })}</time>;
+}
+
+/** A run the person started otherwise, as the agent speaking up: what started it and when, then as an answer does. */
+function RunMessage({
+  workspaceId,
+  run,
+  connections,
+  onOpen,
+  onAnswered,
+}: {
+  workspaceId: string;
+  run: AgentChatRunView;
+  connections: Record<string, string>;
+  onOpen: (pageId: string) => void;
+  onAnswered: () => void;
+}) {
+  const t = useTranslations("page.agentChat");
+  const format = useFormatter();
+  // The agent's own chat marks each day: the time is enough.
+  const when = format.dateTime(new Date(run.at), { hour: "2-digit", minute: "2-digit" });
+  const Icon = run.kind === "schedule" ? Clock : run.kind === "mention" ? AtSign : ListChecks;
+  const from = run.label ? t(`from.${run.kind}On`, { place: run.label }) : t(`from.${run.kind}`);
+  return (
+    <div className="space-y-1 text-sm" data-agent-run={run.kind}>
+      <p className="flex min-w-0 items-center gap-1.5 text-xs text-fg-muted" title={run.task || undefined}>
+        <Icon className="h-3.5 w-3.5 shrink-0" aria-hidden />
+        <span className="min-w-0 truncate">{from}</span>
+        <span aria-hidden>·</span>
+        <time dateTime={run.at} className="shrink-0">
+          {when}
+        </time>
+      </p>
+      {run.status === "done" && !run.answer.trim() && run.steps.length === 0 ? (
+        <p className="text-fg-muted">{t("doneQuietly")}</p>
+      ) : run.status === "done" || run.status === "failed" ? (
+        <Answer message={{ role: "assistant", content: run.answer, runId: run.id, code: run.status === "failed" ? (run.code ?? "error") : null, steps: run.steps, at: run.at }} connections={connections} onOpen={onOpen} />
+      ) : (
+        <>
+          {run.steps.length > 0 && <StepList steps={run.steps} connections={connections} onOpen={onOpen} />}
+          {run.pending ? (
+            <div className="rounded-lg border border-border p-3">
+              <p className="mb-1.5 text-sm">{t("approval")}</p>
+              <ApprovalActions workspaceId={workspaceId} approval={{ runId: run.id, ...run.pending }} onAnswered={onAnswered} />
+            </div>
+          ) : (
+            <p className="flex items-center gap-1.5 text-sm text-fg-muted">
+              <Loader2 className="h-3.5 w-3.5 animate-spin" aria-hidden />
+              {run.status === "pending" ? t("waiting") : run.status === "awaiting_approval" ? t("awaitingOwner") : t("working")}
+            </p>
+          )}
+        </>
+      )}
+    </div>
   );
 }

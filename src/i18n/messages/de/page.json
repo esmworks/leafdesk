@@ -1307,7 +1307,8 @@
     },
     "empty": {
       "full": "Frag {name} etwas oder gib ihm eine Aufgabe. Er arbeitet mit seinem eigenen Zugriff, seinen Skills und seinem Gedächtnis, und jede Antwort ist einer seiner Durchläufe.",
-      "readOnly": "Stell {name} eine Frage. Antworten stammen nur aus Seiten, die ihr beide sehen könnt, und er kann nichts ändern."
+      "readOnly": "Stell {name} eine Frage. Antworten stammen nur aus Seiten, die ihr beide sehen könnt, und er kann nichts ändern.",
+      "thread": "Frag {name} etwas oder gib ihm eine Aufgabe. Was es nach deinen Zeitplänen und für deine Aufgaben erledigt, erscheint auch hier."
     },
     "readOnly": "Schreibgeschützt",
     "readOnlyHint": "Antworten stammen nur aus Seiten, die du und der Agent beide sehen könnt.",
@@ -1360,7 +1361,16 @@
       "hint": "Füge den Link dieses Agenten in eine Seite ein, um dort einen Chat mit ihm einzubinden. Mitglieder können darin schreibgeschützt chatten.",
       "copyLink": "Link kopieren"
     },
-    "awaitingOwner": "Wartet darauf, dass ein Workspace-Inhaber einen Aufruf freigibt…"
+    "awaitingOwner": "Wartet darauf, dass ein Workspace-Inhaber einen Aufruf freigibt…",
+    "from": {
+      "schedule": "Nach Zeitplan",
+      "scheduleOn": "Nach Zeitplan · {place}",
+      "request": "Eine Aufgabe von dir",
+      "requestOn": "Eine Aufgabe von dir · {place}",
+      "mention": "Du hast es in einem Kommentar erwähnt",
+      "mentionOn": "Du hast es auf {place} erwähnt"
+    },
+    "doneQuietly": "Erledigt."
   },
   "button": {
     "untitled": "Schaltfläche",

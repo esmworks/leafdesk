@@ -260,6 +260,56 @@ try {
   );
   check(ownerView?.chat?.message === "What did the board discuss?" && ownerView.answer !== "", "and the owner's own with it", ownerView);
 
+  // ── The agent's own chat: one that goes on, where its other runs come in ───────────────────
+  const thread = await chat.agentThread(ids.owner, workspaceId, helper.id);
+  check(
+    thread.conversationId === archiving.conversation.id &&
+      thread.messages.length === 6 &&
+      thread.messages[0].content === "What did the board discuss?" &&
+      thread.messages.at(-1)?.content === "Added it.",
+    "the dialog's conversations read as one, oldest first, a new message joining the latest",
+    thread,
+  );
+  await db.insert(agentRun).values([
+    {
+      agentId: helper.id,
+      workspaceId,
+      source: { kind: "schedule" as const, scheduleId: `${RUN}-schedule`, scheduledBy: ids.owner },
+      context: { actorId: ids.owner },
+      prompt: "List the late orders.",
+      status: "done" as const,
+      answer: "Two orders are late. ORD-LATE",
+    },
+    {
+      agentId: helper.id,
+      workspaceId,
+      source: { kind: "schedule" as const, scheduleId: `${RUN}-schedule-2`, scheduledBy: ids.member },
+      context: { actorId: ids.member },
+      prompt: "Count the orders.",
+      status: "done" as const,
+      answer: "Nine orders. ORD-COUNT",
+    },
+  ]);
+  const ownerRuns = (await chat.threadRuns(ids.owner, workspaceId, helper.id)).runs;
+  check(
+    ownerRuns.length === 1 && ownerRuns[0].kind === "schedule" && ownerRuns[0].answer === "Two orders are late. ORD-LATE" && ownerRuns[0].task === "List the late orders.",
+    "a schedule's run the owner set comes into their chat with the agent, and no one else's",
+    ownerRuns,
+  );
+  check(!ownerRuns.some((r) => r.id === first.runId), "chat runs don't come in twice");
+  const memberRuns = (await chat.threadRuns(ids.member, workspaceId, helper.id)).runs;
+  check(memberRuns.length === 1 && memberRuns[0].answer.includes("ORD-COUNT"), "a member's chat shows only the runs they started", memberRuns);
+  fake.setChat(() => ({ text: "Yes, two." }));
+  fake.chats.length = 0;
+  await chat.sendAgentChat(ids.owner, { workspaceId, agentId: helper.id, place: null, conversationId: thread.conversationId, message: "Are orders late?" });
+  await flushAgentRuns();
+  const asked = everything(fake.chats[0]);
+  check(asked.includes("ORD-LATE") && asked.includes("on a schedule they set") && !asked.includes("ORD-COUNT"), "what it did on its own goes with the next message", asked);
+  fake.chats.length = 0;
+  await chat.sendAgentChat(ids.member, { workspaceId, agentId: helper.id, place, conversationId: memberSent.conversation.id, message: "Anything late?" });
+  await flushAgentRuns();
+  check(!everything(fake.chats[0]).includes("ORD-COUNT"), "a block's conversation doesn't take them");
+
   // ── Guests, limits and archived agents ─────────────────────────────────────────────────────
   check(
     (await refusal(chat.sendAgentChat(ids.guest, { workspaceId, agentId: helper.id, place, conversationId: null, message: "Hi" }))) === "guest",

@@ -1307,7 +1307,8 @@
     },
     "empty": {
       "full": "Kysy agentilta {name} jotain tai anna sille tehtävä. Se toimii omilla käyttöoikeuksillaan, taidoillaan ja muistillaan, ja jokainen vastaus on yksi sen ajoista.",
-      "readOnly": "Esitä agentille {name} kysymys. Vastaukset tulevat vain sivuilta, jotka näette molemmat, eikä se voi muuttaa mitään."
+      "readOnly": "Esitä agentille {name} kysymys. Vastaukset tulevat vain sivuilta, jotka näette molemmat, eikä se voi muuttaa mitään.",
+      "thread": "Kysy {name}-agentilta jotain tai anna sille tehtävä. Myös se, mitä se tekee asettamiesi ajastusten ja antamiesi tehtävien mukaan, näkyy täällä."
     },
     "readOnly": "Vain luku",
     "readOnlyHint": "Vastaukset tulevat vain sivuilta, jotka sinä ja agentti näette molemmat.",
@@ -1360,7 +1361,16 @@
       "hint": "Liitä tämän agentin linkki sivulle lisätäksesi sinne chatin sen kanssa. Jäsenet voivat keskustella siinä vain luku -tilassa.",
       "copyLink": "Kopioi linkki"
     },
-    "awaitingOwner": "Odotetaan, että työtilan omistaja hyväksyy kutsun…"
+    "awaitingOwner": "Odotetaan, että työtilan omistaja hyväksyy kutsun…",
+    "from": {
+      "schedule": "Ajastettu",
+      "scheduleOn": "Ajastettu · {place}",
+      "request": "Pyytämäsi tehtävä",
+      "requestOn": "Pyytämäsi tehtävä · {place}",
+      "mention": "Mainitsit sen kommentissa",
+      "mentionOn": "Mainitsit sen sivulla {place}"
+    },
+    "doneQuietly": "Valmis."
   },
   "button": {
     "untitled": "Painike",

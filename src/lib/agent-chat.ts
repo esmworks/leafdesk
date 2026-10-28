@@ -16,6 +16,8 @@ import type { ChatStepView } from "./ai-chat";
  *
  * Each person has their own conversations, per block (`chatId`) or in the dialog (no chat id); no
  * one else sees them, owners included (a member's runs show in the history without what was said).
+ * Without a chat id (the agent's page and dialog) they read as one chat that goes on, with the
+ * person's other runs of the agent among the messages (`AgentChatThread`).
  */
 
 /** The page block. */
@@ -128,6 +130,44 @@ export type AgentChatMessageView = {
 };
 
 export type AgentConversationSummary = { id: string; title: string; updatedAt: string };
+
+/** Messages the agent's own chat (no chat id) shows at most, its newest. */
+export const MAX_THREAD_MESSAGES = 200;
+/** The person's own runs (other than the chat's) the agent's own chat shows among its messages, its latest. */
+export const THREAD_RUNS = 30;
+
+/**
+ * One of the agent's runs that the person started other than by chatting (a schedule they set, a
+ * task they asked for, a comment of theirs that mentioned it): in the agent's own chat it reads
+ * as the agent speaking up on its own, at the time it started. `label` names where it worked (the
+ * database, the page, the row) where the person can open it; `task` and `answer` are empty where
+ * they can't see what the run read; `pending` is the call it waits on, for an owner who answers it.
+ */
+export type AgentChatRunView = {
+  id: string;
+  kind: "schedule" | "request" | "mention";
+  status: AgentRunStatus;
+  code: AgentRunCode | null;
+  label: string | null;
+  task: string;
+  answer: string;
+  steps: AgentChatStepView[];
+  pending: AgentChatTurn["pending"];
+  at: string;
+};
+
+/**
+ * The agent's own chat with the person (its page and its dialog): all their conversations there
+ * as one, the run still answering in it, the conversation a new message joins (the latest), and
+ * their own runs to show among the messages.
+ */
+export type AgentChatThread = {
+  conversationId: string | null;
+  messages: AgentChatMessageView[];
+  running: string | null;
+  runs: AgentChatRunView[];
+  connections: Record<string, string>;
+};
 
 /**
  * A turn under way, as the chat follows it: the run's status, its steps so far, its answer once
