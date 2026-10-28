@@ -58,6 +58,8 @@
     "unlock": "ביטול הנעילה",
     "lockPage": "נעילת הדף",
     "lockPageHint": "בזמן הנעילה אף אחד לא יכול לשנות את הכותרת, הסמל, הרקע או הטקסט. תגובות, שיתוף והעברה עדיין עובדים.",
+    "export": "ייצוא",
+    "exportBack": "חזרה",
     "exportMarkdown": "ייצוא כ־Markdown",
     "exportCsv": "ייצוא כ־CSV",
     "exportXlsx": "ייצוא כ־Excel (.xlsx)",

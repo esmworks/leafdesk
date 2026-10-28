@@ -58,6 +58,8 @@
     "unlock": "解锁",
     "lockPage": "锁定页面",
     "lockPageHint": "锁定期间，任何人都无法更改标题、图标、背景或正文。评论、分享和移动仍可使用。",
+    "export": "导出",
+    "exportBack": "返回",
     "exportMarkdown": "导出为 Markdown",
     "exportCsv": "导出为 CSV",
     "exportXlsx": "导出为 Excel（.xlsx）",

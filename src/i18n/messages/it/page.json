@@ -58,6 +58,8 @@
     "unlock": "Sblocca",
     "lockPage": "Blocca pagina",
     "lockPageHint": "Finché è bloccata, nessuno può cambiare titolo, icona, sfondo o testo. Commenti, condivisione e spostamento funzionano comunque.",
+    "export": "Esporta",
+    "exportBack": "Indietro",
     "exportMarkdown": "Esporta come Markdown",
     "exportCsv": "Esporta come CSV",
     "exportXlsx": "Esporta come Excel (.xlsx)",

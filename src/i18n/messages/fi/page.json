@@ -58,6 +58,8 @@
     "unlock": "Avaa lukitus",
     "lockPage": "Lukitse sivu",
     "lockPageHint": "Lukittuna kukaan ei voi muuttaa otsikkoa, kuvaketta, taustaa tai tekstiä. Kommentointi, jakaminen ja siirtäminen toimivat yhä.",
+    "export": "Vie",
+    "exportBack": "Takaisin",
     "exportMarkdown": "Vie Markdownina",
     "exportCsv": "Vie CSV-tiedostona",
     "exportXlsx": "Vie Excel-tiedostona (.xlsx)",

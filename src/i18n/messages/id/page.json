@@ -58,6 +58,8 @@
     "unlock": "Buka kunci",
     "lockPage": "Kunci halaman",
     "lockPageHint": "Selama dikunci, tidak ada yang dapat mengubah judul, ikon, latar belakang, atau teks. Komentar, berbagi, dan pemindahan tetap berfungsi.",
+    "export": "Ekspor",
+    "exportBack": "Kembali",
     "exportMarkdown": "Ekspor sebagai Markdown",
     "exportCsv": "Ekspor sebagai CSV",
     "exportXlsx": "Ekspor sebagai Excel (.xlsx)",

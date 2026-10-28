@@ -58,6 +58,8 @@
     "unlock": "إلغاء القفل",
     "lockPage": "قفل الصفحة",
     "lockPageHint": "أثناء القفل، لا يمكن لأحد تغيير العنوان أو الأيقونة أو الخلفية أو النص. تظل التعليقات والمشاركة والنقل متاحة.",
+    "export": "تصدير",
+    "exportBack": "رجوع",
     "exportMarkdown": "تصدير بصيغة Markdown",
     "exportCsv": "تصدير بصيغة CSV",
     "exportXlsx": "تصدير بصيغة Excel (.xlsx)",

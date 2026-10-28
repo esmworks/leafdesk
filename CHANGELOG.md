@@ -115,6 +115,10 @@
 
 ### Changed
 
+- **A page's ⋯ menu keeps its downloads under Export.** Markdown or CSV, Excel, ZIP, PDF and Print
+  open from one Export item, so the menu is short enough to fit the window; a menu that is still
+  taller than the window scrolls instead of running past its bottom edge, where the PDF item
+  couldn't be reached.
 - **The desktop app's tab strip has no back and forward buttons.** They took room from the tabs;
   Go → Back and Forward (Cmd+[ and Cmd+] on macOS, Alt+Left and Alt+Right elsewhere) still move
   through the shown tab's history.

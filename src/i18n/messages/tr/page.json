@@ -58,6 +58,8 @@
     "unlock": "Kilidi aç",
     "lockPage": "Sayfayı kilitle",
     "lockPageHint": "Kilitliyken kimse başlığı, simgeyi, arka planı veya metni değiştiremez. Yorum, paylaşma ve taşıma çalışmaya devam eder.",
+    "export": "Dışa aktar",
+    "exportBack": "Geri",
     "exportMarkdown": "Markdown olarak dışa aktar",
     "exportCsv": "CSV olarak dışa aktar",
     "exportXlsx": "Excel olarak dışa aktar (.xlsx)",

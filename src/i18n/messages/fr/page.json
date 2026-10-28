@@ -58,6 +58,8 @@
     "unlock": "Déverrouiller",
     "lockPage": "Verrouiller la page",
     "lockPageHint": "Tant qu’elle est verrouillée, personne ne peut modifier le titre, l’icône, l’arrière-plan ou le texte. Les commentaires, le partage et le déplacement restent possibles.",
+    "export": "Exporter",
+    "exportBack": "Retour",
     "exportMarkdown": "Exporter en Markdown",
     "exportCsv": "Exporter en CSV",
     "exportXlsx": "Exporter en Excel (.xlsx)",

@@ -58,6 +58,8 @@
     "unlock": "Entsperren",
     "lockPage": "Seite sperren",
     "lockPageHint": "Solange die Seite gesperrt ist, kann niemand Titel, Symbol, Hintergrund oder Text ändern. Kommentieren, Teilen und Verschieben funktionieren weiterhin.",
+    "export": "Exportieren",
+    "exportBack": "Zurück",
     "exportMarkdown": "Als Markdown exportieren",
     "exportCsv": "Als CSV exportieren",
     "exportXlsx": "Als Excel exportieren (.xlsx)",

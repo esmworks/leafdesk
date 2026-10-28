@@ -58,6 +58,8 @@
     "unlock": "ロックを解除",
     "lockPage": "ページをロック",
     "lockPageHint": "ロック中は誰もタイトル、アイコン、背景、テキストを変更できません。コメント、共有、移動は引き続き可能です。",
+    "export": "エクスポート",
+    "exportBack": "戻る",
     "exportMarkdown": "Markdownとしてエクスポート",
     "exportCsv": "CSVとしてエクスポート",
     "exportXlsx": "Excel（.xlsx）としてエクスポート",

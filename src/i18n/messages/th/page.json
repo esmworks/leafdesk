@@ -58,6 +58,8 @@
     "unlock": "ปลดล็อก",
     "lockPage": "ล็อกหน้า",
     "lockPageHint": "ขณะล็อก ไม่มีใครเปลี่ยนชื่อ ไอคอน พื้นหลัง หรือข้อความได้ ความคิดเห็น การแชร์ และการย้ายยังใช้ได้",
+    "export": "ส่งออก",
+    "exportBack": "ย้อนกลับ",
     "exportMarkdown": "ส่งออกเป็น Markdown",
     "exportCsv": "ส่งออกเป็น CSV",
     "exportXlsx": "ส่งออกเป็น Excel (.xlsx)",

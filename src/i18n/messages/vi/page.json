@@ -58,6 +58,8 @@
     "unlock": "Mở khóa",
     "lockPage": "Khóa trang",
     "lockPageHint": "Khi bị khóa, không ai có thể thay đổi tiêu đề, biểu tượng, hình nền hay nội dung. Bình luận, chia sẻ và di chuyển vẫn hoạt động.",
+    "export": "Xuất",
+    "exportBack": "Quay lại",
     "exportMarkdown": "Xuất dưới dạng Markdown",
     "exportCsv": "Xuất dưới dạng CSV",
     "exportXlsx": "Xuất dưới dạng Excel (.xlsx)",

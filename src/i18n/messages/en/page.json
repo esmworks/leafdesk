@@ -58,6 +58,8 @@
     "unlock": "Unlock",
     "lockPage": "Lock page",
     "lockPageHint": "While locked, nobody can change the title, icon, background or text. Comments, sharing and moving still work.",
+    "export": "Export",
+    "exportBack": "Back",
     "exportMarkdown": "Export as Markdown",
     "exportCsv": "Export as CSV",
     "exportXlsx": "Export as Excel (.xlsx)",

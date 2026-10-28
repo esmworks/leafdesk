@@ -58,6 +58,8 @@
     "unlock": "Ontgrendelen",
     "lockPage": "Pagina vergrendelen",
     "lockPageHint": "Zolang de pagina vergrendeld is, kan niemand de titel, het pictogram, de achtergrond of de tekst wijzigen. Opmerkingen, delen en verplaatsen werken nog wel.",
+    "export": "Exporteren",
+    "exportBack": "Terug",
     "exportMarkdown": "Exporteren als Markdown",
     "exportCsv": "Exporteren als CSV",
     "exportXlsx": "Exporteren als Excel (.xlsx)",

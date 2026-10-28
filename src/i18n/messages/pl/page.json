@@ -58,6 +58,8 @@
     "unlock": "Odblokuj",
     "lockPage": "Zablokuj stronę",
     "lockPageHint": "Gdy strona jest zablokowana, nikt nie może zmienić tytułu, ikony, tła ani tekstu. Komentowanie, udostępnianie i przenoszenie nadal działają.",
+    "export": "Eksportuj",
+    "exportBack": "Wstecz",
     "exportMarkdown": "Eksportuj jako Markdown",
     "exportCsv": "Eksportuj jako CSV",
     "exportXlsx": "Eksportuj jako Excel (.xlsx)",

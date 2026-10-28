@@ -58,6 +58,8 @@
     "unlock": "Lås opp",
     "lockPage": "Lås siden",
     "lockPageHint": "Mens den er låst, kan ingen endre tittel, ikon, bakgrunn eller tekst. Kommentarer, deling og flytting fungerer fortsatt.",
+    "export": "Eksporter",
+    "exportBack": "Tilbake",
     "exportMarkdown": "Eksporter som Markdown",
     "exportCsv": "Eksporter som CSV",
     "exportXlsx": "Eksporter som Excel (.xlsx)",
