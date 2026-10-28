@@ -444,6 +444,10 @@
       "webAccess": "网络访问",
       "webAccessHelp": "可以打开别人给它的或在工作区中找到的链接所指向的公开网页。仅限内部的工作请关闭。",
       "webAccessHelpSearch": "可以搜索网络并打开公开网页。仅限内部的工作请关闭。",
+      "mailRecipients": "邮件收件人",
+      "mailRecipientsPlaceholder": "planning@example.com, sales@example.com",
+      "mailRecipientsHelp": "它只能从其代为工作的人（设置其计划、请求运行或与它聊天的人）的邮箱向这些地址发送邮件。邮箱在邮件和日历中连接。留空则不发送邮件。",
+      "mailRecipientsInvalid": "最多输入 {max} 个邮箱地址，用逗号分隔。",
       "limit": "每月令牌上限",
       "limitPlaceholder": "无上限",
       "limitHelp": "其运行在一个日历月（UTC）内可使用的最大令牌数。达到上限后，其运行将停止，直到下个月。",
@@ -671,7 +675,9 @@
       "waitingForOwner": "此调用由工作区所有者处理。",
       "emailDrafted": "起草了一封待审核的邮件：",
       "emailFailed": "无法起草邮件：",
-      "emailHidden": "在你无法打开的行上起草了一封邮件"
+      "emailHidden": "在你无法打开的行上起草了一封邮件",
+      "emailSent": "已向 {to} 发送邮件：",
+      "emailSendFailed": "无法向 {to} 发送邮件："
     },
     "usage": {
       "thisMonth": "本月：{usage}",
@@ -773,7 +779,8 @@
         "taskLength": "任务最多 2,000 个字符。",
         "repeat": "请检查重复时间及其时区。",
         "helpers": "请从此工作区选择最多 10 个其他未归档的智能体。",
-        "shareLevel": "请选择完全访问、可编辑或可查看和互动。"
+        "shareLevel": "请选择完全访问、可编辑或可查看和互动。",
+        "mailRecipients": "最多输入 10 个邮箱地址。"
       },
       "noteEmpty": "请写下智能体应记住的内容。",
       "noteTooLong": "每条笔记最多 {max} 个字符。",
@@ -864,6 +871,7 @@
         "enabled": "活跃",
         "model": "模型",
         "web_access": "网络访问",
+        "mail_recipients": "邮件收件人",
         "monthly_token_limit": "每月令牌上限",
         "skills": "技能",
         "schedules": "定时计划",

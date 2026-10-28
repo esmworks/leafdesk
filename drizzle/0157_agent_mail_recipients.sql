@@ -1,0 +1,1 @@
+ALTER TABLE "workspace_agent" ADD COLUMN "mail_recipients" text[] DEFAULT '{}'::text[] NOT NULL;

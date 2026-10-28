@@ -444,6 +444,10 @@
       "webAccess": "Truy cập web",
       "webAccessHelp": "Nó có thể mở các trang web công khai mà nó được cho liên kết hoặc tìm thấy trong không gian làm việc. Hãy tắt đối với các công việc hoàn toàn nội bộ.",
       "webAccessHelpSearch": "Nó có thể tìm kiếm trên web và mở các trang web công khai. Hãy tắt đối với các công việc hoàn toàn nội bộ.",
+      "mailRecipients": "Người nhận email",
+      "mailRecipientsPlaceholder": "planning@example.com, sales@example.com",
+      "mailRecipientsHelp": "Tác tử có thể gửi email đến các địa chỉ này, và không địa chỉ nào khác, từ hộp thư của người mà nó làm việc cho: người đã đặt lịch, yêu cầu lần chạy hoặc trò chuyện với nó. Hộp thư được kết nối trong Email và lịch. Nếu để trống, nó không gửi email.",
+      "mailRecipientsInvalid": "Nhập tối đa {max} địa chỉ email, cách nhau bằng dấu phẩy.",
       "limit": "Giới hạn token hằng tháng",
       "limitPlaceholder": "Không giới hạn",
       "limitHelp": "Số token tối đa mà các lần chạy của nó được dùng trong một tháng dương lịch (UTC). Khi đạt giới hạn, các lần chạy của nó dừng cho đến tháng sau.",
@@ -609,6 +613,8 @@
       "emailDrafted": "Đã soạn một email để xem xét:",
       "emailFailed": "Không thể soạn email:",
       "emailHidden": "Đã soạn một email trên một hàng bạn không mở được",
+      "emailSent": "Đã gửi email đến {to}:",
+      "emailSendFailed": "Không gửi được email đến {to}:",
       "reason": {
         "aiOff": "AI đang tắt trong không gian làm việc này.",
         "agentDisabled": "Tác tử đã bị tạm dừng hoặc lưu trữ.",
@@ -773,7 +779,8 @@
         "taskLength": "Một nhiệm vụ có tối đa 2.000 ký tự.",
         "repeat": "Hãy kiểm tra khi nào nó lặp lại và múi giờ của nó.",
         "helpers": "Hãy chọn tối đa 10 tác tử khác của không gian làm việc này chưa bị lưu trữ.",
-        "shareLevel": "Hãy chọn toàn quyền, có thể chỉnh sửa hoặc có thể xem và tương tác."
+        "shareLevel": "Hãy chọn toàn quyền, có thể chỉnh sửa hoặc có thể xem và tương tác.",
+        "mailRecipients": "Nhập tối đa 10 địa chỉ email."
       },
       "noteEmpty": "Hãy viết điều tác tử nên ghi nhớ.",
       "noteTooLong": "Một ghi chú có tối đa {max} ký tự.",
@@ -864,6 +871,7 @@
         "enabled": "Đang hoạt động",
         "model": "Mô hình",
         "web_access": "Truy cập web",
+        "mail_recipients": "Người nhận email",
         "monthly_token_limit": "Giới hạn token hằng tháng",
         "skills": "Kỹ năng",
         "schedules": "Lịch chạy",

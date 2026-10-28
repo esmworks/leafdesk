@@ -444,6 +444,10 @@
       "webAccess": "Nettilgang",
       "webAccessHelp": "Den kan åpne offentlige nettsider som den får lenker til eller finner i arbeidsområdet. Slå av dette for rent interne oppgaver.",
       "webAccessHelpSearch": "Den kan søke på nettet og åpne offentlige nettsider. Slå av dette for rent interne oppgaver.",
+      "mailRecipients": "E-postmottakere",
+      "mailRecipientsPlaceholder": "planning@example.com, sales@example.com",
+      "mailRecipientsHelp": "Den kan sende e-post til disse adressene, og ingen andre, fra postkassen til personen den jobber for: den som satte opp tidsplanen, ba om kjøringen eller chatter med den. Postkasser kobles til under E-post og kalender. Står feltet tomt, sender den ingen e-post.",
+      "mailRecipientsInvalid": "Skriv inn opptil {max} e-postadresser, skilt med komma.",
       "limit": "Månedlig tokengrense",
       "limitPlaceholder": "Ingen grense",
       "limitHelp": "Det høyeste antallet tokener kjøringene kan bruke i en kalendermåned (UTC). Når grensen er nådd, stopper kjøringene til neste måned.",
@@ -609,6 +613,8 @@
       "emailDrafted": "Skrev et e-postutkast til gjennomgang:",
       "emailFailed": "Kunne ikke skrive et e-postutkast:",
       "emailHidden": "Skrev et e-postutkast på en rad du ikke kan åpne",
+      "emailSent": "Sendte e-post til {to}:",
+      "emailSendFailed": "Kunne ikke sende e-post til {to}:",
       "reason": {
         "aiOff": "KI er slått av i dette arbeidsområdet.",
         "agentDisabled": "Agenten ble satt på pause eller arkivert.",
@@ -773,7 +779,8 @@
         "taskLength": "En oppgave kan ha høyst 2 000 tegn.",
         "repeat": "Sjekk når den gjentas, og tidssonen.",
         "helpers": "Velg opptil 10 andre agenter i dette arbeidsområdet som ikke er arkivert.",
-        "shareLevel": "Velg full tilgang, kan redigere eller kan lese og samhandle."
+        "shareLevel": "Velg full tilgang, kan redigere eller kan lese og samhandle.",
+        "mailRecipients": "Skriv inn opptil 10 e-postadresser."
       },
       "noteEmpty": "Skriv hva agenten skal huske.",
       "noteTooLong": "Et notat kan ha høyst {max} tegn.",
@@ -864,6 +871,7 @@
         "enabled": "Aktiv",
         "model": "Modell",
         "web_access": "Nettilgang",
+        "mail_recipients": "E-postmottakere",
         "monthly_token_limit": "Månedlig tokengrense",
         "skills": "Ferdigheter",
         "schedules": "Tidsplaner",

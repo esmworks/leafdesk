@@ -444,6 +444,10 @@
       "webAccess": "Dostęp do internetu",
       "webAccessHelp": "Może otwierać publiczne strony internetowe, do których dostaje linki lub które znajdzie w obszarze roboczym. Wyłącz go przy zadaniach czysto wewnętrznych.",
       "webAccessHelpSearch": "Może wyszukiwać w internecie i otwierać publiczne strony internetowe. Wyłącz go przy zadaniach czysto wewnętrznych.",
+      "mailRecipients": "Odbiorcy e-maili",
+      "mailRecipientsPlaceholder": "planning@example.com, sales@example.com",
+      "mailRecipientsHelp": "Może wysyłać e-maile na te adresy, i żadne inne, ze skrzynki osoby, dla której pracuje: tej, która ustawiła jego harmonogram, poprosiła o uruchomienie lub z nim czatuje. Skrzynki łączy się w sekcji E-mail i kalendarz. Gdy pole jest puste, nie wysyła e-maili.",
+      "mailRecipientsInvalid": "Wpisz do {max} adresów e-mail, oddzielonych przecinkami.",
       "limit": "Miesięczny limit tokenów",
       "limitPlaceholder": "Bez limitu",
       "limitHelp": "Maksymalna liczba tokenów, jaką jego uruchomienia mogą zużyć w miesiącu kalendarzowym (UTC). Po jej osiągnięciu uruchomienia są wstrzymane do następnego miesiąca.",
@@ -671,7 +675,9 @@
       "waitingForOwner": "Na to wywołanie odpowiada właściciel obszaru roboczego.",
       "emailDrafted": "Przygotował szkic e-maila do sprawdzenia:",
       "emailFailed": "Nie udało się przygotować szkicu e-maila:",
-      "emailHidden": "Przygotował szkic e-maila w wierszu, którego nie możesz otworzyć"
+      "emailHidden": "Przygotował szkic e-maila w wierszu, którego nie możesz otworzyć",
+      "emailSent": "Wysłał e-mail do {to}:",
+      "emailSendFailed": "Nie udało się wysłać e-maila do {to}:"
     },
     "usage": {
       "thisMonth": "W tym miesiącu: {usage}",
@@ -773,7 +779,8 @@
         "taskLength": "Zadanie może mieć najwyżej 2000 znaków.",
         "repeat": "Sprawdź, kiedy się powtarza, i strefę czasową.",
         "helpers": "Wybierz najwyżej 10 innych, niezarchiwizowanych agentów tego obszaru roboczego.",
-        "shareLevel": "Wybierz pełny dostęp, może edytować lub może wyświetlać i używać."
+        "shareLevel": "Wybierz pełny dostęp, może edytować lub może wyświetlać i używać.",
+        "mailRecipients": "Wpisz do 10 adresów e-mail."
       },
       "noteEmpty": "Napisz, co agent ma zapamiętać.",
       "noteTooLong": "Notatka może mieć najwyżej {max, plural, one {# znak} few {# znaki} many {# znaków} other {# znaku}}.",
@@ -864,6 +871,7 @@
         "enabled": "Aktywny",
         "model": "Model",
         "web_access": "Dostęp do internetu",
+        "mail_recipients": "Odbiorcy e-maili",
         "monthly_token_limit": "Miesięczny limit tokenów",
         "skills": "Umiejętności",
         "schedules": "Harmonogramy",

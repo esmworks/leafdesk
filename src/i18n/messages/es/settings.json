@@ -444,6 +444,10 @@
       "webAccess": "Acceso a la web",
       "webAccessHelp": "Puede abrir páginas web públicas cuyos enlaces recibe o encuentra en el espacio de trabajo. Desactívalo para tareas estrictamente internas.",
       "webAccessHelpSearch": "Puede buscar en la web y abrir páginas web públicas. Desactívalo para tareas estrictamente internas.",
+      "mailRecipients": "Destinatarios de correo",
+      "mailRecipientsPlaceholder": "planning@example.com, sales@example.com",
+      "mailRecipientsHelp": "Puede enviar correos a estas direcciones, y a ninguna otra, desde el buzón de la persona para la que trabaja: quien configuró su programación, pidió la ejecución o chatea con él. Los buzones se conectan en Correo y calendario. Si lo dejas vacío, no envía correos.",
+      "mailRecipientsInvalid": "Escribe hasta {max} direcciones de correo, separadas por comas.",
       "limit": "Límite mensual de tokens",
       "limitPlaceholder": "Sin límite",
       "limitHelp": "Los tokens que sus ejecuciones pueden usar como máximo en un mes natural (UTC). Al llegar al límite, se detienen hasta el mes siguiente.",
@@ -671,7 +675,9 @@
       "waitingForOwner": "Un propietario del espacio de trabajo responde a esta llamada.",
       "emailDrafted": "Redactó un correo para revisar:",
       "emailFailed": "No pudo redactar un correo:",
-      "emailHidden": "Redactó un correo en una fila que no puedes abrir"
+      "emailHidden": "Redactó un correo en una fila que no puedes abrir",
+      "emailSent": "Envió un correo a {to}:",
+      "emailSendFailed": "No pudo enviar un correo a {to}:"
     },
     "usage": {
       "thisMonth": "Este mes: {usage}",
@@ -773,7 +779,8 @@
         "taskLength": "Una tarea tiene como mucho 2000 caracteres.",
         "repeat": "Revisa cuándo se repite y su zona horaria.",
         "helpers": "Elige hasta 10 agentes más de este espacio de trabajo que no estén archivados.",
-        "shareLevel": "Elige acceso completo, puede editar o puede ver e interactuar."
+        "shareLevel": "Elige acceso completo, puede editar o puede ver e interactuar.",
+        "mailRecipients": "Escribe hasta 10 direcciones de correo."
       },
       "noteEmpty": "Escribe qué debe recordar el agente.",
       "noteTooLong": "Una nota puede tener como máximo {max} caracteres.",
@@ -864,6 +871,7 @@
         "enabled": "Activo",
         "model": "Modelo",
         "web_access": "Acceso a la web",
+        "mail_recipients": "Destinatarios de correo",
         "monthly_token_limit": "Límite mensual de tokens",
         "skills": "Habilidades",
         "schedules": "Programaciones",

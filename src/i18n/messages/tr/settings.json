@@ -444,6 +444,10 @@
       "webAccess": "Web erişimi",
       "webAccessHelp": "Kendisine verilen ya da çalışma alanında bulduğu bağlantılardaki herkese açık web sayfalarını açabilir. Yalnızca iç işler için kapalı tutun.",
       "webAccessHelpSearch": "Web’de arama yapabilir ve herkese açık web sayfalarını açabilir. Yalnızca iç işler için kapalı tutun.",
+      "mailRecipients": "E-posta alıcıları",
+      "mailRecipientsPlaceholder": "planning@example.com, sales@example.com",
+      "mailRecipientsHelp": "Ajan bu adreslere, başka hiçbirine değil, adına çalıştığı kişinin posta kutusundan e-posta gönderebilir: zamanlamasını kuran, çalıştırmayı isteyen ya da onunla sohbet eden kişi. Posta kutuları E-posta ve takvim bölümünden bağlanır. Boş bırakırsanız e-posta göndermez.",
+      "mailRecipientsInvalid": "Virgülle ayırarak en fazla {max} e-posta adresi girin.",
       "limit": "Aylık token sınırı",
       "limitPlaceholder": "Sınır yok",
       "limitHelp": "Çalışmalarının bir takvim ayında (UTC) kullanabileceği en fazla token. Sınıra ulaşınca çalışmaları gelecek aya kadar durur.",
@@ -671,7 +675,9 @@
       "waitingForOwner": "Bu çağrıyı bir çalışma alanı sahibi yanıtlar.",
       "emailDrafted": "İncelenmek üzere bir e-posta taslağı yazdı:",
       "emailFailed": "E-posta taslağı yazamadı:",
-      "emailHidden": "Açamadığın bir satırda e-posta taslağı yazdı"
+      "emailHidden": "Açamadığın bir satırda e-posta taslağı yazdı",
+      "emailSent": "E-posta gönderdi ({to}):",
+      "emailSendFailed": "E-posta gönderemedi ({to}):"
     },
     "usage": {
       "thisMonth": "Bu ay: {usage}",
@@ -773,7 +779,8 @@
         "taskLength": "Bir görev en fazla 2.000 karakter olabilir.",
         "repeat": "Ne zaman tekrarlandığını ve saat dilimini kontrol et.",
         "helpers": "Bu çalışma alanından arşivlenmemiş en fazla 10 başka ajan seçin.",
-        "shareLevel": "Tam erişim, düzenleyebilir ya da görüntüleyebilir ve etkileşebilir seç."
+        "shareLevel": "Tam erişim, düzenleyebilir ya da görüntüleyebilir ve etkileşebilir seç.",
+        "mailRecipients": "En fazla 10 e-posta adresi girin."
       },
       "noteEmpty": "Ajanın neyi hatırlaması gerektiğini yazın.",
       "noteTooLong": "Bir not en fazla {max} karakter olabilir.",
@@ -864,6 +871,7 @@
         "enabled": "Etkin",
         "model": "Model",
         "web_access": "Web erişimi",
+        "mail_recipients": "E-posta alıcıları",
         "monthly_token_limit": "Aylık token sınırı",
         "skills": "Beceriler",
         "schedules": "Zamanlamalar",

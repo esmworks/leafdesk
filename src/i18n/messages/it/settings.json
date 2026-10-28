@@ -444,6 +444,10 @@
       "webAccess": "Accesso al web",
       "webAccessHelp": "Può aprire pagine web pubbliche di cui riceve il link o che trova nello spazio di lavoro. Disattivalo per i compiti strettamente interni.",
       "webAccessHelpSearch": "Può cercare sul web e aprire pagine web pubbliche. Disattivalo per i compiti strettamente interni.",
+      "mailRecipients": "Destinatari email",
+      "mailRecipientsPlaceholder": "planning@example.com, sales@example.com",
+      "mailRecipientsHelp": "Può inviare email a questi indirizzi, e a nessun altro, dalla casella della persona per cui lavora: chi ha impostato la sua pianificazione, ha chiesto l’esecuzione o chatta con lui. Le caselle si collegano in Email e calendario. Se lo lasci vuoto, non invia email.",
+      "mailRecipientsInvalid": "Inserisci fino a {max} indirizzi email, separati da virgole.",
       "limit": "Limite mensile di token",
       "limitPlaceholder": "Nessun limite",
       "limitHelp": "Il numero massimo di token che le sue esecuzioni possono usare in un mese di calendario (UTC). Una volta raggiunto, le esecuzioni si fermano fino al mese successivo.",
@@ -671,7 +675,9 @@
       "waitingForOwner": "Un proprietario dello spazio di lavoro risponde a questa chiamata.",
       "emailDrafted": "Ha scritto una bozza di email da rivedere:",
       "emailFailed": "Non è riuscito a scrivere una bozza di email:",
-      "emailHidden": "Ha scritto una bozza di email su una riga che non puoi aprire"
+      "emailHidden": "Ha scritto una bozza di email su una riga che non puoi aprire",
+      "emailSent": "Ha inviato un’email a {to}:",
+      "emailSendFailed": "Non è riuscito a inviare un’email a {to}:"
     },
     "usage": {
       "thisMonth": "Questo mese: {usage}",
@@ -773,7 +779,8 @@
         "taskLength": "Un’attività può avere al massimo 2.000 caratteri.",
         "repeat": "Controlla quando si ripete e il suo fuso orario.",
         "helpers": "Scegli fino a 10 altri agenti di questo spazio di lavoro che non siano archiviati.",
-        "shareLevel": "Scegli accesso completo, può modificare o può visualizzare e interagire."
+        "shareLevel": "Scegli accesso completo, può modificare o può visualizzare e interagire.",
+        "mailRecipients": "Inserisci fino a 10 indirizzi email."
       },
       "noteEmpty": "Scrivi cosa deve ricordare l’agente.",
       "noteTooLong": "Una nota può avere al massimo {max} caratteri.",
@@ -864,6 +871,7 @@
         "enabled": "Attivo",
         "model": "Modello",
         "web_access": "Accesso al web",
+        "mail_recipients": "Destinatari email",
         "monthly_token_limit": "Limite mensile di token",
         "skills": "Competenze",
         "schedules": "Pianificazioni",

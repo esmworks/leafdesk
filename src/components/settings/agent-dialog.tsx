@@ -27,6 +27,7 @@ import { TabButton } from "@/components/settings/members-panel";
 import { useAction } from "@/components/settings/workspace-settings";
 import { Button, cn, Dialog, DialogFooter, DialogHeader, IconButton, Input, PageIcon, pageLabel, selectClass, Switch, textareaClass } from "@/components/ui";
 import type { AgentInput } from "@/server/agents/manage";
+import { MAX_AGENT_MAIL_RECIPIENTS, parseMailRecipients } from "@/lib/agent-mail";
 import {
   AGENT_ACCESS_LEVELS,
   AGENT_RUN_HISTORY_DAYS,
@@ -234,6 +235,7 @@ export function AgentForm({
   const [instructions, setInstructions] = useState(start?.instructions ?? "");
   const [enabled, setEnabled] = useState(agent?.enabled ?? true);
   const [webAccess, setWebAccess] = useState(agent?.webAccess ?? false);
+  const [mailRecipients, setMailRecipients] = useState((agent?.mailRecipients ?? []).join(", "));
   const [limit, setLimit] = useState(agent?.monthlyTokenLimit ? String(agent.monthlyTokenLimit) : "");
   const [model, setModel] = useState<AgentModel>(agent?.model ?? "main");
   const [rowChanges, setRowChanges] = useState<AgentRowChanges>(agent?.rowChanges ?? "direct");
@@ -246,9 +248,11 @@ export function AgentForm({
   // Empty: no limit. The server checks the number again.
   const monthlyTokenLimit = limit.trim() ? Number(limit.trim()) : null;
   const limitValid = monthlyTokenLimit === null || (Number.isInteger(monthlyTokenLimit) && monthlyTokenLimit >= 1 && monthlyTokenLimit <= MAX_AGENT_TOKEN_LIMIT);
+  // Checked again by the server.
+  const recipients = parseMailRecipients(mailRecipients);
 
   const submit = () => {
-    if (!clean || locked || !limitValid) return;
+    if (!clean || locked || !limitValid || !recipients) return;
     const value = {
       name: clean,
       icon,
@@ -256,6 +260,7 @@ export function AgentForm({
       instructions,
       enabled,
       webAccess,
+      mailRecipients: recipients,
       rowChanges,
       // Left as it is by anyone but an owner.
       ...(isOwner ? { monthlyTokenLimit } : {}),
@@ -359,6 +364,21 @@ export function AgentForm({
           <Switch checked={webAccess} label={t("webAccess")} disabled={locked} onChange={setWebAccess} />
         </div>
         <label className="block border-t border-border pt-3">
+          <span className="mb-1 block text-sm">{t("mailRecipients")}</span>
+          <Input
+            type="text"
+            value={mailRecipients}
+            placeholder={t("mailRecipientsPlaceholder")}
+            aria-invalid={!recipients}
+            disabled={locked}
+            onChange={(e) => setMailRecipients(e.target.value)}
+            className="w-full"
+          />
+          <span className={cn("mt-1 block text-xs", recipients ? "text-fg-muted" : "text-danger")}>
+            {recipients ? t("mailRecipientsHelp") : t("mailRecipientsInvalid", { max: MAX_AGENT_MAIL_RECIPIENTS })}
+          </span>
+        </label>
+        <label className="block border-t border-border pt-3">
           <span className="mb-1 block text-sm">{t("limit")}</span>
           <Input
             type="number"
@@ -388,7 +408,7 @@ export function AgentForm({
         <Button variant="secondary" onClick={onDone}>
           {tc("cancel")}
         </Button>
-        <Button type="submit" variant="primary" disabled={locked || pending || !clean || !limitValid}>
+        <Button type="submit" variant="primary" disabled={locked || pending || !clean || !limitValid || !recipients}>
           {agent ? (pending ? tc("saving") : tc("save")) : pending ? t("creating") : t("create")}
         </Button>
       </DialogFooter>
@@ -879,7 +899,7 @@ export function AgentStepLine({
   );
 }
 
-/** An email the run drafted for its sender's review, or couldn't; its subject only to those who may open the row. */
+/** An email the run drafted for its sender's review or sent to the agent's recipients, or couldn't; a draft's subject only to those who may open the row. */
 function EmailStepLine({ step }: { step: AgentEmailView }) {
   const t = useTranslations("settings.agents.runs");
   const failed = step.outcome === "failed";
@@ -892,7 +912,8 @@ function EmailStepLine({ step }: { step: AgentEmailView }) {
           t("emailHidden")
         ) : (
           <>
-            {t(failed ? "emailFailed" : "emailDrafted")} {step.subject && <span className="text-fg">“{step.subject}”</span>}
+            {step.pageId === null ? t(failed ? "emailSendFailed" : "emailSent", { to: (step.to ?? []).join(", ") }) : t(failed ? "emailFailed" : "emailDrafted")}{" "}
+            {step.subject && <span className="text-fg">“{step.subject}”</span>}
           </>
         )}
       </span>

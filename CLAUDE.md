@@ -161,7 +161,10 @@ BlockNote on Yjs; Tailwind v4; next-intl. Node 24, pnpm 11. A separate Electron 
   in the editor by `components/page/tags.ts` and `tag-menu.tsx`.
 - **Agents.** `src/server/agents/run.ts` is the worker (`agent_run`, its `source` typed in
   `src/lib/agents.ts`) and holds the tool lists; runs are queued from `requests.ts`, `chat.ts`,
-  `mentions.ts`, `handoff.ts` and the `agent` schedule kind. Each agent is its own user.
+  `mentions.ts`, `handoff.ts` and the `agent` schedule kind. Each agent is its own user. Email:
+  drafts on rows wait for review (`email-drafts.ts`); a report to the agent's own `mail_recipients`
+  goes out at once from the run's person's mailbox (`send-mail.ts`, through `row-mail/send.ts`
+  `sendFromMailbox`).
 - **Connections** (outbound MCP): `src/server/connections/` (`manage.ts`, `client.ts`, `fetch.ts`
   for the address checks, `events.ts` for inbound events, `approvals.ts`). A fetch of an address a
   member or visitor gives passes `{ untrusted: true }`: only `WEB_FETCH_ALLOWED_HOSTS` applies to

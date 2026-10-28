@@ -444,6 +444,10 @@
       "webAccess": "Web access",
       "webAccessHelp": "It can open public web pages whose links it’s given or finds in the workspace. Turn it off for strictly internal jobs.",
       "webAccessHelpSearch": "It can search the web and open public web pages. Turn it off for strictly internal jobs.",
+      "mailRecipients": "Email recipients",
+      "mailRecipientsPlaceholder": "planning@example.com, sales@example.com",
+      "mailRecipientsHelp": "It can email these addresses, and no others, from the mailbox of the person it works for: who set its schedule, asked for the run or chats with it. Mailboxes are connected under Email and calendar. Leave it empty and it sends no email.",
+      "mailRecipientsInvalid": "Enter up to {max} email addresses, separated by commas.",
       "limit": "Monthly token limit",
       "limitPlaceholder": "No limit",
       "limitHelp": "The most tokens its runs may use in a calendar month (UTC). Once they reach it, its runs stop until the next month.",
@@ -609,6 +613,8 @@
       "emailDrafted": "Drafted an email for review:",
       "emailFailed": "Couldn’t draft an email:",
       "emailHidden": "Drafted an email on a row you can’t open",
+      "emailSent": "Sent an email to {to}:",
+      "emailSendFailed": "Couldn’t send an email to {to}:",
       "reason": {
         "aiOff": "AI is off in this workspace.",
         "agentDisabled": "The agent was paused or archived.",
@@ -773,7 +779,8 @@
         "taskLength": "A task can have at most 2,000 characters.",
         "repeat": "Check when it repeats and its time zone.",
         "helpers": "Choose up to 10 other agents of this workspace that aren’t archived.",
-        "shareLevel": "Choose full access, can edit or can view & interact."
+        "shareLevel": "Choose full access, can edit or can view & interact.",
+        "mailRecipients": "Enter up to 10 email addresses."
       },
       "noteEmpty": "Write what the agent should remember.",
       "noteTooLong": "A note can have at most {max} characters.",
@@ -864,6 +871,7 @@
         "enabled": "Active",
         "model": "Model",
         "web_access": "Web access",
+        "mail_recipients": "Email recipients",
         "monthly_token_limit": "Monthly token limit",
         "skills": "Skills",
         "schedules": "Schedules",

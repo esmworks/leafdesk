@@ -444,6 +444,10 @@
       "webAccess": "Webzugriff",
       "webAccessHelp": "Er kann öffentliche Webseiten öffnen, deren Links er erhält oder im Arbeitsbereich findet. Für rein interne Aufgaben ausschalten.",
       "webAccessHelpSearch": "Er kann im Web suchen und öffentliche Webseiten öffnen. Für rein interne Aufgaben ausschalten.",
+      "mailRecipients": "E-Mail-Empfänger",
+      "mailRecipientsPlaceholder": "planning@example.com, sales@example.com",
+      "mailRecipientsHelp": "Er kann diesen Adressen – und keinen anderen – E-Mails aus dem Postfach der Person senden, für die er arbeitet: wer seinen Zeitplan eingerichtet, den Lauf angefordert hat oder mit ihm chattet. Postfächer werden unter E-Mail und Kalender verbunden. Leer gelassen sendet er keine E-Mails.",
+      "mailRecipientsInvalid": "Gib bis zu {max} E-Mail-Adressen ein, durch Kommas getrennt.",
       "limit": "Monatliches Token-Limit",
       "limitPlaceholder": "Kein Limit",
       "limitHelp": "Die meisten Tokens, die seine Durchläufe in einem Kalendermonat (UTC) verbrauchen dürfen. Ist das Limit erreicht, ruhen sie bis zum nächsten Monat.",
@@ -671,7 +675,9 @@
       "waitingForOwner": "Ein Workspace-Inhaber beantwortet diesen Aufruf.",
       "emailDrafted": "Hat eine E-Mail zur Prüfung entworfen:",
       "emailFailed": "Konnte keine E-Mail entwerfen:",
-      "emailHidden": "Hat eine E-Mail zu einer Zeile entworfen, die du nicht öffnen kannst"
+      "emailHidden": "Hat eine E-Mail zu einer Zeile entworfen, die du nicht öffnen kannst",
+      "emailSent": "E-Mail an {to} gesendet:",
+      "emailSendFailed": "E-Mail an {to} konnte nicht gesendet werden:"
     },
     "usage": {
       "thisMonth": "Diesen Monat: {usage}",
@@ -773,7 +779,8 @@
         "taskLength": "Eine Aufgabe hat höchstens 2.000 Zeichen.",
         "repeat": "Prüfe, wann er sich wiederholt, und die Zeitzone.",
         "helpers": "Wähle bis zu 10 andere, nicht archivierte Agenten dieses Workspaces.",
-        "shareLevel": "Wähle Vollzugriff, Kann bearbeiten oder Kann ansehen & interagieren."
+        "shareLevel": "Wähle Vollzugriff, Kann bearbeiten oder Kann ansehen & interagieren.",
+        "mailRecipients": "Gib bis zu 10 E-Mail-Adressen ein."
       },
       "noteEmpty": "Schreiben Sie, was sich der Agent merken soll.",
       "noteTooLong": "Eine Notiz darf höchstens {max} Zeichen haben.",
@@ -864,6 +871,7 @@
         "enabled": "Aktiv",
         "model": "Modell",
         "web_access": "Webzugriff",
+        "mail_recipients": "E-Mail-Empfänger",
         "monthly_token_limit": "Monatliches Token-Limit",
         "skills": "Skills",
         "schedules": "Zeitpläne",

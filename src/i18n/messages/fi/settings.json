@@ -444,6 +444,10 @@
       "webAccess": "Verkkoyhteys",
       "webAccessHelp": "Se voi avata julkisia verkkosivuja, joiden linkit sille annetaan tai jotka se löytää työtilasta. Poista käytöstä tiukasti sisäisissä tehtävissä.",
       "webAccessHelpSearch": "Se voi hakea verkosta ja avata julkisia verkkosivuja. Poista käytöstä tiukasti sisäisissä tehtävissä.",
+      "mailRecipients": "Sähköpostin vastaanottajat",
+      "mailRecipientsPlaceholder": "planning@example.com, sales@example.com",
+      "mailRecipientsHelp": "Se voi lähettää sähköpostia näihin osoitteisiin, eikä muihin, sen henkilön postilaatikosta, jolle se työskentelee: joka asetti sen aikataulun, pyysi ajoa tai keskustelee sen kanssa. Postilaatikot yhdistetään kohdassa Sähköposti ja kalenteri. Tyhjänä se ei lähetä sähköpostia.",
+      "mailRecipientsInvalid": "Anna enintään {max} sähköpostiosoitetta pilkuilla erotettuina.",
       "limit": "Kuukausittainen tokenraja",
       "limitPlaceholder": "Ei rajaa",
       "limitHelp": "Enimmäismäärä tokeneita, jonka sen ajot saavat käyttää kalenterikuukaudessa (UTC). Kun raja täyttyy, sen ajot pysähtyvät seuraavaan kuukauteen asti.",
@@ -609,6 +613,8 @@
       "emailDrafted": "Laati sähköpostiluonnoksen tarkistettavaksi:",
       "emailFailed": "Sähköpostiluonnoksen laatiminen epäonnistui:",
       "emailHidden": "Laati sähköpostiluonnoksen rivillä, jota et voi avata",
+      "emailSent": "Lähetti sähköpostin osoitteeseen {to}:",
+      "emailSendFailed": "Sähköpostin lähettäminen osoitteeseen {to} epäonnistui:",
       "reason": {
         "aiOff": "Tekoäly on poistettu käytöstä tässä työtilassa.",
         "agentDisabled": "Agentti keskeytettiin tai arkistoitiin.",
@@ -773,7 +779,8 @@
         "taskLength": "Tehtävässä voi olla enintään 2 000 merkkiä.",
         "repeat": "Tarkista, milloin se toistuu, ja sen aikavyöhyke.",
         "helpers": "Valitse enintään 10 muuta tämän työtilan agenttia, joita ei ole arkistoitu.",
-        "shareLevel": "Valitse täydet oikeudet, voi muokata tai voi katsella ja käyttää."
+        "shareLevel": "Valitse täydet oikeudet, voi muokata tai voi katsella ja käyttää.",
+        "mailRecipients": "Anna enintään 10 sähköpostiosoitetta."
       },
       "noteEmpty": "Kirjoita, mitä agentin pitäisi muistaa.",
       "noteTooLong": "Muistiinpanossa voi olla enintään {max} merkkiä.",
@@ -864,6 +871,7 @@
         "enabled": "Aktiivinen",
         "model": "Malli",
         "web_access": "Verkkoyhteys",
+        "mail_recipients": "Sähköpostin vastaanottajat",
         "monthly_token_limit": "Kuukausittainen tokenraja",
         "skills": "Taidot",
         "schedules": "Ajastukset",

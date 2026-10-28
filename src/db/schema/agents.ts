@@ -63,6 +63,8 @@ export const workspaceAgent = pgTable(
     enabled: boolean("enabled").notNull().default(true),
     /** Whether its runs may read public web pages (and search the web, where the server has a search service). */
     webAccess: boolean("web_access").notNull().default(false),
+    /** Addresses its runs may send email to, from the mailbox of the person a run works for (lib/agent-mail.ts). */
+    mailRecipients: text("mail_recipients").array().notNull().default(sql`'{}'::text[]`),
     /** The most tokens its runs may use in a calendar month (UTC); null: no limit (see agent_usage). */
     monthlyTokenLimit: integer("monthly_token_limit"),
     /** Which of the server's models its runs use: "fast" is AI_FAST_MODEL, where the workspace's AI has one. */

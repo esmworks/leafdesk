@@ -109,6 +109,20 @@ address it didn't read. A helper's run for a schedule's run reads only its searc
 database with rows no member stands behind, each call still waits for an owner. Leave web access
 off for agents that only work with the workspace.
 
+**Email recipients.** An agent emails no one unless someone who can edit it lists addresses under
+*Email recipients* in its settings (up to 10; over MCP `update_agent` and the REST API,
+`mail_recipients`). Its runs then get `send_email`, which takes only a subject and a message: it
+goes out at once, without review, to every listed address and to no other, from the mailbox of the
+person the run works for (who set its schedule, asked for the run, chats with it or made the
+change that started it), connected under Account → Email and calendar while
+[email on rows](email-on-rows.md#email-on-rows) is on. A run for no one, or for someone without a
+mailbox there, doesn't get it. A run sends one message, in plain text; one with placeholders left to
+fill in is refused. It is put in the mailbox's sent folder, and the run's steps show its subject and
+recipients; nothing is retried, so a message the mail server refuses shows as failed. Since the run
+names no address, what it reads (a form answer, a synced row) can't send mail anywhere else. This is
+how a daily report reaches a fixed address; an email to a row's own contact is a draft instead
+(above).
+
 What reaches the model from outside (web pages, search results, connections' and other agents'
 answers) comes inside a frame whose end line carries an id new each time, so the text can't end
 the frame early, and characters that show nothing on screen are taken out of all it reads. Pages

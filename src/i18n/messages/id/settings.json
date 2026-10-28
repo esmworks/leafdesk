@@ -444,6 +444,10 @@
       "webAccess": "Akses web",
       "webAccessHelp": "Agen dapat membuka halaman web publik yang tautannya diberikan kepadanya atau ditemukannya di ruang kerja. Matikan untuk pekerjaan yang benar-benar internal.",
       "webAccessHelpSearch": "Agen dapat mencari di web dan membuka halaman web publik. Matikan untuk pekerjaan yang benar-benar internal.",
+      "mailRecipients": "Penerima email",
+      "mailRecipientsPlaceholder": "planning@example.com, sales@example.com",
+      "mailRecipientsHelp": "Agen dapat mengirim email ke alamat ini, dan tidak ke alamat lain, dari kotak surat orang yang dibantunya: yang mengatur jadwalnya, meminta proses, atau mengobrol dengannya. Kotak surat dihubungkan di Email dan kalender. Jika dikosongkan, agen tidak mengirim email.",
+      "mailRecipientsInvalid": "Masukkan hingga {max} alamat email, dipisahkan koma.",
       "limit": "Batas token bulanan",
       "limitPlaceholder": "Tanpa batas",
       "limitHelp": "Jumlah token terbanyak yang boleh dipakai eksekusinya dalam satu bulan kalender (UTC). Setelah mencapainya, eksekusinya berhenti sampai bulan berikutnya.",
@@ -609,6 +613,8 @@
       "emailDrafted": "Menyusun draf email untuk ditinjau:",
       "emailFailed": "Tidak dapat menyusun draf email:",
       "emailHidden": "Menyusun draf email pada baris yang tidak dapat Anda buka",
+      "emailSent": "Mengirim email ke {to}:",
+      "emailSendFailed": "Tidak dapat mengirim email ke {to}:",
       "reason": {
         "aiOff": "AI dimatikan di ruang kerja ini.",
         "agentDisabled": "Agen dijeda atau diarsipkan.",
@@ -773,7 +779,8 @@
         "taskLength": "Tugas dapat memiliki paling banyak 2.000 karakter.",
         "repeat": "Periksa kapan agen berulang dan zona waktunya.",
         "helpers": "Pilih hingga 10 agen lain di ruang kerja ini yang tidak diarsipkan.",
-        "shareLevel": "Pilih akses penuh, dapat mengedit, atau dapat melihat & berinteraksi."
+        "shareLevel": "Pilih akses penuh, dapat mengedit, atau dapat melihat & berinteraksi.",
+        "mailRecipients": "Masukkan hingga 10 alamat email."
       },
       "noteEmpty": "Tulis apa yang harus diingat agen.",
       "noteTooLong": "Catatan dapat memiliki paling banyak {max} karakter.",
@@ -864,6 +871,7 @@
         "enabled": "Aktif",
         "model": "Model",
         "web_access": "Akses web",
+        "mail_recipients": "Penerima email",
         "monthly_token_limit": "Batas token bulanan",
         "skills": "Keterampilan",
         "schedules": "Jadwal",

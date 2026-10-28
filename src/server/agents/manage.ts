@@ -12,6 +12,7 @@
 import { and, count, desc, eq, inArray, isNull, or, sql } from "drizzle-orm";
 import { db } from "@/db";
 import { agentDatabaseShare, agentRun, connection, databaseAutomation, page, pagePermission, schedule, user, workspaceAgent } from "@/db/schema";
+import { MAX_AGENT_MAIL_RECIPIENTS, parseMailRecipients } from "@/lib/agent-mail";
 import {
   accessSource,
   agentEmail,
@@ -65,6 +66,8 @@ export type AgentInput = {
   instructions?: string;
   enabled?: boolean;
   webAccess?: boolean;
+  /** Addresses its runs may send email to (lib/agent-mail.ts). */
+  mailRecipients?: string[];
   /** Tokens a month; null removes the limit. */
   monthlyTokenLimit?: number | null;
   model?: AgentModel;
@@ -93,6 +96,12 @@ function checkLimit(value: unknown) {
 function checkRowChanges(value: unknown): AgentRowChanges {
   if (!isAgentRowChanges(value)) throw new AgentError("invalid", 'An agent changes rows "direct"ly or proposes them for "review"', { reason: "rowChanges" });
   return value;
+}
+
+function checkMailRecipients(value: unknown): string[] {
+  const recipients = parseMailRecipients(value);
+  if (!recipients) throw new AgentError("invalid", `An agent sends email to up to ${MAX_AGENT_MAIL_RECIPIENTS} addresses`, { reason: "mailRecipients" });
+  return recipients;
 }
 
 function checkModel(value: unknown): AgentModel {
@@ -136,6 +145,7 @@ export function viewAgent(a: Agent, access: AgentShareLevel): AgentView {
     enabled: a.enabled,
     archived: a.archivedAt !== null,
     webAccess: a.webAccess,
+    mailRecipients: a.mailRecipients,
     monthlyTokenLimit: a.monthlyTokenLimit,
     model: a.model,
     rowChanges: a.rowChanges,
@@ -150,6 +160,7 @@ export const auditDetails = (a: Agent) => ({
   enabled: a.enabled,
   archived: a.archivedAt !== null,
   webAccess: a.webAccess,
+  mailRecipients: a.mailRecipients,
   monthlyTokenLimit: a.monthlyTokenLimit,
   model: a.model,
   rowChanges: a.rowChanges,
@@ -257,6 +268,7 @@ export async function createAgent(userId: string, workspaceId: string, input: Ag
         instructions,
         enabled: input.enabled ?? true,
         webAccess: input.webAccess === true,
+        mailRecipients: input.mailRecipients === undefined ? [] : checkMailRecipients(input.mailRecipients),
         monthlyTokenLimit,
         model,
         rowChanges: input.rowChanges === undefined ? "direct" : checkRowChanges(input.rowChanges),
@@ -296,6 +308,7 @@ export async function updateAgent(userId: string, agentId: string, patch: AgentI
   if (patch.instructions !== undefined) set.instructions = clean(patch.instructions, MAX_AGENT_INSTRUCTIONS) ?? "";
   if (patch.enabled !== undefined) set.enabled = Boolean(patch.enabled);
   if (patch.webAccess !== undefined) set.webAccess = patch.webAccess === true;
+  if (patch.mailRecipients !== undefined) set.mailRecipients = checkMailRecipients(patch.mailRecipients);
   if (patch.monthlyTokenLimit !== undefined) set.monthlyTokenLimit = checkLimit(patch.monthlyTokenLimit);
   if (patch.model !== undefined) set.model = checkModel(patch.model);
   if (patch.rowChanges !== undefined) set.rowChanges = checkRowChanges(patch.rowChanges);

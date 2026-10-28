@@ -54,6 +54,7 @@ export async function duplicateAgent(userId: string, agentId: string, overrides:
     // An archived agent was paused when it was archived; its copy starts working.
     enabled: source.archivedAt ? true : source.enabled,
     webAccess: source.webAccess,
+    mailRecipients: source.mailRecipients,
     monthlyTokenLimit: source.monthlyTokenLimit,
     model: source.model,
     rowChanges: source.rowChanges,

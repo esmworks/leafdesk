@@ -217,8 +217,11 @@ export type AgentRunStatus = (typeof AGENT_RUN_STATUSES)[number];
 /** A comment the agent wrote on a page. */
 export type AgentCommentRecord = { kind: "comment"; pageId: string; text: string; outcome: "done" | "failed" };
 
-/** An email the agent drafted on a row (`proposed`: it waits for its sender's review), or couldn't. */
-export type AgentEmailRecord = { kind: "email"; pageId: string; subject: string; outcome: "proposed" | "failed" };
+/**
+ * An email the agent drafted on a row (`proposed`: it waits for its sender's review), or couldn't;
+ * or, without a row (`pageId` null), one it sent to the agent's recipients (`to`), or couldn't.
+ */
+export type AgentEmailRecord = { kind: "email"; pageId: string | null; subject: string; outcome: "proposed" | "sent" | "failed"; to?: string[] };
 
 /**
  * A call to a connection's tool: read at once (`done`/`failed`), or one that waited for approval
@@ -385,6 +388,8 @@ export type AgentView = {
   archived: boolean;
   /** Whether its runs may read public web pages (read_web_page, and search_web where the server has a search service). */
   webAccess: boolean;
+  /** Addresses its runs may send email to (send_email), from the mailbox of the person a run works for. */
+  mailRecipients: string[];
   /**
    * The most tokens (in and out) its runs may use in a calendar month (UTC); null: no limit. A run
    * stops at its first turn once the month's tokens reach it.

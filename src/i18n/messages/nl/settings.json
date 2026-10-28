@@ -444,6 +444,10 @@
       "webAccess": "Toegang tot het web",
       "webAccessHelp": "Hij kan openbare webpagina’s openen waarvan hij de link krijgt of die hij in de werkruimte vindt. Zet dit uit voor strikt interne taken.",
       "webAccessHelpSearch": "Hij kan op het web zoeken en openbare webpagina’s openen. Zet dit uit voor strikt interne taken.",
+      "mailRecipients": "E-mailontvangers",
+      "mailRecipientsPlaceholder": "planning@example.com, sales@example.com",
+      "mailRecipientsHelp": "Hij kan deze adressen, en geen andere, e-mailen vanuit de mailbox van de persoon voor wie hij werkt: wie zijn planning instelde, de run vroeg of met hem chat. Mailboxen koppel je onder E-mail en agenda. Leeg gelaten stuurt hij geen e-mail.",
+      "mailRecipientsInvalid": "Vul maximaal {max} e-mailadressen in, gescheiden door komma’s.",
       "limit": "Maandelijkse tokenlimiet",
       "limitPlaceholder": "Geen limiet",
       "limitHelp": "Het maximale aantal tokens dat zijn uitvoeringen in een kalendermaand (UTC) mogen gebruiken. Zodra dat is bereikt, stoppen zijn uitvoeringen tot de volgende maand.",
@@ -609,6 +613,8 @@
       "emailDrafted": "Een e-mail ter beoordeling opgesteld:",
       "emailFailed": "Kon geen e-mail opstellen:",
       "emailHidden": "Een e-mail opgesteld op een rij die je niet kunt openen",
+      "emailSent": "E-mail verstuurd naar {to}:",
+      "emailSendFailed": "Kon geen e-mail versturen naar {to}:",
       "reason": {
         "aiOff": "AI staat uit in deze werkruimte.",
         "agentDisabled": "De agent is gepauzeerd of gearchiveerd.",
@@ -773,7 +779,8 @@
         "taskLength": "Een taak mag maximaal 2.000 tekens hebben.",
         "repeat": "Controleer wanneer hij herhaalt en de tijdzone.",
         "helpers": "Kies maximaal 10 andere agents van deze werkruimte die niet gearchiveerd zijn.",
-        "shareLevel": "Kies volledige toegang, kan bewerken of kan bekijken en gebruiken."
+        "shareLevel": "Kies volledige toegang, kan bewerken of kan bekijken en gebruiken.",
+        "mailRecipients": "Vul maximaal 10 e-mailadressen in."
       },
       "noteEmpty": "Schrijf wat de agent moet onthouden.",
       "noteTooLong": "Een notitie mag maximaal {max} tekens hebben.",
@@ -864,6 +871,7 @@
         "enabled": "Actief",
         "model": "Model",
         "web_access": "Toegang tot het web",
+        "mail_recipients": "E-mailontvangers",
         "monthly_token_limit": "Maandelijkse tokenlimiet",
         "skills": "Vaardigheden",
         "schedules": "Planningen",

@@ -444,6 +444,10 @@
       "webAccess": "ウェブアクセス",
       "webAccessHelp": "渡されたリンクやワークスペースで見つけたリンクの公開ウェブページを開けます。社内だけで完結する作業ではオフにしてください。",
       "webAccessHelpSearch": "ウェブを検索し、公開ウェブページを開けます。社内だけで完結する作業ではオフにしてください。",
+      "mailRecipients": "メールの宛先",
+      "mailRecipientsPlaceholder": "planning@example.com, sales@example.com",
+      "mailRecipientsHelp": "エージェントは、代わりに作業している人（スケジュールを設定した人、実行を依頼した人、チャットしている人）のメールボックスから、これらのアドレスにだけメールを送れます。メールボックスはメールとカレンダーで接続します。空欄ならメールを送りません。",
+      "mailRecipientsInvalid": "メールアドレスをカンマ区切りで{max}件まで入力してください。",
       "limit": "月間トークン上限",
       "limitPlaceholder": "上限なし",
       "limitHelp": "1か月（UTC）にこのエージェントの実行で使用できるトークンの上限です。上限に達すると、翌月まで実行が停止します。",
@@ -671,7 +675,9 @@
       "waitingForOwner": "この呼び出しにはワークスペースのオーナーが応答します。",
       "emailDrafted": "確認待ちのメールを下書きしました:",
       "emailFailed": "メールを下書きできませんでした:",
-      "emailHidden": "開けない行でメールを下書きしました"
+      "emailHidden": "開けない行でメールを下書きしました",
+      "emailSent": "{to} にメールを送信しました：",
+      "emailSendFailed": "{to} にメールを送信できませんでした："
     },
     "usage": {
       "thisMonth": "今月：{usage}",
@@ -773,7 +779,8 @@
         "taskLength": "タスクは最大2,000文字です。",
         "repeat": "繰り返しのタイミングとタイムゾーンを確認してください。",
         "helpers": "このワークスペースのアーカイブされていない他のエージェントを最大10個まで選択してください。",
-        "shareLevel": "フルアクセス、編集可能、閲覧・操作可能のいずれかを選んでください。"
+        "shareLevel": "フルアクセス、編集可能、閲覧・操作可能のいずれかを選んでください。",
+        "mailRecipients": "メールアドレスを10件まで入力してください。"
       },
       "noteEmpty": "エージェントに記憶させる内容を書いてください。",
       "noteTooLong": "メモは最大{max}文字です。",
@@ -864,6 +871,7 @@
         "enabled": "アクティブ",
         "model": "モデル",
         "web_access": "ウェブアクセス",
+        "mail_recipients": "メールの宛先",
         "monthly_token_limit": "月間トークン上限",
         "skills": "スキル",
         "schedules": "スケジュール",

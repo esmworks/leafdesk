@@ -87,6 +87,7 @@ import { callMoreTool, FIND_TOOLS, findTools, isDocsAddress, lazyMoreTools, MORE
 import { applyWrite, CHAT_TOOLS, prepareWrite, runTool, workspaceMap, WRITE_TOOL_NAMES, WRITE_TOOLS, type PreparedWrite, type Registry, type ToolOutcome } from "@/server/ai-tools";
 import { proposeChange } from "@/server/pending-changes";
 import { databaseOfRow, DRAFT_EMAIL, draftEmailTool, draftRowEmail, draftSender } from "./email-drafts";
+import { mailSender, SEND_EMAIL, sendAgentEmail, sendEmailTool } from "./send-mail";
 import { asAutomation } from "@/server/automations/queue";
 import { threadsVisibleTo } from "@/server/property-comments";
 import { changeComments } from "@/server/comments";
@@ -647,6 +648,8 @@ async function converse(
   // is matched to the rows drafts email from it; each draft waits for them (email-drafts.ts).
   const draftDatabase = databaseId ?? (isRowRun(run.source) ? await databaseOfRow(run.source.rowId) : null);
   const sender = await draftSender(member, run.workspaceId, draftDatabase);
+  // Email to the agent's own recipients, from the mailbox of the member the run works for (send-mail.ts).
+  const mailer = await mailSender(member, run.workspaceId, agent.mailRecipients);
   // A schedule's run on a database merges duplicates there only where the agent may edit it, and
   // not when its changes wait for review: a merge can't be proposed.
   const merges = !rowRun && !proposes && databaseId !== null && hasLevel((await pageAccessOf(agent.userId, databaseId)).level, "edit");
@@ -656,6 +659,7 @@ async function converse(
     ...forReview(ownTools, proposes),
     ...(merges ? [MERGE_ROWS] : []),
     ...(sender ? [draftEmailTool(sender, { anyRow: Boolean(databaseId) })] : []),
+    ...(mailer ? [sendEmailTool(mailer, agent.mailRecipients)] : []),
     ...(remembers ? AGENT_MEMORY_TOOLS : []),
     ...webTools,
     ...(handoff ? [handoff.tool] : []),
@@ -893,6 +897,10 @@ async function converse(
       });
       if (!out.isError) writes += 1;
       return out;
+    }
+    if (mailer && call.name === SEND_EMAIL) {
+      const sentBefore = steps.some((s) => s.kind === "email" && s.pageId === null);
+      return sendAgentEmail({ sender: mailer, recipients: agent.mailRecipients, args: call.arguments, sentBefore });
     }
     if (databaseId && call.name === MERGE_ROWS.name && tools.includes(MERGE_ROWS)) {
       if (writes >= maxWrites) return { content: `You have made ${maxWrites} changes, the most one run may make. Finish now.`, isError: true };

@@ -179,14 +179,7 @@ async function send(email: typeof rowEmail.$inferSelect) {
   }
   const raw = await composeRowEmail(email);
   try {
-    await withMailCredentials(box, async (credentials) => {
-      const transport = await smtpTransport(credentials);
-      try {
-        await transport.sendMail({ envelope: { from: box.address, to: [...email.to, ...email.cc] }, raw });
-      } finally {
-        transport.close();
-      }
-    });
+    await sendRaw(box, raw, [...email.to, ...email.cc]);
   } catch (error) {
     const retry = SEND_RETRY_MINUTES[email.attempts - 1];
     const giveUp = permanent(error) || retry === undefined;
@@ -204,18 +197,59 @@ async function send(email: typeof rowEmail.$inferSelect) {
     .update(rowEmail)
     .set({ status: "sent", error: null, nextAttemptAt: null, sentAt: new Date() })
     .where(eq(rowEmail.id, email.id));
-  if (box.folders.sent && !SAVES_SENT.includes(box.imapHost)) {
+  await keepSent(box, raw);
+}
+
+type Mailbox = typeof mailbox.$inferSelect;
+
+/** Sends a composed message through the mailbox's server; throws what the server answered. */
+async function sendRaw(box: Mailbox, raw: Buffer, recipients: string[]) {
+  await withMailCredentials(box, async (credentials) => {
+    const transport = await smtpTransport(credentials);
     try {
-      const client = await withMailCredentials(box, openImap);
-      try {
-        await client.append(box.folders.sent.path, raw, ["\\Seen"]);
-      } finally {
-        await client.logout().catch(() => {});
-      }
-    } catch (error) {
-      console.warn("[row-mail] could not save a sent message in the sent folder", connectError(error).code);
+      await transport.sendMail({ envelope: { from: box.address, to: recipients }, raw });
+    } finally {
+      transport.close();
     }
+  });
+}
+
+/** Puts a sent message in the mailbox's sent folder, where its server doesn't itself; a failure only warns. */
+async function keepSent(box: Mailbox, raw: Buffer) {
+  if (!box.folders.sent || SAVES_SENT.includes(box.imapHost)) return;
+  try {
+    const client = await withMailCredentials(box, openImap);
+    try {
+      await client.append(box.folders.sent.path, raw, ["\\Seen"]);
+    } finally {
+      await client.logout().catch(() => {});
+    }
+  } catch (error) {
+    console.warn("[row-mail] could not save a sent message in the sent folder", connectError(error).code);
   }
+}
+
+/**
+ * Sends a message on no row from the mailbox at once (an agent's email to its recipients,
+ * agents/send-mail.ts), and keeps it in the sent folder: nothing is queued or retried. Throws
+ * what the server answered, as `failure` words it.
+ */
+export async function sendFromMailbox(box: Mailbox, message: { fromName: string; to: string[]; subject: string; text: string }) {
+  const raw = await composeRowEmail({
+    ...message,
+    fromAddress: box.address,
+    cc: [],
+    messageId: `${crypto.randomUUID()}@${box.address.split("@")[1]}`,
+    inReplyTo: null,
+    references: [],
+    sentAt: new Date(),
+  });
+  try {
+    await sendRaw(box, raw, message.to);
+  } catch (error) {
+    throw new Error(failure(error), { cause: error });
+  }
+  await keepSent(box, raw);
 }
 
 /** Sends what is due; returns how many it tried. */

@@ -444,6 +444,10 @@
       "webAccess": "Webbåtkomst",
       "webAccessHelp": "Den kan öppna offentliga webbsidor vars länkar den får eller hittar i arbetsytan. Stäng av det för strikt interna uppgifter.",
       "webAccessHelpSearch": "Den kan söka på webben och öppna offentliga webbsidor. Stäng av det för strikt interna uppgifter.",
+      "mailRecipients": "E-postmottagare",
+      "mailRecipientsPlaceholder": "planning@example.com, sales@example.com",
+      "mailRecipientsHelp": "Den kan skicka e-post till de här adresserna, och inga andra, från brevlådan hos personen den arbetar åt: den som satte upp schemat, bad om körningen eller chattar med den. Brevlådor ansluts under E-post och kalender. Lämnas fältet tomt skickar den ingen e-post.",
+      "mailRecipientsInvalid": "Ange upp till {max} e-postadresser, åtskilda med kommatecken.",
       "limit": "Månatlig tokengräns",
       "limitPlaceholder": "Ingen gräns",
       "limitHelp": "Det högsta antal token som dess körningar får använda under en kalendermånad (UTC). När de når det stoppas dess körningar till nästa månad.",
@@ -609,6 +613,8 @@
       "emailDrafted": "Skrev ett utkast till e-postmeddelande för granskning:",
       "emailFailed": "Kunde inte skriva ett utkast till e-postmeddelande:",
       "emailHidden": "Skrev ett utkast till e-postmeddelande på en rad som du inte kan öppna",
+      "emailSent": "Skickade e-post till {to}:",
+      "emailSendFailed": "Kunde inte skicka e-post till {to}:",
       "reason": {
         "aiOff": "AI är avstängt i den här arbetsytan.",
         "agentDisabled": "Agenten pausades eller arkiverades.",
@@ -773,7 +779,8 @@
         "taskLength": "En uppgift kan ha högst 2 000 tecken.",
         "repeat": "Kontrollera när den upprepas och dess tidszon.",
         "helpers": "Välj upp till 10 andra agenter i den här arbetsytan som inte är arkiverade.",
-        "shareLevel": "Välj full åtkomst, kan redigera eller kan visa och interagera."
+        "shareLevel": "Välj full åtkomst, kan redigera eller kan visa och interagera.",
+        "mailRecipients": "Ange upp till 10 e-postadresser."
       },
       "noteEmpty": "Skriv vad agenten ska komma ihåg.",
       "noteTooLong": "En anteckning kan ha högst {max} tecken.",
@@ -864,6 +871,7 @@
         "enabled": "Aktiv",
         "model": "Modell",
         "web_access": "Webbåtkomst",
+        "mail_recipients": "E-postmottagare",
         "monthly_token_limit": "Månatlig tokengräns",
         "skills": "Färdigheter",
         "schedules": "Scheman",

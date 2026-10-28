@@ -4,6 +4,12 @@
 
 ### Added
 
+- **Agents email a report to the addresses you set.** An agent's settings take up to 10 *Email
+  recipients*; its runs can then send one plain-text message a run to all of them, and to no one
+  else, from the mailbox of the person the run works for (whoever set its schedule, asked for the
+  run or chats with it), connected under Email and calendar. It goes out at once and is kept in
+  that mailbox's sent folder; the run's steps show it. Over MCP `update_agent` and the REST API it
+  is `mail_recipients`. Migration 0157.
 - **Upload a recording to a meeting note.** A meeting not recorded yet takes an audio or video file
   recorded elsewhere (up to 500 MB and three hours): the browser reads it and sends it in the pieces
   a live recording is sent in, the transcript fills in at the file's times, and the summary,

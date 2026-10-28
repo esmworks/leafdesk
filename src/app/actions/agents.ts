@@ -52,7 +52,7 @@ import { requireUserId } from "@/server/session";
 // messages in production.
 
 /** Reasons an `invalid` error names, each with its own message. */
-const INVALID_REASONS = ["name", "icon", "level", "template", "database", "property", "option", "rules", "pages", "limit", "task", "taskLength", "repeat", "helpers", "shareLevel"] as const;
+const INVALID_REASONS = ["name", "icon", "level", "template", "database", "property", "option", "rules", "pages", "limit", "task", "taskLength", "repeat", "helpers", "shareLevel", "mailRecipients"] as const;
 type InvalidReason = (typeof INVALID_REASONS)[number];
 const isInvalidReason = (value: unknown): value is InvalidReason => (INVALID_REASONS as readonly unknown[]).includes(value);
 
@@ -97,6 +97,7 @@ const input = (value: AgentInput): AgentInput => ({
   instructions: value?.instructions,
   enabled: value?.enabled,
   webAccess: value?.webAccess,
+  mailRecipients: Array.isArray(value?.mailRecipients) ? value.mailRecipients.map(String) : undefined,
   monthlyTokenLimit: value?.monthlyTokenLimit,
   model: value?.model,
   rowChanges: value?.rowChanges,
@@ -308,7 +309,7 @@ export async function listAgentRunsAction(workspaceId: string, agentId: string):
             step.kind === "comment"
               ? { ...step, text: r.rowTitle === null ? null : step.text }
               : step.kind === "email"
-                ? { ...step, subject: r.rowTitle === null ? null : step.subject }
+                ? { ...step, subject: step.pageId !== null && r.rowTitle === null ? null : step.subject }
               : step.kind === "tool" || step.kind === "skill" || step.kind === "handoff"
                 ? step
                 : viewStep(userId, step),

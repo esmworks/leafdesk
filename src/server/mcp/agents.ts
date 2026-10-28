@@ -31,6 +31,7 @@ import {
   type AgentUsageMonth,
   type AgentView,
 } from "@/lib/agents";
+import { MAX_AGENT_MAIL_RECIPIENTS } from "@/lib/agent-mail";
 import { MAX_AGENT_REQUEST, type AgentDraft, type DraftTrigger } from "@/lib/agent-draft";
 import { AGENT_SHARE_LEVELS, type AgentSharingView } from "@/lib/agent-sharing";
 import type { AgentRestoreSkip, AgentVersionView } from "@/lib/agent-versions";
@@ -121,6 +122,11 @@ const webAccessInput = z
     "Whether its runs may read public web pages (read_web_page), and search the web where the server has a search service (search_web); default false. Leave it off for agents that should only work with the workspace: a run with it could send what it read to a web address.",
   );
 
+const mailRecipientsInput = z
+  .array(z.string().email().max(320))
+  .max(MAX_AGENT_MAIL_RECIPIENTS)
+  .describe("Addresses its runs may email (send_email), the whole list; [] clears it. Mail goes from the mailbox of the person a run works for. Only addresses the user named.");
+
 const rowChangesInput = z
   .enum(AGENT_ROW_CHANGES)
   .describe(
@@ -165,6 +171,7 @@ export const agentInputs = {
     instructions: instructionsInput.optional(),
     enabled: z.boolean().optional().describe("Pause (false) or resume (true) the agent."),
     web_access: webAccessInput.optional(),
+    mail_recipients: mailRecipientsInput.optional(),
     row_changes: rowChangesInput.optional(),
     monthly_token_limit: z
       .number()
@@ -334,6 +341,7 @@ export function toAgentPatch(args: Omit<z.infer<typeof agentInputs.update>, "age
     instructions?: string;
     enabled?: boolean;
     webAccess?: boolean;
+    mailRecipients?: string[];
     rowChanges?: AgentRowChanges;
     monthlyTokenLimit?: number | null;
     model?: AgentModel;
@@ -345,6 +353,7 @@ export function toAgentPatch(args: Omit<z.infer<typeof agentInputs.update>, "age
   if (args.instructions !== undefined) patch.instructions = args.instructions;
   if (args.enabled !== undefined) patch.enabled = args.enabled;
   if (args.web_access !== undefined) patch.webAccess = args.web_access;
+  if (args.mail_recipients !== undefined) patch.mailRecipients = args.mail_recipients;
   if (args.row_changes !== undefined) patch.rowChanges = args.row_changes;
   if (args.monthly_token_limit !== undefined) patch.monthlyTokenLimit = args.monthly_token_limit;
   if (args.model !== undefined) patch.model = args.model;
@@ -486,6 +495,7 @@ export function describeAgentSummary(agent: AgentView, helpers?: string[]) {
     archived: agent.archived,
     model: agent.model,
     web_access: agent.webAccess,
+    mail_recipients: agent.mailRecipients,
     row_changes: agent.rowChanges,
     user_id: agent.userId,
     your_access: agent.access,

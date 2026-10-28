@@ -444,6 +444,10 @@
       "webAccess": "웹 접근",
       "webAccessHelp": "받은 링크나 워크스페이스에서 찾은 링크의 공개 웹 페이지를 열 수 있습니다. 내부 작업에만 쓰는 에이전트는 꺼 두세요.",
       "webAccessHelpSearch": "웹을 검색하고 공개 웹 페이지를 열 수 있습니다. 내부 작업에만 쓰는 에이전트는 꺼 두세요.",
+      "mailRecipients": "이메일 수신자",
+      "mailRecipientsPlaceholder": "planning@example.com, sales@example.com",
+      "mailRecipientsHelp": "에이전트는 대신 일하는 사람(일정을 설정한 사람, 실행을 요청한 사람, 함께 채팅하는 사람)의 메일함에서 이 주소들로만 이메일을 보낼 수 있습니다. 메일함은 이메일 및 캘린더에서 연결합니다. 비워 두면 이메일을 보내지 않습니다.",
+      "mailRecipientsInvalid": "이메일 주소를 쉼표로 구분해 최대 {max}개까지 입력하세요.",
       "limit": "월간 토큰 한도",
       "limitPlaceholder": "제한 없음",
       "limitHelp": "한 달(UTC 기준 달력 월) 동안 실행에서 사용할 수 있는 최대 토큰 수입니다. 한도에 도달하면 다음 달까지 실행이 중지됩니다.",
@@ -671,7 +675,9 @@
       "waitingForOwner": "이 호출은 워크스페이스 소유자가 응답합니다.",
       "emailDrafted": "검토할 이메일 초안을 작성했습니다:",
       "emailFailed": "이메일 초안을 작성하지 못했습니다:",
-      "emailHidden": "열 수 없는 행에서 이메일 초안을 작성했습니다"
+      "emailHidden": "열 수 없는 행에서 이메일 초안을 작성했습니다",
+      "emailSent": "{to}에게 이메일을 보냈습니다:",
+      "emailSendFailed": "{to}에게 이메일을 보내지 못했습니다:"
     },
     "usage": {
       "thisMonth": "이번 달: {usage}",
@@ -773,7 +779,8 @@
         "taskLength": "작업은 최대 2,000자까지 작성할 수 있습니다.",
         "repeat": "반복 주기와 시간대를 확인하세요.",
         "helpers": "이 워크스페이스에서 보관되지 않은 다른 에이전트를 최대 10개까지 선택하세요.",
-        "shareLevel": "전체 액세스, 편집 가능, 보기 및 상호 작용 가능 중에서 선택하세요."
+        "shareLevel": "전체 액세스, 편집 가능, 보기 및 상호 작용 가능 중에서 선택하세요.",
+        "mailRecipients": "이메일 주소를 최대 10개까지 입력하세요."
       },
       "noteEmpty": "에이전트가 기억할 내용을 작성하세요.",
       "noteTooLong": "메모는 최대 {max}자까지 작성할 수 있습니다.",
@@ -864,6 +871,7 @@
         "enabled": "활성",
         "model": "모델",
         "web_access": "웹 접근",
+        "mail_recipients": "이메일 수신자",
         "monthly_token_limit": "월간 토큰 한도",
         "skills": "스킬",
         "schedules": "일정",
