@@ -45,6 +45,11 @@
 
 ### Changed
 
+- **Change what a dashboard number or chart measures right in its settings.** Editing a widget now
+  shows *Value* and *Calculation* right under its title and width, so a total of one property becomes a
+  total (or average, smallest, largest …) of another in one pick, instead of through its view's
+  chart settings; a widget without a title of its own takes the new name, and while the new figure
+  loads it keeps the name of the one it shows.
 - **Dialogs share one look.** Every dialog has the same title bar (a larger title, a line under it
   where there is one, and a close button), the same spacing, and its buttons in a bar along the
   bottom, Cancel first; dialogs rise into place as they open, over a softer, layered shadow. The

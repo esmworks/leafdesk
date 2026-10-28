@@ -2,10 +2,11 @@ import { and, eq, inArray } from "drizzle-orm";
 import { db } from "@/db";
 import { page } from "@/db/schema";
 import type { PropertyOptions, PropertyType } from "@/db/schema/app";
-import type { AggregateResult } from "@/lib/aggregate";
+import type { AggregateFn, AggregateResult } from "@/lib/aggregate";
 import {
   canStack,
   chartAccumulateOf,
+  chartAggregateFunctionsOf,
   chartData,
   chartGroupProperty,
   chartMeasure,
@@ -69,6 +70,7 @@ export type WidgetPeriod = { property: { id: string; name: string } | null; rang
 /** A property a widget draws with: what it groups or stacks by, or what it measures. */
 export type WidgetProperty = { id: string; name: string; type: PropertyType; options: PropertyOptions };
 export type WidgetRow = { id: string; title: string; icon: string | null };
+export type MeasurableProperty = { id: string; name: string; fns: AggregateFn[] };
 
 export type WidgetData =
   /** Missing, not a database, or not one the viewer may see: nothing about it is said. */
@@ -83,6 +85,8 @@ export type WidgetData =
       period?: WidgetPeriod;
       /** The properties a period can cut this widget's rows on, for its settings. */
       dateProperties: { id: string; name: string; type: PropertyType }[];
+      /** The properties a number or chart can measure and the calculations each offers, for its settings. */
+      measurable: MeasurableProperty[];
     } & (
       | {
           kind: "number";
@@ -185,6 +189,10 @@ async function worked(viewer: WidgetViewer, source: WidgetSource, options: Widge
     stackBy,
     properties: properties.filter((p) => used.has(p.id)).map(({ id, name, type, options }) => ({ id, name, type, options })),
     dateProperties: dateProperties(properties),
+    measurable: properties.flatMap(({ id, name, type, options }) => {
+      const fns = chartAggregateFunctionsOf({ type, options });
+      return fns.length ? [{ id, name, fns }] : [];
+    }),
   };
 }
 
@@ -210,6 +218,7 @@ export async function widgetData(viewer: WidgetViewer, source: WidgetSource, opt
       rowCount: 0,
       properties: [],
       dateProperties: dateProperties(found.properties),
+      measurable: [],
       ...(range ? { period: { property: by ? { id: by.id, name: by.name } : null, range } } : {}),
       kind: "view",
     };
@@ -222,6 +231,7 @@ export async function widgetData(viewer: WidgetViewer, source: WidgetSource, opt
     rowCount: work.rows.length,
     properties: work.properties,
     dateProperties: work.dateProperties,
+    measurable: work.measurable,
     ...(work.period ? { period: work.period } : {}),
   };
   if (type === "list") return { ...base, kind: "list", rows: work.rows.slice(0, LIST_WIDGET_ROWS).map(rowRef) };

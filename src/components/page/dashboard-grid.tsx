@@ -235,7 +235,9 @@ function useTreeRefresh(workspaceId: string | null, shown: RefObject<Map<string,
  */
 function useWidgetData(widget: DashboardWidget, period: string, shown: RefObject<Map<string, ShownWidget>>) {
   const timeZone = useViewerTimeZone();
-  const [data, setData] = useState<WidgetData | null>(null);
+  // What came back, with the view it was asked for: a widget being changed is drawn and named as
+  // the data it has until the data for its new settings comes.
+  const [got, setGot] = useState<{ data: WidgetData; key: string; view: LinkedView } | null>(null);
   const [failed, setFailed] = useState(false);
   const [fetchedAt, setFetchedAt] = useState<number | null>(null);
   const { id, databaseId, view } = widget;
@@ -245,9 +247,10 @@ function useWidgetData(widget: DashboardWidget, period: string, shown: RefObject
   const load = useCallback(async () => {
     const n = ++asked.current;
     try {
-      const next = await widgetDataAction(JSON.parse(key) as { databaseId: string; view: LinkedView }, timeZone, period);
+      const source = JSON.parse(key) as { databaseId: string; view: LinkedView };
+      const next = await widgetDataAction(source, timeZone, period);
       if (n !== asked.current) return;
-      setData(next);
+      setGot({ data: next, key, view: source.view });
       setFailed(false);
       setFetchedAt(Date.now());
     } catch {
@@ -268,6 +271,7 @@ function useWidgetData(widget: DashboardWidget, period: string, shown: RefObject
   // Reactions and comments on rows change no number, chart or list.
   useChannel(`db:${databaseId}`, (event) => void (event !== "reactions" && event !== "comments" && later()));
 
+  const data = got?.data ?? null;
   const stamp = data && !failed ? widgetStamp(data.state === "ok" ? data.database : null) : null;
   useEffect(() => {
     const map = shown.current;
@@ -275,7 +279,7 @@ function useWidgetData(widget: DashboardWidget, period: string, shown: RefObject
     return () => void map.delete(id);
   }, [shown, id, databaseId, stamp, load]);
 
-  return { data, failed, fetchedAt, retry: load };
+  return { data, staleView: got && got.key !== key ? got.view : null, failed, fetchedAt, retry: load };
 }
 
 function Widget({
@@ -300,9 +304,10 @@ function Widget({
 }) {
   const t = useTranslations("page.dashboard");
   const tc = useTranslations("common");
-  const { data, failed, fetchedAt, retry } = useWidgetData(widget, period, shown);
+  const { data, staleView, failed, fetchedAt, retry } = useWidgetData(widget, period, shown);
   const ok = data?.state === "ok" ? data : null;
-  const shows = useWidgetName(widget, ok);
+  const drawn = useMemo(() => (staleView ? { ...widget, view: staleView } : widget), [widget, staleView]);
+  const shows = useWidgetName(drawn, ok);
   const title = widget.title || (fixed ? shows : ok ? pageLabel(ok.database.title, tc("untitled")) : "");
   const href = ok && !fixed ? `/w/${ok.database.workspaceId}/p/${ok.database.id}` : null;
 
@@ -332,7 +337,7 @@ function Widget({
         {t("inTrash")}
       </Notice>
     );
-  } else body = <WidgetBody widget={widget} data={data} title={title} period={period} />;
+  } else body = <WidgetBody widget={drawn} data={data} title={title} period={period} />;
 
   const box = useRef<HTMLElement>(null);
   return (
@@ -392,7 +397,7 @@ function Widget({
         {actions && !editing && <WidgetMenu widget={widget} actions={actions} />}
       </div>
       <div className="mt-2 min-h-0 min-w-0 flex-1">{body}</div>
-      {!editing && ok && !ok.database.inTrash && <WidgetFooter widget={widget} data={ok} fetchedAt={fetchedAt} />}
+      {!editing && ok && !ok.database.inTrash && <WidgetFooter widget={drawn} data={ok} fetchedAt={fetchedAt} />}
     </section>
   );
 }
@@ -719,7 +724,10 @@ function ColorPicker({ color, onPick }: { color: WidgetColor | undefined; onPick
   );
 }
 
-/** Setting a widget up in place: its title and width, and its view with the linked view's own toolbar. */
+/**
+ * Setting a widget up in place: its title and width, what a number or chart measures, the period's
+ * date, and its view with the linked view's own toolbar.
+ */
 function WidgetEditor({ widget, actions, fixed, data }: { widget: DashboardWidget; actions: WidgetActions; fixed: boolean; data: OkData | null }) {
   const t = useTranslations("page.dashboard");
   const tv = useTranslations("database.dashboardView");
@@ -749,8 +757,67 @@ function WidgetEditor({ widget, actions, fixed, data }: { widget: DashboardWidge
           {t("done")}
         </Button>
       </div>
+      {data && widget.view.type === "chart" && <MeasureSettings widget={widget} measurable={data.measurable} onChange={change} />}
       {data && <PeriodSettings widget={widget} dateProperties={data.dateProperties} onChange={change} />}
       <DatabaseEmbed databaseId={widget.databaseId} linked={linked} />
+    </div>
+  );
+}
+
+/**
+ * What a number or chart measures, the same setting its view's chart settings hold, kept in sight
+ * beside the title: counting rows, or a calculation over one property. A widget left without a
+ * title is named after it, so the name follows.
+ */
+function MeasureSettings({
+  widget,
+  measurable,
+  onChange,
+}: {
+  widget: DashboardWidget;
+  measurable: OkData["measurable"];
+  onChange: (widget: DashboardWidget) => void;
+}) {
+  const t = useTranslations("database");
+  const config = widget.view.config;
+  const agg = config.chartAggregate;
+  const prop = agg && measurable.find((p) => p.id === agg.propertyId);
+  // A calculation the property no longer offers counts rows, as lib/chart chartMeasure reads it.
+  const current = prop && prop.fns.includes(agg.fn) ? { prop, fn: agg.fn } : null;
+  const set = (chartAggregate: { fn: AggregateFn; propertyId: string } | undefined) => {
+    const { chartAggregate: _, ...rest } = config;
+    onChange({ ...widget, view: { ...widget.view, config: chartAggregate ? { ...rest, chartAggregate } : rest } });
+  };
+  const setProperty = (id: string) => {
+    const next = measurable.find((p) => p.id === id);
+    // Numbers are summed and checkboxes counted by default; other types count their values.
+    set(next && { fn: next.fns.includes("sum") ? "sum" : next.fns[0], propertyId: next.id });
+  };
+  return (
+    <div className="flex flex-wrap items-center gap-x-4 gap-y-2 text-sm">
+      <label className="flex items-center gap-2 text-fg-muted">
+        {t("chart.measure")}
+        <select className={selectClass} value={current?.prop.id ?? ""} onChange={(e) => setProperty(e.target.value)}>
+          <option value="">{t("chart.count")}</option>
+          {measurable.map((p) => (
+            <option key={p.id} value={p.id}>
+              {p.name}
+            </option>
+          ))}
+        </select>
+      </label>
+      {current && (
+        <label className="flex items-center gap-2 text-fg-muted">
+          {t("chart.calculation")}
+          <select className={selectClass} value={current.fn} onChange={(e) => set({ fn: e.target.value as AggregateFn, propertyId: current.prop.id })}>
+            {current.prop.fns.map((fn) => (
+              <option key={fn} value={fn}>
+                {t(`calculate.menu.${fn}`)}
+              </option>
+            ))}
+          </select>
+        </label>
+      )}
     </div>
   );
 }

@@ -150,8 +150,10 @@
   A period above the grid (this week, month, quarter or year, last week, month, quarter or year, a
   range of days, or all time) cuts every widget's rows at once, counted in each reader's time zone;
   weeks start on Monday and quarters in January, April, July and October. Anyone may pick another
-  period for themselves without saving it; editors can save it for everyone. In a widget's settings,
-  *Period by* names the date it cuts on: by default the database's first date property, else its
+  period for themselves without saving it; editors can save it for everyone. A number's or chart's
+  settings start with what it measures, *Value* (counting rows, or a number, formula, rollup or other
+  property) and its *Calculation* (sum, average, median, smallest, largest …), the same setting its
+  view's chart settings hold; a widget left without a title is named after it. *Period by* names the date it cuts on: by default the database's first date property, else its
   first created time; a widget with no such date (or set to *Not by period*) shows every row and
   says so in its footer. The period adds to a widget's own filters, so an *is within* filter and the
   period both apply. A number with a period shows its change from the period before of the same
