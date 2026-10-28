@@ -579,6 +579,8 @@ async function* runChat(
       const last = isLastTurn(round, spentUsd, limitUsd);
       yield { type: "thinking" };
       let streamed = "";
+      // Text shown since the last reset: once a tool call starts, it was the model thinking aloud.
+      let shown = false;
       let result: AiResult;
       try {
         const turn = stream({
@@ -595,6 +597,7 @@ async function* runChat(
           signal,
           sessionId: conversation.id,
           thinkingEvents: true,
+          toolEvents: true,
         });
         for await (const event of turn) {
           // The model's thinking is shown as it comes, and not kept.
@@ -602,8 +605,16 @@ async function* runChat(
             yield { type: "reasoning", text: event.delta };
             continue;
           }
+          // Writing a tool call's arguments (rows to add) can take minutes: the page shows it works.
+          if (event.type === "toolCall") {
+            if (shown) yield { type: "reset" };
+            shown = false;
+            yield { type: "thinking" };
+            continue;
+          }
           streamed += event.delta;
           answer = streamed;
+          shown = true;
           yield { type: "text", text: event.delta };
         }
         result = await turn.result();
@@ -620,7 +631,7 @@ async function* runChat(
       spentUsd += result.usage.costUsd;
       if (last && result.toolCalls.length && !closing) {
         closing = true;
-        if (streamed) yield { type: "reset" };
+        if (shown) yield { type: "reset" };
         refuseLastCalls(messages, result);
         round -= 1;
         continue;
@@ -631,7 +642,7 @@ async function* runChat(
         break;
       }
       // Text before a tool call is the model thinking aloud, not the answer: it's kept as a step.
-      if (streamed) yield { type: "reset" };
+      if (shown) yield { type: "reset" };
       const thought = thoughtText(streamed);
       if (thought) yield await step({ kind: "thought", text: thought.length > THOUGHT_CHARS ? `${thought.slice(0, THOUGHT_CHARS - 1).trimEnd()}…` : thought });
       answer = "";

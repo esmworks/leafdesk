@@ -397,7 +397,7 @@ describe("AI interface (faux provider)", () => {
 
     const s = stream({ feature: "test", workspaceId: "w1", messages: [{ role: "user", content: "streamed" }] });
     let text = "";
-    for await (const event of s) text += event.delta;
+    for await (const event of s) if (event.type === "text") text += event.delta;
     expect(text).toBe("echo:streamed|");
     expect((await s.result()).text).toBe(text);
   });

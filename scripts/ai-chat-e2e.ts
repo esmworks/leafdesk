@@ -258,12 +258,17 @@ try {
     first.steps,
   );
   check(typeof first.ms === "number" && first.ms >= 0, "the answer says how long it took", first.ms);
+  const firstTypes = first.events.map((e) => e.type);
   check(
-    first.events[1]?.type === "thinking" && first.events.filter((e) => e.type === "thinking").length === 3,
-    "the panel is told the model is thinking before each of its turns",
-    first.events.map((e) => e.type),
+    firstTypes[1] === "thinking" && firstTypes.filter((t) => t === "thinking").length === 5,
+    "the panel is told the model is thinking before each of its turns, and while it writes each tool call",
+    firstTypes,
   );
-  check(first.events.some((e) => e.type === "reset"), "text the model wrote before calling a tool is taken back");
+  check(
+    firstTypes.indexOf("reset") < firstTypes.indexOf("step") && firstTypes[firstTypes.indexOf("reset") + 1] === "thinking",
+    "text the model wrote before calling a tool is taken back as the call starts, not once it is written",
+    firstTypes,
+  );
 
   const vendorsSource = first.sources.find((s) => s.pageId === vendors.id);
   check(first.text.startsWith("The answer is in Tyre vendors [") && vendorsSource?.title === "Tyre vendors", "the answer cites the page it read", first);

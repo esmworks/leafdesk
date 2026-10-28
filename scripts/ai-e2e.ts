@@ -155,7 +155,7 @@ try {
 
   const answer = await startEditorAction(ids.owner, { pageId: doc.id, action: "improve", text: "The first paragraph was writen quickly." });
   let streamed = "";
-  for await (const event of answer) streamed += event.delta;
+  for await (const event of answer) if (event.type === "text") streamed += event.delta;
   const result = await answer.result();
   check(streamed === "An improved sentence." && result.text === streamed, "an editor action streams the model's answer", streamed);
   check(prompts.at(-1)?.includes("<text>\nThe first paragraph was writen quickly.\n</text>"), "…with the selection sent as data");

@@ -338,7 +338,11 @@ describe("tool calls over an OpenAI-compatible server", () => {
     });
     const tools = [{ name: "search_pages", description: "Search", parameters: { type: "object", properties: { query: { type: "string" } }, required: ["query"] } }];
     const messages: AiMessage[] = [{ role: "user", content: "Where do we go?" }];
-    const first = stream({ feature: "test", workspaceId: "w1", messages, tools });
+    const first = stream({ feature: "test", workspaceId: "w1", messages, tools, toolEvents: true });
+    const events: string[] = [];
+    for await (const e of first) events.push(e.type === "text" ? e.delta : e.type);
+    // The text before the call, then word that a call is being written.
+    expect(events.join("")).toBe("Let me look. toolCall");
     const firstResult = await first.result();
     expect(firstResult.stopReason).toBe("tool_use");
     expect(firstResult.toolCalls).toEqual([{ id: expect.any(String), name: "search_pages", arguments: { query: "north" } }]);
@@ -347,7 +351,7 @@ describe("tool calls over an OpenAI-compatible server", () => {
     messages.push(firstResult.message, { role: "tool", toolCallId: firstResult.toolCalls[0].id, name: "search_pages", content: "north" });
     const second = stream({ feature: "test", workspaceId: "w1", messages, tools });
     let text = "";
-    for await (const e of second) text += e.delta;
+    for await (const e of second) if (e.type === "text") text += e.delta;
     expect(text).toBe("Found: north [1]");
     const sent = fake.chats[1].messages;
     expect(sent.find((m) => m.role === "assistant")?.tool_calls?.[0].function.name).toBe("search_pages");

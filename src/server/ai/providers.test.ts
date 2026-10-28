@@ -74,7 +74,7 @@ describe("providers over HTTP", () => {
     setAiEnv({ AI_PROVIDER: "ollama", AI_MODEL: "llama3.2", AI_BASE_URL: base, AI_MAX_OUTPUT_TOKENS: "300" });
     const s = stream({ feature: "test", workspaceId: "w1", system: "Be brief.", messages: [{ role: "user", content: "hi" }] });
     let text = "";
-    for await (const e of s) text += e.delta;
+    for await (const e of s) if (e.type === "text") text += e.delta;
     const result = await s.result();
     expect(text).toBe("Hello there");
     expect(result.usage).toMatchObject({ inputTokens: 12, outputTokens: 2 });

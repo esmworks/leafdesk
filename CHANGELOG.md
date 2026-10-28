@@ -192,6 +192,10 @@
   read now takes up to 50,000 characters and says where to go on (`read_page` and `page_version`
   take an `offset`); when the conversation runs short of room, older tool results are dropped so
   the reading can continue.
+- **The AI chat no longer looks stuck while it prepares a change.** While the model wrote a long
+  tool call (many rows to add, a page to write), the answer stood still mid-sentence with no sign
+  of work. The text before the call now moves into the steps as soon as the call starts, and the
+  chat shows it is working until the call runs.
 - **Text is drawn in the system's own typeface again** where Inter isn't installed. Since 0.6.4
   Latin letters fell to a Chinese typeface on macOS, whose faces came before the system's.
 - **Recordings no longer end in lines nobody said.** Over silence or a mumbled stretch, Whisper

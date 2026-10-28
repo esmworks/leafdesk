@@ -96,6 +96,8 @@ export type AiRequest = {
   sessionId?: string;
   /** Also stream the model's thinking as it comes (`{type: "thinking"}` events), where it shows it. */
   thinkingEvents?: boolean;
+  /** Also say when the model starts writing a tool call (`{type: "toolCall"}` events): its arguments can take a while. */
+  toolEvents?: boolean;
   /**
    * A model the person picked (one of chatModelsFor's) in place of the one `feature` runs on; a
    * model the workspace's AI doesn't offer (any more) is ignored.
@@ -117,9 +119,9 @@ export type AiResult = {
   model: string;
 };
 
-export type AiStreamEvent = { type: "text"; delta: string } | { type: "thinking"; delta: string };
+export type AiStreamEvent = { type: "text"; delta: string } | { type: "thinking"; delta: string } | { type: "toolCall" };
 
-/** Text (and with `thinkingEvents`, thinking) as it arrives; `result()` settles with the whole answer, or rejects with an AiError. */
+/** Text (and with `thinkingEvents`, thinking; with `toolEvents`, tool calls starting) as it arrives; `result()` settles with the whole answer, or rejects with an AiError. */
 export type AiStream = AsyncIterable<AiStreamEvent> & { result(): Promise<AiResult> };
 
 // ---------------------------------------------------------------------------------- runtime
@@ -701,6 +703,9 @@ export function stream(request: AiRequest): AiStream {
           wake?.();
         } else if (event.type === "thinking_delta" && event.delta && request.thinkingEvents) {
           queue.push({ type: "thinking", delta: event.delta });
+          wake?.();
+        } else if (event.type === "toolcall_start" && request.toolEvents) {
+          queue.push({ type: "toolCall" });
           wake?.();
         }
       }

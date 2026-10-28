@@ -42,7 +42,7 @@ export async function POST(request: Request) {
   const body = new ReadableStream<Uint8Array>({
     async start(controller) {
       try {
-        for await (const event of answer) controller.enqueue(line({ type: "text", text: event.delta }));
+        for await (const event of answer) if (event.type === "text") controller.enqueue(line({ type: "text", text: event.delta }));
         const result = await answer.result();
         controller.enqueue(line({ type: "done", stopReason: result.stopReason }));
       } catch (error) {
