@@ -444,6 +444,9 @@ export function remapViewConfig(
   if (config.columnWidths) {
     out.columnWidths = Object.fromEntries(Object.entries(config.columnWidths).map(([key, width]) => [map(key), width]));
   }
+  if (config.columnAlign) {
+    out.columnAlign = Object.fromEntries(Object.entries(config.columnAlign).map(([key, align]) => [map(key), align]));
+  }
   // A form's questions follow the copied properties, and its default values are row values. Whether
   // it is open to the web isn't part of the config: a copy starts closed.
   // Conditions name the question they are about, and its options, which keep their ids.
@@ -490,6 +493,7 @@ export function dropPropertyReferences(config: ViewConfig, gone: (propertyId: st
     wrapped: c.wrapped?.filter((id) => !gone(id)),
     calculations: c.calculations && Object.fromEntries(Object.entries(c.calculations).filter(([k]) => !gone(k))),
     columnWidths: c.columnWidths && Object.fromEntries(Object.entries(c.columnWidths).filter(([k]) => !gone(k))),
+    columnAlign: c.columnAlign && Object.fromEntries(Object.entries(c.columnAlign).filter(([k]) => !gone(k))),
     form: c.form && {
       ...c.form,
       // A question about a property that is gone goes, and so does a condition about one.

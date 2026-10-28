@@ -173,11 +173,12 @@ try {
   const [firstView] = await db.select().from(databaseView).where(eq(databaseView.databaseId, tasks.id)).limit(1);
   await db
     .update(databaseView)
-    .set({ config: { ...firstView.config, columnWidths: { ...firstView.config.columnWidths, [tags.id]: 321 } } })
+    .set({ config: { ...firstView.config, columnWidths: { ...firstView.config.columnWidths, [tags.id]: 321 }, columnAlign: { [tags.id]: "end" } } })
     .where(eq(databaseView.id, firstView.id));
   const tagsCopy = await duplicateProperty(ids.owner, tags.id, "Tags (copy)");
   const [widened] = await db.select().from(databaseView).where(eq(databaseView.id, firstView.id));
   check(widened.config.columnWidths?.[tagsCopy.id] === 321, "a copied column is as wide as the original", widened.config.columnWidths);
+  check(widened.config.columnAlign?.[tagsCopy.id] === "end", "a copied column is aligned like the original", widened.config.columnAlign);
   const tagsCopy2 = await duplicateProperty(ids.owner, tags.id, "Tags (copy)");
   const after = await values(r1.id);
   check(

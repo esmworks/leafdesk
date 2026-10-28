@@ -3,7 +3,7 @@ import { and, asc, desc, eq, inArray, isNull, notInArray, sql } from "drizzle-or
 import { getTranslations } from "next-intl/server";
 import { db } from "@/db";
 import { databaseProperty, databaseView, page, pagePublication, user, workspace, type CardSize, type PageKind, type ViewConfig, type ViewType } from "@/db/schema";
-import type { ChartAccumulate, ChartType, DateOptions, FormulaConfig, PropertyOptions, PropertyType } from "@/db/schema/app";
+import type { ChartAccumulate, ChartType, ColumnAlign, DateOptions, FormulaConfig, PropertyOptions, PropertyType } from "@/db/schema/app";
 import type { AggregateResult } from "@/lib/aggregate";
 import {
   canStack,
@@ -440,6 +440,8 @@ export type PublishedDatabase = {
   wrap?: true;
   /** Tables: no lines between columns, only between rows. */
   noVerticalLines?: true;
+  /** Tables: columns whose values sit centered or at the end, by property id (see ViewConfig columnAlign). */
+  align?: Record<string, ColumnAlign>;
   /** Charts (layout "chart"). */
   chart?: PublishedChart;
   /** Pivots (layout "pivot"). */
@@ -1254,6 +1256,8 @@ export async function publishedDatabase(
   const shown = orderProperties(properties, chosen.config.propertyOrder).filter(
     (prop) => !isHiddenInView(chosen, prop) && !(layout === "board" && prop.id === groups?.property.id),
   );
+  // Only the shown columns' alignments: the others' ids stay with the view.
+  const aligned = Object.entries(chosen.config.columnAlign ?? {}).filter(([id]) => shown.some((p) => p.id === id));
   const excerpts = layout === "feed" ? await feedExcerpts(viewed.slice(0, PUBLISHED_FEED_EXCERPTS).map((r) => r.id)) : null;
   // A view showing no page icons publishes none.
   const icons = chosen.config.showIcons !== false;
@@ -1275,6 +1279,7 @@ export async function publishedDatabase(
     ...((layout === "board" || layout === "gallery") && chosen.config.wrapProperties ? { wrap: true as const } : {}),
     // Tables without lines between their columns (see ViewConfig showVerticalLines).
     ...(layout === "table" && chosen.config.showVerticalLines === false ? { noVerticalLines: true as const } : {}),
+    ...(layout === "table" && aligned.length ? { align: Object.fromEntries(aligned) } : {}),
     ...periodIgnored,
   };
 }

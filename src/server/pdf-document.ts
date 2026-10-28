@@ -26,7 +26,8 @@ import { elements, themeColor, themeContent, themePalette, type ThemePalette } f
  * numbers at the foot; its accent colors the rules and table headers, never text.
  */
 
-export type PdfTable = { header: string[]; rows: string[][] };
+/** `align`: per column, values (and the column's name) centered or at the right; at the left when missing. */
+export type PdfTable = { header: string[]; rows: string[][]; align?: (Alignment | undefined)[] };
 /** `title` null: a linked view shown without the database's name. */
 export type PdfEmbed = { title: string | null; table: PdfTable };
 
@@ -595,9 +596,16 @@ function headerColor(input: PdfInput): string | undefined {
 /** A database's rows as a table, its header shaded. */
 function dataTable(data: PdfTable, input: PdfInput): ContentTable {
   const columns = data.header.length;
+  const aligned = (c: number) => (data.align?.[c] ? { alignment: data.align[c] } : {});
   const body: TableCell[][] = [
-    data.header.map((name) => ({ text: name, bold: true, fillColor: headerFill(input), ...(headerColor(input) ? { color: headerColor(input) } : {}) })),
-    ...data.rows.map((row) => Array.from({ length: columns }, (_, c) => ({ text: row[c] || " " }))),
+    data.header.map((name, c) => ({
+      text: name,
+      bold: true,
+      fillColor: headerFill(input),
+      ...(headerColor(input) ? { color: headerColor(input) } : {}),
+      ...aligned(c),
+    })),
+    ...data.rows.map((row) => Array.from({ length: columns }, (_, c) => ({ text: row[c] || " ", ...aligned(c) }))),
   ];
   const texts = [data.header, ...data.rows];
   return { table: { headerRows: 1, widths: widthsOf(null, texts, columns), body, dontBreakRows: true }, layout: tableLayout(input, 1), fontSize: input.theme?.theme.tables?.size ?? 9 };

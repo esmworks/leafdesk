@@ -4,6 +4,9 @@
 
 ### Added
 
+- **Align a table column's values left, center or right.** A column's menu has *Alignment*, kept
+  per view like the column's width; amounts can line up on the right. Published and printed tables
+  and PDFs follow it, and a copied property or database keeps it.
 - **Agents email a report to the addresses you set.** An agent's settings take up to 10 *Email
   recipients*; its runs can then send one plain-text message a run to all of them, and to no one
   else, from the mailbox of the person the run works for (whoever set its schedule, asked for the

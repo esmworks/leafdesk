@@ -9,7 +9,7 @@ import { cn } from "@/components/ui";
 import { PHONE_QUERY, useMediaQuery } from "@/components/use-media-query";
 import { useReorderDrag, type ReorderDragHandlers } from "@/components/use-reorder-drag";
 import { useStuckMark } from "@/components/use-stuck-mark";
-import type { ViewConfig } from "@/db/schema/app";
+import type { ColumnAlign, ViewConfig } from "@/db/schema/app";
 import type { AggregateFn } from "@/lib/aggregate";
 import { isAutofillType } from "@/lib/ai";
 import { canBeUnique } from "@/lib/unique-values";
@@ -325,6 +325,13 @@ export function TableView({
       ...view.config,
       wrapped: wrapped.has(key) ? [...wrapped].filter((k) => k !== key) : [...wrapped, key],
     });
+  const aligns = view.config.columnAlign ?? {};
+  const setAlign = (key: string, align: ColumnAlign | null) => {
+    const columnAlign = { ...view.config.columnAlign };
+    if (align) columnAlign[key] = align;
+    else delete columnAlign[key];
+    void setConfig({ ...view.config, columnAlign });
+  };
   // Changing a property's type: the values it would clear are counted here on the rows the viewer
   // sees, with the same conversion the server runs on every row.
   const typeChange = (p: Property): PropertyMenuActions["changeType"] => {
@@ -371,6 +378,8 @@ export function TableView({
           calculation: { type, fn: view.config.calculations?.[key], onChange: (fn) => setCalculation(key, fn) },
           toggleWrap: () => toggleWrap(key),
           wrapped: wrapped.has(key),
+          // Property columns only: the Name column's title keeps its place by the row's icon.
+          ...(key === TITLE ? {} : { align: { value: aligns[key] ?? null, onChange: (align) => setAlign(key, align) } }),
           // Up to a column that is frozen, the menu unfreezes instead (a freeze too wide to apply counts as none).
           ...(phone
             ? {}
@@ -554,7 +563,7 @@ export function TableView({
                 handle={grid.fillHandle(at, i + 1)}
               />
               {valueAccess === "hidden" ? (
-                <PropertyCell prop={p} value={undefined} hidden onChange={() => {}} onCreateOption={createOption} />
+                <PropertyCell prop={p} value={undefined} hidden align={aligns[p.id]} onChange={() => {}} onCreateOption={createOption} />
               ) : (
                 <AiCell prop={p} rowId={row.id} readOnly={readOnly || valueAccess === "readOnly"}>
                   <PropertyCell
@@ -562,6 +571,7 @@ export function TableView({
                     value={row.properties[p.id]}
                     style={row.styles?.[p.id]}
                     wrap={wrapped.has(p.id)}
+                    align={aligns[p.id]}
                     readOnly={readOnly || valueAccess === "readOnly"}
                     onChange={(v) => {
                       showMoved(row, p.id, v);
@@ -835,6 +845,7 @@ export function TableView({
                       prop={p}
                       label={p.name}
                       icon={p.type}
+                      align={aligns[p.id]}
                       sort={sortOf(p.id)}
                       frozen={frozen(i + 1)}
                       readOnly={readOnly}
@@ -997,6 +1008,7 @@ function HeaderCell({
   prop,
   label,
   icon,
+  align,
   sort,
   frozen,
   readOnly,
@@ -1009,6 +1021,8 @@ function HeaderCell({
   prop: Property | null;
   label: string;
   icon: Property["type"] | "title";
+  /** The column's values sit centered or at the end: its name goes with them. */
+  align?: ColumnAlign;
   sort?: "asc" | "desc";
   /** A frozen column's position and look (see TableView). */
   frozen?: { style?: React.CSSProperties; className?: string };
@@ -1059,7 +1073,11 @@ function HeaderCell({
         disabled={readOnly}
         onClick={menu.toggle}
         aria-describedby={description ? descriptionId : undefined}
-        className="flex h-[33px] w-full items-center gap-1.5 px-2 text-[13px] text-fg-muted hover:bg-bg-hover disabled:hover:bg-transparent"
+        className={cn(
+          "flex h-[33px] w-full items-center gap-1.5 px-2 text-[13px] text-fg-muted hover:bg-bg-hover disabled:hover:bg-transparent",
+          align === "center" && "justify-center",
+          align === "end" && "justify-end",
+        )}
       >
         <PropertyTypeIcon type={icon} icon={prop?.options.icon} number={prop?.options.number} className="h-3.5 w-3.5 shrink-0" />
         <span className="truncate">{label}</span>

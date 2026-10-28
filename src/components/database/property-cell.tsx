@@ -39,7 +39,7 @@ import { dateDraft, dateStartDay, draftValue, extendDraft, formatDateValue, pars
 import { searchFold } from "@/lib/search-fold";
 import { relativeDay } from "@/lib/date-options";
 import { dayNumber, dayString } from "@/lib/time-zone";
-import type { DateFormatKind, DateOptions, FormulaConfig, NumberFormat, PropertyOptions } from "@/db/schema/app";
+import type { ColumnAlign, DateFormatKind, DateOptions, FormulaConfig, NumberFormat, PropertyOptions } from "@/db/schema/app";
 import { DatePhraseInput } from "@/components/date-phrase-input";
 import type { DatePhrase } from "@/lib/date-phrase";
 import { calculationFormat, formatInFormat, isDuration, isRating, numberText, ratingMax, readNumber, valueFormat } from "@/lib/number-format";
@@ -596,6 +596,7 @@ export function PropertyCell({
   hidden,
   variant = "table",
   wrap,
+  align,
   autoEdit,
   draft,
   placeholder,
@@ -626,6 +627,8 @@ export function PropertyCell({
    */
   variant?: "table" | "panel" | "list" | "card";
   wrap?: boolean;
+  /** A table column's alignment (ViewConfig columnAlign): the value sits centered or at the cell's end. */
+  align?: ColumnAlign;
   /** Start in edit mode (e.g. the title of a freshly created row). */
   autoEdit?: boolean;
   /** Text typed before the editor opened; a text editor starts with it instead of the value. */
@@ -652,6 +655,8 @@ export function PropertyCell({
     !readOnly && variant === "panel" && "hover:bg-bg-hover",
     !readOnly && variant === "list" && "hover:bg-bg-active",
     !readOnly && variant === "card" && "hover:bg-fg/5",
+    align === "center" && "justify-center text-center",
+    align === "end" && "justify-end text-end",
   );
 
   if (hidden) {

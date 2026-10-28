@@ -62,6 +62,7 @@ describe("dropPropertyReferences", () => {
         hidden: ["person", "due"],
         propertyOrder: ["due", "person", "notes"],
         columnWidths: { title: 320, person: 90, due: 240 },
+        columnAlign: { person: "center", due: "end" },
         wrapped: ["title", "person", "due"],
         frozenThrough: "person",
         calculations: { person: "count_all", due: "count_all" },
@@ -76,6 +77,7 @@ describe("dropPropertyReferences", () => {
     expect(out.hidden).toEqual(["due"]);
     expect(out.propertyOrder).toEqual(["due", "notes"]);
     expect(out.columnWidths).toEqual({ title: 320, due: 240 });
+    expect(out.columnAlign).toEqual({ due: "end" });
     expect(out.wrapped).toEqual(["title", "due"]);
     expect(out.frozenThrough).toBeUndefined();
     expect(out.calculations).toEqual({ due: "count_all" });
@@ -320,6 +322,11 @@ describe("remapViewConfig", () => {
       shown: ["date2", "gone"],
       propertyOrder: ["gone", "date2"],
     });
+  });
+
+  it("maps column alignments to the copied properties", () => {
+    const ids = new Map([["amount", "amount2"]]);
+    expect(remapViewConfig({ columnAlign: { amount: "end" } }, ids, () => null)).toEqual({ columnAlign: { amount2: "end" } });
   });
 
   it("maps filter rules inside groups and keeps the combinators", () => {

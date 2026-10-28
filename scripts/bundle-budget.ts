@@ -81,7 +81,7 @@ import { gzipSync } from "node:zlib";
  * and the inbox's tabs and row actions add under 1 kB to a page's first load and about 1 kB to all
  * first loads together.
  */
-const BUDGET = { routeFirstLoad: 780, firstLoadShared: 1189, onDemandChunk: 450 };
+const BUDGET = { routeFirstLoad: 780, firstLoadShared: 1190, onDemandChunk: 450 };
 
 const NEXT = ".next";
 const kB = (bytes: number) => bytes / 1024;

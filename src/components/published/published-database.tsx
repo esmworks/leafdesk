@@ -9,7 +9,7 @@ import { GroupLabel } from "@/components/database/group-label";
 import { isEmptyValue, PropertyDisplay } from "@/components/database/property-cell";
 import { PropertyTypeIcon, ViewIcon } from "@/components/database/property-icons";
 import { PageIcon } from "@/components/ui";
-import type { CardSize } from "@/db/schema";
+import type { CardSize, ColumnAlign } from "@/db/schema";
 import { pageLabel } from "@/lib/labels";
 import { publishedHref, type PublishedLinks } from "@/lib/site";
 import type { PublishedDatabase, PublishedRow } from "@/server/publication";
@@ -285,6 +285,9 @@ function FeedPost({ row, table, href }: { row: PublishedRow; table: PublishedDat
   );
 }
 
+/** A column's values (and its name) centered or at the end of their cells, as the view sets it. */
+const alignClass = (align: ColumnAlign | undefined) => (align === "center" ? "justify-center text-center" : align === "end" ? "justify-end text-end" : undefined);
+
 function Table({ rows, table, href, print }: { rows: PublishedRow[]; table: PublishedDatabase; href: Href; print: boolean }) {
   const t = useTranslations("publish");
   const { properties } = table;
@@ -305,7 +308,7 @@ function Table({ rows, table, href, print }: { rows: PublishedRow[]; table: Publ
                 key={prop.id}
                 className={cn("h-[33px] border-y border-s border-border px-2 text-start font-normal text-fg-muted", !print && "min-w-40")}
               >
-                <span className="flex items-center gap-1.5">
+                <span className={cn("flex items-center gap-1.5", alignClass(table.align?.[prop.id]))}>
                   <PropertyTypeIcon type={prop.type} icon={prop.options.icon} number={prop.options.number} className="h-3.5 w-3.5 shrink-0" />
                   <span className={print ? "min-w-0" : "truncate"}>{prop.name}</span>
                 </span>
@@ -324,7 +327,7 @@ function Table({ rows, table, href, print }: { rows: PublishedRow[]; table: Publ
               </td>
               {properties.map((prop) => (
                 <td key={prop.id} className={cn("border-b border-s border-border px-2 py-1.5 align-top", !print && "max-w-80")}>
-                  <div className="flex min-h-5 min-w-0 items-center">
+                  <div className={cn("flex min-h-5 min-w-0 items-center", alignClass(table.align?.[prop.id]))}>
                     <PropertyDisplay prop={prop} value={row.properties[prop.id]} style={row.styles?.[prop.id]} wrap />
                   </div>
                 </td>

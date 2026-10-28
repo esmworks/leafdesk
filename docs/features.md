@@ -340,6 +340,8 @@
     with their day, to open or drag onto a weekday. Boards and galleries can wrap long values on
     their cards onto more lines instead of cutting them off (*Wrap all properties*), and a table
     can leave out the lines between its columns (*Show vertical lines*; published tables too).
+    A table column's menu → *Alignment* puts its values and its name on the left, in the center or
+    on the right of the column, in that view, on published and printed tables and in PDFs.
   - Large databases: a board column and a gallery show 50 cards, then *Load more* adds as many
     again (Layout → *Load limit*: 10, 25, 50 or 100; filters, sorts, counts and calculations still
     take every row, and cards added there stay in view). A list, like a table, draws only the lines

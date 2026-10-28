@@ -322,6 +322,9 @@ function numberShown(value: number, locale: string, format: NumberFormat | undef
   return formatInFormat(value, format, (n, options) => new Intl.NumberFormat(locale, options).format(n));
 }
 
+/** A column's alignment on the PDF's page, which runs left to right. */
+const PDF_ALIGN = { start: undefined, center: "center", end: "right" } as const;
+
 /** A database as the PDF's table: its rows with their values, or a pivot's table (empty for a chart). */
 function tableOf(table: PublishedDatabase, labels: TableLabels, locale: string): PdfTable {
   const pivot = table.pivot;
@@ -343,9 +346,11 @@ function tableOf(table: PublishedDatabase, labels: TableLabels, locale: string):
     );
     return { header, rows: cells.map((row) => row.map((cell) => (cell === null ? "" : String(cell)))) };
   }
+  const align = table.properties.map((p) => PDF_ALIGN[table.align?.[p.id] ?? "start"]);
   return {
     header: [labels.name, ...table.properties.map((p) => p.name)],
     rows: table.rows.map((r) => [r.title, ...table.properties.map((p) => valueText(p, r.properties[p.id], locale))]),
+    ...(align.some(Boolean) ? { align: [undefined, ...align] } : {}),
   };
 }
 

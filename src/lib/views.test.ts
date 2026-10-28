@@ -56,6 +56,12 @@ describe("where a view opens its rows", () => {
     expect(VIEW_TYPES.filter(opensRows)).toEqual(["table", "board", "calendar", "gallery", "list", "feed", "timeline", "map"]);
   });
 
+  it("takes column alignments of center or end only", () => {
+    expect(layoutConfigError({ columnAlign: { p1: "end", p2: "center" } })).toBeNull();
+    expect(layoutConfigError({ columnAlign: { p1: "right" } } as never)).toMatch(/columnAlign/);
+    expect(layoutConfigError({ columnAlign: ["end"] } as never)).toMatch(/columnAlign/);
+  });
+
   it("refuses anything but panel, center or page", () => {
     expect(layoutConfigError({ subGroupBy: "p1", colorColumns: false, collapsedSubGroups: ["a", ""] })).toBeNull();
     expect(layoutConfigError({ subGroupBy: 3 } as never)).toMatch(/subGroupBy/);

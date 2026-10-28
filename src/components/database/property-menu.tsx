@@ -2,6 +2,9 @@
 
 import { PropertyIconButton } from "./schema-icons";
 import {
+  AlignCenter,
+  AlignLeft,
+  AlignRight,
   ArrowDown,
   ArrowDownAZ,
   ArrowDownZA,
@@ -59,6 +62,7 @@ import { isAutofillType, type AiAutofillConfig } from "@/lib/ai";
 import { canBeParent, canDepend, dependencyProblem, withoutParentOptions } from "@/lib/dependent-options";
 import { MAX_PROPERTY_DESCRIPTION, propertyDescription } from "@/lib/property-description";
 import type { AggregateFn } from "@/lib/aggregate";
+import type { ColumnAlign } from "@/db/schema/app";
 import { takesDateOptions, type DateOptionsInput } from "@/lib/date-options";
 import type { RelationOptionsInput } from "@/lib/relation-options";
 import type { NumberDisplay } from "@/lib/number-display";
@@ -267,6 +271,8 @@ export type PropertyMenuActions = {
   /** Turns wrapping the column's cells onto more lines on and off; `wrapped` says whether it is on. */
   toggleWrap?: () => void;
   wrapped?: boolean;
+  /** Where the column's values sit across their cells (null at the start, as when unset), and how to change it. */
+  align?: { value: ColumnAlign | null; onChange: (align: ColumnAlign | null) => void };
   /** Adds a property left ("before") or right ("after") of the column, on the sides listed. */
   insert?: {
     sides: ("before" | "after")[];
@@ -350,6 +356,15 @@ export function PropertyMenu({
     format?.format === "currency" && format.currency
       ? format.currency
       : t(format?.format === "percent" ? "formatPercent" : "formatNumber");
+  // The choices stand for sides of the table: columns run from the right when the page does, so
+  // there a column's start is its right side.
+  const rtl = dir === "rtl";
+  const alignChoices = [
+    { align: rtl ? ("end" as const) : null, label: "alignLeft" as const, Icon: AlignLeft },
+    { align: "center" as const, label: "alignCenter" as const, Icon: AlignCenter },
+    { align: rtl ? null : ("end" as const), label: "alignRight" as const, Icon: AlignRight },
+  ];
+  const { label: alignLabel, Icon: AlignIcon } = alignChoices.find((c) => c.align === (actions.align?.value ?? null)) ?? alignChoices[0];
   const [page, setPage] = useState<
     | "main"
     | "options"
@@ -364,6 +379,7 @@ export function PropertyMenu({
     | "page-visibility"
     | "autofill"
     | "calculate"
+    | "align"
     | "insert-before"
     | "insert-after"
     | "type"
@@ -608,6 +624,32 @@ export function PropertyMenu({
               onDone();
             }}
           />
+        </div>
+      </div>
+    );
+  }
+
+  if (page === "align" && actions.align) {
+    const { value, onChange } = actions.align;
+    return (
+      <div className="w-52">
+        <SubmenuHeader title={t("align")} onBack={() => setPage("main")} />
+        <MenuSeparator />
+        <div className="p-1">
+          {alignChoices.map(({ align, label, Icon }) => (
+            <MenuItem
+              key={label}
+              icon={<Icon className="h-3.5 w-3.5" />}
+              pressed={value === align}
+              trailing={value === align ? <Check className="h-3.5 w-3.5" /> : undefined}
+              onClick={() => {
+                if (align !== value) onChange(align);
+                onDone();
+              }}
+            >
+              {t(label)}
+            </MenuItem>
+          ))}
         </div>
       </div>
     );
@@ -899,6 +941,21 @@ export function PropertyMenu({
         onClick={run(actions.toggleWrap)}
       >
         {t("wrap")}
+      </MenuItem>
+    ),
+    actions.align && (
+      <MenuItem
+        key="align"
+        icon={<AlignIcon className="h-3.5 w-3.5" />}
+        trailing={
+          <>
+            <span className="me-1 text-xs">{t(alignLabel)}</span>
+            <ChevronRight className="h-3.5 w-3.5 rtl:-scale-x-100" />
+          </>
+        }
+        onClick={() => setPage("align")}
+      >
+        {t("align")}
       </MenuItem>
     ),
   ].filter(Boolean);

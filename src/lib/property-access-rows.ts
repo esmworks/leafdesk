@@ -321,6 +321,8 @@ export function restoreReferences(
   if (calcs.length) out.calculations = { ...next.calculations, ...Object.fromEntries(calcs) };
   const widths = Object.entries(stored.columnWidths ?? {}).filter(([id]) => gone.has(id));
   if (widths.length) out.columnWidths = { ...next.columnWidths, ...Object.fromEntries(widths) };
+  const aligns = Object.entries(stored.columnAlign ?? {}).filter(([id]) => gone.has(id));
+  if (aligns.length) out.columnAlign = { ...next.columnAlign, ...Object.fromEntries(aligns) };
   if (stored.form) {
     const before = stored.form.questions ?? [];
     const questions = before.filter((q) => gone.has(q.propertyId));

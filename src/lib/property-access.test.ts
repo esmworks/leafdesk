@@ -218,6 +218,10 @@ describe("view references", () => {
       a: 150,
       secret: 90,
     });
+    expect(restoreReferences({ columnAlign: { secret: "end" } }, { columnAlign: { a: "center" } }, gone).columnAlign).toEqual({
+      a: "center",
+      secret: "end",
+    });
     const order = { propertyOrder: ["a", "secret", "b", "c"] } as ViewConfig;
     expect(hideReferences(order, gone).propertyOrder).toEqual(["a", "b", "c"]);
     // The saver moved c to the front: secret stays right after a.

@@ -948,6 +948,8 @@ export type FilterGroup = { type: "group"; combinator: FilterCombinator; rules: 
 export type FilterEntry = FilterRule | FilterGroup;
 /** Gallery card sizes. */
 export type CardSize = "small" | "medium" | "large";
+/** Where a table column's values sit across the cell; "end" is the right in left-to-right pages. */
+export type ColumnAlign = "center" | "end";
 /** Cards a board column or a gallery shows before "Load more" (lib/load-limit). */
 export type LoadLimit = 10 | 25 | 50 | 100;
 /**
@@ -1181,6 +1183,8 @@ export type ViewConfig = {
   collapsedGroups?: string[];
   /** Table views: column widths in pixels the user dragged, keyed by property id or "title". */
   columnWidths?: Record<string, number>;
+  /** Table views: columns whose values sit centered or at the end of the cell, by property id; at the start when missing. */
+  columnAlign?: Record<string, ColumnAlign>;
   /** Table views: columns whose cells wrap onto more lines instead of cutting off, by property id or "title". */
   wrapped?: string[];
   /** Table views: the columns up to this one (property id or "title") stay put while the table scrolls sideways. */

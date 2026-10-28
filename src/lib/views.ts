@@ -1,6 +1,7 @@
 import type {
   CalendarMode,
   CardSize,
+  ColumnAlign,
   ChartAccumulate,
   ChartSort,
   ChartType,
@@ -45,6 +46,7 @@ export const VIEW_TYPES = [
  */
 export const LINKED_VIEW_TYPES = VIEW_TYPES.filter((type) => type !== "form" && type !== "dashboard");
 export const CARD_SIZES = ["small", "medium", "large"] as const satisfies readonly CardSize[];
+export const COLUMN_ALIGNS = ["center", "end"] as const satisfies readonly ColumnAlign[];
 export const COVER_SOURCES = ["first_image", "property", "none"] as const satisfies readonly ViewCover["source"][];
 export const TIMELINE_ZOOMS = ["day", "week", "month", "quarter", "year"] as const satisfies readonly TimelineZoom[];
 export const CALENDAR_MODES = ["month", "week"] as const satisfies readonly CalendarMode[];
@@ -204,6 +206,13 @@ export function layoutConfigError(config: ViewConfig): string | null {
     (!widths || typeof widths !== "object" || Array.isArray(widths) || !Object.values(widths).every((w) => typeof w === "number" && w >= MIN_COLUMN_WIDTH && w <= MAX_COLUMN_WIDTH))
   ) {
     return "columnWidths must map column ids to widths in pixels";
+  }
+  const aligns = c.columnAlign;
+  if (
+    aligns !== undefined &&
+    (!aligns || typeof aligns !== "object" || Array.isArray(aligns) || !Object.values(aligns).every((a) => COLUMN_ALIGNS.includes(a as ColumnAlign)))
+  ) {
+    return `columnAlign must map column ids to one of: ${COLUMN_ALIGNS.join(", ")}`;
   }
   const order = c.propertyOrder;
   if (order !== undefined && (!Array.isArray(order) || !order.every((id) => typeof id === "string"))) {
