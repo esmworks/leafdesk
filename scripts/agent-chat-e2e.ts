@@ -159,6 +159,35 @@ try {
   const [usage] = await db.select().from(agentUsage).where(eq(agentUsage.agentId, helper.id));
   check(usage?.runs === 2, "each message counts as one of the agent's runs", usage);
 
+  // ── Leafdesk's further tools ───────────────────────────────────────────────────────────────
+  const orders = await createPage(owner, { workspaceId, teamspaceId: general.id, kind: "database", title: "Orders" });
+  await agents.setAgentAccess(ids.owner, helper.id, orders.id, "edit");
+  fake.setChat(
+    caller(
+      [
+        { name: "find_tools", arguments: { query: "board view" } },
+        { name: "use_tool", arguments: { name: "create_database_view", arguments: { database_id: orders.id, name: "Order board", type: "board" } } },
+        { name: "use_tool", arguments: { name: "create_automation", arguments: {} } },
+      ],
+      "Added it.",
+    ),
+  );
+  fake.chats.length = 0;
+  const archiving = await chat.sendAgentChat(ids.owner, { workspaceId, agentId: helper.id, place: null, conversationId: null, message: "Add a board view to Orders." });
+  await flushAgentRuns();
+  check(["find_tools", "use_tool"].every((n) => toolNames(fake.chats[0]).includes(n)), "an owner's chat is offered Leafdesk's further tools", toolNames(fake.chats[0]));
+  const further = toolResults(fake.chats.at(-1)!);
+  check(further[0].startsWith("## create_database_view (") && !further[0].includes("create_automation"), "find_tools shows those that fit, none a person is asked about each time", further[0]);
+  const [board] = await db.execute<{ type: string }>(sql`select type from database_view where database_id = ${orders.id} and name = 'Order board'`);
+  check(board?.type === "board", "an owner's chat makes a change through one at once", further[1]);
+  check(/no tool "create_automation"/.test(further[2]), "one a person is asked about each time isn't there", further[2]);
+  const archivingTurn = await chat.chatTurn(ids.owner, workspaceId, archiving.runId);
+  check(
+    archivingTurn.steps.some((s) => s.kind === "leafdesk" && s.tool === "create_database_view" && s.outcome === "done"),
+    "the turn shows the call among its steps",
+    archivingTurn.steps,
+  );
+
   // ── A member's chat ────────────────────────────────────────────────────────────────────────
   fake.setChat(
     caller(
@@ -167,6 +196,8 @@ try {
         { name: "search_pages", arguments: { query: "merger BOARD-SECRET" } },
         { name: "update_row", arguments: { row_id: handbook.id, title: "Changed" } },
         { name: "read_page", arguments: { page_id: handbook.id } },
+        { name: "use_tool", arguments: { name: "list_pages", arguments: { workspace_id: workspaceId } } },
+        { name: "use_tool", arguments: { name: "set_page_archived", arguments: { page_id: handbook.id, archived: true } } },
       ],
       "Lunch is at noon.",
     ),
@@ -200,8 +231,11 @@ try {
   const memberResults = toolResults(fake.chats.at(-1)!);
   check(memberResults.some((r) => /no tool "update_row"/.test(r)), "a change asked for anyway isn't made", memberResults);
   check(memberResults.some((r) => r.includes("KB-HANDBOOK")), "what both can open is read", memberResults);
+  check(memberTools.includes("use_tool") && memberResults.some((r) => r.includes("Handbook") && r.includes(handbook.id)), "a member's chat reads through Leafdesk's further tools too", memberResults);
+  check(memberResults.some((r) => /no tool "set_page_archived"/.test(r)), "…but none of them changes anything", memberResults);
   const [handbookNow] = await db.execute<{ title: string }>(sql`select title from page where id = ${handbook.id}`);
-  check(handbookNow.title === "Handbook", "nothing was changed");
+  const [handbookArchived] = await db.execute<{ archived_at: string | null }>(sql`select archived_at from page where id = ${handbook.id}`);
+  check(handbookNow.title === "Handbook" && handbookArchived.archived_at === null, "nothing was changed");
   check(everything(fake.chats[0]).includes("can't change anything"), "the agent is told the chat is read-only");
 
   // ── Conversations are each person's own ────────────────────────────────────────────────────

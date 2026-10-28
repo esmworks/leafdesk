@@ -8,8 +8,10 @@
  * started once the model looks for one.
  */
 import { Client, InMemoryTransport, type CallToolResult } from "@modelcontextprotocol/client";
-import type { AiTool } from "@/server/ai";
-import { resultText } from "@/server/connections/tools";
+import type { ChatToolRecord } from "@/db/schema/ai";
+import type { AiTool, AiToolCall } from "@/server/ai";
+import { truncateText } from "@/server/ai/prompts";
+import { inputSummary, resultText } from "@/server/connections/tools";
 import { DOCS_PREFIX } from "@/server/mcp/docs";
 import { NOTIFICATIONS_SCOPE, READ_SCOPE, WRITE_SCOPE } from "@/server/mcp/principal";
 
@@ -81,8 +83,12 @@ export type MoreTools = {
   close(): Promise<void>;
 };
 
-/** The MCP server as `userId`, connected in this process: its tools less those the chat has its own of. */
-export async function openMoreTools(userId: string, { writes }: { writes: boolean }): Promise<MoreTools> {
+/**
+ * The MCP server as `userId`, connected in this process: its tools less those the chat has its own
+ * of; with `writes` false only those that read, with `eachTime` false none of ASKED_EACH_TIME (for
+ * agents' runs, where no one is asked).
+ */
+export async function openMoreTools(userId: string, { writes, eachTime = true }: { writes: boolean; eachTime?: boolean }): Promise<MoreTools> {
   // Without pages:write the server refuses every change itself, whatever the chat lets through.
   const scopes = [READ_SCOPE, NOTIFICATIONS_SCOPE, ...(writes ? [WRITE_SCOPE] : [])];
   // Loaded when first needed: the MCP server reaches the agents, which reach the chat.
@@ -100,6 +106,7 @@ export async function openMoreTools(userId: string, { writes }: { writes: boolea
       if (HIDDEN.has(tool.name)) continue;
       const writesHere = tool.annotations?.readOnlyHint !== true;
       if (writesHere && !writes) continue;
+      if (!eachTime && ASKED_EACH_TIME.has(tool.name)) continue;
       byName.set(tool.name, {
         name: tool.name,
         title: tool.title ?? tool.annotations?.title ?? tool.name,
@@ -120,6 +127,18 @@ export async function openMoreTools(userId: string, { writes }: { writes: boolea
     async close() {
       await client.close().catch(() => undefined);
       await server.close().catch(() => undefined);
+    },
+  };
+}
+
+/** openMoreTools when first needed; `close` closes it if it was opened. */
+export function lazyMoreTools(userId: string, options: { writes: boolean; eachTime?: boolean }) {
+  let opened: Promise<MoreTools> | null = null;
+  return {
+    open: () => (opened ??= openMoreTools(userId, options)),
+    async close() {
+      const tools = opened && (await opened.catch(() => null));
+      await tools?.close();
     },
   };
 }
@@ -201,12 +220,47 @@ export function findTools(tools: MoreTools, query: string, room: number): string
   return `${blocks.join("\n\n")}\n\n${names}`;
 }
 
+/** The tool use_tool names and its inputs, or what to tell the model when there's no such tool here. */
+export function pickMoreTool(tools: MoreTools, call: AiToolCall, why = ""): { tool: MoreTool; args: Record<string, unknown> } | { content: string; isError: true } {
+  const name = typeof call.arguments.name === "string" ? call.arguments.name.trim() : "";
+  const tool = tools.byName.get(name);
+  if (!tool) return { content: `There is no tool "${name.slice(0, 100)}" here${why}. find_tools names those there are.`, isError: true };
+  const given = call.arguments.arguments;
+  return { tool, args: given && typeof given === "object" && !Array.isArray(given) ? (given as Record<string, unknown>) : {} };
+}
+
+export const moreToolStep = (tool: MoreTool, args: Record<string, unknown>, outcome: ChatToolRecord["outcome"]): ChatToolRecord => ({
+  kind: "leafdesk",
+  tool: tool.name,
+  title: tool.title,
+  writes: tool.writes,
+  input: inputSummary(args),
+  outcome,
+});
+
+/** Calls one, its answer cut to `room`; throws only when `signal` stopped it. */
+export async function callMoreTool(
+  tools: MoreTools,
+  { tool, args }: { tool: MoreTool; args: Record<string, unknown> },
+  room: number,
+  signal?: AbortSignal,
+): Promise<{ content: string; isError: boolean; step: ChatToolRecord }> {
+  try {
+    const out = await tools.call(tool.name, args, signal);
+    return { content: truncateText(out.text, Math.max(200, room)), isError: out.isError, step: moreToolStep(tool, args, out.isError ? "failed" : "done") };
+  } catch (error) {
+    if (signal?.aborted) throw error;
+    console.error(`[ai] ${tool.name} failed`, error);
+    return { content: `${tool.name} failed: ${error instanceof Error ? error.message.slice(0, 300) : "unknown error"}`, isError: true, step: moreToolStep(tool, args, "failed") };
+  }
+}
+
 /** Whether read_page is asked for a docs topic (leafdesk://docs/<topic>) rather than a page. */
 export const isDocsAddress = (id: unknown): id is string => typeof id === "string" && id.trim().startsWith(DOCS_PREFIX);
 
-/** A docs topic the tools' inputs point at, as read_page returns it; null when there's no such topic. */
-export async function readDocsTopic(id: string): Promise<string | null> {
+/** A docs topic the tools' inputs point at, as read_page returns it, cut to `room`; null when there's no such topic. */
+export async function readDocsTopic(id: string, room: number): Promise<string | null> {
   const { readDocs } = await import("@/server/mcp/tools");
   const doc = readDocs(id);
-  return doc ? `# ${doc.title} (${doc.uri})\n\n${doc.text}` : null;
+  return doc ? truncateText(`# ${doc.title} (${doc.uri})\n\n${doc.text}`, Math.max(200, room)) : null;
 }

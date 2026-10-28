@@ -83,6 +83,7 @@ import { aiConfig, AiError, complete, isAiError, promptRoomFor, takeWorkspaceCap
 import { agentChatPrompt, agentEventPrompt, agentMentionPrompt, agentRequestPrompt, agentSchedulePrompt, agentSystemPrompt, agentTaskPrompt } from "@/server/ai/prompts";
 import { aiAvailable } from "@/server/ai-writing";
 import { memoryAvailable, memoryForPrompt } from "@/server/ai-memory";
+import { callMoreTool, FIND_TOOLS, findTools, isDocsAddress, lazyMoreTools, MORE_TOOL_NAMES, pickMoreTool, readDocsTopic, USE_TOOL } from "@/server/ai-more-tools";
 import { applyWrite, CHAT_TOOLS, prepareWrite, runTool, workspaceMap, WRITE_TOOL_NAMES, WRITE_TOOLS, type PreparedWrite, type Registry, type ToolOutcome } from "@/server/ai-tools";
 import { proposeChange } from "@/server/pending-changes";
 import { databaseOfRow, DRAFT_EMAIL, draftEmailTool, draftRowEmail, draftSender } from "./email-drafts";
@@ -501,9 +502,16 @@ export async function processRun(run: Run): Promise<void> {
       .catch((error: unknown) => console.error("[agents] could not mark a run as under way", redactError(error)));
   }, HEARTBEAT_MS);
   heartbeat.unref?.();
-  const outcome = await withinMember(agent, bound, () => converse(agent, run, { member, bound, trusted, chatWrites }))
+  // Leafdesk's further tools (ai-more-tools.ts): changes only in the chat of someone who may edit
+  // the agent, made at once like its other changes there; none a person is asked about each time.
+  // Opened once the agent looks for one.
+  const moreTools = lazyMoreTools(agent.userId, { writes: chatWrites, eachTime: false });
+  const outcome = await withinMember(agent, bound, () => converse(agent, run, { member, bound, trusted, chatWrites, moreTools }))
     .catch((error: unknown) => ({ error }))
-    .finally(() => clearInterval(heartbeat));
+    .finally(() => {
+      clearInterval(heartbeat);
+      void moreTools.close();
+    });
   if ("error" in outcome) {
     const error = outcome.error;
     if (isAiError(error) && error.code === "rateLimited") return later(run, new Date(Date.now() + (error.retryAfterMs ?? 30_000)));
@@ -566,7 +574,13 @@ type CallResult = { content: string; isError?: boolean; step?: AgentStepRecord }
 async function converse(
   agent: Agent,
   run: Run,
-  { member, bound, trusted, chatWrites }: { member: string | null; bound: string | null; trusted: boolean; chatWrites: boolean },
+  {
+    member,
+    bound,
+    trusted,
+    chatWrites,
+    moreTools: allMoreTools,
+  }: { member: string | null; bound: string | null; trusted: boolean; chatWrites: boolean; moreTools: ReturnType<typeof lazyMoreTools> },
 ): Promise<Ending | Paused> {
   const ctx: ops.OperationContext = { userId: agent.userId, actor: { userId: agent.userId, model: true } };
   const rowRun = isRowRun(run.source);
@@ -636,6 +650,8 @@ async function converse(
   // A schedule's run on a database merges duplicates there only where the agent may edit it, and
   // not when its changes wait for review: a merge can't be proposed.
   const merges = !rowRun && !proposes && databaseId !== null && hasLevel((await pageAccessOf(agent.userId, databaseId)).level, "edit");
+  // Leafdesk's further tools, on a run someone stands behind.
+  const moreTools = askEveryTool ? null : allMoreTools;
   const tools = [
     ...forReview(ownTools, proposes),
     ...(merges ? [MERGE_ROWS] : []),
@@ -644,6 +660,7 @@ async function converse(
     ...webTools,
     ...(handoff ? [handoff.tool] : []),
     ...toolset.tools,
+    ...(moreTools ? [FIND_TOOLS, USE_TOOL] : []),
   ];
   // Checked when the run starts and again when it goes on after waiting for approval, so a skill
   // someone else may edit by then is left out (see steps below).
@@ -884,6 +901,20 @@ async function converse(
       return out;
     }
     if (handoff && call.name === ASK_AGENT) return handoff.ask(call, room(messages));
+    if (moreTools && MORE_TOOL_NAMES.has(call.name)) {
+      const more = await moreTools.open();
+      if (call.name === FIND_TOOLS.name) return { content: findTools(more, typeof call.arguments.query === "string" ? call.arguments.query.slice(0, 200) : "", room(messages)) };
+      const picked = pickMoreTool(more, call);
+      if (!("tool" in picked)) return picked;
+      if (picked.tool.writes && writes >= maxWrites) return { content: `You have made ${maxWrites} changes, the most one message may make. Finish now.`, isError: true };
+      const out = await (picked.tool.writes ? asAutomation(() => callMoreTool(more, picked, room(messages))) : callMoreTool(more, picked, room(messages)));
+      if (picked.tool.writes && !out.isError) writes += 1;
+      return out;
+    }
+    if (moreTools && call.name === "read_page" && isDocsAddress(call.arguments.page_id) && tools.some((t) => t.name === "read_page")) {
+      const docs = await readDocsTopic(call.arguments.page_id, room(messages));
+      return docs ? { content: docs } : { content: "There is no such docs topic.", isError: true };
+    }
     if (!tools.some((t) => t.name === call.name)) return { content: `There is no tool "${call.name}" in this run.`, isError: true };
     const out: ToolOutcome = await runTool(ctx, run.workspaceId, undefined, call, registry, room(messages));
     return out;

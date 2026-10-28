@@ -26,7 +26,10 @@ you set yourself, in the agent's settings or the Share menu, stays).
 **What a run may do.** Search and read what is shared with the agent, query its databases, and
 change or comment on the row that started the run (its values, or its text block by block with
 `edit_page`), or propose those changes for review and draft an email there (below), nothing
-else. When a member's change started
+else. A run someone stands behind (not one over a row no member wrote, or an event from a service
+no owner vouched for) also reads through Leafdesk's other tools, as the [AI chat](ai.md#ai-features)
+does (`find_tools`, `use_tool`): a database's views, automations, the trash, versions and the like;
+only the chat of someone who can edit the agent changes things through them (below). When a member's change started
 the run, the agent is also held to what that member may: it opens, reads and changes only the pages
 and property values both of them can, so a run never hands someone what they couldn't open
 themselves. When an answer to a public form started it and no member stands behind the answer
@@ -142,8 +145,10 @@ block is on unless asked to. What it may do depends on who writes:
 
 - **Someone who can edit it** (owners included) gets what a run they ask for gets, held to their
   access as well as the agent's: it searches and reads what both can open, proposes notes, and
-  creates and changes pages and rows both can edit, at most 5 changes a message, made at once. It
-  uses its connections' tools; those that change something wait for an owner's approval, which the
+  creates and changes pages and rows both can edit, at most 5 changes a message, made at once, also
+  through Leafdesk's other tools (a database's views and properties, moving or copying a page…),
+  except those that reach other people or work on their own later (inviting, sharing, access rules,
+  automations, agents, follow-up sequences). It uses its connections' tools; those that change something wait for an owner's approval, which the
   chat asks an owner for in place, so they are offered only in an owner's chat.
 - **Someone who can view and interact** chats read-only: *answers come only from pages you can both
   see*. The agent reads only the pages both it and that person can open, changes nothing, proposes

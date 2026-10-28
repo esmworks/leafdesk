@@ -135,8 +135,8 @@ BlockNote on Yjs; Tailwind v4; next-intl. Node 24, pnpm 11. A separate Electron 
   `embed`, `transcribe`, with limits and usage built in. Chat: `ai-chat.ts`; its tools:
   `ai-tools.ts` (writes reuse MCP's checks: form settings in `mcp/form-settings.ts`), and every
   other MCP tool through `ai-more-tools.ts` (`find_tools`, `use_tool`: the MCP server in this
-  process as the person; `HIDDEN` and `ASKED_EACH_TIME` there; it imports `mcp/tools` lazily, which
-  reaches `agents/chat` and so `ai-chat`); CSV files
+  process as the person; `HIDDEN` and `ASKED_EACH_TIME` there; agents' runs use it too, without
+  the latter; it imports `mcp/tools` lazily, which reaches `agents/chat` and so `ai-chat`); CSV files
   attached to questions: `src/lib/chat-attachments.ts` (limits, names) and
   `chat-attachment-table.ts` (the parser, loaded by the box only when a file comes); AI property values: `ai-properties.ts`; notes it keeps: `ai-memory.ts`; semantic
   index and search: `semantic-index.ts`, `semantic-search.ts`; related pages under a page rank the

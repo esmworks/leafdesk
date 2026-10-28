@@ -43,7 +43,9 @@
   of Leafdesk's MCP server that does it (`find_tools`) and calls it (`use_tool`), as the person and
   with their access. A change is asked about in *Ask* and made at once in *Auto*; inviting members,
   sharing, access rules, automations, agents and follow-up sequences are asked about every time.
-  A read-only chat finds only tools that read.
+  A read-only chat finds only tools that read. Agents find and call them too: every run someone
+  stands behind reads through them, and the chat of someone who can edit the agent changes things
+  through them as well, except inviting, sharing, access rules, automations, agents and sequences.
 - **PDF themes: lay a template's PDFs out as you like, and have the AI change them.** A PDF
   template (Settings → PDF templates) can have a theme in place of its lines and accent: its colors,
   margins, text size, headings and tables, and the logo, texts, fields, boxes, columns, signature

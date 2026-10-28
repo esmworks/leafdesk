@@ -65,7 +65,6 @@ import {
   type ChatOptions,
   type ChatActionView,
   type ChatConnectionRecord,
-  type ChatToolRecord,
   type ChatEvent,
   type ChatMessageView,
   type ChatMode,
@@ -101,7 +100,7 @@ import {
 import { setTimeout as sleep } from "node:timers/promises";
 import { dropOldToolResults, roomToRead } from "@/server/ai/compact";
 import { browserTimeZone, isTimeZone } from "@/lib/time-zone";
-import { attachmentBlock, chatHistory, chatQuestionPrompt, chatSystemPrompt, researchSystemPrompt, truncateText } from "@/server/ai/prompts";
+import { attachmentBlock, chatHistory, chatQuestionPrompt, chatSystemPrompt, researchSystemPrompt } from "@/server/ai/prompts";
 import { ANSWER_NOW, isLastTurn, refuseLastCalls } from "@/server/ai/turns";
 import { attachmentRecords, deleteConversationFiles, keepQuestionFiles, questionFiles, readConversationFiles, type ChatFileContent } from "@/server/ai-chat-files";
 import { chatWebOn, chatWebToolset, isChatWebTool, PLAN_TOOL, runChatWebTool, runPlan } from "@/server/ai-chat-web";
@@ -112,7 +111,7 @@ import { teamspaceLabel } from "@/server/teamspaces";
 import { aiAvailable } from "@/server/ai-writing";
 import { applyMemory, memoryForPrompt, memoryOn, MEMORY_TOOL_NAMES, MEMORY_TOOLS, prepareMemory } from "@/server/ai-memory";
 import { awaitDecision, type ChatDecision } from "@/server/ai-chat-approvals";
-import { FIND_TOOLS, findTools, isDocsAddress, MORE_TOOL_NAMES, openMoreTools, readDocsTopic, USE_TOOL, type MoreTools } from "@/server/ai-more-tools";
+import { callMoreTool, FIND_TOOLS, findTools, isDocsAddress, lazyMoreTools, MORE_TOOL_NAMES, moreToolStep, pickMoreTool, readDocsTopic, USE_TOOL } from "@/server/ai-more-tools";
 import { chatToolNow, chatToolset, inputSummary, runConnectionTool, type ConnectionToolEntry } from "@/server/connections/tools";
 import * as ops from "@/server/operations";
 import { activeVerifications } from "@/server/verification";
@@ -521,27 +520,21 @@ async function* runChat(
   }
   // Leafdesk's further tools, started when the model first looks for one; a read-only chat gets
   // those that only read.
-  let more = null as MoreTools | null;
+  const moreTools = lazyMoreTools(userId, { writes: initialMode !== "read" });
   /**
    * find_tools and use_tool (ai-more-tools.ts). A further tool that changes something is asked
    * about as the chat's own changes are (in `ask` mode, which anything read from outside turns
    * `auto` into), and those that reach people or run on their own in every mode, each time.
    */
   async function* callMore(call: AiToolCall, left: number): AsyncGenerator<ChatEvent, ToolOutcome> {
-    more ??= await openMoreTools(userId, { writes: initialMode !== "read" });
+    const more = await moreTools.open();
     if (call.name === FIND_TOOLS.name) {
       const query = typeof call.arguments.query === "string" ? call.arguments.query.slice(0, 200) : "";
       return { content: findTools(more, query, left) };
     }
-    const name = typeof call.arguments.name === "string" ? call.arguments.name.trim() : "";
-    const tool = more.byName.get(name);
-    if (!tool) {
-      const why = initialMode === "read" ? " (changes are off in this chat)" : "";
-      return { content: `There is no tool "${name.slice(0, 100)}" here${why}. find_tools names those there are.`, isError: true };
-    }
-    const given = call.arguments.arguments;
-    const args = given && typeof given === "object" && !Array.isArray(given) ? (given as Record<string, unknown>) : {};
-    const record = (outcome: ChatToolRecord["outcome"]): ChatToolRecord => ({ kind: "leafdesk", tool: tool.name, title: tool.title, writes: tool.writes, input: inputSummary(args), outcome });
+    const picked = pickMoreTool(more, call, initialMode === "read" ? " (changes are off in this chat)" : "");
+    if (!("tool" in picked)) return picked;
+    const { tool, args } = picked;
     if (tool.writes && (tool.eachTime || mode !== "auto")) {
       const action: ChatActionView = { action: "tool", target: null, title: tool.title, changes: [], content: inputSummary(args, 2_000), ...(tool.eachTime ? { eachTime: true } : {}) };
       const decision = yield* decide(action);
@@ -551,18 +544,16 @@ async function* runChat(
             decision === "timeout"
               ? "The person didn't answer in time, so nothing was changed. Say what you would have done."
               : "The person declined this change: nothing was changed. Don't try it again; say what you would have done, or ask what they want instead.",
-          step: record("declined"),
+          step: moreToolStep(tool, args, "declined"),
         };
       }
       if (decision === "always" && !untrusted && !tool.eachTime) mode = "auto";
     }
     try {
-      const out = await more.call(tool.name, args, signal);
-      return { content: truncateText(out.text, Math.max(200, left)), isError: out.isError, step: record(out.isError ? "failed" : "done") };
+      return await callMoreTool(more, picked, left, signal);
     } catch (error) {
       if (signal?.aborted) throw new AiError("aborted", "The answer was stopped");
-      console.error(`[ai] ${tool.name} failed in the chat`, error);
-      return { content: `${tool.name} failed: ${error instanceof Error ? error.message.slice(0, 300) : "unknown error"}`, isError: true, step: record("failed") };
+      throw error;
     }
   }
   // Notes the answer asked again kept or dropped: they stay done, so they go with the new answer
@@ -711,8 +702,8 @@ async function* runChat(
         } else if (MORE_TOOL_NAMES.has(call.name) && !research) out = yield* callMore(call, left);
         // The docs topics the further tools' inputs point at are read like pages.
         else if (call.name === "read_page" && isDocsAddress(call.arguments.page_id)) {
-          const docs = await readDocsTopic(call.arguments.page_id);
-          out = docs ? { content: truncateText(docs, Math.max(200, left)) } : { content: "There is no such docs topic.", isError: true };
+          const docs = await readDocsTopic(call.arguments.page_id, left);
+          out = docs ? { content: docs } : { content: "There is no such docs topic.", isError: true };
         } else if (research && call.name === PLAN_TOOL.name) out = runPlan(call);
         else if (webTools.length && isChatWebTool(call.name)) {
           // What a web call carries leaves the workspace, and what the model read could have put it
@@ -761,7 +752,7 @@ async function* runChat(
     failure = isAiError(error) ? error.code : "provider";
     if (!isAiError(error)) console.error("[ai] chat failed", error);
   } finally {
-    await more?.close();
+    await moreTools.close();
   }
 
   // ------------------------------------------------------------------------------ the answer

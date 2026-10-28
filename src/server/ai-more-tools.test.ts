@@ -2,7 +2,7 @@ import { describe, expect, it, vi } from "vitest";
 
 vi.mock("@/db", () => ({ db: {} }));
 
-const { findTools, isDocsAddress } = await import("./ai-more-tools");
+const { findTools, isDocsAddress, pickMoreTool } = await import("./ai-more-tools");
 type MoreTools = import("./ai-more-tools").MoreTools;
 
 const tool = (name: string, title: string, description: string, writes = true) => ({ name, title, description, inputSchema: { type: "object" }, writes, eachTime: false });
@@ -45,6 +45,25 @@ describe("find_tools", () => {
   it("names a tool that doesn't fit the room instead of showing it", () => {
     const text = findTools(tools, "page", 230);
     expect(text).toContain("## move_page: too long to show with the others; ask for it by its name.");
+  });
+});
+
+describe("use_tool", () => {
+  it("takes the tool by its name and its inputs as given", () => {
+    const picked = pickMoreTool(tools, { id: "1", name: "use_tool", arguments: { name: " move_page ", arguments: { page_id: "p" } } });
+    expect("tool" in picked && picked.tool.name === "move_page" && picked.args).toEqual({ page_id: "p" });
+  });
+
+  it("takes inputs that aren't an object as none", () => {
+    const picked = pickMoreTool(tools, { id: "1", name: "use_tool", arguments: { name: "move_page", arguments: ["p"] } });
+    expect("tool" in picked && picked.args).toEqual({});
+  });
+
+  it("says why a tool isn't there", () => {
+    expect(pickMoreTool(tools, { id: "1", name: "use_tool", arguments: { name: "invite_member" } }, " (changes are off)")).toEqual({
+      content: 'There is no tool "invite_member" here (changes are off). find_tools names those there are.',
+      isError: true,
+    });
   });
 });
 
