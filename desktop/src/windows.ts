@@ -21,9 +21,10 @@ export const STRIP_HEIGHT = 44;
 
 /**
  * A tab: its view, what the strip shows of it, until it is first shown the path it opens (a
- * restored tab), and the room its page leaves the strip (undefined: not told since it loaded).
+ * restored tab), the room its page leaves the strip (undefined: not told since it loaded) and the
+ * shade a dialog open in it lays over the window.
  */
-type Tab = { id: number; view: WebContentsView; title: string; icon: string | null; loading: boolean; pending?: string; room?: StripRoom | null };
+type Tab = { id: number; view: WebContentsView; title: string; icon: string | null; loading: boolean; pending?: string; room?: StripRoom | null; shade?: string | null };
 
 /** What the strip draws: pages/tabs.html reads it (src/pages/tabs.ts mirrors the shape). */
 export type StripState = {
@@ -34,6 +35,8 @@ export type StripState = {
   dir: "ltr" | "rtl";
   /** The strip starts past macOS's window buttons (beside the page's sidebar) and leaves them no room. */
   clearOfControls: boolean;
+  /** The shown tab's page has a dialog open: the strip lays this color over itself, as the page does. */
+  shade: string | null;
 };
 
 export type TabHooks = {
@@ -278,6 +281,14 @@ export class TabbedWindow {
     this.hooks.changed();
   }
 
+  /** The shade a dialog open in a tab's page lays over it (null: none). */
+  setShade(contents: WebContents, shade: string | null) {
+    const tab = [...this.tabs.values()].find((each) => each.view.webContents === contents);
+    if (!tab || (tab.shade ?? null) === shade) return;
+    tab.shade = shade;
+    if (tab.id === this.list.active) this.sendStrip();
+  }
+
   /** What is kept of the window's tabs: each tab's path (`pathOf` decides it), title and icon, and the one shown. */
   saved(pathOf: (url: string) => string): SavedWindow {
     const tabs = this.list.ids.map((id): SavedTab => {
@@ -343,6 +354,7 @@ export class TabbedWindow {
     contents.on("did-navigate", () => {
       tab.icon = null;
       tab.room = undefined;
+      tab.shade = null;
       this.layout();
       this.sendStrip();
       this.hooks.changed();
@@ -404,6 +416,7 @@ export class TabbedWindow {
       active: this.list.active,
       ...this.hooks.strings(),
       clearOfControls: this.clearOfControls,
+      shade: (this.list.active === null ? null : this.tabs.get(this.list.active)?.shade) ?? null,
     };
     this.strip.send("leafdesk:tabs", state);
   }

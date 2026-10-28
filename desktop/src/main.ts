@@ -38,7 +38,7 @@ import { allowsFrameRedirect, APP_SCHEME, awayHost, decideNavigation, decideNewW
 import { addressCandidates, followsRedirect, hostOf, isLeafdeskManifest, needsHttpConfirmation } from "./server-address.ts";
 import { loadSettings, saveSettings, type Settings } from "./settings.ts";
 import { direction, fill, isLocale, pickLocale, STRINGS, type Locale } from "./strings.ts";
-import { ClosedTabs, readIcon, readStripRoom, tabPath, windowsToRestore, type SavedWindow } from "./tabs.ts";
+import { ClosedTabs, readIcon, readShade, readStripRoom, tabPath, windowsToRestore, type SavedWindow } from "./tabs.ts";
 import { startUpdates } from "./updates.ts";
 import { STRIP_HEIGHT, TabbedWindow } from "./windows.ts";
 
@@ -1122,5 +1122,11 @@ function registerTabBridge() {
     if (!owner || owner.strip === event.sender || !isServerPage(event.sender.getURL(), currentOrigin())) return;
     const room = readStripRoom(value);
     if (room) owner.setRoom(event.sender, room === "none" ? null : room);
+  });
+
+  ipcMain.on("leafdesk:strip-shade", (event, value: unknown) => {
+    const owner = TabbedWindow.of(event.sender);
+    if (!owner || owner.strip === event.sender) return;
+    owner.setShade(event.sender, isServerPage(event.sender.getURL(), currentOrigin()) ? readShade(value) : null);
   });
 }

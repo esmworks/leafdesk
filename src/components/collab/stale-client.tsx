@@ -34,7 +34,7 @@ export function StaleClientScreen() {
 
   if (!stale) return null;
   return (
-    <div className="fixed inset-0 z-[60] flex items-start justify-center bg-black/30 p-4 pt-[18vh]">
+    <div data-window-shade className="fixed inset-0 z-[60] flex items-start justify-center bg-black/30 p-4 pt-[18vh]">
       <div
         role="alertdialog"
         aria-modal="true"

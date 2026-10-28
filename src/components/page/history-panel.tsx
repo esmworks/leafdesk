@@ -230,7 +230,7 @@ export function HistoryPanel({
   }
 
   return (
-    <div className="fixed inset-0 z-40 flex bg-black/30" onMouseDown={(e) => e.target === e.currentTarget && onClose()}>
+    <div data-window-shade className="fixed inset-0 z-40 flex bg-black/30" onMouseDown={(e) => e.target === e.currentTarget && onClose()}>
       {/* Phones: full screen, the version list above the preview. */}
       <div className="flex h-full w-full flex-col-reverse overflow-hidden bg-bg md:m-auto md:h-[80vh] md:max-w-5xl md:flex-row md:rounded-xl md:border md:border-border md:shadow-2xl">
         <div className="flex min-w-0 flex-1 flex-col">

@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import { test } from "node:test";
-import { ClosedTabs, placeStrip, readIcon, readSavedTabs, readStripRoom, TabList, tabKey, tabPath, tabShortcuts, tabTitle, windowsToRestore, type KeyInput } from "./tabs.ts";
+import { ClosedTabs, placeStrip, readIcon, readSavedTabs, readShade, readStripRoom, TabList, tabKey, tabPath, tabShortcuts, tabTitle, windowsToRestore, type KeyInput } from "./tabs.ts";
 
 const SERVER = "https://leafdesk.example.com";
 
@@ -199,6 +199,16 @@ test("titles lose Leafdesk's name; icons are short emoji", () => {
   assert.equal(readIcon(""), null);
   assert.equal(readIcon("a longer text than an icon"), null);
   assert.equal(readIcon(42), null);
+});
+
+test("a page's shade is a CSS color, read strictly", () => {
+  assert.equal(readShade("rgba(0, 0, 0, 0.3)"), "rgba(0, 0, 0, 0.3)");
+  assert.equal(readShade("oklab(0 0 0 / 0.3)"), "oklab(0 0 0 / 0.3)");
+  assert.equal(readShade(""), null);
+  assert.equal(readShade("red"), null);
+  assert.equal(readShade("rgba(0,0,0,.3); background: url(x)"), null);
+  assert.equal(readShade("url(https://example.com/a.png)"), null);
+  assert.equal(readShade(0.3), null);
 });
 
 test("a page's room for the tab strip is read strictly", () => {

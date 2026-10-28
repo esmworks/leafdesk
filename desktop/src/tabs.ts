@@ -233,6 +233,17 @@ export function readIcon(value: unknown): string | null {
 }
 
 /**
+ * The shade a dialog's backdrop lays over a page (`<html data-tab-strip-shade>`, from
+ * src/components/desktop-tab-strip.tsx in the web app), which the strip lays over itself too: a
+ * computed CSS color such as `rgba(0, 0, 0, 0.3)` or `oklab(0 0 0 / 0.3)`; null for none or
+ * anything else.
+ */
+export function readShade(value: unknown): string | null {
+  if (typeof value !== "string" || value.length > 80) return null;
+  return /^(rgba?|hsla?|oklab|oklch|lab|lch|color)\([a-z0-9 .,%/-]+\)$/.test(value) ? value : null;
+}
+
+/**
  * Where the tab strip lies over a page: all its width but what its sidebar takes at the left and
  * right edges, in the page's CSS pixels.
  */
