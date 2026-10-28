@@ -312,7 +312,6 @@
     },
     "stopped": "Zatrzymano.",
     "cutOff": "Odpowiedź osiągnęła limit długości i może być ucięta.",
-    "note": "AI może popełniać błędy. Sprawdź źródła.",
     "offline": "Czat AI wymaga połączenia z serwerem.",
     "disabled": "AI jest wyłączona w tym obszarze roboczym. Właściciele mogą ją włączyć w sekcji Ustawienia → Ogólne → AI.",
     "loadFailed": "Nie udało się wczytać rozmowy.",

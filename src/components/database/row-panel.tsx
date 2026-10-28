@@ -551,7 +551,6 @@ function RowPanel({
     // comments open at the window's edge, over the backdrop.
     return (
       <div
-        data-window-shade
         className="fixed inset-0 z-40 flex items-center justify-center overscroll-contain bg-black/30 p-4 sm:p-10"
         onClick={(e) => {
           if (e.target === e.currentTarget) onClose();

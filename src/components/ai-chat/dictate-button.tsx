@@ -106,10 +106,10 @@ export function DictateButton({
         aria-pressed={recording}
         aria-disabled={sending || undefined}
         className={cn(
-          "inline-flex h-7 shrink-0 items-center justify-center rounded transition-colors disabled:opacity-40 disabled:hover:bg-transparent",
+          "inline-flex h-[26px] shrink-0 items-center justify-center transition-colors disabled:opacity-40 disabled:hover:bg-transparent",
           recording
-            ? "gap-1.5 bg-danger/10 px-2 text-xs font-medium text-danger hover:bg-danger/20"
-            : "w-7 text-fg-muted hover:bg-bg-active hover:text-fg",
+            ? "gap-1.5 rounded-[7px] bg-danger/10 px-2 text-xs font-medium text-danger hover:bg-danger/20"
+            : "w-[26px] rounded-full text-fg-muted hover:bg-bg-hover hover:text-fg",
         )}
         disabled={disabled && !recording && !sending}
         onClick={() => {

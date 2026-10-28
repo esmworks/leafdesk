@@ -12,7 +12,6 @@ type StripState = {
   strings: { newTab: string; closeTab: string; tabs: string };
   dir: "ltr" | "rtl";
   clearOfControls: boolean;
-  shade: string | null;
 };
 
 interface Window {
@@ -107,9 +106,6 @@ interface Window {
     document.documentElement.dir = next.dir;
     // Beside the page's sidebar the strip starts past the window's buttons (windows.ts).
     document.documentElement.toggleAttribute("data-clear-of-controls", next.clearOfControls);
-    // A dialog open in the shown tab shades the strip as it shades the page (tabs.css).
-    document.documentElement.toggleAttribute("data-shade", next.shade !== null);
-    document.documentElement.style.setProperty("--shade", next.shade ?? "transparent");
     list.setAttribute("aria-label", next.strings.tabs);
     newTab.setAttribute("aria-label", next.strings.newTab);
     newTab.title = next.strings.newTab;

@@ -312,7 +312,6 @@
     },
     "stopped": "Gestopt.",
     "cutOff": "Het antwoord heeft de maximale lengte bereikt en is mogelijk afgekapt.",
-    "note": "AI kan fouten maken. Controleer de bronnen.",
     "offline": "De AI-chat heeft een verbinding met de server nodig.",
     "disabled": "AI is uitgeschakeld in deze werkruimte. Eigenaren kunnen het inschakelen in Instellingen → Algemeen → AI.",
     "loadFailed": "Het gesprek kon niet worden geladen.",

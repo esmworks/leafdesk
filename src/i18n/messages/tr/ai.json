@@ -312,7 +312,6 @@
     },
     "stopped": "Durduruldu.",
     "cutOff": "Yanıt uzunluk sınırına ulaştı, kesilmiş olabilir.",
-    "note": "Yapay zekâ hata yapabilir. Kaynakları kontrol et.",
     "offline": "Yapay zekâ sohbeti için sunucuya bağlantı gerekiyor.",
     "disabled": "Bu çalışma alanında yapay zekâ kapalı. Sahipler Ayarlar → Genel → Yapay zekâ bölümünden açabilir.",
     "loadFailed": "Sohbet yüklenemedi.",

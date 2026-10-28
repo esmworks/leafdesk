@@ -312,7 +312,6 @@
     },
     "stopped": "Đã dừng.",
     "cutOff": "Câu trả lời đã đạt giới hạn độ dài và có thể bị cắt ngắn.",
-    "note": "AI có thể mắc lỗi. Hãy kiểm tra các nguồn.",
     "offline": "Trò chuyện AI cần kết nối với máy chủ.",
     "disabled": "AI đã bị tắt trong không gian làm việc này. Chủ sở hữu có thể bật trong Cài đặt → Chung → AI.",
     "loadFailed": "Không thể tải cuộc trò chuyện.",

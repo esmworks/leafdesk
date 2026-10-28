@@ -312,7 +312,6 @@
     },
     "stopped": "Dihentikan.",
     "cutOff": "Jawaban mencapai batas panjang dan mungkin terpotong.",
-    "note": "AI dapat membuat kesalahan. Periksa sumbernya.",
     "offline": "Obrolan AI memerlukan koneksi ke server.",
     "disabled": "AI dinonaktifkan di ruang kerja ini. Pemilik dapat mengaktifkannya di Pengaturan → Umum → AI.",
     "loadFailed": "Percakapan tidak dapat dimuat.",

@@ -312,7 +312,6 @@
     },
     "stopped": "Gestoppt.",
     "cutOff": "Die Antwort hat die Längengrenze erreicht und ist vielleicht abgeschnitten.",
-    "note": "KI kann Fehler machen. Prüfe die Quellen.",
     "offline": "Der KI-Chat braucht eine Verbindung zum Server.",
     "disabled": "KI ist in diesem Workspace ausgeschaltet. Eigentümer können sie unter Einstellungen → Allgemein → KI einschalten.",
     "loadFailed": "Die Unterhaltung konnte nicht geladen werden.",

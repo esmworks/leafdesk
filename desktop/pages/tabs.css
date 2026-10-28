@@ -65,16 +65,6 @@ body {
   cursor: default;
 }
 
-/* A dialog open in the shown tab: the page's backdrop shade, laid over the strip too (pages/tabs.ts). */
-:root[data-shade] body::after {
-  content: "";
-  position: fixed;
-  inset: 0;
-  z-index: 10;
-  background: var(--shade);
-  pointer-events: none;
-}
-
 .strip {
   display: flex;
   align-items: flex-end;

@@ -312,7 +312,6 @@
     },
     "stopped": "Pysäytetty.",
     "cutOff": "Vastaus saavutti pituusrajan ja voi olla katkennut.",
-    "note": "Tekoäly voi tehdä virheitä. Tarkista lähteet.",
     "offline": "Tekoälychat tarvitsee yhteyden palvelimeen.",
     "disabled": "Tekoäly on poistettu käytöstä tässä työtilassa. Omistajat voivat ottaa sen käyttöön kohdassa Asetukset → Yleiset → Tekoäly.",
     "loadFailed": "Keskustelua ei voitu ladata.",

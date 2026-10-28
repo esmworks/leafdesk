@@ -10,11 +10,17 @@
 - **The app always uses the system's own typeface.** Text is drawn in SF Pro on Apple's systems and
   Segoe UI on Windows, also on computers that have Inter installed, which used to switch the app
   to Inter. AI chat answers sit a little closer together (line height 1.5).
-- **An open dialog shades the desktop app's tabs too.** The tab strip used to stay bright above
-  the shaded page while the trash, a page's history or another dialog was open; it now takes the
-  same shade. Needs the next desktop app release.
+- **A cleaner question box in the AI chat.** One card with round add and Send buttons and
+  borderless choices: what the chat may change on the left, the model and dictation on the right.
+  The text grows as you type. A plain question or research, and where answers come from, are picked
+  in a strip above the box before the first question and stay as picked for the conversation. The
+  "AI can make mistakes" line under the box is gone.
 
 ### Fixed
+
+- **The AI chat's question box lines up with the conversation.** Where the browser shows a
+  scrollbar (Safari with a mouse connected, Windows), the box sat a few pixels off the messages
+  above it; it now keeps the same edges, on the full page and in the side panel.
 
 - **A database page's icon and background pickers open over its view bar.** On a full database
   page the toolbar beside the view tabs covered the top of the picker that Add icon or Add

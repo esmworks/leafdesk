@@ -312,7 +312,6 @@
     },
     "stopped": "Stoppat.",
     "cutOff": "Svaret nådde längdgränsen och kan vara avkortat.",
-    "note": "AI kan göra misstag. Kontrollera källorna.",
     "offline": "AI-chatten behöver en anslutning till servern.",
     "disabled": "AI är avstängt i den här arbetsytan. Ägare kan aktivera det i Inställningar → Allmänt → AI.",
     "loadFailed": "Konversationen kunde inte läsas in.",

@@ -312,7 +312,6 @@
     },
     "stopped": "Detenido.",
     "cutOff": "La respuesta alcanzó el límite de longitud y puede estar cortada.",
-    "note": "La IA puede equivocarse. Revisa las fuentes.",
     "offline": "El chat con IA necesita conexión con el servidor.",
     "disabled": "La IA está desactivada en este espacio de trabajo. Los propietarios pueden activarla en Configuración → General → IA.",
     "loadFailed": "No se pudo cargar la conversación.",

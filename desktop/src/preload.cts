@@ -32,14 +32,11 @@ if (location.protocol === "file:" && location.pathname.endsWith("/tabs.html")) {
    * The server's pages learn they are in the app through `<html data-desktop-app>` (the web app
    * then doesn't offer to open its pages here; on macOS also `data-tab-strip`, below), and tell the
    * tab strip their icon, a page setting `<html data-page-icon>` (components/page/page-view.tsx),
-   * where it may lie over them, `<html data-tab-strip-room>`, and the shade an open dialog lays over
-   * the window, `<html data-tab-strip-shade>` (both components/desktop-tab-strip.tsx).
+   * and where it may lie over them, `<html data-tab-strip-room>` (components/desktop-tab-strip.tsx).
    * Nothing is exposed to their scripts.
    */
   let icon: string | null = null;
   let room: string | null = null;
-  // Told on every new page, so a shade left by the page before goes.
-  let shade: string | undefined;
   const mark = () => {
     const root = document.documentElement;
     if (!root) return;
@@ -54,16 +51,11 @@ if (location.protocol === "file:" && location.pathname.endsWith("/tabs.html")) {
       room = nextRoom;
       ipcRenderer.send("leafdesk:strip-room", nextRoom);
     }
-    const nextShade = root.getAttribute("data-tab-strip-shade") ?? "";
-    if (nextShade !== shade) {
-      shade = nextShade;
-      ipcRenderer.send("leafdesk:strip-shade", nextShade);
-    }
   };
   // The preload runs before the page's <html> exists, and a page recovering from an error may
   // render <html> again without the attribute.
   new MutationObserver(mark).observe(document, { childList: true });
-  new MutationObserver(mark).observe(document, { subtree: true, attributeFilter: ["data-desktop-app", "data-page-icon", "data-tab-strip-room", "data-tab-strip-shade"] });
+  new MutationObserver(mark).observe(document, { subtree: true, attributeFilter: ["data-desktop-app", "data-page-icon", "data-tab-strip-room"] });
   mark();
   // A page that isn't Leafdesk's (an error of a proxy before it, say) never tells: the strip goes above it.
   document.addEventListener("DOMContentLoaded", () => {

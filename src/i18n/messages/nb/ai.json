@@ -312,7 +312,6 @@
     },
     "stopped": "Stoppet.",
     "cutOff": "Svaret nådde lengdegrensen og kan være avkortet.",
-    "note": "KI kan gjøre feil. Sjekk kildene.",
     "offline": "KI-chatten trenger en tilkobling til serveren.",
     "disabled": "KI er slått av i dette arbeidsområdet. Eiere kan slå det på under Innstillinger → Generelt → KI.",
     "loadFailed": "Samtalen kunne ikke lastes inn.",

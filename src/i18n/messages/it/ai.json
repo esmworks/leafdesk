@@ -312,7 +312,6 @@
     },
     "stopped": "Interrotto.",
     "cutOff": "La risposta ha raggiunto il limite di lunghezza e potrebbe essere troncata.",
-    "note": "L’IA può commettere errori. Controlla le fonti.",
     "offline": "La chat IA richiede una connessione al server.",
     "disabled": "L’IA è disattivata in questo spazio di lavoro. I proprietari possono attivarla in Impostazioni → Generali → IA.",
     "loadFailed": "Impossibile caricare la conversazione.",

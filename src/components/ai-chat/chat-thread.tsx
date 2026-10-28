@@ -5,10 +5,10 @@
  * Answers render as markdown with their citations (numbered links to the pages, no list of sources
  * below), under the steps taken to them
  * (searches, pages read, changes made): listed as they happen, then folded into how long it took.
- * Above the box, a plain question or research. In its toolbar, a menu adding files or a skill, then
- * where answers come from, what the chat may change (ask, auto, read only) and the model (where
- * there is a choice), with dictation beside Send; a change it asks about takes the box's place
- * until the person decides.
+ * Before the first question, a strip tucked behind the box's top edge picks a plain question or
+ * research and where answers come from. In its toolbar, a menu adding files or a skill and what the chat may change (ask, auto, read
+ * only) on the left, the model (where there is a choice), dictation and Send on the right; a change
+ * it asks about takes the box's place until the person decides.
  * A research report can be saved as a page. Questions asked while an answer is on its way wait in a
  * strip above the box.
  */
@@ -75,7 +75,7 @@ export function ChatThread({
   /** Asks the typed question; with `again`, its question (and skill) in place of the last question and answer. */
   onSend: (again?: { question: string; skill?: ChatSkillPick }) => void;
   onSource: (source: ChatSourceView) => void;
-  /** Where answers come from (ScopePicker): in the box's toolbar on the page, under the box in the panel. */
+  /** Where answers come from (ScopePicker), in the strip above the box before the first question. */
   scope?: ReactNode;
   /** Under the empty page's box: questions to start from (ChatStarters). */
   starters?: ReactNode;
@@ -92,14 +92,39 @@ export function ChatThread({
   const { messages, status, error, input, setInput, running, inputRef } = chat;
   const listRef = useRef<HTMLDivElement>(null);
   const page = variant === "page";
+  // An empty page's box stands on its own under the greeting: roomier, and lifted off the page.
+  const fresh = messages.length === 0;
+  const empty = page && fresh;
   // While the box holds a paste, its text is drawn behind it with the labels as chips.
   const chipsRef = useRef<HTMLDivElement>(null);
   const caretWas = useRef(0);
   const chips = chat.pastes.length > 0;
-  const boxText = cn("block min-h-7 w-full py-1 text-sm", page && "px-1 leading-6");
+  const boxText = cn("block w-full text-sm leading-normal", empty ? "min-h-[46px]" : "min-h-10");
+  // The box grows with what is typed, up to its max-height, then scrolls.
   useLayoutEffect(() => {
-    if (chipsRef.current && inputRef.current) chipsRef.current.scrollTop = inputRef.current.scrollTop;
-  }, [input, inputRef]);
+    const box = inputRef.current;
+    if (box) {
+      box.style.height = "auto";
+      box.style.height = `${box.scrollHeight}px`;
+    }
+    if (chipsRef.current && box) chipsRef.current.scrollTop = box.scrollTop;
+  }, [input, inputRef, empty]);
+  // The list's scrollbar takes room from its side of the messages' column; the box below takes the
+  // same room, so its edges stay in line with the messages above it.
+  const [gutter, setGutter] = useState({ left: 0, right: 0 });
+  useLayoutEffect(() => {
+    const el = listRef.current;
+    if (!el) return;
+    const measure = () => {
+      const left = el.clientLeft;
+      const right = el.offsetWidth - el.clientWidth - left;
+      setGutter((was) => (was.left === left && was.right === right ? was : { left, right }));
+    };
+    measure();
+    const observer = new ResizeObserver(measure);
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, []);
   // Dictating a question, where the workspace can transcribe and the browser can record.
   const canRecord = useCanRecord();
   const [dictation, setDictation] = useState<DictationNotice>(null);
@@ -151,11 +176,11 @@ export function ChatThread({
     setDictation(null);
     onSend();
   };
+  const round = cn(roundButton, empty ? "h-7 w-7" : "h-[26px] w-[26px]");
+  // Send and Stop are filled; Send is faded while there is nothing to send.
+  const filled = cn(round, "bg-fg text-bg enabled:hover:opacity-85 disabled:opacity-35");
   // The last question can be answered again, or edited, unless its answer changed things (that
   // would make them twice).
-  const empty = page && messages.length === 0;
-  const round = cn("inline-flex shrink-0 items-center justify-center rounded-lg transition-colors", page ? "h-8 w-8" : "h-7 w-7");
-  const sendButton = cn(round, "bg-fg text-bg hover:bg-fg/85 disabled:bg-bg-active disabled:text-fg-faint disabled:hover:bg-bg-active");
   const last = messages[messages.length - 1];
   const askAgain =
     !running &&
@@ -170,7 +195,8 @@ export function ChatThread({
       <div
         ref={listRef}
         className={cn(
-          "min-h-0 flex-1 overflow-y-auto font-sans",
+          // A scrollbar's room is kept from the start, so the column doesn't shift when the answers fill the page.
+          "min-h-0 flex-1 overflow-y-auto font-sans [scrollbar-gutter:stable]",
           page ? "px-4 py-6 md:px-8" : "px-4 py-3",
           // An empty page puts the greeting and the question box together a little above the middle.
           empty && "flex flex-col justify-end pb-6",
@@ -221,7 +247,14 @@ export function ChatThread({
         </div>
       </div>
 
-      <div className={cn("shrink-0", page ? "px-4 pb-4 md:px-8" : "border-t border-border p-3")}>
+      <div
+        // The list's padding plus its scrollbar's room on each side (measured above).
+        className={cn(
+          "shrink-0 pr-[calc(1rem+var(--gutter-r))] pl-[calc(1rem+var(--gutter-l))]",
+          page ? "pb-4 md:pr-[calc(2rem+var(--gutter-r))] md:pl-[calc(2rem+var(--gutter-l))]" : "pt-1 pb-3",
+        )}
+        style={{ "--gutter-l": `${gutter.left}px`, "--gutter-r": `${gutter.right}px` } as React.CSSProperties}
+      >
         <div className={cn(page && "mx-auto w-full max-w-3xl")}>
           {blocked && (
             <p role="status" className="mb-2 text-sm text-fg-muted">
@@ -242,8 +275,17 @@ export function ChatThread({
           {chat.pending ? (
             <ChangePrompt pending={chat.pending} onDecide={(d) => void chat.decide(d)} onSource={onSource} />
           ) : (
-            <div className={cn("border border-border/60 bg-bg-subtle", page ? "rounded-2xl p-1" : "rounded-xl p-0.5")}>
-              <KindTabs research={chat.research} onChange={chat.setResearch} />
+            <div className={cn("rounded-2xl", empty && "shadow-[0_1px_3px_rgb(16_24_40/0.05),0_10px_30px_rgb(16_24_40/0.08)] dark:shadow-[0_1px_3px_rgb(0_0_0/0.28),0_10px_30px_rgb(0_0_0/0.32)]")}>
+              {/* Before the first question, a strip above the box, its lower edge tucked behind it: what kind of
+                  question, and where answers come from; both stay as picked for the conversation. Below the page in
+                  the dark, the box above it; narrow, its choices drop their icons. */}
+              {fresh && (
+                <div className="@container -mb-3.5 flex items-center gap-2 rounded-t-2xl bg-bg-subtle px-2.5 pt-2 pb-6 dark:bg-black/25">
+                  <KindTabs research={chat.research} onChange={chat.setResearch} />
+                  <span className="flex-1" />
+                  {scope}
+                </div>
+              )}
               <form
                 onSubmit={(e) => {
                   e.preventDefault();
@@ -265,10 +307,9 @@ export function ChatThread({
                   if (!blocked) void chat.attachFiles(Array.from(e.dataTransfer.files));
                 }}
                 className={cn(
-                  // A faint edge that firms up a little while typing; the shadow lifts it off the page.
-                  "relative border border-border/60 bg-bg shadow-[0_1px_4px_rgb(0_0_0/0.06)] transition-colors focus-within:border-border",
-                  page ? "rounded-xl px-3 pt-2.5 pb-2" : "rounded-[10px] px-2 py-1.5",
-                  dropping && "border-accent focus-within:border-accent",
+                  "relative flex flex-col rounded-2xl border bg-bg transition-colors dark:bg-bg-subtle",
+                  empty ? "gap-4 px-4 pt-3.5 pb-3" : "gap-2.5 px-3.5 pt-3 pb-2.5",
+                  dropping ? "border-accent ring-1 ring-accent" : "border-border",
                 )}
               >
                 {dropping && (
@@ -287,7 +328,7 @@ export function ChatThread({
                   />
                 )}
                 {hasFiles && (
-                  <div className="mb-1.5 flex flex-wrap gap-1.5">
+                  <div className="flex flex-wrap gap-1.5">
                     {chat.files.map((f) => (
                       <AttachmentChip key={f.id} file={f} onRemove={() => chat.removeFile(f.id)} />
                     ))}
@@ -354,13 +395,14 @@ export function ChatThread({
                         send();
                       }
                     }}
-                    rows={Math.min(6, Math.max(page ? 2 : 1, input.split("\n").length))}
+                    rows={1}
                     disabled={Boolean(blocked)}
                     placeholder={running ? t("placeholderBusy") : chat.research ? t("research.placeholder") : t("placeholder")}
                     aria-label={t("placeholder")}
                     className={cn(
                       boxText,
-                      "relative max-h-40 resize-none bg-transparent outline-none placeholder:text-fg-faint disabled:opacity-60",
+                      "relative resize-none bg-transparent outline-none placeholder:text-fg-faint disabled:opacity-60",
+                      empty ? "max-h-[220px]" : "max-h-[180px]",
                       chips && "text-transparent caret-fg selection:bg-accent/25 selection:text-transparent",
                     )}
                   />
@@ -371,88 +413,76 @@ export function ChatThread({
                     {skills.shown[Math.min(skills.active, skills.shown.length - 1)]?.title}
                   </span>
                 )}
-                {/* What goes in with the question and how it is answered on the left; dictation and Send on the right. */}
-                <div className={cn("flex items-center justify-between gap-2", page && "mt-1.5")}>
-                  <div className="flex min-w-0 items-center gap-1">
-                    <AddMenu
-                      disabled={Boolean(blocked)}
-                      skillPicked={chat.skill !== null}
-                      onAttach={() => fileInput.current?.click()}
-                      onSkill={() => {
-                        if (!input) setInput("/");
-                        inputRef.current?.focus();
-                      }}
-                    />
-                    <input
-                      ref={fileInput}
-                      type="file"
-                      accept={CHAT_FILE_ACCEPT}
-                      multiple
-                      hidden
-                      onChange={(e) => {
-                        const picked = Array.from(e.currentTarget.files ?? []);
-                        e.currentTarget.value = "";
-                        if (picked.length) void chat.attachFiles(picked);
-                      }}
-                    />
-                    {page && scope}
-                    <ModePicker
-                      mode={chat.mode}
-                      onChange={chat.setMode}
-                      research={chat.research}
-                      asSuggestions={chat.asSuggestions}
-                      onSuggestions={chat.setAsSuggestions}
-                    />
-                    {chat.options.models.length > 1 && <ModelPicker models={chat.options.models} model={chat.model ?? chat.options.models[0].id} onChange={chat.setModel} />}
-                  </div>
-                  <div className="flex shrink-0 items-center gap-1">
-                    {voice && canRecord && (
-                      <DictateButton workspaceId={chat.workspaceId} limits={voice} disabled={Boolean(blocked)} onText={dictated} onNotice={setDictation} />
-                    )}
-                    {/* Filled while there is something to send, quiet otherwise. While an answer is on its
-                        way, Stop is a ring, and a typed question can be queued beside it. */}
-                    {running ? (
-                      <div className="flex items-center gap-1.5">
-                        {(input.trim() || hasFiles) && (
-                          <button
-                            type="submit"
-                            aria-label={t("queue.add")}
-                            title={t("queue.add")}
-                            className={cn(round, "text-fg-muted hover:bg-bg-hover hover:text-fg disabled:opacity-40")}
-                            disabled={Boolean(blocked) || uploading || skills.open}
-                          >
-                            <ArrowUp className="h-4 w-4" />
-                          </button>
-                        )}
+                {/* What goes in with the question and what the chat may change on the left; the model, dictation and Send on the right. */}
+                <div className={cn("flex min-w-0 items-center", empty ? "gap-3" : "gap-2")}>
+                  <AddMenu
+                    className={cn(round, "border border-border text-fg hover:bg-bg-hover disabled:opacity-40 disabled:hover:bg-transparent")}
+                    disabled={Boolean(blocked)}
+                    skillPicked={chat.skill !== null}
+                    onAttach={() => fileInput.current?.click()}
+                    onSkill={() => {
+                      if (!input) setInput("/");
+                      inputRef.current?.focus();
+                    }}
+                  />
+                  <input
+                    ref={fileInput}
+                    type="file"
+                    accept={CHAT_FILE_ACCEPT}
+                    multiple
+                    hidden
+                    onChange={(e) => {
+                      const picked = Array.from(e.currentTarget.files ?? []);
+                      e.currentTarget.value = "";
+                      if (picked.length) void chat.attachFiles(picked);
+                    }}
+                  />
+                  <ModePicker
+                    mode={chat.mode}
+                    onChange={chat.setMode}
+                    research={chat.research}
+                    asSuggestions={chat.asSuggestions}
+                    onSuggestions={chat.setAsSuggestions}
+                  />
+                  <span className="flex-1" />
+                  {chat.options.models.length > 1 && <ModelPicker models={chat.options.models} model={chat.model ?? chat.options.models[0].id} onChange={chat.setModel} />}
+                  {voice && canRecord && (
+                    <DictateButton workspaceId={chat.workspaceId} limits={voice} disabled={Boolean(blocked)} onText={dictated} onNotice={setDictation} />
+                  )}
+                  {/* While an answer is on its way, Send becomes Stop, and a typed question can be queued beside it. */}
+                  {running ? (
+                    <div className="flex items-center gap-1.5">
+                      {(input.trim() || hasFiles) && (
                         <button
-                          type="button"
-                          aria-label={t("stop")}
-                          title={t("stop")}
-                          className={cn(round, "border-[1.5px] border-fg text-fg hover:bg-bg-hover")}
-                          onClick={chat.stop}
+                          type="submit"
+                          aria-label={t("queue.add")}
+                          title={t("queue.add")}
+                          className={cn(round, "border border-border text-fg-muted hover:bg-bg-hover hover:text-fg disabled:opacity-40")}
+                          disabled={Boolean(blocked) || uploading || skills.open}
                         >
-                          <Square className="h-2.5 w-2.5 fill-current" />
+                          <ArrowUp className="h-3.5 w-3.5" strokeWidth={2.25} />
                         </button>
-                      </div>
-                    ) : (
-                      <button
-                        type="submit"
-                        aria-label={t("send")}
-                        title={t("send")}
-                        className={sendButton}
-                        disabled={Boolean(blocked) || uploading || (!input.trim() && !hasFiles) || skills.open}
-                      >
-                        <ArrowUp className="h-4 w-4" />
+                      )}
+                      <button type="button" aria-label={t("stop")} title={t("stop")} className={filled} onClick={chat.stop}>
+                        <Square className="h-2.5 w-2.5 fill-current" />
                       </button>
-                    )}
-                  </div>
+                    </div>
+                  ) : (
+                    <button
+                      type="submit"
+                      aria-label={t("send")}
+                      title={t("send")}
+                      className={filled}
+                      disabled={Boolean(blocked) || uploading || (!input.trim() && !hasFiles) || skills.open}
+                    >
+                      <ArrowUp className="h-3.5 w-3.5" strokeWidth={2.25} />
+                    </button>
+                  )}
                 </div>
               </form>
             </div>
           )}
-          {!page && scope && <div className="mt-1 flex">{scope}</div>}
           {empty && starters}
-          <p className={cn("mt-1.5 text-xs text-fg-faint", page && "text-center")}>{t("note")}</p>
         </div>
       </div>
       <MemoryDialog workspaceId={chat.workspaceId} open={memoryOpen} onClose={() => setMemoryOpen(false)} />
@@ -861,6 +891,9 @@ function QueueStrip({ queued, onClear }: { queued: QueuedQuestion[]; onClear: ()
 
 const MODE_ICONS = { ask: Hand, auto: Zap, read: Eye } as const;
 
+/** The box's round buttons (add, Send, Stop); the box gives their size. */
+const roundButton = "inline-flex shrink-0 items-center justify-center rounded-full transition-[background-color,opacity]";
+
 /** Above the box: a question answered from the workspace, or research that ends in a report. */
 function KindTabs({ research, onChange }: { research: boolean; onChange: (research: boolean) => void }) {
   const t = useTranslations("ai.chat.kind");
@@ -870,7 +903,7 @@ function KindTabs({ research, onChange }: { research: boolean; onChange: (resear
     { on: research, value: true, Icon: Telescope, label: tResearch("toggle"), hint: tResearch("toggleHint") },
   ];
   return (
-    <div role="group" aria-label={t("label")} className="flex items-center gap-0.5 px-0.5 pb-1">
+    <div role="group" aria-label={t("label")} className="flex items-center gap-0.5">
       {tabs.map(({ on, value, Icon, label, hint }) => (
         <button
           key={label}
@@ -879,11 +912,11 @@ function KindTabs({ research, onChange }: { research: boolean; onChange: (resear
           title={hint}
           onClick={() => onChange(value)}
           className={cn(
-            "flex h-7 items-center gap-1.5 rounded-md px-2 text-xs transition-colors",
+            "flex h-[26px] items-center gap-1.5 rounded-[7px] px-[7px] text-[13px] transition-colors",
             on ? "bg-bg text-fg shadow-[0_0_0_1px_var(--color-border)]" : "text-fg-muted hover:bg-bg-hover hover:text-fg",
           )}
         >
-          <Icon className="h-3.5 w-3.5" />
+          <Icon className="hidden h-3.5 w-3.5 @sm:block" />
           {label}
         </button>
       ))}
@@ -892,7 +925,19 @@ function KindTabs({ research, onChange }: { research: boolean; onChange: (resear
 }
 
 /** What can go in with a question: files, and a skill. */
-function AddMenu({ disabled, skillPicked, onAttach, onSkill }: { disabled: boolean; skillPicked: boolean; onAttach: () => void; onSkill: () => void }) {
+function AddMenu({
+  className,
+  disabled,
+  skillPicked,
+  onAttach,
+  onSkill,
+}: {
+  className: string;
+  disabled: boolean;
+  skillPicked: boolean;
+  onAttach: () => void;
+  onSkill: () => void;
+}) {
   const t = useTranslations("ai.chat");
   const tSkills = useTranslations("skills.chat");
   return (
@@ -908,9 +953,9 @@ function AddMenu({ disabled, skillPicked, onAttach, onSkill }: { disabled: boole
           aria-haspopup="menu"
           aria-label={t("add")}
           title={t("add")}
-          className={cn(chipTrigger, "w-7 shrink-0 justify-center px-0")}
+          className={className}
         >
-          <Plus className="h-4 w-4" />
+          <Plus className="h-3.5 w-3.5" strokeWidth={2.25} />
         </button>
       )}
     >
@@ -968,7 +1013,7 @@ function ModePicker({
   // Research only reads, whatever the mode.
   if (research) {
     return (
-      <span title={tResearch("readOnly")} className="flex h-7 shrink-0 items-center gap-1 px-1.5 text-xs text-fg-muted">
+      <span title={tResearch("readOnly")} className="flex h-[26px] shrink-0 items-center gap-1.5 px-[7px] text-[13px] text-fg-muted">
         <Eye className="h-3.5 w-3.5" />
         <span>{t("read")}</span>
       </span>

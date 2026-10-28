@@ -312,7 +312,6 @@
     },
     "stopped": "Stopped.",
     "cutOff": "The answer reached the length limit and may be cut off.",
-    "note": "AI can make mistakes. Check the sources.",
     "offline": "The AI chat needs a connection to the server.",
     "disabled": "AI is turned off in this workspace. Owners can turn it on in Settings → General → AI.",
     "loadFailed": "The conversation couldn't be loaded.",

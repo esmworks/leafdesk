@@ -69,8 +69,12 @@ import { gzipSync } from "node:zlib";
  * Pivot views cost a page's first load about 0.5 kB and all first loads together under 1 kB (their
  * settings' checks, quarter grouping, the icon and text group names); the view, its settings page
  * and the published table load when shown.
+ *
+ * The chat box keeping its edges in line with the messages above it (it measures the list's
+ * scrollbar) and growing with its text add about 0.25 kB to a page's first load and to all first
+ * loads together.
  */
-const BUDGET = { routeFirstLoad: 778, firstLoadShared: 1184, onDemandChunk: 450 };
+const BUDGET = { routeFirstLoad: 779, firstLoadShared: 1185, onDemandChunk: 450 };
 
 const NEXT = ".next";
 const kB = (bytes: number) => bytes / 1024;

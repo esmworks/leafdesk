@@ -312,7 +312,6 @@
     },
     "stopped": "Stoppet.",
     "cutOff": "Svaret nåede længdegrænsen og kan være afkortet.",
-    "note": "AI kan tage fejl. Tjek kilderne.",
     "offline": "AI-chatten kræver forbindelse til serveren.",
     "disabled": "AI er slået fra i dette arbejdsområde. Ejere kan slå det til under Indstillinger → Generelt → AI.",
     "loadFailed": "Samtalen kunne ikke indlæses.",
