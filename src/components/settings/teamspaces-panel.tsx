@@ -17,7 +17,7 @@ import { SettingsHeader } from "@/components/settings/section";
 import { useAction } from "@/components/settings/workspace-settings";
 import { ACCESS_OPTIONS, TeamspaceDialog } from "@/components/teamspaces/teamspace-dialog";
 import { TeamspaceMembersDialog } from "@/components/teamspaces/teamspace-members-dialog";
-import { Button, cn, Dialog, IconButton, Input, MenuItem, MenuSeparator, Switch } from "@/components/ui";
+import { Button, cn, Dialog, DialogBody, DialogFooter, DialogTitle, IconButton, Input, MenuItem, MenuSeparator, Switch } from "@/components/ui";
 import { UserAvatar } from "@/components/user-avatar";
 import type { TeamspaceAccess, WorkspaceRole } from "@/db/schema/app";
 import type { TeamspaceSummary } from "@/server/teamspaces";
@@ -467,24 +467,28 @@ function TeamspaceRow({
         </Floating>
         <Dialog open={confirm !== null} onClose={() => setConfirm(null)} className="max-w-md text-start">
           {confirm && (
-            <div className="space-y-3 p-5">
-              <h2 className="text-base font-semibold">
-                {typeof confirm === "object"
-                  ? t("accessConfirmTitle", { name: teamspace.name, access: ta(confirm.access) })
-                  : confirm === "leave"
-                    ? t("leaveTitle", { name: teamspace.name })
-                    : t("archiveTitle", { name: teamspace.name })}
-              </h2>
-              <p className="text-sm text-fg-muted">
-                {typeof confirm === "object"
-                  ? tt(confirm.access === "default" ? "dialog.becomesDefault" : "dialog.leavesDefault")
-                  : confirm === "leave"
-                    ? t("leaveBody")
-                    : t("archiveBody")}
-              </p>
-              {error && <p className="text-xs text-danger">{error}</p>}
-              <div className="flex justify-end gap-2">
-                <Button variant="ghost" onClick={() => setConfirm(null)}>
+            <>
+              <DialogBody className="pt-5">
+                <div className="space-y-1.5">
+                  <DialogTitle>
+                    {typeof confirm === "object"
+                      ? t("accessConfirmTitle", { name: teamspace.name, access: ta(confirm.access) })
+                      : confirm === "leave"
+                        ? t("leaveTitle", { name: teamspace.name })
+                        : t("archiveTitle", { name: teamspace.name })}
+                  </DialogTitle>
+                  <p className="text-sm text-fg-muted">
+                    {typeof confirm === "object"
+                      ? tt(confirm.access === "default" ? "dialog.becomesDefault" : "dialog.leavesDefault")
+                      : confirm === "leave"
+                        ? t("leaveBody")
+                        : t("archiveBody")}
+                  </p>
+                </div>
+                {error && <p className="text-xs text-danger">{error}</p>}
+              </DialogBody>
+              <DialogFooter>
+                <Button variant="secondary" onClick={() => setConfirm(null)}>
                   {tc("cancel")}
                 </Button>
                 <Button
@@ -500,8 +504,8 @@ function TeamspaceRow({
                 >
                   {typeof confirm === "object" ? t("accessConfirm") : confirm === "leave" ? t("leave") : t("archive")}
                 </Button>
-              </div>
-            </div>
+              </DialogFooter>
+            </>
           )}
         </Dialog>
       </td>
@@ -633,28 +637,30 @@ function DefaultTeamspaces({
       </div>
       {error && !confirming && <p className="mt-2 text-xs text-danger">{error}</p>}
       <Dialog open={confirming} onClose={() => setConfirming(false)} className="max-w-md">
-        <div className="space-y-3 p-5">
-          <h2 className="text-base font-semibold">{t("confirmTitle")}</h2>
-          {added.length > 0 && (
-            <p className="text-sm text-fg-muted">
-              <span className="font-medium text-fg">{t("confirmAdd", { names: names(added) })}</span> {t("makeBody")}
-            </p>
-          )}
-          {removed.length > 0 && (
-            <p className="text-sm text-fg-muted">
-              <span className="font-medium text-fg">{t("confirmRemove", { names: names(removed) })}</span> {t("removeBody")}
-            </p>
-          )}
-          {error && <p className="text-xs text-danger">{error}</p>}
-          <div className="flex justify-end gap-2">
-            <Button variant="ghost" onClick={() => setConfirming(false)}>
-              {tc("cancel")}
-            </Button>
-            <Button variant="primary" disabled={pending} onClick={update}>
-              {t("update")}
-            </Button>
+        <DialogBody className="pt-5">
+          <div className="space-y-1.5">
+            <DialogTitle>{t("confirmTitle")}</DialogTitle>
+            {added.length > 0 && (
+              <p className="text-sm text-fg-muted">
+                <span className="font-medium text-fg">{t("confirmAdd", { names: names(added) })}</span> {t("makeBody")}
+              </p>
+            )}
+            {removed.length > 0 && (
+              <p className="text-sm text-fg-muted">
+                <span className="font-medium text-fg">{t("confirmRemove", { names: names(removed) })}</span> {t("removeBody")}
+              </p>
+            )}
           </div>
-        </div>
+          {error && <p className="text-xs text-danger">{error}</p>}
+        </DialogBody>
+        <DialogFooter>
+          <Button variant="secondary" onClick={() => setConfirming(false)}>
+            {tc("cancel")}
+          </Button>
+          <Button variant="primary" disabled={pending} onClick={update}>
+            {t("update")}
+          </Button>
+        </DialogFooter>
       </Dialog>
     </section>
   );

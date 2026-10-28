@@ -6,7 +6,7 @@ import { useTranslations } from "next-intl";
 import { useState } from "react";
 import { SettingsRow } from "@/components/settings/section";
 import { CopyButton } from "@/components/settings/copy-button";
-import { Button, Dialog, Input } from "@/components/ui";
+import { Button, Dialog, DialogBody, DialogFooter, DialogTitle, Input } from "@/components/ui";
 import { authClient } from "@/lib/auth-client";
 import { securityErrorKey } from "@/lib/auth-errors";
 import { QrCode } from "./qr-code";
@@ -227,33 +227,39 @@ function RegenerateCodesDialog({ hasPassword, onClose }: { hasPassword: boolean;
 
   return (
     <Dialog open onClose={codes ? () => {} : onClose} className="max-w-md">
-      <div className="space-y-4 p-5">
-        <h2 className="text-base font-semibold">{t("regenerateTitle")}</h2>
-        {codes ? (
-          <>
-            <p className="text-sm text-fg-muted">{t("newCodes")}</p>
-            <RecoveryCodes codes={codes} />
-            <div className="flex justify-end">
-              <Button variant="primary" onClick={onClose}>
-                {tc("close")}
-              </Button>
+      {codes ? (
+        <>
+          <DialogBody className="pt-5">
+            <div className="space-y-1.5">
+              <DialogTitle>{t("regenerateTitle")}</DialogTitle>
+              <p className="text-sm text-fg-muted">{t("newCodes")}</p>
             </div>
-          </>
-        ) : (
-          <form
-            className="space-y-4"
-            onSubmit={async (e) => {
-              e.preventDefault();
-              setPending(true);
-              setError(null);
-              const password = hasPassword ? String(new FormData(e.currentTarget).get("password") ?? "") : undefined;
-              const result = await authClient.twoFactor.generateBackupCodes({ password });
-              setPending(false);
-              if (result.error || !result.data) return setError(describe(result.error));
-              setCodes(result.data.backupCodes);
-            }}
-          >
-            <p className="text-sm text-fg-muted">{t("regenerateBody")}</p>
+            <RecoveryCodes codes={codes} />
+          </DialogBody>
+          <DialogFooter>
+            <Button variant="primary" onClick={onClose}>
+              {tc("close")}
+            </Button>
+          </DialogFooter>
+        </>
+      ) : (
+        <form
+          onSubmit={async (e) => {
+            e.preventDefault();
+            setPending(true);
+            setError(null);
+            const password = hasPassword ? String(new FormData(e.currentTarget).get("password") ?? "") : undefined;
+            const result = await authClient.twoFactor.generateBackupCodes({ password });
+            setPending(false);
+            if (result.error || !result.data) return setError(describe(result.error));
+            setCodes(result.data.backupCodes);
+          }}
+        >
+          <DialogBody className="pt-5">
+            <div className="space-y-1.5">
+              <DialogTitle>{t("regenerateTitle")}</DialogTitle>
+              <p className="text-sm text-fg-muted">{t("regenerateBody")}</p>
+            </div>
             {hasPassword && (
               <label className="block space-y-1.5">
                 <span className="text-sm text-fg-muted">{tf("password")}</span>
@@ -261,17 +267,17 @@ function RegenerateCodesDialog({ hasPassword, onClose }: { hasPassword: boolean;
               </label>
             )}
             {error && <p className="text-sm text-danger">{error}</p>}
-            <div className="flex justify-end gap-2">
-              <Button variant="ghost" onClick={onClose}>
-                {tc("cancel")}
-              </Button>
-              <Button type="submit" variant="primary" disabled={pending}>
-                {t("regenerate")}
-              </Button>
-            </div>
-          </form>
-        )}
-      </div>
+          </DialogBody>
+          <DialogFooter>
+            <Button variant="secondary" onClick={onClose}>
+              {tc("cancel")}
+            </Button>
+            <Button type="submit" variant="primary" disabled={pending}>
+              {t("regenerate")}
+            </Button>
+          </DialogFooter>
+        </form>
+      )}
     </Dialog>
   );
 }
@@ -291,7 +297,6 @@ function DisableDialog({ hasPassword, onClose, onDone }: { hasPassword: boolean;
   return (
     <Dialog open onClose={onClose} className="max-w-md">
       <form
-        className="space-y-4 p-5"
         onSubmit={async (e) => {
           e.preventDefault();
           setPending(true);
@@ -308,28 +313,32 @@ function DisableDialog({ hasPassword, onClose, onDone }: { hasPassword: boolean;
           onDone();
         }}
       >
-        <h2 className="text-base font-semibold">{t("disableTitle")}</h2>
-        <p className="text-sm text-fg-muted">{t("disableBody")}</p>
-        {hasPassword ? (
-          <label className="block space-y-1.5">
-            <span className="text-sm text-fg-muted">{tf("password")}</span>
-            <Input name="password" type="password" required autoComplete="current-password" autoFocus />
-          </label>
-        ) : (
-          <label htmlFor="disable-code" className="block space-y-1.5">
-            <span className="text-sm text-fg-muted">{t("disableCodeLabel")}</span>
-            <CodeInput id="disable-code" recovery autoFocus />
-          </label>
-        )}
-        {error && <p className="text-sm text-danger">{error}</p>}
-        <div className="flex justify-end gap-2">
-          <Button variant="ghost" onClick={onClose}>
+        <DialogBody className="pt-5">
+          <div className="space-y-1.5">
+            <DialogTitle>{t("disableTitle")}</DialogTitle>
+            <p className="text-sm text-fg-muted">{t("disableBody")}</p>
+          </div>
+          {hasPassword ? (
+            <label className="block space-y-1.5">
+              <span className="text-sm text-fg-muted">{tf("password")}</span>
+              <Input name="password" type="password" required autoComplete="current-password" autoFocus />
+            </label>
+          ) : (
+            <label htmlFor="disable-code" className="block space-y-1.5">
+              <span className="text-sm text-fg-muted">{t("disableCodeLabel")}</span>
+              <CodeInput id="disable-code" recovery autoFocus />
+            </label>
+          )}
+          {error && <p className="text-sm text-danger">{error}</p>}
+        </DialogBody>
+        <DialogFooter>
+          <Button variant="secondary" onClick={onClose}>
             {tc("cancel")}
           </Button>
           <Button type="submit" variant="danger" disabled={pending}>
             {t("disable")}
           </Button>
-        </div>
+        </DialogFooter>
       </form>
     </Dialog>
   );
@@ -372,10 +381,10 @@ export function TwoFactorSettings({ enabled, hasPassword }: { enabled: boolean; 
       {dialog === "setup" && (
         // Closing by clicking outside would lose the recovery codes; only the buttons close it.
         <Dialog open onClose={() => {}} className="max-w-lg">
-          <div className="space-y-4 p-5">
-            <h2 className="text-base font-semibold">{t("setupTitle")}</h2>
+          <DialogBody className="pt-5">
+            <DialogTitle>{t("setupTitle")}</DialogTitle>
             <TwoFactorSetupFlow hasPassword={hasPassword} onCancel={close} onDone={done} />
-          </div>
+          </DialogBody>
         </Dialog>
       )}
       {dialog === "disable" && <DisableDialog hasPassword={hasPassword} onClose={close} onDone={done} />}

@@ -14,7 +14,7 @@ import {
 import { SettingsHeader } from "@/components/settings/section";
 import { useAction } from "@/components/settings/workspace-settings";
 import { Floating, useFloating } from "@/components/database/floating";
-import { Button, cn, Dialog, IconButton, Input, MenuItem, PageIcon } from "@/components/ui";
+import { Button, cn, Dialog, DialogBody, DialogFooter, DialogTitle, IconButton, Input, MenuItem, PageIcon } from "@/components/ui";
 import { UserAvatar } from "@/components/user-avatar";
 import { pageLabel } from "@/lib/labels";
 import { searchFold } from "@/lib/search-fold";
@@ -256,31 +256,33 @@ function GuestRows({
             </>
           )}
           <Dialog open={confirm !== null} onClose={() => setConfirm(null)} className="max-w-md text-start">
-            <div className="space-y-3 p-5">
-              <h2 className="text-base font-semibold">
-                {confirm === "makeMember"
-                  ? t("makeMemberTitle", { name: label })
-                  : confirm === "remove"
-                    ? t("removeTitle", { name: label })
-                    : t("revokeTitle", { email: guest.email })}
-              </h2>
-              <p className="text-sm text-fg-muted">
-                {confirm === "makeMember"
-                  ? t("makeMemberBody", { name: label })
-                  : confirm === "remove"
-                    ? t("removeBody", { name: label })
-                    : t("revokeBody", { email: guest.email })}
-              </p>
-              {error && <p className="text-xs text-danger">{error}</p>}
-              <div className="flex justify-end gap-2">
-                <Button variant="ghost" onClick={() => setConfirm(null)}>
-                  {tc("cancel")}
-                </Button>
-                <Button variant={confirm === "makeMember" ? "primary" : "danger"} disabled={pending} onClick={confirmed}>
-                  {confirm === "makeMember" ? t("makeMemberConfirm") : confirm === "remove" ? tc("remove") : t("revoke")}
-                </Button>
+            <DialogBody className="pt-5">
+              <div className="space-y-1.5">
+                <DialogTitle>
+                  {confirm === "makeMember"
+                    ? t("makeMemberTitle", { name: label })
+                    : confirm === "remove"
+                      ? t("removeTitle", { name: label })
+                      : t("revokeTitle", { email: guest.email })}
+                </DialogTitle>
+                <p className="text-sm text-fg-muted">
+                  {confirm === "makeMember"
+                    ? t("makeMemberBody", { name: label })
+                    : confirm === "remove"
+                      ? t("removeBody", { name: label })
+                      : t("revokeBody", { email: guest.email })}
+                </p>
               </div>
-            </div>
+              {error && <p className="text-xs text-danger">{error}</p>}
+            </DialogBody>
+            <DialogFooter>
+              <Button variant="secondary" onClick={() => setConfirm(null)}>
+                {tc("cancel")}
+              </Button>
+              <Button variant={confirm === "makeMember" ? "primary" : "danger"} disabled={pending} onClick={confirmed}>
+                {confirm === "makeMember" ? t("makeMemberConfirm") : confirm === "remove" ? tc("remove") : t("revoke")}
+              </Button>
+            </DialogFooter>
           </Dialog>
         </td>
       </tr>

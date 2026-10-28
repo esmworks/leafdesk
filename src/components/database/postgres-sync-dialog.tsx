@@ -1,10 +1,10 @@
 "use client";
 
-import { RefreshCw, X } from "lucide-react";
+import { RefreshCw } from "lucide-react";
 import { useFormatter, useTranslations } from "next-intl";
 import { useEffect, useState } from "react";
 import { getPostgresSyncAction, stopPostgresSyncAction, syncPostgresNowAction, updatePostgresSyncAction } from "@/app/actions/postgres-sync";
-import { Button, Dialog, IconButton, Input, selectClass } from "@/components/ui";
+import { Button, Dialog, DialogBody, DialogHeader, Input, selectClass } from "@/components/ui";
 import { JIRA_INTERVALS, jiraIntervalKey } from "@/lib/jira-sync";
 import type { PostgresSyncView } from "@/lib/postgres-sync";
 
@@ -57,13 +57,8 @@ export default function PostgresSyncDialog({ databaseId, onClose, onChanged }: {
 
   return (
     <Dialog open onClose={busy ? () => {} : onClose} className="max-w-lg">
-      <div className="flex items-start justify-between gap-2 border-b border-border px-4 py-3">
-        <h2 className="text-sm font-medium">{t("title")}</h2>
-        <IconButton label={tc("close")} onClick={onClose} disabled={busy}>
-          <X className="h-3.5 w-3.5" />
-        </IconButton>
-      </div>
-      <div className="max-h-[70vh] space-y-4 overflow-y-auto p-4" aria-busy={busy}>
+      <DialogHeader title={t("title")} onClose={onClose} closeLabel={tc("close")} closeDisabled={busy} />
+      <DialogBody className="max-h-[70vh] overflow-y-auto" aria-busy={busy}>
         {sync === "loading" ? (
           <p className="text-sm text-fg-muted">{tc("loading")}</p>
         ) : !sync ? null : (
@@ -184,7 +179,7 @@ export default function PostgresSyncDialog({ databaseId, onClose, onChanged }: {
             {error}
           </p>
         )}
-      </div>
+      </DialogBody>
     </Dialog>
   );
 }

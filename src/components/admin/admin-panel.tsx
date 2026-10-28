@@ -14,7 +14,7 @@ import type { ActionResult } from "@/app/actions/workspaces";
 import { Floating, useFloating } from "@/components/database/floating";
 import { SettingsRow } from "@/components/settings/section";
 import { useAction } from "@/components/settings/workspace-settings";
-import { Button, Dialog, IconButton, MenuItem } from "@/components/ui";
+import { Button, Dialog, DialogBody, DialogFooter, DialogTitle, IconButton, MenuItem } from "@/components/ui";
 import { UserAvatar } from "@/components/user-avatar";
 import type { InstanceUser, NetworkRestrictedWorkspace } from "@/server/instance-admin";
 
@@ -26,23 +26,25 @@ function ConfirmDialog({ confirmation, onClose }: { confirmation: Confirmation; 
   const { pending, error, run } = useAction();
   return (
     <Dialog open onClose={onClose} className="max-w-md text-start">
-      <div className="space-y-3 p-5">
-        <h2 className="text-base font-semibold">{confirmation.title}</h2>
-        <p className="text-sm text-fg-muted">{confirmation.body}</p>
-        {error && <p className="text-xs text-danger">{error}</p>}
-        <div className="flex justify-end gap-2">
-          <Button variant="ghost" onClick={onClose}>
-            {tc("cancel")}
-          </Button>
-          <Button
-            variant="danger"
-            disabled={pending}
-            onClick={() => run(confirmation.action, onClose)}
-          >
-            {confirmation.confirm}
-          </Button>
+      <DialogBody className="pt-5">
+        <div className="space-y-1.5">
+          <DialogTitle>{confirmation.title}</DialogTitle>
+          <p className="text-sm text-fg-muted">{confirmation.body}</p>
         </div>
-      </div>
+        {error && <p className="text-xs text-danger">{error}</p>}
+      </DialogBody>
+      <DialogFooter>
+        <Button variant="secondary" onClick={onClose}>
+          {tc("cancel")}
+        </Button>
+        <Button
+          variant="danger"
+          disabled={pending}
+          onClick={() => run(confirmation.action, onClose)}
+        >
+          {confirmation.confirm}
+        </Button>
+      </DialogFooter>
     </Dialog>
   );
 }

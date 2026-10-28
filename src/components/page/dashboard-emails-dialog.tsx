@@ -15,7 +15,7 @@ import {
 import { useRuleSummary } from "@/components/settings/rule-summary";
 import { freshRepeatForm, RepeatRuleFields, repeatFormOf, useRepeatRule, type RepeatForm } from "@/components/repeat-rule-fields";
 import { UserAvatar } from "@/components/user-avatar";
-import { Button, cn, Dialog, Input, selectClass } from "@/components/ui";
+import { Button, cn, Dialog, DialogBody, DialogFooter, DialogHeader, Input, selectClass } from "@/components/ui";
 import { defaultSubscriptionPeriod, SUBSCRIPTION_PERIODS, type DashboardEmailTarget, type SubscriptionPeriod } from "@/lib/dashboard-emails";
 import { searchFold } from "@/lib/search-fold";
 import type { DashboardEmailView } from "@/server/dashboard-emails";
@@ -78,34 +78,31 @@ export default function DashboardEmailsDialog({
   // styles and key handling would reach the form.
   return createPortal(
     <Dialog open={open} onClose={onClose} className="max-w-lg">
-      <div className={cn("space-y-4 p-5", pending && "opacity-60")} aria-busy={pending || !data}>
-        <div className="space-y-1">
-          <h2 className="text-base font-semibold">{t("title")}</h2>
-          <p className="text-sm text-fg-muted">{t("description")}</p>
-        </div>
-        {error && !editing && <p className="text-xs text-danger">{error}</p>}
-        {!data ? (
-          !error && <div aria-hidden className="h-16 animate-pulse rounded-md bg-bg-subtle" />
-        ) : !data.mailEnabled ? (
-          <p role="status" className="rounded-md border border-border bg-bg-hover px-3 py-2 text-sm">
-            {t("noMail")}
-          </p>
-        ) : editing ? (
-          <EmailForm
-            data={data}
-            pageId={pageId}
-            target={target}
-            id={editing.id}
-            initial={editing.form}
-            onCancel={() => setEditing(null)}
-            onSaved={() => {
-              setEditing(null);
-              void load();
-            }}
-          />
-        ) : (
-          <>
-            {data.subscriptions.length === 0 ? (
+      <DialogHeader title={t("title")} description={t("description")} onClose={onClose} closeLabel={tc("close")} />
+      {data?.mailEnabled && editing ? (
+        <EmailForm
+          data={data}
+          pageId={pageId}
+          target={target}
+          id={editing.id}
+          initial={editing.form}
+          onCancel={() => setEditing(null)}
+          onSaved={() => {
+            setEditing(null);
+            void load();
+          }}
+        />
+      ) : (
+        <>
+          <DialogBody className={cn(pending && "opacity-60")} aria-busy={pending || !data}>
+            {error && !editing && <p className="text-xs text-danger">{error}</p>}
+            {!data ? (
+              !error && <div aria-hidden className="h-16 animate-pulse rounded-md bg-bg-subtle" />
+            ) : !data.mailEnabled ? (
+              <p role="status" className="rounded-md border border-border bg-bg-hover px-3 py-2 text-sm">
+                {t("noMail")}
+              </p>
+            ) : data.subscriptions.length === 0 ? (
               <p className="text-sm text-fg-muted">{t("none")}</p>
             ) : (
               <ul className="divide-y divide-border rounded-md border border-border">
@@ -126,18 +123,17 @@ export default function DashboardEmailsDialog({
                 ))}
               </ul>
             )}
-            <div className="flex justify-between gap-2">
-              <Button variant="secondary" onClick={() => setEditing({ id: null, form: freshForm(data.viewerId) })}>
+          </DialogBody>
+          {data?.mailEnabled && (
+            <DialogFooter className={cn(pending && "opacity-60")}>
+              <Button variant="primary" onClick={() => setEditing({ id: null, form: freshForm(data.viewerId) })}>
                 <Mail className="h-3.5 w-3.5" />
                 {t("add")}
               </Button>
-              <Button variant="ghost" onClick={onClose}>
-                {tc("close")}
-              </Button>
-            </div>
-          </>
-        )}
-      </div>
+            </DialogFooter>
+          )}
+        </>
+      )}
     </Dialog>,
     document.body,
   );
@@ -271,72 +267,72 @@ function EmailForm({
   const label = "block text-xs font-medium text-fg-muted";
   return (
     <form
-      className={cn("space-y-4", pending && "pointer-events-none")}
+      className={cn(pending && "pointer-events-none")}
       onSubmit={(e) => {
         e.preventDefault();
         save();
       }}
     >
-      <RepeatRuleFields form={form} onChange={set} idPrefix="dashboard-email" />
-      <div className="space-y-1">
-        <label htmlFor="dashboard-email-period" className={label}>
-          {t("period")}
-        </label>
-        <select
-          id="dashboard-email-period"
-          className={selectClass}
-          value={form.period}
-          onChange={(e) => set({ period: e.target.value as SubscriptionPeriod, periodPicked: true })}
-        >
-          {SUBSCRIPTION_PERIODS.map((p) => (
-            <option key={p} value={p}>
-              {periodName(p)}
-            </option>
-          ))}
-        </select>
-        <p className="text-xs text-fg-muted">{t("periodHint")}</p>
-      </div>
-      <fieldset className="space-y-1.5">
-        <legend className={label}>{t("recipients")}</legend>
-        {others ? (
-          <>
-            {data.people.length > 8 && <Input value={query} onChange={(e) => setQuery(e.target.value)} placeholder={t("search")} aria-label={t("search")} />}
-            <ul className="max-h-48 overflow-y-auto rounded-md border border-border">
-              {shown.map((p) => (
-                <li key={p.id}>
-                  <label className="flex cursor-pointer items-center gap-2 px-2.5 py-1.5 text-sm hover:bg-bg-hover">
-                    <input type="checkbox" checked={form.recipients.includes(p.id)} onChange={() => toggle(p.id)} className="accent-[var(--accent)]" />
-                    <UserAvatar name={p.name} image={p.image} size="xs" />
-                    <span className="min-w-0 flex-1 truncate">{p.id === data.viewerId ? t("you") : p.name}</span>
-                    <span className="truncate text-xs text-fg-muted">{p.email}</span>
-                  </label>
-                </li>
-              ))}
-            </ul>
-            <p className="text-xs text-fg-muted">{t("recipientsHint")}</p>
-          </>
-        ) : (
-          <p className="text-sm text-fg-muted">{t("recipientsSelf", { email: viewer?.email ?? "" })}</p>
-        )}
-      </fieldset>
-      <div className="space-y-0.5 text-sm text-fg-muted" aria-live="polite">
-        {next && <p>{t(id ? "next" : "nextSend", { date: new Intl.DateTimeFormat(locale, { dateStyle: "full", timeStyle: "short", timeZone: form.timeZone }).format(next) })}</p>}
-        {notice && <p>{notice}</p>}
-      </div>
-      {error && <p className="text-xs text-danger">{error}</p>}
-      <div className="flex flex-wrap items-center justify-between gap-2">
-        <Button variant="ghost" onClick={sendTest} disabled={!valid || pending}>
+      <DialogBody>
+        <RepeatRuleFields form={form} onChange={set} idPrefix="dashboard-email" />
+        <div className="space-y-1">
+          <label htmlFor="dashboard-email-period" className={label}>
+            {t("period")}
+          </label>
+          <select
+            id="dashboard-email-period"
+            className={selectClass}
+            value={form.period}
+            onChange={(e) => set({ period: e.target.value as SubscriptionPeriod, periodPicked: true })}
+          >
+            {SUBSCRIPTION_PERIODS.map((p) => (
+              <option key={p} value={p}>
+                {periodName(p)}
+              </option>
+            ))}
+          </select>
+          <p className="text-xs text-fg-muted">{t("periodHint")}</p>
+        </div>
+        <fieldset className="space-y-1.5">
+          <legend className={label}>{t("recipients")}</legend>
+          {others ? (
+            <>
+              {data.people.length > 8 && <Input value={query} onChange={(e) => setQuery(e.target.value)} placeholder={t("search")} aria-label={t("search")} />}
+              <ul className="max-h-48 overflow-y-auto rounded-md border border-border">
+                {shown.map((p) => (
+                  <li key={p.id}>
+                    <label className="flex cursor-pointer items-center gap-2 px-2.5 py-1.5 text-sm hover:bg-bg-hover">
+                      <input type="checkbox" checked={form.recipients.includes(p.id)} onChange={() => toggle(p.id)} className="accent-[var(--accent)]" />
+                      <UserAvatar name={p.name} image={p.image} size="xs" />
+                      <span className="min-w-0 flex-1 truncate">{p.id === data.viewerId ? t("you") : p.name}</span>
+                      <span className="truncate text-xs text-fg-muted">{p.email}</span>
+                    </label>
+                  </li>
+                ))}
+              </ul>
+              <p className="text-xs text-fg-muted">{t("recipientsHint")}</p>
+            </>
+          ) : (
+            <p className="text-sm text-fg-muted">{t("recipientsSelf", { email: viewer?.email ?? "" })}</p>
+          )}
+        </fieldset>
+        <div className="space-y-0.5 text-sm text-fg-muted" aria-live="polite">
+          {next && <p>{t(id ? "next" : "nextSend", { date: new Intl.DateTimeFormat(locale, { dateStyle: "full", timeStyle: "short", timeZone: form.timeZone }).format(next) })}</p>}
+          {notice && <p>{notice}</p>}
+        </div>
+        {error && <p className="text-xs text-danger">{error}</p>}
+      </DialogBody>
+      <DialogFooter>
+        <Button variant="ghost" className="me-auto" onClick={sendTest} disabled={!valid || pending}>
           {t("sendTest")}
         </Button>
-        <div className="flex gap-2">
-          <Button variant="ghost" onClick={onCancel}>
-            {tc("cancel")}
-          </Button>
-          <Button type="submit" variant="primary" disabled={!valid || pending || form.recipients.length === 0}>
-            {pending ? tc("saving") : tc("save")}
-          </Button>
-        </div>
-      </div>
+        <Button variant="secondary" onClick={onCancel}>
+          {tc("cancel")}
+        </Button>
+        <Button type="submit" variant="primary" disabled={!valid || pending || form.recipients.length === 0}>
+          {pending ? tc("saving") : tc("save")}
+        </Button>
+      </DialogFooter>
     </form>
   );
 }

@@ -13,7 +13,7 @@ import {
   type SsoActionResult,
 } from "@/app/actions/sso";
 import { updateWorkspaceSettingsAction } from "@/app/actions/workspaces";
-import { Button, cn, Dialog, Input, selectClass } from "@/components/ui";
+import { Button, cn, Dialog, DialogBody, DialogFooter, DialogTitle, Input, selectClass } from "@/components/ui";
 import type { WorkspaceSettings } from "@/db/schema";
 import type { SsoConnection } from "@/server/sso";
 import { CopyButton } from "./copy-button";
@@ -511,26 +511,27 @@ function NewScimToken({ workspaceId }: { workspaceId: string }) {
       {/* While the secret is shown, only Done closes: a stray click must not lose it. */}
       <Dialog open={open} onClose={secret ? () => {} : close} className="max-w-md">
         {secret ? (
-          <div className="space-y-4 p-5">
-            <div>
-              <h2 className="text-[15px] font-semibold">{t("created.title")}</h2>
-              <p className="mt-1 text-sm text-fg-muted">{t("created.body")}</p>
-            </div>
-            <div className="flex items-center gap-2 rounded-lg border border-border bg-bg-subtle py-1.5 pe-1.5 ps-3">
-              <code className="min-w-0 flex-1 text-xs break-all" data-scim-token-secret>
-                {secret}
-              </code>
-              <CopyButton value={secret} />
-            </div>
-            <div className="flex justify-end">
+          <>
+            <DialogBody className="pt-5">
+              <div className="space-y-1.5">
+                <DialogTitle>{t("created.title")}</DialogTitle>
+                <p className="text-sm text-fg-muted">{t("created.body")}</p>
+              </div>
+              <div className="flex items-center gap-2 rounded-lg border border-border bg-bg-subtle py-1.5 pe-1.5 ps-3">
+                <code className="min-w-0 flex-1 text-xs break-all" data-scim-token-secret>
+                  {secret}
+                </code>
+                <CopyButton value={secret} />
+              </div>
+            </DialogBody>
+            <DialogFooter>
               <Button variant="primary" onClick={close}>
                 {t("created.done")}
               </Button>
-            </div>
-          </div>
+            </DialogFooter>
+          </>
         ) : (
           <form
-            className="space-y-4 p-5"
             onSubmit={(e) => {
               e.preventDefault();
               setError(null);
@@ -545,34 +546,36 @@ function NewScimToken({ workspaceId }: { workspaceId: string }) {
               });
             }}
           >
-            <h2 className="text-[15px] font-semibold">{t("form.title")}</h2>
-            <div className="space-y-1.5">
-              <label htmlFor={`${ids}-name`} className="block text-sm font-medium">
-                {t("form.name")}
-              </label>
-              <Input
-                id={`${ids}-name`}
-                value={name}
-                maxLength={100}
-                required
-                autoFocus
-                placeholder={t("form.namePlaceholder")}
-                onChange={(e) => setName(e.target.value)}
-              />
-            </div>
-            {error && (
-              <p role="alert" className="text-sm text-danger">
-                {error}
-              </p>
-            )}
-            <div className="flex justify-end gap-2">
-              <Button variant="ghost" onClick={close} disabled={pending}>
+            <DialogBody className="pt-5">
+              <DialogTitle>{t("form.title")}</DialogTitle>
+              <div className="space-y-1.5">
+                <label htmlFor={`${ids}-name`} className="block text-sm font-medium">
+                  {t("form.name")}
+                </label>
+                <Input
+                  id={`${ids}-name`}
+                  value={name}
+                  maxLength={100}
+                  required
+                  autoFocus
+                  placeholder={t("form.namePlaceholder")}
+                  onChange={(e) => setName(e.target.value)}
+                />
+              </div>
+              {error && (
+                <p role="alert" className="text-sm text-danger">
+                  {error}
+                </p>
+              )}
+            </DialogBody>
+            <DialogFooter>
+              <Button variant="secondary" onClick={close} disabled={pending}>
                 {tc("cancel")}
               </Button>
               <Button type="submit" variant="primary" disabled={pending || !name.trim()}>
                 {t("form.submit")}
               </Button>
-            </div>
+            </DialogFooter>
           </form>
         )}
       </Dialog>

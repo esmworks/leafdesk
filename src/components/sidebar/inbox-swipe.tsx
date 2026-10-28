@@ -119,7 +119,8 @@ export function InboxSwipe({
         }}
         style={dx ? { transform: `translateX(${dx}px)` } : undefined}
         // pan-y: the list still scrolls under a finger, and a sideways move comes here.
-        className={cn("relative touch-pan-y bg-bg", !dragging && "motion-safe:transition-transform motion-safe:duration-150")}
+        // group/row: the inbox row's actions show while it is hovered or focused (inbox-dialog.tsx).
+        className={cn("group/row relative touch-pan-y bg-bg", !dragging && "motion-safe:transition-transform motion-safe:duration-150")}
       >
         {children}
       </div>

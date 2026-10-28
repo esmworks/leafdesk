@@ -1,10 +1,9 @@
 "use client";
 
-import { X } from "lucide-react";
 import { useFormatter, useNow, useTranslations } from "next-intl";
 import { useEffect, useState, type ReactNode } from "react";
 import { pageAnalyticsAction } from "@/app/actions/page-views";
-import { cn, Dialog, IconButton } from "@/components/ui";
+import { cn, Dialog, DialogBody, DialogHeader } from "@/components/ui";
 import { UserAvatar } from "@/components/user-avatar";
 import { ANALYTICS_PERIODS, DEFAULT_ANALYTICS_PERIOD, type AnalyticsPeriod } from "@/lib/analytics";
 import type { DailyViews, PageAnalytics, PagePerson } from "@/lib/page-views";
@@ -38,10 +37,12 @@ export default function PageAnalyticsDialog({ pageId, onClose }: { pageId: strin
 
   return (
     <Dialog open onClose={onClose} className="max-w-2xl">
-      <div className="flex items-center justify-between gap-3 border-b border-border px-5 py-3">
-        <h2 className="text-base font-semibold">{t("title")}</h2>
-        <div className="flex items-center gap-2">
-          <div role="group" aria-label={t("period")} className="inline-flex gap-0.5 rounded-lg bg-bg-hover p-0.5">
+      <DialogHeader
+        title={t("title")}
+        onClose={onClose}
+        closeLabel={tc("close")}
+        actions={
+          <div role="group" aria-label={t("period")} className="me-1 inline-flex gap-0.5 rounded-lg bg-bg-hover p-0.5">
             {ANALYTICS_PERIODS.map((d) => (
               <button
                 key={d}
@@ -57,12 +58,9 @@ export default function PageAnalyticsDialog({ pageId, onClose }: { pageId: strin
               </button>
             ))}
           </div>
-          <IconButton label={tc("close")} className="h-7 w-7" onClick={onClose}>
-            <X className="h-4 w-4" />
-          </IconButton>
-        </div>
-      </div>
-      <div className={cn("max-h-[70vh] space-y-6 overflow-y-auto p-5 transition-opacity", loading && data && "opacity-60")} aria-busy={loading}>
+        }
+      />
+      <DialogBody className={cn("max-h-[70vh] overflow-y-auto transition-opacity", loading && data && "opacity-60")} aria-busy={loading}>
         {result?.error ? (
           <p role="alert" className="text-sm text-danger">
             {result.error}
@@ -72,7 +70,7 @@ export default function PageAnalyticsDialog({ pageId, onClose }: { pageId: strin
         ) : (
           <Report data={data} />
         )}
-      </div>
+      </DialogBody>
     </Dialog>
   );
 }

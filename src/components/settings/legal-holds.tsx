@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { useId, useMemo, useState, useTransition } from "react";
 import { legalHoldCandidatesAction, releaseLegalHoldAction, setLegalHoldAction } from "@/app/actions/legal-holds";
-import { Button, Dialog, Input, textareaClass } from "@/components/ui";
+import { Button, Dialog, DialogBody, DialogFooter, DialogTitle, Input, textareaClass } from "@/components/ui";
 import { LEGAL_HOLD_NAME_MAX, LEGAL_HOLD_REASON_MAX } from "@/lib/legal-hold";
 import { searchFold } from "@/lib/search-fold";
 import type { LegalHoldPerson, LegalHoldView } from "@/server/legal-hold";
@@ -109,7 +109,6 @@ function NewLegalHold({ workspaceId }: { workspaceId: string }) {
       </Button>
       <Dialog open={open} onClose={close} className="max-w-md">
         <form
-          className="space-y-4 p-5"
           onSubmit={(e) => {
             e.preventDefault();
             setError(null);
@@ -125,79 +124,81 @@ function NewLegalHold({ workspaceId }: { workspaceId: string }) {
             });
           }}
         >
-          <div>
-            <h2 className="text-[15px] font-semibold">{t("form.title")}</h2>
-            <p className="mt-1 text-sm text-fg-muted">{t("form.description")}</p>
-          </div>
-          <div className="space-y-1.5">
-            <label htmlFor={`${ids}-name`} className="block text-sm font-medium">
-              {t("form.name")}
-            </label>
-            <Input
-              id={`${ids}-name`}
-              value={name}
-              maxLength={LEGAL_HOLD_NAME_MAX}
-              required
-              autoFocus
-              placeholder={t("form.namePlaceholder")}
-              onChange={(e) => setName(e.target.value)}
-            />
-          </div>
-          <div className="space-y-1.5">
-            <label htmlFor={`${ids}-reason`} className="block text-sm font-medium">
-              {t("form.reason")}
-            </label>
-            <textarea
-              id={`${ids}-reason`}
-              className={textareaClass}
-              rows={2}
-              value={reason}
-              maxLength={LEGAL_HOLD_REASON_MAX}
-              placeholder={t("form.reasonPlaceholder")}
-              onChange={(e) => setReason(e.target.value)}
-            />
-          </div>
-          <fieldset className="space-y-1.5">
-            <legend className="block text-sm font-medium">{t("form.people", { count: chosen.size })}</legend>
-            <Input type="search" value={query} placeholder={t("form.search")} aria-label={t("form.search")} onChange={(e) => setQuery(e.target.value)} />
-            <div className="max-h-56 overflow-y-auto rounded-lg border border-border">
-              {people === null ? (
-                <p className="px-3 py-2 text-sm text-fg-muted">{t("form.loading")}</p>
-              ) : shown.length === 0 ? (
-                <p className="px-3 py-2 text-sm text-fg-muted">{t("form.nobody")}</p>
-              ) : (
-                <ul className="divide-y divide-border">
-                  {shown.map((person) => (
-                    <li key={person.id}>
-                      <label className="flex cursor-pointer items-center gap-2.5 px-3 py-1.5 text-sm hover:bg-bg-hover">
-                        <input type="checkbox" checked={chosen.has(person.id)} onChange={() => toggle(person.id)} />
-                        <span className="min-w-0 flex-1">
-                          <span className="block truncate">
-                            {person.name || person.email}
-                            <PersonNote person={person} />
-                          </span>
-                          {person.name && <span className="block truncate text-xs text-fg-muted">{person.email}</span>}
-                        </span>
-                      </label>
-                    </li>
-                  ))}
-                </ul>
-              )}
+          <DialogBody className="pt-5">
+            <div className="space-y-1.5">
+              <DialogTitle>{t("form.title")}</DialogTitle>
+              <p className="text-sm text-fg-muted">{t("form.description")}</p>
             </div>
-          </fieldset>
-          {error && (
-            <p role="alert" className="text-sm text-danger">
-              {error}
-            </p>
-          )}
-          <div className="flex justify-end gap-2">
-            <Button variant="ghost" onClick={close} disabled={pending}>
+            <div className="space-y-1.5">
+              <label htmlFor={`${ids}-name`} className="block text-sm font-medium">
+                {t("form.name")}
+              </label>
+              <Input
+                id={`${ids}-name`}
+                value={name}
+                maxLength={LEGAL_HOLD_NAME_MAX}
+                required
+                autoFocus
+                placeholder={t("form.namePlaceholder")}
+                onChange={(e) => setName(e.target.value)}
+              />
+            </div>
+            <div className="space-y-1.5">
+              <label htmlFor={`${ids}-reason`} className="block text-sm font-medium">
+                {t("form.reason")}
+              </label>
+              <textarea
+                id={`${ids}-reason`}
+                className={textareaClass}
+                rows={2}
+                value={reason}
+                maxLength={LEGAL_HOLD_REASON_MAX}
+                placeholder={t("form.reasonPlaceholder")}
+                onChange={(e) => setReason(e.target.value)}
+              />
+            </div>
+            <fieldset className="space-y-1.5">
+              <legend className="block text-sm font-medium">{t("form.people", { count: chosen.size })}</legend>
+              <Input type="search" value={query} placeholder={t("form.search")} aria-label={t("form.search")} onChange={(e) => setQuery(e.target.value)} />
+              <div className="max-h-56 overflow-y-auto rounded-lg border border-border">
+                {people === null ? (
+                  <p className="px-3 py-2 text-sm text-fg-muted">{t("form.loading")}</p>
+                ) : shown.length === 0 ? (
+                  <p className="px-3 py-2 text-sm text-fg-muted">{t("form.nobody")}</p>
+                ) : (
+                  <ul className="divide-y divide-border">
+                    {shown.map((person) => (
+                      <li key={person.id}>
+                        <label className="flex cursor-pointer items-center gap-2.5 px-3 py-1.5 text-sm hover:bg-bg-hover">
+                          <input type="checkbox" checked={chosen.has(person.id)} onChange={() => toggle(person.id)} />
+                          <span className="min-w-0 flex-1">
+                            <span className="block truncate">
+                              {person.name || person.email}
+                              <PersonNote person={person} />
+                            </span>
+                            {person.name && <span className="block truncate text-xs text-fg-muted">{person.email}</span>}
+                          </span>
+                        </label>
+                      </li>
+                    ))}
+                  </ul>
+                )}
+              </div>
+            </fieldset>
+            {error && (
+              <p role="alert" className="text-sm text-danger">
+                {error}
+              </p>
+            )}
+          </DialogBody>
+          <DialogFooter>
+            <Button variant="secondary" onClick={close} disabled={pending}>
               {tc("cancel")}
             </Button>
             <Button type="submit" variant="primary" disabled={pending || !name.trim() || chosen.size === 0}>
               {t("form.submit")}
             </Button>
-          </div>
+          </DialogFooter>
         </form>
       </Dialog>
     </>

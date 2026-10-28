@@ -1,6 +1,6 @@
 "use client";
 
-import { FileUp, FolderUp, X } from "lucide-react";
+import { FileUp, FolderUp } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useLocale, useTranslations } from "next-intl";
 import { useEffect, useMemo, useRef, useState } from "react";
@@ -13,7 +13,7 @@ import { createSheetsSyncAction } from "@/app/actions/sheets-sync";
 import { createJiraSyncAction } from "@/app/actions/jira-sync";
 import { saveWebPageAction } from "@/app/actions/web-clip";
 import { usePropertyTypeLabel } from "@/components/database/property-icons";
-import { Button, cn, Dialog, IconButton, Input, pageLabel } from "@/components/ui";
+import { Button, cn, Dialog, DialogBody, DialogFooter, DialogHeader, Input, pageLabel } from "@/components/ui";
 import { formatBytes } from "@/lib/files";
 import type { Board } from "@/lib/import/board";
 import { BOARD_COLUMN_TYPES, type BoardColumnType } from "@/lib/import/board-columns";
@@ -717,15 +717,13 @@ export function ImportDialog({
 
   return (
     <Dialog open={open} onClose={busy ? () => {} : onClose} className="max-w-2xl">
-      <div className="flex items-start justify-between gap-2 border-b border-border px-4 py-3">
-        <div>
-          <h2 className="text-sm font-medium">{result ? t("done.title") : tab === "web" ? t("web.title") : t("title")}</h2>
-          {!result && <p className="mt-0.5 text-xs text-fg-muted">{tab === "web" ? t("web.description") : t("description")}</p>}
-        </div>
-        <IconButton label={tc("close")} onClick={onClose} disabled={busy}>
-          <X className="h-3.5 w-3.5" />
-        </IconButton>
-      </div>
+      <DialogHeader
+        title={result ? t("done.title") : tab === "web" ? t("web.title") : t("title")}
+        description={result ? undefined : tab === "web" ? t("web.description") : t("description")}
+        onClose={onClose}
+        closeLabel={tc("close")}
+        closeDisabled={busy}
+      />
 
       {result ? (
         <ResultView
@@ -751,7 +749,7 @@ export function ImportDialog({
           }}
         />
       ) : (
-        <div className="max-h-[70vh] space-y-4 overflow-y-auto p-4" aria-busy={busy}>
+        <DialogBody className="max-h-[70vh] overflow-y-auto" aria-busy={busy}>
           <div role="tablist" aria-label={t("title")} className="inline-flex flex-wrap gap-0.5 rounded-lg bg-bg-hover p-0.5">
             {(["pages", "docx", "googleDocs", "pdf", "evernote", "onenote", "confluence", "csv", "trello", "asana", "monday", "jira", "github", "ical", "postgres", "sheets", "web"] as const).map((key) => (
               <button
@@ -1398,25 +1396,27 @@ export function ImportDialog({
               {error}
             </p>
           )}
-          <div className="flex justify-end gap-2">
-            <Button variant="ghost" disabled={busy} onClick={onClose}>
-              {tc("cancel")}
-            </Button>
-            <Button variant="primary" disabled={!ready} onClick={() => void submit()}>
-              {tab === "jira" || tab === "github" || tab === "ical" || tab === "postgres" || tab === "sheets"
+        </DialogBody>
+      )}
+      {!result && (
+        <DialogFooter>
+          <Button variant="secondary" disabled={busy} onClick={onClose}>
+            {tc("cancel")}
+          </Button>
+          <Button variant="primary" disabled={!ready} onClick={() => void submit()}>
+            {tab === "jira" || tab === "github" || tab === "ical" || tab === "postgres" || tab === "sheets"
+              ? busy
+                ? t("jira.submitting")
+                : t("jira.submit")
+              : tab === "web"
                 ? busy
-                  ? t("jira.submitting")
-                  : t("jira.submit")
-                : tab === "web"
-                  ? busy
-                    ? t("web.saving")
-                    : t("web.save")
-                  : busy
-                    ? t("importing")
-                    : t("import")}
-            </Button>
-          </div>
-        </div>
+                  ? t("web.saving")
+                  : t("web.save")
+                : busy
+                  ? t("importing")
+                  : t("import")}
+          </Button>
+        </DialogFooter>
       )}
     </Dialog>
   );
@@ -1584,23 +1584,25 @@ function ResultView({
     .filter((key) => result.created[key] > 0)
     .map((key) => t(`counts.${key}`, { count: result.created[key] }));
   return (
-    <div className="max-h-[70vh] space-y-3 overflow-y-auto p-4">
-      <p className="text-sm">{counts.length ? t("done.created", { list: counts.join(", ") }) : t("done.nothing")}</p>
-      {result.warnings.length > 0 && (
-        <div>
-          <h3 className="mb-1 text-xs font-medium text-fg-muted">{t("warnings.heading")}</h3>
-          <ul className="list-disc space-y-0.5 ps-5 text-sm text-fg-muted">
-            {result.warnings.map((w, i) => (
-              <li key={i} className="break-words">
-                {warningText(w)}
-              </li>
-            ))}
-            {result.moreWarnings > 0 && <li>{t("warnings.more", { count: result.moreWarnings })}</li>}
-          </ul>
-        </div>
-      )}
-      <div className="flex justify-end gap-2">
-        <Button variant="ghost" onClick={onAgain}>
+    <>
+      <DialogBody className="max-h-[70vh] overflow-y-auto">
+        <p className="text-sm">{counts.length ? t("done.created", { list: counts.join(", ") }) : t("done.nothing")}</p>
+        {result.warnings.length > 0 && (
+          <div>
+            <h3 className="mb-1 text-xs font-medium text-fg-muted">{t("warnings.heading")}</h3>
+            <ul className="list-disc space-y-0.5 ps-5 text-sm text-fg-muted">
+              {result.warnings.map((w, i) => (
+                <li key={i} className="break-words">
+                  {warningText(w)}
+                </li>
+              ))}
+              {result.moreWarnings > 0 && <li>{t("warnings.more", { count: result.moreWarnings })}</li>}
+            </ul>
+          </div>
+        )}
+      </DialogBody>
+      <DialogFooter>
+        <Button variant="secondary" onClick={onAgain}>
           {t("done.again")}
         </Button>
         {result.pages.length > 0 && (
@@ -1608,7 +1610,7 @@ function ResultView({
             {t("done.open")}
           </Button>
         )}
-      </div>
-    </div>
+      </DialogFooter>
+    </>
   );
 }

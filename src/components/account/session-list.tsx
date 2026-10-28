@@ -5,7 +5,7 @@ import { useFormatter, useLocale, useTranslations } from "next-intl";
 import { useState, useTransition } from "react";
 import { revokeOtherSessionsAction, revokeSessionAction } from "@/app/actions/account";
 import { SettingsGroup, SettingsRow } from "@/components/settings/section";
-import { Button, Dialog } from "@/components/ui";
+import { Button, Dialog, DialogBody, DialogFooter, DialogTitle } from "@/components/ui";
 import { relativeTime } from "@/lib/relative-time";
 import { parseUserAgent } from "@/lib/user-agent";
 import type { SessionSummary } from "@/server/account";
@@ -53,29 +53,31 @@ export function SessionList({ sessions }: { sessions: SessionSummary[] }) {
       )}
       {confirmAll && (
         <Dialog open onClose={() => setConfirmAll(false)} className="max-w-md">
-          <div className="space-y-4 p-5">
-            <h2 className="text-base font-semibold">{t("revokeOthersTitle")}</h2>
-            <p className="text-sm text-fg-muted">{t("revokeOthersBody", { count: others })}</p>
-            <div className="flex justify-end gap-2">
-              <Button variant="ghost" onClick={() => setConfirmAll(false)}>
-                {tc("cancel")}
-              </Button>
-              <Button
-                variant="danger"
-                disabled={pending}
-                onClick={() =>
-                  startTransition(async () => {
-                    setError(null);
-                    const result = await revokeOtherSessionsAction().catch(() => null);
-                    if (!result?.ok) setError(result?.error ?? tc("genericError"));
-                    setConfirmAll(false);
-                  })
-                }
-              >
-                {t("revokeOthersConfirm")}
-              </Button>
+          <DialogBody className="pt-5">
+            <div className="space-y-1.5">
+              <DialogTitle>{t("revokeOthersTitle")}</DialogTitle>
+              <p className="text-sm text-fg-muted">{t("revokeOthersBody", { count: others })}</p>
             </div>
-          </div>
+          </DialogBody>
+          <DialogFooter>
+            <Button variant="secondary" onClick={() => setConfirmAll(false)}>
+              {tc("cancel")}
+            </Button>
+            <Button
+              variant="danger"
+              disabled={pending}
+              onClick={() =>
+                startTransition(async () => {
+                  setError(null);
+                  const result = await revokeOtherSessionsAction().catch(() => null);
+                  if (!result?.ok) setError(result?.error ?? tc("genericError"));
+                  setConfirmAll(false);
+                })
+              }
+            >
+              {t("revokeOthersConfirm")}
+            </Button>
+          </DialogFooter>
         </Dialog>
       )}
     </SettingsGroup>

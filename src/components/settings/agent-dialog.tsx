@@ -25,7 +25,7 @@ import { ApprovalActions } from "@/components/connections/approval-actions";
 import { IconPicker } from "@/components/page/icon-picker";
 import { TabButton } from "@/components/settings/members-panel";
 import { useAction } from "@/components/settings/workspace-settings";
-import { Button, cn, Dialog, IconButton, Input, PageIcon, pageLabel, selectClass, Switch, textareaClass } from "@/components/ui";
+import { Button, cn, Dialog, DialogFooter, DialogHeader, IconButton, Input, PageIcon, pageLabel, selectClass, Switch, textareaClass } from "@/components/ui";
 import type { AgentInput } from "@/server/agents/manage";
 import {
   AGENT_ACCESS_LEVELS,
@@ -126,25 +126,24 @@ export function AgentDialog({
   }, [tab]);
   return (
     <Dialog open onClose={onClose} className="max-w-3xl">
-      <div className="flex items-start gap-3 border-b border-border px-5 py-4">
-        <span className="mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-md bg-bg-hover text-lg">
-          <AgentIcon icon={agent.icon} />
-        </span>
-        <div className="min-w-0 flex-1">
-          <h2 className="truncate text-base font-semibold">{agent.name}</h2>
-          <p className="truncate text-sm text-fg-muted">
+      <DialogHeader
+        title={<span className="block truncate">{agent.name}</span>}
+        description={
+          <p className="truncate">
             {t(`status.${agent.archived ? "archived" : agent.enabled ? "active" : "paused"}`)}
             {agent.description && ` · ${agent.description}`}
           </p>
-        </div>
-        <Button size="sm" variant={tab === "share" ? "primary" : "ghost"} aria-pressed={tab === "share"} onClick={() => onTab("share")}>
-          <Users className="h-3.5 w-3.5" />
-          {t("share.button")}
-        </Button>
-        <IconButton label={tc("close")} onClick={onClose} className="h-7 w-7">
-          <X className="h-4 w-4" />
-        </IconButton>
-      </div>
+        }
+        icon={<AgentIcon icon={agent.icon} className="text-lg" />}
+        actions={
+          <Button size="sm" variant={tab === "share" ? "primary" : "ghost"} aria-pressed={tab === "share"} onClick={() => onTab("share")}>
+            <Users className="h-3.5 w-3.5" />
+            {t("share.button")}
+          </Button>
+        }
+        onClose={onClose}
+        closeLabel={tc("close")}
+      />
       {/* Nine tabs don't fit a phone: they scroll on their own, without a bar, rather than widening the dialog. */}
       <div ref={tabs} className="overflow-x-auto border-b border-border px-5 py-2 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
         <div role="tablist" aria-label={agent.name} className="inline-flex w-max gap-0.5 rounded-lg bg-bg-hover p-0.5">
@@ -380,19 +379,19 @@ export function AgentForm({
         </label>
         <AgentHelpersField workspaceId={workspaceId} agentId={agent?.id ?? null} value={helpers} disabled={locked} onChange={setHelpers} />
       </fieldset>
-      <div className="flex items-center justify-end gap-2 border-t border-border px-5 py-3">
+      <DialogFooter>
         {error && (
           <p role="alert" className="me-auto text-xs text-danger">
             {error}
           </p>
         )}
-        <Button variant="ghost" onClick={onDone}>
+        <Button variant="secondary" onClick={onDone}>
           {tc("cancel")}
         </Button>
         <Button type="submit" variant="primary" disabled={locked || pending || !clean || !limitValid}>
           {agent ? (pending ? tc("saving") : tc("save")) : pending ? t("creating") : t("create")}
         </Button>
-      </div>
+      </DialogFooter>
     </form>
   );
 }

@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import { useFormatter, useTranslations } from "next-intl";
 import { useEffect, useState, useTransition } from "react";
 import { deletePagePermanentlyAction, listTrashAction, restorePageAction } from "@/app/actions/pages";
-import { Dialog, IconButton, PageIcon, pageLabel } from "@/components/ui";
+import { Dialog, DialogHeader, IconButton, PageIcon, pageLabel } from "@/components/ui";
 import { MERGED_ORIGINAL_PARAM } from "@/lib/merge-rows";
 import { daysUntil } from "@/lib/retention";
 
@@ -85,7 +85,7 @@ export function TrashDialog({
 
   return (
     <Dialog open={open} onClose={onClose}>
-      <div className="border-b border-border px-4 py-3 text-sm font-medium">{t("title")}</div>
+      <DialogHeader title={t("title")} onClose={onClose} closeLabel={tc("close")} />
       {(error || refusal) && (
         <p role="alert" className="border-b border-border px-4 py-2 text-xs text-danger">
           {refusal ?? tc("genericError")}

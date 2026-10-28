@@ -4,12 +4,12 @@
  * Verifies a page (server/verification.ts) for a while, until a day or with no end, or removes its
  * verification (full access). Loaded when the page menu or the badge opens it.
  */
-import { BadgeCheck, X } from "lucide-react";
+import { BadgeCheck } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { useState } from "react";
 import { createPortal } from "react-dom";
 import { setPageVerificationAction, type VerificationChoice } from "@/app/actions/verification";
-import { Button, Dialog, IconButton, Input } from "@/components/ui";
+import { Button, Dialog, DialogBody, DialogFooter, DialogHeader, Input } from "@/components/ui";
 import { localIsoDate } from "@/lib/mentions";
 import { VERIFICATION_DURATIONS, type VerificationView } from "@/lib/verification";
 
@@ -69,61 +69,59 @@ export function VerifyDialog({
   // A portal: the page header's blurred background would otherwise hold the fixed overlay inside it.
   return createPortal(
     <Dialog open onClose={saving ? () => {} : onClose} className="max-w-md">
-      <div className="flex items-start gap-2 border-b border-border px-4 py-3">
-        <BadgeCheck size={16} className="mt-0.5 shrink-0 text-fg-muted" aria-hidden />
-        <div className="min-w-0 flex-1">
-          <h2 className="text-sm font-semibold">{t("title")}</h2>
-          <p className="mt-0.5 text-xs text-fg-muted">{t("description")}</p>
-        </div>
-        <IconButton label={tc("close")} onClick={onClose}>
-          <X size={14} />
-        </IconButton>
-      </div>
+      <DialogHeader
+        icon={<BadgeCheck className="h-4 w-4" />}
+        title={t("title")}
+        description={t("description")}
+        onClose={onClose}
+        closeLabel={tc("close")}
+      />
       <form
-        className="space-y-3 p-4"
         onSubmit={(e) => {
           e.preventDefault();
           void submit(false);
         }}
       >
-        <fieldset className="space-y-1">
-          <legend className="mb-1 text-xs text-fg-muted">{t("durationLabel")}</legend>
-          {choices.map((value) => (
-            <label key={value} className="flex items-center gap-2 rounded px-1 py-1 text-sm hover:bg-bg-hover">
-              <input type="radio" name="verification-duration" value={value} checked={choice === value} onChange={() => setChoice(value)} />
-              <span className="flex-1">{t(`durations.${value}`)}</span>
-              {value === "until" && choice === "until" && (
-                <Input
-                  type="date"
-                  value={day}
-                  min={localIsoDate(1)}
-                  onChange={(e) => setDay(e.target.value)}
-                  aria-label={t("dateLabel")}
-                  className="h-7 w-40"
-                  required
-                />
-              )}
-            </label>
-          ))}
-        </fieldset>
-        <div className="flex flex-wrap items-center justify-end gap-2">
+        <DialogBody>
+          <fieldset className="space-y-1">
+            <legend className="mb-1 text-xs text-fg-muted">{t("durationLabel")}</legend>
+            {choices.map((value) => (
+              <label key={value} className="flex items-center gap-2 rounded px-1 py-1 text-sm hover:bg-bg-hover">
+                <input type="radio" name="verification-duration" value={value} checked={choice === value} onChange={() => setChoice(value)} />
+                <span className="flex-1">{t(`durations.${value}`)}</span>
+                {value === "until" && choice === "until" && (
+                  <Input
+                    type="date"
+                    value={day}
+                    min={localIsoDate(1)}
+                    onChange={(e) => setDay(e.target.value)}
+                    aria-label={t("dateLabel")}
+                    className="h-7 w-40"
+                    required
+                  />
+                )}
+              </label>
+            ))}
+          </fieldset>
+          {error && (
+            <p role="alert" className="text-xs text-danger">
+              {error}
+            </p>
+          )}
+        </DialogBody>
+        <DialogFooter>
           {verification && (
             <Button type="button" variant="ghost" className="me-auto" onClick={() => void submit(true)} disabled={saving}>
               {t("remove")}
             </Button>
           )}
-          <Button type="button" variant="ghost" onClick={onClose} disabled={saving}>
+          <Button type="button" variant="secondary" onClick={onClose} disabled={saving}>
             {tc("cancel")}
           </Button>
           <Button type="submit" variant="primary" disabled={saving}>
             {verification ? t("verifyAgain") : t("verify")}
           </Button>
-        </div>
-        {error && (
-          <p role="alert" className="text-xs text-danger">
-            {error}
-          </p>
-        )}
+        </DialogFooter>
       </form>
     </Dialog>,
     document.body,

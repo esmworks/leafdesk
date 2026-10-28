@@ -1,11 +1,11 @@
 "use client";
 
-import { ExternalLink, Eye, EyeOff, RefreshCw, X } from "lucide-react";
+import { ExternalLink, Eye, EyeOff, RefreshCw } from "lucide-react";
 import { useFormatter, useTranslations } from "next-intl";
 import { useEffect, useState } from "react";
 import { getGithubSetupAction, removeGithubSetupAction, rotateGithubSecretAction, saveGithubSetupAction } from "@/app/actions/github-sync";
 import { CopyButton } from "@/components/settings/copy-button";
-import { Button, cn, Dialog, IconButton, Input, selectClass } from "@/components/ui";
+import { Button, cn, Dialog, DialogBody, DialogHeader, IconButton, Input, selectClass } from "@/components/ui";
 import type { GithubDeliveryView, GithubMapping } from "@/lib/github-sync";
 import type { GithubPropertyChoice, GithubSetupState } from "@/server/github-sync/manage";
 
@@ -108,16 +108,14 @@ export default function GithubSyncDialog({ workspaceId, databaseId, onClose }: {
 
   return (
     <Dialog open onClose={busy ? () => {} : onClose} className="max-w-xl">
-      <div className="flex items-start justify-between gap-2 border-b border-border px-4 py-3">
-        <div>
-          <h2 className="text-sm font-medium">{t("title")}</h2>
-          <p className="mt-0.5 text-xs text-fg-muted">{t("intro", { example: ready ? `${ready}-12` : "TASK-12" })}</p>
-        </div>
-        <IconButton label={tc("close")} onClick={onClose} disabled={busy}>
-          <X className="h-3.5 w-3.5" />
-        </IconButton>
-      </div>
-      <div className="max-h-[75vh] space-y-5 overflow-y-auto p-4" aria-busy={busy}>
+      <DialogHeader
+        title={t("title")}
+        description={t("intro", { example: ready ? `${ready}-12` : "TASK-12" })}
+        onClose={onClose}
+        closeLabel={tc("close")}
+        closeDisabled={busy}
+      />
+      <DialogBody className="max-h-[75vh] overflow-y-auto" aria-busy={busy}>
         {!state ? (
           !error && <p className="text-sm text-fg-muted">{tc("loading")}</p>
         ) : !ready ? (
@@ -176,7 +174,7 @@ export default function GithubSyncDialog({ workspaceId, databaseId, onClose }: {
             </Button>
           </div>
         )}
-      </div>
+      </DialogBody>
     </Dialog>
   );
 }

@@ -5,7 +5,7 @@ import { useTranslations } from "next-intl";
 import { useId, useRef, useState } from "react";
 import { createSnippetAction, updateSnippetAction } from "@/app/actions/snippets";
 import { useAction } from "@/components/settings/workspace-settings";
-import { Button, Dialog, Input, selectClass, textareaClass } from "@/components/ui";
+import { Button, Dialog, DialogFooter, DialogHeader, Input, selectClass, textareaClass } from "@/components/ui";
 import {
   MAX_SNIPPET_BODY,
   MAX_SNIPPET_TITLE,
@@ -89,8 +89,9 @@ export function SnippetDialog({
           submit();
         }}
       >
-        <h2 className="border-b border-border px-5 py-3.5 text-base font-semibold">{snippet ? t("editTitle") : t("newTitle")}</h2>
-        <div className="grid min-h-0 flex-1 gap-5 overflow-y-auto p-5 md:grid-cols-2">
+        <DialogHeader title={snippet ? t("editTitle") : t("newTitle")} onClose={onClose} closeLabel={tc("close")} />
+        {/* Not a DialogBody: its spacing would add to the grid's gap. */}
+        <div className="grid min-h-0 flex-1 gap-5 overflow-y-auto px-5 py-4 md:grid-cols-2">
           <div className="space-y-3">
             <label className="block space-y-1.5">
               <span className="text-sm text-fg-muted">{t("title")}</span>
@@ -180,15 +181,15 @@ export function SnippetDialog({
             </div>
           </div>
         </div>
-        <div className="flex items-center justify-end gap-2 border-t border-border px-5 py-3">
+        <DialogFooter>
           {error && <p className="me-auto text-xs text-danger">{error}</p>}
-          <Button variant="ghost" onClick={onClose}>
+          <Button variant="secondary" onClick={onClose}>
             {tc("cancel")}
           </Button>
           <Button type="submit" variant="primary" disabled={pending || !markdown.trim() || !shownTrigger}>
             {pending ? tc("saving") : snippet ? tc("save") : t("create")}
           </Button>
-        </div>
+        </DialogFooter>
       </form>
     </Dialog>
   );

@@ -1,9 +1,9 @@
 "use client";
 
-import { ArrowDown, ArrowUp, Plus, Trash2, X } from "lucide-react";
+import { ArrowDown, ArrowUp, Plus, Trash2 } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { useCallback, useRef, useState } from "react";
-import { Button, cn, Dialog } from "@/components/ui";
+import { Button, cn, Dialog, DialogBody, DialogFooter, DialogHeader } from "@/components/ui";
 import type { ColorRule, ViewConfig } from "@/db/schema/app";
 import { isColorRuleColor, MAX_COLOR_RULES, newColorRuleId } from "@/lib/color-rules";
 import { SELECT_COLORS } from "@/lib/properties";
@@ -65,22 +65,8 @@ export function ColorRulesDialog({
 
   return (
     <Dialog open onClose={close} className="max-w-2xl">
-      <div className="flex items-start gap-3 border-b border-border px-5 py-4">
-        <div className="min-w-0 flex-1">
-          <h2 className="text-base font-semibold">{t("title")}</h2>
-          <p className="mt-0.5 text-sm text-fg-muted">{t("description")}</p>
-        </div>
-        <button
-          type="button"
-          aria-label={tc("close")}
-          title={tc("close")}
-          onClick={onClose}
-          className="inline-flex h-7 w-7 shrink-0 items-center justify-center rounded-md text-fg-muted hover:bg-bg-hover hover:text-fg"
-        >
-          <X className="h-4 w-4" />
-        </button>
-      </div>
-      <div className="max-h-[65vh] space-y-3 overflow-y-auto px-5 py-4">
+      <DialogHeader title={t("title")} description={t("description")} onClose={onClose} closeLabel={tc("close")} />
+      <DialogBody className="max-h-[65vh] overflow-y-auto">
         {!rules.length && <p className="py-4 text-center text-sm text-fg-muted">{t("empty")}</p>}
         {rules.map((rule, i) => (
           <section key={rule.id} aria-label={t("ruleLabel", { color: isColorRuleColor(rule.color) ? tColor(rule.color) : rule.color })} className="rounded-lg border border-border">
@@ -134,14 +120,14 @@ export function ColorRulesDialog({
             </div>
           </section>
         ))}
-      </div>
-      <div className="flex items-center justify-between gap-3 border-t border-border px-5 py-3">
-        <p className="text-xs text-fg-muted">{t("firstMatchWins")}</p>
-        <Button size="sm" onClick={add} disabled={rules.length >= MAX_COLOR_RULES || !columns.length}>
+      </DialogBody>
+      <DialogFooter>
+        <p className="me-auto text-xs text-fg-muted">{t("firstMatchWins")}</p>
+        <Button onClick={add} disabled={rules.length >= MAX_COLOR_RULES || !columns.length}>
           <Plus className="h-3.5 w-3.5" />
           {t("add")}
         </Button>
-      </div>
+      </DialogFooter>
     </Dialog>
   );
 }

@@ -4,7 +4,7 @@ import { FileDown } from "lucide-react";
 import { useFormatter, useTranslations } from "next-intl";
 import { useEffect, useId, useState } from "react";
 import { listLetterheadsAction } from "@/app/actions/letterheads";
-import { Button, cn, Dialog, selectClass, Switch } from "@/components/ui";
+import { Button, cn, Dialog, DialogBody, DialogFooter, DialogTitle, selectClass, Switch } from "@/components/ui";
 import type { Letterhead } from "@/lib/letterheads";
 import { PDF_TEXT_SCALES } from "@/lib/pdf-text-scale";
 
@@ -104,8 +104,8 @@ export default function PdfExportDialog({
 
   return (
     <Dialog open onClose={onClose} className="max-w-md">
-      <div className="space-y-4 p-5">
-        <h2 className="text-base font-semibold">{t("title")}</h2>
+      <DialogBody className="pt-5">
+        <DialogTitle>{t("title")}</DialogTitle>
         <div className="space-y-1.5">
           <label htmlFor={`${id}-letterhead`} className="block text-sm font-medium">
             {t("letterhead")}
@@ -153,17 +153,17 @@ export default function PdfExportDialog({
           <Switch checked={comments} onChange={setComments} label={t("comments")} disabled={pending} />
         </div>
         <p className="text-xs text-fg-muted">{t("hint")}</p>
-        <div className="flex items-center justify-end gap-2">
-          {error && <span className="flex-1 text-sm text-danger">{error}</span>}
-          <Button variant="ghost" onClick={onClose} disabled={pending}>
-            {tc("cancel")}
-          </Button>
-          <Button variant="primary" onClick={() => void download()} disabled={pending || !letterheads}>
-            <FileDown className="h-3.5 w-3.5" />
-            {pending ? t("preparing") : t("download")}
-          </Button>
-        </div>
-      </div>
+      </DialogBody>
+      <DialogFooter>
+        {error && <span className="flex-1 text-sm text-danger">{error}</span>}
+        <Button variant="secondary" onClick={onClose} disabled={pending}>
+          {tc("cancel")}
+        </Button>
+        <Button variant="primary" onClick={() => void download()} disabled={pending || !letterheads}>
+          <FileDown className="h-3.5 w-3.5" />
+          {pending ? t("preparing") : t("download")}
+        </Button>
+      </DialogFooter>
     </Dialog>
   );
 }

@@ -5,7 +5,7 @@ import { useBlockNoteEditor, useComponentsContext, useExtensionState } from "@bl
 import { FileText } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { createContext, useContext, useEffect, useState } from "react";
-import { Button, Dialog, Input } from "@/components/ui";
+import { Button, Dialog, DialogBody, DialogFooter, DialogTitle, Input } from "@/components/ui";
 import { IMAGE_BLOCK, MAX_IMAGE_LINK, parseImageLink } from "@/lib/image-links";
 import { pagePath } from "@/lib/mentions";
 import type { PageEditor } from "./embed-blocks";
@@ -82,56 +82,56 @@ export function ImageLinkDialog({
     <>
       <Dialog open={blockId !== null && !picking} onClose={onClose} className="max-w-md">
         <form
-          className="space-y-3 p-4"
           onSubmit={(e) => {
             e.preventDefault();
             save();
           }}
         >
-          <h2 className="text-sm font-semibold">{t("title")}</h2>
-          <label className="block">
-            <span className="mb-1 block text-xs text-fg-muted">{t("urlLabel")}</span>
-            <Input
-              autoFocus
-              value={value}
-              maxLength={MAX_IMAGE_LINK}
-              placeholder="https://"
-              dir="ltr"
-              aria-invalid={invalid || undefined}
-              onChange={(e) => {
-                setValue(e.target.value);
-                setInvalid(false);
-              }}
-            />
-          </label>
-          {page?.kind === "page" && (
-            <p className="flex items-center gap-1.5 text-xs text-fg-muted">
-              <FileText className="h-3.5 w-3.5 shrink-0" aria-hidden />
-              {t("toPage", { title: loadedPageTitle(page.pageId) ?? tc("untitled") })}
-            </p>
-          )}
-          {invalid && (
-            <p role="alert" className="text-xs text-danger">
-              {t("invalid")}
-            </p>
-          )}
-          <div className="flex flex-wrap items-center gap-2">
-            <Button type="button" onClick={() => setPicking(true)}>
+          <DialogBody className="pt-5">
+            <DialogTitle>{t("title")}</DialogTitle>
+            <label className="block">
+              <span className="mb-1 block text-xs text-fg-muted">{t("urlLabel")}</span>
+              <Input
+                autoFocus
+                value={value}
+                maxLength={MAX_IMAGE_LINK}
+                placeholder="https://"
+                dir="ltr"
+                aria-invalid={invalid || undefined}
+                onChange={(e) => {
+                  setValue(e.target.value);
+                  setInvalid(false);
+                }}
+              />
+            </label>
+            {page?.kind === "page" && (
+              <p className="flex items-center gap-1.5 text-xs text-fg-muted">
+                <FileText className="h-3.5 w-3.5 shrink-0" aria-hidden />
+                {t("toPage", { title: loadedPageTitle(page.pageId) ?? tc("untitled") })}
+              </p>
+            )}
+            {invalid && (
+              <p role="alert" className="text-xs text-danger">
+                {t("invalid")}
+              </p>
+            )}
+          </DialogBody>
+          <DialogFooter>
+            <Button type="button" className="me-auto" onClick={() => setPicking(true)}>
               {t("pickPage")}
             </Button>
-            <span className="flex-1" />
             {current && (
               <Button type="button" onClick={() => write("")}>
                 {t("remove")}
               </Button>
             )}
-            <Button type="button" onClick={onClose}>
+            <Button type="button" variant="secondary" onClick={onClose}>
               {tc("cancel")}
             </Button>
             <Button type="submit" variant="primary">
               {tc("save")}
             </Button>
-          </div>
+          </DialogFooter>
         </form>
       </Dialog>
       <PagePicker

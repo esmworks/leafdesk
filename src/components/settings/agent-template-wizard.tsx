@@ -3,12 +3,12 @@
 import { ArrowLeft, X } from "lucide-react";
 import Link from "next/link";
 import { useTranslations } from "next-intl";
-import { useEffect, useState } from "react";
+import { useEffect, useState, type ReactNode } from "react";
 import { builtinAgentPropertiesAction, installBuiltinAgentAction } from "@/app/actions/agents";
 import { listConnectionsAction } from "@/app/actions/connections";
 import { PropertyTypeIcon, usePropertyTypeLabel } from "@/components/database/property-icons";
 import { useAction } from "@/components/settings/workspace-settings";
-import { Button, cn, Dialog, IconButton, Input, PageIcon, pageLabel, textareaClass } from "@/components/ui";
+import { Button, cn, Dialog, DialogBody, DialogFooter, DialogTitle, IconButton, Input, PageIcon, pageLabel, textareaClass } from "@/components/ui";
 import { MAX_AGENT_NAME, type AgentView } from "@/lib/agents";
 import {
   ANSWER_PROPERTY_TYPES,
@@ -162,26 +162,19 @@ function RowAgentWizard({
 
   return (
     <Dialog open onClose={onClose} className="max-w-xl">
-      <div className="flex items-start gap-3 border-b border-border px-5 py-4">
-        {step !== "database" && (
-          <IconButton label={t("back")} onClick={back} className="mt-1">
-            <ArrowLeft className="h-4 w-4 rtl:-scale-x-100" />
-          </IconButton>
-        )}
-        <span className="mt-0.5 text-lg leading-none">{template.icon}</span>
-        <div className="min-w-0 flex-1">
-          <h2 className="truncate text-base font-semibold">{t("title", { name: template.name })}</h2>
-          <p className="truncate text-sm text-fg-muted">
+      <WizardHeader
+        template={template}
+        step={
+          <>
             {t(`steps.${step}`)}
             {database && step !== "database" && ` · ${pageLabel(database.title, tc("untitled"))}`}
-          </p>
-        </div>
-        <IconButton label={tc("close")} onClick={onClose} className="h-7 w-7">
-          <X className="h-4 w-4" />
-        </IconButton>
-      </div>
+          </>
+        }
+        onBack={step !== "database" ? back : undefined}
+        onClose={onClose}
+      />
 
-      <div className={cn("max-h-[65vh] space-y-4 overflow-y-auto px-5 py-4", pending && "pointer-events-none opacity-70")}>
+      <DialogBody className={cn("max-h-[65vh] overflow-y-auto", pending && "pointer-events-none opacity-70")}>
         {step === "database" && (
           <>
             <p className="text-sm text-fg-muted">{t("chooseDatabase")}</p>
@@ -332,22 +325,22 @@ function RowAgentWizard({
             </p>
           </div>
         )}
-      </div>
+      </DialogBody>
 
       {step !== "database" && (
-        <div className="flex items-center justify-end gap-2 border-t border-border px-5 py-3">
+        <DialogFooter>
           {(problem || error) && (
             <p role="alert" className="me-auto text-xs text-danger">
               {problem ?? error}
             </p>
           )}
-          <Button variant="ghost" onClick={back}>
+          <Button variant="secondary" onClick={back}>
             {t("back")}
           </Button>
           <Button variant="primary" disabled={pending} onClick={next}>
             {step === last ? (pending ? t("creating") : t("create")) : t("next")}
           </Button>
-        </div>
+        </DialogFooter>
       )}
       {step === "database" && error && (
         <p role="alert" className="border-t border-border px-5 py-3 text-xs text-danger">
@@ -444,26 +437,19 @@ function EventAgentWizard({ workspaceId, template, onClose, onCreated }: WizardP
 
   return (
     <Dialog open onClose={onClose} className="max-w-xl">
-      <div className="flex items-start gap-3 border-b border-border px-5 py-4">
-        {step !== "database" && (
-          <IconButton label={t("back")} onClick={() => setStep("database")} className="mt-1">
-            <ArrowLeft className="h-4 w-4 rtl:-scale-x-100" />
-          </IconButton>
-        )}
-        <span className="mt-0.5 text-lg leading-none">{template.icon}</span>
-        <div className="min-w-0 flex-1">
-          <h2 className="truncate text-base font-semibold">{t("title", { name: template.name })}</h2>
-          <p className="truncate text-sm text-fg-muted">
+      <WizardHeader
+        template={template}
+        step={
+          <>
             {t(`steps.${step}`)}
             {database && step !== "database" && ` · ${databaseTitle}`}
-          </p>
-        </div>
-        <IconButton label={tc("close")} onClick={onClose} className="h-7 w-7">
-          <X className="h-4 w-4" />
-        </IconButton>
-      </div>
+          </>
+        }
+        onBack={step !== "database" ? () => setStep("database") : undefined}
+        onClose={onClose}
+      />
 
-      <div className={cn("max-h-[65vh] space-y-4 overflow-y-auto px-5 py-4", pending && "pointer-events-none opacity-70")}>
+      <DialogBody className={cn("max-h-[65vh] overflow-y-auto", pending && "pointer-events-none opacity-70")}>
         {step === "database" && (
           <>
             <p className="text-sm text-fg-muted">{t("chooseLog")}</p>
@@ -534,22 +520,22 @@ function EventAgentWizard({ workspaceId, template, onClose, onCreated }: WizardP
               </div>
             </>
           ))}
-      </div>
+      </DialogBody>
 
       {step === "connection" && (
-        <div className="flex items-center justify-end gap-2 border-t border-border px-5 py-3">
+        <DialogFooter>
           {(gap || error) && (
             <p role="alert" className="me-auto text-xs text-danger">
               {gap ? t(`errors.${gap}`) : error}
             </p>
           )}
-          <Button variant="ghost" onClick={() => setStep("database")}>
+          <Button variant="secondary" onClick={() => setStep("database")}>
             {t("back")}
           </Button>
           <Button variant="primary" disabled={pending || !connection} onClick={create}>
             {pending ? t("creating") : t("create")}
           </Button>
-        </div>
+        </DialogFooter>
       )}
       {step === "database" && error && (
         <p role="alert" className="border-t border-border px-5 py-3 text-xs text-danger">
@@ -618,26 +604,19 @@ function CompanyDetailsWizard({ workspaceId, template, onClose, onCreated }: Wiz
 
   return (
     <Dialog open onClose={onClose} className="max-w-xl">
-      <div className="flex items-start gap-3 border-b border-border px-5 py-4">
-        {step !== "database" && (
-          <IconButton label={t("back")} onClick={back} className="mt-1">
-            <ArrowLeft className="h-4 w-4 rtl:-scale-x-100" />
-          </IconButton>
-        )}
-        <span className="mt-0.5 text-lg leading-none">{template.icon}</span>
-        <div className="min-w-0 flex-1">
-          <h2 className="truncate text-base font-semibold">{t("title", { name: template.name })}</h2>
-          <p className="truncate text-sm text-fg-muted">
+      <WizardHeader
+        template={template}
+        step={
+          <>
             {t(`steps.${step}`)}
             {database && step !== "database" && ` · ${databaseTitle}`}
-          </p>
-        </div>
-        <IconButton label={tc("close")} onClick={onClose} className="h-7 w-7">
-          <X className="h-4 w-4" />
-        </IconButton>
-      </div>
+          </>
+        }
+        onBack={step !== "database" ? back : undefined}
+        onClose={onClose}
+      />
 
-      <div className={cn("max-h-[65vh] space-y-4 overflow-y-auto px-5 py-4", pending && "pointer-events-none opacity-70")}>
+      <DialogBody className={cn("max-h-[65vh] overflow-y-auto", pending && "pointer-events-none opacity-70")}>
         {step === "database" && (
           <>
             <p className="text-sm text-fg-muted">{t("chooseCompanies")}</p>
@@ -684,22 +663,22 @@ function CompanyDetailsWizard({ workspaceId, template, onClose, onCreated }: Wiz
             </div>
           </>
         )}
-      </div>
+      </DialogBody>
 
       {step === "properties" && (
-        <div className="flex items-center justify-end gap-2 border-t border-border px-5 py-3">
+        <DialogFooter>
           {(gap || error) && (
             <p role="alert" className="me-auto text-xs text-danger">
               {gap ? t(`errors.${gap}`) : error}
             </p>
           )}
-          <Button variant="ghost" onClick={back}>
+          <Button variant="secondary" onClick={back}>
             {t("back")}
           </Button>
           <Button variant="primary" disabled={pending} onClick={create}>
             {pending ? t("creating") : t("create")}
           </Button>
-        </div>
+        </DialogFooter>
       )}
       {step === "database" && error && (
         <p role="alert" className="border-t border-border px-5 py-3 text-xs text-danger">
@@ -707,6 +686,34 @@ function CompanyDetailsWizard({ workspaceId, template, onClose, onCreated }: Wiz
         </p>
       )}
     </Dialog>
+  );
+}
+
+/**
+ * A wizard's top bar, like DialogHeader's but with the back button before the template's icon and
+ * title, where DialogHeader has no place for a button.
+ */
+function WizardHeader({ template, step, onBack, onClose }: { template: WizardProps["template"]; step: ReactNode; onBack?: () => void; onClose: () => void }) {
+  const t = useTranslations("settings.agents.wizard");
+  const tc = useTranslations("common");
+  return (
+    <div className="flex shrink-0 items-start gap-3 border-b border-border px-5 py-4">
+      {onBack && (
+        <IconButton label={t("back")} onClick={onBack} className="-ms-1.5 h-7 w-7">
+          <ArrowLeft className="h-4 w-4 rtl:-scale-x-100" />
+        </IconButton>
+      )}
+      <span aria-hidden className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg border border-border bg-bg-subtle text-lg leading-none">
+        {template.icon}
+      </span>
+      <div className="min-w-0 flex-1">
+        <DialogTitle className="truncate">{t("title", { name: template.name })}</DialogTitle>
+        <p className="mt-0.5 truncate text-sm text-fg-muted">{step}</p>
+      </div>
+      <IconButton label={tc("close")} onClick={onClose} className="-me-1.5 -mt-0.5 h-7 w-7 text-fg-faint">
+        <X className="h-4 w-4" />
+      </IconButton>
+    </div>
   );
 }
 

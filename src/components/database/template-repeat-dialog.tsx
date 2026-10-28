@@ -4,7 +4,7 @@ import { useLocale, useTranslations } from "next-intl";
 import { useEffect, useState, useTransition } from "react";
 import { getTemplateRepeatAction, removeTemplateRepeatAction, setTemplateRepeatAction } from "@/app/actions/templates";
 import { freshRepeatForm, RepeatRuleFields, repeatFormOf, useRepeatRule, type RepeatForm } from "@/components/repeat-rule-fields";
-import { Button, cn, Dialog, pageLabel, Switch } from "@/components/ui";
+import { Button, cn, Dialog, DialogBody, DialogFooter, DialogTitle, pageLabel, Switch } from "@/components/ui";
 import type { TemplateScheduleError } from "@/lib/schedule";
 
 type Form = RepeatForm & { dateInTitle: boolean };
@@ -92,67 +92,64 @@ export function TemplateRepeatDialog({
   return (
     <Dialog open={template !== null} onClose={onClose} className="max-w-md">
       <form
-        className={cn("space-y-4 p-5", (!loaded || pending) && "pointer-events-none opacity-60")}
+        className={cn((!loaded || pending) && "pointer-events-none opacity-60")}
         aria-busy={!loaded || pending}
         onSubmit={(e) => {
           e.preventDefault();
           save();
         }}
       >
-        <div className="space-y-1">
-          <h2 className="text-base font-semibold">{t("title", { title: pageLabel(template?.title ?? "", tc("untitled")) })}</h2>
-          <p className="text-sm text-fg-muted">{t("description")}</p>
-        </div>
-
-        {existing && !existing.enabled && existing.lastError && (
-          <p role="status" className="rounded-md border border-border bg-bg-hover px-3 py-2 text-sm">
-            {t(`paused.${existing.lastError}`)}
-          </p>
-        )}
-        {existing?.enabled && existing.lastError === "failed" && (
-          <p role="status" className="rounded-md border border-border bg-bg-hover px-3 py-2 text-sm">
-            {t("paused.failed")}
-          </p>
-        )}
-
-        <RepeatRuleFields form={form} onChange={set} idPrefix="repeat" />
-
-        <div className="flex items-center justify-between gap-3">
-          <span className="text-sm">
-            {t("dateInTitle")}
-          </span>
-          <Switch checked={form.dateInTitle} onChange={(dateInTitle) => set({ dateInTitle })} label={t("dateInTitle")} />
-        </div>
-
-        <div className="space-y-0.5 text-sm text-fg-muted" aria-live="polite">
-          {form.frequency === "monthly" && rule && <p>{t("monthlyHint", { day: Number(rule.start.slice(8)) })}</p>}
-          {next && <p>{t("next", { date: formatAt(next) })}</p>}
-          {existing?.lastRunAt && <p>{t("lastRun", { date: formatAt(existing.lastRunAt) })}</p>}
-        </div>
-
-        {error && <p className="text-xs text-danger">{error}</p>}
-
-        <div className="flex flex-wrap items-center justify-between gap-2">
-          <div>
-            {existing && (
-              <button
-                type="button"
-                onClick={turnOff}
-                className="inline-flex h-8 items-center rounded-md px-3 text-sm font-medium text-danger hover:bg-bg-hover"
-              >
-                {t("turnOff")}
-              </button>
-            )}
+        <DialogBody className="pt-5">
+          <div className="space-y-1.5">
+            <DialogTitle>{t("title", { title: pageLabel(template?.title ?? "", tc("untitled")) })}</DialogTitle>
+            <p className="text-sm text-fg-muted">{t("description")}</p>
           </div>
-          <div className="flex gap-2">
-            <Button variant="ghost" onClick={onClose}>
-              {tc("cancel")}
-            </Button>
-            <Button type="submit" variant="primary" disabled={!valid || pending || !loaded}>
-              {pending ? tc("saving") : tc("save")}
-            </Button>
+
+          {existing && !existing.enabled && existing.lastError && (
+            <p role="status" className="rounded-md border border-border bg-bg-hover px-3 py-2 text-sm">
+              {t(`paused.${existing.lastError}`)}
+            </p>
+          )}
+          {existing?.enabled && existing.lastError === "failed" && (
+            <p role="status" className="rounded-md border border-border bg-bg-hover px-3 py-2 text-sm">
+              {t("paused.failed")}
+            </p>
+          )}
+
+          <RepeatRuleFields form={form} onChange={set} idPrefix="repeat" />
+
+          <div className="flex items-center justify-between gap-3">
+            <span className="text-sm">
+              {t("dateInTitle")}
+            </span>
+            <Switch checked={form.dateInTitle} onChange={(dateInTitle) => set({ dateInTitle })} label={t("dateInTitle")} />
           </div>
-        </div>
+
+          <div className="space-y-0.5 text-sm text-fg-muted" aria-live="polite">
+            {form.frequency === "monthly" && rule && <p>{t("monthlyHint", { day: Number(rule.start.slice(8)) })}</p>}
+            {next && <p>{t("next", { date: formatAt(next) })}</p>}
+            {existing?.lastRunAt && <p>{t("lastRun", { date: formatAt(existing.lastRunAt) })}</p>}
+          </div>
+
+          {error && <p className="text-xs text-danger">{error}</p>}
+        </DialogBody>
+        <DialogFooter>
+          {existing && (
+            <button
+              type="button"
+              onClick={turnOff}
+              className="me-auto inline-flex h-8 items-center rounded-md px-3 text-sm font-medium text-danger hover:bg-bg-hover"
+            >
+              {t("turnOff")}
+            </button>
+          )}
+          <Button variant="secondary" onClick={onClose}>
+            {tc("cancel")}
+          </Button>
+          <Button type="submit" variant="primary" disabled={!valid || pending || !loaded}>
+            {pending ? tc("saving") : tc("save")}
+          </Button>
+        </DialogFooter>
       </form>
     </Dialog>
   );

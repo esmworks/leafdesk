@@ -179,7 +179,7 @@ function GrantsEditor({ workspaceId, agent }: { workspaceId: string; agent: Agen
                             <span className="text-sm">{tool.title || tool.name}</span>
                             <ToolKindLabel kind={tool.kind} />
                           </span>
-                          {tool.description && <span className="line-clamp-2 block text-xs text-fg-muted">{tool.description}</span>}
+                          {tool.description && <span className="line-clamp-2 text-xs text-fg-muted">{tool.description}</span>}
                         </label>
                       </li>
                     );

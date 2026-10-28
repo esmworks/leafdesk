@@ -4,7 +4,7 @@ import { useTranslations } from "next-intl";
 import { useState, useTransition } from "react";
 import { cancelEmailChangeAction, requestEmailChangeAction } from "@/app/actions/account";
 import { SettingsRow } from "@/components/settings/section";
-import { Button, Dialog, Input } from "@/components/ui";
+import { Button, Dialog, DialogBody, DialogFooter, DialogTitle, Input } from "@/components/ui";
 import { EMAIL_CHANGE_HOURS } from "@/lib/account";
 import { authClient } from "@/lib/auth-client";
 import { canProve, ProofFields, proofFrom, type ProofSetup } from "./proof-fields";
@@ -115,18 +115,21 @@ function ChangeEmailDialog({ current, proof, onClose }: { current: string; proof
   return (
     <Dialog open onClose={onClose} className="max-w-md">
       {sentTo ? (
-        <div className="space-y-4 p-5">
-          <h2 className="text-base font-semibold">{t("sentTitle")}</h2>
-          <p className="text-sm text-fg-muted">{t("sentBody", { email: sentTo, hours: EMAIL_CHANGE_HOURS })}</p>
-          <div className="flex justify-end">
+        <>
+          <DialogBody className="pt-5">
+            <div className="space-y-1.5">
+              <DialogTitle>{t("sentTitle")}</DialogTitle>
+              <p className="text-sm text-fg-muted">{t("sentBody", { email: sentTo, hours: EMAIL_CHANGE_HOURS })}</p>
+            </div>
+          </DialogBody>
+          <DialogFooter>
             <Button variant="primary" onClick={onClose}>
               {tc("close")}
             </Button>
-          </div>
-        </div>
+          </DialogFooter>
+        </>
       ) : (
         <form
-          className="space-y-4 p-5"
           onSubmit={(e) => {
             e.preventDefault();
             const form = new FormData(e.currentTarget);
@@ -141,22 +144,26 @@ function ChangeEmailDialog({ current, proof, onClose }: { current: string; proof
             });
           }}
         >
-          <h2 className="text-base font-semibold">{t("dialogTitle")}</h2>
-          <p className="text-sm text-fg-muted">{t("dialogBody", { email: current })}</p>
-          <label className="block space-y-1.5">
-            <span className="text-sm text-fg-muted">{t("newLabel")}</span>
-            <Input name="email" type="email" required autoComplete="email" autoFocus maxLength={254} />
-          </label>
-          <ProofFields proof={proof} returnTo="/account?tab=profile" />
-          {error && <p className="text-sm text-danger">{error}</p>}
-          <div className="flex justify-end gap-2">
-            <Button variant="ghost" onClick={onClose}>
+          <DialogBody className="pt-5">
+            <div className="space-y-1.5">
+              <DialogTitle>{t("dialogTitle")}</DialogTitle>
+              <p className="text-sm text-fg-muted">{t("dialogBody", { email: current })}</p>
+            </div>
+            <label className="block space-y-1.5">
+              <span className="text-sm text-fg-muted">{t("newLabel")}</span>
+              <Input name="email" type="email" required autoComplete="email" autoFocus maxLength={254} />
+            </label>
+            <ProofFields proof={proof} returnTo="/account?tab=profile" />
+            {error && <p className="text-sm text-danger">{error}</p>}
+          </DialogBody>
+          <DialogFooter>
+            <Button variant="secondary" onClick={onClose}>
               {tc("cancel")}
             </Button>
             <Button type="submit" variant="primary" disabled={pending || !canProve(proof)}>
               {t("send")}
             </Button>
-          </div>
+          </DialogFooter>
         </form>
       )}
     </Dialog>

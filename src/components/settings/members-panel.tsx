@@ -22,7 +22,7 @@ import { RemoveMemberHeir } from "@/components/settings/remove-member-heir";
 import { SettingsGroup, SettingsHeader, SettingsRow } from "@/components/settings/section";
 import { useAction } from "@/components/settings/workspace-settings";
 import { Floating, useFloating } from "@/components/database/floating";
-import { Button, cn, Dialog, IconButton, Input, MenuItem, selectClass, Switch, textareaClass } from "@/components/ui";
+import { Button, cn, Dialog, DialogBody, DialogFooter, DialogTitle, IconButton, Input, MenuItem, selectClass, Switch, textareaClass } from "@/components/ui";
 import { UserAvatar } from "@/components/user-avatar";
 import type { WorkspaceRole } from "@/db/schema/app";
 import { MAX_BULK_EMAILS, parseEmailList } from "@/lib/emails";
@@ -299,23 +299,25 @@ function RegenerateLinkDialog({ workspaceId, onClose }: { workspaceId: string; o
   const { pending, error, run } = useAction();
   return (
     <Dialog open onClose={onClose} className="max-w-md">
-      <div className="space-y-3 p-5">
-        <h2 className="text-base font-semibold">{t("regenerateTitle")}</h2>
-        <p className="text-sm text-fg-muted">{t("regenerateBody")}</p>
-        {error && <p className="text-xs text-danger">{error}</p>}
-        <div className="flex justify-end gap-2">
-          <Button variant="ghost" onClick={onClose}>
-            {tc("cancel")}
-          </Button>
-          <Button
-            variant="primary"
-            disabled={pending}
-            onClick={() => run(() => setJoinLinkAction(workspaceId, "regenerate"), onClose)}
-          >
-            {t("regenerateConfirm")}
-          </Button>
+      <DialogBody className="pt-5">
+        <div className="space-y-1.5">
+          <DialogTitle>{t("regenerateTitle")}</DialogTitle>
+          <p className="text-sm text-fg-muted">{t("regenerateBody")}</p>
         </div>
-      </div>
+        {error && <p className="text-xs text-danger">{error}</p>}
+      </DialogBody>
+      <DialogFooter>
+        <Button variant="secondary" onClick={onClose}>
+          {tc("cancel")}
+        </Button>
+        <Button
+          variant="primary"
+          disabled={pending}
+          onClick={() => run(() => setJoinLinkAction(workspaceId, "regenerate"), onClose)}
+        >
+          {t("regenerateConfirm")}
+        </Button>
+      </DialogFooter>
     </Dialog>
   );
 }
@@ -549,23 +551,25 @@ function MemberRow({
           </>
         )}
         <Dialog open={confirm !== null} onClose={() => setConfirm(null)} className="max-w-md text-start">
-          <div className="space-y-3 p-5">
-            <h2 className="text-base font-semibold">
-              {confirm === "transfer"
-                ? t("transferTitle", { name: member.name })
-                : isSelf
-                  ? t("leaveTitle")
-                  : t("removeTitle", { name: member.name })}
-            </h2>
-            <p className="text-sm text-fg-muted">
-              {confirm === "transfer"
-                ? t("transferBody", { name: member.name })
-                : isSelf
-                  ? t("leaveBody")
-                  : choosesHeir
-                    ? t("removeBodyChoose", { name: member.name })
-                    : t("removeBodyToOwner", { name: member.name })}
-            </p>
+          <DialogBody className="pt-5">
+            <div className="space-y-1.5">
+              <DialogTitle>
+                {confirm === "transfer"
+                  ? t("transferTitle", { name: member.name })
+                  : isSelf
+                    ? t("leaveTitle")
+                    : t("removeTitle", { name: member.name })}
+              </DialogTitle>
+              <p className="text-sm text-fg-muted">
+                {confirm === "transfer"
+                  ? t("transferBody", { name: member.name })
+                  : isSelf
+                    ? t("leaveBody")
+                    : choosesHeir
+                      ? t("removeBodyChoose", { name: member.name })
+                      : t("removeBodyToOwner", { name: member.name })}
+              </p>
+            </div>
             {confirm === "remove" && !isSelf && choosesHeir && (
               <RemoveMemberHeir
                 workspaceId={workspaceId}
@@ -578,32 +582,32 @@ function MemberRow({
               />
             )}
             {error && <p className="text-xs text-danger">{error}</p>}
-            <div className="flex justify-end gap-2">
-              <Button variant="ghost" onClick={() => setConfirm(null)}>
-                {tc("cancel")}
-              </Button>
-              <Button
-                variant={confirm === "transfer" ? "primary" : "danger"}
-                disabled={pending}
-                onClick={() =>
-                  confirm === "transfer"
-                    ? run(() => transferOwnershipAction(workspaceId, member.userId), () => setConfirm(null))
-                    : run(
-                        () => removeMemberAction(workspaceId, member.userId, !choosesHeir || isSelf || heir === currentUserId ? null : heir),
-                        () => {
-                          setConfirm(null);
-                          if (isSelf) {
-                            router.push("/");
-                            router.refresh();
-                          }
-                        },
-                      )
-                }
-              >
-                {confirm === "transfer" ? t("transferConfirm") : isSelf ? t("leave") : tc("remove")}
-              </Button>
-            </div>
-          </div>
+          </DialogBody>
+          <DialogFooter>
+            <Button variant="secondary" onClick={() => setConfirm(null)}>
+              {tc("cancel")}
+            </Button>
+            <Button
+              variant={confirm === "transfer" ? "primary" : "danger"}
+              disabled={pending}
+              onClick={() =>
+                confirm === "transfer"
+                  ? run(() => transferOwnershipAction(workspaceId, member.userId), () => setConfirm(null))
+                  : run(
+                      () => removeMemberAction(workspaceId, member.userId, !choosesHeir || isSelf || heir === currentUserId ? null : heir),
+                      () => {
+                        setConfirm(null);
+                        if (isSelf) {
+                          router.push("/");
+                          router.refresh();
+                        }
+                      },
+                    )
+              }
+            >
+              {confirm === "transfer" ? t("transferConfirm") : isSelf ? t("leave") : tc("remove")}
+            </Button>
+          </DialogFooter>
         </Dialog>
       </td>
     </tr>
@@ -787,36 +791,38 @@ function AddMembersDialog({
   return (
     <Dialog open={open} onClose={close} className="max-w-lg">
       {results ? (
-        <div className="space-y-3 p-5">
-          <h2 className="text-base font-semibold">{t("add.resultsTitle")}</h2>
-          <ul className="max-h-80 divide-y divide-border overflow-y-auto rounded-md border border-border">
-            {results.map((r) => (
-              <li key={r.email} className="space-y-1.5 px-3 py-2 text-sm">
-                <div className="flex items-baseline justify-between gap-3">
-                  <span className="truncate font-medium">{r.email}</span>
-                  <span className={cn("shrink-0 text-xs", r.kind === "error" ? "text-danger" : "text-fg-muted")}>
-                    {r.kind === "added"
-                      ? t("add.added")
-                      : r.kind === "invited"
-                        ? t(deliveryText(r.delivery))
-                        : r.kind === "requested"
-                          ? t("add.requested")
-                          : tErrors(r.code)}
-                  </span>
-                </div>
-                {r.kind === "invited" && r.delivery !== "sent" && (
-                  <div className="flex items-center gap-2">
-                    <Input readOnly value={r.link} onFocus={(e) => e.currentTarget.select()} aria-label={t("inviteLink")} />
-                    <CopyButton value={r.link} label={t("copyLink")} />
+        <>
+          <DialogBody className="pt-5">
+            <DialogTitle>{t("add.resultsTitle")}</DialogTitle>
+            <ul className="max-h-80 divide-y divide-border overflow-y-auto rounded-md border border-border">
+              {results.map((r) => (
+                <li key={r.email} className="space-y-1.5 px-3 py-2 text-sm">
+                  <div className="flex items-baseline justify-between gap-3">
+                    <span className="truncate font-medium">{r.email}</span>
+                    <span className={cn("shrink-0 text-xs", r.kind === "error" ? "text-danger" : "text-fg-muted")}>
+                      {r.kind === "added"
+                        ? t("add.added")
+                        : r.kind === "invited"
+                          ? t(deliveryText(r.delivery))
+                          : r.kind === "requested"
+                            ? t("add.requested")
+                            : tErrors(r.code)}
+                    </span>
                   </div>
-                )}
-              </li>
-            ))}
-          </ul>
-          <p className="text-xs text-fg-muted">{asks ? t("add.requestedNote") : t("add.linkValidity")}</p>
-          <div className="flex justify-end gap-2">
+                  {r.kind === "invited" && r.delivery !== "sent" && (
+                    <div className="flex items-center gap-2">
+                      <Input readOnly value={r.link} onFocus={(e) => e.currentTarget.select()} aria-label={t("inviteLink")} />
+                      <CopyButton value={r.link} label={t("copyLink")} />
+                    </div>
+                  )}
+                </li>
+              ))}
+            </ul>
+            <p className="text-xs text-fg-muted">{asks ? t("add.requestedNote") : t("add.linkValidity")}</p>
+          </DialogBody>
+          <DialogFooter>
             <Button
-              variant="ghost"
+              variant="secondary"
               onClick={() => {
                 setText("");
                 setResults(null);
@@ -827,57 +833,60 @@ function AddMembersDialog({
             <Button variant="primary" onClick={close}>
               {tc("close")}
             </Button>
-          </div>
-        </div>
+          </DialogFooter>
+        </>
       ) : (
         <form
-          className="space-y-3 p-5"
           onSubmit={(e) => {
             e.preventDefault();
             if (!count || tooMany) return;
             run(() => addMembersAction(workspaceId, parseEmailList(text), role), setResults);
           }}
         >
-          <h2 className="text-base font-semibold">{t("add.title")}</h2>
-          <p className="text-sm text-fg-muted">{asks ? t("add.descriptionAsks") : t("add.description")}</p>
-          <label className="block space-y-1.5">
-            <span className="text-sm text-fg-muted">{t("add.emailsLabel")}</span>
-            <textarea
-              autoFocus
-              rows={4}
-              value={text}
-              onChange={(e) => setText(e.target.value)}
-              placeholder={t("add.emailsPlaceholder")}
-              className={textareaClass}
-            />
-          </label>
-          <div className="flex items-center justify-between gap-3">
-            <span className={cn("text-xs", tooMany ? "text-danger" : "text-fg-muted")}>
-              {tooMany ? tErrors("tooManyEmails") : t("add.count", { count })}
-            </span>
-            {roles.length > 1 && (
-              <label className="flex items-center gap-2 text-sm text-fg-muted">
-                {t("roleLabel")}
-                <select className={selectClass} value={role} onChange={(e) => setRole(e.target.value as WorkspaceRole)}>
-                  {/* Member first: what most people are added as. */}
-                  {["member" as const, ...roles.filter((r) => r !== "member")].map((r) => (
-                    <option key={r} value={r}>
-                      {t(`roles.${r}`)}
-                    </option>
-                  ))}
-                </select>
-              </label>
-            )}
-          </div>
-          {error && <p className="text-xs text-danger">{error}</p>}
-          <div className="flex justify-end gap-2">
-            <Button variant="ghost" onClick={close}>
+          <DialogBody className="pt-5">
+            <div className="space-y-1.5">
+              <DialogTitle>{t("add.title")}</DialogTitle>
+              <p className="text-sm text-fg-muted">{asks ? t("add.descriptionAsks") : t("add.description")}</p>
+            </div>
+            <label className="block space-y-1.5">
+              <span className="text-sm text-fg-muted">{t("add.emailsLabel")}</span>
+              <textarea
+                autoFocus
+                rows={4}
+                value={text}
+                onChange={(e) => setText(e.target.value)}
+                placeholder={t("add.emailsPlaceholder")}
+                className={textareaClass}
+              />
+            </label>
+            <div className="flex items-center justify-between gap-3">
+              <span className={cn("text-xs", tooMany ? "text-danger" : "text-fg-muted")}>
+                {tooMany ? tErrors("tooManyEmails") : t("add.count", { count })}
+              </span>
+              {roles.length > 1 && (
+                <label className="flex items-center gap-2 text-sm text-fg-muted">
+                  {t("roleLabel")}
+                  <select className={selectClass} value={role} onChange={(e) => setRole(e.target.value as WorkspaceRole)}>
+                    {/* Member first: what most people are added as. */}
+                    {["member" as const, ...roles.filter((r) => r !== "member")].map((r) => (
+                      <option key={r} value={r}>
+                        {t(`roles.${r}`)}
+                      </option>
+                    ))}
+                  </select>
+                </label>
+              )}
+            </div>
+            {error && <p className="text-xs text-danger">{error}</p>}
+          </DialogBody>
+          <DialogFooter>
+            <Button variant="secondary" onClick={close}>
               {tc("cancel")}
             </Button>
             <Button type="submit" variant="primary" disabled={pending || !count || tooMany}>
               {pending ? t("add.submitting") : asks ? t("add.submitAsk") : t("add.submit")}
             </Button>
-          </div>
+          </DialogFooter>
         </form>
       )}
     </Dialog>

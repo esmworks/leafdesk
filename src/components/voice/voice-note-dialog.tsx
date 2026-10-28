@@ -9,11 +9,11 @@
  * kept to try again, so nobody has to say it twice.
  */
 import type { DefaultReactSuggestionItem } from "@blocknote/react";
-import { Mic, X } from "lucide-react";
+import { Mic } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { useCallback, useMemo, useState, type ReactNode } from "react";
 import { snapshotBeforeVoiceNoteAction } from "@/app/actions/ai";
-import { Button, Dialog, IconButton } from "@/components/ui";
+import { Button, Dialog, DialogBody, DialogHeader } from "@/components/ui";
 import { editorMarkdownToBlocks } from "@/lib/editor-markdown";
 import { demoteHeadings, transcriptBlock, type VoiceNoteDraft, type VoiceNoteLimits } from "@/lib/voice-notes";
 import type { PageEditor } from "@/components/page/embed-blocks";
@@ -90,17 +90,8 @@ export function useVoiceNote(editor: PageEditor, pageId: string, limits: VoiceNo
   const dialog =
     limits && at ? (
       <Dialog open onClose={busy ? () => {} : close} className="max-w-md">
-        <div className="flex items-start gap-2 border-b border-border px-4 py-3">
-          <Mic size={16} className="mt-0.5 shrink-0 text-fg-muted" aria-hidden />
-          <div className="min-w-0 flex-1">
-            <h2 className="text-sm font-semibold">{t("dialogTitle")}</h2>
-            <p className="mt-0.5 text-xs text-fg-muted">{t("dialogDescription")}</p>
-          </div>
-          <IconButton label={t("close")} onClick={close}>
-            <X size={14} />
-          </IconButton>
-        </div>
-        <div className="space-y-2 p-4">
+        <DialogHeader icon={<Mic className="h-4 w-4" />} title={t("dialogTitle")} description={t("dialogDescription")} onClose={close} closeLabel={t("close")} />
+        <DialogBody>
           {pending ? (
             <div className="flex flex-wrap items-center justify-end gap-2">
               <p className="me-auto min-w-0 truncate text-sm font-medium">{pending.title}</p>
@@ -117,7 +108,7 @@ export function useVoiceNote(editor: PageEditor, pageId: string, limits: VoiceNo
               {error}
             </p>
           )}
-        </div>
+        </DialogBody>
       </Dialog>
     ) : null;
 

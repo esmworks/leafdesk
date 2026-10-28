@@ -5,7 +5,7 @@ import { useTranslations } from "next-intl";
 import { useState, useTransition } from "react";
 import { changePasswordAction, setPasswordAction } from "@/app/actions/account";
 import { SettingsRow } from "@/components/settings/section";
-import { Button, Dialog, Input } from "@/components/ui";
+import { Button, Dialog, DialogBody, DialogFooter, DialogTitle, Input } from "@/components/ui";
 import { MAX_PASSWORD_LENGTH, MIN_PASSWORD_LENGTH } from "@/lib/account";
 import { SOCIAL_PROVIDER_NAMES } from "@/lib/social-providers";
 import { canProve, ProofFields, proofFrom, type ProofSetup } from "./proof-fields";
@@ -109,7 +109,6 @@ function ChangePasswordDialog({ onClose, onDone }: { onClose: () => void; onDone
   return (
     <Dialog open onClose={onClose} className="max-w-md">
       <form
-        className="space-y-4 p-5"
         onSubmit={(e) => {
           e.preventDefault();
           const form = new FormData(e.currentTarget);
@@ -129,28 +128,30 @@ function ChangePasswordDialog({ onClose, onDone }: { onClose: () => void; onDone
           });
         }}
       >
-        <h2 className="text-base font-semibold">{t("changeTitle")}</h2>
-        <label className="block space-y-1.5">
-          <span className="text-sm text-fg-muted">{tp("password")}</span>
-          <Input name="current-password" type="password" required autoComplete="current-password" autoFocus />
-        </label>
-        <NewPasswordFields />
-        <label className="flex items-start gap-2 text-sm">
-          <input type="checkbox" name="revoke-others" defaultChecked className="mt-0.5 h-4 w-4 shrink-0 accent-[var(--color-accent)]" />
-          <span>
-            {t("revokeOthers")}
-            <span className="block text-xs text-fg-muted">{t("revokeOthersHelp")}</span>
-          </span>
-        </label>
-        {error && <p className="text-sm text-danger">{error}</p>}
-        <div className="flex justify-end gap-2">
-          <Button variant="ghost" onClick={onClose}>
+        <DialogBody className="pt-5">
+          <DialogTitle>{t("changeTitle")}</DialogTitle>
+          <label className="block space-y-1.5">
+            <span className="text-sm text-fg-muted">{tp("password")}</span>
+            <Input name="current-password" type="password" required autoComplete="current-password" autoFocus />
+          </label>
+          <NewPasswordFields />
+          <label className="flex items-start gap-2 text-sm">
+            <input type="checkbox" name="revoke-others" defaultChecked className="mt-0.5 h-4 w-4 shrink-0 accent-[var(--color-accent)]" />
+            <span>
+              {t("revokeOthers")}
+              <span className="block text-xs text-fg-muted">{t("revokeOthersHelp")}</span>
+            </span>
+          </label>
+          {error && <p className="text-sm text-danger">{error}</p>}
+        </DialogBody>
+        <DialogFooter>
+          <Button variant="secondary" onClick={onClose}>
             {tc("cancel")}
           </Button>
           <Button type="submit" variant="primary" disabled={pending}>
             {t("changeSubmit")}
           </Button>
-        </div>
+        </DialogFooter>
       </form>
     </Dialog>
   );
@@ -174,7 +175,6 @@ function SetPasswordDialog({
   return (
     <Dialog open onClose={onClose} className="max-w-md">
       <form
-        className="space-y-4 p-5"
         onSubmit={(e) => {
           e.preventDefault();
           const form = new FormData(e.currentTarget);
@@ -189,19 +189,23 @@ function SetPasswordDialog({
           });
         }}
       >
-        <h2 className="text-base font-semibold">{t("setTitle")}</h2>
-        <p className="text-sm text-fg-muted">{t("setBody")}</p>
-        <NewPasswordFields />
-        <ProofFields proof={proof} returnTo="/account?tab=security" />
-        {error && <p className="text-sm text-danger">{error}</p>}
-        <div className="flex justify-end gap-2">
-          <Button variant="ghost" onClick={onClose}>
+        <DialogBody className="pt-5">
+          <div className="space-y-1.5">
+            <DialogTitle>{t("setTitle")}</DialogTitle>
+            <p className="text-sm text-fg-muted">{t("setBody")}</p>
+          </div>
+          <NewPasswordFields />
+          <ProofFields proof={proof} returnTo="/account?tab=security" />
+          {error && <p className="text-sm text-danger">{error}</p>}
+        </DialogBody>
+        <DialogFooter>
+          <Button variant="secondary" onClick={onClose}>
             {tc("cancel")}
           </Button>
           <Button type="submit" variant="primary" disabled={pending || !canProve(proof)}>
             {t("setSubmit")}
           </Button>
-        </div>
+        </DialogFooter>
       </form>
     </Dialog>
   );

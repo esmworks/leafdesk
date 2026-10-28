@@ -6,7 +6,7 @@ import { useRouter } from "next/navigation";
 import { useEffect, useMemo, useState, type ReactNode } from "react";
 import { createPortal } from "react-dom";
 import { loadPropertyAccessAction, setPropertyAccessAction } from "@/app/actions/databases";
-import { Button, cn, Dialog } from "@/components/ui";
+import { Button, cn, Dialog, DialogFooter, DialogHeader } from "@/components/ui";
 import { UserAvatar } from "@/components/user-avatar";
 import { namesPeople, PERSON_RULE_LEVELS, propertyRank, type PropertyLevel } from "@/lib/property-access";
 import { searchFold } from "@/lib/search-fold";
@@ -157,24 +157,17 @@ function AccessDialog({ prop, onClose }: { prop: Property; onClose: () => void }
 
   return (
     <Dialog open onClose={onClose} className="max-w-lg">
-      <div className="flex items-start gap-3 border-b border-border px-5 py-4">
-        <div className="min-w-0 flex-1">
-          <h2 className="text-base font-semibold">{t("title")}</h2>
-          <p className="mt-0.5 flex min-w-0 items-center gap-1.5 text-sm text-fg-muted">
+      <DialogHeader
+        title={t("title")}
+        description={
+          <span className="flex min-w-0 items-center gap-1.5">
             <PropertyTypeIcon type={prop.type} className="h-3.5 w-3.5 shrink-0" />
             <span className="truncate">{prop.name}</span>
-          </p>
-        </div>
-        <button
-          type="button"
-          aria-label={tc("close")}
-          title={tc("close")}
-          onClick={onClose}
-          className="inline-flex h-7 w-7 shrink-0 items-center justify-center rounded-md text-fg-muted hover:bg-bg-hover hover:text-fg"
-        >
-          <X className="h-4 w-4" />
-        </button>
-      </div>
+          </span>
+        }
+        onClose={onClose}
+        closeLabel={tc("close")}
+      />
 
       {!data ? (
         <p className="px-5 py-6 text-sm text-fg-muted" role={loadError ? "alert" : undefined}>
@@ -320,19 +313,19 @@ function AccessDialog({ prop, onClose }: { prop: Property; onClose: () => void }
         </div>
       )}
 
-      <div className="flex items-center justify-end gap-2 border-t border-border px-5 py-3">
+      <DialogFooter>
         {error && (
           <p role="alert" className="me-auto text-xs text-danger">
             {error}
           </p>
         )}
-        <Button variant="ghost" onClick={onClose}>
+        <Button variant="secondary" onClick={onClose}>
           {tc("cancel")}
         </Button>
         <Button variant="primary" disabled={!data || saving || !dirty} onClick={() => void save()}>
           {saving ? tc("saving") : tc("save")}
         </Button>
-      </div>
+      </DialogFooter>
     </Dialog>
   );
 }

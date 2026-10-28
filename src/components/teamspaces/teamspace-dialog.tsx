@@ -7,7 +7,7 @@ import { useState } from "react";
 import { createTeamspaceAction, updateTeamspaceAction } from "@/app/actions/teamspaces";
 import { IconPicker } from "@/components/page/icon-picker";
 import { useAction } from "@/components/settings/workspace-settings";
-import { Button, cn, Dialog, Input, selectClass, textareaClass } from "@/components/ui";
+import { Button, cn, Dialog, DialogBody, DialogFooter, DialogHeader, Input, selectClass, textareaClass } from "@/components/ui";
 import type { TeamspaceAccess, TeamspaceMemberLevel } from "@/db/schema/app";
 import type { TeamspaceSummary } from "@/server/teamspaces";
 
@@ -131,126 +131,126 @@ function TeamspaceForm({
 
   return (
     <form
-      className="space-y-4 p-5"
       onSubmit={(e) => {
         e.preventDefault();
         submit();
       }}
     >
-      <h2 className="text-base font-semibold">{teamspace ? t("dialog.editTitle") : t("dialog.createTitle")}</h2>
-
-      <div className="space-y-1.5">
-        <label htmlFor="teamspace-name" className="block text-sm text-fg-muted">
-          {t("dialog.name")}
-        </label>
-        <div className="flex items-center gap-2">
-          <IconPicker icon={icon} onChange={setIcon}>
-            {(toggle) => (
-              <button
-                type="button"
-                onClick={toggle}
-                aria-label={t("dialog.icon")}
-                title={t("dialog.icon")}
-                className="flex h-8 w-8 shrink-0 items-center justify-center rounded-md border border-border text-base leading-none hover:bg-bg-hover"
-              >
-                {icon ?? <SmilePlus className="h-4 w-4 text-fg-faint" aria-hidden />}
-              </button>
-            )}
-          </IconPicker>
-          <Input
-            id="teamspace-name"
-            autoFocus
-            required
-            maxLength={MAX_NAME}
-            value={name}
-            onChange={(e) => setName(e.target.value)}
-            placeholder={t("dialog.namePlaceholder")}
-          />
-        </div>
-      </div>
-
-      <label className="block space-y-1.5">
-        <span className="text-sm text-fg-muted">{t("dialog.description")}</span>
-        <textarea
-          rows={2}
-          maxLength={MAX_DESCRIPTION}
-          value={description}
-          onChange={(e) => setDescription(e.target.value)}
-          placeholder={t("dialog.descriptionPlaceholder")}
-          className={textareaClass}
-        />
-      </label>
-
-      <fieldset className="space-y-1.5" disabled={accessLocked}>
-        <legend className="mb-1.5 text-sm text-fg-muted">{t("dialog.access")}</legend>
-        {options.map((option) => (
-          <label
-            key={option}
-            className={cn(
-              "flex cursor-pointer gap-3 rounded-md border px-3 py-2 transition-colors",
-              access === option ? "border-accent" : "border-border hover:bg-bg-hover",
-              accessLocked && "cursor-default opacity-60 hover:bg-transparent",
-            )}
-          >
-            <input
-              type="radio"
-              name="teamspace-access"
-              value={option}
-              checked={access === option}
-              onChange={() => setAccess(option)}
-              className="mt-0.5 accent-accent"
+      <DialogHeader title={teamspace ? t("dialog.editTitle") : t("dialog.createTitle")} onClose={onClose} closeLabel={tc("close")} />
+      <DialogBody>
+        <div className="space-y-1.5">
+          <label htmlFor="teamspace-name" className="block text-sm text-fg-muted">
+            {t("dialog.name")}
+          </label>
+          <div className="flex items-center gap-2">
+            <IconPicker icon={icon} onChange={setIcon}>
+              {(toggle) => (
+                <button
+                  type="button"
+                  onClick={toggle}
+                  aria-label={t("dialog.icon")}
+                  title={t("dialog.icon")}
+                  className="flex h-8 w-8 shrink-0 items-center justify-center rounded-md border border-border text-base leading-none hover:bg-bg-hover"
+                >
+                  {icon ?? <SmilePlus className="h-4 w-4 text-fg-faint" aria-hidden />}
+                </button>
+              )}
+            </IconPicker>
+            <Input
+              id="teamspace-name"
+              autoFocus
+              required
+              maxLength={MAX_NAME}
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+              placeholder={t("dialog.namePlaceholder")}
             />
-            <span className="min-w-0">
-              <span className="block text-sm font-medium">{t(`access.${option}`)}</span>
-              <span className="block text-xs text-fg-muted">{t(`accessHint.${option}`)}</span>
+          </div>
+        </div>
+
+        <label className="block space-y-1.5">
+          <span className="text-sm text-fg-muted">{t("dialog.description")}</span>
+          <textarea
+            rows={2}
+            maxLength={MAX_DESCRIPTION}
+            value={description}
+            onChange={(e) => setDescription(e.target.value)}
+            placeholder={t("dialog.descriptionPlaceholder")}
+            className={textareaClass}
+          />
+        </label>
+
+        <fieldset className="space-y-1.5" disabled={accessLocked}>
+          <legend className="mb-1.5 text-sm text-fg-muted">{t("dialog.access")}</legend>
+          {options.map((option) => (
+            <label
+              key={option}
+              className={cn(
+                "flex cursor-pointer gap-3 rounded-md border px-3 py-2 transition-colors",
+                access === option ? "border-accent" : "border-border hover:bg-bg-hover",
+                accessLocked && "cursor-default opacity-60 hover:bg-transparent",
+              )}
+            >
+              <input
+                type="radio"
+                name="teamspace-access"
+                value={option}
+                checked={access === option}
+                onChange={() => setAccess(option)}
+                className="mt-0.5 accent-accent"
+              />
+              <span className="min-w-0">
+                <span className="block text-sm font-medium">{t(`access.${option}`)}</span>
+                <span className="block text-xs text-fg-muted">{t(`accessHint.${option}`)}</span>
+              </span>
+            </label>
+          ))}
+          {accessLocked && <p className="text-xs text-fg-muted">{t("dialog.defaultLocked")}</p>}
+          {accessNote && <p className="text-xs text-fg-muted">{accessNote}</p>}
+        </fieldset>
+
+        <label className="block space-y-1.5">
+          <span className="block text-sm text-fg-muted">{t("dialog.memberLevel")}</span>
+          <select
+            className={selectClass}
+            value={memberLevel}
+            disabled={memberLocked}
+            onChange={(e) => setMemberLevel(e.target.value as TeamspaceMemberLevel)}
+          >
+            {MEMBER_LEVEL_OPTIONS.map((level) => (
+              <option key={level} value={level}>
+                {t(`memberLevel.${level}`)}
+              </option>
+            ))}
+          </select>
+          <span className="block text-xs text-fg-muted">{memberLocked ? t("dialog.memberLevelLocked") : t("dialog.memberLevelHint")}</span>
+        </label>
+
+        {teamspace && (
+          <label className="flex cursor-pointer items-start gap-2 text-sm">
+            <input
+              type="checkbox"
+              checked={topLevelLocked}
+              onChange={(e) => setTopLevelLocked(e.target.checked)}
+              className="mt-0.5 h-4 w-4 shrink-0 accent-[var(--color-accent)]"
+            />
+            <span>
+              <span className="block">{t("dialog.topLevelLocked")}</span>
+              <span className="block text-xs text-fg-muted">{t("dialog.topLevelLockedHint")}</span>
             </span>
           </label>
-        ))}
-        {accessLocked && <p className="text-xs text-fg-muted">{t("dialog.defaultLocked")}</p>}
-        {accessNote && <p className="text-xs text-fg-muted">{accessNote}</p>}
-      </fieldset>
+        )}
 
-      <label className="block space-y-1.5">
-        <span className="block text-sm text-fg-muted">{t("dialog.memberLevel")}</span>
-        <select
-          className={selectClass}
-          value={memberLevel}
-          disabled={memberLocked}
-          onChange={(e) => setMemberLevel(e.target.value as TeamspaceMemberLevel)}
-        >
-          {MEMBER_LEVEL_OPTIONS.map((level) => (
-            <option key={level} value={level}>
-              {t(`memberLevel.${level}`)}
-            </option>
-          ))}
-        </select>
-        <span className="block text-xs text-fg-muted">{memberLocked ? t("dialog.memberLevelLocked") : t("dialog.memberLevelHint")}</span>
-      </label>
-
-      {teamspace && (
-        <label className="flex cursor-pointer items-start gap-2 text-sm">
-          <input
-            type="checkbox"
-            checked={topLevelLocked}
-            onChange={(e) => setTopLevelLocked(e.target.checked)}
-            className="mt-0.5 h-4 w-4 shrink-0 accent-[var(--color-accent)]"
-          />
-          <span>
-            <span className="block">{t("dialog.topLevelLocked")}</span>
-            <span className="block text-xs text-fg-muted">{t("dialog.topLevelLockedHint")}</span>
-          </span>
-        </label>
-      )}
-
-      {error && <p className="text-xs text-danger">{error}</p>}
-      <div className="flex justify-end gap-2">
-        <Button variant="ghost" onClick={onClose}>
+        {error && <p className="text-xs text-danger">{error}</p>}
+      </DialogBody>
+      <DialogFooter>
+        <Button variant="secondary" onClick={onClose}>
           {tc("cancel")}
         </Button>
         <Button type="submit" variant="primary" disabled={pending || !name.trim()}>
           {teamspace ? (pending ? tc("saving") : tc("save")) : pending ? t("dialog.creating") : t("dialog.create")}
         </Button>
-      </div>
+      </DialogFooter>
     </form>
   );
 }

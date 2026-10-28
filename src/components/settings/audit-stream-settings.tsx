@@ -5,7 +5,6 @@
  * events go as they happen (server/audit-stream.ts), how sending goes, a test event, and the
  * signing secret, shown once when it is made.
  */
-import { X } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useFormatter, useTranslations } from "next-intl";
 import { useState, useTransition } from "react";
@@ -17,7 +16,7 @@ import {
 } from "@/app/actions/audit-stream";
 import { ConfirmButton } from "@/components/settings/confirm-button";
 import { CopyButton } from "@/components/settings/copy-button";
-import { Button, cn, Dialog, IconButton, Input, Switch } from "@/components/ui";
+import { Button, cn, Dialog, DialogBody, DialogHeader, Input, Switch } from "@/components/ui";
 import type { AuditStreamView, StreamSendResult } from "@/server/audit-stream";
 
 type Translate = ReturnType<typeof useTranslations<"settings.eventStream">>;
@@ -142,19 +141,14 @@ export function AuditStreamSettings({ workspaceId, stream }: { workspaceId: stri
 
       {secret && (
         <Dialog open onClose={() => setSecret(null)} className="max-w-lg">
-          <div className="flex items-start gap-2 border-b border-border px-4 py-3">
-            <h2 className="min-w-0 flex-1 text-sm font-semibold">{t("secret.title")}</h2>
-            <IconButton label={tc("close")} onClick={() => setSecret(null)}>
-              <X size={14} />
-            </IconButton>
-          </div>
-          <div className="space-y-3 p-4 text-sm">
+          <DialogHeader title={t("secret.title")} onClose={() => setSecret(null)} closeLabel={tc("close")} />
+          <DialogBody className="text-sm">
             <p className="text-fg-muted">{t("secret.note")}</p>
             <div className="flex items-center gap-2">
               <Input readOnly value={secret} aria-label={t("secret.label")} onFocus={(e) => e.currentTarget.select()} />
               <CopyButton value={secret} />
             </div>
-          </div>
+          </DialogBody>
         </Dialog>
       )}
     </div>

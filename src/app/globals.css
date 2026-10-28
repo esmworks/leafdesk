@@ -1598,6 +1598,26 @@ body:has(.leafdesk-column-drop) .prosemirror-dropcursor-block {
 }
 
 /*
+ * A dialog (components/ui.tsx `Dialog`) rises a little into place as it opens. Its backdrop doesn't
+ * fade: the desktop app's tab strip takes the backdrop's color at once (desktop-tab-strip.tsx).
+ */
+@keyframes leafdesk-dialog-in {
+  from {
+    opacity: 0;
+    translate: 0 6px;
+    scale: 0.985;
+  }
+}
+[data-dialog] {
+  animation: leafdesk-dialog-in 160ms cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+@media (prefers-reduced-motion: reduce) {
+  [data-dialog] {
+    animation: none;
+  }
+}
+
+/*
  * Colored code on published pages and in the print view (server/published-body.ts): each token
  * carries a color for light and one for dark backgrounds. Print stays light.
  */

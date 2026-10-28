@@ -4,7 +4,7 @@ import { useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { useState } from "react";
 import { removeMemberAction } from "@/app/actions/workspaces";
-import { Button, Dialog } from "@/components/ui";
+import { Button, Dialog, DialogBody, DialogFooter, DialogTitle } from "@/components/ui";
 import { SettingsRow } from "./section";
 import { useAction } from "./workspace-settings";
 
@@ -38,32 +38,32 @@ function LeaveDialog({ workspaceId, userId, onClose }: { workspaceId: string; us
   const { pending, error, run } = useAction();
   return (
     <Dialog open onClose={onClose} className="max-w-md">
-      <div className="space-y-3 p-5">
-        <h2 className="text-base font-semibold">{t("leaveTitle")}</h2>
+      <DialogBody className="space-y-2 pt-5">
+        <DialogTitle>{t("leaveTitle")}</DialogTitle>
         <p className="text-sm text-fg-muted">{t("leaveBody")}</p>
         {error && <p className="text-xs text-danger">{error}</p>}
-        <div className="flex justify-end gap-2">
-          <Button variant="ghost" onClick={onClose}>
-            {tc("cancel")}
-          </Button>
-          <Button
-            variant="danger"
-            disabled={pending}
-            onClick={() =>
-              run(
-                () => removeMemberAction(workspaceId, userId),
-                () => {
-                  onClose();
-                  router.push("/");
-                  router.refresh();
-                },
-              )
-            }
-          >
-            {t("leave")}
-          </Button>
-        </div>
-      </div>
+      </DialogBody>
+      <DialogFooter>
+        <Button variant="secondary" onClick={onClose}>
+          {tc("cancel")}
+        </Button>
+        <Button
+          variant="danger"
+          disabled={pending}
+          onClick={() =>
+            run(
+              () => removeMemberAction(workspaceId, userId),
+              () => {
+                onClose();
+                router.push("/");
+                router.refresh();
+              },
+            )
+          }
+        >
+          {t("leave")}
+        </Button>
+      </DialogFooter>
     </Dialog>
   );
 }

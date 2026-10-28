@@ -2,7 +2,7 @@
 
 import { useTranslations } from "next-intl";
 import { useEffect, useRef, useState, type KeyboardEvent, type PointerEvent } from "react";
-import { Button, cn, Dialog } from "@/components/ui";
+import { Button, cn, Dialog, DialogBody, DialogFooter, DialogHeader } from "@/components/ui";
 import { dragCrop, formatImageCrop, isWholeImage, parseImageCrop, type CropHandle, type ImageCrop } from "@/lib/image-crop";
 import { IMAGE_BLOCK } from "@/lib/image-links";
 import type { PageEditor } from "./embed-blocks";
@@ -100,9 +100,8 @@ export default function ImageCropDialog({ editor, blockId, onClose }: { editor: 
   const whole = !crop || isWholeImage(crop);
   return (
     <Dialog open onClose={onClose} className="max-w-2xl">
-      <div className="space-y-3 p-4">
-        <h2 className="text-sm font-semibold">{t("title")}</h2>
-        <p className="text-xs text-fg-muted">{t("hint")}</p>
+      <DialogHeader title={t("title")} description={t("hint")} onClose={onClose} closeLabel={tc("close")} />
+      <DialogBody>
         <div className="flex min-h-40 items-center justify-center rounded-md bg-bg-subtle p-3">
           {failed || !src ? (
             <p role="alert" className="text-sm text-danger">
@@ -169,19 +168,18 @@ export default function ImageCropDialog({ editor, blockId, onClose }: { editor: 
             </div>
           )}
         </div>
-        <div className="flex flex-wrap items-center gap-2">
-          <Button type="button" disabled={!crop || whole} onClick={() => crop && setCrop({ x: 0, y: 0, w: 1, h: 1, ar: crop.ar })}>
-            {t("reset")}
-          </Button>
-          <span className="flex-1" />
-          <Button type="button" onClick={onClose}>
-            {tc("cancel")}
-          </Button>
-          <Button type="button" variant="primary" disabled={!crop} onClick={save}>
-            {tc("save")}
-          </Button>
-        </div>
-      </div>
+      </DialogBody>
+      <DialogFooter>
+        <Button type="button" className="me-auto" disabled={!crop || whole} onClick={() => crop && setCrop({ x: 0, y: 0, w: 1, h: 1, ar: crop.ar })}>
+          {t("reset")}
+        </Button>
+        <Button type="button" variant="secondary" onClick={onClose}>
+          {tc("cancel")}
+        </Button>
+        <Button type="button" variant="primary" disabled={!crop} onClick={save}>
+          {tc("save")}
+        </Button>
+      </DialogFooter>
     </Dialog>
   );
 }

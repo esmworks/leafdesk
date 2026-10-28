@@ -61,6 +61,7 @@ import { inboxKinds } from "@/server/notification-preferences";
 import { propertyAccessFor } from "@/server/property-access";
 import { pushNotifications } from "@/server/push";
 import { snippetOf } from "@/server/semantic-text";
+import { markdownPlain } from "@/lib/markdown-plain";
 import { canInviteGuests } from "@/server/workspaces";
 import { countPendingFor } from "@/server/pending-changes";
 import { startSweep } from "@/server/sweep";
@@ -1236,7 +1237,7 @@ async function reportsOf(viewer: string, runIds: string[]): Promise<Map<string, 
       agentName: r.agentName,
       status: r.status,
       code: r.code ?? null,
-      text: hidden ? null : snippetOf(r.answer, REPORT_CHARS),
+      text: hidden ? null : snippetOf(markdownPlain(r.answer), REPORT_CHARS),
     });
   }
   return out;

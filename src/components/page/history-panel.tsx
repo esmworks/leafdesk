@@ -9,7 +9,7 @@ import { BookmarkPlus, History, X } from "lucide-react";
 import { useFormatter, useLocale, useTranslations } from "next-intl";
 import { useEffect, useMemo, useRef, useState, useTransition } from "react";
 import { diffSnapshotAction, getSnapshotAction, listSnapshotsAction, restoreSnapshotAction } from "@/app/actions/pages";
-import { Button, cn, IconButton, pageLabel, Switch } from "@/components/ui";
+import { Button, cn, dialogShadow, IconButton, pageLabel, Switch } from "@/components/ui";
 import { useColorScheme } from "@/components/theme/theme-provider";
 import { useEditorDictionary } from "@/i18n/blocknote";
 import { parseDashboardLine } from "@/lib/dashboard";
@@ -232,7 +232,7 @@ export function HistoryPanel({
   return (
     <div data-window-shade className="fixed inset-0 z-40 flex bg-black/30" onMouseDown={(e) => e.target === e.currentTarget && onClose()}>
       {/* Phones: full screen, the version list above the preview. */}
-      <div className="flex h-full w-full flex-col-reverse overflow-hidden bg-bg md:m-auto md:h-[80vh] md:max-w-5xl md:flex-row md:rounded-xl md:border md:border-border md:shadow-2xl">
+      <div className={cn("flex h-full w-full flex-col-reverse overflow-hidden bg-bg md:m-auto md:h-[80vh] md:max-w-5xl md:flex-row md:rounded-xl md:border md:border-border", dialogShadow)}>
         <div className="flex min-w-0 flex-1 flex-col">
           <div className="border-b border-border px-5 pt-3">
             <h2 className="truncate text-sm font-medium">{preview ? pageLabel(preview.title, tc("untitled")) : t("previewTitle")}</h2>

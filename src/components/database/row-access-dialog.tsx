@@ -11,7 +11,7 @@ import { useRouter } from "next/navigation";
 import { useEffect, useMemo, useState } from "react";
 import { createPortal } from "react-dom";
 import { loadRowAccessAction, setRowAccessAction } from "@/app/actions/databases";
-import { Button, cn, Dialog, Switch } from "@/components/ui";
+import { Button, cn, Dialog, DialogFooter, DialogHeader, Switch } from "@/components/ui";
 import { MAX_ROW_ACCESS_RULES, ROW_ACCESS_LEVELS, type RowAccessLevel, type RowAccessRule } from "@/lib/row-access";
 import { openSharePanel } from "@/lib/share-event";
 
@@ -109,21 +109,7 @@ export function RowAccessDialog({
   // A portal: the page header's blurred background would otherwise hold the fixed overlay inside it.
   return createPortal(
     <Dialog open onClose={saving ? () => {} : onClose} className="max-w-lg">
-      <div className="flex items-start gap-3 border-b border-border px-5 py-4">
-        <div className="min-w-0 flex-1">
-          <h2 className="text-base font-semibold">{t("title")}</h2>
-          <p className="mt-0.5 text-sm text-fg-muted">{t("description")}</p>
-        </div>
-        <button
-          type="button"
-          aria-label={tc("close")}
-          title={tc("close")}
-          onClick={onClose}
-          className="inline-flex h-7 w-7 shrink-0 items-center justify-center rounded-md text-fg-muted hover:bg-bg-hover hover:text-fg"
-        >
-          <X className="h-4 w-4" />
-        </button>
-      </div>
+      <DialogHeader title={t("title")} description={t("description")} onClose={onClose} closeLabel={tc("close")} />
 
       {!data ? (
         <p className="px-5 py-6 text-sm text-fg-muted" role={loadError ? "alert" : undefined}>
@@ -247,19 +233,19 @@ export function RowAccessDialog({
         </div>
       )}
 
-      <div className="flex items-center justify-end gap-2 border-t border-border px-5 py-3">
+      <DialogFooter>
         {error && (
           <p role="alert" className="me-auto text-xs text-danger">
             {error}
           </p>
         )}
-        <Button variant="ghost" onClick={onClose}>
+        <Button variant="secondary" onClick={onClose}>
           {tc("cancel")}
         </Button>
         <Button variant="primary" disabled={!data || saving || !dirty} onClick={() => void save()}>
           {saving ? tc("saving") : tc("save")}
         </Button>
-      </div>
+      </DialogFooter>
     </Dialog>,
     document.body,
   );

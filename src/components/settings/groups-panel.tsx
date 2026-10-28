@@ -13,7 +13,7 @@ import {
 import { Floating, useFloating } from "@/components/database/floating";
 import { SettingsHeader } from "@/components/settings/section";
 import { useAction } from "@/components/settings/workspace-settings";
-import { Button, Dialog, IconButton, Input, MenuItem, MenuSeparator } from "@/components/ui";
+import { Button, Dialog, DialogBody, DialogFooter, DialogTitle, IconButton, Input, MenuItem, MenuSeparator } from "@/components/ui";
 import { UserAvatar } from "@/components/user-avatar";
 import { MAX_GROUP_NAME } from "@/lib/groups";
 import { searchFold } from "@/lib/search-fold";
@@ -240,7 +240,6 @@ function NameDialog({ workspaceId, group, onClose }: { workspaceId: string; grou
   return (
     <Dialog open onClose={onClose} className="max-w-md">
       <form
-        className="space-y-3 p-5"
         onSubmit={(e) => {
           e.preventDefault();
           if (!clean || clean === group?.name) return;
@@ -248,26 +247,28 @@ function NameDialog({ workspaceId, group, onClose }: { workspaceId: string; grou
           else run(() => createGroupAction(workspaceId, clean), onClose);
         }}
       >
-        <h2 className="text-base font-semibold">{group ? t("renameTitle") : t("createTitle")}</h2>
-        <label className="block space-y-1.5">
-          <span className="text-sm text-fg-muted">{t("name")}</span>
-          <Input
-            autoFocus
-            value={name}
-            maxLength={MAX_GROUP_NAME}
-            placeholder={t("namePlaceholder")}
-            onChange={(e) => setName(e.target.value)}
-          />
-        </label>
-        {error && <p className="text-xs text-danger">{error}</p>}
-        <div className="flex justify-end gap-2">
-          <Button variant="ghost" onClick={onClose}>
+        <DialogBody className="pt-5">
+          <DialogTitle>{group ? t("renameTitle") : t("createTitle")}</DialogTitle>
+          <label className="block space-y-1.5">
+            <span className="text-sm text-fg-muted">{t("name")}</span>
+            <Input
+              autoFocus
+              value={name}
+              maxLength={MAX_GROUP_NAME}
+              placeholder={t("namePlaceholder")}
+              onChange={(e) => setName(e.target.value)}
+            />
+          </label>
+          {error && <p className="text-xs text-danger">{error}</p>}
+        </DialogBody>
+        <DialogFooter>
+          <Button variant="secondary" onClick={onClose}>
             {tc("cancel")}
           </Button>
           <Button type="submit" variant="primary" disabled={pending || !clean || clean === group?.name}>
             {group ? (pending ? tc("saving") : tc("save")) : pending ? t("creating") : t("create")}
           </Button>
-        </div>
+        </DialogFooter>
       </form>
     </Dialog>
   );
@@ -279,19 +280,21 @@ function DeleteDialog({ workspaceId, group, onClose }: { workspaceId: string; gr
   const { pending, error, run } = useAction();
   return (
     <Dialog open onClose={onClose} className="max-w-md">
-      <div className="space-y-3 p-5">
-        <h2 className="text-base font-semibold">{t("deleteTitle", { name: group.name })}</h2>
-        <p className="text-sm text-fg-muted">{t("deleteBody")}</p>
-        {error && <p className="text-xs text-danger">{error}</p>}
-        <div className="flex justify-end gap-2">
-          <Button variant="ghost" onClick={onClose}>
-            {tc("cancel")}
-          </Button>
-          <Button variant="danger" disabled={pending} onClick={() => run(() => deleteGroupAction(workspaceId, group.id), onClose)}>
-            {t("delete")}
-          </Button>
+      <DialogBody className="pt-5">
+        <div className="space-y-1.5">
+          <DialogTitle>{t("deleteTitle", { name: group.name })}</DialogTitle>
+          <p className="text-sm text-fg-muted">{t("deleteBody")}</p>
         </div>
-      </div>
+        {error && <p className="text-xs text-danger">{error}</p>}
+      </DialogBody>
+      <DialogFooter>
+        <Button variant="secondary" onClick={onClose}>
+          {tc("cancel")}
+        </Button>
+        <Button variant="danger" disabled={pending} onClick={() => run(() => deleteGroupAction(workspaceId, group.id), onClose)}>
+          {t("delete")}
+        </Button>
+      </DialogFooter>
     </Dialog>
   );
 }
@@ -318,8 +321,8 @@ function GroupMembersDialog({
 
   return (
     <Dialog open onClose={onClose} className="max-w-lg">
-      <div className="space-y-4 p-5">
-        <h2 className="truncate text-base font-semibold">{t("title", { name: group.name })}</h2>
+      <DialogBody className="pt-5">
+        <DialogTitle className="truncate">{t("title", { name: group.name })}</DialogTitle>
 
         {canManage && group.provisioned && <p className="text-xs text-fg-muted">{t("provisionedHint")}</p>}
 
@@ -351,13 +354,12 @@ function GroupMembersDialog({
         ) : (
           <p className="py-6 text-center text-sm text-fg-muted">{t("empty")}</p>
         )}
-
-        <div className="flex justify-end">
-          <Button variant="ghost" onClick={onClose}>
-            {tc("close")}
-          </Button>
-        </div>
-      </div>
+      </DialogBody>
+      <DialogFooter>
+        <Button variant="secondary" onClick={onClose}>
+          {tc("close")}
+        </Button>
+      </DialogFooter>
     </Dialog>
   );
 }

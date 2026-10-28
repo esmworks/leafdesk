@@ -11,7 +11,7 @@ import {
   listTemplatesAction,
   type TemplatePickerData,
 } from "@/app/actions/templates";
-import { cn, Dialog, IconButton, PageIcon, pageLabel } from "@/components/ui";
+import { cn, Dialog, DialogHeader, IconButton, PageIcon, pageLabel } from "@/components/ui";
 
 /**
  * The template picker: the workspace's templates and the built-in gallery. Picking one creates a
@@ -79,10 +79,7 @@ export function TemplatesDialog({
 
   return (
     <Dialog open={open} onClose={onClose}>
-      <div className="border-b border-border px-4 py-3">
-        <h2 className="text-sm font-medium">{t("title")}</h2>
-        <p className="mt-0.5 text-xs text-fg-muted">{t("description")}</p>
-      </div>
+      <DialogHeader title={t("title")} description={t("description")} onClose={onClose} closeLabel={tc("close")} />
       {error && (
         <p role="alert" className="border-b border-border px-4 py-2 text-xs text-danger">
           {error}

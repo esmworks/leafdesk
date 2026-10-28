@@ -6,7 +6,7 @@ import { useRef, useState } from "react";
 import { createSnippetAction, deleteSnippetAction, duplicateSnippetAction, listSnippetsAction } from "@/app/actions/snippets";
 import { Floating, useFloating } from "@/components/database/floating";
 import { useAction } from "@/components/settings/workspace-settings";
-import { Button, Dialog, IconButton, Input, MenuItem, MenuSeparator } from "@/components/ui";
+import { Button, Dialog, DialogBody, DialogFooter, DialogTitle, IconButton, Input, MenuItem, MenuSeparator } from "@/components/ui";
 import { searchFold } from "@/lib/search-fold";
 import {
   MAX_SNIPPETS,
@@ -367,19 +367,21 @@ function DeleteDialog({ snippet, onClose, onDeleted }: { snippet: SnippetView; o
   const { pending, error, run } = useAction();
   return (
     <Dialog open onClose={onClose} className="max-w-md">
-      <div className="space-y-3 p-5">
-        <h2 className="text-base font-semibold">{t("deleteTitle", { title: snippet.title })}</h2>
-        <p className="text-sm text-fg-muted">{t("deleteBody")}</p>
-        {error && <p className="text-xs text-danger">{error}</p>}
-        <div className="flex justify-end gap-2">
-          <Button variant="ghost" onClick={onClose}>
-            {tc("cancel")}
-          </Button>
-          <Button variant="danger" disabled={pending} onClick={() => run(() => deleteSnippetAction(snippet.id), onDeleted)}>
-            {t("delete")}
-          </Button>
+      <DialogBody className="pt-5">
+        <div className="space-y-1.5">
+          <DialogTitle>{t("deleteTitle", { title: snippet.title })}</DialogTitle>
+          <p className="text-sm text-fg-muted">{t("deleteBody")}</p>
         </div>
-      </div>
+        {error && <p className="text-xs text-danger">{error}</p>}
+      </DialogBody>
+      <DialogFooter>
+        <Button variant="secondary" onClick={onClose}>
+          {tc("cancel")}
+        </Button>
+        <Button variant="danger" disabled={pending} onClick={() => run(() => deleteSnippetAction(snippet.id), onDeleted)}>
+          {t("delete")}
+        </Button>
+      </DialogFooter>
     </Dialog>
   );
 }

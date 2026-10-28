@@ -1,6 +1,6 @@
 "use client";
 
-import { AlarmClock, Archive, ArchiveRestore, CalendarClock, Check, ChevronDown, ChevronRight, ClipboardCheck, KeyRound, Mail, NotebookPen, ShieldQuestion, UserPlus } from "lucide-react";
+import { AlarmClock, Archive, ArchiveRestore, CalendarClock, Check, CheckCheck, ChevronDown, ChevronRight, ClipboardCheck, Inbox, KeyRound, Mail, NotebookPen, ShieldQuestion, UserPlus } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useLocale, useTranslations } from "next-intl";
 import { useMemo, useState, useEffect } from "react";
@@ -175,8 +175,8 @@ export function InboxDialog({
         <button
           type="button"
           className={cn(
-            "flex w-full items-start gap-2.5 rounded-md px-3 py-2 text-start hover:bg-bg-hover",
-            canSnooze(item.kind) && !archivedTab ? "pe-[4.5rem]" : "pe-10",
+            ROW_CLASS,
+            canSnooze(item.kind) && !archivedTab ? "[@media(hover:none)]:pe-[4.5rem]" : "[@media(hover:none)]:pe-10",
           )}
           onClick={() => {
             if (!item.read) void markRead([item.id]);
@@ -237,7 +237,15 @@ export function InboxDialog({
               )}
               </span>
             )}
-            <span className={cn("block", nested ? cn("text-sm", !item.read && "font-medium") : "mt-0.5 text-xs text-fg-muted")}>
+            <span
+              className={cn(
+                "break-words",
+                nested ? cn("text-sm", !item.read && "font-medium") : "mt-0.5 text-xs leading-5 text-fg-muted",
+                // A run's report can run long: the run itself has all of it. (line-clamp sets its own
+                // display, which `block` would override.)
+                item.kind === "agent_report" ? "line-clamp-3" : "block",
+              )}
+            >
               {item.kind === "agent_approval"
                 ? item.approval
                   ? t("approval", { tool: item.approval.tool, connection: item.approval.connectionName })
@@ -317,29 +325,29 @@ export function InboxDialog({
               {item.databaseTitle !== null && <> · {pageLabel(item.databaseTitle, tc("untitled"))}</>}
             </span>
             {item.automationMessage && (
-              <bdi className="mt-1 line-clamp-3 block text-xs leading-5 break-words whitespace-pre-line text-fg">{item.automationMessage}</bdi>
+              <bdi className="mt-1 line-clamp-3 text-xs leading-5 break-words whitespace-pre-line text-fg">{item.automationMessage}</bdi>
             )}
             {item.reaction?.excerpt && (
-            <bdi className="mt-1 line-clamp-2 block text-xs leading-5 break-words text-fg">{t("reactionExcerpt", { text: item.reaction.excerpt })}</bdi>
+            <bdi className="mt-1 line-clamp-2 text-xs leading-5 break-words text-fg">{t("reactionExcerpt", { text: item.reaction.excerpt })}</bdi>
           )}
           {item.rowUpdate && <RowUpdateChanges update={item.rowUpdate} />}
             {item.rowEmail && (
               <span className="mt-1 block text-xs leading-5 text-fg-muted">
                 <bdi className="block truncate text-fg">{item.rowEmail.subject || t("noSubject")}</bdi>
-                {item.rowEmail.snippet && <bdi className="line-clamp-2 block break-words">{item.rowEmail.snippet}</bdi>}
+                {item.rowEmail.snippet && <bdi className="line-clamp-2 break-words">{item.rowEmail.snippet}</bdi>}
               </span>
             )}
           </span>
           <time
             dateTime={new Date(item.createdAt).toISOString()}
-            className="shrink-0 pt-0.5 text-xs text-fg-faint"
+            className={TIME_CLASS}
             title={new Date(item.createdAt).toLocaleString(locale)}
           >
             {relativeTime(item.createdAt, locale)}
           </time>
           {!item.read && <span className="sr-only">{t("unread")}</span>}
         </button>
-        <div className="absolute inset-e-2 top-2 flex items-center">
+        <div className={ROW_ACTIONS_CLASS}>
           {canSnooze(item.kind) && !archivedTab && (
             <IconButton
               label={t("snooze")}
@@ -422,7 +430,7 @@ export function InboxDialog({
           <button
             type="button"
             aria-expanded={open}
-            className={cn("flex w-full items-start gap-2.5 rounded-md px-3 py-2 text-start hover:bg-bg-hover", archivedTab ? "pe-[4.5rem]" : entry.unread > 0 ? "pe-[8rem]" : "pe-[6.25rem]")}
+            className={cn(ROW_CLASS, archivedTab ? "[@media(hover:none)]:pe-[4.5rem]" : entry.unread > 0 ? "[@media(hover:none)]:pe-[8rem]" : "[@media(hover:none)]:pe-[6.25rem]")}
             onClick={() => {
               if (unreadIds.length) void markRead(unreadIds);
               onClose();
@@ -456,14 +464,14 @@ export function InboxDialog({
             </span>
             <time
               dateTime={new Date(newest.createdAt).toISOString()}
-              className="shrink-0 pt-0.5 text-xs text-fg-faint"
+              className={TIME_CLASS}
               title={new Date(newest.createdAt).toLocaleString(locale)}
             >
               {relativeTime(newest.createdAt, locale)}
             </time>
             {entry.unread > 0 && <span className="sr-only">{t("unread")}</span>}
           </button>
-          <div className="absolute inset-e-2 top-2 flex items-center">
+          <div className={ROW_ACTIONS_CLASS}>
             {entry.unread > 0 && (
               <IconButton label={t("groupMarkRead")} className="text-fg-faint" onClick={() => void markRead(unreadIds)}>
                 <Check className="h-3.5 w-3.5" />
@@ -498,50 +506,60 @@ export function InboxDialog({
 
   return (
     <Dialog open={open} onClose={onClose}>
-      <div className="flex items-center gap-2 border-b border-border px-4 py-2.5">
-        <span className="text-sm font-medium">{t("title")}</span>
-        <span className="flex-1">
-          <span role="tablist" aria-label={t("tabs")} className="ms-2 inline-flex gap-0.5">
-            {(emailTab ? (["all", "email", "archived"] as const) : (["all", "archived"] as const)).map((value) => (
-              <button
-                key={value}
-                type="button"
-                role="tab"
-                aria-selected={tab === value}
-                className={cn(
-                  "rounded-md px-2 py-0.5 text-sm text-fg-muted hover:bg-bg-hover",
-                  tab === value && "bg-bg-hover text-fg",
-                )}
-                onClick={() => {
-                  if (tab === value) return;
-                  setItems(null);
-                  setTab(value);
-                }}
-              >
-                {value === "all" ? t("tabAll") : value === "email" ? t("tabEmail") : t("tabArchived")}
-              </button>
-            ))}
-          </span>
-        </span>
-        {tab === "all" && items?.some((item) => item.read) && (
-          <Button size="sm" variant="ghost" onClick={() => void archiveRead()}>
-            {t("archiveRead")}
-          </Button>
-        )}
-        {unread.length > 0 && !archivedTab && (
-          <Button size="sm" variant="ghost" onClick={() => void markRead()}>
-            {t("markAllRead")}
-          </Button>
-        )}
+      <div className="border-b border-border">
+        <div className="flex items-center gap-1 px-4 pt-3.5">
+          <h2 className="me-auto min-w-0 truncate text-base font-semibold">{t("title")}</h2>
+          {tab === "all" && items?.some((item) => item.read) && (
+            <Button size="sm" variant="ghost" className="whitespace-nowrap" title={t("archiveRead")} onClick={() => void archiveRead()}>
+              <Archive aria-hidden className="h-3.5 w-3.5" />
+              {/* On a phone the icons alone, so the title keeps its line. */}
+              <span className="max-sm:sr-only">{t("archiveRead")}</span>
+            </Button>
+          )}
+          {unread.length > 0 && !archivedTab && (
+            <Button size="sm" variant="ghost" className="whitespace-nowrap" title={t("markAllRead")} onClick={() => void markRead()}>
+              <CheckCheck aria-hidden className="h-3.5 w-3.5" />
+              {/* On a phone the icons alone, so the title keeps its line. */}
+              <span className="max-sm:sr-only">{t("markAllRead")}</span>
+            </Button>
+          )}
+        </div>
+        <div role="tablist" aria-label={t("tabs")} className="mt-1.5 flex gap-4 px-4">
+          {(emailTab ? (["all", "email", "archived"] as const) : (["all", "archived"] as const)).map((value) => (
+            <button
+              key={value}
+              type="button"
+              role="tab"
+              aria-selected={tab === value}
+              className={cn(
+                "-mb-px flex items-center gap-1.5 border-b-2 py-2 text-sm whitespace-nowrap transition-colors",
+                tab === value ? "border-fg font-medium text-fg" : "border-transparent text-fg-muted hover:text-fg",
+              )}
+              onClick={() => {
+                if (tab === value) return;
+                setItems(null);
+                setTab(value);
+              }}
+            >
+              {value === "all" ? t("tabAll") : value === "email" ? t("tabEmail") : t("tabArchived")}
+              {value === "all" && tab === "all" && unread.length > 0 && (
+                <span className="rounded bg-accent px-1.5 text-[11px] leading-4 font-medium text-accent-fg tabular-nums">{unread.length}</span>
+              )}
+            </button>
+          ))}
+        </div>
       </div>
       {error && (
         <p role="alert" className="border-b border-border px-4 py-2 text-xs text-danger">
           {tc("genericError")}
         </p>
       )}
-      <ul className="max-h-[60vh] overflow-y-auto p-1">
+      <ul className="max-h-[60vh] overflow-y-auto p-1.5">
         {items?.length === 0 && (
-          <li className="px-3 py-6 text-center text-sm text-fg-muted">{tab === "email" ? t("emptyEmail") : archivedTab ? t("emptyArchived") : t("empty")}</li>
+          <li className="flex flex-col items-center gap-2 px-3 py-10 text-center text-sm text-fg-muted">
+            <Inbox aria-hidden className="h-6 w-6 text-fg-faint" strokeWidth={1.5} />
+            {tab === "email" ? t("emptyEmail") : archivedTab ? t("emptyArchived") : t("empty")}
+          </li>
         )}
         {entries?.map((entry) => (entry.type === "item" ? itemRow(entry.item) : groupRow(entry)))}
       </ul>
@@ -612,6 +630,17 @@ function AccessRequestActions({ request, onAnswered }: { request: InboxAccessReq
     </div>
   );
 }
+
+/** A notification's row; its actions (`ROW_ACTIONS_CLASS`) cover the time while it is hovered or focused. */
+const ROW_CLASS =
+  "flex w-full items-start gap-2.5 rounded-md px-3 py-2.5 text-start group-hover/row:bg-bg-hover group-focus-within/row:bg-bg-hover";
+
+/** A row's time, which its actions take the place of while it is hovered or focused. */
+const TIME_CLASS = "shrink-0 pt-0.5 text-xs text-fg-faint group-hover/row:invisible group-focus-within/row:invisible [@media(hover:none)]:visible";
+
+/** Shown only while the row is hovered or focused, except where nothing hovers (the row then leaves room for them). */
+const ROW_ACTIONS_CLASS =
+  "absolute inset-e-2 top-2 flex items-center gap-0.5 rounded-md bg-bg-hover ps-1 opacity-0 transition-opacity group-hover/row:opacity-100 group-focus-within/row:opacity-100 [@media(hover:none)]:bg-transparent [@media(hover:none)]:opacity-100";
 
 /** Where a swipe snoozes an item to (components/sidebar/inbox-swipe.tsx): tomorrow morning. */
 const SWIPE_SNOOZE: SnoozeChoice = "tomorrow";

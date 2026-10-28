@@ -5,7 +5,6 @@
  * events, the pages it covers, who it sends as, a test ping, its signing secret and its recent
  * deliveries; and the form that adds or changes one.
  */
-import { X } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useFormatter, useTranslations } from "next-intl";
 import { useState, useTransition } from "react";
@@ -20,7 +19,7 @@ import {
 import { PagePicker, useShareablePages } from "@/components/settings/agent-page-picker";
 import { ConfirmButton } from "@/components/settings/confirm-button";
 import { CopyButton } from "@/components/settings/copy-button";
-import { Button, cn, Dialog, IconButton, Input, PageIcon, pageLabel, selectClass, Switch } from "@/components/ui";
+import { Button, cn, Dialog, DialogBody, DialogFooter, DialogHeader, Input, PageIcon, pageLabel, selectClass, Switch } from "@/components/ui";
 import { PAGE_WEBHOOK_EVENTS, PAGE_WEBHOOK_SCOPES, type PageWebhookEvent, type PageWebhookScope } from "@/lib/page-webhooks";
 import type { PageWebhookDeliveryView, PageWebhookView } from "@/server/page-webhooks/manage";
 
@@ -109,19 +108,14 @@ export function WebhooksPanel({
       )}
       {secret && (
         <Dialog open onClose={() => setSecret(null)} className="max-w-lg">
-          <div className="flex items-start gap-2 border-b border-border px-4 py-3">
-            <h2 className="min-w-0 flex-1 text-sm font-semibold">{t("secret.title", { name: secret.title })}</h2>
-            <IconButton label={tc("close")} onClick={() => setSecret(null)}>
-              <X size={14} />
-            </IconButton>
-          </div>
-          <div className="space-y-3 p-4 text-sm">
+          <DialogHeader title={t("secret.title", { name: secret.title })} onClose={() => setSecret(null)} closeLabel={tc("close")} />
+          <DialogBody className="text-sm">
             <p className="text-fg-muted">{t("secret.note")}</p>
             <div className="flex items-center gap-2">
               <Input readOnly value={secret.value} aria-label={t("secret.label")} onFocus={(e) => e.currentTarget.select()} />
               <CopyButton value={secret.value} />
             </div>
-          </div>
+          </DialogBody>
         </Dialog>
       )}
     </div>
@@ -312,94 +306,90 @@ function WebhookForm({
 
   return (
     <Dialog open onClose={saving ? () => {} : onClose} className="max-w-lg">
-      <div className="flex items-start gap-2 border-b border-border px-4 py-3">
-        <h2 className="min-w-0 flex-1 text-sm font-semibold">{webhookId ? t("form.editTitle") : t("form.title")}</h2>
-        <IconButton label={tc("close")} onClick={onClose}>
-          <X size={14} />
-        </IconButton>
-      </div>
+      <DialogHeader title={webhookId ? t("form.editTitle") : t("form.title")} onClose={onClose} closeLabel={tc("close")} />
       <form
-        className="max-h-[70vh] space-y-4 overflow-y-auto p-4 text-sm"
         onSubmit={(e) => {
           e.preventDefault();
           submit();
         }}
       >
-        <label className="block space-y-1">
-          <span className="text-xs text-fg-muted">{t("form.name")}</span>
-          <Input value={draft.name} maxLength={100} required autoFocus onChange={(e) => set({ name: e.target.value })} />
-        </label>
-        <label className="block space-y-1">
-          <span className="text-xs text-fg-muted">{t("form.url")}</span>
-          <Input type="url" value={draft.url} required placeholder="https://" onChange={(e) => set({ url: e.target.value })} />
-          <span className="block text-xs text-fg-muted">{t("form.urlHint")}</span>
-        </label>
-        <fieldset className="space-y-1">
-          <legend className="mb-1 text-xs text-fg-muted">{t("form.events")}</legend>
-          {PAGE_WEBHOOK_EVENTS.map((event) => (
-            <label key={event} className="flex items-center gap-2 rounded px-1 py-0.5 hover:bg-bg-hover">
-              <input
-                type="checkbox"
-                className="accent-accent"
-                checked={draft.events.includes(event)}
-                onChange={(e) =>
-                  set({ events: e.target.checked ? PAGE_WEBHOOK_EVENTS.filter((x) => x === event || draft.events.includes(x)) : draft.events.filter((x) => x !== event) })
-                }
-              />
-              <span className="flex-1">{t(`events.${eventKey(event)}`)}</span>
-            </label>
-          ))}
-        </fieldset>
-        <fieldset className="space-y-2">
-          <legend className="mb-1 text-xs text-fg-muted">{t("form.scope")}</legend>
-          {PAGE_WEBHOOK_SCOPES.map((scope) => (
-            <label key={scope} className="flex items-center gap-2">
-              <input type="radio" name="webhook-scope" checked={draft.scope === scope} onChange={() => set({ scope })} />
-              <span>{t(`form.scopes.${scope}`)}</span>
-            </label>
-          ))}
-          {draft.scope === "teamspace" && (
-            <select
-              className={selectClass}
-              aria-label={t("form.teamspace")}
-              value={draft.teamspaceId ?? ""}
-              required
-              onChange={(e) => set({ teamspaceId: e.target.value || null })}
-            >
-              <option value="">{t("form.teamspace")}</option>
-              {teamspaces.map((ts) => (
-                <option key={ts.id} value={ts.id}>
-                  {ts.name}
-                </option>
-              ))}
-            </select>
-          )}
-          {draft.scope === "page" &&
-            (draft.page ? (
-              <div className="flex items-center gap-2 rounded-md border border-border px-3 py-1.5">
-                <PageIcon icon={draft.page.icon} kind={draft.page.kind} className="text-sm" />
-                <span className="min-w-0 flex-1 truncate">{pageLabel(draft.page.title, tc("untitled"))}</span>
-                <Button type="button" size="sm" variant="ghost" onClick={() => set({ page: null })}>
-                  {t("form.otherPage")}
-                </Button>
-              </div>
-            ) : (
-              <PagePicker pages={pages} label={t("form.pickPage")} empty={t("form.noPages")} onPick={(p) => set({ page: p })} />
+        <DialogBody className="max-h-[70vh] overflow-y-auto text-sm">
+          <label className="block space-y-1">
+            <span className="text-xs text-fg-muted">{t("form.name")}</span>
+            <Input value={draft.name} maxLength={100} required autoFocus onChange={(e) => set({ name: e.target.value })} />
+          </label>
+          <label className="block space-y-1">
+            <span className="text-xs text-fg-muted">{t("form.url")}</span>
+            <Input type="url" value={draft.url} required placeholder="https://" onChange={(e) => set({ url: e.target.value })} />
+            <span className="block text-xs text-fg-muted">{t("form.urlHint")}</span>
+          </label>
+          <fieldset className="space-y-1">
+            <legend className="mb-1 text-xs text-fg-muted">{t("form.events")}</legend>
+            {PAGE_WEBHOOK_EVENTS.map((event) => (
+              <label key={event} className="flex items-center gap-2 rounded px-1 py-0.5 hover:bg-bg-hover">
+                <input
+                  type="checkbox"
+                  className="accent-accent"
+                  checked={draft.events.includes(event)}
+                  onChange={(e) =>
+                    set({ events: e.target.checked ? PAGE_WEBHOOK_EVENTS.filter((x) => x === event || draft.events.includes(x)) : draft.events.filter((x) => x !== event) })
+                  }
+                />
+                <span className="flex-1">{t(`events.${eventKey(event)}`)}</span>
+              </label>
             ))}
-        </fieldset>
-        {error && (
-          <p role="alert" className="text-xs text-danger">
-            {error}
-          </p>
-        )}
-        <div className="flex justify-end gap-2">
-          <Button type="button" variant="ghost" onClick={onClose} disabled={saving}>
+          </fieldset>
+          <fieldset className="space-y-2">
+            <legend className="mb-1 text-xs text-fg-muted">{t("form.scope")}</legend>
+            {PAGE_WEBHOOK_SCOPES.map((scope) => (
+              <label key={scope} className="flex items-center gap-2">
+                <input type="radio" name="webhook-scope" checked={draft.scope === scope} onChange={() => set({ scope })} />
+                <span>{t(`form.scopes.${scope}`)}</span>
+              </label>
+            ))}
+            {draft.scope === "teamspace" && (
+              <select
+                className={selectClass}
+                aria-label={t("form.teamspace")}
+                value={draft.teamspaceId ?? ""}
+                required
+                onChange={(e) => set({ teamspaceId: e.target.value || null })}
+              >
+                <option value="">{t("form.teamspace")}</option>
+                {teamspaces.map((ts) => (
+                  <option key={ts.id} value={ts.id}>
+                    {ts.name}
+                  </option>
+                ))}
+              </select>
+            )}
+            {draft.scope === "page" &&
+              (draft.page ? (
+                <div className="flex items-center gap-2 rounded-md border border-border px-3 py-1.5">
+                  <PageIcon icon={draft.page.icon} kind={draft.page.kind} className="text-sm" />
+                  <span className="min-w-0 flex-1 truncate">{pageLabel(draft.page.title, tc("untitled"))}</span>
+                  <Button type="button" size="sm" variant="ghost" onClick={() => set({ page: null })}>
+                    {t("form.otherPage")}
+                  </Button>
+                </div>
+              ) : (
+                <PagePicker pages={pages} label={t("form.pickPage")} empty={t("form.noPages")} onPick={(p) => set({ page: p })} />
+              ))}
+          </fieldset>
+          {error && (
+            <p role="alert" className="text-xs text-danger">
+              {error}
+            </p>
+          )}
+        </DialogBody>
+        <DialogFooter>
+          <Button type="button" variant="secondary" onClick={onClose} disabled={saving}>
             {tc("cancel")}
           </Button>
           <Button type="submit" variant="primary" disabled={saving}>
             {webhookId ? t("form.save") : t("form.create")}
           </Button>
-        </div>
+        </DialogFooter>
       </form>
     </Dialog>
   );

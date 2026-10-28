@@ -16,7 +16,7 @@ import {
 import { IconGlyph } from "@/components/builtin-icon";
 import { CopyButton } from "@/components/settings/copy-button";
 import { useAction } from "@/components/settings/workspace-settings";
-import { Button, cn, Dialog, IconButton, Input, selectClass } from "@/components/ui";
+import { Button, cn, Dialog, DialogBody, DialogHeader, IconButton, Input, selectClass } from "@/components/ui";
 import type { TeamspaceRole, WorkspaceRole } from "@/db/schema/app";
 import type { TeamspaceGroupSummary, TeamspacePerson, TeamspaceSummary } from "@/server/teamspaces";
 import { isEmail, normalizeEmail } from "@/lib/emails";
@@ -114,103 +114,100 @@ function MembersBody({
   }
 
   return (
-    <div className="space-y-4 p-5">
-      <div className="space-y-1">
-        <h2 className="flex min-w-0 items-center gap-2 text-base font-semibold">
-          {teamspace.icon && <IconGlyph icon={teamspace.icon} />}
-          <span className="truncate">{t("members.title", { name: teamspace.name })}</span>
-        </h2>
-        {(isDefault || !canManage) && (
-          <p className="text-sm text-fg-muted">{isDefault ? t("members.everyone") : t("members.readOnly")}</p>
+    <>
+      <DialogHeader
+        title={
+          <span className="flex min-w-0 items-center gap-2">
+            {teamspace.icon && <IconGlyph icon={teamspace.icon} />}
+            <span className="truncate">{t("members.title", { name: teamspace.name })}</span>
+          </span>
+        }
+        description={isDefault ? t("members.everyone") : !canManage ? t("members.readOnly") : undefined}
+        onClose={onClose}
+        closeLabel={tc("close")}
+      />
+      <DialogBody>
+        {canManage && !isDefault && people && (
+          <AddPeople
+            workspaceId={workspaceId}
+            teamspaceId={teamspace.id}
+            candidates={workspaceMembers.filter((m) => m.role !== "guest" && !people.some((p) => p.userId === m.userId))}
+            knownEmails={workspaceMembers.map((m) => normalizeEmail(m.email))}
+            pending={pending}
+            run={run}
+            onAdded={changed}
+          />
         )}
-      </div>
 
-      {canManage && !isDefault && people && (
-        <AddPeople
-          workspaceId={workspaceId}
-          teamspaceId={teamspace.id}
-          candidates={workspaceMembers.filter((m) => m.role !== "guest" && !people.some((p) => p.userId === m.userId))}
-          knownEmails={workspaceMembers.map((m) => normalizeEmail(m.email))}
-          pending={pending}
-          run={run}
-          onAdded={changed}
-        />
-      )}
+        {error && <p className="text-xs text-danger">{error}</p>}
+        {loadError && <p className="text-xs text-danger">{loadError}</p>}
 
-      {error && <p className="text-xs text-danger">{error}</p>}
-      {loadError && <p className="text-xs text-danger">{loadError}</p>}
-
-      {people === null ? (
-        !loadError && <p className="py-6 text-center text-sm text-fg-muted">{tc("loading")}</p>
-      ) : people.length === 0 ? (
-        <p className="py-6 text-center text-sm text-fg-muted">{t("members.empty")}</p>
-      ) : (
-        <ul aria-label={t("members.list")} className="max-h-80 divide-y divide-border overflow-y-auto rounded-md border border-border">
-          {people.map((person) => (
-            <li key={person.userId} className="flex items-center gap-2.5 px-3 py-2 text-sm">
-              <Avatar name={person.name || person.email} />
-              <div className="min-w-0 flex-1">
-                <div className="truncate font-medium">
-                  {person.name}
-                  {person.userId === currentUserId && <span className="font-normal text-fg-muted"> {t("members.you")}</span>}
+        {people === null ? (
+          !loadError && <p className="py-6 text-center text-sm text-fg-muted">{tc("loading")}</p>
+        ) : people.length === 0 ? (
+          <p className="py-6 text-center text-sm text-fg-muted">{t("members.empty")}</p>
+        ) : (
+          <ul aria-label={t("members.list")} className="max-h-80 divide-y divide-border overflow-y-auto rounded-md border border-border">
+            {people.map((person) => (
+              <li key={person.userId} className="flex items-center gap-2.5 px-3 py-2 text-sm">
+                <Avatar name={person.name || person.email} />
+                <div className="min-w-0 flex-1">
+                  <div className="truncate font-medium">
+                    {person.name}
+                    {person.userId === currentUserId && <span className="font-normal text-fg-muted"> {t("members.you")}</span>}
+                  </div>
+                  <div className="truncate text-xs text-fg-muted">
+                    {person.direct ? person.email : t("members.viaGroups", { groups: person.groups.join(", ") })}
+                  </div>
                 </div>
-                <div className="truncate text-xs text-fg-muted">
-                  {person.direct ? person.email : t("members.viaGroups", { groups: person.groups.join(", ") })}
-                </div>
-              </div>
-              {canManage ? (
-                <select
-                  aria-label={t("members.roleOf", { name: person.name })}
-                  className={cn(selectClass, "h-7 shrink-0")}
-                  value={person.role}
-                  disabled={pending}
-                  onChange={(e) =>
-                    run(
-                      () => setTeamspaceRoleAction(workspaceId, teamspace.id, person.userId, e.target.value as TeamspaceRole),
-                      changed,
-                    )
-                  }
-                >
-                  <option value="owner">{t("roles.owner")}</option>
-                  <option value="member">{t("roles.member")}</option>
-                </select>
-              ) : (
-                <span className="shrink-0 text-fg-muted">{t(`roles.${person.role}`)}</span>
-              )}
-              {/* Nobody leaves a default teamspace; there only the role changes. People in it through
-                  a group leave with the group. */}
-              {canManage && !isDefault && person.direct && (
-                <IconButton
-                  label={t("members.remove", { name: person.name })}
-                  disabled={pending}
-                  onClick={() => run(() => removeTeamspaceMemberAction(workspaceId, teamspace.id, person.userId), changed)}
-                >
-                  <X className="h-4 w-4" />
-                </IconButton>
-              )}
-            </li>
-          ))}
-        </ul>
-      )}
+                {canManage ? (
+                  <select
+                    aria-label={t("members.roleOf", { name: person.name })}
+                    className={cn(selectClass, "h-7 shrink-0")}
+                    value={person.role}
+                    disabled={pending}
+                    onChange={(e) =>
+                      run(
+                        () => setTeamspaceRoleAction(workspaceId, teamspace.id, person.userId, e.target.value as TeamspaceRole),
+                        changed,
+                      )
+                    }
+                  >
+                    <option value="owner">{t("roles.owner")}</option>
+                    <option value="member">{t("roles.member")}</option>
+                  </select>
+                ) : (
+                  <span className="shrink-0 text-fg-muted">{t(`roles.${person.role}`)}</span>
+                )}
+                {/* Nobody leaves a default teamspace; there only the role changes. People in it through
+                    a group leave with the group. */}
+                {canManage && !isDefault && person.direct && (
+                  <IconButton
+                    label={t("members.remove", { name: person.name })}
+                    disabled={pending}
+                    onClick={() => run(() => removeTeamspaceMemberAction(workspaceId, teamspace.id, person.userId), changed)}
+                  >
+                    <X className="h-4 w-4" />
+                  </IconButton>
+                )}
+              </li>
+            ))}
+          </ul>
+        )}
 
-      {!isDefault && (
-        <Groups
-          workspaceId={workspaceId}
-          teamspaceId={teamspace.id}
-          canManage={canManage}
-          version={version}
-          pending={pending}
-          run={run}
-          onChanged={changed}
-        />
-      )}
-
-      <div className="flex justify-end">
-        <Button variant="ghost" onClick={onClose}>
-          {tc("close")}
-        </Button>
-      </div>
-    </div>
+        {!isDefault && (
+          <Groups
+            workspaceId={workspaceId}
+            teamspaceId={teamspace.id}
+            canManage={canManage}
+            version={version}
+            pending={pending}
+            run={run}
+            onChanged={changed}
+          />
+        )}
+      </DialogBody>
+    </>
   );
 }
 

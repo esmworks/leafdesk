@@ -4,7 +4,7 @@ import Link from "next/link";
 import { useLocale, useTranslations } from "next-intl";
 import { useEffect, useState, useTransition } from "react";
 import { completeSprintAction, getSprintsAction, setSprintsAction } from "@/app/actions/databases";
-import { Button, cn, Dialog, Input, pageLabel, selectClass } from "@/components/ui";
+import { Button, cn, Dialog, DialogBody, DialogFooter, DialogTitle, Input, pageLabel, selectClass } from "@/components/ui";
 import { formatDateValueIn } from "@/lib/date-value";
 import { MAX_SPRINT_WEEKS, MIN_SPRINT_WEEKS } from "@/lib/sprints";
 import { browserTimeZone, timestampDay } from "@/lib/time-zone";
@@ -89,108 +89,112 @@ export function SprintsDialog({
     </div>
   );
 
+  const heading = (
+    <div className="space-y-1.5">
+      <DialogTitle>{t("title")}</DialogTitle>
+      <p className="text-sm text-fg-muted">{t("description")}</p>
+    </div>
+  );
+
   return (
     <Dialog open onClose={onClose} className="max-w-md">
-      <div className={cn("space-y-4 p-5", (!info || pending) && "pointer-events-none opacity-60")} aria-busy={!info || pending}>
-        <div className="space-y-1">
-          <h2 className="text-base font-semibold">{t("title")}</h2>
-          <p className="text-sm text-fg-muted">{t("description")}</p>
-        </div>
-
-        {info?.side === "sprints" && (
-          <p className="text-sm">
-            {t("holdsSprints", { name: pageLabel(info.tasksDatabase.title, tc("untitled")) })}{" "}
-            <Link href={`/w/${workspaceId}/p/${info.tasksDatabase.id}`} className="text-accent hover:underline" onClick={onClose}>
-              {t("open")}
-            </Link>
-          </p>
-        )}
-
-        {info?.side === "tasks" && !info.on && (
+      <div className={cn((!info || pending) && "pointer-events-none opacity-60")} aria-busy={!info || pending}>
+        {info?.side === "tasks" && !info.on ? (
           <form
-            className="space-y-4"
             onSubmit={(e) => {
               e.preventDefault();
               save({ on: true, weeks, ...(info.again ? {} : { start }) }, true);
             }}
           >
-            {info.again ? (
-              <p className="text-sm">{t("again", { name: pageLabel(info.again.title, tc("untitled")) })}</p>
-            ) : (
-              <p className="text-sm text-fg-muted">{t("turnOnHint")}</p>
-            )}
-            <div className="grid grid-cols-2 gap-3">
-              {lengthField}
-              {!info.again && (
-                <div className="space-y-1">
-                  <label htmlFor="sprint-start" className="block text-xs font-medium text-fg-muted">
-                    {t("start")}
-                  </label>
-                  <Input id="sprint-start" type="date" required value={start} onChange={(e) => setStart(e.target.value)} />
-                </div>
+            <DialogBody className="pt-5">
+              {heading}
+              {info.again ? (
+                <p className="text-sm">{t("again", { name: pageLabel(info.again.title, tc("untitled")) })}</p>
+              ) : (
+                <p className="text-sm text-fg-muted">{t("turnOnHint")}</p>
               )}
-            </div>
-            {error && <p className="text-xs text-danger">{error}</p>}
-            <div className="flex justify-end gap-2">
-              <Button variant="ghost" onClick={onClose}>
+              <div className="grid grid-cols-2 gap-3">
+                {lengthField}
+                {!info.again && (
+                  <div className="space-y-1">
+                    <label htmlFor="sprint-start" className="block text-xs font-medium text-fg-muted">
+                      {t("start")}
+                    </label>
+                    <Input id="sprint-start" type="date" required value={start} onChange={(e) => setStart(e.target.value)} />
+                  </div>
+                )}
+              </div>
+              {error && <p className="text-xs text-danger">{error}</p>}
+            </DialogBody>
+            <DialogFooter>
+              <Button variant="secondary" onClick={onClose}>
                 {tc("cancel")}
               </Button>
               <Button type="submit" variant="primary" disabled={pending || (!info.again && !start)}>
                 {t("turnOn")}
               </Button>
-            </div>
+            </DialogFooter>
           </form>
-        )}
-
-        {info?.side === "tasks" && info.on && (
+        ) : info?.side === "tasks" && info.on ? (
           <form
-            className="space-y-4"
             onSubmit={(e) => {
               e.preventDefault();
               save({ on: true, weeks }, true);
             }}
           >
-            {info.sprintsDatabase ? (
-              <p className="text-sm">
-                {t("keptIn", { name: pageLabel(info.sprintsDatabase.title, tc("untitled")) })}{" "}
-                <Link href={`/w/${workspaceId}/p/${info.sprintsDatabase.id}`} className="text-accent hover:underline" onClick={onClose}>
-                  {t("open")}
-                </Link>
-              </p>
-            ) : (
-              <p className="text-sm text-danger">{t("unusable")}</p>
-            )}
-            <div className="space-y-1.5 rounded-md border border-border px-3 py-2">
-              {sprintLine(t("current"), info.current)}
-              {sprintLine(t("next"), info.next)}
-            </div>
-            <div className="space-y-1">
-              {lengthField}
-              <p className="text-xs text-fg-muted">{t("lengthHint")}</p>
-            </div>
-            {error && <p className="text-xs text-danger">{error}</p>}
-            <div className="flex flex-wrap items-center justify-between gap-2">
+            <DialogBody className="pt-5">
+              {heading}
+              {info.sprintsDatabase ? (
+                <p className="text-sm">
+                  {t("keptIn", { name: pageLabel(info.sprintsDatabase.title, tc("untitled")) })}{" "}
+                  <Link href={`/w/${workspaceId}/p/${info.sprintsDatabase.id}`} className="text-accent hover:underline" onClick={onClose}>
+                    {t("open")}
+                  </Link>
+                </p>
+              ) : (
+                <p className="text-sm text-danger">{t("unusable")}</p>
+              )}
+              <div className="space-y-1.5 rounded-md border border-border px-3 py-2">
+                {sprintLine(t("current"), info.current)}
+                {sprintLine(t("next"), info.next)}
+              </div>
+              <div className="space-y-1">
+                {lengthField}
+                <p className="text-xs text-fg-muted">{t("lengthHint")}</p>
+              </div>
+              {error && <p className="text-xs text-danger">{error}</p>}
+            </DialogBody>
+            <DialogFooter>
               <button
                 type="button"
                 title={t("turnOffHint")}
                 onClick={() => save({ on: false }, true)}
-                className="inline-flex h-8 items-center rounded-md px-3 text-sm font-medium text-danger hover:bg-bg-hover"
+                className="me-auto inline-flex h-8 items-center rounded-md px-3 text-sm font-medium text-danger hover:bg-bg-hover"
               >
                 {t("turnOff")}
               </button>
-              <div className="flex gap-2">
-                <Button variant="ghost" onClick={onClose}>
-                  {tc("cancel")}
-                </Button>
-                <Button type="submit" variant="primary" disabled={pending || weeks === info.weeks}>
-                  {pending ? tc("saving") : tc("save")}
-                </Button>
-              </div>
-            </div>
+              <Button variant="secondary" onClick={onClose}>
+                {tc("cancel")}
+              </Button>
+              <Button type="submit" variant="primary" disabled={pending || weeks === info.weeks}>
+                {pending ? tc("saving") : tc("save")}
+              </Button>
+            </DialogFooter>
           </form>
+        ) : (
+          <DialogBody className="pt-5">
+            {heading}
+            {info?.side === "sprints" && (
+              <p className="text-sm">
+                {t("holdsSprints", { name: pageLabel(info.tasksDatabase.title, tc("untitled")) })}{" "}
+                <Link href={`/w/${workspaceId}/p/${info.tasksDatabase.id}`} className="text-accent hover:underline" onClick={onClose}>
+                  {t("open")}
+                </Link>
+              </p>
+            )}
+            {!info && error && <p className="text-xs text-danger">{error}</p>}
+          </DialogBody>
         )}
-
-        {!info && error && <p className="text-xs text-danger">{error}</p>}
       </div>
     </Dialog>
   );
@@ -241,27 +245,29 @@ export function CompleteSprintDialog({
   const title = (value: string) => pageLabel(value, tc("untitled"));
   return (
     <Dialog open onClose={onClose} className="max-w-md">
-      <div className={cn("space-y-4 p-5", pending && "pointer-events-none opacity-60")} aria-busy={pending || (!preview && !error)}>
-        <h2 className="text-base font-semibold">{preview ? t("completeTitle", { title: title(preview.completed.title) }) : t("complete")}</h2>
-        {!preview && !error && <p className="text-sm text-fg-muted">{t("completeLoading")}</p>}
-        {preview && (
-          <ul className="list-disc space-y-1 ps-5 text-sm">
-            <li>{t("completeCompleted", { title: title(preview.completed.title) })}</li>
-            <li>{t(preview.current.created ? "completeCurrentNew" : "completeCurrent", { title: title(preview.current.title) })}</li>
-            <li>{t(preview.next.created ? "completeNextNew" : "completeNext", { title: title(preview.next.title) })}</li>
-            <li>{t("completeMoved", { count: preview.moved, title: title(preview.current.title) })}</li>
-            {preview.skipped > 0 && <li>{t("completeSkipped", { count: preview.skipped })}</li>}
-          </ul>
-        )}
-        {error && <p className="text-xs text-danger">{error}</p>}
-        <div className="flex justify-end gap-2">
-          <Button variant="ghost" onClick={onClose}>
+      <div className={cn(pending && "pointer-events-none opacity-60")} aria-busy={pending || (!preview && !error)}>
+        <DialogBody className="pt-5">
+          <DialogTitle>{preview ? t("completeTitle", { title: title(preview.completed.title) }) : t("complete")}</DialogTitle>
+          {!preview && !error && <p className="text-sm text-fg-muted">{t("completeLoading")}</p>}
+          {preview && (
+            <ul className="list-disc space-y-1 ps-5 text-sm">
+              <li>{t("completeCompleted", { title: title(preview.completed.title) })}</li>
+              <li>{t(preview.current.created ? "completeCurrentNew" : "completeCurrent", { title: title(preview.current.title) })}</li>
+              <li>{t(preview.next.created ? "completeNextNew" : "completeNext", { title: title(preview.next.title) })}</li>
+              <li>{t("completeMoved", { count: preview.moved, title: title(preview.current.title) })}</li>
+              {preview.skipped > 0 && <li>{t("completeSkipped", { count: preview.skipped })}</li>}
+            </ul>
+          )}
+          {error && <p className="text-xs text-danger">{error}</p>}
+        </DialogBody>
+        <DialogFooter>
+          <Button variant="secondary" onClick={onClose}>
             {tc("cancel")}
           </Button>
           <Button variant="primary" onClick={complete} disabled={!preview || pending}>
             {t("complete")}
           </Button>
-        </div>
+        </DialogFooter>
       </div>
     </Dialog>
   );

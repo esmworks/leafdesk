@@ -2,18 +2,19 @@
 
 import { useTranslations } from "next-intl";
 import { Fragment, useMemo } from "react";
-import { Dialog } from "@/components/ui";
+import { Dialog, DialogBody, DialogHeader } from "@/components/ui";
 import { isMac, keyLabels, SHORTCUT_GROUPS, type Combo } from "@/lib/shortcuts";
 
 /** The keyboard shortcuts (lib/shortcuts), in groups, with the keys this computer has. */
 export function ShortcutsDialog({ open, onClose }: { open: boolean; onClose: () => void }) {
   const t = useTranslations("shortcuts");
+  const tc = useTranslations("common");
   // Only drawn once opened, in the browser.
   const mac = useMemo(() => open && isMac(), [open]);
   return (
     <Dialog open={open} onClose={onClose} className="max-w-lg">
-      <h2 className="border-b border-border px-4 py-3 text-sm font-medium">{t("title")}</h2>
-      <div className="max-h-[70vh] space-y-4 overflow-y-auto px-4 py-3">
+      <DialogHeader title={t("title")} onClose={onClose} closeLabel={tc("close")} />
+      <DialogBody className="max-h-[70vh] overflow-y-auto">
         {SHORTCUT_GROUPS.map((group) => (
           <section key={group.id} aria-labelledby={`shortcuts-${group.id}`}>
             <h3 id={`shortcuts-${group.id}`} className="mb-1 text-xs font-medium text-fg-muted">
@@ -36,7 +37,7 @@ export function ShortcutsDialog({ open, onClose }: { open: boolean; onClose: () 
             </dl>
           </section>
         ))}
-      </div>
+      </DialogBody>
     </Dialog>
   );
 }

@@ -36,6 +36,12 @@
 
 ### Changed
 
+- **Dialogs share one look.** Every dialog has the same title bar (a larger title, a line under it
+  where there is one, and a close button), the same spacing, and its buttons in a bar along the
+  bottom, Cancel first; dialogs rise into place as they open, over a softer, layered shadow. The
+  inbox puts its title and its two actions on one line with the tabs under them, shows how many are
+  unread, and shows a notification's buttons only while it is pointed at, in place of its time; an
+  agent's report there reads as plain text in three lines at most.
 - **A line under the desktop app's tabs on macOS.** It runs from the sidebar to the window's edge,
   so the page and the panels that open beside it (a row, the AI chat) start below a clear edge
   instead of under empty space.
@@ -53,6 +59,9 @@
 
 ### Fixed
 
+- **Long previews in the inbox are cut to their lines again.** An automation's message, the
+  comment reacted to and a row email's start showed in full instead of two or three lines; so did a
+  connection tool's description in an agent's settings.
 - **The AI chat's question box lines up with the conversation.** Where the browser shows a
   scrollbar (Safari with a mouse connected, Windows), the box sat a few pixels off the messages
   above it; it now keeps the same edges, on the full page and in the side panel.

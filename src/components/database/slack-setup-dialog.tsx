@@ -1,10 +1,9 @@
 "use client";
 
-import { X } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { useEffect, useState } from "react";
 import { createSlackAutomationAction, slackSetupAction } from "@/app/actions/automations";
-import { Button, cn, Dialog, IconButton, Input, selectClass, textareaClass } from "@/components/ui";
+import { Button, cn, Dialog, DialogBody, DialogFooter, DialogHeader, Input, selectClass, textareaClass } from "@/components/ui";
 import { templateFor } from "@/lib/automation-templates";
 import { MAX_STEP_MESSAGE, MAX_WEBHOOK_URL } from "@/lib/automations";
 import type { SlackSetup, SlackWatchable } from "@/server/automations/slack-setup";
@@ -94,91 +93,73 @@ export default function SlackSetupDialog({ databaseId, onClose }: { databaseId: 
 
   return (
     <Dialog open onClose={busy ? () => {} : onClose} className="max-w-lg">
-      <div className="flex items-start justify-between gap-2 border-b border-border px-4 py-3">
-        <div>
-          <h2 className="text-sm font-medium">{t("title")}</h2>
-          <p className="mt-0.5 text-xs text-fg-muted">{t("intro")}</p>
-        </div>
-        <IconButton label={tc("close")} onClick={onClose} disabled={busy}>
-          <X className="h-3.5 w-3.5" />
-        </IconButton>
-      </div>
-      <div className="max-h-[75vh] space-y-4 overflow-y-auto p-4" aria-busy={busy}>
+      <DialogHeader title={t("title")} description={t("intro")} onClose={onClose} closeLabel={tc("close")} closeDisabled={busy} />
+      <DialogBody className="max-h-[75vh] overflow-y-auto" aria-busy={busy}>
         {!setup ? (
           !error && <p className="text-sm text-fg-muted">{tc("loading")}</p>
         ) : (
-          <>
-            <fieldset className="space-y-4" disabled={busy}>
+          <fieldset className="space-y-4" disabled={busy}>
+            <label className="block">
+              <span className={labelClass}>{t("url")}</span>
+              <Input
+                value={url}
+                dir="ltr"
+                type="url"
+                autoComplete="off"
+                spellCheck={false}
+                maxLength={MAX_WEBHOOK_URL}
+                placeholder="https://hooks.slack.com/services/…"
+                onChange={(e) => setUrl(e.target.value)}
+              />
+              <span className="mt-1 block text-xs text-fg-faint">{t("urlHelp")}</span>
+            </label>
+            <div className="grid gap-3 sm:grid-cols-2">
               <label className="block">
-                <span className={labelClass}>{t("url")}</span>
-                <Input
-                  value={url}
-                  dir="ltr"
-                  type="url"
-                  autoComplete="off"
-                  spellCheck={false}
-                  maxLength={MAX_WEBHOOK_URL}
-                  placeholder="https://hooks.slack.com/services/…"
-                  onChange={(e) => setUrl(e.target.value)}
-                />
-                <span className="mt-1 block text-xs text-fg-faint">{t("urlHelp")}</span>
+                <span className={labelClass}>{t("when")}</span>
+                <select
+                  className={cn(selectClass, "w-full")}
+                  value={when}
+                  onChange={(e) => {
+                    setWhen(e.target.value);
+                    setTo("");
+                    setMessage(null);
+                  }}
+                >
+                  <option value={ROW_CREATED}>{t("rowAdded")}</option>
+                  {setup.properties.map((p) => (
+                    <option key={p.id} value={p.id}>
+                      {t("propertyChanges", { property: p.name })}
+                    </option>
+                  ))}
+                </select>
               </label>
-              <div className="grid gap-3 sm:grid-cols-2">
+              {hasValues(watched) && (
                 <label className="block">
-                  <span className={labelClass}>{t("when")}</span>
-                  <select
-                    className={cn(selectClass, "w-full")}
-                    value={when}
-                    onChange={(e) => {
-                      setWhen(e.target.value);
-                      setTo("");
-                      setMessage(null);
-                    }}
-                  >
-                    <option value={ROW_CREATED}>{t("rowAdded")}</option>
-                    {setup.properties.map((p) => (
-                      <option key={p.id} value={p.id}>
-                        {t("propertyChanges", { property: p.name })}
-                      </option>
-                    ))}
+                  <span className={labelClass}>{t("to")}</span>
+                  <select className={cn(selectClass, "w-full")} value={to} onChange={(e) => setTo(e.target.value)}>
+                    <option value="">{t("anyValue")}</option>
+                    {watched!.type === "checkbox" ? (
+                      <>
+                        <option value={CHECKED}>{t("checked")}</option>
+                        <option value={UNCHECKED}>{t("unchecked")}</option>
+                      </>
+                    ) : (
+                      watched!.options.map((o) => (
+                        <option key={o.id} value={o.id}>
+                          {o.name}
+                        </option>
+                      ))
+                    )}
                   </select>
                 </label>
-                {hasValues(watched) && (
-                  <label className="block">
-                    <span className={labelClass}>{t("to")}</span>
-                    <select className={cn(selectClass, "w-full")} value={to} onChange={(e) => setTo(e.target.value)}>
-                      <option value="">{t("anyValue")}</option>
-                      {watched!.type === "checkbox" ? (
-                        <>
-                          <option value={CHECKED}>{t("checked")}</option>
-                          <option value={UNCHECKED}>{t("unchecked")}</option>
-                        </>
-                      ) : (
-                        watched!.options.map((o) => (
-                          <option key={o.id} value={o.id}>
-                            {o.name}
-                          </option>
-                        ))
-                      )}
-                    </select>
-                  </label>
-                )}
-              </div>
-              <label className="block">
-                <span className={labelClass}>{t("message")}</span>
-                <textarea className={textareaClass} rows={3} maxLength={MAX_STEP_MESSAGE} value={text} onChange={(e) => setMessage(e.target.value)} />
-                <span className="mt-1 block text-xs text-fg-faint">{t("messageHelp")}</span>
-              </label>
-            </fieldset>
-            <div className="flex items-center justify-end gap-2">
-              <Button size="sm" variant="ghost" disabled={busy} onClick={onClose}>
-                {tc("close")}
-              </Button>
-              <Button size="sm" variant="primary" disabled={busy || !url.trim() || !text.trim()} onClick={create}>
-                {t("create")}
-              </Button>
+              )}
             </div>
-          </>
+            <label className="block">
+              <span className={labelClass}>{t("message")}</span>
+              <textarea className={textareaClass} rows={3} maxLength={MAX_STEP_MESSAGE} value={text} onChange={(e) => setMessage(e.target.value)} />
+              <span className="mt-1 block text-xs text-fg-faint">{t("messageHelp")}</span>
+            </label>
+          </fieldset>
         )}
         {error && (
           <p role="alert" className="text-sm text-danger">
@@ -207,7 +188,17 @@ export default function SlackSetupDialog({ databaseId, onClose }: { databaseId: 
             <p className="text-xs text-fg-faint">{t("existingHelp")}</p>
           </section>
         )}
-      </div>
+      </DialogBody>
+      {setup && (
+        <DialogFooter>
+          <Button variant="secondary" disabled={busy} onClick={onClose}>
+            {tc("close")}
+          </Button>
+          <Button variant="primary" disabled={busy || !url.trim() || !text.trim()} onClick={create}>
+            {t("create")}
+          </Button>
+        </DialogFooter>
+      )}
     </Dialog>
   );
 }

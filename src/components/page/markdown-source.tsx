@@ -22,7 +22,7 @@ import { useTranslations } from "next-intl";
 import { useCallback, useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import type * as Y from "yjs";
 import { readMarkdownSourceAction, saveMarkdownSourceAction, type MarkdownSourceFailure } from "@/app/actions/markdown-source";
-import { Button, cn, Dialog, IconButton } from "@/components/ui";
+import { Button, cn, Dialog, DialogBody, DialogFooter, DialogTitle, IconButton } from "@/components/ui";
 import { useColorScheme } from "@/components/theme/theme-provider";
 import { useEditorDictionary } from "@/i18n/blocknote";
 import { editorMarkdownToPageBlocks } from "@/lib/editor-markdown";
@@ -486,52 +486,68 @@ export function MarkdownSourceView({
 
       <Dialog open={prompt?.kind === "losses"} onClose={() => setPrompt(null)}>
         {prompt?.kind === "losses" && (
-          <div className="p-5">
-            <h3 className="text-base font-semibold">{t("losses.title")}</h3>
-            <p className="mt-2 text-sm text-fg-muted">{t("losses.body")}</p>
-            <ul className="mt-3 list-disc space-y-1 ps-5 text-sm">
-              {prompt.losses.map((loss) => (
-                <li key={loss}>{t(`losses.kinds.${loss}`)}</li>
-              ))}
-              {prompt.synced > 0 && <li>{t("losses.synced", { count: prompt.synced })}</li>}
-            </ul>
-            <div className="mt-5 flex justify-end gap-2">
-              <Button onClick={() => setPrompt(null)}>{tc("cancel")}</Button>
+          <>
+            <DialogBody className="pt-5">
+              <div className="space-y-1.5">
+                <DialogTitle>{t("losses.title")}</DialogTitle>
+                <p className="text-sm text-fg-muted">{t("losses.body")}</p>
+              </div>
+              <ul className="list-disc space-y-1 ps-5 text-sm">
+                {prompt.losses.map((loss) => (
+                  <li key={loss}>{t(`losses.kinds.${loss}`)}</li>
+                ))}
+                {prompt.synced > 0 && <li>{t("losses.synced", { count: prompt.synced })}</li>}
+              </ul>
+            </DialogBody>
+            <DialogFooter>
+              <Button variant="secondary" onClick={() => setPrompt(null)}>
+                {tc("cancel")}
+              </Button>
               <Button variant="primary" onClick={() => void write(text, source!.version)} disabled={saving}>
                 {t("losses.confirm")}
               </Button>
-            </div>
-          </div>
+            </DialogFooter>
+          </>
         )}
       </Dialog>
 
       <Dialog open={prompt?.kind === "conflict"} onClose={() => setPrompt(null)}>
         {prompt?.kind === "conflict" && (
-          <div className="p-5">
-            <h3 className="text-base font-semibold">{t("conflict.title")}</h3>
-            <p className="mt-2 text-sm text-fg-muted">{t("conflict.body")}</p>
-            <div className="mt-5 flex flex-wrap justify-end gap-2">
-              <Button onClick={() => setPrompt(null)}>{tc("cancel")}</Button>
+          <>
+            <DialogBody className="pt-5">
+              <div className="space-y-1.5">
+                <DialogTitle>{t("conflict.title")}</DialogTitle>
+                <p className="text-sm text-fg-muted">{t("conflict.body")}</p>
+              </div>
+            </DialogBody>
+            <DialogFooter>
+              <Button variant="secondary" onClick={() => setPrompt(null)}>
+                {tc("cancel")}
+              </Button>
               <Button onClick={() => void reload()}>{t("conflict.reload")}</Button>
               <Button variant="danger" onClick={() => void write(text, prompt.version)} disabled={saving}>
                 {t("conflict.overwrite")}
               </Button>
-            </div>
-          </div>
+            </DialogFooter>
+          </>
         )}
       </Dialog>
 
       <Dialog open={prompt?.kind === "close"} onClose={() => setPrompt(null)}>
-        <div className="p-5">
-          <h3 className="text-base font-semibold">{t("discard.title")}</h3>
-          <p className="mt-2 text-sm text-fg-muted">{t("discard.body")}</p>
-          <div className="mt-5 flex justify-end gap-2">
-            <Button onClick={() => setPrompt(null)}>{t("discard.keep")}</Button>
-            <Button variant="danger" onClick={onClose}>
-              {t("discard.confirm")}
-            </Button>
+        <DialogBody className="pt-5">
+          <div className="space-y-1.5">
+            <DialogTitle>{t("discard.title")}</DialogTitle>
+            <p className="text-sm text-fg-muted">{t("discard.body")}</p>
           </div>
-        </div>
+        </DialogBody>
+        <DialogFooter>
+          <Button variant="secondary" onClick={() => setPrompt(null)}>
+            {t("discard.keep")}
+          </Button>
+          <Button variant="danger" onClick={onClose}>
+            {t("discard.confirm")}
+          </Button>
+        </DialogFooter>
       </Dialog>
     </div>
   );

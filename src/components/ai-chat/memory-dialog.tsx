@@ -12,7 +12,7 @@ import { useTranslations } from "next-intl";
 import { useCallback, useEffect, useState, type FormEvent } from "react";
 import { addMemoryAction, deleteMemoryAction, listMemoriesAction, memoryUseAction, setMemoryUseAction, updateMemoryAction } from "@/app/actions/ai";
 import { useIsOffline } from "@/components/offline/offline-context";
-import { Button, Dialog, IconButton, Input, Switch } from "@/components/ui";
+import { Button, Dialog, DialogBody, DialogHeader, IconButton, Input, Switch } from "@/components/ui";
 import { MAX_MEMORIES, MAX_MEMORY_CHARS, type MemoryView } from "@/lib/ai-chat";
 
 /** The button that opens the Memory dialog (in the chat's headers). */
@@ -96,16 +96,11 @@ export function MemoryDialog({ workspaceId, open, onClose }: { workspaceId: stri
   const full = (notes?.length ?? 0) >= MAX_MEMORIES;
   return (
     <Dialog open={open} onClose={onClose} className="max-w-lg">
-      <div className="flex items-center gap-2 border-b border-border px-4 py-3">
-        <h2 className="flex-1 text-sm font-medium">{t("title")}</h2>
-        <IconButton label={t("close")} className="h-7 w-7" onClick={onClose}>
-          <X className="h-4 w-4" />
-        </IconButton>
-      </div>
-      <div className="max-h-[60vh] overflow-y-auto px-4 py-3 text-sm">
+      <DialogHeader title={t("title")} onClose={onClose} closeLabel={t("close")} />
+      <DialogBody className="max-h-[60vh] overflow-y-auto text-sm">
         <p className="text-fg-muted">{t("intro")}</p>
         {!offline && use !== null && (
-          <div className="mt-3 flex items-start gap-3 rounded-md border border-border px-3 py-2">
+          <div className="flex items-start gap-3 rounded-md border border-border px-3 py-2">
             <div className="min-w-0 flex-1">
               <p className="font-medium">{t("use")}</p>
               <p className="text-xs text-fg-muted">{t("useHint")}</p>
@@ -114,18 +109,18 @@ export function MemoryDialog({ workspaceId, open, onClose }: { workspaceId: stri
           </div>
         )}
         {error && (
-          <p role="alert" className="mt-2 text-xs text-danger">
+          <p role="alert" className="text-xs text-danger">
             {error}
           </p>
         )}
         {offline ? (
-          <p className="mt-3 text-fg-muted">{t("offline")}</p>
+          <p className="text-fg-muted">{t("offline")}</p>
         ) : notes === null ? (
-          !error && <Loader2 className="mt-3 h-4 w-4 animate-spin text-fg-muted" aria-hidden />
+          !error && <Loader2 className="h-4 w-4 animate-spin text-fg-muted" aria-hidden />
         ) : notes.length === 0 ? (
-          <p className="mt-3 text-fg-muted">{t("empty")}</p>
+          <p className="text-fg-muted">{t("empty")}</p>
         ) : (
-          <ul aria-label={t("title")} className="mt-3 divide-y divide-border border-y border-border">
+          <ul aria-label={t("title")} className="divide-y divide-border border-y border-border">
             {notes.map((note) =>
               editing?.id === note.id ? (
                 <li key={note.id} className="py-1.5">
@@ -178,9 +173,9 @@ export function MemoryDialog({ workspaceId, open, onClose }: { workspaceId: stri
             )}
           </ul>
         )}
-      </div>
+      </DialogBody>
       {!offline && notes !== null && (
-        <div className="space-y-2 border-t border-border px-4 py-3">
+        <div className="space-y-2 border-t border-border px-5 py-3">
           <form onSubmit={add} className="flex gap-2">
             <Input
               aria-label={t("addLabel")}

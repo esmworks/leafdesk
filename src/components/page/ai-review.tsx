@@ -4,7 +4,7 @@ import { Check, Sparkles, Undo2, X } from "lucide-react";
 import { useFormatter, useTranslations } from "next-intl";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { decidePageReviewAction, getPageReviewAction } from "@/app/actions/pages";
-import { Button, IconButton } from "@/components/ui";
+import { Button, cn, dialogShadow, IconButton } from "@/components/ui";
 import { AI_EDIT_EVENT, COLLAB_FRAGMENT } from "@/lib/collab-constants";
 import type { PageReview } from "@/server/page-review";
 import { BlockChanges, useActorLabels } from "./history-diff";
@@ -140,7 +140,7 @@ export function AiReviewBar({ pageId, pageDoc, enabled }: { pageId: string; page
             role="dialog"
             aria-modal="true"
             aria-label={t("title")}
-            className="flex h-full w-full flex-col overflow-hidden bg-bg font-sans md:m-auto md:h-[80vh] md:max-w-3xl md:rounded-xl md:border md:border-border md:shadow-2xl"
+            className={cn("flex h-full w-full flex-col overflow-hidden bg-bg font-sans md:m-auto md:h-[80vh] md:max-w-3xl md:rounded-xl md:border md:border-border", dialogShadow)}
           >
             <div className="flex items-start justify-between gap-3 border-b border-border px-5 py-3">
               <div className="min-w-0">

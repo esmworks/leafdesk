@@ -3,7 +3,7 @@
 import { useFormatter, useTranslations } from "next-intl";
 import { useEffect, useState, useTransition } from "react";
 import { renameVersionAction, saveVersionAction, versionSaveStateAction } from "@/app/actions/pages";
-import { Button, Dialog, Input } from "@/components/ui";
+import { Button, Dialog, DialogBody, DialogFooter, DialogTitle, Input } from "@/components/ui";
 import { MAX_VERSION_NAME } from "@/lib/page-versions";
 import { isMac, savesVersion } from "@/lib/shortcuts";
 
@@ -100,7 +100,6 @@ export function VersionNameDialog({
   return (
     <Dialog open onClose={onClose} className="max-w-md">
       <form
-        className="space-y-3 p-4"
         onSubmit={(e) => {
           e.preventDefault();
           if (!loading && !pending) submit();
@@ -112,36 +111,40 @@ export function VersionNameDialog({
           if (!loading && !pending) submit();
         }}
       >
-        <h2 className="text-sm font-semibold">{title}</h2>
-        <p className="text-xs text-fg-muted">{loading ? tc("loading") : hint}</p>
-        <label className="block">
-          <span className="mb-1 block text-xs text-fg-muted">{t("nameLabel")}</span>
-          <Input
-            autoFocus
-            value={name}
-            maxLength={MAX_VERSION_NAME}
-            placeholder={t("namePlaceholder")}
-            disabled={loading}
-            aria-invalid={error === "invalidName" || undefined}
-            onChange={(e) => {
-              setName(e.target.value);
-              setError((current) => (current === "invalidName" ? null : current));
-            }}
-          />
-        </label>
-        {error && (
-          <p role="alert" className="text-xs text-danger">
-            {t(`errors.${error}`, { max: MAX_VERSION_NAME })}
-          </p>
-        )}
-        <div className="flex flex-wrap items-center justify-end gap-2">
-          <Button type="button" onClick={onClose}>
+        <DialogBody className="pt-5">
+          <div className="space-y-1.5">
+            <DialogTitle>{title}</DialogTitle>
+            <p className="text-sm text-fg-muted">{loading ? tc("loading") : hint}</p>
+          </div>
+          <label className="block">
+            <span className="mb-1 block text-xs text-fg-muted">{t("nameLabel")}</span>
+            <Input
+              autoFocus
+              value={name}
+              maxLength={MAX_VERSION_NAME}
+              placeholder={t("namePlaceholder")}
+              disabled={loading}
+              aria-invalid={error === "invalidName" || undefined}
+              onChange={(e) => {
+                setName(e.target.value);
+                setError((current) => (current === "invalidName" ? null : current));
+              }}
+            />
+          </label>
+          {error && (
+            <p role="alert" className="text-xs text-danger">
+              {t(`errors.${error}`, { max: MAX_VERSION_NAME })}
+            </p>
+          )}
+        </DialogBody>
+        <DialogFooter>
+          <Button type="button" variant="secondary" onClick={onClose}>
             {tc("cancel")}
           </Button>
           <Button type="submit" variant="primary" disabled={loading || pending}>
             {pending ? t("saving") : renaming ? t("saveName") : t("save")}
           </Button>
-        </div>
+        </DialogFooter>
       </form>
     </Dialog>
   );

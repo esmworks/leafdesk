@@ -357,6 +357,9 @@ because they are separate module graphs.
   (they keep a local `cn`). Something fixed to the window's top edge (a side panel, a full-window
   view) starts at `top-(--app-top)`: on macOS the desktop app lays its tab strip over the page
   beside the sidebar, where `components/desktop-tab-strip.tsx` tells it (`desktop/src/windows.ts`).
+  A dialog is `Dialog` built from `DialogHeader` (or a `DialogTitle` in the body for a short
+  question), `DialogBody` and `DialogFooter` (Cancel `secondary`, the action last); a panel over its
+  own shade takes `dialogShadow`.
   A backdrop shading the whole window under a dialog carries `data-window-shade`: that component
   tells the desktop app its color, and the tab strip, which the page can't draw over, takes it too.
 - **Rendering cost.** Per-row and per-card components don't call `useRouter`, `useSearchParams` or

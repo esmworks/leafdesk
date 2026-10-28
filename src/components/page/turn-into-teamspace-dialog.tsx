@@ -1,11 +1,11 @@
 "use client";
 
-import { Loader2, X } from "lucide-react";
+import { Loader2 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { useEffect, useState, type FormEvent } from "react";
 import { previewTeamspaceFromPageAction, turnPageIntoTeamspaceAction } from "@/app/actions/teamspaces";
-import { Button, Dialog, IconButton, Input } from "@/components/ui";
+import { Button, Dialog, DialogBody, DialogFooter, DialogHeader, Input } from "@/components/ui";
 import type { TeamspaceFromPagePreview } from "@/server/teamspace-from-page";
 
 /**
@@ -55,13 +55,8 @@ export default function TurnIntoTeamspaceDialog({ workspaceId, pageId, onClose }
   return (
     <Dialog open onClose={onClose} className="max-w-lg">
       <form onSubmit={(e) => void submit(e)}>
-        <div className="flex items-center justify-between gap-3 border-b border-border px-5 py-3">
-          <h2 className="text-base font-semibold">{t("fromPage.title")}</h2>
-          <IconButton label={tc("close")} className="h-7 w-7" onClick={onClose}>
-            <X className="h-4 w-4" />
-          </IconButton>
-        </div>
-        <div className="space-y-4 p-5 text-sm">
+        <DialogHeader title={t("fromPage.title")} onClose={onClose} closeLabel={tc("close")} />
+        <DialogBody className="text-sm">
           <p className="text-fg-muted">{t("fromPage.intro")}</p>
           {!preview ? (
             !error && <p className="py-6 text-center text-fg-muted">{tc("loading")}</p>
@@ -86,16 +81,16 @@ export default function TurnIntoTeamspaceDialog({ workspaceId, pageId, onClose }
               {error}
             </p>
           )}
-        </div>
-        <div className="flex justify-end gap-2 border-t border-border px-5 py-3">
-          <Button type="button" onClick={onClose}>
+        </DialogBody>
+        <DialogFooter>
+          <Button type="button" variant="secondary" onClick={onClose}>
             {tc("cancel")}
           </Button>
           <Button type="submit" variant="primary" disabled={!preview || working || !name.trim()}>
             {working && <Loader2 className="h-4 w-4 animate-spin" />}
             {working ? t("fromPage.working") : t("fromPage.submit")}
           </Button>
-        </div>
+        </DialogFooter>
       </form>
     </Dialog>
   );

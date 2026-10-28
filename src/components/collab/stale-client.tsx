@@ -3,7 +3,7 @@
 import { RefreshCw } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { useEffect, useRef, useState, useSyncExternalStore } from "react";
-import { Button } from "@/components/ui";
+import { Button, cn, DialogBody, DialogFooter, dialogShadow } from "@/components/ui";
 import { isStale, onStale } from "./freshness";
 
 /**
@@ -40,20 +40,26 @@ export function StaleClientScreen() {
         aria-modal="true"
         aria-labelledby="stale-client-title"
         aria-describedby="stale-client-body"
-        className="w-full max-w-md rounded-xl border border-border bg-bg p-5 shadow-2xl"
+        data-dialog
+        className={cn("w-full max-w-md overflow-hidden rounded-xl border border-border bg-bg", dialogShadow)}
       >
-        <h2 id="stale-client-title" className="text-base font-semibold">
-          {t("title")}
-        </h2>
-        <p id="stale-client-body" className="mt-2 text-sm text-fg-muted">
-          {online ? t("body") : t("offlineBody")}
-        </p>
-        <div className="mt-4 flex justify-end">
+        <DialogBody className="pt-5">
+          <div className="space-y-1.5">
+            {/* Not DialogTitle: outside Dialog it has no id to give, and this one keeps its own. */}
+            <h2 id="stale-client-title" className="text-base leading-6 font-semibold text-fg">
+              {t("title")}
+            </h2>
+            <p id="stale-client-body" className="text-sm text-fg-muted">
+              {online ? t("body") : t("offlineBody")}
+            </p>
+          </div>
+        </DialogBody>
+        <DialogFooter>
           <Button ref={button} variant="primary" onClick={() => window.location.reload()}>
             <RefreshCw className="h-3.5 w-3.5" />
             {t("reload")}
           </Button>
-        </div>
+        </DialogFooter>
       </div>
     </div>
   );

@@ -10,7 +10,7 @@ import { Floating, useFloating } from "@/components/database/floating";
 import { TabButton } from "@/components/settings/members-panel";
 import { SettingsGroup, SettingsHeader } from "@/components/settings/section";
 import { useAction } from "@/components/settings/workspace-settings";
-import { Button, cn, Dialog, IconButton, MenuItem, MenuSeparator, Switch } from "@/components/ui";
+import { Button, cn, Dialog, DialogBody, DialogFooter, DialogHeader, DialogTitle, IconButton, MenuItem, MenuSeparator, Switch } from "@/components/ui";
 import { hasAgentLevel, type AgentCreation } from "@/lib/agent-sharing";
 import { editsAgent, MAX_AGENTS, type AgentView, type CopyLeftOut } from "@/lib/agents";
 import type { BuiltinAgentSummary } from "@/lib/builtin-agents";
@@ -65,6 +65,7 @@ export function AgentsPanel({
   initialTab?: AgentTab;
 }) {
   const t = useTranslations("settings.agents");
+  const tc = useTranslations("common");
   const [view, setView] = useState<"active" | "archived">(() =>
     agents.find((a) => a.id === initialAgentId)?.archived ? "archived" : "active",
   );
@@ -206,7 +207,7 @@ export function AgentsPanel({
 
       {creating && (
         <Dialog open onClose={() => setCreating(false)} className="max-w-2xl">
-          <h2 className="border-b border-border px-5 py-4 text-base font-semibold">{t("form.createTitle")}</h2>
+          <DialogHeader title={t("form.createTitle")} onClose={() => setCreating(false)} closeLabel={tc("close")} />
           <AgentForm
             workspaceId={workspaceId}
             isOwner={isOwner}
@@ -395,19 +396,21 @@ function ArchiveDialog({ workspaceId, agent, onClose }: { workspaceId: string; a
   const { pending, error, run } = useAction();
   return (
     <Dialog open onClose={onClose} className="max-w-md">
-      <div className="space-y-3 p-5">
-        <h2 className="text-base font-semibold">{t("archiveTitle", { name: agent.name })}</h2>
-        <p className="text-sm text-fg-muted">{t("archiveBody")}</p>
-        {error && <p className="text-xs text-danger">{error}</p>}
-        <div className="flex justify-end gap-2">
-          <Button variant="ghost" onClick={onClose}>
-            {tc("cancel")}
-          </Button>
-          <Button variant="danger" disabled={pending} onClick={() => run(() => archiveAgentAction(workspaceId, agent.id), onClose)}>
-            {t("archive")}
-          </Button>
+      <DialogBody className="pt-5">
+        <div className="space-y-1.5">
+          <DialogTitle>{t("archiveTitle", { name: agent.name })}</DialogTitle>
+          <p className="text-sm text-fg-muted">{t("archiveBody")}</p>
         </div>
-      </div>
+        {error && <p className="text-xs text-danger">{error}</p>}
+      </DialogBody>
+      <DialogFooter>
+        <Button variant="secondary" onClick={onClose}>
+          {tc("cancel")}
+        </Button>
+        <Button variant="danger" disabled={pending} onClick={() => run(() => archiveAgentAction(workspaceId, agent.id), onClose)}>
+          {t("archive")}
+        </Button>
+      </DialogFooter>
     </Dialog>
   );
 }

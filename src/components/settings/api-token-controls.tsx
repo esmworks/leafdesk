@@ -11,7 +11,7 @@ import {
   type CreateApiTokenResult,
   type UpdateApiTokenResult,
 } from "@/app/actions/api-tokens";
-import { Button, cn, Dialog, Input, selectClass } from "@/components/ui";
+import { Button, cn, Dialog, DialogBody, DialogFooter, DialogTitle, Input, selectClass } from "@/components/ui";
 import { OWNER_SCOPES, READ_SCOPES, type ApiTokenScope } from "@/lib/api-scopes";
 import { ApiTokenScopePicker } from "./api-token-scopes";
 import { CopyButton } from "./copy-button";
@@ -58,26 +58,27 @@ export function NewApiToken({ workspaces }: { workspaces: { id: string; name: st
       {/* While the secret is shown, only Done closes: a stray click must not lose it. */}
       <Dialog open={open} onClose={secret ? () => {} : close} className="max-w-xl">
         {secret ? (
-          <div className="space-y-4 p-5">
-            <div>
-              <h2 className="text-[15px] font-semibold">{t("created.title")}</h2>
-              <p className="mt-1 text-sm text-fg-muted">{t("created.body")}</p>
-            </div>
-            <div className="flex items-center gap-2 rounded-lg border border-border bg-bg-subtle py-1.5 pe-1.5 ps-3">
-              <code className="min-w-0 flex-1 text-xs break-all" data-api-token-secret>
-                {secret}
-              </code>
-              <CopyButton value={secret} />
-            </div>
-            <div className="flex justify-end">
+          <>
+            <DialogBody className="pt-5">
+              <div className="space-y-1.5">
+                <DialogTitle>{t("created.title")}</DialogTitle>
+                <p className="text-sm text-fg-muted">{t("created.body")}</p>
+              </div>
+              <div className="flex items-center gap-2 rounded-lg border border-border bg-bg-subtle py-1.5 pe-1.5 ps-3">
+                <code className="min-w-0 flex-1 text-xs break-all" data-api-token-secret>
+                  {secret}
+                </code>
+                <CopyButton value={secret} />
+              </div>
+            </DialogBody>
+            <DialogFooter>
               <Button variant="primary" onClick={close}>
                 {t("created.done")}
               </Button>
-            </div>
-          </div>
+            </DialogFooter>
+          </>
         ) : (
           <form
-            className="space-y-4 p-5"
             onSubmit={(e) => {
               e.preventDefault();
               setError(null);
@@ -99,93 +100,95 @@ export function NewApiToken({ workspaces }: { workspaces: { id: string; name: st
               });
             }}
           >
-            <h2 className="text-[15px] font-semibold">{t("form.title")}</h2>
-            <div className="space-y-1.5">
-              <label htmlFor={`${ids}-name`} className="block text-sm font-medium">
-                {t("form.name")}
-              </label>
-              <Input
-                id={`${ids}-name`}
-                value={name}
-                maxLength={100}
-                required
-                autoFocus
-                placeholder={t("form.namePlaceholder")}
-                onChange={(e) => setName(e.target.value)}
-              />
-            </div>
-            <fieldset className="space-y-1.5">
-              <legend className="mb-1.5 text-sm font-medium">{t("form.access")}</legend>
-              <ApiTokenScopePicker
-                value={scopes}
-                onChange={setScopes}
-                disabled={pending}
-                owner={workspaces.some((w) => w.id === workspaceId && w.owner)}
-              />
-            </fieldset>
-            <div className="grid gap-4 sm:grid-cols-2">
+            <DialogBody className="pt-5">
+              <DialogTitle>{t("form.title")}</DialogTitle>
               <div className="space-y-1.5">
-                <label htmlFor={`${ids}-workspace`} className="block text-sm font-medium">
-                  {t("form.workspace")}
+                <label htmlFor={`${ids}-name`} className="block text-sm font-medium">
+                  {t("form.name")}
                 </label>
-                <select
-                  id={`${ids}-workspace`}
-                  className={cn(selectClass, "w-full")}
-                  value={workspaceId}
-                  onChange={(e) => {
-                    const id = e.target.value;
-                    setWorkspaceId(id);
-                    // Owner-only scopes go with a workspace the person owns.
-                    if (!workspaces.some((w) => w.id === id && w.owner)) {
-                      setScopes((s) => s.filter((scope) => !(OWNER_SCOPES as readonly string[]).includes(scope)));
-                    }
-                  }}
-                >
-                  <option value="">{t("form.allWorkspaces")}</option>
-                  {workspaces.map((w) => (
-                    <option key={w.id} value={w.id}>
-                      {w.name}
-                    </option>
-                  ))}
-                </select>
+                <Input
+                  id={`${ids}-name`}
+                  value={name}
+                  maxLength={100}
+                  required
+                  autoFocus
+                  placeholder={t("form.namePlaceholder")}
+                  onChange={(e) => setName(e.target.value)}
+                />
               </div>
-              <div className="space-y-1.5">
-                <label htmlFor={`${ids}-expiry`} className="block text-sm font-medium">
-                  {t("form.expiry")}
-                </label>
-                <select
-                  id={`${ids}-expiry`}
-                  className={cn(selectClass, "w-full")}
-                  value={expiry}
-                  onChange={(e) => setExpiry(e.target.value)}
-                >
-                  {EXPIRY_DAYS.map((days) =>
-                    days === null ? (
-                      <option key="never" value="never">
-                        {t("form.never")}
+              <fieldset className="space-y-1.5">
+                <legend className="mb-1.5 text-sm font-medium">{t("form.access")}</legend>
+                <ApiTokenScopePicker
+                  value={scopes}
+                  onChange={setScopes}
+                  disabled={pending}
+                  owner={workspaces.some((w) => w.id === workspaceId && w.owner)}
+                />
+              </fieldset>
+              <div className="grid gap-4 sm:grid-cols-2">
+                <div className="space-y-1.5">
+                  <label htmlFor={`${ids}-workspace`} className="block text-sm font-medium">
+                    {t("form.workspace")}
+                  </label>
+                  <select
+                    id={`${ids}-workspace`}
+                    className={cn(selectClass, "w-full")}
+                    value={workspaceId}
+                    onChange={(e) => {
+                      const id = e.target.value;
+                      setWorkspaceId(id);
+                      // Owner-only scopes go with a workspace the person owns.
+                      if (!workspaces.some((w) => w.id === id && w.owner)) {
+                        setScopes((s) => s.filter((scope) => !(OWNER_SCOPES as readonly string[]).includes(scope)));
+                      }
+                    }}
+                  >
+                    <option value="">{t("form.allWorkspaces")}</option>
+                    {workspaces.map((w) => (
+                      <option key={w.id} value={w.id}>
+                        {w.name}
                       </option>
-                    ) : (
-                      <option key={days} value={String(days)}>
-                        {t("form.days", { count: days })}
-                      </option>
-                    ),
-                  )}
-                </select>
+                    ))}
+                  </select>
+                </div>
+                <div className="space-y-1.5">
+                  <label htmlFor={`${ids}-expiry`} className="block text-sm font-medium">
+                    {t("form.expiry")}
+                  </label>
+                  <select
+                    id={`${ids}-expiry`}
+                    className={cn(selectClass, "w-full")}
+                    value={expiry}
+                    onChange={(e) => setExpiry(e.target.value)}
+                  >
+                    {EXPIRY_DAYS.map((days) =>
+                      days === null ? (
+                        <option key="never" value="never">
+                          {t("form.never")}
+                        </option>
+                      ) : (
+                        <option key={days} value={String(days)}>
+                          {t("form.days", { count: days })}
+                        </option>
+                      ),
+                    )}
+                  </select>
+                </div>
               </div>
-            </div>
-            {error && (
-              <p role="alert" className="text-sm text-danger">
-                {t(`errors.${error}`)}
-              </p>
-            )}
-            <div className="flex justify-end gap-2">
-              <Button variant="ghost" onClick={close} disabled={pending}>
+              {error && (
+                <p role="alert" className="text-sm text-danger">
+                  {t(`errors.${error}`)}
+                </p>
+              )}
+            </DialogBody>
+            <DialogFooter>
+              <Button variant="secondary" onClick={close} disabled={pending}>
                 {tc("cancel")}
               </Button>
               <Button type="submit" variant="primary" disabled={pending || !name.trim() || !scopes.length}>
                 {pending ? t("form.creating") : t("form.submit")}
               </Button>
-            </div>
+            </DialogFooter>
           </form>
         )}
       </Dialog>
@@ -235,7 +238,6 @@ export function EditApiTokenScopes({
       </Button>
       <Dialog open={open} onClose={pending ? () => {} : close} className="max-w-xl">
         <form
-          className="space-y-4 p-5"
           onSubmit={(e) => {
             e.preventDefault();
             setError(null);
@@ -253,25 +255,27 @@ export function EditApiTokenScopes({
             });
           }}
         >
-          <div>
-            <h2 className="text-[15px] font-semibold">{t("edit.title", { name })}</h2>
-            <p className="mt-1 text-sm text-fg-muted">{t("edit.body")}</p>
-          </div>
-          {legacy && <p className="rounded-md border border-border bg-bg-subtle px-3 py-2 text-xs text-fg-muted">{t("edit.legacy")}</p>}
-          <ApiTokenScopePicker value={scopes} onChange={setScopes} disabled={pending} owner={owner} />
-          {error && (
-            <p role="alert" className="text-sm text-danger">
-              {t(`edit.errors.${error}`)}
-            </p>
-          )}
-          <div className="flex justify-end gap-2">
-            <Button variant="ghost" onClick={close} disabled={pending}>
+          <DialogBody className="pt-5">
+            <div className="space-y-1.5">
+              <DialogTitle>{t("edit.title", { name })}</DialogTitle>
+              <p className="text-sm text-fg-muted">{t("edit.body")}</p>
+            </div>
+            {legacy && <p className="rounded-md border border-border bg-bg-subtle px-3 py-2 text-xs text-fg-muted">{t("edit.legacy")}</p>}
+            <ApiTokenScopePicker value={scopes} onChange={setScopes} disabled={pending} owner={owner} />
+            {error && (
+              <p role="alert" className="text-sm text-danger">
+                {t(`edit.errors.${error}`)}
+              </p>
+            )}
+          </DialogBody>
+          <DialogFooter>
+            <Button variant="secondary" onClick={close} disabled={pending}>
               {tc("cancel")}
             </Button>
             <Button type="submit" variant="primary" disabled={pending || !scopes.length || unchanged}>
               {pending ? tc("saving") : tc("save")}
             </Button>
-          </div>
+          </DialogFooter>
         </form>
       </Dialog>
     </>

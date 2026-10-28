@@ -7,7 +7,7 @@ import { useFormatter, useTranslations } from "next-intl";
 import { useMemo, useState, useTransition } from "react";
 import { createBuiltinSkillAction, createSkillAction } from "@/app/actions/skills";
 import { markNewPage } from "@/components/page/new-page-focus";
-import { Button, buttonClass, cn, Dialog, Input, PageIcon, pageLabel } from "@/components/ui";
+import { Button, buttonClass, cn, Dialog, DialogHeader, Input, PageIcon, pageLabel } from "@/components/ui";
 import type { BuiltinSkillKey } from "@/lib/builtin-skills";
 import { withRow } from "@/lib/row-panel";
 import { searchFold } from "@/lib/search-fold";
@@ -218,10 +218,7 @@ export function SkillLibrary({
       )}
 
       <Dialog open={galleryOpen} onClose={() => setGalleryOpen(false)}>
-        <div className="border-b border-border px-4 py-3">
-          <h2 className="text-sm font-medium">{t("builtins.heading")}</h2>
-          <p className="mt-0.5 text-xs text-fg-muted">{t("builtins.hint")}</p>
-        </div>
+        <DialogHeader title={t("builtins.heading")} description={t("builtins.hint")} onClose={() => setGalleryOpen(false)} closeLabel={tc("close")} />
         {error && (
           <p role="alert" className="border-b border-border px-4 py-2 text-xs text-danger">
             {error}

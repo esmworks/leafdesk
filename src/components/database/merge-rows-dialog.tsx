@@ -5,7 +5,7 @@ import { useFormatter, useTranslations } from "next-intl";
 import { useEffect, useMemo, useState, useTransition } from "react";
 import { createPortal } from "react-dom";
 import { mergeCandidatesAction, mergeRowsAction, previewMergeAction } from "@/app/actions/databases";
-import { Button, cn, Dialog, PageIcon } from "@/components/ui";
+import { Button, cn, Dialog, DialogFooter, DialogHeader, DialogTitle, PageIcon } from "@/components/ui";
 import { pageLabel } from "@/lib/labels";
 import { COMBINE, MAX_MERGE_ROWS, MERGE_TITLE, type MergeChoices } from "@/lib/merge-rows";
 import type { MergeCandidate, MergePreview, MergeResult } from "@/server/merge-rows";
@@ -109,10 +109,7 @@ export function MergeRowsDialog({
     <Portal>
       <Dialog open onClose={onClose} className="sm:max-w-5xl">
         <div className="flex max-h-[84vh] flex-col">
-          <div className="border-b border-border px-5 py-3.5">
-            <h2 className="text-base font-semibold">{t("title", { count: rowIds.length })}</h2>
-            <p className="mt-0.5 text-sm text-fg-muted">{t("keepHint")}</p>
-          </div>
+          <DialogHeader title={t("title", { count: rowIds.length })} description={t("keepHint")} />
           {!preview ? (
             <div className="p-5 text-sm text-fg-muted">{error ?? t("pickLoading")}</div>
           ) : (
@@ -266,15 +263,15 @@ export function MergeRowsDialog({
               </div>
             </>
           )}
-          <div className="flex items-center justify-end gap-2 border-t border-border px-5 py-3">
+          <DialogFooter>
             {error && preview && <p className="me-auto text-sm text-danger">{error}</p>}
-            <Button variant="ghost" onClick={onClose}>
+            <Button variant="secondary" onClick={onClose}>
               {tc("cancel")}
             </Button>
             <Button variant="primary" disabled={!preview || !keptId || pending} onClick={merge}>
               {pending ? t("merging") : t("confirm")}
             </Button>
-          </div>
+          </DialogFooter>
         </div>
       </Dialog>
     </Portal>
@@ -330,8 +327,8 @@ export function MergeWithDialog({
     <Portal>
       <Dialog open onClose={onClose} className="max-w-md">
         <div className="flex max-h-[70vh] flex-col">
-          <div className="space-y-1 px-5 pt-4 pb-3">
-            <h2 className="text-base font-semibold">{t("pickTitle")}</h2>
+          <div className="space-y-1.5 px-5 pt-5 pb-3">
+            <DialogTitle>{t("pickTitle")}</DialogTitle>
             <p className="text-sm text-fg-muted">{t("pickHint", { count: most })}</p>
           </div>
           <div className="mx-5 flex items-center gap-2 rounded-md border border-border px-2 focus-within:border-accent">
@@ -377,14 +374,14 @@ export function MergeWithDialog({
               })
             )}
           </div>
-          <div className="flex justify-end gap-2 border-t border-border px-5 py-3">
-            <Button variant="ghost" onClick={onClose}>
+          <DialogFooter>
+            <Button variant="secondary" onClick={onClose}>
               {tc("cancel")}
             </Button>
             <Button variant="primary" disabled={!picked.length} onClick={() => setMerging(true)}>
               {t("pickContinue")}
             </Button>
-          </div>
+          </DialogFooter>
         </div>
       </Dialog>
     </Portal>

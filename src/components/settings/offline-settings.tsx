@@ -6,7 +6,7 @@ import { useLocale, useTranslations } from "next-intl";
 import { useCallback, useEffect, useState } from "react";
 import { askToPersist, useDownloading } from "@/components/offline/offline-status";
 import { readOfflineState, useOfflineState, writeOfflineState } from "@/components/offline/offline-store";
-import { Button, Dialog, IconButton, PageIcon, Switch } from "@/components/ui";
+import { Button, Dialog, DialogBody, DialogFooter, DialogTitle, IconButton, PageIcon, Switch } from "@/components/ui";
 import { formatBytes } from "@/lib/files";
 import { pageLabel } from "@/lib/labels";
 import { copiesToDrop, keepPage, keptSummaries, setKeepFavorites, wantedPages } from "@/lib/offline";
@@ -157,19 +157,21 @@ export function OfflineSettings({ userId }: { userId: string }) {
       </SettingsGroup>
 
       <Dialog open={confirming} onClose={() => setConfirming(false)} className="max-w-md">
-        <div className="space-y-3 p-5">
-          <h2 className="text-base font-semibold">{t("removeAllTitle")}</h2>
-          <p className="text-sm text-fg-muted">{t("removeAllBody")}</p>
-          {unsent > 0 && <p className="text-sm font-medium text-danger">{t("removeAllUnsent", { count: unsent })}</p>}
-          <div className="flex justify-end gap-2 pt-2">
-            <Button variant="ghost" onClick={() => setConfirming(false)}>
-              {tc("cancel")}
-            </Button>
-            <Button variant="danger" disabled={removing} onClick={() => void removeAll()}>
-              {t("removeAllConfirm")}
-            </Button>
+        <DialogBody className="pt-5">
+          <div className="space-y-1.5">
+            <DialogTitle>{t("removeAllTitle")}</DialogTitle>
+            <p className="text-sm text-fg-muted">{t("removeAllBody")}</p>
           </div>
-        </div>
+          {unsent > 0 && <p className="text-sm font-medium text-danger">{t("removeAllUnsent", { count: unsent })}</p>}
+        </DialogBody>
+        <DialogFooter>
+          <Button variant="secondary" onClick={() => setConfirming(false)}>
+            {tc("cancel")}
+          </Button>
+          <Button variant="danger" disabled={removing} onClick={() => void removeAll()}>
+            {t("removeAllConfirm")}
+          </Button>
+        </DialogFooter>
       </Dialog>
     </div>
   );

@@ -4,7 +4,7 @@ import { useTranslations } from "next-intl";
 import { useState, useTransition } from "react";
 import { deleteAccountAction } from "@/app/actions/account";
 import { SettingsRow } from "@/components/settings/section";
-import { Button, Dialog, Input } from "@/components/ui";
+import { Button, Dialog, DialogBody, DialogFooter, DialogTitle, Input } from "@/components/ui";
 import type { DeletionPlan } from "@/lib/account";
 import { canProve, ProofFields, proofFrom, type ProofSetup } from "./proof-fields";
 import { wipeAllOfflineData } from "@/components/offline/offline-store";
@@ -60,35 +60,36 @@ function DeleteDialog({ email, plan, proof, onClose }: { email: string; plan: De
   return (
     <Dialog open onClose={onClose} className="max-w-md">
       {blocked ? (
-        <div className="space-y-4 p-5">
-          <h2 className="text-base font-semibold">{t(plan.blockers.length > 0 || stuck.length > 0 ? "blockedTitle" : "legalHoldTitle")}</h2>
-          {plan.blockers.length > 0 && (
-            <>
-              <p className="text-sm text-fg-muted">{t("blockedBody")}</p>
-              <WorkspaceList title={t("blockedList")} items={plan.blockers} />
-            </>
-          )}
-          {stuck.length > 0 && (
-            <>
-              <p className="text-sm text-fg-muted">{t("storageStuckBody")}</p>
-              <WorkspaceList title={t("storageStuckList")} items={stuck} />
-            </>
-          )}
-          {held.length > 0 && (
-            <>
-              <p className="text-sm text-fg-muted">{t("legalHoldBody")}</p>
-              <WorkspaceList title={t("legalHoldList")} items={held} />
-            </>
-          )}
-          <div className="flex justify-end">
+        <>
+          <DialogBody className="pt-5">
+            <DialogTitle>{t(plan.blockers.length > 0 || stuck.length > 0 ? "blockedTitle" : "legalHoldTitle")}</DialogTitle>
+            {plan.blockers.length > 0 && (
+              <>
+                <p className="text-sm text-fg-muted">{t("blockedBody")}</p>
+                <WorkspaceList title={t("blockedList")} items={plan.blockers} />
+              </>
+            )}
+            {stuck.length > 0 && (
+              <>
+                <p className="text-sm text-fg-muted">{t("storageStuckBody")}</p>
+                <WorkspaceList title={t("storageStuckList")} items={stuck} />
+              </>
+            )}
+            {held.length > 0 && (
+              <>
+                <p className="text-sm text-fg-muted">{t("legalHoldBody")}</p>
+                <WorkspaceList title={t("legalHoldList")} items={held} />
+              </>
+            )}
+          </DialogBody>
+          <DialogFooter>
             <Button variant="primary" onClick={onClose}>
               {tc("close")}
             </Button>
-          </div>
-        </div>
+          </DialogFooter>
+        </>
       ) : (
         <form
-          className="space-y-4 p-5"
           onSubmit={(e) => {
             e.preventDefault();
             const form = new FormData(e.currentTarget);
@@ -103,32 +104,36 @@ function DeleteDialog({ email, plan, proof, onClose }: { email: string; plan: De
             });
           }}
         >
-          <h2 className="text-base font-semibold">{t("dialogTitle")}</h2>
-          <p className="text-sm text-fg-muted">{t("dialogBody")}</p>
-          <WorkspaceList title={t("deletedList")} items={plan.deleted} />
-          <WorkspaceList title={t("leftList")} items={plan.left} />
-          <WorkspaceList title={t("storageMovesList")} items={plan.storageMoves ?? []} />
-          <label className="block space-y-1.5">
-            <span className="text-sm text-fg-muted">{t("typeEmail", { email })}</span>
-            <Input
-              name="confirmation"
-              value={typed}
-              onChange={(e) => setTyped(e.target.value)}
-              autoComplete="off"
-              spellCheck={false}
-              autoFocus
-            />
-          </label>
-          <ProofFields proof={proof} returnTo="/account?tab=profile" />
-          {error && <p className="text-sm text-danger">{error}</p>}
-          <div className="flex justify-end gap-2">
-            <Button variant="ghost" onClick={onClose}>
+          <DialogBody className="pt-5">
+            <div className="space-y-1.5">
+              <DialogTitle>{t("dialogTitle")}</DialogTitle>
+              <p className="text-sm text-fg-muted">{t("dialogBody")}</p>
+            </div>
+            <WorkspaceList title={t("deletedList")} items={plan.deleted} />
+            <WorkspaceList title={t("leftList")} items={plan.left} />
+            <WorkspaceList title={t("storageMovesList")} items={plan.storageMoves ?? []} />
+            <label className="block space-y-1.5">
+              <span className="text-sm text-fg-muted">{t("typeEmail", { email })}</span>
+              <Input
+                name="confirmation"
+                value={typed}
+                onChange={(e) => setTyped(e.target.value)}
+                autoComplete="off"
+                spellCheck={false}
+                autoFocus
+              />
+            </label>
+            <ProofFields proof={proof} returnTo="/account?tab=profile" />
+            {error && <p className="text-sm text-danger">{error}</p>}
+          </DialogBody>
+          <DialogFooter>
+            <Button variant="secondary" onClick={onClose}>
               {tc("cancel")}
             </Button>
             <Button type="submit" variant="danger" disabled={pending || !matches || !canProve(proof)}>
               {pending ? t("deleting") : t("confirm")}
             </Button>
-          </div>
+          </DialogFooter>
         </form>
       )}
     </Dialog>

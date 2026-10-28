@@ -25,7 +25,7 @@ import { TabButton } from "@/components/settings/members-panel";
 import { SettingsHeader } from "@/components/settings/section";
 import { CopyButton } from "@/components/settings/copy-button";
 import { useAction } from "@/components/settings/workspace-settings";
-import { Button, cn, Dialog, IconButton, Input, selectClass, Switch, textareaClass } from "@/components/ui";
+import { Button, cn, Dialog, DialogBody, DialogFooter, DialogHeader, IconButton, Input, selectClass, Switch, textareaClass } from "@/components/ui";
 import {
   CONNECTION_AUTH_TYPES,
   EVENT_PRESETS,
@@ -507,7 +507,6 @@ function AddConnectionForm({
 
   return (
     <form
-      className="space-y-4 px-5 py-4"
       onSubmit={(e) => {
         e.preventDefault();
         run(
@@ -528,66 +527,59 @@ function AddConnectionForm({
         );
       }}
     >
-      {entry ? (
-        <div className="flex items-center gap-3">
-          <span className="h-10 w-10 shrink-0">
-            <ServiceLogo entry={entry} />
-          </span>
-          <div className="min-w-0 flex-1">
-            <h2 className="truncate text-base font-semibold">{entry.name}</h2>
-            <p className="truncate text-sm text-fg-muted">{t(`catalog.categories.${entry.category}`)}</p>
-          </div>
-        </div>
-      ) : (
-        <>
-          <h2 className="text-base font-semibold">{t("addTitle")}</h2>
-          <p className="text-sm text-fg-muted">{t("addDescription")}</p>
-        </>
-      )}
-      <ConnectionFields
-        name={name}
-        url={url}
-        authType={authType}
-        token={token}
-        eventPreset={eventPreset}
-        onName={setName}
-        onUrl={(next) => {
-          setUrl(next);
-          // A listed service whose events are signed its own way gets that signing once its address is typed.
-          const preset = catalogEntryFor(next.trim())?.eventPreset;
-          if (preset && !catalogEntryFor(url.trim())) setEventPreset(preset);
-        }}
-        onAuthType={setAuthType}
-        onToken={setToken}
-        onEventPreset={setEventPreset}
-        tokenRequired
-        tokenHelp={tokenHelp}
-      >
-        {clientMode && (
-          <OAuthClientFields
-            mode={clientMode}
-            service={atEntry ?? undefined}
-            clientId={clientId}
-            clientSecret={clientSecret}
-            onClientId={setClientId}
-            onClientSecret={setClientSecret}
-            secretKept={false}
-          />
+      <DialogHeader
+        title={entry ? entry.name : t("addTitle")}
+        description={entry ? t(`catalog.categories.${entry.category}`) : t("addDescription")}
+        icon={entry ? <ServiceLogo entry={entry} /> : <Plug className="h-4 w-4" />}
+        onClose={onClose}
+        closeLabel={tc("close")}
+      />
+      <DialogBody>
+        <ConnectionFields
+          name={name}
+          url={url}
+          authType={authType}
+          token={token}
+          eventPreset={eventPreset}
+          onName={setName}
+          onUrl={(next) => {
+            setUrl(next);
+            // A listed service whose events are signed its own way gets that signing once its address is typed.
+            const preset = catalogEntryFor(next.trim())?.eventPreset;
+            if (preset && !catalogEntryFor(url.trim())) setEventPreset(preset);
+          }}
+          onAuthType={setAuthType}
+          onToken={setToken}
+          onEventPreset={setEventPreset}
+          tokenRequired
+          tokenHelp={tokenHelp}
+        >
+          {clientMode && (
+            <OAuthClientFields
+              mode={clientMode}
+              service={atEntry ?? undefined}
+              clientId={clientId}
+              clientSecret={clientSecret}
+              onClientId={setClientId}
+              onClientSecret={setClientSecret}
+              secretKept={false}
+            />
+          )}
+        </ConnectionFields>
+        {(error || sign.error) && (
+          <p role="alert" className="text-sm text-danger">
+            {error || sign.error}
+          </p>
         )}
-      </ConnectionFields>
-      {(error || sign.error) && (
-        <p role="alert" className="text-sm text-danger">
-          {error || sign.error}
-        </p>
-      )}
-      <div className="flex justify-end gap-2">
-        <Button variant="ghost" onClick={onClose}>
+      </DialogBody>
+      <DialogFooter>
+        <Button variant="secondary" onClick={onClose}>
           {tc("cancel")}
         </Button>
         <Button type="submit" variant="primary" disabled={pending || sign.pending || !name.trim() || !url.trim() || (authType === "token" && !token.trim()) || clientMissing}>
           {authType === "oauth" ? t("addAndSignIn") : t("addButton")}
         </Button>
-      </div>
+      </DialogFooter>
     </form>
   );
 }
@@ -775,19 +767,18 @@ function ConnectionDialog({
   const tc = useTranslations("common");
   return (
     <Dialog open onClose={onClose} className="max-w-2xl">
-      <div className="space-y-4 border-b border-border px-5 pt-5 pb-3">
-        <div className="flex items-center gap-3.5">
-          <ConnectionLogo conn={conn} />
-          <div className="min-w-0 flex-1">
-            <h2 className="truncate text-base font-semibold">{conn.name}</h2>
-            <p className="truncate text-sm text-fg-muted" title={conn.url}>
-              {hostOf(conn.url)}
-            </p>
-          </div>
-          <IconButton label={tc("close")} onClick={onClose} className="h-7 w-7 self-start">
-            <X className="h-4 w-4" />
-          </IconButton>
-        </div>
+      <DialogHeader
+        title={<span className="block truncate">{conn.name}</span>}
+        description={
+          <p className="truncate" title={conn.url}>
+            {hostOf(conn.url)}
+          </p>
+        }
+        icon={<ConnectionIcon icon={conn.icon} url={conn.url} className="text-lg" />}
+        onClose={onClose}
+        closeLabel={tc("close")}
+      />
+      <div className="border-b border-border px-5 py-2">
         <div role="tablist" aria-label={conn.name} className="inline-flex gap-0.5 rounded-lg bg-bg-hover p-0.5">
           {(["tools", "events", "settings"] as const).map((name) => (
             <TabButton key={name} active={tab === name} onClick={() => onTab(name)}>
@@ -796,7 +787,7 @@ function ConnectionDialog({
           ))}
         </div>
       </div>
-      <div className="max-h-[65vh] overflow-y-auto px-5 py-5">
+      <DialogBody className="max-h-[65vh] overflow-y-auto">
         {tab === "tools" ? (
           <ToolsTab workspaceId={workspaceId} conn={conn} onChange={onChange} />
         ) : tab === "events" ? (
@@ -804,7 +795,7 @@ function ConnectionDialog({
         ) : (
           <SettingsTab workspaceId={workspaceId} conn={conn} onChange={onChange} onDeleted={onDeleted} />
         )}
-      </div>
+      </DialogBody>
     </Dialog>
   );
 }

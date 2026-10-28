@@ -1,6 +1,7 @@
 "use client";
 
-import { forwardRef, useEffect, useLayoutEffect, useRef, useState, type ButtonHTMLAttributes, type InputHTMLAttributes, type ReactNode } from "react";
+import { X } from "lucide-react";
+import { createContext, forwardRef, useContext, useEffect, useId, useLayoutEffect, useRef, useState, type ButtonHTMLAttributes, type HTMLAttributes, type InputHTMLAttributes, type ReactNode } from "react";
 import { IconGlyph } from "./builtin-icon";
 
 export function cn(...classes: (string | false | null | undefined)[]) {
@@ -216,6 +217,13 @@ export function MenuSeparator() {
   return <div className="my-1 h-px bg-border" />;
 }
 
+/**
+ * The shadow under a dialog's panel: a hairline ring and two layered shadows, a tight one under the
+ * edge and a wide, soft one. For panels shown over a shade without `Dialog` too (history, AI review).
+ */
+export const dialogShadow =
+  "shadow-[0_0_0_1px_rgb(0_0_0/0.03),0_2px_6px_-2px_rgb(0_0_0/0.08),0_24px_56px_-16px_rgb(0_0_0/0.28)] dark:shadow-[0_0_0_1px_rgb(255_255_255/0.03),0_2px_6px_-2px_rgb(0_0_0/0.4),0_24px_56px_-16px_rgb(0_0_0/0.6)]";
+
 export function Dialog({
   open,
   onClose,
@@ -228,15 +236,21 @@ export function Dialog({
   className?: string;
 }) {
   const ref = useDismiss<HTMLDivElement>(open, onClose);
+  const titleId = useId();
   if (!open) return null;
   return (
+    <DialogTitleId.Provider value={titleId}>
     <div data-window-shade className="fixed inset-0 z-50 flex items-start justify-center overflow-y-auto bg-black/30 p-4 pt-[12vh]">
       <div
         ref={ref}
         role="dialog"
         aria-modal="true"
+        // Named by its DialogTitle or DialogHeader, when it has one.
+        aria-labelledby={titleId}
+        data-dialog
         className={cn(
-          "w-full rounded-xl border border-border bg-bg shadow-2xl",
+          "w-full rounded-xl border border-border bg-bg",
+          dialogShadow,
           // cn doesn't merge classes: with two max-w utilities the stylesheet's order would pick, not the caller.
           !className?.split(" ").some((c) => c.startsWith("max-w-")) && "max-w-xl",
           !className?.split(" ").some((c) => c.startsWith("overflow-")) && "overflow-hidden",
@@ -245,6 +259,96 @@ export function Dialog({
       >
         {children}
       </div>
+    </div>
+    </DialogTitleId.Provider>
+  );
+}
+
+/** The id a dialog is labelled by, given to its title. */
+const DialogTitleId = createContext<string | undefined>(undefined);
+
+/** A dialog's title, for a dialog without a DialogHeader (a short confirmation at the top of its DialogBody). */
+export function DialogTitle({ children, className }: { children: ReactNode; className?: string }) {
+  return (
+    <h2 id={useContext(DialogTitleId)} className={cn("text-base leading-6 font-semibold text-fg", className)}>
+      {children}
+    </h2>
+  );
+}
+
+/**
+ * A dialog's top bar: an optional icon, the title with a line under it, actions of its own and the
+ * close button (with `onClose`). Dialogs that only ask one thing put a DialogTitle in their body instead.
+ */
+export function DialogHeader({
+  title,
+  description,
+  icon,
+  actions,
+  onClose,
+  closeLabel,
+  closeDisabled,
+  className,
+}: {
+  title: ReactNode;
+  description?: ReactNode;
+  icon?: ReactNode;
+  actions?: ReactNode;
+  onClose?: () => void;
+  /** The close button's name (`common.close`); needed with `onClose`. */
+  closeLabel?: string;
+  closeDisabled?: boolean;
+  className?: string;
+}) {
+  return (
+    <div className={cn("flex shrink-0 items-start gap-3 border-b border-border px-5 py-4", className)}>
+      {icon && (
+        <span aria-hidden className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg border border-border bg-bg-subtle text-fg-muted">
+          {icon}
+        </span>
+      )}
+      <div className={cn("min-w-0 flex-1", Boolean(icon) && !description && "self-center")}>
+        <DialogTitle>{title}</DialogTitle>
+        {description && <div className="mt-0.5 text-sm text-fg-muted">{description}</div>}
+      </div>
+      {actions && <div className="flex shrink-0 items-center gap-1">{actions}</div>}
+      {onClose && (
+        <IconButton label={closeLabel ?? ""} onClick={onClose} disabled={closeDisabled} className="-me-1.5 -mt-0.5 h-7 w-7 text-fg-faint">
+          <X className="h-4 w-4" />
+        </IconButton>
+      )}
+    </div>
+  );
+}
+
+/** A dialog's content between its header and footer. Pass `max-h-[…] overflow-y-auto` to scroll it. */
+export function DialogBody({ children, className, ...props }: { children: ReactNode; className?: string } & Omit<HTMLAttributes<HTMLDivElement>, "className" | "children">) {
+  return (
+    <div className={cn(...bodyDefaults(className), className)} {...props}>
+      {children}
+    </div>
+  );
+}
+
+/**
+ * DialogBody's spacing, less what `className` sets itself: cn doesn't merge classes, and with two
+ * utilities for the same thing the stylesheet's order would pick, not the caller.
+ */
+function bodyDefaults(className: string | undefined) {
+  const own = className?.split(" ") ?? [];
+  const sets = (...prefixes: string[]) => own.some((c) => prefixes.some((prefix) => c.startsWith(prefix)));
+  return [
+    !sets("space-y-") && "space-y-4",
+    !sets("p-", "px-", "ps-", "pe-") && "px-5",
+    !sets("p-", "py-") && (sets("pt-") ? "pb-4" : sets("pb-") ? "pt-4" : "py-4"),
+  ];
+}
+
+/** A dialog's bottom bar of buttons, the main one last: Cancel `secondary`, the action `primary` or `danger`. */
+export function DialogFooter({ children, className }: { children: ReactNode; className?: string }) {
+  return (
+    <div className={cn("flex shrink-0 flex-wrap items-center justify-end gap-2 border-t border-border bg-bg-subtle px-5 py-3", className)}>
+      {children}
     </div>
   );
 }

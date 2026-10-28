@@ -12,7 +12,7 @@ import { useTranslations } from "next-intl";
 import { useState, useTransition } from "react";
 import { createFromPlanAction, draftDatabasePlanAction } from "@/app/actions/ai-build";
 import { PROPERTY_TYPE_META, usePropertyTypeLabel, ViewIcon } from "@/components/database/property-icons";
-import { Button, cn, Dialog, IconButton, Input, PageIcon, textareaClass } from "@/components/ui";
+import { Button, cn, Dialog, DialogBody, DialogFooter, DialogTitle, IconButton, Input, PageIcon, textareaClass } from "@/components/ui";
 import {
   MAX_BUILD_REQUEST,
   MAX_PLAN_NAME,
@@ -85,6 +85,7 @@ export function BuildWithAiDialog({
 
   return (
     <Dialog open onClose={pending ? () => {} : onClose} className="max-w-2xl">
+      {/* Not a DialogHeader: the back button comes before the icon. */}
       <div className="flex items-start gap-3 border-b border-border px-5 py-4">
         {plan && (
           <IconButton label={t("back")} onClick={() => setPlan(null)} disabled={pending} className="mt-1">
@@ -93,7 +94,7 @@ export function BuildWithAiDialog({
         )}
         <Sparkles className="mt-1 h-4 w-4 shrink-0 text-fg-muted" aria-hidden />
         <div className="min-w-0 flex-1">
-          <h2 className="truncate text-base font-semibold">{t(plan ? "reviewTitle" : "title")}</h2>
+          <DialogTitle className="truncate">{t(plan ? "reviewTitle" : "title")}</DialogTitle>
           <p className="text-sm text-fg-muted">{t(plan ? "reviewHint" : "hint")}</p>
         </div>
         <IconButton label={tc("close")} onClick={onClose} disabled={pending} className="h-7 w-7">
@@ -102,7 +103,7 @@ export function BuildWithAiDialog({
       </div>
       {plan ? (
         <>
-          <div className={cn("max-h-[60vh] space-y-4 overflow-y-auto px-5 py-4", pending && "opacity-70")}>
+          <DialogBody className={cn("max-h-[60vh] overflow-y-auto", pending && "opacity-70")}>
             {plan.databases.map((database) => (
               <DatabaseCard
                 key={database.key}
@@ -129,20 +130,20 @@ export function BuildWithAiDialog({
                 )}
               </div>
             )}
-          </div>
-          <div className="flex items-center justify-end gap-2 border-t border-border px-5 py-3">
+          </DialogBody>
+          <DialogFooter>
             {error && (
               <p role="alert" className="me-auto text-xs text-danger">
                 {error}
               </p>
             )}
-            <Button variant="ghost" onClick={onClose} disabled={pending}>
+            <Button variant="secondary" onClick={onClose} disabled={pending}>
               {tc("cancel")}
             </Button>
             <Button variant="primary" onClick={create} disabled={pending}>
               {pending ? t("creating") : t("create")}
             </Button>
-          </div>
+          </DialogFooter>
         </>
       ) : (
         <form
@@ -151,7 +152,7 @@ export function BuildWithAiDialog({
             draft();
           }}
         >
-          <div className={cn("space-y-2 px-5 py-4", pending && "opacity-70")}>
+          <DialogBody className={cn(pending && "opacity-70")}>
             <label className="block">
               <span className="mb-1 block text-xs font-medium text-fg-muted">{t("label")}</span>
               <textarea
@@ -171,20 +172,20 @@ export function BuildWithAiDialog({
                 className={textareaClass}
               />
             </label>
-          </div>
-          <div className="flex items-center justify-end gap-2 border-t border-border px-5 py-3">
+          </DialogBody>
+          <DialogFooter>
             {error && (
               <p role="alert" className="me-auto text-xs text-danger">
                 {error}
               </p>
             )}
-            <Button variant="ghost" onClick={onClose}>
+            <Button variant="secondary" onClick={onClose}>
               {tc("cancel")}
             </Button>
             <Button type="submit" variant="primary" disabled={!text || pending}>
               {pending ? t("drafting") : t("draft")}
             </Button>
-          </div>
+          </DialogFooter>
         </form>
       )}
     </Dialog>

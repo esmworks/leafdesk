@@ -1,11 +1,11 @@
 "use client";
 
-import { ArrowDown, ArrowUp, Plus, Trash2, X } from "lucide-react";
+import { ArrowDown, ArrowUp, Plus, Trash2 } from "lucide-react";
 import { useFormatter, useTranslations } from "next-intl";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { setMailboxSendingAction } from "@/app/actions/row-mail";
 import { createSequenceAction, deleteSequenceAction, listSequencesAction, updateSequenceAction } from "@/app/actions/sequences";
-import { Button, cn, Dialog, IconButton, Input, PageIcon, pageLabel, selectClass, textareaClass } from "@/components/ui";
+import { Button, cn, Dialog, DialogBody, DialogFooter, DialogHeader, IconButton, Input, PageIcon, pageLabel, selectClass, textareaClass } from "@/components/ui";
 import type { MailboxView, MailSettingsView } from "@/lib/mail";
 import {
   BUILTIN_VARIABLES,
@@ -236,20 +236,19 @@ function SequenceDialog({
   const shown = problem ?? error;
   return (
     <Dialog open onClose={onClose} className="max-w-2xl">
-      <div className="flex items-start gap-3 border-b border-border px-5 py-4">
-        <div className="min-w-0 flex-1">
-          <h2 className="text-base font-semibold">{saved ? t("editTitle") : t("newTitle")}</h2>
-          <p className="mt-0.5 flex items-center gap-1.5 truncate text-sm text-fg-muted">
+      <DialogHeader
+        title={saved ? t("editTitle") : t("newTitle")}
+        description={
+          <p className="flex items-center gap-1.5 truncate">
             <PageIcon icon={database.icon} kind="database" className="text-sm" />
             {pageLabel(database.title, tc("untitled"))}
           </p>
-        </div>
-        <IconButton label={tc("close")} onClick={onClose} className="h-7 w-7">
-          <X className="h-4 w-4" />
-        </IconButton>
-      </div>
+        }
+        onClose={onClose}
+        closeLabel={tc("close")}
+      />
 
-      <div className={cn("max-h-[65vh] space-y-4 overflow-y-auto px-5 py-4", pending && "pointer-events-none opacity-70")}>
+      <DialogBody className={cn("max-h-[65vh] overflow-y-auto", pending && "pointer-events-none opacity-70")}>
         <Field label={t("name")}>
           <Input value={name} maxLength={MAX_SEQUENCE_NAME} autoFocus={!saved} placeholder={t("namePlaceholder")} onChange={(e) => setName(e.target.value)} />
         </Field>
@@ -398,9 +397,9 @@ function SequenceDialog({
           </div>
           <p className="mt-1 text-xs text-fg-faint">{t("windowHelp")}</p>
         </div>
-      </div>
+      </DialogBody>
 
-      <div className="flex items-center justify-end gap-2 border-t border-border px-5 py-3">
+      <DialogFooter>
         {shown && (
           <p role="alert" className="me-auto text-xs text-danger">
             {shown}
@@ -411,13 +410,13 @@ function SequenceDialog({
             {tc("delete")}
           </Button>
         )}
-        <Button variant="ghost" onClick={onClose}>
+        <Button variant="secondary" onClick={onClose}>
           {tc("cancel")}
         </Button>
         <Button variant="primary" disabled={pending} onClick={save}>
           {pending ? tc("saving") : tc("save")}
         </Button>
-      </div>
+      </DialogFooter>
     </Dialog>
   );
 }

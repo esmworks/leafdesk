@@ -76,8 +76,12 @@ import { gzipSync } from "node:zlib";
  *
  * An agent's own page (its header; the chat loads with it) adds about 1.5 kB to all first loads
  * together, as a route of its own.
+ *
+ * Dialogs' shared parts (title bar, body, footer bar, in components/ui.tsx, which every route loads)
+ * and the inbox's tabs and row actions add under 1 kB to a page's first load and about 1 kB to all
+ * first loads together.
  */
-const BUDGET = { routeFirstLoad: 779, firstLoadShared: 1187, onDemandChunk: 450 };
+const BUDGET = { routeFirstLoad: 780, firstLoadShared: 1189, onDemandChunk: 450 };
 
 const NEXT = ".next";
 const kB = (bytes: number) => bytes / 1024;

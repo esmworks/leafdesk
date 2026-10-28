@@ -6,7 +6,7 @@ import { ArrowDown, ArrowUp, Copy, FileText, X } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { useEffect, useMemo, useState } from "react";
 import { buttonSettingsAction } from "@/app/actions/buttons";
-import { Button, cn, Dialog, IconButton, Input, Switch } from "@/components/ui";
+import { Button, cn, Dialog, DialogBody, DialogFooter, DialogHeader, IconButton, Input, Switch } from "@/components/ui";
 import { DatabasesProvider, useAutomationWorkspace, useDatabaseInfo, useDatabaseList } from "@/components/database/automations-data";
 import { newKey, valuesOf, type Person, type SetEntry } from "@/components/database/automations-shared";
 import { PeoplePicker, selectClass, ValuesEditor } from "@/components/database/automations-values";
@@ -209,8 +209,8 @@ function SettingsDialog({ editor, blockId, pageId, onClose }: { editor: PageEdit
           save();
         }}
       >
-        <div className="space-y-4 overflow-y-auto p-4">
-          <h2 className="text-sm font-semibold">{t("settings.open")}</h2>
+        <DialogHeader title={t("settings.open")} onClose={onClose} closeLabel={tc("close")} />
+        <DialogBody className="overflow-y-auto">
           <div className="flex items-end gap-2">
             <IconPicker icon={icon || null} onChange={(next) => setIcon(next ?? "")}>
               {(toggle) => (
@@ -313,15 +313,15 @@ function SettingsDialog({ editor, blockId, pageId, onClose }: { editor: PageEdit
               </select>
             )}
           </div>
-        </div>
-        <div className="flex justify-end gap-2 border-t border-border px-4 py-3">
-          <Button type="button" onClick={onClose}>
+        </DialogBody>
+        <DialogFooter>
+          <Button type="button" variant="secondary" onClick={onClose}>
             {tc("cancel")}
           </Button>
           <Button type="submit" variant="primary">
             {tc("save")}
           </Button>
-        </div>
+        </DialogFooter>
       </form>
     </Dialog>
   );

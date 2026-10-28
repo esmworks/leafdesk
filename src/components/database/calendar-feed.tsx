@@ -14,7 +14,7 @@ import {
 } from "@/app/actions/databases";
 import { useIsOffline } from "@/components/offline/offline-context";
 import { CopyButton } from "@/components/settings/copy-button";
-import { Button, Dialog, IconButton, Input } from "@/components/ui";
+import { Button, Dialog, DialogBody, DialogFooter, DialogTitle, IconButton, Input } from "@/components/ui";
 import type { CalendarFeedInfo } from "@/server/calendar-feeds";
 
 /** The feed a button is about: a calendar view's, or the rows assigned to the viewer in a workspace. */
@@ -115,9 +115,11 @@ function CalendarFeedDialog({ of: { viewId, workspaceId }, onClose }: { of: Feed
 
   return (
     <Dialog open onClose={onClose} className="max-w-md">
-      <div className="space-y-3 p-4">
-        <h2 className="text-sm font-medium">{t("title")}</h2>
-        <p className="text-sm text-fg-muted">{t(viewId ? "description" : "assignedDescription")}</p>
+      <DialogBody className="pt-5">
+        <div className="space-y-1.5">
+          <DialogTitle>{t("title")}</DialogTitle>
+          <p className="text-sm text-fg-muted">{t(viewId ? "description" : "assignedDescription")}</p>
+        </div>
         {error && (
           <p role="alert" className="text-xs text-danger">
             {error}
@@ -146,23 +148,23 @@ function CalendarFeedDialog({ of: { viewId, workspaceId }, onClose }: { of: Feed
               : t("neverRead")}
           </p>
         )}
-        <div className="flex flex-wrap justify-end gap-2 pt-1">
-          {info?.feed && (
-            <Button size="sm" variant="ghost" disabled={busy} onClick={remove}>
-              {t("turnOff")}
-            </Button>
-          )}
-          {info?.allowed && (
-            <Button size="sm" variant={info.feed ? "secondary" : "primary"} disabled={busy} onClick={create}>
-              {info.feed ? t("replace") : t("create")}
-            </Button>
-          )}
-          <Button size="sm" variant="ghost" onClick={onClose}>
-            {tc("close")}
-          </Button>
-        </div>
         {info?.feed && !url && <p className="text-xs text-fg-faint">{t("replaceHint")}</p>}
-      </div>
+      </DialogBody>
+      <DialogFooter>
+        {info?.feed && (
+          <Button variant="ghost" disabled={busy} onClick={remove}>
+            {t("turnOff")}
+          </Button>
+        )}
+        <Button variant="secondary" onClick={onClose}>
+          {tc("close")}
+        </Button>
+        {info?.allowed && (
+          <Button variant={info.feed ? "secondary" : "primary"} disabled={busy} onClick={create}>
+            {info.feed ? t("replace") : t("create")}
+          </Button>
+        )}
+      </DialogFooter>
     </Dialog>
   );
 }

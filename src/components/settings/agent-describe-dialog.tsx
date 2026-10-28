@@ -5,7 +5,7 @@ import { useTranslations } from "next-intl";
 import { useState, type ReactNode } from "react";
 import { createAgentFromDraftAction, draftAgentAction } from "@/app/actions/agents";
 import { useAction } from "@/components/settings/workspace-settings";
-import { Button, cn, Dialog, IconButton, PageIcon, pageLabel, selectClass, textareaClass } from "@/components/ui";
+import { Button, cn, Dialog, DialogBody, DialogFooter, DialogTitle, IconButton, PageIcon, pageLabel, selectClass, textareaClass } from "@/components/ui";
 import { MAX_AGENT_REQUEST, type AgentDraft, type AgentDraftAutomation, type AgentDraftPage, type AgentDraftSchedule } from "@/lib/agent-draft";
 import { AGENT_ACCESS_LEVELS, type AgentAccessLevel, type AgentView } from "@/lib/agents";
 import { browserTimeZone } from "@/lib/time-zone";
@@ -52,17 +52,18 @@ export function AgentDescribeDialog({
 
   return (
     <Dialog open onClose={onClose} className="max-w-2xl">
-      <div className="flex items-start gap-3 border-b border-border px-5 py-4">
+      {/* Not DialogHeader: the back button comes before the title, and the header has no place for a button there. */}
+      <div className="flex shrink-0 items-start gap-3 border-b border-border px-5 py-4">
         {draft && (
-          <IconButton label={t("back")} onClick={() => setDraft(null)} className="mt-1">
+          <IconButton label={t("back")} onClick={() => setDraft(null)} className="-ms-1.5 h-7 w-7">
             <ArrowLeft className="h-4 w-4 rtl:-scale-x-100" />
           </IconButton>
         )}
         <div className="min-w-0 flex-1">
-          <h2 className="truncate text-base font-semibold">{t(draft ? "reviewTitle" : "title")}</h2>
-          <p className="text-sm text-fg-muted">{t(draft ? "reviewHint" : "hint")}</p>
+          <DialogTitle className="truncate">{t(draft ? "reviewTitle" : "title")}</DialogTitle>
+          <p className="mt-0.5 text-sm text-fg-muted">{t(draft ? "reviewHint" : "hint")}</p>
         </div>
-        <IconButton label={tc("close")} onClick={onClose} className="h-7 w-7">
+        <IconButton label={tc("close")} onClick={onClose} className="-me-1.5 -mt-0.5 h-7 w-7 text-fg-faint">
           <X className="h-4 w-4" />
         </IconButton>
       </div>
@@ -84,41 +85,43 @@ export function AgentDescribeDialog({
             submit();
           }}
         >
-          <div className={cn("space-y-2 px-5 py-4", pending && "opacity-70")}>
-            <label className="block">
-              <span className="mb-1 block text-xs font-medium text-fg-muted">{t("label")}</span>
-              <textarea
-                autoFocus
-                rows={6}
-                value={request}
-                maxLength={MAX_AGENT_REQUEST}
-                placeholder={t("placeholder")}
-                readOnly={pending}
-                onChange={(e) => setRequest(e.target.value)}
-                onKeyDown={(e) => {
-                  if (e.key === "Enter" && (e.metaKey || e.ctrlKey)) {
-                    e.preventDefault();
-                    submit();
-                  }
-                }}
-                className={textareaClass}
-              />
-            </label>
-            <p className="text-xs text-fg-muted">{t("help")}</p>
-          </div>
-          <div className="flex items-center justify-end gap-2 border-t border-border px-5 py-3">
+          <DialogBody className={cn(pending && "opacity-70")}>
+            <div className="space-y-2">
+              <label className="block">
+                <span className="mb-1 block text-xs font-medium text-fg-muted">{t("label")}</span>
+                <textarea
+                  autoFocus
+                  rows={6}
+                  value={request}
+                  maxLength={MAX_AGENT_REQUEST}
+                  placeholder={t("placeholder")}
+                  readOnly={pending}
+                  onChange={(e) => setRequest(e.target.value)}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter" && (e.metaKey || e.ctrlKey)) {
+                      e.preventDefault();
+                      submit();
+                    }
+                  }}
+                  className={textareaClass}
+                />
+              </label>
+              <p className="text-xs text-fg-muted">{t("help")}</p>
+            </div>
+          </DialogBody>
+          <DialogFooter>
             {error && (
               <p role="alert" className="me-auto text-xs text-danger">
                 {error}
               </p>
             )}
-            <Button variant="ghost" onClick={onClose}>
+            <Button variant="secondary" onClick={onClose}>
               {tc("cancel")}
             </Button>
             <Button type="submit" variant="primary" disabled={!text || pending}>
               {pending ? t("drafting") : t("draft")}
             </Button>
-          </div>
+          </DialogFooter>
         </form>
       )}
     </Dialog>

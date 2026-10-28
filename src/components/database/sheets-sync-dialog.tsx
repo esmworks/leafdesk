@@ -1,10 +1,10 @@
 "use client";
 
-import { ExternalLink, RefreshCw, X } from "lucide-react";
+import { ExternalLink, RefreshCw } from "lucide-react";
 import { useFormatter, useTranslations } from "next-intl";
 import { useEffect, useState } from "react";
 import { getSheetsSyncAction, stopSheetsSyncAction, syncSheetsNowAction, updateSheetsSyncAction } from "@/app/actions/sheets-sync";
-import { Button, Dialog, IconButton, selectClass } from "@/components/ui";
+import { Button, Dialog, DialogBody, DialogHeader, selectClass } from "@/components/ui";
 import { JIRA_INTERVALS, jiraIntervalKey } from "@/lib/jira-sync";
 import { sheetLink, type SheetsDirection, type SheetsSyncView } from "@/lib/sheets-sync";
 
@@ -63,13 +63,8 @@ export default function SheetsSyncDialog({ databaseId, onClose, onChanged }: { d
 
   return (
     <Dialog open onClose={busy ? () => {} : onClose} className="max-w-lg">
-      <div className="flex items-start justify-between gap-2 border-b border-border px-4 py-3">
-        <h2 className="text-sm font-medium">{t("title")}</h2>
-        <IconButton label={tc("close")} onClick={onClose} disabled={busy}>
-          <X className="h-3.5 w-3.5" />
-        </IconButton>
-      </div>
-      <div className="max-h-[70vh] space-y-4 overflow-y-auto p-4" aria-busy={busy}>
+      <DialogHeader title={t("title")} onClose={onClose} closeLabel={tc("close")} closeDisabled={busy} />
+      <DialogBody className="max-h-[70vh] overflow-y-auto" aria-busy={busy}>
         {sync === "loading" ? (
           <p className="text-sm text-fg-muted">{tc("loading")}</p>
         ) : !sync ? null : (
@@ -223,7 +218,7 @@ export default function SheetsSyncDialog({ databaseId, onClose, onChanged }: { d
             {error}
           </p>
         )}
-      </div>
+      </DialogBody>
     </Dialog>
   );
 }

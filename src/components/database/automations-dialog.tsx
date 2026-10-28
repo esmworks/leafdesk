@@ -4,7 +4,7 @@ import { ArrowLeft, History, Pencil, Plus, Trash2, X } from "lucide-react";
 import { useFormatter, useTranslations } from "next-intl";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { deleteAutomationAction, listAutomationsAction, updateAutomationAction } from "@/app/actions/automations";
-import { Button, cn, Dialog, IconButton, Switch } from "@/components/ui";
+import { Button, cn, Dialog, DialogTitle, IconButton, Switch } from "@/components/ui";
 import { galleryAutomations, type GalleryAutomation } from "@/lib/automation-gallery";
 import { MAX_AUTOMATIONS, watchedProperties } from "@/lib/automations";
 import { browserTimeZone, timeZoneLabel } from "@/lib/time-zone";
@@ -115,6 +115,7 @@ export default function AutomationsDialog({
     <Dialog open onClose={close} className="max-w-2xl">
       <DatabasesProvider workspaceId={workspaceId}>
       <SequenceChoicesProvider databaseId={databaseId}>
+      {/* Not DialogHeader: the back button goes before the title. */}
       <div className="flex items-start gap-3 border-b border-border px-5 py-4">
         {mode.kind !== "list" && (
           <IconButton label={t("back")} onClick={() => setMode({ kind: "list" })} className="mt-1">
@@ -122,7 +123,7 @@ export default function AutomationsDialog({
           </IconButton>
         )}
         <div className="min-w-0 flex-1">
-          <h2 className="text-base font-semibold">
+          <DialogTitle>
             {mode.kind === "list"
               ? t("title")
               : mode.kind === "runs"
@@ -130,20 +131,14 @@ export default function AutomationsDialog({
                 : current
                   ? t("editTitle")
                   : t("new")}
-          </h2>
+          </DialogTitle>
           <p className="mt-0.5 truncate text-sm text-fg-muted">
             {mode.kind !== "list" && current ? current.name : databaseTitle || tc("untitled")}
           </p>
         </div>
-        <button
-          type="button"
-          aria-label={tc("close")}
-          title={tc("close")}
-          onClick={onClose}
-          className="inline-flex h-7 w-7 shrink-0 items-center justify-center rounded-md text-fg-muted hover:bg-bg-hover hover:text-fg"
-        >
+        <IconButton label={tc("close")} onClick={onClose} className="-me-1.5 -mt-0.5 h-7 w-7 text-fg-faint">
           <X className="h-4 w-4" />
-        </button>
+        </IconButton>
       </div>
 
       {!automations ? (
