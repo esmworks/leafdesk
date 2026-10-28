@@ -2,6 +2,12 @@
 
 ## Unreleased
 
+### Changed
+
+- **A line under the desktop app's tabs on macOS.** It runs from the sidebar to the window's edge,
+  so the page and the panels that open beside it (a row, the AI chat) start below a clear edge
+  instead of under empty space.
+
 ### Fixed
 
 - **A database page's icon and background pickers open over its view bar.** On a full database

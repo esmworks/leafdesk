@@ -1705,6 +1705,19 @@ body:has(.leafdesk-column-drop) .prosemirror-dropcursor-block {
     nav[data-sidebar] + * {
       margin-top: var(--app-top);
     }
+    /* A line under the strip, from the sidebar to the window's edge: the page and the panels beside
+       it (z-40) start below it alike; dialogs and the hidden sidebar (z-50) cover it. */
+    body::after {
+      content: "";
+      position: fixed;
+      top: var(--app-top);
+      left: var(--tab-strip-start, 0px);
+      right: var(--tab-strip-end, 0px);
+      height: 1px;
+      background: var(--color-border);
+      z-index: 45;
+      pointer-events: none;
+    }
   }
   :root[data-tab-strip]:not([data-full-screen], [dir="rtl"]):has([data-sidebar-open]) {
     [data-window-drag] {
