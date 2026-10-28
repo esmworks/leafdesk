@@ -73,6 +73,11 @@
 
 ### Fixed
 
+- **Places find addresses written the usual Turkish way.** The address search found nothing for an
+  address with "Mah.", "Cad.", "Sk.", door and block numbers, a postcode or "Akhisar/Manisa", in
+  the place cell and when the AI chat, MCP or the REST API wrote an address. Such an address is now
+  searched again in simpler spellings, down to its neighbourhood and then its district, and a
+  place found that way must lie in the district and province the address names.
 - **Long previews in the inbox are cut to their lines again.** An automation's message, the
   comment reacted to and a row email's start showed in full instead of two or three lines; so did a
   connection tool's description in an agent's settings.

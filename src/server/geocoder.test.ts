@@ -92,6 +92,32 @@ describe("geocoder", () => {
     expect(seen).toHaveLength(0);
   });
 
+  it("tries simpler spellings of an address it can't find, keeping only places in its area", async () => {
+    const SAKARYA = { lat: "40.5", lon: "30.1", display_name: "Yeni Sanayi Sitesi, Pamukova, Sakarya, Türkiye" };
+    const HACIISHAK = { lat: "38.9087", lon: "27.8484", display_name: "Hacıishak Mahallesi, Akhisar, Manisa, Türkiye", name: "Hacıishak Mahallesi" };
+    answer = (url) => {
+      const q = url.searchParams.get("q");
+      if (q === "Yeni Sanayi Sitesi, Akhisar, Manisa") return { status: 200, body: JSON.stringify([SAKARYA]) };
+      if (q === "Hacıishak Mahallesi, Akhisar, Manisa") return { status: 200, body: JSON.stringify([HACIISHAK]) };
+      return { status: 200, body: "[]" };
+    };
+    seen.length = 0;
+    const geocoder = createGeocoder({ url: base, trusted: true, intervalMs: 0, perUserPerMinute: 1 });
+    const typed = "Hacı İshak Mah. Yeni Sanayi Sitesi No:13, 45200 Akhisar/Manisa";
+    const places = await geocoder.search(typed, { userId: "u4" });
+    expect(places).toEqual([{ address: "Hacıishak Mahallesi, Akhisar, Manisa, Türkiye", name: "Hacıishak Mahallesi", lat: 38.9087, lng: 27.8484 }]);
+    expect(seen.map((s) => new URL(s.url, "http://x").searchParams.get("q"))).toEqual([
+      typed,
+      "Hacı İshak Mahallesi, Yeni Sanayi Sitesi, Akhisar, Manisa",
+      "Yeni Sanayi Sitesi, Akhisar, Manisa",
+      "Hacı İshak Mahallesi, Akhisar, Manisa",
+      "Hacıishak Mahallesi, Akhisar, Manisa",
+    ]);
+    // It counted as one search, and typing it again asks nobody.
+    expect(await geocoder.search(typed, { userId: "u4" })).toEqual(places);
+    expect(seen).toHaveLength(5);
+  });
+
   it("is off without an address", async () => {
     const off = createGeocoder({ url: null, trusted: false });
     expect(off.enabled).toBe(false);

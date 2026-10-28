@@ -246,7 +246,10 @@ forwards to theirs (`…@privaterelay.appleid.com`) when they choose to hide the
 
 A *place* property holds where something is: an address, an optional name and its latitude and
 longitude. In its cell you type an address or a place's name and pick one of the suggestions, or
-paste coordinates (`41.04, 29.01`, also `geo:` links). The cell shows the name or address with a
+paste coordinates (`41.04, 29.01`, also `geo:` links). An address the search service doesn't know
+as written (abbreviations like "Mah." and "Cad.", door, block and flat numbers, postcodes,
+"Akhisar/Manisa") is searched again in simpler spellings, down to its neighbourhood and then its
+district, keeping only places in the district and province it names. The cell shows the name or address with a
 link that opens the spot on OpenStreetMap. Filters take "contains", "does not contain", "is empty"
 and "is not empty" on the address; sorting, CSV export and formulas read the address. MCP, the
 REST API, the AI chat, agents, automations, imports and pastes may write an address (the server
@@ -260,7 +263,7 @@ under the map. Published pages show map views as tables.
 
 | Variable | Purpose |
 | --- | --- |
-| `GEOCODER_URL` | A Nominatim-compatible search service the server asks for addresses. Default `https://nominatim.openstreetmap.org`; empty turns address search off (places then take coordinates only). The default may not be on a private address; one you set may. Requests go from the server only, at most one a second for the whole server and 30 a minute per person, with a 5-second timeout, and answers are kept in memory for a day. |
+| `GEOCODER_URL` | A Nominatim-compatible search service the server asks for addresses. Default `https://nominatim.openstreetmap.org`; empty turns address search off (places then take coordinates only). The default may not be on a private address; one you set may. Requests go from the server only, at most one a second for the whole server and 30 a minute per person, with a 5-second timeout, and answers are kept in memory for a day. An address that finds nothing as typed is asked again in up to five simpler spellings. |
 | `MAP_TILE_URL` | The map's image tiles, with `{z}`, `{x}` and `{y}` (and optionally `{s}`) in it. Default `https://tile.openstreetmap.org/{z}/{x}/{y}.png`; empty turns map views off ("Maps are off on this server"). Browsers load the tiles directly. |
 | `MAP_TILE_ATTRIBUTION` | The credit shown on the map, as plain text. Default `© OpenStreetMap contributors` (linked to its copyright page). Set it to what your tile provider asks for. |
 

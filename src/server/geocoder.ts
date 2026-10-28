@@ -1,3 +1,4 @@
+import { addressQueries, liesWithin } from "@/lib/address-query";
 import { env } from "@/lib/env";
 import { formatCoordinates, MAX_PLACE_ADDRESS, MAX_PLACE_NAME, type PlaceValue } from "@/lib/place";
 import { APP_INFO } from "./app-info";
@@ -14,6 +15,10 @@ import { fetchRemoteFile, isBlockedAddress, readRemoteText, RemoteFetchError } f
  * address again asks nobody. The default address is reached only on public addresses; a server
  * named in GEOCODER_URL is the administrator's choice and is reached wherever it is (a geocoder
  * on the same network, say).
+ *
+ * The service wants every word of a search to match, so an address written as people write it
+ * ("Hacı İshak Mah. … No:13, 45200 Akhisar/Manisa") finds nothing; when it doesn't, simpler
+ * spellings of it are tried in turn (lib/address-query.ts), down to the district it is in.
  */
 
 export class GeocoderError extends Error {
@@ -45,6 +50,8 @@ export type GeocoderOptions = {
 
 const MAX_QUERY = 300;
 const MAX_RESULTS = 8;
+/** Searches sent to the service for one address at most: as typed, then simpler spellings. */
+const MAX_TRIES = 6;
 /** Nominatim answers with a few kilobytes; anything far bigger isn't an answer. */
 const MAX_BYTES = 512 * 1024;
 
@@ -115,6 +122,44 @@ export function createGeocoder(options: GeocoderOptions): Geocoder {
     while (cache.size > cacheSize) cache.delete(cache.keys().next().value as string);
   }
 
+  /** One request to the service, its answer kept for a day. */
+  async function ask(q: string, lang: string, count: number): Promise<PlaceValue[]> {
+    const key = `${lang}\u0000${count}\u0000${q.toLocaleLowerCase()}`;
+    const hit = cache.get(key);
+    if (hit && Date.now() - hit.at < cacheMs) {
+      remember(key, hit.results);
+      return hit.results;
+    }
+    await turn();
+    const params = new URLSearchParams({ q, format: "jsonv2", limit: String(count) });
+    if (lang) params.set("accept-language", lang);
+    let text: string;
+    try {
+      const file = await fetchRemoteFile(`${base}/search?${params}`, {
+        maxBytes: MAX_BYTES,
+        timeoutMs,
+        maxRedirects: 0,
+        userAgent,
+        accept: "application/json",
+        isBlocked: trusted ? () => false : isBlockedAddress,
+      });
+      text = await readRemoteText(file, MAX_BYTES);
+    } catch (error) {
+      const reason = error instanceof RemoteFetchError ? error.message : "no answer";
+      throw new GeocoderError("failed", `Address search failed: ${reason}`);
+    }
+    let parsed: unknown;
+    try {
+      parsed = JSON.parse(text);
+    } catch {
+      throw new GeocoderError("failed", "Address search sent something that isn't JSON");
+    }
+    if (!Array.isArray(parsed)) throw new GeocoderError("failed", "Address search sent an unexpected answer");
+    const results = parsed.flatMap((r) => placeFromResult(r) ?? []).slice(0, count);
+    remember(key, results);
+    return results;
+  }
+
   return {
     enabled: base !== null,
     async search(query, { userId, language, limit = 5 } = {}) {
@@ -123,41 +168,33 @@ export function createGeocoder(options: GeocoderOptions): Geocoder {
       if (!q) return [];
       const lang = (language ?? "").trim().slice(0, 35);
       const count = Math.min(Math.max(1, Math.floor(limit)), MAX_RESULTS);
-      const key = `${lang}\u0000${count}\u0000${q.toLocaleLowerCase()}`;
+      const key = `found\u0000${lang}\u0000${count}\u0000${q.toLocaleLowerCase()}`;
       const hit = cache.get(key);
       if (hit && Date.now() - hit.at < cacheMs) {
         remember(key, hit.results);
         return hit.results;
       }
+      // One search for the person, however many spellings of it the service is asked.
       countSearch(userId);
-      await turn();
-      const params = new URLSearchParams({ q, format: "jsonv2", limit: String(count) });
-      if (lang) params.set("accept-language", lang);
-      let text: string;
-      try {
-        const file = await fetchRemoteFile(`${base}/search?${params}`, {
-          maxBytes: MAX_BYTES,
-          timeoutMs,
-          maxRedirects: 0,
-          userAgent,
-          accept: "application/json",
-          isBlocked: trusted ? () => false : isBlockedAddress,
-        });
-        text = await readRemoteText(file, MAX_BYTES);
-      } catch (error) {
-        const reason = error instanceof RemoteFetchError ? error.message : "no answer";
-        throw new GeocoderError("failed", `Address search failed: ${reason}`);
+      const tries = addressQueries(q, MAX_TRIES);
+      for (const [i, { query: spelling, within }] of tries.entries()) {
+        let found: PlaceValue[];
+        try {
+          found = await ask(spelling, lang, count);
+        } catch (error) {
+          // The address as typed has its answer or its error; a simpler spelling that couldn't
+          // be asked leaves the search with nothing, unremembered, so it is tried again later.
+          if (i === 0) throw error;
+          return [];
+        }
+        const results = found.filter((place) => liesWithin(place.address, within));
+        if (results.length) {
+          remember(key, results);
+          return results;
+        }
       }
-      let parsed: unknown;
-      try {
-        parsed = JSON.parse(text);
-      } catch {
-        throw new GeocoderError("failed", "Address search sent something that isn't JSON");
-      }
-      if (!Array.isArray(parsed)) throw new GeocoderError("failed", "Address search sent an unexpected answer");
-      const results = parsed.flatMap((r) => placeFromResult(r) ?? []).slice(0, count);
-      remember(key, results);
-      return results;
+      remember(key, []);
+      return [];
     },
   };
 }
