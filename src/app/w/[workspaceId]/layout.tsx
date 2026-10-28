@@ -19,6 +19,7 @@ import { USER_MARKER } from "@/lib/offline";
 import { parseSidebarCookie, SIDEBAR_COOKIE } from "@/lib/sidebar-layout";
 import { getMembership } from "@/server/access";
 import { aiEnabledFor } from "@/server/ai";
+import { sidebarAgents } from "@/server/agents/manage";
 import { chatOptionsFor } from "@/server/ai-chat";
 import { memoryAvailable } from "@/server/ai-memory";
 import { aiAvailable } from "@/server/ai-writing";
@@ -53,7 +54,7 @@ export default async function WorkspaceLayout({
     }
     notFound();
   }
-  const [workspaces, joinable, sidebar, favorites, topLevel, canCreate, cookieStore, ai, sidebarLayout, memory, aiConfigured, calloutStyles, firstAdmin, voice, chatOptions, desktopLinks] = await Promise.all([
+  const [workspaces, joinable, sidebar, favorites, topLevel, canCreate, cookieStore, ai, sidebarLayout, memory, aiConfigured, calloutStyles, firstAdmin, voice, chatOptions, desktopLinks, agents] = await Promise.all([
     listWorkspaces(user.id),
     joinableWorkspaces(user.id),
     getSidebar(user.id, workspaceId),
@@ -70,6 +71,7 @@ export default async function WorkspaceLayout({
     voiceNoteLimits(workspaceId),
     chatOptionsFor(user.id, workspaceId),
     env.localMode ? ("off" as const) : getDesktopLinks(user.id),
+    sidebarAgents(user.id, workspaceId),
   ]);
 
   const body = (
@@ -93,6 +95,7 @@ export default async function WorkspaceLayout({
             initialFavorites={favorites}
             topLevel={topLevel}
             initialLayout={sidebarLayout}
+            initialAgents={agents}
             user={{ id: user.id, name: user.name, email: user.email, image: user.image ?? null }}
           />
           <main className="min-w-0 flex-1 overflow-y-auto">

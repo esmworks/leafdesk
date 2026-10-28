@@ -286,7 +286,9 @@
     "more": "{count} til",
     "less": "Vis mindre",
     "meetings": "Møter",
-    "tasks": "Mine oppgaver"
+    "tasks": "Mine oppgaver",
+    "agents": "Agenter",
+    "manageAgents": "Administrer agenter"
   },
   "joinable": {
     "heading": "Arbeidsområder du kan bli med i",

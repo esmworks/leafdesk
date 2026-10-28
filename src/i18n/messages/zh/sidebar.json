@@ -286,7 +286,9 @@
     "more": "还有 {count} 个",
     "less": "收起",
     "meetings": "会议",
-    "tasks": "我的任务"
+    "tasks": "我的任务",
+    "agents": "智能体",
+    "manageAgents": "管理智能体"
   },
   "joinable": {
     "heading": "你可以加入的工作区",

@@ -286,7 +286,9 @@
     "more": "{count} till",
     "less": "Visa mindre",
     "meetings": "Möten",
-    "tasks": "Mina uppgifter"
+    "tasks": "Mina uppgifter",
+    "agents": "Agenter",
+    "manageAgents": "Hantera agenter"
   },
   "joinable": {
     "heading": "Arbetsytor du kan gå med i",

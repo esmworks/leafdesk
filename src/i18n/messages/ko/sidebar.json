@@ -286,7 +286,9 @@
     "more": "{count}개 더 보기",
     "less": "간단히 보기",
     "meetings": "회의",
-    "tasks": "내 작업"
+    "tasks": "내 작업",
+    "agents": "에이전트",
+    "manageAgents": "에이전트 관리"
   },
   "joinable": {
     "heading": "참여할 수 있는 워크스페이스",

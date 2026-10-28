@@ -286,7 +286,9 @@
     "more": "{count} lisää",
     "less": "Näytä vähemmän",
     "meetings": "Kokoukset",
-    "tasks": "Omat tehtävät"
+    "tasks": "Omat tehtävät",
+    "agents": "Agentit",
+    "manageAgents": "Hallitse agentteja"
   },
   "joinable": {
     "heading": "Työtilat, joihin voit liittyä",

@@ -286,7 +286,9 @@
     "more": "Thêm {count}",
     "less": "Thu gọn",
     "meetings": "Cuộc họp",
-    "tasks": "Việc của tôi"
+    "tasks": "Việc của tôi",
+    "agents": "Tác tử",
+    "manageAgents": "Quản lý tác tử"
   },
   "joinable": {
     "heading": "Không gian làm việc bạn có thể tham gia",

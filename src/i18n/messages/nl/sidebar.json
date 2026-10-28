@@ -286,7 +286,9 @@
     "more": "Nog {count}",
     "less": "Minder tonen",
     "meetings": "Vergaderingen",
-    "tasks": "Mijn taken"
+    "tasks": "Mijn taken",
+    "agents": "Agents",
+    "manageAgents": "Agents beheren"
   },
   "joinable": {
     "heading": "Werkruimtes waarvan je lid kunt worden",

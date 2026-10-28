@@ -15,6 +15,7 @@ import {
   NotebookPen,
   CloudOff,
   BookOpen,
+  Bot,
   Database,
   ExternalLink,
   FileText,
@@ -49,6 +50,7 @@ import Link from "next/link";
 import { useTranslations } from "next-intl";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { Fragment, useCallback, useEffect, useMemo, useRef, useState, useTransition } from "react";
+import { sidebarAgentsAction } from "@/app/actions/agents";
 import { unreadCountAction } from "@/app/actions/notifications";
 import { pendingCountAction } from "@/app/actions/review";
 import { listFavoritesAction } from "@/app/actions/page-menu";
@@ -59,6 +61,7 @@ import { setSidebarLayoutAction } from "@/app/actions/workspaces";
 import { settingsSearchAction } from "@/app/actions/settings-search";
 import type { SettingsSearchItem } from "@/lib/settings-search";
 import type { FavoritePage } from "@/server/page-meta";
+import type { SidebarAgent } from "@/server/agents/manage";
 import { useChannel } from "@/components/collab/use-channel";
 import { ViewIcon } from "@/components/database/property-icons";
 import { markNewPage } from "@/components/page/new-page-focus";
@@ -123,6 +126,7 @@ const OPEN_TEAMSPACES_KEY = "leafdesk:open-teamspaces";
 const TEAMSPACES_GROUP: SidebarSection = "teamspaces";
 const FAVORITES_SECTION: SidebarSection = "favorites";
 const PAGES_SECTION: SidebarSection = "pages";
+const AGENTS_SECTION: SidebarSection = "agents";
 /** Top-level pages "Private" and "Shared" show before a "More" row. */
 const SECTION_LIMIT = 10;
 /** A teamspace this many people are in asks before a page is added at its top, once per browser (WIDE_ADD_KEY). */
@@ -167,6 +171,7 @@ export function Sidebar({
   initialFavorites,
   topLevel,
   initialLayout,
+  initialAgents = [],
   user,
   joinable = [],
 }: {
@@ -189,6 +194,8 @@ export function Sidebar({
   topLevel: "shared" | "private" | null;
   /** How they arranged the sidebar in this workspace: section order, hidden and folded sections. */
   initialLayout: SidebarLayout;
+  /** The agents they may talk to: each opens its chat. */
+  initialAgents?: SidebarAgent[];
   user: { id: string; name: string; email: string; image: string | null };
 }) {
   const router = useRouter();
@@ -216,6 +223,7 @@ export function Sidebar({
   const [showAll, setShowAll] = useState<Set<string>>(() => new Set());
   const [teamspaceDialog, setTeamspaceDialog] = useState<{ teamspace?: TeamspaceSummary } | null>(null);
   const [favorites, setFavorites] = useState(initialFavorites);
+  const [agents, setAgents] = useState(initialAgents);
   const [expanded, setExpanded] = useState<Set<string>>(() => new Set());
   const [searchOpen, setSearchOpen] = useState(false);
   // What the search box opens with: a tag clicked in a page (OPEN_SEARCH_EVENT), else nothing.
@@ -306,6 +314,7 @@ export function Sidebar({
   useEffect(() => setTeamspaces(initialTeamspaces), [initialTeamspaces]);
   useEffect(() => setJournalPageId(initialJournalPageId), [initialJournalPageId]);
   useEffect(() => setFavorites(initialFavorites), [initialFavorites]);
+  useEffect(() => setAgents(initialAgents), [initialAgents]);
   // Favorites are downloaded for offline use too, unless the person turned that off on this device.
   const offlineState = useOfflineState(user.id);
   const keepFavorites = offlineState.keepFavorites;
@@ -338,6 +347,10 @@ export function Sidebar({
   const refreshInbox = useCallback(() => {
     unreadCountAction(workspaceId).then(setUnread).catch(() => {});
     pendingCountAction(workspaceId).then(setReviewCount).catch(() => {});
+    // Agents made or archived elsewhere (the AI chat, settings, another window) show up with it.
+    sidebarAgentsAction(workspaceId)
+      .then((result) => result.ok && setAgents(result.data))
+      .catch(() => {});
   }, [workspaceId]);
   // The tree as last loaded is kept in this browser; offline, it replaces the one the page came
   // with (a cached page may be older than the last tree seen).
@@ -540,6 +553,7 @@ export function Sidebar({
       teamspaces: t("teamspaces.heading"),
       shared: t("sections.shared"),
       private: t("sections.private"),
+      agents: t("sections.agents"),
     })[key];
 
   /** Folds or unfolds a section heading (`open` unfolds or folds it; without it, it toggles). */
@@ -1072,6 +1086,35 @@ export function Sidebar({
         />
       </SectionGroup>
     ),
+    // Each opens its chat in Settings > Agents, where the rest of it is too.
+    agents: agents.length > 0 && (
+      <SectionGroup
+        label={t("sections.agents")}
+        open={!isFolded(AGENTS_SECTION)}
+        onToggle={() => fold(AGENTS_SECTION)}
+        actions={
+          <IconButton label={t("sections.manageAgents")} onClick={() => router.push(`/w/${workspaceId}/settings?tab=agents`)}>
+            <MoreHorizontal className="h-3.5 w-3.5" />
+          </IconButton>
+        }
+      >
+        <ul className="space-y-px">
+          {agents.map((agent) => (
+            <li key={agent.id}>
+              <Link
+                href={`/w/${workspaceId}/settings?tab=agents&agent=${agent.id}&agentTab=chat`}
+                className="flex h-7 items-center gap-0.5 rounded-md ps-1 hover:bg-bg-hover"
+              >
+                <span className="flex h-6 w-6 shrink-0 items-center justify-center">
+                  {agent.icon ? <IconGlyph icon={agent.icon} className="text-sm" /> : <Bot className="h-4 w-4 text-fg-muted" aria-hidden />}
+                </span>
+                <span className="truncate ps-0.5">{agent.name}</span>
+              </Link>
+            </li>
+          ))}
+        </ul>
+      </SectionGroup>
+    ),
   };
   const hiddenSections = new Set(layout.hidden ?? []);
 
@@ -1471,7 +1514,7 @@ export function Sidebar({
           ) : customizing ? (
             <CustomizeSections
               sections={sidebarOrder(layout)
-                .filter((key) => (key === PAGES_SECTION ? !!pagesSpace : key === TEAMSPACES_GROUP ? showTeamspaces : true))
+                .filter((key) => (key === PAGES_SECTION ? !!pagesSpace : key === TEAMSPACES_GROUP ? showTeamspaces : key === AGENTS_SECTION ? agents.length > 0 : true))
                 .map((key) => ({ key, label: sectionLabel(key) }))}
               hidden={hiddenSections}
               onChange={(order, hidden) => saveLayout({ order, hidden })}

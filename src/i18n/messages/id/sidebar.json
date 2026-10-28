@@ -286,7 +286,9 @@
     "more": "{count} lainnya",
     "less": "Tampilkan lebih sedikit",
     "meetings": "Rapat",
-    "tasks": "Tugas saya"
+    "tasks": "Tugas saya",
+    "agents": "Agen",
+    "manageAgents": "Kelola agen"
   },
   "joinable": {
     "heading": "Ruang kerja yang dapat Anda ikuti",

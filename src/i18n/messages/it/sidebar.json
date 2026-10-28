@@ -286,7 +286,9 @@
     "more": "Altre {count}",
     "less": "Mostra meno",
     "meetings": "Riunioni",
-    "tasks": "Le mie attività"
+    "tasks": "Le mie attività",
+    "agents": "Agenti",
+    "manageAgents": "Gestisci agenti"
   },
   "joinable": {
     "heading": "Spazi di lavoro a cui puoi unirti",

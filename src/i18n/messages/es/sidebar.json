@@ -286,7 +286,9 @@
     "more": "{count} más",
     "less": "Mostrar menos",
     "meetings": "Reuniones",
-    "tasks": "Mis tareas"
+    "tasks": "Mis tareas",
+    "agents": "Agentes",
+    "manageAgents": "Gestionar agentes"
   },
   "joinable": {
     "heading": "Espacios a los que puedes unirte",

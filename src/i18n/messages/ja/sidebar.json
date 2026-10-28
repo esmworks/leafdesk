@@ -286,7 +286,9 @@
     "more": "ほか{count}件",
     "less": "表示を減らす",
     "meetings": "会議",
-    "tasks": "マイタスク"
+    "tasks": "マイタスク",
+    "agents": "エージェント",
+    "manageAgents": "エージェントを管理"
   },
   "joinable": {
     "heading": "参加できるワークスペース",

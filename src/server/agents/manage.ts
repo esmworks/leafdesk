@@ -41,7 +41,7 @@ import {
 import { agentTargets } from "@/lib/automations";
 import { ICON_RULE, parseIcon } from "@/lib/icon";
 import type { AgentLevel, AgentShareLevel } from "@/lib/agent-sharing";
-import { pageAccessOf, pageVisibleTo, requireMember } from "@/server/access";
+import { AccessError, pageAccessOf, pageVisibleTo, requireMember } from "@/server/access";
 import { recordAudit } from "@/server/audit";
 import { removePagePermission, setPagePermission } from "@/server/permissions";
 import { addAgentMembership } from "@/server/workspaces";
@@ -181,6 +181,19 @@ export async function listAgents(userId: string, workspaceId: string, { archived
     const level = levels.get(a.id) ?? "none";
     return level === "none" ? [] : [viewAgent(a, level)];
   });
+}
+
+/** An agent as the sidebar lists it. */
+export type SidebarAgent = { id: string; name: string; icon: string | null };
+
+/** The agents someone may talk to, for the sidebar: those listAgents gives them, none for guests. */
+export async function sidebarAgents(userId: string, workspaceId: string): Promise<SidebarAgent[]> {
+  try {
+    return (await listAgents(userId, workspaceId)).map((a) => ({ id: a.id, name: a.name, icon: a.icon }));
+  } catch (error) {
+    if (error instanceof AccessError) return [];
+    throw error;
+  }
 }
 
 /** The names of the workspace's agents (archived ones too), for naming them where they are used (automations): for owners and members. */

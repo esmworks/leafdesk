@@ -28,6 +28,7 @@ import {
   removeAgentAccess,
   restoreAgent,
   setAgentAccess,
+  sidebarAgents,
   updateAgent,
   type AgentInput,
 } from "@/server/agents/manage";
@@ -100,6 +101,11 @@ const input = (value: AgentInput): AgentInput => ({
   rowChanges: value?.rowChanges,
   helperAgentIds: Array.isArray(value?.helperAgentIds) ? value.helperAgentIds.map(String) : undefined,
 });
+
+/** The agents the sidebar lists (sidebar.tsx), again after something changed. */
+export async function sidebarAgentsAction(workspaceId: string) {
+  return run(workspaceId, (userId) => sidebarAgents(userId, workspaceId));
+}
 
 export async function createAgentAction(workspaceId: string, value: AgentInput) {
   return run(workspaceId, (userId) => createAgent(userId, workspaceId, input(value)), { refresh: true });

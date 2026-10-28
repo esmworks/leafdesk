@@ -2,6 +2,12 @@
 
 ## Unreleased
 
+### Added
+
+- **Agents in the sidebar.** The agents you may talk to have a section of their own under your
+  private pages; each opens its chat, and the section's menu goes to Settings → Agents. It folds,
+  hides and moves like the other sections, and shows only when there are agents.
+
 ### Changed
 
 - **A line under the desktop app's tabs on macOS.** It runs from the sidebar to the window's edge,

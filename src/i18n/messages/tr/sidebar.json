@@ -286,7 +286,9 @@
     "more": "{count} sayfa daha",
     "less": "Daha az göster",
     "meetings": "Toplantılar",
-    "tasks": "Görevlerim"
+    "tasks": "Görevlerim",
+    "agents": "Ajanlar",
+    "manageAgents": "Ajanları yönet"
   },
   "joinable": {
     "heading": "Katılabileceğiniz çalışma alanları",
