@@ -4,9 +4,11 @@
 
 ### Added
 
-- **Agents in the sidebar.** The agents you may talk to have a section of their own under your
-  private pages; each opens its chat, and the section's menu goes to Settings → Agents. It folds,
-  hides and moves like the other sections, and shows only when there are agents.
+- **Agents in the sidebar, each with a page of its own.** The agents you may talk to have a section
+  of their own under your private pages. Each opens the agent's page: its icon, name and
+  description, a chat with it, and a Settings button for the rest. The section's menu goes to
+  Settings → Agents; it folds, hides and moves like the other sections, and shows only when there
+  are agents.
 
 ### Changed
 

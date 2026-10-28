@@ -73,8 +73,11 @@ import { gzipSync } from "node:zlib";
  * The chat box keeping its edges in line with the messages above it (it measures the list's
  * scrollbar) and growing with its text add about 0.25 kB to a page's first load and to all first
  * loads together.
+ *
+ * An agent's own page (its header; the chat loads with it) adds about 1.5 kB to all first loads
+ * together, as a route of its own.
  */
-const BUDGET = { routeFirstLoad: 779, firstLoadShared: 1185, onDemandChunk: 450 };
+const BUDGET = { routeFirstLoad: 779, firstLoadShared: 1187, onDemandChunk: 450 };
 
 const NEXT = ".next";
 const kB = (bytes: number) => bytes / 1024;

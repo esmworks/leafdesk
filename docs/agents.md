@@ -135,7 +135,8 @@ Its runs show who mentioned it and on which page (`mention` in `list_agent_runs`
 and end as `commentGone` when the comment or its page is gone by then; what they did shows to the
 owners who can open the page.
 
-**Chatting with an agent.** Anyone the agent is shared with chats with it in its *Chat* tab, or
+**Chatting with an agent.** Anyone the agent is shared with chats with it on its own page, which
+the sidebar's *Agents* section opens (its *Settings* button opens the dialog), in its *Chat* tab, or
 in a page's **Agent chat** block (the slash menu's
 *Agent chat*, or paste a link to the agent's settings, as the *Chat* tab copies it, alone on an
 empty line). Each message the agent answers is one of its runs (shown in its *Runs* tab as a chat
