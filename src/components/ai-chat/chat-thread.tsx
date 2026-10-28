@@ -536,7 +536,7 @@ function Answer({
   const byNumber = useMemo(() => new Map((message.sources ?? []).map((s) => [s.n, s])), [message.sources]);
   const done = status === null && !waiting && (message.content.trim() !== "" || message.ms !== undefined);
   return (
-    <div className="group/answer font-sans text-sm leading-relaxed">
+    <div className="group/answer font-sans text-sm leading-normal">
       {message.steps ? (
         <Steps message={message} status={status} waiting={waiting} reasoning={reasoning} onSource={onSource} />
       ) : (

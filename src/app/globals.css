@@ -206,14 +206,17 @@
   --color-removed-bg: var(--removed-bg);
   --color-removed-fg: var(--removed-fg);
   --color-removed-bar: var(--removed-bar);
-  --font-sans: "Inter", ui-sans-serif, system-ui, -apple-system, "Segoe UI", var(--font-cjk-sans), sans-serif;
+  /* The system's own face everywhere (SF Pro on Apple's systems), whatever else is installed. */
+  --font-sans:
+    -apple-system, "SF Pro Text", "SF Pro Display", BlinkMacSystemFont, "Helvetica Neue", system-ui,
+    "Segoe UI Variable Text", "Segoe UI", Roboto, "Noto Sans", Arial, var(--font-cjk-sans), sans-serif;
 }
 
 /*
  * Chinese, Japanese and Korean text in faces chosen for each, sans and serif, by the language the
- * app is in (the shapes of Han characters differ between them): Inter, the system's faces and the
- * serif stack have no such letters, so these draw them. They come after the system's faces: they
- * have Latin letters too, and would draw all text wherever Inter isn't installed.
+ * app is in (the shapes of Han characters differ between them): the Latin faces in --font-sans and
+ * the serif stack have no such letters, so these draw them. They come after those faces: they have
+ * Latin letters too, and would otherwise draw all text.
  * Simplified Chinese unless the language says otherwise.
  */
 :root {

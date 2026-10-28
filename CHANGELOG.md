@@ -7,6 +7,9 @@
 - **A line under the desktop app's tabs on macOS.** It runs from the sidebar to the window's edge,
   so the page and the panels that open beside it (a row, the AI chat) start below a clear edge
   instead of under empty space.
+- **The app always uses the system's own typeface.** Text is drawn in SF Pro on Apple's systems and
+  Segoe UI on Windows, also on computers that have Inter installed, which used to switch the app
+  to Inter. AI chat answers sit a little closer together (line height 1.5).
 
 ### Fixed
 
