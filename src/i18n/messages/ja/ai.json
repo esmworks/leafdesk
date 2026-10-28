@@ -303,6 +303,11 @@
         "done": "{connection}：{tool} を呼び出しました",
         "failed": "{connection}：{tool} に失敗しました",
         "declined": "{connection}：{tool} の呼び出しを拒否しました"
+      },
+      "tool": {
+        "done": "{tool} を使用しました",
+        "failed": "{tool} に失敗しました",
+        "declined": "拒否しました: {tool}"
       }
     },
     "stopped": "停止しました。",
@@ -327,6 +332,7 @@
         "editPage": "このページのテキストを変更しますか？",
         "createPdf": "このページの PDF を作成して添付しますか？",
         "connection": "これを {connection} に送信しますか？",
+        "tool": "この変更を行いますか？",
         "readWeb": "このウェブページを読みますか？",
         "searchWeb": "これをウェブで検索しますか？",
         "addComment": "このコメントを追加しますか？",
@@ -345,6 +351,7 @@
       "page": "ページ",
       "empty": "（空）",
       "connectionHint": "ワークスペースの接続で送信されます：{connection} で何かが変更される場合があります",
+      "toolHint": "このワークスペースで、あなたのアクセス権で行われます",
       "readWebHint": "アドレスに含まれる内容はすべてそのサイトに届きます",
       "searchWebHint": "語句はウェブ検索サービスに届きます",
       "fromFile": "{name} から {rows, plural, other {# 行}}",

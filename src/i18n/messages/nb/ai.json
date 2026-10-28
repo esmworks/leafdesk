@@ -303,6 +303,11 @@
         "done": "{connection}: kalte {tool}",
         "failed": "{connection}: {tool} mislyktes",
         "declined": "{connection}: avslo å kalle {tool}"
+      },
+      "tool": {
+        "done": "Brukte {tool}",
+        "failed": "{tool} mislyktes",
+        "declined": "Avslått: {tool}"
       }
     },
     "stopped": "Stoppet.",
@@ -327,6 +332,7 @@
         "editPage": "Vil du endre teksten på denne siden?",
         "createPdf": "Vil du lage en PDF av denne siden og legge den ved?",
         "connection": "Vil du sende dette til {connection}?",
+        "tool": "Gjøre denne endringen?",
         "readWeb": "Vil du lese denne nettsiden?",
         "searchWeb": "Vil du søke på nettet etter dette?",
         "addComment": "Vil du legge til denne kommentaren?",
@@ -345,6 +351,7 @@
       "page": "Side",
       "empty": "(tom)",
       "connectionHint": "Sendes med arbeidsområdets tilkobling: det kan endre noe hos {connection}",
+      "toolHint": "Gjøres i dette arbeidsområdet, med din tilgang",
       "readWebHint": "Alt i adressen når fram til det nettstedet",
       "searchWebHint": "Ordene når fram til søketjenesten på nettet",
       "fromFile": "{rows, plural, one {# rad} other {# rader}} fra {name}",

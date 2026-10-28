@@ -83,6 +83,7 @@
     "remember": "Bunu senin hakkında hatırlayayım mı?",
     "forget": "Bu not unutulsun mu?",
     "connection": "Bu, {connection} ({tool}) hizmetine gönderilsin mi?",
+    "tool": "Bu değişiklik yapılsın mı ({tool})?",
     "readWeb": "Bu web sayfası okunsun mu? Adresindeki her şey o siteye ulaşır:",
     "searchWeb": "Bu, web'de aransın mı? Sözcükler arama hizmetine ulaşır:",
     "aPage": "bir sayfa",

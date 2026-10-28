@@ -303,6 +303,11 @@
         "done": "{connection}: {tool} çağrıldı",
         "failed": "{connection}: {tool} başarısız oldu",
         "declined": "{connection}: {tool} çağrısını reddettin"
+      },
+      "tool": {
+        "done": "{tool} kullanıldı",
+        "failed": "{tool} başarısız oldu",
+        "declined": "Reddedildi: {tool}"
       }
     },
     "stopped": "Durduruldu.",
@@ -327,6 +332,7 @@
         "editPage": "Bu sayfanın metni değiştirilsin mi?",
         "createPdf": "Bu sayfanın PDF'i oluşturulup eklensin mi?",
         "connection": "Bu, {connection} hizmetine gönderilsin mi?",
+        "tool": "Bu değişiklik yapılsın mı?",
         "readWeb": "Bu web sayfası okunsun mu?",
         "searchWeb": "Bu, web'de aransın mı?",
         "addComment": "Bu yorum eklensin mi?",
@@ -345,6 +351,7 @@
       "page": "Sayfa:",
       "empty": "(boş)",
       "connectionHint": "Çalışma alanının bağlantısıyla gönderilir: {connection} tarafında bir şeyi değiştirebilir",
+      "toolHint": "Bu çalışma alanında, senin erişiminle yapılır",
       "readWebHint": "Adresteki her şey o siteye ulaşır",
       "searchWebHint": "Sözcükler web arama hizmetine ulaşır",
       "fromFile": "{name} dosyasından {rows, plural, one {# satır} other {# satır}}",

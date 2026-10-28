@@ -83,6 +83,7 @@
     "remember": "Skal jeg huske dette om dig?",
     "forget": "Skal jeg glemme denne note?",
     "connection": "Vil du sende dette til {connection} ({tool})?",
+    "tool": "Foretag denne ændring ({tool})?",
     "readWeb": "Vil du læse denne webside? Alt i adressen når frem til det websted:",
     "searchWeb": "Vil du søge på nettet efter dette? Ordene når frem til søgetjenesten:",
     "aPage": "en side",

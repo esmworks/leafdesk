@@ -303,6 +303,11 @@
         "done": "{connection}: anropade {tool}",
         "failed": "{connection}: {tool} misslyckades",
         "declined": "{connection}: avböjde att anropa {tool}"
+      },
+      "tool": {
+        "done": "Använde {tool}",
+        "failed": "{tool} misslyckades",
+        "declined": "Avböjt: {tool}"
       }
     },
     "stopped": "Stoppat.",
@@ -327,6 +332,7 @@
         "editPage": "Ändra den här sidans text?",
         "createPdf": "Skapa en PDF av den här sidan och bifoga den?",
         "connection": "Skicka det här till {connection}?",
+        "tool": "Göra den här ändringen?",
         "readWeb": "Läsa den här webbsidan?",
         "searchWeb": "Söka efter det här på webben?",
         "addComment": "Lägga till den här kommentaren?",
@@ -345,6 +351,7 @@
       "page": "Sida",
       "empty": "(tomt)",
       "connectionHint": "Skickas med arbetsytans anslutning: det kan ändra något hos {connection}",
+      "toolHint": "Görs i den här arbetsytan, med din åtkomst",
       "readWebHint": "Allt i adressen når fram till den webbplatsen",
       "searchWebHint": "Orden når fram till söktjänsten på webben",
       "fromFile": "{rows, plural, one {# rad} other {# rader}} från {name}",

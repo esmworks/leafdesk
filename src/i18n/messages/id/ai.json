@@ -303,6 +303,11 @@
         "done": "{connection}: memanggil {tool}",
         "failed": "{connection}: {tool} gagal",
         "declined": "{connection}: menolak memanggil {tool}"
+      },
+      "tool": {
+        "done": "Menggunakan {tool}",
+        "failed": "{tool} gagal",
+        "declined": "Ditolak: {tool}"
       }
     },
     "stopped": "Dihentikan.",
@@ -327,6 +332,7 @@
         "editPage": "Ubah teks halaman ini?",
         "createPdf": "Buat PDF halaman ini dan lampirkan?",
         "connection": "Kirim ini ke {connection}?",
+        "tool": "Lakukan perubahan ini?",
         "readWeb": "Baca halaman web ini?",
         "searchWeb": "Cari ini di web?",
         "addComment": "Tambahkan komentar ini?",
@@ -345,6 +351,7 @@
       "page": "Halaman",
       "empty": "(kosong)",
       "connectionHint": "Dikirim lewat koneksi ruang kerja: dapat mengubah sesuatu di {connection}",
+      "toolHint": "Dilakukan di ruang kerja ini, dengan akses Anda",
       "readWebHint": "Semua isi alamat sampai ke situs tersebut",
       "searchWebHint": "Kata-katanya sampai ke layanan pencarian web",
       "fromFile": "{rows, plural, other {# baris}} dari {name}",

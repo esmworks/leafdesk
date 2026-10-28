@@ -1,7 +1,7 @@
 // Client-safe: shared by the AI chat's server side (src/server/ai-chat.ts, /api/ai/chat) and its
 // panel (src/components/ai-chat).
 
-import type { ChatAttachmentRecord, ChatChange, ChatConnectionRecord, ChatMemoryRecord, ChatStepRecord, ChatWebRecord, ChatWriteAction, ChatWriteStepAction } from "@/db/schema/ai";
+import type { ChatAttachmentRecord, ChatChange, ChatConnectionRecord, ChatMemoryRecord, ChatStepRecord, ChatToolRecord, ChatWebRecord, ChatWriteAction, ChatWriteStepAction } from "@/db/schema/ai";
 import type { PageKind } from "@/db/schema/app";
 import type { BlockChange } from "./page-diff";
 import type { AiErrorCode } from "./ai";
@@ -27,7 +27,7 @@ export type ChatScope = { pageId: string } | { teamspaceId: string } | null;
  */
 export type ChatScopeView = { kind: "page" | "teamspace"; id: string; title: string | null };
 
-export type { ChatAttachmentRecord, ChatAttachmentView, ChatChange, ChatConnectionRecord, ChatMemoryRecord, ChatWebRecord, ChatWriteAction, ChatWriteStepAction };
+export type { ChatAttachmentRecord, ChatAttachmentView, ChatChange, ChatConnectionRecord, ChatMemoryRecord, ChatToolRecord, ChatWebRecord, ChatWriteAction, ChatWriteStepAction };
 
 // ----------------------------------------------------------------------------------- models
 
@@ -75,7 +75,8 @@ export type ChatPageView = { pageId: string; workspaceId: string; title: string;
  * search with the question itself) and how many pages it found, a page it read, a database it
  * queried (its filters and how many rows matched), a change (see ChatWriteView), a note it kept
  * about the person or dropped (ChatMemoryRecord), a call to a connection's tool
- * (ChatConnectionRecord), or what the model said before searching or reading.
+ * (ChatConnectionRecord) or to one of Leafdesk's further tools (ChatToolRecord), or what the model
+ * said before searching or reading.
  */
 export type ChatStepView =
   | { kind: "search"; query: string | null; results: number }
@@ -84,6 +85,7 @@ export type ChatStepView =
   | ChatWriteView
   | ChatMemoryRecord
   | ChatConnectionRecord
+  | ChatToolRecord
   | { kind: "thought"; text: string }
   | { kind: "plan"; questions: string[] }
   | ChatWebRecord;
@@ -108,14 +110,17 @@ export type ChatWriteView = {
  * A change the chat asks to make (mode `ask`): what (`action`), where (`target` as in
  * ChatWriteView), the title of the row or page, the values it sets and the start of the text it
  * writes, if any. A call to a connection's tool that changes something (asked in every mode):
- * the connection, the tool as title and what it sends as content. A web page to read or a web
+ * the connection, the tool as title and what it sends as content. A call to one of Leafdesk's
+ * further tools that changes something (`tool`): its title, and what it is given as content. A web page to read or a web
  * search (asked in every mode, see lib/web-calls.ts): the address or the words as title.
  */
 export type ChatActionView = {
   /** A change to the workspace, a note about the person to keep or drop (title: its text), a call to a connection's tool, or a web call. */
-  action: ChatWriteAction | "remember" | "forget" | "connection" | "readWeb" | "searchWeb";
+  action: ChatWriteAction | "remember" | "forget" | "connection" | "tool" | "readWeb" | "searchWeb";
   /** A call to a connection's tool: the connection. */
   connection?: { name: string; icon: string | null };
+  /** Asked about every time: "don't ask again" isn't offered (server/ai-more-tools.ts ASKED_EACH_TIME). */
+  eachTime?: boolean;
   target: ChatPageView;
   title: string | null;
   /** A row renamed: its title now. */
@@ -176,7 +181,7 @@ export const changedMemory = (step: ChatStepView) => step.kind === "memory" && s
  * Asking such an answer again would do it twice.
  */
 export const changedThings = (step: ChatStepView | ChatStepRecord) =>
-  (step.kind === "write" && step.outcome === "done") || (step.kind === "connection" && step.writes && step.outcome !== "declined");
+  (step.kind === "write" && step.outcome === "done") || ((step.kind === "connection" || step.kind === "leafdesk") && step.writes && step.outcome !== "declined");
 
 /**
  * Lines of `POST /api/ai/chat`'s newline-delimited JSON answer, in order: `conversation` (its id,

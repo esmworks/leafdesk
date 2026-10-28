@@ -83,6 +83,7 @@
     "remember": "Muistetaanko tämä sinusta?",
     "forget": "Unohdetaanko tämä muistiinpano?",
     "connection": "Lähetetäänkö tämä yhteyteen {connection} ({tool})?",
+    "tool": "Tehdäänkö tämä muutos ({tool})?",
     "readWeb": "Luetaanko tämä verkkosivu? Kaikki sen osoitteessa oleva päätyy sille sivustolle:",
     "searchWeb": "Haetaanko tätä verkosta? Sanat päätyvät hakupalveluun:",
     "aPage": "sivu",

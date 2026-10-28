@@ -303,6 +303,11 @@
         "done": "{connection}: {tool} aangeroepen",
         "failed": "{connection}: {tool} mislukt",
         "declined": "{connection}: aanroepen van {tool} geweigerd"
+      },
+      "tool": {
+        "done": "{tool} gebruikt",
+        "failed": "{tool} mislukt",
+        "declined": "Geweigerd: {tool}"
       }
     },
     "stopped": "Gestopt.",
@@ -327,6 +332,7 @@
         "editPage": "De tekst van deze pagina wijzigen?",
         "createPdf": "Een pdf van deze pagina maken en bijvoegen?",
         "connection": "Dit naar {connection} sturen?",
+        "tool": "Deze wijziging doorvoeren?",
         "readWeb": "Deze webpagina lezen?",
         "searchWeb": "Hierop zoeken op het web?",
         "addComment": "Deze opmerking toevoegen?",
@@ -345,6 +351,7 @@
       "page": "Pagina",
       "empty": "(leeg)",
       "connectionHint": "Verstuurd via de koppeling van de werkruimte: dit kan iets wijzigen bij {connection}",
+      "toolHint": "Gebeurt in deze werkruimte, met jouw toegang",
       "readWebHint": "Alles in het adres komt bij die site terecht",
       "searchWebHint": "De woorden komen bij de zoekdienst op het web terecht",
       "fromFile": "{rows, plural, one {# rij} other {# rijen}} uit {name}",

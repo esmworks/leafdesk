@@ -303,6 +303,11 @@
         "done": "{connection}: kutsuttiin {tool}",
         "failed": "{connection}: {tool} epäonnistui",
         "declined": "{connection}: kutsu {tool} hylätty"
+      },
+      "tool": {
+        "done": "Käytti työkalua {tool}",
+        "failed": "{tool} epäonnistui",
+        "declined": "Hylätty: {tool}"
       }
     },
     "stopped": "Pysäytetty.",
@@ -327,6 +332,7 @@
         "editPage": "Muutetaanko tämän sivun tekstiä?",
         "createPdf": "Luodaanko tästä sivusta PDF ja liitetäänkö se?",
         "connection": "Lähetetäänkö tämä yhteyteen {connection}?",
+        "tool": "Tehdäänkö tämä muutos?",
         "readWeb": "Luetaanko tämä verkkosivu?",
         "searchWeb": "Haetaanko tätä verkosta?",
         "addComment": "Lisätäänkö tämä kommentti?",
@@ -345,6 +351,7 @@
       "page": "Sivu",
       "empty": "(tyhjä)",
       "connectionHint": "Lähetetään työtilan yhteydellä: se voi muuttaa jotain palvelussa {connection}",
+      "toolHint": "Tehdään tässä työtilassa sinun oikeuksillasi",
       "readWebHint": "Kaikki osoitteessa oleva päätyy sille sivustolle",
       "searchWebHint": "Sanat päätyvät verkkohakupalveluun",
       "fromFile": "{rows, plural, one {# rivi} other {# riviä}} tiedostosta {name}",

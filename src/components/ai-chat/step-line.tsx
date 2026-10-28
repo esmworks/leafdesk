@@ -6,7 +6,7 @@
  * plan, a web search or a web page read, a thought), as a line: an icon and what happened, the
  * pages it names as links (web pages open in a new tab).
  */
-import { Ban, BookOpen, Brain, BrainCog, CircleAlert, ClipboardList, FileDown, FilePen, FilePlus, Filter, Globe, Lightbulb, ListPlus, ListTree, Merge, MessageSquarePlus, PencilLine, Plug, Search, Table2 } from "lucide-react";
+import { Ban, BookOpen, Brain, BrainCog, CircleAlert, ClipboardList, FileDown, FilePen, FilePlus, Filter, Globe, Lightbulb, ListPlus, ListTree, Merge, MessageSquarePlus, PencilLine, Plug, Search, Table2, Wrench } from "lucide-react";
 import { useLocale, useTranslations } from "next-intl";
 import { Fragment } from "react";
 import { cn, PageIcon, pageLabel } from "@/components/ui";
@@ -79,6 +79,20 @@ export function StepLine({ step, onSource }: { step: ChatStepView; onSource: (so
         <Icon className={cn(icon, step.outcome === "failed" && "text-danger")} />
         <span className="min-w-0 break-words">
           {t(`steps.connection.${step.outcome}`, { connection: step.connection, tool: step.tool })}
+          <code className="mt-0.5 block truncate text-xs text-fg-faint" title={step.input}>
+            {step.input}
+          </code>
+        </span>
+      </>
+    );
+  }
+  if (step.kind === "leafdesk") {
+    const Icon = step.outcome === "declined" ? Ban : step.outcome === "failed" ? CircleAlert : Wrench;
+    return (
+      <>
+        <Icon className={cn(icon, step.outcome === "failed" && "text-danger")} />
+        <span className="min-w-0 break-words">
+          {t(`steps.tool.${step.outcome}`, { tool: step.title })}
           <code className="mt-0.5 block truncate text-xs text-fg-faint" title={step.input}>
             {step.input}
           </code>

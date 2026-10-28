@@ -151,6 +151,7 @@ export type ChatStepRecord =
   | ChatWriteRecord
   | ChatMemoryRecord
   | ChatConnectionRecord
+  | ChatToolRecord
   | { kind: "thought"; text: string };
 
 /**
@@ -172,6 +173,20 @@ export type ChatConnectionRecord = {
   connectionId: string;
   connection: string;
   tool: string;
+  writes: boolean;
+  input: string;
+  outcome: "done" | "failed" | "declined";
+};
+
+/**
+ * A call to one of Leafdesk's further tools (server/ai-more-tools.ts): its name and title, whether
+ * it changes something, what the model gave it (cut to fit) and how it went (`declined`: the person
+ * said no, nothing was done).
+ */
+export type ChatToolRecord = {
+  kind: "leafdesk";
+  tool: string;
+  title: string;
   writes: boolean;
   input: string;
   outcome: "done" | "failed" | "declined";

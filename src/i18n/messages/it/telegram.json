@@ -83,6 +83,7 @@
     "remember": "Ricordo questo di te?",
     "forget": "Dimenticare questa nota?",
     "connection": "Inviare questo a {connection} ({tool})?",
+    "tool": "Fare questa modifica ({tool})?",
     "readWeb": "Leggere questa pagina web? Tutto ciò che c'è nel suo indirizzo arriva a quel sito:",
     "searchWeb": "Cercare questo sul web? Le parole arrivano al servizio di ricerca:",
     "aPage": "una pagina",

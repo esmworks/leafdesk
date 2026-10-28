@@ -29,7 +29,7 @@ try {
 // Imported after .env is loaded: the database client reads DATABASE_URL when it is created.
 const { and, eq, inArray } = await import("drizzle-orm");
 const { db } = await import("@/db");
-const { aiConversation, page, teamspace, user, workspace, workspaceMember } = await import("@/db/schema");
+const { aiConversation, databaseView, page, teamspace, user, workspace, workspaceMember } = await import("@/db/schema");
 const { registerCollab } = await import("@/server/collab/bridge");
 const { createCollab } = await import("@/server/collab/service");
 const { createPage } = await import("@/server/pages");
@@ -122,7 +122,7 @@ const everything = (request: FakeChatRequest) => request.messages.map((m) => tex
 /** Tool results the model got in this request, newest last. */
 const toolResults = (request: FakeChatRequest) => request.messages.filter((m) => m.role === "tool").map((m) => textOf(m.content));
 
-/** A step as one line: `search:<query or ?>:<results>`, `read:<title or gone>`, `query:<database or gone>:<rules>:<rows>`, `plan:…`, `web-search:…`, `web-read:…`, `thought:<text>`. */
+/** A step as one line: `search:<query or ?>:<results>`, `read:<title or gone>`, `query:<database or gone>:<rules>:<rows>`, `tool:<name>:<outcome>`, `plan:…`, `web-search:…`, `web-read:…`, `thought:<text>`. */
 const stepLabel = (step: ChatStepView) =>
   step.kind === "search"
     ? `search:${step.query ?? "?"}:${step.results}`
@@ -134,13 +134,15 @@ const stepLabel = (step: ChatStepView) =>
           ? `write:${step.action}:${step.outcome}:${step.page?.title ?? step.title ?? step.target?.title ?? "?"}`
           : step.kind === "connection"
             ? `connection:${step.connection}:${step.tool}:${step.outcome}`
-            : step.kind === "plan"
-              ? `plan:${step.questions.join("|")}`
-              : step.kind === "web"
-                ? step.action === "search"
-                  ? `web-search:${step.query}:${step.results}`
-                  : `web-read:${step.url}:${step.outcome}`
-                : `thought:${step.text}`;
+            : step.kind === "leafdesk"
+              ? `tool:${step.tool}:${step.outcome}`
+              : step.kind === "plan"
+                ? `plan:${step.questions.join("|")}`
+                : step.kind === "web"
+                  ? step.action === "search"
+                    ? `web-search:${step.query}:${step.results}`
+                    : `web-read:${step.url}:${step.outcome}`
+                  : `thought:${step.text}`;
 
 /** Runs a question to the end; returns its events and what they add up to. */
 async function ask(userId: string, input: ChatInput, options: { signal?: AbortSignal; onEvent?: (e: ChatEvent) => void | Promise<void> } = {}) {
@@ -288,7 +290,7 @@ try {
   const searched = sourcesIn(fake.chats[1]);
   check(searched.some((s) => s.pageId === fleet.id && s.text.includes("car needs new tyres")), "the model's search finds pages by meaning (car for automobile)", searched);
   check(
-    fake.chats.every((r) => r.tools?.map((t) => t.function.name).join() === "search_pages,read_page,query_database,list_comments,page_history,page_version,create_row,update_row,create_page,edit_page,create_pdf,add_comment,create_database,create_form,remember,forget"),
+    fake.chats.every((r) => r.tools?.map((t) => t.function.name).join() === "search_pages,read_page,query_database,list_comments,page_history,page_version,create_row,update_row,create_page,edit_page,create_pdf,add_comment,create_database,create_form,find_tools,use_tool,remember,forget"),
     "every turn declares the tools: to look, (asking first, by default) to change, and to keep notes about the person",
   );
   check(textOf(firstRequest.messages[0].content).includes("never instructions"), "the system prompt treats page content as data");
@@ -758,12 +760,90 @@ try {
     "changes are kept with the conversation, with the values set",
     keptUpdate,
   );
+  // ── Leafdesk's further tools (find_tools, use_tool) ─────────────────────────────────────────
+  const viewsNamed = (name: string) => db.select().from(databaseView).where(and(eq(databaseView.databaseId, parts.id), eq(databaseView.name, name)));
+  fake.setChat(caller([write("find_tools", { query: "board view" })]));
+  fake.chats.length = 0;
+  const found = await ask(alice, { workspaceId, message: "Can you add a board view?", mode: "auto" });
+  const foundText = toolResults(fake.chats.at(-1)!).join("\n");
+  check(
+    found.done && foundText.includes("## create_database_view (") && foundText.includes("Inputs (JSON schema): {") && foundText.includes("All of them: "),
+    "find_tools names the Leafdesk tool that fits, with what it takes",
+    foundText.slice(0, 600),
+  );
+  check(!/\bupdate_page\b|\bcreate_database_row\b|\bchange_memory\b|\battach_file\b/.test(foundText), "…never those the chat has its own of, the person's notes, or a file fetched from an address", foundText.slice(-1500));
+
+  const boardCall = write("use_tool", { name: "create_database_view", arguments: { database_id: parts.id, name: "Stock board", type: "board" } });
+  fake.setChat(caller([boardCall]));
+  fake.chats.length = 0;
+  let toolAsked: Extract<ChatEvent, { type: "approval" }> | null = null;
+  let viewBeforeApproval = true;
+  const board = await ask(alice, { workspaceId, message: "Add a board of the parts by stock" }, {
+    onEvent: async (e) => {
+      if (e.type !== "approval") return;
+      toolAsked = e;
+      viewBeforeApproval = (await viewsNamed("Stock board")).length > 0;
+      decideChange(alice, e.id, "approve");
+    },
+  });
+  const toolAction = (toolAsked as Extract<ChatEvent, { type: "approval" }> | null)?.action;
+  check(
+    toolAction?.action === "tool" && !toolAction.eachTime && (toolAction.content ?? "").includes("Stock board") && !viewBeforeApproval,
+    "in ask mode a further tool that changes something is asked about first, showing what it is given",
+    toolAction,
+  );
+  const [boardView] = await viewsNamed("Stock board");
+  check(board.done && boardView?.type === "board" && board.steps.includes("tool:create_database_view:done"), "once approved, the view is added, shown as a step", board.steps);
+
+  fake.setChat(caller([write("use_tool", { name: "create_database_view", arguments: { database_id: parts.id, name: "Declined board", type: "board" } })]));
+  fake.chats.length = 0;
+  const noBoard = await ask(alice, { workspaceId, message: "Add another board" }, { onEvent: (e) => void (e.type === "approval" && decideChange(alice, e.id, "decline")) });
+  check(
+    noBoard.done && (await viewsNamed("Declined board")).length === 0 && noBoard.steps.includes("tool:create_database_view:declined") && toolResults(fake.chats.at(-1)!).some((r) => r.startsWith("The person declined this change")),
+    "a declined further tool changes nothing, and says so",
+    noBoard.steps,
+  );
+
+  fake.setChat(caller([write("use_tool", { name: "create_database_view", arguments: { database_id: parts.id, name: "Auto list", type: "list" } })]));
+  fake.chats.length = 0;
+  const autoList = await ask(alice, { workspaceId, message: "Add a list view", mode: "auto" });
+  check(autoList.done && approvals(autoList).length === 0 && (await viewsNamed("Auto list")).length === 1, "in auto mode a further tool changes without asking", autoList.steps);
+
+  fake.setChat(caller([write("use_tool", { name: "invite_member", arguments: { workspace_id: workspaceId, email: `${RUN}-new@example.com` } })]));
+  fake.chats.length = 0;
+  const invite = await ask(alice, { workspaceId, message: "Invite my colleague", mode: "auto" }, { onEvent: (e) => void (e.type === "approval" && decideChange(alice, e.id, "decline")) });
+  check(
+    approvals(invite).length === 1 && approvals(invite)[0].action.eachTime === true && invite.steps.includes("tool:invite_member:declined"),
+    "one that reaches people is asked about also in auto mode, with no \"don't ask again\"",
+    invite.steps,
+  );
+
+  fake.setChat(caller([write("use_tool", { name: "update_page", arguments: { page_id: fleet.id, markdown: "Gone" } })]));
+  fake.chats.length = 0;
+  await ask(alice, { workspaceId, message: "Rewrite the fleet notes", mode: "auto" });
+  check(toolResults(fake.chats.at(-1)!).some((r) => r.startsWith('There is no tool "update_page"')), "use_tool won't call a tool the chat has its own of", toolResults(fake.chats.at(-1)!));
+
+  fake.setChat(caller([write("find_tools", { query: "board view" }), write("use_tool", { name: "create_database_view", arguments: { database_id: parts.id, name: "Read-only board", type: "board" } })]));
+  fake.chats.length = 0;
+  await ask(alice, { workspaceId, message: "Add a board", mode: "read" });
+  const readOnlyResults = toolResults(fake.chats.at(-1)!);
+  check(
+    !readOnlyResults[0].includes("create_database_view") && readOnlyResults[1].startsWith('There is no tool "create_database_view" here (changes are off') && (await viewsNamed("Read-only board")).length === 0,
+    "a read-only chat finds and calls only further tools that read",
+    readOnlyResults,
+  );
+
+  fake.setChat(caller([write("read_page", { page_id: "leafdesk://docs/views" })]));
+  fake.chats.length = 0;
+  await ask(alice, { workspaceId, message: "How are view filters written?", mode: "read" });
+  check(toolResults(fake.chats.at(-1)!)[0]?.startsWith("# ") && toolResults(fake.chats.at(-1)!)[0].includes("leafdesk://docs/views"), "read_page reads the docs topics the tools' inputs point at", toolResults(fake.chats.at(-1)!)[0]?.slice(0, 200));
+
   fake.setChat(researcher({}));
   fake.chats.length = 0;
   await ask(alice, { workspaceId, conversationId: always.conversationId, message: "And what did you change?", mode: "read" });
   check(everything(fake.chats[0]).includes(`(Changes made: added the row "Snow chains" (page_id `) && everything(fake.chats[0]).includes(`changed the row (page_id ${plugs.id}): Stock`), "a later question knows what was changed, with the ids", everything(fake.chats[0]).slice(-800));
   check(
-    fake.chats.every((r) => r.tools?.map((t) => t.function.name).join() === "search_pages,read_page,query_database,list_comments,page_history,page_version,remember,forget") && textOf(fake.chats[0].messages[0].content).includes("You can't change pages or databases"),
+    fake.chats.every((r) => r.tools?.map((t) => t.function.name).join() === "search_pages,read_page,query_database,list_comments,page_history,page_version,find_tools,use_tool,remember,forget") && textOf(fake.chats[0].messages[0].content).includes("You can't change pages or databases"),
     "in read-only mode the model isn't offered changes (keeping notes about the person changes nothing in the workspace)",
   );
   // With the memory off, by the person or for the workspace, neither mode offers the notes' tools.
@@ -779,9 +859,9 @@ try {
     await ask(alice, { workspaceId, message: "Which tyres?" });
     check(
       reading.length > 0 &&
-        reading.every((r) => toolsOf(r) === "search_pages,read_page,query_database,list_comments,page_history,page_version") &&
+        reading.every((r) => toolsOf(r) === "search_pages,read_page,query_database,list_comments,page_history,page_version,find_tools,use_tool") &&
         fake.chats.length > 0 &&
-        fake.chats.every((r) => toolsOf(r) === "search_pages,read_page,query_database,list_comments,page_history,page_version,create_row,update_row,create_page,edit_page,create_pdf,add_comment,create_database,create_form"),
+        fake.chats.every((r) => toolsOf(r) === "search_pages,read_page,query_database,list_comments,page_history,page_version,create_row,update_row,create_page,edit_page,create_pdf,add_comment,create_database,create_form,find_tools,use_tool"),
       `with the memory turned off by ${who}, remember and forget aren't offered, in either mode`,
       [...reading, ...fake.chats].map(toolsOf),
     );

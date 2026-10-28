@@ -362,6 +362,8 @@ export function approvalText(t: Translator, action: ChatActionView): string {
   const lines: string[] = [];
   if (action.action === "connection") {
     lines.push(html(t, "approval.connection", { connection: escapeHtml(action.connection?.name ?? ""), tool: escapeHtml(action.title ?? "") }));
+  } else if (action.action === "tool") {
+    lines.push(html(t, "approval.tool", { tool: escapeHtml(action.title ?? "") }));
   } else if (action.action === "remember" || action.action === "forget") {
     lines.push(escapeHtml(t(`approval.${action.action}`)), `<blockquote>${escapeHtml(action.title ?? "")}</blockquote>`);
   } else if (action.action === "readWeb" || action.action === "searchWeb") {
@@ -382,7 +384,7 @@ export function approvalText(t: Translator, action: ChatActionView): string {
   }
   if (action.content) {
     const content = preview(action.content, 1_000);
-    lines.push(action.action === "connection" ? `<pre>${escapeHtml(action.content.slice(0, 1_500))}</pre>` : `<blockquote>${escapeHtml(content)}</blockquote>`);
+    lines.push(action.action === "connection" || action.action === "tool" ? `<pre>${escapeHtml(action.content.slice(0, 1_500))}</pre>` : `<blockquote>${escapeHtml(content)}</blockquote>`);
   }
   return lines.join("\n");
 }
@@ -390,7 +392,7 @@ export function approvalText(t: Translator, action: ChatActionView): string {
 async function askApproval(link: TelegramLinkRow, t: Translator, id: string, action: ChatActionView, mode: ChatMode) {
   const text = approvalText(t, action);
   // "Don't ask again" makes the rest of the answer `auto`, which covers changes to the workspace only.
-  const always = mode === "ask" && !["connection", "remember", "forget", "readWeb", "searchWeb"].includes(action.action);
+  const always = mode === "ask" && !action.eachTime && !["connection", "remember", "forget", "readWeb", "searchWeb"].includes(action.action);
   const keyboard = {
     inline_keyboard: [
       [

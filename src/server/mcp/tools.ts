@@ -1311,7 +1311,11 @@ export function readDocs(id: string): { uri: string; title: string; text: string
   return { uri: docUri(topic), title: doc.title, text: doc.text };
 }
 
-export function createMcpServer(principal: McpPrincipal) {
+/**
+ * The MCP server for `principal`. Leafdesk's own AI (ai-more-tools.ts) passes the `actor` its
+ * changes are made as: the model's, with no connected app to name.
+ */
+export function createMcpServer(principal: McpPrincipal, options: { actor?: WriteActor } = {}) {
   const server = new McpServer({ name: "leafdesk", title: "Leafdesk", version: APP_INFO.version }, { instructions: INSTRUCTIONS });
   // Every tool not annotated read-only runs as a write, so a workspace that lets connected apps
   // only read refuses it in its access checks (see connected-app.ts), whatever the tool checks.
@@ -1328,7 +1332,7 @@ export function createMcpServer(principal: McpPrincipal) {
     );
   }) as typeof server.registerTool;
   const { userId } = principal;
-  const actor: WriteActor = { userId, oauthClientId: principal.clientId };
+  const actor: WriteActor = options.actor ?? { userId, oauthClientId: principal.clientId };
 
   const assertWrite = () => {
     if (!principal.scopes.includes(WRITE_SCOPE)) {

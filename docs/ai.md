@@ -220,6 +220,19 @@ waits, and stopping the answer, leaving the page or 15 minutes without an answer
 Changes made, declined or failed show among the answer's steps with links, are kept with the
 conversation (also when the answer itself didn't come), and later questions know them.
 
+**Leafdesk's other tools.** For what the tools above don't do, the chat looks through the tools of
+Leafdesk's own [MCP server](connections.md#connect-an-ai-assistant) (`find_tools`) and calls the
+one it needs (`use_tool`): a database's views (a calendar, a board…) and their filters, its
+properties (added, changed, deleted, another type), pages moved, copied, archived, trashed or
+brought back, an earlier version restored, dashboards, automations, agents, templates, sub-items and
+more. Each runs as you, with your access, through the same checks as for any MCP client; the tools
+the chat has its own of, your notes and files fetched from an address are left out. One that
+changes something is asked about in *Ask* (with its name and what it is given) and made at once in
+*Auto*; those that reach other people or work on their own later (inviting members, sharing, access
+rules, automations, agents, follow-up sequences) are asked about every time, also in *Auto*. *Read
+only* finds only the tools that read. Each call shows as a step. `read_page` also reads the
+`leafdesk://docs/<topic>` pages the tools' inputs point at.
+
 **Connections' tools.** Tools of a [connection](connections.md#connections) an owner ticked *In chat* are
 offered to members' chats (never guests'). Reading tools run at once and show as a step; a tool
 that changes something at the service asks before every call, in *Auto* too, and isn't offered in

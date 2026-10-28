@@ -303,6 +303,11 @@
         "done": "{connection}: تم استدعاء {tool}",
         "failed": "{connection}: فشل {tool}",
         "declined": "{connection}: رفضت استدعاء {tool}"
+      },
+      "tool": {
+        "done": "استخدم {tool}",
+        "failed": "فشل {tool}",
+        "declined": "مرفوض: {tool}"
       }
     },
     "stopped": "تم الإيقاف.",
@@ -327,6 +332,7 @@
         "editPage": "تغيير نص هذه الصفحة؟",
         "createPdf": "إنشاء ملف PDF لهذه الصفحة وإرفاقه؟",
         "connection": "هل تريد إرسال هذا إلى {connection}؟",
+        "tool": "هل تريد إجراء هذا التغيير؟",
         "readWeb": "هل تريد قراءة صفحة الويب هذه؟",
         "searchWeb": "هل تريد البحث في الويب عن هذا؟",
         "addComment": "إضافة هذا التعليق؟",
@@ -345,6 +351,7 @@
       "page": "الصفحة",
       "empty": "(فارغ)",
       "connectionHint": "يُرسل عبر اتصال مساحة العمل: قد يغيّر شيئًا في {connection}",
+      "toolHint": "يتم في مساحة العمل هذه، بصلاحياتك",
       "readWebHint": "كل ما في العنوان يصل إلى ذلك الموقع",
       "searchWebHint": "تصل الكلمات إلى خدمة البحث في الويب",
       "fromFile": "{rows, plural, zero {# صف} one {صف واحد} two {صفان} few {# صفوف} many {# صفًا} other {# صف}} من {name}",

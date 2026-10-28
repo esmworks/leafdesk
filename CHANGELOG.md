@@ -28,6 +28,13 @@
 
 ### Added
 
+- **The AI chat can do what Leafdesk's MCP tools do.** Asked for something its own tools don't
+  cover (a calendar or board view, a new or changed property, moving, copying, archiving or
+  trashing a page, restoring a version, dashboards, automations, agents…), the chat finds the tool
+  of Leafdesk's MCP server that does it (`find_tools`) and calls it (`use_tool`), as the person and
+  with their access. A change is asked about in *Ask* and made at once in *Auto*; inviting members,
+  sharing, access rules, automations, agents and follow-up sequences are asked about every time.
+  A read-only chat finds only tools that read.
 - **PDF themes: lay a template's PDFs out as you like, and have the AI change them.** A PDF
   template (Settings → PDF templates) can have a theme in place of its lines and accent: its colors,
   margins, text size, headings and tables, and the logo, texts, fields, boxes, columns, signature

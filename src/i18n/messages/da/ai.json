@@ -303,6 +303,11 @@
         "done": "{connection}: kaldte {tool}",
         "failed": "{connection}: {tool} mislykkedes",
         "declined": "{connection}: afviste at kalde {tool}"
+      },
+      "tool": {
+        "done": "Brugte {tool}",
+        "failed": "{tool} mislykkedes",
+        "declined": "Afvist: {tool}"
       }
     },
     "stopped": "Stoppet.",
@@ -327,6 +332,7 @@
         "editPage": "Vil du ændre denne sides tekst?",
         "createPdf": "Vil du lave en PDF af denne side og vedhæfte den?",
         "connection": "Vil du sende dette til {connection}?",
+        "tool": "Foretag denne ændring?",
         "readWeb": "Vil du læse denne webside?",
         "searchWeb": "Vil du søge på nettet efter dette?",
         "addComment": "Vil du tilføje denne kommentar?",
@@ -345,6 +351,7 @@
       "page": "Side",
       "empty": "(tom)",
       "connectionHint": "Sendes med arbejdsområdets forbindelse: det kan ændre noget hos {connection}",
+      "toolHint": "Udføres i dette arbejdsområde med din adgang",
       "readWebHint": "Alt i adressen når frem til det websted",
       "searchWebHint": "Ordene når frem til søgetjenesten på nettet",
       "fromFile": "{rows, plural, one {# række} other {# rækker}} fra {name}",

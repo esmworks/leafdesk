@@ -303,6 +303,11 @@
         "done": "{connection}: {tool} فراخوانده شد",
         "failed": "{connection}: {tool} ناموفق بود",
         "declined": "{connection}: فراخوانی {tool} را رد کردید"
+      },
+      "tool": {
+        "done": "از {tool} استفاده شد",
+        "failed": "{tool} ناموفق بود",
+        "declined": "رد شد: {tool}"
       }
     },
     "stopped": "متوقف شد.",
@@ -327,6 +332,7 @@
         "editPage": "متن این صفحه تغییر کند؟",
         "createPdf": "از این صفحه PDF ساخته و پیوست شود؟",
         "connection": "این به {connection} فرستاده شود؟",
+        "tool": "این تغییر انجام شود؟",
         "readWeb": "این صفحهٔ وب خوانده شود؟",
         "searchWeb": "این در وب جست‌وجو شود؟",
         "addComment": "این نظر افزوده شود؟",
@@ -345,6 +351,7 @@
       "page": "صفحه",
       "empty": "(خالی)",
       "connectionHint": "با اتصال فضای کار فرستاده می‌شود: ممکن است چیزی را در {connection} تغییر دهد",
+      "toolHint": "در این فضای کاری و با دسترسی شما انجام می‌شود",
       "readWebHint": "هر چه در نشانی است به آن سایت می‌رسد",
       "searchWebHint": "واژه‌ها به سرویس جست‌وجوی وب می‌رسند",
       "fromFile": "{rows, plural, one {# ردیف} other {# ردیف}} از {name}",

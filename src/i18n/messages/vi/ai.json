@@ -303,6 +303,11 @@
         "done": "{connection}: đã gọi {tool}",
         "failed": "{connection}: {tool} thất bại",
         "declined": "{connection}: đã từ chối gọi {tool}"
+      },
+      "tool": {
+        "done": "Đã dùng {tool}",
+        "failed": "{tool} thất bại",
+        "declined": "Đã từ chối: {tool}"
       }
     },
     "stopped": "Đã dừng.",
@@ -327,6 +332,7 @@
         "editPage": "Thay đổi nội dung của trang này?",
         "createPdf": "Tạo PDF của trang này và đính kèm?",
         "connection": "Gửi nội dung này đến {connection}?",
+        "tool": "Thực hiện thay đổi này?",
         "readWeb": "Đọc trang web này?",
         "searchWeb": "Tìm nội dung này trên web?",
         "addComment": "Thêm bình luận này?",
@@ -345,6 +351,7 @@
       "page": "Trang",
       "empty": "(trống)",
       "connectionHint": "Gửi qua kết nối của không gian làm việc: nó có thể thay đổi điều gì đó tại {connection}",
+      "toolHint": "Thực hiện trong không gian làm việc này, với quyền truy cập của bạn",
       "readWebHint": "Mọi thứ trong địa chỉ đều đến trang web đó",
       "searchWebHint": "Các từ khóa đến dịch vụ tìm kiếm web",
       "fromFile": "{rows, plural, other {# hàng}} từ {name}",

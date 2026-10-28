@@ -1121,10 +1121,11 @@ function ChangePrompt({
   const { action } = pending;
   const comment = action.action === "addComment";
   const memory = isMemory(action);
-  const call = action.action === "connection";
+  // A call to a connection's tool or to one of Leafdesk's further tools: shown as what it is given.
+  const call = action.action === "connection" || action.action === "tool";
   // A web call: the address or the words, exactly as they would leave the workspace.
   const web = action.action === "readWeb" || action.action === "searchWeb";
-  const decisions = memory || call || web ? EACH_TIME_DECISIONS : DECISIONS;
+  const decisions = memory || action.action === "connection" || action.eachTime || web ? EACH_TIME_DECISIONS : DECISIONS;
   const question = action.action === "connection" ? t("question.connection", { connection: action.connection?.name ?? "" }) : t(`question.${action.action}`);
   useEffect(() => {
     first.current?.focus();
@@ -1167,7 +1168,7 @@ function ChangePrompt({
           {memory ? (
             t("memoryHint")
           ) : call ? (
-            t("connectionHint", { connection: action.connection?.name ?? "" })
+            action.action === "tool" ? t("toolHint") : t("connectionHint", { connection: action.connection?.name ?? "" })
           ) : web ? (
             t(action.action === "readWeb" ? "readWebHint" : "searchWebHint")
           ) : action.target ? (

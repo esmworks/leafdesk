@@ -303,6 +303,11 @@
         "done": "{connection}: chiamato {tool}",
         "failed": "{connection}: {tool} non riuscito",
         "declined": "{connection}: hai rifiutato di chiamare {tool}"
+      },
+      "tool": {
+        "done": "Ha usato {tool}",
+        "failed": "{tool} non riuscito",
+        "declined": "Rifiutato: {tool}"
       }
     },
     "stopped": "Interrotto.",
@@ -327,6 +332,7 @@
         "editPage": "Modificare il testo di questa pagina?",
         "createPdf": "Creare un PDF di questa pagina e allegarlo?",
         "connection": "Inviare questo a {connection}?",
+        "tool": "Fare questa modifica?",
         "readWeb": "Leggere questa pagina web?",
         "searchWeb": "Cercare questo sul web?",
         "addComment": "Aggiungere questo commento?",
@@ -345,6 +351,7 @@
       "page": "Pagina",
       "empty": "(vuoto)",
       "connectionHint": "Inviato con la connessione dello spazio di lavoro: può cambiare qualcosa su {connection}",
+      "toolHint": "Fatto in questo spazio di lavoro, con il tuo accesso",
       "readWebHint": "Tutto ciò che c'è nell'indirizzo arriva a quel sito",
       "searchWebHint": "Le parole arrivano al servizio di ricerca web",
       "fromFile": "{rows, plural, one {# riga} other {# righe}} da {name}",

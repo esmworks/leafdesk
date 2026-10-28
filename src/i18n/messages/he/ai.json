@@ -303,6 +303,11 @@
         "done": "{connection}: הופעל {tool}",
         "failed": "{connection}: {tool} נכשל",
         "declined": "{connection}: דחית את הפעלת {tool}"
+      },
+      "tool": {
+        "done": "נעשה שימוש ב־{tool}",
+        "failed": "{tool} נכשל",
+        "declined": "נדחה: {tool}"
       }
     },
     "stopped": "נעצר.",
@@ -327,6 +332,7 @@
         "editPage": "לשנות את הטקסט של הדף הזה?",
         "createPdf": "ליצור PDF של הדף הזה ולצרף אותו?",
         "connection": "לשלוח את זה אל {connection}?",
+        "tool": "לבצע את השינוי הזה?",
         "readWeb": "לקרוא את דף האינטרנט הזה?",
         "searchWeb": "לחפש את זה באינטרנט?",
         "addComment": "להוסיף את התגובה הזו?",
@@ -345,6 +351,7 @@
       "page": "דף",
       "empty": "(ריק)",
       "connectionHint": "נשלח דרך החיבור של סביבת העבודה: עשוי לשנות משהו ב־{connection}",
+      "toolHint": "מתבצע בסביבת העבודה הזו, עם ההרשאות שלך",
       "readWebHint": "כל מה שבכתובת מגיע לאתר הזה",
       "searchWebHint": "המילים מגיעות לשירות החיפוש באינטרנט",
       "fromFile": "{rows, plural, one {שורה אחת} other {# שורות}} מתוך {name}",

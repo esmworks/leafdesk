@@ -83,6 +83,7 @@
     "remember": "Ingat hal ini tentang Anda?",
     "forget": "Lupakan catatan ini?",
     "connection": "Kirim ini ke {connection} ({tool})?",
+    "tool": "Lakukan perubahan ini ({tool})?",
     "readWeb": "Baca halaman web ini? Semua isi alamatnya sampai ke situs tersebut:",
     "searchWeb": "Cari ini di web? Kata-katanya sampai ke layanan pencarian:",
     "aPage": "sebuah halaman",

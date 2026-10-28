@@ -83,6 +83,7 @@
     "remember": "Dit over jou onthouden?",
     "forget": "Deze notitie vergeten?",
     "connection": "Dit naar {connection} ({tool}) sturen?",
+    "tool": "Deze wijziging doorvoeren ({tool})?",
     "readWeb": "Deze webpagina lezen? Alles in het adres komt bij die site terecht:",
     "searchWeb": "Hierop zoeken op het web? De woorden komen bij de zoekdienst terecht:",
     "aPage": "een pagina",

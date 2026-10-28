@@ -303,6 +303,11 @@
         "done": "{connection}: {tool} 호출함",
         "failed": "{connection}: {tool} 실패",
         "declined": "{connection}: {tool} 호출을 거절함"
+      },
+      "tool": {
+        "done": "{tool} 사용함",
+        "failed": "{tool} 실패",
+        "declined": "거절함: {tool}"
       }
     },
     "stopped": "중지되었습니다.",
@@ -327,6 +332,7 @@
         "editPage": "이 페이지의 텍스트를 변경할까요?",
         "createPdf": "이 페이지의 PDF를 만들어 첨부할까요?",
         "connection": "이 내용을 {connection}(으)로 보낼까요?",
+        "tool": "이 변경을 할까요?",
         "readWeb": "이 웹 페이지를 읽을까요?",
         "searchWeb": "이 내용을 웹에서 검색할까요?",
         "addComment": "이 댓글을 추가할까요?",
@@ -345,6 +351,7 @@
       "page": "페이지",
       "empty": "(비어 있음)",
       "connectionHint": "워크스페이스의 연결로 보내집니다: {connection}에서 무언가가 바뀔 수 있습니다",
+      "toolHint": "이 워크스페이스에서 회원님의 권한으로 수행됩니다",
       "readWebHint": "주소에 담긴 모든 내용이 그 사이트로 전달됩니다",
       "searchWebHint": "검색어가 웹 검색 서비스로 전달됩니다",
       "fromFile": "{name}에서 {rows, plural, other {#행}}",

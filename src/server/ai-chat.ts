@@ -65,6 +65,7 @@ import {
   type ChatOptions,
   type ChatActionView,
   type ChatConnectionRecord,
+  type ChatToolRecord,
   type ChatEvent,
   type ChatMessageView,
   type ChatMode,
@@ -94,12 +95,13 @@ import {
   takeWorkspaceCapacity,
   type AiMessage,
   type AiResult,
+  type AiToolCall,
   type ChatModelOption,
 } from "@/server/ai";
 import { setTimeout as sleep } from "node:timers/promises";
 import { dropOldToolResults, roomToRead } from "@/server/ai/compact";
 import { browserTimeZone, isTimeZone } from "@/lib/time-zone";
-import { attachmentBlock, chatHistory, chatQuestionPrompt, chatSystemPrompt, researchSystemPrompt } from "@/server/ai/prompts";
+import { attachmentBlock, chatHistory, chatQuestionPrompt, chatSystemPrompt, researchSystemPrompt, truncateText } from "@/server/ai/prompts";
 import { ANSWER_NOW, isLastTurn, refuseLastCalls } from "@/server/ai/turns";
 import { attachmentRecords, deleteConversationFiles, keepQuestionFiles, questionFiles, readConversationFiles, type ChatFileContent } from "@/server/ai-chat-files";
 import { chatWebOn, chatWebToolset, isChatWebTool, PLAN_TOOL, runChatWebTool, runPlan } from "@/server/ai-chat-web";
@@ -110,6 +112,7 @@ import { teamspaceLabel } from "@/server/teamspaces";
 import { aiAvailable } from "@/server/ai-writing";
 import { applyMemory, memoryForPrompt, memoryOn, MEMORY_TOOL_NAMES, MEMORY_TOOLS, prepareMemory } from "@/server/ai-memory";
 import { awaitDecision, type ChatDecision } from "@/server/ai-chat-approvals";
+import { FIND_TOOLS, findTools, isDocsAddress, MORE_TOOL_NAMES, openMoreTools, readDocsTopic, USE_TOOL, type MoreTools } from "@/server/ai-more-tools";
 import { chatToolNow, chatToolset, inputSummary, runConnectionTool, type ConnectionToolEntry } from "@/server/connections/tools";
 import * as ops from "@/server/operations";
 import { activeVerifications } from "@/server/verification";
@@ -433,7 +436,7 @@ async function* runChat(
   const webTools = web ? chatWebToolset() : [];
   const tools = research
     ? [PLAN_TOOL, ...CHAT_TOOLS, ...fileTools, ...webTools]
-    : [...CHAT_TOOLS, ...(mode === "read" ? [] : WRITE_TOOLS), ...fileTools, ...(remembers ? MEMORY_TOOLS : []), ...webTools, ...(external?.tools ?? [])];
+    : [...CHAT_TOOLS, ...(mode === "read" ? [] : WRITE_TOOLS), FIND_TOOLS, USE_TOOL, ...fileTools, ...(remembers ? MEMORY_TOOLS : []), ...webTools, ...(external?.tools ?? [])];
   const promptScope = scope ? { kind: scope.kind, title: scope.kind === "page" ? pageLabel(scope.title) : scope.title } : null;
   const skillTitle = skill ? pageLabel(skill.title) : null;
   const system = research
@@ -515,6 +518,52 @@ async function* runChat(
     }
     const out = await runConnectionTool({ entry, args, actorId: userId, chat: true, approvedBy: writes ? userId : null, room: left, signal });
     return { content: out.content, isError: out.isError, step: record(out.step.outcome === "done" ? "done" : "failed") };
+  }
+  // Leafdesk's further tools, started when the model first looks for one; a read-only chat gets
+  // those that only read.
+  let more = null as MoreTools | null;
+  /**
+   * find_tools and use_tool (ai-more-tools.ts). A further tool that changes something is asked
+   * about as the chat's own changes are (in `ask` mode, which anything read from outside turns
+   * `auto` into), and those that reach people or run on their own in every mode, each time.
+   */
+  async function* callMore(call: AiToolCall, left: number): AsyncGenerator<ChatEvent, ToolOutcome> {
+    more ??= await openMoreTools(userId, { writes: initialMode !== "read" });
+    if (call.name === FIND_TOOLS.name) {
+      const query = typeof call.arguments.query === "string" ? call.arguments.query.slice(0, 200) : "";
+      return { content: findTools(more, query, left) };
+    }
+    const name = typeof call.arguments.name === "string" ? call.arguments.name.trim() : "";
+    const tool = more.byName.get(name);
+    if (!tool) {
+      const why = initialMode === "read" ? " (changes are off in this chat)" : "";
+      return { content: `There is no tool "${name.slice(0, 100)}" here${why}. find_tools names those there are.`, isError: true };
+    }
+    const given = call.arguments.arguments;
+    const args = given && typeof given === "object" && !Array.isArray(given) ? (given as Record<string, unknown>) : {};
+    const record = (outcome: ChatToolRecord["outcome"]): ChatToolRecord => ({ kind: "leafdesk", tool: tool.name, title: tool.title, writes: tool.writes, input: inputSummary(args), outcome });
+    if (tool.writes && (tool.eachTime || mode !== "auto")) {
+      const action: ChatActionView = { action: "tool", target: null, title: tool.title, changes: [], content: inputSummary(args, 2_000), ...(tool.eachTime ? { eachTime: true } : {}) };
+      const decision = yield* decide(action);
+      if (decision === "decline" || decision === "timeout") {
+        return {
+          content:
+            decision === "timeout"
+              ? "The person didn't answer in time, so nothing was changed. Say what you would have done."
+              : "The person declined this change: nothing was changed. Don't try it again; say what you would have done, or ask what they want instead.",
+          step: record("declined"),
+        };
+      }
+      if (decision === "always" && !untrusted && !tool.eachTime) mode = "auto";
+    }
+    try {
+      const out = await more.call(tool.name, args, signal);
+      return { content: truncateText(out.text, Math.max(200, left)), isError: out.isError, step: record(out.isError ? "failed" : "done") };
+    } catch (error) {
+      if (signal?.aborted) throw new AiError("aborted", "The answer was stopped");
+      console.error(`[ai] ${tool.name} failed in the chat`, error);
+      return { content: `${tool.name} failed: ${error instanceof Error ? error.message.slice(0, 300) : "unknown error"}`, isError: true, step: record("failed") };
+    }
   }
   // Notes the answer asked again kept or dropped: they stay done, so they go with the new answer
   // (shown first), not with the records it replaces.
@@ -659,6 +708,11 @@ async function* runChat(
             untrusted = true;
             if (mode === "auto") mode = "ask";
           }
+        } else if (MORE_TOOL_NAMES.has(call.name) && !research) out = yield* callMore(call, left);
+        // The docs topics the further tools' inputs point at are read like pages.
+        else if (call.name === "read_page" && isDocsAddress(call.arguments.page_id)) {
+          const docs = await readDocsTopic(call.arguments.page_id);
+          out = docs ? { content: truncateText(docs, Math.max(200, left)) } : { content: "There is no such docs topic.", isError: true };
         } else if (research && call.name === PLAN_TOOL.name) out = runPlan(call);
         else if (webTools.length && isChatWebTool(call.name)) {
           // What a web call carries leaves the workspace, and what the model read could have put it
@@ -706,6 +760,8 @@ async function* runChat(
   } catch (error) {
     failure = isAiError(error) ? error.code : "provider";
     if (!isAiError(error)) console.error("[ai] chat failed", error);
+  } finally {
+    await more?.close();
   }
 
   // ------------------------------------------------------------------------------ the answer

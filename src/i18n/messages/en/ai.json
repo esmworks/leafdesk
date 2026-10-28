@@ -303,6 +303,11 @@
         "done": "{connection}: called {tool}",
         "failed": "{connection}: {tool} failed",
         "declined": "{connection}: declined calling {tool}"
+      },
+      "tool": {
+        "done": "Used {tool}",
+        "failed": "{tool} failed",
+        "declined": "Declined: {tool}"
       }
     },
     "stopped": "Stopped.",
@@ -327,6 +332,7 @@
         "editPage": "Change this page's text?",
         "createPdf": "Make a PDF of this page and attach it?",
         "connection": "Send this to {connection}?",
+        "tool": "Make this change?",
         "readWeb": "Read this web page?",
         "searchWeb": "Search the web for this?",
         "addComment": "Add this comment?",
@@ -345,6 +351,7 @@
       "page": "Page",
       "empty": "(empty)",
       "connectionHint": "Sent with the workspace's connection: it may change something at {connection}",
+      "toolHint": "Done in this workspace, with your access",
       "readWebHint": "Everything in the address reaches that site",
       "searchWebHint": "The words reach the web search service",
       "fromFile": "{rows, plural, one {# row} other {# rows}} from {name}",

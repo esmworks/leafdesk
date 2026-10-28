@@ -83,6 +83,7 @@
     "remember": "Ghi nhớ điều này về bạn?",
     "forget": "Quên ghi chú này?",
     "connection": "Gửi nội dung này đến {connection} ({tool})?",
+    "tool": "Thực hiện thay đổi này ({tool})?",
     "readWeb": "Đọc trang web này? Mọi thứ trong địa chỉ của nó đều đến trang web đó:",
     "searchWeb": "Tìm nội dung này trên web? Các từ khóa đến dịch vụ tìm kiếm:",
     "aPage": "một trang",

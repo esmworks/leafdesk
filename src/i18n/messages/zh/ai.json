@@ -303,6 +303,11 @@
         "done": "{connection}：已调用 {tool}",
         "failed": "{connection}：{tool} 调用失败",
         "declined": "{connection}：你拒绝了调用 {tool}"
+      },
+      "tool": {
+        "done": "已使用 {tool}",
+        "failed": "{tool} 失败",
+        "declined": "已拒绝：{tool}"
       }
     },
     "stopped": "已停止。",
@@ -327,6 +332,7 @@
         "editPage": "要更改此页面的文本吗？",
         "createPdf": "生成此页面的 PDF 并附加到页面？",
         "connection": "要将此发送到 {connection} 吗？",
+        "tool": "要进行此更改吗？",
         "readWeb": "要读取此网页吗？",
         "searchWeb": "要在网上搜索这个吗？",
         "addComment": "添加这条评论？",
@@ -345,6 +351,7 @@
       "page": "页面",
       "empty": "（空）",
       "connectionHint": "通过工作区的连接发送：可能会更改 {connection} 中的内容",
+      "toolHint": "在此工作区中以你的权限进行",
       "readWebHint": "地址中的所有内容都会发送到该网站",
       "searchWebHint": "这些词语会发送到网页搜索服务",
       "fromFile": "来自 {name} 的 {rows, plural, other {# 行}}",
