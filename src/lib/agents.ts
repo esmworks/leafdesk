@@ -369,6 +369,9 @@ export type AgentRunUsage = {
 };
 
 /** An agent as the settings show it. */
+/** What a copy of an agent (server/agents/duplicate.ts) left out, by part: how many of each. Absent when it took all of it. */
+export type CopyLeftOut = { skills?: number; helpers?: number; connections?: number };
+
 export type AgentView = {
   id: string;
   workspaceId: string;

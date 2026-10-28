@@ -417,6 +417,13 @@
     "actionsFor": "Aktionen für {name}",
     "pause": "Pausieren",
     "resume": "Fortsetzen",
+    "duplicate": "Duplizieren",
+    "copy": {
+      "done": "Eine Kopie von „{name}“: ihre Einstellungen, Skills, Verbindungswerkzeuge und die Agenten, die sie fragen kann. Mit ihr sind keine Seiten geteilt, und sie hat keine Zeitpläne und kein Gedächtnis: Wähle im Tab „Zugriff“, was sie öffnen darf.",
+      "skillsLeftOut": "{count, plural, one {# Skill wurde nicht kopiert: Du kannst ihn nicht öffnen, oder außer den Eigentümern darf ihn jemand bearbeiten.} other {# Skills wurden nicht kopiert: Du kannst sie nicht öffnen, oder außer den Eigentümern darf sie jemand bearbeiten.}}",
+      "helpersLeftOut": "{count, plural, one {# Agent, den sie fragen kann, wurde nicht kopiert: Er ist nicht mit dir geteilt.} other {# Agenten, die sie fragen kann, wurden nicht kopiert: Sie sind nicht mit dir geteilt.}}",
+      "connectionsLeftOut": "{count, plural, one {Die Werkzeuge von # Verbindung wurden nicht kopiert: Die geben einem Agenten nur die Eigentümer des Arbeitsbereichs.} other {Die Werkzeuge von # Verbindungen wurden nicht kopiert: Die geben einem Agenten nur die Eigentümer des Arbeitsbereichs.}}"
+    },
     "archive": "Archivieren",
     "restore": "Wiederherstellen",
     "archiveTitle": "{name} archivieren?",
@@ -1898,7 +1905,7 @@
         "page": "Hat {target} als {format} exportiert"
       },
       "agent": {
-        "created": "Hat den Agenten „{target}“ erstellt",
+        "created": "{copied, select, yes {Hat den Agenten „{source}“ als „{target}“ kopiert} other {Hat den Agenten „{target}“ erstellt}}",
         "updated": "{change, select, on {Hat den Agenten „{target}“ eingeschaltet} off {Hat den Agenten „{target}“ pausiert} other {Hat den Agenten „{target}“ geändert}}",
         "archived": "Hat den Agenten „{target}“ archiviert",
         "run_requested": "Hat beim Agenten „{target}“ einen Durchlauf angefordert",

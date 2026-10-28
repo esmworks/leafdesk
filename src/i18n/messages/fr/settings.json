@@ -417,6 +417,13 @@
     "actionsFor": "Actions pour {name}",
     "pause": "Mettre en pause",
     "resume": "Reprendre",
+    "duplicate": "Dupliquer",
+    "copy": {
+      "done": "Une copie de « {name} » : ses réglages, ses compétences, les outils de ses connexions et les agents qu’il peut solliciter. Aucune page n’est partagée avec elle, et elle n’a ni planifications ni mémoire : choisissez ce qu’elle peut ouvrir dans l’onglet Accès.",
+      "skillsLeftOut": "{count, plural, one {# compétence n’a pas été copiée : vous ne pouvez pas l’ouvrir, ou quelqu’un d’autre que les propriétaires peut la modifier.} other {# compétences n’ont pas été copiées : vous ne pouvez pas les ouvrir, ou quelqu’un d’autre que les propriétaires peut les modifier.}}",
+      "helpersLeftOut": "{count, plural, one {# agent qu’il peut solliciter n’a pas été copié : il n’est pas partagé avec vous.} other {# agents qu’il peut solliciter n’ont pas été copiés : ils ne sont pas partagés avec vous.}}",
+      "connectionsLeftOut": "{count, plural, one {Les outils de # connexion n’ont pas été copiés : seuls les propriétaires de l’espace de travail les donnent à un agent.} other {Les outils de # connexions n’ont pas été copiés : seuls les propriétaires de l’espace de travail les donnent à un agent.}}"
+    },
     "archive": "Archiver",
     "restore": "Restaurer",
     "archiveTitle": "Archiver {name} ?",
@@ -1898,7 +1905,7 @@
         "page": "A exporté {target} en {format}"
       },
       "agent": {
-        "created": "A créé l’agent « {target} »",
+        "created": "{copied, select, yes {A copié l’agent « {source} » sous le nom « {target} »} other {A créé l’agent « {target} »}}",
         "updated": "{change, select, on {A activé l’agent « {target} »} off {A mis en pause l’agent « {target} »} other {A modifié l’agent « {target} »}}",
         "archived": "A archivé l’agent « {target} »",
         "run_requested": "A demandé une exécution à l’agent « {target} »",

@@ -289,8 +289,23 @@ its user stays, so what it did keeps its name. A restored agent comes back pause
 shared; its skills and memory stay. Creating, changing and archiving agents is recorded in the audit log. Over MCP:
 `list_agents`, `get_agent`, `draft_agent`, `create_agent`, `update_agent`, `set_agent_archived`,
 `set_agent_access`, `set_agent_skill`, `change_agent_memory`, `set_agent_schedule`, `list_agent_runs`,
-`list_agent_versions`, `restore_agent_version` and `start_agent_run`. Over the REST API: listing, reading and changing agents (pausing, resuming, web access, the
+`list_agent_versions`, `restore_agent_version` and `start_agent_run`. Over the REST API: listing, reading, changing and copying agents (pausing, resuming, web access, the
 monthly limit, `row_changes`), asking for a run, and reading runs and usage (see [REST API](rest-api.md#rest-api)).
+
+**Copying an agent.** *Duplicate* in an agent's menu in Settings → Agents (archived ones too) makes
+a new agent with its setup, to change for another team or job: its name numbered like a page's
+copy ("Triage (1)"), icon, description, instructions, model, web access, how it changes rows,
+monthly token limit, whether it is paused (an archived agent's copy runs), its skills, the agents
+it can ask and its connections' tools. It takes nothing of what the agent reaches or who uses it:
+no pages are shared with the copy, it is shared as a new agent is (everyone can view and interact,
+its maker has full access), and it starts with no schedules, connection triggers, memory, runs,
+chats, history or usage. Copying takes the right to create agents and edit access to the agent.
+What the person couldn't give an agent themselves is left out and named in the copy's dialog:
+skills they can't open or that someone besides the owners may now edit, agents it can ask that
+aren't shared with them, and connection tools unless they are an owner. The monthly token limit
+stays, even when a member copies it (only owners change it). The audit log records the copy with
+the agent it came from. Over MCP: `create_agent` with `copy_of` (what else is given replaces what
+is copied); over the REST API: `POST /api/v1/agents/{id}/duplicate`.
 
 **History.** Each saved change to an agent's setup keeps a version: its settings (name, icon,
 description, instructions, active or paused, monthly limit, and any setting added later), its

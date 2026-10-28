@@ -417,6 +417,13 @@
     "actionsFor": "Handlinger for {name}",
     "pause": "Sæt på pause",
     "resume": "Genoptag",
+    "duplicate": "Duplikér",
+    "copy": {
+      "done": "En kopi af “{name}”: dens indstillinger, færdigheder, forbindelsesværktøjer og de agenter, den kan spørge. Ingen sider er delt med den, og den har ingen planer eller hukommelse: vælg på fanen Adgang, hvad den må åbne.",
+      "skillsLeftOut": "{count, plural, one {# færdighed blev ikke kopieret: du kan ikke åbne den, eller andre end ejerne må redigere den.} other {# færdigheder blev ikke kopieret: du kan ikke åbne dem, eller andre end ejerne må redigere dem.}}",
+      "helpersLeftOut": "{count, plural, one {# agent, den kan spørge, blev ikke kopieret: den er ikke delt med dig.} other {# agenter, den kan spørge, blev ikke kopieret: de er ikke delt med dig.}}",
+      "connectionsLeftOut": "{count, plural, one {Værktøjerne fra # forbindelse blev ikke kopieret: kun arbejdsområdets ejere giver en agent dem.} other {Værktøjerne fra # forbindelser blev ikke kopieret: kun arbejdsområdets ejere giver en agent dem.}}"
+    },
     "archive": "Arkivér",
     "restore": "Gendan",
     "archiveTitle": "Arkivér {name}?",
@@ -1898,7 +1905,7 @@
         "page": "Eksporterede {target} som {format}"
       },
       "agent": {
-        "created": "Oprettede agenten “{target}”",
+        "created": "{copied, select, yes {Kopierede agenten “{source}” som “{target}”} other {Oprettede agenten “{target}”}}",
         "updated": "{change, select, on {Slog agenten “{target}” til} off {Satte agenten “{target}” på pause} other {Ændrede agenten “{target}”}}",
         "archived": "Arkiverede agenten “{target}”",
         "run_requested": "Bad agenten “{target}” om en kørsel",

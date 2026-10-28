@@ -417,6 +417,13 @@
     "actionsFor": "Acties voor {name}",
     "pause": "Pauzeren",
     "resume": "Hervatten",
+    "duplicate": "Dupliceren",
+    "copy": {
+      "done": "Een kopie van “{name}”: de instellingen, vaardigheden, tools van koppelingen en de agents die hij kan vragen. Er zijn geen pagina’s mee gedeeld en de kopie heeft geen schema’s of geheugen: kies op het tabblad Toegang wat hij mag openen.",
+      "skillsLeftOut": "{count, plural, one {# vaardigheid is niet gekopieerd: je kunt hem niet openen, of iemand anders dan de eigenaren mag hem bewerken.} other {# vaardigheden zijn niet gekopieerd: je kunt ze niet openen, of iemand anders dan de eigenaren mag ze bewerken.}}",
+      "helpersLeftOut": "{count, plural, one {# agent die hij kan vragen is niet gekopieerd: die is niet met je gedeeld.} other {# agents die hij kan vragen zijn niet gekopieerd: die zijn niet met je gedeeld.}}",
+      "connectionsLeftOut": "{count, plural, one {De tools van # koppeling zijn niet gekopieerd: alleen de eigenaren van de werkruimte geven die aan een agent.} other {De tools van # koppelingen zijn niet gekopieerd: alleen de eigenaren van de werkruimte geven die aan een agent.}}"
+    },
     "archive": "Archiveren",
     "restore": "Terugzetten",
     "archiveTitle": "{name} archiveren?",
@@ -1898,7 +1905,7 @@
         "page": "{target} geëxporteerd als {format}"
       },
       "agent": {
-        "created": "De agent “{target}” gemaakt",
+        "created": "{copied, select, yes {De agent “{source}” gekopieerd als “{target}”} other {De agent “{target}” gemaakt}}",
         "updated": "{change, select, on {De agent “{target}” aangezet} off {De agent “{target}” gepauzeerd} other {De agent “{target}” gewijzigd}}",
         "archived": "De agent “{target}” gearchiveerd",
         "run_requested": "De agent “{target}” om een uitvoering gevraagd",

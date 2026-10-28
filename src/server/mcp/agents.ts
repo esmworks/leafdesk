@@ -143,7 +143,10 @@ export const agentInputs = {
   }),
   create: z.object({
     workspace_id: id("workspace"),
-    name: nameInput.describe("The agent's name: its changes and comments show it."),
+    copy_of: id("agent")
+      .optional()
+      .describe("An agent to copy: its settings, instructions, skills, helpers and, for owners, connection tools; fields given replace them. Not pages, schedules or memory."),
+    name: nameInput.optional().describe("The agent's name: its changes and comments show it. Needed without copy_of."),
     icon: iconInput.optional(),
     description: descriptionInput.optional(),
     instructions: instructionsInput.optional(),

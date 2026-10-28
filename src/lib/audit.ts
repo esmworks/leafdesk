@@ -509,6 +509,13 @@ export function describeAuditEvent(event: Pick<AuditEvent, "action" | "targetLab
       // Read as a choice in the message ("it failed"), not as the word.
       values.outcome = text(d.outcome);
       break;
+    case "agent.created": {
+      // A copy names the agent it copies (agents/duplicate.ts).
+      const source = record(d.copiedFrom);
+      values.copied = source.name === undefined ? "no" : "yes";
+      values.source = text(source.name);
+      break;
+    }
     case "agent.shared":
       values.level = known(t, `audit.agentLevels.${text(d.level)}`, text(d.level));
       break;

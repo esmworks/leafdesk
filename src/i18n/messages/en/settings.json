@@ -417,6 +417,13 @@
     "actionsFor": "Actions for {name}",
     "pause": "Pause",
     "resume": "Resume",
+    "duplicate": "Duplicate",
+    "copy": {
+      "done": "A copy of “{name}”: its settings, skills, connection tools and the agents it can ask. No pages are shared with it, and it has no schedules or memory: choose what it may open on the Access tab.",
+      "skillsLeftOut": "{count, plural, one {# skill wasn’t copied: you can’t open it, or someone besides the owners may edit it.} other {# skills weren’t copied: you can’t open them, or someone besides the owners may edit them.}}",
+      "helpersLeftOut": "{count, plural, one {# agent it can ask wasn’t copied: it isn’t shared with you.} other {# agents it can ask weren’t copied: they aren’t shared with you.}}",
+      "connectionsLeftOut": "{count, plural, one {The tools of # connection weren’t copied: only the workspace’s owners give an agent those.} other {The tools of # connections weren’t copied: only the workspace’s owners give an agent those.}}"
+    },
     "archive": "Archive",
     "restore": "Restore",
     "archiveTitle": "Archive {name}?",
@@ -1898,7 +1905,7 @@
         "page": "Exported {target} as {format}"
       },
       "agent": {
-        "created": "Created the agent “{target}”",
+        "created": "{copied, select, yes {Copied the agent “{source}” as “{target}”} other {Created the agent “{target}”}}",
         "updated": "{change, select, on {Turned on the agent “{target}”} off {Paused the agent “{target}”} other {Changed the agent “{target}”}}",
         "archived": "Archived the agent “{target}”",
         "run_requested": "Asked the agent “{target}” for a run",

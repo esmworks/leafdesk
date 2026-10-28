@@ -417,6 +417,13 @@
     "actionsFor": "{name}の操作",
     "pause": "一時停止",
     "resume": "再開",
+    "duplicate": "複製",
+    "copy": {
+      "done": "「{name}」のコピーです。設定、スキル、接続のツール、相談できるエージェントを引き継いでいます。共有されたページ、スケジュール、メモリーはありません。「アクセス」タブで開けるものを選んでください。",
+      "skillsLeftOut": "{count, plural, other {スキル#件はコピーされませんでした。開く権限がないか、オーナー以外も編集できます。}}",
+      "helpersLeftOut": "{count, plural, other {相談できるエージェント#件はコピーされませんでした。あなたと共有されていません。}}",
+      "connectionsLeftOut": "{count, plural, other {#件の接続のツールはコピーされませんでした。エージェントに付与できるのはワークスペースのオーナーだけです。}}"
+    },
     "archive": "アーカイブ",
     "restore": "復元",
     "archiveTitle": "{name}をアーカイブしますか？",
@@ -1898,7 +1905,7 @@
         "page": "{target}を{format}としてエクスポートしました"
       },
       "agent": {
-        "created": "エージェント「{target}」を作成しました",
+        "created": "{copied, select, yes {エージェント「{source}」を「{target}」としてコピーしました} other {エージェント「{target}」を作成しました}}",
         "updated": "{change, select, on {エージェント「{target}」をオンにしました} off {エージェント「{target}」を一時停止しました} other {エージェント「{target}」を変更しました}}",
         "archived": "エージェント「{target}」をアーカイブしました",
         "run_requested": "エージェント「{target}」に実行を依頼しました",

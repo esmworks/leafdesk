@@ -417,6 +417,13 @@
     "actionsFor": "Działania dla {name}",
     "pause": "Wstrzymaj",
     "resume": "Wznów",
+    "duplicate": "Duplikuj",
+    "copy": {
+      "done": "Kopia agenta „{name}”: jego ustawienia, umiejętności, narzędzia połączeń i agenci, których może prosić o pomoc. Nie udostępniono jej żadnych stron i nie ma harmonogramów ani pamięci: wybierz na karcie Dostęp, co może otwierać.",
+      "skillsLeftOut": "{count, plural, one {Nie skopiowano # umiejętności: nie możesz jej otworzyć albo ktoś poza właścicielami może ją edytować.} few {Nie skopiowano # umiejętności: nie możesz ich otworzyć albo ktoś poza właścicielami może je edytować.} many {Nie skopiowano # umiejętności: nie możesz ich otworzyć albo ktoś poza właścicielami może je edytować.} other {Nie skopiowano # umiejętności: nie możesz ich otworzyć albo ktoś poza właścicielami może je edytować.}}",
+      "helpersLeftOut": "{count, plural, one {Nie skopiowano # agenta, którego może prosić o pomoc: nie jest Ci udostępniony.} few {Nie skopiowano # agentów, których może prosić o pomoc: nie są Ci udostępnieni.} many {Nie skopiowano # agentów, których może prosić o pomoc: nie są Ci udostępnieni.} other {Nie skopiowano # agentów, których może prosić o pomoc: nie są Ci udostępnieni.}}",
+      "connectionsLeftOut": "{count, plural, one {Nie skopiowano narzędzi # połączenia: dają je agentowi tylko właściciele obszaru roboczego.} few {Nie skopiowano narzędzi # połączeń: dają je agentowi tylko właściciele obszaru roboczego.} many {Nie skopiowano narzędzi # połączeń: dają je agentowi tylko właściciele obszaru roboczego.} other {Nie skopiowano narzędzi # połączeń: dają je agentowi tylko właściciele obszaru roboczego.}}"
+    },
     "archive": "Zarchiwizuj",
     "restore": "Przywróć",
     "archiveTitle": "Zarchiwizować {name}?",
@@ -1898,7 +1905,7 @@
         "page": "Wyeksportowano {target} jako {format}"
       },
       "agent": {
-        "created": "Utworzono agenta „{target}”",
+        "created": "{copied, select, yes {Skopiowano agenta „{source}” jako „{target}”} other {Utworzono agenta „{target}”}}",
         "updated": "{change, select, on {Włączono agenta „{target}”} off {Wstrzymano agenta „{target}”} other {Zmieniono agenta „{target}”}}",
         "archived": "Zarchiwizowano agenta „{target}”",
         "run_requested": "Zlecono uruchomienie agenta „{target}”",

@@ -417,6 +417,13 @@
     "actionsFor": "Azioni per {name}",
     "pause": "Metti in pausa",
     "resume": "Riprendi",
+    "duplicate": "Duplica",
+    "copy": {
+      "done": "Una copia di “{name}”: le sue impostazioni, competenze, strumenti delle connessioni e gli agenti a cui può chiedere. Nessuna pagina è condivisa con la copia, che non ha pianificazioni né memoria: scegli cosa può aprire nella scheda Accesso.",
+      "skillsLeftOut": "{count, plural, one {# competenza non è stata copiata: non puoi aprirla, oppure qualcuno oltre ai proprietari può modificarla.} other {# competenze non sono state copiate: non puoi aprirle, oppure qualcuno oltre ai proprietari può modificarle.}}",
+      "helpersLeftOut": "{count, plural, one {# agente a cui può chiedere non è stato copiato: non è condiviso con te.} other {# agenti a cui può chiedere non sono stati copiati: non sono condivisi con te.}}",
+      "connectionsLeftOut": "{count, plural, one {Gli strumenti di # connessione non sono stati copiati: solo i proprietari dello spazio di lavoro li danno a un agente.} other {Gli strumenti di # connessioni non sono stati copiati: solo i proprietari dello spazio di lavoro li danno a un agente.}}"
+    },
     "archive": "Archivia",
     "restore": "Ripristina",
     "archiveTitle": "Archiviare {name}?",
@@ -1898,7 +1905,7 @@
         "page": "Ha esportato {target} come {format}"
       },
       "agent": {
-        "created": "Ha creato l’agente “{target}”",
+        "created": "{copied, select, yes {Ha copiato l’agente “{source}” come “{target}”} other {Ha creato l’agente “{target}”}}",
         "updated": "{change, select, on {Ha attivato l’agente “{target}”} off {Ha messo in pausa l’agente “{target}”} other {Ha modificato l’agente “{target}”}}",
         "archived": "Ha archiviato l’agente “{target}”",
         "run_requested": "Ha richiesto un’esecuzione all’agente “{target}”",

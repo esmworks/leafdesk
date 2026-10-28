@@ -4,7 +4,7 @@ import { MoreHorizontal, Plus, Sparkles } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { useState } from "react";
-import { archiveAgentAction, restoreAgentAction, updateAgentAction } from "@/app/actions/agents";
+import { archiveAgentAction, duplicateAgentAction, restoreAgentAction, updateAgentAction } from "@/app/actions/agents";
 import { updateWorkspaceSettingsAction } from "@/app/actions/workspaces";
 import { Floating, useFloating } from "@/components/database/floating";
 import { TabButton } from "@/components/settings/members-panel";
@@ -12,7 +12,7 @@ import { SettingsGroup, SettingsHeader } from "@/components/settings/section";
 import { useAction } from "@/components/settings/workspace-settings";
 import { Button, cn, Dialog, IconButton, MenuItem, MenuSeparator, Switch } from "@/components/ui";
 import { hasAgentLevel, type AgentCreation } from "@/lib/agent-sharing";
-import { editsAgent, MAX_AGENTS, type AgentView } from "@/lib/agents";
+import { editsAgent, MAX_AGENTS, type AgentView, type CopyLeftOut } from "@/lib/agents";
 import type { BuiltinAgentSummary } from "@/lib/builtin-agents";
 import { AgentDescribeDialog } from "./agent-describe-dialog";
 import { AgentDialog, AgentForm, AgentIcon, type AgentModelNames, type AgentTab } from "./agent-dialog";
@@ -76,6 +76,8 @@ export function AgentsPanel({
   const [creating, setCreating] = useState(false);
   const [describing, setDescribing] = useState(false);
   const [archivingId, setArchivingId] = useState<string | null>(null);
+  // The copy just made, what it was copied from and what it left out, said in its dialog.
+  const [copied, setCopied] = useState<{ id: string; from: string; leftOut: CopyLeftOut } | null>(null);
   const [template, setTemplate] = useState<BuiltinAgentSummary | null>(null);
   // The run a link opened (from an automation's runs), until its agent is closed.
   const [linkedRun, setLinkedRun] = useState(initialRunId);
@@ -155,6 +157,18 @@ export function AgentsPanel({
                   onToggle={() => run(() => updateAgentAction(workspaceId, agent.id, { enabled: !agent.enabled }))}
                   onArchive={() => setArchivingId(agent.id)}
                   onRestore={() => run(() => restoreAgentAction(workspaceId, agent.id))}
+                  onDuplicate={
+                    canCreate && editsAgent(agent) && !full
+                      ? () =>
+                          run(
+                            () => duplicateAgentAction(workspaceId, agent.id),
+                            ({ agent: copy, leftOut }) => {
+                              setCopied({ id: copy.id, from: agent.name, leftOut });
+                              showNew(copy, "settings");
+                            },
+                          )
+                      : undefined
+                  }
                 />
               ))}
             </ul>
@@ -231,6 +245,7 @@ export function AgentsPanel({
           memoryOff={memoryOff}
           models={models}
           webSearch={webSearch}
+          notice={copied?.id === opened.id ? <CopyNotice from={copied.from} leftOut={copied.leftOut} /> : undefined}
           onTab={(tab) => setOpen({ id: opened.id, tab })}
           onOpenRun={(agentId, runId) => {
             if (!find(agentId)) return;
@@ -239,6 +254,7 @@ export function AgentsPanel({
           }}
           onClose={() => {
             setOpen(null);
+            setCopied(null);
             if (!initialAgentId) return;
             // A reload shouldn't open it again.
             setLinkedRun(undefined);
@@ -273,6 +289,7 @@ function AgentRow({
   onToggle,
   onArchive,
   onRestore,
+  onDuplicate,
 }: {
   agent: AgentView;
   proposals: number;
@@ -280,6 +297,8 @@ function AgentRow({
   onToggle: () => void;
   onArchive: () => void;
   onRestore: () => void;
+  /** Copies it; absent when the viewer may not (they can't create agents or edit this one, or there are as many as there may be). */
+  onDuplicate?: () => void;
 }) {
   const t = useTranslations("settings.agents");
   const menu = useFloating<HTMLButtonElement>();
@@ -330,6 +349,7 @@ function AgentRow({
         {agent.archived ? (
           <>
             {item(t("tabs.runs"), () => onOpen("runs"))}
+            {onDuplicate && item(t("duplicate"), onDuplicate)}
             {/* Archiving and restoring take full access. */}
             {full && item(t("restore"), onRestore)}
           </>
@@ -341,6 +361,7 @@ function AgentRow({
             {item(t("tabs.schedules"), () => onOpen("schedules"))}
             {item(t("tabs.runs"), () => onOpen("runs"))}
             {item(t("share.button"), () => onOpen("share"))}
+            {onDuplicate && item(t("duplicate"), onDuplicate)}
             {editsAgent(agent) && item(agent.enabled ? t("pause") : t("resume"), onToggle)}
             {full && (
               <>
@@ -352,6 +373,19 @@ function AgentRow({
         )}
       </Floating>
     </li>
+  );
+}
+
+/** What a copy took from the agent it copies, and what it left out. */
+function CopyNotice({ from, leftOut }: { from: string; leftOut: CopyLeftOut }) {
+  const t = useTranslations("settings.agents.copy");
+  return (
+    <div className="space-y-1">
+      <p>{t("done", { name: from })}</p>
+      {leftOut.skills && <p>{t("skillsLeftOut", { count: leftOut.skills })}</p>}
+      {leftOut.helpers && <p>{t("helpersLeftOut", { count: leftOut.helpers })}</p>}
+      {leftOut.connections && <p>{t("connectionsLeftOut", { count: leftOut.connections })}</p>}
+    </div>
   );
 }
 

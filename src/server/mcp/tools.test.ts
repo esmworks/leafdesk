@@ -173,6 +173,8 @@ const agentSharing = vi.hoisted(() => ({
   removeAgentShare: vi.fn(),
 }));
 vi.mock("@/server/agents/sharing", () => agentSharing);
+const agentCopies = vi.hoisted(() => ({ duplicateAgent: vi.fn() }));
+vi.mock("@/server/agents/duplicate", () => agentCopies);
 const agentDraft = vi.hoisted(() => ({ draftAgent: vi.fn() }));
 vi.mock("@/server/agents/draft", () => agentDraft);
 
@@ -2803,7 +2805,8 @@ describe("agents", () => {
     for (const name of ["set_agent_archived", "change_agent_memory"]) expect(tools.get(name)?.annotations?.destructiveHint).toBe(true);
     expect(tools.get("change_agent_memory")!.inputSchema.required).toEqual(["agent_id", "action"]);
     expect(tools.get("change_agent_memory")!.inputSchema.properties.action.enum).toEqual(["add", "update", "keep", "dismiss", "delete"]);
-    expect(tools.get("create_agent")!.inputSchema.required).toEqual(["workspace_id", "name"]);
+    expect(tools.get("create_agent")!.inputSchema.required).toEqual(["workspace_id"]);
+    expect(Object.keys(tools.get("create_agent")!.inputSchema.properties)).toContain("copy_of");
     expect(tools.get("update_agent")!.inputSchema.required).toEqual(["agent_id"]);
     expect(tools.get("set_agent_access")!.inputSchema.properties.level.enum).toEqual(["view", "comment", "edit", "remove"]);
     expect(tools.get("set_agent_skill")!.inputSchema.required).toEqual(["agent_id", "skill_id", "use"]);
@@ -3003,6 +3006,20 @@ describe("agents", () => {
     expect(listed.data.agents[0]).toMatchObject({ id: "agent-1", web_access: true });
   });
 
+  it("copies an agent with copy_of, saying what the copy left out", async () => {
+    agents.getAgent.mockResolvedValue(agent);
+    agentCopies.duplicateAgent.mockResolvedValue({ agent: { ...agent, id: "agent-9", name: "Ticket router (1)" }, leftOut: { connections: 1 } });
+    const copied = await callTool(writer, "create_agent", { workspace_id: "ws-1", copy_of: "agent-1", instructions: "Be briefer" });
+    expect(copied.isError).toBe(false);
+    expect(agentCopies.duplicateAgent).toHaveBeenCalledWith("user-1", "agent-1", { instructions: "Be briefer" });
+    expect(copied.data).toMatchObject({ id: "agent-9", name: "Ticket router (1)", copied_from: "agent-1", left_out: { connections: 1 } });
+    expect(agents.createAgent).not.toHaveBeenCalled();
+    agents.getAgent.mockResolvedValueOnce({ ...agent, workspaceId: "ws-2" });
+    const elsewhere = await callTool(writer, "create_agent", { workspace_id: "ws-1", copy_of: "agent-1" });
+    expect(elsewhere.isError).toBe(true);
+    expect(elsewhere.text).toMatch(/another workspace/);
+  });
+
   it("creates, changes, archives and restores agents with what was given", async () => {
     agents.createAgent.mockResolvedValue(agent);
     const created = await callTool(writer, "create_agent", { workspace_id: "ws-1", name: "Ticket router", icon: "🤖", instructions: "Be brief" });
@@ -3019,6 +3036,10 @@ describe("agents", () => {
     const empty = await callTool(writer, "update_agent", { agent_id: "agent-1" });
     expect(empty.isError).toBe(true);
     expect(empty.text).toMatch(/Nothing to change/);
+
+    const nameless = await callTool(writer, "create_agent", { workspace_id: "ws-1" });
+    expect(nameless.isError).toBe(true);
+    expect(nameless.text).toMatch(/name, or copy_of/);
 
     agents.archiveAgent.mockResolvedValue({ ...agent, archived: true, enabled: false });
     expect((await callTool(writer, "set_agent_archived", { agent_id: "agent-1", archived: true })).data).toMatchObject({ archived: true });

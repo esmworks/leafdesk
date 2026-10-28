@@ -417,6 +417,13 @@
     "actionsFor": "{name} 작업",
     "pause": "일시 중지",
     "resume": "다시 시작",
+    "duplicate": "복제",
+    "copy": {
+      "done": "“{name}”의 사본입니다. 설정, 스킬, 연결 도구, 물어볼 수 있는 에이전트를 가져왔습니다. 공유된 페이지, 일정, 메모리는 없습니다. 액세스 탭에서 열 수 있는 항목을 선택하세요.",
+      "skillsLeftOut": "{count, plural, other {스킬 #개는 복사되지 않았습니다. 열 수 없거나 소유자 외의 사람이 편집할 수 있습니다.}}",
+      "helpersLeftOut": "{count, plural, other {물어볼 수 있는 에이전트 #개는 복사되지 않았습니다. 나와 공유되지 않았습니다.}}",
+      "connectionsLeftOut": "{count, plural, other {연결 #개의 도구는 복사되지 않았습니다. 에이전트에게는 워크스페이스 소유자만 이를 줄 수 있습니다.}}"
+    },
     "archive": "보관",
     "restore": "복원",
     "archiveTitle": "{name}을(를) 보관할까요?",
@@ -1898,7 +1905,7 @@
         "page": "{target}을(를) {format}(으)로 내보냈습니다"
       },
       "agent": {
-        "created": "에이전트 “{target}”을(를) 만들었습니다",
+        "created": "{copied, select, yes {에이전트 “{source}”을(를) “{target}”(으)로 복사했습니다} other {에이전트 “{target}”을(를) 만들었습니다}}",
         "updated": "{change, select, on {에이전트 “{target}”을(를) 켰습니다} off {에이전트 “{target}”을(를) 일시 중지했습니다} other {에이전트 “{target}”을(를) 변경했습니다}}",
         "archived": "에이전트 “{target}”을(를) 보관했습니다",
         "run_requested": "에이전트 “{target}”에 실행을 요청했습니다",

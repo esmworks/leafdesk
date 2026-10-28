@@ -207,14 +207,25 @@ export async function getAgent(userId: string, agentId: string): Promise<AgentVi
   return viewAgent(agent, level);
 }
 
+type Tx = Parameters<Parameters<typeof db.transaction>[0]>[0];
+
+/** What a copy (duplicate.ts) adds to creating an agent. */
+export type CopyOptions = {
+  /** The agent it copies: its monthly token limit may be kept by anyone, as it only holds the copy back. */
+  copiedFrom: Agent;
+  /** Gives the new agent the rest of the setup (skills, connection tools), in the same transaction. */
+  setUp: (tx: Tx, agent: Agent) => Promise<void>;
+};
+
 /**
  * Creates an agent, for owners and (when the workspace lets them) members: shared with everyone in
  * the workspace (can view and interact), and with its creator at full access. Only owners give it
- * a monthly token limit.
+ * a monthly token limit, except the one of the agent it copies.
  */
-export async function createAgent(userId: string, workspaceId: string, input: AgentInput): Promise<AgentView> {
+export async function createAgent(userId: string, workspaceId: string, input: AgentInput, copy?: CopyOptions): Promise<AgentView> {
   const membership = await requireAgentCreator(userId, workspaceId);
-  if (input.monthlyTokenLimit !== undefined && input.monthlyTokenLimit !== null && membership.role !== "owner") {
+  const keptLimit = copy !== undefined && input.monthlyTokenLimit === copy.copiedFrom.monthlyTokenLimit;
+  if (input.monthlyTokenLimit !== undefined && input.monthlyTokenLimit !== null && membership.role !== "owner" && !keptLimit) {
     throw new AgentError("ownersOnly", "Only the workspace's owners set an agent's monthly token limit");
   }
   const name = checkName(input.name);
@@ -254,9 +265,16 @@ export async function createAgent(userId: string, workspaceId: string, input: Ag
       .returning();
     if (helpers.length) await saveHelpers(tx, id, helpers);
     await shareNewAgent(tx, agent, userId);
+    if (copy) await copy.setUp(tx, agent);
     return agent;
   });
-  await recordAudit({ workspaceId, actorId: userId, action: "agent.created", target: { type: "user", id: created.userId, label: name }, details: auditDetails(created) });
+  await recordAudit({
+    workspaceId,
+    actorId: userId,
+    action: "agent.created",
+    target: { type: "user", id: created.userId, label: name },
+    details: { ...auditDetails(created), ...(copy ? { copiedFrom: { id: copy.copiedFrom.id, name: copy.copiedFrom.name } } : {}) },
+  });
   await recordAgentVersion(userId, created.id, "created");
   return viewAgent(created, "full");
 }

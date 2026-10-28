@@ -417,6 +417,13 @@
     "actionsFor": "{name} 的操作",
     "pause": "暂停",
     "resume": "继续",
+    "duplicate": "创建副本",
+    "copy": {
+      "done": "“{name}”的副本：包含其设置、技能、连接工具及可询问的智能体。没有与它共享任何页面，也没有计划和记忆：请在“访问权限”标签页选择它可以打开的内容。",
+      "skillsLeftOut": "{count, plural, other {# 个技能未被复制：你无法打开，或除所有者外还有其他人可以编辑。}}",
+      "helpersLeftOut": "{count, plural, other {# 个可询问的智能体未被复制：它们没有与你共享。}}",
+      "connectionsLeftOut": "{count, plural, other {# 个连接的工具未被复制：只有工作区所有者能将其授予智能体。}}"
+    },
     "archive": "归档",
     "restore": "恢复",
     "archiveTitle": "要归档 {name} 吗？",
@@ -1898,7 +1905,7 @@
         "page": "将 {target} 导出为 {format}"
       },
       "agent": {
-        "created": "创建了智能体“{target}”",
+        "created": "{copied, select, yes {将智能体“{source}”复制为“{target}”} other {创建了智能体“{target}”}}",
         "updated": "{change, select, on {开启了智能体“{target}”} off {暂停了智能体“{target}”} other {更改了智能体“{target}”}}",
         "archived": "归档了智能体“{target}”",
         "run_requested": "请求智能体“{target}”运行",

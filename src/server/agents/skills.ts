@@ -207,6 +207,19 @@ export async function addAgentSkill(userId: string, agentId: string, pageId: str
   await recordAgentVersion(userId, agent.id);
 }
 
+/**
+ * Of an agent's skills (`pageIds`, in its order), those a copy of it made by `userId` keeps: the ones
+ * they could give it themselves (addAgentSkill), still skills that only the workspace's owners may
+ * edit, and that they may open.
+ */
+export async function copyableSkills(userId: string, workspaceId: string, pageIds: string[]): Promise<string[]> {
+  const states = await skillStates(workspaceId, pageIds, userId);
+  return pageIds.filter((id) => {
+    const state = states.get(id);
+    return state && state.visible && !neverFollowed(state);
+  });
+}
+
 /** Takes a skill from the agent (also one the owner can't open, or that is no longer a skill). */
 export async function removeAgentSkill(userId: string, agentId: string, pageId: string) {
   const agent = await agentFor(userId, agentId, "edit");

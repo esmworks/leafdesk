@@ -417,6 +417,13 @@
     "actionsFor": "Tindakan untuk {name}",
     "pause": "Jeda",
     "resume": "Lanjutkan",
+    "duplicate": "Duplikat",
+    "copy": {
+      "done": "Salinan “{name}”: pengaturan, keterampilan, alat koneksi, dan agen yang dapat ditanyainya. Tidak ada halaman yang dibagikan dengannya, dan salinan ini tidak punya jadwal atau memori: pilih apa yang boleh dibukanya di tab Akses.",
+      "skillsLeftOut": "{count, plural, other {# keterampilan tidak disalin: Anda tidak dapat membukanya, atau orang selain pemilik dapat mengeditnya.}}",
+      "helpersLeftOut": "{count, plural, other {# agen yang dapat ditanyainya tidak disalin: agen tersebut tidak dibagikan dengan Anda.}}",
+      "connectionsLeftOut": "{count, plural, other {Alat dari # koneksi tidak disalin: hanya pemilik ruang kerja yang memberikannya kepada agen.}}"
+    },
     "archive": "Arsipkan",
     "restore": "Pulihkan",
     "archiveTitle": "Arsipkan {name}?",
@@ -1898,7 +1905,7 @@
         "page": "Mengekspor {target} sebagai {format}"
       },
       "agent": {
-        "created": "Membuat agen “{target}”",
+        "created": "{copied, select, yes {Menyalin agen “{source}” sebagai “{target}”} other {Membuat agen “{target}”}}",
         "updated": "{change, select, on {Mengaktifkan agen “{target}”} off {Menjeda agen “{target}”} other {Mengubah agen “{target}”}}",
         "archived": "Mengarsipkan agen “{target}”",
         "run_requested": "Meminta eksekusi dari agen “{target}”",

@@ -417,6 +417,13 @@
     "actionsFor": "Thao tác với {name}",
     "pause": "Tạm dừng",
     "resume": "Tiếp tục",
+    "duplicate": "Nhân đôi",
+    "copy": {
+      "done": "Bản sao của “{name}”: cài đặt, kỹ năng, công cụ kết nối và các tác tử nó có thể hỏi. Không trang nào được chia sẻ với bản sao, và nó không có lịch chạy hay bộ nhớ: hãy chọn những gì nó được mở trong tab Quyền truy cập.",
+      "skillsLeftOut": "{count, plural, other {# kỹ năng không được sao chép: bạn không mở được, hoặc người khác ngoài chủ sở hữu có thể chỉnh sửa.}}",
+      "helpersLeftOut": "{count, plural, other {# tác tử nó có thể hỏi không được sao chép: chúng không được chia sẻ với bạn.}}",
+      "connectionsLeftOut": "{count, plural, other {Công cụ của # kết nối không được sao chép: chỉ chủ sở hữu không gian làm việc mới cấp chúng cho tác tử.}}"
+    },
     "archive": "Lưu trữ",
     "restore": "Khôi phục",
     "archiveTitle": "Lưu trữ {name}?",
@@ -1898,7 +1905,7 @@
         "page": "Đã xuất {target} dưới dạng {format}"
       },
       "agent": {
-        "created": "Đã tạo tác tử “{target}”",
+        "created": "{copied, select, yes {Đã sao chép tác tử “{source}” thành “{target}”} other {Đã tạo tác tử “{target}”}}",
         "updated": "{change, select, on {Đã bật tác tử “{target}”} off {Đã tạm dừng tác tử “{target}”} other {Đã thay đổi tác tử “{target}”}}",
         "archived": "Đã lưu trữ tác tử “{target}”",
         "run_requested": "Đã yêu cầu tác tử “{target}” chạy",

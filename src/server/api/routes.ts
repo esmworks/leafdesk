@@ -4,8 +4,9 @@ import * as z from "zod";
 import { db } from "@/db";
 import { emailSequence, page, pageWebhook, sequenceEnrollment, user, workspaceAgent } from "@/db/schema";
 import type { ApiTokenScope } from "@/lib/api-scopes";
-import type { AgentView } from "@/lib/agents";
+import { MAX_AGENT_NAME, type AgentView } from "@/lib/agents";
 import { AccessError, ConnectedAppReadOnlyError } from "@/server/access";
+import { duplicateAgent } from "@/server/agents/duplicate";
 import { helperIdsOf } from "@/server/agents/helpers";
 import * as agents from "@/server/agents/manage";
 import { requestAgentRun } from "@/server/agents/requests";
@@ -921,6 +922,28 @@ export const API_ROUTES: ApiRoute[] = [
     handler: async ({ principal, params, body }) => {
       await ownedAgentFor(principal, params.agent_id);
       return agentWithUsage(await agents.updateAgent(principal.userId, params.agent_id, toAgentPatch(body)));
+    },
+  }),
+  defineRoute({
+    method: "POST",
+    path: "/agents/{agent_id}/duplicate",
+    operationId: "duplicateAgent",
+    tag: "Agents",
+    summary: "Duplicate an agent",
+    description:
+      "Makes a new agent with this one's settings, instructions, skills, the agents it can ask and (for workspace owners) its connection tools, named after it and numbered (`name` names it instead). No pages are shared with the copy, it is shared as a new agent is, and it has no schedules, memory or runs; `left_out` counts what the token's user couldn't give an agent themselves (skills they can't open or others may edit, agents it can ask that aren't shared with them, connection tools unless they are an owner). Needs edit access to the agent and the right to create agents in its workspace; an archived agent can be copied too. A workspace has at most 50 agents.",
+    scope: "agents:write",
+    body: z.object({ name: z.string().min(1).max(MAX_AGENT_NAME).optional().describe("The copy's name (default: the agent's, numbered).") }),
+    status: 201,
+    response: "AgentCopy",
+    handler: async ({ principal, params, body }) => {
+      await ownedAgentFor(principal, params.agent_id);
+      const { agent, leftOut } = await duplicateAgent(principal.userId, params.agent_id, { name: body.name });
+      return {
+        ...(await agentWithUsage(agent)),
+        copied_from: params.agent_id,
+        left_out: { skills: leftOut.skills ?? 0, helper_agents: leftOut.helpers ?? 0, connections: leftOut.connections ?? 0 },
+      };
     },
   }),
   defineRoute({

@@ -417,6 +417,13 @@
     "actionsFor": "Handlinger for {name}",
     "pause": "Sett på pause",
     "resume": "Fortsett",
+    "duplicate": "Dupliser",
+    "copy": {
+      "done": "En kopi av «{name}»: innstillingene, ferdighetene, tilkoblingsverktøyene og agentene den kan spørre. Ingen sider er delt med den, og den har ingen tidsplaner eller minne: velg i Tilgang-fanen hva den kan åpne.",
+      "skillsLeftOut": "{count, plural, one {# ferdighet ble ikke kopiert: du kan ikke åpne den, eller andre enn eierne kan redigere den.} other {# ferdigheter ble ikke kopiert: du kan ikke åpne dem, eller andre enn eierne kan redigere dem.}}",
+      "helpersLeftOut": "{count, plural, one {# agent den kan spørre ble ikke kopiert: den er ikke delt med deg.} other {# agenter den kan spørre ble ikke kopiert: de er ikke delt med deg.}}",
+      "connectionsLeftOut": "{count, plural, one {Verktøyene fra # tilkobling ble ikke kopiert: bare arbeidsområdets eiere gir en agent dem.} other {Verktøyene fra # tilkoblinger ble ikke kopiert: bare arbeidsområdets eiere gir en agent dem.}}"
+    },
     "archive": "Arkiver",
     "restore": "Gjenopprett",
     "archiveTitle": "Vil du arkivere {name}?",
@@ -1898,7 +1905,7 @@
         "page": "Eksporterte {target} som {format}"
       },
       "agent": {
-        "created": "Opprettet agenten «{target}»",
+        "created": "{copied, select, yes {Kopierte agenten «{source}» som «{target}»} other {Opprettet agenten «{target}»}}",
         "updated": "{change, select, on {Slo på agenten «{target}»} off {Satte agenten «{target}» på pause} other {Endret agenten «{target}»}}",
         "archived": "Arkiverte agenten «{target}»",
         "run_requested": "Ba agenten «{target}» om en kjøring",

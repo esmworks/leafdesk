@@ -417,6 +417,13 @@
     "actionsFor": "{name} için işlemler",
     "pause": "Duraklat",
     "resume": "Sürdür",
+    "duplicate": "Kopyasını oluştur",
+    "copy": {
+      "done": "“{name}” ajanının kopyası: ayarları, becerileri, bağlantı araçları ve danışabildiği ajanlar. Onunla hiçbir sayfa paylaşılmadı, zamanlaması ve hafızası yok: neleri açabileceğini Erişim sekmesinde seçin.",
+      "skillsLeftOut": "{count, plural, one {# beceri kopyalanmadı: onu açamıyorsunuz ya da sahipler dışında biri düzenleyebiliyor.} other {# beceri kopyalanmadı: onları açamıyorsunuz ya da sahipler dışında biri düzenleyebiliyor.}}",
+      "helpersLeftOut": "{count, plural, one {Danışabildiği # ajan kopyalanmadı: sizinle paylaşılmamış.} other {Danışabildiği # ajan kopyalanmadı: sizinle paylaşılmamışlar.}}",
+      "connectionsLeftOut": "{count, plural, one {# bağlantının araçları kopyalanmadı: bir ajana bunları yalnız çalışma alanının sahipleri verir.} other {# bağlantının araçları kopyalanmadı: bir ajana bunları yalnız çalışma alanının sahipleri verir.}}"
+    },
     "archive": "Arşivle",
     "restore": "Geri getir",
     "archiveTitle": "{name} arşivlensin mi?",
@@ -1898,7 +1905,7 @@
         "page": "Dışa aktarıldı: {target} ({format})"
       },
       "agent": {
-        "created": "“{target}” ajanını oluşturdu",
+        "created": "{copied, select, yes {“{source}” ajanını “{target}” olarak kopyaladı} other {“{target}” ajanını oluşturdu}}",
         "updated": "{change, select, on {“{target}” ajanını açtı} off {“{target}” ajanını duraklattı} other {“{target}” ajanını değiştirdi}}",
         "archived": "“{target}” ajanını arşivledi",
         "run_requested": "“{target}” ajanından bir çalışma istedi",

@@ -12,6 +12,12 @@
   speaker notes, as it already read PDFs and Excel workbooks. Presentations can be attached to a
   chat question, and search finds pages by the words of the presentations they show.
 - **ClickHouse in the connection catalog.** ClickHouse Cloud's MCP server, with its own sign-in.
+- **Duplicate an agent.** *Duplicate* in an agent's menu in Settings → Agents makes a new agent
+  with its setup (instructions, model, skills, the agents it can ask, connection tools and its
+  other settings, its name numbered), to change for another team or job. No pages, schedules or
+  memory come with it, and it is shared as a new agent is; what you couldn't give an agent
+  yourself (a skill you can't open, connection tools if you aren't an owner) is left out and named.
+  Also `create_agent` with `copy_of` over MCP and `POST /api/v1/agents/{id}/duplicate`.
 
 ### Changed
 

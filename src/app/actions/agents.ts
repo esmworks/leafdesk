@@ -19,6 +19,7 @@ import { AccessError } from "@/server/access";
 import { isAiError } from "@/server/ai";
 import { installBuiltinAgent } from "@/server/agents/builtin";
 import { createAgentFromDraft, draftAgent, type DraftedAgentInput } from "@/server/agents/draft";
+import { duplicateAgent } from "@/server/agents/duplicate";
 import {
   AgentError,
   archiveAgent,
@@ -114,6 +115,11 @@ export async function createAgentAction(workspaceId: string, value: AgentInput) 
 /** Changes an agent; `{ enabled }` alone pauses or resumes it. */
 export async function updateAgentAction(workspaceId: string, agentId: string, patch: AgentInput) {
   return run(workspaceId, (userId) => updateAgent(userId, agentId, input(patch)), { refresh: true });
+}
+
+/** Copies an agent (server/agents/duplicate.ts): the copy, and how much of the setup it left out. */
+export async function duplicateAgentAction(workspaceId: string, agentId: string) {
+  return run(workspaceId, (userId) => duplicateAgent(userId, String(agentId)), { refresh: true });
 }
 
 export async function archiveAgentAction(workspaceId: string, agentId: string) {

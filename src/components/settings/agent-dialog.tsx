@@ -91,6 +91,7 @@ export function AgentDialog({
   memoryOff = false,
   models = null,
   webSearch = false,
+  notice,
   onTab,
   onOpenRun,
   onClose,
@@ -109,6 +110,8 @@ export function AgentDialog({
   webSearch?: boolean;
   /** A run to show opened (a link from an automation's history). */
   runId?: string;
+  /** Said above the tabs' content (what a copy just made took and left out). */
+  notice?: ReactNode;
   onTab: (tab: AgentTab) => void;
   /** Opens a run of another agent (one this agent asked, or that asked it). */
   onOpenRun?: OpenAgentRun;
@@ -157,6 +160,11 @@ export function AgentDialog({
           ))}
         </div>
       </div>
+      {notice && (
+        <div role="status" className="border-b border-border bg-bg-subtle px-5 py-2 text-xs text-fg-muted">
+          {notice}
+        </div>
+      )}
       {!editsAgent(agent) && tab !== "share" && tab !== "chat" && <p className="border-b border-border bg-bg-subtle px-5 py-2 text-xs text-fg-muted">{t("viewOnly")}</p>}
       {tab === "share" ? (
         <AgentShareTab workspaceId={workspaceId} agent={agent} />

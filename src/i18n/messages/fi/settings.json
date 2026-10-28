@@ -417,6 +417,13 @@
     "actionsFor": "Toiminnot: {name}",
     "pause": "Keskeytä",
     "resume": "Jatka",
+    "duplicate": "Monista",
+    "copy": {
+      "done": "Kopio agentista ”{name}”: sen asetukset, taidot, yhteyksien työkalut ja agentit, joilta se voi kysyä. Sen kanssa ei ole jaettu sivuja, eikä sillä ole ajastuksia tai muistia: valitse Pääsy-välilehdellä, mitä se saa avata.",
+      "skillsLeftOut": "{count, plural, one {# taitoa ei kopioitu: et voi avata sitä, tai joku muu kuin omistajat saa muokata sitä.} other {# taitoa ei kopioitu: et voi avata niitä, tai joku muu kuin omistajat saa muokata niitä.}}",
+      "helpersLeftOut": "{count, plural, one {# agenttia, jolta se voi kysyä, ei kopioitu: sitä ei ole jaettu kanssasi.} other {# agenttia, joilta se voi kysyä, ei kopioitu: niitä ei ole jaettu kanssasi.}}",
+      "connectionsLeftOut": "{count, plural, one {# yhteyden työkaluja ei kopioitu: vain työtilan omistajat antavat niitä agentille.} other {# yhteyden työkaluja ei kopioitu: vain työtilan omistajat antavat niitä agentille.}}"
+    },
     "archive": "Arkistoi",
     "restore": "Palauta",
     "archiveTitle": "Arkistoidaanko {name}?",
@@ -1898,7 +1905,7 @@
         "page": "Vei sivun {target} muodossa {format}"
       },
       "agent": {
-        "created": "Loi agentin ”{target}”",
+        "created": "{copied, select, yes {Kopioi agentin ”{source}” nimellä ”{target}”} other {Loi agentin ”{target}”}}",
         "updated": "{change, select, on {Otti käyttöön agentin ”{target}”} off {Keskeytti agentin ”{target}”} other {Muutti agenttia ”{target}”}}",
         "archived": "Arkistoi agentin ”{target}”",
         "run_requested": "Pyysi agentilta ”{target}” ajoa",

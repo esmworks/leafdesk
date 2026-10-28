@@ -103,7 +103,8 @@ Filter ops: `contains`, `does_not_contain`, `equals`, `not_equals`, `is_any_of` 
 - **Comments:** `GET` and `POST /pages/{id}/comments`.
 - **Agents:** `GET /workspaces/{id}/agents`, `GET` and `PATCH /agents/{id}` (settings, pausing and
   resuming, the monthly token limit, the model; with this month's usage), `POST /agents/{id}/runs` (ask for a
-  task now, optionally on a row), `GET /agents/{id}/runs`, `GET /agents/{id}/runs/{run_id}`,
+  task now, optionally on a row), `POST /agents/{id}/duplicate` (a copy with its setup, without
+  its pages, schedules or memory; `left_out` counts what the token's user couldn't copy), `GET /agents/{id}/runs`, `GET /agents/{id}/runs/{run_id}`,
   `GET /agents/{id}/usage` (by month), and `GET` and `POST /agents/{id}/sharing` (who it is shared
   with; share it or take someone off). Each needs the level of access to the agent the app asks
   for (see [Sharing an agent](agents.md#agents)); each agent carries the token's user's

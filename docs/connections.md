@@ -347,7 +347,7 @@ The tools cover:
 - **Agents:** `list_agents`, `get_agent` (its instructions, the pages shared with it, its
   skills and its memory), `draft_agent` (a draft from what the user says it should do: its
   instructions, the pages it needs and suggested schedules and automations, nothing saved),
-  `create_agent`, `update_agent`, `set_agent_archived` (archive or bring back), `set_agent_access`
+  `create_agent` (with `copy_of`, a copy of an agent's setup), `update_agent`, `set_agent_archived` (archive or bring back), `set_agent_access`
   (view, comment, edit or remove), `set_agent_skill` (give or take a skill only owners can edit),
   `change_agent_memory` (keep or dismiss the notes its runs proposed; add, update or delete
   an owner's own notes), `set_agent_schedule` (add, update or delete a schedule)

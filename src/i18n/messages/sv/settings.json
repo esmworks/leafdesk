@@ -417,6 +417,13 @@
     "actionsFor": "Åtgärder för {name}",
     "pause": "Pausa",
     "resume": "Återuppta",
+    "duplicate": "Duplicera",
+    "copy": {
+      "done": "En kopia av ”{name}”: dess inställningar, färdigheter, anslutningsverktyg och de agenter den kan fråga. Inga sidor delas med den, och den har inga scheman eller minne: välj på fliken Åtkomst vad den får öppna.",
+      "skillsLeftOut": "{count, plural, one {# färdighet kopierades inte: du kan inte öppna den, eller någon annan än ägarna får redigera den.} other {# färdigheter kopierades inte: du kan inte öppna dem, eller någon annan än ägarna får redigera dem.}}",
+      "helpersLeftOut": "{count, plural, one {# agent den kan fråga kopierades inte: den är inte delad med dig.} other {# agenter den kan fråga kopierades inte: de är inte delade med dig.}}",
+      "connectionsLeftOut": "{count, plural, one {Verktygen från # anslutning kopierades inte: bara arbetsytans ägare ger en agent dem.} other {Verktygen från # anslutningar kopierades inte: bara arbetsytans ägare ger en agent dem.}}"
+    },
     "archive": "Arkivera",
     "restore": "Återställ",
     "archiveTitle": "Arkivera {name}?",
@@ -1898,7 +1905,7 @@
         "page": "Exporterade {target} som {format}"
       },
       "agent": {
-        "created": "Skapade agenten ”{target}”",
+        "created": "{copied, select, yes {Kopierade agenten ”{source}” som ”{target}”} other {Skapade agenten ”{target}”}}",
         "updated": "{change, select, on {Slog på agenten ”{target}”} off {Pausade agenten ”{target}”} other {Ändrade agenten ”{target}”}}",
         "archived": "Arkiverade agenten ”{target}”",
         "run_requested": "Bad agenten ”{target}” om en körning",

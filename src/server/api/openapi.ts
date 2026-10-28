@@ -682,6 +682,25 @@ const SCHEMAS: Record<string, JsonSchema> = {
       ),
     ],
   },
+  AgentCopy: {
+    allOf: [
+      ref("Agent"),
+      loose(
+        {
+          copied_from: { type: "string", description: "The agent it copies." },
+          left_out: loose(
+            {
+              skills: { type: "integer", description: "Skills not copied: the token's user can't open them, or someone besides the owners may edit them." },
+              helper_agents: { type: "integer", description: "Agents it can ask that aren't shared with the token's user." },
+              connections: { type: "integer", description: "Connections whose tools weren't copied: only workspace owners give an agent those." },
+            },
+            ["skills", "helper_agents", "connections"],
+          ),
+        },
+        ["copied_from", "left_out"],
+      ),
+    ],
+  },
   AgentRun: loose(
     {
       id,

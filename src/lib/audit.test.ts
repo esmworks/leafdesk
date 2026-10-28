@@ -121,6 +121,13 @@ describe("describeAuditEvent", () => {
     expect(describeAuditEvent(event("agent.run_requested", { targetLabel: "Router", details: { name: "Router", runId: "run-1" } }), tTr)).toBe("“Router” ajanından bir çalışma istedi");
   });
 
+  it("says which agent a copy was made from", () => {
+    const copy = { name: "Router (1)", copiedFrom: { id: "agent-1", name: "Router" } };
+    expect(describeAuditEvent(event("agent.created", { targetLabel: "Router (1)", details: copy }), t)).toBe("Copied the agent “Router” as “Router (1)”");
+    expect(describeAuditEvent(event("agent.created", { targetLabel: "Router (1)", details: copy }), tTr)).toBe("“Router” ajanını “Router (1)” olarak kopyaladı");
+    expect(describeAuditEvent(event("agent.created", { targetLabel: "Router", details: { name: "Router" } }), t)).toBe("Created the agent “Router”");
+  });
+
   it("tells a join request from an invite request", () => {
     expect(describeAuditEvent(event("join_request.approved", { targetLabel: "Can", details: { kind: "join", role: "member" } }), t)).toBe(
       "Approved the request of Can to join as member",

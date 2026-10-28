@@ -130,6 +130,7 @@ import * as agentSchedules from "@/server/agents/schedules";
 import * as agentSharing from "@/server/agents/sharing";
 import * as agentSkills from "@/server/agents/skills";
 import { draftAgent } from "@/server/agents/draft";
+import { duplicateAgent } from "@/server/agents/duplicate";
 import { isAiError } from "@/server/ai";
 import { requestAgentRun } from "@/server/agents/requests";
 import { usageMonthsOf } from "@/server/agents/usage";
@@ -2922,15 +2923,37 @@ export function createMcpServer(principal: McpPrincipal, options: { actor?: Writ
       annotations: { readOnlyHint: false, destructiveHint: false, idempotentHint: false, openWorldHint: true },
       scopeChallenge: requireWrite,
     },
-    write(({ workspace_id, web_access, row_changes, helper_agent_ids, ...input }) =>
+    write(({ workspace_id, copy_of, web_access, row_changes, helper_agent_ids, ...input }) =>
       withAgentErrors(async () => {
         try {
-          const agent = await agents.createAgent(userId, workspace_id, {
+          const fields = {
             ...input,
             ...(web_access !== undefined ? { webAccess: web_access } : {}),
             ...(row_changes !== undefined ? { rowChanges: row_changes } : {}),
             helperAgentIds: helper_agent_ids,
-          });
+          };
+          if (copy_of) {
+            const source = await agents.getAgent(userId, copy_of);
+            if (source.workspaceId !== workspace_id) throw new ToolInputError("copy_of is an agent of another workspace: copy an agent of this one (list_agents).");
+            const { agent, leftOut } = await duplicateAgent(userId, copy_of, fields);
+            return {
+              ...describeAgent(agent, { pages: [], hidden: 0 }),
+              ...(await helpersOf(agent.id)),
+              copied_from: copy_of,
+              ...(Object.keys(leftOut).length
+                ? {
+                    left_out: {
+                      ...(leftOut.skills ? { skills: leftOut.skills } : {}),
+                      ...(leftOut.helpers ? { helper_agents: leftOut.helpers } : {}),
+                      ...(leftOut.connections ? { connections: leftOut.connections } : {}),
+                      note: "Not copied: skills the user can't open or others may edit, agents it can ask not shared with the user, and connection tools unless the user is an owner.",
+                    },
+                  }
+                : {}),
+            };
+          }
+          if (!input.name) throw new ToolInputError("Give the agent a name, or copy_of to copy an agent.");
+          const agent = await agents.createAgent(userId, workspace_id, fields);
           return { ...describeAgent(agent, { pages: [], hidden: 0 }), ...(await helpersOf(agent.id)) };
         } catch (error) {
           if (error instanceof AccessError && !(error instanceof ConnectedAppReadOnlyError)) {
