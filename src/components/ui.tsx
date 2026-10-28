@@ -230,7 +230,7 @@ export function Dialog({
   const ref = useDismiss<HTMLDivElement>(open, onClose);
   if (!open) return null;
   return (
-    <div className="fixed inset-0 z-50 flex items-start justify-center overflow-y-auto bg-black/30 p-4 pt-[12vh]">
+    <div data-window-shade className="fixed inset-0 z-50 flex items-start justify-center overflow-y-auto bg-black/30 p-4 pt-[12vh]">
       <div
         ref={ref}
         role="dialog"

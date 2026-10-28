@@ -131,6 +131,7 @@ export function AiReviewBar({ pageId, pageDoc, enabled }: { pageId: string; page
       </div>
       {open && (
         <div
+          data-window-shade
           className="fixed inset-0 z-40 flex bg-black/30"
           onMouseDown={(e) => e.target === e.currentTarget && setOpen(false)}
           onKeyDown={(e) => e.key === "Escape" && setOpen(false)}

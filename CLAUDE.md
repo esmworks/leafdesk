@@ -355,6 +355,8 @@ because they are separate module graphs.
   (they keep a local `cn`). Something fixed to the window's top edge (a side panel, a full-window
   view) starts at `top-(--app-top)`: on macOS the desktop app lays its tab strip over the page
   beside the sidebar, where `components/desktop-tab-strip.tsx` tells it (`desktop/src/windows.ts`).
+  A backdrop shading the whole window under a dialog carries `data-window-shade`: that component
+  tells the desktop app its color, and the tab strip, which the page can't draw over, takes it too.
 - **Rendering cost.** Per-row and per-card components don't call `useRouter`, `useSearchParams` or
   `usePathname`: in Next 16 they re-render on every URL change, `?row=` included. The router is
   read once in `database-page.tsx` and handed down; a card asks `useIsOpenRow`

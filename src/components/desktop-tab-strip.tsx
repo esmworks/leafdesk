@@ -8,8 +8,37 @@ import { useEffect } from "react";
  * where: `<html data-tab-strip-room="left right">`, what the open sidebar takes of the page's width
  * at its left and right edges in CSS pixels, or "none" on pages without a sidebar and in
  * phone-sized windows, where the strip goes above the page.
+ * On every system it also tells the strip, which the page can't draw over, the shade a dialog's
+ * backdrop lays over the window (`[data-window-shade]`): `<html data-tab-strip-shade="<color>">`.
  */
 export function DesktopTabStrip() {
+  useEffect(() => {
+    const root = document.documentElement;
+    if (!root.hasAttribute("data-desktop-app")) return;
+    let frame = 0;
+    const measure = () => {
+      frame = 0;
+      // The last one shown is on top; a hidden one (a phone's sidebar backdrop in a wide window) shades nothing.
+      const shown = [...document.querySelectorAll("[data-window-shade]")].filter((each) => each.getClientRects().length > 0).at(-1);
+      const shade = shown ? getComputedStyle(shown).backgroundColor : null;
+      if (shade) {
+        if (root.getAttribute("data-tab-strip-shade") !== shade) root.setAttribute("data-tab-strip-shade", shade);
+      } else root.removeAttribute("data-tab-strip-shade");
+    };
+    const schedule = () => {
+      if (!frame) frame = requestAnimationFrame(measure);
+    };
+    const mutations = new MutationObserver(schedule);
+    mutations.observe(document.body, { childList: true, subtree: true });
+    window.addEventListener("resize", schedule);
+    measure();
+    return () => {
+      cancelAnimationFrame(frame);
+      mutations.disconnect();
+      window.removeEventListener("resize", schedule);
+      root.removeAttribute("data-tab-strip-shade");
+    };
+  }, []);
   useEffect(() => {
     const root = document.documentElement;
     if (!root.hasAttribute("data-tab-strip")) return;

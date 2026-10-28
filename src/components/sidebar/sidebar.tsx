@@ -1121,7 +1121,7 @@ export function Sidebar({
   return (
     <>
       {sidebar?.drawerOpen && (
-        <div aria-hidden className="fixed inset-0 z-40 bg-black/40 md:hidden" onClick={sidebar.close} />
+        <div aria-hidden data-window-shade className="fixed inset-0 z-40 bg-black/40 md:hidden" onClick={sidebar.close} />
       )}
       <SidebarPeekEdge />
       <aside
