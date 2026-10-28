@@ -1,6 +1,7 @@
 import { createHash } from "node:crypto";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { toXlsx } from "@/lib/xlsx";
+import { deck, run, slideXml } from "@/lib/import/pptx-fixtures";
 import { docx, paragraph } from "./import/docx-fixtures";
 import {
   documentKind,
@@ -64,6 +65,9 @@ describe("which files are documents", () => {
     expect(documentKind("application/octet-stream", "Notes.DOCX")).toBe("docx");
     expect(documentKind("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", "x")).toBe("xlsx");
     expect(documentKind("application/zip", "Teklif.XLSX")).toBe("xlsx");
+    expect(documentKind("application/vnd.openxmlformats-officedocument.presentationml.presentation", "x")).toBe("pptx");
+    expect(documentKind("application/octet-stream", "Sunum.PPTX")).toBe("pptx");
+    expect(documentKind("application/vnd.ms-powerpoint", "old.ppt")).toBeNull();
     expect(documentKind("application/vnd.ms-excel", "old.xls")).toBeNull();
     expect(documentKind("image/png", "fake.pdf")).toBeNull();
     expect(documentKind("text/plain", "a.docx")).toBeNull();
@@ -103,12 +107,28 @@ describe("reading documents", () => {
     expect(await extractText("pdf", "broken.pdf", new TextEncoder().encode("%PDF-1.4 nothing here"))).toBeNull();
     expect(await extractText("docx", "broken.docx", new TextEncoder().encode("not a zip"))).toBeNull();
     expect(await extractText("xlsx", "broken.xlsx", new TextEncoder().encode("not a zip"))).toBeNull();
+    expect(await extractText("pptx", "broken.pptx", new TextEncoder().encode("not a zip"))).toBeNull();
   });
 
   it("reads a Word document as the import does", async () => {
     const data = docx({ body: [paragraph("Quarterly review"), paragraph("Revenue grew in the north.")].join("") });
     expect(await extractText("docx", "review.docx", data)).toEqual({
       text: "Quarterly review\nRevenue grew in the north.",
+      pages: null,
+      partial: false,
+    });
+  });
+});
+
+describe("reading presentations", () => {
+  it("reads each slide under its number, then its speaker notes", async () => {
+    const data = deck({
+      order: [1, 2],
+      slides: { 1: slideXml("sld", [run("Teklif özeti")], [run("Kompresör"), run("Fan")]), 2: slideXml("sld", [run("Teşekkürler")]) },
+      notes: { 1: slideXml("notes", [run("Fiyatı sonra söyle")]) },
+    });
+    expect(await extractText("pptx", "sunum.pptx", data)).toEqual({
+      text: "Slide 1\nTeklif özeti\nKompresör\nFan\nNotes: Fiyatı sonra söyle\n\nSlide 2\nTeşekkürler",
       pages: null,
       partial: false,
     });

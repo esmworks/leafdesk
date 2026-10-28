@@ -573,6 +573,20 @@ async function main() {
   const pdfFile = await mcp.ok("attach_file", { page_id: root.id, base64: Buffer.from(pdf, "latin1").toString("base64"), name: "offer.pdf" });
   const pdfRead = await mcp.ok("get_file", { file: pdfFile.path });
   check(pdfRead.pages === 1 && pdfRead.text.includes(`Offer zq${RUN}`), "get_file reads a PDF's text", pdfRead);
+  const { docx, paragraph } = await import("@/server/import/docx-fixtures");
+  const docxBytes = docx({ body: paragraph(`Brief zw${RUN}`) });
+  const docxFile = await mcp.ok("attach_file", { page_id: root.id, base64: Buffer.from(docxBytes).toString("base64"), name: "brief.docx" });
+  const docxRead = await mcp.ok("get_file", { file: docxFile.path });
+  check(typeof docxRead.text === "string" && docxRead.text.includes(`Brief zw${RUN}`), "get_file reads a Word document's text", docxRead);
+  const { deck, run, slideXml } = await import("@/lib/import/pptx-fixtures");
+  const pptxBytes = deck({ order: [1], slides: { 1: slideXml("sld", [run(`Pitch zp${RUN}`)]) }, notes: { 1: slideXml("notes", [run("Speak slowly")]) } });
+  const pptxFile = await mcp.ok("attach_file", { page_id: root.id, base64: Buffer.from(pptxBytes).toString("base64"), name: "pitch.pptx" });
+  const pptxRead = await mcp.ok("get_file", { file: pptxFile.path });
+  check(
+    pptxRead.text === `Slide 1\nPitch zp${RUN}\nNotes: Speak slowly` && pptxRead.content_type.includes("presentationml"),
+    "get_file reads a presentation's slides and notes",
+    pptxRead,
+  );
   const noFile = await mcp.call("get_file", { file: "AAAAAAAAAAAAAAAAAAAAAAAA" });
   check(noFile.isError && /not found/i.test(noFile.text), "get_file treats unknown files as missing", noFile.text);
 

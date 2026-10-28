@@ -241,8 +241,8 @@ reaches the model as outside data, and once an answer called a service, every ch
 wants is asked about, also in *Auto*. The audit log records each call as the person's.
 
 **Files in the chat.** *Attach files* in the box's *+* menu attaches files to a question, and so
-does dropping them on the box or pasting them: images (PNG, JPEG, GIF, WebP), PDF, Word and Excel
-documents, CSV, Markdown and text files, up to 5 per question, 20 MB each (images 5 MB). Each is
+does dropping them on the box or pasting them: images (PNG, JPEG, GIF, WebP), PDF, Word, Excel and
+PowerPoint documents, CSV, Markdown and text files, up to 5 per question, 20 MB each (images 5 MB). Each is
 uploaded as it is attached and shows as a chip with its name and size (a CSV file's rows and
 columns), in the box and then on the question, where it opens the file. A question may be only
 files. Documents are read to text the way search reads them (the first 50 pages or 200,000

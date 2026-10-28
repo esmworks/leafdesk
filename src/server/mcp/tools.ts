@@ -67,7 +67,7 @@ import { asWrite } from "@/server/connected-app";
 import * as databases from "@/server/databases";
 import { duplicatePage, MAX_DUPLICATE_PAGES } from "@/server/duplicate";
 import * as files from "@/server/files";
-import { documentKind, workbookText } from "@/server/file-text";
+import { documentKind, documentText, FILE_TEXT_LIMITS, workbookText } from "@/server/file-text";
 import { CSV_MAX_COLUMNS, CSV_MAX_ROWS } from "@/lib/import/csv";
 import { uploadLimits } from "@/server/storage";
 import { blockTypeFor, fileIdOf, fileUrl, formatBytes } from "@/lib/files";
@@ -210,7 +210,7 @@ Some parts are documented on demand rather than here: read leafdesk://docs/<topi
 check_workspace looks a workspace over for what is worth tidying (broken links, web links that stopped working, pages nothing links to, empty and long untouched pages, likely duplicates, relations to deleted rows); it changes nothing, so ask the user before fixing what it finds.
 People discuss pages in comment threads, on text of the page, on a row's value or about the whole page: list_comments reads them, add_comment starts one or replies, and change_comment edits, deletes, resolves, reopens, reacts to or marks them.
 list_notifications shows the user's inbox: changes agents proposed for their review, pages shared with them, new comments in their threads, reactions to their comments, mentions of them, reminders they set on dates or that date properties send them, what database automations told them, what others changed in database rows they follow, edits by others to pages they watch, requests for access to pages they can share and, for owners, requests to join their workspaces.
-attach_file adds an image, video, audio or other file to a page, from a URL or base64 data, or (with property) to a row's files property. Files in page bodies show up in the Markdown with paths like /api/files/<id>; get_file reads one (text files and PDFs as text, images as images), as do the urls of a files property.
+attach_file adds an image, video, audio or other file to a page, from a URL or base64 data, or (with property) to a row's files property. Files in page bodies show up in the Markdown with paths like /api/files/<id>; get_file reads one (text files, PDFs and Office documents as text, images as images), as do the urls of a files property.
 duplicate_page copies a page with everything under it beside the original. list_pages with favorites true lists the pages the user starred; get_page says whether a page is starred.
 A page is live, archived or in the trash. Archived pages (set_page_archived) are out of date but kept, such as an old price list or a superseded offer; the pages under one, and the rows of an archived database, count as archived with it. They stay readable and editable by id or link, but search, list_pages and query_database leave them out unless include_archived is true (results then mark them archived: true), and get_page says archived. The trash is something else: archive_page moves a page to the trash, list_trash and restore_page bring it back.
 Some database properties are restricted: get_database shows the user's access on each, rows list values kept from the user under hidden_properties and read-only ones under read_only_properties (see leafdesk://docs/properties); people with full access change it with set_property_access.
@@ -1190,10 +1190,13 @@ const TEXT_TYPES = new Set([
 ]);
 
 /** How get_file shows a file of `contentType` called `name`, or null when it only describes it. */
-function fileReading(contentType: string, name: string): "text" | "pdf" | "xlsx" | "image" | null {
+function fileReading(contentType: string, name: string): "text" | "pdf" | "xlsx" | "document" | "image" | null {
   const type = contentType.split(";")[0].trim().toLowerCase();
   if (type === "application/pdf") return "pdf";
-  if (documentKind(contentType, name) === "xlsx") return "xlsx";
+  const kind = documentKind(contentType, name);
+  if (kind === "xlsx") return "xlsx";
+  // Word documents and presentations: read as search reads them, and kept (see server/file-text).
+  if (kind === "docx" || kind === "pptx") return "document";
   if (MODEL_IMAGE_TYPES.has(type)) return "image";
   if (type.startsWith("text/") || TEXT_TYPES.has(type) || type.endsWith("+json") || type.endsWith("+xml")) return "text";
   return null;
@@ -1930,7 +1933,7 @@ export function createMcpServer(principal: McpPrincipal, options: { actor?: Writ
     "get_file",
     {
       title: "Read an uploaded file",
-      description: `Read a file uploaded to Leafdesk: an image, PDF or other attachment in a page body (\`/api/files/<id>\` in get_page's Markdown) or in a row's files property (the url query_database and get_page return). Text files (plain text, Markdown, CSV, JSON, XML, code…), PDFs and Excel workbooks (.xlsx) come back as text (a PDF's text layer: scanned pages have none; a workbook's sheets one after another, each its name on a line and then its rows, cells between " | "), cut at ${MAX_MARKDOWN_CHARS} characters with offset to read on; PNG, JPEG, GIF and WebP images come back as images. Other kinds (Word and other Office documents, archives, video, audio) and files over the limits (text ${formatBytes(MAX_TEXT_FILE)}, PDF and workbooks ${formatBytes(MAX_PDF_FILE)}, images ${formatBytes(MAX_IMAGE_FILE)}) are only described, with their link. The user can read a file when they can see a page showing it; no extra permission is needed.`,
+      description: `Read a file uploaded to Leafdesk: an image, PDF or other attachment in a page body (\`/api/files/<id>\` in get_page's Markdown) or in a row's files property (the url query_database and get_page return). Text files (plain text, Markdown, CSV, JSON, XML, code…), PDFs, Word documents (.docx), Excel workbooks (.xlsx) and PowerPoint presentations (.pptx) come back as text (a PDF's text layer: scanned pages have none; a workbook's sheets one after another, each its name on a line and then its rows, cells between " | "; a presentation's slides one after another, each "Slide <n>" on a line, then its text and its speaker notes after "Notes:"), cut at ${MAX_MARKDOWN_CHARS} characters with offset to read on; PNG, JPEG, GIF and WebP images come back as images. Other kinds (old .doc, .xls and .ppt files, archives, video, audio) and files over the limits (text ${formatBytes(MAX_TEXT_FILE)}, PDF and Office documents ${formatBytes(MAX_PDF_FILE)}, images ${formatBytes(MAX_IMAGE_FILE)}) are only described, with their link. The user can read a file when they can see a page showing it; no extra permission is needed.`,
       inputSchema: z.object({
         file: z.string().min(1).max(4000).describe("The file's id, its /api/files/<id> path or its full url."),
         offset: z.number().int().min(0).default(0).describe("Character offset into the text, for long files."),
@@ -1957,38 +1960,53 @@ export function createMcpServer(principal: McpPrincipal, options: { actor?: Writ
         const share = "Share its url instead: the user can open it in Leafdesk.";
         const reading = fileReading(found.contentType, found.name);
         if (!reading) return jsonResult({ ...info, note: `Leafdesk can't show this kind of file here. ${share}` });
-        const limit = reading === "pdf" || reading === "xlsx" ? MAX_PDF_FILE : reading === "image" ? MAX_IMAGE_FILE : MAX_TEXT_FILE;
+        const limit = reading === "pdf" || reading === "xlsx" || reading === "document" ? MAX_PDF_FILE : reading === "image" ? MAX_IMAGE_FILE : MAX_TEXT_FILE;
         if (found.size > limit) return jsonResult({ ...info, note: `The file is larger than ${formatBytes(limit)}, too large to read here. ${share}` });
-        const bytes = await files.readStored(found);
-        if (!bytes) throw new AccessError("File not found");
-        if (reading === "image") {
-          return {
-            content: [
-              { type: "text", text: JSON.stringify(info, null, 2) },
-              { type: "image", data: bytes.toString("base64"), mimeType: found.contentType.split(";")[0].trim().toLowerCase() },
-            ],
-          };
-        }
         let text: string;
         let pages: number | undefined;
-        let partial = false;
-        if (reading === "xlsx") {
-          const book = await workbookText(new Uint8Array(bytes), { chars: XLSX_TEXT_CHARS }).catch(() => null);
-          if (!book) return jsonResult({ ...info, note: `The workbook couldn't be read (it may be damaged, password-protected or an old .xls file). ${share}` });
-          ({ text, partial } = book);
-        } else if (reading === "pdf") {
-          const pdf = await pdfText(bytes);
-          if (!pdf) return jsonResult({ ...info, note: `The PDF's text couldn't be read (it may be damaged or password-protected). ${share}` });
-          ({ text, pages } = pdf);
-          if (!text.trim()) return jsonResult({ ...info, pages, note: "The PDF has no text layer (probably a scan), so there is no text to read here." });
+        let partial: string | undefined;
+        if (reading === "document") {
+          const read = await documentText(found);
+          if (!read) {
+            return jsonResult({
+              ...info,
+              note: `The document's text couldn't be read (it may be damaged, password-protected, an old .doc or .ppt file, or have no text). ${share}`,
+            });
+          }
+          text = read.text;
+          if (read.partial) partial = `Only the start of the document was read (${FILE_TEXT_LIMITS.chars} characters).`;
         } else {
-          text = new TextDecoder("utf-8").decode(bytes);
+          const bytes = await files.readStored(found);
+          if (!bytes) throw new AccessError("File not found");
+          if (reading === "image") {
+            return {
+              content: [
+                { type: "text", text: JSON.stringify(info, null, 2) },
+                { type: "image", data: bytes.toString("base64"), mimeType: found.contentType.split(";")[0].trim().toLowerCase() },
+              ],
+            };
+          }
+          if (reading === "xlsx") {
+            const book = await workbookText(new Uint8Array(bytes), { chars: XLSX_TEXT_CHARS }).catch(() => null);
+            if (!book) return jsonResult({ ...info, note: `The workbook couldn't be read (it may be damaged, password-protected or an old .xls file). ${share}` });
+            text = book.text;
+            if (book.partial) {
+              partial = `Only the start of the workbook was read (at most ${CSV_MAX_ROWS} rows and ${CSV_MAX_COLUMNS} columns of each sheet, ${XLSX_TEXT_CHARS} characters in all).`;
+            }
+          } else if (reading === "pdf") {
+            const pdf = await pdfText(bytes);
+            if (!pdf) return jsonResult({ ...info, note: `The PDF's text couldn't be read (it may be damaged or password-protected). ${share}` });
+            ({ text, pages } = pdf);
+            if (!text.trim()) return jsonResult({ ...info, pages, note: "The PDF has no text layer (probably a scan), so there is no text to read here." });
+          } else {
+            text = new TextDecoder("utf-8").decode(bytes);
+          }
         }
         const window = sliceText(text, offset);
         return jsonResult({
           ...info,
           ...(pages !== undefined ? { pages } : {}),
-          ...(partial ? { partial: `Only the start of the workbook was read (at most ${CSV_MAX_ROWS} rows and ${CSV_MAX_COLUMNS} columns of each sheet, ${XLSX_TEXT_CHARS} characters in all).` } : {}),
+          ...(partial ? { partial } : {}),
           text: window.text,
           ...(window.truncated ? { truncated: true, total_chars: window.totalChars } : {}),
           ...("note" in window ? { note: window.note } : {}),

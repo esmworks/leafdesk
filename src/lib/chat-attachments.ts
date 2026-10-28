@@ -25,19 +25,20 @@ const DOCUMENT_TYPES = [
   "application/pdf",
   "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
   "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+  "application/vnd.openxmlformats-officedocument.presentationml.presentation",
 ];
 const CSV_TYPES = ["text/csv", "application/csv", "text/comma-separated-values"];
 const TEXT_TYPES = ["text/plain", "text/markdown", "text/x-markdown"];
 
 /** What the file chooser offers. */
-export const CHAT_FILE_ACCEPT = [...CHAT_IMAGE_TYPES, ".pdf", ".docx", ".xlsx", ".csv", ".md", ".markdown", ".txt"].join(",");
+export const CHAT_FILE_ACCEPT = [...CHAT_IMAGE_TYPES, ".pdf", ".docx", ".xlsx", ".pptx", ".csv", ".md", ".markdown", ".txt"].join(",");
 
 export type ChatFileKind = "image" | "document" | "csv" | "text";
 
 /**
- * How the chat reads a file: an image (shown to the model), a document (PDF, Word, Excel, read to
- * text), a CSV file (a table), plain text (Markdown, text); null for anything else, which can't be
- * attached.
+ * How the chat reads a file: an image (shown to the model), a document (PDF, Word, Excel,
+ * PowerPoint, read to text), a CSV file (a table), plain text (Markdown, text); null for anything
+ * else, which can't be attached.
  */
 export function chatFileKind(contentType: string, name: string): ChatFileKind | null {
   const type = contentType.split(";")[0].trim().toLowerCase();
@@ -46,7 +47,7 @@ export function chatFileKind(contentType: string, name: string): ChatFileKind | 
   if (DOCUMENT_TYPES.includes(type)) return "document";
   if (CSV_TYPES.includes(type) || (ext === "csv" && (type === "text/plain" || type === "application/vnd.ms-excel"))) return "csv";
   if (TEXT_TYPES.includes(type)) return "text";
-  if (ext === "docx" || ext === "xlsx" || ext === "pdf") return type === "application/octet-stream" || type === "application/zip" ? "document" : null;
+  if (ext === "docx" || ext === "xlsx" || ext === "pptx" || ext === "pdf") return type === "application/octet-stream" || type === "application/zip" ? "document" : null;
   if (ext === "csv") return "csv";
   if (ext === "md" || ext === "markdown" || ext === "txt") return "text";
   return null;

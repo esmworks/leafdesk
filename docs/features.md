@@ -22,8 +22,9 @@
   aren't found; text in double quotes, `"launch plan"`, only with its words whole, side by side and
   in that order, and then a page found by meaning alone isn't listed), and also by meaning when the
   server has an embeddings model
-  (see [Semantic search](ai.md#semantic-search)). Full-text search also looks inside the PDFs and
-  Word documents a page shows, with or without an embeddings model: a page is found when one of
+  (see [Semantic search](ai.md#semantic-search)). Full-text search also looks inside the PDFs,
+  Word documents, Excel workbooks and PowerPoint presentations a page shows (a presentation's
+  slides and speaker notes), with or without an embeddings model: a page is found when one of
   its documents has every word, after the pages that have them in their own text, and the result
   names the document, with the text around the words. Only documents the page's readers may open
   through it count, as for semantic search; a document's first 80,000 characters are searched,
@@ -919,8 +920,8 @@
   stored on disk or in S3-compatible storage, only people who can see a page showing them can open
   them, and published pages show theirs (see [File uploads](self-hosting.md#file-uploads)). Uploaded PDFs show
   in place, and so do Excel workbooks (.xlsx), read-only, a sheet at a time; an editor can turn one
-  into a database. Search finds pages by the words of the PDFs, Word documents and Excel workbooks
-  they show. Any uploaded file opens full screen in the file viewer, with ← and → for the page's
+  into a database. Search finds pages by the words of the PDFs, Word documents, Excel workbooks and
+  PowerPoint presentations they show. Any uploaded file opens full screen in the file viewer, with ← and → for the page's
   other files: images zoom, Word documents, CSV, Markdown, JSON, code and text show their
   contents, and the rest offers a download. An image can link to a web address or a page of the
   workspace (*Link…* in its block menu): in the editor a small button on it follows the link,

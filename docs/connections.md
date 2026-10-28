@@ -229,7 +229,7 @@ that doesn't read resources gets the same text from `get_page` with the address 
 
 The tools cover:
 
-- **Finding things:** `list_workspaces`, `list_teamspaces`, `search` (also by the words of the PDFs, Word documents and Excel workbooks pages show; such a result names the `document`), `list_pages`, `list_recent_pages`, `list_users` (with when each member joined), `list_groups` (member groups with their members and teamspaces).
+- **Finding things:** `list_workspaces`, `list_teamspaces`, `search` (also by the words of the PDFs, Word documents, Excel workbooks and PowerPoint presentations pages show; such a result names the `document`), `list_pages`, `list_recent_pages`, `list_users` (with when each member joined), `list_groups` (member groups with their members and teamspaces).
 - **Workspace health:** `check_workspace` lists broken links, pages nothing links to, empty and
   long untouched pages, likely duplicates and relations to deleted rows, with links and the tools
   that fix each (it changes nothing itself).
@@ -300,8 +300,10 @@ The tools cover:
   also grants the `files:write` permission. Files properties can only be set to files already
   uploaded to the workspace. URLs that lead to
   private or loopback addresses are refused. `get_file` reads a file back: text files, PDFs (their
-  text layer) and Excel workbooks (each sheet's rows, cells between bars) as text, PNG, JPEG, GIF and WebP images as images, anything else as a description with
-  its link. It needs no extra permission: the user reads a file when they can see a page showing it.
+  text layer), Word documents, Excel workbooks (each sheet's rows, cells between bars) and
+  PowerPoint presentations (each slide's text, then its speaker notes) as text, PNG, JPEG, GIF and
+  WebP images as images, anything else (old .doc, .xls and .ppt files among them) as a description
+  with its link. It needs no extra permission: the user reads a file when they can see a page showing it.
 - **Databases:** `get_database`, `query_database`, `create_database`, `create_database_row`,
   `create_database_rows`, `update_database_row`, `update_database_rows`, `add_database_property`
   (including one- or two-way relations), `set_sub_items`, `set_dependencies`, `update_database_property`

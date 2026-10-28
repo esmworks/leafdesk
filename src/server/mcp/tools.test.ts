@@ -255,6 +255,9 @@ const files = vi.hoisted(() => {
 });
 vi.mock("@/server/files", () => files);
 
+const fileText = vi.hoisted(() => ({ documentText: vi.fn() }));
+vi.mock("@/server/file-text", async (importOriginal) => ({ ...(await importOriginal<object>()), ...fileText }));
+
 const duplicate = vi.hoisted(() => ({ duplicatePage: vi.fn(), MAX_DUPLICATE_PAGES: 2000 }));
 vi.mock("@/server/duplicate", () => duplicate);
 
@@ -2305,9 +2308,34 @@ describe("get_file", () => {
     expect((await callTool(reader, "get_file", { file: FILE_ID })).data.note).toMatch(/workbook couldn't be read/);
   });
 
+  it("reads Word documents and presentations as search reads them, kept for the next call", async () => {
+    for (const [name, contentType] of [
+      ["offer.docx", "application/vnd.openxmlformats-officedocument.wordprocessingml.document"],
+      ["pitch.pptx", "application/vnd.openxmlformats-officedocument.presentationml.presentation"],
+      ["pitch.pptx", "application/zip"],
+    ]) {
+      const found = stored({ name, contentType, size: 2048 });
+      files.fileForApp.mockResolvedValue(found);
+      fileText.documentText.mockResolvedValue({ text: "Slide 1\nTeklif", partial: false });
+      const { isError, data } = await callTool(reader, "get_file", { file: FILE_ID, offset: 8 });
+      expect(isError).toBe(false);
+      expect(data).toMatchObject({ name, text: "Teklif" });
+      expect(data.partial).toBeUndefined();
+      expect(fileText.documentText).toHaveBeenLastCalledWith(found);
+    }
+    expect(files.readStored).not.toHaveBeenCalled();
+    fileText.documentText.mockResolvedValue({ text: "Long", partial: true });
+    expect((await callTool(reader, "get_file", { file: FILE_ID })).data.partial).toMatch(/Only the start of the document/);
+    fileText.documentText.mockResolvedValue(null);
+    expect((await callTool(reader, "get_file", { file: FILE_ID })).data.note).toMatch(/couldn't be read/);
+  });
+
   it("describes files it can't show, too large ones and unreadable PDFs without reading them", async () => {
-    files.fileForApp.mockResolvedValue(stored({ name: "offer.docx", contentType: "application/vnd.openxmlformats-officedocument.wordprocessingml.document" }));
+    files.fileForApp.mockResolvedValue(stored({ name: "offer.doc", contentType: "application/msword" }));
     expect((await callTool(reader, "get_file", { file: FILE_ID })).data.note).toMatch(/can't show this kind/);
+    files.fileForApp.mockResolvedValue(stored({ name: "big.pptx", contentType: "application/vnd.openxmlformats-officedocument.presentationml.presentation", size: 26 * 1024 * 1024 }));
+    expect((await callTool(reader, "get_file", { file: FILE_ID })).data.note).toMatch(/too large/);
+    expect(fileText.documentText).not.toHaveBeenCalled();
     files.fileForApp.mockResolvedValue(stored({ name: "big.png", contentType: "image/png", size: 6 * 1024 * 1024 }));
     expect((await callTool(reader, "get_file", { file: FILE_ID })).data.note).toMatch(/too large/);
     expect(files.readStored).not.toHaveBeenCalled();

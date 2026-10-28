@@ -19,6 +19,8 @@ describe("files attached to the AI chat", () => {
     expect(chatFileKind("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", "sheet.xlsx")).toBe("document");
     expect(chatFileKind("application/pdf", "a.pdf")).toBe("document");
     expect(chatFileKind("application/octet-stream", "brief.docx")).toBe("document");
+    expect(chatFileKind("application/vnd.openxmlformats-officedocument.presentationml.presentation", "deck.pptx")).toBe("document");
+    expect(chatFileKind("application/zip", "Deck.PPTX")).toBe("document");
     expect(chatFileKind("image/png; charset=binary", "shot.png")).toBe("image");
     expect(chatFileKind("text/markdown", "notes.md")).toBe("text");
     expect(chatFileKind("", "notes.txt")).toBe("text");

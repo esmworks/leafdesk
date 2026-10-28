@@ -1,6 +1,7 @@
 /**
- * The text of PDFs, Word documents and Excel workbooks attached to pages, for search. Full-text search finds a page
- * by the words of the documents its body shows (file_text.search_vector, see pages.fullTextSearch).
+ * The text of PDFs, Word documents, Excel workbooks and PowerPoint presentations attached to pages,
+ * for search. Full-text search finds a page by the words of the documents its body shows
+ * (file_text.search_vector, see pages.fullTextSearch).
  * For semantic search, each file block of a page that shows such a document adds its text to the
  * page's index (semantic-text.chunkPage), so the AI chat can answer from inside the document and
  * cite the block showing it.
@@ -39,8 +40,8 @@ export const FILE_TEXT_LIMITS = {
   /** Documents indexed per page, in the order the page shows them. */
   filesPerPage: 20,
   /**
-   * What a workbook's parts may unpack to: it is read in the server's own process, so a small file
-   * that unpacks to hundreds of megabytes isn't read at all.
+   * What the parts read of a workbook or a presentation may unpack to: they are read in the
+   * server's own process, so a small file that unpacks to hundreds of megabytes isn't read at all.
    */
   workbookUnpackedBytes: 64 * MB,
 };
@@ -48,10 +49,11 @@ export const FILE_TEXT_LIMITS = {
 /** Raise it when what is read out of a document changes (limits included): rows of an older version are read again. */
 export const EXTRACTOR_VERSION = 1;
 
-export type DocumentKind = "pdf" | "docx" | "xlsx";
+export type DocumentKind = "pdf" | "docx" | "xlsx" | "pptx";
 
 const DOCX_TYPE = "application/vnd.openxmlformats-officedocument.wordprocessingml.document";
 const XLSX_TYPE = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet";
+const PPTX_TYPE = "application/vnd.openxmlformats-officedocument.presentationml.presentation";
 
 /** Which kind of document a stored file is, by the type the server recorded for it; null for anything else. */
 export function documentKind(contentType: string, name: string): DocumentKind | null {
@@ -59,10 +61,12 @@ export function documentKind(contentType: string, name: string): DocumentKind | 
   if (type === "application/pdf") return "pdf";
   if (type === DOCX_TYPE) return "docx";
   if (type === XLSX_TYPE) return "xlsx";
+  if (type === PPTX_TYPE) return "pptx";
   // Some browsers send an Office document as a generic ZIP or bytes; its name says what it is.
   if (type === "application/octet-stream" || type === "application/zip") {
     if (/\.docx$/i.test(name.trim())) return "docx";
     if (/\.xlsx$/i.test(name.trim())) return "xlsx";
+    if (/\.pptx$/i.test(name.trim())) return "pptx";
   }
   return null;
 }
@@ -149,9 +153,23 @@ export async function workbookText(bytes: Uint8Array, { chars = FILE_TEXT_LIMITS
   return { text: joined.text, partial: joined.partial || partial, pages: null };
 }
 
+/**
+ * The text of a PowerPoint presentation: each slide as "Slide <n>" on a line of its own, then its
+ * paragraphs, then its speaker notes after "Notes:". Stops once there's text enough; throws when it
+ * can't be read, or unpacks to more than FILE_TEXT_LIMITS.workbookUnpackedBytes.
+ */
+export async function presentationText(bytes: Uint8Array, { chars = FILE_TEXT_LIMITS.chars }: { chars?: number } = {}): Promise<ExtractedText> {
+  const { presentationText: read } = await import("@/lib/import/pptx");
+  const deck = read(bytes, { chars, unpackedBytes: FILE_TEXT_LIMITS.workbookUnpackedBytes });
+  const parts = deck.slides.map(({ text, notes }, index) => [`Slide ${index + 1}`, text, notes && `Notes: ${notes}`].filter(Boolean).join("\n"));
+  const joined = joinText(parts, { chars });
+  return { text: joined.text, partial: joined.partial || deck.partial, pages: null };
+}
+
 /** A document's text, or null when it can't be read at all. */
 export async function extractText(kind: DocumentKind, name: string, bytes: Uint8Array): Promise<ExtractedText | null> {
   try {
+    if (kind === "pptx") return await presentationText(bytes);
     return kind === "pdf" ? await pdfText(bytes) : kind === "docx" ? await docxText(name, bytes) : await workbookText(bytes);
   } catch {
     return null;
@@ -219,7 +237,7 @@ const dbStore: FileTextStore = {
 const sha256 = (bytes: Uint8Array) => createHash("sha256").update(bytes).digest("hex");
 
 /**
- * The text of a stored PDF, Word document or Excel workbook, read once and kept (see the top of this module); null
+ * The text of a stored PDF, Word document, Excel workbook or PowerPoint presentation, read once and kept (see the top of this module); null
  * when it isn't such a document, is too large, has no text or can't be read.
  */
 export async function documentText(found: StoredDocument, store: FileTextStore = dbStore): Promise<{ text: string; partial: boolean } | null> {
@@ -405,8 +423,11 @@ export async function sweepDocuments(workspaceId: string, { force = false }: { f
         isNull(fileText.fileId),
         lte(file.size, FILE_TEXT_LIMITS.bytes),
         or(
-          sql`${type} in ('application/pdf', ${DOCX_TYPE}, ${XLSX_TYPE})`,
-          and(sql`${type} in ('application/octet-stream', 'application/zip')`, or(ilike(file.name, "%.docx"), ilike(file.name, "%.xlsx"))),
+          sql`${type} in ('application/pdf', ${DOCX_TYPE}, ${XLSX_TYPE}, ${PPTX_TYPE})`,
+          and(
+            sql`${type} in ('application/octet-stream', 'application/zip')`,
+            or(ilike(file.name, "%.docx"), ilike(file.name, "%.xlsx"), ilike(file.name, "%.pptx")),
+          ),
         ),
         exists(db.select({ one: sql`1` }).from(fileReference).where(eq(fileReference.fileId, file.id))),
         after ? sql`(${file.createdAt}, ${file.id}) < (${after.createdAt}, ${after.id})` : undefined,

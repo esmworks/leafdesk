@@ -7,6 +7,11 @@
 - **Agents in the sidebar.** The agents you may talk to have a section of their own under your
   private pages; each opens its chat, and the section's menu goes to Settings → Agents. It folds,
   hides and moves like the other sections, and shows only when there are agents.
+- **The AI reads Word documents and PowerPoint presentations.** MCP's `get_file`, which the AI
+  chat and agents use too, reads a Word document's text and a presentation's slides with their
+  speaker notes, as it already read PDFs and Excel workbooks. Presentations can be attached to a
+  chat question, and search finds pages by the words of the presentations they show.
+- **ClickHouse in the connection catalog.** ClickHouse Cloud's MCP server, with its own sign-in.
 
 ### Changed
 

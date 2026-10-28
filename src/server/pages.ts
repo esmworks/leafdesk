@@ -1059,9 +1059,10 @@ function searchSortOrder(sort: Exclude<SearchSort, "relevance">, alias: string) 
  * (page.searchVector) through its index, and access is checked in rank order only until `limit`
  * pages pass, so a search costs about the same in a workspace of any size.
  *
- * A page is also found when a PDF, Word document or Excel workbook its body shows has every word (each document
- * on its own, not words spread over the page and its documents), below the pages that have them
- * in their own text; the hit then names the document and its snippet comes from it.
+ * A page is also found when a document its body shows (file-text.ts: a PDF, Word document, Excel
+ * workbook or presentation) has every word (each document on its own, not words spread over the
+ * page and its documents), below the pages that have them in their own text; the hit then names
+ * the document and its snippet comes from it.
  */
 export async function fullTextSearch(
   userId: string,
@@ -1114,7 +1115,7 @@ export async function fullTextSearch(
   const inWorkspaces = sql.join(workspaces.map((w) => sql`${w}`), sql`, `);
   // Out of the trash and templates, and archived pages only when asked for (server/page-outdated.ts).
   const listed = listedPage(workspaces, { alias: "p", includeOutdated });
-  // Pages whose body shows a PDF, Word document or Excel workbook with the words (file-text.ts), through a
+  // Pages whose body shows a document with the words (file-text.ts), through a
   // reference its readers may read it by: the rule semantic search indexes documents by
   // (file-text.pageDocuments), so the document's words find nothing someone couldn't read there.
   // Its vector has no weight, so a page matching in its own text ranks above one matching only in

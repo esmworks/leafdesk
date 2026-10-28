@@ -1,8 +1,8 @@
 /**
  * Files attached to the AI chat's questions (lib/chat-attachments.ts): images, which go to the
- * model as images where it takes them; PDFs, Word documents and Excel workbooks, read to text
- * (file-text.ts, as for search); CSV files, read as tables the chat can read on in and make a
- * database of (chat-attachment-table.ts); Markdown and text files.
+ * model as images where it takes them; PDFs, Word documents, Excel workbooks and PowerPoint
+ * presentations, read to text (file-text.ts, as for search); CSV files, read as tables the chat can
+ * read on in and make a database of (chat-attachment-table.ts); Markdown and text files.
  *
  * Each is an uploaded `file` of the workspace on no page, tied to the person who attached it
  * (`ai_chat_file`): only they can open it (`chatFileForOwner`, served by /api/ai/chat/files/[id]),
@@ -60,7 +60,7 @@ export async function uploadChatFile(userId: string, workspaceId: string, input:
   if (!(await aiAvailable(workspaceId))) throw new FileError("AI is off for this workspace", "notAllowed");
   const name = cleanAttachmentName(cleanFileName(input.name));
   const kind = chatFileKind(contentTypeFor(input.contentType, name), name);
-  if (!kind) throw new FileError("The chat reads images, PDFs, Word and Excel documents, CSV, Markdown and text files", "badRequest");
+  if (!kind) throw new FileError("The chat reads images, PDFs, Word, Excel and PowerPoint documents, CSV, Markdown and text files", "badRequest");
   const maxBytes = kind === "image" ? CHAT_FILE_LIMITS.imageBytes : kind === "csv" ? CSV_MAX_BYTES : CHAT_FILE_LIMITS.bytes;
   if (input.declaredSize != null && input.declaredSize > maxBytes) throw new FileError(`Files attached to the chat can be at most ${formatBytes(maxBytes)}`, "tooLarge", maxBytes);
   let body = input.body;

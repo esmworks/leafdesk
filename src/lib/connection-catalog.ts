@@ -120,6 +120,7 @@ const ROWS: Record<CatalogCategory, Row[]> = {
     ["Buildkite", "https://mcp.buildkite.com/mcp", "oauth"],
     ["CircleCI", "https://mcp.circleci.com/v1/mcp", "oauth"],
     ["Clerk", "https://mcp.clerk.com/mcp", "oauth"],
+    ["ClickHouse", "https://mcp.clickhouse.cloud/mcp", "oauth"],
     ["Cloudflare", "https://mcp.cloudflare.com/mcp", "oauth"],
     ["Cloudflare Docs", "https://docs.mcp.cloudflare.com/mcp", "none"],
     ["DevCycle", "https://mcp.devcycle.com/mcp", "oauth"],

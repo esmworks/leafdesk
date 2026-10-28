@@ -155,8 +155,11 @@ export function isOleFile(bytes: Uint8Array) {
 
 const unreadable = () => new ImportError("The workbook can't be read", "badWorkbook");
 
-/** A workbook's ZIP: parts read one at a time, all of them within one unpacked-size budget. */
-class Package {
+/**
+ * An Office document's ZIP (a workbook's, or a presentation's, see lib/import/pptx): parts read one
+ * at a time, all of them within one unpacked-size budget.
+ */
+export class Package {
   private names = new Map<string, string>();
   private budget: number;
 
@@ -234,7 +237,7 @@ function resolvePath(from: string, target: string): string {
 }
 
 /** The relationships of a part, by id: their type (its last segment, e.g. "worksheet") and target. */
-function relationships(pkg: Package, part: string) {
+export function relationships(pkg: Package, part: string) {
   const slash = part.lastIndexOf("/");
   const relsPath = `${part.slice(0, slash + 1)}_rels/${part.slice(slash + 1)}.rels`;
   const rels = new Map<string, { type: string; target: string }>();
