@@ -2,6 +2,12 @@
 
 ## Unreleased
 
+### Fixed
+
+- **A database page's icon and background pickers open over its view bar.** On a full database
+  page the toolbar beside the view tabs covered the top of the picker that Add icon or Add
+  background opened.
+
 ## 0.6.6 — 2026-10-28
 
 ### Upgrading from 0.6.5

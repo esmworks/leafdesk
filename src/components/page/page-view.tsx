@@ -697,7 +697,9 @@ export function PageView({
                 title, the add-icon and background buttons over its right end. Those show on hover or
                 focus and take no room, so the title keeps its width; on touch screens, where they
                 always show, they sit after it instead. */}
-            <div className="relative flex items-start gap-3">
+            {/* While a picker is open the row rises over a database's sticky view bar (z-34) and the
+                top bar (z-35): the picker's own z-50 counts only inside the buttons' z-30 layer. */}
+            <div className="relative flex items-start gap-3 has-[[data-open]]:z-[36]">
               {icon && iconPicker}
               <TitleField
                 inputRef={titleRef}
