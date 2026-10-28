@@ -36,12 +36,16 @@
     "noPeople": "Tidak ada yang ditemukan",
     "start": "Mulai merekam",
     "continue": "Lanjutkan merekam",
+    "upload": "Unggah rekaman",
     "pause": "Jeda",
     "resume": "Lanjutkan",
     "stop": "Berhenti dan ringkas",
     "recording": "Merekam",
     "paused": "Dijeda",
     "recordingBy": "{name} sedang merekam",
+    "reading": "Membaca file…",
+    "transcribingFile": "Mentranskripsikan rekaman",
+    "transcribingBy": "{name} sedang mentranskripsikan rekaman",
     "recordingElsewhere": "Rapat lain sedang direkam. Hentikan dulu.",
     "finishing": "Menyelesaikan…",
     "summarizing": "AI sedang menulis ringkasan…",
@@ -64,7 +68,8 @@
     "transcriptCount": "{count, plural, other {# bagian}}",
     "noTranscript": "Transkrip terisi di sini selagi Anda merekam.",
     "gap": "Bagian ini tidak dapat ditranskripsikan.",
-    "listening": "Mendengarkan… {time}"
+    "listening": "Mendengarkan… {time}",
+    "transcribing": "Mentranskripsikan… {time}"
   },
   "notices": {
     "summaryFailed": "AI tidak dapat menulis ringkasan. Coba Buat ulang ringkasan.",
@@ -84,6 +89,11 @@
     "insecure": "Perekaman memerlukan koneksi aman (https).",
     "unsupported": "Browser ini tidak dapat merekam audio.",
     "denied": "Leafdesk tidak diizinkan memakai mikrofon. Izinkan di pengaturan situs browser Anda dan coba lagi.",
-    "noDevice": "Mikrofon tidak ditemukan."
+    "noDevice": "Mikrofon tidak ditemukan.",
+    "notEmpty": "Rapat ini sudah punya rekaman.",
+    "fileType": "File ini tidak bisa ditranskripsikan. Pilih file audio atau video.",
+    "fileTooLarge": "Ukuran file paling besar {size}.",
+    "fileTooLong": "Rekaman lebih dari tiga jam, batas terlama sebuah rapat.",
+    "fileUnreadable": "Suara dalam file ini tidak bisa dibaca. Coba format lain, seperti MP3 atau M4A."
   }
 }

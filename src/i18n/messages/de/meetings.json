@@ -36,12 +36,16 @@
     "noPeople": "Niemand gefunden",
     "start": "Aufnahme starten",
     "continue": "Aufnahme fortsetzen",
+    "upload": "Aufnahme hochladen",
     "pause": "Pausieren",
     "resume": "Fortsetzen",
     "stop": "Stoppen und zusammenfassen",
     "recording": "Aufnahme läuft",
     "paused": "Pausiert",
     "recordingBy": "{name} nimmt auf",
+    "reading": "Datei wird gelesen…",
+    "transcribingFile": "Aufnahme wird transkribiert",
+    "transcribingBy": "{name} transkribiert eine Aufnahme",
     "recordingElsewhere": "Gerade wird eine andere Besprechung aufgenommen. Beende sie zuerst.",
     "finishing": "Wird abgeschlossen…",
     "summarizing": "Die KI schreibt die Zusammenfassung…",
@@ -64,7 +68,8 @@
     "transcriptCount": "{count, plural, one {# Abschnitt} other {# Abschnitte}}",
     "noTranscript": "Das Transkript füllt sich hier, während du aufnimmst.",
     "gap": "Dieser Abschnitt konnte nicht transkribiert werden.",
-    "listening": "Hört zu… {time}"
+    "listening": "Hört zu… {time}",
+    "transcribing": "Wird transkribiert… {time}"
   },
   "notices": {
     "summaryFailed": "Die KI konnte die Zusammenfassung nicht schreiben. Versuche es mit „Zusammenfassung neu erstellen“.",
@@ -84,6 +89,11 @@
     "insecure": "Aufnehmen braucht eine sichere (https-)Verbindung.",
     "unsupported": "Dieser Browser kann kein Audio aufnehmen.",
     "denied": "Leafdesk darf das Mikrofon nicht verwenden. Erlaube es in den Website-Einstellungen deines Browsers und versuche es erneut.",
-    "noDevice": "Es wurde kein Mikrofon gefunden."
+    "noDevice": "Es wurde kein Mikrofon gefunden.",
+    "notEmpty": "Diese Besprechung hat bereits eine Aufnahme.",
+    "fileType": "Diese Datei kann nicht transkribiert werden. Wähle eine Audio- oder Videodatei.",
+    "fileTooLarge": "Dateien dürfen höchstens {size} groß sein.",
+    "fileTooLong": "Die Aufnahme ist länger als drei Stunden, die längste Dauer einer Besprechung.",
+    "fileUnreadable": "Der Ton dieser Datei konnte nicht gelesen werden. Versuche ein anderes Format, etwa MP3 oder M4A."
   }
 }

@@ -36,12 +36,16 @@
     "noPeople": "Fant ingen",
     "start": "Start opptak",
     "continue": "Fortsett opptaket",
+    "upload": "Last opp et opptak",
     "pause": "Pause",
     "resume": "Fortsett",
     "stop": "Stopp og oppsummer",
     "recording": "Tar opp",
     "paused": "Satt på pause",
     "recordingBy": "{name} tar opp",
+    "reading": "Leser filen…",
+    "transcribingFile": "Transkriberer opptaket",
+    "transcribingBy": "{name} transkriberer et opptak",
     "recordingElsewhere": "Et annet møte blir tatt opp. Stopp det først.",
     "finishing": "Avslutter…",
     "summarizing": "KI skriver sammendraget…",
@@ -64,7 +68,8 @@
     "transcriptCount": "{count, plural, one {# del} other {# deler}}",
     "noTranscript": "Transkripsjonen fylles inn her mens du tar opp.",
     "gap": "Denne delen kunne ikke transkriberes.",
-    "listening": "Lytter… {time}"
+    "listening": "Lytter… {time}",
+    "transcribing": "Transkriberer… {time}"
   },
   "notices": {
     "summaryFailed": "KI kunne ikke skrive sammendraget. Prøv «Lag sammendraget på nytt».",
@@ -84,6 +89,11 @@
     "insecure": "Opptak krever en sikker tilkobling (https).",
     "unsupported": "Denne nettleseren kan ikke ta opp lyd.",
     "denied": "Leafdesk har ikke tillatelse til å bruke mikrofonen. Tillat det i nettstedsinnstillingene i nettleseren og prøv igjen.",
-    "noDevice": "Fant ingen mikrofon."
+    "noDevice": "Fant ingen mikrofon.",
+    "notEmpty": "Dette møtet har allerede et opptak.",
+    "fileType": "Denne filen kan ikke transkriberes. Velg en lyd- eller videofil.",
+    "fileTooLarge": "Filer kan være på høyst {size}.",
+    "fileTooLong": "Opptaket er lengre enn tre timer, som er det lengste et møte kan vare.",
+    "fileUnreadable": "Lyden i denne filen kunne ikke leses. Prøv et annet format, for eksempel MP3 eller M4A."
   }
 }

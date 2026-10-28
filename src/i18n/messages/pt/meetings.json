@@ -36,12 +36,16 @@
     "noPeople": "Ninguém encontrado",
     "start": "Começar a gravar",
     "continue": "Continuar gravando",
+    "upload": "Enviar uma gravação",
     "pause": "Pausar",
     "resume": "Retomar",
     "stop": "Parar e resumir",
     "recording": "Gravando",
     "paused": "Pausada",
     "recordingBy": "{name} está gravando",
+    "reading": "Lendo o arquivo…",
+    "transcribingFile": "Transcrevendo a gravação",
+    "transcribingBy": "{name} está transcrevendo uma gravação",
     "recordingElsewhere": "Outra reunião está sendo gravada. Pare essa gravação primeiro.",
     "finishing": "Finalizando…",
     "summarizing": "A IA está escrevendo o resumo…",
@@ -64,7 +68,8 @@
     "transcriptCount": "{count, plural, one {# trecho} other {# trechos}}",
     "noTranscript": "A transcrição aparece aqui enquanto você grava.",
     "gap": "Este trecho não pôde ser transcrito.",
-    "listening": "Ouvindo… {time}"
+    "listening": "Ouvindo… {time}",
+    "transcribing": "Transcrevendo… {time}"
   },
   "notices": {
     "summaryFailed": "A IA não conseguiu escrever o resumo. Tente “Gerar resumo novamente”.",
@@ -84,6 +89,11 @@
     "insecure": "A gravação precisa de uma conexão segura (https).",
     "unsupported": "Este navegador não consegue gravar áudio.",
     "denied": "O Leafdesk não tem permissão para usar o microfone. Permita nas configurações do site no seu navegador e tente novamente.",
-    "noDevice": "Nenhum microfone foi encontrado."
+    "noDevice": "Nenhum microfone foi encontrado.",
+    "notEmpty": "Esta reunião já tem uma gravação.",
+    "fileType": "Este arquivo não pode ser transcrito. Escolha um arquivo de áudio ou vídeo.",
+    "fileTooLarge": "Os arquivos podem ter no máximo {size}.",
+    "fileTooLong": "A gravação tem mais de três horas, a duração máxima de uma reunião.",
+    "fileUnreadable": "Não foi possível ler o som deste arquivo. Tente outro formato, como MP3 ou M4A."
   }
 }

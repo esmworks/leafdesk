@@ -47,8 +47,9 @@ const placeOf = (place: ChunkPlace): ChunkPlace => ({
   duration: num(place?.duration),
 });
 
-export async function startMeetingAction(pageId: string, meetingId: string) {
-  return run((user) => startMeeting(user.id, id(pageId), id(meetingId), user.name));
+/** `source` "file": the meeting's pieces come from an uploaded recording. */
+export async function startMeetingAction(pageId: string, meetingId: string, source?: "file") {
+  return run((user) => startMeeting(user.id, id(pageId), id(meetingId), user.name, { source: source === "file" ? "file" : "" }));
 }
 
 export async function markMeetingGapAction(place: ChunkPlace) {

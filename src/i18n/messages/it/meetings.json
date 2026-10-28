@@ -36,12 +36,16 @@
     "noPeople": "Nessuno trovato",
     "start": "Avvia registrazione",
     "continue": "Continua a registrare",
+    "upload": "Carica una registrazione",
     "pause": "Pausa",
     "resume": "Riprendi",
     "stop": "Interrompi e riassumi",
     "recording": "Registrazione in corso",
     "paused": "In pausa",
     "recordingBy": "{name} sta registrando",
+    "reading": "Lettura del file…",
+    "transcribingFile": "Trascrizione della registrazione",
+    "transcribingBy": "{name} sta trascrivendo una registrazione",
     "recordingElsewhere": "È in corso la registrazione di un’altra riunione. Interrompila prima.",
     "finishing": "Conclusione…",
     "summarizing": "L’IA sta scrivendo il riepilogo…",
@@ -64,7 +68,8 @@
     "transcriptCount": "{count, plural, one {# parte} other {# parti}}",
     "noTranscript": "La trascrizione compare qui mentre registri.",
     "gap": "Questa parte non è stata trascritta.",
-    "listening": "In ascolto… {time}"
+    "listening": "In ascolto… {time}",
+    "transcribing": "Trascrizione… {time}"
   },
   "notices": {
     "summaryFailed": "L’IA non è riuscita a scrivere il riepilogo. Prova con «Rigenera riepilogo».",
@@ -84,6 +89,11 @@
     "insecure": "La registrazione richiede una connessione sicura (https).",
     "unsupported": "Questo browser non può registrare audio.",
     "denied": "Leafdesk non ha il permesso di usare il microfono. Consentilo nelle impostazioni del sito del browser e riprova.",
-    "noDevice": "Nessun microfono trovato."
+    "noDevice": "Nessun microfono trovato.",
+    "notEmpty": "Questa riunione ha già una registrazione.",
+    "fileType": "Questo file non può essere trascritto. Scegli un file audio o video.",
+    "fileTooLarge": "I file possono essere al massimo di {size}.",
+    "fileTooLong": "La registrazione dura più di tre ore, il massimo per una riunione.",
+    "fileUnreadable": "Non è stato possibile leggere l’audio di questo file. Prova un altro formato, come MP3 o M4A."
   }
 }

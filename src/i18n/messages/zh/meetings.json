@@ -36,12 +36,16 @@
     "noPeople": "未找到任何人",
     "start": "开始录音",
     "continue": "继续录音",
+    "upload": "上传录音",
     "pause": "暂停",
     "resume": "恢复",
     "stop": "停止并总结",
     "recording": "正在录音",
     "paused": "已暂停",
     "recordingBy": "{name} 正在录音",
+    "reading": "正在读取文件…",
+    "transcribingFile": "正在转写录音",
+    "transcribingBy": "{name} 正在转写一段录音",
     "recordingElsewhere": "另一个会议正在录音。请先停止那个录音。",
     "finishing": "正在结束…",
     "summarizing": "AI 正在撰写摘要…",
@@ -64,7 +68,8 @@
     "transcriptCount": "{count, plural, other {# 段}}",
     "noTranscript": "录音时，转写文本会显示在这里。",
     "gap": "这一段无法转写。",
-    "listening": "正在聆听… {time}"
+    "listening": "正在聆听… {time}",
+    "transcribing": "正在转写… {time}"
   },
   "notices": {
     "summaryFailed": "AI 无法撰写摘要。请尝试“重新生成摘要”。",
@@ -84,6 +89,11 @@
     "insecure": "录音需要安全（https）连接。",
     "unsupported": "此浏览器无法录音。",
     "denied": "Leafdesk 无权使用麦克风。请在浏览器的网站设置中允许后重试。",
-    "noDevice": "未找到麦克风。"
+    "noDevice": "未找到麦克风。",
+    "notEmpty": "此会议已经有录音了。",
+    "fileType": "无法转写此文件。请选择音频或视频文件。",
+    "fileTooLarge": "文件最大为 {size}。",
+    "fileTooLong": "录音超过三小时，即会议的最长时长。",
+    "fileUnreadable": "无法读取此文件中的声音。请尝试其他格式，如 MP3 或 M4A。"
   }
 }

@@ -6,6 +6,9 @@
  * action items into the block. The audio is never stored: each piece is held in memory for its
  * transcription request and dropped with it, as for voice notes (server/voice-notes.ts).
  *
+ * A recording made elsewhere can be uploaded instead (source "file"): the browser reads the file
+ * and sends it in the same pieces, as fast as the AI limits let (components/voice/meeting-upload-session.ts).
+ *
  * The browser keeps the recording going (components/voice/meeting-recorder.tsx); the server checks
  * every piece again: the person may still edit the page, the meeting is being recorded by them,
  * and it stays under MAX_MEETING_SECONDS. Writes go into the block's props in place
@@ -27,6 +30,7 @@ import {
   serializeTranscript,
   transcriptLines,
   type MeetingProps,
+  type MeetingSource,
   type TranscriptChunk,
 } from "@/lib/meetings";
 import type { MeetingListItem } from "@/lib/meeting-list";
@@ -40,7 +44,7 @@ import { createPage } from "@/server/pages";
 import { voiceNoteLimits } from "@/server/voice-notes";
 
 /** Why a meeting request was refused: see `meetings.errors`. */
-export const MEETING_ERRORS = ["noAccess", "notFound", "disabled", "busy", "tooLong", "notRecording", "invalid"] as const;
+export const MEETING_ERRORS = ["noAccess", "notFound", "disabled", "busy", "tooLong", "notRecording", "invalid", "notEmpty"] as const;
 export type MeetingErrorCode = (typeof MEETING_ERRORS)[number];
 
 export class MeetingError extends Error {
@@ -119,17 +123,29 @@ function assertFree(props: MeetingProps, userId: string) {
 
 /**
  * Starts (or carries on) recording a meeting. Throws MeetingError ("disabled" without speech to
- * text, "busy", "tooLong"). Returns where the recording goes on from: the seconds recorded so far
- * and the next piece's number.
+ * text, "busy", "tooLong", "notEmpty" for an upload to a meeting that has a recording). Returns
+ * where the recording goes on from: the seconds recorded so far and the next piece's number.
+ * `source` "file": the pieces come from an uploaded recording, which only a meeting not recorded
+ * yet takes; it starts when the meeting was planned, else now.
  */
-export async function startMeeting(userId: string, pageId: string, meetingId: string, userName = ""): Promise<{ seconds: number; nextChunk: number }> {
+export async function startMeeting(
+  userId: string,
+  pageId: string,
+  meetingId: string,
+  userName = "",
+  { source = "" }: { source?: MeetingSource } = {},
+): Promise<{ seconds: number; nextChunk: number }> {
   const found = await meetingPage(userId, pageId);
   if (!(await voiceNoteLimits(found.workspaceId))) throw new MeetingError("disabled", "Speech to text isn't available in this workspace");
   const props = await updateMeeting(userId, pageId, meetingId, (p) => {
     assertFree(p, userId);
+    if (source === "file" && (p.status !== "" || p.seconds > 0 || parseTranscript(p.transcript).length)) throw new MeetingError("notEmpty", "This meeting has a recording already");
     if (p.seconds >= MAX_MEETING_SECONDS) throw new MeetingError("tooLong", "This meeting reached its length limit");
     const now = nowIso();
-    return { status: "recording", recorder: userId, recorderName: userName.slice(0, 100), startedAt: p.startedAt || now, endedAt: "", lastAt: now, notice: "" };
+    const started = source === "file" ? p.scheduledAt || now : p.startedAt || now;
+    // A meeting goes on from what it was recorded from; a new one records from where it starts.
+    const from = p.status === "" ? { source } : {};
+    return { status: "recording", ...from, recorder: userId, recorderName: userName.slice(0, 100), startedAt: started, endedAt: "", lastAt: now, notice: "" };
   });
   const chunks = parseTranscript(props.transcript);
   return { seconds: props.seconds, nextChunk: chunks.reduce((max, c) => Math.max(max, c.c + 1), 0) };

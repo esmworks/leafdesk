@@ -36,12 +36,16 @@
     "noPeople": "Aucune personne trouvée",
     "start": "Démarrer l’enregistrement",
     "continue": "Poursuivre l’enregistrement",
+    "upload": "Importer un enregistrement",
     "pause": "Pause",
     "resume": "Reprendre",
     "stop": "Arrêter et résumer",
     "recording": "Enregistrement",
     "paused": "En pause",
     "recordingBy": "{name} enregistre",
+    "reading": "Lecture du fichier…",
+    "transcribingFile": "Transcription de l’enregistrement",
+    "transcribingBy": "{name} transcrit un enregistrement",
     "recordingElsewhere": "Une autre réunion est en cours d’enregistrement. Arrêtez-la d’abord.",
     "finishing": "Finalisation…",
     "summarizing": "L’IA rédige le résumé…",
@@ -64,7 +68,8 @@
     "transcriptCount": "{count, plural, one {# passage} other {# passages}}",
     "noTranscript": "La transcription s’affiche ici pendant l’enregistrement.",
     "gap": "Ce passage n’a pas pu être transcrit.",
-    "listening": "Écoute… {time}"
+    "listening": "Écoute… {time}",
+    "transcribing": "Transcription… {time}"
   },
   "notices": {
     "summaryFailed": "L’IA n’a pas pu rédiger le résumé. Essayez « Régénérer le résumé ».",
@@ -84,6 +89,11 @@
     "insecure": "L’enregistrement nécessite une connexion sécurisée (https).",
     "unsupported": "Ce navigateur ne peut pas enregistrer de son.",
     "denied": "Leafdesk n’est pas autorisé à utiliser le micro. Autorisez-le dans les paramètres du site de votre navigateur, puis réessayez.",
-    "noDevice": "Aucun micro n’a été trouvé."
+    "noDevice": "Aucun micro n’a été trouvé.",
+    "notEmpty": "Cette réunion a déjà un enregistrement.",
+    "fileType": "Ce fichier ne peut pas être transcrit. Choisissez un fichier audio ou vidéo.",
+    "fileTooLarge": "Les fichiers peuvent faire au plus {size}.",
+    "fileTooLong": "L’enregistrement dure plus de trois heures, la durée maximale d’une réunion.",
+    "fileUnreadable": "Le son de ce fichier n’a pas pu être lu. Essayez un autre format, comme MP3 ou M4A."
   }
 }

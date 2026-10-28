@@ -176,7 +176,9 @@ BlockNote on Yjs; Tailwind v4; next-intl. Node 24, pnpm 11. A separate Electron 
   by `queue.ts` `thresholdRowsChanged` after writes and from `pages.ts` trash and restore) and
   `src/server/schedules.ts` (`registerScheduleHandler`).
 - **Other areas:** meeting notes `meetings.ts` (the block's props, `src/lib/meetings.ts`; its list
-  table synced in `persistPage` by `meeting-notes.ts`), to-dos in pages for My tasks `page-tasks.ts`
+  table synced in `persistPage` by `meeting-notes.ts`; an uploaded file is decoded in the browser
+  and sent in a live recording's pieces, `components/voice/meeting-upload-session.ts`), to-dos in
+  pages for My tasks `page-tasks.ts`
   (index `page_task` synced in `persistPage`, extraction pure in `src/lib/page-tasks.ts`, merged
   into `assigned.ts` lists as items with `type: "pageTask"`; pages to index later go in
   `page_task_backfill`, which a restore of an older backup fills too), sprints `sprints.ts` (no table: the setup is the `sprints` config on the task database's relation

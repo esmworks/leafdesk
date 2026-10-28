@@ -36,12 +36,16 @@
     "noPeople": "Niemand gevonden",
     "start": "Opname starten",
     "continue": "Opname voortzetten",
+    "upload": "Opname uploaden",
     "pause": "Pauzeren",
     "resume": "Hervatten",
     "stop": "Stoppen en samenvatten",
     "recording": "Opnemen",
     "paused": "Gepauzeerd",
     "recordingBy": "{name} neemt op",
+    "reading": "Bestand lezen…",
+    "transcribingFile": "Opname wordt uitgeschreven",
+    "transcribingBy": "{name} schrijft een opname uit",
     "recordingElsewhere": "Er wordt een andere vergadering opgenomen. Stop die eerst.",
     "finishing": "Afronden…",
     "summarizing": "AI schrijft de samenvatting…",
@@ -64,7 +68,8 @@
     "transcriptCount": "{count, plural, one {# deel} other {# delen}}",
     "noTranscript": "De transcriptie verschijnt hier terwijl je opneemt.",
     "gap": "Dit deel kon niet worden getranscribeerd.",
-    "listening": "Luisteren… {time}"
+    "listening": "Luisteren… {time}",
+    "transcribing": "Uitschrijven… {time}"
   },
   "notices": {
     "summaryFailed": "AI kon de samenvatting niet schrijven. Probeer Samenvatting opnieuw maken.",
@@ -84,6 +89,11 @@
     "insecure": "Opnemen vereist een beveiligde (https-)verbinding.",
     "unsupported": "Deze browser kan geen audio opnemen.",
     "denied": "Leafdesk mag de microfoon niet gebruiken. Sta het toe in de site-instellingen van je browser en probeer het opnieuw.",
-    "noDevice": "Er is geen microfoon gevonden."
+    "noDevice": "Er is geen microfoon gevonden.",
+    "notEmpty": "Deze vergadering heeft al een opname.",
+    "fileType": "Dit bestand kan niet worden uitgeschreven. Kies een audio- of videobestand.",
+    "fileTooLarge": "Bestanden mogen hoogstens {size} zijn.",
+    "fileTooLong": "De opname duurt langer dan drie uur, de langste duur van een vergadering.",
+    "fileUnreadable": "Het geluid in dit bestand kon niet worden gelezen. Probeer een ander formaat, zoals MP3 of M4A."
   }
 }

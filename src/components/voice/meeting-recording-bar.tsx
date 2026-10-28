@@ -1,6 +1,6 @@
 "use client";
 
-import { CircleStop, Mic, Pause, Play } from "lucide-react";
+import { CircleStop, FileAudio, Mic, Pause, Play } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useTranslations } from "next-intl";
@@ -8,7 +8,7 @@ import { IconButton } from "@/components/ui";
 import { formatStamp } from "@/lib/meeting-clock";
 import type { MeetingRecording } from "./meeting-recorder";
 
-/** The meeting being recorded, while the person is somewhere else in the app: time, pause, stop. */
+/** The meeting being recorded (or transcribed from a file), while the person is somewhere else in the app: time, pause, stop. */
 export default function MeetingRecordingBar({
   recording,
   workspaceId,
@@ -33,12 +33,15 @@ export default function MeetingRecordingBar({
       role="status"
       className="fixed inset-x-4 bottom-4 z-40 mx-auto flex max-w-md items-center gap-2 rounded-lg border border-border bg-bg px-3 py-2 text-sm shadow-lg sm:inset-x-auto sm:inset-e-6"
     >
-      <span className={recording.status === "recording" ? "h-2.5 w-2.5 shrink-0 animate-pulse rounded-full bg-danger" : "h-2.5 w-2.5 shrink-0 rounded-full bg-fg-faint"} aria-hidden />
+      <span className={recording.status === "recording" && recording.source !== "file" ? "h-2.5 w-2.5 shrink-0 animate-pulse rounded-full bg-danger" : "h-2.5 w-2.5 shrink-0 rounded-full bg-fg-faint"} aria-hidden />
       <Link href={href} className="min-w-0 flex-1 truncate hover:underline">
         {recording.title.trim() || t("untitled")}
       </Link>
-      <span className="shrink-0 tabular-nums text-fg-muted">{busy ? t("block.finishing") : formatStamp(recording.seconds)}</span>
+      <span className="shrink-0 tabular-nums text-fg-muted">
+        {busy ? t("block.finishing") : recording.source === "file" ? `${formatStamp(recording.seconds)} / ${formatStamp(recording.total)}` : formatStamp(recording.seconds)}
+      </span>
       {!busy &&
+        recording.source !== "file" &&
         (recording.status === "paused" ? (
           <IconButton label={t("block.resume")} onClick={onResume}>
             <Play className="h-4 w-4" />
@@ -53,7 +56,7 @@ export default function MeetingRecordingBar({
           <CircleStop className="h-4 w-4 text-danger" />
         </IconButton>
       )}
-      {busy && <Mic className="h-4 w-4 shrink-0 text-fg-faint" aria-hidden />}
+      {busy && (recording.source === "file" ? <FileAudio className="h-4 w-4 shrink-0 text-fg-faint" aria-hidden /> : <Mic className="h-4 w-4 shrink-0 text-fg-faint" aria-hidden />)}
     </div>
   );
 }

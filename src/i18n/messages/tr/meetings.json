@@ -36,12 +36,16 @@
     "noPeople": "Kimse bulunamadı",
     "start": "Kaydı başlat",
     "continue": "Kayda devam et",
+    "upload": "Kayıt dosyası yükle",
     "pause": "Duraklat",
     "resume": "Sürdür",
     "stop": "Durdur ve özetle",
     "recording": "Kaydediliyor",
     "paused": "Duraklatıldı",
     "recordingBy": "{name} kaydediyor",
+    "reading": "Dosya okunuyor…",
+    "transcribingFile": "Kayıt metne dökülüyor",
+    "transcribingBy": "{name} bir kaydı metne döküyor",
     "recordingElsewhere": "Başka bir toplantı kaydediliyor. Önce onu durdurun.",
     "finishing": "Bitiriliyor…",
     "summarizing": "AI özeti yazıyor…",
@@ -64,7 +68,8 @@
     "transcriptCount": "{count, plural, one {# bölüm} other {# bölüm}}",
     "noTranscript": "Siz kaydettikçe döküm burada dolar.",
     "gap": "Bu bölüm yazıya dökülemedi.",
-    "listening": "Dinleniyor… {time}"
+    "listening": "Dinleniyor… {time}",
+    "transcribing": "Metne dökülüyor… {time}"
   },
   "notices": {
     "summaryFailed": "AI özeti yazamadı. “Özeti yeniden oluştur” ile tekrar deneyin.",
@@ -84,6 +89,11 @@
     "insecure": "Kayıt için güvenli (https) bağlantı gerekir.",
     "unsupported": "Bu tarayıcı ses kaydedemiyor.",
     "denied": "Leafdesk'in mikrofonu kullanmasına izin verilmemiş. Tarayıcınızın site ayarlarından izin verip tekrar deneyin.",
-    "noDevice": "Mikrofon bulunamadı."
+    "noDevice": "Mikrofon bulunamadı.",
+    "notEmpty": "Bu toplantının zaten bir kaydı var.",
+    "fileType": "Bu dosya metne dökülemez. Bir ses ya da video dosyası seçin.",
+    "fileTooLarge": "Dosyalar en fazla {size} olabilir.",
+    "fileTooLong": "Kayıt üç saatten uzun; bir toplantı en fazla bu kadar sürebilir.",
+    "fileUnreadable": "Bu dosyanın sesi okunamadı. MP3 ya da M4A gibi başka bir biçim deneyin."
   }
 }

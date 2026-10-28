@@ -35,6 +35,8 @@ export const meetingBlockConfig = {
     attendees: { default: "" },
     /** "" (not started), "recording", "summarizing" or "done". */
     status: { default: "" },
+    /** What it is recorded from: "" the microphone, "file" a recording uploaded from elsewhere. */
+    source: { default: "" },
     /** Who records it while it is being recorded (user id), and their name to show others. */
     recorder: { default: "" },
     recorderName: { default: "" },
@@ -61,6 +63,7 @@ export type MeetingProps = {
   seconds: number;
   attendees: string;
   status: string;
+  source: MeetingSource;
   recorder: string;
   recorderName: string;
   lastAt: string;
@@ -72,6 +75,7 @@ export type MeetingProps = {
 };
 
 export const MEETING_STATUSES = ["", "recording", "summarizing", "done"] as const;
+export type MeetingSource = "" | "file";
 export type MeetingStatus = (typeof MEETING_STATUSES)[number];
 
 /** Why the block says something went wrong: see `meetings.notices`. */
@@ -238,6 +242,7 @@ export function meetingProps(props: Record<string, unknown> | undefined): Meetin
     seconds: Number.isFinite(seconds) && seconds > 0 ? seconds : 0,
     attendees: s("attendees"),
     status: (MEETING_STATUSES as readonly string[]).includes(s("status")) ? s("status") : "",
+    source: s("source") === "file" ? "file" : "",
     recorder: s("recorder"),
     recorderName: s("recorderName"),
     lastAt: s("lastAt"),

@@ -5,14 +5,15 @@ import { isCrossSite } from "@/server/cross-site";
 import { statedLocale } from "@/server/mail/locale";
 import { addMeetingChunk, isMeetingError } from "@/server/meetings";
 
-const MEETING_STATUS: Record<string, number> = { noAccess: 403, notFound: 404, disabled: 403, busy: 409, tooLong: 413, notRecording: 409, invalid: 400 };
+const MEETING_STATUS: Record<string, number> = { noAccess: 403, notFound: 404, disabled: 403, busy: 409, tooLong: 413, notRecording: 409, invalid: 400, notEmpty: 409 };
 
 /**
  * A piece of a meeting's recording (see server/meetings.ts): `POST /api/meetings/chunk` with
  * multipart form data: `audio` (about 30 seconds), `pageId`, `meetingId`, `chunk` (its number),
  * `offset` and `duration` (seconds into the meeting, pauses left out). Answers `{"text":"…"}`, what
  * was heard, once it is in the block's transcript; or a status and `{"error":{"code","message"}}`
- * (lib/ai AI_ERROR_CODES, or server/meetings MEETING_ERRORS). Closing the request cancels it.
+ * (lib/ai AI_ERROR_CODES, or server/meetings MEETING_ERRORS), "rateLimited" with `Retry-After`
+ * (seconds). Closing the request cancels it.
  *
  * Signed-in browsers only (the session cookie); the cross-site check keeps other sites' pages from
  * posting here, as on the voice note route.
@@ -46,6 +47,8 @@ export async function POST(request: Request) {
     if (!isAiError(error)) console.error("[meetings]", error);
     // A provider's own answer stays in the server's log, as on the other AI routes.
     if (!isAiError(error) || error.code === "provider") return fail("provider", "The recording couldn't be written down", 502);
-    return fail(error.code, error.message, aiErrorStatus(error.code));
+    const answer = fail(error.code, error.message, aiErrorStatus(error.code));
+    if (error.code === "rateLimited" && error.retryAfterMs) answer.headers.set("Retry-After", String(Math.max(1, Math.ceil(error.retryAfterMs / 1000))));
+    return answer;
   }
 }

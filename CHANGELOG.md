@@ -4,6 +4,12 @@
 
 ### Added
 
+- **Upload a recording to a meeting note.** A meeting not recorded yet takes an audio or video file
+  recorded elsewhere (up to 500 MB and three hours): the browser reads it and sends it in the pieces
+  a live recording is sent in, the transcript fills in at the file's times, and the summary,
+  decisions and action items are written when it is done. The audio is still never kept. A piece
+  the AI limits hold back now waits as long as the server says instead of being left as a gap, for
+  live recordings too.
 - **Agents in the sidebar.** The agents you may talk to have a section of their own under your
   private pages; each opens its chat, and the section's menu goes to Settings → Agents. It folds,
   hides and moves like the other sections, and shows only when there are agents.

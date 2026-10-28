@@ -3,12 +3,14 @@
 /**
  * Records a meeting (lib/meetings) for the whole workspace's screens: the provider sits in the
  * workspace layout, so the recording goes on when the person opens other pages or switches tabs.
- * One meeting at a time. The recording itself (meeting-session.ts) and the bar shown elsewhere in
- * the app load only when a recording starts: every workspace screen carries this provider.
+ * One meeting at a time, recorded from the microphone or from an uploaded file. The recording
+ * itself (meeting-session.ts, meeting-upload-session.ts) and the bar shown elsewhere in the app
+ * load only when a recording starts: every workspace screen carries this provider.
  */
 import dynamic from "next/dynamic";
 import { useTranslations } from "next-intl";
 import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState, type ReactNode } from "react";
+import type { MeetingSource } from "@/lib/meetings";
 import type { VoiceNoteLimits } from "@/lib/voice-notes";
 import type { SessionControls } from "./meeting-session";
 
@@ -22,8 +24,12 @@ export type MeetingRecording = {
   meetingId: string;
   title: string;
   status: MeetingRecorderStatus;
-  /** Seconds recorded, pauses left out. */
+  /** "file" while an uploaded recording is being sent, else "" (the microphone). */
+  source: MeetingSource;
+  /** Seconds recorded (of an upload: sent), pauses left out. */
   seconds: number;
+  /** An upload's length in seconds (0 while it is read, and for the microphone). */
+  total: number;
   /** Pieces left as gaps after their retries. */
   gaps: number;
   /** Pieces waiting to be sent. */
@@ -38,6 +44,8 @@ export type MeetingRecorder = {
   /** Why the last recording couldn't start or ended early (translated), until the next start. */
   problem: { meetingId: string; message: string } | null;
   start: (pageId: string, meetingId: string, title: string) => Promise<void>;
+  /** Transcribes a recording made elsewhere into a meeting not recorded yet. */
+  upload: (pageId: string, meetingId: string, title: string, file: File) => Promise<void>;
   pause: () => void;
   resume: () => void;
   stop: () => void;
@@ -57,37 +65,57 @@ export function MeetingRecorderProvider({ workspaceId, limits, children }: { wor
   /** The running session's controls; "starting" while the microphone and the server are asked. */
   const session = useRef<SessionControls | "starting" | null>(null);
 
-  const start = useCallback(
-    async (pageId: string, meetingId: string, title: string) => {
+  /** Runs a session: `begin` starts it with the hooks, and resolves to its controls or why it couldn't start. */
+  const open = useCallback(
+    async (
+      pageId: string,
+      meetingId: string,
+      title: string,
+      source: MeetingSource,
+      begin: (hooks: { update: (view: Partial<MeetingRecording>) => void; ended: (message: string | null) => void }) => Promise<{ controls: SessionControls } | { problem: string }>,
+    ) => {
       if (session.current || !limits) return;
       session.current = "starting";
       setProblem(null);
-      setCurrent({ pageId, meetingId, title, status: "starting", seconds: 0, gaps: 0, waiting: 0 });
+      setCurrent({ pageId, meetingId, title, source, status: "starting", seconds: 0, total: 0, gaps: 0, waiting: 0 });
       let ended = false;
       const fail = (message: string) => {
         session.current = null;
         setCurrent(null);
         setProblem({ meetingId, message });
       };
-      const started = await import("./meeting-session")
-        .then(({ startMeetingSession }) =>
-          startMeetingSession(pageId, meetingId, limits.maxSeconds, {
-            translate: (key) => te(key),
-            update: (view) => setCurrent({ pageId, meetingId, title, ...view }),
-            ended: (message) => {
-              ended = true;
-              session.current = null;
-              setCurrent(null);
-              if (message) setProblem({ meetingId, message });
-            },
-          }),
-        )
-        .catch(() => ({ problem: te("failed") }));
+      const started = await begin({
+        update: (view) => setCurrent((was) => ({ pageId, meetingId, title, source, status: "starting", seconds: 0, total: 0, gaps: 0, waiting: 0, ...was, ...view })),
+        ended: (message) => {
+          ended = true;
+          session.current = null;
+          setCurrent(null);
+          if (message) setProblem({ meetingId, message });
+        },
+      }).catch(() => ({ problem: te("failed") }));
       if ("problem" in started) return fail(started.problem);
       // The session may have ended already (the microphone went away at once).
       if (!ended) session.current = started.controls;
     },
     [limits, te],
+  );
+
+  const start = useCallback(
+    (pageId: string, meetingId: string, title: string) =>
+      open(pageId, meetingId, title, "", async (hooks) => {
+        const { startMeetingSession } = await import("./meeting-session");
+        return startMeetingSession(pageId, meetingId, limits?.maxSeconds ?? 0, { ...hooks, translate: (key) => te(key) });
+      }),
+    [open, limits, te],
+  );
+
+  const upload = useCallback(
+    (pageId: string, meetingId: string, title: string, file: File) =>
+      open(pageId, meetingId, title, "file", async (hooks) => {
+        const { startMeetingUpload } = await import("./meeting-upload-session");
+        return startMeetingUpload(pageId, meetingId, file, limits?.maxBytes ?? 0, { ...hooks, translate: (key) => te(key) });
+      }),
+    [open, limits, te],
   );
 
   const pause = useCallback(() => running(session.current)?.pause(), []);
@@ -107,8 +135,8 @@ export function MeetingRecorderProvider({ workspaceId, limits, children }: { wor
   useEffect(() => () => running(session.current)?.dispose(), []);
 
   const value = useMemo<MeetingRecorder>(
-    () => ({ limits, workspaceId, current, problem, start, pause, resume, stop }),
-    [limits, workspaceId, current, problem, start, pause, resume, stop],
+    () => ({ limits, workspaceId, current, problem, start, upload, pause, resume, stop }),
+    [limits, workspaceId, current, problem, start, upload, pause, resume, stop],
   );
 
   return (

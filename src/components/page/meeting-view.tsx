@@ -1,13 +1,15 @@
 "use client";
 
-import { CalendarClock, ChevronRight, CircleStop, Loader2, Mic, NotebookPen, Pause, Play, Plus, RefreshCw, Search, X } from "lucide-react";
+import { CalendarClock, ChevronRight, CircleStop, FileAudio, Loader2, Mic, NotebookPen, Pause, Play, Plus, RefreshCw, Search, X } from "lucide-react";
 import { useFormatter, useTranslations } from "next-intl";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { mentionCandidatesAction } from "@/app/actions/mentions";
 import { regenerateMeetingSummaryAction, finishMeetingAction } from "@/app/actions/meetings";
 import { Button, cn, Popover, textareaClass } from "@/components/ui";
 import { UserAvatar } from "@/components/user-avatar";
-import { useMeetingRecorder } from "@/components/voice/meeting-recorder";
+import { useMeetingRecorder, type MeetingRecording } from "@/components/voice/meeting-recorder";
+import { formatBytes } from "@/lib/files";
+import { isMeetingFile, MAX_MEETING_FILE_BYTES, MEETING_FILE_ACCEPT } from "@/lib/meeting-upload";
 import {
   chunkAt,
   formatStamp,
@@ -65,6 +67,7 @@ export function MeetingView({
   const [actionError, setActionError] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
   const lines = useRef(new Map<number, HTMLLIElement>());
+  const fileInput = useRef<HTMLInputElement>(null);
   // Rendered again each half second while recording (the time), and when a piece comes in.
   const [now, setNow] = useState(() => Date.now());
   useEffect(() => {
@@ -105,10 +108,19 @@ export function MeetingView({
     void recorder.start(pageId, props.meetingId, props.title);
   };
 
+  const upload = (file: File | undefined) => {
+    if (!file || !recorder || !pageId) return;
+    setActionError(null);
+    if (!isMeetingFile(file)) return setActionError(tm("errors.fileType"));
+    if (file.size > MAX_MEETING_FILE_BYTES) return setActionError(tm("errors.fileTooLarge", { size: formatBytes(MAX_MEETING_FILE_BYTES) }));
+    void recorder.upload(pageId, props.meetingId, props.title, file);
+  };
+
   const status = mine ? mine.status : props.status;
   const starting = mine?.status === "starting";
   const recordedSeconds = mine ? mine.seconds : props.seconds;
   const recordingByOther = props.status === "recording" && !mine && !stale;
+  const fromFile = mine ? mine.source === "file" : props.source === "file";
   const canStart = editable && !!pageId && !sttOff && !recordingElsewhere && !recorder?.current && (props.status === "" || ((props.status === "recording" || props.status === "summarizing") && stale));
   const showTakeaways = props.status === "done" || Boolean(props.summary || props.decisions || props.actions);
 
@@ -118,7 +130,9 @@ export function MeetingView({
 
       {/* Recording */}
       <div className="mt-3 flex flex-wrap items-center gap-2">
-        {mine && mine.status !== "starting" ? (
+        {mine?.source === "file" ? (
+          <UploadProgress recording={mine} onStop={recorder!.stop} />
+        ) : mine && mine.status !== "starting" ? (
           <>
             <span className="flex items-center gap-2 text-sm">
               <span className={cn("h-2.5 w-2.5 rounded-full", mine.status === "recording" ? "animate-pulse bg-danger" : "bg-fg-faint")} aria-hidden />
@@ -154,7 +168,13 @@ export function MeetingView({
         ) : recordingByOther ? (
           <span className="flex items-center gap-2 text-sm text-fg-muted">
             <span className="h-2.5 w-2.5 animate-pulse rounded-full bg-danger" aria-hidden />
-            {props.recorderName ? t("recordingBy", { name: props.recorderName }) : t("recording")}
+            {fromFile
+              ? props.recorderName
+                ? t("transcribingBy", { name: props.recorderName })
+                : t("transcribingFile")
+              : props.recorderName
+                ? t("recordingBy", { name: props.recorderName })
+                : t("recording")}
             <span className="tabular-nums">{formatStamp(props.seconds)}</span>
           </span>
         ) : (
@@ -166,6 +186,26 @@ export function MeetingView({
                 {starting ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Mic className="h-3.5 w-3.5" />}
                 {props.status === "" ? t("start") : t("continue")}
               </Button>
+              {props.status === "" && (
+                <>
+                  <Button size="sm" disabled={!canStart} onClick={() => fileInput.current?.click()} title={sttOff ? t("sttOff") : undefined}>
+                    <FileAudio className="h-3.5 w-3.5" />
+                    {t("upload")}
+                  </Button>
+                  <input
+                    ref={fileInput}
+                    type="file"
+                    accept={MEETING_FILE_ACCEPT}
+                    className="hidden"
+                    aria-hidden
+                    tabIndex={-1}
+                    onChange={(e) => {
+                      upload(e.target.files?.[0]);
+                      e.target.value = "";
+                    }}
+                  />
+                </>
+              )}
               {stale && props.status === "recording" && pageId && (
                 <Button size="sm" disabled={busy} onClick={() => void run(() => finishMeetingAction(pageId, props.meetingId))}>
                   <CircleStop className="h-3.5 w-3.5" />
@@ -205,9 +245,53 @@ export function MeetingView({
         highlight={highlight}
         lines={lines.current}
         live={status === "recording"}
+        fromFile={fromFile}
         seconds={recordedSeconds}
       />
     </section>
+  );
+}
+
+/** An uploaded recording on its way: reading the file, then how much of it is transcribed, and Stop. */
+function UploadProgress({ recording, onStop }: { recording: MeetingRecording; onStop: () => void }) {
+  const t = useTranslations("meetings.block");
+  const share = recording.total > 0 ? Math.min(1, recording.seconds / recording.total) : 0;
+  if (recording.status === "starting") {
+    return (
+      <span className="flex items-center gap-2 text-sm text-fg-muted">
+        <Loader2 className="h-4 w-4 animate-spin" aria-hidden />
+        {t("reading")}
+      </span>
+    );
+  }
+  return (
+    <>
+      <span className="flex min-w-0 flex-1 flex-col gap-1.5 text-sm">
+        <span className="flex items-center gap-2">
+          <FileAudio className="h-4 w-4 shrink-0 text-fg-muted" aria-hidden />
+          <span className="font-medium">{recording.status === "finishing" ? t("finishing") : t("transcribingFile")}</span>
+          <span className="tabular-nums text-fg-muted">
+            {formatStamp(recording.seconds)} / {formatStamp(recording.total)}
+          </span>
+        </span>
+        <span
+          role="progressbar"
+          aria-label={t("transcribingFile")}
+          aria-valuemin={0}
+          aria-valuemax={100}
+          aria-valuenow={Math.round(share * 100)}
+          className="h-1 w-full max-w-xs overflow-hidden rounded-full bg-bg-subtle"
+        >
+          <span className="block h-full rounded-full bg-accent transition-[width]" style={{ width: `${share * 100}%` }} />
+        </span>
+      </span>
+      {recording.status !== "finishing" && (
+        <Button size="sm" variant="danger" onClick={onStop} className="ms-auto">
+          <CircleStop className="h-3.5 w-3.5" />
+          {t("stop")}
+        </Button>
+      )}
+    </>
   );
 }
 
@@ -518,6 +602,7 @@ function Transcript({
   highlight,
   lines,
   live,
+  fromFile,
   seconds,
 }: {
   chunks: TranscriptChunk[];
@@ -526,6 +611,7 @@ function Transcript({
   highlight: number | null;
   lines: Map<number, HTMLLIElement>;
   live: boolean;
+  fromFile: boolean;
   seconds: number;
 }) {
   const t = useTranslations("meetings.block");
@@ -556,7 +642,7 @@ function Transcript({
           {live && (
             <li className="flex items-center gap-2 px-1 py-0.5 text-xs text-fg-faint">
               <Loader2 className="h-3 w-3 animate-spin" aria-hidden />
-              {t("listening", { time: formatStamp(seconds) })}
+              {fromFile ? t("transcribing", { time: formatStamp(seconds) }) : t("listening", { time: formatStamp(seconds) })}
             </li>
           )}
         </ol>

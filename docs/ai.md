@@ -548,6 +548,18 @@ transcript as a gap. One person records a meeting at a time; if their browser cl
 stopping, after five minutes anyone who can edit the page can continue the recording or end it.
 A meeting stops by itself at three hours.
 
+**Uploading a recording.** A meeting not recorded yet can take a recording made elsewhere instead:
+*Upload a recording* picks an audio file (WebM, Ogg, M4A, MP4, MP3, WAV, FLAC…) or a video, whose
+sound is used, of up to 500 MB and three hours. The browser reads the file itself and sends it in
+the pieces a live recording is sent in, each as a WAV file of one channel at 16 kHz; the transcript
+fills in at the file's times, the block shows how far it got, and the meeting is written up when
+the last piece is in, lasting as long as the file. *Stop and summarize* writes up what was
+transcribed so far. Each piece is one transcription request counted toward `AI_RATE_LIMIT` like
+the others, so a long file goes as fast as that limit lets: the browser waits whenever the server
+says the limit is reached, and a file needs the tab open until its last piece is sent (the bar at
+the bottom shows its progress on other pages). The meeting starts at its planned time, or when the
+upload starts.
+
 **Summary.** *Stop and summarize* has AI write a summary, the decisions and the action items, the
 latter assigned (`@Name:`) when they name an attendee. Each point ends with the moment it comes from;
 clicking it opens the transcript there. The points can be edited, action items ticked, and

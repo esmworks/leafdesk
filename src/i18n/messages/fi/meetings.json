@@ -36,12 +36,16 @@
     "noPeople": "Ketään ei löytynyt",
     "start": "Aloita tallennus",
     "continue": "Jatka tallennusta",
+    "upload": "Lataa tallenne",
     "pause": "Keskeytä",
     "resume": "Jatka",
     "stop": "Lopeta ja tee yhteenveto",
     "recording": "Tallennetaan",
     "paused": "Keskeytetty",
     "recordingBy": "{name} tallentaa",
+    "reading": "Luetaan tiedostoa…",
+    "transcribingFile": "Tallennetta litteroidaan",
+    "transcribingBy": "{name} litteroi tallennetta",
     "recordingElsewhere": "Toista kokousta tallennetaan. Lopeta se ensin.",
     "finishing": "Viimeistellään…",
     "summarizing": "Tekoäly kirjoittaa yhteenvetoa…",
@@ -64,7 +68,8 @@
     "transcriptCount": "{count, plural, one {# osa} other {# osaa}}",
     "noTranscript": "Litterointi täyttyy tähän tallennuksen aikana.",
     "gap": "Tätä osaa ei voitu litteroida.",
-    "listening": "Kuunnellaan… {time}"
+    "listening": "Kuunnellaan… {time}",
+    "transcribing": "Litteroidaan… {time}"
   },
   "notices": {
     "summaryFailed": "Tekoäly ei pystynyt kirjoittamaan yhteenvetoa. Kokeile Luo yhteenveto uudelleen.",
@@ -84,6 +89,11 @@
     "insecure": "Tallennus vaatii suojatun (https) yhteyden.",
     "unsupported": "Tällä selaimella ei voi tallentaa ääntä.",
     "denied": "Leafdeskillä ei ole lupaa käyttää mikrofonia. Salli se selaimesi sivustoasetuksista ja yritä uudelleen.",
-    "noDevice": "Mikrofonia ei löytynyt."
+    "noDevice": "Mikrofonia ei löytynyt.",
+    "notEmpty": "Tällä kokouksella on jo tallenne.",
+    "fileType": "Tätä tiedostoa ei voi litteroida. Valitse ääni- tai videotiedosto.",
+    "fileTooLarge": "Tiedosto saa olla enintään {size}.",
+    "fileTooLong": "Tallenne on yli kolme tuntia pitkä, mikä on kokouksen enimmäispituus.",
+    "fileUnreadable": "Tiedoston ääntä ei voitu lukea. Kokeile toista muotoa, kuten MP3 tai M4A."
   }
 }

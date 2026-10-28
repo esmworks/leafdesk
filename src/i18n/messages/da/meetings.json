@@ -36,12 +36,16 @@
     "noPeople": "Ingen fundet",
     "start": "Start optagelse",
     "continue": "Fortsæt optagelse",
+    "upload": "Upload en optagelse",
     "pause": "Sæt på pause",
     "resume": "Genoptag",
     "stop": "Stop og opsummér",
     "recording": "Optager",
     "paused": "På pause",
     "recordingBy": "{name} optager",
+    "reading": "Læser filen…",
+    "transcribingFile": "Transskriberer optagelsen",
+    "transcribingBy": "{name} transskriberer en optagelse",
     "recordingElsewhere": "Et andet møde bliver optaget. Stop det først.",
     "finishing": "Afslutter…",
     "summarizing": "AI skriver resuméet…",
@@ -64,7 +68,8 @@
     "transcriptCount": "{count, plural, one {# del} other {# dele}}",
     "noTranscript": "Udskriften udfyldes her, mens du optager.",
     "gap": "Denne del kunne ikke transskriberes.",
-    "listening": "Lytter… {time}"
+    "listening": "Lytter… {time}",
+    "transcribing": "Transskriberer… {time}"
   },
   "notices": {
     "summaryFailed": "AI kunne ikke skrive resuméet. Prøv Generér resumé igen.",
@@ -84,6 +89,11 @@
     "insecure": "Optagelse kræver en sikker (https) forbindelse.",
     "unsupported": "Denne browser kan ikke optage lyd.",
     "denied": "Leafdesk har ikke tilladelse til at bruge mikrofonen. Tillad det i browserens indstillinger for webstedet, og prøv igen.",
-    "noDevice": "Der blev ikke fundet en mikrofon."
+    "noDevice": "Der blev ikke fundet en mikrofon.",
+    "notEmpty": "Dette møde har allerede en optagelse.",
+    "fileType": "Denne fil kan ikke transskriberes. Vælg en lyd- eller videofil.",
+    "fileTooLarge": "Filer må højst være {size}.",
+    "fileTooLong": "Optagelsen er længere end tre timer, som er det længste et møde kan vare.",
+    "fileUnreadable": "Lyden i denne fil kunne ikke læses. Prøv et andet format, fx MP3 eller M4A."
   }
 }

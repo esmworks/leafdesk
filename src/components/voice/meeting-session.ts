@@ -4,12 +4,13 @@
  * The microphone's stream is cut into pieces of MEETING_CHUNK_SECONDS, each by a MediaRecorder of
  * its own (a timesliced recorder's pieces aren't playable files on their own), which are sent one
  * at a time to /api/meetings/chunk with their place in the meeting: seconds recorded before them,
- * pauses left out. A piece that fails is tried again, then left as a gap. The block (and anyone
+ * pauses left out. A piece that fails is tried again, then left as a gap (meeting-pieces.ts). The block (and anyone
  * else with the page open) sees the transcript fill in as the server writes it.
  */
 import { finishMeetingAction, markMeetingGapAction, meetingHeartbeatAction, startMeetingAction } from "@/app/actions/meetings";
 import { MAX_MEETING_SECONDS, MEETING_CHUNK_SECONDS, MEETING_HEARTBEAT_MS } from "@/lib/meeting-clock";
 import { RECORDER_BITS_PER_SECOND, RECORDER_TYPES } from "@/lib/voice-notes";
+import { deliverPiece, FINAL_CODES } from "./meeting-pieces";
 import type { MeetingRecorderStatus } from "./meeting-recorder";
 import { canRecord } from "./use-voice-recorder";
 
@@ -30,12 +31,6 @@ export type SessionHooks = {
 export type SessionControls = { pause: () => void; resume: () => void; stop: () => void; dispose: () => void };
 
 type Piece = { chunk: number; offset: number; duration: number; blob: Blob };
-
-const RETRY_MS = [2_000, 5_000, 15_000];
-/** Refusals no retry changes: the recording ends. */
-const FINAL = new Set(["noAccess", "notFound", "notRecording", "tooLong", "disabled"]);
-
-const sleep = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
 
 function startError(error: unknown): SessionError {
   const name = (error as { name?: string } | null)?.name;
@@ -126,29 +121,12 @@ export async function startMeetingSession(
   const send = async (piece: Piece) => {
     const place = { pageId, meetingId, chunk: piece.chunk, offset: piece.offset, duration: piece.duration };
     const extension = mimeType.includes("mp4") ? "m4a" : mimeType.includes("ogg") ? "ogg" : "webm";
-    for (let attempt = 0; attempt <= RETRY_MS.length; attempt++) {
-      if (over) return;
-      try {
-        const form = new FormData();
-        form.set("pageId", pageId);
-        form.set("meetingId", meetingId);
-        form.set("chunk", String(place.chunk));
-        form.set("offset", String(place.offset));
-        form.set("duration", String(place.duration));
-        form.set("audio", new File([piece.blob], `meeting-${piece.chunk}.${extension}`, { type: piece.blob.type }));
-        const sent = await fetch("/api/meetings/chunk", { method: "POST", body: form });
-        if (sent.ok) return;
-        const code = ((await sent.json().catch(() => null)) as { error?: { code?: string } } | null)?.error?.code ?? "";
-        if (FINAL.has(code)) return drop(te(code as SessionError));
-      } catch {
-        // Offline for a moment: tried again below.
-      }
-      if (attempt < RETRY_MS.length) await sleep(RETRY_MS[attempt]);
-    }
-    if (over) return;
+    const sent = await deliverPiece(place, new File([piece.blob], `meeting-${piece.chunk}.${extension}`, { type: piece.blob.type }), () => over);
+    if (sent.result === "final") return drop(te(sent.code as SessionError));
+    if (sent.result !== "failed") return;
     const gap = await markMeetingGapAction(place).catch(() => null);
     gaps++;
-    if (gap && !gap.ok && gap.code && FINAL.has(gap.code)) drop(gap.error);
+    if (gap && !gap.ok && gap.code && FINAL_CODES.has(gap.code)) drop(gap.error);
   };
 
   const pump = async () => {

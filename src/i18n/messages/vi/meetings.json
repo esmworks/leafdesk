@@ -36,12 +36,16 @@
     "noPeople": "Không tìm thấy ai",
     "start": "Bắt đầu ghi âm",
     "continue": "Tiếp tục ghi âm",
+    "upload": "Tải lên bản ghi âm",
     "pause": "Tạm dừng",
     "resume": "Tiếp tục",
     "stop": "Dừng và tóm tắt",
     "recording": "Đang ghi âm",
     "paused": "Đã tạm dừng",
     "recordingBy": "{name} đang ghi âm",
+    "reading": "Đang đọc tệp…",
+    "transcribingFile": "Đang chép lời bản ghi âm",
+    "transcribingBy": "{name} đang chép lời một bản ghi âm",
     "recordingElsewhere": "Một cuộc họp khác đang được ghi âm. Hãy dừng nó trước.",
     "finishing": "Đang hoàn tất…",
     "summarizing": "AI đang viết bản tóm tắt…",
@@ -64,7 +68,8 @@
     "transcriptCount": "{count, plural, other {# đoạn}}",
     "noTranscript": "Bản ghi lời sẽ được điền vào đây khi bạn ghi âm.",
     "gap": "Đoạn này không thể chuyển thành văn bản.",
-    "listening": "Đang nghe… {time}"
+    "listening": "Đang nghe… {time}",
+    "transcribing": "Đang chép lời… {time}"
   },
   "notices": {
     "summaryFailed": "AI không thể viết bản tóm tắt. Hãy thử Tạo lại bản tóm tắt.",
@@ -84,6 +89,11 @@
     "insecure": "Ghi âm cần kết nối an toàn (https).",
     "unsupported": "Trình duyệt này không thể ghi âm.",
     "denied": "Leafdesk không được phép dùng micrô. Hãy cho phép trong cài đặt trang web của trình duyệt rồi thử lại.",
-    "noDevice": "Không tìm thấy micrô."
+    "noDevice": "Không tìm thấy micrô.",
+    "notEmpty": "Cuộc họp này đã có bản ghi âm.",
+    "fileType": "Không thể chép lời tệp này. Hãy chọn tệp âm thanh hoặc video.",
+    "fileTooLarge": "Tệp có thể lớn tối đa {size}.",
+    "fileTooLong": "Bản ghi âm dài hơn ba giờ, độ dài tối đa của một cuộc họp.",
+    "fileUnreadable": "Không đọc được âm thanh trong tệp này. Hãy thử định dạng khác, như MP3 hoặc M4A."
   }
 }

@@ -5,7 +5,8 @@
  * transcribed into the block at their times (sent out of order), a gap, who may record, the
  * three-hour limit, the summary with its timestamps and assignees written in when the recording
  * ends, Regenerate summary, the page's Markdown and search text, and the Meetings list (people who
- * can't see the page, and the trash). Creates its own users and workspace and deletes them after.
+ * can't see the page, and the trash), and an uploaded recording. Creates its own users and
+ * workspace and deletes them after.
  *
  *   pnpm tsx scripts/meetings-e2e.ts
  *
@@ -199,6 +200,23 @@ try {
   await archivePage(ids.owner, pageId);
   check((await meetings.listMeetings(ids.owner, ws)).length === 0, "a meeting in the trash isn't listed");
   check((await db.select().from(meetingNote).where(eq(meetingNote.pageId, pageId))).length === 1, "…though its row stays, for a restore");
+
+  // ------------------------------------------------------------------ an uploaded recording
+  const { id: uploadPage } = await meetings.createMeetingNote(ids.owner, ws, "Recorded call");
+  const planned = await meetingOn(uploadPage);
+  check(planned?.meetingId, "a second meeting note for an uploaded recording", planned);
+  const fromFile = await meetings.startMeeting(ids.owner, uploadPage, planned.meetingId, "Owner", { source: "file" });
+  check(fromFile.seconds === 0 && fromFile.nextChunk === 0, "an uploaded recording starts a meeting not recorded yet", fromFile);
+  const uploading = await meetingOn(uploadPage);
+  check(uploading?.source === "file" && uploading.status === "recording" && uploading.startedAt === planned.scheduledAt, "…marked as from a file, starting when the meeting was planned", uploading);
+  const piece = (chunk: number, offset: number, duration: number) => ({ pageId: uploadPage, meetingId: planned.meetingId, chunk, offset, duration });
+  const wav = (size: number) => ({ bytes: new Blob([new Uint8Array(size)], { type: "audio/wav" }), type: "audio/wav" });
+  await meetings.addMeetingChunk(ids.owner, piece(0, 0, 30), wav(1000));
+  await meetings.addMeetingChunk(ids.owner, piece(1, 30, 12.5), wav(2000));
+  await meetings.finishMeeting(ids.owner, uploadPage, planned.meetingId, 42.5);
+  const uploaded = await waitFor(() => meetingOn(uploadPage), (m) => m?.status === "done", "the uploaded recording is written up when its pieces are in");
+  check(uploaded?.seconds === 43 && uploaded.source === "file" && uploaded.summary.includes("The launch moves to May"), "…lasting as long as the file, with its summary", uploaded);
+  await refused(() => meetings.startMeeting(ids.owner, uploadPage, planned.meetingId, "Owner", { source: "file" }), "notEmpty", "a meeting with a recording takes no upload");
 
   console.log(`\n${passed} checks passed`);
 } finally {

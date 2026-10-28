@@ -36,12 +36,16 @@
     "noPeople": "Nikogo nie znaleziono",
     "start": "Zacznij nagrywać",
     "continue": "Nagrywaj dalej",
+    "upload": "Prześlij nagranie",
     "pause": "Wstrzymaj",
     "resume": "Wznów",
     "stop": "Zatrzymaj i podsumuj",
     "recording": "Nagrywanie",
     "paused": "Wstrzymano",
     "recordingBy": "{name} nagrywa",
+    "reading": "Czytam plik…",
+    "transcribingFile": "Transkrybuję nagranie",
+    "transcribingBy": "{name} transkrybuje nagranie",
     "recordingElsewhere": "Trwa nagrywanie innego spotkania. Najpierw je zatrzymaj.",
     "finishing": "Kończenie…",
     "summarizing": "AI pisze podsumowanie…",
@@ -64,7 +68,8 @@
     "transcriptCount": "{count, plural, one {# fragment} few {# fragmenty} many {# fragmentów} other {# fragmentu}}",
     "noTranscript": "Transkrypcja pojawia się tutaj podczas nagrywania.",
     "gap": "Tego fragmentu nie udało się przepisać.",
-    "listening": "Słucham… {time}"
+    "listening": "Słucham… {time}",
+    "transcribing": "Transkrybuję… {time}"
   },
   "notices": {
     "summaryFailed": "AI nie udało się napisać podsumowania. Spróbuj „Wygeneruj podsumowanie ponownie”.",
@@ -84,6 +89,11 @@
     "insecure": "Nagrywanie wymaga bezpiecznego połączenia (https).",
     "unsupported": "Ta przeglądarka nie może nagrywać dźwięku.",
     "denied": "Leafdesk nie ma zgody na używanie mikrofonu. Zezwól na to w ustawieniach witryny w przeglądarce i spróbuj ponownie.",
-    "noDevice": "Nie znaleziono mikrofonu."
+    "noDevice": "Nie znaleziono mikrofonu.",
+    "notEmpty": "To spotkanie ma już nagranie.",
+    "fileType": "Tego pliku nie da się przetranskrybować. Wybierz plik audio lub wideo.",
+    "fileTooLarge": "Plik może mieć najwyżej {size}.",
+    "fileTooLong": "Nagranie trwa dłużej niż trzy godziny, czyli najdłużej, ile może trwać spotkanie.",
+    "fileUnreadable": "Nie udało się odczytać dźwięku z tego pliku. Spróbuj innego formatu, np. MP3 lub M4A."
   }
 }

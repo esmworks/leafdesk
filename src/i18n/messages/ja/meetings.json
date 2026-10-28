@@ -36,12 +36,16 @@
     "noPeople": "見つかりませんでした",
     "start": "録音を開始",
     "continue": "録音を続ける",
+    "upload": "録音ファイルをアップロード",
     "pause": "一時停止",
     "resume": "再開",
     "stop": "停止して要約",
     "recording": "録音中",
     "paused": "一時停止中",
     "recordingBy": "{name}さんが録音中",
+    "reading": "ファイルを読み込み中…",
+    "transcribingFile": "録音を文字起こし中",
+    "transcribingBy": "{name}さんが録音を文字起こし中",
     "recordingElsewhere": "別の会議を録音中です。先にそちらを停止してください。",
     "finishing": "終了しています…",
     "summarizing": "AIが要約を作成しています…",
@@ -64,7 +68,8 @@
     "transcriptCount": "{count, plural, other {#件}}",
     "noTranscript": "録音中は、ここに書き起こしが表示されます。",
     "gap": "この部分は書き起こせませんでした。",
-    "listening": "聞き取り中… {time}"
+    "listening": "聞き取り中… {time}",
+    "transcribing": "文字起こし中… {time}"
   },
   "notices": {
     "summaryFailed": "AIが要約を作成できませんでした。「要約を再生成」をお試しください。",
@@ -84,6 +89,11 @@
     "insecure": "録音には安全な（https）接続が必要です。",
     "unsupported": "このブラウザでは録音できません。",
     "denied": "Leafdeskにマイクの使用が許可されていません。ブラウザのサイト設定で許可して、もう一度お試しください。",
-    "noDevice": "マイクが見つかりませんでした。"
+    "noDevice": "マイクが見つかりませんでした。",
+    "notEmpty": "この会議にはすでに録音があります。",
+    "fileType": "このファイルは文字起こしできません。音声または動画ファイルを選んでください。",
+    "fileTooLarge": "ファイルは最大{size}までです。",
+    "fileTooLong": "録音が3時間を超えています。会議の長さは最長3時間です。",
+    "fileUnreadable": "このファイルの音声を読み取れませんでした。MP3やM4Aなど別の形式でお試しください。"
   }
 }

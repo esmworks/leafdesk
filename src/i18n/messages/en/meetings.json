@@ -36,12 +36,16 @@
     "noPeople": "No one found",
     "start": "Start recording",
     "continue": "Continue recording",
+    "upload": "Upload a recording",
     "pause": "Pause",
     "resume": "Resume",
     "stop": "Stop and summarize",
     "recording": "Recording",
     "paused": "Paused",
     "recordingBy": "{name} is recording",
+    "reading": "Reading the file…",
+    "transcribingFile": "Transcribing the recording",
+    "transcribingBy": "{name} is transcribing a recording",
     "recordingElsewhere": "Another meeting is being recorded. Stop it first.",
     "finishing": "Finishing…",
     "summarizing": "AI is writing the summary…",
@@ -64,7 +68,8 @@
     "transcriptCount": "{count, plural, one {# part} other {# parts}}",
     "noTranscript": "The transcript fills in here while you record.",
     "gap": "This part couldn't be transcribed.",
-    "listening": "Listening… {time}"
+    "listening": "Listening… {time}",
+    "transcribing": "Transcribing… {time}"
   },
   "notices": {
     "summaryFailed": "AI couldn't write the summary. Try Regenerate summary.",
@@ -84,6 +89,11 @@
     "insecure": "Recording needs a secure (https) connection.",
     "unsupported": "This browser can't record audio.",
     "denied": "Leafdesk isn't allowed to use the microphone. Allow it in your browser's site settings and try again.",
-    "noDevice": "No microphone was found."
+    "noDevice": "No microphone was found.",
+    "notEmpty": "This meeting has a recording already.",
+    "fileType": "This file can't be transcribed. Choose an audio or video file.",
+    "fileTooLarge": "Files can be at most {size}.",
+    "fileTooLong": "The recording is longer than three hours, the longest a meeting can be.",
+    "fileUnreadable": "The sound in this file couldn't be read. Try another format, such as MP3 or M4A."
   }
 }

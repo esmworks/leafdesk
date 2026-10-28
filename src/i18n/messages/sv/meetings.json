@@ -36,12 +36,16 @@
     "noPeople": "Ingen hittades",
     "start": "Starta inspelningen",
     "continue": "Fortsätt spela in",
+    "upload": "Ladda upp en inspelning",
     "pause": "Pausa",
     "resume": "Återuppta",
     "stop": "Stoppa och sammanfatta",
     "recording": "Spelar in",
     "paused": "Pausad",
     "recordingBy": "{name} spelar in",
+    "reading": "Läser filen…",
+    "transcribingFile": "Transkriberar inspelningen",
+    "transcribingBy": "{name} transkriberar en inspelning",
     "recordingElsewhere": "Ett annat möte spelas in. Stoppa det först.",
     "finishing": "Avslutar…",
     "summarizing": "AI skriver sammanfattningen…",
@@ -64,7 +68,8 @@
     "transcriptCount": "{count, plural, one {# del} other {# delar}}",
     "noTranscript": "Transkriptionen fylls i här medan du spelar in.",
     "gap": "Den här delen kunde inte transkriberas.",
-    "listening": "Lyssnar… {time}"
+    "listening": "Lyssnar… {time}",
+    "transcribing": "Transkriberar… {time}"
   },
   "notices": {
     "summaryFailed": "AI kunde inte skriva sammanfattningen. Prova Skapa sammanfattningen igen.",
@@ -84,6 +89,11 @@
     "insecure": "Inspelning kräver en säker (https) anslutning.",
     "unsupported": "Den här webbläsaren kan inte spela in ljud.",
     "denied": "Leafdesk får inte använda mikrofonen. Tillåt det i webbläsarens webbplatsinställningar och försök igen.",
-    "noDevice": "Ingen mikrofon hittades."
+    "noDevice": "Ingen mikrofon hittades.",
+    "notEmpty": "Det här mötet har redan en inspelning.",
+    "fileType": "Den här filen kan inte transkriberas. Välj en ljud- eller videofil.",
+    "fileTooLarge": "Filer får vara högst {size}.",
+    "fileTooLong": "Inspelningen är längre än tre timmar, det längsta ett möte kan vara.",
+    "fileUnreadable": "Ljudet i filen kunde inte läsas. Prova ett annat format, till exempel MP3 eller M4A."
   }
 }
