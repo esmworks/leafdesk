@@ -10,9 +10,11 @@
   decisions and action items are written when it is done. The audio is still never kept. A piece
   the AI limits hold back now waits as long as the server says instead of being left as a gap, for
   live recordings too.
-- **Agents in the sidebar.** The agents you may talk to have a section of their own under your
-  private pages; each opens its chat, and the section's menu goes to Settings → Agents. It folds,
-  hides and moves like the other sections, and shows only when there are agents.
+- **Agents in the sidebar, each with a page of its own.** The agents you may talk to have a section
+  of their own under your private pages. Each opens the agent's page: its icon, name and
+  description, a chat with it, and a Settings button for the rest. The section's menu goes to
+  Settings → Agents; it folds, hides and moves like the other sections, and shows only when there
+  are agents.
 - **The AI reads Word documents and PowerPoint presentations.** MCP's `get_file`, which the AI
   chat and agents use too, reads a Word document's text and a presentation's slides with their
   speaker notes, as it already read PDFs and Excel workbooks. Presentations can be attached to a

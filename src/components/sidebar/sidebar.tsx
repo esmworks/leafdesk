@@ -69,6 +69,7 @@ import { DailyNotesCalendar, JournalStartPicker, useOpenDailyNote } from "@/comp
 import { cn, IconButton, MenuItem, MenuSeparator, PageIcon, pageLabel, Popover } from "@/components/ui";
 import { UserAvatar } from "@/components/user-avatar";
 import type { PageKind } from "@/db/schema/app";
+import { agentPagePath } from "@/lib/agent-page";
 import { authClient } from "@/lib/auth-client";
 import { closeOfflineDocs } from "@/components/collab/socket";
 import { useIsOffline } from "@/components/offline/offline-context";
@@ -1102,8 +1103,9 @@ export function Sidebar({
           {agents.map((agent) => (
             <li key={agent.id}>
               <Link
-                href={`/w/${workspaceId}/settings?tab=agents&agent=${agent.id}&agentTab=chat`}
-                className="flex h-7 items-center gap-0.5 rounded-md ps-1 hover:bg-bg-hover"
+                href={agentPagePath(workspaceId, agent.id)}
+                aria-current={pathname === agentPagePath(workspaceId, agent.id) ? "page" : undefined}
+                className="flex h-7 items-center gap-0.5 rounded-md ps-1 hover:bg-bg-hover aria-[current=page]:bg-bg-active aria-[current=page]:text-fg"
               >
                 <span className="flex h-6 w-6 shrink-0 items-center justify-center">
                   {agent.icon ? <IconGlyph icon={agent.icon} className="text-sm" /> : <Bot className="h-4 w-4 text-fg-muted" aria-hidden />}

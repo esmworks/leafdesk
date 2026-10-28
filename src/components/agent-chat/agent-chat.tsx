@@ -1,11 +1,11 @@
 "use client";
 
 /**
- * A chat with an agent (see lib/agent-chat.ts), in its dialog's Chat tab and in a page's block: the
- * person's conversations with it there, the messages of the open one and the box to write in. Each
- * message is one of the agent's runs, done by its worker: the chat follows the run (its steps as
- * they come, then its answer) by asking for it again every second, and for the owner whose turn
- * it is, shows the call it waits on to approve. Loaded only where a chat is shown.
+ * A chat with an agent (see lib/agent-chat.ts), on its own page, in its dialog's Chat tab and in a
+ * page's block: the person's conversations with it there, the messages of the open one and the box
+ * to write in. Each message is one of the agent's runs, done by its worker: the chat follows the
+ * run (its steps as they come, then its answer) by asking for it again every second, and for the
+ * owner whose turn it is, shows the call it waits on to approve. Loaded only where a chat is shown.
  */
 import { ArrowUp, ChevronRight, Loader2, Plus, Trash2 } from "lucide-react";
 import { useRouter } from "next/navigation";
@@ -38,7 +38,7 @@ const noop = () => {};
 /** How often a turn under way is asked for. */
 const POLL_MS = 1_000;
 
-export function AgentChat({ workspaceId, agentId, place, variant }: { workspaceId: string; agentId: string; place: ChatPlace; variant: "dialog" | "block" }) {
+export function AgentChat({ workspaceId, agentId, place, variant }: { workspaceId: string; agentId: string; place: ChatPlace; variant: "page" | "dialog" | "block" }) {
   const t = useTranslations("page.agentChat");
   const tc = useTranslations("common");
   const router = useRouter();
@@ -138,8 +138,12 @@ export function AgentChat({ workspaceId, agentId, place, variant }: { workspaceI
   // Follows the conversation as it grows.
   useEffect(() => {
     const el = listRef.current;
-    if (el) el.scrollTop = el.scrollHeight;
-  }, [messages, turn?.steps.length, running]);
+    if (!el) return;
+    // The page's list grows with the window's scroll (its scroll margin keeps it above the box);
+    // the others scroll on their own.
+    if (variant === "page") el.scrollIntoView({ block: "end" });
+    else el.scrollTop = el.scrollHeight;
+  }, [messages, turn?.steps.length, running, variant]);
 
   const state = info?.state;
   const canChat = state === "full" || state === "readOnly";
@@ -184,6 +188,7 @@ export function AgentChat({ workspaceId, agentId, place, variant }: { workspaceI
 
   const openPage = (id: string) => router.push(`/w/${workspaceId}/p/${id}`);
   const block = variant === "block";
+  const page = variant === "page";
 
   if (loadFailed) {
     return (
@@ -221,49 +226,52 @@ export function AgentChat({ workspaceId, agentId, place, variant }: { workspaceI
 
   return (
     <Frame block={block}>
-      <div className={cn("flex items-center gap-2", block ? "border-b border-border px-3 py-2" : "pb-2")}>
-        {block && (
-          <>
-            <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded bg-bg-hover text-sm">
-              <AgentIcon icon={agent.icon} className="h-3.5 w-3.5" />
+      {/* The block always names its agent; elsewhere the row waits for a conversation to pick or leave. */}
+      {(block || state === "readOnly" || conversationId || info.conversations.length > 0) && (
+        <div className={cn("flex items-center gap-2", block ? "border-b border-border px-3 py-2" : "pb-2")}>
+          {block && (
+            <>
+              <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded bg-bg-hover text-sm">
+                <AgentIcon icon={agent.icon} className="h-3.5 w-3.5" />
+              </span>
+              <span className="min-w-0 truncate text-sm font-medium">{agent.name}</span>
+            </>
+          )}
+          {state === "readOnly" && (
+            <span className="shrink-0 rounded border border-border px-1.5 text-xs text-fg-muted" title={t("readOnlyHint")}>
+              {t("readOnly")}
             </span>
-            <span className="min-w-0 truncate text-sm font-medium">{agent.name}</span>
-          </>
-        )}
-        {state === "readOnly" && (
-          <span className="shrink-0 rounded border border-border px-1.5 text-xs text-fg-muted" title={t("readOnlyHint")}>
-            {t("readOnly")}
-          </span>
-        )}
-        <div className="ms-auto flex min-w-0 items-center gap-0.5">
-          {info.conversations.length > 0 && (
-            <select
-              aria-label={t("conversations")}
-              className={cn(selectClass, "h-7 max-w-44 min-w-0 truncate text-xs")}
-              value={conversationId ?? ""}
-              disabled={Boolean(running)}
-              onChange={(e) => void open(e.target.value || null)}
-            >
-              {!conversationId && <option value="">{t("newConversation")}</option>}
-              {info.conversations.map((c) => (
-                <option key={c.id} value={c.id}>
-                  {c.title}
-                </option>
-              ))}
-            </select>
           )}
-          <IconButton label={t("newConversation")} title={t("newConversation")} className="h-7 w-7" disabled={Boolean(running) || !conversationId} onClick={() => void open(null)}>
-            <Plus className="h-3.5 w-3.5" />
-          </IconButton>
-          {conversationId && (
-            <IconButton label={t("deleteConversation")} title={t("deleteConversation")} className="h-7 w-7" disabled={Boolean(running)} onClick={() => void remove()}>
-              <Trash2 className="h-3.5 w-3.5" />
+          <div className="ms-auto flex min-w-0 items-center gap-0.5">
+            {info.conversations.length > 0 && (
+              <select
+                aria-label={t("conversations")}
+                className={cn(selectClass, "h-7 max-w-44 min-w-0 truncate text-xs")}
+                value={conversationId ?? ""}
+                disabled={Boolean(running)}
+                onChange={(e) => void open(e.target.value || null)}
+              >
+                {!conversationId && <option value="">{t("newConversation")}</option>}
+                {info.conversations.map((c) => (
+                  <option key={c.id} value={c.id}>
+                    {c.title}
+                  </option>
+                ))}
+              </select>
+            )}
+            <IconButton label={t("newConversation")} title={t("newConversation")} className="h-7 w-7" disabled={Boolean(running) || !conversationId} onClick={() => void open(null)}>
+              <Plus className="h-3.5 w-3.5" />
             </IconButton>
-          )}
+            {conversationId && (
+              <IconButton label={t("deleteConversation")} title={t("deleteConversation")} className="h-7 w-7" disabled={Boolean(running)} onClick={() => void remove()}>
+                <Trash2 className="h-3.5 w-3.5" />
+              </IconButton>
+            )}
+          </div>
         </div>
-      </div>
+      )}
 
-      <div ref={listRef} className={cn("overflow-y-auto", block ? "max-h-[28rem] px-3 py-3" : "max-h-[45vh] py-2")} aria-live="polite">
+      <div ref={listRef} className={cn(page ? "min-h-24 scroll-mb-28 py-4" : "overflow-y-auto", block ? "max-h-[28rem] px-3 py-3" : !page && "max-h-[45vh] py-2")} aria-live="polite">
         {messages.length === 0 ? (
           <p className="text-sm text-fg-muted">{t(`empty.${state === "full" ? "full" : "readOnly"}`, { name: agent.name })}</p>
         ) : (
@@ -300,14 +308,14 @@ export function AgentChat({ workspaceId, agentId, place, variant }: { workspaceI
         )}
       </div>
 
-      <div className={cn(block ? "border-t border-border px-3 py-2" : "pt-2")}>
+      <div className={cn(block ? "border-t border-border px-3 py-2" : page ? "sticky bottom-0 bg-bg pb-6" : "pt-2")}>
         {(blocked || error) && (
           <p role={error ? "alert" : "status"} className={cn("mb-1.5 text-xs", error ? "text-danger" : "text-fg-muted")}>
             {error ?? blocked}
           </p>
         )}
         <form
-          className="flex items-end gap-2"
+          className={cn("flex items-end gap-2", page && "rounded-xl border border-border bg-bg px-3 py-2 shadow-sm")}
           onSubmit={(e) => {
             e.preventDefault();
             void send();
