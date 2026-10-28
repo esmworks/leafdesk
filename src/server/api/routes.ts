@@ -34,6 +34,7 @@ import { describeDelivery, describeWebhook, toWebhookInput, toWebhookPatch, webh
 import * as webhooks from "@/server/page-webhooks/manage";
 import * as ops from "@/server/operations";
 import { MAX_ACTIVITY_PAGE } from "@/server/row-activity-feed";
+import { MAX_HISTORY_PAGE } from "@/lib/database-history";
 import { MAX_FILTER_VALUES } from "@/lib/search-filters";
 import { searchedTag } from "@/lib/tags";
 import { voiceAudioType } from "@/lib/voice-notes";
@@ -44,7 +45,7 @@ import { AiError, sttLimits } from "@/server/ai";
 import { pageUrl } from "@/server/mcp/format";
 import { createVoiceNote } from "@/server/voice-notes";
 import { ApiError, insufficientScope } from "./errors";
-import { cursorInput, decodeCursor, nextCursor, paginate } from "./pagination";
+import { cursorInput, decodeCursor, decodeTimeCursor, encodeTimeCursor, nextCursor, paginate } from "./pagination";
 import type { ApiPrincipal } from "./tokens";
 
 /**
@@ -805,6 +806,42 @@ export const API_ROUTES: ApiRoute[] = [
     handler: async ({ principal, ctx, params, body }) => {
       await requirePageInWorkspace(principal, params.database_id);
       return ops.mergeRows(ctx, { ...body, database_id: params.database_id });
+    },
+  }),
+  defineRoute({
+    method: "GET",
+    path: "/databases/{database_id}/history",
+    operationId: "listDatabaseHistory",
+    tag: "Databases",
+    summary: "List a database's history",
+    description:
+      "Who changed the database, newest first: properties and views added, changed, deleted or restored (with what changed), rows moved to the trash or back, and rows added, renamed or given a value, a run of quick changes by the same actor to the same property and value as one entry. Values the token's user can't see in every row are left out. can_undo says whether POST .../history/{change_id}/undo may take an entry back for the user.",
+    scope: "databases:read",
+    query: z.object({ limit: limitInput(MAX_HISTORY_PAGE, 30), cursor: cursorInput }),
+    response: "DatabaseHistory",
+    handler: async ({ principal, ctx, params, query }) => {
+      await requirePageInWorkspace(principal, params.database_id);
+      const before = decodeTimeCursor(query.cursor) ?? undefined;
+      const { next_before, ...result } = await ops.listDatabaseHistory(ctx, { database_id: params.database_id, before, limit: query.limit });
+      const next = next_before ? encodeTimeCursor(next_before) : null;
+      return { ...result, next_cursor: next, has_more: next !== null };
+    },
+  }),
+  defineRoute({
+    method: "POST",
+    path: "/databases/{database_id}/history/{change_id}/undo",
+    operationId: "undoDatabaseChange",
+    tag: "Databases",
+    summary: "Undo a change in a database's history",
+    description:
+      "Takes one entry of the database's history back, through the same checks as making the change by hand, and records the undo as a change of its own. Row values go back only where nobody changed them since; those skipped are counted in skipped. Needs edit access to the database for its properties and views, to the rows for values; a change of row titles is undone from each row's page history instead (400).",
+    scope: "pages:write",
+    response: "DatabaseChangeUndone",
+    handler: async ({ principal, ctx, params }) => {
+      await requirePageInWorkspace(principal, params.database_id);
+      const result = await ops.undoDatabaseChange(ctx, { change_id: params.change_id, database_id: params.database_id });
+      if (!result) throw new ApiError(404, "not_found", "There is no such change in this database's history.");
+      return result;
     },
   }),
   defineRoute({

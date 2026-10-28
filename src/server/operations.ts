@@ -2049,8 +2049,8 @@ export async function listMeetingNotes(ctx: OperationContext, { workspace_id, qu
  * trash or taken out, and row value changes in groups. Each entry's id undoes it in
  * undoDatabaseChange.
  */
-export async function listDatabaseHistory(ctx: OperationContext, { database_id, before }: { database_id: string; before?: string }) {
-  const { entries, next } = await databaseHistory.listDatabaseHistory(ctx.userId, database_id, { before: before ?? null, limit: 30 });
+export async function listDatabaseHistory(ctx: OperationContext, { database_id, before, limit = 30 }: { database_id: string; before?: string; limit?: number }) {
+  const { entries, next } = await databaseHistory.listDatabaseHistory(ctx.userId, database_id, { before: before ?? null, limit });
   const rows = (list: { id: string; title: string }[]) => list.map((r) => ({ id: r.id, title: pageLabel(r.title) }));
   return {
     database_id,
@@ -2095,10 +2095,10 @@ export async function listDatabaseHistory(ctx: OperationContext, { database_id, 
   };
 }
 
-/** Undoes one change of a database's history (an id from listDatabaseHistory); null when the id is none. */
-export async function undoDatabaseChange(ctx: OperationContext, { change_id }: { change_id: string }) {
+/** Undoes one change of a database's history (an id from listDatabaseHistory); null when the id is none, or another database's than `database_id`. */
+export async function undoDatabaseChange(ctx: OperationContext, { change_id, database_id: expected }: { change_id: string; database_id?: string }) {
   const database_id = await databaseHistory.historyEntryDatabase(change_id);
-  if (!database_id) return null;
+  if (!database_id || (expected !== undefined && database_id !== expected)) return null;
   const { done, skipped } = await databaseHistory.undoHistoryEntry(ctx.userId, database_id, change_id);
   return {
     database_id,

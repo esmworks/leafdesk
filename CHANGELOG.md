@@ -10,7 +10,8 @@
   across rows ("set Priority to High in 12 rows"), newest first, by day. Every entry has *Undo*:
   options taken away and type changes come back with the row values they rewrote, and values go
   back only on rows nobody changed since. MCP's `get_page_history` on a database reads it and
-  `restore_page_version` undoes an entry. Migration 0158.
+  `restore_page_version` undoes an entry; over REST, `GET /databases/{id}/history` and
+  `POST /databases/{id}/history/{change_id}/undo`. Migration 0158.
 - **Align a table column's values left, center or right.** A column's menu has *Alignment*, kept
   per view like the column's width; amounts can line up on the right. Published and printed tables
   and PDFs follow it, and a copied property or database keeps it.

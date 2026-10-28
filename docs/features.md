@@ -791,7 +791,8 @@
   synced database's setup), leave no history; changes of properties a person may not know of are
   left out of what they read, and values show only where they may see them in every row. Titles
   changed across rows are listed but brought back from each row's page history. MCP's
-  `get_page_history` on a database reads its history, and `restore_page_version` undoes an entry.
+  `get_page_history` on a database reads its history, and `restore_page_version` undoes an entry;
+  the REST API has both too ([REST API](rest-api.md)).
 - **Teamspaces**: group pages and people. Every workspace starts with a *General* teamspace
   everyone is in. A teamspace is **default** (everyone is in it, now and later, and can't leave),
   **open** (anyone sees it and can join; until they do, they read and comment on its pages),

@@ -37,3 +37,19 @@ export function paginate<T>(items: T[], cursor: string | undefined, limit: numbe
   const next = nextCursor(offset, limit, items.length);
   return { items: items.slice(offset, offset + limit), next_cursor: next, has_more: next !== null };
 }
+
+/** For lists read on from a time instead of a position (a database's history): that time, opaque. */
+export function encodeTimeCursor(at: string): string {
+  return Buffer.from(JSON.stringify({ t: at })).toString("base64url");
+}
+
+export function decodeTimeCursor(cursor: string | undefined): string | null {
+  if (cursor === undefined || cursor === "") return null;
+  try {
+    const { t } = JSON.parse(Buffer.from(cursor, "base64url").toString("utf8")) as { t?: unknown };
+    if (typeof t === "string" && !Number.isNaN(new Date(t).getTime())) return t;
+  } catch {
+    // Falls through to the error below.
+  }
+  throw new ApiError(400, "invalid_cursor", "The cursor is not valid. Pass next_cursor from the previous response as it is.");
+}

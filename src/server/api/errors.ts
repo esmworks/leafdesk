@@ -144,6 +144,9 @@ export function apiErrorFor(error: unknown): ApiError {
   // locked page, they say what to do (lib/page-lock).
   const { code } = error as { code?: unknown };
   if (code === "pageLocked") return new ApiError(400, "invalid_request", PAGE_LOCKED_MESSAGE);
+  // A database history entry: gone (or another database's), or one undone elsewhere (row titles).
+  if (code === "historyEntryGone") return new ApiError(404, "not_found", "There is no such change in this database's history.");
+  if (code === "historyNotUndoable") return new ApiError(400, "invalid_request", `${(error as Error).message}.`);
   if (code === "databaseLocked") {
     return new ApiError(
       400,

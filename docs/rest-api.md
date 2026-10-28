@@ -31,9 +31,9 @@ In Markdown a callout's icon leads its text under the alert line (`> [!TIP]`, th
 | Scope | Endpoints |
 | --- | --- |
 | `workspaces:read` | `GET /workspaces`, a workspace's teamspaces and groups |
-| `pages:read`, `pages:write` | pages (database rows too, as pages), their sub-pages, the page tree, daily notes; saving a web page (`POST /pages/from-web`; into a database it needs `rows:write` too); writing creates, changes, moves, trashes, restores, archives and watches pages and makes voice notes |
+| `pages:read`, `pages:write` | pages (database rows too, as pages), their sub-pages, the page tree, daily notes; saving a web page (`POST /pages/from-web`; into a database it needs `rows:write` too); writing creates, changes, moves, trashes, restores, archives and watches pages, makes voice notes and undoes changes in a database's history |
 | `search:read` | `GET /search` |
-| `databases:read` | `GET /databases/{id}` (properties and views) |
+| `databases:read` | `GET /databases/{id}` (properties and views) and its history |
 | `rows:read`, `rows:write` | `POST /databases/{id}/query`, `GET /rows/{id}` and its activity, changes waiting for review; writing adds, upserts and changes rows (a voice note into a database needs it too) and approves or dismisses those changes |
 | `comments:read`, `comments:write` | a page's comment threads; writing starts threads and replies |
 | `agents:read`, `agents:write` | agents, their runs, usage, schedules and sharing; writing changes them, asks for runs, sets schedules and shares |
@@ -87,7 +87,10 @@ Filter ops: `contains`, `does_not_contain`, `equals`, `not_equals`, `is_any_of` 
   `PATCH /databases/{id}/rows` (same values on many rows, with `expect` and `dry_run`),
   `POST /databases/{id}/rows/merge` (duplicate rows into one, as `merge_rows` does),
   `GET` and `PATCH /rows/{id}`, `GET /rows/{id}/activity` (who changed what, newest first;
-  `actor: "ai"` for AI autofill values, with the person in `by`).
+  `actor: "ai"` for AI autofill values, with the person in `by`), `GET /databases/{id}/history`
+  (its properties, views, trashed rows and value changes, newest first, with `next_cursor`) and
+  `POST /databases/{id}/history/{change_id}/undo` (as *Undo* in the app: values go back only
+  where nobody changed them since, the rest counted in `skipped`).
 - **Voice notes:** `POST /voice-notes` takes a recording as multipart form data (`audio`, and
   `workspace_id` or `database_id`), has it transcribed and written up by AI and saves the note as a
   private page or a database row, answering when it is saved (`201`, with the transcript and the

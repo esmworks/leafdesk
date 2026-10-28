@@ -5,7 +5,8 @@
  * rows put in the trash and taken out are recorded, row value changes read in groups; each entry
  * undoes (options taken away come back with the rows' values, a type change goes back with the
  * values it converted, values go back only where nothing changed them since); outsiders can't read
- * it and properties a member may not know of are left out of what they read.
+ * it and properties a member may not know of are left out of what they read. MCP and REST read
+ * and undo it too.
  * Creates its own users and workspace and deletes them afterwards.
  *
  *   pnpm tsx scripts/database-history-e2e.ts
@@ -19,9 +20,9 @@ try {
   process.loadEnvFile();
 } catch {}
 
-const { eq, inArray } = await import("drizzle-orm");
+const { and, eq, inArray, isNull } = await import("drizzle-orm");
 const { db } = await import("@/db");
-const { databaseChange, oauthClient, page, user, workspace, workspaceMember } = await import("@/db/schema");
+const { databaseChange, databaseView, oauthClient, page, user, workspace, workspaceMember } = await import("@/db/schema");
 const { InMemoryTransport } = await import("@modelcontextprotocol/server");
 const { createMcpServer } = await import("@/server/mcp/tools");
 const { READ_SCOPE, WRITE_SCOPE } = await import("@/server/mcp/principal");
@@ -34,6 +35,8 @@ const { setPropertyAccess } = await import("@/server/property-access");
 const { listDatabaseHistory, undoHistoryEntry } = await import("@/server/database-history");
 const { asSetup } = await import("@/server/database-changes");
 const { AccessError } = await import("@/server/access");
+const { createApiToken } = await import("@/server/api/tokens");
+const { handleApiRequest } = await import("@/server/api");
 
 const RUN = `dbhistory-e2e-${Date.now().toString(36)}`;
 
@@ -58,6 +61,13 @@ async function refused(fn: () => Promise<unknown>) {
   } catch (error) {
     return error instanceof AccessError;
   }
+}
+
+/** A REST call, handled in-process as the route handler does. */
+async function api(method: string, path: string, token: string) {
+  const res = await handleApiRequest(new Request(`http://localhost/api/v1${path}`, { method, headers: { authorization: `Bearer ${token}` } }));
+  const text = await res.text();
+  return { status: res.status, body: text ? JSON.parse(text) : null };
 }
 
 const clientId = `${RUN}-client`;
@@ -254,6 +264,33 @@ try {
   const second = await listDatabaseHistory(ids.owner, tasks.id, { limit: 3, before: first.next });
   check(first.entries.length === 3 && first.next && second.entries.length > 0, "the history reads in pages", { first: first.next, second: second.entries.length });
   check(!second.entries.some((e) => first.entries.some((f) => f.id === e.id)), "…without repeating an entry");
+
+  // REST: GET /databases/{id}/history in pages, POST .../history/{change_id}/undo
+  const { secret: reader } = await createApiToken(ids.owner, { name: "history e2e read", scopes: ["databases:read"] });
+  const { secret: writer } = await createApiToken(ids.owner, { name: "history e2e write", scopes: ["pages:write"] });
+  const page1 = await api("GET", `/databases/${tasks.id}/history?limit=2`, reader);
+  check(page1.status === 200 && page1.body.changes.length === 2 && page1.body.has_more && page1.body.next_cursor, "GET /databases/{id}/history lists the changes a page at a time", page1.body);
+  const page2 = await api("GET", `/databases/${tasks.id}/history?limit=2&cursor=${page1.body.next_cursor}`, reader);
+  const firstIds = new Set(page1.body.changes.map((c: { id: string }) => c.id));
+  check(page2.status === 200 && page2.body.changes.length > 0 && !page2.body.changes.some((c: { id: string }) => firstIds.has(c.id)), "…reading on with next_cursor", page2.body);
+  const badCursor = await api("GET", `/databases/${tasks.id}/history?cursor=nope`, reader);
+  check(badCursor.status === 400 && badCursor.body.error?.code === "invalid_cursor", "a cursor not from the API is refused", badCursor.body);
+  const all = await api("GET", `/databases/${tasks.id}/history?limit=50`, reader);
+  const target = (all.body.changes as { id: string; change: string; can_undo: boolean }[]).find((c) => c.can_undo && c.change === "view_added");
+  check(target, "…naming the changes that can be undone", all.body.changes);
+  const liveViews = async () =>
+    (await db.select({ id: databaseView.id }).from(databaseView).where(and(eq(databaseView.databaseId, tasks.id), isNull(databaseView.deletedAt)))).length;
+  const viewsBefore = await liveViews();
+  const readOnly = await api("POST", `/databases/${tasks.id}/history/${target.id}/undo`, reader);
+  check(readOnly.status === 403, "undoing needs a token that writes", readOnly);
+  const wrongPath = await api("POST", `/databases/${elsewhere.id}/history/${target.id}/undo`, writer);
+  check(wrongPath.status === 404, "a change undoes nothing under another database's path", wrongPath);
+  check((await liveViews()) === viewsBefore, "…leaving it as it was");
+  const undoneViaRest = await api("POST", `/databases/${tasks.id}/history/${target.id}/undo`, writer);
+  check(undoneViaRest.status === 200 && undoneViaRest.body.undone === target.id && undoneViaRest.body.done === 1, "POST /databases/{id}/history/{change_id}/undo undoes it", undoneViaRest);
+  check((await liveViews()) === viewsBefore - 1, "…here deleting the view added");
+  const noSuch = await api("POST", `/databases/${tasks.id}/history/${RUN}-none/undo`, writer);
+  check(noSuch.status === 404, "an id that is no change answers 404", noSuch);
 
   console.log(`\n${passed} checks passed`);
 } finally {
