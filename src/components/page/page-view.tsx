@@ -6,6 +6,7 @@ import dynamic from "next/dynamic";
 import { useLocale, useTranslations } from "next-intl";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { withRow } from "@/lib/row-panel";
 import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState, useTransition, type ReactNode, type RefObject } from "react";
 import {
   archivePageAction,
@@ -58,6 +59,7 @@ const CollabEditor = dynamic(() => import("./collab-editor"), { ssr: false });
 const LocalGraphPanel = dynamic(() => import("@/components/graph/local-graph-panel").then((m) => m.LocalGraphPanel), { ssr: false });
 // Loaded when it opens: its preview brings the editor and the editor's dictionaries.
 const HistoryPanel = dynamic(() => import("./history-panel").then((m) => m.HistoryPanel), { ssr: false });
+const DatabaseHistoryPanel = dynamic(() => import("@/components/database/database-history").then((m) => m.DatabaseHistoryPanel), { ssr: false });
 const VersionNameDialog = dynamic(() => import("./version-name-dialog").then((m) => m.VersionNameDialog), { ssr: false });
 const MarkdownSourceView = dynamic(() => import("./markdown-source").then((m) => m.MarkdownSourceView), { ssr: false });
 // Loaded when it opens, likewise.
@@ -827,7 +829,14 @@ export function PageView({
             onClose={() => setMarkdownOpen(false)}
           />
         )}
-        {historyOpen && (
+        {historyOpen && page.kind === "database" && (
+          <DatabaseHistoryPanel
+            databaseId={page.id}
+            onClose={() => setHistoryOpen(false)}
+            onOpenRow={(rowId) => router.push(withRow(`${window.location.pathname}${window.location.search}`, rowId))}
+          />
+        )}
+        {historyOpen && page.kind !== "database" && (
           <HistoryPanel
             pageId={page.id}
             readOnly={page.archived || !canEdit || locked}

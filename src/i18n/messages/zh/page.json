@@ -74,6 +74,7 @@
     "rejectAllSuggestions": "拒绝所有建议",
     "rejectAllConfirm": "拒绝此页面上的所有建议修改？",
     "versionHistory": "版本历史",
+    "databaseHistory": "数据库历史",
     "lastEdited": "最后由 {name} 编辑",
     "wordCount": "{words} 个词，{characters} 个字符",
     "actionFailed": "无法完成该操作。",

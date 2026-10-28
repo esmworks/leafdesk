@@ -74,6 +74,7 @@
     "rejectAllSuggestions": "דחיית כל ההצעות",
     "rejectAllConfirm": "לדחות את כל הצעות השינוי בדף הזה?",
     "versionHistory": "היסטוריית גרסאות",
+    "databaseHistory": "היסטוריית מסד הנתונים",
     "lastEdited": "נערך לאחרונה על ידי {name}",
     "wordCount": "{words, plural, one {מילה אחת} other {# מילים}}, {characters, plural, one {תו אחד} other {# תווים}}",
     "actionFailed": "לא ניתן היה להשלים את הפעולה.",

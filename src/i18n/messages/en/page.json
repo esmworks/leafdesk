@@ -74,6 +74,7 @@
     "rejectAllSuggestions": "Reject all suggestions",
     "rejectAllConfirm": "Reject every suggested edit on this page?",
     "versionHistory": "Version history",
+    "databaseHistory": "Database history",
     "lastEdited": "Last edited by {name}",
     "wordCount": "{words, plural, one {# word} other {# words}}, {characters, plural, one {# character} other {# characters}}",
     "actionFailed": "Couldn't finish that.",

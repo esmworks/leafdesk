@@ -74,6 +74,7 @@
     "rejectAllSuggestions": "Avvis alle forslag",
     "rejectAllConfirm": "Vil du avvise alle foreslåtte endringer på denne siden?",
     "versionHistory": "Versjonshistorikk",
+    "databaseHistory": "Databasehistorikk",
     "lastEdited": "Sist redigert av {name}",
     "wordCount": "{words, plural, one {# ord} other {# ord}}, {characters, plural, one {# tegn} other {# tegn}}",
     "actionFailed": "Kunne ikke fullføre det.",

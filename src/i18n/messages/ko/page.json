@@ -74,6 +74,7 @@
     "rejectAllSuggestions": "모든 제안 거절",
     "rejectAllConfirm": "이 페이지의 제안된 편집을 모두 거절할까요?",
     "versionHistory": "버전 기록",
+    "databaseHistory": "데이터베이스 기록",
     "lastEdited": "{name}이(가) 마지막으로 편집함",
     "wordCount": "{words}단어, {characters}자",
     "actionFailed": "작업을 완료하지 못했습니다.",

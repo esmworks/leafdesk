@@ -26,6 +26,7 @@ import { pasteRows } from "@/server/paste";
 import { getPropertyAccessSettings, loadPropertyRules, setPropertyAccess } from "@/server/property-access";
 import { getRowAccessSettings, setRowAccess } from "@/server/row-access";
 import { listRowActivity } from "@/server/row-activity-feed";
+import { listDatabaseHistory, undoHistoryEntry } from "@/server/database-history";
 import { listMembers } from "@/server/workspaces";
 import { mergeCandidates, mergeRows, previewMerge } from "@/server/merge-rows";
 import * as pages from "@/server/pages";
@@ -109,6 +110,17 @@ export async function loadRowAction(rowId: string) {
 /** A page of the row's activity, newest first (see server/row-activity-feed). */
 export async function loadRowActivityAction(rowId: string, offset = 0, limit = 20) {
   return run((userId) => listRowActivity(userId, rowId, { offset, limit }));
+}
+
+/** A page of the database's history before `before` (an entry's time), newest first. */
+export async function loadDatabaseHistoryAction(databaseId: string, before: string | null = null) {
+  return run((userId) => listDatabaseHistory(userId, databaseId, { before, limit: 30 }));
+}
+
+/** Undoes one entry of the database's history; `yes` is a ticked checkbox as text, for a type change back. */
+export async function undoDatabaseHistoryAction(databaseId: string, entryId: string, yes: string) {
+  if (typeof databaseId !== "string" || typeof entryId !== "string" || typeof yes !== "string") throw new Error("Bad request");
+  return run((userId) => undoHistoryEntry(userId, databaseId, entryId, { yes: yes.slice(0, 50) }));
 }
 
 export async function createRowAction(

@@ -74,6 +74,7 @@
     "rejectAllSuggestions": "رد کردن همه پیشنهادها",
     "rejectAllConfirm": "همه ویرایش‌های پیشنهادی این صفحه رد شوند؟",
     "versionHistory": "تاریخچه نسخه‌ها",
+    "databaseHistory": "تاریخچه پایگاه داده",
     "lastEdited": "آخرین ویرایش توسط {name}",
     "wordCount": "{words} واژه، {characters} نویسه",
     "actionFailed": "این کار انجام نشد.",

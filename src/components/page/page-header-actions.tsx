@@ -1156,7 +1156,7 @@ function PageMenu({
                   </MenuItem>
                 </>
               )}
-              {page.hasBody && (
+              {(page.hasBody || isDatabase) && (
                 <MenuItem
                   icon={<History className="h-4 w-4" />}
                   onClick={() => {
@@ -1164,7 +1164,7 @@ function PageMenu({
                     onHistory();
                   }}
                 >
-                  {t("versionHistory")}
+                  {isDatabase ? t("databaseHistory") : t("versionHistory")}
                 </MenuItem>
               )}
               {/* Who opened and edited the page: for owners and members who may edit it, never guests. */}

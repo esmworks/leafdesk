@@ -74,6 +74,7 @@
     "rejectAllSuggestions": "Hylkää kaikki ehdotukset",
     "rejectAllConfirm": "Hylätäänkö kaikki tämän sivun muokkausehdotukset?",
     "versionHistory": "Versiohistoria",
+    "databaseHistory": "Tietokannan historia",
     "lastEdited": "Viimeksi muokannut: {name}",
     "wordCount": "{words, plural, one {# sana} other {# sanaa}}, {characters, plural, one {# merkki} other {# merkkiä}}",
     "actionFailed": "Toiminto epäonnistui.",

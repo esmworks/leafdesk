@@ -74,6 +74,7 @@
     "rejectAllSuggestions": "Отклонить все предложения",
     "rejectAllConfirm": "Отклонить все предложенные изменения на этой странице?",
     "versionHistory": "История версий",
+    "databaseHistory": "История базы данных",
     "lastEdited": "Последнее изменение: {name}",
     "wordCount": "{words, plural, one {# слово} few {# слова} many {# слов} other {# слова}}, {characters, plural, one {# символ} few {# символа} many {# символов} other {# символа}}",
     "actionFailed": "Не удалось выполнить действие.",

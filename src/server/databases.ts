@@ -135,6 +135,7 @@ import { recordAssignments } from "@/server/notifications";
 import { getCollab } from "@/server/collab/bridge";
 import { loadRowAccess } from "@/server/row-access";
 import { rowChanged } from "@/server/row-events";
+import { trackSchema } from "@/server/database-changes";
 import { recordRowWrites } from "@/server/row-activity";
 import { queueRowWrites } from "@/server/row-follow";
 import { workspacePeople, workspaceSettings, type WorkspacePerson } from "@/server/workspaces";
@@ -1699,7 +1700,7 @@ function dateOptions(type: PropertyType, input: DateOptionsInput, current: DateO
   return checked.options;
 }
 
-export async function addProperty(
+async function untrackedAddProperty(
   userId: string,
   databaseId: string,
   input: {
@@ -1816,7 +1817,7 @@ export async function addProperty(
  * other side lists each row's sub-items). Off keeps the properties and their values, as plain
  * relations. Returns the parent property, or null when turned off.
  */
-export async function setSubItems(
+async function untrackedSetSubItems(
   userId: string,
   databaseId: string,
   input: { on: false } | { on: true; propertyId?: string; names?: { parent: string; subItems: string } },
@@ -1870,7 +1871,7 @@ export async function setSubItems(
  * itself holds the rows each row waits for: `propertyId` (one the database has), the one already
  * used, or a new two-way relation (Blocked by / Blocking). Off keeps the properties and their links.
  */
-export async function setDependencies(
+async function untrackedSetDependencies(
   userId: string,
   databaseId: string,
   input:
@@ -2093,7 +2094,7 @@ async function sprintStateOptions(propertyId: string): Promise<string[]> {
   return relations.flatMap((r) => Object.values(r.options.relation?.sprints?.states ?? {}));
 }
 
-export async function updateProperty(
+async function untrackedUpdateProperty(
   userId: string,
   propertyId: string,
   patch: {
@@ -2350,7 +2351,7 @@ export async function setPropertyPinned(userId: string, propertyId: string, pinn
  * making a two-way relation, it takes edit access to both databases. Relations with a role (sub-items,
  * dependencies, sprints) are set up by their feature and are left alone.
  */
-export async function makeRelationTwoWay(userId: string, propertyId: string, pairedName?: string) {
+async function untrackedMakeRelationTwoWay(userId: string, propertyId: string, pairedName?: string) {
   const prop = await requireProperty(userId, propertyId);
   const relation = prop.type === "relation" ? prop.options.relation : undefined;
   if (!relation || relation.role) throw withCode(new Error("Not a plain relation property"), "unsupportedType");
@@ -2408,7 +2409,7 @@ export async function setPropertiesBeside(userId: string, databaseId: string, be
 }
 
 /** Adds a select option by name if missing and returns it (used when typing a new tag). */
-export async function ensureOption(userId: string, propertyId: string, name: string) {
+async function untrackedEnsureOption(userId: string, propertyId: string, name: string) {
   const prop = await requireProperty(userId, propertyId, { cellEdit: true });
   if (!holdsOptions(prop.type)) {
     throw withCode(new Error("Not a select property"), "notASelectProperty");
@@ -2438,7 +2439,7 @@ export async function ensureOption(userId: string, propertyId: string, name: str
  * both back as they were. The other side of a two-way relation is deleted with it, when the user
  * may change that one too; otherwise the two are taken apart first (see mayOnlyDetach).
  */
-export async function deleteProperty(userId: string, propertyId: string) {
+async function untrackedDeleteProperty(userId: string, propertyId: string) {
   const prop = await requireProperty(userId, propertyId);
   const pair = await withPair(prop, db, false);
   const detach = await mayOnlyDetach(userId, pair, false);
@@ -2558,7 +2559,7 @@ async function requireDeletedProperty(userId: string, propertyId: string) {
  * part, and the restored relation comes back as a plain relation. When the user may not change the
  * other side, it stays deleted and the two are taken apart (see mayOnlyDetach).
  */
-export async function restoreProperty(userId: string, propertyId: string) {
+async function untrackedRestoreProperty(userId: string, propertyId: string) {
   const { prop, database } = await requireDeletedProperty(userId, propertyId);
   const detach = await mayOnlyDetach(userId, await withPair(prop, db, true), true);
   const touched = new Set<string>([prop.databaseId]);
@@ -2712,7 +2713,7 @@ async function eraseProperties(tx: Executor, props: DatabaseProperty[]) {
  * values the original keeps from someone. A two-way relation is copied one way: the related
  * database gets no second property.
  */
-export async function duplicateProperty(userId: string, propertyId: string, name: string) {
+async function untrackedDuplicateProperty(userId: string, propertyId: string, name: string) {
   const prop = await requireProperty(userId, propertyId);
   // A copy would number the rows a second time.
   if (prop.type === "unique_id") await refuseSecondUniqueId(db, prop.databaseId);
@@ -2790,7 +2791,7 @@ export type TypeChange = {
  * (`converted`) and how many lose theirs (`cleared`). `dryRun` checks and counts without changing
  * anything.
  */
-export async function changePropertyType(
+async function untrackedChangePropertyType(
   userId: string,
   propertyId: string,
   input: TypeChange,
@@ -3046,7 +3047,7 @@ async function retypeProperty(
 }
 
 /** Adds a view with its type's defaults; `config`, when given, goes over them (checked as updateView checks it). */
-export async function addView(
+async function untrackedAddView(
   userId: string,
   databaseId: string,
   input: {
@@ -3115,7 +3116,7 @@ export async function addView(
  * A copy of a view with all its settings (layout, filters, sorts, grouping, shown properties, a
  * form's questions, a dashboard's widgets), named `name`, right after it.
  */
-export async function duplicateView(userId: string, viewId: string, name: string) {
+async function untrackedDuplicateView(userId: string, viewId: string, name: string) {
   const view = await requireView(userId, viewId);
   assertUnlocked(view);
   // A copy of a personal view is personal too.
@@ -3145,7 +3146,7 @@ async function requireView(userId: string, viewId: string, { deleted = false } =
 }
 
 /** Returns the view's config as stored (a form's defaults normalized to ids). */
-export async function updateView(
+async function untrackedUpdateView(
   userId: string,
   viewId: string,
   patch: {
@@ -3237,7 +3238,7 @@ export async function updateView(
  * restores it (restoreView), deletes it for good (purgeView) or the daily cleanup does, as for
  * deleted properties. A database keeps at least one view.
  */
-export async function deleteView(userId: string, viewId: string) {
+async function untrackedDeleteView(userId: string, viewId: string) {
   const view = await requireView(userId, viewId);
   assertUnlocked(view);
   await db.transaction(async (tx) => {
@@ -3275,7 +3276,7 @@ async function requireDeletedView(userId: string, viewId: string) {
 }
 
 /** Brings a deleted view back where its tab was, as it was set up. */
-export async function restoreView(userId: string, viewId: string) {
+async function untrackedRestoreView(userId: string, viewId: string) {
   const view = await requireDeletedView(userId, viewId);
   await db.transaction(async (tx) => {
     await tx.update(databaseView).set({ deletedAt: null, deletedBy: null }).where(eq(databaseView.id, viewId));
@@ -3966,4 +3967,78 @@ export async function getRow(userId: string, rowId: string) {
     people,
     viewerId: userId,
   };
+}
+
+// ------------------------------------------------------------------------- the database's history
+
+// Every change of a property or a shared view is recorded in the database's history
+// (server/database-changes.ts), whoever makes it: the app, MCP, the REST API, agents, automations.
+
+type Args<F extends (...args: never[]) => unknown> = Parameters<F>;
+const idOf = (p: { id: string } | null | undefined) => (p ? [p.id] : []);
+
+export async function addProperty(...args: Args<typeof untrackedAddProperty>) {
+  return trackSchema(args[0], {}, () => untrackedAddProperty(...args), { added: (p) => ({ properties: idOf(p) }) });
+}
+
+export async function updateProperty(...args: Args<typeof untrackedUpdateProperty>) {
+  const [userId, propertyId, patch] = args;
+  // Options taken away clear them from the rows that held them.
+  return trackSchema(userId, { properties: [propertyId] }, () => untrackedUpdateProperty(...args), {
+    values: patch.options !== undefined ? propertyId : undefined,
+  });
+}
+
+export async function changePropertyType(...args: Args<typeof untrackedChangePropertyType>) {
+  const [userId, propertyId, , options] = args;
+  if (options?.dryRun) return untrackedChangePropertyType(...args);
+  return trackSchema(userId, { properties: [propertyId] }, () => untrackedChangePropertyType(...args), { values: propertyId });
+}
+
+export async function deleteProperty(...args: Args<typeof untrackedDeleteProperty>) {
+  return trackSchema(args[0], { properties: [args[1]] }, () => untrackedDeleteProperty(...args));
+}
+
+export async function restoreProperty(...args: Args<typeof untrackedRestoreProperty>) {
+  return trackSchema(args[0], { properties: [args[1]] }, () => untrackedRestoreProperty(...args));
+}
+
+export async function duplicateProperty(...args: Args<typeof untrackedDuplicateProperty>) {
+  return trackSchema(args[0], {}, () => untrackedDuplicateProperty(...args), { added: (p) => ({ properties: idOf(p) }) });
+}
+
+export async function makeRelationTwoWay(...args: Args<typeof untrackedMakeRelationTwoWay>) {
+  return trackSchema(args[0], { properties: [args[1]] }, () => untrackedMakeRelationTwoWay(...args));
+}
+
+export async function ensureOption(...args: Args<typeof untrackedEnsureOption>) {
+  return trackSchema(args[0], { properties: [args[1]] }, () => untrackedEnsureOption(...args));
+}
+
+export async function setSubItems(...args: Args<typeof untrackedSetSubItems>) {
+  return trackSchema(args[0], {}, () => untrackedSetSubItems(...args), { added: (p) => ({ properties: idOf(p) }) });
+}
+
+export async function setDependencies(...args: Args<typeof untrackedSetDependencies>) {
+  return trackSchema(args[0], {}, () => untrackedSetDependencies(...args), { added: (p) => ({ properties: idOf(p) }) });
+}
+
+export async function addView(...args: Args<typeof untrackedAddView>) {
+  return trackSchema(args[0], {}, () => untrackedAddView(...args), { added: (v) => ({ views: idOf(v) }) });
+}
+
+export async function duplicateView(...args: Args<typeof untrackedDuplicateView>) {
+  return trackSchema(args[0], {}, () => untrackedDuplicateView(...args), { added: (v) => ({ views: idOf(v) }) });
+}
+
+export async function updateView(...args: Args<typeof untrackedUpdateView>) {
+  return trackSchema(args[0], { views: [args[1]] }, () => untrackedUpdateView(...args));
+}
+
+export async function deleteView(...args: Args<typeof untrackedDeleteView>) {
+  return trackSchema(args[0], { views: [args[1]] }, () => untrackedDeleteView(...args));
+}
+
+export async function restoreView(...args: Args<typeof untrackedRestoreView>) {
+  return trackSchema(args[0], { views: [args[1]] }, () => untrackedRestoreView(...args));
 }

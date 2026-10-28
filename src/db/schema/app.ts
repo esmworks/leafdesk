@@ -25,6 +25,7 @@ import type { FormulaResultType } from "../../lib/formula/types";
 import type { AllowedNetwork } from "../../lib/ip-allowlist";
 import { PROPERTY_TYPES, type PropertyType, type StatusGroup } from "../../lib/property-types";
 import type { PageBackground } from "../../lib/page-background";
+import type { ChangedValues, DatabaseChangeKind } from "../../lib/database-history";
 import type { PageVisibility } from "../../lib/page-visibility";
 import type { RowActivityActor, RowActivityKind } from "../../lib/row-activity";
 import type { SidebarLayout } from "../../lib/sidebar-sections";
@@ -1348,9 +1349,55 @@ export const rowActivity = pgTable(
   (t) => [
     // A row's feed, newest first; also the newest entry about a value, for merging.
     index("row_activity_row_time_idx").on(t.rowId, t.createdAt.desc(), t.id.desc()),
+    // A database's history, which reads its rows' value changes in groups (server/database-history.ts).
+    index("row_activity_database_time_idx").on(t.databaseId, t.createdAt.desc()),
     check("row_activity_actor_kind_check", sql`${t.actorKind} in ('user', 'agent', 'automation', 'ai', 'form', 'button')`),
     check("row_activity_kind_check", sql`${t.kind} in ('created', 'title', 'property', 'merged')`),
     check("row_activity_property_check", sql`(${t.kind} = 'property') = (${t.propertyId} is not null)`),
+  ],
+);
+
+/**
+ * A database's history (lib/database-history.ts, server/database-history.ts): one entry per
+ * property or shared view added, changed, deleted or restored, and per batch of rows put in the
+ * trash or taken out, by whom. `before` and `after` hold the property or view as it was and became
+ * (null where it wasn't, or rows: the rows a `rows_*` entry is about). Quick changes of one property
+ * or view by the same actor merge into one entry. Personal views and copies leave none. Kept as
+ * long as the database, like its rows' activity.
+ */
+export const databaseChange = pgTable(
+  "database_change",
+  {
+    id: id(),
+    databaseId: text("database_id")
+      .notNull()
+      .references(() => page.id, { onDelete: "cascade" }),
+    workspaceId: text("workspace_id")
+      .notNull()
+      .references(() => workspace.id, { onDelete: "cascade" }),
+    /** Who acted, as in `row_activity` (an agent's own user, an automation's person). */
+    actorUserId: text("actor_user_id").references(() => user.id, { onDelete: "set null" }),
+    actorKind: text("actor_kind").$type<RowActivityActor>().notNull(),
+    kind: text("kind").$type<DatabaseChangeKind>().notNull(),
+    /**
+     * The property or view. No foreign key: a property or view deleted for good leaves its entries,
+     * which still say what it was.
+     */
+    targetId: text("target_id"),
+    before: jsonb("before"),
+    after: jsonb("after"),
+    /** Row values the change rewrote, kept so undoing it puts them back (lib/database-history ChangedValues). */
+    changedValues: jsonb("changed_values").$type<ChangedValues>(),
+    createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+  },
+  (t) => [
+    index("database_change_database_time_idx").on(t.databaseId, t.createdAt.desc(), t.id.desc()),
+    index("database_change_target_idx").on(t.targetId, t.createdAt.desc()),
+    check("database_change_actor_kind_check", sql`${t.actorKind} in ('user', 'agent', 'automation', 'ai', 'form', 'button')`),
+    check(
+      "database_change_kind_check",
+      sql`${t.kind} in ('property_added', 'property_changed', 'property_deleted', 'property_restored', 'view_added', 'view_changed', 'view_deleted', 'view_restored', 'rows_trashed', 'rows_restored')`,
+    ),
   ],
 );
 

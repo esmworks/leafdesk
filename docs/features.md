@@ -772,6 +772,26 @@
   `name`. Changes an AI app, the chat or an agent writes to a
   page's body can be kept or undone block by block (see
   [Reviewing AI changes](ai.md#ai-features)).
+- **Database history**: *Database history* in a database's `⋯` menu opens a side panel of who
+  changed the database, newest first under a heading for each day: properties added, changed (its
+  name, type, options added, taken away, renamed or recolored, its formula, the other settings
+  named), deleted and restored; shared views added, changed (which parts: filters, sorting,
+  grouping, shown properties…), deleted and restored; rows moved to the trash and out of it; and
+  values changed across rows, one entry for what one person (an agent, an automation, AI autofill
+  or a form answer) did to one property within five minutes ("set Priority to High in 12 rows"),
+  with a few of the rows. Quick changes of one property or view by the same person are one entry,
+  and a property added and set up at once is one. Each entry has *Undo* for people who may make
+  the change it undoes (edit access to an unlocked database for properties and views, content
+  access for rows and values): a property or view gets back only the settings that change touched,
+  an added one is deleted, a deleted one restored, rows go back out of the trash (or into it), and
+  values go back only on rows nobody changed since (the panel says how many were skipped). Options
+  taken away and type changes keep the row values they rewrote (up to 5,000 rows), so undoing them
+  puts the values back too. An undo is recorded like any change. Personal views, and the
+  properties and views a new database is set up with (from a template, a plan, Build with AI or a
+  synced database's setup), leave no history; changes of properties a person may not know of are
+  left out of what they read, and values show only where they may see them in every row. Titles
+  changed across rows are listed but brought back from each row's page history. MCP's
+  `get_page_history` on a database reads its history, and `restore_page_version` undoes an entry.
 - **Teamspaces**: group pages and people. Every workspace starts with a *General* teamspace
   everyone is in. A teamspace is **default** (everyone is in it, now and later, and can't leave),
   **open** (anyone sees it and can join; until they do, they read and comment on its pages),

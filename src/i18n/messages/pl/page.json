@@ -74,6 +74,7 @@
     "rejectAllSuggestions": "Odrzuć wszystkie sugestie",
     "rejectAllConfirm": "Odrzucić wszystkie sugerowane zmiany na tej stronie?",
     "versionHistory": "Historia wersji",
+    "databaseHistory": "Historia bazy danych",
     "lastEdited": "Ostatnio edytowane przez: {name}",
     "wordCount": "{words, plural, one {# słowo} few {# słowa} many {# słów} other {# słowa}}, {characters, plural, one {# znak} few {# znaki} many {# znaków} other {# znaku}}",
     "actionFailed": "Nie udało się tego dokończyć.",

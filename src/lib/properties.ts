@@ -138,6 +138,8 @@ export const DATABASE_ERROR_CODES = [
   "noCurrentSprint",
   "invalidSprints",
   "sprintStateOption",
+  "historyEntryGone",
+  "historyNotUndoable",
 ] as const;
 export type DatabaseErrorCode = (typeof DATABASE_ERROR_CODES)[number];
 export type DatabaseErrorParams = Record<string, string>;

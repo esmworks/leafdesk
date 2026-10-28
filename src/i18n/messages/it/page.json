@@ -74,6 +74,7 @@
     "rejectAllSuggestions": "Rifiuta tutti i suggerimenti",
     "rejectAllConfirm": "Rifiutare tutte le modifiche suggerite in questa pagina?",
     "versionHistory": "Cronologia delle versioni",
+    "databaseHistory": "Cronologia del database",
     "lastEdited": "Ultima modifica di {name}",
     "wordCount": "{words, plural, one {# parola} other {# parole}}, {characters, plural, one {# carattere} other {# caratteri}}",
     "actionFailed": "Impossibile completare l’operazione.",

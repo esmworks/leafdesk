@@ -74,6 +74,7 @@
     "rejectAllSuggestions": "Tolak semua saran",
     "rejectAllConfirm": "Tolak semua saran edit di halaman ini?",
     "versionHistory": "Riwayat versi",
+    "databaseHistory": "Riwayat basis data",
     "lastEdited": "Terakhir diedit oleh {name}",
     "wordCount": "{words, plural, other {# kata}}, {characters, plural, other {# karakter}}",
     "actionFailed": "Tidak dapat menyelesaikannya.",

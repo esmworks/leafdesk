@@ -74,6 +74,7 @@
     "rejectAllSuggestions": "Tüm önerileri reddet",
     "rejectAllConfirm": "Bu sayfadaki tüm önerilen değişiklikler reddedilsin mi?",
     "versionHistory": "Sürüm geçmişi",
+    "databaseHistory": "Veritabanı geçmişi",
     "lastEdited": "Son düzenleyen: {name}",
     "wordCount": "{words} kelime, {characters} karakter",
     "actionFailed": "İşlem tamamlanamadı.",

@@ -113,6 +113,15 @@ BlockNote on Yjs; Tailwind v4; next-intl. Node 24, pnpm 11. A separate Electron 
   Several linked databases at once (views, example rows, an intro page) are a plan: checked in
   `src/lib/database-plan.ts`, created all-or-nothing by `database-plan.ts` `createFromPlan`, which
   Build with AI (`ai-build.ts` drafts the plan) and the AI chat's `create_database` both use.
+- **Database history.** `src/server/database-changes.ts` records it (table `database_change`):
+  the schema writes of `databases.ts` (addProperty, updateProperty, changePropertyType, delete and
+  restore of properties and views, addView, updateView …) are thin exported wrappers that run the
+  `untracked*` function through `trackSchema`, which reads the properties and views before and
+  after. A new schema write gets a wrapper like them; making a new database with its properties
+  runs inside `asSetup` (plans, templates, synced databases' setup). Rows trashed and restored
+  come from `pages.ts`. Value changes are the rows' `row_activity`, read in groups by
+  `server/database-history.ts`, which also undoes entries through the same `databases.ts`
+  functions (pure part in `src/lib/database-history.ts`).
 - **Legal holds.** `src/server/legal-hold.ts` is the one check before content is deleted for good
   (Delete forever, trash and history retention, file cleanups, templates, deleted properties,
   comments, letterheads, workspace and account deletion). A new hard delete of pages, rows, files

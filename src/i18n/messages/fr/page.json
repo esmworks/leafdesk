@@ -74,6 +74,7 @@
     "rejectAllSuggestions": "Refuser toutes les suggestions",
     "rejectAllConfirm": "Refuser toutes les modifications suggérées sur cette page ?",
     "versionHistory": "Historique des versions",
+    "databaseHistory": "Historique de la base de données",
     "lastEdited": "Dernière modification par {name}",
     "wordCount": "{words, plural, one {# mot} other {# mots}}, {characters, plural, one {# caractère} other {# caractères}}",
     "actionFailed": "Impossible d’effectuer cette action.",

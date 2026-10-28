@@ -74,6 +74,7 @@
     "rejectAllSuggestions": "Avvisa alla förslag",
     "rejectAllConfirm": "Avvisa alla ändringsförslag på den här sidan?",
     "versionHistory": "Versionshistorik",
+    "databaseHistory": "Databashistorik",
     "lastEdited": "Senast redigerad av {name}",
     "wordCount": "{words, plural, one {# ord} other {# ord}}, {characters, plural, one {# tecken} other {# tecken}}",
     "actionFailed": "Det gick inte att slutföra.",

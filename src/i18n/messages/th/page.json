@@ -74,6 +74,7 @@
     "rejectAllSuggestions": "ปฏิเสธข้อเสนอทั้งหมด",
     "rejectAllConfirm": "ปฏิเสธการแก้ไขที่เสนอทั้งหมดในหน้านี้ใช่ไหม",
     "versionHistory": "ประวัติเวอร์ชัน",
+    "databaseHistory": "ประวัติฐานข้อมูล",
     "lastEdited": "แก้ไขล่าสุดโดย {name}",
     "wordCount": "{words, plural, other {# คำ}} {characters, plural, other {# อักขระ}}",
     "actionFailed": "ดำเนินการไม่สำเร็จ",

@@ -20,6 +20,7 @@ import { discard } from "@/server/import/markdown";
 import { savedLocale } from "@/server/mail/locale";
 import { toFilterEntries, toSortRule } from "@/server/mcp/query";
 import { createPage, savedSeedNames } from "@/server/pages";
+import { asSetup } from "@/server/database-changes";
 
 /**
  * Why a plan can't be drafted or created: `unusable` when the AI's answers held no plan that
@@ -61,7 +62,7 @@ async function viewNames(userId: string): Promise<Record<PlanViewType, string>> 
  * and tags a new database gets. Throws PlanError("invalid" | "parent"), AccessError,
  * PropertyValueError.
  */
-export async function createFromPlan(
+async function untrackedCreateFromPlan(
   actor: WriteActor,
   workspaceId: string,
   raw: unknown,
@@ -190,4 +191,9 @@ export async function createFromPlan(
     await recordAudit({ workspaceId, actorId: userId, action: "page.created", target: { type: "page", id: root.id, label: root.title }, details: { kind: root.kind } });
   }
   return { rootId: roots[0].id, databases: plan.databases.map((d) => ({ id: ids.get(d.key)!, title: d.title })) };
+}
+
+/** createFromPlan, which starts the history of what it makes (server/database-changes.ts asSetup). */
+export async function createFromPlan(...args: Parameters<typeof untrackedCreateFromPlan>) {
+  return asSetup(() => untrackedCreateFromPlan(...args));
 }

@@ -4116,7 +4116,7 @@ export function createMcpServer(principal: McpPrincipal, options: { actor?: Writ
     "get_page_history",
     {
       title: "Read a page's history",
-      description: `Read a page's saved versions. With page_id: the versions of its body, newest first, with who made each change (a user, or a user through an MCP client) and the name people gave it, if any. With version_id: that version's title and Markdown body (cut at ${MAX_MARKDOWN_CHARS} characters; pass offset to continue). With version_id and compare: what changed between it and the page now ("current") or the version before it ("previous"), one line per block: "+" added, "-" removed, "~" changed with [-removed-] and {+added+} words inside; unchanged stretches are folded, and changed_by names who made the changes, as far as the history records it. Bring a version back with restore_page_version.`,
+      description: `Read a page's saved versions. On a database: who changed its schema, rows and values (before=next_before). With page_id: the versions of its body, newest first, with who made each change (a user, or a user through an MCP client) and the name people gave it, if any. With version_id: that version's title and Markdown body (cut at ${MAX_MARKDOWN_CHARS} characters; pass offset to continue). With version_id and compare: what changed between it and the page now ("current") or the version before it ("previous"), one line per block: "+" added, "-" removed, "~" changed with [-removed-] and {+added+} words inside; unchanged stretches are folded, and changed_by names who made the changes, as far as the history records it. Bring a version back with restore_page_version.`,
       inputSchema: z.object({
         page_id: id("page").optional().describe("List this page's versions."),
         version_id: id("version").optional().describe("Read or compare this version, from the list."),
@@ -4125,14 +4125,16 @@ export function createMcpServer(principal: McpPrincipal, options: { actor?: Writ
           .optional()
           .describe('With version_id: "current" shows this version → the page now; "previous" the version before → this version.'),
         offset: z.number().int().min(0).default(0).describe("Character offset into the body or diff text."),
+        before: z.string().max(40).optional(),
       }),
       annotations: READ,
     },
-    ({ page_id, version_id, compare, offset }) =>
+    ({ page_id, version_id, compare, offset, before }) =>
       runTool(async () => {
         if (!page_id === !version_id) throw new ToolInputError("Pass page_id to list a page's versions, or version_id to read or compare one.");
         if (page_id) {
           if (compare) throw new ToolInputError("compare goes with version_id: list the versions with page_id first.");
+          if ((await pages.getPage(userId, page_id)).kind === "database") return ops.listDatabaseHistory(ctx, { database_id: page_id, before });
           return ops.listPageHistory(ctx, { page_id });
         }
         return compare ? ops.diffPageVersion(ctx, { version_id: version_id!, against: compare, offset }) : ops.getPageVersion(ctx, { version_id: version_id!, offset });
@@ -4194,14 +4196,18 @@ export function createMcpServer(principal: McpPrincipal, options: { actor?: Writ
     {
       title: "Restore a saved page version",
       description:
-        "Replace a page's title and body with a saved version from get_page_history. The current version is saved to history first, so this can be undone the same way.",
-      inputSchema: z.object({ version_id: id("version") }),
+        "Replace a page's title and body with a saved version from get_page_history. The current version is saved to history first, so this can be undone the same way. Or undoes a database history change.",
+      inputSchema: z.object({
+        version_id: z.string().min(1),
+      }),
       annotations: { readOnlyHint: false, destructiveHint: true, idempotentHint: false, openWorldHint: false },
       scopeChallenge: requireWrite,
     },
     ({ version_id }) =>
       runTool(async () => {
         assertWrite();
+        const undone = await ops.undoDatabaseChange(ctx, { change_id: version_id });
+        if (undone) return undone;
         const snap = await pages.getSnapshot(userId, version_id);
         const page = await pages.getPage(userId, snap.pageId);
         if (page.archivedAt) throw new ToolInputError("This page is in the trash. Restore it with restore_page first.");

@@ -74,6 +74,7 @@
     "rejectAllSuggestions": "Відхилити всі пропозиції",
     "rejectAllConfirm": "Відхилити всі запропоновані зміни на цій сторінці?",
     "versionHistory": "Історія версій",
+    "databaseHistory": "Історія бази даних",
     "lastEdited": "Останні зміни: {name}",
     "wordCount": "{words, plural, one {# слово} few {# слова} many {# слів} other {# слова}}, {characters, plural, one {# символ} few {# символи} many {# символів} other {# символу}}",
     "actionFailed": "Не вдалося завершити дію.",

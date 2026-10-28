@@ -74,6 +74,7 @@
     "rejectAllSuggestions": "Từ chối tất cả đề xuất",
     "rejectAllConfirm": "Từ chối mọi đề xuất chỉnh sửa trên trang này?",
     "versionHistory": "Lịch sử phiên bản",
+    "databaseHistory": "Lịch sử cơ sở dữ liệu",
     "lastEdited": "Chỉnh sửa lần cuối bởi {name}",
     "wordCount": "{words, plural, other {# từ}}, {characters, plural, other {# ký tự}}",
     "actionFailed": "Không thể hoàn tất thao tác đó.",

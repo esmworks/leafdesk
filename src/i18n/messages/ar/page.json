@@ -74,6 +74,7 @@
     "rejectAllSuggestions": "رفض كل الاقتراحات",
     "rejectAllConfirm": "هل تريد رفض كل التعديلات المقترحة في هذه الصفحة؟",
     "versionHistory": "سجل النسخ",
+    "databaseHistory": "سجل قاعدة البيانات",
     "lastEdited": "آخر تعديل بواسطة {name}",
     "wordCount": "الكلمات: {words}، الأحرف: {characters}",
     "actionFailed": "تعذّر إتمام ذلك.",

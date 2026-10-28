@@ -31,6 +31,7 @@ import { sealJson } from "@/server/secret-box";
 import { takeSyncSetup } from "@/server/sync-setup";
 import { dropSheetWrites, forgetTwoWaySyncs } from "./outbox";
 import { applySheetRows, readSheet, sheetsConnection, type SheetsConnection } from "./run";
+import { asSetup } from "@/server/database-changes";
 
 /**
  * Setting up, changing and stopping Google Sheets syncs (lib/sheets-sync; runs in ./run, held and
@@ -112,7 +113,7 @@ export type SheetsSyncInput = {
  * Makes a database from a sheet's rows and keeps it in step from then on. The sheet is read before
  * anything is made; a failure after that takes the database back.
  */
-export async function createSheetsSync(actor: WriteActor, input: SheetsSyncInput): Promise<ImportResult> {
+async function untrackedCreateSheetsSync(actor: WriteActor, input: SheetsSyncInput): Promise<ImportResult> {
   const { userId } = actor;
   const target = parseSheetLink(input.link);
   if (!target) throw new JiraError("invalidInput", "Not a link to a Google spreadsheet");
@@ -338,4 +339,9 @@ export async function stopSheetsSync(userId: string, databaseId: string) {
   const row = await requireSync(userId, databaseId);
   await db.delete(databaseSync).where(eq(databaseSync.id, row.id));
   forgetTwoWaySyncs();
+}
+
+/** createSheetsSync, which starts the history of what it makes (server/database-changes.ts asSetup). */
+export async function createSheetsSync(...args: Parameters<typeof untrackedCreateSheetsSync>) {
+  return asSetup(() => untrackedCreateSheetsSync(...args));
 }

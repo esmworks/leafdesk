@@ -40,6 +40,7 @@ import {
   requireTrashAccess,
   workspacesHeldBack,
 } from "@/server/access";
+import { recordRows } from "@/server/database-changes";
 import { recordAudit } from "@/server/audit";
 import { savedLocale } from "@/server/mail/locale";
 import type { AuditPagePlace } from "@/lib/audit";
@@ -598,6 +599,7 @@ export async function archivePage(userId: string, pageId: string) {
   await getCollab().pagesTrashed(trashed.map((t) => t.id), true);
   // One event for the page, not for each page under it.
   if (!p.archivedAt) await queuePageTrashed(p.id, userId);
+  if (!p.archivedAt && p.parentId && !p.inTemplate) await recordRows(userId, p.parentId, "rows_trashed", [{ id: p.id, title: p.title }]);
   if (!p.archivedAt && (await auditedAsPage(p))) {
     await recordAudit({
       workspaceId: p.workspaceId,
@@ -648,6 +650,9 @@ export async function archiveRows(userId: string, databaseId: string, rowIds: st
   // Twice, as in archivePage.
   const trashed = [...(await sweep()), ...(await sweep())];
   await getCollab().pagesTrashed(trashed.map((t) => t.id), true);
+  const fresh = rows.filter((r) => !r.archivedAt).map((r) => r.id);
+  const titles = fresh.length ? await db.select({ id: page.id, title: page.title }).from(page).where(inArray(page.id, fresh)) : [];
+  await recordRows(userId, databaseId, "rows_trashed", titles);
   getCollab().broadcast(`ws:${database.workspaceId}`, "tree");
   getCollab().broadcast(`db:${databaseId}`, "rows");
   thresholdRowsChanged(databaseId);
@@ -701,6 +706,9 @@ export async function restorePage(userId: string, pageId: string) {
     });
   }
   if (p.archivedAt) await queuePageTrashed(pageId, userId, true);
+  if (p.archivedAt && parentId && parentId === p.parentId && !p.inTemplate && restored.some((r) => r.id === pageId)) {
+    await recordRows(userId, parentId, "rows_restored", [{ id: p.id, title: p.title }]);
+  }
   // Back in search; the index catches up if it was left behind meanwhile (with the pages under it
   // when it was lifted to the top: their chunks name the pages above).
   pageChanged({ pageId, subtree: parentId !== p.parentId });

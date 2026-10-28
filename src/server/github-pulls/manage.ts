@@ -25,6 +25,7 @@ import { openJson, sealJson } from "@/server/secret-box";
 import { takeSyncSetup } from "@/server/sync-setup";
 import { checkGithubApi, fetchPulls, GithubPullsError, githubRepository } from "./client";
 import { applyPulls, type GithubAuth } from "./run";
+import { asSetup } from "@/server/database-changes";
 
 /**
  * Setting up, changing and stopping GitHub pull request syncs (lib/github-pulls-sync; runs in
@@ -83,7 +84,7 @@ export type GithubPullsSyncInput = {
  * Makes a database from a repository's pull requests and keeps it in step from then on. Everything
  * is checked and fetched before anything is made; a failure after that takes the database back.
  */
-export async function createGithubPullsSync(actor: WriteActor, input: GithubPullsSyncInput): Promise<ImportResult> {
+async function untrackedCreateGithubPullsSync(actor: WriteActor, input: GithubPullsSyncInput): Promise<ImportResult> {
   const { userId } = actor;
   const apiUrl = apiUrlOf(input.apiUrl);
   const token = tokenOf(input.token);
@@ -254,4 +255,9 @@ export async function updateGithubPullsSync(userId: string, databaseId: string, 
 export async function stopGithubPullsSync(userId: string, databaseId: string) {
   const row = await requireSync(userId, databaseId);
   await db.delete(databaseSync).where(eq(databaseSync.id, row.id));
+}
+
+/** createGithubPullsSync, which starts the history of what it makes (server/database-changes.ts asSetup). */
+export async function createGithubPullsSync(...args: Parameters<typeof untrackedCreateGithubPullsSync>) {
+  return asSetup(() => untrackedCreateGithubPullsSync(...args));
 }

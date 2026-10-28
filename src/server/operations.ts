@@ -54,6 +54,7 @@ import * as pages from "@/server/pages";
 import { saveWebPage as saveWebPageOp, WebClipError } from "@/server/web-clip";
 import * as propertyAccess from "@/server/property-access";
 import * as rowActivityFeed from "@/server/row-activity-feed";
+import * as databaseHistory from "@/server/database-history";
 import { mergeRows as mergeRowsOp } from "@/server/merge-rows";
 import { completeSprint as completeSprintOp } from "@/server/sprints";
 import { COMBINE, MAX_MERGE_ROWS, MERGE_TITLE, MIN_MERGE_ROWS, type MergeChoices } from "@/lib/merge-rows";
@@ -2042,6 +2043,71 @@ export async function listMeetingNotes(ctx: OperationContext, { workspace_id, qu
  * A page's saved versions, newest first, with who made each change (a user, or a user through an
  * app) and the name someone gave it (server/page-versions), when they did.
  */
+/**
+ * A database's history (server/database-history.ts), newest first, a page before `before` (the
+ * `next_before` of the page before): changes of its properties and shared views, rows put in the
+ * trash or taken out, and row value changes in groups. Each entry's id undoes it in
+ * undoDatabaseChange.
+ */
+export async function listDatabaseHistory(ctx: OperationContext, { database_id, before }: { database_id: string; before?: string }) {
+  const { entries, next } = await databaseHistory.listDatabaseHistory(ctx.userId, database_id, { before: before ?? null, limit: 30 });
+  const rows = (list: { id: string; title: string }[]) => list.map((r) => ({ id: r.id, title: pageLabel(r.title) }));
+  return {
+    database_id,
+    changes: entries.map((e) => {
+      const base = {
+        id: e.id,
+        at: e.at,
+        by: e.actor.person?.name ?? null,
+        by_user_id: e.actor.person?.id ?? null,
+        actor: e.actor.kind,
+        can_undo: e.canUndo,
+      };
+      switch (e.type) {
+        case "property":
+          return {
+            ...base,
+            change: e.kind,
+            property: e.property.name,
+            property_id: e.property.id,
+            ...(e.property.state !== "live" ? { property_now: e.property.state === "gone" ? "deleted for good" : "deleted" } : {}),
+            ...(e.fields.length ? { what_changed: e.fields } : {}),
+            ...(e.values ? { row_values_kept: e.values } : {}),
+          };
+        case "view":
+          return { ...base, change: e.kind, view: e.view.name, view_id: e.view.id, ...(e.parts.length ? { what_changed: e.parts } : {}) };
+        case "rows":
+          return { ...base, change: e.kind, rows: rows(e.rows) };
+        case "values":
+          return {
+            ...base,
+            change: e.kind === "created" ? "rows_added" : e.kind === "title" ? "rows_renamed" : "values_changed",
+            since: e.since,
+            ...(e.property ? { property: e.property.name, property_id: e.property.id } : {}),
+            row_count: e.rows,
+            some_rows: rows(e.sample),
+            ...(e.from ? { from: valueText(e.from) } : {}),
+            ...(e.to ? { to: valueText(e.to) } : {}),
+          };
+      }
+    }),
+    ...(next ? { next_before: next } : {}),
+  };
+}
+
+/** Undoes one change of a database's history (an id from listDatabaseHistory); null when the id is none. */
+export async function undoDatabaseChange(ctx: OperationContext, { change_id }: { change_id: string }) {
+  const database_id = await databaseHistory.historyEntryDatabase(change_id);
+  if (!database_id) return null;
+  const { done, skipped } = await databaseHistory.undoHistoryEntry(ctx.userId, database_id, change_id);
+  return {
+    database_id,
+    undone: change_id,
+    done,
+    ...(skipped ? { skipped, note: "Skipped rows changed again since, or that the user can't change." } : {}),
+  };
+}
+
 export async function listPageHistory(ctx: OperationContext, { page_id }: Args<"pageId">) {
   const snapshots = await pages.listSnapshots(ctx.userId, page_id);
   return {

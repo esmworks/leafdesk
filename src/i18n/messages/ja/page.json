@@ -74,6 +74,7 @@
     "rejectAllSuggestions": "すべての提案を却下",
     "rejectAllConfirm": "このページの編集の提案をすべて却下しますか？",
     "versionHistory": "バージョン履歴",
+    "databaseHistory": "データベースの履歴",
     "lastEdited": "最終編集者：{name}",
     "wordCount": "{words} 語、{characters} 文字",
     "actionFailed": "操作を完了できませんでした。",

@@ -47,6 +47,7 @@ import { placeTopLevel, TeamspaceError } from "@/server/teamspaces";
 import { setPageVerification } from "@/server/verification";
 import { createWorkspace, requireTopLevel } from "@/server/workspaces";
 import { withUniqueValues } from "@/server/unique-values";
+import { asSetup } from "@/server/database-changes";
 
 /**
  * Templates are pages flagged `isTemplate`:
@@ -571,7 +572,7 @@ export type MadeFromBuiltin = {
  * links to, so rollups come last, through them), their views and default row templates; then the
  * dashboards over them. What was made goes to the trash when a step fails.
  */
-async function createKit(
+async function untrackedCreateKit(
   actor: WriteActor,
   workspaceId: string,
   kit: BuiltinKitTemplate,
@@ -668,7 +669,7 @@ const VERIFIED_EXAMPLE_DAYS = 90;
  * dashboard. A kit makes all its pages and databases (see createKit). Goes where a new page would
  * (`parentId`, else the top level).
  */
-export async function createFromBuiltin(
+async function untrackedCreateFromBuiltin(
   actor: WriteActor,
   workspaceId: string,
   key: BuiltinTemplateKey,
@@ -800,4 +801,14 @@ export async function createWorkspaceWithBuiltin(
     console.error("[new workspace from template]", error);
     return { workspaceId, pageId: null };
   }
+}
+
+/** createFromBuiltin, which starts the history of what it makes (server/database-changes.ts asSetup). */
+export async function createFromBuiltin(...args: Parameters<typeof untrackedCreateFromBuiltin>) {
+  return asSetup(() => untrackedCreateFromBuiltin(...args));
+}
+
+/** createKit, which starts the history of what it makes (server/database-changes.ts asSetup). */
+async function createKit(...args: Parameters<typeof untrackedCreateKit>) {
+  return asSetup(() => untrackedCreateKit(...args));
 }

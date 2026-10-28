@@ -54,7 +54,7 @@ export const asApprovedProposal = <T>(proposedBy: string, fn: () => Promise<T>) 
  * start none), and still read as the agent's; nobody named is an anonymous form answer when it
  * made the row. A person's writes through a button on a page (server/buttons.ts) say so.
  */
-async function actorKindOf(actorId: string | null, anonymousForm: boolean, ai = false): Promise<RowActivityActor> {
+export async function actorKindOf(actorId: string | null, anonymousForm: boolean, ai = false): Promise<RowActivityActor> {
   if (!actorId) return anonymousForm ? "form" : "user";
   if (ai) return "ai";
   if (await isAgentUser(actorId)) return "agent";

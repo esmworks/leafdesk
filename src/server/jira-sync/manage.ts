@@ -27,6 +27,7 @@ import { openJson, sealJson } from "@/server/secret-box";
 import { takeSyncSetup } from "@/server/sync-setup";
 import { checkJiraSite, JiraError, jiraAccount, jiraProjects, searchIssues, type JiraAuth } from "./client";
 import { applyIssues, claimSync, runAndRecord, type SyncOutcome, type SyncRow } from "./run";
+import { asSetup } from "@/server/database-changes";
 
 /**
  * Setting up, changing and stopping Jira syncs (lib/jira-sync; runs in ./run). Setting one up makes
@@ -110,7 +111,7 @@ const fetchRows = async (siteUrl: string, auth: JiraAuth, q: JiraQuery) =>
  * Makes a database from what a Jira query finds and keeps it in step from then on. Everything is
  * checked and fetched before anything is made; a failure after that takes the database back.
  */
-export async function createJiraSync(actor: WriteActor, input: JiraSyncInput): Promise<ImportResult> {
+async function untrackedCreateJiraSync(actor: WriteActor, input: JiraSyncInput): Promise<ImportResult> {
   const { userId } = actor;
   const { siteUrl, auth } = credentials(input);
   const q = query(input.query);
@@ -316,3 +317,7 @@ export async function stopJiraSync(userId: string, databaseId: string) {
   await db.delete(databaseSync).where(eq(databaseSync.id, row.id));
 }
 
+/** createJiraSync, which starts the history of what it makes (server/database-changes.ts asSetup). */
+export async function createJiraSync(...args: Parameters<typeof untrackedCreateJiraSync>) {
+  return asSetup(() => untrackedCreateJiraSync(...args));
+}

@@ -74,6 +74,7 @@
     "rejectAllSuggestions": "Alle suggesties afwijzen",
     "rejectAllConfirm": "Elke voorgestelde bewerking op deze pagina afwijzen?",
     "versionHistory": "Versiegeschiedenis",
+    "databaseHistory": "Databasegeschiedenis",
     "lastEdited": "Laatst bewerkt door {name}",
     "wordCount": "{words, plural, one {# woord} other {# woorden}}, {characters, plural, one {# teken} other {# tekens}}",
     "actionFailed": "Kan dat niet afronden.",
