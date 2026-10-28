@@ -145,7 +145,7 @@ export const agentInputs = {
     workspace_id: id("workspace"),
     copy_of: id("agent")
       .optional()
-      .describe("An agent to copy: its settings, instructions, skills, helpers and, for owners, connection tools; fields given replace them. Not pages, schedules or memory."),
+      .describe("An agent to copy: its settings, skills, helpers and (owners) connection tools; fields given replace them. No pages, schedules or memory."),
     name: nameInput.optional().describe("The agent's name: its changes and comments show it. Needed without copy_of."),
     icon: iconInput.optional(),
     description: descriptionInput.optional(),
