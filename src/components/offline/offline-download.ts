@@ -46,6 +46,7 @@ import {
 } from "./offline-store";
 import { docSynced, holdDoc } from "./offline-doc";
 import { setBusy } from "./offline-status";
+import { read } from "@/components/read";
 
 /** How long the service worker may take to fetch a page's HTML. */
 const HTML_TIMEOUT_MS = 30_000;
@@ -133,10 +134,8 @@ async function downloadOne(userId: string, page: OfflinePage): Promise<Outcome> 
   text += doc.text;
   // The rows (or a row's values), read-only offline like the copies of databases opened before.
   try {
-    // Loaded here, not with the app: every page carries this module.
-    const { loadDatabaseAction, loadRowAction } = await import("@/app/actions/databases");
     if (page.kind === "database") {
-      const res = await loadDatabaseAction(page.id, { covers: false });
+      const res = await read("loadDatabase", page.id, { covers: false });
       if (!res.ok) return "gone";
       await saveSnapshot(userId, databaseSnapshotKey(page.id, false), res.data);
       const json = JSON.stringify(res.data);
@@ -146,7 +145,7 @@ async function downloadOne(userId: string, page: OfflinePage): Promise<Outcome> 
       const rows = res.data.rows.map((r) => ({ id: r.id, workspaceId: page.workspaceId, title: r.title, icon: r.icon, kind: "page" as const, row: true }));
       writeOfflineState(userId, (s) => (s.kept.some((p) => p.id === page.id && p.subpages) ? setChildren(s, page.id, rows) : s));
     } else if (page.row) {
-      const res = await loadRowAction(page.id);
+      const res = await read("loadRow", page.id);
       if (res.ok) {
         const snapshot = rowSnapshotOf(res.data);
         await saveSnapshot(userId, rowSnapshotKey(page.id), snapshot);

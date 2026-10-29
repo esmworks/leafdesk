@@ -8,7 +8,6 @@ import { approveAccessRequestAction, declineAccessRequestAction } from "@/app/ac
 import {
   archiveAction,
   archiveReadAction,
-  listInboxAction,
   markReadAction,
   markUnreadAction,
   snoozeAction,
@@ -26,6 +25,7 @@ import { formatIsoDate } from "@/lib/mentions";
 import { relativeTime } from "@/lib/relative-time";
 import { canSnooze, SNOOZE_CHOICES, snoozeUntil, type SnoozeChoice } from "@/lib/snooze";
 import type { InboxAccessRequest, InboxItem, InboxRowUpdate } from "@/server/notifications";
+import { read } from "@/components/read";
 
 /**
  * The workspace inbox: rows the user was assigned to, pages shared with them, comments, mentions,
@@ -70,7 +70,7 @@ export function InboxDialog({
     if (!open) return;
     let current = true;
     setError(false);
-    listInboxAction(workspaceId, tab).then(
+    read("inbox", workspaceId, tab).then(
       (list) => {
         if (!current) return;
         setItems(list.items);

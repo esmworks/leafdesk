@@ -8,7 +8,6 @@ import {
   addPropertyAction,
   createRowAction,
   ensureOptionAction,
-  loadRowAction,
   setPropertiesBesideAction,
   setPropertyPinnedAction,
   updatePropertyAction,
@@ -48,6 +47,7 @@ import { requestPropertyComment } from "@/lib/comments-request";
 import { copyText } from "@/components/settings/copy-button";
 import { formatUniqueId, uniqueIdPrefix } from "@/lib/unique-id";
 import { lazyPart } from "@/components/lazy-part";
+import { read } from "@/components/read";
 
 // Only URL properties set to show previews need it: kept out of the row panel's first load.
 const UrlPreview = lazyPart(() => import("./url-preview").then((m) => m.default));
@@ -112,7 +112,7 @@ export function RowProperties({
     const mine = ++seq.current;
     let unreachable = false;
     const res = await safe(
-      loadRowAction(rowId).catch((e: unknown) => {
+      read("loadRow", rowId).catch((e: unknown) => {
         unreachable = true;
         throw e;
       }),

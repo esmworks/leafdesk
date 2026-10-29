@@ -4,7 +4,6 @@ import { ArrowLeft, Check, ExternalLink, Plus, X } from "lucide-react";
 import Link from "next/link";
 import { useLocale, useTranslations } from "next-intl";
 import { Fragment, useEffect, useMemo, useRef, useState } from "react";
-import { listDatabasesAction } from "@/app/actions/databases";
 import { Button, cn, Input, PageIcon } from "@/components/ui";
 import { pageLabel } from "@/lib/labels";
 import { PropertyDisplay } from "./property-cell";
@@ -14,6 +13,7 @@ import type { RelationTargetProperty } from "@/server/databases";
 import { PeopleProvider, usePeople } from "./person-cell";
 import { linksOne, shownParts, shownPropertyIds, TITLE_FIELD } from "@/lib/relation-options";
 import { searchFold } from "@/lib/search-fold";
+import { read } from "@/components/read";
 
 /**
  * Read-only list of linked rows (table cells, cards, panels): each row's title with the properties
@@ -313,7 +313,7 @@ export function RelationSetup({
   useEffect(() => {
     if (!workspaceId) return;
     let live = true;
-    void listDatabasesAction(workspaceId).then((res) => {
+    void read("listDatabases", workspaceId).then((res) => {
       if (!live) return;
       if (res.ok) {
         const label = (title: string) => pageLabel(title, untitled);

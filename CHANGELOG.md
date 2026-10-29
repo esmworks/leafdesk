@@ -88,9 +88,10 @@
   page's editor appears the same way on the first page opened.
 - **Opening a page no longer holds up what you click next.** What a page, the sidebar and the
   search box load on their own (backlinks, related pages, review, counters, recent pages, search
-  results, a database's rows) went out one request at a time, in line with everything else, so
-  the inbox, the search box or a value you changed waited behind them, longer the farther the
-  server. They now load side by side, and a search typed further cancels the one before.
+  results, the inbox, a database's rows, an open row's values, the pages kept for offline use)
+  went out one request at a time, in line with everything else, so what you clicked or a value
+  you changed waited behind them, longer the farther the server. They now load side by side, and
+  a search typed further cancels the one before.
 - **No "Loading…" flash between pages.** A page's body that arrives within 400 ms goes straight
   from blank to its content.
 - **A scheduled run's report opens in the agent's chat.** Opening it from the inbox, a push

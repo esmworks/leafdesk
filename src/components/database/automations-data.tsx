@@ -1,8 +1,8 @@
 "use client";
 
 import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState, type ReactNode } from "react";
-import { listDatabasesAction, loadDatabaseAction } from "@/app/actions/databases";
 import type { PersonRef, Property, RelationTarget } from "./types";
+import { read } from "@/components/read";
 
 /**
  * The databases the automations dialog works with: the workspace's list (for steps that find,
@@ -46,7 +46,7 @@ export function DatabasesProvider({ workspaceId, children }: { workspaceId: stri
 
   useEffect(() => {
     let live = true;
-    listDatabasesAction(workspaceId)
+    read("listDatabases", workspaceId)
       .then((res) => live && setList(res.ok ? res.data : []))
       .catch(() => live && setList([]));
     return () => {
@@ -55,7 +55,7 @@ export function DatabasesProvider({ workspaceId, children }: { workspaceId: stri
   }, [workspaceId]);
 
   const fetchInfo = useCallback((id: string) => {
-    loadDatabaseAction(id)
+    read("loadDatabase", id)
       .then((res) =>
         setInfos((all) => ({
           ...all,

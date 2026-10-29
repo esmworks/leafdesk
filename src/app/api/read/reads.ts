@@ -1,7 +1,7 @@
 import { sidebarAgentsAction } from "@/app/actions/agents";
-import { loadDatabaseAction } from "@/app/actions/databases";
+import { listDatabasesAction, loadDatabaseAction, loadRowAction } from "@/app/actions/databases";
 import { backlinksAction, unlinkedMentionsAction } from "@/app/actions/mentions";
-import { unreadCountAction } from "@/app/actions/notifications";
+import { listInboxAction, unreadCountAction } from "@/app/actions/notifications";
 import { recordPageViewAction } from "@/app/actions/page-views";
 import { getPageReviewAction, listTrashAction, recentSearchAction, searchAction, searchFilterOptionsAction } from "@/app/actions/pages";
 import { relatedPagesAction } from "@/app/actions/related-pages";
@@ -33,7 +33,10 @@ export const READS = {
   tagSuggestions: tagSuggestionsAction,
   settingsSearch: settingsSearchAction,
   trash: listTrashAction,
+  inbox: listInboxAction,
   loadDatabase: loadDatabaseAction,
+  loadRow: loadRowAction,
+  listDatabases: listDatabasesAction,
 };
 
 export type Reads = typeof READS;

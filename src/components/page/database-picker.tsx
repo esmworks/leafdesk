@@ -3,9 +3,9 @@
 import { Search } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { useEffect, useMemo, useState } from "react";
-import { listDatabasesAction } from "@/app/actions/databases";
 import { cn, Dialog, PageIcon, pageLabel } from "@/components/ui";
 import { searchFold } from "@/lib/search-fold";
+import { read } from "@/components/read";
 
 /**
  * Picks a database of the workspace the user can see: what a new linked view or dashboard widget
@@ -33,7 +33,7 @@ export function DatabasePicker({
     setQuery("");
     setFailed(false);
     setDatabases(null);
-    listDatabasesAction(workspaceId)
+    read("listDatabases", workspaceId)
       .then((res) => {
         if (res.ok) setDatabases(res.data);
         else setFailed(true);
