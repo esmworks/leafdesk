@@ -1,4 +1,4 @@
-import { addressQueries, liesWithin } from "@/lib/address-query";
+import { addressQueries, isNamedPlace, matches } from "@/lib/address-query";
 import { env } from "@/lib/env";
 import { formatCoordinates, MAX_PLACE_ADDRESS, MAX_PLACE_NAME, type PlaceValue } from "@/lib/place";
 import { APP_INFO } from "./app-info";
@@ -187,17 +187,20 @@ export function createGeocoder(options: GeocoderOptions): Geocoder {
       // One search for the person, however many spellings of it the service is asked.
       countSearch(userId);
       const tries = addressQueries(q, MAX_TRIES);
-      for (const [i, { query: spelling, within }] of tries.entries()) {
+      for (const [i, tried] of tries.entries()) {
         let found: PlaceValue[];
         try {
-          found = await ask(spelling, lang, count);
+          // A few answers even for one place wanted, as some may not be what was asked for.
+          found = await ask(tried.query, lang, Math.max(count, 5));
         } catch (error) {
           // The address as typed has its answer or its error; a simpler spelling that couldn't
           // be asked leaves the search with nothing, unremembered, so it is tried again later.
           if (i === 0) throw error;
           return [];
         }
-        const results = found.filter((place) => liesWithin(place.address, within));
+        const fitting = found.filter((place) => matches(place.address, tried));
+        // For a simpler spelling, the street or neighbourhood itself before what lies in it.
+        const results = (i === 0 ? fitting : [...fitting.filter((place) => isNamedPlace(place.address, tried.query)), ...fitting.filter((place) => !isNamedPlace(place.address, tried.query))]).slice(0, count);
         if (results.length) {
           remember(key, results);
           return results;

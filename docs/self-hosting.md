@@ -248,8 +248,11 @@ A *place* property holds where something is: an address, an optional name and it
 longitude. In its cell you type an address or a place's name and pick one of the suggestions, or
 paste coordinates (`41.04, 29.01`, also `geo:` links). An address the search service doesn't know
 as written (abbreviations like "Mah." and "Cad.", door, block and flat numbers, postcodes,
-"Akhisar/Manisa") is searched again in simpler spellings, down to its neighbourhood and then its
-district, keeping only places in the district and province it names. The cell shows the name or address with a
+"Akhisar/Manisa", "Buca – Zafer Mah. …", notes in brackets) is searched again in simpler
+spellings, down to its street, its neighbourhood and then its district. A place found that way
+must lie in the district and province the address names and carry its street's or
+neighbourhood's name, so a street missing from the map gives its neighbourhood rather than
+another street. The cell shows the name or address with a
 link that opens the spot on OpenStreetMap. Filters take "contains", "does not contain", "is empty"
 and "is not empty" on the address; sorting, CSV export and formulas read the address. MCP, the
 REST API, the AI chat, agents, automations, imports and pastes may write an address (the server

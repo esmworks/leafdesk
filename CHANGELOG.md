@@ -2,6 +2,16 @@
 
 ## Unreleased
 
+### Fixed
+
+- **Places find addresses with the district written first and a letter after the door number.**
+  Since 0.6.7 an address such as "Buca – Zafer Mah. 2316 Sk. No: 64 A, İzmir" still found
+  nothing: the letter after the door number, or a word such as "Kapı", was taken for the district,
+  and a district written first was left out of the search. Notes in brackets, door numbers without
+  "No" and directions such as "Cezaevi Karşısı" are now left out too, and a place found must carry
+  the name of the street or neighbourhood searched for, so a street missing from the map gives its
+  neighbourhood instead of another street with a similar number.
+
 ## 0.6.7 — 2026-10-29
 
 ### Upgrading from 0.6.6

@@ -118,6 +118,24 @@ describe("geocoder", () => {
     expect(seen).toHaveLength(5);
   });
 
+  it("passes over another number's street and puts the place asked for before what lies in it", async () => {
+    const OTHER_STREET = { lat: "38.37", lon: "27.17", display_name: "245. Sokak, Kozağaç Mahallesi, Buca, İzmir, Türkiye" };
+    const SCHOOL = { lat: "38.376", lon: "27.171", display_name: "Kozağaç Ortaokulu, 250. Sokak, Kozağaç Mahallesi, Buca, İzmir, Türkiye" };
+    const KOZAGAC = { lat: "38.375", lon: "27.172", display_name: "Kozağaç Mahallesi, Buca, İzmir, Türkiye", name: "Kozağaç Mahallesi" };
+    answer = (url) => {
+      const q = url.searchParams.get("q") ?? "";
+      if (q === "100 Sokak, Buca, İzmir") return { status: 200, body: JSON.stringify([OTHER_STREET]) };
+      if (q === "Kozağaç Mahallesi, Buca, İzmir") return { status: 200, body: JSON.stringify([SCHOOL, KOZAGAC]) };
+      return { status: 200, body: "[]" };
+    };
+    seen.length = 0;
+    const geocoder = createGeocoder({ url: base, trusted: true, intervalMs: 0 });
+    const [place] = await geocoder.search("Buca – Kozağaç Mah. 100. Sokak No:1, İzmir", { limit: 1 });
+    expect(place).toEqual({ address: "Kozağaç Mahallesi, Buca, İzmir, Türkiye", name: "Kozağaç Mahallesi", lat: 38.375, lng: 27.172 });
+    // Even for one place, each spelling asks for a few, as the first may not be the one.
+    expect(seen.map((s) => new URL(s.url, "http://x").searchParams.get("limit"))).toEqual(["5", "5", "5", "5"]);
+  });
+
   it("finds the address at a point, keeping the point itself", async () => {
     answer = (url) =>
       url.pathname === "/reverse" && url.searchParams.get("lat") === "38.418900"
