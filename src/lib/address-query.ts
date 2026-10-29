@@ -90,7 +90,12 @@ function cleanWords(text: string): string[][] {
     // A door number with no label right after a street ("Ankara Cad. 359/K").
     const previous = parts[parts.length - 2];
     if (!current().length && previous && isStreet(previous[previous.length - 1]) && isNumberish(bare) && !numbersStreet) continue;
-    const added = (WORDS[bare] ?? (dotted ? DOTTED[bare] : undefined) ?? raw.replace(/[.,]+$/, "")).split(" ");
+    // "İkitelli OSB Mah.": the map data names such neighbourhoods "İkitelli OSB Mahallesi".
+    const osbNeighbourhood = bare === "osb" && !!next && WORDS[bareOf(next)] === "Mahallesi";
+    const added = osbNeighbourhood ? ["OSB"] : (WORDS[bare] ?? (dotted ? DOTTED[bare] : undefined) ?? raw.replace(/[.,]+$/, "")).split(" ");
+    // A word for a kind of place right after another ("Organize Sanayi Bölgesi Mah.") belongs to
+    // that part: on its own it names no place, and would match any neighbourhood in the area.
+    if (!current().length && parts.length > 1 && added.every((word) => PART_ENDS.has(lower(word)))) parts.pop();
     current().push(...added);
     if (PART_ENDS.has(lower(added[added.length - 1])) && i < words.length - 1) parts.push([]);
   }

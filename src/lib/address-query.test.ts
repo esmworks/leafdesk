@@ -58,6 +58,20 @@ describe("address queries", () => {
     expect(queries("Atatürk OSB 10003 Sk. No:12 Çiğli/İzmir")[1]).toBe("Atatürk Organize Sanayi Bölgesi, 10003 Sokak, Çiğli, İzmir");
   });
 
+  it("never searches a word for a kind of place on its own, as in an industrial zone's neighbourhood", () => {
+    expect(addressQueries("Kemalpaşa – Kemalpaşa OSB Mah. 9. Sok. No:9, İzmir")[3]).toEqual({
+      query: "Kemalpaşa OSB Mahallesi, Kemalpaşa, İzmir",
+      within: ["Kemalpaşa", "İzmir"],
+      names: ["kemalpasa", "osb"],
+    });
+    expect(queries("Pancar Organize Sanayi Bölgesi Mah. 5. Cad. No:1 Torbalı / İzmir").slice(1)).toEqual([
+      "Pancar Organize Sanayi Bölgesi Mahallesi, 5 Caddesi, Torbalı, İzmir",
+      "5 Caddesi, Torbalı, İzmir",
+      "Pancar Organize Sanayi Bölgesi Mahallesi, Torbalı, İzmir",
+      "Torbalı, İzmir",
+    ]);
+  });
+
   it("joins a neighbourhood's words, leaves names alone and stops at the limit with the area last", () => {
     expect(queries("Hacı İshak, Akhisar, Manisa")).toEqual(["Hacı İshak, Akhisar, Manisa", "Hacıishak, Akhisar, Manisa", "Akhisar, Manisa"]);
     expect(addressQueries("Moda Kadıköy")).toEqual([{ query: "Moda Kadıköy", within: [], names: [] }]);
