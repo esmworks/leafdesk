@@ -81,6 +81,9 @@
 
 ### Fixed
 
+- **A scheduled run's report opens in the agent's chat.** Opening it from the inbox, a push
+  notification or the MCP server's `list_notifications` leads to the agent's own page, scrolled to
+  that run and marked for a moment, instead of the run in Settings.
 - **Menus and cards opened near the window's edge stay on screen.** A right click on a page in the
   sidebar near the bottom of the window opens its menu upward, and right to left toward the left;
   the page's `⋯` menu lines up with its button inside the sidebar. A date mention's card, the

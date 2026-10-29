@@ -1,6 +1,7 @@
 // Client-safe: shared by the agents' server side (src/server/agents), the settings and the
 // automation editor.
 
+import { agentPagePath } from "./agent-page";
 import type { AgentShareLevel } from "./agent-sharing";
 import type { ChatStepRecord, MemoryStatus } from "@/db/schema/ai";
 import type { RepeatRule, ScheduleError } from "./schedule";
@@ -68,6 +69,8 @@ export const MAX_AGENT_PROPOSALS = 10;
 export const agentMemoryPath = (workspaceId: string, agentId: string) => `/w/${workspaceId}/settings?tab=agents&agent=${agentId}&agentTab=memory`;
 /** Where one of an agent's runs opens in Settings (its Runs tab), for its owners. */
 export const agentRunPath = (workspaceId: string, agentId: string, runId: string) => `/w/${workspaceId}/settings?tab=agents&agent=${agentId}&run=${runId}`;
+/** Where a scheduled run's report opens, for the person who set the schedule: the agent's own chat, at that run. */
+export const agentReportPath = (workspaceId: string, agentId: string, runId: string) => `${agentPagePath(workspaceId, agentId)}?run=${runId}`;
 /** Finished runs are kept this long, as the agent's history. */
 export const AGENT_RUN_HISTORY_DAYS = 30;
 

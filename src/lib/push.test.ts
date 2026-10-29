@@ -192,12 +192,12 @@ describe("pushPayload", () => {
     expect(pushPayload(item({ kind: "agent_memory", pageId: null, memory: null }), t, date)).toBeNull();
   });
 
-  it("leads a scheduled run's report to the run, without what it says", () => {
+  it("leads a scheduled run's report to the run in the agent's chat, without what it says", () => {
     const report = { agentId: "a1", runId: "r1", agentName: "Board keeper", status: "done" };
     expect(pushPayload(item({ kind: "agent_report", pageId: null, pageTitle: null, report }), t, date)).toEqual({
       title: "Board keeper reports",
       body: "Finished its scheduled run",
-      url: "/w/ws1/settings?tab=agents&agent=a1&run=r1",
+      url: "/w/ws1/agents/a1?run=r1",
       tag: "n1",
       read: "Mark as read",
       snooze: "Snooze 1 hour",

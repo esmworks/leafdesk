@@ -163,7 +163,7 @@ import { MAX_MEMORIES, MAX_MEMORY_CHARS } from "@/lib/ai-chat";
 import {
   AGENT_RUN_HISTORY_DAYS,
   agentMemoryPath,
-  agentRunPath,
+  agentReportPath,
   MAX_AGENT_SCHEDULES,
   MAX_AGENT_SKILLS,
   MAX_AGENT_WRITES,
@@ -1471,7 +1471,7 @@ export function createMcpServer(principal: McpPrincipal, options: { actor?: Writ
                 ...(r ? { agent_id: r.agentId, run_id: r.runId } : {}),
                 workspace_id: n.workspaceId,
                 workspace_name: n.workspaceName,
-                url: r ? `${env.appUrl}${agentRunPath(n.workspaceId, r.agentId, r.runId)}` : `${env.appUrl}/w/${n.workspaceId}/settings?tab=agents`,
+                url: r ? `${env.appUrl}${agentReportPath(n.workspaceId, r.agentId, r.runId)}` : `${env.appUrl}/w/${n.workspaceId}/settings?tab=agents`,
               };
             }
             // Changes waiting for review: list_pending_changes shows them.

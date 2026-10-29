@@ -14,7 +14,15 @@ const AgentChat = dynamic(() => import("@/components/agent-chat/agent-chat").the
 });
 
 /** An agent's own page, which the sidebar opens: who it is, then a chat with it. Its settings stay in the dialog. */
-export function AgentPage({ workspaceId, agent }: { workspaceId: string; agent: { id: string; name: string; icon: string | null; description: string } }) {
+export function AgentPage({
+  workspaceId,
+  agent,
+  focusRun,
+}: {
+  workspaceId: string;
+  agent: { id: string; name: string; icon: string | null; description: string };
+  focusRun: string | null;
+}) {
   const t = useTranslations("settings.agents");
   return (
     <div className="mx-auto flex min-h-full max-w-3xl flex-col px-4 pt-14 md:px-6 md:pt-12">
@@ -30,7 +38,7 @@ export function AgentPage({ workspaceId, agent }: { workspaceId: string; agent: 
           <Settings2 className="h-4 w-4" /> {t("tabs.settings")}
         </Link>
       </header>
-      <AgentChat workspaceId={workspaceId} agentId={agent.id} place={null} variant="page" />
+      <AgentChat workspaceId={workspaceId} agentId={agent.id} place={null} variant="page" focusRun={focusRun} />
     </div>
   );
 }

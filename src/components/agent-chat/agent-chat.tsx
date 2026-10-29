@@ -47,7 +47,20 @@ const RUNS_BUSY_MS = 3_000;
 const RUNS_IDLE_MS = 30_000;
 const runGoesOn = (r: AgentChatRunView) => r.status === "pending" || r.status === "running" || r.status === "awaiting_approval";
 
-export function AgentChat({ workspaceId, agentId, place, variant }: { workspaceId: string; agentId: string; place: ChatPlace; variant: "page" | "dialog" | "block" }) {
+export function AgentChat({
+  workspaceId,
+  agentId,
+  place,
+  variant,
+  focusRun = null,
+}: {
+  workspaceId: string;
+  agentId: string;
+  place: ChatPlace;
+  variant: "page" | "dialog" | "block";
+  /** One of the agent's own chat's runs to bring into view once it loads, instead of the end (a report opened from the inbox). */
+  focusRun?: string | null;
+}) {
   const t = useTranslations("page.agentChat");
   const tc = useTranslations("common");
   const router = useRouter();
@@ -191,10 +204,33 @@ export function AgentChat({ workspaceId, agentId, place, variant }: { workspaceI
     return () => clearTimeout(timer);
   }, [thread, hasAgent, refreshRuns]);
 
+  // The run to bring into view (marked for a moment): kept there while the chat loads, again too,
+  // until something new comes in (a message, a run under way, another run). `runs`: how many runs
+  // there were when it came into view.
+  const focusRef = useRef<{ id: string; runs: number | null } | null>(focusRun ? { id: focusRun, runs: null } : null);
+  const [focused, setFocused] = useState<string | null>(null);
+  useEffect(() => {
+    if (!focused) return;
+    const timer = setTimeout(() => setFocused(null), 2_500);
+    return () => clearTimeout(timer);
+  }, [focused]);
+
   // Follows the conversation as it grows.
   useEffect(() => {
     const el = listRef.current;
     if (!el) return;
+    const focus = focusRef.current;
+    if (focus && (messages.length > 0 || runs.length > 0)) {
+      // One of the latest runs only (THREAD_RUNS); an older one leaves the chat at its end.
+      const item = el.querySelector<HTMLElement>(`[data-run-id="${CSS.escape(focus.id)}"]`);
+      if (item && !running && (focus.runs === null || focus.runs === runs.length)) {
+        if (focus.runs === null) setFocused(focus.id);
+        focus.runs = runs.length;
+        item.scrollIntoView({ block: "start" });
+        return;
+      }
+      focusRef.current = null;
+    }
     // The page's list grows with the window's scroll (its scroll margin keeps it above the box);
     // the others scroll on their own.
     if (variant === "page") el.scrollIntoView({ block: "end" });
@@ -340,7 +376,11 @@ export function AgentChat({ workspaceId, agentId, place, variant }: { workspaceI
                   <DayLabel at={item.at} />
                 </li>
               ) : item.run ? (
-                <li key={`run-${item.run.id}`}>
+                <li
+                  key={`run-${item.run.id}`}
+                  data-run-id={item.run.id}
+                  className={cn("-mx-2 -my-1 scroll-mt-20 rounded-lg px-2 py-1 transition-colors duration-700", focused === item.run.id && "bg-bg-hover")}
+                >
                   <RunMessage workspaceId={workspaceId} run={item.run} connections={connections} onOpen={openPage} onAnswered={() => void refreshRuns()} />
                 </li>
               ) : (

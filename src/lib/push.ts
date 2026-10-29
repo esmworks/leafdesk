@@ -3,7 +3,7 @@
  * subscription, and what a push message says about a notification (see server/push.ts).
  */
 
-import { agentMemoryPath, agentRunPath } from "./agents";
+import { agentMemoryPath, agentReportPath } from "./agents";
 import { commentHash } from "./comments";
 import { rowEmailHash } from "./mail";
 import { reviewPath } from "./pending-changes";
@@ -158,7 +158,7 @@ export function pushLink(item: PushItem): string {
     return `/w/${item.workspaceId}/settings?tab=agents${item.approval ? `&agent=${item.approval.agentId}&run=${item.approval.runId}` : ""}`;
   }
   if (item.kind === "agent_memory") return item.memory ? agentMemoryPath(item.workspaceId, item.memory.agentId) : `/w/${item.workspaceId}/settings?tab=agents`;
-  if (item.kind === "agent_report") return item.report ? agentRunPath(item.workspaceId, item.report.agentId, item.report.runId) : `/w/${item.workspaceId}/settings?tab=agents`;
+  if (item.kind === "agent_report") return item.report ? agentReportPath(item.workspaceId, item.report.agentId, item.report.runId) : `/w/${item.workspaceId}/settings?tab=agents`;
   if (item.kind === "review") return reviewPath(item.workspaceId);
   // The workspace's AI account is chosen in Settings > General.
   if (item.kind === "ai_account_detached") return `/w/${item.workspaceId}/settings`;

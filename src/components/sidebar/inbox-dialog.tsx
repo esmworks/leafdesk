@@ -181,8 +181,8 @@ export function InboxDialog({
           onClick={() => {
             if (!item.read) void markRead([item.id]);
             onClose();
-            // Join requests are decided in Settings > Members; an agent's call (or a scheduled
-            // run's report) opens its run, its proposed notes its memory.
+            // Join requests are decided in Settings > Members; an agent's call opens its run, its
+            // proposed notes its memory, a scheduled run's report that run in the agent's chat.
             router.push(pushLink({ ...item, workspaceId }));
           }}
         >
