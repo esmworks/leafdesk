@@ -307,7 +307,7 @@
   - Views: table, board, calendar, gallery, list, feed (rows as posts, newest first, with the
     start of their bodies, emoji reactions and their comments), timeline (a column per day, week,
     month, quarter or year), map (rows as pins at a place
-    property), chart, pivot (see below) and dashboard (widgets over the database, see Dashboards), each with its own filters,
+    property; press and hold or right-click a spot to pick among its pins or put a row without a place there), chart, pivot (see below) and dashboard (widgets over the database, see Dashboards), each with its own filters,
     sorting, grouping and shown properties (one by one, or all hidden or shown at once). The *View
     settings* menu beside the toolbar holds all of a view's settings in one place: its layout
     (a table, board, calendar, gallery, list, feed, timeline or map switches to any of the others,

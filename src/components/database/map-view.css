@@ -6,6 +6,8 @@
   font: inherit;
   font-size: 0.75rem;
   color: var(--fg);
+  /* A long touch opens the spot menu, not the browser's own for the map's images. */
+  -webkit-touch-callout: none;
 }
 
 /* Dark themes dim the map's light images so it doesn't glare: inverted, with hues turned back. */

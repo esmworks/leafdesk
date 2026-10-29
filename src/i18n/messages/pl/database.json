@@ -1965,7 +1965,15 @@
     "zoomIn": "Powiększ",
     "zoomOut": "Pomniejsz",
     "fit": "Pokaż wszystkie wiersze",
-    "loading": "Ładowanie mapy…"
+    "loading": "Ładowanie mapy…",
+    "spotMenu": "To miejsce na mapie",
+    "atSpot": "W tym miejscu",
+    "placeTitle": "Umieść tutaj wiersz bez {property}",
+    "placeSearch": "Znajdź wiersz…",
+    "placeNone": "Brak pasujących wierszy",
+    "placeMore": "{count, plural, one {jeszcze # wiersz} few {jeszcze # wiersze} many {jeszcze # wierszy} other {jeszcze # wiersza}}: pisz, aby zawęzić",
+    "findingAddress": "Szukanie adresu…",
+    "placeHint": "Aby umieścić wiersz na mapie, przytrzymaj (lub kliknij prawym przyciskiem) jego miejsce."
   },
   "colorRules": {
     "title": "Reguły kolorów",

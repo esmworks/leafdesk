@@ -1965,7 +1965,15 @@
     "zoomIn": "התקרבות",
     "zoomOut": "התרחקות",
     "fit": "הצגת כל השורות",
-    "loading": "טוען מפה…"
+    "loading": "טוען מפה…",
+    "spotMenu": "הנקודה הזו במפה",
+    "atSpot": "בנקודה הזו",
+    "placeTitle": "הצבת שורה ללא {property} כאן",
+    "placeSearch": "חיפוש שורה…",
+    "placeNone": "אין שורות תואמות",
+    "placeMore": "{count, plural, one {עוד שורה אחת} other {עוד # שורות}}: הקלידו כדי לצמצם",
+    "findingAddress": "מחפש את הכתובת…",
+    "placeHint": "כדי להציב שורה במפה, לחצו לחיצה ארוכה (או לחיצה ימנית) על מקומה."
   },
   "colorRules": {
     "title": "כללי צבע",

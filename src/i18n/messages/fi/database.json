@@ -1965,7 +1965,15 @@
     "zoomIn": "Lähennä",
     "zoomOut": "Loitonna",
     "fit": "Näytä kaikki rivit",
-    "loading": "Ladataan karttaa…"
+    "loading": "Ladataan karttaa…",
+    "spotMenu": "Tämä kohta kartalla",
+    "atSpot": "Tässä kohdassa",
+    "placeTitle": "Sijoita tähän rivi, jolta puuttuu {property}",
+    "placeSearch": "Etsi rivi…",
+    "placeNone": "Ei vastaavia rivejä",
+    "placeMore": "{count, plural, one {# rivi lisää} other {# riviä lisää}}: rajaa kirjoittamalla",
+    "findingAddress": "Haetaan osoitetta…",
+    "placeHint": "Sijoita rivi kartalle painamalla sen kohtaa pitkään (tai napsauttamalla hiiren oikealla)."
   },
   "colorRules": {
     "title": "Värisäännöt",

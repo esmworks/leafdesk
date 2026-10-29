@@ -1965,7 +1965,15 @@
     "zoomIn": "Phóng to",
     "zoomOut": "Thu nhỏ",
     "fit": "Hiện tất cả các hàng",
-    "loading": "Đang tải bản đồ…"
+    "loading": "Đang tải bản đồ…",
+    "spotMenu": "Điểm này trên bản đồ",
+    "atSpot": "Tại điểm này",
+    "placeTitle": "Đặt một hàng chưa có {property} vào đây",
+    "placeSearch": "Tìm hàng…",
+    "placeNone": "Không có hàng phù hợp",
+    "placeMore": "{count, plural, other {Còn # hàng nữa}}: nhập để thu hẹp",
+    "findingAddress": "Đang tìm địa chỉ…",
+    "placeHint": "Để đặt hàng lên bản đồ, nhấn giữ (hoặc nhấp chuột phải) tại vị trí của nó."
   },
   "colorRules": {
     "title": "Quy tắc màu",

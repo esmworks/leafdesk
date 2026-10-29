@@ -1965,7 +1965,15 @@
     "zoomIn": "Zoom in",
     "zoomOut": "Zoom out",
     "fit": "Show all rows",
-    "loading": "Loading map…"
+    "loading": "Loading map…",
+    "spotMenu": "This spot on the map",
+    "atSpot": "At this spot",
+    "placeTitle": "Put a row without {property} here",
+    "placeSearch": "Find a row…",
+    "placeNone": "No matching rows",
+    "placeMore": "{count, plural, one {# more row} other {# more rows}}: type to narrow them down",
+    "findingAddress": "Finding the address…",
+    "placeHint": "To put one on the map, press and hold (or right-click) where it is."
   },
   "colorRules": {
     "title": "Color rules",

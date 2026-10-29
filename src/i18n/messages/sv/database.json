@@ -1965,7 +1965,15 @@
     "zoomIn": "Zooma in",
     "zoomOut": "Zooma ut",
     "fit": "Visa alla rader",
-    "loading": "Läser in kartan…"
+    "loading": "Läser in kartan…",
+    "spotMenu": "Den här platsen på kartan",
+    "atSpot": "På den här platsen",
+    "placeTitle": "Placera en rad utan {property} här",
+    "placeSearch": "Hitta en rad…",
+    "placeNone": "Inga matchande rader",
+    "placeMore": "{count, plural, one {# rad till} other {# rader till}}: skriv för att begränsa",
+    "findingAddress": "Söker adressen…",
+    "placeHint": "Håll ned (eller högerklicka) där den ligger för att placera den på kartan."
   },
   "colorRules": {
     "title": "Färgregler",

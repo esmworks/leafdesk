@@ -1965,7 +1965,15 @@
     "zoomIn": "Zoom avant",
     "zoomOut": "Zoom arrière",
     "fit": "Afficher toutes les lignes",
-    "loading": "Chargement de la carte…"
+    "loading": "Chargement de la carte…",
+    "spotMenu": "Cet endroit de la carte",
+    "atSpot": "À cet endroit",
+    "placeTitle": "Placer ici une ligne sans {property}",
+    "placeSearch": "Trouver une ligne…",
+    "placeNone": "Aucune ligne correspondante",
+    "placeMore": "{count, plural, one {# autre ligne} other {# autres lignes}} : tapez pour affiner",
+    "findingAddress": "Recherche de l’adresse…",
+    "placeHint": "Pour en placer une sur la carte, maintenez appuyé (ou faites un clic droit) à son emplacement."
   },
   "colorRules": {
     "title": "Règles de couleur",

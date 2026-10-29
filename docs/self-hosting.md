@@ -259,7 +259,11 @@ places.
 A *map* view puts each row with a place as a pin, fitted to the pins and following the view's
 filters; *Pin color* in the layout settings colors pins by a select or status property. Clicking a
 pin shows the row's title and shown properties, and opens the row. Rows without a place are listed
-under the map. Published pages show map views as tables.
+under the map. Pressing and holding a spot (right-clicking with a mouse, or the menu key on the
+keyboard) opens a menu there: the pins at that spot, to pick one from a crowd, and the rows without
+a place, to put one there; the server asks the search service for the spot's address (a reverse
+lookup, counted like a search), and without one the place keeps the spot's coordinates. Published
+pages show map views as tables.
 
 | Variable | Purpose |
 | --- | --- |

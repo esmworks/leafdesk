@@ -1965,7 +1965,15 @@
     "zoomIn": "Vergrößern",
     "zoomOut": "Verkleinern",
     "fit": "Alle Zeilen zeigen",
-    "loading": "Karte wird geladen…"
+    "loading": "Karte wird geladen…",
+    "spotMenu": "Diese Stelle auf der Karte",
+    "atSpot": "An dieser Stelle",
+    "placeTitle": "Eine Zeile ohne {property} hierhin setzen",
+    "placeSearch": "Zeile suchen…",
+    "placeNone": "Keine passenden Zeilen",
+    "placeMore": "{count, plural, one {# weitere Zeile} other {# weitere Zeilen}}: zum Eingrenzen tippen",
+    "findingAddress": "Adresse wird gesucht…",
+    "placeHint": "Um eine auf die Karte zu setzen, halten Sie die Stelle gedrückt (oder klicken Sie mit der rechten Maustaste)."
   },
   "colorRules": {
     "title": "Farbregeln",

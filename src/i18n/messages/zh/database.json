@@ -1965,7 +1965,15 @@
     "zoomIn": "放大",
     "zoomOut": "缩小",
     "fit": "显示所有行",
-    "loading": "正在加载地图…"
+    "loading": "正在加载地图…",
+    "spotMenu": "地图上的这个位置",
+    "atSpot": "在此位置",
+    "placeTitle": "将没有{property}的行放到这里",
+    "placeSearch": "查找行…",
+    "placeNone": "没有匹配的行",
+    "placeMore": "{count, plural, other {还有 # 行}}：输入以缩小范围",
+    "findingAddress": "正在查找地址…",
+    "placeHint": "要放到地图上，请在其位置长按（或右键单击）。"
   },
   "colorRules": {
     "title": "颜色规则",

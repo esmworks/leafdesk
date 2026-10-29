@@ -1965,7 +1965,15 @@
     "zoomIn": "확대",
     "zoomOut": "축소",
     "fit": "모든 행 보기",
-    "loading": "지도 불러오는 중…"
+    "loading": "지도 불러오는 중…",
+    "spotMenu": "지도의 이 지점",
+    "atSpot": "이 지점",
+    "placeTitle": "{property} 값이 없는 행을 여기에 두기",
+    "placeSearch": "행 찾기…",
+    "placeNone": "일치하는 행이 없습니다",
+    "placeMore": "{count, plural, other {# 개 행 더 있음}}: 입력해 좁히기",
+    "findingAddress": "주소를 찾는 중…",
+    "placeHint": "지도에 두려면 해당 위치를 길게 누르거나 마우스 오른쪽 버튼으로 클릭하세요."
   },
   "colorRules": {
     "title": "색상 규칙",

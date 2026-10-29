@@ -1965,7 +1965,15 @@
     "zoomIn": "Ingrandisci",
     "zoomOut": "Riduci",
     "fit": "Mostra tutte le righe",
-    "loading": "Caricamento della mappa…"
+    "loading": "Caricamento della mappa…",
+    "spotMenu": "Questo punto della mappa",
+    "atSpot": "In questo punto",
+    "placeTitle": "Metti qui una riga senza {property}",
+    "placeSearch": "Trova una riga…",
+    "placeNone": "Nessuna riga corrispondente",
+    "placeMore": "{count, plural, one {# altra riga} other {altre # righe}}: digita per restringere",
+    "findingAddress": "Ricerca dell’indirizzo…",
+    "placeHint": "Per metterla sulla mappa, tieni premuto (o fai clic destro) dove si trova."
   },
   "colorRules": {
     "title": "Regole di colore",

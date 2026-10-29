@@ -1965,7 +1965,15 @@
     "zoomIn": "Yakınlaştır",
     "zoomOut": "Uzaklaştır",
     "fit": "Tüm satırları göster",
-    "loading": "Harita yükleniyor…"
+    "loading": "Harita yükleniyor…",
+    "spotMenu": "Haritada bu nokta",
+    "atSpot": "Bu noktada",
+    "placeTitle": "{property} değeri olmayan bir satırı buraya koy",
+    "placeSearch": "Satır bul…",
+    "placeNone": "Eşleşen satır yok",
+    "placeMore": "{count, plural, one {# satır daha} other {# satır daha}}: daraltmak için yazın",
+    "findingAddress": "Adres bulunuyor…",
+    "placeHint": "Haritaya koymak için yerini basılı tutun (ya da sağ tıklayın)."
   },
   "colorRules": {
     "title": "Renk kuralları",

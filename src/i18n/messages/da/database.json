@@ -1965,7 +1965,15 @@
     "zoomIn": "Zoom ind",
     "zoomOut": "Zoom ud",
     "fit": "Vis alle rækker",
-    "loading": "Indlæser kort…"
+    "loading": "Indlæser kort…",
+    "spotMenu": "Dette sted på kortet",
+    "atSpot": "På dette sted",
+    "placeTitle": "Sæt en række uden {property} her",
+    "placeSearch": "Find en række…",
+    "placeNone": "Ingen matchende rækker",
+    "placeMore": "{count, plural, one {# række mere} other {# rækker mere}}: skriv for at indsnævre",
+    "findingAddress": "Finder adressen…",
+    "placeHint": "Hold stedet nede (eller højreklik) for at sætte en på kortet."
   },
   "colorRules": {
     "title": "Farveregler",

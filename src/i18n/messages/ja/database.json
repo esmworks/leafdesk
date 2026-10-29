@@ -1965,7 +1965,15 @@
     "zoomIn": "拡大",
     "zoomOut": "縮小",
     "fit": "すべての行を表示",
-    "loading": "マップを読み込み中…"
+    "loading": "マップを読み込み中…",
+    "spotMenu": "地図上のこの地点",
+    "atSpot": "この地点",
+    "placeTitle": "{property}のない行をここに置く",
+    "placeSearch": "行を検索…",
+    "placeNone": "一致する行はありません",
+    "placeMore": "{count, plural, other {ほかに # 行}}: 入力して絞り込み",
+    "findingAddress": "住所を検索中…",
+    "placeHint": "地図に置くには、その場所を長押し（または右クリック）します。"
   },
   "colorRules": {
     "title": "色ルール",

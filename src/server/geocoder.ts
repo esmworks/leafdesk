@@ -5,8 +5,9 @@ import { APP_INFO } from "./app-info";
 import { fetchRemoteFile, isBlockedAddress, readRemoteText, RemoteFetchError } from "./remote-fetch";
 
 /**
- * Looks addresses and place names up for place properties, through a Nominatim-compatible search
- * API (GEOCODER_URL, OpenStreetMap's public one by default). Only the server asks it, never the
+ * Looks addresses and place names up for place properties, and the address at a point picked on a
+ * map, through a Nominatim-compatible search API (GEOCODER_URL, OpenStreetMap's public one by
+ * default). Only the server asks it, never the
  * browser, so the service sees this server and not the people using it.
  *
  * The public service allows about one request a second for a whole application: requests from the
@@ -61,6 +62,11 @@ export type Geocoder = {
   enabled: boolean;
   /** Places matching `query`, best first; `userId` counts the search against that person. */
   search(query: string, options?: { userId?: string; language?: string; limit?: number }): Promise<PlaceValue[]>;
+  /**
+   * The address at a point (a spot picked on a map), as a place at exactly that point; null where
+   * the service knows no address (the open sea). Counted against `userId` like a search.
+   */
+  reverse(lat: number, lng: number, options?: { userId?: string; language?: string }): Promise<PlaceValue | null>;
 };
 
 /** A place from one Nominatim search result, or null for a result without usable coordinates. */
@@ -122,20 +128,12 @@ export function createGeocoder(options: GeocoderOptions): Geocoder {
     while (cache.size > cacheSize) cache.delete(cache.keys().next().value as string);
   }
 
-  /** One request to the service, its answer kept for a day. */
-  async function ask(q: string, lang: string, count: number): Promise<PlaceValue[]> {
-    const key = `${lang}\u0000${count}\u0000${q.toLocaleLowerCase()}`;
-    const hit = cache.get(key);
-    if (hit && Date.now() - hit.at < cacheMs) {
-      remember(key, hit.results);
-      return hit.results;
-    }
+  /** One request to the service: its answer, read as JSON. */
+  async function request(path: "search" | "reverse", params: URLSearchParams): Promise<unknown> {
     await turn();
-    const params = new URLSearchParams({ q, format: "jsonv2", limit: String(count) });
-    if (lang) params.set("accept-language", lang);
     let text: string;
     try {
-      const file = await fetchRemoteFile(`${base}/search?${params}`, {
+      const file = await fetchRemoteFile(`${base}/${path}?${params}`, {
         maxBytes: MAX_BYTES,
         timeoutMs,
         maxRedirects: 0,
@@ -148,12 +146,24 @@ export function createGeocoder(options: GeocoderOptions): Geocoder {
       const reason = error instanceof RemoteFetchError ? error.message : "no answer";
       throw new GeocoderError("failed", `Address search failed: ${reason}`);
     }
-    let parsed: unknown;
     try {
-      parsed = JSON.parse(text);
+      return JSON.parse(text);
     } catch {
       throw new GeocoderError("failed", "Address search sent something that isn't JSON");
     }
+  }
+
+  /** One search sent to the service, its answer kept for a day. */
+  async function ask(q: string, lang: string, count: number): Promise<PlaceValue[]> {
+    const key = `${lang}\u0000${count}\u0000${q.toLocaleLowerCase()}`;
+    const hit = cache.get(key);
+    if (hit && Date.now() - hit.at < cacheMs) {
+      remember(key, hit.results);
+      return hit.results;
+    }
+    const params = new URLSearchParams({ q, format: "jsonv2", limit: String(count) });
+    if (lang) params.set("accept-language", lang);
+    const parsed = await request("search", params);
     if (!Array.isArray(parsed)) throw new GeocoderError("failed", "Address search sent an unexpected answer");
     const results = parsed.flatMap((r) => placeFromResult(r) ?? []).slice(0, count);
     remember(key, results);
@@ -195,6 +205,32 @@ export function createGeocoder(options: GeocoderOptions): Geocoder {
       }
       remember(key, []);
       return [];
+    },
+
+    async reverse(lat, lng, { userId, language } = {}) {
+      if (!base) throw new GeocoderError("off", "Address search is off on this server");
+      if (!Number.isFinite(lat) || !Number.isFinite(lng) || Math.abs(lat) > 90 || Math.abs(lng) > 180) return null;
+      const lang = (language ?? "").trim().slice(0, 35);
+      // Points a meter or so apart share their answer.
+      const at = `${lat.toFixed(5)},${lng.toFixed(5)}`;
+      const key = `at\u0000${lang}\u0000${at}`;
+      const hit = cache.get(key);
+      let address: string | undefined;
+      if (hit && Date.now() - hit.at < cacheMs) {
+        remember(key, hit.results);
+        address = hit.results[0]?.address;
+      } else {
+        countSearch(userId);
+        const params = new URLSearchParams({ lat: lat.toFixed(6), lon: lng.toFixed(6), format: "jsonv2", zoom: "18" });
+        if (lang) params.set("accept-language", lang);
+        const parsed = await request("reverse", params);
+        // Nominatim answers `{"error": "Unable to geocode"}` where it knows nothing.
+        const found = parsed && typeof parsed === "object" && !("error" in parsed) ? placeFromResult(parsed) : null;
+        address = found?.address;
+        remember(key, found ? [found] : []);
+      }
+      // The place is the point picked, not the spot the found address's building or street lies on.
+      return address ? { address, lat, lng } : null;
     },
   };
 }

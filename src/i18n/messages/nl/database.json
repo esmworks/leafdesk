@@ -1965,7 +1965,15 @@
     "zoomIn": "Inzoomen",
     "zoomOut": "Uitzoomen",
     "fit": "Alle rijen tonen",
-    "loading": "Kaart laden…"
+    "loading": "Kaart laden…",
+    "spotMenu": "Deze plek op de kaart",
+    "atSpot": "Op deze plek",
+    "placeTitle": "Een rij zonder {property} hier plaatsen",
+    "placeSearch": "Rij zoeken…",
+    "placeNone": "Geen overeenkomende rijen",
+    "placeMore": "{count, plural, one {nog # rij} other {nog # rijen}}: typ om te verfijnen",
+    "findingAddress": "Adres zoeken…",
+    "placeHint": "Houd de plek ingedrukt (of klik met rechts) om er een op de kaart te zetten."
   },
   "colorRules": {
     "title": "Kleurregels",

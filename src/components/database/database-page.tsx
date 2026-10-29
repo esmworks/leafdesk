@@ -835,6 +835,7 @@ export function DatabasePage({
                         properties={viewProperties}
                         rows={visibleRows}
                         tiles={snapshot.map ?? null}
+                        api={viewApi}
                         readOnly={readOnly}
                         locked={locked}
                         onCreatePlaceProperty={createPlaceProperty}

@@ -1965,7 +1965,15 @@
     "zoomIn": "Aproximar",
     "zoomOut": "Afastar",
     "fit": "Mostrar todas as linhas",
-    "loading": "Carregando mapa…"
+    "loading": "Carregando mapa…",
+    "spotMenu": "Este ponto do mapa",
+    "atSpot": "Neste ponto",
+    "placeTitle": "Colocar aqui uma linha sem {property}",
+    "placeSearch": "Encontrar uma linha…",
+    "placeNone": "Nenhuma linha correspondente",
+    "placeMore": "{count, plural, one {mais # linha} other {mais # linhas}}: digite para filtrar",
+    "findingAddress": "Procurando o endereço…",
+    "placeHint": "Para colocar uma no mapa, mantenha pressionado (ou clique com o botão direito) onde ela fica."
   },
   "colorRules": {
     "title": "Regras de cor",

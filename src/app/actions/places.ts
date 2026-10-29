@@ -24,3 +24,21 @@ export async function searchPlacesAction(query: string): Promise<PlaceSearchResu
     return { ok: false, reason: "failed" };
   }
 }
+
+export type PlaceAtResult = { ok: true; place: PlaceValue | null } | { ok: false; reason: "off" | "busy" | "failed" };
+
+/**
+ * The address at a point picked on a map view (to put a row there), in the person's language;
+ * null where the geocoder knows none. Limited per person like a search.
+ */
+export async function placeAtAction(lat: number, lng: number): Promise<PlaceAtResult> {
+  const userId = await requireUserId();
+  if (typeof lat !== "number" || typeof lng !== "number") return { ok: true, place: null };
+  try {
+    return { ok: true, place: await geocoder().reverse(lat, lng, { userId, language: await getLocale() }) };
+  } catch (error) {
+    if (error instanceof GeocoderError) return { ok: false, reason: error.code };
+    console.error("[place at]", error);
+    return { ok: false, reason: "failed" };
+  }
+}

@@ -5,6 +5,7 @@ import { listDatabasesAction, loadDatabaseAction, loadRowAction } from "@/app/ac
 import { backlinksAction, unlinkedMentionsAction } from "@/app/actions/mentions";
 import { listInboxAction, unreadCountAction } from "@/app/actions/notifications";
 import { recordPageViewAction } from "@/app/actions/page-views";
+import { placeAtAction } from "@/app/actions/places";
 import { getPageReviewAction, listTrashAction, recentSearchAction, searchAction, searchFilterOptionsAction } from "@/app/actions/pages";
 import { relatedPagesAction } from "@/app/actions/related-pages";
 import { pendingCountAction } from "@/app/actions/review";
@@ -46,6 +47,7 @@ export const READS = {
   agentChatTurn: agentChatTurnAction,
   chatConversations: listConversationsAction,
   chatConversation: getConversationAction,
+  placeAt: placeAtAction,
 };
 
 export type Reads = typeof READS;

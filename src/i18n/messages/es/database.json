@@ -1965,7 +1965,15 @@
     "zoomIn": "Acercar",
     "zoomOut": "Alejar",
     "fit": "Mostrar todas las filas",
-    "loading": "Cargando mapa…"
+    "loading": "Cargando mapa…",
+    "spotMenu": "Este punto del mapa",
+    "atSpot": "En este punto",
+    "placeTitle": "Poner aquí una fila sin {property}",
+    "placeSearch": "Buscar una fila…",
+    "placeNone": "No hay filas que coincidan",
+    "placeMore": "{count, plural, one {# fila más} other {# filas más}}: escribe para acotar",
+    "findingAddress": "Buscando la dirección…",
+    "placeHint": "Para ponerla en el mapa, mantén pulsado (o haz clic derecho) donde está."
   },
   "colorRules": {
     "title": "Reglas de color",

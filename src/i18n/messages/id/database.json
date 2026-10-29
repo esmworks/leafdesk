@@ -1965,7 +1965,15 @@
     "zoomIn": "Perbesar",
     "zoomOut": "Perkecil",
     "fit": "Tampilkan semua baris",
-    "loading": "Memuat peta…"
+    "loading": "Memuat peta…",
+    "spotMenu": "Titik ini di peta",
+    "atSpot": "Di titik ini",
+    "placeTitle": "Taruh baris tanpa {property} di sini",
+    "placeSearch": "Cari baris…",
+    "placeNone": "Tidak ada baris yang cocok",
+    "placeMore": "{count, plural, other {# baris lagi}}: ketik untuk mempersempit",
+    "findingAddress": "Mencari alamat…",
+    "placeHint": "Untuk menaruhnya di peta, tekan lama (atau klik kanan) di lokasinya."
   },
   "colorRules": {
     "title": "Aturan warna",

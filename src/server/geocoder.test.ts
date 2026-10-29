@@ -118,9 +118,31 @@ describe("geocoder", () => {
     expect(seen).toHaveLength(5);
   });
 
+  it("finds the address at a point, keeping the point itself", async () => {
+    answer = (url) =>
+      url.pathname === "/reverse" && url.searchParams.get("lat") === "38.418900"
+        ? { status: 200, body: JSON.stringify({ lat: "38.4191", lon: "27.1287", display_name: "Konak, İzmir, Türkiye", name: "Konak Meydanı" }) }
+        : { status: 200, body: JSON.stringify({ error: "Unable to geocode" }) };
+    seen.length = 0;
+    const geocoder = createGeocoder({ url: base, trusted: true, intervalMs: 0, perUserPerMinute: 2 });
+    expect(await geocoder.reverse(38.4189, 27.1286, { userId: "u5", language: "tr" })).toEqual({ address: "Konak, İzmir, Türkiye", lat: 38.4189, lng: 27.1286 });
+    const url = new URL(seen[0].url, "http://x");
+    expect(url.searchParams.get("lon")).toBe("27.128600");
+    expect(url.searchParams.get("format")).toBe("jsonv2");
+    expect(url.searchParams.get("accept-language")).toBe("tr");
+    // A point a few centimeters off is answered from memory, at its own coordinates.
+    expect(await geocoder.reverse(38.418901, 27.128601, { userId: "u5", language: "tr" })).toEqual({ address: "Konak, İzmir, Türkiye", lat: 38.418901, lng: 27.128601 });
+    expect(seen).toHaveLength(1);
+    // The open sea has no address; that costs a search too.
+    expect(await geocoder.reverse(38.5, 26.9, { userId: "u5" })).toBeNull();
+    await expect(geocoder.reverse(38.6, 26.9, { userId: "u5" })).rejects.toMatchObject({ code: "busy" });
+    expect(await geocoder.reverse(91, 0)).toBeNull();
+  });
+
   it("is off without an address", async () => {
     const off = createGeocoder({ url: null, trusted: false });
     expect(off.enabled).toBe(false);
     await expect(off.search("anything")).rejects.toMatchObject({ code: "off" });
+    await expect(off.reverse(1, 2)).rejects.toMatchObject({ code: "off" });
   });
 });
