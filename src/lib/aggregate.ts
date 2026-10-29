@@ -55,6 +55,7 @@ export type ValueKind =
   | "relation"
   | "checklist"
   | "files"
+  | "none"
   | "other";
 
 /**
@@ -85,6 +86,8 @@ const VALUE_KINDS: Record<string, ValueKind> = {
   relation: "relation",
   checklist: "checklist",
   files: "files",
+  // A button holds nothing to count.
+  button: "none",
 };
 
 export function valueKind(type: string): ValueKind {
@@ -110,6 +113,7 @@ const BY_KIND: Record<ValueKind, AggregateFn[]> = {
   relation: GENERIC,
   checklist: GENERIC,
   files: GENERIC,
+  none: [],
   number: [...GENERIC, "sum", "average", "median", "min", "max", "range"],
   date: [...GENERIC, "earliest_date", "latest_date", "date_range"],
   checkbox: ["count_all", "count_checked", "count_unchecked", "percent_checked", "percent_unchecked"],
@@ -175,6 +179,8 @@ function items(value: unknown, kind: ValueKind, options: PropertyOptions | undef
       return [typeof value === "object" ? placeText(value) : String(value)];
     case "other":
       return Array.isArray(value) ? value : [value];
+    case "none":
+      return [];
   }
 }
 

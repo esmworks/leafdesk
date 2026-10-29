@@ -22,6 +22,7 @@ import type { AiAutofillConfig } from "@/lib/ai";
 import { relatedSchemasFrom, withFormulas } from "@/lib/derived";
 import type { FormulaStyle } from "@/lib/formula";
 import { rowPageSections, type PageVisibility } from "@/lib/page-visibility";
+import { isAction } from "@/lib/property-types";
 import { canPin, pinnedSplit } from "@/lib/row-layout";
 import { useRowLayoutHost } from "@/components/page/row-layout-context";
 import { cn } from "@/components/ui";
@@ -390,7 +391,7 @@ export function RowProperties({
   const valueOf = (id: string) => values[id];
   // A value the viewer may not see counts as one: its lock shows like any value.
   const { pinned, rest } = pinnedSplit(data.properties);
-  const { shown: listed, more } = rowPageSections(rest, (p) => !data.hidden?.includes(p.id) && isEmptyValue(p, valueOf(p.id)));
+  const { shown: listed, more } = rowPageSections(rest, (p) => !data.hidden?.includes(p.id) && !isAction(p.type) && isEmptyValue(p, valueOf(p.id)));
   // Relations shown as a section of their own go under the list (a value the viewer may not see stays in it, locked).
   const isSection = (p: Property) => p.type === "relation" && p.options.relation?.display === "section" && !data.hidden?.includes(p.id);
   const shown = listed.filter((p) => !isSection(p));
@@ -617,6 +618,7 @@ function PropertyRow({
               onCreateOption={onCreateOption}
               rowValues={values}
               upload={p.type === "files" ? uploadToPage(rowId) : undefined}
+              rowId={rowId}
             />
           </AiCell>
         )}

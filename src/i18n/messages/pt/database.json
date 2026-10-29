@@ -24,7 +24,8 @@
     "formula": "Fórmula",
     "rollup": "Agregação",
     "place": "Local",
-    "uniqueId": "ID"
+    "uniqueId": "ID",
+    "button": "Botão"
   },
   "views": {
     "table": "Tabela",
@@ -563,6 +564,11 @@
     "decimalsAuto": "Automático",
     "percentHint": "Digite 15 para {percent}",
     "dateOptions": "Configurações de data",
+    "buttonAutomations": "Editar o que ele faz",
+    "buttonLook": "Rótulo e cor",
+    "buttonLabel": "Rótulo",
+    "buttonColor": "Cor",
+    "buttonColorPlain": "Simples",
     "uniqueIdPrefix": "Prefixo de ID",
     "uniqueIdPrefixNone": "Nenhum",
     "uniqueIdPrefixPlaceholder": "TASK",
@@ -1355,6 +1361,7 @@
       "anyChange": "qualquer propriedade muda",
       "changes": "{property} muda",
       "becomes": "{property} passa a ser {value}",
+      "buttonClicked": "{property} é clicado",
       "datePassedProperty": "{days, plural, =0 {{date} é alcançada} one {# dia se passou desde {date}} other {# dias se passaram desde {date}}}",
       "datePassedSince": "{days, plural, one {# dia se passou desde {date}} other {# dias se passaram desde {date}}}",
       "rowAdded": "a linha foi adicionada",
@@ -1391,8 +1398,12 @@
         "date_passed": "Uma data passa",
         "view_threshold": "Um total cruza um limite",
         "schedule": "Conforme um agendamento",
-        "incoming_webhook": "Chega uma solicitação (webhook de entrada)"
+        "incoming_webhook": "Chega uma solicitação (webhook de entrada)",
+        "button_clicked": "Um botão é clicado"
       },
+      "button": "Botão",
+      "chooseButton": "Escolha um botão",
+      "noButtons": "Este banco de dados ainda não tem uma propriedade de botão. Adicione uma como nova propriedade e volte aqui.",
       "property": "Propriedade",
       "anyProperty": "Qualquer propriedade",
       "becomes": "Passa a ser",
@@ -1487,7 +1498,8 @@
         "needSlackUrl": "Digite o endereço do webhook de entrada do Slack.",
         "needView": "Escolha a visualização cujas linhas serão contadas.",
         "needNumber": "Escolha a propriedade numérica a calcular.",
-        "needThreshold": "Digite o número para comparar."
+        "needThreshold": "Digite o número para comparar.",
+        "needButton": "Escolha o botão que a executa."
       },
       "agent": "Agente",
       "chooseAgent": "Escolha um agente…",
@@ -1575,6 +1587,7 @@
       "refresh": "Atualizar",
       "schedule": "Agendamento",
       "webhookReceived": "Webhook recebido",
+      "buttonClicked": "Botão clicado",
       "showDetails": "Mostrar detalhes",
       "hideDetails": "Ocultar detalhes",
       "test": "Teste",
@@ -2303,6 +2316,17 @@
       "widgets": "widgets",
       "published": "publicação",
       "other": "outras configurações"
+    }
+  },
+  "rowButton": {
+    "started": "Iniciado",
+    "failed": {
+      "error": "O botão não funcionou. Tente novamente.",
+      "notFound": "Este botão não existe mais.",
+      "inTrash": "Botões em linhas na lixeira não fazem nada.",
+      "noAutomation": "Este botão ainda não faz nada: defina o que ele faz no menu da propriedade.",
+      "rateLimited": "Este botão foi clicado vezes demais. Aguarde um momento e tente novamente.",
+      "noAccess": "Você não pode usar este botão: é preciso ter acesso de edição à linha."
     }
   }
 }

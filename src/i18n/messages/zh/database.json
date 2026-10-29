@@ -24,7 +24,8 @@
     "formula": "公式",
     "rollup": "汇总",
     "place": "地点",
-    "uniqueId": "ID"
+    "uniqueId": "ID",
+    "button": "按钮"
   },
   "views": {
     "table": "表格",
@@ -563,6 +564,11 @@
     "decimalsAuto": "自动",
     "percentHint": "输入 15 表示 {percent}",
     "dateOptions": "日期设置",
+    "buttonAutomations": "编辑它的操作",
+    "buttonLook": "标签和颜色",
+    "buttonLabel": "标签",
+    "buttonColor": "颜色",
+    "buttonColorPlain": "普通",
     "uniqueIdPrefix": "ID 前缀",
     "uniqueIdPrefixNone": "无",
     "uniqueIdPrefixPlaceholder": "TASK",
@@ -1355,6 +1361,7 @@
       "anyChange": "任一属性更改时",
       "changes": "{property} 更改时",
       "becomes": "{property} 变为 {value} 时",
+      "buttonClicked": "点击 {property} 时",
       "datePassedProperty": "{days, plural, =0 {到达{date}时} other {{date}之后过了 # 天时}}",
       "datePassedSince": "{days, plural, other {{date}之后过了 # 天时}}",
       "rowAdded": "添加该行",
@@ -1391,8 +1398,12 @@
         "date_passed": "日期已过",
         "view_threshold": "合计越过某条线时",
         "schedule": "按计划",
-        "incoming_webhook": "收到请求（传入 Webhook）"
+        "incoming_webhook": "收到请求（传入 Webhook）",
+        "button_clicked": "点击按钮时"
       },
+      "button": "按钮",
+      "chooseButton": "选择按钮",
+      "noButtons": "此数据库还没有按钮属性。请先将其添加为新属性，然后回到这里。",
       "property": "属性",
       "anyProperty": "任一属性",
       "becomes": "变为",
@@ -1487,7 +1498,8 @@
         "needSlackUrl": "请输入 Slack 传入 Webhook 的地址。",
         "needView": "请选择要统计行数的视图。",
         "needNumber": "请选择要计算的数字属性。",
-        "needThreshold": "请输入要比较的数字。"
+        "needThreshold": "请输入要比较的数字。",
+        "needButton": "选择运行它的按钮。"
       },
       "agent": "智能体",
       "chooseAgent": "选择智能体…",
@@ -1575,6 +1587,7 @@
       "refresh": "刷新",
       "schedule": "计划",
       "webhookReceived": "收到 Webhook",
+      "buttonClicked": "按钮被点击",
       "showDetails": "显示详情",
       "hideDetails": "隐藏详情",
       "test": "测试",
@@ -2303,6 +2316,17 @@
       "widgets": "组件",
       "published": "发布",
       "other": "其他设置"
+    }
+  },
+  "rowButton": {
+    "started": "已开始",
+    "failed": {
+      "error": "按钮未生效。请重试。",
+      "notFound": "此按钮已不存在。",
+      "inTrash": "回收站中行上的按钮不会执行任何操作。",
+      "noAutomation": "此按钮还没有任何操作：请在属性菜单中设置它的操作。",
+      "rateLimited": "此按钮点击过于频繁。请稍候再试。",
+      "noAccess": "你无法使用此按钮：需要该行的编辑权限。"
     }
   }
 }

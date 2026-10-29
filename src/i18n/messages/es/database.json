@@ -24,7 +24,8 @@
     "formula": "Fórmula",
     "rollup": "Agregación",
     "place": "Lugar",
-    "uniqueId": "ID"
+    "uniqueId": "ID",
+    "button": "Botón"
   },
   "views": {
     "table": "Tabla",
@@ -563,6 +564,11 @@
     "decimalsAuto": "Automático",
     "percentHint": "Escribe 15 para {percent}",
     "dateOptions": "Ajustes de fecha",
+    "buttonAutomations": "Editar lo que hace",
+    "buttonLook": "Etiqueta y color",
+    "buttonLabel": "Etiqueta",
+    "buttonColor": "Color",
+    "buttonColorPlain": "Sencillo",
     "uniqueIdPrefix": "Prefijo de ID",
     "uniqueIdPrefixNone": "Ninguno",
     "uniqueIdPrefixPlaceholder": "TASK",
@@ -1355,6 +1361,7 @@
       "anyChange": "cambia cualquier propiedad",
       "changes": "cambia {property}",
       "becomes": "{property} pasa a {value}",
+      "buttonClicked": "Se hace clic en {property}",
       "datePassedProperty": "{days, plural, =0 {llega {date}} one {pasa # día desde {date}} other {pasan # días desde {date}}}",
       "datePassedSince": "{days, plural, one {pasa # día desde {date}} other {pasan # días desde {date}}}",
       "rowAdded": "que se añadió la fila",
@@ -1391,8 +1398,12 @@
         "date_passed": "Pasa una fecha",
         "view_threshold": "Un total cruza un límite",
         "schedule": "Según una programación",
-        "incoming_webhook": "Llega una solicitud (webhook entrante)"
+        "incoming_webhook": "Llega una solicitud (webhook entrante)",
+        "button_clicked": "Se hace clic en un botón"
       },
+      "button": "Botón",
+      "chooseButton": "Elige un botón",
+      "noButtons": "Esta base de datos aún no tiene una propiedad de botón. Añade una como propiedad nueva y vuelve aquí.",
       "property": "Propiedad",
       "anyProperty": "Cualquier propiedad",
       "becomes": "Pasa a",
@@ -1487,7 +1498,8 @@
         "needSlackUrl": "Escribe la dirección del webhook entrante de Slack.",
         "needView": "Elige la vista cuyas filas se cuentan.",
         "needNumber": "Elige la propiedad numérica sobre la que calcular.",
-        "needThreshold": "Escribe el número con el que comparar."
+        "needThreshold": "Escribe el número con el que comparar.",
+        "needButton": "Elige el botón que la ejecuta."
       },
       "agent": "Agente",
       "chooseAgent": "Elige un agente…",
@@ -1575,6 +1587,7 @@
       "refresh": "Actualizar",
       "schedule": "Programación",
       "webhookReceived": "Webhook recibido",
+      "buttonClicked": "Clic en el botón",
       "showDetails": "Mostrar detalles",
       "hideDetails": "Ocultar detalles",
       "test": "Prueba",
@@ -2303,6 +2316,17 @@
       "widgets": "widgets",
       "published": "publicación",
       "other": "otros ajustes"
+    }
+  },
+  "rowButton": {
+    "started": "Iniciado",
+    "failed": {
+      "error": "El botón no funcionó. Inténtalo de nuevo.",
+      "notFound": "Este botón ya no existe.",
+      "inTrash": "Los botones de las filas en la papelera no hacen nada.",
+      "noAutomation": "Este botón aún no hace nada: configura lo que hace desde el menú de la propiedad.",
+      "rateLimited": "Se hizo clic en este botón demasiadas veces. Espera un momento e inténtalo de nuevo.",
+      "noAccess": "No puedes usar este botón: necesitas acceso de edición a la fila."
     }
   }
 }

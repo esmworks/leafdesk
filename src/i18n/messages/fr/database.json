@@ -24,7 +24,8 @@
     "formula": "Formule",
     "rollup": "Agrégation",
     "place": "Lieu",
-    "uniqueId": "ID"
+    "uniqueId": "ID",
+    "button": "Bouton"
   },
   "views": {
     "table": "Table",
@@ -563,6 +564,11 @@
     "decimalsAuto": "Automatique",
     "percentHint": "Tapez 15 pour {percent}",
     "dateOptions": "Réglages de date",
+    "buttonAutomations": "Modifier ce qu'il fait",
+    "buttonLook": "Libellé et couleur",
+    "buttonLabel": "Libellé",
+    "buttonColor": "Couleur",
+    "buttonColorPlain": "Simple",
     "uniqueIdPrefix": "Préfixe d’ID",
     "uniqueIdPrefixNone": "Aucun",
     "uniqueIdPrefixPlaceholder": "TASK",
@@ -1355,6 +1361,7 @@
       "anyChange": "une propriété change",
       "changes": "{property} change",
       "becomes": "{property} devient {value}",
+      "buttonClicked": "Un clic sur {property}",
       "datePassedProperty": "{days, plural, =0 {la date {date} arrive} one {# jour s’est écoulé depuis {date}} other {# jours se sont écoulés depuis {date}}}",
       "datePassedSince": "{days, plural, one {# jour s’est écoulé depuis {date}} other {# jours se sont écoulés depuis {date}}}",
       "rowAdded": "l’ajout de la ligne",
@@ -1391,8 +1398,12 @@
         "date_passed": "Une date est passée",
         "view_threshold": "Un total franchit un seuil",
         "schedule": "Selon un planning",
-        "incoming_webhook": "Une requête arrive (webhook entrant)"
+        "incoming_webhook": "Une requête arrive (webhook entrant)",
+        "button_clicked": "Un clic sur un bouton"
       },
+      "button": "Bouton",
+      "chooseButton": "Choisir un bouton",
+      "noButtons": "Cette base de données n'a pas encore de propriété bouton. Ajoutez-en une comme nouvelle propriété, puis revenez ici.",
       "property": "Propriété",
       "anyProperty": "N’importe quelle propriété",
       "becomes": "Devient",
@@ -1487,7 +1498,8 @@
         "needSlackUrl": "Saisissez l’adresse du webhook entrant Slack.",
         "needView": "Choisissez la vue dont les lignes sont comptées.",
         "needNumber": "Choisissez la propriété numérique à calculer.",
-        "needThreshold": "Saisissez le nombre à comparer."
+        "needThreshold": "Saisissez le nombre à comparer.",
+        "needButton": "Choisissez le bouton qui la lance."
       },
       "agent": "Agent",
       "chooseAgent": "Choisir un agent…",
@@ -1575,6 +1587,7 @@
       "refresh": "Actualiser",
       "schedule": "Planning",
       "webhookReceived": "Webhook reçu",
+      "buttonClicked": "Clic sur le bouton",
       "showDetails": "Afficher les détails",
       "hideDetails": "Masquer les détails",
       "test": "Test",
@@ -2303,6 +2316,17 @@
       "widgets": "widgets",
       "published": "publication",
       "other": "autres paramètres"
+    }
+  },
+  "rowButton": {
+    "started": "Lancé",
+    "failed": {
+      "error": "Le bouton n'a pas fonctionné. Réessayez.",
+      "notFound": "Ce bouton n'existe plus.",
+      "inTrash": "Les boutons des lignes dans la corbeille ne font rien.",
+      "noAutomation": "Ce bouton ne fait encore rien : définissez ce qu'il fait depuis le menu de la propriété.",
+      "rateLimited": "Ce bouton a été cliqué trop souvent. Attendez un moment et réessayez.",
+      "noAccess": "Vous ne pouvez pas utiliser ce bouton : il faut un accès en modification à la ligne."
     }
   }
 }

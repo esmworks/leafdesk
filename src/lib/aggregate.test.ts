@@ -104,6 +104,10 @@ describe("aggregateFunctions", () => {
     expect(aggregateGroup("percent_checked")).toBe("kind");
   });
 
+  it("offers no calculation over a button", () => {
+    expect(aggregateFunctions("button")).toEqual([]);
+  });
+
   it("recognises stored function names", () => {
     expect(isAggregateFn("sum")).toBe(true);
     expect(isAggregateFn("SUM")).toBe(false);

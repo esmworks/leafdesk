@@ -1,6 +1,7 @@
 import { and, eq, inArray, or, sql } from "drizzle-orm";
 import { Zip, ZipDeflate, ZipPassThrough } from "fflate";
 import { db } from "@/db";
+import { isAction } from "@/lib/property-types";
 import { file, fileReference, page, propertyPermission, user, type PageKind, workspace } from "@/db/schema";
 import { getLocale } from "next-intl/server";
 import type { ViewConfig } from "@/db/schema/app";
@@ -163,8 +164,10 @@ export function databaseTable(
   snapshot: Snapshot,
   rows: Snapshot["rows"],
   fileText: (f: { name: string; url: string }) => string,
-  properties: Snapshot["properties"] = snapshot.properties,
+  shownProperties: Snapshot["properties"] = snapshot.properties,
 ): { header: string[]; cells: (string | number | null)[][] } {
+  // A button holds nothing to write down.
+  const properties = shownProperties.filter((p) => !isAction(p.type));
   const titleOf = new Map(Object.values(snapshot.relations).flatMap((r) => r.rows.map((row) => [row.id, row.title] as const)));
   // A relation to the same database would otherwise print ids for its trashed rows.
   if (snapshot.database.archived) for (const row of rows) if (!titleOf.has(row.id)) titleOf.set(row.id, row.title);

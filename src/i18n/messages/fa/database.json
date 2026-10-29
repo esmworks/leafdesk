@@ -24,7 +24,8 @@
     "formula": "فرمول",
     "rollup": "تجمیع",
     "place": "مکان",
-    "uniqueId": "شناسه"
+    "uniqueId": "شناسه",
+    "button": "دکمه"
   },
   "views": {
     "table": "جدول",
@@ -563,6 +564,11 @@
     "decimalsAuto": "خودکار",
     "percentHint": "برای {percent}، عدد 15 را تایپ کنید",
     "dateOptions": "تنظیمات تاریخ",
+    "buttonAutomations": "ویرایش کاری که انجام می‌دهد",
+    "buttonLook": "برچسب و رنگ",
+    "buttonLabel": "برچسب",
+    "buttonColor": "رنگ",
+    "buttonColorPlain": "ساده",
     "uniqueIdPrefix": "پیشوند شناسه",
     "uniqueIdPrefixNone": "هیچ",
     "uniqueIdPrefixPlaceholder": "TASK",
@@ -1355,6 +1361,7 @@
       "anyChange": "هر ویژگی‌ای تغییر کند",
       "changes": "{property} تغییر کند",
       "becomes": "{property} برابر {value} شود",
+      "buttonClicked": "روی {property} کلیک شود",
       "datePassedProperty": "{days, plural, =0 {{date} فرا برسد} one {# روز از {date} بگذرد} other {# روز از {date} بگذرد}}",
       "datePassedSince": "{days, plural, one {# روز از {date} بگذرد} other {# روز از {date} بگذرد}}",
       "rowAdded": "افزودن ردیف",
@@ -1391,8 +1398,12 @@
         "date_passed": "تاریخی بگذرد",
         "view_threshold": "مجموعی از خطی بگذرد",
         "schedule": "طبق زمان‌بندی",
-        "incoming_webhook": "درخواستی برسد (وب‌هوک ورودی)"
+        "incoming_webhook": "درخواستی برسد (وب‌هوک ورودی)",
+        "button_clicked": "روی یک دکمه کلیک شود"
       },
+      "button": "دکمه",
+      "chooseButton": "یک دکمه انتخاب کنید",
+      "noButtons": "این پایگاه داده هنوز ویژگی دکمه ندارد. یکی را به‌عنوان ویژگی جدید اضافه کنید و سپس به اینجا برگردید.",
       "property": "ویژگی",
       "anyProperty": "هر ویژگی",
       "becomes": "تبدیل شود به",
@@ -1487,7 +1498,8 @@
         "needSlackUrl": "نشانی وب‌هوک ورودی Slack را وارد کنید.",
         "needView": "نمایی را انتخاب کنید که ردیف‌هایش شمرده می‌شود.",
         "needNumber": "ویژگی عددی‌ای را که محاسبه روی آن انجام می‌شود انتخاب کنید.",
-        "needThreshold": "عددی را که مقایسه با آن انجام می‌شود وارد کنید."
+        "needThreshold": "عددی را که مقایسه با آن انجام می‌شود وارد کنید.",
+        "needButton": "دکمه‌ای را که آن را اجرا می‌کند انتخاب کنید."
       },
       "agent": "عامل",
       "chooseAgent": "انتخاب عامل…",
@@ -1575,6 +1587,7 @@
       "refresh": "تازه‌سازی",
       "schedule": "زمان‌بندی",
       "webhookReceived": "وب‌هوک دریافت شد",
+      "buttonClicked": "روی دکمه کلیک شد",
       "showDetails": "نمایش جزئیات",
       "hideDetails": "پنهان کردن جزئیات",
       "test": "آزمایشی",
@@ -2303,6 +2316,17 @@
       "widgets": "ویجت‌ها",
       "published": "انتشار",
       "other": "تنظیمات دیگر"
+    }
+  },
+  "rowButton": {
+    "started": "شروع شد",
+    "failed": {
+      "error": "دکمه کار نکرد. دوباره تلاش کنید.",
+      "notFound": "این دکمه دیگر وجود ندارد.",
+      "inTrash": "دکمه‌های ردیف‌های داخل سطل زباله کاری انجام نمی‌دهند.",
+      "noAutomation": "این دکمه هنوز کاری انجام نمی‌دهد: کارش را از منوی ویژگی تنظیم کنید.",
+      "rateLimited": "روی این دکمه بیش از حد کلیک شد. کمی صبر کنید و دوباره تلاش کنید.",
+      "noAccess": "نمی‌توانید از این دکمه استفاده کنید: دسترسی ویرایش ردیف لازم است."
     }
   }
 }

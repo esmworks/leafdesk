@@ -7,7 +7,7 @@ Contents: [Automations and webhooks](#automations-and-webhooks), [Page webhooks]
 ## Automations and webhooks
 
 A database automation does a list of steps when rows of its database are added or changed, when
-a date of a row comes, when a total over a view's rows crosses a line, on a schedule, or when
+someone clicks a button on a row, when a date of a row comes, when a total over a view's rows crosses a line, on a schedule, or when
 another service sends it a request. People with
 full access to the database see and manage its automations, in the app or over MCP
 (`list_automations`, `create_automation`, `update_automation`, `publish_automation`,
@@ -44,6 +44,12 @@ and deleting one is recorded in the audit log.
   once each. The settings show when it runs next.
 - *An incoming webhook*: a JSON `POST` to the automation's own secret address starts it, with the
   body as what the steps work with (see [Incoming webhooks](#incoming-webhooks)).
+- *A button is clicked*: someone clicks a button property's button on a row. It runs on that row
+  as the other row triggers do, with whoever clicked as the person who made the change. Clicking
+  takes edit access to the row (and to the button, where the property has access rules); a person
+  may click one row's button 10 times a minute. A button property's menu opens the automation
+  made for it (*Edit what it does*), or starts a new one; several automations may share a button
+  and all start on a click.
 
 Schedules, totals crossing a line and incoming webhooks have no row. Their steps that act on a row (setting properties,
 running an agent, notifying the people a person property names) go *for each* row an earlier

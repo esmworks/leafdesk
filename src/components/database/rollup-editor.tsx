@@ -6,6 +6,7 @@ import { useState } from "react";
 import { Button, menuFieldClass } from "@/components/ui";
 import { ROLLUP_DISPLAYS, rollupFunctions, type RollupDisplay, type RollupFn } from "@/lib/aggregate";
 import { rollupFormat, TITLE_FIELD, valueType } from "@/lib/derived";
+import { isAction } from "@/lib/property-types";
 import { useRelations } from "./relation-context";
 import { useSchema } from "./schema-context";
 import type { Property, RollupInput } from "./types";
@@ -40,7 +41,7 @@ export function RollupEditor({
   const [display, setDisplay] = useState<RollupDisplay>(current?.display ?? "number");
 
   const target = targets[relationId];
-  const targetProps = (target?.properties ?? []).filter((p) => p.id !== prop?.id);
+  const targetProps = (target?.properties ?? []).filter((p) => p.id !== prop?.id && !isAction(p.type));
   const targetProp = targetProps.find((p) => p.id === targetId);
   const targetType = targetId === TITLE_FIELD ? TITLE_FIELD : targetProp ? valueType(targetProp) : null;
   const functions = targetType ? rollupFunctions(targetType) : [];

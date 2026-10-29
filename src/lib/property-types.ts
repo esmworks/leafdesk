@@ -22,6 +22,7 @@ export const PROPERTY_TYPES = [
   "formula",
   "rollup",
   "unique_id",
+  "button",
 ] as const;
 export type PropertyType = (typeof PROPERTY_TYPES)[number];
 
@@ -60,9 +61,17 @@ export function isNumbered(type: string) {
   return type === "unique_id";
 }
 
-/** Types nobody writes: system values, derived values and row numbers. */
+/**
+ * Types that hold no value at all: a button (lib/row-buttons) starts the database's automations
+ * made for it when someone clicks it on a row.
+ */
+export function isAction(type: string) {
+  return type === "button";
+}
+
+/** Types nobody writes: system values, derived values, row numbers and buttons. */
 export function isReadOnlyType(type: string) {
-  return isComputed(type) || isDerived(type) || isNumbered(type);
+  return isComputed(type) || isDerived(type) || isNumbered(type) || isAction(type);
 }
 
 /** Types whose values are points in time (ISO timestamps), filtered by day like dates. */
@@ -84,7 +93,8 @@ export type StatusGroup = (typeof STATUS_GROUPS)[number];
 
 /**
  * Property types published pages leave out: relations, whose values point at pages that may not be
- * published (rollups, which calculate over them, go too), and people, who didn't agree to have
- * their names on a public page. Copies of published pages leave them out as well.
+ * published (rollups, which calculate over them, go too), people, who didn't agree to have their
+ * names on a public page, and buttons, which do nothing for visitors. Copies of published pages
+ * leave them out as well.
  */
-export const UNPUBLISHED_PROPERTY_TYPES: ReadonlySet<string> = new Set(["relation", "rollup", "person", "created_by", "last_edited_by"]);
+export const UNPUBLISHED_PROPERTY_TYPES: ReadonlySet<string> = new Set(["relation", "rollup", "person", "created_by", "last_edited_by", "button"]);

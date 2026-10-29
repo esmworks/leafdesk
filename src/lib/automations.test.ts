@@ -341,5 +341,6 @@ describe("thresholds", () => {
 
   it("names the run's event", () => {
     expect(runEvent({ created: false, basis: null, origin: "view_threshold" })).toBe("threshold.crossed");
+    expect(runEvent({ created: false, basis: null, origin: "button" })).toBe("row.button_clicked");
   });
 });

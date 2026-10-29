@@ -160,7 +160,9 @@ export type AutomationInput = {
      * `view`: a shared view of the database (id or name); `calculation`: count_all (the default)
      * or a calculation over `property`, a number (or a number formula or rollup).
      */
-    | { type: "view_threshold"; view: string; calculation?: string; property?: string | null; comparison: string; value: number };
+    | { type: "view_threshold"; view: string; calculation?: string; property?: string | null; comparison: string; value: number }
+    /** `property`: a button property of the database (id or name). */
+    | { type: "button_clicked"; property: string };
   actions: AutomationActionInput[];
 };
 
@@ -266,7 +268,7 @@ async function checkThreshold(
 
 /** Only a person's change has someone to set as "actor": not a date passing, a schedule or a request. */
 function checkActorFits(trigger: AutomationTrigger, actions: AutomationAction[]) {
-  if (trigger.type === "row_created" || trigger.type === "property_changed") return;
+  if (trigger.type === "row_created" || trigger.type === "property_changed" || trigger.type === "button_clicked") return;
   const actor = actions.some(
     (a) => a.type === "set_properties" && Object.values(a.values).some((v) => isDynamicValue(v) && v.$ === "actor"),
   );
@@ -307,8 +309,14 @@ async function checkTrigger(userId: string, databaseId: string, props: Prop[], i
     return example === undefined ? { type: "incoming_webhook" } : { type: "incoming_webhook", example };
   }
   if (input?.type === "view_threshold") return checkThreshold(databaseId, props, input);
+  if (input?.type === "button_clicked") {
+    if (typeof input.property !== "string" || !input.property.trim()) throw invalid("A button trigger needs the button property");
+    const prop = findProperty(props, input.property);
+    if (prop.type !== "button") throw invalid(`"${prop.name}" is a ${prop.type} property, not a button`);
+    return { type: "button_clicked", propertyId: prop.id };
+  }
   if (input?.type !== "property_changed") {
-    throw invalid('The trigger is "row_created", "property_changed", "date_passed", "view_threshold", "schedule" or "incoming_webhook"');
+    throw invalid('The trigger is "row_created", "property_changed", "date_passed", "view_threshold", "schedule", "incoming_webhook" or "button_clicked"');
   }
   const refs = [...new Set([...(input.properties ?? []), ...(input.property ? [input.property] : [])].filter((r) => typeof r === "string" && r.trim()))];
   if (!refs.length) {
@@ -838,6 +846,7 @@ function triggerAsInput(trigger: AutomationTrigger): AutomationInput["trigger"] 
   if (trigger.type === "view_threshold") {
     return { type: "view_threshold", view: trigger.viewId, calculation: trigger.fn, property: trigger.propertyId, comparison: trigger.comparison, value: trigger.value };
   }
+  if (trigger.type === "button_clicked") return { type: "button_clicked", property: trigger.propertyId };
   return trigger as AutomationInput["trigger"];
 }
 
@@ -1056,6 +1065,7 @@ export async function testAutomation(userId: string, automationId: string, input
     if (!row || row.parentId !== automation.databaseId || row.archivedAt || row.isTemplate) throw invalid("No row of this database with this id");
     rowId = row.id;
     created = trigger.type === "row_created";
+    if (trigger.type === "button_clicked") origin = "button";
     if (trigger.type === "property_changed") {
       // Nothing changed: each watched value is shown as it is, before and after alike.
       changed = watchedProperties(trigger);

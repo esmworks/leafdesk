@@ -185,7 +185,10 @@ BlockNote on Yjs; Tailwind v4; next-intl. Node 24, pnpm 11. A separate Electron 
 - **Automations and schedules.** `src/server/automations/` (queued from `databases.ts` after row
   writes; `asAutomation` keeps an automation's writes from firing more automations; a total over a
   view crossing a line is `threshold.ts`, its last state in `automation_threshold`, asked to look
-  by `queue.ts` `thresholdRowsChanged` after writes and from `pages.ts` trash and restore) and
+  by `queue.ts` `thresholdRowsChanged` after writes and from `pages.ts` trash and restore; a
+  button property's click queues the runs of `button_clicked` automations in `server/row-buttons.ts`,
+  its label and color are `lib/row-buttons.ts`, and `isAction` keeps it out of filters, sorts and
+  calculations) and
   `src/server/schedules.ts` (`registerScheduleHandler`).
 - **Other areas:** meeting notes `meetings.ts` (the block's props, `src/lib/meetings.ts`; its list
   table synced in `persistPage` by `meeting-notes.ts`; an uploaded file is decoded in the browser
@@ -425,7 +428,7 @@ plus the `scripts/*-e2e.ts` of the area you touched (`pnpm tsx scripts/<name>-e2
   everyone out), sso (with a mock identity provider; see its header), scale.
 - **Needs no server on the same database**, because a server's workers would take the queued work:
   agents, agent-api, agent-approvers, agent-chat, agent-copy, agent-handoff, agent-memory, agent-mention,
-  agent-schedule, agent-sharing, agent-skills, automation, button, timed-automation, schedule,
+  agent-schedule, agent-sharing, agent-skills, automation, button, row-buttons, timed-automation, schedule,
   row-activity, row-follow, row-mail, web-links, discussions, follow-ups (starts its own GreenMail container
   unless given ports), page-watch, page-webhooks, verify, wins-log, jira-sync, github-pulls-sync, sheets-sync, sprints. `connector-e2e` starts its own `next dev` against
   `<database>_peer`, which must exist; no other dev server may run in the same checkout.

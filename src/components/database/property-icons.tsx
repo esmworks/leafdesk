@@ -24,6 +24,7 @@ import {
   ListChecks,
   Mail,
   Map as MapIcon,
+  MousePointerClick,
   MapPin,
   Newspaper,
   Paperclip,
@@ -69,6 +70,7 @@ export const PROPERTY_TYPE_META = {
   formula: { label: "formula", icon: Sigma },
   rollup: { label: "rollup", icon: Combine },
   unique_id: { label: "uniqueId", icon: Fingerprint },
+  button: { label: "button", icon: MousePointerClick },
 } as const satisfies Record<PropertyType, { label: string; icon: LucideIcon }>;
 
 /** Translated display name of a property type. */

@@ -1,5 +1,6 @@
 "use client";
 
+import type { RowButtonOptions } from "@/lib/row-buttons";
 import { useTranslations } from "next-intl";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import {
@@ -591,6 +592,14 @@ export function useDatabase(
         const { uniqueId: _old, ...rest } = prop.options;
         return mutateSchema(patchProperty(prop.id, { options: prefix ? { ...rest, uniqueId: { prefix } } : rest }), () =>
           updatePropertyAction(prop.id, { prefix }),
+        );
+      },
+
+      /** Saves a button property's label and color (lib/row-buttons); empty options are the plain button with its name. */
+      setRowButton(prop: Property, options: RowButtonOptions) {
+        const { button: _old, ...rest } = prop.options;
+        return mutateSchema(patchProperty(prop.id, { options: Object.keys(options).length ? { ...rest, button: options } : rest }), () =>
+          updatePropertyAction(prop.id, { button: options }),
         );
       },
 

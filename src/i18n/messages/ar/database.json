@@ -24,7 +24,8 @@
     "formula": "صيغة",
     "rollup": "تلخيص",
     "place": "مكان",
-    "uniqueId": "المعرّف"
+    "uniqueId": "المعرّف",
+    "button": "زر"
   },
   "views": {
     "table": "جدول",
@@ -563,6 +564,11 @@
     "decimalsAuto": "تلقائي",
     "percentHint": "اكتب 15 للحصول على {percent}",
     "dateOptions": "إعدادات التاريخ",
+    "buttonAutomations": "تعديل ما يفعله",
+    "buttonLook": "التسمية واللون",
+    "buttonLabel": "التسمية",
+    "buttonColor": "اللون",
+    "buttonColorPlain": "عادي",
     "uniqueIdPrefix": "بادئة المعرّف",
     "uniqueIdPrefixNone": "بلا",
     "uniqueIdPrefixPlaceholder": "TASK",
@@ -1355,6 +1361,7 @@
       "anyChange": "تغيّر أي خاصية",
       "changes": "تغيّر {property}",
       "becomes": "تحوّل {property} إلى {value}",
+      "buttonClicked": "عند النقر على {property}",
       "datePassedProperty": "{days, plural, =0 {حلول {date}} one {مرور يوم واحد على {date}} two {مرور يومين على {date}} few {مرور # أيام على {date}} many {مرور # يومًا على {date}} other {مرور # يوم على {date}}}",
       "datePassedSince": "{days, plural, one {مرور يوم واحد على {date}} two {مرور يومين على {date}} few {مرور # أيام على {date}} many {مرور # يومًا على {date}} other {مرور # يوم على {date}}}",
       "rowAdded": "إضافة الصف",
@@ -1391,8 +1398,12 @@
         "date_passed": "مرور تاريخ",
         "view_threshold": "مجموع يتجاوز حدًّا",
         "schedule": "وفق جدول",
-        "incoming_webhook": "وصول طلب (Webhook وارد)"
+        "incoming_webhook": "وصول طلب (Webhook وارد)",
+        "button_clicked": "عند النقر على زر"
       },
+      "button": "زر",
+      "chooseButton": "اختر زرًا",
+      "noButtons": "لا توجد في قاعدة البيانات هذه خاصية زر بعد. أضف واحدة كخاصية جديدة ثم عد إلى هنا.",
       "property": "الخاصية",
       "anyProperty": "أي خاصية",
       "becomes": "تصبح",
@@ -1487,7 +1498,8 @@
         "needSlackUrl": "أدخل عنوان webhook الوارد في Slack.",
         "needView": "اختر طريقة العرض التي تُعدّ صفوفها.",
         "needNumber": "اختر الخاصية الرقمية التي يُجرى عليها الحساب.",
-        "needThreshold": "أدخل الرقم المراد المقارنة به."
+        "needThreshold": "أدخل الرقم المراد المقارنة به.",
+        "needButton": "اختر الزر الذي يشغّلها."
       },
       "agent": "الوكيل",
       "chooseAgent": "اختيار وكيل…",
@@ -1575,6 +1587,7 @@
       "refresh": "تحديث",
       "schedule": "الجدول",
       "webhookReceived": "وصل Webhook",
+      "buttonClicked": "تم النقر على الزر",
       "showDetails": "عرض التفاصيل",
       "hideDetails": "إخفاء التفاصيل",
       "test": "تجربة",
@@ -2303,6 +2316,17 @@
       "widgets": "الأدوات",
       "published": "النشر",
       "other": "إعدادات أخرى"
+    }
+  },
+  "rowButton": {
+    "started": "بدأ",
+    "failed": {
+      "error": "لم يعمل الزر. حاول مرة أخرى.",
+      "notFound": "هذا الزر لم يعد موجودًا.",
+      "inTrash": "الأزرار في الصفوف الموجودة في سلة المهملات لا تفعل شيئًا.",
+      "noAutomation": "هذا الزر لا يفعل شيئًا بعد: حدّد ما يفعله من قائمة الخاصية.",
+      "rateLimited": "تم النقر على هذا الزر كثيرًا. انتظر قليلًا ثم حاول مرة أخرى.",
+      "noAccess": "لا يمكنك استخدام هذا الزر: يتطلب صلاحية تعديل الصف."
     }
   }
 }

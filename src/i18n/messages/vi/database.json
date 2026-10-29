@@ -24,7 +24,8 @@
     "formula": "Công thức",
     "rollup": "Tổng hợp",
     "place": "Địa điểm",
-    "uniqueId": "ID"
+    "uniqueId": "ID",
+    "button": "Nút"
   },
   "views": {
     "table": "Bảng",
@@ -563,6 +564,11 @@
     "decimalsAuto": "Tự động",
     "percentHint": "Nhập 15 cho {percent}",
     "dateOptions": "Cài đặt ngày",
+    "buttonAutomations": "Sửa việc nút làm",
+    "buttonLook": "Nhãn và màu",
+    "buttonLabel": "Nhãn",
+    "buttonColor": "Màu",
+    "buttonColorPlain": "Thường",
     "uniqueIdPrefix": "Tiền tố ID",
     "uniqueIdPrefixNone": "Không có",
     "uniqueIdPrefixPlaceholder": "TASK",
@@ -1355,6 +1361,7 @@
       "anyChange": "bất kỳ thuộc tính nào thay đổi",
       "changes": "{property} thay đổi",
       "becomes": "{property} trở thành {value}",
+      "buttonClicked": "Khi bấm {property}",
       "datePassedProperty": "{days, plural, =0 {đến {date}} other {đã qua # ngày kể từ {date}}}",
       "datePassedSince": "{days, plural, other {đã qua # ngày kể từ {date}}}",
       "rowAdded": "hàng được thêm",
@@ -1391,8 +1398,12 @@
         "date_passed": "Một ngày đến",
         "view_threshold": "Một tổng vượt qua ngưỡng",
         "schedule": "Theo lịch",
-        "incoming_webhook": "Một yêu cầu đến (webhook đến)"
+        "incoming_webhook": "Một yêu cầu đến (webhook đến)",
+        "button_clicked": "Khi bấm một nút"
       },
+      "button": "Nút",
+      "chooseButton": "Chọn một nút",
+      "noButtons": "Cơ sở dữ liệu này chưa có thuộc tính nút. Hãy thêm một thuộc tính mới rồi quay lại đây.",
       "property": "Thuộc tính",
       "anyProperty": "Bất kỳ thuộc tính nào",
       "becomes": "Trở thành",
@@ -1487,7 +1498,8 @@
         "needSlackUrl": "Nhập địa chỉ webhook đến của Slack.",
         "needView": "Hãy chọn chế độ xem có các hàng được đếm.",
         "needNumber": "Hãy chọn thuộc tính số để tính.",
-        "needThreshold": "Hãy nhập số để so sánh."
+        "needThreshold": "Hãy nhập số để so sánh.",
+        "needButton": "Chọn nút chạy nó."
       },
       "agent": "Tác tử",
       "chooseAgent": "Chọn một tác tử…",
@@ -1575,6 +1587,7 @@
       "refresh": "Làm mới",
       "schedule": "Lịch",
       "webhookReceived": "Đã nhận webhook",
+      "buttonClicked": "Đã bấm nút",
       "showDetails": "Hiện chi tiết",
       "hideDetails": "Ẩn chi tiết",
       "test": "Thử",
@@ -2303,6 +2316,17 @@
       "widgets": "tiện ích",
       "published": "xuất bản",
       "other": "cài đặt khác"
+    }
+  },
+  "rowButton": {
+    "started": "Đã bắt đầu",
+    "failed": {
+      "error": "Nút không hoạt động. Hãy thử lại.",
+      "notFound": "Nút này không còn nữa.",
+      "inTrash": "Nút trên các hàng trong thùng rác không làm gì.",
+      "noAutomation": "Nút này chưa làm gì: hãy đặt việc nút làm trong menu của thuộc tính.",
+      "rateLimited": "Nút này bị bấm quá nhiều lần. Đợi một lát rồi thử lại.",
+      "noAccess": "Bạn không thể dùng nút này: cần quyền sửa hàng."
     }
   }
 }

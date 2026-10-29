@@ -24,7 +24,8 @@
     "formula": "Формула",
     "rollup": "Зведення",
     "place": "Місце",
-    "uniqueId": "ID"
+    "uniqueId": "ID",
+    "button": "Кнопка"
   },
   "views": {
     "table": "Таблиця",
@@ -563,6 +564,11 @@
     "decimalsAuto": "Автоматично",
     "percentHint": "Введіть 15, щоб отримати {percent}",
     "dateOptions": "Налаштування дати",
+    "buttonAutomations": "Змінити дію",
+    "buttonLook": "Підпис і колір",
+    "buttonLabel": "Підпис",
+    "buttonColor": "Колір",
+    "buttonColorPlain": "Звичайна",
     "uniqueIdPrefix": "Префікс ID",
     "uniqueIdPrefixNone": "Немає",
     "uniqueIdPrefixPlaceholder": "TASK",
@@ -1355,6 +1361,7 @@
       "anyChange": "змінюється будь-яка властивість",
       "changes": "змінюється «{property}»",
       "becomes": "«{property}» стає {value}",
+      "buttonClicked": "Натиснуто кнопку {property}",
       "datePassedProperty": "{days, plural, =0 {настала дата {date}} one {минув # день із дати {date}} few {минуло # дні з дати {date}} many {минуло # днів із дати {date}} other {минуло # дня з дати {date}}}",
       "datePassedSince": "{days, plural, one {минув # день із дати {date}} few {минуло # дні з дати {date}} many {минуло # днів із дати {date}} other {минуло # дня з дати {date}}}",
       "rowAdded": "додавання рядка",
@@ -1391,8 +1398,12 @@
         "date_passed": "Минає дата",
         "view_threshold": "Підсумок перетинає поріг",
         "schedule": "За розкладом",
-        "incoming_webhook": "Надходить запит (вхідний вебхук)"
+        "incoming_webhook": "Надходить запит (вхідний вебхук)",
+        "button_clicked": "Натиснуто кнопку"
       },
+      "button": "Кнопка",
+      "chooseButton": "Виберіть кнопку",
+      "noButtons": "У цій базі даних ще немає властивості-кнопки. Додайте її як нову властивість і поверніться сюди.",
       "property": "Властивість",
       "anyProperty": "Будь-яка властивість",
       "becomes": "Стає",
@@ -1487,7 +1498,8 @@
         "needSlackUrl": "Введіть адресу вхідного вебхука Slack.",
         "needView": "Виберіть подання, рядки якого рахуються.",
         "needNumber": "Виберіть числову властивість для обчислення.",
-        "needThreshold": "Введіть число для порівняння."
+        "needThreshold": "Введіть число для порівняння.",
+        "needButton": "Виберіть кнопку, яка її запускає."
       },
       "agent": "Агент",
       "chooseAgent": "Виберіть агента…",
@@ -1575,6 +1587,7 @@
       "refresh": "Оновити",
       "schedule": "Розклад",
       "webhookReceived": "Отримано вебхук",
+      "buttonClicked": "Натиснуто кнопку",
       "showDetails": "Показати подробиці",
       "hideDetails": "Сховати подробиці",
       "test": "Тест",
@@ -2303,6 +2316,17 @@
       "widgets": "віджети",
       "published": "публікація",
       "other": "інші налаштування"
+    }
+  },
+  "rowButton": {
+    "started": "Запущено",
+    "failed": {
+      "error": "Кнопка не спрацювала. Спробуйте ще раз.",
+      "notFound": "Цієї кнопки більше немає.",
+      "inTrash": "Кнопки в рядках із кошика нічого не роблять.",
+      "noAutomation": "Ця кнопка поки нічого не робить: задайте дію в меню властивості.",
+      "rateLimited": "Цю кнопку натискали надто часто. Зачекайте трохи й спробуйте знову.",
+      "noAccess": "Ви не можете використати цю кнопку: потрібен доступ до редагування рядка."
     }
   }
 }

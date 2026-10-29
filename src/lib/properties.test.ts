@@ -7,6 +7,7 @@ import {
   sortKeyReader,
   checklistProgress,
   computedValues,
+  isFilterable,
   isGroupable,
   localDay,
   makeStatusOptions,
@@ -300,6 +301,14 @@ describe("filterOperators", () => {
     expect(filterOperators("number").map((o) => o.op)).toContain("gt");
     expect(filterOperators("select").map((o) => o.op)).not.toContain("contains");
     expect(filterOperators("title")[0].op).toBe("contains");
+  });
+
+  it("offers nothing for a button, which holds no value", () => {
+    expect(filterOperators("button")).toEqual([]);
+    expect(isFilterable("button")).toBe(false);
+    expect(isFilterable("text")).toBe(true);
+    expect(isSortable("button")).toBe(false);
+    expect(isGroupable("button")).toBe(false);
   });
 
   it("knows which operators need a value", () => {

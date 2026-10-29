@@ -50,7 +50,12 @@ export type AutomationTrigger =
    * number (server/automations/threshold.ts). It starts once when the value crosses the line and
    * again only after it came back. A run has no row.
    */
-  | ThresholdTrigger;
+  | ThresholdTrigger
+  /**
+   * Someone clicks the button property `propertyId` on a row (server/row-buttons.ts): a run about
+   * that row, with them as its actor. Found by clicks, never by writes.
+   */
+  | { type: "button_clicked"; propertyId: string };
 
 export type AutomationTriggerType = AutomationTrigger["type"];
 export const AUTOMATION_TRIGGER_TYPES = [
@@ -60,11 +65,12 @@ export const AUTOMATION_TRIGGER_TYPES = [
   "schedule",
   "incoming_webhook",
   "view_threshold",
+  "button_clicked",
 ] as const satisfies AutomationTriggerType[];
 
 /** Whether runs of a trigger are about a row (the `trigger` of their templates is that row). */
 export const hasRow = (trigger: { type: AutomationTriggerType }) =>
-  trigger.type === "row_created" || trigger.type === "property_changed" || trigger.type === "date_passed";
+  trigger.type === "row_created" || trigger.type === "property_changed" || trigger.type === "date_passed" || trigger.type === "button_clicked";
 
 /** The properties a property_changed trigger watches; empty for any property. */
 export const watchedProperties = (trigger: Extract<AutomationTrigger, { type: "property_changed" }>) =>
@@ -500,12 +506,12 @@ export const thresholdValue = (fn: ThresholdFn, value: number) =>
 /** The event name a webhook's body carries. */
 export const webhookEvent = (created: boolean) => (created ? "row.created" : "row.updated");
 
-/** What started a run without a row. */
-export type RunOrigin = "schedule" | "incoming_webhook" | "view_threshold";
+/** What started a run that no write did: a schedule, a request, a threshold or a button on a row. */
+export type RunOrigin = "schedule" | "incoming_webhook" | "view_threshold" | "button";
 
 /**
  * The event of a run: a row added or changed, a "date passed" run (it has the date it ran for), a
- * schedule or a request to the automation's address.
+ * schedule, a request to the automation's address, a threshold or a button clicked on a row.
  */
 export const runEvent = (run: { created: boolean; basis: string | null; origin?: RunOrigin | null }) =>
   run.origin === "schedule"
@@ -514,9 +520,11 @@ export const runEvent = (run: { created: boolean; basis: string | null; origin?:
       ? "webhook.received"
       : run.origin === "view_threshold"
         ? "threshold.crossed"
-        : run.basis !== null
-          ? "row.date_passed"
-          : webhookEvent(run.created);
+        : run.origin === "button"
+          ? "row.button_clicked"
+          : run.basis !== null
+            ? "row.date_passed"
+            : webhookEvent(run.created);
 
 /** Header names of a webhook request. */
 export const WEBHOOK_SIGNATURE_HEADER = "X-Leafdesk-Signature";

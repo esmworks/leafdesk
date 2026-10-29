@@ -21,7 +21,7 @@ import { derivedType, isErrorValue, rollupFormat } from "@/lib/derived";
 import { asFormulaStyle, styleClasses, type FormulaStyle } from "@/lib/formula";
 import { asFiles } from "@/lib/files";
 import { asPlace } from "@/lib/place";
-import { holdsPeople, isDerived, isReadOnlyType } from "@/lib/property-types";
+import { holdsPeople, isAction, isDerived, isReadOnlyType } from "@/lib/property-types";
 import { FilesDisplay, FilesEditor, type UploadFile } from "./files-cell";
 import { PlaceDisplay } from "./place-cell";
 import { Floating } from "./floating";
@@ -53,6 +53,11 @@ import { lazyPart } from "@/components/lazy-part";
 
 // The place editor (its search and suggestions) loads when a place is first edited.
 const PlaceEditor = lazyPart(() => import("./place-editor").then((m) => m.PlaceEditor));
+/** A button property's button (row-button-cell.tsx); its code loads with the first one shown. */
+export const RowButtonCell = lazyPart(
+  () => import("./row-button-cell").then((m) => m.RowButtonCell),
+  ({ variant }) => <div className={variant === "table" ? "min-h-[33px]" : variant === "panel" ? "min-h-[30px]" : "h-5"} />,
+);
 // Only the date editor shows it: kept out of the first load the row panel brings along.
 const DayGrid = lazyPart(() => import("./date-day-grid").then((m) => m.DayGrid), <div className="h-60" />);
 
@@ -321,8 +326,8 @@ type RowValues = { properties: Record<string, unknown>; hidden?: string[]; style
  * The properties a card or list entry shows for a row: those with a value, and those whose value
  * the viewer may not see (a lock stands in for it, see RowValue).
  */
-export function shownValues<P extends Property>(props: P[], row: RowValues): P[] {
-  return props.filter((p) => row.hidden?.includes(p.id) || !isEmptyValue(p, row.properties[p.id]));
+export function shownValues<P extends Property>(props: P[], row: RowValues, { buttons = false } = {}): P[] {
+  return props.filter((p) => row.hidden?.includes(p.id) || (buttons && isAction(p.type)) || !isEmptyValue(p, row.properties[p.id]));
 }
 
 /** A row's value, read-only: its display, or a lock when the viewer may not see it (property access). */
@@ -604,6 +609,7 @@ export function PropertyCell({
   style,
   rowValues,
   onTab,
+  rowId,
 }: {
   prop: Property;
   value: unknown;
@@ -636,6 +642,8 @@ export function PropertyCell({
   placeholder?: string;
   /** Files properties: where new files are stored (the row); without it files can only be removed. */
   upload?: UploadFile;
+  /** The row the value is on: a button property's button needs it to be clicked. */
+  rowId?: string;
 }) {
   const t = useTranslations("database.cell");
   const [anchor, setAnchor] = useState<HTMLDivElement | null>(null);
@@ -666,6 +674,8 @@ export function PropertyCell({
       </div>
     );
   }
+
+  if (isAction(prop.type)) return <RowButtonCell prop={prop} rowId={rowId} readOnly={readOnlyProp} variant={variant} />;
 
   // A status shown as a checkbox ticks the first done option, or unticks to the first to-do one.
   if (prop.type === "status" && prop.options.statusDisplay === "checkbox") {

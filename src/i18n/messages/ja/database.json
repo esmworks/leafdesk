@@ -24,7 +24,8 @@
     "formula": "数式",
     "rollup": "ロールアップ",
     "place": "場所",
-    "uniqueId": "ID"
+    "uniqueId": "ID",
+    "button": "ボタン"
   },
   "views": {
     "table": "テーブル",
@@ -563,6 +564,11 @@
     "decimalsAuto": "自動",
     "percentHint": "{percent}にするには15と入力",
     "dateOptions": "日付の設定",
+    "buttonAutomations": "動作を編集",
+    "buttonLook": "ラベルと色",
+    "buttonLabel": "ラベル",
+    "buttonColor": "色",
+    "buttonColorPlain": "標準",
     "uniqueIdPrefix": "IDの接頭辞",
     "uniqueIdPrefixNone": "なし",
     "uniqueIdPrefixPlaceholder": "TASK",
@@ -1355,6 +1361,7 @@
       "anyChange": "いずれかのプロパティの変更",
       "changes": "{property}の変更",
       "becomes": "{property}が{value}に変化",
+      "buttonClicked": "{property} がクリックされたとき",
       "datePassedProperty": "{days, plural, =0 {{date}に到達} other {{date}から{days}日経過}}",
       "datePassedSince": "{date}から{days}日経過",
       "rowAdded": "行の追加日",
@@ -1391,8 +1398,12 @@
         "date_passed": "日付が過ぎたとき",
         "view_threshold": "合計がしきい値を越えたとき",
         "schedule": "スケジュールどおり",
-        "incoming_webhook": "リクエストが届いたとき（受信 Webhook）"
+        "incoming_webhook": "リクエストが届いたとき（受信 Webhook）",
+        "button_clicked": "ボタンがクリックされたとき"
       },
+      "button": "ボタン",
+      "chooseButton": "ボタンを選択",
+      "noButtons": "このデータベースにはまだボタンプロパティがありません。新しいプロパティとして追加してから、ここに戻ってください。",
       "property": "プロパティ",
       "anyProperty": "いずれかのプロパティ",
       "becomes": "変更後の値",
@@ -1487,7 +1498,8 @@
         "needSlackUrl": "Slack の Incoming Webhook のアドレスを入力してください。",
         "needView": "行を数えるビューを選択してください。",
         "needNumber": "計算する数値プロパティを選択してください。",
-        "needThreshold": "比較する数値を入力してください。"
+        "needThreshold": "比較する数値を入力してください。",
+        "needButton": "実行するボタンを選んでください。"
       },
       "agent": "エージェント",
       "chooseAgent": "エージェントを選択…",
@@ -1575,6 +1587,7 @@
       "refresh": "更新",
       "schedule": "スケジュール",
       "webhookReceived": "Webhook を受信",
+      "buttonClicked": "ボタンがクリックされました",
       "showDetails": "詳細を表示",
       "hideDetails": "詳細を隠す",
       "test": "テスト",
@@ -2303,6 +2316,17 @@
       "widgets": "ウィジェット",
       "published": "公開",
       "other": "その他の設定"
+    }
+  },
+  "rowButton": {
+    "started": "開始しました",
+    "failed": {
+      "error": "ボタンが動作しませんでした。もう一度お試しください。",
+      "notFound": "このボタンはもうありません。",
+      "inTrash": "ゴミ箱内の行のボタンは何もしません。",
+      "noAutomation": "このボタンはまだ何もしません。プロパティのメニューで動作を設定してください。",
+      "rateLimited": "このボタンのクリックが多すぎます。少し待ってからもう一度お試しください。",
+      "noAccess": "このボタンは使えません。行の編集権限が必要です。"
     }
   }
 }

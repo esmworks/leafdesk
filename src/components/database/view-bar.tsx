@@ -58,6 +58,7 @@ import {
   filterNeedsValue,
   filterOperators,
   isHiddenInView,
+  isFilterable,
   isSortable,
   moveProperty,
   setAllHiddenInView,
@@ -990,7 +991,7 @@ function useRangeLabel() {
 const EDITOR_GROUP_DEPTH = MAX_FILTER_DEPTH;
 
 export function FilterEditor({
-  columns,
+  columns: allColumns,
   filters,
   combinator,
   onChange,
@@ -1001,6 +1002,8 @@ export function FilterEditor({
   onChange: (filters: FilterEntry[], combinator: FilterCombinator) => void;
 }) {
   const t = useTranslations("database.filter");
+  // Buttons hold no value, so no rule can be about one.
+  const columns = allColumns.filter((c) => isFilterable(c.type));
   // The top level edits like a group. Text values are drafted locally and saved with a short debounce.
   const [draft, setDraft] = useState<FilterGroup>({ type: "group", combinator, rules: filters });
   const timer = useRef<ReturnType<typeof setTimeout> | null>(null);

@@ -21,7 +21,7 @@ import { opensNewTab } from "@/lib/row-panel";
 import { galleryCover, openRowsOf, opensRows, withViewSorts } from "@/lib/views";
 import { holdsSprints, sprintProperty } from "@/lib/sprints";
 import { getSprintsAction } from "@/app/actions/databases";
-import { AutomationsButton } from "./automations-button";
+import { AutomationsButton, ButtonAutomationsProvider } from "./automations-button";
 import { JiraSyncButton } from "./jira-sync-button";
 import { GalleryView } from "./gallery-view";
 import { ListView } from "./list-view";
@@ -454,7 +454,9 @@ export function DatabasePage({
   const filterBy = useCallback(
     (v: View, columnId: string) => {
       const prop = properties?.find((p) => p.id === columnId);
-      const filters = [...(v.config.filters ?? []), { propertyId: columnId, op: filterOperators(prop ? valueType(prop) : "title")[0].op }];
+      const [first] = filterOperators(prop ? valueType(prop) : "title");
+      if (!first) return; // a button: nothing to filter by
+      const filters = [...(v.config.filters ?? []), { propertyId: columnId, op: first.op }];
       void setConfig(v, { ...v.config, filters });
       setFilterRequest((r) => ({ id: (r?.id ?? 0) + 1, viewId: v.id, filters: filters.length }));
     },
@@ -583,6 +585,12 @@ export function DatabasePage({
         <SchemaProvider value={snapshot.properties}>
           <PropertyAccessProvider value={accessContext}>
             <AiAutofillProvider value={aiContext}>
+            <ButtonAutomationsProvider
+              workspaceId={workspaceId}
+              databaseId={databaseId}
+              databaseTitle={snapshot.database.title}
+              enabled={canManageAutomations}
+            >
               {/* Wide layout: controls sit in the page gutter, the board scrolls edge to edge. */}
               <RowOpenerContext value={opener}>
                 <div ref={sourceRef} data-row-source data-open-rows={centered ? "center" : undefined} className="min-w-0">
@@ -925,6 +933,7 @@ export function DatabasePage({
                   />
                 )}
               </RowOpenerContext>
+            </ButtonAutomationsProvider>
             </AiAutofillProvider>
           </PropertyAccessProvider>
         </SchemaProvider>

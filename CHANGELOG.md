@@ -4,6 +4,13 @@
 
 ### Added
 
+- **Buttons on rows.** A new Button property puts a button on every row of a database, in tables,
+  lists, boards, galleries and the row page. Clicking it runs the automations made for it on that
+  row (new trigger *A button is clicked*), as whoever clicked; it takes edit access to the row.
+  The property's menu sets its label and color and opens what it does. Over MCP,
+  `add_database_property` and `update_database_property` take `button` and automations take the
+  trigger `button_clicked`. No migration.
+
 - **Own AI accounts and the server can use OpenRouter, xAI, Moonshot AI, MiniMax and Z.AI.** Each is a
   provider of its own in Settings → Apps → AI and in `AI_PROVIDER` (`openrouter`, `xai`, `moonshotai`,
   `minimax`, `zai`) with just a key: Leafdesk knows their models (context windows, prices, thinking)

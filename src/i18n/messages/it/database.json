@@ -24,7 +24,8 @@
     "formula": "Formula",
     "rollup": "Rollup",
     "place": "Luogo",
-    "uniqueId": "ID"
+    "uniqueId": "ID",
+    "button": "Pulsante"
   },
   "views": {
     "table": "Tabella",
@@ -563,6 +564,11 @@
     "decimalsAuto": "Automatico",
     "percentHint": "Scrivi 15 per {percent}",
     "dateOptions": "Impostazioni data",
+    "buttonAutomations": "Modifica cosa fa",
+    "buttonLook": "Etichetta e colore",
+    "buttonLabel": "Etichetta",
+    "buttonColor": "Colore",
+    "buttonColorPlain": "Semplice",
     "uniqueIdPrefix": "Prefisso ID",
     "uniqueIdPrefixNone": "Nessuno",
     "uniqueIdPrefixPlaceholder": "TASK",
@@ -1355,6 +1361,7 @@
       "anyChange": "cambia una proprietà qualsiasi",
       "changes": "cambia {property}",
       "becomes": "{property} diventa {value}",
+      "buttonClicked": "Clic su {property}",
       "datePassedProperty": "{days, plural, =0 {si raggiunge {date}} one {è passato # giorno da {date}} other {sono passati # giorni da {date}}}",
       "datePassedSince": "{days, plural, one {è passato # giorno da {date}} other {sono passati # giorni da {date}}}",
       "rowAdded": "l’aggiunta della riga",
@@ -1391,8 +1398,12 @@
         "date_passed": "Passa una data",
         "view_threshold": "Un totale supera una soglia",
         "schedule": "Secondo una pianificazione",
-        "incoming_webhook": "Arriva una richiesta (webhook in entrata)"
+        "incoming_webhook": "Arriva una richiesta (webhook in entrata)",
+        "button_clicked": "Clic su un pulsante"
       },
+      "button": "Pulsante",
+      "chooseButton": "Scegli un pulsante",
+      "noButtons": "Questo database non ha ancora una proprietà pulsante. Aggiungine una come nuova proprietà, poi torna qui.",
       "property": "Proprietà",
       "anyProperty": "Qualsiasi proprietà",
       "becomes": "Diventa",
@@ -1487,7 +1498,8 @@
         "needSlackUrl": "Inserisci l’indirizzo del webhook in entrata di Slack.",
         "needView": "Scegli la vista le cui righe vengono contate.",
         "needNumber": "Scegli la proprietà numerica su cui calcolare.",
-        "needThreshold": "Inserisci il numero con cui confrontare."
+        "needThreshold": "Inserisci il numero con cui confrontare.",
+        "needButton": "Scegli il pulsante che la avvia."
       },
       "agent": "Agente",
       "chooseAgent": "Scegli un agente…",
@@ -1575,6 +1587,7 @@
       "refresh": "Aggiorna",
       "schedule": "Pianificazione",
       "webhookReceived": "Webhook ricevuto",
+      "buttonClicked": "Clic sul pulsante",
       "showDetails": "Mostra dettagli",
       "hideDetails": "Nascondi dettagli",
       "test": "Prova",
@@ -2303,6 +2316,17 @@
       "widgets": "widget",
       "published": "pubblicazione",
       "other": "altre impostazioni"
+    }
+  },
+  "rowButton": {
+    "started": "Avviato",
+    "failed": {
+      "error": "Il pulsante non ha funzionato. Riprova.",
+      "notFound": "Questo pulsante non esiste più.",
+      "inTrash": "I pulsanti delle righe nel cestino non fanno nulla.",
+      "noAutomation": "Questo pulsante non fa ancora nulla: imposta cosa fa dal menu della proprietà.",
+      "rateLimited": "Questo pulsante è stato cliccato troppo spesso. Attendi un momento e riprova.",
+      "noAccess": "Non puoi usare questo pulsante: serve l'accesso in modifica alla riga."
     }
   }
 }

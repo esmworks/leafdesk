@@ -147,6 +147,10 @@ export const triggerInput = z
     }),
     z.object({ type: z.literal("schedule"), schedule: scheduleInput }),
     z.object({
+      type: z.literal("button_clicked"),
+      property: z.string().min(1).describe("The button property, by name or id."),
+    }),
+    z.object({
       type: z.literal("incoming_webhook"),
       example: z
         .unknown()
@@ -155,7 +159,7 @@ export const triggerInput = z
     }),
   ])
   .describe(
-    'What starts the automation. Row triggers: {"type": "row_created"} when a row is added; {"type": "property_changed", "property": "Status", "to": "Done"} when a value changes; {"type": "date_passed", "date": "last_edited_time", "days": 30, "status": {"groups": ["todo", "in_progress"]}} that many days past (checked every few minutes; once per value, again after the date changes and is past again; matching rows run at the next check, at most 100 per check). Triggers without a row: {"type": "view_threshold", "view": "Cash and bank", "calculation": "sum", "property": "Amount", "comparison": "below", "value": 50000} runs once when the calculation over the view\'s rows (as the automation\'s person sees them) crosses the line, and again only after it came back; checked a moment after rows change and every few minutes (for "today" filters); what is already past the line when it is published or turned on doesn\'t run it; {"type": "schedule", "schedule": {"frequency": "weekly", "time": "09:00", "weekdays": [1]}} runs at those times in time_zone (missed times run once); {"type": "incoming_webhook"} runs when a JSON POST arrives at the automation\'s secret address (hook_url in the result), with the body as {{trigger}} (at most 64 KB, 60/min; answers 202 with the run_id).',
+    'What starts the automation. Row triggers: {"type": "row_created"} when a row is added; {"type": "property_changed", "property": "Status", "to": "Done"} when a value changes; {"type": "date_passed", "date": "last_edited_time", "days": 30, "status": {"groups": ["todo", "in_progress"]}} that many days past (checked every few minutes; once per value, again after the date changes and is past again; matching rows run at the next check, at most 100 per check); {"type": "button_clicked", "property": "Approve"} when someone who may edit the row clicks that button property on it ({{trigger.actor}} is them). Triggers without a row: {"type": "view_threshold", "view": "Cash and bank", "calculation": "sum", "property": "Amount", "comparison": "below", "value": 50000} runs once when the calculation over the view\'s rows (as the automation\'s person sees them) crosses the line, and again only after it came back; checked a moment after rows change and every few minutes (for "today" filters); what is already past the line when it is published or turned on doesn\'t run it; {"type": "schedule", "schedule": {"frequency": "weekly", "time": "09:00", "weekdays": [1]}} runs at those times in time_zone (missed times run once); {"type": "incoming_webhook"} runs when a JSON POST arrives at the automation\'s secret address (hook_url in the result), with the body as {{trigger}} (at most 64 KB, 60/min; answers 202 with the run_id).',
   );
 
 // Described once, in set_properties' values: the union is sent again inside every values field.
@@ -369,7 +373,7 @@ const publishInput = (what: string) =>
 const triggerParam = checked(
   triggerInput,
   "object",
-  `When it runs: {type: "row_created" | "property_changed" | "date_passed" | "view_threshold" | "schedule" | "incoming_webhook", …}. ${see("automations")}`,
+  `When it runs: {type: "row_created" | "property_changed" | "date_passed" | "button_clicked" | "view_threshold" | "schedule" | "incoming_webhook", …}. ${see("automations")}`,
 );
 const actionsParam = checked(
   actionsInput,
@@ -438,6 +442,8 @@ const toTrigger = (trigger: TriggerArg): AutomationInput["trigger"] => {
       return { type: "schedule", schedule: toSchedule(trigger.schedule) };
     case "incoming_webhook":
       return { type: "incoming_webhook", ...(trigger.example !== undefined ? { example: trigger.example } : {}) };
+    case "button_clicked":
+      return { type: "button_clicked", property: trigger.property };
     case "view_threshold":
       return {
         type: "view_threshold",
@@ -777,6 +783,10 @@ function describeTrigger(ctx: AutomationContext, trigger: AutomationTrigger, tim
       value: trigger.value,
       summary: `When ${what} in ${name !== null ? `view ${quote(name)}` : "a deleted view"} goes ${trigger.comparison} ${trigger.value}`,
     };
+  }
+  if (trigger.type === "button_clicked") {
+    const property = propertyRef(ctx.props, trigger.propertyId);
+    return { type: "button_clicked", property, summary: `When someone clicks ${property.name !== null ? quote(property.name) : "a deleted button"} on a row` };
   }
   if (trigger.type === "date_passed") {
     const date =

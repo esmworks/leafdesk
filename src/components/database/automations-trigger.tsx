@@ -68,6 +68,7 @@ export function TriggerEditor({
   const properties = useSchema();
   const dates = properties.filter((p) => p.type === "date");
   const statuses = properties.filter((p) => p.type === "status");
+  const buttons = properties.filter((p) => p.type === "button");
   const views = useDatabaseInfo(databaseId)?.views ?? [];
 
   return (
@@ -88,7 +89,9 @@ export function TriggerEditor({
                     ? { type, example: "" }
                     : type === "view_threshold"
                       ? { type, view: views[0]?.id ?? "", fn: "count_all", property: "", comparison: "above", value: "0" }
-                      : { type: "property_changed", properties: [] },
+                      : type === "button_clicked"
+                        ? { type, property: buttons[0]?.id ?? "" }
+                        : { type: "property_changed", properties: [] },
           );
         }}
         className={selectClass}
@@ -106,6 +109,24 @@ export function TriggerEditor({
         <IncomingWebhookEditor trigger={trigger} saved={saved} onChange={onChange} onUpdated={onUpdated} />
       )}
       {trigger.type === "view_threshold" && <ThresholdEditor databaseId={databaseId} trigger={trigger} views={views} onChange={onChange} />}
+      {trigger.type === "button_clicked" &&
+        (buttons.length ? (
+          <select
+            value={trigger.property}
+            aria-label={t("form.button")}
+            onChange={(e) => onChange({ type: "button_clicked", property: e.target.value })}
+            className={selectClass}
+          >
+            {!trigger.property && <option value="">{t("form.chooseButton")}</option>}
+            {buttons.map((p) => (
+              <option key={p.id} value={p.id}>
+                {p.name}
+              </option>
+            ))}
+          </select>
+        ) : (
+          <p className="text-xs text-fg-muted">{t("form.noButtons")}</p>
+        ))}
     </div>
   );
 }

@@ -140,7 +140,9 @@ export type DraftTrigger =
   /** `example`: a body as JSON text, for the variable picker and test runs. */
   | { type: "incoming_webhook"; example: string }
   /** `view` and `property` by id ("" until chosen; no property for count_all); `value` as typed. */
-  | { type: "view_threshold"; view: string; fn: ThresholdFn; property: string; comparison: ThresholdComparison; value: string };
+  | { type: "view_threshold"; view: string; fn: ThresholdFn; property: string; comparison: ThresholdComparison; value: string }
+  /** `property`: a button property's id ("" until chosen). */
+  | { type: "button_clicked"; property: string };
 
 export type Draft = { name: string; enabled: boolean; trigger: DraftTrigger; actions: DraftAction[] };
 
@@ -237,6 +239,7 @@ function toDraftTrigger(stored: AutomationTrigger): DraftTrigger {
   if (stored.type === "incoming_webhook") {
     return { type: "incoming_webhook", example: stored.example === undefined ? "" : JSON.stringify(stored.example, null, 2) };
   }
+  if (stored.type === "button_clicked") return { type: "button_clicked", property: stored.propertyId };
   if (stored.type === "view_threshold") {
     return {
       type: "view_threshold",
@@ -457,6 +460,14 @@ export const emptyDraft = (): Draft => ({
   actions: [{ key: newKey(), id: "notify", type: "notify", people: [], properties: [], message: "", forEach: "" }],
 });
 
+/** A new automation for a button property: clicking it on a row sets that row's properties. */
+export const buttonDraft = (propertyId: string, name: string): Draft => ({
+  name,
+  enabled: true,
+  trigger: { type: "button_clicked", property: propertyId },
+  actions: [{ key: newKey(), id: "set", type: "set_properties", entries: [], forEach: "" }],
+});
+
 /** A message key of `automations.form.errors`, and the step it is about, if any. */
 export type DraftProblem = { problem: string; step: string | null };
 
@@ -507,6 +518,7 @@ export function draftProblem(
     if (trigger.fn !== "count_all" && !trigger.property) return whole("needNumber");
     if (thresholdNumber(trigger.value) === null) return whole("needThreshold");
   }
+  if (trigger.type === "button_clicked" && !trigger.property) return whole("needButton");
   if (trigger.type === "incoming_webhook") {
     const example = parseJson(trigger.example);
     if (!example.ok) return whole("badExample");
@@ -644,6 +656,8 @@ export function triggerInput(trigger: DraftTrigger) {
         properties: trigger.properties,
         to: trigger.properties.length === 1 ? (trigger.to ?? null) : null,
       };
+    case "button_clicked":
+      return { type: "button_clicked" as const, property: trigger.property };
   }
 }
 
@@ -792,7 +806,15 @@ export function triggerValueName(
 }
 
 /** Trigger types in the order the editor offers them. */
-export const TRIGGER_CHOICES: AutomationTriggerType[] = ["row_created", "property_changed", "date_passed", "view_threshold", "schedule", "incoming_webhook"];
+export const TRIGGER_CHOICES: AutomationTriggerType[] = [
+  "row_created",
+  "property_changed",
+  "date_passed",
+  "button_clicked",
+  "view_threshold",
+  "schedule",
+  "incoming_webhook",
+];
 
 /** A threshold as a number field gives it, or null when it isn't a number in range. */
 export function thresholdNumber(text: string): number | null {

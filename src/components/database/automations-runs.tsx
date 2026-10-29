@@ -221,11 +221,13 @@ function RunItem({
           : t("threshold")
       : run.event === "webhook.received"
         ? t("webhookReceived")
-        : run.basis !== null
-          ? t("datePassed", { date: basisLabel(run.basis) })
-          : run.event === "row.created"
-            ? t("added")
-            : t("changed");
+        : run.event === "row.button_clicked"
+          ? t("buttonClicked")
+          : run.basis !== null
+            ? t("datePassed", { date: basisLabel(run.basis) })
+            : run.event === "row.created"
+              ? t("added")
+              : t("changed");
 
   return (
     <li ref={ref} className="py-2.5">

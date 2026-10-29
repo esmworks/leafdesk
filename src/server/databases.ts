@@ -63,6 +63,7 @@ import {
 import { dateMarker } from "@/lib/template-values";
 import { checkedPrefix, claimPrefix, refuseSecondUniqueId } from "@/server/unique-ids";
 import { formatUniqueId, uniqueIdPrefix } from "@/lib/unique-id";
+import { cleanRowButtonOptions, type RowButtonOptions } from "@/lib/row-buttons";
 import { canRestrict, namesPeople } from "@/lib/property-access";
 import { moveGroupValue } from "@/lib/grouping";
 import {
@@ -1720,6 +1721,8 @@ async function untrackedAddProperty(
     description?: string | null;
     /** Unique IDs: the prefix they show with ("TASK" for TASK-12); none when left out. */
     prefix?: string | null;
+    /** Buttons: the label and color rows show (lib/row-buttons); the property's name and plain when left out. */
+    button?: RowButtonOptions;
   },
 ) {
   const database = await requireDatabase(userId, databaseId, "edit");
@@ -1756,7 +1759,9 @@ async function untrackedAddProperty(
               ? { rollup }
               : prefix
                 ? { uniqueId: { prefix } }
-                : {};
+                : input.type === "button" && Object.keys(cleanRowButtonOptions(input.button)).length
+                  ? { button: cleanRowButtonOptions(input.button) }
+                  : {};
   // A formula keeps its expression beside its format.
   const formatted: PropertyOptions = number ? { ...typeOptions, number } : typeOptions;
   const options: PropertyOptions = description ? { description, ...formatted } : formatted;
@@ -1772,7 +1777,8 @@ async function untrackedAddProperty(
         databaseId,
         name,
         type: input.type,
-        options: (await hidesEmpty(tx, databaseId)) ? { ...options, pageVisibility: "hide_empty" } : options,
+        // A button has no value, so "only when it has one" would hide it on every row page.
+        options: input.type !== "button" && (await hidesEmpty(tx, databaseId)) ? { ...options, pageVisibility: "hide_empty" } : options,
         position: await nextPropertyPosition(databaseId, tx),
       })
       .returning();
@@ -2123,6 +2129,8 @@ async function untrackedUpdateProperty(
     prefix?: string | null;
     /** URLs: whether row pages show a preview of the linked page (server/url-preview.ts). */
     urlPreview?: boolean;
+    /** Buttons: the label and color rows show (lib/row-buttons); both replace the ones before. */
+    button?: RowButtonOptions;
     /** An icon shown instead of the type's (lib/icon); null or "" for the type's. */
     icon?: string | null;
     /** Relations: how many rows a row links to, where row pages show them, what linked rows show. */
@@ -2267,6 +2275,11 @@ async function untrackedUpdateProperty(
   if (dependsOn !== undefined) change((o) => (dependsOn ? { ...o, dependsOn } : without(o, "dependsOn")));
   if (prefix !== undefined) change((o) => (prefix ? { ...o, uniqueId: { prefix } } : without(o, "uniqueId")));
   if (patch.urlPreview !== undefined) change((o) => (patch.urlPreview === true ? { ...o, url: { preview: true } } : without(o, "url")));
+  if (patch.button !== undefined) {
+    if (prop.type !== "button") throw new PropertyValueError(`"${prop.name}" is a ${prop.type} property, not a button`, "unsupportedType", { type: prop.type });
+    const button = cleanRowButtonOptions(patch.button);
+    change((o) => (Object.keys(button).length ? { ...o, button } : without(o, "button")));
+  }
   if (patch.statusDisplay !== undefined) {
     change((o) => (patch.statusDisplay === "checkbox" ? { ...o, statusDisplay: "checkbox" } : without(o, "statusDisplay")));
   }

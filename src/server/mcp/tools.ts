@@ -1,4 +1,5 @@
 import { ICON_INPUT } from "@/lib/icon";
+import { MAX_ROW_BUTTON_LABEL, ROW_BUTTON_COLORS, type RowButtonOptions } from "@/lib/row-buttons";
 import { Readable } from "node:stream";
 import { type CallToolResult, McpServer, ProtocolError, ProtocolErrorCode, type ScopeChallengeHandler } from "@modelcontextprotocol/server";
 import * as z from "zod";
@@ -203,7 +204,7 @@ import {
 } from "./query";
 
 const INSTRUCTIONS = `Leafdesk is a workspace of pages and databases. Each user belongs to one or more workspaces.
-Pages form a tree inside a workspace. A database is a special page whose children are rows; rows are pages with typed properties (text, number, select, multi_select, status, date, checkbox, url, email, phone, checklist, files, place, relation, person, created_by, created_time, last_edited_by, last_edited_time, formula, rollup, unique_id); get_database shows a database's properties, with the description saying how to fill each, and leafdesk://docs/properties how each type's values are written. "me" stands for the signed-in user in person values and filters.
+Pages form a tree inside a workspace. A database is a special page whose children are rows; rows are pages with typed properties (text, number, select, multi_select, status, date, checkbox, url, email, phone, checklist, files, place, relation, person, created_by, created_time, last_edited_by, last_edited_time, formula, rollup, unique_id, button); get_database shows a database's properties, with the description saying how to fill each, and leafdesk://docs/properties how each type's values are written. "me" stands for the signed-in user in person values and filters.
 Start with list_workspaces or search to find ids, then get_page / list_pages / query_database. Wherever a tool takes an id (workspace_id, page_id, database_id, row_id, parent_id, view_id…), a Leafdesk link the user pasted works too (\`https://…/w/<workspace_id>/p/<page_id>\`, a view's link has \`?view=<view_id>\`).
 Teamspaces group a workspace's pages and people (list_teamspaces). A teamspace is default (everyone is in it), open (anyone can join; others can read), closed (only its members open its pages) or private (only its members know it). Its member_access is what its members get on its pages unless a page is shared otherwise (its owners and workspace owners get full access). A top-level page belongs to a teamspace, or is private to the user who made it; pages under it follow it. create_page, create_database and move_page take a teamspace_id for top-level pages ("private" for the user's private pages); without one, new top-level pages are private. Member groups (list_groups) are named sets of owners and members that pages are shared with and teamspaces joined by; someone gets the highest access they have from anywhere (their own, a group, the teamspace).
 Page bodies are read and written as Markdown. Before every content change Leafdesk saves a history snapshot, so the user can undo your edits from the page history (get_page_history / restore_page_version). Block forms beyond plain Markdown and mentions: leafdesk://docs/markdown.
@@ -232,7 +233,7 @@ const MARKDOWN_DOC = `Beyond plain Markdown, page bodies know a few block forms:
 Mentions: a link to a page of this app (\`[Roadmap](/w/<workspace_id>/p/<page_id>)\`) is a page mention, which shows the page's live title (the link text you write is ignored; get_page shows the current title, or "No access" / "Deleted page"), and \`#block-<block_id>\` after it mentions one block of the page (get_page with with_block_ids shows the ids), which opens the page there; \`[[Page title]]\` also becomes a mention of the page of that title in the page's workspace when you can open one (otherwise it stays text); that link alone on its line followed by \`<!-- leafdesk:page-link -->\` is a "Link to page" block, and followed by \`<!-- leafdesk:synced-page -->\` a synced page (the page's body shown live inside this one; its text is not part of this page's Markdown, read the page itself for it). \`@Name\` with a person's name as list_users shows it mentions them (they are notified if they can open the page), and \`@YYYY-MM-DD\` is a date. Keep mentions as they are when you rewrite a page: people aren't notified twice and reminders set on dates stay. get_page lists the pages linking to a page under linked_from, with the text around the first link (context) when there is any, and around each link (contexts) when a page links more than once; linked_from_truncated says how many pages link there when not all are listed.`;
 
 /** What the property types hold and how restricted properties read (leafdesk://docs/properties). */
-const PROPERTIES_DOC = `Pages form a tree inside a workspace. A database is a special page whose children are rows; rows are pages with typed properties (text, number, select, multi_select, status, date, checkbox, url, email, phone, checklist, files, place, relation, person, created_by, created_time, last_edited_by, last_edited_time, formula, rollup, unique_id). A relation links rows to rows of another database in the same workspace; two-way relations show the links on both databases. A person property assigns rows to people of the workspace; "me" stands for the signed-in user. A status is a select whose options belong to the groups todo, in_progress and done. A property may have a description saying what it holds and how to fill it (see get_database): follow it when writing values. A select may depend on another select ("City" on "Country"): a row may hold only the options that go with its value of that one. A text, number, email, url or phone property may keep its values unique (unique: true in get_database): a write giving a value another live row already holds (case and spaces aside) is refused, and duplicating a row leaves such values out. A checklist holds items that can be ticked off. A place holds where something is, read as {address, name?, lat, lng}; write an address to look up, coordinates ("41.04, 29.01") or {lat, lng, address?, name?}. A files property holds files uploaded to the workspace (images show as thumbnails); its values read as [{name, url}]. created_by, created_time, last_edited_by and last_edited_time show who created or last edited each row and when; they are filled in automatically and can't be written. A formula property computes its value from the row's other properties, and a rollup calculates over the rows a relation links to (see add_database_property); neither can be written. A unique_id numbers a database's rows 1, 2, 3… as they are created and reads as its prefix and number ("TASK-12", or "12" without a prefix); it can't be written, its filters take "TASK-12" or 12, and search finds a row by "TASK-12". A number property's number_format (see get_database), which a formula giving a number can have too, only changes how the app shows it: a percent property holds fractions (0.15 is 15%) and filters on it compare percent points (15); a duration holds minutes (90 shows as 1:30; write 90, "1:30" or "1h 30m"); a rating holds whole stars from 0 to its max. A date property holds a day (YYYY-MM-DD), a time (an ISO timestamp, returned in UTC: 2026-10-12T11:30:00.000Z), or a range of either written \"start/end\" (2026-10-12/2026-10-14; start and end both days or both times, the end not before the start). Write times with Z or an offset (2026-10-12T14:30+03:00); {\"start\", \"end\"} objects are accepted too. Its date_options can show it relatively and remind the row's people before it (a range: before its start; a time: at its time of day).
+const PROPERTIES_DOC = `Pages form a tree inside a workspace. A database is a special page whose children are rows; rows are pages with typed properties (text, number, select, multi_select, status, date, checkbox, url, email, phone, checklist, files, place, relation, person, created_by, created_time, last_edited_by, last_edited_time, formula, rollup, unique_id, button). A relation links rows to rows of another database in the same workspace; two-way relations show the links on both databases. A person property assigns rows to people of the workspace; "me" stands for the signed-in user. A status is a select whose options belong to the groups todo, in_progress and done. A property may have a description saying what it holds and how to fill it (see get_database): follow it when writing values. A select may depend on another select ("City" on "Country"): a row may hold only the options that go with its value of that one. A text, number, email, url or phone property may keep its values unique (unique: true in get_database): a write giving a value another live row already holds (case and spaces aside) is refused, and duplicating a row leaves such values out. A checklist holds items that can be ticked off. A place holds where something is, read as {address, name?, lat, lng}; write an address to look up, coordinates ("41.04, 29.01") or {lat, lng, address?, name?}. A files property holds files uploaded to the workspace (images show as thumbnails); its values read as [{name, url}]. created_by, created_time, last_edited_by and last_edited_time show who created or last edited each row and when; they are filled in automatically and can't be written. A formula property computes its value from the row's other properties, and a rollup calculates over the rows a relation links to (see add_database_property); neither can be written. A button holds no value: it shows on every row, and a click there runs the database's automations whose trigger is that button (button_clicked) on the row; it can't be written, filtered or sorted. A unique_id numbers a database's rows 1, 2, 3… as they are created and reads as its prefix and number ("TASK-12", or "12" without a prefix); it can't be written, its filters take "TASK-12" or 12, and search finds a row by "TASK-12". A number property's number_format (see get_database), which a formula giving a number can have too, only changes how the app shows it: a percent property holds fractions (0.15 is 15%) and filters on it compare percent points (15); a duration holds minutes (90 shows as 1:30; write 90, "1:30" or "1h 30m"); a rating holds whole stars from 0 to its max. A date property holds a day (YYYY-MM-DD), a time (an ISO timestamp, returned in UTC: 2026-10-12T11:30:00.000Z), or a range of either written \"start/end\" (2026-10-12/2026-10-14; start and end both days or both times, the end not before the start). Write times with Z or an offset (2026-10-12T14:30+03:00); {\"start\", \"end\"} objects are accepted too. Its date_options can show it relatively and remind the row's people before it (a range: before its start; a time: at its time of day).
 
 Some database properties are restricted: get_database shows the user's access on each ("none" properties aren't shown at all; "view_property": the property shows, its values don't; "view": values are read-only; "edit_values": values can be changed but not the property itself). Rows list the properties whose values are kept from the user under hidden_properties (they aren't empty, just not shown) and read-only ones under read_only_properties. People with full access to a database change who may see and edit a property with set_property_access.`;
 
@@ -395,6 +396,12 @@ const descriptionInput = z
     `What the property holds and how to fill it, in plain text (at most ${MAX_PROPERTY_DESCRIPTION} characters), e.g. "New until we've called them; Quoted once a quote is sent". The app shows it by the property's name, and AI writing rows (autofill, chat, agents) follows it.`,
   );
 const prefixInput = z.string().describe('unique_id only: letters and digits before its numbers ("TASK": TASK-12).');
+const buttonInput = z
+  .object({
+    label: z.string().max(MAX_ROW_BUTTON_LABEL).optional().describe("What the button says; the property's name when left out."),
+    color: z.enum(ROW_BUTTON_COLORS).optional().describe("Plain when left out."),
+  })
+  .describe(`button only: how it looks on rows. What a click does is an automation with trigger button_clicked (create_automation). ${see("properties")}`);
 const dependsOnInput = z
   .string()
   .describe(
@@ -2166,7 +2173,7 @@ export function createMcpServer(principal: McpPrincipal, options: { actor?: Writ
     {
       title: "Add a database property",
       description:
-        `Add a property (column) to a database. select / multi_select take option names; status takes names (spread over todo, in_progress and done) or {name, group}, and without options gets Not started, In progress and Done. A relation needs related_database_id (this database or another of the workspace); two_way also adds the property listing the links back. formula, rollup, number_format, date_options, depends_on with option_parents, description and prefix (unique_id) work as ${docUri("properties")} describes. created_by, created_time, last_edited_by and last_edited_time fill themselves in.`,
+        `Add a property (column) to a database. select / multi_select take option names; status takes names (spread over todo, in_progress and done) or {name, group}, and without options gets Not started, In progress and Done. A relation needs related_database_id (this database or another of the workspace); two_way also adds the property listing the links back. formula, rollup, number_format, date_options, depends_on with option_parents, description, prefix (unique_id) and button work as ${docUri("properties")} describes. created_by, created_time, last_edited_by and last_edited_time fill themselves in.`,
       inputSchema: z.object({
         database_id: id("database"),
         name: z.string().min(1).max(100).describe("Property name; must be unique within the database."),
@@ -2185,6 +2192,7 @@ export function createMcpServer(principal: McpPrincipal, options: { actor?: Writ
         number_format: numberFormatInput.optional().describe(`Number, or formula giving a number: how values show. ${see("properties")}`),
         date_options: dateOptionsInput.optional().describe(`Date only: display and reminder. ${see("properties")}`),
         prefix: prefixInput.optional(),
+        button: buttonInput.optional(),
         description: descriptionInput.optional(),
         depends_on: dependsOnInput.optional(),
         option_parents: optionParentsInput.optional(),
@@ -2205,6 +2213,7 @@ export function createMcpServer(principal: McpPrincipal, options: { actor?: Writ
       number_format,
       date_options,
       prefix,
+      button,
       description,
       depends_on,
       option_parents,
@@ -2212,6 +2221,7 @@ export function createMcpServer(principal: McpPrincipal, options: { actor?: Writ
       runTool(async () => {
         assertWrite();
         if (prefix !== undefined && prefix !== null && type !== "unique_id") throw new ToolInputError("prefix only applies to unique_id properties.");
+        if (button !== undefined && type !== "button") throw new ToolInputError("button only applies to button properties.");
         if (depends_on !== undefined && type !== "select" && type !== "multi_select") {
           throw new ToolInputError("depends_on only applies to select and multi_select properties.");
         }
@@ -2248,6 +2258,7 @@ export function createMcpServer(principal: McpPrincipal, options: { actor?: Writ
           ...(number_format ? { number: number_format } : {}),
           ...(date_options ? { date: dateOptionsOf(date_options) } : {}),
           ...(type === "unique_id" ? { prefix } : {}),
+          ...(button ? { button } : {}),
           ...(description !== undefined ? { description } : {}),
         });
         let made = created;
@@ -2435,6 +2446,7 @@ export function createMcpServer(principal: McpPrincipal, options: { actor?: Writ
           .describe("Number, or formula giving a number: how values show; null for plain numbers."),
         date_options: dateOptionsInput.optional().describe("Date only: the display and reminder to change; left-out fields stay."),
         prefix: prefixInput.nullable().optional(),
+        button: buttonInput.optional().describe("Button only: its new label and color; both replace the ones before."),
         description: descriptionInput.nullable().optional().describe("The new description (null or \"\" for none). " + descriptionInput.description),
         depends_on: dependsOnInput.nullable().optional().describe(`${dependsOnInput.description} null: depend on nothing. Changing it forgets the options' lists.`),
         option_parents: optionParentsInput.optional(),
@@ -2460,6 +2472,7 @@ export function createMcpServer(principal: McpPrincipal, options: { actor?: Writ
       number_format,
       date_options,
       prefix,
+      button,
       description,
       depends_on,
       option_parents,
@@ -2480,6 +2493,7 @@ export function createMcpServer(principal: McpPrincipal, options: { actor?: Writ
           description?: string | null;
           dependsOn?: string | null;
           prefix?: string | null;
+          button?: RowButtonOptions;
           oneRow?: boolean;
           unique?: boolean;
         } = {};
@@ -2497,6 +2511,10 @@ export function createMcpServer(principal: McpPrincipal, options: { actor?: Writ
         if (prefix !== undefined) {
           if (prop.type !== "unique_id") throw new ToolInputError(`"${prop.name}" is a ${prop.type} property; only unique IDs have a prefix.`);
           patch.prefix = prefix;
+        }
+        if (button !== undefined) {
+          if (prop.type !== "button") throw new ToolInputError(`"${prop.name}" is a ${prop.type} property; only buttons have a label and color.`);
+          patch.button = button;
         }
         if (depends_on !== undefined) {
           if (prop.type !== "select" && prop.type !== "multi_select") {

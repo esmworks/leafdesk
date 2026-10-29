@@ -2,6 +2,8 @@
 
 import { PropertyIconButton } from "./schema-icons";
 import {
+  MousePointerClick,
+  Zap,
   AlignCenter,
   AlignLeft,
   AlignRight,
@@ -55,6 +57,7 @@ import { useReorderDrag, type ReorderDragHandlers } from "@/components/use-reord
 import { useDirection } from "@/components/direction";
 import { Button, cn, Input, MenuItem, MenuSeparator } from "@/components/ui";
 import { isComputed, isDerived, PROPERTY_TYPES, STATUS_GROUPS, type StatusGroup } from "@/lib/property-types";
+import type { RowButtonOptions } from "@/lib/row-buttons";
 import { pageLabel } from "@/lib/labels";
 import { canRestrict } from "@/lib/property-access";
 import { SELECT_COLORS, sortOptionsByName, sortStatusOptions, statusColor, statusGroupOf } from "@/lib/properties";
@@ -88,6 +91,7 @@ import type { DerivedInput, Property, PropertyType, RelationInput, RollupInput, 
 // The number format submenu loads when it opens: most menus never show it.
 const NumberFormatEditor = dynamic(() => import("./number-format-menu").then((m) => m.NumberFormatEditor));
 const NumberDisplayEditor = dynamic(() => import("./number-format-menu").then((m) => m.NumberDisplayEditor));
+const RowButtonEditor = dynamic(() => import("./row-button-menu").then((m) => m.RowButtonEditor));
 
 /**
  * Name + type picker used by the table "+" header and the row page "Add property". The name also
@@ -310,6 +314,10 @@ export type PropertyMenuActions = {
   setRelationOptions?: (input: RelationOptionsInput) => void;
   /** Unique IDs: saves the prefix they show with (null for none; see lib/unique-id). */
   setUniqueIdPrefix?: (prefix: string | null) => void;
+  /** Buttons: saves the label and color (lib/row-buttons). */
+  setButton?: (options: RowButtonOptions) => void;
+  /** Buttons: opens what the button does, the automations made for it (null: the viewer may not manage them). */
+  editButtonAutomations?: () => void;
   /** URLs: whether row pages show a preview of the linked page (server/url-preview.ts). */
   setUrlPreview?: (on: boolean) => void;
   /** People: whether a row names one person at most. */
@@ -376,6 +384,7 @@ export function PropertyMenu({
     | "relation-options"
     | "number-display"
     | "unique-id"
+    | "button"
     | "page-visibility"
     | "autofill"
     | "calculate"
@@ -574,13 +583,27 @@ export function PropertyMenu({
     );
   }
 
+  if (page === "button" && prop && actions.setButton) {
+    return (
+      <RowButtonEditor
+        prop={prop}
+        onBack={() => setPage("main")}
+        onSave={(options) => {
+          actions.setButton?.(options);
+          onDone();
+        }}
+      />
+    );
+  }
+
   if (page === "page-visibility" && prop && actions.setPageVisibility) {
     const current = pageVisibilityOf(prop);
     return (
       <div className="w-60">
         <SubmenuHeader title={t("rowPage")} onBack={() => setPage("main")} />
         <MenuSeparator />
-        {PAGE_VISIBILITIES.map((visibility) => (
+        {/* A button has no value, so "only with a value" would hide it everywhere. */}
+        {PAGE_VISIBILITIES.filter((v) => prop.type !== "button" || v !== "hide_empty").map((visibility) => (
           <MenuItem
             key={visibility}
             active={visibility === current}
@@ -720,6 +743,16 @@ export function PropertyMenu({
         onClick={() => setPage("number-format")}
       >
         {t("numberFormat")}
+      </MenuItem>
+    ),
+    prop?.type === "button" && actions.editButtonAutomations && (
+      <MenuItem key="button-automations" icon={icon(Zap)} onClick={run(actions.editButtonAutomations)}>
+        {t("buttonAutomations")}
+      </MenuItem>
+    ),
+    prop?.type === "button" && actions.setButton && (
+      <MenuItem key="button" icon={icon(MousePointerClick)} trailing={<ChevronRight className="h-3.5 w-3.5 rtl:-scale-x-100" />} onClick={() => setPage("button")}>
+        {t("buttonLook")}
       </MenuItem>
     ),
     prop?.type === "unique_id" && actions.setUniqueIdPrefix && (
@@ -1149,7 +1182,7 @@ function UniqueIdEditor({ prop, onBack, onSave }: { prop: Property | null; onBac
   );
 }
 
-function SubmenuHeader({ title, onBack }: { title: string; onBack: () => void }) {
+export function SubmenuHeader({ title, onBack }: { title: string; onBack: () => void }) {
   const t = useTranslations("database.propertyMenu");
   return (
     <div className="flex items-center gap-1 px-1 pb-1">

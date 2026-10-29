@@ -226,6 +226,10 @@ jobs:
       - name: Buttons on pages end-to-end
         run: pnpm tsx scripts/button-e2e.ts
 
+      # Before the server starts: its automation worker would take the runs this script checks.
+      - name: Buttons on rows end-to-end
+        run: pnpm tsx scripts/row-buttons-e2e.ts
+
       # Before the server starts: its date check would take the runs this script checks.
       - name: Date-passed automations end-to-end
         run: pnpm tsx scripts/timed-automation-e2e.ts

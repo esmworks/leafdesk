@@ -221,7 +221,7 @@ function ListRow({
   );
   const row = line.row;
   const isOpen = useIsOpenRow(opener, row.id);
-  const shown = shownValues(props, row);
+  const shown = shownValues(props, row, { buttons: true });
   const label = pageLabel(row.title, tc("untitled"));
 
   /** Moves the focus from the title or a value to the next value (`back`: the one before); false at either end. */
@@ -295,6 +295,7 @@ function ListRow({
                   rowValues={row.properties}
                   upload={p.type === "files" ? uploadToPage(row.id) : undefined}
                   onTab={(cell, back) => moveFocus(cell, back)}
+                  rowId={row.id}
                 />
               </span>
             );

@@ -2,7 +2,7 @@
 
 import { Zap } from "lucide-react";
 import { useTranslations } from "next-intl";
-import { useState } from "react";
+import { createContext, useContext, useState, type ReactNode } from "react";
 import { createPortal } from "react-dom";
 import { lazyPart } from "@/components/lazy-part";
 
@@ -57,5 +57,50 @@ export function AutomationsButton({
           document.body,
         )}
     </>
+  );
+}
+
+type ButtonAutomations = (button: { propertyId: string; label: string }) => void;
+
+const ButtonAutomationsContext = createContext<ButtonAutomations | null>(null);
+
+/**
+ * Opens the automations dialog at what a button property does (property menus), for people who
+ * may manage the database's automations; null for everyone else.
+ */
+export const useButtonAutomations = () => useContext(ButtonAutomationsContext);
+
+/** Holds the automations dialog a button property's menu opens, outside the menu, which closes as it does. */
+export function ButtonAutomationsProvider({
+  workspaceId,
+  databaseId,
+  databaseTitle,
+  enabled,
+  children,
+}: {
+  workspaceId: string;
+  databaseId: string;
+  databaseTitle: string;
+  enabled: boolean;
+  children: ReactNode;
+}) {
+  const [button, setButton] = useState<{ propertyId: string; label: string } | null>(null);
+  return (
+    <ButtonAutomationsContext value={enabled ? setButton : null}>
+      {children}
+      {button &&
+        typeof document !== "undefined" &&
+        createPortal(
+          <AutomationsDialog
+            workspaceId={workspaceId}
+            databaseId={databaseId}
+            databaseTitle={databaseTitle}
+            openRun={null}
+            button={button}
+            onClose={() => setButton(null)}
+          />,
+          document.body,
+        )}
+    </ButtonAutomationsContext>
   );
 }

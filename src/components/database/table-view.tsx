@@ -17,7 +17,8 @@ import { valueType } from "@/lib/derived";
 import { arrangeGroups, canAddToGroup, groupDefaults, groupRowsBy, type Group } from "@/lib/grouping";
 import { isEmptyValue, lostValues, planConversion } from "@/lib/convert-property";
 import { isGroupable, isSortable, moveProperty } from "@/lib/properties";
-import { isReadOnlyType } from "@/lib/property-types";
+import { isAction, isReadOnlyType } from "@/lib/property-types";
+import { rowButtonLabel } from "@/lib/row-buttons";
 import { opensNewTab } from "@/lib/row-panel";
 import { MAX_COLUMN_WIDTH, MIN_COLUMN_WIDTH } from "@/lib/views";
 import { contentWidths, fittedWidth } from "./fit-column";
@@ -28,6 +29,7 @@ import { takesDateOptions } from "@/lib/date-options";
 import type { SubItemLine } from "@/lib/sub-items";
 import { cellText, type PasteColumn, type PastePlan } from "@/lib/table-clipboard";
 import { AiCell, useAiAutofill } from "./ai-autofill";
+import { useButtonAutomations } from "./automations-button";
 import { SelectBox, useSelection } from "@/components/selection";
 import { BulkActionBar } from "./bulk-actions";
 import { uploadToPage } from "./files-cell";
@@ -153,6 +155,7 @@ export function TableView({
   const relations = useRelations();
   const ai = useAiAutofill();
   const access = usePropertyAccess();
+  const buttonAutomations = useButtonAutomations();
   // Grouped only when the view asks for it (unlike boards, which always group).
   const groupBy = properties.find((p) => p.id === view.config.groupBy && isGroupable(p.type));
   const groupContext = useGroupContext(groupBy);
@@ -580,6 +583,7 @@ export function TableView({
                     onCreateOption={createOption}
                     rowValues={row.properties}
                     upload={p.type === "files" ? uploadToPage(row.id) : undefined}
+                    rowId={row.id}
                   />
                 </AiCell>
               )}
@@ -855,6 +859,8 @@ export function TableView({
                       resizing={resizing?.key === p.id}
                       actions={{
                         ...viewActions(p.id, valueType(p)),
+                        // A button holds nothing to filter or count by.
+                        ...(isAction(p.type) ? { filter: undefined, calculation: undefined } : {}),
                         group:
                           settingsReadOnly || !isGroupable(p.type) || groupBy?.id === p.id
                             ? undefined
@@ -877,6 +883,9 @@ export function TableView({
                         setDateOptions: fixed || !takesDateOptions(p.type) ? undefined : (input) => api.setDateOptions(p, input),
                         setUniqueIdPrefix: fixed || p.type !== "unique_id" ? undefined : (prefix) => api.setUniqueIdPrefix(p, prefix),
                         setUrlPreview: fixed || p.type !== "url" ? undefined : (on) => api.setUrlPreview(p, on),
+                        setButton: fixed || p.type !== "button" ? undefined : (options) => api.setRowButton(p, options),
+                        editButtonAutomations:
+                          p.type !== "button" || !buttonAutomations ? undefined : () => buttonAutomations({ propertyId: p.id, label: rowButtonLabel(p) }),
                         setNumberDisplay: fixed || !takesNumberDisplay(p) ? undefined : (display) => api.setNumberDisplay(p, display),
                         setRelationOptions: fixed || p.type !== "relation" ? undefined : (input) => api.setRelationOptions(p, input),
                         setOnePerson: fixed || p.type !== "person" ? undefined : (on) => api.setOnePerson(p, on),

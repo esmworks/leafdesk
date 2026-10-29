@@ -27,6 +27,7 @@ import { PROPERTY_TYPES, type PropertyType, type StatusGroup } from "../../lib/p
 import type { PageBackground } from "../../lib/page-background";
 import type { ChangedValues, DatabaseChangeKind } from "../../lib/database-history";
 import type { PageVisibility } from "../../lib/page-visibility";
+import type { RowButtonOptions } from "../../lib/row-buttons";
 import type { RowActivityActor, RowActivityKind } from "../../lib/row-activity";
 import type { SidebarLayout } from "../../lib/sidebar-sections";
 import { aiAccount } from "./ai-accounts";
@@ -816,6 +817,8 @@ export type PropertyOptions = {
   unique?: true;
   /** Unique ID properties: the prefix IDs show with ("TASK" for TASK-12); plain numbers when missing. */
   uniqueId?: UniqueIdOptions;
+  /** Button properties: the label and color of the button on each row (lib/row-buttons). */
+  button?: RowButtonOptions;
   /**
    * URL properties: row pages show the linked page's icon, title and image under the link
    * (server/url-preview.ts); just the link when missing.

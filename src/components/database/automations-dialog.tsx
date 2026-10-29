@@ -12,7 +12,7 @@ import { DatabasesProvider, useDatabaseInfo } from "./automations-data";
 import { AutomationEditor, Footer } from "./automations-editor";
 import { RunList } from "./automations-runs";
 import { FollowUpExampleButton, SequenceChoicesProvider } from "./automations-sequences";
-import { toDraft, triggerValueName, type AgentChoice, type Automation, type Draft, type Person } from "./automations-shared";
+import { buttonDraft, toDraft, triggerValueName, type AgentChoice, type Automation, type Draft, type Person } from "./automations-shared";
 import { usePeople } from "./person-cell";
 import { useSchema } from "./schema-context";
 
@@ -27,12 +27,18 @@ export default function AutomationsDialog({
   databaseId,
   databaseTitle,
   openRun,
+  button = null,
   onClose,
 }: {
   workspaceId: string;
   databaseId: string;
   databaseTitle: string;
   openRun: { automationId: string; runId: string } | null;
+  /**
+   * Opened from a button property's menu: the dialog opens at the first automation made for that
+   * button, or at a new one for it.
+   */
+  button?: { propertyId: string; label: string } | null;
   onClose: () => void;
 }) {
   const t = useTranslations("database.automations");
@@ -57,6 +63,10 @@ export default function AutomationsDialog({
           return;
         }
         setAutomations(res.data.automations);
+        if (button) {
+          const made = res.data.automations.find((a) => a.trigger.type === "button_clicked" && a.trigger.propertyId === button.propertyId);
+          setMode(made ? { kind: "edit", id: made.id } : { kind: "edit", id: null, start: buttonDraft(button.propertyId, button.label) });
+        }
         setMembers(res.data.members);
         setAgents(res.data.agents);
         setIsOwner(res.data.isOwner);
@@ -65,6 +75,8 @@ export default function AutomationsDialog({
     return () => {
       live = false;
     };
+    // `button` is read once, as the dialog opens.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [databaseId, tc]);
 
   // The workspace's people; guests can't list them and get the ones the database knows instead.
@@ -337,6 +349,7 @@ function useSummary(automation: Automation, people: Person[], agents: AgentChoic
             : t("summaryTrigger.monthly", { days: s.days.map((d) => format.number(d)).join(", "), time: s.time });
     if (automation.timeZone !== browserTimeZone()) when = t("summaryTrigger.inZone", { trigger: when, zone: timeZoneLabel(automation.timeZone) });
   } else if (trigger.type === "incoming_webhook") when = t("summaryTrigger.incoming");
+  else if (trigger.type === "button_clicked") when = t("summaryTrigger.buttonClicked", { property: nameOf(trigger.propertyId) });
   else if (trigger.type === "view_threshold") {
     const view = views?.find((v) => v.id === trigger.viewId)?.name ?? t("summaryTrigger.deletedView");
     const value = format.number(trigger.value);

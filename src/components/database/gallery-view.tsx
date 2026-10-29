@@ -179,7 +179,7 @@ const GalleryCard = memo(function GalleryCard({
   const tc = useTranslations("common");
   const opener = useRowOpener(workspaceId);
   const isOpen = useIsOpenRow(opener, row.id);
-  const shown = shownValues(props, row);
+  const shown = shownValues(props, row, { buttons: true });
   // A cover that fails to load leaves the plain cover area instead of a broken image.
   const [failed, setFailed] = useState<string | null>(null);
   const cover = coverUrl && coverUrl !== failed ? coverUrl : null;

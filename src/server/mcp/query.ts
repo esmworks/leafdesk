@@ -1,4 +1,5 @@
 import { PERIOD_NONE } from "@/lib/dashboard-period";
+import { rowButtonColor, rowButtonLabel } from "@/lib/row-buttons";
 import type {
   FilterCombinator,
   FilterEntry,
@@ -840,6 +841,8 @@ export function describeProperty(
         }
       : {}),
     ...(prop.type === "unique_id" ? { prefix: uniqueIdPrefix(prop) } : {}),
+    // What it says on rows; what a click does is the automations with trigger button_clicked.
+    ...(prop.type === "button" ? { button: { label: rowButtonLabel(prop), color: rowButtonColor(prop) } } : {}),
     // Each row names one person at most: a write naming more is refused.
     ...(prop.type === "person" && prop.options.person?.single ? { one_person: true } : {}),
     // No two rows hold the same value: a write repeating another row's is refused.

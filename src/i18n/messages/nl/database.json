@@ -24,7 +24,8 @@
     "formula": "Formule",
     "rollup": "Rollup",
     "place": "Locatie",
-    "uniqueId": "ID"
+    "uniqueId": "ID",
+    "button": "Knop"
   },
   "views": {
     "table": "Tabel",
@@ -563,6 +564,11 @@
     "decimalsAuto": "Automatisch",
     "percentHint": "Typ 15 voor {percent}",
     "dateOptions": "Datuminstellingen",
+    "buttonAutomations": "Bewerken wat hij doet",
+    "buttonLook": "Label en kleur",
+    "buttonLabel": "Label",
+    "buttonColor": "Kleur",
+    "buttonColorPlain": "Effen",
     "uniqueIdPrefix": "ID-voorvoegsel",
     "uniqueIdPrefixNone": "Geen",
     "uniqueIdPrefixPlaceholder": "TAAK",
@@ -1355,6 +1361,7 @@
       "anyChange": "een eigenschap verandert",
       "changes": "{property} verandert",
       "becomes": "{property} {value} wordt",
+      "buttonClicked": "Er wordt op {property} geklikt",
       "datePassedProperty": "{days, plural, =0 {{date} is bereikt} one {# dag voorbij is sinds {date}} other {# dagen voorbij zijn sinds {date}}}",
       "datePassedSince": "{days, plural, one {# dag voorbij is sinds {date}} other {# dagen voorbij zijn sinds {date}}}",
       "rowAdded": "de rij is toegevoegd",
@@ -1391,8 +1398,12 @@
         "date_passed": "Een datum is voorbij",
         "view_threshold": "Een totaal passeert een grens",
         "schedule": "Volgens een planning",
-        "incoming_webhook": "Er komt een verzoek binnen (inkomende webhook)"
+        "incoming_webhook": "Er komt een verzoek binnen (inkomende webhook)",
+        "button_clicked": "Er wordt op een knop geklikt"
       },
+      "button": "Knop",
+      "chooseButton": "Kies een knop",
+      "noButtons": "Deze database heeft nog geen knopeigenschap. Voeg er een toe als nieuwe eigenschap en kom dan hier terug.",
       "property": "Eigenschap",
       "anyProperty": "Elke eigenschap",
       "becomes": "Wordt",
@@ -1487,7 +1498,8 @@
         "needSlackUrl": "Vul het adres van de inkomende Slack-webhook in.",
         "needView": "Kies de weergave waarvan de rijen worden geteld.",
         "needNumber": "Kies de getaleigenschap waarover wordt berekend.",
-        "needThreshold": "Voer het getal in om mee te vergelijken."
+        "needThreshold": "Voer het getal in om mee te vergelijken.",
+        "needButton": "Kies de knop die hem start."
       },
       "agent": "Agent",
       "chooseAgent": "Kies een agent…",
@@ -1575,6 +1587,7 @@
       "refresh": "Vernieuwen",
       "schedule": "Planning",
       "webhookReceived": "Webhook ontvangen",
+      "buttonClicked": "Op knop geklikt",
       "showDetails": "Details tonen",
       "hideDetails": "Details verbergen",
       "test": "Test",
@@ -2303,6 +2316,17 @@
       "widgets": "widgets",
       "published": "publicatie",
       "other": "overige instellingen"
+    }
+  },
+  "rowButton": {
+    "started": "Gestart",
+    "failed": {
+      "error": "De knop werkte niet. Probeer het opnieuw.",
+      "notFound": "Deze knop bestaat niet meer.",
+      "inTrash": "Knoppen op rijen in de prullenbak doen niets.",
+      "noAutomation": "Deze knop doet nog niets: stel in het menu van de eigenschap in wat hij doet.",
+      "rateLimited": "Er is te vaak op deze knop geklikt. Wacht even en probeer het opnieuw.",
+      "noAccess": "Je kunt deze knop niet gebruiken: daarvoor heb je bewerktoegang tot de rij nodig."
     }
   }
 }

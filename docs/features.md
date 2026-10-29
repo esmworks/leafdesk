@@ -249,8 +249,17 @@
   - Properties: text, number, select, multi-select, status, date, checkbox, checklist, URL,
     email, phone, files & media (uploads with image thumbnails), place (an address looked up on the
     server, or coordinates; see Maps and places), person, one- or two-way relations to other databases, formulas, rollups over
-    relations, and the read-only "created by", "created time", "last edited time" and
+    relations, buttons, and the read-only "created by", "created time", "last edited time" and
     "last edited by".
+  - A button property puts a button with a label (the property's name unless given one) and a
+    color from the option palette on every row: in tables, lists, board and gallery cards and the
+    row's page. A click runs the database's automations made for that button on the row
+    ([automations](automations.md), trigger *A button is clicked*), so it does what they can: set
+    the row's properties, notify people, add rows elsewhere, run an agent, send a webhook. It takes
+    edit access to the row; others see it disabled. A button holds no value, so it can't be
+    filtered, sorted, grouped or counted, and published pages leave it out. Over MCP,
+    `add_database_property` with type `button` adds one and `create_automation` with trigger
+    `button_clicked` says what it does.
   - Each property can have a description (up to 1,000 characters, in its menu): a hint on its
     header and on row pages, a form question's help text when it has none, and guidance for AI
     autofill, the AI chat, agents and MCP when they write values. A select or multi-select can

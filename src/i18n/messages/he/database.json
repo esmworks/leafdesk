@@ -24,7 +24,8 @@
     "formula": "נוסחה",
     "rollup": "צבירה",
     "place": "מקום",
-    "uniqueId": "מזהה"
+    "uniqueId": "מזהה",
+    "button": "כפתור"
   },
   "views": {
     "table": "טבלה",
@@ -563,6 +564,11 @@
     "decimalsAuto": "אוטומטי",
     "percentHint": "הקלדת 15 עבור {percent}",
     "dateOptions": "הגדרות תאריך",
+    "buttonAutomations": "עריכת מה שהוא עושה",
+    "buttonLook": "תווית וצבע",
+    "buttonLabel": "תווית",
+    "buttonColor": "צבע",
+    "buttonColorPlain": "רגיל",
     "uniqueIdPrefix": "קידומת מזהה",
     "uniqueIdPrefixNone": "ללא",
     "uniqueIdPrefixPlaceholder": "TASK",
@@ -1355,6 +1361,7 @@
       "anyChange": "מאפיין כלשהו משתנה",
       "changes": "{property} משתנה",
       "becomes": "{property} הופך ל־{value}",
+      "buttonClicked": "לחיצה על {property}",
       "datePassedProperty": "{days, plural, =0 {מגיע {date}} one {עבר יום אחד מאז {date}} two {עברו יומיים מאז {date}} other {עברו # ימים מאז {date}}}",
       "datePassedSince": "{days, plural, one {עבר יום אחד מאז {date}} two {עברו יומיים מאז {date}} other {עברו # ימים מאז {date}}}",
       "rowAdded": "הוספת השורה",
@@ -1391,8 +1398,12 @@
         "date_passed": "תאריך עובר",
         "view_threshold": "סכום חוצה קו",
         "schedule": "לפי תזמון",
-        "incoming_webhook": "מגיעה בקשה (webhook נכנס)"
+        "incoming_webhook": "מגיעה בקשה (webhook נכנס)",
+        "button_clicked": "לחיצה על כפתור"
       },
+      "button": "כפתור",
+      "chooseButton": "בחירת כפתור",
+      "noButtons": "במסד הנתונים הזה אין עדיין מאפיין כפתור. הוסיפו אחד כמאפיין חדש וחזרו לכאן.",
       "property": "מאפיין",
       "anyProperty": "כל מאפיין",
       "becomes": "הופך ל־",
@@ -1487,7 +1498,8 @@
         "needSlackUrl": "יש להזין את כתובת ה־webhook הנכנס של Slack.",
         "needView": "יש לבחור את התצוגה שהשורות שלה נספרות.",
         "needNumber": "יש לבחור את מאפיין המספר לחישוב.",
-        "needThreshold": "יש להזין את המספר להשוואה."
+        "needThreshold": "יש להזין את המספר להשוואה.",
+        "needButton": "בחרו את הכפתור שמפעיל אותה."
       },
       "agent": "סוכן",
       "chooseAgent": "בחירת סוכן…",
@@ -1575,6 +1587,7 @@
       "refresh": "רענון",
       "schedule": "תזמון",
       "webhookReceived": "התקבל webhook",
+      "buttonClicked": "נלחץ כפתור",
       "showDetails": "הצגת פרטים",
       "hideDetails": "הסתרת פרטים",
       "test": "ניסיון",
@@ -2303,6 +2316,17 @@
       "widgets": "ווידג׳טים",
       "published": "פרסום",
       "other": "הגדרות אחרות"
+    }
+  },
+  "rowButton": {
+    "started": "התחיל",
+    "failed": {
+      "error": "הכפתור לא עבד. נסו שוב.",
+      "notFound": "הכפתור הזה כבר לא קיים.",
+      "inTrash": "כפתורים בשורות שבאשפה לא עושים כלום.",
+      "noAutomation": "הכפתור הזה עדיין לא עושה כלום: הגדירו מה הוא עושה מתפריט המאפיין.",
+      "rateLimited": "לחצו על הכפתור הזה יותר מדי פעמים. המתינו רגע ונסו שוב.",
+      "noAccess": "אי אפשר להשתמש בכפתור הזה: נדרשת הרשאת עריכה לשורה."
     }
   }
 }

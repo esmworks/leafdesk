@@ -24,7 +24,8 @@
     "formula": "Kaava",
     "rollup": "Kooste",
     "place": "Sijainti",
-    "uniqueId": "ID"
+    "uniqueId": "ID",
+    "button": "Painike"
   },
   "views": {
     "table": "Taulukko",
@@ -563,6 +564,11 @@
     "decimalsAuto": "Automaattinen",
     "percentHint": "Kirjoita 15, niin saat {percent}",
     "dateOptions": "Päivämääräasetukset",
+    "buttonAutomations": "Muokkaa, mitä se tekee",
+    "buttonLook": "Teksti ja väri",
+    "buttonLabel": "Teksti",
+    "buttonColor": "Väri",
+    "buttonColorPlain": "Tavallinen",
     "uniqueIdPrefix": "ID:n etuliite",
     "uniqueIdPrefixNone": "Ei mitään",
     "uniqueIdPrefixPlaceholder": "TEHTÄVÄ",
@@ -1355,6 +1361,7 @@
       "anyChange": "mikä tahansa ominaisuus muuttuu",
       "changes": "{property} muuttuu",
       "becomes": "{property} muuttuu arvoon {value}",
+      "buttonClicked": "Kun {property} napsautetaan",
       "datePassedProperty": "{days, plural, =0 {{date} saavutetaan} one {# päivä on kulunut ajankohdasta {date}} other {# päivää on kulunut ajankohdasta {date}}}",
       "datePassedSince": "{days, plural, one {# päivä on kulunut ajankohdasta {date}} other {# päivää on kulunut ajankohdasta {date}}}",
       "rowAdded": "rivin lisäys",
@@ -1391,8 +1398,12 @@
         "date_passed": "Päivämäärä menee ohi",
         "view_threshold": "Summa ylittää rajan",
         "schedule": "Aikataulun mukaan",
-        "incoming_webhook": "Pyyntö saapuu (saapuva webhook)"
+        "incoming_webhook": "Pyyntö saapuu (saapuva webhook)",
+        "button_clicked": "Kun painiketta napsautetaan"
       },
+      "button": "Painike",
+      "chooseButton": "Valitse painike",
+      "noButtons": "Tässä tietokannassa ei ole vielä painikeominaisuutta. Lisää sellainen uutena ominaisuutena ja palaa sitten tänne.",
       "property": "Ominaisuus",
       "anyProperty": "Mikä tahansa ominaisuus",
       "becomes": "Muuttuu arvoon",
@@ -1487,7 +1498,8 @@
         "needSlackUrl": "Anna Slackin saapuvan webhookin osoite.",
         "needView": "Valitse näkymä, jonka rivit lasketaan.",
         "needNumber": "Valitse numeroominaisuus, josta lasketaan.",
-        "needThreshold": "Anna luku, johon verrataan."
+        "needThreshold": "Anna luku, johon verrataan.",
+        "needButton": "Valitse painike, joka käynnistää sen."
       },
       "agent": "Agentti",
       "chooseAgent": "Valitse agentti…",
@@ -1575,6 +1587,7 @@
       "refresh": "Päivitä",
       "schedule": "Aikataulu",
       "webhookReceived": "Webhook vastaanotettu",
+      "buttonClicked": "Painiketta napsautettiin",
       "showDetails": "Näytä tiedot",
       "hideDetails": "Piilota tiedot",
       "test": "Testi",
@@ -2303,6 +2316,17 @@
       "widgets": "pienoisohjelmat",
       "published": "julkaisu",
       "other": "muut asetukset"
+    }
+  },
+  "rowButton": {
+    "started": "Käynnistetty",
+    "failed": {
+      "error": "Painike ei toiminut. Yritä uudelleen.",
+      "notFound": "Tätä painiketta ei enää ole.",
+      "inTrash": "Roskakorissa olevien rivien painikkeet eivät tee mitään.",
+      "noAutomation": "Tämä painike ei vielä tee mitään: määritä sen toiminta ominaisuuden valikosta.",
+      "rateLimited": "Tätä painiketta napsautettiin liian usein. Odota hetki ja yritä uudelleen.",
+      "noAccess": "Et voi käyttää tätä painiketta: se vaatii rivin muokkausoikeuden."
     }
   }
 }

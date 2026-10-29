@@ -24,7 +24,8 @@
     "formula": "Formuła",
     "rollup": "Agregacja",
     "place": "Miejsce",
-    "uniqueId": "ID"
+    "uniqueId": "ID",
+    "button": "Przycisk"
   },
   "views": {
     "table": "Tabela",
@@ -563,6 +564,11 @@
     "decimalsAuto": "Automatycznie",
     "percentHint": "Wpisz 15, aby uzyskać {percent}",
     "dateOptions": "Ustawienia daty",
+    "buttonAutomations": "Edytuj, co robi",
+    "buttonLook": "Etykieta i kolor",
+    "buttonLabel": "Etykieta",
+    "buttonColor": "Kolor",
+    "buttonColorPlain": "Zwykły",
     "uniqueIdPrefix": "Prefiks ID",
     "uniqueIdPrefixNone": "Brak",
     "uniqueIdPrefixPlaceholder": "TASK",
@@ -1355,6 +1361,7 @@
       "anyChange": "zmieni się dowolna właściwość",
       "changes": "zmieni się {property}",
       "becomes": "{property} zmieni się na {value}",
+      "buttonClicked": "Kliknięto {property}",
       "datePassedProperty": "{days, plural, =0 {nadejdzie {date}} one {minie # dzień od {date}} few {miną # dni od {date}} many {minie # dni od {date}} other {minie # dnia od {date}}}",
       "datePassedSince": "{days, plural, one {minie # dzień od {date}} few {miną # dni od {date}} many {minie # dni od {date}} other {minie # dnia od {date}}}",
       "rowAdded": "dodania wiersza",
@@ -1391,8 +1398,12 @@
         "date_passed": "Minie data",
         "view_threshold": "Suma przekroczy próg",
         "schedule": "Nadejdzie termin z harmonogramu",
-        "incoming_webhook": "Nadejdzie żądanie (webhook przychodzący)"
+        "incoming_webhook": "Nadejdzie żądanie (webhook przychodzący)",
+        "button_clicked": "Kliknięto przycisk"
       },
+      "button": "Przycisk",
+      "chooseButton": "Wybierz przycisk",
+      "noButtons": "Ta baza danych nie ma jeszcze właściwości przycisku. Dodaj ją jako nową właściwość i wróć tutaj.",
       "property": "Właściwość",
       "anyProperty": "Dowolna właściwość",
       "becomes": "Zmieni się na",
@@ -1487,7 +1498,8 @@
         "needSlackUrl": "Wpisz adres przychodzącego webhooka Slacka.",
         "needView": "Wybierz widok, którego wiersze są liczone.",
         "needNumber": "Wybierz właściwość liczbową, z której liczyć.",
-        "needThreshold": "Wpisz liczbę do porównania."
+        "needThreshold": "Wpisz liczbę do porównania.",
+        "needButton": "Wybierz przycisk, który ją uruchamia."
       },
       "agent": "Agent",
       "chooseAgent": "Wybierz agenta…",
@@ -1575,6 +1587,7 @@
       "refresh": "Odśwież",
       "schedule": "Harmonogram",
       "webhookReceived": "Otrzymano webhook",
+      "buttonClicked": "Kliknięto przycisk",
       "showDetails": "Pokaż szczegóły",
       "hideDetails": "Ukryj szczegóły",
       "test": "Test",
@@ -2303,6 +2316,17 @@
       "widgets": "widżety",
       "published": "publikowanie",
       "other": "inne ustawienia"
+    }
+  },
+  "rowButton": {
+    "started": "Uruchomiono",
+    "failed": {
+      "error": "Przycisk nie zadziałał. Spróbuj ponownie.",
+      "notFound": "Tego przycisku już nie ma.",
+      "inTrash": "Przyciski w wierszach w koszu nic nie robią.",
+      "noAutomation": "Ten przycisk jeszcze nic nie robi: ustaw jego działanie w menu właściwości.",
+      "rateLimited": "Ten przycisk był klikany zbyt często. Odczekaj chwilę i spróbuj ponownie.",
+      "noAccess": "Nie możesz użyć tego przycisku: wymaga on uprawnień do edycji wiersza."
     }
   }
 }

@@ -24,7 +24,8 @@
     "formula": "Formel",
     "rollup": "Rollup",
     "place": "Ort",
-    "uniqueId": "ID"
+    "uniqueId": "ID",
+    "button": "Schaltfläche"
   },
   "views": {
     "table": "Tabelle",
@@ -563,6 +564,11 @@
     "decimalsAuto": "Automatisch",
     "percentHint": "Für {percent} 15 eingeben",
     "dateOptions": "Datumseinstellungen",
+    "buttonAutomations": "Festlegen, was sie tut",
+    "buttonLook": "Beschriftung und Farbe",
+    "buttonLabel": "Beschriftung",
+    "buttonColor": "Farbe",
+    "buttonColorPlain": "Schlicht",
     "uniqueIdPrefix": "ID-Präfix",
     "uniqueIdPrefixNone": "Keins",
     "uniqueIdPrefixPlaceholder": "TASK",
@@ -1355,6 +1361,7 @@
       "anyChange": "sich eine Eigenschaft ändert",
       "changes": "sich {property} ändert",
       "becomes": "{property} zu {value} wird",
+      "buttonClicked": "{property} wird angeklickt",
       "datePassedProperty": "{days, plural, =0 {{date} erreicht ist} one {# Tag seit {date} vergangen ist} other {# Tage seit {date} vergangen sind}}",
       "datePassedSince": "{days, plural, one {# Tag seit {date} vergangen ist} other {# Tage seit {date} vergangen sind}}",
       "rowAdded": "dem Hinzufügen der Zeile",
@@ -1391,8 +1398,12 @@
         "date_passed": "Ein Datum erreicht ist",
         "view_threshold": "Eine Summe überschreitet eine Grenze",
         "schedule": "Ein Zeitplan fällig ist",
-        "incoming_webhook": "Eine Anfrage eingeht (eingehender Webhook)"
+        "incoming_webhook": "Eine Anfrage eingeht (eingehender Webhook)",
+        "button_clicked": "Eine Schaltfläche wird angeklickt"
       },
+      "button": "Schaltfläche",
+      "chooseButton": "Schaltfläche wählen",
+      "noButtons": "Diese Datenbank hat noch keine Schaltflächen-Eigenschaft. Füge eine als neue Eigenschaft hinzu und komm dann hierher zurück.",
       "property": "Eigenschaft",
       "anyProperty": "Beliebige Eigenschaft",
       "becomes": "Wird zu",
@@ -1487,7 +1498,8 @@
         "needSlackUrl": "Gib die Adresse des eingehenden Slack-Webhooks ein.",
         "needView": "Wähle die Ansicht, deren Zeilen gezählt werden.",
         "needNumber": "Wähle die Zahleneigenschaft, über die berechnet wird.",
-        "needThreshold": "Gib die Zahl zum Vergleichen ein."
+        "needThreshold": "Gib die Zahl zum Vergleichen ein.",
+        "needButton": "Wähle die Schaltfläche, die sie auslöst."
       },
       "agent": "Agent",
       "chooseAgent": "Agenten wählen…",
@@ -1575,6 +1587,7 @@
       "refresh": "Aktualisieren",
       "schedule": "Zeitplan",
       "webhookReceived": "Webhook empfangen",
+      "buttonClicked": "Schaltfläche angeklickt",
       "showDetails": "Details anzeigen",
       "hideDetails": "Details ausblenden",
       "test": "Test",
@@ -2303,6 +2316,17 @@
       "widgets": "Widgets",
       "published": "Veröffentlichung",
       "other": "weitere Einstellungen"
+    }
+  },
+  "rowButton": {
+    "started": "Gestartet",
+    "failed": {
+      "error": "Die Schaltfläche hat nicht funktioniert. Versuche es erneut.",
+      "notFound": "Diese Schaltfläche gibt es nicht mehr.",
+      "inTrash": "Schaltflächen in Zeilen im Papierkorb tun nichts.",
+      "noAutomation": "Diese Schaltfläche tut noch nichts: Lege im Menü der Eigenschaft fest, was sie tut.",
+      "rateLimited": "Diese Schaltfläche wurde zu oft angeklickt. Warte kurz und versuche es erneut.",
+      "noAccess": "Du kannst diese Schaltfläche nicht verwenden: Dafür brauchst du Bearbeitungszugriff auf die Zeile."
     }
   }
 }

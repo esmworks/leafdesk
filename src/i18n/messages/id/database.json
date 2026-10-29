@@ -24,7 +24,8 @@
     "formula": "Rumus",
     "rollup": "Rollup",
     "place": "Tempat",
-    "uniqueId": "ID"
+    "uniqueId": "ID",
+    "button": "Tombol"
   },
   "views": {
     "table": "Tabel",
@@ -563,6 +564,11 @@
     "decimalsAuto": "Otomatis",
     "percentHint": "Ketik 15 untuk {percent}",
     "dateOptions": "Pengaturan tanggal",
+    "buttonAutomations": "Ubah yang dilakukannya",
+    "buttonLook": "Label dan warna",
+    "buttonLabel": "Label",
+    "buttonColor": "Warna",
+    "buttonColorPlain": "Polos",
     "uniqueIdPrefix": "Prefiks ID",
     "uniqueIdPrefixNone": "Tidak ada",
     "uniqueIdPrefixPlaceholder": "TASK",
@@ -1355,6 +1361,7 @@
       "anyChange": "properti apa pun berubah",
       "changes": "{property} berubah",
       "becomes": "{property} menjadi {value}",
+      "buttonClicked": "{property} diklik",
       "datePassedProperty": "{days, plural, =0 {{date} tercapai} other {# hari telah berlalu sejak {date}}}",
       "datePassedSince": "{days, plural, other {# hari telah berlalu sejak {date}}}",
       "rowAdded": "baris ditambahkan",
@@ -1391,8 +1398,12 @@
         "date_passed": "Tanggal terlewati",
         "view_threshold": "Total melewati batas",
         "schedule": "Sesuai jadwal",
-        "incoming_webhook": "Permintaan masuk (webhook masuk)"
+        "incoming_webhook": "Permintaan masuk (webhook masuk)",
+        "button_clicked": "Sebuah tombol diklik"
       },
+      "button": "Tombol",
+      "chooseButton": "Pilih tombol",
+      "noButtons": "Basis data ini belum punya properti tombol. Tambahkan sebagai properti baru, lalu kembali ke sini.",
       "property": "Properti",
       "anyProperty": "Properti apa pun",
       "becomes": "Menjadi",
@@ -1487,7 +1498,8 @@
         "needSlackUrl": "Masukkan alamat webhook masuk Slack.",
         "needView": "Pilih tampilan yang barisnya dihitung.",
         "needNumber": "Pilih properti angka yang akan dihitung.",
-        "needThreshold": "Masukkan angka pembanding."
+        "needThreshold": "Masukkan angka pembanding.",
+        "needButton": "Pilih tombol yang menjalankannya."
       },
       "agent": "Agen",
       "chooseAgent": "Pilih agen…",
@@ -1575,6 +1587,7 @@
       "refresh": "Segarkan",
       "schedule": "Jadwal",
       "webhookReceived": "Webhook diterima",
+      "buttonClicked": "Tombol diklik",
       "showDetails": "Tampilkan rincian",
       "hideDetails": "Sembunyikan rincian",
       "test": "Uji",
@@ -2303,6 +2316,17 @@
       "widgets": "widget",
       "published": "penerbitan",
       "other": "pengaturan lain"
+    }
+  },
+  "rowButton": {
+    "started": "Dimulai",
+    "failed": {
+      "error": "Tombol tidak berfungsi. Coba lagi.",
+      "notFound": "Tombol ini sudah tidak ada.",
+      "inTrash": "Tombol pada baris di tempat sampah tidak melakukan apa pun.",
+      "noAutomation": "Tombol ini belum melakukan apa pun: atur yang dilakukannya dari menu properti.",
+      "rateLimited": "Tombol ini terlalu sering diklik. Tunggu sebentar lalu coba lagi.",
+      "noAccess": "Anda tidak dapat memakai tombol ini: perlu akses edit ke baris."
     }
   }
 }

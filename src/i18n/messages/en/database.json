@@ -24,7 +24,8 @@
     "formula": "Formula",
     "rollup": "Rollup",
     "place": "Place",
-    "uniqueId": "ID"
+    "uniqueId": "ID",
+    "button": "Button"
   },
   "views": {
     "table": "Table",
@@ -563,6 +564,11 @@
     "decimalsAuto": "Automatic",
     "percentHint": "Type 15 for {percent}",
     "dateOptions": "Date settings",
+    "buttonAutomations": "Edit what it does",
+    "buttonLook": "Label and color",
+    "buttonLabel": "Label",
+    "buttonColor": "Color",
+    "buttonColorPlain": "Plain",
     "uniqueIdPrefix": "ID prefix",
     "uniqueIdPrefixNone": "None",
     "uniqueIdPrefixPlaceholder": "TASK",
@@ -1355,6 +1361,7 @@
       "anyChange": "any property changes",
       "changes": "{property} changes",
       "becomes": "{property} becomes {value}",
+      "buttonClicked": "{property} is clicked",
       "datePassedProperty": "{days, plural, =0 {{date} is reached} one {# day has passed since {date}} other {# days have passed since {date}}}",
       "datePassedSince": "{days, plural, one {# day has passed since {date}} other {# days have passed since {date}}}",
       "rowAdded": "the row was added",
@@ -1391,8 +1398,12 @@
         "date_passed": "A date passes",
         "view_threshold": "A total crosses a line",
         "schedule": "On a schedule",
-        "incoming_webhook": "A request arrives (incoming webhook)"
+        "incoming_webhook": "A request arrives (incoming webhook)",
+        "button_clicked": "A button is clicked"
       },
+      "button": "Button",
+      "chooseButton": "Choose a button",
+      "noButtons": "This database has no button property yet. Add one as a new property, then come back here.",
       "property": "Property",
       "anyProperty": "Any property",
       "becomes": "Becomes",
@@ -1487,7 +1498,8 @@
         "needSlackUrl": "Enter the Slack incoming webhook’s address.",
         "needView": "Choose the view whose rows count.",
         "needNumber": "Choose the number property to calculate over.",
-        "needThreshold": "Enter the number to compare with."
+        "needThreshold": "Enter the number to compare with.",
+        "needButton": "Choose the button that runs it."
       },
       "agent": "Agent",
       "chooseAgent": "Choose an agent…",
@@ -1575,6 +1587,7 @@
       "refresh": "Refresh",
       "schedule": "Schedule",
       "webhookReceived": "Webhook received",
+      "buttonClicked": "Button clicked",
       "showDetails": "Show details",
       "hideDetails": "Hide details",
       "test": "Test",
@@ -2303,6 +2316,17 @@
       "widgets": "widgets",
       "published": "publishing",
       "other": "other settings"
+    }
+  },
+  "rowButton": {
+    "started": "Started",
+    "failed": {
+      "error": "The button didn't work. Try again.",
+      "notFound": "This button isn't there any more.",
+      "inTrash": "Buttons on rows in the trash do nothing.",
+      "noAutomation": "This button does nothing yet: set up what it does from the property's menu.",
+      "rateLimited": "This button was clicked too often. Wait a moment and try again.",
+      "noAccess": "You can't use this button: it takes edit access to the row."
     }
   }
 }

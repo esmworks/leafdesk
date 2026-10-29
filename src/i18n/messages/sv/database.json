@@ -24,7 +24,8 @@
     "formula": "Formel",
     "rollup": "Sammanställning",
     "place": "Plats",
-    "uniqueId": "ID"
+    "uniqueId": "ID",
+    "button": "Knapp"
   },
   "views": {
     "table": "Tabell",
@@ -563,6 +564,11 @@
     "decimalsAuto": "Automatiskt",
     "percentHint": "Skriv 15 för {percent}",
     "dateOptions": "Datuminställningar",
+    "buttonAutomations": "Redigera vad den gör",
+    "buttonLook": "Etikett och färg",
+    "buttonLabel": "Etikett",
+    "buttonColor": "Färg",
+    "buttonColorPlain": "Enkel",
     "uniqueIdPrefix": "ID-prefix",
     "uniqueIdPrefixNone": "Inget",
     "uniqueIdPrefixPlaceholder": "UPPG",
@@ -1355,6 +1361,7 @@
       "anyChange": "någon egenskap ändras",
       "changes": "{property} ändras",
       "becomes": "{property} blir {value}",
+      "buttonClicked": "Någon klickar på {property}",
       "datePassedProperty": "{days, plural, =0 {{date} nås} one {# dag har gått sedan {date}} other {# dagar har gått sedan {date}}}",
       "datePassedSince": "{days, plural, one {# dag har gått sedan {date}} other {# dagar har gått sedan {date}}}",
       "rowAdded": "raden lades till",
@@ -1391,8 +1398,12 @@
         "date_passed": "Ett datum passeras",
         "view_threshold": "En summa korsar en gräns",
         "schedule": "Enligt ett schema",
-        "incoming_webhook": "En förfrågan kommer in (inkommande webhook)"
+        "incoming_webhook": "En förfrågan kommer in (inkommande webhook)",
+        "button_clicked": "Någon klickar på en knapp"
       },
+      "button": "Knapp",
+      "chooseButton": "Välj en knapp",
+      "noButtons": "Den här databasen har ingen knappegenskap än. Lägg till en som ny egenskap och kom sedan tillbaka hit.",
       "property": "Egenskap",
       "anyProperty": "Valfri egenskap",
       "becomes": "Blir",
@@ -1487,7 +1498,8 @@
         "needSlackUrl": "Ange adressen till Slacks inkommande webhook.",
         "needView": "Välj vyn vars rader räknas.",
         "needNumber": "Välj talegenskapen som ska beräknas.",
-        "needThreshold": "Ange talet att jämföra med."
+        "needThreshold": "Ange talet att jämföra med.",
+        "needButton": "Välj knappen som kör den."
       },
       "agent": "Agent",
       "chooseAgent": "Välj en agent…",
@@ -1575,6 +1587,7 @@
       "refresh": "Uppdatera",
       "schedule": "Schema",
       "webhookReceived": "Webhook mottagen",
+      "buttonClicked": "Knappen klickades",
       "showDetails": "Visa detaljer",
       "hideDetails": "Dölj detaljer",
       "test": "Test",
@@ -2303,6 +2316,17 @@
       "widgets": "widgetar",
       "published": "publicering",
       "other": "andra inställningar"
+    }
+  },
+  "rowButton": {
+    "started": "Startad",
+    "failed": {
+      "error": "Knappen fungerade inte. Försök igen.",
+      "notFound": "Den här knappen finns inte längre.",
+      "inTrash": "Knappar på rader i papperskorgen gör ingenting.",
+      "noAutomation": "Den här knappen gör inget än: ställ in vad den gör i egenskapens meny.",
+      "rateLimited": "Den här knappen klickades för ofta. Vänta en stund och försök igen.",
+      "noAccess": "Du kan inte använda den här knappen: det krävs redigeringsåtkomst till raden."
     }
   }
 }

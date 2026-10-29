@@ -941,6 +941,9 @@ export function filterOperators(type: PropertyType | "title"): { op: FilterOp; l
     { op: "is_not_empty" as const, label: "isNotEmpty" as const },
   ];
   switch (type) {
+    // A button holds no value: there is nothing to filter by.
+    case "button":
+      return [];
     case "place":
       // By the address: does it name a city, a street…
       return [
@@ -1084,8 +1087,11 @@ export function filterNeedsValue(op: FilterOp) {
  * Files sort by how many a row holds (see applyView).
  */
 export function isSortable(type: PropertyType | "title") {
-  return type !== "relation";
+  return type !== "relation" && type !== "button";
 }
+
+/** Whether views can filter by a property of this type: all but buttons, which hold no value. */
+export const isFilterable = (type: PropertyType | "title") => type !== "button";
 
 /** A position strictly between two neighbours (either may be missing) for manual ordering. */
 export function positionBetween(before?: number | null, after?: number | null): number {

@@ -1,9 +1,9 @@
 "use client";
 
-import { isReadOnlyType } from "@/lib/property-types";
+import { isAction, isReadOnlyType } from "@/lib/property-types";
 import { uploadToPage } from "./files-cell";
 import { usePropertyAccess } from "./property-access";
-import { PropertyCell, RowValue, type CreateOption } from "./property-cell";
+import { PropertyCell, RowButtonCell, RowValue, type CreateOption } from "./property-cell";
 import type { Property, Row } from "./types";
 
 /** Changes one value of a row from a card; the same function for every card, so memoized cards stay as they are. */
@@ -33,6 +33,13 @@ export function CardValue({
   onCreateOption?: CreateOption;
 }) {
   const access = usePropertyAccess();
+  if (isAction(prop.type)) {
+    return (
+      <div className="flex max-w-full min-w-0" onClick={keep} onKeyDown={keep} onAuxClick={keep}>
+        <RowButtonCell variant="card" prop={prop} rowId={row.id} readOnly={readOnly || !onChange || access.valueAccess(row, prop.id) !== "edit"} />
+      </div>
+    );
+  }
   if (readOnly || !onChange || !onCreateOption || isReadOnlyType(prop.type) || access.valueAccess(row, prop.id) !== "edit") {
     return <RowValue prop={prop} row={row} wrap={wrap} />;
   }

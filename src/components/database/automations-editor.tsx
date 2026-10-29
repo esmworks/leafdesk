@@ -476,8 +476,8 @@ function StepCard({
   const rowRun = hasRow(draft.trigger);
   const target = targetDatabase(draft.actions, action, databaseId);
   const targetProps = schemaOf(target);
-  // "Whoever made the change" is only someone for a row added or changed.
-  const noActor = draft.trigger.type !== "row_created" && draft.trigger.type !== "property_changed";
+  // "Whoever made the change" is only someone for a row added or changed, or a button clicked on it.
+  const noActor = draft.trigger.type !== "row_created" && draft.trigger.type !== "property_changed" && draft.trigger.type !== "button_clicked";
   const missingRow = !rowRun && needsRowDraft(action);
 
   return (

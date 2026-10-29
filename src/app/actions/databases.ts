@@ -1,5 +1,6 @@
 "use server";
 
+import type { RowButtonOptions } from "@/lib/row-buttons";
 import { env } from "@/lib/env";
 import { cookies } from "next/headers";
 import { getLocale, getTranslations } from "next-intl/server";
@@ -360,6 +361,7 @@ export async function updatePropertyAction(
     oneRow?: boolean;
     statusDisplay?: "checkbox" | "option";
     unique?: boolean;
+    button?: RowButtonOptions;
   },
 ) {
   return run((userId) => databases.updateProperty(userId, propertyId, patch));

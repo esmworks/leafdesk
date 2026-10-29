@@ -24,7 +24,8 @@
     "formula": "Formül",
     "rollup": "Toplama",
     "place": "Konum",
-    "uniqueId": "Kimlik"
+    "uniqueId": "Kimlik",
+    "button": "Buton"
   },
   "views": {
     "table": "Tablo",
@@ -563,6 +564,11 @@
     "decimalsAuto": "Otomatik",
     "percentHint": "{percent} için 15 yazın",
     "dateOptions": "Tarih ayarları",
+    "buttonAutomations": "Ne yaptığını düzenle",
+    "buttonLook": "Etiket ve renk",
+    "buttonLabel": "Etiket",
+    "buttonColor": "Renk",
+    "buttonColorPlain": "Düz",
     "uniqueIdPrefix": "Kimlik öneki",
     "uniqueIdPrefixNone": "Yok",
     "uniqueIdPrefixPlaceholder": "GOREV",
@@ -1355,6 +1361,7 @@
       "anyChange": "Herhangi bir özellik değiştiğinde",
       "changes": "{property} değiştiğinde",
       "becomes": "{property} “{value}” olduğunda",
+      "buttonClicked": "{property} tıklandığında",
       "datePassedProperty": "{days, plural, =0 {{date} tarihi geldiğinde} one {{date} tarihinin üzerinden # gün geçtiğinde} other {{date} tarihinin üzerinden # gün geçtiğinde}}",
       "datePassedSince": "{days, plural, one {{date} üzerinden # gün geçtiğinde} other {{date} üzerinden # gün geçtiğinde}}",
       "rowAdded": "Satırın eklenmesinin",
@@ -1391,8 +1398,12 @@
         "date_passed": "Bir tarih geçtiğinde",
         "view_threshold": "Bir toplam sınırı geçtiğinde",
         "schedule": "Zamanlamaya göre",
-        "incoming_webhook": "Bir istek geldiğinde (gelen webhook)"
+        "incoming_webhook": "Bir istek geldiğinde (gelen webhook)",
+        "button_clicked": "Bir butona tıklandığında"
       },
+      "button": "Buton",
+      "chooseButton": "Bir buton seç",
+      "noButtons": "Bu veritabanında henüz buton özelliği yok. Yeni özellik olarak bir tane ekleyip buraya dönün.",
       "property": "Özellik",
       "anyProperty": "Herhangi bir özellik",
       "becomes": "Yeni değer",
@@ -1487,7 +1498,8 @@
         "needSlackUrl": "Slack gelen webhook’unun adresini girin.",
         "needView": "Satırları sayılacak görünümü seçin.",
         "needNumber": "Hesaplanacak sayı özelliğini seçin.",
-        "needThreshold": "Karşılaştırılacak sayıyı girin."
+        "needThreshold": "Karşılaştırılacak sayıyı girin.",
+        "needButton": "Onu çalıştıracak butonu seçin."
       },
       "agent": "Ajan",
       "chooseAgent": "Bir ajan seçin…",
@@ -1575,6 +1587,7 @@
       "refresh": "Yenile",
       "schedule": "Zamanlama",
       "webhookReceived": "Webhook alındı",
+      "buttonClicked": "Butona tıklandı",
       "showDetails": "Ayrıntıları göster",
       "hideDetails": "Ayrıntıları gizle",
       "test": "Deneme",
@@ -2303,6 +2316,17 @@
       "widgets": "widget’lar",
       "published": "yayınlama",
       "other": "diğer ayarlar"
+    }
+  },
+  "rowButton": {
+    "started": "Başladı",
+    "failed": {
+      "error": "Buton çalışmadı. Tekrar deneyin.",
+      "notFound": "Bu buton artık yok.",
+      "inTrash": "Çöp kutusundaki satırlarda butonlar bir şey yapmaz.",
+      "noAutomation": "Bu buton henüz bir şey yapmıyor: ne yapacağını özelliğin menüsünden ayarlayın.",
+      "rateLimited": "Bu butona çok sık tıklandı. Biraz bekleyip tekrar deneyin.",
+      "noAccess": "Bu butonu kullanamazsınız: satırı düzenleme izni gerekir."
     }
   }
 }

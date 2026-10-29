@@ -926,7 +926,7 @@ function DropLine() {
 }
 
 /** Values that show as chips of their own (an option's color, a linked row), so a card doesn't box them again. */
-const CHIPPED = new Set<Property["type"]>(["select", "multi_select", "status", "relation"]);
+const CHIPPED = new Set<Property["type"]>(["select", "multi_select", "status", "relation", "button"]);
 
 const Card = memo(function Card({
   workspaceId,
@@ -976,7 +976,7 @@ const Card = memo(function Card({
   const opener = useRowOpener(workspaceId);
   const isOpen = useIsOpenRow(opener, row.id);
   const menu = useFloating<HTMLButtonElement>();
-  const shown = shownValues(props, row);
+  const shown = shownValues(props, row, { buttons: true });
 
   return (
     <div

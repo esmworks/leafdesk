@@ -24,7 +24,8 @@
     "formula": "สูตร",
     "rollup": "โรลอัป",
     "place": "สถานที่",
-    "uniqueId": "รหัส"
+    "uniqueId": "รหัส",
+    "button": "ปุ่ม"
   },
   "views": {
     "table": "ตาราง",
@@ -563,6 +564,11 @@
     "decimalsAuto": "อัตโนมัติ",
     "percentHint": "พิมพ์ 15 สำหรับ {percent}",
     "dateOptions": "การตั้งค่าวันที่",
+    "buttonAutomations": "แก้ไขสิ่งที่ปุ่มทำ",
+    "buttonLook": "ป้ายกำกับและสี",
+    "buttonLabel": "ป้ายกำกับ",
+    "buttonColor": "สี",
+    "buttonColorPlain": "ธรรมดา",
     "uniqueIdPrefix": "คำนำหน้ารหัส",
     "uniqueIdPrefixNone": "ไม่มี",
     "uniqueIdPrefixPlaceholder": "TASK",
@@ -1355,6 +1361,7 @@
       "anyChange": "คุณสมบัติใดก็ตามเปลี่ยน",
       "changes": "{property} เปลี่ยน",
       "becomes": "{property} กลายเป็น {value}",
+      "buttonClicked": "เมื่อคลิก {property}",
       "datePassedProperty": "{days, plural, =0 {ถึง {date}} other {ผ่านไป # วันนับจาก {date}}}",
       "datePassedSince": "{days, plural, other {ผ่านไป # วันนับจาก {date}}}",
       "rowAdded": "เพิ่มแถว",
@@ -1391,8 +1398,12 @@
         "date_passed": "วันที่มาถึง",
         "view_threshold": "ยอดรวมข้ามเส้น",
         "schedule": "ตามกำหนดการ",
-        "incoming_webhook": "มีคำขอเข้ามา (เว็บฮุกขาเข้า)"
+        "incoming_webhook": "มีคำขอเข้ามา (เว็บฮุกขาเข้า)",
+        "button_clicked": "เมื่อคลิกปุ่ม"
       },
+      "button": "ปุ่ม",
+      "chooseButton": "เลือกปุ่ม",
+      "noButtons": "ฐานข้อมูลนี้ยังไม่มีคุณสมบัติปุ่ม เพิ่มเป็นคุณสมบัติใหม่ แล้วกลับมาที่นี่",
       "property": "คุณสมบัติ",
       "anyProperty": "คุณสมบัติใดก็ได้",
       "becomes": "กลายเป็น",
@@ -1487,7 +1498,8 @@
         "needSlackUrl": "ใส่ที่อยู่ของ Incoming Webhook ของ Slack",
         "needView": "เลือกมุมมองที่จะนับแถว",
         "needNumber": "เลือกคุณสมบัติตัวเลขที่จะคำนวณ",
-        "needThreshold": "ป้อนตัวเลขที่จะเปรียบเทียบ"
+        "needThreshold": "ป้อนตัวเลขที่จะเปรียบเทียบ",
+        "needButton": "เลือกปุ่มที่เรียกใช้"
       },
       "agent": "เอเจนต์",
       "chooseAgent": "เลือกเอเจนต์…",
@@ -1575,6 +1587,7 @@
       "refresh": "รีเฟรช",
       "schedule": "กำหนดการ",
       "webhookReceived": "ได้รับเว็บฮุก",
+      "buttonClicked": "คลิกปุ่มแล้ว",
       "showDetails": "แสดงรายละเอียด",
       "hideDetails": "ซ่อนรายละเอียด",
       "test": "ทดสอบ",
@@ -2303,6 +2316,17 @@
       "widgets": "วิดเจ็ต",
       "published": "การเผยแพร่",
       "other": "การตั้งค่าอื่น"
+    }
+  },
+  "rowButton": {
+    "started": "เริ่มแล้ว",
+    "failed": {
+      "error": "ปุ่มไม่ทำงาน ลองอีกครั้ง",
+      "notFound": "ปุ่มนี้ไม่มีแล้ว",
+      "inTrash": "ปุ่มในแถวที่อยู่ในถังขยะจะไม่ทำอะไร",
+      "noAutomation": "ปุ่มนี้ยังไม่ได้ทำอะไร ตั้งค่าสิ่งที่ปุ่มทำได้จากเมนูของคุณสมบัติ",
+      "rateLimited": "คลิกปุ่มนี้บ่อยเกินไป รอสักครู่แล้วลองอีกครั้ง",
+      "noAccess": "คุณใช้ปุ่มนี้ไม่ได้ ต้องมีสิทธิ์แก้ไขแถว"
     }
   }
 }
