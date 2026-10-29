@@ -2,7 +2,7 @@
 
 import { ArrowDown, ArrowUp, X } from "lucide-react";
 import { useLocale, useTranslations } from "next-intl";
-import dynamic from "next/dynamic";
+import { lazyPart } from "@/components/lazy-part";
 import { useEffect, useState } from "react";
 import { disconnectMailboxAction, setMailDatabasesAction } from "@/app/actions/row-mail";
 import { updateWorkspaceSettingsAction } from "@/app/actions/workspaces";
@@ -161,10 +161,7 @@ function DatabasesGroup({ workspaceId, view, onChange }: { workspaceId: string; 
 }
 
 // The forms come with opening one, not with the settings page.
-const MailboxConnect = dynamic(() => import("./mail-connect").then((m) => m.MailboxConnect), {
-  ssr: false,
-  loading: () => <div aria-busy="true" className="m-5 h-24 animate-pulse rounded-md bg-bg-subtle" />,
-});
+const MailboxConnect = lazyPart(() => import("./mail-connect").then((m) => m.MailboxConnect), <div aria-busy="true" className="m-5 h-24 animate-pulse rounded-md bg-bg-subtle" />);
 
 const STATUS_ERRORS = ["blocked", "notFound", "auth", "signIn", "tls", "unreachable", "noInbox"] as const;
 /** What went wrong reading a mailbox; for a Google one, a refused sign-in always means signing in again. */

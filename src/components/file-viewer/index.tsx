@@ -1,8 +1,9 @@
 "use client";
 
-import { lazy, Suspense, useCallback, useState, type MouseEvent, type ReactNode } from "react";
+import { useCallback, useState, type MouseEvent, type ReactNode } from "react";
 import type { UrlKind } from "@/lib/file-viewer";
 import { FILE_ROUTE, fileIdOf, fileUrl } from "@/lib/files";
+import { lazyPart } from "@/components/lazy-part";
 
 /**
  * Opening uploaded files in the file viewer (./file-viewer.tsx), an overlay that shows a file of
@@ -31,7 +32,7 @@ export type ViewerFile = {
   download?: string;
 };
 
-const FileViewer = lazy(() => import("./file-viewer"));
+const FileViewer = lazyPart(() => import("./file-viewer").then((m) => m.default));
 
 /** Opens the viewer; `element` is what to render while it is open (it portals itself to the body). */
 export function useFileViewer() {
@@ -41,9 +42,7 @@ export function useFileViewer() {
   }, []);
   const close = useCallback(() => setShown(null), []);
   const element = shown ? (
-    <Suspense fallback={null}>
-      <FileViewer files={shown.files} start={shown.index} onClose={close} />
-    </Suspense>
+    <FileViewer files={shown.files} start={shown.index} onClose={close} />
   ) : null;
   return { open, element };
 }

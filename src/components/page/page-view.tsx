@@ -2,7 +2,6 @@
 
 import { IconGlyph } from "@/components/builtin-icon";
 import { Archive, LayoutTemplate, Lock, Paintbrush, RotateCcw, SmilePlus } from "lucide-react";
-import dynamic from "next/dynamic";
 import { useLocale, useTranslations } from "next-intl";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -52,22 +51,23 @@ import { pageIconHref } from "@/lib/page-icon-href";
 import { DEFAULT_PAGE_STYLE, pageTextClasses, writePageStyle, type PageStyle } from "@/lib/page-style";
 import { isMac, opensPresentation, savesVersion } from "@/lib/shortcuts";
 import { useToggleAllShortcut } from "@/components/toggle-all";
+import { lazyPart } from "@/components/lazy-part";
 
 // BlockNote touches `window` during setup; render it only in the browser.
-const CollabEditor = dynamic(() => import("./collab-editor"), { ssr: false });
+const CollabEditor = lazyPart(() => import("./collab-editor").then((m) => m.default));
 // Loaded when it opens: the graph brings its renderer.
-const LocalGraphPanel = dynamic(() => import("@/components/graph/local-graph-panel").then((m) => m.LocalGraphPanel), { ssr: false });
+const LocalGraphPanel = lazyPart(() => import("@/components/graph/local-graph-panel").then((m) => m.LocalGraphPanel));
 // Loaded when it opens: its preview brings the editor and the editor's dictionaries.
-const HistoryPanel = dynamic(() => import("./history-panel").then((m) => m.HistoryPanel), { ssr: false });
-const DatabaseHistoryPanel = dynamic(() => import("@/components/database/database-history").then((m) => m.DatabaseHistoryPanel), { ssr: false });
-const VersionNameDialog = dynamic(() => import("./version-name-dialog").then((m) => m.VersionNameDialog), { ssr: false });
-const MarkdownSourceView = dynamic(() => import("./markdown-source").then((m) => m.MarkdownSourceView), { ssr: false });
+const HistoryPanel = lazyPart(() => import("./history-panel").then((m) => m.HistoryPanel));
+const DatabaseHistoryPanel = lazyPart(() => import("@/components/database/database-history").then((m) => m.DatabaseHistoryPanel));
+const VersionNameDialog = lazyPart(() => import("./version-name-dialog").then((m) => m.VersionNameDialog));
+const MarkdownSourceView = lazyPart(() => import("./markdown-source").then((m) => m.MarkdownSourceView));
 // Loaded when it opens, likewise.
-const Presentation = dynamic(() => import("./presentation"), { ssr: false });
-const VerifyDialog = dynamic(() => import("./verify-dialog").then((m) => m.VerifyDialog), { ssr: false });
-const ReadAloud = dynamic(() => import("./read-aloud").then((m) => m.ReadAloud), { ssr: false });
+const Presentation = lazyPart(() => import("./presentation").then((m) => m.default));
+const VerifyDialog = lazyPart(() => import("./verify-dialog").then((m) => m.VerifyDialog));
+const ReadAloud = lazyPart(() => import("./read-aloud").then((m) => m.ReadAloud));
 // Loaded with the page, after it: the list asks for itself once it scrolls into view.
-const RelatedPages = dynamic(() => import("./related-pages").then((m) => m.RelatedPages), { ssr: false });
+const RelatedPages = lazyPart(() => import("./related-pages").then((m) => m.RelatedPages));
 
 type Crumb = { id: string; title: string; icon: string | null; kind: PageKind };
 
@@ -802,7 +802,11 @@ export function PageView({
                     />
                   ) : (
                     // Without a connection the error above explains why nothing loads.
-                    !error && <div className="px-4 text-sm text-fg-faint md:px-[54px]">{tc("loading")}</div>
+                    !error && (
+                      <div data-show-late className="px-4 text-sm text-fg-faint md:px-[54px]">
+                        {tc("loading")}
+                      </div>
+                    )
                   )}
                 </div>
               )}

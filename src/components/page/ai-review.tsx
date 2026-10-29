@@ -3,12 +3,13 @@
 import { Check, Sparkles, Undo2, X } from "lucide-react";
 import { useFormatter, useTranslations } from "next-intl";
 import { useCallback, useEffect, useRef, useState } from "react";
-import { decidePageReviewAction, getPageReviewAction } from "@/app/actions/pages";
+import { decidePageReviewAction } from "@/app/actions/pages";
 import { Button, cn, dialogShadow, IconButton } from "@/components/ui";
 import { AI_EDIT_EVENT, COLLAB_FRAGMENT } from "@/lib/collab-constants";
 import type { PageReview } from "@/server/page-review";
 import { BlockChanges, useActorLabels } from "./history-diff";
 import type { PageDoc } from "./use-page-doc";
+import { read } from "@/components/read";
 
 /** How long the body has to rest after a change before the review is looked up again. */
 const REFRESH_DELAY_MS = 800;
@@ -34,7 +35,7 @@ export function AiReviewBar({ pageId, pageDoc, enabled }: { pageId: string; page
   const refresh = useCallback(async () => {
     const n = ++asked.current;
     try {
-      const next = await getPageReviewAction(pageId);
+      const next = await read("pageReview", pageId);
       if (n === asked.current) setReview(next);
     } catch {
       // Offline or a failed lookup: the bar stays as it was until the next change.

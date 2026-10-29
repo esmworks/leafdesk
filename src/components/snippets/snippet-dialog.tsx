@@ -1,6 +1,5 @@
 "use client";
 
-import dynamic from "next/dynamic";
 import { useTranslations } from "next-intl";
 import { useId, useRef, useState } from "react";
 import { createSnippetAction, updateSnippetAction } from "@/app/actions/snippets";
@@ -16,8 +15,9 @@ import {
   triggerFromTitle,
   type SnippetView,
 } from "@/lib/snippets";
+import { lazyPart } from "@/components/lazy-part";
 
-const SnippetPreview = dynamic(() => import("./snippet-preview"), { ssr: false });
+const SnippetPreview = lazyPart(() => import("./snippet-preview").then((m) => m.default));
 
 /** Where a new snippet may go: the person's own snippets, a workspace's (they own), or both to choose from. */
 export type SnippetTargets = { personal: boolean; workspace: { id: string; name: string } | null };

@@ -3,8 +3,8 @@
 import { PenLine, Search } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { type ReactNode, useEffect, useState } from "react";
-import { recentSearchAction } from "@/app/actions/pages";
 import { PageIcon } from "@/components/ui";
+import { read } from "@/components/read";
 
 type Starter = { key: string; icon: ReactNode; label: string; text: string };
 
@@ -18,7 +18,7 @@ export function ChatStarters({ workspaceId, onPick }: { workspaceId: string; onP
   const [recent, setRecent] = useState<{ id: string; title: string; icon: string | null; kind: string }[] | null>(null);
   useEffect(() => {
     let live = true;
-    recentSearchAction(workspaceId).then(
+    read("recentSearch", workspaceId).then(
       (result) => live && setRecent(result.pages.filter((p) => p.title.trim()).slice(0, 2)),
       () => live && setRecent([]),
     );

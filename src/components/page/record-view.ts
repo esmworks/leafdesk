@@ -1,6 +1,6 @@
 import { useEffect } from "react";
-import { recordPageViewAction } from "@/app/actions/page-views";
 import { shouldSendView, VIEW_SEND_DELAY_MS } from "@/lib/page-views";
+import { read } from "@/components/read";
 
 /** When this tab last sent a view of each page, so reopening it soon after sends nothing. */
 const sent = new Map<string, number>();
@@ -18,7 +18,7 @@ export function useRecordView(pageId: string | null) {
       const now = Date.now();
       if (!shouldSendView(sent.get(pageId), now)) return;
       sent.set(pageId, now);
-      recordPageViewAction(pageId).catch(() => {});
+      read("recordPageView", pageId).catch(() => {});
     }, VIEW_SEND_DELAY_MS);
     return () => clearTimeout(timer);
   }, [pageId]);

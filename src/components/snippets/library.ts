@@ -1,8 +1,8 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
-import { usableSnippetsAction } from "@/app/actions/snippets";
 import { SNIPPETS_EVENT, type SnippetSummary } from "@/lib/snippets";
+import { read } from "@/components/read";
 
 export type Library = { snippets: SnippetSummary[]; manages: { id: string; name: string } | null };
 
@@ -14,7 +14,7 @@ const FRESH_MS = 60_000;
 function loadLibrary(workspaceId: string, force = false): Promise<Library> {
   const cached = libraries.get(workspaceId);
   if (cached && !force && Date.now() - cached.at < FRESH_MS) return cached.promise;
-  const promise = usableSnippetsAction(workspaceId).then((res) => (res.ok ? res.data : { snippets: [], manages: null }));
+  const promise = read("usableSnippets", workspaceId).then((res) => (res.ok ? res.data : { snippets: [], manages: null }));
   // A failed load (offline) is tried again next time.
   promise.catch(() => libraries.delete(workspaceId));
   libraries.set(workspaceId, { at: Date.now(), promise });

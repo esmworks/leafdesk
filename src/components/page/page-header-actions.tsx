@@ -52,7 +52,7 @@ import {
 } from "lucide-react";
 import { useLocale, useTranslations } from "next-intl";
 import { useRouter, useSearchParams } from "next/navigation";
-import { lazy, Suspense, useCallback, useEffect, useMemo, useState, useTransition } from "react";
+import { useCallback, useEffect, useMemo, useState, useTransition } from "react";
 import { createPortal } from "react-dom";
 import type * as Y from "yjs";
 import {
@@ -90,6 +90,7 @@ import type { TeamspaceSummary } from "@/server/teamspaces";
 import { PresenceAvatars } from "./presence-avatars";
 import { SharePanel } from "./share-panel";
 import { searchFold } from "@/lib/search-fold";
+import { lazyPart } from "@/components/lazy-part";
 
 const RANK = { none: 0, view: 1, comment: 2, content: 3, edit: 4, full: 5 } as const;
 /** Client-side mirror of the server's level check, for hiding what the server would refuse. */
@@ -1213,31 +1214,25 @@ function PageMenu({
       {pdfOpen &&
         typeof document !== "undefined" &&
         createPortal(
-          <Suspense fallback={null}>
-            <PdfExportDialog
-              workspaceId={workspaceId}
-              pageId={page.id}
-              isRow={!!page.isRow}
-              comments={exportComments}
-              onClose={() => setPdfOpen(false)}
-            />
-          </Suspense>,
+          <PdfExportDialog
+            workspaceId={workspaceId}
+            pageId={page.id}
+            isRow={!!page.isRow}
+            comments={exportComments}
+            onClose={() => setPdfOpen(false)}
+          />,
           document.body,
         )}
       {teamspaceOpen &&
         typeof document !== "undefined" &&
         createPortal(
-          <Suspense fallback={null}>
-            <TurnIntoTeamspaceDialog workspaceId={workspaceId} pageId={page.id} onClose={() => setTeamspaceOpen(false)} />
-          </Suspense>,
+          <TurnIntoTeamspaceDialog workspaceId={workspaceId} pageId={page.id} onClose={() => setTeamspaceOpen(false)} />,
           document.body,
         )}
       {analyticsOpen &&
         typeof document !== "undefined" &&
         createPortal(
-          <Suspense fallback={null}>
-            <PageAnalyticsDialog pageId={page.id} onClose={() => setAnalyticsOpen(false)} />
-          </Suspense>,
+          <PageAnalyticsDialog pageId={page.id} onClose={() => setAnalyticsOpen(false)} />,
           document.body,
         )}
       {mergeOpen && (
@@ -1257,29 +1252,23 @@ function PageMenu({
         githubOpen &&
         typeof document !== "undefined" &&
         createPortal(
-          <Suspense fallback={null}>
-            <GithubSyncDialog workspaceId={workspaceId} databaseId={page.id} onClose={() => setGithubOpen(false)} />
-          </Suspense>,
+          <GithubSyncDialog workspaceId={workspaceId} databaseId={page.id} onClose={() => setGithubOpen(false)} />,
           document.body,
         )}
       {isDatabase &&
         slackOpen &&
         typeof document !== "undefined" &&
         createPortal(
-          <Suspense fallback={null}>
-            <SlackSetupDialog databaseId={page.id} onClose={() => setSlackOpen(false)} />
-          </Suspense>,
+          <SlackSetupDialog databaseId={page.id} onClose={() => setSlackOpen(false)} />,
           document.body,
         )}
       {isDatabase && rowAccessUsed && (
-        <Suspense fallback={null}>
-          <RowAccessDialog
-            workspaceId={workspaceId}
-            databaseId={page.id}
-            open={rowAccessOpen}
-            onClose={() => setRowAccessOpen(false)}
-          />
-        </Suspense>
+        <RowAccessDialog
+          workspaceId={workspaceId}
+          databaseId={page.id}
+          open={rowAccessOpen}
+          onClose={() => setRowAccessOpen(false)}
+        />
       )}
       {isDatabase && (
         <VoiceNoteInstructionsDialog databaseId={page.id} open={voiceInstructionsOpen} onClose={() => setVoiceInstructionsOpen(false)} />
@@ -1289,12 +1278,12 @@ function PageMenu({
 }
 
 // The PDF, analytics, teamspace and row access dialogs come with their first use, not with every page.
-const PdfExportDialog = lazy(() => import("./pdf-export-dialog"));
-const PageAnalyticsDialog = lazy(() => import("./page-analytics-dialog"));
-const TurnIntoTeamspaceDialog = lazy(() => import("./turn-into-teamspace-dialog"));
-const GithubSyncDialog = lazy(() => import("@/components/database/github-sync-dialog"));
-const SlackSetupDialog = lazy(() => import("@/components/database/slack-setup-dialog"));
-const RowAccessDialog = lazy(() => import("@/components/database/row-access-dialog").then((m) => ({ default: m.RowAccessDialog })));
+const PdfExportDialog = lazyPart(() => import("./pdf-export-dialog").then((m) => m.default));
+const PageAnalyticsDialog = lazyPart(() => import("./page-analytics-dialog").then((m) => m.default));
+const TurnIntoTeamspaceDialog = lazyPart(() => import("./turn-into-teamspace-dialog").then((m) => m.default));
+const GithubSyncDialog = lazyPart(() => import("@/components/database/github-sync-dialog").then((m) => m.default));
+const SlackSetupDialog = lazyPart(() => import("@/components/database/slack-setup-dialog").then((m) => m.default));
+const RowAccessDialog = lazyPart(() => import("@/components/database/row-access-dialog").then((m) => m.RowAccessDialog));
 
 /** Pick a new parent: any page or database in the sidebar tree except this page and its subpages. */
 export function MoveDialog({

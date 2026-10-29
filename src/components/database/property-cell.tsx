@@ -1,7 +1,6 @@
 "use client";
 
 import { Check, ExternalLink, Plus, TriangleAlert, X } from "lucide-react";
-import dynamic from "next/dynamic";
 import Link from "next/link";
 import { useFormatter, useLocale, useTranslations } from "next-intl";
 import { Fragment, useContext, useEffect, useMemo, useRef, useState, type MouseEvent, type ReactNode } from "react";
@@ -50,11 +49,12 @@ import { formatUniqueId, uniqueIdPrefix } from "@/lib/unique-id";
 import { useSchema } from "./schema-context";
 import { MarkerChip, useRowCell } from "./row-cell-context";
 import { dateMarker, DATE_MARKERS } from "@/lib/template-values";
+import { lazyPart } from "@/components/lazy-part";
 
 // The place editor (its search and suggestions) loads when a place is first edited.
-const PlaceEditor = dynamic(() => import("./place-editor").then((m) => m.PlaceEditor), { ssr: false });
+const PlaceEditor = lazyPart(() => import("./place-editor").then((m) => m.PlaceEditor));
 // Only the date editor shows it: kept out of the first load the row panel brings along.
-const DayGrid = dynamic(() => import("./date-day-grid").then((m) => m.DayGrid), { ssr: false, loading: () => <div className="h-60" /> });
+const DayGrid = lazyPart(() => import("./date-day-grid").then((m) => m.DayGrid), <div className="h-60" />);
 
 export type CreateOption = (propertyId: string, name: string) => Promise<SelectOption | null>;
 

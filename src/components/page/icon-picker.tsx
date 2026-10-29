@@ -1,13 +1,10 @@
 "use client";
 
-import dynamic from "next/dynamic";
+import { lazyPart } from "@/components/lazy-part";
 import { Popover } from "@/components/ui";
 
 // The picker (emoji by category, built-in icons, search) loads when first opened.
-const IconPickerPanel = dynamic(() => import("@/components/icon-picker/panel"), {
-  ssr: false,
-  loading: () => <div className="h-[23rem] w-[21.5rem] max-w-[calc(100vw-1.5rem)]" />,
-});
+const IconPickerPanel = lazyPart(() => import("@/components/icon-picker/panel").then((m) => m.default), <div className="h-[23rem] w-[21.5rem] max-w-[calc(100vw-1.5rem)]" />);
 
 export function IconPicker({
   icon,

@@ -2,7 +2,7 @@
 
 import { createReactBlockSpec, type DefaultReactSuggestionItem } from "@blocknote/react";
 import { Bot, Search } from "lucide-react";
-import dynamic from "next/dynamic";
+import { lazyPart } from "@/components/lazy-part";
 import { useTranslations } from "next-intl";
 import { useEffect, useMemo, useState } from "react";
 import { chatAgentsAction } from "@/app/actions/agent-chat";
@@ -19,10 +19,7 @@ import type { PageEditor } from "./embed-blocks";
  * whether the reader may chat, and how, is the server's to say. The chat itself is loaded only
  * where such a block is shown.
  */
-const AgentChat = dynamic(() => import("@/components/agent-chat/agent-chat").then((m) => m.AgentChat), {
-  ssr: false,
-  loading: () => <div aria-busy="true" className="my-1 h-24 w-full animate-pulse rounded-lg bg-bg-subtle" />,
-});
+const AgentChat = lazyPart(() => import("@/components/agent-chat/agent-chat").then((m) => m.AgentChat), <div aria-busy="true" className="my-1 h-24 w-full animate-pulse rounded-lg bg-bg-subtle" />);
 
 /** A block just added from the slash menu, whose picker opens as it appears. */
 let pickFor: string | null = null;

@@ -4,7 +4,6 @@ import { iconText } from "@/lib/icon-value";
 import { IconGlyph } from "@/components/builtin-icon";
 import { createReactBlockSpec, type DefaultReactSuggestionItem } from "@blocknote/react";
 import { Loader2, MousePointerClick, Settings2 } from "lucide-react";
-import dynamic from "next/dynamic";
 import { useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { useEffect, useMemo, useState } from "react";
@@ -13,13 +12,14 @@ import { cn, IconButton } from "@/components/ui";
 import { BUTTON_BLOCK, buttonBlockConfig, buttonColor, cleanButtonLabel, parseButtonConfig } from "@/lib/buttons";
 import { useEmbedHost } from "./database-embed";
 import type { PageEditor } from "./embed-blocks";
+import { lazyPart } from "@/components/lazy-part";
 
 /**
  * The button block (lib/buttons.ts): a click runs its steps on the server as whoever clicked
  * (server/buttons.ts) and then opens what its last "open" step names. People who may edit the page
  * set it up in its settings, which load only when opened.
  */
-const ButtonSettings = dynamic(() => import("./button-settings"), { ssr: false });
+const ButtonSettings = lazyPart(() => import("./button-settings").then((m) => m.default));
 
 /** A button just added from the slash menu: its settings open as it appears. */
 let setUpNext = false;

@@ -1,7 +1,7 @@
 "use client";
 
 import { ImageUp, Palette, Pencil, Plus, Star, StarOff, Trash2, X } from "lucide-react";
-import dynamic from "next/dynamic";
+import { lazyPart } from "@/components/lazy-part";
 import { useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { useEffect, useId, useMemo, useRef, useState } from "react";
@@ -102,10 +102,7 @@ function LetterheadPreview({ fields, logo, zoom, className }: { fields: Letterhe
 }
 
 // The theme editor (with the theme checks and the starter) comes with opening it, not with the settings page.
-const PdfThemeEditor = dynamic(() => import("./pdf-theme-editor").then((m) => m.PdfThemeEditor), {
-  ssr: false,
-  loading: () => <div aria-busy="true" className="m-5 h-24 animate-pulse rounded-md bg-bg-subtle" />,
-});
+const PdfThemeEditor = lazyPart(() => import("./pdf-theme-editor").then((m) => m.PdfThemeEditor), <div aria-busy="true" className="m-5 h-24 animate-pulse rounded-md bg-bg-subtle" />);
 
 /**
  * Settings > PDF templates > Letterheads (lib/letterheads): owners add, change and remove them and

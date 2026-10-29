@@ -16,12 +16,10 @@ import { useLocale, useTranslations } from "next-intl";
 import { createPortal } from "react-dom";
 import { Fragment, useCallback, useEffect, useMemo, useRef, useState, useSyncExternalStore, type MouseEvent } from "react";
 import {
-  backlinksAction,
   linkMentionAction,
   mentionCandidatesAction,
   pagesNamedAction,
   resolvePagesAction,
-  unlinkedMentionsAction,
 } from "@/app/actions/mentions";
 import { createPageAction } from "@/app/actions/pages";
 import { useChannel } from "@/components/collab/use-channel";
@@ -60,6 +58,7 @@ import type { PageEditor } from "./embed-blocks";
 import { searchFold } from "@/lib/search-fold";
 import { linkWikilinks, titleKey, wikilinkTitles } from "@/lib/wikilinks";
 import { usePlacement } from "@/components/use-placement";
+import { read } from "@/components/read";
 
 /**
  * The editor's side of mentions and page links (configs shared with the server in lib/mentions):
@@ -1099,7 +1098,7 @@ export function Backlinks({
 
   useEffect(() => {
     let current = true;
-    backlinksAction(pageId).then(
+    read("backlinks", pageId).then(
       (res) => {
         if (!current) return;
         setLinks(res.pages);
@@ -1113,7 +1112,7 @@ export function Backlinks({
   }, [pageId, version]);
   useEffect(() => {
     let current = true;
-    unlinkedMentionsAction(pageId, checked).then(
+    read("unlinkedMentions", pageId, checked).then(
       (list) => current && setUnlinked(list),
       () => {},
     );
@@ -1147,7 +1146,7 @@ export function Backlinks({
   async function loadMore() {
     setLoadingMore(true);
     try {
-      const res = await backlinksAction(pageId, links.length);
+      const res = await read("backlinks", pageId, links.length);
       setLinks((list) => [...list, ...res.pages.filter((p) => !list.some((l) => l.id === p.id))]);
       setTotal(res.total);
     } catch {

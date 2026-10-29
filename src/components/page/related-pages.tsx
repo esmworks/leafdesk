@@ -4,11 +4,11 @@ import { Sparkles } from "lucide-react";
 import { useFormatter, useTranslations } from "next-intl";
 import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState, type MouseEvent } from "react";
-import { relatedPagesAction } from "@/app/actions/related-pages";
 import { PageIcon, pageLabel } from "@/components/ui";
 import { blockPath, pagePath } from "@/lib/mentions";
 import type { RelatedPage } from "@/server/related-pages";
 import { openBlockLink } from "./block-focus";
+import { read } from "@/components/read";
 
 /**
  * "Related pages" under a page's body: pages close to it in meaning that it doesn't link to and
@@ -42,7 +42,7 @@ export function RelatedPages({ pageId }: { pageId: string }) {
   useEffect(() => {
     if (!wanted) return;
     let current = true;
-    relatedPagesAction(pageId).then(
+    read("relatedPages", pageId).then(
       (list) => current && setPages(list),
       () => {},
     );

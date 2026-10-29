@@ -2,7 +2,6 @@
 
 import { IconGlyph } from "@/components/builtin-icon";
 import { ArrowDown, ArrowUp, Bot, Plus } from "lucide-react";
-import dynamic from "next/dynamic";
 import { useTimeZone, useTranslations } from "next-intl";
 import { useEffect, useId, useLayoutEffect, useMemo, useRef, useState } from "react";
 import { cn } from "@/components/ui";
@@ -57,10 +56,11 @@ import { inlineSign } from "@/components/direction";
 import { useToggleAllGroups } from "@/components/toggle-all";
 import { TITLE, type Property, type Row, type View } from "./types";
 import type { DatabaseApi } from "./use-database";
+import { lazyPart } from "@/components/lazy-part";
 
 // A column's menu and the new-property panel open on a click: loaded then.
-const PropertyMenu = dynamic(() => import("./property-menu").then((m) => m.PropertyMenu), { ssr: false });
-const AddPropertyPanel = dynamic(() => import("./property-menu").then((m) => m.AddPropertyPanel), { ssr: false });
+const PropertyMenu = lazyPart(() => import("./property-menu").then((m) => m.PropertyMenu));
+const AddPropertyPanel = lazyPart(() => import("./property-menu").then((m) => m.AddPropertyPanel));
 
 /** The Name column; narrower on phones so the next column peeks in. */
 const NAME_WIDTH = { wide: 280, phone: 180 };

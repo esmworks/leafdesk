@@ -3,7 +3,6 @@
 import { blocksToYXmlFragment, yXmlFragmentToBlocks } from "@blocknote/core/yjs";
 import { createReactBlockSpec, type DefaultReactSuggestionItem } from "@blocknote/react";
 import { Copy, RefreshCw, Unlink } from "lucide-react";
-import dynamic from "next/dynamic";
 import Link from "next/link";
 import { useTranslations } from "next-intl";
 import { useCallback, useEffect, useMemo, useRef, useState, useSyncExternalStore } from "react";
@@ -30,6 +29,7 @@ import { useEmbedHost, type EmbedHost } from "./database-embed";
 import type { PageEditor } from "./embed-blocks";
 import { useSyncedFrame, type SyncedFrame } from "./synced-page";
 import { usePageDoc } from "./use-page-doc";
+import { lazyPart } from "@/components/lazy-part";
 
 /**
  * Synced blocks in the editor (lib/synced-blocks): a group of blocks kept in one page and shown,
@@ -49,7 +49,7 @@ import { usePageDoc } from "./use-page-doc";
  */
 
 // Loaded on demand: the editor is a large module, and it imports this one.
-const CollabEditor = dynamic(() => import("./collab-editor"), { ssr: false });
+const CollabEditor = lazyPart(() => import("./collab-editor").then((m) => m.default));
 
 /** The clipboard form of a synced block: pasted into a page, it becomes a reference to it. */
 const CLIPBOARD_ATTRIBUTE = "data-leafdesk-synced-block";

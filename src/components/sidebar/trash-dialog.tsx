@@ -4,10 +4,12 @@ import { RotateCcw, Trash2 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useFormatter, useTranslations } from "next-intl";
 import { useEffect, useState, useTransition } from "react";
-import { deletePagePermanentlyAction, listTrashAction, restorePageAction } from "@/app/actions/pages";
+import { deletePagePermanentlyAction, restorePageAction } from "@/app/actions/pages";
+import type { listTrashAction } from "@/app/actions/pages";
 import { Dialog, DialogHeader, IconButton, PageIcon, pageLabel } from "@/components/ui";
 import { MERGED_ORIGINAL_PARAM } from "@/lib/merge-rows";
 import { daysUntil } from "@/lib/retention";
+import { read } from "@/components/read";
 
 type TrashItem = Awaited<ReturnType<typeof listTrashAction>>[number];
 
@@ -35,7 +37,7 @@ export function TrashDialog({
   const [, startTransition] = useTransition();
 
   const load = () =>
-    listTrashAction(workspaceId).then(
+    read("trash", workspaceId).then(
       (list) => {
         setItems(list);
         setLoadedAt(new Date());

@@ -2,13 +2,13 @@
 
 import { Zap } from "lucide-react";
 import { useTranslations } from "next-intl";
-import { lazy, Suspense, useState } from "react";
+import { useState } from "react";
 import { createPortal } from "react-dom";
+import { lazyPart } from "@/components/lazy-part";
 
 // The dialog and its editor load with the button's first use (or as the pointer comes near it),
 // not with every database page.
-const loadDialog = () => import("./automations-dialog");
-const AutomationsDialog = lazy(loadDialog);
+const AutomationsDialog = lazyPart(() => import("./automations-dialog").then((m) => m.default));
 
 /**
  * The database toolbar's automations button: "when a row is added, a property changes, a date
@@ -37,8 +37,8 @@ export function AutomationsButton({
         aria-label={t("button")}
         aria-haspopup="dialog"
         onClick={() => setOpen(true)}
-        onPointerEnter={() => void loadDialog()}
-        onFocus={() => void loadDialog()}
+        onPointerEnter={() => void AutomationsDialog.preload()}
+        onFocus={() => void AutomationsDialog.preload()}
         className="inline-flex h-7 min-w-7 items-center justify-center gap-1 rounded-md px-1.5 text-sm text-fg-muted hover:bg-bg-hover hover:text-fg"
       >
         <Zap className="h-4 w-4" />
@@ -47,15 +47,13 @@ export function AutomationsButton({
         typeof document !== "undefined" &&
         // A portal keeps the toolbar's styles out; React context (schema, people) still reaches it.
         createPortal(
-          <Suspense fallback={null}>
-            <AutomationsDialog
-              workspaceId={workspaceId}
-              databaseId={databaseId}
-              databaseTitle={databaseTitle}
-              openRun={openRun}
-              onClose={() => setOpen(false)}
-            />
-          </Suspense>,
+          <AutomationsDialog
+            workspaceId={workspaceId}
+            databaseId={databaseId}
+            databaseTitle={databaseTitle}
+            openRun={openRun}
+            onClose={() => setOpen(false)}
+          />,
           document.body,
         )}
     </>

@@ -4,13 +4,13 @@ import { Hash, Search } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { createPortal } from "react-dom";
-import { tagSuggestionsAction } from "@/app/actions/tags";
 import { cn } from "@/components/ui";
 import { openSearch } from "@/lib/search-open";
 import { tagKey } from "@/lib/tags";
 import type { TagSuggestion } from "@/server/page-tags";
 import type { PageEditor } from "./embed-blocks";
 import { tagAtCaret } from "./tags";
+import { read } from "@/components/read";
 
 /**
  * While a `#tag` is typed in the page (components/page/tags.ts tagAtCaret), the tags of the
@@ -56,7 +56,7 @@ export default function TagMenu({ editor, workspaceId }: { editor: PageEditor; w
     if (query === null) return;
     let live = true;
     const timer = setTimeout(() => {
-      tagSuggestionsAction(workspaceId, query).then(
+      read("tagSuggestions", workspaceId, query).then(
         (found) => live && setLoaded(found),
         () => {},
       );

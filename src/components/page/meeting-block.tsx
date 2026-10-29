@@ -3,7 +3,7 @@
 import { SideMenuExtension } from "@blocknote/core/extensions";
 import { createReactBlockSpec, useBlockNoteEditor, useComponentsContext, useExtensionState, type DefaultReactSuggestionItem } from "@blocknote/react";
 import { NotebookPen } from "lucide-react";
-import dynamic from "next/dynamic";
+import { lazyPart } from "@/components/lazy-part";
 import { useTranslations } from "next-intl";
 import { useMemo } from "react";
 import { MEETING_BLOCK, meetingBlockConfig, meetingProps, newMeetingId } from "@/lib/meetings";
@@ -15,10 +15,7 @@ import { placeEmbedBlock, type PageEditor } from "./embed-blocks";
  * summary with links into the transcript. Everything it shows is in its props; the view itself is
  * loaded only where such a block is shown.
  */
-const MeetingView = dynamic(() => import("./meeting-view").then((m) => m.MeetingView), {
-  ssr: false,
-  loading: () => <div aria-busy="true" className="my-1 h-32 w-full animate-pulse rounded-lg bg-bg-subtle" />,
-});
+const MeetingView = lazyPart(() => import("./meeting-view").then((m) => m.MeetingView), <div aria-busy="true" className="my-1 h-32 w-full animate-pulse rounded-lg bg-bg-subtle" />);
 
 export const MeetingBlock = createReactBlockSpec(meetingBlockConfig, {
   // A self-contained widget: clicks and keys inside it are its own.

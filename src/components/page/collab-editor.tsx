@@ -24,7 +24,6 @@ import {
 } from "@blocknote/react";
 import { DirectionProvider } from "@mantine/core";
 import { X } from "lucide-react";
-import dynamic from "next/dynamic";
 import { useLocale, useTranslations } from "next-intl";
 import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 import { useBlockFocus } from "./block-focus";
@@ -90,12 +89,13 @@ import { SmartQuotes } from "./smart-quotes";
 import { TagMarks } from "./tags";
 import { editorShortcuts } from "./editor-shortcuts";
 import { LinkCopiedNotice } from "./link-copied-notice";
+import { lazyPart } from "@/components/lazy-part";
 
 /** The page's floating outline, loaded once the page has a place for it (see floating-outline.tsx). */
-const FloatingOutline = dynamic(() => import("./floating-outline"), { ssr: false });
-const ImageCropDialog = dynamic(() => import("./image-crop-dialog"), { ssr: false });
-const TurnIntoPageDialog = dynamic(() => import("./turn-into-page"), { ssr: false });
-const TagMenu = dynamic(() => import("./tag-menu"), { ssr: false });
+const FloatingOutline = lazyPart(() => import("./floating-outline").then((m) => m.default));
+const ImageCropDialog = lazyPart(() => import("./image-crop-dialog").then((m) => m.default));
+const TurnIntoPageDialog = lazyPart(() => import("./turn-into-page").then((m) => m.default));
+const TagMenu = lazyPart(() => import("./tag-menu").then((m) => m.default));
 
 /**
  * y-prosemirror's undo plugin keeps its Y.UndoManager in plugin state but destroys it whenever the

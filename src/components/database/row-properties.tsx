@@ -1,7 +1,6 @@
 "use client";
 
 import { Check, ChevronDown, ChevronRight, Copy, MessageSquare, PanelRight, PanelTop, Plus } from "lucide-react";
-import dynamic from "next/dynamic";
 import { useTranslations } from "next-intl";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { createPortal } from "react-dom";
@@ -48,14 +47,15 @@ import { usePropertyThreadCount } from "@/components/page/property-threads";
 import { requestPropertyComment } from "@/lib/comments-request";
 import { copyText } from "@/components/settings/copy-button";
 import { formatUniqueId, uniqueIdPrefix } from "@/lib/unique-id";
+import { lazyPart } from "@/components/lazy-part";
 
 // Only URL properties set to show previews need it: kept out of the row panel's first load.
-const UrlPreview = dynamic(() => import("./url-preview"), { ssr: false });
+const UrlPreview = lazyPart(() => import("./url-preview").then((m) => m.default));
 // Only relations shown as a section of their own need it (lib/relation-options).
-const RelationSection = dynamic(() => import("./relation-section"), { ssr: false });
+const RelationSection = lazyPart(() => import("./relation-section").then((m) => m.default));
 // A property's menu and the new-property panel open on a click: loaded then.
-const PropertyMenu = dynamic(() => import("./property-menu").then((m) => m.PropertyMenu), { ssr: false });
-const AddPropertyPanel = dynamic(() => import("./property-menu").then((m) => m.AddPropertyPanel), { ssr: false });
+const PropertyMenu = lazyPart(() => import("./property-menu").then((m) => m.PropertyMenu));
+const AddPropertyPanel = lazyPart(() => import("./property-menu").then((m) => m.AddPropertyPanel));
 
 /**
  * Editable property list of a database row's page: the properties its database pins in a strip under

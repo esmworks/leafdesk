@@ -383,6 +383,13 @@ because they are separate module graphs.
   read once in `database-page.tsx` and handed down; a card asks `useIsOpenRow`
   (`components/database/row-panel-context.ts`). Views are memoized; keep their props stable
   (`src/lib/keep-unchanged.ts` keeps unchanged row objects across refetches).
+- **Waiting.** Next runs a tab's server actions one at a time, each after the one before: a read a
+  component fires on its own (as it opens, on a timer, as a box fills) goes through `read()`
+  (`components/read.ts`, served by `app/api/read`, listed in `READS` there), so it neither waits
+  nor holds up what the person clicked; writes stay server actions. A dialog, menu or panel whose
+  code loads when it first opens is a `lazyPart` (`components/lazy-part.tsx`), not `next/dynamic`
+  with `ssr: false` or `lazy()` in a Suspense: React holds back what a boundary reveals until
+  300 ms after the last fallback shown anywhere.
 - **Page decoration** (the page background and cover, and anything like them added later) never loads a
   URL or image a person supplies: only colors, patterns and cover gradients written in the stylesheet
   (`src/lib/page-background.ts`). File and image blocks are content, not decoration.

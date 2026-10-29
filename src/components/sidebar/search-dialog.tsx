@@ -1,12 +1,10 @@
 "use client";
 
 import { Archive, BadgeCheck, ChevronRight, Hash, Paperclip, Search } from "lucide-react";
-import dynamic from "next/dynamic";
+import { lazyPart } from "@/components/lazy-part";
 import { useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { useEffect, useMemo, useRef, useState, type ReactNode } from "react";
-import { recentSearchAction, searchAction } from "@/app/actions/pages";
-import { tagSuggestionsAction } from "@/app/actions/tags";
 import { openBlockLink } from "@/components/page/block-focus";
 import { cn, Dialog, PageIcon, pageLabel, Switch } from "@/components/ui";
 import type { PageKind } from "@/db/schema";
@@ -18,12 +16,10 @@ import { parseSearchQuery } from "@/lib/search-query";
 import { tagKey, typedTag } from "@/lib/tags";
 import type { TagSuggestion } from "@/server/page-tags";
 import type { SearchHit } from "@/server/pages";
+import { read, readWith } from "@/components/read";
 
 // Loaded with the box, not with the sidebar: the sidebar is in every page's first load.
-const SearchFilterBar = dynamic(() => import("./search-filter-bar").then((m) => m.SearchFilterBar), {
-  ssr: false,
-  loading: () => <div className="h-[45px] border-b border-border" />,
-});
+const SearchFilterBar = lazyPart(() => import("./search-filter-bar").then((m) => m.SearchFilterBar), <div className="h-[45px] border-b border-border" />);
 
 /**
  * Something the search box can do instead of opening a page: typed after `>`. `keywords`: other
@@ -126,7 +122,7 @@ export function SearchDialog({
     }
     if (initialQuery) setQuery(initialQuery);
     let live = true;
-    recentSearchAction(workspaceId).then(
+    read("recentSearch", workspaceId).then(
       (found) => live && setRecent(found),
       () => live && setRecent({ source: "edited", pages: [] }),
     );
@@ -139,7 +135,7 @@ export function SearchDialog({
     if (tagQuery === null) return;
     let live = true;
     const timer = setTimeout(() => {
-      tagSuggestionsAction(workspaceId, tagQuery).then(
+      read("tagSuggestions", workspaceId, tagQuery).then(
         (found) => live && setTagHits(found),
         () => {},
       );
@@ -160,14 +156,19 @@ export function SearchDialog({
       return;
     }
     setLoading(true);
+    // A newer query cancels this one's request: searches no longer wait in line behind each other.
+    const stale = new AbortController();
     const timer = setTimeout(async () => {
-      const result = await searchAction(workspaceId, trimmed, includeOutdated, filtered ? filters : undefined, sort).catch(() => []);
+      const result = await readWith(stale.signal, "search", workspaceId, trimmed, includeOutdated, filtered ? filters : undefined, sort).catch(() => []);
       if (id !== requestId.current) return; // a newer query is in flight
       setHits(result);
       setActive(0);
       setLoading(false);
     }, 150);
-    return () => clearTimeout(timer);
+    return () => {
+      clearTimeout(timer);
+      stale.abort();
+    };
   }, [trimmed, commandMode, workspaceId, includeOutdated, filters, filtered, sort]);
 
   const items = useMemo<Item[]>(() => {

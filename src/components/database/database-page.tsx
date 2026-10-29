@@ -41,6 +41,7 @@ import { useIsOffline } from "@/components/offline/offline-context";
 import { ActiveRulesBar, ViewSearch, ViewTabs, ViewToolbar, type FilterRequest, type ViewExportFormat } from "./view-bar";
 import { saveDownload } from "./download";
 import { timelineDates, ViewLayoutMenu } from "./view-settings";
+import { lazyPart } from "@/components/lazy-part";
 
 /** The rules a viewer who may not change a view sets for themselves, or a draft of its rules (see `ownRules`). */
 type PersonalRules = Pick<ViewConfig, "filters" | "filterCombinator" | "sorts">;
@@ -82,7 +83,7 @@ const MemoTimelineView = memo(TimelineView);
 // Loaded when a dashboard view opens: its grid brings the chart and linked view code along.
 const DashboardView = dynamic(() => import("./dashboard-view"), { loading: () => <DashboardSkeleton /> });
 // Loaded when a map view opens: Leaflet (which needs a browser) comes along only then.
-const MapView = memo(dynamic(() => import("./map-view"), { ssr: false, loading: () => <MapSkeleton /> }));
+const MapView = memo(lazyPart(() => import("./map-view").then((m) => m.default), <MapSkeleton />));
 // Opened now and then, from the layout menu and the current sprint's toolbar.
 const SprintsDialog = dynamic(() => import("./sprints-dialog").then((module) => module.SprintsDialog));
 const CompleteSprintDialog = dynamic(() => import("./sprints-dialog").then((module) => module.CompleteSprintDialog));

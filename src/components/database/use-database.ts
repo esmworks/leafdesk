@@ -19,7 +19,6 @@ import {
   duplicateRowsAction,
   setRowsIconAction,
   ensureOptionAction,
-  loadDatabaseAction,
   moveRowAction,
   moveRowBesideAction,
   moveViewAction,
@@ -54,6 +53,7 @@ import { withoutParentOptions } from "@/lib/dependent-options";
 import type { RollupConfig } from "@/db/schema/app";
 import type { DatabaseSnapshot, DerivedInput, Property, RelationInput, RollupInput, Row, View } from "./types";
 import { TITLE } from "./types";
+import { read } from "@/components/read";
 
 type Pending = { rowId: string; key: string; value: unknown; version: number };
 /** A value that shows in a cell before the server confirms it. */
@@ -104,7 +104,7 @@ export function useDatabase(
   const refetch = useCallback(async () => {
     const mine = ++seq.current;
     let unreachable = false;
-    const res = await loadDatabaseAction(databaseId, { covers }).catch((e: unknown) => {
+    const res = await read("loadDatabase", databaseId, { covers }).catch((e: unknown) => {
       unreachable = true;
       return { ok: false as const, error: message(e) };
     });

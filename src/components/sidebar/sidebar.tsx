@@ -1,7 +1,6 @@
 "use client";
 
 import { IconGlyph } from "@/components/builtin-icon";
-import dynamic from "next/dynamic";
 import {
   Bell,
   BellOff,
@@ -50,15 +49,11 @@ import Link from "next/link";
 import { useTranslations } from "next-intl";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { Fragment, useCallback, useEffect, useMemo, useRef, useState, useTransition } from "react";
-import { sidebarAgentsAction } from "@/app/actions/agents";
-import { unreadCountAction } from "@/app/actions/notifications";
-import { pendingCountAction } from "@/app/actions/review";
 import { listFavoritesAction } from "@/app/actions/page-menu";
 import { archivePageAction, createPageAction, getSidebarAction, movePageAction, renamePageAction, restorePageAction } from "@/app/actions/pages";
 import { showToast } from "@/components/toast";
 import { leaveTeamspaceAction, setTeamspaceWatchingAction } from "@/app/actions/teamspaces";
 import { setSidebarLayoutAction } from "@/app/actions/workspaces";
-import { settingsSearchAction } from "@/app/actions/settings-search";
 import type { SettingsSearchItem } from "@/lib/settings-search";
 import type { FavoritePage } from "@/server/page-meta";
 import type { SidebarAgent } from "@/server/agents/manage";
@@ -113,11 +108,13 @@ import { isSettingsPath, SidebarPeekEdge, useSidebar } from "./sidebar-context";
 import { TrashDialog } from "./trash-dialog";
 import { TemplatesDialog } from "@/components/workspace/templates-dialog";
 import { BuildWithAiDialog } from "@/components/workspace/build-with-ai";
+import { lazyPart } from "@/components/lazy-part";
+import { read } from "@/components/read";
 
 // Loaded the first time the inbox opens: it is not needed to show a page.
-const InboxDialog = dynamic(() => import("./inbox-dialog").then((m) => m.InboxDialog), { ssr: false });
+const InboxDialog = lazyPart(() => import("./inbox-dialog").then((m) => m.InboxDialog));
 // Loaded the first time the import dialog opens, with the readers of every format it takes.
-const ImportDialog = dynamic(() => import("@/components/workspace/import-dialog").then((m) => m.ImportDialog), { ssr: false });
+const ImportDialog = lazyPart(() => import("@/components/workspace/import-dialog").then((m) => m.ImportDialog));
 
 type Workspace = { id: string; name: string; icon: string | null; role: string };
 
@@ -279,7 +276,7 @@ export function Sidebar({
   useEffect(() => {
     if (!searchOpen || offline || settingsAsked.current === workspaceId) return;
     settingsAsked.current = workspaceId;
-    settingsSearchAction(workspaceId)
+    read("settingsSearch", workspaceId)
       .then((result) => {
         if (result.ok) setSettingsFound({ workspaceId, items: result.data });
         else settingsAsked.current = null;
@@ -346,10 +343,10 @@ export function Sidebar({
     refreshFavorites();
   }, [workspaceId, refreshFavorites]);
   const refreshInbox = useCallback(() => {
-    unreadCountAction(workspaceId).then(setUnread).catch(() => {});
-    pendingCountAction(workspaceId).then(setReviewCount).catch(() => {});
+    read("unreadCount", workspaceId).then(setUnread).catch(() => {});
+    read("pendingCount", workspaceId).then(setReviewCount).catch(() => {});
     // Agents made or archived elsewhere (the AI chat, settings, another window) show up with it.
-    sidebarAgentsAction(workspaceId)
+    read("sidebarAgents", workspaceId)
       .then((result) => result.ok && setAgents(result.data))
       .catch(() => {});
   }, [workspaceId]);

@@ -1,7 +1,6 @@
 "use client";
 
 import { ArrowLeft, ArrowRight, Lock, Mail, MoreHorizontal, Pencil, Plus, Trash2 } from "lucide-react";
-import dynamic from "next/dynamic";
 import Link from "next/link";
 import { useFormatter, useNow, useTranslations } from "next-intl";
 import { useCallback, useEffect, useMemo, useRef, useState, type ReactNode, type RefObject } from "react";
@@ -54,6 +53,7 @@ import type { WidgetData, WidgetRow, WidgetTarget } from "@/server/dashboards";
 import { ChangeLine, PeriodBar, useDashboardPeriod, useRangeName } from "./dashboard-period";
 import { DatabaseEmbed } from "./database-embed";
 import { DatabasePicker } from "./database-picker";
+import { lazyPart } from "@/components/lazy-part";
 
 /**
  * A dashboard's grid (see lib/dashboard): widgets, each a view of a database the reader may see.
@@ -66,7 +66,7 @@ import { DatabasePicker } from "./database-picker";
  * whose widgets all show that database.
  */
 // Loaded when someone opens a dashboard's emails.
-const DashboardEmailsDialog = dynamic(() => import("./dashboard-emails-dialog"), { ssr: false });
+const DashboardEmailsDialog = lazyPart(() => import("./dashboard-emails-dialog").then((m) => m.default));
 
 /** What a dragged widget carries: not text, so the editor around the dashboard leaves the drop alone. */
 const WIDGET_DRAG_TYPE = "application/x-leafdesk-widget";

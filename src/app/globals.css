@@ -1618,6 +1618,20 @@ body:has(.leafdesk-column-drop) .prosemirror-dropcursor-block {
 }
 
 /*
+ * A note that only says something is loading (a page's body while its document arrives over the
+ * collab connection): hidden for its first 400 ms, so a quick load goes from the empty space
+ * straight to the content instead of flashing the note.
+ */
+@keyframes leafdesk-show-late {
+  from {
+    visibility: hidden;
+  }
+}
+[data-show-late] {
+  animation: leafdesk-show-late 0s 400ms backwards;
+}
+
+/*
  * Colored code on published pages and in the print view (server/published-body.ts): each token
  * carries a color for light and one for dark backgrounds. Print stays light.
  */

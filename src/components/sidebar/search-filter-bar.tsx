@@ -3,7 +3,6 @@
 import { ArrowDownUp, Calendar, Check, ChevronDown, LayoutGrid, PenLine, UserRound, X } from "lucide-react";
 import { useFormatter, useTranslations } from "next-intl";
 import { useEffect, useMemo, useState, type ReactNode } from "react";
-import { searchFilterOptionsAction } from "@/app/actions/pages";
 import { cn, MenuItem, MenuSeparator, menuFieldClass, PageIcon, Popover } from "@/components/ui";
 import {
   MAX_FILTER_VALUES,
@@ -16,6 +15,7 @@ import {
 } from "@/lib/search-filter-state";
 import { searchFold } from "@/lib/search-fold";
 import type { SearchFilterOptions } from "@/server/search-filter-options";
+import { read } from "@/components/read";
 
 type PersonKey = "createdBy" | "editedBy";
 
@@ -43,7 +43,7 @@ export function SearchFilterBar({
 
   useEffect(() => {
     let live = true;
-    searchFilterOptionsAction(workspaceId).then(
+    read("searchFilterOptions", workspaceId).then(
       (found) => live && setOptions(found),
       () => live && setOptions({ me: null, teamspaces: [], people: [] }),
     );

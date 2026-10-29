@@ -7,14 +7,14 @@
  * itself (meeting-session.ts, meeting-upload-session.ts) and the bar shown elsewhere in the app
  * load only when a recording starts: every workspace screen carries this provider.
  */
-import dynamic from "next/dynamic";
+import { lazyPart } from "@/components/lazy-part";
 import { useTranslations } from "next-intl";
 import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import type { MeetingSource } from "@/lib/meetings";
 import type { VoiceNoteLimits } from "@/lib/voice-notes";
 import type { SessionControls } from "./meeting-session";
 
-const MeetingRecordingBar = dynamic(() => import("./meeting-recording-bar"), { ssr: false });
+const MeetingRecordingBar = lazyPart(() => import("./meeting-recording-bar").then((m) => m.default));
 
 export type MeetingRecorderStatus = "starting" | "recording" | "paused" | "finishing";
 

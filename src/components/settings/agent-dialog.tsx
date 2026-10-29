@@ -2,7 +2,7 @@
 
 import { IconGlyph } from "@/components/builtin-icon";
 import { BookCheck, BookX, Bot, CalendarClock, ChevronRight, Globe, Mail, MailX, MessageSquare, MessageSquareOff, MessagesSquare, Play, Plug, RefreshCw, TriangleAlert, Users, X } from "lucide-react";
-import dynamic from "next/dynamic";
+import { lazyPart } from "@/components/lazy-part";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useFormatter, useTranslations } from "next-intl";
@@ -65,10 +65,7 @@ export type AgentModelNames = { main: string; fast: string };
 export const AGENT_TABS: readonly Exclude<AgentTab, "share">[] = ["settings", "access", "skills", "memory", "connections", "schedules", "runs", "chat", "history"];
 
 // Sharing comes with its section, not with the dialog.
-const AgentShareTab = dynamic(() => import("./agent-share-tab").then((m) => m.AgentShareTab), {
-  ssr: false,
-  loading: () => <div aria-busy="true" className="m-5 h-24 animate-pulse rounded-md bg-bg-subtle" />,
-});
+const AgentShareTab = lazyPart(() => import("./agent-share-tab").then((m) => m.AgentShareTab), <div aria-busy="true" className="m-5 h-24 animate-pulse rounded-md bg-bg-subtle" />);
 
 /** An agent's emoji, or a robot when it has none. */
 export function AgentIcon({ icon, className }: { icon: string | null; className?: string }) {

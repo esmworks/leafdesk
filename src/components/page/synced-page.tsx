@@ -2,7 +2,6 @@
 
 import { createReactBlockSpec, type DefaultReactSuggestionItem } from "@blocknote/react";
 import { Repeat2 } from "lucide-react";
-import dynamic from "next/dynamic";
 import Link from "next/link";
 import { useTranslations } from "next-intl";
 import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState } from "react";
@@ -15,6 +14,7 @@ import { useEmbedHost } from "./database-embed";
 import type { PageEditor } from "./embed-blocks";
 import { PageLinkCard, PageLinkHTML } from "./mentions";
 import { useDocTitle, usePageDoc } from "./use-page-doc";
+import { lazyPart } from "@/components/lazy-part";
 
 /**
  * A synced page: another page's body inside this one, live. It is that page's own document, opened
@@ -31,7 +31,7 @@ import { useDocTitle, usePageDoc } from "./use-page-doc";
  */
 
 // Loaded on demand: the editor is a large module, and it imports this one.
-const CollabEditor = dynamic(() => import("./collab-editor"), { ssr: false });
+const CollabEditor = lazyPart(() => import("./collab-editor").then((m) => m.default));
 
 /** Synced pages show this many levels deep; deeper ones read as links to their page. */
 export const MAX_SYNCED_DEPTH = 2;

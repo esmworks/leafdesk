@@ -1,7 +1,8 @@
 "use client";
 
-import { lazy, Suspense, useEffect, useState, useSyncExternalStore } from "react";
+import { useEffect, useState, useSyncExternalStore } from "react";
 import { linkedPageRef } from "@/lib/mentions";
+import { lazyPart } from "@/components/lazy-part";
 
 /**
  * Resting the pointer on a page mention or a link to a page of this app (in the editor and in
@@ -15,7 +16,7 @@ import { linkedPageRef } from "@/lib/mentions";
 export type PreviewTarget = { kind: "page" | "group" | "link"; id: string };
 type Shown = { anchor: HTMLElement; target: PreviewTarget };
 
-const PreviewCard = lazy(() => import("./page-preview-card"));
+const PreviewCard = lazyPart(() => import("./page-preview-card").then((m) => m.default));
 
 const OPEN_DELAY_MS = 450;
 /** Time to move the pointer from the link into the card before it closes. */
@@ -153,8 +154,6 @@ export function PagePreviews() {
 
   if (!current) return null;
   return (
-    <Suspense fallback={null}>
-      <PreviewCard key={`${current.target.kind}:${current.target.id}`} anchor={current.anchor} target={current.target} />
-    </Suspense>
+    <PreviewCard key={`${current.target.kind}:${current.target.id}`} anchor={current.anchor} target={current.target} />
   );
 }
