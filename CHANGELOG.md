@@ -2,6 +2,12 @@
 
 ## Unreleased
 
+### Changed
+
+- **The chat list shows a dot only beside a conversation being answered.** Every conversation in
+  the sidebar's chat list had a faint dot; now the place stays empty, and the dot fades in and out
+  only while an answer is being written.
+
 ### Fixed
 
 - **Places find addresses with the district written first and a letter after the door number.**

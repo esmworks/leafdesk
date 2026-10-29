@@ -183,8 +183,8 @@ export function ConversationList() {
                             selection.some ? "opacity-0" : "group-hover:opacity-0 group-has-[input:focus-visible]:opacity-0",
                           )}
                         >
-                          {/* Faint; full, fading in and out, while an answer is being written for it. */}
-                          <span className={cn("h-1.5 w-1.5 rounded-full", answering.has(c.id) ? "animate-pulse bg-fg motion-reduce:animate-none" : "bg-fg-faint")} />
+                          {/* Only while an answer is being written for it, fading in and out; the place stays empty otherwise. */}
+                          {answering.has(c.id) && <span className="h-1.5 w-1.5 rounded-full bg-fg motion-safe:animate-pulse" />}
                         </span>
                         <span className="flex-1 truncate ps-0.5">{title}</span>
                       </Link>
