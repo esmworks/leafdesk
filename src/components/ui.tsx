@@ -1,8 +1,10 @@
 "use client";
 
 import { X } from "lucide-react";
-import { createContext, forwardRef, useContext, useEffect, useId, useLayoutEffect, useRef, useState, type ButtonHTMLAttributes, type HTMLAttributes, type InputHTMLAttributes, type ReactNode } from "react";
+import { createContext, forwardRef, useContext, useEffect, useId, useMemo, useRef, useState, type ButtonHTMLAttributes, type HTMLAttributes, type InputHTMLAttributes, type ReactNode } from "react";
+import { pointBox } from "@/lib/placement";
 import { IconGlyph } from "./builtin-icon";
+import { usePlacement } from "./use-placement";
 
 export function cn(...classes: (string | false | null | undefined)[]) {
   return classes.filter(Boolean).join(" ");
@@ -125,8 +127,11 @@ export function Popover({
   wrapperClassName?: string;
   open?: boolean;
   onOpenChange?: (open: boolean) => void;
-  /** Opens at this point of the window instead (a right click), kept inside the window. */
-  at?: { x: number; y: number } | null;
+  /**
+   * Opens at this point of the window instead (a right click), or from this element with `align`
+   * (a button in a list that would cut the menu off): placed by `usePlacement`, inside the window.
+   */
+  at?: { x: number; y: number } | Element | null;
 }) {
   const [uncontrolled, setUncontrolled] = useState(false);
   const open = controlledOpen ?? uncontrolled;
@@ -134,19 +139,10 @@ export function Popover({
   const close = () => setOpen(false);
   const ref = useDismiss<HTMLDivElement>(open, close);
   const panel = useRef<HTMLDivElement>(null);
-  useLayoutEffect(() => {
-    const element = panel.current;
-    if (!open || !at || !element) return;
-    const { width, height } = element.getBoundingClientRect();
-    const x = Math.max(4, Math.min(at.x, window.innerWidth - width - 4));
-    const y = Math.max(4, Math.min(at.y, window.innerHeight - height - 4));
-    element.style.left = `${x}px`;
-    element.style.top = `${y}px`;
-    // Inside something moved with a transform (a sliding sidebar) "fixed" counts from it instead.
-    const placed = element.getBoundingClientRect();
-    element.style.left = `${2 * x - placed.left}px`;
-    element.style.top = `${2 * y - placed.top}px`;
-  }, [open, at]);
+  // `at` is only ever set in the browser, where Element exists.
+  const fromElement = !!at && at instanceof Element;
+  const anchor = useMemo(() => (!at ? null : at instanceof Element ? at : pointBox(at.x, at.y)), [at]);
+  const placed = usePlacement(panel, anchor, open && !!anchor, { align: fromElement ? align : "start", gap: fromElement ? 4 : 0 });
   return (
     // data-open lets hover-only toolbars stay shown while their menu is open (`has-[[data-open]]:flex`).
     <div ref={ref} data-open={open || undefined} className={cn("relative inline-flex", wrapperClassName)}>
@@ -154,6 +150,7 @@ export function Popover({
       {open && (
         <div
           ref={panel}
+          style={at ? placed : undefined}
           className={cn(
             "z-50 min-w-48 rounded-lg border border-border bg-bg p-1 shadow-lg",
             at ? "fixed" : "absolute",

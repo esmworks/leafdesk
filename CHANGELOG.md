@@ -81,6 +81,11 @@
 
 ### Fixed
 
+- **Menus and cards opened near the window's edge stay on screen.** A right click on a page in the
+  sidebar near the bottom of the window opens its menu upward, and right to left toward the left;
+  the page's `⋯` menu lines up with its button inside the sidebar. A date mention's card, the
+  menu after pasting a link and a mention's preview open above when there is no room below and
+  follow the page as it scrolls or resizes.
 - **Places find addresses written the usual Turkish way.** The address search found nothing for an
   address with "Mah.", "Cad.", "Sk.", door and block numbers, a postcode or "Akhisar/Manisa", in
   the place cell and when the AI chat, MCP or the REST API wrote an address. Such an address is now

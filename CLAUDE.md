@@ -374,6 +374,10 @@ because they are separate module graphs.
   own shade takes `dialogShadow`.
   A backdrop shading the whole window under a dialog carries `data-window-shade`: that component
   tells the desktop app its color, and the tab strip, which the page can't draw over, takes it too.
+  A menu or card that must leave a scrolling box is placed by `components/use-placement.ts`
+  (`placePanel` in `lib/placement.ts`: below or flipped above, start or end edge, inside the
+  window): through `Floating` (`database/floating.tsx`, a portal), `Popover`'s `at` (a point or an
+  element), or the hook itself; don't measure and place one by hand.
 - **Rendering cost.** Per-row and per-card components don't call `useRouter`, `useSearchParams` or
   `usePathname`: in Next 16 they re-render on every URL change, `?row=` included. The router is
   read once in `database-page.tsx` and handed down; a card asks `useIsOpenRow`

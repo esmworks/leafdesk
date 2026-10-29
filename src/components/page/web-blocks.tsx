@@ -27,6 +27,8 @@ import type { PageEditor } from "./embed-blocks";
 import { BookmarkCard, EmbedFrame } from "./web-card";
 import { linkToMention } from "./link-mention-toolbar";
 import { isRtl } from "@/components/direction";
+import { usePlacement } from "@/components/use-placement";
+import type { ScreenBox } from "@/lib/placement";
 
 /**
  * The editor's side of the web blocks (configs shared with the server in lib/web-blocks): a
@@ -401,7 +403,7 @@ export function useWebSlashItems(editor: PageEditor): DefaultReactSuggestionItem
  * A link just pasted: in block `blockId`, from `from` (a document position) on. `line`: it is
  * the whole line, so it may also become a bookmark or an embed; else only a mention.
  */
-type PastedLink = { blockId: string; url: string; from: number; line: boolean; top: number; left: number };
+type PastedLink = { blockId: string; url: string; from: number; line: boolean; box: ScreenBox; rtl: boolean };
 type PasteChoice = "bookmark" | "embed" | "mention" | "keep";
 
 /** Whether the document holds `url` as text from `from` on (the paste landed there). */
@@ -435,6 +437,8 @@ export function PasteLinkMenu({ editor }: { editor: PageEditor }) {
   const [pasted, setPasted] = useState<PastedLink | null>(null);
   const [active, setActive] = useState(-1);
   const menuRef = useRef<HTMLDivElement>(null);
+  // From the start edge under the link (the right edge right to left), above it near the bottom.
+  const style = usePlacement(menuRef, pasted?.box ?? null, !!pasted, { rtl: pasted?.rtl });
 
   useEffect(() => {
     if (!canEdit) return;
@@ -457,13 +461,11 @@ export function PasteLinkMenu({ editor }: { editor: PageEditor }) {
         if (!holdsAt(editor, from, url) || (line && !holdsOnly(editor, blockId, url))) return;
         const element = root.querySelector(`[data-node-type="blockOuter"][data-id="${CSS.escape(blockId)}"]`);
         if (!element) return;
-        const rtl = isRtl(element);
-        let rect: { top: number; bottom: number; left: number; right: number } = element.getBoundingClientRect();
+        let box: ScreenBox = element.getBoundingClientRect();
         // Within text, under the link's end.
-        if (!line) rect = editor.prosemirrorView.coordsAtPos(from + url.length);
+        if (!line) box = editor.prosemirrorView.coordsAtPos(from + url.length);
         setActive(-1);
-        // From the start edge (the right edge right to left; the menu is 224px).
-        setPasted({ blockId, url, from, line, top: rect.bottom + 4, left: rtl ? rect.right - 224 : rect.left });
+        setPasted({ blockId, url, from, line, box, rtl: isRtl(element) });
       });
     };
     document.addEventListener("paste", onPaste, true);
@@ -543,7 +545,7 @@ export function PasteLinkMenu({ editor }: { editor: PageEditor }) {
       ref={menuRef}
       role="menu"
       aria-label={t("label")}
-      style={{ top: pasted.top, left: Math.max(8, Math.min(pasted.left, window.innerWidth - 232)) }}
+      style={style}
       className="fixed z-50 w-56 rounded-md border border-border bg-bg p-1 text-sm shadow-lg"
     >
       <p className="px-2 pb-1 pt-0.5 text-xs text-fg-muted">{t("label")}</p>

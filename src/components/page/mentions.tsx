@@ -14,7 +14,7 @@ import { Bell, Bot, CalendarCheck, CalendarDays, ChevronRight, CircleUser, FileP
 import { useParams, useRouter } from "next/navigation";
 import { useLocale, useTranslations } from "next-intl";
 import { createPortal } from "react-dom";
-import { Fragment, useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState, useSyncExternalStore, type MouseEvent } from "react";
+import { Fragment, useCallback, useEffect, useMemo, useRef, useState, useSyncExternalStore, type MouseEvent } from "react";
 import {
   backlinksAction,
   linkMentionAction,
@@ -59,7 +59,7 @@ import type { GroupCandidate } from "@/server/groups";
 import type { PageEditor } from "./embed-blocks";
 import { searchFold } from "@/lib/search-fold";
 import { linkWikilinks, titleKey, wikilinkTitles } from "@/lib/wikilinks";
-import { isRtl } from "@/components/direction";
+import { usePlacement } from "@/components/use-placement";
 
 /**
  * The editor's side of mentions and page links (configs shared with the server in lib/mentions):
@@ -288,24 +288,8 @@ function DatePopover({
   const dailyNote = useOpenDailyNote(workspaceId ?? "");
   const locale = useLocale();
   const ref = useRef<HTMLDivElement>(null);
-  const [position, setPosition] = useState<{ top: number; left: number } | null>(null);
+  const style = usePlacement(ref, anchor, true);
   const choice = reminderChoice(props.date, props.remindAt);
-
-  useLayoutEffect(() => {
-    const place = () => {
-      const rect = anchor.getBoundingClientRect();
-      // Under the mention, from its start edge (its right edge right to left).
-      const x = isRtl(anchor) ? rect.right - 288 : rect.left;
-      setPosition({ top: rect.bottom + 4, left: Math.max(8, Math.min(x, window.innerWidth - 288)) });
-    };
-    place();
-    window.addEventListener("scroll", place, true);
-    window.addEventListener("resize", place);
-    return () => {
-      window.removeEventListener("scroll", place, true);
-      window.removeEventListener("resize", place);
-    };
-  }, [anchor]);
 
   useEffect(() => {
     const onDown = (e: globalThis.MouseEvent) => {
@@ -345,14 +329,13 @@ function DatePopover({
   const label = (days: (typeof REMINDER_DAYS)[number]) =>
     days === 0 ? t("remindSameDay") : days === 1 ? t("remindDayBefore") : t("remindWeekBefore");
 
-  if (!position) return null;
   return createPortal(
     <div
       ref={ref}
       role="dialog"
       aria-label={t("date")}
-      style={{ position: "fixed", top: position.top, left: position.left }}
-      className="z-50 w-72 rounded-lg border border-border bg-bg p-3 text-sm shadow-lg"
+      style={style}
+      className="fixed z-50 w-72 rounded-lg border border-border bg-bg p-3 text-sm shadow-lg"
     >
       {onChange ? (
         <>

@@ -2,13 +2,13 @@
 
 import { Bookmark, Check, Globe, Link2, RefreshCw, Users } from "lucide-react";
 import { useLocale, useTranslations } from "next-intl";
-import { useEffect, useLayoutEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import { mentionedGroupAction } from "@/app/actions/mentions";
 import { pagePreviewAction } from "@/app/actions/page-preview";
 import { PageIcon, pageLabel } from "@/components/ui";
 import { UserAvatar } from "@/components/user-avatar";
-import { isRtl } from "@/components/direction";
+import { usePlacement } from "@/components/use-placement";
 import { formatIsoDate, isIsoDate } from "@/lib/mentions";
 import type { PagePreview } from "@/lib/page-preview";
 import { relativeTime } from "@/lib/relative-time";
@@ -54,7 +54,8 @@ const MEMBERS_SHOWN = 8;
 export default function PreviewCard({ anchor, target }: { anchor: HTMLElement; target: PreviewTarget }) {
   const [loaded, setLoaded] = useState<Loaded | undefined>(undefined);
   const card = useRef<HTMLDivElement>(null);
-  const [position, setPosition] = useState<{ left: number; top?: number; bottom?: number } | null>(null);
+  // Under the link from its start edge, or above it when there is no room below.
+  const style = usePlacement(card, anchor, !!loaded, { gap: GAP });
 
   useEffect(() => {
     let current = true;
@@ -64,24 +65,13 @@ export default function PreviewCard({ anchor, target }: { anchor: HTMLElement; t
     };
   }, [target]);
 
-  useLayoutEffect(() => {
-    if (!loaded) return;
-    const rect = anchor.getBoundingClientRect();
-    const height = card.current?.offsetHeight ?? 200;
-    // Under the link from its start edge, or above it when there is no room below.
-    const x = isRtl(anchor) ? rect.right - WIDTH : rect.left;
-    const left = Math.max(8, Math.min(x, window.innerWidth - WIDTH - 8));
-    const below = window.innerHeight - rect.bottom - GAP > height + 8 || rect.top < height + GAP + 8;
-    setPosition(below ? { left, top: rect.bottom + GAP } : { left, bottom: window.innerHeight - rect.top + GAP });
-  }, [anchor, loaded]);
-
   if (!loaded) return null;
   return createPortal(
     <div
       ref={card}
       role={loaded.kind === "link" ? "group" : "tooltip"}
       data-page-preview=""
-      style={{ position: "fixed", width: WIDTH, left: position?.left ?? -9999, top: position?.top, bottom: position?.bottom }}
+      style={{ ...style, position: "fixed", width: WIDTH }}
       className="z-50 rounded-lg border border-border bg-bg p-3 text-sm text-fg shadow-lg"
     >
       {loaded.kind === "page" ? <PageCard page={loaded.page} /> : loaded.kind === "group" ? <GroupCard group={loaded.group} /> : <LinkCard anchor={anchor} />}

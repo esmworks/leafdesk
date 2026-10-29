@@ -2269,7 +2269,7 @@ function TreeItem({
   const [renaming, setRenaming] = useState(false);
   // The actions menu opens below its button or where the row was right-clicked.
   const [menuOpen, setMenuOpen] = useState(false);
-  const [menuAt, setMenuAt] = useState<{ x: number; y: number } | null>(null);
+  const [menuAt, setMenuAt] = useState<{ x: number; y: number } | Element | null>(null);
   // Escape closes the field without saving: the blur that follows must not save it.
   const renameCancelled = useRef(false);
   // Database rows are not shown in the tree; dropping into a database would turn a page into a row.
@@ -2424,8 +2424,7 @@ function TreeItem({
                   label={t("pages.actions")}
                   onClick={(e) => {
                     // Placed in the window rather than in the scrolling list, which would cut it off.
-                    const box = e.currentTarget.getBoundingClientRect();
-                    setMenuAt({ x: box.left, y: box.bottom + 4 });
+                    setMenuAt(e.currentTarget);
                     toggle();
                   }}
                 >
