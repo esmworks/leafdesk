@@ -377,6 +377,16 @@
       "hint": "Das Modell, das in dieser Unterhaltung antwortet",
       "images": "Liest Bilder"
     },
+    "thinkingLevel": {
+      "label": "Denken",
+      "hint": "Wie viel das Modell nachdenkt, bevor es antwortet",
+      "fast": "Schnell",
+      "fastHint": "Wenig oder gar nicht nachdenken: schnelle Antworten auf einfache Anfragen",
+      "balanced": "Ausgewogen",
+      "balancedHint": "Denkt etwas nach: die übliche Einstellung des Chats",
+      "deep": "Gründlich",
+      "deepHint": "Denkt alles durch: langsamer und teurer"
+    },
     "actions": {
       "edit": "Bearbeiten",
       "cancel": "Abbrechen",

@@ -377,6 +377,16 @@
       "hint": "El modelo que responde en esta conversación",
       "images": "Lee imágenes"
     },
+    "thinkingLevel": {
+      "label": "Razonamiento",
+      "hint": "Cuánto piensa el modelo antes de responder",
+      "fast": "Rápido",
+      "fastHint": "Poco o ningún razonamiento: respuestas rápidas a peticiones sencillas",
+      "balanced": "Equilibrado",
+      "balancedHint": "Piensa un poco: lo habitual del chat",
+      "deep": "Profundo",
+      "deepHint": "Lo piensa a fondo: más lento y más caro"
+    },
     "actions": {
       "edit": "Editar",
       "cancel": "Cancelar",

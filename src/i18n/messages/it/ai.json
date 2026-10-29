@@ -377,6 +377,16 @@
       "hint": "Il modello che risponde in questa conversazione",
       "images": "Legge immagini"
     },
+    "thinkingLevel": {
+      "label": "Ragionamento",
+      "hint": "Quanto il modello ragiona prima di rispondere",
+      "fast": "Veloce",
+      "fastHint": "Poco o nessun ragionamento: risposte rapide a richieste semplici",
+      "balanced": "Bilanciato",
+      "balancedHint": "Ragiona un po': l'impostazione abituale della chat",
+      "deep": "Approfondito",
+      "deepHint": "Ragiona a fondo: più lento e più costoso"
+    },
     "actions": {
       "edit": "Modifica",
       "cancel": "Annulla",

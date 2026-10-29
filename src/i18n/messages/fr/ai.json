@@ -377,6 +377,16 @@
       "hint": "Le modèle qui répond dans cette conversation",
       "images": "Lit les images"
     },
+    "thinkingLevel": {
+      "label": "Réflexion",
+      "hint": "Combien le modèle réfléchit avant de répondre",
+      "fast": "Rapide",
+      "fastHint": "Peu ou pas de réflexion : réponses rapides aux demandes simples",
+      "balanced": "Équilibré",
+      "balancedHint": "Réfléchit un peu : le réglage habituel du chat",
+      "deep": "Approfondi",
+      "deepHint": "Réfléchit à fond : plus lent et plus coûteux"
+    },
     "actions": {
       "edit": "Modifier",
       "cancel": "Annuler",

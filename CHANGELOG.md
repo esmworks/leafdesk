@@ -2,6 +2,14 @@
 
 ## Unreleased
 
+### Added
+
+- **The chat lets you pick how much the model thinks.** Next to the model in the question box, a
+  Thinking picker offers Fast (as little as the model allows), Balanced (the chat's usual amount,
+  the default) and Deep (all the model's own thinking, as in research mode). It is shown where the
+  model thinks before answering; a conversation keeps its choice and a new one starts with your
+  latest. Migration 0159.
+
 ### Changed
 
 - **The chat list shows a dot only beside a conversation being answered.** Every conversation in

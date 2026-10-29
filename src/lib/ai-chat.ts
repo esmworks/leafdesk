@@ -37,7 +37,23 @@ export type { ChatAttachmentRecord, ChatAttachmentView, ChatChange, ChatConnecti
  * search the web (owners turned it on, and the server has a search service), and whether research
  * mode can search the web too.
  */
-export type ChatOptions = { models: { id: string; name: string; images: boolean }[]; defaultModel: string | null; webSearch: boolean };
+export type ChatOptions = {
+  /** `thinks`: the model thinks before it answers, so how much it does can be picked. */
+  models: { id: string; name: string; images: boolean; thinks: boolean }[];
+  defaultModel: string | null;
+  /** How much a new conversation thinks: the person's latest conversation's choice. */
+  defaultThinking: ChatThinking;
+  webSearch: boolean;
+};
+
+/**
+ * How much the chat's model thinks before answering, the person's pick per conversation: `fast`
+ * as little as the model allows (no thinking where it can stop), `balanced` the chat's own amount,
+ * `deep` all the model's own (as research). Models that don't think ignore it.
+ */
+export const CHAT_THINKING = ["fast", "balanced", "deep"] as const;
+export type ChatThinking = (typeof CHAT_THINKING)[number];
+export const isChatThinking = (value: unknown): value is ChatThinking => typeof value === "string" && (CHAT_THINKING as readonly string[]).includes(value);
 
 /**
  * What the chat may change: `ask` asks the person before each change (the answer waits), `auto`

@@ -38,7 +38,8 @@
  *    to the web pages read.
  *
  * A question may pick the model that answers it (one of those the workspace's AI offers the chat,
- * kept with the conversation; a new one starts with the person's latest), and may be only files. In
+ * kept with the conversation; a new one starts with the person's latest) and how much it thinks
+ * (kept the same way), and may be only files. In
  * research mode it plans sub-questions, searches and reads (the web too, where on) and writes a
  * long cited report, with read-only tools, more turns and a token budget of its own.
  *
@@ -60,6 +61,7 @@ import {
   changedThings,
   citedNumbers,
   conversationTitle,
+  isChatThinking,
   MAX_CONVERSATIONS,
   reportMarkdown,
   type ChatOptions,
@@ -73,6 +75,7 @@ import {
   type ChatScopeView,
   type ChatSourceView,
   type ChatStepView,
+  type ChatThinking,
   type ConversationSummary,
   thoughtText,
 } from "@/lib/ai-chat";
@@ -95,6 +98,7 @@ import {
   type AiMessage,
   type AiResult,
   type AiToolCall,
+  type AiRequest,
   type ChatModelOption,
 } from "@/server/ai";
 import { setTimeout as sleep } from "node:timers/promises";
@@ -166,6 +170,11 @@ export type ChatInput = {
    * person's latest conversation's, else the workspace's main model.
    */
   model?: string | null;
+  /**
+   * How much the model thinks (models that think): else the conversation's, else (a new one) the
+   * person's latest conversation's, else `balanced`. Research thinks as it does regardless.
+   */
+  thinking?: ChatThinking | null;
   /**
    * Files the person attached (uploadChatFile), in order: not sent before, or sent in this
    * conversation. A question may be only files. Asked again without files, a question keeps those it had.
@@ -244,6 +253,7 @@ export async function startChat(userId: string, input: ChatInput, signal?: Abort
   if (!(await aiAvailable(input.workspaceId))) refuse("disabled", "AI is off for this workspace");
   const existing = input.conversationId ? await ownConversation(userId, input.workspaceId, input.conversationId) : null;
   const model = await pickModel(userId, input.workspaceId, input.model ?? existing?.model ?? (existing ? null : await latestModel(userId, input.workspaceId)));
+  const thinking = isChatThinking(input.thinking) ? input.thinking : existing ? (existing.thinking ?? "balanced") : await latestThinking(userId, input.workspaceId);
   const feature = input.research ? "chat.research" : "chat";
   // A question is as long as the model's context window takes; nothing else bounds it.
   if (message.length > (await promptRoomFor(input.workspaceId, feature, model?.id))) refuse("tooLarge", "The question is longer than the model takes");
@@ -268,6 +278,7 @@ export async function startChat(userId: string, input: ChatInput, signal?: Abort
     memoryChanges: !appReadOnly,
     timeZone: isTimeZone(input.timeZone) ? input.timeZone : browserTimeZone(),
     model: model?.id ?? null,
+    thinking,
     files,
     research: input.research === true,
     web: await chatWebOn(input.workspaceId),
@@ -293,14 +304,36 @@ async function latestModel(userId: string, workspaceId: string): Promise<string 
   return row?.model ?? null;
 }
 
+/** How much the person's latest conversation in the workspace that says so thinks; `balanced` without one. */
+async function latestThinking(userId: string, workspaceId: string): Promise<ChatThinking> {
+  const [row] = await db
+    .select({ thinking: aiConversation.thinking })
+    .from(aiConversation)
+    .where(and(eq(aiConversation.userId, userId), eq(aiConversation.workspaceId, workspaceId), isNotNull(aiConversation.thinking)))
+    .orderBy(desc(aiConversation.updatedAt))
+    .limit(1);
+  return isChatThinking(row?.thinking) ? row.thinking : "balanced";
+}
+
 /**
- * What the chat box offers the person in the workspace (see ChatOptions): the models, the one a new
- * conversation starts with, and whether the chat searches the web there.
+ * What the chat box offers the person in the workspace (see ChatOptions): the models, the one and
+ * the thinking a new conversation starts with, and whether the chat searches the web there.
  */
 export async function chatOptionsFor(userId: string, workspaceId: string): Promise<ChatOptions> {
-  const [models, latest, webSearch] = await Promise.all([chatModelsFor(workspaceId), latestModel(userId, workspaceId), chatWebOn(workspaceId)]);
-  return { models, defaultModel: models.find((m) => m.id === latest)?.id ?? models[0]?.id ?? null, webSearch };
+  const [models, latest, defaultThinking, webSearch] = await Promise.all([
+    chatModelsFor(workspaceId),
+    latestModel(userId, workspaceId),
+    latestThinking(userId, workspaceId),
+    chatWebOn(workspaceId),
+  ]);
+  return { models, defaultModel: models.find((m) => m.id === latest)?.id ?? models[0]?.id ?? null, defaultThinking, webSearch };
 }
+
+/**
+ * What each choice asks of the AI layer: `fast` as little thinking as the model allows, `balanced`
+ * the chat feature's own (features.ts), `deep` the model's own default.
+ */
+const THINKING_LEVELS: Record<ChatThinking, AiRequest["thinking"]> = { fast: "off", balanced: undefined, deep: "model" };
 
 /**
  * The question's files: the person's own, not sent yet or sent before in this conversation, named
@@ -384,6 +417,7 @@ async function* runChat(
     memoryChanges,
     timeZone,
     model,
+    thinking,
     files,
     research,
     web,
@@ -403,6 +437,8 @@ async function* runChat(
     timeZone: string;
     /** The model picked (null: the workspace's main one). */
     model: string | null;
+    /** How much it thinks, unless researching. */
+    thinking: ChatThinking;
     /** The question's own files: their records (named apart from the conversation's others) and rows. */
     files: { records: ChatAttachmentRecord[]; rows: FileRow[] };
     research: boolean;
@@ -453,7 +489,7 @@ async function* runChat(
     (
       await db
         .insert(aiConversation)
-        .values({ userId, workspaceId, title: conversationTitle(message || files.records.map((a) => a.name).join(", ")), model, messages: [] })
+        .values({ userId, workspaceId, title: conversationTitle(message || files.records.map((a) => a.name).join(", ")), model, thinking, messages: [] })
         .returning()
     )[0];
   yield {
@@ -636,6 +672,7 @@ async function* runChat(
           tools,
           signal,
           sessionId: conversation.id,
+          ...(research ? {} : { thinking: THINKING_LEVELS[thinking] }),
           thinkingEvents: true,
           toolEvents: true,
         });
@@ -795,6 +832,7 @@ async function* runChat(
       ],
       replaced,
       model,
+      thinking,
     );
     // Kept with the question: they now go with the conversation.
     await keepQuestionFiles(conversation.id, kept.map((f) => f.id));
@@ -811,15 +849,18 @@ async function* runChat(
 
 // ---------------------------------------------------------------------------- conversations
 
-/** Adds a question and its answer to a conversation, in place of its last `replace` records; `model`: the one it now answers with. */
-async function saveTurn(conversationId: string, records: ChatMessageRecord[], replace: number, model: string | null) {
+/**
+ * Adds a question and its answer to a conversation, in place of its last `replace` records;
+ * `model` and `thinking`: what it now answers with.
+ */
+async function saveTurn(conversationId: string, records: ChatMessageRecord[], replace: number, model: string | null, thinking: ChatThinking) {
   // Keeps the records before the replaced ones (a jsonb array's elements, in order).
   const kept = replace
     ? sql`coalesce((select jsonb_agg(e order by i) from jsonb_array_elements(${aiConversation.messages}) with ordinality as t(e, i) where i <= jsonb_array_length(${aiConversation.messages}) - ${replace}), '[]'::jsonb)`
     : sql`${aiConversation.messages}`;
   await db
     .update(aiConversation)
-    .set({ messages: sql`${kept} || ${JSON.stringify(records)}::jsonb`, model, updatedAt: new Date() })
+    .set({ messages: sql`${kept} || ${JSON.stringify(records)}::jsonb`, model, thinking, updatedAt: new Date() })
     .where(eq(aiConversation.id, conversationId));
 }
 
@@ -951,7 +992,7 @@ export async function getConversation(userId: string, workspaceId: string, conve
       };
     }),
   );
-  return { id: found.id, title: found.title, model: found.model, messages };
+  return { id: found.id, title: found.title, model: found.model, thinking: found.thinking ?? "balanced", messages };
 }
 
 const attachmentView = (a: ChatAttachmentRecord): ChatAttachmentView => ({ ...a, url: chatFileUrl(a.id) });

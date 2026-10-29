@@ -377,6 +377,16 @@
       "hint": "Malli, joka vastaa tässä keskustelussa",
       "images": "Lukee kuvia"
     },
+    "thinkingLevel": {
+      "label": "Ajattelu",
+      "hint": "Kuinka paljon malli ajattelee ennen vastaamista",
+      "fast": "Nopea",
+      "fastHint": "Vähän tai ei lainkaan ajattelua: nopeat vastaukset yksinkertaisiin pyyntöihin",
+      "balanced": "Tasapainoinen",
+      "balancedHint": "Ajattelee jonkin verran: keskustelun tavallinen asetus",
+      "deep": "Perusteellinen",
+      "deepHint": "Ajattelee asian loppuun: hitaampi ja kalliimpi"
+    },
     "actions": {
       "edit": "Muokkaa",
       "cancel": "Peruuta",

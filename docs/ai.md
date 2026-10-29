@@ -73,7 +73,7 @@ as it can (Claude Sonnet and Opus 5.5 can't stop thinking, so "off" is low effor
 | Meeting notes: summary, decisions and action items | `AI_MODEL` | low |
 | Writing assistant: improve, fix, shorten, translate, continue, summarize | `AI_MODEL` | low |
 | Writing assistant: your own instruction | `AI_MODEL` | medium |
-| Chat | `AI_MODEL` (or the model picked, see `AI_CHAT_MODELS`) | medium |
+| Chat | `AI_MODEL` (or the model picked, see `AI_CHAT_MODELS`) | medium, or as picked (see *Picking how much it thinks*) |
 | Chat in research mode | `AI_MODEL` (or the model picked) | the model's default |
 | Writing a formula from a description (*Describe it*) | `AI_MODEL` | low |
 | Drafting an agent from a description | `AI_MODEL` | medium |
@@ -270,6 +270,20 @@ AI_MODEL=claude-sonnet-5-5
 AI_FAST_MODEL=claude-haiku-5-5
 AI_CHAT_MODELS=claude-opus-5-5
 ```
+
+**Picking how much it thinks.** Where the model answering thinks before it answers, a *Thinking*
+picker sits next to the model in the box's toolbar:
+
+- **Fast**: as little as the model allows (none where it can stop thinking; low effort for Claude
+  Sonnet and Opus 5.5, which can't), for quick requests such as fixing a record.
+- **Balanced**: the chat's own amount (medium), as before; the default.
+- **Deep**: all the model's own thinking, as research mode uses, for figures, comparisons and
+  work over many steps. It takes longer and spends more tokens, which the workspace's monthly
+  limit counts like any other.
+
+A conversation keeps what was last picked, and a new one starts with your latest choice, like the
+model. Research mode thinks as it always does, so the picker isn't shown there; nor for a model
+that doesn't think.
 
 **Research.** The *Research* tab above the question box turns on research mode for the questions that
 follow. The model first plans the sub-questions that together answer the question (shown as a

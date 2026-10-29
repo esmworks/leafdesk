@@ -84,10 +84,11 @@ export type AiRequest = {
   maxOutputTokens?: number;
   /**
    * How much a model that thinks should think: "off" (or as little as the model allows) and "low"
-   * for small answers where thinking costs more than it adds, "medium" below the default. Unset,
-   * the feature's (features.ts), else the model's default.
+   * for small answers where thinking costs more than it adds, "medium" below the default, "model"
+   * the model's own default whatever the feature's. Unset, the feature's (features.ts), else the
+   * model's default.
    */
-  thinking?: AiThinking;
+  thinking?: AiThinking | "model";
   signal?: AbortSignal;
   /**
    * The same for every turn of one conversation, for providers that want it (OpenCode Go); a
@@ -451,8 +452,8 @@ function planFor(backend: AiBackend, feature: string, chosen?: string | null) {
   return { model: backend.model, plan: plan.orElse ? featurePlan(plan.orElse) : plan };
 }
 
-/** A model people may pick in the AI chat: its id, the name it is shown by, and whether it takes images. */
-export type ChatModelOption = { id: string; name: string; images: boolean };
+/** A model people may pick in the AI chat: its id, the name it is shown by, whether it takes images and whether it thinks. */
+export type ChatModelOption = { id: string; name: string; images: boolean; thinks: boolean };
 
 /**
  * The models the workspace's AI offers the chat, its main model first: the server's AI_MODEL,
@@ -462,7 +463,7 @@ export async function chatModelsFor(workspaceId: string): Promise<ChatModelOptio
   const target = await aiTargetFor(workspaceId);
   const backend = target && chatOn(target) ? await backendFor(target).catch(() => null) : null;
   if (!backend) return [];
-  return (backend.choices ?? [backend.model]).map((m) => ({ id: m.id, name: m.name || m.id, images: m.input.includes("image") }));
+  return (backend.choices ?? [backend.model]).map((m) => ({ id: m.id, name: m.name || m.id, images: m.input.includes("image"), thinks: m.reasoning }));
 }
 
 /**
@@ -694,7 +695,7 @@ export function stream(request: AiRequest): AiStream {
           // Only where asked for: other providers would also turn it into prompt-cache keys.
           ...(sessions ? { sessionId: request.sessionId ?? randomUUID() } : {}),
         },
-        request.thinking ?? plan.thinking,
+        request.thinking === "model" ? undefined : (request.thinking ?? plan.thinking),
       );
       for await (const event of events) {
         prepared.heard();

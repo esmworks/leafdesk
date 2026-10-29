@@ -377,6 +377,16 @@
       "hint": "Modellen som svarer i denne samtalen",
       "images": "Leser bilder"
     },
+    "thinkingLevel": {
+      "label": "Tenking",
+      "hint": "Hvor mye modellen tenker før den svarer",
+      "fast": "Rask",
+      "fastHint": "Lite eller ingen tenking: raske svar på enkle forespørsler",
+      "balanced": "Balansert",
+      "balancedHint": "Tenker litt: chattens vanlige innstilling",
+      "deep": "Grundig",
+      "deepHint": "Tenker gjennom alt: tregere og dyrere"
+    },
     "actions": {
       "edit": "Rediger",
       "cancel": "Avbryt",

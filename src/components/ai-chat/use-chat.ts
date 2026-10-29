@@ -12,7 +12,8 @@
  * box as a label (lib/chat-paste.ts) and is sent in its place. Files attached to a question
  * (lib/chat-attachments.ts) are uploaded as they are attached (/api/ai/chat/files), shown as chips,
  * and sent with it by their ids. Where the workspace's AI offers several models, the question goes
- * to the one picked (the conversation's, or for a new one the person's latest); research mode asks
+ * to the one picked (the conversation's, or for a new one the person's latest), thinking as much as
+ * picked (kept the same way); research mode asks
  * for a long cited report instead of an answer, and only reads.
  */
 import { useTranslations } from "next-intl";
@@ -21,7 +22,7 @@ import { decideChangeAction, deleteConversationAction, saveReportAsPageAction } 
 import { read } from "@/components/read";
 import { isAiErrorCode } from "@/lib/ai";
 import { aiAsSuggestions, setAiAsSuggestions } from "@/lib/ai-suggestions";
-import { CHAT_MODES, changedThings, thoughtText, type ChatActionView, type ChatEvent, type ChatMessageView, type ChatMode, type ChatOptions, type ChatScopeView } from "@/lib/ai-chat";
+import { CHAT_MODES, changedThings, thoughtText, type ChatActionView, type ChatEvent, type ChatMessageView, type ChatMode, type ChatOptions, type ChatScopeView, type ChatThinking } from "@/lib/ai-chat";
 import {
   CHAT_CSV_MAX_COLUMNS,
   CHAT_CSV_MAX_ROWS,
@@ -72,7 +73,7 @@ let uploads = 0;
 export type QueuedQuestion = { question: string; skill: ChatSkillPick | null; scope: ChatScopeView | null; files: ChatFile[]; research: boolean };
 
 /** Without options from the server (the full page outside the provider): one model, no picker. */
-const NO_OPTIONS: ChatOptions = { models: [], defaultModel: null, webSearch: false };
+const NO_OPTIONS: ChatOptions = { models: [], defaultModel: null, defaultThinking: "balanced", webSearch: false };
 
 /**
  * The model's thinking on its current turn, as it comes (not kept): held apart from the messages so
@@ -170,6 +171,10 @@ export function useChat(
   const [research, setResearch] = useState(false);
   const modelNow = useRef(model);
   modelNow.current = model;
+  // How much the model thinks, kept with the conversation like the model.
+  const [thinking, setThinking] = useState<ChatThinking>(options.defaultThinking);
+  const thinkingNow = useRef(thinking);
+  thinkingNow.current = thinking;
   /** Whether the model picked (or the only one) takes images. */
   const takesImages = (id: string | null) => (options.models.find((m) => m.id === id) ?? options.models[0])?.images ?? false;
   const filesNow = useRef(files);
@@ -421,6 +426,7 @@ export function useChat(
           ...(attached.length ? { attachments: attached.map((f) => f.id) } : {}),
           // Only where there is a choice: otherwise the workspace's model answers.
           ...(options.models.length > 1 && modelNow.current ? { model: modelNow.current } : {}),
+          thinking: thinkingNow.current,
           ...(researching ? { research: true } : {}),
         }),
         signal: controller.signal,
@@ -572,6 +578,7 @@ export function useChat(
     setMessages(result.data.messages.map((m) => ({ ...m, key: nextKey() })));
     // The conversation goes on with its model, when it is still offered.
     if (result.data.model && options.models.some((m) => m.id === result.data.model)) setModel(result.data.model);
+    setThinking(result.data.thinking);
     // Questions left waiting here come back.
     const left = parked.get(result.data.id);
     if (left) {
@@ -625,6 +632,8 @@ export function useChat(
     options,
     model,
     setModel,
+    thinking,
+    setThinking,
     research,
     setResearch,
     saveReport,

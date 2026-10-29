@@ -207,6 +207,12 @@ describe("providers over HTTP", () => {
       expect((seen[0].body.messages as { output_config?: { effort: string } }[]).at(-1)).toMatchObject({ output_config: { effort: "low" } });
     });
 
+    it("lets a request ask for the model's own thinking over its feature's (the chat's Deep)", async () => {
+      setAiEnv(anthropic());
+      await complete({ feature: "chat", workspaceId: "w1", messages: [{ role: "user", content: "Hello" }], thinking: "model" });
+      expect((seen[0].body.messages as { output_config?: { effort: string } }[]).at(-1)).toMatchObject({ output_config: { effort: "high" } });
+    });
+
     it("takes a fast model the catalog doesn't know as written", async () => {
       setAiEnv({ AI_PROVIDER: "ollama", AI_MODEL: "llama3.2", AI_FAST_MODEL: "llama3.2:1b", AI_BASE_URL: base });
       await complete({ feature: "property.summary", workspaceId: "w1", messages: [{ role: "user", content: "hi" }], maxOutputTokens: 800 });

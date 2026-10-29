@@ -377,6 +377,16 @@
       "hint": "Model, który odpowiada w tej rozmowie",
       "images": "Czyta obrazy"
     },
+    "thinkingLevel": {
+      "label": "Myślenie",
+      "hint": "Ile model myśli, zanim odpowie",
+      "fast": "Szybko",
+      "fastHint": "Mało lub wcale: szybkie odpowiedzi na proste prośby",
+      "balanced": "Zrównoważone",
+      "balancedHint": "Myśli trochę: zwykłe ustawienie czatu",
+      "deep": "Dogłębnie",
+      "deepHint": "Przemyśla wszystko: wolniej i drożej"
+    },
     "actions": {
       "edit": "Edytuj",
       "cancel": "Anuluj",

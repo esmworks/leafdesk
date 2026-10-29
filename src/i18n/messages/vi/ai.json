@@ -377,6 +377,16 @@
       "hint": "Mô hình trả lời trong cuộc trò chuyện này",
       "images": "Đọc được hình ảnh"
     },
+    "thinkingLevel": {
+      "label": "Suy nghĩ",
+      "hint": "Mô hình suy nghĩ bao nhiêu trước khi trả lời",
+      "fast": "Nhanh",
+      "fastHint": "Ít hoặc không suy nghĩ: trả lời nhanh cho yêu cầu đơn giản",
+      "balanced": "Cân bằng",
+      "balancedHint": "Suy nghĩ một chút: thiết lập thường ngày của trò chuyện",
+      "deep": "Sâu",
+      "deepHint": "Suy nghĩ thấu đáo: chậm hơn và tốn hơn"
+    },
     "actions": {
       "edit": "Chỉnh sửa",
       "cancel": "Hủy",

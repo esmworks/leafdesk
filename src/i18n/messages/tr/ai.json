@@ -377,6 +377,16 @@
       "hint": "Bu sohbette yanıt veren model",
       "images": "Görselleri okur"
     },
+    "thinkingLevel": {
+      "label": "Düşünme",
+      "hint": "Modelin yanıt vermeden önce ne kadar düşüneceği",
+      "fast": "Hızlı",
+      "fastHint": "Az ya da hiç düşünmez: basit istekler için çabuk yanıt",
+      "balanced": "Dengeli",
+      "balancedHint": "Biraz düşünür: sohbetin her zamanki ayarı",
+      "deep": "Derin",
+      "deepHint": "Enine boyuna düşünür: daha yavaş ve daha pahalı"
+    },
     "actions": {
       "edit": "Düzenle",
       "cancel": "Vazgeç",

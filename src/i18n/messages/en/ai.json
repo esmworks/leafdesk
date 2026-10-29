@@ -377,6 +377,16 @@
       "hint": "The model that answers in this conversation",
       "images": "Reads images"
     },
+    "thinkingLevel": {
+      "label": "Thinking",
+      "hint": "How much the model thinks before it answers",
+      "fast": "Fast",
+      "fastHint": "Little or no thinking: quick answers to simple requests",
+      "balanced": "Balanced",
+      "balancedHint": "Thinks some: the chat's usual",
+      "deep": "Deep",
+      "deepHint": "Thinks it through: slower, and costs more"
+    },
     "actions": {
       "edit": "Edit",
       "cancel": "Cancel",

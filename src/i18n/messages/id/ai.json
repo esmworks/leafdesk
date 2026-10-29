@@ -377,6 +377,16 @@
       "hint": "Model yang menjawab dalam percakapan ini",
       "images": "Membaca gambar"
     },
+    "thinkingLevel": {
+      "label": "Penalaran",
+      "hint": "Seberapa banyak model berpikir sebelum menjawab",
+      "fast": "Cepat",
+      "fastHint": "Sedikit atau tanpa berpikir: jawaban cepat untuk permintaan sederhana",
+      "balanced": "Seimbang",
+      "balancedHint": "Berpikir sedikit: pengaturan biasa obrolan",
+      "deep": "Mendalam",
+      "deepHint": "Berpikir tuntas: lebih lambat dan lebih mahal"
+    },
     "actions": {
       "edit": "Edit",
       "cancel": "Batal",

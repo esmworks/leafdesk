@@ -1,6 +1,6 @@
 import * as z from "zod";
 import { auth } from "@/lib/auth";
-import { CHAT_MODES } from "@/lib/ai-chat";
+import { CHAT_MODES, CHAT_THINKING } from "@/lib/ai-chat";
 import { CHAT_FILE_LIMITS } from "@/lib/chat-attachments";
 import { AccessError } from "@/server/access";
 import { aiErrorStatus, isAiError } from "@/server/ai";
@@ -23,6 +23,7 @@ const chatInput = z.object({
   timeZone: z.string().max(100).nullish(),
   asSuggestions: z.boolean().optional(),
   model: z.string().min(1).max(200).nullish(),
+  thinking: z.enum(CHAT_THINKING).nullish(),
   // Checked by startChat: the person's own files, not attached elsewhere.
   attachments: z.array(z.string().min(1).max(100)).max(CHAT_FILE_LIMITS.perQuestion).nullish(),
   research: z.boolean().optional(),
@@ -30,10 +31,11 @@ const chatInput = z.object({
 
 /**
  * The AI chat (#41): `POST /api/ai/chat` with `{workspaceId, conversationId?, message, scope?, mode?,
- * replaceLast?, skillId?, timeZone?, model?, attachments?, research?, asSuggestions?}` (`scope`:
+ * replaceLast?, skillId?, timeZone?, model?, thinking?, attachments?, research?, asSuggestions?}` (`scope`:
  * `{pageId}` for a page and the pages under it, `{teamspaceId}` for a teamspace's pages; `replaceLast`:
  * ask again in place of the last question and answer; `skillId`: a skill whose instructions the
  * answer follows; `timeZone`: the browser's, for what today is; `model`: one the chat offers;
+ * `thinking`: how much the model thinks (fast, balanced, deep);
  * `attachments`: ids of files from /api/ai/chat/files, which may stand without a question;
  * `research`: research mode; `asSuggestions`: what it writes in page bodies goes in as suggested edits).
  * Answers with newline-delimited JSON as the assistant works (see ChatEvent in lib/ai-chat.ts); in

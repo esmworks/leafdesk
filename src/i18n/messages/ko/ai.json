@@ -377,6 +377,16 @@
       "hint": "이 대화에서 답하는 모델",
       "images": "이미지를 읽습니다"
     },
+    "thinkingLevel": {
+      "label": "생각",
+      "hint": "모델이 답하기 전에 얼마나 생각할지",
+      "fast": "빠르게",
+      "fastHint": "거의 생각하지 않음: 간단한 요청에 빠른 답변",
+      "balanced": "균형",
+      "balancedHint": "조금 생각함: 채팅의 기본 설정",
+      "deep": "깊게",
+      "deepHint": "충분히 생각함: 더 느리고 비용이 더 듦"
+    },
     "actions": {
       "edit": "편집",
       "cancel": "취소",

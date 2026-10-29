@@ -80,8 +80,11 @@ import { gzipSync } from "node:zlib";
  * Dialogs' shared parts (title bar, body, footer bar, in components/ui.tsx, which every route loads)
  * and the inbox's tabs and row actions add under 1 kB to a page's first load and about 1 kB to all
  * first loads together.
+ *
+ * The chat box's Thinking picker (beside the model, shown as soon as the box is) adds about 0.3 kB
+ * to a page's first load.
  */
-const BUDGET = { routeFirstLoad: 780, firstLoadShared: 1190, onDemandChunk: 450 };
+const BUDGET = { routeFirstLoad: 781, firstLoadShared: 1190, onDemandChunk: 450 };
 
 const NEXT = ".next";
 const kB = (bytes: number) => bytes / 1024;

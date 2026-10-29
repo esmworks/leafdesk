@@ -377,6 +377,16 @@
       "hint": "Het model dat in dit gesprek antwoordt",
       "images": "Leest afbeeldingen"
     },
+    "thinkingLevel": {
+      "label": "Nadenken",
+      "hint": "Hoeveel het model nadenkt voordat het antwoordt",
+      "fast": "Snel",
+      "fastHint": "Weinig of niet nadenken: snelle antwoorden op eenvoudige vragen",
+      "balanced": "Gebalanceerd",
+      "balancedHint": "Denkt wat na: de gewone instelling van de chat",
+      "deep": "Grondig",
+      "deepHint": "Denkt alles door: langzamer en duurder"
+    },
     "actions": {
       "edit": "Bewerken",
       "cancel": "Annuleren",

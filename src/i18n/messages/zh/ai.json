@@ -377,6 +377,16 @@
       "hint": "在此对话中回答的模型",
       "images": "可读取图片"
     },
+    "thinkingLevel": {
+      "label": "思考",
+      "hint": "模型回答前思考多少",
+      "fast": "快速",
+      "fastHint": "很少或不思考：简单请求快速回答",
+      "balanced": "均衡",
+      "balancedHint": "适度思考：聊天的常规设置",
+      "deep": "深入",
+      "deepHint": "充分思考：更慢，费用更高"
+    },
     "actions": {
       "edit": "编辑",
       "cancel": "取消",

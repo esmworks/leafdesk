@@ -27,6 +27,7 @@ import {
   Hand,
   Globe,
   Crosshair,
+  Lightbulb,
   Loader2,
   MessageCircle,
   MessageSquareDiff,
@@ -45,7 +46,17 @@ import { usePropertyTypeLabel } from "@/components/database/property-icons";
 import { BlockChanges } from "@/components/page/history-diff";
 import { copyText } from "@/components/settings/copy-button";
 import { Button, cn, IconButton, MenuItem, Popover } from "@/components/ui";
-import { CHAT_MODES, changedMemory, changedThings, type ChatMode, type ChatOptions, type ChatSourceView, stripCitations } from "@/lib/ai-chat";
+import {
+  CHAT_MODES,
+  CHAT_THINKING,
+  changedMemory,
+  changedThings,
+  type ChatMode,
+  type ChatOptions,
+  type ChatSourceView,
+  type ChatThinking,
+  stripCitations,
+} from "@/lib/ai-chat";
 import { CHAT_FILE_ACCEPT, chatFileKind } from "@/lib/chat-attachments";
 import { PROPERTY_TYPES, type PropertyType } from "@/lib/property-types";
 import { caretOutsideLabels, deleteLabel, insertDictation, normalizePaste, shouldCollapsePaste, type PastePart } from "@/lib/chat-paste";
@@ -451,6 +462,9 @@ export function ChatThread({
                   />
                   <span className="flex-1" />
                   {chat.options.models.length > 1 && <ModelPicker models={chat.options.models} model={chat.model ?? chat.options.models[0].id} onChange={chat.setModel} />}
+                  {!chat.research && (chat.options.models.find((m) => m.id === chat.model) ?? chat.options.models[0])?.thinks && (
+                    <ThinkingPicker thinking={chat.thinking} onChange={chat.setThinking} />
+                  )}
                   {voice && canRecord && (
                     <DictateButton workspaceId={chat.workspaceId} limits={voice} disabled={Boolean(blocked)} onText={dictated} onNotice={setDictation} />
                   )}
@@ -1135,6 +1149,59 @@ function ModelPicker({ models, model, onChange }: { models: ChatOptions["models"
                 {/* The id is what AI_CHAT_MODELS and the provider's console call it. */}
                 {m.name !== m.id && <span className="truncate text-xs text-fg-faint">{m.id}</span>}
                 {m.images && <span className="text-xs text-fg-muted">{t("images")}</span>}
+              </span>
+            </MenuItem>
+          ))}
+        </div>
+      )}
+    </Popover>
+  );
+}
+
+/** How much the model thinks, where it thinks (research thinks as it does, so it isn't shown then). */
+function ThinkingPicker({ thinking, onChange }: { thinking: ChatThinking; onChange: (thinking: ChatThinking) => void }) {
+  const t = useTranslations("ai.chat.thinkingLevel");
+  return (
+    // At the box's right edge, beside Send: the menu opens toward the left.
+    <Popover
+      side="top"
+      align="end"
+      className="w-64"
+      trigger={({ open, toggle }) => (
+        <button
+          type="button"
+          onClick={toggle}
+          aria-expanded={open}
+          aria-haspopup="menu"
+          aria-label={`${t("label")}: ${t(thinking)}`}
+          title={t("hint")}
+          className={chipTrigger}
+        >
+          <Lightbulb className="h-3.5 w-3.5 shrink-0" />
+          <span>{t(thinking)}</span>
+          <ChevronDown className="h-3 w-3 shrink-0" />
+        </button>
+      )}
+    >
+      {(close) => (
+        <div role="menu" aria-label={t("label")}>
+          <p className="px-2 pt-1 pb-1.5 text-xs font-medium text-fg-muted">{t("label")}</p>
+          {CHAT_THINKING.map((level) => (
+            <MenuItem
+              key={level}
+              active={level === thinking}
+              onClick={() => {
+                onChange(level);
+                close();
+              }}
+            >
+              <span className="flex min-w-0 flex-1 flex-col">
+                <span className="flex items-center justify-between gap-2">
+                  <span>{t(level)}</span>
+                  {level === thinking && <Check className="h-3.5 w-3.5 shrink-0 text-fg-muted" />}
+                </span>
+                {/* MenuItem keeps its line on one row; the hint wraps. */}
+                <span className="text-xs whitespace-normal text-fg-muted">{t(`${level}Hint`)}</span>
               </span>
             </MenuItem>
           ))}

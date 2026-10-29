@@ -1082,6 +1082,16 @@ try {
     await ask(alice, { workspaceId, message: "Unknown", model: "not-offered" });
     check(fake.chats.every((r) => r.model === "fake-chat"), "a model the chat doesn't offer falls back to the main one", fake.chats.map((r) => r.model));
 
+    // How much it thinks: kept with the conversation and taken by the next one, like the model.
+    check(options.models.every((m) => !m.thinks) && options.defaultThinking === "balanced", "models the catalog doesn't know don't think, and a first conversation is balanced", options);
+    const deep = await ask(alice, { workspaceId, message: "Think it through", thinking: "deep" });
+    check(deep.done && (await getConversation(alice, workspaceId, deep.conversationId!)).thinking === "deep", "the conversation keeps the thinking picked");
+    await ask(alice, { workspaceId, conversationId: deep.conversationId, message: "And again" });
+    check((await getConversation(alice, workspaceId, deep.conversationId!)).thinking === "deep", "a later question without a choice keeps the conversation's");
+    check((await chatOptionsFor(alice, workspaceId)).defaultThinking === "deep", "a new conversation starts with the person's latest thinking");
+    const quick = await ask(alice, { workspaceId, message: "Quick one", thinking: "fast" });
+    check((await getConversation(alice, workspaceId, quick.conversationId!)).thinking === "fast", "a new conversation can pick its own");
+
     // Files: their text reaches the prompt; only their owner opens or attaches them.
     const notes = await upload(alice, "launch.md", "text/markdown", Buffer.from("The launch code word is PELICAN-7."));
     check(notes.url === `/api/ai/chat/files/${notes.id}` && (await chatFileForOwner(alice, notes.id)) !== null && (await chatFileForOwner(carol, notes.id)) === null, "an attached file opens for the person who attached it only");

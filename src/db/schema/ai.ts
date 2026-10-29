@@ -4,6 +4,7 @@ import { databaseProperty, page, tsvector, workspace } from "./app";
 import { agentRun } from "./agents";
 import { user } from "./auth";
 import { file } from "./files";
+import type { ChatThinking } from "../../lib/ai-chat";
 
 /**
  * Where an AI autofill value of a row stands (see server/ai-properties.ts): waiting or being worked
@@ -294,6 +295,8 @@ export const aiConversation = pgTable(
      * model of the person's latest one.
      */
     model: text("model"),
+    /** How much its model thinks (lib/ai-chat.ts ChatThinking); null: `balanced`. Kept like `model`. */
+    thinking: text("thinking").$type<ChatThinking>(),
     messages: jsonb("messages").$type<ChatMessageRecord[]>().notNull().default([]),
     createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
     updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
