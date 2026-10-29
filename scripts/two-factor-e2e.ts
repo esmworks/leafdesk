@@ -145,6 +145,16 @@ async function callAction(jar: Jar, path: string, file: string, name: string, ar
   return { status: res.status, text: await res.text() };
 }
 
+/** Calls one of the reads components make through `/api/read` (app/api/read/reads.ts). */
+async function callRead(jar: Jar, name: string, args: unknown[]) {
+  const res = await fetch(`${BASE}/api/read/${name}`, {
+    method: "POST",
+    headers: { "content-type": "application/json", origin: BASE, cookie: jar.header() },
+    body: JSON.stringify(args),
+  });
+  return { status: res.status, text: await res.text() };
+}
+
 type Connection = { provider: InstanceType<typeof HocuspocusProvider>; closes: number[]; failed: () => boolean };
 /**
  * A browser's collab connection to a document, with a token from /api/collab-token. Resolves once
@@ -382,7 +392,7 @@ async function main() {
   // Server actions, API routes and the collab websocket hold the member back too.
   const tree = await callAction(member.jar, settingsPath, PAGES_ACTIONS, "getSidebarAction", [workspaceId]);
   check(tree.status === 500 && !tree.text.includes("Plan"), "a server action refuses the member", tree);
-  const search = await callAction(member.jar, settingsPath, PAGES_ACTIONS, "searchAction", [workspaceId, "Plan"]);
+  const search = await callRead(member.jar, "search", [workspaceId, "Plan"]);
   check(search.status === 500 && !search.text.includes("Plan"), "…search too", search);
   const ownerTree = await callAction(first.jar, settingsPath, PAGES_ACTIONS, "getSidebarAction", [workspaceId]);
   check(ownerTree.status === 200 && ownerTree.text.includes("Plan"), "…while the owner's calls work", ownerTree.status);

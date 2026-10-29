@@ -2,14 +2,6 @@
 
 ## Unreleased
 
-### Added
-
-- **Put rows on a map view where they are.** Pressing and holding a spot on a map (or
-  right-clicking it) opens a menu there: the pins at that spot, to pick one where several sit close
-  together, and the rows without a place, found by typing, to put one there. The place gets the
-  spot's address from the address search service (`GEOCODER_URL`, now also asked for reverse
-  lookups), or its coordinates where there is none.
-
 ## 0.6.7 — 2026-10-29
 
 ### Upgrading from 0.6.6
@@ -75,6 +67,11 @@
   A read-only chat finds only tools that read. Agents find and call them too: every run someone
   stands behind reads through them, and the chat of someone who can edit the agent changes things
   through them as well, except inviting, sharing, access rules, automations, agents and sequences.
+- **Put rows on a map view where they are.** Pressing and holding a spot on a map (or
+  right-clicking it) opens a menu there: the pins at that spot, to pick one where several sit close
+  together, and the rows without a place, found by typing, to put one there. The place gets the
+  spot's address from the address search service (`GEOCODER_URL`, now also asked for reverse
+  lookups), or its coordinates where there is none.
 
 ### Changed
 

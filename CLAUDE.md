@@ -386,7 +386,9 @@ because they are separate module graphs.
 - **Waiting.** Next runs a tab's server actions one at a time, each after the one before: a read a
   component fires on its own (as it opens, on a timer, as a box fills) goes through `read()`
   (`components/read.ts`, served by `app/api/read`, listed in `READS` there), so it neither waits
-  nor holds up what the person clicked; writes stay server actions. A dialog, menu or panel whose
+  nor holds up what the person clicked; writes stay server actions. An action no client calls
+  directly any more has no action id in the build, so an e2e script calling it by id (`actionId`)
+  fails with "No id for": call it at `/api/read/<name>` (`callRead`). A dialog, menu or panel whose
   code loads when it first opens is a `lazyPart` (`components/lazy-part.tsx`), not `next/dynamic`
   with `ssr: false` or `lazy()` in a Suspense: React holds back what a boundary reveals until
   300 ms after the last fallback shown anywhere.

@@ -149,6 +149,18 @@ async function callAction(jar: Jar, path: string, file: string, name: string, ar
   return text;
 }
 
+/** Calls one of the reads components make through `/api/read` (app/api/read/reads.ts), reading the whole answer. */
+async function callRead(jar: Jar, name: string, args: unknown[]) {
+  const res = await fetch(`${BASE}/api/read/${name}`, {
+    method: "POST",
+    headers: { "content-type": "application/json", origin: BASE, cookie: jar.header() },
+    body: JSON.stringify(args),
+  });
+  const text = await res.text();
+  check(res.status === 200, `${name} answers`, { status: res.status, text: text.slice(0, 500) });
+  return text;
+}
+
 async function getHtml(jar: Jar, path: string) {
   const res = await fetch(`${BASE}${path}`, { headers: { accept: "text/html", "accept-language": "en", cookie: jar.header() }, redirect: "manual" });
   const text = await res.text();
@@ -224,7 +236,7 @@ try {
     return kb(html.length);
   });
   await time("load the table's rows", async () => {
-    const text = await callAction(jar, databasePath, "src/app/actions/databases.ts", "loadDatabaseAction", [database.id, {}]);
+    const text = await callRead(jar, "loadDatabase", [database.id, {}]);
     check(text.includes("Task 1 "), "the rows come back", text.slice(0, 300));
     return kb(text.length);
   });
@@ -276,16 +288,16 @@ try {
   // ---------------------------------------------------------------- the search box
   const pagePath = `/w/${workspaceId}/p/${leaves[0].id}`;
   await time("open the search box", async () => {
-    const text = await callAction(jar, pagePath, "src/app/actions/pages.ts", "recentSearchAction", [workspaceId]);
+    const text = await callRead(jar, "recentSearch", [workspaceId]);
     return kb(text.length);
   });
   await time("search a common word", async () => {
-    const text = await callAction(jar, pagePath, "src/app/actions/pages.ts", "searchAction", [workspaceId, "budget"]);
+    const text = await callRead(jar, "search", [workspaceId, "budget"]);
     check(text.includes("budget") || text.includes("Budget"), "a common word finds pages", text.slice(0, 300));
   });
   const wanted = leaves[1].title;
   await time("search a title", async () => {
-    const text = await callAction(jar, pagePath, "src/app/actions/pages.ts", "searchAction", [workspaceId, wanted]);
+    const text = await callRead(jar, "search", [workspaceId, wanted]);
     check(text.includes(leaves[1].id), "a page's title finds it", text.slice(0, 300));
   });
 
@@ -295,8 +307,8 @@ try {
     return kb(html.length);
   });
   await time("a page's links and mentions", async () => {
-    await callAction(jar, pagePath, "src/app/actions/mentions.ts", "backlinksAction", [leaves[0].id]);
-    await callAction(jar, pagePath, "src/app/actions/mentions.ts", "unlinkedMentionsAction", [leaves[0].id]);
+    await callRead(jar, "backlinks", [leaves[0].id]);
+    await callRead(jar, "unlinkedMentions", [leaves[0].id]);
   });
   await time("reload the sidebar", async () => {
     const text = await callAction(jar, pagePath, "src/app/actions/pages.ts", "getSidebarAction", [workspaceId]);
