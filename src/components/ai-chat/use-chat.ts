@@ -17,7 +17,8 @@
  */
 import { useTranslations } from "next-intl";
 import { useCallback, useEffect, useRef, useState, useSyncExternalStore } from "react";
-import { decideChangeAction, deleteConversationAction, getConversationAction, saveReportAsPageAction } from "@/app/actions/ai";
+import { decideChangeAction, deleteConversationAction, saveReportAsPageAction } from "@/app/actions/ai";
+import { read } from "@/components/read";
 import { isAiErrorCode } from "@/lib/ai";
 import { aiAsSuggestions, setAiAsSuggestions } from "@/lib/ai-suggestions";
 import { CHAT_MODES, changedThings, thoughtText, type ChatActionView, type ChatEvent, type ChatMessageView, type ChatMode, type ChatOptions, type ChatScopeView } from "@/lib/ai-chat";
@@ -561,7 +562,7 @@ export function useChat(
   /** Shows a saved conversation; false when it can't be loaded (gone, or not theirs). */
   async function openConversation(id: string) {
     leave();
-    const result = await getConversationAction(workspaceId, id);
+    const result = await read("chatConversation", workspaceId, id);
     if (!result.ok) {
       setError(t("loadFailed"));
       return false;

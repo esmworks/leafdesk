@@ -12,10 +12,10 @@ import { History, Loader2, Maximize2, SquarePen, Trash2, X } from "lucide-react"
 import { usePathname, useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState, type ReactNode } from "react";
-import { listConversationsAction } from "@/app/actions/ai";
 import { MemoryButton } from "./memory-dialog";
 import { useIsOffline } from "@/components/offline/offline-context";
 import { FOCUS_BLOCK_EVENT } from "@/components/page/block-focus";
+import { read } from "@/components/read";
 import { cn, IconButton, MenuItem, MenuSeparator, Popover } from "@/components/ui";
 import { chatPath, isChatPath, sourceHref, type ChatOptions, type ChatScopeView, type ChatSourceView, type ConversationSummary } from "@/lib/ai-chat";
 import type { VoiceNoteLimits } from "@/lib/voice-notes";
@@ -84,7 +84,7 @@ export function AiChatProvider({
   }, [onChatPage, pathname]);
 
   const refreshConversations = useCallback(async () => {
-    const result = await listConversationsAction(workspaceId);
+    const result = await read("chatConversations", workspaceId);
     setConversations(result.ok ? result.data : []);
   }, [workspaceId]);
   const openPanel = useCallback((conversationId?: string | null) => {

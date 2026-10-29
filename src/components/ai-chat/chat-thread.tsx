@@ -40,7 +40,7 @@ import {
   Zap,
 } from "lucide-react";
 import { useLocale, useTranslations } from "next-intl";
-import { Fragment, lazy, Suspense, useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState, type ReactNode, type RefObject } from "react";
+import { Fragment, useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState, type ReactNode, type RefObject } from "react";
 import { usePropertyTypeLabel } from "@/components/database/property-icons";
 import { BlockChanges } from "@/components/page/history-diff";
 import { copyText } from "@/components/settings/copy-button";
@@ -50,6 +50,7 @@ import { CHAT_FILE_ACCEPT, chatFileKind } from "@/lib/chat-attachments";
 import { PROPERTY_TYPES, type PropertyType } from "@/lib/property-types";
 import { caretOutsideLabels, deleteLabel, insertDictation, normalizePaste, shouldCollapsePaste, type PastePart } from "@/lib/chat-paste";
 import type { VoiceNoteLimits } from "@/lib/voice-notes";
+import { AnswerText } from "./answer-text";
 import { AttachmentChip } from "./attachment-chip";
 import { useCanRecord } from "@/components/voice/dictation";
 import { chipTrigger } from "./composer-chip";
@@ -155,6 +156,10 @@ export function ChatThread({
   useEffect(() => {
     inputRef.current?.focus();
   }, [inputRef]);
+  // The answers' renderer, while the conversation's messages load.
+  useEffect(() => {
+    void AnswerText.preload();
+  }, []);
   // Follow the answer as it streams, unless the person scrolled up to read; an opened conversation
   // starts at its end, and so does a question just asked.
   const shownConversation = useRef(chat.conversationId);
@@ -1289,21 +1294,3 @@ function ChangePrompt({
   );
 }
 
-// The markdown renderer comes with the first answer, not with every page.
-const AnswerMarkdown = lazy(() => import("./answer-markdown"));
-
-function AnswerText({
-  text,
-  sources,
-  onSource,
-}: {
-  text: string;
-  sources: Map<number, ChatSourceView>;
-  onSource: (source: ChatSourceView) => void;
-}) {
-  return (
-    <Suspense fallback={<p className="break-words whitespace-pre-wrap">{text}</p>}>
-      <AnswerMarkdown text={text} sources={sources} onSource={onSource} />
-    </Suspense>
-  );
-}

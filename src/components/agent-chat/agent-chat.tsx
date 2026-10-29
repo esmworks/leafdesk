@@ -12,17 +12,11 @@
 import { ArrowUp, AtSign, ChevronRight, Clock, ListChecks, Loader2, Plus, Trash2 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useFormatter, useTranslations } from "next-intl";
-import { lazy, Suspense, useCallback, useEffect, useRef, useState } from "react";
-import {
-  agentChatInfoAction,
-  agentChatTurnAction,
-  agentThreadAction,
-  agentThreadRunsAction,
-  deleteAgentConversationAction,
-  getAgentConversationAction,
-  sendAgentChatAction,
-} from "@/app/actions/agent-chat";
+import { useCallback, useEffect, useRef, useState } from "react";
+import { deleteAgentConversationAction, sendAgentChatAction } from "@/app/actions/agent-chat";
+import { AnswerText } from "@/components/ai-chat/answer-text";
 import { ApprovalActions } from "@/components/connections/approval-actions";
+import { read } from "@/components/read";
 import { AgentIcon, AgentStepLine } from "@/components/settings/agent-dialog";
 import { cn, IconButton, selectClass } from "@/components/ui";
 import {
@@ -36,8 +30,6 @@ import {
   type ChatPlace,
 } from "@/lib/agent-chat";
 
-// The answer's Markdown renderer is the AI chat's, loaded with the first answer shown.
-const AnswerMarkdown = lazy(() => import("@/components/ai-chat/answer-markdown"));
 const NO_SOURCES = new Map();
 const noop = () => {};
 /** How often a turn under way is asked for. */
@@ -85,10 +77,11 @@ export function AgentChat({
   placeRef.current = place;
   const thread = place === null;
 
-  const openThread = useCallback(async () => {
+  // `asked`: the thread's read already under way (load starts it beside the chat's info).
+  const openThread = useCallback(async (asked?: ReturnType<typeof read<"agentThread">>) => {
     setError(null);
     setTurn(null);
-    const res = await agentThreadAction(workspaceId, agentId);
+    const res = await (asked ?? read("agentThread", workspaceId, agentId));
     if (!res.ok) {
       setError(res.error);
       return;
@@ -101,7 +94,7 @@ export function AgentChat({
   }, [workspaceId, agentId]);
 
   const refreshRuns = useCallback(async () => {
-    const res = await agentThreadRunsAction(workspaceId, agentId).catch(() => null);
+    const res = await read("agentThreadRuns", workspaceId, agentId).catch(() => null);
     if (!res?.ok) return;
     setRuns(res.data.runs);
     setConnections((c) => ({ ...c, ...res.data.connections }));
@@ -117,7 +110,7 @@ export function AgentChat({
         setRunning(null);
         return;
       }
-      const res = await getAgentConversationAction(workspaceId, agentId, id, placeRef.current);
+      const res = await read("agentConversation", workspaceId, agentId, id, placeRef.current);
       if (!res.ok) {
         setError(res.error);
         return;
@@ -133,7 +126,10 @@ export function AgentChat({
   const load = useCallback(async () => {
     setLoadFailed(false);
     try {
-      const res = await agentChatInfoAction(workspaceId, agentId, placeRef.current);
+      // The agent's own chat reads its thread beside its info; if the agent is gone, it is never shown.
+      const thread = placeRef.current === null ? read("agentThread", workspaceId, agentId) : undefined;
+      void thread?.catch(() => {});
+      const res = await read("agentChatInfo", workspaceId, agentId, placeRef.current);
       if (!res.ok) {
         setLoadFailed(true);
         return;
@@ -141,7 +137,7 @@ export function AgentChat({
       setInfo(res.data);
       // Back where they were: the agent's own chat, or a block's latest conversation.
       if (placeRef.current === null) {
-        if (res.data.agent) await openThread();
+        if (res.data.agent) await openThread(thread);
       } else await open(res.data.conversations[0]?.id ?? null);
     } catch {
       setLoadFailed(true);
@@ -149,6 +145,8 @@ export function AgentChat({
   }, [workspaceId, agentId, open, openThread]);
 
   useEffect(() => {
+    // The answers' renderer (the AI chat's), while the messages load.
+    void AnswerText.preload();
     void load();
     // chatId and pageId stand for the place: another block's chat loads again.
   }, [load, chatId, pageId]);
@@ -159,7 +157,7 @@ export function AgentChat({
     let live = true;
     let timer: ReturnType<typeof setTimeout>;
     const poll = async () => {
-      const res = await agentChatTurnAction(workspaceId, running).catch(() => null);
+      const res = await read("agentChatTurn", workspaceId, running).catch(() => null);
       if (!live) return;
       if (res?.ok) {
         setTurn(res.data);
@@ -250,7 +248,7 @@ export function AgentChat({
       if (!res.ok) {
         setError(res.error);
         // The chat's standing changed (the agent paused or gone, the month's tokens used up…).
-        if (res.code && ["guest", "gone", "noAccess", "paused", "aiOff", "limitReached"].includes(res.code)) void agentChatInfoAction(workspaceId, agentId, placeRef.current).then((r) => r.ok && setInfo(r.data));
+        if (res.code && ["guest", "gone", "noAccess", "paused", "aiOff", "limitReached"].includes(res.code)) void read("agentChatInfo", workspaceId, agentId, placeRef.current).then((r) => r.ok && setInfo(r.data));
         return;
       }
       const { conversation, runId } = res.data;
@@ -490,9 +488,7 @@ function Answer({ message, connections, onOpen }: { message: AgentChatMessageVie
       )}
       {message.content.trim() && (
         <div className="break-words">
-          <Suspense fallback={<p className="whitespace-pre-wrap">{message.content}</p>}>
-            <AnswerMarkdown text={message.content} sources={NO_SOURCES} onSource={noop} />
-          </Suspense>
+          <AnswerText text={message.content} sources={NO_SOURCES} onSource={noop} />
         </div>
       )}
       {message.code && <p className="text-xs text-danger">{t(`failed.${chatFailure(message.code)}`)}</p>}

@@ -1,4 +1,6 @@
+import { agentChatInfoAction, agentChatTurnAction, agentThreadAction, agentThreadRunsAction, getAgentConversationAction } from "@/app/actions/agent-chat";
 import { sidebarAgentsAction } from "@/app/actions/agents";
+import { getConversationAction, listConversationsAction } from "@/app/actions/ai";
 import { listDatabasesAction, loadDatabaseAction, loadRowAction } from "@/app/actions/databases";
 import { backlinksAction, unlinkedMentionsAction } from "@/app/actions/mentions";
 import { listInboxAction, unreadCountAction } from "@/app/actions/notifications";
@@ -37,6 +39,13 @@ export const READS = {
   loadDatabase: loadDatabaseAction,
   loadRow: loadRowAction,
   listDatabases: listDatabasesAction,
+  agentChatInfo: agentChatInfoAction,
+  agentThread: agentThreadAction,
+  agentThreadRuns: agentThreadRunsAction,
+  agentConversation: getAgentConversationAction,
+  agentChatTurn: agentChatTurnAction,
+  chatConversations: listConversationsAction,
+  chatConversation: getConversationAction,
 };
 
 export type Reads = typeof READS;

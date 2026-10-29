@@ -10,12 +10,12 @@ type State<P> = { component?: ComponentType<P>; error?: unknown };
 /**
  * A component whose code loads the first time it shows: dialogs, menus and panels opened now and
  * then. Client-only, like `next/dynamic` with `ssr: false`. Until the code is there it shows
- * `fallback` (nothing by default) instead of suspending: React holds back what a Suspense boundary
+ * `fallback` (nothing by default, or worked out from the props) instead of suspending: React holds back what a Suspense boundary
  * reveals until 300 ms after the last fallback shown anywhere, so a dialog behind `next/dynamic` or
  * `lazy()` opened the first time that late however fast its code came. A failed load throws from
  * render, to the nearest error boundary, as those do.
  */
-export function lazyPart<P extends object>(load: () => Promise<ComponentType<P>>, fallback: ReactNode = null): LazyPart<P> {
+export function lazyPart<P extends object>(load: () => Promise<ComponentType<P>>, fallback: ReactNode | ((props: P) => ReactNode) = null): LazyPart<P> {
   const empty: State<P> = {};
   let state = empty;
   let loading: Promise<void> | undefined;
@@ -43,7 +43,8 @@ export function lazyPart<P extends object>(load: () => Promise<ComponentType<P>>
       void preload();
     }, []);
     if (error !== undefined) throw error;
-    return Component ? <Component {...props} /> : fallback;
+    if (Component) return <Component {...props} />;
+    return typeof fallback === "function" ? fallback(props) : fallback;
   }
   return Object.assign(Part, { preload });
 }

@@ -1,17 +1,17 @@
 "use client";
 
 import { Bot, Settings2 } from "lucide-react";
-import dynamic from "next/dynamic";
 import Link from "next/link";
 import { useTranslations } from "next-intl";
 import { IconGlyph } from "@/components/builtin-icon";
+import { lazyPart } from "@/components/lazy-part";
 import { buttonClass } from "@/components/ui";
 import { agentPath } from "@/lib/agent-chat";
 
-const AgentChat = dynamic(() => import("@/components/agent-chat/agent-chat").then((m) => m.AgentChat), {
-  ssr: false,
-  loading: () => <div aria-busy="true" className="h-24 animate-pulse rounded-md bg-bg-subtle" />,
-});
+const AgentChat = lazyPart(
+  () => import("@/components/agent-chat/agent-chat").then((m) => m.AgentChat),
+  <div aria-busy="true" className="h-24 animate-pulse rounded-md bg-bg-subtle" />,
+);
 
 /** An agent's own page, which the sidebar opens: who it is, then a chat with it. Its settings stay in the dialog. */
 export function AgentPage({

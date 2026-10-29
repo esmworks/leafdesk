@@ -94,6 +94,10 @@
   a search typed further cancels the one before.
 - **No "Loading…" flash between pages.** A page's body that arrives within 400 ms goes straight
   from blank to its content.
+- **Chats open formatted.** Opening a conversation in the AI chat or an agent's chat showed its
+  answers as raw text (`**`, `|` and all) for a moment before formatting them; the formatter now
+  loads while the messages do, and an agent's chat reads its messages and settings side by side
+  instead of one after the other.
 - **A scheduled run's report opens in the agent's chat.** Opening it from the inbox, a push
   notification or the MCP server's `list_notifications` leads to the agent's own page, scrolled to
   that run and marked for a moment, instead of the run in Settings.
