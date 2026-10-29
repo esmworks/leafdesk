@@ -1,0 +1,2 @@
+ALTER TABLE "ai_account" DROP CONSTRAINT "ai_account_provider_check";--> statement-breakpoint
+ALTER TABLE "ai_account" ADD CONSTRAINT "ai_account_provider_check" CHECK ("ai_account"."provider" in ('anthropic', 'openai', 'google', 'openrouter', 'xai', 'moonshotai', 'minimax', 'zai', 'opencode-go', 'openai-compatible'));

@@ -4,6 +4,12 @@
 
 ### Added
 
+- **Own AI accounts and the server can use OpenRouter, xAI, Moonshot AI, MiniMax and Z.AI.** Each is a
+  provider of its own in Settings → Apps → AI and in `AI_PROVIDER` (`openrouter`, `xai`, `moonshotai`,
+  `minimax`, `zai`) with just a key: Leafdesk knows their models (context windows, prices, thinking)
+  and calls each over the API it serves them on. Z.AI is called at its pay-as-you-go endpoint, not
+  the GLM Coding Plan's. The Model field shows an example id for each provider. Migration 0160.
+
 - **The chat lets you pick how much the model thinks.** Next to the model in the question box, a
   Thinking picker offers Fast (as little as the model allows), Balanced (the chat's usual amount,
   the default) and Deep (all the model's own thinking, as in research mode). It is shown where the

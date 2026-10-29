@@ -55,6 +55,8 @@ export function streamTurn(models: Models, model: Model<Api>, context: Context, 
 /** One implementation for all the provider's models, or one per wire API for mixed providers. */
 type ApiLoader = () => Promise<ProviderStreams | Partial<Record<Api, ProviderStreams>>>;
 
+const ZAI_BASE_URL = "https://api.z.ai/api/paas/v4";
+
 /**
  * Per provider kind: its wire API (for models the catalog doesn't know), default endpoint, catalog
  * (for known models' API, endpoint and limits), whether requests carry a session id, and headers
@@ -105,6 +107,54 @@ const KINDS: Record<
     catalog: async () => (await import("@earendil-works/pi-ai/providers/opencode-go")).opencodeGoProvider().getModels(),
     sessions: true,
     headers: { "User-Agent": "Leafdesk" },
+  },
+  // OpenRouter serves Anthropic's models over the Messages API and the rest over chat completions;
+  // its catalog also lists image and classifier models, which the chat can't use.
+  openrouter: {
+    api: "openai-completions",
+    baseUrl: "https://openrouter.ai/api/v1",
+    streams: async () => {
+      const [completions, messages] = await Promise.all([
+        openAICompletions(),
+        import("@earendil-works/pi-ai/api/anthropic-messages.lazy").then((m) => m.anthropicMessagesApi()),
+      ]);
+      return { "openai-completions": completions, "anthropic-messages": messages };
+    },
+    catalog: async () =>
+      (await import("@earendil-works/pi-ai/providers/openrouter"))
+        .openrouterProvider()
+        .getModels()
+        .filter((m) => m.api === "openai-completions" || m.api === "anthropic-messages"),
+  },
+  xai: {
+    api: "openai-responses",
+    baseUrl: "https://api.x.ai/v1",
+    streams: async () => (await import("@earendil-works/pi-ai/api/openai-responses.lazy")).openAIResponsesApi(),
+    catalog: async () => (await import("@earendil-works/pi-ai/providers/xai")).xaiProvider().getModels(),
+  },
+  moonshotai: {
+    api: "openai-completions",
+    baseUrl: "https://api.moonshot.ai/v1",
+    streams: openAICompletions,
+    catalog: async () => (await import("@earendil-works/pi-ai/providers/moonshotai")).moonshotaiProvider().getModels(),
+  },
+  minimax: {
+    api: "anthropic-messages",
+    baseUrl: "https://api.minimax.io/anthropic",
+    streams: async () => (await import("@earendil-works/pi-ai/api/anthropic-messages.lazy")).anthropicMessagesApi(),
+    catalog: async () => (await import("@earendil-works/pi-ai/providers/minimax")).minimaxProvider().getModels(),
+  },
+  // The library's Z.AI models point at the GLM Coding Plan's endpoint, a subscription meant for
+  // coding tools; an API key from the Z.AI platform is billed at the general one.
+  zai: {
+    api: "openai-completions",
+    baseUrl: ZAI_BASE_URL,
+    streams: openAICompletions,
+    catalog: async () =>
+      (await import("@earendil-works/pi-ai/providers/zai"))
+        .zaiProvider()
+        .getModels()
+        .map((m) => ({ ...m, baseUrl: ZAI_BASE_URL })),
   },
   "openai-compatible": { api: "openai-completions", baseUrl: "", streams: openAICompletions },
   ollama: { api: "openai-completions", baseUrl: "http://localhost:11434/v1", streams: openAICompletions },

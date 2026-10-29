@@ -1121,6 +1121,13 @@
       "when": 1793300349440,
       "tag": "0159_chat_thinking",
       "breakpoints": true
+    },
+    {
+      "idx": 160,
+      "version": "7",
+      "when": 1793304402397,
+      "tag": "0160_more_ai_providers",
+      "breakpoints": true
     }
   ]
 }

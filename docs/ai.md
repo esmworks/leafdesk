@@ -18,8 +18,13 @@ unset.
 | Anthropic | `anthropic` | `AI_API_KEY` (or `ANTHROPIC_API_KEY`) |
 | OpenAI | `openai` | `AI_API_KEY` (or `OPENAI_API_KEY`) |
 | Google Gemini | `google` | `AI_API_KEY` (or `GEMINI_API_KEY`) |
+| OpenRouter | `openrouter` | `AI_API_KEY` from openrouter.ai |
+| xAI (Grok) | `xai` | `AI_API_KEY` from the xAI console |
+| Moonshot AI (Kimi) | `moonshotai` | `AI_API_KEY` from platform.moonshot.ai |
+| MiniMax | `minimax` | `AI_API_KEY` from the MiniMax platform |
+| Z.AI (GLM) | `zai` | `AI_API_KEY` from the Z.AI platform |
 | OpenCode Go | `opencode-go` | `AI_API_KEY` (or `OPENCODE_API_KEY`) from the OpenCode Console |
-| Any OpenAI-compatible server (vLLM, LiteLLM, OpenRouter, llama.cpp…) | `openai-compatible` | `AI_BASE_URL` (the `/v1` root), a key if it wants one |
+| Any OpenAI-compatible server (vLLM, LiteLLM, llama.cpp…) | `openai-compatible` | `AI_BASE_URL` (the `/v1` root), a key if it wants one |
 | Ollama (local) | `ollama` | the model pulled; `AI_BASE_URL` defaults to `http://localhost:11434/v1` |
 | LM Studio (local) | `lmstudio` | the model loaded; `AI_BASE_URL` defaults to `http://localhost:1234/v1` |
 
@@ -37,6 +42,15 @@ For Anthropic, OpenAI and Google, Leafdesk knows the current models (`claude-hai
 `claude-sonnet-5-5`, `claude-opus-5-5`…) and uses their context window, prices and thinking
 settings. A model id it doesn't know yet still works: it is sent as written, with a 128,000-token
 context window, no thinking settings, and a cost of 0 in the server log.
+
+**OpenRouter, xAI, Moonshot AI, MiniMax and Z.AI** are known the same way, each over its own API:
+OpenRouter's ids name the maker (`anthropic/claude-sonnet-5.5`, `moonshotai/kimi-k3`,
+`z-ai/glm-5.3`…), and its Anthropic models go over the Messages API, the rest over chat
+completions; xAI's (`grok-4.7`) over its Responses API; Moonshot's (`kimi-k3`) and Z.AI's
+(`glm-5.3`) over chat completions; MiniMax's (`MiniMax-M3`) over its Anthropic-compatible API.
+Z.AI is called at its pay-as-you-go endpoint, with a key from its API platform; a GLM Coding Plan
+subscription is meant for coding tools and isn't used. None of them has an embeddings API Leafdesk
+uses, so semantic search needs `AI_EMBEDDINGS_*` (see below).
 
 **OpenCode Go** serves its models over four APIs; Leafdesk picks the right one for each model in
 its catalog (`kimi-k3`, `glm-5.3`, `deepseek-v4-pro`, `qwen3.8-flash`, `minimax-m3`, `grok-4.7`…;
@@ -427,8 +441,8 @@ A server open to people it doesn't pay AI for can let them bring their own provi
 workspace runs on the server's `AI_*` settings, as above.
 
 With it on, everyone gets **Settings → Apps → AI** in their account, where they add an AI account
-once: a provider (Anthropic, OpenAI, Google Gemini, OpenCode Go or an OpenAI-compatible server at
-an address), a model, the key, and optionally an embeddings model (OpenAI, Google, OpenAI-compatible)
+once: a provider (Anthropic, OpenAI, Google Gemini, OpenRouter, xAI, Moonshot AI, MiniMax, Z.AI,
+OpenCode Go or an OpenAI-compatible server at an address), a model, the key, and optionally an embeddings model (OpenAI, Google, OpenAI-compatible)
 for semantic search and a speech-to-text model (OpenAI, OpenAI-compatible) for voice notes. Before
 it is saved, Leafdesk sends it a tiny request (and one embedding, when it names a model for them);
 an account it can't reach isn't kept. The key is stored encrypted (`LEAFDESK_ENCRYPTION_KEY`) and

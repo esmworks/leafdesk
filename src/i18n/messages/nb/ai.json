@@ -504,6 +504,11 @@
       "anthropic": "Anthropic",
       "openai": "OpenAI",
       "google": "Google Gemini",
+      "openrouter": "OpenRouter",
+      "xai": "xAI (Grok)",
+      "moonshotai": "Moonshot AI (Kimi)",
+      "minimax": "MiniMax",
+      "zai": "Z.AI (GLM)",
       "opencode-go": "OpenCode Go",
       "openai-compatible": "OpenAI-kompatibel server"
     },

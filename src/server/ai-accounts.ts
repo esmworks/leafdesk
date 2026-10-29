@@ -75,6 +75,11 @@ const PROVIDER_NAMES: Record<OwnAiProvider, string> = {
   anthropic: "Anthropic",
   openai: "OpenAI",
   google: "Google",
+  openrouter: "OpenRouter",
+  xai: "xAI",
+  moonshotai: "Moonshot AI",
+  minimax: "MiniMax",
+  zai: "Z.AI",
   "opencode-go": "OpenCode Go",
   "openai-compatible": "OpenAI-compatible",
 };

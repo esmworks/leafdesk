@@ -4,10 +4,34 @@
  * default address would be the server's own machine, not the person's.
  */
 
-export const OWN_AI_PROVIDERS = ["anthropic", "openai", "google", "opencode-go", "openai-compatible"] as const;
+export const OWN_AI_PROVIDERS = [
+  "anthropic",
+  "openai",
+  "google",
+  "openrouter",
+  "xai",
+  "moonshotai",
+  "minimax",
+  "zai",
+  "opencode-go",
+  "openai-compatible",
+] as const;
 export type OwnAiProvider = (typeof OWN_AI_PROVIDERS)[number];
 export const isOwnAiProvider = (value: unknown): value is OwnAiProvider =>
   typeof value === "string" && (OWN_AI_PROVIDERS as readonly string[]).includes(value);
+
+/** A model id each hosted provider knows, shown in the empty Model field as an example. */
+export const MODEL_EXAMPLES: Partial<Record<OwnAiProvider, string>> = {
+  anthropic: "claude-sonnet-5-5",
+  openai: "gpt-5.5",
+  google: "gemini-3.5-flash",
+  openrouter: "anthropic/claude-sonnet-5.5",
+  xai: "grok-4.7",
+  moonshotai: "kimi-k3",
+  minimax: "MiniMax-M3",
+  zai: "glm-5.3",
+  "opencode-go": "kimi-k3",
+};
 
 /** Providers with an OpenAI-compatible embeddings endpoint an account's key also opens. */
 export const EMBEDDING_PROVIDERS: readonly OwnAiProvider[] = ["openai", "google", "openai-compatible"];

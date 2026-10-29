@@ -18,6 +18,8 @@ describe("AI settings", () => {
     expect(readAiConfig({ AI_PROVIDER: "openai-compatible", AI_MODEL: "x" }).problems).toEqual([
       "AI_BASE_URL is required with AI_PROVIDER=openai-compatible",
     ]);
+    // Hosted providers without a variable of their own still need AI_API_KEY.
+    expect(readAiConfig({ AI_PROVIDER: "openrouter", AI_MODEL: "x-ai/grok-4.7" }).problems).toEqual(["AI_API_KEY is required with AI_PROVIDER=openrouter"]);
   });
 
   it("reads hosted and local providers", () => {

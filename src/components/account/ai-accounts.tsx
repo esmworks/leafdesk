@@ -12,7 +12,7 @@ import {
 import { SettingsGroup, SettingsRow } from "@/components/settings/section";
 import { useAction } from "@/components/settings/workspace-settings";
 import { Button, cn, Input, selectClass } from "@/components/ui";
-import { EMBEDDING_PROVIDERS, OWN_AI_PROVIDERS, STT_PROVIDERS, type AiAccountView, type OwnAiProvider } from "@/lib/ai-accounts";
+import { EMBEDDING_PROVIDERS, MODEL_EXAMPLES, OWN_AI_PROVIDERS, STT_PROVIDERS, type AiAccountView, type OwnAiProvider } from "@/lib/ai-accounts";
 import { relativeTime } from "@/lib/relative-time";
 
 /**
@@ -223,7 +223,15 @@ function AccountForm({ account, onCancel, onSaved }: { account?: AiAccountView; 
       <div className="grid gap-3 sm:grid-cols-2">
         <label className="block space-y-1">
           <span className="text-sm font-medium">{t("fields.model")}</span>
-          <Input name="model" value={model} required onChange={(e) => setModel(e.target.value)} autoComplete="off" spellCheck={false} />
+          <Input
+            name="model"
+            value={model}
+            required
+            onChange={(e) => setModel(e.target.value)}
+            placeholder={MODEL_EXAMPLES[provider]}
+            autoComplete="off"
+            spellCheck={false}
+          />
           <span className="block text-xs text-fg-muted">{t("fields.modelHint")}</span>
         </label>
         <label className="block space-y-1">

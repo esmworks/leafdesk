@@ -48,7 +48,10 @@ export const aiAccount = pgTable(
   (t) => [
     index("ai_account_user_idx").on(t.userId),
     uniqueIndex("ai_account_default_idx").on(t.userId).where(sql`${t.isDefault}`),
-    check("ai_account_provider_check", sql`${t.provider} in ('anthropic', 'openai', 'google', 'opencode-go', 'openai-compatible')`),
+    check(
+      "ai_account_provider_check",
+      sql`${t.provider} in ('anthropic', 'openai', 'google', 'openrouter', 'xai', 'moonshotai', 'minimax', 'zai', 'opencode-go', 'openai-compatible')`,
+    ),
     check("ai_account_status_check", sql`${t.status} in ('active', 'broken')`),
   ],
 );

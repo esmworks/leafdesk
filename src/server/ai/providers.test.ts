@@ -6,6 +6,7 @@
 import { createServer, type IncomingMessage, type Server } from "node:http";
 import type { AddressInfo } from "node:net";
 import { afterAll, afterEach, beforeAll, describe, expect, it } from "vitest";
+import { createBackend } from "./backend";
 import { readAiConfig } from "./config";
 import { complete, embed, stream, tryAiConfig } from "./index";
 import { resetAi, setAiEnv } from "./testing";
@@ -260,6 +261,44 @@ describe("providers over HTTP", () => {
     expect(seen[0].path).toMatch(/^\/v1\/messages/);
     expect(seen[0].headers["x-opencode-session"]).toBe("conv-2");
     expect(seen[0].headers["user-agent"]).toBe("Leafdesk");
+  });
+
+  it("sends OpenRouter's Anthropic models over the Messages API and the rest over chat completions", async () => {
+    const openRouter = (model: string) => ({ AI_PROVIDER: "openrouter", AI_MODEL: model, AI_API_KEY: "sk-or-test", AI_BASE_URL: base });
+    setAiEnv(openRouter("anthropic/claude-sonnet-5.5"));
+    expect((await complete({ feature: "test", workspaceId: "w1", messages: [{ role: "user", content: "Hello" }] })).text).toBe("Bonjour");
+    resetAi();
+    setAiEnv(openRouter("moonshotai/kimi-k3"));
+    expect((await complete({ feature: "test", workspaceId: "w1", messages: [{ role: "user", content: "hi" }] })).text).toBe("Hello there");
+    expect(seen.map((r) => r.path.split("?")[0])).toEqual(["/v1/messages", "/v1/chat/completions"]);
+    expect(seen.map((r) => r.body.model)).toEqual(["anthropic/claude-sonnet-5.5", "moonshotai/kimi-k3"]);
+  });
+
+  it("answers from Moonshot, Z.AI and MiniMax models over their own APIs", async () => {
+    setAiEnv({ AI_PROVIDER: "moonshotai", AI_MODEL: "kimi-k3", AI_API_KEY: "sk-moon", AI_BASE_URL: base });
+    expect((await complete({ feature: "test", workspaceId: "w1", messages: [{ role: "user", content: "hi" }] })).text).toBe("Hello there");
+    resetAi();
+    setAiEnv({ AI_PROVIDER: "zai", AI_MODEL: "glm-5.3", AI_API_KEY: "sk-zai", AI_BASE_URL: base });
+    expect((await complete({ feature: "test", workspaceId: "w1", messages: [{ role: "user", content: "hi" }] })).text).toBe("Hello there");
+    resetAi();
+    setAiEnv({ AI_PROVIDER: "minimax", AI_MODEL: "MiniMax-M3", AI_API_KEY: "sk-mm", AI_BASE_URL: base.replace(/\/v1$/, "") });
+    expect((await complete({ feature: "test", workspaceId: "w1", messages: [{ role: "user", content: "Hello" }] })).text).toBe("Bonjour");
+    expect(seen.map((r) => r.path.split("?")[0])).toEqual(["/v1/chat/completions", "/v1/chat/completions", "/v1/messages"]);
+    expect(seen.map((r) => r.auth)).toEqual(["Bearer sk-moon", "Bearer sk-zai", expect.stringContaining("sk-mm")]);
+  });
+
+  it("sends xAI's models to its Responses API", async () => {
+    setAiEnv({ AI_PROVIDER: "xai", AI_MODEL: "grok-4.7", AI_API_KEY: "xai-test", AI_BASE_URL: base });
+    await complete({ feature: "test", workspaceId: "w1", messages: [{ role: "user", content: "hi" }] }).catch(() => {});
+    expect(seen[0].path).toBe("/v1/responses");
+    expect(seen[0].body.model).toBe("grok-4.7");
+  });
+
+  it("calls Z.AI at its pay-as-you-go endpoint, not the coding plan's", async () => {
+    for (const model of ["glm-5.3", "glm-9-preview"]) {
+      const backend = await createBackend(readAiConfig({ AI_PROVIDER: "zai", AI_MODEL: model, AI_API_KEY: "sk-zai" }));
+      expect(backend?.model.baseUrl).toBe("https://api.z.ai/api/paas/v4");
+    }
   });
 
   it("sends no OpenCode session id to other providers", async () => {

@@ -3,7 +3,20 @@
  * for hosted providers); nothing is sent anywhere while it is off. See docs/ai.md.
  */
 
-export const AI_PROVIDERS = ["anthropic", "openai", "google", "opencode-go", "openai-compatible", "ollama", "lmstudio"] as const;
+export const AI_PROVIDERS = [
+  "anthropic",
+  "openai",
+  "google",
+  "opencode-go",
+  "openrouter",
+  "xai",
+  "moonshotai",
+  "minimax",
+  "zai",
+  "openai-compatible",
+  "ollama",
+  "lmstudio",
+] as const;
 export type AiProviderKind = (typeof AI_PROVIDERS)[number];
 
 /** Chat providers whose requests go to our own server or network by default. */
@@ -17,6 +30,9 @@ const HOSTED_EMBEDDING_URLS: Partial<Record<AiProviderKind, string>> = {
   openai: "https://api.openai.com/v1",
   google: "https://generativelanguage.googleapis.com/v1beta/openai",
 };
+
+/** Providers that may run without a key: servers at an address of the admin's choosing. */
+const KEYLESS_PROVIDERS: readonly AiProviderKind[] = ["openai-compatible", "ollama", "lmstudio"];
 
 /** The provider's own key variable, read when AI_API_KEY is not set. */
 const PROVIDER_KEY_VARS: Partial<Record<AiProviderKind, string>> = {
@@ -204,7 +220,7 @@ export function readAiConfig(env: Env = process.env): AiConfig {
       else if (resolvedUrl === undefined) {
         // Reported above.
       } else if (provider === "openai-compatible" && !resolvedUrl) problems.push("AI_BASE_URL is required with AI_PROVIDER=openai-compatible");
-      else if (keyVar && !apiKey) problems.push(`AI_API_KEY is required with AI_PROVIDER=${provider}`);
+      else if (!KEYLESS_PROVIDERS.includes(provider) && !apiKey) problems.push(`AI_API_KEY is required with AI_PROVIDER=${provider}`);
       else {
         chat = {
           provider,
@@ -362,7 +378,7 @@ function similarity(env: Env, problems: string[]) {
 /**
  * The chat provider's OpenAI-compatible API root, where embeddings go by default: the configured
  * server for local and compatible providers, OpenAI's (or its override) and Google's compatible
- * endpoint. Anthropic and OpenCode Go have no embeddings API.
+ * endpoint. The other hosted providers have none Leafdesk uses.
  */
 function inheritedEmbeddingsUrl(chat: AiChatConfig): string | null {
   switch (chat.provider) {
@@ -372,6 +388,11 @@ function inheritedEmbeddingsUrl(chat: AiChatConfig): string | null {
       return HOSTED_EMBEDDING_URLS.google!;
     case "anthropic":
     case "opencode-go":
+    case "openrouter":
+    case "xai":
+    case "moonshotai":
+    case "minimax":
+    case "zai":
       return null;
     default:
       return chat.baseUrl;
