@@ -62,7 +62,9 @@ answerer* template proposes. An agent's email drafts wait there too (see
 characters, on a database row or on none. The run is queued like any other and held to the asking
 owner's access as well as the agent's, as a run a member's change started is held to that
 member's: it reads only what both can open. On a row it may change and comment on that row; on
-none it only reads (and uses its connections' tools) and its answer is what it found or did. The
+none it only reads (and uses its connections' tools) and its answer is what it found or did (to
+file notes sent from elsewhere, add the row and let an automation run the agent on it, see
+[Capturing from anywhere](rest-api.md#rest-api)). The
 run shows who asked, from where and the task; read how it went with
 `GET /api/v1/agents/{id}/runs/{run_id}` or `list_agent_runs`. Asking is refused, not queued, while
 the agent is paused or archived, AI is off for the workspace, the agent used its monthly token

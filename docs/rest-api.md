@@ -155,3 +155,30 @@ workspace's "require two-step verification" policy: it guards browser sessions. 
 its **Connected apps and API tokens** switch: in a read-only workspace write endpoints answer
 `403` (`forbidden`), and a workspace with it off answers `404` like one the user isn't in (see
 [Workspace security switches](account-and-security.md#workspace-security-switches)).
+
+**Capturing ideas and tasks from anywhere (Apple Shortcuts).** A shortcut on a Mac, iPhone or iPad
+can write what you type into a database with one request, from any app:
+
+1. Make an inbox database, say *Inbox*, with the properties you want filled later (a *Type*
+   select with *Idea* and *Task*, a *Due* date). Copy its ID from the database's menu.
+2. Create a personal access token with *Rows* write, limited to that workspace.
+3. In the Shortcuts app, make a shortcut with two actions:
+   - *Receive* text from the Share Sheet and Quick Actions, and *If there's no input*: *Ask For
+     Text* ("What would you like to log?"). Run from a key or the menu bar it asks; from the Share
+     menu it takes the selected text.
+   - *Get Contents of URL*: `<APP_URL>/api/v1/databases/<database_id>/rows`, method `POST`, a
+     header `Authorization` with `Bearer <token>`, request body *JSON* with a text field `title`
+     set to *Shortcut Input*. A title may be up to 500 characters; for longer notes add a
+     `markdown` field with the text too.
+
+   Add *Show Notification* after it if you want a confirmation. On a Mac, give the shortcut a key
+   in its details or pin it to the menu bar; on an iPhone, put it on the Action Button, Back Tap or
+   the Home Screen, or run it with Siri.
+4. To have the note sorted, add an automation to the database: *A row is added* → *Run an agent*,
+   with a task such as "Decide whether this is an idea or a task and set Type. If it names a day,
+   set Due. Shorten the title if it is long." The agent works on the new row only (see
+   [Agents](agents.md#agents)). Without it the row simply waits in the inbox.
+
+The shortcut writes the row itself: a run asked for with `POST /agents/{id}/runs` and no `row_id`
+only reads, so it can't add rows. The token is stored in the shortcut, so share the shortcut
+without it, and give the token only *Rows* write on one workspace.
