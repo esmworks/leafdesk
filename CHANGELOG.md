@@ -17,6 +17,13 @@
   "No" and directions such as "Cezaevi Karşısı" are now left out too, and a place found must carry
   the name of the street or neighbourhood searched for, so a street missing from the map gives its
   neighbourhood instead of another street with a similar number.
+- **Places in industrial zones are no longer put in another neighbourhood.** An address with
+  "OSB Mah." ("Kemalpaşa OSB Mah. 9. Sok.") was searched as a lone "Mahallesi" in the district and
+  took the first neighbourhood found there. It is now searched as "Kemalpaşa OSB Mahallesi", the
+  way the map data names it.
+- **The MCP server and the REST API take a place as `{lat, lng, address, name}`.** Their tools'
+  documentation promised this form, but a row write refused it, so a place could be written only
+  as coordinates, and its cell then showed the coordinates instead of an address.
 
 ## 0.6.7 — 2026-10-29
 

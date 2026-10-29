@@ -109,11 +109,14 @@ const checklistItem = z.object({ text: z.string(), checked: z.boolean().optional
 const fileItem = z.object({ url: z.string(), name: z.string().optional() });
 /** A date range (or a single date, without `end`), as an alternative to the "start/end" string. */
 const dateRange = z.object({ start: z.string(), end: z.string().nullable().optional() });
+/** A place with the address or name its cell shows, as lib/place readPlaceInput reads it. */
+const placeValue = z.object({ lat: z.number(), lng: z.number(), address: z.string().optional(), name: z.string().optional() });
 export const rowValue = z.union([
   z.string(),
   z.number(),
   z.boolean(),
   dateRange,
+  placeValue,
   z.array(z.union([z.string(), checklistItem, fileItem])),
   z.null(),
 ]);

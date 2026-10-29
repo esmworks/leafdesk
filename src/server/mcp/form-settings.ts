@@ -19,6 +19,7 @@ import {
 import { holdsOptions } from "@/lib/property-types";
 import * as forms from "@/server/forms";
 import { rowValue } from "@/server/operations";
+import { checked, see } from "./docs";
 import { ToolInputError } from "./format";
 import { resolvePropertyKey, type PropertyDef } from "./query";
 
@@ -51,12 +52,11 @@ export const formInputs = {
     .optional()
     .describe("Form only: shown after an answer is sent (a generic thank-you when empty)."),
   allow_another: z.boolean().optional().describe("Form only: offer to send another answer after one is sent (true by default)."),
-  defaults: z
-    .record(z.string(), rowValue)
-    .optional()
-    .describe(
-      'Form only: values every row sent through the form gets for properties it doesn\'t ask, keyed by property name or id, in the same form as row values; replaces the current ones. Example: {"Status": "New"}.',
-    ),
+  defaults: checked(
+    z.record(z.string(), rowValue),
+    "object",
+    `Form only: values every row sent through the form gets for properties it doesn't ask, keyed by property name or id, in the same form as row values; replaces the current ones. Example: {"Status": "New"}. ${see("properties")}`,
+  ).optional(),
   public: z
     .boolean()
     .optional()

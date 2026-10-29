@@ -1553,6 +1553,14 @@ describe("update_database_rows", () => {
     });
   });
 
+  it("takes a place with its coordinates and address as one value", async () => {
+    databases.updateRowsProperties.mockResolvedValue({ done: ["row-1"], skipped: [] });
+    const place = { lat: 38.41, lng: 27.13, address: "Kozağaç Mahallesi, Buca, İzmir" };
+    const r = await callTool(writer, "update_database_rows", { database_id: "db-1", row_ids: ["row-1"], properties: { Where: place } });
+    expect(r.isError).toBe(false);
+    expect(databases.updateRowsProperties).toHaveBeenCalledWith("user-1", "db-1", ["row-1"], { Where: place }, expect.anything());
+  });
+
   it("leaves skipped_row_ids out when every row changed", async () => {
     databases.updateRowsProperties.mockResolvedValue({ done: ["row-1"], skipped: [] });
     const r = await callTool(writer, "update_database_rows", { database_id: "db-1", row_ids: ["row-1"], properties: { Notes: null } });
