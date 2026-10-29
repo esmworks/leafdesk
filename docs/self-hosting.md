@@ -370,7 +370,7 @@ Run the published Docker image beside a Railway PostgreSQL; nothing is built on 
 
 1. In a new project, add a **PostgreSQL** database (*Create* → *Database*).
 2. Add a service from the Docker image `ghcr.io/esmworks/leafdesk:latest` (*Create* → *Docker
-   Image*), or a version's tag such as `ghcr.io/esmworks/leafdesk:0.6.6`.
+   Image*), or a version's tag such as `ghcr.io/esmworks/leafdesk:0.6.7`.
 3. Give it these variables:
 
    | Variable | Value |

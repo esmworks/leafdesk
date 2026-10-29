@@ -2,6 +2,14 @@
 
 ## Unreleased
 
+## 0.6.7 — 2026-10-29
+
+### Upgrading from 0.6.6
+
+- **Migrations 0157 and 0158** run automatically when the container starts (from source, run
+  `pnpm db:migrate`). They add the column `workspace_agent.mail_recipients` and the
+  `database_change` table. There are no new settings and `docker-compose.yml` is unchanged.
+
 ### Added
 
 - **Database history.** *Database history* in a database's `⋯` menu lists who added, changed,
@@ -50,6 +58,15 @@
   memory come with it, and it is shared as a new agent is; what you couldn't give an agent
   yourself (a skill you can't open, connection tools if you aren't an owner) is left out and named.
   Also `create_agent` with `copy_of` over MCP and `POST /api/v1/agents/{id}/duplicate`.
+- **The AI chat can do what Leafdesk's MCP tools do.** Asked for something its own tools don't
+  cover (a calendar or board view, a new or changed property, moving, copying, archiving or
+  trashing a page, restoring a version, dashboards, automations, agents…), the chat finds the tool
+  of Leafdesk's MCP server that does it (`find_tools`) and calls it (`use_tool`), as the person and
+  with their access. A change is asked about in *Ask* and made at once in *Auto*; inviting members,
+  sharing, access rules, automations, agents and follow-up sequences are asked about every time.
+  A read-only chat finds only tools that read. Agents find and call them too: every run someone
+  stands behind reads through them, and the chat of someone who can edit the agent changes things
+  through them as well, except inviting, sharing, access rules, automations, agents and sequences.
 
 ### Changed
 
@@ -78,6 +95,10 @@
   The text grows as you type. A plain question or research, and where answers come from, are picked
   in a strip above the box before the first question and stay as picked for the conversation. The
   "AI can make mistakes" line under the box is gone.
+- **A page's ⋯ menu keeps its downloads under Export.** Markdown or CSV, Excel, ZIP, PDF and Print
+  open from one Export item, so the menu is short enough to fit the window; a menu that is still
+  taller than the window scrolls instead of running past its bottom edge, where the PDF item
+  couldn't be reached.
 
 ### Fixed
 
@@ -117,10 +138,13 @@
 - **The AI chat's question box lines up with the conversation.** Where the browser shows a
   scrollbar (Safari with a mouse connected, Windows), the box sat a few pixels off the messages
   above it; it now keeps the same edges, on the full page and in the side panel.
-
 - **A database page's icon and background pickers open over its view bar.** On a full database
   page the toolbar beside the view tabs covered the top of the picker that Add icon or Add
   background opened.
+- **The AI chat no longer looks stuck while it prepares a change.** While the model wrote a long
+  tool call (many rows to add, a page to write), the answer stood still mid-sentence with no sign
+  of work. The text before the call now moves into the steps as soon as the call starts, and the
+  chat shows it is working until the call runs.
 
 ## 0.6.6 — 2026-10-28
 
@@ -142,15 +166,6 @@
 
 ### Added
 
-- **The AI chat can do what Leafdesk's MCP tools do.** Asked for something its own tools don't
-  cover (a calendar or board view, a new or changed property, moving, copying, archiving or
-  trashing a page, restoring a version, dashboards, automations, agents…), the chat finds the tool
-  of Leafdesk's MCP server that does it (`find_tools`) and calls it (`use_tool`), as the person and
-  with their access. A change is asked about in *Ask* and made at once in *Auto*; inviting members,
-  sharing, access rules, automations, agents and follow-up sequences are asked about every time.
-  A read-only chat finds only tools that read. Agents find and call them too: every run someone
-  stands behind reads through them, and the chat of someone who can edit the agent changes things
-  through them as well, except inviting, sharing, access rules, automations, agents and sequences.
 - **PDF themes: lay a template's PDFs out as you like, and have the AI change them.** A PDF
   template (Settings → PDF templates) can have a theme in place of its lines and accent: its colors,
   margins, text size, headings and tables, and the logo, texts, fields, boxes, columns, signature
@@ -244,10 +259,6 @@
 
 ### Changed
 
-- **A page's ⋯ menu keeps its downloads under Export.** Markdown or CSV, Excel, ZIP, PDF and Print
-  open from one Export item, so the menu is short enough to fit the window; a menu that is still
-  taller than the window scrolls instead of running past its bottom edge, where the PDF item
-  couldn't be reached.
 - **The desktop app's tab strip has no back and forward buttons.** They took room from the tabs;
   Go → Back and Forward (Cmd+[ and Cmd+] on macOS, Alt+Left and Alt+Right elsewhere) still move
   through the shown tab's history.
@@ -321,10 +332,6 @@
   read now takes up to 50,000 characters and says where to go on (`read_page` and `page_version`
   take an `offset`); when the conversation runs short of room, older tool results are dropped so
   the reading can continue.
-- **The AI chat no longer looks stuck while it prepares a change.** While the model wrote a long
-  tool call (many rows to add, a page to write), the answer stood still mid-sentence with no sign
-  of work. The text before the call now moves into the steps as soon as the call starts, and the
-  chat shows it is working until the call runs.
 - **Text is drawn in the system's own typeface again** where Inter isn't installed. Since 0.6.4
   Latin letters fell to a Chinese typeface on macOS, whose faces came before the system's.
 - **Recordings no longer end in lines nobody said.** Over silence or a mumbled stretch, Whisper
