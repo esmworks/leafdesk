@@ -10,9 +10,8 @@ export const dynamic = "force-dynamic";
 export async function POST(request: Request, { params }: { params: Promise<{ name: string }> }) {
   const { name } = await params;
   if (!Object.hasOwn(READS, name)) return new Response(null, { status: 404 });
-  const origin = request.headers.get("origin");
   const host = request.headers.get("x-forwarded-host")?.split(",")[0].trim() || request.headers.get("host");
-  if (!origin || !host || new URL(origin).host !== host) return new Response(null, { status: 403 });
+  if (!host || originHost(request.headers.get("origin")) !== host) return new Response(null, { status: 403 });
 
   let args: unknown;
   try {
@@ -31,5 +30,14 @@ export async function POST(request: Request, { params }: { params: Promise<{ nam
     if (error instanceof Error && error.message === "Unauthorized") return new Response(null, { status: 401 });
     console.error(`read ${name}:`, error);
     return new Response(null, { status: 500 });
+  }
+}
+
+/** The host of an Origin header, or null for none, "null" (a sandboxed frame) or nonsense. */
+function originHost(origin: string | null) {
+  try {
+    return origin ? new URL(origin).host : null;
+  } catch {
+    return null;
   }
 }
