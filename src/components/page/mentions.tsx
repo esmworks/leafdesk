@@ -235,7 +235,15 @@ function fullDate(date: string, locale: string): string {
   return Number.isNaN(at) ? date : new Intl.DateTimeFormat(locale, { ...long, hour: "numeric", minute: "2-digit" }).format(new Date(at));
 }
 
-function DateMentionChip({ props, onChange }: { props: MentionProps; onChange: ((next: Partial<MentionProps>) => void) | null }) {
+function DateMentionChip({
+  props,
+  onChange,
+  reminders,
+}: {
+  props: MentionProps;
+  onChange: ((next: Partial<MentionProps>) => void) | null;
+  reminders: boolean;
+}) {
   const locale = useLocale();
   const t = useTranslations("page.mention");
   const [open, setOpen] = useState(false);
@@ -258,7 +266,7 @@ function DateMentionChip({ props, onChange }: { props: MentionProps; onChange: (
         {props.remindAt && <Bell className="leafdesk-mention-icon" style={{ marginInlineStart: "0.25em", marginInlineEnd: 0 }} aria-label={t("reminder")} />}
       </span>
       {open && opens && anchor.current && (
-        <DatePopover anchor={anchor.current} props={props} onChange={onChange} workspaceId={workspaceId} onClose={() => setOpen(false)} />
+        <DatePopover anchor={anchor.current} props={props} onChange={onChange} reminders={reminders} workspaceId={workspaceId} onClose={() => setOpen(false)} />
       )}
     </>
   );
@@ -273,12 +281,14 @@ function DatePopover({
   anchor,
   props,
   onChange,
+  reminders,
   workspaceId,
   onClose,
 }: {
   anchor: HTMLElement;
   props: MentionProps;
   onChange: ((next: Partial<MentionProps>) => void) | null;
+  reminders: boolean;
   workspaceId: string | null;
   onClose: () => void;
 }) {
@@ -316,7 +326,7 @@ function DatePopover({
   };
   // A date typed with a time ("fri 5pm") is that day with a reminder then.
   const pickDate = (found: DatePhrase) => {
-    if (found.kind === "day") return setDate(found.day);
+    if (found.kind === "day" || !reminders) return setDate(found.day);
     onChange?.({ date: found.day, remindAt: found.at, id: props.id || newMentionId() });
   };
   // A reminder typed as a day ("-1d" from the date, "monday") is at 9:00 that day, like the choices above.
@@ -353,7 +363,7 @@ function DatePopover({
       ) : (
         <p className="font-medium">{formatIsoDate(props.date, locale)}</p>
       )}
-      {onChange && (
+      {onChange && reminders && (
         <>
           <p className="mt-3 text-xs text-fg-muted">{t("reminder")}</p>
           <div className="mt-1 flex flex-col">
@@ -378,7 +388,7 @@ function DatePopover({
           />
         </>
       )}
-      {onChange && props.remindAt && (
+      {onChange && reminders && props.remindAt && (
         <p className={cn("mt-2 text-xs", past ? "text-danger" : "text-fg-muted")}>
           {past
             ? t("reminderPast")
@@ -432,7 +442,8 @@ const Mention = createReactInlineContentSpec(mentionConfig, {
       return <LinkMentionChip props={props} onChange={editor.isEditable ? change : null} onBookmark={bookmarks ? toBookmark : null} />;
     }
     if (props.kind === "comment") return <CommentMentionChip pageId={props.pageId} threadId={props.threadId} />;
-    return <DateMentionChip props={props} onChange={editor.isEditable ? change : null} />;
+    // Comments, whose editor has no headings, keep the day alone (lib/comments CommentDate).
+    return <DateMentionChip props={props} onChange={editor.isEditable ? change : null} reminders={"heading" in editor.schema.blockSchema} />;
   },
   // Copied out of the editor: plain text and links other apps understand, never a title the
   // browser doesn't already show.
@@ -542,8 +553,55 @@ const DATE_ITEMS: DateItem[] = [
 
 type MentionTarget = { insertInlineContent: (content: never, options: { updateSelection: boolean }) => void };
 
+/**
+ * The days an @ menu offers for `query`: today, tomorrow and the like that match it, and a date
+ * written out ("2026-10-16", "next friday", "in 3 days", "aug 31", "fri 5pm") in the interface
+ * language or English (lib/date-phrase, loaded when the query could be one); `isDate` when the
+ * query reads as one. With `reminders`, one with a time of day ("fri 5pm", "in 2h") is that day
+ * with a reminder then; without (comments), just the day.
+ */
+export async function dateItems(
+  query: string,
+  { t, locale, insert, reminders }: { t: ReturnType<typeof useTranslations<"page.mention">>; locale: string; insert: (props: Partial<MentionProps>) => void; reminders: boolean },
+): Promise<{ dates: DefaultReactSuggestionItem[]; isDate: boolean }> {
+  const q = searchFold(query.trim());
+  const dates = DATE_ITEMS.flatMap((d): DefaultReactSuggestionItem[] => {
+    const title = t(d.key);
+    if (q && !searchFold(title).includes(q) && !searchFold(d.key).includes(q)) return [];
+    const date = localIsoDate(d.days);
+    return [
+      {
+        title,
+        subtext: formatIsoDate(date, locale),
+        group: t("dates"),
+        icon: <CalendarDays size={18} />,
+        onItemClick: () => insert({ kind: "date", id: newMentionId(), date }),
+      },
+    ];
+  });
+  const written = query.trim();
+  const phrase =
+    /[\p{L}\p{N}]/u.test(query) && written.length <= 40
+      ? (await import("@/lib/date-phrase")).parseDatePhrase(written, { locale, timeZone: browserTimeZone() })
+      : null;
+  const date = phrase?.day ?? null;
+  const remindAt = reminders && phrase?.kind === "moment" ? phrase.at : "";
+  if (date && (remindAt || !DATE_ITEMS.some((d) => localIsoDate(d.days) === date && dates.some((item) => item.title === t(d.key))))) {
+    const weekday = new Intl.DateTimeFormat(locale, { weekday: "long" }).format(new Date(`${date}T12:00:00`));
+    const when = remindAt ? new Date(remindAt).toLocaleString(locale, { dateStyle: "medium", timeStyle: "short" }) : "";
+    dates.unshift({
+      title: formatIsoDate(date, locale),
+      subtext: remindAt ? `${written} · ${t("reminderSet", { when })}` : written === date ? date : `${written} · ${weekday}`,
+      group: t("dates"),
+      icon: remindAt ? <Bell size={18} /> : <CalendarDays size={18} />,
+      onItemClick: () => insert({ kind: "date", id: newMentionId(), date, remindAt }),
+    });
+  }
+  return { dates, isDate: date !== null };
+}
+
 /** Puts a mention at the cursor, followed by a space. */
-function insertMention(editor: MentionTarget, props: Partial<MentionProps>) {
+export function insertMention(editor: MentionTarget, props: Partial<MentionProps>) {
   editor.insertInlineContent([{ type: "mention", props: { ...props } }, " "] as never, { updateSelection: true });
 }
 
@@ -615,47 +673,12 @@ export function MentionMenu({ editor, workspaceId, pageId }: { editor: PageEdito
       } catch {
         // Keep the last answer.
       }
-      const q = searchFold(query.trim());
       const people = found.people.map((p) => personItem(editor, p, t("people")));
       const groups = found.groups.map((g) => groupItem(editor, g, t("groups"), (count) => t("groupMembers", { count })));
       const pages = found.pages.map((p) => pageItem(p, () => insertPageMention(editor, workspaceId, p)));
-      const dates = DATE_ITEMS.flatMap((d): DefaultReactSuggestionItem[] => {
-        const title = t(d.key);
-        if (q && !searchFold(title).includes(q) && !searchFold(d.key).includes(q)) return [];
-        const date = localIsoDate(d.days);
-        return [
-          {
-            title,
-            subtext: formatIsoDate(date, locale),
-            group: t("dates"),
-            icon: <CalendarDays size={18} />,
-            onItemClick: () => insert({ kind: "date", id: newMentionId(), date }),
-          },
-        ];
-      });
-      // A date written out: "2026-10-16", "next friday", "in 3 days", "aug 31", "fri 5pm", in the
-      // interface language or English (lib/date-phrase, loaded when the query could be one). One
-      // with a time of day ("fri 5pm", "in 2h") is that day with a reminder then.
-      const written = query.trim();
-      const phrase =
-        /[\p{L}\p{N}]/u.test(query) && written.length <= 40
-          ? (await import("@/lib/date-phrase")).parseDatePhrase(written, { locale, timeZone: browserTimeZone() })
-          : null;
-      const date = phrase?.day ?? null;
-      const remindAt = phrase?.kind === "moment" ? phrase.at : "";
-      if (date && (remindAt || !DATE_ITEMS.some((d) => localIsoDate(d.days) === date && dates.some((item) => item.title === t(d.key))))) {
-        const weekday = new Intl.DateTimeFormat(locale, { weekday: "long" }).format(new Date(`${date}T12:00:00`));
-        const when = remindAt ? new Date(remindAt).toLocaleString(locale, { dateStyle: "medium", timeStyle: "short" }) : "";
-        dates.unshift({
-          title: formatIsoDate(date, locale),
-          subtext: remindAt ? `${written} · ${t("reminderSet", { when })}` : written === date ? date : `${written} · ${weekday}`,
-          group: t("dates"),
-          icon: remindAt ? <Bell size={18} /> : <CalendarDays size={18} />,
-          onItemClick: () => insert({ kind: "date", id: newMentionId(), date, remindAt }),
-        });
-      }
+      const { dates, isDate } = await dateItems(query, { t, locale, insert, reminders: true });
       // A query that reads as a date is most likely meant as one.
-      return date ? [...dates, ...people, ...groups, ...pages] : [...people, ...groups, ...pages, ...dates];
+      return isDate ? [...dates, ...people, ...groups, ...pages] : [...people, ...groups, ...pages, ...dates];
     },
     [editor, workspaceId, pageId, insert, pageItem, t, locale],
   );

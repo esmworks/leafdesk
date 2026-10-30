@@ -209,6 +209,8 @@
     "unarchive": "Chuyển về hộp thư",
     "archiveRead": "Lưu trữ mục đã đọc",
     "emptyArchived": "Chưa lưu trữ mục nào",
+    "emptyUnread": "Không có thông báo chưa đọc",
+    "unreadOnly": "Chỉ chưa đọc",
     "rowChange": "<prop>{property}</prop>: <old>{from}</old> → <new>{to}</new>",
     "rowTitle": "Tiêu đề",
     "rowChangesMore": "{count, plural, other {và # thay đổi nữa}}",

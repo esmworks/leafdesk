@@ -15,12 +15,12 @@ import { workspaceSettings } from "@/server/workspaces";
 /**
  * The inbox, only the email that came in on rows (`tab` "email") or the archived notifications
  * (`tab` "archived"), and whether the workspace has email on rows turned on (the Email tab shows
- * only then).
+ * only then). `unread`: only the notifications not read yet.
  */
-export async function listInboxAction(workspaceId: string, tab: "all" | "email" | "archived" = "all") {
+export async function listInboxAction(workspaceId: string, tab: "all" | "email" | "archived" = "all", unread = false) {
   const userId = await requireUserId();
   const [items, settings] = await Promise.all([
-    listInbox(userId, workspaceId, tab === "email" ? ["row_email"] : undefined, tab === "archived"),
+    listInbox(userId, workspaceId, tab === "email" ? ["row_email"] : undefined, tab === "archived", unread === true),
     workspaceSettings(workspaceId),
   ]);
   return { items, email: settings.email };

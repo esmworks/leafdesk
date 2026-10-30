@@ -132,6 +132,8 @@
     "addView": "Ajouter une vue",
     "addViewHeading": "Ajouter une vue",
     "more": "{count, plural, one {# autre} other {# autres}}",
+    "searchViews": "Rechercher des vues",
+    "noViewMatches": "Aucune vue ne correspond",
     "personal": "Rien que pour moi",
     "personalHint": "Une vue personnelle : personne d'autre ne la voit",
     "personalOnly": "Vous ne pouvez pas modifier les vues partagées de cette base, les nouvelles vues sont donc personnelles : vous seul les voyez.",

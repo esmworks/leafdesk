@@ -4,6 +4,26 @@
 
 ### Added
 
+- **Days in comments.** `@` in a comment box offers days beside people, groups and agents:
+  *Today*, *Tomorrow*, *Yesterday*, *Next week* or one written out (`@next friday`,
+  `@2026-11-06`). The day stays a day in the stored comment and shows in each reader's language,
+  in the comments panel, a feed view and exported comments (as YYYY-MM-DD); unlike a page's, it
+  has no reminder. Before, a day pasted into a comment became its text.
+
+- **Up arrow edits your last comment.** In an empty reply box, the up arrow opens your latest
+  comment in the thread for editing.
+
+- **Unread only in the inbox.** Beside the inbox's tabs, *Unread only* lists just the
+  notifications you haven't read, in All and Email.
+
+- **Search a database's views.** Once six or more view tabs don't fit the row, the "more" menu
+  starts with a search field that finds any of the database's views by name; Enter opens the
+  first match.
+
+- **Pin tabs in the desktop app.** A tab's right-click menu has *Pin Tab*: pinned tabs stay at the
+  start of the strip as their icon alone, with no close button, new tabs open after them, *Close
+  Other Tabs* leaves them, and they come back pinned at the next start.
+
 - **Keep a database in step with a Google Calendar calendar, both ways.** Import's new *Google
   Calendar* tab reads the main calendar, or another one the account sees, through the workspace's
   Google Calendar connection: its events from 90 days back to a year ahead become rows with title,

@@ -4,7 +4,7 @@
  * open a tab's menu. A plain script, not a module, like app.ts; built with tsconfig.pages.json.
  */
 
-type StripTab = { id: number; title: string; icon: string | null; loading: boolean; away: string | null };
+type StripTab = { id: number; title: string; icon: string | null; loading: boolean; away: string | null; pinned: boolean };
 
 type StripState = {
   tabs: StripTab[];
@@ -69,6 +69,8 @@ interface Window {
     element.title = tab.away ? `${tab.away} · ${tab.title}` : tab.title;
     // A tab off the server (signing in elsewhere) shows where it is first, as an address bar would.
     element.classList.toggle("away", !!tab.away);
+    // A pinned tab is its icon alone, with no close button (the menu, a middle click and the keys still close it).
+    element.classList.toggle("pinned", tab.pinned);
 
     const mark = document.createElement("span");
     mark.className = tab.loading ? "icon loading" : "icon";
@@ -98,7 +100,8 @@ interface Window {
       event.stopPropagation();
       bridge.close(tab.id);
     });
-    element.append(mark, title, close);
+    if (tab.pinned) element.append(mark, title);
+    else element.append(mark, title, close);
     return element;
   };
 
@@ -121,7 +124,7 @@ interface Window {
     for (const element of list.children) element.classList.toggle("narrow", (element as HTMLElement).offsetWidth < NARROW);
   };
 
-  /** Where among the other tabs a dragged one goes, by the pointer's place. */
+  /** Where among the other tabs a dragged one goes, by the pointer's place: among the pinned tabs or after them, as it is. */
   const dropIndex = (x: number, dragged: HTMLElement) => {
     const others = [...list.children].filter((element) => element !== dragged) as HTMLElement[];
     const rtl = document.documentElement.dir === "rtl";
@@ -131,7 +134,8 @@ interface Window {
       const middle = box.left + box.width / 2;
       if (rtl ? x < middle : x > middle) index += 1;
     }
-    return index;
+    const pinned = others.filter((other) => other.classList.contains("pinned")).length;
+    return dragged.classList.contains("pinned") ? Math.min(index, pinned) : Math.max(index, pinned);
   };
 
   const endDrag = () => {

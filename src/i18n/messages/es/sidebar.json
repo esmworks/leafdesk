@@ -209,6 +209,8 @@
     "unarchive": "Mover a la bandeja",
     "archiveRead": "Archivar leídas",
     "emptyArchived": "No hay nada archivado",
+    "emptyUnread": "No hay notificaciones sin leer",
+    "unreadOnly": "Solo sin leer",
     "rowChange": "<prop>{property}</prop>: <old>{from}</old> → <new>{to}</new>",
     "rowTitle": "Título",
     "rowChangesMore": "{count, plural, one {y # cambio más} other {y # cambios más}}",

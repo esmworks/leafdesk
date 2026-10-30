@@ -8,6 +8,8 @@
 export class TabList {
   ids: number[] = [];
   active: number | null = null;
+  /** Pinned tabs: always first in the strip, a new tab never goes among them. */
+  readonly pinned = new Set<number>();
   /** Tabs opened from the shown one (a link opened in a new tab) since it was shown: the next goes after them. */
   private openedFromActive: number[] = [];
 
@@ -21,7 +23,7 @@ export class TabList {
       const after = [this.active, ...this.openedFromActive].map((tab) => this.ids.indexOf(tab)).filter((at) => at >= 0);
       index = Math.max(...after) + 1;
     }
-    this.ids.splice(index, 0, id);
+    this.ids.splice(Math.max(index, this.pinned.size), 0, id);
     if (show) this.show(id);
     else if (fromActive) this.openedFromActive.push(id);
   }
@@ -42,6 +44,7 @@ export class TabList {
     const index = this.ids.indexOf(id);
     if (index < 0) return this.active;
     this.ids.splice(index, 1);
+    this.pinned.delete(id);
     this.openedFromActive = this.openedFromActive.filter((tab) => tab !== id);
     if (this.active === id) {
       this.active = this.ids[Math.min(index, this.ids.length - 1)] ?? null;
@@ -50,12 +53,23 @@ export class TabList {
     return this.active;
   }
 
-  /** Moves a tab to `index` in the strip (clamped). */
+  /** Moves a tab to `index` in the strip, kept among the pinned tabs or after them, as it is. */
   move(id: number, index: number) {
     const from = this.ids.indexOf(id);
     if (from < 0) return;
     this.ids.splice(from, 1);
-    this.ids.splice(Math.max(0, Math.min(Math.trunc(index), this.ids.length)), 0, id);
+    const pinned = this.pinned.has(id);
+    const others = this.pinned.size - (pinned ? 1 : 0);
+    const [min, max] = pinned ? [0, others] : [others, this.ids.length];
+    this.ids.splice(Math.max(min, Math.min(Math.trunc(index), max)), 0, id);
+  }
+
+  /** Pins a tab, after the tabs pinned already, or unpins it, right after them. */
+  pin(id: number, pin = true) {
+    if (!this.ids.includes(id) || this.pinned.has(id) === pin) return;
+    if (pin) this.pinned.add(id);
+    else this.pinned.delete(id);
+    this.move(id, pin ? this.pinned.size - 1 : this.pinned.size);
   }
 
   /** The tab `step` places after the shown one (before it, for a negative step), going round. */
@@ -72,9 +86,9 @@ export class TabList {
     return this.ids[number - 1] ?? null;
   }
 
-  /** The other tabs, for Close Other Tabs. */
+  /** The other tabs but the pinned ones, for Close Other Tabs. */
   others(id: number) {
-    return this.ids.filter((tab) => tab !== id);
+    return this.ids.filter((tab) => tab !== id && !this.pinned.has(tab));
   }
 }
 
@@ -141,8 +155,8 @@ export function tabShortcuts(platform: NodeJS.Platform) {
   };
 }
 
-/** One tab as it is kept for the next start: its path on the server, and its title and icon to show until it loads. */
-export type SavedTab = { path: string; title?: string; icon?: string };
+/** One tab as it is kept for the next start: its path on the server, its title and icon to show until it loads, and whether it is pinned. */
+export type SavedTab = { path: string; title?: string; icon?: string; pinned?: true };
 export type SavedWindow = { tabs: SavedTab[]; active: number };
 /** The windows' tabs on one server: its origin, or "local" for Leafdesk on this computer (last-page.ts). */
 export type SavedTabs = { server: string; windows: SavedWindow[] };
@@ -181,9 +195,10 @@ function isTabPath(path: unknown): path is string {
 
 function readTab(value: unknown): SavedTab | null {
   if (!value || typeof value !== "object") return null;
-  const { path, title, icon } = value as Partial<SavedTab>;
+  const { path, title, icon, pinned } = value as Partial<SavedTab>;
   if (!isTabPath(path)) return null;
   const tab: SavedTab = { path };
+  if (pinned === true) tab.pinned = true;
   if (typeof title === "string" && title) tab.title = title.slice(0, MAX_TITLE);
   const saved = readIcon(icon);
   if (saved) tab.icon = saved;

@@ -132,6 +132,8 @@
     "addView": "Görünüm ekle",
     "addViewHeading": "Görünüm ekleyin",
     "more": "{count, plural, one {# tane daha} other {# tane daha}}",
+    "searchViews": "Görünümlerde ara",
+    "noViewMatches": "Eşleşen görünüm yok",
     "personal": "Yalnızca benim için",
     "personalHint": "Kişisel görünüm: başka kimse görmez",
     "personalOnly": "Bu veritabanının ortak görünümlerini değiştiremezsiniz; bu yüzden yeni görünümler kişiseldir, yalnızca siz görürsünüz.",

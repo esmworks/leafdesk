@@ -1290,8 +1290,8 @@ async function approvalsOf(viewer: string, runIds: string[]): Promise<Map<string
   return out;
 }
 
-export async function listInbox(userId: string, workspaceId: string, kinds?: NotificationKind[], archived = false): Promise<InboxItem[]> {
-  return listNotifications(userId, { workspaceId, kinds, archived });
+export async function listInbox(userId: string, workspaceId: string, kinds?: NotificationKind[], archived = false, unreadOnly = false): Promise<InboxItem[]> {
+  return listNotifications(userId, { workspaceId, kinds, archived, unreadOnly });
 }
 
 /**

@@ -209,6 +209,8 @@
     "unarchive": "Przenieś do skrzynki",
     "archiveRead": "Archiwizuj przeczytane",
     "emptyArchived": "Nic nie zarchiwizowano",
+    "emptyUnread": "Brak nieprzeczytanych powiadomień",
+    "unreadOnly": "Tylko nieprzeczytane",
     "rowChange": "<prop>{property}</prop>: <old>{from}</old> → <new>{to}</new>",
     "rowTitle": "Tytuł",
     "rowChangesMore": "{count, plural, one {i # inna zmiana} few {i # inne zmiany} many {i # innych zmian} other {i # innych zmian}}",

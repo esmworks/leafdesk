@@ -132,6 +132,8 @@
     "addView": "Lisää näkymä",
     "addViewHeading": "Lisää näkymä",
     "more": "{count, plural, one {# muu} other {# muuta}}",
+    "searchViews": "Hae näkymiä",
+    "noViewMatches": "Ei vastaavia näkymiä",
     "personal": "Vain minulle",
     "personalHint": "Henkilökohtainen näkymä: kukaan muu ei näe sitä",
     "personalOnly": "Et voi muuttaa tämän tietokannan jaettuja näkymiä, joten uudet näkymät ovat henkilökohtaisia: vain sinä näet ne.",

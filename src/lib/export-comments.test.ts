@@ -95,11 +95,13 @@ describe("commentMarkdown", () => {
       },
       { type: "paragraph", content: [{ type: "link", href: "https://example.com/a b", content: [text("the doc")] }] },
       { type: "paragraph", content: [text("# not a heading\n1. not a list")] },
+      { type: "paragraph", content: [text("Due "), { type: "mention", props: { kind: "date", date: "2026-11-02" } }] },
     ];
     expect(commentMarkdown(b)).toEqual([
       "Use **bold** and `` a`b `` \\*not\\* \\[this\\]",
       "[the doc](https://example.com/a%20b)",
       "\\# not a heading\n1\\. not a list",
+      "Due 2026-11-02",
     ]);
   });
 });

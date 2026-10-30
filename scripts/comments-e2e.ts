@@ -572,6 +572,28 @@ try {
   );
   await changeComments(ids.owner, doc.id, { type: "deleteThread", threadId: withImages.thread!.id });
 
+  // Days mentioned stay days, without the reminder a page's date has.
+  const dated = await changeComments(ids.owner, doc.id, {
+    type: "addComment",
+    threadId: thread.id,
+    body: [
+      {
+        type: "paragraph",
+        content: [
+          { type: "text", text: "Moved to ", styles: {} },
+          { type: "mention", props: { kind: "date", date: "2026-11-06", id: `${RUN}-d`, remindAt: "2026-11-05T09:00:00.000Z" } },
+        ],
+      },
+    ],
+  });
+  const stored = (await listComments(ids.editor, doc.id)).find((t) => t.id === thread.id)?.comments.find((c) => c.id === dated.comment?.id);
+  check(
+    JSON.stringify(stored?.body) ===
+      JSON.stringify([{ type: "paragraph", content: [{ type: "text", text: "Moved to ", styles: {} }, { type: "mention", props: { kind: "date", date: "2026-11-06" } }] }]),
+    "a day mentioned in a comment is kept as a day",
+    stored?.body,
+  );
+
   // Deleting
   await changeComments(ids.owner, doc.id, { type: "addComment", threadId: thread.id, body: "Unread one." });
   await changeComments(ids.owner, doc.id, { type: "deleteThread", threadId: thread.id });

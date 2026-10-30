@@ -174,7 +174,7 @@ describe("comment mentions", () => {
     expect(commentText(cleanCommentBody(body))).toBe("Over to @Bob@Bob");
   });
 
-  it("of pages and dates are sent as the text they show", () => {
+  it("of pages are sent as the text they show", () => {
     const pasted = [
       {
         type: "paragraph",
@@ -192,6 +192,26 @@ describe("comment mentions", () => {
     expect(commentMentions(sent)).toEqual(["bob"]);
     expect(commentText(cleanCommentBody(sent))).toBe("See Price list by 2026-11-02@Bob");
     expect(mentionsAsText("plain", () => null)).toBe("plain");
+  });
+
+  it("of days stay days, without their reminder or id", () => {
+    const written = [
+      {
+        type: "paragraph",
+        content: [
+          { type: "text", text: "Due ", styles: {} },
+          { type: "mention", props: { kind: "date", date: "2026-11-02", id: "m1", remindAt: "2026-11-01T09:00:00.000Z", pageId: "" } },
+          { type: "mention", props: { kind: "date", date: "2026-02-30" } },
+          { type: "mention", props: { kind: "date", date: "tomorrow" } },
+        ],
+      },
+    ];
+    const [block] = cleanCommentBody(mentionsAsText(written, () => null)) as { content: unknown[] }[];
+    expect(block.content).toEqual([
+      { type: "text", text: "Due ", styles: {} },
+      { type: "mention", props: { kind: "date", date: "2026-11-02" } },
+    ]);
+    expect(commentText([block])).toBe("Due 2026-11-02");
   });
 
   it("of links are sent as links with their title", () => {

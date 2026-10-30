@@ -132,6 +132,8 @@
     "addView": "Ansicht hinzufügen",
     "addViewHeading": "Ansicht hinzufügen",
     "more": "{count, plural, one {# weitere} other {# weitere}}",
+    "searchViews": "Ansichten durchsuchen",
+    "noViewMatches": "Keine passenden Ansichten",
     "personal": "Nur für mich",
     "personalHint": "Eine persönliche Ansicht: Niemand sonst sieht sie",
     "personalOnly": "Du kannst die gemeinsamen Ansichten dieser Datenbank nicht ändern, daher sind neue Ansichten persönlich: Nur du siehst sie.",

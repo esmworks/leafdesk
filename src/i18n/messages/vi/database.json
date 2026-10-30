@@ -132,6 +132,8 @@
     "addView": "Thêm chế độ xem",
     "addViewHeading": "Thêm một chế độ xem",
     "more": "{count, plural, other {# mục khác}}",
+    "searchViews": "Tìm chế độ xem",
+    "noViewMatches": "Không có chế độ xem nào khớp",
     "personal": "Chỉ mình tôi",
     "personalHint": "Chế độ xem riêng: không ai khác thấy",
     "personalOnly": "Bạn không thể thay đổi các chế độ xem chung của cơ sở dữ liệu này, nên chế độ xem mới là riêng tư: chỉ bạn thấy.",

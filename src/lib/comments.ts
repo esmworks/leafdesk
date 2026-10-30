@@ -4,7 +4,7 @@
  * property values are kept apart, on the server only (server/property-comments.ts), since not
  * everyone who opens the row may see every value. Only the server writes them (see
  * server/comments.ts), so who wrote what can be trusted. A comment's body is a small BlockNote
- * document: paragraphs of styled text and links, and the images attached to it.
+ * document: paragraphs of styled text, links and dates, and the images attached to it.
  */
 
 import { fileIdOf, fileUrl } from "./files";
@@ -85,7 +85,9 @@ export type PlainThread = {
 
 type Styles = Partial<Record<(typeof STYLES)[number], true>>;
 type Text = { type: "text"; text: string; styles: Styles };
-type Inline = Text | { type: "link"; href: string; content: Text[] };
+/** A day mentioned (`@tomorrow`), shown in each reader's language; no reminder, unlike on pages. */
+export type CommentDate = { type: "mention"; props: { kind: "date"; date: string } };
+type Inline = Text | { type: "link"; href: string; content: Text[] } | CommentDate;
 export type CommentParagraph = { type: "paragraph"; content: Inline[] };
 /** Images attached to a comment, their URLs (`/api/files/<id>`) a line each: BlockNote props are strings. */
 export type CommentImages = { type: "images"; props: { urls: string } };
@@ -121,6 +123,13 @@ export function safeHref(href: unknown): string | null {
   }
 }
 
+/** Whether `value` is a real day written YYYY-MM-DD (lib/mentions isIsoDate, which brings Yjs along). */
+function isCalendarDay(value: unknown): value is string {
+  if (typeof value !== "string" || !/^\d{4}-\d{2}-\d{2}$/.test(value)) return false;
+  const date = new Date(`${value}T00:00:00Z`);
+  return !Number.isNaN(date.getTime()) && date.toISOString().slice(0, 10) === value;
+}
+
 function cleanText(node: unknown): Text | null {
   if (!isRecord(node) || node.type !== "text" || typeof node.text !== "string") return null;
   const styles: Styles = {};
@@ -140,15 +149,18 @@ function cleanInline(node: unknown): Inline[] {
   if (isRecord(node) && node.type === "mention" && isRecord(node.props) && typeof node.props.name === "string" && node.props.name) {
     return [{ type: "text", text: `@${node.props.name}`, styles: {} }];
   }
+  if (isRecord(node) && node.type === "mention" && isRecord(node.props) && node.props.kind === "date" && isCalendarDay(node.props.date)) {
+    return [{ type: "mention", props: { kind: "date", date: node.props.date } }];
+  }
   const text = cleanText(node);
   return text ? [text] : [];
 }
 
 /**
  * A comment body the way it is stored: paragraphs of text with bold, italic, underline, strike or
- * code, and web or email links, then the images attached to it (uploaded files, one block of at
- * most MAX_COMMENT_IMAGES). People mentioned become their name as text; other blocks, styles
- * and attributes are left out; plain strings become one paragraph per line. Throws CommentError
+ * code, web or email links and days mentioned, then the images attached to it (uploaded files, one
+ * block of at most MAX_COMMENT_IMAGES). People mentioned become their name as text; other blocks,
+ * styles and attributes are left out; plain strings become one paragraph per line. Throws CommentError
  * for empty or overlong comments; a comment of only images is not empty.
  */
 export function cleanCommentBody(body: unknown): CommentBody {
@@ -216,7 +228,7 @@ export function isEmojiOnly(text: string): boolean {
   );
 }
 
-/** A comment's text, one line per paragraph (links as their text; images left out). */
+/** A comment's text, one line per paragraph (links as their text, days as YYYY-MM-DD; images left out). */
 export function commentText(body: unknown): string {
   if (!Array.isArray(body)) return "";
   return body
@@ -229,6 +241,7 @@ export function commentText(body: unknown): string {
           if (typeof node === "string") return node;
           if (!isRecord(node)) return "";
           if (node.type === "link") return commentText([{ content: node.content }]);
+          if (node.type === "mention" && isRecord(node.props) && node.props.kind === "date") return typeof node.props.date === "string" ? node.props.date : "";
           return typeof node.text === "string" ? node.text : "";
         })
         .join("");
@@ -246,24 +259,24 @@ export function threadParticipants(thread: Pick<PlainThread, "comments">, author
 }
 
 /**
- * A comment body as the comment box sends it, with page and date mentions turned into the text they
- * show: the page's title (`pageTitle`, nothing when unknown) or the date. Comments keep only people
- * and groups mentioned (cleanCommentBody), and a mention pasted from a page would otherwise leave nothing.
+ * A comment body as the comment box sends it, with page mentions turned into the text they show:
+ * the page's title (`pageTitle`, nothing when unknown). Comments keep only people, groups and days
+ * mentioned (cleanCommentBody), and a mention pasted from a page would otherwise leave nothing.
  */
 export function mentionsAsText(body: unknown, pageTitle: (pageId: string) => string | null): unknown {
   if (!Array.isArray(body)) return body;
   return body.map((block) => {
     if (!isRecord(block) || !Array.isArray(block.content)) return block;
     const content = block.content.flatMap((node: unknown) => {
-      if (!isRecord(node) || node.type !== "mention" || !isRecord(node.props) || node.props.kind === "user" || node.props.kind === "group") return [node];
-      const { kind, pageId, date } = node.props;
+      if (!isRecord(node) || node.type !== "mention" || !isRecord(node.props) || ["user", "group", "date"].includes(String(node.props.kind))) return [node];
+      const { kind, pageId } = node.props;
       if (kind === "link") {
         // A link mention is a link with its title (lib/link-mentions linkMentionTitle).
         const href = parseWebUrl(node.props.url)?.href;
         const title = typeof node.props.title === "string" ? node.props.title.replace(/\s+/g, " ").trim() : "";
         return href ? [{ type: "link", href, content: [{ type: "text", text: title || displayHost(href), styles: {} }] }] : [];
       }
-      const text = kind === "date" ? date : typeof pageId === "string" ? pageTitle(pageId) : null;
+      const text = typeof pageId === "string" ? pageTitle(pageId) : null;
       return typeof text === "string" && text ? [{ type: "text", text, styles: {} }] : [];
     });
     return { ...block, content };

@@ -273,6 +273,10 @@ BlockNote on Yjs; Tailwind v4; next-intl. Node 24, pnpm 11. A separate Electron 
   RegExp objects with flags `dgu`; the precompiled engine compiles no strings). Downloads of files
   on other sites go through `app/api/files/external` (connections' address checks only). Comment
   mentions and previews: `lib/comment-refs.ts`, resolved per reader by `server/comment-refs.ts`.
+  A stored comment keeps people as `@name` text but days as date mentions (`lib/comments.ts`
+  `CommentDate`); a renderer of comment bodies handles text, links and those. ↑ in an empty reply
+  (`page/comment-mentions.tsx`) calls the handler of BlockNote's "Edit" item, found among a
+  comment's actions by its key `edit-comment`: check it after a BlockNote upgrade.
   Cmd/Ctrl+Alt+T: `components/toggle-all.ts` (views with groups join through `useToggleAllGroups`).
   Dictation at the caret: `components/page/dictation.tsx` (phases in `lib/dictation.ts`; recording,
   the transcribe request and one-dictation-at-a-time shared with the chat in `voice/dictation.ts`).

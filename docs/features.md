@@ -350,6 +350,9 @@
   - A view tab (its menu → *Icon*) and a property (its menu, beside the name) can have their own
     icon from the same picker, shown in the view bar, the table header, row pages, the sidebar and
     published pages instead of the type's.
+  - View tabs that don't fit the row go into a "N more" menu at its end; once it holds six or more,
+    it starts with a search field that finds any of the database's views by name (Enter opens the
+    first).
   - Each view with rows can leave out the rows' page icons (Layout → *Show page icons*; published
     views too), and a calendar can leave out Saturdays and Sundays (*Show weekends*, month and
     week alike): its weekdays then share the width, and rows only on a weekend are listed under it
@@ -652,6 +655,10 @@
   *Mute replies*, which keeps its new comments from reaching you until you reply or are mentioned
   there. A comment can carry up to ten images (the image button under the box, or paste or drop
   them), shown as thumbnails that fold past four; a comment of just a few emoji shows them large.
+  `@` in a comment offers people, groups and agents, and days: *Today*, *Tomorrow* or one written
+  out (`@next friday`, `@2026-11-06`), shown to each reader in their language (a comment's day has
+  no reminder, unlike a page's). Up arrow in an empty reply box edits your last comment in the
+  thread.
 - **Suggested edits**: switch the page header from *Editing* to *Suggesting* and changes show as
   suggestions instead: inserted text underlined, deleted text struck through but kept, new
   formatting marked, live for everyone. Each is a thread in the comments panel, in its author's
@@ -756,9 +763,9 @@
   yet. On a phone, swipe an item toward the end of the line to mark it read (or unread again) and
   toward its start to snooze it until tomorrow morning. Archive an item, or every read one at once
   (*Archive read*), to clear the inbox: archived items are read, listed under *Archived* and can be
-  moved back. Choose per kind whether it shows in the
-  inbox, whether it comes by email and, on the devices where you turn them on, as a [push
-  notification](self-hosting.md#push-notifications).
+  moved back. *Unread only*, beside the tabs, lists just what you haven't read. Choose per kind
+  whether it shows in the inbox, whether it comes by email and, on the devices where you turn them
+  on, as a [push notification](self-hosting.md#push-notifications).
 - **Verified pages**: someone with full access marks a page, database or row as checked and right
   from the page's `⋯` menu, for a week, a month, three months or a year, until a day they choose,
   or with no end. Under the title a badge says who verified it and until when, and once that day

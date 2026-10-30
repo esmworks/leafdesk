@@ -132,6 +132,8 @@
     "addView": "ビューを追加",
     "addViewHeading": "ビューを追加",
     "more": "{count, plural, other {他 # 件}}",
+    "searchViews": "ビューを検索",
+    "noViewMatches": "一致するビューはありません",
     "personal": "自分だけ",
     "personalHint": "個人用ビュー：ほかの人には表示されません",
     "personalOnly": "このデータベースの共有ビューは変更できないため、新しいビューは個人用になり、あなただけに表示されます。",

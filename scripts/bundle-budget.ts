@@ -101,7 +101,7 @@ import { gzipSync } from "node:zlib";
  * which the sidebar and pages load) add about 1 kB to a page's first load and about 2 kB to all
  * first loads together.
  */
-const BUDGET = { routeFirstLoad: 786, firstLoadShared: 1196, onDemandChunk: 450 };
+const BUDGET = { routeFirstLoad: 787, firstLoadShared: 1197, onDemandChunk: 450 };
 
 const NEXT = ".next";
 const kB = (bytes: number) => bytes / 1024;

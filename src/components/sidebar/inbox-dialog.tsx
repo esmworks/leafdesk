@@ -1,6 +1,6 @@
 "use client";
 
-import { AlarmClock, Archive, ArchiveRestore, CalendarClock, Check, CheckCheck, ChevronDown, ChevronRight, ClipboardCheck, Inbox, KeyRound, Mail, NotebookPen, ShieldQuestion, UserPlus } from "lucide-react";
+import { AlarmClock, Archive, ArchiveRestore, CalendarClock, Check, CheckCheck, ChevronDown, ChevronRight, ClipboardCheck, Inbox, KeyRound, ListFilter, Mail, NotebookPen, ShieldQuestion, UserPlus } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useLocale, useTranslations } from "next-intl";
 import { useMemo, useState, useEffect } from "react";
@@ -65,12 +65,15 @@ export function InboxDialog({
   const [tab, setTab] = useState<"all" | "email" | "archived">("all");
   const archivedTab = tab === "archived";
   const [emailTab, setEmailTab] = useState(false);
+  // Only the notifications not read yet (not in the archive, where they are read).
+  const [unreadOnly, setUnreadOnly] = useState(false);
+  const onlyUnread = unreadOnly && !archivedTab;
 
   useEffect(() => {
     if (!open) return;
     let current = true;
     setError(false);
-    read("inbox", workspaceId, tab).then(
+    read("inbox", workspaceId, tab, onlyUnread).then(
       (list) => {
         if (!current) return;
         setItems(list.items);
@@ -82,10 +85,11 @@ export function InboxDialog({
     return () => {
       current = false;
     };
-  }, [open, workspaceId, version, tab]);
+  }, [open, workspaceId, version, tab, onlyUnread]);
 
   const markRead = async (ids?: string[]) => {
-    setItems((list) => list?.map((item) => (!ids || ids.includes(item.id) ? { ...item, read: true } : item)) ?? list);
+    // Unread only: what is read leaves the list.
+    setItems((list) => list?.flatMap((item) => (!ids || ids.includes(item.id) ? (onlyUnread ? [] : [{ ...item, read: true }]) : [item])) ?? list);
     try {
       await markReadAction(workspaceId, ids);
     } catch {
@@ -509,7 +513,7 @@ export function InboxDialog({
       <div className="border-b border-border">
         <div className="flex items-center gap-1 px-4 pt-3.5">
           <h2 className="me-auto min-w-0 truncate text-base font-semibold">{t("title")}</h2>
-          {tab === "all" && items?.some((item) => item.read) && (
+          {tab === "all" && !onlyUnread && items?.some((item) => item.read) && (
             <Button size="sm" variant="ghost" className="whitespace-nowrap" title={t("archiveRead")} onClick={() => void archiveRead()}>
               <Archive aria-hidden className="h-3.5 w-3.5" />
               {/* On a phone the icons alone, so the title keeps its line. */}
@@ -524,29 +528,50 @@ export function InboxDialog({
             </Button>
           )}
         </div>
-        <div role="tablist" aria-label={t("tabs")} className="mt-1.5 flex gap-4 px-4">
-          {(emailTab ? (["all", "email", "archived"] as const) : (["all", "archived"] as const)).map((value) => (
+        <div className="mt-1.5 flex gap-4 px-4">
+          <div role="tablist" aria-label={t("tabs")} className="flex gap-4">
+            {(emailTab ? (["all", "email", "archived"] as const) : (["all", "archived"] as const)).map((value) => (
+              <button
+                key={value}
+                type="button"
+                role="tab"
+                aria-selected={tab === value}
+                className={cn(
+                  "-mb-px flex items-center gap-1.5 border-b-2 py-2 text-sm whitespace-nowrap transition-colors",
+                  tab === value ? "border-fg font-medium text-fg" : "border-transparent text-fg-muted hover:text-fg",
+                )}
+                onClick={() => {
+                  if (tab === value) return;
+                  setItems(null);
+                  setTab(value);
+                }}
+              >
+                {value === "all" ? t("tabAll") : value === "email" ? t("tabEmail") : t("tabArchived")}
+                {value === "all" && tab === "all" && unread.length > 0 && (
+                  <span className="rounded bg-accent px-1.5 text-[11px] leading-4 font-medium text-accent-fg tabular-nums">{unread.length}</span>
+                )}
+              </button>
+            ))}
+          </div>
+          {!archivedTab && (
             <button
-              key={value}
               type="button"
-              role="tab"
-              aria-selected={tab === value}
+              aria-pressed={unreadOnly}
+              title={t("unreadOnly")}
               className={cn(
-                "-mb-px flex items-center gap-1.5 border-b-2 py-2 text-sm whitespace-nowrap transition-colors",
-                tab === value ? "border-fg font-medium text-fg" : "border-transparent text-fg-muted hover:text-fg",
+                "ms-auto -mb-px flex items-center gap-1.5 border-b-2 border-transparent py-2 text-sm whitespace-nowrap transition-colors",
+                unreadOnly ? "font-medium text-accent" : "text-fg-muted hover:text-fg",
               )}
               onClick={() => {
-                if (tab === value) return;
                 setItems(null);
-                setTab(value);
+                setUnreadOnly(!unreadOnly);
               }}
             >
-              {value === "all" ? t("tabAll") : value === "email" ? t("tabEmail") : t("tabArchived")}
-              {value === "all" && tab === "all" && unread.length > 0 && (
-                <span className="rounded bg-accent px-1.5 text-[11px] leading-4 font-medium text-accent-fg tabular-nums">{unread.length}</span>
-              )}
+              <ListFilter aria-hidden className="h-3.5 w-3.5" />
+              {/* On a phone the icon alone, so the tabs keep their line. */}
+              <span className="max-sm:sr-only">{t("unreadOnly")}</span>
             </button>
-          ))}
+          )}
         </div>
       </div>
       {error && (
@@ -558,7 +583,7 @@ export function InboxDialog({
         {items?.length === 0 && (
           <li className="flex flex-col items-center gap-2 px-3 py-10 text-center text-sm text-fg-muted">
             <Inbox aria-hidden className="h-6 w-6 text-fg-faint" strokeWidth={1.5} />
-            {tab === "email" ? t("emptyEmail") : archivedTab ? t("emptyArchived") : t("empty")}
+            {archivedTab ? t("emptyArchived") : onlyUnread ? t("emptyUnread") : tab === "email" ? t("emptyEmail") : t("empty")}
           </li>
         )}
         {entries?.map((entry) => (entry.type === "item" ? itemRow(entry.item) : groupRow(entry)))}

@@ -17,8 +17,24 @@ import {
   type DefaultReactSuggestionItem,
 } from "@blocknote/react";
 import { ImagePlus } from "lucide-react";
-import { useTranslations } from "next-intl";
-import { createContext, forwardRef, useCallback, useContext, useMemo, useRef, useState, type ClipboardEvent, type DragEvent, type ReactNode } from "react";
+import { useLocale, useTranslations } from "next-intl";
+import {
+  createContext,
+  forwardRef,
+  isValidElement,
+  useCallback,
+  useContext,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+  type ClipboardEvent,
+  type ComponentType,
+  type DragEvent,
+  type KeyboardEvent,
+  type ReactNode,
+  type Ref,
+} from "react";
 import { commentMentionCandidatesAction } from "@/app/actions/mentions";
 import { CommentImageGallery } from "@/components/comment-images";
 import { showToast } from "@/components/toast";
@@ -26,12 +42,12 @@ import { IconButton } from "@/components/ui";
 import { COMMENT_IMAGE_TYPES, commentText, isEmojiOnly, MAX_COMMENT_IMAGES } from "@/lib/comments";
 import { formatBytes } from "@/lib/files";
 import { searchFold } from "@/lib/search-fold";
-import { agentItem, groupItem, mentionInlineSpecs, personItem } from "./mentions";
+import { agentItem, dateItems, groupItem, insertMention, mentionInlineSpecs, personItem } from "./mentions";
 
 // Comments keep the default comment editor's blocks and styles (no colors), and add mentions of
 // people, groups and agents: the server notifies the people (and the groups' members), starts the
-// agents (server/comments) and stores their names as text. Images attached to a comment are one
-// block after its text (lib/comments CommentImages).
+// agents (server/comments) and stores their names as text. Days mentioned stay days (lib/comments
+// CommentDate). Images attached to a comment are one block after its text (lib/comments CommentImages).
 const { textColor: _textColor, backgroundColor: _backgroundColor, ...commentStyleSpecs } = defaultStyleSpecs;
 
 const urlsOf = (urls: string) => urls.split("\n").filter(Boolean);
@@ -63,12 +79,15 @@ const CommentPageContext = createContext<string | null>(null);
 
 /**
  * The comment UI inside it (the threads panel, the floating composer and thread) writes comments
- * in an editor with an @ menu for people.
+ * in an editor with an @ menu for people, where ↑ in an empty reply edits one's last comment.
  */
 export function CommentComponents({ pageId, children }: { pageId: string; children: ReactNode }) {
   const components = useComponentsContext();
   const value = useMemo(
-    () => (components ? { ...components, Comments: { ...components.Comments, Editor: CommentEditorView } } : undefined),
+    () =>
+      components
+        ? { ...components, Comments: { ...components.Comments, Editor: CommentEditorView, Comment: editableComment(components.Comments.Comment) } }
+        : undefined,
     [components],
   );
   return (
@@ -79,6 +98,73 @@ export function CommentComponents({ pageId, children }: { pageId: string; childr
 }
 
 type CommentEditor = ComponentProps["Comments"]["Editor"]["editor"];
+
+// ↑ in an empty reply edits the last comment of one's own in the thread. BlockNote keeps whether a
+// comment is being edited inside its comment and offers it only as the "Edit" item of the
+// comment's ⋯ menu, which it hands the comment's look (Comments.Comment) among its actions. That
+// look, wrapped here, finds the item's handler (BlockNote's key "edit-comment"; set only on
+// comments one may change, while not editing) and keeps it by the comment's element.
+const commentEdits = new WeakMap<Element, () => void>();
+
+/** The handler of the "Edit" item among a comment's actions, if they have one. */
+function editHandlerIn(node: ReactNode): (() => void) | undefined {
+  if (Array.isArray(node)) {
+    for (const child of node) {
+      const found = editHandlerIn(child);
+      if (found) return found;
+    }
+    return undefined;
+  }
+  if (!isValidElement<{ children?: ReactNode; onClick?: () => void }>(node)) return undefined;
+  if (node.key === "edit-comment") return node.props.onClick;
+  return editHandlerIn(node.props.children);
+}
+
+type CommentLook = ComponentType<ComponentProps["Comments"]["Comment"] & { ref?: Ref<HTMLDivElement> }>;
+const editableLooks = new WeakMap<CommentLook, CommentLook>();
+
+function editableComment(Look: CommentLook): CommentLook {
+  const known = editableLooks.get(Look);
+  if (known) return known;
+  const Editable = forwardRef<HTMLDivElement, ComponentProps["Comments"]["Comment"]>(function EditableComment(props, ref) {
+    const edit = editHandlerIn(props.actions);
+    const [element, setElement] = useState<HTMLDivElement | null>(null);
+    useEffect(() => {
+      if (!element || !edit) return;
+      commentEdits.set(element, edit);
+      return () => void commentEdits.delete(element);
+    }, [element, edit]);
+    const refs = useCallback(
+      (node: HTMLDivElement | null) => {
+        setElement(node);
+        if (typeof ref === "function") ref(node);
+        else if (ref) ref.current = node;
+      },
+      [ref],
+    );
+    return <Look {...props} ref={refs} />;
+  });
+  editableLooks.set(Look, Editable as CommentLook);
+  return Editable as CommentLook;
+}
+
+/** ↑ in an empty reply box: the last comment of one's own above it in the thread starts being edited. */
+function editLastComment(event: KeyboardEvent<HTMLElement>, editor: CommentEditor) {
+  if (event.key !== "ArrowUp" || event.shiftKey || event.altKey || event.metaKey || event.ctrlKey || event.nativeEvent.isComposing) return;
+  if (commentText(editor.document).trim() || editor.document.some((block) => block.type !== "paragraph")) return;
+  const box = event.currentTarget;
+  // A comment being edited, or a new thread's box: nothing above to edit.
+  if (box.closest(".bn-thread-comment")) return;
+  const comments = box.closest(".bn-thread")?.querySelectorAll(".bn-thread-comment") ?? [];
+  const edit = [...comments]
+    .reverse()
+    .map((comment) => commentEdits.get(comment))
+    .find(Boolean);
+  if (!edit) return;
+  event.preventDefault();
+  event.stopPropagation();
+  edit();
+}
 
 const CommentEditorView = forwardRef<HTMLDivElement, ComponentProps["Comments"]["Editor"]>(function CommentEditorView(
   { className, autoFocus, onFocus, onBlur, editor, editable },
@@ -121,6 +207,7 @@ const CommentEditorView = forwardRef<HTMLDivElement, ComponentProps["Comments"][
       ref={ref}
       onFocus={onFocus}
       onBlur={onBlur}
+      onKeyDownCapture={editable ? (event) => editLastComment(event, editor) : undefined}
       onPasteCapture={editable && pageId ? onPaste : undefined}
       onDropCapture={editable && pageId ? onDrop : undefined}
     >
@@ -220,10 +307,14 @@ function CommentFormattingToolbar() {
   return <FormattingToolbar blockTypeSelectItems={[]}>{items}</FormattingToolbar>;
 }
 
-/** `@` in a comment: the people who can open the page, the workspace's groups, then the agents that may answer there. */
+/**
+ * `@` in a comment: the people who can open the page, the workspace's groups, the agents that may
+ * answer there, then days (first when the query reads as one).
+ */
 function CommentMentionMenu({ pageId }: { pageId: string }) {
   const editor = useBlockNoteEditor<typeof commentEditorSchema.blockSchema, typeof commentEditorSchema.inlineContentSchema>();
   const t = useTranslations("page.mention");
+  const locale = useLocale();
   // The last answer, so typing doesn't flash an empty menu while the next one loads.
   const last = useRef<Awaited<ReturnType<typeof commentMentionCandidatesAction>>>({ people: [], groups: [], agents: [] });
   const getItems = useCallback(
@@ -241,13 +332,15 @@ function CommentMentionMenu({ pageId }: { pageId: string }) {
           agents: found.agents.filter((a) => matches(a.name)),
         };
       }
-      return [
+      const named = [
         ...found.people.map((p) => personItem(editor, p, t("people"))),
         ...found.groups.map((g) => groupItem(editor, g, t("groups"), (count) => t("groupMembers", { count }))),
         ...found.agents.map((a) => agentItem(editor, a, t("agents"))),
       ];
+      const { dates, isDate } = await dateItems(query, { t, locale, insert: (props) => insertMention(editor, props), reminders: false });
+      return isDate ? [...dates, ...named] : [...named, ...dates];
     },
-    [editor, pageId, t],
+    [editor, pageId, t, locale],
   );
   return <SuggestionMenuController triggerCharacter="@" getItems={getItems} />;
 }

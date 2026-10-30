@@ -66,6 +66,7 @@ import {
 } from "@/lib/properties";
 import { fromPercentPoints, isPercent, valueFormat } from "@/lib/number-format";
 import { holdsOptions, holdsPeople, holdsTimestamp, PERSON_ME } from "@/lib/property-types";
+import { searchFold } from "@/lib/search-fold";
 import { fitTabs } from "@/lib/tab-fit";
 import { VIEW_TYPES } from "@/lib/views";
 import { DeletedSchemaList } from "./deleted-schema";
@@ -85,6 +86,9 @@ export type DeletedSchemaProps = { databaseId: string; reloadKey: unknown; onCha
 /** The files a view exports to, just what it shows (see DatabasePage exportView). */
 export const VIEW_EXPORTS = ["csv", "html", "pdf"] as const;
 export type ViewExportFormat = (typeof VIEW_EXPORTS)[number];
+
+/** How many views the "more" menu holds before it gets a search field. */
+const VIEW_SEARCH_FROM = 6;
 
 export function ViewTabs({
   views,
@@ -177,6 +181,19 @@ export function ViewTabs({
     return () => observer.disconnect();
   }, [views, activeId, adds, setMoreOpen]);
   const hiddenViews = views.filter((view) => hidden.includes(view.id));
+  // Past a few views the menu has a search field, which finds any of them by name.
+  const [viewQuery, setViewQuery] = useState("");
+  const searchable = hiddenViews.length >= VIEW_SEARCH_FROM;
+  const folded = searchFold(viewQuery.trim());
+  const menuViews = searchable && folded ? views.filter((view) => searchFold(view.name).includes(folded)) : hiddenViews;
+  const closeMore = () => {
+    more.close();
+    setViewQuery("");
+  };
+  const openView = (id: string) => {
+    closeMore();
+    onSelect(id);
+  };
 
   return (
     <div ref={row} className="relative flex min-w-0 flex-1 items-center gap-1">
@@ -231,7 +248,7 @@ export function ViewTabs({
               // Keeps the focus where it is: an empty search field losing it closes, the row widens
               // and the button would move from under the pointer before the click lands.
               onMouseDown={(e) => e.preventDefault()}
-              onClick={more.toggle}
+              onClick={more.open ? closeMore : more.toggle}
               className={cn(
                 "inline-flex h-7 shrink-0 items-center gap-1 rounded-md px-2 text-sm transition-colors hover:text-fg md:h-6",
                 more.open ? "text-fg" : "text-fg-muted",
@@ -240,22 +257,42 @@ export function ViewTabs({
               {t("viewTabs.more", { count: hiddenViews.length })}
               <ChevronDown className="h-3 w-3 text-fg-faint" />
             </button>
-            <Floating open={more.open} anchor={more.el} onClose={more.close}>
+            <Floating open={more.open} anchor={more.el} onClose={closeMore} className="max-h-80 overflow-y-auto">
+              {searchable && (
+                // With this many views hidden, the toolbar's search field closing as this one takes
+                // the focus doesn't bring them all back into the row (and the menu away with them).
+                <div className="mb-1 flex items-center gap-2 rounded-md border border-border px-2 focus-within:border-accent">
+                  <Search className="h-3.5 w-3.5 shrink-0 text-fg-faint" />
+                  <input
+                    autoFocus
+                    value={viewQuery}
+                    onChange={(e) => setViewQuery(e.target.value)}
+                    onKeyDown={(e) => {
+                      if (e.key === "Enter" && menuViews.length) {
+                        e.preventDefault();
+                        openView(menuViews[0].id);
+                      }
+                    }}
+                    placeholder={t("viewTabs.searchViews")}
+                    aria-label={t("viewTabs.searchViews")}
+                    className="h-8 min-w-0 flex-1 bg-transparent text-sm outline-none placeholder:text-fg-faint"
+                  />
+                </div>
+              )}
               {/* Its items keep the focus too, or the row would change under the menu mid-click. */}
               <div onMouseDown={(e) => e.preventDefault()}>
-                {hiddenViews.map((view) => (
+                {menuViews.map((view) => (
                   <MenuItem
                     key={view.id}
                     icon={<ViewIcon type={view.type} icon={view.config.icon} />}
+                    active={view.id === activeId}
                     trailing={view.ownerId ? <UserRound className="h-3 w-3 text-fg-faint" aria-label={t("viewTabs.personalTab")} /> : undefined}
-                    onClick={() => {
-                      more.close();
-                      onSelect(view.id);
-                    }}
+                    onClick={() => openView(view.id)}
                   >
                     <span className="block max-w-60 truncate">{view.name}</span>
                   </MenuItem>
                 ))}
+                {!menuViews.length && <p className="px-2 py-2 text-sm text-fg-muted">{t("viewTabs.noViewMatches")}</p>}
               </div>
             </Floating>
           </>

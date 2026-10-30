@@ -66,6 +66,29 @@ test("tabs move by dragging, kept inside the strip", () => {
   assert.deepEqual(tabs.ids, [2, 3, 1, 4]);
 });
 
+test("pinned tabs stay first, in their order; new and unpinned tabs go after them", () => {
+  const tabs = list(1, 2, 3, 4);
+  tabs.pin(3);
+  assert.deepEqual(tabs.ids, [3, 1, 2, 4]);
+  tabs.pin(4);
+  assert.deepEqual(tabs.ids, [3, 4, 1, 2]);
+  tabs.move(1, 0);
+  assert.deepEqual(tabs.ids, [3, 4, 1, 2]);
+  tabs.move(4, 0);
+  assert.deepEqual(tabs.ids, [4, 3, 1, 2]);
+  tabs.show(3);
+  tabs.open(5, { fromActive: true, show: false });
+  tabs.open(6);
+  assert.deepEqual(tabs.ids, [4, 3, 5, 1, 2, 6]);
+  assert.deepEqual(tabs.others(1), [5, 2, 6]);
+  tabs.pin(4, false);
+  assert.deepEqual(tabs.ids, [3, 4, 5, 1, 2, 6]);
+  tabs.close(3);
+  assert.deepEqual([...tabs.pinned], []);
+  tabs.open(7);
+  assert.deepEqual(tabs.ids, [4, 5, 1, 2, 6, 7]);
+});
+
 test("next and previous go round; numbers pick by place, 9 the last", () => {
   const tabs = list(1, 2, 3);
   assert.equal(tabs.neighbour(1), 1);
@@ -153,14 +176,15 @@ test("saved tabs are read back only as such", () => {
     windows: [
       {
         tabs: [
-          { path: "/w/ws_1/p/a", title: "Plans", icon: "📝" },
+          { path: "/w/ws_1/p/a", title: "Plans", icon: "📝", pinned: true },
+          { path: "/w/ws_1/p/b", pinned: "yes" },
           { path: "https://evil.example.org/" },
           { path: "//evil.example.org/w/x" },
           { path: "/w/ws_1?row=r1", icon: "not an emoji at all" },
           { path: "/w/ws_1/p/a#x" },
           "nonsense",
         ],
-        active: 2,
+        active: 3,
       },
       { tabs: [], active: 0 },
       { tabs: [{ path: "/" }], active: -1 },
@@ -169,7 +193,7 @@ test("saved tabs are read back only as such", () => {
   assert.deepEqual(readSavedTabs(saved), {
     server: SERVER,
     windows: [
-      { tabs: [{ path: "/w/ws_1/p/a", title: "Plans", icon: "📝" }, { path: "/w/ws_1?row=r1" }], active: 0 },
+      { tabs: [{ path: "/w/ws_1/p/a", title: "Plans", icon: "📝", pinned: true }, { path: "/w/ws_1/p/b" }, { path: "/w/ws_1?row=r1" }], active: 0 },
       { tabs: [{ path: "/" }], active: 0 },
     ],
   });

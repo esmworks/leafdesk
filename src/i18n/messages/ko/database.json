@@ -132,6 +132,8 @@
     "addView": "보기 추가",
     "addViewHeading": "보기 추가",
     "more": "{count, plural, other {# 개 더 보기}}",
+    "searchViews": "보기 검색",
+    "noViewMatches": "일치하는 보기가 없습니다",
     "personal": "나만 보기",
     "personalHint": "개인 보기: 다른 사람에게는 보이지 않습니다",
     "personalOnly": "이 데이터베이스의 공유 보기를 변경할 수 없으므로 새 보기는 개인 보기이며 나에게만 보입니다.",

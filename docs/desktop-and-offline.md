@@ -121,9 +121,11 @@ Ctrl+Shift+Tab (also Cmd+Shift+] and Cmd+Shift+[ on macOS) go to the next and pr
 to Cmd+8 pick one and Cmd+9 the last, and Cmd+Shift+N opens a new window. Cmd+click (Ctrl+click) or
 a middle click on a link to a page of your server opens it in a tab behind the current one, and
 Shift+click in a new window. A tab shows its page's title and emoji; tabs reorder by dragging, and
-right-clicking one offers *Close*, *Close Other Tabs*, *Duplicate Tab* and *Reopen Closed Tab*.
-The app reopens every window with its tabs at the next start (a tab loads when first shown), on
-the same server only; all tabs share one sign-in.
+right-clicking one offers *Pin Tab*, *Close*, *Close Other Tabs*, *Duplicate Tab* and *Reopen
+Closed Tab*. Pinned tabs stay at the start of the strip as their icon alone, with no close button
+(Cmd+W, a middle click and the menu still close them); new tabs open after them and *Close Other
+Tabs* leaves them. The app reopens every window with its tabs at the next start (a tab loads when
+first shown, pinned tabs pinned again), on the same server only; all tabs share one sign-in.
 
 **Opening links in the app.** *My account → Preferences → Desktop app → Open links in the desktop
 app* decides what a browser does with Leafdesk pages: *Off* (the default), *Offer to open them* (a

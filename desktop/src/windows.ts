@@ -28,8 +28,8 @@ type Tab = { id: number; view: WebContentsView; title: string; icon: string | nu
 
 /** What the strip draws: pages/tabs.html reads it (src/pages/tabs.ts mirrors the shape). */
 export type StripState = {
-  /** `away`: where a tab off the server is (navigation.ts, awayHost), shown as an address bar would. */
-  tabs: { id: number; title: string; icon: string | null; loading: boolean; away: string | null }[];
+  /** `away`: where a tab off the server is (navigation.ts, awayHost), shown as an address bar would; `pinned`: shown as its icon alone. */
+  tabs: { id: number; title: string; icon: string | null; loading: boolean; away: string | null; pinned: boolean }[];
   active: number | null;
   strings: { newTab: string; closeTab: string; tabs: string };
   dir: "ltr" | "rtl";
@@ -172,7 +172,10 @@ export class TabbedWindow {
    * full address on it (`url`). `show`: it becomes the shown tab; `fromActive`: it opens beside
    * the shown tab, as a link from it does. Returns the tab's page.
    */
-  addTab(target: { path: string; lazy?: boolean; title?: string; icon?: string } | { url: string }, options: { show?: boolean; fromActive?: boolean; index?: number } = {}) {
+  addTab(
+    target: { path: string; lazy?: boolean; title?: string; icon?: string } | { url: string },
+    options: { show?: boolean; fromActive?: boolean; index?: number; pinned?: boolean } = {},
+  ) {
     const id = nextId++;
     const view = new WebContentsView({ webPreferences: this.hooks.webPreferences() });
     view.setBackgroundColor(this.hooks.background());
@@ -189,6 +192,7 @@ export class TabbedWindow {
 
     const show = options.show ?? true;
     this.list.open(id, { fromActive: options.fromActive, show });
+    if (options.pinned) this.list.pin(id);
     if (options.index !== undefined) this.list.move(id, options.index);
     if ("url" in target) contents.loadURL(target.url).catch(() => undefined);
     else if (target.lazy && !show) tab.pending = target.path;
@@ -202,7 +206,7 @@ export class TabbedWindow {
 
   /** Opens the tabs kept from the last start, the one shown then shown again; the others load when picked. */
   restore(saved: SavedWindow) {
-    saved.tabs.forEach((tab, index) => this.addTab({ ...tab, lazy: true }, { show: index === saved.active }));
+    saved.tabs.forEach(({ pinned, ...tab }, index) => this.addTab({ ...tab, lazy: true }, { show: index === saved.active, pinned }));
   }
 
   /**
@@ -245,6 +249,13 @@ export class TabbedWindow {
   closeOthers(id: number) {
     this.showTab(id);
     for (const other of this.list.others(id)) this.closeTab(other);
+  }
+
+  /** Pins a tab to the strip's start, or unpins it. */
+  pinTab(id: number, pin: boolean) {
+    this.list.pin(id, pin);
+    this.sendStrip();
+    this.hooks.changed();
   }
 
   moveTab(id: number, index: number) {
@@ -296,6 +307,7 @@ export class TabbedWindow {
       const saved: SavedTab = { path: tab.pending ?? pathOf(tab.view.webContents.getURL()) };
       if (tab.title !== "Leafdesk") saved.title = tab.title;
       if (tab.icon) saved.icon = tab.icon;
+      if (this.list.pinned.has(id)) saved.pinned = true;
       return saved;
     });
     return { tabs, active: Math.max(0, this.list.active === null ? 0 : this.list.ids.indexOf(this.list.active)) };
@@ -411,7 +423,8 @@ export class TabbedWindow {
     const state: StripState = {
       tabs: this.list.ids.map((id) => {
         const { title, icon, loading, pending, view } = this.tabs.get(id)!;
-        return { id, title, icon, loading, away: pending === undefined ? this.hooks.away(view.webContents.getURL()) : null };
+        const away = pending === undefined ? this.hooks.away(view.webContents.getURL()) : null;
+        return { id, title, icon, loading, away, pinned: this.list.pinned.has(id) };
       }),
       active: this.list.active,
       ...this.hooks.strings(),

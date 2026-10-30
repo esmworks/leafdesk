@@ -209,6 +209,8 @@
     "unarchive": "انتقال به صندوق",
     "archiveRead": "بایگانی خوانده‌شده‌ها",
     "emptyArchived": "چیزی بایگانی نشده است",
+    "emptyUnread": "اعلان خوانده‌نشده‌ای نیست",
+    "unreadOnly": "فقط خوانده‌نشده‌ها",
     "rowChange": "<prop>{property}</prop>: <old>{from}</old> ← <new>{to}</new>",
     "rowTitle": "عنوان",
     "rowChangesMore": "{count, plural, one {و # تغییر دیگر} other {و # تغییر دیگر}}",

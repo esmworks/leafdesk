@@ -209,6 +209,8 @@
     "unarchive": "받은 편지함으로 이동",
     "archiveRead": "읽은 항목 보관",
     "emptyArchived": "보관된 항목이 없습니다",
+    "emptyUnread": "읽지 않은 알림이 없습니다",
+    "unreadOnly": "읽지 않은 항목만",
     "rowChange": "<prop>{property}</prop>: <old>{from}</old> → <new>{to}</new>",
     "rowTitle": "제목",
     "rowChangesMore": "{count, plural, other {외 #개 변경}}",

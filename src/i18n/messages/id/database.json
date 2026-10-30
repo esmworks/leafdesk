@@ -132,6 +132,8 @@
     "addView": "Tambah tampilan",
     "addViewHeading": "Tambahkan tampilan",
     "more": "{count, plural, other {# lainnya}}",
+    "searchViews": "Cari tampilan",
+    "noViewMatches": "Tidak ada tampilan yang cocok",
     "personal": "Hanya untuk saya",
     "personalHint": "Tampilan pribadi: tidak ada orang lain yang melihatnya",
     "personalOnly": "Anda tidak bisa mengubah tampilan bersama database ini, jadi tampilan baru bersifat pribadi: hanya Anda yang melihatnya.",

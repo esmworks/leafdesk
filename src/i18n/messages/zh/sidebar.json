@@ -209,6 +209,8 @@
     "unarchive": "移回收件箱",
     "archiveRead": "归档已读",
     "emptyArchived": "没有已归档的通知",
+    "emptyUnread": "没有未读通知",
+    "unreadOnly": "仅未读",
     "rowChange": "<prop>{property}</prop>：<old>{from}</old> → <new>{to}</new>",
     "rowTitle": "标题",
     "rowChangesMore": "{count, plural, other {还有 # 处更改}}",

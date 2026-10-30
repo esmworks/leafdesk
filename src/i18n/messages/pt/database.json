@@ -132,6 +132,8 @@
     "addView": "Adicionar visualização",
     "addViewHeading": "Adicionar uma visualização",
     "more": "{count, plural, one {mais #} other {mais #}}",
+    "searchViews": "Pesquisar visualizações",
+    "noViewMatches": "Nenhuma visualização corresponde",
     "personal": "Só para mim",
     "personalHint": "Uma vista pessoal: mais ninguém a vê",
     "personalOnly": "Não pode alterar as vistas partilhadas desta base de dados, por isso as novas vistas são pessoais: só você as vê.",

@@ -209,6 +209,8 @@
     "unarchive": "Move to inbox",
     "archiveRead": "Archive read",
     "emptyArchived": "Nothing archived",
+    "emptyUnread": "No unread notifications",
+    "unreadOnly": "Unread only",
     "rowChange": "<prop>{property}</prop>: <old>{from}</old> → <new>{to}</new>",
     "rowTitle": "Title",
     "rowChangesMore": "{count, plural, one {and # more change} other {and # more changes}}",

@@ -132,6 +132,8 @@
     "addView": "Legg til visning",
     "addViewHeading": "Legg til en visning",
     "more": "{count, plural, one {# til} other {# til}}",
+    "searchViews": "Søk i visninger",
+    "noViewMatches": "Ingen visninger samsvarer",
     "personal": "Bare for meg",
     "personalHint": "En personlig visning: ingen andre ser den",
     "personalOnly": "Du kan ikke endre databasens delte visninger, så nye visninger er personlige: bare du ser dem.",

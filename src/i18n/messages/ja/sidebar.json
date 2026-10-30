@@ -209,6 +209,8 @@
     "unarchive": "受信トレイに戻す",
     "archiveRead": "既読をアーカイブ",
     "emptyArchived": "アーカイブはありません",
+    "emptyUnread": "未読の通知はありません",
+    "unreadOnly": "未読のみ",
     "rowChange": "<prop>{property}</prop>: <old>{from}</old> → <new>{to}</new>",
     "rowTitle": "タイトル",
     "rowChangesMore": "{count, plural, other {ほか#件の変更}}",

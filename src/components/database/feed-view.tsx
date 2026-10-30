@@ -13,6 +13,7 @@ import { cellMarkClass, colorMarkClass, type RowColors } from "@/lib/color-rules
 import { commentImages, type CommentBody } from "@/lib/comments";
 import { FEED_PAGE_SIZE, REACTION_EMOJIS, type PostReaction } from "@/lib/feed";
 import { pageLabel } from "@/lib/labels";
+import { formatIsoDate } from "@/lib/mentions";
 import { isHiddenInView } from "@/lib/properties";
 import { relativeTime } from "@/lib/relative-time";
 import type { CommentUser } from "@/server/comments";
@@ -519,6 +520,7 @@ function FeedCommentView({ comment, person }: { comment: FeedComment; person?: C
 
 /** A comment's paragraphs with their styles and links, and its images (see lib/comments CommentBody). */
 function CommentText({ body }: { body: CommentBody | null }) {
+  const locale = useLocale();
   if (!body) return null;
   return (
     <div className="break-words whitespace-pre-wrap">
@@ -533,6 +535,13 @@ function CommentText({ body }: { body: CommentBody | null }) {
                   <a key={j} href={node.href} target="_blank" rel="noopener noreferrer nofollow" className="underline">
                     {node.content.map((text) => text.text).join("")}
                   </a>
+                );
+              }
+              if (node.type === "mention") {
+                return (
+                  <span key={j} className="text-fg-muted">
+                    {formatIsoDate(node.props.date, locale)}
+                  </span>
                 );
               }
               const s = node.styles;

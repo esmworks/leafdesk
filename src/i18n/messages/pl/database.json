@@ -132,6 +132,8 @@
     "addView": "Dodaj widok",
     "addViewHeading": "Dodaj widok",
     "more": "{count, plural, one {# więcej} few {# więcej} many {# więcej} other {# więcej}}",
+    "searchViews": "Szukaj widoków",
+    "noViewMatches": "Brak pasujących widoków",
     "personal": "Tylko dla mnie",
     "personalHint": "Widok osobisty: nikt inny go nie widzi",
     "personalOnly": "Nie możesz zmieniać wspólnych widoków tej bazy, więc nowe widoki są osobiste: widzisz je tylko ty.",

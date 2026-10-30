@@ -526,6 +526,7 @@ function showTabMenu(window: TabbedWindow, id: number) {
   const t = strings();
   const contents = window.contentsOf(id);
   if (!contents) return;
+  const pinned = window.list.pinned.has(id);
   Menu.buildFromTemplate([
     { label: t.newTab, click: () => window.addTab({ path: newTabPath(window) }) },
     {
@@ -536,9 +537,10 @@ function showTabMenu(window: TabbedWindow, id: number) {
         window.addTab(target, { index: window.list.ids.indexOf(id) + 1 });
       },
     },
+    { label: pinned ? t.unpinTab : t.pinTab, click: () => window.pinTab(id, !pinned) },
     { type: "separator" },
     { label: t.closeTab, click: () => window.closeTab(id) },
-    { label: t.closeOtherTabs, enabled: window.list.ids.length > 1, click: () => window.closeOthers(id) },
+    { label: t.closeOtherTabs, enabled: window.list.others(id).length > 0, click: () => window.closeOthers(id) },
     { type: "separator" },
     { label: t.reopenClosedTab, enabled: closedTabs.size > 0, click: () => reopenClosedTab(window) },
   ]).popup({ window: window.window });

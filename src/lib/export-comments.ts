@@ -117,7 +117,8 @@ export function commentMarkdown(body: CommentBody): string[] {
     (Array.isArray(paragraph.content) ? paragraph.content : [])
       .map((node) => {
         if (node.type === "link") return `[${node.content.map(styled).join("").replace(/\n/g, " ")}](${linkTarget(node.href)})`;
-        return node.type === "text" ? styled(node) : "";
+        if (node.type === "mention") return escapeMarkdown(node.props.date);
+        return styled(node);
       })
       .join("")
       .split("\n")
