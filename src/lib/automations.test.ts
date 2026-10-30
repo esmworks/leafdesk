@@ -5,6 +5,8 @@ import {
   datePassedCutoffs,
   datePassedFires,
   dateStart,
+  hasActor,
+  hasRow,
   isDynamicValue,
   matchesTrigger,
   needsRow,
@@ -342,5 +344,25 @@ describe("thresholds", () => {
   it("names the run's event", () => {
     expect(runEvent({ created: false, basis: null, origin: "view_threshold" })).toBe("threshold.crossed");
     expect(runEvent({ created: false, basis: null, origin: "button" })).toBe("row.button_clicked");
+  });
+});
+
+describe("meetings written up", () => {
+  const meeting: AutomationTrigger = { type: "meeting_summarized" };
+
+  it("runs about a row, with whoever ended the meeting as its actor", () => {
+    expect(hasRow(meeting)).toBe(true);
+    expect(hasActor(meeting)).toBe(true);
+    expect(hasActor({ type: "date_passed" })).toBe(false);
+    expect(hasActor({ type: "schedule" })).toBe(false);
+  });
+
+  it("is never started by a row write", () => {
+    expect(matchesTrigger(meeting, { created: true, before: {}, after: { a: 1 } })).toBe(false);
+    expect(matchesTrigger(meeting, { created: false, before: { a: 1 }, after: { a: 2 } })).toBe(false);
+  });
+
+  it("names the run's event", () => {
+    expect(runEvent({ created: false, basis: null, origin: "meeting" })).toBe("row.meeting_summarized");
   });
 });

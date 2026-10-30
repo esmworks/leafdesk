@@ -70,6 +70,15 @@ export function useStepVariables(
       const extra: Variable[] = [v(t("event"), "trigger", ["event"]), v(t("database"), "trigger", ["database", "title"])];
       if (trigger.type !== "date_passed") extra.push(v(t("actor"), "trigger", ["actor", "name"]));
       if (trigger.type === "date_passed") extra.push(v(t("date"), "trigger", ["date"]));
+      if (trigger.type === "meeting_summarized") {
+        extra.push(
+          v(t("meetingTitle"), "trigger", ["meeting", "title"]),
+          v(t("meetingSummary"), "trigger", ["meeting", "summary"]),
+          v(t("meetingDecisions"), "trigger", ["meeting", "decisions"]),
+          v(t("meetingActions"), "trigger", ["meeting", "actions"]),
+          v(t("meetingAttendees"), "trigger", ["meeting", "attendees"]),
+        );
+      }
       if (trigger.type === "property_changed") {
         const watched = trigger.properties.length ? properties.filter((p) => trigger.properties.includes(p.id)) : [];
         for (const p of watched) {

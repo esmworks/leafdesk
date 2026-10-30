@@ -611,7 +611,7 @@ function rowScope(workspaceId: string, row: { id: string; title: string; propert
 /**
  * What `{{trigger.…}}` is. A row's run: the row as the automation's person sees it (its values by
  * property name, its id, title and link), with `changes.<Property>.before/after` for a change,
- * `actor` and `event`, and `date` for "date passed". An incoming webhook's: its JSON body. A
+ * `actor` and `event`, `date` for "date passed" and `meeting` for a meeting written up. An incoming webhook's: its JSON body. A
  * schedule's: when it was due. A threshold's: the value, the line, the view (see thresholdScope).
  */
 async function triggerScope(automation: Automation, run: Run, definition: AutomationDefinition, row: Row | null, runAs: string): Promise<unknown> {
@@ -641,6 +641,7 @@ async function triggerScope(automation: Automation, run: Run, definition: Automa
     changes,
     actor: actor ?? null,
     ...(run.basis !== null ? { date: run.basis } : {}),
+    ...(run.origin === "meeting" ? { meeting: data.meeting ?? null } : {}),
   };
 }
 

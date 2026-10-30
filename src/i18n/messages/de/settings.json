@@ -497,6 +497,7 @@
         "rowChanged": "Wenn sich eine Zeile von {database} ändert",
         "propertyChanged": "Wenn sich {property} in einer Zeile von {database} ändert",
         "datePassed": "Zeilen von {database}: {days, plural, =0 {wenn {date} erreicht ist} one {# Tag nach {date}} other {# Tage nach {date}}}",
+        "meetingSummarized": "Wenn ein Meeting in einer Zeile von {database} ausgewertet ist",
         "created": "ihrem Erstelldatum",
         "edited": "ihrer letzten Bearbeitung"
       },

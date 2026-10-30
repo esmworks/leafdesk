@@ -497,6 +497,7 @@
         "rowChanged": "{database} 中的行变化时",
         "propertyChanged": "{database} 中某行的 {property} 变化时",
         "datePassed": "{database} 的行：{days, plural, =0 {到达{date}时} other {{date}之后 # 天}}",
+        "meetingSummarized": "{database} 中某行的会议整理完成时",
         "created": "创建日期",
         "edited": "最后编辑"
       },

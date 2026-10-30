@@ -142,7 +142,8 @@ export type DraftTrigger =
   /** `view` and `property` by id ("" until chosen; no property for count_all); `value` as typed. */
   | { type: "view_threshold"; view: string; fn: ThresholdFn; property: string; comparison: ThresholdComparison; value: string }
   /** `property`: a button property's id ("" until chosen). */
-  | { type: "button_clicked"; property: string };
+  | { type: "button_clicked"; property: string }
+  | { type: "meeting_summarized" };
 
 export type Draft = { name: string; enabled: boolean; trigger: DraftTrigger; actions: DraftAction[] };
 
@@ -240,6 +241,7 @@ function toDraftTrigger(stored: AutomationTrigger): DraftTrigger {
     return { type: "incoming_webhook", example: stored.example === undefined ? "" : JSON.stringify(stored.example, null, 2) };
   }
   if (stored.type === "button_clicked") return { type: "button_clicked", property: stored.propertyId };
+  if (stored.type === "meeting_summarized") return { type: "meeting_summarized" };
   if (stored.type === "view_threshold") {
     return {
       type: "view_threshold",
@@ -658,6 +660,8 @@ export function triggerInput(trigger: DraftTrigger) {
       };
     case "button_clicked":
       return { type: "button_clicked" as const, property: trigger.property };
+    case "meeting_summarized":
+      return { type: "meeting_summarized" as const };
   }
 }
 
@@ -811,6 +815,7 @@ export const TRIGGER_CHOICES: AutomationTriggerType[] = [
   "property_changed",
   "date_passed",
   "button_clicked",
+  "meeting_summarized",
   "view_threshold",
   "schedule",
   "incoming_webhook",

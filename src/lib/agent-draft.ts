@@ -33,7 +33,9 @@ export type DraftTrigger =
   | { type: "row_created" }
   | { type: "property_changed"; propertyId: string | null }
   /** `date`: a date property's id, "created_time" or "last_edited_time". */
-  | { type: "date_passed"; date: string; days: number };
+  | { type: "date_passed"; date: string; days: number }
+  /** A meeting recorded on a row's page is written up. */
+  | { type: "meeting_summarized" };
 
 export type AgentDraftPage = { pageId: string; title: string; icon: string | null; kind: "page" | "database"; level: AgentAccessLevel };
 export type AgentDraftSchedule = { rule: DraftRule; task: string; databaseId: string | null; databaseTitle: string | null };
@@ -121,6 +123,7 @@ function readTrigger(input: Record<string, unknown>, database: DraftCandidate): 
   const type = typeof input.trigger === "string" ? input.trigger : (record(input.trigger)?.type ?? input.type);
   const properties = database.properties ?? [];
   if (type === "row_created" || type === "form_answer") return { trigger: { type: "row_created" }, propertyName: null };
+  if (type === "meeting_summarized") return { trigger: { type: "meeting_summarized" }, propertyName: null };
   if (type === "property_changed") {
     const property = properties.find((p) => p.id === input.property_id);
     return { trigger: { type: "property_changed", propertyId: property?.id ?? null }, propertyName: property?.name ?? null };

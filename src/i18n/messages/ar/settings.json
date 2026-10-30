@@ -497,6 +497,7 @@
         "rowChanged": "عند تغيّر صف في {database}",
         "propertyChanged": "عند تغيّر {property} في صف من {database}",
         "datePassed": "صفوف {database}: {days, plural, =0 {عند حلول {date}} one {بعد يوم واحد من {date}} two {بعد يومين من {date}} few {بعد # أيام من {date}} many {بعد # يومًا من {date}} other {بعد # يوم من {date}}}",
+        "meetingSummarized": "عند كتابة اجتماع في صف من {database}",
         "created": "تاريخ إنشائها",
         "edited": "آخر تعديل لها"
       },

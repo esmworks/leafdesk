@@ -497,6 +497,7 @@
         "rowChanged": "Kun tietokannan {database} rivi muuttuu",
         "propertyChanged": "Kun {property} muuttuu tietokannan {database} rivillä",
         "datePassed": "Tietokannan {database} rivit: {days, plural, =0 {kun {date} saavutetaan} one {# päivä ajankohdan {date} jälkeen} other {# päivää ajankohdan {date} jälkeen}}",
+        "meetingSummarized": "Kun tietokannan {database} rivin kokous on kirjoitettu auki",
         "created": "niiden luontipäivä",
         "edited": "niiden viimeisin muokkaus"
       },

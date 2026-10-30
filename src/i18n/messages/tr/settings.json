@@ -497,6 +497,7 @@
         "rowChanged": "{database} veritabanında bir satır değiştiğinde",
         "propertyChanged": "{database} veritabanında bir satırın {property} değeri değiştiğinde",
         "datePassed": "{database} satırları: {days, plural, =0 {{date} geldiğinde} other {{date} üzerinden # gün geçince}}",
+        "meetingSummarized": "{database} veritabanında bir satırın toplantısı yazıldığında",
         "created": "oluşturulma tarihleri",
         "edited": "son düzenlemeleri"
       },

@@ -497,6 +497,7 @@
         "rowChanged": "Als een rij van {database} verandert",
         "propertyChanged": "Als {property} verandert in een rij van {database}",
         "datePassed": "Rijen van {database}: {days, plural, =0 {als {date} is bereikt} one {# dag na {date}} other {# dagen na {date}}}",
+        "meetingSummarized": "Wanneer een vergadering op een rij van {database} is uitgewerkt",
         "created": "hun aanmaakdatum",
         "edited": "hun laatste bewerking"
       },

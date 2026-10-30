@@ -497,6 +497,7 @@
         "rowChanged": "Коли змінюється рядок у {database}",
         "propertyChanged": "Коли змінюється {property} у рядку {database}",
         "datePassed": "Рядки {database}: {days, plural, =0 {коли настане {date}} one {через # день після {date}} few {через # дні після {date}} many {через # днів після {date}} other {через # дня після {date}}}",
+        "meetingSummarized": "Коли зустріч у рядку {database} розписано",
         "created": "дати створення",
         "edited": "останньої зміни"
       },

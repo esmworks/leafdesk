@@ -5,8 +5,9 @@ import { dayString, localDay } from "./time-zone";
 
 /**
  * Database automations: "when a row is added, a property of a row changes (to a value), a date of
- * a row is some days past, a calculation over a view's rows crosses a line, a schedule comes round
- * or a request arrives at the automation's own address, do these steps". Types, the pure trigger matching and the limits, for the server
+ * a row is some days past, a calculation over a view's rows crosses a line, a schedule comes round,
+ * a request arrives at the automation's own address, a button is clicked on a row or a meeting on
+ * a row is written up, do these steps". Types, the pure trigger matching and the limits, for the server
  * (server/automations) and the settings dialog alike.
  */
 
@@ -55,7 +56,15 @@ export type AutomationTrigger =
    * Someone clicks the button property `propertyId` on a row (server/row-buttons.ts): a run about
    * that row, with them as its actor. Found by clicks, never by writes.
    */
-  | { type: "button_clicked"; propertyId: string };
+  | { type: "button_clicked"; propertyId: string }
+  /**
+   * The AI finishes writing up a meeting recorded on a row's page (server/meeting-triggers.ts): a
+   * run about that row, with whoever ended the recording (or asked for the write-up again) as its
+   * actor and the meeting's summary, decisions and actions as `{{trigger.meeting.…}}`. Found when
+   * a write-up is done, never by writes; one that couldn't be written (nothing heard, no AI, a
+   * failure) starts nothing.
+   */
+  | { type: "meeting_summarized" };
 
 export type AutomationTriggerType = AutomationTrigger["type"];
 export const AUTOMATION_TRIGGER_TYPES = [
@@ -66,11 +75,39 @@ export const AUTOMATION_TRIGGER_TYPES = [
   "incoming_webhook",
   "view_threshold",
   "button_clicked",
+  "meeting_summarized",
 ] as const satisfies AutomationTriggerType[];
 
 /** Whether runs of a trigger are about a row (the `trigger` of their templates is that row). */
 export const hasRow = (trigger: { type: AutomationTriggerType }) =>
-  trigger.type === "row_created" || trigger.type === "property_changed" || trigger.type === "date_passed" || trigger.type === "button_clicked";
+  trigger.type === "row_created" ||
+  trigger.type === "property_changed" ||
+  trigger.type === "date_passed" ||
+  trigger.type === "button_clicked" ||
+  trigger.type === "meeting_summarized";
+
+/** Whether runs of a trigger have a person behind them, whom `actor` sets: someone's change, click or meeting. */
+export const hasActor = (trigger: { type: AutomationTriggerType }) =>
+  trigger.type === "row_created" || trigger.type === "property_changed" || trigger.type === "button_clicked" || trigger.type === "meeting_summarized";
+
+/**
+ * A meeting's write-up as a `meeting_summarized` run carries it (`trigger_data.meeting`) and its
+ * templates see it (`{{trigger.meeting.…}}`): the texts the AI wrote, never the transcript.
+ */
+export type MeetingTriggerData = {
+  id: string;
+  title: string;
+  summary: string;
+  decisions: string;
+  actions: string;
+  /** Attendees' names. */
+  attendees: string[];
+  seconds: number;
+  startedAt: string | null;
+  endedAt: string | null;
+  /** Written again with "Regenerate summary" rather than when the recording ended. */
+  regenerated: boolean;
+};
 
 /** The properties a property_changed trigger watches; empty for any property. */
 export const watchedProperties = (trigger: Extract<AutomationTrigger, { type: "property_changed" }>) =>
@@ -506,12 +543,13 @@ export const thresholdValue = (fn: ThresholdFn, value: number) =>
 /** The event name a webhook's body carries. */
 export const webhookEvent = (created: boolean) => (created ? "row.created" : "row.updated");
 
-/** What started a run that no write did: a schedule, a request, a threshold or a button on a row. */
-export type RunOrigin = "schedule" | "incoming_webhook" | "view_threshold" | "button";
+/** What started a run that no write did: a schedule, a request, a threshold, a button on a row or a meeting's write-up. */
+export type RunOrigin = "schedule" | "incoming_webhook" | "view_threshold" | "button" | "meeting";
 
 /**
  * The event of a run: a row added or changed, a "date passed" run (it has the date it ran for), a
- * schedule, a request to the automation's address, a threshold or a button clicked on a row.
+ * schedule, a request to the automation's address, a threshold, a button clicked on a row or a
+ * meeting on a row written up.
  */
 export const runEvent = (run: { created: boolean; basis: string | null; origin?: RunOrigin | null }) =>
   run.origin === "schedule"
@@ -522,7 +560,9 @@ export const runEvent = (run: { created: boolean; basis: string | null; origin?:
         ? "threshold.crossed"
         : run.origin === "button"
           ? "row.button_clicked"
-          : run.basis !== null
+          : run.origin === "meeting"
+            ? "row.meeting_summarized"
+            : run.basis !== null
             ? "row.date_passed"
             : webhookEvent(run.created);
 

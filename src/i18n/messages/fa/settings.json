@@ -497,6 +497,7 @@
         "rowChanged": "وقتی ردیفی از {database} تغییر می‌کند",
         "propertyChanged": "وقتی {property} در ردیفی از {database} تغییر می‌کند",
         "datePassed": "ردیف‌های {database}: {days, plural, =0 {وقتی {date} فرا برسد} other {# روز پس از {date}}}",
+        "meetingSummarized": "وقتی جلسهٔ یک ردیف از {database} نوشته شد",
         "created": "تاریخ ساخته‌شدنشان",
         "edited": "آخرین ویرایششان"
       },

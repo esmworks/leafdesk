@@ -497,6 +497,7 @@
         "rowChanged": "Saat baris di {database} berubah",
         "propertyChanged": "Saat {property} berubah pada baris di {database}",
         "datePassed": "Baris di {database}: {days, plural, =0 {saat {date} tercapai} other {# hari setelah {date}}}",
+        "meetingSummarized": "Saat rapat di baris {database} selesai dirangkum",
         "created": "tanggal pembuatannya",
         "edited": "suntingan terakhirnya"
       },

@@ -223,6 +223,8 @@ function RunItem({
         ? t("webhookReceived")
         : run.event === "row.button_clicked"
           ? t("buttonClicked")
+          : run.event === "row.meeting_summarized"
+            ? t("meetingSummarized")
           : run.basis !== null
             ? t("datePassed", { date: basisLabel(run.basis) })
             : run.event === "row.created"

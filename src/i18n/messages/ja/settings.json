@@ -497,6 +497,7 @@
         "rowChanged": "{database} の行が変更されたとき",
         "propertyChanged": "{database} の行で {property} が変更されたとき",
         "datePassed": "{database} の行: {days, plural, =0 {{date}になったとき} other {{date}から # 日後}}",
+        "meetingSummarized": "{database} の行の会議がまとめられたとき",
         "created": "作成日",
         "edited": "最終編集"
       },

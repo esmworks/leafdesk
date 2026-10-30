@@ -497,6 +497,7 @@
         "rowChanged": "Gdy zmieni się wiersz w {database}",
         "propertyChanged": "Gdy zmieni się {property} w wierszu {database}",
         "datePassed": "Wiersze {database}: {days, plural, =0 {gdy nadejdzie {date}} one {# dzień po {date}} few {# dni po {date}} many {# dni po {date}} other {# dnia po {date}}}",
+        "meetingSummarized": "Gdy spotkanie w wierszu {database} zostanie opracowane",
         "created": "dacie utworzenia",
         "edited": "ostatniej edycji"
       },

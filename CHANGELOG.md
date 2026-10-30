@@ -4,6 +4,14 @@
 
 ### Added
 
+- **Automations start when a meeting is written up.** A new trigger, *A meeting is written up*, runs
+  a database's automations on a row once AI has written up a meeting recorded on the row's page,
+  and again when the write-up is regenerated; nothing starts when nothing was heard or the write-up
+  failed. Steps read the meeting's title, summary, decisions, action items and attendees as
+  `{{trigger.meeting.…}}`, and a *Run an agent* step hands the row to an agent. Webhooks send it as
+  `row.meeting_summarized`; MCP's `create_automation` takes `{"type": "meeting_summarized"}`, and
+  *Build with AI* can suggest agents that run this way. No migration.
+
 - **Boxes beside the agent's page and the AI chat.** On a wide window, the agent's page shows who
   it is, its schedules with their next run, its latest runs (one click brings a run into view in
   the chat) and the pages its runs and answers changed in boxes to the right of the chat; the AI

@@ -192,7 +192,8 @@ BlockNote on Yjs; Tailwind v4; next-intl. Node 24, pnpm 11. A separate Electron 
   by `queue.ts` `thresholdRowsChanged` after writes and from `pages.ts` trash and restore; a
   button property's click queues the runs of `button_clicked` automations in `server/row-buttons.ts`,
   its label and color are `lib/row-buttons.ts`, and `isAction` keeps it out of filters, sorts and
-  calculations) and
+  calculations; a meeting written up on a row queues `meeting_summarized` runs from
+  `meetings.ts` `summarizeMeeting` through `server/meeting-triggers.ts`) and
   `src/server/schedules.ts` (`registerScheduleHandler`).
 - **Other areas:** meeting notes `meetings.ts` (the block's props, `src/lib/meetings.ts`; its list
   table synced in `persistPage` by `meeting-notes.ts`; an uploaded file is decoded in the browser

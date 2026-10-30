@@ -497,6 +497,7 @@
         "rowChanged": "When a row of {database} changes",
         "propertyChanged": "When {property} changes in a row of {database}",
         "datePassed": "Rows of {database}: {days, plural, =0 {when {date} is reached} one {# day after {date}} other {# days after {date}}}",
+        "meetingSummarized": "When a meeting on a row of {database} is written up",
         "created": "their creation date",
         "edited": "their last edit"
       },

@@ -596,6 +596,12 @@ parts and the parts merged; each part is one AI request, and the transcription o
 too, all counted toward `AI_RATE_LIMIT`, `AI_WORKSPACE_RATE_LIMIT` and the cost limit like other
 AI requests.
 
+**After the meeting.** A meeting recorded on a database row's page can start that database's
+automations once it is written up (trigger *A meeting is written up*, see
+[Automations](automations.md#automations-and-webhooks)): their steps get the summary, decisions and
+action items, and a *Run an agent* step hands the row to an agent. *Build with AI* can suggest an
+agent that runs this way.
+
 **What is kept.** The transcript and the summary, in the block; the audio is never stored. The AI
 chat, MCP and the REST API read the block as Markdown (title, date, attendees, summary, decisions,
 action items and the transcript with its times), search finds words in the transcript, and the

@@ -497,6 +497,7 @@
         "rowChanged": "Когда меняется строка в {database}",
         "propertyChanged": "Когда меняется {property} в строке {database}",
         "datePassed": "Строки {database}: {days, plural, =0 {когда наступит {date}} one {через # день после {date}} few {через # дня после {date}} many {через # дней после {date}} other {через # дня после {date}}}",
+        "meetingSummarized": "Когда встреча в строке {database} расписана",
         "created": "даты создания",
         "edited": "последнего изменения"
       },

@@ -137,6 +137,14 @@ describe("validateAgentDraft", () => {
     ]);
   });
 
+  it("suggests running on a row's meeting once it is written up", () => {
+    const draft = validateAgentDraft(
+      { ...answer, automations: [{ database_id: "tasks", trigger: "meeting_summarized", task: "Turn the action items into tasks." }] },
+      candidates,
+    );
+    expect(draft!.automations.map((a) => [a.trigger, a.propertyName])).toEqual([[{ type: "meeting_summarized" }, null]]);
+  });
+
   it("cuts texts to their limits and bounds the lists", () => {
     const many = Array.from({ length: MAX_DRAFT_PAGES + 5 }, (_, i) => ({ id: `p${i}`, title: `P${i}`, icon: null, kind: "page" as const }));
     const draft = validateAgentDraft({ ...answer, name: "x".repeat(500), icon: "not an emoji at all", pages: many.map((p) => p.id) }, many);

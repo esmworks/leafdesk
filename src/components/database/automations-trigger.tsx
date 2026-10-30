@@ -91,7 +91,9 @@ export function TriggerEditor({
                       ? { type, view: views[0]?.id ?? "", fn: "count_all", property: "", comparison: "above", value: "0" }
                       : type === "button_clicked"
                         ? { type, property: buttons[0]?.id ?? "" }
-                        : { type: "property_changed", properties: [] },
+                        : type === "meeting_summarized"
+                          ? { type }
+                          : { type: "property_changed", properties: [] },
           );
         }}
         className={selectClass}
@@ -127,6 +129,7 @@ export function TriggerEditor({
         ) : (
           <p className="text-xs text-fg-muted">{t("form.noButtons")}</p>
         ))}
+      {trigger.type === "meeting_summarized" && <p className="text-xs text-fg-muted">{t("form.meetingHelp")}</p>}
     </div>
   );
 }

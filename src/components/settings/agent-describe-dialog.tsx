@@ -205,6 +205,7 @@ function DraftSetup({
   const trigger = (a: AgentDraftAutomation) => {
     const database = pageLabel(a.databaseTitle, tc("untitled"));
     if (a.trigger.type === "row_created") return t("triggers.rowCreated", { database });
+    if (a.trigger.type === "meeting_summarized") return t("triggers.meetingSummarized", { database });
     if (a.trigger.type === "property_changed") {
       return a.propertyName ? t("triggers.propertyChanged", { database, property: a.propertyName }) : t("triggers.rowChanged", { database });
     }

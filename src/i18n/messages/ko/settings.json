@@ -497,6 +497,7 @@
         "rowChanged": "{database}의 행이 변경될 때",
         "propertyChanged": "{database} 행의 {property}이(가) 변경될 때",
         "datePassed": "{database}의 행: {days, plural, =0 {{date}이(가) 되면} other {{date}부터 #일 후}}",
+        "meetingSummarized": "{database}의 행에서 회의가 정리될 때",
         "created": "생성일",
         "edited": "마지막 편집"
       },

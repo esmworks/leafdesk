@@ -40,6 +40,7 @@ import { aiConfig, AiError, complete, contentChars, transcribe } from "@/server/
 import { meetingMergePrompt, meetingSummaryPrompt, parseMeetingSummary } from "@/server/ai/prompts";
 import { aiAvailable } from "@/server/ai-writing";
 import { getCollab } from "@/server/collab/bridge";
+import { meetingSummarized, meetingTriggerData } from "@/server/meeting-triggers";
 import { createPage } from "@/server/pages";
 import { voiceNoteLimits } from "@/server/voice-notes";
 
@@ -240,7 +241,7 @@ export async function finishMeeting(userId: string, pageId: string, meetingId: s
     const recorded = seconds !== undefined && Number.isFinite(seconds) ? Math.min(MAX_MEETING_SECONDS, Math.max(p.seconds, Math.round(seconds))) : p.seconds;
     return { status: "summarizing", endedAt: now, lastAt: now, seconds: recorded, notice: "" };
   });
-  startSummary(userId, pageId, meetingId, found.workspaceId);
+  startSummary(userId, pageId, meetingId, found.workspaceId, false);
 }
 
 /** Writes the summary again from the transcript, replacing the one there (edits to it included). */
@@ -252,14 +253,14 @@ export async function regenerateMeetingSummary(userId: string, pageId: string, m
     if (!parseTranscript(p.transcript).length) throw new MeetingError("invalid", "There is no transcript to write up yet");
     return { status: "summarizing", lastAt: nowIso(), endedAt: p.endedAt || nowIso(), notice: "" };
   });
-  startSummary(userId, pageId, meetingId, found.workspaceId);
+  startSummary(userId, pageId, meetingId, found.workspaceId, true);
 }
 
-function startSummary(userId: string, pageId: string, meetingId: string, workspaceId: string) {
+function startSummary(userId: string, pageId: string, meetingId: string, workspaceId: string, regenerated: boolean) {
   const key = `${pageId}:${meetingId}`;
   if (writing.has(key)) return;
   writing.add(key);
-  void summarizeMeeting(userId, pageId, meetingId, workspaceId)
+  void summarizeMeeting(userId, pageId, meetingId, workspaceId, regenerated)
     .catch((error) => console.error(`[meetings] could not write up meeting ${meetingId} of page ${pageId}`, error))
     .finally(() => writing.delete(key));
 }
@@ -310,22 +311,34 @@ export async function writeUpMeeting(
   return parsed.summary || parsed.decisions || parsed.actions ? parsed : null;
 }
 
-async function summarizeMeeting(userId: string, pageId: string, meetingId: string, workspaceId: string) {
+/**
+ * Writes the meeting up into its block. A write-up that went in starts the automations of the
+ * row the page is, if it is one (server/meeting-triggers.ts); one that couldn't be written doesn't.
+ */
+async function summarizeMeeting(userId: string, pageId: string, meetingId: string, workspaceId: string, regenerated: boolean) {
   const props = await readMeeting(pageId, meetingId);
   const lines = transcriptLines(parseTranscript(props.transcript), "(not transcribed)");
   const heard = parseTranscript(props.transcript).some((c) => !("gap" in c) && c.x.trim());
+  // Whether this write put it in: one ended meanwhile (written by another process) is left alone.
+  let applied = false;
   const done = (values: Partial<Record<keyof MeetingProps, string>>) =>
-    updateMeeting(userId, pageId, meetingId, (p) => (p.status === "summarizing" ? { status: "done", lastAt: nowIso(), ...values } : null));
+    updateMeeting(userId, pageId, meetingId, (p) => {
+      if (p.status !== "summarizing") return null;
+      applied = true;
+      return { status: "done", lastAt: nowIso(), ...values };
+    });
   if (!heard) return done({ notice: "empty" });
   if (!(await aiAvailable(workspaceId))) return done({ notice: "noAi" });
+  let written: Awaited<ReturnType<typeof writeUpMeeting>>;
   try {
-    const written = await writeUpMeeting(lines, parseAttendees(props.attendees).map((a) => a.name), props.seconds, { userId, workspaceId });
-    if (!written) return done({ notice: "summaryFailed" });
-    return done({ ...written, notice: "" });
+    written = await writeUpMeeting(lines, parseAttendees(props.attendees).map((a) => a.name), props.seconds, { userId, workspaceId });
   } catch (error) {
     if (!(error instanceof AiError)) console.error("[meetings] summary", error);
     return done({ notice: error instanceof AiError && error.code === "limitReached" ? "limit" : "summaryFailed" });
   }
+  if (!written) return done({ notice: "summaryFailed" });
+  const after = await done({ ...written, notice: "" });
+  if (applied) await meetingSummarized(userId, pageId, meetingTriggerData(after, regenerated));
 }
 
 /**

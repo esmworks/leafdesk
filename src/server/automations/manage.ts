@@ -21,6 +21,7 @@ import {
   APPROVAL_TIMEOUTS,
   cleanRowTemplate,
   FOR_EACH_TYPES,
+  hasActor,
   hasRow,
   HTTP_METHODS,
   isDynamicValue,
@@ -77,6 +78,7 @@ import { agentLevel } from "@/server/agents/sharing";
 import { getProperties, normalizeRowProperties, requireDatabase } from "@/server/databases";
 import { seal } from "@/server/secret-box";
 import { rowTemplateInput } from "@/server/templates";
+import { latestMeeting } from "@/server/meeting-triggers";
 import { exportAllowed, workspacePeople } from "@/server/workspaces";
 import { checkHeader, HttpStepError, parseRequestUrl } from "./http";
 import { hookUrl, newHookSalt } from "./incoming";
@@ -162,7 +164,8 @@ export type AutomationInput = {
      */
     | { type: "view_threshold"; view: string; calculation?: string; property?: string | null; comparison: string; value: number }
     /** `property`: a button property of the database (id or name). */
-    | { type: "button_clicked"; property: string };
+    | { type: "button_clicked"; property: string }
+    | { type: "meeting_summarized" };
   actions: AutomationActionInput[];
 };
 
@@ -268,7 +271,7 @@ async function checkThreshold(
 
 /** Only a person's change has someone to set as "actor": not a date passing, a schedule or a request. */
 function checkActorFits(trigger: AutomationTrigger, actions: AutomationAction[]) {
-  if (trigger.type === "row_created" || trigger.type === "property_changed" || trigger.type === "button_clicked") return;
+  if (hasActor(trigger)) return;
   const actor = actions.some(
     (a) => a.type === "set_properties" && Object.values(a.values).some((v) => isDynamicValue(v) && v.$ === "actor"),
   );
@@ -309,6 +312,7 @@ async function checkTrigger(userId: string, databaseId: string, props: Prop[], i
     return example === undefined ? { type: "incoming_webhook" } : { type: "incoming_webhook", example };
   }
   if (input?.type === "view_threshold") return checkThreshold(databaseId, props, input);
+  if (input?.type === "meeting_summarized") return { type: "meeting_summarized" };
   if (input?.type === "button_clicked") {
     if (typeof input.property !== "string" || !input.property.trim()) throw invalid("A button trigger needs the button property");
     const prop = findProperty(props, input.property);
@@ -316,7 +320,9 @@ async function checkTrigger(userId: string, databaseId: string, props: Prop[], i
     return { type: "button_clicked", propertyId: prop.id };
   }
   if (input?.type !== "property_changed") {
-    throw invalid('The trigger is "row_created", "property_changed", "date_passed", "view_threshold", "schedule", "incoming_webhook" or "button_clicked"');
+    throw invalid(
+      'The trigger is "row_created", "property_changed", "date_passed", "view_threshold", "schedule", "incoming_webhook", "button_clicked" or "meeting_summarized"',
+    );
   }
   const refs = [...new Set([...(input.properties ?? []), ...(input.property ? [input.property] : [])].filter((r) => typeof r === "string" && r.trim()))];
   if (!refs.length) {
@@ -1066,6 +1072,11 @@ export async function testAutomation(userId: string, automationId: string, input
     rowId = row.id;
     created = trigger.type === "row_created";
     if (trigger.type === "button_clicked") origin = "button";
+    if (trigger.type === "meeting_summarized") {
+      // The row's last written-up meeting, as if it had just been written.
+      origin = "meeting";
+      triggerData = { meeting: await latestMeeting(row.id) };
+    }
     if (trigger.type === "property_changed") {
       // Nothing changed: each watched value is shown as it is, before and after alike.
       changed = watchedProperties(trigger);
@@ -1270,7 +1281,7 @@ export type AutomationRunView = {
   version: number;
   test: boolean;
   draft: boolean;
-  /** What started it, as the history shows it: an incoming webhook's body, a schedule's time. */
+  /** What started it, as the history shows it: an incoming webhook's body, a schedule's time, a meeting's write-up. */
   trigger: unknown;
   createdAt: string;
   finishedAt: string | null;
@@ -1320,7 +1331,9 @@ export async function listAutomationRuns(userId: string, automationId: string, l
           ? { scheduledFor: r.triggerData?.scheduledFor ?? null }
           : r.origin === "view_threshold"
             ? { value: r.triggerData?.value ?? null, previous: r.triggerData?.previous ?? null, threshold: r.triggerData?.threshold ?? null, comparison: r.triggerData?.comparison ?? null }
-            : null,
+            : r.origin === "meeting"
+              ? { meeting: forHistory(r.triggerData?.meeting ?? null) }
+              : null,
     createdAt: r.createdAt.toISOString(),
     finishedAt: r.finishedAt?.toISOString() ?? null,
   }));

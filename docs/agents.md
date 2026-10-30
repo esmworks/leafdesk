@@ -356,7 +356,8 @@ agent should do in your own words ("Every Monday, summarize last week's new rows
 comment the summary on the Weekly page") and has the AI draft it: a name, a description, step-by-step
 instructions in the language you wrote in, the pages and databases it needs (only ones you have full
 access to, each at the least access that does the job) and when it runs: a schedule, and
-automations on a database (a row added, a form answer included; a property changed; a date passed).
+automations on a database (a row added, a form answer included; a property changed; a date passed;
+a meeting on a row written up).
 Nothing is saved: the draft opens the usual form filled in, with the pages it would share and the
 schedules and automations it would set up listed apart, each with a way to remove it. Creating the
 agent shares those pages and sets up what is left; when one step fails, nothing of it stays (the

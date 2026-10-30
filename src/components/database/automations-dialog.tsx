@@ -350,6 +350,7 @@ function useSummary(automation: Automation, people: Person[], agents: AgentChoic
     if (automation.timeZone !== browserTimeZone()) when = t("summaryTrigger.inZone", { trigger: when, zone: timeZoneLabel(automation.timeZone) });
   } else if (trigger.type === "incoming_webhook") when = t("summaryTrigger.incoming");
   else if (trigger.type === "button_clicked") when = t("summaryTrigger.buttonClicked", { property: nameOf(trigger.propertyId) });
+  else if (trigger.type === "meeting_summarized") when = t("summaryTrigger.meetingSummarized");
   else if (trigger.type === "view_threshold") {
     const view = views?.find((v) => v.id === trigger.viewId)?.name ?? t("summaryTrigger.deletedView");
     const value = format.number(trigger.value);

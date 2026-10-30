@@ -17,6 +17,7 @@ import { copyText } from "@/components/settings/copy-button";
 import { Button, cn, IconButton, Input, Switch } from "@/components/ui";
 import { MAX_AGENT_PROMPT } from "@/lib/agents";
 import {
+  hasActor,
   hasRow,
   MAX_APPROVAL_DAYS,
   MAX_AUTOMATION_ACTIONS,
@@ -477,7 +478,7 @@ function StepCard({
   const target = targetDatabase(draft.actions, action, databaseId);
   const targetProps = schemaOf(target);
   // "Whoever made the change" is only someone for a row added or changed, or a button clicked on it.
-  const noActor = draft.trigger.type !== "row_created" && draft.trigger.type !== "property_changed" && draft.trigger.type !== "button_clicked";
+  const noActor = !hasActor(draft.trigger);
   const missingRow = !rowRun && needsRowDraft(action);
 
   return (

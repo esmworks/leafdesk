@@ -497,6 +497,7 @@
         "rowChanged": "כששורה ב־{database} משתנה",
         "propertyChanged": "כש־{property} משתנה בשורה של {database}",
         "datePassed": "שורות של {database}: {days, plural, =0 {כשמגיע {date}} one {יום אחד אחרי {date}} two {יומיים אחרי {date}} other {# ימים אחרי {date}}}",
+        "meetingSummarized": "כשפגישה בשורה של {database} סוכמה",
         "created": "תאריך היצירה שלהן",
         "edited": "העריכה האחרונה שלהן"
       },

@@ -497,6 +497,7 @@
         "rowChanged": "Khi một hàng của {database} thay đổi",
         "propertyChanged": "Khi {property} thay đổi trong một hàng của {database}",
         "datePassed": "Các hàng của {database}: {days, plural, =0 {khi đến {date}} other {# ngày sau {date}}}",
+        "meetingSummarized": "Khi cuộc họp của một hàng trong {database} được tóm tắt xong",
         "created": "ngày tạo của chúng",
         "edited": "lần chỉnh sửa gần nhất của chúng"
       },

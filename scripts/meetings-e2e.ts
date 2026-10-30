@@ -5,8 +5,9 @@
  * transcribed into the block at their times (sent out of order), a gap, who may record, the
  * three-hour limit, the summary with its timestamps and assignees written in when the recording
  * ends, Regenerate summary, the page's Markdown and search text, and the Meetings list (people who
- * can't see the page, and the trash), and an uploaded recording. Creates its own users and
- * workspace and deletes them after.
+ * can't see the page, and the trash), an uploaded recording, and a meeting on a database row
+ * starting the row's "meeting written up" automations (not when nothing was heard). Creates its
+ * own users and workspace and deletes them after.
  *
  *   pnpm tsx scripts/meetings-e2e.ts
  *
@@ -21,15 +22,19 @@ try {
 // Imported after .env is loaded: the database client reads DATABASE_URL when it is created.
 const { eq, inArray } = await import("drizzle-orm");
 const { db } = await import("@/db");
-const { meetingNote, page, user, workspace, workspaceMember } = await import("@/db/schema");
+const { automationRun, meetingNote, page, user, workspace, workspaceMember } = await import("@/db/schema");
 const { registerCollab, getCollab } = await import("@/server/collab/bridge");
 const { createCollab } = await import("@/server/collab/service");
-const { archivePage } = await import("@/server/pages");
+const { archivePage, createPage } = await import("@/server/pages");
+const { addProperty, createRows } = await import("@/server/databases");
+const manage = await import("@/server/automations/manage");
+const { flushAutomations } = await import("@/server/automations/run");
+const { runEvent } = await import("@/lib/automations");
 const { setPagePermission } = await import("@/server/permissions");
 const meetings = await import("@/server/meetings");
 const { disableAi, resetAi, setAiEnv } = await import("@/server/ai/testing");
 const { startFakeOpenAi, textOf } = await import("@/server/ai/fake-openai");
-const { MEETING_BLOCK, meetingProps, parseTranscript, serializeAttendees, MAX_MEETING_SECONDS } = await import("@/lib/meetings");
+const { MEETING_BLOCK, meetingProps, newMeetingId, parseTranscript, serializeAttendees, MAX_MEETING_SECONDS } = await import("@/lib/meetings");
 
 const RUN = `meetings-e2e-${Date.now().toString(36)}`;
 const { hocuspocus, service } = createCollab();
@@ -217,6 +222,71 @@ try {
   const uploaded = await waitFor(() => meetingOn(uploadPage), (m) => m?.status === "done", "the uploaded recording is written up when its pieces are in");
   check(uploaded?.seconds === 43 && uploaded.source === "file" && uploaded.summary.includes("The launch moves to May"), "…lasting as long as the file, with its summary", uploaded);
   await refused(() => meetings.startMeeting(ids.owner, uploadPage, planned.meetingId, "Owner", { source: "file" }), "notEmpty", "a meeting with a recording takes no upload");
+
+  // ------------------------------------------------------------------ a meeting on a row starts automations
+  const visits = await createPage({ userId: ids.owner }, { workspaceId: ws, kind: "database", title: "Visits" });
+  const notes = await addProperty(ids.owner, visits.id, { name: "Notes", type: "text" });
+  const writer = await addProperty(ids.owner, visits.id, { name: "Written up by", type: "person" });
+  const takeActions = await manage.createAutomation(ids.owner, visits.id, {
+    name: "Take the actions",
+    trigger: { type: "meeting_summarized" },
+    actions: [{ type: "set_properties", values: { Notes: "{{trigger.meeting.title}}: {{trigger.meeting.actions}}", "Written up by": { $: "actor" } } }],
+  });
+  check(takeActions.trigger.type === "meeting_summarized", "an automation can start when a row's meeting is written up", takeActions.trigger);
+  const runsOf = () => db.select().from(automationRun).where(eq(automationRun.automationId, takeActions.id)).orderBy(automationRun.createdAt);
+  const recordOnRow = async (rowId: string, size: number, title: string) => {
+    const id = newMeetingId();
+    await getCollab().appendBlocks(rowId, [{ type: MEETING_BLOCK, props: { meetingId: id, title } }], { userId: ids.owner });
+    await meetings.startMeeting(ids.owner, rowId, id, "Owner");
+    await meetings.addMeetingChunk(ids.owner, { pageId: rowId, meetingId: id, chunk: 0, offset: 0, duration: 30 }, audio(size));
+    await meetings.finishMeeting(ids.owner, rowId, id, 30);
+    return id;
+  };
+
+  const [visit, quiet] = await createRows(ids.owner, visits.id, [{ title: "Acme" }, { title: "Quiet call" }]);
+  const rowMeeting = await recordOnRow(visit.id, 1000, "Acme visit");
+  const firstRuns = await waitFor(runsOf, (r) => r.length === 1, "writing up a meeting on a row queues the row's automation");
+  const meetingData = firstRuns[0].triggerData?.meeting as Record<string, unknown> | undefined;
+  check(
+    firstRuns[0].rowId === visit.id && firstRuns[0].origin === "meeting" && firstRuns[0].actorId === ids.owner && runEvent(firstRuns[0]) === "row.meeting_summarized",
+    "…a run about that row, by whoever ended the meeting",
+    firstRuns[0],
+  );
+  check(
+    meetingData?.id === rowMeeting && meetingData.title === "Acme visit" && String(meetingData.summary).includes("The launch moves to May") && meetingData.regenerated === false,
+    "…carrying the write-up",
+    meetingData,
+  );
+  check(meetingData && !("transcript" in meetingData), "…but not the transcript", meetingData);
+  await flushAutomations();
+  const [acme] = await db.select({ properties: page.properties }).from(page).where(eq(page.id, visit.id));
+  check(
+    acme.properties[notes.id] === "Acme visit: - [ ] @Ayşe: Tell the customer by Friday [00:30]" && JSON.stringify(acme.properties[writer.id]) === JSON.stringify([ids.owner]),
+    "its steps read the meeting's texts and the actor",
+    acme.properties,
+  );
+
+  await meetings.regenerateMeetingSummary(ids.member, visit.id, rowMeeting);
+  const again = await waitFor(runsOf, (r) => r.length === 2, "writing it up again starts it again");
+  check(again[1].actorId === ids.member && (again[1].triggerData?.meeting as { regenerated?: boolean }).regenerated === true, "…as the one who asked, marked regenerated", again[1]);
+  await flushAutomations();
+
+  await recordOnRow(quiet.id, 3000, "Nothing said");
+  await waitFor(() => meetingOn(quiet.id), (m) => m?.status === "done" && m.notice === "empty", "a row's meeting where nothing was heard ends without a write-up");
+  await new Promise((resolve) => setTimeout(resolve, 300));
+  check((await runsOf()).length === 2, "…and starts nothing");
+
+  const { runId } = await manage.testAutomation(ids.owner, takeActions.id, { rowId: visit.id });
+  const [testRun] = await db.select().from(automationRun).where(eq(automationRun.id, runId));
+  check(
+    testRun.test && testRun.origin === "meeting" && (testRun.triggerData?.meeting as { title?: string }).title === "Acme visit",
+    "a test run uses the row's last written-up meeting",
+    testRun,
+  );
+  const { runId: emptyRun } = await manage.testAutomation(ids.owner, takeActions.id, { rowId: quiet.id });
+  const [emptyTest] = await db.select().from(automationRun).where(eq(automationRun.id, emptyRun));
+  check((emptyTest.triggerData?.meeting as { summary?: string }).summary === "", "…and an empty one on a row without one", emptyTest.triggerData);
+  await flushAutomations();
 
   console.log(`\n${passed} checks passed`);
 } finally {

@@ -7,7 +7,7 @@ Contents: [Automations and webhooks](#automations-and-webhooks), [Page webhooks]
 ## Automations and webhooks
 
 A database automation does a list of steps when rows of its database are added or changed, when
-someone clicks a button on a row, when a date of a row comes, when a total over a view's rows crosses a line, on a schedule, or when
+someone clicks a button on a row, when a meeting on a row is written up, when a date of a row comes, when a total over a view's rows crosses a line, on a schedule, or when
 another service sends it a request. People with
 full access to the database see and manage its automations, in the app or over MCP
 (`list_automations`, `create_automation`, `update_automation`, `publish_automation`,
@@ -50,6 +50,15 @@ and deleting one is recorded in the audit log.
   may click one row's button 10 times a minute. A button property's menu opens the automation
   made for it (*Edit what it does*), or starts a new one; several automations may share a button
   and all start on a click.
+- *A meeting is written up*: AI has written the summary, decisions and action items of a
+  [meeting](ai.md#meeting-notes) recorded on a row's page (a Visits or Calls database whose rows
+  each hold their meeting). It runs on that row, with whoever ended the recording as the person
+  who made the change, and again when someone asks for the write-up again (*Regenerate summary*;
+  then they are that person). A meeting where nothing was heard, or whose write-up failed or
+  had no AI to write it, starts nothing; neither does a meeting on a page that isn't a row, or on a
+  row in the trash. Its texts are in `{{trigger.meeting.…}}` (below); a *Run an agent* step hands
+  the row, its meeting included, to an agent, to turn the action items into tasks or update the
+  customer. A test run uses the row's last written-up meeting.
 
 Schedules, totals crossing a line and incoming webhooks have no row. Their steps that act on a row (setting properties,
 running an agent, notifying the people a person property names) go *for each* row an earlier
@@ -121,7 +130,9 @@ values can use what started the run and what earlier steps gave, as `{{…}}`:
 - `{{trigger.…}}` is what started the run. For a row trigger, the row's values by property name
   (`{{trigger.Status}}`, `{{trigger.Due date}}`) and its `id`, `title`, `url`, `event`, `database`,
   `actor` and, for a changed property, `changes.<Property>.before` and `.after`; a date passed run
-  has `date` too. For an incoming webhook, the JSON body (`{{trigger.customer.email}}`). For a
+  has `date` too, and a meeting's `meeting`: its `title`, `summary`, `decisions`, `actions`,
+  `attendees` (names), `seconds`, `startedAt`, `endedAt`, `id` and `regenerated` (written up
+  again), as AI wrote them when the run started (the transcript isn't in it). For an incoming webhook, the JSON body (`{{trigger.customer.email}}`). For a
   schedule, `event`, `scheduledFor` and `database`. For a total crossing a line, `value` (the
   total that crossed it), `previous` (the total at the check before), `threshold`, `comparison`
   (`above` or `below`), `calculation`, `property`, `view` (`name`, `url`) and `database`:
@@ -234,7 +245,7 @@ Each delivery is a `POST` with these headers:
 | --- | --- |
 | `Content-Type` | `application/json` |
 | `User-Agent` | `Leafdesk-Webhook/1.0` |
-| `X-Leafdesk-Event` | `row.created`, `row.updated`, `row.date_passed` (a date passed), or `ping` for a test delivery |
+| `X-Leafdesk-Event` | `row.created`, `row.updated`, `row.date_passed` (a date passed), `row.button_clicked`, `row.meeting_summarized` (a meeting on the row was written up), or `ping` for a test delivery |
 | `X-Leafdesk-Delivery` | The run id, the same on every retry; use it to ignore duplicates |
 | `X-Leafdesk-Signature` | `t=<Unix seconds>,v1=<hex HMAC-SHA256>` (below) |
 

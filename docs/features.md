@@ -1323,7 +1323,8 @@
 - **Meeting notes** (with speech to text): `/` *Meeting notes* in a page records a meeting of up to
   three hours, the transcript filling in as you talk (or takes a recording made elsewhere, uploaded
   as an audio or video file), and AI writes the summary, decisions and action items, each linked to
-  its moment in the transcript. *Meetings* in the sidebar lists them
+  its moment in the transcript. *Meetings* in the sidebar lists them. A meeting on a database row
+  can start the database's automations, and so an agent, once it is written up
   (see [Meeting notes](ai.md#meeting-notes)).
 - **AI chat from Telegram** (optional, off until the server has a Telegram bot): people link their
   Telegram account in My account → *Connected apps* and ask the AI chat there, by text or voice

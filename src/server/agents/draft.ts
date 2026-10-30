@@ -133,6 +133,8 @@ function triggerInput(trigger: DraftTrigger | undefined): AutomationInput["trigg
       return { type: "property_changed", property: typeof trigger.propertyId === "string" ? trigger.propertyId : null };
     case "date_passed":
       return { type: "date_passed", date: String(trigger.date ?? ""), days: trigger.days };
+    case "meeting_summarized":
+      return { type: "meeting_summarized" };
     default:
       // The automation's own check refuses it.
       return trigger as never;

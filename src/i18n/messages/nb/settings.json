@@ -497,6 +497,7 @@
         "rowChanged": "Når en rad i {database} endres",
         "propertyChanged": "Når {property} endres i en rad i {database}",
         "datePassed": "Rader i {database}: {days, plural, =0 {når {date} er nådd} one {# dag etter {date}} other {# dager etter {date}}}",
+        "meetingSummarized": "Når et møte på en rad i {database} er oppsummert",
         "created": "opprettelsesdatoen",
         "edited": "siste endring"
       },
