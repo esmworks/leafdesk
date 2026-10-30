@@ -78,6 +78,8 @@ describe("OpenAPI document", () => {
       if (op.requestBody) {
         expect(body?.type, op.operationId).toBe("object");
         expect(body.$schema).toBeUndefined();
+        // The handler refuses other fields, and says so here.
+        expect(body.additionalProperties, op.operationId).toBe(false);
       }
     }
     const create = doc.paths["/pages"].post.requestBody.content["application/json"].schema;

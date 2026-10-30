@@ -96,7 +96,13 @@ export type ApiRoute<Q extends Schema = Schema, B extends Schema = Schema> = {
   handler: (call: ApiCall<z.infer<Q>, z.infer<B>>) => Promise<unknown>;
 };
 
-export const defineRoute = <Q extends Schema = Schema, B extends Schema = Schema>(def: ApiRoute<Q, B>) => def as unknown as ApiRoute;
+/**
+ * A route whose query and body refuse fields they don't name (the handler answers 400 naming the
+ * ones they do, and the OpenAPI document says `additionalProperties: false`): a misspelt `filter`
+ * for `filters` is otherwise dropped, and the query runs without it.
+ */
+export const defineRoute = <Q extends Schema = Schema, B extends Schema = Schema>(def: ApiRoute<Q, B>) =>
+  ({ ...def, query: def.query?.strict(), body: def.body?.strict() }) as unknown as ApiRoute;
 
 // ---------------------------------------------------------------------------- workspace-bound tokens
 

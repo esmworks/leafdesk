@@ -615,6 +615,25 @@ export function valuesLine(properties: Record<string, unknown>) {
 
 export type ToolOutcome = { content: string; isError?: boolean; step?: ChatStepRecord };
 
+/**
+ * The arguments each reading tool takes. Only providers in a strict mode hold a model to
+ * `additionalProperties: false`, and a misspelt one was dropped: query_database called with
+ * `filter` for `filters` listed every row as matching. (Writing tools aren't checked here: agents
+ * offer them with arguments of their own, as `reason`.)
+ */
+const READ_ARGUMENTS = new Map(
+  [...CHAT_TOOLS, ...ATTACHMENT_TOOLS].map((t) => [t.name, Object.keys((t.parameters as { properties?: object }).properties ?? {})]),
+);
+
+/** An error naming the arguments a reading tool doesn't take, and the ones it does; null when there are none. */
+export function unknownArguments(name: string, args: Record<string, unknown>): ToolOutcome | null {
+  const known = READ_ARGUMENTS.get(name);
+  const unknown = known ? Object.keys(args).filter((key) => !known.includes(key)) : [];
+  if (!known || !unknown.length) return null;
+  const names = unknown.map((key) => `"${key}"`).join(", ");
+  return { content: `${unknown.length > 1 ? "Unknown arguments" : "Unknown argument"} ${names}. ${name} takes: ${known.join(", ")}`, isError: true };
+}
+
 export async function runTool(
   ctx: ops.OperationContext,
   workspaceId: string,
@@ -625,6 +644,8 @@ export async function runTool(
   extra: ToolExtra = {},
 ): Promise<ToolOutcome> {
   if (room < 1_000) return { content: "There is no room left in this request to search or read more. Answer with what you have.", isError: true };
+  const refused = unknownArguments(call.name, call.arguments);
+  if (refused) return refused;
   if (call.name === "search_pages") {
     const query = typeof call.arguments.query === "string" ? call.arguments.query.trim().slice(0, 500) : "";
     if (!query) return { content: "search_pages needs a query.", isError: true };

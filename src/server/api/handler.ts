@@ -90,9 +90,19 @@ function bearer(request: Request): string | null {
 
 const WWW_AUTHENTICATE = 'Bearer realm="leafdesk"';
 
-/** A 400 listing what is wrong, `param` naming the first field (when the issue is about one). */
-function validationError(message: string, error: z.ZodError) {
-  const details = error.issues.map((i) => ({ path: i.path.join("."), message: i.message }));
+/**
+ * A 400 listing what is wrong, `param` naming the first field (when the issue is about one). A
+ * field the route doesn't take (its schemas are strict, see defineRoute) is named with the ones it does.
+ */
+function validationError(message: string, error: z.ZodError, unknown?: { what: string; known: string[] }) {
+  const details = error.issues.flatMap((i) =>
+    i.code === "unrecognized_keys" && unknown
+      ? i.keys.map((key) => ({
+          path: [...i.path, key].join("."),
+          message: `Unknown ${unknown.what} "${key}". This endpoint takes: ${unknown.known.join(", ") || "nothing"}`,
+        }))
+      : [{ path: i.path.join("."), message: i.message }],
+  );
   const param = details.find((d) => d.path)?.path;
   return new ApiError(400, "validation_error", message, details, param ? { param } : {});
 }
@@ -308,7 +318,9 @@ export function createApiHandler(deps: ApiDeps) {
       let query: Record<string, unknown> = {};
       if (route.query) {
         const parsed = route.query.safeParse(rawQuery);
-        if (!parsed.success) throw validationError("Some query parameters are invalid.", parsed.error);
+        if (!parsed.success) {
+          throw validationError("Some query parameters are invalid.", parsed.error, { what: "query parameter", known: Object.keys(route.query.shape) });
+        }
         query = parsed.data;
       }
       let body: Record<string, unknown> = {};
@@ -317,14 +329,18 @@ export function createApiHandler(deps: ApiDeps) {
       if (route.form) {
         const form = await readForm(request, { ...route, form: route.form });
         files = form.files;
-        const parsed = (route.body ?? z.object({})).safeParse(form.fields);
-        if (!parsed.success) throw validationError("The request body is invalid.", parsed.error);
+        const fields = route.body ?? z.object({}).strict();
+        const parsed = fields.safeParse(form.fields);
+        if (!parsed.success) {
+          const known = [...Object.keys(route.form.files), ...Object.keys(fields.shape)];
+          throw validationError("The request body is invalid.", parsed.error, { what: "field", known });
+        }
         body = parsed.data;
         if (key !== null) sent = { fields: form.fields, files: await fileDigests(files) };
       } else if (route.body) {
         sent = await readBody(request);
         const parsed = route.body.safeParse(sent);
-        if (!parsed.success) throw validationError("The request body is invalid.", parsed.error);
+        if (!parsed.success) throw validationError("The request body is invalid.", parsed.error, { what: "field", known: Object.keys(route.body.shape) });
         body = parsed.data;
       }
 

@@ -141,7 +141,9 @@ BlockNote on Yjs; Tailwind v4; next-intl. Node 24, pnpm 11. A separate Electron 
   applied to every tool in `createMcpServer`; the list still shows the schema as written), so a
   test or script passing an extra key gets an error.
 - **REST API.** One route table, `API_ROUTES` in `src/server/api/routes.ts` (`defineRoute`); the
-  OpenAPI document is generated from it. Bearer tokens only (`api/tokens.ts`).
+  OpenAPI document is generated from it. Bearer tokens only (`api/tokens.ts`). `defineRoute` makes
+  each query and body schema `.strict()`, so a field a route doesn't name answers 400 (a script
+  sending a path's id in the body too gets one).
 - **AI.** `src/server/ai/index.ts` is the only door to the model library: `complete`, `stream`,
   `embed`, `transcribe`, with limits and usage built in. The AI chat and agents' chats
   (`components/agent-chat/agent-chat.tsx`) draw questions, steps and message actions with
@@ -151,7 +153,8 @@ BlockNote on Yjs; Tailwind v4; next-intl. Node 24, pnpm 11. A separate Electron 
   following it, Stop is `stopChatAction`, and `getConversation`'s `run` is followed again through
   `GET /api/ai/chat?run=`, which replays its events from the `conversation` event (it carries the
   question: the turn is saved only at the end). Chat: `ai-chat.ts`; its tools:
-  `ai-tools.ts` (writes reuse MCP's checks: form settings in `mcp/form-settings.ts`), and every
+  `ai-tools.ts` (reads refuse arguments their schema doesn't name, `unknownArguments`; writes
+  reuse MCP's checks: form settings in `mcp/form-settings.ts`), and every
   other MCP tool through `ai-more-tools.ts` (`find_tools`, `use_tool`: the MCP server in this
   process as the person; `HIDDEN` and `ASKED_EACH_TIME` there; agents' runs use it too, without
   the latter; it imports `mcp/tools` lazily, which reaches `agents/chat` and so `ai-chat`); CSV files

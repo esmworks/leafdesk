@@ -66,7 +66,7 @@ Filter ops: `contains`, `does_not_contain`, `equals`, `not_equals`, `is_any_of` 
   missing; `created` says which.
   `POST /pages` and `POST /pages/{id}/move` take a `teamspace_id` for top-level pages, as the MCP
   tools do.
-- **Pages:** `GET /search`, `POST /pages`, `GET` and `PATCH /pages/{id}` (title, icon, cover,
+- **Pages:** `GET /search`, `POST /pages`, `GET` and `PATCH /pages/{id}` (title, icon, `background` with its cover,
   Markdown body replaced or appended, or single blocks by `block_id` with the modes
   `replace_block`, `insert_after` and `delete_block`; `GET` with `with_block_ids` gives the ids),
   `GET /pages/{id}/children`, `POST /pages/{id}/move`, `/archive` and `/restore` (the trash), and
@@ -130,6 +130,11 @@ a token's workspace) answer `404`. A body the database refuses to save answers `
 created with such a body stays, without it. Errors are JSON, `{"error": {"code", "message", "param", "details"}}`,
 where `param` names the field an invalid value is in when it is known (`title`,
 `properties.Status`, `rows.2.properties.Status` in a bulk call); lists page with `next_cursor`.
+A body field or a query parameter an endpoint doesn't take is refused rather than ignored: `400`
+`validation_error`, with `param` naming it and the message the fields the endpoint takes (so
+`{"filter": …}` sent to `/databases/{database_id}/query` doesn't list every row as unfiltered).
+The OpenAPI document marks each body `additionalProperties: false`. Ids already in the path don't
+go in the body again.
 Each token may make 180 requests a minute (`API_RATE_LIMIT`): every answer to a request with a
 valid token carries `X-RateLimit-Limit`, `X-RateLimit-Remaining` and `X-RateLimit-Reset` (when one
 more request is allowed again, in Unix seconds), and beyond the limit the answer is `429` with

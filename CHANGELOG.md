@@ -162,6 +162,15 @@
   `query_database` called with `filter` instead of `filters` listed every row as if they matched,
   and a misspelt setting on a write was simply not made. The error names the arguments the tool
   takes. The tool list clients send their model stays the same size.
+- **The REST API and the AI chat refuse a field they don't take, as MCP tools do.** One was
+  dropped without a word, so a database query sent with `filter` instead of `filters` listed every
+  row as if they matched. The REST API now answers `400` `validation_error` for an unknown body
+  field, form field or query parameter, with `param` naming it and the message the ones the
+  endpoint takes; the OpenAPI
+  document marks each body `additionalProperties: false`. A client that also sent a path's id in
+  the body (`database_id` to `/databases/{database_id}/query`) must leave it out. The AI chat's and
+  agents' reading tools (`query_database`, `search_pages`, `read_page` …) tell the model the same,
+  so it asks again instead of answering from an unfiltered list.
 
 ## 0.6.7 — 2026-10-29
 

@@ -242,6 +242,23 @@ describe("REST API handler", () => {
     expect([array.status, (await errorOf(array)).code]).toEqual([400, "invalid_json"]);
   });
 
+  it("refuses fields and query parameters an endpoint doesn't take, naming the ones it does", async () => {
+    // A misspelt field used to be dropped, so a query sent `filter` for `filters` ran unfiltered.
+    const body = await call(handler(), "POST", "/things/abc/query", { token: READ, body: JSON.stringify({ limit: 2, filter: [] }) });
+    const bodyError = await errorOf(body);
+    expect([body.status, bodyError.code, bodyError.param]).toEqual([400, "validation_error", "filter"]);
+    expect(bodyError.details).toEqual([{ path: "filter", message: 'Unknown field "filter". This endpoint takes: limit' }]);
+    const query = await call(handler(), "GET", "/things/abc?limit=3&limti=4", { token: READ });
+    const queryError = await errorOf(query);
+    expect([query.status, queryError.code, queryError.param]).toEqual([400, "validation_error", "limti"]);
+    expect(queryError.details).toEqual([{ path: "limti", message: 'Unknown query parameter "limti". This endpoint takes: limit' }]);
+    const form = new FormData();
+    form.set("audio", new File(["abc"], "a.webm"));
+    form.set("lable", "hi");
+    const fields = await call(handler(), "POST", "/recordings", { token: WRITE, body: form });
+    expect([fields.status, (await errorOf(fields)).param]).toEqual([400, "lable"]);
+  });
+
   it("refuses bodies over the size limit", async () => {
     const res = await call(handler(), "POST", "/things", { token: WRITE, body: JSON.stringify({ title: "x".repeat(6 * 1024 * 1024) }) });
     expect([res.status, (await errorOf(res)).code]).toEqual([413, "payload_too_large"]);

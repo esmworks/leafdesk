@@ -119,6 +119,22 @@ describe("search_pages and archived pages", () => {
  * create_database_from_csv shows the columns it would make, their types guessed from the values
  * unless the model gives them. create_database checks what it is asked for before asking.
  */
+describe("arguments a tool doesn't take", () => {
+  const run = (name: string, args: Record<string, unknown>) =>
+    runTool({ userId: "u" } as never, "w", undefined, { name, arguments: args }, { sources: [], byKey: new Map() }, 50_000);
+
+  it("refuses them, naming the ones it takes, instead of running without them", async () => {
+    // `filter` for `filters` used to be dropped, and every row came back as matching.
+    const out = await run("query_database", { database_id: "d1", filter: [{ property: "Place", op: "is_empty" }] });
+    expect(out).toEqual({
+      content: 'Unknown argument "filter". query_database takes: database_id, filters, filter_combinator, sorts, limit',
+      isError: true,
+    });
+    expect((await run("search_pages", { query: "x", limit: 5, page: 2 })).content).toBe('Unknown arguments "limit", "page". search_pages takes: query');
+    expect(searchCalls).toHaveLength(0);
+  });
+});
+
 describe("attached files and new databases", () => {
   const file = {
     kind: "csv" as const,
