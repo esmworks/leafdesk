@@ -138,6 +138,10 @@
 - **The MCP server and the REST API take a place as `{lat, lng, address, name}`.** Their tools'
   documentation promised this form, but a row write refused it, so a place could be written only
   as coordinates, and its cell then showed the coordinates instead of an address.
+- **MCP tools refuse an argument they don't take.** One was dropped without a word, so
+  `query_database` called with `filter` instead of `filters` listed every row as if they matched,
+  and a misspelt setting on a write was simply not made. The error names the arguments the tool
+  takes. The tool list clients send their model stays the same size.
 
 ## 0.6.7 — 2026-10-29
 

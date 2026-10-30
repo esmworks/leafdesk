@@ -137,7 +137,9 @@ BlockNote on Yjs; Tailwind v4; next-intl. Node 24, pnpm 11. A separate Electron 
   by `get_page`. Related writes of the same risk share one tool with an `action` (`change_memory`,
   `set_agent_schedule`); keep reads and writes in separate tools, since clients ask before writes.
   `ops.inputs` is shared with the REST API's OpenAPI: change MCP's view of an input with `.extend`
-  in `mcp/`, not there.
+  in `mcp/`, not there. A tool refuses an argument it doesn't take (`mcp/strict-arguments.ts`,
+  applied to every tool in `createMcpServer`; the list still shows the schema as written), so a
+  test or script passing an extra key gets an error.
 - **REST API.** One route table, `API_ROUTES` in `src/server/api/routes.ts` (`defineRoute`); the
   OpenAPI document is generated from it. Bearer tokens only (`api/tokens.ts`).
 - **AI.** `src/server/ai/index.ts` is the only door to the model library: `complete`, `stream`,

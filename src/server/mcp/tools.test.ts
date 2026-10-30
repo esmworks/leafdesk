@@ -1444,6 +1444,23 @@ describe("query_database pages", () => {
     expect(junk.text).toMatch(/The cursor is not valid/);
   });
 
+  it("refuses an argument it doesn't take instead of listing every row without it", async () => {
+    databases.listRows.mockResolvedValue(rows);
+    const r = await callTool(reader, "query_database", {
+      database_id: "db-1",
+      filter: '{"property": "Notes", "operator": "is_not_empty"}',
+      limit: 200,
+    });
+    expect(r.isError).toBe(true);
+    expect(r.text).toMatch(/Unknown argument "filter"\. This tool takes: database_id, filters, filter_combinator, sorts/);
+    expect(databases.listRows).not.toHaveBeenCalled();
+    // A write too: a misspelt "properties" would otherwise save nothing and report success.
+    const w = await callTool(writer, "update_database_row", { row_id: "r1", propertys: { Status: "Done" } });
+    expect(w.isError).toBe(true);
+    expect(w.text).toMatch(/Unknown argument "propertys"\. This tool takes: row_id, title, properties/);
+    expect(databases.updateRowProperties).not.toHaveBeenCalled();
+  });
+
   it("returns only the properties asked for", async () => {
     databases.listRows.mockResolvedValue(rows.slice(0, 1));
     const some = await callTool(reader, "query_database", { database_id: "db-1", properties: ["notes"] });
