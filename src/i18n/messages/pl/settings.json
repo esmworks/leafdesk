@@ -562,6 +562,7 @@
       "fromConnection": "Z uruchomienia rozpoczętego przez {connection}",
       "fromRequest": "Z uruchomienia zleconego przez właściciela",
       "fromSchedule": "Z zaplanowanego uruchomienia",
+      "replaces": "Zmienia notatkę:",
       "removedConnection": "usunięte połączenie",
       "keep": "Zachowaj",
       "keepEdited": "Zachowaj z tym tekstem",

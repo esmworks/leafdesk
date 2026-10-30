@@ -293,6 +293,7 @@
       "memory": {
         "remember": "Zapamiętano:",
         "propose": "Zaproponowano notatkę:",
+        "handoff": "Zostawił notatkę dla następnego uruchomienia:",
         "forget": "Zapomniano:",
         "declined": {
           "remember": "Odrzucono zapamiętanie:",

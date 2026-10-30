@@ -19,7 +19,8 @@ import { MAX_MEMORIES, MAX_MEMORY_CHARS } from "@/lib/ai-chat";
 /**
  * What an agent remembers (server/agents/memory.ts): the notes that go with each of its runs, and
  * the ones its runs proposed, which wait here until an owner keeps (as they are or changed) or
- * dismisses them. Owners also write, change and delete notes.
+ * dismisses them; a proposal that is a kept note's new text shows that note, which keeping changes.
+ * Owners also write, change and delete notes.
  */
 export function AgentMemoryTab({ workspaceId, agent, memoryOff }: { workspaceId: string; agent: AgentView; memoryOff: boolean }) {
   const t = useTranslations("settings.agents.memory");
@@ -148,15 +149,20 @@ export function AgentMemoryTab({ workspaceId, agent, memoryOff }: { workspaceId:
                     {editor(note) || (
                       <div className="flex items-start gap-1">
                         <div className="min-w-0 flex-1 py-1">
+                          {note.replaces && (
+                            <p className="mb-0.5 text-xs text-fg-muted">
+                              {t("replaces")} <span className="break-words line-through">{note.replaces.text}</span>
+                            </p>
+                          )}
                           {note.text === null ? <p className="text-fg-muted">{t(note.run?.othersRun ? "hiddenOthersText" : "hiddenText")}</p> : <p className="break-words">{note.text}</p>}
                           <Origin workspaceId={workspaceId} note={note} />
                         </div>
                         {editable && note.text !== null && (
                           <>
-                            <Button size="sm" variant="primary" disabled={pending || full} onClick={() => run(() => keepAgentMemoryAction(workspaceId, agent.id, note.id), done)}>
+                            <Button size="sm" variant="primary" disabled={pending || (full && !note.replaces)} onClick={() => run(() => keepAgentMemoryAction(workspaceId, agent.id, note.id), done)}>
                               {t("keep")}
                             </Button>
-                            <IconButton label={t("edit")} className="h-7 w-7" disabled={pending || full} onClick={() => setEditing({ id: note.id, text: note.text ?? "" })}>
+                            <IconButton label={t("edit")} className="h-7 w-7" disabled={pending || (full && !note.replaces)} onClick={() => setEditing({ id: note.id, text: note.text ?? "" })}>
                               <Pencil className="h-3.5 w-3.5" />
                             </IconButton>
                           </>

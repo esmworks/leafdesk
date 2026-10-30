@@ -831,9 +831,9 @@ export type InboxAgentMemory = {
   runId: string;
   agentId: string;
   agentName: string;
-  /** How many of the run's proposals still wait for an owner. */
+  /** How many of the agent's proposals still wait for an owner (one item per agent: agents/memory.ts). */
   count: number;
-  /** The first one's text; null when the run was on a row the user can't open (see agents/memory.ts). */
+  /** The first one's text; null when its run was on a row the user can't open (see agents/memory.ts). */
   text: string | null;
 };
 

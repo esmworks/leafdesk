@@ -562,6 +562,7 @@
       "fromConnection": "Từ một lần chạy do {connection} khởi động",
       "fromRequest": "Từ một lần chạy do một chủ sở hữu yêu cầu",
       "fromSchedule": "Từ một lần chạy theo lịch",
+      "replaces": "Thay đổi ghi chú:",
       "removedConnection": "một kết nối đã bị xóa",
       "keep": "Giữ lại",
       "keepEdited": "Giữ với nội dung này",

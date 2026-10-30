@@ -293,6 +293,7 @@
       "memory": {
         "remember": "Muistettu:",
         "propose": "Ehdotti muistiinpanoa:",
+        "handoff": "Jätti muistiinpanon seuraavalle ajolle:",
         "forget": "Unohdettu:",
         "declined": {
           "remember": "Muistaminen hylätty:",

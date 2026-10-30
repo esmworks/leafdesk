@@ -562,6 +562,7 @@
       "fromConnection": "Fra en kjøring startet av {connection}",
       "fromRequest": "Fra en kjøring en eier ba om",
       "fromSchedule": "Fra en planlagt kjøring",
+      "replaces": "Endrer notatet:",
       "removedConnection": "en fjernet tilkobling",
       "keep": "Behold",
       "keepEdited": "Behold med denne teksten",

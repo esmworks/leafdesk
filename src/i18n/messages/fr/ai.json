@@ -293,6 +293,7 @@
       "memory": {
         "remember": "Retenu :",
         "propose": "A proposé une note :",
+        "handoff": "A laissé une note pour la prochaine exécution :",
         "forget": "Oublié :",
         "declined": {
           "remember": "Mémorisation refusée :",

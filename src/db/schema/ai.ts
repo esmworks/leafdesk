@@ -1,5 +1,5 @@
 import { sql } from "drizzle-orm";
-import { bigint, boolean, date, doublePrecision, index, integer, jsonb, pgTable, primaryKey, real, text, timestamp, unique } from "drizzle-orm/pg-core";
+import { bigint, boolean, date, doublePrecision, index, integer, jsonb, pgTable, primaryKey, real, text, timestamp, unique, type AnyPgColumn } from "drizzle-orm/pg-core";
 import { databaseProperty, page, tsvector, workspace } from "./app";
 import { agentRun } from "./agents";
 import { user } from "./auth";
@@ -199,7 +199,8 @@ export type ChatToolRecord = {
  * server/ai-memory.ts. Records from before notes were approved have no outcome: they were done.
  * An agent's run `propose`s notes instead: they wait for an owner (server/agents/memory.ts).
  */
-export type ChatMemoryRecord = { kind: "memory"; action: "remember" | "propose" | "forget"; text: string; outcome?: "done" | "declined" };
+/** `handoff`: a schedule's run left a note for the schedule's next run (server/agents/memory.ts). */
+export type ChatMemoryRecord = { kind: "memory"; action: "remember" | "propose" | "forget" | "handoff"; text: string; outcome?: "done" | "declined" };
 
 /** A note in use (`kept`), or one an agent's run proposed that waits for an owner (`proposed`). */
 export type MemoryStatus = "kept" | "proposed";
@@ -341,7 +342,8 @@ export const aiChatFile = pgTable(
  *
  * An agent's notes are kept here too, under its own user (server/agents/memory.ts): what its runs
  * proposed (`status` proposed, `agentRunId` the run) and what its owners kept or wrote (no run);
- * these are backed up with the agent.
+ * these are backed up with the agent. A proposal with `replacesId` is a new text for that kept
+ * note: keeping it changes the note in place.
  * Only kept notes go with its runs. A proposal no owner answered goes with its run, when the run
  * is pruned; notes stay while the agent is archived and go with it.
  */
@@ -361,6 +363,8 @@ export const aiMemory = pgTable(
     conversationId: text("conversation_id").references(() => aiConversation.id, { onDelete: "set null" }),
     status: text("status").$type<MemoryStatus>().notNull().default("kept"),
     agentRunId: text("agent_run_id").references(() => agentRun.id, { onDelete: "cascade" }),
+    /** A proposal's kept note it would change (null: a new note, also once that note is gone). */
+    replacesId: text("replaces_id").references((): AnyPgColumn => aiMemory.id, { onDelete: "set null" }),
     /** The connected app (OAuth client) that kept the note or last changed it over MCP, if one did. */
     oauthClientId: text("oauth_client_id"),
     createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),

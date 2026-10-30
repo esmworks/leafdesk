@@ -1175,9 +1175,11 @@ async function main() {
   // Memory: the run proposes notes (as a run's `remember` does, here in this process), the owner
   // hears of it in the inbox and answers over MCP.
   const { runAgentMemoryTool } = await import("@/server/agents/memory");
+  const { agentRun } = await import("@/db/schema");
   const bot = { userId: triage.user_id as string, workspaceId: ws };
+  const [proposingRun] = await db.select().from(agentRun).where(eq(agentRun.id, agentRunEntry.id));
   for (const text of [`Printers jam on Mondays ${RUN}`, `Toner is in room 4 ${RUN}`]) {
-    const proposed = await runAgentMemoryTool(bot, agentRunEntry.id, { name: "remember", arguments: { text } });
+    const proposed = await runAgentMemoryTool(bot, proposingRun, { name: "remember", arguments: { text } });
     check(!proposed.isError, "a run proposes a note", proposed);
   }
   const memoryInbox = await mcp.ok("list_notifications", { workspace_id: ws, unread_only: true });

@@ -562,6 +562,7 @@
       "fromConnection": "{connection}(으)로 시작된 실행에서",
       "fromRequest": "소유자가 요청한 실행에서",
       "fromSchedule": "예약된 실행에서",
+      "replaces": "변경할 메모:",
       "removedConnection": "제거된 연결",
       "keep": "보관",
       "keepEdited": "이 내용으로 보관",

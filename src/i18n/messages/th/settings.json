@@ -562,6 +562,7 @@
       "fromConnection": "จากการทำงานที่ {connection} เริ่ม",
       "fromRequest": "จากการทำงานที่เจ้าของขอให้ทำ",
       "fromSchedule": "จากการทำงานตามกำหนดเวลา",
+      "replaces": "แก้ไขบันทึกนี้:",
       "removedConnection": "การเชื่อมต่อที่ถูกลบ",
       "keep": "เก็บไว้",
       "keepEdited": "เก็บไว้ด้วยข้อความนี้",

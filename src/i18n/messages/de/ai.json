@@ -293,6 +293,7 @@
       "memory": {
         "remember": "Gemerkt:",
         "propose": "Hat eine Notiz vorgeschlagen:",
+        "handoff": "Notiz für den nächsten Lauf hinterlassen:",
         "forget": "Vergessen:",
         "declined": {
           "remember": "Merken abgelehnt:",

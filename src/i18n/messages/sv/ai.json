@@ -293,6 +293,7 @@
       "memory": {
         "remember": "Kom ihåg:",
         "propose": "Föreslog en anteckning:",
+        "handoff": "Lämnade en anteckning till nästa körning:",
         "forget": "Glömde:",
         "declined": {
           "remember": "Avböjde att komma ihåg:",

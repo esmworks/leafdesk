@@ -276,7 +276,7 @@ export const agentInputs = {
     action: z
       .enum(["add", "update", "keep", "dismiss", "delete"])
       .describe(
-        "add: keep a new note at once (text). update: change a note's text, kept or proposed (memory_id, text; a proposal stays one). keep: keep a note a run proposed (memory_id, text to change it first). dismiss: drop proposals (memory_ids, or all). delete: drop kept notes (memory_ids, or all: the agent forgets everything it remembers).",
+        "add: keep a new note at once (text). update: change a note's text, kept or proposed (memory_id, text; a proposal stays one). keep: keep a note a run proposed (memory_id, text to change it first); a proposal with replaces changes that kept note to its text instead of adding one. dismiss: drop proposals (memory_ids, or all). delete: drop kept notes (memory_ids, or all: the agent forgets everything it remembers).",
       ),
     text: noteInput.optional().describe(`add, update, keep: the note, one fact in a sentence of at most ${MAX_MEMORY_CHARS} characters.`),
     memory_id: memoryIdInput.optional(),
@@ -539,6 +539,7 @@ function describeMemory(workspaceId: string, note: AgentMemoryView) {
           },
         }
       : {}),
+    ...(note.replaces ? { replaces: { memory_id: note.replaces.id, text: note.replaces.text } } : {}),
     ...(note.text === null ? { note: "Proposed by a run on a row (or a database) the user can't open: its text is hidden." } : {}),
     created_at: note.createdAt,
     updated_at: note.updatedAt,
@@ -710,7 +711,7 @@ export function describeAgentStep(step: AgentStepRecord) {
     case "thought":
       return { kind: "thought", summary: step.text };
     case "memory": {
-      const how = { remember: "Remembered", propose: "Proposed a note for an owner to keep", forget: "Dropped a note" }[step.action];
+      const how = { remember: "Remembered", propose: "Proposed a note for an owner to keep", forget: "Dropped a note", handoff: "Left a note for the schedule's next run" }[step.action];
       return { kind: "memory", action: step.action, summary: `${how}: ${quote(short(step.text))}` };
     }
     case "skill": {

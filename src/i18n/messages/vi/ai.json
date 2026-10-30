@@ -293,6 +293,7 @@
       "memory": {
         "remember": "Đã ghi nhớ:",
         "propose": "Đã đề xuất một ghi chú:",
+        "handoff": "Đã để lại ghi chú cho lần chạy tiếp theo:",
         "forget": "Đã quên:",
         "declined": {
           "remember": "Đã từ chối ghi nhớ:",

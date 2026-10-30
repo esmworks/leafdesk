@@ -293,6 +293,7 @@
       "memory": {
         "remember": "Husket:",
         "propose": "Foreslo et notat:",
+        "handoff": "La igjen et notat til neste kjøring:",
         "forget": "Glemte:",
         "declined": {
           "remember": "Avslo å huske:",

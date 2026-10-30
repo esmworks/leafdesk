@@ -293,6 +293,7 @@
       "memory": {
         "remember": "Hatırladı:",
         "propose": "Not önerdi:",
+        "handoff": "Sonraki çalışmaya not bıraktı:",
         "forget": "Unuttu:",
         "declined": {
           "remember": "Hatırlamayı reddettin:",

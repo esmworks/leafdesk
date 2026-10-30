@@ -562,6 +562,7 @@
       "fromConnection": "来自由 {connection} 发起的运行",
       "fromRequest": "来自所有者请求的运行",
       "fromSchedule": "来自定时运行",
+      "replaces": "修改这条笔记：",
       "removedConnection": "一个已移除的连接",
       "keep": "保留",
       "keepEdited": "以此文本保留",

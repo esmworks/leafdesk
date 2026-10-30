@@ -562,6 +562,7 @@
       "fromConnection": "De una ejecución iniciada por {connection}",
       "fromRequest": "De una ejecución pedida por un propietario",
       "fromSchedule": "De una ejecución programada",
+      "replaces": "Cambia la nota:",
       "removedConnection": "una conexión eliminada",
       "keep": "Guardar",
       "keepEdited": "Guardar con este texto",

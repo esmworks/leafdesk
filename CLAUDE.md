@@ -177,7 +177,11 @@ BlockNote on Yjs; Tailwind v4; next-intl. Node 24, pnpm 11. A separate Electron 
   in the editor by `components/page/tags.ts` and `tag-menu.tsx`.
 - **Agents.** `src/server/agents/run.ts` is the worker (`agent_run`, its `source` typed in
   `src/lib/agents.ts`) and holds the tool lists; runs are queued from `requests.ts`, `chat.ts`,
-  `mentions.ts`, `handoff.ts` and the `agent` schedule kind. Each agent is its own user. Email:
+  `mentions.ts`, `handoff.ts` and the `agent` schedule kind. Each agent is its own user. Memory
+  (`memory.ts`): runs only propose notes, a proposal with `replacesId` changes that kept note in
+  place; a schedule's run reads and leaves `agent_run.handoff`, kept to the same schedule, setter,
+  database and task (`sameSchedule`); `agent_memory` inbox items are one per agent and owner,
+  moved between runs by `withdrawNotices`. Email:
   drafts on rows wait for review (`email-drafts.ts`); a report to the agent's own `mail_recipients`
   goes out at once from the run's person's mailbox (`send-mail.ts`, through `row-mail/send.ts`
   `sendFromMailbox`).

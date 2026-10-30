@@ -109,6 +109,11 @@ export const agentRun = pgTable(
     steps: jsonb("steps").$type<AgentStepRecord[]>().notNull().default([]),
     /** What the agent said at the end. */
     answer: text("answer").notNull().default(""),
+    /**
+     * A schedule's run: where it left off, for the schedule's next run (server/agents/memory.ts
+     * `handoffFor`); each run leaves its own, and only the latest goes on.
+     */
+    handoff: text("handoff"),
     usage: jsonb("usage").$type<AgentRunUsage>(),
     /** Where a run that waits for approval stands, to go on from there (see server/agents/run). */
     state: jsonb("state").$type<AgentRunState>(),

@@ -562,6 +562,7 @@
       "fromConnection": "מהרצה שהתחילה מ־{connection}",
       "fromRequest": "מהרצה שאחד הבעלים ביקש",
       "fromSchedule": "מהרצה מתוזמנת",
+      "replaces": "משנה את ההערה:",
       "removedConnection": "חיבור שהוסר",
       "keep": "שמירה",
       "keepEdited": "שמירה עם הטקסט הזה",

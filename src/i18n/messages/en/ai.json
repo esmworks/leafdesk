@@ -293,6 +293,7 @@
       "memory": {
         "remember": "Remembered:",
         "propose": "Proposed a note:",
+        "handoff": "Left a note for the next run:",
         "forget": "Forgot:",
         "declined": {
           "remember": "Declined remembering:",

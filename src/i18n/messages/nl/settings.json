@@ -562,6 +562,7 @@
       "fromConnection": "Uit een uitvoering gestart door {connection}",
       "fromRequest": "Uit een uitvoering waarom een eigenaar vroeg",
       "fromSchedule": "Uit een geplande uitvoering",
+      "replaces": "Wijzigt de notitie:",
       "removedConnection": "een verwijderde koppeling",
       "keep": "Bewaren",
       "keepEdited": "Bewaren met deze tekst",

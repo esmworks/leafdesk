@@ -562,6 +562,7 @@
       "fromConnection": "{connection} ile başlayan bir çalışmadan",
       "fromRequest": "Bir sahibin istediği çalışmadan",
       "fromSchedule": "Zamanlanmış bir çalışmadan",
+      "replaces": "Şu notu değiştirir:",
       "removedConnection": "kaldırılmış bir bağlantı",
       "keep": "Tut",
       "keepEdited": "Bu metinle tut",

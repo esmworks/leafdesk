@@ -13,6 +13,15 @@
  * in run.ts) get neither tool. Proposals are bounded (MAX_AGENT_PROPOSALS) and go with their run
  * when no owner answered them by the time it is pruned.
  *
+ * A run proposes few notes (MAX_PROPOSALS_PER_RUN), and a correction of a kept note as its new
+ * text (`replaces`): kept, it changes that note in place. A schedule's run is shown the proposals
+ * of that schedule's earlier runs that still wait, so it changes one rather than proposing it again.
+ *
+ * Where a schedule's run left off (what it checked, what remains) isn't a note: it goes in the
+ * run's `handoff` (`note_for_next_run`), which only the same schedule's next run reads (set by the
+ * same owner, on the same database, with the same task), with no owner to approve it. That run
+ * reads the same data anyway, so the note carries nothing to runs that read other things.
+ *
  * Kept notes go with every later run, whoever starts it: like the agent's instructions, what they
  * say may end up in what it writes. A proposal may quote the row its run was on, so an owner who
  * can't open that row doesn't see its text and may only dismiss it.
@@ -20,19 +29,30 @@
  * The workspace's AI memory switch (ai-memory.ts memoryAvailable) holds for agents too: while it
  * is off, runs carry no notes and keep none; owners still see and change them here.
  *
- * A run's first proposal puts an item in each workspace owner's inbox (one per run and owner, pushed too); it
- * shows a proposal's text by the same rule as here, and goes once none of the run's proposals waits.
+ * A proposal puts an item in each workspace owner's inbox when they have none for the agent yet (one
+ * per agent and owner, pushed too), or makes the one they read or archived new again; it counts the
+ * agent's waiting proposals, shows the first one's text by the same rule as here, and goes once
+ * none waits.
  */
-import { and, asc, count, eq, inArray, notExists, sql } from "drizzle-orm";
+import { and, asc, count, desc, eq, inArray, isNotNull, ne, notExists, or, sql } from "drizzle-orm";
 import { db } from "@/db";
 import { agentRun, aiMemory, connection, notification, page, workspaceAgent, type ChatMemoryRecord } from "@/db/schema";
 import { hasAgentLevel } from "@/lib/agent-sharing";
-import { isEventRun, isRowRun, isScheduleRun, MAX_AGENT_PROPOSALS, type AgentMemoryView } from "@/lib/agents";
+import {
+  isEventRun,
+  isRowRun,
+  isScheduleRun,
+  MAX_AGENT_PROPOSALS,
+  MAX_HANDOFF_CHARS,
+  MAX_PROPOSALS_PER_RUN,
+  type AgentMemoryView,
+  type AgentRunSource,
+} from "@/lib/agents";
 import { MAX_MEMORIES, MAX_MEMORY_CHARS } from "@/lib/ai-chat";
 import { redactError, redactText } from "@/lib/redact";
 import { pageVisibleTo, requireMembership, workspaceOwnerIds } from "@/server/access";
 import type { AiTool } from "@/server/ai";
-import { cleanNote, lockNotes, MemoryError, sameNote, writeNote } from "@/server/ai-memory";
+import { cleanNote, lockNotes, memoryAvailable, MemoryError, sameNote, writeNote } from "@/server/ai-memory";
 import { recordAudit } from "@/server/audit";
 import { signalInbox, type InboxAgentMemory } from "@/server/notifications";
 import { pushNotifications } from "@/server/push";
@@ -117,15 +137,23 @@ async function proposingRuns(viewer: string, notes: Note[]): Promise<Map<string,
 const readable = (run: AgentMemoryView["run"] | undefined) =>
   !run || ((run.rowId === null || run.rowTitle !== null) && !run.databaseHidden && !run.othersRun);
 
-function view(note: Note, run: AgentMemoryView["run"] | undefined): AgentMemoryView {
+function view(note: Note, run: AgentMemoryView["run"] | undefined, replaced?: Note): AgentMemoryView {
   return {
     id: note.id,
     text: note.status === "proposed" && !readable(run) ? null : note.text,
     status: note.status,
     run: run ?? null,
+    replaces: note.status === "proposed" && replaced ? { id: replaced.id, text: replaced.text } : null,
     createdAt: note.createdAt.toISOString(),
     updatedAt: note.updatedAt.toISOString(),
   };
+}
+
+/** The kept note a proposal would change, if it still is one. */
+async function replacedOf(note: Note): Promise<Note | undefined> {
+  if (note.status !== "proposed" || !note.replacesId) return undefined;
+  const [replaced] = await db.select().from(aiMemory).where(and(eq(aiMemory.id, note.replacesId), eq(aiMemory.status, "kept")));
+  return replaced;
 }
 
 const audit = (userId: string, agent: Agent, memory: Record<string, number>) =>
@@ -143,7 +171,8 @@ export async function listAgentMemory(userId: string, agentId: string): Promise<
   const agent = await agentFor(userId, agentId, "interact");
   const notes = await notesOf(agent);
   const runs = await proposingRuns(userId, notes);
-  return notes.map((n) => view(n, n.agentRunId ? runs.get(n.agentRunId) : undefined));
+  const kept = new Map(notes.filter((n) => n.status === "kept").map((n) => [n.id, n]));
+  return notes.map((n) => view(n, n.agentRunId ? runs.get(n.agentRunId) : undefined, n.replacesId ? kept.get(n.replacesId) : undefined));
 }
 
 /** An owner writes a note: kept at once (refused at MAX_MEMORIES kept ones). */
@@ -154,7 +183,7 @@ export async function addAgentMemory(userId: string, agentId: string, text: stri
   if (note.status === "proposed") {
     // The same text a run proposed: the owner wrote it themselves, so it is kept (also a proposal
     // they couldn't read: what they wrote hides nothing from them).
-    const [kept] = await db.update(aiMemory).set({ status: "kept", agentRunId: null, updatedAt: new Date() }).where(eq(aiMemory.id, note.id)).returning();
+    const [kept] = await db.update(aiMemory).set({ status: "kept", agentRunId: null, replacesId: null, updatedAt: new Date() }).where(eq(aiMemory.id, note.id)).returning();
     await withdrawNotices([note.agentRunId]);
     note = kept ?? note;
     await audit(userId, agent, { kept: 1 });
@@ -180,13 +209,14 @@ export async function updateAgentMemory(userId: string, agentId: string, memoryI
   if (note.status === "proposed" && !readable(run)) throw new AgentError("noteNotFound", "Note not found");
   const [changed] = await db.update(aiMemory).set({ text: clean, updatedAt: new Date() }).where(eq(aiMemory.id, note.id)).returning();
   await audit(userId, agent, { changed: 1 });
-  return view(changed, run);
+  return view(changed, run, await replacedOf(changed));
 }
 
 /**
  * An owner keeps a proposal (with `text`: changed first), so it goes with the agent's runs from now
- * on. A proposal from a run on a row the owner can't open can't be kept by them. When the agent
- * already keeps the same text, the proposal just goes.
+ * on: one with `replacesId` changes that kept note to its text instead of adding one. A proposal
+ * from a run on a row the owner can't open can't be kept by them. When the agent already keeps the
+ * same text, the proposal just goes (and the note it would change, which that one now says).
  */
 export async function keepAgentMemory(userId: string, agentId: string, memoryId: string, text?: string): Promise<AgentMemoryView> {
   const agent = await agentFor(userId, agentId, "edit");
@@ -207,16 +237,22 @@ export async function keepAgentMemory(userId: string, agentId: string, memoryId:
       .select()
       .from(aiMemory)
       .where(and(eq(aiMemory.userId, agent.userId), eq(aiMemory.workspaceId, agent.workspaceId), eq(aiMemory.status, "kept")));
-    const known = notes.find((n) => sameNote(n.text, clean));
+    const target = proposal.replacesId ? notes.find((n) => n.id === proposal.replacesId) : undefined;
+    const known = notes.find((n) => n.id !== target?.id && sameNote(n.text, clean));
     if (known) {
-      await tx.delete(aiMemory).where(eq(aiMemory.id, proposal.id));
+      await tx.delete(aiMemory).where(inArray(aiMemory.id, target ? [proposal.id, target.id] : [proposal.id]));
       return known;
+    }
+    if (target) {
+      await tx.delete(aiMemory).where(eq(aiMemory.id, proposal.id));
+      const [changed] = await tx.update(aiMemory).set({ text: clean, updatedAt: new Date() }).where(eq(aiMemory.id, target.id)).returning();
+      return changed;
     }
     if (notes.length >= MAX_MEMORIES) throw new AgentError("memoryFull", "The memory is full", { max: String(MAX_MEMORIES) });
     // Kept, it no longer hangs on its run: it stays when the run is pruned.
     const [changed] = await tx
       .update(aiMemory)
-      .set({ text: clean, status: "kept", agentRunId: null, updatedAt: new Date() })
+      .set({ text: clean, status: "kept", agentRunId: null, replacesId: null, updatedAt: new Date() })
       .where(and(eq(aiMemory.id, proposal.id), eq(aiMemory.status, "proposed")))
       .returning();
     if (!changed) throw new AgentError("noteNotFound", "Note not found");
@@ -263,13 +299,27 @@ function refreshInboxes(workspaceId: string) {
   }
 }
 
-/** Tells the workspace's owners a run proposed notes: an inbox item each, only the first time for the run. */
+/**
+ * Tells the workspace's owners a run proposed notes: an inbox item each who has none for the agent
+ * yet. One they have already comes back as new (unread, in the inbox, on top) unless they snoozed
+ * it, without another push.
+ */
 async function noticeProposal(agent: { userId: string; workspaceId: string }, runId: string) {
   const owners = await workspaceOwnerIds(agent.workspaceId);
   if (!owners.length) return;
+  const ofAgent = and(eq(notification.kind, "agent_memory"), eq(notification.actorId, agent.userId), eq(notification.workspaceId, agent.workspaceId), inArray(notification.userId, owners));
+  const told = new Set((await db.select({ userId: notification.userId }).from(notification).where(ofAgent)).map((n) => n.userId));
+  const renewed = await db
+    .update(notification)
+    .set({ readAt: null, archivedAt: null, createdAt: new Date() })
+    .where(and(ofAgent, or(isNotNull(notification.readAt), isNotNull(notification.archivedAt)), sql`(${notification.snoozedUntil} is null or ${notification.snoozedUntil} <= now())`))
+    .returning({ id: notification.id });
+  if (renewed.length) refreshInboxes(agent.workspaceId);
+  const untold = owners.filter((userId) => !told.has(userId));
+  if (!untold.length) return;
   const inserted = await db
     .insert(notification)
-    .values(owners.map((userId) => ({ userId, workspaceId: agent.workspaceId, kind: "agent_memory" as const, actorId: agent.userId, agentRunId: runId })))
+    .values(untold.map((userId) => ({ userId, workspaceId: agent.workspaceId, kind: "agent_memory" as const, actorId: agent.userId, agentRunId: runId })))
     .onConflictDoNothing({ target: [notification.agentRunId, notification.userId], where: sql`${notification.kind} = 'agent_memory'` })
     .returning({ id: notification.id });
   if (!inserted.length) return;
@@ -277,10 +327,28 @@ async function noticeProposal(agent: { userId: string; workspaceId: string }, ru
   pushNotifications(inserted.map((n) => n.id));
 }
 
-/** Takes these runs' items out of the inbox once none of their proposals waits any more. */
+/**
+ * Once none of these runs' proposals waits any more, moves their items to another run of the agent
+ * whose proposals wait (the earliest), or takes them out of the inbox when none does.
+ */
 async function withdrawNotices(runIds: (string | null)[]) {
   const ids = [...new Set(runIds.filter((id): id is string => id !== null))];
   if (!ids.length) return;
+  // The earliest run of the item's agent with a proposal waiting, unless the owner has an item there already.
+  const next = sql`(
+    select m.agent_run_id from ${aiMemory} m
+    where m.user_id = ${notification.actorId} and m.workspace_id = ${notification.workspaceId} and m.status = 'proposed' and m.agent_run_id is not null
+      and not exists (select 1 from ${notification} o where o.kind = 'agent_memory' and o.agent_run_id = m.agent_run_id and o.user_id = ${notification.userId})
+    order by m.created_at, m.id limit 1
+  )`;
+  const waitsHere = db
+    .select({ id: aiMemory.id })
+    .from(aiMemory)
+    .where(and(eq(aiMemory.agentRunId, notification.agentRunId), eq(aiMemory.status, "proposed")));
+  await db
+    .update(notification)
+    .set({ agentRunId: next })
+    .where(and(eq(notification.kind, "agent_memory"), inArray(notification.agentRunId, ids), notExists(waitsHere), sql`${next} is not null`));
   const gone = await db
     .delete(notification)
     .where(
@@ -300,29 +368,35 @@ async function withdrawNotices(runIds: (string | null)[]) {
 }
 
 /**
- * The proposals of these runs that still wait, as `viewer`'s inbox shows them: how many, and the
- * first one's text when the viewer may read it (not from a run on a row they can't open).
+ * For the inbox items of these runs, the proposals of each one's agent that still wait, as
+ * `viewer`'s inbox shows them: how many, and the first one's text when the viewer may read it (not
+ * from a run on a row they can't open).
  */
 export async function inboxProposals(viewer: string, runIds: string[]): Promise<Map<string, InboxAgentMemory>> {
   if (!runIds.length) return new Map();
+  const runs = await db
+    .select({ id: agentRun.id, agentId: agentRun.agentId })
+    .from(agentRun)
+    .where(inArray(agentRun.id, runIds));
+  const agentIds = [...new Set(runs.map((r) => r.agentId))];
+  if (!agentIds.length) return new Map();
   const notes = await db
     .select({ note: aiMemory, agentId: workspaceAgent.id, agentName: workspaceAgent.name })
     .from(aiMemory)
     .innerJoin(workspaceAgent, and(eq(workspaceAgent.userId, aiMemory.userId), eq(workspaceAgent.workspaceId, aiMemory.workspaceId)))
-    .where(and(inArray(aiMemory.agentRunId, runIds), eq(aiMemory.status, "proposed")))
+    .where(and(inArray(workspaceAgent.id, agentIds), eq(aiMemory.status, "proposed"), isNotNull(aiMemory.agentRunId)))
     .orderBy(asc(aiMemory.createdAt), asc(aiMemory.id));
-  const runs = await proposingRuns(viewer, notes.map((n) => n.note));
-  const out = new Map<string, InboxAgentMemory>();
+  const proposing = await proposingRuns(viewer, notes.map((n) => n.note));
+  const byAgent = new Map<string, Omit<InboxAgentMemory, "runId">>();
   for (const { note, agentId, agentName } of notes) {
-    const runId = note.agentRunId!;
-    const seen = out.get(runId);
-    if (seen) {
-      seen.count += 1;
-      continue;
-    }
-    out.set(runId, { runId, agentId, agentName, count: 1, text: readable(runs.get(runId)) ? note.text : null });
+    const seen = byAgent.get(agentId);
+    if (seen) seen.count += 1;
+    else byAgent.set(agentId, { agentId, agentName, count: 1, text: readable(proposing.get(note.agentRunId!)) ? note.text : null });
   }
-  return out;
+  return new Map(runs.flatMap((r) => {
+    const waiting = byAgent.get(r.agentId);
+    return waiting ? [[r.id, { runId: r.id, ...waiting }] as const] : [];
+  }));
 }
 
 // ------------------------------------------------------------------------------------ runs
@@ -331,11 +405,12 @@ export const AGENT_MEMORY_TOOLS: AiTool[] = [
   {
     name: "remember",
     description:
-      "Proposes a short note for your later runs: something you learned doing this task that will still help (where things go in the workspace, which database holds what, how a recurring case is handled). An owner of the workspace reads each proposal and decides whether you keep it; until then it goes with no run.",
+      "Proposes a short note for your later runs: a fact about the workspace that will still be true next month (where things go, which database or sheet holds what and how it is laid out, how a recurring case is handled). An owner of the workspace reads each proposal and decides whether you keep it; until then it goes with no run. Never propose progress: what you checked, what remains, counts, positions or dates that change from run to run. With replaces, the note is the new text of a kept note (to correct or complete it) or of one of your proposals still waiting.",
     parameters: {
       type: "object",
       properties: {
         text: { type: "string", description: `The note: one fact, in a sentence of at most ${MAX_MEMORY_CHARS} characters, in the language of your instructions.` },
+        replaces: { type: "string", description: "The memory_id of the kept note, or of your waiting proposal, this text takes the place of, if any." },
       },
       required: ["text"],
       additionalProperties: false,
@@ -354,12 +429,95 @@ export const AGENT_MEMORY_TOOLS: AiTool[] = [
 ];
 export const AGENT_MEMORY_TOOL_NAMES = new Set(AGENT_MEMORY_TOOLS.map((t) => t.name));
 
+/** A schedule's run leaves where it stopped for the schedule's next run. */
+export const HANDOFF_TOOL: AiTool = {
+  name: "note_for_next_run",
+  description:
+    "Leaves a note for the next run of this schedule: where you stopped and what it should do first (what you checked, what remains, positions, counts, open questions). It takes the place of the note you were given, goes only to this schedule's next run, and needs no approval. Call it once, at the end, with everything the next run needs.",
+  parameters: {
+    type: "object",
+    properties: {
+      text: { type: "string", description: `The note, at most ${MAX_HANDOFF_CHARS} characters, in the language of your instructions.` },
+    },
+    required: ["text"],
+    additionalProperties: false,
+  },
+};
+
 const step = (action: ChatMemoryRecord["action"], text: string): ChatMemoryRecord => ({ kind: "memory", action, text });
 
-/** Runs `remember` (a proposal) or `forget` for a run of the agent, on the agent's own notes. */
+type RunRef = { id: string; agentId: string; prompt: string; source: AgentRunSource };
+type ScheduleSource = Extract<AgentRunSource, { kind: "schedule" }>;
+
+/** Runs of this schedule as this owner set it, on the same database: what they read and whose access holds them is the same. */
+const sameSchedule = (source: ScheduleSource) =>
+  and(
+    sql`${agentRun.source}->>'kind' = 'schedule'`,
+    sql`${agentRun.source}->>'scheduleId' = ${source.scheduleId}`,
+    sql`${agentRun.source}->>'scheduledBy' = ${source.scheduledBy}`,
+    sql`coalesce(${agentRun.source}->>'databaseId', '') = ${source.databaseId ?? ""}`,
+  );
+
+/**
+ * The proposals still waiting that a run may see: its own, and on a schedule's run those of the
+ * schedule's earlier runs (sameSchedule). Others may quote what this run's person can't open.
+ */
+async function runProposals(agent: { userId: string; workspaceId: string }, run: RunRef): Promise<Note[]> {
+  const rows = await db
+    .select({ note: aiMemory })
+    .from(aiMemory)
+    .innerJoin(agentRun, eq(agentRun.id, aiMemory.agentRunId))
+    .where(
+      and(
+        eq(aiMemory.userId, agent.userId),
+        eq(aiMemory.workspaceId, agent.workspaceId),
+        eq(aiMemory.status, "proposed"),
+        isScheduleRun(run.source) ? or(eq(agentRun.id, run.id), and(eq(agentRun.agentId, run.agentId), sameSchedule(run.source))) : eq(agentRun.id, run.id),
+      ),
+    )
+    .orderBy(asc(aiMemory.createdAt), asc(aiMemory.id));
+  return rows.map((r) => r.note);
+}
+
+/** The proposals a run sees (runProposals) as lines for its prompt, each with its memory_id for `replaces`. */
+export async function proposalsForPrompt(agent: { userId: string; workspaceId: string }, run: RunRef): Promise<string> {
+  const notes = await runProposals(agent, run);
+  return notes.map((n) => `- (memory_id ${n.id}) ${n.text}${n.replacesId ? ` [new text for memory_id ${n.replacesId}]` : ""}`).join("\n");
+}
+
+/** What the latest earlier run of the same schedule, with the same task, left for the next one (`note_for_next_run`). */
+export async function lastHandoff(run: RunRef): Promise<{ text: string; at: Date } | null> {
+  if (!isScheduleRun(run.source)) return null;
+  const [found] = await db
+    .select({ text: agentRun.handoff, at: agentRun.createdAt })
+    .from(agentRun)
+    .where(and(eq(agentRun.agentId, run.agentId), ne(agentRun.id, run.id), isNotNull(agentRun.handoff), eq(agentRun.prompt, run.prompt), sameSchedule(run.source)))
+    .orderBy(desc(agentRun.createdAt))
+    .limit(1);
+  return found?.text ? { text: found.text, at: found.at } : null;
+}
+
+/** Runs `note_for_next_run`: the run's note for the schedule's next run, in place of one it left before. */
+export async function runHandoffTool(runId: string, call: { arguments: Record<string, unknown> }): Promise<{ content: string; isError?: boolean; step?: ChatMemoryRecord }> {
+  const text = typeof call.arguments.text === "string" ? call.arguments.text.trim() : "";
+  if (!text) return { content: "note_for_next_run needs the text of the note.", isError: true };
+  if (text.length > MAX_HANDOFF_CHARS) return { content: `Too long: the note may have at most ${MAX_HANDOFF_CHARS} characters. Keep it shorter.`, isError: true };
+  // It outlives the run: a credential the run came across must not.
+  const clean = redactText(text);
+  await db.update(agentRun).set({ handoff: clean }).where(eq(agentRun.id, runId));
+  return { content: "Left for the next run of this schedule.", step: step("handoff", clean) };
+}
+
+type Proposed =
+  | { kind: "notFound" | "perRun" | "full" }
+  | { kind: "same" | "kept" | "waiting"; id: string }
+  | { kind: "made"; note: Note }
+  | { kind: "changed"; note: Note; from: string | null };
+
+/** Runs `remember` (a proposal, maybe a new text for a note) or `forget` for a run of the agent, on the agent's own notes. */
 export async function runAgentMemoryTool(
   agent: { userId: string; workspaceId: string },
-  runId: string,
+  run: RunRef,
   call: { name: string; arguments: Record<string, unknown> },
 ): Promise<{ content: string; isError?: boolean; step?: ChatMemoryRecord }> {
   const arg = (name: string) => (typeof call.arguments[name] === "string" ? (call.arguments[name] as string).trim() : "");
@@ -375,23 +533,69 @@ export async function runAgentMemoryTool(
     await withdrawNotices([gone.agentRunId]);
     return { content: "Forgotten.", step: step("forget", gone.text) };
   }
+  let text: string;
   try {
     // A note outlives the run: a credential the run came across must not.
-    const note = await writeNote(agent.userId, agent.workspaceId, redactText(arg("text")), { status: "proposed", agentRunId: runId, maxProposed: MAX_AGENT_PROPOSALS });
-    if (note.status === "kept") return { content: `Your memory already has this note (memory_id ${note.id}).` };
-    // The owners hear of it (not again when an earlier run proposed the same); the proposal stands
-    // whether or not that reaches them.
-    if (note.agentRunId === runId) await noticeProposal(agent, runId).catch((error: unknown) => console.error("[agents] could not tell owners of a proposed note", redactError(error)));
-    return {
-      content: "Proposed. An owner of the workspace will read it and decide whether you keep it: it is not in your memory yet, and nothing in this run changes because of it.",
-      step: step("propose", note.text),
-    };
+    text = cleanNote(redactText(arg("text")));
   } catch (error) {
     if (!(error instanceof MemoryError)) throw error;
-    if (error.code === "full") return { content: `${MAX_AGENT_PROPOSALS} of your notes already wait for an owner: don't propose more now.`, isError: true };
     if (error.code === "tooLong") return { content: `Too long: a note may have at most ${MAX_MEMORY_CHARS} characters. Keep it shorter.`, isError: true };
     return { content: "remember needs the text of the note.", isError: true };
   }
+  if (!(await memoryAvailable(agent.workspaceId))) return { content: "The memory is turned off: propose nothing.", isError: true };
+  const replaces = arg("replaces") || null;
+  const seen = new Set((await runProposals(agent, run)).map((n) => n.id));
+  const outcome = await db.transaction(async (tx): Promise<Proposed> => {
+    await lockNotes(tx, agent.userId, agent.workspaceId);
+    const notes = await tx
+      .select()
+      .from(aiMemory)
+      .where(and(eq(aiMemory.userId, agent.userId), eq(aiMemory.workspaceId, agent.workspaceId)));
+    const target = replaces ? notes.find((n) => n.id === replaces && (n.status === "kept" || seen.has(n.id))) : undefined;
+    if (replaces && !target) return { kind: "notFound" };
+    // The proposal this one takes the place of: the one named, or one the run sees that already changes the same kept note.
+    const waiting = target?.status === "proposed" ? target : target ? notes.find((n) => n.status === "proposed" && n.replacesId === target.id && seen.has(n.id)) : undefined;
+    const keptNote = target?.status === "kept" ? target : waiting?.replacesId ? notes.find((n) => n.id === waiting.replacesId && n.status === "kept") : undefined;
+    if (keptNote && sameNote(keptNote.text, text)) return { kind: "same", id: keptNote.id };
+    const known = notes.find((n) => n.id !== waiting?.id && n.id !== keptNote?.id && sameNote(n.text, text));
+    if (known) return { kind: known.status === "kept" ? "kept" : "waiting", id: known.id };
+    const ofRun = notes.filter((n) => n.status === "proposed" && n.agentRunId === run.id).length;
+    if (ofRun >= MAX_PROPOSALS_PER_RUN && waiting?.agentRunId !== run.id) return { kind: "perRun" };
+    if (waiting) {
+      // Proposed again: the newer text waits, as this run's.
+      const [changed] = await tx.update(aiMemory).set({ text, agentRunId: run.id, updatedAt: new Date() }).where(eq(aiMemory.id, waiting.id)).returning();
+      return { kind: "changed", note: changed, from: waiting.agentRunId };
+    }
+    if (notes.filter((n) => n.status === "proposed").length >= MAX_AGENT_PROPOSALS) return { kind: "full" };
+    const [made] = await tx
+      .insert(aiMemory)
+      .values({ userId: agent.userId, workspaceId: agent.workspaceId, text, status: "proposed", agentRunId: run.id, replacesId: keptNote?.id ?? null })
+      .returning();
+    return { kind: "made", note: made };
+  });
+  switch (outcome.kind) {
+    case "notFound":
+      return { content: "There is no note with that memory_id among your notes and the proposals you were shown.", isError: true };
+    case "perRun":
+      return { content: `You have proposed ${MAX_PROPOSALS_PER_RUN} notes in this run, the most one run may: propose no more.`, isError: true };
+    case "full":
+      return { content: `${MAX_AGENT_PROPOSALS} of your notes already wait for an owner: don't propose more now.`, isError: true };
+    case "same":
+      return { content: `The note memory_id ${outcome.id} already says this: nothing was proposed.` };
+    case "kept":
+      return { content: `Your memory already has this note (memory_id ${outcome.id}).` };
+    case "waiting":
+      return { content: `This note already waits for an owner (memory_id ${outcome.id}): don't propose it again.` };
+  }
+  if (outcome.kind === "changed" && outcome.from !== run.id) await withdrawNotices([outcome.from]);
+  // The owners hear of it, unless they already have an item for the agent; the proposal stands
+  // whether or not that reaches them.
+  await noticeProposal(agent, run.id).catch((error: unknown) => console.error("[agents] could not tell owners of a proposed note", redactError(error)));
+  const changes = outcome.note.replacesId ? ` as the new text of memory_id ${outcome.note.replacesId}` : "";
+  return {
+    content: `${outcome.kind === "changed" ? "Proposed again, in place of the proposal that waited" : "Proposed"}${changes} (memory_id ${outcome.note.id}). An owner of the workspace will read it and decide whether you keep it: it is not in your memory yet, and nothing in this run changes because of it.`,
+    step: step("propose", outcome.note.text),
+  };
 }
 
 /** How many proposals wait, per agent of the workspace the person can edit, for their list of agents. */

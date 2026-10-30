@@ -418,8 +418,9 @@ export type PreferenceKind = Exclude<NotificationKind, OwnerKind>;
  * them) edited page `pageId`, which the user watches. "agent_approval": agent `actorId`'s run
  * `agentRunId` waits for an owner to approve a call to a connection's tool; it has no page, and goes
  * away once anyone answers or the call runs out of time. "agent_memory": agent `actorId`'s run
- * `agentRunId` proposed notes for its memory (server/agents/memory.ts); one per owner and run, with
- * no page, gone once no proposal of the run waits any more. "agent_report": agent `actorId`'s run
+ * `agentRunId` proposed notes for its memory (server/agents/memory.ts); one per owner and agent,
+ * with no page, moved to another run whose proposals wait once that run's are answered, and gone
+ * once none of the agent's waits any more. "agent_report": agent `actorId`'s run
  * `agentRunId`, which one of its schedules started, finished; it tells the owner who set the
  * schedule what the run did or why it failed, and has no page. "row_email": message `rowEmailId`
  * landed on row `pageId`, through the mailbox of `actorId` (null when it is the user's own).

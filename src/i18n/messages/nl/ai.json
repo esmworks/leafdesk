@@ -293,6 +293,7 @@
       "memory": {
         "remember": "Onthouden:",
         "propose": "Een notitie voorgesteld:",
+        "handoff": "Liet een notitie achter voor de volgende run:",
         "forget": "Vergeten:",
         "declined": {
           "remember": "Onthouden geweigerd:",

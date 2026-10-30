@@ -82,6 +82,17 @@
   pushing them out of view. That search field also sits quietly in the toolbar now: the magnifier
   and the words typed, with no box around them. The tabs and the toolbar beside them (in table,
   board, form and dashboard views alike) share one line and one height.
+- **Agents propose fewer, better memory notes, and a schedule's run picks up where the last one
+  stopped.** A run is told that a note must stay true for months, never progress (what it checked,
+  what remains, counts, row positions), and proposes at most two. A correction of a kept note
+  arrives as that note's new text: the *Memory* tab shows the old text crossed out above it, and
+  *Keep* changes the note in place instead of adding a second one. A schedule's runs see the
+  schedule's proposals still waiting and change them rather than proposing them again. Where a
+  run stopped goes in a new `note_for_next_run` tool instead: only the same schedule's next run
+  (same owner, database and task) reads it, with no approval, and each run's note replaces the
+  last. Owners get one inbox item per agent instead of one per run. Migration 0162; existing inbox
+  items for proposals are cut to one per agent and owner.
+
 - **Chats with agents look like the AI chat.** On an agent's page, in its Chat tab and in an Agent
   chat block, questions sit in the same box, the steps of an answer show under a running clock
   and fold into how long it took, and an answer and a question can be copied, with the time on

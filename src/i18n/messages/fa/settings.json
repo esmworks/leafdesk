@@ -562,6 +562,7 @@
       "fromConnection": "از اجرایی که {connection} شروع کرده",
       "fromRequest": "از اجرایی که یکی از مالکان درخواست کرده",
       "fromSchedule": "از یک اجرای زمان‌بندی‌شده",
+      "replaces": "این یادداشت را تغییر می‌دهد:",
       "removedConnection": "یک اتصال حذف‌شده",
       "keep": "نگه داشتن",
       "keepEdited": "نگه داشتن با این متن",

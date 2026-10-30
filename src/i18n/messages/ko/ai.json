@@ -293,6 +293,7 @@
       "memory": {
         "remember": "기억함:",
         "propose": "메모 제안:",
+        "handoff": "다음 실행을 위한 메모를 남김:",
         "forget": "잊음:",
         "declined": {
           "remember": "기억 거절됨:",

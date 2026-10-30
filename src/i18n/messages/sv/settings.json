@@ -562,6 +562,7 @@
       "fromConnection": "Från en körning som startats av {connection}",
       "fromRequest": "Från en körning som en ägare bad om",
       "fromSchedule": "Från en schemalagd körning",
+      "replaces": "Ändrar anteckningen:",
       "removedConnection": "en borttagen anslutning",
       "keep": "Behåll",
       "keepEdited": "Behåll med den här texten",

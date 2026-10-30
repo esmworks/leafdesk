@@ -39,8 +39,9 @@
  *
  * The notes its owners kept from earlier runs go with each run (memory.ts). A run whose input a
  * member or a trusted trigger stands behind may propose new ones (`remember`), which wait for an
- * owner, and drop old ones (`forget`); others may neither. With the workspace's AI memory off, no
- * run carries notes or may keep any.
+ * owner, and drop old ones (`forget`); others may neither. A schedule's run also reads where the
+ * schedule's previous run left off and leaves its own (`note_for_next_run`). With the workspace's
+ * AI memory off, no run carries notes or may keep any, nor where an earlier run left off.
  *
  * What a run keeps to show (its steps, answer and error, and the call waiting for approval) has
  * credentials masked (lib/redact). `state` is kept as it was: the run goes on from it and sends the
@@ -108,7 +109,7 @@ import { ASK_AGENT, handoffEventText, handoffFor, handoffHold } from "./handoff"
 import { chatRunHistory, closeChatTurn } from "./chat-store";
 import { approversOf } from "./approvers";
 import { agentsWorker } from "./kick";
-import { AGENT_MEMORY_TOOL_NAMES, AGENT_MEMORY_TOOLS, runAgentMemoryTool } from "./memory";
+import { AGENT_MEMORY_TOOL_NAMES, AGENT_MEMORY_TOOLS, HANDOFF_TOOL, lastHandoff, proposalsForPrompt, runAgentMemoryTool, runHandoffTool } from "./memory";
 import { agentSkillRoom, runSkills } from "./skills";
 import { runWebTool, webToolsFor } from "./web";
 import { agentLevel } from "./sharing";
@@ -639,6 +640,8 @@ async function converse(
   // the notes owners kept, but propose none.
   const handedOff = run.source.kind === "handoff";
   const remembers = memoryOn && !askEveryTool && !mention && !handedOff && (!chat || chatWrites);
+  // Where it left off goes only to the same schedule's next run, which reads the same: no one approves it.
+  const leavesNote = memoryOn && scheduled;
   const mentionTools = mentionEdits?.edits ? [EDIT_PAGE, ...(mentionEdits.row ? [UPDATE_ROW] : [])] : [];
   // Other agents it may ask; none on a helper's run.
   const handoff = await handoffFor(agent, run, { bound, trusted: !askEveryTool, clock, runHelper: runInSlot });
@@ -661,6 +664,7 @@ async function converse(
     ...(sender ? [draftEmailTool(sender, { anyRow: Boolean(databaseId) })] : []),
     ...(mailer ? [sendEmailTool(mailer, agent.mailRecipients)] : []),
     ...(remembers ? AGENT_MEMORY_TOOLS : []),
+    ...(leavesNote ? [HANDOFF_TOOL] : []),
     ...webTools,
     ...(handoff ? [handoff.tool] : []),
     ...toolset.tools,
@@ -689,6 +693,7 @@ async function converse(
       : undefined,
     skills: skillSet.skills,
     remembers,
+    leavesNote,
     reviews,
     drafts: Boolean(sender),
   });
@@ -733,7 +738,22 @@ async function converse(
     if (read?.isError) return { status: "failed", code: "noAccess", steps, usage };
     const map = await workspaceMap(ctx, run.workspaceId, null, MAP_CHARS);
     const memory = memoryOn ? await memoryForPrompt(agent.userId, run.workspaceId, Math.min(MEMORY_CHARS, Math.floor(room([]) * 0.2))) : { text: "" };
-    messages = [{ role: "user", content: agentSchedulePrompt({ task: run.prompt, event: await eventText(run), database: read?.content ?? null, map, memory: memory.text }) }];
+    const proposed = remembers ? await proposalsForPrompt(agent, run) : "";
+    const left = leavesNote ? await lastHandoff(run) : null;
+    messages = [
+      {
+        role: "user",
+        content: agentSchedulePrompt({
+          task: run.prompt,
+          event: await eventText(run),
+          database: read?.content ?? null,
+          map,
+          memory: memory.text,
+          proposed,
+          handoff: left ? { text: left.text, at: left.at.toISOString() } : undefined,
+        }),
+      },
+    ];
   } else if (mention) {
     // The comment and the thread before it, as they are now: a run on a comment since deleted ends here.
     const thread = (await threadsVisibleTo(agent.userId, mention.pageId)).find((t) => t.id === mention.threadId);
@@ -813,7 +833,11 @@ async function converse(
     // Notes change nothing in the workspace: they don't count as changes.
     if (AGENT_MEMORY_TOOL_NAMES.has(call.name)) {
       if (!remembers) return { content: `There is no tool "${call.name}" in this run.`, isError: true };
-      return runAgentMemoryTool(agent, run.id, call);
+      return runAgentMemoryTool(agent, run, call);
+    }
+    if (call.name === HANDOFF_TOOL.name) {
+      if (!leavesNote) return { content: `There is no tool "${call.name}" in this run.`, isError: true };
+      return runHandoffTool(run.id, call);
     }
     // Reading the web changes nothing: it counts as reading from outside, not as a change.
     if (webNames.has(call.name)) {

@@ -562,6 +562,7 @@
       "fromConnection": "Aus einem Lauf, den {connection} gestartet hat",
       "fromRequest": "Aus einem Lauf, den ein Inhaber angefordert hat",
       "fromSchedule": "Aus einem geplanten Lauf",
+      "replaces": "Ändert die Notiz:",
       "removedConnection": "eine entfernte Verbindung",
       "keep": "Behalten",
       "keepEdited": "Mit diesem Text behalten",

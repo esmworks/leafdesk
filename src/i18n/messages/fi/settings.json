@@ -562,6 +562,7 @@
       "fromConnection": "Yhteyden {connection} käynnistämästä ajosta",
       "fromRequest": "Omistajan pyytämästä ajosta",
       "fromSchedule": "Ajastetusta ajosta",
+      "replaces": "Muuttaa muistiinpanoa:",
       "removedConnection": "poistettu yhteys",
       "keep": "Säilytä",
       "keepEdited": "Säilytä tällä tekstillä",

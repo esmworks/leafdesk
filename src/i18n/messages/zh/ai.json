@@ -293,6 +293,7 @@
       "memory": {
         "remember": "已记住：",
         "propose": "提议了一条笔记：",
+        "handoff": "给下次运行留了笔记：",
         "forget": "已忘记：",
         "declined": {
           "remember": "已拒绝记住：",

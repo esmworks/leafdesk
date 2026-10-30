@@ -562,6 +562,7 @@
       "fromConnection": "Dari eksekusi yang dimulai oleh {connection}",
       "fromRequest": "Dari eksekusi yang diminta pemilik",
       "fromSchedule": "Dari eksekusi terjadwal",
+      "replaces": "Mengubah catatan:",
       "removedConnection": "koneksi yang dihapus",
       "keep": "Simpan",
       "keepEdited": "Simpan dengan teks ini",

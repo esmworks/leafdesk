@@ -64,6 +64,10 @@ export const MAX_AGENT_SKILL_CHARS = 12_000;
  * kept notes are bounded as the AI chat's are (MAX_MEMORIES, MAX_MEMORY_CHARS each).
  */
 export const MAX_AGENT_PROPOSALS = 10;
+/** Notes one run may propose: what it learned that lasts is rarely more than a fact or two. */
+export const MAX_PROPOSALS_PER_RUN = 2;
+/** The longest note a schedule's run leaves for its next run (where it left off). */
+export const MAX_HANDOFF_CHARS = 2_000;
 
 /** Where an agent's memory opens in Settings (its Memory tab), for its owners. */
 export const agentMemoryPath = (workspaceId: string, agentId: string) => `/w/${workspaceId}/settings?tab=agents&agent=${agentId}&agentTab=memory`;
@@ -460,6 +464,8 @@ export type AgentMemoryView = {
     /** Another owner asked for it, or a schedule of theirs without a database started it: its proposals' text is theirs alone. */
     othersRun: boolean;
   } | null;
+  /** A proposal's kept note it would change when kept (null: it would be a new note). */
+  replaces: { id: string; text: string } | null;
   createdAt: string;
   updatedAt: string;
 };

@@ -562,6 +562,7 @@
       "fromConnection": "من تشغيل بدأه {connection}",
       "fromRequest": "من تشغيل طلبه أحد المالكين",
       "fromSchedule": "من تشغيل مجدول",
+      "replaces": "يغيّر الملاحظة:",
       "removedConnection": "اتصال تمت إزالته",
       "keep": "احتفاظ",
       "keepEdited": "الاحتفاظ بهذا النص",

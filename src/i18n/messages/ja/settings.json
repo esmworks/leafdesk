@@ -562,6 +562,7 @@
       "fromConnection": "{connection}によって開始された実行から",
       "fromRequest": "オーナーが依頼した実行から",
       "fromSchedule": "スケジュールされた実行から",
+      "replaces": "変更するメモ:",
       "removedConnection": "削除された接続",
       "keep": "保持",
       "keepEdited": "このテキストで保持",

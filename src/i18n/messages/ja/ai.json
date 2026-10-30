@@ -293,6 +293,7 @@
       "memory": {
         "remember": "記憶しました：",
         "propose": "メモを提案しました：",
+        "handoff": "次回の実行へのメモを残しました:",
         "forget": "忘れました：",
         "declined": {
           "remember": "記憶が拒否されました：",

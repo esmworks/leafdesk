@@ -562,6 +562,7 @@
       "fromConnection": "From a run started by {connection}",
       "fromRequest": "From a run an owner asked for",
       "fromSchedule": "From a scheduled run",
+      "replaces": "Changes the kept note:",
       "removedConnection": "a removed connection",
       "keep": "Keep",
       "keepEdited": "Keep with this text",

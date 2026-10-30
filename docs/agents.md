@@ -227,7 +227,21 @@ owners see the proposals with the run's row and time, keep one as it is or chang
 they also write, change and delete notes, and make it forget everything. An owner who can't open a
 proposal's row doesn't see its text (it may quote the row) and can only dismiss it, nor does one
 whose proposal came from a run another owner asked for or scheduled without a database. A run may drop a
-note at once with `forget`, which loses at most that note. Runs no member stands behind (an
+note at once with `forget`, which loses at most that note. A note is meant to stay true for
+months; runs are told never to propose progress (what they checked, what remains, counts, row
+positions), and one run proposes at most two notes. When a kept note is incomplete or out of date,
+a run proposes its new text instead of a second note: the *Memory* tab shows the note it would
+change, crossed out, above the new text, and *Keep* changes that note in place. A schedule's run
+also sees the proposals of the same schedule's earlier runs that still wait, and changes one
+rather than proposing it again; the newer text takes its place.
+
+**Where a schedule's run left off.** A run of a schedule often can't finish everything (a
+connected service lets it read only so much at a time). It leaves where it stopped with
+`note_for_next_run`, a step of the run with credentials masked, and the same schedule's next run
+reads it first. That note needs no owner: it goes only to the next run of the same schedule, set
+by the same owner, on the same database and with the same task, which reads the same data anyway;
+each run's note takes the place of the one before, and changing the schedule's task starts afresh.
+Runs no member stands behind (an
 anonymous or outside form answer, an event from a trigger no owner marked trusted) get neither
 tool, but the kept notes go with them too. Kept notes reach the model as data, never as
 instructions, and never widen what the agent may change; like its instructions, what they say may
@@ -235,15 +249,17 @@ end up in the rows it writes, whoever started the run. An agent keeps up to 30 n
 characters; up to 10 proposals wait at once, and one no owner answered goes when its run is
 removed after 30 days. Archived agents keep their notes: owners can still delete them, or dismiss
 proposals, but not add, change or keep notes until the agent is restored. With the workspace's *AI memory* switch off
-(Settings → General → AI), no run carries notes or proposes any; the notes stay. Keeping, dismissing, writing, changing and deleting notes is recorded in the audit log as
+(Settings → General → AI), no run carries notes, proposes any or reads where an earlier run left
+off; the notes stay. Keeping, dismissing, writing, changing and deleting notes is recorded in the audit log as
 a change to the agent, counted, without the notes' text. MCP's `get_agent` lists the kept notes and
-the proposals.
+the proposals, each with the note it would change (`replaces`).
 
-When a run proposes a note, each owner of the workspace gets one inbox item for that run (and a
-push notification, without the note's text), whatever their notification choices, and no email.
-It shows the first proposal's text, unless the run was on a row that owner can't open, and how
-many more the run proposed; opening it opens the agent's *Memory* tab. It can be snoozed, and goes
-away once every proposal of the run has been kept or dismissed (or dropped by a later run). Over
+When a run proposes a note, each owner of the workspace who has no item for that agent yet gets one
+inbox item (and a push notification, without the note's text), whatever their notification
+choices, and no email: one per agent, however many runs propose. It shows the first proposal's
+text, unless the run was on a row that owner can't open, and how many of the agent's proposals
+wait; opening it opens the agent's *Memory* tab. It can be snoozed, and goes away once every
+proposal of the agent has been kept or dismissed (or dropped by a later run). Over
 MCP, owners keep and dismiss proposals, and write, change and delete notes, with
 `change_agent_memory`; `list_notifications` shows the inbox item with the agent's and run's ids.
 
