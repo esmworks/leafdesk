@@ -3,10 +3,11 @@ import type { FetchMessageObject, ImapFlow } from "imapflow";
 import { simpleParser } from "mailparser";
 import { db } from "@/db";
 import { mailbox } from "@/db/schema";
-import { bareMessageId, dmarcFailed, isAutomated, MAX_MAIL_BYTES, normalizeAddress, parseMessageIds, type FolderState, type MailboxFolders } from "@/lib/mail";
+import { bareMessageId, dmarcFailed, isAutomated, MAX_MAIL_BYTES, normalizeAddress, parseHeaderBlock, parseMessageIds, type FolderState, type MailboxFolders } from "@/lib/mail";
 import { findMembership, isGuest } from "@/server/access";
 import { startSweep } from "@/server/sweep";
 import { workspaceSettings } from "@/server/workspaces";
+import { indexMailbox, isIndexed } from "@/server/mail-client/indexer";
 import { connectError, openImap } from "./connect";
 import { withMailCredentials } from "./credentials";
 import { matchAddresses, matchThread, type RowMatch } from "./match";
@@ -25,18 +26,7 @@ const HEADERS = ["references", "auto-submitted", "precedence", "authentication-r
 
 type Box = typeof mailbox.$inferSelect;
 
-/** Header fields of a raw header block, unfolded, by lower-case name. */
-export function parseHeaderBlock(raw: Buffer | string | undefined): Map<string, string[]> {
-  const out = new Map<string, string[]>();
-  const text = (typeof raw === "string" ? raw : (raw?.toString("utf8") ?? "")).replace(/\r\n/g, "\n").replace(/\n[ \t]+/g, " ");
-  for (const line of text.split("\n")) {
-    const colon = line.indexOf(":");
-    if (colon <= 0) continue;
-    const name = line.slice(0, colon).trim().toLowerCase();
-    out.set(name, [...(out.get(name) ?? []), line.slice(colon + 1).trim()]);
-  }
-  return out;
-}
+export { parseHeaderBlock };
 
 const list = (addresses: { address?: string }[] | undefined) =>
   (addresses ?? []).map((a) => normalizeAddress(a.address)).filter((a): a is string => !!a);
@@ -142,6 +132,11 @@ export async function syncMailbox(box: Box) {
       for (const kind of ["inbox", "sent"] as const) {
         const state = folders[kind];
         if (state) folders[kind] = await readFolder(client, box, kind, state);
+      }
+      // The Mail tab's index, for owners who opened it, on the same connection. Its failures are
+      // its own: they don't mark the mailbox as failing for mail on rows.
+      if (await isIndexed(box.id)) {
+        await indexMailbox(client, box).catch((error) => console.warn(`[mail-client] could not index mailbox ${box.id}: ${(error as Error)?.message}`));
       }
     } finally {
       await client.logout().catch(() => {});

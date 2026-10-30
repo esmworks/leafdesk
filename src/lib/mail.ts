@@ -183,3 +183,16 @@ export type OwnMailbox = {
 export const rowEmailHash = (rowEmailId: string) => `#email-${rowEmailId}`;
 /** The message a link fragment opens, if it is one (see rowEmailHash). */
 export const rowEmailFromHash = (hash: string) => /^#email-([\w-]+)$/.exec(hash)?.[1] ?? null;
+
+/** Header fields of a raw header block, unfolded, by lower-case name. */
+export function parseHeaderBlock(raw: Buffer | string | undefined): Map<string, string[]> {
+  const out = new Map<string, string[]>();
+  const text = (typeof raw === "string" ? raw : (raw?.toString("utf8") ?? "")).replace(/\r\n/g, "\n").replace(/\n[ \t]+/g, " ");
+  for (const line of text.split("\n")) {
+    const colon = line.indexOf(":");
+    if (colon <= 0) continue;
+    const name = line.slice(0, colon).trim().toLowerCase();
+    out.set(name, [...(out.get(name) ?? []), line.slice(colon + 1).trim()]);
+  }
+  return out;
+}

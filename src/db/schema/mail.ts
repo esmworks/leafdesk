@@ -1,6 +1,7 @@
 import { sql } from "drizzle-orm";
 import { boolean, check, index, integer, jsonb, pgTable, primaryKey, text, timestamp, uniqueIndex } from "drizzle-orm/pg-core";
 import type { MailboxAuth, MailboxFolders, MailboxStatus, RowEmailDirection, RowEmailStatus } from "../../lib/mail";
+import type { MailAddress, MailFolderRole } from "../../lib/mail-client";
 import { page, workspace } from "./app";
 import { user } from "./auth";
 import { file } from "./files";
@@ -173,4 +174,91 @@ export const rowEmailAttachment = pgTable(
     contentId: text("content_id"),
   },
   (t) => [primaryKey({ columns: [t.rowEmailId, t.fileId] }), index("row_email_attachment_file_idx").on(t.fileId)],
+);
+
+/**
+ * A folder of a member's mailbox as the Mail tab lists it (server/mail-client): where reading its
+ * messages' headers has got to, newest and oldest, so the list opens without asking the mail
+ * server. Made the first time the mailbox's owner opens Mail; nothing is kept before that.
+ */
+export const mailFolder = pgTable(
+  "mail_folder",
+  {
+    id: text("id")
+      .primaryKey()
+      .$defaultFn(() => crypto.randomUUID()),
+    mailboxId: text("mailbox_id")
+      .notNull()
+      .references(() => mailbox.id, { onDelete: "cascade" }),
+    path: text("path").notNull(),
+    name: text("name").notNull(),
+    /** What the folder is for, from the server's marks or its name (lib/mail-client.ts); null for the owner's own. */
+    role: text("role").$type<MailFolderRole>(),
+    delimiter: text("delimiter"),
+    uidValidity: text("uid_validity").notNull().default(""),
+    /** The newest message read; later ones are new. */
+    lastUid: integer("last_uid").notNull().default(0),
+    /** Reading back in time has got down to here; 1 or less once nothing older is wanted. */
+    oldestUid: integer("oldest_uid").notNull().default(0),
+    /** CONDSTORE's mark of the last flag change seen, where the server keeps one. */
+    modseq: text("modseq"),
+    unseen: integer("unseen").notNull().default(0),
+    total: integer("total").notNull().default(0),
+    position: integer("position").notNull().default(0),
+    syncedAt: timestamp("synced_at", { withTimezone: true }),
+  },
+  (t) => [uniqueIndex("mail_folder_path_idx").on(t.mailboxId, t.path)],
+);
+
+/**
+ * A message's headers in a folder of a member's mailbox: who, to whom, the subject, the first line,
+ * the flags, the thread it belongs to. Its body and attachments stay on the mail server and are
+ * read from there when the owner opens it. Only the mailbox's owner reads these.
+ */
+export const mailMessage = pgTable(
+  "mail_message",
+  {
+    id: text("id")
+      .primaryKey()
+      .$defaultFn(() => crypto.randomUUID()),
+    mailboxId: text("mailbox_id")
+      .notNull()
+      .references(() => mailbox.id, { onDelete: "cascade" }),
+    folderId: text("folder_id")
+      .notNull()
+      .references(() => mailFolder.id, { onDelete: "cascade" }),
+    uid: integer("uid").notNull(),
+    /** The Message-ID without brackets; the same message in two folders shares it. */
+    messageId: text("message_id"),
+    /** The thread it is in, worked out when it is read (server/mail-client/threads.ts). */
+    threadId: text("thread_id").notNull(),
+    inReplyTo: text("in_reply_to"),
+    references: text("references").array().notNull().default(sql`'{}'::text[]`),
+    fromAddress: text("from_address").notNull().default(""),
+    fromName: text("from_name"),
+    to: jsonb("to").$type<MailAddress[]>().notNull().default([]),
+    cc: jsonb("cc").$type<MailAddress[]>().notNull().default([]),
+    subject: text("subject").notNull().default(""),
+    /** The subject without Re:/Fwd: and case, which replies without references are threaded by. */
+    subjectKey: text("subject_key").notNull().default(""),
+    /** The start of its text, for the list. */
+    preview: text("preview").notNull().default(""),
+    sentAt: timestamp("sent_at", { withTimezone: true }).notNull(),
+    seen: boolean("seen").notNull().default(false),
+    flagged: boolean("flagged").notNull().default(false),
+    answered: boolean("answered").notNull().default(false),
+    draft: boolean("draft").notNull().default(false),
+    hasAttachments: boolean("has_attachments").notNull().default(false),
+    size: integer("size").notNull().default(0),
+  },
+  (t) => [
+    uniqueIndex("mail_message_uid_idx").on(t.folderId, t.uid),
+    index("mail_message_folder_idx").on(t.folderId, t.sentAt),
+    index("mail_message_thread_idx").on(t.mailboxId, t.threadId),
+    index("mail_message_id_idx").on(t.mailboxId, t.messageId),
+    index("mail_message_subject_idx").on(t.mailboxId, t.subjectKey, t.sentAt),
+    // Read back in time, replies come before what they answer: these find them when it arrives.
+    index("mail_message_reply_idx").on(t.mailboxId, t.inReplyTo),
+    index("mail_message_references_idx").using("gin", t.references),
+  ],
 );

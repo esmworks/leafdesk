@@ -26,7 +26,7 @@ const SEND_LEASE_MINUTES = 10;
 /** Messages a sweep sends. */
 const BATCH = 10;
 /** Servers that put what is sent through them in the sent folder themselves. */
-const SAVES_SENT = ["imap.gmail.com"];
+export const SAVES_SENT = ["imap.gmail.com"];
 
 export type RowEmailDraft = {
   to: string[];
@@ -212,7 +212,7 @@ async function send(email: typeof rowEmail.$inferSelect) {
 type Mailbox = typeof mailbox.$inferSelect;
 
 /** Sends a composed message through the mailbox's server; throws what the server answered. */
-async function sendRaw(box: Mailbox, raw: Buffer, recipients: string[]) {
+export async function sendRaw(box: Mailbox, raw: Buffer, recipients: string[]) {
   await withMailCredentials(box, async (credentials) => {
     const transport = await smtpTransport(credentials);
     try {
@@ -223,13 +223,13 @@ async function sendRaw(box: Mailbox, raw: Buffer, recipients: string[]) {
   });
 }
 
-/** Puts a sent message in the mailbox's sent folder, where its server doesn't itself; a failure only warns. */
-async function keepSent(box: Mailbox, raw: Buffer) {
-  if (!box.folders.sent || SAVES_SENT.includes(box.imapHost)) return;
+/** Puts a sent message in the mailbox's sent folder (or `path`), where its server doesn't itself; a failure only warns. */
+export async function keepSent(box: Mailbox, raw: Buffer, path = box.folders.sent?.path) {
+  if (!path || SAVES_SENT.includes(box.imapHost)) return;
   try {
     const client = await withMailCredentials(box, openImap);
     try {
-      await client.append(box.folders.sent.path, raw, ["\\Seen"]);
+      await client.append(path, raw, ["\\Seen"]);
     } finally {
       await client.logout().catch(() => {});
     }

@@ -186,6 +186,8 @@ export const LEFT_OUT: Record<string, string> = {
   storage_account: "people's own file storage and its keys, connected again on the new server",
   storage_oauth: "storage sign-ins in progress",
   mailbox_oauth: "mailbox sign-ins with Google in progress",
+  mail_folder: "the Mail tab's folders of members' mailboxes, read again once a mailbox is connected on the new server",
+  mail_message: "the headers of members' own mail, kept for the Mail tab and read again from the mail server",
   storage_move: "moves of files between storages on the old server",
   ai_conversation: "people's AI chats, which only each of them may read",
   ai_saved_prompt: "the prompts each person saved for the AI assistant, theirs alone like their chats",
