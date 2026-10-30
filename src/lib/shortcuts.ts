@@ -9,6 +9,8 @@
  * "Mod" for ⌘ on Apple devices and Ctrl elsewhere.
  */
 
+import { detectPlatform, matchesKeyboardEvent, type HotkeyChord } from "@tanstack/hotkeys";
+
 type Texts = typeof import("@/i18n/messages/en/shortcuts.json");
 
 export type Combo = readonly string[];
@@ -166,7 +168,20 @@ export function comboText(combo: Combo, mac: boolean): string {
 
 type KeyEventLike = Pick<KeyboardEvent, "key" | "code" | "metaKey" | "ctrlKey" | "altKey" | "shiftKey" | "defaultPrevented" | "isComposing"> & {
   target: EventTarget | null;
+  getModifierState?: (key: string) => boolean;
 };
+
+/**
+ * Whether a key press is a combination such as "Mod+Alt+T", through TanStack Hotkeys' matcher: by
+ * the letter the layout types (Ctrl+S on a Turkish F keyboard is the key labelled S, wherever it
+ * sits), by the key's place when the modifiers type something else (Option+T is "†" on a Mac,
+ * Ctrl+S is "ы" on a Russian keyboard), and never while AltGr types a character (AltGr+T is "₺"
+ * on a Turkish Q keyboard, reported as Ctrl+Alt+T on Windows).
+ */
+function pressed(e: KeyEventLike, combo: string, mac: boolean): boolean {
+  const platform = mac ? "mac" : detectPlatform() === "linux" ? "linux" : "windows";
+  return matchesKeyboardEvent(e as KeyboardEvent, combo as HotkeyChord, platform);
+}
 
 /** Text fields and the editor, where "?" is typed rather than a shortcut. */
 export function isEditable(target: EventTarget | null): boolean {
@@ -186,27 +201,24 @@ export function opensShortcuts(e: KeyEventLike, mac: boolean): boolean {
   return e.key === "?" && !e.metaKey && !e.ctrlKey && !isEditable(e.target);
 }
 
-/**
- * Whether a key press presents the page: Mod+Alt+P. Matched by the key's place rather than its
- * character, since Option+P types "π" on a Mac and Ctrl+Alt is AltGr on many other keyboards.
- */
+/** Whether a key press presents the page: Mod+Alt+P (see pressed for which keys count). */
 export function opensPresentation(e: KeyEventLike, mac: boolean): boolean {
-  if (e.defaultPrevented || e.isComposing || e.shiftKey || !e.altKey || e.code !== "KeyP") return false;
-  return mac ? e.metaKey && !e.ctrlKey : e.ctrlKey && !e.metaKey;
+  if (e.defaultPrevented || e.isComposing) return false;
+  return pressed(e, "Mod+Alt+P", mac);
 }
 
 /**
- * Whether a key press saves the page as a version: Mod+S (SAVE_VERSION_COMBO), matched by the key's
- * place. Not with Shift (Mod+Shift+S strikes text through) or Alt.
+ * Whether a key press saves the page as a version: Mod+S (SAVE_VERSION_COMBO). Not with Shift
+ * (Mod+Shift+S strikes text through) or Alt.
  */
 export function savesVersion(e: KeyEventLike, mac: boolean): boolean {
-  if (e.defaultPrevented || e.isComposing || e.shiftKey || e.altKey || e.code !== "KeyS") return false;
-  return mac ? e.metaKey && !e.ctrlKey : e.ctrlKey && !e.metaKey;
+  if (e.defaultPrevented || e.isComposing) return false;
+  return pressed(e, SAVE_VERSION_COMBO.join("+"), mac);
 }
 
 /**
- * Which of a table row's menu actions a key press asks for (ROW_MENU_COMBOS), matched by the key's
- * place so Shift and other layouts don't change it; Del only outside a field with text in it.
+ * Which of a table row's menu actions a key press asks for (ROW_MENU_COMBOS); Del only outside a
+ * field with text in it.
  */
 export function rowMenuShortcut(e: KeyEventLike, mac: boolean): keyof typeof ROW_MENU_COMBOS | null {
   if (e.defaultPrevented || e.isComposing || e.altKey) return null;
@@ -214,29 +226,23 @@ export function rowMenuShortcut(e: KeyEventLike, mac: boolean): keyof typeof ROW
     const field = e.target as HTMLInputElement | null;
     return isEditable(field) && field?.value ? null : "trash";
   }
-  if (!(mac ? e.metaKey && !e.ctrlKey : e.ctrlKey && !e.metaKey)) return null;
-  if (e.code === "KeyD" && !e.shiftKey) return "duplicate";
-  if (e.code === "KeyP" && e.shiftKey) return "moveTo";
-  if (e.code === "KeyM" && e.shiftKey) return "comment";
+  if (pressed(e, ROW_MENU_COMBOS.duplicate.join("+"), mac)) return "duplicate";
+  if (pressed(e, ROW_MENU_COMBOS.moveTo.join("+"), mac)) return "moveTo";
+  if (pressed(e, ROW_MENU_COMBOS.comment.join("+"), mac)) return "comment";
   return null;
 }
 
-/**
- * Whether a key press opens or closes every toggle and group: Mod+Alt+T, matched by the key's place
- * (Option+T types "†" on a Mac, and Ctrl+Alt is AltGr on many other keyboards).
- */
+/** Whether a key press opens or closes every toggle and group: Mod+Alt+T (TOGGLE_ALL_COMBO). */
 export function opensToggleAll(e: KeyEventLike, mac: boolean): boolean {
-  if (e.defaultPrevented || e.isComposing || e.shiftKey || !e.altKey || e.code !== "KeyT") return false;
-  return mac ? e.metaKey && !e.ctrlKey : e.ctrlKey && !e.metaKey;
+  if (e.defaultPrevented || e.isComposing) return false;
+  return pressed(e, TOGGLE_ALL_COMBO.join("+"), mac);
 }
 
 /**
- * Which of the table grid's actions a key press asks for: "fillDown" for Mod+D (FILL_DOWN_COMBO),
- * matched by the key's place like rowMenuShortcut. What it does depends on the selection: see
- * components/database/use-cell-grid.ts.
+ * Which of the table grid's actions a key press asks for: "fillDown" for Mod+D (FILL_DOWN_COMBO).
+ * What it does depends on the selection: see components/database/use-cell-grid.ts.
  */
 export function cellGridShortcut(e: KeyEventLike, mac: boolean): "fillDown" | null {
-  if (e.defaultPrevented || e.isComposing || e.altKey || e.shiftKey) return null;
-  if (!(mac ? e.metaKey && !e.ctrlKey : e.ctrlKey && !e.metaKey)) return null;
-  return e.code === "KeyD" ? "fillDown" : null;
+  if (e.defaultPrevented || e.isComposing) return null;
+  return pressed(e, FILL_DOWN_COMBO.join("+"), mac) ? "fillDown" : null;
 }

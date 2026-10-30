@@ -109,6 +109,13 @@ describe("savesVersion", () => {
     expect(savesVersion(press("s", { code: "KeyS", metaKey: true }), false)).toBe(false);
   });
 
+  it("goes by the letter a Latin layout types, not the key's place", () => {
+    // Turkish F: the key labelled S sits where the US layout has M, and İ where it has S.
+    expect(savesVersion(press("s", { code: "KeyM", ctrlKey: true }), false)).toBe(true);
+    expect(savesVersion(press("s", { code: "KeyM", metaKey: true }), true)).toBe(true);
+    expect(savesVersion(press("i", { code: "KeyS", ctrlKey: true }), false)).toBe(false);
+  });
+
   it("leaves strikethrough's Mod+Shift+S, Alt, other keys and keys something else handled", () => {
     expect(savesVersion(press("S", { code: "KeyS", metaKey: true, shiftKey: true }), true)).toBe(false);
     expect(savesVersion(press("ß", { code: "KeyS", metaKey: true, altKey: true }), true)).toBe(false);
@@ -153,6 +160,15 @@ describe("opensToggleAll", () => {
     expect(opensToggleAll(press("t", { code: "KeyT", metaKey: true, altKey: true, defaultPrevented: true } as never), true)).toBe(false);
   });
 
+  it("goes by the letter a Latin layout types, and leaves AltGr typing alone", () => {
+    // Turkish F: the key labelled T sits where the US layout has H, and O where it has T.
+    expect(opensToggleAll(press("t", { code: "KeyH", ctrlKey: true, altKey: true }), false)).toBe(true);
+    expect(opensToggleAll(press("o", { code: "KeyT", ctrlKey: true, altKey: true }), false)).toBe(false);
+    // Turkish Q on Windows: AltGr+T types "₺" and comes as Ctrl+Alt+T.
+    const altGr = (key: string) => key === "AltGraph";
+    expect(opensToggleAll(press("₺", { code: "KeyT", ctrlKey: true, altKey: true, getModifierState: altGr }), false)).toBe(false);
+  });
+
   it("lists strikethrough's second key and copying a block's link", () => {
     const combos = (id: string) => SHORTCUT_GROUPS.flatMap((group) => group.shortcuts).find((shortcut) => shortcut.id === id)?.combos.map((c) => c.join("-"));
     expect(combos("strike")).toEqual(["Mod-Shift-S", "Mod-Shift-X"]);
@@ -165,8 +181,14 @@ describe("cellGridShortcut", () => {
   it("fills down on Mod+D, by the key's place", () => {
     expect(cellGridShortcut(press("d", { code: "KeyD", metaKey: true }), true)).toBe("fillDown");
     expect(cellGridShortcut(press("d", { code: "KeyD", ctrlKey: true }), false)).toBe("fillDown");
-    // Another layout's letter on the same key.
-    expect(cellGridShortcut(press("e", { code: "KeyD", ctrlKey: true }), false)).toBe("fillDown");
+    // A letter of another script on the same key: Ctrl+D on a Russian keyboard types "в".
+    expect(cellGridShortcut(press("в", { code: "KeyD", ctrlKey: true }), false)).toBe("fillDown");
+  });
+
+  it("goes by the letter a Latin layout types, not the key's place", () => {
+    // Turkish F: D sits where the US layout has Y, and the key in D's place types E.
+    expect(cellGridShortcut(press("d", { code: "KeyY", ctrlKey: true }), false)).toBe("fillDown");
+    expect(cellGridShortcut(press("e", { code: "KeyD", ctrlKey: true }), false)).toBe(null);
   });
 
   it("leaves other combinations alone", () => {

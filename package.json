@@ -55,6 +55,7 @@
     "@shikijs/engine-javascript": "^4.5.0",
     "@shikijs/langs-precompiled": "^4.5.0",
     "@shikijs/themes": "^4.5.0",
+    "@tanstack/hotkeys": "0.18.0",
     "@tanstack/react-virtual": "3.14.13",
     "@tiptap/core": "^3.31.3",
     "aws4fetch": "^1.0.20",

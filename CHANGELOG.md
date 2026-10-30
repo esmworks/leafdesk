@@ -85,6 +85,14 @@
 
 ### Fixed
 
+- **Shortcuts follow the letters on your keyboard, and AltGr types again.** Saving a version,
+  presenting, opening or closing every toggle, filling cells down and a table row menu's keys went
+  by a key's place on a US keyboard, so on a Turkish F keyboard Ctrl+S was the key labelled İ, and
+  the key labelled S left the browser to save the web page. On Windows, AltGr+T on a Turkish Q
+  keyboard ran Ctrl+Alt+T instead of typing ₺. They now take the letter the keyboard types, fall
+  back to the key's place when a modifier changes the character (Option on a Mac, Cyrillic layouts)
+  and leave AltGr typing alone. Matching uses TanStack Hotkeys' core (`@tanstack/hotkeys`).
+
 - **An AI chat answer goes on while you visit other pages.** Leaving the full-page chat, or
   closing the chat panel, while an answer was on its way stopped it; when nothing had been written
   yet, the question and its new conversation were gone when you came back. The answer now keeps

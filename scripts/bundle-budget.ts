@@ -96,8 +96,12 @@ import { gzipSync } from "node:zlib";
  * An AI chat answer that goes on through a reload (its run id, Stop on the server, following it
  * again) reads its stream in a module loaded with the first answer, but useChat, held beside every
  * workspace page, still adds about 0.1 kB to a page's first load.
+ *
+ * Shortcuts matched by the letters a keyboard types (TanStack Hotkeys' matcher in lib/shortcuts.ts,
+ * which the sidebar and pages load) add about 1 kB to a page's first load and about 2 kB to all
+ * first loads together.
  */
-const BUDGET = { routeFirstLoad: 784, firstLoadShared: 1194, onDemandChunk: 450 };
+const BUDGET = { routeFirstLoad: 786, firstLoadShared: 1196, onDemandChunk: 450 };
 
 const NEXT = ".next";
 const kB = (bytes: number) => bytes / 1024;
