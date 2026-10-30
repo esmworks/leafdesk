@@ -116,6 +116,10 @@
 
 ### Changed
 
+- **A database's tabs and toolbar scroll away with the page.** On a full database page they no
+  longer stay at the top as you scroll down; only a table's column names do, right under the
+  page's top bar, so more rows fit on the screen.
+
 - **The AI chat panel makes room instead of covering the page.** While it is open beside a
   page, the page, a row open beside its database and a database's history end where the chat
   starts, rather than lying under it. The chat and a page's comments or graph now show one at a

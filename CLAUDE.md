@@ -97,9 +97,9 @@ BlockNote on Yjs; Tailwind v4; next-intl. Node 24, pnpm 11. A separate Electron 
   A table's header row is a `<table>` of its own in a sticky box above the rows' box (that box
   scrolls sideways, so `sticky` inside it would hold to it, not the page); the two follow each
   other's `scrollLeft`, and the rows' table keeps a zero-height header row for screen readers and
-  as `useTableWindow`'s `start`. A full page's view bar sticks too and sets `--view-bar-height`;
-  both paint a background only while stuck (`components/use-stuck-mark.ts`), so a page's pattern
-  shows through at rest.
+  as `useTableWindow`'s `start`. The view bar (tabs, toolbar) scrolls away; only the header row
+  sticks, under the page's top bar, and paints a background only while stuck
+  (`components/use-stuck-mark.ts`), so a page's pattern shows through at rest.
   Grouped lists and galleries share `components/database/view-sections.tsx` (the header is
   `GroupHeader` in `group-label.tsx`, also a board's sub-group); a board's sub-groups
   (`subGroupBy`) use the default date and status grouping. A new property-id field of `ViewConfig`

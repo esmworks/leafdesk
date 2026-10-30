@@ -815,10 +815,9 @@ export function TableView({
   );
 
   return (
-    // The header row stays under the page's top bar (and a full page's view bar, which
-    // database-page.tsx measures into --view-bar-height) until the table's end scrolls past it.
+    // The header row stays under the page's top bar until the table's end scrolls past it.
     <div
-      className="[--table-head-top:2.75rem] md:[--table-head-top:calc(2.75rem+var(--view-bar-height,0px))]"
+      className="[--table-head-top:2.75rem]"
       style={{ "--table-handles": `${handles + 8}px` } as React.CSSProperties}
     >
       {/* A box of its own: inside the rows' box, which scrolls sideways, sticky would hold to that box
